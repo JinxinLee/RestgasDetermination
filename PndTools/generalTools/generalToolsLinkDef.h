@@ -7,6 +7,8 @@
 #pragma link C++ class PndFileNameCreator+;
 #pragma link C++ class PndStringSeparator+;
 #pragma link C++ class PndGeoHandling+;
+#pragma link C++ class PndSensorNameContFact+;
+#pragma link C++ class PndSensorNamePar+;
 
 #endif
 

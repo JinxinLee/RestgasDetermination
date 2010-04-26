@@ -11,43 +11,80 @@
 //
 #include "PndGeoHandling.h"
 #include "PndStringSeparator.h"
+
+#include "PndSensorNameContFact.h"
 #include <vector>
 #include <string>
 #include "TROOT.h"
 #include "TGeoVolume.h"
 #include "TGeoShape.h"
 #include "TGeoBBox.h"
+#include "TList.h"
 
 #include <math.h>
 #include "stdlib.h"
 
  ClassImp(PndGeoHandling);
 
-PndGeoHandling::PndGeoHandling()
+// PndGeoHandling * PndGeoHandling::fGeoHandlingInstance= 0;
+
+ //_____________________________________________________________________________
+/*PndGeoHandling * PndGeoHandling::Instance(){
+
+         return fGeoHandlingInstance;
+ }
+*/
+PndGeoHandling::PndGeoHandling():fVerbose(0)
 {
-	if (gGeoManager) {
-		fGeoMan = gGeoManager;
-	} else //if (gROOT->FindObjectAny("FAIRGeom") == 0)
-  {
-		std::cout << " -E- PndGeoHandling: No Geometry existing!" << std::endl;
+/*	if (fGeoHandlingInstance){
+		Fatal("PndGeoHandling", "Singleton instance already exists.");
 		return;
 	}
-//	fGeoMan = gGeoManager;
-  fVerbose = 0;
+	fGeoHandlingInstance = this;
+*/
+	if (gGeoManager) {
+		fGeoMan = gGeoManager;
+	} else
+	{
+		Fatal("PndGeoHandling","No gGeoManager");
+		return;
+	}
+
+	FairRun* ana = FairRun::Instance();
+	FairRuntimeDb* rtdb = ana->GetRuntimeDb();
+	if (fVerbose > 0){
+		std::cout << "-I- PndGeoHandling::PndGeoHandling: Container PndSensorNamePar ";
+		if (rtdb->findContainer("PndSensorNamePar"))
+			 std::cout << "exists already" << std::endl;
+		else
+			std::cout << "does not exist" << std::endl;
+	}
+
+	fSensorNamePar = (PndSensorNamePar*) (rtdb->getContainer("PndSensorNamePar"));
+	if (fSensorNamePar == 0) std::cout << "-W- PndGeoHandling::PndGeoHandling(): No fSensorNamePar!" << std::endl;
 }
 
-//PndGeoHandling::PndGeoHandling(TString fileName)
-//{
-//	if (gGeoManager) {
-//		fGeoMan = gGeoManager;
-//	}else if (gROOT->FindObjectAny("FAIRGeom") == 0){
-//		   fGeoMan = new TGeoManager("geoMan","geoMan");
-//  		 fGeoMan->Import(fileName.Data());
-//	}
-////	fGeoMan = gGeoManager;
-//  fVerbose = 0;
-//}
+/*PndGeoHandling::PndGeoHandling(TGeoManager* aGeoMan):fVerbose(0) {
+	if (aGeoMan == 0){
+		std::cout << "-E- PndGeoHandling: Not a valid GeoManager"	<< std::endl;
+		abort();
+	}
+	fGeoMan = aGeoMan;
 
+	FairRun* ana = FairRun::Instance();
+	FairRuntimeDb* rtdb = ana->GetRuntimeDb();
+	if (fVerbose > 0){
+		std::cout << "-I- PndGeoHandling::PndGeoHandling: Container PndSensorNamePar ";
+		if (rtdb->findContainer("PndSensorNamePar"))
+			 std::cout << "exists already" << std::endl;
+		else
+			std::cout << "does not exist" << std::endl;
+	}
+
+	fSensorNamePar = (PndSensorNamePar*) (rtdb->getContainer("PndSensorNamePar"));
+	if (fSensorNamePar == 0) std::cout << "-W- PndGeoHandling::PndGeoHandling(TGeoManager*): No fSensorNamePar!" << std::endl;
+}
+*/
 TString PndGeoHandling::GetCurrentID()
 {
  Int_t level;
@@ -76,6 +113,26 @@ TString PndGeoHandling::GetID(TString path)
 	result = GetCurrentID();
 	fGeoMan->cd(currentPath.Data());
 	return result;
+}
+
+Int_t PndGeoHandling::GetShortID(TString path)
+{
+	TObjString myPath(path.Data());
+	if (fSensorNamePar != 0)
+		return fSensorNamePar->SensorInList(&myPath);
+	else
+		std::cout << "-E- PndMvdGeoHandling::GetShortID: SensorNamePar is missing!"	<< std::endl;
+	return -1;
+}
+
+TString PndGeoHandling::GetPath(Int_t shortID)
+{
+	if (fSensorNamePar != 0)
+		return *(fSensorNamePar->GetSensorName(shortID));
+	else {
+		std::cout << "-E- PndMvdGeoHandling::GetPath(Int_t shortID): Missing SensorNamePar"	<< std::endl;
+		abort();
+	}
 }
 
 
@@ -348,6 +405,49 @@ void PndGeoHandling::DiveDownToNode(TGeoNode* node)
   }
 }
 
+void PndGeoHandling::DiveDownToNodeContainingString(TString name)
+{
+	TGeoNode *currentNode = fGeoMan->GetCurrentNode();
+	TString nodeName(currentNode->GetName());
+	if (nodeName.Contains(name)){
+		return;
+	}
+	for (Int_t iNod = 0; iNod < currentNode->GetNdaughters(); iNod++) {
+		fGeoMan->CdDown(iNod);
+		DiveDownToNodeContainingString( name);
+		nodeName = fGeoMan->GetCurrentNode()->GetName();
+		if (nodeName.Contains(name)){
+			return;
+		}
+		fGeoMan->CdUp();
+	}
+}
+
+void PndGeoHandling::DiveDownToFillSensNamePar(std::vector<std::string> listOfSensitives)
+{
+	if (fSensorNamePar != 0){
+		TGeoNode *currentNode = fGeoMan->GetCurrentNode();
+		TString nodeName(currentNode->GetName());
+		//std::cout << nodeName.Data() << std::endl;
+		if (VolumeIsSensitive(nodeName, listOfSensitives)){
+			TObjString* myName = new TObjString(fGeoMan->GetPath());
+			fSensorNamePar->AddSensorName(myName);
+		}
+		for (Int_t iNod = 0; iNod < currentNode->GetNdaughters(); iNod++) {
+			fGeoMan->CdDown(iNod);
+			DiveDownToFillSensNamePar(listOfSensitives);
+			nodeName = fGeoMan->GetCurrentNode()->GetName();
+			if (VolumeIsSensitive(nodeName, listOfSensitives)){
+				TObjString* myName = new TObjString(fGeoMan->GetPath());
+				fSensorNamePar->AddSensorName(myName);
+			}
+			fGeoMan->CdUp();
+		}
+	}
+	else
+		std::cout << "-E- PndMvdGeoHandling::DiveDownToFillSensNamePar: fSensorNamePar does not exist!" << std::endl;
+}
+
 void PndGeoHandling::cd(TGeoNode* node)
 {
   // go to a node in the gGeoManager without knowing the full path
@@ -356,5 +456,27 @@ void PndGeoHandling::cd(TGeoNode* node)
   DiveDownToNode(node);
   return;
 }
+
+void PndGeoHandling::CreateUniqueSensorId(TString startName, std::vector<std::string> listOfSensitives)
+{
+	fGeoMan->CdTop();
+	DiveDownToNodeContainingString(startName);
+	if (fVerbose > 0)
+		std::cout << "-I- PndMvdGeoHandling::CreateUniqueSensorId: StartNode: " << fGeoMan->GetPath() << std::endl;
+	DiveDownToFillSensNamePar(listOfSensitives);
+}
+
+
+bool PndGeoHandling::VolumeIsSensitive(TString& path, std::vector<std::string>& listOfSensitives)
+{
+	for (int i = 0; i < listOfSensitives.size(); i++){
+		if (path.Contains(listOfSensitives[i].c_str()))
+			return true;
+	}
+	return false;
+}
+
+
+
 
 

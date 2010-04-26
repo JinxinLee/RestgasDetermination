@@ -6,6 +6,7 @@ set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
 ${CLHEP_INCLUDE_DIR} 
 ${CMAKE_SOURCE_DIR}/base 
+${CMAKE_SOURCE_DIR}/parbase
 ${CMAKE_SOURCE_DIR}/PndTools/generalTools
 )
 
@@ -21,6 +22,8 @@ set(GENERALTOOLS_SRCS
 PndFileNameCreator.cxx
 PndStringSeparator.cxx
 PndGeoHandling.cxx
+PndSensorNameContFact.cxx
+PndSensorNamePar.cxx
 )
 
 # fill list of header files from list of source files
