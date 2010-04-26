@@ -4,6 +4,7 @@
 #include "PndPidMvdPar.h"
 #include "FairRootManager.h"
 #include "TMath.h"
+#include "TF1.h"
 #include "Riostream.h"
 
 
@@ -102,14 +103,18 @@ void PndPidMvdAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProbabi
   //Kaon
   CanMpv=mvdPara->GetKaonMpv(pidcand->GetMomentum().Mag());
   CanSigma=mvdPara->GetKaonSigma(pidcand->GetMomentum().Mag());
-  //cout << GetPdf(pidcand->GetMvdDEDX(), CanMpv, CanSigma) << endl;
   prob->SetKaonPdf(GetPdf(pidcand->GetMvdDEDX(), CanMpv, CanSigma));
   //cout << "kaon:\t" << pidcand->GetMomentum().Mag() << "\t" << pidcand->GetMvdDEDX() << "\t" << CanMpv << "\t" << CanSigma << "\t" << prob->GetKaonPdf() << endl;
 }  
 
 Float_t PndPidMvdAssociatorTask::GetPdf(Float_t dedx, Float_t Mpv, Float_t Sigma)
 {
-  return TMath::Landau(dedx,Mpv,Sigma);
+  TF1 *landauPdf = new TF1("landauPdf","landaun",0,1);
+  landauPdf->SetParameter(0,1);
+  landauPdf->SetParameter(1,Mpv);
+  landauPdf->SetParameter(2,Sigma);
+
+  return landauPdf->Eval(dedx);
 }
 
 

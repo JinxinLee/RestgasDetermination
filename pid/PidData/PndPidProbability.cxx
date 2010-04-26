@@ -13,11 +13,11 @@
 
 PndPidProbability::PndPidProbability()		
 {
-  fElectronPdf = 0.;
-  fMuonPdf = 0.;
-  fPionPdf = 0.;
-  fKaonPdf = 0.;
-  fProtonPdf = 0.;  
+  fElectronPdf = 1.;
+  fMuonPdf = 1.;
+  fPionPdf = 1.;
+  fKaonPdf = 1.;
+  fProtonPdf = 1.;  
   fIndex = -1;
 }
 
