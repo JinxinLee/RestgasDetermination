@@ -6,13 +6,13 @@
 // The plane is a virtual detector plane defined via:
 // dj = wvi - vpf     (U coordinate in GFDetPlane)
 // dk = wiredirection (V coordinate in GFDetPlane)
-// (see GFWirepointHitPolicy.cxx)
+// (see GFWireHitPolicy.cxx)
 //
 // input: 8 entries
 // 0-1-2 ==> x,y,z of the 1st extremity of the firing wire;
 // 3-4-5 ==> x,y,z of the 2nd extremity of the firing wire;
 // 6     ==> drift radius;
-// 7     ==> reconstructed coordinate along the wire
+
 
 // This Class' Header ------------------
 #include "PndSttRecoHit.h"
@@ -41,13 +41,13 @@ PndSttRecoHit::~PndSttRecoHit()
 {}
 
 PndSttRecoHit::PndSttRecoHit()
-  : WirepointRecoHit(NparHitRep)
+  : WireHitRecoHit(NparHitRep)
 {
  
 }
 
-
-PndSttRecoHit::PndSttRecoHit(PndSttHit *currenthit) : WirepointRecoHit(NparHitRep){
+// TO BE CHANGED TO USE TUBE ARRAY
+PndSttRecoHit::PndSttRecoHit(PndSttHit *currenthit) : WireHitRecoHit(NparHitRep){
 
   FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
   PndGeoSttPar *sttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
@@ -55,10 +55,10 @@ PndSttRecoHit::PndSttRecoHit(PndSttHit *currenthit) : WirepointRecoHit(NparHitRe
   PndSttMapCreator *mapper = new PndSttMapCreator(sttParameters);
   PndSttTube *tube = (PndSttTube*) mapper->GetTubeFromTubeID(tubeID);
 
-  // wire1(3), wire2(3), rdrift, zreco
+  // wire1(3), wire2(3), rdrift
   TVector3 wiredirection = tube->GetWireDirection();
-  TVector3 wiredirection2 = tube->GetHalfLength() * wiredirection;                     // CHECK for short tubes
-  TVector3 cenposition = tube->GetPosition();  // CHECK! z = 35
+  TVector3 wiredirection2 = tube->GetHalfLength() * wiredirection; 
+  TVector3 cenposition = tube->GetPosition(); 
   TVector3 wire1, wire2;
   wire1 = cenposition - wiredirection2;
   wire2 = cenposition + wiredirection2;
@@ -73,18 +73,16 @@ PndSttRecoHit::PndSttRecoHit(PndSttHit *currenthit) : WirepointRecoHit(NparHitRe
   fHitCoord[4][0] = wire2.Y();
   fHitCoord[5][0] = wire2.Z();
   fHitCoord[6][0] = currenthit->GetIsochrone();
-  fHitCoord[7][0] = 0.; // currenthit->GetZ(); // to be changed into Zreco! CHECK
 
-  // errors on drift radius and z (by hand)
+  // errors on drift radius 
   for(int i = 0; i < NparHitRep; i++) for(int j = 0; j < NparHitRep; j++) fHitCov[i][j] = 0.;
   fHitCov[6][6] = 0.0100 * 0.0100; // currenthit->GetIsochroneError(); CHECK
-  fHitCov[7][7] = 1. * 1.;
 
   // cut on distance
   fPolicy.setMaxDistance(0.5);
 }
 
-PndSttRecoHit::PndSttRecoHit(PndSttHelixHit *currenthit) : WirepointRecoHit(NparHitRep){
+PndSttRecoHit::PndSttRecoHit(PndSttHelixHit *currenthit) : WireHitRecoHit(NparHitRep){
 
   FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
   PndGeoSttPar *sttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
@@ -92,10 +90,10 @@ PndSttRecoHit::PndSttRecoHit(PndSttHelixHit *currenthit) : WirepointRecoHit(Npar
   PndSttMapCreator *mapper = new PndSttMapCreator(sttParameters);
   PndSttTube *tube = (PndSttTube*) mapper->GetTubeFromTubeID(tubeID);
 
-  // wire1(3), wire2(3), rdrift, zreco
+  // wire1(3), wire2(3), rdrift
   TVector3 wiredirection = tube->GetWireDirection();
-  TVector3 wiredirection2 = tube->GetHalfLength() * wiredirection;                     // CHECK for short tubes
-  TVector3 cenposition = tube->GetPosition(); // CHECK! z = 35
+  TVector3 wiredirection2 = tube->GetHalfLength() * wiredirection;
+  TVector3 cenposition = tube->GetPosition();
   TVector3 wire1, wire2;
   wire1 = cenposition - wiredirection2;
   wire2 = cenposition + wiredirection2;
@@ -110,36 +108,27 @@ PndSttRecoHit::PndSttRecoHit(PndSttHelixHit *currenthit) : WirepointRecoHit(Npar
   fHitCoord[4][0] = wire2.Y();
   fHitCoord[5][0] = wire2.Z();
   fHitCoord[6][0] = currenthit->GetIsochrone();
-  if(wiredirection == TVector3(0.,0.,1.)) {
-    fHitCoord[7][0] = currenthit->GetZ() - cenposition.Z(); 
-  }
-  else  {
-    //   cout << "SKEWED " << endl;
-    fHitCoord[7][0] = (currenthit->GetZ() - cenposition.Z())/(TVector3(0.,0.,1.).Dot(wiredirection)/wiredirection.Mag());
-  }
 
-  // errors on drift radius and z (by hand)
+  // errors on drift radius 
   for(int i = 0; i < NparHitRep; i++) for(int j = 0; j < NparHitRep; j++) fHitCov[i][j] = 0.;
   fHitCov[6][6] = 0.0100 * 0.0100; 
   //  fHitCov[6][6] = pow(currenthit->GetIsochroneError(), 2); // CHECK
 
-  fHitCov[7][7] = 1. * 1.;
-
   // cut on distance
   fPolicy.setMaxDistance(0.5);
 
 }
 
 
-PndSttRecoHit::PndSttRecoHit(PndSttHelixHit *currenthit, TClonesArray *tubeArray) : WirepointRecoHit(NparHitRep){
+PndSttRecoHit::PndSttRecoHit(PndSttHelixHit *currenthit, TClonesArray *tubeArray) : WireHitRecoHit(NparHitRep){
 
   Int_t tubeID = currenthit->GetTubeID();
   PndSttTube *tube = (PndSttTube *) tubeArray->At(tubeID);
 
-  // wire1(3), wire2(3), rdrift, zreco
+  // wire1(3), wire2(3), rdrift
   TVector3 wiredirection = tube->GetWireDirection();
-  TVector3 wiredirection2 = tube->GetHalfLength() * wiredirection;                     // CHECK for short tubes
-  TVector3 cenposition = tube->GetPosition(); // CHECK! z = 35
+  TVector3 wiredirection2 = tube->GetHalfLength() * wiredirection;  
+  TVector3 cenposition = tube->GetPosition(); 
   TVector3 wire1, wire2;
   wire1 = cenposition - wiredirection2;
   wire2 = cenposition + wiredirection2;
@@ -154,20 +143,11 @@ PndSttRecoHit::PndSttRecoHit(PndSttHelixHit *currenthit, TClonesArray *tubeArray
   fHitCoord[4][0] = wire2.Y();
   fHitCoord[5][0] = wire2.Z();
   fHitCoord[6][0] = currenthit->GetIsochrone();
-  if(wiredirection == TVector3(0.,0.,1.)) {
-    fHitCoord[7][0] = currenthit->GetZ() - cenposition.Z(); 
-  }
-  else  {
-    //   cout << "SKEWED " << endl;
-    fHitCoord[7][0] = (currenthit->GetZ() - cenposition.Z())/(TVector3(0.,0.,1.).Dot(wiredirection)/wiredirection.Mag());
-  }
 
-  // errors on drift radius and z (by hand)
+  // errors on drift radius 
   for(int i = 0; i < NparHitRep; i++) for(int j = 0; j < NparHitRep; j++) fHitCov[i][j] = 0.;
   fHitCov[6][6] = 0.0100 * 0.0100; 
   //  fHitCov[6][6] = pow(currenthit->GetIsochroneError(), 2); // CHECK
-
-  fHitCov[7][7] = 1. * 1.;
 
   // cut on distance
   fPolicy.setMaxDistance(0.5);
@@ -178,7 +158,7 @@ TMatrixT<double>
 PndSttRecoHit::getHMatrix(const GFAbsTrackRep* stateVector)
 {
   if (dynamic_cast<const GeaneTrackRep*>(stateVector) != NULL) {
-    TMatrixT<double> HMatrix(2,5);
+    TMatrixT<double> HMatrix(1,5);
 
     HMatrix[0][0] = 0.;
     HMatrix[0][1] = 0.;
@@ -186,11 +166,6 @@ PndSttRecoHit::getHMatrix(const GFAbsTrackRep* stateVector)
     HMatrix[0][3] = 1.;
     HMatrix[0][4] = 0.;
 
-    HMatrix[1][0] = 0.;
-    HMatrix[1][1] = 0.;
-    HMatrix[1][2] = 0.;
-    HMatrix[1][3] = 0.;
-    HMatrix[1][4] = 1.;
     return HMatrix;
   }
   else {

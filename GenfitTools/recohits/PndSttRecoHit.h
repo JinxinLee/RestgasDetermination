@@ -3,7 +3,7 @@
 
 // Base Class Headers ----------------
 #include "GFRecoHitIfc.h"
-#include "GFWirepointHitPolicy.h"
+#include "GFWireHitPolicy.h"
 #include "PndSttHit.h"
 #include "PndSttHelixHit.h"
 #include "TClonesArray.h"
@@ -16,9 +16,9 @@ class PndSttHit;
 class PndSttHelixHit;
 class TClonesArray;
 
-typedef GFRecoHitIfc<GFWirepointHitPolicy> WirepointRecoHit;
+typedef GFRecoHitIfc<GFWireHitPolicy> WireHitRecoHit;
 
-class PndSttRecoHit : public WirepointRecoHit {
+class PndSttRecoHit : public WireHitRecoHit {
 public:
 
   // Constructors/Destructors ---------
@@ -39,7 +39,7 @@ private:
   // Private Data Members ------------
  
  protected:
- static const int NparHitRep = 8;
+ static const int NparHitRep = 7;
 
   // Private Methods -----------------
 
