@@ -74,7 +74,7 @@ PndTpcDataReaderTask::Init()
   fpadplane= fpar->getPadPlane();
  
   fIntree = new TChain("tpcEvent");
-  fIntree->AddFile(_file.Data());
+  fIntree->Add(_file.Data());//before AddFile
   fIntree->SetBranchAddress("tpcEvent", &fEv);
        
   if(fIntree->IsZombie()) {
