@@ -6,31 +6,23 @@
 #####################################################
 
 # FLAGSMACHINE=-march=athlon64 -mfpmath=sse -msse2 -m64
-# -ansi -std=c++98  -Wunsafe-loop-optimizations
-# -fprofile-generate -fprofile-use -ftest-coverage
+# CCFLAGS += -Weffc++ -fopenmp
 
-# -s
-MAKEFLAGS  = -wkr --no-print-directory
+MAKEFLAGS  = -wkr --no-print-directory #-s
 
-FLAGSMACHINE = -march=native -mtune=native
-# FLAGSMACHINE += -msse3 -m3dnow -m64 -mssse3 -mpc64
-# FLAGSMACHINE += -m128bit-long-double -mcx16 -mfpmath=sse
+FLAGSMACHINE = -march=native -mtune=native -msse3 -m3dnow
+FLAGSMACHINE += -m64 -mssse3 -mpc64 -mfpmath=sse
 
-# CCFLAGS = -O0 -g -pg -fprofile-use # if profiling
-CCFLAGS  = -Wall -W -Wredundant-decls -Wshadow -Wcoverage-mismatch -Werror
-# CCFLAGS += -Weffc++
+CCFLAGS  = -Wall -W -Wredundant-decls -Wshadow -Werror
 CCFLAGS += -fdiagnostics-show-option -fdiagnostics-show-location=every-line
-# CCFLAGS += -g  #-fopenmp
-CCFLAGS += -O3 ${FLAGSMACHINE}
-# CCFLAGS += -funroll-loops -funsafe-loop-optimizations -fvariable-expansion-in-unroller
-# CCFLAGS += -fsplit-ivs-in-unroller -fprefetch-loop-arrays
-# CCFLAGS += -malign-double  -momit-leaf-frame-pointer -fomit-frame-pointer
-# CCFLAGS += -maccumulate-outgoing-args -ftracer
+#CCFLAGS += -O3 ${FLAGSMACHINE} -funroll-loops
+#CCFLAGS += -fvariable-expansion-in-unroller -fprefetch-loop-arrays
+#CCFLAGS += -malign-double -maccumulate-outgoing-args -ftracer
 
 INCLUDE = $(shell root-config --cflags) -I./ -I../
 
 LIBS  = $(shell root-config --libs) -lTMVA -lTreePlayer -lMinuit
-LIBS += -lMLP -lXMLIO #-fprofile-generate
+LIBS += -lMLP -lXMLIO
 
 .EXPORT_ALL_VARIABLES:
 
