@@ -41,8 +41,9 @@ class PndSensorNamePar : public FairParGenericSet
     	return -1;
     }
 
-    TString* GetSensorName(Int_t index){
-    	return (TString*)fSensorNames->At(index);
+    TString GetSensorName(Int_t index){
+    	TObjString* myString = (TObjString*)fSensorNames->At(index);
+    	return myString->GetString();
     }
 
     TObjArray* GetSensorNames(){return fSensorNames;}

@@ -128,7 +128,7 @@ Int_t PndGeoHandling::GetShortID(TString path)
 TString PndGeoHandling::GetPath(Int_t shortID)
 {
 	if (fSensorNamePar != 0)
-		return *(fSensorNamePar->GetSensorName(shortID));
+		return (fSensorNamePar->GetSensorName(shortID));
 	else {
 		std::cout << "-E- PndMvdGeoHandling::GetPath(Int_t shortID): Missing SensorNamePar"	<< std::endl;
 		abort();
