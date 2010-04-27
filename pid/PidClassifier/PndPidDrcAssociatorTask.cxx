@@ -3,6 +3,7 @@
 #include "PndPidProbability.h"
 #include "FairRootManager.h"
 #include "TMath.h"
+#include "TF1.h"
 #include "Riostream.h"
 
 
