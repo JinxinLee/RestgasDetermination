@@ -37,6 +37,8 @@
          
 	TClonesArray* cluster_array=new TClonesArray("PndEmcCluster");
 	t->SetBranchAddress("EmcCluster",&cluster_array);
+	TClonesArray* digi_array=new TClonesArray("PndEmcDigi");
+	t->SetBranchAddress("EmcDigi",&digi_array);
 
 	TFile* fsim = new TFile("sim_emc.root"); //file you want to analyse
 	TTree *tsim=(TTree *) fsim->Get("cbmsim") ;
@@ -75,10 +77,10 @@
 			cluster_energy=cluster->energy();
 			if ((cluster->NumberOfDigis()>1)&&(cluster_energy>0.02))
 			h3->Fill(cluster_energy);
-			PndEmcClusterEnergySums* esum = (PndEmcClusterEnergySums*)cluster->Esums();
-			hE1->Fill(esum->E1());
-			hE1E9->Fill(esum->E1E9());
-			hE9E25->Fill(esum->E9E25());
+			PndEmcClusterEnergySums esum(*cluster, digi_array);
+			hE1->Fill(esum.E1());
+			hE1E9->Fill(esum.E1E9());
+			hE9E25->Fill(esum.E9E25());
 		}
 	}
 

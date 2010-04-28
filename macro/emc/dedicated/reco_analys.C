@@ -1,6 +1,6 @@
 {
   // Macro loads a file after reconstruction and plots difference between initial direction of particle and angular position of cluster
-  
+	gROOT->SetStyle("Plain");
 	gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
 	gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
 	rootlogon();
@@ -10,14 +10,15 @@
 	TTree *t=(TTree *) f->Get("cbmsim") ;
 	TClonesArray* cluster_array=new TClonesArray("PndEmcCluster");
 	t->SetBranchAddress("EmcCluster",&cluster_array);
+	
+	t->AddFriend("cbmsim", "digi_emc.root");
+	TClonesArray* digi_array=new TClonesArray("PndEmcDigi");
+	t->SetBranchAddress("EmcDigi",&digi_array);
 
 	TFile* fsim = new TFile("sim_emc.root"); //file you want to analyse
 	TTree *tsim=(TTree *) fsim->Get("cbmsim") ;
 	
-	TFile* fpar = new TFile("simparams.root"); 
-	fpar->Get("FairBaseParSet");
-	
-	PndEmcMapper *emcMap=PndEmcMapper::Instance(2);
+	PndEmcMapper::Init(6);
 
 	TClonesArray* mctrack_array=new TClonesArray("PndMCTrack");
 	tsim->SetBranchAddress("MCTrack",&mctrack_array);
@@ -39,7 +40,7 @@
 	TH1F *hE1= new TH1F("hE1","E1",200,0.,1.05);
 	TH1F *hE1E9= new TH1F("hE1E9","E1 / E9",200,0.,1.05);
 	TH1F *hE9E25= new TH1F("hE9E25","E9 / E25",200,0.,1.05);
- 
+
 	// Cluster angular position
 	// Entrance point is determined by minimal time
 		
@@ -52,11 +53,12 @@
 			PndEmcCluster *cluster=(PndEmcCluster*)cluster_array->At(i);
 			cluster_energy=cluster->energy();
 			if ((cluster->NumberOfDigis()>1)&&(cluster_energy>0.02))
-			h3->Fill(cluster_energy);
-			PndEmcClusterEnergySums* esum = (PndEmcClusterEnergySums*)cluster->Esums();
-			hE1->Fill(esum->E1());
-			hE1E9->Fill(esum->E1E9());
-			hE9E25->Fill(esum->E9E25());
+				h3->Fill(cluster_energy);
+			PndEmcClusterEnergySums esum(*cluster, digi_array);
+			hE1->Fill(esum.E1());
+			hE1E9->Fill(esum.E1E9());
+			hE9E25->Fill(esum.E9E25());
+			
 		}
 	}
 
@@ -75,6 +77,8 @@
 		// If we have 1 initial particle and several cluster
 		// we can separate cluster from the first interaction by maximum energy
 		
+		max_energy=0;
+		
 		for (Int_t i=0; i<cluster_array->GetEntriesFast(); i++)
 		{
 			PndEmcCluster *cluster=(PndEmcCluster*)cluster_array->At(i);
@@ -88,16 +92,17 @@
 			}
 						
 		}
-		max_energy=0;
 		
-		//cluster_theta-
-		theta_diff=(cluster_theta-theta)*180./TMath::Pi();
-		h1->Fill(theta_diff);
-		h2theta->Fill(theta*TMath::RadToDeg(),theta_diff);
-		//cluster_phi-
-		phi_diff=(cluster_phi-phi)*180./TMath::Pi();
-		h2->Fill(phi_diff);
-		h2phi->Fill(phi*TMath::RadToDeg(),phi_diff);
+		if (max_energy>0.6)
+		{
+			theta_diff=(cluster_theta-theta)*180./TMath::Pi();
+			h1->Fill(theta_diff);
+			h2theta->Fill(theta*TMath::RadToDeg(),theta_diff);
+			
+			phi_diff=(cluster_phi-phi)*180./TMath::Pi();
+			h2->Fill(phi_diff);
+			h2phi->Fill(phi*TMath::RadToDeg(),phi_diff);
+		}
 		
 	}
 
@@ -116,7 +121,7 @@
 // 	Double_t par1[3]={60,0,0.5};
 // 	f1->SetParameters(par1);
 // 	f1->SetLineColor(2);
-// 
+	// 
 // 	h1->Fit("f1","RB");
 // 	double mu1=f1->GetParameter(1);
 // 	double sigma1=f1->GetParameter(2);
@@ -137,13 +142,13 @@
 	h2phi->GetXaxis()->SetTitle("#phi_{truth}, degree");
 	h2phi->GetYaxis()->SetTitle("#phi_{reco} - #phi_{truth}, degree");
 	h2phi->Draw();
-
+	
 	TCanvas* c6 = new TCanvas("c6", "Cluster Properties", 100, 100, 800, 800); 
 	c6->Divide(2,2);
-	c6->cd(1); c6_1->SetLogy(); hE1->Draw();
-	c6->cd(2); c6_2->SetLogy(); hE1E9->Draw();	
-	c6->cd(3); c6_3->SetLogy(); hE9E25->Draw();
-	
+	c6->cd(1); hE1->Draw();
+	c6->cd(2); hE1E9->Draw();	
+	c6->cd(3); hE9E25->Draw();
+
 
 }
 

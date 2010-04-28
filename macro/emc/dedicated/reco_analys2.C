@@ -8,7 +8,7 @@
 	basiclibs();
 	
 	TFile* f = new TFile("full_emc.root"); //file you want to analyse
-        PndEmcMapper::Instance(2, "sim_emc.root");
+	PndEmcMapper::Init(6);
 	TTree *t=(TTree *) f->Get("cbmsim") ;
 	
 	TClonesArray* cluster_array=new TClonesArray("PndEmcCluster");
