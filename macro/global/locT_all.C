@@ -102,7 +102,6 @@ void locT_all() {
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
-  PndEmcMapper *emcMap = PndEmcMapper::Instance(2);
   fRun->Run(0, nEvents);
 
   rtdb->saveOutput();
