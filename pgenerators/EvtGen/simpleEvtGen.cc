@@ -8,7 +8,7 @@
 #include <iostream>
 #include "EvtGenBase/EvtParticleFactory.hh"
 #include "EvtGenBase/EvtStdHep.hh"
-#include "EvtGen/EvtGen.hh"
+#include "EvtGen.hh"
 #include "EvtGenBase/EvtParticle.hh"
 #include "EvtGenBase/EvtRandom.hh"
 #include "EvtGenBase/EvtRandomEngine.hh"
