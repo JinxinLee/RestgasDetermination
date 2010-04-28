@@ -54,7 +54,7 @@ PndGemRecoHit::PndGemRecoHit()
 PndGemRecoHit::PndGemRecoHit(PndGemMCPoint* point)
   : GFRecoHitIfc<GFPlanarHitPolicy>(fNparHitRep)
 {
-  std::cout<<" -I- PndGemRecoHit::PndGemRecoHit(PndGemMCPoint*) called."<<std::endl;
+  //  std::cout<<" -I- PndGemRecoHit::PndGemRecoHit(PndGemMCPoint*) called."<<std::endl;
 
   fHitCoord[0][0] =  point->GetX();
   fHitCoord[1][0] =  point->GetY();
@@ -106,7 +106,7 @@ PndGemRecoHit::PndGemRecoHit(PndGemHit* hit)
   : GFRecoHitIfc<GFPlanarHitPolicy>(fNparHitRep)
 {
 
-   std::cout<<" -I- PndGemRecoHit::PndGemRecoHit(PndGemHit*) called."<<std::endl;
+  //   std::cout<<" -I- PndGemRecoHit::PndGemRecoHit(PndGemHit*) called."<<std::endl;
    //  std::cout<<*hit<<std::endl;
 
    FairRootManager* ioman = FairRootManager::Instance();

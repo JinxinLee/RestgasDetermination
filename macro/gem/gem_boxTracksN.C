@@ -11,7 +11,7 @@ Int_t gem_boxTracksN(Int_t nStations, Int_t nparts, Int_t nEvents = 1000, Int_t 
 
   // Input file (MC events)
   TString baseName;
-  baseName.Form("$VMCWORKDIR/data/Gem_%dStations_%d_%dpart_n%d",nStations,pdgC,nparts,nEvents);
+  baseName.Form("Gem_%dStations_%d_%dpart_n%d",nStations,pdgC,nparts,nEvents);
 
   TString MCFile  = baseName + ".root";
   TString parFile = baseName + "_par.root";

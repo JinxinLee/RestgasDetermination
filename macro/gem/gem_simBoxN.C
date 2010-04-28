@@ -14,7 +14,7 @@ Int_t gem_simBoxN(Int_t nStations, Int_t nparts, Int_t nEvents = 1000, Int_t pdg
 
   //FileNames
   TString OutputFile;
-  OutputFile.Form("$VMCWORKDIR/data/Gem_%dStations_%d_%dpart_n%d",nStations,pdgC,nparts,nEvents);
+  OutputFile.Form("Gem_%dStations_%d_%dpart_n%d",nStations,pdgC,nparts,nEvents);
   TString ParOutputFile=OutputFile;
   OutputFile   +=".root";
   ParOutputFile+="_par.root";
