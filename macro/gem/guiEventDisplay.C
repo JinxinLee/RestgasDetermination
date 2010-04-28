@@ -64,8 +64,10 @@ class MyMainFrame {
   TClonesArray *fGemPointArray;
   TClonesArray *fMCTrackArray;
 
-  TFile*   fRecFile;
-  TTree*   fRecTree;
+  TFile*   fDigiFile;
+  TTree*   fDigiTree;
+  TFile*   fHitsFile;
+  TTree*   fHitsTree;
   TClonesArray *fGemHitArray;
   TClonesArray *fGemDigiArray;
 
@@ -133,7 +135,7 @@ MyMainFrame::MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h) {
 
   fMain = new TGMainFrame(p,w,h);
 
-  ChangeBaseString("$VMCWORKDIR/data/Gem_4Stations_211_2.0GeV_th15_ph20_n1000");
+  ChangeBaseString("Gem_4Stations_15GeV_n1000");
   ChangeParFString("$VMCWORKDIR/macro/params/gem_4Stations.digi.par");
 
   fDigitSchemeToDraw = 0;
@@ -394,7 +396,7 @@ void MyMainFrame::DoDraw() {
 
   
   if ( fSimRecoFilesRead ) {
-    cout << "TRYING TO DRAW !!!" << endl;
+    //    cout << "TRYING TO DRAW !!!" << endl;
     DrawHitErrors();
     DrawDigis();
     DrawPoints();
@@ -611,17 +613,14 @@ void MyMainFrame::DrawHits() {
   for ( Int_t ihit = 0 ; ihit < fNofGemHits ; ihit++ ) {
     markerColor = 1; 
     markerStyle = 29;
+    markerSize = 3.;
+    if ( fPlotSize > 1.1 ) markerSize = 1.5;
 
     hitToDraw = (PndGemHit*)fGemHitArray->At(ihit);
 
-    TString stationIdentifier = hitToDraw->GetDetName();
-    //    cout << " hit " << ihit << " is in " << stationIdentifier.Data() << endl;
-    if ( !stationIdentifier.Contains(Form("Disk%d",fDrawStation+1)) ) continue;
+    Int_t hitStationNr = hitToDraw->GetStationNr();
 
-    //    cout << hitToDraw->GetDetName().Data() << endl;
-    if ( hitToDraw->GetDetName().Contains("Gem6") ) { 
-      markerStyle = 21;
-    }
+    if ( hitStationNr != fDrawStation+1 ) continue;
 
     Double_t hitX = hitToDraw->GetX();
     Double_t hitY = hitToDraw->GetY();
@@ -634,11 +633,9 @@ void MyMainFrame::DrawHits() {
     else {
       hitCenter->SetUniqueID(666666);
       hitCenter->SetMarkerColor(2);
-      hitCenter->SetMarkerSize(5);
+      hitCenter->SetMarkerSize(markerSize);
     }
-    //    cout << "set uid to " << hitToDraw->GetRefIndex() << endl;
 
-    //    hitCenter->SetMarkerStyle(markerStyle);
     hitCenter->Draw();
 
   }
@@ -658,11 +655,9 @@ void MyMainFrame::DrawHitErrors() {
 
     hitToDraw = (PndGemHit*)fGemHitArray->At(ihit);
 
-    TString stationIdentifier = hitToDraw->GetDetName();
-    //    cout << " hit " << ihit << " is in " << stationIdentifier.Data() << endl;
-    if ( !stationIdentifier.Contains(Form("Disk%d",fDrawStation+1)) ) continue;
+    Int_t hitStationNr = hitToDraw->GetStationNr();
 
-    if ( hitToDraw->GetDetName().Contains("Gem6") ) markerColor = 13;
+    if ( hitStationNr != fDrawStation+1 ) continue;
 
     Double_t hitX = hitToDraw->GetX();
     Double_t hitY = hitToDraw->GetY();
@@ -736,7 +731,7 @@ void MyMainFrame::ReadPoint() {
 
   PndGemMCPoint* fGemPoint = (PndGemMCPoint*)fGemPointArray->At(iPoint);
 
-  fPlotSize    = 0.2;
+  fPlotSize    = 0.5;
   fPlotCenterX = fGemPoint->GetX();  
   fPlotCenterY = fGemPoint->GetY();  
   fPlotCenterZ = fGemPoint->GetZ();  
@@ -783,44 +778,51 @@ void MyMainFrame::ReadEvent() {
     fMCTrackArray = new TClonesArray("PndMCTrack");
     fSimTree->SetBranchAddress("MCTrack",&fMCTrackArray) ;
 
-    fRecFile = TFile::Open(Form("%s_hits.root",fBaseString.Data()));
+    fDigiFile = TFile::Open(Form("%s_digi.root",fBaseString.Data()));
+    fHitsFile = TFile::Open(Form("%s_hits.root",fBaseString.Data()));
 
-    if ( !fRecFile ) 
+    if ( !fDigiFile || !fHitsFile ) 
       return;
 
-    cout << "reconstruction file \"" << fRecFile->GetName() << "\" loaded" << endl;
-    fRecTree       = (TTree*) fRecFile->Get("cbmsim");
-    fGemHitArray   = new TClonesArray("PndGemHit");
-    fRecTree->SetBranchAddress("GEMHit",&fGemHitArray) ;
+    cout << "digi file \"" << fDigiFile->GetName() << "\" loaded" << endl;
+    fDigiTree       = (TTree*) fDigiFile->Get("cbmsim");
     fGemDigiArray  = new TClonesArray("PndGemDigi");
-    fRecTree->SetBranchAddress("GEMDigi",&fGemDigiArray) ;
-    //    fGemClusterArray  = new TClonesArray("CbmGemCluster");
-    //    fRecTree->SetBranchAddress("STSCluster",&fGemClusterArray) ;
+    fDigiTree->SetBranchAddress("GEMDigi",&fGemDigiArray) ;
+
+    cout << "hits file \"" << fHitsFile->GetName() << "\" loaded" << endl;
+    fHitsTree       = (TTree*) fHitsFile->Get("cbmsim");
+    fGemHitArray   = new TClonesArray("PndGemHit");
+    fHitsTree->SetBranchAddress("GEMHit",&fGemHitArray) ;
+
     fSimRecoFilesRead = kTRUE;
   }
 
   Int_t iEvent = fEventToDrawEntry->GetIntNumber();
 
-  fRecTree->GetEntry(iEvent);
   fSimTree->GetEntry(iEvent);
+  fDigiTree->GetEntry(iEvent);
+  fHitsTree->GetEntry(iEvent);
 
   fNofGemPoints = fGemPointArray->GetEntriesFast();
   fNofMCTracks  = fMCTrackArray ->GetEntriesFast();
   fNofGemHits   = fGemHitArray  ->GetEntriesFast();
   fNofGemDigis  = fGemDigiArray ->GetEntriesFast();
 
-  cout << " --> Event #" << iEvent << ": " 
-       << fNofGemPoints << " points, "
-       << fNofMCTracks << " MCtracks, "
-       << fNofGemHits << " hits, "
-       << fNofGemDigis << " digis." << endl;
-
+  Int_t falseHits = 0;
   PndGemHit* hitToDraw;
   for ( Int_t ihit = 0 ; ihit < fNofGemHits ; ihit++ ) {
     hitToDraw = (PndGemHit*)fGemHitArray->At(ihit);
     if ( hitToDraw->GetRefIndex() == -1 ) 
-      cout << "GOT FALSE HIT" << endl;
+      falseHits ++;
+//       cout << "GOT FALSE HIT" << endl;
   }
+
+  cout << " --> Event #" << iEvent << ": " 
+       << fNofGemPoints << " points, "
+       << fNofMCTracks << " MCtracks, "
+       << fNofGemHits << " hits, "
+       << fNofGemDigis << " digis. # of false hits: " << falseHits << endl;
+
 
   TString tempString = Form("%d",iEvent+1);
   fEventToDrawEntry->SetText(tempString.Data());
@@ -859,7 +861,8 @@ void MyMainFrame::ReadParameters() {
 
   while ( fin ) {
     getline(fin,dummyText);
-    // cout << "reading " << dummyText << endl;
+    if ( dummyText.find("TrackFinder") != -1 ) break;
+    //     cout << "reading " << dummyText << endl;
     dummyText.replace(0,dummyText.find_first_not_of(' '),"");   
     // cout << "now it is " << dummyText << endl;
     while ( dummyText.find(',') != -1 ) {
@@ -897,7 +900,7 @@ void MyMainFrame::ReadParameters() {
     realStation = new PndGemStation(stationName.Data(), stationNr, parameters[arrayIndex+1], TMath::Pi()*parameters[arrayIndex+2]/180. );
 
     fStationsZPosition  [stationNr-1] = station->GetZ();
-  
+    cout << "ADDING STATION AT " << station->GetZ() << endl;
     fStations->Add(station);
     fRealStations->Add(realStation);
 
@@ -914,9 +917,7 @@ void MyMainFrame::ReadParameters() {
       sensorNr   = (Int_t)parameters[arrayIndex+0];
       sensorName = Form("Gem_Disk%d_Gem%s_Sensor_kapton",stationNr,(sensorNr==1?"1":"6"));
       
-      Int_t sensorDetId  = 2 << 24 | stationNr << 16 | sensorNr << 4;
-
-      realSensor = new PndGemSensor(sensorName.Data(), sensorDetId, (Int_t)parameters[arrayIndex+1],
+      realSensor = new PndGemSensor(sensorName.Data(), stationNr, sensorNr, (Int_t)parameters[arrayIndex+1],
 				    parameters[arrayIndex+ 2], parameters[arrayIndex+ 3], parameters[arrayIndex+ 4],
 				    -TMath::Pi()*parameters[arrayIndex+ 5]/180.,
 				    parameters[arrayIndex+ 6], parameters[arrayIndex+ 7], 
@@ -942,7 +943,7 @@ void MyMainFrame::ReadParameters() {
 	cout << "angle = " << parameters[arrayIndex+ 9+itemp] << endl;
       }
 
-      sensor = new PndGemSensor(sensorName.Data(), sensorDetId, (Int_t)parameters[arrayIndex+1],
+      sensor = new PndGemSensor(sensorName.Data(), stationNr, sensorNr, (Int_t)parameters[arrayIndex+1],
 				parameters[arrayIndex+ 2], parameters[arrayIndex+ 3], parameters[arrayIndex+ 4],
 				-TMath::Pi()*parameters[arrayIndex+ 5]/180.,
 				parameters[arrayIndex+ 6], parameters[arrayIndex+ 7], 

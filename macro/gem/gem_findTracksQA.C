@@ -1,7 +1,7 @@
 // Macro created by Radoslaw Karabowicz
-// This macro takes MC file and produces digis only
+// This macro takes the digis and find hits
 
-Int_t gem_digi(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, int verboseLevel = 0)
+Int_t gem_findTracksQA(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, int verboseLevel = 0)
 { 
   if ( nStations != 3 && nStations != 4 ) {
     cout << "WRONG number of stations, only 3 or 4 allowed." << endl;
@@ -16,10 +16,13 @@ Int_t gem_digi(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, i
   TString baseName;
   baseName.Form("Gem_%dStations_%gGeV_n%d",nStations,momentum,nEvents);
 
-  TString MCFile  = baseName + ".root";
   TString parFile = baseName + "_par.root";
-  TString outFile = baseName + "_digi.root";
-
+  TString MCFile  = baseName + ".root";
+  TString digFile = baseName + "_digi.root";
+  TString hitFile = baseName + "_hits.root";
+  TString trkFile = baseName + "_tracks.root";
+  // ------------------------------------------------------------------------
+  TString outFile = baseName + "_tracksQA.root";
   std::cout << "Output File: " << outFile.Data()<< std::endl;
 
   // -----   Timer   --------------------------------------------------------
@@ -29,7 +32,10 @@ Int_t gem_digi(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, i
   
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(MCFile);
+  fRun->SetInputFile(MCFile); 
+  fRun->AddFriend(digFile);
+  fRun->AddFriend(hitFile);
+  fRun->AddFriend(trkFile);
   fRun->SetOutputFile(outFile);
   
 
@@ -48,9 +54,11 @@ Int_t gem_digi(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, i
   rtdb->setSecondInput(parIo1);
   // ------------------------------------------------------------------------
 
-  // -----   GEM Digitizer   -----------------------------------------------
-  PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", verboseLevel);
-  fRun->AddTask(gemDigitize);
+  //------ Track finder QA ---------------------------
+  PndGemTrackFinderQA* trackFinderQA = new PndGemTrackFinderQA();
+  trackFinderQA->SetVerbose(verboseLevel);
+  fRun->AddTask(trackFinderQA);
+  //--------------------------------------------------
 
 
   // -----   Intialise and run   --------------------------------------------

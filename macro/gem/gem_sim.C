@@ -1,35 +1,50 @@
-void gem_sim(Double_t momentum = 15., Int_t nEvents = 100,int verboseLevel = 0)
-{
+Int_t gem_sim(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, int verboseLevel = 0)
+{ 
+  if ( nStations != 3 && nStations != 4 ) {
+    cout << "WRONG number of stations, only 3 or 4 allowed." << endl;
+    return;
+  }
+
   TStopwatch timer;
   timer.Start();
   gDebug=0;
+  // Load basic libraries
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
 
   //FileNames
-  TString simOutput;
-  simOutput.Form("$VMCWORKDIR/data/Gem_4Stations_%gGeV_n%d",momentum,nEvents);
-  TString parOutput=simOutput;
-  simOutput+=".root";
-  parOutput+="_par.root";
+  TString OutputFile;
+  OutputFile.Form("Gem_%dStations_%gGeV_n%d",nStations,momentum,nEvents);
+  TString ParOutputFile=OutputFile;
+  OutputFile   +=".root";
+  ParOutputFile+="_par.root";
   
+  TString  SimEngine      = "TGeant4";
+  Double_t BeamMomentum   = momentum;
+  TString  MediaFile      = "media_pnd.geo";
+  gDebug                  =  0;
+  //------------------------------------------------------------------
 
-  // Load basic libraries
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gSystem->Load("libGem");
+  TStopwatch timer;
+  timer.Start();
+ 
+  // Load basic libraries---------------------------------------------
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
+  
+  // Create the Simulation run manager--------------------------------
   FairRunSim *fRun = new FairRunSim();
-
-  fRun->SetBeamMom(momentum);
-
-  // set the MC version used
-  // ------------------------
-
-  fRun->SetName("TGeant4");
-  // Choose the Geant Navigation System
-
-  fRun->SetOutputFile(simOutput);
-
-  // Set Material file Name
-  //-----------------------
-  fRun->SetMaterials("media_pnd.geo");
+  fRun->SetName(SimEngine.Data() );
+  fRun->SetOutputFile(OutputFile.Data());
+  fRun->SetBeamMom(BeamMomentum);
+  fRun->SetMaterials(MediaFile.Data());
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  
+ //---------------------Set Parameter output      ---------- 
+  Bool_t kParameterMerged=kTRUE;
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
+  output->open(ParOutputFile.Data());
+  rtdb->setOutput(output);
 
   // Create and add detectors
   //-------------------------
@@ -42,87 +57,62 @@ void gem_sim(Double_t momentum = 15., Int_t nEvents = 100,int verboseLevel = 0)
   Pipe->SetGeometryFileName("pipebeamtarget.geo");
   fRun->AddModule(Pipe);
   
-  //  FairModule *Magnet= new PndMagnet("MAGNET");
-  //  Magnet->SetGeometryFileName("PandaSolenoidV833.root");
-  //  fRun->AddModule(Magnet);
+//  FairModule *Magnet= new PndMagnet("MAGNET");
+//  Magnet->SetGeometryFileName("FullSolenoid.root");
+//  fRun->AddModule(Magnet);
   
-//   FairModule *dipole= new PndMagnet("MAGNET");
-//   dipole->SetGeometryFileName("dipole.geo");
-//   fRun->AddModule(dipole);
+  FairModule *dipole= new PndMagnet("MAGNET");
+  dipole->SetGeometryFileName("dipole.geo");
+  fRun->AddModule(dipole);
  
-  FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
-  Dch->SetGeometryFileName("dch.root");
-  Dch->SetVerboseLevel(0);
-  fRun->AddModule(Dch);
-
   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
   Gem->SetGeometryFileName("gem_4Stations.root");
   Gem->SetVerboseLevel(0);
   fRun->AddModule(Gem);
-
+  
+  FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
+  Dch->SetGeometryFileName("dch.root");
+  Dch->SetVerboseLevel(0);
+  fRun->AddModule(Dch);
+  
+  
   // Event generator
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
-
-  PndDpmDirect* dpmGen = new PndDpmDirect(momentum,1); //0. - only inelastic, 2 only elastic, 1 both
-  primGen->AddGenerator(dpmGen);
   
-  fRun->SetBeamMom(momentum);
-
-  // Field Map Definition
-  // --------------------
-  PndMultiField *fField= 0;
-  fField = new PndMultiField();
-  PndTransMap *map_t= new PndTransMap("TransMap", "R");
-  PndSolenoidMap *map_s1= new PndSolenoidMap("SolenoidMap1", "R");
-  PndSolenoidMap *map_s2= new PndSolenoidMap("SolenoidMap2", "R");
-  PndSolenoidMap *map_s3= new PndSolenoidMap("SolenoidMap3", "R");
-  PndSolenoidMap *map_s4= new PndSolenoidMap("SolenoidMap4", "R");
-  PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R");
-  PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R");
-  fField->AddField(map_t);
-  fField->AddField(map_s1);
-  fField->AddField(map_s2);
-  fField->AddField(map_s3);
-  fField->AddField(map_s4);
-  fField->AddField(map_d1);
-  fField->AddField(map_d2);
+//   FairBoxGenerator* boxGen = new FairBoxGenerator(13,1);
+//   boxGen->SetThetaRange(4,4);
+//   boxGen->SetPhiRange  (0.,360.);
+//   boxGen->SetPRange    (2.,2.);
+//   primGen->AddGenerator(boxGen);
+   PndDpmDirect* dpmGen = new PndDpmDirect(momentum,1); //0. - only inelastic, 2 only elastic, 1 both
+   primGen->AddGenerator(dpmGen);
+  
+  //---------------------Create and Set the Field(s)---------- 
+  PndMultiField *fField= new PndMultiField("FULL");
   fRun->SetField(fField);
   //-----------end of Bfield stuff
 
-   // support event display?
-   fRun->SetStoreTraj(kFALSE);
-   
-   fRun->SetRadLenRegister(kFALSE);
-
-   fRun->Init();
-//   Tpc->Initialize(); // tpc produces too much points, use radlenpoints instead
-
-  // Fill the Parameter containers for this run
-  //-------------------------------------------
-  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
-  Bool_t kParameterMerged=kTRUE;
-  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  output->open(parOutput.Data());
-  rtdb->setOutput(output);
-
-  PndMultiFieldPar* fieldPar = 
-    (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
-  if(fField)  {  fieldPar->SetParameters(fField); }
-  fieldPar->setInputVersion(fRun->GetRunId(),1);
-  fieldPar->setChanged(kTRUE);
+  // support event display?
+  fRun->SetStoreTraj(kFALSE);
   
-  rtdb->saveOutput();
-  rtdb->print();
+  fRun->SetRadLenRegister(kFALSE);
+
+  fRun->Init();
 
   // Transport nEvents
   // -----------------
 
   fRun->Run(nEvents);
 
+  rtdb->saveOutput();
+  rtdb->print();
+
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+
+  return 1;
 }
 

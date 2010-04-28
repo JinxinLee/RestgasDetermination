@@ -1,7 +1,7 @@
 // Macro created by Radoslaw Karabowicz
-// This macro takes MC file and produces digis only
+// This macro takes the digis and find hits
 
-Int_t gem_digi(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, int verboseLevel = 0)
+Int_t gem_findTracks(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, int verboseLevel = 0)
 { 
   if ( nStations != 3 && nStations != 4 ) {
     cout << "WRONG number of stations, only 3 or 4 allowed." << endl;
@@ -16,10 +16,10 @@ Int_t gem_digi(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, i
   TString baseName;
   baseName.Form("Gem_%dStations_%gGeV_n%d",nStations,momentum,nEvents);
 
-  TString MCFile  = baseName + ".root";
   TString parFile = baseName + "_par.root";
-  TString outFile = baseName + "_digi.root";
-
+  TString hitFile = baseName + "_hits.root";
+  // ------------------------------------------------------------------------
+  TString outFile = baseName + "_tracks.root";
   std::cout << "Output File: " << outFile.Data()<< std::endl;
 
   // -----   Timer   --------------------------------------------------------
@@ -29,7 +29,7 @@ Int_t gem_digi(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, i
   
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(MCFile);
+  fRun->SetInputFile(hitFile);
   fRun->SetOutputFile(outFile);
   
 
@@ -48,9 +48,18 @@ Int_t gem_digi(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, i
   rtdb->setSecondInput(parIo1);
   // ------------------------------------------------------------------------
 
-  // -----   GEM Digitizer   -----------------------------------------------
-  PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", verboseLevel);
-  fRun->AddTask(gemDigitize);
+  //------ Track finder ------------------------------
+  //Create and add finder task
+  PndGemFindTracks* finderTask = new PndGemFindTracks("PndGemFindTracks");
+  finderTask->SetUseHitOrDigi("hit"); // hit = (default), digi
+  fRun->AddTask(finderTask);
+  
+  //------ Realistic Track finder --------------------
+  PndGemTrackFinderOnHits* mcTrackFinder = new  PndGemTrackFinderOnHits();
+  mcTrackFinder->SetVerbose(verboseLevel);  // verbosity level
+  mcTrackFinder->SetPrimary(0);  // 1 = Only primary tracks are processed, 0 = all (default)
+  finderTask->UseFinder(mcTrackFinder);
+  //--------------------------------------------------
 
 
   // -----   Intialise and run   --------------------------------------------

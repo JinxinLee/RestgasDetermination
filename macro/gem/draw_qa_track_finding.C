@@ -15,23 +15,33 @@ void draw_qa_track_finding(TString inFileName)
   TH1F* fhMCAccVsP    = (TH1F*)inFile->Get("GemTrackFinderQA/hMCAccVsP");
   TH1F* fhMCPrimVsP   = (TH1F*)inFile->Get("GemTrackFinderQA/hMCPrimVsP");
   TH1F* fhMCSecVsP    = (TH1F*)inFile->Get("GemTrackFinderQA/hMCSecVsP");
+  TH1F* fhMCRefVsP    = (TH1F*)inFile->Get("GemTrackFinderQA/hMCRefVsP");
   TH1F* fhRecoAccVsP  = (TH1F*)inFile->Get("GemTrackFinderQA/hRecoAccVsP");
   TH1F* fhRecoPrimVsP = (TH1F*)inFile->Get("GemTrackFinderQA/hRecoPrimVsP");
   TH1F* fhRecoSecVsP  = (TH1F*)inFile->Get("GemTrackFinderQA/hRecoSecVsP");
+  TH1F* fhRecoRefVsP  = (TH1F*)inFile->Get("GemTrackFinderQA/hRecoRefVsP");
 
   TH1F* fhEffAccVsP  = (TH1F*)inFile->Get("GemTrackFinderQA/hEffAccVsP");
   TH1F* fhEffPrimVsP = (TH1F*)inFile->Get("GemTrackFinderQA/hEffPrimVsP");
   TH1F* fhEffSecVsP  = (TH1F*)inFile->Get("GemTrackFinderQA/hEffSecVsP");
+  TH1F* fhEffRefVsP  = (TH1F*)inFile->Get("GemTrackFinderQA/hEffRefVsP");
   TH1F* fhEffAccVsT  = (TH1F*)inFile->Get("GemTrackFinderQA/hEffAccVsT");
   TH1F* fhEffPrimVsT = (TH1F*)inFile->Get("GemTrackFinderQA/hEffPrimVsT");
   TH1F* fhEffSecVsT  = (TH1F*)inFile->Get("GemTrackFinderQA/hEffSecVsT");
+  TH1F* fhEffRefVsT  = (TH1F*)inFile->Get("GemTrackFinderQA/hEffRefVsT");
   TH1F* fhEffAccVsN  = (TH1F*)inFile->Get("GemTrackFinderQA/hEffAccVsN");
   TH1F* fhEffPrimVsN = (TH1F*)inFile->Get("GemTrackFinderQA/hEffPrimVsN");
   TH1F* fhEffSecVsN  = (TH1F*)inFile->Get("GemTrackFinderQA/hEffSecVsN");
+  TH1F* fhEffRefVsN  = (TH1F*)inFile->Get("GemTrackFinderQA/hEffRefVsN");
 
-  TH2F* fhMomResAcc  = (TH2F*)inFile->Get("GemTrackFinderQA/hMomResAcc");
-  TH2F* fhMomResPrim = (TH2F*)inFile->Get("GemTrackFinderQA/hMomResPrim");
-  TH2F* fhMomResSec  = (TH2F*)inFile->Get("GemTrackFinderQA/hMomResSec");
+  TH2F* fhMomResAccVsP  = (TH2F*)inFile->Get("GemTrackFinderQA/hMomResAccVsP");
+  TH2F* fhMomResPrimVsP = (TH2F*)inFile->Get("GemTrackFinderQA/hMomResPrimVsP");
+  TH2F* fhMomResSecVsP  = (TH2F*)inFile->Get("GemTrackFinderQA/hMomResSecVsP");
+  TH2F* fhMomResRefVsP  = (TH2F*)inFile->Get("GemTrackFinderQA/hMomResRefVsP");
+  TH2F* fhMomResAccVsT  = (TH2F*)inFile->Get("GemTrackFinderQA/hMomResAccVsT");
+  TH2F* fhMomResPrimVsT = (TH2F*)inFile->Get("GemTrackFinderQA/hMomResPrimVsT");
+  TH2F* fhMomResSecVsT  = (TH2F*)inFile->Get("GemTrackFinderQA/hMomResSecVsT");
+  TH2F* fhMomResRefVsT  = (TH2F*)inFile->Get("GemTrackFinderQA/hMomResRefVsT");
 
   TH1F* fhNofMCTracksPerEvent = (TH1F*)inFile->Get("GemTrackFinderQA/hNofMCTracksPerEvent");
 
@@ -72,21 +82,27 @@ void draw_qa_track_finding(TString inFileName)
   recoPad[0]->Update();
 
   recoPad[1]->cd();
+  gPad->SetGridx(); 
+  gPad->SetGridy();
   fhEffAccVsP->SetAxisRange(0.,110.,"Y");
   fhEffAccVsP->SetLineWidth(2);
   fhEffAccVsP->SetLineColor(1);
   fhEffAccVsP->SetTitle("Efficiency vs momentum");
+  fhEffAccVsP->GetYaxis()->SetTitle("efficiency [%]");
   fhEffAccVsP->Draw("pe");
-  fhEffPrimVsP->SetAxisRange(0.,110.,"Y");
   fhEffPrimVsP->SetLineWidth(2);
   fhEffPrimVsP->SetLineColor(2);
   fhEffPrimVsP->Draw("pesame");
+  fhEffRefVsP->SetLineWidth(2);
+  fhEffRefVsP->SetLineColor(6);
+  fhEffRefVsP->Draw("pesame");
   fhEffSecVsP->SetLineWidth(2);
   fhEffSecVsP->SetLineColor(4);
   fhEffSecVsP->Draw("pesame");
-  TLegend* effLeg = new TLegend(0.3,0.15,0.68,0.4);
+  TLegend* effLeg = new TLegend(0.2,0.15,0.5,0.3);
   effLeg->SetBorderSize(0);
   effLeg->SetFillColor(0);
+  effLeg->AddEntry(fhEffRefVsP, "reference","pl");
   effLeg->AddEntry(fhEffPrimVsP,"primaries","pl");
   effLeg->AddEntry(fhEffAccVsP, "all" ,"pl");
   effLeg->AddEntry(fhEffSecVsP, "secondaries" ,"pl");
@@ -97,21 +113,28 @@ void draw_qa_track_finding(TString inFileName)
   recoPad[1]->Update();
 
   recoPad[2]->cd();
+  gPad->SetGridx();
+  gPad->SetGridy();
   fhEffAccVsT->SetAxisRange(0.,110.,"Y");
   fhEffAccVsT->SetLineWidth(2);
   fhEffAccVsT->SetLineColor(1);
   fhEffAccVsT->SetTitle("Efficiency vs theta");
+  fhEffAccVsT->GetYaxis()->SetTitle("efficiency [%]");
   fhEffAccVsT->Draw("pe");
   fhEffPrimVsT->SetAxisRange(0.,110.,"Y");
   fhEffPrimVsT->SetLineWidth(2);
   fhEffPrimVsT->SetLineColor(2);
   fhEffPrimVsT->Draw("pesame");
+  fhEffRefVsT->SetLineWidth(2);
+  fhEffRefVsT->SetLineColor(6);
+  fhEffRefVsT->Draw("pesame");
   fhEffSecVsT->SetLineWidth(2);
   fhEffSecVsT->SetLineColor(4);
   fhEffSecVsT->Draw("pesame");
-  TLegend* effLeg = new TLegend(0.3,0.15,0.68,0.4);
+  TLegend* effLeg = new TLegend(0.6,0.4,0.9,0.6);
   effLeg->SetBorderSize(0);
   effLeg->SetFillColor(0);
+  effLeg->AddEntry(fhEffRefVsT, "reference","pl");
   effLeg->AddEntry(fhEffPrimVsT,"primaries","pl");
   effLeg->AddEntry(fhEffAccVsT, "all" ,"pl");
   effLeg->AddEntry(fhEffSecVsT, "secondaries" ,"pl");
@@ -122,21 +145,32 @@ void draw_qa_track_finding(TString inFileName)
   recoPad[2]->Update();
 
   recoPad[3]->cd();
+  gPad->SetGridx();
+  gPad->SetGridy();
+  Int_t lastNotEmptyBin = fhEffAccVsN->GetNbinsX();
+  while ( fhEffAccVsN->GetBinContent(lastNotEmptyBin) == 0 )
+    lastNotEmptyBin--;
+  fhEffAccVsN->SetAxisRange(-0.5,1.2*lastNotEmptyBin,"X");
   fhEffAccVsN->SetAxisRange(0.,110.,"Y");
   fhEffAccVsN->SetLineWidth(2);
   fhEffAccVsN->SetLineColor(1);
-  fhEffAccVsN->SetTitle("Efficiency ns nof points");
+  fhEffAccVsN->SetTitle("Efficiency vs nof points");
+  fhEffAccVsN->GetYaxis()->SetTitle("efficiency [%]");
   fhEffAccVsN->Draw("pe");
   fhEffPrimVsN->SetAxisRange(0.,110.,"Y");
   fhEffPrimVsN->SetLineWidth(2);
   fhEffPrimVsN->SetLineColor(2);
   fhEffPrimVsN->Draw("pesame");
+  fhEffRefVsN->SetLineWidth(2);
+  fhEffRefVsN->SetLineColor(6);
+  fhEffRefVsN->Draw("pesame");
   fhEffSecVsN->SetLineWidth(2);
   fhEffSecVsN->SetLineColor(4);
   fhEffSecVsN->Draw("pesame");
-  TLegend* effLeg = new TLegend(0.3,0.15,0.68,0.4);
+  TLegend* effLeg = new TLegend(0.1,0.7,0.4,0.9);
   effLeg->SetBorderSize(0);
   effLeg->SetFillColor(0);
+  effLeg->AddEntry(fhEffRefVsN, "reference","pl");
   effLeg->AddEntry(fhEffPrimVsN,"primaries","pl");
   effLeg->AddEntry(fhEffAccVsN, "all" ,"pl");
   effLeg->AddEntry(fhEffSecVsN, "secondaries" ,"pl");
@@ -146,23 +180,57 @@ void draw_qa_track_finding(TString inFileName)
   oneLine->Draw();
   recoPad[1]->Update();
 
-
-
-
   recoPad[4]->cd();
-  fhMomResPrim->SetAxisRange(-10.,10.,"Y");
-  fhMomResPrim->Draw("cont0");
+  fhMomResPrimVsP->SetAxisRange(-10.,10.,"Y");
+  fhMomResPrimVsP->GetYaxis()->SetTitle("#delta{p}/p [%]");
+  fhMomResPrimVsP->Draw("cont0");
   TH1F* fhLowBand = new TH1F("fhLowBand","Low Band",
-			     fhMomResPrim->GetXaxis()->GetNbins(),
-			     fhMomResPrim->GetXaxis()->GetXmin(),
-			     fhMomResPrim->GetXaxis()->GetXmax());
+			     fhMomResPrimVsP->GetXaxis()->GetNbins(),
+			     fhMomResPrimVsP->GetXaxis()->GetXmin(),
+			     fhMomResPrimVsP->GetXaxis()->GetXmax());
   TH1F* fhHigBand = new TH1F("fhHigBand","Hig Band",
-			     fhMomResPrim->GetXaxis()->GetNbins(),
-			     fhMomResPrim->GetXaxis()->GetXmin(),
-			     fhMomResPrim->GetXaxis()->GetXmax());
-  for ( Int_t ibin = fhMomResPrim->GetXaxis()->GetNbins() ; ibin > 1 ; ibin-- ) {
+			     fhMomResPrimVsP->GetXaxis()->GetNbins(),
+			     fhMomResPrimVsP->GetXaxis()->GetXmin(),
+			     fhMomResPrimVsP->GetXaxis()->GetXmax());
+  TH1F* fhMomResB = new TH1F("fhMomResB","Momentum resolution",
+			     fhMomResPrimVsP->GetXaxis()->GetNbins(),
+			     fhMomResPrimVsP->GetXaxis()->GetXmin(),
+			     fhMomResPrimVsP->GetXaxis()->GetXmax());
+  for ( Int_t ibin = fhMomResPrimVsP->GetXaxis()->GetNbins() ; ibin > 1 ; ibin-- ) {
     TF1* gausFit = new TF1("gausFit","gaus");
-    TH1F* tempProjY = (TH1F*)fhMomResPrim->ProjectionY("tempProjY",ibin,ibin);
+    TH1F* tempProjY = (TH1F*)fhMomResPrimVsP->ProjectionY("tempProjY",ibin,ibin);
+    tempProjY->Fit("gausFit","QN","",-5.,5.);
+    fhLowBand->SetBinContent(ibin,gausFit->GetParameter(1)-gausFit->GetParameter(2));
+    fhLowBand->SetBinError(ibin,0.01);
+    fhHigBand->SetBinContent(ibin,gausFit->GetParameter(1)+gausFit->GetParameter(2));
+    fhHigBand->SetBinError(ibin,0.01);//gausFit->GetPara(1)+gausFit->GetParError(2));
+    fhMomResB->SetBinContent(ibin,gausFit->GetParameter(2));
+    fhMomResB->SetBinError(ibin,0.01);//gausFit->GetPara(1)+gausFit->GetParError(2));
+  }
+  fhLowBand->SetLineWidth(2);
+  fhHigBand->SetLineWidth(2);
+  fhLowBand->Draw("Psame");
+  fhHigBand->Draw("Psame");
+  fhMomResB->SetLineWidth(2);
+  fhMomResB->SetLineColor(2);
+  fhMomResB->Draw("Csame");
+  recoPad[4]->Update();
+  /*
+  recoPad[4]->cd();
+  fhMomResPrimVsT->SetAxisRange(-10.,10.,"Y");
+  fhMomResPrimVsT->GetYaxis()->SetTitle("#delta{p}/p [%]");
+  fhMomResPrimVsT->Draw("cont0");
+  TH1F* fhLowBand = new TH1F("fhLowBand","Low Band",
+			     fhMomResPrimVsT->GetXaxis()->GetNbins(),
+			     fhMomResPrimVsT->GetXaxis()->GetXmin(),
+			     fhMomResPrimVsT->GetXaxis()->GetXmax());
+  TH1F* fhHigBand = new TH1F("fhHigBand","Hig Band",
+			     fhMomResPrimVsT->GetXaxis()->GetNbins(),
+			     fhMomResPrimVsT->GetXaxis()->GetXmin(),
+			     fhMomResPrimVsT->GetXaxis()->GetXmax());
+  for ( Int_t ibin = fhMomResPrimVsT->GetXaxis()->GetNbins() ; ibin > 1 ; ibin-- ) {
+    TF1* gausFit = new TF1("gausFit","gaus");
+    TH1F* tempProjY = (TH1F*)fhMomResPrimVsT->ProjectionY("tempProjY",ibin,ibin);
     tempProjY->Fit("gausFit","QN","",-5.,5.);
     fhLowBand->SetBinContent(ibin,gausFit->GetParameter(1)-gausFit->GetParameter(2));
     fhLowBand->SetBinError(ibin,0.01);
@@ -174,7 +242,7 @@ void draw_qa_track_finding(TString inFileName)
   fhLowBand->Draw("Psame");
   fhHigBand->Draw("Psame");
   recoPad[4]->Update();
-
+  */
   recoPad[5]->cd();
   Int_t lastNotEmptyBin = fhNofHitsPerRecoTrack->GetNbinsX();
   while ( fhNofHitsPerRecoTrack->GetBinContent(lastNotEmptyBin) == 0 )
@@ -198,15 +266,15 @@ void draw_qa_track_finding(TString inFileName)
   nhptLeg->Draw();
   recoPad[5]->Update();
 
-  Int_t nEvents = fhNofMCTracksPerEvent->GetEntries();
+  Int_t fNofEvents = fhNofMCTracksPerEvent->GetEntries();
   Int_t fNofMCAll    = fhMCAllVsP   ->Integral();
   Int_t fNofMCAcc    = fhMCAccVsP   ->Integral();
   Int_t fNofMCPrim   = fhMCPrimVsP  ->Integral();
-  Int_t fNofMCRef    = fhMCPrimVsP  ->Integral(fhMCPrimVsP->FindBin(0.5),fhMCPrimVsP->GetNbinsX());
+  Int_t fNofMCRef    = fhMCRefVsP  ->Integral(fhMCPrimVsP->FindBin(0.5),fhMCPrimVsP->GetNbinsX());
   Int_t fNofMCSec    = fhMCSecVsP   ->Integral();
   Int_t fNofRecoAcc  = fhRecoAccVsP ->Integral();
   Int_t fNofRecoPrim = fhRecoPrimVsP->Integral();
-  Int_t fNofRecoRef  = fhRecoPrimVsP->Integral(fhRecoPrimVsP->FindBin(0.5),fhRecoPrimVsP->GetNbinsX());
+  Int_t fNofRecoRef  = fhRecoRefVsP->Integral(fhRecoPrimVsP->FindBin(0.5),fhRecoPrimVsP->GetNbinsX());
   Int_t fNofRecoSec  = fhRecoSecVsP ->Integral();
   Int_t fNofRecoGhosts = fhNofHitsPerGhost->Integral();
   Int_t fNofRecoClones = fhNofHitsPerClone->Integral();
@@ -214,31 +282,36 @@ void draw_qa_track_finding(TString inFileName)
   Double_t effPrim = 100.*(Double_t)fNofRecoPrim/((Double_t)fNofMCPrim);
   Double_t effSec  = 100.*(Double_t)fNofRecoSec /((Double_t)fNofMCSec);
   Double_t effRef  = 100.*(Double_t)fNofRecoRef /((Double_t)fNofMCRef);
+  Double_t ghPerEv = (Double_t)fNofRecoGhosts/((Double_t)fNofEvents);
+  Double_t ghPerTr = (Double_t)fNofRecoGhosts/((Double_t)fNofMCAll);
+  Double_t clPerEv = (Double_t)fNofRecoClones/((Double_t)fNofEvents);
+  Double_t clPerTr = (Double_t)fNofRecoClones/((Double_t)fNofMCAll);
   recoPad[6]->cd();
   TPaveText* printoutPave = new TPaveText(0.0,0.0,1.0,1.0);
   printoutPave->SetTextAlign(23);
   printoutPave->SetBorderSize(0);
   printoutPave->SetFillColor(0);
-  printoutPave->AddText(Form("%i events",nEvents));
+  printoutPave->AddText(Form("%i events",fNofEvents));
   printoutPave->AddText(Form("%i MC tracks",fNofMCAll));
   printoutPave->AddText("Tracking efficiencies:");
   printoutPave->AddText(Form("all = %2.2f%% ( %d / %d )" ,effAcc ,fNofRecoAcc ,fNofMCAcc));
   printoutPave->AddText(Form("prim = %2.2f%% ( %d / %d )",effPrim,fNofRecoPrim,fNofMCPrim));
   printoutPave->AddText(Form("ref = %2.2f%% ( %d / %d )" ,effRef ,fNofRecoRef ,fNofMCRef));
   printoutPave->AddText(Form("sec = %2.2f%% ( %d / %d )" ,effSec ,fNofRecoSec ,fNofMCSec));
-  printoutPave->AddText(Form("%i ghosts",fNofRecoGhosts));
-  printoutPave->AddText(Form("%i clones",fNofRecoClones));
+  printoutPave->AddText(Form("%i ghosts, %2.5f /event, %2.5f /MC tr.",fNofRecoGhosts,ghPerEv,ghPerTr));
+  printoutPave->AddText(Form("%i clones, %2.5f /event, %2.5f /MC tr.",fNofRecoClones,clPerEv,clPerTr));
   printoutPave->Draw();
 
   recoPad[6]->Update();
   cout << "-------------------- PndGemTrackFinderQA : Summary ------------------" << endl;
-  cout << " Events:        " << setw(10) << nEvents << endl;
+  cout << " Events:        " << setw(10) << fNofEvents << endl;
   cout << " MC Tracks:     " << setw(10) << fNofMCAll << endl;
   cout << " reconstruable: " << setw(10) << fNofMCAcc  << " reconstructed: " << setw(10) << fNofRecoAcc  << " >>>> " << effAcc  << "%" << endl;
   cout << " primaries    : " << setw(10) << fNofMCPrim << " reconstructed: " << setw(10) << fNofRecoPrim << " >>>> " << effPrim << "%" << endl;
   cout << " reference    : " << setw(10) << fNofMCRef  << " reconstructed: " << setw(10) << fNofRecoRef  << " >>>> " << effRef  << "%" << endl;
   cout << " secondaries  : " << setw(10) << fNofMCSec  << " reconstructed: " << setw(10) << fNofRecoSec  << " >>>> " << effSec  << "%" << endl;
-  cout << " ghosts       : " << setw(10) << fNofRecoGhosts << " clones:        " << setw(10) << fNofRecoClones << endl;
+  cout << " ghosts       : " << setw(10) << fNofRecoGhosts << "   >>> " << setw(10) << ghPerEv << " per event   >>> " << setw(10) << ghPerTr << " per MC Track" << endl;
+  cout << " clones       : " << setw(10) << fNofRecoClones << "   >>> " << setw(10) << clPerEv << " per event   >>> " << setw(10) << clPerTr << " per MC Track" << endl;
   cout << "---------------------------------------------------------------------" << endl; 
 
 }

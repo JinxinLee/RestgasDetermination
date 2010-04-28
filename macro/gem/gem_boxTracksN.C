@@ -1,21 +1,21 @@
-void gem_boxTracksN(Int_t nparts = 5, Int_t nEvents = 1000, int verboseLevel = 0)
-{
-  // ========================================================================
-  // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-//  Int_t iVerbose = 1;
+Int_t gem_boxTracksN(Int_t nStations, Int_t nparts, Int_t nEvents = 1000, Int_t pdgC = 211, int verboseLevel = 0)
+{ 
+  if ( nStations != 3 && nStations != 4 ) {
+    cout << "WRONG number of stations, only 3 or 4 allowed." << endl;
+    return;
+  }
+
   // ----  Load libraries   -------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gSystem->Load("libGem");
+  TString sysFile = gSystem->Getenv("VMCWORKDIR");
+
   // Input file (MC events)
   TString baseName;
-  baseName.Form("$VMCWORKDIR/data/Gem_4Stations_211_%dpart_n%d",nparts,nEvents);
+  baseName.Form("$VMCWORKDIR/data/Gem_%dStations_%d_%dpart_n%d",nStations,pdgC,nparts,nEvents);
 
   TString MCFile  = baseName + ".root";
   TString parFile = baseName + "_par.root";
-  // ------------------------------------------------------------------------
-  TString outFile = baseName + "_ihTracks.root";
-  
-  std::cout << "RecoFile: " << outFile.Data()<< std::endl;
+  TString outFile = baseName + "_FindTracksOnHits.root";
   
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -27,65 +27,68 @@ void gem_boxTracksN(Int_t nparts = 5, Int_t nEvents = 1000, int verboseLevel = 0
   fRun->SetOutputFile(outFile);
 
   // -----  Parameter database   --------------------------------------------
+  TString allDigiFile = sysFile+"/macro/params/gem_3Stations.digi.par";
+  if ( nStations == 4 ) allDigiFile = sysFile+"/macro/params/gem_4Stations.digi.par";
+
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
+	
+  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
+  parIo1->open(allDigiFile.Data(),"in");
+        
   rtdb->setFirstInput(parInput1);
+  rtdb->setSecondInput(parIo1);
+  // ------------------------------------------------------------------------
 
-  FairParAsciiFileIo* parIo2 = new FairParAsciiFileIo();
-  parIo2->open("../params/gem_4Stations.digi.par","in");
-  rtdb->setSecondInput(parIo2);
-
-  fRun->LoadGeometry();
-
-  // -----   Ideal Track Producers   ---------------------------------------
+  // -----   Digitizer and Hit Finder   -------------------------------------
   PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", verboseLevel);
   fRun->AddTask(gemDigitize);
-
+  
   PndGemFindHits* gemFindHits = new PndGemFindHits("GEM Hit Finder", verboseLevel);
   fRun->AddTask(gemFindHits);
 
-  //------ Realistic Track finder --------------------
+  // -----   Ideal Hit Producer   ---------------------------------------
+//   PndGemIdealHitProducer* gemHitProducer = new PndGemIdealHitProducer("GEM Ideal hit producer", verboseLevel);
+//   fRun->AddTask(gemHitProducer);
+
+  //------ Track finder ------------------------------
   //Create and add finder task
   PndGemFindTracks* finderTask = new PndGemFindTracks("PndGemFindTracks");
   finderTask->SetUseHitOrDigi("hit"); // hit = (default), digi
   fRun->AddTask(finderTask);
   
+  //------ Ideal Track finder ------------------------
+//   PndGemTrackFinderIdeal* mcTrackFinder = new  PndGemTrackFinderIdeal();
+//   mcTrackFinder->SetVerbose(verboseLevel);  // verbosity level
+//   mcTrackFinder->SetPrimary(0);  // 1 = Only primary tracks are processed, 0 = all (default)
+//   finderTask->UseFinder(mcTrackFinder);
+
+  //------ Realistic Track finder --------------------
   PndGemTrackFinderOnHits* mcTrackFinder = new  PndGemTrackFinderOnHits();
-  mcTrackFinder->SetVerbose(0);  // verbosity level
+  mcTrackFinder->SetVerbose(verboseLevel);  // verbosity level
   mcTrackFinder->SetPrimary(0);  // 1 = Only primary tracks are processed, 0 = all (default)
   finderTask->UseFinder(mcTrackFinder);
   //--------------------------------------------------
 
-  PndGemTrackFinderQA* trackFinderQA = new PndGemTrackFinderQA();
-  trackFinderQA->SetVerbose(0);
-  fRun->AddTask(trackFinderQA);
 
   // ----- Prepare GEANE --------------------------------------------
   // this will load Geant3 and execute setup macros to initialize geometry:
-  FairGeane *Geane = new FairGeane(MCFile);
+  FairGeane *Geane = new FairGeane();
+  fRun->AddTask(Geane);
   //--------------------------------------------------
+  
+  // -----   Run Kalman fitter   --------------------------------------------
+  PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
+  recoKalman->SetTrackInBranchName("GEMTrack");
+  recoKalman->SetTrackOutBranchName("GEMFitTrack");
+  //recoKalman->SetNumIterations(3);
+  fRun->AddTask(recoKalman);
+  // ------------------------------------------------- 
 
-//   // -----   Prepare tracks for genfit   --------------------------------------------
-//   PndGemPrepareKalmanTracks *prepareKalmanTracks = new PndGemPrepareKalmanTracks();
-//   prepareKalmanTracks->SetVerbose(0);
-//   prepareKalmanTracks->UseGeane(kTRUE);
-//   prepareKalmanTracks->UseMC(kFALSE);
-//   prepareKalmanTracks->SetPDG(211);
-//   prepareKalmanTracks->SetPersistence();
-//   fRun->AddTask(prepareKalmanTracks);
-//   //--------------------------------------------------
-
-//   // -----   Run Kalman fitter   --------------------------------------------
-//   PndGemKalmanTask* gemKalman = new PndGemKalmanTask();
-//   gemKalman->SetVerbose(0);
-//   gemKalman->SetNumIterations(6);
-//   gemKalman->SetMomentum(momentum);
-//   gemKalman->SetTheta(theta);
-//   gemKalman->SetPhi(phi);
-//   //  gemKalman->SetSmooth(kFALSE);
-//   fRun->AddTask(gemKalman);
-//   // ------------------------------------------------- 
+  PndGemTrackFinderQA* trackFinderQA = new PndGemTrackFinderQA();
+  trackFinderQA->SetVerbose(verboseLevel);
+  fRun->AddTask(trackFinderQA);
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();

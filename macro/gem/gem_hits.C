@@ -1,57 +1,56 @@
 // Macro created by Radoslaw Karabowicz
-// This macro takes MC file and produces digis and hits
+// This macro takes the digis and find hits
 
-void gem_hits(Int_t nEvents = 1000, TString addString = "4Stations_211_2.0GeV_th15_ph20", int verboseLevel = 0)
-{
-  // ========================================================================
-  // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-//  Int_t iVerbose = 1;
+Int_t gem_hits(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, int verboseLevel = 0)
+{ 
+  if ( nStations != 3 && nStations != 4 ) {
+    cout << "WRONG number of stations, only 3 or 4 allowed." << endl;
+    return;
+  }
+
   // ----  Load libraries   -------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gSystem->Load("libGem");
+  TString sysFile = gSystem->Getenv("VMCWORKDIR");
+
   // Input file (MC events)
   TString baseName;
-  baseName.Form("$VMCWORKDIR/data/Gem_%s_n%d",addString.Data(),nEvents);
+  baseName.Form("Gem_%dStations_%gGeV_n%d",nStations,momentum,nEvents);
 
-  TString MCFile  = baseName + ".root";
   TString parFile = baseName + "_par.root";
+  TString digFile = baseName + "_digi.root";
   // ------------------------------------------------------------------------
   TString outFile = baseName + "_hits.root";
-  
-  std::cout << "RecoFile: " << outFile.Data()<< std::endl;
+  std::cout << "Output File: " << outFile.Data()<< std::endl;
 
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
-
-
+  
+  
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(MCFile);
+  fRun->SetInputFile(digFile);
   fRun->SetOutputFile(outFile);
   
 
   // -----  Parameter database   --------------------------------------------
+  TString allDigiFile = sysFile+"/macro/params/gem_3Stations.digi.par";
+  if ( nStations == 4 ) allDigiFile = sysFile+"/macro/params/gem_4Stations.digi.par";
+
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
+	
+  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
+  parIo1->open(allDigiFile.Data(),"in");
+        
   rtdb->setFirstInput(parInput1);
+  rtdb->setSecondInput(parIo1);
+  // ------------------------------------------------------------------------
 
-  FairParAsciiFileIo* parIo2 = new FairParAsciiFileIo();
-  parIo2->open("../params/gem_4Stations.digi.par","in");
-  rtdb->setSecondInput(parIo2);
-
-  fRun->LoadGeometry();
-
-  // -----   Ideal Track Producers   ---------------------------------------
-  PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", verboseLevel);
-  fRun->AddTask(gemDigitize);
-
+  // -----   GEM Hit Finder   ----------------------------------------------- 
   PndGemFindHits* gemFindHits = new PndGemFindHits("GEM Hit Finder", verboseLevel);
   fRun->AddTask(gemFindHits);
-
-  PndGemMatchHits* gemMatchHits = new PndGemMatchHits("GEM Hit Matcher", verboseLevel);
-  fRun->AddTask(gemMatchHits);
 
 
   // -----   Intialise and run   --------------------------------------------

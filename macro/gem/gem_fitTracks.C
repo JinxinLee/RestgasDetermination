@@ -1,7 +1,7 @@
 // Macro created by Radoslaw Karabowicz
-// This macro takes MC file and produces digis only
+// This macro takes the digis and find hits
 
-Int_t gem_digi(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, int verboseLevel = 0)
+Int_t gem_fitTracks(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, int verboseLevel = 0)
 { 
   if ( nStations != 3 && nStations != 4 ) {
     cout << "WRONG number of stations, only 3 or 4 allowed." << endl;
@@ -16,10 +16,11 @@ Int_t gem_digi(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, i
   TString baseName;
   baseName.Form("Gem_%dStations_%gGeV_n%d",nStations,momentum,nEvents);
 
-  TString MCFile  = baseName + ".root";
   TString parFile = baseName + "_par.root";
-  TString outFile = baseName + "_digi.root";
-
+  TString hitFile = baseName + "_hits.root";
+  TString trkFile = baseName + "_tracks.root";
+  // ------------------------------------------------------------------------
+  TString outFile = baseName + "_fitTracks.root";
   std::cout << "Output File: " << outFile.Data()<< std::endl;
 
   // -----   Timer   --------------------------------------------------------
@@ -29,7 +30,8 @@ Int_t gem_digi(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, i
   
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(MCFile);
+  fRun->SetInputFile(trkFile);
+  fRun->AddFriend(hitFile);
   fRun->SetOutputFile(outFile);
   
 
@@ -48,9 +50,19 @@ Int_t gem_digi(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, i
   rtdb->setSecondInput(parIo1);
   // ------------------------------------------------------------------------
 
-  // -----   GEM Digitizer   -----------------------------------------------
-  PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", verboseLevel);
-  fRun->AddTask(gemDigitize);
+  // ----- Prepare GEANE --------------------------------------------
+  // this will load Geant3 and execute setup macros to initialize geometry:
+  FairGeane *Geane = new FairGeane();
+  fRun->AddTask(Geane);
+  //--------------------------------------------------
+  
+  // -----   Run Kalman fitter   --------------------------------------------
+  PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
+  recoKalman->SetTrackInBranchName("GEMTrack");
+  recoKalman->SetTrackOutBranchName("GEMFitTrack");
+  //recoKalman->SetNumIterations(3);
+  fRun->AddTask(recoKalman);
+  // ------------------------------------------------- 
 
 
   // -----   Intialise and run   --------------------------------------------

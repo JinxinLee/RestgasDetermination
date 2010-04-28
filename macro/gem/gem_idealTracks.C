@@ -1,51 +1,54 @@
 // Macro created by Radoslaw Karabowicz
-// This macro takes MC file and produces IDEAL DIGIS, then IDEAL TRACKS, and finally fits the IDEAL TRACKS
+// This macro takes IDEAL HITS and produces IDEAL TRACKS, and finally fits the IDEAL TRACKS
+ 
+Int_t gem_idealTracks(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, int verboseLevel = 0)
+{ 
+  if ( nStations != 3 && nStations != 4 ) {
+    cout << "WRONG number of stations, only 3 or 4 allowed." << endl;
+    return;
+  }
 
-void gem_idealTracks(Int_t nEvents = 100, TString addString = "4Stations_15GeV", int verboseLevel = 0)
-{
-  // ========================================================================
-  // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-//  Int_t iVerbose = 1;
   // ----  Load libraries   -------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gSystem->Load("libGem");
+  TString sysFile = gSystem->Getenv("VMCWORKDIR");
+
   // Input file (MC events)
   TString baseName;
-  baseName.Form("$VMCWORKDIR/data/Gem_%s_n%d",addString.Data(),nEvents);
+  baseName.Form("Gem_%dStations_%gGeV_n%d",nStations,momentum,nEvents);
 
   TString MCFile  = baseName + ".root";
   TString parFile = baseName + "_par.root";
-  // ------------------------------------------------------------------------
-  TString outFile = baseName + "_idealTracksFineM5.root";
-  
-  std::cout << "RecoFile: " << outFile.Data()<< std::endl;
+  TString hitFile = baseName + "_idealHits.root";
+  TString outFile = baseName + "_idealTracks.root";
+
+  std::cout << "Output File: " << outFile.Data()<< std::endl;
 
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
-
-
+  
+  
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(MCFile);
+  fRun->AddFriend(hitFile);
   fRun->SetOutputFile(outFile);
   
 
   // -----  Parameter database   --------------------------------------------
+  TString allDigiFile = sysFile+"/macro/params/gem_3Stations.digi.par";
+  if ( nStations == 4 ) allDigiFile = sysFile+"/macro/params/gem_4Stations.digi.par";
+
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
+	
+  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
+  parIo1->open(allDigiFile.Data(),"in");
+        
   rtdb->setFirstInput(parInput1);
-
-  FairParAsciiFileIo* parIo2 = new FairParAsciiFileIo();
-  parIo2->open("../params/gem_4Stations_fine.digi.par","in");
-  rtdb->setSecondInput(parIo2);
-
-  fRun->LoadGeometry();
-
-  // -----   Ideal Hit Producer   ---------------------------------------
-  PndGemIdealHitProducer* gemHitProducer = new PndGemIdealHitProducer("GEM Ideal hit producer", verboseLevel);
-  fRun->AddTask(gemHitProducer);
+  rtdb->setSecondInput(parIo1);
+  // ------------------------------------------------------------------------
 
   //------ Ideal Track finder --------------------
   //Create and add finder task
@@ -59,33 +62,30 @@ void gem_idealTracks(Int_t nEvents = 100, TString addString = "4Stations_15GeV",
   finderTask->UseFinder(mcTrackFinder);
   //--------------------------------------------------
 
+  //------ Track finder QA ---------------------------
+  PndGemTrackFinderQA* trackFinderQA = new PndGemTrackFinderQA();
+  trackFinderQA->SetVerbose(verboseLevel);
+  fRun->AddTask(trackFinderQA);
+  //--------------------------------------------------
+
   // ----- Prepare GEANE --------------------------------------------
   // this will load Geant3 and execute setup macros to initialize geometry:
-  FairGeane *Geane = new FairGeane(MCFile);
+  FairGeane *Geane = new FairGeane();
+  fRun->AddTask(Geane);
   //--------------------------------------------------
-
-  // -----   Prepare tracks for genfit   --------------------------------------------
-  PndGemPrepareKalmanTracks *prepareKalmanTracks = new PndGemPrepareKalmanTracks();
-  prepareKalmanTracks->SetVerbose(0);
-  prepareKalmanTracks->UseGeane(kTRUE);
-  prepareKalmanTracks->UseMC(kFALSE);
-  prepareKalmanTracks->SetPDG(13);
-  prepareKalmanTracks->SetPersistence();
-  fRun->AddTask(prepareKalmanTracks);
-  //--------------------------------------------------
-
+  
   // -----   Run Kalman fitter   --------------------------------------------
-  PndGemKalmanTask* gemKalman = new PndGemKalmanTask();
-  gemKalman->SetVerbose(0);
-  gemKalman->SetNumIterations(6);
-  //  gemKalman->SetSmooth(kFALSE);
-  fRun->AddTask(gemKalman);
+  PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
+  recoKalman->SetTrackInBranchName("GEMTrack");
+  recoKalman->SetTrackOutBranchName("GEMFitTrack");
+  //recoKalman->SetNumIterations(3);
+  fRun->AddTask(recoKalman);
   // ------------------------------------------------- 
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
-  Geane->SetField(fRun->GetField());
   fRun->Run(0,nEvents);
+
 
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
@@ -99,3 +99,4 @@ void gem_idealTracks(Int_t nEvents = 100, TString addString = "4Stations_15GeV",
   cout << endl;
 
 }
+
