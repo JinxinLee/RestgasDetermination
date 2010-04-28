@@ -17,7 +17,7 @@
   gSystem->Load("libriemann");
   // ------------------------------------------------------------------------
   // Output file
-    PndMvdFileNameCreator creator(MCFile.Data());
+    PndFileNameCreator creator(MCFile.Data());
     TString trackFile1  = creator.GetTrackFindingFileName(false).c_str();
     TString trackFile2  = "Mvd_Test_IdealTrackF.root";
     TString outFile = "Mvd_Dummy_File.root";

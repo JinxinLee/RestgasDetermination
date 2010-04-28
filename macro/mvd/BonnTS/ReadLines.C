@@ -25,7 +25,7 @@ void ReadLines(){
 
 	TGeoManager *myGeo = geo->Get("FAIRGeom");
 
-	fGeoH = new PndGeoHandling(myGeo);
+	fGeoH = new PndGeoHandling();
 
 
 	// Loading the geometry and defining the geo handler

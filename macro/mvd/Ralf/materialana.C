@@ -58,7 +58,7 @@ void materialana(int nEvents = 10, bool verbose = false)
   t->SetBranchAddress("RadLen",&rad_array);
 
   TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("FAIRGeom");
-//   PndGeoHandling* fGeoH = new PndGeoHandling(geoMan);
+//   PndGeoHandling* fGeoH = new PndGeoHandling();
 
   // histos
   int res = 200; int angres = 180;

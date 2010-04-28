@@ -55,7 +55,7 @@
   
 
 //     
-//     PndMvdFileNameCreator creator(inFile.Data());
+//     PndFileNameCreator creator(inFile.Data());
 //       TString outFile = creator.GetDigiFileName().c_str(); //"MvdG4_DPM405_Mag_5000_digi.root";
 //       std::cout << "DigiFileName: " << outFile.Data() << std::endl;
      

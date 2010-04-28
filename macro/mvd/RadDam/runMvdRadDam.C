@@ -22,7 +22,7 @@
 
 //   TString parOutFile = "Test/testParamsOutput.root";
 
- //    PndMvdFileNameCreator creator(inFile.Data());
+ //    PndFileNameCreator creator(inFile.Data());
  //      TString outFile = creator.GetDigiFileName().c_str();
   TString outFile = "Mvd_GridUrqmdSim.RadDam.root";
 

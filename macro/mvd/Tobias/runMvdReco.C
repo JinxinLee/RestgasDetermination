@@ -14,7 +14,7 @@
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   // ------------------------------------------------------------------------
   // Output file
-    PndMvdFileNameCreator creator(MCFile.Data());
+    PndFileNameCreator creator(MCFile.Data());
     TString DigiFile = creator.GetDigiFileName(false).c_str();
     TString outFile = creator.GetRecoFileName(false).c_str();
 

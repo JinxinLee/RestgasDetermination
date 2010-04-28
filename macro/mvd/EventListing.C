@@ -6,7 +6,7 @@ void EventListing()
 	TString MCFile = "Mvd_Test.root";
 	TH1D* h1 = new TH1D("h1","PixError",100,-0.01,0.01);
 	
-	PndMvdFileNameCreator creator(MCFile.Data());
+	PndFileNameCreator creator(MCFile.Data());
 	TString DigiFile = creator.GetDigiFileName(false).c_str();
 	TString RecoFile = creator.GetRecoFileName(false).c_str();
 	//TString TrackFFile = creator.GetTrackFindingFileName(false).c_str();

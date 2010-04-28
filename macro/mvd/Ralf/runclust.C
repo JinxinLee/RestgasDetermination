@@ -14,9 +14,9 @@
   // Number of events to process
   // Parameter file
   TString parFile = "../data/mvddpm6GeV_digipar.root";
-  PndMvdFileNameCreator namecreator("../data/mvddpm6GeV.root");
+  PndFileNameCreator namecreator("../data/mvddpm6GeV.root");
 //   TString parFile = "../data/mvdStrip_digipar.root";
-//   PndMvdFileNameCreator namecreator("../data/mvdStrip.root");
+//   PndFileNameCreator namecreator("../data/mvdStrip.root");
   // Input file (MC events)
   std::string simFile = namecreator.GetSimFileName();
   // Input data: digis

@@ -15,7 +15,7 @@
   // ------------------------------------------------------------------------
 
 
-  PndMvdFileNameCreator namecreator("../data/mvddpm6GeV.root");
+  PndFileNameCreator namecreator("../data/mvddpm6GeV.root");
   std::string inFile = namecreator.GetSimFileName(false);
   std::string digiFile = namecreator.GetDigiFileName(false);
   std::string parfile = "../data/mvddpm6GeV_digipar.root";

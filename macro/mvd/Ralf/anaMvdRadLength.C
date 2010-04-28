@@ -27,8 +27,8 @@ Convert PndMvdWaferMCPoints to the STAR Format (text, "x y z layer")
 for the conformal mapping stuff
 */
 
-//   PndMvdFileNameCreator namecreator("data/mvdsim.root");
-  PndMvdFileNameCreator namecreator("Mvd_DPM_Test.root");
+//   PndFileNameCreator namecreator("data/mvdsim.root");
+  PndFileNameCreator namecreator("Mvd_DPM_Test.root");
   std::string inFile = namecreator.GetSimFileName(false);
 
   TFile* f = new TFile(inFile.c_str()); // the sim file you want to analyse

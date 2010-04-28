@@ -16,8 +16,8 @@ Convert PndMvdWaferMCPoints to the STAR Format (text, "x y z layer")
 for the conformal mapping stuff
 */
 
-//   PndMvdFileNameCreator namecreator("../data/mvddpm6GeV.root");
-  PndMvdFileNameCreator namecreator("../data/mvdStrip.root");
+//   PndFileNameCreator namecreator("../data/mvddpm6GeV.root");
+  PndFileNameCreator namecreator("../data/mvdStrip.root");
   std::string inFile = namecreator.GetSimFileName(false);
   TString picture = namecreator.GetSimFileName(false);
   picture.ReplaceAll(".root",".ps");
@@ -31,7 +31,7 @@ for the conformal mapping stuff
   t->SetBranchAddress("MCTrack",&mc_array);//Branch names
 
   TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("FAIRGeom");
-  PndGeoHandling* fGeoH = new PndGeoHandling(geoMan);
+  PndGeoHandling* fGeoH = new PndGeoHandling();
 
   // histos
   TH2D* hisxy = new TH2D("hisxy","MVD MC Points, xy view",200,-15.,15.,200,-15.,15.);

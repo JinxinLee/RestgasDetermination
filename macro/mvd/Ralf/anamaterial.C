@@ -9,7 +9,7 @@
   timer.Start();
   // ------------------------------------------------------------------------
 
-  PndMvdFileNameCreator namecreator("/home/ralfk/MVD/mvdmacros/data/mvdevalg4.root");
+  PndFileNameCreator namecreator("/home/ralfk/MVD/mvdmacros/data/mvdevalg4.root");
   std::string inFile = namecreator.GetSimFileName(false);
 
   TFile* f = new TFile(inFile.c_str()); // the sim file you want to analyse

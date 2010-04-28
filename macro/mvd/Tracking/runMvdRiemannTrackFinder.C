@@ -20,7 +20,7 @@
 
   // ------------------------------------------------------------------------
   // Output file
-    PndMvdFileNameCreator creator(MCFile.Data());
+    PndFileNameCreator creator(MCFile.Data());
     TString DigiFile = creator.GetDigiFileName(false).c_str();
     TString RecoFile = creator.GetRecoFileName(false).c_str();
     TString outFile  = creator.GetTrackFindingFileName(false).c_str();

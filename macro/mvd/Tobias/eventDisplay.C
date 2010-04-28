@@ -16,7 +16,7 @@ eventDisplay()
   //TString MCFile = "./data/Mvd_Test.root";
   TString MCFile = "MvdTpc_D+D-_10G_1000.root";
 
-//  PndMvdFileNameCreator creator(MCFile.Data());
+//  PndFileNameCreator creator(MCFile.Data());
   //TString RecoFile = creator.GetRecoFileName(false).c_str();
 //  TString TFindFile  = creator.GetTrackFindingFileName(false).c_str();
 

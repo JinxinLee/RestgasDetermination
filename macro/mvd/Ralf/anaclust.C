@@ -21,7 +21,7 @@ void anaclust()
 
   TString name = "../data/mvddpm6GeV.root";
 //   TString name = "../data/mvdStrip.root";
-  PndMvdFileNameCreator namecreator(name.Data());
+  PndFileNameCreator namecreator(name.Data());
   std::string inFile = namecreator.GetSimFileName(false);
   std::string digiFile = namecreator.GetDigiFileName(false);
   std::string recoFile = namecreator.GetRecoFileName(false);
@@ -56,7 +56,7 @@ void anaclust()
 
 
   TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("FAIRGeom");
-  PndGeoHandling* fGeoH = new PndGeoHandling(geoMan);
+  PndGeoHandling* fGeoH = new PndGeoHandling();
 
   Int_t nbins = 120; //200
   Double_t rim = 22.5;

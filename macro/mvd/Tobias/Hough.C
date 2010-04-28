@@ -5,7 +5,7 @@ gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 	
 	TString MCFile = "Mvd_Test.root";
 	
-	PndMvdFileNameCreator creator(MCFile.Data());
+	PndFileNameCreator creator(MCFile.Data());
 	TString DigiFile = creator.GetDigiFileName(false).c_str();
 	TString RecoFile = creator.GetRecoFileName(false).c_str();
 	TString TrackFFile = creator.GetTrackFindingFileName(false).c_str();

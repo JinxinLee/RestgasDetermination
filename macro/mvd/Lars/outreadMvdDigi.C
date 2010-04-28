@@ -14,7 +14,7 @@
   // ------------------------------------------------------------------------
 
 
-  PndMvdFileNameCreator namecreator("../data/Lars/MvdDtsSim.root");
+  PndFileNameCreator namecreator("../data/Lars/MvdDtsSim.root");
   std::string inFile = namecreator.GetSimFileName(false);
   std::string digiFile = namecreator.GetDigiFileName(false);
   std::string parfile = "../data/Lars/MvdDtsParams.root";

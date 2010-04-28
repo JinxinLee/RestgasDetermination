@@ -19,7 +19,7 @@
   // In general, the following parts need not be touched
   // ========================================================================
   // Output file
-  PndMvdFileNameCreator creator(inFile.Data());
+  PndFileNameCreator creator(inFile.Data());
   TString outFile = creator.GetDigiFileName().c_str();
   std::cout << "DigiFileName: " << outFile.Data() << std::endl;
 

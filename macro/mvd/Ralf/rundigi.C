@@ -19,8 +19,8 @@
 //   TString parOutFile = "../data/mvdStrip_digipar.root";
   TString digiparFile = gSystem->Getenv("VMCWORKDIR");
   digiparFile += "/mvd/MvdTools/mvd.digi.par";
-  PndMvdFileNameCreator namecreator("../data/mvddpm6GeV.root");
-//   PndMvdFileNameCreator namecreator("../data/mvdStrip.root");
+  PndFileNameCreator namecreator("../data/mvddpm6GeV.root");
+//   PndFileNameCreator namecreator("../data/mvdStrip.root");
   // Input file (MC events)
   std::string inFile = namecreator.GetSimFileName();
   // Output file

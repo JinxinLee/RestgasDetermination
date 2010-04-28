@@ -11,7 +11,7 @@
   timer.Start();
   // ------------------------------------------------------------------------
 
-  PndMvdFileNameCreator namecreator("../data/Lars/MvdDtsSim.root");
+  PndFileNameCreator namecreator("../data/Lars/MvdDtsSim.root");
   std::string inFile = namecreator.GetSimFileName(false);
 
   TFile* f = new TFile(inFile.c_str()); // the sim file you want to analyse

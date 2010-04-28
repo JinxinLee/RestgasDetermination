@@ -42,7 +42,7 @@ eventDisplayMvdTpc()
   TString TFindFile = "/home/stockman/fairroot/cbmsoft/pandaroot/macro/data/MvdTpc_D+D-_2Disks/digiMVD/recoMVD/riemannMVD/Combined.riemann.root"; 
   TString TFindFileComb = "/home/stockman/fairroot/cbmsoft/pandaroot/macro/data/MvdTpc_D+D-_2Disks/digiMVD/recoMVD/riemannMVD/combinedmergedMVDTPC/Combined.combined.root"; 
     
-//  PndMvdFileNameCreator creator(MCFile.Data());
+//  PndFileNameCreator creator(MCFile.Data());
 //  TString RecoFile = creator.GetRecoFileName(false).c_str();
 //  TString TFindFile  = creator.GetTrackFindingFileName(false).c_str();
   

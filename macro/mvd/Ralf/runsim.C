@@ -19,8 +19,8 @@
   fRun->SetName("TGeant4");
   // Choose the Geant Navigation System
 
-  PndMvdFileNameCreator namecreator("../data/mvddpm6GeV.root");
-//   PndMvdFileNameCreator namecreator("../data/mvdStrip.root");
+  PndFileNameCreator namecreator("../data/mvddpm6GeV.root");
+//   PndFileNameCreator namecreator("../data/mvdStrip.root");
   std::string filename = namecreator.GetSimFileName();
   fRun->SetOutputFile(filename.c_str());
 
