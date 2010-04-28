@@ -104,6 +104,9 @@ void PndGemDigiPar::CreateStations()
   if ( GetNStations() > 0 ) return;
   Int_t arrayIndex = 0;
 
+  fNSensors = 0;
+  fNChannels = 0;
+
   Int_t   stationNr   = 0;
   TString stationName = "";
   Int_t   nofSensors = 0;
@@ -138,6 +141,9 @@ void PndGemDigiPar::CreateStations()
 				fGemParameters[arrayIndex+11], fGemParameters[arrayIndex+12]);
 
       station->AddSensor(sensor);
+
+      fNSensors  ++;
+      fNChannels += sensor->GetNChannels(); 
 
       // put sensor into name/sensor map
       map < TString, PndGemSensor*>::iterator p;

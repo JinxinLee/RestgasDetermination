@@ -8,6 +8,7 @@
 // Pnd includes
 #include "PndGemFindTracks.h"
 #include "PndGemTrackFinder.h"
+#include "PndGemDigiPar.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -135,6 +136,10 @@ void PndGemFindTracks::SetParContainers() {
   FairRuntimeDb* rtdb = ana->GetRuntimeDb();
   rtdb->getContainer("FairBaseParSet");
   rtdb->getContainer("PndGeoPassivePar");
+
+  fDigiPar = (PndGemDigiPar*) rtdb->getContainer("PndGemDetectors");
+  cout << "THERE ARE " << fDigiPar->GetNStations() << " GEM STATIONS" << endl;
+
 }
 // -------------------------------------------------------------------------
 

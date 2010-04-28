@@ -50,6 +50,10 @@ PndGemFindHits::PndGemFindHits() : FairTask("GEM Hit Finder", 1) {
   fDigiPar = NULL;
   fDigis   = NULL;
   fHits    = NULL;
+
+  fTNofEvents = 0;
+  fTNofDigis  = 0;
+  fTNofHits = 0;
 }
 // -------------------------------------------------------------------------
 
@@ -61,6 +65,10 @@ PndGemFindHits::PndGemFindHits(Int_t iVerbose)
   fDigiPar = NULL;
   fDigis   = NULL;
   fHits    = NULL;
+
+  fTNofEvents = 0;
+  fTNofDigis  = 0;
+  fTNofHits = 0;
 }
 // -------------------------------------------------------------------------
 
@@ -72,7 +80,10 @@ PndGemFindHits::PndGemFindHits(const char* name, Int_t iVerbose)
   fDigiPar = NULL;
   fDigis   = NULL;
   fHits    = NULL;
-  cout << fName.Data() << " OK!!!" << endl;
+
+  fTNofEvents = 0;
+  fTNofDigis  = 0;
+  fTNofHits = 0;
 }
 // -------------------------------------------------------------------------
 
@@ -91,6 +102,8 @@ PndGemFindHits::~PndGemFindHits() {
 
 // -----   Public method Exec   --------------------------------------------
 void PndGemFindHits::Exec(Option_t* opt) {
+
+  fTNofEvents++;
 
   fTimer.Start();
   Bool_t warn = kFALSE;
@@ -199,6 +212,7 @@ void PndGemFindHits::SetParContainers() {
 
   // Get GEM digitisation parameter container
   fDigiPar = (PndGemDigiPar*) db->getContainer("PndGemDetectors");
+  cout << "THERE ARE " << fDigiPar->GetNStations() << " GEM STATIONS" << endl;
 
 }
 // -------------------------------------------------------------------------
@@ -287,6 +301,9 @@ void PndGemFindHits::SortDigis() {
   Int_t sensorNr  = -1;
   Int_t iSide     = -1;
   Int_t nDigis = fDigis->GetEntriesFast();
+
+  fTNofDigis += nDigis;
+
   for (Int_t iDigi=0; iDigi<nDigis; iDigi++) {
     digi = (PndGemDigi*) fDigis->At(iDigi);
     stationNr = digi->GetStationNr();
@@ -392,10 +409,28 @@ Int_t PndGemFindHits::FindHits(PndGemSensor* sensor,
 
       new ((*fHits)[nHits++]) PndGemHit(hitDetId, pos, dpos,  
 					iDigiF, iDigiB, dr, dp, refIndex);
+
+      fTNofHits++;
     }
   }
   
   return 0;
+}
+// -------------------------------------------------------------------------
+
+
+// -----   Public method Finish   ------------------------------------------
+void PndGemFindHits::Finish() {
+  if ( fHits ) fHits->Clear();
+
+  cout << "-------------------- " << fName.Data() << " : Summary -----------------------" << endl;
+  cout << " Events:        " << setw(10) << fTNofEvents << endl;
+  cout << " Digis:         " << setw(10) << fTNofDigis  << "    ( " << (Double_t)fTNofDigis/((Double_t)fTNofEvents) << " per event )" << endl;
+  cout << " Hits:          " << setw(10) << fTNofHits   << "    ( " << (Double_t)fTNofHits /((Double_t)fTNofEvents) << " per event )" << endl;
+  cout << "                       -->    ( " << (Double_t)fTNofHits  /((Double_t)fTNofEvents)/((Double_t)fDigiPar->GetNSensors()) << " per sensor )" << endl;
+  cout << "                       -->    ( " << (Double_t)fTNofHits  /((Double_t)fTNofDigis ) << " per digi )" << endl;
+  cout << "---------------------------------------------------------------------" << endl; 
+
 }
 // -------------------------------------------------------------------------
 

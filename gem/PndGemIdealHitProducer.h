@@ -54,6 +54,11 @@ class PndGemIdealHitProducer : public FairTask{
  private: 
    
 	PndGemDigiPar* fDigiPar;
+	
+	
+  Int_t             fTNofEvents;
+  Int_t             fTNofPoints;
+  Int_t             fTNofHits;
 
 	TClonesArray* fPointArray;///< Input array of PndGemMCPoints 
 	TClonesArray* fHitArray;  ///< Output array of PndGemHits

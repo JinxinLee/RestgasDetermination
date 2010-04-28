@@ -38,16 +38,32 @@
 #include "PndGemSensor.h"
 #include "PndGemDigi.h"
 
+#include <iomanip>
+
+using std::cout;
+using std::endl;
+using std::flush;
+using std::setw;
+using std::setprecision;
+
 // -----   Default constructor   -------------------------------------------
 PndGemIdealHitProducer::PndGemIdealHitProducer() :
   FairTask("Ideal GEM hit Producer") { 
   fDigiPar     = NULL;
+
+  fTNofEvents = 0;
+  fTNofPoints = 0;
+  fTNofHits   = 0;
 }
 
 // -----   Constructor   ---------------------------------------------------
 PndGemIdealHitProducer::PndGemIdealHitProducer(const char* name, Int_t iVerbose) 
   : FairTask(name, iVerbose) { 
   fDigiPar     = NULL;
+
+  fTNofEvents = 0;
+  fTNofPoints = 0;
+  fTNofHits   = 0;
 }
 
 
@@ -114,6 +130,8 @@ void PndGemIdealHitProducer::Exec(Option_t* opt) {
   // Reset output array
   if( !fHitArray ) Fatal("Exec", "No hit array");
 
+  fTNofEvents++;
+
   PndGemSensor* sensor;
 
   Int_t nofHits = 0;
@@ -131,6 +149,7 @@ void PndGemIdealHitProducer::Exec(Option_t* opt) {
     TString nodeName = currentPndGemMCPoint->GetDetName();
 
     if ( !nodeName.Contains("_Gem") ) continue;
+    fTNofPoints++;
 
     gGeoManager->cd(nodeName.Data());
     TGeoNode* curNode = gGeoManager->GetCurrentNode();
@@ -184,11 +203,22 @@ void PndGemIdealHitProducer::Exec(Option_t* opt) {
     new ((*fHitArray)[nofHits++]) PndGemHit(kGemHit,
 					    pos, dpos,  
 					    -1, -1, dr, dp, iPoint);
+    fTNofHits++;
   }  // end of loop over Points
 }
 
 // -----   Private method Finish   -----------------------------------------
 void PndGemIdealHitProducer::Finish() {
+  if ( fHitArray ) fHitArray->Clear();
+
+  cout << "-------------------- " << fName.Data() << " : Summary ---------------" << endl;
+  cout << " Events:        " << setw(10) << fTNofEvents << endl;
+  cout << " Points:        " << setw(10) << fTNofPoints << "    ( " << (Double_t)fTNofPoints/((Double_t)fTNofEvents) << " per event )" << endl;
+  cout << " Hits:          " << setw(10) << fTNofHits   << "    ( " << (Double_t)fTNofHits  /((Double_t)fTNofEvents) << " per event )" << endl;
+  cout << "                       -->    ( " << (Double_t)fTNofHits  /((Double_t)fTNofEvents)/((Double_t)fDigiPar->GetNSensors()) << " per sensor )" << endl;
+  cout << "                       -->    ( " << (Double_t)fTNofHits  /((Double_t)fTNofPoints ) << " per point )" << endl;
+  cout << "---------------------------------------------------------------------" << endl; 
 }
+// -------------------------------------------------------------------------
 
 ClassImp(PndGemIdealHitProducer)

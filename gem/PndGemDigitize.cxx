@@ -52,6 +52,11 @@ PndGemDigitize::PndGemDigitize() : FairTask("GEM Digitizer", 1) {
   fDigis       = NULL;
   fDigiMatches = NULL;
   fSaveOutsideHits = kFALSE;
+
+  fTNofEvents = 0;
+  fTNofPoints = 0;
+  fTNofDigis  = 0;
+
   Reset();
 }
 // -------------------------------------------------------------------------
@@ -66,6 +71,11 @@ PndGemDigitize::PndGemDigitize(Int_t iVerbose)
   fDigis       = NULL;
   fDigiMatches = NULL;
   fSaveOutsideHits = kFALSE;
+
+  fTNofEvents = 0;
+  fTNofPoints = 0;
+  fTNofDigis  = 0;
+
   Reset();
 }
 // -------------------------------------------------------------------------
@@ -80,6 +90,11 @@ PndGemDigitize::PndGemDigitize(const char* name, Int_t iVerbose)
   fDigis       = NULL;
   fDigiMatches = NULL;
   fSaveOutsideHits = kFALSE;
+
+  fTNofEvents = 0;
+  fTNofPoints = 0;
+  fTNofDigis  = 0;
+
   Reset();
 }
 // -------------------------------------------------------------------------
@@ -111,6 +126,8 @@ void PndGemDigitize::Exec(Option_t* opt) {
 
   Reset();
 
+  fTNofEvents++;
+
   PndGemSensor* sensor;
 
   Int_t nofHitsOutside = 0;
@@ -139,6 +156,8 @@ void PndGemDigitize::Exec(Option_t* opt) {
       continue;
     }
     Double_t locPosIn[4];
+
+    fTNofPoints++;
 
     curNode->MasterToLocal(posIn,locPosIn);
 
@@ -170,6 +189,7 @@ void PndGemDigitize::Exec(Option_t* opt) {
 	new ((*fDigis)[fNDigis]) PndGemDigi(digiDetId, channelNumber, iPoint);
 	fChannelMap[a] = fNDigis;
 	fNDigis++;
+	fTNofDigis++;
       }
       else {
 	Int_t iDigi = fChannelMap[a];
@@ -191,6 +211,7 @@ void PndGemDigitize::Exec(Option_t* opt) {
       new ((*fDigis)[fNDigis]) PndGemDigi(digiDetId, channelNumber, iPoint);
       fChannelMap[a] = fNDigis;
       fNDigis++;
+      fTNofDigis++;
     }
     else {
       Int_t iDigi = fChannelMap[a];
@@ -274,7 +295,20 @@ void PndGemDigitize::Reset() {
 }
 // -------------------------------------------------------------------------
 
+// -----   Public method Finish   ------------------------------------------
+void PndGemDigitize::Finish() {
+  if ( fDigis ) fDigis->Clear();
 
+  cout << "-------------------- " << fName.Data() << " : Summary ------------------------" << endl;
+  cout << " Events:        " << setw(10) << fTNofEvents << endl;
+  cout << " MC Points:     " << setw(10) << fTNofPoints << "    ( " << (Double_t)fTNofPoints/((Double_t)fTNofEvents) << " per event )" << endl;
+  cout << " Digis:         " << setw(10) << fTNofDigis  << "    ( " << (Double_t)fTNofDigis /((Double_t)fTNofEvents) << " per event )" << endl;
+  cout << "                       -->    ( " << (Double_t)fTNofDigis /((Double_t)fTNofEvents)/((Double_t)fDigiPar->GetNSensors()) << " per sensor )" << endl;
+  cout << "                       -->    ( " << (Double_t)fTNofDigis /((Double_t)fTNofEvents)/((Double_t)fDigiPar->GetNChannels())*100. << "% occupancy )" << endl;
+  cout << "                       -->    ( 2 x " << (Double_t)fTNofDigis /((Double_t)fTNofPoints)/2. << " per point )" << endl;
+  cout << "---------------------------------------------------------------------" << endl; 
+}
+// -------------------------------------------------------------------------
 
 
 

@@ -69,6 +69,11 @@ class PndGemFindHits : public FairTask
   TClonesArray*     fHits;        /** Output array of PndGemHit **/
   std::map<PndGemSensor*, std::set<Int_t> > fDigiMapF;  /** sensor digis (front) **/
   std::map<PndGemSensor*, std::set<Int_t> > fDigiMapB;  /** sensor digis (back)  **/
+
+  Int_t             fTNofEvents;
+  Int_t             fTNofDigis;
+  Int_t             fTNofHits;
+
   TStopwatch fTimer;
 
   /** Get parameter containers **/
@@ -94,6 +99,10 @@ class PndGemFindHits : public FairTask
   /** Find hits in one sensor **/
   Int_t FindHits(PndGemSensor* sensor,
 		 std::set<Int_t>& fSet, std::set<Int_t>& bSet);
+
+
+  /** Finish at the end of each event **/
+  virtual void Finish();
 
 
   ClassDef(PndGemFindHits,1);

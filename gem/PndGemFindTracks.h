@@ -23,6 +23,7 @@
 #include "FairTask.h"
 
 class PndGemTrackFinder;
+class PndGemDigiPar;
 class TClonesArray;
 
 class PndGemFindTracks : public FairTask
@@ -78,6 +79,8 @@ class PndGemFindTracks : public FairTask
   
 
  private:
+
+  PndGemDigiPar*    fDigiPar;     /** Digitisation parameters **/
 
   PndGemTrackFinder* fFinder;    	    ///< Pointer to TrackFinder concrete class
   TClonesArray* fGemHitOrDigiArray;     //

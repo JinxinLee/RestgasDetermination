@@ -75,6 +75,11 @@ class PndGemDigitize : public FairTask
   Int_t             fNOutside;
   Int_t             fNMulti;
   Int_t             fNDigis;
+
+  Int_t             fTNofEvents;
+  Int_t             fTNofPoints;
+  Int_t             fTNofDigis;
+
   TStopwatch        fTimer;
 
   /** Map of active channels (pair detectorId, channel number) 
@@ -100,6 +105,9 @@ class PndGemDigitize : public FairTask
   /** Reset eventwise counters **/
   void Reset();
 
+
+  /** Finish at the end of each event **/
+  virtual void Finish();
 
 
   ClassDef(PndGemDigitize,1);

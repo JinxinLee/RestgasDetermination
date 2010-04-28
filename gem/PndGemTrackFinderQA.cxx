@@ -611,10 +611,10 @@ void PndGemTrackFinderQA::DivideHistos(TH1* hist1, TH1* hist2, TH1* hist3) {
 
 // -----   Private method Finish   --------------------------------------------
 void PndGemTrackFinderQA::Finish() {
-  Double_t effAcc  = 1.;
-  Double_t effPrim = 1.;
-  Double_t effSec  = 1.;
-  Double_t effRef  = 1.;
+  Double_t effAcc  = 0.;
+  Double_t effPrim = 0.;
+  Double_t effSec  = 0.;
+  Double_t effRef  = 0.;
   if ( fNofMCAcc  ) effAcc  = 100.*(Double_t)fNofRecoAcc /((Double_t)fNofMCAcc);
   if ( fNofMCPrim ) effPrim = 100.*(Double_t)fNofRecoPrim/((Double_t)fNofMCPrim);
   if ( fNofMCSec  ) effSec  = 100.*(Double_t)fNofRecoSec /((Double_t)fNofMCSec);

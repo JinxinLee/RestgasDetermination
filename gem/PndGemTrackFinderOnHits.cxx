@@ -88,10 +88,8 @@ void PndGemTrackFinderOnHits::Init() {
     //    return;
   }
   
-  // Get GEM digitisation parameter container
   fDigiPar = (PndGemDigiPar*)(rtdb->getContainer("PndGemDetectors"));
   cout << "THERE ARE " << fDigiPar->GetNStations() << " GEM STATIONS" << endl;
-  
   fParThetaA = fDigiPar->GetTrackFinderOnHits_ParThetaA();
   fParThetaB = fDigiPar->GetTrackFinderOnHits_ParThetaB();
   
@@ -104,7 +102,7 @@ void PndGemTrackFinderOnHits::Init() {
   fParRadPhi2 = fDigiPar->GetTrackFinderOnHits_ParRadPhi2();
   for ( Int_t in = 0 ; in < 3 ; in++ ) {
     fParMat0[in] = fDigiPar->GetTrackFinderOnHits_ParMat0(in);
-    fParMat1[in] = fDigiPar->GetTrackFinderOnHits_ParMat1(in);
+      fParMat1[in] = fDigiPar->GetTrackFinderOnHits_ParMat1(in);
   }
 
   std::cout << "-I- "<< GetName() <<": Intialization successfull" << std::endl;
@@ -129,7 +127,8 @@ void PndGemTrackFinderOnHits::SetParContainers() {
 // -----   Public method DoFind   ------------------------------------------
 Int_t PndGemTrackFinderOnHits::DoFind(TClonesArray* hitArray,
 				      TClonesArray* trackArray) {
-  
+
+  // Get GEM digitisation parameter container
   fTrackSegments.clear();
 
   // Count events
