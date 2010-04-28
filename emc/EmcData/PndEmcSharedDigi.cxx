@@ -27,15 +27,13 @@
 //----------------
 PndEmcSharedDigi::PndEmcSharedDigi( const PndEmcDigi &theDigi, const double w )
   : PndEmcDigi( theDigi ),
-    fWeight( w ),
-    fDigi( (PndEmcDigi*)&theDigi  )
+   fWeight( w )
 {
 }
 
 PndEmcSharedDigi::PndEmcSharedDigi( const PndEmcSharedDigi &theDigi )
   : PndEmcDigi( theDigi ),
-    fWeight( theDigi.fWeight ),
-    fDigi( theDigi.fDigi )
+    fWeight( theDigi.fWeight )
 {
 }
 

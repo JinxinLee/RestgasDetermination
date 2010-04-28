@@ -1,6 +1,4 @@
 //--------------------------------------------------------------------------
-// File and Version Information:
-//
 // Description:
 //	Class PndEmcAbsClusterProperty
 //
@@ -17,21 +15,15 @@
 //------------------------------------------------------------------------
 
 #include "PndEmcAbsClusterProperty.h"
-
 #include "PndEmcCluster.h"
 
 //----------------
 // Constructors --
 //----------------
-PndEmcAbsClusterProperty::PndEmcAbsClusterProperty( const PndEmcCluster& toUse )
+PndEmcAbsClusterProperty::PndEmcAbsClusterProperty( const PndEmcCluster& toUse, const TClonesArray* digiArray)
   : fMyCluster( toUse ),
-    fMembers( *(toUse.MemberDigiMap()) )
-{
-}
-
-PndEmcAbsClusterProperty::PndEmcAbsClusterProperty( const PndEmcAbsClusterProperty& t )
-  : fMyCluster( t.fMyCluster ),
-    fMembers( t.fMembers )
+    fMembers(toUse.MemberDigiMap()),
+    fDigiArray(digiArray)
 {
 }
 
@@ -48,8 +40,14 @@ PndEmcAbsClusterProperty::MyCluster() const
   return fMyCluster;
 }
 
-PndEmcDigiPtrDict&
+const std::map<Int_t,Int_t>&
 PndEmcAbsClusterProperty::Members() const
 {
-  return (PndEmcDigiPtrDict&)fMembers;
+  return fMembers;
 }
+  
+const TClonesArray* PndEmcAbsClusterProperty::DigiArray() const
+{
+	return fDigiArray;
+}
+

@@ -42,6 +42,7 @@ EmcData/PndEmcSharedDigi.cxx
 EmcData/PndEmcBump.cxx
 EmcData/PndEmcHeader.cxx
 EmcData/PndEmcRecoHit.cxx
+EmcData/PndEmcClusterProperties.cxx
 EmcData/PndEmcAbsClusterProperty.cxx
 EmcData/PndEmcClusterDistances.cxx
 EmcData/PndEmcClusterEnergySums.cxx
@@ -69,8 +70,6 @@ EmcTools/PndEmcMapper.cxx
 EmcTools/PndEmcXtal.cxx 
 EmcTools/PndEmcHdrFiller.cxx
 EmcReco/PndEmcMakeCluster.cxx 
-EmcReco/PndEmcClusterLiloPos.cxx
-EmcReco/PndEmcClusterLinearPos.cxx  
 EmcReco/PndEmcRecoPar.cxx
 EmcReco/PndEmcMakeBump.cxx
 EmcReco/PndEmc2DLocMaxFinder.cxx

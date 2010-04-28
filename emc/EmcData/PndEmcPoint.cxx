@@ -10,7 +10,6 @@
 
 #include "PndEmcPoint.h"
 #include "PndDetectorList.h"
-
 #include <iostream>
 
 using std::cout;

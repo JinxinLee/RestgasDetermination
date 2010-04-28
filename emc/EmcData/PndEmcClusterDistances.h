@@ -32,7 +32,7 @@ class PndEmcClusterDistances: public PndEmcAbsClusterProperty
 public:
 
   // Constructors
-  PndEmcClusterDistances( const PndEmcCluster& );
+  PndEmcClusterDistances(const PndEmcCluster &cluster, const TClonesArray *digiArray);
   PndEmcClusterDistances( const PndEmcClusterDistances &);
 
   // Destructor

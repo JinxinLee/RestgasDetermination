@@ -35,7 +35,7 @@ class PndEmcClusterMoments: public PndEmcAbsClusterProperty
 public:
 
   // Constructors
-  PndEmcClusterMoments( const PndEmcCluster& );
+  PndEmcClusterMoments(const PndEmcCluster &cluster, const TClonesArray *digiArray);
   PndEmcClusterMoments( const PndEmcClusterMoments & );
 
   // Destructor

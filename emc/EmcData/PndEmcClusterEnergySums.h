@@ -38,7 +38,7 @@ class PndEmcClusterEnergySums: public PndEmcAbsClusterProperty
 public:
 
   // Constructors
-  PndEmcClusterEnergySums( const PndEmcCluster& );
+  PndEmcClusterEnergySums(const PndEmcCluster &cluster, const TClonesArray *digiArray);
   PndEmcClusterEnergySums(const PndEmcClusterEnergySums &);
 
   // Destructor

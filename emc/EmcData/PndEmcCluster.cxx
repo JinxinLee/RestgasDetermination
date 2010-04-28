@@ -1,7 +1,4 @@
 //---------------------------------------------------------------------
-// File and Version Information:
-// 	$Id: $
-//
 // Description:
 //           energy()            returns energy sum of digis in cluster.
 //           where()             returns a TVector3 at the centre of the
@@ -23,16 +20,11 @@
 
 #include "PndEmcCluster.h"
 
-#include "PndEmcClusterLiloPos.h"
-#include "PndEmcClusterLinearPos.h"
 #include "PndEmcDigi.h"
 #include "PndEmcXtal.h"
 #include "PndEmcStructure.h"
-#include "PndEmcXClMoments.h"
-#include "PndEmcClusterMoments.h"
-#include "PndEmcClusterEnergySums.h"
-#include "PndEmcClusterDistances.h"	
 #include "TVector3.h"
+#include "TClonesArray.h"
 
 #include <iostream>
 #include <iomanip>
@@ -40,6 +32,7 @@
 #include <algorithm>
 #include <cfloat>
 #include <vector>
+#include <utility>
 #include "assert.h"
 
 using std::endl;
@@ -51,75 +44,31 @@ using std::vector;
 //----------------
 
 PndEmcCluster::PndEmcCluster()  : 
-	fMemberDigiMap( new PndEmcDigiPtrDict ),
 	fEnergyValid( false ),
 	fEnergy( 0 ),
 	fWhereValid( false ),
-	fWhere( 0 ),
-	fTheClusLiloPos( 0 ),
-	fTheClusLinearPos( 0 ),
-	fTheClusEnergySums( 0 ),
-	fTheClusMoments( 0 ),
-	fTheClusXClMoments( 0 ),
-	fTheClusDistances( 0 )
+	fWhere( TVector3(0,0,0) )
 {
 }
 
-PndEmcCluster::PndEmcCluster(Int_t digiList, Int_t localMaxList) :
-	fMemberDigiMap( new PndEmcDigiPtrDict ),
-	fEnergyValid( false ),
-	fEnergy( 0 ),
-	fWhereValid( false ),
-	fWhere( 0 ),
-	fTheClusLiloPos( 0 ),
-	fTheClusLinearPos( 0 ),
-	fTheClusEnergySums( 0 ),
-	fTheClusMoments( 0 ),
-	fTheClusXClMoments( 0 ),
-	fTheClusDistances( 0 )
-{
-	fDigiList.reserve(digiList);
-	fLocalMaxList.reserve(localMaxList);
-}
 
 //--------------
 // Destructor --
 //--------------
 
 PndEmcCluster::~PndEmcCluster()
-{
-  delete fWhere;
-  fMemberDigiMap->clear();
-  delete fMemberDigiMap;
-
-  if ( fTheClusLiloPos != 0) delete fTheClusLiloPos;
-  if ( fTheClusLinearPos != 0) delete fTheClusLinearPos;
-  
-  if ( fTheClusEnergySums != 0) delete fTheClusEnergySums;
-  if ( fTheClusMoments != 0) delete fTheClusMoments;
-  if ( fTheClusXClMoments != 0) delete fTheClusXClMoments;
-  if ( fTheClusDistances != 0) delete fTheClusDistances;
-
-}
+{}
 
 Double_t
 PndEmcCluster::energy() const
 {
-	if ( ! fEnergyValid )
+	if (fEnergyValid)
+		return fEnergy;
+	else
 	{
-		Double_t sum=0;
-      std::vector<PndEmcDigi*>::const_iterator digi_iter;
-
-      for (digi_iter=fDigiList.begin();digi_iter!=fDigiList.end();++digi_iter)
-		{
-			sum+=(*digi_iter)->GetEnergy();
-		}
-		
-      fEnergy = sum;
-      fEnergyValid = true;
-    }
-  
-  return fEnergy;
+		std::cout<<"Energy of cluster is not defined"<<std::endl;
+		abort();
+	}
 }
 
 
@@ -135,18 +84,6 @@ PndEmcCluster::phi() const
   return where().Phi();
 }
 
-Double_t
-PndEmcCluster::thetaIndex() const
-{
-  return 0;
-}
-
-Double_t
-PndEmcCluster::phiIndex() const
-{
-  return 0;
-}
-
 TVector3
 PndEmcCluster::position() const
 {
@@ -157,14 +94,13 @@ PndEmcCluster::position() const
 TVector3
 PndEmcCluster::where() const
 {
-  if ( !fWhereValid )
-    {
-      delete fWhere;
-      fWhere = new TVector3( algWhere( this ) );
-      fWhereValid = true;
-    }
-
-  return *fWhere;
+	if (fWhereValid)
+		return fWhere;
+	else
+	{
+		std::cout<<"Position of cluster is not defined"<<std::endl;
+		abort();
+	}
 }
 
 Double_t
@@ -185,21 +121,139 @@ PndEmcCluster::z() const
   return where().z();
 }
 
+Double_t
+PndEmcCluster::FindPhiDiff( Double_t phi1, Double_t phi2)
+{
+  Double_t diff;
+  diff = phi1 - phi2;
+
+  while( diff>  TMath::Pi()  ) diff -= 2*TMath::Pi();
+  while( diff< -TMath::Pi()  ) diff += 2*TMath::Pi();
+
+  return diff;
+}
 
 //-------------
 // Modifiers --
 //-------------
 
 void
-PndEmcCluster::addDigi( PndEmcDigi* theDigi )
+PndEmcCluster::addDigi(const TClonesArray *digiArray, Int_t iDigi)
 {
-  fDigiList.push_back(theDigi);
-  PndEmcTwoCoordIndex *theTCI = theDigi->GetTCI();
-  fMemberDigiMap->insert(PndEmcDigiPtrDict::value_type(theTCI, theDigi));
-
-  invalidateCache();
+	fDigiList.push_back(iDigi);
+	PndEmcDigi *digi= (PndEmcDigi *) digiArray->At(iDigi);
+	Int_t detectorId =digi->GetDetectorId(); 
+	fMemberDigiMap.insert(std::pair<Int_t,Int_t>(detectorId, iDigi));
+	
+	invalidateCache();
 }
 
+void
+PndEmcCluster::addCluster(PndEmcCluster* cluster, const TClonesArray *digiArray)
+{
+	const vector<Int_t> tmpList = cluster->DigiList();
+	vector<Int_t>::const_iterator digi_iter;
+	for (digi_iter=tmpList.begin();digi_iter!=tmpList.end();++digi_iter)
+	{
+		addDigi(digiArray, *digi_iter);
+	}
+	AddLinks(cluster->GetLinks()); 
+}
+
+void PndEmcCluster::addLocalMax(const TClonesArray *digiArray, Int_t iDigi)
+{
+	PndEmcDigi *digi= (PndEmcDigi *) digiArray->At(iDigi);
+	Int_t detectorId =digi->GetDetectorId(); 
+	fLocalMaxMap.insert(std::pair<Int_t,Int_t>(detectorId, iDigi));
+};
+
+void PndEmcCluster::addLocalMax(const PndEmcDigi *digi)
+{
+	Int_t detectorId =digi->GetDetectorId();
+	Int_t iDigi= fMemberDigiMap.find(detectorId)->second; 
+	fLocalMaxMap.insert(std::pair<Int_t,Int_t>(detectorId, iDigi));
+};
+
+//check if a digi belong to this cluster
+bool 
+PndEmcCluster::isInCluster( PndEmcDigi* theDigi, const TClonesArray *digiArray)
+{
+	vector<Int_t>::iterator digi_iter;
+	for (digi_iter=fDigiList.begin();digi_iter!=fDigiList.end();++digi_iter)
+	{
+		if(theDigi->isNeighbour((PndEmcDigi *) digiArray->At(*digi_iter))) return true;
+	}
+
+	return false;
+}
+
+// Returnd digi with the highest energy in cluster
+const PndEmcDigi*
+PndEmcCluster::Maxima(const TClonesArray *digiArray) const
+{
+	Double_t max=0;
+	PndEmcDigi *biggest=0;
+
+	std::vector<Int_t>::const_iterator digipos;
+	for (digipos=fDigiList.begin();digipos!=fDigiList.end();++digipos){
+		PndEmcDigi *digi = (PndEmcDigi *) digiArray->At(*digipos);
+		if ( max < digi->GetEnergy() ) {
+			max=digi->GetEnergy();
+			biggest=digi;
+      }
+	}
+
+	return( biggest );
+}
+
+PndEmcDigi*
+PndEmcCluster::Maxima(const TClonesArray *digiArray)
+{
+	Double_t max=0;
+	PndEmcDigi *biggest=0;
+
+	std::vector<Int_t>::iterator digipos;
+	for (digipos=fDigiList.begin();digipos!=fDigiList.end();++digipos){
+		PndEmcDigi *digi = (PndEmcDigi *) digiArray->At(*digipos);
+		if ( max < digi->GetEnergy() ) {
+			max=digi->GetEnergy();
+			biggest=digi;
+      }
+	}
+
+	return( biggest );
+}
+
+Short_t PndEmcCluster::GetModule() const
+{
+	// Get module in which cluster is located
+	// If fLocalMaxMap is defined, i.e. after bump splitting procedure
+	// the number of module if taken from the first local maxima.
+	// Otherwise it is taken from the first digi in cluster.
+	Short_t module;
+	Int_t detectorId;
+	if (fLocalMaxMap.size()>0)
+	{
+		std::map<Int_t,Int_t>::const_iterator iter=fLocalMaxMap.begin();
+		detectorId=iter->first;
+	}
+	else
+	{
+		std::map<Int_t,Int_t>::const_iterator iter=fMemberDigiMap.begin();
+		detectorId=iter->first;
+	}	
+
+	module=detectorId/100000000;
+
+	return module;
+};
+
+void
+PndEmcCluster::invalidateCache()
+{
+  fEnergyValid = false;
+  fWhereValid = false;
+}
 
 Int_t
 PndEmcCluster::NumberOfDigis() const
@@ -210,27 +264,6 @@ PndEmcCluster::NumberOfDigis() const
 Int_t PndEmcCluster::NBumps() const
 {
 	return fNbumps;
-}
-
-Double_t PndEmcCluster::Mass() const
-{
-	Double_t mass;
-	TVector3 clusterMomentum(0,0,0);
-	vector<PndEmcDigi*>::const_iterator digi_iter;
-	TVector3 digiDirection;
-	Double_t digiEnergy;
-	for (digi_iter=fDigiList.begin();digi_iter!=fDigiList.end();++digi_iter)
-	{
-		digiDirection=(*digi_iter)->where().Unit();
-		digiEnergy=(*digi_iter)->GetEnergy();
-		clusterMomentum=clusterMomentum+digiDirection*digiEnergy;
-	}
-	
-	Double_t clEnergy=energy();
-	
-	mass=sqrt(clEnergy*clEnergy-clusterMomentum.Mag2());
-
-	return mass;
 }
 
 void
@@ -246,224 +279,6 @@ PndEmcCluster::Print(const Option_t* opt) const
 }
 
 
-const PndEmcClusterLiloPos&
-PndEmcCluster::liloPositions() const
-{
-  if (fTheClusLiloPos == 0) 
-    fTheClusLiloPos = new PndEmcClusterLiloPos( *this );
-  return *fTheClusLiloPos;
-}
-
-const PndEmcClusterLinearPos&
-PndEmcCluster::linearPositions() const
-{
-  if (fTheClusLinearPos == 0) 
-    fTheClusLinearPos = new PndEmcClusterLinearPos( *this );
-  return *fTheClusLinearPos;
-}
-
-
-void
-PndEmcCluster::addCluster(PndEmcCluster* cluster)
-{
-	const vector<PndEmcDigi*> tmpList = cluster->DigiList();
-	vector<PndEmcDigi*>::const_iterator digi_iter;
-	for (digi_iter=tmpList.begin();digi_iter!=tmpList.end();++digi_iter)
-	{
-		addDigi(*digi_iter);
-	}
-	AddLinks(cluster->GetLinks());
-}
-
-void
-PndEmcCluster::selectCentroidMethod( CentroidMethod alg, PndEmcClusterLiloPosData ClusterPositionParameters )
-{
-  TVector3 (*algorithm)(const PndEmcCluster*) = 0;
-  switch (alg)
-    {
-
-    case lilo:
-      algorithm = PndEmcClusterLiloPos::liloWhere;
-		PndEmcClusterLiloPos::SetParameters(ClusterPositionParameters);
-      break;
-		
-	case linear:
-		algorithm = PndEmcClusterLinearPos::linearWhere;
-		break;
-
-    default:
-      std::cout << "PndEmcCluster::selectCentroidMethod. "
-		      << "Attmpted to select unknown cluster position method." 
-		      << endl;
-    }
-
-  // Now actually set the poInt_ter
-  algPointer() = algorithm;
-}
-
-
-TVector3
-PndEmcCluster::algWhere( const PndEmcCluster* me )
-{
-  return algPointer()( me );
-}
-
-// Set the default cluster position method
-
-TVector3 (*&PndEmcCluster::algPointer())( const PndEmcCluster* )
-{
-   static TVector3 (*pointer)( const PndEmcCluster* ) = PndEmcClusterLiloPos::liloWhere;
-
-  return pointer;
-}
-
-void
-PndEmcCluster::invalidateCache()
-{
-  fEnergyValid = false;
-  fWhereValid = false;
-
-  if ( fTheClusLiloPos != 0) {
-    delete fTheClusLiloPos;
-    fTheClusLiloPos = 0;
-  }
-}
-
-//check if a digi belong to this cluster
-bool 
-PndEmcCluster::isInCluster( PndEmcDigi* theDigi )
-{
-	vector<PndEmcDigi*>::iterator digi_iter;
-	for (digi_iter=fDigiList.begin();digi_iter!=fDigiList.end();++digi_iter)
-	{
-		if(theDigi->isNeighbour(*digi_iter)) return true;
-	}
-
-	return false;
-}
-
-// Returnd digi with the highest energy in cluster
-const PndEmcDigi*
-PndEmcCluster::Maxima() const
-{
-	Double_t max=0;
-	PndEmcDigi *biggest=0;
-
-	std::vector<PndEmcDigi*>::const_iterator digipos;
-	
-	for (digipos=fDigiList.begin();digipos!=fDigiList.end();++digipos){
-		if ( max < (*digipos)->GetEnergy() ) {
-			max=(*digipos)->GetEnergy();
-			biggest=*digipos;
-      }
-	}
-
-	return( biggest );
-}
-
-PndEmcDigi*
-PndEmcCluster::Maxima()
-{
-	Double_t max=0;
-	PndEmcDigi *biggest=0;
-
-	std::vector<PndEmcDigi*>::iterator digipos;
-	
-	for (digipos=fDigiList.begin();digipos!=fDigiList.end();++digipos){
-		if ( max < (*digipos)->GetEnergy() ) {
-			max=(*digipos)->GetEnergy();
-			biggest=*digipos;
-      }
-	}
-
-	return( biggest );
-}
-
-Double_t
-PndEmcCluster::Major_axis() const
-{
-	Double_t maj=0.,st2=0.;
-	Double_t n=fDigiList.size();
-	
-	if ( n==1 ) return( -999. );
-	
-	Double_t phi_wtd=Moments().Phi1();
-	Double_t phi_clu=phi();
-	Double_t theta_clu=theta();
-	Double_t theta_wtd = Moments().Theta1();
-	
-	std::vector<PndEmcDigi*>::const_iterator current;
-
-	for (current=fDigiList.begin();current!=fDigiList.end();++current)
-	{
-		Double_t xx=0.,yy=0.,e=0.,t=0.;
-		xx=FindPhiDiff((*current)->GetPhi(),phi_clu);
-		yy=(*current)->GetTheta()-theta_clu;
-		e=(*current)->GetEnergy();
-		e*=e;                     // Will use e squared
-		t=(xx-phi_wtd)*e;
-		st2+=t*t;
-		maj+=t*(yy-theta_wtd)*e;
-	}
-	
-	// The major axis is found by the slope of a line through 
-	// the coordinates or the Digis with respect to the centre
-	// of the cluster. (Or just the coordinates, but I'll be consistent.)
-	
-	if ( !st2 ) return( TMath::Pi()/2.0 );
-	
-	maj/=st2;
-	
-	return( atan( maj ) );
-}
-
-
-Double_t
-PndEmcCluster::FindPhiDiff( Double_t phi1, Double_t phi2)
-{
-  Double_t diff;
-  diff = phi1 - phi2;
-
-  while( diff>  TMath::Pi()  ) diff -= 2*TMath::Pi();
-  while( diff< -TMath::Pi()  ) diff += 2*TMath::Pi();
-
-  return diff;
-}
-
-TVector3
-PndEmcCluster::GravWhere( const PndEmcCluster* me )
-{
-	TVector3 aVector(0,0,0);
-	
-	Int_t length = me->fDigiList.size();
-	for (Int_t i=0; i<length; i++ ) {
-		const PndEmcDigi* digi = (me->fDigiList)[i];
-		aVector += digi->where()* digi->GetEnergy();
-	}
-	
-	aVector *= 1./me->energy();
-	
-	PndEmcTwoCoordIndex *theTCI=PndEmcStructure::Instance()->locateIndex(aVector.Theta(),aVector.Phi());
-
-	assert(theTCI != 0);  
-	
-	PndEmcTciXtalMap const &tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();	
-	const PndEmcXtal *theGeom=tciXtalMap.find(theTCI)->second;
-	
-	const TVector3 normal = theGeom->normalToFrontFace();
-	
-	TVector3 centre(theGeom->frontCentre() - TVector3(0.0,0.0,0.0));
-	
-	double distanceOfPlane = normal.Dot(centre);
-	
-	double amplitude = distanceOfPlane / normal.Dot(aVector.Unit());
-	
-	aVector.SetMag(amplitude);
-	
-	return TVector3( aVector.x(), aVector.y(), aVector.z() );
-}
-
-
 Double_t
 PndEmcCluster::DistanceToCentre( const TVector3& aPoint ) const
 {
@@ -474,38 +289,6 @@ Double_t
 PndEmcCluster::DistanceToCentre( const PndEmcDigi* aDigi ) const
 {
   return  ( where() - aDigi->where() ).Mag();
-}
-
-const PndEmcClusterEnergySums&
-PndEmcCluster::Esums() const
-{
-  if (fTheClusEnergySums == 0) 
-    fTheClusEnergySums = new PndEmcClusterEnergySums( *this );
-  return *fTheClusEnergySums;
-}
-
-const PndEmcClusterMoments&
-PndEmcCluster::Moments() const
-{
-  if (fTheClusMoments == 0) 
-    fTheClusMoments = new PndEmcClusterMoments( *this );
-  return *fTheClusMoments;
-}
-
-const PndEmcClusterDistances&
-PndEmcCluster::Distances() const
-{
-  if (fTheClusDistances == 0) 
-    fTheClusDistances = new PndEmcClusterDistances( *this );
-  return * fTheClusDistances;
-}
-
-const PndEmcXClMoments&
-PndEmcCluster::Xmoments() const
-{
-  if (fTheClusXClMoments == 0) 
-    fTheClusXClMoments = new PndEmcXClMoments( *this );
-  return *fTheClusXClMoments;
 }
 
 Double_t
@@ -650,17 +433,6 @@ PndEmcCluster::GetEnergyCorrected() const
 	else 
 		return eout2;
 
-}
-
-void PndEmcCluster::ValidateDigiMap()
-{
-	fMemberDigiMap->clear();
-	vector<PndEmcDigi*>::iterator digi_iter;
-	for (digi_iter=fDigiList.begin();digi_iter!=fDigiList.end();++digi_iter)
-	{
-		PndEmcTwoCoordIndex *theTCI = (*digi_iter)->GetTCI();
-		fMemberDigiMap->insert(PndEmcDigiPtrDict::value_type(theTCI, (*digi_iter)));
-	}
 }
 
 TMatrixD PndEmcCluster::GetErrorMatrix() const{

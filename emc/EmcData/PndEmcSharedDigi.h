@@ -52,7 +52,7 @@ public:
   virtual void weight( Double_t newWeight );
 
   // Selectors (const)
-  virtual Double_t GetEnergy() const {return fDigi->GetEnergy()*weight();}
+  virtual Double_t GetEnergy() const {return fEnergy*fWeight;}
   virtual Double_t weight() const {return fWeight;}
 
     // Dynamic Cast methods
@@ -63,12 +63,10 @@ public:
 private:
 
   Double_t fWeight;
-  PndEmcDigi* fDigi;
-
   
   PndEmcSharedDigi& operator=(const PndEmcSharedDigi&);
 
-  ClassDef(PndEmcSharedDigi,1);
+  ClassDef(PndEmcSharedDigi,2);
 };
 
 #endif // PNDEMCSHAREDDIGI_HH

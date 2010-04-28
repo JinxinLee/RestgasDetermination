@@ -1,7 +1,4 @@
 //--------------------------------------------------------------------------
-// File and Version Information:
-// 	$Id: $
-//
 // Description:
 //	Class EmcERatioLocMaxMaxFinder./
 //      Searches for local maxima in a cluster based on the ratio
@@ -26,47 +23,36 @@
 #ifndef PNDEMC2DLOCALMAXFINDER_H
 #define PNDEMC2DLOCALMAXFINDER_H
 
-		
+#include "FairTask.h"
 #include "TObject.h"
 #include "PndEmcDataTypes.h"
 
 class PndEmcDigi;
 class PndEmcCluster;
 class PndEmcTwoCoordIndex;
+class PndEmcGeoPar;
+class PndEmcDigiPar;
 class PndEmcRecoPar;
 
-struct PndEmc2DLocMaxFinderData
+class PndEmc2DLocMaxFinder: public FairTask
 {
-  Double_t MaxECut;
-  Double_t NeighbourECut;
-  Double_t CutSlope;
-  Double_t CutOffset;
-  Double_t ERatioCorr;
-  Int_t    TheNeighbourLevel;
-};
-
-class PndEmc2DLocMaxFinder{
   
   
  public:
   
   // Constructors
-  
-  PndEmc2DLocMaxFinder(PndEmc2DLocMaxFinderData locMaxData,Int_t verbose=0);
-  // Copy Constructor
-  //PndEmc2DLocMaxFinder( const PndEmc2DLocMaxFinder& other);
+  PndEmc2DLocMaxFinder(Int_t verbose=0);
   
   // Destructor
   virtual ~PndEmc2DLocMaxFinder();
   
-  // Operators
-  //PndEmc2DLocMaxFinder & operator= ( const PndEmc2DLocMaxFinder& other);
+  /** Virtual method Init **/
+  virtual InitStatus Init();
+
+  /** Virtual method Exec **/
+  virtual void Exec(Option_t* opt);
   
-  // Methods 
-  void findMaxima( const PndEmcCluster * const theCluster, 
-		   PndEmcCoordIndexSet& res) const;
-  
-  // Modifiers
+  void SetStorageOfData(Bool_t p = kTRUE) {fPersistance=p;};
   
  protected:
   
@@ -83,9 +69,20 @@ class PndEmc2DLocMaxFinder{
   PndEmc2DLocMaxFinder( const PndEmc2DLocMaxFinder& other);
   // Methods
   void getNeighbourDigis( PndEmcCoordIndexSet &, PndEmcCoordIndexSet &, int,
-			  const PndEmcDigiPtrDict* const) const;
+			  std::map<Int_t, Int_t>) const;
   
+  /** Input array of PndEmcClusters **/
+  TClonesArray* fClusterArray;
+  /** Input array of PndEmcDigis **/
+  TClonesArray* fDigiArray;
+  
+  PndEmcGeoPar*     fGeoPar;       /** Geometry parameter container **/
+  PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
   PndEmcRecoPar*    fRecoPar;      /** Reconstruction parameter container **/
+  /** Get parameter containers **/
+  virtual void SetParContainers();
+  
+  Bool_t fPersistance;
   
   // Data members
   Double_t fMaxECut;
@@ -96,5 +93,7 @@ class PndEmc2DLocMaxFinder{
   Int_t fTheNeighbourLevel;
   /** Verbosity level **/
   Int_t fVerbose;
+  
+  ClassDef(PndEmc2DLocMaxFinder,1);
 };
 #endif // PNDEMC2DLOCALMAXFINDER_HH

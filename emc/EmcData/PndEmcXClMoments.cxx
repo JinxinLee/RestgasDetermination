@@ -23,9 +23,11 @@
 //------------------------------------------------------------------------
 
 #include "PndEmcXClMoments.h"
+#include "PndEmcClusterProperties.h"
 #include "PndEmcTwoCoordIndex.h"
 #include "PndEmcCluster.h"
 #include "PndEmcDigi.h"
+#include "TClonesArray.h"
 #include <vector>
 #include <cmath>
 
@@ -33,8 +35,8 @@ using std::endl;
 using std::ostream;
 
 
-PndEmcXClMoments::PndEmcXClMoments( const PndEmcCluster& toUse ):
-	PndEmcAbsClusterProperty( toUse )
+PndEmcXClMoments::PndEmcXClMoments(const PndEmcCluster &cluster, const TClonesArray *digiArray):
+	PndEmcAbsClusterProperty( cluster, digiArray )
 {
 	Init();
 }
@@ -169,8 +171,8 @@ PndEmcXClMoments::Print(const Option_t* opt) const
 	theta_axis *= 1.0/theta_axis.Mag();
 	TVector3 phi_axis = theta_axis.Cross(ClusDirection);
 	
-	std::vector<PndEmcDigi*> fDigiList = MyCluster().DigiList();
-	std::vector<PndEmcDigi*>::iterator current;
+	std::vector<Int_t> digiList = MyCluster().DigiList();
+	std::vector<Int_t>::iterator current;
 	
 	PndEmcClEnergyDeposition clEdep;
 	std::cout << "Dump of PndEmcCluster with CoG at (" << cl.x() << "," << cl.y()
@@ -182,9 +184,10 @@ PndEmcXClMoments::Print(const Option_t* opt) const
 		<< phi_axis.z() << ")" << endl;
 	int i=0;
 	
-	for (current!=fDigiList.begin();current<fDigiList.end();++current){
+	for (current!=digiList.begin();current<digiList.end();++current){
 		clEdep = (*fEnergyDistribution)[i];
-		(*current)->Print();
+		PndEmcDigi *digi = (PndEmcDigi *) DigiArray()->At(*current);
+		digi->Print();
 		std::cout << "Polar coords : (" << clEdep.r << "," << clEdep.phi << ")" << endl;
 		i++;
 	}  
@@ -303,34 +306,35 @@ PndEmcXClMoments::Init()
 	// need to get one digi to ask what kind of digi position method is used
 	// or to be more precise what scaling factor has do be used
 	Double_t rescaleFactor = 1.;
-	const PndEmcDigi* pDigi = MyCluster().Maxima();
+	PndEmcClusterProperties *properties = new PndEmcClusterProperties(MyCluster(), DigiArray());
+
+	const PndEmcDigi* pDigi = MyCluster().Maxima(DigiArray());
 	if ( pDigi != 0 ) rescaleFactor = pDigi->getRescaleFactor();
 	
 	// make sure we always use gravWhere for the cluster moments
 	//  TVector3 cl( MyCluster().where() );
-	TVector3 cl( MyCluster().GravWhere(&MyCluster()) );
+	TVector3 cl( properties->GravWhere() );
 	TVector3 ClusDirection(cl.x(),cl.y(),cl.z());
 	ClusDirection *= 1.0/ClusDirection.Mag();
 	TVector3 theta_axis(ClusDirection.y(),-ClusDirection.x(),0.0);
 	theta_axis *= 1.0/theta_axis.Mag();
 	TVector3 phi_axis = theta_axis.Cross(ClusDirection);
 	
-	std::vector<PndEmcDigi*> fDigiList = MyCluster().DigiList();
-	std::vector<PndEmcDigi*>::iterator current;
+	std::vector<Int_t> digiList = MyCluster().DigiList();
+	std::vector<Int_t>::iterator current;
 
-	fClusterSize = fDigiList.size();
+	fClusterSize = digiList.size();
 	fEnergyDistribution = new std::vector<PndEmcClEnergyDeposition> (fClusterSize);
 	
 	int i=0;
 	PndEmcClEnergyDeposition clEdep;
-	PndEmcDigi *digi;
-        //Double_t M_PI;
-   
-	for (current=fDigiList.begin();current<fDigiList.end();++current)
+ 
+	for (current=digiList.begin();current<digiList.end();++current)
 	{
-		clEdep.deposited_energy = (*current)->GetEnergy();
+		PndEmcDigi *digi = (PndEmcDigi *) DigiArray()->At(*current);
+		clEdep.deposited_energy = digi->GetEnergy();
 		
-		TVector3 diff = (*current)->where() - cl;
+		TVector3 diff = digi->where() - cl;
 		TVector3 DigiVect = diff - diff.Dot(ClusDirection) * ClusDirection;
 		clEdep.r = DigiVect.Mag() / rescaleFactor;
 		clEdep.phi = DigiVect.Angle(theta_axis);
@@ -357,4 +361,4 @@ PndEmcXClMoments::Init()
 	fFcn[11] = &PndEmcXClMoments::f55 ;
 }
 
-ClassImp(PndEmcClusterMoments)
+ClassImp(PndEmcXClMoments)

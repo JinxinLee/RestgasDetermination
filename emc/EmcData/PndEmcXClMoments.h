@@ -43,7 +43,7 @@ public:
 
 	// Constructors
 	
-	PndEmcXClMoments( const PndEmcCluster& );
+	PndEmcXClMoments(const PndEmcCluster &cluster, const TClonesArray *digiArray);
 	PndEmcXClMoments( const PndEmcXClMoments & );
 	
 	// Destructor

@@ -43,11 +43,10 @@ public:
 
 	// Modifiers
 	virtual void MadeFrom( Int_t clusterIndex );
-	virtual Double_t energy() const;
-	virtual Int_t NumberOfDigis() const;
-	virtual Double_t RnumberOfDigis() const;
+// 	virtual Int_t NumberOfDigis() const;
+// 	virtual Double_t RnumberOfDigis() const;
 
-        Int_t GetClusterIndex()  { return fClusterIndex; };
+	Int_t GetClusterIndex()  { return fClusterIndex; };
 
 protected:
   // Data members

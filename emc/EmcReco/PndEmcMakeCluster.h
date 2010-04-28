@@ -63,6 +63,8 @@ private:
 	Double_t fDigiEnergyTresholdFWD;
 	Double_t fDigiEnergyTresholdBWD;
 	Double_t fDigiEnergyTresholdShashlyk;
+	
+	std::vector<Double_t> fClusterPosParam;
 	Int_t fMapVersion;
 	
 	static Int_t fEventCounter;

@@ -31,18 +31,9 @@
 #include <vector>
 #include <map>
 
+#include "FairTask.h"
 #include "TObject.h"
 #include "PndEmcDataTypes.h"
-
-struct PndEmcExpClusterSplitterData
-{
-  Double_t MoliereRadius; 
-  Double_t ExponentialConstant;
-  Int_t    MaxIterations;
-  Double_t CentroidShift;
-  Int_t    MaxBumps;
-  Double_t MinDigiEnergy;
-};
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -51,42 +42,68 @@ struct PndEmcExpClusterSplitterData
 class PndEmcCluster;
 class PndEmcBump;
 class PndEmcDigi;
+class PndEmcSharedDigi;
 class PndEmcTwoCoordIndex;
+
+class PndEmcGeoPar;
+class PndEmcDigiPar;
+class PndEmcRecoPar;
 
 //		---------------------
 // 		-- Class Interface --
 //		---------------------
 
-class PndEmcExpClusterSplitter{
+class PndEmcExpClusterSplitter: public FairTask
+{
   
  public:
   
-  PndEmcExpClusterSplitter(PndEmcExpClusterSplitterData  expClusterSplitterData,Int_t verbose=0);
-  
-  // Destructor
-  virtual ~PndEmcExpClusterSplitter( );
-  
-  // Methods
-  
-  virtual void splitCluster(const PndEmcCoordIndexSet &, 
-			    const PndEmcCluster* const, Int_t clusterIndex, 
-			    std::vector<PndEmcBump*>& theBumpList) const;
+	PndEmcExpClusterSplitter(Int_t verbose=0);
+	
+	// Destructor
+	virtual ~PndEmcExpClusterSplitter( );
+	
+	// Methods
+	/** Virtual method Init **/
+	virtual InitStatus Init();
+	
+	/** Virtual method Exec **/
+	virtual void Exec(Option_t* opt);
+	
+	void SetStorageOfData(Bool_t p = kTRUE) {fPersistance=p;};
+	PndEmcBump* AddBump();
+	PndEmcSharedDigi* AddSharedDigi(PndEmcDigi*, Double_t weight);
+	
   
  private:
-  //These methods are not implemented yet. Maybe wise to do so, ???
-  // Copy Constructor
-  PndEmcExpClusterSplitter( const PndEmcExpClusterSplitter& other);
-  PndEmcExpClusterSplitter& operator= ( const PndEmcExpClusterSplitter& other);
-  
-  // Data members
-  Double_t fMoliereRadius;
-  Double_t fExponentialConstant;
-  Int_t fMaxIterations;
-  Double_t fCentroidShift;
-  Int_t fMaxBumps;
-  Double_t fMinDigiEnergy;
-  
-  /** Verbosity level **/
-  Int_t fVerbose;
+	/** Input array of PndEmcClusters **/
+	TClonesArray* fDigiArray;
+	TClonesArray* fClusterArray;
+	
+	/** Output array of PndEmcBumps **/
+	TClonesArray* fBumpArray;
+	TClonesArray* fSharedDigiArray;
+
+	PndEmcGeoPar*     fGeoPar;       /** Geometry parameter container **/
+	PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
+	PndEmcRecoPar*    fRecoPar;      /** Reconstruction parameter container **/
+	/** Get parameter containers **/
+	virtual void SetParContainers();
+	
+	std::vector<Double_t> fClusterPosParam;
+	
+	Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
+	// Data members
+	Double_t fMoliereRadius;
+	Double_t fExponentialConstant;
+	Int_t fMaxIterations;
+	Double_t fCentroidShift;
+	Int_t fMaxBumps;
+	Double_t fMinDigiEnergy;
+	
+	/** Verbosity level **/
+	Int_t fVerbose;
+	
+	ClassDef(PndEmcExpClusterSplitter,1);
 };
 #endif // EMCABSCLUSTERSPLITTER_HH

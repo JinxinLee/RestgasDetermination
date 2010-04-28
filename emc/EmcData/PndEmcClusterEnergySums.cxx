@@ -19,6 +19,8 @@
 #include "PndEmcClusterEnergySums.h"
 #include "PndEmcCluster.h"
 #include "PndEmcDigi.h"
+#include "TClonesArray.h"
+
 #include <iostream>
 
 
@@ -26,8 +28,8 @@
 using std::endl;
 using std::ostream;
 
-PndEmcClusterEnergySums::PndEmcClusterEnergySums( const PndEmcCluster& toUse ):
-	PndEmcAbsClusterProperty( toUse )
+PndEmcClusterEnergySums::PndEmcClusterEnergySums(const PndEmcCluster &toUse, const TClonesArray *digiArray):
+	PndEmcAbsClusterProperty( toUse, digiArray )
 {
 }
 
@@ -50,16 +52,17 @@ Double_t
 PndEmcClusterEnergySums::energy( Int_t n ) const 
 {
 	Double_t sum = 0;
-
-   std::vector<PndEmcDigi*> fDigiList = MyCluster().DigiList();
-	std::vector<PndEmcDigi*>::iterator digipos;
-
+	
   // If asked for too many digis summed return the whole energy
 	if ( n > MyCluster().NumberOfDigis() ) return ( MyCluster().energy() );
-
-	for (digipos=fDigiList.begin();digipos<fDigiList.end();++digipos){
-		sum += (*digipos)->GetEnergy();
-	}
+	
+	std::vector<Int_t>::const_iterator digi_iter;
+	std::vector<Int_t> digiList = MyCluster().DigiList();
+	for (Int_t i=0; i<n; n++)
+	{
+		PndEmcDigi *digi = (PndEmcDigi *) DigiArray()->At(digiList[i]);
+		sum += digi->GetEnergy();
+	} 
 
 	return( sum );
 }
@@ -68,77 +71,78 @@ Double_t
 PndEmcClusterEnergySums::energy( Double_t distance ) const 
 {
 	Double_t sum = 0;
-   std::vector<PndEmcDigi*> fDigiList = MyCluster().DigiList();
-	std::vector<PndEmcDigi*>::iterator digipos;
-	
-	for (digipos!=fDigiList.begin();digipos<fDigiList.end();++digipos){
-		if ( MyCluster().DistanceToCentre( *digipos) < distance )
-			sum += (*digipos)->GetEnergy();
-	}  
-	
+	std::vector<Int_t>::const_iterator digi_iter;
+	std::vector<Int_t> digiList = MyCluster().DigiList();
+	for (digi_iter=digiList.begin();digi_iter!=digiList.end();++digi_iter)
+	{
+		PndEmcDigi *digi = (PndEmcDigi *) DigiArray()->At(*digi_iter); 
+		if ( MyCluster().DistanceToCentre( digi) < distance )
+			sum += digi->GetEnergy();
+	}
+ 
 	return( sum );
 }
 
 Double_t
 PndEmcClusterEnergySums::E1() const
 {
-  const PndEmcDigi* current = MyCluster().Maxima();
+  const PndEmcDigi* current = MyCluster().Maxima(DigiArray());
   return( current->GetEnergy() );
 }
 
 Double_t
 PndEmcClusterEnergySums::E9() const
 {
-	PndEmcDigi* maxDigi = const_cast<PndEmcDigi*> (MyCluster().Maxima());
+	PndEmcDigi* maxDigi = const_cast<PndEmcDigi*> (MyCluster().Maxima(DigiArray()));
 	
 	Double_t sum = maxDigi->GetEnergy();
 
-	std::vector<PndEmcDigi*> fDigiList = MyCluster().DigiList();
-	std::vector<PndEmcDigi*>::iterator current;
-	
-	for (current=fDigiList.begin();current!=fDigiList.end();++current){
-		if ( (*current) == maxDigi) continue;
-		
-      if ( (*current)->isNeighbour(maxDigi))
+	std::vector<Int_t>::const_iterator digi_iter;
+	std::vector<Int_t> digiList = MyCluster().DigiList();
+	for (digi_iter=digiList.begin();digi_iter!=digiList.end();++digi_iter)
+	{
+		PndEmcDigi *digi = (PndEmcDigi *) DigiArray()->At(*digi_iter);
+		if (digi==maxDigi) continue; 
+      if ( digi->isNeighbour(maxDigi))
 		{
-			sum += (*current)->GetEnergy();
+			sum += digi->GetEnergy();
 		}
-	}		
-  
+	}  
 	return sum;
 }
 
 Double_t
 PndEmcClusterEnergySums::E25() const
 {
-	const PndEmcDigi* maxDigi = MyCluster().Maxima();
+	const PndEmcDigi* maxDigi = MyCluster().Maxima(DigiArray());
 	Double_t sum = E9();
+	std::vector<Int_t> tmpDigiList;
 	
-	std::vector <const PndEmcDigi*> tmpDigiList;
-
-	std::vector<PndEmcDigi*> fDigiList = MyCluster().DigiList();
-	std::vector<PndEmcDigi*>::const_iterator current_i, current_j;
+	std::vector<Int_t>::const_iterator current_i, current_j;
+	std::vector<Int_t> digiList = MyCluster().DigiList();
 	
-	for (current_i=fDigiList.begin();current_i!=fDigiList.end();++current_i){
-		if ( (*current_i) == maxDigi) continue;
-      if ((*current_i)->isNeighbour(maxDigi))
+	for (current_i=digiList.begin();current_i!=digiList.end();++current_i)
+	{
+		PndEmcDigi *digi_i = (PndEmcDigi *) DigiArray()->At(*current_i);
+		if (digi_i == maxDigi) continue;
+      if (digi_i->isNeighbour(maxDigi))
 		{
-			for (current_j=fDigiList.begin();current_j!=fDigiList.end();++current_j){
-				if ( ((*current_j) == maxDigi) || ((*current_j)->isNeighbour(maxDigi) ) ) continue; 
-				if ( (*current_j)->isNeighbour(*current_i) ) {
-					std::vector<const PndEmcDigi*>::iterator iter;
+			for (current_j=digiList.begin();current_j!=digiList.end();++current_j){
+				PndEmcDigi *digi_j = (PndEmcDigi *) DigiArray()->At(*current_j);
+				if ( (digi_j == maxDigi) || (digi_j->isNeighbour(maxDigi) ) ) continue; 
+				if ( digi_j->isNeighbour(digi_i) ) {
+					std::vector<Int_t>::iterator iter;
 					iter = std::find(tmpDigiList.begin(), tmpDigiList.end(), *current_j);
 					if (iter == tmpDigiList.end()) {
-						sum += (*current_j)->GetEnergy();
+						sum += digi_j->GetEnergy();
 						tmpDigiList.push_back(*current_j);
 					}
 				}
 			}
-		}
+		}	
 	}	
-
-  return sum;
-
+	
+	return sum;
 }
 
 Double_t PndEmcClusterEnergySums::E1E9() const

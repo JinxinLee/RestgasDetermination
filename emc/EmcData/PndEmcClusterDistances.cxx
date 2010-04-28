@@ -26,8 +26,8 @@
 
 #include "assert.h"
 		
-PndEmcClusterDistances::PndEmcClusterDistances( const PndEmcCluster& toUse ):
-PndEmcAbsClusterProperty( toUse )
+PndEmcClusterDistances::PndEmcClusterDistances(const PndEmcCluster &toUse, const TClonesArray *digiArray):
+PndEmcAbsClusterProperty( toUse, digiArray )
 {
 	TVector3 clusLocation(toUse.where());
 	

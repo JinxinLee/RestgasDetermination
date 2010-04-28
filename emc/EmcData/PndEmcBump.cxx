@@ -59,7 +59,7 @@ PndEmcBump::PndEmcBump(const PndEmcBump &copy)
 	fClusterIndex=copy.fClusterIndex;
 	fNbumps=copy.fNbumps;
   
-	fLocalMaxList=copy.fLocalMaxList;
+	fLocalMaxMap=copy.fLocalMaxMap;
 	fDigiList=copy.fDigiList;
 	fMemberDigiMap=copy.fMemberDigiMap;
 	fEnergyValid=copy.fEnergyValid;
@@ -86,49 +86,27 @@ PndEmcBump::MadeFrom( Int_t clusterIndex )
   fClusterIndex = clusterIndex;
 }
 
-Double_t
-PndEmcBump::energy() const
-{
-	Double_t weight=0;
-	if ( ! fEnergyValid )
-	{
-		Double_t sum=0;
-      std::vector<PndEmcDigi*>::const_iterator digi_iter;
 
-      for (digi_iter=fDigiList.begin();digi_iter!=fDigiList.end();++digi_iter)
-		{
-			weight=(*digi_iter)->dynamic_cast_PndEmcSharedDigi()->weight();
-			sum+=(*digi_iter)->GetEnergy()*weight;
-		}
-		
-      fEnergy = sum;
-      fEnergyValid = true;
-    }
-  
-  return fEnergy;
-}
-
-
-Double_t
-PndEmcBump::RnumberOfDigis() const
-{
-	Double_t sum = 0;
-	PndEmcDigi* current;
-	
-	std::vector<PndEmcDigi*>::const_iterator digi_iter;
-	for (digi_iter=fDigiList.begin();digi_iter!=fDigiList.end();++digi_iter)
-	{
-		sum+=(*digi_iter)->dynamic_cast_PndEmcSharedDigi()->weight();
-	}
-		
-	return sum;
-}
-
-Int_t
-PndEmcBump::NumberOfDigis() const
-{
-	Int_t numberOfDigis = Int_t( RnumberOfDigis() + 0.5 );
-	if( numberOfDigis < 1 ) numberOfDigis = 1;
-	
-	return( numberOfDigis );
-}
+// Double_t
+// PndEmcBump::RnumberOfDigis() const
+// {
+// 	Double_t sum = 0;
+// 	PndEmcDigi* current;
+// 	
+// 	std::vector<PndEmcDigi*>::const_iterator digi_iter;
+// 	for (digi_iter=fDigiList.begin();digi_iter!=fDigiList.end();++digi_iter)
+// 	{
+// 		sum+=(*digi_iter)->dynamic_cast_PndEmcSharedDigi()->weight();
+// 	}
+// 		
+// 	return sum;
+// }
+// 
+// Int_t
+// PndEmcBump::NumberOfDigis() const
+// {
+// 	Int_t numberOfDigis = Int_t( RnumberOfDigis() + 0.5 );
+// 	if( numberOfDigis < 1 ) numberOfDigis = 1;
+// 	
+// 	return( numberOfDigis );
+// }

@@ -270,19 +270,20 @@ void PndEmcMakeCorr::Exec(Option_t* opt)
       }
       
       // Check the ID of a crystal, get module number from it and put into a map
-      std::vector<PndEmcDigi*> digiList=theCluster->DigiList();
-      ndigi=digiList.size();
+      std::map<Int_t,Int_t> digiMap=theCluster->MemberDigiMap();
+      std::map<Int_t,Int_t>::iterator iter;
+      ndigi=digiMap.size();
       
       Int_t ID, module;     
       std::map<int, int> counting;
       std::map<int, int>::iterator iCounting;
       Int_t oldCounting = 0;
 
-      if(digiList.size() != 0)
+      if(digiMap.size() != 0)
 	{
-	  for(int k = 0; k < digiList.size(); k++)
+	  for(iter=digiMap.begin(); iter != digiMap.end(); ++iter)
 	    {
-	      ID = digiList[k]->GetDetectorId();
+	      ID = iter->first;
 	      module = ID/100000000;
 	      counting[module]++;
 	    }	

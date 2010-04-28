@@ -18,6 +18,8 @@
 
 #include "PndEmcMakeCluster.h"
 
+#include "PndEmcClusterProperties.h"
+#include "PndEmcXClMoments.h"
 #include "PndEmcStructure.h"
 #include "PndEmcMapper.h"
 #include "PndEmcGeoPar.h"
@@ -25,7 +27,6 @@
 #include "PndEmcRecoPar.h"
 #include "PndEmcCluster.h"
 #include "PndEmcDigi.h"
-#include "PndEmcClusterLiloPos.h"		
 #include "PndMCTrack.h"
 
 #include "FairRootManager.h"
@@ -113,27 +114,14 @@ InitStatus PndEmcMakeCluster::Init() {
 	cout<<"PndEmcMakeCluster::fDigiEnergyTresholdBWD: "<<fDigiEnergyTresholdBWD<<endl;
 	cout<<"PndEmcMakeCluster::fDigiEnergyTresholdShashlyk: "<<fDigiEnergyTresholdShashlyk<<endl;
 
-	PndEmcClusterLiloPosData ClusterPositionParameters;
-	
 	if (!strcmp(fRecoPar->GetEmcClusterPosMethod(),"lilo"))
 	{
 		cout<<"Lilo cluster position method"<<endl;
-		ClusterPositionParameters.OffsetParmA=fRecoPar->GetOffsetParmA();
-		ClusterPositionParameters.OffsetParmB=fRecoPar->GetOffsetParmB();
-		ClusterPositionParameters.OffsetParmC=fRecoPar->GetOffsetParmC();
-		PndEmcCluster::selectCentroidMethod(PndEmcCluster::lilo,ClusterPositionParameters);
-	}
-	else if (!strcmp(fRecoPar->GetEmcClusterPosMethod(),"linear"))
-	{
-		cout<<"Linear cluster position method"<<endl;
-		PndEmcCluster::selectCentroidMethod(PndEmcCluster::linear,ClusterPositionParameters);
-	}
-	else
-	{
-		cout<<"Wrong cluster position method"<<endl;
-		abort();
-	}
-	
+		fClusterPosParam.push_back(fRecoPar->GetOffsetParmA());
+		fClusterPosParam.push_back(fRecoPar->GetOffsetParmB());
+		fClusterPosParam.push_back(fRecoPar->GetOffsetParmC());
+	}	
+
 	cout << "-I- PndEmcMakeCluster: Intialization successfull" << endl;
 
 	return kSUCCESS;
@@ -179,20 +167,20 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 			for(Int_t i=0;i<clustLength;i++)
 			{
 				PndEmcCluster* cluster=(PndEmcCluster*) fClusterArray->At(i);
-				if(cluster->isInCluster(theDigi))
+				if(cluster->isInCluster(theDigi, fDigiArray))
 				{
 					if(!isAdded)
 					{
 						clustmarker=i;
 						isAdded=true;
-						cluster->addDigi(theDigi);
+						cluster->addDigi(fDigiArray, iDigi);
 						cluster->AddLink(FairLink(kEmcDigi, iDigi));
 					}
 					else
 					{
 						PndEmcCluster* clust_clustmarker=(PndEmcCluster*) fClusterArray->At(clustmarker);
 						PndEmcCluster* clust_i=(PndEmcCluster*) fClusterArray->At(i);
-						clust_clustmarker->addCluster(clust_i);
+						clust_clustmarker->addCluster(clust_i, fDigiArray);
 						fClusterArray->RemoveAt(i);
 						fClusterArray->Compress();
 						clustLength--;
@@ -204,7 +192,7 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 			if (!isAdded)
 			{
 				PndEmcCluster* newcluster = new((*fClusterArray)[clustLength]) PndEmcCluster();
-				newcluster->addDigi(theDigi);
+				newcluster->addDigi(fDigiArray, iDigi);
 				newcluster->SetLink(FairLink(kEmcDigi, iDigi));
 			}
 			
@@ -212,14 +200,20 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 			
 	}
 	
-	// At that moment internal state fEnergy and fWhere of Clusters are not initialized, the following make it possible to see energy and position from output root file
+	// At that moment internal state fEnergy and fWhere of Clusters are not initialized, the following does initialisation
 	Int_t nCluster = fClusterArray->GetEntriesFast();
 	for (Int_t i=0; i<nCluster; i++)
 	{
 		PndEmcCluster *tmpclust = (PndEmcCluster*) fClusterArray->At(i);
-		tmpclust->energy();
-		tmpclust->where();
+		PndEmcClusterProperties clustProperties(*tmpclust, fDigiArray);
 
+		tmpclust->SetEnergy(clustProperties.Energy());
+		TVector3 tmpbumppos = clustProperties.Where(fRecoPar->GetEmcClusterPosMethod(), fClusterPosParam);
+		tmpclust->SetPosition(tmpbumppos);
+		PndEmcXClMoments xClMoments(*tmpclust, fDigiArray);
+		tmpclust->SetZ20(xClMoments.AbsZernikeMoment(2, 0, 15));
+		tmpclust->SetZ53(xClMoments.AbsZernikeMoment(5, 3, 15));
+		tmpclust->SetLatMom(xClMoments.Lat());
 		tmpclust->fMcList.clear();
 		if(fHitArray && fMCTrackArray){
 			// BS: this is a first order approximation only !!!!
@@ -228,7 +222,7 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 			newlist.clear();
 			for(Int_t j=0; j<tmpclust->fDigiList.size(); j++){
 				PndEmcDigi*m;
-				m=(PndEmcDigi*)(tmpclust->fDigiList[j]);
+				m=(PndEmcDigi*)fDigiArray->At(tmpclust->fDigiList[j]);
 
 				Int_t inx;
 				inx=m->GetHitIndex();

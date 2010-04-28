@@ -39,8 +39,11 @@
 #pragma link C++ class  PndEmcRecoPar+;
 #pragma link C++ class  PndEmcBump+;
 #pragma link C++ class  PndEmcMakeBump+;
+#pragma link C++ class  PndEmc2DLocMaxFinder+;
+#pragma link C++ class  PndEmcExpClusterSplitter+;
 #pragma link C++ class  PndEmcRecoHit+;
 #pragma link C++ class  PndEmcMakeRecoHit+;
+#pragma link C++ class  PndEmcClusterProperties+;
 #pragma link C++ class  PndEmcClusterDistances+;
 #pragma link C++ class  PndEmcClusterEnergySums+;
 #pragma link C++ class  PndEmcClusterMoments+;

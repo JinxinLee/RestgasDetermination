@@ -1075,10 +1075,10 @@ PndEmcPoint* PndEmc::AddHit(Int_t trackID, Int_t detID, Int_t evtID, TVector3 po
      cout << "-I- PndEmc: Adding Point at IN (" << pos.X() << ", " << pos.Y() 
       << ", " << pos.Z() << ") cm, detector " << detID << ", evt " << evtID << ", track "
       << trackID <<", energy loss " << eLoss*1e06 << " keV, module " << mod << " row " << row << " crystal " <<  crys << " copy " << copy << endl;
-  PndEmcPoint* myPoint = new(clref[size]) PndEmcPoint(trackID, detID, evtID, pos, mom, time, length, eLoss,
-	      mod, row, crys, copy);
-  myPoint->SetLink(FairLink(kMCTrack, trackID));
-  return myPoint;
+  
+	PndEmcPoint* myPoint = new(clref[size]) PndEmcPoint(trackID, detID, evtID, pos, mom, time, length, eLoss, mod, row, crys, copy); 
+	myPoint->SetLink(FairLink(kMCTrack, trackID)); 
+	return myPoint;
 }
 
 inline void PndEmc::ResetParameters() {

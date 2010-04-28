@@ -20,11 +20,12 @@
 #define PNDEMCABSCLUSTERPROPERTY_H
 
 #include "TObject.h"
-#include "PndEmcDataTypes.h"
+#include "PndEmcCluster.h"
 
 class PndEmcCluster;
 class PndEmcDigi;
 class PndEmcTwoCoordIndex;
+class TClonesArray;
 
 //		---------------------
 // 		-- Class Interface --
@@ -36,8 +37,7 @@ class PndEmcAbsClusterProperty: public TObject
 public:
 
   // Constructors
-  PndEmcAbsClusterProperty( const PndEmcCluster& );
-  PndEmcAbsClusterProperty( const PndEmcAbsClusterProperty& );
+  PndEmcAbsClusterProperty(const PndEmcCluster &cluster, const TClonesArray *digiArray);
 
   // Destructor
   virtual ~PndEmcAbsClusterProperty();
@@ -47,7 +47,8 @@ protected:
   // Helper functions
   //Possible memory problems (FIXME)
   const PndEmcCluster& MyCluster()const;
-  PndEmcDigiPtrDict& Members() const;
+  const std::map<Int_t,Int_t>& Members() const; // Map <detId,digiIndex>
+  const TClonesArray* DigiArray() const;
 
 private:
 
@@ -56,7 +57,8 @@ private:
 
   // Data members
   const PndEmcCluster& fMyCluster;
-  const PndEmcDigiPtrDict& fMembers; 
+  const std::map<Int_t,Int_t>& fMembers; // Map <detId,digiIndex>
+  const TClonesArray* fDigiArray;
 
 
 };

@@ -126,7 +126,7 @@ private:
   static double fPositionDepth;
 
   
-  ClassDef(PndEmcDigi,3);
+  ClassDef(PndEmcDigi,4);
 };
 
 #endif //PndEmcDigi_H

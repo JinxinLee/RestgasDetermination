@@ -26,17 +26,12 @@
 
 class TClonesArray;
 class TObjectArray;
-class PndEmcGeoPar;
-class PndEmcDigiPar;
-class PndEmcRecoPar;
 
 class PndEmcCluster;
 class PndEmcDigi;
 class PndEmcSharedDigi;
 class PndEmcBump;
 class PndEmcTwoCoordIndex;
-class PndEmc2DLocMaxFinder;
-class PndEmcExpClusterSplitter;
 
 class PndEmcMakeBump  : public FairTask
 {
@@ -63,27 +58,13 @@ public:
   
  private:
 	
-  /** Input array of PndEmcClusters **/
-  TClonesArray* fClusterArray;
-  
-  /** Output array of PndEmcBumps **/
-  TClonesArray* fBumpArray;
-  TClonesArray* fSharedDigiArray;
-  
-  PndEmc2DLocMaxFinder *theLocalMaxFinder;
-  PndEmcExpClusterSplitter *theClusterSplitter;
-  
-  Int_t fMapVersion;
-  PndEmcGeoPar*     fGeoPar;       /** Geometry parameter container **/
-  PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
-  PndEmcRecoPar*    fRecoPar;      /** Reconstruction parameter container **/
   /** Get parameter containers **/
   virtual void SetParContainers();
   
   /** Verbosity level **/
   Int_t fVerbose;
   
-  Bool_t fStoreBumps;
+  Bool_t fPersistance;
   
   static Int_t fEventCounter;
   

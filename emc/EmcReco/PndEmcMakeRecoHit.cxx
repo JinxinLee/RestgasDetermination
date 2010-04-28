@@ -94,8 +94,8 @@ void PndEmcMakeRecoHit::Exec(Option_t* opt)
 		PndEmcBump* theBump = (PndEmcBump*) fBumpArray->At(iBump);
 		Double_t energy=theBump->energy();
 		TVector3 position=theBump->position();
-		PndEmcRecoHit* myHit = new((*fRecoHitArray)[iBump]) PndEmcRecoHit(energy,position);
-		myHit->SetLink(FairLink(kEmcBump, iBump));
+		PndEmcRecoHit* myHit = new((*fRecoHitArray)[iBump]) PndEmcRecoHit(energy,position); 
+		myHit->SetLink(FairLink(kEmcBump, iBump)); 
 		
 	}
 }
