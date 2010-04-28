@@ -28,7 +28,7 @@
 class PndTrackCandHit : public TObject{
 public:
  PndTrackCandHit():fHitId(-1), fDetId(-1), fRho(0){}
- PndTrackCandHit(Int_t detId, Int_t hitId, Double_t rho):fDetId(detId), fHitId(hitId), fRho(rho){}
+ PndTrackCandHit(Int_t detId, Int_t hitId, Double_t rho):fHitId(hitId), fDetId(detId), fRho(rho){}
   bool operator< (const PndTrackCandHit& rhs) const
   {return fRho<rhs.fRho;};
   bool operator== (const PndTrackCandHit& hit) const {

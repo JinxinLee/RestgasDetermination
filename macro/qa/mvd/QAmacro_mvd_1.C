@@ -77,7 +77,7 @@
 
 	cout << " Sim passed" << endl;
   cout << " All ok " << endl;
-
+  delete fRun;
   exit(0);
 }
 

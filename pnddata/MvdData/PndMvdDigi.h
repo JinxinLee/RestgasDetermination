@@ -58,7 +58,7 @@ class PndMvdDigi : public FairMultiLinkedData
 		std::vector<Int_t> GetIndices() const {
 			std::vector<Int_t> result;
 			std::vector<FairLink> myLinks = GetLinks();
-			for (int i = 0; i < myLinks.size(); i++){
+			for (unsigned int i = 0; i < myLinks.size(); i++){
 				result.push_back(myLinks[i].GetIndex());
 			}
 			return result;
