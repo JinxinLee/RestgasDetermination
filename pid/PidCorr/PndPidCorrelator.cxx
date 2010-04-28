@@ -407,7 +407,7 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
       pidCand->SetEmcRawEnergy(bump->energy());
       pidCand->SetEmcCalEnergy(bump->GetEnergyCorrected());
       pidCand->SetEmcIndex(i);
-      pidCand->SetEmcModule(((PndEmcDigi*)bump->Maxima())->GetModule());
+      pidCand->SetEmcModule(bump->GetModule());
       pidCand->SetEmcNumberOfCrystals(bump->NumberOfDigis());
 
       pidCand->SetLink(FairLink((fDetectorType)emcType, i));
@@ -530,7 +530,7 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
     }
     
     //if (emcHit->energy() < fCorrPar->GetEmc12Thr()) continue;
-    Int_t emcModule = ((PndEmcDigi*)emcHit->Maxima())->GetModule();
+    Int_t emcModule = emcHit->GetModule();
     if (emcModule>4) continue;
     
     emcPos = emcHit->where();
@@ -553,16 +553,15 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 
     Float_t dist = (emcPos-vertex).Mag2();
     if ( emcQuality > dist ){
-      const PndEmcXClMoments& clsZmom = emcHit->Xmoments();
       emcIndex = ee;
       emcQuality = dist;
       emcEloss = emcHit->energy();
       emcElossCorr = emcHit->GetEnergyCorrected();
       emcModuleCorr = emcModule;
       emcNCrystals = emcHit->NumberOfDigis();
-      Z20 = clsZmom.AbsZernikeMoment(2, 0, 15);// Z_{n = 2}^{m = 0}
-      Z53 = clsZmom.AbsZernikeMoment(5, 3, 15);// Z_{n = 5}^{m = 3}
-      secLatM = clsZmom.Lat();
+      Z20 = emcHit->Z20();// Z_{n = 2}^{m = 0}
+      Z53 = emcHit->Z53();// Z_{n = 5}^{m = 3}
+      secLatM = emcHit->LatMom();
     }
     
     if (fDebugMode){
