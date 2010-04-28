@@ -22,6 +22,7 @@ include(FairMacros)
 include(WriteConfigFile)
 include(CTest)
 include(CheckCompiler)
+include(CheckFortran)
 
 #Check the compiler and set the compile and link flags
 set(CMAKE_BUILD_TYPE Debug)
@@ -71,6 +72,7 @@ find_package(GEANT3 REQUIRED)
 find_package(GEANT4)
 find_package(GEANT4VMC)
 find_package(CLHEP)
+find_package(CERNLIB)
 
 find_package(RuleChecker)
 
