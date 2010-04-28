@@ -217,7 +217,11 @@ void PndLheTrackFitter::Info4Fit(PndLheCandidate *track, Int_t idx) {
 	Double_t py =  Q*alpha*rad*TMath::Cos(fi0 + phi);
 	//Double_t pz =  Q*alpha*rad*lam*TMath::Sign(-1.,phi); // OLD
 	Double_t pz =  -alpha*rad*lam; // STE
-	
+	if (fabs(pz<1e-8))
+	  {
+	    track->SetGood(kFALSE);
+	    break;
+	  }
 	if (ih==0) 
 	  {
 	    track->SetFirstHit(hit->GetX(),hit->GetY(),hit->GetZ());
@@ -273,7 +277,7 @@ void PndLheTrackFitter::Info4Fit(PndLheCandidate *track, Int_t idx) {
    track->SetTrackID(trackID, multID);
 
    // Filling PndTrack TCA
-   if (track->IsGood()&&track->GetMomentum().Mag()>0.1&&track->GetMomentum().Mag()<20.&&fabs(track->GetMomentum().Pz())>1e-9)
+   if (track->IsGood()&&track->GetMomentum().Mag()>0.1&&track->GetMomentum().Mag()<20.)
      {
        TClonesArray &pndtracks = *fPndTracks;
        TClonesArray &pndtrackids = *fPndTrackIds;
