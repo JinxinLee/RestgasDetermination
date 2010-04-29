@@ -121,7 +121,7 @@ Int_t PndGeoHandling::GetShortID(TString path)
 	if (fSensorNamePar != 0)
 		return fSensorNamePar->SensorInList(&myPath);
 	else
-		std::cout << "-E- PndMvdGeoHandling::GetShortID: SensorNamePar is missing!"	<< std::endl;
+		std::cout << "-E- PndGeoHandling::GetShortID: SensorNamePar is missing!"	<< std::endl;
 	return -1;
 }
 
@@ -130,7 +130,7 @@ TString PndGeoHandling::GetPath(Int_t shortID)
 	if (fSensorNamePar != 0)
 		return (fSensorNamePar->GetSensorName(shortID));
 	else {
-		std::cout << "-E- PndMvdGeoHandling::GetPath(Int_t shortID): Missing SensorNamePar"	<< std::endl;
+		std::cout << "-E- PndGeoHandling::GetPath(Int_t shortID): Missing SensorNamePar"	<< std::endl;
 		abort();
 	}
 }
@@ -145,7 +145,7 @@ TString PndGeoHandling::GetPath(TString id)
 	PndStringSeparator pathAna(id.Data(), "/_");
 	idVector = pathAna.GetStringVector();
 
-	for(Int_t i = 0; i < idVector.size(); i+=2){
+	for(UInt_t i = 0; i < idVector.size(); i+=2){
 		result += "/";
 		Int_t VolId = atoi(idVector[i].c_str());
 		Int_t CopyNr = atoi(idVector[i+1].c_str());
@@ -469,7 +469,7 @@ void PndGeoHandling::CreateUniqueSensorId(TString startName, std::vector<std::st
 
 bool PndGeoHandling::VolumeIsSensitive(TString& path, std::vector<std::string>& listOfSensitives)
 {
-	for (int i = 0; i < listOfSensitives.size(); i++){
+	for (unsigned int i = 0; i < listOfSensitives.size(); i++){
 		if (path.Contains(listOfSensitives[i].c_str()))
 			return true;
 	}

@@ -42,7 +42,7 @@ PndSensorNameContFact::~PndSensorNameContFact(){
 void PndSensorNameContFact::setAllContainers() {
   /** Creates the Container objects with all accepted contexts and adds them to
    *  the list of containers for the MVD library.*/
-	for (int i = 0; i < fContainerNames.size(); i++){
+	for (unsigned int i = 0; i < fContainerNames.size(); i++){
 		std::string description = "Match between GeoManager path and SensorId";
 		FairContainer* p = new FairContainer(fContainerNames[i].c_str(), description.c_str(), "TestDefaultContext");
 		fSensorParNames->Add(new TObjString(p->getConcatName()));
@@ -57,7 +57,7 @@ FairParSet* PndSensorNameContFact::createContainer(FairContainer* c) {
   const char* name=c->GetName();
   FairParSet* p=NULL;
 
-  for (int i = 0; i < fContainerNames.size(); i++){
+  for (unsigned int i = 0; i < fContainerNames.size(); i++){
 	  if (strcmp(name,fContainerNames[i].c_str())==0) {
 		  p=new PndSensorNamePar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
 		  return p;

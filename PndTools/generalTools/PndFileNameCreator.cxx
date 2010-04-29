@@ -166,7 +166,7 @@ std::string PndFileNameCreator::TruncateFileName(bool cut)
 	if(fVerbose>1) pathAna.Print();
 	if (fFileName.find("/") == 0)
 		result << "/";
-	for (Int_t i = 0; i < resString.size()-1; i++){
+	for (UInt_t i = 0; i < resString.size()-1; i++){
 		result << resString[i] << "/";
 	}
 	path = result.str();
@@ -189,7 +189,7 @@ std::string PndFileNameCreator::TruncateFileName(bool cut)
 		return "";
 
 	result << path;
-	for (Int_t i = 0; i < resString.size()-1 - cutLast; i++){
+	for (UInt_t i = 0; i < resString.size()-1 - cutLast; i++){
 		result << resString[i] << "_";
 	}
 	result << resString[resString.size()-1 - cutLast];

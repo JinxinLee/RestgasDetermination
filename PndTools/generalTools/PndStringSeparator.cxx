@@ -58,7 +58,7 @@ std::string PndStringSeparator::Replace(std::string from, std::string to)
 	std::vector<std::string> strVector = GetStringVector();
 	if (GetIfFirst()) result << to;
 	result << strVector[0];
-	for (int i = 1; i < strVector.size(); i++){
+	for (unsigned int i = 1; i < strVector.size(); i++){
 		result << to << strVector[i];
 	}
 	if(GetIfLast()) result << to;
@@ -70,6 +70,6 @@ std::string PndStringSeparator::Replace(std::string from, std::string to)
 void PndStringSeparator::Print()
 {
   std::cout << "PndStringSeparator for: " << fInput << std::endl;
-  for (Int_t i = 0; i < fStrings.size(); i++)
+  for (UInt_t i = 0; i < fStrings.size(); i++)
     std::cout << i << ": " << fStrings[i] << std::endl;
 }
