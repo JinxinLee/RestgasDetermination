@@ -22,14 +22,14 @@ public:
 	Double_t GetRadDam(){return fRadDam;};
 
 private:
-	Double_t fRadDam;
-	TString fDetName;
+  Int_t fTrackID;
+	Int_t fHitID;
+  TString fDetName;
 	Int_t fPdgCode;
 	Double_t fEnergy;
-	Int_t fTrackID;
-	Int_t fHitID;
 	TVector3 fPos;
 	TVector3 fMom;
+	Double_t fRadDam;
 
 
 	ClassDef(PndMvdRadDamHit,2);
