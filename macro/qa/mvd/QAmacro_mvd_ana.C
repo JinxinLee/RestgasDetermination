@@ -29,38 +29,50 @@
 
   TFile* f = new TFile(inFile.Data()); // the sim file you want to analyse
   TTree* t=(TTree*)f->Get("cbmsim");
+  //TTree* myT = (TTree*)f->Get("cbmsim");
+
   t->AddFriend("cbmsim",recoFile.Data()); // the reco file you want to analyse
 
-  TClonesArray* mc_array=new TClonesArray("PndMvdMCPoint");
+  TClonesArray* mc_array=new TClonesArray("PndSdsMCPoint");
   t->SetBranchAddress("MVDPoint",&mc_array);//Branch names
 
-  TClonesArray* digiPixel_array=new TClonesArray("PndMvdDigiPixel");
+  TClonesArray* digiPixel_array=new TClonesArray("PndSdsDigiPixel");
   t->SetBranchAddress("MVDPixelDigis",&digiPixel_array);//Branch names
 
-  TClonesArray* digiStrip_array=new TClonesArray("PndMvdDigiStrip");
+  TClonesArray* digiStrip_array=new TClonesArray("PndSdsDigiStrip");
   t->SetBranchAddress("MVDStripDigis",&digiStrip_array);//Branch names
 
-  TClonesArray* strclust_array=new TClonesArray("PndMvdClusterStrip");
+  TClonesArray* strclust_array=new TClonesArray("PndSdsClusterStrip");
   t->SetBranchAddress("MVDStripClusterCand",&strclust_array);//Branch names
 
-  TClonesArray* pixclust_array=new TClonesArray("PndMvdClusterPixel");
+  TClonesArray* pixclust_array=new TClonesArray("PndSdsClusterPixel");
   t->SetBranchAddress("MVDPixelClusterCand",&pixclust_array);//Branch names
 
-  TClonesArray* strhit_array=new TClonesArray("PndMvdHit");
+  TClonesArray* strhit_array=new TClonesArray("PndSdsHit");
   t->SetBranchAddress("MVDHitsStrip",&strhit_array);//Branch names
 
-  TClonesArray* pixhit_array=new TClonesArray("PndMvdHit");
+  TClonesArray* pixhit_array=new TClonesArray("PndSdsHit");
   t->SetBranchAddress("MVDHitsPixel",&pixhit_array);//Branch names
+
 
   
   TFile* dbfile = new TFile(parFile.Data());
   dbfile->Get("FairBaseParSet"); // now the geometry is available as TGeo in memory
   TGeoManager *geoMan = gGeoManager;
+
   if(!geoMan){
     std::cout<<"No GeoManager existant. Abort now!"<<std::endl;
     exit(1);
   }
-  PndGeoHandling* fGeoH = new PndGeoHandling();
+
+  FairEventHeader* header = new FairEventHeader();
+  t->SetBranchAddress("EventHeader.", &header);
+  t->GetEntry(0);
+
+  Int_t runId = header->GetRunId();
+
+
+  PndGeoHandling* fGeoH = new PndGeoHandling();//runId, parFile);
   if(!fGeoH){
     std::cout<<"No MvdGeoHandling existant. Abort now!"<<std::endl;
     exit(1);
@@ -228,18 +240,18 @@
 
   }// end for j (events)
 
-  
+
   ////-----
   Int_t pix = 400;
   Int_t a = 2, b = 2;
-  
+
   TCanvas* can1 = new TCanvas("MvdTestPlot","MCHit view in MVD",0,0,a*pix,b*pix);
   can1->Divide(a,b);
-  
+
   TCanvas* can2 = new TCanvas("MvdResPlot","MVD point resolution");
-  
+
   can2->cd();
-  
+
   Double_t par[6]={0., 0., 0.0005, 0., 0., 0.002};
   //prefit peak
   g2    = new TF1("g2","gaus",-0.002,0.002);
@@ -288,7 +300,7 @@
     std::cout<<"MORE";
     test1=kFALSE;
   } std::cout<<" than 2 #sigma away from 0"<<std::endl;
-  
+
   str = "#sigma_{1} = ";
   str += (10000*par[2]); for (int i=0;i<6;i++) str.Chop();
   str += " #mum";
@@ -308,7 +320,7 @@
   DrawText( 0.2, 0.7, str.Data(),0.05,1);
   std::cout<< str.Data();
   if( fabs(10000*par[5]) < 50 ){
-    std::cout<< " Passed a 50um window."; 
+    std::cout<< " Passed a 50um window.";
     test2=test2 && kTRUE;
   } else {
     std::cout<<" Didn't pass a 50um window.";

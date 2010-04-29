@@ -42,6 +42,8 @@ class PndGeoHandling{
 public:
     PndGeoHandling(); ///< default constructor. Has to be called in SetParContainers if the support of shortId is needed.
     //PndGeoHandling(TGeoManager* aGeoMan);
+    PndGeoHandling(TString mcFile, TString parFile);
+    PndGeoHandling(Int_t runID, TString parFile);
 
     ~PndGeoHandling(){};
 
@@ -102,6 +104,7 @@ public:
 
   void SetVerbose(Int_t v) { fVerbose = v; }
   void SetGeoManager(TGeoManager* geo){fGeoMan = geo;};
+  void SetSensorNamePar(PndSensorNamePar* par){fSensorNamePar = par;}
 
   Bool_t cd(TString id); ///< as the cd command of TGeoManager just with the ID
   void FillLevelNames(); ///< fills vector<TString> fLevelNames with the names (or the paths) of the volumes down to the level given by fLevel
@@ -120,6 +123,15 @@ public:
 		  fSensorNamePar->Print();
   }
 
+  TObjArray* GetSensorNames(){
+	  if (fSensorNamePar != 0)
+		  return fSensorNamePar->GetSensorNames();
+	  else
+		  return 0;
+  }
+
+  void GetSensorNamePar(Int_t runId, TString parFileName);
+
 private:
 
   void DiveDownToFillSensNamePar(std::vector<std::string> listOfSensitives);
@@ -132,7 +144,7 @@ private:
   Int_t fLevel;
   bool fFullPath;
   Int_t fVerbose;
-  ClassDef(PndGeoHandling,3); 
+  ClassDef(PndGeoHandling,3);
 };
 
 #endif

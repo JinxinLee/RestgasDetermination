@@ -20,6 +20,9 @@
 #include "TGeoShape.h"
 #include "TGeoBBox.h"
 #include "TList.h"
+#include "TTree.h"
+#include "FairEventHeader.h"
+#include "FairParRootFileIo.h"
 
 #include <math.h>
 #include "stdlib.h"
@@ -51,40 +54,84 @@ PndGeoHandling::PndGeoHandling():fVerbose(0)
 	}
 
 	FairRun* ana = FairRun::Instance();
-	FairRuntimeDb* rtdb = ana->GetRuntimeDb();
-	if (fVerbose > 0){
-		std::cout << "-I- PndGeoHandling::PndGeoHandling: Container PndSensorNamePar ";
-		if (rtdb->findContainer("PndSensorNamePar"))
-			 std::cout << "exists already" << std::endl;
-		else
-			std::cout << "does not exist" << std::endl;
-	}
 
-	fSensorNamePar = (PndSensorNamePar*) (rtdb->getContainer("PndSensorNamePar"));
-	if (fSensorNamePar == 0) std::cout << "-W- PndGeoHandling::PndGeoHandling(): No fSensorNamePar!" << std::endl;
+	if (ana != 0){
+		FairRuntimeDb* rtdb = ana->GetRuntimeDb();
+		if (fVerbose > 0){
+			std::cout << "-I- PndGeoHandling::PndGeoHandling: Container PndSensorNamePar ";
+			if (rtdb->findContainer("PndSensorNamePar"))
+				 std::cout << "exists already" << std::endl;
+			else
+				std::cout << "does not exist" << std::endl;
+		}
+
+		fSensorNamePar = (PndSensorNamePar*) (rtdb->getContainer("PndSensorNamePar"));
+		if (fSensorNamePar == 0) std::cout << "-W- PndGeoHandling::PndGeoHandling(): No fSensorNamePar!" << std::endl;
+	}
 }
 
-/*PndGeoHandling::PndGeoHandling(TGeoManager* aGeoMan):fVerbose(0) {
-	if (aGeoMan == 0){
-		std::cout << "-E- PndGeoHandling: Not a valid GeoManager"	<< std::endl;
-		abort();
+PndGeoHandling::PndGeoHandling(TString mcFile, TString parFile):fVerbose(0)
+{
+/*	if (fGeoHandlingInstance){
+		Fatal("PndGeoHandling", "Singleton instance already exists.");
+		return;
 	}
-	fGeoMan = aGeoMan;
-
-	FairRun* ana = FairRun::Instance();
-	FairRuntimeDb* rtdb = ana->GetRuntimeDb();
-	if (fVerbose > 0){
-		std::cout << "-I- PndGeoHandling::PndGeoHandling: Container PndSensorNamePar ";
-		if (rtdb->findContainer("PndSensorNamePar"))
-			 std::cout << "exists already" << std::endl;
-		else
-			std::cout << "does not exist" << std::endl;
-	}
-
-	fSensorNamePar = (PndSensorNamePar*) (rtdb->getContainer("PndSensorNamePar"));
-	if (fSensorNamePar == 0) std::cout << "-W- PndGeoHandling::PndGeoHandling(TGeoManager*): No fSensorNamePar!" << std::endl;
-}
+	fGeoHandlingInstance = this;
 */
+	if (gGeoManager) {
+		fGeoMan = gGeoManager;
+	} else
+	{
+		Fatal("PndGeoHandling","No gGeoManager");
+		return;
+	}
+	TFile* f = new TFile(mcFile.Data());
+	TTree* t = (TTree*)f->Get("cbmsim");
+	FairEventHeader* header;
+	t->SetBranchAddress("EventHeader.", &header);
+	t->GetEntry(0);
+	Int_t runId = header->GetRunId();
+
+	t->SetBranchStatus("EventHeader.",0);
+
+	GetSensorNamePar(runId, parFile);
+}
+
+PndGeoHandling::PndGeoHandling(Int_t runId, TString parFile):fVerbose(0)
+{
+	if (gGeoManager) {
+		fGeoMan = gGeoManager;
+	} else
+	{
+		Fatal("PndGeoHandling","No gGeoManager");
+		return;
+	}
+	GetSensorNamePar(runId, parFile);
+}
+
+void PndGeoHandling::GetSensorNamePar(Int_t runId, TString parFile)
+{
+	FairRuntimeDb* rtdb = FairRuntimeDb::instance();
+	FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
+	parInput1->open(parFile.Data(),"UPDATE");
+	rtdb->setFirstInput(parInput1);
+
+	rtdb->setOutput(parInput1);
+
+	//FairTask* myTask(new FairTask("FairTask List"));
+	rtdb->initContainers(runId);
+
+	fSensorNamePar = (PndSensorNamePar*) (rtdb->getContainer("PndSensorNamePar"));
+
+	rtdb->initContainers(runId);
+
+	if (fVerbose > 1){
+		rtdb->Print();
+		fSensorNamePar->Print();
+	}
+}
+
+
 TString PndGeoHandling::GetCurrentID()
 {
  Int_t level;
@@ -429,17 +476,26 @@ void PndGeoHandling::DiveDownToFillSensNamePar(std::vector<std::string> listOfSe
 		TGeoNode *currentNode = fGeoMan->GetCurrentNode();
 		TString nodeName(currentNode->GetName());
 		//std::cout << nodeName.Data() << std::endl;
+
 		if (VolumeIsSensitive(nodeName, listOfSensitives)){
-			TObjString* myName = new TObjString(fGeoMan->GetPath());
-			fSensorNamePar->AddSensorName(myName);
+			PndStringSeparator sep(nodeName.Data(), "/");
+			std::vector<std::string> sepString = sep.GetStringVector();
+			if (sepString.size() > 0  && sepString[sepString.size() - 1].find("PartAss") == std::string::npos){
+				TObjString* myName = new TObjString(fGeoMan->GetPath());
+				fSensorNamePar->AddSensorName(myName);
+			}
 		}
 		for (Int_t iNod = 0; iNod < currentNode->GetNdaughters(); iNod++) {
 			fGeoMan->CdDown(iNod);
 			DiveDownToFillSensNamePar(listOfSensitives);
 			nodeName = fGeoMan->GetCurrentNode()->GetName();
 			if (VolumeIsSensitive(nodeName, listOfSensitives)){
-				TObjString* myName = new TObjString(fGeoMan->GetPath());
-				fSensorNamePar->AddSensorName(myName);
+				PndStringSeparator sep(nodeName.Data(), "/");
+				std::vector<std::string> sepString = sep.GetStringVector();
+				if (sepString.size() > 0  && sepString[sepString.size() - 1].find("PartAss") == std::string::npos){
+					TObjString* myName = new TObjString(fGeoMan->GetPath());
+					fSensorNamePar->AddSensorName(myName);
+				}
 			}
 			fGeoMan->CdUp();
 		}

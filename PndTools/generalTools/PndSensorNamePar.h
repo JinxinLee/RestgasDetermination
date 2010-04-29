@@ -42,8 +42,15 @@ class PndSensorNamePar : public FairParGenericSet
     }
 
     TString GetSensorName(Int_t index){
-    	TObjString* myString = (TObjString*)fSensorNames->At(index);
-    	return myString->GetString();
+    	if (index < fSensorNames->GetEntries()){
+			TObjString* myString = (TObjString*)fSensorNames->At(index);
+			return myString->GetString();
+    	}
+    	else{
+    		std::cout << "-E- PndSensorNamePar::GetSensorName index " << index
+    				  << " our of bounds: " << fSensorNames->GetEntries() << std::endl;
+    		return "";
+    	}
     }
 
     TObjArray* GetSensorNames(){return fSensorNames;}
