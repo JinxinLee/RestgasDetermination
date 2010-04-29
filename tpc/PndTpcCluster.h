@@ -19,7 +19,7 @@
 #define TPCCLUSTER_HH
 
 // Base Class Headers ----------------
-#include "TObject.h"
+#include "FairHit.h"
 
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
@@ -32,7 +32,7 @@
 // Collaborating Class Declarations --
 class GFTrack;
 
-class PndTpcCluster : public TObject{
+class PndTpcCluster : public FairHit {
 
   friend class PndTpcLaserCorrectionTask;  
 
@@ -44,9 +44,9 @@ public:
   PndTpcCluster();
   PndTpcCluster(const PndTpcCluster&);
   PndTpcCluster(const TVector3& Pos, double Amp, 
-			 unsigned int Index, unsigned int Size=1);
+		unsigned int Index, unsigned int Size=1);
   PndTpcCluster(const TVector3& Pos, const TVector3& Sig, double Amp, 
-			 unsigned int Index, unsigned int Size=1);
+		unsigned int Index, unsigned int Size=1);
   
   virtual ~PndTpcCluster();
 
@@ -114,7 +114,7 @@ private:
   unsigned int findex;
   McIdCollection fmcid;
   
-  int findexInTrack;	//index in track //for spatial sorting
+  int findexInTrack;	//index in track for spatial sorting
 
   //for optional saving of raw info that went into the cluster
   std::vector<PndTpcDigi> digis;

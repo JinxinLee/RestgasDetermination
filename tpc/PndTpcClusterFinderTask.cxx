@@ -100,7 +100,6 @@ PndTpcClusterFinderTask::Init()
   ioman->Register("PndTpcCluster","PndTpc",fclusterArray,fpersistence);
 
   
-  //TODO: Get this from Database!
   fpar->printParams();
   ffrontend= fpar->getFrontend();
   fpadplane= fpar->getPadPlane();

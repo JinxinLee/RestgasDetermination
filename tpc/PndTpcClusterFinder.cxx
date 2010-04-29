@@ -34,6 +34,9 @@
 #include "McIdCollection.h"
 #include "TVector3.h"
 
+#include "FairMultiLinkedData.h"
+#include "PndDetectorList.h"
+
 // Class Member definitions -----------
 
 PndTpcClusterFinder::PndTpcClusterFinder(PndTpcPadPlane* p,
@@ -96,6 +99,8 @@ PndTpcClusterFinder::process(std::vector<PndTpcDigi*>& digis)
 	cl->addDigi(*(digis[i]));
       }
       cl->SetMcId(id);
+      //set link to the track
+      cl->SetLink(FairLink(kMCTrack, id.DominantID().mctrackID()));
       foutput_buffer->push_back(cl);
     }
     return;

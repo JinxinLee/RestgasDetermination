@@ -53,7 +53,7 @@ PndTpcDriftTask::PndTpcDriftTask()
   : FairTask("TPC Drift"), fpersistence(kFALSE), 
     fattach(kTRUE), fdiffuseL(kTRUE), fdiffuseT(kTRUE), fdistort(kFALSE), 
     fphicut(kFALSE), finitialized(kFALSE),
-    fqa(NULL), fshortTpc(kFALSE)
+    fqa(NULL)
 {
   fprimBranchName = "PndTpcPrimaryCluster";
   //TODO: parameter management!!!!
@@ -159,11 +159,6 @@ PndTpcDriftTask::Exec(Option_t* opt)
   Int_t nc=fprimArray->GetEntriesFast();
   for(int ic=0;ic<nc;++ic){
     PndTpcPrimaryCluster* pcl=(PndTpcPrimaryCluster*)fprimArray->At(ic);
-
-    if(fshortTpc){                //ignore primaries outside the "short" TPC
-      if((pcl->pos()).Z() > 80)
-	continue;
-    }
 
     if(fphicut){
       double phi=pcl->pos().Phi();

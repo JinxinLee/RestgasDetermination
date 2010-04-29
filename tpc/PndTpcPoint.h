@@ -35,7 +35,7 @@ public:
   // Constructors/Destructors ---------
   PndTpcPoint();
   PndTpcPoint(Int_t trackID, Int_t detID, TVector3 pos, TVector3 mom,
-             Double_t tof, Double_t length, Double_t eLoss);
+	      Double_t tof, Double_t length, Double_t eLoss);
   ~PndTpcPoint(){;}
 
   // Operators

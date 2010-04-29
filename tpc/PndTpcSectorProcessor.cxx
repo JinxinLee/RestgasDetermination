@@ -30,6 +30,8 @@
 #include "TORPadProcessor.h"
 #include "PndTpcCluster.h"
 #include "TMatrixD.h"
+#include "FairMultiLinkedData.h"
+#include "PndDetectorList.h"
 
 // Class Member definitions -----------
 
@@ -200,31 +202,31 @@ PndTpcSectorProcessor::cog(){
       double dy;
       PndTpcDigiMapper::getInstance()->padsize(adigi->padId(),dx,dy);
 
-	  McId dummyID(1,1);
-	  McIdCollection dummyColl;
-	  dummyColl.AddID(dummyID);
-
-	  //this block is to define the z jitter
-	  TVector3 zDiff1,zDiff2;
-	  PndTpcDigi zDiffDigi1(1,1,1,dummyColl),zDiffDigi2(1,2,1,dummyColl);
-	  PndTpcDigiMapper::getInstance()->map(&zDiffDigi1,zDiff1);
-	  PndTpcDigiMapper::getInstance()->map(&zDiffDigi2,zDiff2);
-	  double zDiff = zDiff2.z() - zDiff1.z();
-	  //end of z jitter
-
-	  double Dl = PndTpcDigiMapper::getInstance()->getGas()->Dl();
-	  double Dt = PndTpcDigiMapper::getInstance()->getGas()->Dt();
-
-	  double driftl=thispos.z()-PndTpcDigiMapper::getInstance()->zGem();
-	  //assert(driftl>=0);
-	  double absdriftl=fabs(driftl);
-
-	  double diffSigmaL = Dl * sqrt(absdriftl);
-	  double diffSigmaT = Dt * sqrt(absdriftl);
-	  double sigmaX_sq = dx*dx/12. + diffSigmaT*diffSigmaT;
-	  double sigmaY_sq = dy*dy/12. + diffSigmaT*diffSigmaT;
-	  double sigmaZ_sq = zDiff*zDiff/12. + diffSigmaL*diffSigmaL;
-
+      McId dummyID(1,1);
+      McIdCollection dummyColl;
+      dummyColl.AddID(dummyID);
+      
+      //this block is to define the z jitter
+      TVector3 zDiff1,zDiff2;
+      PndTpcDigi zDiffDigi1(1,1,1,dummyColl),zDiffDigi2(1,2,1,dummyColl);
+      PndTpcDigiMapper::getInstance()->map(&zDiffDigi1,zDiff1);
+      PndTpcDigiMapper::getInstance()->map(&zDiffDigi2,zDiff2);
+      double zDiff = zDiff2.z() - zDiff1.z();
+      //end of z jitter
+      
+      double Dl = PndTpcDigiMapper::getInstance()->getGas()->Dl();
+      double Dt = PndTpcDigiMapper::getInstance()->getGas()->Dt();
+      
+      double driftl=thispos.z()-PndTpcDigiMapper::getInstance()->zGem();
+      //assert(driftl>=0);
+      double absdriftl=fabs(driftl);
+      
+      double diffSigmaL = Dl * sqrt(absdriftl);
+      double diffSigmaT = Dt * sqrt(absdriftl);
+      double sigmaX_sq = dx*dx/12. + diffSigmaT*diffSigmaT;
+      double sigmaY_sq = dy*dy/12. + diffSigmaT*diffSigmaT;
+      double sigmaZ_sq = zDiff*zDiff/12. + diffSigmaL*diffSigmaL;
+      
       TVector3 thissig(sigmaX_sq,sigmaY_sq,sigmaZ_sq);
       sig+=a*a*thissig;
 
@@ -240,6 +242,8 @@ PndTpcSectorProcessor::cog(){
     PndTpcCluster* cl=new PndTpcCluster(pos,sig,amp,id,ndigis);
     mcid.Renormalize();
     cl->SetMcId(mcid);
+    //set link (temporary solution)
+    cl->SetLink(FairLink(kMCTrack, mcid.DominantID().mctrackID()));
 
     // loop again over the digis to calculate 2nd moment
     TMatrixD cov(3,3);

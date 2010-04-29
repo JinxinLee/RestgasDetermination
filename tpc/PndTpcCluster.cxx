@@ -32,14 +32,19 @@ using namespace std;
 // Class Member definitions -----------
 
 
+//TODO: get rid of these horrible const_casts!!!!!! 
 
 PndTpcCluster::PndTpcCluster()
-  : fpos(0,0,0), fsig(0.1,0.1,0.01),fcov(3,3),famp(0), fsize(0), fnPad(0), fnPadX(0), fnPadY(0), findex(0),findexInTrack(-1)
+  : FairHit(),
+    fpos(0,0,0), fsig(0.1,0.1,0.01),fcov(3,3),famp(0), fsize(0), 
+    fnPad(0), fnPadX(0), fnPadY(0), findex(0),findexInTrack(-1)
 {}
 
 PndTpcCluster::PndTpcCluster(const PndTpcCluster& clust) 
-  : fpos(clust.fpos), fsig(clust.fsig),fcov(clust.fcov), faxis(clust.faxis),famp(clust.famp),
-    fhasaxis(clust.fhasaxis), fnPad(clust.fnPad), fnPadX(clust.fnPadX),fnPadY(clust.fnPadY),
+  : FairHit(2, const_cast<TVector3&>(clust.fpos), const_cast<TVector3&>(clust.fsig), 0),
+    fpos(clust.fpos), fsig(clust.fsig),fcov(clust.fcov), faxis(clust.faxis),
+    famp(clust.famp), fhasaxis(clust.fhasaxis), fnPad(clust.fnPad), 
+    fnPadX(clust.fnPadX),fnPadY(clust.fnPadY),
     findex(clust.findex), fsize(clust.fsize),findexInTrack(clust.findexInTrack),
     fmcid(clust.fmcid)
 { 
@@ -48,13 +53,22 @@ PndTpcCluster::PndTpcCluster(const PndTpcCluster& clust)
 }
 
 PndTpcCluster::PndTpcCluster(const TVector3& Pos, double Amp, 
-		       unsigned int Index, unsigned int Size)
-  : fpos(Pos), fsig(0.1,0.1,0.01),fcov(3,3), famp(Amp), findex(Index), fsize(Size),findexInTrack(-1)
-{}
+			     unsigned int Index, unsigned int Size)
+  : FairHit(),
+    fpos(Pos), fsig(0.1,0.1,0.01),fcov(3,3), famp(Amp), findex(Index), 
+    fsize(Size),findexInTrack(-1)
+{
+  SetPosition(Pos);
+  SetDetectorID(2);
+  SetPositionError(TVector3(0.1,0.1,0.01));
+  SetRefIndex(0);
+}
 
 PndTpcCluster::PndTpcCluster(const TVector3& Pos, const TVector3& Sig, double Amp, 
-		       unsigned int Index, unsigned int Size)
-  : fpos(Pos), fsig(Sig) ,fcov(3,3), famp(Amp), findex(Index), fsize(Size),findexInTrack(-1)
+			     unsigned int Index, unsigned int Size)
+  : FairHit(2, const_cast<TVector3&>(Pos), const_cast<TVector3&>(Sig), 0),
+    fpos(Pos), fsig(Sig) ,fcov(3,3), famp(Amp), findex(Index), fsize(Size),
+    findexInTrack(-1)
 {}
 
 

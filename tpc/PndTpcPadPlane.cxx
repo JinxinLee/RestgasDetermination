@@ -152,7 +152,7 @@ PndTpcPadPlane::GetPad(const unsigned int PadID) const
 {
   if (PadID >= PadReferences.size()) throw superior_unknown_padId(PadID);
   PndTpcPad* pad=PadReferences[PadID];
-  if(pad==0) throw superior_unknown_padId(PadID);
+  if(pad==NULL) throw superior_unknown_padId(PadID);
   return(pad);
 }
 

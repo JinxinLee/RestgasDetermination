@@ -41,10 +41,10 @@ public:
   PndTpcPrimaryCluster();
 
   PndTpcPrimaryCluster(const double T, 
-		    const int P,
-		    const TVector3& Pos,
-		    const unsigned int McTrackId,
-		    const unsigned int McHitId); // for creation without G4
+		       const int P,
+		       const TVector3& Pos,
+		       const unsigned int McTrackId,
+		       const unsigned int McHitId); // for creation without G4
 
   ~PndTpcPrimaryCluster();
 
