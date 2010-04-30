@@ -50,7 +50,7 @@
 #include "EvtGenBase/EvtStdHep.hh"
 #include "EvtGenBase/EvtSecondary.hh"
 #include "EvtGenBase/EvtConst.hh"
-#include "EvtGen/EvtGen.hh"
+#include "EvtGen.hh"
 #ifndef __CINT__
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Random/JamesRandom.h"
