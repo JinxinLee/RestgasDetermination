@@ -141,22 +141,19 @@ static Int_t evtnr=0;
     parent=EvtParticleFactory::particleFactory(PART,pInit);
     parent->setDiagonalSpinDensity();  
 
-cout << "PndEvtGenDirect::ReadEvent "<<evtnr <<" "<<E<<" "<<P;
-cout << endl;
-parent->printParticle();
 
     // Generate the event
     myGenerator->generateDecay(parent);
     // Write out the results
     evtstdhep.init();
-cout <<"--2--"<<endl;
     parent->makeStdHep(evtstdhep);
-cout <<"--3--"<<endl;
 
 	Bool_t plotflag;
 	plotflag=false;
     //print out some status info
     if (evtnr<10 || ((evtnr+1)%100)==0){
+	cout << "PndEvtGenDirect::ReadEvent "<<evtnr <<" "<<E<<" "<<P << endl;
+	parent->printParticle();
 	report(INFO,"EvtGen") << "event Number\t"<< evtnr << evtstdhep << endl;
 	cout << evtnr << "\t" << evtstdhep.getNPart();
 	cout <<evtstdhep<<endl;
@@ -192,6 +189,8 @@ cout <<"--3--"<<endl;
 	if(plotflag) cout <<"==== compare end ==="<<endl;
 
     parent->deleteTree();  
+
+	evtnr++;
 
   return kTRUE;
 

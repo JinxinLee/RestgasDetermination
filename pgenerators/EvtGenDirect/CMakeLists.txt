@@ -2,6 +2,8 @@
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
+If(CERNLIB_LIBRARY_DIR)
+
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
 ${CLHEP_BASE_DIR}/include
@@ -10,16 +12,12 @@ ${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen
 ${CMAKE_SOURCE_DIR}/pgenerators/EvtGenDirect
 )
-##${CMAKE_SOURCE_DIR}/field
-##${CMAKE_SOURCE_DIR}/generators
-##${CMAKE_SOURCE_DIR}/pgenerators
 
 include_directories( ${INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
 )
-##${CLHEP_LIBRARY_DIR}
  
 link_directories( ${LINK_DIRECTORIES})
 
@@ -47,3 +45,7 @@ target_link_libraries(EvtGenDirect ${ROOT_LIBRARIES})
 set_target_properties(EvtGenDirect PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS EvtGenDirect DESTINATION ${CMAKE_BINARY_DIR}/lib)
+
+Else(CERNLIB_LIBRARY_DIR)
+message("EvtGenDirect Library not build, CERNLIB not found")
+EndIf(CERNLIB_LIBRARY_DIR)
