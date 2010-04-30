@@ -129,7 +129,6 @@ EvtGenModels/begevtgenget.F
 EvtGenModels/begevtgengetx.F
 EvtGenModels/begevtgenstore.F
 EvtGenModels/begevtgenstorex.F
-EvtGenModels/continuum.F
 EvtGenModels/EvtModelReg.cc
 EvtGenModels/EvtBHadronic.cc
 EvtGenModels/EvtBsquark.cc
@@ -185,9 +184,6 @@ EvtGenModels/EvtItgPtrFunction.cc
 EvtGenModels/EvtItgSimpsonIntegrator.cc
 EvtGenModels/EvtItgThreeCoeffFcn.cc
 EvtGenModels/EvtItgTwoCoeffFcn.cc
-EvtGenModels/EvtJetSet.cc
-EvtGenModels/EvtJetSetInit.F
-EvtGenModels/EvtJscont.cc
 EvtGenModels/EvtKKLambdaC.cc
 EvtGenModels/EvtKKLambdaCFF.cc
 EvtGenModels/EvtKstarnunu.cc
@@ -254,16 +250,20 @@ EvtGenModels/EvtVubNLO.cc
 EvtGenModels/EvtVVP.cc
 EvtGenModels/EvtVVpipi.cc
 EvtGenModels/EvtVVSPwave.cc
-EvtGenModels/jetset1.F
-EvtGenModels/jetsetcont.F
+EvtGenModels/Pythia.F
+EvtGenModels/pykcut.F
+EvtGenModels/pytime.F
 EvtGenModels/lucomp_beg.F
 EvtGenModels/lucomp.F
-EvtGenModels/pykcut.F
-EvtGenModels/Pythia.F
-EvtGenModels/pytime.F
 )
 
 ## NOT WORKING EvtGenModels/uclacont.F
+## EvtGenModels/EvtJetSet.cc
+## EvtGenModels/EvtJetSetInit.F
+## EvtGenModels/EvtJscont.cc
+## EvtGenModels/jetset1.F
+## EvtGenModels/jetsetcont.F
+## EvtGenModels/continuum.F
 
 set(EVTEVTGEN_EXE_SRCS
 simpleEvtGen.cc
@@ -282,14 +282,14 @@ add_library(EvtGen SHARED ${EVTEVTGEN_SRCS})
 target_link_libraries(EvtGen ${ROOT_LIBRARIES} Pythia6 ${Fortran_UseLib} photos202 pdflib804)
 set_target_properties(EvtGen PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
-##add_executable(EvtGen_exe ${EVTEVTGEN_EXE_SRCS})
-##if (CMAKE_SYSTEM_NAME MATCHES Darwin)
-##  target_link_libraries(EvtGen_exe ${ROOT_LIBRARIES} EvtGenBase EvtGenModels EvtGen EG "EvtGen")
-##else (CMAKE_SYSTEM_NAME MATCHES Darwin)
-##  target_link_libraries(EvtGen_exe EG EvtGen Pythia6 ${Fortran_UseLib} photos202 pdflib804)
-##endif (CMAKE_SYSTEM_NAME MATCHES Darwin)
-##set_target_properties(EvtGen_exe PROPERTIES OUTPUT_NAME simpleEvtGen)
+add_executable(EvtGen_exe ${EVTEVTGEN_EXE_SRCS})
+if (CMAKE_SYSTEM_NAME MATCHES Darwin)
+  target_link_libraries(EvtGen_exe ${ROOT_LIBRARIES} EvtGenBase EvtGenModels EvtGen EG "EvtGen")
+else (CMAKE_SYSTEM_NAME MATCHES Darwin)
+  target_link_libraries(EvtGen_exe EG EvtGen Pythia6 minicern ${Fortran_UseLib} photos202 pdflib804 packlib mathlib )
+endif (CMAKE_SYSTEM_NAME MATCHES Darwin)
+set_target_properties(EvtGen_exe PROPERTIES OUTPUT_NAME simpleEvtGen)
 
 ################ install ###################
 install(TARGETS EvtGen DESTINATION ${CMAKE_BINARY_DIR}/lib)
-##install(TARGETS EvtGen_exe DESTINATION ${CMAKE_BINARY_DIR}/bin)
+install(TARGETS EvtGen_exe DESTINATION ${CMAKE_BINARY_DIR}/bin)
