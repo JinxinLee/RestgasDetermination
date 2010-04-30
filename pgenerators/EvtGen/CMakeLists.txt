@@ -20,6 +20,7 @@ add_definitions("-DEVTSTANDALONE")
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
+${PYTHIA6_LIBRARY_DIR}
 ${CERNLIB_LIBRARY_DIR}
 )
  
@@ -278,17 +279,17 @@ simpleEvtGen.cc
 ### not working:  testEvtGen.cc
 
 add_library(EvtGen SHARED ${EVTEVTGEN_SRCS})
-target_link_libraries(EvtGen ${ROOT_LIBRARIES} ${Fortran_UseLib} photos202 mathlib )
+target_link_libraries(EvtGen ${ROOT_LIBRARIES} Pythia6 ${Fortran_UseLib} photos202 pdflib804)
 set_target_properties(EvtGen PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
-add_executable(EvtGen_exe ${EVTEVTGEN_EXE_SRCS})
-if (CMAKE_SYSTEM_NAME MATCHES Darwin)
-  target_link_libraries(EvtGen_exe ${ROOT_LIBRARIES} EvtGenBase EvtGenModels EvtGen EG "EvtGen")
-else (CMAKE_SYSTEM_NAME MATCHES Darwin)
-  target_link_libraries(EvtGen_exe EG EvtGen ${Fortran_UseLib} mathlib geant pythia6205 pdflib804 isajet758 jetset74 packlib)
-endif (CMAKE_SYSTEM_NAME MATCHES Darwin)
-set_target_properties(EvtGen_exe PROPERTIES OUTPUT_NAME simpleEvtGen)
+##add_executable(EvtGen_exe ${EVTEVTGEN_EXE_SRCS})
+##if (CMAKE_SYSTEM_NAME MATCHES Darwin)
+##  target_link_libraries(EvtGen_exe ${ROOT_LIBRARIES} EvtGenBase EvtGenModels EvtGen EG "EvtGen")
+##else (CMAKE_SYSTEM_NAME MATCHES Darwin)
+##  target_link_libraries(EvtGen_exe EG EvtGen Pythia6 ${Fortran_UseLib} photos202 pdflib804)
+##endif (CMAKE_SYSTEM_NAME MATCHES Darwin)
+##set_target_properties(EvtGen_exe PROPERTIES OUTPUT_NAME simpleEvtGen)
 
 ################ install ###################
 install(TARGETS EvtGen DESTINATION ${CMAKE_BINARY_DIR}/lib)
-install(TARGETS EvtGen_exe DESTINATION ${CMAKE_BINARY_DIR}/bin)
+##install(TARGETS EvtGen_exe DESTINATION ${CMAKE_BINARY_DIR}/bin)
