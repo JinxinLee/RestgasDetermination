@@ -42,12 +42,6 @@
   TClonesArray* digiStrip_array=new TClonesArray("PndSdsDigiStrip");
   t->SetBranchAddress("MVDStripDigis",&digiStrip_array);//Branch names
 
-  TClonesArray* strclust_array=new TClonesArray("PndSdsClusterStrip");
-  t->SetBranchAddress("MVDStripClusterCand",&strclust_array);//Branch names
-
-  TClonesArray* pixclust_array=new TClonesArray("PndSdsClusterPixel");
-  t->SetBranchAddress("MVDPixelClusterCand",&pixclust_array);//Branch names
-
   TClonesArray* strhit_array=new TClonesArray("PndSdsHit");
   t->SetBranchAddress("MVDHitsStrip",&strhit_array);//Branch names
 
@@ -122,20 +116,6 @@
     }
     else {
       std::cout<<"*** digiStrip_array broken - check your file! ."<<std::endl;
-      test3=kFALSE;
-    }
-    if(strclust_array){
-      if(verbose) std::cout<<"strclust_array ok with "<<strclust_array->GetEntriesFast()<<" entries"<<std::endl;
-    }
-    else {
-      std::cout<<"*** strclust_array broken - check your file! ."<<std::endl;
-      test3=kFALSE;
-    }
-    if(pixclust_array){
-      if(verbose) std::cout<<"pixclust_array ok with "<<pixclust_array->GetEntriesFast()<<" entries"<<std::endl;
-    }
-    else {
-      std::cout<<"*** pixclust_array broken - check your file! ."<<std::endl;
       test3=kFALSE;
     }
     if(strhit_array){
