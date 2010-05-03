@@ -171,20 +171,25 @@ static Int_t evtnr=0;
 	EvtVector4R vxyz,pxyz;
 	
 	for(Int_t i=0; i<npart; i++){
+		Int_t nFD, nLD;
 		// add track
-		Id=evtstdhep.getStdHepID(i);
-		vxyz=evtstdhep.getX4(i);
-		pxyz=evtstdhep.getP4(i);
-		fT=vxyz.get(0);
-		fX=vxyz.get(1);
-		fY=vxyz.get(2);
-		fZ=vxyz.get(3);
-		fE=pxyz.get(0);
-		Px=pxyz.get(1);
-		Py=pxyz.get(2);
-		Pz=pxyz.get(3);
-		printf("- I -: new particle at: %f, %f, %f (%f)-> %f %f %f (%f) ID %d \n", fX, fY, fZ, fT,Px, Py, Pz, fE, Id);
-		primGen->AddTrack(Id, Px, Py, Pz, fX, fY, fZ);
+		nFD=evtstdhep.getFirstDaughter(i);
+		nLD=evtstdhep.getLastDaughter(i);
+		if(nFD==-1 && nLD==-1){
+			Id=evtstdhep.getStdHepID(i);
+			vxyz=evtstdhep.getX4(i);
+			pxyz=evtstdhep.getP4(i);
+			fT=vxyz.get(0);
+			fX=vxyz.get(1);
+			fY=vxyz.get(2);
+			fZ=vxyz.get(3);
+			fE=pxyz.get(0);
+			Px=pxyz.get(1);
+			Py=pxyz.get(2);
+			Pz=pxyz.get(3);
+			if(plotflag) printf("- I -: new particle at: %f, %f, %f (%f)-> %f %f %f (%f) ID %d ##Daughters %d %d\n", fX, fY, fZ, fT,Px, Py, Pz, fE, Id, nFD, nLD);
+			primGen->AddTrack(Id, Px, Py, Pz, fX, fY, fZ);
+		}
 	}
 	if(plotflag) cout <<"==== compare end ==="<<endl;
 
