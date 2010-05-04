@@ -2,8 +2,6 @@
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
-If(CERNLIB_LIBRARY_DIR)
-
 if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 OLD)
 endif(COMMAND cmake_policy)
@@ -18,13 +16,12 @@ ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGenModels
 
 include_directories( ${INCLUDE_DIRECTORIES})
 
-add_definitions("-DEVTSTANDALONE")
+add_definitions("-DEVTSTANDALONE -DEVTGEN_NOHOWTO")
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
 ${PYTHIA6_LIBRARY_DIR}
 ${CLHEP_LIBRARY_DIR}
-${CERNLIB_LIBRARY_DIR}
 )
  
 link_directories( ${LINK_DIRECTORIES})
@@ -258,6 +255,8 @@ EvtGenModels/pykcut.F
 EvtGenModels/pytime.F
 EvtGenModels/lucomp_beg.F
 EvtGenModels/lucomp.F
+Cernlib/ddilog.F
+Cernlib/ranf.F
 )
 
 ## not depending on the following files
@@ -289,17 +288,16 @@ set(EVTGEN_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/EvtGenDict.cxx)
 ##
 ## SET(EVTGEN_SRCS ${EVTGEN_SRCS} ${EVTGEN_DICTIONARY})
 
-## how about linking against libEGPythia6 and libEG ??
-
 add_library(EvtGen SHARED ${EVTGEN_SRCS})
-target_link_libraries(EvtGen ${ROOT_LIBRARIES} Pythia6 ${Fortran_UseLib} photos202 pdflib804)
+target_link_libraries(EvtGen ${ROOT_LIBRARIES} Pythia6 Photos ${Fortran_UseLib})
 set_target_properties(EvtGen PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 set_target_properties(EvtGen PROPERTIES LINK_FLAGS "-fPIC")
 
 foreach(program ${ALLEvtGen_exe})
 	add_executable(EvtGen_exe_${program} ${program}.cc)
 	set_target_properties(EvtGen_exe_${program} PROPERTIES OUTPUT_NAME ${program})
-	target_link_libraries(EvtGen_exe_${program} ${ROOT_LIBRARIES} EvtGen Pythia6 minicern ${Fortran_UseLib} photos202 pdflib804 packlib mathlib CLHEP)
+	set_target_properties(EvtGen_exe_${program} PROPERTIES LINK_FLAGS "-fPIC")
+	target_link_libraries(EvtGen_exe_${program} ${ROOT_LIBRARIES} EvtGen Pythia6 Photos ${Fortran_UseLib} CLHEP)
 endforeach(program)
 
 ################ install ###################
@@ -308,6 +306,3 @@ foreach(program ${ALLEvtGen_exe})
 	install(TARGETS EvtGen_exe_${program} DESTINATION ${CMAKE_BINARY_DIR}/bin)
 endforeach(program)
 
-Else(CERNLIB_LIBRARY_DIR)
-message("EvtGen Library not build, CERNLIB not found")
-EndIf(CERNLIB_LIBRARY_DIR)
