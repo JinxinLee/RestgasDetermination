@@ -2,6 +2,8 @@
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
+add_subdirectory(photos)
+
 if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 OLD)
 endif(COMMAND cmake_policy)
