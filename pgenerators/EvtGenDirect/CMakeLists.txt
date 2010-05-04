@@ -2,8 +2,6 @@
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
-If(CERNLIB_LIBRARY_DIR)
-
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
 ${CLHEP_BASE_DIR}/include
@@ -45,7 +43,3 @@ target_link_libraries(EvtGenDirect ${ROOT_LIBRARIES})
 set_target_properties(EvtGenDirect PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS EvtGenDirect DESTINATION ${CMAKE_BINARY_DIR}/lib)
-
-Else(CERNLIB_LIBRARY_DIR)
-message("EvtGenDirect Library not build, CERNLIB not found")
-EndIf(CERNLIB_LIBRARY_DIR)
