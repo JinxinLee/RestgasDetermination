@@ -83,6 +83,8 @@ c      Call Hrput(0,'Test.hist','n')
 c      Stop
 c      End
 
+#if defined(EVTGEN_NOHOWTO)
+#else
       subroutine EvtHowToUse_MPP 
       
       Implicit none     
@@ -181,6 +183,7 @@ c end of the loop over events
       
       
       End
+#endif
 C===================================================================
       subroutine Evt3pionsMPP(
      + alpha_input,iset,

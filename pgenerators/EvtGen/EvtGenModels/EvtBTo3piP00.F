@@ -77,6 +77,8 @@ c      call EvtHowToUse_P00
 c      Stop
 c      End
 
+#if defined(EVTGEN_NOHOWTO)
+#else
       subroutine EvtHowToUse_P00 
       
       Implicit none     
@@ -179,6 +181,7 @@ c end of the loop over events
       Call Hrput(0,'Test.hist','n')
       
       End
+#endif
 C===================================================================
       subroutine Evt3pionsP00(
      + alpha_input,iset,
