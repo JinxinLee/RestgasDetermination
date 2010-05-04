@@ -97,8 +97,18 @@ void PndMdtTrkProducer::SetGeometry() {
   // Resetting geoemtry parameters
   for (Int_t mm=0; mm<3; mm++)
     for (Int_t ll=0; ll<20;ll++)
-      mdtLayerPos[mm][ll] = -1;
+      {
+	mdtLayerPos[mm][ll] = -1;
+	mdtIronThickness[mm][ll] = -1;
+      }
   mdtModule1MaxZ = -1;
+  
+  // Thichness of barrel iron layers [cm]
+  mdtIronThickness[0][0] = 6.;
+  for (Int_t ll=1; ll<12;ll++)    mdtIronThickness[0][ll] = 3;
+  mdtIronThickness[0][12] = 6.;
+  // Thichness of endcap+mf iron layers [cm]
+  for (Int_t ll=0; ll<10;ll++)    mdtIronThickness[1][ll] = 6;
   
   Short_t version = 0;
   Text_t buffer[50]; 
@@ -274,7 +284,7 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
       for (Int_t iMap = 0; iMap < vecMdt0.size(); iMap++) // loop over hits in layer0
 	{
 	  Int_t layerCount = 1, maxLayer = 0;
-	  Float_t layerDist = 0.;
+	  Float_t layerDist = 0.; Float_t ironDist = 0.;
 	  PndMdtTrk *mdtTrk = new PndMdtTrk();
 	  mdtTrk->SetHitIndex(0, vecMdt0[iMap]);
 	  mdtTrk->SetModule(1);
@@ -313,6 +323,7 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 	      
 	      if ( (corrDist>0.) && ((TMath::Sqrt(corrDist)/layerDist) < 2.5) ) // if there in one correlated hit closer than 2.5 layer distance
 		{
+		  ironDist = ironDist + mdtIronThickness[0][(*layer_iter).first-1] * TMath::Sqrt(corrDist)/layerDist;
 		  mdtTrk->SetHitIndex(layerCount, corrId);
 		  mdtTrk->SetHitDist(layerCount, corrDist); 
 		  mdtTrk->SetLayerDist(layerCount, layerDist);
@@ -359,7 +370,8 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 		    }
 		  
 		  if ( (corrDist>0.) && ((TMath::Sqrt(corrDist)/layerDist) < 2.5)) // if there in one correlated hit closer than 2.5 layer distance
-		    { 
+		    {  
+		      ironDist = ironDist + mdtIronThickness[1][(*layer_iter).first-1] * TMath::Sqrt(corrDist)/layerDist;
 		      mdtTrk->SetModule(-1);
 		      mdtTrk->SetHitIndex(layerCount, corrId);
 		      mdtTrk->SetHitDist(layerCount, corrDist);
@@ -371,7 +383,7 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 		    }
 		} // end of layer loop
 	    }
-	  
+	  mdtTrk->SetIronDist(ironDist);
 	  mdtTrk->SetMaxLayer(maxLayer);
 	  mdtTrk->SetLayerCount(layerCount);
 	  AddTrk(mdtTrk); // storing the PndMdtTrk object  
@@ -387,7 +399,7 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
       for (Int_t iMap = 0; iMap < vecMdt0.size(); iMap++) // loop over hits in layer0
 	{
 	  Int_t layerCount = 1, maxLayer = 0;
-	  Float_t layerDist = 0;
+	  Float_t layerDist = 0., ironDist = 0.;
 	  PndMdtTrk *mdtTrk = new PndMdtTrk();
 	  mdtTrk->SetHitIndex(0, vecMdt0[iMap]);
 	  mdtTrk->SetModule(2);
@@ -424,7 +436,8 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 		}
 	      
 	      if ( (corrDist>0.) && ((TMath::Sqrt(corrDist)/layerDist) < 2.5) ) // if there in one correlated hit closer than 2.5 later distance
-		{
+		{ 
+		  ironDist = ironDist + mdtIronThickness[1][(*layer_iter).first-1] * TMath::Sqrt(corrDist)/layerDist;
 		  mdtTrk->SetHitIndex(layerCount, corrId);
 		  mdtTrk->SetHitDist(layerCount, corrDist);
 		  mdtTrk->SetLayerDist(layerCount, layerDist);
@@ -435,7 +448,7 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 		}
 	      
 	    } // end of layer loop
-	    
+	  mdtTrk->SetIronDist(ironDist);
 	  mdtTrk->SetMaxLayer(maxLayer);
 	  mdtTrk->SetLayerCount(layerCount);
 	  AddTrk(mdtTrk); // storing the PndMdtTrk object  

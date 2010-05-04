@@ -126,7 +126,8 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   // MUO
   Int_t		GetMuoNumberOfLayers()const {return fMuoNumberOfLayers;}
   Float_t		GetMuoProbability() const{return fMuoProbability;}
-  Float_t		GetMuoQuality() const{return fMuoQuality;}
+  Float_t		GetMuoQuality()   const{return fMuoQuality;} 
+  Float_t		GetMuoIron()      const{return fMuoIron;}
   Int_t                 GetMuoModule()    const { return fMuoModule; }
   Int_t                 GetMuoIndex()     const { return fMuoIndex; }
 
@@ -235,6 +236,7 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   void	SetMuoNumberOfLayers(Int_t val) { fMuoNumberOfLayers= val;}
   void	SetMuoProbability(Double_t val) { fMuoProbability=(Float_t) val;}
   void	SetMuoQuality(Double_t val)     { fMuoQuality=(Float_t) val;}
+  void	SetMuoIron(Double_t val)        { fMuoIron=(Float_t) val;}
   void  SetMuoModule(Int_t val)           { fMuoModule = val; }
   void  SetMuoIndex(Int_t val)            { fMuoIndex = val; }
 
@@ -342,6 +344,7 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   Int_t		fMuoNumberOfLayers;
   Float_t 	fMuoProbability;
   Float_t       fMuoQuality;
+  Float_t       fMuoIron;
   Int_t         fMuoModule;
   Int_t         fMuoIndex;
   

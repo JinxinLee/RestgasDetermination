@@ -20,6 +20,7 @@ void PndMdtTrk::Clear()
       fHitDist[ii] = -1.;
       fLayDist[ii] = 0.;
     }
+  fIronDist = 0.;
   fHitCount = 0;
   fLayerCount = 0;
   fMaxLayer = 0;

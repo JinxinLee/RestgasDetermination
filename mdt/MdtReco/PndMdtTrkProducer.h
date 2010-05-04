@@ -56,6 +56,7 @@ class PndMdtTrkProducer : public FairTask
   map<Int_t, vector<Int_t> >mapMdtForward;
  
   Float_t mdtLayerPos[3][20];
+  Float_t mdtIronThickness[3][20];
   Float_t mdtModule1MaxZ;
 
   ClassDef(PndMdtTrkProducer,1);

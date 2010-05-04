@@ -609,6 +609,7 @@ Bool_t PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCa
   Int_t mdtIndex = -1, mdtMod = 0, mdtLayer = 0;
   Float_t mdtGLength = -1000;
   Float_t mdtQuality = 1000000;
+  Float_t mdtIron = 0.;
   
   Float_t chi2 = 0;
   TVector3 vertex(0., 0., 0.);
@@ -656,6 +657,7 @@ Bool_t PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 	      PndMdtTrk *mdtTrk = (PndMdtTrk*)fMdtTrk->At(mapMdtTrk[mdtIndex]);
 	      mdtIndex = mapMdtTrk[mm];
 	      mdtLayer = mdtTrk->GetLayerCount();
+	      mdtIron = mdtTrk->GetIronDist();
 	    }
 	}
       if (fDebugMode)
@@ -672,6 +674,7 @@ Bool_t PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCa
     {
       pidCand->SetMuoIndex(mdtIndex);
       pidCand->SetMuoQuality(mdtQuality);
+      pidCand->SetMuoIron(mdtIron);
       pidCand->SetMuoModule(mdtMod);
       pidCand->SetMuoNumberOfLayers(mdtLayer);
     }

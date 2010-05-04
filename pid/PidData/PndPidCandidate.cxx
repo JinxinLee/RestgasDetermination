@@ -197,7 +197,8 @@ void PndPidCandidate::SetDefault()
   
   fMuoNumberOfLayers = 0;
   fMuoProbability = 0.;
-  fMuoQuality = -1.;
+  fMuoQuality = -1.; 
+  fMuoIron = 0.;
   fMuoModule = -1; 
   fMuoIndex = -1;
   fDegreesOfFreedom = 0;

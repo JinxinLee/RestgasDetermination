@@ -34,6 +34,7 @@ class PndMdtTrk : public TObject {
   Int_t   GetHitMult  (Int_t lay)  const { return fHitMult[lay]; };
   Float_t GetHitDist (Int_t lay)   const { return fHitDist[lay]; };
   Float_t GetLayerDist (Int_t lay) const { return fLayDist[lay]; };
+  Float_t GetIronDist ()           const { return fIronDist; };
   Int_t GetHitCount()              const { return fHitCount; }; 
   Int_t GetLayerCount()            const { return fLayerCount; };
   Int_t GetMaxLayer()              const { return fMaxLayer; };
@@ -48,7 +49,8 @@ class PndMdtTrk : public TObject {
   void SetHitDist  (Int_t lay, Float_t dist);
   void SetLayerDist(Int_t lay, Float_t dist);
   void SetBit      (Int_t lay)    { fHitBit = fHitBit | (1 << lay); };
-
+  
+  void SetIronDist(Float_t dist)  { fIronDist = dist; };
   void SetHitCount(Int_t hit)     { fHitCount = hit; }; 
   void SetLayerCount(Int_t lay)   { fLayerCount = lay; };
   void SetMaxLayer(Int_t lay)   { fMaxLayer = lay; };
@@ -63,6 +65,7 @@ class PndMdtTrk : public TObject {
   Int_t fHitMult[15];      // Number of MdtHits inside the correlation
   Float_t fHitDist[15];    // Distance of the closest point to the previous layer hit
   Float_t fLayDist[15];    // Distance of the actual layer from the previous one
+  Float_t fIronDist;       // Amount of crossed iron [cm]
   Int_t fHitCount;         // Number of hits inside correlation
   Int_t fLayerCount;       // Number of fired layers
   Int_t fMaxLayer;         // Lat layer fired
