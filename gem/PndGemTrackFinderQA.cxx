@@ -214,6 +214,7 @@ void PndGemTrackFinderQA::Exec(Option_t* opt) {
     TVector3 mcMomVec = mcTrack->GetMomentum();
     Double_t mcMomMag = mcMomVec.Mag();
     Double_t mcMomThe = mcMomVec.Theta()*TMath::RadToDeg();
+    Double_t mcMomPhi = mcMomVec.Phi()*TMath::RadToDeg();
     Int_t    mcPoints = fMCTrackNofGemPoints[imct];
 
     if ( (mcVertex-fTargetPos).Mag() < 1. ) 
@@ -221,6 +222,7 @@ void PndGemTrackFinderQA::Exec(Option_t* opt) {
 
     fhMCAllVsP->Fill(mcMomMag);
     fhMCAllVsT->Fill(mcMomThe);
+    fhMCAllVsA->Fill(mcMomPhi);
     fhMCAllVsN->Fill(mcPoints);
 
     // check reconstrubility, continue only for reconstruable tracks
@@ -230,18 +232,21 @@ void PndGemTrackFinderQA::Exec(Option_t* opt) {
 
     fhMCAccVsP->Fill(mcMomMag);
     fhMCAccVsT->Fill(mcMomThe);
+    fhMCAccVsA->Fill(mcMomPhi);
     fhMCAccVsN->Fill(mcPoints);
 
     if ( isPrim ) {
       nofMCPrim ++;
       fhMCPrimVsP->Fill(mcMomMag);
       fhMCPrimVsT->Fill(mcMomThe);
+      fhMCPrimVsA->Fill(mcMomPhi);
       fhMCPrimVsN->Fill(mcPoints);
     }
     else {
       nofMCSec ++;
       fhMCSecVsP->Fill(mcMomMag);
       fhMCSecVsT->Fill(mcMomThe);
+      fhMCSecVsA->Fill(mcMomPhi);
       fhMCSecVsN->Fill(mcPoints);
     }
 
@@ -263,22 +268,27 @@ void PndGemTrackFinderQA::Exec(Option_t* opt) {
     for ( Int_t irtr = 0 ; irtr < nofRecoTracks ; irtr++ ) {
       if ( fRecoTrackMCMatch[irtr] != imct ) continue;
       gemTrack = (PndTrack*) fGemTrackArray->At(irtr);
-      
+
+      TVector3 recoTrackMom = gemTrack->GetParamFirst().GetMomentum();
+      Double_t recoMomMag = recoTrackMom.Mag();
+
       nofRecoAcc ++;
 
       fhRecoAccVsP->Fill(mcMomMag);
       fhRecoAccVsT->Fill(mcMomThe);
+      fhRecoAccVsA->Fill(mcMomPhi);
       fhRecoAccVsN->Fill(mcPoints);
-      fhMomResAccVsP->Fill(mcMomMag,100.*(mcMomMag-1./TMath::Abs(gemTrack->GetTrackCand().getQoverPseed()))/mcMomMag);
-      fhMomResAccVsT->Fill(mcMomThe,100.*(mcMomMag-1./TMath::Abs(gemTrack->GetTrackCand().getQoverPseed()))/mcMomMag);
+      fhMomResAccVsP->Fill(mcMomMag,100.*(mcMomMag-recoMomMag)/mcMomMag);
+      fhMomResAccVsT->Fill(mcMomThe,100.*(mcMomMag-recoMomMag)/mcMomMag);
+      fhMomResAccVsA->Fill(mcMomPhi,100.*(mcMomMag-recoMomMag)/mcMomMag);
 
       if ( isRefP ) {
 	fhRecoRefVsT->Fill(mcMomThe);
-	fhMomResRefVsT->Fill(mcMomThe,100.*(mcMomMag-1./TMath::Abs(gemTrack->GetTrackCand().getQoverPseed()))/mcMomMag);
+	fhMomResRefVsT->Fill(mcMomThe,100.*(mcMomMag-recoMomMag)/mcMomMag);
       }
       if ( isRefT ) {
 	fhRecoRefVsP->Fill(mcMomMag);
-	fhMomResRefVsP->Fill(mcMomMag,100.*(mcMomMag-1./TMath::Abs(gemTrack->GetTrackCand().getQoverPseed()))/mcMomMag);
+	fhMomResRefVsP->Fill(mcMomMag,100.*(mcMomMag-recoMomMag)/mcMomMag);
       }
       if ( isRefP && isRefT ) {
 	nofRecoRef ++;
@@ -286,21 +296,33 @@ void PndGemTrackFinderQA::Exec(Option_t* opt) {
       }
       if ( isPrim ) {
 	nofRecoPrim ++;
-	fhRecoPrimVsP->Fill(mcMomMag);
+	fhRecoPrimVsP->Fill(mcMomMag);	
 	fhRecoPrimVsT->Fill(mcMomThe);
+	fhRecoPrimVsA->Fill(mcMomPhi);
 	fhRecoPrimVsN->Fill(mcPoints);
-	fhMomResPrimVsP->Fill(mcMomMag,100.*(mcMomMag-1./TMath::Abs(gemTrack->GetTrackCand().getQoverPseed()))/mcMomMag);
-	fhMomResPrimVsT->Fill(mcMomThe,100.*(mcMomMag-1./TMath::Abs(gemTrack->GetTrackCand().getQoverPseed()))/mcMomMag);
+	fhMomResPrimVsP->Fill(mcMomMag,100.*(mcMomMag-recoMomMag)/mcMomMag);
+	fhMomResPrimVsT->Fill(mcMomThe,100.*(mcMomMag-recoMomMag)/mcMomMag);
+	fhMomResPrimVsA->Fill(mcMomPhi,100.*(mcMomMag-recoMomMag)/mcMomMag);
+
+	fhRecoPrimP->Fill(recoTrackMom.Mag());	
+	fhRecoPrimT->Fill(recoTrackMom.Theta()*TMath::RadToDeg());	
+	fhRecoPrimA->Fill(recoTrackMom.Phi()*TMath::RadToDeg());	
       }
       else {
 	nofRecoSec ++;
 	fhRecoSecVsP->Fill(mcMomMag);
 	fhRecoSecVsT->Fill(mcMomThe);
+	fhRecoSecVsA->Fill(mcMomPhi);
 	fhRecoSecVsN->Fill(mcPoints);
-	fhMomResSecVsP->Fill(mcMomMag,100.*(mcMomMag-1./TMath::Abs(gemTrack->GetTrackCand().getQoverPseed()))/mcMomMag);
-	fhMomResSecVsT->Fill(mcMomThe,100.*(mcMomMag-1./TMath::Abs(gemTrack->GetTrackCand().getQoverPseed()))/mcMomMag);
+	fhMomResSecVsP->Fill(mcMomMag,100.*(mcMomMag-recoMomMag)/mcMomMag);
+	fhMomResSecVsT->Fill(mcMomThe,100.*(mcMomMag-recoMomMag)/mcMomMag);
+	fhMomResSecVsA->Fill(mcMomPhi,100.*(mcMomMag-recoMomMag)/mcMomMag);
+
+	fhRecoSecP->Fill(recoTrackMom.Mag());	
+	fhRecoSecT->Fill(recoTrackMom.Theta()*TMath::RadToDeg());	
+	fhRecoSecA->Fill(recoTrackMom.Phi()*TMath::RadToDeg());	
       }
-      break; //do not include clones, is good for efficiency plots but bad(?) for momentum resolution
+      break; //do not include clones, the break is good for efficiency plots but bad(?) for momentum resolution
     }
   }
 
@@ -454,6 +476,12 @@ void PndGemTrackFinderQA::MatchRecoTracks() {
     if ( largestNofMCId < fMinQuota*gemTrack->GetTrackCand().GetNHits() ) continue;
 
     fRecoTrackMCMatch[irtr] = bestMCId;
+
+    TVector3 recoTrackMom = gemTrack->GetParamFirst().GetMomentum();
+
+    fhRecoAllP->Fill(recoTrackMom.Mag());
+    fhRecoAllT->Fill(recoTrackMom.Theta()*TMath::RadToDeg());
+    fhRecoAllA->Fill(recoTrackMom.Phi()*TMath::RadToDeg());
   }
 
 }
@@ -526,6 +554,38 @@ void PndGemTrackFinderQA::CreateHistos() {
   fHistoList->Add(fhRecoRefVsT);
   fHistoList->Add(fhEffRefVsT);
 
+  // number of mc tracks, reco tracks, efficiency as function of PHI
+  Double_t minPhi = -180.;
+  Double_t maxPhi =  180.;
+  Int_t   phiBins = 72;
+  fhMCAllVsA  = new TH1F("hMCAllVsA" ,"all mc tracks;phi [deg];yield [a.u.]",phiBins,minPhi,maxPhi);
+  fhMCAccVsA  = new TH1F("hMCAccVsA" ,"reconstruable mc tracks;phi [deg];yield [a.u.]",phiBins,minPhi,maxPhi);
+  fhMCPrimVsA = new TH1F("hMCPrimVsA","primary mc tracks;phi [deg];yield [a.u.]",phiBins,minPhi,maxPhi);
+  fhMCSecVsA  = new TH1F("hMCSecVsA" ,"secondary mc tracks;phi [deg];yield [a.u.]",phiBins,minPhi,maxPhi);
+  fhRecoAccVsA  = new TH1F("hRecoAccVsA" ,"reconstructed tracks;phi [deg];yield [a.u.]",phiBins,minPhi,maxPhi);
+  fhRecoPrimVsA = new TH1F("hRecoPrimVsA","reco primary tracks;phi [deg];yield [a.u.]",phiBins,minPhi,maxPhi);
+  fhRecoSecVsA  = new TH1F("hRecoSecVsA" ,"reco secondary tracks;phi [deg];yield [a.u.]",phiBins,minPhi,maxPhi);
+  fhEffAccVsA  = new TH1F("hEffAccVsA" ,"eff all tracks;phi [deg];yield [a.u.]",phiBins,minPhi,maxPhi);
+  fhEffPrimVsA = new TH1F("hEffPrimVsA","eff primary tracks;phi [deg];yield [a.u.]",phiBins,minPhi,maxPhi);
+  fhEffSecVsA  = new TH1F("hEffSecVsA" ,"eff secondary tracks;phi [deg];yield [a.u.]",phiBins,minPhi,maxPhi);
+  fhMCRefVsA  = new TH1F("hMCRefVsA" ,"reference mc tracks;phi [deg];yield [a.u.]",phiBins,minPhi,maxPhi);
+  fhRecoRefVsA  = new TH1F("hRecoRefVsA" ,"reco reference tracks;phi [deg];yield [a.u.]",phiBins,minPhi,maxPhi);
+  fhEffRefVsA  = new TH1F("hEffRefVsA" ,"eff reference tracks;phi [deg];yield [a.u.]",phiBins,minPhi,maxPhi);
+
+  fHistoList->Add(fhMCAllVsA);
+  fHistoList->Add(fhMCAccVsA);
+  fHistoList->Add(fhMCPrimVsA);
+  fHistoList->Add(fhMCSecVsA);
+  fHistoList->Add(fhRecoAccVsA);
+  fHistoList->Add(fhRecoPrimVsA);
+  fHistoList->Add(fhRecoSecVsA);
+  fHistoList->Add(fhEffAccVsA);
+  fHistoList->Add(fhEffPrimVsA);
+  fHistoList->Add(fhEffSecVsA);
+  fHistoList->Add(fhMCRefVsA);
+  fHistoList->Add(fhRecoRefVsA);
+  fHistoList->Add(fhEffRefVsA);
+
   // number of mc tracks, reco tracks, efficiency as function of NUMBER OF POINTS
   Double_t minPnt =  -0.5;
   Double_t maxPnt = 40.5;
@@ -567,6 +627,7 @@ void PndGemTrackFinderQA::CreateHistos() {
   fHistoList->Add(fhMomResPrimVsP);
   fHistoList->Add(fhMomResSecVsP);
   fHistoList->Add(fhMomResRefVsP);
+  // momentum resolution vs THETA
   fhMomResAccVsT  = new TH2F("hMomResAccVsT" ,"momentum resolution for all tracks;theta [deg];#delta{p}/p [%]",theBins,minThe,maxThe,400,-20.,20.);
   fhMomResPrimVsT = new TH2F("hMomResPrimVsT","momentum resolution for primary tracks;theta [deg];#delta{p}/p [%]",theBins,minThe,maxThe,400,-20.,20.);
   fhMomResSecVsT  = new TH2F("hMomResSecVsT" ,"momentum resolution for secondary tracks;theta [deg];#delta{p}/p [%]",theBins,minThe,maxThe,400,-20.,20.);
@@ -575,7 +636,34 @@ void PndGemTrackFinderQA::CreateHistos() {
   fHistoList->Add(fhMomResPrimVsT);
   fHistoList->Add(fhMomResSecVsT);
   fHistoList->Add(fhMomResRefVsT);
+  // momentum resolution vs PHI
+  fhMomResAccVsA  = new TH2F("hMomResAccVsA" ,"momentum resolution for all tracks;phi [deg];#delta{p}/p [%]",phiBins,minPhi,maxPhi,400,-20.,20.);
+  fhMomResPrimVsA = new TH2F("hMomResPrimVsA","momentum resolution for primary tracks;phi [deg];#delta{p}/p [%]",phiBins,minPhi,maxPhi,400,-20.,20.);
+  fhMomResSecVsA  = new TH2F("hMomResSecVsA" ,"momentum resolution for secondary tracks;phi [deg];#delta{p}/p [%]",phiBins,minPhi,maxPhi,400,-20.,20.);
+  fhMomResRefVsA  = new TH2F("hMomResRefVsA" ,"momentum resolution for reference tracks;phi [deg];#delta{p}/p [%]",phiBins,minPhi,maxPhi,400,-20.,20.);
+  fHistoList->Add(fhMomResAccVsA);
+  fHistoList->Add(fhMomResPrimVsA);
+  fHistoList->Add(fhMomResSecVsA);
+  fHistoList->Add(fhMomResRefVsA);
 
+  fhRecoAllP  = new TH1F("hRecoAllP" ,"reconstructed track momentum for all",2000,0.,20.);
+  fhRecoPrimP = new TH1F("hRecoPrimP","reconstructed track momentum for primaries",2000,0.,20.);
+  fhRecoSecP  = new TH1F("hRecoSecP" ,"reconstructed track momentum for secondaries",2000,0.,20.);
+  fhRecoAllT  = new TH1F("hRecoAllT" ,"reconstructed track theta for all",400,0.,40.);
+  fhRecoPrimT = new TH1F("hRecoPrimT","reconstructed track theta for primaries",400,0.,40.);
+  fhRecoSecT  = new TH1F("hRecoSecT" ,"reconstructed track theta for secondaries",400,0.,40.);
+  fhRecoAllA  = new TH1F("hRecoAllA" ,"reconstructed track phi for all",360,-180.,180.);
+  fhRecoPrimA = new TH1F("hRecoPrimA","reconstructed track phi for primaries",360,-180.,180.);
+  fhRecoSecA  = new TH1F("hRecoSecA" ,"reconstructed track phi for secondaries",360,-180.,180.);
+  fHistoList->Add(fhRecoAllP);
+  fHistoList->Add(fhRecoPrimP);
+  fHistoList->Add(fhRecoSecP);
+  fHistoList->Add(fhRecoAllT);
+  fHistoList->Add(fhRecoPrimT);
+  fHistoList->Add(fhRecoSecT);
+  fHistoList->Add(fhRecoAllA);
+  fHistoList->Add(fhRecoPrimA);
+  fHistoList->Add(fhRecoSecA);
 
   fhNofHitsPerTrack = new TH1F("hNofHitsPerTrack","nof hits per track;# hits;yield [a.u.]",pntBins,minPnt,maxPnt);
   fhNofHitsPerRecoTrack = new TH1F("hNofHitsPerRecoTrack","nof hits per reco track;# hits;yield [a.u.]",pntBins,minPnt,maxPnt);
@@ -657,6 +745,14 @@ void PndGemTrackFinderQA::Finish() {
   fhEffPrimVsT->Scale(100.);
   fhEffSecVsT ->Scale(100.);
   fhEffRefVsT ->Scale(100.);
+  DivideHistos(fhRecoAccVsA, fhMCAccVsA, fhEffAccVsA);
+  DivideHistos(fhRecoPrimVsA,fhMCPrimVsA,fhEffPrimVsA);
+  DivideHistos(fhRecoSecVsA, fhMCSecVsA, fhEffSecVsA);
+  DivideHistos(fhRecoRefVsA, fhMCRefVsA, fhEffRefVsA);
+  fhEffAccVsA ->Scale(100.);
+  fhEffPrimVsA->Scale(100.);
+  fhEffSecVsA ->Scale(100.);
+  fhEffRefVsA ->Scale(100.);
   DivideHistos(fhRecoAccVsN, fhMCAccVsN, fhEffAccVsN);
   DivideHistos(fhRecoPrimVsN,fhMCPrimVsN,fhEffPrimVsN);
   DivideHistos(fhRecoSecVsN, fhMCSecVsN, fhEffSecVsN);

@@ -92,15 +92,26 @@ class PndGemTrackFinderQA : public FairTask
   TH1F* fhMCAllVsT, *fhMCAccVsT, *fhMCPrimVsT, *fhMCSecVsT, *fhMCRefVsT;
   TH1F* fhRecoAccVsT, *fhRecoPrimVsT, *fhRecoSecVsT, *fhRecoRefVsT;
   TH1F* fhEffAccVsT, *fhEffPrimVsT, *fhEffSecVsT, *fhEffRefVsT;
+  // number of mc tracks, reco tracks, efficiency as function of PHI
+  TH1F* fhMCAllVsA, *fhMCAccVsA, *fhMCPrimVsA, *fhMCSecVsA, *fhMCRefVsA;
+  TH1F* fhRecoAccVsA, *fhRecoPrimVsA, *fhRecoSecVsA, *fhRecoRefVsA;
+  TH1F* fhEffAccVsA, *fhEffPrimVsA, *fhEffSecVsA, *fhEffRefVsA;
   // number of mc tracks, reco tracks, efficiency as function of NUMBER OF POINTS
   TH1F* fhMCAllVsN, *fhMCAccVsN, *fhMCPrimVsN, *fhMCSecVsN, *fhMCRefVsN;
   TH1F* fhRecoAccVsN, *fhRecoPrimVsN, *fhRecoSecVsN, *fhRecoRefVsN;
   TH1F* fhEffAccVsN, *fhEffPrimVsN, *fhEffSecVsN, *fhEffRefVsN;
 
+  // MOMENTUM, THETA and (PHI)ANGLE reco tracks distribution
+  TH1F* fhRecoAllP, *fhRecoPrimP, *fhRecoSecP;
+  TH1F* fhRecoAllT, *fhRecoPrimT, *fhRecoSecT;
+  TH1F* fhRecoAllA, *fhRecoPrimA, *fhRecoSecA;
+
   // momentum resolution vs MOMENTUM
   TH2F* fhMomResAccVsP, *fhMomResPrimVsP, *fhMomResSecVsP, *fhMomResRefVsP;
   // momentum resolution vs THETA
   TH2F* fhMomResAccVsT, *fhMomResPrimVsT, *fhMomResSecVsT, *fhMomResRefVsT;
+  // momentum resolution vs THETA
+  TH2F* fhMomResAccVsA, *fhMomResPrimVsA, *fhMomResSecVsA, *fhMomResRefVsA;
 
   TH1F* fhNofHitsPerTrack;
   TH1F* fhNofHitsPerRecoTrack;
