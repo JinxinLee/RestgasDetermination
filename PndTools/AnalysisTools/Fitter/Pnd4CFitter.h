@@ -27,6 +27,7 @@ public:
     void Fit();
     void FitConserveMasses();
     double GlobalChi2() {return fGlobChi2;}
+    double GetChi2() {return fGlobChi2;}
 	void PrintTree(TCandidate *c, int l=0);
     
 private:    

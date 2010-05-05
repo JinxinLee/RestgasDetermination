@@ -25,7 +25,9 @@ public:
     virtual ~PndMassFitter();// {if(fHeadOfTree) delete fHeadOfTree;}
     void Fit();
     virtual void SetFitIncludingVertex(Int_t);
-   
+  double 		GetChi2() {return fGlobChi2;}
+  unsigned     CalDgf(); //Calculate the Degree of freedom
+  unsigned     GetNdf() {return CalDgf();} 
 
 private:    
 	
@@ -41,7 +43,6 @@ private:
   Double_t     GetInvariantMass();
   unsigned     GetDecayPoint();
   unsigned     FitWithVertex();
-  unsigned     CalDgf(); //Calculate the Degree of freedom
 
   unsigned    SetInputMatrix(); // set the input matrix
   unsigned    MakeCoreMatrix(); //Make core matrix
@@ -67,6 +68,8 @@ private:
 
   
   //statistic parameter
+  Double_t   fGlobChi2;
+  
   Int_t      m_dgf;
   Double_t   m_chisq;
   Double_t   m_cl;
@@ -81,7 +84,7 @@ private:
   TMatrixD     m_V_al_0;
   TMatrixD     m_al_0;
   TMatrixD     m_al_1;
-  TMatrixD     m_al_a;
+  //TMatrixD     m_al_a;
   TMatrixD     m_property;
   TMatrixD     m_V_al_1;
 

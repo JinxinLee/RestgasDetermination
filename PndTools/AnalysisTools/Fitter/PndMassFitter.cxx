@@ -33,6 +33,7 @@ PndMassFitter::PndMassFitter( const TCandidate& b, double mass ) : VAbsFitter( b
   m_necessaryTrackNum = 2;
   m_invariantMass=mass;
   m_errorFlag = KF_NO_ERROR;
+  fGlobChi2 = -1.;
 }
     
     
@@ -45,8 +46,8 @@ void PndMassFitter::Fit()
 {
   TCandidate theHead=*fHeadOfTree;
   TCandListIterator iter=theHead.DaughterIterator();
-  cout <<"Fit: head of Tree:"<<endl;
-  cout<<(*fHeadOfTree)<<endl;
+  //cout <<"Fit: head of Tree:"<<endl;
+  //cout<<(*fHeadOfTree)<<endl;
   
   fDaughters.Cleanup();
   
@@ -55,8 +56,8 @@ void PndMassFitter::Fit()
   while (tc=iter.Next())
   {
     TMatrixD cov=tc->Cov7();
-    cout <<"PndMassFitter: Daughter "<<num++<<endl;
-    cout <<(*tc)<<endl;
+    //cout <<"PndMassFitter: Daughter "<<num++<<endl;
+    //cout <<(*tc)<<endl;
     //cov.Print();
     fDaughters.Add(*tc);
   }
@@ -77,7 +78,7 @@ unsigned PndMassFitter::DoVertexFitMassConstraintWOIncludeVertex()
     m_errorFlag = KF_TRACK_SIZE;
     return m_errorFlag;
   }
-  cout<<"======SetInputMatrix part Start========== "<<m_trackNum<<endl;
+  //cout<<"======SetInputMatrix part Start========== "<<m_trackNum<<endl;
   /*
   if(m_trackNum > KF_MAX_TRACK_NUMBER){
     m_errorFlag = KF_INPUT_TRACK_SIZE;
@@ -89,7 +90,7 @@ unsigned PndMassFitter::DoVertexFitMassConstraintWOIncludeVertex()
   
   
   /** Fit function _fit() Starts **/
-  cout<<"++++++ Fit function _fit() Starts +++++++ "<<endl;
+  //cout<<"++++++ Fit function _fit() Starts +++++++ "<<endl;
   Double_t chiSq(0.);
   //  Double_t errInverse = 0; // if you need the determinant value
   Double_t *errInverse = 0;
@@ -104,7 +105,7 @@ unsigned PndMassFitter::DoVertexFitMassConstraintWOIncludeVertex()
     {
       MakeCoreMatrix(); // MakeCoreMatrix() STARTS 
       
-      cout<<"++++++ Fit function _fit() Continues +++++++ "<<endl;
+      //cout<<"++++++ Fit function _fit() Continues +++++++ "<<endl;
 
       m_V_D = (m_D*m_V_al_0*(m_D_T.Transpose(m_D))).Invert(errInverse);
       /**
@@ -146,7 +147,9 @@ unsigned PndMassFitter::DoVertexFitMassConstraintWOIncludeVertex()
     } //Iteration Loop ends
 
 
-   cout<<"Chi2 is **********: "<<chiSq<<endl;
+   //cout<<"Chi2 is **********: "<<chiSq<<endl;
+   
+   fGlobChi2 = chiSq;
    
    SetOutputToTCandidate();
 }
@@ -154,7 +157,7 @@ unsigned PndMassFitter::DoVertexFitMassConstraintWOIncludeVertex()
 
 unsigned PndMassFitter::DoVertexFitMassConstraintIncludeVertex()
 {
-  cout<<"Include Vertex in the Fitting ======== "<<endl;
+  //cout<<"Include Vertex in the Fitting ======== "<<endl;
   if(m_errorFlag != KF_NO_ERROR)return m_errorFlag;
   m_trackNum = fDaughters.GetLength();
   if(m_trackNum < m_necessaryTrackNum){
@@ -180,7 +183,7 @@ unsigned PndMassFitter::DoVertexFitMassConstraintIncludeVertex()
     {
       MakeCoreMatrix(); //Make Core matrix
       
-      cout<<"++++++ Fit function _fit() Continues +++++++ "<<endl;
+      //cout<<"++++++ Fit function _fit() Continues +++++++ "<<endl;
       //      TMatrixD mD_tmp = m_D;
       m_V_D = (m_D*m_V_al_0*(m_D_T.Transpose(m_D))).Invert(errInverse);
       /*** will 
@@ -221,7 +224,8 @@ unsigned PndMassFitter::DoVertexFitMassConstraintIncludeVertex()
     } //Iteration Loop ends
   
  
-  cout<<"Chi2 is **********: "<<chiSq<<endl;
+  //cout<<"Chi2 is **********: "<<chiSq<<endl;
+   fGlobChi2 = chiSq;
    
    SetOutputToTCandidate();
   
@@ -229,7 +233,7 @@ unsigned PndMassFitter::DoVertexFitMassConstraintIncludeVertex()
 
 unsigned PndMassFitter::SetInputMatrix()
 {
-  cout<<"Track NUMBER is ***** "<<m_trackNum<<endl;
+  //cout<<"Track NUMBER is ***** "<<m_trackNum<<endl;
   if(m_trackNum > KF_MAX_TRACK_NUMBER){
     m_errorFlag = KF_INPUT_TRACK_SIZE;
     return m_errorFlag;
@@ -335,7 +339,7 @@ unsigned PndMassFitter::SetInputMatrix()
     m_al_0[KF_NUM7*m_trackNum+1][0] = m_vertex_b.Y();
     m_al_0[KF_NUM7*m_trackNum+2][0] = m_vertex_b.Z();
     tmp_V_al_0.SetSub(KF_NUM7*m_trackNum,it->GetErrVertexOut());
-   cout<<m_property[0][0]<<" m_property "<<m_property[0][2]<<" "<<m_property[1][2]<<endl;
+   //cout<<m_property[0][0]<<" m_property "<<m_property[0][2]<<" "<<m_property[1][2]<<endl;
 
    /***
     //   Dipak
@@ -362,7 +366,7 @@ unsigned PndMassFitter::MakeCoreMatrix()
   if(m_fitIncludingVertex == 0)
     {
       TMatrixD al_1_prime(m_al_1);
-      cout<<"MAKE COREMATRIX *** "<<al_1_prime.GetNrows()<<" "<<al_1_prime.GetNcols()<<" "<<m_al_1.GetNrows()<<" "<<m_al_1.GetNcols()<<" "<<m_trackNum<<" "<<m_invariantMass<<endl;
+      //cout<<"MAKE COREMATRIX *** "<<al_1_prime.GetNrows()<<" "<<al_1_prime.GetNcols()<<" "<<m_al_1.GetNrows()<<" "<<m_al_1.GetNcols()<<" "<<m_trackNum<<" "<<m_invariantMass<<endl;
       TMatrixD Sum_al_1(4,1);
       Double_t   *energy = new Double_t[m_trackNum];
       Double_t    a;
@@ -433,7 +437,7 @@ unsigned PndMassFitter::MakeCoreMatrix()
     
     Double_t   *energy = new Double_t[m_trackNum];
     Double_t    a;
-    cout<<"MAKE COREMATRIX *** "<<al_1_prime.GetNrows()<<" "<<al_1_prime.GetNcols()<<" "<<m_al_1.GetNrows()<<" "<<m_al_1.GetNcols()<<" "<<m_trackNum<<" "<<m_invariantMass<<endl;
+    //cout<<"MAKE COREMATRIX *** "<<al_1_prime.GetNrows()<<" "<<al_1_prime.GetNcols()<<" "<<m_al_1.GetNrows()<<" "<<m_al_1.GetNcols()<<" "<<m_trackNum<<" "<<m_invariantMass<<endl;
     for(unsigned i=0;i<m_trackNum;++i){
       a = m_property[i][2];
       
@@ -522,7 +526,7 @@ unsigned PndMassFitter::MakeCoreMatrix()
 unsigned PndMassFitter::SetOutputToTCandidate()
 {
 	TVector3 h3v;
-	cout<<"# of Tracks are in TCandidate ************ "<<fDaughters.GetLength()<<endl;
+	//cout<<"# of Tracks are in TCandidate ************ "<<fDaughters.GetLength()<<endl;
 	unsigned index1(0);
 	TMatrixD trCov(7,7);
 	
@@ -542,7 +546,7 @@ unsigned PndMassFitter::SetOutputToTCandidate()
 		  E=m_al_1[index1*KF_NUM7+3][0];
 		}
 		
-		cout <<"SetOutputToTCandidate"<<px<<" "<<py<<" "<<pz<<" "<<E<<endl;
+		//cout <<"SetOutputToTCandidate"<<px<<" "<<py<<" "<<pz<<" "<<E<<endl;
 		
 		lv.SetXYZT(px,py,pz,E);
 		
@@ -550,7 +554,7 @@ unsigned PndMassFitter::SetOutputToTCandidate()
 		++index1;
 	}
 	
-	cout <<"sum: "<<sum.Px()<<" "<<sum.Py()<<" "<<sum.Pz()<<" "<<sum.M()<<endl;
+	//cout <<"sum: "<<sum.Px()<<" "<<sum.Py()<<" "<<sum.Pz()<<" "<<sum.M()<<endl;
           fHeadOfTree->SetP4(sum);
 	if(m_fitIncludingVertex == 0)fHeadOfTree->SetPos(m_vertex_b);
 	else   fHeadOfTree->SetPos(TVector3(m_al_1[KF_NUM7*m_trackNum+0][0],m_al_1[KF_NUM7*m_trackNum+1][0],m_al_1[KF_NUM7*m_trackNum+2][0]));
