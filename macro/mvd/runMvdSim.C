@@ -43,8 +43,7 @@
   fRun->AddModule(Pipe);
 
   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
-  Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root"); // only sensors, update follows
-  //  Mvd->SetGeometryFileName("MVD14.root"); // old geometry
+  Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root"); // only sensors, update follows
   Mvd->SetVerboseLevel(verboseLevel);
   fRun->AddModule(Mvd);
 
