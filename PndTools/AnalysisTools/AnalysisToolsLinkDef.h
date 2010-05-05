@@ -11,6 +11,9 @@
 #pragma link C++ function operator << ( ostream &, const PndEventInfo & );
 #pragma link C++ class PndMicroCandidate;
 #pragma link C++ class PndSimplePidInfo;
+#pragma link C++ class PndChiVtxFitter;
+#pragma link C++ class PndKinVtxFitter;
+#pragma link C++ class PndKinFitter;
 #pragma link C++ class PndVtxFitter;
 #pragma link C++ class PndMassFitter;
 #pragma link C++ class Pnd4CFitter;

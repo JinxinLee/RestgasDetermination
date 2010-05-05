@@ -59,6 +59,9 @@ Fitter/PndVtxFitterError.cxx
 Fitter/PndVtxFitter.cxx
 Fitter/PndMassFitter.cxx
 Fitter/Pnd4CFitter.cxx
+Fitter/PndKinVtxFitter.cxx
+Fitter/PndKinFitter.cxx
+Fitter/PndChiVtxFitter.cxx
 StrTok.cxx
 )
 
