@@ -73,10 +73,22 @@ class PndEmcMapperGeo4Root: public PndEmcMapper
 		PndEmcMapperGeo4Root();
 };
 
+class PndEmcMapperGeo5Root: public PndEmcMapper
+{
+	public:
+		PndEmcMapperGeo5Root();
+};
+
 class PndEmcMapperGeo125Dat34Root: public PndEmcMapper
 {
 	public:
 		PndEmcMapperGeo125Dat34Root();
+};
+
+class PndEmcMapperGeo12Dat345Root: public PndEmcMapper
+{
+	public:
+		PndEmcMapperGeo12Dat345Root();
 };
 
 class PndEmcMapperGeo1235Dat4Root: public PndEmcMapper

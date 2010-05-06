@@ -55,6 +55,12 @@ void PndEmcMapper::Init(Int_t mapVersion)
 			case 7:
 				_instance = new PndEmcMapperGeo1235Dat4Root();
 				break;
+			case 8:
+				_instance = new PndEmcMapperGeo5Root();
+				break;
+			case 9:
+				_instance = new PndEmcMapperGeo12Dat345Root();
+			    break;
 			default :
 				cout<<"Emc Mapper version "<<mapVersion<<" is not defined"<<endl;
 		} 
@@ -370,7 +376,28 @@ PndEmcMapperGeo4Root::PndEmcMapperGeo4Root()
 				if (copy==4) {  iX =  row;   iY =  crystal;   }
 				
 				detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
-				_tci=new PndEmcTwoCoordIndex(iX+250,iY+250,detId);
+				_tci=new PndEmcTwoCoordIndex(iX+350,iY+350,detId);
+				fIntTwoCoordMap[detId]=_tci;
+	      }
+}
+
+PndEmcMapperGeo5Root::PndEmcMapperGeo5Root()
+{
+   // *** for testing of Fsc ONLY --> from "emc_module5_*.root" file ***
+   // 20.04.2010
+  	PndEmcTwoCoordIndex *_tci;
+	Int_t iTheta, iPhi, detId, detId_tmp, iX, iY;
+	iTheta = iPhi = detId = detId_tmp =iX = iY = 0;
+
+	Int_t module=5;
+	for (Int_t row=1; row<=14;row++)
+		for (Int_t crystal=1; crystal<=27;crystal++)
+	      {
+				Int_t copy = 1;
+				iX = row;
+				iY =  crystal;
+				detId =  module*100000000 + row*1000000 + copy*10000 + crystal;
+				_tci=new PndEmcTwoCoordIndex(iX+450,iY+450,detId);
 				fIntTwoCoordMap[detId]=_tci;
 	      }
 }
@@ -478,6 +505,110 @@ PndEmcMapperGeo125Dat34Root::PndEmcMapperGeo125Dat34Root()
 					_tci=new PndEmcTwoCoordIndex(iX+550,iY+550,detId);
 					fIntTwoCoordMap[detId]=_tci;
 				}	
+		}
+	}
+}
+
+PndEmcMapperGeo12Dat345Root::PndEmcMapperGeo12Dat345Root()
+{
+   // *** for Barrel (like it is), _new_ FwEndCap & _new_ BwEndCap
+   // 26.02.2009
+  	PndEmcTwoCoordIndex *_tci;
+	Int_t iTheta, iPhi, detId, detId_tmp, iX, iY;
+	iTheta = iPhi = detId = detId_tmp =iX = iY = 0;
+	for (Int_t module=1; module<=6; module++)
+	{
+		if (module ==2)
+		{
+		for (Int_t row=1; row<=29;row++)
+			for (Int_t crystal=1; crystal<=10;crystal++)
+				for (Int_t copy=1; copy<=16;copy++)
+				{
+					iPhi=(11-crystal)+(copy-1)*10;
+					iTheta=-row+30;
+
+					detId =  module*100000000 + row*1000000 + copy*10000 + crystal;
+					_tci=new PndEmcTwoCoordIndex(iTheta,iPhi,detId);
+					fIntTwoCoordMap[detId]=_tci;
+				}
+		}
+		else if (module ==1)
+		{
+		for (Int_t row=1; row<=43;row++)
+			for (Int_t crystal=1; crystal<=10;crystal++)
+				for (Int_t copy=1; copy<=16;copy++)
+				{
+					iPhi=(11-crystal)+(copy-1)*10;
+					iTheta=row+29;
+
+					detId =  module*100000000 + row*1000000 + copy*10000 + crystal;
+					_tci=new PndEmcTwoCoordIndex(iTheta,iPhi,detId);
+					fIntTwoCoordMap[detId]=_tci;
+				}
+		}
+
+		if (module ==3)
+		{
+			for (Int_t row=1; row<=36;row++)
+				for (Int_t crystal=1; crystal<=36;crystal++)
+					for (Int_t copy=1; copy<=4;copy++)
+					{
+						if (copy==1)   {	iX = -row+1; iY =  crystal;   }
+						if (copy==2)   {	iX = -row+1; iY = -crystal+1; }
+						if (copy==3)   {	iX =  row;   iY = -crystal+1; }
+						if (copy==4)   {  iX =  row;   iY =  crystal;   }
+
+						detId =  module*100000000 + row*1000000 + copy*10000 + crystal;
+
+						_tci=new PndEmcTwoCoordIndex(iX+250,iY+250,detId);
+						fIntTwoCoordMap[detId]=_tci;
+					}
+		}
+		if (module ==4)
+		{
+			for (Int_t row=1; row<=16;row++)
+				for (Int_t crystal=1; crystal<=16;crystal++)
+					for (Int_t copy=1; copy<=4;copy++)
+					{
+						if (copy==1) {  iX = -row+1; iY =  crystal;   }
+						if (copy==2) {  iX = -row+1; iY = -crystal+1; }
+						if (copy==3) {  iX =  row;   iY = -crystal+1; }
+						if (copy==4) {  iX =  row;   iY =  crystal;   }
+
+						detId =  module*100000000 + row*1000000 + copy*10000 + crystal;
+
+						_tci=new PndEmcTwoCoordIndex(iX+350,iY+350,detId);
+						fIntTwoCoordMap[detId]=_tci;
+					}
+		}
+		if (module ==5)
+		{
+			for (Int_t row=1; row<=14;row++)
+				for (Int_t crystal=1; crystal<=27;crystal++)
+			      {
+						Int_t copy = 1;
+						iX = row;
+						iY =  crystal;
+						detId =  module*100000000 + row*1000000 + copy*10000 + crystal;
+						_tci=new PndEmcTwoCoordIndex(iX+450,iY+450,detId);
+						fIntTwoCoordMap[detId]=_tci;
+
+			      }
+		}
+		if (module ==6)
+		{
+			for (Int_t row=1; row<=5;row++)
+				for (Int_t crystal=1; crystal<=5;crystal++)
+				{
+					Int_t copy = 1;
+					iX = row;
+					iY =  crystal;
+
+					detId =  module*100000000 + row*1000000 + copy*10000 + crystal;
+
+					_tci=new PndEmcTwoCoordIndex(iX+550,iY+550,detId);
+					fIntTwoCoordMap[detId]=_tci;
+				}
 		}
 	}
 }
