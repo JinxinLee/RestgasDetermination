@@ -43,8 +43,8 @@
 
   // Box Generator
   //Pions
-  FairBoxGenerator *fBox = new FairBoxGenerator(211, 5);
-    fBox->SetPRange(0.1,2.5); // GeV/c
+  FairBoxGenerator *fBox = new FairBoxGenerator(211, 1);
+    fBox->SetPRange(0.5,2.5); // GeV/c
     fBox->SetPhiRange(0.,360); // Azimuth angle range [degree]
     fBox->SetThetaRange(5,150); // Polar angle in lab system range [degree]
     fBox->SetXYZ(0., 0., 0.); // vertex coordinates [mm]
