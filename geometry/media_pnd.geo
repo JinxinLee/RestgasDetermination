@@ -516,6 +516,14 @@ MUOtungsten        1  183.84  74.  19.3
 FscScint	  -2	12.01	1.008	6.	1.	1.032	9.	10.	
 		   1  1	 20.  .0001	
                    0
+//Fsc tyvek - C2H4
+tyvek       -2    12.01  1.008    6.      1.      0.94    2       4.     
+		     0  0  20.  .001 
+			 0			 
+//Fsc fiber - polystyrene as a base
+FscFiber    -2 12.01 1.008 6. 1. 1.032 8. 8.
+             1 0 20. .001
+             0                   
 polyvinyltoluene  -2	12.01	1.008	6.	1.	1.032	9.	10.	
 		   1  1	 20.  .001	
                    0
