@@ -47,7 +47,7 @@ PndDchRecoHit::PndDchRecoHit(double r, double wireposx,
 PndDchRecoHit::PndDchRecoHit(const PndDchCylinderHit* cylHit)
   : PlanarRecoHit(NparHitRep)
 {
-  std::cout<<"I create PndDchRecoHit out of a CylinderHit"<<std::endl;
+  //  std::cout<<"I create PndDchRecoHit out of a CylinderHit"<<std::endl;
   _sangle = TMath::Sin(cylHit->GetWireAngle());
   _cangle = TMath::Cos(cylHit->GetWireAngle());
   fHitCoord[0][0] = cylHit->GetDistance();
@@ -59,8 +59,8 @@ PndDchRecoHit::PndDchRecoHit(const PndDchCylinderHit* cylHit)
   Double_t sigr = cylHit->GetDistanceError();
   fHitCov[0][0] = sigr*sigr;
 
-  cylHit->Print();
-  this->Print();
+//   cylHit->Print();
+//   this->Print();
 }
 
 
@@ -120,6 +120,5 @@ void  PndDchRecoHit::Print(){
   //  std::cout<<"hit HMatrix:";getHMatrix().Print();
   std::cout<<"hit GFDetPlane:";getDetPlane(0).Print();
   std::cout<<"\n hitCov:";getHitCov(getDetPlane(0)).Print();
-  std::cout<<"EOHEOHEOHEOHEOHEOHEOHEOHEOHEOHEOHEOHEOHEOHEOHEOHEOHEOH"<<std::endl;
   
 }

@@ -83,7 +83,6 @@ void  PndDchRecoHit2::Print(){
   // std::cout<<"hit HMatrix:";getHMatrix().Print();
 //   std::cout<<"hit GFDetPlane:";getDetPlane(0).Print();
 //   std::cout<<"\n hitCov:";getHitCov(getDetPlane(0)).Print();
-  std::cout<<"EOHEOHEOHEOHEOHEOHEOHEOHEOHEOHEOHEOHEOHEOHEOHEOHEOHEOH"<<std::endl;
   
 }
 
