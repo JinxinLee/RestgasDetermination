@@ -112,6 +112,9 @@ class PndEmc : public FairDetector
   // construct detector -BwEndCap- from .root file
   void ConstructRootGeomMod4();
 
+  // construct detector -Fsc- from .root file
+  void ConstructRootGeomMod5();
+
   // recursively add volumes to the geoManager
   void ExpandNode(TGeoVolume *fVol, TGeoVolume *Cave);
 
@@ -121,6 +124,8 @@ class PndEmc : public FairDetector
   virtual void  SetGeometryFileNameDouble(TString fname, TString fname2, Int_t fwbwchoice=0, TString geoVer="0");
   //
   virtual void  SetGeometryFileNameTriple(TString fname, TString fname2, TString fname3, TString geoVer="0");
+
+  virtual void  SetGeometryFileNameQuadruple(TString fname, TString fname2, TString fname3, TString fname4, TString geoVer="0");
 
   PndEmcPoint* AddHit(Int_t trackID, Int_t detID,  Int_t evtID, TVector3 pos, TVector3 mom,
 		      Double_t tof, Double_t length, Double_t eLoss,
@@ -147,6 +152,7 @@ class PndEmc : public FairDetector
 
   TString fgeoName2;
   TString fgeoName3;
+  TString fgeoName4;
   Bool_t  fwendcap;         //!  Flag for the new FwEndCap geometry
   Bool_t  bwendcap;         //!  Flag for the new BwEndCap geometry
 

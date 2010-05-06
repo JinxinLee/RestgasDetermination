@@ -91,7 +91,7 @@ void PndEmc::Initialize() {
   FairDetector::Initialize();
   FairRun* sim = FairRun::Instance();
   FairRuntimeDb* rtdb=sim->GetRuntimeDb();
-  
+
 }
 // -------------------------------------------------------------------------
 void PndEmc::BeginEvent(){
@@ -104,7 +104,7 @@ void PndEmc::BeginEvent(){
 // -----   Public method ProcessHits  --------------------------------------
 Bool_t PndEmc::ProcessHits(FairVolume* vol) {  
   
-  
+
   if (gMC->Edep()<=0){
 	  // skip all the points which have no energy loss (i.e. Entering)
 	  // problem for MC truth!
@@ -389,7 +389,9 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
   }
 
   // ---------------------------------------------------------------------------------
-  
+
+
+
   fTrackID  = gMC->GetStack()->GetCurrentTrackNumber(); // trk ID
   fEventID = gMC->CurrentEvent();
   fELoss = gMC->Edep();
@@ -421,6 +423,37 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
       if ((fPos.X()>0.) && (fPos.Y()<0.))  copyNo = 3;
       if ((fPos.X()>0.) && (fPos.Y()>0.))  copyNo = 4; 
     }
+  else if (!bIsFastFsc )
+    {
+	  Int_t ModCopy=0;
+	  if (nam.Contains("FscSci")){
+		  cout<<"nam="<<nam<<endl;
+	//	  ModName = gMC->CurrentVolOffName(3); //upto FscModuleVolume
+		  gMC->CurrentVolOffID(3,ModCopy);//upto FscModuleVolume
+	//	  cout<<"ModCopy="<<ModCopy<<endl;
+		  nCrys = ModCopy/100;
+		  nRow = ModCopy%100;
+		  nMod = 5;
+		  copyNo = 0;
+	//	  sscanf(ModName,"FscModuleVolume_%d_%d", &nCrys, &nRow);//x - Crys(Column), y - Row
+	  }
+	  else if (nam.Contains("FscFiber")){
+	 	  nMod = 51; //for fibers different module
+	 	  gMC->CurrentVolOffID(2,ModCopy);//upto FscModuleVolume
+	 	  //	  ModName = gMC->CurrentVolOffName(2); //upto FscModuleVolume
+	 //	  sscanf(ModName,"FscModuleVolume_%d_%d", &nCrys, &nRow);//x - Crys(Column), y - Row
+	 	  nCrys = ModCopy/100;
+	 	  nRow = ModCopy%100;
+	 	  Int_t fiberID = gMC->CurrentVolOffID(1,copyNo); //copyNo - number of FIber
+	   }
+	  else{
+
+		  nam = gMC->CurrentVolOffName(2);
+		  sscanf(nam,"emc%dr%dc%d", &nMod, &nRow, &nCrys);
+		  if (nMod==5)
+			 id = gMC->CurrentVolOffID(3,copyNo);
+	  }
+    }
   else if (!bIsFastFsc)
     { 
       nam = gMC->CurrentVolOffName(2);
@@ -428,7 +461,7 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
       if (nMod==5)
 	id = gMC->CurrentVolOffID(3,copyNo);
     }
-  
+
   fVolumeID = nMod*100000000 + nRow*1000000 + copyNo*10000 + nCrys; 
 
   TVector3 pos(fPos.X(),   fPos.Y(),   fPos.Z());
@@ -445,16 +478,16 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
       stack->AddPoint(kEMC);
     }
 
-   /*cout << "PndEmc: fTrackID= " << fTrackID 
-     << " fVolumeID= " << fVolumeID 
-    // << " fELoss= " << fELoss 
-    // << " fTime= " << fTime 
-     << " nMod= "<<nMod
-     << " nRow= "<<nRow
-     << " nCrys="<<nCrys
-     << " copyNo="<<copyNo     
-     << endl;
-*/
+//   cout << "PndEmc: fTrackID= " << fTrackID
+//     << " fVolumeID= " << fVolumeID
+//    // << " fELoss= " << fELoss
+//    // << " fTime= " << fTime
+//     << " nMod= "<<nMod
+//     << " nRow= "<<nRow
+//     << " nCrys="<<nCrys
+//     << " copyNo="<<copyNo
+//     << endl;
+
   ResetParameters();
   
   return kTRUE;
@@ -607,6 +640,17 @@ void PndEmc::SetGeometryVersion(const Int_t GeoNumber) {
     MapperVersion =6;
     break;
 
+  case 16:
+    SetGeometryFileName("emc_module5_fsc.root");
+	MapperVersion =8;
+    break;
+
+  case 17:
+	SetGeometryFileNameQuadruple("emc_module12.dat","emc_module3new.root","emc_module4_StraightGeo24.4.root","emc_module5_fsc.root");
+	MapperVersion =9;
+	break;
+
+
   default:
     SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
     MapperVersion =2;
@@ -664,6 +708,32 @@ void PndEmc::SetGeometryFileNameTriple(TString fname, TString fname2, TString fn
   cout <<"fgeoName3 "<< fgeoName3<< endl;
 }
 
+void PndEmc::SetGeometryFileNameQuadruple(TString fname, TString fname2, TString fname3, TString fname4, TString geoVer)
+{
+  fwendcap=kTRUE;
+  bwendcap=kTRUE;
+
+  SetGeometryFileName(fname, geoVer);
+
+  //SetGeometryFileNameDouble(fname, fname2, geoVer);
+
+  //fgeoVer=geoVer;
+  TString work = getenv("VMCWORKDIR");
+
+  fgeoName2=work+"/geometry/";
+  fgeoName2+=fname2;
+
+  fgeoName3=work+"/geometry/";
+  fgeoName3+=fname3;
+
+  fgeoName4=work+"/geometry/";
+  fgeoName4+=fname4;
+
+
+
+  cout <<"fgeoName4 "<< fgeoName4<< endl;
+}
+
 
 // ----------------------------------------------------------------------------
  // -----   Public method ConstructGeometry   ----------------------------------
@@ -685,10 +755,15 @@ void PndEmc::ConstructGeometry() {
       std::cout<< " ============================================ " <<std::endl;
       ConstructRootGeometry();
     } else if(fileName.EndsWith("4_FwEndCapGeo.root") || fileName.EndsWith("4_StraightGeo26.root") || fgeoName.EndsWith("4_StraightGeo26_Al.root") || fileName.EndsWith("4_StraightGeo24.4.root") || fileName.EndsWith("4_StraightGeo24.4_Al2.root")) {
-      std::cout<< "                                              " <<std::endl;
-      std::cout<< " ====== EMC::  ConstructROOTGeometry() m4 === " <<std::endl;
-      std::cout<< " ============================================ " <<std::endl;
-      ConstructRootGeomMod4();
+       std::cout<< "                                              " <<std::endl;
+       std::cout<< " ====== EMC::  ConstructROOTGeometry() m4 === " <<std::endl;
+       std::cout<< " ============================================ " <<std::endl;
+       ConstructRootGeomMod4();
+    } else if(fileName.EndsWith("5_fsc.root")) {
+       std::cout<< "                                              " <<std::endl;
+       std::cout<< " ====== EMC::  ConstructROOTGeometry() m5 === " <<std::endl;
+       std::cout<< " ============================================ " <<std::endl;
+       ConstructRootGeomMod5();
     } else {
       std::cout<< "Geometry format not supported " <<std::endl;
     }
@@ -715,6 +790,13 @@ void PndEmc::ConstructGeometry() {
       std::cout<< "fgeoName3:: "<<fgeoName3 <<std::endl;
       
       ConstructRootGeomMod4();
+    }
+    if(fgeoName4.EndsWith("5_fsc.root")) {
+        std::cout<< "                                               " <<std::endl;
+        std::cout<< " ====== EMC::  ConstructRootGeometry() m5a === " <<std::endl;
+        std::cout<< " ============================================= " <<std::endl;
+        std::cout<< "fgeoName4:: "<<fgeoName4 <<std::endl;
+        ConstructRootGeomMod5();
     }else {
       std::cout<< "You do not provide a ROOT file " <<std::endl;
     }
@@ -768,6 +850,8 @@ void PndEmc::ConstructRootGeomMod4() {
   TGeoVolume *Cave = gGeoManager->GetTopVolume();
   TGeoNode *n=BwEmc->GetNode(0); 
   
+
+
   gGeoManager->AddVolume(BwEmc);
   TGeoVoxelFinder *voxels = BwEmc->GetVoxels();
   if (voxels) voxels->SetNeedRebuild();
@@ -790,6 +874,48 @@ void PndEmc::ConstructRootGeomMod4() {
   Cave->AddNode(BwEmc,0, new TGeoCombiTrans(0., 0., -69.4,new TGeoRotation(rotBwEmc)));
 
   ExpandNode(BwEmc,Cave); 
+}
+
+void PndEmc::ConstructRootGeomMod5() {
+
+  TFile *fb;
+  TString FileName = GetGeometryFileName().Data();
+  if(FileName.EndsWith("5_fsc.root"))
+	  fb=new TFile(FileName);
+  else if(fgeoName4.EndsWith("5_fsc.root")){
+	  fb=new TFile(fgeoName4);
+	  FileName = fgeoName4;
+  }
+
+  std::cout<< "File name Fsc= " << FileName << std::endl;
+
+
+
+
+  TGeoVolume *Fsc=(TGeoVolume *)fb->Get("Emc5");
+  TGeoVolume *Cave = gGeoManager->GetTopVolume();
+  TGeoNode *n=Fsc->GetNode(0);
+  if(fVerboseLevel>2) cout << "=====PndEmc::ConstructRootGeomMod5()====="<<endl;
+  if(fVerboseLevel>2)Cave->Print();
+  if(fVerboseLevel>2)Cave->PrintNodes();
+
+  if(fVerboseLevel>2)Fsc->Print();
+  if(fVerboseLevel>2)Fsc->PrintNodes();
+
+  gGeoManager->AddVolume(Fsc);
+  TGeoVoxelFinder *voxels = Fsc->GetVoxels();
+  if (voxels) voxels->SetNeedRebuild();
+  TGeoMatrix *M = n->GetMatrix();
+  M->SetDefaultName();
+  gGeoManager->GetListOfMatrices()->Remove(M);
+  TGeoHMatrix *global = gGeoManager->GetHMatrix();
+  gGeoManager->GetListOfMatrices()->Remove(global); //Remove the Identity matrix
+
+  TGeoRotation rotFsc;
+  Cave->AddNode(Fsc,0, new TGeoCombiTrans(0., 0., 760., new TGeoRotation(rotFsc)));
+
+  ExpandNode(Fsc,Cave);
+
 }
 
 void PndEmc::ExpandNode(TGeoVolume *fVol, TGeoVolume *Cave){
@@ -829,7 +955,7 @@ void PndEmc::ExpandNode(TGeoVolume *fVol, TGeoVolume *Cave){
 	v->SetMedium(gGeoManager->GetMedium(nmed));
 	gGeoManager->SetAllIndex();
       } else {
-	//if(fVerboseLevel>2)  
+	//if(fVerboseLevel>2)
 	  //std::cout<< "DEBUG material was defined  MaterialName= " << mat1->GetName() << std::endl;
 	TGeoMedium *med2= gGeoManager->GetMedium(mat1->GetName());
 	v->SetMedium(med2);
@@ -841,7 +967,7 @@ void PndEmc::ExpandNode(TGeoVolume *fVol, TGeoVolume *Cave){
     if (!gGeoManager->FindVolumeFast(v->GetName())) {
       v->RegisterYourself();      
       if(fVerboseLevel>2) std::cout<< "Volume ->  " <<v->GetName()<< " --> Registered to gGeoManager" << endl;
-      if (name.Contains("Crystal")){
+      if (name.Contains("Crystal") || name.Contains("FscSci") ||name.Contains("FscFiber")){
 	AddSensitiveVolume(v); 
 	if(fVerboseLevel>2) std::cout<< "Volume " <<v->GetName()<< " is added to sensitives "<<endl;
       }  
@@ -1076,7 +1202,7 @@ PndEmcPoint* PndEmc::AddHit(Int_t trackID, Int_t detID, Int_t evtID, TVector3 po
       << ", " << pos.Z() << ") cm, detector " << detID << ", evt " << evtID << ", track "
       << trackID <<", energy loss " << eLoss*1e06 << " keV, module " << mod << " row " << row << " crystal " <<  crys << " copy " << copy << endl;
   
-	PndEmcPoint* myPoint = new(clref[size]) PndEmcPoint(trackID, detID, evtID, pos, mom, time, length, eLoss, mod, row, crys, copy); 
+ 	PndEmcPoint* myPoint = new(clref[size]) PndEmcPoint(trackID, detID, evtID, pos, mom, time, length, eLoss, mod, row, crys, copy); 
 	myPoint->SetLink(FairLink(kMCTrack, trackID)); 
 	return myPoint;
 }
