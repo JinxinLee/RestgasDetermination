@@ -30,6 +30,7 @@
 #include "PndTpcDigiPar.h" 
 #include "TVector3.h"
 #include "GFTrack.h"
+#include "GFTrackCand.h"
 #include "PndTpcCluster.h"
 #include "TrackFitStat.h"
 
@@ -114,11 +115,17 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
   //assert(fTrackArray->GetEntriesFast()<2);
   
   unsigned int nTr = fTrackArray->GetEntriesFast();
+
+  std::vector<unsigned int> candIDs;
   
   for(unsigned int n=0; n<nTr; n++) {
     GFTrack* tr = (GFTrack*) fTrackArray->At(n);
     int failedHits = tr->getFailedHits();
 
+    GFTrackCand cand = tr->getCand();
+    candIDs.clear(); 
+    candIDs = cand.GetHitIDs(2);
+    
     if(fSecondarySupp==true  && n>0)
       continue;
     
@@ -147,8 +154,8 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
       
       
       //Loop over clusters
-      for(unsigned int k=0; k<nCl; k++){
-	PndTpcCluster* cl = (PndTpcCluster*)fClusterArray->At(k);
+      for(unsigned int k=0; k<candIDs.size(); k++){
+	PndTpcCluster* cl = (PndTpcCluster*)fClusterArray->At(candIDs[k]);
 	TVector3 cl_pos = cl->pos();
 			
 	//calculate residual
