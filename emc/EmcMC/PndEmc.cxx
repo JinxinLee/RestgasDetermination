@@ -139,11 +139,6 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
       idSub  = gMC->CurrentVolOffID(2,copyNoSub)-1; // 
       idQuar = gMC->CurrentVolOffID(3,copyNoQuar);
         
-      Int_t daughtQuar = gMC->NofVolDaughters(namQuar);
-      Int_t daughtSub  = gMC->NofVolDaughters(namSub);
-      Int_t daughtBox  = gMC->NofVolDaughters(namBox);
-      Int_t daughtCrys = gMC->NofVolDaughters(namCrys);
-     
       Int_t col=0, k1=0;
       Int_t subrow=4;   // 4 crystals in each subvolume
       Int_t next=0;     // starts (from the middle) next column, represents rows
@@ -229,22 +224,12 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
     else if (namQuar.Contains("Quarter4Vol")){
       // ----- NEW Backward EndCap - with the FwEndCap geometry ----
        
-      namCrys    = gMC->CurrentVolOffName(0); // Crystal name 
-      namBox     = gMC->CurrentVolOffName(1); // Box name  
-      namSub     = gMC->CurrentVolOffName(2); // Subunit name 
-      namQuar    = gMC->CurrentVolOffName(3); // Quarter name 
-       
       // Return the current volume off upward in the geometrical tree
       // ID and copy number
       idCrys = gMC->CurrentVolOffID(0,copyNoCrys);
       idBox  = gMC->CurrentVolOffID(1,copyNoBox);
       idSub  = gMC->CurrentVolOffID(2,copyNoSub)-1;
       idQuar = gMC->CurrentVolOffID(3,copyNoQuar);
-       
-      Int_t daughtQuar = gMC->NofVolDaughters(namQuar);
-      Int_t daughtSub  = gMC->NofVolDaughters(namSub);
-      Int_t daughtBox  = gMC->NofVolDaughters(namBox);
-      Int_t daughtCrys = gMC->NofVolDaughters(namCrys);
        
       Int_t col=0, k1=0;
       Int_t subrow=4;   // 4 crystals in each subvolume
@@ -310,22 +295,12 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
       // ----- NEW Backward EndCap - with the FwEndCap geometry ----
       nMod=4;
       
-      namCrys    = gMC->CurrentVolOffName(0); // Crystal name 
-      namBox     = gMC->CurrentVolOffName(1); // Box name  
-      namSub     = gMC->CurrentVolOffName(2); // Subunit name 
-      namQuar    = gMC->CurrentVolOffName(3); // Quarter name 
-       
       // Return the current volume off upward in the geometrical tree
       // ID and copy number
       idCrys = gMC->CurrentVolOffID(0,copyNoCrys);
       idBox  = gMC->CurrentVolOffID(1,copyNoBox);
       idSub  = gMC->CurrentVolOffID(2,copyNoSub)-1;
       idQuar = gMC->CurrentVolOffID(3,copyNoQuar);
-       
-      Int_t daughtQuar = gMC->NofVolDaughters(namQuar);
-      Int_t daughtSub  = gMC->NofVolDaughters(namSub);
-      Int_t daughtBox  = gMC->NofVolDaughters(namBox);
-      Int_t daughtCrys = gMC->NofVolDaughters(namCrys);
        
       Int_t col=0;
       Int_t next=0;     // starts (from the middle) next column, represents rows
