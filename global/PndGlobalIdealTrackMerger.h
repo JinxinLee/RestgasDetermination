@@ -63,12 +63,14 @@ class PndGlobalIdealTrackMerger : public FairTask
   Bool_t                           fIncludeDet[5];
   TClonesArray*                    fTrackArray[5];
   std::vector<std::vector<Int_t> > fMCDetTracks;
+  TString fDetName[5];
 
   /** Output array of global tracks **/
   TClonesArray* fGlobalTrackArray;     	    ///< Output array of PndTrackCands 
 
   /** Event counter **/
-  Int_t fNofEvents;  ///< event counter
+  Int_t fTNofEvents;  ///< event counter
+  Int_t fTNofTracks;
 
   /** Get parameter containers **/
   virtual void SetParContainers();

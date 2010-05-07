@@ -61,7 +61,7 @@ void locT_all() {
   PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
   sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
   fRun->AddTask(sttFindTracks);
-  // trackmatching ....
+  /*  // trackmatching ....
   PndSttMatchTracks* sttTrackMatcher = new PndSttMatchTracks("Match tracks", "STT", iVerbose);
   sttTrackMatcher->AddHitCollectionName("STTHit", "STTPoint");
   fRun->AddTask(sttTrackMatcher);  
@@ -69,10 +69,10 @@ void locT_all() {
   PndSttTrackFitter* sttTrackFitter = new PndSttHelixTrackFitter(0);
   PndSttFitTracks* sttFitTracks = new PndSttFitTracks("STT Track Fitter", "FairTask", sttTrackFitter); 
   sttFitTracks->AddHitCollectionName("STTHit");
-  fRun->AddTask(sttFitTracks);
+  fRun->AddTask(sttFitTracks);*/
   // helix hit production ....
-  PndSttHelixHitProducer* sttHHProducer = new PndSttHelixHitProducer();
-  fRun->AddTask(sttHHProducer);
+//   PndSttHelixHitProducer* sttHHProducer = new PndSttHelixHitProducer();
+//   fRun->AddTask(sttHHProducer);
   // ##################################################################   GEM
   // -----   GEM ideal tracking  --------------------------------------
   PndGemFindTracks* gemFinderTask = new PndGemFindTracks("PndGemFindTracks");

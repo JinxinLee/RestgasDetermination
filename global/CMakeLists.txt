@@ -46,8 +46,9 @@ link_directories( ${LINK_DIRECTORIES})
 ########################### create libGlobal ######################################
 set(GLOBAL_SRCS
 PndGlobalIdealTrackMerger.cxx
-PndGlobalPrepareKalmanTracks.cxx
-PndGlobalKalmanTask.cxx
+PndGlobalTrackMergerQA.cxx
+#PndGlobalPrepareKalmanTracks.cxx
+#PndGlobalKalmanTask.cxx
 )
 if(RULE_CHECKER_FOUND)
   CHECK_RULES("${GLOBAL_SRCS}" "${INCLUDE_DIRECTORIES}" GLOBAL_RULES)

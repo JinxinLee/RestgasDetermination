@@ -36,8 +36,6 @@ void globT_all() {
   fRun->AddFriend(inDigiFile);
   fRun->AddFriend(inSimFile);
   fRun->SetOutputFile(outFile);
-  FairGeane *Geane = new FairGeane();
-  fRun->AddTask(Geane);
   // ------------------------------------------------------------------------
 
   // -----  Parameter database   --------------------------------------------
@@ -53,29 +51,25 @@ void globT_all() {
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
   // ##################################################################   MERGE
-  PndGlobalIdealTrackMerger* trackMerger = new PndGlobalIdealTrackMerger();
-  trackMerger->UseMvdSttTpcGemDch(kTRUE,kTRUE,kFALSE,kTRUE,kTRUE);
+  PndGlobalIdealTrackMerger* trackMerger = new PndGlobalIdealTrackMerger(iVerbose);
+  trackMerger->UseMvdSttTpcGemDch(kTRUE,kTRUE,kFALSE,kTRUE,kTRUE);//TRUE);
   fRun->AddTask(trackMerger);
 
-  // -----   Prepare tracks for genfit   --------------------------------------------
-  PndGlobalPrepareKalmanTracks *prepareKalmanTracks = new PndGlobalPrepareKalmanTracks();
-  prepareKalmanTracks->SetVerbose(10);
-  prepareKalmanTracks->UseGeane(kTRUE);
-  prepareKalmanTracks->UseMC(kFALSE);
-  prepareKalmanTracks->SetPDG(211);
-  prepareKalmanTracks->SetPersistence();
-  fRun->AddTask(prepareKalmanTracks);
-  //--------------------------------------------------
+  PndGlobalTrackMergerQA* trackMergerQA = new PndGlobalTrackMergerQA(iVerbose);
+  fRun->AddTask(trackMergerQA);
+
+  // ##################################################################   FIT MERGED TRACKS
+  // -----   Prepare Geane   ------------------------------------------------
+  FairGeane *Geane = new FairGeane();
+  fRun->AddTask(Geane);
 
   // -----   Run Kalman fitter   --------------------------------------------
-  PndGlobalKalmanTask* kalmanTask = new PndGlobalKalmanTask();
-  kalmanTask->SetVerbose(10);
-  kalmanTask->SetNumIterations(2);
-  //  kalmanTask->SetSmooth(kFALSE);
-  fRun->AddTask(kalmanTask);
-  // ------------------------------------------------- 
-
-  // ################################################################## 
+  PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
+  recoKalman->SetTrackInBranchName("GlobalTrack");
+  recoKalman->SetTrackOutBranchName("GlobalFitTrack");
+  //recoKalman->SetNumIterations(3);
+  fRun->AddTask(recoKalman);
+  // ##################################################################
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();

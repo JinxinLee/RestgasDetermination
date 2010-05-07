@@ -12,6 +12,8 @@
 #include "FairBaseParSet.h"
 #include "FairTrackParam.h"
 #include "FairHit.h"
+#include "PndTrack.h"
+#include "PndTrackCand.h"
 #include "PndTrackCandHit.h"
 #include "FairRootManager.h"
 #include "PndDetectorList.h"
@@ -27,6 +29,7 @@
 #include <map>
 #include <cmath>
 using std::cout;
+using std::setw;
 using std::endl;
 using std::flush;
 using std::map;
@@ -40,13 +43,14 @@ PndGlobalIdealTrackMerger::PndGlobalIdealTrackMerger() : FairTask("Global Ideal 
     fTrackArray[idet] = NULL;
   }
   fGlobalTrackArray          = NULL;
-  fNofEvents    = 0;
+  fTNofEvents    = 0;
+  fTNofTracks    = 0;
 }
 // -------------------------------------------------------------------------
 
 // -----   Standard constructor   ------------------------------------------
 PndGlobalIdealTrackMerger::PndGlobalIdealTrackMerger(Int_t iVerbose) 
-  : FairTask("GEM Track Finder QA", iVerbose) {
+  : FairTask("Global Ideal Track Merger", iVerbose) {
   fMCTrackArray  = NULL;
   //  fMCTrackSeen   = NULL;
   for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
@@ -54,7 +58,8 @@ PndGlobalIdealTrackMerger::PndGlobalIdealTrackMerger(Int_t iVerbose)
     fTrackArray[idet] = NULL;
   }
   fGlobalTrackArray          = NULL;
-  fNofEvents    = 0;
+  fTNofEvents    = 0;
+  fTNofTracks    = 0;
 }
 // -------------------------------------------------------------------------
 
@@ -97,10 +102,15 @@ InitStatus PndGlobalIdealTrackMerger::Init() {
     return kERROR;
   }
   
+  fDetName[0] = "MVD";
+  fDetName[1] = "STT";
+  fDetName[2] = "TPC";
+  fDetName[3] = "GEM";
+  fDetName[4] = "DCH";
   TString trArrayName[5] = {"MVDIdealTrackCand",
 			    "STTTrackCand",
 			    "TPCTrackCand",
-			    "GEMTrackCand",
+			    "GEMTrack",
 			    "DCHTrackCand"};
 
   for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
@@ -117,10 +127,17 @@ InitStatus PndGlobalIdealTrackMerger::Init() {
   }
   
   // Create and register GemTrack array
-  fGlobalTrackArray = new TClonesArray("PndTrackCand",100);
-  ioman->Register("GlobalTrackCand", "Global Track Candidates", fGlobalTrackArray, kTRUE);
+  fGlobalTrackArray = new TClonesArray("PndTrack",100);
+  ioman->Register("GlobalTrack", "Global Track", fGlobalTrackArray, kTRUE);
 
-  std::cout << "-I- "<< GetName() <<": Intialization successfull" << std::endl;
+  std::cout << "-I- " << GetName() << ": Initialization successfull" << std::endl;
+  std::cout << "-I- " << GetName() << ": Merging tracks from " << flush;
+  for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
+    if ( fIncludeDet[idet] == kFALSE ) continue;
+    cout << fDetName[idet].Data() << ", ";
+  }
+  cout << "\b\b. " << endl;
+  cout << "================================================================================" << endl;
 
   return kSUCCESS;
 }
@@ -141,15 +158,13 @@ void PndGlobalIdealTrackMerger::SetParContainers() {
 
 // -----   Public method Exec   --------------------------------------------
 void PndGlobalIdealTrackMerger::Exec(Option_t* opt) {
-   
-  //  cout << "=============== EVENT " << fNofEvents << " =================" << endl;
+  if ( fVerbose > 0 ) 
+    cout << "=============== EVENT " << fTNofEvents << " =================" << endl;
   fGlobalTrackArray->Delete();
 
-  fNofEvents++;
+  fTNofEvents++;
 
   Int_t nofMCTracks = fMCTrackArray->GetEntriesFast();
-
-  TString detName[5] = {"MVD","STT","TPC","GEM","DCH"};
 
   std::vector<Int_t> trackSeen (5,-1);
 
@@ -158,7 +173,8 @@ void PndGlobalIdealTrackMerger::Exec(Option_t* opt) {
   fMCDetTracks.assign(nofMCTracks,trackSeen);
   fMCTrackSeen.assign(nofMCTracks,kFALSE);
 
-  PndTrackCand* trCand;
+  PndTrack*     localTrack;
+  PndTrackCand* localTrackCand;
 
   Int_t nofTracks;
   Int_t mcTrId;
@@ -166,65 +182,125 @@ void PndGlobalIdealTrackMerger::Exec(Option_t* opt) {
   for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
     if ( fIncludeDet[idet] == kTRUE ) {
       nofTracks = fTrackArray[idet]->GetEntriesFast();
+      if ( fVerbose > 1 ) 
+	cout << "THERE ARE " << nofTracks << " " << fDetName[idet].Data() << " TRACKS IN ARRAY \"" << fTrackArray[idet]->GetName() << "\"" << endl;
+
+      TString arrayName = fTrackArray[idet]->GetName();
       for ( Int_t itr = 0 ; itr < nofTracks ; itr++ ) {
-	trCand = (PndTrackCand*)fTrackArray[idet]->At(itr);
-	mcTrId = trCand->getMcTrackId();
+      
+	if ( arrayName.Contains("TrackCand") ) { // array of PndTrackCand
+	  localTrackCand = (PndTrackCand*)fTrackArray[idet]->At(itr);
+	  mcTrId = localTrackCand->getMcTrackId();
+	}
+	else { // array of PndTrack
+	  localTrack = (PndTrack*)fTrackArray[idet]->At(itr);
+	  mcTrId = localTrack->GetRefIndex();
+	}
+	
 	if ( mcTrId < 0 || mcTrId >= nofMCTracks ) 
-	  cout << detName[idet].Data() << " TRACK " << itr << " HAS NO MC TRACK ID (" << mcTrId << ")" << endl;
+	  cout << fDetName[idet].Data() << " TRACK " << itr << " HAS NO MC TRACK ID (" << mcTrId << ")" << endl;
 	else if ( fMCDetTracks[mcTrId][idet] != -1 ) 
-	  cout << detName[idet].Data() << " TRACKS " << itr << " AND " 
+	  cout << fDetName[idet].Data() << " TRACKS " << itr << " AND " 
 	       << fMCDetTracks[mcTrId][idet] << " HAVE THE SAME MC ID = " << mcTrId << endl;
 	else {
 	  fMCDetTracks[mcTrId][idet] = itr;
 	  fMCTrackSeen[mcTrId]       = kTRUE;
-	  //	  cout << detName[idet].Data() << " TRACK " << itr << " HAS MC ID = " << mcTrId << endl;
+	  //	  cout << fDetName[idet].Data() << " TRACK " << itr << " HAS MC ID = " << mcTrId << endl;
 	}
       }
     }
   }
   
   Int_t nofCreatedTracks = 0;
+  PndTrack*     globalTrack;
   PndTrackCand* globalTrackCand;
   PndTrackCandHit candHit;
   FairHit* detHit;
+  FairTrackParP firstPar;
+  FairTrackParP  lastPar;
   for ( Int_t itr = 0 ; itr < nofMCTracks ; itr++ ) {
     if ( fMCTrackSeen[itr] == kFALSE ) continue;
     
-    new((*fGlobalTrackArray)[nofCreatedTracks]) PndTrackCand();
+    globalTrackCand = new PndTrackCand();
     
-    globalTrackCand = (PndTrackCand*) fGlobalTrackArray->At(nofCreatedTracks);
-        cout << "TRACK " << itr << " has " << flush;
+    if ( fVerbose > 1 ) 
+      cout << "TRACK " << itr << " has " << flush;
 
     for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
       if ( fMCDetTracks[itr][idet] == -1 ) continue;
-      trCand = (PndTrackCand*)fTrackArray[idet]->At(fMCDetTracks[itr][idet]);
-      if ( trCand->getMcTrackId() != itr ) {
-	//	cout << "trackCand " << fMCDetTracks[itr][idet] << " has MC id " << trCand->getMcTrackId() << " while expected " << itr << endl;
+      TString arrayName = fTrackArray[idet]->GetName();
+
+      Int_t trackMcId;
+      if ( arrayName.Contains("TrackCand") ) { // array of PndTrackCand
+	localTrackCand = (PndTrackCand*)fTrackArray[idet]->At(fMCDetTracks[itr][idet]);
+	trackMcId = localTrackCand->getMcTrackId();
+	TVector3 posSeed = localTrackCand->getPosSeed();
+	TVector3 dirSeed = localTrackCand->getDirSeed();
+	Double_t QoverPs = localTrackCand->getQoverPseed();
+	//	cout << "track " << fDetName[idet].Data() << " mom " << 1./TMath::Abs(QoverPs) << endl;
+	Int_t charge = (QoverPs>0?1:-1);
+	dirSeed  = dirSeed.Unit();
+	dirSeed *= 1./TMath::Abs(QoverPs);
+	if ( globalTrackCand->GetNHits() == 0 )
+	  firstPar = FairTrackParP(posSeed,dirSeed,
+				   TVector3(0.5, 0.5, 0.5),
+				   0.1*dirSeed,
+				   charge,
+				   posSeed,
+				   TVector3(1.,0.,0.),
+				   TVector3(0.,1.,0.));
+      }
+      else {
+	localTrack     = (PndTrack*    )fTrackArray[idet]->At(fMCDetTracks[itr][idet]);
+	localTrackCand = localTrack->GetTrackCandPtr();
+	trackMcId = localTrack->GetRefIndex();
+	if ( globalTrackCand->GetNHits() == 0 )
+	  firstPar = localTrack->GetParamFirst();
+	//	cout << "track " << fDetName[idet].Data() << " mom " << localTrack->GetParamFirst().GetMomentum().Mag() << endl;
+	lastPar = localTrack->GetParamLast();
+      }
+
+      if ( trackMcId != itr ) {
 	continue;
       }
-      // take seed position and momentum from the first track in {MVD,STT,TPC,GEM,DCH}, should be closest to vertex
-      if ( globalTrackCand->GetNHits() == 0 ) {
-	TVector3 posSeed = trCand->getPosSeed();
-	TVector3 dirSeed = trCand->getDirSeed();
-	Double_t QoverPs = trCand->getQoverPseed();
-	globalTrackCand->setTrackSeed(posSeed,dirSeed,QoverPs);
-	globalTrackCand->setMcTrackId(itr);
-      }
-      Int_t nLocH = trCand->GetNHits();
-            cout << nLocH << "(" << detName[idet].Data() << ")  + " << flush;
+
+      Int_t nLocH = localTrackCand->GetNHits();
+      if ( fVerbose > 1 ) 
+	cout << nLocH << "(" << fDetName[idet].Data() << ")  + " << flush;
       for ( Int_t ih = 0 ; ih < nLocH ; ih++ ) {
-	candHit = trCand->GetSortedHit(ih);
+	candHit = localTrackCand->GetSortedHit(ih);
 	globalTrackCand->AddHit(candHit.GetDetId(),candHit.GetHitId(),candHit.GetRho());
       }
     }
+    if ( fVerbose > 1 ) 
+      cout << "\b\bhits" << flush;    
     
     globalTrackCand->Sort();
     
-    cout << " = " << globalTrackCand->GetNHits() << " hits" << endl;
+    if ( fVerbose > 1 ) 
+      cout << " = " << globalTrackCand->GetNHits() << " hits" << endl;
+
+    if ( fVerbose > 1 ) {
+      cout << "Track hits: " << flush;
+      for ( Int_t itemp = 0 ; itemp < globalTrackCand->GetNHits() ; itemp++ )
+        cout << globalTrackCand->GetSortedHit(itemp).GetDetId() << " " << flush;
+      cout << endl;
+    }
+
+    globalTrackCand->setMcTrackId(globalTrackCand->GetNHits()); // TO REMOVE, only temporarily for debugging
+
+    if ( globalTrackCand->GetNHits() < 3 ) continue;
+
+    new((*fGlobalTrackArray)[nofCreatedTracks]) PndTrack(firstPar,lastPar,*globalTrackCand);
+
+    globalTrack = (PndTrack*)fGlobalTrackArray->At(nofCreatedTracks);
+
+    globalTrack->SetRefIndex(itr);
 
     nofCreatedTracks++;
   }
-    
+
+  fTNofTracks += nofCreatedTracks;
 }
 // ------------------------------------------------------------
 
@@ -232,7 +308,10 @@ void PndGlobalIdealTrackMerger::Exec(Option_t* opt) {
 void PndGlobalIdealTrackMerger::Finish() {
   fGlobalTrackArray->Clear();
 
-  std::cout << " -I- " << GetName() << " FINISHED AFTER " << fNofEvents << " EVENTS!" << endl;
+  cout << "-------------------- " << fName.Data() << " : Summary -----------------------" << endl;
+  cout << " Events:        " << setw(10) << fTNofEvents << endl;
+  cout << " Tracks:     " << setw(10) << fTNofTracks << "    ( " << (Double_t)fTNofTracks/((Double_t)fTNofEvents) << " per event )" << endl;
+  cout << "--------------------------------------------------------------------------------" << endl; 
 }
 // ------------------------------------------------------------
  
