@@ -401,7 +401,7 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
   else if (!bIsFastFsc )
     {
 	  Int_t ModCopy=0;
-	  if (nam.Contains("FscSci")){
+	  if (nam.Contains("FscSciVolume")){
 		  cout<<"nam="<<nam<<endl;
 	//	  ModName = gMC->CurrentVolOffName(3); //upto FscModuleVolume
 		  gMC->CurrentVolOffID(3,ModCopy);//upto FscModuleVolume
@@ -412,7 +412,7 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
 		  copyNo = 0;
 	//	  sscanf(ModName,"FscModuleVolume_%d_%d", &nCrys, &nRow);//x - Crys(Column), y - Row
 	  }
-	  else if (nam.Contains("FscFiber")){
+	  else if (nam.Contains("FscFiberVolume")){
 	 	  nMod = 51; //for fibers different module
 	 	  gMC->CurrentVolOffID(2,ModCopy);//upto FscModuleVolume
 	 	  //	  ModName = gMC->CurrentVolOffName(2); //upto FscModuleVolume
@@ -428,13 +428,6 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
 		  if (nMod==5)
 			 id = gMC->CurrentVolOffID(3,copyNo);
 	  }
-    }
-  else if (!bIsFastFsc)
-    { 
-      nam = gMC->CurrentVolOffName(2);
-      sscanf(nam,"emc%dr%dc%d", &nMod, &nRow, &nCrys);
-      if (nMod==5)
-	id = gMC->CurrentVolOffID(3,copyNo);
     }
 
   fVolumeID = nMod*100000000 + nRow*1000000 + copyNo*10000 + nCrys; 
