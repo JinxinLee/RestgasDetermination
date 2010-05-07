@@ -254,7 +254,7 @@ void
 PndDsk::ConstructGeometry()
 {
   TString fileName = GetGeometryFileName();
-  if (fileName.EndsWith(".root")) {
+  if (fileName.EndsWith("_top.root")) {
     ConstructRootGeometry();
 //   } else if (fileName.EndsWith(".geo")) {
 //     ConstructASCIIGeometry();
