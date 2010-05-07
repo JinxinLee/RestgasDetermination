@@ -15,6 +15,7 @@
 #include "PndMdtTrk.h"
 #include "PndDrcBarPoint.h"
 #include "PndDrcHit.h"
+#include "PndDskParticle.h"
 #include "FairTrackParH.h"
 #include "FairMCApplication.h"
 #include "FairRunAna.h"
@@ -53,12 +54,14 @@ PndPidCorrelator::PndPidCorrelator() {
   fEmcMode = 0;
   fMdtMode = 0; 
   fDrcMode = 0;
+  fDskMode = 0;
   fVerbose = kFALSE;
   fSimulation = kFALSE;
   fIdeal = kFALSE;
   tofCorr = 0;
   emcCorr = 0; 
   drcCorr = 0;
+  dskCorr = 0;
   fTrackBranch = "";
   fTrackIDBranch = "";
   sDir = "./";
@@ -81,12 +84,14 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title)
   fEmcMode = 0;
   fMdtMode = 0;
   fDrcMode = 0;
+  fDskMode = 0;
   fVerbose = kFALSE;
   fSimulation = kFALSE;
   fIdeal = kFALSE;
   tofCorr = 0;
   emcCorr = 0;
   drcCorr = 0;
+  dskCorr = 0;
   fTrackBranch = "";
   fTrackIDBranch = "";
   sDir = "./";
@@ -208,6 +213,20 @@ InitStatus PndPidCorrelator::Init() {
       fDrcMode = 2;
     }
   
+  // *** DSK ***
+  fDskParticle = (TClonesArray*) fManager->GetObject("DskParticle");
+  if ( ! fDskParticle )
+    {
+      cout << "-W- PndPidCorrelator::Init: No DskParticle array!" << endl;
+      fDskMode = 0;
+    }
+  else
+    {
+      cout << "-I- PndPidCorrelator::Init: Using DskParticle" << endl;
+      fDskMode = 2;
+    }
+ 
+ 
   // *** MDT ***
   fMdtHit = (TClonesArray*) fManager->GetObject("MdtHit");
   if ( ! fMdtHit ) 
@@ -288,6 +307,8 @@ InitStatus PndPidCorrelator::Init() {
 			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:mdt_x:mdt_y:mdt_z:mdt_phi:chi2:mdt_mod:dphi:glen:mdt_count");
       drcCorr = new TNtuple("drcCorr","TRACK-DRC Correlation",
 			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:drc_x:drc_y:drc_phi:chi2:drc_thetac:drc_nphot:dphi:glen");
+      dskCorr = new TNtuple("dskCorr","TRACK-DSK Correlation",
+                            "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:dsk_x:dsk_y:dsk_phi:chi2:dsk_thetac:dsk_nphot:dphi:glen");
       cout << "-I- PndPidCorrelator::Init: Filling Debug histograms" << endl;
       
     }
@@ -354,7 +375,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
     if ( (fEmcMode>0)  && (fEmcCluster->GetEntriesFast()>0) ) GetEmcInfo(helix, pidCand);
     if ( (fMdtMode>0)  && (fMdtHit    ->GetEntriesFast()>0) ) GetMdtInfo(helix, pidCand);  
     if ( (fDrcMode>0)  && (fDrcHit    ->GetEntriesFast()>0) ) GetDrcInfo(helix, pidCand);
-    
+    if ( (fDskMode>0)  && (fDskParticle->GetEntriesFast()>0) ) GetDskInfo(helix, pidCand); 
     AddChargedCandidate(pidCand);
   } 
 }
@@ -743,6 +764,73 @@ Bool_t PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
     }
   return kTRUE;
 }
+
+//_________________________________________________________________
+Bool_t PndPidCorrelator::GetDskInfo(FairTrackParH* helix, PndPidCandidate* pidCand) {
+  if ((helix->GetMomentum().Theta()*TMath::RadToDeg())<1.) return kFALSE;
+
+  //---
+  PndDskParticle *dskParticle = NULL;
+  Int_t dskEntries = fDskParticle->GetEntriesFast();
+  Int_t dskIndex = -1, dskPhot = 0;
+  Float_t dskThetaC = -1000, dskThetaCErr = 0, dskGLength = -1000;
+  Float_t dskQuality = 1000000;
+
+
+  TVector3 vertex(0., 0., 0.);
+  TVector3 dskPos(0., 0., 0.);
+  TVector3 momentum(0., 0., 0.);
+  for (Int_t dd = 0; dd<dskEntries; dd++)
+    {
+      dskParticle = (PndDskParticle*)fDskParticle->At(dd);
+      //if ( fIdeal && ( ((PndDskParticle*)fDrcPoint->At(drcHit->GetRefIndex()))->GetTrackID() !=pidCand->GetMcIndex()) ) continue;
+      dskParticle->Position(dskPos);
+
+      if (fGeanePro) // Overwrites vertex if Geane is used
+        {
+          FairGeanePro *fProDsk = new FairGeanePro();
+          fProDsk->PropagateToVolume("DskBase",0,1);
+          vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
+          FairTrackParH *fRes= new FairTrackParH();
+          Bool_t rc =  fProDsk->Propagate(helix, fRes, -13*pidCand->GetCharge());
+          if (!rc) continue;
+          vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+          dskGLength = fProDsk->GetLengthAtPCA();
+        }
+
+      
+      Float_t dist = (vertex-dskPos).Mag();
+
+      if ( dskQuality > dist)
+        {
+          dskIndex = dd;
+          dskQuality = dist;
+          dskThetaC = dskParticle->GetThetaC();
+          //dskThetaCErr = dskParticle->GetErrThetaC();
+          dskPhot = 0; // ** to be filled **
+        }
+      if (fDebugMode)
+        {
+          Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
+                              helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
+                              dskPos.X(), dskPos.Y(), dskPos.Phi(), dist, dskParticle->GetThetaC(), 0., vertex.DeltaPhi(dskPos), dskGLength};
+          dskCorr->Fill(ntuple);
+        }
+    }
+
+  //if ((dskQuality<fCorrPar->GetDskCut()) || (fIdeal && dskIndex!=-1))
+    if ((dskQuality<1000) || (fIdeal && dskIndex!=-1))
+    {
+      pidCand->SetDiscQuality(dskQuality);
+      pidCand->SetDiscThetaC(dskThetaC);
+      //pidCand->SetDskThetaCErr(dskThetaCErr);
+      pidCand->SetDiscNumberOfPhotons(dskPhot);
+      pidCand->SetDiscIndex(dskIndex);
+    }
+  return kTRUE;
+}
+
+
 
 //_________________________________________________________________
 Float_t PndPidCorrelator::ExtrapolateToR(FairTrackParH* helix, TVector3 *mom, TVector3 *vertex, const Float_t R)

@@ -52,6 +52,7 @@ protected:
   TClonesArray* fMdtTrk;            //! PndMdtTrk TCA
   TClonesArray* fDrcPoint;          //! PndDrcBarPoint TCA
   TClonesArray* fDrcHit;            //! PndDrcHit TCA
+  TClonesArray* fDskParticle;       //! PndDskParticle TCA  //need to change to PndDskHit in future
   TClonesArray* fSttHit;            //! PndSttHit/PndSttHelixHit TCA
  
   PndPidCorrPar* fCorrPar;          //! Correlation parameters
@@ -63,6 +64,7 @@ protected:
   Short_t fEmcMode;                 // EMC Mode: 0 no EMC, 1 -empty-,  (2) EmcCluster, 3 EmcBumps
   Short_t fMdtMode;                 // MDT Mode: 0 no MDT, 1 -empty-,  (2) MdtHit 
   Short_t fDrcMode;                 // DRC Mode: 0 no DRC, 1 -empty-,  (2" DrcHit
+  Short_t fDskMode;                 // DSK Mode: 0 no DSK, 1 -empty-,  (2" DskParticle
  
   Double_t fMvdELoss;               // Energy Loss in MVD 
   Double_t fMvdPath;                // MVD path crossed by the particle
@@ -83,6 +85,8 @@ protected:
   TNtuple *emcCorr;                  // Debug ntuple for emc correlation 
   TNtuple *mdtCorr;                  // Debug ntuple for mdt correlation 
   TNtuple *drcCorr;                  // Debug ntuple for drc correlation
+  TNtuple *dskCorr;                  // Debug ntuple for dsk correlation
+
   TString sDir;                      // Ntuple output directory
   TString sFile;                     // Ntuple output file
   
@@ -100,7 +104,8 @@ protected:
   Bool_t GetEmcInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
   Bool_t GetMdtInfo  (FairTrackParH* helix, PndPidCandidate* pid);   
   Bool_t GetDrcInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
-  
+  Bool_t GetDskInfo  (FairTrackParH* helix, PndPidCandidate* pid);
+ 
 public:
 
   virtual void Exec(Option_t * option);
