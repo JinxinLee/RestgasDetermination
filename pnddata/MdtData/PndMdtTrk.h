@@ -32,9 +32,11 @@ class PndMdtTrk : public FairMultiLinkedData {
   void GetHitList(Int_t *hit)            { for (Int_t ii=0; ii<15; ii++) hit[ii] = fHitList[ii]; };
   void GetHitMult(Int_t *hit)            { for (Int_t ii=0; ii<15; ii++) hit[ii] = fHitMult[ii]; };
   void GetHitDist(Float_t *hit)          { for (Int_t ii=0; ii<15; ii++) hit[ii] = fHitDist[ii]; };
+  void GetHitDeltaAngle(Float_t *hit)    { for (Int_t ii=0; ii<15; ii++) hit[ii] = fHitDeltaAngle[ii]; };
   Int_t   GetHitIndex(Int_t lay)   const { return fHitList[lay]; };
   Int_t   GetHitMult  (Int_t lay)  const { return fHitMult[lay]; };
   Float_t GetHitDist (Int_t lay)   const { return fHitDist[lay]; };
+  Float_t GetHitDeltaAngle(Int_t lay) const { return fHitDeltaAngle[lay]; };
   Float_t GetLayerDist (Int_t lay) const { return fLayDist[lay]; };
   Float_t GetIronDist ()           const { return fIronDist; };
   Int_t GetHitCount()              const { return fHitCount; }; 
@@ -49,6 +51,7 @@ class PndMdtTrk : public FairMultiLinkedData {
   void SetHitIndex (Int_t lay, Int_t trackId); 
   void SetHitMult  (Int_t lay, Int_t mult);
   void SetHitDist  (Int_t lay, Float_t dist);
+  void SetHitDeltaAngle(Int_t lay, Float_t angle);
   void SetLayerDist(Int_t lay, Float_t dist);
   void SetBit      (Int_t lay)    { fHitBit = fHitBit | (1 << lay); };
   
@@ -66,6 +69,7 @@ class PndMdtTrk : public FairMultiLinkedData {
   Int_t fHitList[15];      // List of indexes of MdtHit
   Int_t fHitMult[15];      // Number of MdtHits inside the correlation
   Float_t fHitDist[15];    // Distance of the closest point to the previous layer hit
+  Float_t fHitDeltaAngle[15];
   Float_t fLayDist[15];    // Distance of the actual layer from the previous one
   Float_t fIronDist;       // Amount of crossed iron [cm]
   Int_t fHitCount;         // Number of hits inside correlation
@@ -113,6 +117,18 @@ inline void PndMdtTrk::SetHitDist(Int_t lay, Float_t dist)
   else
     {
       fHitDist[lay] = dist;
+    }
+}
+
+inline void PndMdtTrk::SetHitDeltaAngle(Int_t lay, Float_t dist)
+{
+  if (lay>15)
+    {
+      cout << " -E- PndMdtTrk::SetHitDeltaAngle: Layer > 15 !!!!!" << endl;
+    }
+  else
+    {
+      fHitDeltaAngle[lay] = dist;
     }
 }
 

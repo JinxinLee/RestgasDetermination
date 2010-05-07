@@ -26,6 +26,7 @@ PndMCTrack.cxx
 DskData/PndDskCerenkov.cxx
 DskData/PndDskParticle.cxx
 DskData/PndDskTrackPoint.cxx
+DskData/PndDskFLGHit.cxx
 
 DrpcData/PndDrpcPoint.cxx
 DrpcData/PndDrpcPointLite.cxx
@@ -120,3 +121,4 @@ target_link_libraries(PndData ${ROOT_LIBRARIES})
 set_target_properties(PndData PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS PndData DESTINATION ${CMAKE_BINARY_DIR}/lib)
+

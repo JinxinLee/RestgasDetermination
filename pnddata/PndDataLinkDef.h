@@ -13,6 +13,7 @@
 #pragma link C++ class PndDskCerenkov+;
 #pragma link C++ class PndDskParticle+;
 #pragma link C++ class PndDskTrackPoint+;
+#pragma link C++ class PndDskFLGHit+;
 
 #pragma link C++ class PndDrcPDPoint+;
 #pragma link C++ class PndDrcBarPoint+;
