@@ -32,7 +32,7 @@ using std::endl;
 PndMdtTrkProducer::PndMdtTrkProducer() :
   FairTask(" MDT Tracklet Producer") {
   Reset();
-  fRec_method = 1;  //default, use lhetrack as seed
+  fRec_method = 0;  //default, not use lhetrack as seed
 }
 // -------------------------------------------------------------------------
 
