@@ -51,6 +51,7 @@ public:
 
   // Operations ----------------------
   virtual InitStatus Init();
+  void SetParContainers();
   virtual void Exec(Option_t* opt);
   
 private:

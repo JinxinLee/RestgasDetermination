@@ -40,6 +40,7 @@
 #include "PndTpcSPHit.h"
 #include "PndSttRecoHit.h"
 #include "PndDchRecoHit.h"
+#include "PndDchRecoHit2.h"
 #include "PndMdtRecoHit.h"
 #include "PndSttRecoHitProducer.h"
 #include "PndGeoSttPar.h"
@@ -114,7 +115,7 @@ Bool_t PndRecoKalmanFit::Init()
       std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "SttHelixHit array  found" << std::endl;
     }
   
-  TClonesArray* sthit=(TClonesArray*) ioman->GetObject("SttHit");
+  TClonesArray* sthit=(TClonesArray*) ioman->GetObject("STTHit");
   if(sthit!=0)
     {
       fTheRecoHitFactory->addProducer(kSttHit,new PndSttRecoHitProducer<PndSttHit,PndSttRecoHit>(sthit, tubeArray)); 
@@ -122,22 +123,25 @@ Bool_t PndRecoKalmanFit::Init()
     }
   
   TClonesArray* gemar=(TClonesArray*) ioman->GetObject("GEMHit");
-  {
-    fTheRecoHitFactory->addProducer(kGemHit,new GFRecoHitProducer<PndGemHit,PndGemRecoHit>(gemar)); 
-    std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "GEMHit array  found" << std::endl;
-  }
-
+  if(gemar!=0)
+    {
+      fTheRecoHitFactory->addProducer(kGemHit,new GFRecoHitProducer<PndGemHit,PndGemRecoHit>(gemar)); 
+      std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "GEMHit array  found" << std::endl;
+    }
+  
   TClonesArray* dchar=(TClonesArray*) ioman->GetObject("PndDchCylinderHit");
-  {
-    fTheRecoHitFactory->addProducer(kDchHit,new GFRecoHitProducer<PndDchCylinderHit,PndDchRecoHit>(dchar));
-    std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "PndDchCylinderHit array  found" << std::endl;
-  }
+  if(dchar!=0)
+    {
+      fTheRecoHitFactory->addProducer(kDchHit,new GFRecoHitProducer<PndDchCylinderHit,PndDchRecoHit2>(dchar));
+      std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "PndDchCylinderHit array  found" << std::endl;
+    }
   
   TClonesArray* mdtar=(TClonesArray*) ioman->GetObject("MdtHit");
-  {
-    fTheRecoHitFactory->addProducer(kMdtHit,new GFRecoHitProducer<PndMdtHit,PndMdtRecoHit>(mdtar));
-    std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "MdtHit array  found" << std::endl;
-  }
+  if(mdtar!=0)
+    {
+      fTheRecoHitFactory->addProducer(kMdtHit,new GFRecoHitProducer<PndMdtHit,PndMdtRecoHit>(mdtar));
+      std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "MdtHit array  found" << std::endl;
+    }
   
   if (fUseGeane)
     {
@@ -151,6 +155,8 @@ Bool_t PndRecoKalmanFit::Init()
   
   fGenFitter.setNumIterations(fNumIt);
   
+  std::cout << "===PndRecoKalmanFit::Init() finished ===================================================" << std::endl;
+
   return kTRUE;
 }
 

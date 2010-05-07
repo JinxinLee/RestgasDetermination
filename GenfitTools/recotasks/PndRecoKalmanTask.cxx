@@ -80,6 +80,11 @@ PndRecoKalmanTask::Init()
   return kSUCCESS;
 }
 
+void PndRecoKalmanTask::SetParContainers() {
+  FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
+  rtdb->getContainer("PndGeoSttPar");
+}
+
 void PndRecoKalmanTask::Exec(Option_t* opt)
 {
   if (fVerbose>0) std::cout<<"PndRecoKalmanTask::Exec"<<std::endl;
