@@ -100,8 +100,8 @@ SMD               1 26.98 13. 1.41
 PVC               3 1.00794 12.0107 35.453 1. 6. 17. 1.30  0.048380 0.384360 0.567260
                   0 1 20. .001
                   0
-// Polyvinylchloride (PVC2) Heavier definition for MVD
-PVCHEAVY          3 1.00794 12.0107 35.453 1. 6. 17. 1.30  0.048380 0.384360 0.780534
+// Polyvinylchloride (PVC2) Heavier definition for MVD containing some aluminum
+PVCHEAVY          4 1.00794 12.0107 35.453 26.981539 1. 6. 17. 13. 1.44 0.043542 0.345924 0.510534 0.1
                   0	1	20.	.001
                   0
 // ----- End MVD materials -----
