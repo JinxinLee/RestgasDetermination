@@ -8,6 +8,9 @@
 #include "PndMdtTrk.h"
 #include "PndMdtRecoPar.h"
 
+#include "PndTrack.h"
+#include "FairGeanePro.h"
+
 class TClonesArray;
 
 using std::map;
@@ -34,8 +37,12 @@ class PndMdtTrkProducer : public FairTask
   virtual void Exec(Option_t* opt);
 
   virtual void SetParContainers();
-  
+ 
+  virtual void AlgorithmWithLheGenTrack();
+
+  void SetRecMethod(Int_t rec_method) {fRec_method = rec_method;} 
  private: 
+  Int_t fRec_method; //0; previous method, use mdt info only; 1; use lhetrack as seed
   
   PndMdtTrk* AddTrk(PndMdtTrk* track);
   
@@ -45,7 +52,10 @@ class PndMdtTrkProducer : public FairTask
   
   /** Input array of PndMdtHit **/
   TClonesArray* fHitArray; 
-  
+ 
+  /** Input array of LheGenTrack **/
+  TClonesArray* fLheGenTrack;
+ 
   /** Output array of PndMdtTrk **/
   TClonesArray* fTrkArray; 
   
@@ -54,7 +64,9 @@ class PndMdtTrkProducer : public FairTask
   map<Int_t, vector<Int_t> >mapMdtBarrel;
   map<Int_t, vector<Int_t> >mapMdtEndcap;
   map<Int_t, vector<Int_t> >mapMdtForward;
- 
+
+  map<Int_t, TVector3> mapHitDirection; 
+  map<Int_t, Float_t> mapHitDistance;
   Float_t mdtLayerPos[3][20];
   Float_t mdtIronThickness[3][20];
   Float_t mdtModule1MaxZ;

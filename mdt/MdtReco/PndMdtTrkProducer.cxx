@@ -8,6 +8,7 @@
 #include "PndMdtGeoConstructorTo.h"
 #include "PndMdtTrk.h"
 #include "PndMdtHit.h"
+#include "PndTrack.h"
 #include "PndDetectorList.h"
 
 #include "FairRootManager.h"
@@ -31,6 +32,7 @@ using std::endl;
 PndMdtTrkProducer::PndMdtTrkProducer() :
   FairTask(" MDT Tracklet Producer") {
   Reset();
+  fRec_method = 1;  //default, use lhetrack as seed
 }
 // -------------------------------------------------------------------------
 
@@ -62,7 +64,14 @@ InitStatus PndMdtTrkProducer::Init() {
 	 << "No MdtHit array!" << endl;
     return kERROR;
   }
-  
+ 
+  fLheGenTrack = (TClonesArray*) ioman->GetObject("LheGenTrack");
+  if ( ! fLheGenTrack ){
+    cout << "-W- PndMdtTrkProducer::Init: "
+         << "No LheGenTrack array!" << endl;
+    //return kERROR;
+  }
+ 
   // Create and register output array
   fTrkArray = new TClonesArray("PndMdtTrk");
   
@@ -71,7 +80,7 @@ InitStatus PndMdtTrkProducer::Init() {
   ioman->Register("MdtTrk","Mdt",fTrkArray,kTRUE);
   
   cout << "-I- PndMdtTrkProducer: Intialization successfull" << endl;
-  
+
   return kSUCCESS;
   
 }
@@ -267,24 +276,41 @@ void PndMdtTrkProducer::SetGeometry() {
   
 }
 
-
 // -----   Public method Exec   --------------------------------------------
 void PndMdtTrkProducer::Exec(Option_t* opt)
 {
   // Reset output array
   fTrkArray->Clear();
   if (!MdtMapping()) return; // exit if the event contains no Mdt hits
- 
+  if(fRec_method == 1) AlgorithmWithLheGenTrack();
+
+
+  TVector3 direction(1., 0., 0.);  //direction of hits in previous 2 layers, lyt
+  Float_t deltaAngle = -1.;        //lyt  
+
   if (mapMdtBarrel.size()>0)
     {
       vector<Int_t>vecMdt0 = mapMdtBarrel[0];
       TVector3 oldPos(0., 0., 0.);
       TVector3 newPos(0., 0., 0.);
-      
       for (Int_t iMap = 0; iMap < vecMdt0.size(); iMap++) // loop over hits in layer0
 	{
 	  Int_t layerCount = 1, maxLayer = 0;
 	  Float_t layerDist = 0.; Float_t ironDist = 0.;
+
+	  //check whether this hit is available in mapHitDirection
+	  map<Int_t, TVector3>::const_iterator hit_direction_iter;
+	  map<Int_t, Float_t>::const_iterator hit_distance_iter;
+
+	  hit_direction_iter = mapHitDirection.find(vecMdt0[iMap]);
+	  hit_distance_iter = mapHitDistance.find(vecMdt0[iMap]);
+	  if(fRec_method == 1 && hit_direction_iter == mapHitDirection.end()){
+	     //cout<<"this hit is not correlated to any track..."<<endl;
+	     continue;
+	  }
+	  direction = (*hit_direction_iter).second;
+	  Float_t dist_layer0_lhetrack = (*hit_distance_iter).second; 
+
 	  PndMdtTrk *mdtTrk = new PndMdtTrk();
 	 // mdtTrk->SetHitIndex(0, vecMdt0[iMap]);
 	  mdtTrk->SetModule(1);
@@ -292,10 +318,11 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 	  PndMdtHit* mdtHit0  = (PndMdtHit*) fHitArray->At(vecMdt0[iMap]);
 	  mdtHit0->Position(oldPos);
 	  mdtTrk->SetHitIndex(0, vecMdt0[iMap]);
-	  mdtTrk->SetHitDist(0, 0); 
+	  mdtTrk->SetHitDist(0, dist_layer0_lhetrack);  //set to be the distance of hit with lhetrack  lyt 
+	  mdtTrk->SetHitDeltaAngle(0, -1.); //lyt
 	  mdtTrk->SetLayerDist(0, 0);
 	  mdtTrk->SetHitMult(0, 1);
-	  
+	
 	  map<Int_t, vector<Int_t> >::const_iterator layer_iter;
 	  for (layer_iter=mapMdtBarrel.begin();layer_iter!=mapMdtBarrel.end();++layer_iter) // layer loop
 	    {
@@ -312,6 +339,8 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 		  PndMdtHit* mdtHit  = (PndMdtHit*) fHitArray->At(vecMdt[hit_iter]);
 		  mdtHit->Position(newPos);
 		  Float_t hitDist = (oldPos-newPos).Mag2();
+		  deltaAngle = direction.Angle(newPos-oldPos);	//lyt 13042010
+		  direction = newPos-oldPos;			//lyt
 		  if ( (corrDist<0.) || (corrDist > hitDist) ) // find closes hit
 		    {
 		      corrDist = hitDist;
@@ -325,7 +354,8 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 		{
 		  ironDist = ironDist + mdtIronThickness[0][(*layer_iter).first-1] * TMath::Sqrt(corrDist)/layerDist;
 		  mdtTrk->SetHitIndex(layerCount, corrId);
-		  mdtTrk->SetHitDist(layerCount, corrDist); 
+		  mdtTrk->SetHitDist(layerCount, corrDist);
+		  mdtTrk->SetHitDeltaAngle(layerCount, deltaAngle); //lyt
 		  mdtTrk->SetLayerDist(layerCount, layerDist);
 		  mdtTrk->SetHitMult(layerCount, layerMult);
 		  maxLayer = (*layer_iter).first;
@@ -360,6 +390,8 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 		      PndMdtHit* mdtHit  = (PndMdtHit*) fHitArray->At(vecMdt[hit_iter]);
 		      mdtHit->Position(newPos);
 		      Float_t hitDist = (oldPos-newPos).Mag2();
+		      deltaAngle = direction.Angle(newPos-oldPos);  //lyt
+                      direction = newPos-oldPos;		    //lyt
 		      if ( (corrDist<0.) || (corrDist > hitDist) ) // find closes hit
 			{
 			  corrDist = hitDist;
@@ -375,6 +407,7 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 		      mdtTrk->SetModule(-1);
 		      mdtTrk->SetHitIndex(layerCount, corrId);
 		      mdtTrk->SetHitDist(layerCount, corrDist);
+		      mdtTrk->SetHitDeltaAngle(layerCount, deltaAngle); //lyt
 		      mdtTrk->SetLayerDist(layerCount, layerDist);
 		      mdtTrk->SetHitMult(layerCount, layerMult);
 		      layerCount++;
@@ -400,16 +433,32 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 	{
 	  Int_t layerCount = 1, maxLayer = 0;
 	  Float_t layerDist = 0., ironDist = 0.;
-	  PndMdtTrk *mdtTrk = new PndMdtTrk();
-	  mdtTrk->SetHitIndex(0, vecMdt0[iMap]);
-	  mdtTrk->SetModule(2);
+
+          //check whether this hit is available in mapHitDirection
+          map<Int_t, TVector3>::const_iterator hit_direction_iter;
+          map<Int_t, Float_t>::const_iterator hit_distance_iter;
+
+          hit_direction_iter = mapHitDirection.find(vecMdt0[iMap]);
+          hit_distance_iter = mapHitDistance.find(vecMdt0[iMap]);
+          if(fRec_method == 1&&hit_direction_iter == mapHitDirection.end()){
+             //cout<<"this hit is not correlated to any track..."<<endl;
+             continue;
+          }
+          direction = (*hit_direction_iter).second;
+          Float_t dist_layer0_lhetrack = (*hit_distance_iter).second;
+
+          PndMdtTrk *mdtTrk = new PndMdtTrk();
+          mdtTrk->SetHitIndex(0, vecMdt0[iMap]);
+          mdtTrk->SetModule(2);
+
+          PndMdtHit* mdtHit0  = (PndMdtHit*) fHitArray->At(vecMdt0[iMap]);
+          mdtHit0->Position(oldPos);
+          mdtTrk->SetHitIndex(0, vecMdt0[iMap]);
+          mdtTrk->SetHitDist(0, dist_layer0_lhetrack);  //set to be the distance of hit with lhetrack  lyt 
+          mdtTrk->SetHitDeltaAngle(0, -1.); //lyt
+          mdtTrk->SetLayerDist(0, 0);
+          mdtTrk->SetHitMult(0, 1);
 	  
-	  PndMdtHit* mdtHit0  = (PndMdtHit*) fHitArray->At(vecMdt0[iMap]);
-	  mdtHit0->Position(oldPos);
-	  mdtTrk->SetHitIndex(0, vecMdt0[iMap]);
-	  mdtTrk->SetHitDist(0, 0); 
-	  mdtTrk->SetLayerDist(0, 0);
-	  mdtTrk->SetHitMult(0, 1);
 	  map<Int_t, vector<Int_t> >::const_iterator layer_iter;
 	  for (layer_iter=mapMdtEndcap.begin();layer_iter!=mapMdtEndcap.end();++layer_iter) // layer loop
 	    {
@@ -426,6 +475,8 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 		  PndMdtHit* mdtHit  = (PndMdtHit*) fHitArray->At(vecMdt[hit_iter]);
 		  mdtHit->Position(newPos);
 		  Float_t hitDist = (oldPos-newPos).Mag2();
+		  deltaAngle = direction.Angle(newPos-oldPos);  //lyt
+                  direction = newPos-oldPos;                    //lyt
 		  if ( (corrDist<0.) || (corrDist > hitDist) ) // find closes hit
 		    {
 		      corrDist = hitDist;
@@ -440,6 +491,7 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 		  ironDist = ironDist + mdtIronThickness[1][(*layer_iter).first-1] * TMath::Sqrt(corrDist)/layerDist;
 		  mdtTrk->SetHitIndex(layerCount, corrId);
 		  mdtTrk->SetHitDist(layerCount, corrDist);
+                  mdtTrk->SetHitDeltaAngle(layerCount, deltaAngle); //lyt
 		  mdtTrk->SetLayerDist(layerCount, layerDist);
 		  mdtTrk->SetHitMult(layerCount, layerMult);
 		  layerCount++;
@@ -465,16 +517,32 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 	{
 	  Int_t layerCount = 1, maxLayer = 0;
 	  Float_t layerDist = 0;
-	  PndMdtTrk *mdtTrk = new PndMdtTrk();
-	  mdtTrk->SetHitIndex(0, vecMdt0[iMap]);
-	  mdtTrk->SetModule(4);
+
+          //check whether this hit is available in mapHitDirection
+          map<Int_t, TVector3>::const_iterator hit_direction_iter;
+          map<Int_t, Float_t>::const_iterator hit_distance_iter;
+
+          hit_direction_iter = mapHitDirection.find(vecMdt0[iMap]);
+          hit_distance_iter = mapHitDistance.find(vecMdt0[iMap]);
+          if(fRec_method == 1&&hit_direction_iter == mapHitDirection.end()){
+             //cout<<"this hit is not correlated to any track..."<<endl;
+             continue;
+          }
+          direction = (*hit_direction_iter).second;
+          Float_t dist_layer0_lhetrack = (*hit_distance_iter).second;
+
+          PndMdtTrk *mdtTrk = new PndMdtTrk();
+          mdtTrk->SetHitIndex(0, vecMdt0[iMap]);
+          mdtTrk->SetModule(4);
+
+          PndMdtHit* mdtHit0  = (PndMdtHit*) fHitArray->At(vecMdt0[iMap]);
+          mdtHit0->Position(oldPos);
+          mdtTrk->SetHitIndex(0, vecMdt0[iMap]);
+          mdtTrk->SetHitDist(0, dist_layer0_lhetrack);  //set to be the distance of hit with lhetrack  lyt 
+          mdtTrk->SetHitDeltaAngle(0, -1.); //lyt
+          mdtTrk->SetLayerDist(0, 0);
+          mdtTrk->SetHitMult(0, 1);
 	  
-	  PndMdtHit* mdtHit0  = (PndMdtHit*) fHitArray->At(vecMdt0[iMap]);
-	  mdtHit0->Position(oldPos);
-	  mdtTrk->SetHitIndex(0, vecMdt0[iMap]);
-	  mdtTrk->SetHitDist(0, 0); 
-	  mdtTrk->SetLayerDist(0, 0);
-	  mdtTrk->SetHitMult(0, 1);
 	  map<Int_t, vector<Int_t> >::const_iterator layer_iter;
 	  for (layer_iter=mapMdtForward.begin();layer_iter!=mapMdtForward.end();++layer_iter) // layer loop
 	    {
@@ -491,6 +559,8 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 		  PndMdtHit* mdtHit  = (PndMdtHit*) fHitArray->At(vecMdt[hit_iter]);
 		  mdtHit->Position(newPos);
 		  Float_t hitDist = (oldPos-newPos).Mag2();
+		  deltaAngle = direction.Angle(newPos-oldPos);  //lyt
+                  direction = newPos-oldPos;                    //lyt
 		  if ( (corrDist<0.) || (corrDist > hitDist) ) // find closes hit
 		    {
 		      corrDist = hitDist;
@@ -505,6 +575,7 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 		  
 		  mdtTrk->SetHitIndex(layerCount, corrId);
 		  mdtTrk->SetHitDist(layerCount, corrDist);
+                  mdtTrk->SetHitDeltaAngle(layerCount, deltaAngle); //lyt
 		  mdtTrk->SetLayerDist(layerCount, layerDist);
 		  mdtTrk->SetHitMult(layerCount, layerMult);
 		  layerCount++;
@@ -595,6 +666,84 @@ void PndMdtTrkProducer::Reset() {
   mapMdtBarrel.clear();
   mapMdtEndcap.clear();
   mapMdtForward.clear();
+  mapHitDirection.clear();
 }
+
+void PndMdtTrkProducer::AlgorithmWithLheGenTrack()  //lyt April 15th, 2010
+{
+  if ( ! fLheGenTrack ){ return;}
+  Int_t nTracks = fLheGenTrack->GetEntriesFast();
+  for (Int_t i = 0; i < nTracks; i++) {
+    PndTrack* track = (PndTrack*) fLheGenTrack->At(i);
+    Int_t ierr = 0;
+    FairTrackParP par = track->GetParamLast();
+    if ((par.GetMomentum().Mag()<0.1) || (par.GetMomentum().Mag()>15.) )continue;
+    FairTrackParH *helix = new FairTrackParH(&par, ierr);
+
+    //loop mdthit, to find distance
+    PndMdtHit *mdtHit = NULL;
+    Int_t mdtEntries = fHitArray->GetEntriesFast();
+    Int_t mdtIndex = -1, mdtMod = 0, mdtLayer = 0;
+    Float_t mdtGLength = -1000;
+    Float_t mdtQuality = 1000000;
+
+    Float_t chi2 = 0;
+    TVector3 vertex(0., 0., 0.);
+    TVector3 mdtPos(0., 0., 0.);
+    TVector3 momentum(0., 0., 0.);
+    TVector3 momentum_keep(0., 0., 0.);
+
+    for (Int_t mm = 0; mm<mdtEntries; mm++)
+      {
+        mdtHit = (PndMdtHit*)fHitArray->At(mm);
+        if (mdtHit->GetLayerID()!=0) continue;   //only deal with the first layer
+        if (mdtHit->GetModule()>2) continue;
+	mdtHit->Position(mdtPos);
+	if(1) //fGeanePro
+	{
+          FairGeanePro *fProMdt = new FairGeanePro();
+          fProMdt->SetPoint(mdtPos);
+          fProMdt->PropagateToPCA(1, 1);
+          vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
+          FairTrackParH *fRes= new FairTrackParH();
+          Bool_t rc =  fProMdt->Propagate(helix, fRes, -13*helix->GetQ());//-13*pidCand->GetCharge());
+          if (!rc) continue;
+ 
+          vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	  momentum.SetXYZ(fRes->GetPx(), fRes->GetPy(), fRes->GetPz());   //set momentum, to be used as the direction to extrapolated to next layer.
+          mdtGLength = fProMdt->GetLengthAtPCA();
+	}
+
+	Float_t dist;
+	if (mdtHit->GetModule()==1)
+	{
+	  dist = (mdtPos-vertex).Mag2();
+	}
+	else
+	{
+	  dist = (vertex.X()-mdtPos.X())*(vertex.X()-mdtPos.X())+(vertex.Y()-mdtPos.Y())*(vertex.Y()-mdtPos.Y());
+	}
+
+
+	if ( mdtQuality > dist)
+        {
+          mdtIndex = mm;
+          mdtQuality = dist;
+	  momentum_keep = momentum;
+          mdtMod = mdtHit->GetModule();
+          mdtLayer = 1;
+        }
+    }// found one closest hit to the track;
+
+    Float_t mdtCorrCut = 900;  //temporary. need study, and better to set outside.
+    
+    if(mdtQuality < mdtCorrCut) {
+	mapHitDirection[mdtIndex] = momentum_keep;
+	mapHitDistance[mdtIndex] = mdtQuality;
+    }
+  }
+
+}
+
 
 ClassImp(PndMdtTrkProducer)

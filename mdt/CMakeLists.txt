@@ -14,6 +14,11 @@ ${CMAKE_SOURCE_DIR}/mdt/MdtMC
 ${CMAKE_SOURCE_DIR}/pnddata/MdtData 
 ${CMAKE_SOURCE_DIR}/mdt/MdtDigi
 ${CMAKE_SOURCE_DIR}/mdt/MdtReco
+${GEANT3_INCLUDE_DIR}
+${CMAKE_SOURCE_DIR}/lhetrack
+${CMAKE_SOURCE_DIR}/pnddata/TrackData
+${CMAKE_SOURCE_DIR}/trackbase
+${CMAKE_SOURCE_DIR}/geane
 )
 
 
