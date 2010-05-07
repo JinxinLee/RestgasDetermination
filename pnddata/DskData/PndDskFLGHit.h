@@ -1,20 +1,20 @@
 // -------------------------------------------------------------------------
-// -----                 PndDskParticle header file                    -----
-// -----                Created 21/03/08  by P. Koch                   -----
+// -----                   PndDskFLGHit header file                      -----
+// -----                Created 25/04/10  by Y. Liang                   -----
 // -------------------------------------------------------------------------
 
-#ifndef PNDDSKPARTICLE_H
-#define PNDDSKPARTICLE_H
+#ifndef PNDDSKFLGHIT_H
+#define PNDDSKFLGHIT_H
 
 #include "FairMCPoint.h"
 
-class PndDskParticle : public FairMCPoint
+class PndDskFLGHit : public FairMCPoint
 {
 
  public:
 
   /** Default constructor **/
-  PndDskParticle();
+  PndDskFLGHit();
 
   /** Standard constructor with arguments
    *@param trackID        Index of MCTrack
@@ -29,15 +29,21 @@ class PndDskParticle : public FairMCPoint
    *@param motherPdgCode  PDG Code of particle that created the Particle
    *@param motherPdgName  PDG Name of particle that created the Particle
    **/
-  PndDskParticle(Int_t trackID, Int_t detectorID, TVector3 position, TVector3 momentum,
+  PndDskFLGHit(Int_t trackID, Int_t detectorID, TVector3 position, TVector3 momentum,
           Double_t time, Int_t pdgCode, TString pdgName, Double_t energy,
-          Int_t motherTrackID, Int_t motherPdgCode, TString motherPdgName, Double_t mass, Double_t angIn, Double_t thetaC, Int_t nPhot);
+          Int_t motherTrackID, Int_t motherPdgCode, TString motherPdgName, Double_t mass,
+	  Double_t angIn, Double_t thetaC,
+	  TVector3 mom_cherenkov_photon, Int_t num_light_guide, Int_t num_pixel);
+
+  PndDskFLGHit(Int_t trackID, Int_t detectorID, TVector3 position, TVector3 momentum, Double_t time,
+          Double_t angIn, Double_t thetaC,
+          TVector3 mom_cherenkov_photon, Int_t num_light_guide, Int_t num_pixel);
 
   /** Copy constructor **/
-  PndDskParticle(const PndDskParticle& particle) { *this = particle; };
+  PndDskFLGHit(const PndDskFLGHit& particle) { *this = particle; };
 
   /** Destructor **/
-  virtual ~PndDskParticle();
+  virtual ~PndDskFLGHit();
 
   /** Virtual method Print
    **
@@ -71,12 +77,16 @@ class PndDskParticle : public FairMCPoint
 
   Double_t GetAngIn()      const { return fAngIn; };
   Double_t GetThetaC()     const { return fThetaC; };
-  Int_t    GetNPhot()      const { return fNPhot; };
+  TVector3 GetMomPhoton()  const { return fMom_cherenkov_photon; };
+  Int_t GetNumLightGuide() const { return fNum_light_guide; };
+  Int_t GetNumPixel()      const { return fNum_pixel; };
 
   /** Modifiers **/
   void SetAngIn(Double_t ang)        { fAngIn= ang; }; 
-  void SetThetaC(Double_t theta)     { fThetaC = theta; }; 
-  void SetNPhot(Int_t nPhot)         { fNPhot = nPhot; };
+  void SetThetaC(Double_t theta)     { fThetaC = theta; };
+  void SetNumLightGuide(Int_t i)     { fNum_light_guide = i; };
+  void SetNumPixel(Int_t i)          { fNum_pixel = i; };
+  void SetMomPhoton(TVector3 mom)    { fMom_cherenkov_photon = mom;}; 
 
  protected:
 
@@ -96,9 +106,11 @@ class PndDskParticle : public FairMCPoint
 
   Double_t fThetaC;             // Cherenkov Angle
   Double_t fAngIn;                  // Rod number
-  Int_t fNPhot;                //number of produced photons
+  TVector3 fMom_cherenkov_photon;
+  Int_t    fNum_light_guide;
+  Int_t    fNum_pixel;
 
-  ClassDef(PndDskParticle,1)
+  ClassDef(PndDskFLGHit,1)
 };
 
-#endif // PNDDSKPARTICLE_H
+#endif // PNDDSKFLGHIT_H

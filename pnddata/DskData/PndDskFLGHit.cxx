@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// -----                   PndDskParticle source file                     -----
+// -----                   PndDskFLGHit source file                     -----
 // -----                  Created 21/03/08  by P. Koch                    -----
 // ----------------------------------------------------------------------------
 
@@ -7,12 +7,12 @@
 using std::cout;
 using std::endl;
 
-#include "PndDskParticle.h"
+#include "PndDskFLGHit.h"
 
 
 
 // -----   Default constructor   ----------------------------------------------
-PndDskParticle::PndDskParticle()
+PndDskFLGHit::PndDskFLGHit()
   : FairMCPoint(),
     fPdgCode(-1),
     fPdgName(TString()),
@@ -27,7 +27,9 @@ PndDskParticle::PndDskParticle()
     fMass(0.),
     fAngIn(0.),
     fThetaC(0.),
-    fNPhot(-1)
+    fMom_cherenkov_photon(TVector3()),
+    fNum_light_guide(-1),
+    fNum_pixel(-1) 
 {
 }    
 // ----------------------------------------------------------------------------
@@ -35,10 +37,11 @@ PndDskParticle::PndDskParticle()
 
 
 // -----   Standard constructor   ---------------------------------------------
-PndDskParticle::PndDskParticle(Int_t trackID, Int_t detectorID,
+PndDskFLGHit::PndDskFLGHit(Int_t trackID, Int_t detectorID,
         TVector3 position, TVector3 momentum, Double_t time,
         Int_t pdgCode, TString pdgName, Double_t energy,
-        Int_t motherTrackID, Int_t motherPdgCode, TString motherPdgName, Double_t mass, Double_t angIn, Double_t thetaC, Int_t nPhot)
+        Int_t motherTrackID, Int_t motherPdgCode, TString motherPdgName, Double_t mass,
+	Double_t angIn, Double_t thetaC, TVector3 mom_photon, Int_t num_light_guide, Int_t num_pixel)
   : FairMCPoint(trackID, detectorID, position, momentum, time, 0., 0.),
     fPdgCode(pdgCode),
     fPdgName(pdgName),
@@ -53,15 +56,27 @@ PndDskParticle::PndDskParticle(Int_t trackID, Int_t detectorID,
     fMass(mass),
     fAngIn(angIn),
     fThetaC(thetaC),
-    fNPhot(nPhot)
+    fMom_cherenkov_photon(mom_photon),
+    fNum_light_guide(num_light_guide),
+    fNum_pixel(num_pixel)
 {
 }
 // ----------------------------------------------------------------------------
-
+PndDskFLGHit::PndDskFLGHit(Int_t trackID, Int_t detectorID,
+	TVector3 position, TVector3 momentum, Double_t time,
+        Double_t angIn, Double_t thetaC, TVector3 mom_photon, Int_t num_light_guide, Int_t num_pixel)
+  : FairMCPoint(trackID, detectorID, position, momentum, time, 0., 0.),
+    fAngIn(angIn),
+    fThetaC(thetaC),
+    fMom_cherenkov_photon(mom_photon),
+    fNum_light_guide(num_light_guide),
+    fNum_pixel(num_pixel)
+{
+}
 
 
 // -----   Destructor   -------------------------------------------------------
-PndDskParticle::~PndDskParticle()
+PndDskFLGHit::~PndDskFLGHit()
 {
 }
 // ----------------------------------------------------------------------------
@@ -70,8 +85,8 @@ PndDskParticle::~PndDskParticle()
 
 // -----   Public method Print   ----------------------------------------------
 void
-PndDskParticle::Print(const Option_t* opt) const {
-  cout << "-I- PndDskParticle: track" << fTrackID 
+PndDskFLGHit::Print(const Option_t* opt) const {
+  cout << "-I- PndDskFLGHit: track" << fTrackID 
        << " created in detector " << fDetectorID << endl;
   cout << "    at Position (" << fX << ", " << fY << ", " << fZ
        << ") cm" << endl;
@@ -85,7 +100,7 @@ PndDskParticle::Print(const Option_t* opt) const {
 
 // -----   Public method SetFinalValues   -------------------------------------
 void
-PndDskParticle::SetFinalValues(TVector3 exitPosition, TVector3 exitMomentum,
+PndDskFLGHit::SetFinalValues(TVector3 exitPosition, TVector3 exitMomentum,
         Double_t exitTime, Double_t exitEnergy)
 {
   fExitPosition = exitPosition;
@@ -97,4 +112,4 @@ PndDskParticle::SetFinalValues(TVector3 exitPosition, TVector3 exitMomentum,
 
 
 
-ClassImp(PndDskParticle)
+ClassImp(PndDskFLGHit)
