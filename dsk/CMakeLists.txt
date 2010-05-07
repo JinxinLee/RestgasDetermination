@@ -25,6 +25,8 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(DSK_SRCS
 DskMC/PndDsk.cxx
+DskMC/PndGeoDskFLG.cxx
+DskMC/PndDskFLGHitProducerIdeal.cxx
 )
 
 if(RULE_CHECKER_FOUND)

@@ -12,11 +12,32 @@ using std::cout;
 #include "TParticle.h"
 #include "TVector3.h"
 #include "TVirtualMC.h"
+#include "TFile.h"
+
+#include "TGeoCone.h"
+#include "TGeoManager.h"
+#include "TLorentzVector.h"
+#include "TParticle.h"
+#include "TVirtualMC.h"
+#include "TGeoPgon.h"
+#include "TGeoSphere.h"
+#include "TGeoBBox.h"
+#include "TGeoCompositeShape.h"
+#include "TGeoMatrix.h"
+#include "TObject.h"
 
 #include "FairRootManager.h"
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
 #include "FairVolume.h"
+
+#include "FairGeoInterface.h"
+#include "FairGeoLoader.h"
+#include "FairGeoNode.h"
+#include "FairRootManager.h"
+#include "FairGeoMedia.h"
+#include "FairGeoMedium.h"
+#include "FairGeoRootBuilder.h"
 
 #include "PndDetectorList.h"
 #include "PndStack.h"
@@ -34,6 +55,7 @@ PndDsk::PndDsk()
   : fStoreCerenkovs(kTRUE),
     fStoreParticles(kTRUE),
     fStoreTrackPoints(kFALSE),
+    fStoreFLGHits(kTRUE),
     fCalcPWay(kFALSE),
     fMeasureTotalRefAngle(kFALSE),
     fPDE(1.),
@@ -42,6 +64,8 @@ PndDsk::PndDsk()
   fDskCerenkovCollection = new TClonesArray("PndDskCerenkov");
   fDskParticleCollection = new TClonesArray("PndDskParticle");
   fDskTrackPointCollection = new TClonesArray("PndDskTrackPoint");
+  fDskFLGHitArray = new TClonesArray("PndDskFLGHit");
+  fGeo         = new PndGeoDskFLG();
 }
 // ----------------------------------------------------------------------------
 
@@ -53,6 +77,7 @@ PndDsk::PndDsk(const char* name, Bool_t active)
     fStoreCerenkovs(kTRUE),
     fStoreParticles(kTRUE),
     fStoreTrackPoints(kFALSE),
+    fStoreFLGHits(kTRUE),
     fCalcPWay(kFALSE),
     fMeasureTotalRefAngle(kFALSE),
     fPDE(1.),
@@ -61,6 +86,8 @@ PndDsk::PndDsk(const char* name, Bool_t active)
   fDskCerenkovCollection = new TClonesArray("PndDskCerenkov");
   fDskParticleCollection = new TClonesArray("PndDskParticle");
   fDskTrackPointCollection = new TClonesArray("PndDskTrackPoint");
+  fDskFLGHitArray = new TClonesArray("PndDskFLGHit");
+  fGeo         = new PndGeoDskFLG();
 }
 // ----------------------------------------------------------------------------
 
@@ -81,6 +108,13 @@ PndDsk::~PndDsk()
     fDskTrackPointCollection->Delete();
     delete fDskTrackPointCollection;
   }
+  if (0 != fDskFLGHitArray) {
+    fDskFLGHitArray->Delete();
+    delete fDskFLGHitArray;
+  }
+
+  if (fGeo) delete fGeo;
+
 }
 // ----------------------------------------------------------------------------
 
@@ -93,6 +127,37 @@ PndDsk::Initialize()
   FairDetector::Initialize();
   FairRun       *sim  = FairRun::Instance();
   FairRuntimeDb *rtdb = sim->GetRuntimeDb();
+  SetTrapFraction("$VMCWORKDIR/fsim/trapfrac_disc.root");
+}
+
+void
+PndDsk::SetTrapFraction(std::string name)
+{
+  TFile *f=new TFile(name.c_str());
+
+  for (int i=0;i<5;i++)
+  {
+    trapfrac[i]=0;
+  }
+
+  if (f->IsZombie())
+  {
+    cout <<" -W-  (PndDsk::Initialize) - trapfrac_disc file "
+         <<" doesn't exist. Using constant trapping fraction _trap="<< 0.7<<endl;
+  }
+  else
+  {
+    trapfrac[0]=(TH2F*)f->Get("hacc0");
+    trapfrac[1]=(TH2F*)f->Get("hacc1");
+    trapfrac[2]=(TH2F*)f->Get("hacc2");
+    trapfrac[3]=(TH2F*)f->Get("hacc3");
+    trapfrac[4]=(TH2F*)f->Get("hacc4");
+
+    for (int i=0;i<5;i++) trapfrac[i]->SetDirectory(0);
+
+    f->Close();
+  }
+  delete f;
 }
 // ----------------------------------------------------------------------------
 
@@ -104,8 +169,9 @@ PndDsk::ProcessHits(FairVolume* vol)
 {
   fPdgCode = gMC->TrackPid();
   if (fPdgCode == 50000050 ) {
-    return ProcessHitsCerenkov(vol);
-  } else {
+    return ProcessHitsCerenkov_FLG(vol);
+  } else { 
+
     return ProcessHitsParticle(vol);
   }
 }
@@ -130,6 +196,7 @@ PndDsk::Register()
   FairRootManager::Instance()->Register("DskCerenkov",   "Dsk", fDskCerenkovCollection,   fStoreCerenkovs);
   FairRootManager::Instance()->Register("DskParticle",   "Dsk", fDskParticleCollection,   fStoreParticles);
   FairRootManager::Instance()->Register("DskTrackPoints","Dsk", fDskTrackPointCollection, fStoreTrackPoints);
+  FairRootManager::Instance()->Register("PndDskFLGHit",  "Dsk", fDskFLGHitArray,          fStoreFLGHits);
 }
 // ----------------------------------------------------------------------------
 
@@ -142,6 +209,7 @@ PndDsk::GetCollection(Int_t iColl) const
   if (iColl == 0) return fDskCerenkovCollection;
   if (iColl == 1) return fDskParticleCollection;
   if (iColl == 2) return fDskTrackPointCollection;
+  if (iColl == 3) return fDskFLGHitArray;
   return NULL;
 }
 // ----------------------------------------------------------------------------
@@ -165,6 +233,7 @@ PndDsk::Reset()
   fDskCerenkovCollection->Clear();
   fDskParticleCollection->Clear();
   fDskTrackPointCollection->Clear();
+  fDskFLGHitArray->Clear();
 }
 // ----------------------------------------------------------------------------
 
@@ -189,8 +258,55 @@ PndDsk::ConstructGeometry()
     ConstructRootGeometry();
 //   } else if (fileName.EndsWith(".geo")) {
 //     ConstructASCIIGeometry();
-  } else {
-    cout << "-E- PndDsk::ConstructGeometry(): Geometry format in file " << fileName.Data() << " not supported." << endl;
+  } else { //FLG Version
+
+  FairGeoLoader*    drcgeoLoad = FairGeoLoader::Instance();
+  FairGeoInterface* drcgeoFace = drcgeoLoad->getGeoInterface();
+
+  FairGeoMedia *Media =  drcgeoFace->getMedia();
+  FairGeoBuilder *geobuild = drcgeoLoad->getGeoBuilder();
+
+  // Call materials
+  FairGeoMedium *fusedSil  = Media->getMedium("FusedSil");
+  Int_t nFusedSil = geobuild->createMedium(fusedSil);
+  FairGeoMedium *nlak33a  = Media->getMedium("NLAK33A");
+  Int_t nNlak33a = geobuild->createMedium(nlak33a);
+  FairGeoMedium *air  = Media->getMedium("DIRCair");
+  Int_t nAir = geobuild->createMedium(air);
+  FairGeoMedium *airNoSens  = Media->getMedium("DIRCairNoSens");
+  Int_t nAirNoSens = geobuild->createMedium(airNoSens);
+  FairGeoMedium *mirror  = Media->getMedium("Mirror");
+  Int_t nMirror = geobuild->createMedium(mirror);
+  FairGeoMedium *marcol82  = Media->getMedium("Marcol82");
+  Int_t nMarcol82 = geobuild->createMedium(marcol82);
+
+  TGeoVolume *cave = gGeoManager->GetTopVolume();
+
+
+  double rmax = fGeo->radius() / 10.;   //maximum radius  cm
+  double rmin = 0;    //minimum radius  cm
+  double thickness = fGeo->thickness() / 10.;  // thickness of plate  cm
+  double z_position = fGeo->postion_plate() / 10.; //position of plate  cm
+
+  // window
+  Double_t const fWindowHeightHalf = z_position * TMath::Tan( 5.*TMath::DegToRad()); // ~17.15 cm
+  Double_t const fWindowWidthHalf  = z_position * TMath::Tan(10.*TMath::DegToRad()); // ~34.56 cm
+
+  TGeoBBox* lDiskWindow = new TGeoBBox("DW",fWindowWidthHalf,fWindowHeightHalf,thickness);
+
+
+  TGeoCone* baseVol = new TGeoCone("baseVol",thickness+0.1, rmin, rmax+0.1, rmin, rmax+0.1);
+  TGeoCone* logicPlate = new TGeoCone("logicPlate", thickness, rmin, rmax, rmin, rmax);
+  TGeoCompositeShape* logicPlate_DW = new TGeoCompositeShape("logicPlate - DW");
+
+  TGeoVolume *dskVol = new TGeoVolume("DskBase", baseVol, gGeoManager->GetMedium("DIRCairNoSens"));
+  TGeoVolume *plateVol = new TGeoVolume("Plate", logicPlate_DW, gGeoManager->GetMedium("FusedSil"));
+
+  cave->AddNode(dskVol, 1, new TGeoCombiTrans(0, 0, z_position, new TGeoRotation(0)));
+  dskVol->AddNode(plateVol, 1, new TGeoCombiTrans(0, 0, 0, new TGeoRotation(0)));
+  AddSensitiveVolume(plateVol);
+
+
   }
 }
 // ----------------------------------------------------------------------------
@@ -213,6 +329,20 @@ PndDsk::CheckIfSensitive(std::string name)
 //   }
 }
 // ----------------------------------------------------------------------------
+
+
+// -----   Add Hit to HitCollection   --------------------------------------
+PndDskFLGHit*
+PndDsk::AddHit(Int_t trackID, Int_t detectorID,
+                TVector3 position_store, TVector3 momentum_store, Double_t time,
+                Double_t angIn, Double_t thetaC_store,
+                TVector3 Cherenkov_photon, Int_t light_guide, Int_t pixel)
+                                     {
+  TClonesArray& clref = *fDskFLGHitArray;
+  Int_t size = clref.GetEntriesFast();
+  return new(clref[size]) PndDskFLGHit( trackID,detectorID,position_store,momentum_store,time,
+                angIn,thetaC_store,Cherenkov_photon,light_guide,pixel);
+}
 
 
 
@@ -238,14 +368,15 @@ PndDskParticle*
 PndDsk::AddParticle(Int_t trackID, Int_t detectorID,
         TVector3 position, TVector3 momentum, Double_t time,
         Int_t pdgCode, TString pdgName, Double_t energy,
-        Int_t motherTrackID, Int_t motherPdgCode, TString motherPdgName)
+        Int_t motherTrackID, Int_t motherPdgCode, TString motherPdgName, Double_t mass,
+	Double_t angIn, Double_t thetaC, Int_t nPhot)
 {
   TClonesArray& clRef = *fDskParticleCollection;
   Int_t         size  = clRef.GetEntriesFast();
 
   return new(clRef[size]) PndDskParticle(trackID, detectorID,
           position, momentum, time, pdgCode, pdgName, energy,
-          motherTrackID, motherPdgCode, motherPdgName);
+          motherTrackID, motherPdgCode, motherPdgName, mass, angIn, thetaC, nPhot);
 }
 // ----------------------------------------------------------------------------
 
@@ -264,42 +395,10 @@ PndDsk::AddTrackPoint(Int_t trackID, Int_t detectorID, TVector3 position, TVecto
 }
 // ----------------------------------------------------------------------------
 
-
-
-// -----   Private method ProcessHitsCerenkov   -------------------------------
+// -----   Private method ProcessHitsCerenkov, focusing light guide version   -------------------------------
 Bool_t
-PndDsk::ProcessHitsCerenkov(FairVolume* vol)
-{
-
-/// Debug Tracks stepps
-// fTrackID = gMC->GetStack()->GetCurrentTrackNumber();
-// cout << "New Step @ " << gMC->TrackTime() * 1.e9 << endl;
-// if (gMC->IsNewTrack()) {
-//   cout << "Track " << fTrackID << " is new,      called from volume: " << vol->GetName() << endl;
-// }
-// if (gMC->IsTrackOut()) {
-//   cout << "Track " << fTrackID << " is out,      called from volume: " << vol->GetName() << endl;
-// }
-// if (gMC->IsTrackDisappeared()) {
-//   cout << "Track " << fTrackID << " disappeared, called from volume: " << vol->GetName() << endl;
-// }
-// if (gMC->IsTrackStop()) {
-//   cout << "Track " << fTrackID << " stopped,     called from volume: " << vol->GetName() << endl;
-// }
-// if (! gMC->IsTrackInside()) {
-//   cout << "Track " << fTrackID << " on boundary, called from volume: " << vol->GetName() << endl;
-// }
-// if (gMC->IsTrackInside()) {
-//   cout << "Track " << fTrackID << " is inside,   called from volume: " << vol->GetName() << endl;
-// }
-// if (gMC->IsTrackExiting()) {
-//   cout << "Track " << fTrackID << " is exiting,  called from volume: " << vol->GetName() << endl;
-// }
-// if (gMC->IsTrackEntering()) {
-//   cout << "Track " << fTrackID << " is entering, called from volume: " << vol->GetName() << endl;
-// }
-
-
+PndDsk::ProcessHitsCerenkov_FLG(FairVolume* vol)
+{  
   // gather information
   fTrackID = gMC->GetStack()->GetCurrentTrackNumber();
 
@@ -311,6 +410,11 @@ PndDsk::ProcessHitsCerenkov(FairVolume* vol)
     if ( pCerenkov->GetTrackID() == fTrackID )
     searching = kFALSE;
   }
+
+  gMC->TrackPosition(tmpLVec);
+  fPosition   = tmpLVec.Vect();
+  gMC->TrackMomentum(tmpLVec);
+  fMomentum   = tmpLVec.Vect() * 1.e9;
 
   // if fStoreTrackPoints is set gather all necessary data now
   if (fStoreTrackPoints) {
@@ -327,7 +431,6 @@ PndDsk::ProcessHitsCerenkov(FairVolume* vol)
 
   // if it is a new photon
   if (searching) {
-
     // gather informations, if not already done
     if (!fStoreTrackPoints) {
       fDetectorID = vol->getMCid();
@@ -375,7 +478,148 @@ PndDsk::ProcessHitsCerenkov(FairVolume* vol)
 
   // is Cerenkov is in our collection
   } else {
+  gMC->TrackPosition(tmpLVec);
+  TVector3 pos   = tmpLVec.Vect();
+  gMC->TrackMomentum(tmpLVec);
+  TVector3 dir = tmpLVec.Vect();
 
+  //if(pos.Perp()>0.9*fGeo->radius()&&dir.Z()>0) {
+  if(dir.Z()>0){ //deal with the cherenkov photon myself
+    Int_t i_FLG = -99, i_Pixel = -99;
+    //cout<<"pos: "<<pos.X()<<" "<<pos.Y()<<" "<<pos.Z()<<"  dir: "<<dir.X()<<" "<<dir.Y()<<" "<<dir.Z()<<"  phi: "<<dir.Phi()<<endl;
+
+    if(dir.Theta()>fGeo->reflect_threshold())  fGeo->Propagate(pos, dir, i_FLG, i_Pixel);
+
+    double effi = 0.1;
+   
+    if(i_FLG != -99&&gRandom->Rndm()<effi){
+        TVector3 Cherenkov_photon(0,0,1);
+        double angIn = 0, thetaC_store = 0;
+            AddHit(fTrackID,fDetectorID,fPosition,fMomentum,fTime,
+                angIn,thetaC_store,Cherenkov_photon,i_FLG, i_Pixel);
+    }
+    gMC->StopTrack(); 
+  }
+
+  }
+
+}
+
+// -----   Private method ProcessHitsCerenkov   -------------------------------
+Bool_t
+PndDsk::ProcessHitsCerenkov(FairVolume* vol)
+{
+
+/// Debug Tracks stepps
+// fTrackID = gMC->GetStack()->GetCurrentTrackNumber();
+// cout << "New Step @ " << gMC->TrackTime() * 1.e9 << endl;
+// if (gMC->IsNewTrack()) {
+//   cout << "Track " << fTrackID << " is new,      called from volume: " << vol->GetName() << endl;
+// }
+// if (gMC->IsTrackOut()) {
+//   cout << "Track " << fTrackID << " is out,      called from volume: " << vol->GetName() << endl;
+// }
+// if (gMC->IsTrackDisappeared()) {
+//   cout << "Track " << fTrackID << " disappeared, called from volume: " << vol->GetName() << endl;
+// }
+// if (gMC->IsTrackStop()) {
+//   cout << "Track " << fTrackID << " stopped,     called from volume: " << vol->GetName() << endl;
+// }
+// if (! gMC->IsTrackInside()) {
+//   cout << "Track " << fTrackID << " on boundary, called from volume: " << vol->GetName() << endl;
+// }
+// if (gMC->IsTrackInside()) {
+//   cout << "Track " << fTrackID << " is inside,   called from volume: " << vol->GetName() << endl;
+// }
+// if (gMC->IsTrackExiting()) {
+//   cout << "Track " << fTrackID << " is exiting,  called from volume: " << vol->GetName() << endl;
+// }
+// if (gMC->IsTrackEntering()) {
+//   cout << "Track " << fTrackID << " is entering, called from volume: " << vol->GetName() << endl;
+// }
+
+  // gather information
+  fTrackID = gMC->GetStack()->GetCurrentTrackNumber();
+
+  // search the photon in our collection
+  Bool_t searching = kTRUE;
+  PndDskCerenkov* pCerenkov = 0;
+  TIter iter(fDskCerenkovCollection);
+  while ( searching && (pCerenkov = (PndDskCerenkov*)iter.Next()) ) {
+    if ( pCerenkov->GetTrackID() == fTrackID )
+    searching = kFALSE;
+  }
+
+  //cout<<"trackID: "<<fTrackID<<endl;
+  gMC->TrackPosition(tmpLVec);
+  fPosition   = tmpLVec.Vect();
+  //cout<<"position: "<<fPosition.X()<<" "<<fPosition.Y()<<" "<<fPosition.Z()<<endl;
+  gMC->TrackMomentum(tmpLVec);
+  fMomentum   = tmpLVec.Vect() * 1.e9;
+  //cout<<"momentum: "<<fMomentum.X()<<" "<<fMomentum.Y()<<" "<<fMomentum.Z()<<endl;
+
+  // if fStoreTrackPoints is set gather all necessary data now
+  if (fStoreTrackPoints) {
+    fDetectorID = vol->getMCid();
+    gMC->TrackPosition(tmpLVec);
+    fPosition   = tmpLVec.Vect();             // in [cm]
+    fTime       = gMC->TrackTime() * 1.e9;    // in [ns], global time
+    gMC->TrackMomentum(tmpLVec);
+    fMomentum   = tmpLVec.Vect() * 1.e9;      // in [eV]
+    fLength     = gMC->TrackLength();         // in [cm]
+    fELoss      = gMC->Edep();                // in [GeV]
+    AddTrackPoint(fTrackID, fDetectorID, fPosition, fMomentum, fTime, fLength, fELoss);
+  }
+
+  // if it is a new photon
+  if (searching) {
+    // gather informations, if not already done
+    if (!fStoreTrackPoints) {
+      fDetectorID = vol->getMCid();
+      gMC->TrackPosition(tmpLVec);
+      fPosition   = tmpLVec.Vect();             // in [cm]
+      fTime       = gMC->TrackTime() * 1.e9;    // in [ns], global time
+      gMC->TrackMomentum(tmpLVec);
+      fMomentum   = tmpLVec.Vect() * 1.e9;      // in [eV]
+    }
+    fEnergy     = tmpLVec.E() * 1.e9;           // in [eV], photon energy
+    fWavelength = 1.239841874e3/fEnergy;        // hc = 4.13566733e-15[eVs] * 299792458e+09[nm/s]
+
+    fMotherTrackID = gMC->GetStack()->GetCurrentTrack()->GetFirstMother();
+    if (fMotherTrackID>-1) {
+      TParticle* mother         = ((PndStack*)(gMC->GetStack()))->GetParticle(fMotherTrackID);
+                 fMotherPdgCode = mother->GetPdgCode();
+                 fMotherPdgName = mother->GetName();
+    } else {
+      fMotherPdgCode = 0;
+      fMotherPdgName = "unknown";
+    }
+
+    PndStack* stack = (PndStack*)gMC->GetStack();
+    stack->AddPoint(kDSK);
+
+    // after we collected all information that is available on its creation
+    // we will add it to the collection
+    AddCerenkov(
+      // data of first appearance (FairMCPoint)
+      fTrackID, fDetectorID, fPosition, fMomentum, fTime,
+      // (PndDskCerenkov)
+      fEnergy, fWavelength,
+      // data of mother
+      fMotherTrackID, fMotherPdgCode, fMotherPdgName
+    );
+
+    // if the cerenkov doesnt meet our criteria, add it to collection (already done)
+    // but stopp the track imediately. no need to track it further.
+
+    if (DoNotTrackCerenkov()) {
+      gMC->StopTrack();
+      return kTRUE;
+    }
+
+
+  // is Cerenkov is in our collection
+  } else {
     // gather informations, if not already done
     if (!fStoreTrackPoints) {
       gMC->TrackPosition(tmpLVec);
@@ -480,7 +724,7 @@ PndDsk::ProcessHitsParticle(FairVolume* vol)
 {
 
   // it is entering any sensitive volume
-  if ( gMC->IsTrackEntering() ) {
+  if (gMC->TrackCharge()!=0.&& gMC->IsTrackEntering() ) {
 
     // we need its TrackID
     fTrackID = gMC->GetStack()->GetCurrentTrackNumber();
@@ -523,6 +767,65 @@ PndDsk::ProcessHitsParticle(FairVolume* vol)
         fMotherPdgName = "unknown";
       }
 
+///----------------------------------------calc thetaC
+      Double_t Px = fMomentum.Px();
+      Double_t Py = fMomentum.Py();
+      Double_t Pz = fMomentum.Pz();
+      Double_t fP = sqrt(Px*Px + Py*Py +Pz*Pz);
+      Double_t fMass = gMC->TrackMass();
+
+      //Double_t fAngIn;
+      if ( fabs(Pz/fP) > 1. || fP == 0.){ fAngIn = -1.;
+      }else{ fAngIn = acos(Pz/fP);}
+      //Double_t fThetaC;
+      if (fabs(1./(1.47*(fP/fEnergy))) > 1. || fP == 0. || fEnergy == 0.){
+	      fThetaC = -1.;
+      }else{
+	      fThetaC = acos(1/(1.47*(fP/fEnergy)));
+      }
+
+      //calc number of produced photons
+      double lambda1 = 280e-9;  //range of wavelength, which is seen by the PMT/PD: copied from fsim
+      double lambda2 = 330e-9;
+      double alpha=7.2974e-3;   //finestructure constant
+      double thickness = 20e-3; //disc thickness, 20mm
+      double l = fabs(thickness/cos(fMomentum.Theta()));
+      double effNphotons = 0.2;
+      double nPhotMin = 5;
+      // deteremine trapping fraction
+      double trapped = 0.7; //use constant now...
+      // estimate the number of initially produced cherenkov photons
+      double nPhot, res = 0; 
+      double thtdeg = fMomentum.Theta()*180/TMath::Pi();
+      int    npid=-1;
+      if (fPdgCode==11) npid=0;
+      else if (fPdgCode==13)   npid=1;
+      else if (fPdgCode==211)  npid=2;
+      else if (fPdgCode==321)  npid=3;
+      else if (fPdgCode==2212) npid=4;
+
+      if (npid>=0 && trapfrac[npid])
+	      trapped = npid<0 ? 0.0 : trapfrac[npid]->GetBinContent(trapfrac[npid]->FindBin(fP<6.0?fP:6.0,thtdeg));
+
+
+      if(fP != 0){
+	      nPhot = 2*TMath::Pi()*alpha*l*(1./lambda1 - 1./lambda2)*(1 - (fEnergy*fEnergy)/(fP*fP*1.47*1.47));
+	      nPhot = gRandom->Poisson(nPhot);
+	      nPhot *= trapped*effNphotons;
+	      if(nPhot <= nPhotMin){
+		      //cout<<"too few photons detected..."<<endl;
+	      }
+	      if(nPhot>100) nPhot=100;
+
+	      if(nPhot > 0)res = 0.01/sqrt(nPhot);
+      }
+
+      //cout<<"dsk dirc.... fMass: "<<fMass<<" fP: "<<fP<<"  fEnergy: "<<fEnergy<<"  fThetaC: "<<fThetaC<<"  fPdgCode: "<<fPdgCode<<endl;
+      //cout<<"position: "<<fPosition.Px()<<" "<<fPosition.Py()<<" "<<fPosition.Pz()<<endl;
+      //cout<<"momentum: "<<Px<<" "<<Py<<" "<<Pz<<endl;
+      fThetaC = gRandom->Gaus(fThetaC,res);
+//    fErrThetaC = 0.; //rad
+
       // if this is the primary particle (TrackID == 0), save its momentum for further use
       // these values need to be initialised in constructor, cause we need to know if the primary
       // ever reaches the disk:
@@ -543,7 +846,8 @@ PndDsk::ProcessHitsParticle(FairVolume* vol)
             // (PndDskCerenkov)
             fPdgCode, fPdgName, fEnergy,
             // data of mother
-            fMotherTrackID, fMotherPdgCode, fMotherPdgName);
+            fMotherTrackID, fMotherPdgCode, fMotherPdgName, fMass,
+	    fAngIn, fThetaC, int(nPhot));
     }
   }
 
@@ -565,8 +869,8 @@ PndDsk::ProcessHitsParticle(FairVolume* vol)
     }
 
     if (searching) {
-      cout << "-W-  PndDskDetector::ProcessHitsParticle: Particle with trackID = " << fTrackID
-           << "disappeared without being in the collection! Something is badly wrong here." << endl;
+     // cout << "-W-  PndDskDetector::ProcessHitsParticle: Particle with trackID = " << fTrackID
+     //      << "disappeared without being in the collection! Something is badly wrong here." << endl;
     // we found it
     } else {
       gMC->TrackPosition(tmpLVec);

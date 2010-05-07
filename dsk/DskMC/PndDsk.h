@@ -8,8 +8,11 @@
 
 #include "TLorentzVector.h"
 #include "TVector3.h"
+#include "TH2F.h"
+#include "PndGeoDskFLG.h"
 
 #include "FairDetector.h"
+#include "PndDskFLGHit.h"
 
 class TClonesArray;
 class PndDskCerenkov;
@@ -114,6 +117,12 @@ class PndDsk : public FairDetector
           TVector3 momentum, Double_t time, Double_t energy, Double_t wavelength,
           Int_t motherTrackID, Int_t motherPdgCode, TString motherPdgName);
 
+  PndDskFLGHit* AddHit(Int_t trackID, Int_t detectorID,
+                TVector3 position_store, TVector3 momentum_store, Double_t time,
+                Double_t angIn, Double_t thetaC_store,
+                TVector3 Cherenkov_photon, Int_t light_guide, Int_t pixel);
+
+
   /** Method AddParticle
    **
    ** Adds a Particle to the collection
@@ -121,7 +130,7 @@ class PndDsk : public FairDetector
   PndDskParticle* AddParticle(Int_t trackID, Int_t detectorID,
           TVector3 position, TVector3 momentum, Double_t time,
           Int_t pdgCode, TString pdgName, Double_t energy,
-          Int_t motherTrackID, Int_t motherPdgCode, TString motherPdgName);
+          Int_t motherTrackID, Int_t motherPdgCode, TString motherPdgName,Double_t mass, Double_t angIn, Double_t thetaC, Int_t nPhot);
 
   /** Method AddTrackPoint
    **
@@ -138,7 +147,7 @@ class PndDsk : public FairDetector
   void SetStoreParticles(Bool_t storeParticles) { fStoreParticles = storeParticles; }
   void SetStoreTrackPoints(Bool_t storeTrackPoints) { fStoreTrackPoints = storeTrackPoints; }
 
-
+  void SetTrapFraction(std::string name); //use trap fraction from fast sim, temp.
  private:
 
   /** Private method ProcessHitsCerenkov
@@ -149,7 +158,7 @@ class PndDsk : public FairDetector
    *@param vol  Pointer to the active volume
    **/
   Bool_t ProcessHitsCerenkov(FairVolume* vol = 0);
-
+  Bool_t ProcessHitsCerenkov_FLG(FairVolume* vol = 0);
   /** Private method ProcessHitsParticle
    **
    ** Defines the action to be taken when
@@ -165,8 +174,9 @@ class PndDsk : public FairDetector
    **/
   Bool_t DoNotTrackCerenkov();
 
+  TH2F   *trapfrac[5];
 
-
+  PndGeoDskFLG *fGeo;
 
   Int_t         fDebugLevel;              //! Debug level
 
@@ -174,9 +184,12 @@ class PndDsk : public FairDetector
   TClonesArray* fDskParticleCollection;   //! Particle collection
   TClonesArray* fDskTrackPointCollection; //! TrackPoint collection
 
+  TClonesArray* fDskFLGHitArray; // DSK hits
+
   Bool_t        fStoreCerenkovs;          //! Whether to store Cerenkovs (default) or not
   Bool_t        fStoreParticles;          //! Whether to store Particles (default) or not
   Bool_t        fStoreTrackPoints;        //! Whether to store TrackPoints or not (default)
+  Bool_t        fStoreFLGHits;            //! Whether to store FLGHits (default) or not
   Bool_t        fCalcPWay;                //! Whether to calc Projected Way or not (default)
   Bool_t        fMeasureTotalRefAngle;    //! Whether to measure total reflection angle or not (default)
 
@@ -211,6 +224,9 @@ class PndDsk : public FairDetector
   Double_t      fEndTime;                 //! Time when particle disappears
   TVector3      fEndMomentum;             //! Momentum when particle disappears
   Double_t      fEndEnergy;               //! Energy when particle disappears
+
+  Double_t       fAngIn;
+  Double_t       fThetaC;
 
   TLorentzVector tmpLVec;                 //! often needed, avoid allocation
 
