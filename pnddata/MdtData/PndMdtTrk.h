@@ -2,6 +2,8 @@
 #define PNDMDTTRK_HH
 
 #include "FairHit.h"
+#include "FairMultiLinkedData.h"
+#include "PndDetectorList.h"
 #include "TVector3.h"
 
 #include <iostream>
@@ -9,7 +11,7 @@
 using std::cout;
 using std::endl;
 
-class PndMdtTrk : public TObject {
+class PndMdtTrk : public FairMultiLinkedData {
 
  public:
  
@@ -85,7 +87,8 @@ inline void PndMdtTrk::SetHitIndex(Int_t lay, Int_t trackId)
   else
     {
       fHitList[lay] = trackId;
-      SetBit(lay); 
+      SetBit(lay);
+      AddLink(FairLink(kMdtHit, trackId));
     }
 }
 

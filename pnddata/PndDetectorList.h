@@ -21,7 +21,7 @@ enum fDetectorType {
    kTpcPoint, kTpcPrimaryCluster, kTpcDriftedElectron, kTpcAvalanche, kTpcSignal, kTpcSample, kTpcDigi, kTpcCluster,
    kGemPoint, kGemDigi, kGemHit,
    kDchPoint, kDchDigi, kDchHit,
-   kMdtPoint, kMdtHit,
+   kMdtPoint, kMdtHit, kMdtTrack,
    kEmcPoint, kEmcHit, kEmcDigi, kEmcCluster, kEmcBump, kEmcRecoHit,
    kLheHit, kLheCand, kLheTrack,
    kTrackCand, kTrack,

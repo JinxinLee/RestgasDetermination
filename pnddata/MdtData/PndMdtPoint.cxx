@@ -5,6 +5,7 @@ using std::cout;
 using std::endl;
 
 #include "PndMdtPoint.h"
+#include "PndDetectorList.h"
 
 // -----   Default constructor   -------------------------------------------
 PndMdtPoint::PndMdtPoint() : FairMCPoint()
@@ -25,6 +26,7 @@ PndMdtPoint::PndMdtPoint( Int_t trackID, Int_t detID, TVector3 pos, TVector3 mom
   fPDG           = pdg;
   fPosIn         = pos_in;
   fMomIn         = mom_in;
+  SetLink(FairLink(kMCTrack, trackID));
 }
 
 

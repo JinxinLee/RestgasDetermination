@@ -286,7 +286,7 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 	  Int_t layerCount = 1, maxLayer = 0;
 	  Float_t layerDist = 0.; Float_t ironDist = 0.;
 	  PndMdtTrk *mdtTrk = new PndMdtTrk();
-	  mdtTrk->SetHitIndex(0, vecMdt0[iMap]);
+	 // mdtTrk->SetHitIndex(0, vecMdt0[iMap]);
 	  mdtTrk->SetModule(1);
 	  
 	  PndMdtHit* mdtHit0  = (PndMdtHit*) fHitArray->At(vecMdt0[iMap]);
