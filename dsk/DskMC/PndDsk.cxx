@@ -4,6 +4,7 @@
 // ----------------------------------------------------------------------------
 
 #include <iostream>
+#include <math.h>
 using std::endl;
 using std::cout;
 
