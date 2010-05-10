@@ -6,96 +6,124 @@
  * ***************************************
  */
 
-#define MAXRND_CL_VALUE 2.0
+#define MAXRND_CL_VALUE 1
 
 #include "PndMvaCluster.h"
 
-PndMvaCluster::PndMvaCluster()
-  : m_dim(0), m_num_Cluster(0)
+PndMvaCluster::PndMvaCluster(const ClDataSample& InputData, unsigned int nCluster)
+  : m_num_Cluster(nCluster), m_PointSet(InputData)
 {
-  m_classNames.clear();
+  assert( m_PointSet.size() != 0 );
+  
+  m_rnd = TRandom3 (time(NULL));
+  m_dimension = (m_PointSet[0])->size();
+  
+  m_PointsToClusters = std::vector<unsigned int>(m_PointSet.size(), 0);
+  
+  for(unsigned int cl = 0; cl < m_num_Cluster; cl++){
+    std::set<unsigned int>* ptSet = new std::set<unsigned int>();
+    m_ClustersToPoints.push_back(ptSet);
+  }
 }
-
-PndMvaCluster::PndMvaCluster(const std::vector<std::string>& classNames,
-			     unsigned int dimension, unsigned int nCluster)
-  : m_classNames(classNames), m_dim(dimension), m_num_Cluster(nCluster)
-{}
 
 PndMvaCluster::~PndMvaCluster()
 {
-  m_classNames.clear();
-  m_currClassIdx.clear();
-  m_PointToCluster.clear();
+  for(size_t ctr = 0; ctr < m_Centroids.size(); ctr++){
+    delete m_Centroids[ctr];
+  }
+  m_Centroids.clear();
+
+  m_PointsToClusters.clear();
+
   for(size_t i = 0; i < m_ClustersToPoints.size(); i++){
     delete m_ClustersToPoints[i];
   }
   m_ClustersToPoints.clear();
 }
 
-ClDataSample& PndMvaCluster::K_Means(const ClDataSample& InPutData)
+ClDataSample& PndMvaCluster::K_Means()
 {
-
-  
-  ClDataSample* out = new ClDataSample();
-  
-  // Number of Classes.
-  assert(m_classNames.size() != 0);
-  
-  // Input data is not empty
-  assert(InPutData.size() != 0);
-  
   // Number of clusters.
   assert(m_num_Cluster != 0);
-  
-  // Dimension of the vectors
-  assert(m_dim != 0);
-  
-  // Class loop
-  for(size_t cls = 0; cls < m_classNames.size(); cls++){
-    std::string currClassName = m_classNames[cls];
-    
-    // Init random Centroids for the current class.
-    ClDataSample& currCenters = InitCentroids(currClassName);
+  InitCentroids();
+  InitialPartition();
 
-    // Find event indices for the current class.
-    for(size_t ev = 0; ev < InPutData.size(); ev++){
-      if(InPutData[ev].first == currClassName){
-	m_currClassIdx.push_back(ev);
-      }
-    }
-
-    // Init number of events, cluster id's    
-    m_PointToCluster = std::vector <unsigned int>(m_currClassIdx.size(), 0);
-    
-    // Make initial partitioning
-    InitialPartition();
-    
-    std::cerr << currCenters.size() << std::endl;
-    // Perform Clustering
-  }//END for(cls = 0; ....)
-  return (*out);
+  // Copy centroid to the output
+  ClDataSample* Cl_Out = new ClDataSample();
+  for(size_t ctr = 0; ctr < m_Centroids.size(); ctr++){
+    std::vector<float>* ct = new std::vector<float>( *(m_Centroids[ctr]) );
+    Cl_Out->push_back(ct);
+  }
+  return (*Cl_Out);
 }
 
-ClDataSample& PndMvaCluster::InitCentroids(const std::string& clsName)
+void PndMvaCluster::InitCentroids()
 {
-  ClDataSample* centers = new ClDataSample();
-  TRandom3 rnd(time(NULL));
-
-  // Centroids loop
-  for(unsigned int ctr = 0; ctr < m_num_Cluster; ctr++){
-    // Init container
-    std::vector<float>* currCtr = new std::vector<float>();
-    // Dimension loop
-    for(unsigned int dim = 0; dim < m_num_Cluster; dim++){
-      float rndVal = static_cast<float>(rnd.Uniform(MAXRND_CL_VALUE));
-      currCtr->push_back(rndVal);
+  // Init Centroids container;
+  for(unsigned int i = 0; i < m_num_Cluster; i++){
+    std::vector<float>* ctr = new std::vector<float>();
+    for(unsigned int j = 0; j < m_dimension; j++){
+      ctr->push_back(static_cast<float>(m_rnd.Uniform(MAXRND_CL_VALUE)));
     }
-    centers->push_back(std::make_pair(clsName, currCtr));
+    m_Centroids.push_back(ctr);
   }
-  std::cerr << "<INFO> Initialized "<< centers->size() 
-	    << " centroids for " << clsName << std::endl;
-  return (*centers);
 }
 
 void PndMvaCluster::InitialPartition()
-{}
+{
+  // Data points loop
+  for(size_t pt = 0; pt < m_PointSet.size(); pt++){
+    std::vector<float>* currPt = m_PointSet[pt];
+    float minDist = std::numeric_limits<float>::max();
+    unsigned int cluster_idx = 0;//closest centeroid index
+  // Centroids loop
+    for(size_t ctr = 0; ctr < m_Centroids.size(); ctr++){
+      std::vector<float>* currCtr = m_Centroids[ctr];
+      float dist = ComputeDist(*currCtr, *currPt);
+      if(dist < minDist){
+	minDist = dist;
+	cluster_idx = ctr;
+      }
+    }
+    // Add point to cluster and cluster to point
+    m_PointsToClusters[pt] = cluster_idx;
+    (m_ClustersToPoints[cluster_idx])->insert(pt);
+  }
+}
+
+void PndMvaCluster::printStructs()
+{
+  std::cerr << "Printing input points." << std::endl;
+  for(size_t pt = 0; pt < m_PointSet.size(); pt++){
+    std::vector<float>* currPt = m_PointSet[pt];
+    for(size_t i = 0; i < currPt->size(); i++){
+      std::cerr << currPt->at(i) << " ";
+    }
+    std::cerr << std::endl;
+  }
+  
+  std::cerr << "Printing centroids." << std::endl;
+  for(size_t ctr = 0; ctr < m_Centroids.size(); ctr++){
+    std::vector<float>* currCtr = m_Centroids[ctr];
+    for(size_t i = 0; i < currCtr->size(); i++){
+      std::cerr << currCtr->at(i) << " ";
+    }
+    std::cerr << std::endl;
+  }
+
+  std::cerr << "Printing point to centroid." << std::endl;
+  for(size_t j = 0; j < m_PointsToClusters.size(); j++){
+    std::cerr << j << " -> " << m_PointsToClusters[j] << std::endl;
+  }
+
+  std::cerr << "Printing centroid to point." << std::endl;
+  std::set<unsigned int>::const_iterator iter;
+  for(size_t k = 0; k < m_ClustersToPoints.size(); k++){
+    std::cerr << " CTR" << k << " -> ";
+    std::set<unsigned int>* curSet = m_ClustersToPoints[k];
+    for( iter = curSet->begin(); iter != curSet->end(); iter++){
+      std::cerr << *iter << ' ';
+    }
+    std::cerr << std::endl;
+  }
+}

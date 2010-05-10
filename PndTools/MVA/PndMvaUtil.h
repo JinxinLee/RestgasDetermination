@@ -20,34 +20,46 @@
 struct StepError
 {
   //! Constructor
-   StepError():m_step(0), m_trErr(0.0),m_tsErr(0.0){};
+   StepError():m_step(0), m_trErr(0.0),m_tsErr(0.0)
+  {};
   /**
    *@param step Currents step.
    *@param trErr Current training error.
    *@param tsErr Current test error.
    */
    StepError(unsigned int step, float trErr, float tsErr)
-   : m_step(step), m_trErr(trErr),m_tsErr(tsErr){};
+   : m_step(step), m_trErr(trErr),m_tsErr(tsErr)
+  {};
   
   //! Destructor
-  ~StepError(){};
+  ~StepError()
+  {};
 
   //! Copy!
   StepError(const StepError& ot)
+  : m_step(ot.m_step), m_trErr(ot.m_trErr), m_tsErr(ot.m_tsErr)
   {
-    m_step  = ot.m_step;
-    m_trErr = ot.m_trErr;
-    m_tsErr = ot.m_tsErr;
+    /*
+      m_step  = ot.m_step;
+      m_trErr = ot.m_trErr;
+      m_tsErr = ot.m_tsErr;
+    */
   };
 
   //! Assignment.
   StepError& operator=(const StepError& ot)
   {
-    StepError* locTmp = new StepError();
-    locTmp->m_step = ot.m_step;
-    locTmp->m_trErr = ot.m_trErr;
-    locTmp->m_tsErr = ot.m_tsErr;
-    return *locTmp;
+    /*
+      StepError* locTmp = new StepError();
+      locTmp->m_step = ot.m_step;
+      locTmp->m_trErr = ot.m_trErr;
+      locTmp->m_tsErr = ot.m_tsErr;
+      return *locTmp;
+    */
+    m_step  = ot.m_step;
+    m_trErr = ot.m_trErr;
+    m_tsErr = ot.m_tsErr;
+    return (*this);
   };
 
   unsigned int m_step;
@@ -70,13 +82,16 @@ private:
 struct PndMvaDistObj
 {
   //! Constructor
-PndMvaDistObj():m_idx(-1), m_dist(0.0), m_cls("UNKNOWN"){};
+PndMvaDistObj():m_idx(-1), m_dist(0.0), m_cls("UNKNOWN")
+  {};
   
 PndMvaDistObj(const int id, const float dist, const std::string& cls)
-: m_idx(id), m_dist(dist), m_cls(cls){};
+: m_idx(id), m_dist(dist), m_cls(cls)
+  {};
   
   // Destructor
-  virtual ~PndMvaDistObj(){};
+  virtual ~PndMvaDistObj()
+  {};
   
   //! Operator < 
   inline bool operator<(const PndMvaDistObj& other)const{
@@ -92,6 +107,7 @@ PndMvaDistObj(const int id, const float dist, const std::string& cls)
   float m_dist;/**< Distance to the current example. */
   std::string m_cls;/**< Class name of the prototype. */
 };
+// End class definition PndMvaDistObj
 
 //! Less than, comparison funtion.
 inline  bool CompLess(const PndMvaDistObj* a, const PndMvaDistObj* b)

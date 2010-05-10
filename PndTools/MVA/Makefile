@@ -6,15 +6,17 @@
 #####################################################
 
 # FLAGSMACHINE=-march=athlon64 -mfpmath=sse -msse2 -m64
-# CCFLAGS += -Weffc++ -fopenmp
-
+# CCFLAGS +=  -fopenmp -Werror -Weffc++ -pedantic
+# -Wunreachable-code
 MAKEFLAGS  = -wkr --no-print-directory #-s
 
-FLAGSMACHINE = -march=native -mtune=native -msse3 -m3dnow
-FLAGSMACHINE += -m64 -mssse3 -mpc64 -mfpmath=sse
+FLAGSMACHINE = -march=native -mtune=native
+# FLAGSMACHINE += -m64 -mssse3 -mpc64 -mfpmath=sse -msse3 -m3dnow
 
-CCFLAGS  = -Wall -W -Wredundant-decls -Wshadow -Werror
+CCFLAGS  = -W -Wall -Wextra -Wredundant-decls -Wshadow -Werror
 CCFLAGS += -fdiagnostics-show-option -fdiagnostics-show-location=every-line
+CCFLAGS += -fstrict-aliasing -Wstrict-aliasing=3 -Wunsafe-loop-optimizations
+CCFLAGS += -Winline -Woverlength-strings -Woverlength-strings -Wstack-protector
 #CCFLAGS += -O3 ${FLAGSMACHINE} -funroll-loops
 #CCFLAGS += -fvariable-expansion-in-unroller -fprefetch-loop-arrays
 #CCFLAGS += -malign-double -maccumulate-outgoing-args -ftracer
@@ -97,7 +99,7 @@ examples: PndMvaUtil PndMvaDataSet PndGpidClassifier Classifiers
 	$(CXX) $(LIBS) build/CreateRandomDataSet.o -o build/CreateRandomDataSet
 
 	$(CXX) $(LIBS) build/PndMvaCluster.o build/exampleCluster.o build/PndMvaDataSet.o \
-	-o build/exampleCluster
+	build/PndMvaUtil.o -o build/exampleCluster
 clean:
 	rm -f *~ *.o *.root build/*
 	cd KNN ; $(MAKE) clean

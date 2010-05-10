@@ -20,9 +20,8 @@ float ComputeDist(const std::vector<float> &EvtData,
   
   float dist = 0.0;
   
-  for(unsigned int i = 0; i< Example.size(); i++)
-  {
-    dist += (EvtData[i] - Example[i]) * (EvtData[i] - Example[i]);
+  for(unsigned int i = 0; i< Example.size(); i++){
+    dist += ( (EvtData[i] - Example[i]) * (EvtData[i] - Example[i]) );
   }
   return sqrt(dist);
 }
