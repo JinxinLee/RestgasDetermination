@@ -95,8 +95,8 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, 
   }
 
   double val=-3.0969;
-  P = 0.0;
-  E = 0.0;
+  fMomentum = 0.0;
+  fEnergy = 0.0;
   double mp=0.93827;
 
   if (Mom>0) 
@@ -106,18 +106,18 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, 
   
   // val is the momentum of the pbar beam
   if (val>0){  
-    P = val;
-    E = mp+sqrt(P*P+mp*mp);
+	fMomentum = val;
+	fEnergy = mp+sqrt(fMomentum*fMomentum+mp*mp);
   }
   else  //val is -E_cm
   {
     val=-val;
-    E = val*val/(2*mp);
-    P = sqrt(E*E-val*val);
+    fEnergy = val*val/(2*mp);
+    fMomentum = sqrt(fEnergy*fEnergy-val*val);
   }
   
   cout <<"\n############# Generating with following conditions:\n\n";
-  cout <<"incident 4-mom : ("<<E<<", 0, 0, "<<P<<"), m = "<<sqrt(E*E-P*P)<<endl;
+  cout <<"incident 4-mom : ("<<fEnergy<<", 0, 0, "<<fMomentum<<"), m = "<<sqrt(fEnergy*fEnergy-fMomentum*fMomentum)<<endl;
   cout <<"\n######################\n\n"<<endl;
 
 
@@ -135,9 +135,9 @@ Bool_t PndEvtGenDirect::ReadEvent(FairPrimaryGenerator* primGen) {
 static Int_t evtnr=0;
   // Loop to create nEvents, starting from an Upsilon(4S)
     // Set up the parent particle
-  EvtParticle *parent;
+    EvtParticle *parent;
 
-    EvtVector4R pInit(E,  0.0000, -0.0000,  P);
+    EvtVector4R pInit(fEnergy,  0.0000, -0.0000,  fMomentum);
     parent=EvtParticleFactory::particleFactory(PART,pInit);
     parent->setDiagonalSpinDensity();  
 
@@ -152,13 +152,13 @@ static Int_t evtnr=0;
 	plotflag=false;
     //print out some status info
     if (evtnr<10 || ((evtnr+1)%100)==0){
-	cout << "PndEvtGenDirect::ReadEvent "<<evtnr <<" "<<E<<" "<<P << endl;
-	parent->printParticle();
-	report(INFO,"EvtGen") << "event Number\t"<< evtnr << evtstdhep << endl;
-	cout << evtnr << "\t" << evtstdhep.getNPart();
-	cout <<evtstdhep<<endl;
-	cout <<"==== now compare ==="<<endl;
-	plotflag=true;
+		cout << "PndEvtGenDirect::ReadEvent "<<evtnr <<" "<<fEnergy<<" "<<fMomentum << endl;
+		parent->printParticle();
+		report(INFO,"EvtGen") << "event Number\t"<< evtnr << evtstdhep << endl;
+		cout << evtnr << "\t" << evtstdhep.getNPart();
+		cout <<evtstdhep<<endl;
+		cout <<"==== now compare ==="<<endl;
+		plotflag=true;
     }
     
     // Write the output
@@ -175,21 +175,22 @@ static Int_t evtnr=0;
 		// add track
 		nFD=evtstdhep.getFirstDaughter(i);
 		nLD=evtstdhep.getLastDaughter(i);
-		if(nFD==-1 && nLD==-1){
-			Id=evtstdhep.getStdHepID(i);
-			vxyz=evtstdhep.getX4(i);
-			pxyz=evtstdhep.getP4(i);
-			fT=vxyz.get(0);
-			fX=vxyz.get(1);
-			fY=vxyz.get(2);
-			fZ=vxyz.get(3);
-			fE=pxyz.get(0);
-			Px=pxyz.get(1);
-			Py=pxyz.get(2);
-			Pz=pxyz.get(3);
-			if(plotflag) printf("- I -: new particle at: %f, %f, %f (%f)-> %f %f %f (%f) ID %d ##Daughters %d %d\n", fX, fY, fZ, fT,Px, Py, Pz, fE, Id, nFD, nLD);
-			primGen->AddTrack(Id, Px, Py, Pz, fX, fY, fZ);
-		}
+		primGen->DoTracking(nFD==-1 && nLD==-1);// only final particles (=without daughter) should be tracked
+
+		Id=evtstdhep.getStdHepID(i);
+		vxyz=evtstdhep.getX4(i);
+		pxyz=evtstdhep.getP4(i);
+		fT=vxyz.get(0);
+		fX=vxyz.get(1);
+		fY=vxyz.get(2);
+		fZ=vxyz.get(3);
+		fE=pxyz.get(0);
+		Px=pxyz.get(1);
+		Py=pxyz.get(2);
+		Pz=pxyz.get(3);
+		if(plotflag) printf("- I -: new particle at: %f, %f, %f (%f)-> %f %f %f (%f) ID %d ##Daughters %d %d Mothers %d %d\n", fX, fY, fZ, fT,Px, Py, Pz, fE, Id, nFD, nLD,evtstdhep.getFirstMother(i),evtstdhep.getLastMother(i));
+		primGen->AddTrack(Id, Px, Py, Pz, fX, fY, fZ, evtstdhep.getFirstMother(i));
+
 	}
 	if(plotflag) cout <<"==== compare end ==="<<endl;
 

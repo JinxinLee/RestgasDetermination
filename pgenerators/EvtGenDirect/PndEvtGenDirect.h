@@ -46,11 +46,12 @@ class PndEvtGenDirect : public FairGenerator
   /**
    * P_lab(GeV/c)
   */
-  double E, P; 
+  Double_t fEnergy;	//! Energy of System
+  Double_t fMomentum; 	//! Momentum of System
   
-  EvtGen *myGenerator;
-  EvtStdHep evtstdhep;
-  EvtId PART;
+  EvtGen *myGenerator;	//! Pointer to the actual EvtGen
+  EvtStdHep evtstdhep;  //! The decay tree
+  EvtId PART;		    //! The mother particle
 	
   ClassDef(PndEvtGenDirect,1);
 
