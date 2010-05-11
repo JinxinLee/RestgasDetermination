@@ -29,6 +29,7 @@ cluster_mod:Int_t 0
 cluster_radchan:Int_t 2
 cluster_radtime:Int_t 0
 cluster_corrchargecut:Double_t 12000.
+cluster_singlechargecut:Double_t 3000.
 chargeconv_method:Int_t 1
 raising_time:Double_t 100.
 falling_ratio:Double_t 60.
@@ -57,6 +58,7 @@ cluster_mod:Int_t 0
 cluster_radchan:Int_t 2
 cluster_radtime:Int_t 0
 cluster_corrchargecut:Double_t 12000.
+cluster_singlechargecut:Double_t 3000.
 chargeconv_method:Int_t 1
 raising_time:Double_t 100.
 falling_ratio:Double_t 60.
@@ -86,6 +88,7 @@ cluster_mod:Int_t 0
 cluster_radchan:Int_t 2
 cluster_radtime:Int_t 0
 cluster_corrchargecut:Double_t 12000.
+cluster_singlechargecut:Double_t 3000.
 chargeconv_method:Int_t 1
 raising_time:Double_t 100.
 falling_ratio:Double_t 60.
@@ -115,6 +118,7 @@ cluster_mod:Int_t 0
 cluster_radchan:Int_t 2
 cluster_radtime:Int_t 0
 cluster_corrchargecut:Double_t 12000.
+cluster_singlechargecut:Double_t 3000.
 chargeconv_method:Int_t 1
 raising_time:Double_t 100.
 falling_ratio:Double_t 60.
