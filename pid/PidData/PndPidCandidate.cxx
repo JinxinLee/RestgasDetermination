@@ -199,7 +199,7 @@ void PndPidCandidate::SetDefault()
   fMuoProbability = 0.;
   fMuoQuality = -1.; 
   fMuoIron = 0.;
-  fMuoModule = -1; 
+  fMuoModule = 0; 
   fMuoIndex = -1;
   fDegreesOfFreedom = 0;
   fFitStatus = 0;

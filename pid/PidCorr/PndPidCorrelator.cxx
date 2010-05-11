@@ -679,6 +679,7 @@ Bool_t PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 	      mdtIndex = mapMdtTrk[mm];
 	      mdtLayer = mdtTrk->GetLayerCount();
 	      mdtIron = mdtTrk->GetIronDist();
+	      mdtMod = mdtTrk->GetModule();
 	    }
 	}
       if (fDebugMode)
