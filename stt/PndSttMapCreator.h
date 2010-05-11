@@ -2,6 +2,7 @@
 #define PNDSTTMAPCREATOR_H
 
 #include <iostream>
+#include <map>
 #include "TObject.h"
 
 class PndSttTube; 
@@ -32,13 +33,17 @@ class PndSttMapCreator : public TObject
   Int_t GetTubeIDFromPathGeoType1(TString path);
   Int_t GetTubeIDFromNameGeoType1(TString name);
   TString GetNameFromPathGeoType1(TString path);
-  TString GetNameFromTubeIDGeoType1(Int_t tubeid);
+  TString GetNameFromTubeIDGeoType1(Int_t tubeid, Bool_t isCopy);
   PndSttTube * GetTubeFromTubeIDGeoType1(Int_t tubeid);
+  PndSttTube * GetTubeFromTubeIDToFillGeoType1(Int_t tubeid);
   TClonesArray* FillTubeArrayGeoType1();
  
   Int_t fGeoType;
   PndGeoSttPar *fSttParameters;
   Double_t fTubeInRad, fTubeOutRad;
+
+  // fGeoType1
+  std::map<int, int> copy_map;
 
  protected:
 

@@ -72,9 +72,12 @@ TClonesArray * PndSttMapCreator::FillTubeArray() {
 }
 
 TString PndSttMapCreator::GetNameFromTubeID(Int_t tubeid) {
-  if(fGeoType == 1) return GetNameFromTubeIDGeoType1(tubeid);
-  else return "NULL";
- }
+  PndSttTube *tube = GetTubeFromTubeID(tubeid);
+  if(!tube) return "NULL";        
+ 
+  return tube->GetName();
+  //   if(fGeoType == 1) return GetNameFromTubeIDGeoType1(tubeid); // this can' t work without the difference copy/solo anymore
+}
 
 // ===== GEO TYPE 1 =====
 // sensitive volume is gas 
@@ -89,23 +92,19 @@ Int_t PndSttMapCreator::GetTubeIDFromPathGeoType1(TString path){
 
 // OK
 Int_t PndSttMapCreator::GetTubeIDFromNameGeoType1(TString name){
-  // two possibilities:
+  // two possibilities: we DON' T CARE and just take the XXX part
   // copy : stt01tube#XXX  --> XXX
-  // alone: stt01tubeXXX --> XXX   
+  // solo : stt01tubeXXX --> XXX   
  
   TString tmpstring = name;
 
   if(tmpstring.Contains("#")) {
     int start = tmpstring.Index("#") + 1;
     tmpstring = tmpstring(start, tmpstring.Sizeof());
-    // add 1 at the end if it is a copy
-    tmpstring += 1;
   } 
   else{
     int start = tmpstring.Index("e") + 1;
     tmpstring = tmpstring(start, tmpstring.Sizeof());
-    // add 0 at the end if tube alone
-    tmpstring += 0;                
   }
   return tmpstring.Atoi();
 }
@@ -115,7 +114,7 @@ Int_t PndSttMapCreator::GetTubeIDFromNameGeoType1(TString name){
 TString PndSttMapCreator::GetNameFromPathGeoType1(TString path){
   // two possibilities:
   // copy : /cave_1/stt01assembly_0/stt01tube_XXX/stt01gas_1     --> stt01tube#XXX
-  // alone: /cave_1/stt01assembly_0/stt01tubeXXX_0/stt01gasXXX_0 --> stt01tubeXXX
+  // solo : /cave_1/stt01assembly_0/stt01tubeXXX_0/stt01gasXXX_0 --> stt01tubeXXX
 
   TString tmpstring = path;
 
@@ -142,26 +141,21 @@ TString PndSttMapCreator::GetNameFromPathGeoType1(TString path){
 
 // OK
 // name "#"
-TString PndSttMapCreator::GetNameFromTubeIDGeoType1(Int_t tubeid) {
+TString PndSttMapCreator::GetNameFromTubeIDGeoType1(Int_t tubeid, Bool_t isCopy) {
 
   // two possibilities:
-  // copy : XXX1 --> stt01tube#XXX  
-  // alone: XXX --> stt01tubeXXX
+  // copy : XXX --> stt01tube#XXX  
+  // solo : XXX --> stt01tubeXXX
 
   TString tmpstring; 
   tmpstring += tubeid ;
 
-  if(tmpstring.EndsWith("1")) {
-    tmpstring.Chop();
+  if(isCopy == kTRUE) {
     tmpstring.Prepend("stt01tube#");
   }
-  else if(tmpstring.EndsWith("0")) {
-    tmpstring.Chop();
+  else {
     tmpstring.Prepend("stt01tube");
-    //    tmpstring.Append("#0");
   }
-  else cout << "PndSttMapCreator::GetTubeFromTubeIDGeoType1: the tube id does not end with 0 nor with 1" << endl;
-
   return tmpstring;
 
 }
@@ -169,11 +163,14 @@ TString PndSttMapCreator::GetNameFromTubeIDGeoType1(Int_t tubeid) {
 // OK
 PndSttTube * PndSttMapCreator::GetTubeFromTubeIDGeoType1(Int_t tubeid) {
 
-  TString tubename = GetNameFromTubeIDGeoType1(tubeid);
   TObjArray *geoPassNodes = fSttParameters->GetGeoPassiveNodes();
-  FairGeoNode *pnode = (FairGeoNode*) geoPassNodes->FindObject(tubename);
+
+  Bool_t isCopy = copy_map[tubeid];
+  TString tubename  = GetNameFromTubeIDGeoType1(tubeid, isCopy);
+  FairGeoNode *pnode  = (FairGeoNode*) geoPassNodes->FindObject(tubename);
+  
   if(!pnode) {
-    cout << "PndSttMapCreator::GetTubeFromTubeIDGeoType1: tube " << tubename << " not found" << endl; 
+    cout << "PndSttMapCreator::GetTubeFromTubeIDGeoType1: tube " << tubename << " not found (nor as a copy)" << endl; 
     return NULL;
   }
       
@@ -192,7 +189,58 @@ PndSttTube * PndSttMapCreator::GetTubeFromTubeIDGeoType1(Int_t tubeid) {
   TGeoTube *tube = (TGeoTube*) rootvol->GetShape();
   Double_t halflength = tube->GetDz(); // in cm
   
+  // sets up the correspondence int (tubeID) <--> int (1 = copy/0 = solo)
+  //  copy_map[key] = alloc
+  copy_map[tubeid] = isCopy;
+
+  return new PndSttTube((float)x,(float)y,(float)z,  
+		    r[0][0],r[0][1],r[0][2],
+		    r[1][0],r[1][1],r[1][2],
+		    r[2][0],r[2][1],r[2][2],
+		    fTubeInRad, fTubeOutRad, halflength);
+}
+
+// OK
+PndSttTube * PndSttMapCreator::GetTubeFromTubeIDToFillGeoType1(Int_t tubeid) {
+
+  TObjArray *geoPassNodes = fSttParameters->GetGeoPassiveNodes();
+
+  Bool_t isCopy = kTRUE;
+
+  // try as if it was a copy stt01tube#XXX
+  TString  tubename = GetNameFromTubeIDGeoType1(tubeid, isCopy);
+  FairGeoNode *pnode = (FairGeoNode*) geoPassNodes->FindObject(tubename);
   
+  if(!pnode) { // try as if it was a solo stt01tubeXXX
+    isCopy = kFALSE;
+    tubename = GetNameFromTubeIDGeoType1(tubeid, isCopy);
+    pnode = (FairGeoNode*) geoPassNodes->FindObject(tubename);
+  }
+
+  if(!pnode) {
+    cout << "PndSttMapCreator::GetTubeFromTubeIDToFillGeoType1: tube " << tubename << " not found (nor as a copy)" << endl; 
+    return NULL;
+  }
+      
+  FairGeoTransform *lab = pnode->getLabTransform();
+  FairGeoVector     tra = lab->getTransVector();
+  FairGeoRotation   rot = lab->getRotMatrix();
+  
+  // geometrical info
+  double x = tra.getX()/10.; // in cm
+  double y = tra.getY()/10.; // in cm
+  double z = tra.getZ()/10.; // in cm
+  double r[3][3];
+  for(int i = 0; i < 3; i++)for(int j = 0; j < 3; j++) r[i][j] = rot.getElement(i,j);
+  
+  TGeoVolume* rootvol = pnode->getRootVolume();
+  TGeoTube *tube = (TGeoTube*) rootvol->GetShape();
+  Double_t halflength = tube->GetDz(); // in cm
+  
+  // sets up the correspondence int (tubeID) <--> int (1 = copy/0 = solo)
+  //  copy_map[key] = alloc
+  copy_map[tubeid] = isCopy;
+
   return new PndSttTube((float)x,(float)y,(float)z,  
 		    r[0][0],r[0][1],r[0][2],
 		    r[1][0],r[1][1],r[1][2],
@@ -212,7 +260,7 @@ TClonesArray* PndSttMapCreator::FillTubeArrayGeoType1() {
     if(!tubename.Contains("stt01tube")) continue;
     Int_t tubeID = GetTubeIDFromNameGeoType1(tubename);
 
-    PndSttTube *stttube = GetTubeFromTubeIDGeoType1(tubeID); 
+    PndSttTube *stttube = GetTubeFromTubeIDToFillGeoType1(tubeID); 
     // correspondance position in TCA <-> tubeID
     new((*tubeArray)[tubeID]) PndSttTube(*stttube);
   }
