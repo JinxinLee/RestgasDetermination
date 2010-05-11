@@ -33,6 +33,24 @@ PndMvaCluster::~PndMvaCluster()
   m_ClustersToPoints.clear();
 }
 
+ClDataSample& PndMvaCluster::Cluster(ClusteringType ClType)
+{
+  ClDataSample* out = new ClDataSample();
+  switch(ClType)
+  {
+  case KMEANS_HARD:
+    std::cout << "Hard clustering" << std::endl;
+    break;
+  case KMEANS_SOFT:
+    std::cout << "Soft clustering" << std::endl;
+    break;
+  default:
+    std::cout << "No clustering" << std::endl;
+    break;
+  }
+  return (*out);
+}
+
 ClDataSample& PndMvaCluster::K_Means()
 {
   bool some_point_is_moving = true;
@@ -88,6 +106,7 @@ ClDataSample& PndMvaCluster::K_Means()
   }
   return (*Cl_Out);
 }
+
 void PndMvaCluster::ComputeCentroids()
 {
   // Centeroids loop
@@ -109,10 +128,14 @@ void PndMvaCluster::ComputeCentroids()
       }
     }
     // If no points in cluster It will Go to inf. Correct this.
-    // FIXME FIXME
-    for(size_t dim = 0; dim < curCt->size(); dim++)
-    {
-      curCt->at(dim) /= ClusterPoints->size();
+    // FIXME FIXME. For now we do nothing but maybe better to do
+    //'singleton' Create a new cluster consisting of the one point
+    //furthest from its centroid.
+    if(ClusterPoints->size() != 0){
+      for(size_t dim = 0; dim < curCt->size(); dim++)
+      {
+	curCt->at(dim) /= ClusterPoints->size();
+      }
     }
   }
 }

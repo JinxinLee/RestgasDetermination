@@ -18,15 +18,28 @@
 // Local includes
 #include "PndMvaUtil.h"
 
+//! Data structure of the space points and the cluster centers
 typedef std::vector<std::vector<float>*> ClDataSample;
+
+// Clustering types
+typedef enum {KMEANS_HARD = 0, KMEANS_SOFT = 1} ClusteringType;
 
 class PndMvaCluster
 {
   // -------------- public members ---------
  public:
+  /**
+   * Constructor.
+   *@param InputData Input Data points.
+   *@param nCluster  Number of clusters to be created.
+   */
   PndMvaCluster(const ClDataSample& InputData, unsigned int nCluster);
-  
+  /**
+   * Destructor.
+   */
   virtual ~PndMvaCluster();
+  
+  ClDataSample& Cluster(ClusteringType ClType);
   
   ClDataSample& K_Means();
   
