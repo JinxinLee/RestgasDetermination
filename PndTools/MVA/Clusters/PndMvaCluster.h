@@ -11,16 +11,12 @@
 #include <iostream>
 #include <string>
 #include <cassert>
-#include <ctime>
 #include <vector>
 #include <set>
 #include <limits>
 
 // Local includes
 #include "PndMvaUtil.h"
-
-// ROOT
-#include "TRandom3.h"
 
 typedef std::vector<std::vector<float>*> ClDataSample;
 
@@ -54,18 +50,18 @@ class PndMvaCluster
   // -------------- private members   ---------
  private:
   // To avoid mistakes.
-  PndMvaCluster(const PndMvaCluster& oth);
-  PndMvaCluster& operator=(const PndMvaCluster& oth)const;
+  PndMvaCluster(const PndMvaCluster& other);
+  PndMvaCluster& operator=(const PndMvaCluster& other);
   
   // Functions & Procedures
   void InitCentroids();
   void InitialPartition();
+  void ComputeCentroids();
 
   // Variables
   unsigned int m_num_Cluster;
-  unsigned int m_dimension;
-  TRandom3 m_rnd;
   ClDataSample m_PointSet;
+  unsigned int m_dimension;
   ClDataSample m_Centroids;
   
   std::vector<unsigned int> m_PointsToClusters;

@@ -16,6 +16,7 @@ typedef std::vector< std::pair<std::string, std::vector<float>*> > RawPoints;
 // *************  DEBUG ONLY **********
 void printCentroids(const ClDataSample& dat)
 {
+  std::cout << "==========================" << std::endl;
   for(size_t i = 0; i < dat.size(); i++)
   {
     std::vector<float>* example = dat[i];
@@ -25,6 +26,7 @@ void printCentroids(const ClDataSample& dat)
     }
     std::cerr<< ")" << std::endl;
   }
+  std::cout << "==========================" << std::endl;
 }
 
 // *************  DEBUG ONLY **********
@@ -73,11 +75,11 @@ int main(int argc, char** argv)
 	      << " = " <<  clusteringInput.size()
 	      << std::endl;
 
-    PndMvaCluster clust(clusteringInput, numCentrrs);
+    PndMvaCluster clust (clusteringInput, numCentrrs);
     ClDataSample& proto = clust.K_Means();
 
+    //clust.printStructs();
     printCentroids(proto);
-    clust.printStructs();
 
     // Clean-up
     proto.clear();

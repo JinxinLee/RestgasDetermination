@@ -6,20 +6,21 @@
 #####################################################
 
 # FLAGSMACHINE=-march=athlon64 -mfpmath=sse -msse2 -m64
+# FLAGSMACHINE += -m64 -mssse3 -mpc64 -mfpmath=sse -msse3 -m3dnow
 # CCFLAGS +=  -fopenmp -Werror -Weffc++ -pedantic
-# -Wunreachable-code
+# -Wunreachable-code # -Wunsafe-loop-optimizations #-Winline
 MAKEFLAGS  = -wkr --no-print-directory #-s
 
 FLAGSMACHINE = -march=native -mtune=native
-# FLAGSMACHINE += -m64 -mssse3 -mpc64 -mfpmath=sse -msse3 -m3dnow
+FLAGSMACHINE += -mssse3 -mpc64 -mfpmath=sse -msse3 -m3dnow
 
 CCFLAGS  = -W -Wall -Wextra -Wredundant-decls -Wshadow -Werror
+CCFLAGS += -Woverlength-strings -Wstack-protector
+CCFLAGS += -fstrict-aliasing -Wstrict-aliasing=3
 CCFLAGS += -fdiagnostics-show-option -fdiagnostics-show-location=every-line
-CCFLAGS += -fstrict-aliasing -Wstrict-aliasing=3 -Wunsafe-loop-optimizations
-CCFLAGS += -Winline -Woverlength-strings -Woverlength-strings -Wstack-protector
-#CCFLAGS += -O3 ${FLAGSMACHINE} -funroll-loops
-#CCFLAGS += -fvariable-expansion-in-unroller -fprefetch-loop-arrays
-#CCFLAGS += -malign-double -maccumulate-outgoing-args -ftracer
+CCFLAGS += -O3 ${FLAGSMACHINE} -funroll-loops
+CCFLAGS += -malign-double -maccumulate-outgoing-args -ftracer
+CCFLAGS += -fvariable-expansion-in-unroller -fprefetch-loop-arrays
 
 INCLUDE = $(shell root-config --cflags) -I./ -I../
 
