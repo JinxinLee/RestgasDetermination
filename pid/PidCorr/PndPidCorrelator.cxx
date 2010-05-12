@@ -630,7 +630,7 @@ Bool_t PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCa
   Int_t mdtIndex = -1, mdtMod = 0, mdtLayer = 0;
   Float_t mdtGLength = -1000;
   Float_t mdtQuality = 1000000;
-  Float_t mdtIron = 0.;
+  Float_t mdtIron = 0., mdtMom = 0, mdtTempMom = 0;
   
   Float_t chi2 = 0;
   TVector3 vertex(0., 0., 0.);
@@ -652,7 +652,7 @@ Bool_t PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 	  FairTrackParH *fRes= new FairTrackParH();
 	  Bool_t rc =  fProMdt->Propagate(helix, fRes, -13*pidCand->GetCharge()); 
 	  if (!rc) continue;
-	    
+	  mdtTempMom = fRes->GetMomentum().Mag();  
 	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
 	  mdtGLength = fProMdt->GetLengthAtPCA();
 	}
@@ -672,6 +672,7 @@ Bool_t PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 	  mdtIndex = mm;
 	  mdtQuality = dist;
 	  mdtMod = mdtHit->GetModule();
+	  mdtMom = mdtTempMom;
 	  mdtLayer = 1;
 	  if (fMdtMode==3)
 	    {
@@ -697,6 +698,7 @@ Bool_t PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCa
       pidCand->SetMuoIndex(mdtIndex);
       pidCand->SetMuoQuality(mdtQuality);
       pidCand->SetMuoIron(mdtIron);
+      pidCand->SetMuoMomentumIn(mdtMom);
       pidCand->SetMuoModule(mdtMod);
       pidCand->SetMuoNumberOfLayers(mdtLayer);
     }
