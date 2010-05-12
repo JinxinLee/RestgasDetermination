@@ -5,7 +5,6 @@
  * LICENSE:                              *
  * ***************************************
  */
-#define DEBUG 0
 
 #include "PndMvaCluster.h"
 
@@ -18,14 +17,19 @@ PndMvaCluster::PndMvaCluster(const ClDataSample& InputData, unsigned int nCluste
 
 PndMvaCluster::~PndMvaCluster()
 {
+  ClearStructures();
+}
+
+void PndMvaCluster::ClearStructures()
+{
   for(size_t ctr = 0; ctr < m_Centroids.size(); ctr++)
   {
     delete m_Centroids[ctr];
   }
   m_Centroids.clear();
-
-  m_PointsToClusters.clear();
-
+  
+  //m_PointsToClusters.clear();
+  
   for(size_t i = 0; i < m_ClustersToPoints.size(); i++)
   {
     delete m_ClustersToPoints[i];
@@ -35,20 +39,22 @@ PndMvaCluster::~PndMvaCluster()
 
 ClDataSample& PndMvaCluster::Cluster(ClusteringType ClType)
 {
-  ClDataSample* out = new ClDataSample();
+  assert(m_dimension != 0);
+  assert(!(m_PointSet.size() < m_num_Cluster));
+  assert(m_num_Cluster != 0);
+
   switch(ClType)
   {
-  case KMEANS_HARD:
-    std::cout << "Hard clustering" << std::endl;
-    break;
   case KMEANS_SOFT:
-    std::cout << "Soft clustering" << std::endl;
+    std::cerr << "<INFO> Soft clustering." << std::endl;
+    std::cerr << "<ERROR> Not implemented yet." << std::endl;
+    return *(new ClDataSample());
     break;
   default:
-    std::cout << "No clustering" << std::endl;
+    std::cerr << "<INFO> Hard K_Means clustering." << std::endl;
+    return K_Means();
     break;
   }
-  return (*out);
 }
 
 ClDataSample& PndMvaCluster::K_Means()
@@ -57,17 +63,12 @@ ClDataSample& PndMvaCluster::K_Means()
   bool move;
   unsigned int num_iter = 0;
 
-
   // Number of clusters.
-  assert(m_num_Cluster != 0);
   InitCentroids();
   InitialPartition();
   //====== Perform clustering =======
   while (some_point_is_moving){
-#if DEBUG
-    std::cout << "<-I-> Num Iterations " << num_iter 
-	      << std::endl;
-#endif
+
     some_point_is_moving = false;
     ComputeCentroids();
     float minDist, currDist = 0.0;
@@ -96,7 +97,11 @@ ClDataSample& PndMvaCluster::K_Means()
     }
     num_iter++;
   }//while (some_point_is_moving)
-  //===========
+
+  std::cout << "<-I-> Num Iterations " << num_iter 
+	    << std::endl;  
+  
+  //======================================
   // Copy centroid to the output structure
   ClDataSample* Cl_Out = new ClDataSample();
   for(size_t ctr = 0; ctr < m_Centroids.size(); ctr++)
@@ -142,6 +147,9 @@ void PndMvaCluster::ComputeCentroids()
 
 void PndMvaCluster::InitCentroids()
 {
+  // Clear previous initializations.
+  ClearStructures();
+
   // Init Centroids container;
   for(unsigned int i = 0; i < m_num_Cluster; i++)
   {
@@ -162,7 +170,6 @@ void PndMvaCluster::InitCentroids()
 
 void PndMvaCluster::InitialPartition()
 {
-  assert(!(m_PointSet.size() < m_num_Cluster));
   // Data points loop
   for(size_t pt = 0; pt < m_PointSet.size(); pt++)
   {

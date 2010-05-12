@@ -76,13 +76,18 @@ int main(int argc, char** argv)
 	      << std::endl;
 
     PndMvaCluster clust (clusteringInput, numCentrrs);
-    ClDataSample& proto = clust.K_Means();
+    ClDataSample& protoA = clust.Cluster();
 
+    clust.SetNumberOfClusters(numCentrrs);
+    ClDataSample& protoB = clust.Cluster();
+    
     //clust.printStructs();
-    printCentroids(proto);
+    printCentroids(protoA);
+    printCentroids(protoB);
 
     // Clean-up
-    proto.clear();
+    protoA.clear();
+    protoB.clear();
     clusteringInput.clear();
   }
   return 0;
