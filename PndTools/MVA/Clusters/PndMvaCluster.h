@@ -89,6 +89,8 @@ class PndMvaCluster
   void ComputeCentroids();
   //! Clear the currently used data structures.
   void ClearStructures();
+  //! Init empty Centroid to the furthest point.
+  void ReInitEmptyCenters();
 
   // Variables
   unsigned int m_num_Cluster;/// number of cluster centers.

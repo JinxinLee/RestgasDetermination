@@ -7,7 +7,7 @@
 
 # FLAGSMACHINE=-march=athlon64 -mfpmath=sse -msse2 -m64
 # FLAGSMACHINE += -m64 -mssse3 -mpc64 -mfpmath=sse -msse3 -m3dnow
-# CCFLAGS +=  -fopenmp -Werror -Weffc++ -pedantic
+# CCFLAGS += -fopenmp -Werror -Weffc++ -pedantic
 # -Wunreachable-code # -Wunsafe-loop-optimizations #-Winline
 MAKEFLAGS  = -wkr --no-print-directory #-s
 

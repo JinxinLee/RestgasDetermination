@@ -8,6 +8,8 @@
 #include <iostream>
 #include <cstdlib>
 
+//#include <omp.h>
+
 #include "PndMvaDataSet.h"
 #include "PndMvaCluster.h"
 
@@ -47,19 +49,24 @@ int main(int argc, char** argv)
 	    << "." << std::endl;
 
   std::vector<std::string>clas;
+  //clas.push_back("electron"); clas.push_back("pion");
+  //clas.push_back("kaon"); clas.push_back("muon");
+  //clas.push_back("proton");
   clas.push_back("Elect"); clas.push_back("Pion");
   //clas.push_back("Kaon"); clas.push_back("Muon");
   //clas.push_back("Gamma"); clas.push_back("Proton");
 
   std::vector<std::string>vars;
-  vars.push_back("p"); //vars.push_back("emc");
-  //vars.push_back("stt"); vars.push_back("thetaC");
+  vars.push_back("p"); vars.push_back("emc");
+  vars.push_back("stt"); vars.push_back("thetaC");
 
   PndMvaDataSet data(InFile, clas, vars);
   const RawPoints& samples = data.GetData();
 
   // Prepair clustering input
   // Class loop
+  
+  //#pragma omp parallel for schedule(dynamic)
   for(size_t cl = 0; cl < clas.size(); cl++)
   {
     ClDataSample clusteringInput;
@@ -78,16 +85,16 @@ int main(int argc, char** argv)
     PndMvaCluster clust (clusteringInput, numCentrrs);
     ClDataSample& protoA = clust.Cluster();
 
-    clust.SetNumberOfClusters(numCentrrs);
-    ClDataSample& protoB = clust.Cluster();
+    //clust.SetNumberOfClusters(numCentrrs);
+    //ClDataSample& protoB = clust.Cluster();
     
     //clust.printStructs();
     printCentroids(protoA);
-    printCentroids(protoB);
+    //printCentroids(protoB);
 
     // Clean-up
     protoA.clear();
-    protoB.clear();
+    //protoB.clear();
     clusteringInput.clear();
   }
   return 0;
