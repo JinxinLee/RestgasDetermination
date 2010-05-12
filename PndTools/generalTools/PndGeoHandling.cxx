@@ -54,7 +54,6 @@ PndGeoHandling::PndGeoHandling():fVerbose(0)
 	}
 
 	FairRun* ana = FairRun::Instance();
-
 	if (ana != 0){
 		FairRuntimeDb* rtdb = ana->GetRuntimeDb();
 		if (fVerbose > 0){
@@ -64,9 +63,8 @@ PndGeoHandling::PndGeoHandling():fVerbose(0)
 			else
 				std::cout << "does not exist" << std::endl;
 		}
-
 		fSensorNamePar = (PndSensorNamePar*) (rtdb->getContainer("PndSensorNamePar"));
-		if (fSensorNamePar == 0) std::cout << "-W- PndGeoHandling::PndGeoHandling(): No fSensorNamePar!" << std::endl;
+		if ( ! fSensorNamePar) Fatal("PndGeoHandling","No fSensorNamePar!");
 	}
 }
 
