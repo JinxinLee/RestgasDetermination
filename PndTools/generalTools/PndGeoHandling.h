@@ -47,6 +47,8 @@ public:
 
     ~PndGeoHandling(){};
 
+    void SetParContainers();
+
   //  static PndGeoHandling* Instance();
   
   TString GetCurrentID(); ///< returns the ID of the current node
@@ -130,7 +132,10 @@ public:
 		  return 0;
   }
 
-  void GetSensorNamePar(Int_t runId, TString parFileName);
+  void GetRunId(TString mcFile);
+  void GetGeoManager();
+  void GetSensorNamePar();
+  void InitRuntimeDb(TString parFileName);
 
 private:
 
@@ -138,12 +143,14 @@ private:
 
   TGeoManager* fGeoMan;
   PndSensorNamePar* fSensorNamePar;
+  FairRuntimeDb* fRtdb;
  // static PndGeoHandling* fGeoHandlingInstance;
 
   std::vector<TString> fLevelNames;
   Int_t fLevel;
   bool fFullPath;
   Int_t fVerbose;
+  Int_t fRunId;
   ClassDef(PndGeoHandling,3);
 };
 

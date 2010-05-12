@@ -23,6 +23,7 @@
 #include "TTree.h"
 #include "FairEventHeader.h"
 #include "FairParRootFileIo.h"
+#include "FairBaseParSet.h"
 
 #include <math.h>
 #include "stdlib.h"
@@ -52,7 +53,11 @@ PndGeoHandling::PndGeoHandling():fVerbose(0)
 		Fatal("PndGeoHandling","No gGeoManager");
 		return;
 	}
+	SetParContainers();
+}
 
+void PndGeoHandling::SetParContainers()
+{
 	FairRun* ana = FairRun::Instance();
 	if (ana != 0){
 		FairRuntimeDb* rtdb = ana->GetRuntimeDb();
@@ -68,65 +73,82 @@ PndGeoHandling::PndGeoHandling():fVerbose(0)
 	}
 }
 
-PndGeoHandling::PndGeoHandling(TString mcFile, TString parFile):fVerbose(0)
+PndGeoHandling::PndGeoHandling(TString mcFile, TString parFile):fVerbose(0), fRunId(-1)
 {
-/*	if (fGeoHandlingInstance){
-		Fatal("PndGeoHandling", "Singleton instance already exists.");
-		return;
-	}
-	fGeoHandlingInstance = this;
-*/
+
+	InitRuntimeDb(parFile);
+	GetRunId(mcFile);
 	if (gGeoManager) {
 		fGeoMan = gGeoManager;
 	} else
 	{
-		Fatal("PndGeoHandling","No gGeoManager");
-		return;
+		//Fatal("PndGeoHandling","No gGeoManager");
+		//return;
+		GetGeoManager();
+		fGeoMan = gGeoManager;
 	}
+
+
+	GetSensorNamePar();
+}
+
+PndGeoHandling::PndGeoHandling(Int_t runId, TString parFile):fVerbose(0)
+{
+	InitRuntimeDb(parFile);
+
+	fRunId = runId;
+	if (gGeoManager) {
+		fGeoMan = gGeoManager;
+	} else
+	{
+		//Fatal("PndGeoHandling","No gGeoManager");
+		//return;
+		GetGeoManager();
+		fGeoMan = gGeoManager;
+	}
+	GetSensorNamePar();
+}
+
+void PndGeoHandling::GetRunId(TString mcFile)
+{
 	TFile* f = new TFile(mcFile.Data());
 	TTree* t = (TTree*)f->Get("cbmsim");
 	FairEventHeader* header;
 	t->SetBranchAddress("EventHeader.", &header);
 	t->GetEntry(0);
-	Int_t runId = header->GetRunId();
+	fRunId = header->GetRunId();
 
 	t->SetBranchStatus("EventHeader.",0);
-
-	GetSensorNamePar(runId, parFile);
 }
 
-PndGeoHandling::PndGeoHandling(Int_t runId, TString parFile):fVerbose(0)
+void PndGeoHandling::GetSensorNamePar()
 {
-	if (gGeoManager) {
-		fGeoMan = gGeoManager;
-	} else
-	{
-		Fatal("PndGeoHandling","No gGeoManager");
-		return;
-	}
-	GetSensorNamePar(runId, parFile);
-}
+	fSensorNamePar = (PndSensorNamePar*) (fRtdb->getContainer("PndSensorNamePar"));
 
-void PndGeoHandling::GetSensorNamePar(Int_t runId, TString parFile)
-{
-	FairRuntimeDb* rtdb = FairRuntimeDb::instance();
-	FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
-	parInput1->open(parFile.Data(),"UPDATE");
-	rtdb->setFirstInput(parInput1);
-
-	rtdb->setOutput(parInput1);
-
-	//FairTask* myTask(new FairTask("FairTask List"));
-	rtdb->initContainers(runId);
-
-	fSensorNamePar = (PndSensorNamePar*) (rtdb->getContainer("PndSensorNamePar"));
-
-	rtdb->initContainers(runId);
+	fRtdb->initContainers(fRunId);
 
 	if (fVerbose > 1){
-		rtdb->Print();
+		fRtdb->Print();
 		fSensorNamePar->Print();
 	}
+}
+
+void PndGeoHandling::InitRuntimeDb(TString parFileName)
+{
+	fRtdb = FairRuntimeDb::instance();
+	FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
+	parInput1->open(parFileName.Data(),"UPDATE");
+	fRtdb->setFirstInput(parInput1);
+	fRtdb->setOutput(parInput1);
+}
+
+void PndGeoHandling::GetGeoManager()
+{
+	if (fRunId < 0)
+		return;
+	FairBaseParSet* par=(FairBaseParSet*)
+	           (fRtdb->getContainer("FairBaseParSet"));
+	fRtdb->initContainers(fRunId);
 }
 
 
