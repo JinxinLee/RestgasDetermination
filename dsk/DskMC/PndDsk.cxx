@@ -128,7 +128,7 @@ PndDsk::Initialize()
   FairDetector::Initialize();
   FairRun       *sim  = FairRun::Instance();
   FairRuntimeDb *rtdb = sim->GetRuntimeDb();
-  SetTrapFraction("$VMCWORKDIR/fsim/trapfrac_disc.root");
+  SetTrapFraction("$VMCWORKDIR/input/trapfrac_disc.root");
 }
 
 void
