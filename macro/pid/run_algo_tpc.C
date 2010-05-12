@@ -43,6 +43,9 @@
   PndPidDrcAssociatorTask *assDrc= new PndPidDrcAssociatorTask();
   fRun->AddTask(assDrc);
   
+  PndPidDiscAssociatorTask *assDisc= new PndPidDiscAssociatorTask();
+  fRun->AddTask(assDisc);
+
   // -----   Intialise and run   --------------------------------------------
   //  PndEmcMapper::Init(6);
   fRun->Init();
