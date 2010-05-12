@@ -19,10 +19,13 @@
 #include <cmath>
 
 #include "PndPidCorrelator.h"
+#include "Fitter/PndVtxFitterParticle.h"
 
 //_________________________________________________________________
 Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand) 
 {
+  static PndVtxFitterParticle covTool;
+  
   Int_t charge =   TMath::Sign(1, track->GetParamFirst().GetQ());
   pidCand->SetCharge(charge);
      
@@ -57,10 +60,24 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
       FairTrackParP *fParab = new FairTrackParP(fRes, TVector3(1.,0.,0.), TVector3(0.,1.,0.), ierr);
       Double_t globalCov[6][6];
       fParab->GetMARSCov(globalCov);
-      TMatrixD mat(7,7);
-      Int_t ii,jj;
-      for (ii=0;ii<6;ii++) for(jj=0;jj<6;jj++) mat[ii][jj]=globalCov[ii][jj];
       
+      Int_t ii,jj;
+      TMatrixD err(6,6);
+      for (ii=0;ii<6;ii++) for(jj=0;jj<6;jj++) err[ii][jj]=globalCov[ii][jj];
+
+	  TLorentzVector lv;
+	  
+	  lv.SetVectM(momentum,0.13957); // set pion mass hypothesis
+
+      //TMatrixD mat=PndVtxFitterParticle::GetFitError(lv, err);
+      
+      TMatrixD mat = covTool.GetConverted7(covTool.GetFitError(lv, err));
+      
+      /*
+      TMatrixD mat(7,7);
+      
+      for (ii=0;ii<6;ii++) for(jj=0;jj<6;jj++) mat[ii][jj]=globalCov[ii][jj];
+     
       energy = TMath::Sqrt(fParab->GetMomentum().Mag2()+0.13957*0.13957);
       //Extend matrix for energy (with default pion hypothesis) -> Klaus Goetzen
       Double_t invE = 1./(energy);
@@ -75,14 +92,15 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
 	 +2.0*fRes->GetX()*fRes->GetY()*mat[0+3][1+3]
 	 +2.0*fRes->GetX()*fRes->GetZ()*mat[0+3][2+3]
 	 +2.0*fRes->GetY()*fRes->GetZ()*mat[1+3][2+3])*invE*invE;
-      
+	 
       mat[3+3][4-4] = mat[4-4][3+3] =
 	(fRes->GetX()*mat[0+3][4-4]+fRes->GetY()*mat[1+3][4-4]+fRes->GetZ()*mat[2+3][4-4])*invE;
       mat[3+3][5-4] = mat[5-4][3+3] =
 	(fRes->GetX()*mat[0+3][5-4]+fRes->GetY()*mat[1+3][5-4]+fRes->GetZ()*mat[2+3][5-4])*invE;
       mat[3+3][6-4] = mat[6-4][3+3] =
 	(fRes->GetX()*mat[0+3][6-4]+fRes->GetY()*mat[1+3][6-4]+fRes->GetZ()*mat[2+3][6-4])*invE;
-      
+	
+      */
       pidCand->SetCov7(mat);
     }
   else
