@@ -40,9 +40,9 @@ int main(int argc, char**argv)
   clas.push_back("Muon");   clas.push_back("Kaon");
   clas.push_back("Proton"); clas.push_back("Gamma");
   
-  vars.push_back("p");// vars.push_back("emc");
-  //vars.push_back("thetaC"); vars.push_back("stt");
-  //vars.push_back("mvd"); vars.push_back("tof");
+  vars.push_back("p"); vars.push_back("emc");
+  vars.push_back("thetaC"); vars.push_back("stt");
+  vars.push_back("mvd"); vars.push_back("tof");
   
   TRandom3 rand(57229);
   

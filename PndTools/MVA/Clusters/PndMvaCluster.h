@@ -5,13 +5,14 @@
  * LICENSE:                              *
  * ***************************************
  */
-#ifndef PNDMVACLUSTER_H
-#define PNDMVACLUSTER_H
+#ifndef PND_MVA_CLUSTER_H
+#define PND_MVA_CLUSTER_H
 
 #include <iostream>
 #include <cassert>
 #include <vector>
 #include <set>
+#include <limits>
 
 // Local includes
 #include "PndMvaUtil.h"
@@ -70,7 +71,11 @@ class PndMvaCluster
   { m_num_Cluster = val; };
   
   // DEBUG FUNCTIONS Maybe Removed.
+  /**
+   * Print the vectors and centroids and their relation.
+   */
   void printStructs();
+
   //--------------------------------------------
   // -------------- private members ------------
  private:
@@ -79,18 +84,18 @@ class PndMvaCluster
   PndMvaCluster& operator=(const PndMvaCluster& other);
   
   // Functions & Procedures
-  //! Performs the actual hard K-Means clustering.
+  /// Performs the actual hard K-Means clustering.
   ClDataSample& K_Means();
-  //! Initialize the centroids before clustering.
+  /// Initialize the centroids before clustering.
   void InitCentroids();
-  //! Partitions the data points among the current cluster centroids.
+  /// Partitions the data points among the current cluster centroids.
   void InitialPartition();
-  //! Compute (modify) the coordinates of centroids. 
+  /// Compute (modify) the coordinates of centroids. 
   void ComputeCentroids();
-  //! Clear the currently used data structures.
+  /// Clear the currently used data structures.
   void ClearStructures();
-  //! Init empty Centroid to the furthest point.
-  void ReInitEmptyCenters();
+  /// Init empty Centroid to the furthest point.
+  void ReInitEmptyCenter(unsigned int centerIdx);
 
   // Variables
   unsigned int m_num_Cluster;/// number of cluster centers.

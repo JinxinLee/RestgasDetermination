@@ -67,7 +67,7 @@ ClDataSample& PndMvaCluster::Cluster(ClusteringType ClType)
   case KMEANS_SOFT://Returns empty centroids.
     std::cerr << "<INFO> Soft clustering." << std::endl;
     std::cerr << "<ERROR> Not implemented yet." << std::endl;
-    return *(new ClDataSample());
+    return *( new ClDataSample() );
     break;
   default://Hard k_means clustering
     std::cerr << "<INFO> Hard K_Means clustering." << std::endl;
@@ -95,7 +95,8 @@ ClDataSample& PndMvaCluster::K_Means()
     //float distSum = 0.0;
     some_point_is_moving = false;
     ComputeCentroids();
-    float minDist, currDist = 0.0;
+    float minDist, currDist;
+    minDist = currDist = 0.0;
     unsigned int to_cluster = 0;
 
     //Loop through the points
@@ -127,10 +128,23 @@ ClDataSample& PndMvaCluster::K_Means()
       }
     }
     num_iter++;
-    
-    //std::cout << "Iter num " << num_iter 
-    //<< " Tot Sum " << distSum << std::endl;
-  }//while (some_point_is_moving)
+
+    // ================ Check empty clusters =======
+    // FIXME FIXME. For now we do nothing but maybe better to do
+    //'singleton' Create a new cluster consisting of the one point
+    //furthest from its centroid.
+    /*
+      for(size_t i = 0; i < m_ClustersToPoints.size(); i++)
+      {
+      if( (m_ClustersToPoints[i])->size() == 0)
+      {
+      //ReInitEmptyCenter(i);
+      std::cout << "Empty cluster index = " << i << std::endl;
+      }
+      }
+    */
+    //std::cout << "Iter num " << num_iter << " Tot Sum " << distSum << std::endl;
+  }//END OF while (some_point_is_moving)
   
   std::cout << "<-I-> Num Iterations " << num_iter 
 	    << std::endl;  
@@ -170,9 +184,6 @@ void PndMvaCluster::ComputeCentroids()
       }
     }
     // If no points in cluster It will Go to inf. Correct this.
-    // FIXME FIXME. For now we do nothing but maybe better to do
-    //'singleton' Create a new cluster consisting of the one point
-    //furthest from its centroid.
     if(ClusterPoints->size() != 0)
     {
       for(size_t dim = 0; dim < curCt->size(); dim++)
@@ -226,11 +237,42 @@ void PndMvaCluster::InitialPartition()
 
 /* 
  * Init empty Centroid to the furthest point of its center.
+ *@param centerIdx Index of the centroid with zero responsibility.
  */
-void ReInitEmptyCenters()
-{}
+void PndMvaCluster::ReInitEmptyCenter(unsigned int centerIdx)
+{
+  float maxDist = std::numeric_limits<float>::min();
+  float currDist = 0.0;
+  unsigned int point_Idx = 0;
+  // Find the point with the largest dist to its centeroid.
+  for(size_t i = 0; i < m_PointsToClusters.size(); i++)
+  {
+    currDist = ComputeDist(*(m_PointSet[i]), *(m_Centroids[m_PointsToClusters[i]]));
+    if(currDist > maxDist)
+    {
+      maxDist = currDist;
+      point_Idx = i;
+    }
+  }
+  // Find the responsible cluster and delete index.
+  for(size_t cl = 0; cl < m_ClustersToPoints.size(); cl++)
+  {
+    (m_ClustersToPoints[cl])->erase(point_Idx);
+  }
+  // Copy point to cluster.
+  for(size_t dim = 0; dim < m_dimension; dim++)
+  {
+    (m_Centroids[centerIdx])->at(dim) = (m_PointSet[point_Idx])->at(dim);
+  }
+  // Add point to cluster and cluster to point & init cluster
+  m_ClustersToPoints[centerIdx]->insert(point_Idx);
+  m_PointsToClusters[point_Idx] = centerIdx;
+}
 
 // DEBUG FUNCTIONS Maybe Removed.
+/**
+ * Print the vectors and centroids and their relation.
+ */
 void PndMvaCluster::printStructs()
 {
   std::cerr << "Printing input points." << std::endl;
