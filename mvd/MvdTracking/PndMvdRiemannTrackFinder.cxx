@@ -49,7 +49,7 @@ void PndMvdRiemannTrackFinder::FindTracks()
 {
 	std::vector<std::vector<Int_t> > Tracks = GetStartTracks();				//Get the possible track seeds
     std::vector<int> tooClose;
-	for (int trackId = 0; trackId < Tracks.size(); trackId++){				//Go through all track seeds and search for additional points
+	for (unsigned int trackId = 0; trackId < Tracks.size(); trackId++){				//Go through all track seeds and search for additional points
 
 		if (Tracks[trackId].size() != 3)
 			std::cout << "-E- PndRiemannTrackFinder::FindTracks: Start points: " << Tracks[trackId].size()
@@ -72,7 +72,7 @@ void PndMvdRiemannTrackFinder::FindTracks()
 
 		bool flag=false;
 		for(int i=1;i<11;i++){  ///< finding layer's number of start hit
-			for(int j=0;j<fLayers[i].size();j++){
+			for(unsigned int j=0;j<fLayers[i].size();j++){
 				if(fLayers[i][j]==startHit){
 					startLayer=i+1;
 					flag=true;
@@ -85,7 +85,7 @@ void PndMvdRiemannTrackFinder::FindTracks()
 		int testHit;
 		for (int Layer=startLayer;Layer<11;Layer++){
 			if ((fHits[startHit]->GetZ()<(-fZClosePar)) && (Layer==2 or Layer==3 or Layer==5 or Layer==6 or Layer==8 or Layer==10)) continue;  /// < in case of backward tracks disk layers can't contain hits
-			for(int testHitInLayer=0; testHitInLayer<fLayers[Layer].size();testHitInLayer++){
+			for(unsigned int testHitInLayer=0; testHitInLayer<fLayers[Layer].size();testHitInLayer++){
 				testHit=fLayers[Layer][testHitInLayer];
 				if ((fHits[startHit]->GetZ())*(fHits[testHit]->GetZ())<0 && fabs(fHits[startHit]->GetZ())>fZClosePar && fabs(fHits[testHit]->GetZ())>fZClosePar)  continue; //check the same direction on z axis
 
@@ -109,10 +109,10 @@ void PndMvdRiemannTrackFinder::FindTracks()
 			}
 		}
 
-		if (actTrack.getNumHits() > (fMinNumberOfHits-1))		//if you have a track match
+		if ((int)actTrack.getNumHits() > (fMinNumberOfHits-1))		//if you have a track match
 		{
 			std::vector<int> hits = fHitsTooClose[trackId];
-			for (int ind = 0; ind < hits.size(); ind++){
+			for (unsigned int ind = 0; ind < hits.size(); ind++){
 				PndRiemannHit actHit(fHits[hits[ind]]);
 				if (CheckRiemannHit(&actTrack, &actHit)!= true) continue;
 				StartTrack.push_back(hits[ind]);
@@ -134,7 +134,7 @@ void PndMvdRiemannTrackFinder::FindTracks()
 			}
 
 			if (fVerbose > 0) std::cout << "Hits in Track: ";
-			for (int i = 0; i < StartTrack.size(); i++)
+			for (unsigned int i = 0; i < StartTrack.size(); i++)
 			{
 				if (fVerbose > 0)
 					std::cout << " " << fMapHitToID[StartTrack[i]].first << "/" << fMapHitToID[StartTrack[i]].second;
@@ -150,10 +150,10 @@ void PndMvdRiemannTrackFinder::FindTracks()
 			}
 		}
 	}
-	for (int n = 0; n < fHitsInTracks.size(); n++)
+	for (unsigned int n = 0; n < fHitsInTracks.size(); n++)
 	{
 		PndTrackCand myTrackCand;
-		for (int o = 0; o < fHitsInTracks[n].size(); o++)
+		for (unsigned int o = 0; o < fHitsInTracks[n].size(); o++)
 		{
 			myTrackCand.AddHit(fMapHitToID[fHitsInTracks[n][o]].first,
 					fMapHitToID[fHitsInTracks[n][o]].second,0);
@@ -168,7 +168,7 @@ void PndMvdRiemannTrackFinder::FindTracks()
 	fTrackCand = fMergedTrackCand;
 	if (fVerbose > 0) {
 		std::cout << "Tracks after merging:" << std::endl;
-		for (int p = 0; p < fTrackCand.size(); p++){
+		for (unsigned int p = 0; p < fTrackCand.size(); p++){
 			fTrackCand[p].Print();
 		}
 	}
@@ -190,15 +190,15 @@ std::vector< std::vector<Int_t> > PndMvdRiemannTrackFinder::GetStartTracks()
 			    for(int ThirdLayer=SecondLayer+1;ThirdLayer<11-1;ThirdLayer++){
 
 
-			    	 for (int firstInLayer = 0; firstInLayer < fLayers[FirstLayer].size(); firstInLayer++){
+			    	 for (unsigned int firstInLayer = 0; firstInLayer < fLayers[FirstLayer].size(); firstInLayer++){
 			    		 int first=fLayers[FirstLayer][firstInLayer];
 			    		 if ((fHits[first]->GetZ()<(-fZClosePar)) && (SecondLayer==2 or SecondLayer==3 or SecondLayer==5 or SecondLayer==6 or SecondLayer==8 or SecondLayer==10)) continue;
-			    		 for (int secondInLayer = 0; secondInLayer < fLayers[SecondLayer].size(); secondInLayer++){
+			    		 for (unsigned int secondInLayer = 0; secondInLayer < fLayers[SecondLayer].size(); secondInLayer++){
 			    			 int second=fLayers[SecondLayer][secondInLayer];
 			    			 if ((fHits[second]->GetZ()<(-fZClosePar)) && (ThirdLayer==2 or ThirdLayer==3 or ThirdLayer==5 or ThirdLayer==6 or ThirdLayer==8 or ThirdLayer==10)) continue;
 			    			 if ((fHits[first]->GetZ())*(fHits[second]->GetZ())<0 && fabs(fHits[first]->GetZ())>fZClosePar && fabs(fHits[second]->GetZ())>fZClosePar) {/*printf("Diff Sign of Points  z1=%e  z2=%e \n",fHits[first]->GetZ(),fHits[second]->GetZ()); */continue;} //my// check the same direction on z axis
 
-			    			 for (int thirdInLayer = 0; thirdInLayer < fLayers[ThirdLayer].size(); thirdInLayer++){
+			    			 for (unsigned int thirdInLayer = 0; thirdInLayer < fLayers[ThirdLayer].size(); thirdInLayer++){
 			    				 int third=fLayers[ThirdLayer][thirdInLayer];
 			    				 if ((fHits[second]->GetZ())*(fHits[third]->GetZ())<0 && fabs(fHits[second]->GetZ())>fZClosePar && fabs(fHits[third]->GetZ())>fZClosePar) {/*printf("Diff Sign of Points  z1=%e  z2=%e \n",fHits[first]->GetZ(),fHits[second]->GetZ());*/ continue;} //my// check the same direction on z axis
 			    				 if (fVerbose > 1) std::cout << "Checking Points: " << first << " " << second << " " << third << std::endl;
@@ -247,9 +247,9 @@ std::vector< std::vector<Int_t> > PndMvdRiemannTrackFinder::GetStartTracks()
 
 	if (fVerbose > 1) {
 		std::cout << "Start Tracks are: " << std::endl;
-		for (int i = 0; i < Tracks.size(); i++){
+		for (unsigned int i = 0; i < Tracks.size(); i++){
 			std::vector<int> aTrack = Tracks[i];
-			for (int j = 0; j < aTrack.size(); j++){
+			for (unsigned int j = 0; j < aTrack.size(); j++){
 				std::cout << aTrack[j] << " ";
 			}
 			std::cout << std::endl;
@@ -302,7 +302,7 @@ std::vector<int> PndMvdRiemannTrackFinder::GetTooCloseHitsInLayer(int LayerNumbe
 {
 	std::vector<int> result;
 	int testN;
-	for(int i=0;i<fLayers[LayerNumber].size();i++){
+	for(unsigned int i=0;i<fLayers[LayerNumber].size();i++){
 		testN=fLayers[LayerNumber][i];
 		if (CheckHitDistance(HitNumber, testN)!= true){
 			if (testN != HitNumber){

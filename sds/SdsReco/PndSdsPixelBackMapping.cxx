@@ -2,21 +2,19 @@
 
 PndSdsPixelBackMapping::PndSdsPixelBackMapping()
 {
-  fGeoH = new PndGeoHandling();
+  Fatal("PndSdsPixelBackMapping", "We don't want to crate that here, right?");
+  if(0==fGeoH) fGeoH = new PndGeoHandling();
   fVerbose = 0;
 }
       
-PndSdsPixelBackMapping::PndSdsPixelBackMapping(std::vector<PndSdsDigiPixel> digiArray, std::vector<Double_t> params)
+PndSdsPixelBackMapping::PndSdsPixelBackMapping(PndGeoHandling* geo)
 {
-  fDigiArray = digiArray;
-  fParams    = params;
-  fGeoH = new PndGeoHandling();
+  fGeoH = geo;
   fVerbose = 0;
 }
 
 PndSdsPixelBackMapping::~PndSdsPixelBackMapping()
 {
-  delete(fGeoH);
 }
             
 

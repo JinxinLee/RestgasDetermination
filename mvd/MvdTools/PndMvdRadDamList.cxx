@@ -41,7 +41,7 @@ Double_t PndMvdRadDamList::GetWeight(Double_t energy)
 Int_t PndMvdRadDamList::FindClosestEnergyIndex(Double_t energy)
 {
 
-	for (int i = 0; i < fList.size(); i++){
+	for (unsigned int i = 0; i < fList.size(); i++){
 		if (fList[i].first > energy)
 			return i-1;
 	}

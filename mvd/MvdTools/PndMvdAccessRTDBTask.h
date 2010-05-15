@@ -3,8 +3,8 @@
 
 
 #include "FairTask.h"
-#include "PndMvdPixelDigiPar.h"
-#include "PndMvdStripDigiPar.h"
+#include "PndSdsPixelDigiPar.h"
+#include "PndSdsStripDigiPar.h"
 
 #include <string>
 #include <vector>
@@ -33,9 +33,9 @@ class PndMvdAccessRTDBTask : public FairTask
   virtual void Finish();
 
 private:
-  PndMvdPixelDigiPar* fPixelDigiPar;
-  PndMvdStripDigiPar* fStripDigiParRect;
-  PndMvdStripDigiPar* fStripDigiParTrap;
+  PndSdsPixelDigiPar* fPixelDigiPar;
+  PndSdsStripDigiPar* fStripDigiParRect;
+  PndSdsStripDigiPar* fStripDigiParTrap;
 
   ClassDef(PndMvdAccessRTDBTask,1);
 };

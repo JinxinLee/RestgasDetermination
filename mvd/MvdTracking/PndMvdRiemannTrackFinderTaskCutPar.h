@@ -61,7 +61,7 @@ private:
   void CalcRiemannTracks();
   void CalcParHists();
 
-  int fNCut; ///< cut max number of hits in IdealTrack
+  unsigned int fNCut; ///< cut max number of hits in IdealTrack
 
   int fNbin; ///< number of bins in the cut hists  during calculation of the cut parameters
   double frangeDist;   ///< max dist

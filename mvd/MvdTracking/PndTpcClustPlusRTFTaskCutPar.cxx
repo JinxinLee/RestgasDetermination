@@ -194,14 +194,14 @@ void PndTpcClustPlusRTFTaskCutPar::CalcPlanes()
 			  continue;
 		  }
 		  PndMCTrack *myTrack = (PndMCTrack*)fMCTrackArray->At(((PndTrackCand*)fTrackCandArray->At(j))->getMcTrackId());
-		  int shift=0;
+		  unsigned int shift=0;
 		  if (myTrack->GetMotherID()==-1){
 			  hit[0].setXYZ(0,0,0);
 			  hit[0].setDXYZ(0.1,0.1,0.1);
 			  shift=1;
 		  }
 		  int count=0;
-		  int i=0;
+		  unsigned int i=0;
 		  while ((i<((PndTrackCand*)fTrackCandArray->At(j))->GetNHits())){
 			  unsigned int detId,hitId;
 			  detId=((PndTrackCand*)fTrackCandArray->At(j))->GetSortedHit(i).GetDetId();
@@ -228,7 +228,7 @@ void PndTpcClustPlusRTFTaskCutPar::CalcPlanes()
 		 	count++;
 		  }
 		  if ((((PndTrackCand*)fTrackCandArray->At(j))->GetNHits()-count)>3-shift){
-			  for(int k=0;k<((PndTrackCand*)fTrackCandArray->At(j))->GetNHits();k++){
+			  for(unsigned int k=0;k<((PndTrackCand*)fTrackCandArray->At(j))->GetNHits();k++){
 				  track.addHit(hit[k+shift]);
 			  }
 			  track.refit();
@@ -252,7 +252,7 @@ void PndTpcClustPlusRTFTaskCutPar::CalcPlanes()
 
 		unsigned int detId,hitId;
 		TVector3 pos,err;
-		  for(int j=0;j<Cand.getNHits();j++){
+		  for(unsigned int j=0;j<Cand.getNHits();j++){
 			  Cand.getHit(j,detId,hitId);
 			  if (detId==kTpcCluster){
 				pos=((PndTpcCluster*)fHitArrayTPC->At(hitId))->pos();
@@ -299,7 +299,7 @@ void  PndTpcClustPlusRTFTaskCutPar::CalcParHists()
 							fhistsD[TMath::FloorNint(((Pt-fPtS)*fNPt/(fPtF-fPtS)))][TMath::FloorNint(((Theta-fThetaS)*fNTh/(fThetaF-fThetaS)))]->Fill(fabs(dDip/((PndRiemannTrack*)fMVDRiemannTracks->At(NumOfPlane))->dip()));
 							fhistsO[TMath::FloorNint(((Pt-fPtS)*fNPt/(fPtF-fPtS)))][TMath::FloorNint(((Theta-fThetaS)*fNTh/(fThetaF-fThetaS)))]->Fill(fabs(dOrig/O1.Mod()));
 
-						for(int mvdHit=0;mvdHit<((PndRiemannTrack*)fMVDRiemannTracks->At(NumOfPlane))->getNumHits();mvdHit++){
+						for(unsigned int mvdHit=0;mvdHit<((PndRiemannTrack*)fMVDRiemannTracks->At(NumOfPlane))->getNumHits();mvdHit++){
 							fhistsDist[TMath::FloorNint(((Pt-fPtS)*fNPt/(fPtF-fPtS)))][TMath::FloorNint(((Theta-fThetaS)*fNTh/(fThetaF-fThetaS)))]->Fill(fabs(((PndRiemannTrack*)fTPCRiemannTracks->At(i))->dist(((PndRiemannTrack*)fMVDRiemannTracks->At(NumOfPlane))->getHit(mvdHit))));
 							fhistsChi2[TMath::FloorNint(((Pt-fPtS)*fNPt/(fPtF-fPtS)))][TMath::FloorNint(((Theta-fThetaS)*fNTh/(fThetaF-fThetaS)))]->Fill(((PndRiemannTrack*)fTPCRiemannTracks->At(i))->calcSZChi2(((PndRiemannTrack*)fMVDRiemannTracks->At(NumOfPlane))->getHit(mvdHit)));
 						}

@@ -30,63 +30,63 @@
  *
  **/
 class PndSdsCalcStrip
-{
-public :
-  /**
-   * Default constructor
-   * No reason to use it
-   */
-  PndSdsCalcStrip();
-
-  /**
-   * Constructor
-   * Create Object with all necessary parameters
-   * @param pitch Pitch between Strips (=width of strips)
-   * @param orient Orientation Angle of Strips in x-y-Plane from x-Axis
-   * @param nrStrips Number of Strips in the active area
-   * @param nrFeChannels Number of Channels per Frontend
-   * @param firstStripAnchor Coordinate in x-y-Plane which belongs to the first Strip (Index 0).
-   * Usually this is the readout point of the strip
-   * @param threshold Charge-Threshold applied to the signal (electrons)
-   * @param noise Noise superimposed to the signal (electrons)
-   */
-  PndSdsCalcStrip(Double_t pitch, Double_t orient,
-               Int_t nrStrips, Int_t nrFeChannels,
-               const TVector2& firstStripAnchor,
-               Double_t threshold, Double_t noise);
-
-  PndSdsCalcStrip(const PndSdsStripDigiPar* digipar, SensorSide side = kTOP);
-
-  /**
-   * Get List of hit channels from given Wafer hit.
-   * @param inx x-coordinate of entry point
-   * @param iny y-coordinate of entry point
-   * @param inz z-coordinate of entry point
-   * @param outx x-coordinate of exit point
-   * @param outy y-coordinate of exit point
-   * @param outz z-coordinate of exit point
-   * @param eLoss Energy Loss inside the detector element (GeV)
-   * @return List of fired strips
-   */
+  {
+    public :
+    /**
+     * Default constructor
+     * No reason to use it
+     */
+    PndSdsCalcStrip();
+    
+    /**
+     * Constructor
+     * Create Object with all necessary parameters
+     * @param pitch Pitch between Strips (=width of strips)
+     * @param orient Orientation Angle of Strips in x-y-Plane from x-Axis
+     * @param nrStrips Number of Strips in the active area
+     * @param nrFeChannels Number of Channels per Frontend
+     * @param firstStripAnchor Coordinate in x-y-Plane which belongs to the first Strip (Index 0).
+     * Usually this is the readout point of the strip
+     * @param threshold Charge-Threshold applied to the signal (electrons)
+     * @param noise Noise superimposed to the signal (electrons)
+     */
+    PndSdsCalcStrip(Double_t pitch, Double_t orient,
+                    Int_t nrStrips, Int_t nrFeChannels,
+                    const TVector2& firstStripAnchor,
+                    Double_t threshold, Double_t noise);
+    
+    PndSdsCalcStrip(const PndSdsStripDigiPar* digipar, SensorSide side = kTOP);
+    
+    /**
+     * Get List of hit channels from given Wafer hit.
+     * @param inx x-coordinate of entry point
+     * @param iny y-coordinate of entry point
+     * @param inz z-coordinate of entry point
+     * @param outx x-coordinate of exit point
+     * @param outy y-coordinate of exit point
+     * @param outz z-coordinate of exit point
+     * @param eLoss Energy Loss inside the detector element (GeV)
+     * @return List of fired strips
+     */
     std::vector<PndSdsStrip> GetStrips (Double_t inx, Double_t iny, Double_t inz,
-                   Double_t outx, Double_t outy, Double_t outz,
-                   Double_t eLoss);
-
-
+                                        Double_t outx, Double_t outy, Double_t outz,
+                                        Double_t eLoss);
+    
+    
     /**
      * Calculate Frontend number from strip-index
      * @param stripNr strip index
      * @return Frontend number
      */
     Int_t CalcFEfromStrip(Int_t stripNr) const;
-
+    
     /**
      * Calculate Channel index (on Frontend) from strip-index
      * @param stripNr strip index
      * @return channel on frontend
      */
     Int_t CalcChannelfromStrip(Int_t stripNr) const;
-
+    
     /**
      * Calculate global strip index from Frontend number and -channel
      * @param fe frontend number
@@ -96,19 +96,20 @@ public :
      */
     void CalcFeChToStrip(Int_t fe, Int_t channel, Int_t& strip, enum SensorSide& side) const;
     void CalcStripPointOnLine(const Double_t strip, TVector2& point) const;
-
+    
     /**
      * Get Strip Direction (strip orientation angle)
      */
     const TVector2 GetStripDirection() const {return fStripDir;}
-
+    
     void SetVerboseLevel(Int_t level){ fVerboseLevel = level;}
     //std::ostream& operator<<(std::ostream& out);  // not implemented
-
-
+    const Double_t GetThreshold() const {return fThreshold;}
+    const Double_t GetNoise() const {return fNoise;}
+    
     void Print() const;
-
-private :
+    
+    private :
     Double_t fPitch;      /// strip pitch (cm)
     Double_t fOrient;     /// strip orientation angle to x axis
     Int_t fNrStrips;      /// Nr. of strips on active area
@@ -120,7 +121,7 @@ private :
     TVector2 fOrthoDir; /// vector orthogonal to strip direction
     TRandom3* fRNG;     /// Random Number Generator
     Int_t fVerboseLevel;
-
+    
     /**
      * Calculate continuous strip-number parameter from given Point in local system
      * @param x x-coordinate
@@ -128,7 +129,7 @@ private :
      * @return strip-parameter nu
      */
     Double_t CalcStripFromPoint(Double_t x, Double_t y);
-
+    
     /**
      * Apply gaussian distributed noise to given charge
      * @param charge Equivalent Noise Charge
@@ -136,6 +137,6 @@ private :
      */
     Double_t SmearCharge(Double_t charge);
     const Double_t ChargeFromEloss(Double_t eloss) const {return eloss/(3.61e-9);}
-};
+  };
 
 #endif /* PNDSDSCALCSTRIP_H */

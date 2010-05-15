@@ -20,10 +20,10 @@ PndSdsHit::PndSdsHit() {
 
 
 // -----   Standard constructor   ------------------------------------------
-PndSdsHit::PndSdsHit(Int_t detID, TString detName, TVector3& pos, TVector3& dpos,
+PndSdsHit::PndSdsHit(Int_t detID, Int_t sensorID, TVector3& pos, TVector3& dpos,
 		     Int_t clindex, Double_t charge, Int_t NDigiHits, Int_t mcindex)
   : FairHit(detID, pos, dpos, mcindex) {
-  fDetName = detName;
+  fSensorID = sensorID;
   fCharge  = charge;
   fNDigiHits = NDigiHits;
   fClusterIndex = clindex;

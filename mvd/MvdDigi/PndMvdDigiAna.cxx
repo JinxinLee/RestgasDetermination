@@ -1,8 +1,8 @@
 #include "PndMvdDigiAna.h"
 
-#include "PndMvdDigiPixel.h"
-#include "PndMvdDigiStrip.h"
-#include "PndMvdMCPoint.h"
+#include "PndSdsDigiPixel.h"
+#include "PndSdsDigiStrip.h"
+#include "PndSdsMCPoint.h"
 
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
@@ -21,8 +21,8 @@ using std::string;
 PndMvdDigiAna::PndMvdDigiAna() :
   FairTask("PndMvd Digi Ana")
 {
-//	fBranchName 	= "MVDDigiPixel";
-	fBranchName 	= "MVDDigiStrip";
+	fBranchName 	= "MVDPixelDigis";
+//	fBranchName 	= "MVDDigiStrip";
 	fPixelPos = new TH3F("pPos","pPos",200,-15,15,200,-15,15,200,-20,20);
 	fStripPos = new TH3F("sPos","sPos",128,0,127,16,0,15,200,0,20);
 
@@ -34,8 +34,8 @@ PndMvdDigiAna::PndMvdDigiAna() :
 PndMvdDigiAna::PndMvdDigiAna(TString DetName) :
   FairTask("MVD Digi Ana")
 {
-//	fBranchName 	= "MVDDigiPixel";
-	fBranchName 	= "MVDDigiStrip";
+	fBranchName 	= "MVDPixelDigis";
+//	fBranchName 	= "MVDDigiStrip";
 	fDetName 		= DetName;
 	fPixelPos = new TH3F("pPos","pPos",200,-15,15,200,-15,15,200,-20,20);
 	fStripPos = new TH3F("sPos","sPos",128,0,127,16,0,15,200,0,20);
@@ -56,7 +56,7 @@ void PndMvdDigiAna::SetParContainers()
   // Get Base Container
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
-  fDigiPar = (PndMvdPixelDigiPar*)(rtdb->getContainer("MVDPixelDigiPar"));
+  fDigiPar = (PndSdsPixelDigiPar*)(rtdb->getContainer("MVDPixelDigiPar"));
 
 }
 
@@ -110,12 +110,12 @@ void PndMvdDigiAna::Exec(Option_t* opt)
   Int_t
     nPoints = fHitArray->GetEntriesFast();
 
-  PndMvdDigiStrip* hit = 0;
+  PndSdsDigiStrip* hit = 0;
 
   for (Int_t iPoint = 0; iPoint < nPoints; iPoint++)
     {
-//      hit = (PndMvdDigiPixel*) fHitArray->At(iPoint);
-      hit = (PndMvdDigiStrip*) fHitArray->At(iPoint);
+//      hit = (PndSdsDigiPixel*) fHitArray->At(iPoint);
+      hit = (PndSdsDigiStrip*) fHitArray->At(iPoint);
 
       if ( !hit){
       	std::cout<< "No Hit!" << std::endl;

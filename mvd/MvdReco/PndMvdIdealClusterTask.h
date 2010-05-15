@@ -7,29 +7,12 @@
 
 
 #ifndef PndMvdIdealClusterTASK_H
-#define PndMvdIdealClusterTASK_H 
+#define PndMvdIdealClusterTASK_H 1
 
-#include "FairTask.h"
-//#include "PndMvdGeoPar.h"
-#include "PndMvdHit.h"
-#include "PndMvdMCPoint.h"
-#include "PndMvdPixel.h"
-#include "PndMvdIdealPixelClusterFinder.h"
-#include "FairGeoVector.h"
-#include "FairGeoTransform.h"
-#include "TVector3.h"
-#include "TRandom.h"
-#include "TGeoMatrix.h"
-#include "TGeoBBox.h"
-#include "PndMvdHybridHitProducer.h"
-#include "PndMvdStripHitProducer.h"
+#include "PndSdsIdealClusterTask.h"
+#include "TString.h"
 
-#include <string>
-#include <vector>
- 
-class TClonesArray;
-
-class PndMvdIdealClusterTask : public FairTask
+class PndMvdIdealClusterTask : public PndSdsIdealClusterTask
 {
  public:
 
@@ -40,49 +23,11 @@ class PndMvdIdealClusterTask : public FairTask
     virtual ~PndMvdIdealClusterTask();
 
 
-    /** Virtual method Init **/
-    virtual void SetParContainers();
-    virtual InitStatus Init();
-    virtual InitStatus ReInit();
-
-    /** Virtual method Exec **/
-    virtual void Exec(Option_t* opt);
-
-
-  void SetPersistance(Bool_t p = kTRUE){fPersistance=p;};
-  Bool_t GetPersistance() {return fPersistance;};
+  virtual void SetParContainers();
+  virtual void SetBranchNames();
+  void SetBranchNames(TString inBranchname, TString outHitBranchname, TString outClustBranchname, TString folderName);
   
-private:
-  Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
-  
-    
-    TString fBranchName;
-    /** Input array of PndMvdDigis **/
-     TClonesArray* fDigiArray;
-
-  /** Output array of PndMvdHits **/
-      TClonesArray* fClusterArray;
-      TClonesArray* fHitArray;
-//   TClonesArray* fPixelArray;
-//   TClonesArray* fFePixelArray;
-  
-  void Register();
-  void Reset();  
-  void ProduceHits();
-
-	
-  std::vector<Double_t> fParams;
-  Double_t fRadius;
-  Int_t fFEcolumns;
-  Int_t fFErows;
-  TString fGeoFile;
-  
-//   TGeoHMatrix GetTransformation (std::string detName);
-//   void GetLocalHitPoints(PndMvdMCPoint* myPoint, FairGeoVector& myHitIn, FairGeoVector& myHitOut);
-//   PndMvdHit CalcGlobalPoint(std::vector<PndMvdPixel> pixels);
-//   TVector3 GetSensorDimensions(std::string detName);  
-
-  ClassDef(PndMvdIdealClusterTask,1);
+  ClassDef(PndMvdIdealClusterTask,2);
 
 };
 

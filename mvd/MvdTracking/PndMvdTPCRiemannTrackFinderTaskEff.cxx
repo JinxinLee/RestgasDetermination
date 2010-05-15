@@ -163,7 +163,7 @@ void PndMvdTPCRiemannTrackFinderTaskEff::Exec(Option_t* opt)
 			 double P=Pvec.Mag();
 			 eff0H->Fill(P,Theta);
 			 if (NumTpc>-1) {
-				 for(int j=0;j<((GFTrack*)fIdealTPCTrackArray->At(NumTpc))->getCand().getNHits();j++){
+				 for(unsigned int j=0;j<((GFTrack*)fIdealTPCTrackArray->At(NumTpc))->getCand().getNHits();j++){
 				 TPCtotal->Fill(P,Theta);
 				 }
 			 }
@@ -196,7 +196,7 @@ bool PndMvdTPCRiemannTrackFinderTaskEff::CheckRecoTrack(PndTrackCand *cand,PndMC
 		int count=0;
 		unsigned int detIDi, hitIDi;
 		unsigned int detIDj, hitIDj;
-		for(int i=0;i<cand->GetNHits();i++){
+		for(unsigned int i=0;i<cand->GetNHits();i++){
 			detIDi=cand->GetSortedHit(i).GetDetId();
 			hitIDi=cand->GetSortedHit(i).GetHitId();
 			PndMvdHit *pointI;
@@ -206,7 +206,7 @@ bool PndMvdTPCRiemannTrackFinderTaskEff::CheckRecoTrack(PndTrackCand *cand,PndMC
 				 pointI = (PndMvdHit*)fHitArray2->At(hitIDi);
 			else pointI = 0;
 
-				for(int j=0;j<cand->GetNHits();j++){
+				for(unsigned int j=0;j<cand->GetNHits();j++){
 					detIDj=cand->GetSortedHit(j).GetDetId();
 					hitIDj=cand->GetSortedHit(j).GetHitId();
 					PndMvdHit *pointJ;
@@ -238,15 +238,15 @@ void PndMvdTPCRiemannTrackFinderTaskEff::ComparingFandR(std::vector<PndTrackCand
 	  unsigned int detidRC, hitidRC;
 	  unsigned int detidF, hitidF;
 		for(int trackF=0;trackF<fTrackCandArray->GetEntriesFast();trackF++){
-			for(int trackRC=0;trackRC<RecoT.size();trackRC++){
+			for(unsigned int trackRC=0;trackRC<RecoT.size();trackRC++){
 				int cSame=0;
 			  /*for(int iF=0;iF<((PndTrackCand*)fTrackCandArray->At(trackF))->GetNHits();iF++){
 				  detidF=((PndTrackCand*)fTrackCandArray->At(trackF))->GetSortedHit(iF).GetDetId();
 				  hitidF=((PndTrackCand*)fTrackCandArray->At(trackF))->GetSortedHit(iF).GetHitId();*/
-				for(int iF=0;iF<((GFTrackCand*)fTrackCandArray->At(trackF))->getNHits();iF++){
+				for(unsigned int iF=0;iF<((GFTrackCand*)fTrackCandArray->At(trackF))->getNHits();iF++){
 					((GFTrackCand*)fTrackCandArray->At(trackF))->getHit(iF,detidF, hitidF);
 
-					for(int iRC=0;iRC<RecoT[trackRC]->GetNHits();iRC++){
+					for(unsigned int iRC=0;iRC<RecoT[trackRC]->GetNHits();iRC++){
 						detidRC=RecoT[trackRC]->GetSortedHit(iRC).GetDetId();
 						hitidRC=RecoT[trackRC]->GetSortedHit(iRC).GetHitId();
 						if (detidRC==detidF && hitidRC==hitidF){
@@ -257,8 +257,8 @@ void PndMvdTPCRiemannTrackFinderTaskEff::ComparingFandR(std::vector<PndTrackCand
 
 			      PndMCTrack* myTrack = (PndMCTrack*)fMCTracksArray->At(RecoT[trackRC]->getMcTrackId());
 
-//				  if (  (cSame>=4) && ((((PndTrackCand*)fTrackCandArray->At(trackF))->GetNHits())==cSame+NumOfTpcHits(trackF)) ){
-					  if (  (cSame>=4) && ((((GFTrackCand*)fTrackCandArray->At(trackF))->getNHits())==cSame+NumOfTpcHits(trackF)) ){
+//				  if (  (cSame>=4) && ((int)(((PndTrackCand*)fTrackCandArray->At(trackF))->GetNHits())==cSame+NumOfTpcHits(trackF)) ){
+					  if (  (cSame>=4) && ((int)(((GFTrackCand*)fTrackCandArray->At(trackF))->getNHits())==cSame+NumOfTpcHits(trackF)) ){
 					  std::cout<<"TRUE FOUND"<<std::endl;
 					     TVector3 Pvec=myTrack->GetMomentum();
 						 double Theta=180.0*Pvec.Theta()/TMath::Pi();
@@ -289,7 +289,7 @@ int PndMvdTPCRiemannTrackFinderTaskEff::NumOfTpcHits(int NumOfTrack)
 		hitid=((PndTrackCand*)fTrackCandArray->At(NumOfTrack))->GetSortedHit(i).GetHitId();
 		if (detid==kTpcCluster) count++;
 	}*/
-	for(int i=0;i<((GFTrackCand*)fTrackCandArray->At(NumOfTrack))->getNHits();i++){
+	for(unsigned int i=0;i<((GFTrackCand*)fTrackCandArray->At(NumOfTrack))->getNHits();i++){
 		((GFTrackCand*)fTrackCandArray->At(NumOfTrack))->getHit(i,detid, hitid);
 			if (detid==kTpcCluster) count++;
 		}
@@ -312,7 +312,7 @@ void  PndMvdTPCRiemannTrackFinderTaskEff::FillTPCHits(int NF, int NR,std::vector
 		  unsigned int detidF, hitidF;
 
 		  int cSame=0;
-		  for(int iF=0;iF<CandTPC.getNHits();iF++){
+		  for(unsigned int iF=0;iF<CandTPC.getNHits();iF++){
 			  CandTPC.getHit(iF,detidF,hitidF);
 /*				for(int iRC=0;iRC<((PndTrackCand*)fTrackCandArray->At(NF))->GetNHits();iRC++){
 					detidRC=((PndTrackCand*)fTrackCandArray->At(NF))->GetSortedHit(iRC).GetDetId();
@@ -321,7 +321,7 @@ void  PndMvdTPCRiemannTrackFinderTaskEff::FillTPCHits(int NF, int NR,std::vector
 						cSame++;
 					}
 				}*/
-				for(int iRC=0;iRC<((GFTrackCand*)fTrackCandArray->At(NF))->getNHits();iRC++){
+				for(unsigned int iRC=0;iRC<((GFTrackCand*)fTrackCandArray->At(NF))->getNHits();iRC++){
 					((GFTrackCand*)fTrackCandArray->At(NF))->getHit(iRC,detidRC, hitidRC);
 					if (detidRC==detidF && hitidRC==hitidF){
 						cSame++;
@@ -347,8 +347,8 @@ void PndMvdTPCRiemannTrackFinderTaskEff::AddGhostTrack(int trackF)
 {
 	PndRiemannTrack track;
 	unsigned int detID, hitID;
-	bool sign;
-	for(Int_t i=0;i<((GFTrackCand*)fTrackCandArray->At(trackF))->getNHits();i++){
+	bool sign=true;
+	for(UInt_t i=0;i<((GFTrackCand*)fTrackCandArray->At(trackF))->getNHits();i++){
 //			detID=((PndTrackCand*)fTrackCandArray->At(trackF))->GetSortedHit(i).GetDetId();
 //			hitID=((PndTrackCand*)fTrackCandArray->At(trackF))->GetSortedHit(i).GetHitId();
 			((GFTrackCand*)fTrackCandArray->At(trackF))->getHit(i,detID, hitID);

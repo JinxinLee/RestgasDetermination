@@ -22,8 +22,10 @@
 #include "TRandom.h"
 //#include "PndMvdGeoPar.h"
 #include "PndGeoHandling.h"
-#include "PndMvdStripDigiPar.h"
-#include "PndMvdPixelDigiPar.h"
+#include "PndSdsStripDigiPar.h"
+#include "PndSdsPixelDigiPar.h"
+#include "PndSdsTotDigiPar.h"
+#include "PndSdsChargeConversion.h"
 #include "TString.h"
 
 class TClonesArray;
@@ -51,11 +53,13 @@ class PndMvdNoiseProducer : public FairTask
   Double_t CalcDistFraction(Double_t spread, Double_t threshold);
 //   Int_t CalcChanWhite(Int_t chanleft, Double_t frac);
   Int_t CalcChargeAboveThreshold(Double_t spread, Double_t threshold);
-  void AddDigiStrip(Int_t &iStrip, Int_t iPoint, TString detname, Int_t fe, Int_t chan, Double_t charge);
-  void AddDigiPixel(Int_t &noisies, Int_t iPoint, TString detname, Int_t fe, Int_t col, Int_t row, Double_t charge);
+  void AddDigiStrip(Int_t &iStrip, Int_t iPoint, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge);
+  void AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t sensorID, Int_t fe, Int_t col, Int_t row, Double_t charge);
 
   void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
   Bool_t GetPersistance() {return fPersistance;};
+
+  void FillSensorLists();
 
   void DiveDownNode(TGeoNode *fN);
 //   void Finish();
@@ -67,21 +71,29 @@ class PndMvdNoiseProducer : public FairTask
   TClonesArray* fDigiPixelArray;
 
   /** Parameter Containers **/
-  PndMvdStripDigiPar* fDigiParRect;
-  PndMvdStripDigiPar* fDigiParTrap;
-  PndMvdPixelDigiPar* fDigiParPix;
+  PndSdsStripDigiPar* fDigiParRect;
+  PndSdsStripDigiPar* fDigiParTrap;
+  PndSdsPixelDigiPar* fDigiParPix;
+
+  PndSdsTotDigiPar* fTotDigiParRect;
+  PndSdsTotDigiPar* fTotDigiParTrap;
+  PndSdsTotDigiPar* fTotDigiParPix;
 
 //  PndMvdGeoPar* fGeoPar;
 
   PndGeoHandling* fGeoH;      //! Geometry name handling
 
-  std::vector<TString> fPixelIds4;
-  std::vector<TString> fPixelIds6;
-  std::vector<TString> fPixelIds8;
-  std::vector<TString> fPixelIds12;
-  std::vector<TString> fStripRectIds;
-  std::vector<TString> fStripTrapIds;
+  std::vector<Int_t> fPixelIds4;
+  std::vector<Int_t> fPixelIds6;
+  std::vector<Int_t> fPixelIds8;
+  std::vector<Int_t> fPixelIds12;
+  std::vector<Int_t> fStripRectIds;
+  std::vector<Int_t> fStripTrapIds;
 
+  PndSdsChargeConversion* fStripRectChargeConv;
+  PndSdsChargeConversion* fStripTrapChargeConv;
+  PndSdsChargeConversion* fCurrentChargeConv;
+  PndSdsChargeConversion* fPixChargeConv;
 
   Int_t fNoiseSpread;
   Int_t fThreshold;

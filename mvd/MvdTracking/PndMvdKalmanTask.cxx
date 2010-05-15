@@ -244,7 +244,7 @@ PndMvdKalmanTask::Exec(Option_t* opt)
   std::cout<<"Starting Analysis"<<std::endl;
 
   // --- "standard" analysis plots
-   for(Int_t i=0;i<particles.size();++i){
+   for(UInt_t i=0;i<particles.size();++i){
      fMasses->Fill((particles[i])->M());
    }
 

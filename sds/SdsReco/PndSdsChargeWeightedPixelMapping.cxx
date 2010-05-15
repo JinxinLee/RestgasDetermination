@@ -4,31 +4,39 @@
 #include "TClonesArray.h"
 #include "TMath.h"
 
-PndSdsHit PndSdsChargeWeightedPixelMapping::GetCluster()
+PndSdsChargeWeightedPixelMapping::PndSdsChargeWeightedPixelMapping()
+:PndSdsPixelBackMapping(){
+}
+PndSdsChargeWeightedPixelMapping::PndSdsChargeWeightedPixelMapping(PndGeoHandling* geo)
+:PndSdsPixelBackMapping(geo){
+}
+
+PndSdsHit PndSdsChargeWeightedPixelMapping::GetCluster(std::vector<PndSdsDigiPixel> pixelArray)
 {
+fDigiArray = pixelArray;
 	Double_t col = 0, row = 0, charge = 0;
 	Double_t tempCol = 0, tempRow = 0;
 	Int_t count = 0, mcindex=-1;
 	//Double_t local[3], master[3];
 
 	if (fDigiArray.size() == 1){
-		if (fDigiArray[0].GetCharge() > 0){
-			col = fDigiArray[0].GetPixelColumn() + ((Int_t)(fDigiArray[0].GetFE()%10)) * fParams[0];
+		if (fChargeConverter->DigiValueToCharge(fDigiArray[0]) > 0){
+			col = fDigiArray[0].GetPixelColumn() + ((Int_t)(fDigiArray[0].GetFE()%10)) * fcols;
 			if (col < 0){
 				col -= 0.5;
-				col += fParams[1] / 2;
+				col += frows / 2;
 			}
 			else col += 0.5;
-			row = fDigiArray[0].GetPixelRow()+ (fDigiArray[0].GetFE()/10) * fParams[1];
+			row = fDigiArray[0].GetPixelRow()+ (fDigiArray[0].GetFE()/10) * frows;
 			if (row < 0){
 				row -= 0.5;
-				row += fParams[2] /2;
+				row += flx /2;
 			}
 			else row += 0.5;
 			if (fVerbose > 1)
 				std::cout << "GetCluster:col/row " << col << " " << row << std::endl;
 			count = 1;
-			charge = fDigiArray[0].GetCharge();
+			charge = fChargeConverter->DigiValueToCharge(fDigiArray[0]);
       for(Int_t mcI = 0; mcI<fDigiArray[0].GetNIndices();mcI++){ 
         if (fDigiArray[0].GetIndex(mcI) > -1) {
           mcindex = fDigiArray[0].GetIndex(mcI);
@@ -41,12 +49,12 @@ PndSdsHit PndSdsChargeWeightedPixelMapping::GetCluster()
 		//cout << "Multiple Hits!" << std::endl;
 		for (UInt_t i = 0; i < fDigiArray.size(); i++){
 			//cout << "ActCol / Row" << col << " " << row << " added Col/Row " << fDigiArray[i].GetPixelColumn() << " " << fDigiArray[i].GetPixelRow() << endl;
-			if (fDigiArray[i].GetCharge() > 0){
-				tempCol = fDigiArray[i].GetPixelColumn() + (Int_t)(fDigiArray[0].GetFE()%10) * fParams[0];
-				tempRow = fDigiArray[i].GetPixelRow() + fDigiArray[0].GetFE()/10 * fParams[1];
-				col += (tempCol*fDigiArray[i].GetCharge());
-				row += (tempRow*fDigiArray[i].GetCharge());
-				charge += fDigiArray[i].GetCharge();
+			if (fChargeConverter->DigiValueToCharge(fDigiArray[i]) > 0){
+				tempCol = fDigiArray[i].GetPixelColumn() + (Int_t)(fDigiArray[0].GetFE()%10) * fcols;
+				tempRow = fDigiArray[i].GetPixelRow() + fDigiArray[0].GetFE()/10 * frows;
+				col += (tempCol*fChargeConverter->DigiValueToCharge(fDigiArray[i]));
+				row += (tempRow*fChargeConverter->DigiValueToCharge(fDigiArray[i]));
+				charge += fChargeConverter->DigiValueToCharge(fDigiArray[i]);
 				count++;
         if(mcindex < 0){
           for(Int_t mcI = 0; mcI<fDigiArray[i].GetNIndices();mcI++){ 
@@ -73,33 +81,28 @@ PndSdsHit PndSdsChargeWeightedPixelMapping::GetCluster()
 		std::cout << "Col: " << col << " Row: " << row << std::endl;
 	}
 
+  TVector3 offset = GetSensorDimensions(fDigiArray[0].GetSensorID());
+  TVector3 locpos( col*flx - offset.X(), row*fly - offset.Y(), 0);
+  TVector3 pos = fGeoH->LocalToMasterShortId(locpos,fDigiArray[0].GetSensorID());
 
-  TVector3 offset = GetSensorDimensions(fDigiArray[0].GetDetName().Data());
-  TVector3 locpos( col*fParams[2] - offset.X(), row*fParams[3] - offset.Y(), 0);
-  TVector3 pos = fGeoH->LocalToMasterId(locpos,fDigiArray[0].GetDetName().Data());
-
-  Double_t errZ = 2.*fGeoH->GetSensorDimensionsId(fDigiArray[0].GetDetName()).Z()/TMath::Sqrt(12.0);
-  TVector3 locdpos(fParams[2]/TMath::Sqrt(12.0),fParams[3]/TMath::Sqrt(12.0),errZ);
-  TVector3 dpos = fGeoH->LocalToMasterErrorsId(locdpos,fDigiArray[0].GetDetName().Data());
-
-
-
-
-	return (PndSdsHit(fDigiArray[0].GetDetID(),fDigiArray[0].GetDetName().Data(), pos, dpos, -1, charge, fDigiArray.size(),mcindex) );
+  Double_t errZ = 2.*fGeoH->GetSensorDimensionsShortId(fDigiArray[0].GetSensorID()).Z()/TMath::Sqrt(12.0);
+  TVector3 locdpos(flx/TMath::Sqrt(12.0),fly/TMath::Sqrt(12.0),errZ);
+  TVector3 dpos = fGeoH->LocalToMasterErrorsShortId(locdpos,fDigiArray[0].GetSensorID());
+  return (PndSdsHit(fDigiArray[0].GetDetID(),fDigiArray[0].GetSensorID(), pos, dpos, -1, charge, fDigiArray.size(),mcindex) );
 }
 
-TGeoHMatrix PndSdsChargeWeightedPixelMapping::GetTransformation(std::string detName)
+TGeoHMatrix PndSdsChargeWeightedPixelMapping::GetTransformation(Int_t sensorID)
 {
-  gGeoManager->cd(fGeoH->GetPath(detName.c_str()));
+  gGeoManager->cd(fGeoH->GetPath(sensorID));
   TGeoHMatrix* transMat = gGeoManager->GetCurrentMatrix();
   if (fVerbose > 2)
   	transMat->Print("");
   return *transMat;
 }
 
-TVector3 PndSdsChargeWeightedPixelMapping::GetSensorDimensions(std::string detName)
+TVector3 PndSdsChargeWeightedPixelMapping::GetSensorDimensions(Int_t sensorID)
 {
-	gGeoManager->cd(fGeoH->GetPath(detName.c_str()));
+	gGeoManager->cd(fGeoH->GetPath(sensorID));
 	TGeoVolume* actVolume = gGeoManager->GetCurrentVolume();
 	TGeoBBox* actBox = (TGeoBBox*)(actVolume->GetShape());
 	TVector3 result;

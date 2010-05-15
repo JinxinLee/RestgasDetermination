@@ -10,10 +10,13 @@
 #ifndef PNDSDSDIGISTRIP_H
 #define PNDSDSDIGISTRIP_H
 
+
+#include "PndSdsDigi.h"
+#include "PndDetectorList.h"
+
 #include "TObject.h"
 #include "TString.h"
 #include <iostream>
-#include "PndSdsDigi.h"
 
 //! Class for digitised strip hits
 /**
@@ -28,16 +31,16 @@ class PndSdsDigiStrip : public PndSdsDigi
   public :
     PndSdsDigiStrip();
 
-    PndSdsDigiStrip(std::vector<Int_t> index, Int_t detID, TString detName, Int_t fe, Int_t chan, Double_t charge, Int_t timestamp = -1); 
-    PndSdsDigiStrip(Int_t index, Int_t detID, TString detName, Int_t fe, Int_t chan, Double_t charge, Int_t timestamp = -1);     ~PndSdsDigiStrip(){};
+    PndSdsDigiStrip(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge, fDetectorType mcPointType, Int_t timestamp = -1);
+    PndSdsDigiStrip(Int_t index, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge, fDetectorType mcPointType, Int_t timestamp = -1);     ~PndSdsDigiStrip(){};
     
     friend std::ostream& operator<< (std::ostream& out, PndSdsDigiStrip& digi){
-           out << "PndSds DigiStrip in: " << digi.GetDetName() << " FE: "
+           out << "PndSds DigiStrip in: " << digi.GetSensorID() << " FE: "
            << digi.GetFE() << " Channel " << digi.GetChannel()
            << " charge " << digi.GetCharge() << " e"
            << ", from Point(s) ";
            std::vector<Int_t>indices = digi.GetIndices();
-           for (int i = 0; i < indices.size(); i++){
+           for (unsigned int i = 0; i < indices.size(); i++){
            	std::cout << indices[i] << "  ";
            }
            std::cout << std::endl;
@@ -81,7 +84,7 @@ class PndSdsDigiStrip : public PndSdsDigi
 //    Double_t fCharge;   /// Charge of Hit
 //    Int_t fMCID;   /// MC Track index
 
-    ClassDef(PndSdsDigiStrip,4);
+    ClassDef(PndSdsDigiStrip,5);
 };
 
 #endif

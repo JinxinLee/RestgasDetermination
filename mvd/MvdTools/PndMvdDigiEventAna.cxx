@@ -93,7 +93,7 @@ void PndMvdDigiEventAna::CreateMaxHitsHisto()
   hRest->GetXaxis()->SetTitle("Module ID");
   hRest->GetYaxis()->SetTitle("Hits per second");
   hRest->SetStats(kFALSE);
-	for (Int_t i = 0; i < fHistoVector.size(); i++){
+	for (UInt_t i = 0; i < fHistoVector.size(); i++){
 		TString hName= fHistoVector[i]->GetTitle();
 		//std::cout << hName << " " << fGeoH->GetPath(hName.Data()) << std::endl;
 		Int_t weight = 10000000 / fAnaEvents;
@@ -138,7 +138,7 @@ void PndMvdDigiEventAna::DrawSingleModuleFEHisto(TString path)
 {
 	TH1I* feHisto = new TH1I("feHisto",path.Data(),500,0,10000);
 	vector<Int_t>* fe = fFeHits[path.Data()];
-	for (Int_t i = 0; i < fe->size(); i++){
+	for (UInt_t i = 0; i < fe->size(); i++){
 		feHisto->Fill(fe->at(i));
 	}
 	feHisto->Draw("");
@@ -149,7 +149,7 @@ void PndMvdDigiEventAna::DrawAllModulesFEHisto()
 	TH1I* feHisto = new TH1I("feHisto","Hits in FE", 500, 0,10000);
 	std::map<TString, std::vector<Int_t>* >::const_iterator ki;
 	for (ki = fFeHits.begin(); ki != fFeHits.end(); ++ki){
-		for (Int_t i = 0; i< ki->second->size(); i++)
+		for (UInt_t i = 0; i< ki->second->size(); i++)
 			feHisto->Fill(ki->second->at(i));
 	}
 	feHisto->Draw("");

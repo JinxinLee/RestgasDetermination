@@ -4,12 +4,12 @@
 // --------------------------------------------------------
 
 /** PndSdsDigi.h
-*@author T.Stockmanns <t.stockmanns@fz-juelich.de>
-**
-** \brief Base class for Digi information
-**
-**
-**/
+ *@author T.Stockmanns <t.stockmanns@fz-juelich.de>
+ **
+ ** \brief Base class for Digi information
+ **
+ **
+ **/
 
 #ifndef PNDSDSDIGI_H
 #define PNDSDSDIGI_H
@@ -24,60 +24,70 @@
 
 
 class PndSdsDigi : public FairMultiLinkedData
-{
+  {
     friend std::ostream& operator<< (std::ostream& out, PndSdsDigi& digi){
-        out << "PndSds Digi in: " << digi.GetDetName() << " FE: "
-        << digi.GetFE() << " "
-        << " charge " << digi.GetCharge() << " e"
-        << ", from Point(s) ";
-        std::vector<Int_t> indices = digi.GetIndices();
-        for (int i = 0; i < indices.size(); i++){
-        	std::cout << digi.GetIndex(i) << " " << std::endl;
-        }
-        return out;
+      out << "PndSds Digi in: " << digi.GetSensorID() << " FE: "
+      << digi.GetFE() << " "
+      << " charge " << digi.GetCharge() << " e"
+      << ", from Point(s) ";
+      std::vector<Int_t> indices = digi.GetIndices();
+      for (unsigned int i = 0; i < indices.size(); i++){
+        std::cout << digi.GetIndex(i) << " " << std::endl;
       }
-
-	public : PndSdsDigi();
-                 PndSdsDigi(std::vector<Int_t> index, Int_t detID, TString detName, Int_t fe, Double_t charge); 
-		 PndSdsDigi(Int_t index, Int_t detID, TString detName, Int_t fe, Double_t charge);
+      return out;
+    }
+    
+    public : PndSdsDigi();
+    PndSdsDigi(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Double_t charge, fDetectorType type);
+    PndSdsDigi(Int_t index, Int_t detID, Int_t fSensorID, Int_t fe, Double_t charge, fDetectorType type);
 		/**<constructor
-		* \param index position of PndSdsMCPoint in TClonesArray
-		* \param detID detector ID (from/for CbmPoint/Hit)
-		* \param detName geoH->GetID(gGeoManager->GetPath()) information
-		* \param fe front end ID
-		* \param charge deposited charge in electrons
-		*/
+     * \param index position of PndSdsMCPoint in TClonesArray
+     * \param detID detector ID (from/for CbmPoint/Hit)
+     * \param detName geoH->GetID(gGeoManager->GetPath()) information
+     * \param fe front end ID
+     * \param charge deposited charge in electrons
+     */
 		virtual ~PndSdsDigi(){};
-
+    
 		Int_t GetFE() const { return fFE;}
-		TString GetDetName()   const { return fDetName; }
+		//TString GetDetName()   const { return fDetName; }
+		Int_t GetSensorID() const { return fSensorID; }
 		Double_t GetCharge()	 const { return fCharge; }
 		Int_t GetDetID() const { return fDetID;}
 		std::vector<Int_t> GetIndices() const { return fIndex;}
 		int GetNIndices() {return fIndex.size();}
 		Int_t GetIndex(int i = 0) const{ return fIndex[i];}
 		Int_t GetNIndices() const { return fIndex.size();}
-		void AddIndex(int index){ 				//todo: has to be pure virtual to use AddLink
+    
+		virtual void SetMCPointType(fDetectorType type){fMCPointType = type;}
+    
+		virtual void AddIndex(int index)
+		{
 			fIndex.push_back(index);
-			//AddLink(FairLink(kMVDPoint, index));
+			AddLink(FairLink(fMCPointType, index));
 		}
-		void AddIndex(std::vector<Int_t> index){ //todo: has to be pure virtual to use SetLinks
+    
+		virtual void AddIndex(std::vector<Int_t> index)
+		{
 			fIndex = index;
-			//SetLinks(FairMultiLinkedData(kMVDPoint, index));
+			SetLinks(FairMultiLinkedData(fMCPointType, index));
 		}
-		void AddCharge(double charge){fCharge += charge;}
+		void SetCharge(double charge){fCharge = charge;}
+    void AddCharge(double charge){fCharge += charge;}
 
 		virtual void Print() {
 			std::cout << *this;
 		}
-	protected :
+    protected :
 		std::vector<Int_t> fIndex;
 		Int_t fDetID;
-		TString fDetName;
-		Double_t fCharge;
+		//TString fDetName;
+		Int_t fSensorID;
 		Int_t fFE;
-
-	ClassDef(PndSdsDigi,1);
-};
+		Double_t fCharge;
+		fDetectorType fMCPointType;
+    
+    ClassDef(PndSdsDigi,2);
+  };
 
 #endif

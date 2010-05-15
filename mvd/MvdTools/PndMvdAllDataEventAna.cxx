@@ -1,6 +1,6 @@
 #include "PndMvdAllDataEventAna.h"
-#include "PndMvdMCPoint.h"
-#include "PndMvdPixel.h"
+#include "PndSdsMCPoint.h"
+#include "PndSdsPixel.h"
 #include "GFTrackCand.h"
 #include "TVector3.h"
 #include "TGeoManager.h"
@@ -86,7 +86,7 @@ PndMvdAllDataEventAna::PndMvdAllDataEventAna(TString fileName):PndMvdEventAna(fi
   fGeoList->AddNewGroup("PixHits4Green", new PndGeoHitList("PixHits4Green","MVDoOption1",pixVolG2));
   fGeoList->AddNewGroup("PixHits5Green", new PndGeoHitList("PixHits5Green","MVDoOption1",pixVolG3));
 
-  fPixelCon = new PndMvdCalcFePixel(76,84,10);
+  fPixelCon = new PndSdsCalcFePixel(76,84,10);
 }
 
 void PndMvdAllDataEventAna::Init(TString fileName)
@@ -99,10 +99,10 @@ void PndMvdAllDataEventAna::Init(TString fileName)
   fTree->AddFriend("reco=cbmsim",nameCreator.GetRecoFileName().c_str());
   fTree->AddFriend("trackF=cbmsim",nameCreator.GetTrackFindingFileName().c_str());
 
-  fHitArray=new TClonesArray("PndMvdMCPoint");
-  fDigiArray = new TClonesArray("PndMvdDigiPixel");
-  fClusterArray = new TClonesArray("PndMvdCluster");
-  fRecoArray = new TClonesArray("PndMvdHit");
+  fHitArray=new TClonesArray("PndSdsMCPoint");
+  fDigiArray = new TClonesArray("PndSdsDigiPixel");
+  fClusterArray = new TClonesArray("PndSdsCluster");
+  fRecoArray = new TClonesArray("PndSdsHit");
   fGeoTrackArray = new TClonesArray("TGeoTrack");
   fTrackFArray = new TClonesArray("GFTrackCand");
 
@@ -181,14 +181,14 @@ void PndMvdAllDataEventAna::PrintHitArray()
 {
   for (Int_t i = 0; i < fHitArray->GetEntries(); i++){
     std::cout << i << ": ";
-    PndMvdMCPoint* myPoint = (PndMvdMCPoint*)fHitArray->At(i);
+    PndSdsMCPoint* myPoint = (PndSdsMCPoint*)fHitArray->At(i);
     std::cout << *myPoint;
   }
 }
 void PndMvdAllDataEventAna::PrintDigiArray()
 {
   for (Int_t i = 0; i < fDigiArray->GetEntries(); i++){
-    PndMvdDigiPixel* myDigi = (PndMvdDigiPixel*)fDigiArray->At(i);
+    PndSdsDigiPixel* myDigi = (PndSdsDigiPixel*)fDigiArray->At(i);
     std::cout << i << ": ";
     //myDigi->Print();
     std::cout << *myDigi;
@@ -198,11 +198,11 @@ void PndMvdAllDataEventAna::PrintClusterArray()
 {
   for (Int_t i = 0; i < fClusterArray->GetEntries(); i++){
     std::cout << "Cluster " << i << ": " << std::endl;
-    PndMvdCluster* myCluster = (PndMvdCluster*)fClusterArray->At(i);
+    PndSdsCluster* myCluster = (PndSdsCluster*)fClusterArray->At(i);
     //myCluster->Print();
     std::vector<Int_t> myClusterList = myCluster->GetClusterList();
-    for (Int_t j = 0; j < myClusterList.size(); j++){
-      PndMvdDigiPixel* myDigi = (PndMvdDigiPixel*)fDigiArray->At(myClusterList[j]);
+    for (UInt_t j = 0; j < myClusterList.size(); j++){
+      PndSdsDigiPixel* myDigi = (PndSdsDigiPixel*)fDigiArray->At(myClusterList[j]);
       std::cout << myClusterList[j] << ": ";
       std::cout << *myDigi;
     }
@@ -213,7 +213,7 @@ void PndMvdAllDataEventAna::PrintRecoArray()
 {
   for (Int_t i = 0; i < fRecoArray->GetEntries(); i++){
     std::cout << i << ": ";
-    PndMvdHit* myHit = (PndMvdHit*)fRecoArray->At(i);
+    PndSdsHit* myHit = (PndSdsHit*)fRecoArray->At(i);
     std::cout << *myHit;
   }
 }
@@ -247,7 +247,7 @@ TVector3 PndMvdAllDataEventAna::GetLocalHitPoints(TString detName, TVector3 inpu
 void PndMvdAllDataEventAna::FillHitHistos()
 {
   for (Int_t i = 0; i < fHitArray->GetEntries(); i++){
-    PndMvdMCPoint *myPoint = (PndMvdMCPoint*)fHitArray->At(i);
+    PndSdsMCPoint *myPoint = (PndSdsMCPoint*)fHitArray->At(i);
     TString detName = myPoint->GetDetName();
   //if (hit->GetDetName().Contains("119_2")){
     if (fHistos[detName] == 0){
@@ -277,35 +277,35 @@ void PndMvdAllDataEventAna::FillHitHistos()
 void PndMvdAllDataEventAna::FillDigiHistos()
 {
   for (Int_t i = 0; i < fDigiArray->GetEntries(); i++){
-    PndMvdDigiPixel *hit = (PndMvdDigiPixel*)fDigiArray->At(i);
+    PndSdsDigiPixel *hit = (PndSdsDigiPixel*)fDigiArray->At(i);
   //if (hit->GetDetName().Contains("119_2")){
     if (fDigiHistos[hit->GetDetName()] == 0){
       fDigiHistos[hit->GetDetName()] = new TH2I("digiHisto",hit->GetDetName().Data(), 1000,0,1000,201,0,200);
       //fDrawOption[hit->GetDetName()] = "colz";
     }
     TH2* tempHisto = (TH2*)(fDigiHistos[hit->GetDetName()]);
-    PndMvdPixel myFePixel(hit->GetDetName().Data(), hit->GetFE(), hit->GetPixelColumn(), hit->GetPixelRow(), hit->GetCharge());
-    PndMvdPixel mySensorPixel = fPixelCon->CalcSensorHit(myFePixel);
+    PndSdsPixel myFePixel(hit->GetSensorID(), hit->GetFE(), hit->GetPixelColumn(), hit->GetPixelRow(), hit->GetCharge());
+    PndSdsPixel mySensorPixel = fPixelCon->CalcSensorHit(myFePixel);
     tempHisto->Fill(mySensorPixel.GetCol(), mySensorPixel.GetRow(),mySensorPixel.GetCharge());//, (Double_t)(hit->GetCharge()));
   }
 }
 void PndMvdAllDataEventAna::FillClusterHistos()
 {
   for (Int_t i = 0; i < fClusterArray->GetEntries(); i++){
-    PndMvdCluster *cluster = (PndMvdCluster*)fClusterArray->At(i);
+    PndSdsCluster *cluster = (PndSdsCluster*)fClusterArray->At(i);
   //if (hit->GetDetName().Contains("119_2")){
     std::vector<Int_t> clusterList = cluster->GetClusterList();
-    PndMvdDigiPixel* hit = (PndMvdDigiPixel*)fDigiArray->At(clusterList[0]);
-    TString detName = hit->GetDetName();
-    if (fClusterHistos[detName] == 0){
-      fClusterHistos[detName] = new TH2I("clusterHisto",detName.Data(), 1000,0,1000,201,0,200);
+    PndSdsDigiPixel* hit = (PndSdsDigiPixel*)fDigiArray->At(clusterList[0]);
+    Int_t sensorID = hit->GetSensorID();
+    if (fClusterHistos[sensorID] == 0){
+      fClusterHistos[sensorID] = new TH2I("clusterHisto",detName.Data(), 1000,0,1000,201,0,200);
       //fDrawOption[hit->GetDetName()] = "colz";
     }
     TH2* tempHisto = (TH2*)(fClusterHistos[detName]);
     for (Int_t j = 0; j < clusterList.size(); j++){
-      hit = (PndMvdDigiPixel*)fDigiArray->At(clusterList[j]);
-      PndMvdPixel myFePixel(detName.Data(), hit->GetFE(), hit->GetPixelColumn(), hit->GetPixelRow(), hit->GetCharge());
-      PndMvdPixel mySensorPixel = fPixelCon->CalcSensorHit(myFePixel);
+      hit = (PndSdsDigiPixel*)fDigiArray->At(clusterList[j]);
+      PndSdsPixel myFePixel(sensorID, hit->GetFE(), hit->GetPixelColumn(), hit->GetPixelRow(), hit->GetCharge());
+      PndSdsPixel mySensorPixel = fPixelCon->CalcSensorHit(myFePixel);
       tempHisto->Fill(mySensorPixel.GetCol(), mySensorPixel.GetRow());
     }
   }
@@ -314,7 +314,7 @@ void PndMvdAllDataEventAna::FillClusterHistos()
 void PndMvdAllDataEventAna::FillRecoHistos()
 {
   for (Int_t i = 0; i < fRecoArray->GetEntries(); i++){
-    PndMvdHit *myHit = (PndMvdHit*)fRecoArray->At(i);
+    PndSdsHit *myHit = (PndSdsHit*)fRecoArray->At(i);
     TString detName = myHit->GetDetName();
   //if (hit->GetDetName().Contains("119_2")){
     if (fRecoHistos[detName] == 0){
@@ -339,9 +339,9 @@ void PndMvdAllDataEventAna::FillRecoHistos()
 void PndMvdAllDataEventAna::FillHitPerClusterHistos()
 {
   for (Int_t i = 0; i < fClusterArray->GetEntries(); i++){
-    PndMvdCluster* cand = (PndMvdCluster*)fClusterArray->At(i);
+    PndSdsCluster* cand = (PndSdsCluster*)fClusterArray->At(i);
     std::vector<Int_t> hits = GetHitPerCluster(cand);
-    PndMvdMCPoint* point = (PndMvdMCPoint*)(fHitArray->At(hits[0]));
+    PndSdsMCPoint* point = (PndSdsMCPoint*)(fHitArray->At(hits[0]));
     TString detName = point->GetDetName();
     if (fHitPerClusterHistos[detName] == 0){
       fHitPerClusterHistos[detName] = new TH1I("HitPerCluster",detName.Data(), 21,0,20);
@@ -356,16 +356,16 @@ void PndMvdAllDataEventAna::FillHitPerClusterHistos()
 void PndMvdAllDataEventAna::FillHitResolutionHistos()
 {
   for (Int_t i = 0; i < fRecoArray->GetEntries(); i++){
-    PndMvdHit *myHit = (PndMvdHit*)fRecoArray->At(i);
+    PndSdsHit *myHit = (PndSdsHit*)fRecoArray->At(i);
     TString detName = myHit->GetDetName();
     std::cout << "HitResolution for: " << detName << std::endl;
     TVector3 recoPos = myHit->GetPosition();
     std::cout << "RecoPos: " << recoPos.X() << " " << recoPos.Y() << " " << recoPos.Z() << std::endl;
     std::cout << "MC point RefIndex: " << myHit->GetRefIndex() << std::endl;
     std::cout << "Cluster Index: " << myHit->GetClusterIndex() << std::endl;
-    PndMvdCluster *myCand = (PndMvdCluster*)(fClusterArray->At(myHit->GetClusterIndex()));
+    PndSdsCluster *myCand = (PndSdsCluster*)(fClusterArray->At(myHit->GetClusterIndex()));
     std::vector<Int_t> points = GetHitPerCluster(myCand);
-    for (Int_t k = 0; k < points.size(); i++)
+    for (UInt_t k = 0; k < points.size(); i++)
       std::cout << "ClusterPoints: " << points[k] << std::endl;
     TVector3 hitPos = CalcMeanHitPos(points);
     std::cout << "HitPos: " << hitPos.X() << " " << hitPos.Y() << " " << hitPos.Z() << std::endl;
@@ -383,11 +383,11 @@ void PndMvdAllDataEventAna::FillHitResolutionHistos()
 void PndMvdAllDataEventAna::Fill3DHisto()
 {
   for (Int_t i = 0; i < fRecoArray->GetEntries(); i++){
-    PndMvdHit* myHit = (PndMvdHit*)fRecoArray->At(i);
+    PndSdsHit* myHit = (PndSdsHit*)fRecoArray->At(i);
     f3DRecoHisto->Fill(myHit->GetX(), myHit->GetY(), myHit->GetZ());
   }
   for (Int_t j = 0; j < fHitArray->GetEntries(); j++){
-      PndMvdMCPoint* myPoint = (PndMvdMCPoint*)fHitArray->At(j);
+      PndSdsMCPoint* myPoint = (PndSdsMCPoint*)fHitArray->At(j);
       f3DMCHisto->Fill(myPoint->GetX(), myPoint->GetY(), myPoint->GetZ());
   }
 
@@ -412,9 +412,9 @@ void PndMvdAllDataEventAna::FillHitProjHistos()
 
     fRecoHisxy.push_back(myHistoXY);
     fRecoHisrz.push_back(myHistoRZ);
-    for (Int_t j = 0; j < trackC->getNHits(); j++){
+    for (UInt_t j = 0; j < trackC->getNHits(); j++){
       trackC->getHit(j, detID, hitID);
-      PndMvdHit* myHit = (PndMvdHit*)fRecoArray->At(hitID);
+      PndSdsHit* myHit = (PndSdsHit*)fRecoArray->At(hitID);
       vec.SetXYZ(myHit->GetX(), myHit->GetY(), myHit->GetZ());
       myHistoXY->Fill(vec.x(), vec.y());
       myHistoRZ->Fill(vec.z(), vec.Perp());
@@ -427,8 +427,8 @@ TVector3 PndMvdAllDataEventAna::CalcMeanHitPos(std::vector<Int_t> points)
 {
   TVector3 result;
   Double_t energy = 0;
-  for (Int_t i = 0; i < points.size(); i++){
-    PndMvdMCPoint *myPoint = (PndMvdMCPoint*)fHitArray->At(points[i]);
+  for (UInt_t i = 0; i < points.size(); i++){
+    PndSdsMCPoint *myPoint = (PndSdsMCPoint*)fHitArray->At(points[i]);
     TVector3 posIn = myPoint->GetPosition();
     std::cout << "posIn: " << posIn.X() << " " << posIn.Y() << " " << posIn.Z() << std::endl;
     TVector3 posOut = myPoint->GetPositionOut();
@@ -551,7 +551,7 @@ void PndMvdAllDataEventAna::DrawHitTracks(TCanvas* extCan, Int_t pad)
 
   std::map<Int_t, Int_t> trackUsed;
   for (Int_t i = 0; i < fHitArray->GetEntries(); i++){
-    PndMvdMCPoint* myPoint = (PndMvdMCPoint*)fHitArray->At(i);
+    PndSdsMCPoint* myPoint = (PndSdsMCPoint*)fHitArray->At(i);
     std::cout << "Hit " << i << " TrackID " << myPoint->GetTrackID() << std::endl;
     if (trackUsed[myPoint->GetTrackID()] == 0){
       for (Int_t j = 0; j < fGeoTrackArray->GetEntries(); j++){
@@ -590,7 +590,7 @@ void PndMvdAllDataEventAna::DrawHistoVec(std::vector<TH1*> *vec, TCanvas* extCan
     extCan->cd(pad);
   if (vec->size() > 0)
       (*vec)[0]->Draw();
-    for (Int_t i = 1; i < vec->size(); i++)
+    for (UInt_t i = 1; i < vec->size(); i++)
       (*vec)[i]->Draw("same");
 }
 
@@ -626,16 +626,16 @@ void PndMvdAllDataEventAna::DrawEvent(bool tracks, TCanvas* extCan)
   DrawHistoVec(&fRecoHisrz);
 }
 
-std::vector<Int_t> PndMvdAllDataEventAna::GetHitPerCluster(PndMvdCluster* clusterCand)
+std::vector<Int_t> PndMvdAllDataEventAna::GetHitPerCluster(PndSdsCluster* clusterCand)
 {
   std::vector<Int_t> result;
   std::vector<Int_t> digiPos = clusterCand->GetClusterList();
   bool isInResult = false;
-  for (Int_t i = 0; i < digiPos.size(); i++){
-    PndMvdDigiPixel* digiHit = (PndMvdDigiPixel*)(fDigiArray->At(digiPos[i]));
+  for (UInt_t i = 0; i < digiPos.size(); i++){
+    PndSdsDigiPixel* digiHit = (PndSdsDigiPixel*)(fDigiArray->At(digiPos[i]));
     Int_t mcID = digiHit->GetIndex(0);
     std::cout << " -I- GetHitPerCluster: mcID: " << mcID << std::endl;
-      for (Int_t j = 0; j < result.size() && isInResult == false; j++){
+      for (UInt_t j = 0; j < result.size() && isInResult == false; j++){
         //std::cout << "Result: " << result[j] << std::endl;
         if (mcID == result[j])
           isInResult = true;
@@ -644,7 +644,7 @@ std::vector<Int_t> PndMvdAllDataEventAna::GetHitPerCluster(PndMvdCluster* cluste
       result.push_back(mcID);
     isInResult = false;
   }
-  for (Int_t k = 0; k < result.size(); k++)
+  for (UInt_t k = 0; k < result.size(); k++)
     std::cout << " Result: " << k << ": " << result[k] << std::endl;
   return result;
 }
@@ -654,7 +654,7 @@ void PndMvdAllDataEventAna::Create3DGeoHits()
   fGeoList->SetHits("RecoHits",fRecoArray);
 
   for (Int_t i = 0; i < fHitArray->GetEntriesFast(); i++){
-    PndMvdMCPoint* myPoint = (PndMvdMCPoint*)fHitArray->At(i);
+    PndSdsMCPoint* myPoint = (PndSdsMCPoint*)fHitArray->At(i);
     fGeoList->AddHit("MCHits", myPoint->GetX(), myPoint->GetY(), myPoint->GetZ());
     std::cout << "gGeoManager cd: " << myPoint->GetDetName() << " " << gGeoManager->cd(fGeoH->GetPath(myPoint->GetDetName())) << std::endl;
     TGeoHMatrix* mat = gGeoManager->GetCurrentMatrix();
@@ -707,7 +707,7 @@ void PndMvdAllDataEventAna::ClearAllVectors()
 }
 void PndMvdAllDataEventAna::ClearHistoVector(std::vector<TH1*>* myVectors) const
 {
-  for (Int_t i = 0; i < myVectors->size(); i++)
+  for (UInt_t i = 0; i < myVectors->size(); i++)
   {
     delete ((*myVectors)[i]);
   }

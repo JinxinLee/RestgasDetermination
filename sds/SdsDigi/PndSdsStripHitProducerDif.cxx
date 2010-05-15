@@ -121,6 +121,7 @@ void PndSdsStripHitProducerDif::SetParContainers()
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fDigiParRect = (PndSdsStripDigiPar*)(rtdb->getContainer("SSDStripDigiParRect"));
   fDigiParTrap = (PndSdsStripDigiPar*)(rtdb->getContainer("SSDStripDigiParTrap"));
+  fGeoH = new PndGeoHandling();
 }
 
 InitStatus PndSdsStripHitProducerDif::ReInit()
@@ -137,8 +138,7 @@ InitStatus PndSdsStripHitProducerDif::Init()
   FairRootManager* ioman = FairRootManager::Instance();
 
   SetBranchNames();
-
-  fGeoH = new PndGeoHandling();
+  SetMCPointType();
 
   //std::cout << "-I- PndSdsStripHitProucer::Init() " << fGeoH->GetPath("1_1/212_0/") << std::endl;
 
@@ -182,8 +182,8 @@ InitStatus PndSdsStripHitProducerDif::Init()
   }
 
 
-  if(fVerbose>0) fDigiParRect->Print();
-  if(fVerbose>0) fDigiParTrap->Print();
+  if(fVerbose>2) fDigiParRect->Print();
+  if(fVerbose>2) fDigiParTrap->Print();
 
   fStripCalcTopRect = new PndSdsCalcStripDif(fDigiParRect, kTOP);
   fStripCalcBotRect = new PndSdsCalcStripDif(fDigiParRect, kBOTTOM);
@@ -224,11 +224,11 @@ void PndSdsStripHitProducerDif::Exec(Option_t* opt)
   for (Int_t iPoint = 0; iPoint < nPoints; iPoint++)
   {
       point = (PndSdsMCPoint*) fPointArray->At(iPoint);
-      if( kFALSE == SelectSensorParams(point->GetDetName()) ) continue;
+      if( kFALSE == SelectSensorParams(point->GetSensorID()) ) continue;
 
       if (fVerbose > 2){
         std::cout<<"***** Strip Digi for "<<fCurrentDigiPar->GetSensType()<<" ******"<<std::endl;
-        std::cout<<" DetName : "<<fGeoH->GetPath(point->GetDetName())<<std::endl;
+        std::cout<<" DetName : "<<fGeoH->GetPath(point->GetSensorID())<<std::endl;
       }
       if ( ! point){
         std::cout<< "No Point!" << std::endl;
@@ -240,8 +240,8 @@ void PndSdsStripHitProducerDif::Exec(Option_t* opt)
       }
 
       // transform to local sensor system... (mc point has the ID not the path to the volume)
-      TVector3 posInL = fGeoH->MasterToLocalId(point->GetPosition(),point->GetDetName());
-      TVector3 posOutL = fGeoH->MasterToLocalId(point->GetPositionOut(),point->GetDetName());
+      TVector3 posInL = fGeoH->MasterToLocalId(point->GetPosition(),point->GetSensorID());
+      TVector3 posOutL = fGeoH->MasterToLocalId(point->GetPositionOut(),point->GetSensorID());
 
       if (fVerbose > 2){
         posInL.Print();posOutL.Print();
@@ -263,7 +263,7 @@ void PndSdsStripHitProducerDif::Exec(Option_t* opt)
         for(std::vector<PndSdsStrip>::const_iterator kit=topStrips.begin();
             kit!= topStrips.end(); ++kit)
         {
-            AddDigi(iStrip,iPoint,kMVDHitsStrip,point->GetDetName(),
+            AddDigi(iStrip,iPoint,kMVDHitsStrip,point->GetSensorID(),
             		fCurrentStripCalcTop->CalcFEfromStrip(kit->GetIndex()),
             		fCurrentStripCalcTop->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
             if (fVerbose > 1) std::cout << *kit << std::endl;
@@ -283,7 +283,7 @@ void PndSdsStripHitProducerDif::Exec(Option_t* opt)
             kit!= botStrips.end();
             ++kit)
         {
-            AddDigi(iStrip,iPoint,kMVDHitsStrip,point->GetDetName(),
+            AddDigi(iStrip,iPoint,kMVDHitsStrip,point->GetSensorID(),
                     fCurrentStripCalcBot->CalcFEfromStrip(kit->GetIndex()) + fCurrentDigiPar->GetNrTopFE(),
                     fCurrentStripCalcBot->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
             if (fVerbose > 2) std::cout << *kit << std::endl;
@@ -298,7 +298,7 @@ void PndSdsStripHitProducerDif::Exec(Option_t* opt)
 }
 // -------------------------------------------------------------------------
 
-void PndSdsStripHitProducerDif::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, TString detname, Int_t fe, Int_t chan, Double_t charge)
+void PndSdsStripHitProducerDif::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge)
 {
   Bool_t found = kFALSE;
   PndSdsDigiStrip* aDigi = 0;
@@ -306,7 +306,7 @@ void PndSdsStripHitProducerDif::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID
   {
 	aDigi = (PndSdsDigiStrip*)fStripArray->At(kstr);
 	if ( aDigi->GetDetID() == detID &&
-		 aDigi->GetDetName() == detname &&
+		 aDigi->GetSensorID() == sensorID &&
 		 aDigi->GetFE() == fe &&
 		 aDigi->GetChannel() == chan )
 	{
@@ -319,7 +319,7 @@ void PndSdsStripHitProducerDif::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID
 	}
   }
   if(found == kFALSE){//TODO: Simulate a timestamp
-    new ((*fStripArray)[iStrip]) PndSdsDigiStrip(iPoint,detID,detname,fe,chan,0,charge) ;
+    new ((*fStripArray)[iStrip]) PndSdsDigiStrip(iPoint,detID,sensorID,fe,chan,0,fMCPointType, charge) ;
     iStrip++;
   }
 }
@@ -412,10 +412,10 @@ void PndSdsStripHitProducerDif::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID
 // -------------------------------------------------------------------------
 
 
-Bool_t PndSdsStripHitProducerDif::SelectSensorParams(TString detname)
+Bool_t PndSdsStripHitProducerDif::SelectSensorParams(Int_t sensorID)
 {
       /// TODO change this to a switch on DetID==2 ?
-  TString detpath = fGeoH->GetPath(detname);
+  TString detpath = fGeoH->GetPath(sensorID);
   if( !(detpath.Contains("Strip")) )
     return kFALSE;
 

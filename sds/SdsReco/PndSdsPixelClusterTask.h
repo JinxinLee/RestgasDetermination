@@ -33,72 +33,89 @@
 #include "PndSdsHybridHitProducer.h"
 #include "PndSdsStripHitProducer.h"
 #include "PndSdsPixelDigiPar.h"
+#include "PndSdsTotDigiPar.h"
+#include "PndSdsChargeConversion.h"
+#include "PndDetectorList.h"
+#include "PndGeoHandling.h"
+
+#include "PndSdsPixelClusterFinder.h"
+#include "PndSdsPixelBackMapping.h"
 
 #include <string>
 #include <vector>
- 
+
 class TClonesArray;
 
 class PndSdsPixelClusterTask : public FairTask
-{
- public:
-
+  {
+  public:
+    
     /** Default constructor **/  
     PndSdsPixelClusterTask();
-  
+    
+    /** Named constructor **/  
+    PndSdsPixelClusterTask(const char* name);
+    
     /** Destructor **/
     virtual ~PndSdsPixelClusterTask();
-
-   /** pure virtual method SetBranchNames
-   **
-   ** called by Init()
-   ** function to set individual branch names
-   **/
-   virtual void SetBranchNames()=0;
-
+    
+    /** pure virtual method SetBranchNames
+     **
+     ** called by Init()
+     ** function to set individual branch names
+     **/
+    virtual void SetBranchNames()=0;
+   virtual void SetClusterFinder()=0;
+   virtual void SetBackMapping()=0;
+    virtual void SetClusterType(){};
+     
     /** Virtual method Init **/
-    virtual void SetParContainers() = 0;
+    virtual void SetParContainers();
     virtual InitStatus Init();
     virtual InitStatus ReInit();
 
+    
     /** Virtual method Exec **/
-    virtual void Exec(Option_t* opt);
-
+    void Exec(Option_t* opt);
+    
     void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
     Bool_t GetPersistance() {return fPersistance;};
-  
+    
   protected:
-  
+    
     Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
-  
+    
     TString fBranchName;
     /** Input array of PndSdsDigis **/
-     TClonesArray* fDigiArray;
-     PndSdsPixelDigiPar* fDigiPar;
-
+    TClonesArray* fDigiArray;
+    PndSdsPixelDigiPar* fDigiPar;
+    PndSdsChargeConversion* fChargeConverter;
+    PndGeoHandling* fGeoH;
+    
     TString fClustBranchName;
     TString fHitBranchName;
     TString fFolderName;
-  /** Output array of PndSdsHits **/
-      TClonesArray* fClusterArray;
-      TClonesArray* fHitArray;  
-//   TClonesArray* fPixelArray;
-//   TClonesArray* fFePixelArray;
-  
-  void Register();
-  void Reset();  
-  void ProduceHits();
-
-  std::vector<Double_t> fParams;
+    /** Output array of PndSdsHits **/
+    TClonesArray* fClusterArray;
+    TClonesArray* fHitArray;
+    
+    fDetectorType fClusterType;
+    
+    void Register();
+    void Reset();  
+    void ProduceHits();
+    
+  PndSdsPixelClusterFinder* fClusterFinder;
+  PndSdsPixelBackMapping* fBackMapping;
   
 //   TGeoHMatrix GetTransformation (std::string detName);
 //   void GetLocalHitPoints(PndSdsMCPoint* myPoint, FairGeoVector& myHitIn, FairGeoVector& myHitOut);
 //   PndSdsHit CalcGlobalPoint(std::vector<PndSdsPixel> pixels);
 //   TVector3 GetSensorDimensions(std::string detName);  
-
-  ClassDef(PndSdsPixelClusterTask,2);
-
-};
+        
+    ClassDef(PndSdsPixelClusterTask,3);
+    
+  };
 
 #endif /* SDSCLUSTERTASK_H */
 

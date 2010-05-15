@@ -14,11 +14,11 @@
 //
 
 #include "PndMvdEventAna.h"
-#include "PndMvdMCPoint.h"
-#include "PndMvdDigiPixel.h"
-#include "PndMvdHit.h"
-#include "PndMvdCluster.h"
-#include "PndMvdCalcFePixel.h"
+#include "PndSdsMCPoint.h"
+#include "PndSdsDigiPixel.h"
+#include "PndSdsHit.h"
+#include "PndSdsCluster.h"
+#include "PndSdsCalcFePixel.h"
 #include "PndEventDisplay.h"
 #include "TTree.h"
 #include "TCanvas.h"
@@ -95,7 +95,7 @@ public:
 	void ClearAllVectors();
 	
 	TVector3 GetLocalHitPoints(TString detName, TVector3 input);
-	std::vector<Int_t> GetHitPerCluster(PndMvdCluster* clusterCand);
+	std::vector<Int_t> GetHitPerCluster(PndSdsCluster* clusterCand);
 	std::vector<TString> GetModulesHit();
 	TVector3 CalcMeanHitPos(std::vector<Int_t> points);
 
@@ -134,7 +134,7 @@ private:
 	TCanvas *fCan1;
 	TCanvas *fCan2;
 	
-	PndMvdCalcFePixel* fPixelCon;
+	PndSdsCalcFePixel* fPixelCon;
 	PndEventDisplay* fGeoList;
 
 ClassDef(PndMvdAllDataEventAna,1);

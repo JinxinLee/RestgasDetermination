@@ -30,21 +30,47 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsStripHitProducer::PndSdsStripHitProducer() :
-  FairTask("SDS Strip Digi Producer(PndSdsStripHitProducer)")
+FairTask("SDS Strip Digi Producer(PndSdsStripHitProducer)")
 {
- 
   fOverrideParams = false;
   fDigiParameterList = new TList();
+  fChargeDigiParameterList = new TList();
   fPersistance = kTRUE;
+  fGeoH=NULL;
 }
 // -------------------------------------------------------------------------
 
+// -----   Default constructor   -------------------------------------------
+PndSdsStripHitProducer::PndSdsStripHitProducer(const char* name) :
+FairTask(name)
+{
+  fOverrideParams = false;
+  fDigiParameterList = new TList();
+  fChargeDigiParameterList = new TList();
+  fPersistance = kTRUE;
+  fGeoH=NULL;
+}
+// -------------------------------------------------------------------------
 
 // -----   Destructor   ----------------------------------------------------
 PndSdsStripHitProducer::~PndSdsStripHitProducer()
 {
   if (0!=fGeoH) delete fGeoH;
   if (0!=fDigiParameterList) delete fDigiParameterList;
+  if (0!=fChargeDigiParameterList) delete fChargeDigiParameterList;
+// TODO: needs check: now cleared correctly?
+  for( std::map<const char*,PndSdsCalcStrip*>::iterator it = fStripCalcTop.begin(); it != fStripCalcTop.end(); it++){
+  		if(0 != it->second) delete it->second;
+  		it->second = 0;
+  }
+  for( std::map<const char*,PndSdsCalcStrip*>::iterator it = fStripCalcBot.begin(); it != fStripCalcBot.end(); it++){
+  		if(0 != it->second) delete it->second;
+  		it->second = 0;
+  }
+  for(std::map<const char*,PndSdsChargeConversion*>::iterator it = fChargeConverter.begin(); it != fChargeConverter.end(); it++){
+  		if(0 != it->second) delete it->second;
+  		it->second = 0;
+  }
 }
 // -------------------------------------------------------------------------
 
@@ -52,9 +78,9 @@ PndSdsStripHitProducer::~PndSdsStripHitProducer()
 // -------------------------------------------------------------------------
 InitStatus PndSdsStripHitProducer::ReInit()
 {
-   SetParContainers();
-   SetCalculators();
-   return kSUCCESS;
+  SetParContainers();
+  SetCalculators();
+  return kSUCCESS;
 }
 // -------------------------------------------------------------------------
 
@@ -74,51 +100,58 @@ void PndSdsStripHitProducer::SetCalculators()
       Info("SetCalculators()","Create a Parameter Set for %s sensors",senstype);
       std::cout<<senstype<<"#"<<std::endl;
     }
-    if(fVerbose>0)digipar->Print();
+    if(fVerbose>2)digipar->Print();
+    //TODO switch also with PndSdsCalcStripDif
     fStripCalcTop[senstype]=new PndSdsCalcStrip(digipar,kTOP);
     fStripCalcTop[senstype]->SetVerboseLevel(fVerbose);
     fStripCalcBot[senstype]=new PndSdsCalcStrip(digipar,kBOTTOM);
     fStripCalcBot[senstype]->SetVerboseLevel(fVerbose);
   }
-    
 }
 
 // -------------------------------------------------------------------------
 
 void PndSdsStripHitProducer::SetParContainers()
-{ return; }
+{
+  if(fVerbose>1) Info("SetParContainers","make geohandler");
+	if(0==fGeoH) fGeoH = new PndGeoHandling();
+  else if(fVerbose>1) Warning("SetParContainers","ooops there was already a geohandler");
+  fGeoH->SetVerbose(fVerbose);
+  if(fVerbose>1) Info("SetParContainers","done.");
+	return;
+}
 
 
 // -----   Public method Init   --------------------------------------------
 InitStatus PndSdsStripHitProducer::Init()
 {
   FairRootManager* ioman = FairRootManager::Instance();
-
-  SetBranchNames();
   
-  fGeoH = new PndGeoHandling();
-
+  SetBranchNames();
+  SetMCPointType();
+  
+  
   if ( ! ioman )
-    {
-      std::cout << "-E- PndSdsStripHitProducer::Init: "
-     << "RootManager not instantiated!" << std::endl;
-      return kFATAL;
-    }
-
+  {
+    std::cout << "-E- PndSdsStripHitProducer::Init: "
+    << "RootManager not instantiated!" << std::endl;
+    return kFATAL;
+  }
+  
   fPointArray = (TClonesArray*) ioman->GetObject(fBranchName);
   if ( ! fPointArray )
-    {
-      std::cout << "-W- PndSdsStripHitProducer::Init: "
-     << "No "<<fBranchName<<" array!" << std::endl;
-      return kERROR;
+  {
+    std::cout << "-W- PndSdsStripHitProducer::Init: "
+    << "No "<<fBranchName<<" array!" << std::endl;
+    return kERROR;
   }
-
+  
   // Create and register output array
   fStripArray = new TClonesArray("PndSdsDigiStrip");
   ioman->Register(fOutBranchName, fFolderName, fStripArray, fPersistance);
   
   SetCalculators();
-
+  
   if(fVerbose>0){
     std::cout << "-I- PndSdsStripHitProducer: Initialisation successfull with these parameters:" << std::endl;
     TIter params(fDigiParameterList);
@@ -128,7 +161,7 @@ InitStatus PndSdsStripHitProducer::Init()
       }
     }
   }
-
+  
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
@@ -140,142 +173,158 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
 {
   // Reset output array
   fStripArray->Delete();
-
+  
+  for (std::map<const char*,PndSdsChargeConversion*>::iterator it = fChargeConverter.begin(); it != fChargeConverter.end(); it++){
+	  it->second->StartExecute();
+  }
   // Declare some variables
   PndSdsMCPoint *point = NULL;
-
-//  Int_t detID = 0;       // Detector ID
-//     Int_t trackID = 0;     // Track index
-
+  
+  //  Int_t detID = 0;       // Detector ID
+  //     Int_t trackID = 0;     // Track index
+  
   // Loop over PndSdsMCPoints
   Int_t nPoints = fPointArray->GetEntriesFast();
   if (fVerbose > 0){
     std::cout<<" Nr of Points: "<<nPoints<<std::endl;
   }
-
+  
   Int_t iStrip = 0;
   Bool_t selected = kFALSE;
-
+  
   for (Int_t iPoint = 0; iPoint < nPoints; iPoint++)
   {
-      point = (PndSdsMCPoint*) fPointArray->At(iPoint);
-      selected = SelectSensorParams(point->GetDetName()) ;
-      if( !selected ) { continue; }
-
-      if (fVerbose > 2){
-        std::cout<<"***** Strip Digi for "<<fCurrentDigiPar->GetSensType()<<" ******"<<std::endl;
-        std::cout<<" DetName : "<<fGeoH->GetPath(point->GetDetName())<<std::endl;
-      }
-      if ( ! point){
-        std::cout<< "No Point!" << std::endl;
-         continue;
-      }
-      if (fVerbose > 2){
-        std::cout << "****Global Point: " << std::endl;
-        point->Print("");
-      }
-
-      // transform to local sensor system... (mc point has the ID not the path to the volume)
-      TVector3 posInL = fGeoH->MasterToLocalId(point->GetPosition(),point->GetDetName());
-      TVector3 posOutL = fGeoH->MasterToLocalId(point->GetPositionOut(),point->GetDetName());
-
-      if (fVerbose > 2){
-        posInL.Print();posOutL.Print();
-        std::cout << "Energy: " << point->GetEnergyLoss() << std::endl;
-      }
-//      detID   = point->GetDetectorID();
-
-      // Top Side
-      if (fVerbose > 2) std::cout  << "Top Side: " << std::endl;
-      // Calculate a cluster of Strips fired
-      std::vector<PndSdsStrip> topStrips =
-        fCurrentStripCalcTop->GetStrips(posInL.X(),  posInL.Y(),  posInL.Z(),
-                                        posOutL.X(), posOutL.Y(), posOutL.Z(),
-                                        point->GetEnergyLoss());
-
-     if (topStrips.size() != 0)
-      {
-        if (fVerbose > 1) std::cout  << "SensorStrips: " << std::endl;
-        for(std::vector<PndSdsStrip>::const_iterator kit=topStrips.begin();
-            kit!= topStrips.end(); ++kit)
-        {   //TODO: What to do with the kMVD* enmums in sds?
-            AddDigi(iStrip,iPoint,kMVDHitsStrip,point->GetDetName(),
+    point = (PndSdsMCPoint*) fPointArray->At(iPoint);
+    selected = SelectSensorParams(point->GetSensorID()) ;
+    if( !selected ) { continue; }
+    
+    if (fVerbose > 2){
+      std::cout<<"***** Strip Digi for "<<fCurrentDigiPar->GetSensType()<<" ******"<<std::endl;
+      std::cout<<" DetName : "<<fGeoH->GetPath(point->GetSensorID())<<std::endl;
+    }
+    if ( ! point){
+      std::cout<< "No Point!" << std::endl;
+      continue;
+    }
+    if (fVerbose > 2){
+      std::cout << "****Global Point: " << std::endl;
+      point->Print("");
+    }
+    
+    // transform to local sensor system... (mc point has the ID not the path to the volume)
+    TVector3 posInL = fGeoH->MasterToLocalShortId(point->GetPosition(),point->GetSensorID());
+    TVector3 posOutL = fGeoH->MasterToLocalShortId(point->GetPositionOut(),point->GetSensorID());
+    
+    if (fVerbose > 2){
+      posInL.Print();posOutL.Print();
+      std::cout << "Energy: " << point->GetEnergyLoss() << std::endl;
+    }
+    //      detID   = point->GetDetectorID();
+    
+    // Top Side
+    if (fVerbose > 2) std::cout  << "Top Side: " << std::endl;
+    // Calculate a cluster of Strips fired
+    std::vector<PndSdsStrip> topStrips =
+    fCurrentStripCalcTop->GetStrips(posInL.X(),  posInL.Y(),  posInL.Z(),
+                                    posOutL.X(), posOutL.Y(), posOutL.Z(),
+                                    point->GetEnergyLoss());
+    
+    if (topStrips.size() != 0)
+    {
+      if (fVerbose > 1) std::cout  << "SensorStrips: " << std::endl;
+      for(std::vector<PndSdsStrip>::const_iterator kit=topStrips.begin();
+          kit!= topStrips.end(); ++kit)
+      {   //TODO: What to do with the kMVD* enmums in sds?
+        AddDigi(iStrip,iPoint,kMVDHitsStrip,point->GetSensorID(),
             		fCurrentStripCalcTop->CalcFEfromStrip(kit->GetIndex()),
             		fCurrentStripCalcTop->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
-            if (fVerbose > 1) std::cout << *kit << std::endl;
-        }
-      }else if(fVerbose>2) std::cout<<"Top side empty"<<std::endl;
-
-      // Bottom Side
-      if (fVerbose > 2) std::cout  << "Bottom Side: " << std::endl;
-      std::vector<PndSdsStrip> botStrips =
-        fCurrentStripCalcBot->GetStrips(posInL.X(),  posInL.Y(),  posInL.Z(),
-                                        posOutL.X(), posOutL.Y(), posOutL.Z(),
-                                        point->GetEnergyLoss());
-      if (botStrips.size() != 0)
+        if (fVerbose > 1) std::cout << *kit << std::endl;
+      }
+    }else if(fVerbose>2) std::cout<<"Top side empty"<<std::endl;
+    
+    // Bottom Side
+    if (fVerbose > 2) std::cout  << "Bottom Side: " << std::endl;
+    std::vector<PndSdsStrip> botStrips =
+    fCurrentStripCalcBot->GetStrips(posInL.X(),  posInL.Y(),  posInL.Z(),
+                                    posOutL.X(), posOutL.Y(), posOutL.Z(),
+                                    point->GetEnergyLoss());
+    if (botStrips.size() != 0)
+    {
+      if (fVerbose > 2) std::cout  << " SensorStrips: " << std::endl;
+      for(std::vector<PndSdsStrip>::const_iterator kit=botStrips.begin();
+          kit!= botStrips.end();
+          ++kit)
       {
-        if (fVerbose > 2) std::cout  << " SensorStrips: " << std::endl;
-        for(std::vector<PndSdsStrip>::const_iterator kit=botStrips.begin();
-            kit!= botStrips.end();
-            ++kit)
-        {
-            AddDigi(iStrip,iPoint,kMVDHitsStrip,point->GetDetName(),
-                    fCurrentStripCalcBot->CalcFEfromStrip(kit->GetIndex()) + fCurrentDigiPar->GetNrTopFE(),
-                    fCurrentStripCalcBot->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
-            if (fVerbose > 2) std::cout << *kit << std::endl;
-        }
-      } else if(fVerbose>2) std::cout<<"Bottom side empty"<<std::endl;
-
+        AddDigi(iStrip,iPoint,kMVDHitsStrip,point->GetSensorID(),
+                fCurrentStripCalcBot->CalcFEfromStrip(kit->GetIndex()) + fCurrentDigiPar->GetNrTopFE(),
+                fCurrentStripCalcBot->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
+        if (fVerbose > 2) std::cout << *kit << std::endl;
+      }
+    } else if(fVerbose>2) std::cout<<"Bottom side empty"<<std::endl;
+    
   } // Loop over MCPoints
-
+  
+  // Loop over PndSdsDigis and convert charge to digi value
+  for (Int_t i = 0; i<iStrip; i++){
+	  PndSdsDigiStrip* gDigi = (PndSdsDigiStrip*) fStripArray->At(i);
+	  SelectSensorParams(gDigi->GetSensorID());
+    //FIXME: This is not elegant and error prone!
+	  gDigi->SetCharge(fCurrentChargeConverter->ChargeToDigiValue(gDigi->GetCharge()));
+  }
+  
+  for (std::map<const char*,PndSdsChargeConversion*>::iterator it = fChargeConverter.begin(); it != fChargeConverter.end(); it++){
+    it->second->EndExecute();
+  }
+  
   // Event summary
   if(fVerbose > 1) std::cout << "-I- PndSdsStripHitProducer: " << nPoints << " PndSdsMCPoints, "
-       << iStrip << " Digis created."<< std::endl;
+    << iStrip << " Digis created."<< std::endl;
 }
 // -------------------------------------------------------------------------
 
-void PndSdsStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, TString detname, Int_t fe, Int_t chan, Double_t charge)
+void PndSdsStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge)
 {
   Bool_t found = kFALSE;
   PndSdsDigiStrip* aDigi = 0;
   for(Int_t kstr = 0; kstr < iStrip && found==kFALSE ; kstr++)
   {
-	aDigi = (PndSdsDigiStrip*)fStripArray->At(kstr);
-	if ( aDigi->GetDetID() == detID &&
-		 aDigi->GetDetName() == detname &&
-		 aDigi->GetFE() == fe &&
-		 aDigi->GetChannel() == chan )
-	{
-		aDigi->AddCharge(charge);
-		aDigi->AddIndex(iPoint);
-		found = kTRUE;
-//		((PndSdsDigiStrip*)(*fStripArray)[kstr])->AddCarge(charge);
-//		((PndSdsDigiStrip*)(*fStripArray)[kstr])->AddIndex(iPoint);
-//		return;
-	}
+    aDigi = (PndSdsDigiStrip*)fStripArray->At(kstr);
+    if ( aDigi->GetDetID() == detID &&
+        aDigi->GetSensorID() == sensorID &&
+        aDigi->GetFE() == fe &&
+        aDigi->GetChannel() == chan )
+    {
+      aDigi->AddCharge(charge);
+      aDigi->AddIndex(iPoint);
+      found = kTRUE;
+      //		((PndSdsDigiStrip*)(*fStripArray)[kstr])->AddCarge(charge);
+      //		((PndSdsDigiStrip*)(*fStripArray)[kstr])->AddIndex(iPoint);
+      //		return;
+    }
   }
   if(found == kFALSE){//TODO: Simulate a timestamp
 	  std::vector<Int_t>indices;
 	  indices.push_back(iPoint);
-    new ((*fStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,detname,fe,chan,charge, 0) ;
+    new ((*fStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,sensorID,fe,chan,charge, fMCPointType, 0) ;
     iStrip++;
   }
 }
 // -------------------------------------------------------------------------
 
 
-Bool_t PndSdsStripHitProducer::SelectSensorParams(TString detname)
+Bool_t PndSdsStripHitProducer::SelectSensorParams(Int_t sensorID)
 {
   fCurrentDigiPar = NULL;
   fCurrentStripCalcTop = NULL;
   fCurrentStripCalcBot = NULL;
-
-  TString detpath = fGeoH->GetPath(detname);
+  fCurrentChargeConverter = NULL;
+  
+  TString detpath = fGeoH->GetPath(sensorID);
   if( !(detpath.Contains("Strip")) )
   { // filter from pixel points
     return kFALSE;
   }
-
+  
   TIter parsetiter(fDigiParameterList);
   while ( PndSdsStripDigiPar* digipar = (PndSdsStripDigiPar*)parsetiter() ) 
   {
@@ -283,6 +332,7 @@ Bool_t PndSdsStripHitProducer::SelectSensorParams(TString detname)
     if(detpath.Contains(sensortype))  {
       fCurrentStripCalcTop = fStripCalcTop[sensortype];
       fCurrentStripCalcBot = fStripCalcBot[sensortype];
+      fCurrentChargeConverter = fChargeConverter[sensortype];
       fCurrentDigiPar = digipar;
       return kTRUE;
     }

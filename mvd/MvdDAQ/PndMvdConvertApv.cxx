@@ -37,30 +37,30 @@ PndMvdConvertApv::PndMvdConvertApv(const TString& CalibFileName, const TString& 
       continue;
     }
     hitfile.putback(c);
-
+    
     //int triggID,ts,frame,moduleID;
     int fe,ch,l;
     long int ev;
     double q;
-        
+    
     //    moduleID=0;
     hitfile >> ev >> fe >> ch >> q >> l;
     //cout<<"event "<<ev<<" fe:"<<fe<<" channel:"<<ch<<" adc:"<<q<<endl;
-
+    
     Int_t found = 0;
-
-    for(Int_t i=0;i<fes.size();++i)
-      {
-	if(fe==fes[i])found=1;
-			 
-      }
-
-
+    
+    for(UInt_t i=0;i<fes.size();++i)
+    {
+      if(fe==fes[i])found=1;
+      
+    }
+    
+    
     if (!found){
       cout << "Found frontend ID:" << fe << endl;
-        fes.push_back(fe);
+      fes.push_back(fe);
     }
-
+    
     if (ev!=old_event)
     {
       n++;								// count event
@@ -83,7 +83,8 @@ PndMvdConvertApv::PndMvdConvertApv(const TString& CalibFileName, const TString& 
 
 Bool_t PndMvdConvertApv::Init()
 {
-  fGeoH = new PndGeoHandling();
+  Fatal("Init","is this geohandler at the right place?");
+  if(0==fGeoH) fGeoH = new PndGeoHandling();
   return kTRUE;
 }
 
@@ -111,13 +112,13 @@ void PndMvdConvertApv::LoadCalibration(TString CalibFileName, std::vector<Int_t>
       continue;
     }
     calibfile.putback(c);
-
+    
     int feID, channel;
     double value;
-
+    
     calibfile >> feID >> feID >> channel >> value;
-
-    for(int vec=0;vec<fes.size();vec++)
+    
+    for(unsigned int vec=0;vec<fes.size();vec++)
     {
       if(feID==fes[vec])
       {
@@ -136,26 +137,26 @@ void PndMvdConvertApv::LoadCalibration(TString CalibFileName, std::vector<Int_t>
 std::vector<PndMvdDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hitlist)
 {
   std::vector<PndMvdDigiStrip> result;
-  for(Int_t hitnumber=0;hitnumber<hitlist.size();hitnumber++)
+  for(UInt_t hitnumber=0;hitnumber<hitlist.size();hitnumber++)
   {
-     Double_t q=0.;
-     if(fNoCalib)
-     {
-       q=1.*hitlist[hitnumber].GetADC();					// no calib adc -> e !!!
-     }else{
-       if (fCalibPars[hitlist[hitnumber].GetFeID()].size())
-       {
-         if (fCalibPars[hitlist[hitnumber].GetFeID()][hitlist[hitnumber].GetChannel()])
-         {
-           q=fCalibPars[hitlist[hitnumber].GetFeID()][hitlist[hitnumber].GetChannel()]*(hitlist[hitnumber].GetADC())*1000.; // in electrons
-         }
-       }
-     }
-
-//FIXME: Welche DetId braucht das Framework? "2" fuer Strips?
-//TODO: Detektornamen mit Geometrie sinnvoll verheiraten. 
-// 	string detPath="SiliconTestStation_1/DummysensorAss_0/";
-//     detPath+="Module";
+    Double_t q=0.;
+    if(fNoCalib)
+    {
+      q=1.*hitlist[hitnumber].GetADC();					// no calib adc -> e !!!
+    }else{
+      if (fCalibPars[hitlist[hitnumber].GetFeID()].size())
+      {
+        if (fCalibPars[hitlist[hitnumber].GetFeID()][hitlist[hitnumber].GetChannel()])
+        {
+          q=fCalibPars[hitlist[hitnumber].GetFeID()][hitlist[hitnumber].GetChannel()]*(hitlist[hitnumber].GetADC())*1000.; // in electrons
+        }
+      }
+    }
+    
+    //FIXME: Welche DetId braucht das Framework? "2" fuer Strips?
+    //TODO: Detektornamen mit Geometrie sinnvoll verheiraten. 
+    // 	string detPath="SiliconTestStation_1/DummysensorAss_0/";
+    //     detPath+="Module";
     TString detPath="Module";
     Int_t modId=-1;
     if(fFake)
@@ -168,49 +169,49 @@ std::vector<PndMvdDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hi
     }
     detPath+=modId;
     detPath+="Rect";
-//     std::cout<<detPath.Data()<<"   |    "<<modId<<std::endl;
-	//TGeoVolume* Vol=gGeoManager->FindVolumeFast(detPath);
+    //     std::cout<<detPath.Data()<<"   |    "<<modId<<std::endl;
+    //TGeoVolume* Vol=gGeoManager->FindVolumeFast(detPath);
     TGeoVolume* Vol=0;
     if(Vol!=0) {
-// 		std::cout<<Vol->GetName()<<std::endl;
-// 		Vol->GetNode(-1)->cd();
-        detPath="/SiliconTestStation_1/DummysensorAss_0/";
-		detPath+=Vol->GetName();
-		detPath+="_0";
-		gGeoManager->cd(detPath.Data());
-	}
-	else {
-// 		std::cout<<" -E- PndMvdConvertApv::Calc(): "<<detPath.Data()<<" does not exist"<<std::endl;
-        detPath+="_nonexistent";
-	}
-//     std::cout<<detPath.Data()<<std::endl;
-//     std::cout<<gGeoManager->GetPath()<<std::endl;
-//     if (0==Vol) std::cout<<"0"; 
-//     else std::cout<<"1";
-//     std::cout<<Vol->GetName();
-
-//     detPath = Vol->GetName();
-// 	std::cout << "write Digi with "<< detPath.Data()<<" ( "<<fGeoH->GetID(detPath)<<" )"<<std::endl;
+      // 		std::cout<<Vol->GetName()<<std::endl;
+      // 		Vol->GetNode(-1)->cd();
+      detPath="/SiliconTestStation_1/DummysensorAss_0/";
+      detPath+=Vol->GetName();
+      detPath+="_0";
+      gGeoManager->cd(detPath.Data());
+    }
+    else {
+      // 		std::cout<<" -E- PndMvdConvertApv::Calc(): "<<detPath.Data()<<" does not exist"<<std::endl;
+      detPath+="_nonexistent";
+    }
+    //     std::cout<<detPath.Data()<<std::endl;
+    //     std::cout<<gGeoManager->GetPath()<<std::endl;
+    //     if (0==Vol) std::cout<<"0"; 
+    //     else std::cout<<"1";
+    //     std::cout<<Vol->GetName();
+    
+    //     detPath = Vol->GetName();
+    // 	std::cout << "write Digi with "<< detPath.Data()<<" ( "<<fGeoH->GetID(detPath)<<" )"<<std::endl;
     if(fFake)
     {
-    PndMvdDigiStrip DigiHit(hitlist[hitnumber].GetEventID(), 
-							 1,
-                             /*fGeoH->GetID(detPath)*/"", 
-                             hitlist[hitnumber].GetFeID(),
-			    hitlist[hitnumber].GetChannel(), q/*/1000/1000*/,
-							 hitlist[hitnumber].GetTimestamp()
-						     );
-     result.push_back(DigiHit);
+      PndMvdDigiStrip DigiHit(hitlist[hitnumber].GetEventID(), 
+                              1,
+                              /*fGeoH->GetID(detPath)*/"", 
+                              hitlist[hitnumber].GetFeID(),
+                              hitlist[hitnumber].GetChannel(), q/*/1000/1000*/,
+                              hitlist[hitnumber].GetTimestamp()
+                              );
+      result.push_back(DigiHit);
     }else{
-     PndMvdDigiStrip DigiHit(hitlist[hitnumber].GetEventID(), 
-							 hitlist[hitnumber].GetModuleID(),
-                             /*fGeoH->GetID(detPath)*/"", 
-                             hitlist[hitnumber].GetFeID(),
-                             hitlist[hitnumber].GetChannel(),
-			     q/*/1000/1000*/,
-                             hitlist[hitnumber].GetTimestamp() 
-                             );
-     result.push_back(DigiHit);
+      PndMvdDigiStrip DigiHit(hitlist[hitnumber].GetEventID(), 
+                              hitlist[hitnumber].GetModuleID(),
+                              /*fGeoH->GetID(detPath)*/"", 
+                              hitlist[hitnumber].GetFeID(),
+                              hitlist[hitnumber].GetChannel(),
+                              q/*/1000/1000*/,
+                              hitlist[hitnumber].GetTimestamp() 
+                              );
+      result.push_back(DigiHit);
     }
   }
   return result;
@@ -227,7 +228,7 @@ long int PndMvdConvertApv::GetNofEvents()
 
 std::vector<PndMvdDigiStrip> PndMvdConvertApv::ReadNext()
 {
-//  cout<<"** PndMvdConvertApv::ReadNext() **"<<endl;
+  //  cout<<"** PndMvdConvertApv::ReadNext() **"<<endl;
   std::vector<PndMvdDigiStrip> digiList;
   bool work=true;
   while (!fDataFile.eof() && work)  					// read data
@@ -242,7 +243,7 @@ std::vector<PndMvdDigiStrip> PndMvdConvertApv::ReadNext()
       continue;
     }
     fDataFile.putback(c);
-
+    
     int triggID=0;
     int fe=0;
     int ts=0;
@@ -252,11 +253,11 @@ std::vector<PndMvdDigiStrip> PndMvdConvertApv::ReadNext()
     int moduleID=0;
     double q=0.;
     long int ev=0;
-
+    
     fDataFile >> ev >> fe >>  ch >> q >> l;
     //cout<<"event "<<fEvent<<" event id:"<<ev<<" last event id:"<<fLastEvent<<" fe:"<<fe<<" channel:"<<ch<<" adc:"<<q<<endl;
-
-
+    
+    
     if (fEvent==-1) { fLastEvent=ev; fEvent=0; }
     if (ev!=fLastEvent)
     {
@@ -283,7 +284,7 @@ std::vector<PndMvdDigiStrip> PndMvdConvertApv::ReadAll()
   while(fEvent!=fNofEvents)
   {
     std::vector<PndMvdDigiStrip> dummy=ReadNext();
-    for(int i=0;i<dummy.size();++i) result.push_back(dummy[i]);
+    for(unsigned int i=0;i<dummy.size();++i) result.push_back(dummy[i]);
   }
   return result;
 }

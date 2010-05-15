@@ -1,12 +1,12 @@
 #include "PndSdsIdealPixelClusterFinder.h"
 #include "TMath.h"
 
-std::vector< std::vector<Int_t> > PndSdsIdealPixelClusterFinder::GetClusters()
+std::vector< std::vector<Int_t> > PndSdsIdealPixelClusterFinder::GetClusters(std::vector<PndSdsDigiPixel> hits)
 {
   if (fVerbose > 1)
     Print();
   std::vector<Int_t> posHits; // stores the position of the hits in the TClonesArray (only this information is stored)
-  for (Int_t i = 0; i < fHits.size(); i++) posHits.push_back(i);
+  for (UInt_t i = 0; i < fHits.size(); i++) posHits.push_back(i);
   std::vector< std::vector< Int_t> > result;
   Int_t sizeTempHits = posHits.size();
  // Int_t actHit = 0;
@@ -35,7 +35,7 @@ std::vector< std::vector<Int_t> > PndSdsIdealPixelClusterFinder::GetClusters()
           j--;
         }
         else{
-          if (fHits[(result.end()-1)->at(0)].GetDetName() == fHits[posHits[j]].GetDetName()){
+          if (fHits[(result.end()-1)->at(0)].GetSensorID() == fHits[posHits[j]].GetSensorID()){
             if (IsInRange(fHits[(result.end()-1)->at(0)], fHits[posHits[j]])) {
                 (result.end()-1)->push_back(MoveHit(&posHits,j)); // the hit position is added to the current cluster
                 j--;
@@ -57,7 +57,7 @@ std::vector< std::vector<Int_t> > PndSdsIdealPixelClusterFinder::GetClusters()
 Int_t PndSdsIdealPixelClusterFinder::MoveHit(std::vector<Int_t>* hitVector, Int_t index) const
 {
   Int_t result = -1;
-  if (index < hitVector->size()){
+  if (index < (Int_t)hitVector->size()){
     result = hitVector->at(index);
     hitVector->erase(hitVector->begin()+index);
   }

@@ -5,11 +5,11 @@
 #define PNDSDSPIXELDIGIPAR_H
 
 #include <TVector2.h>
-
 #include "FairParGenericSet.h"
 #include "FairParamList.h"
 
 //! Digitization Parameter Class for SDS-Pixel part
+
 class PndSdsPixelDigiPar : public FairParGenericSet
 {
   public :
@@ -31,6 +31,8 @@ class PndSdsPixelDigiPar : public FairParGenericSet
     Int_t GetFERows() const {return fFeRows;}
     Double_t GetClustRadius() const {return fRadius;}
 
+    Int_t GetChargeConvMethod() const  {return fChargeConvMethod;}
+
     void SetXPitch(Double_t x)  {fDimX = x;}
     void SetYPitch(Double_t x)  {fDimY = x;}
     void SetThreshold(Double_t x) {fThreshold = x;}
@@ -39,6 +41,7 @@ class PndSdsPixelDigiPar : public FairParGenericSet
     void SetFERows(Int_t x){fFeRows = x;}
     void SetClustRadius(Double_t x){fRadius=x;}
 
+    void SetChargeConvMethod(Int_t x){fChargeConvMethod = x;}
 
   private:
     // Pixel Parameters
@@ -49,11 +52,14 @@ class PndSdsPixelDigiPar : public FairParGenericSet
     Double_t fRadius;  // Clusterfinder search radius (channel numbers)
     Double_t fThreshold; // Discriminator Threshold (electrons)
     Double_t fNoise;     // Gaussian electronics noise including threshold dispersion (electrons)
+
+    Int_t fChargeConvMethod;	// 0: ideal conversion; 1: TOT calculation
+
 //     Text_t   fSensName;  // Sensor name
 //     Text_t   fFeName;    // Frontend name
 
 
-  ClassDef(PndSdsPixelDigiPar,2);
+  ClassDef(PndSdsPixelDigiPar,3);
 };
 
 #endif /*!PNDSDSSTRIPDIGIPAR_H*/

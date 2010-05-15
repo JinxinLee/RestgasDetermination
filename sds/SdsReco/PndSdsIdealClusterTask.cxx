@@ -24,8 +24,6 @@
 // #include "PndSdsPixelCluster.h"
 #include "PndSdsClusterPixel.h"
 
-#include "PndSdsSimplePixelClusterFinder.h"
-#include "PndSdsChargeWeightedPixelMapping.h"
 
 // -----   Default constructor   -------------------------------------------
 PndSdsIdealClusterTask::PndSdsIdealClusterTask() :
@@ -53,9 +51,6 @@ PndSdsIdealClusterTask::PndSdsIdealClusterTask(Double_t radius, Int_t FEcolumns,
   fFEcolumns = FEcolumns;
   fFErows    = FErows;
   fGeoFile   = geoFile;
-  fParams.push_back(radius);
-  fParams.push_back(FEcolumns);
-  fParams.push_back(FErows);
   fPersistance = kTRUE;
 }
 
@@ -77,6 +72,8 @@ void PndSdsIdealClusterTask::SetParContainers()
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar = (PndSdsGeoPar*)(rtdb->getContainer("PndSdsGeoPar"));
 */
+	if(0==fGeoH) fGeoH = new PndGeoHandling();
+  fGeoH->SetVerbose(fVerbose);
 }
 
 InitStatus PndSdsIdealClusterTask::ReInit()
@@ -126,6 +123,11 @@ InitStatus PndSdsIdealClusterTask::Init()
   fClusterArray = new TClonesArray("PndSdsClusterPixel");
   ioman->Register(fClustBranchName, fFolderName, fClusterArray, fPersistance);
 
+  mapping = new PndSdsChargeWeightedPixelMapping(fGeoH);
+  finder = new PndSdsIdealPixelClusterFinder();
+  mapping->SetVerbose(fVerbose);
+  finder->SetVerbose(fVerbose);
+
   std::cout << "-I- PndSdsIdealClusterTask: Initialisation successfull" << std::endl;
   return kSUCCESS;
 }
@@ -153,28 +155,21 @@ void PndSdsIdealClusterTask::Exec(Option_t* opt)
 	PndSdsDigiPixel myDigi = *(PndSdsDigiPixel*)(fDigiArray->At(iPoint));
 	DigiPixelArray.push_back(myDigi);
   }
-  PndSdsIdealPixelClusterFinder finder(fParams, DigiPixelArray);
-  finder.SetVerbose(fVerbose);
-  std::vector< std::vector< Int_t> > clusters = finder.GetClusters();
+
+  std::vector< std::vector< Int_t> > clusters = finder->GetClusters(DigiPixelArray);
   std::cout << clusters.size() << std::endl;
-  for (Int_t i = 0; i < clusters.size(); i++)
+  for (UInt_t i = 0; i < clusters.size(); i++)
   {
 	new((*fClusterArray)[i]) PndSdsClusterPixel(clusters[i]);
   }
 
-  std::vector<Double_t> mappingPar;
-  mappingPar.push_back(fParams[1]);
-  mappingPar.push_back(fParams[2]);
-  mappingPar.push_back(0.01);
-  mappingPar.push_back(0.01);
- for (Int_t i = 0; i < clusters.size(); i++){
+ for (UInt_t i = 0; i < clusters.size(); i++){
 	std::cout << clusters[i].size() << " " << std::endl;
 	std::vector<PndSdsDigiPixel> clusterArray;
-	for (Int_t j=0;j < clusters[i].size();j++)
+	for (UInt_t j=0;j < clusters[i].size();j++)
 		clusterArray.push_back(DigiPixelArray[clusters[i][j]]);
-	PndSdsChargeWeightedPixelMapping mapping(clusterArray, mappingPar);
-	mapping.SetVerbose(fVerbose);
-	PndSdsHit myCluster = mapping.GetCluster();
+	PndSdsHit myCluster = mapping->GetCluster(clusterArray);
+	myCluster.SetClusterIndex(kMVDClusterPixel, i);
 	std::cout << "ClusterData: " << std::endl;
 	myCluster.Print();
 	new ((*fHitArray)[i]) PndSdsHit(myCluster);

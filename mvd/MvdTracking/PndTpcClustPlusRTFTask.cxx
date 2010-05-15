@@ -125,9 +125,9 @@ void PndTpcClustPlusRTFTask::Exec(Option_t* opt)
 		pos=cluster->pos();
 		AddHit(i,pos,Blocks);
 	}
-	  for(int i=0;i<Blocks.size();i++){
+	  for(unsigned int i=0;i<Blocks.size();i++){
 		  GFTrackCand Cand;
-		  for(int j=0;j<Blocks[i].first.size();j++){
+		  for(unsigned int j=0;j<Blocks[i].first.size();j++){
 			  Cand.addHit(kTpcCluster,Blocks[i].first[j].first,0);
 		  }
 		  int size=fTPCTrackCandArray->GetEntriesFast();
@@ -147,7 +147,7 @@ void PndTpcClustPlusRTFTask::AddHit(int index,TVector3 pos,std::vector< std::pai
 	std::vector<int> TooCloseBlocks;
 	TVector3 testPos;
 	int count=0;
-	for(int block=0;block<Blocks.size();block++){
+	for(unsigned int block=0;block<Blocks.size();block++){
 		int begin=0,end=Blocks[block].first.size()-1;
 		int hit=begin;
 		if ( end>0 && !CheckAngle(pos.XYvector().Phi(), Blocks[block].second )) continue;
@@ -270,7 +270,7 @@ void PndTpcClustPlusRTFTask::MergeMVDandTPC()
 		PndTrackCand* cand = (PndTrackCand*)fMVDTrackCandArray->At(i);
 		PndRiemannTrack track;
 		int detId,hitId;
-		for(int j=0;j<cand->GetNHits();j++){
+		for(unsigned int j=0;j<cand->GetNHits();j++){
 			detId=cand->GetSortedHit(j).GetDetId();
 			hitId=cand->GetSortedHit(j).GetHitId();
 			PndMvdHit *point;
@@ -293,7 +293,7 @@ void PndTpcClustPlusRTFTask::MergeMVDandTPC()
 		GFTrackCand* cand = (GFTrackCand*)fTPCTrackCandArray->At(i);
 		PndRiemannTrack track;
 		unsigned int detId,hitId;
-		for(int j=0;j<cand->getNHits();j++){
+		for(unsigned int j=0;j<cand->getNHits();j++){
 			cand->getHit(j,detId,hitId);
 			PndTpcCluster* cluster;
 			if (detId == kTpcCluster)
@@ -315,7 +315,7 @@ void PndTpcClustPlusRTFTask::MergeMVDandTPC()
 
 
 ////////////////////////////<Merge MVD cands and TPC cands//////////////////////////////////////
-	for(int i=0;i<MVD.size();i++){
+	for(unsigned int i=0;i<MVD.size();i++){
 		double mvdRadius=MVD[i].r();
 		TVector2 mvdOrig(MVD[i].orig()[0],MVD[i].orig()[1]);
 		double mvdDip=MVD[i].dip();
@@ -328,7 +328,7 @@ void PndTpcClustPlusRTFTask::MergeMVDandTPC()
 		double cutO=GetMaxOrigin(mvdRadius, mvdDip,sign);
 //		std::cout<<"r="<<mvdRadius<<"   "<<"dip="<<mvdDip<<std::endl;
 		std::vector<int> tpcAdd;
-		for(int j=0;j<TPC.size();j++){
+		for(unsigned int j=0;j<TPC.size();j++){
 			double tpcRadius=TPC[j].r();
 			TVector2 tpcOrig(TPC[j].orig()[0],TPC[j].orig()[1]);
 			double tpcDip=TPC[j].dip();
@@ -348,7 +348,7 @@ void PndTpcClustPlusRTFTask::MergeMVDandTPC()
 		if (tpcAdd.size()>0){
 			CreateTrackCand(i,tpcAdd);
 			SkipMVDCands.push_back(i);
-			for(int k=0;k<tpcAdd.size();k++){
+			for(unsigned int k=0;k<tpcAdd.size();k++){
 				SkipTPCCands.push_back(tpcAdd[k]);
 			}
 		}
@@ -360,10 +360,10 @@ void PndTpcClustPlusRTFTask::MergeMVDandTPC()
 	std::vector<std::pair<unsigned int,unsigned int> > restMVDhits;
 
 	///////////////////////////////< filling  restTPCcands
-	for(int i=0;i<TPC.size();i++){
+	for(unsigned int i=0;i<TPC.size();i++){
 		bool flag=true;
-		for(int j=0;j<SkipTPCCands.size();j++){
-			if(i==SkipTPCCands[j]){
+		for(unsigned int j=0;j<SkipTPCCands.size();j++){
+			if((int)i==SkipTPCCands[j]){
 				flag=false;
 				break;
 			}
@@ -379,13 +379,13 @@ void PndTpcClustPlusRTFTask::MergeMVDandTPC()
 		std::pair<unsigned int,unsigned int> hit(kMVDHitsStrip,i);
 		restMVDhits.push_back(hit);
 	}
-	for(int i=0;i<SkipMVDCands.size();i++){
+	for(unsigned int i=0;i<SkipMVDCands.size();i++){
 		PndTrackCand* cand = (PndTrackCand*)fMVDTrackCandArray->At(SkipMVDCands[i]);
 		unsigned int detId,hitId;
-		for(int j=0;j<cand->GetNHits();j++){
+		for(unsigned int j=0;j<cand->GetNHits();j++){
 			detId=cand->GetSortedHit(j).GetDetId();
 			hitId=cand->GetSortedHit(j).GetHitId();
-			for(int k=0;k<restMVDhits.size();k++){
+			for(unsigned int k=0;k<restMVDhits.size();k++){
 				if ( detId==restMVDhits[k].first &&  hitId==restMVDhits[k].second ){
 					restMVDhits.erase(restMVDhits.begin()+k);
 					break;
@@ -396,7 +396,7 @@ void PndTpcClustPlusRTFTask::MergeMVDandTPC()
 	}
 
 	std::vector<PndRiemannHit> MvdHits;
-	for(int j=0;j<restMVDhits.size();j++){
+	for(unsigned int j=0;j<restMVDhits.size();j++){
 		PndMvdHit* point;
 		if (restMVDhits[j].first == kMVDHitsPixel)
 			 point = (PndMvdHit*)fHitArray->At(restMVDhits[j].second);
@@ -414,7 +414,7 @@ void PndTpcClustPlusRTFTask::MergeMVDandTPC()
 
 ///////////////////////////////////////////// check restMvdHits using restTPCcands as seed
 
-	for(int i=0;i<restTPCcands.size();i++){
+	for(unsigned int i=0;i<restTPCcands.size();i++){
 		std::vector<int> FoundMvdHits;
 		if (TPC[restTPCcands[i]].szChi2()<5){
 			double radius=TPC[restTPCcands[i]].r();
@@ -423,7 +423,7 @@ void PndTpcClustPlusRTFTask::MergeMVDandTPC()
 			if (TPC[restTPCcands[i]].getLastHit()->z()>0)
 				sign=true;
 			else sign=false;
-			for(int j=0;j<restMVDhits.size();j++){
+			for(unsigned int j=0;j<restMVDhits.size();j++){
 				if(TPC[restTPCcands[i]].calcSZChi2(&MvdHits[j])<GetMaxPlaneDist(radius,dip,sign) && fabs(TPC[restTPCcands[i]].dist(&MvdHits[j]))<GetMaxSZChi2(radius,dip,sign)){
 					std::cout<<"YES!!!!!!!!!!!!!!!!"<<std::endl;
 					FoundMvdHits.push_back(j);
@@ -432,7 +432,7 @@ void PndTpcClustPlusRTFTask::MergeMVDandTPC()
 		}
 		if(FoundMvdHits.size()>0){
 			GFTrackCand cand=*(GFTrackCand*)fTPCTrackCandArray->At(restTPCcands[i]);
-			for(int k=0;k<FoundMvdHits.size();k++){
+			for(unsigned int k=0;k<FoundMvdHits.size();k++){
 				cand.addHit(restMVDhits[FoundMvdHits[k]].first,restMVDhits[FoundMvdHits[k]].second,0);
 			}
 			int size=fFinalTrackCand->GetEntriesFast();
@@ -448,13 +448,13 @@ void PndTpcClustPlusRTFTask::CreateTrackCand(int mvdSeed , std::vector<int> tpcA
 {
 	GFTrackCand FinalCand;
 	PndTrackCand* mvd=(PndTrackCand*)fMVDTrackCandArray->At(mvdSeed);
-	for(int i=0;i<mvd->GetNHits();i++){
+	for(unsigned int i=0;i<mvd->GetNHits();i++){
 		unsigned int detId=mvd->GetSortedHit(i).GetDetId();
 		unsigned int hitId=mvd->GetSortedHit(i).GetHitId();
 		FinalCand.addHit(detId,hitId,0);
 	}
 
-	for(int i=0;i<tpcAdd.size();i++){
+	for(unsigned int i=0;i<tpcAdd.size();i++){
 		FinalCand.append(*(GFTrackCand*)fTPCTrackCandArray->At(tpcAdd[i]));
 	}
 	int size=fFinalTrackCand->GetEntriesFast();

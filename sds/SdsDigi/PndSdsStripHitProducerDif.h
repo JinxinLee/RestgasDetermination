@@ -6,6 +6,8 @@
 #include "PndSdsMCPoint.h"
 #include "PndSdsStrip.h"
 #include "PndSdsDigiPixel.h"
+#include "PndDetectorList.h"
+
 #include "FairGeoVector.h"
 #include "FairGeoTransform.h"
 #include "TVector3.h"
@@ -109,11 +111,12 @@ class PndSdsStripHitProducerDif : public FairTask
    ** function to set individual branch names
    **/
   virtual void SetBranchNames()=0;
+  virtual void SetMCPointType() = 0;
 
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
-  void AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, TString detname, Int_t fe, Int_t chan, Double_t charge);
+  void AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge);
 
   void SetParamSet(Double_t topPitch, Double_t botPitch,
                       Double_t ori, Double_t skew,
@@ -160,6 +163,8 @@ protected:
   PndSdsStripDigiPar* fDigiParTrap;
   PndSdsStripDigiPar* fCurrentDigiPar;
 
+  fDetectorType fMCPointType;
+
   //! Calculator objects
   PndSdsCalcStripDif* fStripCalcTopRect;
   PndSdsCalcStripDif* fStripCalcBotRect;
@@ -175,7 +180,7 @@ protected:
 //   TGeoHMatrix GetTransformation (std::string detName) const;
 //   void GetLocalHitPoints(PndSdsMCPoint* myPoint, FairGeoVector& myHitIn, FairGeoVector& myHitOut);
 //   TVector3 GetSensorDimensions(std::string detName) const;
-  Bool_t SelectSensorParams(TString detname);
+  Bool_t SelectSensorParams(Int_t sensorID);
 
   PndGeoHandling* fGeoH; // converter for detector names
 /*  Double_t fTopPitch;       // strip pitch on top side
@@ -196,7 +201,7 @@ protected:
 //  Int_t    stripHits;
 
 
-  ClassDef(PndSdsStripHitProducerDif,5);
+  ClassDef(PndSdsStripHitProducerDif,6);
 
 };
 

@@ -18,6 +18,9 @@ void PndSdsPixelDigiPar::putParams(FairParamList* list)
   list->add("FECols", fFeCols);
   list->add("FERows", fFeRows);
   list->add("ClustRad",fRadius);
+
+  list->add("chargeconv_method", fChargeConvMethod);
+
 //   list->add("sensName", sensName);
 //   list->add("feName", feName);
 }
@@ -33,6 +36,9 @@ Bool_t PndSdsPixelDigiPar::getParams(FairParamList* list)
   if (!list->fill("FECols",&fFeCols)) return kFALSE;
   if (!list->fill("FERows",&fFeRows)) return kFALSE;
   if (!list->fill("ClustRad",&fRadius)) return kFALSE;
+
+  if (!list->fill("chargeconv_method",&fChargeConvMethod)) return kFALSE;
+
 //   if (!list->fill("sensName",&sensName)) return kFALSE;
 //   if (!list->fill("feName",&feName)) return kFALSE;
   return kTRUE;
@@ -50,4 +56,5 @@ void PndSdsPixelDigiPar::Print()
     std::cout<<"   Columns on FE                = "<<fFeCols<<std::endl;
     std::cout<<"   Rows on FE                   = "<<fFeRows<<std::endl;
     std::cout<<"   Cluster search radius (channels) = "<<fRadius<<std::endl;
+    std::cout<<"   charge conv. (0:ideal, 1:TOT)    = "<<fChargeConvMethod<<std::endl;
 }

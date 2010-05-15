@@ -202,7 +202,7 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 			std::cout << "Pt: " << TrackPt << " GeV/c; P: " << TrackP << " GeV/c" << std::endl;
 			std::cout << "StartVertex: " << startVertex.X() << " " << startVertex.Y() << " " << startVertex.Z() << std::endl;
 		}
-		for (int p = 0; p < MChits.size(); p++){											//go through all hits in track
+		for (unsigned int p = 0; p < MChits.size(); p++){											//go through all hits in track
 			PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMCHits->At(MChits[p]));
 			if (fPrintMCHit){
 				std::cout << "-------------------------------" << std::endl;
@@ -214,7 +214,7 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 
 			std::vector<int> pixCluster = GetClusters(MChits[p], true);		//Indices of all clusters belonging to one hit
 
-			for (int clInd = 0; clInd < pixCluster.size(); clInd++)	{
+			for (unsigned int clInd = 0; clInd < pixCluster.size(); clInd++)	{
 
 				PndMvdCluster* myCluster = (PndMvdCluster*)(fPixCluster->At(pixCluster[clInd]));
 				std::vector<Int_t> digiInd = myCluster->GetClusterList(); //gets the list of pixel Digis belonging to the cluster
@@ -234,7 +234,7 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 
 			int hitCount = 0;
 			int oldRecoHit = -1;
-			for (int clInd = 0; clInd < stripCluster.size(); clInd++)	{
+			for (unsigned int clInd = 0; clInd < stripCluster.size(); clInd++)	{
 				int recoHit = -1;
 
 				PndMvdCluster* myCluster =	(PndMvdCluster*)(fStripCluster->At(stripCluster[clInd]));
@@ -266,15 +266,15 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 
 		std::cout << std::endl;
 		std::cout << "TrackID " << kIt->first << ": ";
-		for (int testInd = 0; testInd < pixHits.size(); testInd++)
+		for (unsigned int testInd = 0; testInd < pixHits.size(); testInd++)
 			std::cout << " 5/" << pixHits[testInd];
 
-		for (int testInd = 0; testInd < stripHits.size(); testInd++)
+		for (unsigned int testInd = 0; testInd < stripHits.size(); testInd++)
 			std::cout << " 4/" << stripHits[testInd];
 		std::cout << std::endl;
 
 		std::cout << "MCHitMap: ";
-		for (int testInd = 0; testInd < mcHitMap[kIt->first].size(); testInd++)
+		for (unsigned int testInd = 0; testInd < mcHitMap[kIt->first].size(); testInd++)
 			std::cout << mcHitMap[kIt->first].at(testInd) << " ";
 		std::cout << std::endl;
 
@@ -282,14 +282,14 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 		std::vector<int> candidates;
 		GetTrackCandsForMCTrack(pixHits, stripHits, matches, candidates);
 		std::cout << "TrackCands for MCTrack: ";
-		for (int i = 0; i < candidates.size(); i++) std::cout << candidates[i];
+		for (unsigned int i = 0; i < candidates.size(); i++) std::cout << candidates[i];
 		std::cout << std::endl;
 		trackToTrackCandMap[kIt->first] = candidates;
 
 		int TrackMatch = 0;
 		int oldmatches = 0;
 		int highestMatch=-1;
-		for (int i = 0; i < matches.size(); i++){
+		for (unsigned int i = 0; i < matches.size(); i++){
 			if (oldmatches < matches[i]){
 				oldmatches = matches[i];
 				highestMatch = i;
@@ -298,7 +298,7 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 			PndRiemannTrack myRiemannTrack;
 			MCTrackOrderRiemann.push_back(kIt->first);
 			myRiemannTrack.SetVerbose(1);
-			for (Int_t j = 0; j < myCand->getNHits(); j++){
+			for (UInt_t j = 0; j < myCand->getNHits(); j++){
 				unsigned int detId, hitId;
 				myCand->getHit(j, detId, hitId);
 				PndRiemannHit hit(GetFairHit(detId, hitId));
@@ -379,8 +379,8 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 	}
 	if (riemannTracks.size() > 1){
 		std::cout << riemannTracks.size() << " Riemann Tracks used!" << std::endl;
-		for (int i = 0; i < riemannTracks.size() - 1; i++){
-			for (int j = i + 1; j < riemannTracks.size(); j++)	{
+		for (unsigned int i = 0; i < riemannTracks.size() - 1; i++){
+			for (unsigned int j = i + 1; j < riemannTracks.size(); j++)	{
 				TVector3 p1, p2;
 				//riemannTracks[i].refit();
 				//riemannTracks[i].szFit();
@@ -415,7 +415,7 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 	if (fPrintGhosts){
 		std::cout << std::endl;
 		std::cout << "----Ghost TrackCandidates:-------" << std::endl;
-		for (int tcIndex = 0; tcIndex < fGhostCand.size(); tcIndex++){
+		for (unsigned int tcIndex = 0; tcIndex < fGhostCand.size(); tcIndex++){
 			if (fGhostCand[tcIndex] < 3){
 				GFTrackCand* myTrackCand = (GFTrackCand*)fTrackCand->At(tcIndex);
 				PrintTrackCand(myTrackCand);
@@ -522,7 +522,7 @@ void PndMvdEventAnaTask::PrintClusterDigiInfo(int clIndex,
 	if (fPrintCluster)
 		std::cout << "Hit belongs to cluster " << clIndex << std::endl;
 	if (fPrintPixDigis)	{
-		for (int s = 0; s < digiInd.size(); s++)		{
+		for (unsigned int s = 0; s < digiInd.size(); s++)		{
 			PndMvdDigi* myDigi = (PndMvdDigi*)(digis->At(digiInd[s]));
 			if (pixel) ((PndMvdDigiPixel*)myDigi)->Print();
 			else ((PndMvdDigiStrip*)myDigi)->Print();
@@ -584,7 +584,7 @@ bool PndMvdEventAnaTask::MCHitBelongsToCluster(int HitIndex, PndMvdCluster* clus
 {
 	bool result = false;
 	std::vector<Int_t> clusterList = cluster->GetClusterList();
-	for (int i = 0; i < clusterList.size() && result == false; i++){
+	for (unsigned int i = 0; i < clusterList.size() && result == false; i++){
 		PndMvdDigi* myDigi;
 		if (pixCluster)
 			myDigi = (PndMvdDigi*)(fPixDigis->At(clusterList[i]));
@@ -608,20 +608,20 @@ void PndMvdEventAnaTask::GetTrackCandsForMCTrack(std::vector<int> pixHitId, std:
 		for (int i = 0; i < fTrackCand->GetEntriesFast(); i++){
 			GFTrackCand* myTrackCand = (GFTrackCand*)fTrackCand->At(i);
 			hitMatch = 0;
-			for (int j = 0; j < myTrackCand->getNHits(); j++){
+			for (unsigned int j = 0; j < myTrackCand->getNHits(); j++){
 				myTrackCand->getHit(j, detId, hitId);
 				//std::cout << "DetId: " << detId << " HitId: " << hitId << std::endl;
 				if (detId == 5){
-					for (int k = 0; k < pixHitId.size(); k++){
+					for (unsigned int k = 0; k < pixHitId.size(); k++){
 						//std::cout << "PixHitId: " << pixHitId[k] << std::endl;
-						if (hitId == pixHitId[k])
+						if ((int)hitId == pixHitId[k])
 							hitMatch++;
 					}
 				}
 				else if (detId == 4){
-					for (int k = 0; k < stripHitId.size(); k++){
+					for (unsigned int k = 0; k < stripHitId.size(); k++){
 						//std::cout << "StripHitId: " << stripHitId[k] << std::endl;
-						if (hitId == stripHitId[k])
+						if ((int)hitId == stripHitId[k])
 							hitMatch++;
 					}
 				}
@@ -653,7 +653,7 @@ void PndMvdEventAnaTask::PrintTrackCand(GFTrackCand* cand) const
 {
   unsigned int det, hit;
      std::cout << "TrackCand: " << cand->getCurv() << " curv, " << cand->getDip() << " dip, " << (int)(cand->inverted()) << " inverted." << "\n";
-     for (int i = 0; i < cand->getNHits(); i++){
+     for (unsigned int i = 0; i < cand->getNHits(); i++){
     	 cand->getHit(i, det, hit);
     	 std::cout << det << "/" << hit << " ";
      }

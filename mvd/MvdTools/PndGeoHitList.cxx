@@ -70,7 +70,7 @@ void PndGeoHitList::AddHits(TClonesArray* hitList, Bool_t vis)
 
 void PndGeoHitList::SetHits(TClonesArray* hitList, Bool_t vis)
 {
-  if (hitList->GetEntries() > fNodeList.size()){
+  if ((unsigned int)hitList->GetEntries() > fNodeList.size()){
     CreateGeoHits(hitList->GetEntries() - fNodeList.size());
     std::cout << "hitList: " << hitList->GetEntries() << "fNodeList: " << fNodeList.size() << std::endl;
   }
@@ -126,7 +126,7 @@ void PndGeoHitList::CreateGeoHits(Int_t number)
 void PndGeoHitList::RemoveGeoHits(Int_t from)
 {
   std::cout << "Old RecoList size: " << fNodeList.size() << std::endl;
-  for(Int_t i = from; i < fNodeList.size(); i++){
+  for(UInt_t i = from; i < fNodeList.size(); i++){
     fGroupVolume->RemoveNode(fNodeList[i]);
   }
   fNodeList.erase(fNodeList.begin()+from, fNodeList.end());
@@ -136,7 +136,7 @@ void PndGeoHitList::RemoveGeoHits(Int_t from)
 
 void PndGeoHitList::SetGeoHitsInvisible(Int_t from)
 {
-  for (Int_t i = from; i < fNodeList.size(); i++)
+  for (UInt_t i = from; i < fNodeList.size(); i++)
     fNodeList[i]->SetVisibility(kFALSE);
   
 }
@@ -161,7 +161,7 @@ void PndGeoHitList::SetVisibility(TGeoHMatrix pos, bool value)
 
 void PndGeoHitList::SetVisibility(Int_t id, bool value)
 {
-  if (id < fNodeList.size())
+  if ((unsigned int)id < fNodeList.size())
     fNodeList[id]->SetVisibility(value);
   else
     std::cout << "-E- PndGeoHitList: Not a valid id!" << std::endl;
@@ -174,7 +174,7 @@ void PndGeoHitList::SetAllInvisible()
 
 Int_t PndGeoHitList::GetNodeId(TString NodeName)
 {
-  for(Int_t i = 0; i < fNodeList.size(); i++){
+  for(UInt_t i = 0; i < fNodeList.size(); i++){
     std::cout << "NodeNames: " << fNodeList[i]->GetName() << std::endl;
     if (fNodeList[i]->GetName() == NodeName)
       return i;
@@ -187,7 +187,7 @@ Int_t PndGeoHitList::GetNodeId(TGeoHMatrix pos)
 //  std::cout << "pos: " << std::endl;
 //  pos.Print();
       
-  for(Int_t i = 0; i < fNodeList.size(); i++){
+  for(UInt_t i = 0; i < fNodeList.size(); i++){
 //    std::cout << "NodeMatrix: " << std::endl;
 //    fNodeList[i]->GetMatrix()->Print();
     

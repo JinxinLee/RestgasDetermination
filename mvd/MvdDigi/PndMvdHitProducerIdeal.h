@@ -1,32 +1,20 @@
 // -------------------------------------------------------------------------
-// -----                 CbmStsHitProducerIdel header file             -----
-// -----                  Created 10/01/06  by V. Friese               -----
+// -----                 CbmMvdHitProducerIdel header file             -----
 // -------------------------------------------------------------------------
 
 
-/** CbmStsHitProducerIdeal.h
- *@author V.Friese <v.friese@gsi.de>
- **
- ** The ideal hit producer produces hits of type CbmStsMapsHit by copying
- ** the MCPoint position. The position error is set to 1 mum, much 
- ** smaller than can be obtained by any detector. Using the hits from 
- ** this HitProducer is thus equivalent to using MC information
- ** directly, but with the correct data interface.
+/** CbmMvdHitProducerIdeal.h
+ *@author R.Kliemt
+ ** Inherit from Sds Ideal hitproducer
  **/
 
 
 #ifndef PNDMVDHITPRODUCERIDEAL_H
-#define PNDMVDHITPRODUCERIDEAL_H 
+#define PNDMVDHITPRODUCERIDEAL_H 1
 
-#include "FairTask.h"
-//#include "PndMvdGeoPar.h"
+#include "PndSdsHitProducerIdeal.h"
 
-#include "TVector3.h"
-#include "TRandom.h"
- 
-class TClonesArray;
-
-class PndMvdHitProducerIdeal : public FairTask
+class PndMvdHitProducerIdeal : public PndSdsHitProducerIdeal
 {
  public:
 
@@ -37,38 +25,10 @@ class PndMvdHitProducerIdeal : public FairTask
   /** Destructor **/
   virtual ~PndMvdHitProducerIdeal();
 
+  void SetBranchNames(TString inBranchname, TString outBranchname, TString folderName);
+  virtual void SetBranchNames();
 
-  /** Virtual method Init **/
-  virtual void SetParContainers();
-  virtual InitStatus Init();
-
-
-  /** Virtual method Exec **/
-  virtual void Exec(Option_t* opt);
-  
-  void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;} ;
-  Bool_t GetPersistance() {return fPersistance;};
-
-
- private:
-  Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
-
-  TString fBranchName;
-  /** Input array of PndMvdMCPoints **/
-  TClonesArray* fPointArray;
-
-  /** Output array of PndMvdHits **/
-  TClonesArray* fHitArray;  
-  
-  //PndMvdGeoPar* fGeoPar;
-  
-  void Register();
-  
-  void Reset();
-  
-  void ProduceHits();
-
-  ClassDef(PndMvdHitProducerIdeal,3);
+  ClassDef(PndMvdHitProducerIdeal,4);
 
 };
 

@@ -25,7 +25,7 @@ PndMvdAnaRadDam::~PndMvdAnaRadDam()
 
 void PndMvdAnaRadDam::AnalyzeFiles()
 {
-	for (int i = 0; i < fFileList.size(); i++){
+	for (unsigned int i = 0; i < fFileList.size(); i++){
 		TFile* f = fFileList[i];
 		TList* l = f->GetListOfKeys();
 		TIter iter(l);

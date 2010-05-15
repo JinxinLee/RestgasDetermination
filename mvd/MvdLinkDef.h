@@ -16,41 +16,38 @@
 // #pragma link C++ class PndMvdApvHit+;
 
 //mc
-#pragma link C++ class PndMvdGeo+;
-#pragma link C++ class PndMvdGeoPar+;
+//#pragma link C++ class PndMvdGeo+;
+//#pragma link C++ class PndMvdGeoPar+;
 #pragma link C++ class PndMvdContFact+;
 #pragma link C++ class PndMvdDetector+;
-//#pragma link C++ class PndMvdMaterialDet+;
 
 //digi
 #pragma link C++ class PndMvdHybridHitProducer+;
 #pragma link C++ class PndMvdStripHitProducer+;
-#pragma link C++ class PndMvdCalcTot;
-#pragma link C++ class PndMvdCalcPixel;
-#pragma link C++ class PndMvdCalcFePixel;
-#pragma link C++ class PndMvdCalcStrip;
+//#pragma link C++ class PndMvdCalcPixel;
+//#pragma link C++ class PndMvdCalcFePixel;
+//#pragma link C++ class PndMvdCalcStrip;
 #pragma link C++ class PndMvdDigiTask+;
-#pragma link C++ class PndMvdPixelDigiPar+;
-#pragma link C++ class PndMvdStripDigiPar+;
-#pragma link C++ class PndMvdDigiAna+;
+//#pragma link C++ class PndMvdPixelDigiPar+;
+//#pragma link C++ class PndMvdStripDigiPar+;
+//#pragma link C++ class PndMvdDigiAna+;
 #pragma link C++ class PndMvdHitProducerIdeal+;
 #pragma link C++ class PndMvdNoiseProducer+;
-#pragma link C++ class PndMvdCalcFePixel+;
-#pragma link C++ class PndMvdCalcTot+;
+//#pragma link C++ class PndMvdCalcFePixel+;
 
-#pragma link C++ class PndMvdMCEventAna+;
-#pragma link C++ class PndMvdEventAna+;
-#pragma link C++ class PndMvdDigiEventAna+;
-#pragma link C++ class PndMvdEventAna+;
-#pragma link C++ class PndMvdMCEventAna+;
-#pragma link C++ class PndMvdDigiEventAna+;
-#pragma link C++ class PndMvdAllDataEventAna+;
+//#pragma link C++ class PndMvdMCEventAna+;
+//#pragma link C++ class PndMvdEventAna+;
+//#pragma link C++ class PndMvdDigiEventAna+;
+//#pragma link C++ class PndMvdEventAna+;
+//#pragma link C++ class PndMvdMCEventAna+;
+//#pragma link C++ class PndMvdDigiEventAna+;
+//#pragma link C++ class PndMvdAllDataEventAna+;
 #pragma link C++ class PndMvdAccessRTDBTask+;
 
 
 #pragma link C++ class PndGeoHitList+;
 #pragma link C++ class PndEventDisplay+;
-#pragma link C++ class PndMvdEventAnaTask+;
+//#pragma link C++ class PndMvdEventAnaTask+;
 #pragma link C++ class PndMvdEventMerger+;
 #pragma link C++ class PndMvdEventMergerTask+;
 #pragma link C++ class PndMvdMSAnaTask+;

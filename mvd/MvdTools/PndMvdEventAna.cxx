@@ -1,5 +1,5 @@
 #include "PndMvdEventAna.h"
-#include "PndMvdMCPoint.h"
+#include "PndSdsMCPoint.h"
 #include "TVector3.h"
 #include "TEventList.h"
 

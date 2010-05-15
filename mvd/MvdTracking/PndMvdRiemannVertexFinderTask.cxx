@@ -162,10 +162,10 @@ void PndMvdRiemannVertexFinderTask::CalcEfficiency(std::vector< std::pair <int,i
 		std::vector< std::pair <int,int> > FalseMCCand,std::vector< std::pair <int,int> > MCCand)
 {
 	int counter=0;
-		for(int i=0;i<MCCand.size();i++){
+		for(unsigned int i=0;i<MCCand.size();i++){
 			int MCfirst=MCCand[i].first;
 			int MCsecond=MCCand[i].second;
-			 for(int j=0;j<TrueMCCand.size();j++){
+			 for(unsigned int j=0;j<TrueMCCand.size();j++){
 				int first=TrueMCCand[j].first;
 				int second=TrueMCCand[j].second;
 				if ((MCfirst==first && MCsecond==second) or (MCfirst==second && MCsecond==first)){
@@ -259,7 +259,7 @@ void PndMvdRiemannVertexFinderTask::refit(std::vector<int>& CheckedCand)
 		  PndTrackCand* Cand = (PndTrackCand*)fTrackCandArray->At(i);
 		  unsigned int detId,hitId;
 		  PndRiemannTrack track;
-		  for(int j=0;j<Cand->GetNHits();j++){
+		  for(unsigned int j=0;j<Cand->GetNHits();j++){
 			  detId=Cand->GetSortedHit(j).GetDetId();
 			  hitId=Cand->GetSortedHit(j).GetHitId();
 			  PndMvdHit* point = new PndMvdHit();
@@ -293,9 +293,9 @@ int  PndMvdRiemannVertexFinderTask::FoundCandInMCCands(int candN)
 	PndTrackCand* FoundCand=(PndTrackCand*)fTrackCandArray->At(candN);
 	for(int k=0;k<fIdealTrackCandArray->GetEntriesFast();k++){
 		PndTrackCand* TestCand=(PndTrackCand*)fIdealTrackCandArray->At(k);
-		int counter=0;
+		unsigned int counter=0;
 		bool ZeroPos=false;
-			  for(int i=0;i<FoundCand->GetNHits();i++){
+			  for(unsigned int i=0;i<FoundCand->GetNHits();i++){
 				  unsigned int d1,h1;
 				  d1=FoundCand->GetSortedHit(i).GetDetId();
 				  h1=FoundCand->GetSortedHit(i).GetHitId();
@@ -303,7 +303,7 @@ int  PndMvdRiemannVertexFinderTask::FoundCandInMCCands(int candN)
 					  ZeroPos=true;
 					  continue;
 				  }
-				  for(int j=0;j<TestCand->GetNHits();j++){
+				  for(unsigned int j=0;j<TestCand->GetNHits();j++){
 					  unsigned int d2,h2;
 					  d2=TestCand->GetSortedHit(j).GetDetId();
 					  h2=TestCand->GetSortedHit(j).GetHitId();
@@ -324,10 +324,10 @@ int  PndMvdRiemannVertexFinderTask::FoundCandInMCCands(int candN)
 bool PndMvdRiemannVertexFinderTask::CheckVertex(std::vector<int> Combination, std::vector< std::pair<int,int> > PairCand)
 {
 	int count1=0;
-	for(int i=0;i<PairCand.size();i++){
+	for(unsigned int i=0;i<PairCand.size();i++){
 		int ind1=PairCand[i].first,ind2=PairCand[i].second;
 		int count2=0;
-		for(int j=0;j<Combination.size();j++){
+		for(unsigned int j=0;j<Combination.size();j++){
 			if ((ind1==Combination[j]) or (ind2==Combination[j]))
 				count2++;
 		}
@@ -344,11 +344,11 @@ bool PndMvdRiemannVertexFinderTask::CheckTwoCands(int first, int second)
 	PndTrackCand* cand1=(PndTrackCand*)fTrackCandArray->At(first);
 	PndTrackCand* cand2=(PndTrackCand*)fTrackCandArray->At(second);
 	int counter=0;
-		  for(int i=0;i<cand1->GetNHits();i++){
+		  for(unsigned int i=0;i<cand1->GetNHits();i++){
 			  unsigned int d1,h1;
 			  d1=cand1->GetSortedHit(i).GetDetId();
 			  h1=cand1->GetSortedHit(i).GetHitId();
-			  for(int j=0;j<cand2->GetNHits();j++){
+			  for(unsigned int j=0;j<cand2->GetNHits();j++){
 				  unsigned int d2,h2;
 				  d2=cand2->GetSortedHit(j).GetDetId();
 				  h2=cand2->GetSortedHit(j).GetHitId();
@@ -369,7 +369,7 @@ bool PndMvdRiemannVertexFinderTask::CheckRecoTrack(PndTrackCand *cand,PndMCTrack
 		int count=0;
 		unsigned int detIDi, hitIDi;
 		unsigned int detIDj, hitIDj;
-		for(int i=0;i<cand->GetNHits();i++){
+		for(unsigned int i=0;i<cand->GetNHits();i++){
 			detIDi=cand->GetSortedHit(i).GetDetId();
 			hitIDi=cand->GetSortedHit(i).GetHitId();
 			PndMvdHit *pointI;
@@ -379,7 +379,7 @@ bool PndMvdRiemannVertexFinderTask::CheckRecoTrack(PndTrackCand *cand,PndMCTrack
 				 pointI = (PndMvdHit*)fHitArray2->At(hitIDi);
 			else pointI = 0;
 
-				for(int j=0;j<cand->GetNHits();j++){
+				for(unsigned int j=0;j<cand->GetNHits();j++){
 					detIDj=cand->GetSortedHit(j).GetDetId();
 					hitIDj=cand->GetSortedHit(j).GetHitId();
 					PndMvdHit *pointJ;

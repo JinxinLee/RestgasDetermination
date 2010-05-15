@@ -10,19 +10,19 @@
 //data
 
 //reco
-#pragma link C++ class PndMvdRecoCharge+;
 #pragma link C++ class PndMvdIdealRecoTask+;
 //#pragma link C++ class PndMvdRecoTask+;
 #pragma link C++ class PndMvdPixelClusterTask+;
-#pragma link C++ class PndMvdPixelClusterFinder+;
+//#pragma link C++ class PndMvdPixelClusterFinder+;
 #pragma link C++ class PndMvdSimplePixelClusterFinder+;
 #pragma link C++ class PndMvdClusterTask+;
 #pragma link C++ class PndMvdIdealClusterTask+;
 #pragma link C++ class PndMvdStripClusterTask+;
-#pragma link C++ class PndMvdStripClusterBuilder+;
-#pragma link C++ class PndMvdSimpleStripClusterFinder+;
-#pragma link C++ class PndMvdStripClusterFinder+;
-#pragma link C++ class PndMvdChargeWeightingAlgorithms+;
+#pragma link C++ class PndMvdChargeWeightedPixelMapping+;
+//#pragma link C++ class PndMvdStripClusterBuilder+;
+//#pragma link C++ class PndMvdSimpleStripClusterFinder+;
+//#pragma link C++ class PndMvdStripClusterFinder+;
+//#pragma link C++ class PndMvdChargeWeightingAlgorithms+;
 //tools
 #pragma link C++ class PndMvdRadDamList+;
 #pragma link C++ class PndMvdRadDamTask+;

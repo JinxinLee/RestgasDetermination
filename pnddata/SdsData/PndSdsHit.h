@@ -20,6 +20,7 @@
 #include "TVector3.h"
 #include "TString.h"
 #include "FairHit.h"
+#include "PndDetectorList.h"
 //#include "PndSingleLinkedData.h" 
 
 #include <stdio.h>
@@ -28,7 +29,7 @@
 class PndSdsHit : public FairHit
 {
   friend std::ostream& operator<< (std::ostream& out, const PndSdsHit& hit){
-    out << "PndSdsHit in " << hit.GetDetName() << " at" << std::endl;
+    out << "PndSdsHit in " << hit.GetSensorID() << " at" << std::endl;
     out << "(" << hit.GetX() << ", " << hit.GetY() << ", " << hit.GetZ() << ") cm "
         << " with " << hit.GetCharge() << " e" << ", Cluster No. " << hit.GetClusterIndex();
     if (hit.GetBotIndex() > -1)
@@ -40,8 +41,11 @@ class PndSdsHit : public FairHit
     out << std::endl;
 
     out <<"hit.GetClusterIndex() "<<hit.GetClusterIndex() <<std::endl;
-    out <<" hit.GetBotIndex() "<< hit.GetBotIndex() <<std::endl;
+    out <<"hit.GetBotIndex() "<< hit.GetBotIndex() <<std::endl;
     out <<"hit.GetRefIndex() "<< hit.GetRefIndex()<<std::endl;
+    out <<"hit.GetNDigiHits() "<< hit.GetNDigiHits()<<std::endl;
+    out <<"hit.GetCharge() "<< hit.GetCharge()<<"("<<hit.GetEloss()<<" GeV)"<<std::endl;
+    out <<"hit.GetSensorID() "<< hit.GetSensorID()<<std::endl;
     return out;
   }
 
@@ -53,14 +57,14 @@ class PndSdsHit : public FairHit
 
   /** Standard constructor with all paramneters 
    *@param detID   Detector ID
-   *@param detName Detector Name
+   *@param sensorID Sensor ID
    *@param pos     Position vector [cm]
    *@param dpos    Position error vector [cm]
    *@param index   Array index of ClusterCand
    *@param charge  Charge measured in hit
    *@param NDigiHits Number of pixels fired for this event
    **/
-  PndSdsHit(Int_t detID, TString detName,
+  PndSdsHit(Int_t detID, Int_t sensorID,
   	    TVector3& pos, TVector3& dpos, Int_t clindex, Double_t charge, Int_t NDigiHits, Int_t mcindex);
 
   //PndSdsHit(PndSdsHit& c);
@@ -70,13 +74,17 @@ class PndSdsHit : public FairHit
 
   /** Accessors **/
   
-  void SetDetName(TString name)  { fDetName   = name;}
+  void SetSensorID(Int_t sensorID)  { fSensorID   = sensorID;}
   void SetCharge(Double_t charge){ fCharge    = charge;}
   void SetNDigiHits(Int_t pixel) { fNDigiHits = pixel;}
-  void SetClusterIndex(Int_t datasource, Int_t id) { fClusterIndex = id;} // SetLink(datasource, id); 
+  void SetClusterIndex(Int_t datasource, Int_t id) {
+	  fClusterIndex = id;
+	  SetLink(FairLink((fDetectorType)datasource, id));
+  }
   void SetBotIndex(Int_t id)     { fBotIndex  = id;}
   
-  TString 	GetDetName()      const { return fDetName;}
+  //TString 	GetDetName()      const { return fDetName;}
+  Int_t     GetSensorID()			const { return fSensorID;}
   Double_t 	GetCharge()       const { return fCharge;}
   Int_t 	  GetNDigiHits()    const { return fNDigiHits;}
   TVector3  GetPosition()	    const { return TVector3(fX,fY,fZ);}
@@ -108,7 +116,8 @@ class PndSdsHit : public FairHit
  private:
 //   Double_t GetD(Int_t i);
 
-  TString fDetName;  // Detector name
+  //TString fDetName;  // Detector name
+  Int_t fSensorID; ///< unique sensor ID
   Double_t fCharge; /// deposited Charge
   Int_t fNDigiHits; /// number of fired Digis for this hit,
   Int_t fClusterIndex; /// top/pixel cluster index

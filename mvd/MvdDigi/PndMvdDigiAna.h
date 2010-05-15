@@ -2,19 +2,18 @@
 #define PNDMVDDIGIANA_H
 
 #include "FairTask.h"
-//#include "PndMvdGeoPar.h"
-#include "PndMvdHit.h"
-#include "PndMvdMCPoint.h"
-#include "PndMvdPixel.h"
-#include "PndMvdDigiPixel.h"
+#include "PndSdsHit.h"
+#include "PndSdsMCPoint.h"
+#include "PndSdsPixel.h"
+#include "PndSdsDigiPixel.h"
 #include "FairGeoVector.h"
 #include "FairGeoTransform.h"
 #include "TVector3.h"
 #include "TRandom.h"
 #include "TGeoMatrix.h"
 #include "TGeoBBox.h"
-#include "PndMvdStripDigiPar.h"
-#include "PndMvdPixelDigiPar.h"
+#include "PndSdsStripDigiPar.h"
+#include "PndSdsPixelDigiPar.h"
 
 #include "TH3.h"
 
@@ -58,8 +57,7 @@ class PndMvdDigiAna : public FairTask
   TH3F* fPixelPos;
   TH3F* fStripPos;
 
- // PndMvdGeoPar* fGeoPar;
-  PndMvdPixelDigiPar* fDigiPar;
+  PndSdsPixelDigiPar* fDigiPar;
   
   void Register();
   void Reset();  

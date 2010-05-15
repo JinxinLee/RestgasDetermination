@@ -4,21 +4,18 @@ PndSdsDigi::PndSdsDigi(){
        fCharge = -1;
 }
 
-PndSdsDigi::PndSdsDigi(std::vector<Int_t> index, Int_t detID, TString detName, Int_t fe, Double_t charge)
+PndSdsDigi::PndSdsDigi(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Double_t charge, fDetectorType mcPointType):
+		fDetID(detID), fSensorID(sensorID), fFE(fe), fCharge(charge)
 { 
-        AddIndex(index);
-	fDetID  = detID;
-	fDetName= detName;
-	fFE     = fe;
-	fCharge	= charge;
+    SetMCPointType(mcPointType);
+	AddIndex(index);
 }
 
-PndSdsDigi::PndSdsDigi(Int_t index, Int_t detID, TString detName, Int_t fe, Double_t charge){ 
-	        AddIndex(index); 
- 	        fDetID  = detID; 
- 	        fDetName= detName; 
- 	        fFE     = fe; 
- 	        fCharge = charge; 
- 	} 
+PndSdsDigi::PndSdsDigi(Int_t index, Int_t detID, Int_t sensorID, Int_t fe, Double_t charge, fDetectorType mcPointType):
+		fDetID(detID), fSensorID(sensorID), fFE(fe), fCharge(charge)
+{
+	SetMCPointType(mcPointType);
+	AddIndex(index);
+}
 
 ClassImp(PndSdsDigi);

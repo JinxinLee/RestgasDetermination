@@ -49,7 +49,7 @@ void PndMvdCreateDefaultApvMap::SetParContainers()
   while (TObjString* contname = (TObjString*)cfIter()) {
     TString parsetname = contname->String();
     if(parsetname.BeginsWith("MVDStripDigiPar")){
-      PndMvdStripDigiPar* digipar = (PndMvdStripDigiPar*)(rtdb->getContainer(parsetname.Data()));
+      PndSdsStripDigiPar* digipar = (PndSdsStripDigiPar*)(rtdb->getContainer(parsetname.Data()));
       fDigiParameterList->Add(digipar);
       Info("SetParContainers()","Add container %s",parsetname.Data());
     }
@@ -104,7 +104,7 @@ void PndMvdCreateDefaultApvMap::WriteExpandNode()
 {
   // this volume should be an assambly
   TGeoNode* node = gGeoManager->GetCurrentNode();
-  TGeoVolume* vol = node->GetVolume();
+  //TGeoVolume* vol = node->GetVolume();
   if(node->GetNdaughters() > 0)
   { // iterate to daughters
     for (Int_t Nod=0; Nod<node->GetNdaughters();Nod++) {
@@ -146,7 +146,7 @@ void PndMvdCreateDefaultApvMap::WriteExpandNode()
 Bool_t PndMvdCreateDefaultApvMap::SelectSensorParams(TString detpath)
 {
   TIter parsetiter(fDigiParameterList);
-  while ( PndMvdStripDigiPar* digipar = (PndMvdStripDigiPar*)parsetiter() ) 
+  while ( PndSdsStripDigiPar* digipar = (PndSdsStripDigiPar*)parsetiter() ) 
   {
     const char* sensortype = digipar->GetSensType();
     if(detpath.Contains(sensortype))  {

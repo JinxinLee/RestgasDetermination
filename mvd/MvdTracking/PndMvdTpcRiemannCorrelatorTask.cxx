@@ -225,7 +225,7 @@ void PndMvdTpcRiemannCorrelatorTask::Exec(Option_t* opt)
 PndRiemannTrack PndMvdTpcRiemannCorrelatorTask::GetRiemannTrack(GFTrackCand* cand)
 {
 	PndRiemannTrack result;
-	for (int i = 0; i < cand->getNHits(); i++){
+	for (unsigned int i = 0; i < cand->getNHits(); i++){
 		unsigned int detId, hitId;
 		cand->getHit(i, detId, hitId);
 		FairHit* myHit = 0;
@@ -301,7 +301,7 @@ void PndMvdTpcRiemannCorrelatorTask::DrawHistos(TCanvas* can, std::vector<TH1*> 
 {
 	can->Divide(3,3);
 
-	for (int i = 0; i < histos.size() && i < 9; i++){
+	for (unsigned int i = 0; i < histos.size() && i < 9; i++){
 		can->cd(i+1);
 		can->Update();
 		histos.at(i)->DrawClone();

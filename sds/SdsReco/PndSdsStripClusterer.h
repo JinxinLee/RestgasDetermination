@@ -26,16 +26,16 @@
 typedef std::map<Int_t,Int_t> Indexpair;
 typedef std::map<Int_t,Indexpair> Indextriple;
 typedef std::map<SensorSide,Indextriple> SidedTriple; 
-typedef std::map<std::string,SidedTriple > Fullmap; 
+typedef std::map<Int_t, SidedTriple > Fullmap;
 
 class PndSdsStripClusterer {
  public:
   PndSdsStripClusterer();
-  ~PndSdsStripClusterer();
+  virtual ~PndSdsStripClusterer();
 
   void Reinit();
 
-  void AddDigi(std::string detname, SensorSide side, Int_t timestamp, Int_t strip, Int_t iPoint);
+  void AddDigi(Int_t sensorID, SensorSide side, Int_t timestamp, Int_t strip, Int_t iDigi);
   void ClearDigis() {fSortedDigis.clear();} 
   virtual std::vector< PndSdsClusterStrip > SearchClusters() = 0; 
 
@@ -56,8 +56,7 @@ protected:
   std::vector< Int_t > fLeftDigis;  // contains index to the not assigned digis
   std::vector< PndSdsClusterStrip > fClusters;
 
-private:
-ClassDef(PndSdsStripClusterer,2);
+  ClassDef(PndSdsStripClusterer,3);
 };
 
 

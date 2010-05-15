@@ -237,7 +237,7 @@ void PndMvdIdealTrackFinderTask::PrintResult()
        detId=trackCand->GetSortedHit(i).GetDetId();
        hitId=trackCand->GetSortedHit(i).GetHitId();
       PndMvdHit* myHit;
-      if(hitId<nStripHits) myHit = (PndMvdHit*)(fStripHitArray->At(hitId));
+      if(hitId<(UInt_t)nStripHits) myHit = (PndMvdHit*)(fStripHitArray->At(hitId));
       else myHit = (PndMvdHit*)(fPixelHitArray->At(hitId - nStripHits));
       std::cout << "Detector no. " << detId <<": "<< *myHit;
      }

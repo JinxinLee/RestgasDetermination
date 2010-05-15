@@ -31,6 +31,9 @@ void PndSdsStripDigiPar::putParams(FairParamList* list)
   list->add("cluster_radchan", fRadChannel);
   list->add("cluster_radtime", fRadTime);
   list->add("cluster_corrchargecut", fChargeCut);
+  list->add("cluster_singlechargecut", fSingleChargeCut);
+  list->add("chargeconv_method", fChargeConvMethod);
+
 //   TObjString* sens = new TObjString( fSensType.Data() );
 //   list->addObject("sens_Type", sens);
 //   TObjString* fe = new TObjString( fFeType.Data() );
@@ -67,6 +70,10 @@ Bool_t PndSdsStripDigiPar::getParams(FairParamList* list)
   if (!list->fill("cluster_radchan", &fRadChannel)) return kFALSE;
   if (!list->fill("cluster_radtime", &fRadTime)) return kFALSE;
   if (!list->fill("cluster_corrchargecut", &fChargeCut)) return kFALSE;
+  if (!list->fill("cluster_singlechargecut", &fSingleChargeCut)) return kFALSE;
+
+  if (!list->fill("chargeconv_method", &fChargeConvMethod)) return kFALSE;
+
   return kTRUE;
 }
 
@@ -87,6 +94,7 @@ void PndSdsStripDigiPar::Print()
   std::cout<<"   Nr of Frontends (Bottom Side)= "<<fBotNrFE<<std::endl;
   std::cout<<"   Charge Threshold (e-)        = "<<fThreshold<<std::endl;
   std::cout<<"   Noise (ENC+Dispersion) (e-)  = "<<fNoise<<std::endl;
+  std::cout<<"   charge conv. (0:ideal, 1:TOT)    = "<<fChargeConvMethod<<std::endl;
   std::cout<<"   Frontend type name is        = "<<fFeType.Data()<<std::endl;
   std::cout<<"   Clusterfinder Mode                    = "<<fClusterMod<<std::endl;
   std::cout<<"   Clusterfinder Search Radius: Channels = "<<fRadChannel<<std::endl;

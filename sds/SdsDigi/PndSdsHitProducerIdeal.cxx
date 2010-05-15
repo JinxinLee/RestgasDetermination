@@ -8,7 +8,6 @@
 #include "FairRootManager.h"
 #include "PndSdsHitProducerIdeal.h"
 #include "PndSdsHit.h"
-#include "PndSdsHitInfo.h"
 #include "PndSdsMCPoint.h"
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
@@ -16,10 +15,15 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsHitProducerIdeal::PndSdsHitProducerIdeal() :
-  FairTask("Ideal SDS Hit Producer")
+FairTask("Ideal SDS Hit Producer"), fPersistance(kTRUE)
 {
-	//fBranchName 	= "MVDPoint";
-  fPersistance = kTRUE;
+}
+// -------------------------------------------------------------------------
+
+// -----   Named constructor   -------------------------------------------
+PndSdsHitProducerIdeal::PndSdsHitProducerIdeal(const char* name) :
+FairTask(name), fPersistance(kTRUE)
+{
 }
 // -------------------------------------------------------------------------
 
@@ -37,6 +41,7 @@ InitStatus PndSdsHitProducerIdeal::Init()
   FairRootManager* ioman = FairRootManager::Instance();
 
   SetBranchNames();
+  SetMCPointType();
 
   if ( ! ioman )
     {
@@ -67,8 +72,8 @@ InitStatus PndSdsHitProducerIdeal::Init()
 void PndSdsHitProducerIdeal::SetParContainers()
 {
   // Get Base Container
-  FairRun* ana = FairRun::Instance();
-  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
+  //FairRun* ana = FairRun::Instance();
+  //FairRuntimeDb* rtdb=ana->GetRuntimeDb();
  // fGeoPar = (PndSdsGeoPar*)(rtdb->getContainer("PndSdsGeoPar"));
 
 }
@@ -116,8 +121,9 @@ void PndSdsHitProducerIdeal::Exec(Option_t* opt)
 
 
       // Create new hit
-      new ((*fHitArray)[iPoint]) PndSdsHit(detID, point->GetDetName(), position, dpos, -1, point->GetEnergyLoss(),1, iPoint);
-//	std::cout << "Hit created for module: " << point->GetDetName() << std::endl;
+      PndSdsHit* myHit = new ((*fHitArray)[iPoint]) PndSdsHit(detID, point->GetSensorID(), position, dpos, -1, point->GetEnergyLoss(),1, iPoint);
+      myHit->SetClusterIndex(fMCPointType, iPoint);
+      //	std::cout << "Hit created for module: " << point->GetDetName() << std::endl;
 
 
 

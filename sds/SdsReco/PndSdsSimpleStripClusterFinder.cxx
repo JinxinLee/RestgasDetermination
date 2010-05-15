@@ -37,28 +37,29 @@ std::vector< PndSdsClusterStrip >  PndSdsSimpleStripClusterFinder::SearchCluster
   fClusters.clear();
   fTopclusters.clear();
   fBotclusters.clear();
+  fLeftDigis.clear();
   std::vector< Int_t > onecluster;
   Indexpair::iterator tempStrip;
   //fSortedDigis[sensor][side][stripnr]=digiindex
   for (Fullmap::iterator itSensors = fSortedDigis.begin();
-        itSensors != fSortedDigis.end(); ++itSensors)				// iterate over sensor
+       itSensors != fSortedDigis.end(); ++itSensors)				// iterate over sensor
   {
     for (std::map<SensorSide,Indextriple>::iterator itSide = (itSensors->second).begin();
-          itSide != (itSensors->second).end(); ++itSide)			// iterate over sensor side
+         itSide != (itSensors->second).end(); ++itSide)			// iterate over sensor side
     {
-//       std::cout<<"clsterfinder: ";
-//       if(itSide->first == kTOP) std::cout<<"top"<<std::endl;
-//       else std::cout<<"bottom"<<std::endl;
+      //       std::cout<<"clsterfinder: ";
+      //       if(itSide->first == kTOP) std::cout<<"top"<<std::endl;
+      //       else std::cout<<"bottom"<<std::endl;
       for (Indextriple::iterator itTime = (itSide->second).begin(); itTime != (itSide->second).end(); ++itTime)
       {									// iterate over timestamp
-
-        // create a flagmap
+        
+        // create a flagmap: for each digi (identified by iDigi, the index of the clonesarray) a flag if it is used
         Indexpair flagmap;
         for (Indexpair::iterator itStrip = (itTime->second).begin(); itStrip!= (itTime->second).end(); ++itStrip)
         {flagmap[itStrip->second]=1;}						// iterate over channel
-
+        
         for (Indexpair::iterator itStrip = (itTime->second).begin();
-              itStrip!= (itTime->second).end();itStrip++)
+             itStrip!= (itTime->second).end();itStrip++)
         {
           tempStrip=itStrip;
           if( !(1==flagmap[itStrip->second]) ) continue;
@@ -69,16 +70,16 @@ std::vector< PndSdsClusterStrip >  PndSdsSimpleStripClusterFinder::SearchCluster
             onecluster.push_back(itStrip3->second);
             flagmap[itStrip3->second]=-1;//do not reuse this digi
             tempStrip=itStrip3;
-//             std::cout<<"add strip "<<itStrip3->first << " from digi "<<itStrip3->second <<std::endl;
+            //             std::cout<<"add strip "<<itStrip3->first << " from digi "<<itStrip3->second <<std::endl;
           }
-//           std::cout<<" --- "<<std::endl;
           AddCluster(onecluster,itSide->first);
           onecluster.clear();
+          // std::cout<<" --- "<<std::endl;
         } // end loop itStrip
-
+        
         if (onecluster.size()>0)
         {
-          std::cout<<"-w- PndSdsSimpleStripClusterFinder::SearchClusters(): cluster hangover? "<<onecluster.size()<<std::endl;
+          Warning("SearchClusters","a hangover cluster of %i digis",onecluster.size());
           AddCluster(onecluster,itSide->first);
           onecluster.clear();
         }

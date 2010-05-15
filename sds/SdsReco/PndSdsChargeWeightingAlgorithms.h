@@ -4,6 +4,7 @@
 #include <vector>
 #include "TClonesArray.h"
 #include "PndSdsDigiStrip.h"
+#include "PndSdsChargeConversion.h"
 class PndSdsCluster;
 //class RunInfo;
 class PndSdsCalcStrip;
@@ -37,10 +38,10 @@ public:
 	  	center_of_gravity(cluster);
   	   @endcode
        */
-	double center_of_gravity(const PndSdsCluster& Cluster);
+  std::pair<double,double> center_of_gravity(const PndSdsCluster& Cluster);
 
          /**
-	 @fn double head_tail(const StripCluster& Cluster)
+	 @fn std::pair<double,double> head_tail(const StripCluster& Cluster)
 
        calculate the coordinate of particle crossing the sensor, by using the head tail algorithm:
        \n \f$x_{ht}=\sum^n_{k=1}\left(\frac{x_{head}+x_{tail}}{2}+\frac{q_{head}-q_{tail}}{2\cdot q_\theta}\cdot pitch\right)\f$
@@ -51,10 +52,10 @@ public:
 	  	head_tail(cluster);
   	   @endcode
        */
-	double head_tail(const PndSdsCluster& Cluster);
+	std::pair<double,double> head_tail(const PndSdsCluster& Cluster);
 
          /**
-	 @fn double eta(const StripCluster& Cluster)
+	 @fn std::pair<double,double> eta(const StripCluster& Cluster)
 
 
        @param Cluster investigationg cluster
@@ -64,9 +65,9 @@ public:
 	  	eta(cluster);
   	   @endcode
        */
-	double eta(const PndSdsCluster& Cluster);
+	std::pair<double,double> eta(const PndSdsCluster& Cluster);
 	         /**
-	 @fn double binary(const StripCluster& Cluster)
+	 @fn std::pair<double,double> binary(const StripCluster& Cluster)
 
        coordinate of a strip with the highest signal
        @param Cluster investigationg cluster
@@ -76,9 +77,9 @@ public:
 	  	binary(cluster);
   	   @endcode
        */
-	double binary(const PndSdsCluster& Cluster);
+	std::pair<double,double> binary(const PndSdsCluster& Cluster);
 	/**
-	 @fn double auto_select(const StripCluster& Cluster)
+	 @fn std::pair<double,double> auto_select(const StripCluster& Cluster)
 
 	 use the algorithm, which seems to bring the best result with this cluster.
        @param Cluster investigationg cluster
@@ -88,7 +89,7 @@ public:
 	  	auto_select(cluster);
   	   @endcode
        */
-	double auto_select(const PndSdsCluster& Cluster);
+	std::pair<double,double> auto_select(const PndSdsCluster& Cluster);
 
       /**
 	 @fn void MakedNdEta(const StripCluster& Cluster, RunInfo info)
@@ -106,6 +107,7 @@ public:
 /**@}*/
 
 	void SetCalcStrip(PndSdsCalcStrip* calc){fCalcStrip = calc;};
+	void SetChargeConverter(PndSdsChargeConversion* ChargeConverter){fChargeConverter = ChargeConverter;};
 
 private:
 
@@ -114,6 +116,7 @@ private:
 	double _erfmod(double x, double p0, double p1, double p2, double p3);
 	TClonesArray* fDigiArray;
 	PndSdsCalcStrip* fCalcStrip;
+	PndSdsChargeConversion* fChargeConverter;
 
 	ClassDef(PndSdsChargeWeightingAlgorithms,0);
 };

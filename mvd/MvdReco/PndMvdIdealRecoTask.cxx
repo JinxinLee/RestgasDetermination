@@ -27,8 +27,8 @@
 
 // -----   Default constructor   -------------------------------------------
 PndMvdIdealRecoTask::PndMvdIdealRecoTask() :
-  FairTask("Ideal reconstruction task for PANDA PndMvd"),
-  fHitCovMatrix(3,3)
+FairTask("Ideal reconstruction task for PANDA PndMvd"),
+fHitCovMatrix(3,3)
 {
   fSigmaX=0.;
   fSigmaY=0.;
@@ -40,8 +40,8 @@ PndMvdIdealRecoTask::PndMvdIdealRecoTask() :
 
 // -----   Constructor   ---------------------------------------------------
 PndMvdIdealRecoTask::PndMvdIdealRecoTask(Double_t sx, Double_t sy, Double_t sz) :
-  FairTask("Ideal reconstruction task for PANDA PndMvd"),
-  fHitCovMatrix(3,3)
+FairTask("Ideal reconstruction task for PANDA PndMvd"),
+fHitCovMatrix(3,3)
 {
   fSigmaX=sx;
   fSigmaY=sy;
@@ -54,7 +54,7 @@ PndMvdIdealRecoTask::PndMvdIdealRecoTask(Double_t sx, Double_t sy, Double_t sz) 
 // -----   Destructor   ----------------------------------------------------
 PndMvdIdealRecoTask::~PndMvdIdealRecoTask()
 {
-delete fGeoH;
+  delete fGeoH;
 }
 
 // -----   Public method Init   --------------------------------------------
@@ -64,40 +64,39 @@ InitStatus PndMvdIdealRecoTask::Init()
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     std::cout << "-E- PndMvdIdealRecoTask::Init: "
-							<< "RootManager not instantiated!" << std::endl;
-    return kFATAL;  }
-
+    << "RootManager not instantiated!" << std::endl;
+  return kFATAL;  }
+  
   // Get input array
   fPointArray = (TClonesArray*) ioman->GetObject(fBranchName);
   if ( ! fPointArray ) {
     std::cout << "-W- PndMvdIdealRecoTask::Init: "<< "No "<<fBranchName
-							<<" array!" << std::endl;
-    return kERROR;  }
-
+    <<" array!" << std::endl;
+  return kERROR;  }
+  
   // Get MCTruth collection
   fMctruthArray=(TClonesArray*) ioman->GetObject("MCTrack");
   if(fMctruthArray==0)  {
     std::cout << "-W- PndMvdIdealRecoTask::Init: No McTruth array!" << std::endl;
-    return kERROR;  }
-
+  return kERROR;  }
+  
   // Create and register output array
   fHitOutputArray = new TClonesArray("PndMvdHit");
   ioman->Register("MVDHit", "PndMvd ideal Hits",
 									fHitOutputArray, fPersistance);
-
+  
   std::cout << "-I- gGeoManager = "<<gGeoManager << std::endl;
-  fGeoH = new PndGeoHandling();
-
-
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
 void PndMvdIdealRecoTask::SetParContainers()
 {
   // Get Base Container
-//  FairRun* ana = FairRun::Instance();
-//  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
-
+  //  FairRun* ana = FairRun::Instance();
+  //  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
+  //	PndSdsIdealRecoTask::SetParContainers();
+  if(0==fGeoH) fGeoH = new PndGeoHandling();
+  
 }
 
 
@@ -106,13 +105,13 @@ void PndMvdIdealRecoTask::Exec(Option_t* opt)
 {
 	// Fills PndMvdHits with the MC Truth
   // TODO filling of RecoHits, together with the sensor plane
-
-
+  
+  
  	if ( ! fHitOutputArray ) Fatal("Exec", "No fHitOutputArray");
  	fHitOutputArray->Delete();
-
+  
   std::map<Int_t, PndMvdHit*> clusterMap;
-
+  
   Int_t nPndMvdHits=fPointArray->GetEntriesFast();
   for(Int_t iMvdPoint=0;iMvdPoint<nPndMvdHits;++iMvdPoint)
   {
@@ -120,10 +119,10 @@ void PndMvdIdealRecoTask::Exec(Option_t* opt)
     Int_t trackid=fCurrentPndMvdMCPoint->GetTrackID();
     Int_t size = fHitOutputArray->GetEntriesFast();
     InitTransMat();
-
+    
     // cut on secondaries (deltas) etc
     if(trackid<0)continue;
-
+    
     //set the plane definition inside the local frame
     //sensor origin in the middle, u^ and v^ are xy plane
     TVector3 o(0.,0.,0.),u(1.,0.,0.),v(0.,1.,0.);
@@ -132,32 +131,32 @@ void PndMvdIdealRecoTask::Exec(Option_t* opt)
     fCurrentPndMvdMCPoint->Position(pos);
     smearLocal(pos);
     TVector3 dposLocal(fSigmaX,fSigmaY,fSigmaZ);
-
+    
     // TODO here we shall distinguish between strip and pixel sensors
     // TODO How to handle the covariance matrix? OR do we really use local point
     // errors. this would avoid two conversations, myabe overload the FairHit
     // functions for the global error points.
-
+    
     // Now the 3D Info is smared inside the FairHit part of PndMvdHit
     new ((*fHitOutputArray)[size]) PndMvdHit(fCurrentPndMvdMCPoint->GetDetectorID(),
-					   (fCurrentPndMvdMCPoint->GetDetName()).Data(),
-      					   pos,dposLocal,-1,fCurrentPndMvdMCPoint->GetEnergyLoss(),1,iMvdPoint);
-
+                                             (fCurrentPndMvdMCPoint->GetDetName()).Data(),
+                                             pos,dposLocal,-1,fCurrentPndMvdMCPoint->GetEnergyLoss(),1,iMvdPoint);
+    
   }//end for PndMvdiMvdPoint
-
+  
   if (fVerbose > 0) {
     std::cout<<fHitOutputArray->GetEntriesFast() <<" Hits created out of "
-             <<fPointArray->GetEntriesFast() <<" Points"<<std::endl;
+    <<fPointArray->GetEntriesFast() <<" Points"<<std::endl;
   }
-
+  
 }
 // -------------------------------------------------------------------------
 void PndMvdIdealRecoTask::InitTransMat()
 {
-//     std::cout<<"InitTransMat() with "<<fCurrentPndMvdMCPoint->GetDetName()<<std::endl;
+  //     std::cout<<"InitTransMat() with "<<fCurrentPndMvdMCPoint->GetDetName()<<std::endl;
   gGeoManager->cd(
-    fGeoH->GetPath( fCurrentPndMvdMCPoint->GetDetName() ).Data()
-        );
+                  fGeoH->GetPath( fCurrentPndMvdMCPoint->GetDetName() ).Data()
+                  );
   fCurrentTransMat = gGeoManager->GetCurrentMatrix();
   if (fVerbose > 1) {
     fCurrentTransMat->Print("");
@@ -168,19 +167,19 @@ void PndMvdIdealRecoTask::InitTransMat()
 void PndMvdIdealRecoTask::smear(TVector3& pos)
 {
   /// smear a 3d vector
-
+  
   Double_t sigx=gRandom->Gaus(0,fSigmaX);
 	Double_t sigy=gRandom->Gaus(0,fSigmaY);
 	Double_t sigz=gRandom->Gaus(0,fSigmaZ);
-
+  
   Double_t x = pos.x() + sigx;
   Double_t y = pos.y() + sigy;
   Double_t z = pos.z() + sigz;
-
+  
   if (fVerbose > 1) {
     std::cout<<"PndMvdIdealRecoTask::smear Point (x,y,z)=("
-             <<pos.x()<<","<<pos.z()<<","<<pos.z()<<") by ("
-             <<fSigmaX<<","<<fSigmaY<<","<<fSigmaZ<<") to ";
+    <<pos.x()<<","<<pos.z()<<","<<pos.z()<<") by ("
+    <<fSigmaX<<","<<fSigmaY<<","<<fSigmaZ<<") to ";
   }
 	pos.SetXYZ(x,y,z);
   if (fVerbose > 1) {
@@ -197,38 +196,38 @@ void PndMvdIdealRecoTask::smearLocal(TVector3& pos)
     std::cout<<"PndMvdIdealRecoTask::smearLocal"<<std::endl;
   }
   Double_t posLab[3], posSens[3];
-
+  
   posLab[0]=pos.x();  posLab[1]=pos.y();  posLab[2]=pos.z();
   fCurrentTransMat->MasterToLocal(posLab,posSens);
-
+  
   pos.SetXYZ(posSens[0],posSens[1],posSens[2]);
-
+  
   smear(pos); // apply a gaussian
-
+  
   posSens[0]=pos.x();  posSens[1]=pos.y();  posSens[2]=pos.z();
   fCurrentTransMat->LocalToMaster(posSens,posLab);
   pos.SetXYZ(posLab[0],posLab[1],posLab[2]);
-
-
-//   TMatrixT<Double_t> cov(3,3);
-//   cov[0][0]=fSigmaX; cov[0][1]=0.;      cov[0][2]=0.;
-//   cov[1][0]=0.;      cov[1][1]=fSigmaY; cov[1][2]=0.;
-//   cov[2][0]=0.;      cov[2][1]=0.;      cov[2][2]=fSigmaZ;
-
-//   TMatrixT<Double_t> rot(3,3);
-//   rot[0][0] =  fCurrentTransMat->GetRotationMatrix()[0];
-//   rot[0][1] =  fCurrentTransMat->GetRotationMatrix()[1];
-//   rot[0][2] =  fCurrentTransMat->GetRotationMatrix()[2];
-//   rot[1][0] =  fCurrentTransMat->GetRotationMatrix()[3];
-//   rot[1][1] =  fCurrentTransMat->GetRotationMatrix()[4];
-//   rot[1][2] =  fCurrentTransMat->GetRotationMatrix()[5];
-//   rot[2][0] =  fCurrentTransMat->GetRotationMatrix()[6];
-//   rot[2][1] =  fCurrentTransMat->GetRotationMatrix()[7];
-//   rot[2][2] =  fCurrentTransMat->GetRotationMatrix()[8];
-
-//   fHitCovMatrix = cov;
-//   fHitCovMatrix *= rot;
-
+  
+  
+  //   TMatrixT<Double_t> cov(3,3);
+  //   cov[0][0]=fSigmaX; cov[0][1]=0.;      cov[0][2]=0.;
+  //   cov[1][0]=0.;      cov[1][1]=fSigmaY; cov[1][2]=0.;
+  //   cov[2][0]=0.;      cov[2][1]=0.;      cov[2][2]=fSigmaZ;
+  
+  //   TMatrixT<Double_t> rot(3,3);
+  //   rot[0][0] =  fCurrentTransMat->GetRotationMatrix()[0];
+  //   rot[0][1] =  fCurrentTransMat->GetRotationMatrix()[1];
+  //   rot[0][2] =  fCurrentTransMat->GetRotationMatrix()[2];
+  //   rot[1][0] =  fCurrentTransMat->GetRotationMatrix()[3];
+  //   rot[1][1] =  fCurrentTransMat->GetRotationMatrix()[4];
+  //   rot[1][2] =  fCurrentTransMat->GetRotationMatrix()[5];
+  //   rot[2][0] =  fCurrentTransMat->GetRotationMatrix()[6];
+  //   rot[2][1] =  fCurrentTransMat->GetRotationMatrix()[7];
+  //   rot[2][2] =  fCurrentTransMat->GetRotationMatrix()[8];
+  
+  //   fHitCovMatrix = cov;
+  //   fHitCovMatrix *= rot;
+  
   return;
 }
 
@@ -240,10 +239,10 @@ void PndMvdIdealRecoTask::CalcDetPlane(TVector3& oVect, TVector3& uVect,TVector3
   O[0]=oVect.x();  O[1]=oVect.y();  O[2]=oVect.z();
   U[0]=uVect.x();  U[1]=uVect.y();  U[2]=uVect.z();
   V[0]=vVect.x();  V[1]=vVect.y();  V[2]=vVect.z();
-
+  
   if (fVerbose > 1) {
     std::cout<<"PndMvdIdealRecoTask::CalcDetPlane from Detector "
-             <<fCurrentPndMvdMCPoint->GetDetName()<<std::endl;
+    <<fCurrentPndMvdMCPoint->GetDetName()<<std::endl;
   }
   //make transformation
   fCurrentTransMat->LocalToMaster(O,o);

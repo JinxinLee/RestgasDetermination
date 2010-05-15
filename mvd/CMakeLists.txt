@@ -12,6 +12,7 @@ ${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/MvdData
+${CMAKE_SOURCE_DIR}/pnddata/SdsData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/PndTools/generalTools
@@ -29,6 +30,7 @@ ${CMAKE_SOURCE_DIR}/mvd
 ${CMAKE_SOURCE_DIR}/sds/SdsMC
 ${CMAKE_SOURCE_DIR}/sds/SdsTools
 ${CMAKE_SOURCE_DIR}/sds/SdsDigi
+${CMAKE_SOURCE_DIR}/sds/SdsReco
 ${CMAKE_SOURCE_DIR}/sds
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/recotasks
@@ -55,29 +57,21 @@ set(MVD_SRCS
 
 
 MvdTools/PndMvdContFact.cxx
-MvdTools/PndMvdPixelDigiPar.cxx
-MvdTools/PndMvdStripDigiPar.cxx
 MvdTools/PndMvdAccessRTDBTask.cxx
-MvdTools/PndMvdEventAna.cxx
-MvdTools/PndMvdMCEventAna.cxx
-MvdTools/PndMvdDigiEventAna.cxx
-MvdTools/PndMvdAllDataEventAna.cxx
+#MvdTools/PndMvdEventAna.cxx
+#MvdTools/PndMvdMCEventAna.cxx
+#MvdTools/PndMvdDigiEventAna.cxx
+#MvdTools/PndMvdAllDataEventAna.cxx
 MvdTools/PndGeoHitList.cxx
 MvdTools/PndEventDisplay.cxx
-MvdTools/PndMvdEventAnaTask.cxx
+#MvdTools/PndMvdEventAnaTask.cxx
 MvdTools/PndMvdEventMerger.cxx
 MvdTools/PndMvdEventMergerTask.cxx
 MvdTools/PndMvdMSAnaTask.cxx
 
 MvdMC/PndMvdDetector.cxx
-MvdMC/PndMvdGeo.cxx
-MvdMC/PndMvdGeoPar.cxx
 
-MvdDigi/PndMvdCalcTot.cxx
-MvdDigi/PndMvdCalcFePixel.cxx
-MvdDigi/PndMvdCalcPixel.cxx
-MvdDigi/PndMvdCalcStrip.cxx
-MvdDigi/PndMvdDigiAna.cxx
+#MvdDigi/PndMvdDigiAna.cxx
 MvdDigi/PndMvdHybridHitProducer.cxx
 MvdDigi/PndMvdStripHitProducer.cxx
 MvdDigi/PndMvdHitProducerIdeal.cxx
@@ -109,25 +103,14 @@ set_target_properties(Mvd PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 ########################### create libMvdReco ##################################
 set(MVDRECO_SRCS
-
-
-#MvdReco/PndMvdRecoTask.cxx
-MvdReco/PndMvdRecoCharge.cxx
 MvdReco/PndMvdClusterTask.cxx
-MvdReco/PndMvdPixelClusterFinder.cxx
-MvdReco/PndMvdSimplePixelClusterFinder.cxx
-MvdReco/PndMvdIdealPixelClusterFinder.cxx
 MvdReco/PndMvdPixelClusterTask.cxx
 MvdReco/PndMvdIdealClusterTask.cxx
-MvdReco/PndMvdPixelBackMapping.cxx
-MvdReco/PndMvdChargeWeightedPixelMapping.cxx
-MvdReco/PndMvdStripClusterBuilder.cxx
-MvdReco/PndMvdSimpleStripClusterFinder.cxx
-MvdReco/PndMvdStripClusterFinder.cxx
 MvdReco/PndMvdStripClusterTask.cxx
 MvdReco/PndMvdIdealRecoTask.cxx
-MvdReco/PndMvdChargeWeightingAlgorithms.cxx
 
+MvdReco/PndMvdChargeWeightedPixelMapping.cxx
+MvdReco/PndMvdSimplePixelClusterFinder.cxx
 MvdTools/PndMvdRadDamList.cxx
 MvdTools/PndMvdRadDamTask.cxx
 MvdTools/PndMvdAnaRadDam.cxx

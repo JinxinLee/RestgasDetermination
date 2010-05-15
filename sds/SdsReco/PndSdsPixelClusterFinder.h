@@ -3,6 +3,9 @@
 
 #include <vector>
 #include "PndSdsDigiPixel.h"
+#include "PndSdsChargeConversion.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 
 //! Base class for cluster finding algorithms
 /** @author Tobias Stockmanns <t.stockmanns@fz-juelich.de>
@@ -13,15 +16,10 @@
 class PndSdsPixelClusterFinder
 {
 public :
-  PndSdsPixelClusterFinder(){};
-  PndSdsPixelClusterFinder(std::vector<Double_t> params, std::vector<PndSdsDigiPixel> hits)
-  {
-        fParams = params;
-        fHits   = hits;
-        fVerbose = 0;
-  };
+  PndSdsPixelClusterFinder();
+//  PndSdsPixelClusterFinder(std::vector<PndSdsDigiPixel> hits);
 //  virtual ~PndSdsPixelClusterFinder();
-  virtual std::vector< std::vector < Int_t > > GetClusters() = 0;
+  virtual std::vector< std::vector < Int_t > > GetClusters(std::vector<PndSdsDigiPixel> hits) = 0;
   void Print();
   void Print(std::vector<PndSdsDigiPixel> hits);
   void PrintResult(std::vector<std::vector< Int_t> > clusters);
@@ -29,7 +27,8 @@ public :
 
   std::vector<PndSdsDigiPixel> fHits;
   Int_t fVerbose;
-  std::vector<Double_t> fParams;
+
+  PndSdsChargeConversion* fChargeConverter;
 
   ClassDef(PndSdsPixelClusterFinder, 2);
 };

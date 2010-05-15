@@ -18,7 +18,7 @@
 //mc
 #pragma link C++ class PndSdsGeo+;
 #pragma link C++ class PndSdsGeoPar+;
-#pragma link C++ class PndSdsContFact+;
+//#pragma link C++ class PndSdsContFact+;
 #pragma link C++ class PndSdsDetector+;
 //#pragma link C++ class PndMvdMaterialDet+;
 
@@ -33,9 +33,15 @@
 //#pragma link C++ class PndSdsDigiTask+;
 #pragma link C++ class PndSdsPixelDigiPar+;
 #pragma link C++ class PndSdsStripDigiPar+;
+#pragma link C++ class PndSdsTotDigiPar+;
 //#pragma link C++ class PndMvdDigiAna+;
 #pragma link C++ class PndSdsHitProducerIdeal+;
 #pragma link C++ class PndSdsNoiseProducer+;
+
+#pragma link C++ class PndSdsChargeConversion+;
+#pragma link C++ class PndSdsIdealChargeConversion+;
+#pragma link C++ class PndSdsTotChargeConversion+;
+#pragma link C++ class PndSdsTotDigiPar+;
 
 //#pragma link C++ class PndMvdCalcFePixel+;
 

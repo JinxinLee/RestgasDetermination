@@ -271,6 +271,7 @@ double PndMvdAdvancedPidAlgo::width1(PidType part) {
     return +1.27955e-04+x*(-3.15732e-06+x*+9.64736e-06);
     break;
   }
+  //TODO: what to return?
 }
 
 double PndMvdAdvancedPidAlgo::width2(PidType part) {
@@ -306,6 +307,7 @@ double PndMvdAdvancedPidAlgo::width2(PidType part) {
     return +4.08849e-04-3.56548e-05*x+1.84825e-08*pow(x,-3);
     break;
   }
+  //TODO: what to return?
 }
 
 double PndMvdAdvancedPidAlgo::fmomentum;

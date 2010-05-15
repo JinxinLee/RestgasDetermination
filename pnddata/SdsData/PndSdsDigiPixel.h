@@ -14,6 +14,8 @@
 #define PNDSDSDIGIPIXEL_H
 
 #include "PndSdsDigi.h"
+#include "PndDetectorList.h"
+
 #include "TObject.h"
 #include "TString.h"
 #include <iostream>
@@ -23,12 +25,12 @@
 class PndSdsDigiPixel : public PndSdsDigi
 {
     friend std::ostream& operator<< (std::ostream& out, PndSdsDigiPixel& digi){
-        out << "PndSdsDigiPixel in: " << digi.GetDetName() << " FE: "
+        out << "PndSdsDigiPixel in: " << digi.GetSensorID() << " FE: "
         << digi.GetFE() << " Col/Row " << digi.GetPixelColumn() << "/" << digi.GetPixelRow()
         << " charge " << digi.GetCharge() << " e"
         << ", from Point(s) ";
         std::vector<Int_t>indices = digi.GetIndices();
-        for (int i = 0; i < indices.size(); i++){
+        for (unsigned int i = 0; i < indices.size(); i++){
         	std::cout << indices[i] << "  ";
         }
       std::cout << std::endl;
@@ -37,7 +39,7 @@ class PndSdsDigiPixel : public PndSdsDigi
       }
 
 	public : PndSdsDigiPixel();
-		 PndSdsDigiPixel(std::vector<Int_t> index, Int_t detID, TString detName, Int_t fe, Int_t col, Int_t row, Double_t charge); 
+		 PndSdsDigiPixel(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Int_t col, Int_t row, Double_t charge, fDetectorType mcPointType);
 
 
 		~PndSdsDigiPixel(){};
@@ -52,7 +54,7 @@ class PndSdsDigiPixel : public PndSdsDigi
 	private :
 		Int_t fCol, fRow;
 
-	ClassDef(PndSdsDigiPixel,7);
+	ClassDef(PndSdsDigiPixel,8);
 };
 
 #endif

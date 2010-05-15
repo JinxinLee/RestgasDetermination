@@ -12,7 +12,7 @@
 #ifndef PNDMVDEVENTANA_H
 #define PNDMVDEVENTANA_H
 
-#include "PndMvdMCPoint.h"
+#include "PndSdsMCPoint.h"
 #include "PndGeoHandling.h"
 #include "TTree.h"
 #include "TCanvas.h"

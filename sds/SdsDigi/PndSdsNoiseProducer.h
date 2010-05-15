@@ -24,6 +24,7 @@
 #include "PndGeoHandling.h"
 #include "PndSdsStripDigiPar.h"
 #include "PndSdsPixelDigiPar.h"
+#include "PndDetectorList.h"
 #include "TString.h"
 
 class TClonesArray;
@@ -50,6 +51,7 @@ class PndSdsNoiseProducer : public FairTask
    ** function to set individual branch names
    **/
   virtual void SetBranchNames()=0;
+  virtual void SetMCPointType() = 0;
 
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
@@ -57,10 +59,11 @@ class PndSdsNoiseProducer : public FairTask
   Double_t CalcDistFraction(Double_t spread, Double_t threshold);
 //   Int_t CalcChanWhite(Int_t chanleft, Double_t frac);
   Int_t CalcChargeAboveThreshold(Double_t spread, Double_t threshold);
-  void AddDigiStrip(Int_t &iStrip, Int_t iPoint, TString detname, Int_t fe, Int_t chan, Double_t charge);
-  void AddDigiPixel(Int_t &noisies, Int_t iPoint, TString detname, Int_t fe, Int_t col, Int_t row, Double_t charge);
+  void AddDigiStrip(Int_t &iStrip, Int_t iPoint, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge);
+  void AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t sensorID, Int_t fe, Int_t col, Int_t row, Double_t charge);
 
   void DiveDownNode(TGeoNode *fN);
+  void FillSensorLists();
 //   void Finish();
   
   void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
@@ -80,16 +83,18 @@ class PndSdsNoiseProducer : public FairTask
   PndSdsStripDigiPar* fDigiParTrap;
   PndSdsPixelDigiPar* fDigiParPix;
 
+  fDetectorType fMCPointType;
+
 //  PndSdsGeoPar* fGeoPar;
 
   PndGeoHandling* fGeoH;      //! Geometry name handling
 
-  std::vector<TString> fPixelIds4;
-  std::vector<TString> fPixelIds6;
-  std::vector<TString> fPixelIds8;
-  std::vector<TString> fPixelIds12;
-  std::vector<TString> fStripRectIds;
-  std::vector<TString> fStripTrapIds;
+  std::vector<Int_t> fPixelIds4;
+  std::vector<Int_t> fPixelIds6;
+  std::vector<Int_t> fPixelIds8;
+  std::vector<Int_t> fPixelIds12;
+  std::vector<Int_t> fStripRectIds;
+  std::vector<Int_t> fStripTrapIds;
 
 
   Int_t fNoiseSpread;

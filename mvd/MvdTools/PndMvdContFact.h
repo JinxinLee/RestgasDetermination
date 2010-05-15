@@ -1,5 +1,5 @@
 #ifndef PNDMVDCONTFACT_H
-#define PNDMVDCONTFACT_H
+#define PNDMVDCONTFACT_H 1
 
 #include "FairContFact.h"
 
@@ -15,7 +15,7 @@ public:
 private:
   void setAllContainers();
   TList* fDigiParNames; //!
-  ClassDef( PndMvdContFact,2); // Factory for all MVD parameter containers
+  ClassDef( PndMvdContFact,3); // Factory for all MVD parameter containers
 };
 
 #endif  /* !MVDCONTFACT_H */

@@ -96,7 +96,7 @@ void PndMvdTrackFinderAnaTask::Exec(Option_t* opt)
 	  hitsInTrack.clear();
 	  GFTrackCand* myTrackCand = (GFTrackCand*)(fRiemannTrackCandArray->At(i));
 	  std::cout << "RiemannTrack" << i << ": ";
-	  for (int j = 0; j < myTrackCand->getNHits(); j++){
+	  for (unsigned int j = 0; j < myTrackCand->getNHits(); j++){
 		  myTrackCand->getHit(j, detID, hitID);
 		  std::cout << detID << "/" << hitID << " ";
 		  hitsInTrack[detID].push_back(hitID);
@@ -114,7 +114,7 @@ void PndMvdTrackFinderAnaTask::Exec(Option_t* opt)
 	  std::map<int, std::vector<int> > IdealHitsInTrack;
   	  GFTrackCand* myIdealTrackCand = (GFTrackCand*)(fIdealTrackCandArray->At(k));
   	  std::cout << "IdealTrack" << k << ": ";
-  	  for (int l = 0; l < myIdealTrackCand->getNHits(); l++){
+  	  for (unsigned int l = 0; l < myIdealTrackCand->getNHits(); l++){
   		  myIdealTrackCand->getHit(l, detID, hitID);
   		  std::cout << detID << "/" << hitID << " ";
   		  IdealHitsInTrack[detID].push_back(hitID);
@@ -178,7 +178,7 @@ int PndMvdTrackFinderAnaTask::TrackIncluded(std::map<int, std::vector<int> > can
 	int result = 0;
 	int oldresult = 0;
 
-	for (int i = 0; i < fHitMatrix.size(); i++){
+	for (unsigned int i = 0; i < fHitMatrix.size(); i++){
 		//std::cout << "CheckAgreement to HitMatrixVector " << i << std::endl;
 		result = CheckAgreement(cand, fHitMatrix[i]);
 		//std::cout << "Result: " << result << std::endl;
@@ -195,8 +195,8 @@ int PndMvdTrackFinderAnaTask::CheckAgreement(std::map<int, std::vector<int> > va
 		std::vector<int> det1 = val1[i];
 		std::vector<int> det2 = val2[i];
 
-		for (int j = 0; j < det1.size(); j++){
-			for (int k = 0; k < det2.size(); k++){
+		for (unsigned int j = 0; j < det1.size(); j++){
+			for (unsigned int k = 0; k < det2.size(); k++){
 				//std::cout << "Det1: " << det1[j] << " Det2: " << det2[k] << std::endl;
 				if (det1[j] == det2[k]){
 					result++;

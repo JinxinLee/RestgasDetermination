@@ -173,14 +173,14 @@ void PndMvdTPCRiemannTrackFinderTaskCutPar::CalcPlanes()
 			  continue;
 		  }
 		  PndMCTrack *myTrack = (PndMCTrack*)fMCTrackArray->At(((PndTrackCand*)fTrackCandArray->At(j))->getMcTrackId());
-		  int shift=0;
+		  unsigned int shift=0;
 		  if (myTrack->GetMotherID()==-1){
 			  hit[0].setXYZ(0,0,0);
 			  hit[0].setDXYZ(0.1,0.1,0.1);
 			  shift=1;
 		  }
 		  int count=0;
-		  int i=0;
+		  unsigned int i=0;
 		  while ((i<((PndTrackCand*)fTrackCandArray->At(j))->GetNHits())){
 			  unsigned int detId,hitId;
 			  detId=((PndTrackCand*)fTrackCandArray->At(j))->GetSortedHit(i).GetDetId();
@@ -207,7 +207,7 @@ void PndMvdTPCRiemannTrackFinderTaskCutPar::CalcPlanes()
 		 	count++;
 		  }
 		  if ((((PndTrackCand*)fTrackCandArray->At(j))->GetNHits()-count)>3-shift){
-			  for(int k=0;k<((PndTrackCand*)fTrackCandArray->At(j))->GetNHits();k++){
+			  for(unsigned int k=0;k<((PndTrackCand*)fTrackCandArray->At(j))->GetNHits();k++){
 				  track.addHit(hit[k+shift]);
 			  }
 			  track.refit();
@@ -240,7 +240,7 @@ void  PndMvdTPCRiemannTrackFinderTaskCutPar::CalcParHists()
 					  if ((Pt>=fPtS) && (Pt<=fPtF) &&(Theta>=fThetaS) && (Theta<=fThetaF)){
 					  std::vector<TVector3> TPCHits=GetNearestTPCHits(Cand);
 					  PndRiemannHit hit0;
-						  for(int j=0;j<TPCHits.size()/* && j<20*/;j++){
+						  for(unsigned int j=0;j<TPCHits.size()/* && j<20*/;j++){
 							hit0.setXYZ(TPCHits[j].X(),TPCHits[j].Y(),TPCHits[j].Z());
 							fhistsDist[TMath::FloorNint(((Pt-fPtS)*fNPt/(fPtF-fPtS)))][TMath::FloorNint(((Theta-fThetaS)*fNTh/(fThetaF-fThetaS)))]->Fill(((PndRiemannTrack*)fRiemannTracks->At(NumOfPlane))->dist(&hit0));
 							fhistsChi2[TMath::FloorNint(((Pt-fPtS)*fNPt/(fPtF-fPtS)))][TMath::FloorNint(((Theta-fThetaS)*fNTh/(fThetaF-fThetaS)))]->Fill(((PndRiemannTrack*)fRiemannTracks->At(NumOfPlane))->calcSZChi2(&hit0));
@@ -315,12 +315,12 @@ std::vector<TVector3> PndMvdTPCRiemannTrackFinderTaskCutPar::GetNearestTPCHits(G
 	  TVector3 Origin=Cand.getPosSeed();
 	  TVector3 pos;
 	  std::vector<TVector3> Sort;
-	  for(int j=0;j<Cand.getNHits();j++){
+	  for(unsigned int j=0;j<Cand.getNHits();j++){
 		  Cand.getHit(j,detId,hitId);
 		  if (detId==kTpcCluster){
 			pos=((PndTpcCluster*)fHitArrayTPC->At(hitId))->pos();
 				bool flag=true;
-				for(int i=0;i<Sort.size();i++){
+				for(unsigned int i=0;i<Sort.size();i++){
 					if (fabs(pos.Z()-Origin.Z())<fabs(Sort[i].Z()-Origin.Z())){
 						Sort.insert(Sort.begin()+i,pos);
 						flag=false;
@@ -333,7 +333,7 @@ std::vector<TVector3> PndMvdTPCRiemannTrackFinderTaskCutPar::GetNearestTPCHits(G
 		  }
 	  }
 
-	  for(int i=1;i<Sort.size();i++){
+	  for(unsigned int i=1;i<Sort.size();i++){
 		  if (fabs(fabs(Sort[i-1].Z())-fabs(Sort[i].Z()))<1){
 			  result.push_back(Sort[i-1]);
 //			  std::cout<<Sort[i-1].Z()<<std::endl;

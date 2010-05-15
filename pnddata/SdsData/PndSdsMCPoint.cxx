@@ -18,7 +18,7 @@ PndSdsMCPoint::PndSdsMCPoint() : FairMCPoint(),
 
 
 // -----   Standard constructor   ------------------------------------------
-PndSdsMCPoint::PndSdsMCPoint(Int_t trackID, Int_t detID, TString detName,
+PndSdsMCPoint::PndSdsMCPoint(Int_t trackID, Int_t detID, Int_t sensorID,
 			 TVector3 posIn, TVector3 posOut,
 			 TVector3 momIn, TVector3 momOut,
 			 Double_t tof, Double_t length, Double_t eLoss) 
@@ -32,7 +32,7 @@ PndSdsMCPoint::PndSdsMCPoint(Int_t trackID, Int_t detID, TString detName,
   fPyfOut = momOut.Py();
   fPzfOut = momOut.Pz();
 
-  fDetName = detName;
+  SetSensorID(sensorID);
 
   SetLink(FairLink(kMCTrack, trackID));
 }

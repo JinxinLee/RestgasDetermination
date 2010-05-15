@@ -15,8 +15,8 @@ class PndSdsPixel
 			fFe = -1;
 		  };
 		  
-		  PndSdsPixel(std::string detName, Int_t fe, Int_t col, Int_t row, Double_t charge, int index=-1){
-		  	fDetName = detName;
+		  PndSdsPixel(Int_t sensorID, Int_t fe, Int_t col, Int_t row, Double_t charge, int index=-1){
+		  	fSensorID = sensorID;
 			fFe = fe;
 			fCol = col;
 			fRow = row;
@@ -28,13 +28,13 @@ class PndSdsPixel
 		  void SetCol(Int_t col) {fCol = col;};
 		  void SetRow(Int_t row) {fRow = row;};
 		  void SetCharge(Double_t charge) {fCharge = charge;};
-		  void SetDetName(std::string detName) {fDetName = detName;};
+		  void SetSensorID(Int_t sensorID) {fSensorID = sensorID;};
 		  void SetFE (Int_t fe) {fFe = fe;};
 		  
 		  Int_t GetCol() const {return fCol;};
 		  Int_t GetRow() const {return fRow;};
 		  Double_t GetCharge() const {return fCharge;};
-		  std::string GetDetName() const {return fDetName;};
+		  Int_t GetSensorID() const {return fSensorID;};
 		  Int_t GetFE() const {return fFe;};
 		  std::vector<int> GetMCIndex(){return fMCIndex;};
                   int GetFirstMCIndex(){ 
@@ -48,7 +48,7 @@ class PndSdsPixel
 		  
 		  friend std::ostream& operator<< (std::ostream& out, PndSdsPixel pixel)
 		  {
-			out << "Detector: " << pixel.GetDetName() << " FE: " << pixel.GetFE() << " Pixel (C/R): " << pixel.GetCol() << " " << pixel.GetRow()
+			out << "Detector: " << pixel.GetSensorID() << " FE: " << pixel.GetFE() << " Pixel (C/R): " << pixel.GetCol() << " " << pixel.GetRow()
 			    << " Charge: " << pixel.GetCharge() << " from MCHit: " << pixel.GetFirstMCIndex();
 			return out;
 		  };	
@@ -59,7 +59,7 @@ class PndSdsPixel
 		  Int_t fCol;
 		  Int_t fRow;
 		  Double_t fCharge;
-		  std::string fDetName;
+		  Int_t fSensorID;
 		  std::vector<int> fMCIndex;		///< List of indices of the corresponding MC hits
 };
 

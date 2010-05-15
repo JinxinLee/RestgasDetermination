@@ -20,7 +20,7 @@
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
 #include "PndMvdContFact.h"
-#include "PndMvdStripDigiPar.h"
+#include "PndSdsStripDigiPar.h"
 
 #include "PndMvdDigiStrip.h"
 #include <vector>
@@ -42,6 +42,7 @@ PndMvdConvertApvTask::~PndMvdConvertApvTask()
 
 void PndMvdConvertApvTask::SetParContainers()
 { // in this task we even don't need the digitization info
+  if(0==fGeoH) fGeoH = new PndGeoHandling();
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   PndMvdContFact* themvdcontfact = (PndMvdContFact*)rtdb->getContFactory("PndMvdContFact");
@@ -51,7 +52,7 @@ void PndMvdConvertApvTask::SetParContainers()
   while (TObjString* contname = (TObjString*)cfIter()) {
     TString parsetname = contname->String();
     if(parsetname.BeginsWith("MVDStripDigiPar")){
-      PndMvdStripDigiPar* digipar = (PndMvdStripDigiPar*)(rtdb->getContainer(parsetname.Data()));
+      PndSdsStripDigiPar* digipar = (PndSdsStripDigiPar*)(rtdb->getContainer(parsetname.Data()));
       fDigiParameterList->Add(digipar);
       if(digipar->GetNrBotFE()==1)
       { // we count top side first from 0; Bot side strarts at #top fe's
@@ -60,6 +61,7 @@ void PndMvdConvertApvTask::SetParContainers()
       Info("SetParContainers()","Loaded container %s",parsetname.Data());
     }
   }  
+  
   return;
 }
 
@@ -74,8 +76,6 @@ InitStatus PndMvdConvertApvTask::Init()
     << "RootManager not instantiated!" << std::endl;
     return kFATAL;
   }
-  
-  fGeoH = new PndGeoHandling();
   
   // Create and register output array
   fStripArray = new TClonesArray("PndMvdDigiStrip");
@@ -94,12 +94,12 @@ void PndMvdConvertApvTask::Exec(Option_t* opt)
   
 	std::map<TString,Double_t> singleSidedBacksideMap;
   std::map<TString,std::vector<Int_t> > buffIndex;
-
+  
   Int_t rw=-1, sw=-1, botfe=-1;
   TString detpath=""; 
   TString detnameid;
   Int_t stripnum;
-
+  
 	std::vector<PndMvdDigiStrip> strips = fApvConvert->ReadNext();
 	for (std::vector<PndMvdDigiStrip>::iterator strip=strips.begin(); strip!=strips.end(); ++strip)
 	{
@@ -134,7 +134,7 @@ Bool_t PndMvdConvertApvTask::IsSingleSided(TString &detpath)
 {
   if( !(detpath.Contains("Strip")) )   return kFALSE;
   TIter parsetiter(fDigiParameterList);
-  while ( PndMvdStripDigiPar* digipar = (PndMvdStripDigiPar*)parsetiter() ) 
+  while ( PndSdsStripDigiPar* digipar = (PndSdsStripDigiPar*)parsetiter() ) 
   {
     const char* sensortype = digipar->GetSensType();
     if(detpath.Contains(sensortype))  {

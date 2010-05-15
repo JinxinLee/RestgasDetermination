@@ -43,7 +43,6 @@ link_directories( ${LINK_DIRECTORIES})
 ########################### create libSds ######################################
 set(SDS_SRCS
 
-
 SdsDigi/PndSdsCalcFePixel.cxx
 SdsDigi/PndSdsCalcPixel.cxx
 SdsDigi/PndSdsCalcStrip.cxx
@@ -56,14 +55,19 @@ SdsDigi/PndSdsHitProducerIdeal.cxx
 #MvdDigi/PndMvdDigiTask.cxx
 SdsDigi/PndSdsNoiseProducer.cxx
 
+SdsDigi/PndSdsChargeConversion.cxx
+SdsDigi/PndSdsIdealChargeConversion.cxx
+SdsDigi/PndSdsTotChargeConversion.cxx
+
 SdsMC/PndSdsDetector.cxx
 SdsMC/PndSdsGeo.cxx
 SdsMC/PndSdsGeoPar.cxx
 #SdsMC/PndSdsMaterialDet.cxx
 
-SdsTools/PndSdsContFact.cxx
+#SdsTools/PndSdsContFact.cxx
 SdsTools/PndSdsPixelDigiPar.cxx
 SdsTools/PndSdsStripDigiPar.cxx
+SdsTools/PndSdsTotDigiPar.cxx
 #SdsTools/PndStringSeparator.cxx
 #SdsTools/PndGeoHandling.cxx
 
@@ -88,7 +92,6 @@ set_target_properties(Sds PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 ########################### create libSdsReco ##################################
 set(SDSRECO_SRCS
-
 
 #SdsReco/PndSdsRecoTask.cxx
 #SdsReco/PndSdsClusterTask.cxx

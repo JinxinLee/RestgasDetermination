@@ -16,7 +16,7 @@
 #include "TGeoManager.h"
 #include "TString.h"
 #include "FairTask.h"
-#include "PndMvdStripDigiPar.h"
+#include "PndSdsStripDigiPar.h"
 #include "PndGeoHandling.h"
 #include <utility>
 #include <string>
@@ -54,7 +54,7 @@ private:
   //void DiveDownToNode(TGeoNode* node);
   
   // helper members
-  PndMvdStripDigiPar* fCurrentDigiPar; //!
+  PndSdsStripDigiPar* fCurrentDigiPar; //!
   TList* fDigiParameterList; //!
   Int_t fFeCount; // Running number of rw frontends
   Int_t fFakeCount; // Running number of fake frontends

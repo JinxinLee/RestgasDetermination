@@ -23,6 +23,9 @@
 #include "TGeoBBox.h"
 #include "PndSdsHybridHitProducer.h"
 #include "PndSdsStripHitProducer.h"
+#include "PndGeoHandling.h"
+#include "PndSdsSimplePixelClusterFinder.h"
+#include "PndSdsChargeWeightedPixelMapping.h"
 
 #include <string>
 #include <vector>
@@ -73,13 +76,13 @@ protected:
       TClonesArray* fHitArray;
 //   TClonesArray* fPixelArray;
 //   TClonesArray* fFePixelArray;
+
+      PndGeoHandling* fGeoH;
   
   void Register();
   void Reset();  
   void ProduceHits();
 
-	
-  std::vector<Double_t> fParams;
   Double_t fRadius;
   Int_t fFEcolumns;
   Int_t fFErows;
@@ -89,6 +92,9 @@ protected:
 //   void GetLocalHitPoints(PndSdsMCPoint* myPoint, FairGeoVector& myHitIn, FairGeoVector& myHitOut);
 //   PndSdsHit CalcGlobalPoint(std::vector<PndSdsPixel> pixels);
 //   TVector3 GetSensorDimensions(std::string detName);  
+
+  PndSdsIdealPixelClusterFinder* finder;
+  PndSdsChargeWeightedPixelMapping* mapping;
 
   ClassDef(PndSdsIdealClusterTask,1);
 

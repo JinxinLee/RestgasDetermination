@@ -6,6 +6,7 @@
 #include "PndSdsMCPoint.h"
 #include "PndSdsStrip.h"
 #include "PndSdsDigiPixel.h"
+#include "PndDetectorList.h"
 #include "FairGeoVector.h"
 #include "FairGeoTransform.h"
 #include "TVector3.h"
@@ -15,6 +16,7 @@
 
 #include "PndGeoHandling.h"
 #include "PndSdsCalcStrip.h"
+#include "PndSdsChargeConversion.h"
 
 #include <string>
 #include <vector>
@@ -71,7 +73,9 @@ class PndSdsStripHitProducer : public FairTask
    * creates object with parameters taken implicitly from DigiPar-File
    **/
   PndSdsStripHitProducer();
-
+  
+  /** Like default Constructor, but passes a name to FairTask**/
+  PndSdsStripHitProducer(const char* name);
  
   /** Destructor **/
   virtual ~PndSdsStripHitProducer();
@@ -88,11 +92,12 @@ class PndSdsStripHitProducer : public FairTask
    ** function to set individual branch names
    **/
   virtual void SetBranchNames()=0;
+  virtual void SetMCPointType(){};
 
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
-  void AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, TString detname, Int_t fe, Int_t chan, Double_t charge);
+  void AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge);
 
   void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
   Bool_t GetPersistance() {return fPersistance;};
@@ -113,23 +118,26 @@ class PndSdsStripHitProducer : public FairTask
 
   //! Digitization Parameters
   TList* fDigiParameterList;
+  TList* fChargeDigiParameterList;
   PndSdsStripDigiPar* fCurrentDigiPar;
+  PndSdsChargeConversion* fCurrentChargeConverter;
+  fDetectorType fMCPointType;
 
   //! Calculator objects
   std::map<const char*,PndSdsCalcStrip*> fStripCalcTop;
   std::map<const char*,PndSdsCalcStrip*> fStripCalcBot;
+  std::map<const char*,PndSdsChargeConversion*> fChargeConverter;
   PndSdsCalcStrip* fCurrentStripCalcTop;
   PndSdsCalcStrip* fCurrentStripCalcBot;
 
   void Register();
   void Reset();
   void ProduceHits();
-  void SetCalculators(); 
-  Bool_t SelectSensorParams(TString detname);
+  virtual void SetCalculators();
+  Bool_t SelectSensorParams(Int_t sensorID);
 
   PndGeoHandling* fGeoH; // converter for detector names
   Bool_t fOverrideParams;   // internal Flag that controls use of Parameter Invocations
-
 
   ClassDef(PndSdsStripHitProducer,5);
 

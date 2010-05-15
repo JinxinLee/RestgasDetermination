@@ -3,7 +3,7 @@
 std::vector<PndSdsPixel> PndSdsCalcFePixel::CalcFEHits()
 {
 	Int_t col, row, fe, dummy;
-	for (Int_t i = 0; i < fSensorHits.size(); i++){
+	for (UInt_t i = 0; i < fSensorHits.size(); i++){
 		col = fSensorHits[i].GetCol();
 		row = fSensorHits[i].GetRow();
 // 		std::cout << "col " << col << " row " << row << " ";
@@ -14,7 +14,7 @@ std::vector<PndSdsPixel> PndSdsCalcFePixel::CalcFEHits()
 // 		std::cout << "dummy " << dummy << " ";
 		fe += fMaxFEperCol * (dummy);
 		row -= dummy * fNrows;
-		PndSdsPixel myPixel(fSensorHits[i].GetDetName(), fe, col, row,
+		PndSdsPixel myPixel(fSensorHits[i].GetSensorID(), fe, col, row,
 									  fSensorHits[i].GetCharge());
 		fFeHits.push_back(myPixel);
 	}
@@ -25,7 +25,7 @@ std::vector<PndSdsPixel> PndSdsCalcFePixel::CalcSensorHits(const std::vector<Pnd
 {
 	//Int_t col, row, dummy;
 	std::vector<PndSdsPixel> result;
-	for (Int_t i = 0; i < FePixel.size(); i++){
+	for (UInt_t i = 0; i < FePixel.size(); i++){
 		result.push_back(CalcSensorHit(FePixel[i]));
 	}
 	return result;
@@ -36,7 +36,7 @@ PndSdsPixel PndSdsCalcFePixel::CalcSensorHit(const PndSdsPixel FePixel) const
   Int_t col = FePixel.GetCol();
   Int_t row = FePixel.GetRow();
   CalcSensorColRow(col,row,FePixel.GetFE());
-  PndSdsPixel result(FePixel.GetDetName(), -1, col, row, FePixel.GetCharge());
+  PndSdsPixel result(FePixel.GetSensorID(), -1, col, row, FePixel.GetCharge());
   return result;
 }
 

@@ -12,7 +12,7 @@ void PndSdsCluster::Print()
 
 bool PndSdsCluster::DigiBelongsToCluster(Int_t digiIndex)
 {
-	for (int i = 0; i < fClusterList.size(); i++)
+	for (unsigned int i = 0; i < fClusterList.size(); i++)
 		if (fClusterList[i] == digiIndex) return true;
 
 	return false;

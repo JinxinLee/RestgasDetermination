@@ -34,7 +34,7 @@ TClonesArray* PndMvdEventMerger::GetEvent(Int_t iEvent)
 	//if ( !fBuffer)
 	//	std::cout << "-E- CbmMvdPileupManager::GetEvent: No event buffer!";
 
-	if (iEvent > fBuffer.size())
+	if ((unsigned int)iEvent > fBuffer.size())
 	{
 		cout << "-W- CbmMvdPileupManager::GetEvent: Event " << iEvent
 				<< " not present in buffer! " << endl;

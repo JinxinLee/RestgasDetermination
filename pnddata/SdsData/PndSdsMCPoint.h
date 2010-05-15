@@ -28,8 +28,8 @@ class PndSdsMCPoint : public FairMCPoint
 {
   friend std::ostream& operator<< (std::ostream& out, const PndSdsMCPoint& point){
     out << "-I- PndSdsMCPoint: PndSds Point for track " << point.GetTrackID()
-         << " in detector " << point.GetDetectorID() << " with name "
-       << point.GetDetName() << std::endl;
+         << " in detector " << point.GetDetectorID() << " with sensor "
+       << point.GetSensorID() << std::endl;
     out << "    Position in  (" << point.GetX() << ", " << point.GetY() << ", " << point.GetZ() << ") cm" << std::endl;
     out << "    Position out (" << point.GetXOut() << ", " << point.GetYOut() << ", " << point.GetZOut() << ") cm" << std::endl;
     out << "    Momentum (" << point.GetPx() << ", " << point.GetPy() << ", " << point.GetPz()
@@ -57,7 +57,7 @@ class PndSdsMCPoint : public FairMCPoint
    *@param length        Track length since creation [cm]
    *@param eLoss         Energy deposit [GeV]
    **/
-  PndSdsMCPoint(Int_t trackID, Int_t detID, TString detName,
+  PndSdsMCPoint(Int_t trackID, Int_t detID, Int_t sensorID,
   	      TVector3 posIn, TVector3 posOut,
 	      TVector3 momIn, TVector3 momOut,
 	      Double_t tof, Double_t length, Double_t eLoss);
@@ -79,7 +79,8 @@ class PndSdsMCPoint : public FairMCPoint
   Double_t GetPxOut() const { return fPxfOut; }
   Double_t GetPyOut() const { return fPyfOut; }
   Double_t GetPzOut() const { return fPzfOut; }
-  TString  GetDetName() const { return fDetName;}
+ // TString  GetDetName() const { return fDetName;}
+  Int_t GetSensorID() const { return fSensorID;}
   TVector3 GetPosition() const { return TVector3(fX, fY, fZ);}
   TVector3 GetPositionOut() const { return TVector3(fXfOut, fYfOut, fZfOut);}
 
@@ -90,7 +91,8 @@ class PndSdsMCPoint : public FairMCPoint
   /** Modifiers **/
   void SetPositionOut(TVector3 pos);
   void SetMomentumOut(TVector3 mom);
-  void SetDetName(TString name) {fDetName = name;};
+  //void SetDetName(TString name) {fDetName = name;};
+  void SetSensorID(Int_t sensorID){fSensorID = sensorID;}
   virtual void SetTrackID(Int_t id){ 
           //SetLink(kMCTrack, id); 
           FairMCPoint::SetTrackID(id); 
@@ -106,10 +108,10 @@ class PndSdsMCPoint : public FairMCPoint
   Double32_t fXfOut, fYfOut, fZfOut;
 
   Double32_t fPxfOut, fPyfOut, fPzfOut;
-  TString fDetName;
+  Int_t fSensorID;
 
 
-  ClassDef(PndSdsMCPoint,3);
+  ClassDef(PndSdsMCPoint,6);
 
 };
 

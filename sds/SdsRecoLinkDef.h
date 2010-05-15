@@ -1,4 +1,4 @@
-// $Id: MvdLinkDef.h,v 1.0 Ralf Kliemt 08.Jan.2007 $
+// $Id: SdsLinkDef.h,v 1.0 Ralf Kliemt 08.Jan.2007 $
 
 #ifdef __CINT__
 

@@ -86,8 +86,6 @@ InitStatus PndSdsIdealRecoTask::Init()
   ioman->Register(fHitBranchName, fFolderName ,fHitOutputArray, fPersistance);
 
   std::cout << "-I- gGeoManager = "<<gGeoManager << std::endl;
-  fGeoH = new PndGeoHandling();
-
 
   return kSUCCESS;
 }
@@ -97,6 +95,7 @@ void PndSdsIdealRecoTask::SetParContainers()
   // Get Base Container
 //  FairRun* ana = FairRun::Instance();
 //  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
+  if(0==fGeoH) fGeoH = new PndGeoHandling();
 
 }
 
@@ -140,8 +139,8 @@ void PndSdsIdealRecoTask::Exec(Option_t* opt)
 
     // Now the 3D Info is smared inside the FairHit part of PndSdsHit
     new ((*fHitOutputArray)[size]) PndSdsHit(fCurrentPndSdsMCPoint->GetDetectorID(),
-					   (fCurrentPndSdsMCPoint->GetDetName()).Data(),
-      					   pos,dposLocal,-1,fCurrentPndSdsMCPoint->GetEnergyLoss(),1,iMvdPoint);
+					   fCurrentPndSdsMCPoint->GetSensorID(), pos, dposLocal,
+					   -1,fCurrentPndSdsMCPoint->GetEnergyLoss(),1,iMvdPoint);
 
   }//end for PndSdsiMvdPoint
 
@@ -156,7 +155,7 @@ void PndSdsIdealRecoTask::InitTransMat()
 {
 //     std::cout<<"InitTransMat() with "<<fCurrentPndSdsMCPoint->GetDetName()<<std::endl;
   gGeoManager->cd(
-    fGeoH->GetPath( fCurrentPndSdsMCPoint->GetDetName() ).Data()
+    fGeoH->GetPath( fCurrentPndSdsMCPoint->GetSensorID()).Data()
         );
   fCurrentTransMat = gGeoManager->GetCurrentMatrix();
   if (fVerbose > 1) {
@@ -243,7 +242,7 @@ void PndSdsIdealRecoTask::CalcDetPlane(TVector3& oVect, TVector3& uVect,TVector3
 
   if (fVerbose > 1) {
     std::cout<<"PndSdsIdealRecoTask::CalcDetPlane from Detector "
-             <<fCurrentPndSdsMCPoint->GetDetName()<<std::endl;
+             <<fCurrentPndSdsMCPoint->GetSensorID()<<std::endl;
   }
   //make transformation
   fCurrentTransMat->LocalToMaster(O,o);

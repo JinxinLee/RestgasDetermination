@@ -36,8 +36,11 @@
 class FairVolume;
 
 // -----   Default constructor   -------------------------------------------
-PndSdsDetector::PndSdsDetector() : fUseRadDamOption(false) {
-
+PndSdsDetector::PndSdsDetector() : fUseRadDamOption(false) 
+{
+  fPndSdsCollection = new TClonesArray("PndSdsMCPoint");
+  fPosIndex = 0;
+  fUseRadDamOption = false;  
 }
 // -------------------------------------------------------------------------
 
@@ -45,8 +48,11 @@ PndSdsDetector::PndSdsDetector() : fUseRadDamOption(false) {
 
 // -----   Standard constructor   ------------------------------------------
 PndSdsDetector::PndSdsDetector (const char* name, Bool_t active)
-  : FairDetector(name, active), fUseRadDamOption(false) {
-
+  : FairDetector(name, active), fUseRadDamOption(false) 
+{
+    fPndSdsCollection = new TClonesArray("PndSdsMCPoint");
+    fPosIndex = 0;
+    fUseRadDamOption = false;    
 }
 // -------------------------------------------------------------------------
 
@@ -67,13 +73,16 @@ PndSdsDetector::~PndSdsDetector()
 void PndSdsDetector::Initialize()
 {
   std::cout<<" -I- Initializing PndSdsDetector()"<<std::endl;
+  SetBranchNames();
   FairDetector::Initialize();
   if(0==gGeoManager) {
     std::cout<<" -E- No gGeoManager in PndSdsDetector::Initialize()!"<<std::endl;
     abort();
   }
-  fGeoH = new PndGeoHandling();
-  SetBranchNames();
+  Warning("Initialize", "Creating a PndGeoHandling object. Is it the right place?");
+  if(0==fGeoH) fGeoH = new PndGeoHandling();
+  fGeoH->CreateUniqueSensorId("", fListOfSensitives);
+  fGeoH->PrintSensorNames();
 }
 
 
@@ -161,10 +170,10 @@ Bool_t  PndSdsDetector::ProcessHits(FairVolume* vol)
         std::cout<<" -E- No PndGeoHandling loaded."<<std::endl;
         abort();
       }
-      if (fVerboseLevel > 1){
+      if (fVerboseLevel > 2){
         std::cout << "*******  Info from gMC *************" << std::endl;
         std::cout << "Hit in " << gMC->CurrentVolPath() << " with MCiD: " << vol->getMCid() << " PixelDetectorID: " << fVolumeID << std::endl;
-        std::cout<<"VolumeID: "<<fGeoH->GetID(gMC->CurrentVolPath())<<std::endl;
+        std::cout<<"VolumeID: "<<fGeoH->GetShortID(gMC->CurrentVolPath())<<std::endl;
         std::cout << "PosIn: " << fPosIn.X() << " " << fPosIn.Y() << " " << fPosIn.Z() << " " << fELoss << std::endl;
       }
 
@@ -176,16 +185,18 @@ Bool_t  PndSdsDetector::ProcessHits(FairVolume* vol)
       }
 
      TString detPath = gMC->CurrentVolPath();
-     AddHit(fTrackID, kMVDPoint, fGeoH->GetID(detPath),
+     PndSdsMCPoint* myPoint = AddHit(fTrackID, kMVDPoint, fGeoH->GetShortID(detPath),
         TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
         TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
         TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
         TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
         fTime, fLength, fELoss);
 
+     if(fVerboseLevel>2) std::cout << myPoint << std::endl;
+
       // Increment number of PndSds points for TParticle
       PndStack* stack = (PndStack*) gMC->GetStack();
-      stack->AddPoint(kMVD);
+      stack->AddPoint(kMVD); //TODO: Which detector Type?
       ResetParameters();
     }
 
@@ -288,6 +299,8 @@ void PndSdsDetector::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offs
 // -------------------------------------------------------------------------
 void PndSdsDetector::ConstructGeometry()
 {
+  // Set what is sensitive before creating geometry
+  if (fListOfSensitives.size()==0) SetDefaultSensorNames();
   TString fileName=GetGeometryFileName();
         if(fileName.EndsWith(".geo")){
     ConstructASCIIGeometry();
@@ -301,9 +314,9 @@ void PndSdsDetector::ConstructGeometry()
 // -------------------------------------------------------------------------
 bool PndSdsDetector::CheckIfSensitive(std::string name)
 {
-  for (Int_t i = 0; i < fListOfSensitives.size(); i++){
+  for (UInt_t i = 0; i < fListOfSensitives.size(); i++){
     if (name.find(fListOfSensitives[i]) != std::string::npos)
-    return true;
+      return true;
   }
   return false;
 }
@@ -372,29 +385,29 @@ void PndSdsDetector::SetExclusiveSensorType(const TString sens)
   std::cout<<"-I- PndSdsDetector: Only active sensor type is set to \""<<sens.Data()<<"\","<<std::endl;
   std::cout<<"    this is not a default setting."<<std::endl;
 }
-
 // -------------------------------------------------------------------------
 
 
 
 // -----   Private method AddHit   -----------------------------------------
-PndSdsMCPoint* PndSdsDetector::AddHit(Int_t trackID, Int_t detID, TString detName, TVector3 posIn,              TVector3 posOut,TVector3 momIn, TVector3 momOut,
+PndSdsMCPoint* PndSdsDetector::AddHit(Int_t trackID, Int_t detID, Int_t sensorID, TVector3 posIn,TVector3 posOut,TVector3 momIn, TVector3 momOut,
             Double_t time, Double_t length, Double_t eLoss) const
 {
   TClonesArray&
     clref = *fPndSdsCollection;
 
-  Int_t
+   Int_t
     size = clref.GetEntriesFast();
 
     if (fVerboseLevel >= 2)
        std::cout << "-I- PndSdsDetector: Adding Point at (" << posIn.X() << ", " << posIn.Y()
       << ", " << posIn.Z() << ") cm, (" << posOut.X() << ", " << posOut.Y()
-      << ", " << posOut.Z() << ") cm,  detector " << detName << " " << detID << ", track "
+      << ", " << posOut.Z() << ") cm,  detector " << fGeoH->GetPath(sensorID) << " " << detID << ", track "
       << trackID << ", energy loss " << eLoss*1e06 << " keV" << std::endl;
 
-  return new(clref[size]) PndSdsMCPoint(trackID, detID, detName, posIn, posOut,
+  return new(clref[size]) PndSdsMCPoint(trackID, detID, sensorID, posIn, posOut,
                         momIn, momOut, time, length, eLoss);
+
 }
 // -------------------------------------------------------------------------
 

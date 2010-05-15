@@ -133,7 +133,7 @@ void PndMvdTPCRiemannTrackFinderTask::Exec(Option_t* opt)
   for (int i = 0; i < trackFinder.NTracks(); i++){
 	  new ((*fTrackCandArray)[i])PndTrackCand(trackFinder.GetTrackCand(i));
 	  PndRiemannTrack track;
-	  for(int j=0;j<trackFinder.GetTrackCand(i).GetNHits();j++){
+	  for(unsigned int j=0;j<trackFinder.GetTrackCand(i).GetNHits();j++){
 		  int detId,hitId;
 		  PndRiemannHit hit;
 		  detId=trackFinder.GetTrackCand(i).GetSortedHit(j).GetDetId();
@@ -187,7 +187,7 @@ void PndMvdTPCRiemannTrackFinderTask::CheckTPCHitsForMvdSeeds()
 	  if (count>3){
 		  int size=fMVDTPCTrackCandArray->GetEntriesFast();
 		  new ((*fMVDTPCTrackCandArray)[size])PndTrackCand(*(PndTrackCand*)fTrackCandArray->At(i));
-			  for(int k=0;k<TpcCand.GetNHits();k++){
+			  for(unsigned int k=0;k<TpcCand.GetNHits();k++){
 			  ((PndTrackCand*)fMVDTPCTrackCandArray->At(size))->AddHit(TpcCand.GetSortedHit(k).GetDetId(),TpcCand.GetSortedHit(k).GetHitId(),TpcCand.GetSortedHit(k).GetRho());
 			  }
 	  }

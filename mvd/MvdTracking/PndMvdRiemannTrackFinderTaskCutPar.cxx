@@ -157,7 +157,7 @@ void PndMvdRiemannTrackFinderTaskCutPar::CalcRiemannTracks()
 		  }
 		  int count=shift;
 		  int i=0;
-		  while ((count<3) && (i<((PndTrackCand*)fTrackCandArray->At(j))->GetNHits())){
+		  while ((count<3) && (i<(int)((PndTrackCand*)fTrackCandArray->At(j))->GetNHits())){
 			  unsigned int detId,hitId;
 			  detId=((PndTrackCand*)fTrackCandArray->At(j))->GetSortedHit(i).GetDetId();
 			  hitId=((PndTrackCand*)fTrackCandArray->At(j))->GetSortedHit(i).GetHitId();
@@ -203,7 +203,7 @@ void  PndMvdRiemannTrackFinderTaskCutPar::CalcParHists()
 			  double Pt=myTrack->GetPt();
 			  double Theta=(myTrack->GetMomentum().Theta())*180/TMath::Pi();
 			  PndRiemannHit hit0;
-			  for(int j=0;j<((PndTrackCand*)fTrackCandArray->At(i))->GetNHits();j++){
+			  for(unsigned int j=0;j<((PndTrackCand*)fTrackCandArray->At(i))->GetNHits();j++){
 				  detId=((PndTrackCand*)fTrackCandArray->At(i))->GetSortedHit(j).GetDetId();
 				  hitId=((PndTrackCand*)fTrackCandArray->At(i))->GetSortedHit(j).GetHitId();
 				  if (detId==kMVDHitsPixel){

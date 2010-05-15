@@ -88,7 +88,7 @@ PndSdsCalcStripDif::GetStrips(Double_t inx, Double_t iny, Double_t inz,
     }
     
     std::vector<PndSdsStrip> strips;
-    Double_t smearedQ;
+    //Double_t smearedQ;
         
     if (path.Mod()<1E-18) {
       std::cout<<"-W- PndSdsCalcStrip::GetStrips : No Trajectory inside Sensor! (out-in).Mod() = "<<path.Mod()<<std::endl;
@@ -153,7 +153,7 @@ PndSdsCalcStripDif::GetStrips(Double_t inx, Double_t iny, Double_t inz,
         //  strips.push_back(PndSdsStrip(Int_t(nuOut),smearedQ));
 
       //--------------------------Tsito Digi with diffusion------------------------------------------------
-      Double_t path_real = path.Mod();
+      //Double_t path_real = path.Mod();
       Int_t index = inStrip;
 
       Double_t charge1, charge2, dQ, dQR, dQL, QL, QR, QM;
@@ -228,7 +228,7 @@ PndSdsCalcStripDif::GetStrips(Double_t inx, Double_t iny, Double_t inz,
       if (fVerboseLevel > 1) std::cout<<" -> "<<strips.size()<<" strips hit."<<std::endl;
     } else {
       Double_t dQ=Q/std::fabs(nuOut-nuIn);
-      Double_t dPath=path.Mod()/std::fabs(nuOut-nuIn);
+      //Double_t dPath=path.Mod()/std::fabs(nuOut-nuIn);
       //Double_t dir = (nuOut>nuIn) ? 1. : -1.;
       Int_t nrHits = 0;
       // calculate portion of track in first strip
@@ -283,7 +283,7 @@ PndSdsCalcStripDif::GetStrips(Double_t inx, Double_t iny, Double_t inz,
         return strips;
 
       //for the strips
-      Double_t head_Path, tail_Path;
+      Double_t head_Path;  //, tail_Path;
       std::vector<PndSdsStrip> strip_head;
       std::vector<PndSdsStrip> strip_tail;
       std::vector<PndSdsStrip> strip_middle;
@@ -333,7 +333,7 @@ PndSdsCalcStripDif::GetStrips(Double_t inx, Double_t iny, Double_t inz,
       //for the left strip of the head strip
       Double_t charge1, charge2;
       Int_t id;
-      Double_t ipath;
+      //Double_t ipath;
       //Double_t q_head,q_tail;
       Double_t dq_head = ChargeDiffusion(0,head_Path,path.Mod(),dir,total_Q);//the diffusion charge from -infinite to index
       //  cout<<"the dir is "<<dir<<endl;

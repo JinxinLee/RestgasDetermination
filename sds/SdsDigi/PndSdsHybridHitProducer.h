@@ -17,8 +17,9 @@
 #include "TRandom.h"
 #include "TGeoMatrix.h"
 #include "TGeoBBox.h"
-
 #include "PndGeoHandling.h"
+#include "PndSdsChargeConversion.h"
+#include "PndSdsTotDigiPar.h"
 
 #include <string>
 #include <vector>
@@ -30,9 +31,12 @@ class PndSdsHybridHitProducer : public FairTask
  public:
 
   /** Default constructor **/
- PndSdsHybridHitProducer();
+  PndSdsHybridHitProducer();
+  
+  /** Named constructor **/
+  PndSdsHybridHitProducer(const char* name);
 
-  PndSdsHybridHitProducer(Double_t lx, Double_t ly, Double_t threshold, Double_t noise);
+ PndSdsHybridHitProducer(Double_t lx, Double_t ly, Double_t threshold, Double_t noise);
 
   /** Destructor **/
   virtual ~PndSdsHybridHitProducer();
@@ -49,6 +53,7 @@ class PndSdsHybridHitProducer : public FairTask
    ** function to set individual branch names
    **/
   virtual void SetBranchNames()=0;
+  virtual void SetMCPointType() = 0;
 
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
@@ -67,20 +72,21 @@ protected:
   TClonesArray* fPointArray;
 
   /** Output array of PndSdsDigis **/
-//  TClonesArray* fHitArray;
   TClonesArray* fPixelArray;
-//   TClonesArray* fFePixelArray;
 
   PndSdsPixelDigiPar* fDigiPar;
+  PndSdsTotDigiPar* fTotDigiPar;
+  PndSdsChargeConversion* fChargeConverter;
+  fDetectorType fMCPointType;
 
   void Register();
   void Reset();
   void ProduceHits();
 
-  TGeoHMatrix GetTransformation (std::string detName);
+  TGeoHMatrix GetTransformation (Int_t sensorID);
   void GetLocalHitPoints(PndSdsMCPoint* myPoint, FairGeoVector& myHitIn, FairGeoVector& myHitOut);
 //  PndSdsHit CalcGlobalPoint(std::vector<PndSdsPixel> pixels);
-  TVector3 GetSensorDimensions(std::string detName);
+  TVector3 GetSensorDimensions(Int_t sensorID);
 
   void AddHit(PndSdsPixel& hit, int mcIndex);
   void AddHits(std::vector<PndSdsPixel>* hitList, int mcIndex);
@@ -97,6 +103,7 @@ protected:
   Bool_t fOverwriteParams;
 
   std::vector<PndSdsPixel> fPixelList;
+
   ClassDef(PndSdsHybridHitProducer,7);
 
 };

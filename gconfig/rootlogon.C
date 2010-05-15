@@ -27,7 +27,7 @@ rootlogon()
   if(isLibrary("libStt"))gSystem->Load("libStt");
   if(isLibrary("libSttReco"))gSystem->Load("libSttReco");
   if(isLibrary("libSds"))gSystem->Load("libSds");
-  //if(isLibrary("libSdsReco"))gSystem->Load("libSdsReco");
+  if(isLibrary("libSdsReco"))gSystem->Load("libSdsReco");
   if(isLibrary("libMvd"))gSystem->Load("libMvd");
   if(isLibrary("libMvdReco"))gSystem->Load("libMvdReco");
   if(isLibrary("libMvdTrk"))gSystem->Load("libMvdTrk");

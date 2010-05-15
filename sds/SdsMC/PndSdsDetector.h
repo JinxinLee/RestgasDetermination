@@ -63,6 +63,14 @@ class PndSdsDetector : public FairDetector
    ** function to set individual branch names
    **/
   virtual void SetBranchNames()=0;
+  
+  /** pure virtual method SetDefaultSensorNames
+   **
+   ** called by Initialize()
+   ** function to set individual sensor type names
+   **/
+  virtual void SetDefaultSensorNames() = 0;
+  void SetExclusiveSensorType(const TString sens);
 
   /** Virtual method ProcessHits
    **
@@ -136,7 +144,6 @@ class PndSdsDetector : public FairDetector
   void ConstructASCIIGeometry();
  // void ExpandNode(TGeoNode *fN);
 
-  void SetExclusiveSensorType(const TString sens);
   void SetRadDamOption(bool val){fUseRadDamOption = val;};
   bool GetRadDamOption(){return fUseRadDamOption;};
 
@@ -176,7 +183,7 @@ protected:
    **
    ** Adds a CbmTrdPoint to the HitCollection
    **/
-  PndSdsMCPoint* AddHit(Int_t trackID, Int_t detID, TString detName,
+  PndSdsMCPoint* AddHit(Int_t trackID, Int_t detID, Int_t sensorID,
   		      TVector3 posIn, TVector3 posOut,
 		      TVector3 momIn, TVector3 momOut,
 		      Double_t time, Double_t length, Double_t eLoss)const;

@@ -70,7 +70,7 @@ private:
   void CalcPlanes();
   void CalcParHists();
 
-  int fNCut;
+  unsigned int fNCut;
 
   int fNbin;
   double frangeDist;

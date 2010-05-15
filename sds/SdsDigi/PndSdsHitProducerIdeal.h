@@ -20,6 +20,7 @@
 
 #include "FairTask.h"
 //#include "PndSdsGeoPar.h"
+#include "PndDetectorList.h"
 
 #include "TVector3.h"
 #include "TRandom.h"
@@ -33,6 +34,8 @@ class PndSdsHitProducerIdeal : public FairTask
   /** Default constructor **/  
   PndSdsHitProducerIdeal();
 
+  /** Named constructor **/  
+  PndSdsHitProducerIdeal(const char* name);
 
   /** Destructor **/
   virtual ~PndSdsHitProducerIdeal();
@@ -48,6 +51,7 @@ class PndSdsHitProducerIdeal : public FairTask
    ** function to set individual branch names
    **/
   virtual void SetBranchNames()=0;
+  virtual void SetMCPointType() = 0;
 
 
   /** Virtual method Exec **/
@@ -70,6 +74,8 @@ protected:
   TString fOutBranchName;
   TString fFolderName;
   
+  fDetectorType fMCPointType;
+
   //PndSdsGeoPar* fGeoPar;
   
   void Register();

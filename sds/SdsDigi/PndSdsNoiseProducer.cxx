@@ -14,7 +14,6 @@
 #include "FairGeoNode.h"
 
 #include "PndSdsNoiseProducer.h"
-#include "PndSdsHitInfo.h"
 #include "PndSdsMCPoint.h"
 #include "PndSdsDigiStrip.h"
 #include "PndSdsDigiPixel.h"
@@ -66,21 +65,23 @@ InitStatus PndSdsNoiseProducer::Init()
       ioman->Register(fBranchNamePixel, fFolderName, fDigiPixelArray, fPersistance);
   }
 
-  fGeoH = new PndGeoHandling();
+
   // Retrieve a map between the active geometry nodes and their interpretation
-  TGeoNode* topnode = gGeoManager->GetTopNode();
-  for (Int_t n=0; n<topnode->GetNdaughters();n++)
-  {
-    gGeoManager->CdDown(n);
-    TGeoNode* node = gGeoManager->GetCurrentNode();
-    TString nodeName = node->GetName();
-    if(nodeName.BeginsWith(fFolderName))
-    {
-      DiveDownNode(node);
-      break;
-    }
-    gGeoManager->CdUp();
-  }
+//  TGeoNode* topnode = gGeoManager->GetTopNode();
+//  for (Int_t n=0; n<topnode->GetNdaughters();n++)
+//  {
+//    gGeoManager->CdDown(n);
+//    TGeoNode* node = gGeoManager->GetCurrentNode();
+//    TString nodeName = node->GetName();
+//    if(nodeName.BeginsWith(fFolderName))
+//    {
+//      DiveDownNode(node);
+//      break;
+//    }
+//    gGeoManager->CdUp();
+//  }
+
+  FillSensorLists();
   if(fVerbose>1)
   {
     std::cout <<"-I- PndSdsNoiseProducer: Registered Sensors: "
@@ -96,27 +97,47 @@ InitStatus PndSdsNoiseProducer::Init()
 
 }
 
+void PndSdsNoiseProducer::FillSensorLists()
+{
+	TObjArray* sensorNames = fGeoH->GetSensorNames();
+	for (int i = 0; i < sensorNames->GetEntries(); i++){
+		TString volname = ((TObjString*)(sensorNames->At(i)))->GetString();
+		if(volname.Contains("Active"))
+		{
+		  if(volname.Contains("Rect")) fStripRectIds.push_back(i);
+		  if(volname.Contains("Trap")) fStripTrapIds.push_back(i);
+		  if(volname.Contains("Pixel"))
+		  {
+			if(volname.Contains("4x1")) fPixelIds4.push_back(i);
+			if(volname.Contains("6x1")) fPixelIds6.push_back(i);
+			if(volname.Contains("4x2")) fPixelIds8.push_back(i);
+			if(volname.Contains("6x2")) fPixelIds12.push_back(i);
+		  }
+		}
+	}
+}
+
 void PndSdsNoiseProducer::DiveDownNode(TGeoNode *nodeMother){
-  for (Int_t Nod=0; Nod<nodeMother->GetNdaughters();Nod++)
-  {
-    gGeoManager->CdDown(Nod);
-    TGeoNode *aNode = gGeoManager->GetCurrentNode();
-    if(aNode->GetNdaughters()>0) DiveDownNode(aNode);
-    TString volname = gGeoManager->GetPath();
-    if(volname.Contains("Active"))
-    {
-      if(volname.Contains("Rect")) fStripRectIds.push_back(fGeoH->GetID(volname));
-      if(volname.Contains("Trap")) fStripTrapIds.push_back(fGeoH->GetID(volname));
-      if(volname.Contains("Pixel"))
-      {
-        if(volname.Contains("4x1")) fPixelIds4.push_back(fGeoH->GetID(volname));
-        if(volname.Contains("6x1")) fPixelIds6.push_back(fGeoH->GetID(volname));
-        if(volname.Contains("4x2")) fPixelIds8.push_back(fGeoH->GetID(volname));
-        if(volname.Contains("6x2")) fPixelIds12.push_back(fGeoH->GetID(volname));
-      }
-    }
-    gGeoManager->CdUp();
-  }
+//  for (Int_t Nod=0; Nod<nodeMother->GetNdaughters();Nod++)
+//  {
+//    gGeoManager->CdDown(Nod);
+//    TGeoNode *aNode = gGeoManager->GetCurrentNode();
+//    if(aNode->GetNdaughters()>0) DiveDownNode(aNode);
+//    TString volname = gGeoManager->GetPath();
+//    if(volname.Contains("Active"))
+//    {
+//      if(volname.Contains("Rect")) fStripRectIds.push_back(fGeoH->GetID(volname));
+//      if(volname.Contains("Trap")) fStripTrapIds.push_back(fGeoH->GetID(volname));
+//      if(volname.Contains("Pixel"))
+//      {
+//        if(volname.Contains("4x1")) fPixelIds4.push_back(fGeoH->GetID(volname));
+//        if(volname.Contains("6x1")) fPixelIds6.push_back(fGeoH->GetID(volname));
+//        if(volname.Contains("4x2")) fPixelIds8.push_back(fGeoH->GetID(volname));
+//        if(volname.Contains("6x2")) fPixelIds12.push_back(fGeoH->GetID(volname));
+//      }
+//    }
+//    gGeoManager->CdUp();
+//  }
 }
 
 // -------------------------------------------------------------------------
@@ -129,6 +150,11 @@ void PndSdsNoiseProducer::SetParContainers()
   fDigiParRect = (PndSdsStripDigiPar*)(rtdb->getContainer("MVDStripDigiParRect"));
   fDigiParTrap = (PndSdsStripDigiPar*)(rtdb->getContainer("MVDStripDigiParTrap"));
   fDigiParPix  = (PndSdsPixelDigiPar*)(rtdb->getContainer("MVDPixelDigiPar"));
+  Info("SetParContainers","make geohandler");
+	if(0==fGeoH) fGeoH = new PndGeoHandling();
+  else   Warning("SetParContainers","ooops there was already a geohandler");
+  fGeoH->SetVerbose(fVerbose);
+  Info("SetParContainers","done.");
 }
 
 
@@ -149,7 +175,7 @@ void PndSdsNoiseProducer::Exec(Option_t* opt)
         nNoisyStripTraps=0,
         nNoisyPixels=0;
   Double_t xfrac=0.;
-  TString did;
+  Int_t did;
 
   // *** Strip Rect ***
   // how many channels left?
@@ -216,21 +242,21 @@ void PndSdsNoiseProducer::Exec(Option_t* opt)
     col = chan%fDigiParPix->GetFECols();
     row = chan/fDigiParPix->GetFECols();
     fe  = rnd/nrCh;
-    if(fe >= (4*fPixelIds4.size() + 6*fPixelIds6.size() + 8*fPixelIds8.size()) )
+    if(fe >= (Int_t)(4*fPixelIds4.size() + 6*fPixelIds6.size() + 8*fPixelIds8.size()) )
     {
       fe = fe - 4*fPixelIds4.size() - 6*fPixelIds6.size() - 8*fPixelIds8.size();
       sens = fe/12;
       did = fPixelIds12.at(sens);
       fe = fe%12;
       if(fe>6) fe=fe-6+10; //0-9 one row of FE, 10-19 2nd row of FE
-    } else if( fe >= (4*fPixelIds4.size() + 6*fPixelIds6.size()) )
+    } else if(fe >= (Int_t)(4*fPixelIds4.size() + 6*fPixelIds6.size()) )
     {
       fe = fe - 4*fPixelIds4.size() - 6*fPixelIds6.size();
       sens = fe/8;
       did = fPixelIds8.at(sens);
       fe = fe%8;
       if(fe>4) fe=fe-4+10; //0-9 one row of FE, 10-19 2nd row of FE
-    } else if( fe >= 4*fPixelIds4.size() )
+    } else if( fe >= (Int_t)(4*fPixelIds4.size()) )
     {
       fe = fe -4*fPixelIds4.size();
       sens = fe/6;
@@ -285,7 +311,7 @@ Int_t PndSdsNoiseProducer::CalcChargeAboveThreshold(Double_t spread,Double_t thr
   return (Int_t)temp;
 }
 // -------------------------------------------------------------------------
-void PndSdsNoiseProducer::AddDigiStrip(Int_t &noisies, Int_t iPoint, TString detname, Int_t fe, Int_t chan, Double_t charge)
+void PndSdsNoiseProducer::AddDigiStrip(Int_t &noisies, Int_t iPoint, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge)
 {
   Bool_t found = kFALSE;
   Int_t detID = kMVDHitsStrip;
@@ -295,7 +321,7 @@ void PndSdsNoiseProducer::AddDigiStrip(Int_t &noisies, Int_t iPoint, TString det
   {
 	aDigi = (PndSdsDigiStrip*)fDigiStripArray->At(kstr);
 	if ( aDigi->GetDetID() == detID &&
-		 aDigi->GetDetName() == detname &&
+		 aDigi->GetSensorID() == sensorID &&
 		 aDigi->GetFE() == fe &&
 		 aDigi->GetChannel() == chan )
 	{
@@ -308,16 +334,16 @@ void PndSdsNoiseProducer::AddDigiStrip(Int_t &noisies, Int_t iPoint, TString det
 	  //TODO: get a reasonable timestamp fake for the noise
 	 std::vector<Int_t> indices;
 	 indices.push_back(iPoint);
-    new ((*fDigiStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,detname,fe,chan,charge,0) ;
+    new ((*fDigiStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,sensorID,fe,chan,charge, fMCPointType, 0) ;
     noisies++;
     if(fVerbose>2) std::cout
       << " -I- PndSdsNoiseProducer: Added StripTrap Digi at: FE=" << fe
       << ", channel=" << chan << ", charge=" << charge<< " e"
-      << ", in sensor \n" << detname <<std::endl;
+      << ", in sensor \n" << sensorID <<std::endl;
   }
 }
 // -------------------------------------------------------------------------
-void PndSdsNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, TString detname, Int_t fe, Int_t col, Int_t row, Double_t charge)
+void PndSdsNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t sensorID, Int_t fe, Int_t col, Int_t row, Double_t charge)
 {
   Bool_t found = kFALSE;
   Int_t detID = kMVDHitsPixel;
@@ -327,7 +353,7 @@ void PndSdsNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, TString det
   {
 	aDigi = (PndSdsDigiPixel*)fDigiPixelArray->At(kstr);
 	if ( aDigi->GetDetID() == detID &&
-		 aDigi->GetDetName() == detname &&
+		 aDigi->GetSensorID() == sensorID &&
 		 aDigi->GetFE() == fe &&
 		 aDigi->GetPixelColumn() == col &&
 		 aDigi->GetPixelRow() == row )
@@ -340,12 +366,12 @@ void PndSdsNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, TString det
   if(found == kFALSE){
 	  std::vector<Int_t> indices;
 	  indices.push_back(iPoint);
-    new ((*fDigiPixelArray)[iPix]) PndSdsDigiPixel(indices,detID,detname,fe,col,row,charge) ;
+    new ((*fDigiPixelArray)[iPix]) PndSdsDigiPixel(indices,detID,sensorID,fe,col,row,charge, fMCPointType) ;
     noisies++;
     if(fVerbose>2) std::cout
       << " -I- PndSdsNoiseProducer: Added Pixel Digi at: FE=" << fe
       << ", col|row = ("<<col<<"|"<<row<< "), charge=" << charge<< " e"
-      << ", in sensor \n" << detname.Data() <<std::endl;
+      << ", in sensor \n" << sensorID <<std::endl;
 
   }
 }

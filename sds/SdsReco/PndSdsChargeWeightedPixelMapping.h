@@ -2,29 +2,33 @@
 #define PNDSDSCHARGEWEIGHTEDPIXELMAPPING_H
 
 #include "PndSdsPixelBackMapping.h"
+#include "PndSdsChargeConversion.h"
 #include "TGeoMatrix.h"
 #include "TVector3.h"
 //! PndSdsChargeWeightedPixelMapping.h
 //! @author T.Stockmanns <t.stockmanns@fz-juelich.de>
 //!
-//! \brief PndSdsChargedWeightedPixelMapping: Gets a vektor of DigiHits and calculates the cluster center weighted with the charge
-//! @param [0] = Number of columns in FE
-//! @param [1] = Number of rows in FE
-//! @param [2] = Pixel dimension in x
-//! @param [3] = Pixel dimension in y
-//! \sa PndSdsPixelBackMapping.h
-//TODO replace params with parameter database values
+//! \brief PndSdsChargedWeightedPixelMapping: Gets a vector of DigiHits and calculates the cluster center weighted with the charge
+//! params: Number of columns in FE, Number of rows in FE, Pixel dimension in x, Pixel dimension in y
+//! params are taken from parameter database
+
 class PndSdsChargeWeightedPixelMapping : public PndSdsPixelBackMapping
 {
 	public :
-			PndSdsChargeWeightedPixelMapping(std::vector<PndSdsDigiPixel> pixelArray, std::vector<Double_t> params):PndSdsPixelBackMapping(pixelArray, params){};
-			PndSdsHit GetCluster(); ///< Main function of class to calculate the PndSdsHit out of the given PndSdsDigis
-	private :
-			TGeoHMatrix GetTransformation(std::string detName);
-			TVector3 GetSensorDimensions(std::string detName);
+			PndSdsChargeWeightedPixelMapping();
+			PndSdsChargeWeightedPixelMapping(PndGeoHandling* geo);
+			PndSdsHit GetCluster(std::vector<PndSdsDigiPixel> pixelArray); ///< Main function of class to calculate the PndSdsHit out of the given PndSdsDigis
 
+	protected :
+			PndSdsChargeConversion* fChargeConverter;
+			Double_t flx;
+			Double_t fly;
+			Int_t fcols;
+			Int_t frows;
+
+	private :
+			TGeoHMatrix GetTransformation(Int_t sensorID);
+			TVector3 GetSensorDimensions(Int_t sensorID);
 };
 
 #endif
-
-
