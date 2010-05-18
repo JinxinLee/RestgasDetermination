@@ -4,9 +4,8 @@
  * License:                            *
  * Version:                            *
  ***************************************/
-//#pragma once
-#ifndef PNDMVADATASET_H
-#define PNDMVADATASET_H
+#ifndef PND_MVA_DATASET_H
+#define PND_MVA_DATASET_H
 
 // C++ includes
 #include <vector>
@@ -33,7 +32,7 @@
 
 // ========================================================================
 // Normalization schemes
-typedef enum {NONE = 1, VARX = 2, MINMAX = 3, MEDIAN = 4} NormType;
+typedef enum {NONE = 0, VARX = 1, MINMAX = 2, MEDIAN = 3} NormType;
 
 // ========================================================================
 class PndMvaDataSet

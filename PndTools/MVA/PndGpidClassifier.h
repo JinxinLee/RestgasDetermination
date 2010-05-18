@@ -6,8 +6,8 @@
  * License:                                     *
  * **********************************************
  */
-#ifndef PndGPIDCLASSIFIER_H
-#define PndGPIDCLASSIFIER_H
+#ifndef PND_GPID_CLASSIFIER_H
+#define PND_GPID_CLASSIFIER_H
 
 // C++ includes
 #include <iostream>

@@ -6,25 +6,27 @@
 #INCLUDE   = $(shell root-config --cflags) -I./ -I../
 #LIBS      = $(shell root-config --libs)
 
+HDR = -I../ -I../Clusters/
+
 # Define targets
 TARGETS = PndLVQClassify PndLVQTrain LVQtrain LVQclassify
 
 all: $(TARGETS)
 
 PndLVQClassify: % : %.cpp
-	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ../build/$@.o
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
 	@echo "Done building:" $@
 
 PndLVQTrain:% : %.cpp
-	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ../build/$@.o
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
 	@echo "Done building:" $@
 
 LVQclassify: % : %.cpp PndLVQClassify
-	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ../build/$@.o
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
 	@echo "Done building:" $@
 
 LVQtrain: % : %.cpp PndLVQTrain
-	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ../build/$@.o
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
 	@echo "Done building:" $@
 
 clean:

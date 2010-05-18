@@ -6,8 +6,8 @@
  * Modified:                          *
  *                                    *
  * ************************************/
-#ifndef PNDPROJECTEDKNN_H
-#define PNDPROJECTEDKNN_H
+#ifndef PND_PROJECTED_KNN_H
+#define PND_PROJECTED_KNN_H
 
 // Local Headers
 #include "PndKnnClassify.h"

@@ -22,7 +22,7 @@ CCFLAGS += -O3 ${FLAGSMACHINE} -funroll-loops
 # CCFLAGS += -malign-double -maccumulate-outgoing-args -ftracer
 # CCFLAGS += -fvariable-expansion-in-unroller -fprefetch-loop-arrays
 
-INCLUDE = $(shell root-config --cflags) -I./ -I../
+INCLUDE = $(shell root-config --cflags) -I./
 
 LIBS  = $(shell root-config --libs) -lTMVA -lTreePlayer -lMinuit
 LIBS += -lMLP -lXMLIO

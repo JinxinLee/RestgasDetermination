@@ -23,7 +23,8 @@ PndLVQTrain::PndLVQTrain(const std::string& inputFile,
   : PndMvaTrainer(inputFile, ClassNames, VarNames, trim),
     m_initConst(0.8), m_ethaZero(0.1),
     m_ethaFinal(0.0001), m_NumSweep(900), 
-    m_numProto(0)
+    m_numProto(0),
+    m_pro_init(RANDOM_PR)
 {}
 
 /**
@@ -45,8 +46,6 @@ PndLVQTrain::~PndLVQTrain()
 void PndLVQTrain::Train()
 {
   TRandom3 trand(m_RND_seed);
-  //numProto may not be zero.
-  assert(m_numProto != 0);
   
   // Init Proto types
   InitProtoTypes();
@@ -156,14 +155,6 @@ void PndLVQTrain::Train()
 void PndLVQTrain::Train21()
 {
   TRandom3 trand(m_RND_seed);
-  
-  // Init LVQ protoTypes.
-  if(m_numProto <= 0)
-  {
-    std::cerr << "\t<ERROR:> The number of prototypes MUST\n"
-	      <<"be greater than zero" << std::endl;
-    assert(m_numProto > 0);
-  }
 
   // Init proto types
   InitProtoTypes();
@@ -309,25 +300,68 @@ void PndLVQTrain::Train21()
   WriteToWeightFile(m_LVQProtos);
 }
 
-// FIX IMPLEMENT
-void PndLVQTrain::TrainSec()
-{}
-void PndLVQTrain::Train21Sec()
-{}
-
-
-
 // ==================== Private functions =======================
+void PndLVQTrain::InitProtoTypes()
+{
+  // number of proto = 0 makes no sence.
+  if(m_numProto <= 0){
+    std::cerr << "\t<ERROR:> The number of prototypes MUST\n"
+	      <<"be greater than zero" << std::endl;
+    assert(m_numProto > 0);
+  }
+
+  // Clear protypes list
+  cleanProtoList();
+
+  switch(m_pro_init){
+  case KMEANS_PR:
+    InitProtoK_Means();
+    break;
+  default:
+    InitProtoRand();
+    break;
+  }
+}
+
+void PndLVQTrain::InitProtoK_Means()
+{
+  std::cout << "<INFO> Initializing " << m_numProto 
+            <<" LVQ prototypes using K_Means."
+	    << std::endl;
+  
+  const std::vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+  //const std::vector<PndMvaVariable>& variables = m_dataSets.GetVars();
+  const std::vector<std::pair<std::string, std::vector<float>*> >& events = m_dataSets.GetData();
+  // Class loop
+  for(size_t cls = 0; cls < classes.size(); cls++){
+    ClDataSample clusteringInput;
+    std::string clsName = (classes[cls]).Name;
+    // Example loop
+    for(size_t evt = 0; evt < events.size(); evt++){
+      if(events[evt].first == clsName){
+	clusteringInput.push_back(events[evt].second);
+      }
+    }// ExampleLoop
+    // We have seen all available examples for the current class.
+    std::cout << "Number of examples for " << clsName 
+	      << " = " <<  clusteringInput.size()
+	      << std::endl;
+
+    //PndMvaCluster clust (clusteringInput, m_numProto);
+    //ClDataSample& TMPprotoList = clust.Cluster();
+    //FIXME HIER BEN JE BEZIG
+  }// ClassLoop
+}
+
 /**
  * Initialize LVQ prototypes (Code books) using class conditional
  * means vectors.
  */
-void PndLVQTrain::InitProtoTypes()
+void PndLVQTrain::InitProtoRand()
 {
-  // Clear protypes list
-  cleanProtoList();
   std::cout << "<INFO> Initializing " << m_numProto 
-            <<" LVQ prototypes."<< std::endl;
+            <<" LVQ prototypes based on CLM."
+	    << std::endl;
 
   // Initialize LVQ-prototypes.
   double c = m_initConst;//0.8;

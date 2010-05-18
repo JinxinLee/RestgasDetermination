@@ -7,8 +7,8 @@
  * License:                              *
  * ***************************************
  */
-#ifndef PndLVQClassify_H
-#define PndLVQClassify_H
+#ifndef PND_LVQ_CLASSIFY_H
+#define PND_LVQ_CLASSIFY_H
 
 // Standard C++ libraries
 #include <limits>
@@ -40,7 +40,7 @@ class PndLVQClassify: public PndGpidClassifier
    * @param result:  Classification results. Currently the shortest
    *  distance for each class is stored in result.
    */
-  void GetMvaValues(std::vector<float> eventData, 
+  void GetMvaValues(std::vector<float> eventData,
 		    std::map<std::string, float>& result);
   /**
    * Given a feature vector describing the pattern. Classifies the pattern.

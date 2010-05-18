@@ -8,8 +8,8 @@
  * Based on the straight KNN algorithm
  * Using a linear search data structure.
  */
-#ifndef PndKnnClassify_H
-#define PndKnnClassify_H
+#ifndef PND_STD_KNN_CLASSIFY_H
+#define PND_STD_KNN_CLASSIFY_H
 
 // Local includes
 #include "PndGpidClassifier.h"

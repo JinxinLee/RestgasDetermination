@@ -6,6 +6,8 @@
 #INCLUDE   = $(shell root-config --cflags) -I./ -I../
 #LIBS      = $(shell root-config --libs)
 
+HDR = -I../
+
 # Define targets
 TARGETS = PndPDEFoamTrain FoamTrainTest PndPDEFoamClassify FoamClassifyTest
 
@@ -13,19 +15,19 @@ TARGETS = PndPDEFoamTrain FoamTrainTest PndPDEFoamClassify FoamClassifyTest
 all: $(TARGETS)
 
 PndPDEFoamTrain: % : %.cpp
-	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ../build/$@.o
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
 	@echo "Done building "$@.o
 
 PndPDEFoamClassify: % : %.cpp
-	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ../build/$@.o
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
 	@echo "Done building "$@.o
 
 FoamClassifyTest: % : %.cpp PndPDEFoamClassify
-	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ../build/$@.o
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
 	@echo "Done building "$@
 
 FoamTrainTest: % : %.cpp  PndPDEFoamTrain
-	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ../build/$@.o
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
 	@echo "Done building "$@
 
 clean:

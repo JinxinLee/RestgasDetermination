@@ -36,9 +36,9 @@ int main(int argc, char**argv)
   std::vector <std::string> clas;
   std::vector <std::string> vars;
   
-  clas.push_back("Elect");  clas.push_back("Pion");
-  clas.push_back("Muon");   clas.push_back("Kaon");
-  clas.push_back("Proton"); clas.push_back("Gamma");
+  clas.push_back("electron");  clas.push_back("pion");
+  clas.push_back("muon");   clas.push_back("kaon");
+  clas.push_back("proton"); clas.push_back("gamma");
   
   vars.push_back("p"); vars.push_back("emc");
   vars.push_back("thetaC"); vars.push_back("stt");
@@ -52,10 +52,12 @@ int main(int argc, char**argv)
    * For each class we need to initialize a vector to be used for
    * writing the var values in the corresponding tree.
    */
-  for(size_t i = 0; i < clas.size(); i++){
+  for(size_t i = 0; i < clas.size(); i++)
+  {
     std::vector<float>* v = new std::vector<float>();
     //Initialize the vectors to hold variables
-    for(size_t j = 0; j < vars.size(); j++){
+    for(size_t j = 0; j < vars.size(); j++)
+    {
       v->push_back(0.0);
     }//Now we have m_numVars zero's in v.
     varContainer.push_back(v);
@@ -66,7 +68,8 @@ int main(int argc, char**argv)
    * container. We have to bind the variables to the tree branches
    * aswell.
    */
-  for(size_t cls = 0; cls < clas.size(); cls++){
+  for(size_t cls = 0; cls < clas.size(); cls++)
+  {
     std::string name = clas[cls];
     std::string desc = "Description Of " + name;
     const char* treeName = name.c_str();
@@ -75,7 +78,8 @@ int main(int argc, char**argv)
     TTree *sig = new TTree(treeName, treeDesc);
     
     //Create branches and bind them to variables;
-    for(size_t j = 0; j < vars.size(); j++){
+    for(size_t j = 0; j < vars.size(); j++)
+    {
       std::string vname = vars[j];
       std::string leaf  = vname + "/F" ;
       const char* bname = vname.c_str();
@@ -98,16 +102,19 @@ int main(int argc, char**argv)
   double sigma = 2.00;
   double mean  = 1.00;
   
-  for(cls = 0; cls < NumClasses; cls++){
+  for(cls = 0; cls < NumClasses; cls++)
+  {
     mean = sigma + 1;
     sigma += mean;
     //Event loop
-    for(int ev = 0; ev < numevt; ev++){
+    for(int ev = 0; ev < numevt; ev++)
+    {
       //Variable loop
-      for(size_t var = 0; var < vars.size(); var++){
+      for(size_t var = 0; var < vars.size(); var++)
+      {
 	//(varContainer[cls])->at(var) = static_cast<float>(rand.Gaus(mean, sigma));
 	//(varContainer[cls])->at(var) = static_cast<float>(rand.Uniform(mean));
-	(varContainer[cls])->at(var) = static_cast<float>(rand.Uniform(10));
+	(varContainer[cls])->at(var) = static_cast<float>(rand.Uniform(cls, (cls + 1)));
       }
       trees[cls]->Fill();
     }
@@ -118,17 +125,22 @@ int main(int argc, char**argv)
   
   TFile rootFile (outFile.c_str(), "RECREATE", "RandomEventDatafile", 9);
   
-  for(size_t t = 0; t < trees.size(); t++){
+  for(size_t t = 0; t < trees.size(); t++)
+  {
     (trees[t])->Write();
   }
   rootFile.Close();
+  
+  //===========================
   //Clean up data structures
-  for(size_t i = 0; i < varContainer.size(); i++){
+  for(size_t i = 0; i < varContainer.size(); i++)
+  {
     varContainer[i]->clear();
     delete varContainer[i];
   }  
   varContainer.clear();
-  for(size_t i = 0; i < trees.size(); i++){
+  for(size_t i = 0; i < trees.size(); i++)
+  {
     delete trees[i];
   }
   trees.clear();

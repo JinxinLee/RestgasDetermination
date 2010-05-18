@@ -6,8 +6,8 @@
  * Modified:                          *
  *                                    *
  * ************************************/
-#ifndef PndKnnClassify_H
-#define PndKnnClassify_H
+#ifndef PND_KNN_CLASSIFY_H
+#define PND_KNN_CLASSIFY_H
 
 // LOCAL includes
 #include "PndGpidClassifier.h"

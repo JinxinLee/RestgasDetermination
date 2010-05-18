@@ -46,17 +46,10 @@ int main(int argc, char** argv)
   std::string OutErr = argv[6];
   std::cout << " ErrorFile = " << OutErr << std::endl;
 
-
   //Class names
-    
-  //clas.push_back("electron"); clas.push_back("pion");
-  //clas.push_back("kaon");     clas.push_back("muon");
-  //clas.push_back("proton");   //clas.push_back("gamma");
-
-
-  clas.push_back("Elect"); clas.push_back("Pion");
-  //clas.push_back("Kaon");  clas.push_back("Muon");
-  //clas.push_back("Proton"); //clas.push_back("gamma");
+  clas.push_back("electron"); clas.push_back("pion");
+  clas.push_back("kaon");     clas.push_back("muon");
+  clas.push_back("proton");   //clas.push_back("gamma");
 
   //Variable names 
   nam.push_back("p");
@@ -64,7 +57,7 @@ int main(int argc, char** argv)
   nam.push_back("thetaC");
   nam.push_back("mvd");
   nam.push_back("tof");
-  //nam.push_back("stt"); 
+  nam.push_back("stt"); 
 
   PndLVQTrain tr(ip, clas, nam, true);
   float initC  = 0.9;

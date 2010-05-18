@@ -6,8 +6,8 @@
  * Modified:                          *
  *                                    *
  * ************************************/
-#ifndef PndKnnTrain_H
-#define PndKnnTrain_H
+#ifndef PND_KNN_TRAIN_H
+#define PND_KNN_TRAIN_H
 
 #include "PndMvaTrainer.h"
 

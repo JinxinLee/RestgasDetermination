@@ -1,4 +1,3 @@
-//#pragma once
 #ifndef PND_PDE_FOAM_TRAIN_H
 #define PND_PDE_FOAM_TRAIN_H
 

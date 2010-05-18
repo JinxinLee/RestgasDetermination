@@ -5,15 +5,20 @@
  * LICENSE:                              *
  * ***************************************
  */
-#ifndef Pnd_LVQ_Train_H
-#define Pnd_LVQ_Train_H
+#ifndef PND_LVQ_TRAIN_H
+#define PND_LVQ_TRAIN_H
 
 //Local includes
 #include "PndMvaTrainer.h"
+#include "PndMvaCluster.h"
+
+typedef enum {RANDOM_PR = 0, KMEANS_PR = 1} ProtoInitType;
 
 //! Interface definition for LVQ trainers.
 class PndLVQTrain: public PndMvaTrainer
 {
+  //----------------------------------------
+  //================== public ==============
  public:
   /**
    * Constructor:
@@ -40,10 +45,13 @@ class PndLVQTrain: public PndMvaTrainer
    */
   void Train21();
   
+  void setProtoInitType(ProtoInitType val = RANDOM_PR)
+  { m_pro_init = val; };
+
   // Test functions Modified training schemes, May BE deleted after
   // testing. At each step: select number of classes random examples.
-  void TrainSec  ();
-  void Train21Sec();
+  void TrainSec  (){};
+  void Train21Sec(){};
 
   /**
    * Sets the learning parameters.
@@ -64,6 +72,8 @@ class PndLVQTrain: public PndMvaTrainer
   inline void SetNumberOfProto(const unsigned int numProto)
   {m_numProto = numProto; };
   
+  //----------------------------------------
+  //================== private =============
  private:
   // To avoid mistakes, :).
   PndLVQTrain(const PndLVQTrain& other);
@@ -77,6 +87,9 @@ class PndLVQTrain: public PndMvaTrainer
    *means vectors.
    *@param numProto number of code books to use.
    */
+  void InitProtoRand();
+  void InitProtoK_Means();
+
   void InitProtoTypes();
   
   /**
@@ -109,5 +122,7 @@ class PndLVQTrain: public PndMvaTrainer
 
   //! number of proto-types to train
   unsigned int m_numProto;
+
+  ProtoInitType m_pro_init;
 };
 #endif //END Interface

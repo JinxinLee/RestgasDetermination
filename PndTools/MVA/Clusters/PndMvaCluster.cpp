@@ -95,6 +95,7 @@ ClDataSample& PndMvaCluster::K_Means()
     //float distSum = 0.0;
     some_point_is_moving = false;
     ComputeCentroids();
+
     float minDist, currDist;
     minDist = currDist = 0.0;
     unsigned int to_cluster = 0;
@@ -104,8 +105,9 @@ ClDataSample& PndMvaCluster::K_Means()
     {
       minDist = ComputeDist( *(m_PointSet[pt]), *(m_Centroids[m_PointsToClusters[pt]]));
       move = false;
+    
       // Centroids loop
-      for(size_t ctr = 0; ctr < m_Centroids.size(); ctr++)
+      for(size_t ctr = 0; ctr < m_num_Cluster; ctr++)
       {
 	currDist = ComputeDist( *(m_PointSet[pt]), *(m_Centroids[ctr]));
 	if( currDist < minDist )
@@ -152,7 +154,7 @@ ClDataSample& PndMvaCluster::K_Means()
   //======================================
   // Copy centroid to the output structure
   ClDataSample* Cl_Out = new ClDataSample();
-  for(size_t ctr = 0; ctr < m_Centroids.size(); ctr++)
+  for(size_t ctr = 0; ctr < m_num_Cluster; ctr++)
   {
     std::vector<float>* ct = new std::vector<float>( *(m_Centroids[ctr]) );
     Cl_Out->push_back(ct);
@@ -166,19 +168,22 @@ ClDataSample& PndMvaCluster::K_Means()
 void PndMvaCluster::ComputeCentroids()
 {
   // Centeroids loop
-  for(size_t ct = 0; ct < m_Centroids.size(); ct++)
+  for(size_t ct = 0; ct < m_num_Cluster; ct++)
   {
     // Current cluster centroid
     std::vector<float>* curCt = m_Centroids[ct];
+    
     // Points in the current cluster
     std::set<unsigned int>* ClusterPoints = m_ClustersToPoints[ct];
+    
     // Loop through the points and update the cluster center
     for(std::set<unsigned int>::const_iterator iter = ClusterPoints->begin();
 	iter != ClusterPoints->end(); iter++)
     {
       unsigned int pt = *iter;
       std::vector<float>* curPt = m_PointSet[pt];
-      for(size_t idx = 0; idx < curPt->size(); idx++)
+      
+      for(size_t idx = 0; idx < m_dimension; idx++)
       {
 	curCt->at(idx) += curPt->at(idx);
       }
@@ -186,7 +191,7 @@ void PndMvaCluster::ComputeCentroids()
     // If no points in cluster It will Go to inf. Correct this.
     if(ClusterPoints->size() != 0)
     {
-      for(size_t dim = 0; dim < curCt->size(); dim++)
+      for(size_t dim = 0; dim < m_dimension; dim++)
       {
 	curCt->at(dim) /= ClusterPoints->size();
       }
@@ -228,7 +233,7 @@ void PndMvaCluster::InitialPartition()
   // Data points loop
   for(size_t pt = 0; pt < m_PointSet.size(); pt++)
   {
-    unsigned int cluster_idx = pt % m_num_Cluster;
+    unsigned int cluster_idx = (pt % m_num_Cluster);
     // Add point to cluster and cluster to point
     m_PointsToClusters[pt] = cluster_idx;
     (m_ClustersToPoints[cluster_idx])->insert(pt);
