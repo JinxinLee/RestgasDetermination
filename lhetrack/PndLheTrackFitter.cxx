@@ -217,7 +217,7 @@ void PndLheTrackFitter::Info4Fit(PndLheCandidate *track, Int_t idx) {
 	Double_t py =  Q*alpha*rad*TMath::Cos(fi0 + phi);
 	//Double_t pz =  Q*alpha*rad*lam*TMath::Sign(-1.,phi); // OLD
 	Double_t pz =  -alpha*rad*lam; // STE
-	if (fabs(pz<1e-8))
+	if (fabs(pz)<1e-8)
 	  {
 	    track->SetGood(kFALSE);
 	    break;
