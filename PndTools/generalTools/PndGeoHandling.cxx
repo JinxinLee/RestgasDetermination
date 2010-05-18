@@ -113,7 +113,8 @@ void PndGeoHandling::GetRunId(TString mcFile)
 {
 	TFile f(mcFile.Data());
 	TTree* t = (TTree*)f.Get("cbmsim");
-	FairEventHeader* header;
+	FairEventHeader* header= new FairEventHeader();
+	t->SetBranchStatus("EventHeader.",1);
 	t->SetBranchAddress("EventHeader.", &header);
 	t->GetEntry(0);
 	fRunId = header->GetRunId();
