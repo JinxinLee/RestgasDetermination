@@ -50,8 +50,8 @@ PndGeoHandling::PndGeoHandling():fVerbose(0)
 		fGeoMan = gGeoManager;
 	} else
 	{
-		Fatal("PndGeoHandling","No gGeoManager");
-		return;
+//			Fatal("PndGeoHandling","No gGeoManager");
+//			return;
 	}
 	SetParContainers();
 }
@@ -111,8 +111,8 @@ PndGeoHandling::PndGeoHandling(Int_t runId, TString parFile):fVerbose(0)
 
 void PndGeoHandling::GetRunId(TString mcFile)
 {
-	TFile* f = new TFile(mcFile.Data());
-	TTree* t = (TTree*)f->Get("cbmsim");
+	TFile f(mcFile.Data());
+	TTree* t = (TTree*)f.Get("cbmsim");
 	FairEventHeader* header;
 	t->SetBranchAddress("EventHeader.", &header);
 	t->GetEntry(0);
