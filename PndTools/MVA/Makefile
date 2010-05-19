@@ -86,7 +86,7 @@ examples: PndMvaUtil PndMvaDataSet PndGpidClassifier Classifiers
 	build/PndGpidClassifier.o build/PndMvaUtil.o build/PndMvaDataSet.o -o build/PrKNNclassify
 
 	$(CXX) $(LIBS) build/LVQtrain.o build/PndMvaTrainer.o build/PndMvaUtil.o build/PndLVQTrain.o \
-	build/PndMvaDataSet.o -o build/LVQtrain
+	build/PndMvaDataSet.o build/PndMvaCluster.o -o build/LVQtrain
 
 	$(CXX) $(LIBS) build/KnnTrain.o build/PndMvaTrainer.o build/PndMvaUtil.o build/PndKnnTrain.o \
 	build/PndMvaDataSet.o -o build/KNNTrain

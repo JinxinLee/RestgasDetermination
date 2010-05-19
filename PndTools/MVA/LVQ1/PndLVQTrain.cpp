@@ -347,9 +347,14 @@ void PndLVQTrain::InitProtoK_Means()
 	      << " = " <<  clusteringInput.size()
 	      << std::endl;
 
-    //PndMvaCluster clust (clusteringInput, m_numProto);
-    //ClDataSample& TMPprotoList = clust.Cluster();
-    //FIXME HIER BEN JE BEZIG
+    //Create clusters from current data points.
+    PndMvaCluster clust (clusteringInput, m_numProto);
+    ClDataSample& TMPprotoList = clust.Cluster();
+    //Copy cluster centers to LVQ prototypes (code books)
+    for(size_t pr = 0; pr < TMPprotoList.size(); pr++){
+      std::vector<float>* lvpr = new std::vector<float>( *(TMPprotoList[pr]) );
+      m_LVQProtos.push_back(std::make_pair(clsName, lvpr));
+    }
   }// ClassLoop
 }
 
