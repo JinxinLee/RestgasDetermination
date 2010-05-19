@@ -45,6 +45,10 @@ class PndLVQTrain: public PndMvaTrainer
    */
   void Train21();
   
+  /**
+   * Set CodeBook init type.
+   *@param val Initialization type.
+   */
   void setProtoInitType(ProtoInitType val = RANDOM_PR)
   { m_pro_init = val; };
 
@@ -83,13 +87,19 @@ class PndLVQTrain: public PndMvaTrainer
   void EvalClassifierError(unsigned int stp);
 
   /**
-   *Initialize LVQ prototypes (Code books) using class conditional
-   *means vectors.
-   *@param numProto number of code books to use.
+   * Initialize LVQ prototypes (Code books) using class conditional
+   * means vectors.
    */
   void InitProtoRand();
+    
+  /**
+   * Initialize LVQ prototypes (Code books) using K-Means clustering.
+   */
   void InitProtoK_Means();
 
+  /**
+   * Initialize LVQ prototypes (Code books).
+   */
   void InitProtoTypes();
   
   /**

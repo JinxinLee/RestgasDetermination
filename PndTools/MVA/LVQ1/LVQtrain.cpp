@@ -71,7 +71,7 @@ int main(int argc, char** argv)
   //VARX, MINMAX, MEDIAN, NONE(DEFAULT)
   tr.NormalizeData(VARX);
   
-  // RANDOM_PR, KMEANS_PR
+  // KMEANS_PR, RANDOM_PR (DEFAULT)
   tr.setProtoInitType(KMEANS_PR);
   
   std::string OutFile = ot;

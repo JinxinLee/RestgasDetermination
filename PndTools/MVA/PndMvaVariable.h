@@ -6,7 +6,6 @@
  * License:                                   *
  * *******************************************
  */
-//#pragma once
 #ifndef PND_MVA_VARIABLE_H
 #define PND_MVA_VARIABLE_H
 
@@ -24,6 +23,13 @@ struct PndMvaVariable
    */
   PndMvaVariable(const std::string& name, float normFactor = 1.0, float mean = 0.0);
 
+  //! Destructor.
+  virtual ~PndMvaVariable()
+  {};
+
+  PndMvaVariable(const PndMvaVariable& oth);
+  PndMvaVariable& operator=(const PndMvaVariable& oth);
+
   std::string Name;   /**< Name of the variable. */
   /**
    * Normalization factor of the variable.
@@ -32,9 +38,22 @@ struct PndMvaVariable
   float   NormFactor; 
   float   Mean;
 };
+
 //! Constructor implementation.
 inline PndMvaVariable::PndMvaVariable(const std::string& name,
 				      float normFactor,
 				      float mean)
 		      : Name(name), NormFactor(normFactor), Mean(mean){}
+
+inline PndMvaVariable::PndMvaVariable(const PndMvaVariable& oth)
+		      : Name(oth.Name), NormFactor(oth.NormFactor), Mean(oth.Mean)
+{}
+
+inline PndMvaVariable& PndMvaVariable::operator=(const PndMvaVariable& oth)
+{
+  Name = oth.Name;
+  NormFactor = oth.NormFactor;
+  Mean = oth.Mean;
+  return (*this);
+}
 #endif

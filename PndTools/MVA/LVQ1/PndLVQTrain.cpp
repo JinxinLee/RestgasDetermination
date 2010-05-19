@@ -43,6 +43,9 @@ PndLVQTrain::~PndLVQTrain()
   m_LVQProtos.clear();
 }
 
+/**
+ * Train the classifier accourding to LVQ1 algorithm.
+ */
 void PndLVQTrain::Train()
 {
   TRandom3 trand(m_RND_seed);
@@ -74,7 +77,7 @@ void PndLVQTrain::Train()
   }
   
   // Print some information.
-  std::cout << "\t<INFO>: Performing LVQ1 learning with parameters:\n"
+  std::cout << "<INFO>: Performing LVQ1 learning with parameters:\n"
 	    <<"Init constant = " << m_initConst <<", ethaZero = " 
 	    << ethaZero << ", ethaFinal = " << ethaFinal
 	    <<", numSweep = " << numSweep << ", tFinal= " << tFinal 
@@ -152,6 +155,9 @@ void PndLVQTrain::Train()
   WriteToWeightFile(m_LVQProtos);
 }
 
+/**
+ * Train the classifier accourding to LVQ2.1 algorithm.
+ */
 void PndLVQTrain::Train21()
 {
   TRandom3 trand(m_RND_seed);
@@ -195,7 +201,7 @@ void PndLVQTrain::Train21()
   }
   
   // Print some information.
-  std::cout << "\t<INFO>: Performing LVQ2.1 learning with parameters:\n"
+  std::cout << "<INFO>: Performing LVQ2.1 learning with parameters:\n"
 	    <<"Init constant = " << m_initConst << ", ethaZero =" 
 	    << ethaZero << ", ethaFinal = " << ethaFinal
 	    <<", numSweep = " << numSweep << ", tFinal= "<< tFinal 
@@ -301,6 +307,10 @@ void PndLVQTrain::Train21()
 }
 
 // ==================== Private functions =======================
+
+/**
+ * Initialize LVQ prototypes (Code books).
+ */
 void PndLVQTrain::InitProtoTypes()
 {
   // number of proto = 0 makes no sence.
@@ -323,6 +333,9 @@ void PndLVQTrain::InitProtoTypes()
   }
 }
 
+/**
+ * Initialize LVQ prototypes (Code books) using K-Means clustering.
+ */
 void PndLVQTrain::InitProtoK_Means()
 {
   std::cout << "<INFO> Initializing " << m_numProto 
@@ -330,18 +343,20 @@ void PndLVQTrain::InitProtoK_Means()
 	    << std::endl;
   
   const std::vector<PndMvaClass>& classes = m_dataSets.GetClasses();
-  //const std::vector<PndMvaVariable>& variables = m_dataSets.GetVars();
   const std::vector<std::pair<std::string, std::vector<float>*> >& events = m_dataSets.GetData();
+ 
   // Class loop
   for(size_t cls = 0; cls < classes.size(); cls++){
     ClDataSample clusteringInput;
     std::string clsName = (classes[cls]).Name;
+  
     // Example loop
     for(size_t evt = 0; evt < events.size(); evt++){
       if(events[evt].first == clsName){
 	clusteringInput.push_back(events[evt].second);
       }
     }// ExampleLoop
+
     // We have seen all available examples for the current class.
     std::cout << "Number of examples for " << clsName 
 	      << " = " <<  clusteringInput.size()
@@ -350,6 +365,7 @@ void PndLVQTrain::InitProtoK_Means()
     //Create clusters from current data points.
     PndMvaCluster clust (clusteringInput, m_numProto);
     ClDataSample& TMPprotoList = clust.Cluster();
+    
     //Copy cluster centers to LVQ prototypes (code books)
     for(size_t pr = 0; pr < TMPprotoList.size(); pr++){
       std::vector<float>* lvpr = new std::vector<float>( *(TMPprotoList[pr]) );

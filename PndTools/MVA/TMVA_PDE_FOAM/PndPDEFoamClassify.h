@@ -6,8 +6,6 @@
  * License:                              *
  * ***************************************
  */
-
-//#pragma once
 #ifndef PND_PDE_FOAMCLASSIFY_H
 #define PND_PDE_FOAMCLASSIFY_H
 

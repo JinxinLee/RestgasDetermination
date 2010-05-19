@@ -20,7 +20,7 @@
 struct StepError
 {
   //! Constructor
-   StepError():m_step(0), m_trErr(0.0),m_tsErr(0.0)
+   StepError():m_step(0), m_trErr(0.0), m_tsErr(0.0)
   {};
   /**
    *@param step Currents step.

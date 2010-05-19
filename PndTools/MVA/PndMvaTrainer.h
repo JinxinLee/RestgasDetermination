@@ -6,8 +6,6 @@
  * LICENSE:                                     *
  * **********************************************
  */
-
-//#pragma once
 #ifndef PND_MVA_TRAINER_H
 #define PND_MVA_TRAINER_H
 
