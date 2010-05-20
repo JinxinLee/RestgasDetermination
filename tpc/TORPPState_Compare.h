@@ -34,6 +34,8 @@ public:
 
   // Constructors/Destructors ---------
   ppstate_compare(padprocessor* pp);
+  
+
   virtual ~ppstate_compare(){;}
 
   // Operators
@@ -43,13 +45,13 @@ public:
 
 
   // Modifiers -----------------------
-
+  void setDiffFactor(double d){fDiffFactor=d;}
 
   // Operations ----------------------
   virtual std::string heartbeat();
 
 private:
-
+  double fDiffFactor;
   // Private Data Members ------------
 
 
