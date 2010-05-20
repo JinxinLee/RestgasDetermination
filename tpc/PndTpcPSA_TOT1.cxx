@@ -65,6 +65,9 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
   int amp=0;
   int prevamp=0;
 
+  int time=0;
+  int prevtime=0;
+
   int deriv_0=0;  
   int deriv_1=0;  
   int deriv_2=0;  
@@ -77,7 +80,11 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
   for(int i=0;i<samples.size();i++) {
 	//	std::cout << _FILE__ << " " << f_LINE__ << std::endl;
 
+    //std::cout << "samplt="<<samples[i]->t()<< std::endl;
+    //std::cout << "padid="<<samples[i]->padId()<< std::endl;
+
 	amp=samples[i]->amp();
+	time=samples[i]->t();
 	if(i>2) {
 	  deriv_2=deriv_1;
 	}
@@ -87,15 +94,17 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
 	if(i>0) {	//true for second sample
 	  //	  std::cout << _FILE__ << " " << _LINE__ << std::endl;
 	  prevamp=samples[i-1]->amp();
+	  prevtime=samples[i-1]->t();
 	  deriv_0=amp-prevamp;
 	}
 
+	
 
 	//	std::cout << amp << " " << prevamp << " " << deriv_0 << " " << deriv_1 << std::endl;
 	
 	///////////////////////////
 	if(!inpulse) {
-	  if(deriv_0>fC1 && deriv_1>=fC2 && amp>padThreshold) {//start new pulse	//false for first sample (deriv_0>fC1)
+	  if(deriv_0>fC1 && deriv_1>=fC2 && amp>padThreshold && time-prevtime==1) {//start new pulse	//false for first sample (deriv_0>fC1)
 		inpulse = true;											//true for second sample, if first sample amp
 		mcid.ClearData();											//smaler second signal amp
 		//mcid.AddID(samples[i-2]->mcId());
@@ -107,7 +116,7 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
 	  }
 	}
 	else {// in active pulse
-	  if((deriv_0>=fC3 && deriv_1<fC4) || amp<padThreshold) {//done with pulse
+	  if((deriv_0>=fC3 && deriv_1<fC4) || amp<padThreshold || time-prevtime>1 || i==samples.size()-1) {//done with pulse
 		inpulse=false;
 		double t0,A,length;
 		processPulse(samplesInPulse,t0,A,length);
