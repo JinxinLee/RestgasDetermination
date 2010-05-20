@@ -30,6 +30,7 @@
 #include "PndTpcSample.h"
 #include "PndTpcDigi.h"
 #include "PndTpcDigiAge.h"
+#include "PndTpcSampleAge.h"
 #include "PndTpcFrontend.h"
 #include "PndTpcSimplePSAStrategy.h"
 #include "PndTpcPSA_TOT1.h"
@@ -145,36 +146,47 @@ PndTpcPSATask::Exec(Option_t* opt)
   // Reset output Array
   if(fdigiArray==0) Fatal("PndTpcPSA::Exec)","No DigiArray");
   fdigiArray->Delete();
-  std::vector <PndTpcSample*> samplev;
-  std::vector <PndTpcDigi*> digis;
-  
-  Int_t ns=fsampleArray->GetEntriesFast();
-  if(ns>0){
 
-    if ( fpar->getPSA() == 1 || fpar->getPSA() == 2 )
-      {
-	std::vector<PndTpcSample*> vecSa;
-	vecSa.clear();
-	for(Int_t is=0;is<ns;++is)
-	  vecSa.push_back((PndTpcSample*)fsampleArray->At(is));
-	if(vecSa.size()!=0)
-	  {
-	    std::cout << "Processing " << vecSa.size() << " samples with PSA (th";
-	    fpsa->Process(vecSa,digis,ffrontend->psaThreshold());
-	    std::cout <<ffrontend->psaThreshold() << ") -- " << digis.size()<< " Digis created."<<std::endl;
-	  }
-      }
-    else {
-      for(Int_t is=0;is<ns;++is){
-	PndTpcDigi* digi=fpsa->ProcessNext((PndTpcSample*)fsampleArray->At(is));
-	if(digi!=0)
-	  {
-	    //	    digi->fct(((PndTpcSample*)fsampleArray->At(is))->ct());
-	    digis.push_back(digi); 
-	  }
-      }
-    }
+  // Sort smaples according to padid (create several vectors of samples)
+  std::map<unsigned int,std::vector<PndTpcSample*>* > padmap;
+  Int_t ns=fsampleArray->GetEntriesFast();
+  for(Int_t is=0;is<ns;++is){
+    PndTpcSample* mysample=(PndTpcSample*)fsampleArray->At(is);
+    unsigned int id=mysample->padId();
+    if(padmap[id]==NULL)padmap[id]=new std::vector<PndTpcSample*>;
+    padmap[id]->push_back(mysample);
   }
+  std::cout<< "Found " << padmap.size() << " hit pads" << std::endl;
+
+  // output vector
+  std::vector <PndTpcDigi*> digis;
+  // loop over pads
+  std::map<unsigned int,std::vector<PndTpcSample*>* >::iterator padit=padmap.begin();
+  while(padit!=padmap.end()){
+    // get vector of samples in first pad
+    std::vector<PndTpcSample*>* vecSa=padit->second;
+    // sort samples in time
+    sort(vecSa->begin(),vecSa->end(),PndTpcSampleAge());
+    // pass samplelist to psa
+    unsigned int ndigibefore=digis.size();
+    if(vecSa->size()!=0)
+      {
+	PresetNullSample(vecSa);
+	std::cout << "Pad " << padit->first
+		  << ": Processing " << vecSa->size() << " samples with PSA (th";
+	fpsa->Process(*vecSa,digis,ffrontend->psaThreshold());
+	unsigned int ndigiafter=digis.size();
+	std::cout <<ffrontend->psaThreshold() << ") -- " << ndigiafter-ndigibefore << " Digis created."<<std::endl;
+      }
+    
+    ++padit; // increase iterator 
+  } // end loop over pads
+  
+  std::cout << "Total number of digis created: " << digis.size() << std::endl;
+
+  
+  //	    digi->fct(((PndTpcSample*)fsampleArray->At(is))->ct());
+  
   //sort digis in time;
   std::cout<<"sort Digis in time ... ";
   sort(digis.begin(),digis.end(),PndTpcDigiAge());
@@ -182,13 +194,37 @@ PndTpcPSATask::Exec(Option_t* opt)
   
   //copy data into digi_array (TClonesvector)
   int ndigi=digis.size();
+  int nsamplesused=0;
   for(int idigi=0;idigi<ndigi;++idigi) {
     new((*fdigiArray)[idigi]) PndTpcDigi(*(digis[idigi]));
+    nsamplesused+=digis[idigi]->nSample();
     delete digis[idigi]; // clean up temporay store
   }
 
   std::cout<<fdigiArray->GetEntriesFast()<<" Digis created"<<std::endl;
+  std::cout<<"Containing "<<nsamplesused<<" samples out of "<< ns <<" samples in event"<< std::endl;
   return;
 }
+
+
+void  PndTpcPSATask::PresetNullSample(std::vector<PndTpcSample*> *samplelist)
+{
+	//set a zero sample before the first sample in the vector, so that the alternative psa will always 	
+    	//find the first maximum 
+	if(samplelist->size()>0)	{	
+		PndTpcSample *pFirstSample=*(samplelist->begin());
+		int t=pFirstSample->t();
+		unsigned int PadID=pFirstSample->padId();
+		McIdCollection m=pFirstSample->mcId();
+		PndTpcSample *pS=new PndTpcSample(t-1,0,PadID,m);
+		samplelist->insert(samplelist->begin(),pS);
+    }
+}
+
+
+
+
+
+
 
 ClassImp(PndTpcPSATask)
