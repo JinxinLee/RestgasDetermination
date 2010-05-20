@@ -30,14 +30,14 @@
 // Class Member definitions -----------
 
 ppstate_compare::ppstate_compare(padprocessor* pp)
-  : ppstate(pp)
+  : ppstate(pp), fDiffFactor(1.)
 {}
 
 std::string
 ppstate_compare::heartbeat()
 {
   int n=fparent->fneighbours.size();
-  double largestamp=fparent->amp()*1.5;
+  double largestamp=fparent->amp()*fDiffFactor;
   bool lonely=true;
   fparent->fiscenter=true;
   for(int i=0;i<n;++i){
