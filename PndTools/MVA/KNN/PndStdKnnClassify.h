@@ -34,7 +34,7 @@ class PndStdKnnClassify : public PndGpidClassifier
   //! Destructor  
   virtual ~PndStdKnnClassify();
 
-  /* 
+  /**
    * Classification function.
    * @param EvtData: Feature vector of the current event which we want
    * to classify.

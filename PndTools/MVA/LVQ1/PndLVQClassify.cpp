@@ -29,6 +29,11 @@ PndLVQClassify::PndLVQClassify(const string& inputFile,
 PndLVQClassify::~PndLVQClassify()
 {}
 
+/**
+ * Given a feature vector describing the pattern. Classifies the pattern.
+ *@param EvtData Input vector describing the pattern.
+ *@return The name of the class to which the current pattern is assigned.
+ */
 const std::string& PndLVQClassify::Classify(std::vector<float> EvtData)const
 {
   EvtData.clear();

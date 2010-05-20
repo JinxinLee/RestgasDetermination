@@ -1,3 +1,12 @@
+/* ************************************
+ *  Author: M. Babai (M.Babai@rug.nl) *
+ *                                    *
+ *  pid Trainer                       *
+ *                                    *
+ * Modified:                          *
+ *                                    *
+ * ************************************/
+
 #include "PndKnnTrain.h"
 
 /**

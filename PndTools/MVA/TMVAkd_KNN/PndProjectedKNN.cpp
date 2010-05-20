@@ -1,8 +1,19 @@
+/* ************************************
+ *  Author: M. Babai (M.Babai@rug.nl) *
+ *                                    *
+ *  pid classifier                    *
+ *                                    *
+ * Modified:                          *
+ *                                    *
+ * ************************************/
+
 #include "PndProjectedKNN.h"
 
 using namespace std;
 
 //========================= Public functions and vars.
+
+//! Constructor
 PndProjectedKNN::PndProjectedKNN(const string& inputFile,
 				 const vector<string>& classNames,
 				 const vector<string>& varNames,
@@ -14,11 +25,13 @@ PndProjectedKNN::PndProjectedKNN(const string& inputFile,
 	    << endl;
 }
 
+//! Destructor.
 PndProjectedKNN::~PndProjectedKNN()
 {
   destroy();
 }
 
+//!Classify
 const std::string& PndProjectedKNN::Classify(std::vector<float> EvtData)const
 {
   EvtData.clear();
@@ -27,6 +40,7 @@ const std::string& PndProjectedKNN::Classify(std::vector<float> EvtData)const
   return *re;
 }
 
+//!Classify
 void PndProjectedKNN::GetMvaValues(vector<float> eventData,
 			       map<string, float>& result)
 {
@@ -98,6 +112,7 @@ void PndProjectedKNN::GetMvaValues(vector<float> eventData,
   tempResult.clear();  
 }
 
+//! Init classifiers
 void PndProjectedKNN::InitKNN()
 {
   const vector<PndMvaVariable>& vars = m_dataSets.GetVars();
@@ -142,6 +157,7 @@ void PndProjectedKNN::InitKNN()
 }
 
 //========================= Private functions and vars.
+///Free allocated memory.
 void PndProjectedKNN::destroy()
 {
   for(size_t i = 0; i < m_classifiers.size(); i++)

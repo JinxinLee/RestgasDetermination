@@ -41,9 +41,11 @@ class PndProjectedKNN: public PndGpidClassifier
   void InitKNN();
 
  private:
+  //! to avoid mistakes.
   PndProjectedKNN(const PndProjectedKNN& other);
   inline PndProjectedKNN& operator= (const PndProjectedKNN& other);
   
+  ///Free allocated memory.
   void destroy();
 
   std::vector<std::vector<std::string> > m_varCombinations;
@@ -51,8 +53,8 @@ class PndProjectedKNN: public PndGpidClassifier
   // First = classifier, Second = parameter indices
   std::vector <std::pair<PndKnnClassify*, std::vector<int>*> > m_classifiers;
   
-  float  m_ScaleFact;
-  double m_weight;
-  unsigned int m_knn;
+  float  m_ScaleFact;  //! Scale factor.
+  double m_weight;    //! Weight.
+  unsigned int m_knn;//! Number of neigbours.
 };
 #endif//End, class interface

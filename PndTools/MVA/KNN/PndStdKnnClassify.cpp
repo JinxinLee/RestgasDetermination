@@ -13,6 +13,13 @@
 
 using namespace std;
 
+/*
+ * @param inputFile: The name of the file that holds the weits
+ * @param classNames: The names of classes to which an event might be
+ * assigned to.
+ * @param varNames: Variable names from which the feature vector is
+ * built.
+ */
 PndStdKnnClassify::PndStdKnnClassify(const string& inputFile,
 				     const vector<string>& classNames, 
 				     const vector<string>& varNames)
@@ -26,9 +33,15 @@ PndStdKnnClassify::PndStdKnnClassify(const string& inputFile,
   }
 }
 
+//! Destructor
 PndStdKnnClassify::~PndStdKnnClassify()
 {}
 
+/**
+ * Given a feature vector describing the pattern. Classifies the pattern.
+ *@param EvtData Input vector describing the pattern.
+ *@return The name of the class to which the current pattern is assigned.
+ */
 const std::string& PndStdKnnClassify::Classify(std::vector<float> EvtData)const
 {
   EvtData.clear();
@@ -37,6 +50,13 @@ const std::string& PndStdKnnClassify::Classify(std::vector<float> EvtData)const
   return *re;
 }
 
+/**
+ * Classification function.
+ * @param EvtData: Feature vector of the current event which we want
+ * to classify.
+ * @param result: Holds the normalized results of classification
+ * for every class of events.
+ */
 void PndStdKnnClassify::GetMvaValues(vector<float> eventData,
 				     map<string, float>& result)
 {

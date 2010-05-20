@@ -10,6 +10,13 @@
 
 using namespace std;
 
+/**
+ * Constructor.
+ * @param inputFile: File that holds the weights
+ * @param classNames: Class names.
+ * @param varNames: Variable names from which the feature vector is
+ * built.
+ */
 PndKnnClassify::PndKnnClassify(const string& inputFile,
 			       const vector<string>& classNames, 
 			       const vector<string>& varNames)
@@ -29,6 +36,7 @@ PndKnnClassify::PndKnnClassify(const string& inputFile,
   m_knn = 0;
 }
 
+//! Destructor
 PndKnnClassify::~PndKnnClassify()
 {
   if(m_module)
@@ -38,6 +46,9 @@ PndKnnClassify::~PndKnnClassify()
   }
 }
 
+/**
+ * Initialize the KNN classifier.
+ */
 void PndKnnClassify::InitKNN()
 {
   cerr << "<INFO> Initializing KNN classifier." << endl;
@@ -62,6 +73,11 @@ void PndKnnClassify::InitKNN()
   cout << "<INFO> Done initializing." << endl;
 }
 
+/**
+ * Given a feature vector describing the pattern. Classifies the pattern.
+ *@param EvtData Input vector describing the pattern.
+ *@return The name of the class to which the current pattern is assigned.
+ */
 const std::string& PndKnnClassify::Classify(std::vector<float> EvtData)const
 {
   EvtData.clear();
@@ -70,6 +86,11 @@ const std::string& PndKnnClassify::Classify(std::vector<float> EvtData)const
   return *re;
 }
 
+/**
+ * Classification function.
+ * @param eventData: Feature vector of the current event.
+ * @param result: Holds the normalized results of classification
+ */
 void PndKnnClassify::GetMvaValues(vector<float> eventData, 
 				  map<string, float>& result)
 {
@@ -77,7 +98,7 @@ void PndKnnClassify::GetMvaValues(vector<float> eventData,
   {
     cerr << "\t<ERROR> Number neighbours can not be zero."
               << endl;
-    return;
+    assert (m_knn != 0);
   }
 
   const vector <PndMvaVariable>& vars = m_dataSets.GetVars();

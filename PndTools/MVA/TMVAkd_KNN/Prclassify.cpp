@@ -74,7 +74,6 @@ int main(int argc, char** argv)
   names.push_back(nam3);
   //Create the classifier object and specify the weight file
 
-  //PndKnnClassify cls (InPutFileName.c_str(), clas, nam1);
   PndProjectedKNN cls (InPutFileName, clas, stru, names);
   cls.SetKnn(NumNei);
   cls.SetEvtParam(0.8,1.0);
