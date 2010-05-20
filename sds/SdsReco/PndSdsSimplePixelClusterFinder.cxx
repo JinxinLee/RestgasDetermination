@@ -15,6 +15,7 @@ std::vector< std::vector<Int_t> > PndSdsSimplePixelClusterFinder::GetClusters(st
 		std::vector<Int_t> tempInt;
 		if (fChargeConverter->DigiValueToCharge(fHits[posHits[0]]) == 0){
 			MoveHit(&posHits,0);
+			sizeTempHits = posHits.size();
 		}
 		else {
 			tempInt.push_back(MoveHit(&posHits,0));
