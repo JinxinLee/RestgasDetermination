@@ -15,8 +15,7 @@ void PndSdsPixelClusterFinder::Print(std::vector<PndSdsDigiPixel> hits)
 {
 	std::cout << "--------------" << std::endl;
 	for (UInt_t i = 0; i < hits.size(); i++){
-		std::cout << "SensorID: " << hits[i].GetSensorID() << std::endl;
-		std::cout << "FE col/row: " << hits[i].GetFE() << " / " << hits[i].GetPixelColumn() << " / " << hits[i].GetPixelRow() << std::endl;
+		std::cout << hits[i] << std::endl;
 	}
 }
 
