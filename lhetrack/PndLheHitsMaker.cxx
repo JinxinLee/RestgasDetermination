@@ -9,11 +9,11 @@
 #include "PndSttPoint.h"
 #include "PndSttHit.h"
 #include "PndSttHelixHit.h"
-#include "PndMvdMCPoint.h"
-#include "PndMvdHit.h"
-#include "PndMvdCluster.h"
-#include "PndMvdDigiPixel.h"
-#include "PndMvdDigiStrip.h"
+#include "PndSdsMCPoint.h"
+#include "PndSdsHit.h"
+#include "PndSdsCluster.h"
+#include "PndSdsDigiPixel.h"
+#include "PndSdsDigiStrip.h"
 #include "PndEmcCluster.h"
 #include "PndEmcBump.h"
 #include "PndGemMCPoint.h"
@@ -406,7 +406,7 @@ void PndLheHitsMaker::GetMvdPoints() {
   
   for (int j=0; j < fMvdMCArray->GetEntriesFast(); j++ ) 
     {
-      PndMvdMCPoint* point = (PndMvdMCPoint*) fMvdMCArray->At(j);
+      PndSdsMCPoint* point = (PndSdsMCPoint*) fMvdMCArray->At(j);
       
       if (fVerbose) point->Print(" "); //PR(point->GetTrackID());
       
@@ -461,7 +461,7 @@ void PndLheHitsMaker::GetMvdHits() {
   
   for (int j2=0; j2 < fMvdPixelHitArray->GetEntriesFast(); j2++ ) 
     {
-      PndMvdHit* point = (PndMvdHit*) fMvdPixelHitArray->At(j2);
+      PndSdsHit* point = (PndSdsHit*) fMvdPixelHitArray->At(j2);
       
       PndLheHit* hit = AddHit();
       hit->SetHitNumber(fNHit++);
@@ -488,7 +488,7 @@ void PndLheHitsMaker::GetMvdHits() {
       
       if ( (fMvdSimMode) && (point->GetRefIndex()!=-1) )
 	{
-	  PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMvdMCArray->At(point->GetRefIndex()));
+	  PndSdsMCPoint* myPoint = (PndSdsMCPoint*)(fMvdMCArray->At(point->GetRefIndex()));
 	  hit->SetTrackID(myPoint->GetTrackID());
 	}
       hit->SetRefIndex(j2);
@@ -500,7 +500,7 @@ void PndLheHitsMaker::GetMvdHits() {
  
   for (int j=0; j < fMvdStripHitArray->GetEntriesFast(); j++ ) 
     {
-      PndMvdHit* point = (PndMvdHit*) fMvdStripHitArray->At(j);
+      PndSdsHit* point = (PndSdsHit*) fMvdStripHitArray->At(j);
       
       PndLheHit* hit = AddHit();
       hit->SetHitNumber(fNHit++);
@@ -526,7 +526,7 @@ void PndLheHitsMaker::GetMvdHits() {
 
       if ( (fMvdSimMode) && (point->GetRefIndex()!=-1) )
 	{
-	  PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMvdMCArray->At(point->GetRefIndex()));
+	  PndSdsMCPoint* myPoint = (PndSdsMCPoint*)(fMvdMCArray->At(point->GetRefIndex()));
 	  hit->SetTrackID(myPoint->GetTrackID());
 	}
       hit->SetRefIndex(j);
