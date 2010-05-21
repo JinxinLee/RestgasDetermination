@@ -40,9 +40,12 @@ class PndEvtGenDirect : public FairGenerator
    ** @param primGen  pointer to the FairPrimaryGenerator
    **/
   virtual Bool_t ReadEvent(FairPrimaryGenerator* primGen);
+
+  void SetStoreTree(Bool_t store=true){ fStoreTree=store;};
 	
  private:
 
+  Bool_t fStoreTree;
   /**
    * P_lab(GeV/c)
   */

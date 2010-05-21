@@ -64,7 +64,7 @@ double EvtRootRandomEngine::random(){
 
 // -----   Default constructor   ------------------------------------------
 PndEvtGenDirect::PndEvtGenDirect() {
-
+	fStoreTree=false;
 }
 // ------------------------------------------------------------------------
 
@@ -121,6 +121,7 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, 
   cout <<"\n######################\n\n"<<endl;
 
 
+	fStoreTree=false;
 }
 // ------------------------------------------------------------------------
 
@@ -175,22 +176,27 @@ static Int_t evtnr=0;
 		// add track
 		nFD=evtstdhep.getFirstDaughter(i);
 		nLD=evtstdhep.getLastDaughter(i);
-		primGen->DoTracking(nFD==-1 && nLD==-1);// only final particles (=without daughter) should be tracked
-
-		Id=evtstdhep.getStdHepID(i);
-		vxyz=evtstdhep.getX4(i);
-		pxyz=evtstdhep.getP4(i);
-		fT=vxyz.get(0);
-		fX=vxyz.get(1);
-		fY=vxyz.get(2);
-		fZ=vxyz.get(3);
-		fE=pxyz.get(0);
-		Px=pxyz.get(1);
-		Py=pxyz.get(2);
-		Pz=pxyz.get(3);
-		if(plotflag) printf("- I -: new particle at: %f, %f, %f (%f)-> %f %f %f (%f) ID %d ##Daughters %d %d Mothers %d %d\n", fX, fY, fZ, fT,Px, Py, Pz, fE, Id, nFD, nLD,evtstdhep.getFirstMother(i),evtstdhep.getLastMother(i));
-		primGen->AddTrack(Id, Px, Py, Pz, fX, fY, fZ, evtstdhep.getFirstMother(i));
-
+		if(/*fStoreTree ||*/ (nFD==-1 && nLD==-1))
+		{
+			Id=evtstdhep.getStdHepID(i);
+			vxyz=evtstdhep.getX4(i);
+			pxyz=evtstdhep.getP4(i);
+			fT=vxyz.get(0);
+			fX=vxyz.get(1);
+			fY=vxyz.get(2);
+			fZ=vxyz.get(3);
+			fE=pxyz.get(0);
+			Px=pxyz.get(1);
+			Py=pxyz.get(2);
+			Pz=pxyz.get(3);
+			if(plotflag) printf("- I -: new particle at: %f, %f, %f (%f)-> %f %f %f (%f) ID %d ##Daughters %d %d Mothers %d %d\n", fX, fY, fZ, fT,Px, Py, Pz, fE, Id, nFD, nLD,evtstdhep.getFirstMother(i),evtstdhep.getLastMother(i));
+//			if(fStoreTree){
+// not yet supported!
+//				primGen->AddTrack(Id, Px, Py, Pz, fX, fY, fZ, evtstdhep.getFirstMother(i),(nFD==-1 && nLD==-1));
+//			}else{
+				primGen->AddTrack(Id, Px, Py, Pz, fX, fY, fZ);// default -1, true
+//			}
+		}
 	}
 	if(plotflag) cout <<"==== compare end ==="<<endl;
 
