@@ -65,6 +65,8 @@ class PndTpcSLPatternRecoTask : public FairTask {
   void SetProjectionXZ() {fXZ=true;fZY=false;} //find lines in X-Z projection 
   void SetProjectionZY() {fZY=true;fXZ=false;} //find lines in Z-Y projection (cosmics)
   
+  void CutSmallPad(Bool_t opt=kTRUE) {_cutsmallpad=opt;}
+  void CutBigPad(Bool_t opt=kTRUE) {_cutbigpad=opt;}
   
  private:
 
@@ -80,7 +82,8 @@ class PndTpcSLPatternRecoTask : public FairTask {
   Bool_t fDistSorting;
   Bool_t fXZ;
   Bool_t fZY;
-  
+  Bool_t _cutbigpad;
+  Bool_t _cutsmallpad ;
   
   TString fClusterBranchName;
   TString fTrackBranchName;
