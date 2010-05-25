@@ -21,6 +21,7 @@
 // Base Class Headers ----------------
 #include "FairTask.h"
 #include "PndTpcDigiPar.h"
+#include <vector>
 // Collaborating Class Headers -------
 
 
@@ -30,6 +31,7 @@ class PndTpcFrontend;
 class PndTpcAbsPSAStrategy;
 class PndTpcDigiPar;
 class PndTpcAbsPulseshape;
+class PndTpcSample;
 
 class PndTpcPSATask : public FairTask {
 public:
@@ -49,6 +51,7 @@ public:
   void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
   void SetPeakingtime(int pik) {fpeak=pik;}
   void SetTail(bool b){fTail=b;}
+  void SetOpt(unsigned int b){fopt=b;}
 
   // Operations ----------------------
   
@@ -57,6 +60,8 @@ public:
   virtual void Exec(Option_t* opt);
 
   virtual void SetParContainers();
+  
+  void PresetNullSample(std::vector<PndTpcSample*> *samplelist);
 
 private:
 
@@ -75,7 +80,7 @@ private:
   PndTpcDigiPar* fpar;
 
   int fpeak;
-
+  unsigned int fopt;
   // Private Methods -----------------
 
 public:
