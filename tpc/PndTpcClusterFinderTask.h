@@ -54,6 +54,7 @@ public:
   void SetMode(int mode){fmode=mode;}
   
   void timeslice(unsigned int t){ftimeslice=t;}
+  void SetThreshold(unsigned int t){fthres=t;}
 
   // Operations ----------------------
   
@@ -74,7 +75,8 @@ private:
   Bool_t ftrivial;
   int fmode;
   unsigned int ftimeslice;
-
+  unsigned int fthres;
+  
   const PndTpcFrontend* ffrontend;
   PndTpcPadPlane* fpadplane;
   const PndTpcGem* fgem;
