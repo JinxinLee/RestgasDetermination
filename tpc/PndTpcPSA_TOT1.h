@@ -49,7 +49,7 @@ public:
   virtual void Process(const std::vector<PndTpcSample*> & samples, 
 					   std::vector<PndTpcDigi*>& digis,
 					   double padThreshold);
-
+  void setOpt(unsigned int f){fNbEmptySampleAllowed=f;} //nb of empty samples tolarate insigned a pulse
 
 
 private:
@@ -60,6 +60,7 @@ private:
   unsigned int famp;
   unsigned int ft;
   unsigned int fthreshold;
+  unsigned int fNbEmptySampleAllowed;
   
   McIdCollection fmcid;
   // Private Methods -----------------
