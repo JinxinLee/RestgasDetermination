@@ -54,7 +54,7 @@ public:
 
   void TailCancellation(bool opt=kTRUE) {fTAIL=opt;}
   void setPs(PndTpcAbsPulseshape* pulseshape) {fpulseShape=pulseshape;}
-  void setFreq(int f){f=fFreq;}
+  void setOpt(unsigned int f){f=fFreq;}
 
 private:
 
@@ -72,7 +72,7 @@ private:
   double fdamp;//amplitude
   int fN;
   int fLastPulse;
-  int fFreq;
+  unsigned int fFreq;
   
   bool NEWPULSE;
   bool fTAIL;//tail cancellation if true
