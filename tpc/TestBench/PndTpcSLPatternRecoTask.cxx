@@ -54,7 +54,7 @@ PndTpcSLPatternRecoTask::PndTpcSLPatternRecoTask()
 :  FairTask("PndTpc SL Hough Pattern Reco"),
    fPersistence(kFALSE),fDistSorting(kTRUE),
    fDepth(6), fThresh(6), fMin(5), counter(0),
-   fXZ(true), fZY(false)
+   fXZ(true), fZY(false), _cutbigpad(kFALSE), _cutsmallpad(kFALSE)
     
 {
   fClusterBranchName = "PndTpcCluster";
@@ -151,12 +151,19 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   
   unsigned int totCl=fClusterArray->GetEntriesFast();
   TVector3 pos;
+  int ii =0;
   for(unsigned int i=0;i<totCl;++i){    // loop over clusters
     PndTpcCluster* cl=(PndTpcCluster*)fClusterArray->At(i);
-    cl->SetIndex(i);                    //INDEXNG
+    //cl->SetIndex(i);                    //INDEXNG
+    pos = cl->pos();
+    if(_cutsmallpad && pos.y()>0.6)
+      continue;
+    else if(_cutbigpad && pos.y()<0.6) 
+      continue;
+	  
     cll.push_back(cl);
     
-    pos = cl->pos();
+    
     
     //TODO: parameter management and specifiable projection plane
     double x = pos.X()+x_OFF;
@@ -166,12 +173,12 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     //std::cout<<"x: "<<x<<"  z: "<<z<<std::endl;
     
     if(fXZ) 
-      hitreps.push_back(new Hypersurface2D(x+x_OFF,z,*fRep,i));
+      hitreps.push_back(new Hypersurface2D(x+x_OFF,z,*fRep,ii));
     if(fZY)
-      hitreps.push_back(new Hypersurface2D(z+x_OFF,y,*fRep,i));
+      hitreps.push_back(new Hypersurface2D(z+x_OFF,y,*fRep,ii));
     
     hitreps.back()->setParamSpace(fMins, fMaxs);
-    
+    ii++;
   } //end loop over clusters
   
   
@@ -305,7 +312,7 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
       continue;
     
     const double* cent = cand_node->getCenter();
-    std::cout<<"Debug: got cent"<<std::endl;
+    //std::cout<<"Debug: got cent"<<std::endl;
     //TODO: HOW CAN THERE BE A SEGFAULT??
     if(cent==NULL)
       continue;
