@@ -45,7 +45,7 @@
 
 PndTpcClusterFinderTask::PndTpcClusterFinderTask()
   : FairTask("TPC Cluster Finder"), fpersistence(kFALSE),ftrivial(kFALSE),
-    ftimeslice(2), fmode(0)
+    ftimeslice(2), fmode(0),fthres(1)
 {
   fdigiBranchName = "PndTpcDigi";
 }
@@ -168,12 +168,18 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
    // put clusters into array and clean up buffer
    unsigned int ncl=fcluster_buffer->size();
    unsigned int ndig=0;
-   for(unsigned int icl=0;icl<ncl;++icl){
-     PndTpcCluster* cl=new((*fclusterArray)[icl]) PndTpcCluster(*(*fcluster_buffer)[icl]);
-     cl->SetIndex(icl);
-     ndig+=(*fcluster_buffer)[icl]->size();
-     delete (*fcluster_buffer)[icl];
-   }
+   unsigned int ncl_rec=0;
+   for(unsigned int icl=0;icl<ncl;++icl)
+     {
+       if((*fcluster_buffer)[icl]->amp()>fthres)
+	 {
+	   PndTpcCluster* cl=new((*fclusterArray)[ncl_rec]) PndTpcCluster(*(*fcluster_buffer)[icl]);
+	   cl->SetIndex(ncl_rec);
+	   ndig+=(*fcluster_buffer)[icl]->size();
+	   ncl_rec++;
+	 }
+       delete (*fcluster_buffer)[icl];
+     }
    
    std::cout<<fclusterArray->GetEntriesFast()<<" cluster created "
 	    <<" containing "<<ndig<<" digis"
