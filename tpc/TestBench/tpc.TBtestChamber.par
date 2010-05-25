@@ -17,7 +17,7 @@ zMax:Double_t 8.
 Gain:Double_t 4000
 Supression:Double_t 0.001
 Spread:Double_t 0.02
-MinSignalAmp:Double_t 10
+MinSignalAmp:Double_t 6
 rMin:Double_t 0.
 rMax:Double_t 11.
 PadPlaneFile:Int_t 28
@@ -31,7 +31,7 @@ ADCBits:Int_t 11
 SamplingFreq:Double_t 20
 T0_wallclock:Double_t 0 #-20000
 TimeBits:Int_t 28
-PSAThreshold:Int_t 10
+PSAThreshold:Int_t 6
 Shaper_tDiff:Double_t 50
 Shaper_tInt:Double_t 50
 Shaper_tSig:Double_t 2
