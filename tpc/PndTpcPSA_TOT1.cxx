@@ -40,7 +40,7 @@ using std::max;
 // Class Member definitions -----------
 PndTpcPSA_TOT1::PndTpcPSA_TOT1()
   : PndTpcAbsPSAStrategy(), fcurrentPadID(0), finprogress(false),
-  famp(0),ft(0),fthreshold(10)
+    famp(0),ft(0),fthreshold(10), fNbEmptySampleAllowed(1)
 {}
 
 
@@ -104,7 +104,8 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
 	
 	///////////////////////////
 	if(!inpulse) {
-	  if(deriv_0>fC1 && deriv_1>=fC2 && amp>padThreshold && time-prevtime==1) {//start new pulse	//false for first sample (deriv_0>fC1)
+	  if(deriv_0>fC1 && deriv_1>=fC2 && amp>padThreshold && 
+	     time-prevtime<=fNbEmptySampleAllowed && time-prevtime>0) {//start new pulse	//false for first sample (deriv_0>fC1)
 		inpulse = true;											//true for second sample, if first sample amp
 		mcid.ClearData();											//smaler second signal amp
 		//mcid.AddID(samples[i-2]->mcId());
