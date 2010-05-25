@@ -46,8 +46,7 @@ ClassImp(PndTpcDataReaderTask)
 
 
   PndTpcDataReaderTask::PndTpcDataReaderTask()
-: _persistence(kFALSE),_smallpad(kFALSE),
-  fMinDigis(0)
+    : _persistence(kFALSE),_cutsmallpad(kFALSE),_cutbigpad(kFALSE), fMinDigis(0), fMaxSample(550),fCutOcc(1500), fNbChip(25), fOnly800(kTRUE)
 {
   _digiBranchName = "PndTpcSample";
   _file = "TBtest/run.root";
@@ -110,8 +109,8 @@ void PndTpcDataReaderTask::Exec(Option_t* opt)
   std::vector<PndTpcSample> samples;
 
   McIdCollection * mcid = new McIdCollection();
-  
-  while(true) {
+
+  while(true && loop<fIntree->GetEntries()) {
   
     //get the PndTpcEvent;    
     fIntree->GetEvent(loop);//Loop();
@@ -119,13 +118,26 @@ void PndTpcDataReaderTask::Exec(Option_t* opt)
     samples = fEv->getEventVector();
   
     std :: cout << "Copying "<< samples.size()<<" samples." <<std::endl; 
-  
+    unsigned int badsample[fNbChip][fMaxSample];
+      for (int i = 0;i<fCutOcc;i++)
+	for (int j = 0;j<fMaxSample;j++)     
+	  badsample[i][j]=0;
+
+      //FPN Noise Corr
+    for (int i = 0;i<samples.size();i++)
+      {
+	badsample[samples[i].chipId()][samples[i].t()]++;
+      }
     
     for (int i = 0;i<samples.size();i++)
+      if (samples[i].t()>1 && samples[i].amp()>1 && badsample[samples[i].chipId()][samples[i].t()]<fCutOcc &&
+	  (samples[i].sourceId()==800||!fOnly800))
       if (samples[i].padId()>0)
 	try{
 	  //cut smallpad:
-	  if(_smallpad && fpadplane->GetPad(samples[i].padId())->y()<0.6) 
+	  if(_cutsmallpad && fpadplane->GetPad(samples[i].padId())->y()>0.6) 
+	    continue;
+	  else if(_cutbigpad && fpadplane->GetPad(samples[i].padId())->y()<0.6) 
 	    continue;
 	  PndTpcSample * didi = new PndTpcSample(samples[i]);
 	  _di->push_back(didi);
