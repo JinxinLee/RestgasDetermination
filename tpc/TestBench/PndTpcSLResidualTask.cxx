@@ -135,7 +135,7 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
       TrackFitStat* fitstat = new ((*fFitStatArray)[nFS]) TrackFitStat();
       
       TVector3 mom = tr->getMom();     //momentum after fit
-      
+  
       TVector3 sl_pos = tr->getPos();  //SL starting position after fit
       TVector3 sl_dir = mom;
       sl_dir*=(1/mom.Mag());
@@ -148,6 +148,10 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
 
       std::vector<double> resX;
       std::vector<double> resY;
+      std::vector<double> resZ;
+      std::vector<double> chi2X;
+      std::vector<double> chi2Y;
+      std::vector<double> chi2Z;
       std::vector<double> amps;
       std::vector<unsigned int> clSize;
       std::vector<unsigned int> cl2DSize;
@@ -163,12 +167,24 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
 	double l = sl_dir*cl_rel; //length along SL to projection point
 	TVector3 res = cl_rel - l*sl_dir;
 	
+	//calculate chi2
+	TVector3 cl_err= cl->sig();
+	TVector3 chi2;
+	chi2.SetX((res.X()*res.X())/(cl_err.X()*cl_err.X()));	
+	chi2.SetY((res.Y()*res.Y())/(cl_err.Y()*cl_err.Y()));	
+	chi2.SetZ((res*res)/(cl_err*cl_err));
+	//chi2.SetZ(res*res/cl_err*cl_err/(candIDs.size()-4));//candif.size-4 is ndf
+      
 	//book residual
 	unsigned int nRes = fResArray->GetEntriesFast();
 	new ((*fResArray)[nRes]) TVector3(res);
 
 	resX.push_back(res.X());
 	resY.push_back(res.Y());
+	resZ.push_back(sqrt(res*res));
+	chi2X.push_back(chi2.X());
+	chi2Y.push_back(chi2.Y());
+	chi2Z.push_back(chi2.Z());
 	amps.push_back(cl->amp());
 	clSize.push_back(cl->size());	
 	cl2DSize.push_back(cl->get2DSize());
@@ -177,6 +193,10 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
 
       fitstat->fillPndTpcResX(resX);
       fitstat->fillPndTpcResY(resY);
+      fitstat->fillPndTpcResZ(resZ);
+      fitstat->fillPndTpcChi2X(chi2X);
+      fitstat->fillPndTpcChi2Y(chi2Y);
+      fitstat->fillPndTpcChi2Z(chi2Z);
       fitstat->fillPndTpcClusterSize(clSize);
       fitstat->fillPndTpc2DClusterSize(cl2DSize);
       fitstat->fillPndTpcClusterAmp(amps);
