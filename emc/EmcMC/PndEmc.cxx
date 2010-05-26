@@ -402,7 +402,7 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
     {
 	  Int_t ModCopy=0;
 	  if (nam.Contains("FscSciVolume")){
-		  cout<<"nam="<<nam<<endl;
+	//	  cout<<"nam="<<nam<<endl;
 	//	  ModName = gMC->CurrentVolOffName(3); //upto FscModuleVolume
 		  gMC->CurrentVolOffID(3,ModCopy);//upto FscModuleVolume
 	//	  cout<<"ModCopy="<<ModCopy<<endl;
@@ -743,29 +743,32 @@ void PndEmc::ConstructGeometry() {
       ConstructASCIIGeometry();
     }else {
       std::cout<< "You do not provide an ASCII file " <<std::endl;
-    } 
+    }
+    Bool_t bEmc3=kFALSE, bEmc4=kFALSE, bEmc5=kFALSE;
     if (fgeoName2.EndsWith("new.root")) {
       std::cout<< "                                               " <<std::endl;
       std::cout<< " ====== EMC::  ConstructRootGeometry() m3a === " <<std::endl;
       std::cout<< " ============================================= " <<std::endl;
       ConstructRootGeometry();
+      bEmc3 = kTRUE;
     }
     if(fgeoName3.EndsWith("4_FwEndCapGeo.root") || fgeoName3.EndsWith("4_StraightGeo26.root") || fgeoName3.EndsWith("4_StraightGeo26_Al.root") || fgeoName3.EndsWith("4_StraightGeo24.4.root") || fgeoName3.EndsWith("4_StraightGeo24.4_Al2.root")) {
       std::cout<< "                                               " <<std::endl;
       std::cout<< " ====== EMC::  ConstructRootGeometry() m4a === " <<std::endl;
       std::cout<< " ============================================= " <<std::endl;
-      
       std::cout<< "fgeoName3:: "<<fgeoName3 <<std::endl;
-      
       ConstructRootGeomMod4();
+      bEmc4 = kTRUE;
     }
     if(fgeoName4.EndsWith("5_fsc.root")) {
-        std::cout<< "                                               " <<std::endl;
-        std::cout<< " ====== EMC::  ConstructRootGeometry() m5a === " <<std::endl;
-        std::cout<< " ============================================= " <<std::endl;
-        std::cout<< "fgeoName4:: "<<fgeoName4 <<std::endl;
-        ConstructRootGeomMod5();
-    }else {
+      std::cout<< "                                               " <<std::endl;
+      std::cout<< " ====== EMC::  ConstructRootGeometry() m5a === " <<std::endl;
+      std::cout<< " ============================================= " <<std::endl;
+      std::cout<< "fgeoName4:: "<<fgeoName4 <<std::endl;
+      ConstructRootGeomMod5();
+      bEmc5 = kTRUE;
+    }
+    if(!bEmc3 && !bEmc4 && !bEmc5 ) {
       std::cout<< "You do not provide a ROOT file " <<std::endl;
     }
   }
