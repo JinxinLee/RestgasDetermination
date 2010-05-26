@@ -11,6 +11,7 @@
 #pragma link C++ class  PndPidCorrelator+;
 #pragma link C++ class  PndPidIdealAssociatorTask+;
 #pragma link C++ class  PndPidMvdAssociatorTask+;
+#pragma link C++ class  PndPidMdtHCAssociatorTask+;
 #pragma link C++ class  PndPidDrcAssociatorTask+;
 #pragma link C++ class  PndPidDiscAssociatorTask+;
 #pragma link C++ class  PndPidContFact+;
