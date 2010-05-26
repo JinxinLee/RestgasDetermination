@@ -19,7 +19,7 @@
 #include "FairHit.h"
 #include "PndMCTrack.h"
 // PndMvd includes
-#include "PndMvdMCPoint.h"
+#include "PndSdsMCPoint.h"
 #include "FairTrackParH.h"
 #include "FairTrackParP.h"
 
@@ -111,13 +111,13 @@ void PndMvdMSAnaTask::Exec(Option_t* opt)
 			TVector3 StartPos, StartPosErr, StartMom, StartMomErr, StartO, StartU, StartV;
 			int p = 0;
 			if (fUseMVDPoint){
-				PndMvdMCPoint* startPoint = (PndMvdMCPoint*)(fMCHits->At(0));
+				PndSdsMCPoint* startPoint = (PndSdsMCPoint*)(fMCHits->At(0));
 				std::cout << "StartPoint: " << *startPoint << std::endl;
 				StartPos = (startPoint->GetPosition());
 				StartPosErr = TVector3(0.0, 0.0, 0.0);
 				StartMom = TVector3(startPoint->GetPx(), startPoint->GetPy(), startPoint->GetPz());
 				StartMomErr = TVector3(0.0, 0.0, 0.0);
-				fGeoH->GetOUVId(startPoint->GetDetName(), StartO, StartU, StartV);
+				fGeoH->GetOUVShortId(startPoint->GetSensorID(), StartO, StartU, StartV);
 				p = 1;
 			}
 			else{
@@ -143,7 +143,7 @@ void PndMvdMSAnaTask::Exec(Option_t* opt)
 			FairTrackParP *fStart= new (clref1[size1]) FairTrackParP(StartPos, StartMom, StartPosErr, StartMomErr, fCharge, StartO, StartU, StartV);
       
 			for (; p < (int)MChits.size(); p++){											//go through all hits in track
-				PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMCHits->At(MChits[p]));
+				PndSdsMCPoint* myPoint = (PndSdsMCPoint*)(fMCHits->At(MChits[p]));
 				std::cout << "PropagationPoint: " << *myPoint << std::endl;
         
 				TVector3 StopPos(myPoint->GetPosition());
@@ -152,7 +152,7 @@ void PndMvdMSAnaTask::Exec(Option_t* opt)
 				TVector3 StopMomErr(0.0, 0.0, 0.0);
         
 				TVector3 o, u, v;
-				fGeoH->GetOUVId(myPoint->GetDetName(), o, u, v);
+				fGeoH->GetOUVShortId(myPoint->GetSensorID(), o, u, v);
         
 				TClonesArray& clref2 = *fTrackParFinal;
 				Int_t size2 = clref2.GetEntriesFast();
@@ -165,7 +165,7 @@ void PndMvdMSAnaTask::Exec(Option_t* opt)
 				//std::cout << "DetName: " << fGeoH->GetPath(myPoint->GetDetName()) << std::endl;
 				TClonesArray& cDetRef = *fDetName;
 				Int_t size3 = cDetRef.GetEntriesFast();
-				new (cDetRef[size3]) TObjString(fGeoH->GetPath(myPoint->GetDetName()));
+				new (cDetRef[size3]) TObjString(fGeoH->GetPath(myPoint->GetSensorID()));
         
 				std::cout << "Propagation Plane:" << std::endl;
 				std::cout << "o: " << o[0] << " " << o[1] << " " << o[2] << std::endl;
@@ -224,7 +224,7 @@ void PndMvdMSAnaTask::Exec(Option_t* opt)
          }
          */
 				TVector3 global(fRes->GetX(), fRes->GetY(), fRes->GetZ());
-				TVector3 local = fGeoH->MasterToLocalId(global, myPoint->GetDetName());
+				TVector3 local = fGeoH->MasterToLocalShortId(global, myPoint->GetSensorID());
         
 				std::cout << "Propagation Point local: " << std::endl;
 				std::cout << local[0] << " " << local[1] << " " << local[2] << std::endl;
@@ -244,7 +244,7 @@ std::map<int, std::vector<int> > PndMvdMSAnaTask::AssignHitsToTracks()
 {
 	std::map<int, std::vector<int> > result;
 	for (int i = 0; i < fMCHits->GetEntriesFast(); i++){											//get all MC Hits
-		PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMCHits->At(i));									//sort MCHits with Tracks
+		PndSdsMCPoint* myPoint = (PndSdsMCPoint*)(fMCHits->At(i));									//sort MCHits with Tracks
 		//PndMCTrack* myTrack = (PndMCTrack*)(fMCTracks->At(myPoint->GetTrackID()));
 		result[myPoint->GetTrackID()].push_back(i);
     

@@ -15,7 +15,7 @@
   TFile* f = new TFile(inFile.c_str()); // the sim file you want to analyse
   TTree *t=(TTree *) f->Get("cbmsim") ;
 
-//   TClonesArray* point_array=new TClonesArray("PndMvdMCPoint");
+//   TClonesArray* point_array=new TClonesArray("PndSdsMCPoint");
 //   t->SetBranchAddress("MVDPoint",&mc_array);//Branch names
 
   TClonesArray* mc_array=new TClonesArray("PndMCTrack");

@@ -14,7 +14,7 @@ class PndMvdRadDamHit : public TObject
 {
 public:
 	PndMvdRadDamHit();
-	PndMvdRadDamHit(Int_t trackID, Int_t hitID, TString detName, Int_t pdgCode, Double_t energy,
+	PndMvdRadDamHit(Int_t trackID, Int_t hitID, Int_t detId, Int_t pdgCode, Double_t energy,
 	  	    TVector3 pos, TVector3 mom, Double_t radDam);
 	virtual ~PndMvdRadDamHit(){};
 
@@ -24,7 +24,7 @@ public:
 private:
   Int_t fTrackID;
 	Int_t fHitID;
-  TString fDetName;
+  Int_t fDetId;
 	Int_t fPdgCode;
 	Double_t fEnergy;
 	TVector3 fPos;

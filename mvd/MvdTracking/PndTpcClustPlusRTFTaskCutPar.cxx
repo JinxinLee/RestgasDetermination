@@ -17,14 +17,14 @@
 
 
 // PndMvd includes
-#include "PndMvdRecoHit.h"
+#include "PndSdsRecoHit.h"
  #include "PndTrackCand.h"
 #include "GFTrack.h"
 #include "GFTrackCand.h"
-#include "PndMvdHit.h"
-//#include "PndMvdMCPoint.h"
-//#include "PndMvdCluster.h"
-//#include "PndMvdDigi.h"
+#include "PndSdsHit.h"
+//#include "PndSdsMCPoint.h"
+//#include "PndSdsCluster.h"
+//#include "PndSdsDigi.h"
 //#include "PndMvdRiemannTrackFinder.h"
 #include "PndRiemannTrack.h"
 #include "PndRiemannHit.h"
@@ -207,13 +207,13 @@ void PndTpcClustPlusRTFTaskCutPar::CalcPlanes()
 			  detId=((PndTrackCand*)fTrackCandArray->At(j))->GetSortedHit(i).GetDetId();
 			  hitId=((PndTrackCand*)fTrackCandArray->At(j))->GetSortedHit(i).GetHitId();
 				  if (detId==kMVDHitsPixel){
-					  hit[i+shift].setXYZ(((PndMvdHit*)fHitArray->At(hitId))->GetPosition().X(),((PndMvdHit*)fHitArray->At(hitId))->GetPosition().Y(),((PndMvdHit*)fHitArray->At(hitId))->GetPosition().Z());
-					  hit[i+shift].setDXYZ(((PndMvdHit*)fHitArray->At(hitId))->GetDx(),((PndMvdHit*)fHitArray->At(hitId))->GetDy(),((PndMvdHit*)fHitArray->At(hitId))->GetDz());
+					  hit[i+shift].setXYZ(((PndSdsHit*)fHitArray->At(hitId))->GetPosition().X(),((PndSdsHit*)fHitArray->At(hitId))->GetPosition().Y(),((PndSdsHit*)fHitArray->At(hitId))->GetPosition().Z());
+					  hit[i+shift].setDXYZ(((PndSdsHit*)fHitArray->At(hitId))->GetDx(),((PndSdsHit*)fHitArray->At(hitId))->GetDy(),((PndSdsHit*)fHitArray->At(hitId))->GetDz());
 					  i++;
 				  }
 				  else if (detId==kMVDHitsStrip){
-					  hit[i+shift].setXYZ(((PndMvdHit*)fHitArray2->At(hitId))->GetPosition().X(),((PndMvdHit*)fHitArray2->At(hitId))->GetPosition().Y(),((PndMvdHit*)fHitArray2->At(hitId))->GetPosition().Z());
-					  hit[i+shift].setDXYZ(((PndMvdHit*)fHitArray2->At(hitId))->GetDx(),((PndMvdHit*)fHitArray2->At(hitId))->GetDy(),((PndMvdHit*)fHitArray2->At(hitId))->GetDz());
+					  hit[i+shift].setXYZ(((PndSdsHit*)fHitArray2->At(hitId))->GetPosition().X(),((PndSdsHit*)fHitArray2->At(hitId))->GetPosition().Y(),((PndSdsHit*)fHitArray2->At(hitId))->GetPosition().Z());
+					  hit[i+shift].setDXYZ(((PndSdsHit*)fHitArray2->At(hitId))->GetDx(),((PndSdsHit*)fHitArray2->At(hitId))->GetDy(),((PndSdsHit*)fHitArray2->At(hitId))->GetDz());
 					  i++;
 				  }
 				  else {i++;std::cout<<"ERROR"<<std::endl; continue;};

@@ -13,8 +13,8 @@
 
 #include "PndMvdIdealTrackFinderTask.h"
 
-#include "PndMvdDigiPixel.h"
-#include "PndMvdDigiStrip.h"
+#include "PndSdsDigiPixel.h"
+#include "PndSdsDigiStrip.h"
 // #include "PndMvdPixelCluster.h"
 
 
@@ -154,22 +154,22 @@ void PndMvdIdealTrackFinderTask::Exec(Option_t* opt)
 //TODO: Thi becomes easier now, with the FairHit::GetRefIndex()
   //pixel part
   for (Int_t iHit = 0; iHit < nPixelHits; iHit++){
-    PndMvdHit* myHit = (PndMvdHit*)(fPixelHitArray->At(iHit));
-    PndMvdCluster* myCluster = (PndMvdCluster*)(fPixelClusterArray->At(myHit->GetClusterIndex()));
-    PndMvdDigiPixel* apixeldigi = (PndMvdDigiPixel*)fPixelDigiArray->At(myCluster->GetDigiIndex(0));
+    PndSdsHit* myHit = (PndSdsHit*)(fPixelHitArray->At(iHit));
+    PndSdsCluster* myCluster = (PndSdsCluster*)(fPixelClusterArray->At(myHit->GetClusterIndex()));
+    PndSdsDigiPixel* apixeldigi = (PndSdsDigiPixel*)fPixelDigiArray->At(myCluster->GetDigiIndex(0));
     if (apixeldigi->GetIndex(0) == -1) continue; // sort out noise
-    PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMcArray->At(apixeldigi->GetIndex(0)));
+    PndSdsMCPoint* myPoint = (PndSdsMCPoint*)(fMcArray->At(apixeldigi->GetIndex(0)));
 
     AddAndExpand(myPoint->GetTrackID(),apixeldigi->GetDetID(),iHit, myHit);
 
   }
   //strip part
   for (Int_t iHit = 0; iHit < nStripHits; iHit++){
-    PndMvdHit* myHit = (PndMvdHit*)(fStripHitArray->At(iHit));
-    PndMvdCluster* myCluster =  (PndMvdCluster*)(fStripClusterArray->At(myHit->GetClusterIndex()));
-    PndMvdDigiStrip* astripdigi = (PndMvdDigiStrip*)fStripDigiArray->At(myCluster->GetDigiIndex(0));
+    PndSdsHit* myHit = (PndSdsHit*)(fStripHitArray->At(iHit));
+    PndSdsCluster* myCluster =  (PndSdsCluster*)(fStripClusterArray->At(myHit->GetClusterIndex()));
+    PndSdsDigiStrip* astripdigi = (PndSdsDigiStrip*)fStripDigiArray->At(myCluster->GetDigiIndex(0));
     if (astripdigi->GetIndex(0) == -1) continue; // sort out noise
-    PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMcArray->At(astripdigi->GetIndex(0)));
+    PndSdsMCPoint* myPoint = (PndSdsMCPoint*)(fMcArray->At(astripdigi->GetIndex(0)));
 
     AddAndExpand(myPoint->GetTrackID(),astripdigi->GetDetID(),iHit, myHit);
   }
@@ -185,7 +185,7 @@ void PndMvdIdealTrackFinderTask::Exec(Option_t* opt)
   ClearTrackCandMap();
 }
 
-void PndMvdIdealTrackFinderTask::AddAndExpand(Int_t trackID, Int_t detnum, Int_t iHit,PndMvdHit* theHit){
+void PndMvdIdealTrackFinderTask::AddAndExpand(Int_t trackID, Int_t detnum, Int_t iHit,PndSdsHit* theHit){
   if (fTrackCandMap[trackID] == 0){
     PndTrackCand *myTCand = new PndTrackCand();
     PndMCTrack* myMCTrack = (PndMCTrack*)fTrackArray->At(trackID);
@@ -236,9 +236,9 @@ void PndMvdIdealTrackFinderTask::PrintResult()
      for (unsigned int i = 0; i < trackCand->GetNHits(); i++){
        detId=trackCand->GetSortedHit(i).GetDetId();
        hitId=trackCand->GetSortedHit(i).GetHitId();
-      PndMvdHit* myHit;
-      if(hitId<(UInt_t)nStripHits) myHit = (PndMvdHit*)(fStripHitArray->At(hitId));
-      else myHit = (PndMvdHit*)(fPixelHitArray->At(hitId - nStripHits));
+      PndSdsHit* myHit;
+      if(hitId<(UInt_t)nStripHits) myHit = (PndSdsHit*)(fStripHitArray->At(hitId));
+      else myHit = (PndSdsHit*)(fPixelHitArray->At(hitId - nStripHits));
       std::cout << "Detector no. " << detId <<": "<< *myHit;
      }
    }

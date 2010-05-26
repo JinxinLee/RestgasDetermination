@@ -18,7 +18,7 @@
   long int  nEvents = ApvConverter->GetNofEvents();
   for(long int i=0;i<nEvents;++i)
   {
-    std::vector<PndMvdDigiStrip> = ApvConverter->ReadNext();
+    std::vector<PndSdsDigiStrip> = ApvConverter->ReadNext();
   }
 
   // -----   Finish   -------------------------------------------------------

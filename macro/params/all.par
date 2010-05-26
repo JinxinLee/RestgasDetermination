@@ -10,13 +10,13 @@
 #################################################################
 # threshold set to 5*sigmaNoise (noise rate ~ DPM signals rate)
 [MVDStripDigiParRect]
-top_pitch:Double_t 0.0120
+top_pitch:Double_t 0.0130
 bot_pitch:Double_t 0.0130
 orient:Double_t 1.570796327
 skew:Double_t -1.570796327
-top_anchor_x:Double_t -3.0780
+top_anchor_x:Double_t -3.3345
 top_anchor_y:Double_t 1.6705
-bot_anchor_x:Double_t -3.0780
+bot_anchor_x:Double_t -3.3345
 bot_anchor_y:Double_t 1.6705
 nr_fe_channels:Int_t 128
 nr_fe_top:Int_t 4
@@ -39,14 +39,14 @@ clock_frequency:Double_t 50.
 #################################################################
 # threshold set to 5*sigmaNoise (noise rate ~ DPM signals rate)
 [MVDStripDigiParTrap]
-top_pitch:Double_t 0.0073
-bot_pitch:Double_t 0.0073
+top_pitch:Double_t 0.00675
+bot_pitch:Double_t 0.00675
 orient:Double_t 1.439896633
 skew:Double_t 0.261799388
-top_anchor_x:Double_t -1.944
-top_anchor_y:Double_t 3.28861
-bot_anchor_x:Double_t -1.944
-bot_anchor_y:Double_t 3.28861
+top_anchor_x:Double_t -1.72967
+top_anchor_y:Double_t 2.78327
+bot_anchor_x:Double_t -1.72967
+bot_anchor_y:Double_t 2.78327
 nr_fe_channels:Int_t 128
 nr_fe_top:Int_t 4
 nr_fe_bottom:Int_t 4

@@ -27,7 +27,7 @@
 #include <map>
 
 class TClonesArray;
-class PndMvdCluster;
+class PndSdsCluster;
 
 class PndMvdMSAnaTask : public FairTask
 {

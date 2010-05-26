@@ -15,7 +15,7 @@
 //PANDA include
 #include "PndEmcDigi.h"
 #include "PndTofPoint.h"
-#include "PndMvdMCPoint.h"
+#include "PndSdsMCPoint.h"
 #include "PndTpcPoint.h"
 #include "PndTofHit.h"
 #include "PndEmcCluster.h"

@@ -93,7 +93,7 @@
 //    TFile* inFile = new TFile("../data/testMC.root","READ");
   TFile* inFile = new TFile("/data_hilbert/PandaData/tbaldauf/MvdMC_PiKP2_50k.root","READ");
   TTree* tree = (TTree *)inFile->Get("cbmsim");
-  TClonesArray* pointlist=new TClonesArray("PndMvdMCPoint");
+  TClonesArray* pointlist=new TClonesArray("PndSdsMCPoint");
   tree->SetBranchAddress("MVDPoint",&pointlist);
   TClonesArray* mc_array=new TClonesArray("PndMCTrack");
   tree->SetBranchAddress("MCTrack",&mc_array);
@@ -139,7 +139,7 @@
 		tree->GetEntry(j);
 		for(int i=0;i<pointlist->GetEntriesFast();i++)
 		{
-		PndMvdMCPoint* point=(PndMvdMCPoint*)pointlist->At(i);//getting point
+		PndSdsMCPoint* point=(PndSdsMCPoint*)pointlist->At(i);//getting point
 		vecFront=(point->GetX(),point->GetY(),point->GetZ());
 		vecBack=(point->GetXOut(),point->GetYOut(),point->GetZOut());
 		vecPBack=(point->GetPxOut(),point->GetPyOut(),point->GetPzOut());

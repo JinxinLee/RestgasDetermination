@@ -15,7 +15,7 @@
 #include "FairRuntimeDb.h"
 
 // PndMvd includes
-#include "PndMvdHit.h"
+#include "PndSdsHit.h"
 #include "PndTrackCand.h"
 #include "GFTrackCand.h"
 #include "PndRiemannTrack.h"
@@ -273,11 +273,11 @@ void PndTpcClustPlusRTFTask::MergeMVDandTPC()
 		for(unsigned int j=0;j<cand->GetNHits();j++){
 			detId=cand->GetSortedHit(j).GetDetId();
 			hitId=cand->GetSortedHit(j).GetHitId();
-			PndMvdHit *point;
+			PndSdsHit *point;
 			if (detId == kMVDHitsPixel)
-				 point = (PndMvdHit*)fHitArray->At(hitId);
+				 point = (PndSdsHit*)fHitArray->At(hitId);
 			else if (detId == kMVDHitsStrip)
-				 point = (PndMvdHit*)fHitArray2->At(hitId);
+				 point = (PndSdsHit*)fHitArray2->At(hitId);
 			else point = 0;
 			if (point!=0){
 				PndRiemannHit hit(point->GetX(),point->GetY(),point->GetZ(),point->GetDx(),point->GetDy(),point->GetDz());
@@ -397,11 +397,11 @@ void PndTpcClustPlusRTFTask::MergeMVDandTPC()
 
 	std::vector<PndRiemannHit> MvdHits;
 	for(unsigned int j=0;j<restMVDhits.size();j++){
-		PndMvdHit* point;
+		PndSdsHit* point;
 		if (restMVDhits[j].first == kMVDHitsPixel)
-			 point = (PndMvdHit*)fHitArray->At(restMVDhits[j].second);
+			 point = (PndSdsHit*)fHitArray->At(restMVDhits[j].second);
 		else if ( restMVDhits[j].first == kMVDHitsStrip)
-			 point = (PndMvdHit*)fHitArray2->At(restMVDhits[j].second);
+			 point = (PndSdsHit*)fHitArray2->At(restMVDhits[j].second);
 		else point = 0;
 		if (point!=0){
 			PndRiemannHit hit(point->GetX(),point->GetY(),point->GetZ(),point->GetDx(),point->GetDy(),point->GetDz());

@@ -10,15 +10,15 @@
 //
 // Author List:
 //      Sebastian Neubert    TUM            (original author)
-//			Ralf Kliemt					 TUD						(application to PndMvd)
+//			Ralf Kliemt					 TUD						(application to PndSds)
 //
 //-----------------------------------------------------------
 
 //! A planar (x,y) reco hit & its sensor plane
 /** @author Ralf Kliemt TUD
  */
-#ifndef PNDMVDRECOHIT_H
-#define PNDMVDRECOHIT_H
+#ifndef PNDSDSRECOHIT_H
+#define PNDSDSRECOHIT_H
 
 // Base Class Headers ----------------
 #include "GFRecoHitIfc.h"
@@ -30,22 +30,22 @@
 
 // Collaborating Class Declarations --
 class FairMCPoint;
-class PndMvdMCPoint;
-class PndMvdHit;
+class PndSdsMCPoint;
+class PndSdsHit;
 
 
-class PndMvdRecoHit : public GFRecoHitIfc<GFPlanarHitPolicy> {
+class PndSdsRecoHit : public GFRecoHitIfc<GFPlanarHitPolicy> {
 public:
 
   // Constructors/Destructors ---------
-  PndMvdRecoHit();
+  PndSdsRecoHit();
 
-  PndMvdRecoHit(PndMvdMCPoint* point);//from lab MC points
-  PndMvdRecoHit(PndMvdHit* hit);//from lab cluster hits
+  PndSdsRecoHit(PndSdsMCPoint* point);//from lab MC points
+  PndSdsRecoHit(PndSdsHit* hit);//from lab cluster hits
 
-  virtual ~PndMvdRecoHit();
+  virtual ~PndSdsRecoHit();
 
-  virtual GFAbsRecoHit* clone(){return new PndMvdRecoHit(*this);};
+  virtual GFAbsRecoHit* clone(){return new PndSdsRecoHit(*this);};
 
 
 
@@ -66,7 +66,7 @@ private:
   // Private Methods -----------------
 
 //public:
-  ClassDef(PndMvdRecoHit,1);
+  ClassDef(PndSdsRecoHit,1);
 
 };
 

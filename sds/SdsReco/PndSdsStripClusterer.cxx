@@ -42,7 +42,7 @@ void PndSdsStripClusterer::AddDigi(Int_t sensorID, SensorSide side, Int_t timest
 }
 
 //------------------------------------------------------------------------------
-PndSdsClusterStrip PndSdsStripClusterer::GetCluster(Int_t i)
+PndSdsClusterStrip* PndSdsStripClusterer::GetCluster(Int_t i)
 {
   if(0<=i && (Int_t)fClusters.size() < i)
     return fClusters[i];
@@ -51,7 +51,7 @@ PndSdsClusterStrip PndSdsStripClusterer::GetCluster(Int_t i)
   }
 }
 //------------------------------------------------------------------------------
-PndSdsClusterStrip PndSdsStripClusterer::GetTopCluster(Int_t i)
+PndSdsClusterStrip* PndSdsStripClusterer::GetTopCluster(Int_t i)
 {
   if(0<=i && (Int_t)fTopclusters.size() < i)
     return GetCluster(fTopclusters[i]);
@@ -60,7 +60,7 @@ PndSdsClusterStrip PndSdsStripClusterer::GetTopCluster(Int_t i)
   }
 }
 //------------------------------------------------------------------------------
-PndSdsClusterStrip PndSdsStripClusterer::GetBotCluster(Int_t i)
+PndSdsClusterStrip* PndSdsStripClusterer::GetBotCluster(Int_t i)
 {
   if(0<=i && (Int_t)fBotclusters.size() < i)
     return GetCluster(fBotclusters[i]);
@@ -83,8 +83,8 @@ void PndSdsStripClusterer::AddCluster(const std::vector< Int_t >& onecluster,Sen
     fTopclusters.push_back(clindex);
     // Info("AddCluster","Adding Cluster number %i to the top list.",clindex);
   }
-  PndSdsClusterStrip cl(onecluster);
-  cl.SetSensorSide(side);
+  PndSdsClusterStrip* cl = new PndSdsClusterStrip(onecluster);
+  cl->SetSensorSide(side);
   fClusters.push_back(cl);
 }
 

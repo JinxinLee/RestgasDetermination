@@ -21,8 +21,8 @@
 #include "../pnddata/PndMCTrack.h"
 #include "FairHit.h"
 // PndMvd includes
-#include "PndMvdHit.h"
-#include "PndMvdMCPoint.h"
+#include "PndSdsHit.h"
+#include "PndSdsMCPoint.h"
 
 
 // -----   Default constructor   -------------------------------------------
@@ -81,7 +81,7 @@ InitStatus PndMvdIdealRecoTask::Init()
   return kERROR;  }
   
   // Create and register output array
-  fHitOutputArray = new TClonesArray("PndMvdHit");
+  fHitOutputArray = new TClonesArray("PndSdsHit");
   ioman->Register("MVDHit", "PndMvd ideal Hits",
 									fHitOutputArray, fPersistance);
   
@@ -110,12 +110,12 @@ void PndMvdIdealRecoTask::Exec(Option_t* opt)
  	if ( ! fHitOutputArray ) Fatal("Exec", "No fHitOutputArray");
  	fHitOutputArray->Delete();
   
-  std::map<Int_t, PndMvdHit*> clusterMap;
+  std::map<Int_t, PndSdsHit*> clusterMap;
   
   Int_t nPndMvdHits=fPointArray->GetEntriesFast();
   for(Int_t iMvdPoint=0;iMvdPoint<nPndMvdHits;++iMvdPoint)
   {
-    fCurrentPndMvdMCPoint=(PndMvdMCPoint*)fPointArray->At(iMvdPoint);
+    fCurrentPndMvdMCPoint=(PndSdsMCPoint*)fPointArray->At(iMvdPoint);
     Int_t trackid=fCurrentPndMvdMCPoint->GetTrackID();
     Int_t size = fHitOutputArray->GetEntriesFast();
     InitTransMat();
@@ -137,9 +137,9 @@ void PndMvdIdealRecoTask::Exec(Option_t* opt)
     // errors. this would avoid two conversations, myabe overload the FairHit
     // functions for the global error points.
     
-    // Now the 3D Info is smared inside the FairHit part of PndMvdHit
-    new ((*fHitOutputArray)[size]) PndMvdHit(fCurrentPndMvdMCPoint->GetDetectorID(),
-                                             (fCurrentPndMvdMCPoint->GetDetName()).Data(),
+    // Now the 3D Info is smared inside the FairHit part of PndSdsHit
+    new ((*fHitOutputArray)[size]) PndSdsHit(fCurrentPndMvdMCPoint->GetDetectorID(),
+                                             fCurrentPndMvdMCPoint->GetSensorID(),
                                              pos,dposLocal,-1,fCurrentPndMvdMCPoint->GetEnergyLoss(),1,iMvdPoint);
     
   }//end for PndMvdiMvdPoint
@@ -155,7 +155,7 @@ void PndMvdIdealRecoTask::InitTransMat()
 {
   //     std::cout<<"InitTransMat() with "<<fCurrentPndMvdMCPoint->GetDetName()<<std::endl;
   gGeoManager->cd(
-                  fGeoH->GetPath( fCurrentPndMvdMCPoint->GetDetName() ).Data()
+                  fGeoH->GetPath( fCurrentPndMvdMCPoint->GetSensorID() ).Data()
                   );
   fCurrentTransMat = gGeoManager->GetCurrentMatrix();
   if (fVerbose > 1) {
@@ -242,7 +242,7 @@ void PndMvdIdealRecoTask::CalcDetPlane(TVector3& oVect, TVector3& uVect,TVector3
   
   if (fVerbose > 1) {
     std::cout<<"PndMvdIdealRecoTask::CalcDetPlane from Detector "
-    <<fCurrentPndMvdMCPoint->GetDetName()<<std::endl;
+    <<fCurrentPndMvdMCPoint->GetSensorID()<<std::endl;
   }
   //make transformation
   fCurrentTransMat->LocalToMaster(O,o);

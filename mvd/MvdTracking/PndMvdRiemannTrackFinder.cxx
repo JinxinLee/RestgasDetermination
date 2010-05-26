@@ -1,7 +1,7 @@
 #include "PndMvdRiemannTrackFinder.h"
 #include <iostream>
 #include <math.h>
-#include "PndMvdHit.h"
+#include "PndSdsHit.h"
 #include "TString.h"
 
 PndMvdRiemannTrackFinder::PndMvdRiemannTrackFinder():PndRiemannTrackFinder(),fZClosePar(0.1)
@@ -21,9 +21,8 @@ void PndMvdRiemannTrackFinder::AddHits(TClonesArray* hits)
 		std::pair<int,int> myID(myHit->GetDetectorID(), i);
 		fMapHitToID[fHits.size()-1]=myID;
 		fMapIDtoHit[myID] = fHits.size()-1;
-		PndMvdHit* tempHit=(PndMvdHit*)(hits->At(i));
-		geoPath=tempHit->GetDetName();
-		geoPath=fGeoH.GetPath(geoPath);
+		PndSdsHit* tempHit=(PndSdsHit*)(hits->At(i));
+		geoPath=fGeoH.GetPath(tempHit->GetSensorID());
 
 		int Layer=0;
 		bool flag=true;

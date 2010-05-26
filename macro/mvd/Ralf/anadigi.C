@@ -26,13 +26,13 @@
   TTree *t=(TTree *) f->Get("cbmsim") ;
   t->AddFriend("cbmsim",digiFile.c_str()); // the digi file
 
-  TClonesArray* mc_array=new TClonesArray("PndMvdMCPoint");
+  TClonesArray* mc_array=new TClonesArray("PndSdsMCPoint");
   t->SetBranchAddress("MVDPoint",&mc_array);//Branch names
 
-  TClonesArray* digiPixel_array=new TClonesArray("PndMvdDigiPixel");
+  TClonesArray* digiPixel_array=new TClonesArray("PndSdsDigiPixel");
   t->SetBranchAddress("MVDPixelDigis",&digiPixel_array);//Branch names
 
-  TClonesArray* digiStrip_array=new TClonesArray("PndMvdDigiStrip");
+  TClonesArray* digiStrip_array=new TClonesArray("PndSdsDigiStrip");
   t->SetBranchAddress("MVDStripDigis",&digiStrip_array);//Branch names
 
   TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("FAIRGeom");
@@ -109,7 +109,7 @@
     for (Int_t i=0; i<mc_array->GetEntriesFast(); i++)
     {
       if(verbose) cout<<"Point No "<<i<<endl;
-      PndMvdMCPoint *point=(PndMvdMCPoint*)mc_array->At(i);
+      PndSdsMCPoint *point=(PndSdsMCPoint*)mc_array->At(i);
       vecmc.SetXYZ(point->GetX(),point->GetY(),point->GetZ());
       mommc.SetXYZ(point->GetPx(),point->GetPy(),point->GetPz());
       hisxy->Fill(vecmc.x(),vecmc.y());
@@ -122,7 +122,7 @@
     // ----- PIXEL DIGIS -----
     for (Int_t i=0; i<digiPixel_array->GetEntriesFast(); i++)
     {
-      PndMvdDigiPixel *pixeldigi = digiPixel_array->At(i);
+      PndSdsDigiPixel *pixeldigi = digiPixel_array->At(i);
       fe = pixeldigi->GetFE();
       col = pixeldigi->GetPixelColumn();
       row = pixeldigi->GetPixelRow();
@@ -141,7 +141,7 @@
     // ----- STRIP DIGIS -----
     for (Int_t i=0; i<digiStrip_array->GetEntriesFast(); i++)
     {
-      PndMvdDigiStrip *stripdigi = digiStrip_array->At(i);
+      PndSdsDigiStrip *stripdigi = digiStrip_array->At(i);
       fe = stripdigi->GetFE();
       col = stripdigi->GetChannel();
       int strip = fe * nrFeChannels + col;

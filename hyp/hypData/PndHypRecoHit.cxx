@@ -3,8 +3,8 @@
 // $Id$
 //
 // Description:
-//      Implementation of class PndMvdRecoHit
-//      see PndMvdRecoHit.h for details
+//      Implementation of class PndSdsRecoHit
+//      see PndSdsRecoHit.h for details
 //
 // Environment:
 //      Software developed for the PANDA Detector at FAIR.
@@ -23,8 +23,8 @@
 // $Id$
 //
 // Description:
-//      Implementation of class PndMvdRecoHit
-//      see PndMvdRecoHit.h for details
+//      Implementation of class PndSdsRecoHit
+//      see PndSdsRecoHit.h for details
 //
 // Environment:
 //      Software developed for the PANDA Detector at FAIR.

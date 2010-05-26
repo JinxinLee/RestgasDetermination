@@ -22,13 +22,13 @@
 //! Class for digitising strip of Apv-Sensors to digtil hits
 
 // class PndMvdApv;
-#include "PndMvdDigiStrip.h"
+#include "PndSdsDigiStrip.h"
 
 /**   
  @class PndMvdConvertApv
- @brief Convert meassured data into PndMvdDigiStrip
+ @brief Convert meassured data into PndSdsDigiStrip
  
- Load calibration parameter and keeps strean to meassured data. Event wise read in and converting to PndMvdDigiStrip
+ Load calibration parameter and keeps strean to meassured data. Event wise read in and converting to PndSdsDigiStrip
  @author Lars Ackermann
  @date 11.03.2009
 */
@@ -57,20 +57,20 @@ class PndMvdConvertApv
 	long int GetNofEvents();
 
 	/**
-	@fn std::vector<PndMvdDigiStrip> ReadAll()
+	@fn std::vector<PndSdsDigiStrip> ReadAll()
 
 	read all events from hitfile
-	@return vector of PndMvdDigiStrip of the event
+	@return vector of PndSdsDigiStrip of the event
 	*/
-	std::vector<PndMvdDigiStrip> ReadAll();
+	std::vector<PndSdsDigiStrip> ReadAll();
 
 	/**
-	@fn std::vector<PndMvdDigiStrip> ReadNext()
+	@fn std::vector<PndSdsDigiStrip> ReadNext()
 
 	read the next event from hitfile
-	@return vector of PndMvdDigiStrip of the event
+	@return vector of PndSdsDigiStrip of the event
 	*/
-	std::vector<PndMvdDigiStrip> ReadNext();
+	std::vector<PndSdsDigiStrip> ReadNext();
 
 	/**
 	@fn Bool_t Init()
@@ -110,13 +110,13 @@ class PndMvdConvertApv
 	void LoadCalibration(TString CalibFileName, std::vector<Int_t> modules);
 
 	/**
-	@fn std::vector<PndMvdDigiStrip> Calc(std::vector<PndMvdApvHit> hitlist)
+	@fn std::vector<PndSdsDigiStrip> Calc(std::vector<PndMvdApvHit> hitlist)
 
-	Convert the readed hit and store them in the PndMvdDigiStrip
+	Convert the readed hit and store them in the PndSdsDigiStrip
 	@param hitlist vector of PndMvdApvHit hits of one event from hitfile
-	@return list of converted PndMvdDigiStrip
+	@return list of converted PndSdsDigiStrip
 	*/
-	std::vector<PndMvdDigiStrip> Calc(std::vector<PndMvdApvHit> hitlist);
+	std::vector<PndSdsDigiStrip> Calc(std::vector<PndMvdApvHit> hitlist);
 
 	/// Calib Parameters: <moduleID<FE<channel> > >
 // 	std::vector<std::map<Int_t, std::vector<double> > > fCalibPars;

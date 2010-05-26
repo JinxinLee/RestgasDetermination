@@ -7,7 +7,7 @@ TClonesArray* trkl=new TClonesArray("PndTpcMCTracklet");
  if(cbmsim->FindBranch("DeconvTrkl")!=NULL)
    cbmsim->SetBranchAddress("DeconvTrkl",&trkl);
  else cbmsim->SetBranchAddress("PndTpcMCTracklet",&trkl);
- TClonesArray* mvd=new TClonesArray("PndMvdHit");
+ TClonesArray* mvd=new TClonesArray("PndSdsHit");
  if(cbmsim->FindBranch("MVDHit")!=NULL)
    cbmsim->SetBranchAddress("MVDHit",&mvd);
 
@@ -31,7 +31,7 @@ target->Draw();
  if(nmvd>0 && opt>3){
    TPolyMarker3D* mvdp=new TPolyMarker3D(nmvd);
    for(int i=0; i<nmvd; ++i){
-     PndMvdHit* hit=(PndMvdHit*)mvd->At(i);
+     PndSdsHit* hit=(PndSdsHit*)mvd->At(i);
      TVector3 pos=hit->GetPosition();
      mvdp->SetPoint(i,pos.X(),pos.Y(),pos.Z());
    }

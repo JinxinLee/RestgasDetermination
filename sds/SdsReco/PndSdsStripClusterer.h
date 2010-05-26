@@ -37,12 +37,12 @@ class PndSdsStripClusterer {
 
   void AddDigi(Int_t sensorID, SensorSide side, Int_t timestamp, Int_t strip, Int_t iDigi);
   void ClearDigis() {fSortedDigis.clear();} 
-  virtual std::vector< PndSdsClusterStrip > SearchClusters() = 0; 
+  virtual std::vector< PndSdsClusterStrip* > SearchClusters() = 0; 
 
-  std::vector< PndSdsClusterStrip >  GetClusters() const {return fClusters;}
-  PndSdsClusterStrip GetCluster(Int_t i);
-  PndSdsClusterStrip GetTopCluster(Int_t i);
-  PndSdsClusterStrip GetBotCluster(Int_t i);
+  std::vector< PndSdsClusterStrip* >  GetClusters() const {return fClusters;}
+  PndSdsClusterStrip* GetCluster(Int_t i);
+  PndSdsClusterStrip* GetTopCluster(Int_t i);
+  PndSdsClusterStrip* GetBotCluster(Int_t i);
   std::vector< Int_t > GetTopClusterIDs() const {return fTopclusters;}
   std::vector< Int_t > GetBotClusterIDs() const {return fBotclusters;}
   std::vector< Int_t > GetLeftDigiIDs() const {return fLeftDigis;}
@@ -54,7 +54,7 @@ protected:
   std::vector< Int_t > fTopclusters;// contains index to fClusterArray
   std::vector< Int_t > fBotclusters;// contains index to fClusterArray
   std::vector< Int_t > fLeftDigis;  // contains index to the not assigned digis
-  std::vector< PndSdsClusterStrip > fClusters;
+  std::vector< PndSdsClusterStrip* > fClusters;
 
   ClassDef(PndSdsStripClusterer,3);
 };

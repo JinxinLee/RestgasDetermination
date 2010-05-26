@@ -64,6 +64,8 @@ void PndMvdDetector::SetSpecialPhysicsCuts()
   // Switched off, default of the MC engine is used 
   return;
   
+  //for using G4 user limits call gMC->SetUserParameters(true); and set the properties in the Mediafile
+  
   // TODO: Study the effects of cuts. 
 //  FairRun* fRun = FairRun::Instance();
 //  

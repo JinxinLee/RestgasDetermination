@@ -1,6 +1,6 @@
 Warning in <TClassTable::Add>: class PndMvdPixel already in TClassTable
 Warning in <TClassTable::Add>: class PndMvdStrip already in TClassTable
-Warning in <TClassTable::Add>: class PndMvdMCPoint already in TClassTable
+Warning in <TClassTable::Add>: class PndSdsMCPoint already in TClassTable
 Warning in <TClassTable::Add>: class PndMvdDigi already in TClassTable
 Warning in <TClassTable::Add>: class PndMvdDigiPixel already in TClassTable
 Warning in <TClassTable::Add>: class PndMvdApvHit already in TClassTable
@@ -227,7 +227,7 @@ RealTime=4.088910 seconds, CpuTime=3.490000 seconds
  **** GTRIGI: IEVENT=     10 IDEVT=     10 Random Seeds = 1242145074           0
 Warning in <TClassTable::Add>: class PndMvdPixel already in TClassTable
 Warning in <TClassTable::Add>: class PndMvdStrip already in TClassTable
-Warning in <TClassTable::Add>: class PndMvdMCPoint already in TClassTable
+Warning in <TClassTable::Add>: class PndSdsMCPoint already in TClassTable
 Warning in <TClassTable::Add>: class PndMvdDigi already in TClassTable
 Warning in <TClassTable::Add>: class PndMvdDigiPixel already in TClassTable
 Warning in <TClassTable::Add>: class PndMvdApvHit already in TClassTable

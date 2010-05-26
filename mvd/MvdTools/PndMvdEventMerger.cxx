@@ -3,9 +3,9 @@
 #include "TTree.h"
 
 #include <iostream>
-#include "PndMvdMCPoint.h"
-#include "PndMvdDigiStrip.h"
-#include "PndMvdDigiPixel.h"
+#include "PndSdsMCPoint.h"
+#include "PndSdsDigiStrip.h"
+#include "PndSdsDigiPixel.h"
 #include "PndTpcCluster.h"
 #include "PndTpcPoint.h"
 using std::cout;
@@ -131,12 +131,12 @@ Int_t PndMvdEventMerger::AddTClonesArray(TClonesArray* target, TClonesArray* sou
 	for (int i = 0; i < source->GetEntriesFast(); i++){
 		std::cout << source->GetClass()->GetName() << std::endl;
 		TString myClassName(source->GetClass()->GetName());
-		if(myClassName.Contains("PndMvdMCPoint"))
-			new ((*target)[origSize + i])PndMvdMCPoint(*(PndMvdMCPoint*)(source->At(i)));
-		else if (myClassName.Contains("PndMvdDigiPixel"))
-			new ((*target)[origSize + i])PndMvdDigiPixel(*(PndMvdDigiPixel*)(source->At(i)));
-		else if (myClassName.Contains("PndMvdDigiStrip"))
-			new ((*target)[origSize + i])PndMvdDigiStrip(*(PndMvdDigiStrip*)(source->At(i)));
+		if(myClassName.Contains("PndSdsMCPoint"))
+			new ((*target)[origSize + i])PndSdsMCPoint(*(PndSdsMCPoint*)(source->At(i)));
+		else if (myClassName.Contains("PndSdsDigiPixel"))
+			new ((*target)[origSize + i])PndSdsDigiPixel(*(PndSdsDigiPixel*)(source->At(i)));
+		else if (myClassName.Contains("PndSdsDigiStrip"))
+			new ((*target)[origSize + i])PndSdsDigiStrip(*(PndSdsDigiStrip*)(source->At(i)));
 		else if (myClassName.Contains("PndTpcPoint"))
 			new ((*target)[origSize + i])PndTpcPoint(*(PndTpcPoint*)(source->At(i)));
 		else if (myClassName.Contains("PndTpcCluster"))

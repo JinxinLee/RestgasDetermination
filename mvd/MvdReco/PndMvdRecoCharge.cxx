@@ -15,10 +15,10 @@
     	fthreshold = threshold;
     };
 
-Double_t PndMvdRecoCharge::GetCharge(PndMvdDigi &digi)
+Double_t PndMvdRecoCharge::GetCharge(PndSdsDigi &digi)
 {
 	if (digi.GetTot()<0){
-		std::cout<<"-E- <PndMvdRecoCharge::GetCharge(PndMvdDigi &digi)>: time over threshold not calculated in digitization step"<<std::endl;
+		std::cout<<"-E- <PndMvdRecoCharge::GetCharge(PndSdsDigi &digi)>: time over threshold not calculated in digitization step"<<std::endl;
 		return -1;
 	}
 	return (-fa*ftr+fthreshold+digi.GetTot()*fa)/2.+sqrt( pow( (fa*ftr-fthreshold-digi.GetTot()*fa),2) / 4. + fa* fthreshold * ftr );

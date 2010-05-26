@@ -17,8 +17,8 @@
 #include "FairHit.h"
 #include "FairLinkedData.h"
 
-#include "PndMvdMCPoint.h"
-#include "PndMvdHit.h"
+#include "PndSdsMCPoint.h"
+#include "PndSdsHit.h"
 #include "PndMCEntry.h"
 
 #include "PndDetectorList.h"
@@ -84,7 +84,7 @@ void PndMCTestHitCompare::Exec(Option_t* opt)
 	//std::cout << myResult;
 	for (int i = 0; i < fStripHit->GetEntries(); i++){
 		//PndMCEntry myLinks = myResult.GetMCLink(i);
-		PndMvdHit* myHit = (PndMvdHit*)fStripHit->At(i);
+		PndSdsHit* myHit = (PndSdsHit*)fStripHit->At(i);
 		PndMCEntry myLinks = fMCMatch->GetMCInfoSingle(FairLink(kMVDHitsStrip, i), kMVDPoint);
 
 		std::cout << *myHit;
@@ -92,7 +92,7 @@ void PndMCTestHitCompare::Exec(Option_t* opt)
 		for (int j = 0; j < myLinks.GetNLinks(); j++){
 			if (myLinks.GetLink(j).GetType() == kMVDPoint){
 				std::cout << "MCPoint " << myLinks.GetLink(j).GetIndex() << std::endl;
-				PndMvdMCPoint* myMCPoint = (PndMvdMCPoint*)fMCPoint->At(myLinks.GetLink(j).GetIndex());
+				PndSdsMCPoint* myMCPoint = (PndSdsMCPoint*)fMCPoint->At(myLinks.GetLink(j).GetIndex());
 				//myMCTrack->Print(myLinks.GetFairLink(j).GetIndex());
 				std::cout << *myMCPoint;
 				std::cout << "--------------------------------" << std::endl;

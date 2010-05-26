@@ -138,7 +138,7 @@
     for (Int_t ii=0; ii<pixhit_array->GetEntriesFast(); ii++)
     {
 
-      PndMvdHit *hit=(PndMvdHit*)pixhit_array->At(ii);
+      PndSdsHit *hit=(PndSdsHit*)pixhit_array->At(ii);
 	    if(verbose) cout <<ii<< ".";
       detname = fGeoH->GetPath( hit->GetDetName());
       geoMan->cd( detname.Data() );
@@ -147,7 +147,7 @@
       Int_t mcid = hit->GetRefIndex();
       if(verbose)cout<<mcid<<"  ";
       if(mcid<0 || mcid >= mc_array->GetEntriesFast()) continue;
-      PndMvdMCPoint *point=(PndMvdMCPoint*)mc_array->At(mcid);
+      PndSdsMCPoint *point=(PndSdsMCPoint*)mc_array->At(mcid);
       Int_t mcpdg = -1;
 
       vecmc.SetXYZ( 0.5 * (point->GetX() + point->GetXOut()),
@@ -181,7 +181,7 @@
     // -----  STRIP HITS  -----
     for (Int_t iii=0; iii<strhit_array->GetEntriesFast(); iii++)
     {
-      PndMvdHit *hit=(PndMvdHit*)strhit_array->At(iii);
+      PndSdsHit *hit=(PndSdsHit*)strhit_array->At(iii);
       detname = fGeoH->GetPath( hit->GetDetName());
       geoMan->cd( detname.Data() );
       currentTransMat = geoMan->GetCurrentMatrix();
@@ -190,7 +190,7 @@
 
       Int_t mcid = hit->GetRefIndex();
       if(mcid<0 || mcid >= mc_array->GetEntriesFast()) continue;
-      PndMvdMCPoint *point=(PndMvdMCPoint*)mc_array->At(mcid);
+      PndSdsMCPoint *point=(PndSdsMCPoint*)mc_array->At(mcid);
       Int_t mcpdg = -1;
 
       vecmc.SetXYZ( 0.5 * (point->GetX() + point->GetXOut()),

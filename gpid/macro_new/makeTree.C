@@ -16,7 +16,7 @@
 #include "PndEmcDigi.h"
 #include "PndTofPoint.h"
 #include "PndLhePidTrack.h"
-#include "PndMvdMCPoint.h"
+#include "PndSdsMCPoint.h"
 #include "PndTpcPoint.h"
 #include "PndTofHit.h"
 #include "PndEmcCluster.h"

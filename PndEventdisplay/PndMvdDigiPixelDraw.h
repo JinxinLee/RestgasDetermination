@@ -9,7 +9,7 @@
 #define PNDMVDDIGIPIXELDRAW_H_
 
 #include "FairBoxSetDraw.h"
-#include "PndMvdDigiPixel.h"
+#include "PndSdsDigiPixel.h"
 #include "PndGeoHandling.h"
 
 #include "TVector3.h"

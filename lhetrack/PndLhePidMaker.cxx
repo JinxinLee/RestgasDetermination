@@ -10,7 +10,7 @@
 #include "PndEmcDataTypes.h"
 #include "PndEmcStructure.h"
 #include "PndEmcXtal.h"
-#include "PndMvdHit.h"
+#include "PndSdsHit.h"
 #include "PndSttHit.h"
 #include "PndSttHelixHit.h"
 #include "PndMdtHit.h"
@@ -348,9 +348,9 @@ void PndLhePidMaker::Exec(Option_t * option) {
 //_________________________________________________________________
 void PndLhePidMaker::GetMvdInfo(const PndLheHit* hit, PndLhePidTrack* track) {
   //---
-  PndMvdHit *mvdHit = NULL;
-  if (hit->GetDetectorID()==kMVDHitsPixel) mvdHit = (PndMvdHit*)fMvdHitsPixel->At(hit->GetRefIndex());
-  if (hit->GetDetectorID()==kMVDHitsStrip) mvdHit = (PndMvdHit*)fMvdHitsStrip->At(hit->GetRefIndex());
+  PndSdsHit *mvdHit = NULL;
+  if (hit->GetDetectorID()==kMVDHitsPixel) mvdHit = (PndSdsHit*)fMvdHitsPixel->At(hit->GetRefIndex());
+  if (hit->GetDetectorID()==kMVDHitsStrip) mvdHit = (PndSdsHit*)fMvdHitsStrip->At(hit->GetRefIndex());
   
   TGeoNode *mvdNode = (TGeoNode*)gGeoManager->FindNode(mvdHit->GetX(), mvdHit->GetY(), mvdHit->GetZ());
   TGeoVolume *mvdVol = (TGeoVolume*)mvdNode->GetVolume();

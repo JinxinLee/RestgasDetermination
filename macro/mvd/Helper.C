@@ -6,7 +6,7 @@
 #pragma link C++ class vector<bool>+;
 #pragma link C++ class vector<int>+;
 #pragma link C++ class vector<double>+;
-#pragma link C++ class vector<PndMvdDigiStrip>+;
+#pragma link C++ class vector<PndSdsDigiStrip>+;
 
 #pragma link C++ class vector<vector<double> >+;
 #pragma link C++ class vector<vector<int> >+;

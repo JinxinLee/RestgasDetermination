@@ -72,7 +72,7 @@ void TrackHits(){
 
 	TTree *t=(TTree *) f->Get("cbmsim");
 	
-	TClonesArray* tr_array=new TClonesArray("PndMvdHit");
+	TClonesArray* tr_array=new TClonesArray("PndSdsHit");
 	t->SetBranchAddress("MVDHitsStrip",&tr_array);//Branch names
 
     	cout << "Events: " << t->GetEntries() << endl;
@@ -94,7 +94,7 @@ void TrackHits(){
       for (Int_t y = 0 ; y < tr_array->GetEntries() ; y++) // loop on hits
       {
 
-		    PndMvdHit* point = (PndMvdHit*)tr_array->At(y);
+		    PndSdsHit* point = (PndSdsHit*)tr_array->At(y);
 		    //cout<< "index: "<<point->GetClusterIndex() << endl;
           //cout<<" (x,y)=("<<point->GetX()<<","<<point->GetY()<<") charge="<<point->GetEloss()<<endl;
 		    name =  fGeoH->GetPath(point->GetDetName());
@@ -134,18 +134,18 @@ void TrackHits(){
 //      if (n3!=n4) cout<<"unequal nr. of hits on sensor TS4 ("<<n3<<"/"<<n4<<")"<<endl;
       if (n1 && n1==n2) {
          if (n1==1) {
-            h2->Fill(((PndMvdHit*)(TS3[0][0]))->GetX(),((PndMvdHit*)(TS3[1][0]))->GetY());
-            h6->Fill(((PndMvdHit*)(TS3[0][0]))->GetEloss()*1e+6);
-            h6->Fill(((PndMvdHit*)(TS3[1][0]))->GetEloss()*1e+6);
+            h2->Fill(((PndSdsHit*)(TS3[0][0]))->GetX(),((PndSdsHit*)(TS3[1][0]))->GetY());
+            h6->Fill(((PndSdsHit*)(TS3[0][0]))->GetEloss()*1e+6);
+            h6->Fill(((PndSdsHit*)(TS3[1][0]))->GetEloss()*1e+6);
          }
          else cout<<"multiple hits on sensor TS3"<<endl;
          nrHits2+=n1+n2;
       }
       if (n3 && n3==n4) {
          if (n3==1) {
-            h3->Fill(((PndMvdHit*)(TS4[0][0]))->GetX(),((PndMvdHit*)(TS4[1][0]))->GetY());
-            h7->Fill(((PndMvdHit*)(TS4[0][0]))->GetEloss()*1e+6);
-            h7->Fill(((PndMvdHit*)(TS4[1][0]))->GetEloss()*1e+6);
+            h3->Fill(((PndSdsHit*)(TS4[0][0]))->GetX(),((PndSdsHit*)(TS4[1][0]))->GetY());
+            h7->Fill(((PndSdsHit*)(TS4[0][0]))->GetEloss()*1e+6);
+            h7->Fill(((PndSdsHit*)(TS4[1][0]))->GetEloss()*1e+6);
          }
          else cout<<"multiple hits on sensor TS4"<<endl;
          nrHits3+=n3+n4;

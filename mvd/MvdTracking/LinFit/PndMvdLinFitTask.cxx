@@ -18,7 +18,7 @@
 //#include "PndLinTrack.h"
 #include "../../../pnddata/TrackData/PndTrackCand.h"
 #include "../../../pnddata/SdsData/PndSdsHit.h"
-#include "../../../pnddata/MvdData/PndMvdHit.h"
+#include "../../../pnddata/MvdData/PndSdsHit.h"
 #include "../../../pnddata/TrackData/PndTrackCandHit.h"
 
 #include "TFile.h"
@@ -121,7 +121,7 @@ void PndMvdLinFitTask::Exec(Option_t* opt)
       unsigned int detid=12345, index=12345;
       for(Int_t itr=0;itr<ntcand;++itr){
 
-	PndMvdHit *theHit = (PndMvdHit*)   fTCandArray->At(itr);
+	PndSdsHit *theHit = (PndSdsHit*)   fTCandArray->At(itr);
 	
 	index = theHit->GetRefIndex();
 	detid = theHit->GetDetectorID();
@@ -181,7 +181,7 @@ void PndMvdLinFitTask::Exec(Option_t* opt)
 
 	    std::vector<TString> sens;	    
 
-	    PndMvdHit *theHit = (PndMvdHit*)   fTCandArray->At(it1);
+	    PndSdsHit *theHit = (PndSdsHit*)   fTCandArray->At(it1);
 
 	    if( (theHit->GetDetName()) != DetNames[0]) continue;
       
@@ -200,7 +200,7 @@ void PndMvdLinFitTask::Exec(Option_t* opt)
 	      
 		eloss[1] = 0;
 	    
-		PndMvdHit *theHit1 = (PndMvdHit*)   fTCandArray->At(it2);
+		PndSdsHit *theHit1 = (PndSdsHit*)   fTCandArray->At(it2);
 
 		if( (theHit1->GetDetName()) != DetNames[1]) continue;
       
@@ -233,7 +233,7 @@ void PndMvdLinFitTask::Exec(Option_t* opt)
 		    
 			eloss[2] = 0;
 		      
-			PndMvdHit *theHit2 = (PndMvdHit*)   fTCandArray->At(it3);
+			PndSdsHit *theHit2 = (PndSdsHit*)   fTCandArray->At(it3);
 		      
 			if( (theHit2->GetDetName()) != DetNames[2]) continue;
 		      
@@ -268,7 +268,7 @@ void PndMvdLinFitTask::Exec(Option_t* opt)
 			  
 				eloss[3] = 0;
 			  
-				PndMvdHit *theHit3 = (PndMvdHit*)   fTCandArray->At(it4);
+				PndSdsHit *theHit3 = (PndSdsHit*)   fTCandArray->At(it4);
 			  
 				if( (theHit3->GetDetName()) != DetNames[3]) continue;
 
@@ -303,7 +303,7 @@ void PndMvdLinFitTask::Exec(Option_t* opt)
 	      
 					eloss[4] = 0;
 
-					PndMvdHit *theHit4 = (PndMvdHit*)   fTCandArray->At(it5);
+					PndSdsHit *theHit4 = (PndSdsHit*)   fTCandArray->At(it5);
 
 			      
 					if( (theHit4->GetDetName()) != DetNames[4]) continue;
@@ -339,7 +339,7 @@ void PndMvdLinFitTask::Exec(Option_t* opt)
 				  
 						eloss[5] = 0;
 
-						PndMvdHit *theHit5 = (PndMvdHit*)   fTCandArray->At(it6);
+						PndSdsHit *theHit5 = (PndSdsHit*)   fTCandArray->At(it6);
 
 						if( (theHit5->GetDetName()) != DetNames[5]) continue;
       

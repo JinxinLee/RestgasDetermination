@@ -15,7 +15,7 @@
 
 // PndMvd includes
 #include "PndTrackCand.h"
-#include "PndMvdHit.h"
+#include "PndSdsHit.h"
 #include "PndMvdRiemannTrackFinder.h"
 #include "PndRiemannTrack.h"
 #include "PndRiemannHit.h"
@@ -139,12 +139,12 @@ void PndMvdTPCRiemannTrackFinderTask::Exec(Option_t* opt)
 		  detId=trackFinder.GetTrackCand(i).GetSortedHit(j).GetDetId();
 		  hitId=trackFinder.GetTrackCand(i).GetSortedHit(j).GetHitId();
 			  if (detId==kMVDHitsPixel){
-				  hit.setXYZ(((PndMvdHit*)fHitArray->At(hitId))->GetPosition().X(),((PndMvdHit*)fHitArray->At(hitId))->GetPosition().Y(),((PndMvdHit*)fHitArray->At(hitId))->GetPosition().Z());
-				  hit.setDXYZ(((PndMvdHit*)fHitArray->At(hitId))->GetDx(),((PndMvdHit*)fHitArray->At(hitId))->GetDy(),((PndMvdHit*)fHitArray->At(hitId))->GetDz());
+				  hit.setXYZ(((PndSdsHit*)fHitArray->At(hitId))->GetPosition().X(),((PndSdsHit*)fHitArray->At(hitId))->GetPosition().Y(),((PndSdsHit*)fHitArray->At(hitId))->GetPosition().Z());
+				  hit.setDXYZ(((PndSdsHit*)fHitArray->At(hitId))->GetDx(),((PndSdsHit*)fHitArray->At(hitId))->GetDy(),((PndSdsHit*)fHitArray->At(hitId))->GetDz());
 			  }
 			  else if (detId==kMVDHitsStrip){
-				  hit.setXYZ(((PndMvdHit*)fHitArray2->At(hitId))->GetPosition().X(),((PndMvdHit*)fHitArray2->At(hitId))->GetPosition().Y(),((PndMvdHit*)fHitArray2->At(hitId))->GetPosition().Z());
-				  hit.setDXYZ(((PndMvdHit*)fHitArray2->At(hitId))->GetDx(),((PndMvdHit*)fHitArray2->At(hitId))->GetDy(),((PndMvdHit*)fHitArray2->At(hitId))->GetDz());
+				  hit.setXYZ(((PndSdsHit*)fHitArray2->At(hitId))->GetPosition().X(),((PndSdsHit*)fHitArray2->At(hitId))->GetPosition().Y(),((PndSdsHit*)fHitArray2->At(hitId))->GetPosition().Z());
+				  hit.setDXYZ(((PndSdsHit*)fHitArray2->At(hitId))->GetDx(),((PndSdsHit*)fHitArray2->At(hitId))->GetDy(),((PndSdsHit*)fHitArray2->At(hitId))->GetDz());
 			  }
 			  else if (detId==0){
 				  hit.setXYZ(0,0,0);

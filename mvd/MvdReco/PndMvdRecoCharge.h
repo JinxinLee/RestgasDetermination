@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <cmath>
-#include "PndMvdDigi.h"
+#include "PndSdsDigi.h"
 
 class PndMvdRecoCharge				//calculates the charge of a digipixel for the given tot
 {
@@ -12,7 +12,7 @@ public:
 	PndMvdRecoCharge();
 	PndMvdRecoCharge(Double_t tr, Double_t a, Double_t threshold);
 	//~PndMvdPixelCharge();
-	Double_t GetCharge(PndMvdDigi &digi);
+	Double_t GetCharge(PndSdsDigi &digi);
 	Double_t GetCharge(Double_t tot);
 
 private:

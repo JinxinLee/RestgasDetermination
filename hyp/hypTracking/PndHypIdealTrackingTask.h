@@ -7,7 +7,7 @@
 /** PndMvdIdealTrackingTask.h
  *@author R.Kliemt <r.kliemt@physik.tu-dresden.de>
  **
- ** The ideal tracking produces tracks of type PndMvdHit by using MC information
+ ** The ideal tracking produces tracks of type PndSdsHit by using MC information
  ** directly, but with the correct data interface.
  **/
 

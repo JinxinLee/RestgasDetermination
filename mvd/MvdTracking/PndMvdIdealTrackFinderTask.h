@@ -12,10 +12,10 @@
 #include "FairTask.h"
 #include "PndMCTrack.h"
 //#include "PndMvdGeoPar.h"
-#include "PndMvdHit.h"
-#include "PndMvdMCPoint.h"
+#include "PndSdsHit.h"
+#include "PndSdsMCPoint.h"
 #include "PndMvdPixel.h"
-#include "PndMvdCluster.h"
+#include "PndSdsCluster.h"
 #include "PndTrackCand.h"
 //#include "TrackCand.h"
 
@@ -48,9 +48,9 @@ class PndMvdIdealTrackFinderTask : public FairTask
 
  private:
 
-//    std::vector<Int_t> GetHitPerCluster(PndMvdCluster* clusterCand);
+//    std::vector<Int_t> GetHitPerCluster(PndSdsCluster* clusterCand);
    void ClearTrackCandMap();
-   void AddAndExpand(Int_t trackID, Int_t detnum, Int_t iHit,PndMvdHit* theHit);
+   void AddAndExpand(Int_t trackID, Int_t detnum, Int_t iHit,PndSdsHit* theHit);
    Double_t GetTrackDip(PndMCTrack* myTrack);
    Double_t GetTrackCurvature(PndMCTrack* myTrack);
 
@@ -63,7 +63,7 @@ class PndMvdIdealTrackFinderTask : public FairTask
    TString fMcBranch;
    TString fTrackBranch;
 
-    /** Input array of PndMvdDigis **/
+    /** Input array of PndSdsDigis **/
      TClonesArray* fStripHitArray;
      TClonesArray* fPixelHitArray;
      TClonesArray* fStripClusterArray;

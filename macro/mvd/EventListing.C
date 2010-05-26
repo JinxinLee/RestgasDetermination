@@ -24,13 +24,13 @@ void EventListing()
 	
 	t->StartViewer();
 	
-	TClonesArray* MCHits = new TClonesArray("PndMvdMCPoint");
-	TClonesArray* PixDigis = new TClonesArray("PndMvdDigiPixel");
-	TClonesArray* StripDigis = new TClonesArray("PndMvdDigiStrip");
-	TClonesArray* PixReco = new TClonesArray("PndMvdHit");
-	TClonesArray* StripReco = new TClonesArray("PndMvdHit");
-	TClonesArray* PixCluster = new TClonesArray("PndMvdClusterPixel");
-	TClonesArray* StripCluster = new TClonesArray("PndMvdClusterStrip");
+	TClonesArray* MCHits = new TClonesArray("PndSdsMCPoint");
+	TClonesArray* PixDigis = new TClonesArray("PndSdsDigiPixel");
+	TClonesArray* StripDigis = new TClonesArray("PndSdsDigiStrip");
+	TClonesArray* PixReco = new TClonesArray("PndSdsHit");
+	TClonesArray* StripReco = new TClonesArray("PndSdsHit");
+	TClonesArray* PixCluster = new TClonesArray("PndSdsClusterPixel");
+	TClonesArray* StripCluster = new TClonesArray("PndSdsClusterStrip");
 	//TClonesArray* TrackCand = new TClonesArray("TrackCand");
 		
 	t->SetBranchAddress("MVDPoint", &MCHits);
@@ -44,12 +44,12 @@ void EventListing()
 	t->GetEntry(0);
 	
 	for (int i = 0; i < MCHits->GetEntriesFast(); i++){											//get all MC Hits
-		PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(MCHits->At(i));
+		PndSdsMCPoint* myPoint = (PndSdsMCPoint*)(MCHits->At(i));
 		std::cout << "<<<<<<<<<<< MCPoint >>>>>>>>>> " << std::endl;
 		myPoint->Print();																		//write out MC info
 		
 		for (int j = 0; j < PixDigis->GetEntriesFast(); j++){									//get all Digis
-			PndMvdDigiPixel* myPixDigi = (PndMvdDigiPixel*)PixDigis->At(j);
+			PndSdsDigiPixel* myPixDigi = (PndSdsDigiPixel*)PixDigis->At(j);
 			bool dig = false;
 			for (int ind = 0; ind < myPixDigi->GetNIndices(); ind++)							//test if digi belongs to MCHit
 				if (myPixDigi->GetIndex(ind) == i) dig = true;
@@ -57,11 +57,11 @@ void EventListing()
 				std::cout << "PixDigi: ";														//write out DigiInfo
 				myPixDigi->Print();
 				for (int k = 0; k < PixCluster->GetEntriesFast(); k++){							//get all clusters
-					PndMvdClusterPixel* myPixCluster = (PndMvdClusterPixel*)PixCluster->At(k);
+					PndSdsClusterPixel* myPixCluster = (PndSdsClusterPixel*)PixCluster->At(k);
 					if (myPixCluster->DigiBelongsToCluster(j)){									//test if digi belongs to cluster
 						std::cout << "Digi " << j << " belongs to cluster: " << k << std::endl; //write out cluster info
 						for (int l = 0; l < PixReco->GetEntriesFast(); l++){					//get all RecoHits
-							PndMvdHit* myPixHit = (PndMvdHit*)PixReco->At(l);
+							PndSdsHit* myPixHit = (PndSdsHit*)PixReco->At(l);
 							if (myPixHit->GetRefIndex() == k){									//test if RecoHit belongs to cluster
 								std::cout << "PixHit: " << l << std::endl;						//write out RecoHit
 								myPixHit->Print();
@@ -73,7 +73,7 @@ void EventListing()
 		}
 		
 		for (int j = 0; j < StripDigis->GetEntriesFast(); j++){
-			PndMvdDigiStrip* myStripDigi = (PndMvdDigiStrip*)StripDigis->At(j);
+			PndSdsDigiStrip* myStripDigi = (PndSdsDigiStrip*)StripDigis->At(j);
 			dig = false;
 			for (int ind = 0; ind < myStripDigi->GetNIndices(); ind++)
 							if (myStripDigi->GetIndex(ind) == i) dig = true;
@@ -81,11 +81,11 @@ void EventListing()
 				std::cout << "StripDigi: "; // << myStripDigi;
 				myStripDigi->Print();
 				for (int k = 0; k < StripCluster->GetEntriesFast(); k++){
-					PndMvdClusterStrip* myStripCluster = (PndMvdClusterStrip*)StripCluster->At(k);
+					PndSdsClusterStrip* myStripCluster = (PndSdsClusterStrip*)StripCluster->At(k);
 					if (myStripCluster->DigiBelongsToCluster(j)){
 						std::cout << "Digi " << j << " belongs to cluster: " << k << std::endl;
 						for (int l = 0; l < StripReco->GetEntriesFast(); l++){
-							PndMvdHit* myStripHit = (PndMvdHit*)StripReco->At(l);
+							PndSdsHit* myStripHit = (PndSdsHit*)StripReco->At(l);
 							if (myStripHit->GetRefIndex() == k){
 								std::cout << "StripHit: " << l << std::endl;
 								myStripHit->Print();

@@ -25,7 +25,7 @@
 #include <map>
 
 class TClonesArray;
-class PndMvdCluster;
+class PndSdsCluster;
 
 class PndMvdEventAnaTask : public FairTask
 {
@@ -149,7 +149,7 @@ class PndMvdEventAnaTask : public FairTask
 
 
 
-		bool MCHitBelongsToCluster(int HitIndex, PndMvdCluster* cluster, bool pixCluster);
+		bool MCHitBelongsToCluster(int HitIndex, PndSdsCluster* cluster, bool pixCluster);
 		void GetTrackCandsForMCTrack(std::vector<int> pixHitId, std::vector<int> stripHitId,
 									 std::vector<int>& matches, std::vector<int>& result);
 

@@ -34,7 +34,7 @@ for the conformal mapping stuff
   TFile* f = new TFile(inFile.c_str()); // the sim file you want to analyse
   TTree *t=(TTree *) f->Get("cbmsim") ;
  
-  TClonesArray* hit_array=new TClonesArray("PndMvdMCPoint");
+  TClonesArray* hit_array=new TClonesArray("PndSdsMCPoint");
   t->SetBranchAddress("MVDPoint",&hit_array);//Branch names
   
   TClonesArray* radlen_array = new TClonesArray("FairRadLenPoint");
@@ -98,7 +98,7 @@ for the conformal mapping stuff
     
     trackHitMap.clear();
     for (int k = 0; k < hit_array->GetEntriesFast(); k++){
-    	PndMvdMCPoint* myHit = (PndMvdMCPoint*)(hit_array->At(k));
+    	PndSdsMCPoint* myHit = (PndSdsMCPoint*)(hit_array->At(k));
     	trackHitMap[myHit->GetTrackID()]++;
     }
     

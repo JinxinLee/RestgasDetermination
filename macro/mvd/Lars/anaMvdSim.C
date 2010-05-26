@@ -16,7 +16,7 @@
 
   TFile* f = new TFile(inFile.c_str()); // the sim file you want to analyse
   TTree *t=(TTree *) f->Get("cbmsim") ;
-  TClonesArray* hit_array=new TClonesArray("PndMvdMCPoint");
+  TClonesArray* hit_array=new TClonesArray("PndSdsMCPoint");
   t->SetBranchAddress("MVDPoint",&hit_array);//Branch names
 
   TClonesArray* mc_array=new TClonesArray("PndMCTrack");
@@ -39,7 +39,7 @@
     for (Int_t i=0; i<hit_array->GetEntriesFast(); i++)
     {
       if(verbose) cout<<"Point No "<<i<<endl;
-      PndMvdMCPoint *hit=(PndMvdMCPoint*)hit_array->At(i);
+      PndSdsMCPoint *hit=(PndSdsMCPoint*)hit_array->At(i);
       int mcpdg = -1;
 
       //PndMCTrack *mctruth = (PndMCTrack*)mc_array->At(hit->GetTrackID());

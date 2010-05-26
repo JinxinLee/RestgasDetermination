@@ -30,7 +30,7 @@
 	  TVector3 pos (r*TMath::Cos(dPhi*i), r*TMath::Sin(dPhi*i), i+1);
 	  TVector3 dpos (1,1,1);
 	  pos += offset;
-	  PndMvdHit* detHit = new PndMvdHit(0,"",pos,dpos,i,0,0);
+	  PndSdsHit* detHit = new PndSdsHit(0,"",pos,dpos,i,0,0);
 	  std::cout << i << ": " << detHit->GetX() << " " << detHit->GetY() << " " << detHit->GetZ() << std::endl;
 	  	  
 	  hits[i] = detHit;

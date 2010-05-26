@@ -22,7 +22,7 @@
 #include "PndMvdContFact.h"
 #include "PndSdsStripDigiPar.h"
 
-#include "PndMvdDigiStrip.h"
+#include "PndSdsDigiStrip.h"
 #include <vector>
 
 using namespace std;
@@ -78,7 +78,7 @@ InitStatus PndMvdConvertApvTask::Init()
   }
   
   // Create and register output array
-  fStripArray = new TClonesArray("PndMvdDigiStrip");
+  fStripArray = new TClonesArray("PndSdsDigiStrip");
   ioman->Register("MVDStripDigis", "MVD", fStripArray, fPersistance);
   fApvConvert->Init();
   fApvMapper->Init();
@@ -92,26 +92,26 @@ void PndMvdConvertApvTask::Exec(Option_t* opt)
   // Reset output array
 	fStripArray->Delete();
   
-	std::map<TString,Double_t> singleSidedBacksideMap;
-  std::map<TString,std::vector<Int_t> > buffIndex;
+	std::map<Int_t,Double_t> singleSidedBacksideMap;
+  std::map<Int_t,std::vector<Int_t> > buffIndex;
   
   Int_t rw=-1, sw=-1, botfe=-1;
   TString detpath=""; 
-  TString detnameid;
+  Int_t detnameid;
   Int_t stripnum;
   
-	std::vector<PndMvdDigiStrip> strips = fApvConvert->ReadNext();
-	for (std::vector<PndMvdDigiStrip>::iterator strip=strips.begin(); strip!=strips.end(); ++strip)
+	std::vector<PndSdsDigiStrip> strips = fApvConvert->ReadNext();
+	for (std::vector<PndSdsDigiStrip>::iterator strip=strips.begin(); strip!=strips.end(); ++strip)
 	{
     rw=strip->GetFE();
     fApvMapper->DoMapping(rw,sw,detpath);
-    detnameid=fGeoH->GetID(detpath);
+    detnameid=fGeoH->GetShortID(detpath);
     
-    if(fVerbose>1) Info("Exec","Write a Digi from detector %s %s",detpath.Data(),detnameid.Data());
+    if(fVerbose>1) Info("Exec","Write a Digi from detector %s %i",detpath.Data(),detnameid);
     stripnum = fStripArray->GetEntriesFast();
     //cout << "stripnum: " << stripnum << endl;
-		new ((*fStripArray)[stripnum]) PndMvdDigiStrip(strip->GetIndices(), strip->GetDetID(),
-                                                   detnameid, sw, strip->GetChannel(), strip->GetCharge(), strip->GetTimestamp());
+		new ((*fStripArray)[stripnum]) PndSdsDigiStrip(strip->GetIndices(), strip->GetDetID(),
+                                                   detnameid, sw, strip->GetChannel(), strip->GetCharge(),kUnknown ,strip->GetTimestamp());
     // collect information of fake bottom sides if singlesided
 		if (IsSingleSided(detpath))
 	  {    // collect information of fake bottom sides if singlesided
@@ -121,11 +121,11 @@ void PndMvdConvertApvTask::Exec(Option_t* opt)
 	}
   
   // writing the single sided fake backside
-	for (std::map<TString,Double_t>::iterator it=singleSidedBacksideMap.begin();it!=singleSidedBacksideMap.end();++it)
+	for (std::map<Int_t,Double_t>::iterator it=singleSidedBacksideMap.begin();it!=singleSidedBacksideMap.end();++it)
   {
     stripnum = fStripArray->GetEntriesFast();
     botfe=CalcBotFakeFE( fGeoH->GetPath(it->first) );
-    new ((*fStripArray)[stripnum]) PndMvdDigiStrip(buffIndex[it->first], kMVDHitsStrip,it->first, botfe, 0, it->second, 0);
+    new ((*fStripArray)[stripnum]) PndSdsDigiStrip(buffIndex[it->first], kMVDHitsStrip,it->first, botfe, 0, it->second,kUnknown, 0);
   }
   
 }

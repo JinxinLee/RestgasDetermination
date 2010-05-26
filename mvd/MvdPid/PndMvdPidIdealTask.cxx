@@ -25,9 +25,9 @@
 
 
 // PndMvd includes
-#include "PndMvdMCPoint.h"
+#include "PndSdsMCPoint.h"
 #include "PndMvdPidCand.h"
-// #include "PndMvdHit.h"
+// #include "PndSdsHit.h"
 
 #include "MvdPid/PndMvdIdealPidAlgo.h"
 #include "MvdPid/PndMvdSimplePidAlgo.h"
@@ -91,7 +91,7 @@ void PndMvdPidIdealTask::Exec(Option_t* opt)
   std::map<int, PndMvdPidCand*> pidcand;
 
   for(int i=0;i<fPointArray->GetEntriesFast();i++) {
-    PndMvdMCPoint* mvdpoint=(PndMvdMCPoint*) fPointArray->At(i);
+    PndSdsMCPoint* mvdpoint=(PndSdsMCPoint*) fPointArray->At(i);
     int track = mvdpoint->GetTrackID();
     if(!pidcand[track])
       pidcand[track]=new PndMvdPidCand();

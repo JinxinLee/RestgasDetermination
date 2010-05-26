@@ -32,7 +32,8 @@ class PndSdsDigiStrip : public PndSdsDigi
     PndSdsDigiStrip();
 
     PndSdsDigiStrip(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge, fDetectorType mcPointType, Int_t timestamp = -1);
-    PndSdsDigiStrip(Int_t index, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge, fDetectorType mcPointType, Int_t timestamp = -1);     ~PndSdsDigiStrip(){};
+    PndSdsDigiStrip(Int_t index, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge, fDetectorType mcPointType, Int_t timestamp = -1);
+    ~PndSdsDigiStrip(){};
     
     friend std::ostream& operator<< (std::ostream& out, PndSdsDigiStrip& digi){
            out << "PndSds DigiStrip in: " << digi.GetSensorID() << " FE: "

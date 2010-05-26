@@ -1,6 +1,6 @@
 #include "PndMvdDigiEventAna.h"
 
-#include "PndMvdMCPoint.h"
+#include "PndSdsMCPoint.h"
 
 #include "TVector3.h"
 #include "TGeoManager.h"
@@ -23,7 +23,7 @@ PndMvdDigiEventAna::PndMvdDigiEventAna(TString fileName):PndMvdEventAna(fileName
 
 void PndMvdDigiEventAna::InitBranch()
 {
-	fClassName = "PndMvdDigiPixel";
+	fClassName = "PndSdsDigiPixel";
 	fBranchName = "MVDPixelDigis";
 }
 
@@ -39,7 +39,7 @@ void PndMvdDigiEventAna::AnaHitNr(Int_t Nr)
 {
 	fHitArray->Delete();
 	fTree->GetEntry(fActiveEvent);
-	PndMvdDigiPixel *hit = (PndMvdDigiPixel*)fHitArray->At(Nr);
+	PndSdsDigiPixel *hit = (PndSdsDigiPixel*)fHitArray->At(Nr);
 	//if (hit->GetDetName().Contains("119_2")){
 		if (fHistos[hit->GetDetName()] == 0){
 			fHistos[hit->GetDetName()] = new TH2I("HitDistribution",hit->GetDetName().Data(), 400,0,400,101,0,100);

@@ -60,7 +60,7 @@ void ReadHits(){
 
 	TTree *t=(TTree *) f->Get("cbmsim") ;
 	
-	TClonesArray* tr_array=new TClonesArray("PndMvdHit");
+	TClonesArray* tr_array=new TClonesArray("PndSdsHit");
 	t->SetBranchAddress("MVDHitsStrip",&tr_array);//Branch names
 
     	cout << "Events: " << t->GetEntries() << endl;
@@ -76,7 +76,7 @@ void ReadHits(){
 		for (Int_t y = 0 ; y < tr_array->GetEntries() ; y++) // loop on hits
 		  {
 			
-		    PndMvdHit*point = (PndMvdHit*)tr_array->At(y);
+		    PndSdsHit*point = (PndSdsHit*)tr_array->At(y);
 		
 		    name =  fGeoH->GetPath(point->GetDetName());
 

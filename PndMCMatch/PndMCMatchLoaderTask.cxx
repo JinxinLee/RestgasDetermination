@@ -20,11 +20,11 @@
 #include "FairLinkedData.h"
 #include "PndMCTrack.h"
 // PndMvd includes
-#include "PndMvdMCPoint.h"
-#include "PndMvdDigiPixel.h"
-#include "PndMvdDigiStrip.h"
-#include "PndMvdHit.h"
-#include "PndMvdCluster.h"
+#include "PndSdsMCPoint.h"
+#include "PndSdsDigiPixel.h"
+#include "PndSdsDigiStrip.h"
+#include "PndSdsHit.h"
+#include "PndSdsCluster.h"
 #include "PndRiemannTrack.h"
 #include "PndTrackCand.h"
 

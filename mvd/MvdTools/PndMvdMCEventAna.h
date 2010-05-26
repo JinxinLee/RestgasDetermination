@@ -13,7 +13,7 @@
 #define PNDMVDMCEVENTANA_H
 
 #include "PndMvdEventAna.h"
-#include "PndMvdMCPoint.h"
+#include "PndSdsMCPoint.h"
 #include "TTree.h"
 #include "TCanvas.h"
 #include "TH1.h"

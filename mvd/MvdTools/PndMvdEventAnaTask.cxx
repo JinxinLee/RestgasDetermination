@@ -19,11 +19,11 @@
 #include "FairHit.h"
 #include "PndMCTrack.h"
 // PndMvd includes
-#include "PndMvdMCPoint.h"
-#include "PndMvdDigiPixel.h"
-#include "PndMvdDigiStrip.h"
-#include "PndMvdHit.h"
-#include "PndMvdCluster.h"
+#include "PndSdsMCPoint.h"
+#include "PndSdsDigiPixel.h"
+#include "PndSdsDigiStrip.h"
+#include "PndSdsHit.h"
+#include "PndSdsCluster.h"
 #include "GFTrackCand.h"
 #include "PndRiemannTrack.h"
 
@@ -203,7 +203,7 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 			std::cout << "StartVertex: " << startVertex.X() << " " << startVertex.Y() << " " << startVertex.Z() << std::endl;
 		}
 		for (unsigned int p = 0; p < MChits.size(); p++){											//go through all hits in track
-			PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMCHits->At(MChits[p]));
+			PndSdsMCPoint* myPoint = (PndSdsMCPoint*)(fMCHits->At(MChits[p]));
 			if (fPrintMCHit){
 				std::cout << "-------------------------------" << std::endl;
 				myPoint->Print();
@@ -216,7 +216,7 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 
 			for (unsigned int clInd = 0; clInd < pixCluster.size(); clInd++)	{
 
-				PndMvdCluster* myCluster = (PndMvdCluster*)(fPixCluster->At(pixCluster[clInd]));
+				PndSdsCluster* myCluster = (PndSdsCluster*)(fPixCluster->At(pixCluster[clInd]));
 				std::vector<Int_t> digiInd = myCluster->GetClusterList(); //gets the list of pixel Digis belonging to the cluster
 				int recoHit = GetRecoHit(pixCluster[clInd], true);
 				fHDigisPerCluster->Fill(digiInd.size());
@@ -237,7 +237,7 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 			for (unsigned int clInd = 0; clInd < stripCluster.size(); clInd++)	{
 				int recoHit = -1;
 
-				PndMvdCluster* myCluster =	(PndMvdCluster*)(fStripCluster->At(stripCluster[clInd]));
+				PndSdsCluster* myCluster =	(PndSdsCluster*)(fStripCluster->At(stripCluster[clInd]));
 				std::vector<Int_t> digiInd = myCluster->GetClusterList(); //gets the list of pixel Digis belonging to the cluster
 				recoHit = GetRecoHit(stripCluster[clInd], false);
 
@@ -474,7 +474,7 @@ std::vector<int> PndMvdEventAnaTask::GetClusters(int MCHit, bool pixel)
 
 	if (cluster != 0) {
 		for (int clIndex = 0; clIndex < cluster->GetEntriesFast(); clIndex++){		//go through all pixel clusters
-			PndMvdCluster* myCluster = (PndMvdCluster*)(cluster->At(clIndex));
+			PndSdsCluster* myCluster = (PndSdsCluster*)(cluster->At(clIndex));
 			if (MCHitBelongsToCluster(MCHit, myCluster, pixel)){
 				result.push_back(clIndex);
 			}
@@ -495,7 +495,7 @@ int PndMvdEventAnaTask::GetRecoHit(int clIndex, bool pixel) const
 	}
 	if (reco != 0){
 		for (int hitIndex = 0; hitIndex < reco->GetEntriesFast(); hitIndex++){
-			PndMvdHit* myHit = (PndMvdHit*)reco->At(hitIndex);
+			PndSdsHit* myHit = (PndSdsHit*)reco->At(hitIndex);
 			if ((myHit->GetClusterIndex() == clIndex) || myHit->GetBotIndex() == clIndex){ //test if RecoHit belongs to cluster
 				return hitIndex;
 			}
@@ -523,9 +523,9 @@ void PndMvdEventAnaTask::PrintClusterDigiInfo(int clIndex,
 		std::cout << "Hit belongs to cluster " << clIndex << std::endl;
 	if (fPrintPixDigis)	{
 		for (unsigned int s = 0; s < digiInd.size(); s++)		{
-			PndMvdDigi* myDigi = (PndMvdDigi*)(digis->At(digiInd[s]));
-			if (pixel) ((PndMvdDigiPixel*)myDigi)->Print();
-			else ((PndMvdDigiStrip*)myDigi)->Print();
+			PndSdsDigi* myDigi = (PndSdsDigi*)(digis->At(digiInd[s]));
+			if (pixel) ((PndSdsDigiPixel*)myDigi)->Print();
+			else ((PndSdsDigiStrip*)myDigi)->Print();
 		}
 	}
 }
@@ -558,7 +558,7 @@ void PndMvdEventAnaTask::PrintRecoHitInfo(int hitInd, int digiSize, TVector3 MCP
 		hEnergyRes = fHEnergyResStrip;
 	}
 
-	PndMvdHit* myHit = (PndMvdHit*)reco->At(hitInd);
+	PndSdsHit* myHit = (PndSdsHit*)reco->At(hitInd);
 	if (fPrintPixHit)
 	{
 		if (pixel) std::cout << "PixHit: ";
@@ -580,16 +580,16 @@ void PndMvdEventAnaTask::PrintRecoHitInfo(int hitInd, int digiSize, TVector3 MCP
 }
 
 
-bool PndMvdEventAnaTask::MCHitBelongsToCluster(int HitIndex, PndMvdCluster* cluster, bool pixCluster)
+bool PndMvdEventAnaTask::MCHitBelongsToCluster(int HitIndex, PndSdsCluster* cluster, bool pixCluster)
 {
 	bool result = false;
 	std::vector<Int_t> clusterList = cluster->GetClusterList();
 	for (unsigned int i = 0; i < clusterList.size() && result == false; i++){
-		PndMvdDigi* myDigi;
+		PndSdsDigi* myDigi;
 		if (pixCluster)
-			myDigi = (PndMvdDigi*)(fPixDigis->At(clusterList[i]));
+			myDigi = (PndSdsDigi*)(fPixDigis->At(clusterList[i]));
 		else
-			myDigi = (PndMvdDigi*)(fStripDigis->At(clusterList[i]));
+			myDigi = (PndSdsDigi*)(fStripDigis->At(clusterList[i]));
 		for (int j = 0; j < myDigi->GetNIndices(); j++)
 			if (myDigi->GetIndex(j) == HitIndex)
 				result = true;
@@ -641,7 +641,7 @@ std::map<int, std::vector<int> > PndMvdEventAnaTask::AssignHitsToTracks()
 {
 	std::map<int, std::vector<int> > result;
 	for (int i = 0; i < fMCHits->GetEntriesFast(); i++){											//get all MC Hits
-		PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMCHits->At(i));									//sort MCHits with Tracks
+		PndSdsMCPoint* myPoint = (PndSdsMCPoint*)(fMCHits->At(i));									//sort MCHits with Tracks
 		//PndMCTrack* myTrack = (PndMCTrack*)(fMCTracks->At(myPoint->GetTrackID()));
 		result[myPoint->GetTrackID()].push_back(i);
 

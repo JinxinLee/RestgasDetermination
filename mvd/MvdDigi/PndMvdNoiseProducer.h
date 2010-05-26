@@ -66,7 +66,7 @@ class PndMvdNoiseProducer : public FairTask
  private:
   Bool_t fPersistance;
   TString fBranchName;
-  /** In-Output array of PndMvdDigis **/
+  /** In-Output array of PndSdsDigis **/
   TClonesArray* fDigiStripArray;
   TClonesArray* fDigiPixelArray;
 

@@ -1,7 +1,7 @@
 #include "PndRiemannTrackFinder.h"
 #include <iostream>
 #include <math.h>
-#include "PndMvdHit.h"
+#include "PndSdsHit.h"
 
 ClassImp(PndRiemannTrackFinder);
 
@@ -11,7 +11,7 @@ fMinPointDist(1), fUseZeroPos(true), fCurvDiff(0.05), fDipDiff(0.05),fMinNumberO
 	if (fUseZeroPos){
 		TVector3 pos(0.0,0.0,0.0);
 		TVector3 dpos(0.1,0.1,0.1);
-		PndMvdHit* ZeroHit = new PndMvdHit(1, "", pos, dpos, -1, 0, 0,-1); // this is not very nice (one should create a neutral FairHit here
+		PndSdsHit* ZeroHit = new PndSdsHit(1, -1, pos, dpos, -1, 0, 0,-1); // this is not very nice (one should create a neutral FairHit here
 		fHits.push_back(ZeroHit);
 	}
 }
@@ -254,8 +254,8 @@ bool PndRiemannTrackFinder::CheckHitInSameSensor(int hit1, int hit2)
 	if (first->GetDetectorID() != 1 || first->GetDetectorID() != 2)
 		return false;
 
-	if(((PndMvdHit*)first)->GetDetName() == ((PndMvdHit*)second)->GetDetName()){
-		std::cout << hit1 << " " << hit2 <<" in Same Sensor: " << ((PndMvdHit*)first)->GetDetName() << std::endl;
+	if(((PndSdsHit*)first)->GetSensorID() == ((PndSdsHit*)second)->GetSensorID()){
+		std::cout << hit1 << " " << hit2 <<" in Same Sensor: " << ((PndSdsHit*)first)->GetSensorID() << std::endl;
 		return true;
 	}
 	return false;

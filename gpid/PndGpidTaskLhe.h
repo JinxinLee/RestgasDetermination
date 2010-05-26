@@ -33,7 +33,7 @@
 #include "FairTask.h"
 #include "FairRootManager.h"
 #include "PndLhePidTrack.h"
-#include "PndMvdMCPoint.h"
+#include "PndSdsMCPoint.h"
 #include "PndTpcPoint.h"
 #include "PndPidCand.h"
 

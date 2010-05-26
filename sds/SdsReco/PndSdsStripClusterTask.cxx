@@ -187,7 +187,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
   // Setup
   FillClusterFinders();
   
-  std::vector< PndSdsClusterStrip > clusters;
+  std::vector< PndSdsClusterStrip* > clusters;
   std::vector< Int_t > topclusters;// contains index to fClusterArray
   std::vector< Int_t > botclusters;// contains index to fClusterArray
   std::vector< Int_t > oneclustertop;
@@ -204,7 +204,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
   while ( PndSdsStripDigiPar* digipar = (PndSdsStripDigiPar*)parsetiter() )
   { // loop over all parameter sets and their filled finders (representing sensor types)
     SetCurrentCalculators(digipar);
-
+    
     clusters = fCurrentClusterfinder->SearchClusters();
     // fetch ids in 'clusters' to the top and bot side
     topclusters = fCurrentClusterfinder->GetTopClusterIDs();
@@ -224,11 +224,11 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
     // Fill the ClonesArray for output TODO: do this better, don't copy objects around
     // save array size before we fill
     clusterOffset = fClusterArray->GetEntriesFast();
-    for(std::vector< PndSdsClusterStrip >::iterator clit= clusters.begin();
+    for(std::vector< PndSdsClusterStrip* >::iterator clit= clusters.begin();
         clit!=clusters.end(); ++clit)
     {
       clindex = fClusterArray->GetEntriesFast();
-      new((*fClusterArray)[clindex]) PndSdsClusterStrip(*clit);
+      new((*fClusterArray)[clindex]) PndSdsClusterStrip(*(*clit));
     }
     
     //printout for checking
@@ -267,7 +267,8 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
     {
       topIndex= *itTop + clusterOffset; // index in fClusterArray
       Double_t topcharge = 0., meantopstrip=0.,meantoperr=0. ;
-      oneclustertop = (clusters[*itTop]).GetClusterList();
+      PndSdsClusterStrip* aTopCluster=clusters[*itTop];
+      oneclustertop = aTopCluster->GetClusterList();
       if(oneclustertop.size()<1) continue;
       PndSdsDigiStrip* atopDigi = ((PndSdsDigiStrip*)fDigiArray->At(oneclustertop[0]));
       Int_t sensorIDtop = atopDigi->GetSensorID();
@@ -275,7 +276,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
       //if (kFALSE==SelectSensorParams(detName)) continue; // Invalid parameters, skip here. 
       detID = atopDigi->GetDetID();
       
-      CalcMeanCharge(oneclustertop,meantopstrip,meantoperr,topcharge);
+      CalcMeanCharge(aTopCluster,meantopstrip,meantoperr,topcharge);
       
       if(oneclustertop.size()==1 && topcharge < fSingleStripChargeThreshold) { 
         std::cout<<"-W- PndSdsClusterTask::Exec: Single strip charge falls below the threshold of "<<fSingleStripChargeThreshold<<"e- : skipping. "<<endl; 
@@ -285,7 +286,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
         Error("Exec() - Hit combination","Not a sane charge calculated, skip cluster %i", *itTop);
         continue;
       }
-      if(topcharge < 0) { // not a sane strip number
+      if(meantopstrip < 0) { // not a sane strip number
         Error("Exec() - Hit combination","Not a sane mean calculated, skip cluster %i", *itTop);
         continue;
       }
@@ -304,7 +305,8 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
       {
         botIndex = *itBot + clusterOffset; // index in fClusterArray
         Double_t botcharge = 0., meanbotstrip=0., meanboterr=0.;
-        oneclusterbot = (clusters[*itBot]).GetClusterList();
+        PndSdsClusterStrip* aBotCluster = clusters[*itBot];
+        oneclusterbot = aBotCluster->GetClusterList();
         if(oneclusterbot.size()<1)continue;
         PndSdsDigiStrip* abotDigi = ((PndSdsDigiStrip*)fDigiArray->At(oneclusterbot[0]));
         Int_t sensorIDbot = abotDigi->GetSensorID();
@@ -312,7 +314,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
         //go to the next cluster if we didn't hit the same sensor
         if(sensorIDbot != sensorIDtop) continue;
         
-        CalcMeanCharge(oneclusterbot,meanbotstrip,meanboterr,botcharge);
+        CalcMeanCharge(aBotCluster,meanbotstrip,meanboterr,botcharge);
         
         if(oneclusterbot.size() == 1 && botcharge < fSingleStripChargeThreshold) { 
           std::cout<<"-W- PndSdsClusterTask::Exec: Single strip charge falls below the threshold of "<<fSingleStripChargeThreshold<<"e- : skipping. "<<endl; 
@@ -477,39 +479,45 @@ void PndSdsStripClusterTask::Finish()
 }
 
 
-void PndSdsStripClusterTask::CalcMeanCharge(std::vector<Int_t> &onecluster, Double_t &meanstrip, Double_t &meanerr, Double_t &charge)
+void PndSdsStripClusterTask::CalcMeanCharge(PndSdsClusterStrip* onecluster, Double_t &meanstrip, Double_t &meanerr, Double_t &charge)
 {
   
-	//if (fMeanAlgo == 0)
-	//{
-  // Calculate mean position in position channels weighted by the charges
-  Int_t strip;
-  SensorSide side;
-  for (std::vector<Int_t>::iterator itDigi = onecluster.begin();
-       itDigi != onecluster.end(); ++itDigi)
-  { // calculate the mean charge and stripnumber
-    PndSdsDigiStrip* myDigi = (PndSdsDigiStrip*)fDigiArray->At(*itDigi);
-    fCurrentStripCalcTop->CalcFeChToStrip(myDigi->GetFE(), myDigi->GetChannel(), strip, side);
-    charge += fCurrentChargeConverter->DigiValueToCharge(*myDigi);
-    meanstrip += fCurrentChargeConverter->DigiValueToCharge(*myDigi) * strip;
-    meanerr += fCurrentChargeConverter->DigiValueToCharge(*myDigi)*fCurrentChargeConverter->DigiValueToCharge(*myDigi);
-  }
-  meanstrip = meanstrip/charge;
-  // this error treatment is: dx = dpitch * sqrt(weigthsquares)
-  meanerr = sqrt(meanerr/(charge*charge));
-  if(side==kTOP){
-    meanerr = meanerr * (fCurrentDigiPar->GetTopPitch()/sqrt(12.));
-  }else{
-    meanerr = meanerr * (fCurrentDigiPar->GetBotPitch()/sqrt(12.));
-  }
-	//} else {
-	//	//TODO: Apply other clusterfinder mean & error algorithms
-	//	if(fVerbose>1)std::cout<<"-W- PndSdsStripClusterTask::CalcMeanCharge: Using a preliminary Chargeweighting, please set fMeanAlgo = 0 ."<<std::endl;
-	//	fChargeAlgos->center_of_gravity(onecluster);
-	//}
-  
-  
-  
+	if (fMeanAlgo == 0)
+	{
+    // Calculate mean position in position channels weighted by the charges
+    Int_t strip;
+    SensorSide side;
+    std::vector<Int_t> oneclusterlist = onecluster->GetClusterList();
+    for (std::vector<Int_t>::iterator itDigi = oneclusterlist.begin();
+         itDigi != oneclusterlist.end(); ++itDigi)
+    { // calculate the mean charge and stripnumber
+      PndSdsDigiStrip* myDigi = (PndSdsDigiStrip*)fDigiArray->At(*itDigi);
+      fCurrentStripCalcTop->CalcFeChToStrip(myDigi->GetFE(), myDigi->GetChannel(), strip, side);
+      charge += fCurrentChargeConverter->DigiValueToCharge(*myDigi);
+      meanstrip += fCurrentChargeConverter->DigiValueToCharge(*myDigi) * strip;
+      meanerr += fCurrentChargeConverter->DigiValueToCharge(*myDigi)*fCurrentChargeConverter->DigiValueToCharge(*myDigi);
+    }
+    meanstrip = meanstrip/charge;
+    // this error treatment is: dx = dpitch * sqrt(weigthsquares)
+    meanerr = sqrt(meanerr/(charge*charge));
+    if(side==kTOP){
+      meanerr = meanerr * (fCurrentDigiPar->GetTopPitch()/sqrt(12.));
+    }else{
+      meanerr = meanerr * (fCurrentDigiPar->GetBotPitch()/sqrt(12.));
+    }
+    return;
+	} else {
+    //	//TODO: Apply other clusterfinder mean & error algorithms
+		if(fVerbose>1)std::cout<<"-W- PndSdsStripClusterTask::CalcMeanCharge: Using a preliminary Chargeweighting, please set fMeanAlgo = 0 ."<<std::endl;
+    if(onecluster->GetSensorSide()==kTOP) fCurrentChargeAlgos->SetCalcStrip(fCurrentStripCalcTop);
+    else fCurrentChargeAlgos->SetCalcStrip(fCurrentStripCalcBot);
+    fCurrentChargeAlgos->SetChargeConverter(fCurrentChargeConverter);
+    std::pair<Double_t,Double_t> result = fCurrentChargeAlgos->center_of_gravity(onecluster);
+    meanstrip=result.first;
+    meanerr=result.second;
+    return;
+	}
+  return;
   
 }
 

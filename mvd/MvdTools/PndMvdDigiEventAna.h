@@ -13,8 +13,8 @@
 #define PNDMVDDIGIEVENTANA_H
 
 #include "PndMvdEventAna.h"
-#include "PndMvdMCPoint.h"
-#include "PndMvdDigiPixel.h"
+#include "PndSdsMCPoint.h"
+#include "PndSdsDigiPixel.h"
 #include "TTree.h"
 #include "TCanvas.h"
 #include "TH1.h"
@@ -42,7 +42,7 @@ public:
 
 protected:
 	std::map<TString, std::vector<Int_t>* > fFeHits;
-	std::map<TString, std::vector<PndMvdDigiPixel> > fDigiPixelArray;
+	std::map<TString, std::vector<PndSdsDigiPixel> > fDigiPixelArray;
 
 ClassDef(PndMvdDigiEventAna,2);
 

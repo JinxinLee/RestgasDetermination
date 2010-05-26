@@ -18,7 +18,7 @@ de/dx from mvd and tpc of two particle types
 #include "TClonesArray.h"
 #include "PndEmcDigi.h"
 #include "PndTofPoint.h"
-#include "PndMvdMCPoint.h"
+#include "PndSdsMCPoint.h"
 #include "PndTpcPoint.h"
 #include "PndTofHit.h"
 #include "PndEmcCluster.h"
@@ -64,7 +64,7 @@ void ana()
  TClonesArray *ArrTpc = new TClonesArray("PndTpcPoint");
  tsim->SetBranchAddress("PndTpcPoint",&ArrTpc);
 
- TClonesArray *ArrMvd = new TClonesArray("PndMvdMCPoint");
+ TClonesArray *ArrMvd = new TClonesArray("PndSdsMCPoint");
  tsim->SetBranchAddress("MVDPoint",&ArrMvd);
 
  TClonesArray *ArrTofHit = new TClonesArray("PndTofHit");
@@ -129,7 +129,7 @@ cout<<" "<<ArrMCTrack->GetEntriesFast()
      Double_t dx_mvd=0;
      for (Int_t j = 0; j < ArrMvd->GetEntriesFast(); j++ )
      {
-       PndMvdMCPoint *mvd = (PndMvdMCPoint *) ArrTpc->At(j);
+       PndSdsMCPoint *mvd = (PndSdsMCPoint *) ArrTpc->At(j);
        if(mvd == 0)continue;
        Int_t trkID = mvd->GetTrackID();
        CbmMCTrack *mctrack_g = (CbmMCTrack *) ArrMCTrack->At(trkID);
@@ -186,7 +186,7 @@ pvsmvdDEdx0->Fill(de_mvd/dx_mvd*1000000);
  TClonesArray *ArrTpc1 = new TClonesArray("PndTpcPoint");
  tsim1->SetBranchAddress("PndTpcPoint",&ArrTpc1);
 
- TClonesArray *ArrMvd1 = new TClonesArray("PndMvdMCPoint");
+ TClonesArray *ArrMvd1 = new TClonesArray("PndSdsMCPoint");
  tsim1->SetBranchAddress("MVDPoint",&ArrMvd1);
 
  TClonesArray *ArrTofHit1 = new TClonesArray("PndTofHit");
@@ -231,7 +231,7 @@ pvsmvdDEdx0->Fill(de_mvd/dx_mvd*1000000);
      Double_t dx_mvd=0;
      for (Int_t j = 0; j < ArrMvd1->GetEntriesFast(); j++ )
      {
-       PndMvdMCPoint *mvd = (PndMvdMCPoint *) ArrMvd1->At(j);
+       PndSdsMCPoint *mvd = (PndSdsMCPoint *) ArrMvd1->At(j);
        if(mvd == 0)continue;
        Int_t trkID = mvd->GetTrackID();
        CbmMCTrack *mctrack_g = (CbmMCTrack *) ArrMCTrack1->At(trkID);

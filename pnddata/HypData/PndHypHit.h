@@ -4,7 +4,7 @@
 // -----            modified for hyp purpose by A.Sanchez
 // -------------------------------------------------------------------------
 
-/** PndMvdHit.h
+/** PndSdsHit.h
  *@author T.Stockmanns <t.stockmanns@fz-juelich.de>
  
  **

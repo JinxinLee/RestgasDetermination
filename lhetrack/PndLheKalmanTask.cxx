@@ -33,7 +33,7 @@
 //#include "TDatabasePDG.h"
 
 
-#include "PndMvdRecoHit.h"
+#include "PndSdsRecoHit.h"
 #include "PndGemRecoHit.h"
 #include "PndTpcSPHit.h"
 #include "PndSttRecoHit.h"
@@ -105,7 +105,7 @@ PndLheKalmanTask::Init()
     } 
   else
     {
-      fTheRecoHitFactory->addProducer(kMVDHitsStrip,new GFRecoHitProducer<PndMvdHit,PndMvdRecoHit>(stripar));
+      fTheRecoHitFactory->addProducer(kMVDHitsStrip,new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(stripar));
     }
   
   TClonesArray* pixelar=(TClonesArray*) ioman->GetObject("MVDHitsPixel");
@@ -115,7 +115,7 @@ PndLheKalmanTask::Init()
     } 
   else 
     { //TODO Convention on detector number needed
-      fTheRecoHitFactory->addProducer(kMVDHitsPixel,new GFRecoHitProducer<PndMvdHit,PndMvdRecoHit>(pixelar));
+      fTheRecoHitFactory->addProducer(kMVDHitsPixel,new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(pixelar));
     }
   
   TClonesArray* ar=(TClonesArray*) ioman->GetObject("PndTpcCluster");

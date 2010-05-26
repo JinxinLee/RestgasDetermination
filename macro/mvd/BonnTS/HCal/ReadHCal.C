@@ -56,7 +56,7 @@ void ReadHCal(){
 
   TTree *t=(TTree *) f->Get("cbmsim") ;
 	
-  TClonesArray* mc_array=new TClonesArray("PndMvdMCPoint");
+  TClonesArray* mc_array=new TClonesArray("PndSdsMCPoint");
   t->SetBranchAddress("MVDPoint",&mc_array);//Branch names
 
   TClonesArray* tr_array=new TClonesArray("PndMCTrack");
@@ -87,7 +87,7 @@ void ReadHCal(){
       for (Int_t y = 0 ; y < mc_array->GetEntries() ; y++) // loop on hits
 	{
 			
-	  PndMvdMCPoint *point = (PndMvdMCPoint*)mc_array->At(y);
+	  PndSdsMCPoint *point = (PndSdsMCPoint*)mc_array->At(y);
 
 	  PndMCTrack *track = (PndMCTrack*)tr_array->At(point->GetTrackID());
 		

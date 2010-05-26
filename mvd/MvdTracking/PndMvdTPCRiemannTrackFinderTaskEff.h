@@ -2,7 +2,7 @@
 #define PNDMVDTPCRIEMANNTRACKFINDERASKEFF_H_
 
 #include "FairTask.h"
-#include "PndMvdHit.h"
+#include "PndSdsHit.h"
 #include "PndMCTrack.h"
 #include "PndTrackCand.h"
 #include "TString.h"

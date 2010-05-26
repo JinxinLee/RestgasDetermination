@@ -162,14 +162,14 @@ void PndMvdRiemannTrackFinderTaskCutPar::CalcRiemannTracks()
 			  detId=((PndTrackCand*)fTrackCandArray->At(j))->GetSortedHit(i).GetDetId();
 			  hitId=((PndTrackCand*)fTrackCandArray->At(j))->GetSortedHit(i).GetHitId();
 				  if (detId==kMVDHitsPixel){
-					  hit[count].setXYZ(((PndMvdHit*)fHitArray->At(hitId))->GetPosition().X(),((PndMvdHit*)fHitArray->At(hitId))->GetPosition().Y(),((PndMvdHit*)fHitArray->At(hitId))->GetPosition().Z());
-					  hit[count].setDXYZ(((PndMvdHit*)fHitArray->At(hitId))->GetDx(),((PndMvdHit*)fHitArray->At(hitId))->GetDy(),((PndMvdHit*)fHitArray->At(hitId))->GetDz());
+					  hit[count].setXYZ(((PndSdsHit*)fHitArray->At(hitId))->GetPosition().X(),((PndSdsHit*)fHitArray->At(hitId))->GetPosition().Y(),((PndSdsHit*)fHitArray->At(hitId))->GetPosition().Z());
+					  hit[count].setDXYZ(((PndSdsHit*)fHitArray->At(hitId))->GetDx(),((PndSdsHit*)fHitArray->At(hitId))->GetDy(),((PndSdsHit*)fHitArray->At(hitId))->GetDz());
 					  i++;
 					  count++;
 				  }
 				  else if (detId==kMVDHitsStrip){
-					  hit[count].setXYZ(((PndMvdHit*)fHitArray2->At(hitId))->GetPosition().X(),((PndMvdHit*)fHitArray2->At(hitId))->GetPosition().Y(),((PndMvdHit*)fHitArray2->At(hitId))->GetPosition().Z());
-					  hit[count].setDXYZ(((PndMvdHit*)fHitArray2->At(hitId))->GetDx(),((PndMvdHit*)fHitArray2->At(hitId))->GetDy(),((PndMvdHit*)fHitArray2->At(hitId))->GetDz());
+					  hit[count].setXYZ(((PndSdsHit*)fHitArray2->At(hitId))->GetPosition().X(),((PndSdsHit*)fHitArray2->At(hitId))->GetPosition().Y(),((PndSdsHit*)fHitArray2->At(hitId))->GetPosition().Z());
+					  hit[count].setDXYZ(((PndSdsHit*)fHitArray2->At(hitId))->GetDx(),((PndSdsHit*)fHitArray2->At(hitId))->GetDy(),((PndSdsHit*)fHitArray2->At(hitId))->GetDz());
 					  i++;
 					  count++;
 				  }
@@ -207,12 +207,12 @@ void  PndMvdRiemannTrackFinderTaskCutPar::CalcParHists()
 				  detId=((PndTrackCand*)fTrackCandArray->At(i))->GetSortedHit(j).GetDetId();
 				  hitId=((PndTrackCand*)fTrackCandArray->At(i))->GetSortedHit(j).GetHitId();
 				  if (detId==kMVDHitsPixel){
-					  hit0.setXYZ(((PndMvdHit*)fHitArray->At(hitId))->GetPosition().X(),((PndMvdHit*)fHitArray->At(hitId))->GetPosition().Y(),((PndMvdHit*)fHitArray->At(hitId))->GetPosition().Z());
-					  hit0.setDXYZ(((PndMvdHit*)fHitArray->At(hitId))->GetDx(),((PndMvdHit*)fHitArray->At(hitId))->GetDy(),((PndMvdHit*)fHitArray->At(hitId))->GetDz());
+					  hit0.setXYZ(((PndSdsHit*)fHitArray->At(hitId))->GetPosition().X(),((PndSdsHit*)fHitArray->At(hitId))->GetPosition().Y(),((PndSdsHit*)fHitArray->At(hitId))->GetPosition().Z());
+					  hit0.setDXYZ(((PndSdsHit*)fHitArray->At(hitId))->GetDx(),((PndSdsHit*)fHitArray->At(hitId))->GetDy(),((PndSdsHit*)fHitArray->At(hitId))->GetDz());
 				  }
 				  else if (detId==kMVDHitsStrip){
-					  hit0.setXYZ(((PndMvdHit*)fHitArray2->At(hitId))->GetPosition().X(),((PndMvdHit*)fHitArray2->At(hitId))->GetPosition().Y(),((PndMvdHit*)fHitArray2->At(hitId))->GetPosition().Z());
-					  hit0.setDXYZ(((PndMvdHit*)fHitArray2->At(hitId))->GetDx(),((PndMvdHit*)fHitArray2->At(hitId))->GetDy(),((PndMvdHit*)fHitArray2->At(hitId))->GetDz());
+					  hit0.setXYZ(((PndSdsHit*)fHitArray2->At(hitId))->GetPosition().X(),((PndSdsHit*)fHitArray2->At(hitId))->GetPosition().Y(),((PndSdsHit*)fHitArray2->At(hitId))->GetPosition().Z());
+					  hit0.setDXYZ(((PndSdsHit*)fHitArray2->At(hitId))->GetDx(),((PndSdsHit*)fHitArray2->At(hitId))->GetDy(),((PndSdsHit*)fHitArray2->At(hitId))->GetDz());
 				  }
 				  else {std::cout<<"ERROR"<<std::endl; continue;};
 			  }

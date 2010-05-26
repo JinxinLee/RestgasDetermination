@@ -1,7 +1,7 @@
 #include "PndMvdConvertApv.h"
 
 #include "PndMvdApvHit.h"
-#include "PndMvdDigiStrip.h"
+#include "PndSdsDigiStrip.h"
 #include "TString.h"
 #include <fstream>
 #include <vector>
@@ -134,9 +134,9 @@ void PndMvdConvertApv::LoadCalibration(TString CalibFileName, std::vector<Int_t>
 
 // -----   Convert adc to e if calibration was loaded  --------------------------------------------
 
-std::vector<PndMvdDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hitlist)
+std::vector<PndSdsDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hitlist)
 {
-  std::vector<PndMvdDigiStrip> result;
+  std::vector<PndSdsDigiStrip> result;
   for(UInt_t hitnumber=0;hitnumber<hitlist.size();hitnumber++)
   {
     Double_t q=0.;
@@ -194,21 +194,25 @@ std::vector<PndMvdDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hi
     // 	std::cout << "write Digi with "<< detPath.Data()<<" ( "<<fGeoH->GetID(detPath)<<" )"<<std::endl;
     if(fFake)
     {
-      PndMvdDigiStrip DigiHit(hitlist[hitnumber].GetEventID(), 
-                              1,
-                              /*fGeoH->GetID(detPath)*/"", 
-                              hitlist[hitnumber].GetFeID(),
-                              hitlist[hitnumber].GetChannel(), q/*/1000/1000*/,
-                              hitlist[hitnumber].GetTimestamp()
+      PndSdsDigiStrip DigiHit(hitlist[hitnumber].GetEventID(), // index
+                              kMVDHitsStrip,                   // panda detID 
+                              -1,                              // No  SensorID (from geopath) 
+                              hitlist[hitnumber].GetFeID(),    // fe
+                              hitlist[hitnumber].GetChannel(), // chan
+                              q/*/1000/1000*/,                 // charge
+                              kUnknown,                               // mcpoint type
+                              hitlist[hitnumber].GetTimestamp()// timestamp
                               );
+
       result.push_back(DigiHit);
     }else{
-      PndMvdDigiStrip DigiHit(hitlist[hitnumber].GetEventID(), 
+      PndSdsDigiStrip DigiHit(hitlist[hitnumber].GetEventID(), 
+                              kMVDHitsStrip,
                               hitlist[hitnumber].GetModuleID(),
-                              /*fGeoH->GetID(detPath)*/"", 
                               hitlist[hitnumber].GetFeID(),
                               hitlist[hitnumber].GetChannel(),
                               q/*/1000/1000*/,
+                              kUnknown,
                               hitlist[hitnumber].GetTimestamp() 
                               );
       result.push_back(DigiHit);
@@ -226,10 +230,10 @@ long int PndMvdConvertApv::GetNofEvents()
 
 // -----   read the next event from hitfile   --------------------------------------------
 
-std::vector<PndMvdDigiStrip> PndMvdConvertApv::ReadNext()
+std::vector<PndSdsDigiStrip> PndMvdConvertApv::ReadNext()
 {
   //  cout<<"** PndMvdConvertApv::ReadNext() **"<<endl;
-  std::vector<PndMvdDigiStrip> digiList;
+  std::vector<PndSdsDigiStrip> digiList;
   bool work=true;
   while (!fDataFile.eof() && work)  					// read data
   {
@@ -278,12 +282,12 @@ std::vector<PndMvdDigiStrip> PndMvdConvertApv::ReadNext()
 
 // -----   read all events from hitfile   --------------------------------------------
 
-std::vector<PndMvdDigiStrip> PndMvdConvertApv::ReadAll()
+std::vector<PndSdsDigiStrip> PndMvdConvertApv::ReadAll()
 {
-  std::vector<PndMvdDigiStrip> result;
+  std::vector<PndSdsDigiStrip> result;
   while(fEvent!=fNofEvents)
   {
-    std::vector<PndMvdDigiStrip> dummy=ReadNext();
+    std::vector<PndSdsDigiStrip> dummy=ReadNext();
     for(unsigned int i=0;i<dummy.size();++i) result.push_back(dummy[i]);
   }
   return result;
@@ -297,7 +301,7 @@ void PndMvdConvertApv::SetFakePair(Int_t TopModuleID, Int_t BottomModuleID)
   return;
 }
 
-// PndMvdDigiStrip PndMvdConvertApv::DigiHit(hitlist [])
+// PndSdsDigiStrip PndMvdConvertApv::DigiHit(hitlist [])
 // {
 // }
 

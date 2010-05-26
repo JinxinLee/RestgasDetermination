@@ -19,8 +19,8 @@ gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 	
 	t->StartViewer();
 	
-	TClonesArray* PixReco = new TClonesArray("PndMvdHit");
-	TClonesArray* StripReco = new TClonesArray("PndMvdHit");
+	TClonesArray* PixReco = new TClonesArray("PndSdsHit");
+	TClonesArray* StripReco = new TClonesArray("PndSdsHit");
 	
 	t->SetBranchAddress("MVDHitsPixel", &PixReco);
 	t->SetBranchAddress("MVDHitsStrip", &StripReco);
@@ -29,7 +29,7 @@ gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
 	for (int l = 0; l < PixReco->GetEntriesFast(); l++)
 	{
-		PndMvdHit* myPixHit = (PndMvdHit*)PixReco->At(l);
+		PndSdsHit* myPixHit = (PndSdsHit*)PixReco->At(l);
 		TVector3 hit;
 		myPixHit->Position(hit);
 		h2.Fill(hit.Theta(), hit.Phi());
@@ -41,7 +41,7 @@ gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
 	for (int l = 0; l < StripReco->GetEntriesFast(); l++)
 	{
-		PndMvdHit* myStripHit = (PndMvdHit*)StripReco->At(l);
+		PndSdsHit* myStripHit = (PndSdsHit*)StripReco->At(l);
 		TVector3 striphit;
 		myStripHit->Position(striphit);
 		h2.Fill(striphit.Theta(), striphit.Phi());

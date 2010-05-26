@@ -1,7 +1,7 @@
 #include "TMath.h"
 #include "TRandom3.h"
-#include "MvdPid/PndMvdAdvancedPidAlgo.h"
-#include "MvdData/PndMvdPidCand.h"
+#include "PndMvdAdvancedPidAlgo.h"
+#include "PndMvdPidCand.h"
 
 //test
 

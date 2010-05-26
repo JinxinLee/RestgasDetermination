@@ -35,7 +35,7 @@
 //#include "TDatabasePDG.h"
 
 
-#include "PndMvdRecoHit.h"
+#include "PndSdsRecoHit.h"
 #include "PndGemRecoHit.h"
 #include "PndTpcSPHit.h"
 #include "PndSttRecoHit.h"
@@ -90,14 +90,14 @@ Bool_t PndRecoKalmanFit::Init()
   TClonesArray* stripar=(TClonesArray*) ioman->GetObject("MVDHitsStrip");
   if(stripar!=0)
     {
-      fTheRecoHitFactory->addProducer(kMVDHitsStrip,new GFRecoHitProducer<PndMvdHit,PndMvdRecoHit>(stripar));
+      fTheRecoHitFactory->addProducer(kMVDHitsStrip,new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(stripar));
       std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "MVDHitsStrip array  found" << std::endl;
     }
   
   TClonesArray* pixelar=(TClonesArray*) ioman->GetObject("MVDHitsPixel");
   if(pixelar!=0)
     { 
-      fTheRecoHitFactory->addProducer(kMVDHitsPixel,new GFRecoHitProducer<PndMvdHit,PndMvdRecoHit>(pixelar));
+      fTheRecoHitFactory->addProducer(kMVDHitsPixel,new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(pixelar));
       std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "MVDHitsPixel array  found" << std::endl;
     }
   

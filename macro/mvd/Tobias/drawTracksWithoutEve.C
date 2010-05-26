@@ -2,7 +2,7 @@
 void drawTracks(int eventNr, TTree* t, int track = -1)
 {
 	TClonesArray* tracks = new TClonesArray("TGeoTrack");
-	TClonesArray* hits = new TClonesArray("PndMvdMCPoint");
+	TClonesArray* hits = new TClonesArray("PndSdsMCPoint");
 	t->SetBranchAddress("MVDPoint",&hits);
 	t->SetBranchAddress("GeoTracks", &tracks);
 	
@@ -10,7 +10,7 @@ void drawTracks(int eventNr, TTree* t, int track = -1)
 	map<int,int> trackIDCount;
 	
 	for (int i = 0; i < hits->GetEntriesFast(); i++){
-		PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(hits->At(i));
+		PndSdsMCPoint* myPoint = (PndSdsMCPoint*)(hits->At(i));
 		trackIDCount[myPoint->GetTrackID()]++;
 		//std::cout << "Point: " <<  << " " << myPoint->GetTrackID() << std::endl;
 		myPoint->Print();

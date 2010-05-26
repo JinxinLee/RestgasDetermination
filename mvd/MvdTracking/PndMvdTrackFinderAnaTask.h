@@ -2,7 +2,7 @@
 #define PNDMVDTRACKFINDERANATASK_H_
 
 #include "FairTask.h"
-#include "PndMvdHit.h"
+#include "PndSdsHit.h"
 
 #include "TString.h"
 

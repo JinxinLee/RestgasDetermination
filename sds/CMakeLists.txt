@@ -136,7 +136,7 @@ set_target_properties(SdsReco PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 ########################### create libMvdTrk ##################################
 #set(MVDTRK_SRCS
-#MvdData/PndMvdRecoHit.cxx
+#MvdData/PndSdsRecoHit.cxx
 
 #MvdPid/PndMvdPidIdealTask.cxx
 #MvdPid/PndMvdIdealPidAlgo.cxx

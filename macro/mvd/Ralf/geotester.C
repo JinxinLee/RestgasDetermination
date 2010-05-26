@@ -1,23 +1,8 @@
 {
 
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libField");
-  gSystem->Load("libGen");
-  gSystem->Load("libPassive");
-  gSystem->Load("libPndData");
-//  gSystem->Load("libStt1"); 
-////  gSystem->Load("libStt2");
-//  gSystem->Load("libMuo");
-//  gSystem->Load("libEmc");
-  gSystem->Load("libMvd");
-//  gSystem->Load("libDrc");
-
-  TFile* file = new TFile("../../../geometry/MVD_v1.0.root");
+  TFile* file = new TFile("../../../geometry/MVD_v1.0_woPassiveTraps.root");
 
  //A
 //   TGeoManager *geoMan = (TGeoManager*) file->Get("CADtoROOT");

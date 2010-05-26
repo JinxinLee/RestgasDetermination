@@ -80,7 +80,7 @@
     // ----- STRIP DIGIS -----
     for (Int_t i=0; i<digiStrip_array->GetEntriesFast(); i++)
     {
-      PndMvdDigiStrip *stripdigi = digiStrip_array->At(i);
+      PndSdsDigiStrip *stripdigi = digiStrip_array->At(i);
       fe = stripdigi->GetFE();
       col = stripdigi->GetChannel();
       int strip = fe * nrFeChannels + col;

@@ -1,5 +1,5 @@
-#include "MvdPid/PndMvdIdealPidAlgo.h"
-#include "MvdData/PndMvdPidCand.h"
+#include "PndMvdIdealPidAlgo.h"
+#include "PndMvdPidCand.h"
 //public
 
 void PndMvdIdealPidAlgo::CalcLikelihood(PndMvdPidCand* cand) {

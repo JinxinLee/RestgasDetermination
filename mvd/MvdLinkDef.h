@@ -8,7 +8,7 @@
 
 
 //data
-// #pragma link C++ class PndMvdMCPoint+;
+// #pragma link C++ class PndSdsMCPoint+;
 // #pragma link C++ class PndMvdDigi+;
 // #pragma link C++ class PndMvdDigiPixel+;
 // #pragma link C++ class PndMvdPixel+;

@@ -7,7 +7,7 @@
 /** PndMvdIdealRecoTask.h
  *@author R.Kliemt <r.kliemt@physik.tu-dresden.de>
  **
- ** The ideal tracking produces tracks of type PndMvdHit by using MC information
+ ** The ideal tracking produces tracks of type PndSdsHit by using MC information
  ** directly, but with the correct data interface.
  **/
 
@@ -25,7 +25,7 @@
 #include "FairTask.h"
 
 // PndMvd includes
-#include "PndMvdMCPoint.h"
+#include "PndSdsMCPoint.h"
 #include "PndGeoHandling.h"
 
 class TClonesArray;
@@ -71,7 +71,7 @@ private:
   Double_t fSigmaX;       // Variance vector of sensor smearing
   Double_t fSigmaY;       // Variance vector of sensor smearing
   Double_t fSigmaZ;       // Variance vector of sensor smearing
-  PndMvdMCPoint* fCurrentPndMvdMCPoint;
+  PndSdsMCPoint* fCurrentPndMvdMCPoint;
   TGeoHMatrix* fCurrentTransMat;
   TMatrixT<Double_t> fHitCovMatrix;
   /** smearing and geometry access **/

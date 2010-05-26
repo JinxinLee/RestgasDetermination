@@ -57,7 +57,7 @@ class PndSdsStripAdvClusterFinder : public PndSdsStripClusterer
 	calculate clusters in the two dimensional way
 	@return vector of clusters
 	*/
-	std::vector< PndSdsClusterStrip > SearchClusters();
+	std::vector< PndSdsClusterStrip* > SearchClusters();
 
 private:
 

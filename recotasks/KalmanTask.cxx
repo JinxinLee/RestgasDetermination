@@ -44,12 +44,12 @@
 #include "TLorentzVector.h"
 #include "GFDetPlane.h"
 
-#include "PndMvdRecoHit.h"
+#include "PndSdsRecoHit.h"
 #include "PndGemRecoHit.h"
 #include "PndDchRecoHit2.h"
 
 #include "PndDchCylinderHit.h"
-#include "PndMvdHit.h"
+#include "PndSdsHit.h"
 #include "PndGemHit.h"
 
 #include "PndDetectorList.h"
@@ -123,7 +123,7 @@ KalmanTask::Init()
    if(mvdHitArray==0){ //TODO Convention on detector number needed
      Error("PndFwdKalmanTask::Init","MVDHit array not found");
    } else {
-     _theRecoHitFactory->addProducer(kMVD,new GFRecoHitProducer<PndMvdHit,PndMvdRecoHit>(mvdHitArray));
+     _theRecoHitFactory->addProducer(kMVD,new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(mvdHitArray));
    }
    
    

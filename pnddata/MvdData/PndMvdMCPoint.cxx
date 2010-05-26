@@ -4,11 +4,11 @@
 
 
 #include <iostream>
-#include "PndMvdMCPoint.h"
+#include "PndSdsMCPoint.h"
 #include "PndDetectorList.h"
 
 // -----   Default constructor   -------------------------------------------
-PndMvdMCPoint::PndMvdMCPoint() : FairMCPoint(),
+PndSdsMCPoint::PndSdsMCPoint() : FairMCPoint(),
 	fXfOut(0.), fYfOut(0.), fZfOut(0.),
 	fPxfOut(0.), fPyfOut(0.), fPzfOut(0)
 {}
@@ -17,7 +17,7 @@ PndMvdMCPoint::PndMvdMCPoint() : FairMCPoint(),
 
 
 // -----   Standard constructor   ------------------------------------------
-PndMvdMCPoint::PndMvdMCPoint(Int_t trackID, Int_t detID, TString detName,
+PndSdsMCPoint::PndSdsMCPoint(Int_t trackID, Int_t detID, TString detName,
 			 TVector3 posIn, TVector3 posOut,
 			 TVector3 momIn, TVector3 momOut,
 			 Double_t tof, Double_t length, Double_t eLoss) 
@@ -39,18 +39,18 @@ PndMvdMCPoint::PndMvdMCPoint(Int_t trackID, Int_t detID, TString detName,
 
 
 // -----   Destructor   ----------------------------------------------------
-PndMvdMCPoint::~PndMvdMCPoint() { }
+PndSdsMCPoint::~PndSdsMCPoint() { }
 // -------------------------------------------------------------------------
 
 
 
 
 // -----   Public method Print   -------------------------------------------
-void PndMvdMCPoint::Print(const Option_t* opt) const {
+void PndSdsMCPoint::Print(const Option_t* opt) const {
 	std::cout << *this;
 }
 // -------------------------------------------------------------------------
 
 
 
-ClassImp(PndMvdMCPoint);
+ClassImp(PndSdsMCPoint);

@@ -1,5 +1,5 @@
 #include "PndMvdMCEventAna.h"
-#include "PndMvdMCPoint.h"
+#include "PndSdsMCPoint.h"
 #include "TVector3.h"
 #include "TH3.h"
 
@@ -15,7 +15,7 @@ PndMvdMCEventAna::PndMvdMCEventAna(TString fileName):PndMvdEventAna(fileName)
 
 void PndMvdMCEventAna::InitBranch()
 {
-  fClassName = "PndMvdMCPoint";
+  fClassName = "PndSdsMCPoint";
   fBranchName = "MVDPoint";
 }
 
@@ -41,7 +41,7 @@ void PndMvdMCEventAna::AnaHitNr(Int_t Nr)
 
   fHitArray->Delete();
   fTree->GetEntry(fActiveEvent);
-  PndMvdMCPoint *hit=(PndMvdMCPoint*)fHitArray->At(Nr);
+  PndSdsMCPoint *hit=(PndSdsMCPoint*)fHitArray->At(Nr);
   if (hit->GetDetName().Contains(fSelection)){
     vecs.SetXYZ(hit->GetX(), hit->GetY(), hit->GetZ());
     fHistos["hisxy"]->Fill(vecs.x(),vecs.y());

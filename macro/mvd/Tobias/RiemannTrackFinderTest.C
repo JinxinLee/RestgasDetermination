@@ -29,7 +29,7 @@
 	  TVector3 pos (r1*TMath::Cos(dPhi1*i)+rand.Gaus(0,dpos[0]), r1*TMath::Sin(dPhi1*i)+rand.Gaus(0,dpos[1]), i+1 + rand.Gaus(0,dpos[2]));
 
 	  pos += offset1;
-	  PndMvdHit* detHit = new PndMvdHit(0,"",pos,dpos,i,0,0);
+	  PndSdsHit* detHit = new PndSdsHit(0,"",pos,dpos,i,0,0);
 	  std::cout << i << ": " << detHit->GetX() << " " << detHit->GetY() << " " << detHit->GetZ() << std::endl;
 	  	  
 	  hits[i] = detHit;
@@ -40,7 +40,7 @@
 	  TVector3 pos (r2*TMath::Cos(dPhi2*j)+rand.Gaus(0,dpos[0]), r2*TMath::Sin(dPhi2*j)+rand.Gaus(0,dpos[1]), j+1 + rand.Gaus(0,dpos[2]));
 
 	  pos += offset2;
-	  PndMvdHit* detHit = new PndMvdHit(0,"",pos,dpos,j,0,0);
+	  PndSdsHit* detHit = new PndSdsHit(0,"",pos,dpos,j,0,0);
 	  std::cout << nHits1 + j << ": " << detHit->GetX() << " " << detHit->GetY() << " " << detHit->GetZ() << std::endl;
 	  	  
 	  hits[nHits1 + j] = detHit;

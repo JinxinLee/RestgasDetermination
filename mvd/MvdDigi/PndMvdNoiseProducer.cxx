@@ -14,8 +14,7 @@
 #include "FairGeoNode.h"
 
 #include "PndMvdNoiseProducer.h"
-#include "PndMvdHitInfo.h"
-#include "PndMvdMCPoint.h"
+#include "PndSdsMCPoint.h"
 #include "PndSdsDigiStrip.h"
 #include "PndSdsDigiPixel.h"
 #include "PndStringSeparator.h"

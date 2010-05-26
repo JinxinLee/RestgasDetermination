@@ -8,7 +8,7 @@
  *@author L.Ackermann <lars.ackermann@physik.tu-dresden.de>, 
  *        R.Kliemt <ralf.kliemt@hiskp.uni-bonn.de>
  **
- ** Converting Task from ascci hit file to clones array of PndMvdDigiStrip
+ ** Converting Task from ascci hit file to clones array of PndSdsDigiStrip
  **/
 
 
@@ -26,7 +26,7 @@
 #include <map>
 
 class TClonesArray;
-class PndMvdDigiStrip;
+class PndSdsDigiStrip;
 
 /**   
  @class PndMvdConvertApvTask : public FairTask

@@ -9,7 +9,7 @@ ${CMAKE_SOURCE_DIR}/parbase
 ${CMAKE_SOURCE_DIR}/base 
 ${CMAKE_SOURCE_DIR}/pndbase 
 ${CMAKE_SOURCE_DIR}/pnddata
-${CMAKE_SOURCE_DIR}/pnddata/MvdData
+${CMAKE_SOURCE_DIR}/pnddata/SdsData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/pndbase/PndStdUtils
 ${CMAKE_SOURCE_DIR}/field 

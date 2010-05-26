@@ -4,7 +4,7 @@
 // -------------------------------------------------------------------------
 
 
-/**  PndMvdMCPoint.h
+/**  PndSdsMCPoint.h
  *@author T.Stockmanns <t.stockmanns@fz-juelich.de>
  *
  * Interception of MC track with a MVD detetcor. Holds in addition
@@ -30,10 +30,10 @@ using namespace std;
 
 
 
-class PndMvdMCPoint : public FairMCPoint
+class PndSdsMCPoint : public FairMCPoint
 {
-  friend std::ostream& operator<< (std::ostream& out, const PndMvdMCPoint& point){
-    out << "-I- PndMvdMCPoint: PndMvd Point for track " << point.GetTrackID()
+  friend std::ostream& operator<< (std::ostream& out, const PndSdsMCPoint& point){
+    out << "-I- PndSdsMCPoint: PndMvd Point for track " << point.GetTrackID()
          << " in detector " << point.GetDetectorID() << " with name "
        << point.GetDetName() << std::endl;
     out << "    Position in  (" << point.GetX() << ", " << point.GetY() << ", " << point.GetZ() << ") cm" << std::endl;
@@ -48,7 +48,7 @@ class PndMvdMCPoint : public FairMCPoint
  public:
 
   /** Default constructor **/
-  PndMvdMCPoint();
+  PndSdsMCPoint();
 
 
   /** Constructor with arguments
@@ -63,18 +63,18 @@ class PndMvdMCPoint : public FairMCPoint
    *@param length        Track length since creation [cm]
    *@param eLoss         Energy deposit [GeV]
    **/
-  PndMvdMCPoint(Int_t trackID, Int_t detID, TString detName,
+  PndSdsMCPoint(Int_t trackID, Int_t detID, TString detName,
   	      TVector3 posIn, TVector3 posOut,
 	      TVector3 momIn, TVector3 momOut,
 	      Double_t tof, Double_t length, Double_t eLoss);
 
 
   /** Copy constructor **/
-  PndMvdMCPoint(const PndMvdMCPoint& point) { *this = point; };
+  PndSdsMCPoint(const PndSdsMCPoint& point) { *this = point; };
 
 
   /** Destructor **/
-  virtual ~PndMvdMCPoint();
+  virtual ~PndSdsMCPoint();
 
 
   /** Accessors **/
@@ -116,18 +116,18 @@ class PndMvdMCPoint : public FairMCPoint
   TString fDetName;
 
 
-  ClassDef(PndMvdMCPoint,3);
+  ClassDef(PndSdsMCPoint,3);
 
 };
 
-inline void PndMvdMCPoint::SetPositionOut(TVector3 pos) {
+inline void PndSdsMCPoint::SetPositionOut(TVector3 pos) {
 	fXfOut = pos.X();
 	fYfOut = pos.Y();
 	fZfOut = pos.Z();
 }
 
 
-inline void PndMvdMCPoint::SetMomentumOut(TVector3 mom) {
+inline void PndSdsMCPoint::SetMomentumOut(TVector3 mom) {
   fPxfOut = mom.Px();
   fPyfOut = mom.Py();
   fPzfOut = mom.Pz();

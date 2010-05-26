@@ -8,8 +8,8 @@
 #include "PndMvdDigiPixelDraw.h"
 
 #include "PndSdsCalcFePixel.h"
-#include "PndMvdHit.h"
-#include "PndMvdCluster.h"
+#include "PndSdsHit.h"
+#include "PndSdsCluster.h"
 
 #include "FairRootManager.h"
 
@@ -47,7 +47,7 @@ void PndMvdDigiPixelDraw::Exec(Option_t* option)
 	Reset();
 	if (fUseCluster == kTRUE){
 		for (int hitNr = 0; hitNr < fRecoHits->GetEntriesFast(); hitNr++){
-			PndMvdHit*		myRecoHit = (PndMvdHit*)fRecoHits->At(hitNr);
+			PndSdsHit*		myRecoHit = (PndSdsHit*)fRecoHits->At(hitNr);
 			TVector3 recoVector;
 			myRecoHit->Position(recoVector);
 			TVector3 recoLocal = fGeoH->MasterToLocalId(recoVector, myRecoHit->GetDetName());
@@ -56,9 +56,9 @@ void PndMvdDigiPixelDraw::Exec(Option_t* option)
 			if (fModules[detName] == 0)
 				fModules[detName] = CreateNewBoxSet(detName);
 
-			PndMvdCluster* myCluster = (PndMvdCluster*)fClusterCands->At(myRecoHit->GetRefIndex());
+			PndSdsCluster* myCluster = (PndSdsCluster*)fClusterCands->At(myRecoHit->GetRefIndex());
 			for (int clusterNr = 0; clusterNr < myCluster->GetClusterSize(); clusterNr++){
-				PndMvdDigiPixel* p = (PndMvdDigiPixel*)fList->At(myCluster->GetDigiIndex(clusterNr));
+				PndSdsDigiPixel* p = (PndSdsDigiPixel*)fList->At(myCluster->GetDigiIndex(clusterNr));
 				col = p->GetPixelColumn();
 				row = p->GetPixelRow();
 				fe  = p->GetFE();
@@ -81,7 +81,7 @@ void PndMvdDigiPixelDraw::Exec(Option_t* option)
 	}
 	else {
 		for (Int_t i=0; i<fList->GetEntriesFast(); ++i) {
-			PndMvdDigiPixel* p = (PndMvdDigiPixel*)fList->At(i);
+			PndSdsDigiPixel* p = (PndSdsDigiPixel*)fList->At(i);
 			TString detName = p->GetDetName();
 
 			if (fModules[detName] == 0)

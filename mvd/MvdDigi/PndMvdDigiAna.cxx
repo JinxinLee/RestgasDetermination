@@ -26,8 +26,8 @@ PndMvdDigiAna::PndMvdDigiAna() :
 	fPixelPos = new TH3F("pPos","pPos",200,-15,15,200,-15,15,200,-20,20);
 	fStripPos = new TH3F("sPos","sPos",128,0,127,16,0,15,200,0,20);
 
-//	fHitArray	= new TClonesArray("PndMvdDigiPixel");
-//	fPixelArray	= new TClonesArray("PndMvdDigiPixel");
+//	fHitArray	= new TClonesArray("PndSdsDigiPixel");
+//	fPixelArray	= new TClonesArray("PndSdsDigiPixel");
 }
 // -------------------------------------------------------------------------
 

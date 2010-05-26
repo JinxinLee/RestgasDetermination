@@ -13,7 +13,7 @@
 #include "TClonesArray.h"
 #include "PndEmcDigi.h"
 #include "PndTofPoint.h"
-#include "PndMvdMCPoint.h"
+#include "PndSdsMCPoint.h"
 #include "PndTpcPoint.h"
 #include "PndTofHit.h"
 #include "PndEmcCluster.h"
@@ -51,7 +51,7 @@ void histFill(TString const inf1, TString const inf2,TH2F &pvss,TH2F &pvslam,
  TClonesArray *ArrTpc1 = new TClonesArray("PndTpcPoint");
  tsim1->SetBranchAddress("PndTpcPoint",&ArrTpc1);
 
- TClonesArray *ArrMvd1 = new TClonesArray("PndMvdMCPoint");
+ TClonesArray *ArrMvd1 = new TClonesArray("PndSdsMCPoint");
  tsim1->SetBranchAddress("MVDPoint",&ArrMvd1);
 
  TClonesArray *ArrTofHit1 = new TClonesArray("PndTofHit");
@@ -102,7 +102,7 @@ cout<<inf1<<inf2<<setw(10)<<ArrMvd1->GetEntriesFast()<<setw(10)<<ArrTpc1->GetEnt
      Double_t dx_mvd=0;
      for (Int_t j = 0; j < ArrMvd1->GetEntriesFast(); j++ )
      {
-       PndMvdMCPoint *mvd = (PndMvdMCPoint *) ArrMvd1->At(j);
+       PndSdsMCPoint *mvd = (PndSdsMCPoint *) ArrMvd1->At(j);
        if(mvd == 0)continue;
        Int_t trkID = mvd->GetTrackID();
        CbmMCTrack *mctrack_g = (CbmMCTrack *) ArrMCTrack1->At(trkID);

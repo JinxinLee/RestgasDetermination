@@ -12,7 +12,7 @@
 #include "PndLhePidGFTrack.h"
 #include "PndTpcPoint.h"
 #include "PndPidCand.h"
-//#include "PndMvdMCPoint.h"
+//#include "PndSdsMCPoint.h"
 
 // ROOT includes
 #include "TTree.h"

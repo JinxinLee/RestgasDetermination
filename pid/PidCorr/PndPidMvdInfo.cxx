@@ -3,7 +3,7 @@
 #include "PndPidCandidate.h"
 #include "PndTrack.h"
 #include "PndTrackID.h"
-#include "PndMvdHit.h"
+#include "PndSdsHit.h"
 
 #include "FairTrackParH.h"
 #include "FairMCApplication.h"
@@ -31,21 +31,21 @@ Bool_t PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
   PndTrackCand trackCand = track->GetTrackCand();
   for (Int_t ii=0; ii<trackCand.GetNHits(); ii++)
     {
-      PndMvdHit *mvdHit = NULL;
+      PndSdsHit *mvdHit = NULL;
       PndTrackCandHit candHit = trackCand.GetSortedHit(ii);
       if ( (candHit.GetDetId()!=kMVDHitsPixel) && (candHit.GetDetId()!=kMVDHitsStrip) ) continue;
       
-      if (candHit.GetDetId()==kMVDHitsPixel) mvdHit = (PndMvdHit*)fMvdHitsPixel->At(candHit.GetHitId());
-      if (candHit.GetDetId()==kMVDHitsStrip) mvdHit = (PndMvdHit*)fMvdHitsStrip->At(candHit.GetHitId());
+      if (candHit.GetDetId()==kMVDHitsPixel) mvdHit = (PndSdsHit*)fMvdHitsPixel->At(candHit.GetHitId());
+      if (candHit.GetDetId()==kMVDHitsStrip) mvdHit = (PndSdsHit*)fMvdHitsStrip->At(candHit.GetHitId());
       TVector3 mvdPos;
       mvdHit->Position(mvdPos);
       mvdCounts++;
 
       PndGeoHandling *geo = new PndGeoHandling();
-      TVector3 SensorDim=geo->GetSensorDimensionsPath(geo->GetPath(mvdHit->GetDetName()));//sensor dimension
+      TVector3 SensorDim=geo->GetSensorDimensionsPath(geo->GetPath(mvdHit->GetSensorID()));//sensor dimension
       SensorThickness = SensorDim.Z();
 
-      TGeoHMatrix *matrix = geo->GetMatrixPath(geo->GetPath(mvdHit->GetDetName()));
+      TGeoHMatrix *matrix = geo->GetMatrixPath(geo->GetPath(mvdHit->GetSensorID()));
       const Double_t *rotM = matrix->GetRotationMatrix();
       TVector3 zaxis(rotM[2], rotM[5], rotM[8]); // Z axis in the detector frame
       TVector3 momentum(0., 0., 0.);
@@ -82,7 +82,7 @@ Bool_t PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
 	  mvdPath += thickness;
 	  fMvdHitCount++;
 	}
-      if (fVerbose>1) std::cout << mvdHit->GetDetName() << "\t" << mvdHit->GetEloss() << "\t" << thickness << std::endl;
+      if (fVerbose>1) std::cout << mvdHit->GetSensorID() << "\t" << mvdHit->GetEloss() << "\t" << thickness << std::endl;
     }
   
   if (mvdPath>0.) pidCand->SetMvdDEDX(mvdELoss/mvdPath);

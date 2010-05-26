@@ -4,7 +4,7 @@
 #include "PndRiemannTrack.h"
 #include "PndRiemannHit.h"
 #include "FairHit.h"
-#include "PndMvdHit.h"
+#include "PndSdsHit.h"
 #include "TClonesArray.h"
 #include "PndTrackCand.h"
 #include "TH2F.h"

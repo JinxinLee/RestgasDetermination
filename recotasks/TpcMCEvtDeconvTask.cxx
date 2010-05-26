@@ -36,8 +36,8 @@
 #include "GFDetPlane.h"
 #include "PndTpcMCTracklet.h"
 #include "TMath.h"
-#include "PndMvdHit.h"
-#include "PndMvdRecoHit.h"
+#include "PndSdsHit.h"
+#include "PndSdsRecoHit.h"
 #include "GFException.h"
 
 // Class Member definitions -----------
@@ -235,7 +235,7 @@ TpcMCEvtDeconvTask::ConnectMVD(GeaneTrackRep* rep){
   if(_mvdArray==NULL) return res;
   int n=_mvdArray->GetEntriesFast();
   for(int i=0;i<n;++i){
-    PndMvdHit* hit=(PndMvdHit*)_mvdArray->At(i);
+    PndSdsHit* hit=(PndSdsHit*)_mvdArray->At(i);
     TVector3 pos=hit->GetPosition();
     
     TVector3 d,dir;
@@ -245,7 +245,7 @@ TpcMCEvtDeconvTask::ConnectMVD(GeaneTrackRep* rep){
     double dx=(pos-d).Mag();
     res.push_back(dx);
     /*
-    PndMvdRecoHit recohit(hit);
+    PndSdsRecoHit recohit(hit);
     recohit.Print();
     // do extrapolation to hit
     int repDim=rep->getDim();

@@ -41,8 +41,8 @@ protected:
   TClonesArray* fPidChargedCand;    //! PndPidCandidate TCA for charged particles
   TClonesArray* fPidNeutralCand;    //! PndPidCandidate TCA for neutral particles
    
-  TClonesArray* fMvdHitsStrip;      //! PndMvdHit TCA for strip
-  TClonesArray* fMvdHitsPixel;      //! PndMvdHit TCA for pixel
+  TClonesArray* fMvdHitsStrip;      //! PndSdsHit TCA for strip
+  TClonesArray* fMvdHitsPixel;      //! PndSdsHit TCA for pixel
   TClonesArray* fTofHit;            //! PndTofHit TCA 
   TClonesArray* fTofPoint;          //! PndTofPoint TCA
   TClonesArray* fEmcCluster;        //! PndEmcCluster TCA 

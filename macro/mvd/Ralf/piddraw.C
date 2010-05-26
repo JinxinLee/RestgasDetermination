@@ -23,7 +23,7 @@
  	//opening tree
   TFile* inFile = new TFile("../data/MvdMC_Pid_10k.root","READ");
   TTree* tree = (TTree *)inFile->Get("cbmsim");
-  TClonesArray* pointlist=new TClonesArray("PndMvdMCPoint");
+  TClonesArray* pointlist=new TClonesArray("PndSdsMCPoint");
   tree->SetBranchAddress("MVDPoint",&pointlist);
   
   //Creating canvas and diagramms
@@ -42,7 +42,7 @@
 		tree->GetEntry(j);
 		for(int i=0;i<pointlist->GetEntriesFast();i++)
 		{
-		  PndMvdMCPoint* point=(PndMvdMCPoint*)pointlist->At(i);
+		  PndSdsMCPoint* point=(PndSdsMCPoint*)pointlist->At(i);
 
 		  vecFront.SetXYZ(point->GetX(),point->GetY(),point->GetZ());
 		  vecBack.SetXYZ(point->GetXOut(),point->GetYOut(),point->GetZOut());

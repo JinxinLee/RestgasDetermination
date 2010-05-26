@@ -18,7 +18,7 @@ void fillTree(TString const inf1, TString const inf2,
   TClonesArray *ArrTpc1 = new TClonesArray("PndTpcPoint");
   tsim1->SetBranchAddress("PndTpcPoint",&ArrTpc1);
   
-  TClonesArray *ArrMvd1 = new TClonesArray("PndMvdMCPoint");
+  TClonesArray *ArrMvd1 = new TClonesArray("PndSdsMCPoint");
   tsim1->SetBranchAddress("MVDPoint",&ArrMvd1);
   
   TClonesArray *ArrTofHit1 = new TClonesArray("PndTofHit");
@@ -72,7 +72,7 @@ void fillTree(TString const inf1, TString const inf2,
     Double_t dx_mvd = 0.0;
     
     for (Int_t j = 0; j < ArrMvd1->GetEntriesFast(); j++ ){
-      PndMvdMCPoint *mvd = (PndMvdMCPoint *) ArrMvd1->At(j);
+      PndSdsMCPoint *mvd = (PndSdsMCPoint *) ArrMvd1->At(j);
     
       if(mvd == 0)continue;
       

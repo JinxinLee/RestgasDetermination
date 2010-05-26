@@ -80,15 +80,14 @@ SdsData/PndSdsPidCand.cxx
 SdsData/PndSdsRadDamHit.cxx
  
 
-MvdData/PndMvdCluster.cxx
-MvdData/PndMvdClusterPixel.cxx
-MvdData/PndMvdClusterStrip.cxx
-MvdData/PndMvdDigi.cxx
-MvdData/PndMvdDigiPixel.cxx
-MvdData/PndMvdDigiStrip.cxx
-MvdData/PndMvdHit.cxx
-MvdData/PndMvdHitInfo.cxx
-MvdData/PndMvdMCPoint.cxx
+#MvdData/PndMvdCluster.cxx
+#MvdData/PndMvdClusterPixel.cxx
+#MvdData/PndMvdClusterStrip.cxx
+#MvdData/PndMvdDigi.cxx
+#MvdData/PndMvdDigiPixel.cxx
+#MvdData/PndMvdDigiStrip.cxx
+#MvdData/PndMvdHit.cxx
+#MvdData/PndMvdMCPoint.cxx
 MvdData/PndMvdPidCand.cxx
 MvdData/PndMvdRadDamHit.cxx
 

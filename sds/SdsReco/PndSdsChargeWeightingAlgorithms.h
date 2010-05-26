@@ -38,7 +38,7 @@ public:
 	  	center_of_gravity(cluster);
   	   @endcode
        */
-  std::pair<double,double> center_of_gravity(const PndSdsCluster& Cluster);
+  std::pair<double,double> center_of_gravity(const PndSdsCluster* Cluster);
 
          /**
 	 @fn std::pair<double,double> head_tail(const StripCluster& Cluster)
@@ -52,7 +52,7 @@ public:
 	  	head_tail(cluster);
   	   @endcode
        */
-	std::pair<double,double> head_tail(const PndSdsCluster& Cluster);
+	std::pair<double,double> head_tail(const PndSdsCluster* Cluster);
 
          /**
 	 @fn std::pair<double,double> eta(const StripCluster& Cluster)
@@ -65,7 +65,7 @@ public:
 	  	eta(cluster);
   	   @endcode
        */
-	std::pair<double,double> eta(const PndSdsCluster& Cluster);
+	std::pair<double,double> eta(const PndSdsCluster* Cluster);
 	         /**
 	 @fn std::pair<double,double> binary(const StripCluster& Cluster)
 
@@ -77,7 +77,7 @@ public:
 	  	binary(cluster);
   	   @endcode
        */
-	std::pair<double,double> binary(const PndSdsCluster& Cluster);
+	std::pair<double,double> binary(const PndSdsCluster* Cluster);
 	/**
 	 @fn std::pair<double,double> auto_select(const StripCluster& Cluster)
 
@@ -89,7 +89,7 @@ public:
 	  	auto_select(cluster);
   	   @endcode
        */
-	std::pair<double,double> auto_select(const PndSdsCluster& Cluster);
+	std::pair<double,double> auto_select(const PndSdsCluster* Cluster);
 
       /**
 	 @fn void MakedNdEta(const StripCluster& Cluster, RunInfo info)
@@ -111,7 +111,7 @@ public:
 
 private:
 
-	Double_t DigiCharge(Int_t digiIndex){return ((PndSdsDigiStrip*)(fDigiArray->At(digiIndex)))->GetCharge(); };
+	Double_t DigiCharge(Int_t digiIndex);
 	Int_t DigiStripno(Int_t digiIndex);
 	double _erfmod(double x, double p0, double p1, double p2, double p3);
 	TClonesArray* fDigiArray;

@@ -33,25 +33,25 @@ void anaclust()
   t->AddFriend("cbmsim",digiFile.c_str()); // the digi file
   t->AddFriend("cbmsim",recoFile.c_str()); // the reco file you want to analyse
 
-  TClonesArray* mc_array=new TClonesArray("PndMvdMCPoint");
+  TClonesArray* mc_array=new TClonesArray("PndSdsMCPoint");
   t->SetBranchAddress("MVDPoint",&mc_array);//Branch names
 
-  TClonesArray* digiPixel_array=new TClonesArray("PndMvdDigiPixel");
+  TClonesArray* digiPixel_array=new TClonesArray("PndSdsDigiPixel");
   t->SetBranchAddress("MVDPixelDigis",&digiPixel_array);//Branch names
 
-  TClonesArray* digiStrip_array=new TClonesArray("PndMvdDigiStrip");
+  TClonesArray* digiStrip_array=new TClonesArray("PndSdsDigiStrip");
   t->SetBranchAddress("MVDStripDigis",&digiStrip_array);//Branch names
 
-  TClonesArray* stripClust_array=new TClonesArray("PndMvdClusterStrip");
+  TClonesArray* stripClust_array=new TClonesArray("PndSdsClusterStrip");
   t->SetBranchAddress("MVDStripClusterCand",&stripClust_array);//Branch names
 
-  TClonesArray* pixelClust_array=new TClonesArray("PndMvdClusterPixel");
+  TClonesArray* pixelClust_array=new TClonesArray("PndSdsClusterPixel");
   t->SetBranchAddress("MVDPixelClusterCand",&pixelClust_array);//Branch names
 
-  TClonesArray* stripHit_array=new TClonesArray("PndMvdHit");
+  TClonesArray* stripHit_array=new TClonesArray("PndSdsHit");
   t->SetBranchAddress("MVDHitsStrip",&stripHit_array);//Branch names
 
-  TClonesArray* pixelHit_array=new TClonesArray("PndMvdHit");
+  TClonesArray* pixelHit_array=new TClonesArray("PndSdsHit");
   t->SetBranchAddress("MVDHitsPixel",&pixelHit_array);//Branch names
 
 
@@ -152,7 +152,7 @@ void anaclust()
 //     std::map<int,std::vector<int> > digirec;
 //     for (int k=0;k<stripClust_array->GetEntriesFast();k++)
 //     {
-//       PndMvdClusterStrip* aclust = (PndMvdClusterStrip*)stripClust_array->At(k);
+//       PndSdsClusterStrip* aclust = (PndSdsClusterStrip*)stripClust_array->At(k);
 //       for(int m=0;m<aclust->GetClusterSize();m++)
 //       {
 //         digirec[aclust->GetDigiIndex(m)].push_back(k);
@@ -172,7 +172,7 @@ void anaclust()
       //hit info
       if(verbose) cout<<"Hit No "<<i;//<<endl;
       if(verbose) cout<< "  |  ";
-      PndMvdHit *hit=(PndMvdHit*)stripHit_array->At(i);
+      PndSdsHit *hit=(PndSdsHit*)stripHit_array->At(i);
       if( detFilter!="" && 
           fGeoH->GetPath(hit->GetDetName()).Contains(detFilter))
          continue;
@@ -189,7 +189,7 @@ void anaclust()
       int botclustid = hit->GetBotIndex();
       if(verbose) cout<<"top/bot cluster index "<< topclustid<<"/"<<botclustid<<" ";
       if(verbose) cout<< "  |  ";
-      PndMvdClusterStrip *clust = (PndMvdClusterStrip*)stripClust_array->At(topclustid);
+      PndSdsClusterStrip *clust = (PndSdsClusterStrip*)stripClust_array->At(topclustid);
       if(verbose) cout<< topclustid<<"  "<<clust<<"  ";
       Int_t clsize = clust->GetClusterSize();
       if(verbose) cout<<clsize <<" ";
@@ -198,7 +198,7 @@ void anaclust()
       int bclsize =-1;
       if(botclustid>=0){
         if(verbose) cout<< " | "<<botclustid <<"   ";
-        PndMvdClusterStrip *botcl = (PndMvdClusterStrip*)stripClust_array->At(botclustid);
+        PndSdsClusterStrip *botcl = (PndSdsClusterStrip*)stripClust_array->At(botclustid);
         bclsize = botcl->GetClusterSize();
         if(verbose) cout<< botcl <<"  "<<bclsize<<"  |  ";
       }
@@ -211,14 +211,14 @@ void anaclust()
       Int_t sid = clust->GetDigiIndex(0);
       if(verbose) cout<< "sid="<<sid<<"  |  ";
       if(sid>digiStrip_array->GetEntriesFast()) cout<<"Exceeding digi array size"<<endl;
-      PndMvdDigiStrip *astripdigi = (PndMvdDigiStrip*)digiStrip_array->At(sid);
+      PndSdsDigiStrip *astripdigi = (PndSdsDigiStrip*)digiStrip_array->At(sid);
       if(0==astripdigi)cout<<"no strip digi found"<<endl;
 
       //point info
       int mcid = astripdigi->GetIndex();
       if(verbose) cout<< "#4#  |  ";
       if(mcid<0) continue;
-      PndMvdMCPoint *point=(PndMvdMCPoint*)mc_array->At(mcid);
+      PndSdsMCPoint *point=(PndSdsMCPoint*)mc_array->At(mcid);
       if(point->GetDetName()!=hit->GetDetName())
       {
         cout<<"-error- Point and hit detector names don't match!"<<endl;
@@ -268,7 +268,7 @@ void anaclust()
     for (Int_t i=0; i<mc_array->GetEntriesFast(); i++)
     {
       if(verbose) cout<<"Point No "<<i<<endl;
-      PndMvdMCPoint *point=(PndMvdMCPoint*)mc_array->At(i);
+      PndSdsMCPoint *point=(PndSdsMCPoint*)mc_array->At(i);
       vecmc=0.5*(point->GetPosition()+point->GetPositionOut());
       hisxymc->Fill(vecmc.x(),vecmc.y());
       hisrzmc->Fill(vecmc.z(),((vecmc.y()>0.)?1.:-1.)*vecmc.Perp());

@@ -96,8 +96,8 @@
     for (Int_t i=0; i<hit_array->GetEntriesFast(); i++)
     {
       if(verbose) cout<<"Point No "<<i<<endl;
-      PndMvdCluster *hit=(PndMvdCluster*)hit_array->At(i);
-      PndMvdMCPoint *point=(PndMvdMCPoint*)mc_array->At(i);
+      PndSdsCluster *hit=(PndSdsCluster*)hit_array->At(i);
+      PndSdsMCPoint *point=(PndSdsMCPoint*)mc_array->At(i);
       int mcpdg = -1;
 
       geoMan->cd(point->GetDetName());

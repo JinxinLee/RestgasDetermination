@@ -19,8 +19,7 @@ ${CMAKE_SOURCE_DIR}/pnddata/GemData
 ${CMAKE_SOURCE_DIR}/gem
 ${CMAKE_SOURCE_DIR}/dch/DchData
 ${CMAKE_SOURCE_DIR}/dch/DchFitting
-${CMAKE_SOURCE_DIR}/pnddata/MvdData 
-${CMAKE_SOURCE_DIR}/mvd/MvdTools
+${CMAKE_SOURCE_DIR}/pnddata/SdsData 
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/tpc 
 ${CMAKE_SOURCE_DIR}/tpc/tpcreco

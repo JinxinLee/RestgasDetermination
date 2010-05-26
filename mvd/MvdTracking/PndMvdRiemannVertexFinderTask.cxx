@@ -19,17 +19,17 @@
 
 
 // PndMvd includes
-#include "PndMvdRecoHit.h"
+#include "PndSdsRecoHit.h"
 // #include "PndMvdTrackCand.h"
-#include "PndMvdHit.h"
-#include "PndMvdMCPoint.h"
-#include "PndMvdCluster.h"
-#include "PndMvdDigi.h"
+#include "PndSdsHit.h"
+#include "PndSdsMCPoint.h"
+#include "PndSdsCluster.h"
+#include "PndSdsDigi.h"
 //#include "PndRiemannTrackFinder.h"
 #include "PndRiemannHit.h"
 #include "PndRiemannTrack.h"
 #include "PndDetectorList.h"
-#include "PndMvdMCPoint.h"
+#include "PndSdsMCPoint.h"
 
 
 PndMvdRiemannVertexFinderTask::PndMvdRiemannVertexFinderTask() : FairTask("MVD Riemann VERTEX Finder")
@@ -124,10 +124,10 @@ InitStatus PndMvdRiemannVertexFinderTask::Init()
     delta = new TH1F("delta","delta",1000,0,10);
     wrongV= new TH1F("wrong","wrong",1000,0,10);
 
-  fVertex = new TClonesArray("PndMvdMCPoint");
+  fVertex = new TClonesArray("PndSdsMCPoint");
   ioman->Register("Vertex", "MVD", fVertex, kTRUE);
 
-  fMCVertex = new TClonesArray("PndMvdMCPoint");
+  fMCVertex = new TClonesArray("PndSdsMCPoint");
   ioman->Register("MCVertex", "MVD", fMCVertex, kTRUE);
 
 //  fRiemannTrackArray = new TClonesArray("PndRiemannTrack");
@@ -200,10 +200,10 @@ void PndMvdRiemannVertexFinderTask::FindVertex(std::vector<int> CheckedCand ,std
 						  if (j>MaxIndex) MaxIndex=j;
 						  av=p1+p2;
 						  av*=0.5;
-							PndMvdMCPoint* Vertex1 = new PndMvdMCPoint(0,0,"",p1,p1,p1,p1,0,0,0);
-							PndMvdMCPoint* Vertex2 = new PndMvdMCPoint(0,0,"",p2,p2,p2,p2,0,0,0);
-							  new((*fVertex)[fVertex->GetEntriesFast()])PndMvdMCPoint(*Vertex1);
-							  new((*fVertex)[fVertex->GetEntriesFast()])PndMvdMCPoint(*Vertex2);
+							PndSdsMCPoint* Vertex1 = new PndSdsMCPoint(0,0,-1,p1,p1,p1,p1,0,0,0);
+							PndSdsMCPoint* Vertex2 = new PndSdsMCPoint(0,0,-1,p2,p2,p2,p2,0,0,0);
+							  new((*fVertex)[fVertex->GetEntriesFast()])PndSdsMCPoint(*Vertex1);
+							  new((*fVertex)[fVertex->GetEntriesFast()])PndSdsMCPoint(*Vertex2);
 
 							  int c1=FoundCandInMCCands(CheckedCand[i]);
 							  int c2=FoundCandInMCCands(CheckedCand[j]);
@@ -262,12 +262,12 @@ void PndMvdRiemannVertexFinderTask::refit(std::vector<int>& CheckedCand)
 		  for(unsigned int j=0;j<Cand->GetNHits();j++){
 			  detId=Cand->GetSortedHit(j).GetDetId();
 			  hitId=Cand->GetSortedHit(j).GetHitId();
-			  PndMvdHit* point = new PndMvdHit();
+			  PndSdsHit* point = new PndSdsHit();
 	//		  std::cout<<"detId=  "<<detId<<"  "<<"hitId= "<<hitId<<std::endl;
 			  if (detId==kMVDHitsPixel)
-				  point=(PndMvdHit*)fHitArray->At(hitId);
+				  point=(PndSdsHit*)fHitArray->At(hitId);
 			  else if (detId==kMVDHitsStrip)
-				  point=(PndMvdHit*)fHitArray2->At(hitId);
+				  point=(PndSdsHit*)fHitArray2->At(hitId);
 			  else point=0;
 				  if (point!=0){
 					  PndRiemannHit hit;
@@ -372,21 +372,21 @@ bool PndMvdRiemannVertexFinderTask::CheckRecoTrack(PndTrackCand *cand,PndMCTrack
 		for(unsigned int i=0;i<cand->GetNHits();i++){
 			detIDi=cand->GetSortedHit(i).GetDetId();
 			hitIDi=cand->GetSortedHit(i).GetHitId();
-			PndMvdHit *pointI;
+			PndSdsHit *pointI;
 			if (detIDi == kMVDHitsPixel)
-				 pointI = (PndMvdHit*)fHitArray->At(hitIDi);
+				 pointI = (PndSdsHit*)fHitArray->At(hitIDi);
 			else if (detIDi == kMVDHitsStrip)
-				 pointI = (PndMvdHit*)fHitArray2->At(hitIDi);
+				 pointI = (PndSdsHit*)fHitArray2->At(hitIDi);
 			else pointI = 0;
 
 				for(unsigned int j=0;j<cand->GetNHits();j++){
 					detIDj=cand->GetSortedHit(j).GetDetId();
 					hitIDj=cand->GetSortedHit(j).GetHitId();
-					PndMvdHit *pointJ;
+					PndSdsHit *pointJ;
 					if (detIDj == kMVDHitsPixel)
-						 pointJ = (PndMvdHit*)fHitArray->At(hitIDj);
+						 pointJ = (PndSdsHit*)fHitArray->At(hitIDj);
 					else if (detIDj == kMVDHitsStrip)
-						 pointJ = (PndMvdHit*)fHitArray2->At(hitIDj);
+						 pointJ = (PndSdsHit*)fHitArray2->At(hitIDj);
 					else pointJ = 0;
 
 					if ((pointI!=0) && (pointJ!=0) && (i!=j)){

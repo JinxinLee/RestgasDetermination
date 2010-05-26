@@ -399,7 +399,7 @@ InitStatus PndLheHitsMaker::Init() {
 
 //_________________________________________________________________
 void PndLheHitsMaker::GetMvdPoints() {
-  // Taking points from PndMvdMCPoint
+  // Taking points from PndSdsMCPoint
   
   if (fVerbose)
     cout << " -I- PndLheHitsMaker::GetMvdPoints(): MVD points entries " << fMvdMCArray->GetEntriesFast() <<endl;

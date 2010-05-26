@@ -24,7 +24,7 @@
 #include "GFTrack.h"
 #include "GFTrackCand.h"
 #include "PndTrackCand.h"
-#include "PndMvdHit.h"
+#include "PndSdsHit.h"
 #include "PndMCTrack.h"
 #include "PndRiemannTrack.h"
 #include "PndDetectorList.h"
@@ -199,21 +199,21 @@ bool PndMvdTPCRiemannTrackFinderTaskEff::CheckRecoTrack(PndTrackCand *cand,PndMC
 		for(unsigned int i=0;i<cand->GetNHits();i++){
 			detIDi=cand->GetSortedHit(i).GetDetId();
 			hitIDi=cand->GetSortedHit(i).GetHitId();
-			PndMvdHit *pointI;
+			PndSdsHit *pointI;
 			if (detIDi ==kMVDHitsPixel )
-				 pointI = (PndMvdHit*)fHitArray->At(hitIDi);
+				 pointI = (PndSdsHit*)fHitArray->At(hitIDi);
 			else if (detIDi ==kMVDHitsStrip )
-				 pointI = (PndMvdHit*)fHitArray2->At(hitIDi);
+				 pointI = (PndSdsHit*)fHitArray2->At(hitIDi);
 			else pointI = 0;
 
 				for(unsigned int j=0;j<cand->GetNHits();j++){
 					detIDj=cand->GetSortedHit(j).GetDetId();
 					hitIDj=cand->GetSortedHit(j).GetHitId();
-					PndMvdHit *pointJ;
+					PndSdsHit *pointJ;
 					if (detIDj ==kMVDHitsPixel )
-						 pointJ = (PndMvdHit*)fHitArray->At(hitIDj);
+						 pointJ = (PndSdsHit*)fHitArray->At(hitIDj);
 					else if (detIDj == kMVDHitsStrip)
-						 pointJ = (PndMvdHit*)fHitArray2->At(hitIDj);
+						 pointJ = (PndSdsHit*)fHitArray2->At(hitIDj);
 					else pointJ = 0;
 
 					if ((pointI!=0) && (pointJ!=0) && (i!=j)){
@@ -352,11 +352,11 @@ void PndMvdTPCRiemannTrackFinderTaskEff::AddGhostTrack(int trackF)
 //			detID=((PndTrackCand*)fTrackCandArray->At(trackF))->GetSortedHit(i).GetDetId();
 //			hitID=((PndTrackCand*)fTrackCandArray->At(trackF))->GetSortedHit(i).GetHitId();
 			((GFTrackCand*)fTrackCandArray->At(trackF))->getHit(i,detID, hitID);
-			PndMvdHit *point;
+			PndSdsHit *point;
 			if (detID == kMVDHitsPixel)
-				 point = (PndMvdHit*)fHitArray->At(hitID);
+				 point = (PndSdsHit*)fHitArray->At(hitID);
 			else if (detID == kMVDHitsStrip)
-				 point = (PndMvdHit*)fHitArray2->At(hitID);
+				 point = (PndSdsHit*)fHitArray2->At(hitID);
 			else point = 0;
 			if (point!=0){
 				PndRiemannHit hit;

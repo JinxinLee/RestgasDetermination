@@ -31,10 +31,10 @@
 #include "GFTrack.h"
 #include "TDatabasePDG.h"
 
-// #include "PndMvdHit.h"
+// #include "PndSdsHit.h"
 #include "FairMCPoint.h"
 
-#include "PndMvdRecoHit.h"
+#include "PndSdsRecoHit.h"
 
 #include "GFRecoHitFactory.h"
 #include "GFKalman.h"
@@ -99,7 +99,7 @@ PndMvdKalmanTask::Init()
     Error("PndMvdKalmanTask::Init","MVDHitsStrip array not found");
   } else {
     fTheRecoHitFactory->addProducer
-      (kMVDHitsStrip,new GFRecoHitProducer<PndMvdHit,PndMvdRecoHit>(stripar));
+      (kMVDHitsStrip,new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(stripar));
   }
 
   TClonesArray* pixelar=(TClonesArray*) ioman->GetObject("MVDHitsPixel");
@@ -107,7 +107,7 @@ PndMvdKalmanTask::Init()
     Error("PndMvdKalmanTask::Init","MVDHitsPixel array not found");
   } else { //TODO Convention on detector number needed
     fTheRecoHitFactory->addProducer
-      (kMVDHitsPixel,new GFRecoHitProducer<PndMvdHit,PndMvdRecoHit>(pixelar));
+      (kMVDHitsPixel,new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(pixelar));
   }
 
 

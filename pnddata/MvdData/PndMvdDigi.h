@@ -41,7 +41,7 @@ class PndMvdDigi : public FairMultiLinkedData
 		PndMvdDigi(std::vector<Int_t> index, Int_t detID, TString detName, Int_t fe, Double_t charge, Double_t tot = -1);
 		PndMvdDigi(Int_t index, Int_t detID, TString detName, Int_t fe, Double_t charge, Double_t tot = -1);
 		/**<constructor
-		* \param index position of PndMvdMCPoint in TClonesArray
+		* \param index position of PndSdsMCPoint in TClonesArray
 		* \param detID detector ID (from/for CbmPoint/Hit)
 		* \param detName geoH->GetID(gGeoManager->GetPath()) information
 		* \param fe front end ID

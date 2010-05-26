@@ -16,19 +16,19 @@
   TClonesArray* mctrack_array=new TClonesArray("PndMCTrack");
   t->SetBranchAddress("MCTrack",&mctrack_array);//Branch names
 
-  TClonesArray* mc_array=new TClonesArray("PndMvdMCPoint");
+  TClonesArray* mc_array=new TClonesArray("PndSdsMCPoint");
   t->SetBranchAddress("MVDPoint",&mc_array);//Branch names
-  TClonesArray* digiPixel_array=new TClonesArray("PndMvdDigiPixel");
+  TClonesArray* digiPixel_array=new TClonesArray("PndSdsDigiPixel");
   t->SetBranchAddress("MVDPixelDigis",&digiPixel_array);//Branch names
-  TClonesArray* digiStrip_array=new TClonesArray("PndMvdDigiStrip");
+  TClonesArray* digiStrip_array=new TClonesArray("PndSdsDigiStrip");
   t->SetBranchAddress("MVDStripDigis",&digiStrip_array);//Branch names
-  TClonesArray* stripClust_array=new TClonesArray("PndMvdCluster");
+  TClonesArray* stripClust_array=new TClonesArray("PndSdsCluster");
   t->SetBranchAddress("MVDStripClusterCand",&stripClust_array);//Branch names
-  TClonesArray* pixelClust_array=new TClonesArray("PndMvdCluster");
+  TClonesArray* pixelClust_array=new TClonesArray("PndSdsCluster");
   t->SetBranchAddress("MVDClusterCand",&pixelClust_array);//Branch names
-  TClonesArray* stripHit_array=new TClonesArray("PndMvdHit");
+  TClonesArray* stripHit_array=new TClonesArray("PndSdsHit");
   t->SetBranchAddress("MVDHitsStrip",&stripHit_array);//Branch names
-  TClonesArray* pixelHit_array=new TClonesArray("PndMvdHit");
+  TClonesArray* pixelHit_array=new TClonesArray("PndSdsHit");
   t->SetBranchAddress("MVDHitsPixel",&pixelHit_array);//Branch names
 
   TClonesArray* track_array=new TClonesArray("PndLhePidTrack");

@@ -8,7 +8,7 @@
 #include "PndMvdRadDamTask.h"
 
 #include "FairRootManager.h"
-#include "PndMvdMCPoint.h"
+#include "PndSdsMCPoint.h"
 #include "PndMCTrack.h"
 #include "PndMvdRadDamHit.h"
 #include "PndStringSeparator.h"
@@ -109,11 +109,11 @@ void PndMvdRadDamTask::Exec(Option_t* opt)
     Fatal("Exec", "No RadDamArray");
   fRadDamHits->Delete();
   
-  PndMvdMCPoint* mcPoint;
+  PndSdsMCPoint* mcPoint;
   PndMCTrack* mcTrack;
   
   for (int i = 0; i < fMCHits->GetEntriesFast(); i++){
-	  mcPoint = (PndMvdMCPoint*)fMCHits->At(i);
+	  mcPoint = (PndSdsMCPoint*)fMCHits->At(i);
 	  mcTrack = (PndMCTrack*)(fMCTracks->At(mcPoint->GetTrackID()));
 	  TVector3 mom;
 	  mcPoint->Momentum(mom);
@@ -124,18 +124,19 @@ void PndMvdRadDamTask::Exec(Option_t* opt)
 		  weight = fWeightListsMap[pid]->GetWeight(Ekin);
 	  }
 	  //std::cout << "WeightCalc: pid: " << pid << " Energy: " << Ekin << " Weight: " << weight << std::endl;
-	  new ((*fRadDamHits)[i]) PndMvdRadDamHit(mcPoint->GetTrackID(), i, mcPoint->GetDetName(), pid, Ekin,
+	  new ((*fRadDamHits)[i]) PndMvdRadDamHit(mcPoint->GetTrackID(), i, mcPoint->GetSensorID(), pid, Ekin,
                                             mcPoint->GetPosition(), mom, weight);
-	  if (fMapDetHistos[mcPoint->GetDetName().Data()] == 0){
-		  PndStringSeparator svec(mcPoint->GetDetName().Data(),"/");
-		  TVector3 sensDim = fGeoH->GetSensorDimensionsId(mcPoint->GetDetName().Data());
-		  fMapDetHistos[mcPoint->GetDetName().Data()] = new TH2D(svec.Replace("/","o").c_str(),
-                                                             fGeoH->GetPath(mcPoint->GetDetName()),
+    TString detname = fGeoH->GetPath(mcPoint->GetSensorID());
+	  if (fMapDetHistos[detname.Data()] == 0){
+		  PndStringSeparator svec(detname.Data(),"/");
+		  TVector3 sensDim = fGeoH->GetSensorDimensionsShortId(mcPoint->GetSensorID());
+		  fMapDetHistos[detname.Data()] = new TH2D(svec.Replace("/","o").c_str(),
+                                                             fGeoH->GetPath(mcPoint->GetSensorID()),
                                                              (Int_t)(2*sensDim.X()*10),-sensDim.X(),sensDim.X(),	// point resolution mm^2
                                                              (Int_t)(2*sensDim.Y()*10),-sensDim.Y(),sensDim.Y());
 	  }
-	  TVector3 localHit = fGeoH->MasterToLocalId(mcPoint->GetPosition(), mcPoint->GetDetName());
-	  (TH2D*)(fMapDetHistos[mcPoint->GetDetName().Data()])->Fill(localHit.X(), localHit.Y(), weight);
+	  TVector3 localHit = fGeoH->MasterToLocalShortId(mcPoint->GetPosition(), mcPoint->GetSensorID());
+	  (TH2D*)(fMapDetHistos[detname.Data()])->Fill(localHit.X(), localHit.Y(), weight);
 	  fRadDamHisto->Fill(weight);
   }
 }

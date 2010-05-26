@@ -3,15 +3,15 @@
 // $Id$
 //
 // Description:
-//      Implementation of class PndMvdRecoHit
-//      see PndMvdRecoHit.h for details
+//      Implementation of class PndSdsRecoHit
+//      see PndSdsRecoHit.h for details
 //
 // Environment:
 //      Software developed for the PANDA Detector at FAIR.
 //
 // Author List:
 //      Sebastian Neubert    TUM            (original author)
-//      Ralf Kliemt           TUD            (application to PndMvd)
+//      Ralf Kliemt           TUD            (application to PndSds)
 //
 //-----------------------------------------------------------
 
@@ -25,36 +25,35 @@
 #include "GeaneTrackRep.h"
 #include "GFDetPlane.h"
 // This Class' Header ------------------
-#include "PndMvdRecoHit.h"
-#include "PndMvdMCPoint.h"
-#include "PndMvdHit.h"
-#include "PndMvdHit.h"
+#include "PndSdsRecoHit.h"
+#include "PndSdsMCPoint.h"
+#include "PndSdsHit.h"
 #include "PndGeoHandling.h"
 #include "TGeoManager.h"
 #include "FairRootManager.h"
 
 // Class Member definitions -----------
 
-ClassImp(PndMvdRecoHit);
+ClassImp(PndSdsRecoHit);
 
 
-PndMvdRecoHit::~PndMvdRecoHit()
+PndSdsRecoHit::~PndSdsRecoHit()
 {
   if(fGeoH!=0)
   delete (fGeoH);
 }
 
-PndMvdRecoHit::PndMvdRecoHit()
+PndSdsRecoHit::PndSdsRecoHit()
   : GFRecoHitIfc<GFPlanarHitPolicy>(fNparHitRep)
 {
   fGeoH = new PndGeoHandling();
 }
 
 
-PndMvdRecoHit::PndMvdRecoHit(PndMvdMCPoint* point)
+PndSdsRecoHit::PndSdsRecoHit(PndSdsMCPoint* point)
   : GFRecoHitIfc<GFPlanarHitPolicy>(fNparHitRep)
 {
-  std::cout<<" -I- PndMvdRecoHit::PndMvdRecoHit(PndMvdMCPoint*) called."<<std::endl;
+  std::cout<<" -I- PndSdsRecoHit::PndSdsRecoHit(PndSdsMCPoint*) called."<<std::endl;
 
   fHitCoord[0][0] =  point->GetX();
   fHitCoord[1][0] =  point->GetY();
@@ -71,14 +70,14 @@ PndMvdRecoHit::PndMvdRecoHit(PndMvdMCPoint* point)
 
 }
 
-PndMvdRecoHit::PndMvdRecoHit(PndMvdHit* hit)
+PndSdsRecoHit::PndSdsRecoHit(PndSdsHit* hit)
   : GFRecoHitIfc<GFPlanarHitPolicy>(fNparHitRep)
 {
 
-//  std::cout<<" -I- PndMvdRecoHit::PndMvdRecoHit(PndMvdHit*) called."<<std::endl;
+//  std::cout<<" -I- PndSdsRecoHit::PndSdsRecoHit(PndSdsHit*) called."<<std::endl;
 //  std::cout<<*hit<<std::endl;
 
-  TString id =  hit->GetDetName();
+  Int_t id =  hit->GetSensorID();
 
 //  FairRootManager* ioman = FairRootManager::Instance();
 //  TString fGeoFile = ioman->GetInFile()->GetName();
@@ -103,7 +102,7 @@ PndMvdRecoHit::PndMvdRecoHit(PndMvdHit* hit)
  // fHitCov[0][0] = errPosLoc.X() * errPosLoc.X();
  // fHitCov[1][1] = errPosLoc.Y() * errPosLoc.Y();
   
-//  std::cout<<" -I- PndMvdRecoHit::PndMvdRecoHit: Wrote a hit with"
+//  std::cout<<" -I- PndSdsRecoHit::PndSdsRecoHit: Wrote a hit with"
 //  <<"\n(x,y) = ("<<localpos.X()<<","<<localpos.Y()<<")."
 //  <<"\n(dx,dy) = ("<<errPosLoc.X()<<","<<errPosLoc.Y()<<"). \t not used: dz="<<errPosLoc.Z()
 //  <<std::endl;
@@ -115,7 +114,7 @@ PndMvdRecoHit::PndMvdRecoHit(PndMvdHit* hit)
 
 
 TMatrixT<double>
-PndMvdRecoHit::getHMatrix(const GFAbsTrackRep* stateVector)
+PndSdsRecoHit::getHMatrix(const GFAbsTrackRep* stateVector)
 {
 
   // !! TODO I copied this from the DemoRecoHit - check validity!!!
@@ -155,7 +154,7 @@ PndMvdRecoHit::getHMatrix(const GFAbsTrackRep* stateVector)
     return HMatrix;
   }
   else {
-    std::cerr << "PndMvdRecoHit can only handle state"
+    std::cerr << "PndSdsRecoHit can only handle state"
               << " vectors of type LSLTrackRep or GeaneTrackRep -> abort"
         << std::endl;
      throw;
@@ -164,7 +163,7 @@ PndMvdRecoHit::getHMatrix(const GFAbsTrackRep* stateVector)
 }
 
 Double_t
-PndMvdRecoHit::residualScalar(GFAbsTrackRep* stateVector,
+PndSdsRecoHit::residualScalar(GFAbsTrackRep* stateVector,
           const TMatrixT<Double_t>& state)
 {
   throw;
