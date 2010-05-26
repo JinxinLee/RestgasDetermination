@@ -155,7 +155,6 @@ void PndGlobalIdealTrackMerger::SetParContainers() {
 }
 // -------------------------------------------------------------------------
 
-
 // -----   Public method Exec   --------------------------------------------
 void PndGlobalIdealTrackMerger::Exec(Option_t* opt) {
   if ( fVerbose > 0 ) 
@@ -237,10 +236,11 @@ void PndGlobalIdealTrackMerger::Exec(Option_t* opt) {
 	TVector3 posSeed = localTrackCand->getPosSeed();
 	TVector3 dirSeed = localTrackCand->getDirSeed();
 	Double_t QoverPs = localTrackCand->getQoverPseed();
-	//	cout << "track " << fDetName[idet].Data() << " mom " << 1./TMath::Abs(QoverPs) << endl;
+	//	cout << "track " << fDetName[idet].Data() << " Q/P = " << TMath::Abs(QoverPs) << endl;
 	Int_t charge = (QoverPs>0?1:-1);
 	dirSeed  = dirSeed.Unit();
-	dirSeed *= 1./TMath::Abs(QoverPs);
+	if ( TMath::Abs(QoverPs) > 10e-12)
+	  dirSeed *= 1./TMath::Abs(QoverPs);
 	if ( globalTrackCand->GetNHits() == 0 )
 	  firstPar = FairTrackParP(posSeed,dirSeed,
 				   TVector3(0.5, 0.5, 0.5),
@@ -249,6 +249,14 @@ void PndGlobalIdealTrackMerger::Exec(Option_t* opt) {
 				   posSeed,
 				   TVector3(1.,0.,0.),
 				   TVector3(0.,1.,0.));
+
+	lastPar = FairTrackParP(posSeed,dirSeed,
+				TVector3(0.5, 0.5, 0.5),
+				0.1*dirSeed,
+				charge,
+				posSeed,
+				TVector3(1.,0.,0.),
+				TVector3(0.,1.,0.));
       }
       else {
 	localTrack     = (PndTrack*    )fTrackArray[idet]->At(fMCDetTracks[itr][idet]);
@@ -269,7 +277,11 @@ void PndGlobalIdealTrackMerger::Exec(Option_t* opt) {
 	cout << nLocH << "(" << fDetName[idet].Data() << ")  + " << flush;
       for ( Int_t ih = 0 ; ih < nLocH ; ih++ ) {
 	candHit = localTrackCand->GetSortedHit(ih);
-	globalTrackCand->AddHit(candHit.GetDetId(),candHit.GetHitId(),candHit.GetRho());
+	Int_t candHitDetId = candHit.GetDetId();
+// 	cout << "hit det id " << candHitDetId << " from " << fDetName[idet].Data() << endl;
+// 	if ( candHitDetId == 10 ) // THIS IF WOULD TO BE USE STTHELIXHITS INSTEAD OF STTHITS,
+// 	  candHitDetId = 11;      // DID NOT THINK YET HOW TO SOLVE IT NICER
+	globalTrackCand->AddHit(candHitDetId,candHit.GetHitId(),candHit.GetRho());
       }
     }
     if ( fVerbose > 1 ) 

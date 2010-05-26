@@ -37,6 +37,7 @@ PndGlobalTrackMergerQA::PndGlobalTrackMergerQA() : FairTask("Global Track Merger
   fMCTrackArray  = NULL;
   fRecoTrackArray = NULL;
   fNofEvents    = 0;
+  fRecoTrackBranchName = "GlobalTrack";
 }
 // -------------------------------------------------------------------------
 
@@ -48,6 +49,7 @@ PndGlobalTrackMergerQA::PndGlobalTrackMergerQA(Int_t iVerbose)
   fMCTrackArray  = NULL;
   fRecoTrackArray = NULL;
   fNofEvents    = 0;
+  fRecoTrackBranchName = "GlobalTrack";
 }
 // -------------------------------------------------------------------------
 
@@ -89,14 +91,14 @@ InitStatus PndGlobalTrackMergerQA::Init() {
   }
 
   // Get Global track Array
-  fRecoTrackArray  = (TClonesArray*) ioman->GetObject("GlobalTrack");
+  fRecoTrackArray  = (TClonesArray*) ioman->GetObject(fRecoTrackBranchName.Data());
   if ( !fRecoTrackArray ) {
-    cout << "-E- " << GetName() << "::Init: No Global PndTrack array!" << endl;
+    cout << "-E- " << GetName() << "::Init: No \"" << fRecoTrackBranchName.Data() << "\" PndTrack array!" << endl;
     return kERROR;
   }
   
 
-  std::cout << "-I- "<< GetName() <<": Intialization successfull" << std::endl;
+  std::cout << "-I- "<< GetName() <<": Initialization successfull" << std::endl;
 
   CreateHistos();
 

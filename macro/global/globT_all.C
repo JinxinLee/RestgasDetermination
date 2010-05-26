@@ -69,6 +69,9 @@ void globT_all() {
   recoKalman->SetTrackOutBranchName("GlobalFitTrack");
   //recoKalman->SetNumIterations(3);
   fRun->AddTask(recoKalman);
+
+  PndGlobalTrackFitQA* trackFitQA = new PndGlobalTrackFitQA(0);
+  fRun->AddTask(trackFitQA);
   // ##################################################################
 
   // -----   Intialise and run   --------------------------------------------

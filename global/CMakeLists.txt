@@ -47,6 +47,7 @@ link_directories( ${LINK_DIRECTORIES})
 set(GLOBAL_SRCS
 PndGlobalIdealTrackMerger.cxx
 PndGlobalTrackMergerQA.cxx
+PndGlobalTrackFitQA.cxx
 #PndGlobalPrepareKalmanTracks.cxx
 #PndGlobalKalmanTask.cxx
 )

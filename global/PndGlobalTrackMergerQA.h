@@ -22,9 +22,6 @@
 #include "FairTask.h"
 #include "PndMCTrack.h"
 
-#include "PndGemHit.h"
-#include "PndGemDigiPar.h"
-
 #include <vector>
 
 class PndGlobalTrackMergerQA : public FairTask
@@ -47,6 +44,7 @@ class PndGlobalTrackMergerQA : public FairTask
   /** Public modifiers **/
   void SetVerbose(const Int_t& verbose) { fVerbose = verbose; };
 
+  void SetRecoTrackBranchName(TString tempStr) { fRecoTrackBranchName=tempStr; };
   
  private:
 
@@ -60,6 +58,8 @@ class PndGlobalTrackMergerQA : public FairTask
   
   TVector3 fTargetPos;
   std::vector<Int_t> fRecoTrackMCMatch;
+
+  TString fRecoTrackBranchName;
 
   Int_t fNofMCAll;
   Int_t fNofMCAcc;

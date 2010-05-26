@@ -12,6 +12,7 @@
 
 #pragma link C++ class PndGlobalIdealTrackMerger+;
 #pragma link C++ class PndGlobalTrackMergerQA+;
+#pragma link C++ class PndGlobalTrackFitQA+;
 /* #pragma link C++ class PndGlobalPrepareKalmanTracks+; */
 /* #pragma link C++ class PndGlobalKalmanTask+; */
 
