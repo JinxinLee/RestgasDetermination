@@ -38,7 +38,7 @@ ${CMAKE_SOURCE_DIR}/pid
 ${CMAKE_SOURCE_DIR}/pid/PidData
 ${CMAKE_SOURCE_DIR}/pid/PidCorr
 ${CMAKE_SOURCE_DIR}/pid/PidClassifier
-
+${CMAKE_SOURCE_DIR}/GenfitTools/recotasks
 ${CMAKE_SOURCE_DIR}/PndTools/MVA
 ${CMAKE_SOURCE_DIR}/PndTools/MVA/KNN
 ${CMAKE_SOURCE_DIR}/PndTools/MVA/LVQ1

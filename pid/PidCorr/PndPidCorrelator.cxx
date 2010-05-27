@@ -46,8 +46,10 @@ PndPidCorrelator::PndPidCorrelator() {
   fTrackID = new TClonesArray("PndTrackID");
   fPidChargedCand = new TClonesArray("PndPidCandidate");
   fPidNeutralCand = new TClonesArray("PndPidCandidate");
+  fMdtTrack = new TClonesArray("PndTrack");
   fDebugMode = kFALSE;
   fGeanePro = kTRUE;
+  fMdtRefit = kFALSE;
   fMvdMode = 0;
   fSttMode = 0;
   fTofMode = 0;
@@ -77,7 +79,10 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title)
   fTrackID = new TClonesArray("PndTrackID");
   fPidChargedCand = new TClonesArray("PndPidCandidate"); 
   fPidNeutralCand = new TClonesArray("PndPidCandidate");
+  fMdtTrack = new TClonesArray("PndTrack");
+  fDebugMode = kFALSE;
   fGeanePro = kTRUE;
+  fMdtRefit = kFALSE;
   fMvdMode = 0;  
   fSttMode = 0;
   fTofMode = 0;
@@ -96,7 +101,7 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title)
   fTrackIDBranch = "";
   sDir = "./";
   sFile = "./pidcorrelator.root";
-  Reset();
+  Reset(); 
 }
 
 //___________________________________________________________
@@ -295,6 +300,14 @@ InitStatus PndPidCorrelator::Init() {
     {      cout << "-I- PndPidCorrelator::Init: Using Geane for Track propagation" << endl;
     }
   
+  if   (fMdtRefit)
+    {
+      fFitter = new PndRecoKalmanFit();
+      fFitter->SetGeane(fGeanePro);
+      fFitter->SetNumIterations(1);
+      if (!fFitter->Init()) return kFATAL;
+    } 
+  
   if (fDebugMode)
     {
       r = TFile::Open(sDir+sFile,"RECREATE");
@@ -373,7 +386,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
     if ( (fSttMode==3) && (fSttHit    ->GetEntriesFast()>0) ) GetSttInfo(track, pidCand);
     if ( (fTofMode==2) && (fTofHit    ->GetEntriesFast()>0) ) GetTofInfo(helix, pidCand);
     if ( (fEmcMode>0)  && (fEmcCluster->GetEntriesFast()>0) ) GetEmcInfo(helix, pidCand);
-    if ( (fMdtMode>0)  && (fMdtHit    ->GetEntriesFast()>0) ) GetMdtInfo(helix, pidCand);  
+    if ( (fMdtMode>0)  && (fMdtHit    ->GetEntriesFast()>0) ) GetMdtInfo(track, pidCand);  
     if ( (fDrcMode>0)  && (fDrcHit    ->GetEntriesFast()>0) ) GetDrcInfo(helix, pidCand);
     if ( (fDskMode>0)  && (fDskParticle->GetEntriesFast()>0) ) GetDskInfo(helix, pidCand); 
     AddChargedCandidate(pidCand);
@@ -613,8 +626,12 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 }
 
 //_________________________________________________________________
-Bool_t PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCand) {
-  //---
+Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
+  //--- 
+  FairTrackParP par = track->GetParamLast();
+  Int_t ierr = 0;
+  FairTrackParH *helix = new FairTrackParH(&par, ierr);
+  
   map<Int_t, Int_t>mapMdtTrk;
   
   if (fMdtMode == 3)
@@ -701,6 +718,23 @@ Bool_t PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCa
       pidCand->SetMuoMomentumIn(mdtMom);
       pidCand->SetMuoModule(mdtMod);
       pidCand->SetMuoNumberOfLayers(mdtLayer);
+    }
+  
+  if (fMdtRefit && (mdtIndex!=-1) )
+    {
+      PndMdtTrk *mdtTrk = (PndMdtTrk*)fMdtTrk->At(mdtIndex); 
+      PndTrack *mdtTrack = new PndTrack(*track);
+      PndTrackCand *oldCand = track->GetTrackCandPtr();
+      PndTrackCand *newCand = mdtTrk->AddTrackCand(oldCand);
+      mdtTrack->SetTrackCand(*newCand);
+      Int_t fCharge= mdtTrack->GetParamFirst().GetQ();
+      Int_t PDGCode = -13*fCharge;
+      
+      PndTrack *fitTrack = new PndTrack();
+      fitTrack = fFitter->Fit(mdtTrack, PDGCode);
+      PndTrack* pndTrack = new PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
+					fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), fitTrack->GetRefIndex(), kLheTrack);
+      AddMdtTrack(pndTrack);
     }
   return kTRUE;
 }
@@ -912,6 +946,11 @@ void PndPidCorrelator::Register() {
     Register("PidChargedCand","Pid", fPidChargedCand, kTRUE); 
   FairRootManager::Instance()->
     Register("PidNeutralCand","Pid", fPidNeutralCand, kTRUE);
+  if (fMdtRefit)
+    {
+      FairRootManager::Instance()->
+	Register("MdtTrack","Pid", fMdtTrack, kTRUE);
+    }
 }
 
 //_________________________________________________________________
@@ -970,5 +1009,13 @@ PndPidCandidate* PndPidCorrelator::AddNeutralCandidate(PndPidCandidate* cand) {
   return new(pidRef[size]) PndPidCandidate(*cand);
 }
 
+//_________________________________________________________________
+PndTrack* PndPidCorrelator::AddMdtTrack(PndTrack* track) {
+  // Creates a new hit in the TClonesArray.
+  
+  TClonesArray& pidRef = *fMdtTrack;
+  Int_t size = pidRef.GetEntriesFast();
+  return new(pidRef[size]) PndTrack(*track);
+}
 
 ClassImp(PndPidCorrelator)

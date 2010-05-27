@@ -24,6 +24,7 @@
 
 #include "PndTrack.h"
 #include "PndGeoHandling.h"
+#include "PndRecoKalmanFit.h"
 #include "PndPidCorrPar.h"
 #include "PndPidCandidate.h"
 #include "PndEmcXClMoments.h"
@@ -40,7 +41,8 @@ protected:
   TClonesArray* fTrackID;           //! PndTrackID TCA
   TClonesArray* fPidChargedCand;    //! PndPidCandidate TCA for charged particles
   TClonesArray* fPidNeutralCand;    //! PndPidCandidate TCA for neutral particles
-   
+  TClonesArray* fMdtTrack;          //! PndTrack TCA for MDT refit
+
   TClonesArray* fMvdHitsStrip;      //! PndSdsHit TCA for strip
   TClonesArray* fMvdHitsPixel;      //! PndSdsHit TCA for pixel
   TClonesArray* fTofHit;            //! PndTofHit TCA 
@@ -75,11 +77,12 @@ protected:
   TString fTrackIDBranch;           //  options to choose PndTrackID branches
   Bool_t fVerbose;                  // Switch ON/OFF debug messages 
   Bool_t fSimulation;               // Switch simulation diagnostic
-  Bool_t fGeanePro;                 // Use GEANE propagation
+  Bool_t fGeanePro;                 // Use GEANE propagation 
+  Bool_t fMdtRefit;                 // Use MDT Kalman refit propagation
   Bool_t fIdeal;                    // Ideal Correlation
 
-  PndGeoHandling* geoH;           // Object to retrieve MVD geometry
-  
+  PndGeoHandling* geoH;              // Object to retrieve MVD geometry
+  PndRecoKalmanFit *fFitter;         // Refitter for MDT tracks
   TFile *r;                          // File for debug ntuples
   TNtuple *tofCorr;                  // Debug ntuple for tof correlation
   TNtuple *emcCorr;                  // Debug ntuple for emc correlation 
@@ -94,7 +97,8 @@ protected:
   void ConstructNeutralCandidate();
    
   PndPidCandidate* AddChargedCandidate(PndPidCandidate* cand); 
-  PndPidCandidate* AddNeutralCandidate(PndPidCandidate* cand);
+  PndPidCandidate* AddNeutralCandidate(PndPidCandidate* cand); 
+  PndTrack* AddMdtTrack(PndTrack* track);
  
   Bool_t GetTrackInfo(PndTrack* track, PndPidCandidate* pid); 
   Bool_t GetMvdInfo  (PndTrack* track, PndPidCandidate* pid); 
@@ -102,7 +106,7 @@ protected:
   Bool_t GetTpcInfo  (PndTrack* track, PndPidCandidate* pid); 
   Bool_t GetTofInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
   Bool_t GetEmcInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
-  Bool_t GetMdtInfo  (FairTrackParH* helix, PndPidCandidate* pid);   
+  Bool_t GetMdtInfo  (PndTrack* track, PndPidCandidate* pid);   
   Bool_t GetDrcInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
   Bool_t GetDskInfo  (FairTrackParH* helix, PndPidCandidate* pid);
  
@@ -126,6 +130,7 @@ public:
   void SetOption(Option_t *option=" ")    {fOption = option;  fOption.ToLower();}
   void SetDebugMode(Bool_t debug)         { fDebugMode = debug; };
   void SetDebugFilename(TString filename) { sFile = filename; };
+  void SetMdtRefit(Bool_t mdt)            { fMdtRefit = mdt; };
   void SetInputBranch(TString branch)     { fTrackBranch = branch; };	
   void SetInputIDBranch(TString branch)   { fTrackIDBranch = branch; };	
   void SetVerbose(Bool_t verb)            { fVerbose = verb  ;};
