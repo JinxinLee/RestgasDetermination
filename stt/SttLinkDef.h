@@ -10,7 +10,7 @@
 #pragma link C++ class PndSttParRootFileIo;
 #pragma link C++ class PndSttContFact;
 #pragma link C++ class PndSttHitProducerIdeal+;   
-#pragma link C++ class PndSttTrack+;
+//#pragma link C++ class PndSttTrack+; //linked in pnddata
 #pragma link C++ class PndStt+;             
 #pragma link C++ class PndSttTrackFinder+;
 #pragma link C++ class PndSttFindTracks+;   

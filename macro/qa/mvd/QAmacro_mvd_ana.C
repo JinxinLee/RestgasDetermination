@@ -29,10 +29,16 @@
 
   TFile* f = new TFile(inFile.Data()); // the sim file you want to analyse
   TTree* t=(TTree*)f->Get("cbmsim");
-  //TTree* myT = (TTree*)f->Get("cbmsim");
-
   t->AddFriend("cbmsim",recoFile.Data()); // the reco file you want to analyse
+  TFile* dbfile = new TFile(parFile.Data());
+  dbfile->Get("FairBaseParSet"); // now the geometry is available as TGeo in memory
 
+  TGeoManager *geoMan = gGeoManager;
+  if(!geoMan){
+    std::cout<<"No GeoManager existant. Abort now!"<<std::endl;
+    exit(1);
+  }
+  
   TClonesArray* mc_array=new TClonesArray("PndSdsMCPoint");
   t->SetBranchAddress("MVDPoint",&mc_array);//Branch names
 
@@ -48,29 +54,19 @@
   TClonesArray* pixhit_array=new TClonesArray("PndSdsHit");
   t->SetBranchAddress("MVDHitsPixel",&pixhit_array);//Branch names
 
-
+  PndGeoHandling* fGeoH = new PndGeoHandling(inFile,parFile);
   
-  TFile* dbfile = new TFile(parFile.Data());
-  dbfile->Get("FairBaseParSet"); // now the geometry is available as TGeo in memory
-  TGeoManager *geoMan = gGeoManager;
-
-  if(!geoMan){
-    std::cout<<"No GeoManager existant. Abort now!"<<std::endl;
-    exit(1);
-  }
-
-  FairEventHeader* header = new FairEventHeader();
-  t->SetBranchAddress("EventHeader.", &header);
-  t->GetEntry(0);
-
-  Int_t runId = header->GetRunId();
-
-
-  PndGeoHandling* fGeoH = new PndGeoHandling();//runId, parFile);
   if(!fGeoH){
     std::cout<<"No MvdGeoHandling existant. Abort now!"<<std::endl;
     exit(1);
   }
+  
+//  FairEventHeader* header = new FairEventHeader();
+//  t->SetBranchAddress("EventHeader.", &header);
+//  t->GetEntry(0);
+//
+//  Int_t runId = header->GetRunId();
+
   
 
   TH1D* hisDiff = new TH1D("diff","",100,-0.008,0.008);
@@ -140,7 +136,7 @@
 
       PndSdsHit *hit=(PndSdsHit*)pixhit_array->At(ii);
 	    if(verbose) cout <<ii<< ".";
-      detname = fGeoH->GetPath( hit->GetDetName());
+      detname = fGeoH->GetPath( hit->GetSensorID());
       geoMan->cd( detname.Data() );
       currentTransMat = geoMan->GetCurrentMatrix();
       vecs.SetXYZ(hit->GetX(), hit->GetY(), hit->GetZ());
@@ -182,7 +178,7 @@
     for (Int_t iii=0; iii<strhit_array->GetEntriesFast(); iii++)
     {
       PndSdsHit *hit=(PndSdsHit*)strhit_array->At(iii);
-      detname = fGeoH->GetPath( hit->GetDetName());
+      detname = fGeoH->GetPath( hit->GetSensorID());
       geoMan->cd( detname.Data() );
       currentTransMat = geoMan->GetCurrentMatrix();
 
