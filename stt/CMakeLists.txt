@@ -50,7 +50,7 @@ PndSttTrackFitterQATask.cxx
 PndSttHitProducerRealFast.cxx
 PndSttHitProducerRealFull.cxx            
 PndSttHelixHitProducer.cxx
-#PndSttTrackFinderReal.cxx
+PndSttTrackFinderReal.cxx
 PndSttMapCreator.cxx
 PndSttTube.cxx
 )
