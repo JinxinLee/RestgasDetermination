@@ -34,8 +34,10 @@ public:
 	void SetChi2(Double_t d)         { fChi2=d; }
 	void SetNDF(Int_t i)             { fNDF=i; }
         void SetRefIndex(Int_t i)        { fRefIndex=i;}// SetLink(kTrackCand, i); }
-  PndTrackCand GetTrackCand()      { return fTrackCand; }
-  PndTrackCand* GetTrackCandPtr()  { return &fTrackCand; }
+	void SetTrackCand(const PndTrackCand& cand) { fTrackCand = cand; };
+	
+	PndTrackCand GetTrackCand()      { return fTrackCand; }
+	PndTrackCand* GetTrackCandPtr()  { return &fTrackCand; }
 	FairTrackParP GetParamFirst() { return fTrackParamFirst; }
 	FairTrackParP GetParamLast()  { return fTrackParamLast ; }
 
