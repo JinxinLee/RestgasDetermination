@@ -3,6 +3,7 @@
 
 #include "FairHit.h"
 #include "FairMultiLinkedData.h"
+#include "PndTrackCand.h"
 #include "PndDetectorList.h"
 #include "TVector3.h"
 
@@ -47,6 +48,8 @@ class PndMdtTrk : public FairMultiLinkedData {
   Int_t GetModule()                const { return fModule;}; 
   Float_t GetChi2()                const { return fChi2;};
  
+  PndTrackCand* AddTrackCand(const PndTrackCand* inTrackCand = new PndTrackCand());
+  
   /** Modifiers **/
   void SetHitIndex (Int_t lay, Int_t trackId); 
   void SetHitMult  (Int_t lay, Int_t mult);

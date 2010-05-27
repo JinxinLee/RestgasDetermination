@@ -1,4 +1,5 @@
 #include "PndMdtTrk.h"
+//#include "PndTrackCand.h"
 
 // -----   Default constructor   -------------------------------------------
 PndMdtTrk::PndMdtTrk()
@@ -9,6 +10,17 @@ PndMdtTrk::PndMdtTrk()
 /** Destructor **/
 PndMdtTrk::~PndMdtTrk() 
 {
+}
+
+PndTrackCand* PndMdtTrk::AddTrackCand(const PndTrackCand* inTrackCand)
+{
+  PndTrackCand *outTrackCand = new PndTrackCand(*inTrackCand);
+  for (Int_t ii=0; ii<15; ii++) 
+    {
+      if (fHitList[ii]!=-1)
+	outTrackCand->AddHit(kMdtHit, fHitList[ii], ii*1000.);
+    }
+  return outTrackCand;
 }
 
 // -----   Clear function   -------------------------------------------
