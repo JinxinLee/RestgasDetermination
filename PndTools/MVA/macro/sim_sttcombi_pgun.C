@@ -121,18 +121,21 @@ void sim_sttcombi_pgun(int nEvents = 10, int pid  = -321,
   boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
   primGen->AddGenerator(boxGen); 
 
-  // Create and Set Magnetic Field
+  // Set beam properties
   //-------------------------------
   fRun->SetStoreTraj(kTRUE);
   fRun->SetBeamMom(15);
+
+  // Create and Set Magnetic Field
+  //-------------------------------
   PndMultiField* fField= new PndMultiField("FULL");
   fRun->SetField(fField);
 
   // EMC Hit producer
   //-------------------------------
   PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
-  fRun->AddTask(emcHitProd);
   emcHitProd->SetStorageOfData(kTRUE);
+  fRun->AddTask(emcHitProd);
 
   /**Initialize the session*/
   fRun->Init();

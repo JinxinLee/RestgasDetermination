@@ -39,7 +39,7 @@ rootlogon()
   if(isLibrary("libStt"))gSystem->Load("libStt");
   if(isLibrary("libSttReco"))gSystem->Load("libSttReco");
   if(isLibrary("libSds"))gSystem->Load("libSds");
-  //if(isLibrary("libSdsReco"))gSystem->Load("libSdsReco");
+  if(isLibrary("libSdsReco"))gSystem->Load("libSdsReco");
   if(isLibrary("libMvd"))gSystem->Load("libMvd");
   if(isLibrary("libMvdReco"))gSystem->Load("libMvdReco");
   if(isLibrary("libMvdTrk"))gSystem->Load("libMvdTrk");
@@ -55,8 +55,8 @@ rootlogon()
   if(isLibrary("libLumi"))gSystem->Load("libLumi");
   if(isLibrary("libRho"))gSystem->Load("libRho");
   if(isLibrary("libTMVA"))gSystem->Load("libTMVA.so");
-  if(isLibrary("libPid"))gSystem->Load("libPid");
   if(isLibrary("libAnalysisTools"))gSystem->Load("libAnalysisTools");
+  if(isLibrary("libPid"))gSystem->Load("libPid");
   if(isLibrary("librecotasks"))gSystem->Load("librecotasks");
   if(isLibrary("libRecoHits"))gSystem->Load("libRecoHits");
   if(isLibrary("libRecoTasks"))gSystem->Load("libRecoTasks");

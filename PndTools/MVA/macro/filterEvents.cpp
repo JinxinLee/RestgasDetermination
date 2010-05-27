@@ -125,16 +125,19 @@ void filterEvents(int pdg, const std::string& partName,
       // Found the cluster with highest E_dep.
       if(clIndex >= 0){
 	PndEmcCluster* HE_cluster = (PndEmcCluster*) clusters_arr->At(clIndex);
-	const PndEmcXClMoments& clsZmom = HE_cluster->Xmoments();
 
+	//const PndEmcXClMoments& clsZmom = HE_cluster->Xmoments();
 	numClus = clusters_arr->GetEntriesFast();
 	numCrys = HE_cluster->NumberOfDigis();
 	mom = par.GetMomentum().Mag();
 	emc = HE_cluster->energy(); 
 	emcCorr = HE_cluster->GetEnergyCorrected();  
-	z20 = clsZmom.AbsZernikeMoment(2, 0, 15);// Z_{n = 2}^{m = 0}
-	z53 = clsZmom.AbsZernikeMoment(5, 3, 15);// Z_{n = 5}^{m = 3}
-	latEdep = clsZmom.Lat();
+	//z20 = clsZmom.AbsZernikeMoment(2, 0, 15);// Z_{n = 2}^{m = 0}
+	z20 = HE_cluster->Z20();
+	//z53 = clsZmom.AbsZernikeMoment(5, 3, 15);// Z_{n = 5}^{m = 3}
+	z53 = HE_cluster->Z53();
+	//latEdep = clsZmom.Lat();
+	latEdep = HE_cluster->LatMom();
 	// Fill tree
 	EmcNtp.Fill(evid, mom, (emc/mom), (emcCorr/mom),
 		    numClus, numCrys, latEdep, z20, z53);
