@@ -110,7 +110,7 @@ sim_dirc_evtgen(Int_t nEvents=10)
   primGen->AddGenerator(evtGen); 
 
 
-//  fRun->SetStoreTraj(kTRUE); // to store particle trajectories  
+  fRun->SetStoreTraj(kTRUE); // to store particle trajectories  
 
   // Create and Set Magnetic Field
   //-------------------------------
