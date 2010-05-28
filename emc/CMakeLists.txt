@@ -53,11 +53,15 @@ EmcDigi/PndEmcApdHitProducer.cxx
 EmcDigi/PndEmcCRRCPulseshape.cxx 
 EmcDigi/PndEmcCR2RCPulseshape.cxx 
 EmcDigi/PndEmcHitsToWaveform.cxx
-EmcDigi/PndEmcHitsToTmpWaveform.cxx 
+#EmcDigi/PndEmcHitsToTmpWaveform.cxx 
 EmcDigi/PndEmcWaveformToDigi.cxx
-EmcDigi/PndEmcTmpWaveformToDigi.cxx 
+#EmcDigi/PndEmcTmpWaveformToDigi.cxx 
 EmcDigi/PndEmcDigiPar.cxx 
 EmcDigi/PndEmcMakeDigi.cxx
+EmcDigi/PndEmcPSAParabolic.cxx
+EmcDigi/PndEmcPSATrapDigiFilter.cxx
+EmcDigi/PndEmcFadcFilter.cxx
+EmcDigi/PndEmcFullDigiTask.cxx
 EmcMC/PndGeoEmc.cxx 
 EmcMC/PndEmc.cxx 
 EmcMC/PndEmcReader.cxx 

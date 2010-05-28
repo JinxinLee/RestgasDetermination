@@ -121,16 +121,18 @@ InitStatus PndEmcHitsToWaveform::Init()
 	PndEmcStructure::Instance();
 
 	// Calculate 1 bit resolution (in units of FADC amplitude)
-	PndEmcWaveform *tmpwaveform;
-	tmpwaveform=new PndEmcWaveform(0,101010001, fShaping_diff_time, fShaping_int_time, fSampleRate, 0.0,0.0,fCrystal_time_constant,fNumber_of_samples_in_waveform,fExcessNoiseFactor,false);
+	PndEmcWaveform *tmpwaveform=new PndEmcWaveform(0,101010001, fNumber_of_samples_in_waveform);
 
-	fGevPeakAnalogue = tmpwaveform->get_scale();
+	PndEmcAbsPulseshape *pulseshape=new PndEmcCRRCPulseshape(fShaping_diff_time,fShaping_int_time,fCrystal_time_constant);
+	
+	fGevPeakAnalogue = tmpwaveform->GetScale(fSampleRate, pulseshape);
 	
 	fOneBitResolution=fEnergyRange/((double) (1<<fNBits))*fGevPeakAnalogue;
 	fOneBitResolutionBW=fEnergyRangeBW/((double) (1<<fNBits))*fGevPeakAnalogue;
 	
 	fFirstADCBinTime=fFirstSamplePhase/fSampleRate;
 	
+	delete pulseshape;
 	delete tmpwaveform;
 	
 	return kSUCCESS;
@@ -155,12 +157,15 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 	// <set> fWaveformInd contains indexes of detectors for which Waveforms are created
 	Int_t nHits = fHitArray->GetEntriesFast();
 	cout<<"Hit array contains "<<nHits<< " hits"<<endl;
+	
+	PndEmcCRRCPulseshape *pulseshape= new PndEmcCRRCPulseshape(fShaping_diff_time,fShaping_int_time,fCrystal_time_constant);
+	
 	for (Int_t iHit=0; iHit<nHits; iHit++) {
 		theHit = (PndEmcHit*) fHitArray->At(iHit);
 		Int_t detId=theHit->GetDetectorID();
 		waveformInd.insert(detId);
 		theWaveform = AddWaveform(detId,iHit);
-		theWaveform->update_waveform(theHit);
+		theWaveform->UpdateWaveform(theHit, fDetectedPhotonsPerMeV, fUse_photon_statistic, fExcessNoiseFactor, fFirstSamplePhase, fSampleRate, pulseshape);
 	}
 	
 	// Produce waveforms in all the crystals, not only where hits took place 
@@ -186,24 +191,29 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 		cout << "Number of waveforms processed= "<<nWf<<endl;
 	}
 	
+		// "0" corresponds to timing constant of signal
+		// for noise can be assumed 0 (it is taken tauInt*1e-5 to avoid nan)
+	PndEmcAbsPulseshape *pulseshape2 = new PndEmcCRRCPulseshape(fShaping_diff_time,fShaping_int_time,fShaping_diff_time*1e-5);
+	
 	for (Int_t iWf=0; iWf<nWf; iWf++) {
 		theWaveform = (PndEmcWaveform*) fWaveformArray->At(iWf);
-		Int_t detId = theWaveform->GetDetectorId();
-		Int_t module = detId / 100000000;
+		Int_t module = theWaveform->GetModule();
+		
+
 		if (fUse_shaped_noise==0)
 		{
 			if(module == 4){
-				theWaveform->add_elec_noise_and_digitise(fIncoherent_elec_noise_width_GeV*fGevPeakAnalogue,fOneBitResolutionBW);
+				theWaveform->AddElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV*fGevPeakAnalogue,fOneBitResolutionBW);
 			}
 			else{
-				theWaveform->add_elec_noise_and_digitise(fIncoherent_elec_noise_width_GeV*fGevPeakAnalogue,fOneBitResolution);
+				theWaveform->AddElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV*fGevPeakAnalogue,fOneBitResolution);
 			}
 		} else {
 			if(module == 4){
-				theWaveform->add_shaped_elec_noise_and_digitise(fIncoherent_elec_noise_width_GeV*fGevPeakAnalogue,fOneBitResolutionBW);
+				theWaveform->AddShapedElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV*fGevPeakAnalogue,fOneBitResolutionBW, pulseshape2, fFirstSamplePhase, fSampleRate);
 			}
 			else{
-				theWaveform->add_shaped_elec_noise_and_digitise(fIncoherent_elec_noise_width_GeV*fGevPeakAnalogue,fOneBitResolution);
+				theWaveform->AddShapedElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV*fGevPeakAnalogue,fOneBitResolution, pulseshape2, fFirstSamplePhase, fSampleRate);
 			}
 		}
 	}
@@ -238,14 +248,7 @@ PndEmcWaveform* PndEmcHitsToWaveform::AddWaveform(Int_t detID, Int_t iHit){
 	TClonesArray& clref = *fWaveformArray;
 	Int_t size = clref.GetEntriesFast();
 	return new(clref[size]) PndEmcWaveform(0,detID,
-				       fShaping_diff_time,fShaping_int_time,
-				       fSampleRate,
-				       fFirstADCBinTime,
-				       fDetectedPhotonsPerMeV,
-				       fCrystal_time_constant,
 				       fNumber_of_samples_in_waveform,
-						 fExcessNoiseFactor,
-						 fUse_photon_statistic,
 						 iHit);
 }
 

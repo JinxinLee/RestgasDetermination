@@ -21,6 +21,8 @@
 #include "PndEmcDigi.h"
 #include "PndEmcDigiPar.h"		
 #include "PndEmcRecoPar.h"				
+#include "PndEmcPSAParabolic.h"
+#include "PndEmcPSATrapDigiFilter.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -78,6 +80,11 @@ InitStatus PndEmcWaveformToDigi::Init()
 
 	ioman->Register("EmcDigi","Emc",fDigiArray,fStoreDigis);
 	fSampleRate=fDigiPar->GetSampleRate();
+	fShaping_diff_time=fDigiPar->GetShaping_diff_time();     //s
+	fShaping_int_time=fDigiPar->GetShaping_int_time();      //s
+	fCrystal_time_constant=fDigiPar->GetCrystal_time_constant();  //s
+	fSampleRate=fDigiPar->GetSampleRate();
+	fNumber_of_samples_in_waveform=fDigiPar->GetNumber_of_samples_in_waveform();
 	fEnergyDigiThreshold=fDigiPar->GetEnergyDigiThreshold();
 	fEmcDigiPositionDepth=fRecoPar->GetEmcDigiPositionDepth();
 	
@@ -98,6 +105,30 @@ InitStatus PndEmcWaveformToDigi::Init()
 		<< "Unknown digi position method!" << endl;
 		return kERROR;
 	}
+	
+	fPulseshape= new PndEmcCRRCPulseshape(fShaping_diff_time,fShaping_int_time,fCrystal_time_constant);
+	
+	// Pulse shape analysis algorithm.
+	// At the moment simple parabolic fit is used by default.
+	psaAlgorithm = new PndEmcPSAParabolic();
+
+	// Trapezoidal digi filter
+	// Parameters of the filter are hardcoded at the moment
+// 	std::vector<Double_t> params;
+// 	params.push_back(20); // Rise time (in sampling period)
+// 	params.push_back(20); // Flat top period (in sampling period)
+// 	params.push_back(0); // Shift for energy determination
+// 	psaAlgorithm = new PndEmcPSATrapDigiFilter(params);
+	
+	// Determine normalisation constant for PndEmcWaveform
+	PndEmcWaveform *tmpwaveform=new PndEmcWaveform(0,101010001, fNumber_of_samples_in_waveform);
+	
+	PndEmcHit *gevHit=new PndEmcHit();
+	gevHit->SetEnergy(1.0);
+	gevHit->SetTime(0.);
+	tmpwaveform->UpdateWaveform(gevHit, 0, false, 1., 0., fSampleRate, fPulseshape);
+	Double_t tmpPeakPosition;
+	psaAlgorithm->Process(tmpwaveform,fWfNormalisation,tmpPeakPosition);
 
 	cout << "-I- PndEmcWaveformToDigi: Intialization successfull" << endl;
 	
@@ -114,7 +145,7 @@ void PndEmcWaveformToDigi::Exec(Option_t* opt)
 	if ( ! fDigiArray ) Fatal("Exec", "No Digi Array");
   	fDigiArray->Delete();
 	Double_t peakPosition;
-	Double_t max_energy;
+	Double_t energy;
 	Double_t digi_time;
 	Int_t i_digi=0; //index of digi in TClonesArray
 	Int_t hitIndex;
@@ -125,12 +156,14 @@ void PndEmcWaveformToDigi::Exec(Option_t* opt)
 		hitIndex=theWaveform->GetHitIndex();
 		Int_t detId=theWaveform->GetDetectorId();
 		Int_t trackId=theWaveform->GetTrackId();
-		theWaveform->fitPeak(max_energy,peakPosition);
-		max_energy/=theWaveform->get_scale();
+		
+		// Determine waveform maximum and its position
+		psaAlgorithm->Process(theWaveform,energy,peakPosition);
+		energy/=fWfNormalisation;
 		digi_time=peakPosition/fSampleRate;
-		if (max_energy>fEnergyDigiThreshold)
+		if (energy>fEnergyDigiThreshold)
 		{
-			new((*fDigiArray)[i_digi]) PndEmcDigi(trackId,detId, max_energy, peakPosition,hitIndex);
+			new((*fDigiArray)[i_digi]) PndEmcDigi(trackId,detId, energy, peakPosition,hitIndex);
 			i_digi++;
 			
 		}

@@ -32,6 +32,8 @@ class PndEmcWaveform;
 class TClonesArray;
 class PndEmcDigiPar;
 class PndEmcRecoPar;
+class PndEmcAbsPSA;
+class PndEmcAbsPulseshape;
 
 class PndEmcWaveformToDigi : public FairTask
 {
@@ -65,10 +67,17 @@ private:
 	
 	Double_t fSampleRate;
 	Double_t fEnergyDigiThreshold;
+	Double_t fShaping_diff_time;     //s
+	Double_t fShaping_int_time;      //s
+	Double_t fCrystal_time_constant;  //s
+	Int_t fNumber_of_samples_in_waveform;
 	
   	std::string fDigiPosMethod;// "surface" or "depth"
 	Double_t fEmcDigiRescaleFactor;
 	Double_t fEmcDigiPositionDepth;
+	
+	PndEmcAbsPulseshape* fPulseshape;
+	PndEmcAbsPSA *psaAlgorithm;
 
 	PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
 	PndEmcRecoPar*    fRecoPar;      /** Reconstruction parameter container **/
@@ -79,6 +88,8 @@ private:
 	Int_t fVerbose;
 
 	Bool_t fStoreDigis;
+	
+	Double_t fWfNormalisation; // Waveform normalisation constant
 
 	ClassDef(PndEmcWaveformToDigi,1);
 	

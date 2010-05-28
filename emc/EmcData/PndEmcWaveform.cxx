@@ -1,7 +1,4 @@
 //=====================================================================
-//
-//  $Id: $
-//
 //	PndEmcWaveform.cxx
 //
 // 	Class to hold waveforms created from Emc Hits
@@ -49,21 +46,11 @@ PndEmcWaveform::PndEmcWaveform(){}
 
 
 
-PndEmcWaveform::PndEmcWaveform(int trackId, long detId, Double_t tau1, Double_t tau2, Double_t sampleRate,Double_t firstADCTime, 
-			 Double_t pePerMeV, Double_t tauCrystal, long waveform_length, Double_t excessNoiseFactor,bool use_photon_statistic, Int_t hitIndex):
+PndEmcWaveform::PndEmcWaveform(int trackId, long detId, long waveform_length, Int_t hitIndex):
 	fTrackId(trackId),
 	fDetectorId(detId),
-	fTauCrystal(tauCrystal),
-	fTau1(tau1),
-	fTau2(tau2),
-	fSampleRate(sampleRate),
-	fFirstADCBinTime ( firstADCTime),
-	fPePerMeV(pePerMeV),
-	fExcessNoiseFactor(excessNoiseFactor),
-	fUsePhotonStatistic(use_photon_statistic),
 	fWaveformLength(waveform_length),
 	fSignal(waveform_length,0.),
-	fPulseshape(tau1,tau2,tauCrystal),
 	fHitIndex(hitIndex)
 {
 	SetLink(FairLink(kEmcHit, hitIndex));
@@ -73,18 +60,9 @@ PndEmcWaveform::PndEmcWaveform(const PndEmcWaveform& copy)
 {
 		fTrackId=copy.fTrackId;
 		fDetectorId = copy.fDetectorId;
-		fTau1=copy.fTau1;
-		fTau2=copy.fTau2;
-		fSampleRate=copy.fSampleRate;
-		fTauCrystal=copy.fTauCrystal;
-		fFirstADCBinTime =copy.fFirstADCBinTime;
-		fPePerMeV=copy.fPePerMeV;
-		fExcessNoiseFactor=copy.fExcessNoiseFactor;
-		fUsePhotonStatistic=copy.fUsePhotonStatistic;
 		fWaveformLength=copy.fWaveformLength;
 		fHitIndex=copy.fHitIndex;
 		fSignal=copy.fSignal;
-		fPulseshape=copy.fPulseshape;
 		fHitIndex=copy.fHitIndex;
 }
 
@@ -93,18 +71,9 @@ PndEmcWaveform::operator=(const PndEmcWaveform &copy){
   if (this != &copy){
 		fTrackId=copy.fTrackId;
 		fDetectorId = copy.fDetectorId;
-		fTau1=copy.fTau1;
-		fTau2=copy.fTau2;
-		fSampleRate=copy.fSampleRate;
-		fTauCrystal=copy.fTauCrystal;
-		fFirstADCBinTime =copy.fFirstADCBinTime;
-		fPePerMeV=copy.fPePerMeV;
-		fExcessNoiseFactor=copy.fExcessNoiseFactor;
-		fUsePhotonStatistic=copy.fUsePhotonStatistic;
 		fWaveformLength=copy.fWaveformLength;
 		fHitIndex=copy.fHitIndex;
 		fSignal=copy.fSignal;
-		fPulseshape=copy.fPulseshape;
 		fHitIndex=copy.fHitIndex;
   }
   return *this;
@@ -125,13 +94,13 @@ PndEmcWaveform::~PndEmcWaveform()
 //-------------
 
 Double_t 
-PndEmcWaveform::get_scale() const
+PndEmcWaveform::GetScale(Double_t sampleRate, PndEmcAbsPulseshape *pulseshape) const
 {
-	return getNormalisation();
+	return GetNormalisation(sampleRate, pulseshape);
 }
 
 Double_t 
-PndEmcWaveform::getNormalisation() const
+PndEmcWaveform::GetNormalisation(Double_t sampleRate, PndEmcAbsPulseshape *pulseshape) const
 {
   // Function to return the equivalent pulse height for a 1 GeV pulse
   // Used  in EmcHitsToWaveform to determine electronics noise scale
@@ -142,10 +111,10 @@ PndEmcWaveform::getNormalisation() const
 	PndEmcHit *gevHit=new PndEmcHit();
 	gevHit->SetEnergy(1.0);
 	gevHit->SetTime(0.);
-	newWaveform.update_waveform(gevHit);
+	newWaveform.UpdateWaveform(gevHit, 0, false, 1., 0., sampleRate, pulseshape);
  	delete gevHit;
 
-	Double_t maximum=newWaveform.max();
+	Double_t maximum=newWaveform.Max();
 	return maximum;
 }
 
@@ -155,25 +124,25 @@ PndEmcWaveform::getNormalisation() const
 //-------------
 
 void 
-PndEmcWaveform::update_waveform(PndEmcHit *hit)
+PndEmcWaveform::UpdateWaveform(PndEmcHit *hit, Double_t pePerMeV, Bool_t usePhotonStatistic, Double_t excessNoiseFactor, Double_t firstADCBinTime, Double_t sampleRate, PndEmcAbsPulseshape *pulseshape)
 {
 
 	Double_t energy=(Double_t)hit->GetEnergy();
 	Double_t time=(Double_t)hit->GetTime();
 	
-	make_waveform(energy, time);
+	MakeWaveform(energy, time, pePerMeV, usePhotonStatistic, excessNoiseFactor, firstADCBinTime, sampleRate, pulseshape);
 
 }
 
 void 
-PndEmcWaveform::make_waveform(Double_t energy, Double_t time)
+PndEmcWaveform::MakeWaveform(Double_t energy, Double_t time, Double_t pePerMeV, Bool_t usePhotonStatistic, Double_t excessNoiseFactor, Double_t firstADCBinTime, Double_t sampleRate, PndEmcAbsPulseshape *pulseshape)
 {
 	Double_t amplitude;
 	Double_t photonStatFactor;
-	if (fUsePhotonStatistic)
+	if (usePhotonStatistic)
 	{
-		Double_t crystalPhotonsMeV = 1.0e3 * energy * fPePerMeV;
-		photonStatFactor = gRandom->Gaus(1,sqrt(fExcessNoiseFactor/crystalPhotonsMeV));
+		Double_t crystalPhotonsMeV = 1.0e3 * energy * pePerMeV;
+		photonStatFactor = gRandom->Gaus(1,sqrt(excessNoiseFactor/crystalPhotonsMeV));
    }
 	else
 	{
@@ -186,13 +155,13 @@ PndEmcWaveform::make_waveform(Double_t energy, Double_t time)
 	Double_t time_offset=time;
 	for (  int i=0;i<fWaveformLength;i++)
 	{
-		t= time+fFirstADCBinTime+i/fSampleRate;
-		fSignal[i]+=(fPulseshape.value(t,amplitude,time_offset));
+		t= time+firstADCBinTime+i/sampleRate;
+		fSignal[i]+=(pulseshape->value(t,amplitude,time_offset));
 	}
 }
 
 void 
-PndEmcWaveform::add_elec_noise(Double_t width)
+PndEmcWaveform::AddElecNoise(Double_t width)
 {
    
 	for (int i=0;i<fWaveformLength;i++)
@@ -205,7 +174,7 @@ PndEmcWaveform::add_elec_noise(Double_t width)
 
 
 void 
-PndEmcWaveform::digitise(Double_t oneBitResolution)
+PndEmcWaveform::Digitise(Double_t oneBitResolution)
 {
 	for (  int i=0;i<fWaveformLength;i++)
 	{
@@ -214,7 +183,7 @@ PndEmcWaveform::digitise(Double_t oneBitResolution)
 }
 
 void 
-PndEmcWaveform::add_elec_noise_and_digitise(Double_t noise_width,
+PndEmcWaveform::AddElecNoiseAndDigitise(Double_t noise_width,
 					 Double_t oneBitResolution)
 {
 	// Do both e_noise and digitisation.  
@@ -229,73 +198,26 @@ PndEmcWaveform::add_elec_noise_and_digitise(Double_t noise_width,
 }
 
 void 
-PndEmcWaveform::add_shaped_elec_noise_and_digitise(Double_t noise_width,
-						Double_t oneBitResolution)
+PndEmcWaveform::AddShapedElecNoiseAndDigitise(Double_t noise_width,
+						Double_t oneBitResolution, PndEmcAbsPulseshape *pulseshape, Double_t firstADCBinTime, Double_t sampleRate)
 {
   // Do both e_noise and digitisation.
-
-	// "0" corresponds to timing constant of signal
-	// for noise can be assumed 0 (it is taken tauInt*1e-5 to avoid nan)
-	PndEmcCRRCPulseshape* fPulseshape2= new PndEmcCRRCPulseshape(fTau1,fTau2,fTau1*1e-5);
-
 	Double_t t;
 	for (  int i=0;i<fWaveformLength;i++)
 	{
-			t= fFirstADCBinTime+i/fSampleRate;
+			t= firstADCBinTime+i/sampleRate;
 			Double_t ran_noise=gRandom->Gaus(0,1)*noise_width;
-			fSignal[i]+=fPulseshape2->value(t,ran_noise,0);
+			fSignal[i]+=pulseshape->value(t,ran_noise,0);
 	}    
 	
 	for (  int i=0;i<fWaveformLength;i++)
 	{
 		fSignal[i]=(Double_t) ( long (fSignal[i]/oneBitResolution+64)-64 ) * oneBitResolution;
 	}
-	delete fPulseshape2;
-}
-
-void PndEmcWaveform::fitPeak(Double_t& ampl, Double_t& pos,
-			  int peakBin) const
-{
-// parabolic fit
-	ampl=pos=-1.;
-	if (peakBin>0 && peakBin<fWaveformLength-1)
-	{
-		long theBin(peakBin);
-	
-		Double_t pValue = fSignal[peakBin];
-		Double_t pPosition = Double_t(peakBin);
-	
-		Double_t leftValue = fSignal[theBin-1];
-		Double_t rightValue = fSignal[theBin+1];
-		if (leftValue<pValue && rightValue<pValue) {
-			Double_t d = 0.25*(rightValue-leftValue);
-			Double_t b = pValue-0.5*(leftValue+rightValue);
-			pValue += d*d/b;
-			pPosition += d/b;
-		}
-		ampl=pValue;
-		pos=pPosition;
-  }
-}
-
-void PndEmcWaveform::fitPeak(Double_t& ampl, Double_t& pos, int start, int end) const
-{
-	std::vector<Double_t>::const_iterator p;
-	p=max_element(fSignal.begin()+start,fSignal.begin()+end);
-	int pPosition = distance(fSignal.begin(),p);
-	fitPeak(ampl,pos,pPosition);
-}
-  
-void PndEmcWaveform::fitPeak(Double_t& ampl, Double_t& pos) const
-{
-	std::vector<Double_t>::const_iterator p;
-	p=max_element(fSignal.begin(),fSignal.end());
-	int pPosition = distance(fSignal.begin(),p);
-	fitPeak(ampl,pos,pPosition);
 }
 
 Double_t 
-PndEmcWaveform::max()
+PndEmcWaveform::Max()
 {
 	Double_t _max;
 	_max=*max_element(fSignal.begin(),fSignal.end());
