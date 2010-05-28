@@ -235,7 +235,7 @@ void PndDrcHitProducerReal::ProcessPhotonPoint()
             Int_t ilambda=(Int_t)((lambda-lambda_min)/lambda_step);
 	    Double_t rand = gRandom->Rndm();
 	    detection = 0;
-            if (efficiency[ilambda] > rand ) detection = 1;
+            if (efficiency[ilambda]*fCollectionEff > rand ) detection = 1;
        }
        Double_t xP= Ppt->GetX();
        Double_t yP= Ppt->GetY();
@@ -391,6 +391,7 @@ void PndDrcHitProducerReal::SetParameters(){
   nRefrac=1.467;  //Refractive index of SOB
   fSigmat=0.050;  //Time Resolution is 50 ps
   fVerbose=1;
+  fCollectionEff=0.65;//Collection Efficiency 
 }
 //-------------Smear Time------------------------------------
 void PndDrcHitProducerReal::Smear(Double_t& time, Double_t sigt){
