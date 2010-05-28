@@ -45,8 +45,8 @@ PndStdKnnClassify::~PndStdKnnClassify()
 const std::string& PndStdKnnClassify::Classify(std::vector<float> EvtData)const
 {
   EvtData.clear();
-  std::string* re = new std::string();
-  std::cout << "Not implemented yet" << std::endl;
+  std::string* re = new std::string("Not implemented yet");
+  std::cerr << "Not implemented yet" << std::endl;
   return *re;
 }
 

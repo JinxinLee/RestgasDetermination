@@ -81,7 +81,7 @@ void PndKnnClassify::InitKNN()
 const std::string& PndKnnClassify::Classify(std::vector<float> EvtData)const
 {
   EvtData.clear();
-  std::string* re = new std::string();
+  std::string* re = new std::string("Not implemented yet.");
   std::cout << "Not implemented yet."<<std::endl;
   return *re;
 }

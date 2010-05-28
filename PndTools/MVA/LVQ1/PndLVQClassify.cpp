@@ -37,8 +37,8 @@ PndLVQClassify::~PndLVQClassify()
 const std::string& PndLVQClassify::Classify(std::vector<float> EvtData)const
 {
   EvtData.clear();
-  std::string* re = new std::string();
-  std::cout << "Not implemented Yet" << std::endl;
+  std::string* re = new std::string("Not implemented Yet");
+  std::cerr << "Not implemented Yet" << std::endl;
   return *re;
 }
 

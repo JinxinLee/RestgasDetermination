@@ -36,6 +36,7 @@ class PndKnnTrain : public PndMvaTrainer
   void Train();
   
  private:
+  //! To avoid mistakes
   PndKnnTrain(const PndKnnTrain& other);
   PndKnnTrain& operator=(const PndKnnTrain& other);
 };

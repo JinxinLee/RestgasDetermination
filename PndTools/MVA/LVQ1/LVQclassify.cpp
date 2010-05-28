@@ -121,13 +121,8 @@ int main(int argc, char** argv)
   std::vector<std::pair<std::string, std::vector<float>* > > events;
   
   // Classes
-  //clas.push_back("electron");
-  //clas.push_back("pion");
-  clas.push_back("Elect"); 
-  clas.push_back("Pion");
-  //clas.push_back("Kaon"); 
-  //clas.push_back("Muon");
-  //clas.push_back("Proton");
+  clas.push_back("electron");
+  clas.push_back("pion");
   
   // Variables
   nam.push_back("p");
@@ -136,24 +131,24 @@ int main(int argc, char** argv)
   //nam.push_back("tof"); 
   //nam.push_back("stt");
   //nam.push_back("mvd"); 
-
+  
   // Create classifier.
   PndLVQClassify cls (inF, clas, nam);
-
+  
   // Read events.
   readEvents(evtF.c_str(), nam, clas, events);
-
+  
   std::cout << "Total number of events is " << events.size() << std::endl;
-
+  
   std::ofstream OutPut;
   OutPut.open (outF.c_str());
   OutPut << "# Classification results for the events from\n"
 	 << "# "<< evtF << std::endl 
 	 << "# Total number of events was " << events.size() << std::endl;
-
+  
   TStopwatch timer;
   timer.Start();
-
+  
   std::string tmpClsName;
   
   // Class loop

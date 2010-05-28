@@ -35,14 +35,14 @@ PndProjectedKNN::~PndProjectedKNN()
 const std::string& PndProjectedKNN::Classify(std::vector<float> EvtData)const
 {
   EvtData.clear();
-  std::string* re = new std::string();
+  std::string* re = new std::string("Not implemented yet.");
   std::cout << "Not implemented yet." << std::endl;
   return *re;
 }
 
 //!Classify
 void PndProjectedKNN::GetMvaValues(vector<float> eventData,
-			       map<string, float>& result)
+				   map<string, float>& result)
 {
   if(m_knn == 0)
   {

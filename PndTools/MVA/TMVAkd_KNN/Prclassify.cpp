@@ -49,14 +49,14 @@ int main(int argc, char** argv)
   std::vector<std::string> clas;
   std::vector<std::string> stru;
   std::vector<std::vector<std::string> > names;
-  std::vector<std::string> nam1;// = new std::vector<std::string>();
-  std::vector<std::string> nam2;// = new std::vector<std::string>();
-  std::vector<std::string> nam3;// = new std::vector<std::string>();
+  std::vector<std::string> nam1;
+  std::vector<std::string> nam2;
+  std::vector<std::string> nam3;
  
   // Classes (container to hold the class names)
-  clas.push_back("Elect"); clas.push_back("Pion"); 
-  clas.push_back("Kaon"); //clas.push_back("Gamma"); 
-  clas.push_back("Muon"); clas.push_back("Proton");
+  clas.push_back("electron"); clas.push_back("pion"); 
+  clas.push_back("kaon"); //clas.push_back("gamma"); 
+  clas.push_back("muon"); clas.push_back("proton");
   
   // Event structure
   stru.push_back("p"); stru.push_back("stt");   

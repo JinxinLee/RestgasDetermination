@@ -51,20 +51,18 @@ int main(int argc, char** argv)
   std::vector<std::string> nam;
   
   // Classes (container to hold the class names)
-  clas.push_back("Elect"); clas.push_back("Pion"); 
-  //clas.push_back("Kaon"); clas.push_back("Gamma"); 
-  //clas.push_back("Muon"); clas.push_back("Proton");
+  clas.push_back("electron"); clas.push_back("pion");
+  //clas.push_back("kaon"); clas.push_back("gamma"); 
+  //clas.push_back("muon"); clas.push_back("proton");
   
   // Variables (names)
   nam.push_back("p");  nam.push_back("emc"); 
   nam.push_back("mvd"); //nam.push_back("tof");
   //nam.push_back("stt"); nam.push_back("tpc");
-
-
-
+  
   TStopwatch timer;
   timer.Start();
-
+  
   //Create the classifier object and specify the weight file
   PndKnnClassify cls (InPutFileName, clas, nam);
  
