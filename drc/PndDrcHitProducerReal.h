@@ -132,6 +132,7 @@ public:
   Double_t nRefrac; //Refractive index of photon detector
   Double_t fPixelDim; //Pixel Diemsion of photocathode
   Double_t fSigmat; //Time Resolution in ps
+  Double_t fCollectionEff; //Collection Efficiency
   Int_t detection;  //flag for detection
   Int_t nevents;
   
