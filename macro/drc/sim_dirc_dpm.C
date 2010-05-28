@@ -1,4 +1,6 @@
+sim_dirc_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1)
 {
+
   TStopwatch timer;
   timer.Start();
   gDebug=0;
@@ -101,13 +103,9 @@
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
-   // Box Generator
-  FairBoxGenerator* boxGen = new FairBoxGenerator(321, 1); // 321 = kaon; 1 = multipl.
-  boxGen->SetPRange(3,3); // GeV/c
-  boxGen->SetPhiRange(5., 5.); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(35., 35.); // Polar angle in lab system range [degree]
-  boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
-  primGen->AddGenerator(boxGen); 
+ 
+  PndDpmDirect *dpmGen = new PndDpmDirect(mom,mode);
+  primGen->AddGenerator(dpmGen);
 
 //  fRun->SetStoreTraj(kTRUE); // to store particle trajectories  
 
@@ -128,8 +126,6 @@
   rtdb->setOutput(output);
   rtdb->saveOutput();
   rtdb->print();
-
-  Int_t   nEvents=1; 
 
   // Transport nEvents
   // -----------------

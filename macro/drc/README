@@ -1,0 +1,12 @@
+27/05/10-- Diapnwita Dutta
+
+Simulation macro: 
+       with box gen: sim_dirc.C 
+       with evtgen: sim_dirc_evtgen.C 
+       with DPM gen: sim_dirc_dpm.C 
+
+Hit Production macro:
+       only hits in bar:                     hit_dirc.C
+       both hits in bar and in photon detector
+       (with det. eff. and pixelisation):    hit_dirc_real.C
+
