@@ -109,7 +109,7 @@
   boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
   primGen->AddGenerator(boxGen); 
 
-//  fRun->SetStoreTraj(kTRUE); // to store particle trajectories  
+  fRun->SetStoreTraj(kTRUE); // to store particle trajectories  
 
   // Create and Set Magnetic Field
   //-------------------------------
