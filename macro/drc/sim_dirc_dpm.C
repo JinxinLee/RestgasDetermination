@@ -107,7 +107,7 @@ sim_dirc_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1)
   PndDpmDirect *dpmGen = new PndDpmDirect(mom,mode);
   primGen->AddGenerator(dpmGen);
 
-//  fRun->SetStoreTraj(kTRUE); // to store particle trajectories  
+  fRun->SetStoreTraj(kTRUE); // to store particle trajectories  
 
   // Create and Set Magnetic Field
   //-------------------------------
