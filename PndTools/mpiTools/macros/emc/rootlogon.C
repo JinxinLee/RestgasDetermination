@@ -1,3 +1,4 @@
+rootlogon()
 {
   gSystem->AddIncludePath("-I$VMCWORKDIR/emc");
   gSystem->AddIncludePath("-I$VMCWORKDIR/emc/EmcDigi");
@@ -25,3 +26,11 @@
   delete gRandom;
   gRandom=new TRandom3(0);
 }
+
+Bool_t isLibrary(const char* libName)
+{
+  if (TString(gSystem->DynamicPathName(libName, kTRUE)) != TString(""))
+    return kTRUE;
+  else  
+    return kFALSE;
+} 
