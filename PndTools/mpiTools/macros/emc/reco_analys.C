@@ -12,7 +12,7 @@
 #include "PndEmcDigi.h"
 #include "PndEmcCluster.h"
 #include "PndEmcTwoCoordIndex.h"
-#include "PndEmcMapper.h"
+//#include "PndEmcMapper.h"
 #include "PndEmcWaveform.h"
 
 void reco_analys(Char_t InputSimFile[]="sim_emc.root",
@@ -51,7 +51,7 @@ void reco_analys(Char_t InputSimFile[]="sim_emc.root",
 	Double_t theta_digi,phi_digi;
 	int ndigi;
        
-	PndEmcMapper *fEmcMap=PndEmcMapper::Instance(1);
+//	PndEmcMapper *fEmcMap=PndEmcMapper::Instance(1);
 
 	// Cluster energy
 	for (Int_t j=0; j< c->GetEntries(); j++)
@@ -127,11 +127,15 @@ void reco_analys(Char_t InputSimFile[]="sim_emc.root",
 		      }
 
 		// Lets analyze that cluster! 
+
+
 		    
 		    PndEmcCluster *cluster=(PndEmcCluster*)cluster_array->At(idWithHighestEnergy);
+/*
 		    std::vector<PndEmcDigi*> digiList=cluster->DigiList();
 		    ndigi=digiList.size();
-		    
+		    ndigi=0;
+	    
 		    cluster_energy_check=0;
 		    digi_low=digiList[0]->GetEnergy();
 		    digi_high=digiList[0]->GetEnergy();
@@ -153,7 +157,7 @@ void reco_analys(Char_t InputSimFile[]="sim_emc.root",
 
 		    theta_digi=digiList[digi_high_id]->GetTheta();
 		    phi_digi=digiList[digi_high_id]->GetPhi();
-
+*/
 		    TVector3 cluster_pos=cluster->where();
 		    cluster_theta=cluster_pos.Theta();
 		    cluster_phi=cluster_pos.Phi();
@@ -166,6 +170,7 @@ void reco_analys(Char_t InputSimFile[]="sim_emc.root",
 		    cout << "<I>         Nr of crystals = " << ndigi << endl;
 		    cout << "<I>         Dets (Edep): ";
 		    */
+
 
 		    n->Fill((Float_t) p4mom.E()-p4mom.M(),
 			    (Float_t) (180./TMath::Pi())*p4mom.Theta(),
