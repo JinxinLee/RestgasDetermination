@@ -27,6 +27,8 @@ class TRandom3;
 
 class PndMvaTrainer
 {
+  //==============================================
+  //================ Public =======================
  public:
   /**
    * Constructor.
@@ -78,6 +80,8 @@ class PndMvaTrainer
    */
   void WriteErroVect(const std::string FileName);
 
+  //==============================================
+  //================ Protected ===================
  protected:
   /**
    * Write the training and normalization data to outFile.
@@ -113,7 +117,10 @@ class PndMvaTrainer
   //! Random seed
   unsigned int  m_RND_seed;
   
+  //==============================================
+  //================ Private =====================
  private:
+ //! To avoid mistakes.
   PndMvaTrainer(const PndMvaTrainer& other);
   PndMvaTrainer& operator=(const PndMvaTrainer& other);
 };

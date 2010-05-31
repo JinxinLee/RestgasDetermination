@@ -38,13 +38,15 @@ int main(int argc, char**argv)
   
   clas.push_back("electron");  clas.push_back("pion");
   clas.push_back("muon");   clas.push_back("kaon");
-  clas.push_back("proton"); clas.push_back("gamma");
+  clas.push_back("proton");//clas.push_back("gamma");
   
   vars.push_back("p"); vars.push_back("emc");
   vars.push_back("thetaC"); vars.push_back("stt");
   vars.push_back("mvd"); vars.push_back("tof");
-  
-  TRandom3 rand(57229);
+  vars.push_back("z20");vars.push_back("z53");
+  vars.push_back("lat");
+
+  TRandom3 rand(975321);
   
   std::cout << "<INFO>: Initialization."
 	    << std::endl;
@@ -54,14 +56,10 @@ int main(int argc, char**argv)
    */
   for(size_t i = 0; i < clas.size(); i++)
   {
-    std::vector<float>* v = new std::vector<float>();
     //Initialize the vectors to hold variables
-    for(size_t j = 0; j < vars.size(); j++)
-    {
-      v->push_back(0.0);
-    }//Now we have m_numVars zero's in v.
+    std::vector<float>* v = new std::vector<float>(vars.size(), 0.0);
     varContainer.push_back(v);
-  }//Here we have per class a vector to hold the variables.
+  }//per class a vector to hold the variables.
   
   /*
    * For each class Create a tree and push it in the tree
@@ -85,7 +83,7 @@ int main(int argc, char**argv)
       const char* bname = vname.c_str();
       const char* lname = leaf.c_str();
       //Bind the parameters to the tree elements.
-      sig->Branch(bname,&((varContainer[cls])->at(j)),lname);
+      sig->Branch(bname, &((varContainer[cls])->at(j)), lname);
     }
     //Add the tree to the per class tree holder container
     trees.push_back(sig);

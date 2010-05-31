@@ -12,7 +12,8 @@
 #include "PndMvaTrainer.h"
 #include "PndMvaCluster.h"
 
-typedef enum {RANDOM_PR = 0, KMEANS_PR = 1} ProtoInitType;
+// How to initialize LVQ code books.
+typedef enum {RANDOM_PR = 0, KMEANS_PR = 1, FILE_PR = 2} ProtoInitType;
 
 //! Interface definition for LVQ trainers.
 class PndLVQTrain: public PndMvaTrainer
@@ -50,12 +51,15 @@ class PndLVQTrain: public PndMvaTrainer
    *@param val Initialization type.
    */
   void setProtoInitType(ProtoInitType val = RANDOM_PR)
-  { m_pro_init = val; };
+  { m_proto_init = val; };
 
-  // Test functions Modified training schemes, May BE deleted after
-  // testing. At each step: select number of classes random examples.
-  void TrainSec  (){};
-  void Train21Sec(){};
+  /**
+   * Set the file name which holds the pre-initialized code books.
+   *@param val The name of the file which containes the pre
+   * initialized code books.
+   */
+  void SetInitProtoFileName(const std::string val)
+  { m_initProtoFile = val; };
 
   /**
    * Sets the learning parameters.
@@ -79,6 +83,7 @@ class PndLVQTrain: public PndMvaTrainer
   //----------------------------------------
   //================== private =============
  private:
+  
   // To avoid mistakes, :).
   PndLVQTrain(const PndLVQTrain& other);
   PndLVQTrain& operator=(const PndLVQTrain& other);
@@ -132,7 +137,12 @@ class PndLVQTrain: public PndMvaTrainer
 
   //! number of proto-types to train
   unsigned int m_numProto;
+  //! Proto init type.
+  ProtoInitType m_proto_init;
 
-  ProtoInitType m_pro_init;
+  //! initial protypes, when reading from file.
+  std::string m_initProtoFile;
+  //! Each #ErrorStep, steps evaluate the trained classifier.
+  unsigned int m_ErrorStep;
 };
 #endif //END Interface

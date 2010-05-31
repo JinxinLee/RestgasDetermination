@@ -210,11 +210,7 @@ void PndMvaCluster::InitCentroids()
   // Init Centroids container;
   for(unsigned int i = 0; i < m_num_Cluster; i++)
   {
-    std::vector<float>* ctr = new std::vector<float>();
-    for(unsigned int j = 0; j < m_dimension; j++)
-    {
-      ctr->push_back(0.0);
-    }
+    std::vector<float>* ctr = new std::vector<float>(m_dimension, 0.0);
     m_Centroids.push_back(ctr);
   }
   

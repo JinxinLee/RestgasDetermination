@@ -69,9 +69,9 @@ int main(int argc, char** argv)
   tr.splitTetsSet(10);//10 % (DEFAULT)
 
   //VARX, MINMAX, MEDIAN, NONE(DEFAULT)
-  tr.NormalizeData(VARX);
+  tr.NormalizeData(NONE);
   
-  // KMEANS_PR, RANDOM_PR (DEFAULT)
+  // FILE_PR, KMEANS_PR, RANDOM_PR (DEFAULT)
   tr.setProtoInitType(KMEANS_PR);
   
   std::string OutFile = ot;
@@ -85,16 +85,11 @@ int main(int argc, char** argv)
   case 2:
     tr.Train21();
     break;
-  case 3:
-    tr.TrainSec();
-    break;
-  case 4:
-    tr.Train21Sec();
-    break;
   default:
     std::cerr << "No algorithm selected" << std::endl;
+    break;
   }
-
+  
   tr.WriteErroVect(OutErr);
   return 0;
 }

@@ -24,7 +24,9 @@ PndLVQTrain::PndLVQTrain(const std::string& inputFile,
     m_initConst(0.8), m_ethaZero(0.1),
     m_ethaFinal(0.0001), m_NumSweep(900), 
     m_numProto(0),
-    m_pro_init(RANDOM_PR)
+    m_proto_init(RANDOM_PR),
+    m_initProtoFile(""),
+    m_ErrorStep(0)
 {}
 
 /**
@@ -319,15 +321,24 @@ void PndLVQTrain::InitProtoTypes()
 	      <<"be greater than zero" << std::endl;
     assert(m_numProto > 0);
   }
-
   // Clear protypes list
   cleanProtoList();
-
-  switch(m_pro_init){
-  case KMEANS_PR:
+  
+  switch(m_proto_init){
+  case FILE_PR:// Read from file
+    if(m_initProtoFile == ""){
+      std::cerr << "<ERROR> Empty file name.\n"
+		<<"\tYou need to specify the initial code books file name." 
+		<< std::endl;
+      assert(m_initProtoFile != "");
+    }
+    // FIXME FIXME
+    
+    break;
+  case KMEANS_PR:// Kmeans_clustering
     InitProtoK_Means();
     break;
-  default:
+  default:// Random init proto
     InitProtoRand();
     break;
   }
@@ -365,7 +376,13 @@ void PndLVQTrain::InitProtoK_Means()
     //Create clusters from current data points.
     PndMvaCluster clust (clusteringInput, m_numProto);
     ClDataSample& TMPprotoList = clust.Cluster();
-    
+
+    //DELETE
+    //std::cout << TMPprotoList.size() 
+    //      << " == " << m_numProto 
+    //      << std::endl;
+    //DELETE
+
     //Copy cluster centers to LVQ prototypes (code books)
     for(size_t pr = 0; pr < TMPprotoList.size(); pr++){
       std::vector<float>* lvpr = new std::vector<float>( *(TMPprotoList[pr]) );
