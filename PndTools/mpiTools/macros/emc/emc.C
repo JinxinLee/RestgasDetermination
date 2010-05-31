@@ -49,8 +49,7 @@ void emc(Int_t nEvents = 10, Char_t part[]="e-", Double_t momentum_min = 1.0, Do
   //fRun->AddModule(Magnet);
 
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
-  //Emc->SetGeometryFileName("emc_module12345.dat"); 
-  Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
+  Emc->SetGeometryVersion(15);
   Emc->SetStorageOfData(savepoints);
   fRun->AddModule(Emc);
   
