@@ -50,11 +50,12 @@ void PndMvdDigiPixelDraw::Exec(Option_t* option)
 			PndSdsHit*		myRecoHit = (PndSdsHit*)fRecoHits->At(hitNr);
 			TVector3 recoVector;
 			myRecoHit->Position(recoVector);
-			TVector3 recoLocal = fGeoH->MasterToLocalId(recoVector, myRecoHit->GetDetName());
-			TVector3 SensDim = fGeoH->GetSensorDimensionsId(myRecoHit->GetDetName());
-			TString detName = myRecoHit->GetDetName();
-			if (fModules[detName] == 0)
-				fModules[detName] = CreateNewBoxSet(detName);
+			TVector3 recoLocal = fGeoH->MasterToLocalShortId(recoVector, myRecoHit->GetSensorID());
+			TVector3 SensDim = fGeoH->GetSensorDimensionsShortId(myRecoHit->GetSensorID());
+			TString detName = fGeoH->GetPath(myRecoHit->GetSensorID());
+			Int_t sensorId = myRecoHit->GetSensorID();
+			if (fModules[sensorId] == 0)
+				fModules[sensorId] = CreateNewBoxSet(detName);
 
 			PndSdsCluster* myCluster = (PndSdsCluster*)fClusterCands->At(myRecoHit->GetRefIndex());
 			for (int clusterNr = 0; clusterNr < myCluster->GetClusterSize(); clusterNr++){
@@ -64,7 +65,7 @@ void PndMvdDigiPixelDraw::Exec(Option_t* option)
 				fe  = p->GetFE();
 				std::cout << "Fe, Col, Row: " << fe << " " << col << "/" << row << std::endl;
 				calc.CalcSensorColRow(col, row, p->GetFE());
-				std::cout << "Col, Row " << p->GetDetName() << " : " << col << "/" << row << std::endl;
+				std::cout << "Col, Row " << p->GetSensorID() << " : " << col << "/" << row << std::endl;
 				TVector3 digiLocal(((col+0.5) - (SensDim.X()*100))*fPixelSize, ((row+0.5)-(SensDim.Y()*100))*fPixelSize, 0);
 				std::cout << "DigiLocal: " << digiLocal.X() << " " << digiLocal.Y() << " " << digiLocal.Z() << std::endl;
 				std::cout << "RecoLocal: " << recoLocal.X() << " " << recoLocal.Y() << " " << recoLocal.Z() << std::endl;
@@ -74,34 +75,35 @@ void PndMvdDigiPixelDraw::Exec(Option_t* option)
 				final += recoLocal;
 				std::cout << "Final: " << final.X() << " " << final.Y() << " " << final.Z() << std::endl;
 
-				fModules[p->GetDetName()]->AddBox(final.X(), final.Y(), final.Z());
-				fModules[p->GetDetName()]->DigitValue(p->GetCharge());
+				fModules[p->GetSensorID()]->AddBox(final.X(), final.Y(), final.Z());
+				fModules[p->GetSensorID()]->DigitValue(p->GetCharge());
 			}
 		}
 	}
 	else {
 		for (Int_t i=0; i<fList->GetEntriesFast(); ++i) {
 			PndSdsDigiPixel* p = (PndSdsDigiPixel*)fList->At(i);
-			TString detName = p->GetDetName();
+			TString detName = fGeoH->GetPath(p->GetSensorID());
+			Int_t sensorId = p->GetSensorID();
 
-			if (fModules[detName] == 0)
-				fModules[detName] = CreateNewBoxSet(detName);
+			if (fModules[sensorId] == 0)
+				fModules[sensorId] = CreateNewBoxSet(detName);
 
 			col = p->GetPixelColumn();
 			row = p->GetPixelRow();
 			fe  = p->GetFE();
 			std::cout << "Fe, Col, Row: " << fe << " " << col << "/" << row << std::endl;
 			calc.CalcSensorColRow(col, row, p->GetFE());
-			std::cout << "Col, Row " << p->GetDetName() << " : " << col << "/" << row << std::endl;
-			TVector3 SensDim = fGeoH->GetSensorDimensionsId(p->GetDetName());
+			std::cout << "Col, Row " << p->GetSensorID() << " : " << col << "/" << row << std::endl;
+			TVector3 SensDim = fGeoH->GetSensorDimensionsShortId(p->GetSensorID());
 			std::cout << "SensDim: " << SensDim.X() << " " << SensDim.Y() << " " << SensDim.Z() << std::endl;
-			fModules[p->GetDetName()]->AddBox(((col+0.5) - (SensDim.X()*100))*0.01, ((row+0.5)-(SensDim.Y()*100))*0.01, 0.01);
-			fModules[p->GetDetName()]->DigitValue(p->GetCharge());
+			fModules[p->GetSensorID()]->AddBox(((col+0.5) - (SensDim.X()*100))*0.01, ((row+0.5)-(SensDim.Y()*100))*0.01, 0.01);
+			fModules[p->GetSensorID()]->DigitValue(p->GetCharge());
 		}
 	}
 
 	for (boxSetMapIter it = fModules.begin(); it != fModules.end(); it++){
-		   TGeoHMatrix testMatrix = *(fGeoH->GetMatrixId(it->first));
+		   TGeoHMatrix testMatrix = *(fGeoH->GetMatrixShortId(it->first));
 		   //TGeoHMatrix invMatrix = testMatrix.Inverse();
 		   Double_t scale[] = {0.01,0.01,0.01};		//Dim is 0.1 mm
 		   //testMatrix.SetScale(scale);

@@ -17,7 +17,7 @@
 #include <map>
 #include <vector>
 
-typedef std::map<TString, TEveBoxSet*>::iterator boxSetMapIter;
+typedef std::map<Int_t, TEveBoxSet*>::iterator boxSetMapIter;
 
 class PndMvdDigiPixelDraw : public FairBoxSetDraw
 {
@@ -38,7 +38,7 @@ protected:
 	void SortDigis(TClonesArray* digis);
 	TEveBoxSet* CreateNewBoxSet(TString& name);
 
-	std::map<TString, TEveBoxSet* > fModules;
+	std::map<Int_t, TEveBoxSet* > fModules;
 	PndGeoHandling* fGeoH;
 	TClonesArray* fClusterCands;
 	TClonesArray* fRecoHits;
