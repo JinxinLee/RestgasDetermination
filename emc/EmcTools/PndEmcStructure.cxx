@@ -98,7 +98,7 @@ PndEmcStructure::PndEmcStructure(TGeoManager *geoMan)
 		if (!isEmcModule) continue;
 		
       detId =  module*100000000 + row*1000000 + copy*10000 + crystal; 
-      //cout<<"module == "<< module << ", detID == "<< detId <<endl;
+ //     cout<<"module == "<< module << ", detID == "<< detId <<endl;
       PndEmcTwoCoordIndex *tci=fEmcMap->GetTCI(detId);
 		
 		if (tci==0)
@@ -116,6 +116,9 @@ PndEmcStructure::PndEmcStructure(TGeoManager *geoMan)
 		emcY[detId] = pos.Y();
 		emcZ[detId] = pos.Z();
 		
+//		cout<<"emcX["<<detId<<"]="<< emcX[detId] <<endl;
+//		cout<<"emcY["<<detId<<"]="<< emcY[detId] <<endl;
+//		cout<<"emcZ["<<detId<<"]="<< emcZ[detId] <<endl;
 		geoRot.SetMatrix(crystal_matrix->GetRotationMatrix());
 		
 		PndEmcXtal *xtal;
@@ -177,7 +180,7 @@ PndEmcStructure::PndEmcStructure(TGeoManager *geoMan)
                 box->GetDY(), box->GetDX(), box->GetDX(), 0);
             
             xtal = new PndEmcXtal(tci,crystal_shape,pos,geoRot);
-        } else {
+         } else {
             cout << "Unknown geometry type " << shapeType << " in module " << module << endl;
             abort();
         }
@@ -190,19 +193,35 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
 {
         // The following code extract information about module, copy, row and crystal number from the path name of the TGeoNode which corresponds to emc crystal
 	// Name convention is according to PndEmc.cxx
-	if (!(node_path.Contains("emc") || node_path.Contains("Crystal"))) return false;
-	
-	// Case of Fsc
-	if (node_path.Contains("Fsc")){
+
+	if (!(node_path.Contains("emc") || node_path.Contains("Crystal") || node_path.Contains("FscModuleVolume"))) return false;
+//	cout<<"1---mode_path="<<node_path<<endl;
+	// Case of old Fsc
+	if (node_path.Contains("Fsc_")){
 		//at the moment all the layers of module in Fsc are not taken into account, only the whole block is selected
 		if (node_path.Contains("FscLayer"))
 			return false;
 		TObjArray *subStrL = TPRegexp("^cave/Fsc_(\\d+)/emc(\\d+)r(\\d+)c(\\d+)_0$").MatchS(node_path);
-		
 		copy  = (((TObjString *)subStrL->At(1))->GetString()).Atoi();
 		module = (((TObjString *)subStrL->At(2))->GetString()).Atoi();
 		row  = (((TObjString *)subStrL->At(3))->GetString()).Atoi();
 		crystal  = (((TObjString *)subStrL->At(4))->GetString()).Atoi();
+		return true;
+	}
+	// Case of new Fsc
+	if (node_path.Contains("FscModuleVolume")){
+		//at the moment all the layers of module in Fsc are not taken into account, only the whole block is selected
+//		cout<<"2---mode_path="<<node_path<<endl;
+		if (node_path.Contains("FscLayer") || node_path.Contains("FscTyvek") || node_path.Contains("FscFibHole"))
+			return false;
+		TObjArray *subStrL = TPRegexp("^cave/Emc(\\d+)_(\\d+)/FscModuleVolume_(\\d+)$").MatchS(node_path);
+	//	cout<<"3---mode_path="<<node_path<<endl;
+		copy  = (((TObjString *)subStrL->At(2))->GetString()).Atoi()+1;
+		module = (((TObjString *)subStrL->At(1))->GetString()).Atoi();
+		int ModCopy =  (((TObjString *)subStrL->At(3))->GetString()).Atoi();
+		row  = ModCopy%100;
+		crystal  = ModCopy/100;
+	//	cout<<"copy="<<copy<<" module="<<module<<" row="<<row<<" crystal"<<crystal<<endl;
 		return true;
 	}
 	
@@ -213,6 +232,7 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
 			cout<<"crystal name in barrel Emc: "<<node_path<<" missmatch pattern"<<endl;
 			return false;
 		}
+
 		copy  = (((TObjString *)subStrL->At(1))->GetString()).Atoi();
 		module = (((TObjString *)subStrL->At(2))->GetString()).Atoi();
 		row  = (((TObjString *)subStrL->At(3))->GetString()).Atoi();
@@ -233,6 +253,7 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
 
    	//case new version of forward end-cap (from "emc_module3new.root" file)
    else if (node_path.Contains("QuarterVol")) { 
+
      TObjArray *subStrL = TPRegexp("^cave/Emc3_0/QuarterVol(\\d+)_(\\d+)/SubunitVol(\\d+)_(\\d+)/BoxVol(\\d+)_(\\d+)/CrystalVol(\\d+)_(\\d+)$").MatchS(node_path);
 
      if(subStrL->GetLast()<4){
@@ -322,10 +343,11 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
       module = 3;
       row = nRow;
       crystal = nCrys;
+
    }
     	//case new version of backward end-cap (from "emc_module4new.root" file) - 9.10.2008
    else if (node_path.Contains("Quarter4Vol")) { 
-	  
+
      TObjArray *subStrL;
 	  
      if (node_path.Contains("SubunitVol_")){
@@ -422,10 +444,11 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
       module = 4;
       row = nRow;
       crystal = nCrys;
+
    }
  else if (node_path.Contains("QuarterNewVol")){
       module = 4;
-     
+
      TObjArray *subStrL;
 	  
      if (node_path.Contains("SubunitVol_")){
@@ -519,12 +542,13 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
       module = 4;
       row = nRow;
       crystal = nCrys;
-      
+
 //       cout << "QNewVol module= "<< module << " row= "<< row<< " copy= "<<copy<<" crys= "<< crystal<< endl;
    }
    //case of endcups of forward calorimeter
         else {
-	  TObjArray *subStrL = TPRegexp("^cave/Emc\\d_(\\d+)/emc(\\d+)r(\\d+)c(\\d+)_0$").MatchS(node_path);
+
+      TObjArray *subStrL = TPRegexp("^cave/Emc\\d_(\\d+)/emc(\\d+)r(\\d+)c(\\d+)_0$").MatchS(node_path);
 	  if(subStrL->GetLast()<4){
 	    cout<<"crystal name in endcup Emc: "<<node_path<<" missmatch pattern"<<endl;
 	    return false;
@@ -533,7 +557,8 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
 	  module = (((TObjString *)subStrL->At(2))->GetString()).Atoi();
 	  row  = (((TObjString *)subStrL->At(3))->GetString()).Atoi();
 	  crystal  = (((TObjString *)subStrL->At(4))->GetString()).Atoi();
-	}
+
+     }
 	
 	return true;
 }
