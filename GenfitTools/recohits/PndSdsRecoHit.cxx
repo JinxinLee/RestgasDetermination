@@ -46,7 +46,7 @@ PndSdsRecoHit::~PndSdsRecoHit()
 PndSdsRecoHit::PndSdsRecoHit()
   : GFRecoHitIfc<GFPlanarHitPolicy>(fNparHitRep)
 {
-  fGeoH = new PndGeoHandling();
+  fGeoH = PndGeoHandling::Instance();
 }
 
 
@@ -81,7 +81,7 @@ PndSdsRecoHit::PndSdsRecoHit(PndSdsHit* hit)
 
 //  FairRootManager* ioman = FairRootManager::Instance();
 //  TString fGeoFile = ioman->GetInFile()->GetName();
-  fGeoH = new PndGeoHandling();
+  fGeoH = PndGeoHandling::Instance();
   TString path = fGeoH->GetPath(id);
 //  std::cout<<"Detector path: "<<path.Data()<<std::endl;
   TVector3 oo, uu, vv;

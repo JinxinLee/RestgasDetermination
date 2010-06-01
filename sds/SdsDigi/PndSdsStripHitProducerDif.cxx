@@ -121,7 +121,7 @@ void PndSdsStripHitProducerDif::SetParContainers()
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fDigiParRect = (PndSdsStripDigiPar*)(rtdb->getContainer("SSDStripDigiParRect"));
   fDigiParTrap = (PndSdsStripDigiPar*)(rtdb->getContainer("SSDStripDigiParTrap"));
-  fGeoH = new PndGeoHandling();
+  fGeoH = PndGeoHandling::Instance();
 }
 
 InitStatus PndSdsStripHitProducerDif::ReInit()

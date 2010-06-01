@@ -38,7 +38,7 @@ public:
 
     //void PrintResult();  // not implemented
     void SetVerbose(Int_t verbose){ fVerbose = verbose;};
-    void SetGeoH(PndGeoHandling geoH){ fGeoH=geoH;};
+  //  void SetGeoH(PndGeoHandling geoH){ fGeoH=geoH;};
 
 private:
 	TString fHitBranch;
@@ -53,7 +53,7 @@ private:
   double fMinPointDist;
   double fMaxDist;
 
-	PndGeoHandling fGeoH;
+//	PndGeoHandling fGeoH;
 
 	TClonesArray* fHitArray;
 	TClonesArray* fHitArray2;

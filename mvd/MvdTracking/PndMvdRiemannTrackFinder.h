@@ -16,12 +16,12 @@ public:
 	void FindTracks();										///< Main function to start the riemann track finding
 	void AddHits(TClonesArray* hits);
 
-	void SetGeoH(PndGeoHandling geoH){fGeoH=geoH;};
+	//void SetGeoH(PndGeoHandling geoH){fGeoH=geoH;};
 	void SetCutDistH(TH2F* hist) {fCutDistH=hist;}
 	void SetCutChi2H(TH2F* hist) {fCutChi2H=hist;}
 
 private:
-	PndGeoHandling fGeoH;
+	PndGeoHandling* fGeoH;
 
 	std::vector<std::vector<Int_t> >  GetStartTracks();
 	bool CheckSZ(PndRiemannTrack aTrack);				///< Tests the results of the sz fit
@@ -32,7 +32,7 @@ private:
 
 	double fZClosePar;	///< parameter to separate  forward and backward tracks
 
-	std::vector<int> fLayers[11]; ///< contains layer information of hits
+	std::vector<int> fLayers[13]; ///< contains layer information of hits
 	/*       b - barrel layer;   d - disk layer
 	0 - zero position
 	1 - 1b

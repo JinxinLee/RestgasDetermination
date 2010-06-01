@@ -95,7 +95,7 @@ void PndMvdIdealRecoTask::SetParContainers()
   //  FairRun* ana = FairRun::Instance();
   //  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   //	PndSdsIdealRecoTask::SetParContainers();
-  if(0==fGeoH) fGeoH = new PndGeoHandling();
+  if(0==fGeoH) fGeoH = PndGeoHandling::Instance();
   
 }
 

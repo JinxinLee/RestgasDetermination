@@ -40,8 +40,17 @@
 
 class PndGeoHandling{
 public:
-    PndGeoHandling(); ///< default constructor. Has to be called in SetParContainers if the support of shortId is needed.
-    //PndGeoHandling(TGeoManager* aGeoMan);
+
+	static PndGeoHandling* Instance();
+
+	static void Destroy(){
+		if (fInstance){
+			delete fInstance;
+			fInstance = 0;
+		}
+	}
+
+   //PndGeoHandling(TGeoManager* aGeoMan);
     PndGeoHandling(TString mcFile, TString parFile);
     PndGeoHandling(Int_t runID, TString parFile);
 
@@ -138,6 +147,18 @@ public:
   void InitRuntimeDb(TString parFileName);
 
 private:
+  static PndGeoHandling* fInstance;
+  PndGeoHandling(); ///< default constructor. Has to be called in SetParContainers if the support of shortId is needed.
+  PndGeoHandling(PndGeoHandling& gh){
+	  fGeoMan = gh.fGeoMan;
+	  fSensorNamePar = gh.fSensorNamePar;
+	  fRtdb = gh.fRtdb;
+	  fLevelNames = gh.fLevelNames;
+	  fLevel = gh.fLevel;
+	  fFullPath = gh.fFullPath;
+	  fVerbose = gh.fVerbose;
+	  fRunId = gh.fRunId;
+  }
 
   void DiveDownToFillSensNamePar(std::vector<std::string> listOfSensitives);
 

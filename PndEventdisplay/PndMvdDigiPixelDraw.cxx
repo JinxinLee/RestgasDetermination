@@ -33,7 +33,7 @@ PndMvdDigiPixelDraw::~PndMvdDigiPixelDraw()
 InitStatus PndMvdDigiPixelDraw::Init()
 {
 	FairBoxSetDraw::Init();
-	fGeoH = new PndGeoHandling();
+	fGeoH = PndGeoHandling::Instance();
 	fClusterCands = (TClonesArray *)fManager->GetObject("MVDPixelClusterCand");
 	fRecoHits     = (TClonesArray *)fManager->GetObject("MVDHitsPixel");
 

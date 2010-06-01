@@ -72,7 +72,7 @@ void PndSdsIdealClusterTask::SetParContainers()
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar = (PndSdsGeoPar*)(rtdb->getContainer("PndSdsGeoPar"));
 */
-	if(0==fGeoH) fGeoH = new PndGeoHandling();
+	if(0==fGeoH) fGeoH = PndGeoHandling::Instance();
   fGeoH->SetVerbose(fVerbose);
 }
 

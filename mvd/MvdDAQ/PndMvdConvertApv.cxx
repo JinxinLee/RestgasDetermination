@@ -84,7 +84,7 @@ PndMvdConvertApv::PndMvdConvertApv(const TString& CalibFileName, const TString& 
 Bool_t PndMvdConvertApv::Init()
 {
   Fatal("Init","is this geohandler at the right place?");
-  if(0==fGeoH) fGeoH = new PndGeoHandling();
+  if(0==fGeoH) fGeoH = PndGeoHandling::Instance();
   return kTRUE;
 }
 

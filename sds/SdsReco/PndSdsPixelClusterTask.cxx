@@ -55,7 +55,7 @@ PndSdsPixelClusterTask::~PndSdsPixelClusterTask()
 void PndSdsPixelClusterTask::SetParContainers()
 {
   if(fVerbose>1) Info("SetParContainers","make geohandler");
-	if(0==fGeoH) fGeoH = new PndGeoHandling();
+	if(0==fGeoH) fGeoH = PndGeoHandling::Instance();
   else if(fVerbose>1) Warning("SetParContainers","ooops there was already a geohandler");
   fGeoH->SetVerbose(fVerbose);
   if( ! fDigiPar) Fatal("SetParContainers","No digitiztiopn parameters specified");

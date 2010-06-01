@@ -36,6 +36,7 @@ PndMvdRiemannTrackFinderTask::~PndMvdRiemannTrackFinderTask()
 
 void PndMvdRiemannTrackFinderTask::SetParContainers()
 {
+//	fGeoH = PndGeoHandling::Instance();
 }
 
 InitStatus PndMvdRiemannTrackFinderTask::ReInit()

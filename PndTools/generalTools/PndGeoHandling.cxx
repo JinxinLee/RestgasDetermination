@@ -38,6 +38,16 @@
          return fGeoHandlingInstance;
  }
 */
+
+ PndGeoHandling * PndGeoHandling::fInstance= 0;
+
+PndGeoHandling* PndGeoHandling::Instance(){
+	if ( !fInstance){
+		fInstance = new PndGeoHandling();
+	}
+	return fInstance;
+}
+
 PndGeoHandling::PndGeoHandling():fVerbose(0)
 {
 /*	if (fGeoHandlingInstance){

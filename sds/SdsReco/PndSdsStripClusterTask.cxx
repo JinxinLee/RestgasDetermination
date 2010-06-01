@@ -84,7 +84,7 @@ PndSdsStripClusterTask::~PndSdsStripClusterTask()
 void PndSdsStripClusterTask::SetParContainers()
 {
   if(fVerbose>1) Info("SetParContainers","make geohandler");
-	if(0==fGeoH) fGeoH = new PndGeoHandling();
+	if(0==fGeoH) fGeoH = PndGeoHandling::Instance();
   else if(fVerbose>1) Warning("SetParContainers","ooops there was already a geohandler");
   fGeoH->SetVerbose(fVerbose);
   if(fVerbose>1) Info("SetParContainers","done.");

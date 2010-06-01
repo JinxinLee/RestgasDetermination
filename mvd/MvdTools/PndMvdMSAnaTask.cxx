@@ -85,7 +85,7 @@ void PndMvdMSAnaTask::SetParContainers()
   // Get Base Container
   /// FairRun* ana = FairRun::Instance();
   //s FairRuntimeDb* rtdb=ana->GetRuntimeDb();
-  if(0==fGeoH) fGeoH = new PndGeoHandling();
+  if(0==fGeoH) fGeoH = PndGeoHandling::Instance();
 
 }
 

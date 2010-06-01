@@ -151,7 +151,7 @@ void PndSdsNoiseProducer::SetParContainers()
   fDigiParTrap = (PndSdsStripDigiPar*)(rtdb->getContainer("MVDStripDigiParTrap"));
   fDigiParPix  = (PndSdsPixelDigiPar*)(rtdb->getContainer("MVDPixelDigiPar"));
   Info("SetParContainers","make geohandler");
-	if(0==fGeoH) fGeoH = new PndGeoHandling();
+	if(0==fGeoH) fGeoH = PndGeoHandling::Instance();
   else   Warning("SetParContainers","ooops there was already a geohandler");
   fGeoH->SetVerbose(fVerbose);
   Info("SetParContainers","done.");

@@ -294,7 +294,7 @@ InitStatus PndPidCorrelator::Init() {
    
   fCorrPar->printParams();
 
-  geoH = new PndGeoHandling();
+  geoH = PndGeoHandling::Instance();
 
   if (fGeanePro)
     {      cout << "-I- PndPidCorrelator::Init: Using Geane for Track propagation" << endl;

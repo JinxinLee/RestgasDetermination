@@ -10,7 +10,7 @@ PndMvdMCEventAna::PndMvdMCEventAna(TString fileName):PndMvdEventAna(fileName)
   Init(fileName);
   fMCTrackArray = new TClonesArray("PndMCTrack");
   fTree->SetBranchAddress("MCTrack", &fMCTrackArray);
-  fGeoH = new PndGeoHandling();
+  fGeoH = PndGeoHandling::Instance();
 }
 
 void PndMvdMCEventAna::InitBranch()

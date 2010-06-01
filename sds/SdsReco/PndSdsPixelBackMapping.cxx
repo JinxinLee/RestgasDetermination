@@ -3,7 +3,7 @@
 PndSdsPixelBackMapping::PndSdsPixelBackMapping()
 {
   Fatal("PndSdsPixelBackMapping", "We don't want to crate that here, right?");
-  if(0==fGeoH) fGeoH = new PndGeoHandling();
+  if(0==fGeoH) fGeoH = PndGeoHandling::Instance();
   fVerbose = 0;
 }
       

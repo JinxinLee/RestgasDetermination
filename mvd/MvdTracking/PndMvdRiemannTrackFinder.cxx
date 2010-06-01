@@ -8,6 +8,7 @@ PndMvdRiemannTrackFinder::PndMvdRiemannTrackFinder():PndRiemannTrackFinder(),fZC
 {
 	if (fUseZeroPos)
 		fLayers[0].push_back(0);
+	fGeoH = PndGeoHandling::Instance();
 }
 
 PndMvdRiemannTrackFinder::~PndMvdRiemannTrackFinder(){}
@@ -22,7 +23,7 @@ void PndMvdRiemannTrackFinder::AddHits(TClonesArray* hits)
 		fMapHitToID[fHits.size()-1]=myID;
 		fMapIDtoHit[myID] = fHits.size()-1;
 		PndSdsHit* tempHit=(PndSdsHit*)(hits->At(i));
-		geoPath=fGeoH.GetPath(tempHit->GetSensorID());
+		geoPath=fGeoH->GetPath(tempHit->GetSensorID());
 
 		int Layer=0;
 		bool flag=true;
