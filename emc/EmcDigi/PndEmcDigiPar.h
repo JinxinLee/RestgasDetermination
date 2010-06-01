@@ -10,14 +10,20 @@ class PndEmcDigiPar : public FairParGenericSet
 	public:
 		Double_t GetEnergyHitThreshold() {return fEnergyHitThreshold;};
 		Double_t GetDetectedPhotonsPerMeV() {return fDetectedPhotonsPerMeV;};
+		Double_t GetSensitiveAreaAPD() {return fSensitiveAreaAPD;};
+		Double_t GetSensitiveAreaVPT() {return fSensitiveAreaVPT;};
+		Double_t GetQuantumEfficiencyAPD() {return fQuantumEfficiencyAPD;};
+		Double_t GetQuantumEfficiencyVPT() {return fQuantumEfficiencyVPT;};
+		Double_t GetExcessNoiseFactorAPD() {return fExcessNoiseFactorAPD;};
+		Double_t GetExcessNoiseFactorVPT() {return fExcessNoiseFactorVPT;};
+		Double_t GetIncoherent_elec_noise_width_GeV_APD() {return fIncoherent_elec_noise_width_GeV_APD;};
+		Double_t GetIncoherent_elec_noise_width_GeV_VPT() {return fIncoherent_elec_noise_width_GeV_VPT;};
 		Double_t GetEnergyRange() {return fEnergyRange;};
 		Double_t GetEnergyRangeBW() {return fEnergyRangeBW;};
-		Double_t GetExcessNoiseFactor() {return fExcessNoiseFactor;};
 		Double_t GetFirstSamplePhase() {return fFirstSamplePhase;};
 		Double_t GetShaping_diff_time() {return fShaping_diff_time;};
 		Double_t GetShaping_int_time() {return fShaping_int_time;};
 		Double_t GetCrystal_time_constant() {return fCrystal_time_constant;};
-		Double_t GetIncoherent_elec_noise_width_GeV() {return fIncoherent_elec_noise_width_GeV;};
 		Double_t GetSampleRate() {return fSampleRate;};
 		Double_t GetEnergyDigiThreshold() {return fEnergyDigiThreshold;};
 		Int_t GetNBits() {return fNBits;};
@@ -41,14 +47,20 @@ class PndEmcDigiPar : public FairParGenericSet
 	private :
 		Double_t fEnergyHitThreshold;
 		Double_t fDetectedPhotonsPerMeV;
+		Double_t fSensitiveAreaAPD; // mm^2
+		Double_t fSensitiveAreaVPT; // mm^2
+		Double_t fQuantumEfficiencyAPD;
+		Double_t fQuantumEfficiencyVPT;
+		Double_t fExcessNoiseFactorAPD;
+		Double_t fExcessNoiseFactorVPT;
+		Double_t fIncoherent_elec_noise_width_GeV_APD;
+		Double_t fIncoherent_elec_noise_width_GeV_VPT;
 		Double_t fEnergyRange;
 		Double_t fEnergyRangeBW;
-		Double_t fExcessNoiseFactor;
 		Double_t fFirstSamplePhase;
 		Double_t fShaping_diff_time;
 		Double_t fShaping_int_time;
 		Double_t fCrystal_time_constant;
-		Double_t fIncoherent_elec_noise_width_GeV;
 		Double_t fSampleRate;
 		Double_t fEnergyDigiThreshold;
 		Int_t fNBits;

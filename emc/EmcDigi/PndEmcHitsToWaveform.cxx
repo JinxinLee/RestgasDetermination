@@ -35,6 +35,7 @@
 #include "TClonesArray.h"
 
 #include <iostream>
+#include <cassert>
 //#include <map>
 //#include <string>
 
@@ -85,15 +86,21 @@ InitStatus PndEmcHitsToWaveform::Init()
 
 	fNBits=fDigiPar->GetNBits();
 	fDetectedPhotonsPerMeV=fDigiPar->GetDetectedPhotonsPerMeV();
+	fSensitiveAreaAPD=fDigiPar->GetSensitiveAreaAPD();
+	fSensitiveAreaVPT=fDigiPar->GetSensitiveAreaVPT();
+	fQuantumEfficiencyAPD=fDigiPar->GetQuantumEfficiencyAPD();
+	fQuantumEfficiencyVPT=fDigiPar->GetQuantumEfficiencyVPT();
+	fExcessNoiseFactorAPD=fDigiPar->GetExcessNoiseFactorAPD();
+	fExcessNoiseFactorVPT=fDigiPar->GetExcessNoiseFactorVPT();
+	fIncoherent_elec_noise_width_GeV_APD=fDigiPar->GetIncoherent_elec_noise_width_GeV_APD(); //GeV
+	fIncoherent_elec_noise_width_GeV_VPT=fDigiPar->GetIncoherent_elec_noise_width_GeV_VPT(); //GeV
 	fEnergyRange=fDigiPar->GetEnergyRange(); //GeV
 	fEnergyRangeBW=fDigiPar->GetEnergyRangeBW(); //GeV	
-	fExcessNoiseFactor=fDigiPar->GetExcessNoiseFactor();
 	fFirstSamplePhase=fDigiPar->GetFirstSamplePhase();
 	fNumber_of_samples_in_waveform=fDigiPar->GetNumber_of_samples_in_waveform();
 	fShaping_diff_time=fDigiPar->GetShaping_diff_time();     //s
 	fShaping_int_time=fDigiPar->GetShaping_int_time();      //s
 	fCrystal_time_constant=fDigiPar->GetCrystal_time_constant();  //s
-	fIncoherent_elec_noise_width_GeV=fDigiPar->GetIncoherent_elec_noise_width_GeV(); //GeV
 	fSampleRate=fDigiPar->GetSampleRate();
 	fUse_shaped_noise=fDigiPar->GetUse_shaped_noise();
 	fUse_photon_statistic=fDigiPar->GetUse_photon_statistic();
@@ -103,15 +110,17 @@ InitStatus PndEmcHitsToWaveform::Init()
 	cout<<"EMC digitisation parameters "<<endl;
 	cout<<"  nBits "<<fNBits<<endl;
 	cout<<"  detectedPhotonsPerMeV "<<fDetectedPhotonsPerMeV<<endl;
+	cout<<"  excessNoiseFactor APD"<<fExcessNoiseFactorAPD<<endl;
+	cout<<"  excessNoiseFactor VPT"<<fExcessNoiseFactorVPT<<endl;
+	cout<<"  incoherent_elec_noise_width_GeV_APD "<<fIncoherent_elec_noise_width_GeV_APD<<endl;
+	cout<<"  incoherent_elec_noise_width_GeV_VPT "<<fIncoherent_elec_noise_width_GeV_VPT<<endl;
 	cout<<"  energyRange "<<fEnergyRange<<endl;
 	cout<<"  energyRangeBW "<<fEnergyRangeBW<<endl;	
-	cout<<"  excessNoiseFactor "<<fExcessNoiseFactor<<endl;
 	cout<<"  firstSamplePhase "<<fFirstSamplePhase<<endl;
 	cout<<"  number_of_samples_in_waveform "<<fNumber_of_samples_in_waveform<<endl;
 	cout<<"  Shaping_diff_time "<<fShaping_diff_time<<endl;
 	cout<<"  Shaping_int_time "<<fShaping_int_time<<endl;
 	cout<<"  crystal_time_constant "<<fCrystal_time_constant<<endl;
-	cout<<"  incoherent_elec_noise_width_GeV "<<fIncoherent_elec_noise_width_GeV<<endl;
 	cout<<"  sampleRate "<<fSampleRate<<endl;
 	cout<<"  use_shaped_noise "<<fUse_shaped_noise<<endl;
 	cout<<"  use_photon_statistic "<<fUse_photon_statistic<<endl;
@@ -132,6 +141,14 @@ InitStatus PndEmcHitsToWaveform::Init()
 	
 	fFirstADCBinTime=fFirstSamplePhase/fSampleRate;
 	
+	// Calculate number of photoelectrons for APD and VPT
+	// The number fDetectedPhotonsPerMeV is the measured number of photoelectrons with PM covering the whole rear surface divided by quantum efficiency of PM (18%)
+	// To estimate Number of photoelectrons in barrel the rare surface is taken equal for all the crystals 745 mm^2, which is average surface, hovewer it varies depending on the type of the crystal
+	// For forward and backward endcap rear surface is equal 26x26=676 mm^2
+	// Therefore the different number of photoelectrons are used with APD for barrel and backward endcap
+	fNPhotoElectronsPerMeVAPDBarrel=fDetectedPhotonsPerMeV*fSensitiveAreaAPD/745.*fQuantumEfficiencyAPD;
+	fNPhotoElectronsPerMeVAPDBWD=fDetectedPhotonsPerMeV*fSensitiveAreaAPD/676.*fQuantumEfficiencyAPD;
+	fNPhotoElectronsPerMeVVPT=fDetectedPhotonsPerMeV*fSensitiveAreaVPT/676.*fQuantumEfficiencyVPT;
 	delete pulseshape;
 	delete tmpwaveform;
 	
@@ -165,7 +182,27 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 		Int_t detId=theHit->GetDetectorID();
 		waveformInd.insert(detId);
 		theWaveform = AddWaveform(detId,iHit);
-		theWaveform->UpdateWaveform(theHit, fDetectedPhotonsPerMeV, fUse_photon_statistic, fExcessNoiseFactor, fFirstSamplePhase, fSampleRate, pulseshape);
+		Int_t module = theWaveform->GetModule();
+		switch (module){
+			case 1: // Barrel 
+					theWaveform->UpdateWaveform(theHit, fNPhotoElectronsPerMeVAPDBarrel, fUse_photon_statistic, fExcessNoiseFactorAPD, fFirstSamplePhase, fSampleRate, pulseshape);
+					break;
+			case 2: // Barrel
+					theWaveform->UpdateWaveform(theHit, fNPhotoElectronsPerMeVAPDBarrel, fUse_photon_statistic, fExcessNoiseFactorAPD, fFirstSamplePhase, fSampleRate, pulseshape);
+					break;
+			case 3: // Fwd endcap
+					theWaveform->UpdateWaveform(theHit, fNPhotoElectronsPerMeVVPT, fUse_photon_statistic, fExcessNoiseFactorVPT, fFirstSamplePhase, fSampleRate, pulseshape);
+					break;
+			case 4: // Bwd endcap
+					theWaveform->UpdateWaveform(theHit, fNPhotoElectronsPerMeVVPT, fUse_photon_statistic, fExcessNoiseFactorVPT, fFirstSamplePhase, fSampleRate, pulseshape);
+					break;
+			case 5: // Shashlyk calorimetr (At the moment parameters from barrel are used)
+					theWaveform->UpdateWaveform(theHit, fNPhotoElectronsPerMeVAPDBarrel, fUse_photon_statistic, fExcessNoiseFactorAPD, fFirstSamplePhase, fSampleRate, pulseshape);
+					break;
+			default:
+				std::cout<<"Unknown module number in EMC digitization"<<std::endl;
+				abort();
+		}
 	}
 	
 	// Produce waveforms in all the crystals, not only where hits took place 
@@ -198,26 +235,60 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 	for (Int_t iWf=0; iWf<nWf; iWf++) {
 		theWaveform = (PndEmcWaveform*) fWaveformArray->At(iWf);
 		Int_t module = theWaveform->GetModule();
-		
-
-		if (fUse_shaped_noise==0)
-		{
-			if(module == 4){
-				theWaveform->AddElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV*fGevPeakAnalogue,fOneBitResolutionBW);
-			}
-			else{
-				theWaveform->AddElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV*fGevPeakAnalogue,fOneBitResolution);
-			}
-		} else {
-			if(module == 4){
-				theWaveform->AddShapedElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV*fGevPeakAnalogue,fOneBitResolutionBW, pulseshape2, fFirstSamplePhase, fSampleRate);
-			}
-			else{
-				theWaveform->AddShapedElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV*fGevPeakAnalogue,fOneBitResolution, pulseshape2, fFirstSamplePhase, fSampleRate);
-			}
+		switch (module){
+			case 1: // Barrel 
+				if (fUse_shaped_noise==0)
+				{
+					theWaveform->AddElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_APD*fGevPeakAnalogue,fOneBitResolution);
+				}
+				else {
+					theWaveform->AddShapedElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_APD*fGevPeakAnalogue,fOneBitResolution, pulseshape2, fFirstSamplePhase, fSampleRate);
+				}
+				break;
+			case 2: // Barrel 
+				if (fUse_shaped_noise==0)
+				{
+					theWaveform->AddElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_APD*fGevPeakAnalogue,fOneBitResolution);
+				}
+				else {
+					theWaveform->AddShapedElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_APD*fGevPeakAnalogue,fOneBitResolution, pulseshape2, fFirstSamplePhase, fSampleRate);
+				}
+				break;
+			case 3: // FWD Endcap 
+				if (fUse_shaped_noise==0)
+				{
+					theWaveform->AddElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_VPT*fGevPeakAnalogue,fOneBitResolution);
+				}
+				else {
+					theWaveform->AddShapedElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_VPT*fGevPeakAnalogue,fOneBitResolution, pulseshape2, fFirstSamplePhase, fSampleRate);
+				}
+				break;
+			case 4: // BWD Endcap 
+				if (fUse_shaped_noise==0)
+				{
+					theWaveform->AddElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_APD*fGevPeakAnalogue,fOneBitResolutionBW);
+				}
+				else {
+					theWaveform->AddShapedElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_APD*fGevPeakAnalogue,fOneBitResolutionBW, pulseshape2, fFirstSamplePhase, fSampleRate);
+				}
+				break;
+			case 5: // shashlyk calorimetr 
+				if (fUse_shaped_noise==0)
+				{
+					theWaveform->AddElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_APD*fGevPeakAnalogue,fOneBitResolution);
+				}
+				else {
+					theWaveform->AddShapedElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_APD*fGevPeakAnalogue,fOneBitResolution, pulseshape2, fFirstSamplePhase, fSampleRate);
+				}
+				break;
+			default:
+				std::cout<<"Unknown module number in EMC digitization"<<std::endl;
+				abort();
 		}
 	}
 
+	delete pulseshape;
+	
 	if (fVerbose>0){
 		timer.Stop();
 		Double_t rtime = timer.RealTime();

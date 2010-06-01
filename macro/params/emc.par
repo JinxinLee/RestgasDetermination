@@ -12,16 +12,22 @@
 [PndEmcDigiPar]
 EnergyHitThreshold:Double_t 0.000001
 NBits:Int_t 14
-DetectedPhotonsPerMeV:Double_t 150
+DetectedPhotonsPerMeV:Double_t 500
+SensitiveAreaAPD:Double_t 200
+SensitiveAreaVPT:Double_t 200 
+QuantumEfficiencyAPD:Double_t 0.7
+QuantumEfficiencyVPT:Double_t 0.22
+ExcessNoiseFactorAPD:Double_t 1.38
+ExcessNoiseFactorVPT:Double_t 2.2
+Incoherent_elec_noise_width_GeV_APD:Double_t 1.0e-3
+Incoherent_elec_noise_width_GeV_VPT:Double_t 1.0e-3
 EnergyRange:Double_t 15
 EnergyRangeBW:Double_t 3
-ExcessNoiseFactor:Double_t 1.38
 FirstSamplePhase:Double_t 0
 Number_of_samples_in_waveform:Int_t 64
 Shaping_diff_time:Double_t 100e-9
 Shaping_int_time:Double_t 500e-9
 Crystal_time_constant:Double_t 12e-9
-Incoherent_elec_noise_width_GeV:Double_t 1.0e-3
 SampleRate:Double_t 80e6
 Use_shaped_noise:Int_t 1
 Use_photon_statistic:Int_t 1

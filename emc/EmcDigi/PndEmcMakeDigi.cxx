@@ -91,13 +91,29 @@ InitStatus PndEmcMakeDigi::Init()
 	
 	// The following parameters define if energy of hit will be copied to digi or it will be smeared
 	fUseDigiEffectiveSmearing=fDigiPar->GetUseDigiEffectiveSmearing();
-	fExcessNoiseFactor=fDigiPar->GetExcessNoiseFactor();
-	fIncoherent_elec_noise_width_GeV=fDigiPar->GetIncoherent_elec_noise_width_GeV(); //GeV
 	fDetectedPhotonsPerMeV=fDigiPar->GetDetectedPhotonsPerMeV();
+	fSensitiveAreaAPD=fDigiPar->GetSensitiveAreaAPD();
+	fSensitiveAreaVPT=fDigiPar->GetSensitiveAreaVPT();
+	fQuantumEfficiencyAPD=fDigiPar->GetQuantumEfficiencyAPD();
+	fQuantumEfficiencyVPT=fDigiPar->GetQuantumEfficiencyVPT();
+	fExcessNoiseFactorAPD=fDigiPar->GetExcessNoiseFactorAPD();
+	fExcessNoiseFactorVPT=fDigiPar->GetExcessNoiseFactorVPT();
+	fIncoherent_elec_noise_width_GeV_APD=fDigiPar->GetIncoherent_elec_noise_width_GeV_APD(); //GeV
+	fIncoherent_elec_noise_width_GeV_VPT=fDigiPar->GetIncoherent_elec_noise_width_GeV_VPT(); //GeV
 	
 	fThreshold=fDigiPar->GetEnergyDigiThreshold();
 	fGeoPar->InitEmcMapper();  
 	PndEmcStructure::Instance();
+
+
+	// Calculate number of photoelectrons for APD and VPT
+	// The number fDetectedPhotonsPerMeV is the measured number of photoelectrons with PM covering the whole rear surface divided by quantum efficiency of PM (18%)
+	// To estimate Number of photoelectrons in barrel the rare surface is taken equal for all the crystals 745 mm^2, which is average surface, hovewer it varies depending on the type of the crystal
+	// For forward and backward endcap rear surface is equal 26x26=676 mm^2
+	// Therefore the different number of photoelectrons are used with APD for barrel and backward endcap
+	fNPhotoElectronsPerMeVAPDBarrel=fDetectedPhotonsPerMeV*fSensitiveAreaAPD/745.*fQuantumEfficiencyAPD;
+	fNPhotoElectronsPerMeVAPDBWD=fDetectedPhotonsPerMeV*fSensitiveAreaAPD/676.*fQuantumEfficiencyAPD;
+	fNPhotoElectronsPerMeVVPT=fDetectedPhotonsPerMeV*fSensitiveAreaVPT/676.*fQuantumEfficiencyVPT;
 
 	cout << "-I- PndEmcMakeDigi: Intialization successfull" << endl;
 	
@@ -122,8 +138,6 @@ void PndEmcMakeDigi::Exec(Option_t* opt)
 		int detId=theHit->GetDetectorID();
 		Double_t energy=theHit->GetEnergy();
 		
-		//int module = detId/100000000;
-		
 		if (energy>fThreshold)
 		{
 			Int_t trackId=theHit->GetRefIndex();
@@ -132,8 +146,34 @@ void PndEmcMakeDigi::Exec(Option_t* opt)
 			// Smear hit energy as sigma/E=sqrt((a/sqrt(E))^2+(E_noise/E)^2)
 			// i.e stochastic and noise term of energy resolution are taken into account
 			if (fUseDigiEffectiveSmearing){
-				Double_t a=sqrt(fExcessNoiseFactor/(fDetectedPhotonsPerMeV*1e3)); // 1e3 is conversion from MeV to GeV
-				Double_t sigma_E=sqrt(pow(a/sqrt(energy),2)+pow(fIncoherent_elec_noise_width_GeV/energy,2));
+				int module = theHit->GetModule();
+				Double_t a,sigma_E;
+				switch (module){
+					case 1: // Barrel 
+						a=sqrt(fExcessNoiseFactorAPD/(fNPhotoElectronsPerMeVAPDBarrel*1e3)); // 1e3 is conversion from MeV to GeV
+						sigma_E=sqrt(pow(a/sqrt(energy),2)+pow(fIncoherent_elec_noise_width_GeV_APD/energy,2));
+						break;
+					case 2: // Barrel 
+						a=sqrt(fExcessNoiseFactorAPD/(fNPhotoElectronsPerMeVAPDBarrel*1e3)); // 1e3 is conversion from MeV to GeV
+						sigma_E=sqrt(pow(a/sqrt(energy),2)+pow(fIncoherent_elec_noise_width_GeV_APD/energy,2));
+						break;
+					case 3: // FWD endcap 
+						a=sqrt(fExcessNoiseFactorVPT/(fNPhotoElectronsPerMeVVPT*1e3)); // 1e3 is conversion from MeV to GeV
+						sigma_E=sqrt(pow(a/sqrt(energy),2)+pow(fIncoherent_elec_noise_width_GeV_VPT/energy,2));
+						break;
+					case 4: // BWD endcap 
+						a=sqrt(fExcessNoiseFactorAPD/(fNPhotoElectronsPerMeVAPDBWD*1e3)); // 1e3 is conversion from MeV to GeV
+						sigma_E=sqrt(pow(a/sqrt(energy),2)+pow(fIncoherent_elec_noise_width_GeV_APD/energy,2));
+						break;
+					case 5: // shashlyk
+						// sigma/E=5.6/E+2.4/sqrt(E)+1.3 (%)
+						sigma_E=sqrt(pow(0.056/energy,2)+pow(0.024/sqrt(energy),2)+0.013);
+						break;
+					default:
+						std::cout<<"Unknown module number in EMC digitization"<<std::endl;
+						abort();
+				}
+				
 				energy= gRandom->Gaus(energy,sigma_E*energy);
 			}
 			

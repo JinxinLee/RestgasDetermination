@@ -66,9 +66,19 @@ private:
 	Double_t fEmcDigiPositionDepth;
 	
 	Int_t fUseDigiEffectiveSmearing;
-	Double_t fExcessNoiseFactor;
-	Double_t fIncoherent_elec_noise_width_GeV; //GeV
 	Double_t fDetectedPhotonsPerMeV;
+	Double_t fNPhotoElectronsPerMeVAPDBarrel;
+	Double_t fNPhotoElectronsPerMeVAPDBWD;
+	Double_t fNPhotoElectronsPerMeVVPT;
+	Double_t fSensitiveAreaAPD; //mm^2
+	Double_t fSensitiveAreaVPT; //mm^2
+	Double_t fQuantumEfficiencyAPD;
+	Double_t fQuantumEfficiencyVPT;
+	Double_t fExcessNoiseFactorAPD;
+	Double_t fExcessNoiseFactorVPT;
+	Double_t fIncoherent_elec_noise_width_GeV_APD; //GeV
+	Double_t fIncoherent_elec_noise_width_GeV_VPT; //GeV
+
 	
 	Int_t fMapVersion;
 
