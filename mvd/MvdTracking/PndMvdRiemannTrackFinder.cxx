@@ -6,6 +6,7 @@
 
 PndMvdRiemannTrackFinder::PndMvdRiemannTrackFinder():PndRiemannTrackFinder(),fZClosePar(0.1)
 {
+	fLayers.resize(13);
 	if (fUseZeroPos)
 		fLayers[0].push_back(0);
 	fGeoH = PndGeoHandling::Instance();
@@ -28,19 +29,43 @@ void PndMvdRiemannTrackFinder::AddHits(TClonesArray* hits)
 		int Layer=0;
 		bool flag=true;
 ///////////////////////	getting layer's information
-    	if (flag && geoPath.Contains("PixeloBl1ov2-NEW_1")){Layer=1;flag=false;}
-		if (flag && geoPath.Contains("PixeloSdk-v2-NEW_1")){Layer=2;flag=false;}
-		if (flag && geoPath.Contains("PixeloSdk-v2-NEW_2")){Layer=3;flag=false;}
-		if (flag && geoPath.Contains("PixeloBl2ov3-NEW_1")){Layer=4;flag=false;}
-		if (flag && geoPath.Contains("PixeloMdkov1-NEW_1")){Layer=5;flag=false;}
-		if (flag && geoPath.Contains("PixeloMdkov1-NEW_2")){Layer=6;flag=false;}
-		if (flag && geoPath.Contains("StripoBl3_1")){Layer=7;flag=false;}
-		if (flag && geoPath.Contains("PixeloMdkov1-NEW_3")){Layer=8;flag=false;}
-		if (flag && geoPath.Contains("StripoLdk_1")){Layer=8;flag=false;}
-		if (flag && geoPath.Contains("StripoBl4_1")){Layer=9;flag=false;}
-		if (flag && geoPath.Contains("PixeloMdkov1-NEW_4")){Layer=10;flag=false;}
-		if (flag && geoPath.Contains("StripoLdk_2")){Layer=10;flag=false;}
+	  	if (flag && geoPath.Contains("PixeloBlo1")){Layer=1;flag=false;}
+		if (flag && geoPath.Contains("PixeloSdkoco(Silicon)_1")){Layer=2;flag=false;}
+		if (flag && geoPath.Contains("PixeloSdkoco(Silicon)_2")){Layer=3;flag=false;}
+		if (flag && geoPath.Contains("PixeloBlo2")){Layer=4;flag=false;}
+		if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_1")){Layer=5;flag=false;}
+		if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_2")){Layer=6;flag=false;}
+		if (flag && geoPath.Contains("StripoBl3o(Silicon)")){Layer=7;flag=false;}
+		if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_3")){Layer=8;flag=false;}
+		if (flag && geoPath.Contains("Fwdo(Silicon)_1")){Layer=8;flag=false;}
+		if (flag && geoPath.Contains("StripoBl4o(Silicon)")){Layer=9;flag=false;}
+		if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_4")){Layer=10;flag=false;}
+		if (flag && geoPath.Contains("Fwdo(Silicon)_2")){Layer=10;flag=false;}
+
+		if (flag && geoPath.Contains("StripoLdkoTrapSoRingAoSilicon_1")){Layer=11;flag=false;}
+		if (flag && geoPath.Contains("StripoLdkoTrapSoRingAoSilicon_2")){Layer=12;flag=false;}
+		if (flag && geoPath.Contains("StripoLdkoTrapSoRingBoSilicon_1")){Layer=11;flag=false;}
+		if (flag && geoPath.Contains("StripoLdkoTrapSoRingBoSilicon_2")){Layer=12;flag=false;}
+
+//    	if (flag && geoPath.Contains("PixeloBl1ov2-NEW_1")){Layer=1;flag=false;}
+//		if (flag && geoPath.Contains("PixeloSdk-v2-NEW_1")){Layer=2;flag=false;}
+//		if (flag && geoPath.Contains("PixeloSdk-v2-NEW_2")){Layer=3;flag=false;}
+//		if (flag && geoPath.Contains("PixeloBl2ov3-NEW_1")){Layer=4;flag=false;}
+//		if (flag && geoPath.Contains("PixeloMdkov1-NEW_1")){Layer=5;flag=false;}
+//		if (flag && geoPath.Contains("PixeloMdkov1-NEW_2")){Layer=6;flag=false;}
+//		if (flag && geoPath.Contains("StripoBl3_1")){Layer=7;flag=false;}
+//		if (flag && geoPath.Contains("PixeloMdkov1-NEW_3")){Layer=8;flag=false;}
+//		if (flag && geoPath.Contains("StripoLdk_1")){Layer=8;flag=false;}
+//		if (flag && geoPath.Contains("StripoBl4_1")){Layer=9;flag=false;}
+//		if (flag && geoPath.Contains("PixeloMdkov1-NEW_4")){Layer=10;flag=false;}
+//		if (flag && geoPath.Contains("StripoLdk_2")){Layer=10;flag=false;}
 ////////////////////////////
+		int nLayers = fLayers.size();
+		while (nLayers < Layer+1){
+			std::vector<int> dummy;
+			fLayers.push_back(dummy);
+			nLayers = fLayers.size();
+		}
 		fLayers[Layer].push_back(fHits.size()-1);  //putting hit in layers array
 	}
 }

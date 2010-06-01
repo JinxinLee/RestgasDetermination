@@ -3,11 +3,11 @@
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
   // Input file (MC events)
-  TString MCFile = "Mvd_TestNewVersion.root";
+  TString MCFile = "Mvd_Test.root";
   // Parameter file
-  TString parFile = "MvdParamsNewVersion.root";
+  TString parFile = "Mvd_Params.root";
   // Parameter output file
-  TString parOutFile = "MvdParamsNewVersion.root";
+  TString parOutFile = "Mvd_Params.root";
   // Number of events to process
   Int_t nEvents = 100;
   // ----  Load libraries   -------------------------------------------------
@@ -85,7 +85,7 @@
  rtdb->print();
   // =====                 End of HitProducers                           =====
   // =========================================================================
-     PndMvdGeoPar* geoPar  = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar")); 
+  //   PndMvdGeoPar* geoPar  = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
   
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();

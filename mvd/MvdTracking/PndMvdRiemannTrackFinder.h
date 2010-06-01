@@ -6,6 +6,7 @@
 #include "PndGeoHandling.h"
 
 #include "TH2F.h"
+#include <vector>
 
 class PndMvdRiemannTrackFinder : public  PndRiemannTrackFinder
 {
@@ -32,7 +33,7 @@ private:
 
 	double fZClosePar;	///< parameter to separate  forward and backward tracks
 
-	std::vector<int> fLayers[13]; ///< contains layer information of hits
+	std::vector< std::vector<int> >fLayers; ///< contains layer information of hits
 	/*       b - barrel layer;   d - disk layer
 	0 - zero position
 	1 - 1b
