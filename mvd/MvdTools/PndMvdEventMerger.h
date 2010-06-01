@@ -1,5 +1,5 @@
-#ifndef PNDMVDEVENTMERGER_H_
-#define PNDMVDEVENTMERGER_H_
+#ifndef PNDMVDEVENTMERGER_H
+#define PNDMVDEVENTMERGER_H
 
 #include "TString.h"
 #include "TObject.h"
@@ -27,4 +27,4 @@ private:
 	
 };
 
-#endif /*PNDMVDEVENTMERGER_H_*/
+#endif /*PNDMVDEVENTMERGER_H*/

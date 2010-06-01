@@ -5,8 +5,8 @@
  *      Author: stockman
  */
 
-#ifndef PNDMVDRADDAMLIST_H_
-#define PNDMVDRADDAMLIST_H_
+#ifndef PNDMVDRADDAMLIST_H
+#define PNDMVDRADDAMLIST_H
 
 #include <vector>
 #include <utility>
@@ -31,4 +31,4 @@ private:
 
 };
 
-#endif /* PNDMVDRADDAMLIST_H_ */
+#endif /* PNDMVDRADDAMLIST_H */

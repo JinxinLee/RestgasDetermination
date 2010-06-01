@@ -51,9 +51,9 @@ public:
 
   //  static PndGeoHandling* Instance();
   
-  TString GetCurrentID(); ///< returns the ID of the current node
-  TString GetID(TString path); ///< for a given TGeoManager-path the ID is returned
-  TString GetPath(TString id); ///< for a given ID the path is returned
+//  TString GetCurrentID(); ///< returns the ID of the current node
+//  TString GetID(TString path); ///< for a given TGeoManager-path the ID is returned
+//  TString GetPath(TString id); ///< for a given ID the path is returned
 
   TString GetPath(Int_t shortID); ///< for a given shortID the path is returned
   Int_t	  GetShortID(TString path); ///< for a given path the (unique) position of the sensor path in the fSensorNamePar-List is given. If it is not found -1 is returned.
@@ -61,44 +61,44 @@ public:
   TString GetVolumeID(TString name); ///< returns the volume ID for a given volume name
   std::vector<TString> GetNamesLevel(Int_t level, TString startPath = "", bool fullPath = false);
   void GetOUVPath(TString path, TVector3& o, TVector3& u, TVector3& v); ///< for a volume given by its path the o, u, v vectors for the plane are returned
-  void GetOUVId(TString id, TVector3& o, TVector3& u, TVector3& v); ///< for a volume given by its ID the o, u, v vectors for the plane are returned
+//  void GetOUVId(TString id, TVector3& o, TVector3& u, TVector3& v); ///< for a volume given by its ID the o, u, v vectors for the plane are returned
   void GetOUVShortId(Int_t shortId, TVector3& o, TVector3& u, TVector3& v){
   	  if (fSensorNamePar != 0)
   		  GetOUVPath(GetPath(shortId), o, u, v);
     }
 
   TGeoHMatrix* GetMatrixPath(TString path);
-  TGeoHMatrix* GetMatrixId(TString id);
+//  TGeoHMatrix* GetMatrixId(TString id);
   TGeoHMatrix* GetMatrixShortId(Int_t shortId){
 	  return GetMatrixPath(GetPath(shortId));
 	}
 
-  TVector3 GetSensorDimensionsId(TString id);
+//  TVector3 GetSensorDimensionsId(TString id);
   TVector3 GetSensorDimensionsPath(TString path);
   TVector3 GetSensorDimensionsShortId(Int_t shortId){
   	  return GetSensorDimensionsPath(GetPath(shortId));
     }
 
-  TVector3 MasterToLocalId(const TVector3& master, const TString& id);
+//  TVector3 MasterToLocalId(const TVector3& master, const TString& id);
   TVector3 MasterToLocalPath(const TVector3& master, const TString& id);
   TVector3 MasterToLocalShortId(const TVector3& master, const Int_t& shortId){
  	  return MasterToLocalPath(master, GetPath(shortId));
    }
 
-  TVector3 LocalToMasterId(const TVector3& local, const TString& id);
+//  TVector3 LocalToMasterId(const TVector3& local, const TString& id);
   TVector3 LocalToMasterPath(const TVector3& local, const TString& id);
   TVector3 LocalToMasterShortId(const TVector3& local, const Int_t& shortId){
  	  return LocalToMasterPath(local, GetPath(shortId));
    }
 
   // TODO: Recheck the error calculation for 3-vectors
-  TVector3 MasterToLocalErrorsId(const TVector3& master, const TString& id);
+//  TVector3 MasterToLocalErrorsId(const TVector3& master, const TString& id);
   TVector3 MasterToLocalErrorsPath(const TVector3& master, const TString& id);
   TVector3 MasterToLocalErrorsShortId(const TVector3& master, const Int_t& shortId){
  	  return MasterToLocalErrorsPath(master, GetPath(shortId));
    }
 
-  TVector3 LocalToMasterErrorsId(const TVector3& local, const TString& id);
+//  TVector3 LocalToMasterErrorsId(const TVector3& local, const TString& id);
   TVector3 LocalToMasterErrorsPath(const TVector3& local, const TString& id);
   TVector3 LocalToMasterErrorsShortId(const TVector3& local, const Int_t& shortId){
   	  return LocalToMasterErrorsPath(local, GetPath(shortId));

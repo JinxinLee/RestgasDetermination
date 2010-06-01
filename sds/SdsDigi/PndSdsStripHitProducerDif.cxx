@@ -240,8 +240,8 @@ void PndSdsStripHitProducerDif::Exec(Option_t* opt)
       }
 
       // transform to local sensor system... (mc point has the ID not the path to the volume)
-      TVector3 posInL = fGeoH->MasterToLocalId(point->GetPosition(),point->GetSensorID());
-      TVector3 posOutL = fGeoH->MasterToLocalId(point->GetPositionOut(),point->GetSensorID());
+      TVector3 posInL = fGeoH->MasterToLocalShortId(point->GetPosition(),point->GetSensorID());
+      TVector3 posOutL = fGeoH->MasterToLocalShortId(point->GetPositionOut(),point->GetSensorID());
 
       if (fVerbose > 2){
         posInL.Print();posOutL.Print();

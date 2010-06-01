@@ -5,8 +5,8 @@
  *      Author: stockman
  */
 
-#ifndef PNDMVDANARADDAM_H_
-#define PNDMVDANARADDAM_H_
+#ifndef PNDMVDANARADDAM_H
+#define PNDMVDANARADDAM_H
 
 #include "TFile.h"
 #include "TString.h"
@@ -41,4 +41,4 @@ private:
 	void AddHisto(TH2D* histo);
 };
 
-#endif /* PNDMVDANARADDAM_H_ */
+#endif /* PNDMVDANARADDAM_H */

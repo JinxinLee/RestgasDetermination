@@ -152,7 +152,7 @@ void PndGeoHandling::GetGeoManager()
 	fRtdb->initContainers(fRunId);
 }
 
-
+/*
 TString PndGeoHandling::GetCurrentID()
 {
  Int_t level;
@@ -172,7 +172,9 @@ TString PndGeoHandling::GetCurrentID()
  }
  return result;
 }
+ */
 
+/*
 TString PndGeoHandling::GetID(TString path)
 {
 	TString result;
@@ -182,6 +184,7 @@ TString PndGeoHandling::GetID(TString path)
 	fGeoMan->cd(currentPath.Data());
 	return result;
 }
+*/
 
 Int_t PndGeoHandling::GetShortID(TString path)
 {
@@ -203,7 +206,7 @@ TString PndGeoHandling::GetPath(Int_t shortID)
 	}
 }
 
-
+/*
 TString PndGeoHandling::GetPath(TString id)
 {
 	TString result;
@@ -227,11 +230,14 @@ TString PndGeoHandling::GetPath(TString id)
 //   if(fVerbose>2) std::cout<<" -I- PndGeoHandling::GetPath: result = "<<result.Data()<<std::endl;
 	return result;
 }
+*/
 
+/*
 Bool_t PndGeoHandling::cd(TString id)
 {
 	return fGeoMan->cd(GetPath(id).Data());
 }
+*/
 
 TString PndGeoHandling::GetVolumeID(TString name)
 {
@@ -308,11 +314,12 @@ void PndGeoHandling::GetOUVPath(TString path, TVector3& o, TVector3& u, TVector3
   if(actPath!="" && actPath!=" ") fGeoMan->cd(actPath);
 }
 
+/*
 void PndGeoHandling::GetOUVId(TString id, TVector3& o, TVector3& u, TVector3& v)
 {
 	GetOUVPath(GetPath(id),o,u,v);
 }
-
+*/
 
 TVector3 PndGeoHandling::GetSensorDimensionsPath(TString path)
 {
@@ -330,10 +337,12 @@ TVector3 PndGeoHandling::GetSensorDimensionsPath(TString path)
   return dim;
 }
 
+/*
 TVector3 PndGeoHandling::GetSensorDimensionsId(TString id)
 {
 return GetSensorDimensionsPath(GetPath(id));
 }
+*/
 
 TGeoHMatrix* PndGeoHandling::GetMatrixPath(TString path)
 {
@@ -347,14 +356,18 @@ TGeoHMatrix* PndGeoHandling::GetMatrixPath(TString path)
 
 }
 
+/*
 TGeoHMatrix* PndGeoHandling::GetMatrixId(TString id)
 {
 	return GetMatrixPath(GetPath(id));
 }
+*/
 
 //  ----- conversions of POINTS (not vectors) here -----
+/*
 TVector3 PndGeoHandling::MasterToLocalId(const TVector3& master, const TString& id)
 { return MasterToLocalPath(master, GetPath(id) ); }
+*/
 
 TVector3 PndGeoHandling::MasterToLocalPath(const TVector3& master, const TString& path)
 {
@@ -374,9 +387,10 @@ TVector3 PndGeoHandling::MasterToLocalPath(const TVector3& master, const TString
 }
 
 
-
+/*
 TVector3 PndGeoHandling::LocalToMasterId(const TVector3& local, const TString& id)
 { return LocalToMasterPath(local, GetPath(id) ); }
+*/
 
 TVector3 PndGeoHandling::LocalToMasterPath(const TVector3& local, const TString& path)
 {
@@ -396,9 +410,10 @@ TVector3 PndGeoHandling::LocalToMasterPath(const TVector3& local, const TString&
 
 
 // ROTATION of error values, CAUTION - these are always psitive defined
+/*
 TVector3 PndGeoHandling::MasterToLocalErrorsId(const TVector3& master, const TString& id)
 { return MasterToLocalErrorsPath(master, GetPath(id) ); }
-
+*/
 TVector3 PndGeoHandling::MasterToLocalErrorsPath(const TVector3& master, const TString& path)
 {
   Double_t result[3];
@@ -422,9 +437,10 @@ TVector3 PndGeoHandling::MasterToLocalErrorsPath(const TVector3& master, const T
 }
 
 
-
+/*
 TVector3 PndGeoHandling::LocalToMasterErrorsId(const TVector3& local, const TString& id)
 { return LocalToMasterErrorsPath(local, GetPath(id) ); }
+*/
 
 TVector3 PndGeoHandling::LocalToMasterErrorsPath(const TVector3& local, const TString& path)
 {

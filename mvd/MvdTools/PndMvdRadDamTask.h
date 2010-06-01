@@ -5,8 +5,8 @@
  *      Author: stockman
  */
 
-#ifndef PNDMVDRADDAMTASK_H_
-#define PNDMVDRADDAMTASK_H_
+#ifndef PNDMVDRADDAMTASK_H
+#define PNDMVDRADDAMTASK_H
 
 #include "FairTask.h"
 #include "PndMvdRadDamList.h"
@@ -59,4 +59,4 @@ private:
 
 };
 
-#endif /* PNDMVDRADDAMTASK_H_ */
+#endif /* PNDMVDRADDAMTASK_H */

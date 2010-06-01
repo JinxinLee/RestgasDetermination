@@ -85,17 +85,17 @@ PndSdsRecoHit::PndSdsRecoHit(PndSdsHit* hit)
   TString path = fGeoH->GetPath(id);
 //  std::cout<<"Detector path: "<<path.Data()<<std::endl;
   TVector3 oo, uu, vv;
-  fGeoH->GetOUVId(id, oo,uu,vv);
+  fGeoH->GetOUVShortId(id, oo,uu,vv);
 
   TVector3 position = hit->GetPosition();
-  TVector3 localpos =  fGeoH->MasterToLocalId(position, id);
+  TVector3 localpos =  fGeoH->MasterToLocalShortId(position, id);
 
   fHitCoord[0][0] = localpos.X();
   fHitCoord[1][0] = localpos.Y();
 
   TVector3 errPos, errPosLoc;
   hit->PositionError(errPos);  
-  errPosLoc = fGeoH->MasterToLocalErrorsId(errPos, id);
+  errPosLoc = fGeoH->MasterToLocalErrorsShortId(errPos, id);
   
   fHitCov[0][0] = 0.0050 * 0.0050;
   fHitCov[1][1] = 0.0050 * 0.0050;

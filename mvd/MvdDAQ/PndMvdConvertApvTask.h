@@ -12,8 +12,8 @@
  **/
 
 
-#ifndef PNDMVDAPVCONVERTTASK_H
-#define PNDMVDAPVCONVERTTASK_H
+#ifndef PNDMVDCONVERTAPVTASK_H
+#define PNDMVDCONVERTAPVTASK_H
 
 
 // framework includes

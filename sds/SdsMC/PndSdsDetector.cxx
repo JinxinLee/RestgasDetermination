@@ -82,7 +82,7 @@ void PndSdsDetector::Initialize()
   Warning("Initialize", "Creating a PndGeoHandling object. Is it the right place?");
   if(0==fGeoH) fGeoH = new PndGeoHandling();
   fGeoH->CreateUniqueSensorId("", fListOfSensitives);
-  fGeoH->PrintSensorNames();
+  if(fVerboseLevel>0) fGeoH->PrintSensorNames();
 }
 
 
