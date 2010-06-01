@@ -65,14 +65,14 @@ class PndMvaTrainer
     /// DEBUG
     // m_dataSets.WriteDataSet("InputVarNormalized.root");
     ///DEBUG
-  }
+  };
   
   /**
    * Setter to set the weightfile name.
    *@param outFile Output filename.
    */
-  void SetOutPutFile(const std::string& outFile)
-  {m_outFile = outFile;}
+  inline void SetOutPutFile(const std::string& outFile)
+  { m_outFile = outFile; };
 
   /**
    * Writes the train and test errors evaluations to a given file.
@@ -109,8 +109,10 @@ class PndMvaTrainer
   
   //! Container to keep per step error values.
   std::vector <StepError> m_StepErro;
+  
   //! Output filename.
   std::string m_outFile;
+  
   //! Selected normalization scheme.
   NormType m_normType;
   

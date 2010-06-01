@@ -36,10 +36,9 @@ PndLVQTrain::~PndLVQTrain()
 {
   std::cout << "\nCleaning all initialized objects." 
 	    <<std::endl;
-  //std::vector< std::pair<std::string, std::vector<float>*> > m_LVQProtos;
+  // Clean m_LVQProtos
   for(size_t i = 0; i < m_LVQProtos.size(); i++)
   {
-    // (m_LVQProtos[i].second)->clear();
     delete m_LVQProtos[i].second;
   }
   m_LVQProtos.clear();
@@ -323,17 +322,20 @@ void PndLVQTrain::InitProtoTypes()
   }
   // Clear protypes list
   cleanProtoList();
-  
-  switch(m_proto_init){
+
+  // Select initialization method & initialize.
+  switch(m_proto_init)
+  {
   case FILE_PR:// Read from file
     if(m_initProtoFile == ""){
       std::cerr << "<ERROR> Empty file name.\n"
-		<<"\tYou need to specify the initial code books file name." 
+		<<"\tYou need to specify the file "
+		<<"containing the initial code books." 
 		<< std::endl;
       assert(m_initProtoFile != "");
     }
-    // FIXME FIXME
-    
+    // Read Code Books (protoTypes) from file
+    ReadProtoFromFile();
     break;
   case KMEANS_PR:// Kmeans_clustering
     InitProtoK_Means();
@@ -570,4 +572,81 @@ void PndLVQTrain::EvalClassifierError(unsigned int stp)
   StepError StpEr (stp, trEr, tsEr);
   m_StepErro.push_back(StpEr);
   TrError = TsError = 0;
+}
+
+/**
+ * Read pre initialized code books from file and store the vectors
+ * in LVQ prototype container.
+ */
+void PndLVQTrain::ReadProtoFromFile()
+{
+  const std::vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+  const std::vector<PndMvaVariable>& variables = m_dataSets.GetVars();
+  
+  std::cout << "<INFO> Reading data from  "<< m_initProtoFile
+	    << std::endl;
+  
+  // Open the input file for reading event data.
+  TFile InPutFile(m_initProtoFile.c_str(),"READ");
+  
+  //////////////////
+  // Fetch the class trees and read the event data.
+  for(size_t cls = 0; cls < classes.size(); cls++)
+  {
+    // Tree name
+    const char *name = classes[cls].Name.c_str();
+    std::cout << "<INFO> Reading events for "
+	      <<  classes[cls].Name << std::endl;
+
+    // Get the tree object
+    TTree *t = (TTree*) InPutFile.Get(name);
+    if(!t)
+    {
+      std::cerr<< "\t<ERROR> Could not find data tree " << name 
+	       << std::endl;
+      //abort();
+      assert (t);
+    }
+    std::cout << "<INFO> There are "<< t->GetEntriesFast()
+	      << " vectors available for the current class."
+	      << std::endl;
+    if( t->GetEntriesFast() != m_numProto)
+    {
+      std::cerr << "<ERROR> Number of prototypes and the"
+		<<" number of available examples do not match."
+		<< std::endl;
+      assert(t->GetEntriesFast() == m_numProto);
+    }
+    // Init a container to bind to the tree branches
+    std::vector<float> ev (variables.size(), 0.0);
+    
+    // Bind the parameters to the tree branches
+    for(size_t j = 0; j < variables.size(); j++)
+    {
+      const char* branchName = variables[j].Name.c_str();
+      //Binding the branches
+      t->SetBranchAddress(branchName, &(ev[j]));
+    }// Tree parameters are bounded
+    
+    // Fetch and store the variables to per class variable container
+    for(unsigned int k = 0; k < t->GetEntriesFast(); k++)
+    {
+      t->GetEntry(k);
+      
+      // Container to store the vent data read from the input tree
+      std::vector<float>* eventData = new std::vector<float>();
+      
+      for(size_t idx = 0; idx < variables.size(); idx++)
+      {
+        eventData->push_back(ev[idx]);
+      }
+      
+      // Store the event and its class name
+      m_LVQProtos.push_back(make_pair(classes[cls].Name, eventData));
+    }
+    
+    // We are done and can delete the tree pointer
+    delete t;
+  }// End of for(cls) loop for all classes
+  /////////////////////
 }

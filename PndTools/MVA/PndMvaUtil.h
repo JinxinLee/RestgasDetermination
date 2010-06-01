@@ -38,24 +38,11 @@ struct StepError
   //! Copy!
   StepError(const StepError& ot)
   : m_step(ot.m_step), m_trErr(ot.m_trErr), m_tsErr(ot.m_tsErr)
-  {
-    /*
-      m_step  = ot.m_step;
-      m_trErr = ot.m_trErr;
-      m_tsErr = ot.m_tsErr;
-    */
-  };
+  {};
 
   //! Assignment.
   StepError& operator=(const StepError& ot)
   {
-    /*
-      StepError* locTmp = new StepError();
-      locTmp->m_step = ot.m_step;
-      locTmp->m_trErr = ot.m_trErr;
-      locTmp->m_tsErr = ot.m_tsErr;
-      return *locTmp;
-    */
     m_step  = ot.m_step;
     m_trErr = ot.m_trErr;
     m_tsErr = ot.m_tsErr;
@@ -113,7 +100,7 @@ PndMvaDistObj(const int id, const float dist, const std::string& cls)
 inline  bool CompLess(const PndMvaDistObj* a, const PndMvaDistObj* b)
 {
   return ( (*a).m_dist < (*b).m_dist );
-}
+};
 
 // ========================================================================
 
@@ -125,12 +112,12 @@ template <typename T>
 inline const T& minFunct ( const T& a, const T& b )
 {// or: return comp(a,b)?a:b; for the comp version
   return (a < b) ? a : b;
-}
+};
 
 //! Less than, comparison funtion.
 template<typename T>
 inline bool compareL(const T* a, const T* b)
-{ return ( (*a) < (*b) );}
+{ return ( (*a) < (*b) ); };
 
 /**
  * Computes the Euclidean distance between two given vectors of

@@ -73,15 +73,19 @@ class PndMvaDataSet
   void Trim();
 
   //! Get available data.
-  const std::vector< std::pair<std::string, std::vector<float>*> >& GetData() const;
+  inline const std::vector< std::pair<std::string, std::vector<float>*> >& GetData() const;
+
   //! Get the list of available classes.
-  const std::vector<PndMvaClass>& GetClasses() const;
+  inline const std::vector<PndMvaClass>& GetClasses() const;
+  
   //! Get the list of available variables.
-  const std::vector<PndMvaVariable>& GetVars() const;
+  inline const std::vector<PndMvaVariable>& GetVars() const;
+  
   //! Get classconditional means for all classes.
-  const std::map< std::string, std::vector<float>* >& GetClassCondMeans() const;
+  inline const std::map< std::string, std::vector<float>* >& GetClassCondMeans() const;
+  
   //! Get name of input file name (weight/event file).
-  const std::string& GetInFileName() const;
+  inline const std::string& GetInFileName() const;
  
  protected:
   /**

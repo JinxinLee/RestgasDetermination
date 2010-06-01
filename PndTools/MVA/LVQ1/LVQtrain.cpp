@@ -71,8 +71,9 @@ int main(int argc, char** argv)
   //VARX, MINMAX, MEDIAN, NONE(DEFAULT)
   tr.NormalizeData(NONE);
   
+  tr.SetInitProtoFileName("/media/daq/babaiexp/Gpid_files/EventFeatureRnd500.root");
   // FILE_PR, KMEANS_PR, RANDOM_PR (DEFAULT)
-  tr.setProtoInitType(KMEANS_PR);
+  tr.setProtoInitType(FILE_PR);
   
   std::string OutFile = ot;
   tr.SetOutPutFile(ot);

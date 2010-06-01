@@ -50,7 +50,7 @@ class PndLVQTrain: public PndMvaTrainer
    * Set CodeBook init type.
    *@param val Initialization type.
    */
-  void setProtoInitType(ProtoInitType val = RANDOM_PR)
+  inline void setProtoInitType(ProtoInitType val = RANDOM_PR)
   { m_proto_init = val; };
 
   /**
@@ -58,7 +58,7 @@ class PndLVQTrain: public PndMvaTrainer
    *@param val The name of the file which containes the pre
    * initialized code books.
    */
-  void SetInitProtoFileName(const std::string val)
+  inline void SetInitProtoFileName(const std::string val)
   { m_initProtoFile = val; };
 
   /**
@@ -73,6 +73,7 @@ class PndLVQTrain: public PndMvaTrainer
                          const double etF, const int Nswp)
   { m_initConst = initConst; m_ethaZero = etZ; 
     m_ethaFinal = etF; m_NumSweep = Nswp;};
+
   /**
    * Set the number of protoTypes to be used for training.
    *@param numProto  Number of prototypes.
@@ -83,7 +84,6 @@ class PndLVQTrain: public PndMvaTrainer
   //----------------------------------------
   //================== private =============
  private:
-  
   // To avoid mistakes, :).
   PndLVQTrain(const PndLVQTrain& other);
   PndLVQTrain& operator=(const PndLVQTrain& other);
@@ -118,6 +118,11 @@ class PndLVQTrain: public PndMvaTrainer
   void UpdateProto(const std::vector<float>& EvtData, 
 		   std::vector<float>& proto, 
 		   const int delta, const double ethaT);
+  /**
+   * Read pre initialized code books from file and store the vectors
+   * in LVQ prototype container.
+   */
+  void ReadProtoFromFile();
   //=====================================
 
   //! Holds the LVQ proto-types
@@ -137,11 +142,13 @@ class PndLVQTrain: public PndMvaTrainer
 
   //! number of proto-types to train
   unsigned int m_numProto;
+
   //! Proto init type.
   ProtoInitType m_proto_init;
 
   //! initial protypes, when reading from file.
   std::string m_initProtoFile;
+
   //! Each #ErrorStep, steps evaluate the trained classifier.
   unsigned int m_ErrorStep;
 };

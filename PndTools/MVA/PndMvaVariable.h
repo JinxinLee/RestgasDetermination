@@ -21,7 +21,8 @@ struct PndMvaVariable
    *@param normFactor normalization factor for this variable.
    *@param mean Current variable sample mean value.
    */
-  PndMvaVariable(const std::string& name, float normFactor = 1.0, float mean = 0.0);
+  PndMvaVariable(const std::string& name = "UNKNOWNVAR", 
+		 float normFactor = 1.0, float mean = 0.0);
 
   //! Destructor.
   virtual ~PndMvaVariable()
@@ -43,11 +44,11 @@ struct PndMvaVariable
 inline PndMvaVariable::PndMvaVariable(const std::string& name,
 				      float normFactor,
 				      float mean)
-		      : Name(name), NormFactor(normFactor), Mean(mean){}
+		      : Name(name), NormFactor(normFactor), Mean(mean){};
 
 inline PndMvaVariable::PndMvaVariable(const PndMvaVariable& oth)
 		      : Name(oth.Name), NormFactor(oth.NormFactor), Mean(oth.Mean)
-{}
+{};
 
 inline PndMvaVariable& PndMvaVariable::operator=(const PndMvaVariable& oth)
 {
