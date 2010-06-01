@@ -74,12 +74,12 @@ void PndMvaTrainer::splitTetsSet(int percent)
 void PndMvaTrainer::WriteErroVect(const std::string FileName)
 {
   std::ofstream Outfile;
-
-  Outfile.open(FileName.c_str(),ios::out| ios::trunc);
-
+  
+  Outfile.open(FileName.c_str(), ios::out| ios::trunc);
+  
   Outfile << "# Error vector output\n";
   Outfile << "#<Step number> \t<Train Error> \t<Test Error>\n";
-
+  
   for(size_t i = 0; i < m_StepErro.size(); i++)
   {
     Outfile << " " << (m_StepErro[i]).m_step  <<"\t"
@@ -90,6 +90,7 @@ void PndMvaTrainer::WriteErroVect(const std::string FileName)
   Outfile << flush;
   Outfile.close();
 }
+
 /**
  * Write the training and normalization data to outFile.
  */

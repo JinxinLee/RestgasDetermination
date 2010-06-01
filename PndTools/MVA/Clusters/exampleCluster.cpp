@@ -59,8 +59,8 @@ int main(int argc, char** argv)
   // Construct the class name vector  
   std::vector<std::string>clas;
   clas.push_back("electron"); clas.push_back("pion");
-  clas.push_back("kaon"); clas.push_back("muon");
-  clas.push_back("proton");// clas.push_back("gamma");
+  //clas.push_back("kaon"); clas.push_back("muon");
+  //clas.push_back("proton");// clas.push_back("gamma");
   
   // Construct the variable name vector  
   std::vector<std::string>vars;

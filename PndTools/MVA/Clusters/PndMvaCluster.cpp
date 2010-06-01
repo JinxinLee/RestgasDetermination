@@ -110,15 +110,18 @@ ClDataSample& PndMvaCluster::K_Means()
       for(size_t ctr = 0; ctr < m_num_Cluster; ctr++)
       {
 	currDist = ComputeDist( *(m_PointSet[pt]), *(m_Centroids[ctr]));
-	if( currDist < minDist )
+	
+	if( (currDist < minDist) && !(m_PointsToClusters[pt] == ctr) )
 	{
 	  minDist = currDist;
 	  move = true;
 	  to_cluster = ctr;
+	  
 	  // Remove from current cluster
 	  (m_ClustersToPoints[m_PointsToClusters[pt]])->erase(pt);
 	  some_point_is_moving = true;
 
+	  // Stronger property. Minimizing the total distance.
 	  //distSum += minDist;
 	}
       }
