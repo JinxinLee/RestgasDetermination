@@ -360,7 +360,8 @@ void PndPidCorrelator::Exec(Option_t * option) {
 void PndPidCorrelator::ConstructChargedCandidate() {
   //-
   fPidChargedCand->Delete();
-  
+  if (fMdtRefit) fMdtTrack->Delete();
+
   Int_t nTracks = fTrack->GetEntriesFast();
   for (Int_t i = 0; i < nTracks; i++) {
     PndTrack* track = (PndTrack*) fTrack->At(i);
@@ -720,7 +721,7 @@ Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
       pidCand->SetMuoNumberOfLayers(mdtLayer);
     }
   
-  if (fMdtRefit && (mdtIndex!=-1) )
+  if (fMdtRefit && (mdtIndex!=-1) && (mdtMom>0.)  )
     {
       PndMdtTrk *mdtTrk = (PndMdtTrk*)fMdtTrk->At(mdtIndex); 
       PndTrack *mdtTrack = new PndTrack(*track);
