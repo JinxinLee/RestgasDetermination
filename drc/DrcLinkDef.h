@@ -12,6 +12,7 @@
 #pragma link C++ class  PndGeoDrcPar+;
 #pragma link C++ class  PndDrcHitProducerIdeal+;
 #pragma link C++ class  PndDrcHitProducerReal+;
+#pragma link C++ class  DrawHits+;
 
 
 
