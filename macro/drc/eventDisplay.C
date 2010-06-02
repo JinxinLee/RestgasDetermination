@@ -17,7 +17,7 @@ eventDisplay()
   
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
-  parInput1->open("./testparams.root");
+  parInput1->open("./params_testrun1.root");
        
   rtdb->setFirstInput(parInput1);
  
