@@ -30,6 +30,7 @@ PndGeoDrcPar.cxx
 PndDrcContFact.cxx 
 PndDrcHitProducerIdeal.cxx 
 PndDrcHitProducerReal.cxx 
+DrawHits.cxx 
 )
 
 if(RULE_CHECKER_FOUND)
