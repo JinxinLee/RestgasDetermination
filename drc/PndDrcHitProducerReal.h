@@ -91,6 +91,8 @@ public:
   void SetPhotonDetEff(Double_t& lambda_min, Double_t& lambda_max,
                                          Double_t& lambda_step, Double_t efficiency[]);
 
+  void SetIsDetEfficiency(Bool_t isDetEff){fisDetEff=isDetEff;}
+  void SetIsPixelization(Bool_t isPixel){fisPixel=isPixel;}
  protected:
   
  private:
@@ -100,6 +102,8 @@ public:
   void ProcessBarPoint();
   void Smear(Double_t& time, Double_t sigt);
  
+  Bool_t fisDetEff;
+  Bool_t fisPixel;
   Int_t fDetectorID;
   TVector3 fPosHit;
   TVector3 fDPosHit;
