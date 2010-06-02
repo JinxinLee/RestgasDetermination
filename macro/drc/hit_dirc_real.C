@@ -86,6 +86,8 @@
 //  PndDrcHitProducerIdeal* drchit = new PndDrcHitProducerIdeal();
   PndDrcHitProducerReal* drchit = new PndDrcHitProducerReal();
   drchit->SetVerbose(iVerbose);
+  drchit->SetIsPixelization(1);
+  drchit->SetIsDetEfficiency(1);
   fRun->AddTask(drchit);
  
  
