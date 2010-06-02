@@ -20,26 +20,28 @@
 struct StepError
 {
   //! Constructor
-   StepError():m_step(0), m_trErr(0.0), m_tsErr(0.0)
+StepError()
+:m_step(0), m_trErr(0.0), m_tsErr(0.0)
   {};
+  
   /**
    *@param step Currents step.
    *@param trErr Current training error.
    *@param tsErr Current test error.
    */
-   StepError(unsigned int step, float trErr, float tsErr)
-   : m_step(step), m_trErr(trErr),m_tsErr(tsErr)
+StepError(unsigned int step, float trErr, float tsErr)
+: m_step(step), m_trErr(trErr),m_tsErr(tsErr)
   {};
   
   //! Destructor
   ~StepError()
   {};
-
+  
   //! Copy!
-  StepError(const StepError& ot)
-  : m_step(ot.m_step), m_trErr(ot.m_trErr), m_tsErr(ot.m_tsErr)
+StepError(const StepError& ot)
+: m_step(ot.m_step), m_trErr(ot.m_trErr), m_tsErr(ot.m_tsErr)
   {};
-
+  
   //! Assignment.
   StepError& operator=(const StepError& ot)
   {
@@ -48,11 +50,11 @@ struct StepError
     m_tsErr = ot.m_tsErr;
     return (*this);
   };
-
+  
   unsigned int m_step;
   float m_trErr;
   float m_tsErr;
-
+  
 private:
   //! Operator <
   inline bool operator<(const StepError& other)const;

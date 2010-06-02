@@ -89,4 +89,4 @@ class PndKnnClassify: public PndGpidClassifier
    */
   std::map<std::string, size_t> m_classIndices;
 };
-#endif// End of classifier interface definition
+#endif //End of classifier interface definition

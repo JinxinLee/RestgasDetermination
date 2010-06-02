@@ -45,7 +45,6 @@ PndMvaDataSet::~PndMvaDataSet()
   //Clean up event data container
   for(size_t i = 0; i < m_events.size(); i++)
   {
-    //(m_events[i].second)->clear();
     delete m_events[i].second;
   }
   m_events.clear();

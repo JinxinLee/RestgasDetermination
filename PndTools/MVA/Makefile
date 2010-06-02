@@ -33,7 +33,8 @@ LIBS += -lMLP -lXMLIO
 # .PHONY: all
 
 # Define targets
-TRGTS = PndMvaUtil PndMvaDataSet PndGpidClassifier PndMvaTrainer CreateRandomDataSet Classifiers examples
+TRGTS  = PndMvaUtil PndMvaDataSet PndGpidClassifier PndMvaTrainer
+TRGTS +=  CreateRandomDataSet Classifiers examples
 
 all: $(TRGTS)
 	@echo ""

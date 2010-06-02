@@ -74,10 +74,12 @@ int main(int argc, char** argv)
   
   // Prepair clustering input
   // Class loop
+  int cl = 0;
+  int numClasses = clas.size();
 #ifdef _OPENMP
 #pragma omp parallel for schedule(dynamic)
 #endif
-  for(size_t cl = 0; cl < clas.size(); cl++)
+  for(cl = 0; cl < numClasses; cl++)
   {
     ClDataSample clusteringInput;
     std::string clsName = clas[cl];

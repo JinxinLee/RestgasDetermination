@@ -38,9 +38,7 @@ void PndMvaCluster::ClearStructures()
     delete m_Centroids[ctr];
   }
   m_Centroids.clear();
-  
-  //m_PointsToClusters.clear();
-  
+    
   for(size_t i = 0; i < m_ClustersToPoints.size(); i++)
   {
     delete m_ClustersToPoints[i];

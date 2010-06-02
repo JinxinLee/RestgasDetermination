@@ -35,16 +35,7 @@ PndMvaTrainer::PndMvaTrainer(const std::string& InPut,
 
 //! Destructor
 PndMvaTrainer::~PndMvaTrainer()
-{
-  // CLean Error container
-  /*
-  for(size_t i = 0; i < m_StepErro.size(); i++)
-  {
-    delete m_StepErro[i];
-  }
-  m_StepErro.clear();
-  */
-}
+{}
 
 /**
  * Creates test and train data sets.

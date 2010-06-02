@@ -70,10 +70,12 @@ int main(int argc, char** argv)
 
   //VARX, MINMAX, MEDIAN, NONE(DEFAULT)
   tr.NormalizeData(NONE);
+
+  // Specify the file containing pre-initialized prototypes.
+  tr.SetInitProtoFileName("InitialProto.root");
   
-  tr.SetInitProtoFileName("/media/daq/babaiexp/Gpid_files/EventFeatureRnd500.root");
   // FILE_PR, KMEANS_PR, RANDOM_PR (DEFAULT)
-  tr.setProtoInitType(FILE_PR);
+  tr.setProtoInitType(RANDOM_PR);
   
   std::string OutFile = ot;
   tr.SetOutPutFile(ot);

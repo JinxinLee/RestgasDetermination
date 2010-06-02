@@ -25,8 +25,7 @@ struct PndMvaVariable
 		 float normFactor = 1.0, float mean = 0.0);
 
   //! Destructor.
-  virtual ~PndMvaVariable()
-  {};
+  virtual ~PndMvaVariable();
 
   PndMvaVariable(const PndMvaVariable& oth);
   PndMvaVariable& operator=(const PndMvaVariable& oth);
@@ -44,7 +43,11 @@ struct PndMvaVariable
 inline PndMvaVariable::PndMvaVariable(const std::string& name,
 				      float normFactor,
 				      float mean)
-		      : Name(name), NormFactor(normFactor), Mean(mean){};
+		      : Name(name), NormFactor(normFactor), Mean(mean)
+{};
+
+inline PndMvaVariable::~PndMvaVariable()
+{};
 
 inline PndMvaVariable::PndMvaVariable(const PndMvaVariable& oth)
 		      : Name(oth.Name), NormFactor(oth.NormFactor), Mean(oth.Mean)

@@ -64,7 +64,7 @@ void PndStdKnnClassify::GetMvaValues(vector<float> eventData,
   {
     cerr << "\t<ERROR> Number neighbours cannot be zero."
 	 << endl;
-    return;
+    assert (m_Knn != 0);
   }
 
   const vector<PndMvaVariable>& vars = m_dataSets.GetVars();

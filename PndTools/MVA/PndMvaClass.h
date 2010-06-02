@@ -17,7 +17,7 @@ struct PndMvaClass
    *@Param name Class name.
    */
   PndMvaClass(const std::string& name);
-
+  virtual ~PndMvaClass();
   PndMvaClass(const PndMvaClass& oth);
   PndMvaClass& operator=(const PndMvaClass& oth);
 
@@ -34,13 +34,15 @@ struct PndMvaClass
 inline PndMvaClass::PndMvaClass(const std::string& name)
 		   : Name(name), NExamples(0),
 		   StartIdx(0), EndIdx(0)
-{}
+{};
 
+//! Copy Constructor.
 inline PndMvaClass::PndMvaClass(const PndMvaClass& oth)
 		   : Name(oth.Name), NExamples(oth.NExamples),
 		   StartIdx(oth.StartIdx), EndIdx(oth.EndIdx)
-{}
+{};
 
+//! = operator.
 inline PndMvaClass& PndMvaClass::operator=(const PndMvaClass& oth)
 {
   Name = oth.Name;
@@ -48,5 +50,9 @@ inline PndMvaClass& PndMvaClass::operator=(const PndMvaClass& oth)
   StartIdx = oth.StartIdx;
   EndIdx = oth.EndIdx;
   return (*this);
-}
+};
+
+//! Destructor
+inline PndMvaClass::~PndMvaClass()
+{};
 #endif

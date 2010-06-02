@@ -8,6 +8,12 @@
 #ifndef PND_LVQ_TRAIN_H
 #define PND_LVQ_TRAIN_H
 
+/*
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+*/
+
 //Local includes
 #include "PndMvaTrainer.h"
 #include "PndMvaCluster.h"
@@ -119,7 +125,7 @@ class PndLVQTrain: public PndMvaTrainer
 		   std::vector<float>& proto, 
 		   const int delta, const double ethaT);
   /**
-   * Read pre initialized code books from file and store the vectors
+   * Read pre-initialized code books from file and store the vectors
    * in LVQ prototype container.
    */
   void ReadProtoFromFile();

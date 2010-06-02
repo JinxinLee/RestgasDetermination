@@ -40,4 +40,4 @@ class PndKnnTrain : public PndMvaTrainer
   PndKnnTrain(const PndKnnTrain& other);
   PndKnnTrain& operator=(const PndKnnTrain& other);
 };
-#endif//end of interface definition
+#endif //end of interface definition

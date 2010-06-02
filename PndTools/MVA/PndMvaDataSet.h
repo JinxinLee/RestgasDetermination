@@ -140,25 +140,25 @@ class PndMvaDataSet
 inline const std::vector< std::pair<std::string, std::vector<float>*> >& PndMvaDataSet::GetData() const
 {
   return m_events;
-}
+};
 
 inline const std::vector<PndMvaClass>& PndMvaDataSet::GetClasses() const
 {
   return m_classes;
-}
+};
 
 inline const std::vector<PndMvaVariable>& PndMvaDataSet::GetVars() const
 {
   return m_vars;
-}
+};
 
 inline const std::map< std::string, std::vector<float>* >& PndMvaDataSet::GetClassCondMeans() const
 {
   return m_ClassCondMeans;
-}
+};
 
 inline const std::string& PndMvaDataSet::GetInFileName() const
 {
   return m_input;
-}
+};
 #endif

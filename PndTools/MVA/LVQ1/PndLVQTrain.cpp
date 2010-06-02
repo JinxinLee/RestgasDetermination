@@ -358,8 +358,15 @@ void PndLVQTrain::InitProtoK_Means()
   const std::vector<PndMvaClass>& classes = m_dataSets.GetClasses();
   const std::vector<std::pair<std::string, std::vector<float>*> >& events = m_dataSets.GetData();
  
-  // Class loop
-  for(size_t cls = 0; cls < classes.size(); cls++){
+  //======== Class loop
+  int cls = 0;
+  int numberOfClasses = classes.size();
+  /*
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic)
+    #endif
+  */
+  for(cls = 0; cls < numberOfClasses; cls++){
     ClDataSample clusteringInput;
     std::string clsName = (classes[cls]).Name;
   
@@ -378,12 +385,6 @@ void PndLVQTrain::InitProtoK_Means()
     //Create clusters from current data points.
     PndMvaCluster clust (clusteringInput, m_numProto);
     ClDataSample& TMPprotoList = clust.Cluster();
-
-    //DELETE
-    //std::cout << TMPprotoList.size() 
-    //      << " == " << m_numProto 
-    //      << std::endl;
-    //DELETE
 
     //Copy cluster centers to LVQ prototypes (code books)
     for(size_t pr = 0; pr < TMPprotoList.size(); pr++){
@@ -575,7 +576,7 @@ void PndLVQTrain::EvalClassifierError(unsigned int stp)
 }
 
 /**
- * Read pre initialized code books from file and store the vectors
+ * Read pre-initialized code books from file and store the vectors
  * in LVQ prototype container.
  */
 void PndLVQTrain::ReadProtoFromFile()
@@ -589,7 +590,6 @@ void PndLVQTrain::ReadProtoFromFile()
   // Open the input file for reading event data.
   TFile InPutFile(m_initProtoFile.c_str(),"READ");
   
-  //////////////////
   // Fetch the class trees and read the event data.
   for(size_t cls = 0; cls < classes.size(); cls++)
   {
@@ -597,7 +597,7 @@ void PndLVQTrain::ReadProtoFromFile()
     const char *name = classes[cls].Name.c_str();
     std::cout << "<INFO> Reading events for "
 	      <<  classes[cls].Name << std::endl;
-
+    
     // Get the tree object
     TTree *t = (TTree*) InPutFile.Get(name);
     if(!t)
@@ -648,5 +648,4 @@ void PndLVQTrain::ReadProtoFromFile()
     // We are done and can delete the tree pointer
     delete t;
   }// End of for(cls) loop for all classes
-  /////////////////////
 }
