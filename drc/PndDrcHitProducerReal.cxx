@@ -45,6 +45,8 @@ PndDrcHitProducerReal::PndDrcHitProducerReal()
 {
   fGeo = new PndGeoDrc();
   SetParameters();
+  fisDetEff= kTRUE; 
+  fisPixel= kTRUE; 
 
 }
 // -------------------------------------------------------------------------
@@ -57,6 +59,8 @@ PndDrcHitProducerReal::PndDrcHitProducerReal(Int_t verbose, Int_t det_type)
   SetParameters();
   fVerbose = verbose;  
   fDetType= det_type; 
+  fisDetEff= kTRUE; 
+  fisPixel= kTRUE; 
   fGeo = new PndGeoDrc();
 
 }
@@ -231,12 +235,14 @@ void PndDrcHitProducerReal::ProcessPhotonPoint()
        Double_t etot = sqrt(PPx*PPx + PPy*PPy +PPz*PPz);// in GeV
        Double_t lambda=197.0*2.0*TMath::Pi()/nRefrac/(etot*1.0E9);//wavelength of photon in nm
        detection=0;
-       if (lambda >= lambda_min && lambda < lambda_max) {
+       if(fisDetEff){
+         if (lambda >= lambda_min && lambda < lambda_max) {
             Int_t ilambda=(Int_t)((lambda-lambda_min)/lambda_step);
 	    Double_t rand = gRandom->Rndm();
 	    detection = 0;
             if (efficiency[ilambda]*fCollectionEff > rand ) detection = 1;
-       }
+          }
+       }else{ detection=1;}
        Double_t xP= Ppt->GetX();
        Double_t yP= Ppt->GetY();
        Double_t zP= Ppt->GetZ();
@@ -248,7 +254,12 @@ void PndDrcHitProducerReal::ProcessPhotonPoint()
     
       zHit=zP;
       pmtID=k;
-      FindDrcHitPosition(xP, yP, xHit, yHit, pmtID);
+      if(fisPixel){
+         FindDrcHitPosition(xP, yP, xHit, yHit, pmtID);
+      }else{
+         xHit=xP;
+         yHit=yP;
+      }
       fPosPDHit.SetXYZ(xHit,yHit,zHit);
 
       Double_t fDPosXPDHit = fPixelDim/2; //mm
