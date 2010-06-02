@@ -8,7 +8,7 @@
   TString inFile = "testrun1.root";
 
   // Number of events to process
-  Int_t nEvents = 1;
+  Int_t nEvents = 0;
 
   // Parameter file
   TString parFile = "params_testrun1.root";
