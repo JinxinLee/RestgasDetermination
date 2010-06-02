@@ -11,12 +11,14 @@
 #include "PndEmcHitProducer.h"
 
 #include "PndEmcStructure.h"
-#include "PndEmcMapper.h"		
 #include "PndEmcHit.h"
 #include "PndEmcPoint.h"
 #include "PndEmcGeoPar.h"
 #include "PndEmcDigiPar.h"		
+#include "PndEmcDigiNonuniformityPar.h"		
 #include "PndMCTrack.h"
+
+#include "PndEmcXtal.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -32,6 +34,8 @@
 #include "TGeoNode.h"
 #include "TGeoMatrix.h"
 #include "TVector3.h"
+#include "TSystem.h"
+#include "TString.h"
 
 using std::cout;
 using std::endl;
@@ -42,6 +46,9 @@ using std::map;
 PndEmcHitProducer::PndEmcHitProducer() :
   FairTask("Ideal EMC hit Producer"){
   fStoreHits=kTRUE;
+  fNonuniformityFile=gSystem->Getenv("VMCWORKDIR");
+  fNonuniformityFile+="/input/EmcDigiNoniformityPars.root";
+ 
   //eneThr = 0.001; // Energy threshold for emc pad (Now taken from DB)
 }
 // -------------------------------------------------------------------------
@@ -49,6 +56,8 @@ PndEmcHitProducer::PndEmcHitProducer() :
 PndEmcHitProducer::PndEmcHitProducer(Bool_t val) :
   FairTask("Ideal EMC hit Producer") { 
   fStoreHits=val;
+  fNonuniformityFile=gSystem->Getenv("VMCWORKDIR");
+  fNonuniformityFile+="/input/EmcDigiNoniformitypars.root";
   //eneThr = 0.001; // Energy threshold for emc pad (Now taken from DB)
 }
 
@@ -96,6 +105,7 @@ InitStatus PndEmcHitProducer::Init(){
   ioman->Register("EmcHit","Emc",fDigiArray,fStoreHits);
   
   fGeoPar->InitEmcMapper();
+  fMapper=PndEmcMapper::Instance();
   fEmcStr=PndEmcStructure::Instance();
   
   emcX=fEmcStr->GetEmcX();
@@ -103,6 +113,28 @@ InitStatus PndEmcHitProducer::Init(){
   emcZ=fEmcStr->GetEmcZ();;
   
   fEnergyThreshold =fDigiPar->GetEnergyHitThreshold();
+  fUse_nonuniformity = fDigiPar->GetUse_nonuniformity();
+
+  if(fUse_nonuniformity){
+	  cout << "-I- PndEmcHitProducer: Using nonuniform lightoutput" << endl;
+  }
+  if(fUse_nonuniformity && fNonuniformityFile.Length()>0){
+	  TFile *nonuniformityfile = new TFile(fNonuniformityFile);
+	  if(nonuniformityfile==NULL){
+		  cout << "-E- PndEmcHitProducer: Could not open file " << fNonuniformityFile.Data() << " for Nonuniformity Information" << endl;
+	  } else {
+		  PndEmcDigiNonuniParObject *parObject;
+		  nonuniformityfile->GetObject("PndEmcDigiNonuniParObject",parObject);
+		  if(parObject == NULL){
+			  cout << "-E- PndEmcHitProducer: Could not get Nonuniformity information from file " << fNonuniformityFile.Data() << endl;
+		  } else {
+			  fNonuniformityPar->SetNonuniParObject(parObject);
+		  }
+	  }
+  }
+
+
+//  printf("HitProducer has EnergyHitThreshold of %f GeV and Use_nonuniformity %i\n", fEnergyThreshold, fUse_nonuniformity);
   
   cout << "-I- PndEmcHitProducer: Intialization successfull" << endl;
   
@@ -123,6 +155,9 @@ void PndEmcHitProducer::SetParContainers(){
   
   // Get Emc digitisation parameter container
   fDigiPar = (PndEmcDigiPar*) db->getContainer("PndEmcDigiPar");
+
+  fNonuniformityPar = (PndEmcDigiNonuniformityPar*) db->getContainer("PndEmcDigiNonuniformityPar");
+ 
 }
 
 // -------------------------------------------------------------------------
@@ -173,6 +208,7 @@ void PndEmcHitProducer::Exec(Option_t* opt)
   
   // Declare some variables
   //PndEmcPoint* point  = NULL;
+  Int_t DetId;
   map<Int_t, Float_t> fTrackEnergy;
   map<Int_t, Float_t> fTrackTime;  //time of first point
   map<Int_t, std::vector <Int_t> > fTrackMcTruth;  //McTruth
@@ -184,28 +220,54 @@ void PndEmcHitProducer::Exec(Option_t* opt)
   map<Int_t, Float_t>::const_iterator p;
   
   std::vector<PndEmcPoint*> fPointList;// to pass to EmcHit
-  
+  const PndEmcTciXtalMap &XtalMap = fEmcStr->GetTciXtalMap();
+  TVector3 frontvec;
+  TVector3 normvec;
+  TVector3 pointvec;
+  TVector3 distvec;
+  Double_t zpos;
+  Double_t energyscalefactor=1.0;
+  Double_t c[3];
+  PndEmcXtal *tmpXtal;
+  PndEmcTwoCoordIndex *tmpTCI;
   // Loop over EmcPoints
   Int_t nPoints = fPointArray->GetEntriesFast();
   
   Double_t point_time = 0.00;
-  
+
+
+  for (Int_t iPoint=0; iPoint<nPoints; iPoint++)
+  {
+    PndEmcPoint* point  = (PndEmcPoint*) fPointArray->At(iPoint);
+	DetId = point->GetDetectorID();
   //------- init containers --- 
-
-  for (Int_t iPoint = 0; iPoint < nPoints; iPoint++){
-    PndEmcPoint* point  = (PndEmcPoint*) fPointArray->At(iPoint);
-    fTrackEnergy[point->GetDetectorID()] = 0.00;
+	fTrackEnergy[point->GetDetectorID()] = 0.00;
     fTrackTime  [point->GetDetectorID()] = std::numeric_limits<float>::max();
-  }
-
   //----------------------------
-  for (Int_t iPoint = 0; iPoint < nPoints; iPoint++){
-    //point  = (PndEmcPoint*) fPointArray->At(iPoint);
-    PndEmcPoint* point  = (PndEmcPoint*) fPointArray->At(iPoint);
-    fTrackEnergy[point->GetDetectorID()] += point->GetEnergyLoss();
+	if(fUse_nonuniformity !=0 ){
+		//light output is z-dependent, so calculate z
+		
+		tmpTCI = fMapper->GetTCI(DetId);
+		if(tmpTCI == NULL){
+			printf("no TCI found for DetectorID %d\n",DetId);
+			continue;
+		}
+		tmpXtal =XtalMap.find(tmpTCI)->second;
+		point->Position(pointvec);
+		frontvec = tmpXtal->frontCentre();
+		normvec = tmpXtal->normalToFrontFace();
+		distvec = pointvec-frontvec;
+		zpos = distvec.Dot(normvec);
+		fNonuniformityPar->GetNonuniformityParameters(DetId,c);
+		energyscalefactor=c[0]+zpos*(c[1]+zpos*c[2]);
+		fTrackEnergy[DetId] += point->GetEnergyLoss() * energyscalefactor;
+//        printf("point with detID %d has z Position %f and energyloss %f scaled with %f\n",DetId,zpos, point->GetEnergyLoss(),energyscalefactor);	
+	} else {
+		fTrackEnergy[DetId] += point->GetEnergyLoss();
+//        printf("point with detID %d has z Position %f and energyloss %f not scaled\n",DetId,zpos, point->GetEnergyLoss());	
+	}
+	point_time=point->GetTime();
     
-    point_time = point ->GetTime();
-
     if (point_time < fTrackTime[point->GetDetectorID()]){
       fTrackTime[point->GetDetectorID()] = point_time;
     }
@@ -228,7 +290,7 @@ void PndEmcHitProducer::Exec(Option_t* opt)
       // Check and save MC truth information B.S.
       // remove MC Truth particles which are not needed (eg grand^x-daugherts)
       if( fMCTrackArray){
-	cleansortmclist(fTrackMcTruth[(*p).first],fMCTrackArray);
+		cleansortmclist(fTrackMcTruth[(*p).first],fMCTrackArray);
       }
       AddHit(1, (*p).first, (*p).second, fTrackTime[(*p).first], fTrackMcTruth[(*p).first]);
     }

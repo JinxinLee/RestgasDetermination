@@ -32,6 +32,7 @@ class PndEmcDigiPar : public FairParGenericSet
 		Int_t GetUse_photon_statistic() {return fUse_photon_statistic;};
 		Int_t GetUseDigiEffectiveSmearing() {return fUseDigiEffectiveSmearing;};
 		Int_t GetNoiseAllChannels() {return fNoiseAllChannels;};
+		Int_t GetUse_nonuniformity() {return fUse_nonuniformity;};
 		
 		PndEmcDigiPar (const char* name="PndEmcDigiPar",
 			    const char* title="Emc digi parameter",
@@ -69,8 +70,9 @@ class PndEmcDigiPar : public FairParGenericSet
 		Int_t fUse_photon_statistic;
 		Int_t fUseDigiEffectiveSmearing;
 		Int_t fNoiseAllChannels;
+		Int_t fUse_nonuniformity;
 
-		ClassDef(PndEmcDigiPar,5);
+		ClassDef(PndEmcDigiPar,6);
 };
 
 #endif

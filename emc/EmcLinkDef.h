@@ -31,6 +31,8 @@
 #pragma link C++ class  PndEmcCRRCPulseshape+;
 #pragma link C++ class  PndEmcCR2RCPulseshape+;
 #pragma link C++ class  PndEmcDigiPar+;
+#pragma link C++ class  PndEmcDigiNonuniformityPar+;
+#pragma link C++ class  PndEmcDigiNonuniParObject+;
 #pragma link C++ class  PndEmcCluster+;
 #pragma link C++ class  PndEmcMakeDigi+;
 #pragma link C++ class  PndEmcMakeCluster+;

@@ -16,12 +16,15 @@
 
 #include "PndEmcHit.h"
 #include "PndEmcStructure.h"
+#include "PndEmcMapper.h"		
+
 
 class TClonesArray;
 class TObjectArray;
 
 class PndEmcDigiPar;
 class PndEmcGeoPar;
+class PndEmcDigiNonuniformityPar;
 
 class PndEmcHitProducer : public FairTask
 {
@@ -52,9 +55,12 @@ class PndEmcHitProducer : public FairTask
   //void CreateStructure();
   
   void SetStorageOfData(Bool_t val); // Method to specify whether hits are stored or not.
+   void SetNonuniformityFile(const char * filename){fNonuniformityFile = filename;};
 
  private: 
-  
+  Int_t fUse_nonuniformity;
+  TString fNonuniformityFile;
+
   /** Input array of PndEmcPoints **/
   TClonesArray* fPointArray;
   TClonesArray* fMCTrackArray;
@@ -73,9 +79,11 @@ class PndEmcHitProducer : public FairTask
   mapper emcZ;
   
   PndEmcStructure* fEmcStr;
-  
+  PndEmcMapper* fMapper;
+
   PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
   PndEmcGeoPar*     fGeoPar;       /** Geometry parameter container **/
+  PndEmcDigiNonuniformityPar *fNonuniformityPar;
   
   /** Get parameter containers **/
   virtual void SetParContainers();

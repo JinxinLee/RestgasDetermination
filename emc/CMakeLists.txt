@@ -57,6 +57,7 @@ EmcDigi/PndEmcHitsToWaveform.cxx
 EmcDigi/PndEmcWaveformToDigi.cxx
 #EmcDigi/PndEmcTmpWaveformToDigi.cxx 
 EmcDigi/PndEmcDigiPar.cxx 
+EmcDigi/PndEmcDigiNonuniformityPar.cxx 
 EmcDigi/PndEmcMakeDigi.cxx
 EmcDigi/PndEmcPSAParabolic.cxx
 EmcDigi/PndEmcPSATrapDigiFilter.cxx

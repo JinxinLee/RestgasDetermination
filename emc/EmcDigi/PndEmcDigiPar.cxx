@@ -45,6 +45,7 @@ void PndEmcDigiPar::putParams(FairParamList* list)
 	list->add("Use_photon_statistic",fUse_photon_statistic);
 	list->add("UseDigiEffectiveSmearing",fUseDigiEffectiveSmearing);
 	list->add("NoiseAllChannels",fNoiseAllChannels);
+	list->add("Use_nonuniformity",fUse_nonuniformity);
 }
 
 Bool_t PndEmcDigiPar::getParams(FairParamList* list)
@@ -74,6 +75,7 @@ Bool_t PndEmcDigiPar::getParams(FairParamList* list)
 	if (!list->fill("Use_photon_statistic",&fUse_photon_statistic)) return kFALSE;
 	if (!list->fill("UseDigiEffectiveSmearing",&fUseDigiEffectiveSmearing)) return kFALSE;
 	if (!list->fill("NoiseAllChannels",&fNoiseAllChannels)) return kFALSE;
+	if (!list->fill("Use_nonuniformity",&fUse_nonuniformity)) return kFALSE;
 	
 	return kTRUE;
 }

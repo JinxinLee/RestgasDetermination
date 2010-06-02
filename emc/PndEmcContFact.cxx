@@ -14,6 +14,7 @@ using namespace std;
 #include "PndEmcGeoPar.h"
 #include "PndEmcDigiPar.h"
 #include "PndEmcRecoPar.h"					
+#include "PndEmcDigiNonuniformityPar.h"
 #include "FairParAsciiFileIo.h"
 #include "TClass.h"										
 #include <iostream>
@@ -49,10 +50,16 @@ void PndEmcContFact::setAllContainers() {
 														"Emc Geometry Parameters",
 														"TestDefaultContext");
 	p3->addContext("TestNonDefaultContext");
+	
+	FairContainer* p4= new FairContainer("PndEmcDigiNonuniformityPar",
+														"Emc Nonuniformity Parameters",
+														"TestDefaultContext");
+	p4->addContext("TestNonDefaultContext");
 
 	containers->Add(p1);
 	containers->Add(p2);
 	containers->Add(p3);
+	containers->Add(p4);
 }
 
 FairParSet* PndEmcContFact::createContainer(FairContainer* c) {
@@ -73,6 +80,10 @@ FairParSet* PndEmcContFact::createContainer(FairContainer* c) {
   
   if (strcmp(name,"PndEmcGeoPar")==0) {
     p=new PndEmcGeoPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
+  }
+  
+  if (strcmp(name,"PndEmcDigiNonuniformityPar")==0) {
+    p=new PndEmcDigiNonuniformityPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
   }
   
   return p;

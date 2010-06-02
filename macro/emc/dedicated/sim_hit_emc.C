@@ -12,10 +12,10 @@
   gDebug=0;
   // Load basic libraries
   // If it does not work,  please check the path of the libs and put it by hands
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  rootlogon();
-  basiclibs();
+//  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+//  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+//  rootlogon();
+//  basiclibs();
   
   FairRunSim *fRun = new FairRunSim();
   
@@ -148,6 +148,10 @@
      Add Hit producer task to the simulation 
   */
   PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
+  /* If you want the HitProducer to simulate a nonuniform lightoutput you have
+   * to enable it by setting Use_nonuniformity in PndEmcDigiPar to 1.
+   * The parameters for the nonuniformity will be read by default from: */
+  //emcHitProd->SetNonuniformityFile("${VMCWORKDIR}/input/EmcDigiNoniformityPars.root");
   fRun->AddTask(emcHitProd);
   
   
@@ -174,3 +178,4 @@
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
 }
+
