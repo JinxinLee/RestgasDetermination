@@ -27,7 +27,7 @@
 #pragma link C++ class PndSdsStripHitProducer+;
 #pragma link C++ class PndSdsStripHitProducerDif+;
 #pragma link C++ class PndSdsCalcPixel;
-#pragma link C++ class PndSdsCalcFePixel;
+#pragma link C++ class PndSdsCalcFePixel+;
 #pragma link C++ class PndSdsCalcStrip;
 #pragma link C++ class PndSdsCalcStripDif;
 //#pragma link C++ class PndSdsDigiTask+;

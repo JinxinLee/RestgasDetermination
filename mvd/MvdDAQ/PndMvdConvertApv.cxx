@@ -13,6 +13,7 @@ using namespace std;
 
 PndMvdConvertApv::PndMvdConvertApv(const TString& CalibFileName, const TString& HitFileName)
 {
+  fGeoH = PndGeoHandling::Instance();
   fFake=false;
   cout<<"Scan HitFile..."<<endl;
   std::ifstream hitfile(HitFileName);
@@ -83,8 +84,6 @@ PndMvdConvertApv::PndMvdConvertApv(const TString& CalibFileName, const TString& 
 
 Bool_t PndMvdConvertApv::Init()
 {
-  Fatal("Init","is this geohandler at the right place?");
-  if(0==fGeoH) fGeoH = PndGeoHandling::Instance();
   return kTRUE;
 }
 

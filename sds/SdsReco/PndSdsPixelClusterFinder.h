@@ -18,7 +18,7 @@ class PndSdsPixelClusterFinder
 public :
   PndSdsPixelClusterFinder();
 //  PndSdsPixelClusterFinder(std::vector<PndSdsDigiPixel> hits);
-//  virtual ~PndSdsPixelClusterFinder();
+  ~PndSdsPixelClusterFinder(){};
   virtual std::vector< std::vector < Int_t > > GetClusters(std::vector<PndSdsDigiPixel> hits) = 0;
   void Print();
   void Print(std::vector<PndSdsDigiPixel> hits);

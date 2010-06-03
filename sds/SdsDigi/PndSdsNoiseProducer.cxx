@@ -25,6 +25,7 @@ PndSdsNoiseProducer::PndSdsNoiseProducer() :
   FairTask("Charge Noise Producer"), fIonizationEnergy(1.)
 {
   fPersistance = kTRUE;
+  fGeoH = PndGeoHandling::Instance();
 }
 // -------------------------------------------------------------------------
 
@@ -150,10 +151,6 @@ void PndSdsNoiseProducer::SetParContainers()
   fDigiParRect = (PndSdsStripDigiPar*)(rtdb->getContainer("MVDStripDigiParRect"));
   fDigiParTrap = (PndSdsStripDigiPar*)(rtdb->getContainer("MVDStripDigiParTrap"));
   fDigiParPix  = (PndSdsPixelDigiPar*)(rtdb->getContainer("MVDPixelDigiPar"));
-  Info("SetParContainers","make geohandler");
-	if(0==fGeoH) fGeoH = PndGeoHandling::Instance();
-  else   Warning("SetParContainers","ooops there was already a geohandler");
-  fGeoH->SetVerbose(fVerbose);
   Info("SetParContainers","done.");
 }
 

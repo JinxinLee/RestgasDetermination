@@ -39,6 +39,7 @@ class PndSdsStripDigiPar : public FairParGenericSet
     const char*  GetSensType()    const {return fSensType.Data();}
     const char*  GetFeType()      const {return fFeType.Data();}
     Int_t GetClusterMod()         const {return fClusterMod;}
+    Int_t GetClusterMean()        const {return fClusterMean;}
     Int_t GetRadChannel()         const {return fRadChannel;}
     Int_t GetRadTime()            const {return fRadTime;}
     Double_t GetChargeCut()       const {return fChargeCut;}
@@ -60,6 +61,7 @@ class PndSdsStripDigiPar : public FairParGenericSet
     void SetSensType(TString x)   {fSensType = x;}
     void SetFeType(TString x)     {fFeType = x;}
     void SetClusterMod(Int_t  x)  {fClusterMod = x;}
+    void SetClusterMean(Int_t  x) {fClusterMean = x;}
     void SetRadChnnel(Int_t x)    {fRadChannel = x;}
     void SetRadTime(Int_t x)      {fRadTime = x;}
     void SetChargeCut(Double_t x) {fChargeCut = x;}
@@ -83,13 +85,14 @@ class PndSdsStripDigiPar : public FairParGenericSet
     Int_t    fTopNrFE;      // Number of FE attached to top wafer side
     Int_t    fBotNrFE;      // Number of FE attached to bottom wafer side
     Int_t    fClusterMod;   // Clusterfinder mode: 1,2,3,4,5
+    Int_t    fClusterMean;  // Clusterfinder mean Algo: 0,1
     Int_t    fRadChannel;   // Clusterfinder channel search radius
     Int_t    fRadTime;      // Clusterfinder timing search radius
     TString  fSensType;     // Sensor type name (rect, trap...)
     TString  fFeType;       // Frontend type name (APV25, CBM-XYTER, ...)
     Int_t fChargeConvMethod;// 0: ideal conversion; 1: TOT calculation
     
-    ClassDef(PndSdsStripDigiPar,3);
+    ClassDef(PndSdsStripDigiPar,4);
   };
 
 #endif /* !PNDSDSSTRIPDIGIPAR_H*/

@@ -81,7 +81,7 @@ protected:
   Bool_t fMdtRefit;                 // Use MDT Kalman refit propagation
   Bool_t fIdeal;                    // Ideal Correlation
 
-  PndGeoHandling* geoH;              // Object to retrieve MVD geometry
+  PndGeoHandling* fGeoH;             // Object to retrieve MVD geometry
   PndRecoKalmanFit *fFitter;         // Refitter for MDT tracks
   TFile *r;                          // File for debug ntuples
   TNtuple *tofCorr;                  // Debug ntuple for tof correlation

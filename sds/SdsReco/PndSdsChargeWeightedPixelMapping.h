@@ -13,22 +13,23 @@
 //! params are taken from parameter database
 
 class PndSdsChargeWeightedPixelMapping : public PndSdsPixelBackMapping
-{
-	public :
-			PndSdsChargeWeightedPixelMapping();
-			PndSdsChargeWeightedPixelMapping(PndGeoHandling* geo);
-			PndSdsHit GetCluster(std::vector<PndSdsDigiPixel> pixelArray); ///< Main function of class to calculate the PndSdsHit out of the given PndSdsDigis
-
-	protected :
-			PndSdsChargeConversion* fChargeConverter;
-			Double_t flx;
-			Double_t fly;
-			Int_t fcols;
-			Int_t frows;
-
-	private :
-			TGeoHMatrix GetTransformation(Int_t sensorID);
-			TVector3 GetSensorDimensions(Int_t sensorID);
-};
+  {
+    public :
+    PndSdsChargeWeightedPixelMapping();
+    ~PndSdsChargeWeightedPixelMapping(){};
+    PndSdsChargeWeightedPixelMapping(PndGeoHandling* geo);
+    PndSdsHit GetCluster(std::vector<PndSdsDigiPixel> pixelArray); ///< Main function of class to calculate the PndSdsHit out of the given PndSdsDigis
+    
+    protected :
+    PndSdsChargeConversion* fChargeConverter;
+    Double_t flx;
+    Double_t fly;
+    Int_t fcols;
+    Int_t frows;
+    
+    private :
+    TGeoHMatrix GetTransformation(Int_t sensorID);
+    TVector3 GetSensorDimensions(Int_t sensorID);
+  };
 
 #endif

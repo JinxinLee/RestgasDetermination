@@ -49,6 +49,7 @@ PndSdsClusterStrip* PndSdsStripClusterer::GetCluster(Int_t i)
   else{
     Fatal("GetCluster","fClusters out of bounds i=%i at size=%i",i,fClusters.size());
   }
+  return NULL;
 }
 //------------------------------------------------------------------------------
 PndSdsClusterStrip* PndSdsStripClusterer::GetTopCluster(Int_t i)
@@ -58,6 +59,7 @@ PndSdsClusterStrip* PndSdsStripClusterer::GetTopCluster(Int_t i)
   else{
     Fatal("GetTopCluster","fTopclusters out of bounds i=%i at size=%i",i,fTopclusters.size());
   }
+  return NULL;
 }
 //------------------------------------------------------------------------------
 PndSdsClusterStrip* PndSdsStripClusterer::GetBotCluster(Int_t i)
@@ -67,6 +69,7 @@ PndSdsClusterStrip* PndSdsStripClusterer::GetBotCluster(Int_t i)
   else {
     Fatal("GetBotCluster","fBotclusters out of bounds i=%i at size=%i",i,fBotclusters.size());
   }
+  return NULL;
 }
 
 

@@ -48,11 +48,12 @@ PndSdsDetector::PndSdsDetector() : fUseRadDamOption(false)
 
 // -----   Standard constructor   ------------------------------------------
 PndSdsDetector::PndSdsDetector (const char* name, Bool_t active)
-  : FairDetector(name, active), fUseRadDamOption(false) 
+: FairDetector(name, active), fUseRadDamOption(false) 
 {
-    fPndSdsCollection = new TClonesArray("PndSdsMCPoint");
-    fPosIndex = 0;
-    fUseRadDamOption = false;    
+  fPndSdsCollection = new TClonesArray("PndSdsMCPoint");
+  fPosIndex = 0;
+  fUseRadDamOption = false;    
+  fGeoH = PndGeoHandling::Instance();
 }
 // -------------------------------------------------------------------------
 
@@ -63,11 +64,10 @@ PndSdsDetector::PndSdsDetector (const char* name, Bool_t active)
 PndSdsDetector::~PndSdsDetector()
 {
   if (fPndSdsCollection)
-    {
-      fPndSdsCollection->Delete();
-      delete fPndSdsCollection;
-    }
-  delete fGeoH;
+  {
+    fPndSdsCollection->Delete();
+    delete fPndSdsCollection;
+  }
 }
 // -------------------------------------------------------------------------
 void PndSdsDetector::Initialize()
@@ -79,8 +79,6 @@ void PndSdsDetector::Initialize()
     std::cout<<" -E- No gGeoManager in PndSdsDetector::Initialize()!"<<std::endl;
     abort();
   }
-  Warning("Initialize", "Creating a PndGeoHandling object. Is it the right place?");
-  if(0==fGeoH) fGeoH = PndGeoHandling::Instance();
   fGeoH->CreateUniqueSensorId("", fListOfSensitives);
   if(fVerboseLevel>0) fGeoH->PrintSensorNames();
 }
@@ -92,49 +90,49 @@ void PndSdsDetector::SetSpecialPhysicsCuts()
   // Switched off. 
   return;
   
-//  FairRun* fRun = FairRun::Instance();
-//  
-//  //check for GEANT3, else abort
-//  if (strcmp(fRun->GetName(),"TGeant3") == 0) {
-//    
-//    //get material ID for customs settings
-//    int matIdVMC = gGeoManager->GetMedium("silicon")->GetId();
-//    
-//    //double cut_el = 1.0E-5;   // (GeV)
-//    //double cut_had = 1.0E-3;  // (GeV)
-//    double tofmax = 1.E10;    // (s)
-//    
-//    // Set new properties, physics cuts etc. for the TPCmixture
-//    gMC->Gstpar(matIdVMC,"PAIR",1); /** pair production*/
-//    gMC->Gstpar(matIdVMC,"COMP",1); /**Compton scattering*/
-//    gMC->Gstpar(matIdVMC,"PHOT",1); /** photo electric effect */
-//    gMC->Gstpar(matIdVMC,"PFIS",0); /**photofission*/
-//    gMC->Gstpar(matIdVMC,"DRAY",1); /**delta-ray*/
-//    gMC->Gstpar(matIdVMC,"ANNI",1); /**annihilation*/
-//    gMC->Gstpar(matIdVMC,"BREM",1); /**bremsstrahlung*/
-//    gMC->Gstpar(matIdVMC,"HADR",1); /**hadronic process*/
-//    gMC->Gstpar(matIdVMC,"MUNU",1); /**muon nuclear interaction*/
-//    gMC->Gstpar(matIdVMC,"DCAY",1); /**decay*/
-//    gMC->Gstpar(matIdVMC,"LOSS",1); /**energy loss*/
-//    gMC->Gstpar(matIdVMC,"MULS",1); /**multiple scattering*/
-//    gMC->Gstpar(matIdVMC,"STRA",0); 
-//    gMC->Gstpar(matIdVMC,"RAYL",1);
-//    
-//    gMC->Gstpar(matIdVMC,"CUTGAM",fCut_el); /** gammas (GeV)*/
-//    gMC->Gstpar(matIdVMC,"CUTELE",fCut_el); /** electrons (GeV)*/
-//    gMC->Gstpar(matIdVMC,"CUTNEU",fCut_had); /** neutral hadrons (GeV)*/
-//    gMC->Gstpar(matIdVMC,"CUTHAD",fCut_had); /** charged hadrons (GeV)*/
-//    gMC->Gstpar(matIdVMC,"CUTMUO",fCut_el); /** muons (GeV)*/
-//    gMC->Gstpar(matIdVMC,"BCUTE",fCut_el);  /** electron bremsstrahlung (GeV)*/
-//    gMC->Gstpar(matIdVMC,"BCUTM",fCut_el);  /** muon and hadron bremsstrahlung(GeV)*/ 
-//    gMC->Gstpar(matIdVMC,"DCUTE",fCut_el);  /** delta-rays by electrons (GeV)*/
-//    gMC->Gstpar(matIdVMC,"DCUTM",fCut_el);  /** delta-rays by muons (GeV)*/
-//    gMC->Gstpar(matIdVMC,"PPCUTM",fCut_el); /** direct pair production by muons (GeV)*/
-//    
-//    gMC->SetMaxNStep(1E6);
-//    
-//    Info("SetSpecialPhysicsCuts()","Using special physics cuts in MVD Sensors.");
-//  }
+  //  FairRun* fRun = FairRun::Instance();
+  //  
+  //  //check for GEANT3, else abort
+  //  if (strcmp(fRun->GetName(),"TGeant3") == 0) {
+  //    
+  //    //get material ID for customs settings
+  //    int matIdVMC = gGeoManager->GetMedium("silicon")->GetId();
+  //    
+  //    //double cut_el = 1.0E-5;   // (GeV)
+  //    //double cut_had = 1.0E-3;  // (GeV)
+  //    double tofmax = 1.E10;    // (s)
+  //    
+  //    // Set new properties, physics cuts etc. for the TPCmixture
+  //    gMC->Gstpar(matIdVMC,"PAIR",1); /** pair production*/
+  //    gMC->Gstpar(matIdVMC,"COMP",1); /**Compton scattering*/
+  //    gMC->Gstpar(matIdVMC,"PHOT",1); /** photo electric effect */
+  //    gMC->Gstpar(matIdVMC,"PFIS",0); /**photofission*/
+  //    gMC->Gstpar(matIdVMC,"DRAY",1); /**delta-ray*/
+  //    gMC->Gstpar(matIdVMC,"ANNI",1); /**annihilation*/
+  //    gMC->Gstpar(matIdVMC,"BREM",1); /**bremsstrahlung*/
+  //    gMC->Gstpar(matIdVMC,"HADR",1); /**hadronic process*/
+  //    gMC->Gstpar(matIdVMC,"MUNU",1); /**muon nuclear interaction*/
+  //    gMC->Gstpar(matIdVMC,"DCAY",1); /**decay*/
+  //    gMC->Gstpar(matIdVMC,"LOSS",1); /**energy loss*/
+  //    gMC->Gstpar(matIdVMC,"MULS",1); /**multiple scattering*/
+  //    gMC->Gstpar(matIdVMC,"STRA",0); 
+  //    gMC->Gstpar(matIdVMC,"RAYL",1);
+  //    
+  //    gMC->Gstpar(matIdVMC,"CUTGAM",fCut_el); /** gammas (GeV)*/
+  //    gMC->Gstpar(matIdVMC,"CUTELE",fCut_el); /** electrons (GeV)*/
+  //    gMC->Gstpar(matIdVMC,"CUTNEU",fCut_had); /** neutral hadrons (GeV)*/
+  //    gMC->Gstpar(matIdVMC,"CUTHAD",fCut_had); /** charged hadrons (GeV)*/
+  //    gMC->Gstpar(matIdVMC,"CUTMUO",fCut_el); /** muons (GeV)*/
+  //    gMC->Gstpar(matIdVMC,"BCUTE",fCut_el);  /** electron bremsstrahlung (GeV)*/
+  //    gMC->Gstpar(matIdVMC,"BCUTM",fCut_el);  /** muon and hadron bremsstrahlung(GeV)*/ 
+  //    gMC->Gstpar(matIdVMC,"DCUTE",fCut_el);  /** delta-rays by electrons (GeV)*/
+  //    gMC->Gstpar(matIdVMC,"DCUTM",fCut_el);  /** delta-rays by muons (GeV)*/
+  //    gMC->Gstpar(matIdVMC,"PPCUTM",fCut_el); /** direct pair production by muons (GeV)*/
+  //    
+  //    gMC->SetMaxNStep(1E6);
+  //    
+  //    Info("SetSpecialPhysicsCuts()","Using special physics cuts in MVD Sensors.");
+  //  }
 }
 
 
@@ -143,7 +141,7 @@ void PndSdsDetector::SetSpecialPhysicsCuts()
 // -----   Public method ProcessHits  --------------------------------------
 Bool_t  PndSdsDetector::ProcessHits(FairVolume* vol)
 {
-//	std::cout<<"-I- PndSdsDetector::ProcessHits() : called. Please remove this line soon."<<std::endl;
+  //	std::cout<<"-I- PndSdsDetector::ProcessHits() : called. Please remove this line soon."<<std::endl;
   if ( gMC->IsTrackEntering() )
   {
     // Set parameters at entrance of volume. Reset ELoss.
@@ -153,53 +151,53 @@ Bool_t  PndSdsDetector::ProcessHits(FairVolume* vol)
     gMC->TrackPosition(fPosIn);
     gMC->TrackMomentum(fMomIn);
   }
-
+  
   // Sum energy loss for all steps in the active volume
   fELoss += gMC->Edep();
-
-
+  
+  
   // Create PndSdsMCPoint at exit of active volume
-
+  
   if ( gMC->IsTrackExiting()    ||
-       gMC->IsTrackStop()       ||
-       gMC->IsTrackDisappeared()   ) {
-
-      fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
-
-      if(0==fGeoH) {
-        std::cout<<" -E- No PndGeoHandling loaded."<<std::endl;
-        abort();
-      }
-      if (fVerboseLevel > 2){
-        std::cout << "*******  Info from gMC *************" << std::endl;
-        std::cout << "Hit in " << gMC->CurrentVolPath() << " with MCiD: " << vol->getMCid() << " PixelDetectorID: " << fVolumeID << std::endl;
-        std::cout<<"VolumeID: "<<fGeoH->GetShortID(gMC->CurrentVolPath())<<std::endl;
-        std::cout << "PosIn: " << fPosIn.X() << " " << fPosIn.Y() << " " << fPosIn.Z() << " " << fELoss << std::endl;
-      }
-
-      gMC->TrackPosition(fPosOut);
-      gMC->TrackMomentum(fMomOut);
-
-      if (fUseRadDamOption == false){
-    	  if (fELoss == 0.) return kFALSE;
-      }
-
-     TString detPath = gMC->CurrentVolPath();
-     PndSdsMCPoint* myPoint = AddHit(fTrackID, kMVDPoint, fGeoH->GetShortID(detPath),
-        TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
-        TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
-        TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
-        TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-        fTime, fLength, fELoss);
-
-     if(fVerboseLevel>2) std::cout << myPoint << std::endl;
-
-      // Increment number of PndSds points for TParticle
-      PndStack* stack = (PndStack*) gMC->GetStack();
-      stack->AddPoint(kMVD); //TODO: Which detector Type?
-      ResetParameters();
+      gMC->IsTrackStop()       ||
+      gMC->IsTrackDisappeared()   ) {
+    
+    fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
+    
+    if(0==fGeoH) {
+      std::cout<<" -E- No PndGeoHandling loaded."<<std::endl;
+      abort();
     }
-
+    if (fVerboseLevel > 2){
+      std::cout << "*******  Info from gMC *************" << std::endl;
+      std::cout << "Hit in " << gMC->CurrentVolPath() << " with MCiD: " << vol->getMCid() << " PixelDetectorID: " << fVolumeID << std::endl;
+      std::cout<<"VolumeID: "<<fGeoH->GetShortID(gMC->CurrentVolPath())<<std::endl;
+      std::cout << "PosIn: " << fPosIn.X() << " " << fPosIn.Y() << " " << fPosIn.Z() << " " << fELoss << std::endl;
+    }
+    
+    gMC->TrackPosition(fPosOut);
+    gMC->TrackMomentum(fMomOut);
+    
+    if (fUseRadDamOption == false){
+      if (fELoss == 0.) return kFALSE;
+    }
+    
+    TString detPath = gMC->CurrentVolPath();
+    PndSdsMCPoint* myPoint = AddHit(fTrackID, kMVDPoint, fGeoH->GetShortID(detPath),
+                                    TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
+                                    TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
+                                    TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
+                                    TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
+                                    fTime, fLength, fELoss);
+    
+    if(fVerboseLevel>2) std::cout << myPoint << std::endl;
+    
+    // Increment number of PndSds points for TParticle
+    PndStack* stack = (PndStack*) gMC->GetStack();
+    stack->AddPoint(kMVD); //TODO: Which detector Type?
+    ResetParameters();
+  }
+  
   return kTRUE;
 }
 // -------------------------------------------------------------------------
@@ -211,7 +209,7 @@ void PndSdsDetector::EndOfEvent()
 {
   if (fVerboseLevel)
     Print();
-
+  
   fPndSdsCollection->Delete();
   fPosIndex = 0;
 }
@@ -219,7 +217,7 @@ void PndSdsDetector::EndOfEvent()
 
 void PndSdsDetector::FinishRun()
 {
-
+  
 }
 
 // -----   Public method Register   ----------------------------------------
@@ -247,10 +245,10 @@ TClonesArray* PndSdsDetector::GetCollection(Int_t iColl) const
 void PndSdsDetector::Print() const
 {
   Int_t
-    nHits = fPndSdsCollection->GetEntriesFast();
-
+  nHits = fPndSdsCollection->GetEntriesFast();
+  
   std::cout << "-I- PndSdsDetector: " << nHits << " points registered in this event."  << std::endl;
-
+  
   if (fVerboseLevel>1)
     for (Int_t i=0; i<nHits; i++)
       (*fPndSdsCollection)[i]->Print();
@@ -273,26 +271,26 @@ void PndSdsDetector::Reset()
 void PndSdsDetector::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)
 {
   Int_t
-    nEntries = cl1->GetEntriesFast();
-
+  nEntries = cl1->GetEntriesFast();
+  
   std::cout << "-I- PndSdsDetector: " << nEntries << " entries to add." << std::endl;
-
+  
   TClonesArray& clref = *cl2;
-
+  
   PndSdsMCPoint
-    *oldpoint = NULL;
-   for (Int_t i=0; i<nEntries; i++)
-     {
-       oldpoint = (PndSdsMCPoint*) cl1->At(i);
-
-       Int_t
-   index = oldpoint->GetTrackID() + offset;
-
-       oldpoint->SetTrackID(index);
-       new (clref[fPosIndex]) PndSdsMCPoint(*oldpoint);
-       fPosIndex++;
-     }
-   std::cout << "-I- PndSdsDetector: " << cl2->GetEntriesFast() << " merged entries."
+  *oldpoint = NULL;
+  for (Int_t i=0; i<nEntries; i++)
+  {
+    oldpoint = (PndSdsMCPoint*) cl1->At(i);
+    
+    Int_t
+    index = oldpoint->GetTrackID() + offset;
+    
+    oldpoint->SetTrackID(index);
+    new (clref[fPosIndex]) PndSdsMCPoint(*oldpoint);
+    fPosIndex++;
+  }
+  std::cout << "-I- PndSdsDetector: " << cl2->GetEntriesFast() << " merged entries."
   << std::endl;
 }
 
@@ -302,7 +300,7 @@ void PndSdsDetector::ConstructGeometry()
   // Set what is sensitive before creating geometry
   if (fListOfSensitives.size()==0) SetDefaultSensorNames();
   TString fileName=GetGeometryFileName();
-        if(fileName.EndsWith(".geo")){
+  if(fileName.EndsWith(".geo")){
     ConstructASCIIGeometry();
   }else if(fileName.EndsWith(".root")){
     ConstructRootGeometry();
@@ -329,49 +327,49 @@ void PndSdsDetector::ConstructASCIIGeometry()
 {
   // get pointer to the instantons which interface
   // to monte carlo
-
+  
   FairGeoLoader *geoLoad = FairGeoLoader::Instance();
   FairGeoInterface *geoFace = geoLoad->getGeoInterface();
   PndSdsGeo *thePndSdsGeo  = new PndSdsGeo();
-
+  
   thePndSdsGeo->setGeomFile(GetGeometryFileName());
   geoFace->addGeoModule(thePndSdsGeo);
-
+  
   Bool_t rc = geoFace->readSet(thePndSdsGeo);
-
+  
   if (rc)
     thePndSdsGeo->create(geoLoad->getGeoBuilder());
-
+  
   TList* volList = thePndSdsGeo->getListOfVolumes();
-
+  
   // store geo parameter
   FairRun *fRun = FairRun::Instance();
-
+  
   FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
-
+  
   PndSdsGeoPar *par= (PndSdsGeoPar*)(rtdb->getContainer("PndSdsGeoPar"));
-
+  
   TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
-
+  
   TObjArray *fPassNodes = par->GetGeoPassiveNodes();
-
+  
   TListIter iter(volList);
-
+  
   FairGeoNode   *node = NULL;
   FairGeoVolume *aVol = NULL;
-
+  
   while( (node = (FairGeoNode*)iter.Next()) ) {
-      aVol = dynamic_cast<FairGeoVolume*> ( node );
-       if ( node->isSensitive()  ) {
-           fSensNodes->AddLast( aVol );
-       }else{
-           fPassNodes->AddLast( aVol );
-       }
+    aVol = dynamic_cast<FairGeoVolume*> ( node );
+    if ( node->isSensitive()  ) {
+      fSensNodes->AddLast( aVol );
+    }else{
+      fPassNodes->AddLast( aVol );
+    }
   }
-
+  
   par->setChanged();
   par->setInputVersion(fRun->GetRunId(),1);
-
+  
   ProcessNodes ( volList );
 }
 // -------------------------------------------------------------------------
@@ -391,23 +389,23 @@ void PndSdsDetector::SetExclusiveSensorType(const TString sens)
 
 // -----   Private method AddHit   -----------------------------------------
 PndSdsMCPoint* PndSdsDetector::AddHit(Int_t trackID, Int_t detID, Int_t sensorID, TVector3 posIn,TVector3 posOut,TVector3 momIn, TVector3 momOut,
-            Double_t time, Double_t length, Double_t eLoss) const
+                                      Double_t time, Double_t length, Double_t eLoss) const
 {
   TClonesArray&
-    clref = *fPndSdsCollection;
-
-   Int_t
-    size = clref.GetEntriesFast();
-
-    if (fVerboseLevel >= 2)
-       std::cout << "-I- PndSdsDetector: Adding Point at (" << posIn.X() << ", " << posIn.Y()
-      << ", " << posIn.Z() << ") cm, (" << posOut.X() << ", " << posOut.Y()
-      << ", " << posOut.Z() << ") cm,  detector " << fGeoH->GetPath(sensorID) << " " << detID << ", track "
-      << trackID << ", energy loss " << eLoss*1e06 << " keV" << std::endl;
-
+  clref = *fPndSdsCollection;
+  
+  Int_t
+  size = clref.GetEntriesFast();
+  
+  if (fVerboseLevel >= 2)
+    std::cout << "-I- PndSdsDetector: Adding Point at (" << posIn.X() << ", " << posIn.Y()
+    << ", " << posIn.Z() << ") cm, (" << posOut.X() << ", " << posOut.Y()
+    << ", " << posOut.Z() << ") cm,  detector " << fGeoH->GetPath(sensorID) << " " << detID << ", track "
+    << trackID << ", energy loss " << eLoss*1e06 << " keV" << std::endl;
+  
   return new(clref[size]) PndSdsMCPoint(trackID, detID, sensorID, posIn, posOut,
-                        momIn, momOut, time, length, eLoss);
-
+                                        momIn, momOut, time, length, eLoss);
+  
 }
 // -------------------------------------------------------------------------
 

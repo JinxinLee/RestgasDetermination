@@ -68,6 +68,7 @@ PndPidCorrelator::PndPidCorrelator() {
   fTrackIDBranch = "";
   sDir = "./";
   sFile = "./pidcorrelator.root";
+  fGeoH = PndGeoHandling::Instance();
   Reset();
 }
 
@@ -293,8 +294,6 @@ InitStatus PndPidCorrelator::Init() {
   Register();
    
   fCorrPar->printParams();
-
-  geoH = PndGeoHandling::Instance();
 
   if (fGeanePro)
     {      cout << "-I- PndPidCorrelator::Init: Using Geane for Track propagation" << endl;

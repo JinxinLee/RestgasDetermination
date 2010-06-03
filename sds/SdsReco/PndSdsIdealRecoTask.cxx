@@ -34,6 +34,7 @@ PndSdsIdealRecoTask::PndSdsIdealRecoTask() :
   fSigmaY=0.;
   fSigmaZ=0.;
   fPersistance = kTRUE;
+  fGeoH = PndGeoHandling::Instance();
 }
 // -------------------------------------------------------------------------
 
@@ -46,6 +47,7 @@ PndSdsIdealRecoTask::PndSdsIdealRecoTask(Double_t sx, Double_t sy, Double_t sz) 
   fSigmaY=sy;
   fSigmaZ=sz;
   fPersistance = kTRUE;
+  fGeoH = PndGeoHandling::Instance();
 }
 // -------------------------------------------------------------------------
 
@@ -53,7 +55,6 @@ PndSdsIdealRecoTask::PndSdsIdealRecoTask(Double_t sx, Double_t sy, Double_t sz) 
 // -----   Destructor   ----------------------------------------------------
 PndSdsIdealRecoTask::~PndSdsIdealRecoTask()
 {
-delete fGeoH;
 }
 
 // -----   Public method Init   --------------------------------------------
@@ -92,11 +93,6 @@ InitStatus PndSdsIdealRecoTask::Init()
 // -------------------------------------------------------------------------
 void PndSdsIdealRecoTask::SetParContainers()
 {
-  // Get Base Container
-//  FairRun* ana = FairRun::Instance();
-//  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
-  if(0==fGeoH) fGeoH = PndGeoHandling::Instance();
-
 }
 
 

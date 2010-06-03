@@ -28,18 +28,10 @@
 #include <math.h>
 #include "stdlib.h"
 
- ClassImp(PndGeoHandling);
+ClassImp(PndGeoHandling);
 
-// PndGeoHandling * PndGeoHandling::fGeoHandlingInstance= 0;
 
- //_____________________________________________________________________________
-/*PndGeoHandling * PndGeoHandling::Instance(){
-
-         return fGeoHandlingInstance;
- }
-*/
-
- PndGeoHandling * PndGeoHandling::fInstance= 0;
+PndGeoHandling * PndGeoHandling::fInstance= NULL;
 
 PndGeoHandling* PndGeoHandling::Instance(){
 	if ( !fInstance){
@@ -48,44 +40,35 @@ PndGeoHandling* PndGeoHandling::Instance(){
 	return fInstance;
 }
 
-PndGeoHandling::PndGeoHandling():fVerbose(0)
+PndGeoHandling::PndGeoHandling():fVerbose(0),fRunId(-1)
 {
-/*	if (fGeoHandlingInstance){
-		Fatal("PndGeoHandling", "Singleton instance already exists.");
-		return;
-	}
-	fGeoHandlingInstance = this;
-*/
-	if (gGeoManager) {
-		fGeoMan = gGeoManager;
-	} else
-	{
-//			Fatal("PndGeoHandling","No gGeoManager");
-//			return;
-	}
-	SetParContainers();
+  if(fInstance) return;
+  fInstance = this;
+  FairRun* run = FairRun::Instance();
+	if (!run) Fatal("PndGeoHandling","No FairRun object found. If used in a macro take another constructor.");
+  run->AddTask((FairTask*)this);
 }
 
 void PndGeoHandling::SetParContainers()
 {
-	FairRun* ana = FairRun::Instance();
-	if (ana != 0){
-		FairRuntimeDb* rtdb = ana->GetRuntimeDb();
-		if (fVerbose > 0){
-			std::cout << "-I- PndGeoHandling::PndGeoHandling: Container PndSensorNamePar ";
-			if (rtdb->findContainer("PndSensorNamePar"))
-				 std::cout << "exists already" << std::endl;
-			else
-				std::cout << "does not exist" << std::endl;
-		}
-		fSensorNamePar = (PndSensorNamePar*) (rtdb->getContainer("PndSensorNamePar"));
-		if ( ! fSensorNamePar) Fatal("PndGeoHandling","No fSensorNamePar!");
-	}
+  FairRun* run = FairRun::Instance();
+  if (!run) Fatal("PndGeoHandling","No FairRun object found.");
+  fRtdb = run->GetRuntimeDb();
+  if (!fRtdb) Fatal("PndGeoHandling","No runtime database found.");
+  fRunId = run->GetRunId();
+  if (fRunId < 0) Error("PndGeoHandling", "No valid run ID? %i",fRunId);
+  //if (!gGeoManager) GetGeoManager();
+  fGeoMan = gGeoManager;
+  if (!fGeoMan) Fatal("PndGeoHandling","No gGeoManager found.");
+  fSensorNamePar = (PndSensorNamePar*) (fRtdb->getContainer("PndSensorNamePar"));
+  if ( ! fSensorNamePar) Fatal("PndGeoHandling","No PndSensorNamePar parameters found.");
+  //fRtdb->initContainers(fRunId);
+  FairTask::SetParContainers();
 }
 
 PndGeoHandling::PndGeoHandling(TString mcFile, TString parFile):fVerbose(0), fRunId(-1)
 {
-
+  
 	InitRuntimeDb(parFile);
 	GetRunId(mcFile);
 	if (gGeoManager) {
@@ -97,15 +80,15 @@ PndGeoHandling::PndGeoHandling(TString mcFile, TString parFile):fVerbose(0), fRu
 		GetGeoManager();
 		fGeoMan = gGeoManager;
 	}
-
-
+  
+  
 	GetSensorNamePar();
 }
 
 PndGeoHandling::PndGeoHandling(Int_t runId, TString parFile):fVerbose(0)
 {
 	InitRuntimeDb(parFile);
-
+  
 	fRunId = runId;
 	if (gGeoManager) {
 		fGeoMan = gGeoManager;
@@ -128,16 +111,16 @@ void PndGeoHandling::GetRunId(TString mcFile)
 	t->SetBranchAddress("EventHeader.", &header);
 	t->GetEntry(0);
 	fRunId = header->GetRunId();
-
+  
 	t->SetBranchStatus("EventHeader.",0);
 }
 
 void PndGeoHandling::GetSensorNamePar()
 {
 	fSensorNamePar = (PndSensorNamePar*) (fRtdb->getContainer("PndSensorNamePar"));
-
+  
 	fRtdb->initContainers(fRunId);
-
+  
 	if (fVerbose > 1){
 		fRtdb->Print();
 		fSensorNamePar->Print();
@@ -157,44 +140,43 @@ void PndGeoHandling::GetGeoManager()
 {
 	if (fRunId < 0)
 		return;
-	FairBaseParSet* par=(FairBaseParSet*)
-	           (fRtdb->getContainer("FairBaseParSet"));
+	FairBaseParSet* par=(FairBaseParSet*)(fRtdb->getContainer("FairBaseParSet"));
 	fRtdb->initContainers(fRunId);
 }
 
 /*
-TString PndGeoHandling::GetCurrentID()
-{
+ TString PndGeoHandling::GetCurrentID()
+ {
  Int_t level;
  Int_t copyNr[100];
  Int_t volNr[100];
  TString result;
-
+ 
  level = fGeoMan->GetLevel();
  level++;
-
+ 
  fGeoMan->GetBranchNumbers(copyNr, volNr);
  for (int i=0; i<level; i++){
- 	result += volNr[i];
-	result += "_";
-	result += copyNr[i];
-	result += "/";
+ result += volNr[i];
+ result += "_";
+ result += copyNr[i];
+ result += "/";
  }
  return result;
-}
+ }
  */
 
 /*
-TString PndGeoHandling::GetID(TString path)
-{
-	TString result;
-	TString currentPath = fGeoMan->GetPath();
-	fGeoMan->cd(path.Data());
-	result = GetCurrentID();
-	fGeoMan->cd(currentPath.Data());
-	return result;
-}
-*/
+ TString PndGeoHandling::GetID(TString path)
+ {
+ TString result;
+ TString currentPath = fGeoMan->GetPath();
+ fGeoMan->cd(path.Data());
+ result = GetCurrentID();
+ fGeoMan->cd(currentPath.Data());
+ return result;
+ }
+ */
 
 Int_t PndGeoHandling::GetShortID(TString path)
 {
@@ -217,37 +199,37 @@ TString PndGeoHandling::GetPath(Int_t shortID)
 }
 
 /*
-TString PndGeoHandling::GetPath(TString id)
-{
-	TString result;
-	SetGeoManager(gGeoManager);
-	//std::cout << "-I- PndGeoHandling::GetPath : " << id.Data() << std::endl;
-	std::vector<std::string> idVector;
-	PndStringSeparator pathAna(id.Data(), "/_");
-	idVector = pathAna.GetStringVector();
-
-	for(UInt_t i = 0; i < idVector.size(); i+=2){
-		result += "/";
-		Int_t VolId = atoi(idVector[i].c_str());
-		Int_t CopyNr = atoi(idVector[i+1].c_str());
-//     if(fVerbose>3) std::cout<<" -I- PndGeoHandling::GetPath: VolId = "<<VolId<<std::endl;
-		//std::cout << "-I- PndGeoHandling::GetPath : " << VolId;
-		//std::cout << " : " << fGeoMan->GetVolume(VolId)->GetName() << std::endl;
-		result += fGeoMan->GetVolume(VolId)->GetName();
-		result += "_";
-		result += CopyNr;
-	}
-//   if(fVerbose>2) std::cout<<" -I- PndGeoHandling::GetPath: result = "<<result.Data()<<std::endl;
-	return result;
-}
-*/
+ TString PndGeoHandling::GetPath(TString id)
+ {
+ TString result;
+ SetGeoManager(gGeoManager);
+ //std::cout << "-I- PndGeoHandling::GetPath : " << id.Data() << std::endl;
+ std::vector<std::string> idVector;
+ PndStringSeparator pathAna(id.Data(), "/_");
+ idVector = pathAna.GetStringVector();
+ 
+ for(UInt_t i = 0; i < idVector.size(); i+=2){
+ result += "/";
+ Int_t VolId = atoi(idVector[i].c_str());
+ Int_t CopyNr = atoi(idVector[i+1].c_str());
+ //     if(fVerbose>3) std::cout<<" -I- PndGeoHandling::GetPath: VolId = "<<VolId<<std::endl;
+ //std::cout << "-I- PndGeoHandling::GetPath : " << VolId;
+ //std::cout << " : " << fGeoMan->GetVolume(VolId)->GetName() << std::endl;
+ result += fGeoMan->GetVolume(VolId)->GetName();
+ result += "_";
+ result += CopyNr;
+ }
+ //   if(fVerbose>2) std::cout<<" -I- PndGeoHandling::GetPath: result = "<<result.Data()<<std::endl;
+ return result;
+ }
+ */
 
 /*
-Bool_t PndGeoHandling::cd(TString id)
-{
-	return fGeoMan->cd(GetPath(id).Data());
-}
-*/
+ Bool_t PndGeoHandling::cd(TString id)
+ {
+ return fGeoMan->cd(GetPath(id).Data());
+ }
+ */
 
 TString PndGeoHandling::GetVolumeID(TString name)
 {
@@ -263,7 +245,7 @@ std::vector<TString> PndGeoHandling::GetNamesLevel(Int_t level, TString startPat
 {
 	TString actPath = fGeoMan->GetPath();
 	fLevelNames.clear();
-
+  
 	if (startPath == ""){
 		fGeoMan->CdTop();
 		fLevel = level;
@@ -304,91 +286,91 @@ void PndGeoHandling::GetOUVPath(TString path, TVector3& o, TVector3& u, TVector3
 	Double_t* temp;
 	TString actPath = fGeoMan->GetPath();
 	fGeoMan->cd(path);
-
+  
 	TGeoHMatrix* currMatrix = fGeoMan->GetCurrentMatrix();
 	temp = currMatrix->GetTranslation();
 	o.SetXYZ(temp[0], temp[1], temp[2]);
-
+  
 	temp[0] = 1;
 	temp[1] = 0;
 	temp[2] = 0;
 	fGeoMan->LocalToMasterVect(temp, result);
 	u.SetXYZ(result[0], result[1], result[2]);
-
+  
 	temp[0] = 0;
 	temp[1] = 1;
 	temp[2] = 0;
 	fGeoMan->LocalToMasterVect(temp, result);
 	v.SetXYZ(result[0], result[1], result[2]);
-
+  
   if(actPath!="" && actPath!=" ") fGeoMan->cd(actPath);
 }
 
 /*
-void PndGeoHandling::GetOUVId(TString id, TVector3& o, TVector3& u, TVector3& v)
-{
-	GetOUVPath(GetPath(id),o,u,v);
-}
-*/
+ void PndGeoHandling::GetOUVId(TString id, TVector3& o, TVector3& u, TVector3& v)
+ {
+ GetOUVPath(GetPath(id),o,u,v);
+ }
+ */
 
 TVector3 PndGeoHandling::GetSensorDimensionsPath(TString path)
 {
   TVector3 dim;
   TString actPath = fGeoMan->GetPath();
   fGeoMan->cd(path);
-
+  
   TGeoVolume* actVolume = gGeoManager->GetCurrentVolume();
   TGeoBBox* actBox = (TGeoBBox*)(actVolume->GetShape());
   dim.SetX(actBox->GetDX());
   dim.SetY(actBox->GetDY());
   dim.SetZ(actBox->GetDZ());
-
+  
   if(actPath!="" && actPath!=" ") fGeoMan->cd(actPath);
   return dim;
 }
 
 /*
-TVector3 PndGeoHandling::GetSensorDimensionsId(TString id)
-{
-return GetSensorDimensionsPath(GetPath(id));
-}
-*/
+ TVector3 PndGeoHandling::GetSensorDimensionsId(TString id)
+ {
+ return GetSensorDimensionsPath(GetPath(id));
+ }
+ */
 
 TGeoHMatrix* PndGeoHandling::GetMatrixPath(TString path)
 {
 	TString actPath = fGeoMan->GetPath();
 	fGeoMan->cd(path);
-
+  
 	TGeoHMatrix* currMatrix = fGeoMan->GetCurrentMatrix();
 	if(actPath!="" && actPath!=" ") fGeoMan->cd(actPath);
-
+  
 	return currMatrix;
-
+  
 }
 
 /*
-TGeoHMatrix* PndGeoHandling::GetMatrixId(TString id)
-{
-	return GetMatrixPath(GetPath(id));
-}
-*/
+ TGeoHMatrix* PndGeoHandling::GetMatrixId(TString id)
+ {
+ return GetMatrixPath(GetPath(id));
+ }
+ */
 
 //  ----- conversions of POINTS (not vectors) here -----
 /*
-TVector3 PndGeoHandling::MasterToLocalId(const TVector3& master, const TString& id)
-{ return MasterToLocalPath(master, GetPath(id) ); }
-*/
+ TVector3 PndGeoHandling::MasterToLocalId(const TVector3& master, const TString& id)
+ { return MasterToLocalPath(master, GetPath(id) ); }
+ */
 
 TVector3 PndGeoHandling::MasterToLocalPath(const TVector3& master, const TString& path)
 {
-//   if(fVerbose>1) std::cout<<" -I- PndGeoHandling::MasterToLocalPath"<<std::endl;
+  //   if(fVerbose>1) std::cout<<" -I- PndGeoHandling::MasterToLocalPath"<<std::endl;
   Double_t result[3];
   Double_t temp[3];
-
+  
   temp[0] = master.X();
   temp[1] = master.Y();
   temp[2] = master.Z();
-
+  
   TString actPath = fGeoMan->GetPath();
   fGeoMan->cd(path);
   fGeoMan->MasterToLocal(temp, result);
@@ -398,19 +380,19 @@ TVector3 PndGeoHandling::MasterToLocalPath(const TVector3& master, const TString
 
 
 /*
-TVector3 PndGeoHandling::LocalToMasterId(const TVector3& local, const TString& id)
-{ return LocalToMasterPath(local, GetPath(id) ); }
-*/
+ TVector3 PndGeoHandling::LocalToMasterId(const TVector3& local, const TString& id)
+ { return LocalToMasterPath(local, GetPath(id) ); }
+ */
 
 TVector3 PndGeoHandling::LocalToMasterPath(const TVector3& local, const TString& path)
 {
   Double_t result[3];
   Double_t temp[3];
-
+  
   temp[0] = local.X();
   temp[1] = local.Y();
   temp[2] = local.Z();
-
+  
   TString actPath = fGeoMan->GetPath();
   fGeoMan->cd(path);
   fGeoMan->LocalToMaster(temp, result);
@@ -421,36 +403,36 @@ TVector3 PndGeoHandling::LocalToMasterPath(const TVector3& local, const TString&
 
 // ROTATION of error values, CAUTION - these are always psitive defined
 /*
-TVector3 PndGeoHandling::MasterToLocalErrorsId(const TVector3& master, const TString& id)
-{ return MasterToLocalErrorsPath(master, GetPath(id) ); }
-*/
+ TVector3 PndGeoHandling::MasterToLocalErrorsId(const TVector3& master, const TString& id)
+ { return MasterToLocalErrorsPath(master, GetPath(id) ); }
+ */
 TVector3 PndGeoHandling::MasterToLocalErrorsPath(const TVector3& master, const TString& path)
 {
   Double_t result[3];
   Double_t temp[3];
   TString actPath = fGeoMan->GetPath();
   fGeoMan->cd(path);
-
+  
   temp[0] = master.X();
   temp[1] = master.Y();
   temp[2] = master.Z();
-
+  
   // rotate "error vector"
   fGeoMan->MasterToLocalVect(temp,result);
-//  // positive error values
-//  for(Int_t i=0;i<3;i++) result[i]=fabs(result[i]);
-
+  //  // positive error values
+  //  for(Int_t i=0;i<3;i++) result[i]=fabs(result[i]);
+  
   if(actPath != "" && actPath != " ") fGeoMan->cd(actPath);
   return TVector3(result[0],result[1],result[2]);
-
-
+  
+  
 }
 
 
 /*
-TVector3 PndGeoHandling::LocalToMasterErrorsId(const TVector3& local, const TString& id)
-{ return LocalToMasterErrorsPath(local, GetPath(id) ); }
-*/
+ TVector3 PndGeoHandling::LocalToMasterErrorsId(const TVector3& local, const TString& id)
+ { return LocalToMasterErrorsPath(local, GetPath(id) ); }
+ */
 
 TVector3 PndGeoHandling::LocalToMasterErrorsPath(const TVector3& local, const TString& path)
 {
@@ -458,19 +440,19 @@ TVector3 PndGeoHandling::LocalToMasterErrorsPath(const TVector3& local, const TS
   Double_t temp[3];
   TString actPath = fGeoMan->GetPath();
   fGeoMan->cd(path);
-
+  
   temp[0] = local.X();
   temp[1] = local.Y();
   temp[2] = local.Z();
-
+  
   // rotate "error vector"
   fGeoMan->LocalToMasterVect(temp,result);
- // // positive error values
- // for(Int_t i=0;i<3;i++) result[i]=fabs(result[i]);
-
+  // // positive error values
+  // for(Int_t i=0;i<3;i++) result[i]=fabs(result[i]);
+  
   if(actPath != "" && actPath != " ") fGeoMan->cd(actPath);
   return TVector3(result[0],result[1],result[2]);
-
+  
 }
 
 TString PndGeoHandling::FindNodePath(TGeoNode* node)
@@ -523,7 +505,7 @@ void PndGeoHandling::DiveDownToFillSensNamePar(std::vector<std::string> listOfSe
 		TGeoNode *currentNode = fGeoMan->GetCurrentNode();
 		TString nodeName(currentNode->GetName());
 		//std::cout << nodeName.Data() << std::endl;
-
+    
 		if (VolumeIsSensitive(nodeName, listOfSensitives)){
 			PndStringSeparator sep(nodeName.Data(), "/");
 			std::vector<std::string> sepString = sep.GetStringVector();

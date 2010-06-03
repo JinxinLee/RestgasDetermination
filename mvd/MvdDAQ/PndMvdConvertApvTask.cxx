@@ -33,16 +33,15 @@ PndMvdConvertApvTask::PndMvdConvertApvTask(PndMvdConvertApv* Apvconvert,PndMvdMa
   fApvConvert=Apvconvert;
   fApvMapper=Apvmapper;
   fPersistance = kTRUE;
+  fGeoH = PndGeoHandling::Instance();
 }
 // -----   Destructor   ----------------------------------------------------
 PndMvdConvertApvTask::~PndMvdConvertApvTask()
 {
-  if(fGeoH) delete fGeoH;
 }
 
 void PndMvdConvertApvTask::SetParContainers()
 { // in this task we even don't need the digitization info
-  if(0==fGeoH) fGeoH = PndGeoHandling::Instance();
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   PndMvdContFact* themvdcontfact = (PndMvdContFact*)rtdb->getContFactory("PndMvdContFact");

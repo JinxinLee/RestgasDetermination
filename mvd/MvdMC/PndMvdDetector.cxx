@@ -40,7 +40,6 @@ PndMvdDetector::~PndMvdDetector()
       fPndSdsCollection->Delete();
       delete fPndSdsCollection;
     }
-  delete fGeoH;
 }
 
 // -------------------------------------------------------------------------

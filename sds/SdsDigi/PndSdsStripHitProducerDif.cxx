@@ -45,6 +45,7 @@ PndSdsStripHitProducerDif::PndSdsStripHitProducerDif() :
 //  fHitArray  = new TClonesArray("PndSdsHit");
 //	fStripArray	= new TClonesArray("PndSdsStripHit");
   fPersistance = kTRUE;
+  fGeoH = PndGeoHandling::Instance();
 }
 // -------------------------------------------------------------------------
 
@@ -68,6 +69,7 @@ PndSdsStripHitProducerDif::PndSdsStripHitProducerDif(Double_t topPitch, Double_t
   SetParamSet(topPitch,botPitch,ori,skew,topAnchor,botAnchor,nrTopFE,nrBotFE,
               nrFECh,threshold,noise,"Trap",feType);
   std::cout << "SSD Strip Digi Producer initiated" << std::endl;
+  fGeoH = PndGeoHandling::Instance();
 }
 
 void PndSdsStripHitProducerDif::SetParamSet(Double_t topPitch, Double_t botPitch,
@@ -108,7 +110,6 @@ void PndSdsStripHitProducerDif::SetParamSet(Double_t topPitch, Double_t botPitch
 // -----   Destructor   ----------------------------------------------------
 PndSdsStripHitProducerDif::~PndSdsStripHitProducerDif()
 {
-  delete fGeoH;
 }
 // -------------------------------------------------------------------------
 
@@ -121,7 +122,6 @@ void PndSdsStripHitProducerDif::SetParContainers()
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fDigiParRect = (PndSdsStripDigiPar*)(rtdb->getContainer("SSDStripDigiParRect"));
   fDigiParTrap = (PndSdsStripDigiPar*)(rtdb->getContainer("SSDStripDigiParTrap"));
-  fGeoH = PndGeoHandling::Instance();
 }
 
 InitStatus PndSdsStripHitProducerDif::ReInit()

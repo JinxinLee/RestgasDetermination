@@ -30,6 +30,7 @@ PndMvdNoiseProducer::PndMvdNoiseProducer() :
 {
 	fBranchName 	= "MVDStripDigis";
   fPersistance = kTRUE;
+  fGeoH = PndGeoHandling::Instance();
 }
 // -------------------------------------------------------------------------
 
@@ -205,11 +206,6 @@ void PndMvdNoiseProducer::SetParContainers()
   fTotDigiParRect = (PndSdsTotDigiPar*)(rtdb->getContainer("MVDStripTotDigiParRect"));
   fTotDigiParTrap = (PndSdsTotDigiPar*)(rtdb->getContainer("MVDStripTotDigiParTrap"));
   fTotDigiParPix  = (PndSdsTotDigiPar*)(rtdb->getContainer("MVDPixelTotDigiPar"));
-  Info("SetParContainers","make geohandler");
-  if(!fGeoH) fGeoH = PndGeoHandling::Instance();
-  else   Warning("SetParContainers","ooops there was already a geohandler");
-  fGeoH->SetVerbose(fVerbose);
-  Info("SetParContainers","done.");  
 }
 
 

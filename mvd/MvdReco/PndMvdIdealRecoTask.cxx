@@ -35,6 +35,7 @@ fHitCovMatrix(3,3)
   fSigmaZ=0.;
 	fBranchName 	= "MVDPoint";
   fPersistance = kTRUE;
+  fGeoH = PndGeoHandling::Instance();
 }
 // -------------------------------------------------------------------------
 
@@ -47,6 +48,7 @@ fHitCovMatrix(3,3)
   fSigmaY=sy;
   fSigmaZ=sz;
   fBranchName   = "MVDPoint";
+  fGeoH = PndGeoHandling::Instance();
 }
 // -------------------------------------------------------------------------
 
@@ -54,7 +56,6 @@ fHitCovMatrix(3,3)
 // -----   Destructor   ----------------------------------------------------
 PndMvdIdealRecoTask::~PndMvdIdealRecoTask()
 {
-  delete fGeoH;
 }
 
 // -----   Public method Init   --------------------------------------------
@@ -95,8 +96,6 @@ void PndMvdIdealRecoTask::SetParContainers()
   //  FairRun* ana = FairRun::Instance();
   //  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   //	PndSdsIdealRecoTask::SetParContainers();
-  if(0==fGeoH) fGeoH = PndGeoHandling::Instance();
-  
 }
 
 

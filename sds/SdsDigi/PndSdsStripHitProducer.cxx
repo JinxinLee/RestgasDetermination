@@ -36,7 +36,7 @@ FairTask("SDS Strip Digi Producer(PndSdsStripHitProducer)")
   fDigiParameterList = new TList();
   fChargeDigiParameterList = new TList();
   fPersistance = kTRUE;
-  fGeoH=NULL;
+  fGeoH = PndGeoHandling::Instance();
 }
 // -------------------------------------------------------------------------
 
@@ -48,14 +48,13 @@ FairTask(name)
   fDigiParameterList = new TList();
   fChargeDigiParameterList = new TList();
   fPersistance = kTRUE;
-  fGeoH=NULL;
+  fGeoH = PndGeoHandling::Instance();
 }
 // -------------------------------------------------------------------------
 
 // -----   Destructor   ----------------------------------------------------
 PndSdsStripHitProducer::~PndSdsStripHitProducer()
 {
-  if (0!=fGeoH) delete fGeoH;
   if (0!=fDigiParameterList) delete fDigiParameterList;
   if (0!=fChargeDigiParameterList) delete fChargeDigiParameterList;
 // TODO: needs check: now cleared correctly?
@@ -113,10 +112,6 @@ void PndSdsStripHitProducer::SetCalculators()
 
 void PndSdsStripHitProducer::SetParContainers()
 {
-  if(fVerbose>1) Info("SetParContainers","make geohandler");
-	if(0==fGeoH) fGeoH = PndGeoHandling::Instance();
-  else if(fVerbose>1) Warning("SetParContainers","ooops there was already a geohandler");
-  fGeoH->SetVerbose(fVerbose);
   if(fVerbose>1) Info("SetParContainers","done.");
 	return;
 }

@@ -28,6 +28,7 @@ void PndSdsStripDigiPar::putParams(FairParamList* list)
   list->add("sens_Type", fSensType); //("sens_Type", fSensType, 's', 1)
   list->add("fe_Type", fFeType); //("fe_Type", fFeType, 's', 1)
   list->add("cluster_mod", fClusterMod);
+  list->add("cluster_mean", fClusterMean);
   list->add("cluster_radchan", fRadChannel);
   list->add("cluster_radtime", fRadTime);
   list->add("cluster_corrchargecut", fChargeCut);
@@ -67,6 +68,7 @@ Bool_t PndSdsStripDigiPar::getParams(FairParamList* list)
   if (!list->fill("fe_Type",feName,80)) return kFALSE;
   fFeType = feName;
   if (!list->fill("cluster_mod", &fClusterMod)) return kFALSE;
+  if (!list->fill("cluster_mean", &fClusterMean)) return kFALSE;
   if (!list->fill("cluster_radchan", &fRadChannel)) return kFALSE;
   if (!list->fill("cluster_radtime", &fRadTime)) return kFALSE;
   if (!list->fill("cluster_corrchargecut", &fChargeCut)) return kFALSE;
@@ -97,6 +99,7 @@ void PndSdsStripDigiPar::Print()
   std::cout<<"   charge conv. (0:ideal, 1:TOT)    = "<<fChargeConvMethod<<std::endl;
   std::cout<<"   Frontend type name is        = "<<fFeType.Data()<<std::endl;
   std::cout<<"   Clusterfinder Mode                    = "<<fClusterMod<<std::endl;
+  std::cout<<"   Clusterfinder Mean Algorithm          = "<<fClusterMean<<std::endl;
   std::cout<<"   Clusterfinder Search Radius: Channels = "<<fRadChannel<<std::endl;
   std::cout<<"   Clusterfinder Search Radius: Time     = "<<fRadTime<<std::endl;
   std::cout<<"   Top/Bottom Charge correlation cut     = "<<fChargeCut<<std::endl;

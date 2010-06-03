@@ -45,9 +45,9 @@ FairTask(name)
   fPixelHits = 0;
   fEventNr = 0;
   fOverwriteParams = kFALSE;
-  if(fVerbose>0) Info("PndSdsHybridHitProducer","%s created, Parameters will be taken from RTDB",name);
   fPersistance = kTRUE;
-  fGeoH=NULL;
+  fGeoH = PndGeoHandling::Instance();
+  if(fVerbose>0) Info("PndSdsHybridHitProducer","%s created, Parameters will be taken from RTDB",name);
 }
 // -------------------------------------------------------------------------
 
@@ -67,6 +67,7 @@ FairTask("SDS Hybrid Digi Producer (PndSdsHybridHitProducer)")
   frows = 104;
   fOverwriteParams = kTRUE;
   fPersistance = kTRUE;
+  fGeoH = PndGeoHandling::Instance();
   if(fVerbose>0) Info("PndSdsHybridHitProducer","SDS Hybrid Digi Producer created, Parameters will be overwritten in RTDB");
 }
 // -------------------------------------------------------------------------
@@ -75,7 +76,6 @@ FairTask("SDS Hybrid Digi Producer (PndSdsHybridHitProducer)")
 // -----   Destructor   ----------------------------------------------------
 PndSdsHybridHitProducer::~PndSdsHybridHitProducer()
 {
-	delete fGeoH;
 	if (fChargeConverter!=0) delete fChargeConverter;
 }
 // -------------------------------------------------------------------------
@@ -83,11 +83,7 @@ PndSdsHybridHitProducer::~PndSdsHybridHitProducer()
 // -----   Initialization  of Parameter Containers -------------------------
 void PndSdsHybridHitProducer::SetParContainers()
 {
-  if(fVerbose>1) Info("SetParContainers","make geohandler");
-	if(0==fGeoH) fGeoH = PndGeoHandling::Instance();
-  else if(fVerbose>1) Warning("SetParContainers","ooops there was already a geohandler");
-  if( ! fDigiPar) Fatal("SetParContainers","No digitiztion parameters specified");
-  fGeoH->SetVerbose(fVerbose);
+  if( ! fDigiPar) Fatal("SetParContainers","No digitiztion parameters specified.");
   if(fVerbose>1) Info("SetParContainers","done.");
   return;
 }

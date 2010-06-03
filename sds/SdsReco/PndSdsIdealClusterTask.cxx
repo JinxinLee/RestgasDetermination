@@ -19,7 +19,7 @@
 #include "PndSdsMCPoint.h"
 // #include "PndSdsHit.h"
 #include "PndSdsCalcPixel.h"
-#include "PndSdsCalcFePixel.h"
+//#include "PndSdsCalcFePixel.h"
 #include "PndSdsDigiPixel.h"
 // #include "PndSdsPixelCluster.h"
 #include "PndSdsClusterPixel.h"
@@ -29,29 +29,23 @@
 PndSdsIdealClusterTask::PndSdsIdealClusterTask() :
   FairTask("SDS Clustertisation Task")
 {
-
   TGeoManager* geoMan;// = new TGeoManager("geoMan","geoMan");
-  //geoMan->Import("PndSdsG4_DPM15fE+i_10000.root","FAIRGeom");
   geoMan = gGeoManager;
-//  fDigiArray  = new TClonesArray("PndSdsDigiPixel");
-//  fClusterArray  = new TClonesArray("PndSdsIdealClusterPixel");
   fPersistance = kTRUE;
+  fGeoH = PndGeoHandling::Instance();
 }
 
 PndSdsIdealClusterTask::PndSdsIdealClusterTask(Double_t radius, Int_t FEcolumns, Int_t FErows, TString geoFile) :
   FairTask("SDS Clustertisation Task")
 {
-//  fDigiArray  = new TClonesArray("PndSdsDigiPixel");
-//  fClusterArray  = new TClonesArray("PndSdsClusterPixelPixel");
   TGeoManager* geoMan;// = new TGeoManager("geoMan","geoMan");
-  //geoMan->Import("PndSdsG4_DPM15fE+i_10000.root","FAIRGeom");
   geoMan = gGeoManager;
-
   fRadius = radius;
   fFEcolumns = FEcolumns;
   fFErows    = FErows;
   fGeoFile   = geoFile;
   fPersistance = kTRUE;
+  fGeoH = PndGeoHandling::Instance();
 }
 
 // -------------------------------------------------------------------------
@@ -66,29 +60,12 @@ PndSdsIdealClusterTask::~PndSdsIdealClusterTask()
 // -----   Initialization  of Parameter Containers -------------------------
 void PndSdsIdealClusterTask::SetParContainers()
 {
-  // Get Base Container
-/*
-  FairRun* ana = FairRun::Instance();
-  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
-  fGeoPar = (PndSdsGeoPar*)(rtdb->getContainer("PndSdsGeoPar"));
-*/
-	if(0==fGeoH) fGeoH = PndGeoHandling::Instance();
-  fGeoH->SetVerbose(fVerbose);
 }
 
 InitStatus PndSdsIdealClusterTask::ReInit()
 {
-
   InitStatus stat=kERROR;
   return stat;
-
-  /*
-  FairRun* ana = FairRun::Instance();
-  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
-  fGeoPar=(PndSdsGeoPar*)(rtdb->getContainer("PndSdsGeoPar"));
-
-  return kSUCCESS;
-  */
 }
 
 // -----   Public method Init   --------------------------------------------

@@ -50,6 +50,7 @@
         
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
+  PndGeoHandling* geoH = PndGeoHandling::Instance();
   // ------------------------------------------------------------------------
   // -----   LHETRACK  ---------------------------------
   

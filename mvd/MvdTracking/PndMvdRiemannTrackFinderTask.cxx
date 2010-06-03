@@ -26,8 +26,9 @@ PndMvdRiemannTrackFinderTask::PndMvdRiemannTrackFinderTask() : FairTask("MVD Rie
 	fMaxSZDist = 10;
 	fMinPointDist = 1;
 	fMaxDist = 1;
+	fEventNr = 0;	
+  PndGeoHandling::Instance();
 
-	fEventNr = 0;
 }
 
 PndMvdRiemannTrackFinderTask::~PndMvdRiemannTrackFinderTask()
@@ -36,7 +37,6 @@ PndMvdRiemannTrackFinderTask::~PndMvdRiemannTrackFinderTask()
 
 void PndMvdRiemannTrackFinderTask::SetParContainers()
 {
-	PndGeoHandling::Instance();
 }
 
 InitStatus PndMvdRiemannTrackFinderTask::ReInit()

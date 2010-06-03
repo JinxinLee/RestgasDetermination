@@ -39,6 +39,7 @@ class PndMvdDetector : public PndSdsDetector
   virtual void SetBranchNames();
   virtual void SetSpecialPhysicsCuts();
   virtual void SetDefaultSensorNames();
+  virtual void Initialize(){PndSdsDetector::Initialize();};
  
 private:
   

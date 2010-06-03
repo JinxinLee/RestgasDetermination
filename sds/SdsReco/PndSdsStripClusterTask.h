@@ -94,7 +94,6 @@ class PndSdsStripClusterTask : public FairTask
     Int_t fFEcolumns;
     Int_t fFErows;
     Double_t fChargeCut;
-    Int_t fMeanAlgo;
     Int_t fRadChannel;
     Int_t fRadTime;
     Double_t fSingleStripChargeThreshold;

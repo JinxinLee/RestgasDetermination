@@ -18,7 +18,7 @@
 #include "PndSdsPixelClusterTask.h"
 #include "PndSdsMCPoint.h"
 #include "PndSdsCalcPixel.h"
-#include "PndSdsCalcFePixel.h"
+//#include "PndSdsCalcFePixel.h"
 #include "PndSdsDigiPixel.h"
 // #include "PndSdsPixelCluster.h"
 #include "PndSdsClusterPixel.h"
@@ -31,7 +31,7 @@
 PndSdsPixelClusterTask::PndSdsPixelClusterTask() :
 FairTask("SDS Clustertisation Task"), fPersistance(kTRUE)
 {
-  fGeoH=NULL;
+  fGeoH = PndGeoHandling::Instance();
 }
 // -------------------------------------------------------------------------
 
@@ -39,7 +39,7 @@ FairTask("SDS Clustertisation Task"), fPersistance(kTRUE)
 PndSdsPixelClusterTask::PndSdsPixelClusterTask(const char* name) :
 FairTask(name), fPersistance(kTRUE)
 {
-  fGeoH=NULL;
+  fGeoH = PndGeoHandling::Instance();
 }
 // -------------------------------------------------------------------------
 
@@ -54,10 +54,6 @@ PndSdsPixelClusterTask::~PndSdsPixelClusterTask()
 // -----   Initialization  of Parameter Containers -------------------------
 void PndSdsPixelClusterTask::SetParContainers()
 {
-  if(fVerbose>1) Info("SetParContainers","make geohandler");
-	if(0==fGeoH) fGeoH = PndGeoHandling::Instance();
-  else if(fVerbose>1) Warning("SetParContainers","ooops there was already a geohandler");
-  fGeoH->SetVerbose(fVerbose);
   if( ! fDigiPar) Fatal("SetParContainers","No digitiztiopn parameters specified");
   if(fVerbose>1) Info("SetParContainers","done.");
   return;

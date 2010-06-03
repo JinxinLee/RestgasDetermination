@@ -19,6 +19,7 @@
 PndMvdRadDamTask::PndMvdRadDamTask()
 {
   fPersistance = kTRUE;
+  fGeoH = PndGeoHandling::Instance();
 }
 
 PndMvdRadDamTask::~PndMvdRadDamTask()
@@ -32,7 +33,6 @@ PndMvdRadDamTask::~PndMvdRadDamTask()
 
 void PndMvdRadDamTask::SetParContainers()
 {
-	if(0==fGeoH) fGeoH = PndGeoHandling::Instance();
 }
 
 InitStatus PndMvdRadDamTask::ReInit()

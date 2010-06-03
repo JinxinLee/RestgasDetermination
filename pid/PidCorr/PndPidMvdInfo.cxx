@@ -41,11 +41,10 @@ Bool_t PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
       mvdHit->Position(mvdPos);
       mvdCounts++;
 
-      PndGeoHandling *geo = PndGeoHandling::Instance();
-      TVector3 SensorDim=geo->GetSensorDimensionsPath(geo->GetPath(mvdHit->GetSensorID()));//sensor dimension
+      TVector3 SensorDim=fGeoH->GetSensorDimensionsShortId(mvdHit->GetSensorID());//sensor dimension
       SensorThickness = SensorDim.Z();
 
-      TGeoHMatrix *matrix = geo->GetMatrixPath(geo->GetPath(mvdHit->GetSensorID()));
+      TGeoHMatrix *matrix = fGeoH->GetMatrixPath(fGeoH->GetPath(mvdHit->GetSensorID()));
       const Double_t *rotM = matrix->GetRotationMatrix();
       TVector3 zaxis(rotM[2], rotM[5], rotM[8]); // Z axis in the detector frame
       TVector3 momentum(0., 0., 0.);
