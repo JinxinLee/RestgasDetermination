@@ -44,6 +44,7 @@
 #include "TLorentzVector.h"
 #include "GFDetPlane.h"
 
+#include "PndGeoHandling.h"
 #include "PndSdsRecoHit.h"
 #include "PndGemRecoHit.h"
 #include "PndDchRecoHit2.h"
@@ -74,6 +75,7 @@ KalmanTask::KalmanTask()
   : FairTask("Kalman Filter"), _persistence(kFALSE),_lazy(0),_numIt(1)
 {
   _trackBranchName = "TrackPreFit";
+  PndGeoHandling::Instance();
 }
 
 

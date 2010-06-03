@@ -49,7 +49,7 @@
 #include "PndTrack.h"
 #include "PndTrackCand.h"
 #include "PndDetectorList.h"
-
+#include "PndGeoHandling.h"
 #include "GFRecoHitFactory.h"
 #include "GFKalman.h"
 #include "GFException.h"
@@ -66,6 +66,7 @@
 PndRecoKalmanFit::PndRecoKalmanFit(): TNamed("Genfit", "Fit Tracks"),
 				      fUseGeane(kTRUE), fNumIt(1), fVerbose(0)
 {
+  PndGeoHandling::Instance();
 }
 Bool_t PndRecoKalmanFit::Init()
 {

@@ -35,6 +35,7 @@ PndGeoHandling * PndGeoHandling::fInstance= NULL;
 
 PndGeoHandling* PndGeoHandling::Instance(){
 	if ( !fInstance){
+    Info("Instance","No Instance created, yet. Making a new one using the framework.");
 		fInstance = new PndGeoHandling();
 	}
 	return fInstance;
@@ -68,7 +69,8 @@ void PndGeoHandling::SetParContainers()
 
 PndGeoHandling::PndGeoHandling(TString mcFile, TString parFile):fVerbose(0), fRunId(-1)
 {
-  
+  if(fInstance) return;
+  fInstance = this;
 	InitRuntimeDb(parFile);
 	GetRunId(mcFile);
 	if (gGeoManager) {
@@ -87,8 +89,9 @@ PndGeoHandling::PndGeoHandling(TString mcFile, TString parFile):fVerbose(0), fRu
 
 PndGeoHandling::PndGeoHandling(Int_t runId, TString parFile):fVerbose(0)
 {
+  if(fInstance) return;
+  fInstance = this;
 	InitRuntimeDb(parFile);
-  
 	fRunId = runId;
 	if (gGeoManager) {
 		fGeoMan = gGeoManager;

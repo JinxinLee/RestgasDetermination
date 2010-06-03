@@ -35,7 +35,7 @@
 #include "FairMCPoint.h"
 
 #include "PndSdsRecoHit.h"
-
+#include "PndGeoHandling.h"
 #include "GFRecoHitFactory.h"
 #include "GFKalman.h"
 #include "GFException.h"
@@ -60,6 +60,7 @@ PndMvdKalmanTask::PndMvdKalmanTask()
   : FairTask("Kalman Filter"), fPersistence(kFALSE)
 {
   fTrackBranchName = "MVDIdealGFTrackCand";
+  PndGeoHandling::Instance();
 }
 
 
