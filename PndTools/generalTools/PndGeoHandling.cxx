@@ -35,7 +35,7 @@ PndGeoHandling * PndGeoHandling::fInstance= NULL;
 
 PndGeoHandling* PndGeoHandling::Instance(){
 	if ( !fInstance){
-    Info("Instance","No Instance created, yet. Making a new one using the framework.");
+    std::cout<<"Info in (PndGeoHandling::Instance): No Instance created, yet. Making a new one using the framework."<<std::endl;
 		fInstance = new PndGeoHandling();
 	}
 	return fInstance;
