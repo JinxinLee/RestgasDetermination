@@ -409,7 +409,7 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
 		  nCrys = ModCopy/100;
 		  nRow = ModCopy%100;
 		  nMod = 5;
-		  copyNo = 0;
+		  copyNo = 1;
 	//	  sscanf(ModName,"FscModuleVolume_%d_%d", &nCrys, &nRow);//x - Crys(Column), y - Row
 	  }
 	  else if (nam.Contains("FscFiberVolume")){
