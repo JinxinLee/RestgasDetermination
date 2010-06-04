@@ -234,16 +234,21 @@ void PndEmcHitProducer::Exec(Option_t* opt)
   Int_t nPoints = fPointArray->GetEntriesFast();
   
   Double_t point_time = 0.00;
+  //------- init containers --- 
+
+  for (Int_t iPoint = 0; iPoint < nPoints; iPoint++){
+    PndEmcPoint* point  = (PndEmcPoint*) fPointArray->At(iPoint);
+    fTrackEnergy[point->GetDetectorID()] = 0.00;
+    fTrackTime  [point->GetDetectorID()] = std::numeric_limits<float>::max();
+  }
+
+  //----------------------------
 
 
   for (Int_t iPoint=0; iPoint<nPoints; iPoint++)
   {
     PndEmcPoint* point  = (PndEmcPoint*) fPointArray->At(iPoint);
 	DetId = point->GetDetectorID();
-  //------- init containers --- 
-	fTrackEnergy[point->GetDetectorID()] = 0.00;
-    fTrackTime  [point->GetDetectorID()] = std::numeric_limits<float>::max();
-  //----------------------------
 	if(fUse_nonuniformity !=0 ){
 		//light output is z-dependent, so calculate z
 		
