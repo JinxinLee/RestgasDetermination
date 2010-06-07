@@ -200,6 +200,9 @@ void PndPidMvaAssociatorTask::DoPidMatch(PndPidCandidate& pidcand,
   std::cout << "MVD " << pidcand.GetMvdDEDX() << std::endl;
   std::cout << "DRC_TC " << pidcand.GetDrcThetaC() << std::endl;
   std::cout << "TPC " << pidcand.GetTpcMeanDEDX() << std::endl;
+  std::cout << "EMCZ20 " << pidcand.GetEmcClusterZ20() << std::endl;
+  std::cout << "EMCZ53 " << pidcand.GetEmcClusterZ53() << std::endl;
+  std::cout << "EMCLAT " << pidcand.GetClusterLat() << std::endl;
   printResult(out);
   std::cout << "===================================================="<< std::endl;
 #endif
