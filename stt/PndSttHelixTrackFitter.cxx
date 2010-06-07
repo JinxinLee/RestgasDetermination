@@ -18,8 +18,7 @@
 #include "TArc.h"
 #include "TH2.h"
 #include "TClonesArray.h"
-// #include "TH3.h"
-// #include "TLine.h"
+
 #include "TMatrixD.h" 
 #include "TMarker.h"
 #include "TLine.h"
@@ -42,15 +41,7 @@ using TMath::Cos;
 using TMath::Sin;
 using TMath::Sqrt;
 
-// #define rootoutput kFALSE
-
 Int_t h = 0; // negative charge = 1; positive charge = -1
-TH2F *h3, *h4;
-TCanvas *eventCanvas3;
-TCanvas *eventCanvas4, *eventCanvas5;
-TCanvas *hougCanvas;
-TH2F *houg; 
-TH1F *hougcon; 
 Double_t vote[201][1001], votecon[201];
 TArrayD marray(200);
 
@@ -59,17 +50,15 @@ PndSttHelixTrackFitter::PndSttHelixTrackFitter()
   fEventCounter = 0;
   fVerbose = 1;
   fConstraint = 0;
+  fDisplayLevel = 0;
 }
 
 PndSttHelixTrackFitter::PndSttHelixTrackFitter(Int_t verbose)
 {
   fVerbose = verbose;
-  if (verbose < 4)
-    rootoutput = kFALSE;
-  else
-    rootoutput = kTRUE;
   fEventCounter = 0; 
   fConstraint = 0;
+  fDisplayLevel = 0;
 }
 
 PndSttHelixTrackFitter::~PndSttHelixTrackFitter()
@@ -108,25 +97,17 @@ void PndSttHelixTrackFitter::Init()
     }
 
 
-  if(rootoutput) {
-    h1 = new TH2F("h1","event display - transverse plane",100,-50,50,100,-50,50);
-    h2 = new TH2F("h2","z fit",100, -40, 40, 100, -75, 75); // -4,100,-50,50);  
-    h3 = new TH2F("h3","conformal plane",100,-1.5, 1.5, 100, -1.5, 1.5);
-    h4 = new TH2F("h4","tubes",100,-45, 45, 100, -80, 80);
-    houg = new TH2F("houg","houg", 100,-1.001,1.001,100,-150.001,151.001);
-    hougcon = new TH1F("hougcon","hougcon", 200,-1.001,1.001);
-    eventCanvas = new TCanvas("eventcanvas", "eventcanvas", 600, 600); 
-    eventCanvas2 = new TCanvas("eventcanvas2", "eventcanvas2", 650, 0 ,600, 600); 
-    eventCanvas3 = new TCanvas("eventcanvas3", "eventcanvas3", 650, 0 ,600, 600); 
-    eventCanvas4 = new TCanvas("eventcanvas4", "eventcanvas4", 650, 0 ,600, 600); 
-    eventCanvas5 = new TCanvas("eventcanvas5", "eventcanvas5", 650, 0 ,600, 600); 
-    hougCanvas = new TCanvas("hougCanvas", "hougCanvas", 650, 0 ,600, 600); 
- }
+  if( fDisplayLevel > 0) InitEventDisplay();
  
 }
 
+
 Int_t PndSttHelixTrackFitter::DoFit(PndTrackCand* pTrackCand, PndSttTrack* pTrack, Int_t pidHypo)
 {
+
+  if(fDisplayLevel > 0) RunEventDisplay(pTrackCand);
+
+
   if(fConstraint == 0) return DoFitPlain(pTrackCand, pTrack, pidHypo);
   else if (fConstraint == 1)  return DoFitThroughOrigin(pTrackCand, pTrack, pidHypo);
   else { 
@@ -140,29 +121,15 @@ Int_t PndSttHelixTrackFitter::DoFit(PndTrackCand* pTrackCand, PndSttTrack* pTrac
 Int_t PndSttHelixTrackFitter::DoFitPlain(PndTrackCand* pTrackCand, PndSttTrack* pTrack, Int_t pidHypo)
 {
   // cout << "track fitting event # " << fEventCounter << endl;
-  fEventCounter++;
  
   if(!pTrackCand) return 0;
   fTrack = pTrack; // CHECK canc
   fTrackCand = pTrackCand; 
-  
-  if(rootoutput) {
+  if(fDisplayLevel > 0) {
+    RunEventDisplay(pTrackCand);
     char goOnChar;
     cout << "press any key to continue: " << endl;
     cin >> goOnChar;
-    eventCanvas->cd();
-    h1->Draw();
-    eventCanvas2->cd();
-    h2->Draw();
-    cout << "EVENT: " << fEventCounter << endl;
-    eventCanvas3->cd();
-    h3->Draw();
-    eventCanvas4->cd();
-    h4->Draw();
-    eventCanvas5->cd();
-    h4->Draw();
-    hougCanvas->cd();
-    houg->Draw();
   }
   
   Int_t fit = 0;
@@ -224,23 +191,8 @@ Int_t PndSttHelixTrackFitter::DoFitPlain(PndTrackCand* pTrackCand, PndSttTrack* 
     cout << "param last qp: " << fTrack->GetCharge() << endl;
   }
 
+  if( fDisplayLevel > 0) FinishEventDisplay(fTrack);
 
-  if(rootoutput) {
-    eventCanvas->Update();
-    eventCanvas->Modified();
-    eventCanvas2->Update();
-    eventCanvas2->Modified();
-    eventCanvas3->Update();
-    eventCanvas3->Modified();
-    eventCanvas4->Update();
-    eventCanvas4->Modified();
-    eventCanvas5->Update();
-    eventCanvas5->Modified();
-    hougCanvas->Update();
-    hougCanvas->Modified();
-
-   }
-  
   return 0;
 }
 
@@ -356,25 +308,6 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
       
     }
  
-    if(rootoutput) { 
-      //     if(whatToFit == 2) {
-      eventCanvas->cd(); 
-      if(whatToFit == 1) {
-	// draw MC hits
-	TMarker *cir0 = new TMarker(iPoint->GetX(), iPoint->GetY(), 6);
-	cir0->SetMarkerStyle(6);
-	cir0->SetMarkerColor(4);
-	//	cir0->Draw("SAME");
-	//	cout << "MC: " << iPoint->GetX() << " " << iPoint->GetY() << endl;
-      }
-      TMarker *cir1 = new TMarker(currenthit->GetX(), currenthit->GetY(), 6);
-      cir1->SetMarkerColor(2);
-      if(whatToFit == 2) cir1->Draw("SAME");
-      TMarker *cir2 = new TMarker(tube->GetPosition().X(), tube->GetPosition().Y(), 6);
-      if(whatToFit == 1) cir2->Draw("SAME");
-      //     }
-    }
- 
     Double_t xtrasl, ytrasl;
     // traslation
     xtrasl = currenthit->GetX() - trasl[0];
@@ -389,12 +322,12 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
     xtrasl = xrot + s;
     ytrasl = yrot;
 
-    if(rootoutput) { 
-      eventCanvas->cd();
+    if( fDisplayLevel >= 3) {
+      eventCanvas->cd(1);
       TMarker *pt = new TMarker(xrot, yrot, 6);
       pt->SetMarkerColor(3);
       //  if(whatToFit == 2) 
-      // pt->Draw("SAME");
+      //  pt->Draw("SAME");
     }
 
     // change coordinate
@@ -402,13 +335,13 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
     u = xtrasl / (xtrasl*xtrasl + ytrasl*ytrasl);
     v = ytrasl / (xtrasl*xtrasl + ytrasl*ytrasl);
 
-    if(rootoutput){// && whatToFit == 2) { 
-      eventCanvas3->cd();
+    if( fDisplayLevel >= 4) {
+      eventDetails->cd(1);
       TMarker *uv = new TMarker(u, v, 6);
-      uv->SetMarkerColor(3);
+      // uv->SetMarkerColor(3);
       if(whatToFit == 2) uv->Draw("SAME");
-      eventCanvas3->Update();
-      eventCanvas3->Modified();
+      eventDetails->Update();
+      eventDetails->Modified();
     }
 
     if(whatToFit == 1) {
@@ -594,8 +527,8 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
     chi2 = chi2 + pow(((varray.At(i) - (a + b*uarray.At(i) + c*uarray.At(i)*uarray.At(i)))/sqrt(sigE2array.At(i))), 2);
   }
   
-  if(rootoutput){// && whatToFit == 2) { 
-    eventCanvas3->cd();
+  if( fDisplayLevel >= 4) {
+    eventDetails->cd(1);
     Double_t uu[100];
     Double_t vv[100];
     for(Int_t p = 0; p<100; p++){
@@ -604,8 +537,8 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
     }
     TPolyLine *uvline = new TPolyLine(100, uu, vv);
     if(whatToFit == 2) uvline->Draw("SAME");
-    eventCanvas3->Update();
-    eventCanvas3->Modified();
+    eventDetails->Update();
+    eventDetails->Modified();
   }
 
   // center and radius
@@ -675,10 +608,11 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
   //   cout << "FIT: " << xc << " " << yc << endl;
   //   cout << "RAGGIO: " << R << endl;
 
-  if(rootoutput) {
-    eventCanvas->cd();
+  if( fDisplayLevel >= 3) {
+    eventCanvas->cd(1);
     TArc *fitarc = new TArc(((fTrack->GetDist() + fTrack->GetRad()) * cos(fTrack->GetPhi())), ((fTrack->GetDist() + fTrack->GetRad()) * sin(fTrack->GetPhi())), fTrack->GetRad());
-    if(whatToFit == 2)  fitarc->SetLineColor(2);
+    if(whatToFit == 2)  fitarc->SetLineColor(kRed - 9);
+    fitarc->SetFillStyle(0);
     fitarc->Draw("SAME");
     eventCanvas->Update();
     eventCanvas->Modified();
@@ -743,12 +677,12 @@ Bool_t PndSttHelixTrackFitter::IntersectionFinder(PndTrackCand *pTrackCand)
     Double_t m = (point.Y() - vec.Y())/(point.X() - vec.X());
     Double_t q = point.Y() - m*point.X();
 
-    if(rootoutput) { 
-      eventCanvas->cd();
-      TArc *archetto = new TArc(point.X(), point.Y(), radius);
-      archetto->Draw("SAME");
+    if( fDisplayLevel >= 3) {
+      eventCanvas->cd(1);
+//       TArc *archetto = new TArc(point.X(), point.Y(), radius);
+//  archetto->SetFillStyle(0);//       archetto->Draw("SAME");
       TLine *line = new TLine(-50, -50*m + q, 50, 50*m + q);
-      line->SetLineColor(4);
+      line->SetLineColor(5);
       // line->Draw("SAME"); 
       eventCanvas->Update();
       eventCanvas->Modified();
@@ -842,10 +776,10 @@ Bool_t PndSttHelixTrackFitter::IntersectionFinder(PndTrackCand *pTrackCand)
     pMhit->SetX(xy->X());
     pMhit->SetY(xy->Y());
     
-    if(rootoutput) { 
-      eventCanvas->cd();
+    if( fDisplayLevel >= 3) {
+      eventCanvas->cd(1);
       TMarker *np = new TMarker(pMhit->GetX(), pMhit->GetY(), 6);
-      np->SetMarkerColor(4);
+      np->SetMarkerColor(3);
       //      np->Draw("SAME");
       eventCanvas->Update();
       eventCanvas->Modified();
@@ -950,43 +884,6 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
     
     Double_t rcur = pMhit->GetIsochrone();
 
-    if(rootoutput) {
-      eventCanvas->cd();
-      TArc *drftarc = new TArc(cenposition.X(), cenposition.Y(), rcur); 
-      drftarc->SetLineColor(5);
-      drftarc->Draw("SAME");
-    }
-
-    if(rootoutput  && wiredirection != TVector3(0.,0.,1.)) {
-      eventCanvas4->cd();
-
-      // first wire extremity
-      TMarker *pt1z = new TMarker(x_1, z_1, 6); 
-      pt1z->SetMarkerColor(6);
-      pt1z->Draw("SAME");
-      // last wire extremity
-      TMarker *pt2z = new TMarker(x_2, z_2, 6);
-      pt2z->SetMarkerColor(6);
-      pt2z->Draw("SAME");
-      // tube line
-      TLine *ztubeline = new TLine(x_1, z_1, x_2, z_2); // wire position
-      ztubeline->Draw("SAME");
-      eventCanvas5->cd();
-
-      // first wire extremity
-      TMarker *pt1z2 = new TMarker(y_1, z_1, 6);
-      pt1z2->SetMarkerColor(6);
-      pt1z2->Draw("SAME");
-      // last wire extremity
-      TMarker *pt2z2 = new TMarker(y_2, z_2, 6);
-      pt2z2->SetMarkerColor(6);
-      pt2z2->Draw("SAME");
-      // tube line
-      TLine *ztubeline2 = new TLine(y_1, z_1, y_2, z_2); // wire position
-      ztubeline2->SetLineColor(wireOk);
-      ztubeline2->Draw("SAME");
-    }
-  
     Double_t x1 = -9999.;
     Double_t y1 = -9999.;
     Double_t x2 = -9999.;
@@ -1039,23 +936,6 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
 	  continue;
 	}
 	
-	if(rootoutput) {
-	  eventCanvas->cd();
-	  TMarker *pt1 = new TMarker(x_1, y_1, 6);
-	  pt1->SetMarkerColor(6);
-	  //  pt1->Draw("SAME");
-	  TMarker *pt2 = new TMarker(x_2, y_2, 6);
-	  pt2->SetMarkerColor(6);
-	  //  pt2->Draw("SAME");
-	  //	  TLine *tubeline = new TLine(x_1, y_1, x_2, y_2);
-	  //  tubeline->Draw("SAME");
-
-	  // intersection lines
-	  TLine *intline = new TLine(-50, -50*a + b, 50, 50*a + b);
-	  intline->SetLineColor(5);
-	  intline->Draw("SAME"); 
-	}
-	
 	//x1 and x2 are the 2 intersection points
 	Double_t d1=TMath::Sqrt((x1-cenposition.X())*(x1-cenposition.X())+
 				(y1-cenposition.Y())*(y1-cenposition.Y()));
@@ -1068,11 +948,16 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
 	// the intersection point nearest to the drift circle's centre is taken
 	if(d2<d1) {x_=x2;y_=y2;}    
 	
-	if(rootoutput) {
-	  eventCanvas->cd();
+	if( fDisplayLevel >= 3) {
+	  eventCanvas->cd(1);
 	  TMarker *pt = new TMarker(x_, y_, 6);
 	  pt->SetMarkerColor(6);
 	  pt->Draw("SAME");
+	  
+	  // intersection lines
+	  TLine *intline = new TLine(x_, y_, x_0, y_0);
+	  intline->SetLineColor(5);
+	  intline->Draw("SAME"); 
 	}
     
 	// now we need to find the actual centre of the drift circle,
@@ -1113,13 +998,15 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
 	    continue;
 	  }	
 	}
-	if(rootoutput) {
-	  eventCanvas->cd();
+	if( fDisplayLevel >= 3) {
+	  eventCanvas->cd(1);
 	  TArc *drftarc = new TArc(x1, y1, rcur); 
-	  drftarc->SetLineColor(3);
+	  drftarc->SetLineColor(7);
+	  drftarc->SetFillStyle(0);
 	  drftarc->Draw("SAME");
 	  TArc *drftarc2 = new TArc(x2, y2, rcur); 
-	  drftarc2->SetLineColor(3);
+	  drftarc2->SetLineColor(7);
+	  drftarc2->SetFillStyle(0);
 	  drftarc2->Draw("SAME");
 	}
 
@@ -1161,8 +1048,8 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
 	tofit2 = new TVector3(x_,y_,z_bis);
 	ZPointsArray->Add(tofit2);
    
-	if(rootoutput){
-	  eventCanvas4->cd();
+	if( fDisplayLevel >= 4) {
+	  eventDetails->cd(3);
 
 	  // xz plane
 	  // found point 1
@@ -1173,12 +1060,8 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
 	  TMarker *mrkt2bis = new TMarker(x_, z_bis, 6);
 	  mrkt2bis->SetMarkerColor(wireOk);
 	  mrkt2bis->Draw("SAME");
-	  // MC point
-	  TMarker *mcmrkt2bis = new TMarker(iPoint->GetX(), iPoint->GetZ(), 6);
-	  mcmrkt2bis->SetMarkerColor(4);
-	  mcmrkt2bis->Draw("SAME");	 
 
-	  eventCanvas5->cd();
+	  eventDetails->cd(4);
 	  // yz plane
 	  // found point 1
 	  TMarker *mrkt2b = new TMarker(y_, z_, 6);
@@ -1188,12 +1071,10 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
 	  TMarker *mrkt2bbis = new TMarker(y_, z_bis, 6);
 	  mrkt2bbis->SetMarkerColor(wireOk);
 	  mrkt2bbis->Draw("SAME");
-	  // MC point
-	  TMarker *mcmrkt2bbis = new TMarker(iPoint->GetY(), iPoint->GetZ(), 6);
-	  mcmrkt2bbis->SetMarkerColor(4);
-	  mcmrkt2bbis->Draw("SAME");
+	}
 
-	  eventCanvas2->cd();
+	if( fDisplayLevel >= 2) {
+	  eventCanvas->cd(2);
 	  // MC point in z - track length plane
 	  TMarker *MCmrk = new TMarker(h* R*TMath::ATan2((iPoint->GetY() - y0)*TMath::Cos(Phi0) - (iPoint->GetX() - x0)*TMath::Sin(Phi0) , R + (iPoint->GetX() - x0) * TMath::Cos(Phi0) + (iPoint->GetY()-y0) * TMath::Sin(Phi0)), iPoint->GetZ(), 6);
 	  MCmrk->SetMarkerColor(4);
@@ -1217,9 +1098,8 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
 
   TVector3 outz = GetHoughResponse();
 
-  if(rootoutput) {  
-    eventCanvas2->cd();
-
+  if( fDisplayLevel >= 3) {
+    eventCanvas->cd(2);
     // found line in z track length plane
     TLine *line = new TLine(-40, -40*outz.X() + outz.Y(), 40, (40*outz.X() + outz.Y()));
     line->Draw("SAME");
@@ -1272,8 +1152,8 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
     if(vi == NULL) continue;
     Double_t scos = fTrack->CalculateScosl(vi->X(), vi->Y());
        
-    if(rootoutput) {
-      eventCanvas2->cd();
+    if( fDisplayLevel >= 3) {
+      eventCanvas->cd(2);
       // first point z track lenght plane
       TMarker *mrk = new TMarker(scos, vi->Z(), 6);
       mrk->Draw("SAME");
@@ -1298,8 +1178,8 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
 
     Double_t distsecond = pow(((vi->Z() - (outz.Y() + outz.X() * scos))/sigz), 2);
     
-    if(rootoutput) {
-      eventCanvas2->cd();
+    if( fDisplayLevel >= 3) {
+      eventCanvas->cd(2);
       TMarker *mrk2 = new TMarker(scos, vi->Z(), 6);
       mrk2->Draw("SAME");
     }
@@ -1326,11 +1206,11 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
       }
     }
 
-    if(rootoutput) {
+    if( fDisplayLevel >= 3) {
       if(pMhit->GetZ()!= -999) {
-	eventCanvas2->cd();
+	eventCanvas->cd(2);
 	TMarker *mrk3 = new TMarker(scos, pMhit->GetZ(), 6);
-	mrk3->SetMarkerColor(2);    
+	mrk3->SetMarkerColor(3);    
 	mrk3->Draw("SAME");
       }
     }
@@ -1447,12 +1327,12 @@ Int_t PndSttHelixTrackFitter::ZFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
   fTrack->SetTanL(fitm); // tan(lambda)
   fTrack->SetZ(fitp);  // z0
 
-  if(rootoutput) {
-    eventCanvas2->cd();
+  if( fDisplayLevel >= 3) {
+    eventCanvas->cd(2);
 
     // fit line
     TLine *line2 = new TLine(-40, -40*fitm + fitp, 40, (40*fitm + fitp));
-    line2->SetLineColor(3);
+    line2->SetLineColor(kGreen - 9);
     line2->Draw("SAME");
   } 
   return 1;
@@ -1517,8 +1397,8 @@ TVector3 PndSttHelixTrackFitter::GetHoughResponse()
       for(Int_t j = 0; j <= 1000; j++) {
       	if(vote[i][j] != 0)
       	  { 
-	    if(rootoutput) {
-      	      hougCanvas->cd();
+	    if( fDisplayLevel >= 4) {
+      	      eventDetails->cd(2);
       	      mrk2 = new TMarker(tga, b, 6);
       	      mrk2->SetMarkerColor(3);
       	      mrk2->Draw("SAME");
@@ -1687,10 +1567,11 @@ Int_t PndSttHelixTrackFitter::MinuitFit(PndTrackCand* pTrackCand, Int_t whatToFi
   h = -GetCharge(d, phi, resultsRadial[2]);
   fTrack->SetCharge(-h); 
 
-  if(rootoutput) {
-    eventCanvas->cd();
+  if( fDisplayLevel >= 3) {
+    eventCanvas->cd(1);
     TArc *fitarc = new TArc(((fTrack->GetDist() + fTrack->GetRad()) * cos(fTrack->GetPhi())), ((fTrack->GetDist() + fTrack->GetRad()) * sin(fTrack->GetPhi())), fTrack->GetRad());
-    fitarc->SetLineColor(3);
+    fitarc->SetLineColor(kGreen - 9);
+    fitarc->SetFillStyle(0);
     fitarc->Draw("SAME");
     eventCanvas->Update();
     eventCanvas->Modified();
@@ -2028,33 +1909,14 @@ Int_t PndSttHelixTrackFitter::XYFitThroughOrigin(PndTrackCand* pTrackCand, Int_t
       Double_t resdist = TMath::Sqrt((iPoint->GetY() - currenthit->GetY())*(iPoint->GetY() - currenthit->GetY()) + (iPoint->GetX() - currenthit->GetX())*(iPoint->GetX() - currenthit->GetX()));
       
     }
- 
-    if(rootoutput) { 
-      //     if(whatToFit == 2) {
-      eventCanvas->cd(); 
-      if(whatToFit == 1) {
-	// draw MC hits
-	TMarker *cir0 = new TMarker(iPoint->GetX(), iPoint->GetY(), 6);
-	cir0->SetMarkerStyle(6);
-	cir0->SetMarkerColor(4);
-	//	cir0->Draw("SAME");
-	//	cout << "MC: " << iPoint->GetX() << " " << iPoint->GetY() << endl;
-      }
-      TMarker *cir1 = new TMarker(currenthit->GetX(), currenthit->GetY(), 6);
-      cir1->SetMarkerColor(2);
-      if(whatToFit == 2) cir1->Draw("SAME");
-      TMarker *cir2 = new TMarker(tube->GetPosition().X(), tube->GetPosition().Y(), 6);
-      if(whatToFit == 1) cir2->Draw("SAME");
-      //     }
-    }
- 
+  
     Double_t xi, yi;
     // traslation
     xi = currenthit->GetX();
     yi = currenthit->GetY();
 
-    if(rootoutput) { 
-      eventCanvas->cd();
+    if( fDisplayLevel >= 3) {
+      eventCanvas->cd(1);
       TMarker *pt = new TMarker(xi, yi, 6);
       pt->SetMarkerColor(3);
       //  if(whatToFit == 2) 
@@ -2066,13 +1928,13 @@ Int_t PndSttHelixTrackFitter::XYFitThroughOrigin(PndTrackCand* pTrackCand, Int_t
     u = xi / (xi*xi + yi*yi);
     v = yi / (xi*xi + yi*yi);
 
-    if(rootoutput){// && whatToFit == 2) { 
-      eventCanvas3->cd();
+    if( fDisplayLevel >= 4) {
+      eventDetails->cd(1);
       TMarker *uv = new TMarker(u, v, 6);
       uv->SetMarkerColor(3);
       if(whatToFit == 2) uv->Draw("SAME");
-      eventCanvas3->Update();
-      eventCanvas3->Modified();
+      eventDetails->Update();
+      eventDetails->Modified();
     }
 
     if(whatToFit == 1) {
@@ -2192,12 +2054,12 @@ Int_t PndSttHelixTrackFitter::XYFitThroughOrigin(PndTrackCand* pTrackCand, Int_t
    }
   **/
 
-  if(rootoutput){// && whatToFit == 2) { 
-    eventCanvas3->cd();
+  if( fDisplayLevel >= 4) {
+    eventDetails->cd(1);
     TLine *uvline = new TLine(-0.1, fita - 0.1 * fitb, 0.1, fita + 0.1 * fitb);
     if(whatToFit == 2) uvline->Draw("SAME");
-    eventCanvas3->Update();
-    eventCanvas3->Modified();
+    eventDetails->Update();
+    eventDetails->Modified();
   }
 
   // center and radius
@@ -2228,10 +2090,10 @@ Int_t PndSttHelixTrackFitter::XYFitThroughOrigin(PndTrackCand* pTrackCand, Int_t
   //   cout << "FIT: " << xc << " " << yc << endl;
   //   cout << "RAGGIO: " << R << endl;
 
-  if(rootoutput) {
-    eventCanvas->cd();
+  if(fDisplayLevel >= 3) {
+    eventCanvas->cd(1);
     TArc *fitarc = new TArc(((fTrack->GetDist() + fTrack->GetRad()) * cos(fTrack->GetPhi())), ((fTrack->GetDist() + fTrack->GetRad()) * sin(fTrack->GetPhi())), fTrack->GetRad());
-    if(whatToFit == 2)  fitarc->SetLineColor(2);
+    if(whatToFit == 2)  fitarc->SetLineColor(kRed - 9);
     fitarc->SetFillStyle(0);
     fitarc->Draw("SAME");
     eventCanvas->Update();
@@ -2288,7 +2150,7 @@ TVector3 PndSttHelixTrackFitter::GetHoughResponseThroughOrigin()
    
       	if(votecon[i] != 0)
       	  { 
-	    if(rootoutput) {
+	    if(fDisplayLevel >= 3) {
 	      hougcon->Fill(tga);
       	    }
 	    
@@ -2300,8 +2162,8 @@ TVector3 PndSttHelixTrackFitter::GetHoughResponseThroughOrigin()
 	a += (TMath::Pi()/200.);
     }
   
-    if(rootoutput) {
-      hougCanvas->cd();
+    if(fDisplayLevel >= 4) {
+      eventDetails->cd(2);
       hougcon->Draw();
     }
     TVector3 hough(aref, 0, vref);
@@ -2399,44 +2261,6 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
     
     Double_t rcur = pMhit->GetIsochrone();
 
-    if(rootoutput) {
-      eventCanvas->cd();
-      TArc *drftarc = new TArc(cenposition.X(), cenposition.Y(), rcur); 
-      drftarc->SetFillStyle(0);
-      drftarc->SetLineColor(5);
-      drftarc->Draw("SAME");
-    }
-
-    if(rootoutput  && wiredirection != TVector3(0.,0.,1.)) {
-      eventCanvas4->cd();
-
-      // first wire extremity
-      TMarker *pt1z = new TMarker(x_1, z_1, 6); 
-      pt1z->SetMarkerColor(6);
-      pt1z->Draw("SAME");
-      // last wire extremity
-      TMarker *pt2z = new TMarker(x_2, z_2, 6);
-      pt2z->SetMarkerColor(6);
-      pt2z->Draw("SAME");
-      // tube line
-      TLine *ztubeline = new TLine(x_1, z_1, x_2, z_2); // wire position
-      ztubeline->Draw("SAME");
-      eventCanvas5->cd();
-
-      // first wire extremity
-      TMarker *pt1z2 = new TMarker(y_1, z_1, 6);
-      pt1z2->SetMarkerColor(6);
-      pt1z2->Draw("SAME");
-      // last wire extremity
-      TMarker *pt2z2 = new TMarker(y_2, z_2, 6);
-      pt2z2->SetMarkerColor(6);
-      pt2z2->Draw("SAME");
-      // tube line
-      TLine *ztubeline2 = new TLine(y_1, z_1, y_2, z_2); // wire position
-      ztubeline2->SetLineColor(wireOk);
-      ztubeline2->Draw("SAME");
-    }
-  
     Double_t x1 = -9999.;
     Double_t y1 = -9999.;
     Double_t x2 = -9999.;
@@ -2489,22 +2313,7 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
 	  continue;
 	}
 	
-	if(rootoutput) {
-	  eventCanvas->cd();
-	  TMarker *pt1 = new TMarker(x_1, y_1, 6);
-	  pt1->SetMarkerColor(6);
-	  //  pt1->Draw("SAME");
-	  TMarker *pt2 = new TMarker(x_2, y_2, 6);
-	  pt2->SetMarkerColor(6);
-	  //  pt2->Draw("SAME");
-	  //	  TLine *tubeline = new TLine(x_1, y_1, x_2, y_2);
-	  //  tubeline->Draw("SAME");
 
-	  // intersection lines
-	  TLine *intline = new TLine(-50, -50*a + b, 50, 50*a + b);
-	  intline->SetLineColor(5);
-	  intline->Draw("SAME"); 
-	}
 	
 	//x1 and x2 are the 2 intersection points
 	Double_t d1=TMath::Sqrt((x1-cenposition.X())*(x1-cenposition.X())+
@@ -2518,11 +2327,16 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
 	// the intersection point nearest to the drift circle's centre is taken
 	if(d2<d1) {x_=x2;y_=y2;}    
 	
-	if(rootoutput) {
-	  eventCanvas->cd();
+	if(fDisplayLevel >= 3) {
+	  eventCanvas->cd(1);
 	  TMarker *pt = new TMarker(x_, y_, 6);
 	  pt->SetMarkerColor(6);
 	  pt->Draw("SAME");
+	  
+	  // intersection lines
+	  TLine *intline = new TLine(x_, y_, x_0, y_0);
+	  intline->SetLineColor(5);
+	  intline->Draw("SAME"); 
 	}
     
 	// now we need to find the actual centre of the drift circle,
@@ -2563,8 +2377,8 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
 	    continue;
 	  }	
 	}
-	if(rootoutput) {
-	  eventCanvas->cd();
+	if(fDisplayLevel >= 3) {
+	  eventCanvas->cd(1);
 	  TArc *drftarc = new TArc(x1, y1, rcur); 
 	  drftarc->SetFillStyle(0); 
 	  drftarc->SetLineColor(3);
@@ -2613,9 +2427,8 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
 	tofit2 = new TVector3(x_,y_,z_bis);
 	ZPointsArray->Add(tofit2);
    
-	if(rootoutput){
-	  eventCanvas4->cd();
-
+	if(fDisplayLevel >= 4) {
+	  eventDetails->cd(3);
 	  // xz plane
 	  // found point 1
 	  TMarker *mrkt2 = new TMarker(x_, z_, 6);
@@ -2625,12 +2438,9 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
 	  TMarker *mrkt2bis = new TMarker(x_, z_bis, 6);
 	  mrkt2bis->SetMarkerColor(wireOk);
 	  mrkt2bis->Draw("SAME");
-	  // MC point
-	  TMarker *mcmrkt2bis = new TMarker(iPoint->GetX(), iPoint->GetZ(), 6);
-	  mcmrkt2bis->SetMarkerColor(4);
-	  mcmrkt2bis->Draw("SAME");	 
 
-	  eventCanvas5->cd();
+
+	  eventDetails->cd(4);
 	  // yz plane
 	  // found point 1
 	  TMarker *mrkt2b = new TMarker(y_, z_, 6);
@@ -2640,17 +2450,14 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
 	  TMarker *mrkt2bbis = new TMarker(y_, z_bis, 6);
 	  mrkt2bbis->SetMarkerColor(wireOk);
 	  mrkt2bbis->Draw("SAME");
-	  // MC point
-	  TMarker *mcmrkt2bbis = new TMarker(iPoint->GetY(), iPoint->GetZ(), 6);
-	  mcmrkt2bbis->SetMarkerColor(4);
-	  mcmrkt2bbis->Draw("SAME");
+	}
 
-	  eventCanvas2->cd();
+	if( fDisplayLevel >= 2) {
+	  eventCanvas->cd(2);
 	  // MC point in z - track length plane
 	  TMarker *MCmrk = new TMarker(h* R*TMath::ATan2((iPoint->GetY() - y0)*TMath::Cos(Phi0) - (iPoint->GetX() - x0)*TMath::Sin(Phi0) , R + (iPoint->GetX() - x0) * TMath::Cos(Phi0) + (iPoint->GetY()-y0) * TMath::Sin(Phi0)), iPoint->GetZ(), 6);
 	  MCmrk->SetMarkerColor(4);
 	  MCmrk->Draw("SAME");
-
 	}
 	
  	// ------- HOUGH TRANSFORM ------------
@@ -2669,8 +2476,8 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
 
   TVector3 outz = GetHoughResponseThroughOrigin(); // CHECK
 
-  if(rootoutput) {  
-    eventCanvas2->cd();
+  if(fDisplayLevel >= 3) {
+    eventCanvas->cd(2);
 
     // found line in z track length plane
     TLine *line = new TLine(-40, -40*outz.X() + outz.Y(), 40, (40*outz.X() + outz.Y()));
@@ -2726,8 +2533,8 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
     if(vi == NULL) continue;
     Double_t scos = fTrack->CalculateScosl(vi->X(), vi->Y());
        
-    if(rootoutput) {
-      eventCanvas2->cd();
+    if(fDisplayLevel >= 3) {
+      eventCanvas->cd(2);
       // first point z track lenght plane
       TMarker *mrk = new TMarker(scos, vi->Z(), 6);
       mrk->Draw("SAME");
@@ -2752,8 +2559,8 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
 
     Double_t distsecond = pow(((vi->Z() - (outz.Y() + outz.X() * scos))/sigz), 2);
     
-    if(rootoutput) {
-      eventCanvas2->cd();
+    if(fDisplayLevel >= 3) {
+      eventCanvas->cd(2);
       TMarker *mrk2 = new TMarker(scos, vi->Z(), 6);
       mrk2->Draw("SAME");
     }
@@ -2780,11 +2587,11 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
       }
     }
 
-    if(rootoutput) {
+    if(fDisplayLevel >= 3) {
       if(pMhit->GetZ()!= -999) {
-	eventCanvas2->cd();
+	eventCanvas->cd(2);
 	TMarker *mrk3 = new TMarker(scos, pMhit->GetZ(), 6);
-	mrk3->SetMarkerColor(2);    
+	mrk3->SetMarkerColor(3);    
 	mrk3->Draw("SAME");
       }
     }
@@ -2888,12 +2695,12 @@ Int_t PndSttHelixTrackFitter::ZFitThroughOrigin(PndTrackCand* pTrackCand, Int_t 
   fTrack->SetTanL(fitm); // tan(lambda)
   fTrack->SetZ(fitp);  // z0
 
-  if(rootoutput) {
-    eventCanvas2->cd();
+  if(fDisplayLevel >= 3) {
+    eventCanvas->cd(2);
 
     // fit line
     TLine *line2 = new TLine(-40, -40*fitm + fitp, 40, (40*fitm + fitp));
-    line2->SetLineColor(3);
+    line2->SetLineColor(kGreen - 9);
     line2->Draw("SAME");
   } 
   return 1;
@@ -2903,31 +2710,14 @@ Int_t PndSttHelixTrackFitter::ZFitThroughOrigin(PndTrackCand* pTrackCand, Int_t 
 // -------------------------------------------------------------------------------
 Int_t PndSttHelixTrackFitter::DoFitThroughOrigin(PndTrackCand* pTrackCand, PndSttTrack* pTrack, Int_t pidHypo)
 {
-  // cout << "track fitting event # " << fEventCounter << endl;
-  fEventCounter++;
- 
   if(!pTrackCand) return 0;
   fTrack = pTrack; // CHECK canc
   fTrackCand = pTrackCand; 
-  
-  if(rootoutput) {
+  if(fDisplayLevel > 0) {
+    RunEventDisplay(pTrackCand);
     char goOnChar;
     cout << "press any key to continue: " << endl;
     cin >> goOnChar;
-    eventCanvas->cd();
-    h1->Draw();
-    eventCanvas2->cd();
-    h2->Draw();
-    cout << "EVENT: " << fEventCounter << endl;
-    eventCanvas3->cd();
-    h3->Draw();
-    eventCanvas4->cd();
-    h4->Draw();
-    eventCanvas5->cd();
-    h4->Draw();
-    hougCanvas->cd();
-    hougcon->Draw(); // CHECK
- 
   }
   
   Int_t fit = 0;
@@ -2990,23 +2780,213 @@ Int_t PndSttHelixTrackFitter::DoFitThroughOrigin(PndTrackCand* pTrackCand, PndSt
   }
 
 
-  if(rootoutput) {
-    eventCanvas->Update();
-    eventCanvas->Modified();
-    eventCanvas2->Update();
-    eventCanvas2->Modified();
-    eventCanvas3->Update();
-    eventCanvas3->Modified();
-    eventCanvas4->Update();
-    eventCanvas4->Modified();
-    eventCanvas5->Update();
-    eventCanvas5->Modified();
-    hougCanvas->Update();
-    hougCanvas->Modified();
-
-   }
+  if(fDisplayLevel > 0) FinishEventDisplay(fTrack);
   
   return 0;
 }
+
+void PndSttHelixTrackFitter::InitEventDisplay()
+{
+  // 0 no display
+  // 1 only final result
+  // 2 final + mc points
+  // 3 also details
+
+  h1 = new TH2F("h1","xy plane",             100, -50, 50, 100, -50, 50);
+  h2 = new TH2F("h2","z cos#{lambda} plane", 100, -75, 75, 100, -45, 115); 
+  h3 = new TH2F("h3","conformal plane",      100, -1.5, 1.5, 100, -1.5, 1.5);
+  h4 = new TH2F("h4","tubes",                100, -45,  45,  100, -45, 115);
+
+  houg = new TH2F("houg","houg",             100,-1.001,1.001,100,-150.001,151.001);
+  hougcon = new TH1F("hougcon","hougcon",    200,-1.001,1.001);
+  
+  switch(fDisplayLevel) {
+  case 0: 
+    break;
+  case 1:
+  case 2:
+  case 3:
+    eventCanvas = new TCanvas("eventCanvas", "eventcanvas", 900, 500); 
+    eventCanvas->Divide(2, 1);
+    break;
+  case 4:
+    eventCanvas = new TCanvas("eventCanvas", "eventcanvas", 0, 0, 400, 600); 
+    eventCanvas->Divide(1, 2);
+    eventDetails = new TCanvas("eventDetails", "eventdetails", 400, 0, 600, 600); 
+    eventDetails->Divide(2, 2);
+    break;
+  }
+  
+}
+
+Bool_t PndSttHelixTrackFitter::RunEventDisplay(PndTrackCand* pTrackCand) 
+{
+  // 0 no display
+  // 1 only final result
+  // 2 final + mc points
+  // 3 also details
+
+  eventCanvas->cd(1);
+  h1->Draw();
+  eventCanvas->cd(2);
+  h2->Draw();
+  if(fDisplayLevel >= 4) {
+    eventDetails->cd(1);
+    h3->Draw();
+    eventDetails->cd(3);
+    h4->Draw();
+    eventDetails->cd(4);
+    h4->Draw();
+    eventDetails->cd(2);
+    houg->Draw();
+  }
+  //.....................
+  if(!pTrackCand) return kFALSE;
+  Int_t hitcounter = pTrackCand->GetNHits();
+  
+  for(Int_t i = 0; i < hitcounter; i++){
+    PndTrackCandHit candhit = pTrackCand->GetSortedHit(i);
+    Int_t iHit = candhit.GetHitId();
+    PndSttHit *currenthit = (PndSttHit*) fHitArray->At(iHit);
+    if(!currenthit) continue;
+    if(currenthit->GetX() == -999 || currenthit->GetY() == -999) continue;
+    Int_t refindex = currenthit->GetRefIndex(); 
+    // get point
+    PndSttPoint *iPoint = (PndSttPoint*) fPointArray->At(refindex);
+    if(!iPoint) continue;
+    Int_t tubeID = currenthit->GetTubeID();
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+    TVector3 wiredirection = tube->GetWireDirection();
+
+    // draw MC points (BLUE)
+    if(fDisplayLevel >= 2) {
+      eventCanvas->cd(1); 
+      TMarker *cir0 = new TMarker(iPoint->GetX(), iPoint->GetY(), 6);
+      cir0->SetMarkerColor(4);
+      cir0->Draw("SAME");
+  
+      if(fDisplayLevel >= 4) {
+	eventDetails->cd(3);
+	TMarker *mcmrkt2bis = new TMarker(iPoint->GetX(), iPoint->GetZ(), 6);
+	mcmrkt2bis->SetMarkerColor(4);
+	mcmrkt2bis->Draw("SAME");	 
+	
+	eventDetails->cd(4);
+	TMarker *mcmrkt2bbis = new TMarker(iPoint->GetY(), iPoint->GetZ(), 6);
+	mcmrkt2bbis->SetMarkerColor(4);
+	mcmrkt2bbis->Draw("SAME");
+      }
+    }
+
+    // draw hit (GREEN = NON SKEWED / YELLOW = SKEWED)
+     eventCanvas->cd(1); 
+     TArc *cir1 = new TArc(tube->GetPosition().X(), tube->GetPosition().Y(), currenthit->GetIsochrone());
+    cir1->SetLineColor(3);
+    if(wiredirection != TVector3(0.,0.,1.)) cir1->SetLineColor(5);
+    cir1->SetFillStyle(0);
+    cir1->Draw("SAME");
+
+    if(fDisplayLevel >= 4) {
+      
+      // draw tube (BLACK LINE / PURPLE EXTREMITIES)
+      TVector3 wiredirection2;
+      wiredirection2 = tube->GetHalfLength() * wiredirection;
+      TVector3 cenposition = tube->GetPosition();
+      
+      TVector3 min, max;
+      min = cenposition - wiredirection2;
+      max = cenposition + wiredirection2;
+      
+      // first extremity
+      Double_t x_1= min.X(); 
+      Double_t y_1= min.Y(); 
+      Double_t z_1= min.Z(); 
+      
+      // second extremity
+      Double_t x_2= max.X();
+      Double_t y_2= max.Y();
+      Double_t z_2= max.Z();
+      
+      if(wiredirection != TVector3(0.,0.,1.)) {
+	eventDetails->cd(3);
+	
+	// first wire extremity
+	TMarker *pt1z = new TMarker(x_1, z_1, 6); 
+	pt1z->SetMarkerColor(6);
+	pt1z->Draw("SAME");
+	// last wire extremity
+	TMarker *pt2z = new TMarker(x_2, z_2, 6);
+	pt2z->SetMarkerColor(6);
+	pt2z->Draw("SAME");
+	// tube line
+	TLine *ztubeline = new TLine(x_1, z_1, x_2, z_2); // wire position
+	ztubeline->Draw("SAME");
+	
+	eventDetails->cd(4);
+	
+	// first wire extremity
+	TMarker *pt1z2 = new TMarker(y_1, z_1, 6);
+	pt1z2->SetMarkerColor(6);
+	pt1z2->Draw("SAME");
+	// last wire extremity
+	TMarker *pt2z2 = new TMarker(y_2, z_2, 6);
+	pt2z2->SetMarkerColor(6);
+	pt2z2->Draw("SAME");
+	// tube line
+	TLine *ztubeline2 = new TLine(y_1, z_1, y_2, z_2); // wire position
+	ztubeline2->Draw("SAME");
+	
+	// xy  
+	eventCanvas->cd(1);
+	TMarker *pt1 = new TMarker(x_1, y_1, 6);
+	pt1->SetMarkerColor(6);
+	pt1->Draw("SAME");
+	TMarker *pt2 = new TMarker(x_2, y_2, 6);
+	pt2->SetMarkerColor(6);
+	pt2->Draw("SAME");
+	TLine *tubeline = new TLine(x_1, y_1, x_2, y_2);
+	tubeline->Draw("SAME");
+      }
+    }
+  }
+
+  return kTRUE;
+}
+
+void PndSttHelixTrackFitter::FinishEventDisplay(PndSttTrack *track)
+{
+  if(!track) return;
+  
+//   cout << "param last x: "  << track->GetDist() << endl;
+//   cout << "param last y: "  << track->GetPhi() << endl;
+//   cout << "param last tx: " << track->GetRad() << endl;
+//   cout << "param last ty: " << track->GetTanL() << endl;
+//   cout << "param last qp: " << track->GetCharge() << endl;
+
+  eventCanvas->cd(1);
+  TArc *fitarc = new TArc(((track->GetDist() + track->GetRad()) * cos(track->GetPhi())), 
+			  ((track->GetDist() + track->GetRad()) * sin(track->GetPhi())), 
+			  track->GetRad());
+  fitarc->SetLineColor(2);
+  fitarc->SetFillStyle(0);
+  fitarc->Draw("SAME");
+    
+  eventCanvas->cd(2);
+ 
+  TLine *line = new TLine(-40, -40 * track->GetTanL() + track->GetZ(),
+ 			   40,  40 * track->GetTanL() + track->GetZ());
+  line->SetLineColor(2);
+  if(track->GetFlag() >= 3) line->Draw("SAME");
+
+  eventCanvas->Update();
+  eventCanvas->Modified();
+  if( fDisplayLevel >= 4) {
+    eventDetails->Update();
+    eventDetails->Modified();
+  }
+  
+
+}
+
 
 ClassImp(PndSttTrackFitter)

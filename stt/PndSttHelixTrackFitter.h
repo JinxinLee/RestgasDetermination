@@ -27,6 +27,7 @@ class PndSttHit;
 //class PndSttTrackFitter;
 class TCanvas;
 class TH2F;
+class TH1F;
 
 void fcnHelix(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag);
 void fcnHelix2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag);
@@ -43,10 +44,10 @@ class PndSttHelixTrackFitter : public PndSttTrackFitter
   TClonesArray* fHitArray;
   TClonesArray* fPointArray;
   TObjArray *ZPointsArray;
-  TCanvas *eventCanvas;
-  TCanvas *eventCanvas2;
-  TH2F *h1;
-  TH2F *h2;
+  
+  TH2F *h1, *h2, *h3, *h4, *houg;
+  TH1F *hougcon; 
+  TCanvas *eventCanvas, *eventDetails;
   Bool_t rootoutput;
   Int_t fVerbose;
 
@@ -119,6 +120,14 @@ class PndSttHelixTrackFitter : public PndSttTrackFitter
 
   TClonesArray *fTubeArray;
   void SetTubeArray(TClonesArray *tubeArray) { fTubeArray = tubeArray; };
+
+
+  Int_t fDisplayLevel;
+  void SetDisplayLevel(Int_t display = 2) {fDisplayLevel = display; };
+  void InitEventDisplay();
+  Bool_t RunEventDisplay(PndTrackCand *trackCand);
+  void FinishEventDisplay(PndSttTrack *track);
+
 
   ClassDef(PndSttHelixTrackFitter,1);
 };
