@@ -29,9 +29,11 @@
   fRun->SetInputFile(inSimuFile);
   fRun->AddFriend(inDigiFile);
   fRun->AddFriend(inRecoFile);
+
   fRun->SetOutputFile(outFile.Data());
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
+  
   // -----  Parameter database   --------------------------------------------
   TString allDigiFile = sysFile+"/macro/params/all.par";
 
@@ -67,7 +69,7 @@
   PndPidEmcAssociatorTask* ts = new PndPidEmcAssociatorTask();
   // Set the path to the weightFiles; otherwise the standard
   // path is used.
-  ts->SetWeightFileName("/home/babai/TrainProtoFiles/NormalizedEventsDatasetLargeFset.root");
+  ts->SetWeightFileName("/media/daq/babaiexp/Gpid_files/TrainEventsDatasetLargeFset.root");
   
   // Set class names.
   ts->SetClassNames(clas);

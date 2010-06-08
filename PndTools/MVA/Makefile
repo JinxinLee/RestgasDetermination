@@ -15,7 +15,7 @@ FLAGSMACHINE = -march=native -mtune=native
 # FLAGSMACHINE += -mssse3 -mpc64 -mfpmath=sse -msse3 -m3dnow
 
 CCFLAGS  = -W -Wall -Wextra -Wredundant-decls -Wshadow -Werror
-CCFLAGS += -Woverlength-strings -Wstack-protector
+CCFLAGS += -Woverlength-strings -Wstack-protector -fopenmp
 CCFLAGS += -fdiagnostics-show-option -fdiagnostics-show-location=every-line
 CCFLAGS += -O3 ${FLAGSMACHINE} -funroll-loops
 # CCFLAGS += -fstrict-aliasing -Wstrict-aliasing=3
@@ -25,7 +25,7 @@ CCFLAGS += -O3 ${FLAGSMACHINE} -funroll-loops
 INCLUDE = $(shell root-config --cflags) -I./
 
 LIBS  = $(shell root-config --libs) -lTMVA -lTreePlayer -lMinuit
-LIBS += -lMLP -lXMLIO
+LIBS += -lMLP -lXMLIO -fopenmp
 
 .EXPORT_ALL_VARIABLES:
 

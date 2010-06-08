@@ -12,6 +12,23 @@
 #include "PndLVQTrain.h"
 #include "TRandom3.h"
 
+// *************  DEBUG ONLY **********
+void printProto(const std::vector< std::pair<std::string, std::vector<float>*> >& dat)
+{
+  std::cout << "==========================" << std::endl;
+  for(size_t i = 0; i < dat.size(); i++){
+    std::cout << dat[i].first << " => ";
+    std::vector<float>* example = dat[i].second;
+    std::cerr<< " (" << " ";
+    for(size_t j = 0; j < example->size(); j++){
+      std::cerr << example->at(j) << "  ";
+    }
+    std::cerr<< ")." << std::endl;
+  }
+  std::cout << "==========================" << std::endl;
+}
+// *************  DEBUG ONLY **********
+
 int main(int argc, char** argv)
 {
   std::vector<std::string> clas;
@@ -19,7 +36,8 @@ int main(int argc, char** argv)
 
   if(argc < 6){
     std::cerr << "\t<ERROR> Usage\n"
-              <<"\t./train <algNum> <NumProtoTypes> <numSweep> <InputTrainEventFeatureFile> <OutFile>"
+              <<"\t./train <algNum> <NumProtoTypes> <numSweep>"
+	      <<" <InputTrainEventFeatureFile> <OutFile>"
 	      << " <ErroFileName>"
               << std::endl;
     return 1;
@@ -75,7 +93,7 @@ int main(int argc, char** argv)
   tr.SetInitProtoFileName("InitialProto.root");
   
   // FILE_PR, KMEANS_PR, RANDOM_PR (DEFAULT)
-  tr.setProtoInitType(RANDOM_PR);
+  tr.setProtoInitType(KMEANS_PR);
   
   std::string OutFile = ot;
   tr.SetOutPutFile(ot);
@@ -87,6 +105,9 @@ int main(int argc, char** argv)
     break;
   case 2:
     tr.Train21();
+    break;
+  case 3:
+    printProto(tr.train1sec());
     break;
   default:
     std::cerr << "No algorithm selected" << std::endl;

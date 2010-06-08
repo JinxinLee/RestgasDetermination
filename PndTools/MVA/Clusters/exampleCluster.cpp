@@ -71,6 +71,8 @@ int main(int argc, char** argv)
   // Read the input points.
   PndMvaDataSet data(InFile, clas, vars);
   const RawPoints& samples = data.GetData();
+
+  std::vector<ClDataSample> ProtoVector ( clas.size() );
   
   // Prepair clustering input
   // Class loop
@@ -99,6 +101,7 @@ int main(int argc, char** argv)
     ClDataSample& protoA = clust.Cluster();
     printCentroids(protoA);
     
+    ProtoVector[cl] = protoA;
     //clust.SetNumberOfClusters(numCentrrs);
     //ClDataSample& protoB = clust.Cluster();
     //printCentroids(protoB);    
@@ -106,8 +109,19 @@ int main(int argc, char** argv)
     
     // Clean-up
     protoA.clear();
+
     //protoB.clear();
     clusteringInput.clear();
+
+  }// End of class loop
+  
+  std::cout << "++++++++++++++++++++++++++++++++++++++"<< std::endl;
+  std::cout<< "Printing the copied values:" << std::endl;
+  std::cout << "++++++++++++++++++++++++++++++++++++++"<< std::endl;
+  for(size_t l = 0; l < ProtoVector.size(); l++){
+    ClDataSample protoA = ProtoVector[l];
+    printCentroids(protoA);
   }
+  ProtoVector.clear();
   return 0;
 }

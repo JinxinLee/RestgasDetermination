@@ -1,9 +1,16 @@
 //pi+ = 211, pi- = -211, mu+ = -13, mu- = 13, K+ = 321, K- = -321, K0L = 130
 //pi0 = 111, gamma = 22, e- = 11, e+ = -11, proton = 2212, protonMin = -2212
 
-void sim_sttcombi_pgun(int nEvents = 10, int pid  = -321, 
+void sim_sttcombi_pgun(int nEvents = 10, int pid  = 11, 
 		       float p1 = 0.8, float p2 = 0.86)
 {
+  unsigned int seed = 9235;
+  gRandom->SetSeed(seed);
+  
+  std::cerr << "Seed is " << seed << std::endl;
+  std::cerr << "pdg = "   << pid  << std::endl;
+  std::cerr << "nEvt = "  << nEvents  << std::endl;
+  
   TStopwatch timer;
   timer.Start();
   gDebug=0;

@@ -351,47 +351,67 @@ void PndLVQTrain::InitProtoTypes()
  */
 void PndLVQTrain::InitProtoK_Means()
 {
-  std::cout << "<INFO> Initializing " << m_numProto 
-            <<" LVQ prototypes using K_Means."
+  std::cout << "<INFO> Initializing " << m_numProto
+            <<" LVQ prototypes using K_Means clustering."
 	    << std::endl;
-  
+  // Fetch labels.
   const std::vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+  
+  // Get available data points.
   const std::vector<std::pair<std::string, std::vector<float>*> >& events = m_dataSets.GetData();
- 
-  //======== Class loop
+  
+  // Init temporary prototype container.
+  std::map<std::string, ClDataSample> ProtoVector;//(classes.size());
+  
+  //======== Class loop  
   int cls = 0;
   int numberOfClasses = classes.size();
-  /*
-    #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic)
-    #endif
-  */
-  for(cls = 0; cls < numberOfClasses; cls++){
+  
+#ifdef _OPENMP
+#pragma omp parallel for  schedule(dynamic) //collapse(2)
+#endif  
+  for( cls = 0; cls < numberOfClasses; cls++){
     ClDataSample clusteringInput;
     std::string clsName = (classes[cls]).Name;
-  
+    
     // Example loop
     for(size_t evt = 0; evt < events.size(); evt++){
       if(events[evt].first == clsName){
 	clusteringInput.push_back(events[evt].second);
       }
     }// ExampleLoop
-
-    // We have seen all available examples for the current class.
+    
+    // We have seen all available examples for the current class
+    // (lable).
     std::cout << "Number of examples for " << clsName 
 	      << " = " <<  clusteringInput.size()
 	      << std::endl;
-
-    //Create clusters from current data points.
+    
+    // Create clusters from current data points.
     PndMvaCluster clust (clusteringInput, m_numProto);
-    ClDataSample& TMPprotoList = clust.Cluster();
-
-    //Copy cluster centers to LVQ prototypes (code books)
-    for(size_t pr = 0; pr < TMPprotoList.size(); pr++){
-      std::vector<float>* lvpr = new std::vector<float>( *(TMPprotoList[pr]) );
-      m_LVQProtos.push_back(std::make_pair(clsName, lvpr));
+    
+#ifdef _OPENMP
+#pragma omp critical (AddToProtoListMap)
+    {
+#endif
+      ProtoVector[clsName] = clust.Cluster();
+#ifdef _OPENMP
     }
-  }// ClassLoop
+#endif
+    
+  }// END ClassLoop
+  
+  //Copy cluster centers to LVQ prototypes (code books)
+  for(size_t i = 0 ; i < classes.size(); i++){
+    std::string label = classes[i].Name;
+    //std::vector<std::vector<float>*> TMP = ProtoVector[label];
+    //                       ------ TMP.size() -------
+    for(size_t pr = 0; pr < (ProtoVector[label]).size(); pr++){
+      //                                                   ----- TMP.at(pr) ---------
+      std::vector<float>* lvpr = new std::vector<float>( *( (ProtoVector[label]).at(pr) ) );
+      m_LVQProtos.push_back(std::make_pair(label, lvpr));
+    }
+  }
 }
 
 /**

@@ -8,11 +8,11 @@
 #ifndef PND_LVQ_TRAIN_H
 #define PND_LVQ_TRAIN_H
 
-/*
+
 #ifdef _OPENMP
 #include <omp.h>
 #endif
-*/
+
 
 //Local includes
 #include "PndMvaTrainer.h"
@@ -51,7 +51,15 @@ class PndLVQTrain: public PndMvaTrainer
    * Train the classifier accourding to LVQ2.1 algorithm.
    */
   void Train21();
-  
+
+  ////================= DEBUG Only
+  std::vector< std::pair<std::string, std::vector<float>*> >& train1sec()
+    { 
+      InitProtoK_Means(); 
+      return m_LVQProtos;
+    };
+  ////================= DEBUG Only
+
   /**
    * Set CodeBook init type.
    *@param val Initialization type.
@@ -86,7 +94,7 @@ class PndLVQTrain: public PndMvaTrainer
    */  
   inline void SetNumberOfProto(const unsigned int numProto)
   {m_numProto = numProto; };
-  
+
   //----------------------------------------
   //================== private =============
  private:
