@@ -51,7 +51,8 @@ EmcData/PndEmcXClMoments.cxx
 EmcDigi/PndEmcHitProducer.cxx
 EmcDigi/PndEmcApdHitProducer.cxx
 EmcDigi/PndEmcCRRCPulseshape.cxx 
-EmcDigi/PndEmcCR2RCPulseshape.cxx 
+EmcDigi/PndEmcCR2RCPulseshape.cxx
+EmcDigi/PndEmcExpPulseshape.cxx 
 EmcDigi/PndEmcHitsToWaveform.cxx
 #EmcDigi/PndEmcHitsToTmpWaveform.cxx 
 EmcDigi/PndEmcWaveformToDigi.cxx

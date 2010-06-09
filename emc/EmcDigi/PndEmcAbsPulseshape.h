@@ -15,11 +15,9 @@
 
 // Collaborating Class Headers -------
 
-#include "TObject.h"
-
 // Collaborating Class Declarations --
 
-class PndEmcAbsPulseshape: public TObject 
+class PndEmcAbsPulseshape 
 {
 public:
 
@@ -35,7 +33,6 @@ public:
 		       const double amp, const double toffset) const 
   {return operator()(t,amp,toffset);}
 
-  ClassDef(PndEmcAbsPulseshape,1)
 };
 
 #endif

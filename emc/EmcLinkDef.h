@@ -27,9 +27,6 @@
 #pragma link C++ class  PndEmcWaveformToDigi+;
 #pragma link C++ class  PndEmcFadcFilter+;
 #pragma link C++ class  PndEmcFullDigiTask+;
-#pragma link C++ class  PndEmcAbsPulseshape+;
-#pragma link C++ class  PndEmcCRRCPulseshape+;
-#pragma link C++ class  PndEmcCR2RCPulseshape+;
 #pragma link C++ class  PndEmcDigiPar+;
 #pragma link C++ class  PndEmcDigiNonuniformityPar+;
 #pragma link C++ class  PndEmcDigiNonuniParObject+;

@@ -102,13 +102,13 @@ public:
 
 private:
   
-	int fTrackId;	
-	long fDetectorId;
-	int fWaveformLength;
+	Int_t fTrackId;	
+	Int_t fDetectorId;
+	Int_t fWaveformLength;
 	Int_t fHitIndex;
 
-	std::vector<double>  fSignal; // Signal after FADC
+	std::vector<Double_t>  fSignal; // Signal after FADC
 
-ClassDef(PndEmcWaveform,3)
+ClassDef(PndEmcWaveform,4)
 };
 #endif

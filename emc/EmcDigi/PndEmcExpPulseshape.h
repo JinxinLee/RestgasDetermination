@@ -1,16 +1,10 @@
 //-----------------------------------------------------------
-// File and Version Information:
-// $Id$
-//
 // Description:
-//      Pulseshape from an CRRC-Shaper
-// Author List:
-//      Sebastian Neubert    TUM            (original author)
-//
+//      Exponential Pulseshape
 //-----------------------------------------------------------
 #pragma once
-#ifndef PNDEMCCRRCPULSESHAPE_H
-#define PNDEMCCRRCPULSESHAPE_H
+#ifndef PndEmcExpPulseshape_H
+#define PndEmcExpPulseshape_H
 
 // Base Class Headers ----------------
 #include "PndEmcAbsPulseshape.h"
@@ -18,22 +12,14 @@
 // Collaborating Class Headers -------
 //#include <ostream> 
 
-class PndEmcCRRCPulseshape  : public PndEmcAbsPulseshape
+class PndEmcExpPulseshape  : public PndEmcAbsPulseshape
 {
 public:
 
   // Constructors/Destructors ---------
-  PndEmcCRRCPulseshape(){;}
-  PndEmcCRRCPulseshape(double Tint, double Tdif, double Tsig);
-  virtual ~PndEmcCRRCPulseshape(){;}
-
-  // Operators
-  
-  // Accessors -----------------------
-
-
-  // Modifiers -----------------------
-
+  PndEmcExpPulseshape(){;}
+  PndEmcExpPulseshape(double Tdif);
+  virtual ~PndEmcExpPulseshape(){;}
 
   // Operations ----------------------
   virtual double operator() (const double t, 
@@ -43,9 +29,7 @@ public:
 private:
 
   // Private Data Members ------------
-  double _Tint;
-  double _Tdif;
-  double _Tsig;
+  double fTdif;
  
 
   // Private Methods -----------------
@@ -53,10 +37,6 @@ private:
   double general_solution(const double t, 
 		     const double amp, 
 		     const double toffset) const;
-  double degenerate_solution(const double t,  // for Tdif=Tint
-		     const double amp, 
-		     const double toffset) const; 
-
 };
 
 #endif
