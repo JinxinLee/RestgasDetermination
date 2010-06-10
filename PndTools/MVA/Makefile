@@ -7,7 +7,7 @@
 
 # FLAGSMACHINE=-march=athlon64 -mfpmath=sse -msse2 -m64
 # FLAGSMACHINE += -m64 -mssse3 -mpc64 -mfpmath=sse -msse3 -m3dnow
-# CCFLAGS += -fopenmp -Werror -Weffc++ -pedantic
+# CCFLAGS += -Weffc++ -pedantic
 # -Wunreachable-code # -Wunsafe-loop-optimizations #-Winline
 MAKEFLAGS  = -wkr --no-print-directory #-s
 
@@ -15,12 +15,13 @@ FLAGSMACHINE = -march=native -mtune=native
 # FLAGSMACHINE += -mssse3 -mpc64 -mfpmath=sse -msse3 -m3dnow
 
 CCFLAGS  = -W -Wall -Wextra -Wredundant-decls -Wshadow -Werror
-CCFLAGS += -Woverlength-strings -Wstack-protector -fopenmp
+CCFLAGS += -O3 ${FLAGSMACHINE} -funroll-loops -fopenmp
 CCFLAGS += -fdiagnostics-show-option -fdiagnostics-show-location=every-line
-CCFLAGS += -O3 ${FLAGSMACHINE} -funroll-loops
+CCFLAGS += -fvariable-expansion-in-unroller -fprefetch-loop-arrays
+# CCFLAGS += -Woverlength-strings -Wstack-protector
 # CCFLAGS += -fstrict-aliasing -Wstrict-aliasing=3
 # CCFLAGS += -malign-double -maccumulate-outgoing-args -ftracer
-# CCFLAGS += -fvariable-expansion-in-unroller -fprefetch-loop-arrays
+
 
 INCLUDE = $(shell root-config --cflags) -I./
 

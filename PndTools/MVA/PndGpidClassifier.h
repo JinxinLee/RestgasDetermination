@@ -47,19 +47,20 @@ class PndGpidClassifier
    * @param result:  Classification results. Currently the shortest
    *  distance for each class is stored in result.
    */
-  virtual void GetMvaValues(std::vector<float> EvtData,
-			    std::map<std::string,float>& result) = 0;
+  virtual void GetMvaValues( std::vector<float> EvtData,
+			     std::map<std::string,float>& result ) = 0;
   /**
-   *@param EvtData: Event data to be classified.
+   *@param EvtData: Event, to be classified.
    *@return Name of the class with the best MVA value.
    */
-  virtual const std::string& Classify(std::vector<float> EvtData)const = 0;
+  virtual const std::string& Classify( std::vector<float> EvtData )const = 0;
 
  protected:
   //! Data set. Holds event Weights
   PndMvaDataSet m_dataSets;
  
  private:
+  // To avoid mistakes.
   PndGpidClassifier(const PndGpidClassifier& other);
   PndGpidClassifier& operator=(const PndGpidClassifier& other);
 };

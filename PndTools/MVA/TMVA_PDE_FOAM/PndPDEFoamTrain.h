@@ -3,10 +3,10 @@
 
 #include "PndMvaTrainer.h"
 
-#ifdef _OPENMP
+//#ifdef _OPENMP
 //#undef _OPENMP
-#include<omp.h>
-#endif
+//#include<omp.h>
+//#endif
 
 class PndPDEFoamTrain: public PndMvaTrainer
 {

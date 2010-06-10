@@ -1,4 +1,4 @@
-/* **************************************
+/* ***************************************
  * LVQ  Training functions               *
  * Author: M.Babai@rug.nl                *
  * Version: 0.1 beta1.                   *
@@ -8,11 +8,9 @@
 #ifndef PND_LVQ_TRAIN_H
 #define PND_LVQ_TRAIN_H
 
-
 #ifdef _OPENMP
 #include <omp.h>
 #endif
-
 
 //Local includes
 #include "PndMvaTrainer.h"

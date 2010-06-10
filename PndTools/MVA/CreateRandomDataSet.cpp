@@ -19,7 +19,8 @@
 int main(int argc, char**argv)
 {
   if(argc < 3){
-    std::cout<< "<INFO> Usage: CreateRandomDataSet <Number of events> <OutputFile.root>"
+    std::cout<< "<INFO> Usage: CreateRandomDataSet <Number of events>"
+	     <<" <OutputFile.root>"
 	     << std::endl;
     return 1;
   }
@@ -46,7 +47,7 @@ int main(int argc, char**argv)
   vars.push_back("z20");vars.push_back("z53");
   vars.push_back("lat");
 
-  TRandom3 rand(975321);
+  TRandom3 rand(9753);
   
   std::cout << "<INFO>: Initialization."
 	    << std::endl;
@@ -97,22 +98,21 @@ int main(int argc, char**argv)
   //class loop
   int NumClasses = clas.size();
   int cls = 0;
-  double sigma = 2.00;
+  double sigma = 1.00;
   double mean  = 1.00;
-  
+
+  // Class (label) loop.
   for(cls = 0; cls < NumClasses; cls++)
   {
-    mean = sigma + 1;
-    sigma += mean;
+    mean += sigma + 2;
     //Event loop
     for(int ev = 0; ev < numevt; ev++)
     {
       //Variable loop
       for(size_t var = 0; var < vars.size(); var++)
       {
-	//(varContainer[cls])->at(var) = static_cast<float>(rand.Gaus(mean, sigma));
-	//(varContainer[cls])->at(var) = static_cast<float>(rand.Uniform(mean));
-	(varContainer[cls])->at(var) = static_cast<float>(rand.Uniform(cls, (cls + 1)));
+	(varContainer[cls])->at(var) = static_cast<float>(rand.Gaus(mean, sigma));
+	//(varContainer[cls])->at(var) = static_cast<float>(rand.Uniform(cls, (cls + 1)));
       }
       trees[cls]->Fill();
     }

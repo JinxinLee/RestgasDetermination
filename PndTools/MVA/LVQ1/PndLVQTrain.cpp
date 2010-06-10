@@ -107,6 +107,7 @@ void PndLVQTrain::Train()
     {
       EvalClassifierError(time);
     }
+  
     // select a random example
     int index = static_cast<int>(trand.Uniform(0.0, events.size() - 1));
 
@@ -137,6 +138,7 @@ void PndLVQTrain::Train()
     
     // We need to update the (winner) prototype
     int delta = 0;
+    
     // determine delta
     if( events[index].first == m_LVQProtos[protoIndex].first )
     {// Equal labels
@@ -151,7 +153,7 @@ void PndLVQTrain::Train()
     UpdateProto( *(events[index].second), *(m_LVQProtos[protoIndex].second), delta, ethaT);
   }
   std::cerr << std::endl;
-  std::cerr << "<INFO> Finished training." 
+  std::cerr << "<INFO> Finished training and writing to file." 
 	    << std::endl;
   WriteToWeightFile(m_LVQProtos);
 }
@@ -180,7 +182,7 @@ void PndLVQTrain::Train21()
   std::set <int>::const_iterator testSetIter;
 
   // Compute learning rate constant "a"
-  float windowSize = 0.3;// A value between0.2 & 0.3 is recommended.
+  float windowSize = 0.3;// A value between 0.2 & 0.3 is recommended.
   float s = (1 - windowSize)/(1 + windowSize);//Define the surrounding.
   
   double ethaZero     = m_ethaZero;//0.1;
@@ -302,7 +304,7 @@ void PndLVQTrain::Train21()
     }
   }
   std::cerr << std::endl;
-  std::cerr << "<INFO> Finished training." 
+  std::cerr << "<INFO> Finished training and writing to file."
 	    << std::endl;
   WriteToWeightFile(m_LVQProtos);
 }
@@ -427,10 +429,13 @@ void PndLVQTrain::InitProtoRand()
   // Initialize LVQ-prototypes.
   double c = m_initConst;//0.8;
   TRandom3 trand(m_RND_seed);
-
+  // Fetch labels.
   const std::vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+  // Fetch variables.
   const std::vector<PndMvaVariable>& variables = m_dataSets.GetVars();
+  // Fetch examples.
   const std::vector<std::pair<std::string, std::vector<float>*> >& events = m_dataSets.GetData();
+  // Fetch class conditional means.
   const std::map< std::string, std::vector<float>* >& ClsCondMeans = m_dataSets.GetClassCondMeans();
 
   for(size_t cl = 0; cl < classes.size(); cl++)
@@ -518,6 +523,7 @@ void PndLVQTrain::UpdateProto(const std::vector<float>& EvtData,
     proto[i] = proto[i] + ( ethaT * static_cast<double>(delta) * (EvtData[i] - proto[i]) );
   }
 }
+
 /**
  * Evaluate the train and test error for the current classifier.
  */
