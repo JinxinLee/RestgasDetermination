@@ -21,6 +21,8 @@ class PndPidProbability;
 class PndPidIdealAssociatorTask : public FairTask {
   
 protected:
+  TString fNeutralBranchName;
+  TString fChargedBranchName;
   
   TClonesArray* fPidChargedCand;    //! PndPidCandidate TCA for charged particles
   TClonesArray* fPidNeutralCand;    //! PndPidCandidate TCA for neutral particles
@@ -42,6 +44,7 @@ public:
   PndPidIdealAssociatorTask();
   virtual ~PndPidIdealAssociatorTask();
   
+  void SetToOnlyOne();
   void SetVerbose(Bool_t verb)            { fVerbose = verb  ;};
 	
   /** Get parameter containers **/

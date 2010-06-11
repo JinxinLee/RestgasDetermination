@@ -7,11 +7,11 @@
 #ifndef PNDMVDDIGITASK_H
 #define PNDMVDDIGITASK_H
 
-#include "FairTask.h"
+#include "PndBlackBoxTask.h"
 
 class TClonesArray;
 
-class PndMvdDigiTask : public FairTask
+class PndMvdDigiTask : public PndBlackBoxTask
 {
  public:
 
@@ -22,14 +22,6 @@ class PndMvdDigiTask : public FairTask
     /** Destructor **/
     virtual ~PndMvdDigiTask();
 
-
-    /** Virtual method Init **/
-    virtual void SetParContainers();
-    virtual InitStatus Init();
-    virtual InitStatus ReInit();
-
-    /** Virtual method Exec **/
-    virtual void Exec(Option_t* opt);
     
   void SetPersistance(Bool_t p = kTRUE);
   Bool_t GetPersistance() {return fPersistance;};

@@ -9,6 +9,7 @@
 #pragma link C++ class PndGeoHandling+;
 #pragma link C++ class PndSensorNameContFact+;
 #pragma link C++ class PndSensorNamePar+;
+#pragma link C++ class PndBlackBoxTask+;
 
 #endif
 

@@ -22,6 +22,8 @@ PndPidIdealAssociatorTask::~PndPidIdealAssociatorTask() {
 //___________________________________________________________
 PndPidIdealAssociatorTask::PndPidIdealAssociatorTask() {
   //---
+  fNeutralBranchName="PidAlgoIdealNeutral";
+  fChargedBranchName="PidAlgoIdealCharged";
   fPidChargedProb = new TClonesArray("PndPidProbability");
   fPidNeutralProb = new TClonesArray("PndPidProbability");
 }
@@ -30,9 +32,18 @@ PndPidIdealAssociatorTask::PndPidIdealAssociatorTask() {
 PndPidIdealAssociatorTask::PndPidIdealAssociatorTask(const char *name, const char *title)
 :FairTask(name) {
   //---
+  fNeutralBranchName="PidAlgoIdealNeutral";
+  fChargedBranchName="PidAlgoIdealCharged";
   fPidChargedProb = new TClonesArray("PndPidProbability");
   fPidNeutralProb = new TClonesArray("PndPidProbability");
 }
+
+void PndPidIdealAssociatorTask::SetToOnlyOne()
+{
+  fNeutralBranchName="PidNeutralProbability";
+  fChargedBranchName="PidChargedProbability";
+}
+
 
 //___________________________________________________________
 InitStatus PndPidIdealAssociatorTask::Init() {
@@ -40,14 +51,14 @@ InitStatus PndPidIdealAssociatorTask::Init() {
   //  cout << "InitStatus PndPidIdealAssociatorTask::Init()" << endl;
   
   FairRootManager *fManager =FairRootManager::Instance();	
-
+  
   // TODO: Am I allowed to write in these Arrays?
   fPidChargedCand = (TClonesArray *)fManager->GetObject("PidChargedCand");
   if ( ! fPidChargedCand) {
     std::cout << "-I- PndPidIdealAssociatorTask::Init: No PndPidCandidate array PidChargedCand there!" << std::endl;
     return kERROR;
   }
-
+  
   fPidNeutralCand = (TClonesArray *)fManager->GetObject("PidNeutralCand");
   if ( ! fPidNeutralCand) {
     std::cout << "-I- PndPidIdealAssociatorTask::Init: No PndPidCandidate array PidNeutralCand there!" << std::endl;
@@ -59,7 +70,7 @@ InitStatus PndPidIdealAssociatorTask::Init() {
     std::cout << "-I- PndPidIdealAssociatorTask::Init: No MC Track array there!" << std::endl;
     return kERROR;
   }
-    
+  
   Register();
   
   std::cout << "-I- PndPidIdealAssociatorTask::Init: Success!" << std::endl;
@@ -76,21 +87,20 @@ void PndPidIdealAssociatorTask::Exec(Option_t * option) {
   // CAUTION We use Monte-Carlo info here!
   
   if(fVerbose>1) std::cout << "-I- Start PndPidIdealAssociatorTask. "<<std::endl;
-
+  fPidChargedProb->Clear();
+  fPidNeutralProb->Clear();
   // Get the Candidates
   for(Int_t i=0; i<fPidChargedCand->GetEntriesFast(); i++){
     PndPidCandidate* pidcand = (PndPidCandidate*)fPidChargedCand->At(i);
-    TClonesArray& pidRef = *fPidChargedProb;
-    PndPidProbability* prob = new(pidRef[i]) PndPidProbability();// initializes with zeros
+    PndPidProbability* prob = new((*fPidChargedProb)[i]) PndPidProbability(0.,0.,0.,0.,0.,-1);// initializes with zeros
     prob->SetIndex(i);
-    if(fVerbose>1) std::cout<<"-I- PndPidIdealAssociatorTask Ch BEFORE  "<< pidcand->GetLorentzVector().M()<<std::endl;;
+    if(fVerbose>1) std::cout<<"-I- PndPidIdealAssociatorTask Charged BEFORE  "<< pidcand->GetLorentzVector().M()<<std::endl;;
     DoPidMatch(pidcand,prob);
-    if(fVerbose>1) std::cout<<"-I- PndPidIdealAssociatorTask Ch AFTER   "<< pidcand->GetLorentzVector().M()<<std::endl;;
+    if(fVerbose>1) std::cout<<"-I- PndPidIdealAssociatorTask Charged AFTER   "<< pidcand->GetLorentzVector().M()<<std::endl;;
   }
   for(Int_t i=0; i<fPidNeutralCand->GetEntriesFast(); i++){
     PndPidCandidate* pidcand = (PndPidCandidate*)fPidNeutralCand->At(i);
-    TClonesArray& pidRef = *fPidNeutralProb;
-    PndPidProbability* prob = new(pidRef[i]) PndPidProbability();// initializes with zeros
+    PndPidProbability* prob = new((*fPidNeutralProb)[i]) PndPidProbability(0.,0.,0.,0.,0.,-1);// initializes with zeros
     prob->SetIndex(i);
     DoPidMatch(pidcand,prob);
   }
@@ -152,16 +162,16 @@ void PndPidIdealAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProba
 void PndPidIdealAssociatorTask::Register() {
   //---
   FairRootManager::Instance()->
-  Register("PidAlgoIdealCharged","Pid", fPidChargedProb, kTRUE); 
+  Register(fChargedBranchName,"Pid", fPidChargedProb, kTRUE); 
   FairRootManager::Instance()->
-  Register("PidAlgoIdealNeutral","Pid", fPidNeutralProb, kTRUE);
+  Register(fNeutralBranchName,"Pid", fPidNeutralProb, kTRUE);
 }
 
 //_________________________________________________________________
 void PndPidIdealAssociatorTask::Finish() {
   //---
-//  FairRootManager* ioman = FairRootManager::Instance();
-//  ioman->W
+  //  FairRootManager* ioman = FairRootManager::Instance();
+  //  ioman->W
 }
 //_________________________________________________________________
 void PndPidIdealAssociatorTask::Reset() {

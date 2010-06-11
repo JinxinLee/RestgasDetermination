@@ -24,6 +24,7 @@ PndStringSeparator.cxx
 PndGeoHandling.cxx
 PndSensorNameContFact.cxx
 PndSensorNamePar.cxx
+PndBlackBoxTask.cxx
 )
 
 # fill list of header files from list of source files

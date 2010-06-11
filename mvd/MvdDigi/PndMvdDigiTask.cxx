@@ -12,17 +12,12 @@
 
 // -----   Default constructor   -------------------------------------------
 PndMvdDigiTask::PndMvdDigiTask() :
-  FairTask("MVD Digitization Task")
+  PndBlackBoxTask("MVD Digitization BlacBox Task")
 {
   this->Add(new PndMvdHybridHitProducer());
   this->Add(new PndMvdStripHitProducer());
   this->Add(new PndMvdNoiseProducer());
-
-  TList* thistasks = this->GetListOfTasks();
-  for(Int_t i=0;i<thistasks->GetEntries();i++)
-  {
-    ((FairTask*)thistasks->At(i))->SetVerbose(fVerbose);
-  }
+   
   fPersistance = kTRUE;
   SetPersistance(fPersistance);
 }
@@ -30,7 +25,6 @@ PndMvdDigiTask::PndMvdDigiTask() :
 
 void PndMvdDigiTask::SetPersistance(Bool_t pers)
 {
-  //TODO: This is not recursive 
   fPersistance = pers;
   TList* thistasks = this->GetListOfTasks();
   ((PndMvdHybridHitProducer*)thistasks->At(0))->SetPersistance(fPersistance);
@@ -44,31 +38,6 @@ PndMvdDigiTask::~PndMvdDigiTask()
 {
 }
 // -------------------------------------------------------------------------
-
-// -----   Initialization  of Parameter Containers -------------------------
-void PndMvdDigiTask::SetParContainers()
-{
-}
-
-InitStatus PndMvdDigiTask::ReInit()
-{
-  return kERROR;
-}
-
-// -----   Public method Init   --------------------------------------------
-InitStatus PndMvdDigiTask::Init()
-{
-  return kSUCCESS;
-}
-// -------------------------------------------------------------------------
-
-
-
-// -----   Public method Exec   --------------------------------------------
-void PndMvdDigiTask::Exec(Option_t* opt)
-{
-  return;
-}
 
 
 ClassImp(PndMvdDigiTask);
