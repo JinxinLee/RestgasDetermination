@@ -405,15 +405,19 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray, TClonesArray* heli
          aaa = sqrt( Px*Px + Py*Py);
          R =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
 
-         if( icode > 0 ) {
-           Cx = Ox  -Py*1000./(BFIELD*CVEL);    // MC truth X of center of circle of Helix trajectory
-           Cy = Oy + Px*1000./(BFIELD*CVEL);    // MC truth Y of center of circle of Helix trajectory
-         }  else {
-           Cx = Ox + Py*1000./(BFIELD*CVEL);    // MC truth X of center of circle of Helix trajectory
-           Cy = Oy - Px*1000./(BFIELD*CVEL);    // MC truth Y of center of circle of Helix trajectory
 
+
+
+         TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
+         TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
+       if (icode>1000000000) MCtruthTrkInfo[14][iMCTrack] = 1.;
+       else  MCtruthTrkInfo[14][iMCTrack] = fParticle->Charge()/3. ;    //   charge of track
+         if( MCtruthTrkInfo[14][iMCTrack] != 0 ) {
+    // MC truth X of center of circle of Helix trajectory
+           Cx = Ox + Py*1000./(BFIELD*CVEL*MCtruthTrkInfo[14][iMCTrack]);
+    // MC truth Y of center of circle of Helix trajectory
+           Cy = Oy - Px*1000./(BFIELD*CVEL*MCtruthTrkInfo[14][iMCTrack]);
          }
-
 
 
 
