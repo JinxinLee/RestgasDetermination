@@ -456,11 +456,6 @@ cout<<"verita MC,  traccia n. "<<iMCTrack<<", Ox, Oy,  Cx, Cy, D ,  R  ,  gamma 
          MCtruthTrkInfo[9][iMCTrack] = Cx;     //   Cx of Helix of track projected in XY plane
          MCtruthTrkInfo[10][iMCTrack] = Cy;    //   Cy of Helix of track projected in XY plane
          MCtruthTrkInfo[11][iMCTrack] = icode ;    //   PDG code of track
-
-         TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
-         TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
-         MCtruthTrkInfo[14][iMCTrack] = fParticle->Charge()/3. ;    //   charge of track
-
          MCtruthTrkInfo[12][iMCTrack] = -MCtruthTrkInfo[14][iMCTrack]*0.001*BFIELD*CVEL/
                                          MCtruthTrkInfo[5][iMCTrack] ;    //   KAPPA of Helix of track in cm*-1
 //                                         fabs(MCtruthTrkInfo[5][iMCTrack]) ;    //   KAPPA of Helix of track in cm*-1
