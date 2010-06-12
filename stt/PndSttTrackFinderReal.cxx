@@ -1773,7 +1773,7 @@ if( istampa>=2){
        Xpos_for_LHeTrack[  infoparal[ ListHitsinTrack[i][j] ]  ]=Posiz[0];
        Ypos_for_LHeTrack[  infoparal[ ListHitsinTrack[i][j] ]  ]=Posiz[1];
        Zpos_for_LHeTrack[  infoparal[ ListHitsinTrack[i][j] ]  ]=Posiz[2];
-if(istampa>=3)  cout<<"DoFind, paralleli, infoparal[ ListHitsinTrack[i][j] ] = "<<
+if(istampa>=3)  cout<<"da PndSttTrackFinderReal: DoFind, paralleli, infoparal[ ListHitsinTrack[i][j] ] = "<<
        infoparal[ ListHitsinTrack[i][j] ]<<
        ", X = "<<
        Posiz[0]<<
@@ -11595,7 +11595,7 @@ if( istampa>= 3 && IVOLTE<20) cout<<"  evento n. "<<IVOLTE<<", imc = "<<imc<<", 
    Posiz[1] = info[infopar][1] + info[infopar][3]*vers[1]/norm;
 
    if( fabs(KAPPA)<1.e-20 ){
-     Posiz[0] = -888888888.;
+     Posiz[2] = -888888888.;
      return;
    }
 
