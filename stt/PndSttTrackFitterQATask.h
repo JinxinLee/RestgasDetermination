@@ -59,7 +59,7 @@ class PndSttTrackFitterQATask : public FairTask
   TClonesArray* fTubeArray;
 
   // histograms
-  TH1F *hptfit, *hplfit, *hptotfit, *hptfound, *hplfound, *hptotfound, *hresx, *hresy, *hresz, *hx, *hy, *hz, *hxs, *hys, *hzs, *hDist, *hRad, *hPhi, *hTanL, *hZ;
+  TH1F *hptfit, *hplfit, *hptotfit, *hptfound, *hplfound, *hptotfound, *hresx, *hresy, *hresz, *hx, *hy, *hz, *hxs, *hys, *hzs, *hDist, *hRad, *hPhi, *hTanL, *hZ, *hpxfit, *hpyfit, *hpzfit, *hQ;
 
   PndGeoSttPar *fSttParameters;  //  CHECK added
  

@@ -61,10 +61,16 @@ InitStatus PndSttTrackFitterQATask::Init()
   hTanL = new TH1F("hTanL", "TanL fit: mc - reco", 100, -0.2, 0.2);
   hZ    = new TH1F("hZ", "Z fit: mc - reco", 100, -0.3, 0.3);
  
+  hQ    = new TH1F("hQ", "Q fit: mc + reco", 6, -3, 3);
+ 
   hptfound = new TH1F("hptfound", "pt found: mc - reco", 100, -0.3, 0.3);
   hplfound = new TH1F("hplfound", "pl found: mc - reco", 100, -0.4, 0.4);
   hptotfound = new TH1F("hptotfound", "ptot found: mc - reco", 100, -0.3, 0.3);
  
+  hpxfit = new TH1F("hpxfit", "px fit: mc - reco", 100, -0.3, 0.3);
+  hpyfit = new TH1F("hpyfit", "py fit: mc - reco", 100, -0.3, 0.3);
+  hpzfit = new TH1F("hpzfit", "pz fit: mc - reco", 100, -0.4, 0.4);
+  
   hresx = new TH1F("hresx", "x: mc - reco", 100, -0.2, 0.2);
   hresy = new TH1F("hresy", "y: mc - reco", 100, -0.2, 0.2);
   hresz = new TH1F("hresz", "z: mc - reco", 100, -3, 3);
@@ -205,6 +211,10 @@ void PndSttTrackFitterQATask::Exec(Option_t* opt)
     if(!mcTrack) continue;
     TVector3 mcmom = mcTrack->GetMomentum();       
     TVector3 vertex = mcTrack->GetStartVertex();       
+
+    int mcQ = (int)((TDatabasePDG::Instance())->GetParticle(mcTrack->GetPdgCode())->Charge()/3.);
+    hQ->Fill(- h + mcQ);
+
  
     hptfit->Fill(ptran - mcmom.Perp());
     hplfit->Fill(plong - mcmom.Z());
@@ -213,6 +223,15 @@ void PndSttTrackFitterQATask::Exec(Option_t* opt)
     hptfound->Fill(foundMom.Perp() - mcmom.Perp());
     hplfound->Fill(foundMom.Z() - mcmom.Z());
     hptotfound->Fill(foundMom.Mag() - mcmom.Mag());
+
+    // === momentum coordinates ===
+    TVector3 fitmom(ptran * TMath::Cos(phi0 - h * TMath::Pi()/2.),
+		    ptran * TMath::Sin(phi0 - h * TMath::Pi()/2.), 
+		    plong);
+    
+    hpxfit->Fill(fitmom.X() - mcmom.X());
+    hpyfit->Fill(fitmom.Y() - mcmom.Y());
+    hpzfit->Fill(fitmom.Z() - mcmom.Z());
 
 
     // ================= parameters residual ========================
@@ -303,6 +322,13 @@ void PndSttTrackFitterQATask::WriteHistograms()
   hptotfit->Write();
   delete hptotfit;
 
+  hpxfit->Write();
+  delete hpxfit;
+  hpyfit->Write();
+  delete hpyfit;
+  hpzfit->Write();
+  delete hpzfit;
+
   hDist->Write();
   delete hDist;
   hRad->Write();
@@ -313,6 +339,8 @@ void PndSttTrackFitterQATask::WriteHistograms()
   delete hTanL;
   hZ->Write();
   delete hZ;
+  hQ->Write();
+  delete hQ;
 
 
   hptfound->Write();
