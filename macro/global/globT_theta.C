@@ -45,8 +45,8 @@ void globT_theta(Int_t pid = 13, Double_t theta = 5., Int_t nStations = 3) {
   // ------------------------------------------------------------------------
 
   // -----  Parameter database   --------------------------------------------
-  TString allDigiFile = sysFile+"/macro/params/allShort.par";
-  if ( nStations == 4 ) allDigiFile = sysFile+"/macro/params/all4Short.par";
+  TString allDigiFile = sysFile+"/macro/params/all.par";
+  if ( nStations == 4 ) allDigiFile = sysFile+"/macro/params/all4.par";
 
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();

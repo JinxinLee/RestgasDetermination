@@ -63,7 +63,7 @@ void sim_theta(Int_t nEvents=1000, Int_t pid=13, Double_t theta=5., Int_t nStati
 //   fRun->AddModule(Tpc);
   //-------------------------  GEM       -----------------
   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
-  Gem->SetGeometryFileName(Form("gem_%dStationsShort.root",nStations));
+  Gem->SetGeometryFileName(Form("gem_%dStations.root",nStations));
   fRun->AddModule(Gem);
   //-------------------------  DRC       -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
