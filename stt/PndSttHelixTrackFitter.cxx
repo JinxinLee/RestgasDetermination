@@ -1721,7 +1721,7 @@ void PndSttHelixTrackFitter::OrderHitsByR(map<Double_t, Int_t> &hitMap)
 	// tubeID  CHECK added
 	Int_t tubeID = pMhit->GetTubeID();
 	PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
-
+	if(tube->GetWireDirection() != TVector3(0., 0., 1.)) continue;
 	//	hitMap[sqrt(pMhit->GetX() * pMhit->GetX() + pMhit->GetY() * pMhit->GetY())] = iHit;
 	hitMap[tube->GetPosition().Perp()] = iHit;
       }
