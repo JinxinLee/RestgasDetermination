@@ -184,11 +184,17 @@ Int_t PndSttHelixTrackFitter::DoFitPlain(PndTrackCand* pTrackCand, PndSttTrack* 
   }
   
   if(fVerbose == 2) {
-    cout << "param last x: "  << fTrack->GetDist() << endl;
-    cout << "param last y: "  << fTrack->GetPhi() << endl;
-    cout << "param last tx: " << fTrack->GetRad() << endl;
-    cout << "param last ty: " << fTrack->GetTanL() << endl;
-    cout << "param last qp: " << fTrack->GetCharge() << endl;
+      cout << "param last d    : "  << fTrack->GetDist() << endl;
+      cout << "param last phi  : "  << fTrack->GetPhi() << endl;
+      cout << "param last R    : " << fTrack->GetRad() << endl;
+      cout << "param last tanL : " << fTrack->GetTanL() << endl;
+      cout << "param last q    : " << fTrack->GetCharge() << endl;
+      double pt, pl;
+      pt = fTrack->GetRad() * 0.006;
+      pl = fTrack->GetRad() * fTrack->GetTanL() * 0.006;
+      cout << "pT              : " << pt << endl;
+      cout << "pL              : " << pl << endl;
+      cout << "px, py, pz      : " << pt * cos(-h * TMath::Pi()/2. + fTrack->GetPhi()) << " " << pt * sin(-h * TMath::Pi()/2. + fTrack->GetPhi()) << " " << pl << endl;
   }
 
   if( fDisplayLevel > 0) FinishEventDisplay(fTrack);
@@ -2772,13 +2778,19 @@ Int_t PndSttHelixTrackFitter::DoFitThroughOrigin(PndTrackCand* pTrackCand, PndSt
   }
   
   if(fVerbose == 2) {
-    cout << "param last x: "  << fTrack->GetDist() << endl;
-    cout << "param last y: "  << fTrack->GetPhi() << endl;
-    cout << "param last tx: " << fTrack->GetRad() << endl;
-    cout << "param last ty: " << fTrack->GetTanL() << endl;
-    cout << "param last qp: " << fTrack->GetCharge() << endl;
+    cout << "param last d    : "  << fTrack->GetDist() << endl;
+    cout << "param last phi  : "  << fTrack->GetPhi() << endl;
+    cout << "param last R    : " << fTrack->GetRad() << endl;
+    cout << "param last tanL : " << fTrack->GetTanL() << endl;
+    cout << "param last q    : " << fTrack->GetCharge() << endl;
+    double pt, pl;
+    pt = fTrack->GetRad() * 0.006;
+    pl = fTrack->GetRad() * fTrack->GetTanL() * 0.006;
+    cout << "pT              : " << pt << endl;
+    cout << "pL              : " << pl << endl;
+    cout << "px, py, pz      : " << pt * cos(-h * TMath::Pi()/2. + fTrack->GetPhi()) << " " << pt * sin(-h * TMath::Pi()/2. + fTrack->GetPhi()) << " " << pl << endl;
   }
-
+  
 
   if(fDisplayLevel > 0) FinishEventDisplay(fTrack);
   
