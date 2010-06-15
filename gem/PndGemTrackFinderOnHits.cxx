@@ -749,8 +749,9 @@ Int_t PndGemTrackFinderOnHits::FindTrackSegments(TClonesArray* hitArray, Int_t s
       if ( fVerbose > 4 || printInfo )
 	cout << "STRONG CORRELATION FOR THIS HIT!!!" << endl;
       // calculate phi and momentum basing on the pangle-pangle2;
-      Double_t trackMomentum = (par0_mom+par1_mom*radius)/((pangle-pangle2)*TMath::RadToDeg());
-      if ( pangle == pangle2 ) trackMomentum = 666.;
+      Double_t trackMomentum = 666.;
+      if ( (pangle-pangle2) != 0 ) 
+	trackMomentum = (par0_mom+par1_mom*radius)/((pangle-pangle2)*TMath::RadToDeg());;
       if ( fVerbose > 3 || printInfo )
 	cout << "calculated track momentum is " << trackMomentum << endl;
       Double_t trackPhiAngle = pangle+(pangle-pangle2)*zDiffRatio; 
