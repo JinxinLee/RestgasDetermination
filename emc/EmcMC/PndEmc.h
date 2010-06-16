@@ -16,7 +16,7 @@
 class TClonesArray;
 class PndEmcPoint;
 class FairVolume; 
-class TGeoNode; 
+class TGeoNode;
 
 class PndEmc : public FairDetector 
 {

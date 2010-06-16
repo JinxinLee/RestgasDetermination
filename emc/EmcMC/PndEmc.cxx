@@ -40,7 +40,7 @@
 #include "FairGeoMedium.h"
 #include "PndStack.h"
 #include "TString.h"
-
+//#include "TGeant3.h"
 #include <iostream>
 
 using std::cout;
@@ -410,6 +410,9 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
 		  nRow = ModCopy%100;
 		  nMod = 5;
 		  copyNo = 1;
+//		  TGeant3* gMC3 = (TGeant3*) gMC;
+//		  gMC3->Gpcxyz(); //a simple test
+
 	//	  sscanf(ModName,"FscModuleVolume_%d_%d", &nCrys, &nRow);//x - Crys(Column), y - Row
 	  }
 	  else if (nam.Contains("FscFiberVolume")){
@@ -883,7 +886,7 @@ void PndEmc::ConstructRootGeomMod5() {
   gGeoManager->GetListOfMatrices()->Remove(global); //Remove the Identity matrix
 
   TGeoRotation rotFsc;
-  Cave->AddNode(Fsc,0, new TGeoCombiTrans(0., 0., 760., new TGeoRotation(rotFsc)));
+  Cave->AddNode(Fsc,0, new TGeoCombiTrans(0., 0., 818.775, new TGeoRotation(rotFsc)));
 
   ExpandNode(Fsc,Cave);
 
