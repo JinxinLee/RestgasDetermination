@@ -390,8 +390,8 @@ PndEmcMapperGeo5Root::PndEmcMapperGeo5Root()
 	iTheta = iPhi = detId = detId_tmp =iX = iY = 0;
 
 	Int_t module=5;
-	for (Int_t row=1; row<=14;row++)
-		for (Int_t crystal=1; crystal<=27;crystal++)
+	for (Int_t row=1; row<=28;row++)
+		for (Int_t crystal=1; crystal<=54;crystal++)
 	      {
 				Int_t copy = 1;
 				iX = row;
@@ -583,8 +583,8 @@ PndEmcMapperGeo12Dat345Root::PndEmcMapperGeo12Dat345Root()
 		}
 		if (module ==5)
 		{
-			for (Int_t row=1; row<=14;row++)
-				for (Int_t crystal=1; crystal<=27;crystal++)
+			for (Int_t row=1; row<=28;row++)
+				for (Int_t crystal=1; crystal<=54;crystal++)
 			      {
 						Int_t copy = 1;
 						iX = row;
