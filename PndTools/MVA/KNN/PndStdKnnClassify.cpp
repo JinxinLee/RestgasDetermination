@@ -66,10 +66,19 @@ void PndStdKnnClassify::GetMvaValues(vector<float> eventData,
 	 << endl;
     assert (m_Knn != 0);
   }
-
+  // Get variables.
   const vector<PndMvaVariable>& vars = m_dataSets.GetVars();
+  // Get labels.
   const vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+  // Get examples.
   const vector<pair<string, vector<float>*> >& events = m_dataSets.GetData();
+
+  if(m_Knn > events.size())
+  {
+    cerr << "<ERROR> Requested number of Neighbours is too large."
+	 << endl;
+    assert(m_Knn <= events.size());
+  }
 
   // Initialize results
   result.clear();
@@ -104,14 +113,7 @@ void PndStdKnnClassify::GetMvaValues(vector<float> eventData,
 
   //All distances are determined
   sort(m_distances.begin(), m_distances.end());
-  
-  if(m_Knn > m_distances.size())
-  {
-    cerr << "<ERROR> Requested number of Neighbours is too large."
-	 << endl;
-    assert(m_Knn <= m_distances.size());
-  }
-  
+    
   for(size_t id = 0; id < m_Knn; id++)
   {
     string clas = (m_distances[id]).m_cls; //Find the Object class

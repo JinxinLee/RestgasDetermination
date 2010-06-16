@@ -1,10 +1,12 @@
 //pi+ = 211, pi- = -211, mu+ = -13, mu- = 13, K+ = 321, K- = -321, K0L = 130
 //pi0 = 111, gamma = 22, e- = 11, e+ = -11, proton = 2212, protonMin = -2212
 
-void sim_sttcombi_pgun(int nEvents = 10, int pid  = 11, 
-		       float p1 = 0.8, float p2 = 0.86)
+void sim_sttcombi_pgun( int seed = 87619, int nEvents = 10, int pid  = 11, 
+			float p1 = 1.0, float p2 = 1.5,
+			Char_t paramFile [] = "params_sttcombi.root", 
+			Char_t outFile   [] = "points_sttcombi.root"
+			)
 {
-  unsigned int seed = 9235;
   gRandom->SetSeed(seed);
   
   std::cerr << "Seed is " << seed << std::endl;
@@ -21,7 +23,7 @@ void sim_sttcombi_pgun(int nEvents = 10, int pid  = 11,
   rootlogon();
   
   TString digiFile = "all.par";
-  TString parFile = "params_sttcombi.root";
+  TString parFile = paramFile;
   
   FairRunSim* fRun = new FairRunSim();
   
@@ -31,7 +33,7 @@ void sim_sttcombi_pgun(int nEvents = 10, int pid  = 11,
   fRun->SetName("TGeant3");
   //fRun->SetName("TGeant4");
   
-  fRun->SetOutputFile("points_sttcombi.root");
+  fRun->SetOutputFile(outFile);
   
   // Set the parameters
   //-------------------------------
@@ -140,10 +142,12 @@ void sim_sttcombi_pgun(int nEvents = 10, int pid  = 11,
 
   // EMC Hit producer
   //-------------------------------
-  PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
-  emcHitProd->SetStorageOfData(kTRUE);
-  fRun->AddTask(emcHitProd);
-
+  /*
+    PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
+    emcHitProd->SetStorageOfData(kTRUE);
+    fRun->AddTask(emcHitProd);
+  */
+  
   /**Initialize the session*/
   fRun->Init();
   

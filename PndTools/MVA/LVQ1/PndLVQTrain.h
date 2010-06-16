@@ -16,7 +16,7 @@
 #include "PndMvaTrainer.h"
 #include "PndMvaCluster.h"
 
-// How to initialize LVQ code books.
+//! How to initialize LVQ code books.
 typedef enum {RANDOM_PR = 0, KMEANS_PR = 1, FILE_PR = 2} ProtoInitType;
 
 //! Interface definition for LVQ trainers.
@@ -91,7 +91,14 @@ class PndLVQTrain: public PndMvaTrainer
    *@param numProto  Number of prototypes.
    */  
   inline void SetNumberOfProto(const unsigned int numProto)
-  {m_numProto = numProto; };
+  { m_numProto = numProto; };
+
+  /**
+   * Set how often the classifier has to be evaluated.
+   *@param val Evaluate after #val steps.
+   */
+  inline void SetErrorStepSize(unsigned int val)
+  { m_ErrorStep = val; };
 
   //----------------------------------------
   //================== private =============

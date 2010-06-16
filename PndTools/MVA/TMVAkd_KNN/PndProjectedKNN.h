@@ -31,11 +31,11 @@ class PndProjectedKNN: public PndGpidClassifier
 
   //! Set params
   inline void SetEvtParam(const float scFact, const double weight)
-  {m_ScaleFact = scFact; m_weight = weight; };
+  { m_ScaleFact = scFact; m_weight = weight; };
   
   //! Set number of neighbors
   inline void SetKnn(const unsigned int N)
-  {m_knn = N;};
+  { m_knn = N; };
 
   //! Init classifiers
   void InitKNN();

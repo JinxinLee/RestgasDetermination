@@ -58,7 +58,8 @@ class PndKnnClassify: public PndGpidClassifier
   {m_ScaleFact = scFact; m_weight = weight; };
 
   //! Set the number of neighbours.
-  inline void SetKnn(const int N){m_knn = N;};
+  inline void SetKnn(const int N)
+  { m_knn = N; };
 
   /**
    * Initialize the KNN classifier.
@@ -79,7 +80,7 @@ class PndKnnClassify: public PndGpidClassifier
   typedef std::list < std::pair<const TMVA::kNN::Node<TMVA::kNN::Event>*, float> > ResList;
 
   //!< Number of required neighbours.
-  int m_knn;
+  unsigned int m_knn;
   float m_ScaleFact;//!< Scalefactor Default =  0.8
   double m_weight;//!< Event weight
   TMVA::kNN::ModulekNN* m_module;

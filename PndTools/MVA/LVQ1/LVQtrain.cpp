@@ -85,7 +85,8 @@ int main(int argc, char** argv)
 
   tr.SetLearnPrameters(initC, ethaZ, ethaF, numSweep);
   tr.SetNumberOfProto(numProto);
-  tr.splitTetsSet(10);//10 % (DEFAULT)
+  tr.splitTetsSet(10);//10% (DEFAULT)
+  tr.SetErrorStepSize(1000);//100 (DEFALUT)
 
   //VARX, MINMAX, MEDIAN, NONE(DEFAULT)
   tr.NormalizeData(NONE);
@@ -94,7 +95,7 @@ int main(int argc, char** argv)
   tr.SetInitProtoFileName("InitialProto.root");
   
   // FILE_PR, KMEANS_PR, RANDOM_PR (DEFAULT)
-  tr.setProtoInitType(RANDOM_PR);
+  tr.setProtoInitType(KMEANS_PR);
   
   std::string OutFile = ot;
   tr.SetOutPutFile(ot);

@@ -51,9 +51,22 @@ void PndProjectedKNN::GetMvaValues(vector<float> eventData,
     return;
   }
 
+  // Get variables.
   const vector<PndMvaVariable>& vars = m_dataSets.GetVars();
+  
+  // Get labels.
   const vector<PndMvaClass>& classes = m_dataSets.GetClasses();
   
+  // Get examples.
+  const vector<pair<string, vector<float>*> >& events = m_dataSets.GetData();
+  
+  if( m_knn > events.size() )
+  {
+    cerr << "<ERROR> Requested number of Neighbours is too large."
+	 << endl;
+    assert( m_knn <= events.size() );
+  }
+
   // Initialize results
   result.clear();
   for(size_t cls = 0; cls < classes.size(); cls++)

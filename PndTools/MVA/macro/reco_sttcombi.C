@@ -1,17 +1,22 @@
+void reco_sttcombi(char inDigiFile [] = "digi_sttcombi.root",   //Input file Digi
+                   char inSimFile  [] = "points_sttcombi.root", // Input file Sim
+                   char parFile    [] = "params_sttcombi.root",     // Parameter file
+                   char outFile    [] = "reco_sttcombi.root" // Output file
+                   )
 {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
   
   // Input file
-  TString inDigiFile = "digi_sttcombi.root";
-  TString inSimFile = "points_sttcombi.root";
+  TString inDigiFile = inDigiFile;
+  TString inSimFile  = inSimFile;
   
   // Parameter file
-  TString parFile = "params_sttcombi.root";
+  TString parFile = parFile;
   
   // Output file
-  TString outFile = "reco_sttcombi.root";
+  TString outFile = outFile;
   
   // Number of events to process
   Int_t nEvents = 0;
@@ -43,10 +48,10 @@
   
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
-  parInput1->open(parFile.Data());
+  parInput1->open(parFile);
   
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
-  parIo1->open(allDigiFile.Data(),"in");
+  parIo1->open(allDigiFile,"in");
   
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);

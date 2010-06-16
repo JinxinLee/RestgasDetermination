@@ -5,8 +5,8 @@
  * LICENSE:                              *
  * ***************************************
  */
-#define ProgStep  1000
-#define ErrorStep 10
+
+#define ProgStep  10000
 
 #include "PndLVQTrain.h"
 
@@ -26,7 +26,7 @@ PndLVQTrain::PndLVQTrain(const std::string& inputFile,
     m_numProto(0),
     m_proto_init(RANDOM_PR),
     m_initProtoFile(""),
-    m_ErrorStep(0)
+    m_ErrorStep(100)
 {}
 
 /**
@@ -103,7 +103,7 @@ void PndLVQTrain::Train()
       std::cerr << ". " ;
     }
 
-    if( (time % ErrorStep) == 0)
+    if( (time % m_ErrorStep) == 0)
     {
       EvalClassifierError(time);
     }
@@ -219,7 +219,7 @@ void PndLVQTrain::Train21()
     {
       std::cerr << " ." ;
     }
-    if( (time % ErrorStep) == 0)
+    if( (time % m_ErrorStep) == 0)
     {
       EvalClassifierError(time);
     }
