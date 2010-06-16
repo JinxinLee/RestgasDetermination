@@ -9,20 +9,20 @@
   //-----------------------------
   Double_t     beamlineangle =  -TMath::DegToRad()*0.0; //in rad
   const Double_t     zpos          =  760.0;
-  const Int_t        numcellsx     =  27;
-  const Int_t        numcellsy     =  14;
+  const Int_t        numcellsx     =  54;
+  const Int_t        numcellsy     =  28;
   const Double_t     tyvekbundle   =  0.025;
   const Double_t     paperbundle   =  0.025;
   Double_t     crystalspace  =  tyvekbundle+paperbundle;
-  const Double_t     Absorb_xsize  =  11.0;
-  const Double_t     Absorb_ysize  =  11.0;
+  const Double_t     Absorb_xsize  =  5.5;
+  const Double_t     Absorb_ysize  =  5.5;
   const Double_t     Air_thickness =  0.0;
   const Double_t     Pb_thickness  =  0.0275;
   const Double_t     Sci_thickness =  0.15;
-  const Double_t     Sci_xsize     =  11.0;
-  const Double_t     Sci_ysize     =  11.0;
+  const Double_t     Sci_xsize     =  5.5;
+  const Double_t     Sci_ysize     =  5.5;
   const Int_t        EMCnumlayers  =  380;
-  const Int_t        numfibers     =  12;
+  const Int_t        numfibers     =  6;
   const Double_t     fiber_r       =  0.06;
   const Double_t     fiber_hole_r  =  0.07;
 
@@ -37,10 +37,10 @@
   Double_t  thickness      = cell_thickness*EMCnumlayers + 2.*crystalspace;
   Double_t  holder_thickness = cell_thickness*EMCnumlayers;
 
-  Double_t     hole_xsize    =  2.*cellxsize;
-  Double_t     hole_ysize    =  2.*cellysize;
+  Double_t     hole_xsize    =  4.*cellxsize;
+  Double_t     hole_ysize    =  4.*cellysize;
   //position of the hole means - coordinate of its center
-  Double_t     hole_xpos     = 1.5*cellxsize; //Must be left to the beam line (check??)
+  Double_t     hole_xpos     = 3.0*cellxsize; //Must be left to the beam line (check??)
   Double_t     hole_ypos     =  0.0;
 
 
@@ -152,25 +152,6 @@
 	   name += iz-1;
 	   TyvekVolume->AddNode(LayerHolderVolume,iz-1,iCombTrans);
    }
-//
-//   //Building and placing Lead + Scint layer inside holder Volume
-//   name = "FscLeadShape";
-//   TGeoShape* LeadShape = new TGeoBBox(name, cellxsize/2. - crystalspace, cellysize/2. - crystalspace, Pb_thickness/2.);
-//   name = "FscLeadVolume";
-//   medium = "lead";
-//   TGeoVolume* LeadVolume = new TGeoVolume(name, LeadShape, gGeoMan->GetMedium(medium));
-//   LeadVolume->SetLineColor(4);
-//   iCombTrans = new TGeoCombiTrans(0,0,-cell_thickness/2.+Pb_thickness/2., new TGeoRotation(rot));
-//   LayerHolderVolume->AddNode(LeadVolume,0,iCombTrans);
-//
-//   name = "FscSciShape";
-//   TGeoShape* SciShape = new TGeoBBox(name, cellxsize/2. - crystalspace, cellysize/2. - crystalspace, Sci_thickness/2.);
-//   name = "FscSciVolume";
-//   medium = "FscScint";
-//   TGeoVolume* SciVolume = new TGeoVolume(name, SciShape, gGeoMan->GetMedium(medium));
-//   SciVolume->SetLineColor(5);
-//   iCombTrans = new TGeoCombiTrans(0,0,cell_thickness/2.-Sci_thickness/2., new TGeoRotation(rot));
-//   LayerHolderVolume->AddNode(SciVolume,0,iCombTrans);
 
    Int_t iCopy = 0;
    Double_t x,y;
