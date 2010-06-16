@@ -80,7 +80,7 @@ class PndSttHelixTrackFitter : public PndSttTrackFitter
   // zfit
   Int_t ZFit(PndTrackCand* pTrackCand, Int_t whatToFit);
   Int_t ZFitThroughOrigin(PndTrackCand* pTrackCand, Int_t whatToFit);
- 
+  TVector3 FindCorrectZ(TObjArray* choices, Double_t x_0, Double_t y_0, Double_t x0, Double_t y0, Double_t R);
   Int_t DoFit(PndTrackCand* pTrackCand, PndSttTrack* pTrack, Int_t pidHypo = 211);
   // plain = with no constraint
   Int_t DoFitPlain(PndTrackCand* pTrackCand, PndSttTrack* pTrack, Int_t pidHypo = 211);

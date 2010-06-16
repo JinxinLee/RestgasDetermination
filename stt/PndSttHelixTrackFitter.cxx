@@ -2216,7 +2216,13 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
   // ============
 
   TVector3 *tofit, *tofit2;
- 
+   
+  // from xy plane fit
+  Double_t phi0 = fTrack->GetPhi();
+  Double_t d0 = fTrack->GetDist();
+  Double_t x0 = d0*TMath::Cos(phi0);
+  Double_t y0 = d0*TMath::Sin(phi0);
+
   // centre of curvature
   Double_t x_0 = (fTrack->GetDist() + fTrack->GetRad()) * cos(fTrack->GetPhi());
   Double_t y_0 = (fTrack->GetDist() + fTrack->GetRad()) * sin(fTrack->GetPhi());
@@ -2272,11 +2278,6 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
     Double_t x2 = -9999.;
     Double_t y2 = -9999.;
 
-    // from xy plane fit
-    Double_t phi0 = fTrack->GetPhi();
-    Double_t d0 = fTrack->GetDist();
-    Double_t x0 = d0*TMath::Cos(phi0);
-    Double_t y0 = d0*TMath::Sin(phi0);
     // in xy plane: angle of the PCA to the origin
     // with respect to the curvature center
     Double_t Phi0 = TMath::ATan2((y0 - y_0),(x0 - x_0));
@@ -2467,11 +2468,11 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
 	}
 	
  	// ------- HOUGH TRANSFORM ------------
-	// FIRST CHOICE
-	if(tofit) HoughThroughOrigin(tofit, Phi0, x0, y0, R); // CHECK
+// 	// FIRST CHOICE
+// 	if(tofit) HoughThroughOrigin(tofit, Phi0, x0, y0, R); // CHECK
 	
-	// SECOND CHOICE
-	if(tofit2) HoughThroughOrigin(tofit2, Phi0, x0, y0, R); // CHECK
+// 	// SECOND CHOICE
+// 	if(tofit2) HoughThroughOrigin(tofit2, Phi0, x0, y0, R); // CHECK
 
       }
     
@@ -2480,8 +2481,8 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
   //  cout << "skewed: " << wireOk << endl;
 
 
-  TVector3 outz = GetHoughResponseThroughOrigin(); // CHECK
-
+//   TVector3 outz = GetHoughResponseThroughOrigin(); // CHECK
+  TVector3 outz = FindCorrectZ(ZPointsArray, x_0, y_0, x0, y0, R); // CHEC
   if(fDisplayLevel >= 3) {
     eventCanvas->cd(2);
 
@@ -3000,5 +3001,50 @@ void PndSttHelixTrackFitter::FinishEventDisplay(PndSttTrack *track)
 
 }
 
+
+TVector3 PndSttHelixTrackFitter::FindCorrectZ(TObjArray* choices, Double_t x_0, Double_t y_0, Double_t x0, Double_t y0, Double_t R)
+{
+
+  int hitcounter = choices->GetEntriesFast();
+  TH1F hlocal("hlocal", "", 200, -0.001, 6.281);
+  Double_t Phi0 = TMath::ATan2((y0 - y_0),(x0 - x_0));
+
+  TMatrixT<double> found_atan(hitcounter, 1);
+  for(int i = 0; i < hitcounter; i++) {
+
+    TVector3 *choice = (TVector3*) choices->At(i);
+    
+    Double_t y = choice->Z();  
+
+    Double_t x = h * R * TMath::ATan2((choice->Y() - y0)*TMath::Cos(Phi0) - (choice->X() - x0)*TMath::Sin(Phi0) , R + (choice->X() - x0) * TMath::Cos(Phi0) + (choice->Y()-y0) * TMath::Sin(Phi0));
+ 
+//     TVector2 pos(choice->X() - x_0, choice->Y() - y_0);
+//     TVector2 piv(x0 - x_0, y0 - y_0);
+//     double alpha = TMath::ACos((pos.X() * piv.X() + pos.Y() * piv.Y()) / (pos.Mod() * piv.Mod()));
+//     Double_t x = R * alpha;
+
+    // the straingt line starting from (0, 0) is y = m * x;
+    double atang = TMath::ATan2(y, x);
+    if(y < 0) atang += (2 * TMath::Pi());
+    found_atan[i][0] = atang;
+
+    if(fDisplayLevel >= 4) hougcon->Fill(found_atan[i][0]);
+    hlocal.Fill(found_atan[i][0]);
+    //    cout << "m " << i << " " << found_atan[i][0] * TMath::RadToDeg() << endl;
+  }
+  
+  if(fDisplayLevel >= 4) {
+    eventDetails->cd(2);
+    hougcon->Draw();
+  }
+  
+  double foundatan = hlocal.GetBinCenter(hlocal.GetMaximumBin());
+  //  cout << "found atan " << foundatan << " " <<  hlocal.GetMaximumBin() << endl;
+
+  TVector3 foundz(TMath::Tan(foundatan), 0, hlocal.GetMaximumBin());
+  
+  return foundz;
+  
+}
 
 ClassImp(PndSttTrackFitter)
