@@ -55,6 +55,10 @@ InitStatus PndSttTrackFitterQATask::Init()
   hplfit   = new TH1F("hplfit", "pl fit: mc - reco", 100, -0.4, 0.4);
   hptotfit = new TH1F("hptotfit", "ptot fit: mc - reco", 100, -0.3, 0.3);
 
+  hptfit_perc = new TH1F("hptfit_perc", "pt fit: (mc - reco) / mc", 100, -0.3, 0.3);
+  hplfit_perc = new TH1F("hplfit_perc", "pl fit: (mc - reco) / mc", 100, -0.4, 0.4);
+  hptotfit_perc = new TH1F("hptotfit_perc", "ptot fit: (mc - reco) / mc", 100, -0.3, 0.3);
+ 
   hDist = new TH1F("hDist", "Dist fit: mc - reco", 100, -1., 1.);
   hRad  = new TH1F("hRad", "Rad fit: mc - reco", 100, -15., 15.);
   hPhi  = new TH1F("hPhi", "Phi fit: mc - reco", 100, -0.1, 0.1);
@@ -66,6 +70,10 @@ InitStatus PndSttTrackFitterQATask::Init()
   hptfound = new TH1F("hptfound", "pt found: mc - reco", 100, -0.3, 0.3);
   hplfound = new TH1F("hplfound", "pl found: mc - reco", 100, -0.4, 0.4);
   hptotfound = new TH1F("hptotfound", "ptot found: mc - reco", 100, -0.3, 0.3);
+
+  hptfound_perc = new TH1F("hptfound_perc", "pt found: (mc - reco) / mc", 100, -0.3, 0.3);
+  hplfound_perc = new TH1F("hplfound_perc", "pl found: (mc - reco) / mc", 100, -0.4, 0.4);
+  hptotfound_perc = new TH1F("hptotfound_perc", "ptot found: (mc - reco) / mc", 100, -0.3, 0.3);
  
   hpxfit = new TH1F("hpxfit", "px fit: mc - reco", 100, -0.3, 0.3);
   hpyfit = new TH1F("hpyfit", "py fit: mc - reco", 100, -0.3, 0.3);
@@ -209,6 +217,7 @@ void PndSttTrackFitterQATask::Exec(Option_t* opt)
     Int_t mcIndex = pTrackCand->getMcTrackId();
     mcTrack = (PndMCTrack *) fMCTrackArray->At(mcIndex);
     if(!mcTrack) continue;
+    // if(mcTrack->GetMotherID() != -1)  continue;
     TVector3 mcmom = mcTrack->GetMomentum();       
     TVector3 vertex = mcTrack->GetStartVertex();       
 
@@ -223,6 +232,20 @@ void PndSttTrackFitterQATask::Exec(Option_t* opt)
     hptfound->Fill(foundMom.Perp() - mcmom.Perp());
     hplfound->Fill(foundMom.Z() - mcmom.Z());
     hptotfound->Fill(foundMom.Mag() - mcmom.Mag());
+    
+    hptfit_perc->Fill((ptran - mcmom.Perp())/ mcmom.Perp());
+    hplfit_perc->Fill((plong - mcmom.Z())/ mcmom.Z());
+    hptotfit_perc->Fill((ptot - mcmom.Mag())/ mcmom.Mag());
+
+    hptfound_perc->Fill((foundMom.Perp() - mcmom.Perp())/ mcmom.Perp());
+    hplfound_perc->Fill((foundMom.Z() - mcmom.Z())/ mcmom.Z());
+    hptotfound->Fill((foundMom.Mag() - mcmom.Mag()) / mcmom.Mag());
+
+
+//     cout << "PT   : " << mcmom.Perp() << " " << foundMom.Perp() << " " << ptran << endl;
+//     cout << "PL   : " << mcmom.Z()    << " " << foundMom.Z()    << " " << plong << endl;
+//     cout << "PTOT : " << mcmom.Mag()  << " " << foundMom.Mag()  << " " << ptot << endl;
+//     cout << "--------------------------------------------------" << endl;
 
     // === momentum coordinates ===
     TVector3 fitmom(ptran * TMath::Cos(phi0 - h * TMath::Pi()/2.),
@@ -322,6 +345,13 @@ void PndSttTrackFitterQATask::WriteHistograms()
   hptotfit->Write();
   delete hptotfit;
 
+  hptfit_perc->Write();
+  delete hptfit_perc;
+  hplfit_perc->Write();
+  delete hplfit_perc;
+  hptotfit_perc->Write();
+  delete hptotfit_perc;
+
   hpxfit->Write();
   delete hpxfit;
   hpyfit->Write();
@@ -350,6 +380,12 @@ void PndSttTrackFitterQATask::WriteHistograms()
   hptotfound->Write();
   delete hptotfound;
 
+  hptfound_perc->Write();
+  delete hptfound_perc;
+  hplfound_perc->Write();
+  delete hplfound_perc;
+  hptotfound_perc->Write();
+  delete hptotfound_perc;
 
   hresx->Write();
   delete hresx;

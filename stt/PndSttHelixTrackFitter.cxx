@@ -320,7 +320,7 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
     ytrasl = currenthit->GetY() - trasl[1];
 
     Double_t xrot, yrot;
-    // rotation 
+    // rotation
     xrot = TMath::Cos(alpha)*xtrasl + TMath::Sin(alpha)*ytrasl;
     yrot = -TMath::Sin(alpha)*xtrasl + TMath::Cos(alpha)*ytrasl;
    
@@ -1864,6 +1864,42 @@ Int_t PndSttHelixTrackFitter::XYFitThroughOrigin(PndTrackCand* pTrackCand, Int_t
   }
   if(fVerbose == 2) cout << "FIT xy ********************" << endl;
 
+
+  // traslation and rotation -----------
+  // traslation near the first point
+  Double_t trasl[2];
+  // rotation
+  Double_t alpha;
+  if(fVerbose == 2) cout << "hitcounter: " << hitcounter << endl;
+  for(Int_t k = 0; k <hitcounter; k++) {
+
+    PndTrackCandHit candhit = pTrackCand->GetSortedHit(k);
+    Int_t iHit = candhit.GetHitId();
+    PndSttHit *currenthit = (PndSttHit*) fHitArray->At(iHit);
+    if(!currenthit) continue;
+    if(currenthit->GetX() == -999 || currenthit->GetY() == -999) continue;
+  
+    // tubeID  CHECK added
+    Int_t tubeID = currenthit->GetTubeID();
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+
+    PndSttHit *hitfirst, *hitlast;
+
+    TVector3 wiredirection = tube->GetWireDirection();
+    if(wiredirection != TVector3(0.,0.,1.)) continue;
+    else if(first == kFALSE)
+      {
+	hitfirst = (PndSttHit*) fHitArray->At(iHit); 
+	first = kTRUE;
+	trasl[0] = hitfirst->GetX();
+	trasl[1] = hitfirst->GetY();
+      }
+    else{
+      hitlast = (PndSttHit*) fHitArray->At(iHit);  
+      alpha = TMath::ATan2(hitlast->GetY() -  hitfirst->GetY(), hitlast->GetX() - hitfirst->GetX());
+    }
+  }
+
   // error <--> resolution
   Double_t sigr, sigxy, sigx, sigy; // = 0.14;
     
@@ -1915,15 +1951,23 @@ Int_t PndSttHelixTrackFitter::XYFitThroughOrigin(PndTrackCand* pTrackCand, Int_t
       Double_t resdist = TMath::Sqrt((iPoint->GetY() - currenthit->GetY())*(iPoint->GetY() - currenthit->GetY()) + (iPoint->GetX() - currenthit->GetX())*(iPoint->GetX() - currenthit->GetX()));
       
     }
-  
+    
+    Double_t xtrasl, ytrasl;
     Double_t xi, yi;
     // traslation
-    xi = currenthit->GetX();
-    yi = currenthit->GetY();
+    xtrasl = currenthit->GetX() - trasl[0];
+    ytrasl = currenthit->GetY() - trasl[1];
+    
+    if(xtrasl == 0 && ytrasl == 0) continue;
 
+    Double_t xrot, yrot;
+    // rotation 
+    xrot = TMath::Cos(alpha)*xtrasl + TMath::Sin(alpha)*ytrasl;
+    yrot = -TMath::Sin(alpha)*xtrasl + TMath::Cos(alpha)*ytrasl;
+   
     if( fDisplayLevel >= 3) {
       eventCanvas->cd(1);
-      TMarker *pt = new TMarker(xi, yi, 6);
+      TMarker *pt = new TMarker(xrot, yrot, 6);
       pt->SetMarkerColor(3);
       //  if(whatToFit == 2) 
       // pt->Draw("SAME");
@@ -1931,8 +1975,8 @@ Int_t PndSttHelixTrackFitter::XYFitThroughOrigin(PndTrackCand* pTrackCand, Int_t
 
     // change coordinate
     Double_t u, v, sigv2, sigu2;
-    u = xi / (xi*xi + yi*yi);
-    v = yi / (xi*xi + yi*yi);
+    u = xrot / (xrot*xrot + yrot*yrot);
+    v = yrot / (xrot*xrot + yrot*yrot);
 
     if( fDisplayLevel >= 4) {
       eventDetails->cd(1);
@@ -1963,10 +2007,10 @@ Int_t PndSttHelixTrackFitter::XYFitThroughOrigin(PndTrackCand* pTrackCand, Int_t
       }
     }
 
-    Double_t dvdx = (-2 * xi * yi)/pow((xi*xi + yi*yi),2);
-    Double_t dvdy = (xi*xi - yi*yi) / pow((xi*xi + yi*yi),2);
-    Double_t dudx = (yi*yi - xi*xi) / pow((xi*xi + yi*yi),2);
-    Double_t dudy = (-2 * xi * yi)/pow((xi*xi + yi*yi),2);
+    Double_t dvdx = (-2 * xrot * yrot)/pow((xrot*xrot + yrot*yrot),2);
+    Double_t dvdy = (xrot*xrot - yrot*yrot) / pow((xrot*xrot + yrot*yrot),2);
+    Double_t dudx = (yrot*yrot - xrot*xrot) / pow((xrot*xrot + yrot*yrot),2);
+    Double_t dudy = (-2 * xrot * yrot)/pow((xrot*xrot + yrot*yrot),2);
 
     sigu2 = dudx * dudx * sigx * sigx + dudy * dudy * sigy * sigy + 2 * dudx * dudy * sigx * sigy; 
     sigv2 = dvdx * dvdx * sigx * sigx + dvdy * dvdy * sigy * sigy + 2 * dvdx * dvdy * sigx * sigy; 
@@ -2069,11 +2113,19 @@ Int_t PndSttHelixTrackFitter::XYFitThroughOrigin(PndTrackCand* pTrackCand, Int_t
   }
 
   // center and radius
-  Double_t xc, yc, epsilon, R;
+  Double_t xc, yc, xcrot, ycrot, R;
   //  if(fabs(a)<0.000001) return 0; // CHECK proteggi dalla divisione per 0
-  yc = 1 / (2 * fita);
-  xc = - fitb * yc;
-  R =  sqrt(xc * xc + yc * yc);
+  ycrot = 1 / (2 * fita);
+  xcrot = - fitb * ycrot;
+  R =  sqrt(xcrot * xcrot + ycrot * ycrot);
+  
+  // re-rotation and re-traslation of xc and yc
+  // rotation    
+  xc = TMath::Cos(alpha)*xcrot - TMath::Sin(alpha)*ycrot;
+  yc = TMath::Sin(alpha)*xcrot + TMath::Cos(alpha)*ycrot;
+  // traslation
+  xc = xc + trasl[0];
+  yc = yc + trasl[1];
 
   // // errors on parameters -------------------
   // MISSING
@@ -2717,6 +2769,13 @@ Int_t PndSttHelixTrackFitter::ZFitThroughOrigin(PndTrackCand* pTrackCand, Int_t 
 // -------------------------------------------------------------------------------
 Int_t PndSttHelixTrackFitter::DoFitThroughOrigin(PndTrackCand* pTrackCand, PndSttTrack* pTrack, Int_t pidHypo)
 {
+  // TO BE USED ONLY when PndSttTrackFinderReal is applied:
+  // the PR finds only PRIMARY TRACKS ==>
+  // the track can be forced to come from the IP (0, 0, 0)
+  //
+  // the starting point is the PR found track seed
+
+
   if(!pTrackCand) return 0;
   fTrack = pTrack; // CHECK canc
   fTrackCand = pTrackCand; 
@@ -2729,22 +2788,61 @@ Int_t PndSttHelixTrackFitter::DoFitThroughOrigin(PndTrackCand* pTrackCand, PndSt
   
   Int_t fit = 0;
  
-  fit = XYFitThroughOrigin(pTrackCand, 1);
+  //  fit = XYFitThroughOrigin(pTrackCand, 1);
+  // take start point from PR ===================================================
+  TVector3 foundMom = pTrackCand->getDirSeed();
+  Double_t momMag = fabs(1./pTrackCand->getQoverPseed());
+  foundMom.SetMag(momMag);
+  TVector3 foundVtx = pTrackCand->getPosSeed();
+  int foundCharge = (int) (pTrackCand->getQoverPseed()/fabs(pTrackCand->getQoverPseed()));
+  Double_t foundRad = foundMom.Perp() / 0.006; 
+  // track from tangent ---------------------
+  double found_m1 = foundMom.Y() / foundMom.X();
+  double found_q1 = foundVtx.Y() - foundVtx.X() * found_m1;
+  double found_m2 = -1./found_m1;
+  double found_q2 = foundVtx.Y() - foundVtx.X() * found_m2;
   
-  if(fit == 0 || fTrack->GetRad() == 0 || !(fTrack->GetRad()) || fTrack->GetRad() > 3000) {
-    if(fVerbose == 2) cout << "-E- pre prefit FAILED " << fit << " " << fTrack->GetRad() << endl;
-    fTrack->SetRad(-999);
-    return 0;
+  double alpha = TMath::ATan2(foundMom.X(), foundMom.Y());
+  double foundX0, foundY0;
+  if(foundCharge > 0) { 
+      foundX0 = foundVtx.X() + foundRad * TMath::Cos(alpha);
+      foundY0 = foundVtx.Y() - foundRad * TMath::Sin(alpha);
   }
+  else {
+    foundX0 = foundVtx.X() - foundRad * TMath::Cos(alpha);
+    foundY0 = foundVtx.Y() + foundRad * TMath::Sin(alpha);
+  }
+
+  Double_t foundDist, foundPhi;
   
-  // cout << "prefit-------------------------------" << endl;
-//   fit = 0;
-//   fit = MinuitFit(pTrackCand, 1);
- 
-  // if the fit fails
-  if(fit == 0 || fTrack->GetRad() == 0 || !(fTrack->GetRad()) || fTrack->GetRad() > 3000) {
-    fTrack->SetRad(-999); 
-    if(fVerbose == 2) cout << "-E- prefit FAILED" << endl;
+  foundDist = TMath::Sqrt(foundX0 * foundX0 + foundY0 * foundY0) - foundRad;
+  foundPhi = atan2(foundY0, foundX0);
+  
+  Double_t foundTanL, foundZ = 0; // CHECK
+  foundTanL = foundMom.Z()/foundMom.Perp();
+  
+  fTrack->SetDist(foundDist);
+  fTrack->SetPhi(foundPhi);
+  fTrack->SetRad(foundRad); 
+  fTrack->SetTanL(foundTanL);
+  fTrack->SetZ(foundZ);
+  fTrack->SetCharge(foundCharge);
+  
+  if(fDisplayLevel >= 4) {
+    TArc *foundcir = new TArc(foundX0, foundY0, foundRad); 
+    eventCanvas->cd(1);
+    foundcir->SetLineColor(8);
+    foundcir->SetFillStyle(0);
+    foundcir->Draw("SAME");
+  }
+  // ==========================================================
+
+  
+  // if the track finding is ok
+  if(fTrack->GetRad() == 0 || !(fTrack->GetRad()) || fTrack->GetRad() > 3000) {
+    //  fTrack->SetRad(-999); 
+    //    if(fVerbose == 2)
+    cout << "-E- track finding FAILED" << endl;
     return 0;
   }
   else {
