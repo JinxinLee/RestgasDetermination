@@ -6,7 +6,7 @@
  * ***************************************
  */
 
-#define ProgStep  10000
+#define ProgStep  1000
 
 #include "PndLVQTrain.h"
 
@@ -370,7 +370,7 @@ void PndLVQTrain::InitProtoK_Means()
   int numberOfClasses = classes.size();
   
 #ifdef _OPENMP
-#pragma omp parallel for  schedule(dynamic) //collapse(2)
+#pragma omp parallel for  schedule(dynamic)
 #endif  
   for( cls = 0; cls < numberOfClasses; cls++){
     ClDataSample clusteringInput;
@@ -391,12 +391,14 @@ void PndLVQTrain::InitProtoK_Means()
     
     // Create clusters from current data points.
     PndMvaCluster clust (clusteringInput, m_numProto);
-    
+    ClDataSample& clustOut = clust.Cluster();
+
 #ifdef _OPENMP
 #pragma omp critical (AddToProtoListMap)
     {
 #endif
-      ProtoVector[clsName] = clust.Cluster();
+      //ProtoVector[clsName] = clust.Cluster();
+      ProtoVector[clsName] = clustOut;
 #ifdef _OPENMP
     }
 #endif
@@ -529,6 +531,8 @@ void PndLVQTrain::UpdateProto(const std::vector<float>& EvtData,
  */
 void PndLVQTrain::EvalClassifierError(unsigned int stp)
 {
+  std::cout << "_e_" ;
+  // Get Examples
   const std::vector<std::pair<std::string, std::vector<float>*> >& events = m_dataSets.GetData();
   std::set <int>::const_iterator iter;
 

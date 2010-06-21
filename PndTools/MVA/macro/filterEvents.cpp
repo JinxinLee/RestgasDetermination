@@ -2,43 +2,44 @@
 
 using namespace std;
 
-void filterEvents(int pdg, const std::string& partName,
-		  const std::string& paramFile,
-		  const std::string& simFile,
-		  const std::string& digiFile,
-		  const std::string& recoFile,
-		  const std::string& outFileName
+void filterEvents(int pdg,
+		  char partName  [],
+		  char paramFile [],
+		  char simFile   [],
+		  char digiFile  [],
+		  char recoFile  [],
+		  char outFileName []
 		  )
 {
   int counts = 0;
   TStopwatch timer;
   timer.Start();
   cout << "Count = " << counts << " pdg = " << pdg << endl;
-
+  
   std::vector<int> EvtIds;
-
+  
   //EMC cluster energy, num.clusters, numb. crystals
   float emc, emcCorr, mom;
-
+  
   //Selected Zernike moments and LATeral energydeposition
   float z20, z53, latEdep;
   int numClus, numCrys;
   mom = emc = emcCorr = z20 = z53 = 0.00;
   numClus = numCrys = 0;
-
+  
   // N-Tuple to store the variables.
-  TNtuple EmcNtp (partName.c_str(), partName.c_str(),
+  TNtuple EmcNtp (partName, partName,
 		  "id:p:emc:emcCorr:numClus:numCrys:lat:z20:z53");
   // Open Simulation file
-  TFile sF(simFile.c_str());
-
+  TFile sF(simFile);
+  
   // Get simulation tree
   TTree* tsim = (TTree *) sF.Get("cbmsim");
-
+  
   // Tracks.
   TClonesArray* trackList = new TClonesArray("PndMCTrack");
   tsim->SetBranchAddress("MCTrack", &trackList);
-
+  
   // Points
   TClonesArray* pointList = new TClonesArray("PndEmcPoint");
   tsim->SetBranchAddress("EmcPoint", &pointList);
@@ -46,34 +47,34 @@ void filterEvents(int pdg, const std::string& partName,
   // Maybe it can be done better (Cleaner).
   ////////////////////////////
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(simFile.c_str());
-
+  fRun->SetInputFile(simFile);
+  
   // Dummy output, containes nothing
   fRun->SetOutputFile("dummy_out.root");
-
+  
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
-  parInput1->open(paramFile.c_str());
+  parInput1->open(paramFile);
   rtdb->setFirstInput(parInput1);
-
+  
   PndEmcGeoPar *geoPar = (PndEmcGeoPar*) rtdb->getContainer("PndEmcGeoPar");
   fRun->Init();
   geoPar->InitEmcMapper();
   PndEmcMapper::Init(6);
   ////////////////////////////
-
+  
   // Open Digi file
-  TFile digiF(digiFile.c_str());
-
+  TFile digiF(digiFile);
+  
   // Digi tree
   TTree* digiTr = (TTree *) digiF.Get("cbmsim");
-
+  
   // CLusters
   TClonesArray* clusters_arr = new TClonesArray("PndEmcCluster");  
   digiTr->SetBranchAddress("EmcCluster", &clusters_arr);
-
+  
   // Reco file
-  TFile recoF(recoFile.c_str());
+  TFile recoF(recoFile);
   // Reco tree
   TTree* RecoTr = (TTree *) recoF.Get("cbmsim");
   
@@ -81,14 +82,14 @@ void filterEvents(int pdg, const std::string& partName,
   TClonesArray* recTrakArr = new TClonesArray("PndTrack");  
   RecoTr->SetBranchAddress("LheTrack", &recTrakArr);
   //RecoTr->SetBranchAddress("LheGenTrackPion", &recTrakArr);
-
+  
   // Loop through the simulation data.
   std::cout << "<INFO> Selecting events." << std::endl;
   for (int j = 0; j < tsim->GetEntriesFast(); j++){
     tsim->GetEntry(j);
     
     cout << "<Event>: " << j << endl;
-
+    
     // Select the first interaction point.
     PndEmcPoint* pt   = (PndEmcPoint*) pointList->At(0);
     
@@ -111,7 +112,7 @@ void filterEvents(int pdg, const std::string& partName,
       std::cout << "No point on the EMC." << std::endl;
     }
   }
-
+  
   std::cout << "<INFO> Processing selected events." << std::endl;
   // Loop through the selected events.
   for(size_t i = 0; i < EvtIds.size(); i++){
@@ -119,7 +120,7 @@ void filterEvents(int pdg, const std::string& partName,
     cout << "<Event number> = " << evid << " ";
     RecoTr->GetEntry(evid);
     digiTr->GetEntry(evid);
-
+    
     PndTrack* tra = (PndTrack*) recTrakArr->At(0);
     
     if(tra){  // Charged or correct reconstructed.
@@ -129,7 +130,7 @@ void filterEvents(int pdg, const std::string& partName,
 		<<" number of tracks = "<< recTrakArr->GetEntriesFast() 
 		<< " with P = "<< par.GetMomentum().Mag() << endl;
       //Select the right cluster(highest E_dep).
-      double maxEnergy = -1.0;
+      double maxEnergy = 0.0;
       int clIndex = -1;
       
       // Loop through the clusters.
@@ -140,13 +141,12 @@ void filterEvents(int pdg, const std::string& partName,
 	  clIndex = cl;
 	}
       }
-
+      
       // Found the cluster with highest E_dep.
       if( clIndex >= 0 ){
-	PndEmcCluster* HE_cluster = (PndEmcCluster*) clusters_arr->At(clIndex);
-
+	PndEmcCluster* HE_cluster = (PndEmcCluster*) clusters_arr->At(clIndex);	
 	//const PndEmcXClMoments& clsZmom = HE_cluster->Xmoments();
-
+	
 	numClus = clusters_arr->GetEntriesFast();
 	numCrys = HE_cluster->NumberOfDigis();
 	mom = par.GetMomentum().Mag();
@@ -163,9 +163,10 @@ void filterEvents(int pdg, const std::string& partName,
 	latEdep = HE_cluster->LatMom();
 	
 	// Fill tree
-	EmcNtp.Fill(evid, mom, (emc), (emcCorr),
-		    numClus, numCrys, latEdep, z20, z53);
-	std::cout << "emc = " << emc << " emcCorr = " << emcCorr << std::endl;
+	if( (mom > 0) && (mom <= 15) ){
+	  EmcNtp.Fill(evid, mom, emc, emcCorr, numClus, numCrys, latEdep, z20, z53);
+	  std::cout << "emc = " << emc << " emcCorr = " << emcCorr << std::endl;
+	}
       }
     }// End if(tra)
     else{//Neutral or not correctly reconstructed.
@@ -173,13 +174,14 @@ void filterEvents(int pdg, const std::string& partName,
 	   << clusters_arr->GetEntriesFast() << endl;
     }
   }
-
+  
   std::cout << "========================================================"
 	    << std::endl;
   std::cout << "<INFO>" << std::endl 
 	    << "Total number of events = " << tsim->GetEntriesFast() << std::endl
             << "No decay = " << counts << std::endl
             << "No decay array size = " << EvtIds.size() << std::endl;
+  std::cout << "In Ntuple " << EmcNtp.GetEntriesFast() << std::endl;
   std::cout << "Number of events in reco file = " << RecoTr->GetEntriesFast() 
 	    << std::endl;
   std::cout << "========================================================"
@@ -188,8 +190,8 @@ void filterEvents(int pdg, const std::string& partName,
   cout << "<INFO> Writing output to: " << outFileName << endl;
 
   // Write to the output
-  TFile out(outFileName.c_str(),"RECREATE");
-  EmcNtp.Print();
+  TFile out(outFileName,"RECREATE");
+  // EmcNtp.Print();
   EmcNtp.Write();
   out.Close();
 

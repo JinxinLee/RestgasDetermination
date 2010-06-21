@@ -1,4 +1,5 @@
-void filterEvents(int pdg = 11, char partName [] = "particle",
+void filterEvents(int pdg = 11,
+		  char partName [] = "particle",
 		  char paramFile [] = "params_sttcombi.root",
 		  char simFile   [] = "points_sttcombi.root",
 		  char digiFile  []  = "digi_sttcombi.root",
@@ -159,9 +160,10 @@ void filterEvents(int pdg = 11, char partName [] = "particle",
 	latEdep = HE_cluster->LatMom();
 	
 	// Fill tree
-	EmcNtp.Fill(evid, mom, (emc/mom), (emcCorr/mom),
-		    numClus, numCrys, latEdep, z20, z53);
-	std::cout << "emc = " << emc << " emcCorr = " << emcCorr << std::endl;
+	if( (mom > 0) && (mom <= 15) ){
+	  EmcNtp.Fill(evid, mom, emc, emcCorr, numClus, numCrys, latEdep, z20, z53);
+	  std::cout << "emc = " << emc << " emcCorr = " << emcCorr << std::endl;
+	}
       }
     }// End if(tra)
     else{//Neutral or not correctly reconstructed.
@@ -176,6 +178,7 @@ void filterEvents(int pdg = 11, char partName [] = "particle",
 	    << "Total number of events = " << tsim->GetEntriesFast() << std::endl
             << "No decay = " << counts << std::endl
             << "No decay array size = " << EvtIds.size() << std::endl;
+  std::cout << "In Ntuple " << EmcNtp.GetEntriesFast() << std::endl;
   std::cout << "Number of events in reco file = " << RecoTr->GetEntriesFast() 
 	    << std::endl;
   std::cout << "========================================================"
@@ -185,7 +188,7 @@ void filterEvents(int pdg = 11, char partName [] = "particle",
 
   // Write to the output
   TFile out(outFileName,"RECREATE");
-  EmcNtp.Print();
+  //EmcNtp.Print();
   EmcNtp.Write();
   out.Close();
 

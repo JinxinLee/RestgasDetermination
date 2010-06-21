@@ -34,11 +34,10 @@ int main(int argc, char** argv)
   std::vector<std::string> clas;
   std::vector<std::string> nam;
 
-  if(argc < 6){
+  if(argc < 5){
     std::cerr << "\t<ERROR> Usage\n"
               <<"\t./train <algNum> <NumProtoTypes> <numSweep>"
 	      <<" <InputTrainEventFeatureFile> <OutFile>"
-	      << " <ErroFileName>"
               << std::endl;
     return 1;
   }
@@ -61,7 +60,7 @@ int main(int argc, char** argv)
   std::string ot      = argv[5];// OutPutFile
   std::cout << " outPut = " << ot << " ";
 
-  std::string OutErr = argv[6];
+  std::string OutErr = "Err" + ot;
   std::cout << " ErrorFile = " << OutErr << std::endl;
 
   //Class names
@@ -95,9 +94,8 @@ int main(int argc, char** argv)
   tr.SetInitProtoFileName("InitialProto.root");
   
   // FILE_PR, KMEANS_PR, RANDOM_PR (DEFAULT)
-  tr.setProtoInitType(RANDOM_PR);
+  tr.setProtoInitType(KMEANS_PR);
   
-  std::string OutFile = ot;
   tr.SetOutPutFile(ot);
 
   switch(algNum)
