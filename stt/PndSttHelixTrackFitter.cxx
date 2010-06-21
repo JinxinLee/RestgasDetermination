@@ -1298,9 +1298,6 @@ Int_t PndSttHelixTrackFitter::ZFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
     
     if(wiredirection == TVector3(0.,0.,1.)) continue;
     //    if(tube->GetPosition().Z() != 35) continue; // for the moment I throw away short tubes 
-
-    counter++;
-    wireOk++;
     
     TVector3 *vi = new TVector3(pMhit->GetX(), pMhit->GetY(), pMhit->GetZ());
 
@@ -1314,6 +1311,9 @@ Int_t PndSttHelixTrackFitter::ZFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
     Sxz = Sxz + ((scos *vi->Z())/(sigz * sigz));
     Sxx = Sxx + ((scos * scos)/(sigz * sigz));
     S1z = S1z + 1/(sigz * sigz);
+    counter++;
+    wireOk++;
+
   }
 
   if(counter == 0) return 0;
@@ -2726,20 +2726,20 @@ Int_t PndSttHelixTrackFitter::ZFitThroughOrigin(PndTrackCand* pTrackCand, Int_t 
     TVector3 wiredirection = tube->GetWireDirection();
     
     if(wiredirection == TVector3(0.,0.,1.)) continue;
-    //    if(tube->GetPosition().Z() != 35) continue; // for the moment I throw away short tubes 
 
-    counter++;
-    wireOk++;
-    
+     //    if(tube->GetPosition().Z() != 35) continue; // for the moment I throw away short tubes 
+
     TVector3 *vi = new TVector3(pMhit->GetX(), pMhit->GetY(), pMhit->GetZ());
-
+    
     // if the found z is > 75 cm or < -75 cm continue: this has to be fixed
     if(pMhit->GetZ() < (tube->GetPosition().Z() - tube->GetHalfLength()) || pMhit->GetZ() > (tube->GetPosition().Z()  + tube->GetHalfLength())) continue; // CHECK 
-
     Double_t scos = fTrack->CalculateScosl(pMhit->GetX(), pMhit->GetY());
     
     Sxz = Sxz + ((scos *vi->Z())/(sigz * sigz));
     Sxx = Sxx + ((scos * scos)/(sigz * sigz));
+
+    counter++;
+    wireOk++;
   }
 
   if(counter == 0) return 0;
