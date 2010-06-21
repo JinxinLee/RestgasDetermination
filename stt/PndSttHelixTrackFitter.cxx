@@ -906,7 +906,6 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
 
     if(wiredirection != TVector3(0.,0.,1.)) 
       {
-	wireOk++;
 	Double_t a = -999;
 	Double_t b = -999;
       
@@ -1094,7 +1093,7 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
 	
 	// SECOND CHOICE
 	if(tofit2) Hough(tofit2, Phi0, x0, y0, R);
-
+	wireOk++;
       }
     
   }
@@ -2336,7 +2335,6 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
 
     if(wiredirection != TVector3(0.,0.,1.)) 
       {
-	wireOk++;
 	Double_t a = -999;
 	Double_t b = -999;
       
@@ -2526,8 +2524,8 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
 // 	// SECOND CHOICE
 // 	if(tofit2) HoughThroughOrigin(tofit2, Phi0, x0, y0, R); // CHECK
 
+	wireOk++;
       }
-    
   }
 
   //  cout << "skewed: " << wireOk << endl;
