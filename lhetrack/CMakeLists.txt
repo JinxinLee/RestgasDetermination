@@ -54,8 +54,6 @@ PndLheTrackFitter.cxx
 PndLheHitsMaker.cxx      
 PndLhePoint.cxx
 PndLheHit.cxx
-PndLheCorrPar.cxx
-PndLheContFact.cxx
 )
 
 if(RULE_CHECKER_FOUND)
@@ -75,8 +73,6 @@ PndLheCMCandidate.h
 PndLheSegments.h 
 PndLhePoint.h 
 PndLheHit.h
-PndLheCorrPar.h
-PndLheContFact.h
 )
 
 

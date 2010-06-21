@@ -15,7 +15,5 @@
 #pragma link C++ class  PndLheTrackCuts+;
 #pragma link C++ class  PndLheTrackFinder+;
 #pragma link C++ class  PndLheTrackFinderIdeal+;
-#pragma link C++ class  PndLheCorrPar+;
-#pragma link C++ class  PndLheContFact+;
 #endif
 

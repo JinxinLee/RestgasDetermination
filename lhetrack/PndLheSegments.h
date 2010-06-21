@@ -167,7 +167,7 @@ GetSegm(Int_t theta_segm, Int_t phi_segm) {
 	 << " segm " << segm 
 	 << " theta_segm " << theta_segm
 	 << " phi_segm " << phi_segm << endl;
-    assert(kFALSE);
+    //assert(kFALSE);
     return fBounds - 1;
   }
   else

@@ -727,8 +727,8 @@ void PndLheHitsMaker::GetSttHelixHit() {
 
   for (int j=0; j < fSttHelixInput->GetEntriesFast(); j++ ) {
     PndSttHelixHit* sttHit = (PndSttHelixHit*) fSttHelixInput->At(j);
-    if (isnan(sttHit->GetX()))
-      {
+     if ((isnan(sttHit->GetX())) || (isnan(sttHit->GetZ())))
+       {
         sttHit->Print();
         cout << "-W- PndLheHitsMaker::GetSttHelixHit: SttHelixHit with NaN - skipped (requires STT bug fix!!)" << endl;
         continue;
@@ -778,7 +778,7 @@ void PndLheHitsMaker::GetSttPRHelixHit() {
 
   for (int j=0; j < fSttPRHelixInput->GetEntriesFast(); j++ ) {
     PndSttHelixHit* sttHit = (PndSttHelixHit*) fSttPRHelixInput->At(j);
-    if (isnan(sttHit->GetX()))
+    if ((isnan(sttHit->GetX())) || (isnan(sttHit->GetZ())))
       {
         sttHit->Print();
         cout << "-W- PndLheHitsMaker::GetSttPRHelixHit: SttHelixHit with NaN - skipped (requires STT bug fix!!)" << endl;
