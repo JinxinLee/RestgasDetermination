@@ -35,6 +35,7 @@ Bool_t PndPidCorrelator::GetSttInfo(PndTrack* track, PndPidCandidate* pidCand) {
       PndTrackCandHit candHit = trackCand.GetSortedHit(ii);
       if (candHit.GetDetId()!=kSttHelixHit) continue;
       sttHit = (PndSttHelixHit*)fSttHit->At(candHit.GetHitId());
+      if (sttHit==0) continue;
       if (sttHit->GetdEdx() != 0.) 
 	{
 	  dedxvec.push_back(sttHit->GetdEdx());

@@ -325,7 +325,7 @@ InitStatus PndPidCorrelator::Init() {
       
     }
   cout << "-I- PndPidCorrelator::Init: Success!" << endl;
-  
+  fEventCounter = 1;
   return kSUCCESS;
 }
 
@@ -346,13 +346,13 @@ void PndPidCorrelator::SetParContainers() {
 //______________________________________________________
 void PndPidCorrelator::Exec(Option_t * option) {
   //-
-  cout << " =====   PndPidCorrelator: Number of tracks for pid " << fTrack->GetEntriesFast();
+  cout << " =====   PndPidCorrelator - Event: " << fEventCounter << " - Number of tracks for pid " << fTrack->GetEntriesFast();
   cout << " - Number of EMC Cluster for pid " << fEmcCluster->GetEntriesFast() << endl;;
   Reset();
   
   if (fTrack)     ConstructChargedCandidate();
   if (fEmcMode>0) ConstructNeutralCandidate();
-  
+  fEventCounter++;
 }
 
 //______________________________________________________

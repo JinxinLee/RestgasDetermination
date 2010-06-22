@@ -80,7 +80,7 @@ protected:
   Bool_t fGeanePro;                 // Use GEANE propagation 
   Bool_t fMdtRefit;                 // Use MDT Kalman refit propagation
   Bool_t fIdeal;                    // Ideal Correlation
-
+  Int_t  fEventCounter;             // Event number
   PndGeoHandling* fGeoH;             // Object to retrieve MVD geometry
   PndRecoKalmanFit *fFitter;         // Refitter for MDT tracks
   TFile *r;                          // File for debug ntuples
