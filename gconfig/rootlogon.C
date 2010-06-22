@@ -8,6 +8,13 @@ rootlogon()
   if(isLibrary("libGeoBase"))gSystem->Load("libGeoBase");
   if(isLibrary("libParBase"))gSystem->Load("libParBase");
   if(isLibrary("libBase"))gSystem->Load("libBase");
+  if(isLibrary("libPhotos")){// these three depend on each other
+    gSystem->Load("libPhotos");
+    if(isLibrary("libEvtGen")){
+      gSystem->Load("libEvtGen");
+      if(isLibrary("libEvtGenDirect"))gSystem->Load("libEvtGenDirect");
+    }
+  }
   if(isLibrary("libPndBase"))gSystem->Load("libPndBase");
   if(isLibrary("libGlobalTasks"))gSystem->Load("libGlobalTasks");
   if(isLibrary("libTrkBase"))gSystem->Load("libTrkBase");
