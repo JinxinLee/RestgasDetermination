@@ -1838,7 +1838,7 @@ Int_t PndSttHelixTrackFitter::GetCharge(Double_t dCenter, Double_t phiCenter, Do
     }
     else
       {
-	charge = 0;
+	charge = -1; // most likely an electron which makes a spiral
       }
     
     return charge;
