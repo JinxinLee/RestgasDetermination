@@ -53,7 +53,7 @@ void PndPidDrcAssociatorTask::SetParContainers() {
 }
 //______________________________________________________
 void PndPidDrcAssociatorTask::Exec(Option_t * option) {
-  
+  if (fPidChargedProb->GetEntriesFast() != 0) fPidChargedProb->Clear();
   if(fVerbose>1) std::cout << "-I- Start PndPidDrcAssociatorTask. "<<std::endl;
 
   // Get the Candidates

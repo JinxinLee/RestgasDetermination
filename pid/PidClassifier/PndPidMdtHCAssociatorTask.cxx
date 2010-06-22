@@ -52,7 +52,7 @@ void PndPidMdtHCAssociatorTask::SetParContainers() {
 }
 //______________________________________________________
 void PndPidMdtHCAssociatorTask::Exec(Option_t * option) {
-  
+  if (fPidChargedProb->GetEntriesFast() != 0) fPidChargedProb->Clear();
   if(fVerbose>1) std::cout << "-I- Start PndPidMdtHCAssociatorTask. "<<std::endl;
 
   // Get the Candidates
@@ -75,7 +75,7 @@ void PndPidMdtHCAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProba
   if (pidcand->GetMuoIron()==0.) return;
   
   Float_t iron_thr = 0, mom_min = 0, mom_max = 0;
-  if ((pidcand->GetMuoModule()==-1) || (pidcand->GetMuoModule()==-2) )
+  if ((pidcand->GetMuoModule()==-1) || (pidcand->GetMuoModule()==2) )
     {
       iron_thr = 60.;
       mom_min = 0.4;

@@ -87,8 +87,8 @@ void PndPidIdealAssociatorTask::Exec(Option_t * option) {
   // CAUTION We use Monte-Carlo info here!
   
   if(fVerbose>1) std::cout << "-I- Start PndPidIdealAssociatorTask. "<<std::endl;
-  fPidChargedProb->Clear();
-  fPidNeutralProb->Clear();
+  if (fPidChargedProb->GetEntriesFast() != 0) fPidChargedProb->Clear();
+  if (fPidNeutralProb->GetEntriesFast() != 0) fPidNeutralProb->Clear();
   // Get the Candidates
   for(Int_t i=0; i<fPidChargedCand->GetEntriesFast(); i++){
     PndPidCandidate* pidcand = (PndPidCandidate*)fPidChargedCand->At(i);
