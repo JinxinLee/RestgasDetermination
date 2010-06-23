@@ -1706,8 +1706,6 @@ if( istampa>=2){
 //   loading the hits found and associates to a track in a  PndTrackCand  class; a class per each track
 
     for(i=0; i<nTracksFoundSoFar;i++){
-     ii=daTrackFoundaTrackMC[i];
-     if( daTrackFoundaTrackMC[i] == -1)  continue;
      if( !  GoodSkewFit[i]  )  continue;
        Double_t dista=sqrt( Ox[i]*Ox[i]+Oy[i]*Oy[i] );
        if(fabs(KAPPA[i])<1.e-20  ||  dista < 1.e-20) continue;
@@ -1733,7 +1731,35 @@ if( istampa>=2){
 			   0.,
 			   0.);  //  direction in starting point
           pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
-          pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[i]   );
+          if( daTrackFoundaTrackMC[i] == -1) {
+                 pTrckCand->setMcTrackId(  -1   );
+          }  else {
+                 pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[i]   );
+
+//-----------stampaggi
+if(istampa>=2){
+    HoughFi = atan2(Oy[i],Ox[i]);
+    if(HoughFi<0.)  HoughFi += 2.*PI;
+     ii=daTrackFoundaTrackMC[i];
+    fprintf(HANDLE2,"Evento n. %d Found track %d messa in PndTrackCand",IVOLTE, i);
+    fprintf(HANDLE2,
+"       R_MC %g R %g Fi_MC %g Fi %g KAPPA_MC %g KAPPA %g FI0_MC %g FI0 %g\n",
+     MCtruthTrkInfo[8][ii],
+     R[ i ],
+     MCtruthTrkInfo[7][ii],
+     HoughFi,
+     MCtruthTrkInfo[12][ii],
+     KAPPA[ i ],
+     MCtruthTrkInfo[13][ii],
+//     FI0[ i ]
+     fmod(HoughFi+ PI, 2.*PI)
+           );
+
+}   //  end of if (istampa>=2)
+//--------end of stampaggi
+
+          }  // end of     if( daTrackFoundaTrackMC[i] == -1)
+
           for(j=0; j< nTotalHits[i]; j++){
               pTrckCand->AddHit(kSttHit, (Int_t) BigList[i][j] , j);
           }
@@ -1862,24 +1888,6 @@ if(istampa>=3)  cout<<"DoFind, skew, infoskew[ ListSkewHitsinTrack[i][j] ] = "<<
     for(i=0; i<nTracksFoundSoFar;i++){
        if(!GoodSkewFit[i])   continue;
 
-    HoughFi = atan2(Oy[i],Ox[i]);
-    if(HoughFi<0.)  HoughFi += 2.*PI;
-if(istampa>=2){
-    fprintf(HANDLE2,"Evento n. %d Found track %d messa in PndTrackCand",IVOLTE, i);
-    fprintf(HANDLE2,
-"       R_MC %g R %g Fi_MC %g Fi %g KAPPA_MC %g KAPPA %g FI0_MC %g FI0 %g\n",
-     MCtruthTrkInfo[8][ii],
-     R[ i ],
-     MCtruthTrkInfo[7][ii],
-     HoughFi,
-     MCtruthTrkInfo[12][ii],
-     KAPPA[ i ],
-     MCtruthTrkInfo[13][ii],
-//     FI0[ i ]
-     fmod(HoughFi+ PI, 2.*PI)
-           );
-
-}   //  end of if (istampa>=2)
 
 
 
