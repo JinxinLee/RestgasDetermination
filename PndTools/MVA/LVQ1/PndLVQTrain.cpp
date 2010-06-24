@@ -6,8 +6,6 @@
  * ***************************************
  */
 
-#define ProgStep  1000
-
 #include "PndLVQTrain.h"
 
 /**
@@ -26,7 +24,8 @@ PndLVQTrain::PndLVQTrain(const std::string& inputFile,
     m_numProto(0),
     m_proto_init(RANDOM_PR),
     m_initProtoFile(""),
-    m_ErrorStep(100)
+    m_ErrorStep(100),
+    m_ProgStep(1000)
 {}
 
 /**
@@ -54,6 +53,7 @@ void PndLVQTrain::Train()
   // Init Proto types
   InitProtoTypes();
 
+  // Fetch available event examples
   const std::vector<std::pair<std::string, std::vector<float>*> >& events = m_dataSets.GetData();
   
   std::set <int>::const_iterator testSetIter;
@@ -65,13 +65,17 @@ void PndLVQTrain::Train()
   unsigned int tFinal = numSweep * ( events.size() );
   long double a       = (ethaZero - ethaFinal)/(ethaFinal * static_cast<double>(tFinal) );
   
-  if(a < 0.00)
+  m_ProgStep = (tFinal / 100);
+  std::cerr << "<INFO> Each . equals " << m_ProgStep 
+	    << " learning steps" << std::endl;
+
+  if( a < 0.00 )
   {//Underflow
     std::cout << "\tToo small value for a." << std::endl;
     a = std::numeric_limits<double>::min();
   }
   
-  if(tFinal <= static_cast<unsigned>(0))
+  if( tFinal <= static_cast<unsigned>(0) )
   {// OverFlow
     std::cout << "\t tFinal Overflow." << std::endl;
     tFinal = std::numeric_limits<unsigned>::max();
@@ -97,12 +101,14 @@ void PndLVQTrain::Train()
       ethaT  = std::numeric_limits<double>::min();
       std::cout <<"\tVery small ethaT" << std::endl;
     }
-    
-    if( (time % ProgStep) == 0)
+
+    // Show progress.
+    if( (time % m_ProgStep) == 0)
     {
       std::cerr << ". " ;
     }
 
+    // Evaluate classifier.
     if( (time % m_ErrorStep) == 0)
     {
       EvalClassifierError(time);
@@ -152,9 +158,14 @@ void PndLVQTrain::Train()
     // Update the LVQ prototype
     UpdateProto( *(events[index].second), *(m_LVQProtos[protoIndex].second), delta, ethaT);
   }
+
+  // Last evaluation
+  EvalClassifierError( (tFinal - 1) );
+
   std::cerr << std::endl;
   std::cerr << "<INFO> Finished training and writing to file." 
 	    << std::endl;
+
   WriteToWeightFile(m_LVQProtos);
 }
 
@@ -178,7 +189,9 @@ void PndLVQTrain::Train21()
     }
   }
 
+  // Fetch available event examples.
   const std::vector<std::pair<std::string, std::vector<float>*> >& events = m_dataSets.GetData();
+
   std::set <int>::const_iterator testSetIter;
 
   // Compute learning rate constant "a"
@@ -191,7 +204,9 @@ void PndLVQTrain::Train21()
   unsigned int tFinal = numSweep * ( events.size());
   long double a       = (ethaZero - ethaFinal)/(ethaFinal * static_cast<double>(tFinal));
   
-  if(a < 0.00)
+  m_ProgStep = (tFinal / 100);
+
+  if( a < 0.00 )
   {//Underflow
     std::cout << "Too small value for a." << std::endl;
     a = std::numeric_limits<double>::min();
@@ -211,14 +226,17 @@ void PndLVQTrain::Train21()
 	    <<", learn coeff. = " << a << ", Window = " << windowSize 
 	    <<", surroun. = "<< s << std::endl;
   
-  //Start learning
+  // Start learning
   std::cout << "Starting to train (LVQ2.1)....." << std::endl;
   for(unsigned int time = 0; time < tFinal; time++)
   {
-    if( (time % ProgStep) == 0)
+    // Show progress.
+    if( (time % m_ProgStep) == 0)
     {
       std::cerr << " ." ;
     }
+    
+    // Evaluate classifier.
     if( (time % m_ErrorStep) == 0)
     {
       EvalClassifierError(time);
@@ -289,9 +307,9 @@ void PndLVQTrain::Train21()
       }
     }
 
-    //Found two prototypes, one with the same lablel and one with a diff. one
-    if(minFunct( (m_distances[idxSame]).m_dist / (m_distances[idx2d]).m_dist ,
-		 (m_distances[idx2d]).m_dist   / (m_distances[idxSame]).m_dist ) > s)
+    // Found two prototypes, one with the same lablel and one with a diff. one
+    if( minFunct( (m_distances[idxSame]).m_dist / (m_distances[idx2d]).m_dist ,
+		  (m_distances[idx2d]).m_dist   / (m_distances[idxSame]).m_dist ) > s )
     {
       // Update the LVQ prototype
       int deltaEqCls = 1; int deltaNonEqCls = -1;      
@@ -303,9 +321,14 @@ void PndLVQTrain::Train21()
       UpdateProto( *(events[index].second), *(m_LVQProtos[idx2d].second), deltaNonEqCls, ethaT);
     }
   }
+
+  // Last evaluation
+  EvalClassifierError( (tFinal - 1) );
+
   std::cerr << std::endl;
   std::cerr << "<INFO> Finished training and writing to file."
 	    << std::endl;
+
   WriteToWeightFile(m_LVQProtos);
 }
 
@@ -405,7 +428,7 @@ void PndLVQTrain::InitProtoK_Means()
     
   }// END ClassLoop
   
-  //Copy cluster centers to LVQ prototypes (code books)
+  // Copy cluster centers (CCMs) to LVQ prototypes (code books)
   for(size_t i = 0 ; i < classes.size(); i++){
     std::string label = classes[i].Name;
     //std::vector<std::vector<float>*> TMP = ProtoVector[label];
@@ -531,7 +554,7 @@ void PndLVQTrain::UpdateProto(const std::vector<float>& EvtData,
  */
 void PndLVQTrain::EvalClassifierError(unsigned int stp)
 {
-  std::cout << "_e_" ;
+  //std::cout << "!" ;
   // Get Examples
   const std::vector<std::pair<std::string, std::vector<float>*> >& events = m_dataSets.GetData();
   std::set <int>::const_iterator iter;

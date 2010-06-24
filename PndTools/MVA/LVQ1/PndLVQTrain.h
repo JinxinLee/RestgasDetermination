@@ -170,5 +170,6 @@ class PndLVQTrain: public PndMvaTrainer
 
   //! Each #ErrorStep, steps evaluate the trained classifier.
   unsigned int m_ErrorStep;
+  unsigned int m_ProgStep;
 };
 #endif //END Interface

@@ -94,7 +94,7 @@ int main(int argc, char** argv)
   tr.SetInitProtoFileName("InitialProto.root");
   
   // FILE_PR, KMEANS_PR, RANDOM_PR (DEFAULT)
-  tr.setProtoInitType(KMEANS_PR);
+  tr.setProtoInitType(RANDOM_PR);
   
   tr.SetOutPutFile(ot);
 

@@ -30,7 +30,7 @@ StepError()
    *@param tsErr Current test error.
    */
 StepError(unsigned int step, float trErr, float tsErr)
-: m_step(step), m_trErr(trErr),m_tsErr(tsErr)
+: m_step(step), m_trErr(trErr), m_tsErr(tsErr)
   {};
   
   //! Destructor
@@ -54,7 +54,7 @@ StepError(const StepError& ot)
   unsigned int m_step;
   float m_trErr;
   float m_tsErr;
-  
+
 private:
   //! Operator <
   inline bool operator<(const StepError& other)const;
