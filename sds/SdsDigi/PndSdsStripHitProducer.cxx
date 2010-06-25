@@ -136,10 +136,19 @@ InitStatus PndSdsStripHitProducer::Init()
   fPointArray = (TClonesArray*) ioman->GetObject(fBranchName);
   if ( ! fPointArray )
   {
-    std::cout << "-W- PndSdsStripHitProducer::Init: "
+    std::cout << "-E- PndSdsStripHitProducer::Init: "
     << "No "<<fBranchName<<" array!" << std::endl;
     return kERROR;
   }
+  
+
+  fMcEventHeader = (FairMCEventHeader*) ioman->GetObject("MCEventHeader.");
+  if(!fMcEventHeader)
+  {
+    std::cout << "-E- PndSdsStripHitProducer::Init: "
+    << "No MCEventHeader. array!" << std::endl;
+    return kERROR;
+  }    
   
   // Create and register output array
   fStripArray = new TClonesArray("PndSdsDigiStrip");
@@ -168,7 +177,7 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
 {
   // Reset output array
   fStripArray->Delete();
-  
+  fGeoH->SetVerbose(fVerbose);
   for (std::map<const char*,PndSdsChargeConversion*>::iterator it = fChargeConverter.begin(); it != fChargeConverter.end(); it++){
 	  it->second->StartExecute();
   }
@@ -183,7 +192,9 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
   if (fVerbose > 0){
     std::cout<<" Nr of Points: "<<nPoints<<std::endl;
   }
-  
+  if(!fMcEventHeader) Error("Exec", "No Fair MC event header found. Why?? %p",fMcEventHeader);
+  Double_t eventTime = fMcEventHeader->GetT(); // in ns
+  Int_t timestamp;
   Int_t iStrip = 0;
   Bool_t selected = kFALSE;
   
@@ -209,7 +220,7 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
     // transform to local sensor system... (mc point has the ID not the path to the volume)
     TVector3 posInL = fGeoH->MasterToLocalShortId(point->GetPosition(),point->GetSensorID());
     TVector3 posOutL = fGeoH->MasterToLocalShortId(point->GetPositionOut(),point->GetSensorID());
-    
+    timestamp = DigitizeTime(eventTime+point->GetTime());
     if (fVerbose > 2){
       posInL.Print();posOutL.Print();
       std::cout << "Energy: " << point->GetEnergyLoss() << std::endl;
@@ -232,7 +243,7 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
       {   //TODO: What to do with the kMVD* enmums in sds?
         AddDigi(iStrip,iPoint,kMVDHitsStrip,point->GetSensorID(),
             		fCurrentStripCalcTop->CalcFEfromStrip(kit->GetIndex()),
-            		fCurrentStripCalcTop->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
+            		fCurrentStripCalcTop->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge(),timestamp);
         if (fVerbose > 1) std::cout << *kit << std::endl;
       }
     }else if(fVerbose>2) std::cout<<"Top side empty"<<std::endl;
@@ -252,7 +263,7 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
       {
         AddDigi(iStrip,iPoint,kMVDHitsStrip,point->GetSensorID(),
                 fCurrentStripCalcBot->CalcFEfromStrip(kit->GetIndex()) + fCurrentDigiPar->GetNrTopFE(),
-                fCurrentStripCalcBot->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
+                fCurrentStripCalcBot->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge(),timestamp);
         if (fVerbose > 2) std::cout << *kit << std::endl;
       }
     } else if(fVerbose>2) std::cout<<"Bottom side empty"<<std::endl;
@@ -277,7 +288,7 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
 }
 // -------------------------------------------------------------------------
 
-void PndSdsStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge)
+void PndSdsStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge, Int_t timestamp)
 {
   Bool_t found = kFALSE;
   PndSdsDigiStrip* aDigi = 0;
@@ -300,7 +311,7 @@ void PndSdsStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, I
   if(found == kFALSE){//TODO: Simulate a timestamp
 	  std::vector<Int_t>indices;
 	  indices.push_back(iPoint);
-    new ((*fStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,sensorID,fe,chan,charge, fMCPointType, 0) ;
+    new ((*fStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,sensorID,fe,chan,charge, fMCPointType, timestamp) ;
     iStrip++;
   }
 }
@@ -339,6 +350,12 @@ Bool_t PndSdsStripHitProducer::SelectSensorParams(Int_t sensorID)
   //if (fVerbose > 2)
   std::cout<<" DetName : "<<detpath<<std::endl;
   return kFALSE;
+}
+
+Int_t PndSdsStripHitProducer::DigitizeTime(Double_t time)
+{ // time [ns]
+  if(fVerbose) Warning("DigitizeTime","No decent Time Digitization invented, yet.");
+  return (Int_t)(time*1000);
 }
 
 // -------------------------------------------------------------------------

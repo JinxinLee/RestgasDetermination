@@ -27,7 +27,7 @@ public:
 	~PndSdsChargeWeightingAlgorithms();
 
 	   /**
-	 @fn double center_of_gravity(const StripCluster& Cluster)
+	 @fn Double_t center_of_gravity(const StripCluster& Cluster)
 
        calculate the coordinate of particle crossing the sensor, by using the algorithm center of gravity:
        \n \f$x_g=\sum^n_{k=1}\frac{q_k\cdot ch_k\cdot pitch}{\sum_{i=1}^n q_i}\f$
@@ -38,10 +38,10 @@ public:
 	  	center_of_gravity(cluster);
   	   @endcode
        */
-  std::pair<double,double> center_of_gravity(const PndSdsCluster* Cluster);
+  std::pair<Double_t,Double_t> CenterOfGravity(const PndSdsCluster* Cluster);
 
          /**
-	 @fn std::pair<double,double> head_tail(const StripCluster& Cluster)
+	 @fn std::pair<Double_t,Double_t> head_tail(const StripCluster& Cluster)
 
        calculate the coordinate of particle crossing the sensor, by using the head tail algorithm:
        \n \f$x_{ht}=\sum^n_{k=1}\left(\frac{x_{head}+x_{tail}}{2}+\frac{q_{head}-q_{tail}}{2\cdot q_\theta}\cdot pitch\right)\f$
@@ -52,10 +52,10 @@ public:
 	  	head_tail(cluster);
   	   @endcode
        */
-	std::pair<double,double> head_tail(const PndSdsCluster* Cluster);
+	std::pair<Double_t,Double_t> HeadTail(const PndSdsCluster* Cluster);
 
          /**
-	 @fn std::pair<double,double> eta(const StripCluster& Cluster)
+	 @fn std::pair<Double_t,Double_t> eta(const StripCluster& Cluster)
 
 
        @param Cluster investigationg cluster
@@ -65,9 +65,9 @@ public:
 	  	eta(cluster);
   	   @endcode
        */
-	std::pair<double,double> eta(const PndSdsCluster* Cluster);
+	std::pair<Double_t,Double_t> Eta(const PndSdsCluster* Cluster);
 	         /**
-	 @fn std::pair<double,double> binary(const StripCluster& Cluster)
+	 @fn std::pair<Double_t,Double_t> binary(const StripCluster& Cluster)
 
        coordinate of a strip with the highest signal
        @param Cluster investigationg cluster
@@ -77,9 +77,9 @@ public:
 	  	binary(cluster);
   	   @endcode
        */
-	std::pair<double,double> binary(const PndSdsCluster* Cluster);
+	std::pair<Double_t,Double_t> Binary(const PndSdsCluster* Cluster);
 	/**
-	 @fn std::pair<double,double> auto_select(const StripCluster& Cluster)
+	 @fn std::pair<Double_t,Double_t> auto_select(const StripCluster& Cluster)
 
 	 use the algorithm, which seems to bring the best result with this cluster.
        @param Cluster investigationg cluster
@@ -89,7 +89,7 @@ public:
 	  	auto_select(cluster);
   	   @endcode
        */
-	std::pair<double,double> auto_select(const PndSdsCluster* Cluster);
+	std::pair<Double_t,Double_t> AutoSelect(const PndSdsCluster* Cluster);
 
       /**
 	 @fn void MakedNdEta(const StripCluster& Cluster, RunInfo info)
@@ -106,18 +106,21 @@ public:
 //	void MakedNdEta(const std::vector<PndSdsCluster>& Cluster, RunInfo& info);
 /**@}*/
 
+	void SetDigiArray(TClonesArray* darray){fDigiArray = darray;};
 	void SetCalcStrip(PndSdsCalcStrip* calc){fCalcStrip = calc;};
 	void SetChargeConverter(PndSdsChargeConversion* ChargeConverter){fChargeConverter = ChargeConverter;};
+  void SetVerbose(Int_t level=0){fVerbose=level;};
 
 private:
 
 	Double_t DigiCharge(Int_t digiIndex);
 	Int_t DigiStripno(Int_t digiIndex);
-	double _erfmod(double x, double p0, double p1, double p2, double p3);
+	Double_t Erfmod(Double_t x, Double_t p0, Double_t p1, Double_t p2, Double_t p3);
 	TClonesArray* fDigiArray;
 	PndSdsCalcStrip* fCalcStrip;
 	PndSdsChargeConversion* fChargeConverter;
-
-	ClassDef(PndSdsChargeWeightingAlgorithms,0);
+  Int_t fVerbose;
+  
+	ClassDef(PndSdsChargeWeightingAlgorithms,1);
 };
 #endif

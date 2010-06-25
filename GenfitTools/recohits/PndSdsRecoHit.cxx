@@ -85,24 +85,24 @@ PndSdsRecoHit::PndSdsRecoHit(PndSdsHit* hit)
   fGeoH->GetOUVShortId(id, oo,uu,vv);
   
   TVector3 position = hit->GetPosition();
-  TVector3 localpos =  fGeoH->MasterToLocalShortId(position, id);
+  TVector3 localpos = fGeoH->MasterToLocalShortId(position, id);
   
   fHitCoord[0][0] = localpos.X();
   fHitCoord[1][0] = localpos.Y();
   
-  TVector3 errPos, errPosLoc;
-  hit->PositionError(errPos);  
-  errPosLoc = fGeoH->MasterToLocalErrorsShortId(errPos, id);
-  
-  fHitCov[0][0] = 0.0050 * 0.0050;
-  fHitCov[1][1] = 0.0050 * 0.0050;
-  // fHitCov[0][0] = errPosLoc.X() * errPosLoc.X();
-  // fHitCov[1][1] = errPosLoc.Y() * errPosLoc.Y();
-  
-  //  std::cout<<" -I- PndSdsRecoHit::PndSdsRecoHit: Wrote a hit with"
-  //  <<"\n(x,y) = ("<<localpos.X()<<","<<localpos.Y()<<")."
-  //  <<"\n(dx,dy) = ("<<errPosLoc.X()<<","<<errPosLoc.Y()<<"). \t not used: dz="<<errPosLoc.Z()
-  //  <<std::endl;
+  TMatrixD cova = fGeoH->MasterToLocalErrorsShortId(hit->GetCov(), id);
+  // project only the 2 dimensions of cov.
+  fHitCov[0][0] = cova[0][0];
+  fHitCov[0][1] = cova[0][1];
+  fHitCov[1][0] = cova[1][0];
+  fHitCov[1][1] = cova[1][1];
+    
+  std::cout<<" -I- PndSdsRecoHit::PndSdsRecoHit: Wrote a hit with"
+  <<"\n(x,y) = ("<<localpos.X()<<","<<localpos.Y()<<")."
+  <<"\nCovariance Matrix is";
+  fHitCov.Print();
+  std::cout<<"From 3D hit matrix";
+  cova.Print();
   
   fPolicy.setDetPlane(GFDetPlane(oo,uu,vv));
 }

@@ -61,8 +61,6 @@ class PndMvdNoiseProducer : public FairTask
 
   void FillSensorLists();
 
-  void DiveDownNode(TGeoNode *fN);
-//   void Finish();
  private:
   Bool_t fPersistance;
   TString fBranchName;
@@ -79,15 +77,14 @@ class PndMvdNoiseProducer : public FairTask
   PndSdsTotDigiPar* fTotDigiParTrap;
   PndSdsTotDigiPar* fTotDigiParPix;
 
-//  PndMvdGeoPar* fGeoPar;
-
   PndGeoHandling* fGeoH;      //! Geometry name handling
 
+  std::vector<Int_t> fPixelIds2;
   std::vector<Int_t> fPixelIds4;
+  std::vector<Int_t> fPixelIds5;
   std::vector<Int_t> fPixelIds6;
-  std::vector<Int_t> fPixelIds8;
-  std::vector<Int_t> fPixelIds12;
-  std::vector<Int_t> fStripRectIds;
+  std::vector<Int_t> fStripRectLIds;
+  std::vector<Int_t> fStripRectSIds;
   std::vector<Int_t> fStripTrapIds;
 
   PndSdsChargeConversion* fStripRectChargeConv;

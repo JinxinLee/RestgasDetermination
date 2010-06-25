@@ -32,9 +32,6 @@ cluster_radtime:Int_t 0
 cluster_corrchargecut:Double_t 12000.
 cluster_singlechargecut:Double_t 3000.
 chargeconv_method:Int_t 1
-raising_time:Double_t 100.
-falling_ratio:Double_t 60.
-clock_frequency:Double_t 50.
 #################################################################
 # Digitization parameters for TRAPEZOID Mvd strip sensors
 #################################################################
@@ -62,9 +59,6 @@ cluster_radtime:Int_t 0
 cluster_corrchargecut:Double_t 12000.
 cluster_singlechargecut:Double_t 3000.
 chargeconv_method:Int_t 1
-raising_time:Double_t 100.
-falling_ratio:Double_t 60.
-clock_frequency:Double_t 50.
 #################################################################
 # Digitization parameters for RECTANGULAR double-sided
 # strip sensors used in the tracking station.
@@ -93,9 +87,6 @@ cluster_radtime:Int_t 0
 cluster_corrchargecut:Double_t 12000.
 cluster_singlechargecut:Double_t 3000.
 chargeconv_method:Int_t 1
-raising_time:Double_t 100.
-falling_ratio:Double_t 60.
-clock_frequency:Double_t 50.
 #################################################################
 # Digitization parameters for RECTANGULAR single-sided
 # strip sensors used in the tracking station.
@@ -124,9 +115,6 @@ cluster_radtime:Int_t 0
 cluster_corrchargecut:Double_t 12000.
 cluster_singlechargecut:Double_t 3000.
 chargeconv_method:Int_t 1
-raising_time:Double_t 100.
-falling_ratio:Double_t 60.
-clock_frequency:Double_t 50.
 #################################################################
 # Digitization Parameters for MVD Pixel
 #################################################################
@@ -140,9 +128,6 @@ FECols:Int_t 104
 FERows:Int_t 104
 ClustRad:Double_t 1.8
 chargeconv_method:Int_t 1
-raising_time:Double_t 100
-falling_ratio:Double_t 60
-clock_frequency:Double_t 50
 #################################################################
 #################################################################
 # Charge to Tot Digitization parameters for MVD
@@ -295,7 +280,8 @@ MaxIterations:Int_t 10
 CentroidShift:Double_t 0.1
 MaxBumps:Int_t 8
 MinDigiEnergy:Double_t 20.e-6
-##################################################################################################################################
+#################################################################
+#################################################################
 # Correlation Parameter for LHEtrack
 # Format:
 # parameter_name:parameter_type(i-integer, d-double) parameter_value

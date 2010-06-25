@@ -9,6 +9,7 @@
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
 #include "TCanvas.h"
+#include "TmatrixD.h"
 #include "FairRootManager.h"
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
@@ -67,10 +68,7 @@ PndSdsStripClusterTask::~PndSdsStripClusterTask()
 		if(0 != it->second) delete it->second;
 		it->second = 0;
 	}
-	for(std::map<const char*,PndSdsChargeWeightingAlgorithms*>::iterator it = fChargeAlgos.begin(); it != fChargeAlgos.end(); it++){
-		if(0 != it->second) delete it->second;
-		it->second = 0;
-	}
+  if(0 != fChargeAlgos) delete fChargeAlgos;
 	for(std::map<const char*,PndSdsChargeConversion*>::iterator it = fChargeConverter.begin(); it != fChargeConverter.end(); it++){
 		if(0 != it->second) delete it->second;
 		it->second = 0;
@@ -117,7 +115,9 @@ void PndSdsStripClusterTask::SetCalculators()
     fStripCalcTop[senstype]=new PndSdsCalcStrip(digipar,kTOP); 
     fStripCalcTop[senstype]->SetVerboseLevel(fVerbose); 
     fStripCalcBot[senstype]=new PndSdsCalcStrip(digipar,kBOTTOM); 
-    fStripCalcBot[senstype]->SetVerboseLevel(fVerbose);     
+    fStripCalcBot[senstype]->SetVerboseLevel(fVerbose);  
+    fChargeAlgos = new PndSdsChargeWeightingAlgorithms(fDigiArray);
+    fChargeAlgos->SetVerbose(fVerbose);
   } 
 } 
 
@@ -172,6 +172,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
   fHitArray->Delete();
   // when we have no digis, we can end the event here.
   if (fDigiArray->GetEntriesFast() == 0) return;
+  fGeoH->SetVerbose(fVerbose);
   
   // Setup
   FillClusterFinders();
@@ -186,7 +187,9 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
   Double_t mycharge;
   TVector2 meantopPoint, meanbotPoint, onsensorPoint;
   TVector3 hitPos,hitErr;
+  TMatrixD hitCov(3,3);
   Int_t clusterOffset = 0;
+  PndSdsHit* tmphit;
   
   // -------   SEARCH  ------
   TIter parsetiter(fDigiParameterList);
@@ -272,11 +275,11 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
         continue; 
       }
       if(topcharge <= 0) { // not a sane charge
-        Error("Exec() - Hit combination","Not a sane top charge (%d) calculated, skip cluster %i",topcharge, *itTop);
+        Error("Exec() - Hit combination","Not a sane top charge (%f) calculated, skip cluster %i",topcharge, *itTop);
         continue;
       }
       if(meantopstrip < 0) { // not a sane strip number
-        Error("Exec() - Hit combination","Not a sane top mean (%d) calculated, skip cluster %i",meantopstrip, *itTop);
+        Error("Exec() - Hit combination","Not a sane top mean (%f) calculated, skip cluster %i",meantopstrip, *itTop);
         continue;
       }
       if(mcindex < 0) {//look for the first digi from a MC point
@@ -310,11 +313,11 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
           continue; 
         }
         if(botcharge <= 0) { // not a sane charge
-          Error("Exec() - Hit combination","Not a sane bot charge (%d) calculated, skip cluster %i",botcharge, *itBot);
+          Error("Exec() - Hit combination","Not a sane bot charge (%f) calculated, skip cluster %i",botcharge, *itBot);
           continue;
         }
         if(meanbotstrip < 0) { // not a sane strip number
-          Error("Exec() - Hit combination","Not a sane bot mean (%d) calculated, skip cluster %i",meanbotstrip, *itBot);
+          Error("Exec() - Hit combination","Not a sane bot mean (%f) calculated, skip cluster %i",meanbotstrip, *itBot);
           continue;
         }
         
@@ -336,17 +339,19 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
               }
             }
           }
-          Bool_t test = Backmap(meantopPoint, meantoperr, meanbotPoint, meanboterr, hitPos, hitErr,sensorIDtop);
+          Bool_t test = Backmap(meantopPoint, meantoperr, meanbotPoint, meanboterr, hitPos, hitCov,sensorIDtop);
           if (kFALSE==test) continue;
           
           // --- add hit to list ---
           Int_t i = fHitArray->GetEntriesFast();
-          new((*fHitArray)[i]) PndSdsHit(detID,sensorIDtop,hitPos,hitErr,
-                                         topIndex,mycharge,oneclusterbot.size()+oneclustertop.size(),mcindex);
-          ((PndSdsHit*)((*fHitArray)[i]))->SetBotIndex(botIndex);
-          ((PndSdsHit*)((*fHitArray)[i]))->SetLink(FairLink(fClusterType, topIndex));
-          ((PndSdsHit*)((*fHitArray)[i]))->AddLink(FairLink(fClusterType, botIndex));
-          
+          hitErr.SetXYZ(sqrt(hitCov[0][0]),sqrt(hitCov[1][1]),sqrt(hitCov[2][2]));
+          tmphit = new((*fHitArray)[i]) PndSdsHit(detID,sensorIDtop,hitPos,hitErr,
+                                                  topIndex,mycharge,oneclusterbot.size()+oneclustertop.size(),mcindex);
+          tmphit->SetBotIndex(botIndex);
+          tmphit->SetLink(FairLink(fClusterType, topIndex));
+          tmphit->AddLink(FairLink(fClusterType, botIndex));
+          tmphit->SetCov(hitCov);
+          if (fVerbose > 1) tmphit->Print();
         } else
           if (fVerbose > 2) std::cout<<"Strip charge contents too differently"<<std::endl;
       }// loop bot clusters
@@ -390,8 +395,8 @@ void PndSdsStripClusterTask::SetCurrentCalculators(PndSdsStripDigiPar* digipar)
   fCurrentClusterfinder = fClusterFinderList[sensortype];
   fCurrentChargeConverter = fChargeConverter[sensortype];
   fCurrentDigiPar = digipar;
-  fCurrentChargeAlgos = fChargeAlgos[sensortype];
-  fCurrentChargeAlgos->SetCalcStrip(fCurrentStripCalcTop);
+  fChargeAlgos->SetCalcStrip(fCurrentStripCalcTop);
+  fChargeAlgos->SetChargeConverter(fCurrentChargeConverter);
   fChargeCut = digipar->GetChargeCut();
   fSingleStripChargeThreshold = digipar->GetSingleChargeCut();
   return;
@@ -430,7 +435,8 @@ void PndSdsStripClusterTask::FillClusterFinders()
     fCurrentStripCalcTop->CalcFeChToStrip(myDigi->GetFE(), myDigi->GetChannel(), strip, side); 
     fCurrentClusterfinder->AddDigi(sensorID,side,myDigi->GetTimestamp(),strip,iDigi);
   } 
-  
+  // make sure the digi array is distributed well
+  fChargeAlgos->SetDigiArray(fDigiArray);
 }
 
 // ------------------------------------------------------------------------- 
@@ -493,10 +499,10 @@ void PndSdsStripClusterTask::CalcMeanCharge(PndSdsClusterStrip* onecluster, Doub
 	} else {
     //	//TODO: Apply other clusterfinder mean & error algorithms
 		if(fVerbose>1)std::cout<<"-W- PndSdsStripClusterTask::CalcMeanCharge: Using a preliminary Chargeweighting, please set cluster_mod to 0 in your param file ."<<std::endl;
-//    if(onecluster->GetSensorSide()==kTOP) fCurrentChargeAlgos->SetCalcStrip(fCurrentStripCalcTop);
-//    else fCurrentChargeAlgos->SetCalcStrip(fCurrentStripCalcBot);
-    fCurrentChargeAlgos->SetChargeConverter(fCurrentChargeConverter);
-    std::pair<Double_t,Double_t> result = fCurrentChargeAlgos->center_of_gravity(onecluster);
+    //    if(onecluster->GetSensorSide()==kTOP) fCurrentChargeAlgos->SetCalcStrip(fCurrentStripCalcTop);
+    //    else fCurrentChargeAlgos->SetCalcStrip(fCurrentStripCalcBot);
+    //    fChargeAlgos->SetChargeConverter(fCurrentChargeConverter); // done somewhere else
+    std::pair<Double_t,Double_t> result = fChargeAlgos->CenterOfGravity(onecluster);
     meanstrip=result.first;
     meanerr=result.second;
     std::vector<Int_t> oneclusterlist = onecluster->GetClusterList();
@@ -515,13 +521,15 @@ void PndSdsStripClusterTask::CalcMeanCharge(PndSdsClusterStrip* onecluster, Doub
 
 
 Bool_t PndSdsStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantoperr, TVector2 meanbotPoint, Double_t meanboterr,
-                                       TVector3 &hitPos, TVector3 &hitErr, Int_t &sensorID)
+                                       TVector3 &hitPos, TMatrixD &hitCov, Int_t &sensorID)
 {
   // BACKMAPPING
   // get the backmapped point
   
-  TVector3 localpos, locDpos;
+  TVector3 localpos;
+  TMatrixD locCov(3,3);
   Double_t t, b;
+  
   Double_t errZ = 2.*fGeoH->GetSensorDimensionsShortId(sensorID).Z()/TMath::Sqrt(12.0);
   
   TVector2 onsensorPoint = 
@@ -539,14 +547,14 @@ Bool_t PndSdsStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantope
   // calculate the errors corresponding to a skewed system!
   t = meantoperr*fCurrentDigiPar->GetTopPitch()*cos(fCurrentDigiPar->GetOrient());
   b = meanboterr*fCurrentDigiPar->GetBotPitch()*cos(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
-  locDpos.SetX( sqrt(t*t+b*b) );
+  locCov[0][0]=t*t+b*b;
   t = meantoperr*fCurrentDigiPar->GetTopPitch()*sin(fCurrentDigiPar->GetOrient());
   b = meanboterr*fCurrentDigiPar->GetBotPitch()*sin(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
-  locDpos.SetY( sqrt(t*t+b*b) );
-  locDpos.SetZ( errZ );
+  locCov[1][1]=t*t+b*b;
+  locCov[2][2]=errZ*errZ;
   
   //do the transformation from sensor to lab frame
-  hitErr = fGeoH->LocalToMasterErrorsShortId(locDpos,sensorID);
+  hitCov = fGeoH->LocalToMasterErrorsShortId(locCov,sensorID);
   
   return kTRUE;
 }

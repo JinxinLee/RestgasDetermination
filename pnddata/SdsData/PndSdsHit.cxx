@@ -21,8 +21,8 @@ PndSdsHit::PndSdsHit() {
 
 // -----   Standard constructor   ------------------------------------------
 PndSdsHit::PndSdsHit(Int_t detID, Int_t sensorID, TVector3& pos, TVector3& dpos,
-		     Int_t clindex, Double_t charge, Int_t NDigiHits, Int_t mcindex)
-  : FairHit(detID, pos, dpos, mcindex) {
+                     Int_t clindex, Double_t charge, Int_t NDigiHits, Int_t mcindex)
+: FairHit(detID, pos, dpos, mcindex), fCov(3,3){
   fSensorID = sensorID;
   fCharge  = charge;
   fNDigiHits = NDigiHits;
@@ -31,19 +31,19 @@ PndSdsHit::PndSdsHit(Int_t detID, Int_t sensorID, TVector3& pos, TVector3& dpos,
 }
 
 /*PndSdsHit::PndSdsHit(PndSdsHit& c)
-: FairHit()
-{
-	fDetName = c.GetDetName();
-	fTrackID = c.GetTrackID();
-	fCharge  =  c.GetCharge();
-	fNDigiHits = c.GetNDigiHits();
-	SetPosition(c.GetPosition());
-	SetPositionError(c.GetPositionError());
-	SetDetectorID(c.GetDetectorID());
-	SetRefIndex(c.GetRefIndex());
-
-
-}*/
+ : FairHit()
+ {
+ fDetName = c.GetDetName();
+ fTrackID = c.GetTrackID();
+ fCharge  =  c.GetCharge();
+ fNDigiHits = c.GetNDigiHits();
+ SetPosition(c.GetPosition());
+ SetPositionError(c.GetPositionError());
+ SetDetectorID(c.GetDetectorID());
+ SetRefIndex(c.GetRefIndex());
+ 
+ 
+ }*/
 // -------------------------------------------------------------------------
 
 
@@ -58,6 +58,18 @@ PndSdsHit::~PndSdsHit() {}
 void PndSdsHit::Print(const Option_t* opt) const {
   std::cout << *this;
 }
+
+void PndSdsHit::SetCov(TMatrixD cov)
+{ 
+  if (cov.GetNcols()==3 && cov.GetNrows()==3)
+    fCov = cov; 
+  else {
+    Error("SetCov","matrix has wrong dimensions!");
+    cov.Print();
+  }
+}
+
+
 
 
 // Double_t PndSdsHit::GetD(Int_t i)

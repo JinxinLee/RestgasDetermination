@@ -126,6 +126,7 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
   // Reset output array
   if ( ! fClusterArray ) Fatal("Exec", "No ClusterArray");
   fClusterArray->Delete();
+  fGeoH->SetVerbose(fVerbose);
   
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
   fHitArray->Delete();

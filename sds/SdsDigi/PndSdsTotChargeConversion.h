@@ -26,41 +26,42 @@
  * ------------------------------- q = 0 (charge)
  *    | tr|                    t[ns]
  *      <-  TOT ->
-*/
+ */
 
 
 class PndSdsTotChargeConversion : public PndSdsChargeConversion{
-
-public :
+  
+  public :
 	///Default constructor
 	PndSdsTotChargeConversion(Int_t VerboseLevel = 0);
-
+  
 	///Main constructor
 	PndSdsTotChargeConversion(Double_t tr, Double_t a, Double_t threshold, Double_t clockfrequency = 0, Int_t VerboseLevel = 0);
-
+  
 	///Destructor
 	~PndSdsTotChargeConversion(){};
-
+  
 	void StartExecute();
-
-	Double_t ChargeToDigiValue(Double_t charge);
-	Double_t DigiValueToCharge(Double_t digivalue);
+  
+	virtual Double_t ChargeToDigiValue(Double_t charge);
+	virtual Double_t DigiValueToCharge(Double_t digivalue);
 	Double_t GetPileUpTime(Double_t charge);		//returns the time the capacitor is loaded and therefore the time the hit MVD is blind for other events
-
-private :
-  	Double_t fthreshold;		//[e]
-    Double_t Q, Qt;				//max charge, threshold charge [e]
-	Double_t t1e, t2e;			//exact time point when signal is over threshold/under threshold again [ns]
-    Double_t ftimestep;			//one time step of the clock [ns]
-    Double_t fstarttime;		//absolute point when TOT begins [ns]
-    Double_t fstoptime;			//absolute point when TOT ends [ns]
-    Double_t ftimeoffset;		//difference between rising clock edge and when detector gets hit [ns]
-    Int_t fVerboseLevel;
-    Double_t GetTotWC();		//assumes a clock which results in a quantized TOT
-
-    TRandom2 fRand;
-
-    ClassDef(PndSdsTotChargeConversion, 1);
+  virtual Double_t GetRelativeError(Double_t Charge);
+  
+  private :
+  Double_t fthreshold;		//[e]
+  Double_t Q, Qt;				//max charge, threshold charge [e]
+  Double_t t1e, t2e;			//exact time point when signal is over threshold/under threshold again [ns]
+  Double_t ftimestep;			//one time step of the clock [ns]
+  Double_t fstarttime;		//absolute point when TOT begins [ns]
+  Double_t fstoptime;			//absolute point when TOT ends [ns]
+  Double_t ftimeoffset;		//difference between rising clock edge and when detector gets hit [ns]
+  Int_t fVerboseLevel;
+  Double_t GetTotWC();		//assumes a clock which results in a quantized TOT
+  
+  TRandom2 fRand;
+  
+  ClassDef(PndSdsTotChargeConversion, 1);
 };
 
 #endif /* PNDSDSTOTCHARGECONVERSION_H */

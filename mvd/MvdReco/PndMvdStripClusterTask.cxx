@@ -95,7 +95,6 @@ void PndMvdStripClusterTask::SetCalculators()
 			fChargeConverter[senstype] = new PndSdsIdealChargeConversion();
     }
     //fChargeAlgos[senstype] = new PndSdsChargeWeightingAlgorithms(fDigiArray, digipar->GetRaisingTime(),digipar->GetFallingRatio(),digipar->GetThreshold());
-    fChargeAlgos[senstype] = new PndSdsChargeWeightingAlgorithms(fDigiArray);
     Int_t ClusterMod = digipar->GetClusterMod(); 
     Int_t RadChannel = digipar->GetRadChannel(); 
     Int_t RadTime    = digipar->GetRadTime(); 

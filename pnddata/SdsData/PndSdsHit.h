@@ -21,6 +21,7 @@
 #include "TString.h"
 #include "FairHit.h"
 #include "PndDetectorList.h"
+#include "TMatrixD.h"
 //#include "PndSingleLinkedData.h" 
 
 #include <stdio.h>
@@ -46,6 +47,7 @@ class PndSdsHit : public FairHit
     out <<"hit.GetNDigiHits() "<< hit.GetNDigiHits()<<std::endl;
     out <<"hit.GetCharge() "<< hit.GetCharge()<<"("<<hit.GetEloss()<<" GeV)"<<std::endl;
     out <<"hit.GetSensorID() "<< hit.GetSensorID()<<std::endl;
+    out <<"Error values in FairHit part: (dx,dy,dz) = ("<< hit.GetDx()<<","<<hit.GetDy()<<","<<hit.GetDz()<<")"<<std::endl;
     return out;
   }
 
@@ -82,6 +84,7 @@ class PndSdsHit : public FairHit
 	  SetLink(FairLink((fDetectorType)datasource, id));
   }
   void SetBotIndex(Int_t id)     { fBotIndex  = id;}
+  void SetCov(TMatrixD cov);
   
   //TString 	GetDetName()      const { return fDetName;}
   Int_t     GetSensorID()			const { return fSensorID;}
@@ -92,6 +95,7 @@ class PndSdsHit : public FairHit
   Int_t     GetTopIndex()     const { return GetClusterIndex();}
   Int_t     GetBotIndex()     const { return fBotIndex;}
   Double_t  GetEloss()        const { return (fCharge * 3.61e-9);}  // 3.6 eV/Electron in Silicon
+  TMatrixD  GetCov()          const { return fCov;}
 
 
 //  FIXME: CAUTION The errors in the SsdHit are LOCAL, but the coordinates are in the LAB
@@ -122,6 +126,7 @@ class PndSdsHit : public FairHit
   Int_t fNDigiHits; /// number of fired Digis for this hit,
   Int_t fClusterIndex; /// top/pixel cluster index
   Int_t fBotIndex; /// bottom side of strip clusters
+  TMatrixD fCov; /// Hit covariance Matrix
   ClassDef(PndSdsHit,8);
 
 };

@@ -162,7 +162,7 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
   fPixelArray->Delete();
   fPixelList.clear();
   //   fFePixelArray->Clear();
-  
+  fGeoH->SetVerbose(fVerbose);  
   // Declare some variables
   PndSdsMCPoint *point = NULL;
   

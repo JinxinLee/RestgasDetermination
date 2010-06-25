@@ -11,24 +11,34 @@
 #include "PndSdsCluster.h"
 
 class PndSdsClusterStrip: public PndSdsCluster {
+  
+  friend std::ostream& operator<< (std::ostream& out, PndSdsClusterStrip& cl){
+    std::vector<Int_t> list = cl.GetClusterList();
+    out << "Hits in Cluster:" << std::endl;
+    for (UInt_t i = 0; i<list.size();i++)
+      out << list[i] << std::endl;
+    out << std::endl;
+    return out;
+  }
+  
 public:
 	PndSdsClusterStrip();
 	PndSdsClusterStrip(std::vector<Int_t> list){
 		SetClusterList(list);
 	};
 	virtual ~PndSdsClusterStrip();
-
+  
 	void SetClusterList(std::vector<Int_t> list){
 		fClusterList = list;
 		SetLinks(FairMultiLinkedData(kMVDDigiStrip, list));
 	}
-
+  
 	SensorSide GetSensorSide() const {return fSide;}
 	void SetSensorSide(SensorSide s) {fSide = s;}
-
+  
 private:
-    SensorSide fSide;
-
+  SensorSide fSide;
+  
 	ClassDef(PndSdsClusterStrip, 1);
 };
 

@@ -9,6 +9,7 @@
 #include "PndDetectorList.h"
 #include "FairGeoVector.h"
 #include "FairGeoTransform.h"
+#include "FairMCEventHeader.h"
 #include "TVector3.h"
 #include "TRandom.h"
 #include "TGeoMatrix.h"
@@ -97,7 +98,7 @@ class PndSdsStripHitProducer : public FairTask
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
-  void AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge);
+  void AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge, Int_t timestamp);
 
   void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
   Bool_t GetPersistance() {return fPersistance;};
@@ -135,7 +136,10 @@ class PndSdsStripHitProducer : public FairTask
   void ProduceHits();
   virtual void SetCalculators();
   Bool_t SelectSensorParams(Int_t sensorID);
+  
+  Int_t DigitizeTime(Double_t time);
 
+  FairMCEventHeader* fMcEventHeader;
   PndGeoHandling* fGeoH; // converter for detector names
   Bool_t fOverrideParams;   // internal Flag that controls use of Parameter Invocations
 

@@ -147,7 +147,9 @@ class PndSdsDetector : public FairDetector
   void SetRadDamOption(bool val){fUseRadDamOption = val;};
   bool GetRadDamOption(){return fUseRadDamOption;};
 
-
+  // overload function from FairModule
+  void SetVerboseLevel(Int_t level){fVerboseLevel=level;fGeoH->SetVerbose(level);}
+  
   void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
   Bool_t GetPersistance() {return fPersistance;};
   

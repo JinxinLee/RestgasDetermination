@@ -35,7 +35,7 @@ PndGeoHandling * PndGeoHandling::fInstance= NULL;
 
 PndGeoHandling* PndGeoHandling::Instance(){
 	if ( !fInstance){
-    std::cout<<"Info in (PndGeoHandling::Instance): No Instance created, yet. Making a new one using the framework."<<std::endl;
+    std::cout<<"Info in (PndGeoHandling::Instance): Making a new instance using the framework."<<std::endl;
 		fInstance = new PndGeoHandling();
 	}
 	return fInstance;
@@ -145,6 +145,7 @@ void PndGeoHandling::GetGeoManager()
 		return;
 	FairBaseParSet* par=(FairBaseParSet*)(fRtdb->getContainer("FairBaseParSet"));
 	fRtdb->initContainers(fRunId);
+  if(fVerbose>0) par->Print();
 }
 
 /*
@@ -233,6 +234,11 @@ TString PndGeoHandling::GetPath(Int_t shortID)
  return fGeoMan->cd(GetPath(id).Data());
  }
  */
+Bool_t PndGeoHandling::cd(Int_t id)
+{
+  return fGeoMan->cd(GetPath(id).Data());
+}
+
 
 TString PndGeoHandling::GetVolumeID(TString name)
 {
@@ -409,26 +415,23 @@ TVector3 PndGeoHandling::LocalToMasterPath(const TVector3& local, const TString&
  TVector3 PndGeoHandling::MasterToLocalErrorsId(const TVector3& master, const TString& id)
  { return MasterToLocalErrorsPath(master, GetPath(id) ); }
  */
-TVector3 PndGeoHandling::MasterToLocalErrorsPath(const TVector3& master, const TString& path)
+TMatrixD PndGeoHandling::MasterToLocalErrorsPath(const TMatrixD& master, const TString& path)
 {
-  Double_t result[3];
-  Double_t temp[3];
   TString actPath = fGeoMan->GetPath();
   fGeoMan->cd(path);
-  
-  temp[0] = master.X();
-  temp[1] = master.Y();
-  temp[2] = master.Z();
-  
-  // rotate "error vector"
-  fGeoMan->MasterToLocalVect(temp,result);
-  //  // positive error values
-  //  for(Int_t i=0;i<3;i++) result[i]=fabs(result[i]);
-  
+  TMatrixD rot=GetCurrentRotationMatrix();
+  TMatrixD result = rot;
+  result*=master;
+  rot.T();
+  result*=rot;
+  if(fVerbose>1){
+    std::cout<<" -I- PndGeoHandling::MasterToLocalErrorsPath: print matrices: master, rotation, result=R*M*R^T"<<std::endl;
+    master.Print();
+    rot.Print();
+    result.Print();
+  }
   if(actPath != "" && actPath != " ") fGeoMan->cd(actPath);
-  return TVector3(result[0],result[1],result[2]);
-  
-  
+  return result;
 }
 
 
@@ -437,26 +440,41 @@ TVector3 PndGeoHandling::MasterToLocalErrorsPath(const TVector3& master, const T
  { return LocalToMasterErrorsPath(local, GetPath(id) ); }
  */
 
-TVector3 PndGeoHandling::LocalToMasterErrorsPath(const TVector3& local, const TString& path)
+TMatrixD PndGeoHandling::LocalToMasterErrorsPath(const TMatrixD& local, const TString& path)
 {
-  Double_t result[3];
-  Double_t temp[3];
   TString actPath = fGeoMan->GetPath();
   fGeoMan->cd(path);
-  
-  temp[0] = local.X();
-  temp[1] = local.Y();
-  temp[2] = local.Z();
-  
-  // rotate "error vector"
-  fGeoMan->LocalToMasterVect(temp,result);
-  // // positive error values
-  // for(Int_t i=0;i<3;i++) result[i]=fabs(result[i]);
-  
+  TMatrixD rot=GetCurrentRotationMatrix();
+  TMatrixD result = rot;
+  result.T();
+  result*=local;
+  result*=rot;
+  if(fVerbose>1){
+    std::cout<<" -I- PndGeoHandling::LocalToMasterErrorsPath: print matrices: master, rotation, result=R^T*M*R"<<std::endl;
+    local.Print();
+    rot.Print();
+    result.Print();
+  }
   if(actPath != "" && actPath != " ") fGeoMan->cd(actPath);
-  return TVector3(result[0],result[1],result[2]);
-  
+  return result;
 }
+
+TMatrixD PndGeoHandling::GetCurrentRotationMatrix()
+{
+  TMatrixD rot(3,3,fGeoMan->GetCurrentMatrix()->GetRotationMatrix());
+//  TMatrixD rot(3,3);
+//  rot[0][0] =  fGeoMan->GetCurrentMatrix()->GetRotationMatrix()[0];
+//  rot[0][1] =  fGeoMan->GetCurrentMatrix()->GetRotationMatrix()[1];
+//  rot[0][2] =  fGeoMan->GetCurrentMatrix()->GetRotationMatrix()[2];
+//  rot[1][0] =  fGeoMan->GetCurrentMatrix()->GetRotationMatrix()[3];
+//  rot[1][1] =  fGeoMan->GetCurrentMatrix()->GetRotationMatrix()[4];
+//  rot[1][2] =  fGeoMan->GetCurrentMatrix()->GetRotationMatrix()[5];
+//  rot[2][0] =  fGeoMan->GetCurrentMatrix()->GetRotationMatrix()[6];
+//  rot[2][1] =  fGeoMan->GetCurrentMatrix()->GetRotationMatrix()[7];
+//  rot[2][2] =  fGeoMan->GetCurrentMatrix()->GetRotationMatrix()[8];
+  return rot;
+}
+
 
 TString PndGeoHandling::FindNodePath(TGeoNode* node)
 {

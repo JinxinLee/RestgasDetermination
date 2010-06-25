@@ -35,6 +35,8 @@
 #include "TGeoMatrix.h"
 #include "TString.h"
 #include "TVector3.h"
+#include "TMatrixD.h"
+
 #include <string>
 #include <iostream>
 #include <vector>
@@ -102,23 +104,26 @@ public:
   }
   
   // TODO: Recheck the error calculation for 3-vectors
-  //  TVector3 MasterToLocalErrorsId(const TVector3& master, const TString& id);
-  TVector3 MasterToLocalErrorsPath(const TVector3& master, const TString& id);
-  TVector3 MasterToLocalErrorsShortId(const TVector3& master, const Int_t& shortId){
+  //  TMatrixD MasterToLocalErrorsId(const TMatrixD& master, const TString& id);
+  TMatrixD MasterToLocalErrorsPath(const TMatrixD& master, const TString& id);
+  TMatrixD MasterToLocalErrorsShortId(const TMatrixD& master, const Int_t& shortId){
  	  return MasterToLocalErrorsPath(master, GetPath(shortId));
   }
   
-  //  TVector3 LocalToMasterErrorsId(const TVector3& local, const TString& id);
-  TVector3 LocalToMasterErrorsPath(const TVector3& local, const TString& id);
-  TVector3 LocalToMasterErrorsShortId(const TVector3& local, const Int_t& shortId){
+  //  TMatrixD LocalToMasterErrorsId(const TMatrixD& local, const TString& id);
+  TMatrixD LocalToMasterErrorsPath(const TMatrixD& local, const TString& id);
+  TMatrixD LocalToMasterErrorsShortId(const TMatrixD& local, const Int_t& shortId){
     return LocalToMasterErrorsPath(local, GetPath(shortId));
   }
+  
+  TMatrixD GetCurrentRotationMatrix();
   
   void SetVerbose(Int_t v) { fVerbose = v; }
   void SetGeoManager(TGeoManager* geo){fGeoMan = geo;};
   void SetSensorNamePar(PndSensorNamePar* par){fSensorNamePar = par;}
   
-  Bool_t cd(TString id); ///< as the cd command of TGeoManager just with the ID
+  //Bool_t cd(TString id); ///< as the cd command of TGeoManager just with the ID
+  Bool_t cd(Int_t id); ///< as the cd command of TGeoManager just with the ID
   void FillLevelNames(); ///< fills vector<TString> fLevelNames with the names (or the paths) of the volumes down to the level given by fLevel
   
   TString FindNodePath(TGeoNode* node);

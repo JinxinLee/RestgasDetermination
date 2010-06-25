@@ -17,7 +17,7 @@ fDigiArray = pixelArray;
 	Double_t col = 0, row = 0, charge = 0;
 	Double_t tempCol = 0, tempRow = 0;
 	Int_t count = 0, mcindex=-1;
-	//Double_t local[3], master[3];
+	//Double_t local[2], master[2];
 
 	if (fDigiArray.size() == 1){
 		if (fChargeConverter->DigiValueToCharge(fDigiArray[0]) > 0){
@@ -85,10 +85,16 @@ fDigiArray = pixelArray;
   TVector3 locpos( col*flx - offset.X(), row*fly - offset.Y(), 0);
   TVector3 pos = fGeoH->LocalToMasterShortId(locpos,fDigiArray[0].GetSensorID());
 
-  Double_t errZ = 2.*fGeoH->GetSensorDimensionsShortId(fDigiArray[0].GetSensorID()).Z()/TMath::Sqrt(12.0);
-  TVector3 locdpos(flx/TMath::Sqrt(12.0),fly/TMath::Sqrt(12.0),errZ);
-  TVector3 dpos = fGeoH->LocalToMasterErrorsShortId(locdpos,fDigiArray[0].GetSensorID());
-  return (PndSdsHit(fDigiArray[0].GetDetID(),fDigiArray[0].GetSensorID(), pos, dpos, -1, charge, fDigiArray.size(),mcindex) );
+  Double_t errZ = 2.*fGeoH->GetSensorDimensionsShortId(fDigiArray[0].GetSensorID()).Z();
+  TMatrixD locCov(3,3);
+  locCov[0][0]=flx*flx/12.;
+  locCov[1][1]=fly*fly/12.;
+  locCov[2][2]=errZ*errZ/12;
+  TMatrixD hitCov=fGeoH->LocalToMasterErrorsShortId(locCov,fDigiArray[0].GetSensorID());
+  TVector3 dpos(sqrt(hitCov[0][0]),sqrt(hitCov[1][1]),sqrt(hitCov[2][2]));
+  PndSdsHit thehit(fDigiArray[0].GetDetID(),fDigiArray[0].GetSensorID(), pos, dpos, -1, charge, fDigiArray.size(),mcindex);
+  thehit.SetCov(hitCov);
+  return thehit;
 }
 
 TGeoHMatrix PndSdsChargeWeightedPixelMapping::GetTransformation(Int_t sensorID)

@@ -66,6 +66,17 @@ Double_t PndSdsTotChargeConversion::ChargeToDigiValue(Double_t charge){ //return
 	return GetTotWC();
 }
 
+Double_t PndSdsTotChargeConversion::GetRelativeError(Double_t Charge)
+{
+  // formula from D.Pohl/FZJ
+  // dQ_rec     a             /               (Q_t - a*t_c)/2  +  (Q - Q_t)(t_c/Q - 1/a)*a/2              \
+  // ------  =  - * dt_max * | 1 + ----------------------------------------------------------------------  |
+  //  Q_rec     2             \    sqrt{ [ (Q_t - a*t_c)/2 + (Q - Q_t)(t_c/Q - 1/a)*a/2 ]^2 + a*Q_t*t_c } /
+  
+  
+}
+
+
 Double_t PndSdsTotChargeConversion::GetTotWC(){ //calculates start time, stop time with a clock
 	fstarttime = (Int_t) ( t1e / ftimestep ) * ftimestep + ftimestep; //quantization of the start signal
 	fstoptime = (Int_t) ( t2e / ftimestep ) * ftimestep + ftimestep; //quantization of the stop signal

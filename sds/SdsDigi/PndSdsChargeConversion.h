@@ -22,6 +22,7 @@ public :
 	virtual Double_t ChargeToDigiValue(Double_t Charge) = 0;
 	virtual Double_t DigiValueToCharge(Double_t digi) = 0;
 	virtual Double_t DigiValueToCharge(PndSdsDigi &digi);
+    virtual Double_t GetRelativeError(Double_t Charge) = 0;
 
 	Double_t GetParameter(TString param){
 		it=fParams.find(param);

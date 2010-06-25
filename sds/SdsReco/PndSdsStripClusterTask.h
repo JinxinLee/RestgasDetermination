@@ -75,7 +75,7 @@ class PndSdsStripClusterTask : public FairTask
     Bool_t SelectSensorParams(Int_t sensorID);
     void CalcMeanCharge(PndSdsClusterStrip* onecluster, Double_t &meanstrip, Double_t &meanerr, Double_t &charge);
     Bool_t Backmap( TVector2 meantopPoint, Double_t toperr , TVector2 meanbotPoint, Double_t boterr,
-                   TVector3 &hitpos, TVector3 &hiterr, Int_t &sensorID);
+                   TVector3 &hitpos, TMatrixD &hitCov, Int_t &sensorID);
     TClonesArray* fDigiArray;  // Input array of PndSdsDigis
     TClonesArray* fClusterArray; // Output array of PndSdsClusters
     TClonesArray* fHitArray;  // Output array of PndSdsHits
@@ -106,11 +106,10 @@ class PndSdsStripClusterTask : public FairTask
     std::map<const char*,PndSdsCalcStrip*> fStripCalcTop; 
     std::map<const char*,PndSdsCalcStrip*> fStripCalcBot; 
     std::map<const char*,PndSdsChargeConversion*> fChargeConverter;
-    std::map<const char*,PndSdsChargeWeightingAlgorithms*> fChargeAlgos;
     
     PndSdsCalcStrip* fCurrentStripCalcTop; 
     PndSdsCalcStrip* fCurrentStripCalcBot; 
-    PndSdsChargeWeightingAlgorithms* fCurrentChargeAlgos;
+    PndSdsChargeWeightingAlgorithms* fChargeAlgos;
     PndSdsChargeConversion* fCurrentChargeConverter;
 
 	  
