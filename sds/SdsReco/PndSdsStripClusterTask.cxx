@@ -9,7 +9,7 @@
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
 #include "TCanvas.h"
-#include "TmatrixD.h"
+#include "TMatrixD.h"
 #include "FairRootManager.h"
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
