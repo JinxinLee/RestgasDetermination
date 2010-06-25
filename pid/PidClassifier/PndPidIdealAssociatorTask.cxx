@@ -150,6 +150,11 @@ void PndPidIdealAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProba
       break;
       
     default:
+      prob->SetProtonPdf(1.);
+      prob->SetKaonPdf(1.);
+      prob->SetPionPdf(1.);
+      prob->SetMuonPdf(1.);
+      prob->SetElectronPdf(1.);
       break;
   }
   
