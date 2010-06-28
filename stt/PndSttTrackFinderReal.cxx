@@ -1715,27 +1715,33 @@ if( istampa>=2){
     for(i=0; i<nTracksFoundSoFar;i++){
      ii=daTrackFoundaTrackMC[i];
      if( daTrackFoundaTrackMC[i] == -1)  continue;
-     if( !  GoodSkewFit[i]  )  continue;
+
        Double_t dista=sqrt( Ox[i]*Ox[i]+Oy[i]*Oy[i] );
-       if(fabs(KAPPA[i])<1.e-20  ||  dista < 1.e-20) continue;
        Double_t Ptras = R[i]*0.003*BFIELD;
-       Double_t Pzini = 0.003*BFIELD/KAPPA[i];
-       Double_t Pxini = Ptras*Oy[i]/dista;
-       Double_t Pyini = -Ptras*Ox[i]/dista;
+       Double_t Pxini = -Charge[i]*Ptras*Oy[i]/dista;
+       Double_t Pyini = Charge[i]*Ptras*Ox[i]/dista;
+       Double_t Pzini,qop;
 
-
-
+     if(   GoodSkewFit[i]  ) {
+       if(fabs(KAPPA[i])>1.e-20  ){
+          Pzini = -Charge[i]*0.003*BFIELD/KAPPA[i];
+       } else {
+          Pzini = 999999.;
+       }
          new((*trackArray)[ipinco])  PndTrackCand;
          PndTrackCand *pTrckCand = (PndTrackCand*) trackArray->At(ipinco);
-//         PndTrackCand *pTrckCand = (PndTrackCand*) (*trackArray)[ipinco];
          ipinco++;
-         Double_t inv=R[i]*KAPPA[i];
 	  TVector3 dirSeed(Pxini,
 			   Pyini,
 			   Pzini); // momentum direction in starting point
-          Double_t qop = Charge[i]/dirSeed.Mag();
-
+          qop = Charge[i]/dirSeed.Mag();
           dirSeed.SetMag(1.);
+if(istampa >= 2){
+   cout<<"    da PndSttTrackFinderReal;  caricato PndTrackCand n. "<<ipinco-1<<
+      "\n  con  dirSeed.X = "<<dirSeed.X()<<",   dirSeed.Y = "<<dirSeed.Y()
+        <<",  dirSeed.Z = "<<dirSeed.Z()<<", qop = "<<qop<<endl;
+}
+
 	  TVector3 posSeed(0.,
 			   0.,
 			   0.);  //  direction in starting point
@@ -1744,6 +1750,41 @@ if( istampa>=2){
           for(j=0; j< nTotalHits[i]; j++){
               pTrckCand->AddHit(kSttHit, (Int_t) BigList[i][j] , j);
           }
+
+      }   else  { //   continuation of    if(   GoodSkewFit[i]  )   //  case in which there is no
+                                                                    //  skew hits in this track.
+								    //  This fact is signalled by
+								    //  Pzini = 9999  and the
+                                                                   // magnitude of dirSeed != 1
+         Pzini = 9999.;
+         new((*trackArray)[ipinco])  PndTrackCand;
+         PndTrackCand *pTrckCand = (PndTrackCand*) trackArray->At(ipinco);
+         ipinco++;
+	 TVector3 dirSeed(Pxini,
+			   Pyini,
+			   Pzini); // momentum direction in starting point
+         qop = Charge[i]/Ptras;   //  as if Pz=0
+if(istampa >= 2){
+   cout<<"    da PndSttTrackFinderReal;  caricato PndTrackCand n. "<<ipinco-1<<
+      "\n  con  dirSeed.X = "<<dirSeed.X()<<",   dirSeed.Y = "<<dirSeed.Y()
+        <<",  dirSeed.Z = "<<dirSeed.Z()<<", qop = "<<qop<<endl;
+}
+
+
+//          dirSeed.SetMag(1.);
+	  TVector3 posSeed(0.,
+			   0.,
+			   0.);  //  direction in starting point
+          pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
+          pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[i]   );
+          for(j=0; j< nTotalHits[i]; j++){
+              pTrckCand->AddHit(kSttHit, (Int_t) BigList[i][j] , j);
+          }
+
+      }    //   end of      if(   GoodSkewFit[i]  )
+
+
+
 
 
 
