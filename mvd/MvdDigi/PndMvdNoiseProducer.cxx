@@ -3,6 +3,7 @@
 // -----                  Created 01.07.08  by R.Kliemt                -----
 // -------------------------------------------------------------------------
 
+//#include <cmath>
 
 #include "TClonesArray.h"
 #include "TGeoNode.h"
@@ -193,7 +194,7 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
   nNoisyStripTraps=0,
   nNoisyPixels=0;
   Double_t xfrac=0.;
-  Int_t did;
+  Int_t did=-1;
   
   // *** Strip Rect Long ***
   // how many channels left?
@@ -277,7 +278,10 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
   
   // *** Pixel Sensors ***
   nrCh = fDigiParPix->GetFECols()*fDigiParPix->GetFERows();
-  Int_t pixx2=2*fPixelIds2.size(), pixx4=pixx4, pixx5=pixx5, pixx6=pixx6;
+  Int_t pixx2=2*fPixelIds2.size(), 
+  pixx4=4*fPixelIds4.size(), 
+  pixx5=5*fPixelIds5.size(), 
+  pixx6=6*fPixelIds6.size();
   nrFE = pixx2 + pixx4 + pixx5 + pixx6;  // each sensor has one fe
   chanmax = nrCh * nrFE;
   xfrac = CalcDistFraction(fDigiParPix->GetNoise(),fDigiParPix->GetThreshold());

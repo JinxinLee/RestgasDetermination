@@ -73,7 +73,7 @@ Double_t PndSdsTotChargeConversion::GetRelativeError(Double_t Charge)
   // ------  =  - * dt_max * | 1 + ----------------------------------------------------------------------  |
   //  Q_rec     2             \    sqrt{ [ (Q_t - a*t_c)/2 + (Q - Q_t)(t_c/Q - 1/a)*a/2 ]^2 + a*Q_t*t_c } /
   
-  
+  return 0.;
 }
 
 
