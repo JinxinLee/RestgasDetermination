@@ -51,45 +51,45 @@ PndSttTrackFitterQATask::~PndSttTrackFitterQATask()
 InitStatus PndSttTrackFitterQATask::Init() 
 {
 
-  hptfit   = new TH1F("hptfit", "pt fit: mc - reco", 100, -0.3, 0.3);
-  hplfit   = new TH1F("hplfit", "pl fit: mc - reco", 100, -0.4, 0.4);
-  hptotfit = new TH1F("hptotfit", "ptot fit: mc - reco", 100, -0.3, 0.3);
+  hptfit   = new TH1F("hptfit", "pt fit: reco - mc", 100, -0.3, 0.3);
+  hplfit   = new TH1F("hplfit", "pl fit: reco - mc", 100, -0.4, 0.4);
+  hptotfit = new TH1F("hptotfit", "ptot fit: reco - mc", 100, -0.3, 0.3);
 
-  hptfit_perc = new TH1F("hptfit_perc", "pt fit: (mc - reco) / mc", 100, -0.3, 0.3);
-  hplfit_perc = new TH1F("hplfit_perc", "pl fit: (mc - reco) / mc", 100, -0.4, 0.4);
-  hptotfit_perc = new TH1F("hptotfit_perc", "ptot fit: (mc - reco) / mc", 100, -0.3, 0.3);
+  hptfit_perc = new TH1F("hptfit_perc", "pt fit: (reco - mc) / mc", 100, -0.3, 0.3);
+  hplfit_perc = new TH1F("hplfit_perc", "pl fit: (reco - mc) / mc", 100, -0.4, 0.4);
+  hptotfit_perc = new TH1F("hptotfit_perc", "ptot fit: (reco - mc) / mc", 100, -0.3, 0.3);
  
-  hDist = new TH1F("hDist", "Dist fit: mc - reco", 100, -1., 1.);
-  hRad  = new TH1F("hRad", "Rad fit: mc - reco", 100, -15., 15.);
-  hPhi  = new TH1F("hPhi", "Phi fit: mc - reco", 100, -0.1, 0.1);
-  hTanL = new TH1F("hTanL", "TanL fit: mc - reco", 100, -0.2, 0.2);
-  hZ    = new TH1F("hZ", "Z fit: mc - reco", 100, -0.3, 0.3);
+  hDist = new TH1F("hDist", "Dist fit: reco - mc", 100, -1., 1.);
+  hRad  = new TH1F("hRad", "Rad fit: reco - mc", 100, -15., 15.);
+  hPhi  = new TH1F("hPhi", "Phi fit: reco - mc", 100, -0.1, 0.1);
+  hTanL = new TH1F("hTanL", "TanL fit: reco - mc", 100, -0.2, 0.2);
+  hZ    = new TH1F("hZ", "Z fit: reco - mc", 100, -0.3, 0.3);
  
   hQ    = new TH1F("hQ", "Q fit: mc + reco", 6, -3, 3);
  
-  hptfound = new TH1F("hptfound", "pt found: mc - reco", 100, -0.3, 0.3);
-  hplfound = new TH1F("hplfound", "pl found: mc - reco", 100, -0.4, 0.4);
-  hptotfound = new TH1F("hptotfound", "ptot found: mc - reco", 100, -0.3, 0.3);
+  hptfound = new TH1F("hptfound", "pt found: reco - mc", 100, -0.3, 0.3);
+  hplfound = new TH1F("hplfound", "pl found: reco - mc", 100, -0.4, 0.4);
+  hptotfound = new TH1F("hptotfound", "ptot found: reco - mc", 100, -0.3, 0.3);
 
-  hptfound_perc = new TH1F("hptfound_perc", "pt found: (mc - reco) / mc", 100, -0.3, 0.3);
-  hplfound_perc = new TH1F("hplfound_perc", "pl found: (mc - reco) / mc", 100, -0.4, 0.4);
-  hptotfound_perc = new TH1F("hptotfound_perc", "ptot found: (mc - reco) / mc", 100, -0.3, 0.3);
+  hptfound_perc = new TH1F("hptfound_perc", "pt found: (reco - mc) / mc", 100, -0.3, 0.3);
+  hplfound_perc = new TH1F("hplfound_perc", "pl found: (reco - mc) / mc", 100, -0.4, 0.4);
+  hptotfound_perc = new TH1F("hptotfound_perc", "ptot found: (reco - mc) / mc", 100, -0.3, 0.3);
  
-  hpxfit = new TH1F("hpxfit", "px fit: mc - reco", 100, -0.3, 0.3);
-  hpyfit = new TH1F("hpyfit", "py fit: mc - reco", 100, -0.3, 0.3);
-  hpzfit = new TH1F("hpzfit", "pz fit: mc - reco", 100, -0.4, 0.4);
+  hpxfit = new TH1F("hpxfit", "px fit: reco - mc", 100, -0.3, 0.3);
+  hpyfit = new TH1F("hpyfit", "py fit: reco - mc", 100, -0.3, 0.3);
+  hpzfit = new TH1F("hpzfit", "pz fit: reco - mc", 100, -0.4, 0.4);
   
-  hresx = new TH1F("hresx", "x: mc - reco", 100, -0.2, 0.2);
-  hresy = new TH1F("hresy", "y: mc - reco", 100, -0.2, 0.2);
-  hresz = new TH1F("hresz", "z: mc - reco", 100, -3, 3);
+  hresx = new TH1F("hresx", "x: reco - mc", 100, -0.2, 0.2);
+  hresy = new TH1F("hresy", "y: reco - mc", 100, -0.2, 0.2);
+  hresz = new TH1F("hresz", "z: reco - mc", 100, -3, 3);
   
-  hx = new TH1F("hx", "x no skewed: mc - reco", 100, -0.2, 0.2);
-  hy = new TH1F("hy", "y no skewed: mc - reco", 100, -0.2, 0.2);
-  hz = new TH1F("hz", "z no skewed: mc - reco", 100, -3, 3);
+  hx = new TH1F("hx", "x no skewed: reco - mc", 100, -0.2, 0.2);
+  hy = new TH1F("hy", "y no skewed: reco - mc", 100, -0.2, 0.2);
+  hz = new TH1F("hz", "z no skewed: reco - mc", 100, -3, 3);
   
-  hxs = new TH1F("hxs", "x skewed: mc - reco", 100, -0.2, 0.2);
-  hys = new TH1F("hys", "y skewed: mc - reco", 100, -0.2, 0.2);
-  hzs = new TH1F("hzs", "z skewed: mc - reco", 100, -3, 3);
+  hxs = new TH1F("hxs", "x skewed: reco - mc", 100, -0.2, 0.2);
+  hys = new TH1F("hys", "y skewed: reco - mc", 100, -0.2, 0.2);
+  hzs = new TH1F("hzs", "z skewed: reco - mc", 100, -3, 3);
 
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
