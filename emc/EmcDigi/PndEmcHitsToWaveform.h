@@ -86,8 +86,7 @@ private:
 	Double_t fEnergyRangeBW; //GeV
 	Double_t fFirstSamplePhase;
 	Int_t fNumber_of_samples_in_waveform;
-	Double_t fShaping_diff_time;     //s
-	Double_t fShaping_int_time;      //s
+	Double_t fASIC_Shaping_int_time;      //s
 	Double_t fCrystal_time_constant;  //s
 	Double_t fSampleRate;
 	Int_t fUse_shaped_noise;

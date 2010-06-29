@@ -21,6 +21,7 @@
 #include "PndEmcDigi.h"
 #include "PndEmcDigiPar.h"		
 #include "PndEmcRecoPar.h"				
+#include "PndEmcAsicPulseshape.h"
 #include "PndEmcPSAParabolic.h"
 #include "PndEmcPSATrapDigiFilter.h"
 
@@ -80,8 +81,7 @@ InitStatus PndEmcWaveformToDigi::Init()
 
 	ioman->Register("EmcDigi","Emc",fDigiArray,fStoreDigis);
 	fSampleRate=fDigiPar->GetSampleRate();
-	fShaping_diff_time=fDigiPar->GetShaping_diff_time();     //s
-	fShaping_int_time=fDigiPar->GetShaping_int_time();      //s
+	fASIC_Shaping_int_time=fDigiPar->GetASIC_Shaping_int_time();      //s
 	fCrystal_time_constant=fDigiPar->GetCrystal_time_constant();  //s
 	fSampleRate=fDigiPar->GetSampleRate();
 	fNumber_of_samples_in_waveform=fDigiPar->GetNumber_of_samples_in_waveform();
@@ -106,7 +106,7 @@ InitStatus PndEmcWaveformToDigi::Init()
 		return kERROR;
 	}
 	
-	fPulseshape= new PndEmcCRRCPulseshape(fShaping_diff_time,fShaping_int_time,fCrystal_time_constant);
+	fPulseshape= new PndEmcAsicPulseshape(fASIC_Shaping_int_time,fCrystal_time_constant);
 	
 	// Pulse shape analysis algorithm.
 	// At the moment simple parabolic fit is used by default.

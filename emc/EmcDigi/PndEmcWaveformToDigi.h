@@ -67,8 +67,7 @@ private:
 	
 	Double_t fSampleRate;
 	Double_t fEnergyDigiThreshold;
-	Double_t fShaping_diff_time;     //s
-	Double_t fShaping_int_time;      //s
+	Double_t fASIC_Shaping_int_time;      //s
 	Double_t fCrystal_time_constant;  //s
 	Int_t fNumber_of_samples_in_waveform;
 	

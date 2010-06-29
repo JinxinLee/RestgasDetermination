@@ -34,8 +34,7 @@ void PndEmcDigiPar::putParams(FairParamList* list)
 	list->add("EnergyRange",fEnergyRange);
 	list->add("EnergyRangeBW",fEnergyRangeBW);	
 	list->add("FirstSamplePhase",fFirstSamplePhase);
-	list->add("Shaping_diff_time",fShaping_diff_time);
-	list->add("Shaping_int_time",fShaping_int_time);
+	list->add("ASIC_Shaping_int_time",fASIC_Shaping_int_time);
 	list->add("Crystal_time_constant",fCrystal_time_constant);
 	list->add("SampleRate",fSampleRate);
 	list->add("EnergyDigiThreshold",fEnergyDigiThreshold);
@@ -64,8 +63,7 @@ Bool_t PndEmcDigiPar::getParams(FairParamList* list)
 	if (!list->fill("EnergyRange",&fEnergyRange)) return kFALSE;
 	if (!list->fill("EnergyRangeBW",&fEnergyRangeBW)) return kFALSE;	
 	if (!list->fill("FirstSamplePhase",&fFirstSamplePhase)) return kFALSE;
-	if (!list->fill("Shaping_diff_time",&fShaping_diff_time)) return kFALSE;
-	if (!list->fill("Shaping_int_time",&fShaping_int_time)) return kFALSE;
+	if (!list->fill("ASIC_Shaping_int_time",&fASIC_Shaping_int_time)) return kFALSE;
 	if (!list->fill("Crystal_time_constant",&fCrystal_time_constant)) return kFALSE;
 	if (!list->fill("SampleRate",&fSampleRate)) return kFALSE;
 	if (!list->fill("EnergyDigiThreshold",&fEnergyDigiThreshold)) return kFALSE;

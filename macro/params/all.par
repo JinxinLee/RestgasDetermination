@@ -244,8 +244,7 @@ EnergyRange:Double_t 15
 EnergyRangeBW:Double_t 3
 FirstSamplePhase:Double_t 0
 Number_of_samples_in_waveform:Int_t 64
-Shaping_diff_time:Double_t 100e-9
-Shaping_int_time:Double_t 500e-9
+ASIC_Shaping_int_time:Double_t 80e-9
 Crystal_time_constant:Double_t 12e-9
 SampleRate:Double_t 80e6
 Use_shaped_noise:Int_t 1

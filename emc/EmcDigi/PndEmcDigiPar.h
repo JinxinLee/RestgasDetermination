@@ -21,8 +21,7 @@ class PndEmcDigiPar : public FairParGenericSet
 		Double_t GetEnergyRange() {return fEnergyRange;};
 		Double_t GetEnergyRangeBW() {return fEnergyRangeBW;};
 		Double_t GetFirstSamplePhase() {return fFirstSamplePhase;};
-		Double_t GetShaping_diff_time() {return fShaping_diff_time;};
-		Double_t GetShaping_int_time() {return fShaping_int_time;};
+		Double_t GetASIC_Shaping_int_time() {return fASIC_Shaping_int_time;};
 		Double_t GetCrystal_time_constant() {return fCrystal_time_constant;};
 		Double_t GetSampleRate() {return fSampleRate;};
 		Double_t GetEnergyDigiThreshold() {return fEnergyDigiThreshold;};
@@ -59,8 +58,7 @@ class PndEmcDigiPar : public FairParGenericSet
 		Double_t fEnergyRange;
 		Double_t fEnergyRangeBW;
 		Double_t fFirstSamplePhase;
-		Double_t fShaping_diff_time;
-		Double_t fShaping_int_time;
+		Double_t fASIC_Shaping_int_time;
 		Double_t fCrystal_time_constant;
 		Double_t fSampleRate;
 		Double_t fEnergyDigiThreshold;

@@ -20,6 +20,7 @@
 
 #include "PndEmcHit.h"
 #include "PndEmcWaveform.h"
+#include "PndEmcAsicPulseshape.h"
 #include "PndEmcMapper.h"
 #include "PndEmcStructure.h"
 #include "PndEmcDigiPar.h"
@@ -98,8 +99,7 @@ InitStatus PndEmcHitsToWaveform::Init()
 	fEnergyRangeBW=fDigiPar->GetEnergyRangeBW(); //GeV	
 	fFirstSamplePhase=fDigiPar->GetFirstSamplePhase();
 	fNumber_of_samples_in_waveform=fDigiPar->GetNumber_of_samples_in_waveform();
-	fShaping_diff_time=fDigiPar->GetShaping_diff_time();     //s
-	fShaping_int_time=fDigiPar->GetShaping_int_time();      //s
+	fASIC_Shaping_int_time=fDigiPar->GetASIC_Shaping_int_time();      //s
 	fCrystal_time_constant=fDigiPar->GetCrystal_time_constant();  //s
 	fSampleRate=fDigiPar->GetSampleRate();
 	fUse_shaped_noise=fDigiPar->GetUse_shaped_noise();
@@ -118,8 +118,7 @@ InitStatus PndEmcHitsToWaveform::Init()
 	cout<<"  energyRangeBW "<<fEnergyRangeBW<<endl;	
 	cout<<"  firstSamplePhase "<<fFirstSamplePhase<<endl;
 	cout<<"  number_of_samples_in_waveform "<<fNumber_of_samples_in_waveform<<endl;
-	cout<<"  Shaping_diff_time "<<fShaping_diff_time<<endl;
-	cout<<"  Shaping_int_time "<<fShaping_int_time<<endl;
+	cout<<"  ASIC_Shaping_int_time "<<fASIC_Shaping_int_time<<endl;
 	cout<<"  crystal_time_constant "<<fCrystal_time_constant<<endl;
 	cout<<"  sampleRate "<<fSampleRate<<endl;
 	cout<<"  use_shaped_noise "<<fUse_shaped_noise<<endl;
@@ -132,7 +131,7 @@ InitStatus PndEmcHitsToWaveform::Init()
 	// Calculate 1 bit resolution (in units of FADC amplitude)
 	PndEmcWaveform *tmpwaveform=new PndEmcWaveform(0,101010001, fNumber_of_samples_in_waveform);
 
-	PndEmcAbsPulseshape *pulseshape=new PndEmcCRRCPulseshape(fShaping_diff_time,fShaping_int_time,fCrystal_time_constant);
+	PndEmcAbsPulseshape *pulseshape=new PndEmcAsicPulseshape(fASIC_Shaping_int_time,fCrystal_time_constant);
 	
 	fGevPeakAnalogue = tmpwaveform->GetScale(fSampleRate, pulseshape);
 	
@@ -175,7 +174,7 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 	Int_t nHits = fHitArray->GetEntriesFast();
 	cout<<"Hit array contains "<<nHits<< " hits"<<endl;
 	
-	PndEmcCRRCPulseshape *pulseshape= new PndEmcCRRCPulseshape(fShaping_diff_time,fShaping_int_time,fCrystal_time_constant);
+	PndEmcAsicPulseshape *pulseshape= new PndEmcAsicPulseshape(fASIC_Shaping_int_time,fCrystal_time_constant);
 	
 	for (Int_t iHit=0; iHit<nHits; iHit++) {
 		theHit = (PndEmcHit*) fHitArray->At(iHit);
@@ -228,10 +227,6 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 		cout << "Number of waveforms processed= "<<nWf<<endl;
 	}
 	
-		// "0" corresponds to timing constant of signal
-		// for noise can be assumed 0 (it is taken tauInt*1e-5 to avoid nan)
-	PndEmcAbsPulseshape *pulseshape2 = new PndEmcCRRCPulseshape(fShaping_diff_time,fShaping_int_time,fShaping_diff_time*1e-5);
-	
 	for (Int_t iWf=0; iWf<nWf; iWf++) {
 		theWaveform = (PndEmcWaveform*) fWaveformArray->At(iWf);
 		Int_t module = theWaveform->GetModule();
@@ -242,7 +237,7 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 					theWaveform->AddElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_APD*fGevPeakAnalogue,fOneBitResolution);
 				}
 				else {
-					theWaveform->AddShapedElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_APD*fGevPeakAnalogue,fOneBitResolution, pulseshape2, fFirstSamplePhase, fSampleRate);
+					theWaveform->AddShapedElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_APD*fGevPeakAnalogue,fOneBitResolution, pulseshape, fFirstSamplePhase, fSampleRate);
 				}
 				break;
 			case 2: // Barrel 
@@ -251,7 +246,7 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 					theWaveform->AddElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_APD*fGevPeakAnalogue,fOneBitResolution);
 				}
 				else {
-					theWaveform->AddShapedElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_APD*fGevPeakAnalogue,fOneBitResolution, pulseshape2, fFirstSamplePhase, fSampleRate);
+					theWaveform->AddShapedElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_APD*fGevPeakAnalogue,fOneBitResolution, pulseshape, fFirstSamplePhase, fSampleRate);
 				}
 				break;
 			case 3: // FWD Endcap 
@@ -260,7 +255,7 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 					theWaveform->AddElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_VPT*fGevPeakAnalogue,fOneBitResolution);
 				}
 				else {
-					theWaveform->AddShapedElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_VPT*fGevPeakAnalogue,fOneBitResolution, pulseshape2, fFirstSamplePhase, fSampleRate);
+					theWaveform->AddShapedElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_VPT*fGevPeakAnalogue,fOneBitResolution, pulseshape, fFirstSamplePhase, fSampleRate);
 				}
 				break;
 			case 4: // BWD Endcap 
@@ -269,7 +264,7 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 					theWaveform->AddElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_APD*fGevPeakAnalogue,fOneBitResolutionBW);
 				}
 				else {
-					theWaveform->AddShapedElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_APD*fGevPeakAnalogue,fOneBitResolutionBW, pulseshape2, fFirstSamplePhase, fSampleRate);
+					theWaveform->AddShapedElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_APD*fGevPeakAnalogue,fOneBitResolutionBW, pulseshape, fFirstSamplePhase, fSampleRate);
 				}
 				break;
 			case 5: // shashlyk calorimetr 
@@ -278,7 +273,7 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 					theWaveform->AddElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_APD*fGevPeakAnalogue,fOneBitResolution);
 				}
 				else {
-					theWaveform->AddShapedElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_APD*fGevPeakAnalogue,fOneBitResolution, pulseshape2, fFirstSamplePhase, fSampleRate);
+					theWaveform->AddShapedElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_APD*fGevPeakAnalogue,fOneBitResolution, pulseshape, fFirstSamplePhase, fSampleRate);
 				}
 				break;
 			default:
