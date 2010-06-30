@@ -35,6 +35,9 @@ class PndLmdNoiseProducer : public PndSdsNoiseProducer
   virtual void SetBranchNames(TString inBranchNameStrip, TString inBranchNamePixel, TString folderName);
   virtual void SetBranchNames();
 
+  //This method shall be defined by usr
+  virtual void SetMCPointType();
+
   ClassDef(PndLmdNoiseProducer,2);
 
 };
