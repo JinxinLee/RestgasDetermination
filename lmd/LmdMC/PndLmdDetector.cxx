@@ -30,7 +30,7 @@ PndLmdDetector::PndLmdDetector (const char* name, Bool_t active)
 
 
 void PndLmdDetector::SetDefaultSensorNames(){
-  fListOfSensitives.push_back("lmdStrip");
+  fListOfSensitives.push_back("lmdTrapStrip");
 
   if (fVerboseLevel>0) {
     std::cout<<"- I - PndLmdDetector: fListOfSensitives contains:";
