@@ -9,11 +9,8 @@
 // -----   Default constructor   -------------------------------------------
 PndLmdNoiseProducer::PndLmdNoiseProducer()
 {
-
 }
 // -------------------------------------------------------------------------
-
-
 
 // -----   Destructor   ----------------------------------------------------
 PndLmdNoiseProducer::~PndLmdNoiseProducer()
@@ -33,6 +30,10 @@ void PndLmdNoiseProducer::SetBranchNames()
   fBranchNamePixel = "LMDPixelDigis";
   fFolderName = "PndLmd";
 }
+
+void PndLmdNoiseProducer::SetMCPointType()
+{
+	}
 
 
 ClassImp(PndLmdNoiseProducer)
