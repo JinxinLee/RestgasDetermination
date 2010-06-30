@@ -1,6 +1,14 @@
+
 // -------------------------------------------------------------------------
 // -----                PndLmdStripHitProducer source file             -----
 // -------------------------------------------------------------------------
+
+/*
+ * Updated by h.xu@fz-juelich.de on Jun30.2010
+ * To match the base class SdsStripHitProducer,the virtual functions SetParContainers() and
+ * SetCalculators() were reloaded.
+ */
+
 
 //LUMI
 #include "PndLmdStripHitProducer.h"
