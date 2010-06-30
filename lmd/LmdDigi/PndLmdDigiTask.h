@@ -24,19 +24,19 @@ class PndLmdDigiTask : public FairTask
 
 
     /** Virtual method Init **/
-    virtual void SetParContainers();
-    virtual InitStatus Init();
-    virtual InitStatus ReInit();
+ //   virtual void SetParContainers();
+ //   virtual InitStatus Init();
+ //   virtual InitStatus ReInit();
 
     /** Virtual method Exec **/
-    virtual void Exec(Option_t* opt);
+ //   virtual void Exec(Option_t* opt);
 
 
  private:
 
-  void Register();
-  void Reset();
-  void ProduceHits();
+//  void Register();
+//  void Reset();
+//  void ProduceHits();
   ClassDef(PndLmdDigiTask,2);
 
 };
