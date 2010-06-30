@@ -8,14 +8,14 @@
 
 #include "PndLmdDigiTask.h"
 #include "PndLmdStripHitProducer.h"
-#include "PndLmdNoiseProducer.h"
+//#include "PndLmdNoiseProducer.h"
 
 // -----   Default constructor   -------------------------------------------
 PndLmdDigiTask::PndLmdDigiTask() :
   FairTask("LMD Digitization Task")
 {
   this->Add(new PndLmdStripHitProducer());
-  this->Add(new PndLmdNoiseProducer());
+//  this->Add(new PndLmdNoiseProducer());
 
   TList* thistasks = this->GetListOfTasks();
   for(Int_t i=0;i<thistasks->GetEntries();i++)
@@ -30,7 +30,7 @@ PndLmdDigiTask::~PndLmdDigiTask()
 {
 }
 // -------------------------------------------------------------------------
-
+/*
 // -----   Initialization  of Parameter Containers -------------------------
 void PndLmdDigiTask::SetParContainers()
 {
@@ -46,6 +46,7 @@ InitStatus PndLmdDigiTask::Init()
 {
   return kSUCCESS;
 }
+
 // -------------------------------------------------------------------------
 
 
@@ -56,5 +57,5 @@ void PndLmdDigiTask::Exec(Option_t* opt)
   return;
 }
 
-
+*/
 ClassImp(PndLmdDigiTask);
