@@ -28,8 +28,8 @@ const char* PndLmdGeo::getModuleName(Int_t m)
 	  	       << m << " not known!" << std::endl;
 		 return "";
 		 }
-	  if ( m < 9 ) sprintf(fModName,"lmdStrip0%i",m+1);
-	  else  sprintf(fModName,"lmdStrip%i",m+1);
+	  if ( m < 9 ) sprintf(fModName,"lmdTrapStrip0%i",m+1);
+	  else  sprintf(fModName,"lmdTrapStrip%i",m+1);
 	  return fModName;
 
 		}
