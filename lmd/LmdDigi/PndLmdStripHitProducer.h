@@ -1,3 +1,11 @@
+/*
+ * Updated by h.xu@fz-juelich.de on Jun30.2010
+ * To match the base class SdsStripHitProducer,the virtual functions SetParContainers() and
+ * SetCalculators() were reloaded.
+ */
+
+
+
 #ifndef PNDLMDSTRIPHITPRODUCER_H
 #define PNDLMDSTRIPHITPRODUCER_H
 
