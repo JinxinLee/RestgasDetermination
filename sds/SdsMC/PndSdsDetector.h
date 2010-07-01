@@ -141,7 +141,7 @@ class PndSdsDetector : public FairDetector
    **/
   virtual void ConstructGeometry();
  // void ConstructRootGeometry();
-  void ConstructASCIIGeometry();
+  virtual void ConstructASCIIGeometry();
  // void ExpandNode(TGeoNode *fN);
 
   void SetRadDamOption(bool val){fUseRadDamOption = val;};
