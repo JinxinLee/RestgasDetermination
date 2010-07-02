@@ -17,10 +17,13 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
 \maketitle
-\newpage
+\begin{center}
+\rule[0.1mm]{5.0cm}{2.0mm}
+\end{center}
 \tableofcontents
+\hrulefill
 \newpage
-
+%========================= KNN =====================================
 \section{k-nearest neighbor algorithm (KNN)}
 In the current package placed in "pandaroot/PndTools/MVA", there are
 two different implementations of this algorithm:
@@ -32,13 +35,33 @@ two different implementations of this algorithm:
 \item [TMVAkd\_KNN:] This implementation is using a kd-tree for
   storage and searching through the available examples. This complex
   data structure is fast in construction and all search and traverse
-  operations are of log complexity. Very fast but needs a lot of
-  examples in order to build a representative and usefull
+  operations are of the Olog(n) complexity, here n is the number of
+  examples inserted into the data structure. Very fast but needs a lot
+  of examples in order to build a representative and usefull
   database. Needs large memory.
 \end{description}
+
 The current implementations run linear in worst case and the result is
 an estimation of the probability densities. These are normalized among
 the available classes (labels).
+
+\subsection{Using KNN}
+In both the directories "KNN" and "TMVAkd\_KNN" there are examples
+that show how to use these implementations which are a good starting
+point. One can modify these examples to perform pattern
+classification.\newline{\bf Notes:}
+\begin{description}
+\item [Training:] For KNN there is no need for training the
+  classifier. If the input weight file is already pre-processed
+  (normalization, decorrelated, ...), that can be used directly for
+  classification.
+\item [Weights:] Example up to date weight files which can be
+  used by this algorithm can be fetched using the scripts available in
+  the directory "macro/scripts/". These are not available via svn
+  merely due their size ($\pm \ 800MB$).
+\end{description}
+
+%========================= LVQ =====================================
 \section{Learning Vector Quantization (LVQ)}
 This directory contains a very simple implementation of the LVQ1 and
 LVQ2.1 algorithms. One can use these functions directly to create a
@@ -48,4 +71,14 @@ the classifier returns only the shortest distances to every class type
 and no decision is made. The user needs to modify the code and place a
 discriminator based on the output if one wants the decision to be made
 by the classifier.
+
+\subsection{Using LVQ}
+\begin{description}
+\item [Training:]
+\item [Weights:] Example up to date weight files which can be used by
+  this algorithm can be fetched using the scripts available in the
+  directory "macro/scripts/". These are not available via svn merely
+  due their size.
+\item [Classification:]
+\end{description}
 \end{document}
