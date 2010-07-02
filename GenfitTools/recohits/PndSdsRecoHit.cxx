@@ -97,12 +97,12 @@ PndSdsRecoHit::PndSdsRecoHit(PndSdsHit* hit)
   fHitCov[1][0] = cova[1][0];
   fHitCov[1][1] = cova[1][1];
     
-  std::cout<<" -I- PndSdsRecoHit::PndSdsRecoHit: Wrote a hit with"
-  <<"\n(x,y) = ("<<localpos.X()<<","<<localpos.Y()<<")."
-  <<"\nCovariance Matrix is";
-  fHitCov.Print();
-  std::cout<<"From 3D hit matrix";
-  cova.Print();
+//  std::cout<<" -I- PndSdsRecoHit::PndSdsRecoHit: Wrote a hit with"
+//  <<"\n(x,y) = ("<<localpos.X()<<","<<localpos.Y()<<")."
+//  <<"\nCovariance Matrix is";
+//  fHitCov.Print();
+//  std::cout<<"From 3D hit matrix";
+//  cova.Print();
   
   fPolicy.setDetPlane(GFDetPlane(oo,uu,vv));
 }
