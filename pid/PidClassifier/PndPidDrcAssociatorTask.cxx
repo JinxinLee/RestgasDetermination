@@ -119,7 +119,9 @@ Float_t PndPidDrcAssociatorTask::GetPdf(Float_t thetaC, Float_t mom, Float_t mas
       gausPdf->SetParameter(0,1);
       gausPdf->SetParameter(1,center);
       gausPdf->SetParameter(2,sigma);
-      return gausPdf->Eval(TMath::Cos(thetaC));
+      Double_t val = gausPdf->Eval(TMath::Cos(thetaC));
+      delete gausPdf;
+      return val;
     }
   else
     {

@@ -113,8 +113,9 @@ Float_t PndPidMvdAssociatorTask::GetPdf(Float_t dedx, Float_t Mpv, Float_t Sigma
   landauPdf->SetParameter(0,1);
   landauPdf->SetParameter(1,Mpv);
   landauPdf->SetParameter(2,Sigma);
-
-  return landauPdf->Eval(dedx);
+  Double_t val = landauPdf->Eval(dedx);
+  delete landauPdf;
+  return val;
 }
 
 
