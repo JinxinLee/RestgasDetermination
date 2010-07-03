@@ -174,9 +174,9 @@ class PndDsk : public FairDetector
    **/
   Bool_t DoNotTrackCerenkov();
 
-  TH2F   *trapfrac[5];
+  TH2F   *trapfrac[5];                    //!
 
-  PndGeoDskFLG *fGeo;
+  PndGeoDskFLG *fGeo;                     //!
 
   Int_t         fDebugLevel;              //! Debug level
 
@@ -184,7 +184,7 @@ class PndDsk : public FairDetector
   TClonesArray* fDskParticleCollection;   //! Particle collection
   TClonesArray* fDskTrackPointCollection; //! TrackPoint collection
 
-  TClonesArray* fDskFLGHitArray; // DSK hits
+  TClonesArray* fDskFLGHitArray;          //! DSK hits
 
   Bool_t        fStoreCerenkovs;          //! Whether to store Cerenkovs (default) or not
   Bool_t        fStoreParticles;          //! Whether to store Particles (default) or not
@@ -225,8 +225,8 @@ class PndDsk : public FairDetector
   TVector3      fEndMomentum;             //! Momentum when particle disappears
   Double_t      fEndEnergy;               //! Energy when particle disappears
 
-  Double_t       fAngIn;
-  Double_t       fThetaC;
+  Double_t       fAngIn;                  //!
+  Double_t       fThetaC;                 //!
 
   TLorentzVector tmpLVec;                 //! often needed, avoid allocation
 
