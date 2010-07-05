@@ -15,9 +15,9 @@
 #pragma link C++ class PndSdsDetector+;
 
 //mc
-//#pragma link C++ class PndMvdContFact+;
+#pragma link C++ class PndLmdContFact+;
 #pragma link C++ class PndLmdDetector+;
-#pragma link C++ class PndLmdGeo+;
+//#pragma link C++ class PndLmdGeo+;
 
 //digi
 //#pragma link C++ class PndLmdHybridHitProducer+;
