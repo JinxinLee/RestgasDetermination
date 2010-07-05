@@ -19,14 +19,17 @@
 // Collaborating Class Headers -------
 #include <map>
 #include "TString.h"
+#include "TMatrixTSym.h"
 
 // Collaborating Class Declarations --
 class TClonesArray;
 class TGeoManager;
 
+const Double_t fz0 = 1099.; //z-coordinate of first LMD plane
 void SumDistance2(int &, double *, double & sum, double * par, int ); //for Fitter
+void LocalFCN(int &, double *, double & sum, double * par, int ); //for Fitter in local coordinates
 double distance2(double x,double y,double z, double *p);
-
+double distance_l(double x, double y, double z, double errx, double erry, double errz, double *p);//in local coordinates
 class PndLmdLinFitTask : public FairTask {
 
 public:
@@ -58,9 +61,11 @@ private:
 
   Int_t fEvent;
 
+ 
   // Fitting ------------
   void line(double t, double *p, double &x, double &y, double &z);
-  double line3Dfit(Int_t nd, TGraph2DErrors* gr, Double_t* fitpar);
+  double line3Dfit(Int_t nd, TGraph2DErrors* gr, Double_t* fitpar, Double_t* fitparErr);
+ 
 
   ClassDef(PndLmdLinFitTask,1);
 

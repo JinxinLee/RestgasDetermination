@@ -11,6 +11,7 @@
 #pragma link C++ class PndLmdTrackFinderTask+;
 #pragma link C++ class PndLmdLinFitTask+;
 #pragma link C++ class PndLinTrack+;
+#pragma link C++ class PndLmdGeaneTask+;
 //#pragma link C++ class FairGeaneTrLmd+;
 
 

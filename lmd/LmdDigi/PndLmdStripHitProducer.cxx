@@ -1,21 +1,11 @@
-
 // -------------------------------------------------------------------------
 // -----                PndLmdStripHitProducer source file             -----
 // -------------------------------------------------------------------------
 
-/*
- * Updated by h.xu@fz-juelich.de on Jun30.2010
- * To match the base class SdsStripHitProducer,the virtual functions SetParContainers() and
- * SetCalculators() were reloaded.
- */
-
-
 //LUMI
 #include "PndLmdStripHitProducer.h"
-//PANDA
-//#include "PndSdsContFact.h"
+//LUMI
 #include "PndLmdContFact.h"
-#include "PndSdsStripDigiPar.h"
 //SDS
 #include "PndSdsIdealChargeConversion.h"
 #include "PndSdsTotChargeConversion.h"
@@ -27,10 +17,8 @@
 #include "TList.h"
 
 // -----   Default constructor   -------------------------------------------
-PndLmdStripHitProducer::PndLmdStripHitProducer() :
-  PndSdsStripHitProducer("PndLmdStripHitProducer")
+PndLmdStripHitProducer::PndLmdStripHitProducer()
 {
-//	fDigiParameterList = new TList();
 }
 // -------------------------------------------------------------------------
 
@@ -54,7 +42,36 @@ void PndLmdStripHitProducer::SetBranchNames()
   fOutBranchName = "LMDStripDigis";
   fFolderName = "PndLmd";
 }
-
+// -------------------------------------------------------------------------
+void PndLmdStripHitProducer::SetCalculators()
+{
+  PndSdsStripHitProducer::SetCalculators();
+  //calculator for TOT charge conversion:
+  TIter params(fDigiParameterList);
+  TIter totparams(fChargeDigiParameterList);
+  while(PndSdsStripDigiPar* digipar = (PndSdsStripDigiPar*)params() ){
+    PndSdsTotDigiPar* totdigipar = (PndSdsTotDigiPar*) totparams();
+    if ( 0==digipar ) continue;
+    const char* senstype = digipar->GetSensType();
+    // cout<<"digipar->GetChargeConvMethod() = "<<digipar->GetChargeConvMethod()<<endl;
+    if ( digipar->GetChargeConvMethod() == 0 ){
+      if(fVerbose>0)	Info("SetCalculators()","Use Ideal charge conversion for %s sensors",senstype);
+      fChargeConverter[senstype] = new PndSdsIdealChargeConversion();
+    }
+    else if (digipar->GetChargeConvMethod() == 1){
+      if(fVerbose>0)	Info("SetCalculators()","Use Tot charge conversion for %s sensors",senstype);
+      fChargeConverter[senstype] = new PndSdsTotChargeConversion(
+								 totdigipar->GetChargingTime(),
+								 totdigipar->GetConstCurrent(),
+								 digipar->GetThreshold(),
+								 totdigipar->GetClockFrequency(),
+								 fVerbose);
+    }
+    else Fatal ("SetCalculators()","charge conversion method not defined!");
+  }
+}
+// -------------------------------------------------------------------------
+// -----   Initialization  of Parameter Containers -------------------------
 void PndLmdStripHitProducer::SetParContainers()
 {
   // called from the FairRun::Init()
@@ -63,7 +80,6 @@ void PndLmdStripHitProducer::SetParContainers()
 
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
-
   PndLmdContFact* thelmdcontfact = (PndLmdContFact*)rtdb->getContFactory("PndLmdContFact");
   TList* theContNames = thelmdcontfact->GetDigiParNames();
   Info("SetParContainers()","The container names list contains %i entries",theContNames->GetEntries());
@@ -71,44 +87,13 @@ void PndLmdStripHitProducer::SetParContainers()
   while (TObjString* contname = (TObjString*)cfIter()) {
     TString parsetname = contname->String();
     Info("SetParContainers()",parsetname.Data());
-    if(parsetname.BeginsWith("LmdStripDigiPar")){
+    if(parsetname.BeginsWith("SDSStripDigiPar")){
       PndSdsStripDigiPar* digipar = (PndSdsStripDigiPar*)(rtdb->getContainer(parsetname.Data()));
-      if ( ! digipar ) Fatal("SetParContainers","No DIGI parameter found: %s",parsetname.Data());
       fDigiParameterList->Add(digipar);
-     // digipar->Print();
     }
   }
-  PndSdsStripHitProducer::SetParContainers();
-}
 
-void PndLmdStripHitProducer::SetCalculators()
-{
-	PndSdsStripHitProducer::SetCalculators();
-  //calculator for TOT charge conversion:
-	TIter params(fDigiParameterList);
-	TIter totparams(fChargeDigiParameterList);
-	while( PndSdsStripDigiPar* digipar = (PndSdsStripDigiPar*)params() ){
-		PndSdsTotDigiPar* totdigipar = (PndSdsTotDigiPar*) totparams();
-		if ( 0==digipar ) continue;
-		const char* senstype = digipar->GetSensType();
-		if(fVerbose>2)cout<<"The senstype is"<<senstype<<endl;
-		if ( digipar->GetChargeConvMethod() == 0 ){
-			if(fVerbose>0)	Info("SetCalculators()","Use Ideal charge conversion for %s sensors",senstype);
-			fChargeConverter[senstype] = new PndSdsIdealChargeConversion();
-		}
-		else if (digipar->GetChargeConvMethod() == 1){
-			if(fVerbose>0)	Info("SetCalculators()","Use Tot charge conversion for %s sensors",senstype);
-			      fChargeConverter[senstype] = new PndSdsTotChargeConversion(
-			                                                                 totdigipar->GetChargingTime(),
-			                                                                 totdigipar->GetConstCurrent(),
-			                                                                 digipar->GetThreshold(),
-			                                                                 totdigipar->GetClockFrequency(),
-			                                                                 fVerbose);
-		}
-		else Fatal ("SetCalculators()","charge conversion method not defined!");
-	}
 }
-
 
 ClassImp(PndLmdStripHitProducer);
 

@@ -41,8 +41,9 @@ class PndLmdDetector : public PndSdsDetector
   /** Destructor **/
   virtual ~PndLmdDetector();
 
-  virtual void SetBranchNames(TString outBranchname, TString folderName);
+  virtual void SetBranchNames(char * outBranchname,char * folderName);
   virtual void SetBranchNames();
+  virtual void SetDefaultSensorNames();
 
   virtual void SetSpecialPhysicsCuts();
   virtual void SetDefaultSensorNames();

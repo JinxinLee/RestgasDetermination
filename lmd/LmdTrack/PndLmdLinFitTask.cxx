@@ -38,8 +38,10 @@
 #include <TVirtualFitter.h>
 #include <TPolyLine3D.h>
 #include <Math/Vector3D.h>
+#include <TMatrixTSym.h>
 
 using namespace ROOT::Math;
+using namespace std;
 
 PndLmdLinFitTask::PndLmdLinFitTask()
   : FairTask("3D-Straight-Line-Fit")
@@ -154,10 +156,12 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
     }//end of Hits in TCand
 
     Double_t parFit[4]; //fit-parameter
-    Double_t accuracy = line3Dfit(numPts, &fitme, parFit);
+    Double_t parFitErr[4]; //errors of parameters
+    Double_t accuracy = line3Dfit(numPts, &fitme, parFit, parFitErr);
 
-    PndLinTrack* trackfit = new PndLinTrack("Lumi", parFit[0], parFit[1], parFit[2], parFit[3],
-                             accuracy, firstHit, lastHit, track);
+    PndLinTrack* trackfit = new PndLinTrack("Lumi", fz0, parFit[0], parFit[1], parFit[2], parFit[3],
+					    parFitErr[0], parFitErr[1], parFitErr[2], parFitErr[3],
+					    accuracy, firstHit, lastHit, track);
 
     new((*fTrackArray)[track]) PndLinTrack(*(trackfit)); //save Track
 
@@ -179,6 +183,7 @@ void PndLmdLinFitTask::line(double t, double *p, double &x, double &y, double &z
    x = p[0] + p[1]*t; 
    y = p[2] + p[3]*t;
    z = t; 
+   //  std::cout<<"PndLmdLinFitTask::line z = "<<z<<std::endl;
 } 
 
 // calculate distance line-point 
@@ -186,8 +191,10 @@ double distance2(double x,double y,double z, double *p) {
    // distance line point is D= | (xp-x0) cross  ux | 
    // where ux is direction of line and x0 is a point in the line (like t = 0) 
    XYZVector xp(x,y,z); 
-   XYZVector x0(p[0], p[2], 0. ); 
-   XYZVector x1(p[0] + p[1], p[2] + p[3], 1. ); 
+   // XYZVector x0(p[0], p[2], 0. ); 
+   // XYZVector x1(p[0] + p[1], p[2] + p[3], 1. ); 
+   XYZVector x0(p[0], p[2], fz0 ); //Move origin of local coordinates to first lumi plane
+   XYZVector x1(p[0] + p[1], p[2] + p[3], fz0+1. ); 
    XYZVector u = (x1-x0).Unit(); 
    double d2 = ((xp-x0).Cross(u)) .Mag2(); 
    return d2; 
@@ -211,29 +218,93 @@ void SumDistance2(int &, double *, double & sum, double * par, int ) {
    //firstIt = false;
 }
 
-double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, Double_t* fitpar)
+//calculate errors for each plane due to multiple scaterring
+TVector3 errorsMS(TVector3 err, double dist, double pos){
+}
+
+// calculate distance line-point in local coordinates
+double distance_l(double x,double y,double z, double errx,double erry,double errz, double *p) { 
+  if(errx<2e-3) errx = 0.002;
+  if(erry<2e-3) erry = 0.002;
+  if(errz<1e-4) errz = 0.0001;
+  // cout<<"(x,y,z) = ("<<x<<", "<<y<<", "<<z<<")"<<endl;
+  // cout<<"fx = "<<(p[0] + p[1]*(z-1125.))<<endl;
+  // cout<<"fy = "<<(p[2] + p[3]*(z-1125.))<<endl;
+  //cout<<"(errx,erry,errz) = ("<<errx<<", "<<erry<<", "<<errz<<")"<<endl;
+  double fdx = TMath::Power((x-(p[0] + p[1]*(z-fz0)))/errx,2);
+  double fdy = TMath::Power((y-(p[2] + p[3]*(z-fz0)))/erry,2);
+  //  double fchi2 = fdx*fdx + fdy*fdy + fdz*fdz;
+  double fchi2 = fdx + fdy;
+  TVector3 Dir(p[1],p[3],1);
+  // cout<<"Dir.Mag = "<<Dir.Mag()<<" "<<p[1]*p[1]+p[3]*p[3]+1.<<endl;
+  // std::cout<<"fchi2 = "<<fchi2<<" fdx = "<<fdx<<" fdy = "<<fdy<<" fdz = "<<fdz<<std::endl;
+  return fchi2; 
+}
+// function to be minimized in local coordinates
+void LocalFCN(int &, double *, double & sum, double * par, int ) { 
+  TGraph2DErrors * gr = dynamic_cast<TGraph2DErrors*>( (TVirtualFitter::GetFitter())->GetObjectFit() );
+  assert(gr != 0);
+  double * x = gr->GetX();
+  double * y = gr->GetY();
+  double * z = gr->GetZ();
+  double * errx = gr->GetEX();
+  double * erry = gr->GetEY();
+  double * errz = gr->GetEZ();
+  // std::cout<<"x[0]"<<x[0]<<" errx[0]"<<errx[0]<<std::endl;
+  // std::cout<<"y[0]"<<y[0]<<" erry[0]"<<erry[0]<<std::endl;
+  // std::cout<<"z[0]"<<z[0]<<" errz[0]"<<errz[0]<<std::endl;
+  // std::cout<<"x[1]"<<x[1]<<" errx[1]"<<errx[1]<<std::endl;
+  // std::cout<<"y[1]"<<y[1]<<" erry[1]"<<erry[1]<<std::endl;
+  // std::cout<<"z[1]"<<z[1]<<" errz[1]"<<errz[1]<<std::endl;
+  // std::cout<<"x[2]"<<x[2]<<" errx[2]"<<errx[2]<<std::endl;
+  // std::cout<<"y[2]"<<y[2]<<" erry[2]"<<erry[2]<<std::endl;
+  // std::cout<<"z[2]"<<z[2]<<" errz[2]"<<errz[2]<<std::endl;
+  // std::cout<<"x[3]"<<x[3]<<" errx[3]"<<errx[3]<<std::endl;
+  // std::cout<<"y[3]"<<y[3]<<" erry[3]"<<erry[3]<<std::endl;
+  // std::cout<<"z[3]"<<z[3]<<" errz[3]"<<errz[3]<<std::endl;
+
+  int npoints = gr->GetN();
+  sum = 0;
+  for (int i  = 0; i < npoints; ++i) { 
+    double d = distance_l(x[i],y[i],z[i],errx[i],erry[i],errz[i],par); 
+    sum += d;
+  }
+  //if (firstIt && fVerbose>1) 
+  //   std::cout << "Total sum2 = " << sum << std::endl;
+  //firstIt = false;
+}
+
+double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, Double_t* fitpar, Double_t* fitparerr)
 {
    //gStyle->SetOptStat(0);
    //gStyle->SetOptFit();
    //firstIt = true;
-   
-   TVirtualFitter *min = TVirtualFitter::Fitter(0,4);
+  Int_t Npoint = gr->GetN();
+  cout<<"Npoint = "<<Npoint<<endl;
+  TVirtualFitter *min = TVirtualFitter::Fitter(0,4);
    min->SetObjectFit(gr);
-   min->SetFCN( *SumDistance2 );
-  
+   //min->SetFCN( *SumDistance2 );
+   min->SetFCN(*LocalFCN);//using local coordinate in FCN
    Double_t arglist[10];
    arglist[0] = 1;
    min->ExecuteCommand("SET PRINT",arglist,1);
   
-   double pStart[4] = {0.001,0.001,0.001,0.001};
-   min->SetParameter(0,"x0",pStart[0],0.00001,0,0);
-   min->SetParameter(1,"Ax",pStart[1],0.00001,0,0);
-   min->SetParameter(2,"y0",pStart[2],0.00001,0,0);
-   min->SetParameter(3,"Ay",pStart[3],0.00001,0,0);
+   // double pStart[4] = {0.001,0.001,0.001,0.001};
+   // min->SetParameter(0,"x0",pStart[0],0.01,0,0);
+   // min->SetParameter(1,"Ax",pStart[1],0.01,0,0);
+   // min->SetParameter(2,"y0",pStart[2],0.01,0,0);
+   // min->SetParameter(3,"Ay",pStart[3],0.01,0,0);
+   double pStart[4] = {25,0.05,0.5,0.0005};
+   double pStartErr[4] = {1,0.05,1,0.005};
+   min->SetParameter(0,"x0",pStart[0],pStartErr[0],pStart[0]-15*pStartErr[0],pStart[0]+15*pStartErr[0]);
+   min->SetParameter(1,"Ax",pStart[1],pStartErr[1],pStart[1]-15*pStartErr[1],pStart[1]+15*pStartErr[1]);
+   min->SetParameter(2,"y0",pStart[2],pStartErr[2],pStart[2]-15*pStartErr[2],pStart[2]+15*pStartErr[2]);
+   min->SetParameter(3,"Ay",pStart[3],pStartErr[3],pStart[3]-15*pStartErr[3],pStart[3]+15*pStartErr[3]);
    min->SetPrecision(1e-8);
+   // min->SetPrecision(1e-3);
     
    arglist[0] = 1000; // number of function calls 
-   arglist[1] = 1e-8; // tolerance 
+   arglist[1] = 1e-10; // tolerance 
    min->ExecuteCommand("MIGRAD",arglist,2);
 
   //if (minos) min->ExecuteCommand("MINOS",arglist,0);
@@ -244,11 +315,16 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, Double_t* fitpa
      min->PrintResults(1,amin);
   // gr->Draw("p0");
 
-   // get fit parameters
-   for (int i = 0; i <4; ++i) 
+   // get fit parameters and errors
+   for (int i = 0; i <4; ++i){
       fitpar[i] = min->GetParameter(i); 
-
-  return amin; 
+      fitparerr[i] = min->GetParError(i);
+   }
+  
+   // return amin; 
+   Double_t chi2 = amin/(2.*Npoint-4.);
+   cout<<"Chi^2 = "<<chi2<<endl;
+   return chi2; 
 }
 
 

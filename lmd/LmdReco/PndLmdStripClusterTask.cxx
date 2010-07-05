@@ -1,44 +1,35 @@
 // -------------------------------------------------------------------------
 // -----                PndLmdStripClusterTask source file             -----
 // -------------------------------------------------------------------------
-/*
- * Updated by h.xu@fz-juelich.de on Jun30.2010
- * To match the base class SdsStripClusterTask,the virtual functions SetClusterType() and
- * SetCalculators() were reloaded.
- */
-
 
 //LUMI
 #include "PndLmdStripClusterTask.h"
-//PANDA
-//#include "PndSdsContFact.h"
 #include "PndLmdContFact.h"
-//FAIR
-#include "FairRun.h"
-#include "FairRuntimeDb.h"
-
+//PANDA
 #include "PndSdsTotChargeConversion.h"
 #include "PndSdsIdealChargeConversion.h"
 #include "PndSdsChargeWeightingAlgorithms.h"
 #include "PndSdsSimpleStripClusterFinder.h"
 #include "PndSdsStripAdvClusterFinder.h"
 #include "PndSdsTotDigiPar.h"
-
+//FAIR
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 //ROOT
 #include "TList.h"
 
 // -----   Default constructor   -------------------------------------------
 
 PndLmdStripClusterTask::PndLmdStripClusterTask() :
-  PndSdsStripClusterTask("Lmd Cluster Task")
+  PndSdsStripClusterTask("LMD Strip Clusterisation Task")
 {
-  fyRotation=0.;
 /*  fChargeCut = 1.e8; // this ist really large and shall have no effect
   fGeoFile = "";
   fClusterMod=ClusterMod;
   if(fClusterMod>1 || fClusterMod<0) fClusterMod=0;
   fRadChannel=RadChannel;
   fRadTime=RadTime;*/
+  // fyRotation = 2.326;
 }
 
 
@@ -66,101 +57,122 @@ void PndLmdStripClusterTask::SetBranchNames()
   fFolderName = "PndLmd";
 }
 
+
+
+// -----   Initialization  of Parameter Containers -------------------------
 void PndLmdStripClusterTask::SetParContainers()
 {
+  cout<<"PndLmdStripClusterTask::SetParContainers() !!!"<<endl;
   // called from the FairRun::Init()
-  // Caution: The Parameter Set is not filled from the DB IO, yet.
+  // Caution: The Parameter Set is not filled from the DB IO, yet. 
   // This will be done just before this Tasks Init() is called.
-
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
-//  PndSdsContFact* thelmdcontfact = (PndSdsContFact*)rtdb->getContFactory("PndSdsContFact");
-  PndLmdContFact* thelmdcontfact = (PndLmdContFact*)rtdb->getContFactory("PndLmdContFact");
-  TList* theContNames = thelmdcontfact->GetDigiParNames();
-//  cout<<"The digiparname"<<theContNames<<endl;
+  PndLmdContFact* themvdcontfact = (PndLmdContFact*)rtdb->getContFactory("PndLmdContFact");
+  TList* theContNames = themvdcontfact->GetDigiParNames();
   Info("SetParContainers()","The container names list contains %i entries",theContNames->GetEntries());
   TIter cfIter(theContNames);
   while (TObjString* contname = (TObjString*)cfIter()) {
     TString parsetname = contname->String();
     Info("SetParContainers()",parsetname.Data());
-    if(parsetname.BeginsWith("LmdStripDigiPar")){
+    if(parsetname.BeginsWith("SDSStripDigiPar")){
       PndSdsStripDigiPar* digipar = (PndSdsStripDigiPar*)(rtdb->getContainer(parsetname.Data()));
+      if ( ! digipar ) Fatal("SetParContainers","No DIGI parameter found: %s",parsetname.Data());
       fDigiParameterList->Add(digipar);
     }
-  }
+    if(parsetname.BeginsWith("SDSStripTotDigiPar")){
+      PndSdsTotDigiPar* totdigipar = (PndSdsTotDigiPar*)(rtdb->getContainer(parsetname.Data()));
+      if ( ! totdigipar ) Fatal("SetParContainers","No TOT parameter found: %s",parsetname.Data());
+      fChargeDigiParameterList->Add(totdigipar);
+    }
+  }//while
   PndSdsStripClusterTask::SetParContainers();
 }
 
 void PndLmdStripClusterTask::SetCalculators()
 {
-	  Info("SetCalculators","lmd");
-	  PndSdsStripClusterTask::SetCalculators();
-		TIter params(fDigiParameterList);
-
-		while( PndSdsStripDigiPar* digipar = (PndSdsStripDigiPar*)params() ){
-
-			if ( 0==digipar ) continue;
-			const char* senstype = digipar->GetSensType();
-			cout<<"sensor type is "<<senstype<<endl;
-
-	    //fChargeAlgos[senstype] = new PndSdsChargeWeightingAlgorithms(fDigiArray, digipar->GetRaisingTime(),digipar->GetFallingRatio(),digipar->GetThreshold());
-	    Int_t ClusterMod = digipar->GetClusterMod();
-	    Int_t RadChannel = digipar->GetRadChannel();
-	    Int_t RadTime    = digipar->GetRadTime();
-	    cout<<"The CLuster mode is"<<ClusterMod<<endl;
-	    if(0==ClusterMod) {
-	    	fClusterFinderList[senstype] = new PndSdsSimpleStripClusterFinder( RadChannel ); //search radius in channel no.
-	    } else if(1==ClusterMod) {
-	    	fClusterFinderList[senstype] = new PndSdsStripAdvClusterFinder(RadChannel, RadTime);
-	    }
-		//PndSdsStripClusterTask::SetCurrentCalculators(digipar);
-		}
-
+  std::cout<<"PndLmdStripClusterTask::SetCalculators() !!!"<<std::endl;
+  Info("SetCalculators","lmd");
+  PndSdsStripClusterTask::SetCalculators();
+  TIter params(fDigiParameterList);
+  TIter totparams(fChargeDigiParameterList);
+  while( PndSdsStripDigiPar* digipar = (PndSdsStripDigiPar*)params() ){
+    PndSdsTotDigiPar* totdigipar = (PndSdsTotDigiPar*) totparams();
+    if ( 0==digipar ) continue;
+    const char* senstype = digipar->GetSensType();
+    if ( digipar->GetChargeConvMethod() == 1 ){
+			if(fVerbose>0)	Info("SetCalculators()","Use Tot charge conversion for %s sensors",senstype);
+			fChargeConverter[senstype] = new PndSdsTotChargeConversion(
+										   totdigipar->GetChargingTime(),
+                                                                 totdigipar->GetConstCurrent(),
+										   digipar->GetThreshold(),
+										   totdigipar->GetClockFrequency(),
+										   fVerbose);
+    }
+    else{
+      if(fVerbose>0)	Info("SetCalculators()","Use Ideal charge conversion for %s sensors",senstype);
+      fChargeConverter[senstype] = new PndSdsIdealChargeConversion();
+    }
+    //fChargeAlgos[senstype] = new PndSdsChargeWeightingAlgorithms(fDigiArray, digipar->GetRaisingTime(),digipar->GetFallingRatio(),digipar->GetThreshold());
+    Int_t ClusterMod = digipar->GetClusterMod(); 
+    Int_t RadChannel = digipar->GetRadChannel(); 
+    Int_t RadTime    = digipar->GetRadTime(); 
+    if(0==ClusterMod) { 
+      fClusterFinderList[senstype] = new PndSdsSimpleStripClusterFinder( RadChannel ); //search radius in channel no. 
+    } else if(1==ClusterMod) { 
+      fClusterFinderList[senstype] = new PndSdsStripAdvClusterFinder(RadChannel, RadTime); 
+    } 
+	}
 }
 
-/*
-Bool_t PndLmdStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantoperr, TVector2 meanbotPoint, Double_t meanboterr,
- 	                TVector3 &hitPos, TVector3 &hitErr, TString &detname)
-{
-  // BACKMAPPING
-  // get the backmapped point
 
-  TVector3 localpos, locDpos;
-  Double_t t, b;
-  Double_t errZ = 2.*fGeoH->GetSensorDimensionsPath(detname).Z()/TMath::Sqrt(12.0);
+// Bool_t PndLmdStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantoperr, TVector2 meanbotPoint, 
+// 					Double_t meanboterr,
+// 					TVector3 &hitPos, TVector3 &hitErr, TString &detname)
+// {
+//   // BACKMAPPING
+//   // get the backmapped point
+//   TVector3 localpos, locDpos;
+//   Double_t t, b;
+//   Double_t errZ = 2.*fGeoH->GetSensorDimensionsShortId(detname).Z()/TMath::Sqrt(12.0);
 
-  TVector2 onsensorPoint =
-    CalcLineCross(meantopPoint, fCurrentStripCalcTop->GetStripDirection(), meanbotPoint, fCurrentStripCalcBot->GetStripDirection() );
-  // here we assume the sensor system to be in the _Middle_ of the volume
-  if(fyRotation==0.){  						//TODO: make this generaly
-    localpos.SetXYZ( onsensorPoint.X(), onsensorPoint.Y(), 0.);
-  }else{
-    localpos.SetXYZ( onsensorPoint.X(), onsensorPoint.Y(), onsensorPoint.X()*tan(fyRotation));
-  }
- 	
-  // let's see if we're still on the sensor (cut combinations with noise off)
-  if(fabs(localpos.X()) > fabs(fCurrentDigiPar->GetTopAnchor().X())) return kFALSE;
-  if(fabs(localpos.Y()) > fabs(fCurrentDigiPar->GetTopAnchor().Y())) return kFALSE;
+//   TVector2 onsensorPoint =
+//     CalcLineCross(meantopPoint, fCurrentStripCalcTop->GetStripDirection(), meanbotPoint, fCurrentStripCalcBot->GetStripDirection() );
+//   // here we assume the sensor system to be in the _Middle_ of the volume
+
+
+//   // if(fyRotation==0.){  						//TODO: make this generaly
+//   //   localpos.SetXYZ( onsensorPoint.X(), onsensorPoint.Y(), 0.);
+//   // }else{
+//   //   localpos.SetXYZ( onsensorPoint.X(), onsensorPoint.Y(), onsensorPoint.X()*tan(fyRotation*TMath::Pi()/180.));
+//   // }
+
+//   //local system already rotated!
+//   localpos.SetXYZ( onsensorPoint.X(), onsensorPoint.Y(), 0.);
+  
+//   // let's see if we're still on the sensor (cut combinations with noise off)
+//   if(fabs(localpos.X()) > fabs(fCurrentDigiPar->GetTopAnchor().X())) return kFALSE;
+//   if(fabs(localpos.Y()) > fabs(fCurrentDigiPar->GetTopAnchor().Y())) return kFALSE;
 	
-  //do the transformation from sensor to lab frame
-  hitPos = fGeoH->LocalToMasterPath(localpos,detname.Data());
+//   //do the transformation from sensor to lab frame
+//   hitPos = fGeoH->LocalToMasterId(localpos,detname.Data());
  	
-  // calculate the errors corresponding to a skewed system!
-  t = meantoperr*fCurrentDigiPar->GetTopPitch()*cos(fCurrentDigiPar->GetOrient());
-  b = meanboterr*fCurrentDigiPar->GetBotPitch()*cos(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
-  locDpos.SetX( sqrt(t*t+b*b) );
-  t = meantoperr*fCurrentDigiPar->GetTopPitch()*sin(fCurrentDigiPar->GetOrient());
-  b = meanboterr*fCurrentDigiPar->GetBotPitch()*sin(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
-  locDpos.SetY( sqrt(t*t+b*b) );
-  locDpos.SetZ( errZ );
-  hitErr = locDpos;
+//   // calculate the errors corresponding to a skewed system!
+//   t = meantoperr*fCurrentDigiPar->GetTopPitch()*cos(fCurrentDigiPar->GetOrient());
+//   b = meanboterr*fCurrentDigiPar->GetBotPitch()*cos(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
+//   locDpos.SetX( sqrt(t*t+b*b) );
+//   t = meantoperr*fCurrentDigiPar->GetTopPitch()*sin(fCurrentDigiPar->GetOrient());
+//   b = meanboterr*fCurrentDigiPar->GetBotPitch()*sin(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
+//   locDpos.SetY( sqrt(t*t+b*b) );
+//   locDpos.SetZ( errZ );
+//   // cout<<"@@@@@ PndLmdStripClusterTask::Backmap (ErrX, ErrY, ErrZ)loc = "
+//   //     <<sqrt(t*t+b*b)<<", "<<sqrt(t*t+b*b)<<", "<<errZ<<endl;
  	 
-  //do the transformation from sensor to lab frame
-//  hitErr = fGeoH->LocalToMasterErrorsPath(locDpos,detname.Data());
-//  hitErr = fGeoH->MasterToLocalErrorsShortId(locDpos,detname.Dat());
+//   //do the transformation from sensor to lab frame
+//   hitErr = fGeoH->LocalToMasterErrorsId(locDpos,detname.Data());
  	
-  return kTRUE;
-}
-*/
+//   return kTRUE;
+// }
+
 ClassImp(PndLmdStripClusterTask);
 

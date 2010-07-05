@@ -128,7 +128,10 @@ void PndLmdTrackFinderTask::Exec(Option_t* opt)
     Double_t tmp = ((PndSdsHit*) (fStripHitArray->At(iHit)))->GetZ();
     bool newZ = true;
     for(Int_t idet = 0; idet < detZ.size(); idet++){
-      if(tmp == detZ.at(idet)){ //check if already found
+      //  if(tmp == detZ.at(idet)){ //check if already found
+      //   cout<<"tmp = "<<tmp<<" detZ.at(idet) = "<<detZ.at(idet)
+      //	  <<" fabs(tmp-detZ.at(idet))="<<fabs(tmp-detZ.at(idet))<<endl;
+      if(fabs(tmp-detZ.at(idet))<9.){ //check if already found [for using with Dipole]
         newZ = false;
       }
     }
@@ -153,7 +156,7 @@ void PndLmdTrackFinderTask::Exec(Option_t* opt)
       }
     }
   }
-
+  //  cout<<"Attention! detZ.size()="<<detZ.size()<<endl;
   std::vector< std::vector<Int_t> > hitsd(detZ.size()); //hit'ids splitted by detectorplane
 
 //sort in plane's
@@ -162,17 +165,21 @@ void PndLmdTrackFinderTask::Exec(Option_t* opt)
 
     Double_t z = myHit->GetZ();
     for(Int_t idet = 0; idet < detZ.size(); idet++){ //planes
-      if( z == detZ.at(idet) )
+     
+      // if( z == detZ.at(idet) ){
+      if( fabs(z-detZ.at(idet))<9. ){ //[for using with Dipole]
         hitsd.at(idet).push_back(iHit);
+	//	cout<<"detZ.at("<<idet<<")="<<detZ.at(idet)<<" z="<<z<<endl;
+      }
     }
   }
 
-  
-  if(fVerbose>2) {
-    cout << "Hits: " << nStripHits << " in " << detZ.size() << " plane(s)." << endl;
-    for(Int_t idet = 0; idet < detZ.size(); idet++)
-      cout << "Plane: "<< idet <<" DiscHits: "<< hitsd.at(idet).size() <<endl;
-  }
+   cout << "Hits: " << nStripHits << endl;
+  // if(fVerbose>2) {
+  //   cout << "Hits: " << nStripHits << " in " << detZ.size() << " plane(s)." << endl;
+  //   for(Int_t idet = 0; idet < detZ.size(); idet++)
+  //     cout << "Plane: "<< idet <<" DiscHits: "<< hitsd.at(idet).size() <<endl;
+  // }
 
   if(detZ.size()<2){
     if(fVerbose>2) cout << "Evt finsihed: too less planes-----"<<endl<<endl;
@@ -185,11 +192,37 @@ void PndLmdTrackFinderTask::Exec(Option_t* opt)
 
 //iterate first discs-hits with all seconds, save pseudo-tracks
   TVector3 start, tmp, vec, dstart, dvec; //temp-vars
+  if(fVerbose>2){
+    if(detZ.size()>0){
+      for (Int_t i=0; i<hitsd.at(0).size(); i++){
+	PndSdsHit *hit=(PndSdsHit*)fStripHitArray->At(hitsd.at(0).at(i));
+	cout<<"Plane0 Hit=("<<hit->GetX()<<", "<<hit->GetY()<<", "<<hit->GetZ()<<")"<<endl;
+      }
+    }
+    if(detZ.size()>1){
+      for (Int_t i=0; i<hitsd.at(1).size(); i++){
+	PndSdsHit *hit=(PndSdsHit*)fStripHitArray->At(hitsd.at(1).at(i));
+	cout<<"Plane1 Hit=("<<hit->GetX()<<", "<<hit->GetY()<<", "<<hit->GetZ()<<")"<<endl;
+      }
+    }
+    if(detZ.size()>2){
+      for (Int_t i=0; i<hitsd.at(2).size(); i++){
+	PndSdsHit *hit=(PndSdsHit*)fStripHitArray->At(hitsd.at(2).at(i));
+	cout<<"Plane2 Hit=("<<hit->GetX()<<", "<<hit->GetY()<<", "<<hit->GetZ()<<")"<<endl;
+      }
+    }
+    if(detZ.size()>3){
+      for (Int_t i=0; i<hitsd.at(3).size(); i++){
+	PndSdsHit *hit=(PndSdsHit*)fStripHitArray->At(hitsd.at(3).at(i));
+	cout<<"Plane3 Hit=("<<hit->GetX()<<", "<<hit->GetY()<<", "<<hit->GetZ()<<")"<<endl;
+      }
+    }
+  }
+  
   for (Int_t i=0; i<hitsd.at(0).size(); i++)
-  {
+    {
     PndSdsHit *hit1=(PndSdsHit*)fStripHitArray->At(hitsd.at(0).at(i));
     start.SetXYZ(hit1->GetX(), hit1->GetY(), hit1->GetZ());
-      
     for (Int_t k=0; k<hitsd.at(1).size(); k++)
     {
       PndSdsHit *hit2=(PndSdsHit*)fStripHitArray->At(hitsd.at(1).at(k));
