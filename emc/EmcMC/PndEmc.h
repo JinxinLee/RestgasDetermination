@@ -133,6 +133,10 @@ class PndEmc : public FairDetector
 
   void SetStorageOfData(Bool_t val); // Method to specify whether points are stored or not.
   
+  //      replaces G3 initialisation via g3Config.C
+  virtual void SetSpecialPhysicsCuts();
+
+
  private:
   
   Int_t          fTrackID;           //!  track index
