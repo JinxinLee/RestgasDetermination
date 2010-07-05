@@ -46,7 +46,6 @@ class PndLmdDetector : public PndSdsDetector
   virtual void SetDefaultSensorNames();
 
   virtual void SetSpecialPhysicsCuts();
-  virtual void SetDefaultSensorNames();
   virtual void Initialize(){PndSdsDetector::Initialize();};
   virtual void ConstructASCIIGeometry();
 
