@@ -88,11 +88,19 @@ class PndLVQTrain: public PndMvaTrainer
 
   /**
    * Set the number of protoTypes to be used for training.
+   * The same number of prototypes are initialized for all available
+   * labels(classes).
    *@param numProto  Number of prototypes.
    */  
-  inline void SetNumberOfProto(const unsigned int numProto)
-  { m_numProto = numProto; };
-
+  void SetNumberOfProto(const unsigned int numProto);
+  
+  /**
+   * Set the number of protoTypes to be used for training.
+   *@param labelMap  Map containing number of prototypes 
+   * for each class (label).
+   */  
+  void SetNumberOfProto(const std::map<std::string, unsigned int>& labelMap);
+  
   /**
    * Set how often the classifier has to be evaluated.
    *@param val Evaluate after #val steps.
@@ -171,5 +179,7 @@ class PndLVQTrain: public PndMvaTrainer
   //! Each #ErrorStep, steps evaluate the trained classifier.
   unsigned int m_ErrorStep;
   unsigned int m_ProgStep;
+  // Map labels (classes) to number of prototypes.
+  std::map < std::string, unsigned int> m_numProtoPerClass;
 };
 #endif //END Interface

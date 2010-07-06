@@ -14,6 +14,7 @@
 #include <limits>
 #include <ctime>
 #include <iomanip>
+#include <cstdlib>
 
 // Local includes
 #include "PndMvaDataSet.h"
