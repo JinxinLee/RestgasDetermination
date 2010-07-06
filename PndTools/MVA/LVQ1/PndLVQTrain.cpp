@@ -20,8 +20,7 @@ PndLVQTrain::PndLVQTrain(const std::string& inputFile,
 			 bool trim)
   : PndMvaTrainer(inputFile, ClassNames, VarNames, trim),
     m_initConst(0.8), m_ethaZero(0.1),
-    m_ethaFinal(0.0001), m_NumSweep(900), 
-    m_numProto(0),
+    m_ethaFinal(0.0001), m_NumSweep(900),
     m_proto_init(RANDOM_PR),
     m_initProtoFile(""),
     m_ErrorStep(100),
@@ -36,8 +35,7 @@ PndLVQTrain::~PndLVQTrain()
   std::cout << "\nCleaning all initialized objects." 
 	    <<std::endl;
   // Clean m_LVQProtos
-  for(size_t i = 0; i < m_LVQProtos.size(); i++)
-  {
+  for(size_t i = 0; i < m_LVQProtos.size(); i++){
     delete m_LVQProtos[i].second;
   }
   m_LVQProtos.clear();
@@ -52,7 +50,7 @@ void PndLVQTrain::Train()
   
   // Init Proto types
   InitProtoTypes();
-
+  
   // Fetch available event examples
   const std::vector<std::pair<std::string, std::vector<float>*> >& events = m_dataSets.GetData();
   
@@ -340,11 +338,17 @@ void PndLVQTrain::Train21()
 void PndLVQTrain::InitProtoTypes()
 {
   // number of proto = 0 makes no sence.
-  if(m_numProto <= 0){
-    std::cerr << "\t<ERROR:> The number of prototypes MUST\n"
-	      <<"be greater than zero" << std::endl;
-    assert(m_numProto > 0);
+  bool nonZeroProto = true;
+  for(std::map<std::string, unsigned int>::const_iterator iter = m_numProtoPerClass.begin(); 
+      iter != m_numProtoPerClass.end(); iter++){
+    nonZeroProto = nonZeroProto && (iter->second != 0);
   }
+  if( !nonZeroProto ){
+    std::cerr << "<ERROR> Undefined number of prototypes for one or more classes."
+	      << std::endl;
+    assert(nonZeroProto);
+  }
+
   // Clear protypes list
   cleanProtoList();
 
@@ -380,6 +384,7 @@ void PndLVQTrain::InitProtoK_Means()
 	    << std::endl;
   // Fetch labels.
   const std::vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+
   // Print number of proto for each class.
   for(size_t i = 0; i < classes.size(); i++){
     std::cout << classes[i].Name << " "
@@ -419,7 +424,6 @@ void PndLVQTrain::InitProtoK_Means()
 	      << std::endl;
     
     // Create clusters from current data points.
-    //PndMvaCluster clust (clusteringInput, m_numProto);
     PndMvaCluster clust (clusteringInput, numProto);
     ClDataSample& clustOut = clust.Cluster();
 
@@ -460,6 +464,7 @@ void PndLVQTrain::InitProtoRand()
   // Initialize LVQ-prototypes.
   double c = m_initConst;//0.8;
   TRandom3 trand(m_RND_seed);
+
   // Fetch labels.
   const std::vector<PndMvaClass>& classes = m_dataSets.GetClasses();
 
@@ -485,8 +490,7 @@ void PndLVQTrain::InitProtoRand()
     int maxIdx = classes[cl].EndIdx;
     std::string curClsName = classes[cl].Name;
     unsigned int numProto = m_numProtoPerClass[curClsName];
-
-    //for(unsigned int i = 0; i < m_numProto; i++)
+    
     for(unsigned int i = 0; i < numProto; i++){
       // select a random example
       if(minIdx == 0)
@@ -640,6 +644,7 @@ void PndLVQTrain::EvalClassifierError(unsigned int stp)
   float tsEr, trEr;
   tsEr = (TsError * 100.00) / static_cast<float>(m_testSet_indices.size());
   trEr = (TrError * 100.00) / static_cast<float>(events.size() - m_testSet_indices.size());
+
   // Add to container
   StepError StpEr (stp, trEr, tsEr);
   m_StepErro.push_back(StpEr);
@@ -681,12 +686,12 @@ void PndLVQTrain::ReadProtoFromFile()
     std::cout << "<INFO> There are "<< t->GetEntriesFast()
 	      << " vectors available for the current class."
 	      << std::endl;
-    if( t->GetEntriesFast() != m_numProto)
+    if( t->GetEntriesFast() != m_numProtoPerClass[classes[cls].Name])
     {
       std::cerr << "<ERROR> Number of prototypes and the"
 		<<" number of available examples do not match."
 		<< std::endl;
-      assert(t->GetEntriesFast() == m_numProto);
+      assert(t->GetEntriesFast() == m_numProtoPerClass[classes[cls].Name]);
     }
     // Init a container to bind to the tree branches
     std::vector<float> ev (variables.size(), 0.0);
@@ -730,11 +735,8 @@ void PndLVQTrain::SetNumberOfProto(const unsigned int numProto)
   // Fetch labels.
   const std::vector < PndMvaClass >& classes = m_dataSets.GetClasses();
   for(size_t cl = 0; cl < classes.size(); cl++){
-    //std::string curLab = classes[cl].Name;
     m_numProtoPerClass[ classes[cl].Name ] = numProto;
   }
-  // Fix me remove.
-  m_numProto = numProto;
 }
 
 /**

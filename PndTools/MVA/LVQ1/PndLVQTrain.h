@@ -168,7 +168,7 @@ class PndLVQTrain: public PndMvaTrainer
   unsigned int m_NumSweep;
 
   //! number of proto-types to train
-  unsigned int m_numProto;
+  //unsigned int m_numProto;
 
   //! Proto init type.
   ProtoInitType m_proto_init;
