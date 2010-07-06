@@ -156,7 +156,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
       int IVOLTE, ntimes, INTERO, ITRACCIA,
           N_INTENDED;
 //  Double_t SEMILENGTH_STRAIGHT = 75.;
-      static const bool  iplotta = true , ianalizza = true ;
+      static const bool  iplotta = false , ianalizza = true ;
       static const int  nmassimo=10;
       int istampa ;
       TH1F * hx;
