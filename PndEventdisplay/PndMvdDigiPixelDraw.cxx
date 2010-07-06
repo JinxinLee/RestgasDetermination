@@ -110,8 +110,9 @@ void PndMvdDigiPixelDraw::Exec(Option_t* option)
 		   TEveTrans& t = it->second->RefMainTrans();
 		   t.SetFrom(testMatrix);
 		   TEveElement* el = (TEveElement*)it->second;
-		   TEveElement* man = (TEveElement*)fEventManager;
-		   gEve->AddElement(it->second, fEventManager);
+ 		   TEveElement* man = (TEveElement*)fEventManager;
+// 		   gEve->AddElement(it->second, fEventManager);
+ 		   gEve->AddElement(it->second, man);
 	}
 
 	gEve->Redraw3D(kFALSE);
@@ -132,7 +133,9 @@ void PndMvdDigiPixelDraw::Reset()
 {
 	for (boxSetMapIter it = fModules.begin(); it != fModules.end(); it++){
 		TEveElement* el = (TEveElement*)it->second;
-		gEve->RemoveElement(it->second, fEventManager);
+	        TEveElement* man = (TEveElement*)fEventManager;
+// 		   gEve->AddElement(it->second, fEventManager);
+ 	        gEve->AddElement(it->second, man);
 	}
 	fModules.clear();
 }

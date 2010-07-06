@@ -15,6 +15,7 @@
 #include "PndTrack.h"
 #include "TLorentzVector.h"
 #include "TParticle.h"
+#include "TEveBoxSet.h"
 #include <string>
 #include <sstream>
 using std::cout;

@@ -13,6 +13,7 @@
 #include "PndGeoHandling.h"
 
 #include "TVector3.h"
+#include "TEveBoxSet.h"
 
 #include <map>
 #include <vector>

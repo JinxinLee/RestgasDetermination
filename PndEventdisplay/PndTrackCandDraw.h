@@ -17,6 +17,7 @@
 
 #include "FairHitDraw.h"
 #include "TClonesArray.h"
+#include "TVector3.h"
 
 class PndTrackCandDraw : public FairBoxSetDraw {
 
