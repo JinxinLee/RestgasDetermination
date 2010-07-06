@@ -7,6 +7,7 @@
 #include "PndSttTrackFitter.h"
 #include "PndSttTrack.h"
 #include "PndSttTube.h"
+#include "PndSttHit.h"
 #include "PndSttMapCreator.h"
 
 #include "FairRootManager.h"
@@ -134,6 +135,18 @@ void PndSttFitTracks::Exec(Option_t* opt)
 	fFitter->DoFit(pTrackCand, pTrack);
 
     }
+
+  // reset hit coordinates
+  for(int i = 0; i < fHitArray->GetEntriesFast(); i++) {
+    PndSttHit *currenthit = (PndSttHit*) fHitArray->At(i);
+    if(!currenthit) continue;
+    // tubeID  CHECK added
+    Int_t tubeID = currenthit->GetTubeID();
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+    currenthit->SetX(tube->GetPosition().X());
+    currenthit->SetY(tube->GetPosition().Y());
+    currenthit->SetZ(tube->GetPosition().Z());
+  }
 }
 // -------------------------------------------------------------------------
 
@@ -166,8 +179,7 @@ void PndSttFitTracks::AddHitCollection(char const *hitCollectionName)
     }
     
     // Get hit Array
-    TClonesArray
-	*fHitArray = (TClonesArray*) ioman->GetObject(hitCollectionName);
+    fHitArray = (TClonesArray*) ioman->GetObject(hitCollectionName);
 
     if (!fHitArray) 
     {

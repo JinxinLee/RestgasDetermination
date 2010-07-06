@@ -325,14 +325,14 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 	}
       else { // =========== SKEWED TUBE ==================
 
-	if(currenthit->GetZ() != -999)
-	  { 
-	    // get the track fit result
-	    helixhit->SetX(currenthit->GetX());
-	    helixhit->SetY(currenthit->GetY());
-	    helixhit->SetZ(currenthit->GetZ());
-	  }
-	else
+// 	if(currenthit->GetZ() != -999)
+// 	  { 
+// 	    // get the track fit result
+// 	    helixhit->SetX(currenthit->GetX());
+// 	    helixhit->SetY(currenthit->GetY());
+// 	    helixhit->SetZ(currenthit->GetZ());
+// 	  }
+// 	else
 	  {
 	    // CHECK the reason why these are different from the previous ones!
 
