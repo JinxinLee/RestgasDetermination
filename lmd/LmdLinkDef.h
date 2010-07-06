@@ -14,22 +14,19 @@
 //SDS
 #pragma link C++ class PndSdsDetector+;
 
-//mc
-#pragma link C++ class PndLmdContFact+;
+//LMD
 #pragma link C++ class PndLmdDetector+;
-//#pragma link C++ class PndLmdGeo+;
+#pragma link C++ class PndLmdGeo+;
+#pragma link C++ class PndLmdContFact+;
+
+
 
 //digi
 //#pragma link C++ class PndLmdHybridHitProducer+;
 #pragma link C++ class PndLmdStripHitProducer+;
-//#pragma link C++ class PndLmdDigiTask+;
-
+#pragma link C++ class PndLmdDigiTask+;
 #pragma link C++ class PndLmdHitProducerIdeal+;
-#pragma link C++ class PndLmdContFact+;
-//#pragma link C++ class PndLmdNoiseProducer+;
-#pragma link C++ class PndLmdContFact+;
-
-
+#pragma link C++ class PndLmdNoiseProducer+;
 
 #endif
 

@@ -52,40 +52,13 @@ link_directories( ${LINK_DIRECTORIES})
 ########################### create libLmd ######################################
 set(LMD_SRCS
 
-#MvdDigi/PndMvdCalcFePixel.cxx
-#MvdDigi/PndMvdCalcPixel.cxx
-#MvdDigi/PndMvdCalcStrip.cxx
-#MvdDigi/PndMvdDigiAna.cxx
-#MvdDigi/PndMvdHybridHitProducer.cxx
+LmdTools/PndLmdContFact.cxx
 LmdDigi/PndLmdStripHitProducer.cxx
 LmdDigi/PndLmdHitProducerIdeal.cxx
-#LmdDigi/PndLmdDigiTask.cxx
-#LmdDigi/PndLmdNoiseProducer.cxx
-
+LmdDigi/PndLmdDigiTask.cxx 
+LmdDigi/PndLmdNoiseProducer.cxx 
 LmdMC/PndLmdDetector.cxx
-LmdTools/PndLmdContFact.cxx
-
-#MvdTools/PndMvdContFact.cxx
-#MvdTools/PndMvdPixelDigiPar.cxx
-#MvdTools/PndMvdStripDigiPar.cxx
-#MvdTools/PndMvdAccessRTDBTask.cxx
-#MvdTools/PndStringVector.cxx
-#MvdTools/PndMvdGeoHandling.cxx
-#MvdTools/PndMvdEventAna.cxx
-#MvdTools/PndMvdMCEventAna.cxx
-#MvdTools/PndMvdDigiEventAna.cxx
-#MvdTools/PndMvdAllDataEventAna.cxx
-#MvdTools/PndMvdFileNameCreator.cxx
-#MvdTools/PndGeoHitList.cxx
-#MvdTools/PndEventDisplay.cxx
-#MvdTools/PndMvdEventAnaTask.cxx
-#MvdTools/PndMvdEventMerger.cxx
-#MvdTools/PndMvdEventMergerTask.cxx
-#MvdTools/PndMvdMSAnaTask.cxx
-
-#MvdDAQ/PndMvdConvertApv.cxx
-#MvdDAQ/PndMvdConvertApvTask.cxx
-
+LmdMC/PndLmdGeo.cxx
 )
 set (LMD_RULECHECKER_SRCS ${LMD_SRCS})
 
@@ -108,26 +81,9 @@ set_target_properties(Lmd PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ########################### create libLmdReco ##################################
 set(LMDRECO_SRCS
 
-
-##MvdReco/PndMvdRecoTask.cxx
-#MvdReco/PndMvdClusterTask.cxx
-##MvdReco/PndMvdPixelClusterFinder.cxx
-##MvdReco/PndMvdSimplePixelClusterFinder.cxx
-##MvdReco/PndMvdIdealPixelClusterFinder.cxx
-#MvdReco/PndMvdPixelClusterTask.cxx
 LmdReco/PndLmdIdealClusterTask.cxx
-##MvdReco/PndMvdPixelBackMapping.cxx
-##MvdReco/PndMvdChargeWeightedPixelMapping.cxx
-##MvdReco/PndMvdStripClusterBuilder.cxx
-##MvdReco/PndMvdSimpleStripClusterFinder.cxx
-##MvdReco/PndMvdStripClusterFinder.cxx
 LmdReco/PndLmdStripClusterTask.cxx
 LmdReco/PndLmdIdealRecoTask.cxx
-##MvdReco/PndMvdChargeWeightingAlgorithms.cxx
-
-#MvdTools/PndMvdRadDamList.cxx
-#MvdTools/PndMvdRadDamTask.cxx
-#MvdTools/PndMvdAnaRadDam.cxx
 
 )
 set (LMD_RULECHECKER_SRCS ${LMD_RULECHECKER_SRCS} ${LMDRECO_SRCS})
