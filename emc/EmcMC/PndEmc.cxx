@@ -1196,7 +1196,9 @@ void PndEmc::SetSpecialPhysicsCuts(){
 	std::string sMedium[3] = {"FscScint", "FscFiber", "lead"};
 	int matIdVMC;
 	for(Int_t i = 0; i < 3; i++) {
-		matIdVMC = gGeoManager->GetMedium(sMedium[i].c_str())->GetId();
+		TGeoMedium *medium=gGeoManager->GetMedium(sMedium[i].c_str());
+		if (medium==0) continue;
+		matIdVMC = medium->GetId();
 		double cut_el = 1.0E-4;   // 100 KeV
 		double cut_had = 1.0E-4;  // 100 KeV
 		double tofmax = 1.E10;    // (s)
