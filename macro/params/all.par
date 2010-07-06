@@ -230,7 +230,7 @@ Rate:Double_t 2e-2
 #################################################################
 [PndEmcDigiPar]
 EnergyHitThreshold:Double_t 0.000001
-NBits:Int_t 14
+NBits:Int_t 16
 DetectedPhotonsPerMeV:Double_t 500
 SensitiveAreaAPD:Double_t 200
 SensitiveAreaVPT:Double_t 200 

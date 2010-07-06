@@ -63,6 +63,7 @@ EmcDigi/PndEmcDigiNonuniformityPar.cxx
 EmcDigi/PndEmcMakeDigi.cxx
 EmcDigi/PndEmcPSAParabolic.cxx
 EmcDigi/PndEmcPSATrapDigiFilter.cxx
+EmcDigi/PndEmcPSAMatchedDigiFilter.cxx
 EmcDigi/PndEmcFadcFilter.cxx
 EmcDigi/PndEmcFullDigiTask.cxx
 EmcMC/PndGeoEmc.cxx 

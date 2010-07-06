@@ -72,3 +72,5 @@ PndEmcAsicPulseshape::degenerate_solution(const double t,  // for Tsig=0
 
 	return amp*term1;
 }
+
+ClassImp(PndEmcAsicPulseshape);

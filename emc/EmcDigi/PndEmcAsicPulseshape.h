@@ -55,6 +55,8 @@ private:
   double degenerate_solution(const double t,  // for Tdif=Tint
 		     const double amp, 
 		     const double toffset) const; 
+  
+  ClassDef(PndEmcAsicPulseshape,1)
 };
 
 #endif

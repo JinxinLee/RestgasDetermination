@@ -12,6 +12,8 @@
 #include <vector>
 #include "TObject.h"
 
+class PndEmcAbsPulseshape;
+
 class PndEmcFadcFilter : public TObject {
 
 public:
@@ -34,8 +36,12 @@ public:
 	void            Clear();
 		
 	// Different filters 
-	void            SetupIntegrator(Int_t i_width);
-	void            SetupTriangle(Int_t i_rise);
+	//void            SetupIntegrator(Int_t i_width);
+	void            SetupMA(Int_t i_width); // Moving average
+	void            SetupMWD(Int_t i_width, Double_t tau); // Moving window deconvolution
+	void            SetupMatchedFilter(Int_t i_width, PndEmcAbsPulseshape *pulseshape, Double_t sampleRate); // Matched digital filter
+	void            SetupBipolarTrapez(Int_t i_rise, Int_t i_flat, Int_t i_width);
+	//void            SetupTriangle(Int_t i_rise);
 	void            SetupTrapez(Int_t i_rise, Int_t i_flat);
 	void            SetupBipolarTriangle(Int_t i_rise);
 	void            SetupDifferentiator(Int_t i_lag=0, Int_t i_width=1);
@@ -45,6 +51,7 @@ public:
 	void            SetNormalizeFloating(Double_t d_norm=1.);
 	void            SetNormalizeInteger(Int_t i_shift=0);
 
+	std::vector<Double_t> GetWeights() const {return fCoeff;}
 
 private:
 	std::vector<Double_t> fCoeff;

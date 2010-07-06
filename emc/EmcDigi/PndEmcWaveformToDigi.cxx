@@ -23,7 +23,7 @@
 #include "PndEmcRecoPar.h"				
 #include "PndEmcAsicPulseshape.h"
 #include "PndEmcPSAParabolic.h"
-#include "PndEmcPSATrapDigiFilter.h"
+#include "PndEmcPSAMatchedDigiFilter.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -109,16 +109,16 @@ InitStatus PndEmcWaveformToDigi::Init()
 	fPulseshape= new PndEmcAsicPulseshape(fASIC_Shaping_int_time,fCrystal_time_constant);
 	
 	// Pulse shape analysis algorithm.
-	// At the moment simple parabolic fit is used by default.
-	psaAlgorithm = new PndEmcPSAParabolic();
+	// Simple parabolic fit.
+	//psaAlgorithm = new PndEmcPSAParabolic();
 
-	// Trapezoidal digi filter
+	// Matched digital filter
 	// Parameters of the filter are hardcoded at the moment
-// 	std::vector<Double_t> params;
-// 	params.push_back(20); // Rise time (in sampling period)
-// 	params.push_back(20); // Flat top period (in sampling period)
-// 	params.push_back(0); // Shift for energy determination
-// 	psaAlgorithm = new PndEmcPSATrapDigiFilter(params);
+	// For different pulseshape in barrel and endcaps different filters should be implemented
+ 	std::vector<Double_t> params;
+ 	params.push_back(30); // width
+	params.push_back(fSampleRate); // Sample rate
+	psaAlgorithm = new PndEmcPSAMatchedDigiFilter(params,fPulseshape);
 	
 	// Determine normalisation constant for PndEmcWaveform
 	PndEmcWaveform *tmpwaveform=new PndEmcWaveform(0,101010001, fNumber_of_samples_in_waveform);
@@ -163,7 +163,7 @@ void PndEmcWaveformToDigi::Exec(Option_t* opt)
 		digi_time=peakPosition/fSampleRate;
 		if (energy>fEnergyDigiThreshold)
 		{
-			new((*fDigiArray)[i_digi]) PndEmcDigi(trackId,detId, energy, peakPosition,hitIndex);
+			new((*fDigiArray)[i_digi]) PndEmcDigi(trackId,detId, energy, digi_time, hitIndex);
 			i_digi++;
 			
 		}

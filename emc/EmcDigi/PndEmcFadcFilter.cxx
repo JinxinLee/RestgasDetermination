@@ -22,6 +22,7 @@
 #include <iostream>
 
 #include "PndEmcFadcFilter.h"
+#include "PndEmcAbsPulseshape.h"
 
 using namespace std;
 
@@ -150,6 +151,90 @@ void PndEmcFadcFilter::SetData(Double_t data[], Int_t i_size, Int_t i_offset)
 	
 	fOffset = i_offset;
   
+	return;
+}
+
+// Setup moving average filter
+void PndEmcFadcFilter::SetupMA(Int_t i_width)
+{
+	Int_t i_size = i_width;
+	Clear();
+	fCoeff.resize(i_size);
+	fType   = symmetric;
+	
+	for (Int_t i = 0; i < i_size; i++) {
+		fCoeff[i] = 1./i_width;
+	}
+
+	return;
+}
+
+// Setup moving window deconvolution filter
+void PndEmcFadcFilter::SetupMWD(Int_t i_width, Double_t tau)
+{
+	Int_t i_size = i_width;
+	Clear();
+	fCoeff.resize(i_size);
+	fType   = arbitrary;
+	
+	fCoeff[0]=1;
+	fCoeff[i_size-1]=-(1-1./tau);
+	
+	for (Int_t i = 1; i < i_size-1; i++) {
+		fCoeff[i] = 1./tau;
+	}
+
+	return;
+}
+
+// Matched digital filter
+void PndEmcFadcFilter::SetupMatchedFilter(Int_t i_width, PndEmcAbsPulseshape *pulseshape, Double_t sampleRate)
+{
+	Int_t i_size = i_width;
+	Clear();
+	fCoeff.resize(i_size);
+	fType   = arbitrary;
+	
+	Double_t amplitude=1.;
+	Double_t t;
+	Double_t val=0;
+	
+	for (  int i=0;i<i_size;i++)
+	{
+		t= i/sampleRate;
+		val=pulseshape->value(t,amplitude,0.);
+		fCoeff[i]=val;
+	}
+	
+	std::reverse(fCoeff.begin(), fCoeff.end());
+	
+	return;
+	
+} 
+
+void PndEmcFadcFilter::SetupBipolarTrapez(Int_t i_rise, Int_t i_flat, Int_t i_width)
+{
+	Int_t i_size = 2*i_rise + 2*i_flat+i_width+1;
+	Clear();
+
+	fCoeff.resize(i_size);
+	fType   = symmetric;
+	
+	for (Int_t i = 0; i < i_rise; i++) {
+		fCoeff[i]          = i;
+		fCoeff[i_size-i-1]   = -i;
+	}
+	
+	for (Int_t i = i_rise; i < (i_rise+i_flat); i++)
+	{
+		fCoeff[i] = i_rise;
+		fCoeff[i_flat+i_width+i+1] = -i_rise;
+	}
+	
+	for (Int_t i = (i_rise+i_flat); i <= (i_rise+i_flat+i_width); i++) {
+		fCoeff[i]          = i_rise-2*i_rise/i_width*(i-i_rise-i_width);
+	}
+	
 	return;
 }
 

@@ -70,7 +70,7 @@ class PndEmcDigiPar : public FairParGenericSet
 		Int_t fNoiseAllChannels;
 		Int_t fUse_nonuniformity;
 
-		ClassDef(PndEmcDigiPar,6);
+		ClassDef(PndEmcDigiPar,7);
 };
 
 #endif

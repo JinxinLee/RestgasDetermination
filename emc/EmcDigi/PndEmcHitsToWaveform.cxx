@@ -184,19 +184,19 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 		Int_t module = theWaveform->GetModule();
 		switch (module){
 			case 1: // Barrel 
-					theWaveform->UpdateWaveform(theHit, fNPhotoElectronsPerMeVAPDBarrel, fUse_photon_statistic, fExcessNoiseFactorAPD, fFirstSamplePhase, fSampleRate, pulseshape);
+				theWaveform->UpdateWaveform(theHit, fNPhotoElectronsPerMeVAPDBarrel, fUse_photon_statistic, fExcessNoiseFactorAPD, fFirstADCBinTime, fSampleRate, pulseshape);
 					break;
 			case 2: // Barrel
-					theWaveform->UpdateWaveform(theHit, fNPhotoElectronsPerMeVAPDBarrel, fUse_photon_statistic, fExcessNoiseFactorAPD, fFirstSamplePhase, fSampleRate, pulseshape);
+				theWaveform->UpdateWaveform(theHit, fNPhotoElectronsPerMeVAPDBarrel, fUse_photon_statistic, fExcessNoiseFactorAPD, fFirstADCBinTime, fSampleRate, pulseshape);
 					break;
 			case 3: // Fwd endcap
-					theWaveform->UpdateWaveform(theHit, fNPhotoElectronsPerMeVVPT, fUse_photon_statistic, fExcessNoiseFactorVPT, fFirstSamplePhase, fSampleRate, pulseshape);
+				theWaveform->UpdateWaveform(theHit, fNPhotoElectronsPerMeVVPT, fUse_photon_statistic, fExcessNoiseFactorVPT, fFirstADCBinTime, fSampleRate, pulseshape);
 					break;
 			case 4: // Bwd endcap
-					theWaveform->UpdateWaveform(theHit, fNPhotoElectronsPerMeVVPT, fUse_photon_statistic, fExcessNoiseFactorVPT, fFirstSamplePhase, fSampleRate, pulseshape);
+				theWaveform->UpdateWaveform(theHit, fNPhotoElectronsPerMeVVPT, fUse_photon_statistic, fExcessNoiseFactorVPT, fFirstADCBinTime, fSampleRate, pulseshape);
 					break;
 			case 5: // Shashlyk calorimetr (At the moment parameters from barrel are used)
-					theWaveform->UpdateWaveform(theHit, fNPhotoElectronsPerMeVAPDBarrel, fUse_photon_statistic, fExcessNoiseFactorAPD, fFirstSamplePhase, fSampleRate, pulseshape);
+				theWaveform->UpdateWaveform(theHit, fNPhotoElectronsPerMeVAPDBarrel, fUse_photon_statistic, fExcessNoiseFactorAPD, fFirstADCBinTime, fSampleRate, pulseshape);
 					break;
 			default:
 				std::cout<<"Unknown module number in EMC digitization"<<std::endl;
