@@ -21,7 +21,6 @@ class PndMvdStripClusterTask : public PndSdsStripClusterTask
     
     void SetBranchNames(TString inBranchname, TString outHitBranchname, TString outClustBranchname, TString folderName);
     virtual void SetBranchNames();
-    void SetClusterType(){fClusterType = kMVDClusterStrip;}
     
     virtual void SetParContainers();
     virtual void SetCalculators();

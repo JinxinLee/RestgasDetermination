@@ -27,8 +27,8 @@ PndMvdStripClusterTask::~PndMvdStripClusterTask()
 // -----   Manula I/O folders/branches   ----------------------------------------------------
 void PndMvdStripClusterTask::SetBranchNames(TString inBranchname, TString outHitBranchname, TString outClustBranchname, TString folderName)
 {
-  fBranchName = inBranchname;
-  fHitBranchName = outHitBranchname;
+  fInBranchName = inBranchname;
+  fOutBranchName = outHitBranchname;
   fClustBranchName = outClustBranchname;
   fFolderName = folderName;
 }
@@ -36,8 +36,8 @@ void PndMvdStripClusterTask::SetBranchNames(TString inBranchname, TString outHit
 // -----   Default I/O folder/branches   ----------------------------------------------------
 void PndMvdStripClusterTask::SetBranchNames()
 {
-  fBranchName = "MVDStripDigis";
-  fHitBranchName = "MVDHitsStrip";
+  fInBranchName = "MVDStripDigis";
+  fOutBranchName = "MVDHitsStrip";
   fClustBranchName = "MVDStripClusterCand";
   fFolderName = "PndMvd";
 }
@@ -99,9 +99,9 @@ void PndMvdStripClusterTask::SetCalculators()
     Int_t RadChannel = digipar->GetRadChannel(); 
     Int_t RadTime    = digipar->GetRadTime(); 
     if(0==ClusterMod) { 
-      fClusterFinderList[senstype] = new PndSdsSimpleStripClusterFinder( RadChannel ); //search radius in channel no. 
+      fClusterFinderList[senstype] = new PndSdsSimpleStripClusterFinder(fInBranchId, RadChannel ); //search radius in channel no.
     } else if(1==ClusterMod) { 
-      fClusterFinderList[senstype] = new PndSdsStripAdvClusterFinder(RadChannel, RadTime); 
+      fClusterFinderList[senstype] = new PndSdsStripAdvClusterFinder(fInBranchId, RadChannel, RadTime);
     } 
 	}
 }

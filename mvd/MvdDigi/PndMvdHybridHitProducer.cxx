@@ -65,7 +65,7 @@ void PndMvdHybridHitProducer::SetParContainers()
 // -------------------------------------------------------------------------
 void PndMvdHybridHitProducer::SetBranchNames(TString inBranchname, TString outBranchname, TString folderName)
 {
-  fBranchName = inBranchname;
+  fInBranchName = inBranchname;
   fOutBranchName = outBranchname;
   fFolderName = folderName;
 }
@@ -74,7 +74,7 @@ void PndMvdHybridHitProducer::SetBranchNames(TString inBranchname, TString outBr
 void PndMvdHybridHitProducer::SetBranchNames()
 {
   if(fVerbose>1) Info("SetBranchNames","Set Mvd Pixel names.");
-  fBranchName = "MVDPoint";
+  fInBranchName = "MVDPoint";
   fOutBranchName = "MVDPixelDigis";
   fFolderName = "PndMvd";
 }

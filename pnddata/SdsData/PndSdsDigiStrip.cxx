@@ -5,14 +5,14 @@ PndSdsDigiStrip::PndSdsDigiStrip(){
 }
 
 PndSdsDigiStrip::PndSdsDigiStrip(std::vector<Int_t> index, Int_t detID, 
-                                 Int_t sensorID, Int_t fe, Int_t chan, Double_t charge, fDetectorType mcPointType, Int_t timestamp)
+                                 Int_t sensorID, Int_t fe, Int_t chan, Double_t charge, Int_t mcPointType, Int_t timestamp)
 : PndSdsDigi(index,detID,sensorID,fe,charge,mcPointType,timestamp)
 {
 	fChannel = chan;
 }
 
 PndSdsDigiStrip::PndSdsDigiStrip(Int_t index, Int_t detID,
-                                 Int_t sensorID, Int_t fe, Int_t chan, Double_t charge, fDetectorType mcPointType, Int_t timestamp)
+                                 Int_t sensorID, Int_t fe, Int_t chan, Double_t charge, Int_t mcPointType, Int_t timestamp)
 : PndSdsDigi(index,detID,sensorID,fe,charge,mcPointType,timestamp)
 {
 	fChannel = chan;

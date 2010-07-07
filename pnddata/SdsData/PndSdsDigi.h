@@ -39,8 +39,8 @@ class PndSdsDigi : public FairMultiLinkedData
     }
     
     public : PndSdsDigi();
-    PndSdsDigi(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Double_t charge, fDetectorType type, Int_t timestamp = -1);
-    PndSdsDigi(Int_t index, Int_t detID, Int_t fSensorID, Int_t fe, Double_t charge, fDetectorType type, Int_t timestamp = -1);
+    PndSdsDigi(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Double_t charge, Int_t type, Int_t timestamp = -1);
+    PndSdsDigi(Int_t index, Int_t detID, Int_t fSensorID, Int_t fe, Double_t charge, Int_t type, Int_t timestamp = -1);
 		/**<constructor
      * \param index position of PndSdsMCPoint in TClonesArray
      * \param detID detector ID (from/for CbmPoint/Hit)
@@ -61,7 +61,7 @@ class PndSdsDigi : public FairMultiLinkedData
 		Int_t GetNIndices() const { return fIndex.size();}
     Int_t GetTimestamp() const { return fTimestamp; }
     
-		virtual void SetMCPointType(fDetectorType type){fMCPointType = type;}
+		virtual void SetMCPointType(Int_t type){fMCPointType = type;}
     
 		virtual void AddIndex(int index)
 		{
@@ -87,7 +87,7 @@ class PndSdsDigi : public FairMultiLinkedData
 		Int_t fSensorID;
 		Int_t fFE;
 		Double_t fCharge;
-		fDetectorType fMCPointType;
+		Int_t fMCPointType;
     Int_t fTimestamp;	// Timestamp of event + time of flight [ns]
     
     ClassDef(PndSdsDigi,3);

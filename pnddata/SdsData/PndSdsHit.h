@@ -81,7 +81,7 @@ class PndSdsHit : public FairHit
   void SetNDigiHits(Int_t pixel) { fNDigiHits = pixel;}
   void SetClusterIndex(Int_t datasource, Int_t id) {
 	  fClusterIndex = id;
-	  SetLink(FairLink((fDetectorType)datasource, id));
+	  SetLink(FairLink(datasource, id));
   }
   void SetBotIndex(Int_t id)     { fBotIndex  = id;}
   void SetCov(TMatrixD cov);

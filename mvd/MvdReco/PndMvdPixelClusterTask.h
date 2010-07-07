@@ -8,6 +8,7 @@
 #include "PndMvdSimplePixelClusterFinder.h"
 #include "PndMvdChargeWeightedPixelMapping.h"
 #include "TString.h"
+#include "FairRootManager.h"
 
 class PndMvdPixelClusterTask : public PndSdsPixelClusterTask
 {
@@ -23,8 +24,7 @@ class PndMvdPixelClusterTask : public PndSdsPixelClusterTask
     virtual void SetBranchNames();
     virtual void SetClusterFinder();
     virtual void SetBackMapping();
-    void SetBranchNames(TString inBranchname, TString outHitBranchname, TString outClustBranchname, TString folderName);
-    void SetClusterType(){fClusterType = kMVDClusterPixel;}
+    virtual void SetBranchNames(TString inBranchname, TString outHitBranchname, TString outClustBranchname, TString folderName);
 
   ClassDef(PndMvdPixelClusterTask,3);
 };

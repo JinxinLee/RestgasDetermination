@@ -31,8 +31,8 @@ void PndMvdIdealClusterTask::SetParContainers()
 // -----   Manula I/O folders/branches   ----------------------------------------------------
 void PndMvdIdealClusterTask::SetBranchNames(TString inBranchname, TString outHitBranchname, TString outClustBranchname, TString folderName)
 {
-  fBranchName = inBranchname;
-  fHitBranchName = outHitBranchname;
+  fInBranchName = inBranchname;
+  fOutBranchName = outHitBranchname;
   fClustBranchName = outClustBranchname;
   fFolderName = folderName;
 }
@@ -40,8 +40,8 @@ void PndMvdIdealClusterTask::SetBranchNames(TString inBranchname, TString outHit
 // -----   Default I/O folder/branches   ----------------------------------------------------
 void PndMvdIdealClusterTask::SetBranchNames()
 {
-  fBranchName = "MVDPixelDigis";
-  fHitBranchName = "MVDHitsPixelIdeal";
+  fInBranchName = "MVDPixelDigis";
+  fOutBranchName = "MVDHitsPixelIdeal";
   fClustBranchName = "MVDPixelClusterCandIdeal";
   fFolderName = "PndMvd";
 }

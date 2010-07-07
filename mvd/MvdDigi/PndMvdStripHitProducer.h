@@ -70,7 +70,6 @@ class PndMvdStripHitProducer : public PndSdsStripHitProducer
 
   /** Specify the branch & folder names for the I/O **/
   void SetBranchNames(TString inBranchname, TString outBranchname, TString folderName);
-  void SetMCPointType() {fMCPointType = kMVDPoint;};
 
   /** Take default naming **/
   virtual void SetBranchNames();

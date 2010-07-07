@@ -40,7 +40,7 @@ class PndSdsDigiPixel : public PndSdsDigi
     }
     
     public : PndSdsDigiPixel();
-    PndSdsDigiPixel(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Int_t col, Int_t row, Double_t charge, fDetectorType mcPointType);
+    PndSdsDigiPixel(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Int_t col, Int_t row, Double_t charge, Int_t mcPointType);
     
     
 		~PndSdsDigiPixel(){};

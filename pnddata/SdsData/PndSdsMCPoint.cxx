@@ -34,7 +34,7 @@ PndSdsMCPoint::PndSdsMCPoint(Int_t trackID, Int_t detID, Int_t sensorID,
 
   SetSensorID(sensorID);
 
-  SetLink(FairLink(kMCTrack, trackID));
+  SetLink(FairLink("MCTrack", trackID));
 }
 // -------------------------------------------------------------------------
 

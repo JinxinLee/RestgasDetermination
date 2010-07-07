@@ -34,7 +34,7 @@ public :
     ~PndSdsCluster(){};
     PndSdsCluster(std::vector<Int_t> list);
 
-    virtual void SetClusterList(std::vector<Int_t> list) = 0; 
+    virtual void SetClusterList(Int_t DigiType, std::vector<Int_t> list) = 0;
     std::vector<Int_t> GetClusterList() const {return fClusterList;}
     Int_t GetClusterSize() const {return fClusterList.size();}
     Int_t GetDigiIndex(Int_t i) const {return fClusterList[i];}

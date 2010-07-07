@@ -33,7 +33,7 @@ PndMvdStripHitProducer::~PndMvdStripHitProducer()
 // -------------------------------------------------------------------------
 void PndMvdStripHitProducer::SetBranchNames()
 {
-  fBranchName = "MVDPoint";
+  fInBranchName = "MVDPoint";
   fOutBranchName = "MVDStripDigis";
   fFolderName = "PndMvd";
 }

@@ -23,14 +23,14 @@ class PndSdsClusterStrip: public PndSdsCluster {
   
 public:
 	PndSdsClusterStrip();
-	PndSdsClusterStrip(std::vector<Int_t> list){
-		SetClusterList(list);
+	PndSdsClusterStrip(Int_t DigiType, std::vector<Int_t> list){
+		SetClusterList(DigiType, list);
 	};
 	virtual ~PndSdsClusterStrip();
   
-	void SetClusterList(std::vector<Int_t> list){
+	void SetClusterList(Int_t DigiType, std::vector<Int_t> list){
 		fClusterList = list;
-		SetLinks(FairMultiLinkedData(kMVDDigiStrip, list));
+		SetLinks(FairMultiLinkedData(DigiType, list));
 	}
   
 	SensorSide GetSensorSide() const {return fSide;}

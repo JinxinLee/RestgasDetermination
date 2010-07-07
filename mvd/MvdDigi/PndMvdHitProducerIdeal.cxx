@@ -12,7 +12,7 @@
 PndMvdHitProducerIdeal::PndMvdHitProducerIdeal() :
   PndSdsHitProducerIdeal("Ideal MVD Hit Producer")
 {
-	fBranchName 	= "MVDPoint";
+	fInBranchName 	= "MVDPoint";
   fPersistance = kTRUE;
 }
 // -------------------------------------------------------------------------
@@ -26,7 +26,7 @@ PndMvdHitProducerIdeal::~PndMvdHitProducerIdeal()
 
 void PndMvdHitProducerIdeal::SetBranchNames(TString inBranchname, TString outBranchname, TString folderName)
 {
-  fBranchName = inBranchname;
+  fInBranchName = inBranchname;
   fOutBranchName = outBranchname;
   fFolderName = folderName;
 }
@@ -34,7 +34,7 @@ void PndMvdHitProducerIdeal::SetBranchNames(TString inBranchname, TString outBra
 
 void PndMvdHitProducerIdeal::SetBranchNames()
 {
-  fBranchName = "MVDPoint";
+  fInBranchName = "MVDPoint";
   fOutBranchName = "MVDHit";
   fFolderName = "PndMvd";
 }

@@ -13,14 +13,14 @@
 class PndSdsClusterPixel: public PndSdsCluster {
 public:
 	PndSdsClusterPixel();
-	PndSdsClusterPixel(std::vector<Int_t> list){
-		SetClusterList(list);
+	PndSdsClusterPixel(Int_t DigiType, std::vector<Int_t> list){
+		SetClusterList(DigiType, list);
 	};
 	virtual ~PndSdsClusterPixel();
 
-	void SetClusterList(std::vector<Int_t> list){
+	void SetClusterList(Int_t DigiType, std::vector<Int_t> list){
 		fClusterList = list;
-		SetLinks(FairMultiLinkedData(kMVDDigiPixel, list));
+		SetLinks(FairMultiLinkedData(DigiType, list));
 	}
 
 	ClassDef(PndSdsClusterPixel, 1);
