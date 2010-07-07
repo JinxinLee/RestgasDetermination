@@ -82,9 +82,9 @@ class PndGemDigi : public FairMultiLinkedData
   
   std::vector<Int_t> GetIndices() const { 
     std::vector<Int_t> result; 
-    std::vector<FairLink> myLinks = GetLinks(); 
-    for (int i = 0; i < myLinks.size(); i++){ 
-      result.push_back(myLinks[i].GetIndex()); 
+    std::set<FairLink> myLinks = GetLinks();
+    for (std::set<FairLink>::iterator it = myLinks.begin(); it != myLinks.end(); it++){
+      result.push_back(it->GetIndex());
     } 
     return result; 
   } 
