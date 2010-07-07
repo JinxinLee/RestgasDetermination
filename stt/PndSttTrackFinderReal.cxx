@@ -390,6 +390,26 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray, TClonesArray* heli
    nMCTracks = fMCTrackArray->GetEntriesFast(); // num. tracce/evento
 
 
+  // Number of STT hits
+  Int_t Nhits = 0;
+  
+  for (Int_t hitListCounter = 0; hitListCounter < fHitCollectionList.GetEntries(); hitListCounter++)
+  {
+      Nhits += ((TClonesArray *)fHitCollectionList.At(hitListCounter))->GetEntriesFast();
+  }
+
+  if(Nhits <   MINIMUMHITSPERTRACK) {
+    cout<<"from PndSttTrackFinderReal :  # Stt hits = "<<Nhits
+    <<" and it is < MINIMUMHITSPERTRACK = "
+    <<MINIMUMHITSPERTRACK<<", return !"<<endl;
+    return  -10;
+  }
+
+  if(Nhits > nmaxHits ) {
+    cout<<"from PndSttTrackFinderReal :  # Stt hits = "<<Nhits<<" and it is > nmaxHits = "
+    <<nmaxHits<<", return !"<<endl;
+    return  -10;
+  }
 
 
 
@@ -399,10 +419,10 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray, TClonesArray* heli
 //    return  -20;
   }
 
-   if(nMCTracks>MAXMCTRACKS){
-    cout<<"Gianluigi : too many MC tracks = "<<nMCTracks<<"),  return!\n";
-    return  -10;
-  }
+//   if(nMCTracks>MAXMCTRACKS){
+//    cout<<"Gianluigi : too many MC tracks = "<<nMCTracks<<"),  return!\n";
+//    return  -10;
+//  }
 
    for (Int_t iMCTrack = 0; iMCTrack < nMCTracks; iMCTrack++) 
    { 
@@ -504,26 +524,6 @@ cout<<"verita MC,  traccia n. "<<iMCTrack<<", Ox, Oy,  Cx, Cy, D ,  R  ,  gamma 
   FairMCPoint*      pMCpt = NULL;
 //   PndSttTrack*     pTrck[MAXTRACKSPEREVENT] ; // this is for the hits found by pattern recognition
 
-  // Number of STT hits
-  Int_t Nhits = 0;
-  
-  for (Int_t hitListCounter = 0; hitListCounter < fHitCollectionList.GetEntries(); hitListCounter++)
-  {
-      Nhits += ((TClonesArray *)fHitCollectionList.At(hitListCounter))->GetEntriesFast();
-  }
-
-  if(Nhits <   MINIMUMHITSPERTRACK) {
-    cout<<"from PndSttTrackFinderReal :  # Stt hits = "<<Nhits
-    <<" and it is < MINIMUMHITSPERTRACK = "
-    <<MINIMUMHITSPERTRACK<<", return !"<<endl;
-    return  -10;
-  }
-
-  if(Nhits > nmaxHits ) {
-    cout<<"from PndSttTrackFinderReal :  # Stt hits = "<<Nhits<<" and it is > nmaxHits = "
-    <<nmaxHits<<", return !"<<endl;
-    return  -10;
-  }
 
   // Declare some variables outside the loops
   Int_t trackIndex   = 0;     // STTTrack index
