@@ -1,7 +1,7 @@
 #ifndef PNDSDSSTRIPHITPRODUCER_H
 #define PNDSDSSTRIPHITPRODUCER_H
 
-#include "FairTask.h"
+#include "PndSdsTask.h"
 #include "PndSdsStripDigiPar.h"
 #include "PndSdsMCPoint.h"
 #include "PndSdsStrip.h"
@@ -66,7 +66,7 @@ class TClonesArray;
  * @author HG Zaunick <hg.zaunick@physik.tu-dresden.de>
  *
  **/
-class PndSdsStripHitProducer : public FairTask
+class PndSdsStripHitProducer : public PndSdsTask
 {
  public:
 
@@ -75,7 +75,7 @@ class PndSdsStripHitProducer : public FairTask
    **/
   PndSdsStripHitProducer();
   
-  /** Like default Constructor, but passes a name to FairTask**/
+  /** Like default Constructor, but passes a name to PndSdsTask**/
   PndSdsStripHitProducer(const char* name);
  
   /** Destructor **/

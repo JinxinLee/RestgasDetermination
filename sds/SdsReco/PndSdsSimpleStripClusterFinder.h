@@ -26,8 +26,8 @@
 
 class PndSdsSimpleStripClusterFinder : public PndSdsStripClusterer {
  public:
-  PndSdsSimpleStripClusterFinder();
-  PndSdsSimpleStripClusterFinder(Int_t rad);
+  PndSdsSimpleStripClusterFinder(Int_t DigiType);
+  PndSdsSimpleStripClusterFinder(Int_t DigiType, Int_t rad);
   ~PndSdsSimpleStripClusterFinder();
 
   std::vector< PndSdsClusterStrip* > SearchClusters();

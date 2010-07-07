@@ -30,7 +30,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsStripHitProducer::PndSdsStripHitProducer() :
-FairTask("SDS Strip Digi Producer(PndSdsStripHitProducer)")
+PndSdsTask("SDS Strip Digi Producer(PndSdsStripHitProducer)")
 {
   fOverrideParams = false;
   fDigiParameterList = new TList();
@@ -42,7 +42,7 @@ FairTask("SDS Strip Digi Producer(PndSdsStripHitProducer)")
 
 // -----   Default constructor   -------------------------------------------
 PndSdsStripHitProducer::PndSdsStripHitProducer(const char* name) :
-FairTask(name)
+PndSdsTask(name)
 {
   fOverrideParams = false;
   fDigiParameterList = new TList();

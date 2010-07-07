@@ -22,7 +22,7 @@
 #include "TGeoManager.h"
 
 // framework includes
-#include "FairTask.h"
+#include "PndSdsTask.h"
 
 // PndSds includes
 #include "PndSdsMCPoint.h"
@@ -30,7 +30,7 @@
 
 class TClonesArray;
 
-class PndSdsIdealRecoTask : public FairTask
+class PndSdsIdealRecoTask : public PndSdsTask
 {
  public:
 
@@ -42,14 +42,6 @@ class PndSdsIdealRecoTask : public FairTask
 
   /** Destructor **/
   virtual ~PndSdsIdealRecoTask();
-
-   /** pure virtual method SetBranchNames
-   **
-   ** called by Init()
-   ** function to set individual branch names
-   **/
-   virtual void SetBranchNames()=0;
-
 
   /** Virtual method Init **/
   virtual void SetParContainers();
@@ -66,15 +58,12 @@ protected:
   
   Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
   
-  TString fBranchName;
   PndGeoHandling* fGeoH;
 
   /** Input array of Points **/
   TClonesArray* fPointArray;
   TClonesArray* fMctruthArray;
 
-  TString fHitBranchName;
-  TString fFolderName;
   /** Output array of Hits **/
   TClonesArray* fHitOutputArray;
   /** Properties **/

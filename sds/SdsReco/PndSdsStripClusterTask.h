@@ -7,7 +7,7 @@
 #ifndef PNDSDSSTRIPCLUSTERTASK_H
 #define PNDSDSSTRIPCLUSTERTASK_H
 
-#include "FairTask.h"
+#include "PndSdsTask.h"
 #include "PndSdsStripDigiPar.h"
 #include "PndSdsHit.h"
 #include "PndSdsMCPoint.h"
@@ -31,7 +31,7 @@
 class TClonesArray;
 class PndSdsChargeWeightingAlgorithms;
 
-class PndSdsStripClusterTask : public FairTask
+class PndSdsStripClusterTask : public PndSdsTask
   {
   public:
     
@@ -42,21 +42,22 @@ class PndSdsStripClusterTask : public FairTask
     
     /** Destructor **/
     virtual ~PndSdsStripClusterTask();
-    
-    /** pure virtual method SetBranchNames
-     **
-     ** called by Init()
-     ** function to set individual branch names
-     **/
-    virtual void SetBranchNames()=0;
-    virtual void SetClusterType() = 0;
-    
+
     
     /** Virtual method Init **/
     virtual void SetParContainers();
     virtual InitStatus Init();
     virtual InitStatus ReInit();
     
+    virtual void SetInBranchId(){
+ 		FairRootManager *ioman = FairRootManager::Instance();
+ 		fInBranchId = ioman->GetBranchId(fInBranchName);
+ 		std::cout << "InBranchId: " << fInBranchId << " for Branch: " << fInBranchName.Data() << std::endl;
+ 		fClusterType = ioman->GetBranchId(fClustBranchName);
+ 		std::cout << "fClusterType: " << fClusterType << " for Branch: " << fClustBranchName.Data() << std::endl;
+
+ 	}
+
     /** Virtual method Exec **/
     virtual void Exec(Option_t* opt);
     /** Virtual method Finish **/
@@ -80,10 +81,8 @@ class PndSdsStripClusterTask : public FairTask
     TClonesArray* fClusterArray; // Output array of PndSdsClusters
     TClonesArray* fHitArray;  // Output array of PndSdsHits
     
-    TString fBranchName;
     TString fClustBranchName;
-    TString fHitBranchName;
-    TString fFolderName;
+    Int_t fClusterType;
     
     void Register();
     void Reset();
@@ -116,7 +115,6 @@ class PndSdsStripClusterTask : public FairTask
     PndGeoHandling* fGeoH;      //! Geometry name handling
     PndSdsStripClusterer* fCurrentClusterfinder;
     std::map<const char*,PndSdsStripClusterer*> fClusterFinderList;
-    fDetectorType fClusterType;
     
     ClassDef(PndSdsStripClusterTask,2);
     

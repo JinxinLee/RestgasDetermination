@@ -29,7 +29,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsPixelClusterTask::PndSdsPixelClusterTask() :
-FairTask("SDS Clustertisation Task"), fPersistance(kTRUE)
+PndSdsTask("SDS Clustertisation Task"), fPersistance(kTRUE), fClusterType(-1)
 {
   fGeoH = PndGeoHandling::Instance();
 }
@@ -37,7 +37,7 @@ FairTask("SDS Clustertisation Task"), fPersistance(kTRUE)
 
 // -----   Named constructor   ---------------------------------------------
 PndSdsPixelClusterTask::PndSdsPixelClusterTask(const char* name) :
-FairTask(name), fPersistance(kTRUE)
+PndSdsTask(name), fPersistance(kTRUE), fClusterType(-1)
 {
   fGeoH = PndGeoHandling::Instance();
 }
@@ -81,9 +81,9 @@ InitStatus PndSdsPixelClusterTask::ReInit()
 InitStatus PndSdsPixelClusterTask::Init()
 {
   SetBranchNames();
+
   SetBackMapping();
   SetClusterFinder();
-  SetClusterType();
   
   FairRootManager* ioman = FairRootManager::Instance();
   
@@ -95,7 +95,7 @@ InitStatus PndSdsPixelClusterTask::Init()
   }
   
   // Get input array
-  fDigiArray = (TClonesArray*) ioman->GetObject(fBranchName);
+  fDigiArray = (TClonesArray*) ioman->GetObject(fInBranchName);
   
   if ( ! fDigiArray )
   {
@@ -104,11 +104,14 @@ InitStatus PndSdsPixelClusterTask::Init()
     return kERROR;
   }
   
-  fHitArray = new TClonesArray("PndSdsHit");
-  ioman->Register(fHitBranchName, fFolderName, fHitArray, fPersistance);
-  
   fClusterArray = new TClonesArray("PndSdsClusterPixel");
   ioman->Register(fClustBranchName, fFolderName, fClusterArray, fPersistance);
+
+  fHitArray = new TClonesArray("PndSdsHit");
+  ioman->Register(fOutBranchName, fFolderName, fHitArray, fPersistance);
+  
+  SetInBranchId();
+
   
   fDigiPar->Print();
   
@@ -136,13 +139,13 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
     PndSdsDigiPixel myDigi = *(PndSdsDigiPixel*)(fDigiArray->At(iPoint));
     DigiPixelArray.push_back(myDigi);
   }
-  // Retrieve the calculated clusters with the choosen clusterfinder
+  // Retrieve the calculated clusters with the chosen clusterfinder
   std::vector< std::vector< Int_t> > clusters = fClusterFinder->GetClusters(DigiPixelArray);
   if(fVerbose>1) std::cout << " -I-  PndSdsPixelClusterTask::Exec(): We have "<<clusters.size()<<" pixel clusters" << std::endl;
   // store the list
   for (UInt_t i = 0; i < clusters.size(); i++)
   {
-    new((*fClusterArray)[i]) PndSdsClusterPixel(clusters[i]);
+    new((*fClusterArray)[i]) PndSdsClusterPixel(fInBranchId, clusters[i]);
   }
   
   // do the backmapping with charge-weight

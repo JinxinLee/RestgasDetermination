@@ -43,6 +43,8 @@ link_directories( ${LINK_DIRECTORIES})
 ########################### create libSds ######################################
 set(SDS_SRCS
 
+PndSdsTask.cxx
+
 SdsDigi/PndSdsCalcFePixel.cxx
 SdsDigi/PndSdsCalcPixel.cxx
 SdsDigi/PndSdsCalcStrip.cxx

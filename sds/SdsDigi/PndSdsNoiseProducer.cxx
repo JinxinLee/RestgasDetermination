@@ -22,7 +22,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsNoiseProducer::PndSdsNoiseProducer() :
-FairTask("Charge Noise Producer"), fIonizationEnergy(1.)
+PndSdsTask("Charge Noise Producer"), fIonizationEnergy(1.)
 {
   fPersistance = kTRUE;
   fGeoH = PndGeoHandling::Instance();

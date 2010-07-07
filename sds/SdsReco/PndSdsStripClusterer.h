@@ -30,7 +30,7 @@ typedef std::map<Int_t, SidedTriple > Fullmap;
 
 class PndSdsStripClusterer {
  public:
-  PndSdsStripClusterer();
+  PndSdsStripClusterer(Int_t DigiType);
   virtual ~PndSdsStripClusterer();
 
   void Reinit();
@@ -47,6 +47,8 @@ class PndSdsStripClusterer {
   std::vector< Int_t > GetBotClusterIDs() const {return fBotclusters;}
   std::vector< Int_t > GetLeftDigiIDs() const {return fLeftDigis;}
 
+  void SetDigiType(Int_t digiType){fDigiType = digiType;}
+
 protected:
 
   void AddCluster(const std::vector< Int_t >& onecluster,SensorSide side);
@@ -55,6 +57,8 @@ protected:
   std::vector< Int_t > fBotclusters;// contains index to fClusterArray
   std::vector< Int_t > fLeftDigis;  // contains index to the not assigned digis
   std::vector< PndSdsClusterStrip* > fClusters;
+  
+  Int_t fDigiType;
 
   ClassDef(PndSdsStripClusterer,3);
 };

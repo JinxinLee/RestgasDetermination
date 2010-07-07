@@ -39,14 +39,14 @@ class PndSdsStripAdvClusterFinder : public PndSdsStripClusterer
 {
  public:
 	/** default constructor **/
-	PndSdsStripAdvClusterFinder();
+	PndSdsStripAdvClusterFinder(Int_t DigiType);
 
 	/**
 	main constructor Set number of maximum missing channels or time to get the cluster
 	@param NrofmissedChannels maximum of missing channels
 	@param NrofmissedTimestamps maximum of missing time
 	*/
-	PndSdsStripAdvClusterFinder(Int_t NrofmissedChannels, Int_t NrofmissedTimestamps);
+	PndSdsStripAdvClusterFinder(Int_t DigiType, Int_t NrofmissedChannels, Int_t NrofmissedTimestamps);
 
 	/** Destructor **/
 	~PndSdsStripAdvClusterFinder();

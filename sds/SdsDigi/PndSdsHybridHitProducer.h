@@ -6,7 +6,7 @@
 #ifndef PNDSDSHYBRIDHITPRODUCER_H
 #define PNDSDSHYBRIDHITPRODUCER_H
 
-#include "FairTask.h"
+#include "PndSdsTask.h"
 #include "PndSdsPixelDigiPar.h"
 #include "PndSdsMCPoint.h"
 #include "PndSdsPixel.h"
@@ -26,7 +26,7 @@
 
 class TClonesArray;
 
-class PndSdsHybridHitProducer : public FairTask
+class PndSdsHybridHitProducer : public PndSdsTask
 {
  public:
 
@@ -53,7 +53,6 @@ class PndSdsHybridHitProducer : public FairTask
    ** function to set individual branch names
    **/
   virtual void SetBranchNames()=0;
-  virtual void SetMCPointType() = 0;
 
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);

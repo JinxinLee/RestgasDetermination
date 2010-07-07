@@ -14,9 +14,9 @@
 // enum SensorSide { kTOP, kBOTTOM };
 
 
-PndSdsStripClusterer::PndSdsStripClusterer()
+PndSdsStripClusterer::PndSdsStripClusterer(Int_t DigiType)
 {
-  // dummy
+  SetDigiType(DigiType);
 }
 
 PndSdsStripClusterer::~PndSdsStripClusterer()
@@ -86,14 +86,10 @@ void PndSdsStripClusterer::AddCluster(const std::vector< Int_t >& onecluster,Sen
     fTopclusters.push_back(clindex);
     // Info("AddCluster","Adding Cluster number %i to the top list.",clindex);
   }
-  PndSdsClusterStrip* cl = new PndSdsClusterStrip(onecluster);
+  PndSdsClusterStrip* cl = new PndSdsClusterStrip(fDigiType, onecluster);
   cl->SetSensorSide(side);
   fClusters.push_back(cl);
 }
-
-
-
-
 
 
 ClassImp(PndSdsStripClusterer);

@@ -27,7 +27,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsIdealRecoTask::PndSdsIdealRecoTask() :
-  FairTask("Ideal reconstruction task for PANDA PndSds"),
+  PndSdsTask("Ideal reconstruction task for PANDA PndSds"),
   fHitCovMatrix(3,3)
 {
   fSigmaX=0.;
@@ -40,7 +40,7 @@ PndSdsIdealRecoTask::PndSdsIdealRecoTask() :
 
 // -----   Constructor   ---------------------------------------------------
 PndSdsIdealRecoTask::PndSdsIdealRecoTask(Double_t sx, Double_t sy, Double_t sz) :
-  FairTask("Ideal reconstruction task for PANDA PndSds"),
+  PndSdsTask("Ideal reconstruction task for PANDA PndSds"),
   fHitCovMatrix(3,3)
 {
   fSigmaX=sx;
@@ -61,6 +61,7 @@ PndSdsIdealRecoTask::~PndSdsIdealRecoTask()
 InitStatus PndSdsIdealRecoTask::Init()
 {
   SetBranchNames();
+  SetInBranchId();
 
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
@@ -70,9 +71,9 @@ InitStatus PndSdsIdealRecoTask::Init()
     return kFATAL;  }
 
   // Get input array
-  fPointArray = (TClonesArray*) ioman->GetObject(fBranchName);
+  fPointArray = (TClonesArray*) ioman->GetObject(fInBranchName);
   if ( ! fPointArray ) {
-    std::cout << "-W- PndSdsIdealRecoTask::Init: "<< "No "<<fBranchName
+    std::cout << "-W- PndSdsIdealRecoTask::Init: "<< "No "<<fInBranchName
 							<<" array!" << std::endl;
     return kERROR;  }
 
@@ -84,7 +85,7 @@ InitStatus PndSdsIdealRecoTask::Init()
 
   // Create and register output array
   fHitOutputArray = new TClonesArray("PndSdsHit");
-  ioman->Register(fHitBranchName, fFolderName ,fHitOutputArray, fPersistance);
+  ioman->Register(fOutBranchName, fFolderName ,fHitOutputArray, fPersistance);
 
   std::cout << "-I- gGeoManager = "<<gGeoManager << std::endl;
 

@@ -27,7 +27,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsIdealClusterTask::PndSdsIdealClusterTask() :
-  FairTask("SDS Clustertisation Task")
+  PndSdsTask("SDS Clustertisation Task")
 {
   TGeoManager* geoMan;// = new TGeoManager("geoMan","geoMan");
   geoMan = gGeoManager;
@@ -36,7 +36,7 @@ PndSdsIdealClusterTask::PndSdsIdealClusterTask() :
 }
 
 PndSdsIdealClusterTask::PndSdsIdealClusterTask(Double_t radius, Int_t FEcolumns, Int_t FErows, TString geoFile) :
-  FairTask("SDS Clustertisation Task")
+  PndSdsTask("SDS Clustertisation Task")
 {
   TGeoManager* geoMan;// = new TGeoManager("geoMan","geoMan");
   geoMan = gGeoManager;
@@ -73,6 +73,7 @@ InitStatus PndSdsIdealClusterTask::Init()
 {
 
   SetBranchNames();
+  SetInBranchId();
 
   FairRootManager* ioman = FairRootManager::Instance();
 
@@ -84,7 +85,7 @@ InitStatus PndSdsIdealClusterTask::Init()
     }
 
   // Get input array
-  fDigiArray = (TClonesArray*) ioman->GetObject(fBranchName);
+  fDigiArray = (TClonesArray*) ioman->GetObject(fInBranchName);
 
   if ( ! fDigiArray )
     {
@@ -93,12 +94,11 @@ InitStatus PndSdsIdealClusterTask::Init()
       return kERROR;
   }
 
-
-  fHitArray = new TClonesArray("PndSdsHit");
-  ioman->Register(fHitBranchName , fFolderName, fHitArray, fPersistance);
-
   fClusterArray = new TClonesArray("PndSdsClusterPixel");
   ioman->Register(fClustBranchName, fFolderName, fClusterArray, fPersistance);
+
+  fHitArray = new TClonesArray("PndSdsHit");
+  ioman->Register(fOutBranchName , fFolderName, fHitArray, fPersistance);
 
   mapping = new PndSdsChargeWeightedPixelMapping(fGeoH);
   finder = new PndSdsIdealPixelClusterFinder();
@@ -137,7 +137,7 @@ void PndSdsIdealClusterTask::Exec(Option_t* opt)
   std::cout << clusters.size() << std::endl;
   for (UInt_t i = 0; i < clusters.size(); i++)
   {
-	new((*fClusterArray)[i]) PndSdsClusterPixel(clusters[i]);
+	new((*fClusterArray)[i]) PndSdsClusterPixel(fClusterType, clusters[i]);
   }
 
  for (UInt_t i = 0; i < clusters.size(); i++){

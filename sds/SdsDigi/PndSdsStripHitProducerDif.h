@@ -1,7 +1,7 @@
 #ifndef PNDSDSSTRIPHITPRODUCERDIF_H
 #define PNDSDSSTRIPHITPRODUCERDIF_H
 
-#include "FairTask.h"
+#include "PndSdsTask.h"
 #include "PndSdsStripDigiPar.h"
 #include "PndSdsMCPoint.h"
 #include "PndSdsStrip.h"
@@ -64,7 +64,7 @@ class TClonesArray;
  * @author HG Zaunick <hg.zaunick@physik.tu-dresden.de>
  *
  **/
-class PndSdsStripHitProducerDif : public FairTask
+class PndSdsStripHitProducerDif : public PndSdsTask
 {
  public:
 

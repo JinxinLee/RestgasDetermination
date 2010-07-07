@@ -15,6 +15,7 @@
 //#pragma link C++ class PndSdsMCPoint+;
 //#pragma link C++ class PndMvdApvHit+;
 
+#pragma link C++ class PndSdsTask+;
 //mc
 #pragma link C++ class PndSdsGeo+;
 #pragma link C++ class PndSdsGeoPar+;

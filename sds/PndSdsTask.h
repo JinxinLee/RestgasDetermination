@@ -1,0 +1,39 @@
+/*
+ * PndSdsTask.h
+ *
+ *  Created on: Jul 7, 2010
+ *      Author: stockman
+ */
+
+#ifndef PNDSDSTASK_H_
+#define PNDSDSTASK_H_
+#include "FairTask.h"
+#include "FairRootManager.h"
+
+#include <iostream>
+
+class PndSdsTask: public FairTask {
+public:
+	PndSdsTask();
+
+	PndSdsTask(const char* name, Int_t iVerbose = 1):FairTask(name, iVerbose){};
+	virtual ~PndSdsTask();
+
+	virtual void SetBranchNames()= 0;
+	virtual void SetInBranchId(){
+		FairRootManager *ioman = FairRootManager::Instance();
+		fInBranchId = ioman->GetBranchId(fInBranchName);
+		std::cout << "InBranchId: " << fInBranchId << " for Branch: " << fInBranchName.Data() << std::endl;
+	}
+
+protected:
+	TString fInBranchName;
+	TString fOutBranchName;
+	TString fFolderName;
+
+	Int_t fInBranchId;
+
+	ClassDef(PndSdsTask,1);
+};
+
+#endif /* PNDSDSTASK_H_ */

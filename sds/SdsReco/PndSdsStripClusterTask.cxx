@@ -33,7 +33,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsStripClusterTask::PndSdsStripClusterTask() :
-FairTask("SDS Strip Clustertisation Task")
+PndSdsTask("SDS Strip Clustertisation Task")
 {
   fChargeCut = 1.e8; // this reset dynamically
   fDigiParameterList = new TList();
@@ -44,7 +44,7 @@ FairTask("SDS Strip Clustertisation Task")
 
 // -----   Named constructor   -------------------------------------------
 PndSdsStripClusterTask::PndSdsStripClusterTask(const char* name) :
-FairTask(name)
+PndSdsTask(name)
 {
   // TODO: fChargeCut in parameter database??
   fChargeCut = 1.e8; // this ist really large and shall have no effect
@@ -126,7 +126,6 @@ InitStatus PndSdsStripClusterTask::Init()
 {
   
   SetBranchNames();
-  SetClusterType();
   
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman )
@@ -137,7 +136,7 @@ InitStatus PndSdsStripClusterTask::Init()
   }
   
   // Get input array
-  fDigiArray = (TClonesArray*) ioman->GetObject(fBranchName);
+  fDigiArray = (TClonesArray*) ioman->GetObject(fInBranchName);
   if ( ! fDigiArray )
   {
     std::cout << "-W- PndSdsStripClusterTask::Init: "
@@ -146,12 +145,15 @@ InitStatus PndSdsStripClusterTask::Init()
   }
   
   // set output arrays
-  fHitArray = new TClonesArray("PndSdsHit");
-  ioman->Register(fHitBranchName, fFolderName, fHitArray, fPersistance);
   
   fClusterArray = new TClonesArray("PndSdsClusterStrip");
   ioman->Register(fClustBranchName, fFolderName, fClusterArray, fPersistance);
   
+  fHitArray = new TClonesArray("PndSdsHit");
+  ioman->Register(fOutBranchName, fFolderName, fHitArray, fPersistance);
+
+  SetInBranchId();
+
   SetCalculators();
   
   Info("Init","Initialisation successfull");

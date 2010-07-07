@@ -25,7 +25,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsHybridHitProducer::PndSdsHybridHitProducer() :
-FairTask("SDS Hybrid Hit Producer")
+PndSdsTask("SDS Hybrid Hit Producer")
 {
   //fBranchName   = "MVDPoint";
   fPixelHits = 0;
@@ -40,7 +40,7 @@ FairTask("SDS Hybrid Hit Producer")
 // -------------------------------------------------------------------------
 
 PndSdsHybridHitProducer::PndSdsHybridHitProducer(const char* name) :
-FairTask(name)
+PndSdsTask(name)
 {
   fPixelHits = 0;
   fEventNr = 0;
@@ -52,7 +52,7 @@ FairTask(name)
 // -------------------------------------------------------------------------
 
 PndSdsHybridHitProducer::PndSdsHybridHitProducer(Double_t lx, Double_t ly, Double_t threshold, Double_t noise) :
-FairTask("SDS Hybrid Digi Producer (PndSdsHybridHitProducer)")
+PndSdsTask("SDS Hybrid Digi Producer (PndSdsHybridHitProducer)")
 {
   //fBranchName   = "MVDPoint";
   //  fHitArray  = new TClonesArray("PndSdsHit");
@@ -98,7 +98,6 @@ InitStatus PndSdsHybridHitProducer::ReInit()
 InitStatus PndSdsHybridHitProducer::Init()
 {
   SetBranchNames();
-  SetMCPointType();
   
   FairRun* ana = FairRun::Instance();
   FairRootManager* ioman = FairRootManager::Instance();

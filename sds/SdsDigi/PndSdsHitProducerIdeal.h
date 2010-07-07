@@ -18,7 +18,7 @@
 #ifndef PNDSDSHITPRODUCERIDEAL_H
 #define PNDSDSHITPRODUCERIDEAL_H 
 
-#include "FairTask.h"
+#include "PndSdsTask.h"
 //#include "PndSdsGeoPar.h"
 #include "PndDetectorList.h"
 
@@ -27,7 +27,7 @@
  
 class TClonesArray;
 
-class PndSdsHitProducerIdeal : public FairTask
+class PndSdsHitProducerIdeal : public PndSdsTask
 {
  public:
 

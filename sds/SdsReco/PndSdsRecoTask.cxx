@@ -35,7 +35,7 @@
 // -----   Default constructor   -------------------------------------------
 PndSdsRecoTask::PndSdsRecoTask() :
   fHitCovMatrix(3,3),
-  FairTask("Reconstruction task for PANDA PndSds")
+  PndSdsTask("Reconstruction task for PANDA PndSds")
 {
 /*  fSigmaX=0.;
   fSigmaY=0.;
@@ -46,7 +46,7 @@ PndSdsRecoTask::PndSdsRecoTask() :
 // -----   Constructor   ---------------------------------------------------
 PndSdsRecoTask::PndSdsRecoTask(Double_t sx, Double_t sy, Double_t sz) :
   fHitCovMatrix(3,3),
-  FairTask("Ideal reconstruction task for PANDA PndSds")
+  SdsTask("Ideal reconstruction task for PANDA PndSds")
 {
   fSigmaX=sx;
   fSigmaY=sy;
@@ -57,7 +57,7 @@ PndSdsRecoTask::PndSdsRecoTask(Double_t sx, Double_t sy, Double_t sz) :
 */
 // -----   Constructor   ---------------------------------------------------
 PndSdsRecoTask::PndSdsRecoTask(std::string type) :
-  FairTask("Reconstruction task for PANDA PndSds")
+  PndSdsTask("Reconstruction task for PANDA PndSds")
 {
   fMakerType = type;
   if(fVerbose>0)
@@ -76,6 +76,7 @@ PndSdsRecoTask::~PndSdsRecoTask()
 InitStatus PndSdsRecoTask::Init()
 {
   SetBranchNames();
+  SetInBranchId();
 
   if(fVerbose>1)
     std::cout<<"PndSdsRecoTask::Init() called."<<std::endl;
@@ -109,7 +110,7 @@ InitStatus PndSdsRecoTask::Init()
 
   // Create and register output array
   fHitOutputArray = new TClonesArray("PndSdsHit");
-  ioman->Register(fHitBranchName, fFolderName, fHitOutputArray, kTRUE);
+  ioman->Register(fOutBranchName, fFolderName, fHitOutputArray, kTRUE);
 
 /*
   PndSdsDetectorDescr(

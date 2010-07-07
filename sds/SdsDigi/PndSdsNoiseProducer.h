@@ -15,7 +15,7 @@
 #ifndef PNDSDSNOISEPRODUCER_H
 #define PNDSDSNOISEPRODUCER_H
 
-#include "FairTask.h"
+#include "PndSdsTask.h"
 
 #include <vector>
 
@@ -29,7 +29,7 @@
 
 class TClonesArray;
 
-class PndSdsNoiseProducer : public FairTask
+class PndSdsNoiseProducer : public PndSdsTask
 {
  public:
 

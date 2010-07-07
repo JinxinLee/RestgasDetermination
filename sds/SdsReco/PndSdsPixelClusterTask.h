@@ -18,7 +18,7 @@
 #ifndef PNDSDSPIXELCLUSTERTASK_H
 #define PNDSDSPIXELCLUSTERTASK_H 
 
-#include "FairTask.h"
+#include "PndSdsTask.h"
 //#include "PndSdsGeoPar.h"
 #include "PndSdsHit.h"
 #include "PndSdsMCPoint.h"
@@ -46,7 +46,7 @@
 
 class TClonesArray;
 
-class PndSdsPixelClusterTask : public FairTask
+class PndSdsPixelClusterTask : public PndSdsTask
   {
   public:
     
@@ -58,16 +58,17 @@ class PndSdsPixelClusterTask : public FairTask
     
     /** Destructor **/
     virtual ~PndSdsPixelClusterTask();
-    
-    /** pure virtual method SetBranchNames
-     **
-     ** called by Init()
-     ** function to set individual branch names
-     **/
-    virtual void SetBranchNames()=0;
+
    virtual void SetClusterFinder()=0;
    virtual void SetBackMapping()=0;
-    virtual void SetClusterType(){};
+
+   virtual void SetInBranchId(){
+		FairRootManager *ioman = FairRootManager::Instance();
+		fInBranchId = ioman->GetBranchId(fInBranchName);
+		std::cout << "InBranchId: " << fInBranchId << " for Branch: " << fInBranchName.Data() << std::endl;
+		fClusterType = ioman->GetBranchId(fClustBranchName);
+		std::cout << "fClusterType: " << fClusterType << " for Branch: " << fClustBranchName.Data() << std::endl;
+	}
      
     /** Virtual method Init **/
     virtual void SetParContainers();
@@ -84,8 +85,7 @@ class PndSdsPixelClusterTask : public FairTask
   protected:
     
     Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
-    
-    TString fBranchName;
+
     /** Input array of PndSdsDigis **/
     TClonesArray* fDigiArray;
     PndSdsPixelDigiPar* fDigiPar;
@@ -93,13 +93,11 @@ class PndSdsPixelClusterTask : public FairTask
     PndGeoHandling* fGeoH;
     
     TString fClustBranchName;
-    TString fHitBranchName;
-    TString fFolderName;
     /** Output array of PndSdsHits **/
     TClonesArray* fClusterArray;
     TClonesArray* fHitArray;
     
-    fDetectorType fClusterType;
+    Int_t fClusterType;
     
     void Register();
     void Reset();  

@@ -15,14 +15,14 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsHitProducerIdeal::PndSdsHitProducerIdeal() :
-FairTask("Ideal SDS Hit Producer"), fPersistance(kTRUE)
+PndSdsTask("Ideal SDS Hit Producer"), fPersistance(kTRUE)
 {
 }
 // -------------------------------------------------------------------------
 
 // -----   Named constructor   -------------------------------------------
 PndSdsHitProducerIdeal::PndSdsHitProducerIdeal(const char* name) :
-FairTask(name), fPersistance(kTRUE)
+PndSdsTask(name), fPersistance(kTRUE)
 {
 }
 // -------------------------------------------------------------------------

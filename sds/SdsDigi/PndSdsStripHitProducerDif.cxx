@@ -25,7 +25,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsStripHitProducerDif::PndSdsStripHitProducerDif() :
-  FairTask("SSD Strip Digi Producer(PndSdsStripHitProducerDif)")
+  PndSdsTask("SSD Strip Digi Producer(PndSdsStripHitProducerDif)")
 {
   fBranchName   = "SSDPoint";
 //  stripHits = 0;
@@ -55,7 +55,7 @@ PndSdsStripHitProducerDif::PndSdsStripHitProducerDif(Double_t topPitch, Double_t
                                          Int_t nrTopFE, Int_t nrBotFE, Int_t nrFECh,
                                          Double_t threshold, Double_t noise,
                                          TString sensorType, TString feType) :
-  FairTask("SSD Strip Digi Producer")
+  PndSdsTask("SSD Strip Digi Producer")
 {
   // This constructor is probably not needed anymore, since the parameters are
   // read in via an ascii file.
