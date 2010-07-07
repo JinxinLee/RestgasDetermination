@@ -51,9 +51,9 @@ class PndLVQTrain: public PndMvaTrainer
   void Train21();
 
   ////================= DEBUG Only
-  std::vector< std::pair<std::string, std::vector<float>*> >& train1sec()
-    { 
-      InitProtoK_Means(); 
+  inline std::vector< std::pair<std::string, std::vector<float>*> >& train1sec()
+    {
+      InitProtoK_Means();
       return m_LVQProtos;
     };
   ////================= DEBUG Only
@@ -62,16 +62,16 @@ class PndLVQTrain: public PndMvaTrainer
    * Set CodeBook init type.
    *@param val Initialization type.
    */
-  inline void setProtoInitType(ProtoInitType val = RANDOM_PR)
-  { m_proto_init = val; };
+  inline void setProtoInitType(ProtoInitType iniTypeVal = RANDOM_PR)
+  { m_proto_init = iniTypeVal; };
 
   /**
    * Set the file name which holds the pre-initialized code books.
    *@param val The name of the file which containes the pre
    * initialized code books.
    */
-  inline void SetInitProtoFileName(const std::string val)
-  { m_initProtoFile = val; };
+  inline void SetInitProtoFileName(const std::string& fileName)
+  { m_initProtoFile = fileName; };
 
   /**
    * Sets the learning parameters.
@@ -83,8 +83,12 @@ class PndLVQTrain: public PndMvaTrainer
    */
   inline void SetLearnPrameters(const double initConst, const double etZ,
                          const double etF, const int Nswp)
-  { m_initConst = initConst; m_ethaZero = etZ; 
-    m_ethaFinal = etF; m_NumSweep = Nswp;};
+  {
+    m_initConst = initConst;
+    m_ethaZero = etZ;
+    m_ethaFinal = etF;
+    m_NumSweep = Nswp;
+  };
 
   /**
    * Set the number of protoTypes to be used for training.
@@ -167,9 +171,6 @@ class PndLVQTrain: public PndMvaTrainer
   //! Number of sweeps through example set.
   unsigned int m_NumSweep;
 
-  //! number of proto-types to train
-  //unsigned int m_numProto;
-
   //! Proto init type.
   ProtoInitType m_proto_init;
 
@@ -179,7 +180,8 @@ class PndLVQTrain: public PndMvaTrainer
   //! Each #ErrorStep, steps evaluate the trained classifier.
   unsigned int m_ErrorStep;
   unsigned int m_ProgStep;
-  // Map labels (classes) to number of prototypes.
+  
+  //! Map labels (classes) to number of prototypes.
   std::map < std::string, unsigned int> m_numProtoPerClass;
 };
 #endif //END Interface

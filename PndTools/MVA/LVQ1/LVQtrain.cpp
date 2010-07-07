@@ -69,8 +69,8 @@ int main(int argc, char** argv)
   //clas.push_back("proton");   //clas.push_back("gamma");
 
   std::map <std::string, unsigned int> numProtoMap;
-  numProtoMap["electron"] = 3;
-  numProtoMap["pion"] = 10;
+  numProtoMap["electron"] = 70;
+  numProtoMap["pion"] = 150;
 
   //Variable names 
   nam.push_back("p");
@@ -87,7 +87,10 @@ int main(int argc, char** argv)
   float ethaF  = 0.0001;
 
   tr.SetLearnPrameters(initC, ethaZ, ethaF, numSweep);
+  
+  // Use for symm. initialization.
   //tr.SetNumberOfProto(numProto);
+  
   tr.SetNumberOfProto(numProtoMap);
   tr.splitTetsSet(10);//10% (DEFAULT)
   tr.SetErrorStepSize(1000);//100 (DEFALUT)

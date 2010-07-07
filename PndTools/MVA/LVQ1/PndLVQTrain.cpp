@@ -274,7 +274,7 @@ void PndLVQTrain::Train21()
     }// All distances are determined.
     
     // Sort the distances.
-    std::sort(m_distances.begin(), m_distances.end());
+    std::sort( m_distances.begin(), m_distances.end() );
     
     /*
      * We need to Select the two nearest codebooks and update
@@ -431,7 +431,7 @@ void PndLVQTrain::InitProtoK_Means()
 #pragma omp critical (AddToProtoListMap)
     {
 #endif
-      //ProtoVector[clsName] = clust.Cluster();
+      // Store computed means in the prototypes container.
       ProtoVector[clsName] = clustOut;
 #ifdef _OPENMP
     }
@@ -578,7 +578,8 @@ void PndLVQTrain::EvalClassifierError(unsigned int stp)
   //std::cout << "!" ;
   // Get Examples
   const std::vector<std::pair<std::string, std::vector<float>*> >& events = m_dataSets.GetData();
-  // Test set iterator.
+  
+  // Test-set iterator.
   std::set <int>::const_iterator iter;
 
   int TrError, TsError;// Test and trai error
@@ -657,14 +658,17 @@ void PndLVQTrain::EvalClassifierError(unsigned int stp)
  */
 void PndLVQTrain::ReadProtoFromFile()
 {
+  // Fetch the available labels.
   const std::vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+
+  // Get parameters.
   const std::vector<PndMvaVariable>& variables = m_dataSets.GetVars();
   
   std::cout << "<INFO> Reading data from  "<< m_initProtoFile
 	    << std::endl;
   
   // Open the input file for reading event data.
-  TFile InPutFile(m_initProtoFile.c_str(),"READ");
+  TFile InPutFile(m_initProtoFile.c_str(), "READ");
   
   // Fetch the class trees and read the event data.
   for(size_t cls = 0; cls < classes.size(); cls++)
@@ -680,7 +684,6 @@ void PndLVQTrain::ReadProtoFromFile()
     {
       std::cerr<< "\t<ERROR> Could not find data tree " << name 
 	       << std::endl;
-      //abort();
       assert (t);
     }
     std::cout << "<INFO> There are "<< t->GetEntriesFast()
