@@ -1863,7 +1863,7 @@ if(istampa >=3 )   {
             for(int ivv=0; ivv<nParalCommon[i]; ivv++){
                PndSttInfoXYZParal (
                              info,
-                             infoparal[ ListHitsinTrack[i][ivv] ],
+                             ParalCommonList[i][ivv],
                              Ox[i],
                              Oy[i],
                              R[i],
@@ -1873,20 +1873,20 @@ if(istampa >=3 )   {
                              Posiz
                                   );
                fprintf(HANDLEXYZ,"   Hit paral. %d  X MC %g ; myX %g ; Y MC %g ; myY %g ; Z MC %g ; myZ %g\n"
-                ,infoparal[ ListHitsinTrack[i][ivv] ]
-                , veritaMC[ infoparal[ ListHitsinTrack[i][ivv] ] ] [0]
+                ,ParalCommonList[i][ivv]
+                , veritaMC[ ParalCommonList[i][ivv] ] [0]
                 , Posiz[0]
-                , veritaMC[ infoparal[ ListHitsinTrack[i][ivv] ] ] [1]
+                , veritaMC[ ParalCommonList[i][ivv] ] [1]
                 , Posiz[1]
-                , veritaMC[ infoparal[ ListHitsinTrack[i][ivv] ] ] [2]
+                , veritaMC[ ParalCommonList[i][ivv] ] [2]
                 , Posiz[2]
                             );
                  }  //  end of  for(int ivv=0; ivv<nParalCommon[i]; ivv++)
     for( j=0; j<nSkewCommon[i]; j++){
        PndSttInfoXYZSkew (
-                             Zfinal[i][ infoskew[ ListSkewHitsinTrack[i][j] ] ],       //  Z coordinate of selected Skew hit
-                             ZDriftfinal[i][ infoskew[ ListSkewHitsinTrack[i][j] ] ],   // drift distance IN Z DIRECTION only, of Skew hit
-                             Sfinal[i][ infoskew[ ListSkewHitsinTrack[i][j] ] ],
+                             Zfinal[i][ SkewCommonList[i][j] ],       //  Z coordinate of selected Skew hit
+                             ZDriftfinal[i][ SkewCommonList[i][j] ],   // drift distance IN Z DIRECTION only, of Skew hit
+                             Sfinal[i][ SkewCommonList[i][j] ],
                              Ox[i],
                              Oy[i],
                              R[i],
@@ -1900,12 +1900,12 @@ if(istampa >=3 )   {
 
                             );
        fprintf(HANDLEXYZ,"   Hit skew. %d  X MC %g ; myX %g ; Y MC %g ; myY %g ; Z MC %g ; myZ %g\n"
-                ,infoskew[ ListSkewHitsinTrack[i][j] ]
-                , veritaMC[ infoskew[ ListSkewHitsinTrack[i][j] ] ] [0]
+                ,SkewCommonList[i][j]
+                , veritaMC[ SkewCommonList[i][j] ] [0]
                 , Posiz[0]
-                , veritaMC[ infoskew[ ListSkewHitsinTrack[i][j] ] ] [1]
+                , veritaMC[ SkewCommonList[i][j] ] [1]
                 , Posiz[1]
-                , veritaMC[ infoskew[ ListSkewHitsinTrack[i][j] ] ] [2]
+                , veritaMC[ SkewCommonList[i][j] ] [2]
                 , Posiz[2]
              );
          }  //   end of for( j=0; j<nSkewCommon[i]; j++)
