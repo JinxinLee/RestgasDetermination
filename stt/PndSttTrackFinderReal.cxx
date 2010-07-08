@@ -405,8 +405,8 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray, TClonesArray* heli
     return  -10;
   }
 
-  if(Nhits > nmaxHits ) {
-    cout<<"from PndSttTrackFinderReal :  # Stt hits = "<<Nhits<<" and it is > nmaxHits = "
+  if(Nhits >= nmaxHits ) {
+    cout<<"from PndSttTrackFinderReal :  # Stt hits = "<<Nhits<<" and it is >= nmaxHits = "
     <<nmaxHits<<", return !"<<endl;
     return  -10;
   }
