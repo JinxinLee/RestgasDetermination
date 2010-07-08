@@ -19,11 +19,14 @@
 class PndMCEntry : public FairMultiLinkedData {
 public:
 	PndMCEntry();
-	//PndMCEntry(fDetectorType type, int pos);
-	PndMCEntry(std::set<FairLink> links, Int_t source = -1, Int_t pos = -1)
-		:FairMultiLinkedData(links), fSource(source), fPos(pos){}
+PndMCEntry(std::set<FairLink> links, Int_t source = -1, Int_t pos = -1)
+		:FairMultiLinkedData(links), fSource(source), fPos(pos){
+		SetPersistanceCheck(kFALSE);
+	}
 	PndMCEntry(FairMultiLinkedData links, Int_t source = -1, Int_t pos = -1)
-		:FairMultiLinkedData(links), fSource(source), fPos(pos){}
+		:FairMultiLinkedData(links), fSource(source), fPos(pos){
+		SetPersistanceCheck(kFALSE);
+	}
 
 //	PndMCEntry(std::vector<std::pair<int, int> > links, Int_t source = -1, Int_t pos = -1)
 //			:FairMultiLinkedData(links), fSource(source), fPos(pos){}

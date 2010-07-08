@@ -19,31 +19,36 @@
 #include <vector>
 #include <string>
 
-typedef std::map<fDetectorType, PndMCStage*>::iterator TListIterator;
-typedef std::map<fDetectorType, PndMCStage*>::const_iterator TListIteratorConst;
+typedef std::map<Int_t, PndMCStage*>::iterator TListIterator;
+typedef std::map<Int_t, PndMCStage*>::const_iterator TListIteratorConst;
 
 class PndMCMatch: public TNamed {
 public:
 	PndMCMatch();
 	PndMCMatch(const char* name, const char* title)
-		:TNamed(name, title), fUltimateStage(kMCTrack){};
+		:TNamed(name, title), fUltimateStage(0){
+		fFinalStageML.SetPersistanceCheck(kFALSE);
+	};
 	virtual ~PndMCMatch();
 
-	void AddElement(fDetectorType type, int index, FairLink link);
-	void AddElement(fDetectorType sourceType, int index, fDetectorType targetType, int link);
-	void SetElements(fDetectorType sourceType, int index, FairLinkedData* links);
-	void InitStage(fDetectorType type, std::string fileName, std::string branchName);
-	void RemoveStage(fDetectorType type);
+	void AddElement(Int_t type, int index, FairLink link);
+	void AddElement(Int_t sourceType, int index, Int_t targetType, int link);
+	void SetElements(Int_t sourceType, int index, FairLinkedData* links);
+	void InitStage(Int_t type, std::string fileName, std::string branchName);
+	void InitStage(std::string fileName, std::string branchName = "");
+	void RemoveStage(Int_t type);
 	void LoadInMCLists(TClonesArray* myLinkArray);
 	void ClearMCList();
 
 	void SetCommonWeightStages(Float_t weight);
 
-	PndMCEntry GetEntry(fDetectorType type, int index);
+	PndMCEntry GetEntry(Int_t type, int index);
 	PndMCEntry GetEntry(FairLink link);
 
-	PndMCResult GetMCInfo(fDetectorType start, fDetectorType stop);
-	PndMCEntry  GetMCInfoSingle(FairLink aLink, fDetectorType stop);
+	PndMCResult GetMCInfo(Int_t start, Int_t stop);
+	PndMCResult GetMCInfo(TString start, TString stop);
+	PndMCEntry  GetMCInfoSingle(FairLink aLink, Int_t stop);
+	PndMCEntry  GetMCInfoSingle(FairLink aLink, TString stop);
 
 	int GetNMCStages() const {return fList.size();}
 
@@ -54,15 +59,24 @@ public:
 		return (iter->second);
 	}
 
-	PndMCStage* GetMCStageType(fDetectorType type){
+	PndMCStage* GetMCStageType(TString branch){
+		FairRootManager* ioman = FairRootManager::Instance();
+		if (ioman->GetBranchId(branch) > 0)
+			return fList[ioman->GetBranchId(branch)];
+		else
+			return 0;
+	}
+
+	PndMCStage* GetMCStageType(Int_t type){
 		return fList[type];
 	}
 
-	void CreateArtificialStage(fDetectorType stage, std::string fileName = "", std::string branchName = "");
+	void CreateArtificialStage(TString branchName, std::string fileName = "");
+	void CreateArtificialStage(Int_t stage, std::string fileName = "", std::string branchName = "");
 
-	FairMultiLinkedData FindLinksToStage(fDetectorType stage);
+	FairMultiLinkedData FindLinksToStage(Int_t stage);
 
-	bool IsTypeInList(fDetectorType type);
+	bool IsTypeInList(Int_t type);
 
 	void Print(std::ostream& out = std::cout){out << *this;}
 
@@ -77,19 +91,19 @@ public:
 	}
 
 private:
-	fDetectorType fUltimateStage; ///< last stage in link chain. Here all recursive operations must stop.
-	std::map<fDetectorType, PndMCStage*> fList;
+	Int_t fUltimateStage; ///< last stage in link chain. Here all recursive operations must stop.
+	std::map<Int_t, PndMCStage*> fList;
 	FairMultiLinkedData fFinalStageML;
 
-	void FindStagesPointingToLinks(FairMultiLinkedData links, fDetectorType stop);
+	void FindStagesPointingToLinks(FairMultiLinkedData links, Int_t stop);
 	FairMultiLinkedData FindStagesPointingToLink(FairLink link);
 
-	PndMCResult GetMCInfoForward(fDetectorType start, fDetectorType stop);
-	PndMCResult GetMCInfoBackward(fDetectorType start, fDetectorType stop);
-	PndMCEntry GetMCInfoForwardSingle(FairLink link, fDetectorType stop);
-	PndMCEntry GetMCInfoBackwardSingle(FairLink link, fDetectorType stop, Double_t weight = 1.);
+	PndMCResult GetMCInfoForward(Int_t start, Int_t stop);
+	PndMCResult GetMCInfoBackward(Int_t start, Int_t stop);
+	PndMCEntry GetMCInfoForwardSingle(FairLink link, Int_t stop);
+	PndMCEntry GetMCInfoBackwardSingle(FairLink link, Int_t stop, Double_t weight = 1.);
 
-	void GetNextStage(FairMultiLinkedData& startEntry, fDetectorType stopStage);
+	void GetNextStage(FairMultiLinkedData& startEntry, Int_t stopStage);
 	void AddToFinalStage(FairLink link, Float_t mult);
 	void ClearFinalStage();
 	ClassDef(PndMCMatch, 1);

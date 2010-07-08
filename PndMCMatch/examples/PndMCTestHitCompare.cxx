@@ -85,7 +85,7 @@ void PndMCTestHitCompare::Exec(Option_t* opt)
 	for (int i = 0; i < fStripHit->GetEntries(); i++){
 		//PndMCEntry myLinks = myResult.GetMCLink(i);
 		PndSdsHit* myHit = (PndSdsHit*)fStripHit->At(i);
-		PndMCEntry myLinks = fMCMatch->GetMCInfoSingle(FairLink(kMVDHitsStrip, i), kMVDPoint);
+		PndMCEntry myLinks = fMCMatch->GetMCInfoSingle(FairLink("MVDHitsStrip", i), "MVDPoint");
 
 		std::cout << *myHit;
 

@@ -10,8 +10,7 @@
 ClassImp(PndMCEntry);
 
 PndMCEntry::PndMCEntry():fPos(-1), fSource(-1) {
-	// TODO Auto-generated constructor stub
-
+	SetPersistanceCheck(kFALSE);
 }
 
 PndMCEntry::~PndMCEntry() {

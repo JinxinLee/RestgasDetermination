@@ -16,6 +16,7 @@
 #include "FairRuntimeDb.h"
 #include "FairHit.h"
 #include "FairLinkedData.h"
+#include "FairRootManager.h"
 
 #include "PndMCEntry.h"
 
@@ -27,8 +28,13 @@ PndMCMatchSelectorTask::PndMCMatchSelectorTask()
 }
 // -------------------------------------------------------------------------
 
-PndMCMatchSelectorTask::PndMCMatchSelectorTask(fDetectorType start, fDetectorType stop)
-	: FairTask("Creates PndMCMatch"), fStart(start), fStop(stop)
+PndMCMatchSelectorTask::PndMCMatchSelectorTask(TString start, TString stop)
+	: FairTask("Creates PndMCMatch"), fStartString(start), fStopString(stop), fStart(-1), fStop(-1)
+{
+}
+
+PndMCMatchSelectorTask::PndMCMatchSelectorTask(Int_t start, Int_t stop)
+	: FairTask("Creates PndMCMatch"), fStart(start), fStop(stop), fStartString(""), fStopString("")
 {
 }
 
@@ -54,6 +60,11 @@ InitStatus PndMCMatchSelectorTask::Init()
   	}
 
   	fMCMatch = (PndMCMatch*)ioman->GetObject("MCMatch");
+  	if (fStart < 0 && fStop < 0){
+  		fStart = ioman->GetBranchId(fStartString);
+  		fStop = ioman->GetBranchId(fStopString);
+  		std::cout << fStartString << ": " << fStart << " / " << fStopString << ": " << fStop << std::endl;
+  	}
 
 	std::cout << "-I- PndMCMatchSelectorTask::Init: Initialization successfull" << std::endl;
 

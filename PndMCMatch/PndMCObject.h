@@ -20,18 +20,18 @@
 class PndMCObject: public TObject {
 public:
 	PndMCObject();
-	PndMCObject(fDetectorType type):fStageId(type){};
+	PndMCObject(Int_t type):fStageId(type){};
 	PndMCObject(const PndMCObject& obj):
 		fStageId(obj.GetStageId()),fStage(obj.GetEntryVector())
 	{}
-	PndMCObject(fDetectorType type, std::vector<PndMCEntry> stage):
+	PndMCObject(Int_t type, std::vector<PndMCEntry> stage):
 		fStageId(type)
 	{
 		SetStage(stage);
 	};
 	virtual ~PndMCObject();
 
-	void SetStageId(fDetectorType type){fStageId = type;}
+	void SetStageId(Int_t type){fStageId = type;}
 
 	void SetEntry(std::vector<Int_t> type, std::vector<Int_t> link, int index);
 	void SetEntry(FairLinkedData* data, int index);
@@ -46,7 +46,7 @@ public:
 		return fStage.at(entryIndex).GetLink(linkIndex);
 	}
 
-	fDetectorType GetStageId(void) const {return fStageId;}
+	Int_t GetStageId(void) const {return fStageId;}
 
 	PndMCEntry GetMCLink(Int_t index){return fStage.at(index);}
 
@@ -57,10 +57,10 @@ public:
 	FairMultiLinkedData PosInList(std::pair<int, int> link);
 	FairMultiLinkedData PosInList(FairLink link);
 
-	FairMultiLinkedData GetLinksWithType(fDetectorType type){
+	FairMultiLinkedData GetLinksWithType(Int_t type){
 		FairMultiLinkedData result;
 		for (int i = 0; i < GetNEntries(); i++){
-			result.AddLinks(GetMCLink(i).GetLinksWithType(type), false);
+			result.AddLinks(GetMCLink(i).GetLinksWithType(type));
 		}
 		return result;
 	}
@@ -88,7 +88,7 @@ public:
 private:
 	void AdoptSize(int index);
 	std::vector<PndMCEntry> fStage;
-	fDetectorType fStageId;
+	Int_t fStageId;
 
 
 

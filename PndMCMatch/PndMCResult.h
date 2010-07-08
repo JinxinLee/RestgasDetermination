@@ -20,7 +20,7 @@
 class PndMCResult: public PndMCObject {
 public:
 	PndMCResult();
-	PndMCResult(fDetectorType start, fDetectorType stop);
+	PndMCResult(Int_t start, Int_t stop);
 	PndMCResult(const PndMCResult& result):
 		PndMCObject(result.GetStartType(), result.GetEntryVector()),
 		fStartType(result.GetStartType()),
@@ -29,11 +29,11 @@ public:
 
 	virtual ~PndMCResult();
 
-	void SetStartType(fDetectorType start){fStartType = start;}
-	void SetStopType(fDetectorType stop){fStopType = stop;}
+	void SetStartType(Int_t start){fStartType = start;}
+	void SetStopType(Int_t stop){fStopType = stop;}
 
-	fDetectorType GetStartType(void) const {return fStartType;}
-	fDetectorType GetStopType(void) const {return fStopType;}
+	Int_t GetStartType(void) const {return fStartType;}
+	Int_t GetStopType(void) const {return fStopType;}
 
 	void operator=(const PndMCResult& result){
 		fStartType = result.GetStartType();
@@ -51,8 +51,8 @@ public:
 
 
 private:
-	fDetectorType fStartType;
-	fDetectorType fStopType;
+	Int_t fStartType;
+	Int_t fStopType;
 
 	ClassDef(PndMCResult, 2);
 };

@@ -6,15 +6,15 @@
  */
 
 #include "PndMCMatch.h"
+#include "FairRootManager.h"
 
 #include "TClonesArray.h"
 #include <iostream>
 
 ClassImp(PndMCMatch);
 
-PndMCMatch::PndMCMatch():fUltimateStage(kMCTrack) {
-	// TODO Auto-generated constructor stub
-
+PndMCMatch::PndMCMatch():fUltimateStage(0) {
+	fFinalStageML.SetPersistanceCheck(kFALSE);
 }
 
 PndMCMatch::~PndMCMatch() {
@@ -24,34 +24,47 @@ PndMCMatch::~PndMCMatch() {
 	fList.clear();
 }
 
-void PndMCMatch::AddElement(fDetectorType sourceType, int index, fDetectorType targetType, int link)
+void PndMCMatch::AddElement(Int_t sourceType, int index, Int_t targetType, int link)
 {
 	FairLink myPair(targetType, link);
 	AddElement(sourceType, index, myPair);
 }
 
-void PndMCMatch::AddElement(fDetectorType type, int index, FairLink link){
+void PndMCMatch::AddElement(Int_t type, int index, FairLink link){
 	fList[type]->AddLink(link, index);
 }
 
 
 
-void PndMCMatch::SetElements(fDetectorType sourceType, int index, FairLinkedData* links){
+void PndMCMatch::SetElements(Int_t sourceType, int index, FairLinkedData* links){
 	fList[sourceType]->SetEntry(links, index);
 }
 
-void PndMCMatch::InitStage(fDetectorType type, std::string fileName, std::string branchName)
+void PndMCMatch::InitStage(Int_t type, std::string fileName, std::string branchName)
 {
 	if (fList[type] == 0){
 		PndMCStage* newStage = new PndMCStage(type, fileName, branchName);
 		fList[type] = newStage;
+		//if (fVerbose > 1)
+			std::cout << "InitStages: " << *newStage;
 	}
 	else{
 		std::cout << "-W- PndMCMatch::InitStage: Stage " << type << " exists already!" << std::endl;
 	}
 }
 
-void PndMCMatch::RemoveStage(fDetectorType type){
+void PndMCMatch::InitStage(std::string branchName, std::string fileName){
+	FairRootManager* ioman = FairRootManager::Instance();
+	Int_t type = ioman->GetBranchId(branchName.c_str());
+	if (type > -1){
+		InitStage(type, fileName, branchName);
+	}
+	else{
+		std::cout << "-W- PndMCMatch::InitStage: Branch name " << branchName << " not registered!" << std::endl;
+	}
+}
+
+void PndMCMatch::RemoveStage(Int_t type){
 	fList.erase(type);
 }
 
@@ -64,7 +77,12 @@ void PndMCMatch::SetCommonWeightStages(Float_t weight)
 	}
 }
 
-PndMCResult PndMCMatch::GetMCInfo(fDetectorType start, fDetectorType stop){
+PndMCResult PndMCMatch::GetMCInfo(TString start, TString stop){
+	FairRootManager* ioman = FairRootManager::Instance();
+	return GetMCInfo(ioman->GetBranchId(start), ioman->GetBranchId(stop));
+}
+
+PndMCResult PndMCMatch::GetMCInfo(Int_t start, Int_t stop){
 
 	PndMCResult result(start, stop);
 	if(!IsTypeInList(start))
@@ -75,12 +93,18 @@ PndMCResult PndMCMatch::GetMCInfo(fDetectorType start, fDetectorType stop){
 		return GetMCInfoBackward(start, stop);
 }
 
-PndMCEntry PndMCMatch::GetMCInfoSingle(FairLink aLink, fDetectorType stop)
+PndMCEntry PndMCMatch::GetMCInfoSingle(FairLink aLink, TString stop)
+{
+	FairRootManager* ioman = FairRootManager::Instance();
+	return GetMCInfoSingle(aLink, ioman->GetBranchId(stop));
+}
+
+PndMCEntry PndMCMatch::GetMCInfoSingle(FairLink aLink, Int_t stop)
 {
 	PndMCEntry result;
-	if(!IsTypeInList((fDetectorType)aLink.GetType()))
+	if(!IsTypeInList((Int_t)aLink.GetType()))
 		return result;
-	if(!(fList[(fDetectorType)aLink.GetType()]->GetNEntries() > aLink.GetIndex()))
+	if(!(fList[(Int_t)aLink.GetType()]->GetNEntries() > aLink.GetIndex()))
 		return result;
 
 	if (aLink.GetType() < stop)
@@ -89,7 +113,7 @@ PndMCEntry PndMCMatch::GetMCInfoSingle(FairLink aLink, fDetectorType stop)
 		return GetMCInfoBackwardSingle(aLink, stop);
 }
 
-PndMCResult PndMCMatch::GetMCInfoForward(fDetectorType start, fDetectorType stop)
+PndMCResult PndMCMatch::GetMCInfoForward(Int_t start, Int_t stop)
 {
 	PndMCResult result(start, stop);
 	PndMCStage startVec = *(fList[start]);
@@ -117,12 +141,13 @@ PndMCResult PndMCMatch::GetMCInfoForward(fDetectorType start, fDetectorType stop
 
 }
 
-PndMCEntry PndMCMatch::GetMCInfoForwardSingle(FairLink link, fDetectorType stop)
+PndMCEntry PndMCMatch::GetMCInfoForwardSingle(FairLink link, Int_t stop)
 {
 	PndMCEntry result;
 	ClearFinalStage();
 
 	FairMultiLinkedData tempStage;
+	tempStage.SetPersistanceCheck(kFALSE);
 	tempStage.AddLink(link, true);
 	FindStagesPointingToLinks(tempStage, stop);
 	result.SetLinks(fFinalStageML);
@@ -130,7 +155,7 @@ PndMCEntry PndMCMatch::GetMCInfoForwardSingle(FairLink link, fDetectorType stop)
 
 }
 
-PndMCResult PndMCMatch::GetMCInfoBackward(fDetectorType start, fDetectorType stop)
+PndMCResult PndMCMatch::GetMCInfoBackward(Int_t start, Int_t stop)
 {
 	PndMCResult result(start, stop);
 	PndMCStage startVec = *(fList[start]);
@@ -149,10 +174,10 @@ PndMCResult PndMCMatch::GetMCInfoBackward(fDetectorType start, fDetectorType sto
 	return result;
 }
 
-PndMCEntry PndMCMatch::GetMCInfoBackwardSingle(FairLink aLink, fDetectorType stop, Double_t weight)
+PndMCEntry PndMCMatch::GetMCInfoBackwardSingle(FairLink aLink, Int_t stop, Double_t weight)
 {
 	PndMCEntry result;
-	FairMultiLinkedData multiLink = fList[(fDetectorType)aLink.GetType()]->GetEntry(aLink.GetIndex());
+	FairMultiLinkedData multiLink = fList[(Int_t)aLink.GetType()]->GetEntry(aLink.GetIndex());
 
 	ClearFinalStage();
 	multiLink.MultiplyAllWeights(weight);
@@ -164,12 +189,14 @@ PndMCEntry PndMCMatch::GetMCInfoBackwardSingle(FairLink aLink, fDetectorType sto
 }
 
 
-void PndMCMatch::FindStagesPointingToLinks(FairMultiLinkedData links, fDetectorType stop)
+void PndMCMatch::FindStagesPointingToLinks(FairMultiLinkedData links, Int_t stop)
 {
 	FairMultiLinkedData tempLinks;
+	tempLinks.SetPersistanceCheck(kFALSE);
 	for (int i = 0; i < links.GetNLinks(); i++){
 		FairLink myLink = links.GetLink(i);
 		FairMultiLinkedData myNewLinks = FindStagesPointingToLink(myLink);
+		myNewLinks.SetPersistanceCheck(kFALSE);
 		if (myNewLinks.GetNLinks() == 0)
 			fFinalStageML.AddLink(myLink, true);
 		else{
@@ -191,7 +218,8 @@ void PndMCMatch::FindStagesPointingToLinks(FairMultiLinkedData links, fDetectorT
 FairMultiLinkedData PndMCMatch::FindStagesPointingToLink(FairLink link)
 {
 	FairMultiLinkedData result;
-	TListIteratorConst iter = fList.find((fDetectorType)link.GetType());
+	result.SetPersistanceCheck(kFALSE);
+	TListIteratorConst iter = fList.find((Int_t)link.GetType());
 	for(;iter!= fList.end(); iter++){
 		if (iter->second->PosInList(link).GetNLinks() > 0){
 			result.AddLinks(iter->second->PosInList(link), true);
@@ -201,32 +229,41 @@ FairMultiLinkedData PndMCMatch::FindStagesPointingToLink(FairLink link)
 }
 
 
-FairMultiLinkedData PndMCMatch::FindLinksToStage(fDetectorType stage)
+FairMultiLinkedData PndMCMatch::FindLinksToStage(Int_t stage)
 {
 	FairMultiLinkedData result;
+	result.SetPersistanceCheck(kFALSE);
 	for (int i = 0; i < GetNMCStages(); i++){
 		result.AddLinks(GetMCStage(i)->GetLinksWithType(stage), true);
 	}
 	return result;
 }
 
+void PndMCMatch::CreateArtificialStage(TString branchName, std::string fileName)
+{
+	FairRootManager* ioman = FairRootManager::Instance();
+	CreateArtificialStage(ioman->GetBranchId(branchName), fileName, branchName.Data());
+}
 
-void PndMCMatch::CreateArtificialStage(fDetectorType stage, std::string fileName, std::string branchName)
+void PndMCMatch::CreateArtificialStage(Int_t stage, std::string fileName, std::string branchName)
 {
 	FairMultiLinkedData stageLinks = FindLinksToStage(stage);
+	stageLinks.SetPersistanceCheck(kFALSE);
 	if (stageLinks.GetNLinks() > 0){
 		InitStage(stage, fileName, branchName);
 		FairMultiLinkedData artData;
-		artData.SetLink(FairLink((Int_t)kUnknown, -1));
+		artData.SetLink(FairLink((Int_t)-1, -1));
 		for (int i = 0; i < stageLinks.GetNLinks(); i++){
 			fList[stage]->SetEntry(&artData, stageLinks.GetLink(i).GetIndex());
 		}
+		fList[stage]->SetLoaded(kTRUE);
+
 	}
 }
 
 
 
-void PndMCMatch::GetNextStage(FairMultiLinkedData& startStage, fDetectorType stopStage){
+void PndMCMatch::GetNextStage(FairMultiLinkedData& startStage, Int_t stopStage){
 
 	PndMCEntry tempStage;
 
@@ -249,7 +286,7 @@ void PndMCMatch::GetNextStage(FairMultiLinkedData& startStage, fDetectorType sto
 				AddToFinalStage(startStage.GetLink(i),1);
 			}
 			else{
-				double tempStageWeight = GetMCStageType(static_cast<fDetectorType>(tempStage.GetSource()))->GetWeight();
+				double tempStageWeight = GetMCStageType(static_cast<Int_t>(tempStage.GetSource()))->GetWeight();
 				double startLinkWeight = startStage.GetLink(i).GetWeight()/startStage.GetNLinks();
 				//std::cout << " StageWeight: " << tempStageWeight << " startLinkWeight: " << startLinkWeight;
 				tempStage.MultiplyAllWeights(tempStageWeight);
@@ -270,7 +307,7 @@ void PndMCMatch::GetNextStage(FairMultiLinkedData& startStage, fDetectorType sto
 	}
 }
 
-PndMCEntry PndMCMatch::GetEntry(fDetectorType type, int index){
+PndMCEntry PndMCMatch::GetEntry(Int_t type, int index){
 
 	PndMCEntry empty;
 	if (index < 0) return empty;
@@ -282,7 +319,7 @@ PndMCEntry PndMCMatch::GetEntry(fDetectorType type, int index){
 }
 
 PndMCEntry PndMCMatch::GetEntry(FairLink link){
-	return GetEntry(static_cast<fDetectorType>(link.GetType()), link.GetIndex());
+	return GetEntry(static_cast<Int_t>(link.GetType()), link.GetIndex());
 }
 
 void PndMCMatch::AddToFinalStage(FairLink hitPair, Float_t mult){
@@ -303,7 +340,7 @@ void PndMCMatch::ClearMCList()
 	//fList.clear();
 }
 
-bool PndMCMatch::IsTypeInList(fDetectorType type){
+bool PndMCMatch::IsTypeInList(Int_t type){
 	for(TListIterator iter = fList.begin(); iter != fList.end(); iter++){
 		if (iter->first == type)
 			return true;
@@ -315,10 +352,10 @@ void PndMCMatch::LoadInMCLists(TClonesArray* myLinkArray){
 	for (int i = 0; i < myLinkArray->GetEntriesFast(); i++){
 		PndMCEntry* myLink = (PndMCEntry*)myLinkArray->At(i);
 		//std::cout << "myLink.size(): " << myLink->GetNLinks() << ":";
-		if (IsTypeInList((fDetectorType)myLink->GetSource())){
-			//fList[(fDetectorType)myLink->GetSource()]->ClearEntries();
-			fList[(fDetectorType)myLink->GetSource()]->SetEntry(*myLink);
-			fList[(fDetectorType)myLink->GetSource()]->SetLoaded(kTRUE);
+		if (IsTypeInList((Int_t)myLink->GetSource())){
+			//fList[(Int_t)myLink->GetSource()]->ClearEntries();
+			fList[(Int_t)myLink->GetSource()]->SetEntry(*myLink);
+			fList[(Int_t)myLink->GetSource()]->SetLoaded(kTRUE);
 		}
 	}
 }

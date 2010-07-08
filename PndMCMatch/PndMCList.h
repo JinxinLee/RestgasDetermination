@@ -18,12 +18,12 @@
 class PndMCList : public TObject {
 public:
 	PndMCList();
-	PndMCList(fDetectorType type, Int_t entry)
+	PndMCList(Int_t type, Int_t entry)
 	{
 		fType = type;
 		fEntry = entry;
 	}
-	PndMCList(fDetectorType type, Int_t entry, std::vector<Int_t> list)
+	PndMCList(Int_t type, Int_t entry, std::vector<Int_t> list)
 	{
 		fType = type;
 		fEntry = entry;
@@ -32,11 +32,11 @@ public:
 
 	virtual ~PndMCList();
 
-	void SetType(fDetectorType type){ fType = type;}
+	void SetType(Int_t type){ fType = type;}
 	void SetEntry(Int_t entry){ fEntry = entry;}
 	void AddElement(Int_t element){fList.push_back(element);}
 
-	fDetectorType GetType() const {return fType;}
+	Int_t GetType() const {return fType;}
 	Int_t GetEntry() const {return fEntry;}
 	Int_t GetNElements() const {return fList.size();}
 	Int_t GetElement(Int_t index)const {return fList.at(index);}
@@ -50,7 +50,7 @@ public:
 private:
 	std::vector<Int_t> fList;
 	Int_t fEntry;
-	fDetectorType fType;
+	Int_t fType;
 
 	ClassDef(PndMCList, 1);
 };

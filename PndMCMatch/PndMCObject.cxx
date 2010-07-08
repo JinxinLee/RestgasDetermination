@@ -30,6 +30,7 @@ void PndMCObject::SetEntry(PndMCEntry entry){
 void PndMCObject::SetEntry(std::vector<Int_t> type, std::vector<Int_t> link, int index){
 	PndMCEntry myEntry;
 	myEntry.SetPos(index);
+	myEntry.SetPersistanceCheck(kFALSE);
 	for (int i = 0; i < type.size(); i++){
 		myEntry.AddLink(FairLink(type[i],link[i]));
 	}
@@ -64,6 +65,7 @@ void PndMCObject::AdoptSize(int index){
 		PndMCEntry myVec;
 		myVec.SetPos(fStage.size());
 		myVec.SetSource(GetStageId());
+		myVec.SetPersistanceCheck(kFALSE);
 		//std::pair<int,int> myPair(fStageId, start);
 		//myVec.AddLink(myPair);
 		fStage.push_back(myVec);
@@ -73,6 +75,7 @@ void PndMCObject::AdoptSize(int index){
 
 FairMultiLinkedData PndMCObject::PosInList(FairLink link){
 	FairMultiLinkedData result;
+	result.SetPersistanceCheck(kFALSE);
 	for (int i = 0; i < fStage.size(); i++){
 		if (fStage[i].IsLinkInList(link.GetType(), link.GetIndex()))
 			result.AddLink(FairLink(GetStageId(), i));

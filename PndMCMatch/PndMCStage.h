@@ -20,7 +20,7 @@
 class PndMCStage: public PndMCObject {
 public:
 	PndMCStage();
-	PndMCStage(fDetectorType id, std::string fileName, std::string branchName, Double_t weight = 1.0);
+	PndMCStage(Int_t id, std::string fileName, std::string branchName, Double_t weight = 1.0);
 	PndMCStage(const PndMCStage& mcStage):
 		PndMCObject((PndMCObject)mcStage),
 		fBranchName(mcStage.GetBranchName()),

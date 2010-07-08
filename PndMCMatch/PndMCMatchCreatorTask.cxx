@@ -42,57 +42,61 @@ InitStatus PndMCMatchCreatorTask::Init()
 
 	fMCMatch = new PndMCMatch("PndMCMatch", "PndMCMatch");
 
-  fMCMatch->InitStage(kMVDPoint, "", "MVDPoint");
-  fMCMatch->InitStage(kMVDDigiStrip, "", "MVDStripDigis");
-  fMCMatch->InitStage(kMVDDigiPixel, "", "MVDPixelDigis");
-  fMCMatch->InitStage(kMVDHitsPixel, "", "MVDHitsPixel");
-  fMCMatch->InitStage(kMVDHitsStrip, "", "MVDHitsStrip");
-  fMCMatch->InitStage(kMVDClusterPixel, "", "MVDPixelClusterCand");
-  fMCMatch->InitStage(kMVDClusterStrip, "", "MVDStripClusterCand");
+  fMCMatch->InitStage("MVDPoint");
+  fMCMatch->InitStage("MVDStripDigis");
+  fMCMatch->InitStage("MVDPixelDigis");
+  fMCMatch->InitStage("MVDHitsPixel");
+  fMCMatch->InitStage("MVDHitsStrip");
+  fMCMatch->InitStage("MVDPixelClusterCand");
+  fMCMatch->InitStage("MVDStripClusterCand");
 
-  fMCMatch->InitStage(kSttPoint, "", "STTPoint");
-  fMCMatch->InitStage(kSttHit, "", "STTHit");
-  fMCMatch->InitStage(kSttHelixHit, "", "SttHelixHit");
-  fMCMatch->InitStage(kSttTrack, "", "STTTrack");
-  fMCMatch->InitStage(kSttTrackCand, "", "STTTrackCand");
-
-  fMCMatch->InitStage(kTpcPoint, "", "PndTpcPoint");
-  fMCMatch->InitStage(kTpcPrimaryCluster, "", "PndTpcPrimaryCluster");
-  fMCMatch->InitStage(kTpcDriftedElectron, "", "PndTpcDriftedElectron");
-  fMCMatch->InitStage(kTpcAvalanche, "", "PndTpcAvalanche");
-  fMCMatch->InitStage(kTpcSignal, "", "PndTpcSignal");
-  fMCMatch->InitStage(kTpcDigi, "", "PndTpcDigi");
-  fMCMatch->InitStage(kTpcCluster, "", "PndTpcCluster");
+  fMCMatch->InitStage("EmcCluster");
+  fMCMatch->InitStage("EmcBump");
+  fMCMatch->InitStage("EmcDigi");
+  fMCMatch->InitStage("EmcHit");
+  fMCMatch->InitStage("EmcPoint");
+  fMCMatch->InitStage("EmcRecoHit");
+  fMCMatch->InitStage("EmcSharedDigi");
+  fMCMatch->InitStage("EmcWaveform");
 
 
-  fMCMatch->InitStage(kGemPoint, "", "GEMPoint");
-  fMCMatch->InitStage(kGemDigi, "", "GEMDigi");
-  fMCMatch->InitStage(kGemHit, "", "GEMHit");
 
-  fMCMatch->InitStage(kDchPoint, "", "PndDchPoint");
-  fMCMatch->InitStage(kDchDigi, "", "PndDchDigi");
-  fMCMatch->InitStage(kDchHit, "", "PndDchCylinderHit");
+  fMCMatch->InitStage("STTPoint");
+  fMCMatch->InitStage("STTHit");
+  fMCMatch->InitStage("SttHelixHit");
+  fMCMatch->InitStage("STTTrack");
+  fMCMatch->InitStage("STTTrackCand");
 
-  fMCMatch->InitStage(kMdtPoint, "", "MdtPoint");
-  fMCMatch->InitStage(kMdtHit, "","MdtHit");
-  fMCMatch->InitStage(kMdtTrack, "", "MdtTrk");
+  fMCMatch->InitStage("PndTpcPoint");
+  fMCMatch->InitStage("PndTpcPrimaryCluster");
+  fMCMatch->InitStage("PndTpcDriftedElectron");
+  fMCMatch->InitStage("PndTpcAvalanche");
+  fMCMatch->InitStage("PndTpcSignal");
+  fMCMatch->InitStage("PndTpcDigi");
+  fMCMatch->InitStage("PndTpcCluster");
 
- // fMCMatch->InitStage(kEmcPoint,"","EmcPoint");
-  fMCMatch->InitStage(kEmcHit, "", "EmcHit");
-  fMCMatch->InitStage(kEmcDigi, "", "EmcDigi");
-  fMCMatch->InitStage(kEmcCluster, "", "EmcCluster");
-  fMCMatch->InitStage(kEmcBump, "", "EmcBump");
-  fMCMatch->InitStage(kEmcRecoHit, "", "EmcRecoHit");
 
-  fMCMatch->InitStage(kLheHit, "", "LheHit");
-  fMCMatch->InitStage(kLheCand, "", "LheCandidate");
-  fMCMatch->InitStage(kLheTrack,"", "LheTrack");
-  fMCMatch->InitStage(kTrackCand,"","MVDIdealTrackCand");
-  //fMCMatch->InitStage(kTrackCand,"","MVDRiemannTrackCand");
-  //fMCMatch->InitStage(kTrack,"","PndTrack");
-  fMCMatch->InitStage(kTrack,"","LheGenTrack");
-  fMCMatch->InitStage(kPidChargedCandidate,"","PidChargedCand");
-  fMCMatch->InitStage(kPidNeutralCandidate,"","PidNeutralCand");
+  fMCMatch->InitStage("GEMPoint");
+  fMCMatch->InitStage("GEMDigi");
+  fMCMatch->InitStage("GEMHit");
+
+  fMCMatch->InitStage("PndDchPoint");
+  fMCMatch->InitStage("PndDchDigi");
+  fMCMatch->InitStage("PndDchCylinderHit");
+
+  fMCMatch->InitStage("MdtPoint");
+  fMCMatch->InitStage("MdtHit");
+  fMCMatch->InitStage("MdtTrk");
+
+  fMCMatch->InitStage("LheHit");
+  fMCMatch->InitStage("LheCandidate");
+  fMCMatch->InitStage("LheTrack");
+  fMCMatch->InitStage("MVDIdealTrackCand");
+  //fMCMatch->InitStage("MVDRiemannTrackCand");
+  //fMCMatch->InitStage("PndTrack");
+  fMCMatch->InitStage("LheGenTrack");
+  fMCMatch->InitStage("PidChargedCand");
+  fMCMatch->InitStage("PidNeutralCand");
 
   InitStatus status = InitBranches();
 

@@ -15,7 +15,7 @@ PndMCStage::PndMCStage():fWeight(1.0), fLoaded(kFALSE), fFill(kFALSE) {
 PndMCStage::~PndMCStage() {
 }
 
-PndMCStage::PndMCStage(fDetectorType id, std::string fileName, std::string branchName, Double_t weight)
+PndMCStage::PndMCStage(Int_t id, std::string fileName, std::string branchName, Double_t weight)
 : PndMCObject(id), fFileName(fileName), fBranchName(branchName), fWeight(weight), fLoaded(kFALSE), fFill(kFALSE)
 {}
 

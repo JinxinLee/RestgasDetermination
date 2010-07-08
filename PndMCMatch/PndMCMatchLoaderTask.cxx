@@ -20,11 +20,6 @@
 #include "FairLinkedData.h"
 #include "PndMCTrack.h"
 // PndMvd includes
-#include "PndSdsMCPoint.h"
-#include "PndSdsDigiPixel.h"
-#include "PndSdsDigiStrip.h"
-#include "PndSdsHit.h"
-#include "PndSdsCluster.h"
 #include "PndRiemannTrack.h"
 #include "PndTrackCand.h"
 
@@ -52,15 +47,15 @@ InitStatus PndMCMatchLoaderTask::Init()
 	fMCMatch = new PndMCMatch("PndMCMatch", "PndMCMatch");
 
 //  fMCMatch->InitStage(kMCTrack, "", "MCTrack");
-  fMCMatch->InitStage(kMVDPoint, "", "MVDPoint");
-  fMCMatch->InitStage(kMVDDigiStrip, "", "MVDStripDigis");
-  fMCMatch->InitStage(kMVDDigiPixel, "", "MVDPixelDigis");
-  fMCMatch->InitStage(kMVDHitsPixel, "", "MVDHitsPixel");
-  fMCMatch->InitStage(kMVDHitsStrip, "", "MVDHitsStrip");
-  fMCMatch->InitStage(kMVDClusterPixel, "", "MVDPixelClusterCand");
-  fMCMatch->InitStage(kMVDClusterStrip, "", "MVDStripClusterCand");
+  fMCMatch->InitStage("MVDPoint");
+  fMCMatch->InitStage("MVDStripDigis");
+  fMCMatch->InitStage("MVDPixelDigis");
+  fMCMatch->InitStage("MVDHitsPixel");
+  fMCMatch->InitStage("MVDHitsStrip");
+  fMCMatch->InitStage("MVDPixelClusterCand");
+  fMCMatch->InitStage("MVDStripClusterCand");
 
-  fMCMatch->InitStage(kSttPoint, "", "STTPoint");
+ /* fMCMatch->InitStage(kSttPoint, "", "STTPoint");
   fMCMatch->InitStage(kSttHit, "", "STTHit");
   fMCMatch->InitStage(kSttHelixHit, "", "SttHelixHit");
   fMCMatch->InitStage(kSttTrack, "", "STTTrack");
@@ -103,7 +98,7 @@ InitStatus PndMCMatchLoaderTask::Init()
   fMCMatch->InitStage(kPidChargedCandidate,"","PidChargedCand");
   fMCMatch->InitStage(kPidNeutralCandidate,"","PidNeutralCand");
 
-
+*/
   FairRootManager* ioman = FairRootManager::Instance();
   	if (!ioman) {
   		std::cout << "-E- PndMCMatchLoaderTask::Init: "
@@ -143,7 +138,7 @@ void PndMCMatchLoaderTask::Exec(Option_t* opt)
 	fMCMatch->ClearMCList();
 
 	fMCMatch->LoadInMCLists(fMCLink);
-	fMCMatch->CreateArtificialStage(kMCTrack, "", "");
+	fMCMatch->CreateArtificialStage("MCTrack");
 
 	fMCMatch->Print();
 	std::cout << std::endl;

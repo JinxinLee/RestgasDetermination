@@ -33,7 +33,9 @@ class PndMCMatchSelectorTask : public FairTask
   /** Default constructor **/
 	PndMCMatchSelectorTask();
 
-	PndMCMatchSelectorTask(fDetectorType start, fDetectorType stop);
+	PndMCMatchSelectorTask(TString start, TString stop);
+
+	PndMCMatchSelectorTask(Int_t start, Int_t stop);
 
   /** Destructor **/
   virtual ~PndMCMatchSelectorTask();
@@ -49,12 +51,12 @@ class PndMCMatchSelectorTask : public FairTask
 
   virtual void Finish();
 
-  virtual void SetStart(fDetectorType type){fStart = type;}
-  virtual void SetStop(fDetectorType type){fStop = type;}
+  virtual void SetStart(Int_t type){fStart = type;}
+  virtual void SetStop(Int_t type){fStop = type;}
 
   virtual void SetAllWeights(Float_t weight) {fCommonWeight = weight;}
   virtual void SetWeightStage(Int_t type, Float_t weight){
-	  fStageWeights.push_back(std::pair<fDetectorType, Float_t>(static_cast<fDetectorType>(type), weight));
+	  fStageWeights.push_back(std::pair<Int_t, Float_t>(static_cast<Int_t>(type), weight));
   }
 
   virtual void SetWeights();
@@ -63,10 +65,13 @@ class PndMCMatchSelectorTask : public FairTask
 
  private:
   PndMCMatch* fMCMatch;
-  fDetectorType fStart;
-  fDetectorType fStop;
+  Int_t fStart;
+  Int_t fStop;
 
-  std::vector<std::pair<fDetectorType, Float_t> > fStageWeights;
+  TString fStartString;
+  TString fStopString;
+
+  std::vector<std::pair<Int_t, Float_t> > fStageWeights;
   Float_t fCommonWeight;
 
   void Register();

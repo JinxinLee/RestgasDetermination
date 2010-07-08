@@ -15,7 +15,7 @@ PndMCResult::PndMCResult() {
 PndMCResult::~PndMCResult() {
 }
 
-PndMCResult::PndMCResult(fDetectorType start, fDetectorType stop)
+PndMCResult::PndMCResult(Int_t start, Int_t stop)
 : fStartType(start), fStopType(stop)
 {}
 
