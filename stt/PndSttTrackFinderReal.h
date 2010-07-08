@@ -92,9 +92,9 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
       static const UShort_t
-            nmaxHits = 50*26, // max 50 MC tracks in Stt, with average 26 hits per track
-            MAXMCTRACKS=50,
-            MAXTRACKSPEREVENT=50,
+            nmaxHits = 20*26, // max 20  tracks in Stt, with average 26 hits per track
+            MAXMCTRACKS=30,
+            MAXTRACKSPEREVENT=20,
             nmaxinclinationversors=20,
 //            nmaxAmbiguities = 10,
 //            nmaxAssociatedHits = 200,
