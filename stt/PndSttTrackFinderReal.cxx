@@ -424,7 +424,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray, TClonesArray* heli
 //    return  -10;
 //  }
 
-   for (Int_t iMCTrack = 0; iMCTrack < nMCTracks; iMCTrack++) 
+   for (Int_t iMCTrack = 0; iMCTrack < nMCTracks&&nMCTracks<MAXMCTRACKS; iMCTrack++) 
    { 
          daMCTrackaTrackFound[iMCTrack]=-1;  //  this is for later and for MC comparisons
          nHitsInMCTrack[iMCTrack]  = 0;          //   initialization
@@ -963,7 +963,7 @@ jumpout: ;
 //   begins the first iteration with more severe cuts on the # hits in track candidate
 
   for(iParHit=0; iParHit<Minclinations[0] + 1 -  MINIMUMHITSPERTRACK ; iParHit++) {
-
+      if( nTracksFoundSoFar > MAXTRACKSPEREVENT) continue;
       if( ! ExclusionList[    infoparal[iParHit]  ] )  continue;
       nHitsinTrack[nTracksFoundSoFar] = PndSttFindTrackPatterninBoxConformal(
                            1,   //  distance in R cells allowed
@@ -1529,7 +1529,7 @@ if(istampa>=2) {
 
 
 //--------------------  inizio della sezione sul confronto tra MC truth e tracce trovate
-
+   if(nMCTracks<MAXMCTRACKS)  {    //  condizione essenziale
 //----------------------  temporarily  matching with MC tracks here --------------------------------
 
 
@@ -1735,6 +1735,14 @@ if( istampa>=2){
 
 }  //   end of    if( istampa>=2)
 
+
+
+  }  else {  //  continuation of if(nMCTracks<MAXMCTRACKS)
+     for(i=0; i<nTracksFoundSoFar;i++){
+       daTrackFoundaTrackMC[i]=-1;
+     }
+  }   //  end of        if(nMCTracks<MAXMCTRACKS)
+
 //--------------------  fine della sezione sul confronto tra MC truth e tracce trovate
 
 
@@ -1749,7 +1757,7 @@ if( istampa>=2){
 if(istampa>=2) {  cout<<" da TrackFinder Real :  ancora nTracksFoundSoFar "<<nTracksFoundSoFar<<endl; }
     for(i=0; i<nTracksFoundSoFar;i++){
      if(istampa >= 2){
-        ii=daTrackFoundaTrackMC[i];
+       ii=daTrackFoundaTrackMC[i];
 //        if( daTrackFoundaTrackMC[i] == -1)  continue;
      }
        dista=sqrt( Ox[i]*Ox[i]+Oy[i]*Oy[i] );
@@ -1827,7 +1835,7 @@ if(istampa >= 2){
 
 
 //-------------------------------stampaggi
-  if(istampa >= 2){
+  if(istampa >2 && nMCTracks<MAXMCTRACKS){
 
 
 
@@ -2056,7 +2064,7 @@ if(istampa>=3)  cout<<"DoFind, skew, infoskew[ ListSkewHitsinTrack[i][j] ] = "<<
 
 //---------------   printouts of comparison with MC for judging algorithm performance
 
-  if( nMCTracks >0 ) {
+  if( nMCTracks >0 &&  nMCTracks<MAXMCTRACKS) {
     for(i=0; i<nTracksFoundSoFar;i++){
        if(!GoodSkewFit[i])   continue;
 
@@ -2146,7 +2154,7 @@ if(istampa>=2){
 
 //------------------------------------- macro di display delle skew
 
-if(iplotta && IVOLTE <= nmassimo){
+if(iplotta && IVOLTE <= nmassimo&& nMCTracks<MAXMCTRACKS){
 
 for(i=0; i<nTracksFoundSoFar;i++){
    if( iplotta) {
