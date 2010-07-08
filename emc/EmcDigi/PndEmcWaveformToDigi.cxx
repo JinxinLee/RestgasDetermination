@@ -163,7 +163,8 @@ void PndEmcWaveformToDigi::Exec(Option_t* opt)
 		digi_time=peakPosition/fSampleRate;
 		if (energy>fEnergyDigiThreshold)
 		{
-			new((*fDigiArray)[i_digi]) PndEmcDigi(trackId,detId, energy, digi_time, hitIndex);
+			PndEmcDigi* myDigi = new((*fDigiArray)[i_digi]) PndEmcDigi(trackId,detId, energy, digi_time, hitIndex);
+			myDigi->AddLink(FairLink("EmcWaveform", iWaveform));
 			i_digi++;
 			
 		}

@@ -54,7 +54,7 @@ PndEmcPoint::PndEmcPoint(Int_t trackID, Int_t detID, Int_t evtID, TVector3 pos,
   nRow        = row;
   nCrystal    = crys;
   nCopy       = copy;
-  SetLink(FairLink(kMCTrack, trackID));
+  SetLink(FairLink("MCTrack", trackID));
 }
 
 

@@ -212,10 +212,13 @@ void PndEmcHitProducer::Exec(Option_t* opt)
   map<Int_t, Float_t> fTrackEnergy;
   map<Int_t, Float_t> fTrackTime;  //time of first point
   map<Int_t, std::vector <Int_t> > fTrackMcTruth;  //McTruth
+  map<Int_t, std::vector <Int_t> > fPointMatch; //DetId , PointIds with same DetId
+
   
   fTrackEnergy.clear();
   fTrackTime.clear();
   fTrackMcTruth.clear();
+  fPointMatch.clear();
   
   map<Int_t, Float_t>::const_iterator p;
   
@@ -266,9 +269,11 @@ void PndEmcHitProducer::Exec(Option_t* opt)
 		fNonuniformityPar->GetNonuniformityParameters(DetId,c);
 		energyscalefactor=c[0]+zpos*(c[1]+zpos*c[2]);
 		fTrackEnergy[DetId] += point->GetEnergyLoss() * energyscalefactor;
+		fPointMatch[DetId].push_back(iPoint);
 //        printf("point with detID %d has z Position %f and energyloss %f scaled with %f\n",DetId,zpos, point->GetEnergyLoss(),energyscalefactor);	
 	} else {
 		fTrackEnergy[DetId] += point->GetEnergyLoss();
+		fPointMatch[DetId].push_back(iPoint);
 //        printf("point with detID %d has z Position %f and energyloss %f not scaled\n",DetId,zpos, point->GetEnergyLoss());	
 	}
 	point_time=point->GetTime();
@@ -297,7 +302,8 @@ void PndEmcHitProducer::Exec(Option_t* opt)
       if( fMCTrackArray){
 		cleansortmclist(fTrackMcTruth[(*p).first],fMCTrackArray);
       }
-      AddHit(1, (*p).first, (*p).second, fTrackTime[(*p).first], fTrackMcTruth[(*p).first]);
+      PndEmcHit* myHit = AddHit(1, (*p).first, (*p).second, fTrackTime[(*p).first], fTrackMcTruth[(*p).first]);
+      myHit->AddLinks(FairMultiLinkedData("EmcPoint", fPointMatch[p->first]));
     }
   }
 }

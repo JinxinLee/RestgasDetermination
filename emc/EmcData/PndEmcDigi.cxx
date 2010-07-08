@@ -59,7 +59,7 @@ PndEmcDigi::PndEmcDigi(Int_t trackid, Int_t id, Float_t energy, Float_t time, In
 	fWhere = algPointer()(xtal);
 	fTheta = fWhere.Theta();
 	fPhi = fWhere.Phi();
-	SetLink(FairLink(kEmcHit, hitIndex));
+	SetLink(FairLink("EmcHit", hitIndex));
 }
 
 //
