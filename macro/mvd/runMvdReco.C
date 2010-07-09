@@ -7,7 +7,7 @@
   Int_t iVerbose = 0;
   TString MCFile = "Mvd_Test.root";
   TString parFile = "Mvd_Params.root";
-  Int_t nEvents = 10;
+  Int_t nEvents = 100;
   // ----  Load libraries   -------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");  
   // ------------------------------------------------------------------------

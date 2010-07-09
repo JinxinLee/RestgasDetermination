@@ -7,7 +7,7 @@
   timer.Start();
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
-  Int_t nEvents  = 10;
+  Int_t nEvents  = 100;
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   TString inFile = "Mvd_Test.root";
   TString parFile = "Mvd_Params.root";
@@ -40,7 +40,7 @@
 
   // -----   Default Digitization   ---------------------------------------
   PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
-  mvddigi->SetVerbose(iVerbose);
+  mvddigi->SetVerbose(2);
   fRun->AddTask(mvddigi);
   
   // -----   OR custom settings to switch off something   -----------------
@@ -48,7 +48,7 @@
 //  mvdStripProd->SetVerbose(iVerbose);
 //  fRun->AddTask(mvdStripProd);
 //  PndMvdHybridHitProducer* mvdPixProd = new PndMvdHybridHitProducer();
-//  mvdPixProd->SetVerbose(iVerbose);
+//  mvdPixProd->SetVerbose(2);
 //  fRun->AddTask(mvdPixProd);
 //  PndMvdNoiseProducer* mvdNoiseMaker = new PndMvdNoiseProducer();
 //  mvdNoiseMaker->SetVerbose(iVerbose);

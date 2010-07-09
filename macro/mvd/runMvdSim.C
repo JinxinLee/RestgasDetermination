@@ -6,7 +6,7 @@
   timer.Start();
   gDebug=0;
   int verboseLevel = 0;
-  Int_t nEvents = 10;
+  Int_t nEvents = 100;
 
   //FileNames
   TString simOutput="Mvd_Test.root";
@@ -67,7 +67,7 @@
 
   // Box Generator
   //Pions
- FairBoxGenerator *fBox = new FairBoxGenerator(211, 1);
+ FairBoxGenerator *fBox = new FairBoxGenerator(211, 4);
     fBox->SetPRange(0.1,2.5);
     fBox->SetThetaRange(5,150);
     fBox->SetPhiRange(0.,360);
