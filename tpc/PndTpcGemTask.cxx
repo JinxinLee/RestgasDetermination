@@ -158,7 +158,7 @@ PndTpcGemTask::Exec(Option_t* opt)
 	  
       PndTpcAvalanche* myAvalanche = new ((*favalancheArray)[na]) PndTpcAvalanche(e->x(), e->y(), e->t(),
 						fgain*gainFactor, e);
-      myAvalanche->SetLink(FairLink(kTpcDriftedElectron, id));
+      myAvalanche->SetLink(FairLink(fdriftedBranchName, id));
     }
   } // end loop over drifted electrons
   std::cout<<" finished."<<std::endl;

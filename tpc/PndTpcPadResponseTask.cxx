@@ -180,7 +180,7 @@ PndTpcPadResponseTask::Exec(Option_t* opt)
                                      0);
         sig->setmcTrackId(Aval->mcTrackId());
         sig->setmcHitId(Aval->mcHitId());
-        sig->SetLink(FairLink(kTpcAvalanche, ia));
+        sig->SetLink(FairLink(favalancheBranchName, ia));
         ++nValidHits;
       }
       else {

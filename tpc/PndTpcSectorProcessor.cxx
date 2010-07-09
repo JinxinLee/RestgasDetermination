@@ -243,7 +243,7 @@ PndTpcSectorProcessor::cog(){
     mcid.Renormalize();
     cl->SetMcId(mcid);
     //set link (temporary solution)
-    cl->SetLink(FairLink(kMCTrack, mcid.DominantID().mctrackID()));
+    cl->SetLink(FairLink("MCTrack", mcid.DominantID().mctrackID()));
 
     // loop again over the digis to calculate 2nd moment
     TMatrixD cov(3,3);

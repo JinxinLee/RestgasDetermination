@@ -203,7 +203,7 @@ PndTpcDriftTask::Exec(Option_t* opt)
 											   pcl->y()+dy,
 											pcl->t()+dt,
 											pcl);
-      myElectron->SetLink(FairLink(kTpcPrimaryCluster, ic));
+      myElectron->SetLink(FairLink(fprimBranchName, ic));
       //feeding the tracking Histograms with this electrons' data
       FillHistograms(dx, dy, driftl);
 
