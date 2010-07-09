@@ -17,6 +17,7 @@ eventDisplay()
   gSystem->Load("libPndEventDisplay");
 
   PndFileNameCreator creator(InputFile.Data());
+  TString digiFile = creator.GetDigiFileName();
   TString recoFile = creator.GetRecoFileName();
   TString trackF = creator.GetTrackFindingFileName();
                                      
@@ -24,7 +25,8 @@ eventDisplay()
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(InputFile.Data());
   fRun->AddFriend(recoFile.Data());
-//  fRun->AddFriend(trackF.Data());
+  fRun->AddFriend(digiFile.Data());
+  fRun->AddFriend(trackF.Data());
   fRun->SetOutputFile("tst.root");
 
    FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
@@ -50,13 +52,14 @@ eventDisplay()
 //  FairMCPointDraw *PndDskPoint = new FairMCPointDraw ("DskCerenkov",kGreen, kFullSquare);
 //  FairHitDraw *EMCRecoHit = new FairHitDraw("EmcRecoHit");
 //
-//  PndTrackCandDraw* Riemann = new PndTrackCandDraw("MVDRiemannTrackCand");
-
+  PndTrackCandDraw* Riemann = new PndTrackCandDraw("MVDRiemannTrackCand");
+//PndMvdDigiPixelDraw* MvdDigiPixel = new PndMvdDigiPixelDraw("MVDPixelDigis");
                                                             
   FairHitDraw *MvdRecoHit =   new FairHitDraw ("MVDHitsPixel");
   FairHitDraw *MvdRecoStrip = new FairHitDraw ("MVDHitsStrip");
   fMan->AddTask(Track);
   fMan->AddTask(MvdPoints);
+//  fMan->AddTask(MvdDigiPixel);
 //  fMan->AddTask(EMCPoints);
 //  fMan->AddTask(TofPoint);
 //  fMan->AddTask( TofSciFPoint);
@@ -72,7 +75,7 @@ eventDisplay()
   fMan->AddTask(MvdRecoHit);
   fMan->AddTask(MvdRecoStrip);
   
-//  fMan->AddTask(Riemann);
+  fMan->AddTask(Riemann);
 
   fMan->Init();                     
 
