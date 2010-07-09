@@ -55,12 +55,17 @@ void PndMCMatch::InitStage(Int_t type, std::string fileName, std::string branchN
 
 void PndMCMatch::InitStage(std::string branchName, std::string fileName){
 	FairRootManager* ioman = FairRootManager::Instance();
-	Int_t type = ioman->GetBranchId(branchName.c_str());
-	if (type > -1){
-		InitStage(type, fileName, branchName);
+	if (ioman->CheckBranch(branchName.c_str()) == 1){
+		Int_t type = ioman->GetBranchId(branchName.c_str());
+		if (type > -1){
+			InitStage(type, fileName, branchName);
+		}
+		else{
+			std::cout << "-W- PndMCMatch::InitStage: Branch name " << branchName << " not registered!" << std::endl;
+		}
 	}
-	else{
-		std::cout << "-W- PndMCMatch::InitStage: Branch name " << branchName << " not registered!" << std::endl;
+	else {
+		std::cout << "-W- PndMCMatch::InitStage: Branch name " << branchName << " not persistant!" << std::endl;
 	}
 }
 

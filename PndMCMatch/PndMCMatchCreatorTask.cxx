@@ -92,7 +92,7 @@ InitStatus PndMCMatchCreatorTask::Init()
   fMCMatch->InitStage("LheCandidate");
   fMCMatch->InitStage("LheTrack");
   fMCMatch->InitStage("MVDIdealTrackCand");
-  //fMCMatch->InitStage("MVDRiemannTrackCand");
+  fMCMatch->InitStage("MVDRiemannTrackCand");
   //fMCMatch->InitStage("PndTrack");
   fMCMatch->InitStage("LheGenTrack");
   fMCMatch->InitStage("PidChargedCand");
