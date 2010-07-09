@@ -90,8 +90,10 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
   PndMvdRiemannTrackFinder trackFinder;
   trackFinder.SetVerbose(fVerbose);
 
-  trackFinder.AddHits(fHitArray);
-  trackFinder.AddHits(fHitArray2);
+  FairRootManager *ioman = FairRootManager::Instance();
+
+  trackFinder.AddHits(fHitArray, ioman->GetBranchId(fHitBranch));
+  trackFinder.AddHits(fHitArray2, ioman->GetBranchId(fHitBranch2));
   trackFinder.SetMaxSZChi2(fMaxSZChi2);
   trackFinder.SetMinPointDist(fMinPointDist);
   trackFinder.SetMaxPlaneDistance(fMaxDist);

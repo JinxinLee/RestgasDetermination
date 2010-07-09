@@ -14,15 +14,17 @@ PndMvdRiemannTrackFinder::PndMvdRiemannTrackFinder():PndRiemannTrackFinder(),fZC
 
 PndMvdRiemannTrackFinder::~PndMvdRiemannTrackFinder(){}
 
-void PndMvdRiemannTrackFinder::AddHits(TClonesArray* hits)
+void PndMvdRiemannTrackFinder::AddHits(TClonesArray* hits, Int_t branchId)
 {
 	TString geoPath;
+//	PndRiemannTrackFinder::AddHits(hits, branchId);
 	for (int i = 0; i < hits->GetEntries(); i++){
 		FairHit* myHit = (FairHit*)(hits->At(i));
 		fHits.push_back(myHit);
-		std::pair<int,int> myID(myHit->GetDetectorID(), i);
+		std::pair<int,int> myID(branchId, i);
 		fMapHitToID[fHits.size()-1]=myID;
 		fMapIDtoHit[myID] = fHits.size()-1;
+		std::cout << "fMapHitToId: " << fHits.size() -1 << " : " << myID.first << "/" << myID.second << std::endl;
 		PndSdsHit* tempHit=(PndSdsHit*)(hits->At(i));
 		geoPath=fGeoH->GetPath(tempHit->GetSensorID());
 

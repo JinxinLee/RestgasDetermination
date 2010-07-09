@@ -15,7 +15,7 @@ public:
 	virtual ~PndMvdRiemannTrackFinder();
 
 	void FindTracks();										///< Main function to start the riemann track finding
-	void AddHits(TClonesArray* hits);
+	void AddHits(TClonesArray* hits, Int_t branchId);
 
 	//void SetGeoH(PndGeoHandling geoH){fGeoH=geoH;};
 	void SetCutDistH(TH2F* hist) {fCutDistH=hist;}

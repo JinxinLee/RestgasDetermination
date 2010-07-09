@@ -21,8 +21,8 @@ public:
 	void FindTracks();										///< Main function to start the riemann track finding
 	void MergeTracks();
 	void SetHits(std::vector<FairHit*> hits){fHits = hits;};	///< Replaces the existing array of hits with a new one
-	void AddHits(std::vector<FairHit*> hits);				///< Appends the new array of hits to the existing one
-	void AddHits(TClonesArray* hits);						///< Appends the new array of hits to the existing one
+	void AddHits(std::vector<FairHit*> hits, Int_t branchId);				///< Appends the new array of hits to the existing one
+	void AddHits(TClonesArray* hits, Int_t branchId);						///< Appends the new array of hits to the existing one
 	void AddHit(FairHit* hit){fHits.push_back(hit);};		///< Adds one new hit to the array of hits
 	void SetVerbose (int val){fVerbose = val;}
 	int NTracks(){return fTrackCand.size();};					///< Returns the number of found tracks

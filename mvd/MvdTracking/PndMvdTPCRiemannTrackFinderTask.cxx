@@ -110,10 +110,12 @@ void PndMvdTPCRiemannTrackFinderTask::Exec(Option_t* opt)
   fRiemannTracks->Clear();
   fMVDTPCTrackCandArray->Clear();
 
+  FairRootManager* ioman = FairRootManager::Instance();
+
   PndMvdRiemannTrackFinder trackFinder;
   trackFinder.SetVerbose(fVerbose);
-  trackFinder.AddHits(fHitArray);
-  trackFinder.AddHits(fHitArray2);
+  trackFinder.AddHits(fHitArray, ioman->GetBranchId(fHitBranch));
+  trackFinder.AddHits(fHitArray2, ioman->GetBranchId(fHitBranch2));
   trackFinder.SetMaxSZChi2(fMaxSZChi2);
   trackFinder.SetMinPointDist(fMinPointDist);
   trackFinder.SetMaxPlaneDistance(fMaxDist);
@@ -181,7 +183,7 @@ void PndMvdTPCRiemannTrackFinderTask::CheckTPCHitsForMvdSeeds()
 		  hit.setXYZ(pos.X(),pos.Y(),pos.Z());
 		  if ((fabs(((PndRiemannTrack*)fRiemannTracks->At(i))->dist(&hit))<CutDist) &&(((PndRiemannTrack*)fRiemannTracks->At(i))->calcSZChi2(&hit)<CutSZ)){
 			  count++;
-			  TpcCand.AddHit(kTpcCluster,j,0);
+			  TpcCand.AddHit("PndTpcCluster",j,0);
 		  }
 	  }
 	  if (count>3){

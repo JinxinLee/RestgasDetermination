@@ -11,8 +11,11 @@ fMinPointDist(1), fUseZeroPos(true), fCurvDiff(0.05), fDipDiff(0.05),fMinNumberO
 	if (fUseZeroPos){
 		TVector3 pos(0.0,0.0,0.0);
 		TVector3 dpos(0.1,0.1,0.1);
-		PndSdsHit* ZeroHit = new PndSdsHit(1, -1, pos, dpos, -1, 0, 0,-1); // this is not very nice (one should create a neutral FairHit here
+		PndSdsHit* ZeroHit = new PndSdsHit(-1, -1, pos, dpos, -1, 0, 0,-1); // this is not very nice (one should create a neutral FairHit here
 		fHits.push_back(ZeroHit);
+		std::pair<int,int> myID(-1, -1);
+		fMapHitToID[fHits.size()-1]=myID;
+		fMapIDtoHit[myID] = fHits.size()-1;
 	}
 }
 
@@ -22,19 +25,24 @@ PndRiemannTrackFinder::~PndRiemannTrackFinder()
 		delete(fHits[0]);
 }
 
-void PndRiemannTrackFinder::AddHits(std::vector<FairHit*> hits)
+void PndRiemannTrackFinder::AddHits(std::vector<FairHit*> hits, Int_t branchId)
 {
+	Int_t startSize = 0; //= fHits.size();
 	for (int i = 0; i < hits.size(); i++){
 		fHits.push_back(hits[i]);
+		std::pair<int,int> myID(branchId, startSize + i);
+		fMapHitToID[fHits.size()-1]=myID;
+		fMapIDtoHit[myID] = fHits.size()-1;
 	}
 }
 
-void PndRiemannTrackFinder::AddHits(TClonesArray* hits)
+void PndRiemannTrackFinder::AddHits(TClonesArray* hits, Int_t branchId)
 {
+	Int_t startSize = 0;//= fHits.size();
 	for (int i = 0; i < hits->GetEntries(); i++){
 		FairHit* myHit = (FairHit*)(hits->At(i));
 		fHits.push_back(myHit);
-		std::pair<int,int> myID(myHit->GetDetectorID(), i);
+		std::pair<int,int> myID(branchId, startSize + i);
 		fMapHitToID[fHits.size()-1]=myID;
 		fMapIDtoHit[myID] = fHits.size()-1;
 	}
