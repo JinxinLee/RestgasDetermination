@@ -19,7 +19,7 @@ class PndTrack : public FairMultiLinkedData{
 public:
 	PndTrack();
 	PndTrack(const FairTrackParP& first, const FairTrackParP& last, const PndTrackCand& cand,
-		 Int_t flag = 0, Double_t chi2 = -1., Int_t ndf = 0, Int_t pid = 0, Int_t id = -1, fDetectorType type = kUnknown);
+		 Int_t flag = 0, Double_t chi2 = -1., Int_t ndf = 0, Int_t pid = 0, Int_t id = -1, Int_t type = -1);
 
 	void Print();
 

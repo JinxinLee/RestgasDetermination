@@ -37,6 +37,13 @@ PndTrackCand::AddHit(UInt_t detId, UInt_t hitId, Double_t rho)
 	AddLink(FairLink(detId, hitId));
 }
 
+void PndTrackCand::AddHit(TString branchName, UInt_t hitId, Double_t rho)
+{
+	FairRootManager* ioman = FairRootManager::Instance();
+	UInt_t detId = ioman->GetBranchId(branchName);
+	AddHit(detId, hitId, rho);
+}
+
 
 void PndTrackCand::Reset()
 {
