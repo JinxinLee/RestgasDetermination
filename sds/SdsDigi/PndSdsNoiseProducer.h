@@ -73,7 +73,6 @@ class PndSdsNoiseProducer : public PndSdsTask
   Bool_t fPersistance;
   TString fBranchNameStrip;
   TString fBranchNamePixel;
-  TString fFolderName;
   /** In-Output array of PndSdsDigis **/
   TClonesArray* fDigiStripArray;
   TClonesArray* fDigiPixelArray;

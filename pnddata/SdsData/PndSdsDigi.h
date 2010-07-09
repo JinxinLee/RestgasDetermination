@@ -72,7 +72,7 @@ class PndSdsDigi : public FairMultiLinkedData
 		virtual void AddIndex(std::vector<Int_t> index)
 		{
 			fIndex = index;
-			SetLinks(FairMultiLinkedData(fMCPointType, index));
+			AddLinks(FairMultiLinkedData(fMCPointType, index));
 		}
 		void SetCharge(double charge){fCharge = charge;}
     void AddCharge(double charge){fCharge += charge;}

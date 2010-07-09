@@ -68,6 +68,7 @@ void PndMvdHybridHitProducer::SetBranchNames(TString inBranchname, TString outBr
   fInBranchName = inBranchname;
   fOutBranchName = outBranchname;
   fFolderName = folderName;
+  SetInBranchId();
 }
 
 // -------------------------------------------------------------------------
@@ -77,6 +78,7 @@ void PndMvdHybridHitProducer::SetBranchNames()
   fInBranchName = "MVDPoint";
   fOutBranchName = "MVDPixelDigis";
   fFolderName = "PndMvd";
+  SetInBranchId();
 }
 
 ClassImp(PndMvdHybridHitProducer);

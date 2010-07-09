@@ -29,6 +29,7 @@ void PndMvdHitProducerIdeal::SetBranchNames(TString inBranchname, TString outBra
   fInBranchName = inBranchname;
   fOutBranchName = outBranchname;
   fFolderName = folderName;
+  SetInBranchId();
 }
 
 
@@ -37,6 +38,7 @@ void PndMvdHitProducerIdeal::SetBranchNames()
   fInBranchName = "MVDPoint";
   fOutBranchName = "MVDHit";
   fFolderName = "PndMvd";
+  SetInBranchId();
 }
 
 

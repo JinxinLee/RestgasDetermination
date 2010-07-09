@@ -123,7 +123,6 @@ InitStatus PndSdsStripHitProducer::Init()
   FairRootManager* ioman = FairRootManager::Instance();
   
   SetBranchNames();
-  SetMCPointType();
   
   
   if ( ! ioman )
@@ -133,11 +132,11 @@ InitStatus PndSdsStripHitProducer::Init()
     return kFATAL;
   }
   
-  fPointArray = (TClonesArray*) ioman->GetObject(fBranchName);
+  fPointArray = (TClonesArray*) ioman->GetObject(fInBranchName);
   if ( ! fPointArray )
   {
     std::cout << "-E- PndSdsStripHitProducer::Init: "
-    << "No "<<fBranchName<<" array!" << std::endl;
+    << "No "<<fInBranchName<<" array!" << std::endl;
     return kERROR;
   }
   
@@ -311,7 +310,7 @@ void PndSdsStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, I
   if(found == kFALSE){//TODO: Simulate a timestamp
 	  std::vector<Int_t>indices;
 	  indices.push_back(iPoint);
-    new ((*fStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,sensorID,fe,chan,charge, fMCPointType, timestamp) ;
+    new ((*fStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,sensorID,fe,chan,charge, fInBranchId, timestamp) ;
     iStrip++;
   }
 }

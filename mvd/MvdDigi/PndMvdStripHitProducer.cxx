@@ -36,6 +36,7 @@ void PndMvdStripHitProducer::SetBranchNames()
   fInBranchName = "MVDPoint";
   fOutBranchName = "MVDStripDigis";
   fFolderName = "PndMvd";
+  SetInBranchId();
 }
 // -------------------------------------------------------------------------
 void PndMvdStripHitProducer::SetCalculators()

@@ -47,13 +47,6 @@ class PndSdsHybridHitProducer : public PndSdsTask
   virtual InitStatus Init();
   virtual InitStatus ReInit();
 
-  /** pure virtual method SetBranchNames
-   **
-   ** called by Init()
-   ** function to set individual branch names
-   **/
-  virtual void SetBranchNames()=0;
-
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
@@ -64,9 +57,7 @@ protected:
   
   Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
   
-  TString fBranchName;
-  TString fOutBranchName;
-  TString fFolderName;
+
   /** Input array of PndSdsMCPoints **/
   TClonesArray* fPointArray;
 
@@ -76,7 +67,7 @@ protected:
   PndSdsPixelDigiPar* fDigiPar;
   PndSdsTotDigiPar* fTotDigiPar;
   PndSdsChargeConversion* fChargeConverter;
-  fDetectorType fMCPointType;
+ // fDetectorType fMCPointType;
 
   void Register();
   void Reset();

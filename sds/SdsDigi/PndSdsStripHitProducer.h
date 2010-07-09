@@ -107,9 +107,6 @@ class PndSdsStripHitProducer : public PndSdsTask
 
   Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
 
-  TString fBranchName;
-  TString fOutBranchName;
-  TString fFolderName;
 
   /** Input array of PndSdsMCPoints **/
   TClonesArray* fPointArray;
@@ -122,7 +119,6 @@ class PndSdsStripHitProducer : public PndSdsTask
   TList* fChargeDigiParameterList;
   PndSdsStripDigiPar* fCurrentDigiPar;
   PndSdsChargeConversion* fCurrentChargeConverter;
-  fDetectorType fMCPointType;
 
   //! Calculator objects
   std::map<const char*,PndSdsCalcStrip*> fStripCalcTop;

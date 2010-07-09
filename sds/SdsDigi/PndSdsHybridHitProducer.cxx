@@ -107,7 +107,7 @@ InitStatus PndSdsHybridHitProducer::Init()
     << "RootManager not instantiated!" << std::endl;
     return kFATAL;
   }
-  fPointArray = (TClonesArray*) ioman->GetObject(fBranchName);
+  fPointArray = (TClonesArray*) ioman->GetObject(fInBranchName);
   
   if ( ! fPointArray )
   {
@@ -246,7 +246,7 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
     new ((*fPixelArray)[iFePixel++])
     PndSdsDigiPixel( fPixelList[iPix].GetMCIndex(), kMVDHitsPixel, fPixelList[iPix].GetSensorID() ,fPixelList[iPix].GetFE(),
                     fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
-                    fChargeConverter->ChargeToDigiValue( fPixelList[iPix].GetCharge()), fMCPointType);
+                    fChargeConverter->ChargeToDigiValue( fPixelList[iPix].GetCharge()), fInBranchId);
   }
   
   fChargeConverter->EndExecute();
@@ -366,10 +366,11 @@ void PndSdsHybridHitProducer::AddHit(PndSdsPixel& hit, int mcIndex)
         fPixelList[i].GetCol() == hit.GetCol() &&
         fPixelList[i].GetRow() == hit.GetRow() )
 		{
-			if (fVerbose > 1) std::cout << "Pixel " << hit.GetSensorID()
-        << " FE/col/row " << hit.GetFE()
-        << "/" << hit.GetCol()
-        << "/" << hit.GetRow() << " already hit!"<< std::endl;
+			if (fVerbose > 1)
+				std::cout << "Pixel " << hit.GetSensorID()
+					<< " FE/col/row " << hit.GetFE()
+					<< "/" << hit.GetCol()
+					<< "/" << hit.GetRow() << " already hit!"<< std::endl;
 			fPixelList[i].AddCharge(hit.GetCharge());
 			fPixelList[i].AddMCIndex(mcIndex);
 			found = true;

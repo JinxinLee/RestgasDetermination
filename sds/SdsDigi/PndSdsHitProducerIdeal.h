@@ -51,7 +51,6 @@ class PndSdsHitProducerIdeal : public PndSdsTask
    ** function to set individual branch names
    **/
   virtual void SetBranchNames()=0;
-  virtual void SetMCPointType() = 0;
 
 
   /** Virtual method Exec **/
@@ -64,17 +63,11 @@ protected:
   
   Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
   
-  TString fBranchName;
   /** Input array of PndSdsMCPoints **/
   TClonesArray* fPointArray;
 
   /** Output array of PndSdsHits **/
   TClonesArray* fHitArray;  
-
-  TString fOutBranchName;
-  TString fFolderName;
-  
-  fDetectorType fMCPointType;
 
   //PndSdsGeoPar* fGeoPar;
   

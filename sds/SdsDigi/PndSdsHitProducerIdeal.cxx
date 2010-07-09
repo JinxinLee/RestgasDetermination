@@ -41,7 +41,6 @@ InitStatus PndSdsHitProducerIdeal::Init()
   FairRootManager* ioman = FairRootManager::Instance();
 
   SetBranchNames();
-  SetMCPointType();
 
   if ( ! ioman )
     {
@@ -51,7 +50,7 @@ InitStatus PndSdsHitProducerIdeal::Init()
     }
 
   // Get input array
-  fPointArray = (TClonesArray*) ioman->GetObject(fBranchName);
+  fPointArray = (TClonesArray*) ioman->GetObject(fInBranchName);
 
   if ( ! fPointArray )
     {
@@ -122,7 +121,7 @@ void PndSdsHitProducerIdeal::Exec(Option_t* opt)
 
       // Create new hit
       PndSdsHit* myHit = new ((*fHitArray)[iPoint]) PndSdsHit(detID, point->GetSensorID(), position, dpos, -1, point->GetEnergyLoss(),1, iPoint);
-      myHit->SetClusterIndex(fMCPointType, iPoint);
+      myHit->SetClusterIndex(fInBranchId, iPoint);
       //	std::cout << "Hit created for module: " << point->GetDetName() << std::endl;
 
 
