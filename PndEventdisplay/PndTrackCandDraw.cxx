@@ -129,29 +129,36 @@ void PndTrackCandDraw::AddBoxesPndTrackCand(TEveBoxSet* set, TObject* obj, Int_t
 TVector3 PndTrackCandDraw::GetVector(Int_t detId, Int_t hitId)
 {
 	FairHit * p;
-
-	if (detId == kMVDHitsStrip || detId == kMVDHitsPixel || detId == kSttHelixHit || detId == kGemHit)
+	FairRootManager* ioman = FairRootManager::Instance();
+	TString branchName = ioman->GetBranchName(detId);
+	TClonesArray* data = (TClonesArray*)(ioman->GetObject(branchName));
+	if (branchName == "MVDHitsStrip" ||
+		branchName == "MVDHitsPixel" ||
+		branchName == "SttHelixHit" ||
+		branchName == "GemHit" ||
+		branchName == "PndTpcCluster")
 	{
-		if (detId == kMVDHitsPixel)
-		{
-			p = (FairHit *) fPixPointList->At(hitId);
-		}
-		else if (detId == kMVDHitsStrip)
-		{
-			p = (FairHit *) fStripPointList->At(hitId);
-		}
-		else if (detId == kSttHelixHit){
-			p = (FairHit *) fSttHelixList->At(hitId);
-		}
-		else if (detId == kGemHit){
-			p = (FairHit *) fGemHitList->At(hitId);
-		}
+		p = (FairHit*)data->At(hitId);
+//		if (detId == kMVDHitsPixel)
+//		{
+//			p = (FairHit *) fPixPointList->At(hitId);
+//		}
+//		else if (detId == kMVDHitsStrip)
+//		{
+//			p = (FairHit *) fStripPointList->At(hitId);
+//		}
+//		else if (detId == kSttHelixHit){
+//			p = (FairHit *) fSttHelixList->At(hitId);
+//		}
+//		else if (detId == kGemHit){
+//			p = (FairHit *) fGemHitList->At(hitId);
+//		}
 
 		return (TVector3(p->GetX(), p->GetY(), p->GetZ()));
 	}
-	else if (detId == kTpcCluster){
-		return ((PndTpcCluster*)fTpcClusterList->At(hitId))->pos();
-	}
+//	else if (branchName == "PndTpcCluster"){
+//		return ((PndTpcCluster*)data->At(hitId))->pos();
+//	}
 	else
 		std::cout
 				<< "-E- PndTrackCandDraw::GetVector : Unknown Detector with ID: "
