@@ -60,6 +60,7 @@ protected:
 	int    fMinNumberOfHits;							///< Minimum number of hits in track necessary for a match
 	double fCurvDiff;									///< TrackMerger parameter
 	double fDipDiff;									///< TrackMerger parameter
+	double fMagField;									///< size of the magnetic field in Tesla
 	
 	int fVerbose;
 	bool fUseZeroPos;

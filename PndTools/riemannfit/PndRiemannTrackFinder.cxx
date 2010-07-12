@@ -6,7 +6,7 @@
 ClassImp(PndRiemannTrackFinder);
 
 PndRiemannTrackFinder::PndRiemannTrackFinder(): fMaxPlaneDist(1), fMaxSZDist(1), fMaxSZChi2(1),
-fMinPointDist(1), fUseZeroPos(true), fCurvDiff(0.05), fDipDiff(0.05),fMinNumberOfHits(4), fVerbose(0)
+fMinPointDist(1), fUseZeroPos(true), fCurvDiff(0.05), fDipDiff(0.05),fMinNumberOfHits(4), fVerbose(0), fMagField(2.0)
 {
 	if (fUseZeroPos){
 		TVector3 pos(0.0,0.0,0.0);
@@ -142,6 +142,9 @@ void PndRiemannTrackFinder::FindTracks()
 			myTrackCand.AddHit(fMapHitToID[fHitsInTracks[n][o]].first,
 					fMapHitToID[fHitsInTracks[n][o]].second,0);
 		}
+		myTrackCand.setTrackSeed(fHitsInTracks[n][0], fTracks[n].getPforHit(0, fMagField), 1/fTracks[n].P(fMagField));
+//		std::cout << "TrackCand before merging: ";
+//		myTrackCand.Print();
 		fTrackCand.push_back(myTrackCand);
 		std::pair<double,double> CurvDip(1/fTracks[n].r(),fTracks[n].dip());
 		fCurvAndDipOfCand.push_back(CurvDip);
