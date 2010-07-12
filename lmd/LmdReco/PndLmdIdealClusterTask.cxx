@@ -23,16 +23,16 @@ PndLmdIdealClusterTask::~PndLmdIdealClusterTask()
 
 void PndLmdIdealClusterTask::SetBranchNames(TString inBranchname, TString outHitBranchname, TString outClustBranchname, TString folderName)
 {
-  fBranchName = inBranchname;
-  fHitBranchName = outHitBranchname;
+  fInBranchName = inBranchname;
+  fOutBranchName = outHitBranchname;
   fClustBranchName = outClustBranchname;
   fFolderName = folderName;
 }
 
 void PndLmdIdealClusterTask::SetBranchNames()
 {
-  fBranchName = "LMDPixelDigis";
-  fHitBranchName = "LMDIdealClusterHit";
+  fInBranchName = "LMDPixelDigis";
+  fOutBranchName = "LMDIdealClusterHit";
   fClustBranchName = "LMBCluster";
   fFolderName = "PndLmd";
 }

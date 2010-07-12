@@ -43,16 +43,16 @@ PndLmdStripClusterTask::~PndLmdStripClusterTask()
 
 void PndLmdStripClusterTask::SetBranchNames(TString inBranchname, TString outHitBranchname, TString outClustBranchname, TString folderName)
 {
-  fBranchName = inBranchname;
-  fHitBranchName = outHitBranchname;
+  fInBranchName = inBranchname;
+  fOutBranchName = outHitBranchname;
   fClustBranchName = outClustBranchname;
   fFolderName = folderName;
 }
 
 void PndLmdStripClusterTask::SetBranchNames()
 {
-  fBranchName = "LMDStripDigis";
-  fHitBranchName = "LMDHitsStrip";
+  fInBranchName = "LMDStripDigis";
+  fOutBranchName = "LMDHitsStrip";
   fClustBranchName = "LMDStripClusterCand";
   fFolderName = "PndLmd";
 }
@@ -118,11 +118,82 @@ void PndLmdStripClusterTask::SetCalculators()
     Int_t RadChannel = digipar->GetRadChannel(); 
     Int_t RadTime    = digipar->GetRadTime(); 
     if(0==ClusterMod) { 
-      fClusterFinderList[senstype] = new PndSdsSimpleStripClusterFinder( RadChannel ); //search radius in channel no. 
+      fClusterFinderList[senstype] = new PndSdsSimpleStripClusterFinder(fInBranchId, RadChannel ); //search radius in channel no. 
     } else if(1==ClusterMod) { 
-      fClusterFinderList[senstype] = new PndSdsStripAdvClusterFinder(RadChannel, RadTime); 
+      fClusterFinderList[senstype] = new PndSdsStripAdvClusterFinder(fInBranchId, RadChannel, RadTime); 
     } 
 	}
+}
+
+TVector3 PndLmdStripClusterTask::AddMSErr(TVector3 hpos, TVector3 hposerr){
+  //  return hposerr;
+  double xerr,yerr;
+  double zhit = hpos.Z();
+  cout<<"0 xerr = "<<hposerr.X()<<" yerr = "<<hposerr.Y()<<endl;
+  if(zhit<1100.) return hposerr;
+  if(zhit>1100.){
+    xerr = TMath::Hypot(hposerr.X(),0.002);
+    yerr = TMath::Hypot(hposerr.Y(),0.002);
+    cout<<"1 xerr = "<<xerr<<" yerr = "<<yerr<<endl;
+    if(zhit>1110.){
+      xerr = TMath::Hypot(xerr,0.002);
+      yerr = TMath::Hypot(yerr,0.002);
+      cout<<"2 xerr = "<<xerr<<" yerr = "<<yerr<<endl;
+      if(zhit>1120.){
+	xerr = TMath::Hypot(xerr,0.002);
+	yerr = TMath::Hypot(yerr,0.002);
+	cout<<"3 xerr = "<<xerr<<" yerr = "<<yerr<<endl;
+      }
+      if(zhit>1130.){
+	cout<<"Something wrong! in PndLmdStripClusterTask::AddMSErr"<<endl;
+      }
+    }
+  }
+  TVector3 res(xerr,yerr,hposerr.Z());
+  return res;
+};
+
+Bool_t PndLmdStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantoperr, TVector2 meanbotPoint, Double_t meanboterr,
+                                       TVector3 &hitPos, TMatrixD &hitCov, Int_t &sensorID)
+{
+  // BACKMAPPING
+  // get the backmapped point
+  
+  TVector3 localpos;
+  TMatrixD locCov(3,3);
+  Double_t t, b;
+  
+  Double_t errZ = 2.*fGeoH->GetSensorDimensionsShortId(sensorID).Z()/TMath::Sqrt(12.0);
+  
+  TVector2 onsensorPoint = 
+  CalcLineCross(meantopPoint, fCurrentStripCalcTop->GetStripDirection(), meanbotPoint, fCurrentStripCalcBot->GetStripDirection() );
+  // here we assume the sensor system to be in the _Middle_ of the volume
+  localpos.SetXYZ( onsensorPoint.X(), onsensorPoint.Y(), 0.);
+  
+  // let's see if we're still on the sensor (cut combinations with noise off)
+  if(fabs(localpos.X()) > fabs(fCurrentDigiPar->GetTopAnchor().X())) return kFALSE;
+  if(fabs(localpos.Y()) > fabs(fCurrentDigiPar->GetTopAnchor().Y())) return kFALSE;
+  
+  //do the transformation from sensor to lab frame
+  hitPos = fGeoH->LocalToMasterShortId(localpos,sensorID);
+  
+  // calculate the errors corresponding to a skewed system!
+  t = meantoperr*fCurrentDigiPar->GetTopPitch()*cos(fCurrentDigiPar->GetOrient());
+  b = meanboterr*fCurrentDigiPar->GetBotPitch()*cos(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
+  locCov[0][0]=t*t+b*b;
+  t = meantoperr*fCurrentDigiPar->GetTopPitch()*sin(fCurrentDigiPar->GetOrient());
+  b = meanboterr*fCurrentDigiPar->GetBotPitch()*sin(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
+  locCov[1][1]=t*t+b*b;
+  locCov[2][2]=errZ*errZ;
+  
+  //do the transformation from sensor to lab frame
+  hitCov = fGeoH->LocalToMasterErrorsShortId(locCov,sensorID);
+  // TVector3 hitErr(sqrt(locCov[0][0]),sqrt(locCov[1][1]),sqrt(locCov[2][2]));
+  // TVector3 hitErrMSadd = AddMSErr(hitPos, hitErr);
+  // locCov[0][0] = TMath::Power(hitErrMSadd.X(),2);
+  // locCov[1][1] = TMath::Power(hitErrMSadd.Y(),2);
+  // locCov[2][2] = TMath::Power(hitErrMSadd.Z(),2);
+  return kTRUE;
 }
 
 
@@ -170,7 +241,8 @@ void PndLmdStripClusterTask::SetCalculators()
  	 
 //   //do the transformation from sensor to lab frame
 //   hitErr = fGeoH->LocalToMasterErrorsId(locDpos,detname.Data());
- 	
+//   TVector3 hitErrMSadd = AddMSErr(hitPos, hitErr);
+//   hitErr = hitErrMSadd;
 //   return kTRUE;
 // }
 

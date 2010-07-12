@@ -35,15 +35,15 @@ PndLmdIdealRecoTask::~PndLmdIdealRecoTask()
 
 void PndLmdIdealRecoTask::SetBranchNames(TString inBranchname, TString outHitBranchname, TString folderName)
 {
-  fBranchName = inBranchname;
-  fHitBranchName = outHitBranchname;
+  fInBranchName = inBranchname;
+  fOutBranchName = outHitBranchname;
   fFolderName = folderName;
 }
 
 void PndLmdIdealRecoTask::SetBranchNames()
 {
-  fBranchName = "LMDPoint";
-  fHitBranchName = "LMDHit";
+  fInBranchName = "LMDPoint";
+  fOutBranchName = "LMDHit";
   fFolderName = "PndLmd";
 }
 

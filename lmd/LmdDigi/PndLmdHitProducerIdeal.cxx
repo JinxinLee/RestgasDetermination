@@ -13,7 +13,7 @@ PndLmdHitProducerIdeal::PndLmdHitProducerIdeal()
 
 void PndLmdHitProducerIdeal::SetBranchNames(TString inBranchname, TString outBranchname, TString folderName)
 {
-  fBranchName = inBranchname;
+  fInBranchName = inBranchname;
   fOutBranchName = outBranchname;
   fFolderName = folderName;
 }
@@ -21,7 +21,7 @@ void PndLmdHitProducerIdeal::SetBranchNames(TString inBranchname, TString outBra
 
 void PndLmdHitProducerIdeal::SetBranchNames()
 {
-  fBranchName = "LMDPoint";
+  fInBranchName = "LMDPoint";
   fOutBranchName = "LMDHit";
   fFolderName = "PndLmd";
 }

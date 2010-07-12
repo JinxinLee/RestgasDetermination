@@ -26,15 +26,16 @@ class PndLmdStripClusterTask : public PndSdsStripClusterTask
   virtual void SetParContainers();
   virtual void SetCalculators();
   void SetClusterType(){fClusterType = kMVDClusterStrip;}
+  TVector3 AddMSErr(TVector3 hit,TVector3 hiterr);
+  Bool_t Backmap( TVector2 meantopPoint, Double_t meantoperr, TVector2 meanbotPoint, Double_t meanboterr,
+		  TVector3 &hitPos, TMatrixD &hitCov, Int_t &sensorID);
   // inline void SetyRotation(const Double_t inrot=0){fyRotation=inrot;};
 
   //  void Exec(Option_t* opt);
-  // Bool_t Backmap( TVector2 meantopPoint, Double_t toperr , TVector2 meanbotPoint, Double_t boterr, TVector3 &hitpos, TVector3 &hiterr, TString &detname);
-
   ClassDef(PndLmdStripClusterTask,2);
-
-private:
-
+  
+ private:
+  
   // Double_t fyRotation;
 
 };

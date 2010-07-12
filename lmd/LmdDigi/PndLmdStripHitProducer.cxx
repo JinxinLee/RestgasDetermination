@@ -31,14 +31,14 @@ PndLmdStripHitProducer::~PndLmdStripHitProducer()
 
 void PndLmdStripHitProducer::SetBranchNames(TString inBranchname, TString outBranchname, TString folderName)
 {
-  fBranchName = inBranchname;
+  fInBranchName = inBranchname;
   fOutBranchName = outBranchname;
   fFolderName = folderName;
 }
 
 void PndLmdStripHitProducer::SetBranchNames()
 {
-  fBranchName = "LMDPoint";
+  fInBranchName = "LMDPoint";
   fOutBranchName = "LMDStripDigis";
   fFolderName = "PndLmd";
 }
