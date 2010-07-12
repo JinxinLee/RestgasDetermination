@@ -9,24 +9,24 @@
 HDR = -I../ -I../Clusters/
 
 # Define targets
-TARGETS = PndLVQClassify PndLVQTrain LVQtrain LVQclassify
+TARGETS = PndLVQClassify.o PndLVQTrain.o LVQtrain.o LVQclassify.o
 
 all: $(TARGETS)
 
-PndLVQClassify: % : %.cpp
-	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
+PndLVQClassify.o:
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c PndLVQClassify.cpp
 	@echo "Done building:" $@
 
-PndLVQTrain:% : %.cpp
-	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
+PndLVQTrain.o:
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c PndLVQTrain.cpp
 	@echo "Done building:" $@
 
-LVQclassify: % : %.cpp PndLVQClassify
-	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
+LVQclassify.o: PndLVQClassify.o
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c LVQclassify.cpp
 	@echo "Done building:" $@
 
-LVQtrain: % : %.cpp PndLVQTrain
-	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
+LVQtrain.o: PndLVQTrain.o
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c LVQtrain.cpp
 	@echo "Done building:" $@
 
 clean:

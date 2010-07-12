@@ -27,7 +27,7 @@ class PndProjectedKNN: public PndGpidClassifier
   void GetMvaValues(std::vector<float> eventData,
 		    std::map<std::string, float>& result);
 
-  const std::string& Classify(std::vector<float> EvtData)const;
+  const std::string& Classify(std::vector<float> EvtData);
 
   //! Set params
   inline void SetEvtParam(const float scFact, const double weight)

@@ -9,17 +9,17 @@
 HDR = -I../
 
 # Define binary file name.#
-TARGETS = PndStdKnnClassify classifyStdKnn
+TARGETS = PndStdKnnClassify.o classifyStdKnn.o
 
 # Define targets
 all: $(TARGETS)
 
-PndStdKnnClassify: % : %.cpp
-	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
+PndStdKnnClassify.o:
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c PndStdKnnClassify.cpp
 	@echo "Done building:" $@
 
-classifyStdKnn: % : %.cpp PndStdKnnClassify
-	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
+classifyStdKnn.o:
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c classifyStdKnn.cpp
 	@echo "Done building:" $@
 
 clean:

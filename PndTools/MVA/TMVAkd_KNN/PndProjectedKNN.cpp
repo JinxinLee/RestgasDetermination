@@ -32,7 +32,7 @@ PndProjectedKNN::~PndProjectedKNN()
 }
 
 //!Classify
-const std::string& PndProjectedKNN::Classify(std::vector<float> EvtData)const
+const std::string& PndProjectedKNN::Classify(std::vector<float> EvtData)
 {
   EvtData.clear();
   std::string* re = new std::string("Not implemented yet.");

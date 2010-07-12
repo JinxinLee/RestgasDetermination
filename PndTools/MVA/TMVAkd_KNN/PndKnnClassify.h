@@ -47,7 +47,7 @@ class PndKnnClassify: public PndGpidClassifier
    *@param EvtData Input vector describing the pattern.
    *@return The name of the class to which the current pattern is assigned.
    */
-  const std::string& Classify(std::vector<float> EvtData)const;
+  const std::string& Classify(std::vector<float> EvtData);
 
   /**
    * Set the scalefactor and the event weight for KNN classifier.

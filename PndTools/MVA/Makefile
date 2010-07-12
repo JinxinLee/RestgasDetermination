@@ -30,39 +30,45 @@ LIBS += -lMLP -lXMLIO -fopenmp
 
 .EXPORT_ALL_VARIABLES:
 
-# .SUFFIXES: .cpp .o
-# .PHONY: all
+.SUFFIXES: .cpp .h .hpp .o
 
 # Define targets
-TRGTS  = PndMvaUtil PndMvaDataSet PndGpidClassifier PndMvaTrainer
-TRGTS +=  CreateRandomDataSet Classifiers examples
+TRGTS  = PndMvaUtil.o PndMvaDataSet.o PndGpidClassifier.o PndMvaTrainer.o
+TRGTS +=  CreateRandomDataSet.o Classifiers examples
 
+.PHONY: all
 all: $(TRGTS)
 	@echo ""
 	@echo "-> Please check the errors and warnings"
 	@echo "-> before running the application."
 	@echo ""
 
-PndGpidClassifier: % : %.cpp
-	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ./build/$@.o
+.PHONY: PndGpidClassifier
+PndGpidClassifier.o:
+	$(CXX) $(CCFLAGS) $(INCLUDE) -c PndGpidClassifier.cpp
 	@echo "Done building:" $@
 
-PndMvaDataSet: % : %.cpp
-	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ./build/$@.o
+.PHONY: PndMvaDataSet
+PndMvaDataSet.o:
+	$(CXX) $(CCFLAGS) $(INCLUDE) -c PndMvaDataSet.cpp
 	@echo "Done building:" $@
 
-PndMvaUtil:  % : %.cpp
-	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ./build/$@.o
+.PHONY: PndMvaUtil
+PndMvaUtil.o:
+	$(CXX) $(CCFLAGS) $(INCLUDE) -c PndMvaUtil.cpp
 	@echo "Done building:" $@
 
-PndMvaTrainer: % : %.cpp
-	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ./build/$@.o
+.PHONY: PndMvaTrainer
+PndMvaTrainer.o:
+	$(CXX) $(CCFLAGS) $(INCLUDE) -c PndMvaTrainer.cpp
 	@echo "Done building:" $@
 
-CreateRandomDataSet: % : %.cpp
-	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ./build/$@.o
+.PHONY: CreateRandomDataSet
+CreateRandomDataSet.o:
+	$(CXX) $(CCFLAGS) $(INCLUDE) -c CreateRandomDataSet.cpp
 	@echo "Done building:" $@
 
+.PHONY:Classifiers
 Classifiers:
 	$(MAKE) -C KNN;
 	$(MAKE) -C LVQ1;
@@ -70,28 +76,29 @@ Classifiers:
 	$(MAKE) -C Clusters;
 #	$(MAKE) -C TMVA_PDE_FOAM;
 
+.PHONY: examples
 examples: PndMvaUtil PndMvaDataSet PndGpidClassifier Classifiers
 	@echo ""
 	@echo "       =++++++ Linking example applications. ++++++="
 	@echo ""
 
-	$(CXX) $(LIBS) build/classifyStdKnn.o  build/PndStdKnnClassify.o build/PndGpidClassifier.o \
-	build/PndMvaUtil.o build/PndMvaDataSet.o -o build/classifyStdKnn
+	$(CXX) $(LIBS) KNN/classifyStdKnn.o  KNN/PndStdKnnClassify.o PndGpidClassifier.o \
+	PndMvaUtil.o PndMvaDataSet.o -o build/classifyStdKnn
 
-	$(CXX) $(LIBS) build/LVQclassify.o build/PndLVQClassify.o build/PndGpidClassifier.o \
-	build/PndMvaUtil.o build/PndMvaDataSet.o -o build/LVQclassify
+	$(CXX) $(LIBS) TMVAkd_KNN/KnnClassify.o TMVAkd_KNN/PndKnnClassify.o PndGpidClassifier.o \
+	PndMvaUtil.o PndMvaDataSet.o -o build/KNNclassify
 
-	$(CXX) $(LIBS) build/KnnClassify.o build/PndKnnClassify.o build/PndGpidClassifier.o \
-	build/PndMvaUtil.o build/PndMvaDataSet.o -o build/KNNclassify
+	$(CXX) $(LIBS) TMVAkd_KNN/Prclassify.o TMVAkd_KNN/PndProjectedKNN.o TMVAkd_KNN/PndKnnClassify.o \
+	PndGpidClassifier.o PndMvaUtil.o PndMvaDataSet.o -o build/PrKNNclassify
 
-	$(CXX) $(LIBS) build/Prclassify.o build/PndProjectedKNN.o build/PndKnnClassify.o \
-	build/PndGpidClassifier.o build/PndMvaUtil.o build/PndMvaDataSet.o -o build/PrKNNclassify
+	$(CXX) $(LIBS) LVQ1/LVQclassify.o LVQ1/PndLVQClassify.o PndGpidClassifier.o \
+	PndMvaUtil.o PndMvaDataSet.o -o build/LVQclassify
 
-	$(CXX) $(LIBS) build/LVQtrain.o build/PndMvaTrainer.o build/PndMvaUtil.o build/PndLVQTrain.o \
-	build/PndMvaDataSet.o build/PndMvaCluster.o -o build/LVQtrain
+	$(CXX) $(LIBS) LVQ1/LVQtrain.o PndMvaTrainer.o PndMvaUtil.o LVQ1/PndLVQTrain.o \
+	PndMvaDataSet.o Clusters/PndMvaCluster.o -o build/LVQtrain
 
-	$(CXX) $(LIBS) build/KnnTrain.o build/PndMvaTrainer.o build/PndMvaUtil.o build/PndKnnTrain.o \
-	build/PndMvaDataSet.o -o build/KNNTrain
+	$(CXX) $(LIBS) TMVAkd_KNN/KnnTrain.o PndMvaTrainer.o PndMvaUtil.o TMVAkd_KNN/PndKnnTrain.o \
+	PndMvaDataSet.o -o build/KNNTrain
 
 #	$(CXX) $(LIBS) build/FoamTrainTest.o build/PndMvaTrainer.o build/PndMvaUtil.o \
 #	build/PndPDEFoamTrain.o build/PndMvaDataSet.o -o build/FoamTrainTest
@@ -99,10 +106,12 @@ examples: PndMvaUtil PndMvaDataSet PndGpidClassifier Classifiers
 #	$(CXX) $(LIBS) build/FoamClassifyTest.o build/PndPDEFoamClassify.o build/PndGpidClassifier.o \
 #	build/PndMvaDataSet.o build/PndMvaUtil.o -o build/FoamClassifyTest
 
-	$(CXX) $(LIBS) build/CreateRandomDataSet.o -o build/CreateRandomDataSet
+	$(CXX) $(LIBS) CreateRandomDataSet.o -o build/CreateRandomDataSet
 
-	$(CXX) $(LIBS) build/PndMvaCluster.o build/exampleCluster.o build/PndMvaDataSet.o \
-	build/PndMvaUtil.o -o build/exampleCluster
+	$(CXX) $(LIBS) Clusters/PndMvaCluster.o Clusters/exampleCluster.o PndMvaDataSet.o \
+	PndMvaUtil.o -o build/exampleCluster
+
+.PHONY: clean
 clean:
 	rm -f *~ *.o *.root build/*
 	cd KNN ; $(MAKE) clean

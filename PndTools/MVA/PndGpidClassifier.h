@@ -53,7 +53,7 @@ class PndGpidClassifier
    *@param EvtData: Event, to be classified.
    *@return Name of the class with the best MVA value.
    */
-  virtual const std::string& Classify( std::vector<float> EvtData )const = 0;
+  virtual const std::string& Classify( std::vector<float> EvtData ) = 0;
 
  protected:
   //! Data set. Holds event Weights

@@ -34,12 +34,30 @@ PndLVQClassify::~PndLVQClassify()
  *@param EvtData Input vector describing the pattern.
  *@return The name of the class to which the current pattern is assigned.
  */
-const std::string& PndLVQClassify::Classify(std::vector<float> EvtData)const
+const std::string& PndLVQClassify::Classify(std::vector<float> EvtData)
 {
-  EvtData.clear();
-  std::string* re = new std::string("Not implemented Yet");
-  std::cerr << "Not implemented Yet" << std::endl;
-  return *re;
+
+  std::map<std::string, float> TMPres;
+  GetMvaValues(EvtData, TMPres);
+  // Fetch labels (classes)
+  const vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+
+  // Temporary variables for the winning class name and density.
+  std::string CurWin;
+  float Curprob = std::numeric_limits <float>::max();
+
+  for(size_t i = 0; i < classes.size(); i++){
+    std::string curName = classes[i].Name;
+    
+    if( TMPres[curName] < Curprob){
+      Curprob = TMPres[curName];
+      CurWin  = curName;
+    }
+  }
+
+  // Create and return the result object (string).
+  std::string* outPut = new std::string(CurWin);
+  return *outPut;
 }
 
 /**

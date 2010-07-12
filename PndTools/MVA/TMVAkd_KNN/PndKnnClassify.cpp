@@ -80,7 +80,7 @@ void PndKnnClassify::InitKNN()
  *@param EvtData Input vector describing the pattern.
  *@return The name of the class to which the current pattern is assigned.
  */
-const std::string& PndKnnClassify::Classify(std::vector<float> EvtData)const
+const std::string& PndKnnClassify::Classify(std::vector<float> EvtData)
 {
   EvtData.clear();
   std::string* re = new std::string("Not implemented yet.");
