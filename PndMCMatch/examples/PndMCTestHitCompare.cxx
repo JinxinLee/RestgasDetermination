@@ -82,6 +82,7 @@ void PndMCTestHitCompare::Exec(Option_t* opt)
 
 	//PndMCResult myResult = fMCMatch->GetMCInfo(kMVDHitsStrip, kMVDPoint);
 	//std::cout << myResult;
+	FairRootManager* ioman = FairRootManager::Instance();
 	for (int i = 0; i < fStripHit->GetEntries(); i++){
 		//PndMCEntry myLinks = myResult.GetMCLink(i);
 		PndSdsHit* myHit = (PndSdsHit*)fStripHit->At(i);
@@ -90,7 +91,7 @@ void PndMCTestHitCompare::Exec(Option_t* opt)
 		std::cout << *myHit;
 
 		for (int j = 0; j < myLinks.GetNLinks(); j++){
-			if (myLinks.GetLink(j).GetType() == kMVDPoint){
+			if (myLinks.GetLink(j).GetType() == ioman->GetBranchId("MVDPoint")){
 				std::cout << "MCPoint " << myLinks.GetLink(j).GetIndex() << std::endl;
 				PndSdsMCPoint* myMCPoint = (PndSdsMCPoint*)fMCPoint->At(myLinks.GetLink(j).GetIndex());
 				//myMCTrack->Print(myLinks.GetFairLink(j).GetIndex());

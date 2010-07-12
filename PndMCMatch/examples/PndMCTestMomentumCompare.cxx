@@ -24,7 +24,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndMCTestMomentumCompare::PndMCTestMomentumCompare()
-	: FairTask("Creates PndMC test")
+	: FairTask("Creates PndMC test"), fEventNr(0)
 {
 }
 // -------------------------------------------------------------------------
@@ -53,7 +53,7 @@ InitStatus PndMCTestMomentumCompare::Init()
 
   	fMCMatch = (PndMCMatch*)ioman->GetObject("MCMatch");
 
-  	fTrack = (TClonesArray*)ioman->GetObject("LheGenTrack");
+  	fTrack = (TClonesArray*)ioman->GetObject("MVDRiemannTrackCand");
   	fMCTrack = (TClonesArray*)ioman->GetObject("MCTrack");
 
 	std::cout << "-I- PndMCTestMomentumCompare::Init: Initialization successfull" << std::endl;
@@ -77,21 +77,27 @@ void PndMCTestMomentumCompare::SetParContainers()
 void PndMCTestMomentumCompare::Exec(Option_t* opt)
 {
 	//fMCMatch->CreateArtificialStage(kMCTrack, "", "");
-
-	PndMCResult myResult = fMCMatch->GetMCInfo(kTrack, kMCTrack);
+	FairRootManager* ioman = FairRootManager::Instance();
+	PndMCResult myResult = fMCMatch->GetMCInfo("MVDRiemannTrackCand", "MCTrack");
 	std::cout << myResult;
+
+	std::cout << "----- Event " << fEventNr << " ------" << std::endl;
+	fEventNr++;
 	for (int i = 0; i < myResult.GetNEntries(); i++){
 		PndMCEntry myLinks = myResult.GetMCLink(i);
-		PndTrack* myTrack = (PndTrack*)fTrack->At(i);
+		PndTrackCand* myTrack = (PndTrackCand*)fTrack->At(i);
 		std::cout << "TrackMatch for Track " << i << std::endl;
-		std::cout << "P: " << myTrack->GetParamFirst().GetSDMomentum().Mag() << std::endl;
+		std::cout << "P: " << myTrack->getPosSeed().Mag() << std::endl;
 		std::cout << "Belongs to: " << std::endl;
 		for (int j = 0; j < myLinks.GetNLinks(); j++){
-			if (myLinks.GetLink(j).GetType() == kMCTrack){
+			if (myLinks.GetLink(j).GetType() == ioman->GetBranchId("MCTrack")){
 				std::cout << "MCTrack " << myLinks.GetLink(j).GetIndex() << std::endl;
-				PndMCTrack* myMCTrack = (PndMCTrack*)fMCTrack->At(myLinks.GetLink(j).GetIndex());
-				std::cout << "P: " << myMCTrack->GetMomentum().Mag() << " PID: " << myMCTrack->GetPdgCode() << std::endl;
-				std::cout << "--------------------------------" << std::endl;
+				if (myLinks.GetLink(j).GetIndex() < fMCTrack->GetEntries()){
+					PndMCTrack* myMCTrack = (PndMCTrack*)fMCTrack->At(myLinks.GetLink(j).GetIndex());
+					std::cout << "P: " << myMCTrack->GetMomentum().Mag() << " PID: " << myMCTrack->GetPdgCode() << std::endl;
+					std::cout << "--------------------------------" << std::endl;
+				}
+				else std::cout << "Index out of bounds: Index : " << myLinks.GetLink(j).GetIndex() << " Bounds: " << fMCTrack->GetEntries() << std::endl;
 			}
 		}
 		std::cout << std::endl;

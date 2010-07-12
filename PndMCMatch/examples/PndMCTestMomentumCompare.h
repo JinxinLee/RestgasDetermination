@@ -53,6 +53,7 @@ class PndMCTestMomentumCompare : public FairTask
   PndMCMatch* fMCMatch;
   TClonesArray* fTrack;
   TClonesArray* fMCTrack;
+  Int_t fEventNr;
 
   void Register();
 
