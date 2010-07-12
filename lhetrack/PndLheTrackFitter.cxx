@@ -285,7 +285,7 @@ void PndLheTrackFitter::Info4Fit(PndLheCandidate *track, Int_t idx) {
        trackCand->Sort();
        PndTrack* pndTrack = new(pndtracks[size]) PndTrack(*firstPar, *lastPar, *trackCand);
        pndTrack->SetRefIndex(idx);
-       pndTrack->SetLink(FairLink(kLheCand, idx));
+       pndTrack->SetLink(FairLink("LheCandidate", idx));
        PndTrackID* pndTrackId = new(pndtrackids[size]) PndTrackID(size ,trackID, multID);
      }
 }
