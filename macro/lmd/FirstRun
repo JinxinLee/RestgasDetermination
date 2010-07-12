@@ -1,0 +1,5 @@
+#!/bin/bash
+mkdir geo
+root -l -q create_lumi.C
+mkdir tmpOutput
+exit
