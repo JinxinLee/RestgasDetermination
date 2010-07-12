@@ -262,7 +262,7 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
       }
       if ( mcTrackIndex != iMCTrack ) continue;
 
-      gemTrackCand->AddHit(kGemHit,iHit,gemHit->GetPosition().Mag());
+      gemTrackCand->AddHit("GEMHit",iHit,gemHit->GetPosition().Mag());
 
       if(fVerbose > 3) {
 	cout << "GEM hit " << iHit << " from GEM point "

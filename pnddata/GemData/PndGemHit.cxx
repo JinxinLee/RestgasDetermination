@@ -33,7 +33,7 @@ PndGemHit::PndGemHit(Int_t detID, TVector3& pos, TVector3& dpos,
   fDr = -1;
   fDp = -1;
 
-  AddLink(FairLink(kGemPoint, index)); 
+  AddLink(FairLink("GEMPoint", index));
 }
 // -------------------------------------------------------------------------
 
@@ -50,8 +50,8 @@ PndGemHit::PndGemHit(Int_t detID, TVector3& pos, TVector3& dpos,
   fDr = dr;
   fDp = dp;
 
-  AddLink(FairLink(kGemDigi, digi1)); 
-  AddLink(FairLink(kGemDigi, digi2)); 
+  AddLink(FairLink("GEMDigi", digi1));
+  AddLink(FairLink("GEMDigi", digi2));
 }
 // -------------------------------------------------------------------------
 

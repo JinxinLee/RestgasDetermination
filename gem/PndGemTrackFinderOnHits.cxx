@@ -351,7 +351,7 @@ Int_t PndGemTrackFinderOnHits::CreateTracks(TClonesArray* hitArray, TClonesArray
     for ( Int_t ih = 0 ; ih < kNofStatDbl ; ih++ ) {
       if ( hitIndices[itr][ih] == -1 ) continue;
       gemHit = (PndGemHit*)hitArray->At(hitIndices[itr][ih]);
-      gemTrackCand->AddHit(kGemHit,hitIndices[itr][ih],gemHit->GetPosition().Mag());
+      gemTrackCand->AddHit("GEMHit",hitIndices[itr][ih],gemHit->GetPosition().Mag());
     }
     
     gemTrackCand->Sort();
@@ -388,7 +388,7 @@ Int_t PndGemTrackFinderOnHits::CreateTracks(TClonesArray* hitArray, TClonesArray
     /*    PndTrack* checkTrack = (PndTrack*) trackArray->At(nofCreatedTracks);
     for ( Int_t ih = 0 ; ih < kNofStatDbl ; ih++ ) {
       if ( hitIndices[itr][ih] == -1 ) continue;
-      checkTrack->AddLink(FairLink(kGemHit, hitIndices[itr][ih]));
+      checkTrack->AddLink(FairLink("GemHit", hitIndices[itr][ih]));
       }*/
 
 //     cout << "now q = " << checkTrack->GetParamFirst().GetQ() << endl;
