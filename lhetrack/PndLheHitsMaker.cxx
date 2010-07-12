@@ -449,7 +449,7 @@ void PndLheHitsMaker::GetMvdPoints() {
       hit->SetDetectorID(kMVDPoint);
       hit->SetTrackID(point->GetTrackID());
       hit->SetRefIndex(j);
-      hit->SetLink(FairLink(kMVDPoint, j));
+      hit->SetLink(FairLink("MVDPoint", j));
       
       if (fVerbose)  hit->Print();
     } // end of MVDPoint loop  
@@ -492,7 +492,7 @@ void PndLheHitsMaker::GetMvdHits() {
 	  hit->SetTrackID(myPoint->GetTrackID());
 	}
       hit->SetRefIndex(j2);
-      hit->SetLink(FairLink(kMVDHitsPixel, j2));
+      hit->SetLink(FairLink("MVDHitsPixel", j2));
       if (fVerbose)  hit->Print();
     } // end of MVDHitsPixel loop  
   
@@ -530,7 +530,7 @@ void PndLheHitsMaker::GetMvdHits() {
 	  hit->SetTrackID(myPoint->GetTrackID());
 	}
       hit->SetRefIndex(j);
-      hit->SetLink(FairLink(kMVDHitsStrip, j));
+      hit->SetLink(FairLink("MVDHitsStrip", j));
       if (fVerbose)  hit->Print();
     } // end of MVDHitsStrip loop  
 
@@ -588,7 +588,7 @@ void PndLheHitsMaker::GetTpcPoints() {
     hit->SetDetectorID(kTpcPoint);
     hit->SetTrackID(point->GetTrackID());
     hit->SetRefIndex(j);
-    hit->SetLink(FairLink(kTpcPoint, j));
+    hit->SetLink(FairLink("PndTpcPoint", j));
     if (fVerbose)  hit->Print();
   }  // end of TpcPoints loop
   
@@ -622,7 +622,7 @@ void PndLheHitsMaker::GetTpcClusters() {
     hit->SetDetectorID(kTpcCluster);
     hit->SetTrackID(clu->mcId().DominantID().mctrackID());
     hit->SetRefIndex(j);
-    hit->SetLink(FairLink(kTpcCluster, j));
+    hit->SetLink(FairLink("PndTpcCluster", j));
     if (fVerbose)  hit->Print();
     
   }  // end of TpcCluster loop  
@@ -679,7 +679,7 @@ void PndLheHitsMaker::GetSttPoints() {
     hit->SetDetectorID(kSttPoint);
     hit->SetTrackID(point->GetTrackID());
     hit->SetRefIndex(j);
-    hit->SetLink(FairLink(kSttPoint, j));
+    hit->SetLink(FairLink("STTPoint", j));
     if (fVerbose)  hit->Print();
   }  // end of SttPoints loop
   
@@ -714,7 +714,7 @@ void PndLheHitsMaker::GetSttHit() {
     hit->SetDetectorID(kSttHit);
     hit->SetTrackID(hit->GetRefIndex());
     hit->SetRefIndex(j);
-    hit->SetLink(FairLink(kSttHit, j));
+    hit->SetLink(FairLink("STTHit", j));
     
     if (fVerbose)  hit->Print();
     
@@ -766,7 +766,7 @@ void PndLheHitsMaker::GetSttHelixHit() {
 		hit->SetTrackID(myPoint->GetTrackID());
     }
     hit->SetRefIndex(j);
-    hit->SetLink(FairLink(kSttHelixHit, j));
+    hit->SetLink(FairLink("STTHelixHit", j));
 
     if (fVerbose)  hit->Print();
   }  // end of SttHelixHit loop  
@@ -817,7 +817,7 @@ void PndLheHitsMaker::GetSttPRHelixHit() {
 		hit->SetTrackID(myPoint->GetTrackID());
     }
     hit->SetRefIndex(j);
-    hit->SetLink(FairLink(kSttHelixHit, j));
+    hit->SetLink(FairLink("STTHelixHit", j));
 
     if (fVerbose)  hit->Print();
   }  // end of SttHelixHit loop  
@@ -853,7 +853,7 @@ void PndLheHitsMaker::GetSttHelixHitMC() {
     hit->SetTrackID(sttPoint->GetTrackID());
     
     hit->SetRefIndex(j);
-    hit->SetLink(FairLink(kSttHelixHit, j));
+    hit->SetLink(FairLink("STTHelixHit", j));
 
     if (fVerbose)  hit->Print();
   }  // end of SttHelixHitMC loop  
@@ -888,7 +888,7 @@ void PndLheHitsMaker::GetEmcClusters() {
     hit->SetTrackID(-1);
     hit->SetRefIndex(j);
 
-    hit->SetLink(FairLink(kEmcCluster, j));
+    hit->SetLink(FairLink("EmcCluster", j));
     if (fVerbose)  hit->Print();
     
   }  // end of EmcCluster loop  
@@ -924,7 +924,7 @@ void PndLheHitsMaker::GetEmcBumps() {
 
     hit->SetRefIndex(j);
 
-    hit->SetLink(FairLink(kEmcBump, j));
+    hit->SetLink(FairLink("EmcBump", j));
     
     if (fVerbose)  hit->Print();
     
@@ -984,7 +984,7 @@ void PndLheHitsMaker::GetGemPoints() {
     hit->SetTrackID(point->GetTrackID());
     hit->SetRefIndex(j);
 
-    hit->SetLink(FairLink(kGemPoint, j));
+    hit->SetLink(FairLink("GEMPoint", j));
     
     if (fVerbose)  hit->Print();
   }  // end of TpcPoints loop
@@ -1024,7 +1024,7 @@ void PndLheHitsMaker::GetGemHits() {
 		hit->SetTrackID(myPoint->GetTrackID());
     }
     hit->SetRefIndex(j);
-    hit->SetLink(FairLink(kGemHit, j));
+    hit->SetLink(FairLink("GEMHit", j));
     
     if (fVerbose)  hit->Print();
     
