@@ -379,7 +379,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
 	  }
 	}
     pidCand->SetTrackIndex(i);
-    pidCand->AddLink(FairLink(kTrack, i));
+    pidCand->AddLink(FairLink("PndTrack", i));
     if (!GetTrackInfo(track, pidCand)) continue;
     GetMvdInfo(track, pidCand); 
     //GetTpcInfo(track, pidCand); 
@@ -397,18 +397,18 @@ void PndPidCorrelator::ConstructChargedCandidate() {
 void PndPidCorrelator::ConstructNeutralCandidate() {
   //-
   fPidNeutralCand->Delete();
-  Int_t emcType = -1;
+  TString emcType;
   
   Int_t nBumps;
   if (fEmcMode==2) 
     {
       nBumps = fEmcCluster->GetEntriesFast();
-      emcType = kEmcCluster;
+      emcType = "EmcCluster";
     }
   else
     {
       nBumps = fEmcBump->GetEntriesFast();
-      emcType = kEmcBump;
+      emcType = "EmcBump";
     }
   
   for (Int_t i = 0; i < nBumps; i++)
@@ -444,7 +444,7 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
       pidCand->SetEmcModule(bump->GetModule());
       pidCand->SetEmcNumberOfCrystals(bump->NumberOfDigis());
 
-      pidCand->SetLink(FairLink((fDetectorType)emcType, i));
+      pidCand->SetLink(FairLink(emcType, i));
 
       std::vector<Int_t> mclist = clu->GetMcList();
       if (mclist.size()>0)
