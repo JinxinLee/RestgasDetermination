@@ -21,7 +21,8 @@ void runLumi1Digi(const int nEvents=10, const int startEvent=0, TString storePat
   parFile += ".root";
 
   // Parameter file
-  TString digiparFile = "digipar/lumi";
+  // TString digiparFile = "digipar/lumi";
+  TString digiparFile = "lumi";
   switch(pitch){
     case 0:{
       digiparFile += "50";

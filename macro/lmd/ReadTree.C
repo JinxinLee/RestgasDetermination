@@ -19,7 +19,7 @@ using namespace std;
 
 void ReadTree::Loop()
 {
-  TString in="myOutput/ThetaRes.root";
+  TString in="tmpOutput/ThetaRes.root";
   fout = new TFile(in,"RECREATE");
   cout<<in<<endl;
   //     This is the loop skeleton where:

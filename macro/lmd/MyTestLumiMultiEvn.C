@@ -113,8 +113,8 @@ void MyTestLumiMultiEvn(const int nEvents=2, const int startEvent=0, TString sto
   TH1 *hResY = new TH1F("hResY", "y^{rec}_{trk} - y_{MC};#deltay, cm", 2e2,-1e-2,1e-2);
   TH1 *hResRecX = new TH1F("hResRecX", "x^{rec}_{trk} - x^{rec}_{hit};#deltax, cm", 2e2,-1e-2,1e-2);
   TH1 *hResRecY = new TH1F("hResRecY", "y^{rec}_{trk} - y^{rec}_{hit};#deltay, cm", 2e2,-1e-2,1e-2);
-  TH1 *hPullX = new TH1F("hPullX", "x_{trk}-x^{rec}_{hit}/#sigma_{x}", 2e2,-1e1,1e1);
-  TH1 *hPullY = new TH1F("hPullY", "y_{trk}-y^{rec}_{hit}/#sigma_{y}", 2e2,-1e1,1e1);
+  TH1 *hPullX = new TH1F("hPullX", "x^{rec}_{trk}-x^{rec}_{hit}/#sigma_{x}", 2e2,-1e1,1e1);
+  TH1 *hPullY = new TH1F("hPullY", "y^{rec}_{trk}-y^{rec}_{hit}/#sigma_{y}", 2e2,-1e1,1e1);
  
  
   // TH1 *hhitzMC0good = new TH1F("hhitzMC0GOOD", "Hit_{z}^{MC}0", 1e2,1098,1101);

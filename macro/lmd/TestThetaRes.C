@@ -12,7 +12,7 @@ void TestThetaRes(){
 
   ReadTree *ktree = new ReadTree();
   ktree->Loop();
-  TFile *f = new TFile("myOutput/ThetaRes.root","READ");
+  TFile *f = new TFile("tmpOutput/ThetaRes.root","READ");
   // TH2F *fThetaRec;
   // TH1F *fThetaRecMean;
   // TH1F *fThetaRecSigma;
@@ -238,7 +238,7 @@ void TestThetaRes(){
   fsPxX->Draw();
   // fsPxX->SetDrawOption("color");
   // ---- Output file ----------------------------------------------------------------
-  TFile *fPlots = new TFile("myOutput/Plots.root","RECREATE");
+  TFile *fPlots = new TFile("tmpOutput/Plots.root","RECREATE");
   // ---------------------------------------------------------------------------------
   //  c1->Write(); 
   // c2->Write();  
