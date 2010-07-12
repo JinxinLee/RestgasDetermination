@@ -1,0 +1,68 @@
+#################################################################
+# Digitization parameters for LMD
+# Format:
+# parameter_name:parameter_type(i-integer, d-double) parameter_value
+# PndSSDDigiPar
+# Description of parameters:
+#################################################################
+#################################################################
+# Digitization parameters for RECTANGULAR LMD strip sensors
+#################################################################
+# threshold set to 5*sigmaNoise (noise rate ~ DPM signals rate)
+[MVDStripDigiParRect]
+top_pitch:Double_t 0.005
+bot_pitch:Double_t 0.005
+orient:Double_t 1.570796327
+skew:Double_t -1.570796327
+top_anchor_x:Double_t -10.00
+top_anchor_y:Double_t 10.00
+bot_anchor_x:Double_t -10.00
+bot_anchor_y:Double_t 10.00
+nr_fe_channels:Int_t 1024
+nr_fe_top:Int_t 4
+nr_fe_bottom:Int_t 4
+charge_threshold:Double_t 2500
+charge_noise:Double_t 1000
+sens_Type:Text_t Rect
+fe_Type:Text_t APV25
+cluster_mod:Int_t 0
+cluster_radchan:Int_t 2
+cluster_radtime:Int_t 0
+cluster_corrchargecut:Double_t 2500.
+#################################################################
+# Digitization parameters for TRAPEZOID LMD strip sensors
+#################################################################
+# threshold set to 5*sigmaNoise (noise rate ~ DPM signals rate)
+[MVDStripDigiParTrap]
+top_pitch:Double_t 0.0073
+bot_pitch:Double_t 0.0073
+orient:Double_t 1.439896633
+skew:Double_t 0.261799388
+top_anchor_x:Double_t -1.944
+top_anchor_y:Double_t 3.28861
+bot_anchor_x:Double_t -1.944
+bot_anchor_y:Double_t 3.28861
+nr_fe_channels:Int_t 128
+nr_fe_top:Int_t 4
+nr_fe_bottom:Int_t 4
+charge_threshold:Double_t 2500
+charge_noise:Double_t 1000
+sens_Type:Text_t Trap
+fe_Type:Text_t APV25
+cluster_mod:Int_t 0
+cluster_radchan:Int_t 2
+cluster_radtime:Int_t 0
+cluster_corrchargecut:Double_t 2500.
+#################################################################
+# Digitization Parameters for SSD Pixel
+#################################################################
+# threshold set to 6 sigma (noise rate ~ DPM signals rate)
+[MVDPixelDigiPar]
+dimX:Double_t 0.01
+dimY:Double_t 0.01
+threshold:Double_t 1100
+noise:Double_t 200
+FECols:Int_t 104
+FERows:Int_t 104
+ClustRad:Double_t 1.8
+#################################################################
