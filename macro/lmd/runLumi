@@ -1,0 +1,12 @@
+#!/bin/bash
+time root -l -b -q 'runLumi0SimBox.C(100)'
+time root -l -b -q 'runLumi1Digi.C(100)'
+time root -l -b -q 'runLumi2Reco.C(100)'
+time root -l -b -q 'HitsInfo.C(100)'
+time root -l -b -q 'runLumi3Finder.C(100)'
+time root -l -b -q 'runLumi4Fitter.C(100)'
+time root -l -b -q 'TracksParamsInfo.C(100)'
+time root -l -b -q 'runLumi5Geane.C(100)'
+time root -l -b -q 'MyTestLumiMultiEvn.C(100)'
+#root -l -b -q 'MyTestLumi.C(2)'
+exit
