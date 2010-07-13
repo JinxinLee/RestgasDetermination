@@ -44,11 +44,13 @@ PndStdKnnClassify::~PndStdKnnClassify()
  */
 const std::string& PndStdKnnClassify::Classify(std::vector<float> EvtData)
 {
+  // Zero number of neighbors.
   if( m_Knn == 0 ){
     std::cerr << "\t<ERROR> Number neighbours cannot be zero."
 	      << std::endl;
     assert (m_Knn != 0);
   }
+  
   // Get the Mva-value.
   std::map<std::string, float> TMPres;
   GetMvaValues(EvtData, TMPres);
@@ -56,10 +58,12 @@ const std::string& PndStdKnnClassify::Classify(std::vector<float> EvtData)
   // Densities are estimated. Report the winner.
   // Get labels.
   const vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+
   // Temporary variables for the winning class name and density.
   std::string CurWin;
   float Curprob = std::numeric_limits <float>::min();
   
+  // Find the maximum Mva Val.
   for(size_t i = 0; i < classes.size(); i++){
     std::string curName = classes[i].Name;
     if( TMPres[curName] > Curprob){

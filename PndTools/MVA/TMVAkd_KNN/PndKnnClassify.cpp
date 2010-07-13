@@ -55,6 +55,7 @@ void PndKnnClassify::InitKNN()
 
   // Get variables.
   const vector<PndMvaVariable>& vars = m_dataSets.GetVars();
+
   // Get examples.
   const vector<pair<string, vector<float>*> >& events = m_dataSets.GetData();
   
@@ -72,7 +73,7 @@ void PndKnnClassify::InitKNN()
   m_module->Fill( static_cast<unsigned int> (vars.size()),
   		  static_cast<unsigned int> (100.0 * m_ScaleFact),
   		  "");//"metric"
-  cout << "<INFO> Done initializing." << endl;
+  std::cout << "<INFO> Done initializing." << std::endl;
 }
 
 /**
@@ -82,10 +83,36 @@ void PndKnnClassify::InitKNN()
  */
 const std::string& PndKnnClassify::Classify(std::vector<float> EvtData)
 {
-  EvtData.clear();
-  std::string* re = new std::string("Not implemented yet.");
-  std::cout << "Not implemented yet."<<std::endl;
-  return *re;
+  // Zero number of neighbors.
+  if( m_knn == 0 ){
+    std::cerr << "\t<ERROR> Number neighbours cannot be zero."
+              << std::endl;
+    assert (m_knn != 0);
+  }
+  
+  // Get the Mva-value.
+  std::map<std::string, float> TMPres;
+  GetMvaValues(EvtData, TMPres);
+  
+  // Densities are estimated. Report the winner.
+  // Get labels.
+  const vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+  
+  // Temporary variables for the winning class name and density.
+  std::string CurWin;
+  float Curprob = std::numeric_limits <float>::min();
+  
+  // Find the maximum Mva Val.
+  for(size_t i = 0; i < classes.size(); i++){
+    std::string curName = classes[i].Name;
+    if( TMPres[curName] > Curprob){
+      Curprob = TMPres[curName];
+      CurWin  = curName;
+    }
+  }
+  // Create and return the result object (string).
+  std::string* outPut = new std::string(CurWin);
+  return *outPut;
 }
 
 /**
@@ -93,8 +120,8 @@ const std::string& PndKnnClassify::Classify(std::vector<float> EvtData)
  * @param eventData: Feature vector of the current event.
  * @param result: Holds the normalized results of classification
  */
-void PndKnnClassify::GetMvaValues(vector<float> eventData, 
-				  map<string, float>& result)
+void PndKnnClassify::GetMvaValues(std::vector<float> eventData, 
+				  std::map<string, float>& result)
 {
   if(m_knn == 0)
   {

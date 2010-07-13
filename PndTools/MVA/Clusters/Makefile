@@ -9,16 +9,16 @@
 HDR = -I../
 
 # Define targets
-TARGETS = exampleCluster.o
+TARGETS = exampleCluster
 
 all: $(TARGETS)
 
-PndMvaCluster.o:
-	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c PndMvaCluster.cpp
+PndMvaCluster:% : %.cpp
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
 	@echo "Done building:" $@
 
-exampleCluster.o: PndMvaCluster.o
-	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c exampleCluster.cpp
+exampleCluster: % : %.cpp PndMvaCluster
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
 	@echo "Done building:" $@
 
 clean:

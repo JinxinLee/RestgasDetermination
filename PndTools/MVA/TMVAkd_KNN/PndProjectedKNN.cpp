@@ -31,19 +31,50 @@ PndProjectedKNN::~PndProjectedKNN()
   destroy();
 }
 
-//!Classify
+/**
+ * Given a feature vector describing the pattern. Classifies the pattern.
+ *@param EvtData Input vector describing the pattern.
+ *@return The name of the class to which the current pattern is assigned.
+ */
 const std::string& PndProjectedKNN::Classify(std::vector<float> EvtData)
 {
-  EvtData.clear();
-  std::string* re = new std::string("Not implemented yet.");
-  std::cout << "Not implemented yet." << std::endl;
-  return *re;
+  // Zero number of neighbors.
+  if( m_knn == 0 ){
+    std::cerr << "\t<ERROR> Number neighbours cannot be zero."
+              << std::endl;
+    assert (m_knn != 0);
+  }
+  
+  // Get the Mva-value.
+  std::map<std::string, float> TMPres;
+  GetMvaValues(EvtData, TMPres);
+  
+  // Densities are estimated. Report the winner.
+  // Get labels.
+  const vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+  
+  // Temporary variables for the winning class name and density.
+  std::string CurWin;
+  float Curprob = std::numeric_limits <float>::min();
+  
+  // Find the maximum Mva Val.
+  for(size_t i = 0; i < classes.size(); i++){
+    std::string curName = classes[i].Name;
+    if( TMPres[curName] > Curprob){
+      Curprob = TMPres[curName];
+      CurWin  = curName;
+    }
+  }
+  // Create and return the result object (string).
+  std::string* outPut = new std::string(CurWin);
+  return *outPut;
 }
 
 //!Classify
-void PndProjectedKNN::GetMvaValues(vector<float> eventData,
-				   map<string, float>& result)
+void PndProjectedKNN::GetMvaValues(std::vector<float> eventData,
+				   std::map<string, float>& result)
 {
+  // Zero number of neighbors!!???
   if(m_knn == 0)
   {
     cerr << "\t<ERROR> Number neighbours can not be zero."

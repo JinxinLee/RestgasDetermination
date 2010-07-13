@@ -36,25 +36,27 @@ PndLVQClassify::~PndLVQClassify()
  */
 const std::string& PndLVQClassify::Classify(std::vector<float> EvtData)
 {
-
+  // Temporary Store Values.
   std::map<std::string, float> TMPres;
   GetMvaValues(EvtData, TMPres);
+
   // Fetch labels (classes)
   const vector<PndMvaClass>& classes = m_dataSets.GetClasses();
 
-  // Temporary variables for the winning class name and density.
+  // Temporary variables for the winning class name.
   std::string CurWin;
-  float Curprob = std::numeric_limits <float>::max();
+  float CurMvaVal = std::numeric_limits<float>::max();
 
+  // Find minimum the distance.
   for(size_t i = 0; i < classes.size(); i++){
     std::string curName = classes[i].Name;
     
-    if( TMPres[curName] < Curprob){
-      Curprob = TMPres[curName];
-      CurWin  = curName;
+    if( TMPres[curName] < CurMvaVal){
+      CurMvaVal = TMPres[curName];
+      CurWin    = curName;
     }
   }
-
+  
   // Create and return the result object (string).
   std::string* outPut = new std::string(CurWin);
   return *outPut;

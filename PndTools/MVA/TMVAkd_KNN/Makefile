@@ -8,33 +8,33 @@
 HDR = -I../
 
 # Define targets
-TARGETS  = PndKnnTrain.o PndKnnClassify.o PndProjectedKNN.o
-TARGETS += KnnClassify.o KnnTrain.o Prclassify.o
+TARGETS  = PndKnnTrain PndKnnClassify PndProjectedKNN 
+TARGETS += KnnClassify KnnTrain Prclassify
 
 all: $(TARGETS)
 
-PndKnnTrain.o:
-	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c PndKnnTrain.cpp
+PndKnnTrain: % : %.cpp
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
 	@echo "Done building:" $@
 
-PndKnnClassify.o:
-	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c PndKnnClassify.cpp
+PndKnnClassify: % : %.cpp
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
 	@echo "Done building:" $@
 
-KnnTrain.o:
-	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c KnnTrain.cpp
+KnnTrain: % : %.cpp
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
 	@echo "Done building:" $@
 
-KnnClassify.o:
-	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c KnnClassify.cpp
+KnnClassify: % : %.cpp
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
 	@echo "Done building:" $@
 
-PndProjectedKNN.o:
-	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c PndProjectedKNN.cpp
+PndProjectedKNN: % : %.cpp
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
 	@echo "Done building"$@
 
-Prclassify.o: PndProjectedKNN.o
-	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c Prclassify.cpp
+Prclassify: % : %.cpp PndProjectedKNN
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
 	@echo "Done building"$@
 clean:
 	rm -f *~ *.o

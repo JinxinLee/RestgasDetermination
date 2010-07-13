@@ -216,7 +216,7 @@ void PndLVQTrain::Train21()
     tFinal = std::numeric_limits<unsigned>::max();
   }
   
-  // Print some information.
+  // Print some INFO.
   std::cout << "<INFO>: Performing LVQ2.1 learning with parameters:\n"
 	    <<"Init constant = " << m_initConst << ", ethaZero =" 
 	    << ethaZero << ", ethaFinal = " << ethaFinal
