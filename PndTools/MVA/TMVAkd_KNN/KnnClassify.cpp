@@ -8,22 +8,29 @@
  * algorithm. An implementation of kd-tree is used to improve the
  * recognition performance.
  */
+
+// C++ headers
 #include <sstream>
 
+// Local headers
 #include "PndKnnClassify.h"
 
-#include "TRandom3.h"
+// Root and PandaRoot.
 #include "TStopwatch.h"
+#include "TNtuple.h"
 
-
-void printResult(std::map<std::string,float>& res){
-  std::cout << "\n\t================================== \n";
+void printResult( std::map<std::string,float>& res, unsigned int evtId){
+  std::cout << "\t==================================" << std::endl;
+  std::cout << " Evt Num = " << evtId << std::endl;
+  
   for( std::map<std::string,float>::iterator ii=res.begin(); 
-       ii != res.end(); ++ii){
+       ii != res.end(); ++ii)
+  {
     std::cout <<"\t" << (*ii).first 
 	      << "\t=> " << (*ii).second << std::endl;
   }
-  std::cout << "\n\t================================== \n";
+  
+  std::cout << "\t==================================" << std::endl;
 }
 
 /* *********************************************
@@ -33,77 +40,130 @@ void printResult(std::map<std::string,float>& res){
 
 int main(int argc, char** argv)
 {
-  if(argc < 3){
-    std::cerr <<"\t<ERROR>" 
-	      <<"./classify <inputFile> <numOfneigh>"
-	      <<std::endl;
-      return 1;
+  if(argc < 5){
+    std::cerr << "\t<ERROR>" 
+	      << "./classify <inputWeightFile> <numOfneigh> <InputEventsFile>"
+	      << " <Treename>"
+	      << std::endl;
+    return 1;
   }
   
+  // Init input variables.
   std::string InPutFileName = argv[1];
   std::string NumNeistr = argv[2];
+  std::string InputEvents = argv[3];
+  std::string EvtTreeName = argv[4];
+  
+  // Convert to int.
   std::istringstream buff(NumNeistr);
-  int NumNei = 0;
+  unsigned int NumNei = 0;
   buff >> NumNei;
-
-  TRandom3 myran(4125373);
-  std::vector<std::string> clas;
-  std::vector<std::string> nam;
+  
+  // Containers to hold labels and variable names.
+  std::vector<std::string> clasNames;
+  std::vector<std::string> vars;
   
   // Classes (container to hold the class names)
-  clas.push_back("electron"); clas.push_back("pion");
-  //clas.push_back("kaon"); clas.push_back("gamma"); 
-  //clas.push_back("muon"); clas.push_back("proton");
+  clasNames.push_back("electron");
+  clasNames.push_back("pion");
+  //clasNames.push_back("kaon");
+  //clasNames.push_back("muon");
+  //clasNames.push_back("proton");
+  //clasNames.push_back("gamma");
   
   // Variables (names)
-  nam.push_back("p");  nam.push_back("emc"); 
-  nam.push_back("mvd"); //nam.push_back("tof");
-  //nam.push_back("stt"); nam.push_back("tpc");
+  vars.push_back("p");
+  vars.push_back("emc");
+  vars.push_back("z20");
+  vars.push_back("z53");
+  vars.push_back("lat");
+  //vars.push_back("thetaC");
+  //vars.push_back("mvd");
+  //vars.push_back("tof");
+  //vars.push_back("stt"); 
   
   TStopwatch timer;
   timer.Start();
   
   //Create the classifier object and specify the weight file
-  PndKnnClassify cls (InPutFileName, clas, nam);
- 
+  PndKnnClassify cls (InPutFileName, clasNames, vars);
+  
+  // Set classifier parameters and init.
   cls.SetEvtParam(0.8,1.0);
   cls.SetKnn(NumNei);
   cls.InitKNN();
+  
   std::cout << ".......... Init is done." << std::endl;
-
+  
   timer.Stop();
   double rtime = timer.RealTime();
   double ctime = timer.CpuTime();
+  std::cout << "<INFO> Initialization time:" << std::endl;
   std::cout<< "RealTime = " << rtime << " seconds, CpuTime = " 
            << ctime <<" Seconds" << std::endl;
-
-  std::vector<float> evt,evt1,evt2;
   
-  evt.clear();
-  for(unsigned int j = 0; j < nam.size(); j++){
-    evt.push_back(myran.Gaus(1,1));
-    evt1.push_back(myran.Uniform(-1,1));
-    evt2.push_back(myran.Uniform(30,50));
+  // Open input events file.
+  TFile inFile(InputEvents.c_str(), "READ");
+  
+  // Prepare events to be classified.
+  TNtuple* events = (TNtuple*) inFile.Get(EvtTreeName.c_str());
+  // TObjArray* Namen = events->GetListOfBranches();
+  
+  std::vector<float> curEvt(vars.size(), 0.0);
+  
+  // Bind tree branches to the container.
+  for(size_t i = 0; i < vars.size(); i++){
+    events->SetBranchAddress( (vars[i]).c_str(), &(curEvt[i]));
   }
-  
+ 
   // Map to store the results
-  std::map<std::string,float> res;
+  std::map<std::string, float> res;
   
-  TStopwatch ti;
-  ti.Start();
+  // Reste and start the timer.
+  timer.Reset();
+  timer.Start();
   
-  for(int i = 0; i < 3; i++){
-    cls.GetMvaValues(evt, res);
-    //cls.Classify(evt1, NumNei, res);
-    //cls.Classify(evt2, NumNei, res);
-    printResult(res);
+  // Perform classification of the available events.
+  unsigned int misCl = 0;
+
+  for(int ev = 0; ev < events->GetEntriesFast(); ev++){
+    events->GetEntry(ev);
+    cls.GetMvaValues(curEvt, res);
+
+    std::string resStr = cls.Classify(curEvt);
+    //printResult(res);
+    if( resStr != EvtTreeName){
+      misCl++;
+      printResult(res, ev);
+    }
   }
-  ti.Stop();
-  rtime = ti.RealTime();
-  ctime = ti.CpuTime();
-  std::cout << "timer 1: Classifier timing results:"<< std::endl;
+  
+  timer.Stop();
+  rtime = timer.RealTime();
+  ctime = timer.CpuTime();
+  std::cout << "<INFO> Classifier timing results:"<< std::endl;
   std::cout<< "RealTime = " << rtime << " seconds, CpuTime = " 
-           << ctime <<" Seconds\n" << std::endl;
+	   << ctime <<" Seconds.\n" << std::endl;
+
+  // Classifier evaluation info.
+  std::cout << "+++++++++++++++++++++++++++++++++++++++" 
+	    << std::endl
+	    << " Total number of classified events: "
+	    << events->GetEntriesFast() << std::endl
+	    << " Number of missclassified: " << misCl << " = "
+	    << ( static_cast<float>(misCl) * 100.00)/ static_cast<float>(events->GetEntriesFast())
+	    <<"%"
+	    << std::endl 
+	    << " Correct cassified = " << (events->GetEntriesFast() - misCl)
+	    << std::endl 
+	    << " (time / event) = " << rtime/(events->GetEntriesFast())
+	    << std::endl 
+	    << " With #neighb = " << NumNei 
+	    << std::endl
+	    << "+++++++++++++++++++++++++++++++++++++++" 
+	    << std::endl;
+  // Close open file
+  inFile.Close();
   
   return 0;
 }
