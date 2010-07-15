@@ -54,7 +54,7 @@
   // -----   LHETRACK  ---------------------------------
   
   PndLheHitsMaker* trackMS = new PndLheHitsMaker("Tracking routine");
-  trackMS->SetSttMode(4);  // 0 OFF, 1 SttPoint, 2 SttHit, (3) SttHelixHit, 4 SttHelixHit MC  // SttPoint smearing [cm], if negative no smearing
+  trackMS->SetSttMode(5);  // 0 OFF, 1 SttPoint, 2 SttHit, (3) SttHelixHit, 4 SttHelixHit MC, 5 SttPRHelixHit // STTPoint smearing [cm], if negative no smearing
   trackMS->SetMvdMode(2);  // 0 OFF, 1 MVDPoint, 2 MVDHit     // MVDPoint smearing [cm], if negative no smearing
   trackMS->SetGemMode(2);  // 0 OFF, 1 GEMPoint, 2 GEMHit     // GEMPoint smearing [cm], if negative no smearing
   fRun->AddTask(trackMS);

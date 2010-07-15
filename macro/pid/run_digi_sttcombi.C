@@ -58,9 +58,11 @@
   fRun->AddTask(sttHitProducer);
  
   // trackfinding ....
-  PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
+  PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(iVerbose);
+  //PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
   PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
   sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
+  sttFindTracks->SetHelixHitProduction();
   fRun->AddTask(sttFindTracks);
   // trackmatching ....
   PndSttMatchTracks* sttTrackMatcher = new PndSttMatchTracks("Match tracks", "STT", iVerbose);
