@@ -18,7 +18,7 @@ PndTrackCand* PndMdtTrk::AddTrackCand(const PndTrackCand* inTrackCand)
   for (Int_t ii=0; ii<15; ii++) 
     {
       if (fHitList[ii]!=-1)
-	outTrackCand->AddHit(kMdtHit, fHitList[ii], ii*1000.);
+	outTrackCand->AddHit(kMdtHit, fHitList[ii], (250+ii*10.)*(250+ii*10.));
     }
   return outTrackCand;
 }
