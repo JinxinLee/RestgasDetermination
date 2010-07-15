@@ -74,8 +74,14 @@ InitStatus PndMvdNoiseProducer::Init()
     ioman->Register("MVDPixelDigis","MVD",fDigiPixelArray,fPersistance);
   }
   
+  fMCEventheader = (FairMCEventHeader*) ioman->GetObject("MCEventHeader");
+  if ( ! fMCEventheader ){
+    Warning("Init","Did not find the MC event header, assume one clock cycle per call of Exex().");
+  }
+  fPreviosTime=0.;
+  
   FillSensorLists();
-
+  
   if(fVerbose>1)
   {
     std::cout <<"-I- PndMvdNoiseProducer: Registered Sensors: "
@@ -193,7 +199,7 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
   nNoisyStripRects=0,
   nNoisyStripTraps=0,
   nNoisyPixels=0;
-  Double_t xfrac=0.;
+  Double_t xfrac=0.,cycles=1.;
   Int_t did=-1;
   
   // *** Strip Rect Long ***
@@ -204,6 +210,7 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
   chanmax = nrCh * nrFE * nrSensors;
   // Get Number of Channels fired from noise
   xfrac = CalcDistFraction(fDigiParRect->GetNoise(),fDigiParRect->GetThreshold());
+  cycles = CalcReadoutCycles(fTotDigiParRect->GetClockFrequency());
   chanwhite = gRandom->Poisson(xfrac*chanmax);
   if(fVerbose>1) std::cout << "-I- PndMvdNoiseProducer: RECT xfrac = " << xfrac
     << " leading to " << chanwhite << " noisy digis of " << chanmax
@@ -218,7 +225,7 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
     chan = rnd % nrCh;
     // calculate a charge deposit above threshold
     charge = CalcChargeAboveThreshold(fDigiParRect->GetNoise(),fDigiParRect->GetThreshold());
-    did = fStripRectLIds.at(sens);
+    did = fStripRectLIds[sens];
     fCurrentChargeConv = fStripRectChargeConv;
     AddDigiStrip(nNoisyStripRects,-1,did,fe,chan,charge);
   }
@@ -231,7 +238,7 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
   chanmax = nrCh * nrFE * nrSensors;
   // Get Number of Channels fired from noise
   xfrac = CalcDistFraction(fDigiParRect->GetNoise(),fDigiParRect->GetThreshold());
-  chanwhite = gRandom->Poisson(xfrac*chanmax);
+  chanwhite = gRandom->Poisson(xfrac*cycles*chanmax);
   if(fVerbose>1) std::cout << "-I- PndMvdNoiseProducer: RECT xfrac = " << xfrac
     << " leading to " << chanwhite << " noisy digis of " << chanmax
     << " total channels" << std::endl;
@@ -248,7 +255,7 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
     chan = rnd % nrCh;
     // calculate a charge deposit above threshold
     charge = CalcChargeAboveThreshold(fDigiParRect->GetNoise(),fDigiParRect->GetThreshold());
-    did = fStripRectSIds.at(sens);
+    did = fStripRectSIds[sens];
     fCurrentChargeConv = fStripRectChargeConv;
     AddDigiStrip(nNoisyStripRects,-1,did,fe,chan,charge);
   }
@@ -259,7 +266,8 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
   nrSensors = fStripTrapIds.size();
   chanmax = nrCh * nrFE * nrSensors;
   xfrac = CalcDistFraction(fDigiParTrap->GetNoise(),fDigiParTrap->GetThreshold());
-  chanwhite = gRandom->Poisson(xfrac*chanmax);
+  cycles = CalcReadoutCycles(fTotDigiParTrap->GetClockFrequency());
+  chanwhite = gRandom->Poisson(xfrac*cycles*chanmax);
   if(fVerbose>1) std::cout << "-I- PndMvdNoiseProducer: TRAP xfrac = " << xfrac
     << " leading to " << chanwhite << " noisy digis of " << chanmax
     << " total channels" << std::endl;
@@ -271,7 +279,7 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
     fe = rnd/nrCh;
     chan = rnd % nrCh;
     charge = CalcChargeAboveThreshold(fDigiParTrap->GetNoise(),fDigiParTrap->GetThreshold());
-    did = fStripTrapIds.at(sens);
+    did = fStripTrapIds[sens];
     fCurrentChargeConv = fStripTrapChargeConv;
     AddDigiStrip(nNoisyStripTraps,-1,did,fe,chan,charge);
   }
@@ -285,7 +293,8 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
   nrFE = pixx2 + pixx4 + pixx5 + pixx6;  // each sensor has one fe
   chanmax = nrCh * nrFE;
   xfrac = CalcDistFraction(fDigiParPix->GetNoise(),fDigiParPix->GetThreshold());
-  chanwhite = gRandom->Poisson(xfrac*chanmax);
+  cycles = CalcReadoutCycles(fTotDigiParPix->GetClockFrequency());
+  chanwhite = gRandom->Poisson(xfrac*cycles*chanmax);
   if(fVerbose>1) std::cout << "-I- PndMvdNoiseProducer: PIXEL xfrac = " << xfrac
     << " leading to " << chanwhite << " noisy digis of " << chanmax
     << " total channels" << std::endl;
@@ -301,32 +310,34 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
     {
       fe = fe - pixx2 - pixx4 - pixx5;
       sens = fe/6;
-      did = fPixelIds6.at(sens);
+      did = fPixelIds6[sens];
       fe = fe%6;
       //if(fe>6) fe=fe-6+10; //0-9 one row of FE, 10-19 2nd row of FE
     } else if( fe >= (Int_t)(pixx2 + pixx4) )
     {
       fe = fe - pixx2 - pixx4;
       sens = fe/5;
-      did = fPixelIds5.at(sens);
+      did = fPixelIds5[sens];
       fe = fe%5;
       //if(fe>4) fe=fe-4+10; //0-9 one row of FE, 10-19 2nd row of FE
     } else if( fe >= (Int_t)(pixx2) )
     {
       fe = fe -pixx2;
       sens = fe/4;
-      did = fPixelIds4.at(sens);
+      did = fPixelIds4[sens];
       fe = fe%4;
     } else
     {
       sens = fe/2;
-      did = fPixelIds2.at(sens);
+      did = fPixelIds2[sens];
       fe = fe%2;
     }
     
     AddDigiPixel(nNoisyPixels,-1,did,fe,col,row,charge);
   }
   
+  if (fMCEventheader!=0) fPreviosTime=fMCEventheader->GetT(); // []
+  else fPreviosTime=0.; 
   // *** The End ***
   if(fVerbose>0)
   {
@@ -364,6 +375,17 @@ Int_t PndMvdNoiseProducer::CalcChargeAboveThreshold(Double_t spread,Double_t thr
   temp = -2.*spread*spread*log(temp);
   temp = sqrt(temp);
   return (Int_t)temp;
+}
+
+Double_t PndMvdNoiseProducer::CalcReadoutCycles(Double_t clock)
+{ // time [ns], clock [MHz]
+  Double_t cycles=1.;
+  if (fMCEventheader!=0 && clock>0) {
+    cycles = fMCEventheader->GetT();
+    cycles -= fPreviosTime;
+    cycles = cycles * clock * 0.001;
+  }
+  return cycles;
 }
 
 void PndMvdNoiseProducer::AddDigiStrip(Int_t &noisies, Int_t iPoint, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge)
@@ -434,6 +456,17 @@ void PndMvdNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t senso
     
   }
 }
+
+void PndMvdNoiseProducer::FinishEvent()
+{
+  // called after all Tasks did their Exex() and the data is copied to the file
+  fDigiStripArray->Delete();
+  fDigiPixelArray->Delete();
+  FinishEvents();
+}
+// -------------------------------------------------------------------------
+
+
 
 
 ClassImp(PndMvdNoiseProducer)

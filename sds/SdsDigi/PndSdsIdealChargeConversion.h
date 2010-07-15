@@ -14,6 +14,7 @@ public :
 	virtual Double_t ChargeToDigiValue(Double_t charge){return charge;};
 	virtual Double_t DigiValueToCharge(Double_t digi){return digi;};
   virtual Double_t GetRelativeError(Double_t charge){return 0.;};
+  virtual Int_t GetTimeStamp(Double_t time){return ( (Int_t)time +1 );};
 
 
 ClassDef(PndSdsIdealChargeConversion, 1);

@@ -35,8 +35,8 @@ std::vector< std::vector<Int_t> > PndSdsIdealPixelClusterFinder::GetClusters(std
           j--;
         }
         else{
-          if (fHits[(result.end()-1)->at(0)].GetSensorID() == fHits[posHits[j]].GetSensorID()){
-            if (IsInRange(fHits[(result.end()-1)->at(0)], fHits[posHits[j]])) {
+          if (fHits[(*(result.end()-1))[0]].GetSensorID() == fHits[posHits[j]].GetSensorID()){
+            if (IsInRange(fHits[(*(result.end()-1))[0] ], fHits[posHits[j]])) {
                 (result.end()-1)->push_back(MoveHit(&posHits,j)); // the hit position is added to the current cluster
                 j--;
                 if (fVerbose > 2)
@@ -58,7 +58,7 @@ Int_t PndSdsIdealPixelClusterFinder::MoveHit(std::vector<Int_t>* hitVector, Int_
 {
   Int_t result = -1;
   if (index < (Int_t)hitVector->size()){
-    result = hitVector->at(index);
+    result = (*hitVector)[index];
     hitVector->erase(hitVector->begin()+index);
   }
   return result;

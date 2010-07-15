@@ -31,8 +31,8 @@ std::vector< std::vector<Int_t> > PndSdsSimplePixelClusterFinder::GetClusters(st
 								j--;
 					}
 					else{
-						if (fHits[(result.end()-1)->at(i)].GetSensorID() == fHits[posHits[j]].GetSensorID()){
-							if (IsInRange(fHits[(result.end()-1)->at(i)], fHits[posHits[j]])) {
+						if (fHits[(*(result.end()-1))[i]].GetSensorID() == fHits[posHits[j]].GetSensorID()){
+							if (IsInRange(fHits[(*(result.end()-1))[i]], fHits[posHits[j]])) {
 									(result.end()-1)->push_back(MoveHit(&posHits,j));
 									j--;
 									if (fVerbose > 1)
@@ -55,7 +55,7 @@ std::vector< std::vector<Int_t> > PndSdsSimplePixelClusterFinder::GetClusters(st
 {
 	PndSdsDigiPixel result;
 	if (index < hitVector->size()){
-		result = hitVector->at(index);
+		result = (*hitVector)[index];
 		hitVector->erase(hitVector->begin()+index);
 	}
 	return result;
@@ -65,7 +65,7 @@ Int_t PndSdsSimplePixelClusterFinder::MoveHit(std::vector<Int_t>* hitVector, Int
 {
 	Int_t result = -1;
 	if (index < (Int_t)hitVector->size()){
-		result = hitVector->at(index);
+		result = (*hitVector)[index];
 		hitVector->erase(hitVector->begin()+index);
 	}
 	return result;

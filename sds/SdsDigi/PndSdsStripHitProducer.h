@@ -97,7 +97,7 @@ class PndSdsStripHitProducer : public PndSdsTask
 
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
-
+  virtual void FinishEvent();
   void AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge, Int_t timestamp);
 
   void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};

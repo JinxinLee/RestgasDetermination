@@ -12,37 +12,38 @@
 enum ConvType{kUndefined,kIdeal,kToT};
 
 class PndSdsChargeConversion : public TObject
-{
-public :
-
-	PndSdsChargeConversion(ConvType type){fConvType = type;};
-	virtual ~PndSdsChargeConversion(){};
-	virtual void StartExecute(){};
-	virtual void EndExecute(){};
-	virtual Double_t ChargeToDigiValue(Double_t Charge) = 0;
-	virtual Double_t DigiValueToCharge(Double_t digi) = 0;
-	virtual Double_t DigiValueToCharge(PndSdsDigi &digi);
+  {
+    public :
+    
+    PndSdsChargeConversion(ConvType type){fConvType = type;};
+    virtual ~PndSdsChargeConversion(){};
+    virtual void StartExecute(){};
+    virtual void EndExecute(){};
+    virtual Double_t ChargeToDigiValue(Double_t Charge) = 0;
+    virtual Double_t DigiValueToCharge(Double_t digi) = 0;
+    virtual Double_t DigiValueToCharge(PndSdsDigi &digi);
     virtual Double_t GetRelativeError(Double_t Charge) = 0;
-
-	Double_t GetParameter(TString param){
-		it=fParams.find(param);
-		if (it == fParams.end()){
-			Error("GetParameter(TString param)","No parameter named: "+param);
-			return -1;
-		}
-		return it->second;
-	};
-	void SetParameter(TString param, Double_t value){
-		if (value < 0 ) Error("SetParameter(TString param, Double_t value)","invalid value for param "+ param);
-		fParams.insert(std::pair<TString, Double_t>(param, value));
-	};
-
-private :
-	std::map<TString, Double_t> fParams;
-	std::map<TString, Double_t>::iterator it;
-	ConvType fConvType;
-
-
-ClassDef(PndSdsChargeConversion,1);
-};
+    virtual Int_t GetTimeStamp(Double_t time) = 0;
+    
+    Double_t GetParameter(TString param){
+      it=fParams.find(param);
+      if (it == fParams.end()){
+        Error("GetParameter(TString param)","No parameter named: "+param);
+        return -1;
+      }
+      return it->second;
+    };
+    void SetParameter(TString param, Double_t value){
+      if (value < 0 ) Error("SetParameter(TString param, Double_t value)","invalid value for param "+ param);
+      fParams.insert(std::pair<TString, Double_t>(param, value));
+    };
+    
+    private :
+    std::map<TString, Double_t> fParams;
+    std::map<TString, Double_t>::iterator it;
+    ConvType fConvType;
+    
+    
+    ClassDef(PndSdsChargeConversion,1);
+  };
 #endif /* PNDSDSCHARGECONVERSION_H */

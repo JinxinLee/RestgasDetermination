@@ -114,6 +114,7 @@ public:
 private:
 
 	Double_t DigiCharge(Int_t digiIndex);
+	Double_t DigiChargeError(Int_t digiIndex);
 	Int_t DigiStripno(Int_t digiIndex);
 	Double_t Erfmod(Double_t x, Double_t p0, Double_t p1, Double_t p2, Double_t p3);
 	TClonesArray* fDigiArray;

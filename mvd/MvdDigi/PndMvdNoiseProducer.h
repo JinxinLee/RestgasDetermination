@@ -16,6 +16,7 @@
 #define PNDMVDNOISEPRODUCER_H
 
 #include "FairTask.h"
+#include "FairMCEventHeader.h"
 
 #include <vector>
 
@@ -49,10 +50,12 @@ class PndMvdNoiseProducer : public FairTask
 
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
-
+  virtual void FinishEvent();
+  
   Double_t CalcDistFraction(Double_t spread, Double_t threshold);
 //   Int_t CalcChanWhite(Int_t chanleft, Double_t frac);
   Int_t CalcChargeAboveThreshold(Double_t spread, Double_t threshold);
+  Double_t CalcReadoutCycles(Double_t clock);
   void AddDigiStrip(Int_t &iStrip, Int_t iPoint, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge);
   void AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t sensorID, Int_t fe, Int_t col, Int_t row, Double_t charge);
 
@@ -78,6 +81,7 @@ class PndMvdNoiseProducer : public FairTask
   PndSdsTotDigiPar* fTotDigiParPix;
 
   PndGeoHandling* fGeoH;      //! Geometry name handling
+  FairMCEventHeader* fMCEventheader; 
 
   std::vector<Int_t> fPixelIds2;
   std::vector<Int_t> fPixelIds4;
@@ -94,6 +98,7 @@ class PndMvdNoiseProducer : public FairTask
 
   Int_t fNoiseSpread;
   Int_t fThreshold;
+  Double_t fPreviosTime;
 
 //   void Register();
 

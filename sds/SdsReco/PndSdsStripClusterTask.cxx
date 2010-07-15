@@ -492,7 +492,7 @@ void PndSdsStripClusterTask::CalcMeanCharge(PndSdsClusterStrip* onecluster, Doub
       tempcharge = fCurrentChargeConverter->DigiValueToCharge(*myDigi);
       charge += tempcharge;
       meanstrip += tempcharge * strip;
-      meanerr += tempcharge*tempcharge;
+      meanerr += tempcharge*tempcharge; // this is stupid, to be removed one day
     }
     meanstrip = meanstrip/charge;
     // this error treatment is: dx = dpitch * sqrt(weigthsquares)
@@ -546,12 +546,13 @@ Bool_t PndSdsStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantope
   //do the transformation from sensor to lab frame
   hitPos = fGeoH->LocalToMasterShortId(localpos,sensorID);
   
-  // calculate the errors corresponding to a skewed system!
-  t = meantoperr*fCurrentDigiPar->GetTopPitch()*cos(fCurrentDigiPar->GetOrient());
-  b = meanboterr*fCurrentDigiPar->GetBotPitch()*cos(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
-  locCov[0][0]=t*t+b*b;
+  // calculate the errors corresponding to a skewed system,
+  // directions orthogonal to strip orientation
   t = meantoperr*fCurrentDigiPar->GetTopPitch()*sin(fCurrentDigiPar->GetOrient());
   b = meanboterr*fCurrentDigiPar->GetBotPitch()*sin(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
+  locCov[0][0]=t*t+b*b;
+  t = meantoperr*fCurrentDigiPar->GetTopPitch()*cos(fCurrentDigiPar->GetOrient());
+  b = meanboterr*fCurrentDigiPar->GetBotPitch()*cos(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
   locCov[1][1]=t*t+b*b;
   locCov[2][2]=errZ*errZ;
   

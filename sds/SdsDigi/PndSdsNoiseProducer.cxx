@@ -197,7 +197,7 @@ void PndSdsNoiseProducer::Exec(Option_t* opt)
     chan = rnd % nrCh;
     // calculate a charge deposit above threshold
     charge = CalcChargeAboveThreshold(fDigiParRect->GetNoise(),fDigiParRect->GetThreshold());
-    did = fStripRectIds.at(sens);
+    did = fStripRectIds[sens];
     AddDigiStrip(nNoisyStripRects,-1,did,fe,chan,charge);
   }
   
@@ -219,7 +219,7 @@ void PndSdsNoiseProducer::Exec(Option_t* opt)
     fe = rnd/nrCh;
     chan = rnd % nrCh;
     charge = CalcChargeAboveThreshold(fDigiParTrap->GetNoise(),fDigiParTrap->GetThreshold());
-    did = fStripTrapIds.at(sens);
+    did = fStripTrapIds[sens];
     AddDigiStrip(nNoisyStripTraps,-1,did,fe,chan,charge);
   }
   
@@ -244,26 +244,26 @@ void PndSdsNoiseProducer::Exec(Option_t* opt)
     {
       fe = fe - 4*fPixelIds4.size() - 6*fPixelIds6.size() - 8*fPixelIds8.size();
       sens = fe/12;
-      did = fPixelIds12.at(sens);
+      did = fPixelIds12[sens];
       fe = fe%12;
       if(fe>6) fe=fe-6+10; //0-9 one row of FE, 10-19 2nd row of FE
     } else if(fe >= (Int_t)(4*fPixelIds4.size() + 6*fPixelIds6.size()) )
     {
       fe = fe - 4*fPixelIds4.size() - 6*fPixelIds6.size();
       sens = fe/8;
-      did = fPixelIds8.at(sens);
+      did = fPixelIds8[sens];
       fe = fe%8;
       if(fe>4) fe=fe-4+10; //0-9 one row of FE, 10-19 2nd row of FE
     } else if( fe >= (Int_t)(4*fPixelIds4.size()) )
     {
       fe = fe -4*fPixelIds4.size();
       sens = fe/6;
-      did = fPixelIds6.at(sens);
+      did = fPixelIds6[sens];
       fe = fe%6;
     } else
     {
       sens = fe/4;
-      did = fPixelIds4.at(sens);
+      did = fPixelIds4[sens];
       fe = fe%4;
     }
     

@@ -175,7 +175,6 @@ InitStatus PndSdsStripHitProducer::Init()
 void PndSdsStripHitProducer::Exec(Option_t* opt)
 {
   // Reset output array
-  fStripArray->Delete();
   fGeoH->SetVerbose(fVerbose);
   for (std::map<const char*,PndSdsChargeConversion*>::iterator it = fChargeConverter.begin(); it != fChargeConverter.end(); it++){
 	  it->second->StartExecute();
@@ -357,6 +356,14 @@ Int_t PndSdsStripHitProducer::DigitizeTime(Double_t time)
   return (Int_t)(time*1000);
 }
 
+// -------------------------------------------------------------------------
+
+void PndSdsStripHitProducer::FinishEvent()
+{
+  // called after all Tasks did their Exex() and the data is copied to the file
+  fStripArray->Delete();
+  FinishEvents();
+}
 // -------------------------------------------------------------------------
 
 

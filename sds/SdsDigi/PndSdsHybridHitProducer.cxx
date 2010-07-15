@@ -157,10 +157,7 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
   // Reset output array
   if ( ! fPixelArray )
     Fatal("Exec", "No PixelArray");
-  //   fHitArray->Delete();
-  fPixelArray->Delete();
   fPixelList.clear();
-  //   fFePixelArray->Clear();
   fGeoH->SetVerbose(fVerbose);  
   // Declare some variables
   PndSdsMCPoint *point = NULL;
@@ -227,7 +224,7 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
           if (fVerbose > 1) std::cout << myPixels[i] << std::endl;
         }
         // Calculate channel numbers
-        PndSdsCalcFePixel feCalc(fcols, frows, 10);
+        PndSdsCalcFePixel feCalc(fcols, frows, 10); //TODO: Why do we set 10 column Frontends per hand?
         myFePixels = feCalc.CalcFEHits(myPixels);
         if (fVerbose > 1){
           std::cout << "FePixels: " << myFePixels.size() << std::endl;
@@ -351,7 +348,7 @@ TVector3 PndSdsHybridHitProducer::GetSensorDimensions(Int_t sensorID)
 void PndSdsHybridHitProducer::AddHits(std::vector<PndSdsPixel>* hits, int mcIndex)
 {
 	for (UInt_t i = 0; i < hits->size(); i++){
-		AddHit(hits->at(i), mcIndex);
+		AddHit((*hits)[i], mcIndex);
 	}
 	if (fVerbose > 1) std::cout << "Size of fPixelList: " << fPixelList.size() << std::endl;
 }
@@ -382,6 +379,15 @@ void PndSdsHybridHitProducer::AddHit(PndSdsPixel& hit, int mcIndex)
 	}
 }
 // -------------------------------------------------------------------------
+
+void PndSdsHybridHitProducer::FinishEvent()
+{
+  // called after all Tasks did their Exex() and the data is copied to the file
+  fPixelArray->Delete();
+  FinishEvents();
+}
+// -------------------------------------------------------------------------
+
 
 
 ClassImp(PndSdsHybridHitProducer);

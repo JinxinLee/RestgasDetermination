@@ -43,7 +43,7 @@ TClonesArray* PndMvdEventMerger::GetEvent(Int_t iEvent)
 		return NULL;
 	}
 
-	TClonesArray* pArray = (TClonesArray*) fBuffer.at(iEvent);
+	TClonesArray* pArray = (TClonesArray*) fBuffer[iEvent];
 
 	if ( !pArray)
 	{

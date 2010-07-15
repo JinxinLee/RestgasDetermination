@@ -38,7 +38,7 @@ std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::CenterOfGravity(co
   if(nrHits>1)							// minimum of hits in cluster
   {
     Double_t x_g=0., chargesum=0, charge=0, chargemean=0, noise=0, form=0, stripno=0;
-    //Double_t error=0.;
+    Double_t xerror=0.;
     noise = fCalcStrip->GetNoise();
     for(Int_t l=0;l<nrHits;++l)     // loop over all hits
     {
@@ -49,10 +49,6 @@ std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::CenterOfGravity(co
       //     /   Q_sum
       //     -
       //
-      //       noise
-      // dx=   ------ * a^.5(formfactor)
-      //       q_mean
-      //
       
       charge = DigiCharge(Cluster->GetDigiIndex(l));
       stripno = DigiStripno(Cluster->GetDigiIndex(l));
@@ -61,23 +57,43 @@ std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::CenterOfGravity(co
       if(fVerbose>2) Info("center_of_gravity","adding digi values (stripno,charge) = (%f,%f)",stripno,charge);
     }
     x_g = x_g/chargesum;
-    chargemean=chargesum/nrHits;
-    switch (nrHits) {
-      case 2:
-        //form=sqrt(1.-2.*x_i+2.*x_i*x_i);//[Turchetta1993]
-        //x_i is the relative position of the hit in respect of the flight path (0<=x_i<=1) //[Turchetta1993]
-        // sqrt(2.)/2. <= form <= 1 //[Turchetta1993]
-        form=sqrt(2./3.); //[Bashindzhagyan2005] //this seems to be reasonable, simple & fast
-        break;
-      case 3:
-        form=2.12; //[Radeka1980]
-        break;
-      default:
-        form=1.; //TODO: What to add more? Larger Clusters should use head-tail anyway.
-        break;
-    }
     result.first=x_g;
-    result.second=form*noise/chargemean;
+    
+    if(false) 
+    {
+      //       noise
+      // dx=   ------ * a^.5(formfactor)
+      //       q_mean
+      //
+      chargemean=chargesum/nrHits;
+      switch (nrHits) {
+        case 2:
+          //form=sqrt(1.-2.*x_i+2.*x_i*x_i);//[Turchetta1993]
+          //x_i is the relative position of the hit in respect of the flight path (0<=x_i<=1) //[Turchetta1993]
+          // sqrt(2.)/2. <= form <= 1 //[Turchetta1993]
+          form=sqrt(2./3.); //[Bashindzhagyan2005] //this seems to be reasonable, simple & fast
+          break;
+        case 3:
+          form=2.12; //[Radeka1980]
+          break;
+        default:
+          form=1.; //TODO: What to add more? Larger Clusters should use head-tail anyway.
+          break;
+      }
+      result.second=form*noise/chargemean;
+    }else{
+      // by hand:
+      //      SUM{ (x_i - x)dq_i }
+      // dx=  --------------------
+      //              Q
+      //
+      for(Int_t l=0;l<nrHits;++l)     // loop over all hits again (errors)
+      {
+        xerror += ( x_g - DigiStripno(Cluster->GetDigiIndex(l)) )*DigiChargeError(Cluster->GetDigiIndex(l));
+      }
+      xerror = xerror/chargesum;
+      result.second = xerror;
+    }
   }else{
     result=Binary(Cluster);
   }
@@ -240,6 +256,13 @@ Double_t PndSdsChargeWeightingAlgorithms::DigiCharge(Int_t digiIndex)
   //Info("DigiCharge","digi=%p chargedigi=%f charge=%f",digi,digi->GetCharge(), charge);
   //digi->Print();
   return charge;
+}
+
+Double_t PndSdsChargeWeightingAlgorithms::DigiChargeError(Int_t digiIndex)
+{
+  Double_t cherr = DigiCharge(digiIndex);
+  cherr *= fChargeConverter->GetRelativeError(cherr); 
+  return cherr;
 }
 
 

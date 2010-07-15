@@ -284,17 +284,17 @@ GFTrackCand PndMvdTpcRiemannCorrelatorTask::AddTPCHits(GFTrackCand* myCand)
 
 void PndMvdTpcRiemannCorrelatorTask::DrawDistHistos(TCanvas* can, int event)
 {
-	DrawHistos(can, fHRiemannDistVector.at(event));
+	DrawHistos(can, fHRiemannDistVector[event]);
 }
 
 void PndMvdTpcRiemannCorrelatorTask::DrawSZHistos(TCanvas* can, int event)
 {
-	DrawHistos(can, fHSZDistVector.at(event));
+	DrawHistos(can, fHSZDistVector[event]);
 }
 
 void PndMvdTpcRiemannCorrelatorTask::DrawSZChi2Histos(TCanvas* can, int event)
 {
-	DrawHistos(can, fHSZChi2Vector.at(event));
+	DrawHistos(can, fHSZChi2Vector[event]);
 }
 
 void PndMvdTpcRiemannCorrelatorTask::DrawHistos(TCanvas* can, std::vector<TH1*> histos)
@@ -304,7 +304,7 @@ void PndMvdTpcRiemannCorrelatorTask::DrawHistos(TCanvas* can, std::vector<TH1*> 
 	for (unsigned int i = 0; i < histos.size() && i < 9; i++){
 		can->cd(i+1);
 		can->Update();
-		histos.at(i)->DrawClone();
+		histos[i]->DrawClone();
 	}
 }
 

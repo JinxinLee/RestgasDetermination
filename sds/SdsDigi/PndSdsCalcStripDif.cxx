@@ -294,28 +294,28 @@ PndSdsCalcStripDif::GetStrips(Double_t inx, Double_t iny, Double_t inz,
     Double_t total_Q = ChargeFromEloss(eLoss);
     
     if(inStrip<outStrip){
-    	str_head = strips.at(0);
+    	str_head = strips[0];
     	//if(!str_head)cout<<"str_head is available"<<endl;
-    	str_tail = strips.at(size-1);
+    	str_tail = strips[size-1];
     	head_Path = Path1;
     	//tail_Path = Path2+(size-1)*fPitch;
       //     cout<<"when inStrip!=outStrip, the head Path is "<<head_Path<<endl;
     	for(Int_t i = 1; i<size-1;i++)
-    	  str_middle.push_back(strips.at(i));
+    	  str_middle.push_back(strips[i]);
       
       dir=-1;
       
     }
     else{
-    	str_tail = strips.at(0);
+    	str_tail = strips[0];
     	//if(!str_tail)cout<<"str_tail is available, inStrip<outStrip"<<endl;
-    	str_head = strips.at(size-1);
+    	str_head = strips[size-1];
     	head_Path = Path2;
     	//tail_Path = Path1+(size-1)*fPitch;
     	//	cout<<"when inStrip>outStrip, the head Path is "<<head_Path<<endl;
       //		cout<<"the dir and size is "<<dir<<","<<size<<endl;
     	for(Int_t i = size-2; i>0;i--)
-    	  str_middle.push_back(strips.at(i));
+    	  str_middle.push_back(strips[i]);
       
     	dir=1;
       
@@ -399,11 +399,11 @@ PndSdsCalcStripDif::GetStrips(Double_t inx, Double_t iny, Double_t inz,
     	strips.insert(strips.begin()+strip_head.size(),strip_middle.begin(),strip_middle.begin()+strip_middle.size());
       
       /*for(Int_t i=0; i<strip_head.size(); i++)
-       strips.push_back(strip_head.at(i));
+       strips.push_back(strip_head[i]);
        for(Int_t i=0; i<strip_middle.size(); i++)
-       strips.push_back(strip_middle.at(i));
+       strips.push_back(strip_middle.[i]);
        for(Int_t i=0; i<strip_tail.size(); i++)
-       strips.push_back(strip_tail.at(i));*/
+       strips.push_back(strip_tail[i]);*/
     }//if strips fired exceed 3
     
     //-----------------------End Tsito Digi with diffusion-------------------------------------------------

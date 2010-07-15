@@ -47,6 +47,7 @@ class PndSdsTotChargeConversion : public PndSdsChargeConversion{
 	virtual Double_t DigiValueToCharge(Double_t digivalue);
 	Double_t GetPileUpTime(Double_t charge);		//returns the time the capacitor is loaded and therefore the time the hit MVD is blind for other events
   virtual Double_t GetRelativeError(Double_t Charge);
+  virtual Int_t GetTimeStamp(Double_t time);
   
   private :
   Double_t fthreshold;		//[e]

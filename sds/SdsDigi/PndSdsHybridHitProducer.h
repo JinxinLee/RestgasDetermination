@@ -50,6 +50,8 @@ class PndSdsHybridHitProducer : public PndSdsTask
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
+  virtual void FinishEvent();
+  
   void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
   Bool_t GetPersistance() {return fPersistance;};
   
