@@ -5,14 +5,14 @@
 # Setting the linker and compiler flags and options
 #####################################################
 
-# FLAGSMACHINE=-march=athlon64 -mfpmath=sse -msse2 -m64
-# FLAGSMACHINE += -m64 -mssse3 -mpc64 -mfpmath=sse -msse3 -m3dnow
+# FLAGSMACHINE=-march=athlon64
 # CCFLAGS += -Weffc++ -pedantic
-# -Wunreachable-code # -Wunsafe-loop-optimizations #-Winline
+
 MAKEFLAGS  = -wkr --no-print-directory #-s
 
 FLAGSMACHINE = -march=native -mtune=native
-# FLAGSMACHINE += -mssse3 -mpc64 -mfpmath=sse -msse3 -m3dnow
+# FLAGSMACHINE += -m64 -mfpmath=sse -mssse3 
+# FLAGSMACHINE += -mpc64 -mfpmath=sse -msse3 -m3dnow
 
 CCFLAGS  = -W -Wall -Wextra -Wredundant-decls -Wshadow -Werror
 CCFLAGS += -Woverlength-strings -Wstack-protector

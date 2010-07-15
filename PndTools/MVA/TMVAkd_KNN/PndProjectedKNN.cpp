@@ -60,6 +60,7 @@ const std::string& PndProjectedKNN::Classify(std::vector<float> EvtData)
   // Find the maximum Mva Val.
   for(size_t i = 0; i < classes.size(); i++){
     std::string curName = classes[i].Name;
+
     if( TMPres[curName] > Curprob){
       Curprob = TMPres[curName];
       CurWin  = curName;
@@ -75,7 +76,7 @@ void PndProjectedKNN::GetMvaValues(std::vector<float> eventData,
 				   std::map<string, float>& result)
 {
   // Zero number of neighbors!!???
-  if(m_knn == 0)
+  if( m_knn == 0 )
   {
     cerr << "\t<ERROR> Number neighbours can not be zero."
 	      << endl;

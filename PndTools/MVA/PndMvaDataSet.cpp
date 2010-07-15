@@ -358,7 +358,6 @@ void PndMvaDataSet::ReadInput()
     {
       cerr<< "\t<ERROR> Could not find data tree " << name 
 	       << endl;
-      //abort();
       assert (t);
     }
     // Init a container to bind to the tree branches

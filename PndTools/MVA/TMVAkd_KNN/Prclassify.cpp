@@ -76,7 +76,7 @@ int main(int argc, char** argv)
 
   PndProjectedKNN cls (InPutFileName, clas, stru, names);
   cls.SetKnn(NumNei);
-  cls.SetEvtParam(0.8,1.0);
+  cls.SetEvtParam(0.8, 1.0);
   cls.InitKNN();
 
   std::cout << ".......... Init is done." << std::endl;

@@ -94,8 +94,10 @@ void PndStdKnnClassify::GetMvaValues(vector<float> eventData,
   }
   // Get variables.
   const vector<PndMvaVariable>& vars = m_dataSets.GetVars();
+
   // Get labels.
   const vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+  
   // Get examples.
   const vector<pair<string, vector<float>*> >& events = m_dataSets.GetData();
 

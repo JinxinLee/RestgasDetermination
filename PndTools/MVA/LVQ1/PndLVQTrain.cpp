@@ -337,7 +337,7 @@ void PndLVQTrain::Train21()
  */
 void PndLVQTrain::InitProtoTypes()
 {
-  // number of proto = 0 makes no sence.
+  // number of proto = 0 makes No sence.
   bool nonZeroProto = true;
   for(std::map<std::string, unsigned int>::const_iterator iter = m_numProtoPerClass.begin(); 
       iter != m_numProtoPerClass.end(); iter++){
@@ -347,6 +347,21 @@ void PndLVQTrain::InitProtoTypes()
     std::cerr << "<ERROR> Undefined number of prototypes for one or more classes."
 	      << std::endl;
     assert(nonZeroProto);
+  }
+  
+  // Number of proto larger dan number of events!
+  // Fetch labels.
+  const std::vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+  
+  for(size_t i = 0; i < classes.size(); i++){
+
+    if( classes[i].NExamples < m_numProtoPerClass[(classes[i]).Name] ){
+      std::cerr << "<ERROR> Requested number of prototypes larger than "
+		<< "the number of available examples for class: "
+		<< (classes[i]).Name << std::endl << std::endl;
+    exit(EXIT_FAILURE);
+    }
+
   }
 
   // Clear protypes list
@@ -382,6 +397,7 @@ void PndLVQTrain::InitProtoK_Means()
 {
   std::cout << "<INFO> Initializing LVQ prototypes using K_Means clustering."
 	    << std::endl;
+
   // Fetch labels.
   const std::vector<PndMvaClass>& classes = m_dataSets.GetClasses();
 
@@ -439,9 +455,10 @@ void PndLVQTrain::InitProtoK_Means()
     
   }// END ClassLoop
   
-  // Copy cluster centers (CCMs) to LVQ prototypes (code books)
+  // Copy cluster centers (CMs) to LVQ prototypes (code books)
   for(size_t i = 0 ; i < classes.size(); i++){
     std::string label = classes[i].Name;
+
     //std::vector<std::vector<float>*> TMP = ProtoVector[label];
     //                       ------ TMP.size() -------
     for(size_t pr = 0; pr < (ProtoVector[label]).size(); pr++){
@@ -454,7 +471,7 @@ void PndLVQTrain::InitProtoK_Means()
 
 /**
  * Initialize LVQ prototypes (Code books) using class conditional
- * means vectors.
+ * means (CCM) vectors.
  */
 void PndLVQTrain::InitProtoRand()
 {
@@ -765,7 +782,7 @@ void PndLVQTrain::SetNumberOfProto(const std::map<std::string, unsigned int>& la
       m_numProtoPerClass [curLabel] = 0;
       std::cerr << "<ERROR> Number of prototypes for curLabel was not defined."
 		<< "        Program is halted." << std::endl;
-      abort();
+      exit(EXIT_FAILURE);      
     }
   }
 }

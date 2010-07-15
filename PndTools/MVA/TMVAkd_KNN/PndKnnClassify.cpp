@@ -105,6 +105,7 @@ const std::string& PndKnnClassify::Classify(std::vector<float> EvtData)
   // Find the maximum Mva Val.
   for(size_t i = 0; i < classes.size(); i++){
     std::string curName = classes[i].Name;
+
     if( TMPres[curName] > Curprob){
       Curprob = TMPres[curName];
       CurWin  = curName;
@@ -163,7 +164,7 @@ void PndKnnClassify::GetMvaValues(std::vector<float> eventData,
   // Normalize current Event
   for(size_t k = 0; k < vars.size(); k++)
   {
-    assert(vars[k].NormFactor != 0);
+    assert( vars[k].NormFactor != 0 );
     eventData[k] -= vars[k].Mean;
     eventData[k] /= vars[k].NormFactor;
   }
