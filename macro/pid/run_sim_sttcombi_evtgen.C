@@ -61,11 +61,11 @@ run_sim_sttcombi_evtgen(Int_t nEvents=10){
   //fRun->AddModule(Pipe);
 
   FairDetector *Stt= new PndStt("STT", kTRUE);
-  Stt->SetGeometryFileName("straws_skewed_blocks_pipe_120cm.geo");
+  Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
   fRun->AddModule(Stt);
 
   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
-  Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
+  Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
   fRun->AddModule(Mvd);
 
   PndEmc *Emc = new PndEmc("EMC",kTRUE);

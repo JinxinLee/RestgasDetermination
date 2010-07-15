@@ -39,6 +39,9 @@
   
   PndPidMvdAssociatorTask *assMvd= new PndPidMvdAssociatorTask();
   fRun->AddTask(assMvd);
+
+  PndPidMdtHCAssociatorTask *assMdt= new PndPidMdtHCAssociatorTask();
+  fRun->AddTask(assMdt);
   
   PndPidDrcAssociatorTask *assDrc= new PndPidDrcAssociatorTask();
   fRun->AddTask(assDrc);

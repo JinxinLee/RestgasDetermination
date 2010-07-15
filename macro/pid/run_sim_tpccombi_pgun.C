@@ -65,7 +65,7 @@ run_sim_tpccombi_pgun(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2
   fRun->AddModule(Tpc);
 
   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
-  Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
+  Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
   fRun->AddModule(Mvd);
 
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
