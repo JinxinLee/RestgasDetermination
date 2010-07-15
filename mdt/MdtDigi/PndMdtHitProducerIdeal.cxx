@@ -94,7 +94,7 @@ void PndMdtHitProducerIdeal::Exec(Option_t* opt) {
   Int_t nPoints = fPointArray->GetEntriesFast();
   PndMdtPoint *point = 0;
   TVector3 pos;
-  TVector3 sig(0., 0., 0.);
+  TVector3 sig(fPosResolution, fPosResolution, fPosResolution);
   
   for (Int_t iPoint=0; iPoint<nPoints; iPoint++) {
     point  = (PndMdtPoint*) fPointArray->At(iPoint);
