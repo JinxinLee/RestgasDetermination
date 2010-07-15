@@ -346,8 +346,10 @@ void PndPidCorrelator::SetParContainers() {
 //______________________________________________________
 void PndPidCorrelator::Exec(Option_t * option) {
   //-
-  cout << " =====   PndPidCorrelator - Event: " << fEventCounter << " - Number of tracks for pid " << fTrack->GetEntriesFast();
-  cout << " - Number of EMC Cluster for pid " << fEmcCluster->GetEntriesFast() << endl;;
+  cout << " =====   PndPidCorrelator - Event: " << fEventCounter;
+  if (fTrack)     cout << " - Number of tracks for pid " << fTrack->GetEntriesFast();
+  if (fEmcMode>0) cout << " - Number of EMC Cluster for pid " << fEmcCluster->GetEntriesFast();
+  cout << endl;
   Reset();
   
   if (fTrack)     ConstructChargedCandidate();
