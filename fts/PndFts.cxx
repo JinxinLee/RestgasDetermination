@@ -1,0 +1,527 @@
+// -------------------------------------------------------------------------
+// -----                       PndFts source file                      -----
+// -------------------------------------------------------------------------
+
+#include "PndFts.h"
+
+#include "PndGeoFtsPar.h"
+#include "PndGeoFts.h"
+#include "PndFtsPoint.h"
+#include "PndDetectorList.h"
+#include "PndStack.h"
+#include "PndFtsMapCreator.h"
+
+#include "FairRun.h"
+#include "FairGeoInterface.h"
+#include "FairGeoLoader.h"
+#include "FairGeoNode.h"
+#include "FairGeoRootBuilder.h"
+#include "FairRootManager.h"
+#include "FairRuntimeDb.h"
+#include "FairVolume.h"
+
+#include "TClonesArray.h"
+#include "TLorentzVector.h"
+#include "TParticle.h"
+#include "TVirtualMC.h"
+#include "TGeoMatrix.h"
+#include "TObjArray.h"
+#include "TGeoTube.h"
+
+#include <iostream>
+
+using std::cout;
+using std::endl;
+using std::string;
+
+// TODO: read this from geant initialization
+#define innerStrawDiameter 1.
+//#define redefineLambdaChargedDecay 0
+
+// -----   Default constructor   -------------------------------------------
+PndFts::PndFts() 
+{
+    fFtsCollection = new TClonesArray("PndFtsPoint");
+    fPosIndex = 0;
+    fVerboseLevel = 1;
+    fIsInitialized = kFALSE;
+}
+// -------------------------------------------------------------------------
+
+
+
+// -----   Standard constructor   ------------------------------------------
+PndFts::PndFts(const char* name, Bool_t active)
+  : FairDetector(name, active) 
+{
+    fFtsCollection = new TClonesArray("PndFtsPoint");
+    fPosIndex = 0;
+    fVerboseLevel = 1;
+    fIsInitialized = kFALSE;
+}
+// -------------------------------------------------------------------------
+
+
+
+
+// -----   Destructor   ----------------------------------------------------
+PndFts::~PndFts() 
+{
+    if (fFtsCollection) 
+    {
+	fFtsCollection->Delete(); 
+	delete fFtsCollection;
+    }
+}
+// -------------------------------------------------------------------------
+
+
+// -----   Private method GetSquaredDistanceFromWire -----------------------
+float PndFts::GetSquaredDistanceFromWire()
+{
+    TLorentzVector
+	entryPosition;  
+    
+    float
+	positionInMother[3],
+	positionInStraw[3];
+    
+    gMC->TrackPosition(entryPosition);
+    positionInMother[0] = entryPosition.X();
+    positionInMother[1] = entryPosition.Y();
+    positionInMother[2] = entryPosition.Z();
+    gMC->Gmtod(positionInMother, positionInStraw, 1);
+    
+    return positionInStraw[0] * positionInStraw[0] + 
+	positionInStraw[1] * positionInStraw[1];
+}
+// -------------------------------------------------------------------------
+
+bool PndFts::Split(string &aDest, string &aSrc, char aDelim)
+{
+   if(aSrc.empty())
+      return false;
+
+   string::size_type 
+       pos = aSrc.find(aDelim);
+
+   aDest = aSrc.substr(0, pos);
+
+   if(pos != string::npos)
+       aSrc = aSrc.substr(pos + 1);
+   else
+       aSrc = "";
+
+   return true;
+}
+
+string PndFts::GetStringPart(string &aSrc, Int_t part, char aDelim)
+{	
+    string 
+	retval = "",
+	sub;
+
+    int
+	counter = 0;
+
+    while(Split(sub, aSrc, aDelim))
+    {
+	if (counter == part)
+	{
+	    retval = sub;
+	    break;
+	}
+	counter++;
+    }
+
+    return retval;
+}
+
+// -----   Public method ProcessHits  --------------------------------------
+Bool_t  PndFts::ProcessHits(FairVolume* vol)
+{
+  
+  //new>>>>>>>>>>>>>>>>>>
+  //std::cout<<"ProcessHit PndFts####################################################"<<std::endl;
+
+
+  TString vol_name(gMC->CurrentVolName()); 
+  //std::cout<<"CurrentVolName:######"<<vol_name<<std::endl;
+  TGeoHMatrix M;
+  gMC->GetTransformation(gMC->CurrentVolPath(),M);
+  TString name(gMC->CurrentVolName());
+  
+  //new>>>>>>>>>>>>>>>>>>
+  
+  if (gMC->TrackCharge() != 0.)
+    {
+      
+      if ( gMC->IsTrackEntering() ) 
+	{
+	  //if (sqrt(GetSquaredDistanceFromWire()) > (innerStrawDiameter / 4.))
+	  
+	  {
+	    // Set parameters at entrance of volume. Reset ELoss.
+	    fELoss  = 0.;
+	    fTime   = gMC->TrackTime() * 1.0e09;
+	    fLength = gMC->TrackLength();
+	    gMC->TrackPosition(fPos);
+	    gMC->TrackMomentum(fMomIn);
+	    gMC->TrackPosition(fpostotin);// da cancellare
+	    Double_t globalPos[3] = {0., 0., 0.}; // stt1 modified
+	    Double_t localPos[3] = {0., 0., 0.}; // stt1 modified
+	    
+	    globalPos[0] = fPos.X();
+	    globalPos[1] = fPos.Y();
+	    globalPos[2] = fPos.Z();
+	    
+	
+	    gMC->Gmtod(globalPos, localPos, 1);
+	    fPosInLocal.SetXYZM(localPos[0], localPos[1], localPos[2], 0.0);
+	    
+	    
+	    
+	  }
+	}
+      
+      // Sum energy loss for all steps in the active volume
+      fELoss += gMC->Edep();
+      
+	// Create PndFtsPoint at exit of active volume -- but not into the wire
+	//if (gMC->IsTrackExiting() && (sqrt(GetSquaredDistanceFromWire()) > (innerStrawDiameter / 4.))) 
+      if (gMC->IsTrackExiting())
+	{
+	  fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
+	  fVolumeID = kFTS;//vol->getMCid();
+
+	  //std::cout<<"test Vol----------"<<vol->getMCid()<<std::endl;
+
+	  fMass = gMC->TrackMass();   // mass (GeV)
+	  gMC->TrackPosition(fPosOut);
+	  gMC->TrackMomentum(fMomOut);
+	  gMC->TrackPosition(fpostotout);// da cancellare
+	  Double_t globalPos[3] = {0., 0., 0.}; // stt1 modified
+	  Double_t localPos[3] = {0., 0., 0.}; // stt1 modified
+	  
+	  gMC->Gdtom(localPos, globalPos, 1);
+	  
+	  fPos.SetXYZM(globalPos[0], globalPos[1], globalPos[2], 0.0);
+	  
+	  globalPos[0] = fPosOut.X();
+	  globalPos[1] = fPosOut.Y();
+	  globalPos[2] = fPosOut.Z();
+	  
+	  gMC->Gmtod(globalPos, localPos, 1);
+	  fPosOutLocal.SetXYZM(localPos[0], localPos[1], localPos[2], 0.0);
+	  
+	  
+	  // string basename("stt1tube");
+	  string basename;
+	  TString volumename;
+	  string
+	    hashmark("#"),
+	    volName,
+	    fullName,
+	    number,
+	    specialname,
+	    volPath(gMC->CurrentVolPath()),
+	    volPath2(gMC->CurrentVolPath());
+	  
+	  volumename = volPath;
+	  volName = GetStringPart(volPath, 2, '/');
+	  number = GetStringPart(volName, 1, '_');	
+
+	  Int_t start =volPath2.find("fts",0);
+	  specialname = volPath2.substr(start,volPath2.find("_",start)-start);
+	    
+	  if(volumename.Contains("fts01")) basename = "fts01tube";
+	  if(volumename.Contains("fts031")) basename = "fts031tube";
+	  if(volumename.Contains("fts032")) basename = "fts032tube";
+	  if(volumename.Contains("fts033")) basename = "fts033tube";
+	  if(volumename.Contains("fts034")) basename = "fts034tube";
+	  if(volumename.Contains("fts035")) basename = "fts035tube";
+	  if(volumename.Contains("fts036")) basename = "fts036tube";
+	  if(volumename.Contains("fts037")) basename = "fts037tube";
+	  if(volumename.Contains("fts038")) basename = "fts038tube";
+          if(volumename.Contains("fts05")) basename = "fts05tube";
+	  if(volumename.Contains("fts06")) basename = "fts06tube";
+	  
+	  fullName = basename + hashmark + number;
+	 
+	  /* 
+	  cout << "volName: " << volName <<  " " << volumename << endl;
+	   	    cout << "number: " << number << endl;
+		    //cout <<"volPath "<< gMC->CurrentVolPath() << endl;
+	   	    cout << "fullname: " << fullName << endl;
+	  */ 	  
+
+	  //FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
+	  //PndGeoFtsPar* par=(PndGeoFtsPar*)(rtdb->getContainer("PndGeoFtsPar"));
+	  //TObjArray *fPassNodes = par->GetGeoPassiveNodes();
+	  
+	  FairGeoNode 
+	    *volnode = dynamic_cast<FairGeoNode*> (fPassNodes->FindObject(fullName.c_str()));
+	    
+	  if(number=="0") {
+	    volnode = dynamic_cast<FairGeoNode*> (fPassNodes->FindObject(specialname.c_str()));
+	    //cout<<">>>>"<<endl;
+	    //cout<<"special "<<specialname.c_str()<<endl;
+	  }
+	    
+	  if (!volnode)
+	    {
+	      cout << "-I- PndFts: No volume " << fullName.c_str() << " found in geometry container."  << endl;
+	      return kFALSE;
+	    }
+	    
+	  //FairGeoRotation  // check if vol is the FairGeoVolume or the FairGeoNode before using this!
+	  //  rotation = vol->getLabTransform()->getRotMatrix();
+	    
+	  //FairGeoVector
+	  // originalVector(0., 0., 1.),
+	  //  rotatedVector = rotation * originalVector;
+
+		
+          FairGeoVector rotatedVector;
+	    
+	  rotatedVector.setX(M.GetRotationMatrix()[2]);//2
+	  rotatedVector.setY(M.GetRotationMatrix()[5]);//5
+	  rotatedVector.setZ(M.GetRotationMatrix()[8]);
+	    
+	  //std::cout<<"acos of x "<<acos(rotatedVector.X())<<std::endl;
+
+	  if(M.GetRotationMatrix()[8]==1) {//unskwed
+
+	    rotatedVector.setX(0.);
+	    rotatedVector.setY(0.);
+	    rotatedVector.setZ(1.);	 
+ 
+	  }
+	    
+          //cout << "positionc: " << fPos.X() << " " << fPos.Y() << " " << fPos.Z() << endl;	
+	  //    cout << "position: " << fpostot.X() << " " << fpostot.Y() << " " << fpostot.Z() << endl;
+	  
+	  // if(sqrt(fPosInLocal.X()*fPosInLocal.X() + fPosInLocal.Y()*fPosInLocal.Y()) < 0.45) {
+	  // 	      cout << "position in : " << sqrt(fPosInLocal.X()*fPosInLocal.X() + fPosInLocal.Y()*fPosInLocal.Y()) << endl;
+	  // 	    }
+	  // 	    if(sqrt(fPosOutLocal.X()*fPosOutLocal.X() + fPosOutLocal.Y()*fPosOutLocal.Y()) < 0.45)  {
+	  // 	      cout << "position out: " << sqrt(fPosOutLocal.X()*fPosOutLocal.X() + fPosOutLocal.Y()*fPosOutLocal.Y()) << endl;
+
+	  // 	    }
+ 	//for ex2
+	fpostot.SetXYZM((fpostotin.X() +  fpostotout.X())/2., (fpostotin.Y() + fpostotout.Y())/2., (fpostotin.Z() + fpostotout.Z())/2.,0.0); // da cancellare
+	//for GFKalman
+	//fpostot.SetXYZM(fpostotout.X(), fpostotout.Y(), fpostotout.Z(), 0.0);
+
+
+	  //  cout << "in : " << fpostotin.X() << " " << fpostotin.Y() << " " << fpostotin.Z() << endl;
+	  // 	    cout << "out: " << fpostotout.X() << " " << fpostotout.Y() << " " << fpostotout.Z() << endl;
+	  // 	    cout << "tot: " << fpostot.X() << " " << fpostot.Y() << " " << fpostot.Z() << endl;
+	  // 	    cout << (fpostotin.X() +  fpostotout.X())/2. << " " << (fpostotin.Y() + fpostotout.Y())/2. << " " << (fpostotin.Z() + fpostotout.Z())/2. << endl;
+
+	//TGeoTube *tube = (TGeoTube*) vol->getGeoNode()->getRootVolume()->GetShape();
+        //fHalfLength = tube->GetDz();
+     
+
+         //CHECK map creator-------------------------------------------------
+         PndFtsMapCreator *mapper = new PndFtsMapCreator(fGeoType);
+	 Int_t tubeID=0;
+	 //testTubeID=tube number as in the geometry file....
+	 //we need to calculate the real number in order to have a different
+	 //number for each tube (also for up and down short tubes)
+	 Int_t testTubeID = mapper->GetTubeIDFromPath(gMC->CurrentVolPath());
+	 Int_t chamberID=mapper->GetChamberIDFromPath(gMC->CurrentVolPath());
+	 Int_t layerID=mapper->GetLayerID(chamberID,testTubeID,gMC->CurrentVolPath());
+	 //std::cout<<"LAYERID==========="<<layerID<<std::endl;
+	 //tubeID=at each tube corresponds only one id number.....
+	 tubeID = mapper->GetTubeIDTot(chamberID,layerID,testTubeID,gMC->CurrentVolPath());
+	 //std::cout<<"PndFts.cxx. chamber, tube ID = "<<chamberID<<" "<<tubeID<<" "<<testTubeID<<std::endl;
+	 ////----------------------------------------------------------------
+  
+	 AddHit(fTrackID, fVolumeID, tubeID, chamberID,layerID,
+		 TVector3(fpostot.X(), fpostot.Y(), fpostot.Z()),
+		 TVector3(fPosInLocal.X(),   fPosInLocal.Y(),   fPosInLocal.Z()),
+		 TVector3(fPosOutLocal.X(),  fPosOutLocal.Y(),  fPosOutLocal.Z()),
+		 TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
+		 TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
+		 fTime, fLength, fELoss, fMass); 
+         
+
+	  // Increment number of stt points for TParticle
+	  PndStack* stack = (PndStack*) gMC->GetStack();
+          stack->AddPoint(kFTS);
+	  ResetParameters();
+	}
+    }
+  
+  return kTRUE;
+}
+// -------------------------------------------------------------------------
+
+
+
+// -----   Public method EndOfEvent   --------------------------------------
+void PndFts::EndOfEvent() 
+{
+    if (fVerboseLevel) 
+	Print();
+    fFtsCollection->Clear();
+    fPosIndex = 0;
+}
+// -------------------------------------------------------------------------
+
+
+
+// -----   Public method Register   ----------------------------------------
+void PndFts::Register() 
+{
+    FairRootManager::Instance()->Register("FTSPoint", "Fts", fFtsCollection, kTRUE);
+}
+// -------------------------------------------------------------------------
+
+
+
+// -----   Public method GetCollection   -----------------------------------
+TClonesArray* PndFts::GetCollection(Int_t iColl) const 
+{
+    if (iColl == 0) 
+	return fFtsCollection;
+    else 
+	return NULL;
+}
+// -------------------------------------------------------------------------
+
+
+
+// -----   Public method Print   -------------------------------------------
+void PndFts::Print() const 
+{
+    Int_t 
+	nHits = fFtsCollection->GetEntriesFast();
+    
+    cout << "-I- PndFts: " << nHits << " points registered in this event."  << endl;
+    
+    if (fVerboseLevel>1)
+	for (Int_t i=0; i<nHits; i++) 
+	    (*fFtsCollection)[i]->Print();
+}
+// -------------------------------------------------------------------------
+
+
+
+// -----   Public method Reset   -------------------------------------------
+void PndFts::Reset() 
+{
+    fFtsCollection->Clear();
+    ResetParameters();
+}
+// -------------------------------------------------------------------------
+
+
+
+// -----   Public method CopyClones   --------------------------------------
+void PndFts::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)
+{
+    Int_t 
+	nEntries = cl1->GetEntriesFast();
+    
+    cout << "-I- PndFts: " << nEntries << " entries to add." << endl;
+    
+    TClonesArray& clref = *cl2;
+    
+    PndFtsPoint
+	*oldpoint = NULL;
+    for (Int_t i=0; i<nEntries; i++) 
+    {
+	oldpoint = (PndFtsPoint*) cl1->At(i);
+	
+	Int_t 
+	    index = oldpoint->GetTrackID() + offset;
+	
+	oldpoint->SetTrackID(index);
+	new (clref[fPosIndex]) PndFtsPoint(*oldpoint);
+	fPosIndex++;
+    }
+    cout << "-I- PndFts: " << cl2->GetEntriesFast() << " merged entries." 
+	 << endl;
+}
+// -------------------------------------------------------------------------
+
+
+
+// -----   Public method ConstructGeometry   -------------------------------
+void PndFts::ConstructGeometry() 
+{
+  FairGeoLoader*    geoLoad = FairGeoLoader::Instance();
+  FairGeoInterface* geoFace = geoLoad->getGeoInterface();
+  PndGeoFts*       Geo  = new  PndGeoFts();
+  Geo->setGeomFile(GetGeometryFileName());
+  geoFace->addGeoModule(Geo);
+
+  Bool_t rc = geoFace->readSet(Geo);
+  if (rc) Geo->create(geoLoad->getGeoBuilder());
+
+  TList* volList = Geo->getListOfVolumes();
+
+  // store geo parameter
+  FairRun *fRun = FairRun::Instance();
+  FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
+  PndGeoFtsPar* par=(PndGeoFtsPar*)(rtdb->getContainer("PndGeoFtsPar"));
+  TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
+  fPassNodes = par->GetGeoPassiveNodes();
+
+  TListIter iter(volList);
+  FairGeoNode* node   = NULL;
+  FairGeoVolume *aVol=NULL;
+  
+  
+  while( (node = (FairGeoNode*)iter.Next()) ) {
+      aVol = dynamic_cast<FairGeoVolume*> ( node );
+       if ( node->isSensitive()  ) {
+           fSensNodes->AddLast( aVol );
+       }else{
+           fPassNodes->AddLast( aVol );
+       }
+  }
+
+  fGeoType = 1; // CHECK
+  par->SetGeometryType(fGeoType);
+  par->SetTubeInRad(0.5);    // cm
+  par->SetTubeOutRad(0.001); // cm
+
+
+  par->setChanged();
+  par->setInputVersion(fRun->GetRunId(),1);
+  ProcessNodes ( volList );
+  
+}
+// -------------------------------------------------------------------------
+
+
+
+
+// -----   Private method AddHit   -----------------------------------------
+PndFtsPoint* PndFts::AddHit(Int_t trackID, Int_t detID, Int_t tubeID, Int_t chamberID, Int_t layerID,
+			    TVector3 pos, TVector3 posInLocal, TVector3 posOutLocal, 
+			    TVector3 momIn, TVector3 momOut,
+			    Double_t time, Double_t length, Double_t eLoss,  Double_t mass)   // da cancellare postot
+{
+  TClonesArray& 
+      clref = *fFtsCollection;
+
+  Int_t 
+      size = clref.GetEntriesFast();
+
+  PndFtsPoint *pointnew = new(clref[size]) PndFtsPoint(trackID, detID, tubeID, chamberID, layerID, pos, posInLocal, posOutLocal,momIn, momOut, time, length, eLoss, mass);
+
+   pointnew->SetTubeID(tubeID);
+   pointnew->SetChamberID(chamberID);
+   pointnew->SetLayerID(layerID);
+
+}
+// -------------------------------------------------------------------------
+
+ 
+
+ClassImp(PndFts)
+    
