@@ -1,0 +1,27 @@
+#ifndef PNDGEOFTS_H
+#define PNDGEOFTS_H
+
+#include "FairGeoSet.h"
+
+class  PndGeoFts : public FairGeoSet 
+{
+ protected:
+  char modName[20];  // name of module
+  char eleName[20];  // substring for elements in module
+ public:
+  PndGeoFts();
+  ~PndGeoFts() {}
+  const char* getModuleName(Int_t);
+  const char* getEleName(Int_t);
+  inline Int_t getModNumInMod(const TString&);
+  ClassDef(PndGeoFts,0) // Class for Fts
+};
+
+inline Int_t PndGeoFts::getModNumInMod(const TString& name) {
+  // returns the module index from module name
+
+ 
+  return (Int_t)(name[3]-'0')-1;
+}
+
+#endif  /* !PNDGEOFTS_H */
