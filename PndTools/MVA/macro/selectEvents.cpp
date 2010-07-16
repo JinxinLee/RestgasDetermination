@@ -18,10 +18,10 @@ void selectEvents(int pdg,
   
   std::vector<int> EvtIds;
   
-  //EMC cluster energy, num.clusters, numb. crystals
+  // EMC cluster energy, num.clusters, numb. crystals
   float emc, emcCorr, mom;
   
-  //Selected Zernike moments and LATeral energydeposition
+  // Selected Zernike moments and LATeral energydeposition
   float z20, z53, latEdep;
   int numClus, numCrys;
   mom = emc = emcCorr = z20 = z53 = 0.00;
@@ -30,6 +30,7 @@ void selectEvents(int pdg,
   // N-Tuple to store the variables.
   TNtuple EmcNtp (partName.c_str(), partName.c_str(),
 		  "id:p:emc:emcCorr:numClus:numCrys:lat:z20:z53");
+
   // Open Simulation file
   TFile sF(simFile.c_str());
   
@@ -88,7 +89,7 @@ void selectEvents(int pdg,
   for (int j = 0; j < tsim->GetEntriesFast(); j++){
     tsim->GetEntry(j);
     
-    cout << "<Event>: " << j << endl;
+    //cout << "<Event>: " << j << endl;
     
     // Select the first interaction point.
     PndEmcPoint* pt   = (PndEmcPoint*) pointList->At(0);
@@ -134,49 +135,50 @@ void selectEvents(int pdg,
 		<<" number of tracks = "<< recTrakArr->GetEntriesFast() 
 		<< " with P = "<< par.GetMomentum().Mag() 
 		<< endl;
-      
-      // Select the right cluster(highest E_dep).
-      double maxEnergy = -1.0;
-      int clIndex = -1;
-      
-      // Loop through the clusters.
-      for(int cl = 0; cl < clusters_arr->GetEntriesFast(); cl++){
-	PndEmcCluster* clust = (PndEmcCluster*) clusters_arr->At(cl);
-	if(clust->GetEnergyCorrected() > maxEnergy){
-	  maxEnergy = clust->GetEnergyCorrected();
-	  clIndex = cl;
-	}
-      }
-      
-      // Found the cluster with highest E_dep.
-      if( clIndex >= 0 ){
-	PndEmcCluster* HE_cluster = (PndEmcCluster*) clusters_arr->At(clIndex);
-	
-	numClus = clusters_arr->GetEntriesFast();
-	numCrys = HE_cluster->NumberOfDigis();
-	mom = par.GetMomentum().Mag();
-	emc = HE_cluster->energy(); 
-	emcCorr = HE_cluster->GetEnergyCorrected();  
-	
-	//z20 = clsZmom.AbsZernikeMoment(2, 0, 15);// Z_{n = 2}^{m = 0}
-	z20 = HE_cluster->Z20();
-	
-	//z53 = clsZmom.AbsZernikeMoment(5, 3, 15);// Z_{n = 5}^{m = 3}
-	z53 = HE_cluster->Z53();
-	
-	//latEdep = clsZmom.Lat();
-	latEdep = HE_cluster->LatMom();
-	
-	// Fill tree
-	if( (mom > 0) && (mom <= 15) && ((emc/mom) <= 2.0) ){
-	  EmcNtp.Fill(evid, mom, emc, emcCorr, numClus, numCrys, latEdep, z20, z53);
-	  std::cout << "emc = " << emc << " emcCorr = " << emcCorr << std::endl;
-	}
-      }
+      mom = par.GetMomentum().Mag();
     }// End if(tra)
     else{//Neutral or not correctly reconstructed.
       cout << "<Empty track>: number of clusters = "
 	   << clusters_arr->GetEntriesFast() << endl;
+    }
+    
+    // Select the right cluster(highest E_dep).
+    double maxEnergy = -1.0;
+    int clIndex = -1;
+    
+    // Loop through the clusters.
+    for(int cl = 0; cl < clusters_arr->GetEntriesFast(); cl++){
+      PndEmcCluster* clust = (PndEmcCluster*) clusters_arr->At(cl);
+      if(clust->GetEnergyCorrected() > maxEnergy){
+	maxEnergy = clust->GetEnergyCorrected();
+	clIndex = cl;
+      }
+    }
+    
+    // Found the cluster with highest E_dep.
+    if( clIndex >= 0 ){
+      PndEmcCluster* HE_cluster = (PndEmcCluster*) clusters_arr->At(clIndex);
+      
+      numClus = clusters_arr->GetEntriesFast();
+      numCrys = HE_cluster->NumberOfDigis();
+      emc = HE_cluster->energy(); 
+      emcCorr = HE_cluster->GetEnergyCorrected();  
+      
+      //z20 = clsZmom.AbsZernikeMoment(2, 0, 15);// Z_{n = 2}^{m = 0}
+      z20 = HE_cluster->Z20();
+      
+      //z53 = clsZmom.AbsZernikeMoment(5, 3, 15);// Z_{n = 5}^{m = 3}
+      z53 = HE_cluster->Z53();
+      
+      //latEdep = clsZmom.Lat();
+      latEdep = HE_cluster->LatMom();
+      
+      // Fill tree
+      //if( (mom > 0) && (mom <= 15) && ((emc/mom) <= 2.0) ){
+      if( (mom <= 15) ){
+	EmcNtp.Fill(evid, mom, emc, emcCorr, numClus, numCrys, latEdep, z20, z53);
+	std::cout << "emc = " << emc << " emcCorr = " << emcCorr << std::endl;
+      }
     }
   }
   

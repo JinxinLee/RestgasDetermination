@@ -152,7 +152,7 @@ int main(int argc, char** argv)
 	    << events->GetEntriesFast() << std::endl
 	    << " Number of missclassified: " << misCl << " = "
 	    << ( static_cast<float>(misCl) * 100.00)/ static_cast<float>(events->GetEntriesFast())
-	    <<"%"
+	    <<" %"
 	    << std::endl 
 	    << " Correct cassified = " << (events->GetEntriesFast() - misCl)
 	    << std::endl 
