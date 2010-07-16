@@ -10,7 +10,13 @@ SET (CTEST_UPDATE_CHECKOUT  " ${CTEST_UPDATE_COMMAND} update ")
 SET (BUILD_COMMAND "make")
 SET (CTEST_BUILD_COMMAND "${BUILD_COMMAND} -j$ENV{number_of_processors}")
 
+
 CTEST_EMPTY_BINARY_DIRECTORY(${CTEST_BINARY_DIRECTORY})
+
+configure_file(${CTEST_SOURCE_DIRECTORY}/CTestCustom.cmake
+               ${CTEST_BINARY_DIRECTORY}/CTestCustom.cmake
+              )
+ctest_read_custom_files("${CTEST_BINARY_DIRECTORY}")
 
 CTEST_START ($ENV{ctest_model})
 CTEST_UPDATE (SOURCE "${CTEST_SOURCE_DIRECTORY}")
