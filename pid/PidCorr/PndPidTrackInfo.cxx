@@ -1,25 +1,12 @@
-#include "PndDetectorList.h"
 #include "PndPidCorrelator.h"
 #include "PndPidCandidate.h"
 #include "PndTrack.h"
-#include "PndTrackID.h"
-
 #include "FairTrackParH.h"
-#include "FairMCApplication.h"
-#include "FairRunAna.h"
-#include "FairRootManager.h"
-#include "FairRuntimeDb.h"
-
-#include "TObjArray.h"
-#include "TVector3.h"
-#include "TGeoMatrix.h"
-#include "TGeoBBox.h"
-#include "TGeoManager.h"
-
-#include <cmath>
-
-#include "PndPidCorrelator.h"
 #include "Fitter/PndVtxFitterParticle.h"
+
+#include "TVector3.h"
+#include "TDatabasePDG.h"
+#include <cmath>
 
 //_________________________________________________________________
 Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand) 
@@ -38,16 +25,15 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
   FairTrackParP par = track->GetParamFirst();
   Int_t ierr = 0;
   FairTrackParH *helix = new FairTrackParH(&par, ierr);
-  TVector3 momentum, vertex;
-  Float_t energy = TMath::Sqrt(momentum.Mag2()+0.13957*0.13957); // Pion hypothesis
   
   if (fGeanePro) // Overwrites vertex if Geane is used
-    {
+    { 
+      TVector3 momentum, vertex;
       FairGeanePro *fPro0 = new FairGeanePro();
       FairTrackParH *fRes= new FairTrackParH();
       fPro0->SetPoint(TVector3(0,0,0));
       fPro0->PropagateToPCA(1, -1);
-      Bool_t rc =  fPro0->Propagate(helix, fRes, -13*charge);	
+      Bool_t rc =  fPro0->Propagate(helix, fRes, fPidHyp*charge);	
       if (!rc)
 	{
 	  std::cout << "-W- PndPidCorrelator::GetTrackInfo :: Failed backward propagation" << std::endl;
@@ -65,42 +51,14 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
       TMatrixD err(6,6);
       for (ii=0;ii<6;ii++) for(jj=0;jj<6;jj++) err[ii][jj]=globalCov[ii][jj];
 
-	  TLorentzVector lv;
-	  
-	  lv.SetVectM(momentum,0.13957); // set pion mass hypothesis
-
-      //TMatrixD mat=PndVtxFitterParticle::GetFitError(lv, err);
-      
+      TLorentzVector lv;
+      lv.SetVectM(momentum, TDatabasePDG::Instance()->GetParticle(fPidHyp)->Mass()); // set mass hypothesis
+      Float_t energy = lv.M2();
       TMatrixD mat = covTool.GetConverted7(covTool.GetFitError(lv, err));
       
-      /*
-      TMatrixD mat(7,7);
-      
-      for (ii=0;ii<6;ii++) for(jj=0;jj<6;jj++) mat[ii][jj]=globalCov[ii][jj];
-     
-      energy = TMath::Sqrt(fParab->GetMomentum().Mag2()+0.13957*0.13957);
-      //Extend matrix for energy (with default pion hypothesis) -> Klaus Goetzen
-      Double_t invE = 1./(energy);
-      mat[0+3][3+3] = mat[3+3][0+3] =
-	(fRes->GetX()*mat[0+3][0+3]+fRes->GetY()*mat[0+3][1+3]+fRes->GetZ()*mat[0+3][2+3])*invE;
-      mat[1+3][3+3] = mat[3+3][1+3] =
-	(fRes->GetX()*mat[0+3][1+3]+fRes->GetY()*mat[1+3][1+3]+fRes->GetZ()*mat[1+3][2+3])*invE;
-      mat[2+3][3+3] = mat[3+3][2+3] =
-	(fRes->GetX()*mat[0+3][2+3]+fRes->GetY()*mat[1+3][2+3]+fRes->GetZ()*mat[2+3][2+3])*invE;
-      mat[3+3][3+3] =
-	(fRes->GetX()*fRes->GetX()*mat[0+3][0+3]+fRes->GetY()*fRes->GetY()*mat[1+3][1+3]+fRes->GetZ()*fRes->GetZ()*mat[2+3][2+3]
-	 +2.0*fRes->GetX()*fRes->GetY()*mat[0+3][1+3]
-	 +2.0*fRes->GetX()*fRes->GetZ()*mat[0+3][2+3]
-	 +2.0*fRes->GetY()*fRes->GetZ()*mat[1+3][2+3])*invE*invE;
-	 
-      mat[3+3][4-4] = mat[4-4][3+3] =
-	(fRes->GetX()*mat[0+3][4-4]+fRes->GetY()*mat[1+3][4-4]+fRes->GetZ()*mat[2+3][4-4])*invE;
-      mat[3+3][5-4] = mat[5-4][3+3] =
-	(fRes->GetX()*mat[0+3][5-4]+fRes->GetY()*mat[1+3][5-4]+fRes->GetZ()*mat[2+3][5-4])*invE;
-      mat[3+3][6-4] = mat[6-4][3+3] =
-	(fRes->GetX()*mat[0+3][6-4]+fRes->GetY()*mat[1+3][6-4]+fRes->GetZ()*mat[2+3][6-4])*invE;
-	
-      */
+      pidCand->SetPosition(vertex);
+      pidCand->SetMomentum(momentum);
+      pidCand->SetEnergy(energy);
       pidCand->SetCov7(mat);
     }
   else
@@ -108,13 +66,8 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
       std::cout << std::endl << "-E- PndPidCorrelator::GetTrackInfo :: NO GEANE - no propagation available" << std::endl;
     }
   
-  pidCand->SetPosition(vertex);
-  pidCand->SetMomentum(momentum);
-  pidCand->SetEnergy(energy);
   pidCand->SetFirstHit(first);
   pidCand->SetLastHit(last);
-  //pidCand->SetMcIndex(); // ??? dummy, for the moment
-  
   pidCand->SetDegreesOfFreedom(track->GetNDF());
   pidCand->SetFitStatus(track->GetFlag());
   pidCand->SetChiSquared(track->GetChi2());

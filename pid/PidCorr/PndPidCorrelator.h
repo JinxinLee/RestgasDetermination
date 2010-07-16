@@ -75,12 +75,14 @@ protected:
   map<Int_t, Bool_t> fClusterList;  // List of clusters correlated to tracks
   TString fTrackBranch;             //  options to choose PndTrack branches
   TString fTrackIDBranch;           //  options to choose PndTrackID branches
+  TString fTrackOutBranch;          //  options to choose output branch
   Bool_t fVerbose;                  // Switch ON/OFF debug messages 
   Bool_t fSimulation;               // Switch simulation diagnostic
   Bool_t fGeanePro;                 // Use GEANE propagation 
   Bool_t fMdtRefit;                 // Use MDT Kalman refit propagation
   Bool_t fIdeal;                    // Ideal Correlation
   Int_t  fEventCounter;             // Event number
+  Int_t fPidHyp;                    // particle hypothesis for propagation
   PndGeoHandling* fGeoH;             // Object to retrieve MVD geometry
   PndRecoKalmanFit *fFitter;         // Refitter for MDT tracks
   TFile *r;                          // File for debug ntuples
@@ -122,22 +124,19 @@ public:
   PndPidCorrelator();
   virtual ~PndPidCorrelator();
 
- 
-   
-  Float_t ExtrapolateToZ(FairTrackParH* helix, TVector3 *mom, TVector3 *vertex, const Float_t z = 0.); // extrapolate momentum and vertex at z=...
-  Float_t ExtrapolateToR(FairTrackParH* helix, TVector3 *mom, TVector3 *vertex, const Float_t R);      // extrapolate momentum and vertex at sqrt(x*x+y*y)
-
   void SetOption(Option_t *option=" ")    {fOption = option;  fOption.ToLower();}
   void SetDebugMode(Bool_t debug)         { fDebugMode = debug; };
   void SetDebugFilename(TString filename) { sFile = filename; };
   void SetMdtRefit(Bool_t mdt)            { fMdtRefit = mdt; };
   void SetInputBranch(TString branch)     { fTrackBranch = branch; };	
-  void SetInputIDBranch(TString branch)   { fTrackIDBranch = branch; };	
+  void SetInputIDBranch(TString branch)   { fTrackIDBranch = branch; };	 
+  void SetOutputBranch(TString branch)    { fTrackOutBranch = branch; };
   void SetVerbose(Bool_t verb)            { fVerbose = verb  ;};
   void SetSimulation(Bool_t sim)          { fSimulation = sim; };
   void SetIdeal(Bool_t id)                { fIdeal = id; };
   void SetGeanePro(Bool_t gea = kTRUE)    { fGeanePro = gea; };
-	
+  void SetPidHyp(Int_t pid)               { fPidHyp = pid; };
+  
   /** Get parameter containers **/
   virtual void SetParContainers();
   virtual void Finish();

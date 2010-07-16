@@ -57,6 +57,7 @@ PndPidCorrelator::PndPidCorrelator() {
   fMdtMode = 0; 
   fDrcMode = 0;
   fDskMode = 0;
+  fPidHyp = 0;
   fVerbose = kFALSE;
   fSimulation = kFALSE;
   fIdeal = kFALSE;
@@ -66,6 +67,7 @@ PndPidCorrelator::PndPidCorrelator() {
   dskCorr = 0;
   fTrackBranch = "";
   fTrackIDBranch = "";
+  fTrackOutBranch = "";
   sDir = "./";
   sFile = "./pidcorrelator.root";
   fGeoH = PndGeoHandling::Instance();
@@ -90,7 +92,8 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title)
   fEmcMode = 0;
   fMdtMode = 0;
   fDrcMode = 0;
-  fDskMode = 0;
+  fDskMode = 0; 
+  fPidHyp = 0;
   fVerbose = kFALSE;
   fSimulation = kFALSE;
   fIdeal = kFALSE;
@@ -99,7 +102,8 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title)
   drcCorr = 0;
   dskCorr = 0;
   fTrackBranch = "";
-  fTrackIDBranch = "";
+  fTrackIDBranch = ""; 
+  fTrackOutBranch = "";
   sDir = "./";
   sFile = "./pidcorrelator.root";
   Reset(); 
@@ -296,7 +300,50 @@ InitStatus PndPidCorrelator::Init() {
   fCorrPar->printParams();
 
   if (fGeanePro)
-    {      cout << "-I- PndPidCorrelator::Init: Using Geane for Track propagation" << endl;
+    { 
+      cout << "-I- PndPidCorrelator::Init: Using Geane for Track propagation" << endl;
+
+      switch (abs(fPidHyp))
+	{
+	case 0:
+	  cout << "-I- PndPidCorrelator::Init: No PID set -> Using default PION hypothesis" << endl;
+	  fPidHyp = 211;
+	  break;
+	  
+	case 11:
+	  cout << "-I- PndPidCorrelator::Init: Using ELECTRON hypothesis" << endl;
+	  fPidHyp = -11;
+	  break;
+
+	case 13:
+	  cout << "-I- PndPidCorrelator::Init: Using MUON hypothesis" << endl;
+	  fPidHyp = -13;
+	  break;
+	  
+	case 211:
+	  cout << "-I- PndPidCorrelator::Init: Using PION hypothesis" << endl;
+	  fPidHyp = 211;
+	  break;
+
+	case 321:
+	  cout << "-I- PndPidCorrelator::Init: Using KAON hypothesis" << endl;
+	  fPidHyp = 321;
+	  break;
+	  
+	case 2212:
+	  cout << "-I- PndPidCorrelator::Init: Using PROTON hypothesis" << endl;
+	  fPidHyp = 2212;
+	  break;
+
+	default:
+	  cout << "-I- PndPidCorrelator::Init: Not recognised PID set -> Using default PION hypothesis" << endl;
+	  fPidHyp = 211;
+	  break;
+	}
+    }
+  else
+    {
+      return kFATAL;
     }
   
   if   (fMdtRefit)
@@ -488,7 +535,7 @@ Bool_t PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 	  fProTof->SetPoint(tofPos);
 	  fProTof->PropagateToPCA(1, 1);
 	  FairTrackParH *fRes= new FairTrackParH();
-	  Bool_t rc =  fProTof->Propagate(helix, fRes, -13*pidCand->GetCharge());	
+	  Bool_t rc =  fProTof->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge());	
 	  if (!rc) continue;
 	  
 	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
@@ -496,7 +543,7 @@ Bool_t PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 	  fProVertex->SetPoint(TVector3(0,0,0));
 	  fProVertex->PropagateToPCA(1, -1);
 	  FairTrackParH *fRes2= new FairTrackParH();
-	  Bool_t rc2 =  fProVertex->Propagate(fRes, fRes2, -13*pidCand->GetCharge());
+	  Bool_t rc2 =  fProVertex->Propagate(fRes, fRes2, fPidHyp*pidCand->GetCharge());
 	  if (rc2) tofLength = fProVertex->GetLengthAtPCA();
 	}
       
@@ -576,7 +623,7 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
       fProEmc->PropagateToPCA(1, 1);
       vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
       FairTrackParH *fRes= new FairTrackParH();
-      Bool_t rc =  fProEmc->Propagate(helix, fRes, -13*pidCand->GetCharge()); // First propagation at module
+      Bool_t rc =  fProEmc->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); // First propagation at module
       if (!rc) continue;
       
       emcGLength = fProEmc->GetLengthAtPCA();
@@ -669,7 +716,7 @@ Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
 	  fProMdt->PropagateToPCA(1, 1);
           vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
 	  FairTrackParH *fRes= new FairTrackParH();
-	  Bool_t rc =  fProMdt->Propagate(helix, fRes, -13*pidCand->GetCharge()); 
+	  Bool_t rc =  fProMdt->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); 
 	  if (!rc) continue;
 	  mdtTempMom = fRes->GetMomentum().Mag();  
 	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
@@ -730,7 +777,7 @@ Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
       PndTrackCand *newCand = mdtTrk->AddTrackCand(oldCand);
       mdtTrack->SetTrackCand(*newCand);
       Int_t fCharge= mdtTrack->GetParamFirst().GetQ();
-      Int_t PDGCode = -13*fCharge;
+      Int_t PDGCode = fPidHyp*fCharge;
       
       PndTrack *fitTrack = new PndTrack();
       fitTrack = fFitter->Fit(mdtTrack, PDGCode);
@@ -767,7 +814,7 @@ Bool_t PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 	  fProDrc->PropagateToVolume("DrcBase",0,1);
 	  vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
 	  FairTrackParH *fRes= new FairTrackParH();
-	  Bool_t rc =  fProDrc->Propagate(helix, fRes, -13*pidCand->GetCharge()); 	
+	  Bool_t rc =  fProDrc->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); 	
 	  if (!rc) continue;
 	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), 0.);
 	  drcGLength = fProDrc->GetLengthAtPCA();
@@ -831,7 +878,7 @@ Bool_t PndPidCorrelator::GetDskInfo(FairTrackParH* helix, PndPidCandidate* pidCa
           fProDsk->PropagateToVolume("DskBase",0,1);
           vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
           FairTrackParH *fRes= new FairTrackParH();
-          Bool_t rc =  fProDsk->Propagate(helix, fRes, -13*pidCand->GetCharge());
+          Bool_t rc =  fProDsk->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge());
           if (!rc) continue;
           vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
           dskGLength = fProDsk->GetLengthAtPCA();
@@ -869,83 +916,12 @@ Bool_t PndPidCorrelator::GetDskInfo(FairTrackParH* helix, PndPidCandidate* pidCa
   return kTRUE;
 }
 
-
-
-//_________________________________________________________________
-Float_t PndPidCorrelator::ExtrapolateToR(FairTrackParH* helix, TVector3 *mom, TVector3 *vertex, const Float_t R)
-{
-  // Function to extrapolate the momentum and vertex coordinates to a well determined R value
-  if (TMath::Tan(helix->GetMomentum().Theta()==0)) {
-    cout << "-W-  PndPidCorrelator ::ExtrapolateToR: theta==0 - skipped track" << endl;
-    return kFALSE;
-  }
-  
-  Float_t zproj = (R - helix->GetPosition().Perp())/ TMath::Tan(helix->GetMomentum().Theta()) + helix->GetZ();
-  return ExtrapolateToZ(helix, mom, vertex, zproj);
-}
-
-//_________________________________________________________________
-Float_t PndPidCorrelator::ExtrapolateToZ(FairTrackParH* helix, TVector3 *mom, TVector3 *vertex, const Float_t z)
-{
-  // Function to extrapolate the momentum and vertex coordinates to a well determined z value
-  Double_t B      = 2.;
-  Double_t pt     = helix->GetMomentum().Pt();
-  Double_t lambda = helix->GetLambda();
-  Double_t lam = TMath::Tan(helix->GetLambda());
-  Int_t Q = TMath::Sign(1, helix->GetQ());
-
-  if ( (lam==0) || (pt==0) || (Q==0) ) {
-    cout << "-W-  PndPidCorrelator ::ExtrapolateToZ: lambda/pt/Q==0 - skipped track" << endl;
-    return -10000.;
-  }
-
-  Double_t alpha = .2998 * .02 ;
-  Double_t rad = helix->GetMomentum().Pt() / alpha; // helix radius
-  Double_t sign = helix->GetMomentum().Z() / (Q*alpha*rad*lam);
-  Double_t m, xc, yc; // find the centre of the helix
-  if (helix->GetPy()!=0)
-    {
-      m = -helix->GetPx() / helix-> GetPy();
-      xc = helix->GetX() + Q * rad / TMath::Sqrt(m*m+1);
-      yc = helix->GetY() + m * Q * rad / TMath::Sqrt(m*m+1);
-    }
-  else
-    {
-      xc = helix->GetX();
-      yc = helix->GetY() + Q* rad;;
-    }
-  TVector2 centre(xc, yc);
-  Double_t fi0 = centre.Phi();    // 0 - 2Pi
-  Double_t d0 = Q*(TMath::Sqrt(xc*xc + yc*yc) - rad);
-  TVector2 pivot(-xc, -yc);
-
-  Double_t z0 = helix->GetZ() - helix->GetPosition().Perp()/TMath::Tan(helix->GetMomentum().Theta());
-  TVector2 pnt(helix->GetX() - xc, helix->GetY() - yc);
-  Double_t phi = - (z - z0) / (rad*lam*sign); // calulates phi from Z
-  
-  Double_t x = d0*TMath::Cos(fi0) + rad *(TMath::Cos(fi0) - TMath::Cos(fi0 + phi));
-  Double_t y = d0*TMath::Sin(fi0) + rad *(TMath::Sin(fi0) - TMath::Sin(fi0 + phi));
- 
-  Double_t px = -Q/helix->GetMomentum().Pt()*TMath::Sin(fi0 + phi);
-  Double_t py =  Q/helix->GetMomentum().Pt()*TMath::Cos(fi0 + phi);
-  Double_t pz =  Q/helix->GetMomentum().Pt()*lam; // STE
-
-  vertex->SetX(x);
-  vertex->SetY(y);
-  vertex->SetZ(z);
-
-  mom->SetX(px);
-  mom->SetY(py);
-  mom->SetZ(pz);
-
-  return phi;
-}
-
 //_________________________________________________________________
 void PndPidCorrelator::Register() {
   //---
+  TString chargName = "PidChargedCand" + fTrackOutBranch;
   FairRootManager::Instance()->
-    Register("PidChargedCand","Pid", fPidChargedCand, kTRUE); 
+    Register(chargName,"Pid", fPidChargedCand, kTRUE); 
   FairRootManager::Instance()->
     Register("PidNeutralCand","Pid", fPidNeutralCand, kTRUE);
   if (fMdtRefit)
