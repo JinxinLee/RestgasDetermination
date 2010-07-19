@@ -62,6 +62,22 @@ void PndStack::PushTrack(Int_t toBeDone, Int_t parentId, Int_t pdgCode,
 			 Double_t polz, TMCProcess proc, Int_t& ntr, 
 			 Double_t weight, Int_t is) {
 
+	PushTrack( toBeDone, parentId, pdgCode,
+				  px,  py,  pz,
+				  e,  vx,  vy,  vz,
+				  time,  polx,  poly,
+				  polz, proc, ntr,
+				  weight, is, -1);
+}
+
+// -----   Virtual public method PushTrack   -------------------------------
+void PndStack::PushTrack(Int_t toBeDone, Int_t parentId, Int_t pdgCode,
+			 Double_t px, Double_t py, Double_t pz,
+			 Double_t e, Double_t vx, Double_t vy, Double_t vz, 
+			 Double_t time, Double_t polx, Double_t poly,
+			 Double_t polz, TMCProcess proc, Int_t& ntr, 
+			 Double_t weight, Int_t is,Int_t secondparentID) {
+
   // --> Get TParticle array
   TClonesArray& partArray = *fParticles;
 
@@ -75,6 +91,7 @@ void PndStack::PushTrack(Int_t toBeDone, Int_t parentId, Int_t pdgCode,
 					    nPoints, daughter1Id, 
 					    daughter2Id, px, py, pz, e, 
 					    vx, vy, vz, time);
+  particle->SetLastMother(secondparentID);
   particle->SetPolarisation(polx, poly, polz);
   particle->SetWeight(weight);
   particle->SetUniqueID(proc);
@@ -206,6 +223,9 @@ void PndStack::FillTrackArray() {
 	pair<Int_t, Int_t> a(iPart, iDet);
 	track->SetNPoints(iDet, fPointsMap[a]);
       }
+
+	  SetGeneratorFlags(iPart);
+
       fNTracks++;
     
     }else{
@@ -223,6 +243,58 @@ void PndStack::FillTrackArray() {
 }
 // -------------------------------------------------------------------------
 
+void PndStack::SetGeneratorFlags(Int_t myid)
+{
+	if(myid<0) return;
+
+	PndMCTrack* mytrack;
+	{
+		Int_t myid2=fIndexMap[myid];
+		if(myid2<0){
+			cout << "=== This should not happen!!"<<endl;
+			return;
+		}
+
+		mytrack = (PndMCTrack*)fTracks->At(myid2);
+	}
+
+	Int_t n;
+	Int_t daughters=0, daughtersp=0;
+	// fParticles; // TParticle
+	n=fParticles->GetEntries();
+	for (Int_t i=0; i<n; i++) {
+		TParticle* part = (TParticle*)fParticles->At(i);
+		Int_t m;
+		m=part->GetMother(0);
+		if(myid==m){
+			daughters++;
+		}else if(m==-1){
+			m=part->GetMother(1);
+			if(myid==m){
+				daughtersp++;
+			}
+		}else if(m==-2){
+			// removed should not happen before this is called
+			// and anyway not on the TParticle Level
+			cout << "=== Problem!!! part mother -2"<<endl;
+		}
+	}
+
+	Int_t mymo1=mytrack->GetMotherID();
+
+	if( ((TParticle*)fParticles->At(myid))->GetMother(0)!=mymo1){
+		cout << "=== Problem: Mothers != "<<myid<<endl;
+	}
+	if(mymo1==-1){
+		if(daughters!=0 && daughtersp!=0){
+			cout << "=== Problem: daughters!=0 && daughtersp!=0 "<<myid<<" " << daughters <<" " << daughtersp<<endl;
+		}
+
+		mytrack->SetGeneratorCreated();
+		if(daughtersp>0) mytrack->SetGeneratorDecayed();
+//		cout << myid <<" ("<<mytrack->GetPdgCode()<<"): "<<daughters<<","<<daughtersp<<" ==> " <<mytrack->IsGeneratorCreated()<<" "<<mytrack->IsGeneratorDecayed()<<" "<<mytrack->IsGeneratorLast()<<endl;
+	}
+}
 
 
 // -----   Public method UpdateTrackIndex   --------------------------------
@@ -243,6 +315,17 @@ void PndStack::UpdateTrackIndex(TRefArray* detList) {
 		"Particle index not found in map");
     }
     track->SetMotherID( (*fIndexIter).second );
+    if(iMotherOld==-1){
+        iMotherOld = track->GetSecondMotherID();
+        fIndexIter = fIndexMap.find(iMotherOld);
+        if (fIndexIter == fIndexMap.end()) {
+          cout << "-E- PndStack: Particle index " << iMotherOld
+    	   << " not found in dex map! (second mother id)" << endl;
+          Fatal("PndStack::UpdateTrackIndex",
+    		"Particle index not found in map");
+        }
+        track->SetSecondMotherID( (*fIndexIter).second );
+    }
   }
 
   // Now iterate through all active detectors
@@ -387,7 +470,8 @@ void PndStack::SelectTracks() {
     TLorentzVector p;
     thisPart->Momentum(p);
     Double_t energy = p.E();
-    Double_t mass   = thisPart->GetMass();
+    Double_t mass   = p.M();
+//    Double_t mass   = thisPart->GetMass();// Why?? Mass (given by generator) is inside by Lorentzvector!!! I dont care about PSG mass!
     Double_t eKin = energy - mass;
     if(eKin < 0.0) eKin=0.0; // sometimes due to different PDG masses between ROOT and G4!!!!!!
     // --> Calculate number of points

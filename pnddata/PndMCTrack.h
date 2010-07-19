@@ -41,8 +41,9 @@ class PndMCTrack : public TObject
 
 
   /**  Standard constructor  **/
-  PndMCTrack(Int_t pdgCode, Int_t motherID, TVector3 startVvertex, 
-	     Double_t startTime, TVector3 momentum, Int_t  nPoint=0);
+////  not used!!
+//  PndMCTrack(Int_t pdgCode, Int_t motherID, TVector3 startVvertex,
+//	     Double_t startTime, TLorentzVector momentum, Int_t  nPoint=0);
 
 
   /**  Copy constructor  **/
@@ -64,6 +65,7 @@ class PndMCTrack : public TObject
   /**  Accessors  **/
   Int_t    GetPdgCode()     const { return fPdgCode; }
   Int_t    GetMotherID()    const { return fMotherID; }
+  Int_t    GetSecondMotherID()    const { return fSecondMotherID; }
   TVector3 GetStartVertex() const { return TVector3(fStartX, fStartY,fStartZ);}
   Double_t GetStartTime()   const { return fStartT; }
   TVector3 GetMomentum()    const { return TVector3(fPx, fPy, fPz); }
@@ -72,10 +74,17 @@ class PndMCTrack : public TObject
   Int_t GetStsPoints()  const { return   (fPoints &  15        )        ; }
   */
    
+  Bool_t IsGeneratorCreated(void) const { return (fGeneratorFlags&0x1)!=0; }
+  Bool_t IsGeneratorDecayed(void) const { return (fGeneratorFlags&0x2)!=0; }
+  Bool_t IsGeneratorLast(void) const { return (fGeneratorFlags&0x1)!=0 && (fGeneratorFlags&0x2)==0; }
+  void SetGeneratorCreated(void) { fGeneratorFlags|=0x1; }
+  void SetGeneratorDecayed(void) { fGeneratorFlags|=0x2; }
+
   Int_t  GetNPoints(DetectorId detId)  const;  
   /**  Modifiers  **/
   
   void SetMotherID(Int_t id) { fMotherID = id; }
+  void SetSecondMotherID(Int_t id) { fSecondMotherID = id; }
   /*
   void SetStsPoints(Int_t np);
   */ 
@@ -98,10 +107,14 @@ private:
   Int_t  fPdgCode;
 
   /** Momentum components at production [GeV]  **/
-  Double32_t fPx, fPy, fPz;
+  Double32_t fPx, fPy, fPz, fE;
 
-  /**  Index of mother track. Zero for primary particles.  **/
+  /**  Index of mother track. Zero( Minus One???) for primary particles.  **/
   Int_t  fMotherID;
+  Int_t  fSecondMotherID;
+
+  /** Flag if particle was created (bit 0) and/or decayed (bit 1) by generator **/
+  Int_t fGeneratorFlags;
 
   /** Coordinates of start vertex [cm, ns]  **/
   Double32_t fStartX, fStartY, fStartZ, fStartT;

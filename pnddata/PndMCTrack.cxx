@@ -12,32 +12,38 @@
 using namespace std;
 // -----   Default constructor   -------------------------------------------
 PndMCTrack::PndMCTrack() {
-  fPdgCode = fMotherID = 0;
+  fPdgCode = 0;
+  fMotherID = -1;
+  fSecondMotherID = -1;
   fPoints = 0;
   fStartX = fStartY  = fStartZ = fStartT = 0.;
-  fPx = fPy = fPz = 0.;
-
+  fPx = fPy = fPz = fE = 0.;
+  fGeneratorFlags=0;
 }
 // -------------------------------------------------------------------------
 
 
 
 // -----   Standard constructor   ------------------------------------------
+/*// Not used at all?
 PndMCTrack::PndMCTrack(Int_t pdgCode, Int_t motherID, TVector3 startVertex, 
-		       Double_t startTime, TVector3 momentum, Int_t  nPoint){
+		       Double_t startTime, TLorentzVector momentum, Int_t  nPoint){
   fPdgCode  = pdgCode;
   fMotherID = motherID;
+  fSecondMotherID = -1;
   fStartX   = startVertex.X();
   fStartY   = startVertex.Y();
   fStartZ   = startVertex.Z();
   fStartT   = startTime;
-  fPx       = momentum.X();
-  fPy       = momentum.Y();
-  fPz       = momentum.Z();
+  fPx       = momentum.Px();
+  fPy       = momentum.Py();
+  fPz       = momentum.Pz();
+  fE        = momentum.E();
   if (nPoint >= 0) fPoints = nPoint;
   else             fPoints = 0;
-
+  fGeneratorFlags=0;
 }
+*/
 // -------------------------------------------------------------------------
 
 
@@ -54,6 +60,7 @@ PndMCTrack::PndMCTrack(const PndMCTrack& track) {
 PndMCTrack::PndMCTrack(TParticle* part) {
   fPdgCode  = part->GetPdgCode();
   fMotherID = part->GetMother(0);
+  fSecondMotherID = part->GetMother(1);
   fStartX   = part->Vx();
   fStartY   = part->Vy();
   fStartZ   = part->Vz();
@@ -61,7 +68,9 @@ PndMCTrack::PndMCTrack(TParticle* part) {
   fPx       = part->Px();
   fPy       = part->Py();
   fPz       = part->Pz();
-  fPoints   = Int_t(part->GetMother(1));
+  fE        = part->Energy();
+  fPoints   = 0;
+  fGeneratorFlags=0;
 }
 // -------------------------------------------------------------------------
 
@@ -75,14 +84,14 @@ PndMCTrack::~PndMCTrack() { }
 
 // -----   Public method Print   -------------------------------------------
 void PndMCTrack::Print(Int_t trackID) const {
-  cout << "Track " << trackID << ", mother : " << fMotherID << ", Type "
-       << fPdgCode << ", momentum (" << fPx << ", " << fPy << ", " << fPz
-       << ") GeV" << endl;
+  cout << "Track " << trackID << ", mother : " << fMotherID <<", secondmother : " << fSecondMotherID << ", Type "
+       << fPdgCode << ", momentum (" << fPx << ", " << fPy << ", " << fPz<< ", " << fE
+       << ") GeV" << " , Generatorflags: "<<fGeneratorFlags<<endl;
 }
 // -------------------------------------------------------------------------
 
 TLorentzVector PndMCTrack::Get4Momentum() const {
-
+/*
     Double_t mass=0.0;
     Double_t ene=0.0;
     TParticlePDG*
@@ -94,8 +103,8 @@ TLorentzVector PndMCTrack::Get4Momentum() const {
     if ( mass >= 0 ) {
 	ene  = TMath::Sqrt(mass*mass + fPx*fPx +fPy*fPy +fPz*fPz);
     }
-
-   return TLorentzVector(fPx,fPy,fPz,ene);
+*/
+   return TLorentzVector(fPx,fPy,fPz,fE);
 }
 
 // -----   Public method GetNPoints   --------------------------------------

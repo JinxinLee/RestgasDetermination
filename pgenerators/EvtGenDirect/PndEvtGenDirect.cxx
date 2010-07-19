@@ -73,7 +73,9 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, 
     cout << "<I> PndEvtGenDirect"<<endl;
     cout << "<I> Particle: "<<particle<<endl;
     cout << "<I> decfile: "<<decfile<<endl;
-    cout << "<I> pbar-Momentum: "<<Mom<<endl;
+    if(Mom>0) cout << "<I> pbar-Momentum: "<<Mom<<endl;
+    if(Mom==0) cout << "<I> Momentum: "<<Mom<<endl;
+    if(Mom<0) cout << "<I> CMS energy: "<<Mom<<endl;
     cout << "<I> Rnd Seed: "<<Seed<<endl;
 
   //Initialize the generator - read in the decay table and particle properties
@@ -91,7 +93,8 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, 
 
   if (particle=="pbarpSystem" && Mom==0)
   {
-    cout <<"\n******  FATAL ERROR: <particle> is 'pbarpSystem'; MUST give pbar momentum or cms energy!\n\n"<<endl;
+    cerr <<"\033[5m\033[31m -E  ******  FATAL ERROR: <particle> is 'pbarpSystem'; MUST give pbar momentum or cms energy!\033[0m"<<endl;
+    exit(0);
   }
 
   double val=-3.0969;
@@ -99,7 +102,7 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, 
   fEnergy = 0.0;
   double mp=0.93827;
 
-  if (Mom>0) 
+  if (particle=="pbarpSystem" && Mom!=0)
     val=Mom;
   else
     val=-EvtPDL::getMass(PART);
@@ -176,7 +179,7 @@ static Int_t evtnr=0;
 		// add track
 		nFD=evtstdhep.getFirstDaughter(i);
 		nLD=evtstdhep.getLastDaughter(i);
-		if(/*fStoreTree ||*/ (nFD==-1 && nLD==-1))
+		if(fStoreTree ||(nFD==-1 && nLD==-1))
 		{
 			Id=evtstdhep.getStdHepID(i);
 			vxyz=evtstdhep.getX4(i);
@@ -190,12 +193,11 @@ static Int_t evtnr=0;
 			Py=pxyz.get(2);
 			Pz=pxyz.get(3);
 			if(plotflag) printf("- I -: new particle at: %f, %f, %f (%f)-> %f %f %f (%f) ID %d ##Daughters %d %d Mothers %d %d\n", fX, fY, fZ, fT,Px, Py, Pz, fE, Id, nFD, nLD,evtstdhep.getFirstMother(i),evtstdhep.getLastMother(i));
-//			if(fStoreTree){
-// not yet supported!
-//				primGen->AddTrack(Id, Px, Py, Pz, fX, fY, fZ, evtstdhep.getFirstMother(i),(nFD==-1 && nLD==-1));
-//			}else{
+			if(fStoreTree){
+				primGen->AddTrack(Id, Px, Py, Pz, fX, fY, fZ, evtstdhep.getFirstMother(i),(nFD==-1 && nLD==-1),fE);
+			}else{
 				primGen->AddTrack(Id, Px, Py, Pz, fX, fY, fZ);// default -1, true
-//			}
+			}
 		}
 	}
 	if(plotflag) cout <<"==== compare end ==="<<endl;

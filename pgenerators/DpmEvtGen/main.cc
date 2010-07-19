@@ -14,7 +14,6 @@
 #include <time.h>
 #include "TROOT.h"
 #include "TFile.h"
-#include "TH1F.h"
 #include "TClonesArray.h"
 #include "TTree.h"
 #include "TStopwatch.h"

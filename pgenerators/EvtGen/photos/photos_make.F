@@ -61,13 +61,15 @@ C-- let's search if IPARR does not prevent searching.
       IF (IPARR.GT.0)  THEN
  30    CONTINUE
          DO I=JDAHEP(1,IP),JDAHEP(2,IP)
-          IF (JDAHEP(1,I).NE.0.AND.JMOHEP(1,JDAHEP(1,I)).EQ.I) THEN
+          IF (JDAHEP(1,I).NE.0) THEN
+           IF (JMOHEP(1,JDAHEP(1,I)).EQ.I) THEN
             NUMIT=NUMIT+1
               IF (NUMIT.GT.NMXPHO) THEN
                DATA=NUMIT
                CALL PHOERR(7,'PHOTOS',DATA)
               ENDIF
             ISTACK(NUMIT)=I
+           ENDIF
           ENDIF
          ENDDO
       IF(NUMIT.GT.NTRY) THEN
