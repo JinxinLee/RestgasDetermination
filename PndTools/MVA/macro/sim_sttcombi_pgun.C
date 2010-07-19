@@ -9,9 +9,9 @@ void sim_sttcombi_pgun( int seed = 87619, int nEvents = 10, int pid  = 11,
 {
   gRandom->SetSeed(seed);
   
-  std::cerr << "Seed is " << seed << std::endl;
-  std::cerr << "pdg = "   << pid  << std::endl;
-  std::cerr << "nEvt = "  << nEvents  << std::endl;
+  std::cerr << "Seed is " << seed    << std::endl;
+  std::cerr << "pdg = "   << pid     << std::endl;
+  std::cerr << "nEvt = "  << nEvents << std::endl;
   
   TStopwatch timer;
   timer.Start();
@@ -29,7 +29,6 @@ void sim_sttcombi_pgun( int seed = 87619, int nEvents = 10, int pid  = 11,
   
   // set the MC version used
   // ------------------------
-  
   fRun->SetName("TGeant3");
   //fRun->SetName("TGeant4");
   
@@ -54,29 +53,29 @@ void sim_sttcombi_pgun( int seed = 87619, int nEvents = 10, int pid  = 11,
   // Set Material file Name
   //-----------------------
   fRun->SetMaterials("media_pnd.geo");
-
+  
   // Create and add detectors
   //-------------------------
   FairModule* Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
-
+  
   FairModule* Magnet= new PndMagnet("MAGNET");
   //Magnet->SetGeometryFileName("FullSolenoid_V842.root");
   Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
   fRun->AddModule(Magnet);
-
+  
   FairModule* Dipole= new PndMagnet("MAGNET");
   Dipole->SetGeometryFileName("dipole.geo");
   fRun->AddModule(Dipole);
-
+  
   FairModule* Pipe= new PndPipe("PIPE");
   //fRun->AddModule(Pipe);
   
   FairDetector* Stt= new PndStt("STT", kTRUE);
   Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
   fRun->AddModule(Stt);
-
+  
   FairDetector* Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
   fRun->AddModule(Mvd);
@@ -101,13 +100,13 @@ void sim_sttcombi_pgun( int seed = 87619, int nEvents = 10, int pid  = 11,
   FairDetector* Gem = new PndGemDetector("GEM", kTRUE);
   Gem->SetGeometryFileName("gem_3Stations.root");
   fRun->AddModule(Gem);
-
+  
   PndDsk* Dsk = new PndDsk("DSK", kTRUE);
   Dsk->SetGeometryFileName("dsk.root");
   Dsk->SetStoreCerenkovs(kFALSE);
   Dsk->SetStoreTrackPoints(kFALSE);
   fRun->AddModule(Dsk);
-
+  
   PndDrc* Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc);
@@ -124,6 +123,7 @@ void sim_sttcombi_pgun( int seed = 87619, int nEvents = 10, int pid  = 11,
   if (p2 < p1){
     p2 = p1;
   }  
+  
   boxGen->SetPRange(p1, p2); // GeV/c
   boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
   boxGen->SetThetaRange(5., 140.); // Polar angle in lab system range [degree]
@@ -132,7 +132,8 @@ void sim_sttcombi_pgun( int seed = 87619, int nEvents = 10, int pid  = 11,
 
   // Set beam properties
   //-------------------------------
-  fRun->SetStoreTraj(kTRUE);
+  //fRun->SetStoreTraj(kTRUE);
+  fRun->SetStoreTraj(kFALSE);
   fRun->SetBeamMom(15);
 
   // Create and Set Magnetic Field

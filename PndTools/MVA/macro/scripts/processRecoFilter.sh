@@ -30,7 +30,7 @@ do
   cp $HOME/scripts/filterEvt.C .
   ls
   root -q -b -l reco.C"(\"digiFile.root\",\"simFile.root\",\"param.root\",\"recoFile.root\")"
-  #root -q -b -l filterEvt.C"($2,\"$3\",\"param.root\",\"simFile.root\",\"digiFile.root\",\"recoFile.root\",\"evtData.root\")"
+  root -q -b -l runEvtSel.C"($2,\"$3\",\"param.root\",\"simFile.root\",\"digiFile.root\",\"recoFile.root\",\"evtData.root\")"
   echo "Processed."
 done
 

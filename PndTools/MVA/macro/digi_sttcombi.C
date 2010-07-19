@@ -66,7 +66,8 @@ void digi_sttcombi(char inFile  [] = "points_sttcombi.root", //Input file (MC ev
   //PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(iVerbose);
   PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
 
-  PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
+  PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask",
+							 sttTrackFinder, iVerbose);
   sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
   sttFindTracks->SetHelixHitProduction();
   fRun->AddTask(sttFindTracks);
@@ -93,7 +94,8 @@ void digi_sttcombi(char inFile  [] = "points_sttcombi.root", //Input file (MC ev
 
   PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
   mvdmccls->SetVerbose(iVerbose);
-  fRun->AddTask(mvdmccls); 
+  fRun->AddTask(mvdmccls);
+
   // -----   EMC hit producers   ---------------------------------
   PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
   emcHitProd->SetStorageOfData(kTRUE);
@@ -104,8 +106,10 @@ void digi_sttcombi(char inFile  [] = "points_sttcombi.root", //Input file (MC ev
 
   PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform(iVerbose);
   PndEmcWaveformToDigi* emcWaveformToDigi=new PndEmcWaveformToDigi(iVerbose);
+
   emcHitsToWaveform->SetStorageOfData(kTRUE);
   emcWaveformToDigi->SetStorageOfData(kTRUE);
+  
   fRun->AddTask(emcHitsToWaveform);  // full digitization
   fRun->AddTask(emcWaveformToDigi);  // full digitization
 

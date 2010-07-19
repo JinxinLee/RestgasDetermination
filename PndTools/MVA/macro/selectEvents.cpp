@@ -23,13 +23,14 @@ void selectEvents(int pdg,
   
   // Selected Zernike moments and LATeral energydeposition
   float z20, z53, latEdep;
-  int numClus, numCrys;
+  int numClus, numCrys, numBumps;
+
   mom = emc = emcCorr = z20 = z53 = 0.00;
-  numClus = numCrys = 0;
+  numClus = numCrys = numBumps = 0;
   
   // N-Tuple to store the variables.
   TNtuple EmcNtp (partName.c_str(), partName.c_str(),
-		  "id:p:emc:emcCorr:numClus:numCrys:lat:z20:z53");
+		  "id:p:emc:emcCorr:numClus:numCrys:lat:z20:z53:numBumps");
 
   // Open Simulation file
   TFile sF(simFile.c_str());
@@ -135,6 +136,7 @@ void selectEvents(int pdg,
 		<<" number of tracks = "<< recTrakArr->GetEntriesFast() 
 		<< " with P = "<< par.GetMomentum().Mag() 
 		<< endl;
+
       mom = par.GetMomentum().Mag();
     }// End if(tra)
     else{//Neutral or not correctly reconstructed.
@@ -163,7 +165,8 @@ void selectEvents(int pdg,
       numCrys = HE_cluster->NumberOfDigis();
       emc = HE_cluster->energy(); 
       emcCorr = HE_cluster->GetEnergyCorrected();  
-      
+      numBumps = HE_cluster->NBumps();
+
       //z20 = clsZmom.AbsZernikeMoment(2, 0, 15);// Z_{n = 2}^{m = 0}
       z20 = HE_cluster->Z20();
       
@@ -176,7 +179,8 @@ void selectEvents(int pdg,
       // Fill tree
       //if( (mom > 0) && (mom <= 15) && ((emc/mom) <= 2.0) ){
       if( (mom <= 15) ){
-	EmcNtp.Fill(evid, mom, emc, emcCorr, numClus, numCrys, latEdep, z20, z53);
+	EmcNtp.Fill(evid, mom, emc, emcCorr, numClus, numCrys, 
+		    latEdep, z20, z53, numBumps);
 	std::cout << "emc = " << emc << " emcCorr = " << emcCorr << std::endl;
       }
     }
