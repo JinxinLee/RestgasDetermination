@@ -327,18 +327,20 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray, TClonesArray* heli
                                                 //  list of hit numbers of those falling in this cell
     Short_t Charge[MAXTRACKSPEREVENT],
             Status[MAXTRACKSPEREVENT],
-            daTrackFoundaTrackMC[MAXTRACKSPEREVENT],
-            daMCTrackaTrackFound[MAXMCTRACKS];
+            daTrackFoundaTrackMC[MAXTRACKSPEREVENT];
+//            daMCTrackaTrackFound[MAXMCTRACKS];
 
 
-    UShort_t auxIndex[nmaxHits],
-             OLDinfoparal[nmaxHits];
+    UShort_t	emme,
+		auxIndex[nmaxHits],
+             OLDinfoparal[nmaxHits],
+		enne[MAXTRACKSPEREVENT][nmaxHits];
     UShort_t istep,inclination_type;
 
     Double_t aaa, ddd, delta, deltabis, deltaZ, mindis, distanza, fi_hit,
-              ap1, ap2, ap3, cross1, cross2, cross3,
-             lowlimit[MAXMCTRACKS],
-             uplimit[MAXMCTRACKS],
+              ap1, ap2, ap3, carica, cross1, cross2, cross3,
+             lowlimit[MAXTRACKSPEREVENT],
+             uplimit[MAXTRACKSPEREVENT],
              info[nmaxHits][7],
              WDX, WDY, WDZ,
              auxRvalues[nmaxHits],
@@ -386,7 +388,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray, TClonesArray* heli
       return -1;
     }
 
-   PndMCTrack*      pMCtr = NULL;
+//       PndMCTrack*      pMCtr = NULL;     //  questo e' gia' definito in PndSttTrackFinderReal.h
    nMCTracks = fMCTrackArray->GetEntriesFast(); // num. tracce/evento
 
 
@@ -419,94 +421,6 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray, TClonesArray* heli
 //    return  -20;
   }
 
-//   if(nMCTracks>MAXMCTRACKS){
-//    cout<<"Gianluigi : too many MC tracks = "<<nMCTracks<<"),  return!\n";
-//    return  -10;
-//  }
-
-   for (Int_t iMCTrack = 0; iMCTrack < nMCTracks&&nMCTracks<MAXMCTRACKS; iMCTrack++) 
-   { 
-         daMCTrackaTrackFound[iMCTrack]=-1;  //  this is for later and for MC comparisons
-         nHitsInMCTrack[iMCTrack]  = 0;          //   initialization
-         nSkewHitsInMCTrack[iMCTrack]  = 0;      //   initialization
-
-       pMCtr = (PndMCTrack*) fMCTrackArray->At(iMCTrack);
-       if ( ! pMCtr ) continue;
-
-
-
-         Double_t R, D, Fi, Ox, Oy, Cx, Cy, Px, Py  ;
-         Int_t icode;
-         icode  = pMCtr->GetPdgCode() ;    //   PDG code of track
-         Ox = pMCtr->GetStartVertex().X();    //   X of starting point track
-         Oy = pMCtr->GetStartVertex().Y();    //   Y of starting point track
-         Px = pMCtr->GetMomentum().X();
-         Py = pMCtr->GetMomentum().Y();
-         aaa = sqrt( Px*Px + Py*Py);
-         R =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
-
-
-
-
-         TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
-         TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
-       if (icode>1000000000) MCtruthTrkInfo[14][iMCTrack] = 1.;
-       else  MCtruthTrkInfo[14][iMCTrack] = fParticle->Charge()/3. ;    //   charge of track
-         if( MCtruthTrkInfo[14][iMCTrack] != 0 ) {
-    // MC truth X of center of circle of Helix trajectory
-           Cx = Ox + Py*1000./(BFIELD*CVEL*MCtruthTrkInfo[14][iMCTrack]);
-    // MC truth Y of center of circle of Helix trajectory
-           Cy = Oy - Px*1000./(BFIELD*CVEL*MCtruthTrkInfo[14][iMCTrack]);
-         }
-
-
-
-         Fi = atan2(Cy, Cx);       // MC truth Fi angle of circle of Helix trajectory
-         if(Fi<0.)  Fi += 2.*PI;
-         D = sqrt( Cx*Cx+Cy*Cy) - R;
-
-if(istampa>=2){
-Double_t  gomma = Cx*Cx+Cy*Cy -R*R;
-cout<<"verita MC,  traccia n. "<<iMCTrack<<", Ox, Oy,  Cx, Cy, D ,  R  ,  gamma = "<<Ox<<",  "<<Oy<<",  "<<
-    Cx<<",  "<<Cy<<",  "<<D<<",  "<<R<<",  "<<gomma<<endl;
-}
-
-
-
-
-
-         CxMC[iMCTrack]= Cx;
-         CyMC[iMCTrack]= Cy;
-         R_MC[iMCTrack]= R;
-
-
-
-         MCtruthTrkInfo[0][iMCTrack] = Ox;    //   X of starting point track
-         MCtruthTrkInfo[1][iMCTrack] = Oy;    //   Y of starting point track
-         MCtruthTrkInfo[2][iMCTrack] = pMCtr->GetStartVertex().Z();    //   Z of starting point track
-
-         MCtruthTrkInfo[3][iMCTrack] = Px;    //   Px at starting point of track
-         MCtruthTrkInfo[4][iMCTrack] = Py;    //   Py at starting point of track
-         MCtruthTrkInfo[5][iMCTrack] = pMCtr->GetMomentum().Z();    //   Pz at starting point of track
-
-         MCtruthTrkInfo[6][iMCTrack] = D;     //   D of Helix of track projected in XY plane
-         MCtruthTrkInfo[7][iMCTrack] = Fi;    //   Fi of Helix of track projected in XY plane
-         MCtruthTrkInfo[8][iMCTrack] = R;    //   R  of Helix of track projected in XY plane
-
-         MCtruthTrkInfo[9][iMCTrack] = Cx;     //   Cx of Helix of track projected in XY plane
-         MCtruthTrkInfo[10][iMCTrack] = Cy;    //   Cy of Helix of track projected in XY plane
-         MCtruthTrkInfo[11][iMCTrack] = icode ;    //   PDG code of track
-         MCtruthTrkInfo[12][iMCTrack] = -MCtruthTrkInfo[14][iMCTrack]*0.001*BFIELD*CVEL/
-                                         MCtruthTrkInfo[5][iMCTrack] ;    //   KAPPA of Helix of track in cm*-1
-//                                         fabs(MCtruthTrkInfo[5][iMCTrack]) ;    //   KAPPA of Helix of track in cm*-1
-
-//        double tempoang = atan2(-MCtruthTrkInfo[10][iMCTrack]+MCtruthTrkInfo[1][iMCTrack],
-//                                 -MCtruthTrkInfo[9][iMCTrack]+MCtruthTrkInfo[0][iMCTrack]);
-//        if(tempoang<0.) tempoang+= 2.*PI;
-         MCtruthTrkInfo[13][iMCTrack] = fmod(Fi+ PI, 2.*PI) ;    //   FI0 of Helix of track
-
-
-   }   //  end of   for (Int_t iMCTrack = 0; iMCTrack < nMCTracks; iMCTrack++) 
 
 
 
@@ -631,7 +545,7 @@ cout<<"verita MC,  traccia n. "<<iMCTrack<<", Ox, Oy,  Cx, Cy, D ,  R  ,  gamma 
           Ninclinate++;
        Minclinations[Nincl-1]++;
 jumpout: ;
-      }        
+      }
 
       NSkewhits = Ninclinate;
 
@@ -644,6 +558,7 @@ jumpout: ;
 
       FromHitToMCTrack[iHit] = (UShort_t) ( info[iHit][6] + 0.001 );
 
+/*
     if(info[iHit][5]==1. ){
       //  associazione hits paralleli
       FromMCTrackToHit[ FromHitToMCTrack[iHit] ][ nHitsInMCTrack[ FromHitToMCTrack[iHit] ] ] = iHit;
@@ -654,12 +569,12 @@ jumpout: ;
       FromMCTrackToSkewHit[ FromHitToMCTrack[iHit] ][ nSkewHitsInMCTrack[ FromHitToMCTrack[iHit] ] ] = iHit;
       nSkewHitsInMCTrack[  FromHitToMCTrack[iHit]  ]++ ;
 
-   }
+   }   // end of if(info[iHit][5]==1. )
 
 
+*/
 
 
-   // end of if(info[iHit][5]==1. )
 
 //--------------- inizio stampaggi,  stampe di controllo
   if (istampa >= 2  && IVOLTE<= nmassimo) {
@@ -772,16 +687,16 @@ jumpout: ;
            OutputListHitsinTrack[nmaxHits],
            OutputList2HitsinTrack[nmaxHits],
            ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
-           nMCParalAlone[MAXMCTRACKS],
-           nMCSkewAlone[MAXMCTRACKS],
-           MCParalAloneList[MAXMCTRACKS][nmaxHits],
-           MCSkewAloneList[MAXMCTRACKS][nmaxHits],
+           nMCParalAlone[MAXTRACKSPEREVENT],
+           nMCSkewAlone[MAXTRACKSPEREVENT],
+           MCParalAloneList[MAXTRACKSPEREVENT][nmaxHits],
+           MCSkewAloneList[MAXTRACKSPEREVENT][nmaxHits],
            nParalCommon[MAXTRACKSPEREVENT],
-           ParalCommonList[MAXMCTRACKS][nmaxHits],
+           ParalCommonList[MAXTRACKSPEREVENT][nmaxHits],
            nSpuriParinTrack[MAXTRACKSPEREVENT],
            ParSpuriList[MAXTRACKSPEREVENT][nmaxHits],
            nSkewCommon[MAXTRACKSPEREVENT],
-           SkewCommonList[MAXMCTRACKS][nmaxHits],
+           SkewCommonList[MAXTRACKSPEREVENT][nmaxHits],
            nSpuriSkewinTrack[MAXTRACKSPEREVENT],
            SkewSpuriList[MAXTRACKSPEREVENT][nmaxHits],
            RConformalIndex[nmaxHits],  //  given a Hit number it gives its radial box number
@@ -874,7 +789,6 @@ jumpout: ;
    AssociatedHitsToHelix ResultAssociatedHits ;
 
    char nomef[100], nome[30],titolo[100];
-
 
 
 
@@ -1529,134 +1443,111 @@ if(istampa>=2) {
 
 
 //--------------------  inizio della sezione sul confronto tra MC truth e tracce trovate
-   if(nMCTracks<MAXMCTRACKS)  {    //  condizione essenziale
-//----------------------  temporarily  matching with MC tracks here --------------------------------
-
-
 
 //    associate the tracks found with Pattern Recognition to the MC tracks
 
    if( nMCTracks >0 && nTracksFoundSoFar > 0 ){
 
          AssociateFoundTrackstoMC(
+		  info,
                   nTracksFoundSoFar,
                   nHitsinTrack,
                   ListHitsinTrack,
                   nSkewHitsinTrack,
                   ListSkewHitsinTrack,
-                  daTrackFoundaTrackMC,
-                  daMCTrackaTrackFound 
+                  daTrackFoundaTrackMC
                                    );
    }
 
 
 
-
-
-//  associa ora gli hits delle tracce MC con Stt Track
-// prima  gli hits paralleli ---------------------
-
    for(jexp=0; jexp<nTracksFoundSoFar;jexp++){
-     nParalCommon[jexp]=0;
-     nSkewCommon[jexp]=0;
-   }
-   for(imc=0; imc<nMCTracks;imc++){
-     nMCParalAlone[imc]=0;
-     nMCSkewAlone[imc]=0;
-   }
+	nParalCommon[jexp]=0;
+	nSkewCommon[jexp]=0;
+	nMCParalAlone[jexp]=0;
+	nMCSkewAlone[jexp]=0;
+	nSpuriParinTrack[jexp]=0;
+	nSpuriSkewinTrack[jexp]=0;
 
-   for(imc=0; imc<nMCTracks;imc++){
-     if( daMCTrackaTrackFound[imc]< 0 )  continue;
-     jexp = daMCTrackaTrackFound[imc];
+// --- parallel hits
+	for(exphit=0; exphit<nHitsinTrack[jexp]; exphit++){
+		iHit = infoparal[ ListHitsinTrack[jexp][exphit] ];
+		enne[jexp][exphit] = (UShort_t) ( info[iHit][6] + 0.01);
+		if( enne[jexp][exphit] ==   daTrackFoundaTrackMC[jexp] ){
+			ParalCommonList[jexp][ nParalCommon[jexp] ] = iHit;
+			nParalCommon[jexp]++;
+		} else {
+			ParSpuriList[jexp][ nSpuriParinTrack[jexp] ] = iHit;
+			nSpuriParinTrack[jexp]++;			
+		}
 
-        for(mchit=0; mchit<nHitsInMCTrack[imc]; mchit++){
-           for(exphit=0; exphit<nHitsinTrack[jexp]; exphit++){
-               if(infoparal[   ListHitsinTrack[jexp][exphit]  ] == FromMCTrackToHit[imc][mchit] ){
-                  ParalCommonList[jexp][ nParalCommon[jexp] ] = FromMCTrackToHit[imc][mchit];
-                  nParalCommon[jexp]++;
-                  goto  out ;
-               }   //  end of   if(infoparal[ListHitsinTrack[jexp][exphit]] == FromMCTrackToHit[imc][mchit])
-           }  //  end of  for(exphit=0; exphit<nHitsinTrack[jexp]; l++)
-           MCParalAloneList[imc][ nMCParalAlone[imc] ] = FromMCTrackToHit[imc][mchit];
-           nMCParalAlone[imc]++;
-           out:   ;
-        }   //  end of  for(mchit=0; mchit<nHitsInMCTrack[imc]; mchit++)
+	}
+//--- ricerca degli hits non mecciati, della traccia MC associata a questa traccia trovata.
+	for(i=0; i<Minclinations[0]; i++){
+		emme = (UShort_t) ( info[ infoparal[i] ][6] + 0.01);
+		if( emme ==   daTrackFoundaTrackMC[jexp] ){
+			for(exphit=0; exphit<nHitsinTrack[jexp]; exphit++){
+				if(emme == enne[jexp][exphit]) goto pinco ;
+			}
+			MCParalAloneList[jexp][ nMCParalAlone[jexp] ] = infoparal[i];
+			nMCParalAlone[jexp]++;
+			pinco:  ;
+		}
+	}  //  end of  for(i=0; i<Minclinations[0]; i++)
+
+	nHitsInMCTrack[jexp] = nMCParalAlone[jexp]+nSpuriParinTrack[jexp];
+// --- skew hits
+
+	for(exphit=0; exphit<nSkewHitsinTrack[jexp]; exphit++){
+		iHit = infoskew[ ListSkewHitsinTrack[jexp][exphit] ];
+		enne[jexp][exphit] = (UShort_t) ( info[iHit][6] + 0.01);
+		if( enne[jexp][exphit] ==   daTrackFoundaTrackMC[jexp] ){
+			SkewCommonList[jexp][ nSkewCommon[jexp] ] = iHit;
+			nSkewCommon[jexp]++;
+		} else {
+			SkewSpuriList[jexp][ nSpuriSkewinTrack[jexp] ] = iHit;
+			nSpuriSkewinTrack[jexp]++;			
+		}
+
+	}
+//--- ricerca degli hits non mecciati, della traccia MC associata a questa traccia trovata.
+	for(i=0; i<NSkewhits; i++){
+		emme = (UShort_t) ( info[ infoskew[i] ][6] + 0.01);
+		if( emme ==   daTrackFoundaTrackMC[jexp] ){
+			for(exphit=0; exphit<nSkewHitsinTrack[jexp]; exphit++){
+				if(emme == enne[jexp][exphit]) goto pinco2 ;
+			}
+			MCSkewAloneList[jexp][ nMCSkewAlone[jexp] ] = infoskew[i];
+			nMCSkewAlone[jexp]++;
+			pinco2:  ;
+		}
+	}
+
+	nSkewHitsInMCTrack[jexp] = nMCSkewAlone[jexp]+nSpuriSkewinTrack[jexp];
 
 
-//  ora gli hits skews in comune
-        for(mchit=0; mchit<nSkewHitsInMCTrack[imc]; mchit++){
-           for(exphit=0; exphit<nSkewHitsinTrack[jexp]; exphit++){
-               if(infoskew[   ListSkewHitsinTrack[jexp][exphit]  ] == FromMCTrackToSkewHit[imc][mchit] ){
-                  SkewCommonList[jexp][ nSkewCommon[jexp] ] = FromMCTrackToSkewHit[imc][mchit];
-                  nSkewCommon[jexp]++;
-                  goto out2 ;
-               }
-           }  //  end of  for(exphit=0; exphit<nSkewHitsinTrack[jexp]; exphit++)
-           MCSkewAloneList[imc][ nMCSkewAlone[imc] ] = FromMCTrackToSkewHit[imc][mchit];
-           nMCSkewAlone[imc]++;
-           out2:  ;
-        }   //  end of  for(mchit=0; mchit<nHitsInMCTrack[imc]; mchit++)
-
-   }  //  end of   for(imc=0: imc<nMCTracks;imc++)
+   }   //   end of  for(jexp=0; jexp<nTracksFoundSoFar;jexp++)
 
 
 
-//   individua gli hits spuri delle tracce trovate dal pattern recognition
 
-   for(i=0; i<nTracksFoundSoFar;i++){
-     if ( daTrackFoundaTrackMC[i] < 0 ){
-        nSpuriParinTrack[i]=nHitsinTrack[i];
-        nSpuriSkewinTrack[i]=nSkewHitsinTrack[i];
-        continue;
-     }
 
-// spurie degli hit paralleli
-     nSpuriParinTrack[i]= 0 ;
-     for(exphit=0; exphit<nHitsinTrack[i]; exphit++){
-       for(j=0; j<nParalCommon[i]; j++){
-        if(  infoparal[ ListHitsinTrack[i][exphit] ]  == ParalCommonList[i][j] ) { goto esci ;}
-       }
-       ParSpuriList[i][ nSpuriParinTrack[i] ] = infoskew[ ListHitsinTrack[i][exphit] ];
-       nSpuriParinTrack[i]++;
-esci:  ;
-     }
 
-// spurie degli hit skew
-     nSpuriSkewinTrack[i]= 0 ;
-     for(exphit=0; exphit<nSkewHitsinTrack[i]; exphit++){
-       for(j=0; j<nSkewCommon[i]; j++){
-        if(  infoskew[ ListSkewHitsinTrack[i][exphit] ]  == SkewCommonList[i][j] ) {goto esci2 ;}
-       }
-       SkewSpuriList[i][ nSpuriSkewinTrack[i] ] = infoskew[ ListSkewHitsinTrack[i][exphit] ];
-       nSpuriSkewinTrack[i]++;
-esci2:  ;
-     }
 
-   }   //  end of  for(i=0; i<nTracksFoundSoFar;i++)
+
 
 
 
   if(istampa>=2 )  fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE, nMCTracks);
 
-for (i=0; i<nMCTracks && istampa>=2 ;i++){
+for (ii=0; ii<nTracksFoundSoFar && istampa>=2 ;ii++){
    fprintf(HANDLE,"----------------------------------------------------------\n");
-   ii=daMCTrackaTrackFound[i];
+   i=daTrackFoundaTrackMC[i];
 
-
-
-   if( ii <0  ) {
-    fprintf(HANDLE,"       TracciaMC %d has not a corresponding found track in pattern recognition, with %d Hits paral. in MC track, %d skew hits in MC track, %f Radius in MC track\n ",i,
-                         nHitsInMCTrack[i], nSkewHitsInMCTrack[i],  R_MC[i]      );
-            continue;
-         }
-//   if( ! ( nHitsInMCTrack[i]>= MINIMUMHITSPERTRACK && nSkewHitsInMCTrack[i] >= MINIMUMSKEWHITSPERTRACK
-   if( ! ( nHitsInMCTrack[i]>= MINIMUMHITSPERTRACK
-                  &&  R_MC[i] > RStrawDetectorMin )
-       ) {
-    fprintf(HANDLE,"       TracciaMC %d NONsoddisfaRequisitiMinimi with %d Hits paral. in MC track, %d skew hits in MC track, %f Radius in MC track ",i,
-                         nHitsInMCTrack[i], nSkewHitsInMCTrack[i],  R_MC[i]      );
-    fprintf(HANDLE,"     (minimum parallel hits = %d, minRadius=%f\n",
-                                 MINIMUMHITSPERTRACK,  RStrawDetectorMin );
+   if( i <0  ) {
+    fprintf(HANDLE,
+"   No TracciaMC associated to found track n. %d in pattern recognition, with %d Hits ||, %d skew hits, %f Radius \n "
+             ,ii,nHitsinTrack[ii], nSkewHitsinTrack[ii],  R[ii] );
             continue;
          }
    if( ! ( GoodSkewFit[ii] ) ) {
@@ -1672,44 +1563,75 @@ for (i=0; i<nMCTracks && istampa>=2 ;i++){
    }
    Double_t dista=sqrt( Ox[ii]*Ox[ii]+Oy[ii]*Oy[ii] );
    if(fabs(dista)<1.e-20 ){
-    fprintf(HANDLE,"       TracciaMC %d; sua FoundTrack associata (n. %d) NONsoddisfaRequisitiMinimi perche' centro Helix Cilinder dista solo %g da (0,0)\n",
+    fprintf(HANDLE,
+"       TracciaMC %d; sua FoundTrack associata (n. %d) NONsoddisfaRequisitiMinimi perche' centro Helix Cilinder trovato dista solo %g da (0,0)\n",
            i,ii,dista);
            continue;
    }
+   pMCtr = (PndMCTrack*) fMCTrackArray->At(i);
+   if ( ! pMCtr ){
+		fprintf(HANDLE,
+		"       MC track n. %d doesn't have pointer to MC Track TClones Array\n",
+		i);
+	  continue;
+   }
+
+
     fprintf(HANDLE,
 "       TracciaMC %d ParHitsMC %d ParMecc %d ParMeccSpuri %d SkewHitsMC %d  SkewMecc %d SkewMeccSpuri %d\n",
              i,
              nHitsInMCTrack[i],
-             nParalCommon[daMCTrackaTrackFound[i]],
-             nSpuriParinTrack[daMCTrackaTrackFound[i]],
+             nParalCommon[ii],
+             nSpuriParinTrack[ii],
              nSkewHitsInMCTrack[i],
-             nSkewCommon[daMCTrackaTrackFound[i]],
-             nSpuriSkewinTrack[daMCTrackaTrackFound[i]]
+             nSkewCommon[ii],
+             nSpuriSkewinTrack[ii]
 
            )  ;
     fprintf(HANDLE,
-"       e corrisponde a track found n. %d\n", daMCTrackaTrackFound[i]  );
+"       e corrisponde a track found n. %d\n", ii );
     fprintf(HANDLE,
-"       AVENDO %d hits paralleli e %d hits skew non mecciati dalla corrisponde track found\n", nMCParalAlone[i],nMCSkewAlone[i]  );
+"       AVENDO %d hits paralleli e %d hits skew non mecciati dalla corrisponde track found\n"
+       , nMCParalAlone[ii],nMCSkewAlone[ii]  );
 
-    HoughFi = atan2(Oy[daMCTrackaTrackFound[i]],Ox[daMCTrackaTrackFound[i]]);
+    HoughFi = atan2(Oy[ii],Ox[ii]);
     if(HoughFi<0.)  HoughFi += 2.*PI;
 
+         Double_t Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Px, Py  ;
+         Int_t icode;
+         icode  = pMCtr->GetPdgCode() ;    //   PDG code of track
+         Oxx = pMCtr->GetStartVertex().X();    //   X of starting point track
+         Oyy = pMCtr->GetStartVertex().Y();    //   Y of starting point track
+         Px = pMCtr->GetMomentum().X();
+         Py = pMCtr->GetMomentum().Y();
+         aaa = sqrt( Px*Px + Py*Py);
+         Rr =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
+         TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
+         TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
+         if (icode>1000000000) carica = 1.;
+         else  carica = fParticle->Charge()/3. ;    //   charge of track
+         Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
+         Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
+         Fifi = atan2(Cy, Cx);       // MC truth Fifi angle of circle of Helix trajectory
+         if(Fifi<0.)  Fifi += 2.*PI;
+         Double_t Kakka ;
+         if( fabs( pMCtr->GetMomentum().Z() )< 1.e-20) Kakka = 99999999.;
+         else  Kakka = -carica*0.001*BFIELD*CVEL/pMCtr->GetMomentum().Z();
 
     fprintf(HANDLE,
 "       R_MC %g R %g Fi_MC %g Fi %g KAPPA_MC %g KAPPA %g FI0_MC %g FI0 %g\n",
-     MCtruthTrkInfo[8][i],
-     R[ daMCTrackaTrackFound[i] ],
-     MCtruthTrkInfo[7][i],
+     Rr,
+     R[ ii ],
+     Fifi,
      HoughFi,
-     MCtruthTrkInfo[12][i],
-     KAPPA[ daMCTrackaTrackFound[i] ],
-     MCtruthTrkInfo[13][i],
-     FI0[ daMCTrackaTrackFound[i] ]
+     Kakka,
+     KAPPA[ ii ],
+     fmod(Fifi+ PI, 2.*PI),  //  FI0  da MC truth
+     FI0[ ii ]
            );
      
 
-  }   //   end of  for (i=0; i<nMCTracks;i++)
+  }   //   end of  for (ii=0; ii<nTracksFoundSoFar && istampa>=2 ;ii++)
 
 
 //--------------ghosts
@@ -1737,11 +1659,6 @@ if( istampa>=2){
 
 
 
-  }  else {  //  continuation of if(nMCTracks<MAXMCTRACKS)
-     for(i=0; i<nTracksFoundSoFar;i++){
-       daTrackFoundaTrackMC[i]=-1;
-     }
-  }   //  end of        if(nMCTracks<MAXMCTRACKS)
 
 //--------------------  fine della sezione sul confronto tra MC truth e tracce trovate
 
@@ -1829,98 +1746,6 @@ if(istampa >= 2){
 
 
 
-
-
-
-
-
-//-------------------------------stampaggi
-  if(istampa >2 && nMCTracks<MAXMCTRACKS){
-
-
-
-
-    HoughFi = atan2(Oy[i],Ox[i]);
-    if(HoughFi<0.)  HoughFi += 2.*PI;
-
-    fprintf(HANDLE2,"Evento n. %d Found track %d messa in PndTrackCand",IVOLTE, i);
-    fprintf(HANDLE2,
-"       R_MC %g R %g Fi_MC %g Fi %g KAPPA_MC %g KAPPA %g FI0_MC %g FI0 %g\n",
-     MCtruthTrkInfo[8][ii],
-     R[ i ],
-     MCtruthTrkInfo[7][ii],
-     HoughFi,
-     MCtruthTrkInfo[12][ii],
-     KAPPA[ i ],
-     MCtruthTrkInfo[13][ii],
-//     FI0[ i ]
-     fmod(HoughFi+ PI, 2.*PI)
-           );
-
-
-if(istampa >=3 )   {
-   fprintf(HANDLEXYZ,
-"evento %d ; la traccia SEQUENZIALE n. %d, corrispondente a traccia trovata n. %d , e' stata caricata nel PndTrackCand.\n"
-    ,IVOLTE,ipinco-1,i);
-
-            for(int ivv=0; ivv<nParalCommon[i]; ivv++){
-               PndSttInfoXYZParal (
-                             info,
-                             infoparal[ ListHitsinTrack[i][ivv] ],
-                             Ox[i],
-                             Oy[i],
-                             R[i],
-                             KAPPA[i],
-                             FI0[i],
-                             Charge[i],
-                             Posiz
-                                  );
-               fprintf(HANDLEXYZ,"   Hit paral. %d  X MC %g ; myX %g ; Y MC %g ; myY %g ; Z MC %g ; myZ %g\n"
-                ,infoparal[ ListHitsinTrack[i][ivv] ]
-                , veritaMC[ infoparal[ ListHitsinTrack[i][ivv] ] ] [0]
-                , Posiz[0]
-                , veritaMC[ infoparal[ ListHitsinTrack[i][ivv] ] ] [1]
-                , Posiz[1]
-                , veritaMC[ infoparal[ ListHitsinTrack[i][ivv] ] ] [2]
-                , Posiz[2]
-                            );
-                 }  //  end of  for(int ivv=0; ivv<nParalCommon[i]; ivv++)
-    for( j=0; j<nSkewCommon[i]; j++){
-       PndSttInfoXYZSkew (
-                             Zfinal[i][ infoskew[ ListSkewHitsinTrack[i][j] ] ],       //  Z coordinate of selected Skew hit
-                             ZDriftfinal[i][ infoskew[ ListSkewHitsinTrack[i][j] ] ],   // drift distance IN Z DIRECTION only, of Skew hit
-                             Sfinal[i][ infoskew[ ListSkewHitsinTrack[i][j] ] ],
-                             Ox[i],
-                             Oy[i],
-                             R[i],
-                             KAPPA[i],
-                             FI0[i],
-                             Charge[i],
-                             Posiz
-
-
-
-
-                            );
-       fprintf(HANDLEXYZ,"   Hit skew. %d  X MC %g ; myX %g ; Y MC %g ; myY %g ; Z MC %g ; myZ %g\n"
-                ,infoskew[ ListSkewHitsinTrack[i][j] ]
-                , veritaMC[ infoskew[ ListSkewHitsinTrack[i][j] ] ] [0]
-                , Posiz[0]
-                , veritaMC[ infoskew[ ListSkewHitsinTrack[i][j] ] ] [1]
-                , Posiz[1]
-                , veritaMC[ infoskew[ ListSkewHitsinTrack[i][j] ] ] [2]
-                , Posiz[2]
-             );
-         }  //   end of for( j=0; j<nSkewCommon[i]; j++)
-
-
-  }  // end of   if(istampa >=3 )
-
-
-
-
-  }   //   end of     if(istampa >= 2)
-//------------------------------ fine stampaggi
 
 
 
@@ -2191,9 +2016,7 @@ for(i=0; i<nTracksFoundSoFar;i++){
                    ListSkewHitsinTrack,
                    nSkewCommon[i],
                    SkewCommonList,
-                   daTrackFoundaTrackMC[i],
-                   nMCSkewAlone[  daTrackFoundaTrackMC[i] ],
-                   MCSkewAloneList
+                   daTrackFoundaTrackMC[i]
                                                      );
       }
 
@@ -4472,6 +4295,11 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
 
 //---------- parallel straws Macro now con anche le tracce MC
 
+
+
+
+
+
       sprintf(nome,"MacroGeneralParallelHitswithMCEvent%d", IVOLTE);
       sprintf(nome2,"%s.C",nome);
       MACRO = fopen(nome2,"w");
@@ -4531,12 +4359,28 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
        }
 
 
-
-       for( i=0; i< nMCTracks ; i++) {
+	Int_t icode;
+         Double_t Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Px, Py, carica  ;
+     PndMCTrack* pMC;
+	for(int im=0;im<nMCTracks; im++){
+		pMC = (PndMCTrack*) fMCTrackArray->At(im);
+		if ( ! pMC ) continue;
+         	icode  = pMC->GetPdgCode() ;    //   PDG code of track
+         	Oxx = pMC->GetStartVertex().X();    //   X of starting point track
+         	Oyy = pMC->GetStartVertex().Y();    //   Y of starting point track
+         	Px = pMC->GetMomentum().X();
+         	Py = pMC->GetMomentum().Y();
+         	aaa = sqrt( Px*Px + Py*Py);
+         	Rr =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
+         TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
+         TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
+       if (icode>1000000000) carica = 1.;
+       else  carica = fParticle->Charge()/3. ;    //   charge of track
+           Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
+           Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
             fprintf(MACRO,"TEllipse* MC%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nMC%d->SetFillStyle(0);\nMC%d->SetLineColor(3);\nMC%d->Draw();\n",
-                     i,CxMC[i],CyMC[i],R_MC[i],R_MC[i],i,i,i);
-// cout<<" info MC buone : MCtrack n. "<<i<<",  Cx, Cy, R  "<<CxMC[i]<<",  "<<CyMC[i]<<",  "<<R_MC[i]<<endl;
-       }
+                     im,Cx,Cy,Rr,Rr,im,im,im);
+       }  //  end of for(int im=0;im<nMCTracks; im++)
 
 
 //-------------------------------   plotting all the tracks found
@@ -4986,29 +4830,44 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
 //   plotting all the tracks MC generated
 
 
-    for(i=0; i<nMCTracks; i++){
-//cout<<"super2, info MC DOVREBBERO essere buone : MCtrack n. "<<i<<",  Cx, Cy, R  "<<CxMC[i]<<",  "<<CyMC[i]<<",  "<<R_MC[i]<<endl;
 
-    gamma = -R_MC[i]*R_MC[i] + (CxMC[i]*CxMC[i]+CyMC[i]*CyMC[i]);
+	Int_t icode;
+         Double_t Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Px, Py, carica  ;
+     PndMCTrack* pMC;
+	for(i=0;i<nMCTracks; i++){
+		pMC = (PndMCTrack*) fMCTrackArray->At(i);
+		if ( ! pMC ) continue;
+         	icode  = pMC->GetPdgCode() ;    //   PDG code of track
+         	Oxx = pMC->GetStartVertex().X();    //   X of starting point track
+         	Oyy = pMC->GetStartVertex().Y();    //   Y of starting point track
+         	Px = pMC->GetMomentum().X();
+         	Py = pMC->GetMomentum().Y();
+         	aaa = sqrt( Px*Px + Py*Py);
+         	Rr =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
+         TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
+         TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
+       if (icode>1000000000) carica = 1.;
+       else  carica = fParticle->Charge()/3. ;    //   charge of track
+           Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
+           Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
+
+
+    gamma = -Rr*Rr + Cx*Cx+Cy*Cy;
 
 
 
-//Double_t DDD = sqrt(CxMC[i]*CxMC[i]+CyMC[i]*CyMC[i])-R_MC[i];
-//cout<<"  D = "<<DDD<<endl;
-//cout<<"  gamma  "<<gamma<<"   ed il suo R/|gamma| "<<fabs(R_MC[i]/gamma)<<endl;
 
     if(fabs(gamma)< 0.001) {
 
-//     if( R_MC[i] < RStrawDetectorMin)  continue;
-     if(CyMC[i] != 0.) {
-       yl = xmin*(-CxMC[i]/CyMC[i]) + 0.5/CyMC[i];
-       yu = xmax*(-CxMC[i]/CyMC[i]) + 0.5/CyMC[i];
+     if(Cy != 0.) {
+       yl = xmin*(-Cx/Cy) + 0.5/Cy;
+       yu = xmax*(-Cx/Cy) + 0.5/Cy;
        xl = xmin;
        xu = xmax;
      } else {
        yl = ymin;
        yu = ymax;
-       xu=xl = 0.5/CxMC[i];
+       xu=xl = 0.5/Cx;
      }
        fprintf(MACRO,"TLine* MCris%d = new TLine(%f,%f,%f,%f);\n",i,xl,yl,xu,yu);
        fprintf(MACRO,"MCris%d->SetLineStyle(2);\n",i);
@@ -5018,10 +4877,10 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
 
     }  else {
 
-       if(fabs(R_MC[i]/gamma) > 1.) {
-         if(fabs(CyMC[i])>0.001 ) {
-           yl = -xmin*CxMC[i]/CyMC[i]+0.5/CyMC[i];
-           yu = -xmax*CxMC[i]/CyMC[i]+0.5/CyMC[i];
+       if(fabs(Rr/gamma) > 1.) {
+         if(fabs(Cy)>0.001 ) {
+           yl = -xmin*Cx/Cy+0.5/Cy;
+           yu = -xmax*Cx/Cy+0.5/Cy;
            fprintf(MACRO,"TLine* MCline%d = new TLine(%f,%f,%f,%f);\n",i,xmin,yl,xmax,yu);
            fprintf(MACRO,"MCline%d->SetLineColor(3);\n",i);
            fprintf(MACRO,"MCline%d->Draw();\n",i);
@@ -5032,7 +4891,7 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
          }
         }  else {
            fprintf(MACRO, "TEllipse* MCcerchio%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nMCcerchio%d->SetLineColor(3);\n",
-                     i,CxMC[i]/gamma,CyMC[i]/gamma,R_MC[i]/fabs(gamma),R_MC[i]/fabs(gamma),i);
+                     i,Cx/gamma,Cy/gamma,Rr/fabs(gamma),Rr/fabs(gamma),i);
 
            fprintf(MACRO,"MCcerchio%d->SetFillStyle(0);\nMCcerchio%d->SetLineStyle(2);\nMCcerchio%d->SetLineWidth(1);\nMCcerchio%d->Draw();\n",
                      i,i,i,i);
@@ -5244,13 +5103,33 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
 
 //cout<<" TRASLAZIONE IN "<<trajectory_vertex[0]<<",  "<<trajectory_vertex[1]<<endl;
 
-    for(i=0; i<nMCTracks; i++){
-// cout<<"PRIMA; traccia MC n. "<<i<<"  che ha cx, cy, r = "<<CxMC[i]<<",  "<<CyMC[i]<<",  "<<R_MC[i]<<endl;
-     cx = CxMC[i] - trajectory_vertex[0];
-     cy = CyMC[i] - trajectory_vertex[1];
-     gamma = -R_MC[i]*R_MC[i] + (cx*cx+cy*cy);
 
-//cout<<" DOPO; traccia MC n. "<<i<<"  che ha cx, cy, gamma = "<<cx<<",  "<<cy<<",  "<<gamma<<endl;
+	Int_t icode;
+         Double_t Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Px, Py, carica  ;
+     PndMCTrack* pMC;
+	for(i=0;i<nMCTracks; i++){
+		pMC = (PndMCTrack*) fMCTrackArray->At(i);
+		if ( ! pMC ) continue;
+         	icode  = pMC->GetPdgCode() ;    //   PDG code of track
+         	Oxx = pMC->GetStartVertex().X();    //   X of starting point track
+         	Oyy = pMC->GetStartVertex().Y();    //   Y of starting point track
+         	Px = pMC->GetMomentum().X();
+         	Py = pMC->GetMomentum().Y();
+         	aaa = sqrt( Px*Px + Py*Py);
+         	Rr =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
+         TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
+         TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
+       if (icode>1000000000) carica = 1.;
+       else  carica = fParticle->Charge()/3. ;    //   charge of track
+           Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
+           Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
+
+
+//    for(i=0; i<nMCTracks; i++){
+     cx = Cx - trajectory_vertex[0];
+     cy = Cy - trajectory_vertex[1];
+     gamma = -Rr*Rr + (cx*cx+cy*cy);
+
 
 
 
@@ -5275,10 +5154,10 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
     }  else {
 
 
-       if(fabs(R_MC[i]/gamma) > 1.) {
-         if(fabs(CyMC[i])>0.001 ) {
-           yl = -xmin*CxMC[i]/CyMC[i]+0.5/CyMC[i];
-           yu = -xmax*CxMC[i]/CyMC[i]+0.5/CyMC[i];
+       if(fabs(Rr/gamma) > 1.) {
+         if(fabs(Cy)>0.001 ) {
+           yl = -xmin*Cx/Cy+0.5/Cy;
+           yu = -xmax*Cx/Cy+0.5/Cy;
            fprintf(MACRO,"TLine* MCline%d = new TLine(%f,%f,%f,%f);\n",i,xmin,yl,xmax,yu);
            fprintf(MACRO,"MCline%d->SetLineColor(3);\n",i);
            fprintf(MACRO,"MCline%d->Draw();\n",i);
@@ -5293,7 +5172,7 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
 
            fprintf(MACRO,
      "TEllipse* MCcerchio%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nMCcerchio%d->SetLineColor(3);\n",
-                     i,cx/gamma,cy/gamma,R_MC[i]/fabs(gamma),R_MC[i]/fabs(gamma),i);
+                     i,cx/gamma,cy/gamma,Rr/fabs(gamma),Rr/fabs(gamma),i);
            fprintf(MACRO,
  "MCcerchio%d->SetFillStyle(0);\nMCcerchio%d->SetLineStyle(2);\nMCcerchio%d->SetLineWidth(1);\nMCcerchio%d->Draw();\n",
                      i,i,i,i);
@@ -5751,9 +5630,7 @@ nohits: ;
                    UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
                    UShort_t nSkewCommon,
                    UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxHits],
-                   UShort_t daTrackFoundaTrackMC,
-                   UShort_t nMCSkewAlone,
-                   UShort_t MCSkewAloneList[MAXMCTRACKS][nmaxHits]
+                   UShort_t daTrackFoundaTrackMC
                                                      )
  {
 
@@ -5983,8 +5860,29 @@ fuori: ;
 // for(imc=0; imc<nMCTracks ; imc++){
 //            if(imc !=    daTrackFoundaTrackMC[ imaxima ]) continue;
      imc=    daTrackFoundaTrackMC ;
-     KAPPA=MCtruthTrkInfo[12][imc];
-     FI0 = MCtruthTrkInfo[13][imc];
+
+		Int_t icode;
+        	Double_t Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Px, Py, carica  ;
+    		PndMCTrack* pMC;
+		pMC = (PndMCTrack*) fMCTrackArray->At(imc);
+		if ( ! pMC ) goto nohits ;
+         	icode  = pMC->GetPdgCode() ;    //   PDG code of track
+         	Oxx = pMC->GetStartVertex().X();    //   X of starting point track
+         	Oyy = pMC->GetStartVertex().Y();    //   Y of starting point track
+         	Px = pMC->GetMomentum().X();
+         	Py = pMC->GetMomentum().Y();
+         	aaa = sqrt( Px*Px + Py*Py);
+         	Rr =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
+         	TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
+         	TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
+       		if (icode>1000000000) carica = 1.;
+       		else  carica = fParticle->Charge()/3. ;    //   charge of track
+           	Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
+           	Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
+    		if( fabs( pMC->GetMomentum().Z() )< 1.e-20) KAPPA = 99999999.;
+    		else  KAPPA = -carica*0.001*BFIELD*CVEL/pMC->GetMomentum().Z();
+     		FI0 = fmod(Fifi+ PI, 2.*PI);
+
   if ( KAPPA >= 0.) {
      fmin = KAPPA*zmin + FI0;
      fmax = KAPPA*zmax + FI0;
@@ -6013,7 +5911,6 @@ fuori: ;
   }   //  end of  for(i=Nmin; i<= Nmax;++)
 
 
-//       }  // end of for(imc=0; imc<nMCTracks ; imc++)
 
 
 
@@ -11299,9 +11196,32 @@ cout<<"    j= "<<j<<", n. Hit in original numbering = "<<BigList[j]<<" e suo FI 
 
 
        for( i=0; i< nMCTracks ; i++) {
+		Int_t icode;
+        	Double_t Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Px, Py, carica, KAPPA, FI0mc  ;
+    		PndMCTrack* pMC;
+		pMC = (PndMCTrack*) fMCTrackArray->At(i);
+		if ( ! pMC ) continue ;
+         	icode  = pMC->GetPdgCode() ;    //   PDG code of track
+         	Oxx = pMC->GetStartVertex().X();    //   X of starting point track
+         	Oyy = pMC->GetStartVertex().Y();    //   Y of starting point track
+         	Px = pMC->GetMomentum().X();
+         	Py = pMC->GetMomentum().Y();
+         	aaa = sqrt( Px*Px + Py*Py);
+         	Rr =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
+         	TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
+         	TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
+       		if (icode>1000000000) carica = 1.;
+       		else  carica = fParticle->Charge()/3. ;    //   charge of track
+           	Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
+           	Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
+    		if( fabs( pMC->GetMomentum().Z() )< 1.e-20) KAPPA = 99999999.;
+    		else  KAPPA = -carica*0.001*BFIELD*CVEL/pMC->GetMomentum().Z();
+     		FI0mc = fmod(Fifi+ PI, 2.*PI);
+
+
+
             fprintf(MACRO,"TEllipse* MC%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nMC%d->SetFillStyle(0);\nMC%d->SetLineColor(3);\nMC%d->Draw();\n",
-                     i,CxMC[i],CyMC[i],R_MC[i],R_MC[i],i,i,i);
-// cout<<" info MC buone : MCtrack n. "<<i<<",  Cx, Cy, R  "<<CxMC[i]<<",  "<<CyMC[i]<<",  "<<R_MC[i]<<endl;
+                     i,Cx,Cy,Rr,Rr,i,i,i);
        }
 
 
@@ -11310,7 +11230,33 @@ cout<<"    j= "<<j<<", n. Hit in original numbering = "<<BigList[j]<<" e suo FI 
     for(i=0; i<nTracksFoundSoFar; i++){
 
        if( daTrackFoundaTrackMC[i] == -1 )  continue;
-       rrr = R_MC[  daTrackFoundaTrackMC[i]  ];
+
+
+
+		Int_t icode;
+        	Double_t Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Px, Py, carica, KAPPA, FI0mc  ;
+    		PndMCTrack* pMC;
+		pMC = (PndMCTrack*) fMCTrackArray->At(daTrackFoundaTrackMC[i]);
+		if ( ! pMC ) continue ;
+         	icode  = pMC->GetPdgCode() ;    //   PDG code of track
+         	Oxx = pMC->GetStartVertex().X();    //   X of starting point track
+         	Oyy = pMC->GetStartVertex().Y();    //   Y of starting point track
+         	Px = pMC->GetMomentum().X();
+         	Py = pMC->GetMomentum().Y();
+         	aaa = sqrt( Px*Px + Py*Py);
+         	Rr =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
+         	TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
+         	TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
+       		if (icode>1000000000) carica = 1.;
+       		else  carica = fParticle->Charge()/3. ;    //   charge of track
+           	Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
+           	Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
+    		if( fabs( pMC->GetMomentum().Z() )< 1.e-20) KAPPA = 99999999.;
+    		else  KAPPA = -carica*0.001*BFIELD*CVEL/pMC->GetMomentum().Z();
+     		FI0mc = fmod(Fifi+ PI, 2.*PI);
+
+
+       rrr = Rr;
        double angolo = atan2(Oy[i],Ox[i]); 
        aaa = rrr*cos(angolo);
        bbb = rrr*sin(angolo);
@@ -11558,8 +11504,33 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
 
  for(imc=0; imc<nMCTracks ; imc++){
 
-     KAPPA=MCtruthTrkInfo[12][imc];
-     FI0 = MCtruthTrkInfo[13][imc];
+
+
+		Int_t icode;
+        	Double_t Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Px, Py, carica, FI0mc  ;
+    		PndMCTrack* pMC;
+		pMC = (PndMCTrack*) fMCTrackArray->At(imc);
+		if ( ! pMC ) continue ;
+         	icode  = pMC->GetPdgCode() ;    //   PDG code of track
+         	Oxx = pMC->GetStartVertex().X();    //   X of starting point track
+         	Oyy = pMC->GetStartVertex().Y();    //   Y of starting point track
+         	Px = pMC->GetMomentum().X();
+         	Py = pMC->GetMomentum().Y();
+         	aaa = sqrt( Px*Px + Py*Py);
+         	Rr =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
+         	TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
+         	TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
+       		if (icode>1000000000) carica = 1.;
+       		else  carica = fParticle->Charge()/3. ;    //   charge of track
+           	Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
+           	Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
+    		if( fabs( pMC->GetMomentum().Z() )< 1.e-20) KAPPA = 99999999.;
+    		else  KAPPA = -carica*0.001*BFIELD*CVEL/pMC->GetMomentum().Z();
+     		FI0mc = fmod(Fifi+ PI, 2.*PI);
+//     KAPPA=MCtruthTrkInfo[12][imc];
+     FI0 = FI0mc;
+
+
   if ( KAPPA >= 0.) {
      fmin = KAPPA*zmin + FI0;
      fmax = KAPPA*zmax + FI0;
@@ -11614,131 +11585,111 @@ nohits: ;
 //----------begin of function PndSttTrackFinderReal::AssociateFoundTrackstoMC
 
     void PndSttTrackFinderReal::AssociateFoundTrackstoMC(
+		  Double_t info[][7],
                   UShort_t nTracksFoundSoFar,
                   UShort_t *nHitsinTrack,
                   UShort_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
                   UShort_t *nSkewHitsinTrack,
                   UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
-                  Short_t *daTrackFoundaTrackMC,
-                  Short_t *daMCTrackaTrackFound 
+                  Short_t *daTrackFoundaTrackMC
+//                  Short_t *daMCTrackaTrackFound 
                                                         )
 {
 
-   UShort_t  exphit,
-             i,
-             imc,
-             jexp,
-             mchit,
-             BoxMC_Found[nMCTracks][nTracksFoundSoFar];
-   bool inclusionMC[nMCTracks],
-        inclusionExp[nTracksFoundSoFar];
+   bool	       inclusionMC[nTracksFoundSoFar][nmaxHits],
+		inclusionExp[nTracksFoundSoFar];
 
+   UShort_t	ntoMCtrack[nTracksFoundSoFar],
+		toMCtracklist[nTracksFoundSoFar][nmaxHits],
+		toMCtrackfrequency[nTracksFoundSoFar][nmaxHits];
+
+   UShort_t  i, j, enne, jtemp,jexp;
+
+   Short_t  itemp, massimo;
 
 
 
    for(i=0; i<nTracksFoundSoFar;i++){
      daTrackFoundaTrackMC[i]=-1;
      inclusionExp[i]=true;
-   }
-
-
-   for(i=0; i<nMCTracks;i++){
-//     daMCTrackaTrackFound[i]=-1;    this is not necessary any more, its initialization done at
-                                           // the beginning of DoFind
-     inclusionMC[i]=true;
+	for(j=0; j<nHitsinTrack[i]+nSkewHitsinTrack[i];j++){
+		inclusionMC[i][j]=true;
+	}
    }
 
 
 
-   for(imc=0; imc<nMCTracks;imc++){
+
+
 
      for(jexp=0; jexp< nTracksFoundSoFar ;jexp++){
-
-       BoxMC_Found[imc][jexp]=0;
-
+	ntoMCtrack[jexp]=1;
+	toMCtracklist[jexp][0]=(UShort_t)( info[ infoparal[ ListHitsinTrack[jexp][0] ] ][6]+0.01);
+	toMCtrackfrequency[jexp][0]=1;
 
 // prima  gli hits paralleli ---------------------
-        for(mchit=0; mchit<nHitsInMCTrack[imc]; mchit++){
-           for(exphit=0; exphit<nHitsinTrack[jexp]; exphit++){
-               if(infoparal[   ListHitsinTrack[jexp][exphit]  ] == FromMCTrackToHit[imc][mchit] ){
-                  BoxMC_Found[imc][jexp]++;
-                  goto  gotta ;
-               }   //  end of   if(infoparal[ListHitsinTrack[jexp][exphit]] == FromMCTrackToHit[imc][mchit])
-           }  //  end of  for(exphit=0; exphit<nHitsinTrack[jexp]; exphit++)
-      gotta:   ;
-        }   //  end of  for(mchit=0; mchit<nHitsInMCTrack[imc]; mchit++)
+	for(i=1; i<nHitsinTrack[jexp]; i++){
+		enne = (UShort_t)( info[ infoparal[ ListHitsinTrack[jexp][i] ] ][6]+0.01 );
+		for(j=0; j<ntoMCtrack[jexp]; j++){
+			if( enne == toMCtracklist[jexp][j] ) {
+				toMCtrackfrequency[jexp][j]++;
+				goto out1 ;
+			}
+		}
+		toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
+		toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
+		ntoMCtrack[jexp]++;
+out1:  ;
+	}   //  end of for(i=0; i<nHitsinTrack[jexp]; i++)
+
 
 
 // poi  gli hits skew ---------------------
-
-        for(mchit=0; mchit<nSkewHitsInMCTrack[imc]; mchit++){
-           for(exphit=0; exphit<nSkewHitsinTrack[jexp]; exphit++){
-               if(infoskew[   ListSkewHitsinTrack[jexp][exphit]  ] == FromMCTrackToSkewHit[imc][mchit] ){
-                  BoxMC_Found[imc][jexp]++;
-                  goto  gotta2 ;
-               }   //  end of   if(infoskew[ListSkewHitsinTrack[jexp][exphit]] == FromMCTrackToSkewHit[imc][mchit])
-           }  //  end of  for(exphit=0; exphit<nSkewHitsinTrack[jexp]; exphit++)
-      gotta2:   ;
-        }   //  end of  for(mchit=0; mchit<nSkewHitsInMCTrack[imc]; mchit++)
-
-
-
-if( istampa>= 3 && IVOLTE <= nmassimo) cout<<"  evento n. "<<IVOLTE<<", imc = "<<imc<<", jexp = "<<jexp<<", BoxMC_Found[imc][jexp] = "<<
-    BoxMC_Found[imc][jexp]<<endl;
-
-     } //  end of   for(jexp=0; jexp< nTracksFoundSoFar ;jexp++)
-  }    //  end of     for(imc=0; imc<nMCTracks;imc++){
+	for(i=0; i<nSkewHitsinTrack[jexp]; i++){
+		enne = (UShort_t)( info[ infoskew[ ListSkewHitsinTrack[jexp][i] ] ][6]+0.01 );
+		for(j=0; j<ntoMCtrack[jexp]; j++){
+			if( enne == toMCtracklist[jexp][j] ) {
+				toMCtrackfrequency[jexp][j]++;
+				goto out2 ;
+			}
+		}
+		toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
+		toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
+		ntoMCtrack[jexp]++;
+out2:  ;
+	}   //  end of for(i=0; j<nHitsinTrack[jexp]; i++)
 
 
 
-//   scelta degli accoppiamenti delle tracce MC con quelle trovate dal pattern recognition
+     }  // end of  for(jexp=0; jexp< nTracksFoundSoFar ;jexp++)
 
 
-    int Imc, Jexp, massimo;
-
-    if( nMCTracks >= nTracksFoundSoFar){
-
-      for( jexp=0; jexp< nTracksFoundSoFar ;jexp++){
-          massimo=-1;
-          for (imc=0; imc<nMCTracks;imc++){
-             if( ! inclusionMC[imc] ) continue;
-             if( BoxMC_Found[imc][jexp] > massimo ) {
-               massimo = BoxMC_Found[imc][jexp];
-               Imc = imc;
-             }
-          }    //  end for (imc=0; imc<nMCTracks;imc++)
-
-          if( massimo >0) {
-            daTrackFoundaTrackMC[jexp]=Imc;
-            daMCTrackaTrackFound[Imc]=jexp;
-            inclusionMC[Imc]=false;
-          }
-
-      }    //end for( jexp=0; jexp< nTracksFoundSoFar ;jexp++)
-
-
-    }  else {
-      
-
-      for( imc=0; imc<nMCTracks;imc++){
-          massimo=-1;
-          for (jexp=0; jexp< nTracksFoundSoFar ;jexp++){
-             if( ! inclusionExp[jexp] ) continue;
-             if( BoxMC_Found[imc][jexp] > massimo ) {
-               massimo = BoxMC_Found[imc][jexp];
-               Jexp = jexp;
-             }
-          }    //  end for (jexp=0; jexp< nTracksFoundSoFar ;jexp++)
-          if( massimo >0) {
-            daTrackFoundaTrackMC[Jexp]=imc;
-            daMCTrackaTrackFound[imc]=Jexp;
-            inclusionExp[Jexp]=false;
-          }
-
-      }    //end for( jexp=0; jexp< nTracksFoundSoFar ;jexp++)
+     itemp=0;
+     while ( itemp > -1){
+	itemp=-1;
+	for(jexp=0; jexp< nTracksFoundSoFar ;jexp++){
+		if( !inclusionExp[jexp])  continue;
+		massimo = -1;
+		for(i=0; i< ntoMCtrack[jexp]; i++){
+			if( !inclusionMC[jexp][i])  continue;
+			if( toMCtrackfrequency[jexp][i]>massimo){
+				massimo=toMCtrackfrequency[jexp][i];
+				itemp = toMCtracklist[jexp][i];
+				jtemp = jexp;
+			}
+		}
+	}
+	if( itemp>-1 ){
+		daTrackFoundaTrackMC[jtemp]=itemp;
+		inclusionExp[jtemp]=false;
+		inclusionMC[jtemp][itemp]=false;
+	}
+     }    //    end while ( itemp > -1)
 
 
-    }  // end if( nMCTracks >= nTracksFoundSoFar)
+
+
+
 
     return;
 }
