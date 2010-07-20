@@ -53,7 +53,7 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
 
       TLorentzVector lv;
       lv.SetVectM(momentum, TDatabasePDG::Instance()->GetParticle(fPidHyp)->Mass()); // set mass hypothesis
-      Float_t energy = lv.M2();
+      Float_t energy = lv.E();
       TMatrixD mat = covTool.GetConverted7(covTool.GetFitError(lv, err));
       
       pidCand->SetPosition(vertex);
