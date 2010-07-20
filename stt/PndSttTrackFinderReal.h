@@ -94,7 +94,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
       static const UShort_t
             nmaxHits = 20*26, // max 20  tracks in Stt, with average 26 hits per track
             MAXMCTRACKS=30,
-            MAXTRACKSPEREVENT=20,
+            MAXTRACKSPEREVENT=30,
             nmaxinclinationversors=20,
 //            nmaxAmbiguities = 10,
 //            nmaxAssociatedHits = 200,
@@ -171,10 +171,10 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
       FILE * SHANDLEZ ;
     Double_t veritaMC[nmaxHits][3];
     UShort_t  FromHitToMCTrack[nmaxHits],
-              FromMCTrackToHit[MAXMCTRACKS][nmaxHits],
-              nHitsInMCTrack[MAXMCTRACKS],
-              FromMCTrackToSkewHit[MAXMCTRACKS][nmaxHits],
-              nSkewHitsInMCTrack[MAXMCTRACKS];
+//              FromMCTrackToHit[MAXMCTRACKS][nmaxHits],
+              nHitsInMCTrack[MAXTRACKSPEREVENT],
+//              FromMCTrackToSkewHit[MAXMCTRACKS][nmaxHits],
+              nSkewHitsInMCTrack[MAXTRACKSPEREVENT];
 
 
   UShort_t nRdivConformalEffective,
@@ -193,12 +193,16 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
     Double_t SEMILENGTH_STRAIGHT,
              ZCENTER_STRAIGHT,
-             CxMC[MAXMCTRACKS],
-             CyMC[MAXMCTRACKS],
-             R_MC[MAXMCTRACKS],
-             MCtruthTrkInfo[15][MAXMCTRACKS];
+             CxMC[MAXTRACKSPEREVENT],
+             CyMC[MAXTRACKSPEREVENT],
+             R_MC[MAXTRACKSPEREVENT];
+//             MCtruthTrkInfo[15][MAXMCTRACKS];
 
   TClonesArray* fMCTrackArray;
+
+  PndMCTrack* pMCtr;
+
+
   /** Verbosity level **/
   Int_t fVerbose;
 
@@ -559,9 +563,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                    UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
                    UShort_t nSkewCommon,
                    UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxHits],
-                   UShort_t daTrackFoundaTrackMC,
-                   UShort_t nMCSkewAlone,
-                   UShort_t MCSkewAloneList[MAXMCTRACKS][nmaxHits]
+                   UShort_t daTrackFoundaTrackMC
  
                                                      );
 
@@ -691,13 +693,14 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
     void AssociateFoundTrackstoMC(
+		  Double_t info[][7],
                   UShort_t nTracksFoundSoFar,
                   UShort_t *nHitsinTrack,
                   UShort_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
                   UShort_t *nSkewHitsinTrack,
                   UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
-                  Short_t *,
-                  Short_t *daMCTrackaTrackFound 
+                  Short_t *
+//                  Short_t *daMCTrackaTrackFound 
                                                         );
 
 
