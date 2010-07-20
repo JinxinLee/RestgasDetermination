@@ -1,7 +1,7 @@
 // root macro to analyze the clusterization output
 {
   int iVerbose = 3;
-  long int  nEvents = 10;
+  long int  nEvents = 10000;
 
   // -----  Load libraries   ------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -12,7 +12,7 @@
   TStopwatch timer;
   timer.Start();
   // ------------------------------------------------------------------------
-  TString HitFileName = "strahl_gneu7.hit.5";
+  TString HitFileName = "data27.hit";
   TString inFile = HitFileName + ".digis.root";
   TString outFile = HitFileName + ".hits.root";
 

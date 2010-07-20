@@ -11,8 +11,8 @@
   TStopwatch timer;
   timer.Start();
   // ------------------------------------------------------------------------
-  //TString HitFileName = "strahl_gneu5.dat.0";
-  TString HitFileName = "strahl_gneu7.hit.5";
+  //TString HitFileName = "strahl_";
+  TString HitFileName = "data27.hit";
   TString CalibFileName = "beamtestJuelichFeb02.calib";
   TString MapFileName = "beamtestJuelichFeb02_setup1.mapping";
 
@@ -52,7 +52,7 @@
   fRun->Init();
   
   long int  nEvents = ApvConverter->GetNofEvents();
-  if(nEvents>10) nEvents=10;
+  if(nEvents>10000) nEvents=10000;
   cout<<" ---- Start RUN ----"<<endl;
   fRun->Run(0,nEvents);
   
