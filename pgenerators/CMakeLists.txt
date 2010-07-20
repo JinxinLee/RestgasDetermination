@@ -29,6 +29,7 @@ PndUrqmdSmmGenerator.cxx
 PndJRGenerator.cxx
 PndPythiaGenerator.cxx
 PndFlatParticleGenerator.cxx
+PndFlukaGenerator.cxx
 PndGasGenerator.cxx
 PndHypBupGenerator.cxx
 )

@@ -5,6 +5,7 @@ rootlogon()
   
   // Load Panda libraries
   if(isLibrary("libDpmEvtGen"))gSystem->Load("libDpmEvtGen");
+  if(isLibrary("libFlukaResults"))gSystem->Load("libFlukaResults");
   if(isLibrary("libGeoBase"))gSystem->Load("libGeoBase");
   if(isLibrary("libParBase"))gSystem->Load("libParBase");
   if(isLibrary("libBase"))gSystem->Load("libBase");
