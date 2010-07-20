@@ -86,7 +86,7 @@ cluster_radchan:Int_t 2
 cluster_radtime:Int_t 0
 cluster_corrchargecut:Double_t 12000.
 cluster_singlechargecut:Double_t 3000.
-chargeconv_method:Int_t 1
+chargeconv_method:Int_t 0
 #################################################################
 # Digitization parameters for RECTANGULAR single-sided
 # strip sensors used in the tracking station.
@@ -114,7 +114,7 @@ cluster_radchan:Int_t 2
 cluster_radtime:Int_t 0
 cluster_corrchargecut:Double_t 12000.
 cluster_singlechargecut:Double_t 3000.
-chargeconv_method:Int_t 1
+chargeconv_method:Int_t 0
 #################################################################
 # Digitization Parameters for MVD Pixel
 #################################################################
