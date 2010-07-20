@@ -34,6 +34,7 @@ PndMvdConvertApvTask::PndMvdConvertApvTask(PndMvdConvertApv* Apvconvert,PndMvdMa
   fApvMapper=Apvmapper;
   fPersistance = kTRUE;
   fGeoH = PndGeoHandling::Instance();
+  fDigiParameterList = new TList();
 }
 // -----   Destructor   ----------------------------------------------------
 PndMvdConvertApvTask::~PndMvdConvertApvTask()
@@ -52,6 +53,7 @@ void PndMvdConvertApvTask::SetParContainers()
     TString parsetname = contname->String();
     if(parsetname.BeginsWith("MVDStripDigiPar")){
       PndSdsStripDigiPar* digipar = (PndSdsStripDigiPar*)(rtdb->getContainer(parsetname.Data()));
+      Info("SetParcontiners()","check some values. fDigiParameterList: %p  digipar: %p",fDigiParameterList,digipar);
       fDigiParameterList->Add(digipar);
       if(digipar->GetNrBotFE()==1)
       { // we count top side first from 0; Bot side strarts at #top fe's
@@ -81,7 +83,15 @@ InitStatus PndMvdConvertApvTask::Init()
   ioman->Register("MVDStripDigis", "MVD", fStripArray, fPersistance);
   fApvConvert->Init();
   fApvMapper->Init();
-  cout<<"Init of Task"<<endl;
+  cout<<"Init of Task finished"<<endl;
+
+  // set up the geohandler
+  std::vector<std::string> listOfSensitives;
+  listOfSensitives.push_back("StripActive");
+  fGeoH->CreateUniqueSensorId("", listOfSensitives);
+
+  if(fVerbose>1) fGeoH->PrintSensorNames();
+
   return kSUCCESS;
 }
 
