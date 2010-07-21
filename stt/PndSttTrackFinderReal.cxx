@@ -5655,6 +5655,8 @@ nohits: ;
            POINTS1[6];
 
 
+         TDatabasePDG *fdbPDG;
+         TParticlePDG *fParticle;
 
 
 
@@ -5873,8 +5875,8 @@ fuori: ;
          	Py = pMC->GetMomentum().Y();
          	aaa = sqrt( Px*Px + Py*Py);
          	Rr =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
-         	TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
-         	TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
+         	fdbPDG= TDatabasePDG::Instance();
+		fParticle= fdbPDG->GetParticle(icode);
        		if (icode>1000000000) carica = 1.;
        		else  carica = fParticle->Charge()/3. ;    //   charge of track
            	Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
