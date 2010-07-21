@@ -1495,7 +1495,7 @@ if(istampa>=2) {
 		}
 	}  //  end of  for(i=0; i<Minclinations[0]; i++)
 
-	nHitsInMCTrack[jexp] = nMCParalAlone[jexp]+nSpuriParinTrack[jexp];
+	nHitsInMCTrack[jexp] = nMCParalAlone[jexp]+nParalCommon[jexp];
 // --- skew hits
 
 	for(exphit=0; exphit<nSkewHitsinTrack[jexp]; exphit++){
@@ -1523,7 +1523,7 @@ if(istampa>=2) {
 		}
 	}
 
-	nSkewHitsInMCTrack[jexp] = nMCSkewAlone[jexp]+nSpuriSkewinTrack[jexp];
+	nSkewHitsInMCTrack[jexp] = nMCSkewAlone[jexp]+nSkewCommon[jexp];
 
 
    }   //   end of  for(jexp=0; jexp<nTracksFoundSoFar;jexp++)
@@ -1981,6 +1981,29 @@ if(istampa>=2){
 
 if(iplotta && IVOLTE <= nmassimo&& nMCTracks<MAXMCTRACKS){
 
+
+
+  for(i=0; i<nTracksFoundSoFar;i++){
+           WriteMacroParallelAssociatedHitswithMC(
+                   Ox[i], Oy[i], R[i],
+		   daTrackFoundaTrackMC[i],
+                   nHitsinTrack[i],
+		ListHitsinTrack,
+                   info,
+                   i,
+		nParalCommon,
+		ParalCommonList,
+		nSpuriParinTrack,
+		ParSpuriList,
+		nMCParalAlone,
+		MCParalAloneList
+                                                     );
+  }
+
+
+
+
+
 for(i=0; i<nTracksFoundSoFar;i++){
    if( iplotta) {
 
@@ -2016,7 +2039,9 @@ for(i=0; i<nTracksFoundSoFar;i++){
                    ListSkewHitsinTrack,
                    nSkewCommon[i],
                    SkewCommonList,
-                   daTrackFoundaTrackMC[i]
+                   daTrackFoundaTrackMC[i],
+		nMCSkewAlone,
+		MCSkewAloneList
                                                      );
       }
 
@@ -4358,7 +4383,7 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
           }
        }
 
-
+//---------------------------  ora le tracce MC
 	Int_t icode;
          Double_t Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Px, Py, carica  ;
      PndMCTrack* pMC;
@@ -4382,6 +4407,7 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
                      im,Cx,Cy,Rr,Rr,im,im,im);
        }  //  end of for(int im=0;im<nMCTracks; im++)
 
+//----------- fine parte del MC
 
 //-------------------------------   plotting all the tracks found
 
@@ -5207,26 +5233,6 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //----------start of function PndSttTrackFinderReal::WriteMacroParallelAssociatedHits
 
   void PndSttTrackFinderReal::WriteMacroParallelAssociatedHits(
@@ -5330,6 +5336,9 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
 
       fprintf(MACRO,"}\n");
       fclose(MACRO);
+
+
+
        
 
     return ;
@@ -5338,6 +5347,236 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
 
 
 //----------end of function PndSttTrackFinderReal::WriteMacroParallelAssociatedHits
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//----------start of function PndSttTrackFinderReal::WriteMacroParallelAssociatedHitswithMC
+
+  void PndSttTrackFinderReal::WriteMacroParallelAssociatedHitswithMC(
+                   Double_t Ox,Double_t Oy,Double_t R,
+                  Short_t TrackFoundaTrackMC,
+                   UShort_t Nhits,
+		UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+                   Double_t info[][7],
+                   UShort_t ifoundtrack,
+		UShort_t nParalCommon[MAXTRACKSPEREVENT],
+		UShort_t ParalCommonList[MAXTRACKSPEREVENT][nmaxHits],
+		UShort_t nSpuriParinTrack[MAXTRACKSPEREVENT],
+		UShort_t ParSpuriList[MAXTRACKSPEREVENT][nmaxHits],
+		UShort_t nMCParalAlone[MAXTRACKSPEREVENT],
+		UShort_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxHits]
+                                                     )
+{
+
+    Int_t i, j, i1, ii, index, imaxima, Kincl, nlow, nup, STATUS;
+
+    Double_t xmin , xmax, ymin, ymax,
+           dx, dy, diff, d1, d2,
+           delta, deltax, deltay, deltaz, deltaS,
+           factor,
+           zmin, zmax, Smin, Smax, S1, S2,
+           z1, z2, y1, y2,
+           vx1, vy1, vz1, C0x1, C0y1, C0z1,
+           aaa, bbb, ccc, angle, minor, major,
+           distance, Rx, Ry, LL,
+           Aellipsis1, Bellipsis1,fi1,
+           fmin, fmax, offset, step,
+           SkewInclWithRespectToS, zpos, zpos1, zpos2,
+           Tiltdirection1[2],
+           zl[200],zu[200],
+           POINTS1[6];
+
+
+
+	imaxima=ifoundtrack;
+
+//    Ox = (D+R)*cos(Fi);
+//    Oy = (D+R)*sin(Fi);
+
+//cout<<"da MacroTrackparalleletc. Ox, Oy "<<Ox<<",  "<<Oy<<endl;
+
+
+//---------- parallel straws Macro now
+      char nome[300], nome2[300];
+      sprintf(nome,"MacroTrackN%dParallelHitswithMCEvent%d",imaxima, IVOLTE);
+      sprintf(nome2,"%s.C",nome);
+      FILE * MACRO = fopen(nome2,"w");
+      fprintf(MACRO,"void %s()\n{\n",nome);
+      xmin=1.e20;
+      xmax=-1.e20;
+      ymin=1.e20;
+      ymax=-1.e20;
+       for( ii=0; ii< Nhits; ii++) {
+            i = infoparal[  ListHitsinTrack[imaxima][ii]  ] ;
+            if (info[i][0]-info[i][3] < xmin)   xmin = info[i][0]-info[i][3];
+            if (info[i][0]+info[i][3] > xmax)   xmax = info[i][0]+info[i][3];
+            if (info[i][1]-info[i][3] < ymin)   ymin = info[i][1]-info[i][3];
+            if (info[i][1]+info[i][3] > ymax)   ymax = info[i][1]+info[i][3];
+       }
+
+       if( xmin > 0. ) xmin = 0.;
+       if( xmax < 0.)  xmax = 0.;
+       if( ymin > 0. ) ymin = 0.;
+       if( ymax < 0.)  ymax = 0.;
+
+       deltax = xmax-xmin;
+       deltay = ymax - ymin;
+
+       if( deltax > deltay) {
+         ymin -=  0.5*(deltax-deltay);
+         ymax = ymin+ deltax;
+         delta = deltax;
+       }  else  {
+         xmin -=  0.5*(deltay-deltax);
+         xmax = xmin+ deltay;
+         delta= deltay;
+       }
+
+       xmax = xmax + delta*0.05;
+       xmin = xmin - delta*0.05;
+
+       ymax = ymax + delta*0.05;
+       ymin = ymin - delta*0.05;
+
+
+       fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
+
+       fprintf(MACRO,"TEllipse* TC = new TEllipse(%f,%f,%f,%f,0.,360.);\n",Ox,Oy,R,R);
+       fprintf(MACRO,"TC->SetLineColor(2);\nTC->SetFillStyle(0);\nTC->Draw();\n");
+
+       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
+       fprintf(MACRO,"Assex->Draw();\n");
+       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
+       fprintf(MACRO,"Assey->Draw();\n");
+
+
+       for( ii=0; ii< nParalCommon[ifoundtrack]; ii++) {
+            i = ParalCommonList[ifoundtrack][ii] ;
+            fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetFillStyle(0);",
+                     i,info[i][0],info[i][1],info[i][3],info[i][3],i);
+            fprintf(MACRO,"E%d->Draw();\n",i);
+	}
+
+       for( ii=0; ii< nSpuriParinTrack[ifoundtrack]; ii++) {
+            i = ParSpuriList[ifoundtrack][ii] ;
+            fprintf(MACRO,
+         "TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetFillStyle(0);",
+                     i,info[i][0],info[i][1],info[i][3],info[i][3],i);
+        	fprintf(MACRO,"E%d->SetLineColor(2);\n",i);
+            fprintf(MACRO,"E%d->Draw();\n",i);
+       }
+
+       for( ii=0; ii< nMCParalAlone[ifoundtrack]; ii++) {
+            i = MCParalAloneList[ifoundtrack][ii] ;
+            fprintf(MACRO,
+         "TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetFillStyle(0);",
+                     i,info[i][0],info[i][1],info[i][3],info[i][3],i);
+        	fprintf(MACRO,"E%d->SetLineColor(4);\n",i);
+            fprintf(MACRO,"E%d->Draw();\n",i);
+       }
+
+
+
+
+
+
+
+//---------------------------  ora le tracce MC
+	Int_t icode, im;
+         Double_t Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Px, Py, carica  ;
+     PndMCTrack* pMC;
+ if( TrackFoundaTrackMC > -1){
+	im=TrackFoundaTrackMC;
+		pMC = (PndMCTrack*) fMCTrackArray->At(im);
+		if ( pMC ) {
+         	icode  = pMC->GetPdgCode() ;    //   PDG code of track
+         	Oxx = pMC->GetStartVertex().X();    //   X of starting point track
+         	Oyy = pMC->GetStartVertex().Y();    //   Y of starting point track
+         	Px = pMC->GetMomentum().X();
+         	Py = pMC->GetMomentum().Y();
+         	aaa = sqrt( Px*Px + Py*Py);
+         	Rr =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
+         TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
+         TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
+       if (icode>1000000000) carica = 1.;
+       else  carica = fParticle->Charge()/3. ;    //   charge of track
+           Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
+           Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
+            fprintf(MACRO,"TEllipse* MC%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nMC%d->SetFillStyle(0);\nMC%d->SetLineColor(3);\nMC%d->Draw();\n",
+                     im,Cx,Cy,Rr,Rr,im,im,im);
+		}   //  end of if ( pMC )
+
+ }  //  end of if( TrackFoundaTrackMC > -1){
+
+//----------- fine parte del MC
+
+
+
+
+      fprintf(MACRO,"}\n");
+      fclose(MACRO);
+
+
+
+       
+
+    return ;
+
+}
+
+
+//----------end of function PndSttTrackFinderReal::WriteMacroParallelAssociatedHitswithMC
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5630,7 +5869,9 @@ nohits: ;
                    UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
                    UShort_t nSkewCommon,
                    UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxHits],
-                   UShort_t daTrackFoundaTrackMC
+                   UShort_t daTrackFoundaTrackMC,
+		UShort_t nMCSkewAlone[MAXTRACKSPEREVENT],
+		UShort_t MCSkewAloneList[MAXTRACKSPEREVENT][nmaxHits]
                                                      )
  {
 
@@ -5675,6 +5916,7 @@ nohits: ;
       Smax=zmax = -zmin;
       index=0;
 
+//----------------------------
        for( iii=0; iii< nSkewHitsinTrack; iii++) {
          i = infoskew[ ListSkewHitsinTrack[imaxima][iii] ];
 
@@ -5763,10 +6005,6 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
         fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nE%d->SetFillStyle(0);\n",
                      index,POINTS1[j+2],fi1,Aellipsis1,Bellipsis1,rotation1,index);
 
-
-
-
-
 // ------ se lo hit e' spurio marcalo in rosso
         for( i1=0; i1<nSkewCommon; i1++){
           if ( SkewCommonList[   imaxima   ][i1] == i ){
@@ -5778,16 +6016,138 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
         fprintf(MACRO,"E%d->SetLineColor(2);\n",index);
 fuori: ;
 
+        index++;
+
+   }    //  end of    for( ii=0; ii<2; ii++)
+
+  }   //   end of  for( iii=0; iii< nSkewHitsinTrack; iii++)
+
+//-------------------------------
 
 
 
+//------ aggiungo in blu eventuali punti della traccia MC che sono non mecciati
 
+       for( iii=0; iii< nMCSkewAlone[imaxima]; iii++) {
+         i = MCSkewAloneList[imaxima][iii];
+
+         Kincl = (int) info[i][5] - 1;
+
+
+         aaa = sqrt(inclination[Kincl][0]*inclination[Kincl][0]+inclination[Kincl][1]*inclination[Kincl][1]+
+                  inclination[Kincl][2]*inclination[Kincl][2]);
+         vx1 = inclination[Kincl][0]/aaa;
+         vy1 = inclination[Kincl][1]/aaa;
+         vz1 = inclination[Kincl][2]/aaa;
+         C0x1 = info[i][0];
+         C0y1 = info[i][1];
+         C0z1 = info[i][2];
+         Ox = (R+D)*cos(Fi);
+         Oy = (R+D)*sin(Fi);
+
+       calculateintersections(Ox,Oy,R,C0x1,C0y1,C0z1,info[i][3],
+                              vx1,vy1,vz1,
+                              &STATUS,POINTS1);
+
+       if(STATUS < 0 ) continue ;
+
+
+
+       for( ii=0; ii<2; ii++){
+        j=3*ii;
+        distance = sqrt(
+                  (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) + 
+                  (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
+                  (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
+                            );
+        if( distance >= info[i][4] ) continue;
+
+
+        Rx = POINTS1[j]-Ox ;   //  x component Radial vector of cylinder of trajectory
+        Ry = POINTS1[1+j]-Oy ;   //  y direction Radial vector of cylinder of trajectory
+
+        aaa = sqrt(Rx*Rx+Ry*Ry);
+        SkewInclWithRespectToS = (-Ry*vx1 + Rx*vy1)/aaa ;
+        SkewInclWithRespectToS /= R;
+        bbb = sqrt( SkewInclWithRespectToS*SkewInclWithRespectToS + vz1*vz1);
+        //  the tilt direction of this ellipse is (1,0)  when major axis along Z direction
+        if( bbb > 1.e-10){
+           Tiltdirection1[0] = vz1/bbb;
+           Tiltdirection1[1] = SkewInclWithRespectToS/bbb;
+        } else {
+           Tiltdirection1[0] = 1.;
+           Tiltdirection1[1] = 0.;
+        }
+
+        LL = fabs(vx1*Rx + vy1*Ry);
+        if( LL < 1.e-10) continue;
+        Aellipsis1 = info[i][3]*aaa/LL;
+
+        Bellipsis1 = info[i][3]/R;
+
+
+
+// checks that the projected ellipsis doesn't go out the boundaries of both the skew straw and the trajectory cylinder
+
+/*
+        if(
+          fabs(POINTS1[j+2]-ZCENTER_STRAIGHT) > SEMILENGTH_STRAIGHT- Aellipsis1 ||
+          distance + bbb > info[i][4]        //  the ellipsis goes out of the boundaries of the skew straw
+          ) {
+cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<endl
+     <<"dis. from center "<<distance+bbb<<",  length of the straw "<<info[i][4]<<endl;
+           continue;
+          }
+*/
+//--------------------------
+
+
+        fi1 = atan2(POINTS1[j+1]-Oy, POINTS1[j]-Ox) ;  // atan2 returns radians in (-pi and +pi]
+        if( fi1 < 0.) fi1 += 2.*PI;
+
+        if( zmin > POINTS1[j+2] - Aellipsis1 ) zmin = POINTS1[j+2] - Aellipsis1;
+        if( zmax < POINTS1[j+2] + Aellipsis1 ) zmax = POINTS1[j+2] + Aellipsis1;
+
+        if( Smin > fi1 - Bellipsis1 ) Smin = fi1 - Bellipsis1;
+        if( Smax < fi1 + Bellipsis1 ) Smax = fi1 + Bellipsis1;
+
+
+        Double_t rotation1 = 180.*atan2(Tiltdirection1[1],Tiltdirection1[0])/PI;
+        fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nE%d->SetFillStyle(0);\n",
+                     index,POINTS1[j+2],fi1,Aellipsis1,Bellipsis1,rotation1,index);
+
+// ------  marca lo hit in blu
+        fprintf(MACRO,"E%d->SetLineColor(4);\n",index);
 
         index++;
 
    }    //  end of    for( ii=0; ii<2; ii++)
 
-  }   //   end of  for( i=1; i< Nhits; i++)
+  }   //   end of  for( iii=0; iii< nMCSkewAlone[imaxima]; iii++)
+
+//-------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+//------ fine aggiunta in blu eventuali punti della traccia MC che sono non mecciati
+
+
+
+
+
+
+
+
 
 
   if(index==0) goto nohits ;
@@ -11593,7 +11953,7 @@ nohits: ;
                   UShort_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
                   UShort_t *nSkewHitsinTrack,
                   UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
-                  Short_t *daTrackFoundaTrackMC
+                  Short_t daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
 //                  Short_t *daMCTrackaTrackFound 
                                                         )
 {
