@@ -215,21 +215,9 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
   PndSttHit* GetHitFromCollections(Int_t hitCounter);
   FairMCPoint* GetPointFromCollections(Int_t hitCounter);
-//  FairGeanePro * fPro;
   TClonesArray* fSttHitArray;
-//  GFRecoHitFactory* _theRecoHitFactory;
 
 
-
-
-/*
-  void PndSttTrkFinderPartial(Int_t NN,Double_t info[][7],Int_t nincl,Int_t Minclinations[],
-                        Double_t inclinationversors[][3],
-                        Int_t Ninclinate,
-                        TClonesArray * trackArray
-                              );
-
-*/
 
 
 
@@ -498,6 +486,20 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                    UShort_t imaxima
                                                      );
 
+  void WriteMacroParallelAssociatedHitswithMC(
+                   Double_t Ox,Double_t Oy,Double_t R,
+                  Short_t TrackFoundaTrackMC,
+                   UShort_t Nhits,
+		UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+                   Double_t info[][7],
+                   UShort_t ifoundtrack,
+		UShort_t nParalCommon[MAXTRACKSPEREVENT],
+		UShort_t ParalCommonList[MAXTRACKSPEREVENT][nmaxHits],
+		UShort_t nSpuriParinTrack[MAXTRACKSPEREVENT],
+		UShort_t ParSpuriList[MAXTRACKSPEREVENT][nmaxHits],
+		UShort_t nMCParalAlone[MAXTRACKSPEREVENT],
+		UShort_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxHits]
+                                                     );
   void WriteMacroParallelHitsGeneral(
                    Int_t Nhits, Double_t info[][7], Int_t Nincl, Int_t Minclinations[], Double_t inclination[][3],
                    UShort_t nTracksFoundSoFar,
@@ -563,7 +565,9 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                    UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
                    UShort_t nSkewCommon,
                    UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxHits],
-                   UShort_t daTrackFoundaTrackMC
+                   UShort_t daTrackFoundaTrackMC,
+		UShort_t nMCSkewAlone[MAXTRACKSPEREVENT],
+		UShort_t MCSkewAloneList[MAXTRACKSPEREVENT][nmaxHits]
  
                                                      );
 
@@ -699,7 +703,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                   UShort_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
                   UShort_t *nSkewHitsinTrack,
                   UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
-                  Short_t *
+                  Short_t daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
 //                  Short_t *daMCTrackaTrackFound 
                                                         );
 
