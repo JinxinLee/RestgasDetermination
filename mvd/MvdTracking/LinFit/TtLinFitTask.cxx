@@ -115,7 +115,7 @@ void TtLinFitTask::Exec(Option_t* opt)
 
 	PndMvdHit *theHit = (PndMvdHit*)   fTCandArray->At(itr);
 	
-	name = theHit->GetDetName();
+	name = theHit->GetDetectorID();
 	
 	if (SensorsPos.size() < 6) SensorsPos[theHit->GetZ()] = name;
 	  
@@ -183,7 +183,7 @@ void TtLinFitTask::Exec(Option_t* opt)
 	
 	      PndMvdHit *theHit = (PndMvdHit*)   fTCandArray->At(it1);
 		
-	      if ((theHit->GetDetName()) == DetNames[0])
+	      if ((theHit->GetDetectorID()) == DetNames[0])
 		{
 		  x[0] = theHit->GetX();
 		  y[0] = theHit->GetY();
@@ -193,7 +193,7 @@ void TtLinFitTask::Exec(Option_t* opt)
 		  Erz[0] = theHit->GetDz();
 		}
 
-	      if ((theHit->GetDetName()) == DetNames[1])
+	      if ((theHit->GetDetectorID()) == DetNames[1])
 		{
 		  x[1] = theHit->GetX();
 		  y[1] = theHit->GetY();
@@ -202,7 +202,7 @@ void TtLinFitTask::Exec(Option_t* opt)
 		  Ery[1] = theHit->GetDy();
 		  Erz[1] = theHit->GetDz();
 		}
-	      if ((theHit->GetDetName()) == DetNames[2])
+	      if ((theHit->GetDetectorID()) == DetNames[2])
 		{
 		  x[2] = theHit->GetX();
 		  y[2] = theHit->GetY();
@@ -212,7 +212,7 @@ void TtLinFitTask::Exec(Option_t* opt)
 		  Erz[2] = theHit->GetDz();
 		}
 
-	      if ((theHit->GetDetName()) == DetNames[3])
+	      if ((theHit->GetDetectorID()) == DetNames[3])
 		{
 		  x[3] = theHit->GetX();
 		  y[3] = theHit->GetY();
@@ -221,7 +221,7 @@ void TtLinFitTask::Exec(Option_t* opt)
 		  Ery[3] = theHit->GetDy();
 		  Erz[3] = theHit->GetDz();
 		}
-	      if ((theHit->GetDetName()) == DetNames[4])
+	      if ((theHit->GetDetectorID()) == DetNames[4])
 		{
 		  x[4] = theHit->GetX();
 		  y[4] = theHit->GetY();
@@ -231,7 +231,7 @@ void TtLinFitTask::Exec(Option_t* opt)
 		  Erz[4] = theHit->GetDz();
 		}
 
-	      if ((theHit->GetDetName()) == DetNames[5])
+	      if ((theHit->GetDetectorID()) == DetNames[5])
 		{
 		  x[5] = theHit->GetX();
 		  y[5] = theHit->GetY();
