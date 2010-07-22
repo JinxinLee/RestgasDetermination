@@ -11,8 +11,6 @@
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
 #include "TClonesArray.h"
-#include "FairRun.h";
-#include "FairTask.h";
 
 //#include "PndLinTrack.h"
 #include "../../../pnddata/TrackData/PndTrackCand.h"
