@@ -11,6 +11,8 @@
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
 #include "TClonesArray.h"
+#include "FairRun.h";
+#include "FairTask.h";
 
 //#include "PndLinTrack.h"
 #include "../../../pnddata/TrackData/PndTrackCand.h"
@@ -92,8 +94,6 @@ void TtLinFitTask::Exec(Option_t* opt)
 
   fTrackcount = 0; 
 
-  //  std::cout << "Event: " << fEvent << std::endl;
-
   Int_t ntcand=fTCandArray->GetEntriesFast();
 
   if (ntcand == 6)
@@ -102,20 +102,20 @@ void TtLinFitTask::Exec(Option_t* opt)
       //  std::cout << "Entries: " << ntcand << std::endl;
 
  
-      std::map<Double_t,TString> SensorsPos;
+      std::map<Double_t,Int_t> SensorsPos;
 
       //    std::cout<<"TtLinFitTask::Exec"<<std::endl;
       // Reset output Array
       if(fTrackArray==0) Fatal("TtLinFitTask::Exec","No TrackArray");
 
-      TString name;
+      Int_t name;
     
 
       for(Int_t itr=0;itr<ntcand;++itr){
 
-	PndMvdHit *theHit = (PndMvdHit*)   fTCandArray->At(itr);
+	PndSdsHit *theHit = (PndSdsHit*)   fTCandArray->At(itr);
 	
-	name = theHit->GetDetectorID();
+	name = theHit->GetSensorID();
 	
 	if (SensorsPos.size() < 6) SensorsPos[theHit->GetZ()] = name;
 	  
@@ -123,16 +123,16 @@ void TtLinFitTask::Exec(Option_t* opt)
     
       const Int_t sizeMap = SensorsPos.size();
 	   
-      TString DetNames[sizeMap];
+      Int_t DetNames[sizeMap];
       Double_t Pos[sizeMap];
       Int_t jj = 0;
 
       if (SensorsPos.size()>=6)
 	{
 	  //std::cout << "Number of Sensors:" << SensorsPos.size() << std::endl;
-	  for (std::map<Double_t,TString>::iterator it=SensorsPos.begin();it!=SensorsPos.end();++it)
+	  for (std::map<Double_t,Int_t>::iterator it=SensorsPos.begin();it!=SensorsPos.end();++it)
 	    {
-	      if (fEvent < 5) std::cout << "position: " << it->first << " name: " << (it->second) << std::endl;
+	      //	      if (fEvent < 5) std::cout << "position: " << it->first << " name: " << (it->second) << std::endl;
 	  
 	      DetNames[jj] = it->second;
 	      Pos[jj] = it -> first;
@@ -149,12 +149,10 @@ void TtLinFitTask::Exec(Option_t* opt)
 	  
 	  for (Int_t l = 0 ; l < sizeMap ; l++)
 	    {
-	      std::cout << DetNames[l] << std::endl;
+	      //std::cout << DetNames[l] << std::endl;
 	    }
 	}
-    
-
-      
+          
       if (SensorsPos.size()==6)
 	{
 	  
@@ -181,9 +179,9 @@ void TtLinFitTask::Exec(Option_t* opt)
 	  for (Int_t it1 = 0 ; it1 < ntcand ; it1++)
 	    {
 	
-	      PndMvdHit *theHit = (PndMvdHit*)   fTCandArray->At(it1);
+	      PndSdsHit *theHit = (PndSdsHit*)   fTCandArray->At(it1);
 		
-	      if ((theHit->GetDetectorID()) == DetNames[0])
+	      if ((theHit->GetSensorID()) == DetNames[0])
 		{
 		  x[0] = theHit->GetX();
 		  y[0] = theHit->GetY();
@@ -193,7 +191,7 @@ void TtLinFitTask::Exec(Option_t* opt)
 		  Erz[0] = theHit->GetDz();
 		}
 
-	      if ((theHit->GetDetectorID()) == DetNames[1])
+	      if ((theHit->GetSensorID()) == DetNames[1])
 		{
 		  x[1] = theHit->GetX();
 		  y[1] = theHit->GetY();
@@ -202,7 +200,7 @@ void TtLinFitTask::Exec(Option_t* opt)
 		  Ery[1] = theHit->GetDy();
 		  Erz[1] = theHit->GetDz();
 		}
-	      if ((theHit->GetDetectorID()) == DetNames[2])
+	      if ((theHit->GetSensorID()) == DetNames[2])
 		{
 		  x[2] = theHit->GetX();
 		  y[2] = theHit->GetY();
@@ -212,7 +210,7 @@ void TtLinFitTask::Exec(Option_t* opt)
 		  Erz[2] = theHit->GetDz();
 		}
 
-	      if ((theHit->GetDetectorID()) == DetNames[3])
+	      if ((theHit->GetSensorID()) == DetNames[3])
 		{
 		  x[3] = theHit->GetX();
 		  y[3] = theHit->GetY();
@@ -221,7 +219,7 @@ void TtLinFitTask::Exec(Option_t* opt)
 		  Ery[3] = theHit->GetDy();
 		  Erz[3] = theHit->GetDz();
 		}
-	      if ((theHit->GetDetectorID()) == DetNames[4])
+	      if ((theHit->GetSensorID()) == DetNames[4])
 		{
 		  x[4] = theHit->GetX();
 		  y[4] = theHit->GetY();
@@ -231,7 +229,7 @@ void TtLinFitTask::Exec(Option_t* opt)
 		  Erz[4] = theHit->GetDz();
 		}
 
-	      if ((theHit->GetDetectorID()) == DetNames[5])
+	      if ((theHit->GetSensorID()) == DetNames[5])
 		{
 		  x[5] = theHit->GetX();
 		  y[5] = theHit->GetY();
@@ -250,16 +248,16 @@ void TtLinFitTask::Exec(Option_t* opt)
 	  Int_t uu = 0;
 
 
-	  for (Int_t ww = 0 ; ww < 6 ; ww++)
-	    { // setting big errors for the bottom side
-	      {
-		if (TMath::Abs(Erx[ww]) > 0.5) Erx[ww] = 1000000;
-		if (TMath::Abs(Ery[ww]) > 0.5) Ery[ww] = 1000000;
-	      }
+ 	  for (Int_t ww = 0 ; ww < 6 ; ww++)
+ 	    { // setting big errors for the bottom side
+ 	      {
+ 		if (TMath::Abs(Erx[ww]) > 0.5) Erx[ww] = 1000000;
+ 		if (TMath::Abs(Ery[ww]) > 0.5) Ery[ww] = 1000000;
+ 	      }
 	      
-	      //	      std::cout << "(" << x[ww] << "," <<  y[ww] << "," <<  z[ww] << ")" << std::endl;
+ 	      //	      std::cout << "(" << x[ww] << "," <<  y[ww] << "," <<  z[ww] << ")" << std::endl;
 
-	    }
+ 	    }
 	  
 	  
 	  Double_t parFit[4]; //fit-parameter
@@ -272,15 +270,16 @@ void TtLinFitTask::Exec(Option_t* opt)
 				
 	  TtFitRes* trackfit = new TtFitRes(parFit[0], parFit[1], parFit[2], parFit[3], chiX, chiY, 6);
 
-		
 	  new((*fTrackArray)[fTrackcount]) TtFitRes(*(trackfit)); //save Track
-	  fTrackcount++;
+ 	  fTrackcount++;
 
 	}// if 6 hits
-      
-      fEvent++;
-
+     
+    
     }
+  
+  fEvent++;
+
   
   return;
    
@@ -303,7 +302,7 @@ void TtLinFitTask::MyFit(Double_t *x,Double_t *y,Double_t *z,Double_t *Erx,Doubl
       {
 	grX.SetPoint(ix,z[j],x[j]);
 	grX.SetPointError(ix,TMath::Abs(Erz[j]),TMath::Abs(Erx[j]));
-	cout << "erz : " << Erz[j] << "  erx : " << Erx[j] << endl;
+	//cout << "erz : " << Erz[j] << "  erx : " << Erx[j] << endl;
 	ix++;
       }
 
@@ -311,7 +310,7 @@ void TtLinFitTask::MyFit(Double_t *x,Double_t *y,Double_t *z,Double_t *Erx,Doubl
       {
 	grY.SetPoint(iy,z[j],y[j]);
 	grY.SetPointError(iy,TMath::Abs(Erz[j]),TMath::Abs(Ery[j]));
-	cout << "erz : " << Erz[j] << "  ery : " << Ery[j] << endl;
+	//cout << "erz : " << Erz[j] << "  ery : " << Ery[j] << endl;
 	iy++;
       }
 
