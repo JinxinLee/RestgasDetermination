@@ -27,8 +27,8 @@ public:
 
   // Constructors/Destructors ---------
   TtLinFitTask();
-  TtLinFitTask(const TtLinFitTask& o){};
-  TtLinFitTask& operator=(const TtLinFitTask& o) { return *this;};
+  // TtLinFitTask(const TtLinFitTask& o){};
+  //  TtLinFitTask& operator=(const TtLinFitTask& o) { return *this;};
   virtual ~TtLinFitTask();
 
   virtual InitStatus Init();
