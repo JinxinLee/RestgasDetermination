@@ -1487,7 +1487,7 @@ if(istampa>=2) {
 		emme = (UShort_t) ( info[ infoparal[i] ][6] + 0.01);
 		if( emme ==   daTrackFoundaTrackMC[jexp] ){
 			for(exphit=0; exphit<nHitsinTrack[jexp]; exphit++){
-				if(emme == enne[jexp][exphit]) goto pinco ;
+				if(ListHitsinTrack[jexp][exphit] == i) goto pinco ;
 			}
 			MCParalAloneList[jexp][ nMCParalAlone[jexp] ] = infoparal[i];
 			nMCParalAlone[jexp]++;
@@ -1515,7 +1515,7 @@ if(istampa>=2) {
 		emme = (UShort_t) ( info[ infoskew[i] ][6] + 0.01);
 		if( emme ==   daTrackFoundaTrackMC[jexp] ){
 			for(exphit=0; exphit<nSkewHitsinTrack[jexp]; exphit++){
-				if(emme == enne[jexp][exphit]) goto pinco2 ;
+				if(i == ListSkewHitsinTrack[jexp][exphit]) goto pinco2 ;
 			}
 			MCSkewAloneList[jexp][ nMCSkewAlone[jexp] ] = infoskew[i];
 			nMCSkewAlone[jexp]++;
