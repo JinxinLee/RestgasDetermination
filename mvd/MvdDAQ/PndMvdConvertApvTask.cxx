@@ -55,10 +55,8 @@ void PndMvdConvertApvTask::SetParContainers()
       PndSdsStripDigiPar* digipar = (PndSdsStripDigiPar*)(rtdb->getContainer(parsetname.Data()));
       Info("SetParcontiners()","check some values. fDigiParameterList: %p  digipar: %p",fDigiParameterList,digipar);
       fDigiParameterList->Add(digipar);
-      if(digipar->GetNrBotFE()==1)
-      { // we count top side first from 0; Bot side strarts at #top fe's
-        fBotSides[(TString)digipar->GetSensType()]=digipar->GetNrTopFE();
-      }
+    
+ 
       Info("SetParContainers()","Loaded container %s",parsetname.Data());
     }
   }  
@@ -92,12 +90,24 @@ InitStatus PndMvdConvertApvTask::Init()
 
   if(fVerbose>1) fGeoH->PrintSensorNames();
 
+  TIter parsetiter(fDigiParameterList);
+  while ( PndSdsStripDigiPar* digipar = (PndSdsStripDigiPar*)parsetiter() ) 
+    {
+      if(digipar->GetNrBotFE()==1)
+	{ // we count top side first from 0; Bot side strarts at #top fe's
+	  fBotSides[(TString)digipar->GetSensType()]=digipar->GetNrTopFE();
+	}
+    }
+
   return kSUCCESS;
 }
 
 // -----   Public method Exec   --------------------------------------------
 void PndMvdConvertApvTask::Exec(Option_t* opt)
 {
+
+
+  
   // Reset output array
 	fStripArray->Delete();
   
@@ -112,30 +122,31 @@ void PndMvdConvertApvTask::Exec(Option_t* opt)
 	std::vector<PndSdsDigiStrip> strips = fApvConvert->ReadNext();
 	for (std::vector<PndSdsDigiStrip>::iterator strip=strips.begin(); strip!=strips.end(); ++strip)
 	{
-    rw=strip->GetFE();
-    fApvMapper->DoMapping(rw,sw,detpath);
-    detnameid=fGeoH->GetShortID(detpath);
+	  rw=strip->GetFE();
+	  fApvMapper->DoMapping(rw,sw,detpath);
+	  detnameid=fGeoH->GetShortID(detpath);
     
-    if(fVerbose>1) Info("Exec","Write a Digi from detector %s %i",detpath.Data(),detnameid);
-    stripnum = fStripArray->GetEntriesFast();
-    //cout << "stripnum: " << stripnum << endl;
-		new ((*fStripArray)[stripnum]) PndSdsDigiStrip(strip->GetIndices(), strip->GetDetID(),
-                                                   detnameid, sw, strip->GetChannel(), strip->GetCharge(),kUnknown ,strip->GetTimestamp());
-    // collect information of fake bottom sides if singlesided
-		if (IsSingleSided(detpath))
-	  {    // collect information of fake bottom sides if singlesided
-      singleSidedBacksideMap[detnameid]+= strip->GetCharge();
-      (buffIndex[detnameid]).push_back(strip->GetIndex());
-	  }
+	  if(fVerbose>1) Info("Exec","Write a Digi from detector %s %i",detpath.Data(),detnameid);
+	  stripnum = fStripArray->GetEntriesFast();
+	  //cout << "stripnum: " << stripnum << endl;
+	  new ((*fStripArray)[stripnum]) PndSdsDigiStrip(strip->GetIndices(), strip->GetDetID(),
+							 detnameid, sw, strip->GetChannel(), strip->GetCharge(),kUnknown ,strip->GetTimestamp());
+	  // collect information of fake bottom sides if singlesided
+	  if (IsSingleSided(detpath))
+	    {    // collect information of fake bottom sides if singlesided
+	      singleSidedBacksideMap[detnameid]+= strip->GetCharge();
+	      (buffIndex[detnameid]).push_back(strip->GetIndex());
+	    }
 	}
   
-  // writing the single sided fake backside
+	// writing the single sided fake backside
 	for (std::map<Int_t,Double_t>::iterator it=singleSidedBacksideMap.begin();it!=singleSidedBacksideMap.end();++it)
-  {
-    stripnum = fStripArray->GetEntriesFast();
-    botfe=CalcBotFakeFE( fGeoH->GetPath(it->first) );
-    new ((*fStripArray)[stripnum]) PndSdsDigiStrip(buffIndex[it->first], kMVDHitsStrip,it->first, botfe, 0, it->second,kUnknown, 0);
-  }
+	  {
+	    stripnum = fStripArray->GetEntriesFast();
+	    botfe=CalcBotFakeFE( fGeoH->GetPath(it->first) );
+	    
+	    new ((*fStripArray)[stripnum]) PndSdsDigiStrip(buffIndex[it->first], kMVDHitsStrip,it->first, botfe, 0, it->second,kUnknown, 0);
+	  }
   
 }
 
@@ -144,12 +155,12 @@ Bool_t PndMvdConvertApvTask::IsSingleSided(TString &detpath)
   if( !(detpath.Contains("Strip")) )   return kFALSE;
   TIter parsetiter(fDigiParameterList);
   while ( PndSdsStripDigiPar* digipar = (PndSdsStripDigiPar*)parsetiter() ) 
-  {
-    const char* sensortype = digipar->GetSensType();
-    if(detpath.Contains(sensortype))  {
-      return kTRUE;
+    {
+      const char* sensortype = digipar->GetSensType();
+      if(detpath.Contains(sensortype))  {
+	return kTRUE;
+      }
     }
-  }
   return kFALSE;
 }
 
@@ -162,7 +173,7 @@ Int_t PndMvdConvertApvTask::CalcBotFakeFE(TString detpath)
       return it->second;
     }
   }
-  return -1;
+  //  return -1;
 }
 
 void PndMvdConvertApvTask::Finish()
