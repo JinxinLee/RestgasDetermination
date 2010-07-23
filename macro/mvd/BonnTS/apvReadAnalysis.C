@@ -12,12 +12,12 @@
   timer.Start();
   // ------------------------------------------------------------------------
   //TString HitFileName = "strahl_";
-  TString HitFileName = "data27.hit";
+  TString HitFileName = "data23.hit";
   TString CalibFileName = "beamtestJuelichFeb02.calib";
-  TString MapFileName = "beamtestJuelichFeb02_setup1.mapping";
+  TString MapFileName = "desy.mapping";
 
   TString directory = gSystem->Getenv("VMCWORKDIR");
-  TString geomFile = directory + "/geometry/TrackingStation.root";
+  TString geomFile = directory + "/geometry/TrackingStationDesyAli.root";
   TString digiparFile = directory + "/macro/params/all.par";
   TString parFile = "par.root";
   
@@ -46,7 +46,7 @@
   PndMvdMapApv* ApvMapper = new PndMvdMapApv(MapFileName);
   
   PndMvdConvertApvTask* convertTask = new PndMvdConvertApvTask(ApvConverter,ApvMapper);
-  convertTask->SetVerbose(3);
+  //convertTask->SetVerbose(3);
   fRun->AddTask(convertTask);
   
   fRun->Init();
