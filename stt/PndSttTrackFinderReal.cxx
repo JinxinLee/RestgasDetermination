@@ -390,7 +390,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray, TClonesArray* heli
 
 //       PndMCTrack*      pMCtr = NULL;     //  questo e' gia' definito in PndSttTrackFinderReal.h
    nMCTracks = fMCTrackArray->GetEntriesFast(); // num. tracce/evento
-
+   if(istampa>=2)  cout<<"evento n. "<<IVOLTE<<", n. tracce MC = "<<nMCTracks<<endl;
 
   // Number of STT hits
   Int_t Nhits = 0;
@@ -420,11 +420,6 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray, TClonesArray* heli
         N_INTENDED<<"),  return!\n";
 //    return  -20;
   }
-
-
-
-
-
 
 
     
@@ -1086,12 +1081,6 @@ jumpout: ;
                                                      );
 
 
-
-
-
-
-
-
    if( NN < MINIMUMHITSPERTRACK ) {
      continue;
    }
@@ -1130,6 +1119,14 @@ if(iplotta && IVOLTE <= nmassimo){
 
 
    nTracksFoundSoFar++;
+
+
+   if( nTracksFoundSoFar >= MAXTRACKSPEREVENT ){
+	cout<<"from PndSttTrackFinderReal :  # n. Tracks found so far = "<<nTracksFoundSoFar
+         <<" and it is >= MAXTRACKSPEREVENT ( = "<<MAXTRACKSPEREVENT
+	 <<"; rejecting this event and returning !\n";
+	return -15;
+   }
 
   }      // end  of   for(iParHit=0; iParHit<Minclinations[0]+1-MINIMUMHITSPERTRACK; iParHit++)
 
