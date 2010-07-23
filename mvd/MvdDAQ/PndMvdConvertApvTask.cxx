@@ -108,6 +108,7 @@ void PndMvdConvertApvTask::Exec(Option_t* opt)
 
 
   
+  
   // Reset output array
 	fStripArray->Delete();
   
@@ -153,14 +154,17 @@ void PndMvdConvertApvTask::Exec(Option_t* opt)
 Bool_t PndMvdConvertApvTask::IsSingleSided(TString &detpath)
 {
   if( !(detpath.Contains("Strip")) )   return kFALSE;
-  TIter parsetiter(fDigiParameterList);
-  while ( PndSdsStripDigiPar* digipar = (PndSdsStripDigiPar*)parsetiter() ) 
+
+  for(std::map<TString,Int_t>::iterator it=fBotSides.begin();it!=fBotSides.end();it++)
     {
-      const char* sensortype = digipar->GetSensType();
-      if(detpath.Contains(sensortype))  {
-	return kTRUE;
-      }
+      if( detpath.Contains(it->first) )
+	{
+// 	  cout << "Sensor type: " << it->first << endl;
+// 	  cout << "Path: " << detpath << endl;
+	  return kTRUE;
+	}
     }
+  
   return kFALSE;
 }
 
