@@ -417,7 +417,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray, TClonesArray* heli
 
    if(istampa>=2 && (nMCTracks  != N_INTENDED)  ){
     cout<<"Gianluigi : n. MC tracks = "<<nMCTracks<<" and it is different from n. intended tracks (= "<<
-        N_INTENDED<<"),  return!\n";
+        N_INTENDED<<")\n";
 //    return  -20;
   }
 
@@ -1357,14 +1357,14 @@ if(iplotta && IVOLTE <= nmassimo){
  }    //  end of     if( STATUS >=0 )
 
 
-      // ---------  only for the comparison with the MC truth;  numbering according to the ORIGINAL hit number
+      // ---------    numbering according to the ORIGINAL hit number
            for(i1=0; i1< nSkewHitsinTrack[i]; i1++){
              Sfinal[i][  infoskew[ ListSkewHitsinTrack[i][i1]  ]  ]  =  S[i1] ;
              Zfinal[i][  infoskew[ ListSkewHitsinTrack[i][i1]  ]  ]  =  Z[i1] ;
              ZDriftfinal[i][  infoskew[ ListSkewHitsinTrack[i][i1]  ]  ]  =  ZDrift[i1] ;
              ZErrorafterTiltfinal[i][  infoskew[ ListSkewHitsinTrack[i][i1]  ]  ]  =  ZErrorafterTilt[i1] ;
            }
-     // ---------  end of only for the comparison with the MC truth
+     // ---------  
 
 
 //     -------------------------------------------------------------
@@ -1414,7 +1414,7 @@ if(istampa>=2) {  cout<<"da TrackFinder Real :  nTracksFoundSoFar "<<nTracksFoun
                              &ListHitsinTrack[i][0],
                              nSkewHitsinTrack[i],
                              &ListSkewHitsinTrack[i][0],
-                             S,
+                             &Sfinal[i][0],
                              infoparal,
                              infoskew,
                              &nTotalHits[i],
@@ -11044,18 +11044,19 @@ if(istampa==2 && IVOLTE <= nmassimo) cout<<"From AssociateBetterAfterFitSkewHits
 
     for (j = 0; j< nParallelHits; j++){
       auxRvalues[j]=
-                    info[ infoparal[ ListParallelHits[j] ]  ][0]*
-                    info[ infoparal[ ListParallelHits[j] ]  ][0]+
-                    info[ infoparal[ ListParallelHits[j] ]  ][1]*
-                    info[ infoparal[ ListParallelHits[j] ]  ][1];
+                    info[ Infoparal[ ListParallelHits[j] ]  ][0]*
+                    info[ Infoparal[ ListParallelHits[j] ]  ][0]+
+                    info[ Infoparal[ ListParallelHits[j] ]  ][1]*
+                    info[ Infoparal[ ListParallelHits[j] ]  ][1];
     }
 
     PndStt_Merge_Sort( nParallelHits, auxRvalues, ListParallelHits);
 
     for (j = 0; j< nParallelHits; j++){              
-      auxFivalues[j] = atan2( info[ infoparal[ ListParallelHits[j] ]  ][1]-oY,
-                              info[ infoparal[ ListParallelHits[j] ]  ][0]-oX);
+      auxFivalues[j] = atan2( info[ Infoparal[ ListParallelHits[j] ]  ][1]-oY,
+                              info[ Infoparal[ ListParallelHits[j] ]  ][0]-oX);
       if( auxFivalues[j] < 0. ) auxFivalues[j] += 2.*PI;
+
     }
 
 //  fixing possible discontinuity between fi<2*PI and fi>0.
@@ -11088,15 +11089,15 @@ if(istampa==2 && IVOLTE <= nmassimo) cout<<"From AssociateBetterAfterFitSkewHits
  if(nSkewHits>0){
    if( flag==1) {
       for (j = 0; j< nSkewHits; j++){
-       if( S[j] < PI) {
-            auxFiSkewvalues[j] = S[j] + 2.*PI;
+       if( S[Infoskew[ ListSkewHits[j] ]] < PI) {
+            auxFiSkewvalues[j] = S[Infoskew[ ListSkewHits[j] ]] + 2.*PI;
        } else {
-            auxFiSkewvalues[j] = S[j];
+            auxFiSkewvalues[j] = S[Infoskew[ ListSkewHits[j] ]];
        }
       }
    } else {
       for (j = 0; j< nSkewHits; j++){
-       auxFiSkewvalues[j] = S[j];
+       auxFiSkewvalues[j] = S[Infoskew[ ListSkewHits[j] ]];
       }
    }
  
