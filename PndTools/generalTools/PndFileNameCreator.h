@@ -18,55 +18,58 @@
 
 #include "TObject.h"
 
-class PndFileNameCreator : public TObject
-{
-	public :
-			PndFileNameCreator();
-			PndFileNameCreator(std::string fileName);
-
-			void SetFileName(std::string fileName){fFileName = fileName;};
-			void SetVerbose(Int_t v) {fVerbose = v;};
-			std::string GetFileName() const {return fFileName;};
-
-			std::string GetSimFileName(bool cut = false);
-			std::string GetDigiFileName(bool cut = false);
-			std::string GetRecoFileName(bool cut = false);
-			std::string GetTrackFindingFileName(bool cut = false);
-			std::string GetRiemannFileName(bool cut = false);
-			std::string GetCombinedRiemannFileName(bool cut = false);
-
-			std::string GetIdealTrackFindingFileName(bool cut = false);
-			std::string GetKalmanFileName(bool cut = false);
-			std::string GetVertexFileName(bool cut = false);
-
-			std::string GetSimFileName(std::string inputFileName, bool cut = false);
-			std::string GetDigiFileName(std::string inputFileName, bool cut = false);
-			std::string GetRecoFileName(std::string inputFileName, bool cut = false);
-			std::string GetTrackFindingFileName(std::string inputFileName, bool cut = false);
-			std::string GetRiemannFileName(std::string inputFileName, bool cut = false);
-			std::string GetCombinedRiemannFileName(std::string inputFileName, bool cut = false);
-			std::string GetIdealTrackFindingFileName(std::string inputFileName, bool cut = false);
-			std::string GetKalmanFileName(std::string inputFileName, bool cut = false);
-			std::string GetVertexFileName(std::string inputFileName, bool cut = false);
-
-			std::string GetCustomFileName(std::string ext, bool cut = false);
-			std::string GetCustomFileName(std::string inputFileName, std::string ext, bool cut = false);
-
-	private :
-			std::string fFileName;
-			std::string fExtSim;
-			std::string fExtDigi;
-			std::string fExtReco;
-			std::string fExtTrackF;
-			std::string fExtIdealTrackF;
-			std::string fExtRiemann;
-			std::string fExtCombinedRiemann;
-			std::string fExtKalman;
-			std::string fVertex;
-
-			std::string TruncateFileName(bool cut);
-      Int_t fVerbose;
-	ClassDef(PndFileNameCreator, 1);
-};
+class PndFileNameCreator : public TObject 
+  {
+  public:
+    PndFileNameCreator();
+    PndFileNameCreator(std::string fileName);
+    
+    void SetFileName(std::string fileName){fFileName = fileName;};
+    void SetVerbose(Int_t v) {fVerbose = v;};
+    std::string GetFileName() const {return fFileName;};
+    
+    std::string GetParFileName(bool cut = false);
+    std::string GetSimFileName(bool cut = false);
+    std::string GetDigiFileName(bool cut = false);
+    std::string GetRecoFileName(bool cut = false);
+    std::string GetTrackFindingFileName(bool cut = false);
+    std::string GetRiemannFileName(bool cut = false);
+    std::string GetCombinedRiemannFileName(bool cut = false);
+    
+    std::string GetIdealTrackFindingFileName(bool cut = false);
+    std::string GetKalmanFileName(bool cut = false);
+    std::string GetVertexFileName(bool cut = false);
+    
+    std::string GetParFileName(std::string inputFileName, bool cut = false);
+    std::string GetSimFileName(std::string inputFileName, bool cut = false);
+    std::string GetDigiFileName(std::string inputFileName, bool cut = false);
+    std::string GetRecoFileName(std::string inputFileName, bool cut = false);
+    std::string GetTrackFindingFileName(std::string inputFileName, bool cut = false);
+    std::string GetRiemannFileName(std::string inputFileName, bool cut = false);
+    std::string GetCombinedRiemannFileName(std::string inputFileName, bool cut = false);
+    std::string GetIdealTrackFindingFileName(std::string inputFileName, bool cut = false);
+    std::string GetKalmanFileName(std::string inputFileName, bool cut = false);
+    std::string GetVertexFileName(std::string inputFileName, bool cut = false);
+    
+    std::string GetCustomFileName(std::string ext, bool cut = false);
+    std::string GetCustomFileName(std::string inputFileName, std::string ext, bool cut = false);
+    
+  private:
+    std::string fFileName;
+    std::string fExtPar;
+    std::string fExtSim;
+    std::string fExtDigi;
+    std::string fExtReco;
+    std::string fExtTrackF;
+    std::string fExtIdealTrackF;
+    std::string fExtRiemann;
+    std::string fExtCombinedRiemann;
+    std::string fExtKalman;
+    std::string fExtVertex;
+    
+    std::string TruncateFileName(bool cut);
+    Int_t fVerbose;
+    ClassDef(PndFileNameCreator, 1);
+  };
 
 #endif

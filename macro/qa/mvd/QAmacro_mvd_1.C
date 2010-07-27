@@ -50,6 +50,8 @@
     fBox->SetXYZ(0., 0., 0.); // vertex coordinates [mm]
     primGen->AddGenerator(fBox);
 
+  primGen->SetEventMeanTime(50.); //[ns]
+
    /** Set the field*/
    fRun->SetBeamMom(1.5);
   PndMultiField *fField= new PndMultiField("FULL");

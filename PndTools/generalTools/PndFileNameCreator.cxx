@@ -5,7 +5,8 @@
 
 
 PndFileNameCreator::PndFileNameCreator(){
-  fExtSim = "";
+  fExtPar = "par";
+  fExtSim = "sim";
   fExtDigi = "digi";
   fExtReco = "reco";
   fExtTrackF = "trackF";
@@ -13,13 +14,14 @@ PndFileNameCreator::PndFileNameCreator(){
   fExtKalman = "kalman";
   fExtRiemann = "riemann";
   fExtCombinedRiemann = "combRiemann";
-  fVertex = "vertex";
-
+  fExtVertex = "vertex";
+  
   fVerbose = 0;
 }
 PndFileNameCreator::PndFileNameCreator(std::string fileName){
   fFileName = fileName;
-  fExtSim = "";
+  fExtPar = "par";
+  fExtSim = "sim";
   fExtDigi = "digi";
   fExtReco = "reco";
   fExtTrackF = "trackF";
@@ -27,18 +29,22 @@ PndFileNameCreator::PndFileNameCreator(std::string fileName){
   fExtKalman = "kalman";
   fExtRiemann = "riemann";
   fExtCombinedRiemann = "combRiemann";
-  fVertex = "vertex";
-
+  fExtVertex = "vertex";
+  
   fVerbose = 0;
 }
 
 
 
 
- std::string PndFileNameCreator::GetSimFileName(bool cut)
+std::string PndFileNameCreator::GetParFileName(bool cut)
 {
-// 	return GetCustomFileName(fExtSim, cut);
-  return fFileName;
+  return GetCustomFileName(fExtPar, cut);
+}
+
+std::string PndFileNameCreator::GetSimFileName(bool cut)
+{
+  return GetCustomFileName(fExtSim, cut);
 }
 
 std::string PndFileNameCreator::GetDigiFileName(bool cut)
@@ -79,9 +85,16 @@ std::string PndFileNameCreator::GetKalmanFileName(bool cut)
 
 std::string PndFileNameCreator::GetVertexFileName(bool cut)
 {
-	return GetCustomFileName(fVertex, cut);
+	return GetCustomFileName(fExtVertex, cut);
 }
+ 
+// -----------------
 
+std::string PndFileNameCreator::GetParFileName(std::string inputFileName, bool cut)
+{
+	fFileName = inputFileName;
+	return GetParFileName(cut);
+}
 
 std::string PndFileNameCreator::GetSimFileName(std::string inputFileName, bool cut)
 {
@@ -160,7 +173,7 @@ std::string PndFileNameCreator::TruncateFileName(bool cut)
 	std::stringstream result;
 	std::string path, name;
 	Int_t cutLast = 0;
-
+  
 	PndStringSeparator pathAna(fFileName,"/");
 	resString = pathAna.GetStringVector();
 	if(fVerbose>1) pathAna.Print();
@@ -173,21 +186,21 @@ std::string PndFileNameCreator::TruncateFileName(bool cut)
 	name = resString[resString.size()-1];
 	//if(fVerbose>1) std::cout << "Path: " << path << " FileName: " << name << std::endl;
 	result.str("");
-
+  
 	PndStringSeparator stringAna(name, "._");
 	resString = stringAna.GetStringVector();
 	//if(fVerbose>1) stringAna.Print();
-
+  
 	if (cut == true)
 		cutLast = 2;
 	else cutLast = 1;
-
+  
 	if (resString[resString.size()-1] != "root")
 		cutLast--;
-
+  
 	if (resString.size() - cutLast <= 0)
 		return "";
-
+  
 	result << path;
 	for (UInt_t i = 0; i < resString.size()-1 - cutLast; i++){
 		result << resString[i] << "_";
