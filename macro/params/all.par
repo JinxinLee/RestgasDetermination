@@ -232,10 +232,12 @@ Rate:Double_t 2e-2
 EnergyHitThreshold:Double_t 0.000001
 NBits:Int_t 16
 DetectedPhotonsPerMeV:Double_t 500
+DetectedPhotonsPerMeV_PMT:Double_t 21
 SensitiveAreaAPD:Double_t 200
 SensitiveAreaVPT:Double_t 200 
 QuantumEfficiencyAPD:Double_t 0.7
 QuantumEfficiencyVPT:Double_t 0.22
+QuantumEfficiencyPMT:Double_t 0.24
 ExcessNoiseFactorAPD:Double_t 1.38
 ExcessNoiseFactorVPT:Double_t 2.2
 Incoherent_elec_noise_width_GeV_APD:Double_t 1.0e-3
@@ -244,9 +246,14 @@ EnergyRange:Double_t 15
 EnergyRangeBW:Double_t 3
 FirstSamplePhase:Double_t 0
 Number_of_samples_in_waveform:Int_t 64
+Number_of_samples_in_waveform_pmt:Int_t 20
 ASIC_Shaping_int_time:Double_t 80e-9
+PMT_Shaping_int_time:Double_t 5e-9
+PMT_Shaping_diff_time:Double_t 20e-9
 Crystal_time_constant:Double_t 12e-9
+Shashlyk_time_constant:Double_t 15e-9
 SampleRate:Double_t 80e6
+SampleRate_PMT:Double_t 180e6
 Use_shaped_noise:Int_t 1
 Use_photon_statistic:Int_t 1
 EnergyDigiThreshold:Double_t 3.0e-3
