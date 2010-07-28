@@ -359,12 +359,12 @@ void
 PndRiemannTrack::szFit(){
 	if (fFitDone == false)
 		refit();
-  unsigned int n=getNumHits();
-  if (fVerbose > 1) std::cout << "szFit() for " << n << " Points!" << std::endl;
+  unsigned int num=getNumHits();
+  if (fVerbose > 1) std::cout << "szFit() for " << num << " Points!" << std::endl;
 
-  TGraph g(n);
+  TGraph g(num);
   // get s'es and zs
-  for(unsigned int i=0;i<n;++i){
+  for(unsigned int i=0;i<num;++i){
 	if (fVerbose > 1) std::cout << "Point: " << i << ": ";
     fHits[i].calcPosOnTrk(this);
     if (fVerbose > 1) std::cout << fHits[i].s() << " " << fHits[i].z() << std::endl;
@@ -389,10 +389,10 @@ PndRiemannTrack::szFit(){
 double
 PndRiemannTrack::calcSZChi2(PndRiemannHit* hit){
   // get s'es and zs
-  unsigned int n=getNumHits();
-  if (fVerbose > 1) std::cout << "szFit(hit) for " << n+1 << " Points!" << std::endl;
-  TGraph g(n+1);
-  for(unsigned int i=0;i<n;++i){
+  unsigned int num=getNumHits();
+  if (fVerbose > 1) std::cout << "szFit(hit) for " << num+1 << " Points!" << std::endl;
+  TGraph g(num+1);
+  for(unsigned int i=0;i<num;++i){
 	if (fVerbose > 1) std::cout << "Point: " << i<< ": ";
     fHits[i].calcPosOnTrk(this);
     if (fVerbose > 1) std::cout << fHits[i].s() << " " << fHits[i].z() << std::endl;
@@ -401,7 +401,7 @@ PndRiemannTrack::calcSZChi2(PndRiemannHit* hit){
   if (fVerbose > 1) std::cout << "Additional hit: ";
   hit->calcPosOnTrk(this);
   if (fVerbose > 1) std::cout << hit->s() << " " << hit->z() << std::endl;
-  g.SetPoint(n, hit->s(), hit->z());
+  g.SetPoint(num, hit->s(), hit->z());
   g.Fit("pol1","Q0");
   TF1* f = g.GetFunction("pol1");
 
@@ -607,17 +607,17 @@ TVector3 PndRiemannTrack::calcErrorLineOffset(PndRiemannTrack& track)
 	Double_t qX = (n1[1]*c2-n2[1]*c1)/(TMath::Power(denom,2));
 	Double_t qY = (n2[0]*c1-n1[0]*c2)/(TMath::Power(denom,2));
 
-	Double_t dX = TMath::Sqrt(TMath::Power(n2[1]*dC1/denom,2) + TMath::Power(n1[1]*dC2/denom,2) +
+	Double_t dx = TMath::Sqrt(TMath::Power(n2[1]*dC1/denom,2) + TMath::Power(n1[1]*dC2/denom,2) +
 			                  TMath::Power(qX*n2[1]*dN1[0],2) + TMath::Power(qX*n1[1]*dN2[0],2) +
 			                  TMath::Power((c1/denom + qX*n2[0])*dN1[1],2) +
 			                  TMath::Power((c1/denom + qX*n1[0])*dN2[1],2));
 
-	Double_t dY = TMath::Sqrt(TMath::Power(n2[0]*dC1/denom,2) + TMath::Power(n1[0]*dC2/denom,2) +
+	Double_t dy = TMath::Sqrt(TMath::Power(n2[0]*dC1/denom,2) + TMath::Power(n1[0]*dC2/denom,2) +
 			                  TMath::Power(qX*n2[0]*dN1[1],2) + TMath::Power(qX*n1[0]*dN2[1],2) +
 			                  TMath::Power((c1/denom + qY*n2[1])*dN1[0],2) +
 			                  TMath::Power((c1/denom + qY*n1[1])*dN2[0],2));
 
-	return TVector3(dX, dY, 0);
+	return TVector3(dx, dy, 0);
 
 }
 
@@ -679,8 +679,8 @@ double PndRiemannTrack::calcErrorS(TVector2& XY, TVector2& dXY, PndRiemannTrack*
 {
 	assert(track!=NULL);
 	TVectorD o=track->orig();
-	double r=track->r();
-	double dR = track->dR();
+	double R=track->r();
+	double dr = track->dR();
 
 	const PndRiemannHit* firstHit=track->getHit(0);
 	assert(firstHit!=NULL);
@@ -690,7 +690,7 @@ double PndRiemannTrack::calcErrorS(TVector2& XY, TVector2& dXY, PndRiemannTrack*
 	double alpha=l.DeltaPhi(k);
 	double dAlpha = TMath::Sqrt(TMath::Power(XY.X()*dXY.Y(),2) + TMath::Power(XY.Y()*dXY.X(),2))/(TMath::Power(XY.X(),2) + TMath::Power(XY.Y(),2));
 
-	double dS = TMath::Sqrt(TMath::Power(dAlpha*r,2) + TMath::Power(alpha*dR,2));
+	double dS = TMath::Sqrt(TMath::Power(dAlpha*R,2) + TMath::Power(alpha*dr,2));
 
 	return dS;
 

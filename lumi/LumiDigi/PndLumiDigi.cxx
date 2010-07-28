@@ -8,14 +8,14 @@ PndLumiDigi::PndLumiDigi()
 
 PndLumiDigi::PndLumiDigi (Int_t detID, TVector3 pos, TVector3 dpos,
 		Int_t index, PndLumiStrip strip, TString detname,
-		SensorSide side, Int_t multi, Bool_t IsActive)
+		SensorSide side, Int_t multi, Bool_t isActive)
 : FairHit(detID, pos, dpos, index)
 {
 	fStrip = strip;
 	fDetName = detname;
 	fSide = side;
 	fMulti = multi;
-	fIsActive = IsActive;
+	fIsActive = isActive;
 }
 
 

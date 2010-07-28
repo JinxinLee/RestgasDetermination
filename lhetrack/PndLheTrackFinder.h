@@ -90,7 +90,7 @@ public:
   void  GetClosestHit(PndLheCMCandidate *tr, Int_t st, Bool_t back);
   Bool_t TrackExtension(PndLheCMCandidate *track);  //
   void AddTrackForFit(PndLheCMCandidate *track);     //
-  void  TrackingInfo(char* info);           // information about the tracking 
+  void  TrackingInfo(const char* info);           // information about the tracking 
   void CheckClones();
 
   ClassDef(PndLheTrackFinder, 1)          //  

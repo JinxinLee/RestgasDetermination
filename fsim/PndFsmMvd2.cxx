@@ -159,15 +159,15 @@ double
 PndFsmMvd2::dp(PndFsmTrack *t) const
 {
   double p=t->p4().Vect().Mag();
-  double dp=_pRes*p;   //10% smearing
-  return ( dp );  //to be refined
+  double Dp=_pRes*p;   //10% smearing
+  return ( Dp );  //to be refined
 }
 
 double
 PndFsmMvd2::dphi(PndFsmTrack *t) const
 {
-  double dphi=_phiRes*M_PI/180.0;   
-  return dphi; //to be refined
+  double Dphi=_phiRes*M_PI/180.0;   
+  return Dphi; //to be refined
 }
 
 double
@@ -267,15 +267,15 @@ double PndFsmMvd2::MeanEnergyLoss(PidType part) {
   return 4.9312e-05 * (log(2*Mass[electron]*c*c/eb*sqrBeta/(1-sqrBeta))-sqrBeta)/sqrBeta;
 };
 
-double PndFsmMvd2::LandauGaus(double s_mpv, double width1, double width2) {
+double PndFsmMvd2::LandauGaus(double s_mpv, double widthone, double widthtwo) {
   // this is the adapted TF1::Integral function from
   // ROOT 5.14. GOTOs have been removed and interval 
   // division has been modified to maximize performance
 
-  if (width1<=0) 
-    return TMath::Gaus(s_mpv, 0, width2, true);
-  else if (width2<=0)
-    return TMath::Landau(s_mpv, 0, width1, true);
+  if (widthone<=0) 
+    return TMath::Gaus(s_mpv, 0, widthtwo, true);
+  else if (widthtwo<=0)
+    return TMath::Landau(s_mpv, 0, widthone, true);
   else {
     static double x[12] = { 0.96028985649753623,  0.79666647741362674,
                             0.52553240991632899,  0.18343464249564980,
@@ -297,8 +297,8 @@ double PndFsmMvd2::LandauGaus(double s_mpv, double width1, double width2) {
     int i;
 
     h = 0;
-    aa = -5.0*width2;
-    bb = -2.5*width2;
+    aa = -5.0*widthtwo;
+    bb = -2.5*widthtwo;
 
     do {
       c1 = 0.5*(bb+aa);
@@ -308,26 +308,26 @@ double PndFsmMvd2::LandauGaus(double s_mpv, double width1, double width2) {
       for (i=0;i<4;i++) {
         u  = c2*x[i];
         xx = c1+u;
-        f1 = TMath::Landau(s_mpv+xx, 0, width1, true)*TMath::Gaus(xx, 0, width2, true);
+        f1 = TMath::Landau(s_mpv+xx, 0, widthone, true)*TMath::Gaus(xx, 0, widthtwo, true);
         xx = c1-u;
-        f2 = TMath::Landau(s_mpv+xx, 0, width1, true)*TMath::Gaus(xx, 0, width2, true);
+        f2 = TMath::Landau(s_mpv+xx, 0, widthone, true)*TMath::Gaus(xx, 0, widthtwo, true);
         s8+= w[i]*(f1 + f2);
       }
       s16 = 0;
       for (i=4;i<12;i++) {
         u   = c2*x[i];
         xx  = c1+u;
-        f1  = TMath::Landau(s_mpv+xx, 0, width1, true)*TMath::Gaus(xx, 0, width2, true);
+        f1  = TMath::Landau(s_mpv+xx, 0, widthone, true)*TMath::Gaus(xx, 0, widthtwo, true);
         xx  = c1-u;
-        f2  = TMath::Landau(s_mpv+xx, 0, width1, true)*TMath::Gaus(xx, 0, width2, true);
+        f2  = TMath::Landau(s_mpv+xx, 0, widthone, true)*TMath::Gaus(xx, 0, widthtwo, true);
         s16+= w[i]*(f1 + f2);
       }
       s16 = c2*s16;
       if (TMath::Abs(s16-c2*s8) <= 1e-12*(s16+1) ) {
         aa =bb;
         bb+=2*c2*1.5;
-        if (bb>=5*width2) {
-          bb=5*width2;
+        if (bb>=5*widthtwo) {
+          bb=5*widthtwo;
           redo=false;
         }
         h += s16;

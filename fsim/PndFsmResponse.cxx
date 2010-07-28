@@ -90,9 +90,9 @@ PndFsmResponse::~PndFsmResponse()
 //--------------
 
 void
-PndFsmResponse::setDetector(PndFsmAbsDet *detector)
+PndFsmResponse::setDetector(PndFsmAbsDet *det)
 {
-  _detector=detector;
+  _detector=det;
 }
 
 void

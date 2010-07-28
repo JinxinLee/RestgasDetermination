@@ -307,7 +307,7 @@ Bool_t PndLheTrackFinder::TrackExtension(PndLheCMCandidate *track) {
 
 
 //________________________________________________________________
-void PndLheTrackFinder::TrackingInfo(char *info) {
+void PndLheTrackFinder::TrackingInfo(const char *info) {
   // Information about the tracking process.
   
   cout << " found ";

@@ -37,9 +37,9 @@
 
 ClassImp(PndRiemannHit)
 
-PndRiemannHit::PndRiemannHit(double x, double y, double z,double dx, double dy, double dz) : fHit(NULL), fCovX(3,3), fZ(z), fVerbose(0)
+PndRiemannHit::PndRiemannHit(double mx, double my, double mz,double dx, double dy, double dz) : fHit(NULL), fCovX(3,3), fZ(mz), fVerbose(0)
 {
-	setXYZ(x,y,z);
+	setXYZ(mx,my,mz);
 	setDXYZ(dx,dy,dz);
 }
 
@@ -52,17 +52,17 @@ PndRiemannHit::PndRiemannHit(FairHit* cl) : fHit(cl), fCovX(3,3), fVerbose(0)
 
 PndRiemannHit::~PndRiemannHit(){}
 
-void PndRiemannHit::setXYZ(double x, double y, double z)
+void PndRiemannHit::setXYZ(double mx, double my, double mz)
 {
-	TVector2 a(x, y);
+	TVector2 a(mx, my);
 	double r=a.Mod()/RIEMANNSCALE;
 	double phi=a.Phi();
 	double r2=r*r;
 
-	fX.SetX(x/RIEMANNSCALE);
-	fX.SetY(y/RIEMANNSCALE);
+	fX.SetX(mx/RIEMANNSCALE);
+	fX.SetY(my/RIEMANNSCALE);
 	fX.SetZ(r2);
-	fZ = z;
+	fZ = mz;
 }
 
 void PndRiemannHit::setDXYZ(double dx, double dy, double dz)

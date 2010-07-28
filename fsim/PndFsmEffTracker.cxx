@@ -232,9 +232,9 @@ PndFsmEffTracker::dp(PndFsmTrack *t) const
   int idxT = int(th/160.*_rows); 
   if (idxT>=_rows) idxT=_rows-1;
 
-  double dp=_sigMom[idxT][idxR]*p;  
+  double Dp=_sigMom[idxT][idxR]*p;  
 
-  return ( dp ); 
+  return ( Dp ); 
 }
 
 double
@@ -250,9 +250,9 @@ PndFsmEffTracker::dphi(PndFsmTrack *t) const
   int idxT = int(th/160.*_rows); 
   if (idxT>=_rows) idxT=_rows-1;
 
-  double dphi=_sigPhi[idxT][idxR]*M_PI/180.0;
+  double Dphi=_sigPhi[idxT][idxR]*M_PI/180.0;
    
-  return dphi; 
+  return Dphi; 
 }
 
 double

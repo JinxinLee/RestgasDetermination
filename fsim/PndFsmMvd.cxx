@@ -215,15 +215,15 @@ double
 PndFsmMvd::dp(PndFsmTrack *t) const
 {
   double p=t->p4().Vect().Mag();
-  double dp=_pRes*p;   //10% smearing
-  return ( dp );  //to be refined
+  double Dp=_pRes*p;   //10% smearing
+  return ( Dp );  //to be refined
 }
 
 double
 PndFsmMvd::dphi(PndFsmTrack *t) const
 {
-  double dphi=_phiRes*M_PI/180.0;   
-  return dphi; //to be refined
+  double Dphi=_phiRes*M_PI/180.0;   
+  return Dphi; //to be refined
 }
 
 double

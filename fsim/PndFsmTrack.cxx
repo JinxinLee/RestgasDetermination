@@ -77,13 +77,13 @@ PndFsmTrack::PndFsmTrack() {
     fCov7[i]=0;
 }
 
-PndFsmTrack::PndFsmTrack(TLorentzVector const p4, TVector3 start, TVector3 stop, double charge, int pdt, signed long trackId) 
+PndFsmTrack::PndFsmTrack(TLorentzVector const inP4, TVector3 start, TVector3 stop, double inCharge, int inPdt, signed long trackId) 
 : fCov5(5,5), fCov7(7,7) {
-  setP4(p4);
+  setP4(inP4);
   setStartVtx(start);
   setStopVtx(stop);
-  setCharge(charge);
-  setPdt(pdt);
+  setCharge(inCharge);
+  setPdt(inPdt);
   setGTrackId(trackId);
   setDetResponse(0);
   setMass2( 0.0);
@@ -287,9 +287,9 @@ _SttdEdX=c;
 }
 
 void
-PndFsmTrack::setPdt(int pdt)
+PndFsmTrack::setPdt(int n)
 {
-  _pdt=pdt;
+  _pdt=n;
 }
 
 void

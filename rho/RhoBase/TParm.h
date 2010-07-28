@@ -78,8 +78,8 @@ public:
     TParmBool( const char* const theCommand, TObject* theTarget, Bool_t def = kFALSE );
     virtual ~TParmBool( ) {}
     virtual Bool_t Value() const     { return fParm; }
-    char*   Description() const { return "bool parameter: set or list"; }
-    char*   Type() const {return "Boolean";}
+    const char*   Description() const { return "bool parameter: set or list"; }
+    const char*   Type() const {return "Boolean";}
     void Set(const Bool_t v) { fParm = v; }
     virtual int SetValue(int argc, char **arg);
 private:
@@ -96,8 +96,8 @@ public:
     TParmInt( const char* const theCommand, TObject* theTarget, Int_t def = 0 );
     virtual ~TParmInt( ) {}
     virtual Int_t Value() const     { return fParm; }
-    char*   Description() const { return "int parameter: set or list"; }
-    char*   Type() const {return "int";}
+    const char*   Description() const { return "int parameter: set or list"; }
+    const char*   Type() const {return "int";}
     void Set(const Int_t v) { fParm = v; }
     virtual int SetValue(int argc, char **arg);
 private:
@@ -114,8 +114,8 @@ public:
     TParmDouble( const char* const theCommand, TObject* theTarget, Double_t def );
     virtual ~TParmDouble( ) {}
     virtual Double_t Value() const     { return fParm; }
-    char*   Description() const { return "double parameter: set or list"; }
-    char*   Type() const {return "Double";}
+    const char*   Description() const { return "double parameter: set or list"; }
+    const char*   Type() const {return "Double";}
     void Set(const Double_t v) { fParm = v; }
     virtual int SetValue(int argc, char **arg);
 private:
@@ -132,8 +132,8 @@ public:
     TParmString(const char* theCommand, TObject* theTarget, const TString& def );
     virtual ~TParmString( ) {}
     virtual TString Value() const     { return fParm; }
-    char*   Description() const { return "string parameter: set or list"; }
-    char*   Type() const {return "String";}
+    const char*   Description() const { return "string parameter: set or list"; }
+    const char*   Type() const {return "String";}
     void Set(const TString v) { fParm = v; }
     virtual int SetValue(int argc, char **arg);
 private:
@@ -155,8 +155,8 @@ public:
 }
     virtual ~TParmGeneral( ) {}
     virtual DefType Value() const { return (DefType) fParm; }
-    char*   Description () const { return "general parameter: set or list"; }
-    char*   Type () const { return "General";}
+    const char*   Description () const { return "general parameter: set or list"; }
+    const char*   Type () const { return "General";}
     inline virtual int SetValue(int argc, char **arg);
 protected:
 private:

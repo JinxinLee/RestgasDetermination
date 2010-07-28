@@ -24,7 +24,7 @@
 // ROOT Version by Marcel Kunze, RUB
 //==========================================================================
 
-#include <ctype.h>
+//#include <ctype.h>
 #include "RhoTools/TReadTree.h"
 #include "RhoTools/TOpAdd4.h"
 

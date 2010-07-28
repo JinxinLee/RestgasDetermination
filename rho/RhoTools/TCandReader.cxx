@@ -28,7 +28,7 @@
 // C++ Headers --
 //---------------
 #include <strstream>
-#include <ctype.h>
+//#include <ctype.h>
 
 //-----------------------
 // This Class's Header --
@@ -164,9 +164,9 @@ TCandReaderRegistry::Book(TCandReader * reader,
 //----------------------------------------------------------------------
 const TCandReader * 
 TCandReaderRegistry::Find(const char * name) const {
-    for (int item = 0; item < _items.GetSize(); ++item){
-	if (name == ((Item*)_items.At(item))->_name){
-	    return ((Item*)_items.At(item))->_reader;
+    for (int anItem = 0; anItem < _items.GetSize(); ++anItem){
+	if (name == ((Item*)_items.At(anItem))->_name){
+	    return ((Item*)_items.At(anItem))->_reader;
 	}
     }
     return 0;

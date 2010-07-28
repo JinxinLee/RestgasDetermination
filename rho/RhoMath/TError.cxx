@@ -11,7 +11,7 @@
 
 #include <stdio.h>
 #include <assert.h>
-#include <ctype.h>
+//#include <ctype.h>
 
 #include "RhoMath/TError.h"
 
