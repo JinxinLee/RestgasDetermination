@@ -81,10 +81,14 @@ InitStatus PndEmcWaveformToDigi::Init()
 
 	ioman->Register("EmcDigi","Emc",fDigiArray,fStoreDigis);
 	fSampleRate=fDigiPar->GetSampleRate();
+	fSampleRate_PMT=fDigiPar->GetSampleRate_PMT();
 	fASIC_Shaping_int_time=fDigiPar->GetASIC_Shaping_int_time();      //s
+	fPMT_Shaping_int_time=fDigiPar->GetPMT_Shaping_int_time();      //s
+	fPMT_Shaping_diff_time=fDigiPar->GetPMT_Shaping_diff_time();      //s
 	fCrystal_time_constant=fDigiPar->GetCrystal_time_constant();  //s
-	fSampleRate=fDigiPar->GetSampleRate();
+	fShashlyk_time_constant=fDigiPar->GetShashlyk_time_constant();  //s
 	fNumber_of_samples_in_waveform=fDigiPar->GetNumber_of_samples_in_waveform();
+	fNumber_of_samples_in_waveform_pmt=fDigiPar->GetNumber_of_samples_in_waveform_pmt();
 	fEnergyDigiThreshold=fDigiPar->GetEnergyDigiThreshold();
 	fEmcDigiPositionDepth=fRecoPar->GetEmcDigiPositionDepth();
 	
@@ -107,7 +111,9 @@ InitStatus PndEmcWaveformToDigi::Init()
 	}
 	
 	fPulseshape= new PndEmcAsicPulseshape(fASIC_Shaping_int_time,fCrystal_time_constant);
-	
+	fPulseshape_pmt= new PndEmcCRRCPulseshape(fPMT_Shaping_int_time,fPMT_Shaping_diff_time,fShashlyk_time_constant);
+
+
 	// Pulse shape analysis algorithm.
 	// Simple parabolic fit.
 	//psaAlgorithm = new PndEmcPSAParabolic();
@@ -119,16 +125,25 @@ InitStatus PndEmcWaveformToDigi::Init()
  	params.push_back(30); // width
 	params.push_back(fSampleRate); // Sample rate
 	psaAlgorithm = new PndEmcPSAMatchedDigiFilter(params,fPulseshape);
+
+//	std::vector<Double_t> params2;
+// 	params2.push_back(30); // width
+//	params2.push_back(fSampleRate_PMT); // Sample rate
+	psaAlgorithm_pmt = new PndEmcPSAParabolic();
 	
 	// Determine normalisation constant for PndEmcWaveform
 	PndEmcWaveform *tmpwaveform=new PndEmcWaveform(0,101010001, fNumber_of_samples_in_waveform);
+	PndEmcWaveform *tmpwaveform2=new PndEmcWaveform(0,101010001, fNumber_of_samples_in_waveform_pmt);
 	
 	PndEmcHit *gevHit=new PndEmcHit();
 	gevHit->SetEnergy(1.0);
 	gevHit->SetTime(0.);
 	tmpwaveform->UpdateWaveform(gevHit, 0, false, 1., 0., fSampleRate, fPulseshape);
+	tmpwaveform2->UpdateWaveform(gevHit, 0, false, 1., 0., fSampleRate_PMT, fPulseshape_pmt);
 	Double_t tmpPeakPosition;
+	Double_t tmpPeakPosition2;
 	psaAlgorithm->Process(tmpwaveform,fWfNormalisation,tmpPeakPosition);
+	psaAlgorithm_pmt->Process(tmpwaveform2,fWfNormalisation_pmt,tmpPeakPosition2);
 
 	cout << "-I- PndEmcWaveformToDigi: Intialization successfull" << endl;
 	
@@ -149,18 +164,29 @@ void PndEmcWaveformToDigi::Exec(Option_t* opt)
 	Double_t digi_time;
 	Int_t i_digi=0; //index of digi in TClonesArray
 	Int_t hitIndex;
+	Int_t detId;
+	Int_t trackId;
+	Int_t module;
 	Int_t nWaveforms = fWaveformArray->GetEntriesFast();
 	//cout<<"PndEmcWaveformToDigi: "<<nWaveforms<<" waveforms to convert"<<endl;
 	for (Int_t iWaveform=0; iWaveform<nWaveforms; iWaveform++) {
 		PndEmcWaveform* theWaveform = (PndEmcWaveform*) fWaveformArray->At(iWaveform);
 		hitIndex=theWaveform->GetHitIndex();
-		Int_t detId=theWaveform->GetDetectorId();
-		Int_t trackId=theWaveform->GetTrackId();
-		
+		detId=theWaveform->GetDetectorId();
+		trackId=theWaveform->GetTrackId();
+		module=theWaveform->GetModule();
 		// Determine waveform maximum and its position
-		psaAlgorithm->Process(theWaveform,energy,peakPosition);
-		energy/=fWfNormalisation;
-		digi_time=peakPosition/fSampleRate;
+		if(module==5){
+			psaAlgorithm_pmt->Process(theWaveform,energy,peakPosition);
+			energy/=fWfNormalisation_pmt;
+			digi_time=peakPosition/fSampleRate_PMT;
+
+		}
+		else{
+			psaAlgorithm->Process(theWaveform,energy,peakPosition);
+			energy/=fWfNormalisation;
+			digi_time=peakPosition/fSampleRate;
+		}
 		if (energy>fEnergyDigiThreshold)
 		{
 			PndEmcDigi* myDigi = new((*fDigiArray)[i_digi]) PndEmcDigi(trackId,detId, energy, digi_time, hitIndex);

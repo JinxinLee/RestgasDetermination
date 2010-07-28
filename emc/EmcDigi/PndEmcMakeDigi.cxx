@@ -170,7 +170,7 @@ void PndEmcMakeDigi::Exec(Option_t* opt)
 						sigma_E=sqrt(pow(0.056/energy,2)+pow(0.024/sqrt(energy),2)+0.013);
 						break;
 					default:
-						std::cout<<"Unknown module number in EMC digitization"<<std::endl;
+						std::cout<<"PndEmcMakeDigi::Exec - Unknown module number in EMC digitization"<<std::endl;
 						abort();
 				}
 				

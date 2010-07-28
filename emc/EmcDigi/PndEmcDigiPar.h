@@ -10,10 +10,12 @@ class PndEmcDigiPar : public FairParGenericSet
 	public:
 		Double_t GetEnergyHitThreshold() {return fEnergyHitThreshold;};
 		Double_t GetDetectedPhotonsPerMeV() {return fDetectedPhotonsPerMeV;};
+		Double_t GetDetectedPhotonsPerMeV_PMT() {return fDetectedPhotonsPerMeV_PMT;};
 		Double_t GetSensitiveAreaAPD() {return fSensitiveAreaAPD;};
 		Double_t GetSensitiveAreaVPT() {return fSensitiveAreaVPT;};
 		Double_t GetQuantumEfficiencyAPD() {return fQuantumEfficiencyAPD;};
 		Double_t GetQuantumEfficiencyVPT() {return fQuantumEfficiencyVPT;};
+		Double_t GetQuantumEfficiencyPMT() {return fQuantumEfficiencyPMT;};
 		Double_t GetExcessNoiseFactorAPD() {return fExcessNoiseFactorAPD;};
 		Double_t GetExcessNoiseFactorVPT() {return fExcessNoiseFactorVPT;};
 		Double_t GetIncoherent_elec_noise_width_GeV_APD() {return fIncoherent_elec_noise_width_GeV_APD;};
@@ -22,11 +24,16 @@ class PndEmcDigiPar : public FairParGenericSet
 		Double_t GetEnergyRangeBW() {return fEnergyRangeBW;};
 		Double_t GetFirstSamplePhase() {return fFirstSamplePhase;};
 		Double_t GetASIC_Shaping_int_time() {return fASIC_Shaping_int_time;};
+		Double_t GetPMT_Shaping_int_time() {return fPMT_Shaping_int_time;};
+		Double_t GetPMT_Shaping_diff_time() {return fPMT_Shaping_diff_time;};
 		Double_t GetCrystal_time_constant() {return fCrystal_time_constant;};
+		Double_t GetShashlyk_time_constant() {return fShashlyk_time_constant;};
 		Double_t GetSampleRate() {return fSampleRate;};
+		Double_t GetSampleRate_PMT() {return fSampleRate_PMT;};
 		Double_t GetEnergyDigiThreshold() {return fEnergyDigiThreshold;};
 		Int_t GetNBits() {return fNBits;};
 		Int_t GetNumber_of_samples_in_waveform() {return fNumber_of_samples_in_waveform;};
+		Int_t GetNumber_of_samples_in_waveform_pmt() {return fNumber_of_samples_in_waveform_pmt;};
 		Int_t GetUse_shaped_noise() {return fUse_shaped_noise;};
 		Int_t GetUse_photon_statistic() {return fUse_photon_statistic;};
 		Int_t GetUseDigiEffectiveSmearing() {return fUseDigiEffectiveSmearing;};
@@ -47,10 +54,12 @@ class PndEmcDigiPar : public FairParGenericSet
 	private :
 		Double_t fEnergyHitThreshold;
 		Double_t fDetectedPhotonsPerMeV;
+		Double_t fDetectedPhotonsPerMeV_PMT;
 		Double_t fSensitiveAreaAPD; // mm^2
 		Double_t fSensitiveAreaVPT; // mm^2
 		Double_t fQuantumEfficiencyAPD;
 		Double_t fQuantumEfficiencyVPT;
+		Double_t fQuantumEfficiencyPMT;
 		Double_t fExcessNoiseFactorAPD;
 		Double_t fExcessNoiseFactorVPT;
 		Double_t fIncoherent_elec_noise_width_GeV_APD;
@@ -59,18 +68,23 @@ class PndEmcDigiPar : public FairParGenericSet
 		Double_t fEnergyRangeBW;
 		Double_t fFirstSamplePhase;
 		Double_t fASIC_Shaping_int_time;
+		Double_t fPMT_Shaping_int_time;
+		Double_t fPMT_Shaping_diff_time;
 		Double_t fCrystal_time_constant;
+		Double_t fShashlyk_time_constant;
 		Double_t fSampleRate;
+		Double_t fSampleRate_PMT;
 		Double_t fEnergyDigiThreshold;
 		Int_t fNBits;
 		Int_t fNumber_of_samples_in_waveform;
+		Int_t fNumber_of_samples_in_waveform_pmt;
 		Int_t fUse_shaped_noise;
 		Int_t fUse_photon_statistic;
 		Int_t fUseDigiEffectiveSmearing;
 		Int_t fNoiseAllChannels;
 		Int_t fUse_nonuniformity;
 
-		ClassDef(PndEmcDigiPar,7);
+		ClassDef(PndEmcDigiPar,8);
 };
 
 #endif

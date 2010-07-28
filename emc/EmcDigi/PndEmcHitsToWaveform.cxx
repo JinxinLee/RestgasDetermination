@@ -87,10 +87,12 @@ InitStatus PndEmcHitsToWaveform::Init()
 
 	fNBits=fDigiPar->GetNBits();
 	fDetectedPhotonsPerMeV=fDigiPar->GetDetectedPhotonsPerMeV();
+	fDetectedPhotonsPerMeV_PMT=fDigiPar->GetDetectedPhotonsPerMeV_PMT();
 	fSensitiveAreaAPD=fDigiPar->GetSensitiveAreaAPD();
 	fSensitiveAreaVPT=fDigiPar->GetSensitiveAreaVPT();
 	fQuantumEfficiencyAPD=fDigiPar->GetQuantumEfficiencyAPD();
 	fQuantumEfficiencyVPT=fDigiPar->GetQuantumEfficiencyVPT();
+	fQuantumEfficiencyPMT=fDigiPar->GetQuantumEfficiencyPMT();
 	fExcessNoiseFactorAPD=fDigiPar->GetExcessNoiseFactorAPD();
 	fExcessNoiseFactorVPT=fDigiPar->GetExcessNoiseFactorVPT();
 	fIncoherent_elec_noise_width_GeV_APD=fDigiPar->GetIncoherent_elec_noise_width_GeV_APD(); //GeV
@@ -99,9 +101,14 @@ InitStatus PndEmcHitsToWaveform::Init()
 	fEnergyRangeBW=fDigiPar->GetEnergyRangeBW(); //GeV	
 	fFirstSamplePhase=fDigiPar->GetFirstSamplePhase();
 	fNumber_of_samples_in_waveform=fDigiPar->GetNumber_of_samples_in_waveform();
+	fNumber_of_samples_in_waveform_pmt=fDigiPar->GetNumber_of_samples_in_waveform_pmt();
 	fASIC_Shaping_int_time=fDigiPar->GetASIC_Shaping_int_time();      //s
+	fPMT_Shaping_int_time=fDigiPar->GetPMT_Shaping_int_time();      //s
+	fPMT_Shaping_diff_time=fDigiPar->GetPMT_Shaping_diff_time();      //s
 	fCrystal_time_constant=fDigiPar->GetCrystal_time_constant();  //s
+	fShashlyk_time_constant=fDigiPar->GetShashlyk_time_constant();  //s
 	fSampleRate=fDigiPar->GetSampleRate();
+	fSampleRate_PMT=fDigiPar->GetSampleRate_PMT();
 	fUse_shaped_noise=fDigiPar->GetUse_shaped_noise();
 	fUse_photon_statistic=fDigiPar->GetUse_photon_statistic();
 	fNoiseAllChannels=fDigiPar->GetNoiseAllChannels();
@@ -110,6 +117,7 @@ InitStatus PndEmcHitsToWaveform::Init()
 	cout<<"EMC digitisation parameters "<<endl;
 	cout<<"  nBits "<<fNBits<<endl;
 	cout<<"  detectedPhotonsPerMeV "<<fDetectedPhotonsPerMeV<<endl;
+	cout<<"  detectedPhotonsPerMeV_PMT "<<fDetectedPhotonsPerMeV_PMT<<endl;
 	cout<<"  excessNoiseFactor APD"<<fExcessNoiseFactorAPD<<endl;
 	cout<<"  excessNoiseFactor VPT"<<fExcessNoiseFactorVPT<<endl;
 	cout<<"  incoherent_elec_noise_width_GeV_APD "<<fIncoherent_elec_noise_width_GeV_APD<<endl;
@@ -118,9 +126,14 @@ InitStatus PndEmcHitsToWaveform::Init()
 	cout<<"  energyRangeBW "<<fEnergyRangeBW<<endl;	
 	cout<<"  firstSamplePhase "<<fFirstSamplePhase<<endl;
 	cout<<"  number_of_samples_in_waveform "<<fNumber_of_samples_in_waveform<<endl;
+	cout<<"  number_of_samples_in_waveform_pmt "<<fNumber_of_samples_in_waveform_pmt<<endl;
 	cout<<"  ASIC_Shaping_int_time "<<fASIC_Shaping_int_time<<endl;
+	cout<<"  PMT_Shaping_int_time "<<fPMT_Shaping_int_time<<endl;
+	cout<<"  PMT_Shaping_diff_time "<<fPMT_Shaping_diff_time<<endl;
 	cout<<"  crystal_time_constant "<<fCrystal_time_constant<<endl;
+	cout<<"  shashlyk_time_constant "<<fShashlyk_time_constant<<endl;
 	cout<<"  sampleRate "<<fSampleRate<<endl;
+	cout<<"  sampleRate_PMT "<<fSampleRate_PMT<<endl;
 	cout<<"  use_shaped_noise "<<fUse_shaped_noise<<endl;
 	cout<<"  use_photon_statistic "<<fUse_photon_statistic<<endl;
 	cout<<"  EMC mapper "<<fGeoPar->GetMapperVersion()<<endl;
@@ -132,13 +145,27 @@ InitStatus PndEmcHitsToWaveform::Init()
 	PndEmcWaveform *tmpwaveform=new PndEmcWaveform(0,101010001, fNumber_of_samples_in_waveform);
 
 	PndEmcAbsPulseshape *pulseshape=new PndEmcAsicPulseshape(fASIC_Shaping_int_time,fCrystal_time_constant);
+
+	PndEmcWaveform *tmpwaveform2=new PndEmcWaveform(0,101010001, fNumber_of_samples_in_waveform_pmt);
+
+	PndEmcAbsPulseshape *pulseshape2=new PndEmcCRRCPulseshape(fPMT_Shaping_int_time,fPMT_Shaping_diff_time,fShashlyk_time_constant);
 	
 	fGevPeakAnalogue = tmpwaveform->GetScale(fSampleRate, pulseshape);
+
+	fGevPeakAnalogue_PMT = tmpwaveform2->GetScale(fSampleRate_PMT, pulseshape2);
 	
+//	cout<<" -I- PndEmcHitsToWaveform::Init:=========== "<<endl;
+//	cout<<"  fGevPeakAnalogue= "<<fGevPeakAnalogue<<endl;
+//	cout<<"  fGevPeakAnalogue_PMT= "<<fGevPeakAnalogue_PMT<<endl;
 	fOneBitResolution=fEnergyRange/((double) (1<<fNBits))*fGevPeakAnalogue;
 	fOneBitResolutionBW=fEnergyRangeBW/((double) (1<<fNBits))*fGevPeakAnalogue;
+	fOneBitResolutionPMT=fEnergyRange/((double) (1<<fNBits))*fGevPeakAnalogue_PMT;
+//	cout<<"  fOneBitResolution= "<<fOneBitResolution<<endl;
+//	cout<<"  fOneBitResolutionBW= "<<fOneBitResolutionBW<<endl;
+//	cout<<"  fOneBitResolutionPMT= "<<fOneBitResolutionPMT<<endl;
 	
 	fFirstADCBinTime=fFirstSamplePhase/fSampleRate;
+//	cout<<"  fFirstADCBinTime= "<<fFirstADCBinTime<<endl;
 	
 	// Calculate number of photoelectrons for APD and VPT
 	// The number fDetectedPhotonsPerMeV is the measured number of photoelectrons with PM covering the whole rear surface divided by quantum efficiency of PM (18%)
@@ -148,8 +175,15 @@ InitStatus PndEmcHitsToWaveform::Init()
 	fNPhotoElectronsPerMeVAPDBarrel=fDetectedPhotonsPerMeV*fSensitiveAreaAPD/745.*fQuantumEfficiencyAPD;
 	fNPhotoElectronsPerMeVAPDBWD=fDetectedPhotonsPerMeV*fSensitiveAreaAPD/676.*fQuantumEfficiencyAPD;
 	fNPhotoElectronsPerMeVVPT=fDetectedPhotonsPerMeV*fSensitiveAreaVPT/676.*fQuantumEfficiencyVPT;
+	fNPhotoElectronsPerMeVPMT=fDetectedPhotonsPerMeV_PMT*fQuantumEfficiencyPMT;
+//	cout<<"  fNPhotoElectronsPerMeVAPDBarrel= "<<fNPhotoElectronsPerMeVAPDBarrel<<endl;
+//	cout<<"  fNPhotoElectronsPerMeVAPDBWD= "<<fNPhotoElectronsPerMeVAPDBWD<<endl;
+//	cout<<"  fNPhotoElectronsPerMeVVPT= "<<fNPhotoElectronsPerMeVVPT<<endl;
+//	cout<<"  fNPhotoElectronsPerMeVPMT= "<<fNPhotoElectronsPerMeVPMT<<endl;
 	delete pulseshape;
 	delete tmpwaveform;
+	delete pulseshape2;
+	delete tmpwaveform2;
 	
 	return kSUCCESS;
 }
@@ -168,6 +202,7 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 	PndEmcHit* theHit = NULL;
 	PndEmcWaveform* theWaveform = NULL;
 	std::set<Int_t> waveformInd;
+	Int_t NumOfSamples;
 	
 	// Loop over PndEmcHits to add them to correspondent waveforms
 	// <set> fWaveformInd contains indexes of detectors for which Waveforms are created
@@ -175,15 +210,23 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 	cout<<"Hit array contains "<<nHits<< " hits"<<endl;
 	
 	PndEmcAsicPulseshape *pulseshape= new PndEmcAsicPulseshape(fASIC_Shaping_int_time,fCrystal_time_constant);
-	
+	PndEmcAbsPulseshape *pulseshape2=new PndEmcCRRCPulseshape(fPMT_Shaping_int_time,fPMT_Shaping_diff_time,fShashlyk_time_constant);
+
 	for (Int_t iHit=0; iHit<nHits; iHit++) {
 		theHit = (PndEmcHit*) fHitArray->At(iHit);
 		Int_t detId=theHit->GetDetectorID();
+		Int_t module = theHit->GetModule();
 		waveformInd.insert(detId);
-		theWaveform = AddWaveform(detId,iHit);
-		Int_t module = theWaveform->GetModule();
+		if(module == 5)
+			NumOfSamples = fNumber_of_samples_in_waveform_pmt;
+		else
+			NumOfSamples = fNumber_of_samples_in_waveform;
+
+		theWaveform = AddWaveform(detId,iHit,NumOfSamples);
+//		Int_t module_wf = theWaveform->GetModule();
+
 		switch (module){
-			case 1: // Barrel 
+			case 1: // Barrel
 				theWaveform->UpdateWaveform(theHit, fNPhotoElectronsPerMeVAPDBarrel, fUse_photon_statistic, fExcessNoiseFactorAPD, fFirstADCBinTime, fSampleRate, pulseshape);
 					break;
 			case 2: // Barrel
@@ -195,11 +238,11 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 			case 4: // Bwd endcap
 				theWaveform->UpdateWaveform(theHit, fNPhotoElectronsPerMeVVPT, fUse_photon_statistic, fExcessNoiseFactorVPT, fFirstADCBinTime, fSampleRate, pulseshape);
 					break;
-			case 5: // Shashlyk calorimetr (At the moment parameters from barrel are used)
-				theWaveform->UpdateWaveform(theHit, fNPhotoElectronsPerMeVAPDBarrel, fUse_photon_statistic, fExcessNoiseFactorAPD, fFirstADCBinTime, fSampleRate, pulseshape);
+			case 5: // Shashlyk calorimetr
+				theWaveform->UpdateWaveform(theHit, fNPhotoElectronsPerMeVPMT, fUse_photon_statistic, 0, fFirstADCBinTime, fSampleRate_PMT, pulseshape2);
 					break;
 			default:
-				std::cout<<"Unknown module number in EMC digitization"<<std::endl;
+				std::cout<<" UpdateWaveform: Unknown module number in EMC digitization"<<std::endl;
 				abort();
 		}
 	}
@@ -208,13 +251,19 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 	// Since it is time consuming, by default it is off
 	if (fNoiseAllChannels)
 	{
-		Int_t detId_tmp;
+		Int_t detId_tmp, modId_tmp;
 		std::map<Int_t,PndEmcTwoCoordIndex*>  intTwoCoordMap =  PndEmcMapper::Instance()->GetTciMap();
 		for(std::map<Int_t,PndEmcTwoCoordIndex* >::iterator iter = intTwoCoordMap.begin();
 		iter != intTwoCoordMap.end(); ++iter){
 			detId_tmp=(*iter).first;
+			modId_tmp = detId_tmp/100000000;
+			if(modId_tmp == 5)
+				NumOfSamples = fNumber_of_samples_in_waveform_pmt;
+			else
+				NumOfSamples = fNumber_of_samples_in_waveform;
+
 			if (waveformInd.insert(detId_tmp).second){
-				AddWaveform(detId_tmp,-1); // -1 correponds to Waveform produced not from EmcHit but from Noise
+				AddWaveform(detId_tmp,-1,NumOfSamples); // -1 correponds to Waveform produced not from EmcHit but from Noise
 			}
 		}
 	}
@@ -270,19 +319,20 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 			case 5: // shashlyk calorimetr 
 				if (fUse_shaped_noise==0)
 				{
-					theWaveform->AddElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_APD*fGevPeakAnalogue,fOneBitResolution);
+					theWaveform->AddElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_APD*fGevPeakAnalogue_PMT,fOneBitResolutionPMT);
 				}
 				else {
-					theWaveform->AddShapedElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_APD*fGevPeakAnalogue,fOneBitResolution, pulseshape, fFirstSamplePhase, fSampleRate);
+					theWaveform->AddShapedElecNoiseAndDigitise(fIncoherent_elec_noise_width_GeV_APD*fGevPeakAnalogue_PMT,fOneBitResolutionPMT, pulseshape2, fFirstSamplePhase, fSampleRate_PMT);
 				}
 				break;
 			default:
-				std::cout<<"Unknown module number in EMC digitization"<<std::endl;
+				std::cout<<"Add Noise: Unknown module number in EMC digitization"<<std::endl;
 				abort();
 		}
 	}
 
 	delete pulseshape;
+	delete pulseshape2;
 	
 	if (fVerbose>0){
 		timer.Stop();
@@ -310,12 +360,10 @@ void PndEmcHitsToWaveform::SetParContainers() {
 }
 
 // -----   Private method AddWaveform   --------------------------------------------
-PndEmcWaveform* PndEmcHitsToWaveform::AddWaveform(Int_t detID, Int_t iHit){
+PndEmcWaveform* PndEmcHitsToWaveform::AddWaveform(Int_t detID, Int_t iHit,Int_t numOfSamples){
 	TClonesArray& clref = *fWaveformArray;
 	Int_t size = clref.GetEntriesFast();
-	return new(clref[size]) PndEmcWaveform(0,detID,
-				       fNumber_of_samples_in_waveform,
-						 iHit);
+	return new(clref[size]) PndEmcWaveform(0,detID,numOfSamples,iHit);
 }
 
 void PndEmcHitsToWaveform::SetStorageOfData(Bool_t val)

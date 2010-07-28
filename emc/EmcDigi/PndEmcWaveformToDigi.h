@@ -66,17 +66,24 @@ private:
 	TClonesArray* fDigiArray;  
 	
 	Double_t fSampleRate;
+	Double_t fSampleRate_PMT;
 	Double_t fEnergyDigiThreshold;
 	Double_t fASIC_Shaping_int_time;      //s
+	Double_t fPMT_Shaping_int_time;    //s
+	Double_t fPMT_Shaping_diff_time;    //s
 	Double_t fCrystal_time_constant;  //s
+	Double_t fShashlyk_time_constant;  //s
 	Int_t fNumber_of_samples_in_waveform;
+	Int_t fNumber_of_samples_in_waveform_pmt;
 	
   	std::string fDigiPosMethod;// "surface" or "depth"
 	Double_t fEmcDigiRescaleFactor;
 	Double_t fEmcDigiPositionDepth;
 	
 	PndEmcAbsPulseshape* fPulseshape;
+	PndEmcAbsPulseshape* fPulseshape_pmt;
 	PndEmcAbsPSA *psaAlgorithm;
+	PndEmcAbsPSA *psaAlgorithm_pmt;
 
 	PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
 	PndEmcRecoPar*    fRecoPar;      /** Reconstruction parameter container **/
@@ -89,6 +96,7 @@ private:
 	Bool_t fStoreDigis;
 	
 	Double_t fWfNormalisation; // Waveform normalisation constant
+	Double_t fWfNormalisation_pmt;
 
 	ClassDef(PndEmcWaveformToDigi,1);
 	

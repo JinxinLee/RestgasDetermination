@@ -54,7 +54,7 @@ public:
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
   
-  PndEmcWaveform * AddWaveform(Int_t detId,Int_t hitIndex);
+  PndEmcWaveform * AddWaveform(Int_t detId,Int_t hitIndex,Int_t numOfSamples);
 
   void SetStorageOfData(Bool_t val); // Method to specify whether waveforms are stored or not.
 
@@ -68,16 +68,20 @@ private:
 
 	Double_t fOneBitResolution;
 	Double_t fOneBitResolutionBW;
+	Double_t fOneBitResolutionPMT;
 
 	Int_t fNBits;
 	Double_t fDetectedPhotonsPerMeV;
+	Double_t fDetectedPhotonsPerMeV_PMT;
 	Double_t fNPhotoElectronsPerMeVAPDBarrel;
 	Double_t fNPhotoElectronsPerMeVAPDBWD;
 	Double_t fNPhotoElectronsPerMeVVPT;
+	Double_t fNPhotoElectronsPerMeVPMT;
 	Double_t fSensitiveAreaAPD; //mm^2
 	Double_t fSensitiveAreaVPT; //mm^2
 	Double_t fQuantumEfficiencyAPD;
 	Double_t fQuantumEfficiencyVPT;
+	Double_t fQuantumEfficiencyPMT;
 	Double_t fExcessNoiseFactorAPD;
 	Double_t fExcessNoiseFactorVPT;
 	Double_t fIncoherent_elec_noise_width_GeV_APD; //GeV
@@ -86,9 +90,14 @@ private:
 	Double_t fEnergyRangeBW; //GeV
 	Double_t fFirstSamplePhase;
 	Int_t fNumber_of_samples_in_waveform;
+	Int_t fNumber_of_samples_in_waveform_pmt;
 	Double_t fASIC_Shaping_int_time;      //s
+	Double_t fPMT_Shaping_int_time;      //s
+	Double_t fPMT_Shaping_diff_time;      //s
 	Double_t fCrystal_time_constant;  //s
+	Double_t fShashlyk_time_constant;  //s
 	Double_t fSampleRate;
+	Double_t fSampleRate_PMT;
 	Int_t fUse_shaped_noise;
 	Int_t fUse_photon_statistic;
 	Int_t fNoiseAllChannels;
@@ -97,6 +106,7 @@ private:
 	Double_t fFirstADCBinTime;
 
 	Double_t fGevPeakAnalogue;
+	Double_t fGevPeakAnalogue_PMT;
 
 	PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
 	PndEmcGeoPar*     fGeoPar;       /** Geometry parameter container **/
