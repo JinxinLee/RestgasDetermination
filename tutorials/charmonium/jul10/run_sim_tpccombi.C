@@ -124,9 +124,23 @@ run_sim_tpccombi(Int_t nEvents=10){
   //-------------------------------
   PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
   fRun->AddTask(emcHitProd);
+
+  //-------------------------- switch on the vis manager-----------//
+  fRun->SetStoreTraj(kTRUE);
   
   /**Initialize the session*/
   fRun->Init();
+
+  //----------------- Set some cuts for the visualization-----------
+  FairTrajFilter* trajFilter = FairTrajFilter::Instance();
+  // Set cuts for storing the trajectpries
+  trajFilter->SetStepSizeCut(0.04); // 1 cm
+  //     trajFilter->SetVertexCut(-2000., -2000., 4., 2000., 2000., 100.);
+  //     trajFilter->SetMomentumCutP(10e-3); // p_lab > 10 MeV
+  //     trajFilter->SetEnergyCut(0., 1.02); // 0 < Etot < 1.04 GeV
+  trajFilter->SetStorePrimaries(kTRUE);
+  trajFilter->SetStoreSecondaries(kTRUE);
+  //-------------------------  Run the Simulation  -----------------
   
   rtdb->setOutput(output);
   rtdb->saveOutput();
