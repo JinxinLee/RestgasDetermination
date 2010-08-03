@@ -35,5 +35,6 @@ PndKnnTrain::~PndKnnTrain()
  */
 void PndKnnTrain::Train()
 {
+  //
   WriteDataSetToOutFile();
 }

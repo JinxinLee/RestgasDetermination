@@ -15,14 +15,13 @@ FLAGSMACHINE = -march=native -mtune=native
 # FLAGSMACHINE += -mpc64 -mfpmath=sse -msse3 -m3dnow
 
 CCFLAGS  = -W -Wall -Wextra -Wredundant-decls -Wshadow -Werror
-CCFLAGS += -Woverlength-strings -Wstack-protector
 CCFLAGS += -fdiagnostics-show-option -fdiagnostics-show-location=every-line
-CCFLAGS += -O3 -funroll-loops -fopenmp
+CCFLAGS += -Woverlength-strings -Wstack-protector -fopenmp
+CCFLAGS += -O3 -funroll-loops
 CCFLAGS += ${FLAGSMACHINE}
+# CCFLAGS += -malign-double -maccumulate-outgoing-args -ftracer
 # CCFLAGS += -fvariable-expansion-in-unroller -fprefetch-loop-arrays
 # CCFLAGS += -fstrict-aliasing -Wstrict-aliasing=3
-# CCFLAGS += -malign-double -maccumulate-outgoing-args -ftracer
-
 
 INCLUDE = $(shell root-config --cflags) -I./
 
@@ -76,34 +75,37 @@ examples: PndMvaUtil PndMvaDataSet PndGpidClassifier Classifiers
 	@echo "       =++++++ Linking example applications. ++++++="
 	@echo ""
 
+# Build stdKnn Cassifier.
 	$(CXX) $(LIBS) build/classifyStdKnn.o  build/PndStdKnnClassify.o build/PndGpidClassifier.o \
 	build/PndMvaUtil.o build/PndMvaDataSet.o -o build/classifyStdKnn
-
+# Build LVQ Cassifier.
 	$(CXX) $(LIBS) build/LVQclassify.o build/PndLVQClassify.o build/PndGpidClassifier.o \
 	build/PndMvaUtil.o build/PndMvaDataSet.o -o build/LVQclassify
-
+# Build kd-tree KNN Cassifier.
 	$(CXX) $(LIBS) build/KnnClassify.o build/PndKnnClassify.o build/PndGpidClassifier.o \
 	build/PndMvaUtil.o build/PndMvaDataSet.o -o build/KNNclassify
-
+# Build Projected KNN Cassifier.
 	$(CXX) $(LIBS) build/Prclassify.o build/PndProjectedKNN.o build/PndKnnClassify.o \
 	build/PndGpidClassifier.o build/PndMvaUtil.o build/PndMvaDataSet.o -o build/PrKNNclassify
-
+# Build LVQ Trainer.
 	$(CXX) $(LIBS) build/LVQtrain.o build/PndMvaTrainer.o build/PndMvaUtil.o build/PndLVQTrain.o \
 	build/PndMvaDataSet.o build/PndMvaCluster.o -o build/LVQtrain
-
+# Build KNN Trainer.
 	$(CXX) $(LIBS) build/KnnTrain.o build/PndMvaTrainer.o build/PndMvaUtil.o build/PndKnnTrain.o \
 	build/PndMvaDataSet.o -o build/KNNTrain
+# Build a random dataset creator.
+	$(CXX) $(LIBS) build/CreateRandomDataSet.o -o build/CreateRandomDataSet
+# Build an example to use clustering module.
+	$(CXX) $(LIBS) build/PndMvaCluster.o build/exampleCluster.o build/PndMvaDataSet.o \
+	build/PndMvaUtil.o -o build/exampleCluster
 
+# Build PDE-Foam trainer and classifier.
 #	$(CXX) $(LIBS) build/FoamTrainTest.o build/PndMvaTrainer.o build/PndMvaUtil.o \
 #	build/PndPDEFoamTrain.o build/PndMvaDataSet.o -o build/FoamTrainTest
 
 #	$(CXX) $(LIBS) build/FoamClassifyTest.o build/PndPDEFoamClassify.o build/PndGpidClassifier.o \
 #	build/PndMvaDataSet.o build/PndMvaUtil.o -o build/FoamClassifyTest
 
-	$(CXX) $(LIBS) build/CreateRandomDataSet.o -o build/CreateRandomDataSet
-
-	$(CXX) $(LIBS) build/PndMvaCluster.o build/exampleCluster.o build/PndMvaDataSet.o \
-	build/PndMvaUtil.o -o build/exampleCluster
 clean:
 	rm -f *~ *.o *.root build/*
 	cd KNN ; $(MAKE) clean

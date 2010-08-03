@@ -77,11 +77,14 @@
   
   //Add task
   fRun->AddTask(ts);
+
   //////////////
   fRun->Init();
   fRun->Run(0,nEvents);
+ 
   // ------------------------------------------------------------------------
   rtdb->print();
+  
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();

@@ -74,11 +74,30 @@ by the classifier.
 
 \subsection{Using LVQ}
 \begin{description}
-\item [Training:]
+\item [Training:] In the directory LVQ there is an example
+  implementations (LVQtrain.cpp). This sample program can be used as a
+  starting point for a training scheme.
 \item [Weights:] Example up to date weight files which can be used by
   this algorithm can be fetched using the scripts available in the
   directory "macro/scripts/". These are not available via svn merely
   due their size.
-\item [Classification:]
+\item [Classification:] In the directory LVQ there is an example
+  implementations (LVQclassify.cpp). This sample program can be used
+  as a starting point for a classification scheme. Shortest Mva value
+  indicates a \underline{{\it{\bf better match}}}. {\it In other words
+    the current example is most likely to be from the lable with the
+    smallest MVA value}.
 \end{description}
+
+%========================= K-means Clustering ===================
+\section{K-means Clustering}
+The directory "Clusters" containes an implementation of this
+algorithm. Given a set of parameter vectors and the number of expected
+clusters (centroids), "k-Means" generates for each cluster a centroid
+that represents the mean vector of that particular set of parameter
+vectors. At this moment only the "Hrad K-Means" is implemented. Which
+means that each initialized center belongs to a single cluster. It is
+also possible to generate weighted centroids that are particially
+member of two or more clusters. The latter is called "Soft K-Means"
+and is not implemented yet.
 \end{document}

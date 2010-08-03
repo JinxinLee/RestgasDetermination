@@ -63,16 +63,12 @@ int main(int argc, char** argv)
   std::string OutErr = "Err" + ot;
   std::cout << " ErrorFile = " << OutErr << std::endl;
 
-  //Class names
+  // Class names
   clas.push_back("electron"); clas.push_back("pion");
   //clas.push_back("kaon");     clas.push_back("muon");
   //clas.push_back("proton");   //clas.push_back("gamma");
 
-  std::map <std::string, unsigned int> numProtoMap;
-  numProtoMap["electron"] = 70;
-  numProtoMap["pion"] = 150;
-
-  //Variable names 
+  // Variable names 
   nam.push_back("p");
   nam.push_back("emc");
   nam.push_back("z20");
@@ -90,10 +86,15 @@ int main(int argc, char** argv)
   
   // Use for symm. initialization.
   //tr.SetNumberOfProto(numProto);
-  
+
+  // Use for asymm. init.  
+  std::map <std::string, unsigned int> numProtoMap;
+  numProtoMap["electron"] = 70;
+  numProtoMap["pion"] = 150;
   tr.SetNumberOfProto(numProtoMap);
+
   tr.splitTetsSet(10);//10% (DEFAULT)
-  tr.SetErrorStepSize(1000);//100 (DEFALUT)
+  tr.SetErrorStepSize(10000);//100 (DEFALUT)
 
   //VARX, MINMAX, MEDIAN, NONE(DEFAULT)
   tr.NormalizeData(NONE);
@@ -104,6 +105,7 @@ int main(int argc, char** argv)
   // FILE_PR, KMEANS_PR, RANDOM_PR (DEFAULT)
   tr.setProtoInitType(RANDOM_PR);
   
+  // Set outPut file name to store weights.
   tr.SetOutPutFile(ot);
 
   switch(algNum)
@@ -122,6 +124,7 @@ int main(int argc, char** argv)
     break;
   }
   
+  // Write out the error info.
   tr.WriteErroVect(OutErr);
   return 0;
 }

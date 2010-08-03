@@ -599,9 +599,8 @@ void PndLVQTrain::EvalClassifierError(unsigned int stp)
   // Test-set iterator.
   std::set <int>::const_iterator iter;
 
-  int TrError, TsError;// Test and trai error
-  TrError = TsError = 0;
-
+  int TrError = 0;// Train error 
+  int TsError = 0;// Test  error
 
   //========== Classify Test Set
   for(iter = m_testSet_indices.begin(); iter != m_testSet_indices.end(); ++iter)
@@ -663,9 +662,11 @@ void PndLVQTrain::EvalClassifierError(unsigned int stp)
   tsEr = (TsError * 100.00) / static_cast<float>(m_testSet_indices.size());
   trEr = (TrError * 100.00) / static_cast<float>(events.size() - m_testSet_indices.size());
 
-  // Add to container
+  // Create object and Add to the container.
   StepError StpEr (stp, trEr, tsEr);
   m_StepErro.push_back(StpEr);
+
+  // Reset counters.
   TrError = TsError = 0;
 }
 

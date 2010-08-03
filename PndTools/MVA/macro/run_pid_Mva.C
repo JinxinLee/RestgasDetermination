@@ -75,16 +75,21 @@
   // Set the path to the weightFiles; otherwise the standard
   // path is used.
   ts->SetWeightFileName("/home/babai/TrainProtoFiles/NormalizedEventsDatasetLargeFset.root");
+  
   // Set variable- and class-names.
   ts->SetVarNames(nam);
   ts->SetClassNames(clas);
+  
   //Add task
   fRun->AddTask(ts);
+ 
   //////////////
   fRun->Init();
   fRun->Run(0,nEvents);
+  
   // ------------------------------------------------------------------------
   rtdb->print();
+  
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();
