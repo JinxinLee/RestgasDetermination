@@ -65,7 +65,7 @@ class PndDpmDirect : public FairGenerator
 	double fRsigma;
   float fThtMin;
   
-  TF1*   fDensityFunction;
+  TF1*   fDensityFunction; //!
 	
   ClassDef(PndDpmDirect,1);
 

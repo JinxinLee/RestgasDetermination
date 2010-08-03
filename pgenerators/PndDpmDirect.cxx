@@ -62,6 +62,7 @@ PndDpmDirect::PndDpmDirect(Double_t Mom, Int_t Mode, Long_t Seed, Double_t ThtMi
    
    fGasmode = 0;
    fRsigma = 0.;
+   fDensityFunction = new TF1();
 
    cout << "<I> PndDpmDirect initialization" << endl;
    cout << "<I> Momentum  = " << fMom << endl;
