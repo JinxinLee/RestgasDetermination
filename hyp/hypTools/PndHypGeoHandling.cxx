@@ -22,7 +22,7 @@
 #include "TGeoBBox.h"
 #include "stdlib.h"
 
- ClassImp(PndHypGeoHandling);
+ClassImp(PndHypGeoHandling);
 
 PndHypGeoHandling::PndHypGeoHandling()
 {
@@ -36,30 +36,30 @@ PndHypGeoHandling::PndHypGeoHandling()
 PndHypGeoHandling::PndHypGeoHandling(TString fileName)
 {
 	if (gROOT->FindObjectAny("FAIRGeom") == 0){
-		 TGeoManager* fGeoMan = new TGeoManager("geoMan","geoMan");
-  		 fGeoMan->Import(fileName.Data());
+    fGeoMan = new TGeoManager("geoMan","geoMan");
+    fGeoMan->Import(fileName.Data());
 	}
 	fGeoMan = gGeoManager;fVerbose = 0;
 }
 
 TString PndHypGeoHandling::GetCurrentID()
 {
- Int_t level;
- Int_t copyNr[100];
- Int_t volNr[100];
- TString result;
- 
- level = fGeoMan->GetLevel();
- level++;
-
- fGeoMan->GetBranchNumbers(copyNr, volNr);
- for (int i=0; i<level; i++){
- 	result += volNr[i];
-	result += "_";
-	result += copyNr[i];
-	result += "/";
- }	
- return result;
+  Int_t level;
+  Int_t copyNr[100];
+  Int_t volNr[100];
+  TString result;
+  
+  level = fGeoMan->GetLevel();
+  level++;
+  
+  fGeoMan->GetBranchNumbers(copyNr, volNr);
+  for (int i=0; i<level; i++){
+    result += volNr[i];
+    result += "_";
+    result += copyNr[i];
+    result += "/";
+  }	
+  return result;
 }
 
 TString PndHypGeoHandling::GetID(TString path)
@@ -110,7 +110,7 @@ std::vector<TString> PndHypGeoHandling::GetNamesLevel(Int_t level, TString start
 {
 	TString actPath = fGeoMan->GetPath();
 	fLevelNames.clear();
-
+  
 	if (startPath == ""){
 		fGeoMan->CdTop();
 		fLevel = level;
@@ -181,13 +181,13 @@ TVector3 PndHypGeoHandling::GetSensorDimensionsPath(TString path)
   TVector3 dim;
   TString actPath = fGeoMan->GetPath();
   fGeoMan->cd(path);
-
+  
   TGeoVolume* actVolume = gGeoManager->GetCurrentVolume();
   TGeoBBox* actBox = (TGeoBBox*)(actVolume->GetShape());
   dim.SetX(actBox->GetDX());
   dim.SetY(actBox->GetDY());
   dim.SetZ(actBox->GetDZ());
-
+  
   if(actPath!="" && actPath!=" ") fGeoMan->cd(actPath);
   return dim;
 }
@@ -195,107 +195,107 @@ TVector3 PndHypGeoHandling::GetSensorDimensionsPath(TString path)
 
 TVector3 PndHypGeoHandling::GetSensorDimensionsID(TString id)
 {
-return GetSensorDimensionsPath(GetPath(id));
+  return GetSensorDimensionsPath(GetPath(id));
 }
 
-	//  ----- conversions of POINTS (not vectors) here -----
- 	TVector3 PndHypGeoHandling::MasterToLocalId(const TVector3& master, const TString& id)
- 	{ return MasterToLocalPath(master, GetPath(id) ); }
- 	
- 	TVector3 PndHypGeoHandling::MasterToLocalPath(const TVector3& master, const TString& path)
- 	{
+//  ----- conversions of POINTS (not vectors) here -----
+TVector3 PndHypGeoHandling::MasterToLocalId(const TVector3& master, const TString& id)
+{ return MasterToLocalPath(master, GetPath(id) ); }
+
+TVector3 PndHypGeoHandling::MasterToLocalPath(const TVector3& master, const TString& path)
+{
  	//   if(fVerbose>1) std::cout<<" -I- PndHypGeoHandling::MasterToLocalPath"<<std::endl;
- 	  Double_t result[3];
- 	  Double_t temp[3];
+  Double_t result[3];
+  Double_t temp[3];
  	
- 	  temp[0] = master.X();
- 	  temp[1] = master.Y();
- 	  temp[2] = master.Z();
+  temp[0] = master.X();
+  temp[1] = master.Y();
+  temp[2] = master.Z();
  	
- 	  TString actPath = fGeoMan->GetPath();
- 	  fGeoMan->cd(path);
- 	  fGeoMan->MasterToLocal(temp, result);
+  TString actPath = fGeoMan->GetPath();
+  fGeoMan->cd(path);
+  fGeoMan->MasterToLocal(temp, result);
  	//   fGeoMan->cd(actPath);
- 	 if(actPath != "" && actPath != " ") fGeoMan->cd(actPath);  
- 	  return TVector3(result[0],result[1],result[2]);
- 	}
+  if(actPath != "" && actPath != " ") fGeoMan->cd(actPath);  
+  return TVector3(result[0],result[1],result[2]);
+}
+
+
+
+TVector3 PndHypGeoHandling::LocalToMasterId(const TVector3& local, const TString& id)
+{ return LocalToMasterPath(local, GetPath(id) ); }
+
+TVector3 PndHypGeoHandling::LocalToMasterPath(const TVector3& local, const TString& path)
+{
+  Double_t result[3];
+  Double_t temp[3];
+ 	
+  temp[0] = local.X();
+  temp[1] = local.Y();
+  temp[2] = local.Z();
+ 	
+  TString actPath = fGeoMan->GetPath();
+  fGeoMan->cd(path);
+  fGeoMan->LocalToMaster(temp, result);
+  fGeoMan->cd(actPath);
+  if(actPath != "" && actPath != " ") fGeoMan->cd(actPath);
+  return TVector3(result[0],result[1],result[2]);
+}
+
+
+// ROTATION of error values, CAUTION - these are always psitive defined
+TVector3 PndHypGeoHandling::MasterToLocalErrorsId(const TVector3& master, const TString& id)
+{ return MasterToLocalErrorsPath(master, GetPath(id) ); }
+
+TVector3 PndHypGeoHandling::MasterToLocalErrorsPath(const TVector3& master, const TString& path)
+{
+  Double_t result[3];
+  Double_t temp[3];
+  TString actPath = fGeoMan->GetPath();
+  fGeoMan->cd(path);
+  
+  
+  temp[0] = master.X();
+  temp[1] = master.Y();
+  temp[2] = master.Z();
+  
+  // rotate "error vector"
+  fGeoMan->MasterToLocalVect(temp,result);
+  // positive error values
+  for(Int_t i=0;i<3;i++) result[i]=fabs(result[i]);
+  
+  
+ 	
+  if(actPath != "" && actPath != " ") fGeoMan->cd(actPath);
+  return TVector3(result[0],result[1],result[2]);
  	
  	
- 	
- 	TVector3 PndHypGeoHandling::LocalToMasterId(const TVector3& local, const TString& id)
- 	{ return LocalToMasterPath(local, GetPath(id) ); }
- 	
- 	TVector3 PndHypGeoHandling::LocalToMasterPath(const TVector3& local, const TString& path)
- 	{
- 	  Double_t result[3];
- 	  Double_t temp[3];
- 	
- 	  temp[0] = local.X();
- 	  temp[1] = local.Y();
- 	  temp[2] = local.Z();
- 	
- 	  TString actPath = fGeoMan->GetPath();
- 	  fGeoMan->cd(path);
- 	  fGeoMan->LocalToMaster(temp, result);
-	  fGeoMan->cd(actPath);
-	  if(actPath != "" && actPath != " ") fGeoMan->cd(actPath);
- 	  return TVector3(result[0],result[1],result[2]);
- 	}
+}
+
+
+
+TVector3 PndHypGeoHandling::LocalToMasterErrorsId(const TVector3& local, const TString& id)
+{ return LocalToMasterErrorsPath(local, GetPath(id) ); }
+
+TVector3 PndHypGeoHandling::LocalToMasterErrorsPath(const TVector3& local, const TString& path)
+{
+  Double_t result[3];
+  Double_t tmp[3];
+  TString actPath = fGeoMan->GetPath();
+  fGeoMan->cd(path);
  	
  	
- 	// ROTATION of error values, CAUTION - these are always psitive defined
- 	TVector3 PndHypGeoHandling::MasterToLocalErrorsId(const TVector3& master, const TString& id)
- 	{ return MasterToLocalErrorsPath(master, GetPath(id) ); }
+  tmp[0] = local.X();
+  tmp[1] = local.Y();
+  tmp[2] = local.Z();
  	
- 	TVector3 PndHypGeoHandling::MasterToLocalErrorsPath(const TVector3& master, const TString& path)
- 	{
- 	  Double_t result[3];
- 	  Double_t temp[3];
- 	  TString actPath = fGeoMan->GetPath();
- 	  fGeoMan->cd(path);
- 	 
- 	 
- 	  temp[0] = master.X();
- 	  temp[1] = master.Y();
- 	  temp[2] = master.Z();
- 
-	  // rotate "error vector"
-	  fGeoMan->MasterToLocalVect(temp,result);
-	  // positive error values
-	  for(Int_t i=0;i<3;i++) result[i]=fabs(result[i]);
- 	  
- 	 
+  // rotate "error vector"
+  fGeoMan->LocalToMasterVect(tmp,result);
+  // positive error values
+  for(Int_t i=0;i<3;i++) result[i]=fabs(result[i]);
  	
- 	  if(actPath != "" && actPath != " ") fGeoMan->cd(actPath);
- 	  return TVector3(result[0],result[1],result[2]);
+  if(actPath != "" && actPath != " ") fGeoMan->cd(actPath);
+  return TVector3(result[0],result[1],result[2]);
  	
- 	
- 	}
- 	
- 	
- 	
- 	TVector3 PndHypGeoHandling::LocalToMasterErrorsId(const TVector3& local, const TString& id)
- 	{ return LocalToMasterErrorsPath(local, GetPath(id) ); }
- 	
- 	TVector3 PndHypGeoHandling::LocalToMasterErrorsPath(const TVector3& local, const TString& path)
- 	{
- 	  Double_t result[3];
- 	  Double_t tmp[3];
- 	  TString actPath = fGeoMan->GetPath();
- 	  fGeoMan->cd(path);
- 	
- 	
- 	  tmp[0] = local.X();
- 	  tmp[1] = local.Y();
- 	  tmp[2] = local.Z();
- 	
-	  // rotate "error vector"
-	  fGeoMan->LocalToMasterVect(tmp,result);
-	  // positive error values
-	  for(Int_t i=0;i<3;i++) result[i]=fabs(result[i]);
- 	
- 	  if(actPath != "" && actPath != " ") fGeoMan->cd(actPath);
- 	  return TVector3(result[0],result[1],result[2]);
- 	
- 	}
- 	
+}
+
