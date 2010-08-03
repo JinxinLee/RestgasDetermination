@@ -29,7 +29,7 @@
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
 #include "GFDetPlane.h"
-
+#include"RKTrackRep.h"
 // Class Member definitions -----------
 
 ClassImp(PndTpcSPHit)
@@ -136,6 +136,27 @@ PndTpcSPHit::getHMatrix(const GFAbsTrackRep* stateVector)
     HMatrix[1][4] = 1.;
     return HMatrix;
   }
+  else   if (dynamic_cast<const RKTrackRep*>(stateVector) != NULL) {
+    // Uses TrackParP (q/p,v',w',v,w)
+    // coordinates are defined by detplane!
+    TMatrixT<double> HMatrix(2,5);
+
+    HMatrix[0][0] = 0.;
+    HMatrix[0][1] = 0.;
+    HMatrix[0][2] = 0.;
+    HMatrix[0][3] = 1.;
+    HMatrix[0][4] = 0.;
+
+
+    HMatrix[1][0] = 0.;
+    HMatrix[1][1] = 0.;
+    HMatrix[1][2] = 0.;
+    HMatrix[1][3] = 0.;
+    HMatrix[1][4] = 1.;
+
+    return HMatrix;
+  }
+
   else if (dynamic_cast<const LSLTrackRep*>(stateVector) != NULL) {
     // Uses TrackParP (u,v,u',v',q/p)
     // coordinates are defined by detplane!

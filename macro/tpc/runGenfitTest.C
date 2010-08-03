@@ -13,7 +13,7 @@
   Int_t iVerbose = 1;
 
 
-  //SET NUMBER OF EVENTS
+  //SET NUMBER OF EVENTS (0=all)
   // ------------------------------------------------------------------------
   Int_t nEvents=0;
 
@@ -105,11 +105,11 @@
   fRun->Run(0,nEvents); // process all events from input file
   // ------------------------------------------------------------------------
 
-  //  gftest->WriteTree();
+  gftest->WriteTree();
 
   // -----   Finish   -------------------------------------------------------
 
-  
+ 
   rtdb->saveOutput();
   rtdb->print();
 

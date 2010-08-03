@@ -221,16 +221,14 @@ PndTpcPatternRecoTask::Exec(Option_t* opt)
     // p=0.3BR/dip -- assuming 2T BField R in meters -> convert to cm!
     state[4][0]=0.006/cand->getCurv()/cand->getDip(); 
     std::cout<<"Setting initial p="<<state[4][0]<<std::endl;
-    trk->getTrackRep(0)->setState(state);
     TMatrixT<double> cov(5,5);
     cov[0][0]=100;
     cov[1][1]=100;
     cov[2][2]=16;
     cov[3][3]=16;
     cov[4][4]=5;
-    trk->getTrackRep(0)->setCov(cov);
     GFDetPlane pl(pos1+TVector3(0,0,-10E-4),TVector3(1,0,0),TVector3(0,1,0));
-    trk->getTrackRep(0)->setReferencePlane(pl);
+    trk->getTrackRep(0)->setData(state, pl, &cov);
     //    trk->getTrackRep(0)->setStartS(pos1.Z()-10E-4);
   }// end loop over tracks
   

@@ -19,7 +19,8 @@
 
   // SET NUMBER OF EVENTS
   // --------------------------------------------------
-  Int_t nEvents = 20;
+  Int_t nEvents = 1000;
+  //Int_t nEvents = 250;
 
   //Set JOBNAME + JOBDIR (will not be created!)
   // --------------------------------------------------
@@ -66,12 +67,14 @@
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
 
-  FairModule *Pipe= new PndPipe("PIPE");
+  /*FairModule *Pipe= new PndPipe("PIPE");
   Pipe->SetGeometryFileName("pipe.geo");
-  fRun->AddModule(Pipe);
-  
+  fRun->AddModule(Pipe);*/
+
+
   PndTpcDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
-  PndTpc->SetGeometryFileName("tpc.geo");
+  PndTpc->SetGeometryFileName("tpcGenfitTest3.geo"); // 8mm Si
+  //PndTpc->SetGeometryFileName("tpc.geo"); 
   //ALICE Style MC (only for G3): =========================
   if(GEANT=="TGeant3") 
     PndTpc->SetAliMC();
@@ -88,13 +91,15 @@
  
   // Box Generator
   
-  //pdgs 211=pion 13=muon 11=electron, ...
+  //pdgs 211=pion 13=muon 11=electron, 2212 proton...
   //(PDG ID, MULTIPLICITY)
-  FairBoxGenerator* boxGen = new FairBoxGenerator(211, 1); 
+  FairBoxGenerator* boxGen = new FairBoxGenerator(13, 1); 
   
-  boxGen->SetPRange(0.5,0.5); // GeV/c 
-  boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(30, 140); // Polar angle in lab system range [degree]
+  //boxGen->SetPRange(0.5,0.5); // GeV/c 
+  //boxGen->SetPRange(1.0,1.0); // GeV/c 
+  boxGen->SetPRange(1.5,1.5); // GeV/c 
+  boxGen->SetPhiRange(-40, 40); // Azimuth angle range [degree]
+  boxGen->SetThetaRange(90, 90); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
   primGen->AddGenerator(boxGen);
 

@@ -11,5 +11,6 @@
 #pragma link C++ class GeaneTrackRep2+;
 #pragma link C++ class GeaneMCApplication+;
 #pragma link C++ class LSLTrackRep+;
+#pragma link C++ class RKTrackRep+;
 
 #endif

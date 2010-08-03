@@ -113,7 +113,9 @@ DemoToolsTask::Exec(Option_t* opt)
 
     // now we extrapolate this rep to the first hit:
     rep->extrapolate(firstHit->getDetPlane(rep));
-    rep->setReferencePlane(firstHit->getDetPlane(rep));
+//    rep->setReferencePlane(firstHit->getDetPlane(rep));
+    TMatrixT<double> state = rep->getState();
+    rep->setData(state, firstHit->getDetPlane(rep));
     rep->Print();
 
     // now we do the extrapolation to the last hit

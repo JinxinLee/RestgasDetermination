@@ -59,7 +59,6 @@ public:
   // Accessors -----------------------
 
   // Modifiers
-  void setReferencePlane(const GFDetPlane& pl) {fRefPlane=pl;}
 
   // Operations ----------------------
 

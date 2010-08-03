@@ -427,9 +427,10 @@ PndTpcConfTrackFinder::addHit2Track(PndTpcConfMapRecoHit* hit,
     
     double t=chit1->getHitCoord(GFDetPlane())[0][0]-m*chit1->getXcf();
     TMatrixT<double> state=trk->getTrackRep(0)->getState();
+    GFDetPlane pl=trk->getTrackRep(0)->getReferencePlane();
     state[0][0]=m;
     state[1][0]=t;
-    trk->getTrackRep(0)->setState(state);
+    trk->getTrackRep(0)->setData(state,pl);
     myfitter.processTrack(trk);
     // now reset s for the first hits
     for(unsigned int i=0;i<_minHitsForFit;++i)

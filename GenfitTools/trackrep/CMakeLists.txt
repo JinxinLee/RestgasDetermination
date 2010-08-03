@@ -9,6 +9,7 @@ ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep2
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
+${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/RKTrackRep
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/geane
@@ -31,6 +32,7 @@ GeaneTrackRep2/GeaneMCApplication.cxx
 LSLtrackRep/LSLTrackRep.cxx
 LSLtrackRep/LSLEQM.cxx
 LSLtrackRep/Nystrom.cxx
+RKTrackRep/RKTrackRep.cxx
 )
 
 if(RULE_CHECKER_FOUND)

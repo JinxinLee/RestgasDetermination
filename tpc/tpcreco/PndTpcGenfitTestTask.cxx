@@ -42,6 +42,7 @@
 #include "PndTpcDigiPar.h"
 
 #include "GeaneTrackRep.h"
+#include "RKTrackRep.h"
 #include "GFAbsTrackRep.h"
 #include "GFRecoHitFactory.h"
 #include "GFKalman.h"
@@ -50,13 +51,20 @@
 #include "TFile.h"
 #include "GFDetPlane.h"
 #include "GFAbsRecoHit.h"
+#include "GFFieldManager.h"
+
+#include"PndFieldAdaptor.h"
 
 #include "TVector3.h"
+#include "TGeoManager.h"
 
 #include <signal.h>
 #include <stdlib.h>
 
-
+// for comparing GEANE and RK
+//#define GEANE 1
+#define PDGID   13
+#define CHARGE  -1
 
 // Class Member definitions -----------
 
@@ -92,12 +100,20 @@ PndTpcGenfitTestTask::Init()
       Error("PndTpcGenfitTestTask::Init","Point-array not found!");
       return kERROR;
     }
-
-  stMCT  = new TMatrixT<double>(5,1);
+    
+#ifndef GEANE 
+  stMCT  = new TMatrixT<double>(5,1); // RK
   covMCT = new TMatrixT<double>(5,5);
   stREC  = new TMatrixT<double>(5,1);
   covREC = new TMatrixT<double>(5,5);
-
+#endif
+#ifdef GEANE
+  stMCT  = new TMatrixT<double>(5,1); // GEANE
+  covMCT = new TMatrixT<double>(5,5);
+  stREC  = new TMatrixT<double>(5,1);
+  covREC = new TMatrixT<double>(5,5);  
+#endif
+    
   outfile = TFile::Open("out.root","RECREATE");
   outtree = new TTree("t","example output");
   
@@ -109,9 +125,12 @@ PndTpcGenfitTestTask::Init()
   outtree->Branch("ndf",&ndf,"ndf/I");
   outtree->Branch("nfail",&nfail,"nfail/I");
  
-
+  
+  //get the magnetic field for curvature seeding
+  FairField* field=FairRunAna::Instance()->GetField();
+  GFFieldManager::getInstance()->init(new PndFieldAdaptor(field));
   _geanePro=new FairGeanePro();
-
+  gGeoManager->Print();
   return kSUCCESS;
 }
 
@@ -151,7 +170,7 @@ PndTpcGenfitTestTask::Exec(Option_t* opt)
 
   TVector3 mom;
   for(unsigned int i=0;i<pointlist.size();++i){
-    //    pointlist.at(i)->Print();
+      //pointlist.at(i)->Print();
     TVector3 vec;
     pointlist.at(i)->Position(vec);
     if(i==0) pointlist.at(i)->Momentum(mom);
@@ -163,12 +182,12 @@ PndTpcGenfitTestTask::Exec(Option_t* opt)
   std::vector<TVector3> vecList2;
   TVector3 before(0.,0.,0.);
   static const double minDist(2.);
-  for(unsigned int i=0;i<vecList.size();++i){
+  for(unsigned int i=0;i<vecList.size();++i){ // use only points with minDist
     double dist = (vecList.at(i)-before).Mag();
     if(dist>minDist){
       before=vecList.at(i);
       vecList2.push_back(vecList.at(i));
-      //vecList.at(i).Print();
+        //vecList.at(i).Print();
     }
   }
 
@@ -178,34 +197,40 @@ PndTpcGenfitTestTask::Exec(Option_t* opt)
   GFDetPlane pl(vecList2.at(0)-1./mom.Mag()*mom,mom);
 
   GFDetPlane plRef(vecList2.at(0),vecList2.at(1)-vecList2.at(0));
-
+ 
+#ifndef GEANE   
+  GFAbsTrackRep *rep = new RKTrackRep(vecList2.at(0)-1./mom.Mag()*mom,
+					 mom,
+					 TVector3(1.,1.,1.),
+					 TVector3(.2,.2,.2),
+					 PDGID);
+#endif
+#ifdef GEANE 
   GFAbsTrackRep *rep = new GeaneTrackRep(_geanePro,
 					 pl,
 					 mom,
 					 TVector3(1.,1.,1.),
 					 TVector3(.2,.2,.2),
-					 -1.,
-					 211
-					 );
-
+					 CHARGE,
+					 PDGID);
+#endif
   GFAbsTrackRep *repRef = new GeaneTrackRep(_geanePro,
 					 plRef,
 					 mom,
 					 TVector3(1.,1.,1.),
 					 TVector3(.2,.2,.2),
-					 -1.,
-					 211
-					 );
+					 CHARGE,
+					 PDGID);
 
-  
+  //std::cout << rep << std::endl;
   GFTrack trk(rep);
   for(unsigned int i=0;i<vecList2.size();++i){
+    //vecList2.at(i).Print();
     if(i==0) {
       trk.addHit(new PndTpcTestPlanarHit(plRef,0.01),2,i);
     }
-    else trk.addHit(new PndTpcSPHit(vecList2.at(i),TVector3(0.1,0.1,0.2),true),3,i);
+    else trk.addHit(new PndTpcSPHit(vecList2.at(i),TVector3(0.03,0.03,0.1),true),3,i);
   }
-
   GFKalman k;
   try{
     k.processTrack(&trk);
@@ -214,15 +239,15 @@ PndTpcGenfitTestTask::Exec(Option_t* opt)
     std::cout << e.what() << std::endl;
     throw e;
   }
-  
+  //std::cout << "########### " << (rep->getCov())[0][0] << std::endl;
   *stMCT = repRef->getState();
   *covMCT = repRef->getCov();
-
+  delete repRef;
   if (rep->getReferencePlane()!=plRef) return;//abort if extrap to last failed
-  
   *stREC = rep->getState();
   *covREC = rep->getCov();
 
+  //std::cout << "reconstructed charge: " << (*stREC)[0][0]/fabs((*stREC)[0][0]) << std::endl;
 
   chi2 = rep->getChiSqu();
   ndf = rep->getNDF();
