@@ -18,7 +18,7 @@ if [ "$2" == "" ]; then
  echo " You need to specify which version of the file to fetch."
  echo " Possible options: Old: Old weight file containing emc data."
  echo "                   current: current not normalized weight file containing emc data."
- echo "                   currentNorm: current not normalized weight file containing emc data."
+ echo "                   currentNorm: current normalized weight file containing emc data."
  exit 0
 fi
 # Print directory name where the file is going to be stored.
