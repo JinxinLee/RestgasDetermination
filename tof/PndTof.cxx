@@ -196,6 +196,7 @@ Bool_t PndTof::ProcessHits(FairVolume* vol)
 	
 	  if(cp==0)fVolumeID = (cp+1) * (1 + vol->getCopyNo());
 	  else fVolumeID = (cp) * (1 + vol->getCopyNo());
+/* // Stefano: Part not used, giving memory leakages -> commented out
 	    FairGeoNode* node = vol->getGeoNode();
 	TList* nodeList = node->getTree();
 	//cout << "FullName: " << vol->getName() << "/"<<endl;
@@ -204,9 +205,8 @@ Bool_t PndTof::ProcessHits(FairVolume* vol)
 	    FairGeoNode* myNode = dynamic_cast<FairGeoNode*> ( nodeList->At(index) );
 	    //cout << myNode->getName() << "/";
 	  }
-	//**************///
 	  
-
+*/
 	
 	 
 	

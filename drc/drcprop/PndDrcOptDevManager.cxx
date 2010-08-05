@@ -86,6 +86,7 @@ PndDrcOptDevManager::PndDrcOptDevManager()
     cerr<<" There is only one PndDrcOptDevManager allowed! "<<endl;
     exit(EXIT_FAILURE);
   }
+  fgInstance = this;
   fVerbosity = 0;
 }
 //----------------------------------------------------------------------
