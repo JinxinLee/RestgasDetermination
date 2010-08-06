@@ -361,7 +361,7 @@ void PndStack::UpdateTrackIndex(TRefArray* detList) {
   }     // List of active detectors
 
   cout << "...stack and " << nColl << " collections updated." << endl;
-
+  delete detIter;
 }
 // -------------------------------------------------------------------------
 
