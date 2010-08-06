@@ -361,7 +361,7 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
       nMod=4;
       copyNo = copyNoQuar;
     }
-  }
+  } //if (nam.Contains("Vol"))
 
   // ---------------------------------------------------------------------------------
 
@@ -374,6 +374,30 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
   fTime =  gMC->TrackTime();
   gMC->TrackPosition(fPos); // cm
   gMC->TrackMomentum(fMom); // GeV
+	Int_t CrystalID;
+	if(nam.Contains("CrystalType6")){
+		nMod=7;
+		copyNo=1;
+		TString namCrystal = gMC->CurrentVolOffName(1); //Crystal name
+	//        TString namRow    = gMC->CurrentVolOffName(2); // Row name 
+	//        namRow.Remove(0,3);
+	//        if(namRow.IsDigit()){
+	//            nRow=namRow.Atoi();
+	//        } else {
+	//            nMod=-1;
+	//        }
+		CrystalID=gMC->CurrentVolOffID(1,nCrys);
+		nRow =(nCrys-1)/5+1;
+		nCrys = (nCrys-1) % 5;
+	//        printf("Crystal has name %s, ID %i, and copy number %i\n",namCrystal.Data(),CrystalID,nCrys);
+		if(namCrystal.Contains("CrystalType6a")){
+			nCrys=nCrys*2+1;
+		}else if(namCrystal.Contains("CrystalType6b")){
+			nCrys=nCrys*2+2;
+		}else{
+			nMod=-1;
+		}
+	}
   
   if (nam.BeginsWith("emc")) 
     {
@@ -614,6 +638,10 @@ void PndEmc::SetGeometryVersion(const Int_t GeoNumber) {
 	MapperVersion =9;
 	break;
 
+  case 18:
+	SetGeometryFileName("emc_proto60.root");
+	MapperVersion = 10;
+	break;
 
   default:
     SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
@@ -713,7 +741,7 @@ void PndEmc::ConstructGeometry() {
       std::cout<< " ====== EMC::  ConstructASCIIGeometry() ====== " <<std::endl;
       std::cout<< " ============================================= " <<std::endl;
       ConstructASCIIGeometry();
-    } else if(fileName.EndsWith("new.root")) {
+    } else if(fileName.EndsWith("new.root") || fileName.EndsWith("proto60.root")) {
       std::cout<< "                                              " <<std::endl;
       std::cout<< " ====== EMC::  ConstructROOTGeometry() m3 === " <<std::endl;
       std::cout<< " ============================================ " <<std::endl;
@@ -771,36 +799,51 @@ void PndEmc::ConstructGeometry() {
 }
 
 void PndEmc::ConstructRootGeometry() {
-  
-  TFile *f;
-  if (!fwendcap){
-    std::cout<< "File name = " << GetGeometryFileName().Data() << std::endl;
-    f=new TFile(GetGeometryFileName().Data());
-  }else{
-    std::cout<< "File name = " << fgeoName2 << std::endl;
-    f=new TFile(fgeoName2);
-  }
 
-  
-  TGeoVolume *FwEmc=(TGeoVolume *)f->Get("Emc3");
-  TGeoVolume *Cave = gGeoManager->GetTopVolume();
-  TGeoNode *n=FwEmc->GetNode(0); 
-  
-  gGeoManager->AddVolume(FwEmc);
-  TGeoVoxelFinder *voxels = FwEmc->GetVoxels();
-  if (voxels) voxels->SetNeedRebuild();
-  TGeoMatrix *M = n->GetMatrix();
-  M->SetDefaultName();
-  gGeoManager->GetListOfMatrices()->Remove(M);
-  TGeoHMatrix *global = gGeoManager->GetHMatrix();             
-  gGeoManager->GetListOfMatrices()->Remove(global); //Remove the Identity matrix 
-  
+	TFile *f;
+	TString filename;
+	if (!fwendcap){
+		std::cout<< "File name = " << GetGeometryFileName().Data() << std::endl;
+		filename = GetGeometryFileName();
+	}else{
+		std::cout<< "File name = " << fgeoName2 << std::endl;
+		filename = fgeoName2;
+	}
+	f = new TFile(filename);
 
-  TGeoRotation rotFwEmc;
-  rotFwEmc.RotateY(180.);
-  Cave->AddNode(FwEmc,0, new TGeoCombiTrans(0., 0., 221.,new TGeoRotation(rotFwEmc)));
+	TGeoVolume *Volume;
+	TGeoCombiTrans *TransRotMatrix;
+	if(filename.EndsWith("proto60.root")){
 
-  ExpandNode(FwEmc,Cave); 
+		f->GetObject("Proto60",Volume);
+		TransRotMatrix = new TGeoCombiTrans(0.,0.,0.,new TGeoRotation());
+	}else{
+		Volume=(TGeoVolume *)f->Get("Emc3");
+		TGeoRotation rotVolume;
+		rotVolume.RotateY(180.);
+		TransRotMatrix = new TGeoCombiTrans(0., 0., 221.,new TGeoRotation(rotVolume));
+	}
+	if(Volume == NULL){
+		printf("Could not get geometry from file %s!.\nIs this the right file?\n",filename.Data());
+		return;
+	}
+	TGeoVolume *Cave = gGeoManager->GetTopVolume();
+	TGeoNode *n=Volume->GetNode(0); 
+
+	gGeoManager->AddVolume(Volume);
+	TGeoVoxelFinder *voxels = Volume->GetVoxels();
+	if (voxels) voxels->SetNeedRebuild();
+	TGeoMatrix *M = n->GetMatrix();
+	M->SetDefaultName();
+	gGeoManager->GetListOfMatrices()->Remove(M);
+	TGeoHMatrix *global = gGeoManager->GetHMatrix();             
+	gGeoManager->GetListOfMatrices()->Remove(global); //Remove the Identity matrix 
+
+
+	Cave->AddNode(Volume,0, TransRotMatrix);
+
+	ExpandNode(Volume,Cave); 
+  
 }
 void PndEmc::ConstructRootGeomMod4() {
   
@@ -986,12 +1029,12 @@ void PndEmc::ConstructASCIIGeometry() {
 	
 	if (data.module==-1) continue; //if the pad is not present, do not create geometry
 	
-	if ((module<5) || (module==6))
+	if ((module<5) || (module==6) )
 	  {	// Construction of target spectrometer geometry
 	    TGeoTrap *trap = new TGeoTrap(data.pDz/10., data.pTheta, data.pPhi,
 					  data.pDy1/10., data.pDx1/10., data.pDx2/10., data.pAlp1,
 					  data.pDy2/10., data.pDx3/10., data.pDx4/10., data.pAlp2);
-	    TGeoVolume *volume;
+		TGeoVolume *volume;
 	    volume = new TGeoVolume(buffer, trap, gGeoManager->GetMedium("PWO"));
 	    
 	    volume->SetLineColor(5);

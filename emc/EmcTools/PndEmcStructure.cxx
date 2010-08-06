@@ -20,6 +20,7 @@
 #include "TRotation.h"
 #include "TMath.h"		
 #include "TPRegexp.h"
+#include "TRegexp.h"
 #include "TString.h"
 #include "TObjString.h"
 
@@ -545,6 +546,42 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
 
 //       cout << "QNewVol module= "<< module << " row= "<< row<< " copy= "<<copy<<" crys= "<< crystal<< endl;
    }
+	else if(node_path.Contains("EmcProto")){
+		module=7;
+		copy=1;
+		TObjArray *subStrL = TPRegexp("^cave/EmcProto_0/emc07r(\\d+)c(\\d+)_0$").MatchS(node_path);
+		if(subStrL->GetLast()<2){
+			cout<<"crystal name in  Emc Proto: "<<node_path<<" missmatch pattern"<<endl;
+			return false;
+		}
+		row = (((TObjString *)subStrL->At(1))->GetString()).Atoi();
+		crystal = (((TObjString *)subStrL->At(2))->GetString()).Atoi();
+
+	}
+	else if(node_path.Contains("Proto60")){
+		if(node_path.Contains("Passive") || node_path.Contains(TRegexp(".*PartAss_[0-9]*$"))  ){
+			return kFALSE;
+		}
+		module=7;
+		copy=1;
+		Int_t type=1;
+		TObjArray *subStrL = TPRegexp("^cave/Proto60_0/Active_1/Row(\\d+)_1/CrystalType6aoPartAss_(\\d+)/CrystalType6a_1$").MatchS(node_path);
+		if(subStrL->GetLast()<2){
+			subStrL = TPRegexp("^cave/Proto60_0/Active_1/Row(\\d+)_1/CrystalType6boPartAss_(\\d+)/CrystalType6b_1$").MatchS(node_path);
+			type=2;
+		} 
+		if(subStrL->GetLast()<2){
+			cout<<"crystal name in  Emc Proto: "<<node_path<<" missmatch pattern"<<endl;
+			return false;
+		}
+		row= (((TObjString *)subStrL->At(1))->GetString()).Atoi();
+		crystal = (((TObjString *)subStrL->At(2))->GetString()).Atoi();
+		crystal = ((crystal-1)%5)*2 +type;
+//        printf("found node: %s\n Rowstring: %s crytalstring:%s\nrow: %d crystal: %d\n",node_path.Data(),((TObjString *)subStrL->At(1))->GetName(),((TObjString *)subStrL->At(2))->GetName(),row,crystal);
+
+
+
+	}
    //case of endcups of forward calorimeter
         else {
 

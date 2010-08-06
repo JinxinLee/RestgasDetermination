@@ -97,4 +97,10 @@ class PndEmcMapperGeo1235Dat4Root: public PndEmcMapper
 		PndEmcMapperGeo1235Dat4Root();
 };
 
+class PndEmcMapperGeoProto60Root: public PndEmcMapper
+{
+	public:
+		PndEmcMapperGeoProto60Root();
+};
+
 #endif //PndEmcMapper_H

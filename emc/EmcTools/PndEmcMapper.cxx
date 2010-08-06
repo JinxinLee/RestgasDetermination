@@ -61,6 +61,9 @@ void PndEmcMapper::Init(Int_t mapVersion)
 			case 9:
 				_instance = new PndEmcMapperGeo12Dat345Root();
 			    break;
+			case 10:
+				_instance = new PndEmcMapperGeoProto60Root();
+				break;
 			default :
 				cout<<"Emc Mapper version "<<mapVersion<<" is not defined"<<endl;
 		} 
@@ -722,6 +725,22 @@ PndEmcMapperGeo1235Dat4Root::PndEmcMapperGeo1235Dat4Root()
 				}	
 		}
 	}
+}
+
+PndEmcMapperGeoProto60Root::PndEmcMapperGeoProto60Root(){
+	//Proto60
+	//18.01.10
+	PndEmcTwoCoordIndex *_tci;
+	Int_t detId = 0;
+	Int_t module = 7;
+	Int_t copy = 1;
+	for(Int_t row=1; row<=6; row ++)
+		for(Int_t crystal=1;crystal<=10;crystal++)
+		{
+			detId = module*100000000 + row*1000000 + copy*10000 + crystal;
+			_tci = new PndEmcTwoCoordIndex(row+1000,crystal+1000,detId);
+			fIntTwoCoordMap[detId]=_tci;
+		}
 }
 
 

@@ -138,14 +138,12 @@ void PndEmcMakeDigi::Exec(Option_t* opt)
 		int detId=theHit->GetDetectorID();
 		Double_t energy=theHit->GetEnergy();
 		
-		if (energy>fThreshold)
-		{
 			Int_t trackId=theHit->GetRefIndex();
 			Double_t time=theHit->GetTime();
 			
 			// Smear hit energy as sigma/E=sqrt((a/sqrt(E))^2+(E_noise/E)^2)
 			// i.e stochastic and noise term of energy resolution are taken into account
-			if (fUseDigiEffectiveSmearing){
+			if (fUseDigiEffectiveSmearing==1){
 				int module = theHit->GetModule();
 				Double_t a,sigma_E;
 				switch (module){
@@ -154,6 +152,10 @@ void PndEmcMakeDigi::Exec(Option_t* opt)
 						sigma_E=sqrt(pow(a/sqrt(energy),2)+pow(fIncoherent_elec_noise_width_GeV_APD/energy,2));
 						break;
 					case 2: // Barrel 
+						a=sqrt(fExcessNoiseFactorAPD/(fNPhotoElectronsPerMeVAPDBarrel*1e3)); // 1e3 is conversion from MeV to GeV
+						sigma_E=sqrt(pow(a/sqrt(energy),2)+pow(fIncoherent_elec_noise_width_GeV_APD/energy,2));
+						break;
+					case 7: // Proto60
 						a=sqrt(fExcessNoiseFactorAPD/(fNPhotoElectronsPerMeVAPDBarrel*1e3)); // 1e3 is conversion from MeV to GeV
 						sigma_E=sqrt(pow(a/sqrt(energy),2)+pow(fIncoherent_elec_noise_width_GeV_APD/energy,2));
 						break;
@@ -176,7 +178,13 @@ void PndEmcMakeDigi::Exec(Option_t* opt)
 				
 				energy= gRandom->Gaus(energy,sigma_E*energy);
 			}
-			
+			if(fUseDigiEffectiveSmearing ==2){
+				Double_t nPhotons=(energy*1e3*fDetectedPhotonsPerMeV);
+				energy= gRandom->Gaus(0,fIncoherent_elec_noise_width_GeV_APD)+(gRandom->PoissonD(nPhotons)/1.0e3)/fDetectedPhotonsPerMeV;
+			}
+
+		if (energy>fThreshold&& detId>0)
+		{
 			AddDigi(trackId,detId, energy, time,iHit); 
 		}
 	}
