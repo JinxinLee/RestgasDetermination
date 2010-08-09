@@ -825,7 +825,7 @@ jumpout: ;
 
 
       for(i=0; i< NSkewhits-1; i++){
-       if( ExclusionList[ infoskew[i] ] ){
+       if( ExclusionListSkew[ infoskew[i] ] ){
          for(j=i+1; j< NSkewhits; j++){
            if(
              fabs(info[ infoskew[i] ][0] - info[ infoskew[j] ][0])<1.e-20
@@ -843,9 +843,6 @@ jumpout: ;
 
 
 //-----------------------------------  end of exclusion of straws with multiple hits
-
-
-
 
 
 
@@ -1234,7 +1231,6 @@ if(iplotta && IVOLTE <= nmassimo){
 //-----  finding the skew hits intersecting this XY trajectory circle
 
 
-
   TemporarynSkewHitsinTrack = AssociateSkewHitsToXYTrack(
                    ExclusionListSkew,
                    Ox[i],   //  input : X of center of XY plane circle
@@ -1261,8 +1257,12 @@ if(iplotta && IVOLTE <= nmassimo){
 
  //    if( nSkewHitsinTrack[i] < MINIMUMHITSPERTRACK) {
      if( nSkewHitsinTrack[i] < 2) {
-        continue;
+	goto fine ;
+//        continue;
      }
+
+
+
 
 
 
@@ -1297,7 +1297,8 @@ if(iplotta && IVOLTE <= nmassimo){
 
 
       if(Status[i] < 0  ) {
-        continue;
+	goto fine ;
+//        continue;
       }
 
       FI0[i]=Fi_initial_helix_referenceframe[i];  //  therefore, FI0[i] has an extra +2*PI or -2*PI added in case of tracks
@@ -1327,7 +1328,7 @@ if(iplotta && IVOLTE <= nmassimo){
                    temporeZDrift,  //  output, associated skew hit Z drift
                    temporeZErrorafterTilt,  //  output, associated skew hits Z error after tilt
                    &STATUS   // output
-                                                     );
+					);
 //    out of this function  STATUS  is zero signals only that KAPPA  is zero.
 
 
@@ -1345,7 +1346,7 @@ if(iplotta && IVOLTE <= nmassimo){
        }
 
 //      if (NNN < MINIMUMHITSPERTRACK) {
-       if (NNN < 2) continue;
+       if (NNN < 2) goto fine ;
 
        GoodSkewFit[i]= true;
 
@@ -1370,10 +1371,12 @@ if(iplotta && IVOLTE <= nmassimo){
 //     -------------------------------------------------------------
 
 
+fine: ;
 
 //----------------------------------------------   some printouts
 if(istampa>=2 && IVOLTE<= nmassimo) {
-   cout<<"      Evento n. "<<IVOLTE<<"; elenco finale hits per traccia n. "<<i<<"  list dei "<<nHitsinTrack[i]
+   cout<<"      Evento n. "<<IVOLTE<<", GoodSkewFit = "<<GoodSkewFit[i]<<
+   "; elenco finale hits per traccia n. "<<i<<"  list dei "<<nHitsinTrack[i]
                <<" hit paralleli (original notation) :\n";
    for(int ig=0;ig<nHitsinTrack[i];ig++){
         cout<<"          hit n.  "<<infoparal[ ListHitsinTrack[i][ig] ] <<endl;
@@ -1672,7 +1675,6 @@ if(istampa>=2) {  cout<<" da TrackFinder Real :  ancora nTracksFoundSoFar "<<nTr
     for(i=0; i<nTracksFoundSoFar;i++){
      if(istampa >= 2){
        ii=daTrackFoundaTrackMC[i];
-//        if( daTrackFoundaTrackMC[i] == -1)  continue;
      }
        dista=sqrt( Ox[i]*Ox[i]+Oy[i]*Oy[i] );
        Ptras = R[i]*0.003*BFIELD;
@@ -4158,7 +4160,9 @@ void PndSttTrackFinderReal::WriteHistograms(){
 //----------start of function PndSttTrackFinderReal::WriteMacroParallelHitsGeneral
 
   void PndSttTrackFinderReal::WriteMacroParallelHitsGeneral(
-                   Int_t Nhits, Double_t info[][7], Int_t Nincl, Int_t Minclinations[], Double_t inclination[][3],
+                   Int_t Nhits, Double_t info[][7],
+		   Int_t Nincl, Int_t Minclinations[],
+		   Double_t inclination[][3],
                    UShort_t nTracksFoundSoFar,
                    bool *TypeConf,
                    Double_t *ALFA, Double_t *BETA, Double_t *GAMMA
@@ -4300,12 +4304,6 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
     }
 
 // -----------
-
-
-
-
-
-
 
 
 
