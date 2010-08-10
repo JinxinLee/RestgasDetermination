@@ -35,8 +35,8 @@ struct PndMvaVariable
    * Normalization factor of the variable.
    * Sample Variance IQR.
   */
-  float   NormFactor; 
-  float   Mean;
+  float   NormFactor;// Sigma 
+  float   Mean;// Mean value
 };
 
 //! Constructor implementation.
@@ -46,13 +46,16 @@ inline PndMvaVariable::PndMvaVariable(const std::string& name,
 		      : Name(name), NormFactor(normFactor), Mean(mean)
 {};
 
+//! Destructor
 inline PndMvaVariable::~PndMvaVariable()
 {};
 
+//! Copy constructor
 inline PndMvaVariable::PndMvaVariable(const PndMvaVariable& oth)
 		      : Name(oth.Name), NormFactor(oth.NormFactor), Mean(oth.Mean)
 {};
 
+//! Assignment operator
 inline PndMvaVariable& PndMvaVariable::operator=(const PndMvaVariable& oth)
 {
   Name = oth.Name;

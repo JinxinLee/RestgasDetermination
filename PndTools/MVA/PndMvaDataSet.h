@@ -24,7 +24,10 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TRandom3.h"
-#include "TMVA/PDEFoam.h"
+#include "TPrincipal.h"
+
+// TMVA
+//#include "TMVA/PDEFoam.h"
 
 // Local includes
 #include "PndMvaClass.h"
@@ -72,6 +75,7 @@ class PndMvaDataSet
    */
   void Trim();
 
+  
   //! Get available data.
   inline const std::vector< std::pair<std::string, std::vector<float>*> >& GetData() const;
 
@@ -94,7 +98,10 @@ class PndMvaDataSet
   void ReadInput();
   
  private:
+  // Private to avoid mistakes.
+  // Copy constructor.
   PndMvaDataSet(const PndMvaDataSet& other);
+  // Assignment operator.
   PndMvaDataSet& operator=(const PndMvaDataSet& other);
 
   /**

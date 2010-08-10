@@ -27,7 +27,8 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(MVA_SRCS
 Clusters/PndMvaCluster.cpp
-# KNN/PndStdKnnClassify.cpp
+KNN/PndStdKnnClassify.cpp
+KNN/PndPrzWindowClassify.cpp
 LVQ1/PndLVQClassify.cpp
 LVQ1/PndLVQTrain.cpp
 TMVAkd_KNN/PndKnnClassify.cpp
@@ -45,7 +46,8 @@ endif(RULE_CHECKER_FOUND)
 
 set(Pid_HEADERS
 Clusters/PndMvaCluster.h
-# KNN/PndStdKnnClassify.h
+KNN/PndStdKnnClassify.h
+KNN/PndPrzWindowClassify.h
 LVQ1/PndLVQClassify.h
 LVQ1/PndLVQTrain.h
 TMVAkd_KNN/PndKnnClassify.h

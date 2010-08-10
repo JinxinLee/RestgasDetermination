@@ -17,7 +17,7 @@
 /*
  * KNN based classification alg. implementation.
  */
-class PndStdKnnClassify : public PndGpidClassifier 
+class PndPrzWindowClassify : public PndGpidClassifier 
 {
  public:
   /*
@@ -27,19 +27,20 @@ class PndStdKnnClassify : public PndGpidClassifier
    * @param varNames: Variable names from which the feature vector is
    * built.
    */
-  PndStdKnnClassify(const std::string& inputFile,
-		    const std::vector<std::string>& classNames, 
-		    const std::vector<std::string>& varNames);
+  PndPrzWindowClassify(const std::string& inputFile,
+		       const std::vector<std::string>& classNames, 
+		       const std::vector<std::string>& varNames);
 
   //! Destructor  
-  virtual ~PndStdKnnClassify();
+  virtual ~PndPrzWindowClassify();
 
   /**
    * Classification function.
    * @param EvtData: Feature vector of the current event which we want
    * to classify.
    * @param result: Holds the normalized results of classification
-   * for every class of events.
+   * for every class of events. Note: this parameter will be
+   * cleaned and modified.
    */
   void GetMvaValues(std::vector<float> eventData,
 		    std::map<std::string,float>& result);
@@ -51,19 +52,30 @@ class PndStdKnnClassify : public PndGpidClassifier
   const std::string& Classify(std::vector<float> EvtData);
 
   /**
-   * @param Neighbours: Number of Neighbours.
+   * Set the window size. Equal size in every dimension.
+   *@param wsize Bin size for all dimensions.
    */
-  inline  void SetKNN(const unsigned int nNeighbours)
-  { m_Knn = nNeighbours; };
+  void setWindowSize(float wsize);
+
+  /**
+   * Set the window size. Specify the size for every dimension.
+   *@param wsize Bin size for each dimensions.<dim name, size>
+   */
+  void setWindowSize(const std::map<std::string, float>& wsize);
+
+ protected:
+  /**
+   * A very simple implementation of a kernel function. It can be
+   * considerd as a multi-dimensional histogram with constant binsize
+   * in each dimension.
+   *@param evtDat Vector containing event data.
+   *@return 1 if the current test sample inside the window, else 0;
+   */
+  int histKernel(const std::vector<float>& evtDat);
 
  private:
-  PndStdKnnClassify(const PndStdKnnClassify& other);
-  PndStdKnnClassify& operator=(const PndStdKnnClassify& other);
-
-  //! Number of Neighbours.
-  unsigned int m_Knn;
-  
-  //! Container to hold the distances to current pattern.
-  std::vector<PndMvaDistObj> m_distances;
+  // To avoid mistakes.
+  PndPrzWindowClassify(const PndPrzWindowClassify& other);
+  PndPrzWindowClassify& operator=(const PndPrzWindowClassify& other);
 };
-#endif //End of PndStdKnnClassify definitions.
+#endif //End of PndPrzWindowClassify interface.

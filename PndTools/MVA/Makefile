@@ -99,6 +99,10 @@ examples: PndMvaUtil PndMvaDataSet PndGpidClassifier Classifiers
 	$(CXX) $(LIBS) build/PndMvaCluster.o build/exampleCluster.o build/PndMvaDataSet.o \
 	build/PndMvaUtil.o -o build/exampleCluster
 
+# Build an example app using parzenWindow classifier.
+	$(CXX) $(LIBS) build/classifyPrzWin.o  build/PndPrzWindowClassify.o build/PndGpidClassifier.o \
+	build/PndMvaUtil.o build/PndMvaDataSet.o -o build/przWinClassify
+
 # Build PDE-Foam trainer and classifier.
 #	$(CXX) $(LIBS) build/FoamTrainTest.o build/PndMvaTrainer.o build/PndMvaUtil.o \
 #	build/PndPDEFoamTrain.o build/PndMvaDataSet.o -o build/FoamTrainTest

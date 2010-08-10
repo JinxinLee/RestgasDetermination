@@ -14,7 +14,7 @@
 using namespace std;
 
 /*
- * @param inputFile: The name of the file that holds the weits
+ * @param inputFile: The name of the file that holds the weights
  * @param classNames: The names of classes to which an event might be
  * assigned to.
  * @param varNames: Variable names from which the feature vector is
