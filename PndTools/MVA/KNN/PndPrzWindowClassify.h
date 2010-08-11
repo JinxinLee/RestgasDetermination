@@ -53,29 +53,35 @@ class PndPrzWindowClassify : public PndGpidClassifier
 
   /**
    * Set the window size. Equal size in every dimension.
-   *@param wsize Bin size for all dimensions.
+   *@param wsize Window (Bin) size for all dimensions.
    */
   void setWindowSize(float wsize);
 
   /**
    * Set the window size. Specify the size for every dimension.
-   *@param wsize Bin size for each dimensions.<dim name, size>
+   *@param wsize Window (Bin) size for each dimensions.<dim name, size>
    */
-  void setWindowSize(const std::map<std::string, float>& wsize);
+  inline void setWindowSize(const std::map<std::string, float>& wsize)
+  {
+    m_Wsize = std::map<std::string, float>(wsize);
+  }
 
  protected:
   /**
    * A very simple implementation of a kernel function. It can be
-   * considerd as a multi-dimensional histogram with constant binsize
+   * considerd as a multi-dimensional histogram with constant bin size
    * in each dimension.
    *@param evtDat Vector containing event data.
    *@return 1 if the current test sample inside the window, else 0;
    */
-  int histKernel(const std::vector<float>& evtDat);
+  int histKernel(const std::vector<float>& evtDat, const std::vector<float>& trSample);
 
  private:
   // To avoid mistakes.
   PndPrzWindowClassify(const PndPrzWindowClassify& other);
   PndPrzWindowClassify& operator=(const PndPrzWindowClassify& other);
+
+  //! Window size in each dimension
+  std::map<std::string, float> m_Wsize;
 };
 #endif //End of PndPrzWindowClassify interface.

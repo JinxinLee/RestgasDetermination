@@ -13,7 +13,6 @@
 #include "PndPrzWindowClassify.h"
 
 using namespace std;
-
 /*
  * @param inputFile: The name of the file that holds the weights
  * @param classNames: The names of classes to which an event might be
@@ -64,17 +63,42 @@ void PndPrzWindowClassify::GetMvaValues(vector<float> eventData,
  *@param evtDat Vector containing event data.
  *@return 1 if the current test sample inside the window, else 0;
  */
-int PndPrzWindowClassify::histKernel(const std::vector<float>& evtDat)
+int PndPrzWindowClassify::histKernel( const std::vector<float>& evtDat,
+				      const std::vector<float>& trSample)
 {
-  evtDat.size();
-  return 0;
+  // Fetch the variables.
+  const std::vector<PndMvaVariable>& variables = m_dataSets.GetVars();
+  
+  // Temporary Container
+  std::vector <float> tmpPar (variables.size());
+  
+  for(size_t i = 0; i < variables.size(); i++){
+    tmpPar[i] = abs(evtDat[i] - trSample[i])/(m_Wsize[variables[i].Name]);
+  }
+  
+  //sort container
+  std::sort(tmpPar.begin(), tmpPar.end());
+  
+  //last element is the largest
+  if(tmpPar[tmpPar.size() - 1] <= 0.5){
+    return 1;// inside
+  }
+  else{
+    return 0;// outside
+  }
 }
 
-void setWindowSize(float wsize)
+/**
+ * Set the window size. Equal size in every dimension.
+ *@param wsize Window (Bin) size for all dimensions.
+ */
+void PndPrzWindowClassify::setWindowSize(float wsize)
 {
-  std::cout << wsize;
-}
-void setWindowSize(const std::map<std::string, float>& wsize)
-{
-  std::cout << wsize.size();
+  // Fetch the variables.
+  const std::vector<PndMvaVariable>& variables = m_dataSets.GetVars();
+
+  // init window sizes.
+  for(size_t i = 0; i < variables.size(); i++){
+    m_Wsize[variables[i].Name] = wsize;
+  }
 }
