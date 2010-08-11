@@ -5,6 +5,8 @@
  * Version: 0.1 beta1                    *
  * license:                              *
  * ***************************************
+ */
+/*
  * Based on the straight KNN algorithm
  * Using a linear search data structure.
  */
