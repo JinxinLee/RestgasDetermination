@@ -68,12 +68,17 @@ class PndPrzWindowClassify : public PndGpidClassifier
    * Get hypercube volume
    */
   inline float GetHyperCubeVolume() const;
+
   /**
    * Get window sizes for all dimensions.
    */
   inline const std::map<std::string, float>& GetWindowSize() const;
 
- protected:
+ private:
+  // To avoid mistakes.
+  PndPrzWindowClassify(const PndPrzWindowClassify& other);
+  PndPrzWindowClassify& operator=(const PndPrzWindowClassify& other);
+
   /**
    * A very simple implementation of a kernel function. It can be
    * considerd as a multi-dimensional histogram with constant bin size
@@ -82,11 +87,6 @@ class PndPrzWindowClassify : public PndGpidClassifier
    *@return 1 if the current test sample inside the window, else 0;
    */
   float histKernel(const std::vector<float>& evtDat, const std::vector<float>& trSample);
-
- private:
-  // To avoid mistakes.
-  PndPrzWindowClassify(const PndPrzWindowClassify& other);
-  PndPrzWindowClassify& operator=(const PndPrzWindowClassify& other);
 
   //! Compute the hypercube volume
   float CompHyperCubeVolume();

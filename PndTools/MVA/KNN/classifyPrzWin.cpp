@@ -6,19 +6,23 @@
 
 /*
  * Example program. This code shows how to use the classify
- * procedure. This classifier is implemented based on the standard KNN
- * algorithm.
+ * procedure. This classifier is implemented based on the Parzen
+ * Window algorithm.
  */
 
-#include <sstream>
+// C++
+#include <fstream>
 
+// LOcal
 #include "PndPrzWindowClassify.h"
 
-#include "TRandom3.h"
+// ROOT & PandaRoot
+#include "TFile.h"
+#include "TNtuple.h"
 #include "TStopwatch.h"
 
 
-void printResult(std::map<std::string,float>& res){
+void printResultMap(std::map<std::string,float>& res){
   std::cout << "\n\t================================== \n";
   for( std::map<std::string,float>::iterator ii=res.begin(); 
        ii != res.end(); ++ii){
@@ -35,69 +39,145 @@ void printResult(std::map<std::string,float>& res){
 
 int main(int argc, char** argv)
 {
-  std::cout << " argc = " << argc << std::endl 
-	    << " argv[0] = "<< argv[0] << std::endl;
-  /*
-  if(argc < 3){
-    std::cerr <<"\t<ERROR>" 
-	      <<"./classify <inputFile> <numOfneigh>"
-	      <<std::endl;
-      return 1;
+  if(argc < 5){
+    std::cerr << "\t<ERROR>" 
+	      << "./classifyPrzWin <inputWeightFile> <InputEventsFile>"
+	      << " <TreeName> <OutPutLogFile>"
+	      << std::endl;
+    return 1;
   }
   
-  std::string InPutFileName = argv[1];
-  std::string NumNeistr = argv[2];
-  std::istringstream buff(NumNeistr);
-  int NumNei = 0;
-  buff >> NumNei;
+  // Weights.
+  std::string InPutFile   = argv[1];
+  
+  // Events to classify.
+  std::string InputEvents = argv[2];
+  
+  // Events tree name.
+  std::string EvtTreeName = argv[3];
 
-  TRandom3 myran(4125373);
-  std::vector<std::string> clas;
-  std::vector<std::string> nam;
+  // File to write output.
+  std::string OutPutFile  = argv[4];
+
+  // Containers to hold labels and variable names.
+  std::vector<std::string> clasNames;
+  std::vector<std::string> vars;
   
   // Classes (container to hold the class names)
-  clas.push_back("electron"); clas.push_back("pion"); 
-  clas.push_back("kaon"); //clas.push_back("gamma"); 
-  clas.push_back("muon"); clas.push_back("proton");
-
+  clasNames.push_back("electron");
+  clasNames.push_back("pion");
+  //clasNames.push_back("kaon");
+  //clasNames.push_back("muon");
+  //clasNames.push_back("proton");
+  //clasNames.push_back("gamma");
+  
   // Variables (names)
-  nam.push_back("p"); nam.push_back("emc");
-  //nam.push_back("mvd");  nam.push_back("stt");
-  //nam.push_back("tof"); nam.push_back("tpc");
+  vars.push_back("p");
+  vars.push_back("emc");
+  vars.push_back("lat");
+  vars.push_back("z20");
+  vars.push_back("z53");
+  //vars.push_back("thetaC");
+  //vars.push_back("mvd");
+  //vars.push_back("tof");
+  //vars.push_back("stt"); 
+  
+  TStopwatch timer;
+  timer.Start();
   
   //Create the classifier object and specify the weight file
-  PndStdKnnClassify cls (InPutFileName, clas, nam);
-  cls.SetKNN(NumNei);
-    
-  std::vector<float> evt,evt1,evt2;
+  PndPrzWindowClassify cls (InPutFile, clasNames, vars);
+
+  // Set classifier parameters and init.
+  std::map<std::string, float> wsize;
+  wsize["p"]   = 0.5;
+  wsize["emc"] = 0.5;
+  wsize["lat"] = 0.5;
+  wsize["z20"] = 0.5;
+  wsize["z53"] = 0.5;
   
-  evt.clear();
-  for(unsigned int j = 0; j < nam.size(); j++){
-    evt.push_back(myran.Gaus(1,1));
-    evt1.push_back(myran.Uniform(-1,1));
-    evt2.push_back(myran.Uniform(30,50));
+  cls.setWindowSize(wsize);
+
+  timer.Stop();
+  double rtime = timer.RealTime();
+  double ctime = timer.CpuTime();
+  std::cout << "<INFO> Initialization time:" << std::endl;
+  std::cout<< "RealTime = " << rtime << " seconds, CpuTime = " 
+           << ctime <<" Seconds" << std::endl;
+
+  // Open input events file.
+  TFile inFile(InputEvents.c_str(), "READ");
+
+  // Prepare events to be classified.
+  TNtuple* events = (TNtuple*) inFile.Get(EvtTreeName.c_str());
+  
+  std::vector<float> curEvt(vars.size(), 0.0);
+  
+  // Bind tree branches to the container.
+  for(size_t i = 0; i < vars.size(); i++){
+    events->SetBranchAddress( (vars[i]).c_str(), &(curEvt[i]));
   }
   
   // Map to store the results
-  std::map<std::string,float> res;
+  std::map<std::string, float> res;
   
-  TStopwatch ti;
-  ti.Start();
+  // Reste and start the timer.
+  timer.Reset();
+  timer.Start();
   
-  for(int i = 0; i < 3; i++)
-  {
-    cls.GetMvaValues(evt, res);
-    //cls.Classify(evt1, res);
-    //cls.Classify(evt2, res);
-    printResult(res);
+  // Open OutputFile.
+  std::ofstream Outfile;
+  Outfile.open(OutPutFile.c_str(), std::ios::out| std::ios::trunc);
+  
+  Outfile << "# ========================================================="
+	  << std::endl
+	  << "# Classification output of a parzenwindow based classifier."
+          << std::endl
+	  << "# Total number of test events = " << events->GetEntriesFast()
+	  << std::endl
+	  << "# treename = " << EvtTreeName << std::endl
+	  << "# Window edges" << std::endl;
+  
+  for(size_t i = 0; i < vars.size(); i++){
+    Outfile << "# " << vars[i] << " = " << wsize[vars[i]] << std::endl;
   }
-  ti.Stop();
-  double rtime = ti.RealTime();
-  double ctime = ti.CpuTime();
+  Outfile << "# =========================================================" 
+	  << std::endl;
+  
+  std::cout << "<INFO> Classification." << std::endl;
 
-  std::cout << "timer 1: Classifier timing results:"<< std::endl;
-  std::cout<< "RealTime = " << rtime << " seconds, CpuTime = " 
-           << ctime <<" Seconds\n" << std::endl;
-  */
+  // Classify input events.
+  unsigned int misCnt = 0;
+  
+  // for(int ev = 0; ev < 100; ev++){
+  for(int ev = 0; ev < events->GetEntriesFast(); ev++){
+    events->GetEntry(ev);
+    
+    //cls.GetMvaValues(curEvt, res);
+    if(cls.Classify(curEvt) != EvtTreeName){
+      misCnt++;
+    }
+    //printResultMap(res);
+  }
+  
+  Outfile << " number of misclassified = " << misCnt
+	  << " = " 
+	  << ( static_cast<float>(misCnt * 100)/static_cast<float>(events->GetEntriesFast()) )
+	  << " %"<< std::endl;
+  
+  // Close open file
+  inFile.Close();
+  Outfile.close();
+  
+  timer.Stop();
+  rtime = timer.RealTime();
+  ctime = timer.CpuTime();
+  std::cout << "=============================================="
+	    << std::endl
+	    << "<INFO> Classifier timing results:"
+	    << std::endl
+	    << "RealTime = " << rtime << " seconds, CpuTime = " 
+	    << ctime <<" Seconds.\n" << std::endl;
+  
   return 0;
 }

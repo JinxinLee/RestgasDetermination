@@ -76,44 +76,44 @@ examples: PndMvaUtil PndMvaDataSet PndGpidClassifier Classifiers
 	@echo ""
 
 # Build stdKnn Cassifier.
-	$(CXX) $(LIBS) build/classifyStdKnn.o  build/PndStdKnnClassify.o build/PndGpidClassifier.o \
+	$(CXX) $(CCFLAGS) $(LIBS) build/classifyStdKnn.o  build/PndStdKnnClassify.o build/PndGpidClassifier.o \
 	build/PndMvaUtil.o build/PndMvaDataSet.o -o build/classifyStdKnn
 # Build LVQ Cassifier.
-	$(CXX) $(LIBS) build/LVQclassify.o build/PndLVQClassify.o build/PndGpidClassifier.o \
+	$(CXX) $(CCFLAGS) $(LIBS) build/LVQclassify.o build/PndLVQClassify.o build/PndGpidClassifier.o \
 	build/PndMvaUtil.o build/PndMvaDataSet.o -o build/LVQclassify
 # Build kd-tree KNN Cassifier.
-	$(CXX) $(LIBS) build/KnnClassify.o build/PndKnnClassify.o build/PndGpidClassifier.o \
+	$(CXX) $(CCFLAGS) $(LIBS) build/KnnClassify.o build/PndKnnClassify.o build/PndGpidClassifier.o \
 	build/PndMvaUtil.o build/PndMvaDataSet.o -o build/KNNclassify
 # Build Projected KNN Cassifier.
-	$(CXX) $(LIBS) build/Prclassify.o build/PndProjectedKNN.o build/PndKnnClassify.o \
+	$(CXX) $(CCFLAGS) $(LIBS) build/Prclassify.o build/PndProjectedKNN.o build/PndKnnClassify.o \
 	build/PndGpidClassifier.o build/PndMvaUtil.o build/PndMvaDataSet.o -o build/PrKNNclassify
 # Build LVQ Trainer.
-	$(CXX) $(LIBS) build/LVQtrain.o build/PndMvaTrainer.o build/PndMvaUtil.o build/PndLVQTrain.o \
+	$(CXX) $(CCFLAGS) $(LIBS) build/LVQtrain.o build/PndMvaTrainer.o build/PndMvaUtil.o build/PndLVQTrain.o \
 	build/PndMvaDataSet.o build/PndMvaCluster.o -o build/LVQtrain
 # Build KNN Trainer.
-	$(CXX) $(LIBS) build/KnnTrain.o build/PndMvaTrainer.o build/PndMvaUtil.o build/PndKnnTrain.o \
+	$(CXX) $(CCFLAGS) $(LIBS) build/KnnTrain.o build/PndMvaTrainer.o build/PndMvaUtil.o build/PndKnnTrain.o \
 	build/PndMvaDataSet.o -o build/KNNTrain
 # Build a random dataset creator.
-	$(CXX) $(LIBS) build/CreateRandomDataSet.o -o build/CreateRandomDataSet
+	$(CXX) $(CCFLAGS) $(LIBS) build/CreateRandomDataSet.o -o build/CreateRandomDataSet
 # Build an example to use clustering module.
-	$(CXX) $(LIBS) build/PndMvaCluster.o build/exampleCluster.o build/PndMvaDataSet.o \
+	$(CXX) $(CCFLAGS) $(LIBS) build/PndMvaCluster.o build/exampleCluster.o build/PndMvaDataSet.o \
 	build/PndMvaUtil.o -o build/exampleCluster
 
 # Build an example app using parzenWindow classifier.
-	$(CXX) $(LIBS) build/classifyPrzWin.o  build/PndPrzWindowClassify.o build/PndGpidClassifier.o \
-	build/PndMvaUtil.o build/PndMvaDataSet.o -o build/przWinClassify
+	$(CXX) $(CCFLAGS) $(LIBS) build/classifyPrzWin.o  build/PndPrzWindowClassify.o \
+	build/PndGpidClassifier.o build/PndMvaUtil.o build/PndMvaDataSet.o -o build/przWinClassify
 
 # Build PDE-Foam trainer and classifier.
-#	$(CXX) $(LIBS) build/FoamTrainTest.o build/PndMvaTrainer.o build/PndMvaUtil.o \
+#	$(CXX) $(CCFLAGS) $(LIBS) build/FoamTrainTest.o build/PndMvaTrainer.o build/PndMvaUtil.o \
 #	build/PndPDEFoamTrain.o build/PndMvaDataSet.o -o build/FoamTrainTest
 
-#	$(CXX) $(LIBS) build/FoamClassifyTest.o build/PndPDEFoamClassify.o build/PndGpidClassifier.o \
+#	$(CXX) $(CCFLAGS) $(LIBS) build/FoamClassifyTest.o build/PndPDEFoamClassify.o build/PndGpidClassifier.o \
 #	build/PndMvaDataSet.o build/PndMvaUtil.o -o build/FoamClassifyTest
 
 clean:
 	rm -f *~ *.o *.root build/*
+	cd Clusters; $(MAKE) clean
 	cd KNN ; $(MAKE) clean
 	cd LVQ1; $(MAKE) clean
 	cd TMVAkd_KNN; $(MAKE) clean
 	cd TMVA_PDE_FOAM; $(MAKE) clean
-	cd Clusters; $(MAKE) clean

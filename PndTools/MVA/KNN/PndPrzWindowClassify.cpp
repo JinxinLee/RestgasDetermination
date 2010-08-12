@@ -46,7 +46,7 @@ const std::string& PndPrzWindowClassify::Classify(std::vector<float> EvtData)
   const vector<PndMvaClass>& classes = m_dataSets.GetClasses();
 
   // Temporary variables for the winning class name and density.
-  std::string CurWin;
+  std::string CurWin = "PRZ";
   float Curprob = std::numeric_limits <float>::min();
   
   // Find the maximum Mva Val.
