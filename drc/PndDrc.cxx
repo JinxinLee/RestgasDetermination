@@ -668,6 +668,10 @@ void PndDrc::ConstructGeometry()
 
 
 
+
+  // some notes to lens operations (revision 9649) is in
+  // ~carsten/work/documents/software/PandaRoot/lens_definitions_2.pdf
+
   //Double_t r = 12.23; // first lens radius (cm)
   Double_t r = 3.0836; // first lens radius (cm)
   Double_t alpha = TMath::ASin(hthick/r); 
