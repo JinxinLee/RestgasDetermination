@@ -37,7 +37,10 @@ PndMcListConverter::PndMcListConverter() :
 // -------------------------------------------------------------------------
 
 // -----   Destructor   ----------------------------------------------------
-PndMcListConverter::~PndMcListConverter() { }
+PndMcListConverter::~PndMcListConverter() 
+{
+  if(fMcCandidates) delete fMcCandidates;
+}
 // -------------------------------------------------------------------------
 
 
@@ -97,11 +100,8 @@ void PndMcListConverter::SetParContainers() {
 
 // -----   Public method Exec   --------------------------------------------
 void PndMcListConverter::Exec(Option_t* opt) {
-
-  if (fMcCandidates->GetEntriesFast() != 0)  fMcCandidates->Clear("C");
   
   if(fVerbose) cout << "-I- Start PndMcListConverter. "<<endl;
-  
   if(fVerbose) cout <<"-I- PndMcListConverter: nMcTracks="<<fMcTracks->GetEntriesFast()<<endl;
 
   // Get the Candidates
@@ -136,9 +136,9 @@ void PndMcListConverter::Exec(Option_t* opt) {
 }
 // -------------------------------------------------------------------------
 
-void PndMcListConverter::Finish()
+void PndMcListConverter::FinishEvent()
 {
-  delete fMcCandidates;
+  fMcCandidates->Delete();
 }
 
 ClassImp(PndMcListConverter)

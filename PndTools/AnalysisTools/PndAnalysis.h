@@ -13,54 +13,59 @@ class TChain;
 class TClonesArray;
 class TBranch;
 
+class TDatabasePDG;
+
 class PndPidListMaker;
 class PndEventInfo;
 
-
-class PndAnalysis
-{
+class PndAnalysis {
 public:
-	PndAnalysis();
-	~PndAnalysis();
-
-	void Rewind();
-	void Reset() { Rewind(); }
-	int  GetEvent(int n=-1);
-	int  GetEntries(); 
-	bool FillList(TCandList &l, std::string listkey="All");
-  //	const PndEventInfo* GetEventInfo();
-//	Float_t GetTag(const char* bname);
-//	Int_t   GetTagI(const char* bname);
+  PndAnalysis();
+  ~PndAnalysis();
+  
+  void Rewind();
+  void Reset() { Rewind(); }
+  Int_t  GetEvent(Int_t n=-1);
+  Int_t  GetEntries(); 
+  Bool_t FillList(TCandList &l, std::string listkey="All");
+  void SetVerbose(Int_t level){fVerbose = level;}
+  void SetPidChargedName(TString s) {fChargedPidName = s;}
+  void SetPidNeutralName(TString s) {fNeutralPidName = s;}  
   
 private:
   
-	void Init();
-	//void SetupBranchNames();
-	
-	// Private Member Variables
-	
+  void Init();
+  void BuildMcCands();
+  TClonesArray* ReadTCA(TString tcaname);
+  
+  // Private Member Variables
+  
   FairRootManager *fRootManager;
-	PndPidListMaker	*fPidListMaker;
-	int             fEvtCount;
-	int             fChainEntries;
-	bool            fEventRead;
-	
-	TClonesArray *fChargedCands;
-	TClonesArray *fNeutralCands;
+  PndPidListMaker	*fPidListMaker;
+  Int_t             fEvtCount;
+  Int_t             fChainEntries;
+  Bool_t            fEventRead;
+  Bool_t            fBuildMcCands;
+  Int_t             fVerbose;
+  
+  TDatabasePDG *fPdg;
+  
+  TClonesArray *fChargedCands;
+  TClonesArray *fNeutralCands;
   TClonesArray *fChargedProbability;
   TClonesArray *fNeutralProbability;
-	TClonesArray *fMcCands;
-//	TClonesArray *fMicroCands;
-	
-	//TClonesArray *fEventInfo;
-	//PndEventInfo *fCurrentEventInfo;
-	
-	TCandList allCands;
-	TCandList chargedCands;
-	TCandList neutralCands;  
-	TCandList mcCands;
-	
-  	ClassDef(PndAnalysis,0);
+  TClonesArray *fMcCands;
+  TClonesArray *fMcTracks;
+  
+  TCandList allCands;
+  TCandList chargedCands;
+  TCandList neutralCands;  
+  TCandList mcCands;
+  
+  TString fChargedPidName;
+  TString fNeutralPidName;
+  
+  ClassDef(PndAnalysis,0);
 };
 
 

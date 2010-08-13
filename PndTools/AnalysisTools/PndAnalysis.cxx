@@ -1,3 +1,6 @@
+// PndAnalysis
+// Needs a FairRunAna set up in the macro for file & parameter I/O
+
 #include "PndAnalysis.h"
 
 #include <string>
@@ -6,37 +9,40 @@
 using std::cout;
 using std::endl;
 
+//Root stuff
 #include "TTree.h"
 #include "TChain.h"
 #include "TClonesArray.h"
-//#include "TFile.h"
-//#include "TBranch.h"
+#include "TParticle.h"
+#include "TDatabasePDG.h"
+#include "TParticlePDG.h"
 
+#include "VAbsPidSelector.h"
+#include "VAbsMicroCandidate.h"
+
+//RHO stuff
+#include "TRho.h"
 #include "TCandidate.h"
 #include "TCandList.h"
-//#include "PndPidCandidate.h"
-#include "PndPidProbability.h"
-#include "VAbsPidSelector.h"
-//#include "PndMicroCandidate.h"
-//#include "TFactory.h"
-#include "VAbsMicroCandidate.h"
 #include "TPidSelector.h"
-//#include "TEventShape.h"
+
+#include "PndPidProbability.h"
 #include "PndPidListMaker.h"
-//#include "PndEventInfo.h"
+#include "PndMCTrack.h"
 
 ClassImp(PndAnalysis);
- 
+
 PndAnalysis::PndAnalysis() :
 fRootManager(FairRootManager::Instance()),
 fPidListMaker(0),
 fEvtCount(0),
 fChainEntries(0),
-fEventRead(false)
-//fCurrentEventInfo(0)
+fEventRead(false),
+fBuildMcCands(false),
+fVerbose(0),
+fChargedPidName("PidAlgoIdealCharged"),
+fNeutralPidName("PidAlgoIdealNeutral")
 {
-//  fgRinstance=this;
- // fRootManager = FairRootManager::Instance();
   if ( 0 == fRootManager )
   {
     std::cout << "-E- PndAnalysis: RootManager not instantiated!" << std::endl;
@@ -50,44 +56,54 @@ PndAnalysis::~PndAnalysis()
 	if(0!=fPidListMaker) delete fPidListMaker;
 }
 
+TClonesArray* PndAnalysis::ReadTCA(TString tcaname)
+{
+  TClonesArray* tca = (TClonesArray*) fRootManager->GetObject(tcaname.Data());
+  if (! tca) std::cout << "-W- PndAnalysis::Init(): No "<<tcaname.Data()<<" array found." << std::endl;
+  return tca;
+}
+
 void PndAnalysis::Init()
 {
 	Reset();
-    
-  //read
-  fChargedCands = (TClonesArray*) fRootManager->GetObject("PidChargedCand");
-  fNeutralCands = (TClonesArray*) fRootManager->GetObject("PidNeutralCand");
-  fChargedProbability = (TClonesArray*) fRootManager->GetObject("PidChargedProbability");
-  fNeutralProbability = (TClonesArray*) fRootManager->GetObject("PidNeutralProbability");
-  fMcCands = (TClonesArray*) fRootManager->GetObject("PndMcTracks");
-  //fMicroCands = (TClonesArray*) fRootManager->GetObject("PndMicroCandidates");
-  //fEventInfo = (TClonesArray*) fRootManager->GetObject("PndEventSummary");
+  
+  //read arrays
+  fChargedCands = ReadTCA("PidChargedCand");  
+  fChargedProbability = ReadTCA(fChargedPidName.Data());
+  fNeutralCands = ReadTCA("PidNeutralCand");
+  fNeutralProbability = ReadTCA(fChargedPidName.Data());
+  fBuildMcCands = false;
+  fMcCands = ReadTCA("PndMcTracks");
+  if ( ! fMcCands )
+  {
+    if( fVerbose ) std::cout << "-I- PndAnalysis::Init(): Trying mc stack now." << std::endl;
+    fMcTracks = (TClonesArray*) fRootManager->GetObject("MCTrack");
+    if ( ! fMcTracks && fVerbose ) std::cout << "-W- PndAnalysis::Init(): No \"MCTrack\" array found. No MC info available." << std::endl;
+    fMcCands =new TClonesArray("TCandidate");
+    fRootManager->Register("PndMcTracks","PndMcTracks", fMcCands, kTRUE);
+    fBuildMcCands = true;
+  }
   fChainEntries =(fRootManager->GetInChain())->GetEntries();
   
 	fPidListMaker = new PndPidListMaker();
-	
-	//SetupBranchNames();
+  
+  fPdg = TRho::Instance()->GetPDG();
+  
 }
 
-//void PndAnalysis::SetupBranchNames()
-//{
-//}
 
 void PndAnalysis::Rewind()
 {
 	fEvtCount=0;
 }
 
-int PndAnalysis::GetEvent(int n)
-{
-	//TFactory::Instance()->Reset();
-	
+Int_t PndAnalysis::GetEvent(Int_t n)
+{	
 	allCands.Cleanup();
 	chargedCands.Cleanup();
 	neutralCands.Cleanup();
 	mcCands.Cleanup();
 	
-	//fCurrentEventInfo=0;
 	fEventRead=false;
 	
 	if (n>=0) fEvtCount=n+1;
@@ -99,7 +115,7 @@ int PndAnalysis::GetEvent(int n)
 	return 0;
 }
 
-bool PndAnalysis::FillList(TCandList &l, std::string listkey)
+Bool_t PndAnalysis::FillList(TCandList &l, std::string listkey)
 {
   // Reads the specified List for the current event
   
@@ -112,11 +128,12 @@ bool PndAnalysis::FillList(TCandList &l, std::string listkey)
     fRootManager->ReadEvent(fEvtCount-1);
 		fEventRead=true;
 	}
-	
+  
 	if (listkey=="McTruth")
 	{
 		if (fMcCands) {
-      for (int i1=0; i1<fMcCands->GetEntriesFast(); i1++){
+      if(fBuildMcCands) BuildMcCands();
+      for (Int_t i1=0; i1<fMcCands->GetEntriesFast(); i1++){
         TCandidate* tc = (TCandidate *)fMcCands->At(i1);
         l.Add(*tc);
       }
@@ -124,48 +141,31 @@ bool PndAnalysis::FillList(TCandList &l, std::string listkey)
     } else return false;
 	}
 	
-	// fill all, neutral and charged from the PndMicroCandidate Array
-//	if (fMicroCands && allCands.GetLength()==0)
-//	{
-//		for (int i1=0; i1<fMicroCands->GetEntriesFast(); i1++)
-//		{
-//			VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fMicroCands->At(i1);
-//			TCandidate tc(*mic,i1+1);
-//			
-//			allCands.Add(tc);
-//			
-//			if (fabs(tc.Charge())>0.01) 
-//				chargedCands.Add(tc);
-//			else 
-//				neutralCands.Add(tc);
-//		}
-//	}
-	//else 
   if (allCands.GetLength() == 0) // do only when we didn't read something yet.
 	{ 	// removed now compatibility to TCandidate readin ... instead read PndPidCandidates
 		if (fNeutralCands && neutralCands.GetLength()==0)
-		for (int i1=0; i1<fNeutralCands->GetEntriesFast(); i1++)
-		{
-			VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fNeutralCands->At(i1);		
-			TCandidate tc(*mic,i1+1);
-      // TODO: Do we want to set something here? It is neutrals anyway.
-      if(i1<fNeutralProbability->GetEntriesFast())
+      for (Int_t i1=0; i1<fNeutralCands->GetEntriesFast(); i1++)
       {
-        PndPidProbability *neuProb = (PndPidProbability*)fNeutralProbability->At(i1);
-        // numbering see PndPidListMaker
-        tc.SetPidInfo(0,neuProb->GetElectronPidProb());
-        tc.SetPidInfo(1,neuProb->GetMuonPidProb());
-        tc.SetPidInfo(2,neuProb->GetPionPidProb());
-        tc.SetPidInfo(3,neuProb->GetKaonPidProb());
-        tc.SetPidInfo(4,neuProb->GetProtonPidProb());
-      }        
-			neutralCands.Add(tc);
-			allCands.Add(tc);
-		}
+        VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fNeutralCands->At(i1);		
+        TCandidate tc(*mic,i1+1);
+        // TODO: Do we want to set something here? It is neutrals anyway.
+        if(i1<fNeutralProbability->GetEntriesFast())
+        {
+          PndPidProbability *neuProb = (PndPidProbability*)fNeutralProbability->At(i1);
+          // numbering see PndPidListMaker
+          tc.SetPidInfo(0,neuProb->GetElectronPidProb());
+          tc.SetPidInfo(1,neuProb->GetMuonPidProb());
+          tc.SetPidInfo(2,neuProb->GetPionPidProb());
+          tc.SetPidInfo(3,neuProb->GetKaonPidProb());
+          tc.SetPidInfo(4,neuProb->GetProtonPidProb());
+        }        
+        neutralCands.Add(tc);
+        allCands.Add(tc);
+      }
     
 		if (fChargedCands && chargedCands.GetLength()==0) 
     {
-      for (int i1=0; i1<fChargedCands->GetEntriesFast(); i1++)
+      for (Int_t i1=0; i1<fChargedCands->GetEntriesFast(); i1++)
       {
         VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fChargedCands->At(i1);
         TCandidate tc(*mic,i1+1);
@@ -194,7 +194,7 @@ bool PndAnalysis::FillList(TCandList &l, std::string listkey)
 		l=allCands;
 		return true;
 	}
-		
+  
 	if (listkey=="Neutral") 
 	{
 		l=neutralCands;
@@ -206,62 +206,49 @@ bool PndAnalysis::FillList(TCandList &l, std::string listkey)
 		l=chargedCands;
 		return true;
 	}
-		
+  
 	return fPidListMaker->FillList(l,listkey);
 }
 
-
-int PndAnalysis::GetEntries() 
+Int_t PndAnalysis::GetEntries() 
 {
   if (fRootManager) return (fRootManager->GetInChain())->GetEntries();
 	else return 0;
 }
 
-
-//const PndEventInfo* PndAnalysis::GetEventInfo()
-//{
-//  if (fCurrentEventInfo) return fCurrentEventInfo;
-//
-//  TClonesArray* aArray = (TClonesArray*) fRootManager->GetObject("PndEventSummary");
-//  fRootManager->ReadEvent(fEvtCount-1);
-//
-//  if (aArray){
-//    fCurrentEventInfo = (PndEventInfo*) aArray->At(0);
-//  }
-//  return fCurrentEventInfo;
-//}
-//
-//Float_t PndAnalysis::GetTag(const char* bname)
-//{
-//	TChain* theChain = fRootManager->GetInChain();
-//  Long64_t localEntry = theChain->LoadTree(fEvtCount-1);
-//	theChain = fRootManager->GetInChain();
-//	TBranch *b=theChain->GetBranch(bname);
-//	
-//	Float_t val=0;
-//	if (b)
-//	{
-//		Float_t *tmpad=(Float_t*)b->GetAddress();
-//		b->GetEntry(localEntry);
-//		val=*tmpad;
-//	}
-//	return val;
-//}
-//	
-//Int_t PndAnalysis::GetTagI(const char* bname)
-//{
-//	TChain* theChain = fRootManager->GetInChain();
-//  Long64_t localEntry = theChain->LoadTree(fEvtCount-1);
-//	TBranch *b=theChain->GetBranch(bname);
-//	
-//	Int_t val=0;
-//	if (b)
-//	{
-//		Int_t *tmpad=(Int_t*)b->GetAddress();
-//		b->GetEntry(localEntry);
-//		val=*tmpad;
-//	}
-//	return val;
-//}
-//
+void PndAnalysis::BuildMcCands()
+{
+  if (fMcCands->GetEntriesFast() != 0) fMcCands->Delete();
+  //if (fMcCands->GetEntriesFast() != 0)  fMcCands->Clear("C");
+  
+  // Get the Candidates
+  for(Int_t i=0; i<fMcTracks->GetEntriesFast(); i++)
+  {
+  	PndMCTrack *part = (PndMCTrack*)fMcTracks->At(i);
+  	if (part->GetMotherID()!=-1) continue;
+  	
+    TLorentzVector p4 = part->Get4Momentum();
+    TVector3    stvtx = part->GetStartVertex();
+    
+    TParticlePDG *ppdg = fPdg->GetParticle(part->GetPdgCode());
+    
+    double charge=0.0;
+    
+    if (ppdg) charge=ppdg->Charge();
+    else if (fVerbose) cout <<"-W- PndMcListConverter: strange PDG code:"<<part->GetPdgCode()<<endl;
+    if (fabs(charge)>2) charge/=3.;
+    
+    //TClonesArray& ref = *fMcCands;
+    Int_t size = fMcCands->GetEntriesFast();
+    
+   	TCandidate *pmc=new ((*fMcCands)[size]) TCandidate(p4,charge);
+   	
+    pmc->SetMcIdx(size);
+    pmc->SetPos(stvtx);
+    pmc->SetType(part->GetPdgCode());
+  }
+  
+  if(fVerbose) cout <<"-I- PndMcListConverter: found primaries="<<fMcCands->GetEntriesFast()<<endl;
+  
+}
 

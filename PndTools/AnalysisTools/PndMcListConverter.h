@@ -28,10 +28,10 @@ class PndMcListConverter : public FairTask
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
-  virtual void Finish();
+  virtual void FinishEvent();
   //void CreateStructure();
 
-  void SetVerbose(Bool_t verb)            { fVerbose = verb  ;};
+  void SetVerbose(Bool_t verb) { fVerbose = verb  ;};
 
  private: 
    
