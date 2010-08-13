@@ -89,15 +89,14 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
  private:
 
 
+#define maxTracks 20
 
 
       static const UShort_t
-            nmaxHits = 20*26, // max 20  tracks in Stt, with average 26 hits per track
+            nmaxHits = maxTracks*26, // max 20  tracks in Stt, with average 26 hits per track
             MAXMCTRACKS=30,
-            MAXTRACKSPEREVENT=30,
+            MAXTRACKSPEREVENT=maxTracks,
             nmaxinclinationversors=20,
-//            nmaxAmbiguities = 10,
-//            nmaxAssociatedHits = 200,
             nAdmittedRadia = 3,
             nbinCX=100,
             nbinCY = 100,
@@ -156,7 +155,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
       int IVOLTE, ntimes, INTERO, ITRACCIA,
           N_INTENDED;
 //  Double_t SEMILENGTH_STRAIGHT = 75.;
-      static const bool  iplotta = false , ianalizza = true ;
+      static const bool  iplotta = true , ianalizza = true ;
       static const int  nmassimo=10;
       int istampa ;
       TH1F * hx;
@@ -241,6 +240,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
   void PndSttBoxConformalFilling(
+				 bool ExclusionList[nmaxHits],
                                  Double_t infoparalConformal[][5],Int_t Nparal,
                                  UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
                                  UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
@@ -392,6 +392,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                    UShort_t *auxListHitsinTrack
                                                      );
   UShort_t PndSttTrkAssociatedParallelHitsToHelixQuater(
+		   bool ExclusionList[nmaxHits],
                    Double_t m,
                    Double_t q,
                    Short_t Status,
