@@ -854,7 +854,9 @@ jumpout: ;
 
 
 
-      PndSttBoxConformalFilling(infoparalConformal, Minclinations[0], nBoxConformal, HitsinBoxConformal,
+      PndSttBoxConformalFilling(
+				ExclusionList,
+				infoparalConformal, Minclinations[0], nBoxConformal, HitsinBoxConformal,
                                 RConformalIndex, FiConformalIndex);
 
 
@@ -972,7 +974,6 @@ jumpout: ;
 
 
 
-
 //---------------------------
 
 
@@ -1059,6 +1060,7 @@ jumpout: ;
 
 
   NN =  PndSttTrkAssociatedParallelHitsToHelixQuater(
+		   ExclusionList,
                    m[nTracksFoundSoFar],
                    q[nTracksFoundSoFar],
                    Status[nTracksFoundSoFar],
@@ -1203,7 +1205,6 @@ if(iplotta && IVOLTE <= nmassimo){
                              &Fi_allowedforskew_up[i]
                                              );
 */
-
 
 
 
@@ -6411,6 +6412,7 @@ nohits: ;
 //----------begin of function PndSttTrackFinderReal::PndSttBoxConformalFilling
 
  void  PndSttTrackFinderReal::PndSttBoxConformalFilling(
+							bool ExclusionList[nmaxHits],
                                                         Double_t infoparalConformal[][5],Int_t Nparal,
                                                         UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
                                                         UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
@@ -6430,7 +6432,7 @@ nohits: ;
       }
 
       for(i = 0; i< Nparal ; i++){
-
+	 if( ! ExclusionList[ infoparal[i] ] ) continue;
          Fi =  atan2(infoparalConformal[i][1],infoparalConformal[i][0]) ;
          if ( Fi < 0. ) Fi += 2.*PI;
          iFi =  (Short_t) (0.5*nFidivConformal*Fi/PI);
@@ -6454,7 +6456,7 @@ nohits: ;
          nBoxConformal[iR][iFi]++;
          RConformalIndex[ infoparal[i] ]  =  iR;
          FiConformalIndex[ infoparal[i] ]  =  iFi;
-      }
+      }	// end of for(i = 0; i< Nparal ; i++)
 
 
 
@@ -6601,6 +6603,7 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
 
 
      for(i=0, nRemainingHits=0; i<Nparal; i++){
+
         if( i != ihit && ExclusionList[  infoparal[i]   ] ) {   //  exclusion of the parallel hit straws already used in other tracks
                                                            //  remember the index of ExclusionList is in the ORIGINAL scheme of hits
             TemporaryExclusionList[ infoparal[i]  ]= true;
@@ -8858,6 +8861,7 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
 
 //----------begin of function PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixQuater
   UShort_t PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixQuater(
+		   bool ExclusionList[nmaxHits],
                    Double_t m,
                    Double_t q,
                    Short_t Status,
@@ -8923,9 +8927,6 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
     if( FiConformalIndex[i] >  FFimax ) FFimax = FiConformalIndex[i];
   }
 
-if(istampa>=3 && IVOLTE <= nmassimo) {
-  cout<<"  evento n. "<<IVOLTE<<", Fimin prima  prima = "<<FFimin<<",  Fimax prima "<<FFimax<<endl;
-}
 
   if( FFimax > 3.*nFidivConformal/4. && FFimin < nFidivConformal/4.) {
      FFimin = 10000;
@@ -8939,9 +8940,6 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
      }
   }
 
-if(istampa>=3 && IVOLTE <= nmassimo) {
-  cout<<"  evento n. "<<IVOLTE<<", Fimin prima = "<<FFimin<<",  Fimax prima "<<FFimax<<endl;
-}
 
 //  finding the boundaries in the Conformal plane. The basic assumption is that the range
 // in Fi is much less that 180 degrees.
@@ -8954,9 +8952,6 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
     return 0;
 }
 
-if(istampa>=3 && IVOLTE <= nmassimo) {
-  cout<<"  evento n. "<<IVOLTE<<", Fimin dopo = "<<FFimin<<",  Fimax dopo "<<FFimax<<endl;
-}
 
 
 //   use the equation of a line in polar coordinates
@@ -8994,6 +8989,7 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
           if(  l2<0 || l2 >= nRdivConformalEffective )  continue;
               for( k=0;k<nBoxConformal[l2][i];k++){
                 nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[l2][i][k]  ][3];
+		if( !ExclusionList[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Ox+info[ nHit_original ][0];
                 dy = -Oy+info[ nHit_original ][1];
@@ -9011,8 +9007,8 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
                     auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[l2][i][k];
                     nAssociatedHits++; 
                 }
-              }
-        }   //   end of for(l=0; l<3;l++)
+              }	//  end of  for( k=0;k<nBoxConformal[l2][i];k++)
+        }   //   end of for(l=-DELTAnR; l<DELTAnR+1;l++)
 
         // ------- special cases
            if((nR == nRdivConformalEffective-1 && passamin && ! passamax) ||  (nR==0 && passamax && !passamin)  ) {   //  do the last two Fi columns
@@ -9027,6 +9023,7 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
              if(  l3<0 || l3 >= nRdivConformalEffective )  continue;
               for( k=0;k<nBoxConformal[l3][i2];k++){
                 nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][3];
+		if( !ExclusionList[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Ox+info[ nHit_original ][0];
                 dy = -Oy+info[ nHit_original ][1];
@@ -9044,7 +9041,7 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
                     auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[l3][i2][k];
                     nAssociatedHits++; 
                 }
-              }
+              }	//  end of   for( k=0;k<nBoxConformal[l3][i2];k++)
             }   //   end of for(l=-2; l<3;l++)
             }   //   end of for(l2=0;l2<2;l2++)
             return  nAssociatedHits;
@@ -9060,6 +9057,7 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
              if(  l3<0 || l3 >= nRdivConformalEffective )  continue;
               for( k=0;k<nBoxConformal[l3][i2];k++){
                 nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][3];
+		if( !ExclusionList[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Ox+info[ nHit_original ][0];
                 dy = -Oy+info[ nHit_original ][1];
@@ -9077,7 +9075,7 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
                     auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[l3][i2][k];
                     nAssociatedHits++; 
                 }
-              }
+              }	//  end of  for( k=0;k<nBoxConformal[l3][i2];k++)
             }   //   end of for(l=-2; l<3;l++)
             }   //   end of for(l2=0;l2<2;l2++)
            }    //   end of if((nR == nRdivConformalEffective-1 && passamin) ||  (nR==0 && passamax)  )
@@ -9112,6 +9110,7 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
         for(l=0; l<nRdivConformalEffective;l++){
               for( k=0;k<nBoxConformal[l][i];k++){
                 nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[l][i][k]  ][3];
+		if( !ExclusionList[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Ox+info[ nHit_original ][0];
                 dy = -Oy+info[ nHit_original ][1];
@@ -9221,6 +9220,7 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
                  for( l3=0;l3<nBoxConformal[k][l2];l3++){
                   if( ! Unselected[HitsinBoxConformal[k][l2][l3] ] )  continue;
                    nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l2][l3]  ][3];
+		   if( !ExclusionList[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                    dx = -Ox+info[ nHit_original ][0];
                    dy = -Oy+info[ nHit_original ][1];
@@ -9267,6 +9267,7 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
         for(l=0; l<nRdivConformalEffective;l++){
               for( k=0;k<nBoxConformal[l][i];k++){
                 nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[l][i][k]  ][3];
+		if( !ExclusionList[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Ox+info[ nHit_original ][0];
                 dy = -Oy+info[ nHit_original ][1];
@@ -9636,7 +9637,6 @@ if( istampa>=3 && IVOLTE <= nmassimo){
     }
     deltaz = zmax-zmin;
 
-if(istampa>=3 && IVOLTE <= nmassimo) cout<<"  Zmax "<<zmax<<", Zmin  "<<zmin<<endl;
 
 
 
