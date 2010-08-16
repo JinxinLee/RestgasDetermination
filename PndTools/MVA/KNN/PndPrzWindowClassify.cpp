@@ -23,7 +23,8 @@ using namespace std;
 PndPrzWindowClassify::PndPrzWindowClassify(const string& inputFile,
 					   const vector<string>& classNames, 
 					   const vector<string>& varNames)
-  : PndGpidClassifier(inputFile, classNames, varNames), m_volumeN(0)
+  : PndGpidClassifier(inputFile, classNames, varNames),
+    m_volumeN(0)
 {}
 
 //! Destructor
@@ -37,8 +38,10 @@ PndPrzWindowClassify::~PndPrzWindowClassify()
  */
 const std::string& PndPrzWindowClassify::Classify(std::vector<float> EvtData)
 {
-  // Get the Mva-value.
+  // Temporary map to store MVA-Output.
   std::map<std::string, float> TMPres;
+
+  // Get the Mva-value.
   GetMvaValues(EvtData, TMPres);
 
   // Densities are estimated. Report the winner.
@@ -47,19 +50,21 @@ const std::string& PndPrzWindowClassify::Classify(std::vector<float> EvtData)
 
   // Temporary variables for the winning class name and density.
   std::string CurWin = "PRZ";
-  float Curprob = std::numeric_limits <float>::min();
+  float Curprob = std::numeric_limits<float>::min();
   
   // Find the maximum Mva Val.
   for(size_t i = 0; i < classes.size(); i++){
+    
+    // Get the current label.
     std::string curName = classes[i].Name;
-    if( TMPres[curName] > Curprob){
+    
+    if( (TMPres[curName]) > Curprob ){
       Curprob = TMPres[curName];
       CurWin  = curName;
     }
   } 
   // Create and return the result object (string).
-  std::string* outPut = new std::string(CurWin);
-  return *outPut;
+  return *(new std::string(CurWin));
 }
 
 /**
@@ -72,6 +77,7 @@ const std::string& PndPrzWindowClassify::Classify(std::vector<float> EvtData)
 void PndPrzWindowClassify::GetMvaValues(vector<float> eventData,
 					map<string, float>& result)
 {
+  // Zero volume makes no sense.
   assert( m_volumeN != 0.0 );
   
   // Get examples.
@@ -98,17 +104,20 @@ void PndPrzWindowClassify::GetMvaValues(vector<float> eventData,
   float numSamples = static_cast<float>(events.size());
   float phi = 0.00;
   
-  // Loop through available classes.
+  // Loop through available labels(classes).
   for(size_t cl = 0; cl < labels.size(); cl++){
     // Get current label
     std::string curLabel = labels[cl].Name;
 
-    // Loop through examples
+    // Loop through training examples.
     for(size_t ex = 0; ex < events.size(); ex++){
-      if( events[ex].first == curLabel){//Same labels
+      // Same labels
+      if( events[ex].first == curLabel){
+	// Get kernel output
 	phi = histKernel( eventData, *(events[ex].second) );
+
 	//result[curLabel] += (1.00/m_volumeN) * phi;
-	result[curLabel] += (phi/m_volumeN);
+	result[curLabel] = result[curLabel] + ( phi/m_volumeN );
       }
     }//examples loop
   }// labels loop
@@ -152,17 +161,18 @@ float PndPrzWindowClassify::histKernel( const std::vector<float>& evtDat,
   const std::vector<PndMvaVariable>& variables = m_dataSets.GetVars();
   
   // Temporary Container
-  std::vector <float> tmpPar (variables.size());
+  std::vector <float> tmpPar (variables.size(), 0.0);
   
+  // Use a box shaped volume. We can also use a sphere (x * x)
   for(size_t i = 0; i < variables.size(); i++){
     tmpPar[i] = abs(evtDat[i] - trSample[i])/(m_Wsize[variables[i].Name]);
   }
   
-  //sort container
+  // sort container
   std::sort(tmpPar.begin(), tmpPar.end());
   
-  //last element is the largest
-  if(tmpPar[tmpPar.size() - 1] <= 0.5){
+  // last element is the largest
+  if( (tmpPar[tmpPar.size() - 1]) <= 0.5){
     return 1.00;// inside
   }
   else{

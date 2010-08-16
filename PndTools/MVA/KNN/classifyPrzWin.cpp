@@ -13,7 +13,7 @@
 // C++
 #include <fstream>
 
-// LOcal
+// Local
 #include "PndPrzWindowClassify.h"
 
 // ROOT & PandaRoot
@@ -22,7 +22,8 @@
 #include "TStopwatch.h"
 
 
-void printResultMap(std::map<std::string,float>& res){
+void printResultMap(std::map<std::string,float>& res)
+{
   std::cout << "\n\t================================== \n";
   for( std::map<std::string,float>::iterator ii=res.begin(); 
        ii != res.end(); ++ii){
@@ -62,6 +63,7 @@ int main(int argc, char** argv)
   // Containers to hold labels and variable names.
   std::vector<std::string> clasNames;
   std::vector<std::string> vars;
+  std::map<std::string, float> wsize;
   
   // Classes (container to hold the class names)
   clasNames.push_back("electron");
@@ -72,11 +74,21 @@ int main(int argc, char** argv)
   //clasNames.push_back("gamma");
   
   // Variables (names)
-  vars.push_back("p");
+  //vars.push_back("p");
+  //wsize["p"]   = 1.6;
+
   vars.push_back("emc");
+  wsize["emc"] = 0.1;
+  
   vars.push_back("lat");
+  wsize["lat"] = 0.9;
+  
   vars.push_back("z20");
+  wsize["z20"] = 0.8;
+  
   vars.push_back("z53");
+  wsize["z53"] = 0.3;
+  
   //vars.push_back("thetaC");
   //vars.push_back("mvd");
   //vars.push_back("tof");
@@ -89,13 +101,6 @@ int main(int argc, char** argv)
   PndPrzWindowClassify cls (InPutFile, clasNames, vars);
 
   // Set classifier parameters and init.
-  std::map<std::string, float> wsize;
-  wsize["p"]   = 0.5;
-  wsize["emc"] = 0.5;
-  wsize["lat"] = 0.5;
-  wsize["z20"] = 0.5;
-  wsize["z53"] = 0.5;
-  
   cls.setWindowSize(wsize);
 
   timer.Stop();
@@ -146,14 +151,15 @@ int main(int argc, char** argv)
   
   std::cout << "<INFO> Classification." << std::endl;
 
-  // Classify input events.
+  // ___________ Classify input events ________
   unsigned int misCnt = 0;
-  
-  // for(int ev = 0; ev < 100; ev++){
-  for(int ev = 0; ev < events->GetEntriesFast(); ev++){
+  int totNumEvt = 500;//events->GetEntriesFast();
+
+  for(int ev = 0; ev < totNumEvt; ev++){
     events->GetEntry(ev);
     
-    //cls.GetMvaValues(curEvt, res);
+    cls.GetMvaValues(curEvt, res);
+    
     if(cls.Classify(curEvt) != EvtTreeName){
       misCnt++;
     }
@@ -162,9 +168,10 @@ int main(int argc, char** argv)
   
   Outfile << " number of misclassified = " << misCnt
 	  << " = " 
-	  << ( static_cast<float>(misCnt * 100)/static_cast<float>(events->GetEntriesFast()) )
+	  << ( static_cast<float>(misCnt * 100)/static_cast<float>(totNumEvt) )
 	  << " %"<< std::endl;
-  
+
+
   // Close open file
   inFile.Close();
   Outfile.close();

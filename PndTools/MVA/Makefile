@@ -6,7 +6,7 @@
 #####################################################
 
 # FLAGSMACHINE=-march=athlon64
-# CCFLAGS += -Weffc++ -pedantic
+# CCFLAGS += -Weffc++ -pedantic -fpic
 
 MAKEFLAGS  = -wkr --no-print-directory #-s
 
@@ -16,9 +16,8 @@ FLAGSMACHINE = -march=native -mtune=native
 
 CCFLAGS  = -W -Wall -Wextra -Wredundant-decls -Wshadow -Werror
 CCFLAGS += -fdiagnostics-show-option -fdiagnostics-show-location=every-line
-CCFLAGS += -Woverlength-strings -Wstack-protector -fopenmp
-CCFLAGS += -O3 -funroll-loops
-CCFLAGS += ${FLAGSMACHINE}
+CCFLAGS += -Woverlength-strings -Wstack-protector -fopenmp -funroll-loops
+CCFLAGS += -O3 ${FLAGSMACHINE}
 # CCFLAGS += -malign-double -maccumulate-outgoing-args -ftracer
 # CCFLAGS += -fvariable-expansion-in-unroller -fprefetch-loop-arrays
 # CCFLAGS += -fstrict-aliasing -Wstrict-aliasing=3

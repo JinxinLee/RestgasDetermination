@@ -44,7 +44,7 @@ if(RULE_CHECKER_FOUND)
   CHECK_RULES("${MVA_SRCS}" "${INCLUDE_DIRECTORIES}" MVA_RULES)
 endif(RULE_CHECKER_FOUND)
 
-set(Pid_HEADERS
+set(MVA_HEADERS
 Clusters/PndMvaCluster.h
 KNN/PndStdKnnClassify.h
 KNN/PndPrzWindowClassify.h
