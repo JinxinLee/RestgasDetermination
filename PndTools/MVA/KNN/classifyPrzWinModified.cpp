@@ -9,6 +9,8 @@
  * procedure. This classifier is implemented based on the Parzen
  * Window algorithm.
  */
+#define MIN_WINDOW_SIZE  0.1
+#define MAX_WINDOW_SIZE  5.0
 
 // C++
 #include <fstream>
@@ -41,10 +43,10 @@ void printResultMap(std::map<std::string,float>& res)
 
 int main(int argc, char** argv)
 {
-  if(argc < 5){
+  if(argc < 6){
     std::cerr << "\t<ERROR>" 
 	      << "./classifyPrzWin <inputWeightFile> <InputEventsFile>"
-	      << " <TreeName> <OutPutLogFile>"
+	      << " <TreeName> <OutPutLogFile> <ParamName>"
 	      << std::endl;
     return 1;
   }
@@ -60,6 +62,9 @@ int main(int argc, char** argv)
   
   // File to write output.
   std::string OutPutFile  = argv[4];
+  
+  // ParamName
+  std::string ParName  = argv[5];
 
   // Containers to hold labels and variable names.
   std::vector<std::string> clasNames;
@@ -75,20 +80,23 @@ int main(int argc, char** argv)
   //clasNames.push_back("gamma");
   
   // Variables (names)
+  vars.push_back(ParName);
+  wsize[ParName] = 0.1;
+
   //vars.push_back("p");
   //wsize["p"]   = 1.6;
   
-  vars.push_back("emc");
-  wsize["emc"] = 2.4;
+  //vars.push_back("emc");
+  //wsize["emc"]   = 1.0;
   
-  vars.push_back("lat");
-  wsize["lat"] = 5.0;
-  
-  vars.push_back("z20");
-  wsize["z20"] = 5.0;
-  
-  vars.push_back("z53");
-  wsize["z53"] = 5.0;
+  //vars.push_back("lat");
+  //wsize["lat"] = 0.9;
+    
+  //vars.push_back("z20");
+  //wsize["z20"] = 0.8;
+    
+  //vars.push_back("z53");
+  //wsize["z53"] = 0.3;
 
   //vars.push_back("thetaC");
   //vars.push_back("mvd");
@@ -135,7 +143,7 @@ int main(int argc, char** argv)
   
   // ___________ Classification ________
   unsigned int misCnt = 0;
-  int totNumEvt = 100;//events->GetEntriesFast();
+  int totNumEvt = 1000;//events->GetEntriesFast();
   
   // Open OutputFile.
   std::ofstream Outfile;
@@ -157,26 +165,38 @@ int main(int argc, char** argv)
   
   Outfile << "# Using vaiables: ";
   for(size_t i = 0; i < vars.size(); i++){
-    Outfile << vars[i] << " ";
+    Outfile << "# "<< vars[i] << " ";
   }
   Outfile << "\n# =========================================================" 
 	  << std::endl;
   
   // ___________ Classify input events ________
-  for(int ev = 0; ev < totNumEvt; ev++){
-    events->GetEntry(ev);
-    //cls.GetMvaValues(curEvt, res);
-    std::string Winner = cls.Classify(curEvt);
-    if( Winner != EvtTreeName ){
-      misCnt++;
+  float wloopcntr = MIN_WINDOW_SIZE;
+  Outfile << "## <Window edge>\t <Error> %"<< std::endl;
+  
+  while( wloopcntr <= MAX_WINDOW_SIZE){
+    Outfile << "   "<< wloopcntr << "\t\t ";
+    
+    cls.setWindowSize(wloopcntr);
+    
+    for(int ev = 0; ev < totNumEvt; ev++){
+      events->GetEntry(ev);
+      //cls.GetMvaValues(curEvt, res);
+      
+      if( cls.Classify(curEvt) != EvtTreeName ){
+	misCnt++;
+      }
+      //printResultMap(res);
     }
-    //printResultMap(res);
+    
+    Outfile << std::setprecision(5)
+	    << ( static_cast<float>(misCnt * 100)/static_cast<float>(totNumEvt) )
+	    << std::endl;
+    
+    wloopcntr += 0.1;
+    misCnt = 0;
   }
-  Outfile << std::setprecision(5) << "# Number of Missclassified events = " << misCnt
-	  << " "<< ( static_cast<float>(misCnt * 100)/static_cast<float>(totNumEvt) )
-	  << " %"
-	  << std::endl;  
-
+  
   // Close open file
   inFile.Close();
   Outfile.close();

@@ -109,9 +109,9 @@ void PndPrzWindowClassify::GetMvaValues(vector<float> eventData,
     // Get current label
     std::string curLabel = labels[cl].Name;
 
-    // Loop through training examples.
+    // Loop through training examples with the current label.
     for(size_t ex = 0; ex < events.size(); ex++){
-      // Same labels
+      // Same labels!!?
       if( events[ex].first == curLabel){
 	// Get kernel output
 	phi = histKernel( eventData, *(events[ex].second) );
