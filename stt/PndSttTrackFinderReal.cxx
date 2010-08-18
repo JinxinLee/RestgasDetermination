@@ -650,7 +650,10 @@ jumpout: ;
 
 
   bool    ExclusionList[nmaxHits],      //  list of || hits  already assigned to a found track or with multiple hits
-           ExclusionListSkew[nmaxHits],      //  list of skew hits with multiple hits
+          ExclusionListSkew[nmaxHits],      //  list of skew hits with multiple hits
+	  ExclusionListbis[nmaxHits],      //  list of || hits ONLY with multiple hits
+          ExclusionListSkewbis[nmaxHits],      //  list of skew hits ONLY with multiple hits (duplicate of
+						//		ExclusionListSkew)
           TypeConf[MAXTRACKSPEREVENT],   //  if TypeConf[]=false --> the track is a line in the Conformal space,
                                          //   if TypeConf[]=true it is a crf;
           TypeConfSkew[MAXTRACKSPEREVENT],
@@ -792,9 +795,11 @@ jumpout: ;
 
        for(i=0; i< Minclinations[0]; i++){
          ExclusionList[   infoparal[i]   ]= true ;
+         ExclusionListbis[   infoparal[i]   ]= true ;
       }
       for(i=0; i< NSkewhits; i++){
          ExclusionListSkew[   infoskew[i]   ]= true ;
+         ExclusionListSkewbis[   infoskew[i]   ]= true ;
       }
 
 
@@ -804,26 +809,67 @@ jumpout: ;
 //-----------------------------------   exclusion of straws with multiple hits
 
       //   first the parallel straws
+      for(i=0; i< Nhits-1; i++){
+	if( info[i][5]==1.){
+		if( ExclusionList[ i ] ){
+			for(j=i+1; j< Nhits; j++){
+				if(ExclusionList[ j ] && info[j][5]==1. &&
+					fabs(info[i][0] - info[j][0])<1.e-20 &&
+					fabs(info[i][1] - info[j][1])<1.e-20  )
+				{
+					ExclusionList[j]= false ;
+					ExclusionListbis[j]= false ;
+				}
+			} //  end of  for(j=i+1; j< Nhits;; j++)
+		}  //   end of if( ExclusionList[ i ] )
+	} else {	//  continuation of  if( info[i][5]==1.)
+
+		if( ExclusionListSkew[ i ] ){
+			for(j=i+1; j< Nhits; j++){
+				if(ExclusionListSkew[ j ] && info[j][5] != 1. &&
+					fabs(info[i][0] - info[j][0])<1.e-20 &&
+					fabs(info[i][1] - info[j][1])<1.e-20  )
+				{
+					ExclusionListSkew[j]= false ;
+					ExclusionListSkewbis[j]= false ;
+				}
+			} //  end of  for(j=i+1; j< Nhits;; j++)
+		}  //   end of if( ExclusionList[ i ] )
+
+
+	}	//	//  end of  if( info[i][5]==1.)
+
+      }   //   end of for(i=0; i< Nhits-1; i++)
+
+
+
+
+/*
+      //   first the parallel straws
       for(i=0; i< Minclinations[0]-1; i++){
        if( ExclusionList[ infoparal[i] ] ){
          for(j=i+1; j< Minclinations[0]; j++){
+
            if(
              fabs(info[ infoparal[i] ][0] - info[ infoparal[j] ][0])<1.e-20
                              &&
              fabs(info[ infoparal[i] ][1] - info[ infoparal[j] ][1])<1.e-20  ) {
 
-               ExclusionList[   infoparal[i]   ]= false ;
                ExclusionList[   infoparal[j]   ]= false ;
+               ExclusionListbis[   infoparal[j]   ]= false ;
 
            }
          } //  end of  for(j=i+1; j< Minclinations[0]; j++)
        }  //   end of if( ExclusionList[   infoparal[i]   ] )
       }   //   end of for(i=0; i< Minclinations[0]-1; i++)
 
+*/
+
+
 
       //   then the skew straws
 
-
+/*
       for(i=0; i< NSkewhits-1; i++){
        if( ExclusionListSkew[ infoskew[i] ] ){
          for(j=i+1; j< NSkewhits; j++){
@@ -832,15 +878,15 @@ jumpout: ;
                              &&
              fabs(info[ infoskew[i] ][1] - info[ infoskew[j] ][1])<1.e-20  ) {
 
-               ExclusionListSkew[   infoskew[i]   ]= false ;
                ExclusionListSkew[   infoskew[j]   ]= false ;
+               ExclusionListSkewbis[   infoskew[j]   ]= false ;
 
            }
          } //  end of  for(j=1; j< NSkewhits; j++)
        }  //   end of if( ExclusionList[ infoskew[i] ] )
       }   //   end of for(i=0; i< Minclinations[0]-1; i++)
 
-
+*/
 
 //-----------------------------------  end of exclusion of straws with multiple hits
 
@@ -1485,6 +1531,7 @@ if(istampa>=2) {
 	}
 //--- ricerca degli hits non mecciati, della traccia MC associata a questa traccia trovata.
 	for(i=0; i<Minclinations[0]; i++){
+		if( !ExclusionListbis[ infoparal[i] ] ) continue;
 		emme = (UShort_t) ( info[ infoparal[i] ][6] + 0.01);
 		if( emme ==   daTrackFoundaTrackMC[jexp] ){
 			for(exphit=0; exphit<nHitsinTrack[jexp]; exphit++){
@@ -1513,6 +1560,7 @@ if(istampa>=2) {
 	}
 //--- ricerca degli hits non mecciati, della traccia MC associata a questa traccia trovata.
 	for(i=0; i<NSkewhits; i++){
+		if( !ExclusionListSkewbis[ infoskew[i] ] ) continue;
 		emme = (UShort_t) ( info[ infoskew[i] ][6] + 0.01);
 		if( emme ==   daTrackFoundaTrackMC[jexp] ){
 			for(exphit=0; exphit<nSkewHitsinTrack[jexp]; exphit++){
@@ -1535,15 +1583,11 @@ if(istampa>=2) {
 
 
 
-
-
-
-
   if(istampa>=2 )  fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE, nMCTracks);
 
 for (ii=0; ii<nTracksFoundSoFar && istampa>=2 ;ii++){
    fprintf(HANDLE,"----------------------------------------------------------\n");
-   i=daTrackFoundaTrackMC[i];
+   i=daTrackFoundaTrackMC[ii];
 
    if( i <0  ) {
     fprintf(HANDLE,
@@ -1581,10 +1625,10 @@ for (ii=0; ii<nTracksFoundSoFar && istampa>=2 ;ii++){
     fprintf(HANDLE,
 "       TracciaMC %d ParHitsMC %d ParMecc %d ParMeccSpuri %d SkewHitsMC %d  SkewMecc %d SkewMeccSpuri %d\n",
              i,
-             nHitsInMCTrack[i],
+             nHitsInMCTrack[ii],
              nParalCommon[ii],
              nSpuriParinTrack[ii],
-             nSkewHitsInMCTrack[i],
+             nSkewHitsInMCTrack[ii],
              nSkewCommon[ii],
              nSpuriSkewinTrack[ii]
 
@@ -1672,7 +1716,7 @@ if( istampa>=2){
 
        Double_t Ptras,Pxini,Pyini,Pzini,dista, qop;
 
-if(istampa>=2) {  cout<<" da TrackFinder Real :  ancora nTracksFoundSoFar "<<nTracksFoundSoFar<<endl; }
+if(istampa>2) {  cout<<" da TrackFinder Real :  ancora nTracksFoundSoFar "<<nTracksFoundSoFar<<endl; }
     for(i=0; i<nTracksFoundSoFar;i++){
      if(istampa >= 2){
        ii=daTrackFoundaTrackMC[i];
@@ -1698,7 +1742,7 @@ if(istampa>=2) {  cout<<" da TrackFinder Real :  ancora nTracksFoundSoFar "<<nTr
 			   Pzini); // momentum direction in starting point
           qop = Charge[i]/dirSeed.Mag();
           dirSeed.SetMag(1.);
-if(istampa >= 2){
+if(istampa > 2){
    cout<<"    da PndSttTrackFinderReal;  caricato PndTrackCand n. "<<ipinco-1
    <<",  n. traccia sequenziale = "<<i<<
       "\n  con  dirSeed.X = "<<dirSeed.X()<<",   dirSeed.Y = "<<dirSeed.Y()
@@ -1709,7 +1753,7 @@ if(istampa >= 2){
           pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[i]   );
           for(j=0; j< nTotalHits[i]; j++){
               pTrckCand->AddHit(kSttHit, (Int_t) BigList[i][j] , j);
-  if(istampa >= 2) cout<<"    da PndSttTrackFinderReal;  caricato hit n. "<<BigList[i][j]<<endl;
+  if(istampa > 2) cout<<"    da PndSttTrackFinderReal;  caricato hit n. "<<BigList[i][j]<<endl;
           }
 
       }   else  { //   continuation of    if(   GoodSkewFit[i]  )   //  case in which there is no
@@ -1724,7 +1768,7 @@ if(istampa >= 2){
 			   Pyini,
 			   Pzini); // momentum direction in starting point
          qop = Charge[i]/Ptras;   //  as if Pz=0
-if(istampa >= 2){
+if(istampa > 2){
    cout<<"    da PndSttTrackFinderReal;  no Kappa information from fit, caricato PndTrackCand n. "<<ipinco-1<<
       "\n  con  dirSeed.X = "<<dirSeed.X()<<",   dirSeed.Y = "<<dirSeed.Y()
         <<",  dirSeed.Z = "<<dirSeed.Z()<<", qop = "<<qop<<endl;
@@ -1737,7 +1781,7 @@ if(istampa >= 2){
           for(j=0; j< nTotalHits[i]; j++){
 
                pTrckCand->AddHit(kSttHit, (Int_t) BigList[i][j] , j);
-  if(istampa >= 2) cout<<"    da PndSttTrackFinderReal;  caricato hit n. "<<BigList[i][j]<<endl;
+  if(istampa > 2) cout<<"    da PndSttTrackFinderReal;  caricato hit n. "<<BigList[i][j]<<endl;
           }
 
       }    //   end of      if(   GoodSkewFit[i]  )
