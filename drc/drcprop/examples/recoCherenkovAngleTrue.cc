@@ -30,7 +30,7 @@ void recoCherenkovAngleTrue()
 //==============================================================================
 // Access to the input ROOT-file & canvas settings
 //==============================================================================
-    TString beamtestFilename = "beamtest0909_test.root";
+    TString beamtestFilename = "beamtest0909_simu/beamtest0909_angleAcceptance.root";
 
     TFile *beamtestFile = new TFile( beamtestFilename );
     TTree *photon = (TTree*) beamtestFile->Get("photon");
@@ -147,8 +147,8 @@ void recoCherenkovAngleTrue()
     TCanvas *canvas = new TCanvas( "canvas", "" ,200, 10, 700, 500 );
     canvas->Draw();
 
-    TString title = "Cherenkov angle  (par: #Theta = [0,180]#circ, #phi = [0,360]#circ)";
-    TH1F *cherenkov = new TH1F( "cherenkov_angle", title, 100, 40, 48);
+    TString title = "Cherenkov angle  (par: #Theta = [0,180[#circ, #phi = [0,360[#circ)";
+    TH1F *cherenkov = new TH1F( "cherenkov_angle", title, 200, 40, 48);
 //     TH1F *cherenkov = new TH1F( "cherenkov_angle", title, 500, 0, 180);
 
 

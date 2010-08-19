@@ -114,7 +114,21 @@ void screenPix( TString inFilename = "", Double_t resolution = 6.375, Bool_t eff
 
     Int_t freq[x_bins][y_bins] = { 0 };
     Int_t px_freq  = 0;
-    const Int_t hitsPerPixel = 50; // default: 50 hits per pixel
+
+    const Int_t hitsPerPixel = 124; // default: 50 hits per pixel
+    Int_t parDir_size = -666;
+    if( parDirX == -666 )
+        parDir_size = hitsPerPixel;
+
+    TString parDir_size_str;
+    parDir_size_str += hitsPerPixel;
+    parDir_size_str.Remove( TString::kLeading, ' ' );
+    TString parDirX_str = "parDirX[" + parDir_size_str + "]";
+    TString parDirY_str = "parDirY[" + parDir_size_str + "]";
+    TString parDirZ_str = "parDirZ[" + parDir_size_str + "]";
+    TString parDirX_str2 = parDirX_str + "/D";
+    TString parDirY_str2 = parDirY_str + "/D";
+    TString parDirZ_str2 = parDirZ_str + "/D";
 
     Double_t parDirX_px[x_bins][y_bins][hitsPerPixel] ={0};
     Double_t parDirY_px[x_bins][y_bins][hitsPerPixel] ={0};
@@ -126,9 +140,9 @@ void screenPix( TString inFilename = "", Double_t resolution = 6.375, Bool_t eff
     pixelTree->Branch( "freq", &px_freq, "freq/I" );
     if( parDirX == -666 )
     {
-        pixelTree->Branch( "parDirX[50]", parDirXH, "parDirX[50]/D" );
-        pixelTree->Branch( "parDirY[50]", parDirYH, "parDirY[50]/D" );
-        pixelTree->Branch( "parDirZ[50]", parDirZH, "parDirZ[50]/D" );
+        pixelTree->Branch( parDirX_str, parDirXH, parDirX_str2 );
+        pixelTree->Branch( parDirY_str, parDirYH, parDirY_str2 );
+        pixelTree->Branch( parDirZ_str, parDirZH, parDirZ_str2 );
     }
     infoTree->Branch( "parDirX", &parDirX, "parDirX/D" );
     infoTree->Branch( "parDirY", &parDirY, "parDirY/D" );
@@ -136,6 +150,7 @@ void screenPix( TString inFilename = "", Double_t resolution = 6.375, Bool_t eff
     infoTree->Branch( "thetaC" , &thetaC , "thetaC/D" );
     infoTree->Branch( "fishtank_width" , &fishtank_width , "fishtank_width/D" );
     infoTree->Branch( "fishtank_height", &fishtank_height, "fishtank_height/D" );
+    infoTree->Branch( "parDir_size", &parDir_size, "parDir_size/I" );
 
 
 //==============================================================================
@@ -277,7 +292,7 @@ void screenPix( TString inFilename = "", Double_t resolution = 6.375, Bool_t eff
             if( parDirX == -666 )
             {
                 if( hitsPerPixel < freq[i][j] )
-                    cout << "More than " << hitsPerPixel << " hits for pixel (" << i << ", " << j << ")" << endl;
+                    cout << "More than " << hitsPerPixel << " hits for pixel (" << i << ", " << j << ")  (hits: " << freq[i][j] << ")" << endl;
 
                 for( int k = 0; k < hitsPerPixel; k++)
                 {

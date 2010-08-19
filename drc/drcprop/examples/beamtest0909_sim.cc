@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
   double spot_radius = 20; // default: 20 mm 1-sigma beam spot radius (gaus smeared)
   double spot_limit = 50; // default: 50 mm beam spot radius limit
 
-  int particle_number = 500; // default: 300
+  int particle_number = 10; // default: 300
 
   double inci_theta = 30; // default: 30 degree ; old: 57 degree
   double inci_phi   = 0; // default: 0 degree
@@ -257,7 +257,7 @@ int main(int argc, char *argv[])
 
 
   // photon properties
-  int photon_number = 200; // default: 100 (per particle); 0 means realistic number of Cherenkov photons
+  int photon_number = 10; // default: 100 (per particle); 0 means realistic number of Cherenkov photons
 
   double lambda_min = 300; // default: 300 nm ; lowest Cherenkov wavelength
   double lambda_max = 700; // default: 700 nm ; highest Cherenkov wavelength

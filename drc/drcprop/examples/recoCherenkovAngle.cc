@@ -30,8 +30,8 @@ void recoCherenkovAngle( Double_t bining = 100 )
 //==============================================================================
 // Access to the input ROOT-file & canvas settings
 //==============================================================================
-    TString beamtestFilename = "beamtest0909_test_6.375mm_screenPix.root";
-    TString kBarFilename     = "/d/panda02/rhohler/sim/kBarList_center_2000000_6.375mm_screenPlots.root";
+    TString beamtestFilename = "beamtest0909_simu/beamtest0909_angleAcceptance_6.375mm_effi_screenPix.root";
+    TString kBarFilename     = "/d/panda02/rhohler/sim/kBarList_center_400nm_2000000_6.375mm_screenPlots.root";
 
 
     TFile *beamtestFile = new TFile( beamtestFilename );
@@ -40,11 +40,9 @@ void recoCherenkovAngle( Double_t bining = 100 )
 
 
     Double_t parDirX, parDirY, parDirZ;
-    Double_t phot_parDirX[50] ={0};
-    Double_t phot_parDirY[50] ={0};
-    Double_t phot_parDirZ[50] ={0};
     Double_t thetaC;
     Double_t fishtank_width, fishtank_height;
+    Int_t parDir_size;
 
     info->SetBranchAddress( "parDirX", &parDirX );
     info->SetBranchAddress( "parDirY", &parDirY );
@@ -52,21 +50,34 @@ void recoCherenkovAngle( Double_t bining = 100 )
     info->SetBranchAddress( "thetaC" , &thetaC );
     info->SetBranchAddress( "fishtank_width" , &fishtank_width );
     info->SetBranchAddress( "fishtank_height", &fishtank_height );
+    info->SetBranchAddress( "parDir_size", &parDir_size );
     info->GetEntry( 0 );
 
 
-    const Int_t hitsPerPixel = 50; // default: 50 hits per pixel
+    const Int_t hitsPerPixel = parDir_size; // default: 50 hits per pixel
+    TString parDir_size_str;
+    parDir_size_str += hitsPerPixel;
+    parDir_size_str.Remove( TString::kLeading, ' ' );
+    TString parDirX_str = "parDirX[" + parDir_size_str + "]";
+    TString parDirY_str = "parDirY[" + parDir_size_str + "]";
+    TString parDirZ_str = "parDirZ[" + parDir_size_str + "]";
+
+
     Int_t freq_beamtest;
+    Double_t phot_parDirX[hitsPerPixel] ={0};
+    Double_t phot_parDirY[hitsPerPixel] ={0};
+    Double_t phot_parDirZ[hitsPerPixel] ={0};
 
     pixel_beamtest->SetBranchAddress( "freq", &freq_beamtest );
     if( parDirX == -666 )
     {
-        pixel_beamtest->SetBranchAddress( "parDirX[50]", phot_parDirX );
-        pixel_beamtest->SetBranchAddress( "parDirY[50]", phot_parDirY );
-        pixel_beamtest->SetBranchAddress( "parDirZ[50]", phot_parDirZ );
+        pixel_beamtest->SetBranchAddress( parDirX_str, phot_parDirX );
+        pixel_beamtest->SetBranchAddress( parDirY_str, phot_parDirY );
+        pixel_beamtest->SetBranchAddress( parDirZ_str, phot_parDirZ );
     }
 
     Int_t nPixel_beamtest = pixel_beamtest->GetEntries();
+    pixel_beamtest->GetEntry(0);
 
 
     TFile *kBarFile = new TFile( kBarFilename );
@@ -107,7 +118,7 @@ void recoCherenkovAngle( Double_t bining = 100 )
     TCanvas *canvas = new TCanvas( "canvas", "" ,200, 10, 700, 500 );
     canvas->Draw();
 
-    TString title = "Cherenkov angle  (par: #Theta = [0,180]#circ, #phi = [0,360]#circ)";
+    TString title = "Cherenkov angle  (par: #Theta = [0,180[#circ, #phi = [0,360[#circ)";
     TH1F *cherenkov = new TH1F( "cherenkov_angle", title, bining, 35, 55);
 //     TH1F *cherenkov = new TH1F( "cherenkov_angle", title, 200, 0, 180);
 
@@ -137,9 +148,10 @@ void recoCherenkovAngle( Double_t bining = 100 )
 
 //         timediff->SetBinContent(pxX,pxY,kBarY[2]-kBarY[1]);
 
+
         for( int l =0; l < freq_beamtest; l++)
         {
-            if( freq_beamtest > hitsPerPixel )
+            if( freq_beamtest > hitsPerPixel && parDirX == -666 )
                 break;
 
             TVector3 parDir;
@@ -249,10 +261,15 @@ void recoCherenkovAngle( Double_t bining = 100 )
 //     f1.FixParameter(4,870);
 //     f1.FixParameter(5,-9.9);
 //     f1.SetParLimits(2,-3.2,-4);
-    TF1 f1("f1","gaus(0)");
-    f1.SetParameters(500,44,1);
+
+//     TF1 f1("f1","gaus(0)");
+//     f1.SetParameters(500,44,1);
+
+    TF1 f1("f1","gaus(0)+pol0(3)");
+    f1.SetParameters(500,44,1,1000);
+
     f1.SetLineColor(2);
-    cherenkov->Fit("f1","m","",40,48);
+    cherenkov->Fit("f1","m","",41,47);
     gStyle->SetOptFit(111);
-    cout << (f1.GetParameter(2))*17.45 << " mrad" << endl;
+    cout << (f1.GetParameter(2))*17.45 << " +- " << (f1.GetParError(2))*17.45 << " mrad" << endl;
 }
