@@ -114,9 +114,9 @@ int main(int argc, char *argv[])
 
   // sub options
   bool opt_mirror               = false; // default: false ; mirror at slab front end
-  bool opt_fishtankBlack_bottom = true; // default: true ; absorbed fishtank side
+  bool opt_fishtankBlack_bottom = false; // default: true ; absorbed fishtank side
   bool opt_fishtankBlack_sides  = false; // default: false
-  bool opt_fishtankBlack_top    = true; // default: true
+  bool opt_fishtankBlack_top    = false; // default: true
   bool opt_Cherenkov_onlyInBar  = false; // Cherenkov photons are only generated in bar (slab)
   bool opt_alongBar             = false; // particles hits the bar at slab front end
   bool opt_woLens               = false; // default: false ; without lens
@@ -243,10 +243,10 @@ int main(int argc, char *argv[])
   double kinE = 2.0; // default: 2.0 GeV kinetic energy ; 2.3 GeV
   double beta = Sqrt( 1 - Power( mass / (kinE + mass), 2 ) ); // E = T + E0 = gamma * E0
 
-  double spot_radius = 20; // default: 20 mm 1-sigma beam spot radius (gaus smeared)
+  double spot_radius = 0; // default: 20 mm 1-sigma beam spot radius (gaus smeared)
   double spot_limit = 50; // default: 50 mm beam spot radius limit
 
-  int particle_number = 10; // default: 300
+  int particle_number = 300; // default: 300
 
   double inci_theta = 30; // default: 30 degree ; old: 57 degree
   double inci_phi   = 0; // default: 0 degree
@@ -257,7 +257,7 @@ int main(int argc, char *argv[])
 
 
   // photon properties
-  int photon_number = 10; // default: 100 (per particle); 0 means realistic number of Cherenkov photons
+  int photon_number = 100; // default: 100 (per particle); 0 means realistic number of Cherenkov photons
 
   double lambda_min = 300; // default: 300 nm ; lowest Cherenkov wavelength
   double lambda_max = 700; // default: 700 nm ; highest Cherenkov wavelength
@@ -703,19 +703,16 @@ int main(int argc, char *argv[])
     strcpy(airBox_material, airBox_mat_helper);
   strcpy(fishtank_material, fishtank_mat_helper);
 
-  bool slab_fresnel = true;
-  bool lens_fresnel = true;
-  bool airBox_fresnel = true;
-  bool fishtank_fresnel = true;
+  bool slab_fresnel = !opt_noFresnel_slab;
+  bool lens_fresnel = !opt_noFresnel_lens;
+  bool airBox_fresnel = !opt_noFresnel_airBox;
+  bool fishtank_fresnel = !opt_noFresnel_fishtank;
 
-  if( opt_noFresnel_slab )
-    slab_fresnel = false;
-  if( opt_noFresnel_lens )
-    lens_fresnel = false;
-  if( opt_noFresnel_airBox )
-    airBox_fresnel = false;
-  if( opt_noFresnel_fishtank )
-    fishtank_fresnel = false;
+  bool fishtankBlack_bottom = opt_fishtankBlack_bottom;
+  bool fishtankBlack_sides  = opt_fishtankBlack_sides;
+  bool fishtankBlack_top    = opt_fishtankBlack_top;
+
+  bool mirror = opt_mirror;
 
   if( opt_woLens )
   {
@@ -781,7 +778,11 @@ int main(int argc, char *argv[])
   infoTree->Branch( "fishtank_thetaX"       , &fishtank_thetaX       , "fishtank_thetaX/D" );
   infoTree->Branch( "fishtank_thetaY"       , &fishtank_thetaY       , "fishtank_thetaY/D" );
   infoTree->Branch( "fishtank_phi"          , &fishtank_phi          , "fishtank_phi/D" );
-  infoTree->Branch( "fishtank_fresnel"      , &fishtank_fresnel      , "fiahtank_fresnel/O" );
+  infoTree->Branch( "fishtank_fresnel"      , &fishtank_fresnel      , "fishtank_fresnel/O" );
+  infoTree->Branch( "fishtankBlack_bottom"  , &fishtankBlack_bottom  , "fishtankBlack_bottom/O" );
+  infoTree->Branch( "fishtankBlack_sides"   , &fishtankBlack_sides   , "fishtankBlack_sides/O" );
+  infoTree->Branch( "fishtankBlack_top"     , &fishtankBlack_top     , "fishtankBlack_top/O" );
+  infoTree->Branch( "mirror"                , &mirror                , "mirror/O" );
   infoTree->Branch( "photon_number"         , &photon_number         , "photon_number/I" );
   infoTree->Branch( "lambda_min"            , &lambda_min            , "lambda_min/D" );
   infoTree->Branch( "lambda_max"            , &lambda_max            , "lambda_max/D" );
@@ -928,24 +929,53 @@ int main(int argc, char *argv[])
   //==============================================================================
 
   // set some global options
-  gStyle->SetCanvasColor( 0 );        // white
-  gStyle->SetCanvasBorderMode( 0 );   // no yellow frame
-  gStyle->SetFrameFillColor( 0 );
-  gStyle->SetFrameBorderMode( 0 );    // no red frame
-  gStyle->SetHistFillColor( 0 );
-  gStyle->SetPadColor( 0 );
-  gStyle->SetTitleFillColor( 0 );     // white; not saved in the root file
-  gStyle->SetTitleFontSize( 0.05 );
-  gStyle->SetPalette( 1 );            // better color palette
-  gStyle->SetStatColor( 0 );          // stat. box color
+//   gStyle->SetCanvasColor( 0 );        // white
+//   gStyle->SetCanvasBorderMode( 0 );   // no yellow frame
+//   gStyle->SetFrameFillColor( 0 );
+//   gStyle->SetFrameBorderMode( 0 );    // no red frame
+//   gStyle->SetHistFillColor( 0 );
+//   gStyle->SetPadColor( 0 );
+//   gStyle->SetTitleFillColor( 0 );     // white; not saved in the root file
+//   gStyle->SetTitleFontSize( 0.05 );
+//   gStyle->SetPalette( 1 );            // better color palette
+//   gStyle->SetStatColor( 0 );          // stat. box color
+  gROOT->SetStyle("Plain");
 
-  TCanvas *canvas_beamspot = new TCanvas( "canvas_beamspot", "" ,200, 10, 700, 510 );
+  // use Times-Roman fonts
+  gStyle->SetTextFont(132);
+  gStyle->SetTextSize(0.07);
+  gStyle->SetTitleFont(132,"xyz");
+  gStyle->SetTitleSize(0.05,"xyz");
+  gStyle->SetLabelFont(132,"xyz");
+  gStyle->SetLabelSize(0.04,"xyz");
+  gStyle->SetStatFont(132);
+
+  // use bold lines and markers
+  gStyle->SetMarkerStyle(20); // full circle
+  gStyle->SetMarkerSize(0.4);
+  gStyle->SetHistLineWidth(1.85);
+
+  // paletts (2,3D plots)
+  gStyle->SetPalette(1,0);
+  gStyle->SetNumberContours(50);
+
+  // canvas or pad margins
+  gStyle->SetPadLeftMargin(0.11);
+  gStyle->SetPadRightMargin(0.11);
+  gStyle->SetPadTopMargin(0.11);
+  gStyle->SetPadBottomMargin(0.11);
+
+  // stat. options
+  gStyle->SetOptStat(1);
+
+  // canvas size in batch mode is strange and fixed
+  TCanvas *canvas_beamspot = new TCanvas( "canvas_beamspot", "" , 1 );
   canvas_beamspot->Draw();
 
-  TCanvas *canvas_screen   = new TCanvas( "canvas_screen"  , "" ,200, 10, 700, 510 );
+  TCanvas *canvas_screen   = new TCanvas( "canvas_screen"  , "" , 1 );
   canvas_screen->Draw();
 
-  TCanvas *canvas_setup    = new TCanvas( "canvas_setip"   , "" ,200, 10, 700, 510 );
+  TCanvas *canvas_setup    = new TCanvas( "canvas_setup"   , "" , 1 );
   canvas_setup->Draw();
 
 
@@ -2013,9 +2043,29 @@ int main(int argc, char *argv[])
       }
 
 
-      double parOriginX = hitBarX - parDirX/Abs(parDirX) * spot_limit; // move exterior beam spot particle in bar to bar border
-      double parOriginY = hitBarY - parDirY/Abs(parDirX) * spot_limit;
-      double parOriginZ = hitBarZ - parDirZ/Abs(parDirX) * spot_limit;
+      double parOriginX;
+      double parOriginY;
+      double parOriginZ;
+
+      if( opt_alongBar )
+      {
+        parOriginX = hitBarX - parDirX/Abs(parDirY) * spot_limit; // move exterior beam spot particle in bar to bar border
+        parOriginY = hitBarY - parDirY/Abs(parDirY) * spot_limit;
+        parOriginZ = hitBarZ - parDirZ/Abs(parDirY) * spot_limit;
+
+        if( parDirY == 0 )
+        {
+          parOriginX = hitBarX;
+          parOriginY = hitBarY;
+          parOriginZ = hitBarZ;
+        }
+      }
+      else
+      {
+        parOriginX = hitBarX - parDirX/Abs(parDirX) * spot_limit; // move exterior beam spot particle in bar to bar border
+        parOriginY = hitBarY - parDirY/Abs(parDirX) * spot_limit;
+        parOriginZ = hitBarZ - parDirZ/Abs(parDirX) * spot_limit;
+      }
 
       TVector3 z = TVector3(0,0,1);
       TVector3 ortho;

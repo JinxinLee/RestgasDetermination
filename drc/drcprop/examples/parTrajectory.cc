@@ -33,7 +33,7 @@ void parTrajectory( TString inFilename = ""  )
 // Access to the input ROOT-file & canvas settings
 //==============================================================================
 	TFile *inFile   = new TFile( inFilename );
-	TCanvas *setup = (TCanvas*) inFile->Get("Setup");
+    TCanvas *setup = (TCanvas*) inFile->Get("Setup");
 	TTree *particleTree = (TTree*) inFile->Get("particle");
 
 
@@ -50,7 +50,10 @@ void parTrajectory( TString inFilename = ""  )
 
 
 	TCanvas *canvas = new TCanvas( "canvas", "" ,200, 10, 1200, 500 );
+//     TCanvas *canvas = new TCanvas( "canvas", "" ,1 );
 	canvas->Draw();
+    setup->DrawClonePad();
+    setup->Close(); // w/o -> Error in <RootX11ErrorHandler>
 
 
 //==============================================================================
@@ -66,14 +69,7 @@ void parTrajectory( TString inFilename = ""  )
 			l->SetPoint(1, spotEndX, spotEndY, spotEndZ);
 			l->SetLineColor(3);
 			l->Draw();
+//             cout << "start: (" << spotX << ", " << spotY << ", " << spotZ << ")   "
+//               << "end: (" << spotEndX << ", " << spotEndY << ", " << spotEndZ << ")" << endl;
 	}
-
-
-//==============================================================================
-// Plot
-//==============================================================================
-	setup->DrawClonePad();
-	setup->Close(); // w/o -> Error in <RootX11ErrorHandler>
-
-
 }

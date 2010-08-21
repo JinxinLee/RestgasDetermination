@@ -75,9 +75,9 @@ PndDrcEffiBialkali::PndDrcEffiBialkali()
   fEffiArray[58] = 0.03;
   fEffiArray[59] = 0.02;
   fEffiArray[60] = 0.01;
-  fEffiArray[61] = 0.075;
-  fEffiArray[62] = 0.05;
-  fEffiArray[63] = 0.025;
+  fEffiArray[61] = 0.0075;
+  fEffiArray[62] = 0.005;
+  fEffiArray[63] = 0.0025;
 
 
 
@@ -120,7 +120,7 @@ PndDrcEffiBialkali& PndDrcEffiBialkali::operator=(const PndDrcEffiBialkali& effi
 //----------------------------------------------------------------------
 bool PndDrcEffiBialkali::EffiFlag(double lambda, double cosine) const
 {
-  
+
   if (lambda < 700 && (fRan.Uniform() < fEffiArray[(int)(lambda/10+0.5)]))
     {
       return true;

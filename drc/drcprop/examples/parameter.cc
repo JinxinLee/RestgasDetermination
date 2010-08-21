@@ -98,6 +98,10 @@ void parameter( TString inFilename = ""  )
     infoTree->SetBranchAddress( "lens_fresnel"          , &lens_fresnel );
     infoTree->SetBranchAddress( "airBox_fresnel"        , &airBox_fresnel );
     infoTree->SetBranchAddress( "fishtank_fresnel"      , &fishtank_fresnel );
+    infoTree->SetBranchAddress( "fishtankBlack_bottom"  , &fishtankBlack_bottom );
+    infoTree->SetBranchAddress( "fishtankBlack_sides"   , &fishtankBlack_sides );
+    infoTree->SetBranchAddress( "fishtankBlack_top"     , &fishtankBlack_top );
+    infoTree->SetBranchAddress( "mirror"                , &mirror );
 	infoTree->SetBranchAddress( "gridXstep"             , &gridXstep );
 	infoTree->SetBranchAddress( "gridYstep"             , &gridYstep );
 
@@ -130,6 +134,14 @@ void parameter( TString inFilename = ""  )
     if( airgap > 0 )
         cout << "    airBox:   " << airBox_material << endl;
     cout <<     "    fishtank: " << fishtank_material << endl;
+
+
+    cout << "  volume options:" << endl;
+
+    cout <<     "    fishtank bottom blackened: " << fishtankBlack_bottom << endl;
+    cout <<     "    fishtank top blackened:    " << fishtankBlack_sides << endl;
+    cout <<     "    fishtank sides blackened:  " << fishtankBlack_sides << endl;
+    cout <<     "    mirror: " << mirror << endl;
 
 
     cout << "  fresnel:" << endl;
