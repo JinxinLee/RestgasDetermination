@@ -277,10 +277,10 @@ Int_t PndFtsMapCreator::GetTubeIDTot(Int_t chamberid, Int_t layerid, Int_t tubei
     if(tmpstring.Contains("down_1/fts")){totTubeID=tube+90+12;}
     if(tmpstring.Contains("up_1/fts")){totTubeID=tube+90;}
     if(!tmpstring.Contains("down") && !tmpstring.Contains("up")){
-      if(layer%2==1 && tubeid<=90){totTubeID=tube+12;} //odd layer
-      if(layer%2==1 && tubeid>90){totTubeID=tube+24;}
-      if(layer%2!=1 && tubeid<=90){totTubeID=tube;}
-      if(layer%2!=1 && tubeid>90){totTubeID=tube+12;}
+      if(layer%2==1 && tubeid<=90){totTubeID=tube;} //odd layer
+      if(layer%2==1 && tubeid>90){totTubeID=tube+12;}
+      if(layer%2!=1 && tubeid<=90){totTubeID=tube+12;}
+      if(layer%2!=1 && tubeid>90){totTubeID=tube+24;}
     }
     if(tmpstring.Contains("down")&& !tmpstring.Contains("down_1/fts")){
       if(layer%2){totTubeID=tube+12;} //odd layer
