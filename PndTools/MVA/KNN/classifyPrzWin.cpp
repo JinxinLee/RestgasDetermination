@@ -135,7 +135,7 @@ int main(int argc, char** argv)
   
   // ___________ Classification ________
   unsigned int misCnt = 0;
-  int totNumEvt = 100;//events->GetEntriesFast();
+  int totNumEvt = 10;//events->GetEntriesFast();
   
   // Open OutputFile.
   std::ofstream Outfile;

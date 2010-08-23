@@ -157,6 +157,9 @@ void PndPrzWindowClassify::setWindowSize(float wsize)
 float PndPrzWindowClassify::histKernel( const std::vector<float>& evtDat,
 					const std::vector<float>& trSample)
 {
+  // If the examples have the same length
+  assert (evtDat.size() == trSample.size());
+
   // Fetch the variables.
   const std::vector<PndMvaVariable>& variables = m_dataSets.GetVars();
   
@@ -172,11 +175,11 @@ float PndPrzWindowClassify::histKernel( const std::vector<float>& evtDat,
   std::sort(tmpPar.begin(), tmpPar.end());
   
   // last element is the largest
-  if( (tmpPar[tmpPar.size() - 1]) <= 0.5){
-    return 1.00;// inside
+  if( 0.5 >= (tmpPar[tmpPar.size() - 1]) ){
+    return 1.00;// Inside current cube
   }
   else{
-    return 0.00;// outside
+    return 0.00;// Outside current cube
   }
 }
 

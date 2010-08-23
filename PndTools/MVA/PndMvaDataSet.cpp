@@ -538,6 +538,7 @@ void PndMvaDataSet::ComputeVariance()
     {
       variance += (vec[ev] - mean) * (vec[ev] - mean);
     }
+    // dividing by (N-1), unbiased sigma or (sigma)^2.
     variance = variance / static_cast<float>(m_events.size() - 1 );
     variance = sqrt(variance);
     

@@ -33,8 +33,9 @@ LIBS += -lMLP -lXMLIO -fopenmp
 # .PHONY: all
 
 # Define targets
-TRGTS  = PndMvaUtil PndMvaDataSet PndGpidClassifier PndMvaTrainer
-TRGTS +=  CreateRandomDataSet Classifiers examples
+TRGTS  = PndMvaUtil PndMvaVarPCATransform PndMvaDataSet
+TRGTS += PndGpidClassifier PndMvaTrainer CreateRandomDataSet
+TRGTS += Classifiers examples
 
 all: $(TRGTS)
 	@echo ""
@@ -42,11 +43,11 @@ all: $(TRGTS)
 	@echo "-> before running the application."
 	@echo ""
 
-PndGpidClassifier: % : %.cpp
+PndGpidClassifier: % : %.cpp PndMvaDataSet
 	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ./build/$@.o
 	@echo "Done building:" $@
 
-PndMvaDataSet: % : %.cpp
+PndMvaDataSet: % : %.cpp PndMvaVarPCATransform
 	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ./build/$@.o
 	@echo "Done building:" $@
 
@@ -54,11 +55,15 @@ PndMvaUtil:  % : %.cpp
 	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ./build/$@.o
 	@echo "Done building:" $@
 
-PndMvaTrainer: % : %.cpp
+PndMvaTrainer: % : %.cpp PndMvaDataSet
 	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ./build/$@.o
 	@echo "Done building:" $@
 
 CreateRandomDataSet: % : %.cpp
+	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ./build/$@.o
+	@echo "Done building:" $@
+
+PndMvaVarPCATransform: % : %.cpp
 	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ./build/$@.o
 	@echo "Done building:" $@
 
@@ -76,31 +81,34 @@ examples: PndMvaUtil PndMvaDataSet PndGpidClassifier Classifiers
 
 # Build stdKnn Cassifier.
 	$(CXX) $(CCFLAGS) $(LIBS) build/classifyStdKnn.o  build/PndStdKnnClassify.o build/PndGpidClassifier.o \
-	build/PndMvaUtil.o build/PndMvaDataSet.o -o build/classifyStdKnn
+	build/PndMvaUtil.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o -o build/classifyStdKnn
 # Build LVQ Cassifier.
 	$(CXX) $(CCFLAGS) $(LIBS) build/LVQclassify.o build/PndLVQClassify.o build/PndGpidClassifier.o \
-	build/PndMvaUtil.o build/PndMvaDataSet.o -o build/LVQclassify
+	build/PndMvaUtil.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o -o build/LVQclassify
 # Build kd-tree KNN Cassifier.
 	$(CXX) $(CCFLAGS) $(LIBS) build/KnnClassify.o build/PndKnnClassify.o build/PndGpidClassifier.o \
-	build/PndMvaUtil.o build/PndMvaDataSet.o -o build/KNNclassify
+	build/PndMvaUtil.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o -o build/KNNclassify
 # Build Projected KNN Cassifier.
 	$(CXX) $(CCFLAGS) $(LIBS) build/Prclassify.o build/PndProjectedKNN.o build/PndKnnClassify.o \
-	build/PndGpidClassifier.o build/PndMvaUtil.o build/PndMvaDataSet.o -o build/PrKNNclassify
+	build/PndGpidClassifier.o build/PndMvaUtil.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o \
+	-o build/PrKNNclassify
 # Build LVQ Trainer.
 	$(CXX) $(CCFLAGS) $(LIBS) build/LVQtrain.o build/PndMvaTrainer.o build/PndMvaUtil.o build/PndLVQTrain.o \
-	build/PndMvaDataSet.o build/PndMvaCluster.o -o build/LVQtrain
+	build/PndMvaDataSet.o build/PndMvaCluster.o build/PndMvaVarPCATransform.o -o build/LVQtrain
 # Build KNN Trainer.
 	$(CXX) $(CCFLAGS) $(LIBS) build/KnnTrain.o build/PndMvaTrainer.o build/PndMvaUtil.o build/PndKnnTrain.o \
-	build/PndMvaDataSet.o -o build/KNNTrain
+	build/PndMvaDataSet.o build/PndMvaVarPCATransform.o -o build/KNNTrain
 # Build a random dataset creator.
-	$(CXX) $(CCFLAGS) $(LIBS) build/CreateRandomDataSet.o -o build/CreateRandomDataSet
+	$(CXX) $(CCFLAGS) $(LIBS) build/CreateRandomDataSet.o build/PndMvaVarPCATransform.o \
+	-o build/CreateRandomDataSet
 # Build an example to use clustering module.
 	$(CXX) $(CCFLAGS) $(LIBS) build/PndMvaCluster.o build/exampleCluster.o build/PndMvaDataSet.o \
-	build/PndMvaUtil.o -o build/exampleCluster
+	build/PndMvaUtil.o build/PndMvaVarPCATransform.o -o build/exampleCluster
 
 # Build an example app using parzenWindow classifier.
 	$(CXX) $(CCFLAGS) $(LIBS) build/classifyPrzWin.o  build/PndPrzWindowClassify.o \
-	build/PndGpidClassifier.o build/PndMvaUtil.o build/PndMvaDataSet.o -o build/przWinClassify
+	build/PndGpidClassifier.o build/PndMvaUtil.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o \
+	-o build/przWinClassify
 
 # Build PDE-Foam trainer and classifier.
 #	$(CXX) $(CCFLAGS) $(LIBS) build/FoamTrainTest.o build/PndMvaTrainer.o build/PndMvaUtil.o \
