@@ -38,6 +38,7 @@ PndGpidClassifier.cpp
 PndMvaDataSet.cpp
 PndMvaTrainer.cpp
 PndMvaUtil.cpp
+PndMvaVarPCATransform.cpp
 )
 
 if(RULE_CHECKER_FOUND)
@@ -59,6 +60,7 @@ PndMvaTrainer.h
 PndMvaUtil.h
 PndMvaVariable.h
 PndMvaClass.h
+PndMvaVarPCATransform.h
 )
 
 # fill list of header files from list of source files

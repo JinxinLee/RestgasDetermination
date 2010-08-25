@@ -16,9 +16,10 @@ FLAGSMACHINE = -march=native -mtune=native
 
 CCFLAGS  = -W -Wall -Wextra -Wredundant-decls -Wshadow -Werror
 CCFLAGS += -fdiagnostics-show-option -fdiagnostics-show-location=every-line
-CCFLAGS += -Woverlength-strings -Wstack-protector -fopenmp -funroll-loops
-CCFLAGS += -O3 ${FLAGSMACHINE}
-# CCFLAGS += -malign-double -maccumulate-outgoing-args -ftracer
+CCFLAGS += -Woverlength-strings -Wstack-protector
+CCFLAGS += -O3  -fopenmp -ftracer ${FLAGSMACHINE}
+CCFLAGS += -fsched2-use-traces -funroll-loops -fvariable-expansion-in-unroller
+# CCFLAGS += -malign-double -maccumulate-outgoing-args
 # CCFLAGS += -fvariable-expansion-in-unroller -fprefetch-loop-arrays
 # CCFLAGS += -fstrict-aliasing -Wstrict-aliasing=3
 
