@@ -1,0 +1,30 @@
+noPhotos
+###################################################################
+#    Stupid decay file to test propagation of MC IDs
+###################################################################
+
+Decay psi(2S)
+1.0 chi_c1 gamma PHSP;
+Enddecay
+
+Decay chi_c1
+1.0 J/psi gamma PHSP;
+Enddecay
+
+Decay J/psi
+0.5000 Lambda0 anti-Lambda0    PHSP;
+Enddecay
+
+Decay Lambda0
+0.5000 p+ pi-    PHSP;
+Enddecay
+
+Decay anti-Lambda0
+0.5000 anti-n0 pi0    PHSP;
+Enddecay
+
+Decay pi0
+0.5000 gamma e+ e-    PHSP;
+Enddecay
+
+End
