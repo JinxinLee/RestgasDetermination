@@ -64,12 +64,14 @@ double EvtRootRandomEngine::random(){
 
 // -----   Default constructor   ------------------------------------------
 PndEvtGenDirect::PndEvtGenDirect() {
+	SetName("PndEvtGenDirect");
 	fStoreTree=false;
 }
 // ------------------------------------------------------------------------
 
 // -----   Standard constructor   -----------------------------------------
-PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, Long_t Seed) {
+PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, Long_t Seed,TString defaultDECAY,TString defaultPDL) {
+	SetName("PndEvtGenDirect");
     cout << "<I> PndEvtGenDirect"<<endl;
     cout << "<I> Particle: "<<particle<<endl;
     cout << "<I> decfile: "<<decfile<<endl;
@@ -84,7 +86,7 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, 
   if (Seed>=0)
     myRandomEngine=new EvtRootRandomEngine(Seed);
 
-  myGenerator=new EvtGen("DECAY.DEC","evt.pdl",myRandomEngine);
+  myGenerator=new EvtGen(defaultDECAY,defaultPDL,myRandomEngine);
 
   //If I wanted a user decay file, I would read it in now.
   if(decfile!="") myGenerator->readUDecay(decfile.Data());
@@ -102,10 +104,15 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, 
   fEnergy = 0.0;
   double mp=0.93827;
 
-  if (particle=="pbarpSystem" && Mom!=0)
+  if (particle=="pbarpSystem" && Mom!=0){
     val=Mom;
-  else
+  }else{
+	  if(PART.getId()==-1){
+		  cerr << "Particle \""<<particle<<"\" is unknown!!!"<<endl<<"Check your Macro for spelling mistake."<<endl;
+		  exit(0);
+	  }
     val=-EvtPDL::getMass(PART);
+  }
   
   // val is the momentum of the pbar beam
   if (val>0){  
