@@ -33,6 +33,12 @@ class PndMvaVarPCATransform
   virtual ~PndMvaVarPCATransform();
 
   /**
+   * Prepare Transformation for the given dataset events.
+   *@param dat Collection of the event feature vectors.
+   */
+  bool InitPCATranformation(const std::vector<std::pair<std::string, std::vector<float>*> >& dat);
+
+  /**
    * Transforms the current event variables
    @@param evd Vector containing the event to transform.
    *@return Transformed event.
@@ -43,12 +49,12 @@ class PndMvaVarPCATransform
   inline const TVectorD& GetMeanValues() const;
 
   //! Get Eigenvectors matrix.
-  inline const TMatrixD& GetEigenVectors()const;
+  inline const TMatrixD& GetEigenVectors() const;
 
  private:
   // To avoid mistakes.
-  PndMvaVarPCATransform(const PndMvaVarPCATransform& o);
-  PndMvaVarPCATransform& operator=(const PndMvaVarPCATransform& o);
+  PndMvaVarPCATransform(const PndMvaVarPCATransform& ot);
+  PndMvaVarPCATransform& operator=(const PndMvaVarPCATransform& ot);
   
   // Given a list of n-dimensional data points, Computes PCA for the current dataset.
   void ComputePrincipalComponents(const std::vector< std::pair<std::string, std::vector<float>*> >& dat);
@@ -71,7 +77,7 @@ inline const TVectorD& PndMvaVarPCATransform::GetMeanValues() const
 /**
  * Get Eigenvectors matrix.
  */
-inline const TMatrixD& PndMvaVarPCATransform::GetEigenVectors()const
+inline const TMatrixD& PndMvaVarPCATransform::GetEigenVectors() const
 {
   return *m_EigenVectors;
 }

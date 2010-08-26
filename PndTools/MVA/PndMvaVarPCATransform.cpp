@@ -13,11 +13,15 @@
 
 #include "PndMvaVarPCATransform.h"
 
+using namespace std;
+
 PndMvaVarPCATransform::PndMvaVarPCATransform()
 {}
 
 PndMvaVarPCATransform::~PndMvaVarPCATransform()
 {
+  cout << "<INFO> Cleaning claimed memory and removing objects."
+       << endl; 
   // Delete Mean value vector
   if(m_MeanValues){
     delete m_MeanValues;
@@ -29,26 +33,51 @@ PndMvaVarPCATransform::~PndMvaVarPCATransform()
 }
 
 /**
- * Transforms the current event variables
- @@param evd Vector containing the event to transform.
- *@return Transformed event.
+ * Prepare Transformation for the given dataset events.
+ *@param dat Collection of the event feature vectors.
  */
-const std::vector<float>& PndMvaVarPCATransform::Transform(const std::vector<float>& evd) const
+bool PndMvaVarPCATransform::InitPCATranformation(const vector<pair<std::string, vector<float>*> >& dat)
 {
-  evd.size();
-  return *(new std::vector<float>());
-}
-
-// Given a list of n-dimensional data points, Computes PCA for the current dataset.
-void PndMvaVarPCATransform::ComputePrincipalComponents(const std::vector< std::pair<std::string, std::vector<float>*> >& dat)
-{
-  if(dat.size() <= 0){
+  if( dat.size() <= 0 ){
     std::cerr << "<ERROR> No data available in the given data container.\n"
 	      << "Could not perform PCA." << std::endl;
     assert(dat.size() != 0);
   }
+  cout << "<INFO> Initializing PCA object and computing PCA transformation parameters."
+       << endl;
+  ComputePrincipalComponents(dat);
+
+  if(m_MeanValues && m_EigenVectors){
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Transforms the current event variables
+ @@param evd Vector containing the event to transform.
+ *@return Transformed event.
+ */
+const std::vector<float>& PndMvaVarPCATransform::Transform(const std::vector<float>& evt) const
+{
+  const size_t nvar = evt.size();
+  std::vector<float>* p = new std::vector<float>(nvar, 0.0);
   
-  unsigned int nvar = (dat[0].second)->size();
+  for (size_t i = 0; i < nvar; i++) {
+    double pv = 0;
+    for (size_t j = 0; j < nvar; j++)
+      pv += (static_cast<double>(evt.at(j)) - (*m_MeanValues)(j)) * (*m_EigenVectors)(j,i);
+    (*p)[i] = pv;
+  }
+  return *p;
+}
+
+// Given a list of n-dimensional data points, Computes PCA for the current dataset.
+void PndMvaVarPCATransform::ComputePrincipalComponents(const vector<pair<string, vector<float>*> >& dat)
+{
+  cout << "<INFO> Computing PCA for the current dataset."
+       << endl;
+  size_t nvar = (dat[0].second)->size();
   double *dvec = new double[nvar];
 
   /*

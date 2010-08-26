@@ -17,10 +17,10 @@ FLAGSMACHINE = -march=native -mtune=native
 CCFLAGS  = -W -Wall -Wextra -Wredundant-decls -Wshadow -Werror
 CCFLAGS += -fdiagnostics-show-option -fdiagnostics-show-location=every-line
 CCFLAGS += -Woverlength-strings -Wstack-protector
-CCFLAGS += -O3  -fopenmp -ftracer ${FLAGSMACHINE}
+CCFLAGS += -O3 -fopenmp -ftracer ${FLAGSMACHINE}
 CCFLAGS += -fsched2-use-traces -funroll-loops -fvariable-expansion-in-unroller
+# CCFLAGS += -fprefetch-loop-arrays
 # CCFLAGS += -malign-double -maccumulate-outgoing-args
-# CCFLAGS += -fvariable-expansion-in-unroller -fprefetch-loop-arrays
 # CCFLAGS += -fstrict-aliasing -Wstrict-aliasing=3
 
 INCLUDE = $(shell root-config --cflags) -I./
@@ -36,7 +36,7 @@ LIBS += -lMLP -lXMLIO -fopenmp
 # Define targets
 TRGTS  = PndMvaUtil PndMvaVarPCATransform PndMvaDataSet
 TRGTS += PndGpidClassifier PndMvaTrainer CreateRandomDataSet
-TRGTS += Classifiers examples
+TRGTS += examplePCATransform Classifiers examples
 
 all: $(TRGTS)
 	@echo ""
@@ -68,6 +68,10 @@ PndMvaVarPCATransform: % : %.cpp
 	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ./build/$@.o
 	@echo "Done building:" $@
 
+examplePCATransform: % : %.cpp PndMvaDataSet
+	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ./build/$@.o
+	@echo "Done building:" $@
+
 Classifiers:
 	$(MAKE) -C KNN;
 	$(MAKE) -C LVQ1;
@@ -83,25 +87,28 @@ examples: PndMvaUtil PndMvaDataSet PndGpidClassifier Classifiers
 # Build stdKnn Cassifier.
 	$(CXX) $(CCFLAGS) $(LIBS) build/classifyStdKnn.o  build/PndStdKnnClassify.o build/PndGpidClassifier.o \
 	build/PndMvaUtil.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o -o build/classifyStdKnn
+
 # Build LVQ Cassifier.
 	$(CXX) $(CCFLAGS) $(LIBS) build/LVQclassify.o build/PndLVQClassify.o build/PndGpidClassifier.o \
 	build/PndMvaUtil.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o -o build/LVQclassify
+
 # Build kd-tree KNN Cassifier.
 	$(CXX) $(CCFLAGS) $(LIBS) build/KnnClassify.o build/PndKnnClassify.o build/PndGpidClassifier.o \
 	build/PndMvaUtil.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o -o build/KNNclassify
+
 # Build Projected KNN Cassifier.
 	$(CXX) $(CCFLAGS) $(LIBS) build/Prclassify.o build/PndProjectedKNN.o build/PndKnnClassify.o \
 	build/PndGpidClassifier.o build/PndMvaUtil.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o \
 	-o build/PrKNNclassify
+
 # Build LVQ Trainer.
 	$(CXX) $(CCFLAGS) $(LIBS) build/LVQtrain.o build/PndMvaTrainer.o build/PndMvaUtil.o build/PndLVQTrain.o \
 	build/PndMvaDataSet.o build/PndMvaCluster.o build/PndMvaVarPCATransform.o -o build/LVQtrain
+
 # Build KNN Trainer.
 	$(CXX) $(CCFLAGS) $(LIBS) build/KnnTrain.o build/PndMvaTrainer.o build/PndMvaUtil.o build/PndKnnTrain.o \
 	build/PndMvaDataSet.o build/PndMvaVarPCATransform.o -o build/KNNTrain
-# Build a random dataset creator.
-	$(CXX) $(CCFLAGS) $(LIBS) build/CreateRandomDataSet.o build/PndMvaVarPCATransform.o \
-	-o build/CreateRandomDataSet
+
 # Build an example to use clustering module.
 	$(CXX) $(CCFLAGS) $(LIBS) build/PndMvaCluster.o build/exampleCluster.o build/PndMvaDataSet.o \
 	build/PndMvaUtil.o build/PndMvaVarPCATransform.o -o build/exampleCluster
@@ -117,6 +124,14 @@ examples: PndMvaUtil PndMvaDataSet PndGpidClassifier Classifiers
 
 #	$(CXX) $(CCFLAGS) $(LIBS) build/FoamClassifyTest.o build/PndPDEFoamClassify.o build/PndGpidClassifier.o \
 #	build/PndMvaDataSet.o build/PndMvaUtil.o -o build/FoamClassifyTest
+
+# Build a random dataset creator.
+	$(CXX) $(CCFLAGS) $(LIBS) build/CreateRandomDataSet.o build/PndMvaVarPCATransform.o \
+	-o build/CreateRandomDataSet
+
+# Build PCA example
+	$(CXX) $(CCFLAGS) $(LIBS) build/examplePCATransform.o build/PndMvaVarPCATransform.o \
+	build/PndMvaDataSet.o -o build/pcaExample
 
 clean:
 	rm -f *~ *.o *.root build/*

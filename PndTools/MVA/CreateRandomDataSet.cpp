@@ -42,11 +42,12 @@ int main(int argc, char**argv)
   clas.push_back("proton");//clas.push_back("gamma");
   
   vars.push_back("p"); vars.push_back("emc");
-  vars.push_back("thetaC"); vars.push_back("stt");
-  vars.push_back("mvd"); vars.push_back("tof");
   vars.push_back("z20");vars.push_back("z53");
   vars.push_back("lat");
-
+  /*
+    vars.push_back("thetaC"); vars.push_back("stt");
+    vars.push_back("mvd"); vars.push_back("tof");
+  */
   TRandom3 rand(9753);
   
   std::cout << "<INFO>: Initialization."
