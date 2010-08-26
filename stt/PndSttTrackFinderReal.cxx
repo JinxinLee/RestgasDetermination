@@ -1495,6 +1495,7 @@ if(istampa>=2) {
 
    if( nMCTracks >0 && nTracksFoundSoFar > 0 ){
 
+/*
          AssociateFoundTrackstoMC(
 		  info,
                   nTracksFoundSoFar,
@@ -1505,8 +1506,18 @@ if(istampa>=2) {
                   daTrackFoundaTrackMC
                                    );
    }
+*/
 
-
+         AssociateFoundTrackstoMCbis(
+		  info,
+                  nTracksFoundSoFar,
+                  nHitsinTrack,
+                  ListHitsinTrack,
+                  nSkewHitsinTrack,
+                  ListSkewHitsinTrack,
+                  daTrackFoundaTrackMC
+                                   );
+   }
 
    for(jexp=0; jexp<nTracksFoundSoFar;jexp++){
 	nParalCommon[jexp]=0;
@@ -12100,6 +12111,129 @@ out2:  ;
 
 
 //----------end of function PndSttTrackFinderReal::AssociateFoundTrackstoMC
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//----------begin of function PndSttTrackFinderReal::AssociateFoundTrackstoMCbis
+
+    void PndSttTrackFinderReal::AssociateFoundTrackstoMCbis(
+		  Double_t info[][7],
+                  UShort_t nTracksFoundSoFar,
+                  UShort_t nHitsinTrack[MAXTRACKSPEREVENT],
+                  UShort_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+                  UShort_t nSkewHitsinTrack[MAXTRACKSPEREVENT],
+                  UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+                  Short_t daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
+                                                        )
+{
+
+   bool	       inclusionMC[nTracksFoundSoFar][nmaxHits],
+		inclusionExp[nTracksFoundSoFar];
+
+   UShort_t	ntoMCtrack[nTracksFoundSoFar],
+		toMCtracklist[nTracksFoundSoFar][nmaxHits],
+		toMCtrackfrequency[nTracksFoundSoFar][nmaxHits];
+
+   UShort_t  i, j, enne, jtemp,jexp;
+
+   Short_t  itemp, massimo;
+
+
+
+   for(i=0; i<nTracksFoundSoFar;i++){
+
+
+
+     daTrackFoundaTrackMC[i]=-1;
+     inclusionExp[i]=true;
+	for(j=0; j<nHitsinTrack[i]+nSkewHitsinTrack[i];j++){
+		inclusionMC[i][j]=true;
+	}
+   }
+
+
+
+     for(jexp=0; jexp< nTracksFoundSoFar ;jexp++){
+	ntoMCtrack[jexp]=1;
+	toMCtracklist[jexp][0]=(UShort_t)( info[infoparal[ ListHitsinTrack[jexp][0] ] ][6]+0.01);
+	toMCtrackfrequency[jexp][0]=1;
+
+// prima  gli hits paralleli ---------------------
+	for(i=1; i<nHitsinTrack[jexp]; i++){
+		enne = (UShort_t)( info[ infoparal[ ListHitsinTrack[jexp][i] ] ][6]+0.01 );
+		for(j=0; j<ntoMCtrack[jexp]; j++){
+			if( enne == toMCtracklist[jexp][j] ) {
+				toMCtrackfrequency[jexp][j]++;
+				goto out1 ;
+			}
+		}
+		toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
+		toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
+		ntoMCtrack[jexp]++;
+out1:  ;
+	}   //  end of for(i=0; i<nHitsinTrack[jexp]; i++)
+
+
+
+     }  // end of  for(jexp=0; jexp< nTracksFoundSoFar ;jexp++)
+
+
+     itemp=0;
+     while ( itemp > -1){
+	itemp=-1;
+	massimo = -1;
+	for(jexp=0; jexp< nTracksFoundSoFar ;jexp++){
+		if( !inclusionExp[jexp])  continue;
+		for(i=0; i< ntoMCtrack[jexp]; i++){
+			if( !inclusionMC[jexp][i])  continue;
+			if( toMCtrackfrequency[jexp][i]>massimo){
+				massimo=toMCtrackfrequency[jexp][i];
+				itemp = toMCtracklist[jexp][i];
+				jtemp = jexp;
+			}
+		}
+	}
+	if( itemp>-1 ){
+		daTrackFoundaTrackMC[jtemp]=itemp;
+		inclusionExp[jtemp]=false;
+		for(jexp=0; jexp<nTracksFoundSoFar;jexp++){
+			for(int jk=0;jk<ntoMCtrack[jexp];jk++){
+				if( itemp==toMCtracklist[jexp][jk]){
+					inclusionMC[jexp][jk]=false;
+				}
+			}
+		}
+	}
+     }    //    end while ( itemp > -1)
+
+  return;
+
+
+}
+
+
+
+
+//----------end of function PndSttTrackFinderReal::AssociateFoundTrackstoMCbis
+
+
+
+
+
+
+
+
 
 
 
