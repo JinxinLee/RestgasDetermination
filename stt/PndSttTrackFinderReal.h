@@ -155,7 +155,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
       int IVOLTE, ntimes, INTERO, ITRACCIA,
           N_INTENDED;
 //  Double_t SEMILENGTH_STRAIGHT = 75.;
-      static const bool  iplotta = true , ianalizza = true ;
+      static const bool  iplotta = false , ianalizza = true ;
       static const int  nmassimo=10;
       int istampa ;
       TH1F * hx;
@@ -705,10 +705,18 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                   UShort_t *nSkewHitsinTrack,
                   UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
                   Short_t daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
-//                  Short_t *daMCTrackaTrackFound 
-                                                        );
+				);
 
 
+    void AssociateFoundTrackstoMCbis(
+		  Double_t info[][7],
+                  UShort_t nTracksFoundSoFar,
+                  UShort_t nHitsinTrack[MAXTRACKSPEREVENT],
+                  UShort_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+                  UShort_t nSkewHitsinTrack[MAXTRACKSPEREVENT],
+                  UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+                  Short_t daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
+					);
 
 
 
