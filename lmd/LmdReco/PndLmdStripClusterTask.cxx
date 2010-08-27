@@ -1,5 +1,6 @@
 // -------------------------------------------------------------------------
 // -----                PndLmdStripClusterTask source file             -----
+// -----           modified for Lmd by M. Michel & A.Karavdina         -----
 // -------------------------------------------------------------------------
 
 //LUMI
@@ -15,23 +16,65 @@
 //FAIR
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
+#include "FairBaseParSet.h"
 //ROOT
 #include "TList.h"
-
+#include "TDatabasePDG.h"
+#include "TLorentzVector.h"
 // -----   Default constructor   -------------------------------------------
 
 PndLmdStripClusterTask::PndLmdStripClusterTask() :
   PndSdsStripClusterTask("LMD Strip Clusterisation Task")
 {
-/*  fChargeCut = 1.e8; // this ist really large and shall have no effect
-  fGeoFile = "";
-  fClusterMod=ClusterMod;
-  if(fClusterMod>1 || fClusterMod<0) fClusterMod=0;
-  fRadChannel=RadChannel;
-  fRadTime=RadTime;*/
-  // fyRotation = 2.326;
+  fGeoH = PndGeoHandling::Instance();
 }
 
+// -----   Public method Init   --------------------------------------------
+InitStatus PndLmdStripClusterTask::Init()
+{
+SetBranchNames();
+  
+  FairRootManager* ioman = FairRootManager::Instance();
+  if ( ! ioman )
+  {
+    std::cout << "-E- PndSdsStripClusterTask::Init: "
+    << "RootManager not instantiated!" << std::endl;
+    return kFATAL;
+  }
+  
+  // Get input array
+  fDigiArray = (TClonesArray*) ioman->GetObject(fInBranchName);
+  if ( ! fDigiArray )
+  {
+    std::cout << "-W- PndSdsStripClusterTask::Init: "
+    << "No SDSDigi array!" << std::endl;
+    return kERROR;
+  }
+  
+  // set output arrays
+  
+  fClusterArray = new TClonesArray("PndSdsClusterStrip");
+  ioman->Register(fClustBranchName, fFolderName, fClusterArray, fPersistance);
+  
+  fHitArray = new TClonesArray("PndSdsHit");
+  ioman->Register(fOutBranchName, fFolderName, fHitArray, fPersistance);
+
+  SetInBranchId();
+
+  SetCalculators();
+  
+  //  FairRun* 
+  ana = FairRun::Instance();
+  //  FairRuntimeDb* 
+  rtdb = ana->GetRuntimeDb();
+  FairBaseParSet* par=(FairBaseParSet*)
+    (rtdb->findContainer("FairBaseParSet"));
+  //  cout<<"par = "<<par<<endl;
+  fPbeam = par->GetBeamMom();
+  //  cout<<"PndLmdStripClusterTask::Init() fPbeam = "<<fPbeam<<endl;
+  Info("Init","Initialisation successfull");
+  return kSUCCESS;
+}
 
 // -----   Destructor   ----------------------------------------------------
 PndLmdStripClusterTask::~PndLmdStripClusterTask()
@@ -62,12 +105,12 @@ void PndLmdStripClusterTask::SetBranchNames()
 // -----   Initialization  of Parameter Containers -------------------------
 void PndLmdStripClusterTask::SetParContainers()
 {
-  cout<<"PndLmdStripClusterTask::SetParContainers() !!!"<<endl;
   // called from the FairRun::Init()
   // Caution: The Parameter Set is not filled from the DB IO, yet. 
   // This will be done just before this Tasks Init() is called.
-  FairRun* ana = FairRun::Instance();
-  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
+  //FairRun* ana = FairRun::Instance();
+  //  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
+
   PndLmdContFact* themvdcontfact = (PndLmdContFact*)rtdb->getContFactory("PndLmdContFact");
   TList* theContNames = themvdcontfact->GetDigiParNames();
   Info("SetParContainers()","The container names list contains %i entries",theContNames->GetEntries());
@@ -91,7 +134,6 @@ void PndLmdStripClusterTask::SetParContainers()
 
 void PndLmdStripClusterTask::SetCalculators()
 {
-  std::cout<<"PndLmdStripClusterTask::SetCalculators() !!!"<<std::endl;
   Info("SetCalculators","lmd");
   PndSdsStripClusterTask::SetCalculators();
   TIter params(fDigiParameterList);
@@ -122,33 +164,81 @@ void PndLmdStripClusterTask::SetCalculators()
     } else if(1==ClusterMod) { 
       fClusterFinderList[senstype] = new PndSdsStripAdvClusterFinder(fInBranchId, RadChannel, RadTime); 
     } 
-	}
+  }
 }
 
 TVector3 PndLmdStripClusterTask::AddMSErr(TVector3 hpos, TVector3 hposerr){
-  //  return hposerr;
+  if(fVerbose>0) Info("AddMSErr","calculation additional errors due to multiple scaterring");
+
+  //Calculation of ThetaMS -------------------------------------
+  //Charge & mass of particle
+  Int_t PDGCode = -2212;
+  TDatabasePDG *fdbPDG = TDatabasePDG::Instance();
+  TParticlePDG *fParticle = fdbPDG->GetParticle(PDGCode);
+  // Double_t  fCharge = fParticle->Charge();
+  Double_t fMass = fParticle->Mass();
+
+  Double_t Ebeam = TMath::Hypot(fPbeam,fMass);
+  TLorentzVector LorMom(0, 0, fPbeam, Ebeam);
+  Double_t beta = LorMom.Beta();
+  //  cout<<"beta = "<<beta<<endl;
+  Double_t X = 0.015;
+  Double_t X0 = 9.36;
+  Double_t thetaMS = 13.6*1e-3*TMath::Sqrt(X/X0)*(1+0.038*TMath::Log(X/X0))/(beta*fPbeam);
+  // Double_t thetaMS = 13.6*1e-3*TMath::Sqrt(X/X0)/(beta*fPbeam); //TEST!!!
+  //-----------------------------------------------------------
+
+  //TO DO: use parameters from geometry info for LUMI
+  // Double_t thetaMS = 5.44e-04/fPbeam;
+  // cout<<"thetaMS = "<<thetaMS<<endl;
+  Double_t d = 10; 
   double xerr,yerr;
   double zhit = hpos.Z();
-  cout<<"0 xerr = "<<hposerr.X()<<" yerr = "<<hposerr.Y()<<endl;
-  if(zhit<1100.) return hposerr;
-  if(zhit>1100.){
-    xerr = TMath::Hypot(hposerr.X(),0.002);
-    yerr = TMath::Hypot(hposerr.Y(),0.002);
-    cout<<"1 xerr = "<<xerr<<" yerr = "<<yerr<<endl;
-    if(zhit>1110.){
-      xerr = TMath::Hypot(xerr,0.002);
-      yerr = TMath::Hypot(yerr,0.002);
-      cout<<"2 xerr = "<<xerr<<" yerr = "<<yerr<<endl;
-      if(zhit>1120.){
-	xerr = TMath::Hypot(xerr,0.002);
-	yerr = TMath::Hypot(yerr,0.002);
-	cout<<"3 xerr = "<<xerr<<" yerr = "<<yerr<<endl;
-      }
-      if(zhit>1130.){
-	cout<<"Something wrong! in PndLmdStripClusterTask::AddMSErr"<<endl;
-      }
-    }
+  const double Z0 = 1100.;
+  int num = (zhit-Z0)/10;
+  //  double numd = (zhit-Z0)/10.;
+  //  cout<<"num = "<<num<<" num(double) = "<<numd<<endl;
+  xerr = hposerr.X();
+  yerr = hposerr.Y();
+  for(int j=0;j<num;j++){
+    double sigmaMS = (j+1)*d*thetaMS;
+    xerr = TMath::Hypot(xerr,sigmaMS);
+    yerr = TMath::Hypot(yerr,sigmaMS);  
   }
+
+  // /// only for test -----
+  // double sigma_add = 1e-4*(7.083-num*d*0.6238);
+  // xerr = TMath::Hypot(xerr,sigma_add);
+  // yerr = TMath::Hypot(yerr,sigma_add);
+  // ///--------------------
+
+  //cout<<"Plane #"<<num<<" zhit="<<zhit<<" xerr = "<<xerr<<" yerr = "<<yerr<<" sigma_add = "<<sigma_add<<endl;
+  //cout<<"Plane #"<<num<<" zhit="<<zhit<<" xerr = "<<xerr<<" yerr = "<<yerr<<endl;
+  // if(zhit<Z0){
+  //   cout<<"0 zhit="<<zhit<<" xerr = "<<hposerr.X()<<" yerr = "<<hposerr.Y()<<endl;
+  //   return hposerr;
+  // }
+  // if(zhit>Z0){
+  //   Double_t sigma1 = d*thetaMS;
+  //   xerr = TMath::Hypot(hposerr.X(),sigma1);
+  //   yerr = TMath::Hypot(hposerr.Y(),sigma1);
+  //   cout<<"1 zhit="<<zhit<<" xerr = "<<xerr<<" yerr = "<<yerr<<" sigma1 = "<<sigma1<<endl;
+  //   if(zhit>Z0+d){
+  //     Double_t sigma2 = 2*d*thetaMS;
+  //     xerr = TMath::Hypot(xerr,sigma2);
+  //     yerr = TMath::Hypot(yerr,sigma2);
+  //     cout<<"2 zhit="<<zhit<<" xerr = "<<xerr<<" yerr = "<<yerr<<" sigma2 = "<<sigma2<<endl;
+  //     if(zhit>Z0+2*d){
+  // 	Double_t sigma3 = 3*d*thetaMS;
+  // 	xerr = TMath::Hypot(xerr,sigma3);
+  // 	yerr = TMath::Hypot(yerr,sigma3);
+  // 	cout<<"3 zhit="<<zhit<<" xerr = "<<xerr<<" yerr = "<<yerr<<" sigma3 = "<<sigma3<<endl;
+  //     }
+  //     if(zhit>Z0+3*d){
+  // 	cout<<"Something wrong! in PndLmdStripClusterTask::AddMSErr"<<endl;
+  //     }
+  //   }
+  // }
   TVector3 res(xerr,yerr,hposerr.Z());
   return res;
 };
@@ -158,13 +248,16 @@ Bool_t PndLmdStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantope
 {
   // BACKMAPPING
   // get the backmapped point
-  
+  cout<<"PndLmdStripClusterTask::BACKMAP"<<endl;
+  //Info("Backmap","Sensor ID is %s",sensorID);
   TVector3 localpos;
   TMatrixD locCov(3,3);
   Double_t t, b;
-  
+  cout<<"sensorID = "<<sensorID<<endl;
+  cout<<"fGeoH = "<<fGeoH<<endl;
   Double_t errZ = 2.*fGeoH->GetSensorDimensionsShortId(sensorID).Z()/TMath::Sqrt(12.0);
-  
+  cout<<"errZ = "<<errZ<<endl;
+
   TVector2 onsensorPoint = 
   CalcLineCross(meantopPoint, fCurrentStripCalcTop->GetStripDirection(), meanbotPoint, fCurrentStripCalcBot->GetStripDirection() );
   // here we assume the sensor system to be in the _Middle_ of the volume
@@ -188,63 +281,17 @@ Bool_t PndLmdStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantope
   
   //do the transformation from sensor to lab frame
   hitCov = fGeoH->LocalToMasterErrorsShortId(locCov,sensorID);
-  // TVector3 hitErr(sqrt(locCov[0][0]),sqrt(locCov[1][1]),sqrt(locCov[2][2]));
-  // TVector3 hitErrMSadd = AddMSErr(hitPos, hitErr);
-  // locCov[0][0] = TMath::Power(hitErrMSadd.X(),2);
-  // locCov[1][1] = TMath::Power(hitErrMSadd.Y(),2);
-  // locCov[2][2] = TMath::Power(hitErrMSadd.Z(),2);
+  TVector3 hitErr(sqrt(hitCov[0][0]),sqrt(hitCov[1][1]),sqrt(hitCov[2][2]));
+  TVector3 hitErrMSadd = AddMSErr(hitPos, hitErr);
+  hitCov[0][0] = TMath::Power(hitErrMSadd.X(),2);
+  hitCov[1][1] = TMath::Power(hitErrMSadd.Y(),2);
+  hitCov[2][2] = TMath::Power(hitErrMSadd.Z(),2);
+
+  // cout<<" hitCov[0][0] = "<<hitCov[0][0]<<" hitCov[1][1] = "<<hitCov[1][1]<<" hitCov[2][2] = "<<hitCov[2][2]<<endl;
+  // cout<<" sqrt(hitCov[0][0]) = "<<sqrt(hitCov[0][0])<<" sqrt(hitCov[1][1]) = "<<sqrt(hitCov[1][1])
+  //     <<" sqrt(hitCov[2][2]) = "<<sqrt(hitCov[2][2])<<endl;
+
   return kTRUE;
 }
-
-
-// Bool_t PndLmdStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantoperr, TVector2 meanbotPoint, 
-// 					Double_t meanboterr,
-// 					TVector3 &hitPos, TVector3 &hitErr, TString &detname)
-// {
-//   // BACKMAPPING
-//   // get the backmapped point
-//   TVector3 localpos, locDpos;
-//   Double_t t, b;
-//   Double_t errZ = 2.*fGeoH->GetSensorDimensionsShortId(detname).Z()/TMath::Sqrt(12.0);
-
-//   TVector2 onsensorPoint =
-//     CalcLineCross(meantopPoint, fCurrentStripCalcTop->GetStripDirection(), meanbotPoint, fCurrentStripCalcBot->GetStripDirection() );
-//   // here we assume the sensor system to be in the _Middle_ of the volume
-
-
-//   // if(fyRotation==0.){  						//TODO: make this generaly
-//   //   localpos.SetXYZ( onsensorPoint.X(), onsensorPoint.Y(), 0.);
-//   // }else{
-//   //   localpos.SetXYZ( onsensorPoint.X(), onsensorPoint.Y(), onsensorPoint.X()*tan(fyRotation*TMath::Pi()/180.));
-//   // }
-
-//   //local system already rotated!
-//   localpos.SetXYZ( onsensorPoint.X(), onsensorPoint.Y(), 0.);
-  
-//   // let's see if we're still on the sensor (cut combinations with noise off)
-//   if(fabs(localpos.X()) > fabs(fCurrentDigiPar->GetTopAnchor().X())) return kFALSE;
-//   if(fabs(localpos.Y()) > fabs(fCurrentDigiPar->GetTopAnchor().Y())) return kFALSE;
-	
-//   //do the transformation from sensor to lab frame
-//   hitPos = fGeoH->LocalToMasterId(localpos,detname.Data());
- 	
-//   // calculate the errors corresponding to a skewed system!
-//   t = meantoperr*fCurrentDigiPar->GetTopPitch()*cos(fCurrentDigiPar->GetOrient());
-//   b = meanboterr*fCurrentDigiPar->GetBotPitch()*cos(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
-//   locDpos.SetX( sqrt(t*t+b*b) );
-//   t = meantoperr*fCurrentDigiPar->GetTopPitch()*sin(fCurrentDigiPar->GetOrient());
-//   b = meanboterr*fCurrentDigiPar->GetBotPitch()*sin(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
-//   locDpos.SetY( sqrt(t*t+b*b) );
-//   locDpos.SetZ( errZ );
-//   // cout<<"@@@@@ PndLmdStripClusterTask::Backmap (ErrX, ErrY, ErrZ)loc = "
-//   //     <<sqrt(t*t+b*b)<<", "<<sqrt(t*t+b*b)<<", "<<errZ<<endl;
- 	 
-//   //do the transformation from sensor to lab frame
-//   hitErr = fGeoH->LocalToMasterErrorsId(locDpos,detname.Data());
-//   TVector3 hitErrMSadd = AddMSErr(hitPos, hitErr);
-//   hitErr = hitErrMSadd;
-//   return kTRUE;
-// }
-
 ClassImp(PndLmdStripClusterTask);
 
