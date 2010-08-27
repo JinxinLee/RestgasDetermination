@@ -26,16 +26,16 @@
 class TClonesArray;
 class TGeoManager;
 
-const Double_t fz0 = 1099.; //z-coordinate of first LMD plane
-void SumDistance2(int &, double *, double & sum, double * par, int ); //for Fitter
-void LocalFCN(int &, double *, double & sum, double * par, int ); //for Fitter in local coordinates
-
+//const Double_t fz0 = 1099.; //z-coordinate of first LMD plane
+//void SumDistance2(int &, double *, double & sum, double * par, int ); //for Fitter
+//void LocalFCN(int &, double *, double & sum, double * par, int ); //for Fitter in local coordinates
 //minimization distance in 3D
-double distance2(double x,double y,double z, double *p);
+//double distance2(double x,double y,double z, double *p);
 //minimization distance in 2D in local coordinates
-double distance_l(double x, double y, double z, double errx, double erry, double errz, double *p);
+//double distance_l(double x, double y, double z, double errx, double erry, double errz, double *p);//in local coordinates
 //minimization perpendicular distance between point and 3D line
-double distance_perp(double x,double y,double z, double errx,double erry,double errz, double *p);
+//double distance_perp(double x,double y,double z, double errx,double erry,double errz, double *p);
+
 class PndLmdLinFitTask : public FairTask {
 
 public:
@@ -50,7 +50,17 @@ public:
 
   virtual void Exec(Option_t* opt);
 
-private:
+protected:
+
+  static Double_t fz0; //z-coordinate of first LMD plane
+  static void SumDistance2(int &, double *, double & sum, double * par, int ); //for Fitter
+  static void LocalFCN(int &, double *, double & sum, double * par, int ); //for Fitter in local coordinates
+  //minimization distance in 3D
+  static double distance2(double x,double y,double z, double *p);
+  //minimization distance in 2D in local coordinates
+  static double distance_l(double x, double y, double z, double errx, double erry, double errz, double *p);
+  //minimization perpendicular distance between point and 3D line
+  static double distance_perp(double x,double y,double z, double errx,double erry,double errz, double *p);
 
   // Input Data------------
   TClonesArray* fTCandArray;

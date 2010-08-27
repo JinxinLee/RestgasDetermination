@@ -43,6 +43,8 @@
 using namespace ROOT::Math;
 using namespace std;
 
+Double_t PndLmdLinFitTask::fz0 = 1099.; 
+
 PndLmdLinFitTask::PndLmdLinFitTask()
   : FairTask("3D-Straight-Line-Fit")
 {
@@ -198,7 +200,7 @@ void PndLmdLinFitTask::line(double t, double *p, double &x, double &y, double &z
 } 
 
 // calculate distance line-point 
-double distance2(double x,double y,double z, double *p) { 
+double PndLmdLinFitTask::distance2(double x,double y,double z, double *p) { 
    // distance line point is D= | (xp-x0) cross  ux | 
    // where ux is direction of line and x0 is a point in the line (like t = 0) 
    XYZVector xp(x,y,z); 
@@ -212,7 +214,7 @@ double distance2(double x,double y,double z, double *p) {
 }
 
 // function to be minimized 
-void SumDistance2(int &, double *, double & sum, double * par, int ) { 
+void PndLmdLinFitTask::SumDistance2(int &, double *, double & sum, double * par, int ) { 
    TGraph2D * gr = dynamic_cast<TGraph2D*>( (TVirtualFitter::GetFitter())->GetObjectFit() );
    assert(gr != 0);
    double * x = gr->GetX();
@@ -230,7 +232,7 @@ void SumDistance2(int &, double *, double & sum, double * par, int ) {
 }
 
 // calculate distance line-point in local coordinates
-double distance_perp(double x,double y,double z, double errx,double erry,double errz, double *p) { 
+double PndLmdLinFitTask::distance_perp(double x,double y,double z, double errx,double erry,double errz, double *p) { 
   // cout<<" "<<endl;
   // cout<<" --- --- --- --- --- ---"<<endl;
   Double_t t_min = (p[1]*(x-p[0])+p[3]*(y-p[2])+(z-fz0))/(p[1]*p[1]+p[3]*p[3]+1);
@@ -265,7 +267,7 @@ double distance_perp(double x,double y,double z, double errx,double erry,double 
 }
 
 // calculate distance line-point in local coordinates
-double distance_l(double x,double y,double z, double errx,double erry,double errz, double *p) { 
+double PndLmdLinFitTask::distance_l(double x,double y,double z, double errx,double erry,double errz, double *p) { 
   // cout<<"(p[1]*p[1]+p[3]*p[3]) = "<<(p[1]*p[1]+p[3]*p[3])<<endl;
   // if((p[1]*p[1]+p[3]*p[3])>1) return 1e6;
 
@@ -276,7 +278,7 @@ double distance_l(double x,double y,double z, double errx,double erry,double err
   return fchi2; 
 }
 // function to be minimized in local coordinates
-void LocalFCN(int &, double *, double & sum, double * par, int ) { 
+void PndLmdLinFitTask::LocalFCN(int &, double *, double & sum, double * par, int ) { 
   TGraph2DErrors * gr = dynamic_cast<TGraph2DErrors*>( (TVirtualFitter::GetFitter())->GetObjectFit() );
   assert(gr != 0);
   double * x = gr->GetX();
