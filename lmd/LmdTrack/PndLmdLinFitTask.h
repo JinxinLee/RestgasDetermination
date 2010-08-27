@@ -19,6 +19,7 @@
 // Collaborating Class Headers -------
 #include <map>
 #include "TString.h"
+#include "TVector3.h"
 #include "TMatrixTSym.h"
 
 // Collaborating Class Declarations --
@@ -28,8 +29,13 @@ class TGeoManager;
 const Double_t fz0 = 1099.; //z-coordinate of first LMD plane
 void SumDistance2(int &, double *, double & sum, double * par, int ); //for Fitter
 void LocalFCN(int &, double *, double & sum, double * par, int ); //for Fitter in local coordinates
+
+//minimization distance in 3D
 double distance2(double x,double y,double z, double *p);
-double distance_l(double x, double y, double z, double errx, double erry, double errz, double *p);//in local coordinates
+//minimization distance in 2D in local coordinates
+double distance_l(double x, double y, double z, double errx, double erry, double errz, double *p);
+//minimization perpendicular distance between point and 3D line
+double distance_perp(double x,double y,double z, double errx,double erry,double errz, double *p);
 class PndLmdLinFitTask : public FairTask {
 
 public:
@@ -65,7 +71,7 @@ private:
   // Fitting ------------
   void line(double t, double *p, double &x, double &y, double &z);
   double line3Dfit(Int_t nd, TGraph2DErrors* gr, Double_t* fitpar, Double_t* fitparErr);
- 
+  double line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSeed, TVector3 dirSeed, Double_t* fitpar, Double_t* fitparerr);
 
   ClassDef(PndLmdLinFitTask,1);
 

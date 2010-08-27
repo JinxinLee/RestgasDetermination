@@ -26,6 +26,7 @@ PndLmdTrackFinderTask::PndLmdTrackFinderTask() :
    fClusterBranchStrip = "LMDStripClusterCand";
    fDigiBranchStrip = "LMDStripDigis";
    dXY = 0.5;
+   //   dXY = 20;
 }
 
 
@@ -299,6 +300,19 @@ void PndLmdTrackFinderTask::Exec(Option_t* opt)
         PndSdsDigiStrip* astripdigi = (PndSdsDigiStrip*)fStripDigiArray->At(myCluster->GetDigiIndex(0));
         myTCand->AddHit(astripdigi->GetDetID(),ids.at(id),myHit->GetPosition().Mag());    
       }
+
+      ///Add seed information to track------------
+      PndSdsHit* myHit0 = (PndSdsHit*)(fStripHitArray->At(ids.at(0)));
+      PndSdsHit* myHit1 = (PndSdsHit*)(fStripHitArray->At(ids.at(1)));
+      TVector3 hit0 = myHit0->GetPosition(); TVector3 hit1 = myHit1->GetPosition();
+      double p1seed = (hit0.X()-hit1.X())/(hit0.Z()-hit1.Z());
+      double p0seed = 0.5*(hit0.X()+hit1.X()-p1seed*(hit0.Z()+hit1.Z()-2*1099.)); //TO DO: don't use const
+      double p3seed = (hit0.Y()-hit1.Y())/(hit0.Z()-hit1.Z());
+      double p2seed = 0.5*(hit0.Y()+hit1.Y()-p1seed*(hit0.Z()+hit1.Z()-2*1099.)); //TO DO: don't use const
+      TVector3 posSeed(p0seed,p2seed,0);
+      TVector3 dirSeed(p1seed,p3seed,1100.);
+      myTCand->setTrackSeed(posSeed,dirSeed,0);
+      ///-------------------------------------
 
       new((*fTrackCandArray)[trackCnt]) PndTrackCand(*(myTCand)); //save Track Candidate
       trackCnt++;
