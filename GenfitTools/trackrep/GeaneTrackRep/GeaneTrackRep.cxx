@@ -459,9 +459,37 @@ GeaneTrackRep::getPosMom(const GFDetPlane& pl,TVector3& pos, TVector3& mom)
 void
 GeaneTrackRep::getPosMomCov(const GFDetPlane& pl,TVector3& pos,TVector3& mom,TMatrixT<double>& cov){
   cov.ResizeTo(6,6);
-  std::cerr<<"insert brain here " << __FILE__ << " " << __LINE__
-	   << " ->abort" <<std::endl;
-  throw;
+
+  TMatrixT<double> statePred(fState), covPred(fCov);
+  if(pl!=fRefPlane)extrapolate(pl, statePred, covPred);
+
+  // position
+  pos = pl.getO()+(statePred[3][0]*pl.getU())+(statePred[4][0]*pl.getV());
+
+  // momentum
+  double fSPU  = _spu;
+  mom = fSPU*pl.getNormal()+fSPU*statePred[1][0]*pl.getU()+fSPU*statePred[2][0]*pl.getV();
+  mom.SetMag(1./fabs(statePred[0][0]));
+  
+  // covariance matrix
+  FairGeaneUtil util;
+  // covPred 5 X 5 ==> cov55[5][5]
+  double cov55[5][5];
+  for(int i = 0; i < 5; i++) for(int j = 0; j < 5; j++) cov55[i][j] = covPred[i][j];
+  // cov55[5][5] ==> cov15[15]
+  double cov15[15];
+  util.FromMat25ToVec15(cov55, cov15);
+  
+  FairTrackParP parPred(statePred[3][0], 
+			statePred[4][0], statePred[1][0], 
+			statePred[2][0], statePred[0][0], 
+			cov15, 
+			pl.getO(), pl.getU(), pl.getV(), 
+			_spu);
+  double cov66[6][6];
+  parPred.GetMARSCov(cov66);
+  for(int i = 0; i < 6; i++) for(int j = 0; j < 6; j++) cov[i][j] = cov66[i][j];
+ 
 }
  
 ClassImp(GeaneTrackRep)
