@@ -61,11 +61,11 @@ void PndMdt::PndMdtMagnet()
     
   //creating the holes
   TGeoBBox* mhbox1 = new TGeoBBox("mhbox1",((Double_t)PndMdtMagnet_H01_Length)/10.0,((Double_t)PndMdtMagnet_H01_Length)/10.0,((Double_t)PndMdtMagnet_L201)/10.0,0);
-  TGeoBBox* mhbox2 = new TGeoBBox("mhbox2",((Double_t)PndMdtMagnet_H02_H)/10.0,10.0+((Double_t)PndMdtMagnet_Th2)/10.0,((Double_t)PndMdtMagnet_H02_V)/10.0,0);
-  TGeoBBox* mhbox3 = new TGeoBBox("mhbox3",((Double_t)PndMdtMagnet_H03_H)/10.0,10.0+((Double_t)PndMdtMagnet_Th2)/10.0,((Double_t)PndMdtMagnet_H03_V)/10.0,0);
-  TGeoBBox* mhbox4 = new TGeoBBox("mhbox4",((Double_t)PndMdtMagnet_H04_H)/10.0,10.0+((Double_t)PndMdtMagnet_Th2)/10.0,((Double_t)PndMdtMagnet_H04_V)/10.0,0);
-  TGeoBBox* mhbox5 = new TGeoBBox("mhbox5",((Double_t)PndMdtMagnet_H05_H)/10.0,10.0+((Double_t)PndMdtMagnet_Th2)/10.0,((Double_t)PndMdtMagnet_H05_V)/10.0,0);
-  TGeoBBox* mhbox6 = new TGeoBBox("mhbox6",((Double_t)PndMdtMagnet_H06_H)/10.0,10.0+((Double_t)PndMdtMagnet_Th2)/10.0,((Double_t)PndMdtMagnet_H06_V)/10.0,0);
+  TGeoBBox* mhbox2 = new TGeoBBox("mhbox2",((Double_t)PndMdtMagnet_H02_H)/10.0,0.5+((Double_t)PndMdtMagnet_Th2)/10.0,((Double_t)PndMdtMagnet_H02_V)/10.0,0);
+  TGeoBBox* mhbox3 = new TGeoBBox("mhbox3",((Double_t)PndMdtMagnet_H03_H)/10.0,0.5+((Double_t)PndMdtMagnet_Th2)/10.0,((Double_t)PndMdtMagnet_H03_V)/10.0,0);
+  TGeoBBox* mhbox4 = new TGeoBBox("mhbox4",((Double_t)PndMdtMagnet_H04_H)/10.0,0.5+((Double_t)PndMdtMagnet_Th2)/10.0,((Double_t)PndMdtMagnet_H04_V)/10.0,0);
+  TGeoBBox* mhbox5 = new TGeoBBox("mhbox5",((Double_t)PndMdtMagnet_H05_H)/10.0,0.5+((Double_t)PndMdtMagnet_Th2)/10.0,((Double_t)PndMdtMagnet_H05_V)/10.0,0);
+  TGeoBBox* mhbox6 = new TGeoBBox("mhbox6",((Double_t)PndMdtMagnet_H06_H)/10.0,0.5+((Double_t)PndMdtMagnet_Th2)/10.0,((Double_t)PndMdtMagnet_H06_V)/10.0,0);
  
   TGeoBBox* mhupbox = new TGeoBBox("mhupbox",((Double_t)PndMdtMagnet_H_U_X)/10.0,((Double_t)PndMdtMagnet_H_U_Z)/10.0,((Double_t)PndMdtMagnet_L201)/10.0,0);
   TGeoTube* mhuptub = new TGeoTube("mhuptub",0., ((Double_t)PndMdtMagnet_H_U_R)/10.0,((Double_t)PndMdtMagnet_L201)/10.0);
@@ -272,3 +272,4 @@ void PndMdt::PndMdtMagnet()
 }
 
 ClassImp(PndMdt)
+
