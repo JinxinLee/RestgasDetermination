@@ -47,8 +47,10 @@
 #define PndMdtMagnet_H04_H 488
 #define PndMdtMagnet_H05_V 251
 #define PndMdtMagnet_H05_H 502
-#define PndMdtMagnet_H06_V 258
-#define PndMdtMagnet_H06_H 516
+//#define PndMdtMagnet_H06_V 258
+//#define PndMdtMagnet_H06_H 516
+#define PndMdtMagnet_H06_V 520
+#define PndMdtMagnet_H06_H 770
 
 // New Stefano
 #define PndMdtMagnet_H_U_X 500
