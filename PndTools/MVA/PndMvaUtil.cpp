@@ -13,8 +13,8 @@
  * Computes the Euclidean distance between two given vectors of
  * event features.
  */
-float ComputeDist(const std::vector<float> &EvtData, 
-		  const std::vector<float> &Example)
+float ComputeDist(const std::vector<float>& EvtData, 
+		  const std::vector<float>& Example)
 {
   assert(Example.size() == EvtData.size());
   

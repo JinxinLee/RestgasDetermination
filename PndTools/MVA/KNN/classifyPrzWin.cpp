@@ -166,10 +166,12 @@ int main(int argc, char** argv)
   for(int ev = 0; ev < totNumEvt; ev++){
     events->GetEntry(ev);
     //cls.GetMvaValues(curEvt, res);
-    std::string Winner = cls.Classify(curEvt);
-    if( Winner != EvtTreeName ){
+    std::string* Winner = cls.Classify(curEvt);
+    
+    if( *Winner != EvtTreeName ){
       misCnt++;
     }
+    delete Winner;
     //printResultMap(res);
   }
   Outfile << std::setprecision(5) << "# Number of Missclassified events = " << misCnt

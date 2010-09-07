@@ -34,7 +34,7 @@ PndLVQClassify::~PndLVQClassify()
  *@param EvtData Input vector describing the pattern.
  *@return The name of the class to which the current pattern is assigned.
  */
-const std::string& PndLVQClassify::Classify(std::vector<float> EvtData)
+std::string* PndLVQClassify::Classify(std::vector<float> EvtData)
 {
   // Temporary Store Values.
   std::map<std::string, float> TMPres;
@@ -44,7 +44,8 @@ const std::string& PndLVQClassify::Classify(std::vector<float> EvtData)
   const vector<PndMvaClass>& classes = m_dataSets.GetClasses();
 
   // Temporary variables for the winning class name.
-  std::string CurWin;
+  std::string CurWin = "UNKNOWN_WINNER";
+
   float CurMvaVal = std::numeric_limits<float>::max();
 
   // Find minimum the distance.
@@ -58,8 +59,7 @@ const std::string& PndLVQClassify::Classify(std::vector<float> EvtData)
   }
   
   // Create and return the result object (string).
-  std::string* outPut = new std::string(CurWin);
-  return *outPut;
+  return (new std::string(CurWin));
 }
 
 /**

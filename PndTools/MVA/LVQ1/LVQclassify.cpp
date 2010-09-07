@@ -75,7 +75,7 @@ void readEvents(const char* infile, const std::vector<std::string>& varNames,
   }// Class Loop
 }
 
-std::string& classifyEvent(const std::vector<std::string>& clas, 
+std::string* classifyEvent(const std::vector<std::string>& clas, 
 			   std::map<std::string, float>& res)
 {
   float clsVal = std::numeric_limits<float>::max();
@@ -89,7 +89,7 @@ std::string& classifyEvent(const std::vector<std::string>& clas,
       clsName = name;
     }
   }
-  return *(new std::string(clsName));
+  return (new std::string(clsName));
 }
 
 /* *********************************************
@@ -149,27 +149,29 @@ int main(int argc, char** argv)
   TStopwatch timer;
   timer.Start();
   
-  std::string tmpClsName;
-  
   // Class loop
   for(unsigned int cl = 0; cl < clas.size(); cl++){
-    std::string curClsName = clas[cl];// Current class Name
-    int correctCls = 0; int wrongCls = 0; int totNumEvt = 0;
+    // Current class Name
+    std::string curClsName = clas[cl];
+    int correctCls = 0;
+    int wrongCls = 0;
+    int totNumEvt = 0;
+
     // Events Loop
-    for(unsigned int k = 0; k < events.size(); k++){
-      if(curClsName == (events[k]).first){
+    for(unsigned int k = 0; k < events.size(); k++){      
+      if( curClsName == (events[k]).first ){
 	std::vector<float>* evt = (events[k]).second;
 	cls.GetMvaValues(*evt, res);
 	totNumEvt++;
 	
 	// Perform winner takes all.
-      	tmpClsName = classifyEvent(clas, res);
+	std::string* tmpClsName = cls.Classify(*evt);
 
 	// Store the results
 	OutPut<< "======================================= \n";
 	OutPut << "# Event " << k 
 	       << " Original className " << (events[k]).first << std::endl
-	       << " Classifier output name " << tmpClsName << std::endl;
+	       << " Classifier output name " << *tmpClsName << std::endl;
 
 	
 	for( std::map<std::string,float>::iterator it = res.begin(); 
@@ -181,12 +183,13 @@ int main(int argc, char** argv)
 	OutPut << std::endl;
 	OutPut<< "======================================= \n";
 
-	if(tmpClsName == curClsName){// Correct Label
+	if(*tmpClsName == curClsName){// Correct Label
 	  correctCls++;
 	}
 	else{// Wrong label classification.
 	  wrongCls++;
 	}
+      delete tmpClsName;
       }// End if
     }// Events Loop
     OutPut << "++++++++++++++ Results for classification of " << curClsName 
@@ -198,10 +201,6 @@ int main(int argc, char** argv)
 	   << ((static_cast<float>(wrongCls) * 100.00)/static_cast<float>(totNumEvt)) << " %" ;
     OutPut << std::endl;
   }// CLass Loop
-  /*
-    cls.Classify(evt,res);
-    printResult(res);
-  */
 
 
   timer.Stop();

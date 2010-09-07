@@ -2,7 +2,7 @@
  * MVA classifiers trainers interface.          *
  * Author: M. Babai                             *
  * M.Babai@rug.nl                               *
- * Version: 0.1 beta1.                          *
+ * Version:                                     *
  * LICENSE:                                     *
  * **********************************************
  */
@@ -35,7 +35,10 @@ PndMvaTrainer::PndMvaTrainer(const std::string& InPut,
 
 //! Destructor
 PndMvaTrainer::~PndMvaTrainer()
-{}
+{
+  m_testSet_indices.clear();
+  m_StepErro.clear();
+}
 
 /**
  * Creates test and train data sets.
@@ -62,7 +65,7 @@ void PndMvaTrainer::splitTetsSet(int percent)
   }
 }
 
-void PndMvaTrainer::WriteErroVect(const std::string FileName)
+void PndMvaTrainer::WriteErroVect(const std::string& FileName)
 {
   std::ofstream Outfile;
   

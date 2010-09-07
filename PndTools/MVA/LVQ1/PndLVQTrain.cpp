@@ -39,6 +39,11 @@ PndLVQTrain::~PndLVQTrain()
     delete m_LVQProtos[i].second;
   }
   m_LVQProtos.clear();
+
+  // Clean m_distances
+  m_distances.clear();
+
+  m_numProtoPerClass.clear();
 }
 
 /**
@@ -412,7 +417,7 @@ void PndLVQTrain::InitProtoK_Means()
   const std::vector<std::pair<std::string, std::vector<float>*> >& events = m_dataSets.GetData();
   
   // Init temporary prototype container.
-  std::map<std::string, ClDataSample> ProtoVector;//(classes.size());
+  std::map<std::string, ClDataSample*> ProtoVector;//(classes.size());
   
   //======== Class loop  
   int cls = 0;
@@ -441,7 +446,7 @@ void PndLVQTrain::InitProtoK_Means()
     
     // Create clusters from current data points.
     PndMvaCluster clust (clusteringInput, numProto);
-    ClDataSample& clustOut = clust.Cluster();
+    ClDataSample* clustOut = clust.Cluster();
 
 #ifdef _OPENMP
 #pragma omp critical (AddToProtoListMap)
@@ -459,14 +464,24 @@ void PndLVQTrain::InitProtoK_Means()
   for(size_t i = 0 ; i < classes.size(); i++){
     std::string label = classes[i].Name;
 
-    //std::vector<std::vector<float>*> TMP = ProtoVector[label];
-    //                       ------ TMP.size() -------
-    for(size_t pr = 0; pr < (ProtoVector[label]).size(); pr++){
+    //std::vector<std::vector<float>*>* TMP = ProtoVector[label];
+    //                       ------ TMP->size() -------
+    for(size_t pr = 0; pr < (ProtoVector[label])->size(); pr++){
       //                                                   ----- TMP.at(pr) ---------
-      std::vector<float>* lvpr = new std::vector<float>( *( (ProtoVector[label]).at(pr) ) );
+      std::vector<float>* lvpr = new std::vector<float>( *( (ProtoVector[label])->at(pr) ) );
       m_LVQProtos.push_back(std::make_pair(label, lvpr));
     }
   }
+  
+  // We are done. Clean-up
+  for(size_t i = 0 ; i < classes.size(); i++){
+    std::string label = classes[i].Name;
+    for(size_t pr = 0; pr < (ProtoVector[label])->size(); pr++){
+      delete (ProtoVector[label])->at(pr);
+    }
+    delete ProtoVector[label];
+  }
+  ProtoVector.clear();
 }
 
 /**

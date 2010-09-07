@@ -130,12 +130,13 @@ int main(int argc, char** argv)
     events->GetEntry(ev);
     cls.GetMvaValues(curEvt, res);
 
-    std::string resStr = cls.Classify(curEvt);
+    const std::string* resStr = cls.Classify(curEvt);
     //printResult(res);
-    if( resStr != EvtTreeName){
+    if( *resStr != EvtTreeName){
       misCl++;
       printResult(res, ev);
     }
+    delete resStr;
   }
   
   timer.Stop();

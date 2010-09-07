@@ -1,7 +1,7 @@
 /* ***************************************
  * LVQ  Training functions               *
  * Author: M.Babai@rug.nl                *
- * Version: 0.1 beta1.                   *
+ * Version:                              *
  * LICENSE:                              *
  * ***************************************
  */
@@ -62,7 +62,7 @@ class PndLVQTrain: public PndMvaTrainer
    * Set CodeBook init type.
    *@param val Initialization type.
    */
-  inline void setProtoInitType(ProtoInitType iniTypeVal = RANDOM_PR)
+  inline void setProtoInitType(const ProtoInitType iniTypeVal = RANDOM_PR)
   { m_proto_init = iniTypeVal; };
 
   /**
@@ -82,7 +82,7 @@ class PndLVQTrain: public PndMvaTrainer
    * @param Nswp: Number of sweeps through the examples collection set.
    */
   inline void SetLearnPrameters(const double initConst, const double etZ,
-                         const double etF, const int Nswp)
+				const double etF, const int Nswp)
   {
     m_initConst = initConst;
     m_ethaZero = etZ;
@@ -109,7 +109,7 @@ class PndLVQTrain: public PndMvaTrainer
    * Set how often the classifier has to be evaluated.
    *@param val Evaluate after #val steps.
    */
-  inline void SetErrorStepSize(unsigned int val)
+  inline void SetErrorStepSize(const unsigned int val)
   { m_ErrorStep = val; };
 
   //----------------------------------------
@@ -166,7 +166,9 @@ class PndLVQTrain: public PndMvaTrainer
    * Learn parameters: Init constant, start learning rate, End
    * learning rate.
    */
-  double m_initConst, m_ethaZero, m_ethaFinal;
+  double m_initConst; 
+  double m_ethaZero; 
+  double m_ethaFinal;
   
   //! Number of sweeps through example set.
   unsigned int m_NumSweep;

@@ -43,7 +43,7 @@ class PndMvaVarPCATransform
    @@param evd Vector containing the event to transform.
    *@return Transformed event.
    */
-  const std::vector<float>& Transform(const std::vector<float>& evd) const;
+  const std::vector<float>* Transform(const std::vector<float>& evd) const;
 
   //! Get mean values vector
   inline const TVectorD& GetMeanValues() const;

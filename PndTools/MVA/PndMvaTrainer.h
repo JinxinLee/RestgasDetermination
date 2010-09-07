@@ -79,7 +79,7 @@ class PndMvaTrainer
    * Writes the train and test errors evaluations to a given file.
    *@param FileName Output file name.
    */
-  void WriteErroVect(const std::string FileName);
+  void WriteErroVect(const std::string& FileName);
 
   //==============================================
   //================ Protected ===================

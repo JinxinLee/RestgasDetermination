@@ -2,7 +2,7 @@
  * MVA classifiers interface.                   *
  * Author: M.Babai@rug.nl                       *
  * LICENSE:                                     *
- * Version: 0.1 beta1.                          *
+ * Version:                                     *
  * License:                                     *
  * **********************************************
  */
@@ -48,12 +48,12 @@ class PndGpidClassifier
    *  distance for each class is stored in result.
    */
   virtual void GetMvaValues( std::vector<float> EvtData,
-			     std::map<std::string,float>& result ) = 0;
+			     std::map<std::string, float>& result ) = 0;
   /**
    *@param EvtData: Event, to be classified.
    *@return Name of the class with the best MVA value.
    */
-  virtual const std::string& Classify( std::vector<float> EvtData ) = 0;
+  virtual std::string* Classify( std::vector<float> EvtData ) = 0;
 
  protected:
   //! Data set. Holds event Weights

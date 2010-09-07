@@ -3,7 +3,7 @@
  * Author: M.Babai@rug.nl                *
  * Edited: E.A.Dijck@student.rug.nl      *
  * LICENSE:                              *
- * Version: 0.1 beta1.                   *
+ * Version:                              *
  * License:                              *
  * ***************************************
  */
@@ -47,9 +47,10 @@ class PndLVQClassify: public PndGpidClassifier
    *@param EvtData Input vector describing the pattern.
    *@return The name of the class to which the current pattern is assigned.
    */
-  const std::string& Classify(std::vector<float> EvtData);
+  std::string* Classify(std::vector<float> EvtData);
 
  private:
+  //! To avoid mistakes
   PndLVQClassify(const PndLVQClassify& other);
   PndLVQClassify& operator=(const PndLVQClassify& other);
 };

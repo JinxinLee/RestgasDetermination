@@ -56,6 +56,9 @@ PndMvaDataSet::~PndMvaDataSet()
     delete it->second;
   }
   m_ClassCondMeans.clear();
+
+  m_classes.clear();
+  m_vars.clear();
 }
 
 /**

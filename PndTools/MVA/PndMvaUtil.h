@@ -2,7 +2,7 @@
  * MVA Utility functions and data definitions.*
  * Author: M.Babai@rug.nl                     *
  * LICENSE:                                   *
- * Version: 0.1 beta1.                        *
+ * Version:                                   *
  * License:                                   *
  * *******************************************
  */
@@ -54,7 +54,7 @@ StepError(const StepError& ot)
   unsigned int m_step;
   float m_trErr;
   float m_tsErr;
-
+  
 private:
   //! Operator <
   inline bool operator<(const StepError& other)const;

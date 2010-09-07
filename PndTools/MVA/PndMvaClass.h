@@ -1,5 +1,6 @@
 /*************************************
  * The structure of the classes.     *
+ * Author: M.Babai@rug.nl            *
  * Version:                          *
  * License:                          *
  *************************************/

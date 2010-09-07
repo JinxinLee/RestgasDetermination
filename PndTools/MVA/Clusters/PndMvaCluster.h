@@ -45,21 +45,21 @@ class PndMvaCluster
    *@param ClType Clustering algorithm.
    *@return Vector containing the cluster centroids.
    */
-  ClDataSample& Cluster(ClusteringType ClType = KMEANS_HARD);
+  ClDataSample* Cluster(const ClusteringType ClType = KMEANS_HARD);
   
   //------- Getters
   /**
    * Get the number of cluster centeroids.
    *@return Number of cluster centeroids.
    */
-  inline unsigned int GetNumberOfClusters()const
+  inline unsigned int GetNumberOfClusters() const
   { return m_num_Cluster; };
   
   /**
    * Get the dimension of the input data points.
    *@return Dimension of the data points.
    */
-  inline unsigned int GetClusterDimension()const
+  inline unsigned int GetClusterDimension() const
   { return m_dimension; };
   
   //------- Setters
@@ -85,15 +85,20 @@ class PndMvaCluster
   
   // Functions & Procedures
   /// Performs the actual hard K-Means clustering.
-  ClDataSample& K_Means();
+  ClDataSample* K_Means();
+
   /// Initialize the centroids before clustering.
   void InitCentroids();
+
   /// Partitions the data points among the current cluster centroids.
   void InitialPartition();
+
   /// Compute (modify) the coordinates of centroids. 
   void ComputeCentroids();
+
   /// Clear the currently used data structures.
   void ClearStructures();
+
   /// Init empty Centroid to the furthest point.
   void ReInitEmptyCenter(unsigned int centerIdx);
 
@@ -101,10 +106,13 @@ class PndMvaCluster
   unsigned int m_num_Cluster;/// number of cluster centers.
   ClDataSample m_PointSet;/// input data points.
   unsigned int m_dimension;/// Data points dimension.
+
   /// Container to hold the centroid.
   ClDataSample m_Centroids;
+
   ///Connection of each point to a centroid.
   std::vector<unsigned int> m_PointsToClusters;
+
   /// Responsibility list of each centroid.
   std::vector< std::set<unsigned int>* > m_ClustersToPoints;
 };

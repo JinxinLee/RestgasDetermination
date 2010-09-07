@@ -1,7 +1,9 @@
-/********************
- * Author: M. Babai *
- * M.Babai@rug.nl   *
- ********************
+/***************************
+ * Author: M.Babai.        *
+ * E-Mail: M.Babai@rug.nl  *
+ * License:                *
+ * Verion:                 *
+ ***************************
  */
 /*
  * Example program. This code shows how to use PCA within Panda MVA
@@ -12,9 +14,12 @@
 #include "PndMvaDataSet.h"
 #include "PndMvaVarPCATransform.h"
 
+// C++
+#include <map>
+
 // Root includes
 #include "TFile.h"
-#include "TNtuple.h"
+#include "TTree.h"
 
 int main(int argc, char** argv)
 {
@@ -30,13 +35,18 @@ int main(int argc, char** argv)
   std::vector <std::string> clas;
   std::vector <std::string> vars;
   
-  clas.push_back("electron"); clas.push_back("pion");
-  clas.push_back("muon"); clas.push_back("kaon");
-  clas.push_back("proton");//clas.push_back("gamma");
+  clas.push_back("electron");
+  clas.push_back("pion");
+  clas.push_back("muon");
+  clas.push_back("kaon");
+  clas.push_back("proton");
+  //clas.push_back("gamma");
   
-  vars.push_back("p"); vars.push_back("emc");
-  vars.push_back("z20");vars.push_back("z53");
+  vars.push_back("p");
+  vars.push_back("emc");
   vars.push_back("lat");
+  vars.push_back("z20");
+  vars.push_back("z53");
   
   // Read data.
   PndMvaDataSet data(inFile, clas, vars);
@@ -53,26 +63,66 @@ int main(int argc, char** argv)
 
   // Events loop
   for(size_t evt = 0; evt < dd.size(); evt++){
-    std::string curClass = (dd[evt]).first;// Current class name
-    std::vector<float>* curEvt = (dd[evt]).second;// Current event vector
+    // Current class name
+    std::string curClass = (dd[evt]).first;
+    // Current event vector
+    std::vector<float>* curEvt = (dd[evt]).second;
     // Transform current event and copy
-    std::vector<float>* trEvt = new std::vector<float>(pca.Transform(*curEvt));
+    const std::vector<float>* bla = pca.Transform(*curEvt); // FIXME Return a pointer
+    std::vector<float>* trsEvt = new std::vector<float>(*bla);
     // Add result to the out vector.
-    outEvt.push_back(std::make_pair(curClass, trEvt));
+    outEvt.push_back(std::make_pair(curClass, trsEvt));
+    delete bla;
   }
 
-  // Create output Ntuple
-  TFile outPutFile(outFile.c_str(), "RECREATE", "OutFileTitle", 9);
-  for(size_t i = 0; i < outEvt.size(); i++){
-    TNtuple output( ((outEvt[i]).first).c_str(), ((outEvt[i]).first + "desc").c_str(), "x");
-    output.Write();
-  }
+  // Create output File, Trees and write
+  TFile outPutFile(outFile.c_str(), "RECREATE", "PCAFileTitle", 9);
+
+  for(size_t cls = 0; cls < clas.size(); cls++){
+    std::vector<float> buffer(vars.size(), 0.0);
+    
+    std::string name = clas[cls];
+    std::string desc = "Description Of " + name;
+    const char* treeName = name.c_str();
+    const char* treeDesc = desc.c_str();
+    
+    // Create a tree
+    TTree sig (treeName, treeDesc);
+    
+    // Create branches and bind the variables
+    for(size_t j = 0; j < vars.size(); j++){
+      std::string vname = vars[j];
+      std::string leaf  = vname + "/F" ;
+      const char* bname = vname.c_str();
+      const char* lname = leaf.c_str();
+      
+      // Bind the parameters to the tree elements.
+      sig.Branch(bname, &buffer[j], lname);
+    }
+    
+    // Fill The tree
+    for(size_t i = 0; i < outEvt.size(); i++)
+    {
+      if(outEvt[i].first == name)
+      {
+        for(size_t k = 0; k < buffer.size(); k++)
+        {
+          buffer[k] = (outEvt[i].second)->at(k);
+        }
+        sig.Fill();
+      }
+    }
+    // Write the created tree
+    sig.Write();
+  }//End for cls
   outPutFile.Close();
-  //===== Cleaning
+  
+
+  // ========= Cleaning ======================
   for(size_t i = 0; i < outEvt.size(); i++){
     delete (outEvt[i]).second;
   }
   outEvt.clear();
-
+  //--------------------------------------------
   return 0;
 }

@@ -58,7 +58,7 @@ bool PndMvaVarPCATransform::InitPCATranformation(const vector<pair<std::string, 
  @@param evd Vector containing the event to transform.
  *@return Transformed event.
  */
-const std::vector<float>& PndMvaVarPCATransform::Transform(const std::vector<float>& evt) const
+const std::vector<float>* PndMvaVarPCATransform::Transform(const std::vector<float>& evt) const
 {
   const size_t nvar = evt.size();
   std::vector<float>* p = new std::vector<float>(nvar, 0.0);
@@ -69,7 +69,7 @@ const std::vector<float>& PndMvaVarPCATransform::Transform(const std::vector<flo
       pv += (static_cast<double>(evt.at(j)) - (*m_MeanValues)(j)) * (*m_EigenVectors)(j,i);
     (*p)[i] = pv;
   }
-  return *p;
+  return p;
 }
 
 // Given a list of n-dimensional data points, Computes PCA for the current dataset.

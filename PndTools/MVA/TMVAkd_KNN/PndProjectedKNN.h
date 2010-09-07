@@ -23,15 +23,19 @@ class PndProjectedKNN: public PndGpidClassifier
   //! Destructor
   virtual ~PndProjectedKNN();
 
-  //! Classify
+  //! Get pdf's
   void GetMvaValues(std::vector<float> eventData,
 		    std::map<std::string, float>& result);
 
-  const std::string& Classify(std::vector<float> EvtData);
+  //! Classify Current event.
+  std::string* Classify(std::vector<float> EvtData);
 
   //! Set params
   inline void SetEvtParam(const float scFact, const double weight)
-  { m_ScaleFact = scFact; m_weight = weight; };
+  { 
+    m_ScaleFact = scFact;
+    m_weight = weight;
+  };
   
   //! Set number of neighbors
   inline void SetKnn(const unsigned int N)
@@ -43,7 +47,7 @@ class PndProjectedKNN: public PndGpidClassifier
  private:
   //! to avoid mistakes.
   PndProjectedKNN(const PndProjectedKNN& other);
-  inline PndProjectedKNN& operator= (const PndProjectedKNN& other);
+  PndProjectedKNN& operator= (const PndProjectedKNN& other);
   
   ///Free allocated memory.
   void destroy();

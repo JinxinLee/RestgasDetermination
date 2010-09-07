@@ -41,9 +41,11 @@ int main(int argc, char**argv)
   clas.push_back("muon"); clas.push_back("kaon");
   clas.push_back("proton");//clas.push_back("gamma");
   
-  vars.push_back("p"); vars.push_back("emc");
-  vars.push_back("z20");vars.push_back("z53");
+  vars.push_back("p");
+  vars.push_back("emc");
   vars.push_back("lat");
+  vars.push_back("z20");
+  vars.push_back("z53");
   /*
     vars.push_back("thetaC"); vars.push_back("stt");
     vars.push_back("mvd"); vars.push_back("tof");
@@ -138,10 +140,12 @@ int main(int argc, char**argv)
     delete varContainer[i];
   }  
   varContainer.clear();
+  
   for(size_t i = 0; i < trees.size(); i++)
   {
     delete trees[i];
   }
   trees.clear();
+  
   return 0;
 }

@@ -37,14 +37,16 @@ PndStdKnnClassify::PndStdKnnClassify(const string& inputFile,
 
 //! Destructor
 PndStdKnnClassify::~PndStdKnnClassify()
-{}
+{
+  m_distances.clear();
+}
 
 /**
  * Given a feature vector describing the pattern. Classifies the pattern.
  *@param EvtData Input vector describing the pattern.
  *@return The name of the class to which the current pattern is assigned.
  */
-const std::string& PndStdKnnClassify::Classify(std::vector<float> EvtData)
+std::string* PndStdKnnClassify::Classify(std::vector<float> EvtData)
 {
   // Zero number of neighbors.
   if( m_Knn == 0 ){
@@ -75,7 +77,7 @@ const std::string& PndStdKnnClassify::Classify(std::vector<float> EvtData)
   }
   // Create and return the result object (string).
   std::string* outPut = new std::string(CurWin);
-  return *outPut;
+  return outPut;
 }
 
 /**

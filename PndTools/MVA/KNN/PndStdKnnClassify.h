@@ -2,7 +2,7 @@
  * KNN based classifier.                 *
  * Author: M.Babai@rug.nl                *
  * Edited: E.A.Dijck@student.rug.nl      *
- * Version: 0.1 beta1                    *
+ * Version:                              *
  * license:                              *
  * ***************************************
  */
@@ -50,18 +50,25 @@ class PndStdKnnClassify : public PndGpidClassifier
    *@param EvtData Input vector describing the pattern.
    *@return The name of the class to which the current pattern is assigned.
    */
-  const std::string& Classify(std::vector<float> EvtData);
+  std::string* Classify(std::vector<float> EvtData);
 
   /**
    * @param Neighbours: Number of Neighbours.
    */
-  inline  void SetKNN(const unsigned int nNeighbours)
+  inline void SetKNN(const unsigned int nNeighbours)
   { m_Knn = nNeighbours; };
 
+  /**
+   * Get number of neighbors.
+   */
+  inline unsigned int GetKnn() const
+  { return m_Knn; };
+  
  private:
+  //! To avoid mistakes.
   PndStdKnnClassify(const PndStdKnnClassify& other);
   PndStdKnnClassify& operator=(const PndStdKnnClassify& other);
-
+  
   //! Number of Neighbours.
   unsigned int m_Knn;
   

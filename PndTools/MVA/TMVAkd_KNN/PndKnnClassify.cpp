@@ -44,6 +44,8 @@ PndKnnClassify::~PndKnnClassify()
     m_module->Clear();
     delete m_module;
   }
+
+  m_classIndices.clear();
 }
 
 /**
@@ -81,7 +83,7 @@ void PndKnnClassify::InitKNN()
  *@param EvtData Input vector describing the pattern.
  *@return The name of the class to which the current pattern is assigned.
  */
-const std::string& PndKnnClassify::Classify(std::vector<float> EvtData)
+std::string* PndKnnClassify::Classify(std::vector<float> EvtData)
 {
   // Zero number of neighbors.
   if( m_knn == 0 ){
@@ -112,8 +114,7 @@ const std::string& PndKnnClassify::Classify(std::vector<float> EvtData)
     }
   }
   // Create and return the result object (string).
-  std::string* outPut = new std::string(CurWin);
-  return *outPut;
+  return (new std::string(CurWin));
 }
 
 /**

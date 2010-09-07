@@ -47,7 +47,7 @@ class PndKnnClassify: public PndGpidClassifier
    *@param EvtData Input vector describing the pattern.
    *@return The name of the class to which the current pattern is assigned.
    */
-  const std::string& Classify(std::vector<float> EvtData);
+  std::string* Classify(std::vector<float> EvtData);
 
   /**
    * Set the scalefactor and the event weight for KNN classifier.
@@ -55,7 +55,10 @@ class PndKnnClassify: public PndGpidClassifier
    * @param weight  Events weight.
    */
   inline void SetEvtParam(const float scFact, const double weight)
-  {m_ScaleFact = scFact; m_weight = weight; };
+  { 
+    m_ScaleFact = scFact;
+    m_weight = weight;
+  };
 
   //! Set the number of neighbours.
   inline void SetKnn(const int N)
@@ -74,7 +77,7 @@ class PndKnnClassify: public PndGpidClassifier
  private:
   // To avoid mistakes. ;)
   PndKnnClassify(const PndKnnClassify& other);
-  inline PndKnnClassify& operator=(const PndKnnClassify& other);
+  PndKnnClassify& operator=(const PndKnnClassify& other);
   
   //!< Type definition of the neighbour list.
   typedef std::list < std::pair<const TMVA::kNN::Node<TMVA::kNN::Event>*, float> > ResList;

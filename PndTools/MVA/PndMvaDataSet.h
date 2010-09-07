@@ -100,7 +100,6 @@ class PndMvaDataSet
   // Private to avoid mistakes.
   // Copy constructor.
   PndMvaDataSet(const PndMvaDataSet& other);
-  // Assignment operator.
   PndMvaDataSet& operator=(const PndMvaDataSet& other);
 
   /**

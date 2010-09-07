@@ -29,14 +29,16 @@ PndProjectedKNN::PndProjectedKNN(const string& inputFile,
 PndProjectedKNN::~PndProjectedKNN()
 {
   destroy();
+  m_varCombinations.clear();
 }
 
 /**
+ * !Classify
  * Given a feature vector describing the pattern. Classifies the pattern.
  *@param EvtData Input vector describing the pattern.
  *@return The name of the class to which the current pattern is assigned.
  */
-const std::string& PndProjectedKNN::Classify(std::vector<float> EvtData)
+std::string* PndProjectedKNN::Classify(std::vector<float> EvtData)
 {
   // Zero number of neighbors.
   if( m_knn == 0 ){
@@ -66,12 +68,12 @@ const std::string& PndProjectedKNN::Classify(std::vector<float> EvtData)
       CurWin  = curName;
     }
   }
+
   // Create and return the result object (string).
-  std::string* outPut = new std::string(CurWin);
-  return *outPut;
+  return (new std::string(CurWin));
 }
 
-//!Classify
+//! Get pdf's
 void PndProjectedKNN::GetMvaValues(std::vector<float> eventData,
 				   std::map<string, float>& result)
 {

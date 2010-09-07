@@ -29,14 +29,16 @@ PndPrzWindowClassify::PndPrzWindowClassify(const string& inputFile,
 
 //! Destructor
 PndPrzWindowClassify::~PndPrzWindowClassify()
-{}
+{
+  m_Wsize.clear();
+}
 
 /**
  * Given a feature vector describing the pattern. Classifies the pattern.
  *@param EvtData Input vector describing the pattern.
  *@return The name of the class to which the current pattern is assigned.
  */
-const std::string& PndPrzWindowClassify::Classify(std::vector<float> EvtData)
+std::string* PndPrzWindowClassify::Classify(std::vector<float> EvtData)
 {
   // Temporary map to store MVA-Output.
   std::map<std::string, float> TMPres;
@@ -64,7 +66,7 @@ const std::string& PndPrzWindowClassify::Classify(std::vector<float> EvtData)
     }
   } 
   // Create and return the result object (string).
-  return *(new std::string(CurWin));
+  return (new std::string(CurWin));
 }
 
 /**
@@ -192,7 +194,7 @@ float PndPrzWindowClassify::CompHyperCubeVolume()
   
   //Compute the hypercube volume
   for(std::map <std::string, float>::const_iterator d = m_Wsize.begin(); d != m_Wsize.end(); ++d){
-    volume = volume * d->second;
+    volume = volume * (d->second);
   }
   return volume;
 }

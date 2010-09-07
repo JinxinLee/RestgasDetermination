@@ -44,6 +44,8 @@ void PndMvaCluster::ClearStructures()
     delete m_ClustersToPoints[i];
   }
   m_ClustersToPoints.clear();
+
+  m_PointsToClusters.clear();
 }
 
 /**
@@ -51,21 +53,23 @@ void PndMvaCluster::ClearStructures()
  *@param ClType Clustering algorithm.
  *@return Vector containing the cluster centroids.
  */
-ClDataSample& PndMvaCluster::Cluster(ClusteringType ClType)
+ClDataSample* PndMvaCluster::Cluster(const ClusteringType ClType)
 {
   // Zero dimension makes no sense.
   assert(m_dimension != 0);
+
   // More clusters than data points?
   assert(!(m_PointSet.size() < m_num_Cluster));
+
   // Zero clusters means do nothing
   assert(m_num_Cluster != 0);
   
   switch(ClType)
   {
-  case KMEANS_SOFT://Returns empty centroids.
+  case KMEANS_SOFT://Returns empty centroids (not implemented yet).
     std::cerr << "<INFO> Soft clustering." << std::endl;
     std::cerr << "<ERROR> Not implemented yet." << std::endl;
-    return *( new ClDataSample() );
+    return ( new ClDataSample() );
     break;
   default://Hard k_means clustering
     std::cerr << "<INFO> Hard K_Means clustering." << std::endl;
@@ -77,7 +81,7 @@ ClDataSample& PndMvaCluster::Cluster(ClusteringType ClType)
 /*
  * Performs the actual hard K-Means clustering.
  */
-ClDataSample& PndMvaCluster::K_Means()
+ClDataSample* PndMvaCluster::K_Means()
 {
   bool some_point_is_moving = true;
   bool move;
@@ -160,7 +164,7 @@ ClDataSample& PndMvaCluster::K_Means()
     std::vector<float>* ct = new std::vector<float>( *(m_Centroids[ctr]) );
     Cl_Out->push_back(ct);
   }
-  return (*Cl_Out);
+  return (Cl_Out);
 }
 
 /*
