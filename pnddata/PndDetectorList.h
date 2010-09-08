@@ -10,7 +10,7 @@
 #define PNDDETECTORLIST_H 1
 
 enum DetectorId {
-    kDCH,kDRC,kDSK,kEMC,kGEM,kLUMI,kMDT,kMVD,kRPC,kSTT,kTPC,kTOF,kHYPG,kHYP};
+    kDCH,kDRC,kDSK,kEMC,kGEM,kLUMI,kMDT,kMVD,kRPC,kSTT,kTPC,kTOF,kHYPG,kHYP,kFTS};
     
 /** Unique identifier for all Panda Point and Hit types **/
 
@@ -21,6 +21,7 @@ enum fDetectorType {
    kTpcPoint, kTpcPrimaryCluster, kTpcDriftedElectron, kTpcAvalanche, kTpcSignal, kTpcSample, kTpcDigi, kTpcCluster,
    kGemPoint, kGemDigi, kGemHit,
    kDchPoint, kDchDigi, kDchHit,
+   kFtsPoint, kFtsDigi, kFtsHit,
    kMdtPoint, kMdtHit, kMdtTrack,
    kEmcPoint, kEmcHit, kEmcDigi, kEmcCluster, kEmcBump, kEmcRecoHit,
    kLheHit, kLheCand, kLheTrack,
