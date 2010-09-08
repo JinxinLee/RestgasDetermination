@@ -40,7 +40,6 @@ int main(int argc, char** argv)
   clas.push_back("muon");
   clas.push_back("kaon");
   clas.push_back("proton");
-  //clas.push_back("gamma");
   
   vars.push_back("p");
   vars.push_back("emc");
@@ -50,29 +49,32 @@ int main(int argc, char** argv)
   
   // Read data.
   PndMvaDataSet data(inFile, clas, vars);
-
+  
   // Fetch available events.
   const std::vector< std::pair<std::string, std::vector<float>*> >& dd = data.GetData();
-
-  // Create PCA transformation object and init. 
+  
+  // Create PCA transformation object.
   PndMvaVarPCATransform pca;
+
+  // Init PCA transformation object.
   pca.InitPCATranformation(dd);
   
-  // Transform input vars.
+  // To store transform input vars.
   std::vector< std::pair<std::string, std::vector<float>*> > outEvt;
-
+  
   // Events loop
   for(size_t evt = 0; evt < dd.size(); evt++){
     // Current class name
     std::string curClass = (dd[evt]).first;
+    
     // Current event vector
     std::vector<float>* curEvt = (dd[evt]).second;
+    
     // Transform current event and copy
-    const std::vector<float>* bla = pca.Transform(*curEvt); // FIXME Return a pointer
-    std::vector<float>* trsEvt = new std::vector<float>(*bla);
+    std::vector<float>* trsEvt = pca.Transform(*curEvt);
+    
     // Add result to the out vector.
     outEvt.push_back(std::make_pair(curClass, trsEvt));
-    delete bla;
   }
 
   // Create output File, Trees and write
