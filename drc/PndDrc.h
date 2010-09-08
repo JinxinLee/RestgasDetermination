@@ -40,7 +40,14 @@ class PndDrc : public FairDetector
 
   /** Destructor **/
   virtual ~PndDrc();
-
+  
+//  void SetStopTime(Bool_t st = kFALSE){fStopTime = st;}
+  void SetStopTime(Double_t ti=-1.){ fPhoMaxTime = ti; 
+    if(fPhoMaxTime > 0.){fStopTime = kTRUE;}
+    if(fPhoMaxTime <= 0.){fStopTime = kFALSE;}
+  }  
+  void SetOnlyDirectPho(Bool_t db=kTRUE) {fTakeDirect = db;}
+  void SetFocusingSystem(Int_t fc=2) {fFocusingSystem = fc;}
 
   /** Virtual method Initialize
    ** Initialises detector. Stores volume IDs for DIRC detector and mirror.
@@ -143,6 +150,10 @@ class PndDrc : public FairDetector
   Int_t          fCopyNo;          //!  volume id
   TLorentzVector fPos;             //!  position
   TLorentzVector fMom;             //!  momentum
+  //-------------------------------------------
+  TLorentzVector fInitMom;  
+  TLorentzVector fMom1, fPos1;
+  //-------------------------------------------
   Double32_t     fTime;            //!  time
   Double32_t     fLength;          //!  length
   Double_t       fAngIn;
@@ -153,6 +164,11 @@ class PndDrc : public FairDetector
 
   Double_t       fSlabEnd;   //!< Slab end defined in Construction and used in ProcessHits
   
+  Bool_t         fStopTime;
+  Double_t       fPhoMaxTime;
+  Bool_t         fTakeDirect;
+  Int_t          fFocusingSystem;
+  TString        fAtBarEnd;
 
   PndGeoDrc*     fGeo;             //! Pointer to basic DRC geometry data
 
@@ -178,6 +194,9 @@ inline void PndDrc::ResetParameters() {
   fCopyNo = -999;
   fPos.SetXYZT(-999., -999., -999., -999.);
   fMom.SetXYZT(-999., -999., -999., -999.) ;
+  //-----------------------------------------
+  fInitMom.SetXYZT(-999., -999., -999., -999.) ;
+  //-----------------------------------------
   fTime = -999;  
   fLength = -999;
   fPdgCode = -999; 

@@ -66,7 +66,9 @@ PndDrc::PndDrc() {
   volDetector = 0;
   fRunCherenkov = kTRUE;
   fGeo         = new PndGeoDrc();
-  
+  fStopTime = kFALSE;
+  fTakeDirect = kFALSE; 
+  fFocusingSystem = 2; 
 }
 // -------------------------------------------------------------------------
 
@@ -85,6 +87,9 @@ PndDrc::PndDrc(const char* name, Bool_t active)
     fSenIdBar = 0;
     fRunCherenkov = kTRUE;
     fGeo         = new PndGeoDrc();
+    fStopTime = kFALSE;
+    fTakeDirect = kFALSE;
+    fFocusingSystem = 2;
 }
 // -------------------------------------------------------------------------
 
@@ -301,22 +306,42 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
   //TLorentzVector fPos, fMom;
   gMC->TrackPosition(fPos);
   //TString nam = gMC->CurrentVolName();
-  //TString nam =vol->GetName();
-  if (fPdgCode == 50000050){
+  
+  if (fPdgCode == 50000050){  
     if (fRunCherenkov==kFALSE ) {
       gMC->StopTrack();
 //      if (fVerboseLevel >0) cout<< "Photon killed" << endl;
     }
+    
     if (gMC->IsTrackExiting()==1){
-      if (fPos.Z() > -fSlabEnd ){
-        if (nam.BeginsWith("DrcBar") ) {
-           gMC->StopTrack();
+      if (nam.BeginsWith("DrcBar") ) {            
+        if (fPos.Z() > fSlabEnd ){
+           gMC->StopTrack();	   
 //           if (fVerboseLevel >0) cout<< "Photon killed" << " at z= "<<fPos.Z()<<endl;
-        }
-     }	
+        }	
+	
+      }    
+    } 
+    
+   // take only direct photons:
+   if(fTakeDirect){   
+     if (gMC->IsTrackExiting()==1 ){
+       if(nam.BeginsWith(fAtBarEnd)){             
+	  gMC->TrackMomentum(fMom);	  
+          if ((fPos.X()*fMom.X() + fPos.Y()*fMom.Y()) < 0.){           
+             gMC->StopTrack();	   
+	  }
+       }
+     }    
    }
+   
+   // take only photons that came before fPhoMaxTime:  
+   if (fStopTime == kTRUE && gMC->TrackTime()*1.0e09 > fPhoMaxTime){          
+      gMC->StopTrack();
+   }   
+    
    if (gMC->IsTrackEntering()==1){
-      if (nam.BeginsWith("DrcPd")){
+      if (nam.BeginsWith("DrcPd")){        
         fCopyNo = vol->getCopyNo();
         fTrackID = gMC->GetStack()->GetCurrentTrackNumber(); //track ID     
         gMC->TrackPosition(fPos);
@@ -666,143 +691,206 @@ void PndDrc::ConstructGeometry()
        box2->AddNode(barContainer, j+1,new TGeoCombiTrans(dx, dy, dz, new TGeoRotation (0)) ); 
      }
 
+  
+    // SOB
 
+    Double_t sob_len     = 30.0;
+    Double_t sob_shift   = -bbox_hlen + bbox_shift - sob_len;
 
-
-  // some notes to lens operations (revision 9649) is in
-  // ~carsten/work/documents/software/PandaRoot/lens_definitions_2.pdf
-
-  //Double_t r = 12.23; // first lens radius (cm)
-  Double_t r = 3.0836; // first lens radius (cm)
-  Double_t alpha = TMath::ASin(hthick/r); 
-  Double_t a = r - r*TMath::Cos(alpha);
-  Double_t b = a + .6; // box dimension  .6 instead of .5 due to strong curvature
-
-  cout<<" DIRC a,b = "<<a<<" "<<b<<endl;
+    Double_t sob_radius2 = radius+hthick + sob_len*tan(60./180.*pi);
+  
+    cout<<"sob_shift   = "<<sob_shift<<endl;
+    cout<<"sob_radius2 = "<<sob_radius2<<endl;
   
 
-  Double_t r2 = 3.0836; // radius second lens (cm)
-  //Double_t alpha2 = TMath::ASin(hthick/r2); 
-  //Double_t a2 = r2 - r2*TMath::Cos(alpha2);
-  Double_t b2 = 1.2;// + a2;
-  //cout<<" DIRC: a2 = "<<a2<<endl;
+
+    TGeoPgon* baseSOB = new TGeoPgon("baseSOB",0.0, 360., 16, 3);
+    baseSOB->DefineSection(0,      0., radius-hthick,  sob_radius2);
+    baseSOB->DefineSection(1,     10., radius-hthick,  sob_radius2);
+    baseSOB->DefineSection(2, sob_len, radius-hthick,  radius+hthick);
+    TGeoVolume *sob = new TGeoVolume("DrcSob",baseSOB, gGeoManager->GetMedium("DIRCairNoSens"));
+    cave->AddNode(sob, 1,new TGeoCombiTrans(0., 0., sob_shift, new TGeoRotation (0)));
+
+    // for visualization
+    TGeoPgon* logicSOB = new TGeoPgon("baseSOB",0.0, 360., 16, 3);
+    logicSOB->DefineSection(0,     0.1, radius-hthick+eps, sob_radius2-eps);
+    logicSOB->DefineSection(1,    10.0, radius-hthick+eps, sob_radius2-eps);
+    logicSOB->DefineSection(2, sob_len, radius-hthick+eps, radius+hthick-eps);
+    TGeoVolume *lsob = new TGeoVolume("DrcLSob", logicSOB, gGeoManager->GetMedium("Marcol82"));     
+    sob->AddNode(lsob, 1,new TGeoCombiTrans(0., 0., 0., new TGeoRotation (0)));
+
+    // Photodetector
+    TGeoPgon* logicPD = new TGeoPgon("logicPD",0.0, 360., 16, 2);
+    logicPD->DefineSection(0, 0.0, radius-hthick, sob_radius2-eps);
+    logicPD->DefineSection(1, 0.1, radius-hthick, sob_radius2-eps);
+    TGeoVolume *pd = new TGeoVolume("DrcPd", logicPD, gGeoManager->GetMedium("DIRCair"));
+    sob->AddNode(pd, 1,new TGeoCombiTrans(0., 0., 0., new TGeoRotation (0)));
+    AddSensitiveVolume(pd); 
+  
+
+  if (fFocusingSystem == 2){  // N E W      L E N S E S 
+    // some notes to lens operations (revision 9649) is in
+    // ~carsten/work/documents/software/PandaRoot/lens_definitions_2.pdf
+    
+    Double_t r = 3.0836; // first lens radius (cm)
+    Double_t alpha = TMath::ASin(hthick/r); 
+    Double_t a = r - r*TMath::Cos(alpha);
+    Double_t b = a + .6; // box dimension  .6 instead of .5 due to strong curvature
+
+    cout<<" DIRC a,b = "<<a<<" "<<b<<endl;
+  
+
+    Double_t r2 = 3.0836; // radius second lens (cm)
+    Double_t b2 = 1.2;// + a2;
+     
+    Double_t r3 = 5.5638; // third lens radius (cm)
+    Double_t alpha3 = TMath::ASin(hthick/r3); 
+    Double_t a3 = r3 - r3*TMath::Cos(alpha3);
+    Double_t b3 = a3 + .61; // box dimension  .6 instead of .5 due to strong curvature
+  
+    // lens1 (b) + lens2 (0.6) + lens3 (b3) + gap (0.5) 
+
+    Double_t len = b + 0.6 + b3 + 0.5;//+ a2; // dimension of the box containing both lenses
+    
+    cout<<"DIRC len= "<<len<<endl;
+  
+    // Fused Silica bars
+    // make bar shorter by amount of lens space
+    TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/6)/2)-0.05, hthick, bbox_hlen-len/2-eps);
+    TGeoVolume *bar = new TGeoVolume("DrcBar",logicBar, gGeoManager->GetMedium("FusedSil"));
+    // shift by len/2 -> upstream now space with length len available
+    barContainer->AddNode(bar, 1,new TGeoCombiTrans(0., 0., len/2, new TGeoRotation (0)) );
+    AddSensitiveVolume(bar);
+
+
+    fSlabEnd = -bbox_hlen + bbox_shift + len + eps; // used in processHits
+
+    // Lenses
  
-  Double_t r3 = 5.5638; // first lens radius (cm)
-  Double_t alpha3 = TMath::ASin(hthick/r3); 
-  Double_t a3 = r3 - r3*TMath::Cos(alpha3);
-  Double_t b3 = a3 + .61; // box dimension  .6 instead of .5 due to strong curvature
+    // Lens 1
+    Double_t t = -r +b/2;
+    TGeoSphere* logicSphere= new TGeoSphere("S",0.,r, 0. ,180.,0.,360.);
+    TGeoBBox* lBox = new TGeoBBox("B", (lside/6)/2-0.05, hthick, b/2.);
+    TGeoTranslation *tr1 = new TGeoTranslation("tr1", 0.,0., t);
+    tr1->RegisterYourself();
+    TGeoCompositeShape *cs = new TGeoCompositeShape("cs","S*(B:tr1)");
+    TGeoVolume *lens1 = new TGeoVolume("DrcLENS1",cs, gGeoManager->GetMedium("FusedSil"));
 
+    // position lens within already shifted bar container at -(bbox_hlen-eps)+len, the lens base is -r + b
+    // with -0.01 one can make a gap visible (.1mm) for orientation   
+    barContainer->AddNode(lens1, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps)+len -(-r+b) /*-0.01*/  , new TGeoRotation (0)));
+
+    // old (12.Aug.10):
+    // following line caused gap of 2mm
+    //barContainer->AddNode(lens1, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps) +r +a2 + 0.5 - a ,new TGeoRotation (0)));
   
-  // lens1 (b) + lens2 (0.6) + lens3 (b3) + gap (0.5) 
+    //Lens 2
+    Double_t t2 = -r2;// +b2/2 r2  is the reference point (concave lens) 
+    TGeoSphere* logicSphere2 = new TGeoSphere("S2",0 ,r2, 0. ,180.,0.,360.);
+    TGeoBBox*   lBox2        = new TGeoBBox("B2", (lside/6)/2-0.05, hthick, b2/2.);
+    TGeoTranslation *tr2     = new TGeoTranslation("tr2", 0.,0., t2);
+    tr2->RegisterYourself();
+    TGeoCompositeShape *cs2 = new TGeoCompositeShape("cs2","(B2:tr2)-S2");
+    TGeoVolume *lens2 = new TGeoVolume("DrcLENS2",cs2, gGeoManager->GetMedium("NLAK33A"));
 
-  Double_t len = b + 0.6 + b3 + 0.5;//+ a2; // dimension of the box containing both lenses
+    // place the lens exactly on lens1
+    // position lens within already shifted bar container at -(bbox_hlen-eps)+len, the lens base is -r2
+    // the tip of lens1 is at b
+    // with -0.02 one can make a gap visible (.1mm due to lens1) for orientation   
+    barContainer->AddNode(lens2, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps)+len -(-r2) -b /*-0.02*/, new TGeoRotation (0)));
 
-  cout<<"DIRC len= "<<len<<endl;
+
+    //Lens3 (like lens1, same treatment)
+    Double_t t3 = -r3+b3/2;
+    TGeoSphere* logicSphere3= new TGeoSphere("S3",0.,r3, 0. ,180.,0.,360.);
+    TGeoBBox* lBox3 = new TGeoBBox("B3", (lside/6)/2-0.05, hthick, b3/2.);
+    TGeoTranslation *tr3 = new TGeoTranslation("tr3", 0.,0., t3);
+    tr3->RegisterYourself();
+    TGeoCompositeShape *cs3 = new TGeoCompositeShape("cs3","S3*(B3:tr3)");
+    TGeoVolume *lens3 = new TGeoVolume("DrcLENS3",cs3, gGeoManager->GetMedium("NLAK33A"));
+
+    // place the lens exactly on lens2 plane side
+    // position lens within already shifted bar container at -(bbox_hlen-eps)+len, the lens base is -r3 + b3
+    // with -0.03 one can make a gap visible (.1mm due to lens 1&2) for orientation   
+    // b2/2 is the thickness of lens2 in the middle 
+    barContainer->AddNode(lens3, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps)+len -(-r3+b3) -b - b2/2 /*-0.03*/ , new TGeoRotation (0)));
+    AddSensitiveVolume(lens3);
+    
+    fAtBarEnd = "DrcLENS3";
+  }   // E N D      O F      N E W      L E N S E S  
   
-  // Fused Silica bars
-  // make bar shorter by amount of lens space
-  TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/6)/2)-0.05, hthick, bbox_hlen-len/2-eps);
-  TGeoVolume *bar = new TGeoVolume("DrcBar",logicBar, gGeoManager->GetMedium("FusedSil"));
-  // shift by len/2 -> upstream now space with length len available
-  barContainer->AddNode(bar, 1,new TGeoCombiTrans(0., 0., len/2, new TGeoRotation (0)) );
-  AddSensitiveVolume(bar);
+  if(fFocusingSystem == 1){   // O L D      L E N S E S 
+    Double_t r = 12.23; // first lens radius (cm)
+    Double_t alpha = TMath::ASin(hthick/r); 
+    Double_t a = r - r*TMath::Cos(alpha);
+    Double_t b = a + .5; // box dimension
 
+    //Double_t r2 = 2.48; // radius second lens (cm)
+    Double_t r2 = 3.8; // radius second lens (cm)
 
-
-  fSlabEnd = -bbox_hlen + bbox_shift + len + eps; // used in processHits
-
-  // SOB
-
-  Double_t sob_len     = 30.0;
-  Double_t sob_shift   = -bbox_hlen + bbox_shift - sob_len;
-
-  Double_t sob_radius2 = radius+hthick + sob_len*tan(60./180.*pi);
-  
-  cout<<"sob_shift   = "<<sob_shift<<endl;
-  cout<<"sob_radius2 = "<<sob_radius2<<endl;
-  
-
-
-  TGeoPgon* baseSOB = new TGeoPgon("baseSOB",0.0, 360., 16, 3);
-  baseSOB->DefineSection(0,      0., radius-hthick,  sob_radius2);
-  baseSOB->DefineSection(1,     10., radius-hthick,  sob_radius2);
-  baseSOB->DefineSection(2, sob_len, radius-hthick,  radius+hthick);
-  TGeoVolume *sob = new TGeoVolume("DrcSob",baseSOB, gGeoManager->GetMedium("DIRCairNoSens"));
-  cave->AddNode(sob, 1,new TGeoCombiTrans(0., 0., sob_shift, new TGeoRotation (0)));
-
-  // for visualization
-  TGeoPgon* logicSOB = new TGeoPgon("baseSOB",0.0, 360., 16, 3);
-  logicSOB->DefineSection(0,     0.1, radius-hthick+eps, sob_radius2-eps);
-  logicSOB->DefineSection(1,    10.0, radius-hthick+eps, sob_radius2-eps);
-  logicSOB->DefineSection(2, sob_len, radius-hthick+eps, radius+hthick-eps);
-  TGeoVolume *lsob = new TGeoVolume("DrcLSob", logicSOB, gGeoManager->GetMedium("Marcol82"));
-  sob->AddNode(lsob, 1,new TGeoCombiTrans(0., 0., 0., new TGeoRotation (0)));
-
-  // Photodetector
-  TGeoPgon* logicPD = new TGeoPgon("logicPD",0.0, 360., 16, 2);
-  logicPD->DefineSection(0, 0.0, radius-hthick, sob_radius2-eps);
-  logicPD->DefineSection(1, 0.1, radius-hthick, sob_radius2-eps);
-  TGeoVolume *pd = new TGeoVolume("DrcPd", logicPD, gGeoManager->GetMedium("DIRCair"));
-  sob->AddNode(pd, 1,new TGeoCombiTrans(0., 0., 0., new TGeoRotation (0)));
-  AddSensitiveVolume(pd); 
-  
-
-
-  // Lenses
+    Double_t alpha2 = TMath::ASin(hthick/r2); 
+    Double_t a2 = r2 - r2*TMath::Cos(alpha2);
+    Double_t b2 = .5 + a2;
  
-  // Lens 1
-  Double_t t = -r +b/2;
-  TGeoSphere* logicSphere= new TGeoSphere("S",0.,r, 0. ,180.,0.,360.);
-  TGeoBBox* lBox = new TGeoBBox("B", (lside/6)/2-0.05, hthick, b/2.);
-  TGeoTranslation *tr1 = new TGeoTranslation("tr1", 0.,0., t);
-  tr1->RegisterYourself();
-  TGeoCompositeShape *cs = new TGeoCompositeShape("cs","S*(B:tr1)");
-  TGeoVolume *lens1 = new TGeoVolume("DrcLENS1",cs, gGeoManager->GetMedium("FusedSil"));
-
-  // position lens within already shifted bar container at -(bbox_hlen-eps)+len, the lens base is -r + b
-  // with -0.01 one can make a gap visible (.1mm) for orientation   
-  barContainer->AddNode(lens1, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps)+len -(-r+b) /*-0.01*/  ,
-  						    new TGeoRotation (0)));
-
-  // old (12.Aug.10):
-  // following line caused gap of 2mm
-  //barContainer->AddNode(lens1, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps) +r +a2 + 0.5 - a ,new TGeoRotation (0)));
+    Double_t l = 0.5+ 0.2+ 0.5+ a2 -0.2; // dimension of the box containing both lenses
+ 
+    // Fused Silica bars
+    TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/6)/2)-0.05, hthick, bbox_hlen-l/2-eps);
+    TGeoVolume *bar = new TGeoVolume("DrcBar",logicBar, gGeoManager->GetMedium("FusedSil"));
+    barContainer->AddNode(bar, 1,new TGeoCombiTrans(0., 0., l/2, new TGeoRotation (0)) );
+    AddSensitiveVolume(bar);
 
 
+    // bar ends at...        *** this number +1mm has to enter ProcessHits ***
+    //cout<<" bar ends at "<< -bbox_hlen + bbox_shift + l + eps<<endl;
   
-   //Lens 2
-  Double_t t2 = -r2;// +b2/2 r2  is the reference point (concave lens) 
-  TGeoSphere* logicSphere2 = new TGeoSphere("S2",0 ,r2, 0. ,180.,0.,360.);
-  TGeoBBox*   lBox2        = new TGeoBBox("B2", (lside/6)/2-0.05, hthick, b2/2.);
-  TGeoTranslation *tr2     = new TGeoTranslation("tr2", 0.,0., t2);
-  tr2->RegisterYourself();
-  TGeoCompositeShape *cs2 = new TGeoCompositeShape("cs2","(B2:tr2)-S2");
-  TGeoVolume *lens2 = new TGeoVolume("DrcLENS2",cs2, gGeoManager->GetMedium("NLAK33A"));
 
-  // place the lens exactly on lens1
-  // position lens within already shifted bar container at -(bbox_hlen-eps)+len, the lens base is -r2
-  // the tip of lens1 is at b
-  // with -0.02 one can make a gap visible (.1mm due to lens1) for orientation   
-  barContainer->AddNode(lens2, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps)+len -(-r2) -b /*-0.02*/, 
-						    new TGeoRotation (0)));
+    fSlabEnd = -bbox_hlen + bbox_shift + l + eps; // used in processHits  (why l and not l/2???)
+   
+    // Lenses
+ 
+    // Lens 1
+    Double_t t = -r +b/2;
+    TGeoSphere* logicSphere= new TGeoSphere("S",0.,r, 0. ,180.,0.,360.);
+    TGeoBBox* lBox = new TGeoBBox("B", (lside/6)/2-0.05, hthick, b/2.);
+    TGeoTranslation *tr1 = new TGeoTranslation("tr1", 0.,0., t);
+    tr1->RegisterYourself();
+    TGeoCompositeShape *cs = new TGeoCompositeShape("cs","S*B:tr1");
+    TGeoVolume *lens1 = new TGeoVolume("DrcLENS1",cs, gGeoManager->GetMedium("FusedSil"));
+    barContainer->AddNode(lens1, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps) +r +a2 + 0.5 - a ,new TGeoRotation (0)));
 
 
-  //Lens3 (like lens1, same treatment)
-  Double_t t3 = -r3+b3/2;
-  TGeoSphere* logicSphere3= new TGeoSphere("S3",0.,r3, 0. ,180.,0.,360.);
-  TGeoBBox* lBox3 = new TGeoBBox("B3", (lside/6)/2-0.05, hthick, b3/2.);
-  TGeoTranslation *tr3 = new TGeoTranslation("tr3", 0.,0., t3);
-  tr3->RegisterYourself();
-  TGeoCompositeShape *cs3 = new TGeoCompositeShape("cs3","S3*(B3:tr3)");
-  TGeoVolume *lens3 = new TGeoVolume("DrcLENS3",cs3, gGeoManager->GetMedium("NLAK33A"));
-
-  // place the lens exactly on lens2 plane side
-  // position lens within already shifted bar container at -(bbox_hlen-eps)+len, the lens base is -r3 + b3
-  // with -0.03 one can make a gap visible (.1mm due to lens 1&2) for orientation   
-  // b2/2 is the thickness of lens2 in the middle 
-  barContainer->AddNode(lens3, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps)+len -(-r3+b3) -b - b2/2 /*-0.03*/  ,
-						    new TGeoRotation (0)));
-
+     //Lens 2
+    Double_t t2 = -r2 +b2/2;
+  
+    //TGeoSphere* logicSphere2 = new TGeoSphere("S2", r ,r2, 0. ,180.,0.,360.);
+    TGeoSphere* logicSphere2 = new TGeoSphere("S2", r2-a2 ,r2, 0. ,180.,0.,360.);
+    TGeoBBox*   lBox2        = new TGeoBBox("B2", (lside/6)/2-0.05, hthick, b2/2.);
+    TGeoTranslation *tr2     = new TGeoTranslation("tr2", 0.,0., t2);
+    tr2->RegisterYourself();
+    TGeoCompositeShape *cs2 = new TGeoCompositeShape("cs2","S2*B2:tr2");
+    TGeoVolume *lens2 = new TGeoVolume("DrcLENS2",cs2, gGeoManager->GetMedium("NLAK33A"));
+    barContainer->AddNode(lens2, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps)+r2 + 0.2 , new TGeoRotation (0)));
+    AddSensitiveVolume(lens2);
+    
+    fAtBarEnd = "DrcLENS2";
+  } // E N D      O F      O L D      L E N S E S
+  
+  if(fFocusingSystem == 0){  // N O     L E N S E S
+    
+    fSlabEnd = -bbox_hlen + bbox_shift + eps;
+    Double_t len = 0.;
+  
+    // Fused Silica bars
+    // make bar shorter by amount of lens space
+    TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/6)/2)-0.05, hthick, bbox_hlen-len/2-eps);
+    TGeoVolume *bar = new TGeoVolume("DrcBar",logicBar, gGeoManager->GetMedium("FusedSil"));
+    // shift by len/2 -> upstream now space with length len available
+    barContainer->AddNode(bar, 1,new TGeoCombiTrans(0., 0., len/2, new TGeoRotation (0)) );
+    AddSensitiveVolume(bar);
+    
+    fAtBarEnd = "DrcBar";
+  }  // E N D      O F      N O      L E N S E S 
 
  // gGeoManager->CloseGeometry();
 
