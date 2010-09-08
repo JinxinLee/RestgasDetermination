@@ -65,7 +65,7 @@ PndEmcPoint::~PndEmcPoint() { }
 
 // -----   Public method Print   -------------------------------------------
 void PndEmcPoint::Print(const Option_t* opt) const {
-  cout << "-I- PndEmcPoint: MUO Point for track " << fTrackID 
+  cout << "-I- PndEmcPoint: EMC Point for track " << fTrackID 
        << " in detector " << fDetectorID << endl;
   cout << "    Position (" << fX << ", " << fY << ", " << fZ
        << ") cm" << endl;
