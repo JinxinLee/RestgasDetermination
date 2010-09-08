@@ -40,14 +40,13 @@ class PndDrc : public FairDetector
 
   /** Destructor **/
   virtual ~PndDrc();
-  
-//  void SetStopTime(Bool_t st = kFALSE){fStopTime = st;}
-  void SetStopTime(Double_t ti=-1.){ fPhoMaxTime = ti; 
+
+  void SetStopTime(Double_t ti=-1.){ fPhoMaxTime = ti;       // set time after which photons are killed
     if(fPhoMaxTime > 0.){fStopTime = kTRUE;}
     if(fPhoMaxTime <= 0.){fStopTime = kFALSE;}
   }  
-  void SetOnlyDirectPho(Bool_t db=kTRUE) {fTakeDirect = db;}
-  void SetFocusingSystem(Int_t fc=2) {fFocusingSystem = fc;}
+  void SetOnlyDirectPho(Bool_t db=kTRUE) {fTakeDirect = db;} // no reflected photons from the side of expansion volume
+  void SetFocusingSystem(Int_t fc=2) {fFocusingSystem = fc;} // 0 - no focusing, 1 - old lenses, 2 - new lenses.
 
   /** Virtual method Initialize
    ** Initialises detector. Stores volume IDs for DIRC detector and mirror.
@@ -150,10 +149,6 @@ class PndDrc : public FairDetector
   Int_t          fCopyNo;          //!  volume id
   TLorentzVector fPos;             //!  position
   TLorentzVector fMom;             //!  momentum
-  //-------------------------------------------
-  TLorentzVector fInitMom;  
-  TLorentzVector fMom1, fPos1;
-  //-------------------------------------------
   Double32_t     fTime;            //!  time
   Double32_t     fLength;          //!  length
   Double_t       fAngIn;
@@ -194,9 +189,6 @@ inline void PndDrc::ResetParameters() {
   fCopyNo = -999;
   fPos.SetXYZT(-999., -999., -999., -999.);
   fMom.SetXYZT(-999., -999., -999., -999.) ;
-  //-----------------------------------------
-  fInitMom.SetXYZT(-999., -999., -999., -999.) ;
-  //-----------------------------------------
   fTime = -999;  
   fLength = -999;
   fPdgCode = -999; 

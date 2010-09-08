@@ -335,7 +335,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
      }    
    }
    
-   // take only photons that came before fPhoMaxTime:  
+   // kill photons older than fPhoMaxTime:  
    if (fStopTime == kTRUE && gMC->TrackTime()*1.0e09 > fPhoMaxTime){          
       gMC->StopTrack();
    }   
