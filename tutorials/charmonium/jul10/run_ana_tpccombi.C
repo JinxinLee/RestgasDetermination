@@ -45,6 +45,7 @@ void run_ana_tpccombi(TString fname="pid_tpccombi.root",int nevts=0)
 	    // cout << p2.GetLength() << " e- candidates found" << "\n";
 
 	    for (j=0;j<p1.GetLength();++j) { 
+         /// For fast sim, replace by if(true){   
                 if ((p1[j].GetMicroCandidate().GetEmcRawEnergy()/p1[j].GetMicroCandidate().GetMomentum().Mag())>0.0) {
 		    p1[j].SetMass(TRho::Instance()->GetPDG()->GetParticle(11)->Mass());
 		} else {
@@ -53,6 +54,7 @@ void run_ana_tpccombi(TString fname="pid_tpccombi.root",int nevts=0)
 		}
 	    }
 	    for (j=0;j<p2.GetLength();++j) { 
+         /// For fast sim, replace by if(true){   
                 if ((p2[j].GetMicroCandidate().GetEmcRawEnergy()/p2[j].GetMicroCandidate().GetMomentum().Mag())>0.0) {
 		    p2[j].SetMass(TRho::Instance()->GetPDG()->GetParticle(11)->Mass());
 		} else {
