@@ -29,12 +29,19 @@ void simfast(TString infile="output.evt",int soff=0,int nevts=1000,TString outfi
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
+  /// reading events from file or...
   //FairEvtGenGenerator* evtGen = new FairEvtGenGenerator(infile.Data());
   //primGen->AddGenerator(evtGen);
+  
+  /// ... generate your signal on the fly
+  PndEvtGenDirect *EvtGen = new PndEvtGenDirect("psi(2S)","PSI2S.DEC");
+  EvtGen->SetStoreTree();
+  primGen->AddGenerator(EvtGen);
 
-  Float_t mom = 6.991;
-  PndDpmDirect *Dpm= new PndDpmDirect(mom,0);
-  primGen->AddGenerator(Dpm);
+  /// for background
+//  Float_t mom = 6.991;
+//  PndDpmDirect *Dpm= new PndDpmDirect(mom,0);
+//  primGen->AddGenerator(Dpm);
 
   primGen->DoTracking(kFALSE);
 
