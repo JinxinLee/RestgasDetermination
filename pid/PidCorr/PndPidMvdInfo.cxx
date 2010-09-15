@@ -37,6 +37,7 @@ Bool_t PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
       
       if (candHit.GetDetId()==kMVDHitsPixel) mvdHit = (PndSdsHit*)fMvdHitsPixel->At(candHit.GetHitId());
       if (candHit.GetDetId()==kMVDHitsStrip) mvdHit = (PndSdsHit*)fMvdHitsStrip->At(candHit.GetHitId());
+      if (mvdHit==0) continue;
       TVector3 mvdPos;
       mvdHit->Position(mvdPos);
       mvdCounts++;
@@ -58,7 +59,7 @@ Bool_t PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
 	  fProMvd->SetPoint(mvdPos);
 	  fProMvd->PropagateToPCA(1, -1);
 	  FairTrackParH *fRes= new FairTrackParH();
-          Bool_t rc =  fProMvd->Propagate(helix, fRes, -13*pidCand->GetCharge()); // First propagation at module
+          Bool_t rc =  fProMvd->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); // First propagation at module
           if (rc)
 	    {
 	      cos = TMath::Cos(fRes->GetMomentum().Angle(zaxis)); 
