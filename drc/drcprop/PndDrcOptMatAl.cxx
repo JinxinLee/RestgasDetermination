@@ -230,6 +230,8 @@ double PndDrcOptMatAl::RefIndexDeriv(const double lambda) const
 double PndDrcOptMatAl::Extinction(const double lambda) const
 {
     // values from  http://ee.byu.edu/photonics/opticalconstants.phtml (metallic aluminium)
+    // unfortunately above site is not available anymore
+    // to verify these values use: http://refractiveindex.info
     const static double kLam[57] = { // lambda in nm
         300.0,
         310.0,
@@ -290,7 +292,10 @@ double PndDrcOptMatAl::Extinction(const double lambda) const
         1000.0
     };
 
-    const static double kE[57] = { // extinction coefficients
+    // extinction coefficients (normally this number is positive )
+    // ROOT bug with complex number: TComplex::ASin is wrong for positive imaginary parts
+    //  => extinction coefficients have to be negative
+    const static double kE[57] = {
         -3.6100,
         -3.7400,
         -3.8400,
