@@ -80,11 +80,21 @@ void photTrajectory( TString inFilename = "", Double_t photonID = 1 ) // ID 0 me
   // Event loop
   //==============================================================================
   Int_t n_ph = 0;
+  Int_t n_measured = 0;
+  Int_t n_absorbed = 0;
+  Int_t n_lost = 0;
 
   for( int i = 0; i < nEntries; i++ )
   {
     photonTree->GetEntry( i );
     n_ph++;
+
+    if( measured == true )
+      n_measured++;
+    if( absorbed == true )
+      n_absorbed++;
+    if( lost == true )
+      n_lost++;
 
     if( n_ph == photonID || photonID == 0 )
     {
@@ -104,23 +114,29 @@ void photTrajectory( TString inFilename = "", Double_t photonID = 1 ) // ID 0 me
         cout << n_ph << endl;
 
 
+
+
 //       if( measured == true )
 //       {
-        for( int j = 0; j < index_pos; j++ )
-        {
-          if( j > 0 )
-          {
-            TPolyLine3D *l = new TPolyLine3D(2);
-
-            l->SetPoint(0, posX[j-1], posY[j-1], posZ[j-1]);
-            l->SetPoint(1, posX[j], posY[j], posZ[j]);
-            l->SetLineColor(3);
-            l->Draw();
+//         for( int j = 0; j < index_pos; j++ )
+//         {
+//           if( j > 0 )
+//           {
+//             TPolyLine3D *l = new TPolyLine3D(2);
+//
+//             l->SetPoint(0, posX[j-1], posY[j-1], posZ[j-1]);
+//             l->SetPoint(1, posX[j], posY[j], posZ[j]);
+//             l->SetLineColor(3);
+//             l->Draw();
 //           }
 
-//           cout << "pos.: (" << posX[j]<< "," << posY[j] << "," << posZ[j] << ")" << endl;
+          //           cout << "pos.: (" << posX[j]<< "," << posY[j] << "," << posZ[j] << ")" << endl;
         }
-      }
+//       }
     }
   }
+
+  cout << "measured  photons: " << n_measured << endl;
+  cout << "absorbed  photons: " << n_absorbed << endl;
+  cout << "lost      photons: " << n_lost     << endl;
 }

@@ -52,6 +52,7 @@ void parameter( TString inFilename = ""  )
     Double_t hitBarX, hitBarY, hitBarZ;
     Double_t spot_radius, spot_limit;
     Bool_t slab_fresnel, lens_fresnel, airBox_fresnel, fishtank_fresnel;
+    Bool_t fishtankBlack_bottom, fishtankBlack_sides, fishtankBlack_top, mirror;
 	Double_t gridXstep, gridYstep;
 
 	infoTree->SetBranchAddress( "root_version"          , &root_version );
