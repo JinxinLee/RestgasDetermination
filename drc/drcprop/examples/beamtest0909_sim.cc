@@ -95,9 +95,9 @@ int main(int argc, char *argv[])
   //==============================================================================
 
   // main options
-  bool opt_beamtest        = true; // beamtest simulation 2009
+  bool opt_beamtest        = false; // beamtest simulation 2009
   bool opt_angleAcceptance = false; // beamtest simulation with diff. theta and phi
-  bool opt_photonCannon    = false; // photon cannon at bar end
+  bool opt_photonCannon    = true; // photon cannon at bar end
   bool opt_singlePhoton    = false; // single photon for debugging
 
   cout << "simulation options:" << endl;
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
   bool opt_Cherenkov_onlyInBar  = false; // Cherenkov photons are only generated in bar (slab)
   bool opt_alongBar             = false; // particles hits the bar at slab front end
   bool opt_woLens               = false; // default: false ; without lens
-  bool opt_photonPosList        = false; // write out photon position list ; true takes much longer
+  bool opt_photonPosList        = true; // write out photon position list ; true takes much longer
   bool opt_noFresnel_slab       = false; // disable Fresnel reflections
   bool opt_noFresnel_lens       = false; //
   bool opt_noFresnel_airBox     = false; //
@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
   double lens_diameter  = 40; // default: 40mm ; actually 50.8 mm but currently lens base is not cylindrical
   double lens_conical   = 0; // default: 0 (spherical)
 
-  double airgap = 10; // default: 10 mm ; distance between slab and fishtank ; 0 means no air box
+  double airgap = 16; // default: 10 mm ; distance between slab and fishtank ; 0 means no air box ; in beamtest air gap was 8.5mm
 
   double fishtank_width  = 300; // default: 300 mm ; old: 400 mm
   double fishtank_height = 200; // default: 200 mm ; old: 400 mm
@@ -243,10 +243,10 @@ int main(int argc, char *argv[])
   double kinE = 2.0; // default: 2.0 GeV kinetic energy ; 2.3 GeV
   double beta = Sqrt( 1 - Power( mass / (kinE + mass), 2 ) ); // E = T + E0 = gamma * E0
 
-  double spot_radius = 0; // default: 20 mm 1-sigma beam spot radius (gaus smeared)
+  double spot_radius = 20; // default: 20 mm 1-sigma beam spot radius (gaus smeared)
   double spot_limit = 50; // default: 50 mm beam spot radius limit
 
-  int particle_number = 300; // default: 300
+  int particle_number = 20; // default: 300
 
   double inci_theta = 30; // default: 30 degree ; old: 57 degree
   double inci_phi   = 0; // default: 0 degree
@@ -259,17 +259,20 @@ int main(int argc, char *argv[])
   // photon properties
   int photon_number = 100; // default: 100 (per particle); 0 means realistic number of Cherenkov photons
 
-  double lambda_min = 300; // default: 300 nm ; lowest Cherenkov wavelength
-  double lambda_max = 700; // default: 700 nm ; highest Cherenkov wavelength
+  double lambda_min = 450; // default: 300 nm ; lowest Cherenkov wavelength
+  double lambda_max = 450; // default: 700 nm ; highest Cherenkov wavelength
 
   int refl_limit = 1000; // default: 1000 reflections
 
 
   // photon cannon
-  int shoots = 2000000; // default: 20000000 (for center)
+  int shoots = 100; // default: 20000000 (for center) ; for grid this number is per gridpoint
 
-  double gridXstep = 0; // default: 0 mm ; grid constant in X ; 0 means cannon is always in the center
-  double gridYstep = 0; // default: 0 mm
+  double gridXstep = 1; // default: 0 mm ; grid constant in X ; 0 means cannon is always in the center
+  double gridYstep = 1; // default: 0 mm
+
+  double cannon_theta = 0; // default: 90 degree ; 90 degree means flat cos(angle) distribution otherwise fixed angle
+  double cannon_phi   = 0; // default: 90 degree ; if cannon_theta = 90 then the phi distribution is flat
 
   int refl_limit_2 = 5; // default: 5 ; low limit increases speed
 
@@ -312,10 +315,10 @@ int main(int argc, char *argv[])
     //         if( i == 5 )
     //             lambda_max = atof( argv[5]);
 
-            if( i == 2)
-                inci_theta = atof( argv[2]);
-            if( i == 3)
-                fishtank_thetaX = atof( argv[3]);
+    if( i == 2)
+      inci_theta = atof( argv[2]);
+    if( i == 3)
+      fishtank_thetaX = atof( argv[3]);
 
     //         if( i == 3 )
     //             fishtank_thetaY = atof( argv[3]);
@@ -574,12 +577,22 @@ int main(int argc, char *argv[])
   {
     cout << "photon cannon:" << endl;
     if( gridXstep == 0 || gridYstep == 0 )
-      cout << "  photon number:    " << shoots << endl;
+      cout << "  photon number: " << shoots << endl;
     else
     {
-      cout << "  photon number:    " << shoots << " per mesh" << endl;
-      cout << "  grid const. X:    " << gridXstep << " mm" << endl;
-      cout << "  grid const. Y:    " << gridYstep << " mm" << endl;
+      cout << "  photon number: " << shoots << " per mesh" << endl;
+      cout << "  grid const. X: " << gridXstep << " mm" << endl;
+      cout << "  grid const. Y: " << gridYstep << " mm" << endl;
+    }
+    if( cannon_theta == 90 )
+    {
+      cout << "  theta: flat cos(theta)" << endl;
+      cout << "  phi:   flat phi" << endl;
+    }
+    else
+    {
+      cout << "  theta:    " << cannon_theta << " deg" << endl;
+      cout << "  phi:      " << cannon_phi   << " deg" << endl;
     }
     cout <<     "  reflection limit: " << refl_limit_2 << endl;
   }
@@ -729,28 +742,31 @@ int main(int argc, char *argv[])
     parDirZ         = -666;
     inci_theta      = -666;
     inci_phi        = -666;
-
-    if( opt_photonCannon )
-    {
-      photon_number   = -666;
-      mass            = -666;
-      kinE            = -666;
-      beta            = -666;
-      hitBarX         = -666;
-      hitBarY         = -666;
-      hitBarZ         = -666;
-      spot_radius     = -666;
-      spot_limit      = -666;
-      particle_number = -666;
-
-      refl_limit = refl_limit_2;
-    }
   }
-  else
+
+  if( opt_photonCannon )
   {
-    shoots    = -666;
-    gridXstep = -666;
-    gridYstep = -666;
+    photon_number   = -666;
+    mass            = -666;
+    kinE            = -666;
+    beta            = -666;
+    hitBarX         = -666;
+    hitBarY         = -666;
+    hitBarZ         = -666;
+    spot_radius     = -666;
+    spot_limit      = -666;
+    particle_number = -666;
+
+    refl_limit = refl_limit_2;
+  }
+
+  if( !opt_photonCannon )
+  {
+    shoots       = -666;
+    gridXstep    = -666;
+    gridYstep    = -666;
+    cannon_theta = -666;
+    cannon_phi   = -666;
   }
 
 
@@ -804,6 +820,8 @@ int main(int argc, char *argv[])
   infoTree->Branch( "shoots"                , &shoots                , "shoots/I");
   infoTree->Branch( "gridXstep"             , &gridXstep             , "gridXstep/D");
   infoTree->Branch( "gridYstep"             , &gridYstep             , "gridYstep/D");
+  infoTree->Branch( "cannon_theta"          , &cannon_theta          , "cannon_theta/D");
+  infoTree->Branch( "cannon_phi"            , &cannon_phi            , "cannon_phi/D");
 
   infoTree->Fill();
 
@@ -953,7 +971,6 @@ int main(int argc, char *argv[])
   // use bold lines and markers
   gStyle->SetMarkerStyle(20); // full circle
   gStyle->SetMarkerSize(0.4);
-  gStyle->SetHistLineWidth(1.85);
 
   // paletts (2,3D plots)
   gStyle->SetPalette(1,0);
@@ -1283,7 +1300,7 @@ int main(int argc, char *argv[])
   if( lensMinThickness > lens_thickness && !opt_woLens)
   {
     cout << "*** ERROR: lens thickness have to be greater than: " << lensMinThickness
-    << " (currently " << lens_thickness << " mm)" << endl;
+        << " (currently " << lens_thickness << " mm)" << endl;
     abort();
   }
 
@@ -2005,12 +2022,12 @@ int main(int argc, char *argv[])
 
     for( int k = 0; k < numberAngles; k++ )
     {
-       double costheta = randAngles.Uniform(0.0, 1.0);
-       double phi = randAngles.Uniform(0.0, 2*pi);
+      double costheta = randAngles.Uniform(0.0, 1.0);
+      double phi = randAngles.Uniform(0.0, 2*pi);
 
       if( opt_angleAcceptance )
       {
-         if( k%10 == 0 )
+        if( k%10 == 0 )
           cout << "angle #" << k+1 << " of " << numberAngles << endl;
 
         if( opt_alongBar )
@@ -2194,11 +2211,11 @@ int main(int argc, char *argv[])
         {
           if( opt_photonPosList )
             (*iph).SetPrintFlag(true); // write out photon position
-            else
-              (*iph).SetPrintFlag(false);
+          else
+            (*iph).SetPrintFlag(false);
 
-            if( opt_debug )
-              (*iph).SetVerbosity(4);
+          if( opt_debug )
+            (*iph).SetVerbosity(4);
         }
 
         manager->SetPhotonList(list_photon);
@@ -2371,8 +2388,20 @@ int main(int argc, char *argv[])
           double lambda = 1.0/x;
 
 
-          double costheta = rand.Uniform(0.0, 1.0);
-          double phi = rand.Uniform(0.0, 2*pi);
+          double costheta;
+          double phi;
+
+          if( cannon_theta == 90 )
+          {
+            costheta = rand.Uniform(0.0, 1.0);
+            phi = rand.Uniform(0.0, 2*pi);
+          }
+          else
+          {
+            costheta = Cos(cannon_theta*degree);
+            phi = cannon_phi*degree;
+          }
+
 
           Polar3DVector photDir(1, ACos(costheta), phi); // r, theta, phi
           photDir = photDir.Unit();

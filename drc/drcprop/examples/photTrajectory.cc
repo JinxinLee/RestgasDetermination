@@ -116,23 +116,23 @@ void photTrajectory( TString inFilename = "", Double_t photonID = 1 ) // ID 0 me
 
 
 
-//       if( measured == true )
-//       {
-//         for( int j = 0; j < index_pos; j++ )
-//         {
-//           if( j > 0 )
-//           {
-//             TPolyLine3D *l = new TPolyLine3D(2);
-//
-//             l->SetPoint(0, posX[j-1], posY[j-1], posZ[j-1]);
-//             l->SetPoint(1, posX[j], posY[j], posZ[j]);
-//             l->SetLineColor(3);
-//             l->Draw();
-//           }
+      if( measured == true )
+      {
+        for( int j = 0; j < index_pos; j++ )
+        {
+          if( j > 0 )
+          {
+            TPolyLine3D *l = new TPolyLine3D(2);
 
-          //           cout << "pos.: (" << posX[j]<< "," << posY[j] << "," << posZ[j] << ")" << endl;
+            l->SetPoint(0, posX[j-1], posY[j-1], posZ[j-1]);
+            l->SetPoint(1, posX[j], posY[j], posZ[j]);
+            l->SetLineColor(3);
+            l->Draw();
+          }
+
+          cout << "pos.: (" << posX[j]<< "," << posY[j] << "," << posZ[j] << ")" << endl;
         }
-//       }
+      }
     }
   }
 
