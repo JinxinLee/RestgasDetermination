@@ -729,7 +729,112 @@ void PndDrc::ConstructGeometry()
     AddSensitiveVolume(pd); 
   
 
-  if (fFocusingSystem == 2){  // N E W      L E N S E S 
+
+    cout<<" DIRC Focussing system option = "<<fFocusingSystem<<endl;
+    //mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+  if (fFocusingSystem == 3){  // L E N S E S  (no airgaps, thin nlak33)
+    // some notes to lens operations (revision 9649) is in
+    // ~carsten/work/documents/software/PandaRoot/lens_definitions_2.pdf
+    
+    Double_t r = 75.18; // first lens radius (cm)
+    //Double_t alpha = TMath::ASin(hthick/r); 
+    Double_t alpha = TMath::ASin(lside/12/r); 
+    Double_t a = r - r*TMath::Cos(alpha);
+    Double_t b = a + 0.5; // box dimension  .6 instead of .5 due to strong curvature
+
+    cout<<" DIRC a,b = "<<a<<" "<<b<<endl;
+  
+
+    Double_t r2 = 75.18; // radius second lens (cm)
+    Double_t b2 = 0.2;   // + a2;
+     
+    Double_t r3 = 17.95; // third lens radius (cm)
+    Double_t alpha3 = TMath::ASin(lside/12/r3); 
+    Double_t a3 = r3 - r3*TMath::Cos(alpha3);
+    Double_t b3 = a3 + 0.0; // box dimension  .6 instead of .5 due to strong curvature
+  
+    // lens1 (b) + lens2 (0.6) + lens3 (b3) + gap (0.5) 
+
+    //Double_t len = b + 0.2 + b3 + 0.5;//+ a2; // dimension of the box containing both lenses
+    Double_t len = b + 0.2 + b3 + 0.5;//+ a2; // dimension of the box containing both lenses
+    
+    cout<<"DIRC len= "<<len<<endl;
+  
+    // Fused Silica bars
+    // make bar shorter by amount of lens space
+    TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/6)/2)-0.05, hthick, bbox_hlen-len/2-eps);
+    TGeoVolume *bar = new TGeoVolume("DrcBar",logicBar, gGeoManager->GetMedium("FusedSil"));
+    // shift by len/2 -> upstream now space with length len available
+    barContainer->AddNode(bar, 1,new TGeoCombiTrans(0., 0., len/2, new TGeoRotation (0)) );
+    AddSensitiveVolume(bar);
+
+
+    fSlabEnd = -bbox_hlen + bbox_shift + len + eps; // used in processHits
+
+    // Lenses
+ 
+    // Lens 1
+    Double_t t = -r +b/2;
+
+    TGeoSphere* logicSphere= new TGeoSphere("S",0.,r, 0. ,180.,0.,360.);
+    TGeoBBox* lBox = new TGeoBBox("B", (lside/6)/2-0.05, hthick, b/2.);
+    TGeoTranslation *tr1 = new TGeoTranslation("tr1", 0.,0., t);
+    tr1->RegisterYourself();
+    TGeoCompositeShape *cs = new TGeoCompositeShape("cs","S*(B:tr1)");
+    TGeoVolume *lens1 = new TGeoVolume("DrcLENS1",cs, gGeoManager->GetMedium("FusedSil"));
+
+    // position lens within already shifted bar container at -(bbox_hlen-eps)+len, the lens base is -r + b
+    // with -0.01 one can make a gap visible (.1mm) for orientation   
+    barContainer->AddNode(lens1, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps)+len -(-r+b) /*-0.01*/  ,
+						      new TGeoRotation (0)));
+
+    // old (12.Aug.10):
+    // following line caused gap of 2mm
+    //barContainer->AddNode(lens1, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps) +r +a2 + 0.5 - a ,new TGeoRotation (0)));
+  
+    //Lens 2
+    Double_t t2 = -r2;// +b2/2 r2  is the reference point (concave lens) 
+    TGeoSphere* logicSphere2 = new TGeoSphere("S2",0 ,r2, 0. ,180.,0.,360.);
+    TGeoBBox*   lBox2        = new TGeoBBox("B2", (lside/6)/2-0.05, hthick, b2/2.);
+    TGeoTranslation *tr2     = new TGeoTranslation("tr2", 0.,0., t2);
+    tr2->RegisterYourself();
+    TGeoCompositeShape *cs2 = new TGeoCompositeShape("cs2","(B2:tr2)-S2");
+    TGeoVolume *lens2 = new TGeoVolume("DrcLENS2",cs2, gGeoManager->GetMedium("NLAK33A"));
+
+    // place the lens exactly on lens1
+    // position lens within already shifted bar container at -(bbox_hlen-eps)+len, the lens base is -r2
+    // the tip of lens1 is at b
+    // with -0.02 one can make a gap visible (.1mm due to lens1) for orientation   
+    barContainer->AddNode(lens2, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps)+len -(-r2) -b /*-0.02*/, 
+						      new TGeoRotation (0)));
+
+
+    //Lens3 (like lens1, same treatment)
+    Double_t t3 = -r3+b3/2;
+    TGeoSphere* logicSphere3= new TGeoSphere("S3",0.,r3, 0. ,180.,0.,360.);
+    TGeoBBox* lBox3 = new TGeoBBox("B3", (lside/6)/2-0.05, hthick, b3/2.);
+    TGeoTranslation *tr3 = new TGeoTranslation("tr3", 0.,0., t3);
+    tr3->RegisterYourself();
+    TGeoCompositeShape *cs3 = new TGeoCompositeShape("cs3","S3*(B3:tr3)");
+    TGeoVolume *lens3 = new TGeoVolume("DrcLENS3",cs3, gGeoManager->GetMedium("NLAK33A"));
+
+    // place the lens exactly on lens2 plane side
+    // position lens within already shifted bar container at -(bbox_hlen-eps)+len, the lens base is -r3 + b3
+    // with -0.03 one can make a gap visible (.1mm due to lens 1&2) for orientation   
+    // b2/2 is the thickness of lens2 in the middle 
+    barContainer->AddNode(lens3, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps)+len -(-r3+b3) -b - b2/2 /*-0.03*/, 
+						      new TGeoRotation (0)));
+
+    //cout<<" DIRC r,r2,r3 = "<<r<<" "<<r2<<" "<<r3<<endl;
+    
+
+    AddSensitiveVolume(lens3);
+    
+    fAtBarEnd = "DrcLENS3";
+  }   // E N D      O F      N E W      L E N S E S  
+
+    //mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+  if (fFocusingSystem == 2){  // N E W      L E N S E S  (no airgaps, thick nlak33)
     // some notes to lens operations (revision 9649) is in
     // ~carsten/work/documents/software/PandaRoot/lens_definitions_2.pdf
     
@@ -820,6 +925,7 @@ void PndDrc::ConstructGeometry()
     fAtBarEnd = "DrcLENS3";
   }   // E N D      O F      N E W      L E N S E S  
   
+    //mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
   if(fFocusingSystem == 1){   // O L D      L E N S E S 
     Double_t r = 12.23; // first lens radius (cm)
     Double_t alpha = TMath::ASin(hthick/r); 
@@ -877,6 +983,7 @@ void PndDrc::ConstructGeometry()
     fAtBarEnd = "DrcLENS2";
   } // E N D      O F      O L D      L E N S E S
   
+    //mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
   if(fFocusingSystem == 0){  // N O     L E N S E S
     
     fSlabEnd = -bbox_hlen + bbox_shift + eps;

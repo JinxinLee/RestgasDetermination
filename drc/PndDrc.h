@@ -41,12 +41,26 @@ class PndDrc : public FairDetector
   /** Destructor **/
   virtual ~PndDrc();
 
-  void SetStopTime(Double_t ti=-1.){ fPhoMaxTime = ti;       // set time after which photons are killed
+
+  /*! \brief  Set time after which photons are killed.
+    \param ti The time (ns)
+  */
+  void SetStopTime(Double_t ti=-1.)
+  { fPhoMaxTime = ti;      
     if(fPhoMaxTime > 0.){fStopTime = kTRUE;}
     if(fPhoMaxTime <= 0.){fStopTime = kFALSE;}
-  }  
-  void SetOnlyDirectPho(Bool_t db=kTRUE) {fTakeDirect = db;} // no reflected photons from the side of expansion volume
-  void SetFocusingSystem(Int_t fc=2) {fFocusingSystem = fc;} // 0 - no focusing, 1 - old lenses, 2 - new lenses.
+  } 
+
+  /*!  \brief No reflected photons from the side of expansion volume
+    \param db Flag
+  */ 
+  void SetOnlyDirectPho(Bool_t db=kTRUE) {fTakeDirect = db;}
+
+  /*! \brief Set the focusing system
+    \param fc (0=no focusing, 1=old lenses with two airgaps between lenses, 2=lenses without
+    airgaps and thick NLAK33=default, 3=like 2 but thin NLAK33 lens)
+  */
+  void SetFocusingSystem(Int_t fc=2) {fFocusingSystem = fc;}
 
   /** Virtual method Initialize
    ** Initialises detector. Stores volume IDs for DIRC detector and mirror.
@@ -178,7 +192,7 @@ class PndDrc : public FairDetector
   void ResetParameters();
 
   Int_t  fSenId1, fSenId2, fSenIdBar;
-  ClassDef(PndDrc,2)
+  ClassDef(PndDrc,3)
 
 }; 
 
