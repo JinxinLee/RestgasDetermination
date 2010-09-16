@@ -86,8 +86,6 @@ Bool_t propagate_mclist(Int_t id,TClonesArray * mctrack_array)
     TLorentzVector sum, tmp;
     TString chtxt="";
 
-    double fak=0.3;
-
     if(id<0) return "none";
     mct=(PndMCTrack *)mctrack_array->At(id);
     sum=mct->Get4Momentum();
@@ -162,6 +160,7 @@ void QAmacro_evtgen_3()
 
   Bool_t fTest=kTRUE;
 
+    PndMCTrack *mo;
   //  check_mc_tree_sums()
   {
 	  TChain *abc=new TChain("cbmsim");
