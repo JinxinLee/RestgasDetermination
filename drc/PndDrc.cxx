@@ -723,7 +723,8 @@ void PndDrc::ConstructGeometry()
     TGeoPgon* logicPD = new TGeoPgon("logicPD",0.0, 360., 16, 2);
     logicPD->DefineSection(0, 0.0, radius-hthick, sob_radius2-eps);
     logicPD->DefineSection(1, 0.1, radius-hthick, sob_radius2-eps);
-    TGeoVolume *pd = new TGeoVolume("DrcPd", logicPD, gGeoManager->GetMedium("DIRCair"));
+   // TGeoVolume *pd = new TGeoVolume("DrcPd", logicPD, gGeoManager->GetMedium("DIRCair"));
+    TGeoVolume *pd = new TGeoVolume("DrcPd", logicPD, gGeoManager->GetMedium("FusedSil"));
     sob->AddNode(pd, 1,new TGeoCombiTrans(0., 0., 0., new TGeoRotation (0)));
     AddSensitiveVolume(pd); 
   
