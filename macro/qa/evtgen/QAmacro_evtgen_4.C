@@ -86,8 +86,6 @@ TString propagate_mclist(Int_t id,TClonesArray * mctrack_array)
     TLorentzVector sum, tmp;
     TString chtxt="";
 
-    double fak=0.3;
-
     if(id<0) return "none";
     mct=(PndMCTrack *)mctrack_array->At(id);
 
@@ -101,8 +99,7 @@ TString propagate_mclist(Int_t id,TClonesArray * mctrack_array)
       }
     }
 
-    TString mctxt;
-    mctxt="";
+    TString mctxt="";
     add_mccode(mctxt,mct->GetPdgCode());
 
     if(chtxt!="") mctxt+=TString(" (")+chtxt+TString(")");
@@ -129,6 +126,7 @@ void QAmacro_evtgen_4()
 
   Bool_t fTest=kTRUE;
 
+    PndMCTrack *mo;
   {
 	  TChain *abc=new TChain("cbmsim");
 	  abc->Add("qa_evtgen2.root");
@@ -148,7 +146,7 @@ void QAmacro_evtgen_4()
       for(Int_t i=0; i<mctrack_array->GetEntries(); i++){// for all generator generated particles
         mo=(PndMCTrack *)mctrack_array->At(i);
         mytxt="";
-        if(mo->GetMotherID()==-1 && mo->GetSecondMotherID()==-1) ){
+        if(mo->GetMotherID()==-1 && mo->GetSecondMotherID()==-1) {
         	mytxt = propagate_mclist(i, mctrack_array);
             cout << "Part "<<i<<": "<<mytxt<<endl;
             if(fullevt!="") fullevt+=" / ";
