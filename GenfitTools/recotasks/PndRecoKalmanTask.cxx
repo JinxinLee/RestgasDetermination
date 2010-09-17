@@ -33,7 +33,7 @@
 #include "FairRuntimeDb.h"
 
 PndRecoKalmanTask::PndRecoKalmanTask(const char* name, Int_t iVerbose)
-  : FairTask(name, iVerbose), fPersistence(kFALSE)
+  : FairTask(name, iVerbose), fPersistence(kFALSE), fPDGHyp(-13)
 {
   fTrackInBranchName  = "LheTrack"; 
   fTrackOutBranchName = "LheGenTrack";
@@ -113,7 +113,7 @@ void PndRecoKalmanTask::Exec(Option_t* opt)
       
       PndTrack *prefitTrack = (PndTrack*)fTrackArray->At(itr);
       Int_t  fCharge= prefitTrack->GetParamFirst().GetQ();
-      Int_t PDGCode= -13*fCharge;
+      Int_t PDGCode= fPDGHyp*fCharge;
       
       PndTrack *fitTrack = new PndTrack();
       fitTrack = fFitter->Fit(prefitTrack, PDGCode);
@@ -125,6 +125,22 @@ void PndRecoKalmanTask::Exec(Option_t* opt)
   if (fVerbose>0) std::cout<<"Fitting done"<<std::endl;
   
   return;
+}
+
+void PndRecoKalmanTask::SetParticleHypo(TString h)
+{
+  // Set the hypothesis for the fit, charge will be applied later
+  if(h.BeginsWith("e")){
+    fPDGHyp=-11;
+  }else if(h.BeginsWith("mu")){
+    fPDGHyp=-13;    
+  }else if(h.BeginsWith("pi")){
+    fPDGHyp=211;
+  }else if(h.BeginsWith("K")){
+    fPDGHyp=321;
+  }else if(h.BeginsWith("p")){
+    fPDGHyp=2212;
+  }else fPDGHyp=-13; // Muon is default.
 }
 
 ClassImp(PndRecoKalmanTask);

@@ -48,6 +48,7 @@ public:
   void SetPersistence(Bool_t opt = kTRUE)        { fPersistence = opt;      }
   void SetGeane(Bool_t opt = kTRUE)              { fUseGeane = opt;         }
   void SetNumIterations(Int_t num)               { fNumIt = num;        }
+  void SetParticleHypo(TString s);
 
   // Operations ----------------------
   virtual InitStatus Init();
@@ -71,6 +72,7 @@ private:
   Bool_t fSmoothing;             //! Flag to set on smoothing (not used)
   Int_t fNumIt;                  //! Number of iterations
   PndGeoSttPar *fSttParameters;  //! STT params
+  Int_t fPDGHyp;                 //! Hypothesis
 
   ClassDef(PndRecoKalmanTask,1);
 
