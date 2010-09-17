@@ -42,10 +42,12 @@ class PndEvtGenDirect : public FairGenerator
   virtual Bool_t ReadEvent(FairPrimaryGenerator* primGen);
 
   void SetStoreTree(Bool_t store=true){ fStoreTree=store;};
-	
+  inline void SetVerbose(int v=1){verbose=v;};
+
  private:
 
   Bool_t fStoreTree;
+  Int_t verbose;
   /**
    * P_lab(GeV/c)
   */

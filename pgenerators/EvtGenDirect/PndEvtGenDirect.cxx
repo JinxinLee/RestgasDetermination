@@ -66,13 +66,15 @@ double EvtRootRandomEngine::random(){
 PndEvtGenDirect::PndEvtGenDirect() {
 	SetName("PndEvtGenDirect");
 	fStoreTree=false;
+	verbose=0;
 }
 // ------------------------------------------------------------------------
 
 // -----   Standard constructor   -----------------------------------------
 PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, Long_t Seed,TString defaultDECAY,TString defaultPDL) {
-	SetName("PndEvtGenDirect");
-    cout << "<I> PndEvtGenDirect"<<endl;
+	PndEvtGenDirect();
+
+	cout << "<I> PndEvtGenDirect"<<endl;
     cout << "<I> Particle: "<<particle<<endl;
     cout << "<I> decfile: "<<decfile<<endl;
     if(Mom>0) cout << "<I> pbar-Momentum: "<<Mom<<endl;
@@ -130,8 +132,6 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, 
   cout <<"incident 4-mom : ("<<fEnergy<<", 0, 0, "<<fMomentum<<"), m = "<<sqrt(fEnergy*fEnergy-fMomentum*fMomentum)<<endl;
   cout <<"\n######################\n\n"<<endl;
 
-
-	fStoreTree=false;
 }
 // ------------------------------------------------------------------------
 
@@ -162,7 +162,7 @@ static Int_t evtnr=0;
 	Bool_t plotflag;
 	plotflag=false;
     //print out some status info
-    if (evtnr<10 || ((evtnr+1)%100)==0){
+    if (verbose>1 ||(verbose==1 && (evtnr<10 || ((evtnr+1)%100)==0))){
 		cout << "PndEvtGenDirect::ReadEvent "<<evtnr <<" "<<fEnergy<<" "<<fMomentum << endl;
 		parent->printParticle();
 		report(INFO,"EvtGen") << "event Number\t"<< evtnr << evtstdhep << endl;
