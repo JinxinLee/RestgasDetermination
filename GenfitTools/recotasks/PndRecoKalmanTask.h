@@ -49,6 +49,7 @@ public:
   void SetGeane(Bool_t opt = kTRUE)              { fUseGeane = opt;         }
   void SetNumIterations(Int_t num)               { fNumIt = num;        }
   void SetParticleHypo(TString s);
+  void SetParticleHypo(Int_t h);
 
   // Operations ----------------------
   virtual InitStatus Init();
