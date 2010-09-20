@@ -95,7 +95,7 @@ inline void PndMdtTrk::SetHitIndex(Int_t lay, Int_t trackId)
     {
       fHitList[lay] = trackId;
       SetBit(lay);
-      AddLink(FairLink(kMdtHit, trackId));
+      AddLink(FairLink("MdtHit", trackId));
     }
 }
 
