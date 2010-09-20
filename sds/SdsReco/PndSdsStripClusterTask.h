@@ -89,6 +89,7 @@ class PndSdsStripClusterTask : public PndSdsTask
     void ProduceHits();
     void ResetClusterFinders(); 
     void FillClusterFinders();
+    void ClearCalculators();
     
     Int_t fFEcolumns;
     Int_t fFErows;

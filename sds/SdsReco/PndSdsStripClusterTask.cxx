@@ -40,6 +40,7 @@ PndSdsTask("SDS Strip Clustertisation Task")
   fChargeDigiParameterList = new TList();
   fPersistance = kTRUE;
   fGeoH = PndGeoHandling::Instance();
+  fChargeAlgos=0;
 }
 
 // -----   Named constructor   -------------------------------------------
@@ -52,6 +53,7 @@ PndSdsTask(name)
   fChargeDigiParameterList = new TList();
   fPersistance = kTRUE;
   fGeoH = PndGeoHandling::Instance();
+  fChargeAlgos=0;
 }
 
 // -----   Destructor   ----------------------------------------------------
@@ -59,7 +61,12 @@ PndSdsStripClusterTask::~PndSdsStripClusterTask()
 {
 	if(0!=fDigiParameterList) delete fDigiParameterList;
   if(0!=fChargeDigiParameterList) delete fChargeDigiParameterList;
-	// TODO: needs check: now cleared correctly?
+  ClearCalculators();
+}
+// -------------------------------------------------------------------------
+
+void PndSdsStripClusterTask::ClearCalculators()
+{
 	for( std::map<const char*,PndSdsCalcStrip*>::iterator it = fStripCalcTop.begin(); it != fStripCalcTop.end(); it++){
 		if(0 != it->second) delete it->second;
 		it->second = 0;
@@ -72,9 +79,8 @@ PndSdsStripClusterTask::~PndSdsStripClusterTask()
 	for(std::map<const char*,PndSdsChargeConversion*>::iterator it = fChargeConverter.begin(); it != fChargeConverter.end(); it++){
 		if(0 != it->second) delete it->second;
 		it->second = 0;
-	}
+	}  
 }
-// -------------------------------------------------------------------------
 
 // -------------------------------------------------------------------------
 
@@ -112,6 +118,7 @@ void PndSdsStripClusterTask::SetCalculators()
       std::cout<<senstype<<"#"<<std::endl; 
       digipar->Print(); 
     } 
+    ClearCalculators();
     fStripCalcTop[senstype]=new PndSdsCalcStrip(digipar,kTOP); 
     fStripCalcTop[senstype]->SetVerboseLevel(fVerbose); 
     fStripCalcBot[senstype]=new PndSdsCalcStrip(digipar,kBOTTOM); 
