@@ -1,8 +1,22 @@
-/*
- * PndWriteoutBufferT.h
+/**
+ * @class PndWriteoutBufferT
  *
- *  Created on: Jul 30, 2010
- *      Author: stockman
+ * @author Tobias Stockmanns
+ * @brief A container class to store digi data during events
+ *
+ * The PndWriteoutBufferT template class provides a containers which handles the storage of data between
+ * events. The data has to be given with an active time, the absolute time the data is active in the
+ * detector and can influence the output of the data.
+ * FillNewData is used to put new data into the containes.
+ * WriteOutData with a given actual time stores the data which has an active time older than the given time
+ * in the corresponding TClonesArray of the FairRootManager.
+ * At the end of the task WriteOutAllData has to be called to store the data which is still in the buffer.
+ * If one tries to store data, for a detector element which is already present in the buffer, Modify and
+ * CalcNewActiveTime are called.
+ * Modify changes the values of the old data,
+ * CalcNewActiveTime changes the time this detector element is active.
+ * Both methods have to be specialized for the corresponding subdetector.
+ * Both methods rely on an operator== defined in the data element.
  */
 
 #ifndef PNDWRITEOUTBUFFERT_H_
@@ -10,28 +24,36 @@
 
 
 
-#include "TObject.h"
-#include "PndSdsDigiPixel.h"
-
+//#include "TObject.h"
+#include "TString.h"
 #include <map>
 
 
-template <class T> class PndWriteoutBufferT : public TObject{
+template <class T> class PndWriteoutBufferT{//: public TObject{
 public:
-	PndWriteoutBufferT(){};
+	PndWriteoutBufferT():fTreeSave(false), fActivateTimeOrder(kFALSE){};
+	PndWriteoutBufferT(TString branchName, TString className);
 	virtual ~PndWriteoutBufferT(){};
 
-	std::vector<T> GetRemoveOldData(double time);
-	void FillNewData(T& data, double activeTime);
+	virtual void WriteOutData(double time);
+	virtual void WriteOutAllData();
 
-	T Modify(T& oldData, T& newData){ return oldData;};
-	double CalcNewActiveTime(double oldActiveTime, T& newData){ return oldActiveTime;};
+	virtual std::vector<T> GetRemoveOldData(double time);
+	virtual std::vector<T> GetAllData();
+	virtual void FillNewData(T& data, double activeTime);
+
+	virtual T Modify(T& oldData, T& newData){ return oldData;};
+	virtual double CalcNewActiveTime(double oldActiveTime, T& newData){ return oldActiveTime;};
 
 protected:
 	std::multimap<double, T> fDeadTime_map;
 	std::map<T, double> fData_map;
 
-	ClassDef(PndWriteoutBufferT, 1);
+	TString fBranchName;
+	TString fClassName;
+	bool fTreeSave;
+	Bool_t fActivateTimeOrder;
+	//ClassDef(PndWriteoutBufferT, 1);
 };
 
 #endif /* PNDWRITEOUTBUFFERT_H_ */
