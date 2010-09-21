@@ -18,6 +18,8 @@ class TDatabasePDG;
 class PndPidListMaker;
 class PndEventInfo;
 
+class TGeant3;
+
 class PndAnalysis {
 public:
   PndAnalysis();
@@ -31,6 +33,7 @@ public:
   void SetVerbose(Int_t level){fVerbose = level;}
   void SetPidChargedName(TString s) {fChargedPidName = s;}
   void SetPidNeutralName(TString s) {fNeutralPidName = s;}  
+  Bool_t PropagateToIp(TCandidate* cand);
   
 private:
   
@@ -54,6 +57,7 @@ private:
   TClonesArray *fNeutralCands;
   TClonesArray *fChargedProbability;
   TClonesArray *fNeutralProbability;
+  TClonesArray *fTracks;
   TClonesArray *fMcCands;
   TClonesArray *fMcTracks;
   

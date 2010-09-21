@@ -26,6 +26,14 @@ using std::endl;
 #include "TCandList.h"
 #include "TPidSelector.h"
 
+#include "FairTrackParP.h"
+#include "FairTrackParH.h"
+#include "FairGeanePro.h"
+#include "FairRunAna.h"
+#include "FairField.h"
+
+#include "PndTrack.h"
+#include "PndPidCandidate.h"
 #include "PndPidProbability.h"
 #include "PndPidListMaker.h"
 #include "PndMCTrack.h"
@@ -72,6 +80,7 @@ void PndAnalysis::Init()
   fChargedProbability = ReadTCA(fChargedPidName.Data());
   fNeutralCands = ReadTCA("PidNeutralCand");
   fNeutralProbability = ReadTCA(fChargedPidName.Data());
+  fTracks = ReadTCA("LheGenTrack");
   fBuildMcCands = false;
   fMcCands = ReadTCA("PndMcTracks");
   if ( ! fMcCands )
@@ -243,12 +252,101 @@ void PndAnalysis::BuildMcCands()
     
    	TCandidate *pmc=new ((*fMcCands)[size]) TCandidate(p4,charge);
    	
-    pmc->SetMcIdx(size);
+    //pmc->SetMcIdx(size);
+    pmc->SetMcIdx(i);
     pmc->SetPos(stvtx);
     pmc->SetType(part->GetPdgCode());
+
+    // additional helix parameters for checking... 
+    Double_t pnt[3], Bf[3];
+    pnt[0]=stvtx.X();
+    pnt[1]=stvtx.Y();
+    pnt[2]=stvtx.Z(); 
+    FairRunAna::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
+    Double_t B = Bf[0]*Bf[0]+Bf[1]*Bf[1]+Bf[2]*Bf[2];
+    Float_t helixparams[5];
+    helixparams[0]=stvtx.Perp(); //D0
+    helixparams[1]=p4.Phi(); //phi0
+    helixparams[2]=-0.2998*B*charge/p4.Perp(); //omega=rho=1/R[cm]=-2.998*B[kGs]*Q[e]/p_perp[GeV/c] 
+    helixparams[3]=stvtx.Z(); //z0
+    helixparams[4]=1/tan(p4.Theta()); 
+    pmc->SetHelixParms(helixparams);
+    
   }
   
   if(fVerbose) cout <<"-I- PndMcListConverter: found primaries="<<fMcCands->GetEntriesFast()<<endl;
   
+}
+
+Bool_t PndAnalysis::PropagateToIp(TCandidate* cand)
+{ //Propagate from the tracks first parameter set to the POCA from (0,0,0)
+  //The candidate is updated but the track not touched 
+  //Only the uncorrelated errors are propagated, 
+  //TODO: implement a real cov matrix
+  
+  Bool_t rc = kFALSE;
+  if(!cand) {
+    Error("PropagateToIp","Candidate not found: %p",cand);
+    return kFALSE;
+  }
+  PndPidCandidate* pidCand = static_cast<PndPidCandidate*>(&cand->GetMicroCandidate());
+  PndTrack* track = (PndTrack*)fTracks->At(pidCand->GetTrackIndex());
+  if (!track) {Warning("PropagateToIp","Could not find track object of index %d",pidCand->GetTrackIndex()); return kFALSE;}
+  FairGeanePro* geaneProp = new FairGeanePro();
+  geaneProp->BackTrackToVertex(); //set where to propagate
+  FairTrackParP tStart = track->GetParamFirst();
+  FairTrackParH* myStart = new FairTrackParH(tStart);
+  FairTrackParH* myResult = new FairTrackParH();
+  Int_t pdgcode = cand->PdgCode();
+  cout<<"Try pdgCode "<<pdgcode<<endl;
+  
+  // now we propagate
+  rc = geaneProp->Propagate(myStart, myResult,pdgcode);
+
+  if (!rc) return kFALSE;
+  TVector3 pos(myResult->GetX(),myResult->GetY(),myResult->GetZ()); // I want to be sure... 
+  //printout for checks
+  TVector3 vecdiff=myStart->GetPosition() - myResult->GetPosition();
+  std::cout<<"position start     :";  myStart->GetPosition().Print();
+  std::cout<<"position ip        :";  myResult->GetPosition().Print();
+  std::cout<<"position difference:";  vecdiff.Print();
+  vecdiff=myStart->GetMomentum()-myResult->GetMomentum();
+  std::cout<<"momentum start     :";  myStart->GetMomentum().Print();
+  std::cout<<"momentum ip        :";  myResult->GetMomentum().Print();
+  std::cout<<"momentum difference:";  vecdiff.Print();
+  
+  cand->SetPosition(pos);
+  cand->SetP3(myResult->GetMomentum()); // implicitly uses the candidates mass to set P4
+  
+  TMatrixD covPosMom(7,7);
+  for(Int_t ii=0;ii<7;ii++) for(Int_t jj=0;jj<7;jj++) covPosMom[ii][jj]=0.;
+  Double_t A=0;
+  A=myResult->GetDX();
+  covPosMom[0][0]=A*A; // x x
+  A=myResult->GetDY();
+  covPosMom[1][1]=A*A; // y y
+  A=myResult->GetDZ();
+  covPosMom[2][2]=A*A; // z z
+  A=myResult->GetDPx();
+  covPosMom[3][3]=A*A; // px px
+  A=myResult->GetDPy();
+  covPosMom[4][4]=A*A; // py py
+  A=myResult->GetDPz();
+  covPosMom[5][5]=A*A; // pz pz
+
+  Double_t M=cand->M();
+  Double_t Q=myResult->GetQ();
+  if(0==Q)return kFALSE;
+  A=myResult->GetQp()/Q;
+  A=A*A;
+  A=A*A*(1+M*M*A);
+  if(0==A) return kFALSE;
+  Double_t dA=myResult->GetDQp()/Q;
+  covPosMom[6][6]=dA*dA/A; // e e
+  
+  cand->SetCov7(covPosMom);
+    
+  Info("PropagateToIp","Succsess=%b",rc);
+  return kTRUE;
 }
 
