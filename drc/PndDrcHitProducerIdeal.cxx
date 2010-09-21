@@ -48,7 +48,7 @@ PndDrcHitProducerIdeal::PndDrcHitProducerIdeal()
 
 // -----   Standard constructor with verbosity level  -------------------------------------------
 
-PndDrcHitProducerIdeal::PndDrcHitProducerIdeal(Int_t verbose) 
+PndDrcHitProducerIdeal::PndDrcHitProducerIdeal(Int_t verbose = 0) 
   :FairTask("PndDrcHitProducerIdeal")
 {
   fVerbose = verbose;  

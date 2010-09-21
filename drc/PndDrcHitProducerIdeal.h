@@ -91,9 +91,6 @@ public:
   /** Set the parameters to the default values. **/
   void SetDefaultParameters();
 
-  /** Verbosity level **/
-  Int_t fVerbose;
-  
   Int_t nevents;
 
   ClassDef(PndDrcHitProducerIdeal,1)
