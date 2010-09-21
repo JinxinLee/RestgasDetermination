@@ -41,6 +41,11 @@ PndSdsTask("SDS Strip Clustertisation Task")
   fPersistance = kTRUE;
   fGeoH = PndGeoHandling::Instance();
   fChargeAlgos=0;
+  fCurrentDigiPar=0;
+  fCurrentChargeConverter=0;
+  fCurrentStripCalcTop=0;
+  fCurrentStripCalcBot=0;
+  fCurrentClusterfinder=0;
 }
 
 // -----   Named constructor   -------------------------------------------
@@ -54,6 +59,11 @@ PndSdsTask(name)
   fPersistance = kTRUE;
   fGeoH = PndGeoHandling::Instance();
   fChargeAlgos=0;
+  fCurrentChargeConverter=0;
+  fCurrentDigiPar=0;
+  fCurrentStripCalcTop=0;
+  fCurrentStripCalcBot=0;
+  fCurrentClusterfinder=0;
 }
 
 // -----   Destructor   ----------------------------------------------------
@@ -80,6 +90,15 @@ void PndSdsStripClusterTask::ClearCalculators()
 		if(0 != it->second) delete it->second;
 		it->second = 0;
 	}  
+	for(std::map<const char*,PndSdsStripClusterer*>::iterator it = fClusterFinderList.begin(); it != fClusterFinderList.end(); it++){
+		if(0 != it->second) delete it->second;
+		it->second = 0;
+	}  
+  
+  fCurrentChargeConverter=0;
+  fCurrentStripCalcTop=0;
+  fCurrentStripCalcBot=0;
+  fCurrentClusterfinder=0;  
 }
 
 // -------------------------------------------------------------------------
@@ -91,14 +110,13 @@ void PndSdsStripClusterTask::SetParContainers()
 
 //
 InitStatus PndSdsStripClusterTask::ReInit()
-{
-  
+{  
   InitStatus stat=kERROR;
+  ClearCalculators();
   SetParContainers(); 
   SetCalculators(); 
   stat=kSUCCESS; 
   return stat;
-  
 }
 
 void PndSdsStripClusterTask::SetCalculators() 
@@ -106,6 +124,7 @@ void PndSdsStripClusterTask::SetCalculators()
   // called at the enf of Init() 
   // TODO: Implement more clusterfinders
   if (fVerbose>1) Info("SetCalculators","sds part");
+  ClearCalculators();
   TIter params(fDigiParameterList); 
   while(PndSdsStripDigiPar* digipar=(PndSdsStripDigiPar*)params()){ 
     if(0==digipar) { 
@@ -118,7 +137,6 @@ void PndSdsStripClusterTask::SetCalculators()
       std::cout<<senstype<<"#"<<std::endl; 
       digipar->Print(); 
     } 
-    ClearCalculators();
     fStripCalcTop[senstype]=new PndSdsCalcStrip(digipar,kTOP); 
     fStripCalcTop[senstype]->SetVerboseLevel(fVerbose); 
     fStripCalcBot[senstype]=new PndSdsCalcStrip(digipar,kBOTTOM); 
@@ -431,6 +449,7 @@ void PndSdsStripClusterTask::FillClusterFinders()
   Int_t strip;
   SensorSide side;
   PndSdsDigiStrip* myDigi=0;
+  Bool_t tester=kFALSE;
   // Sort Digi indice into the clusterfinder
   if (fDigiArray->GetEntriesFast() == 0) return;
   if(fVerbose>2) Info("FillClusterFinders","adding these digis to the finders:"); 
@@ -439,7 +458,8 @@ void PndSdsStripClusterTask::FillClusterFinders()
     myDigi = (PndSdsDigiStrip*)(fDigiArray->At(iDigi));
     if(fVerbose>2) {std::cout<<"Digi "<<iDigi<<" "; myDigi->Print();}
     sensorID = myDigi->GetSensorID();
-    if (kFALSE==SelectSensorParams(sensorID)) continue; // Invalid parameters, skip here.
+    tester=SelectSensorParams(sensorID);
+    if (kFALSE==tester) continue; // Invalid parameters, skip here.
     //we use the top side as "first" side
     fCurrentStripCalcTop->CalcFeChToStrip(myDigi->GetFE(), myDigi->GetChannel(), strip, side); 
     fCurrentClusterfinder->AddDigi(sensorID,side,myDigi->GetTimestamp(),strip,iDigi);
