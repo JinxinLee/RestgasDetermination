@@ -22,6 +22,8 @@
 #include "FairTask.h"
 #include "PndTpcDigiPar.h"
 #include <vector>
+
+
 // Collaborating Class Headers -------
 
 
@@ -32,6 +34,7 @@ class PndTpcAbsPSAStrategy;
 class PndTpcDigiPar;
 class PndTpcAbsPulseshape;
 class PndTpcSample;
+class PndTpcPadPlane;
 
 class PndTpcPSATask : public FairTask {
 public:
@@ -78,7 +81,11 @@ private:
   PndTpcAbsPulseshape* fpulseshape;
   
   PndTpcDigiPar* fpar;
+  PndTpcPadPlane* fPadPlane;
 
+  std::map<unsigned int,std::vector<PndTpcSample*>* > fSampleMap;
+
+  unsigned int fPads;
   int fpeak;
   unsigned int fopt;
   // Private Methods -----------------

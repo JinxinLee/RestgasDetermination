@@ -39,6 +39,7 @@
 #include "FairRuntimeDb.h"
 #include "PndTpcDigiPar.h"
 #include "PndTpcT2KPulseshape.h"
+#include "PndTpcPadPlane.h"
 
 
 // Class Member definitions -----------
@@ -62,7 +63,8 @@ PndTpcPSATask::SetParContainers() {
 
 
 PndTpcPSATask::PndTpcPSATask()
-  : FairTask("TPC Pulse shape analyser"), fpersistence(kFALSE), fpeak(100), fopt(0)
+  : FairTask("TPC Pulse shape analyser"), fpersistence(kFALSE), fpeak(100), fopt(0),
+    fPads(0)
 {
   fsampleBranchName = "PndTpcSample";
 }
@@ -79,7 +81,9 @@ PndTpcPSATask::Init()
 {
   //Get ROOT Manager
   FairRootManager* ioman= FairRootManager::Instance();
-
+  fPadPlane = fpar->getPadPlane();
+  fPads = fPadPlane->GetNPads();
+  
   if(ioman==0)
     {
       Error("PndTpcPSATask::Init","RootManager not instantiated!");
@@ -144,28 +148,30 @@ void
 PndTpcPSATask::Exec(Option_t* opt)
 {
 
-
+  fSampleMap.clear();
   std::cout<<"PndTpcPSATask::Exec"<<std::endl;
   // Reset output Array
   if(fdigiArray==0) Fatal("PndTpcPSA::Exec)","No DigiArray");
   fdigiArray->Delete();
 
-  // Sort smaples according to padid (create several vectors of samples)
-  std::map<unsigned int,std::vector<PndTpcSample*>* > padmap;
+  // Sort samples according to padid (create several vectors of samples)
   Int_t ns=fsampleArray->GetEntriesFast();
   for(Int_t is=0;is<ns;++is){
     PndTpcSample* mysample=(PndTpcSample*)fsampleArray->At(is);
     unsigned int id=mysample->padId();
-    if(padmap[id]==NULL)padmap[id]=new std::vector<PndTpcSample*>;
-    padmap[id]->push_back(mysample);
+    if(id<0 || id>fPads)
+      continue;
+    if(fSampleMap[id]==NULL)fSampleMap[id]=new std::vector<PndTpcSample*>;
+    fSampleMap[id]->push_back(mysample);
   }
-  std::cout<< "Found " << padmap.size() << " hit pads" << std::endl;
+  std::cout<< "Found " << fSampleMap.size() << " hit pads" << std::endl;
 
   // output vector
   std::vector <PndTpcDigi*> digis;
   // loop over pads
-  std::map<unsigned int,std::vector<PndTpcSample*>* >::iterator padit=padmap.begin();
-  while(padit!=padmap.end()){
+  std::map<unsigned int,std::vector<PndTpcSample*>* >::iterator padit=fSampleMap.begin();
+  while(padit!=fSampleMap.end()){
+    
     // get vector of samples in first pad
     std::vector<PndTpcSample*>* vecSa=padit->second;
     // sort samples in time
@@ -175,18 +181,18 @@ PndTpcPSATask::Exec(Option_t* opt)
     if(vecSa->size()!=0)
       {
 	PresetNullSample(vecSa);
-	std::cout << "Pad " << padit->first
-		  << ": Processing " << vecSa->size() << " samples with PSA (th";
+	//std::cout << "Pad " << padit->first
+	//	  << ": Processing " << vecSa->size() << " samples with PSA (th";
 	fpsa->Process(*vecSa,digis,ffrontend->psaThreshold());
-	unsigned int ndigiafter=digis.size();
-	std::cout <<ffrontend->psaThreshold() << ") -- " << ndigiafter-ndigibefore << " Digis created."<<std::endl;
+	//unsigned int ndigiafter=digis.size();
+	//std::cout <<ffrontend->psaThreshold() << ") -- " 
+	//	  << ndigiafter-ndigibefore << " Digis created."<<std::endl;
       }
     
     ++padit; // increase iterator 
   } // end loop over pads
   
   std::cout << "Total number of digis created: " << digis.size() << std::endl;
-
   
   //	    digi->fct(((PndTpcSample*)fsampleArray->At(is))->ct());
   
