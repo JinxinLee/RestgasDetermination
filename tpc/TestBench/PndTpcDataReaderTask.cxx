@@ -45,11 +45,11 @@ using std::fabs;
 ClassImp(PndTpcDataReaderTask)
 
 
-  PndTpcDataReaderTask::PndTpcDataReaderTask()
-    : _persistence(kFALSE),_cutsmallpad(kFALSE),_cutbigpad(kFALSE), fMinDigis(0), fMaxSample(550),fCutOcc(1500), fNbChip(25), fOnly800(kTRUE)
+PndTpcDataReaderTask::PndTpcDataReaderTask()
+: _persistence(kFALSE),_cutsmallpad(kFALSE),_cutbigpad(kFALSE), fCutoff(0)
 {
   _digiBranchName = "PndTpcSample";
-  _file = "TBtest/run.root";
+  fFile = "TBtest/run.root";
   fEv=NULL; //not setting this to 0 gives a segfault. ROOT is fully awesome
 }
 
@@ -70,27 +70,27 @@ PndTpcDataReaderTask::Init()
   
   // Get input data
 
-  fpadplane= fpar->getPadPlane();
+  //fPadplane= fPar->getPadPlane();
  
   fIntree = new TChain("tpcEvent");
-  fIntree->Add(_file.Data());//before AddFile
+  fIntree->Add(fFile.Data());//before AddFile
   fIntree->SetBranchAddress("tpcEvent", &fEv);
+
+  fLoop=0;
        
   if(fIntree->IsZombie()) {
-    std::cout << "PndTpcDataReaderTask::Init data file/tree "<< _file 
+    std::cout << "PndTpcDataReaderTask::Init data file/tree "<< fFile 
 	      << " couldn't be loaded -> abort" <<std::endl;
     Error("PndTpcDataReaderTask::Init","Data file not found");
     return kERROR;
   }
 
   std::cout<<"Number of Entries in Chain: "<<fIntree->GetEntries()<< std::endl;
-
-
+  
   // create and register output array
   _sampleOutArray = new TClonesArray("PndTpcSample");
   ioman->Register("PndTpcSample","PndTpc",_sampleOutArray,_persistence);
-  loop=0;
-  _di=new std::vector<PndTpcSample*>;
+  //_di=new std::vector<PndTpcSample*>;
   return kSUCCESS;
 }
 
@@ -98,8 +98,8 @@ PndTpcDataReaderTask::Init()
 void PndTpcDataReaderTask::Exec(Option_t* opt)
 {
   std::cout << "PndTpcDataReaderTask::Exec" << std::endl;
-
-  fIntree->AddFile(_file.Data());
+  fIntree->AddFile(fFile.Data());
+  
   // Reset output Arrays
   if(_sampleOutArray==0) 
     Fatal("PndTpcDataReaderTask::Exec()","No SampleOutArray");
@@ -107,67 +107,67 @@ void PndTpcDataReaderTask::Exec(Option_t* opt)
   _sampleOutArray->Delete();
   
   std::vector<PndTpcSample> samples;
+  std::cout<<samples.size()<<std::endl;
 
-  McIdCollection * mcid = new McIdCollection();
+  //McIdCollection mcid = new McIdCollection();
+  
 
-  while(true && loop<fIntree->GetEntries()) {
+  while(fLoop<fIntree->GetEntries()) {
   
     //get the PndTpcEvent;    
-    fIntree->GetEvent(loop);//Loop();
-    loop++;
+    fIntree->GetEvent(fLoop);
+    fLoop++;
     samples = fEv->getEventVector();
-  
-    std :: cout << "Copying "<< samples.size()<<" samples." <<std::endl; 
-    unsigned int badsample[fNbChip][fMaxSample];
-      for (int i = 0;i<fCutOcc;i++)
-	for (int j = 0;j<fMaxSample;j++)     
-	  badsample[i][j]=0;
-
-      //FPN Noise Corr
-    for (int i = 0;i<samples.size();i++)
-      {
-	badsample[samples[i].chipId()][samples[i].t()]++;
-      }
     
-    for (int i = 0;i<samples.size();i++)
-      if (samples[i].t()>1 && samples[i].amp()>1 && badsample[samples[i].chipId()][samples[i].t()]<fCutOcc &&
-	  (samples[i].sourceId()==800||!fOnly800))
+    std :: cout << "Copying "<< samples.size()<<" samples." <<std::endl; 
+    if(samples.size()<fCutoff)
+      continue;
+    
+    /*
+      unsigned int badsample[fNbChip][fMaxSample];
+      for (int i = 0;i<fCutOcc;i++)
+      for (int j = 0;j<fMaxSample;j++)     
+      badsample[i][j]=0;
+      
+      //FPN Noise Corr
+      for (int i = 0;i<samples.size();i++)
+      {
+      badsample[samples[i].chipId()][samples[i].t()]++;
+      }
+      
+      
+      for (int i = 0;i<samples.size();i++)
+      if (samples[i].t()>1 && samples[i].amp()>1 && badsample[samples[i].chipId()][samples[i].t()]<fCutOcc &&(samples[i].sourceId()==800||!fOnly800))
       if (samples[i].padId()>0)
-	try{
-	  //cut smallpad:
-	  if(_cutsmallpad && fpadplane->GetPad(samples[i].padId())->y()>0.6) 
-	    continue;
-	  else if(_cutbigpad && fpadplane->GetPad(samples[i].padId())->y()<0.6) 
-	    continue;
-	  PndTpcSample * didi = new PndTpcSample(samples[i]);
-	  _di->push_back(didi);
-	}
-	catch(...){
-	  std::cout << "PndTpcDataReaderTask::Exec GetPad exception caught: pad"
-		    <<samples[i].padId()<< " used."<<std::endl;
-	}
-
-    if(_di->size()>=fMinDigis)
+      try{
+      //cut smallpad:
+      if(_cutsmallpad && fpadplane->GetPad(samples[i].padId())->y()>0.6) 
+      continue;
+      else if(_cutbigpad && fpadplane->GetPad(samples[i].padId())->y()<0.6) 
+      continue;
+      PndTpcSample * didi = new PndTpcSample(samples[i]);
+      _di->push_back(didi);
+      }
+      catch(...){
+      std::cout << "PndTpcDataReaderTask::Exec GetPad exception caught: pad"
+      <<samples[i].padId()<< " used."<<std::endl;
+      }
+      if(_di->size()>=fMinDigis)
       break;
-    samples.clear();
-    _di->clear();
+      samples.clear();
+      _di->clear();
+      }
+    */
+    
+    std :: cout << "Saving "<< samples.size()<<" samples" <<std::endl;  
+    
+    for(unsigned int i=0; i<samples.size(); i++)
+      PndTpcSample* theSample = new((*_sampleOutArray)[i]) PndTpcSample(samples[i]);
+        
+    return;
   }
-  
-  std :: cout << "Saving "<< _di->size()<<" samples" <<std::endl;  
-  
-  for (int i = 0; i < _di->size();i++)
-    { 
-      PndTpcSample* dididi=new((*_sampleOutArray)[i]) PndTpcSample(*(_di->at(i)));
-      //saved  
-      delete _di->at(i);
-    }
-  
-  _di->clear();
-  
-  delete mcid;
-  
-  return;
 }
+	
 
 
 void
@@ -184,7 +184,7 @@ PndTpcDataReaderTask::SetParContainers() {
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
   
   // Get PndTpc digitisation parameter container
-  fpar= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
-  if (! fpar ) Fatal("SetParContainers", "PndTpcDigiPar not found");
+  fPar= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
+  if (! fPar ) Fatal("SetParContainers", "PndTpcDigiPar not found");
 }
 

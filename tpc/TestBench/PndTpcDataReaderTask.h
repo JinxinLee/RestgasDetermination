@@ -50,14 +50,15 @@ class PndTpcDataReaderTask : public FairTask {
 
   void SetClusterBranchName(const TString& name) {_digiBranchName=name;}
   void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
-  void SetDatafile(const TString& name) {_file=name;}
+  void SetDatafile(const TString& name) {fFile=name;}
   void SetCutSmallPad(Bool_t opt=kTRUE) {_cutsmallpad=opt;}  
   void SetCutBigPad(Bool_t opt=kTRUE) {_cutbigpad=opt;}
-  void SetMinDigis(unsigned int md) {fMinDigis=md;}
-  void SetMaxSample(unsigned int md) {fMaxSample=md;}
-  void SetOccMax(unsigned int md) {fCutOcc=md;}
-  void SetNbChip(unsigned int nb) {fNbChip=nb;}
-  void SetOnly800(Bool_t nb=kTRUE) {fOnly800=nb;}
+  void SetMinNbSamples(unsigned int nb) {fCutoff=nb;}
+  //void SetMinDigis(unsigned int md) {fMinDigis=md;}
+  //void SetMaxSample(unsigned int md) {fMaxSample=md;}
+  //void SetOccMax(unsigned int md) {fCutOcc=md;}
+  //void SetNbChip(unsigned int nb) {fNbChip=nb;}
+  //void SetOnly800(Bool_t nb=kTRUE) {fOnly800=nb;}
 
  // Operations ----------------------
   virtual InitStatus Init();
@@ -69,37 +70,38 @@ class PndTpcDataReaderTask : public FairTask {
  private:
   
   TString _digiBranchName;
-  TString _file;
+  TString fFile;
   
-  std::vector<PndTpcSample*>* _di; //!
+  //std::vector<PndTpcSample*>* _di; //!
 
   TChain* fIntree;  //external data input
-
   PndTpcEvent* fEv; 
   
-  unsigned int fMinDigis;
+  //unsigned int fMinDigis;
 
-  PndTpcPadPlane* fpadplane;
-
-  PndTpcDigiPar* fpar;
-
-  int loop;
-  unsigned int fMaxSample;
-  unsigned int fCutOcc;
-  unsigned int fNbChip;
+  //PndTpcPadPlane* fPadplane;
+  PndTpcDigiPar* fPar;
+  
+  unsigned int fLoop;
+  
+  //unsigned int fMaxSample;
+  //unsigned int fCutOcc;
+  //unsigned int fNbChip;
 
   TClonesArray* _sampleOutArray;
   
   Bool_t _persistence;
+  unsigned int fCutoff;
+  
   Bool_t _cutsmallpad;  
   Bool_t _cutbigpad;
-  Bool_t fOnly800;
+  //Bool_t fOnly800;
 
 
   // Private Data Members ------------
 
 public:
-  ClassDef(PndTpcDataReaderTask,1)
+  ClassDef(PndTpcDataReaderTask,2)
 
 };
 
