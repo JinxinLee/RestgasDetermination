@@ -30,7 +30,7 @@ public:
   
 	void SetClusterList(Int_t DigiType, std::vector<Int_t> list){
 		fClusterList = list;
-		SetLinks(FairMultiLinkedData(DigiType, list));
+		//SetLinks(FairMultiLinkedData(DigiType, list));
 	}
   
 	SensorSide GetSensorSide() const {return fSide;}

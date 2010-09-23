@@ -94,11 +94,11 @@ InitStatus PndEmcWaveformToDigi::Init()
 	
 	cout<<"fEmcDigiPositionDepth: "<<fEmcDigiPositionDepth<<endl;
 				
-	if (!fDigiPosMethod.compare("surface"))
+	if (!fDigiPosMethod.CompareTo("surface"))
 	{
 		PndEmcDigi::selectDigiPositionMethod( PndEmcDigi::surface, 1., 0. );
 	}
-	else if (!fDigiPosMethod.compare("depth"))
+	else if (!fDigiPosMethod.CompareTo("depth"))
 	{
 	   PndEmcDigi::selectDigiPositionMethod( PndEmcDigi::depth, 
 			 fEmcDigiRescaleFactor, fEmcDigiPositionDepth);

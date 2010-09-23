@@ -76,7 +76,8 @@ private:
 	Int_t fNumber_of_samples_in_waveform;
 	Int_t fNumber_of_samples_in_waveform_pmt;
 	
-  	std::string fDigiPosMethod;// "surface" or "depth"
+  	//std::string fDigiPosMethod;// "surface" or "depth"
+        TString fDigiPosMethod;
 	Double_t fEmcDigiRescaleFactor;
 	Double_t fEmcDigiPositionDepth;
 	
