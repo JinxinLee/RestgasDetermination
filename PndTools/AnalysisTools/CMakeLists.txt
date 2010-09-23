@@ -40,7 +40,7 @@ ${ROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(AnalysisTools_SRCS
-PndMicroWriter.cxx
+#PndMicroWriter.cxx
 PndSimplePidInfo.cxx
 PndMicroCandidate.cxx
 PndEventInfo.cxx
