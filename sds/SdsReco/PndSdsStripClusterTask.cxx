@@ -141,9 +141,9 @@ void PndSdsStripClusterTask::SetCalculators()
     fStripCalcTop[senstype]->SetVerboseLevel(fVerbose); 
     fStripCalcBot[senstype]=new PndSdsCalcStrip(digipar,kBOTTOM); 
     fStripCalcBot[senstype]->SetVerboseLevel(fVerbose);  
-    fChargeAlgos = new PndSdsChargeWeightingAlgorithms(fDigiArray);
-    fChargeAlgos->SetVerbose(fVerbose);
   } 
+  fChargeAlgos = new PndSdsChargeWeightingAlgorithms(fDigiArray);
+  fChargeAlgos->SetVerbose(fVerbose);
 } 
 
 // -----   Public method Init   --------------------------------------------
