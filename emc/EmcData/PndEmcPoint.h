@@ -38,7 +38,7 @@ class PndEmcPoint : public FairMCPoint
 	      Short_t mod, Short_t row, Short_t crys, Short_t copy);
   
   /** Copy constructor **/
-  PndEmcPoint(const PndEmcPoint& point) { *this = point; SetLinks(point.GetLinks()); };
+  PndEmcPoint(const PndEmcPoint& point) { *this = point; /*SetLinks(point.GetLinks());*/ };
   
 
   /** Destructor **/

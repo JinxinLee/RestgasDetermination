@@ -39,7 +39,7 @@ PndEmcHit::PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Floa
   fX = X;  fY = Y;  fZ = Z;
   fDx = 0.;  fDy = 0.;  fDz = 0.;
   fMcList = McList;
-  SetLinks(FairMultiLinkedData("MCTrack", McList));
+  //SetLinks(FairMultiLinkedData("MCTrack", McList));
 }
 // -----   Constructor           -------------------------------------------
 PndEmcHit::PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Float_t X, Float_t Y, Float_t Z, std::vector<PndEmcPoint*> PointList)

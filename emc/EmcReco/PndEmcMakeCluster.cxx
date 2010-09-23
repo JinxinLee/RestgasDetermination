@@ -193,7 +193,7 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 			{
 				PndEmcCluster* newcluster = new((*fClusterArray)[clustLength]) PndEmcCluster();
 				newcluster->addDigi(fDigiArray, iDigi);
-				newcluster->SetLink(FairLink("EmcDigi", iDigi));
+				//newcluster->SetLink(FairLink("EmcDigi", iDigi));
 			}
 			
 			totalDigiEnergy+=theDigi->GetEnergy();
