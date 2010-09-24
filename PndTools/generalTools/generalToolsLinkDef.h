@@ -10,6 +10,7 @@
 #pragma link C++ class PndSensorNameContFact+;
 #pragma link C++ class PndSensorNamePar+;
 #pragma link C++ class PndBlackBoxTask+;
+#pragma link C++ class PndEventCounterTask+;
 
 #endif
 
