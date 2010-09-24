@@ -39,6 +39,7 @@ using std::cout;
 #include "TGeoMatrix.h"
 #include "TGeoManager.h"
 #include "TObject.h"
+#include "TColor.h"
 
 #include "FairGeoInterface.h"
 #include "FairGeoLoader.h"
@@ -316,7 +317,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
     if (gMC->IsTrackExiting()==1){
       if (nam.BeginsWith("DrcBar") ) {            
         if (fPos.Z() > fSlabEnd ){
-           gMC->StopTrack();	   
+//           gMC->StopTrack();			// for photons gun!!!   
 //           if (fVerboseLevel >0) cout<< "Photon killed" << " at z= "<<fPos.Z()<<endl;
         }	
 	
@@ -550,6 +551,8 @@ void PndDrc::ConstructGeometry()
   Int_t nMirror = geobuild->createMedium(mirror);
   FairGeoMedium *marcol82  = Media->getMedium("Marcol82");
   Int_t nMarcol82 = geobuild->createMedium(marcol82);
+  FairGeoMedium *carbonfiber = Media->getMedium("DIRCcarbonFiber");
+  Int_t nCarbonFiber = geobuild->createMedium(carbonfiber);
 
   TGeoVolume *cave = gGeoManager->GetTopVolume();
  
@@ -568,35 +571,66 @@ void PndDrc::ConstructGeometry()
   Double_t bbox_zup      =  fGeo->barBoxZUp();    // bar box z upstream
   Double_t bbox_hlen     =  0.5*(bbox_zdown - bbox_zup);           // bar box half length
   Double_t bbox_shift    =  bbox_zup + bbox_hlen;                  // bar box shift
-
-
+  Double_t bargap        =  fGeo->barGap();			// half gap between bars
+  Double_t boxgap        =  fGeo->boxGap();			// gap between bars and the bar box
+  Double_t boxthick	 =  fGeo->boxThick();			// thickness of the bar box
   
   // Create base volume 
   TGeoPgon* basePol = new TGeoPgon("basePol",0, 360., 16, 2);
   basePol->DefineSection(0, -bbox_hlen, 45., 53.8);
   basePol->DefineSection(1, +bbox_hlen, 45., 53.8);
   TGeoVolume *baseVol = new TGeoVolume("DrcBase",basePol,gGeoManager->GetMedium("DIRCairNoSens"));
+  baseVol->SetLineColor(kCyan+2);
   cave->AddNode(baseVol, 1, new TGeoCombiTrans(0, 0, bbox_shift, new TGeoRotation(0)));
 
   //Create the sides           lside is the width in the middle of the barbox
 
   Double_t rad_out = (radius-hthick)/cos(2*pi/16/2); // radius at corner - thickness ###
-  Double_t lside   = 2*rad_out*sin(2*pi/16/2);
+  Double_t lside   = 2.*rad_out*sin(2.*pi/16./2.) - (2.*boxthick) - (2.*boxgap);
   cout<<" DIRC min. radius = "<<radius-hthick<<endl;
   cout<<" DIRC max. radius = "<<rad_out+2*hthick<<endl;
   cout<<" DIRC lside = "<<lside<<endl;
   cout<<" DIRC rad_out = "<<rad_out<<endl;
+  cout<<" DIRC bargap = "<<bargap<<endl;
+  cout<<" DIRC boxgap = "<<boxgap<<endl;
+  cout<<" DIRC box thick = "<<boxthick<<endl;
+  
   
   TGeoBBox* logicSide = new TGeoBBox("logicSide", lside/2, hthick, bbox_hlen);
   TGeoVolume *side = new TGeoVolume("DrcSide",logicSide, gGeoManager->GetMedium("DIRCairNoSens"));
+  side->SetLineColor(kCyan-2);
   // 2 special sides where slabs will be missing:
   TGeoBBox* logicSide1 = new TGeoBBox("logicSide1", lside/2, hthick, bbox_hlen);
   TGeoVolume *side1 = new TGeoVolume("DrcSide1",logicSide1, gGeoManager->GetMedium("DIRCairNoSens"));
+  side1->SetLineColor(kCyan-2);
   TGeoBBox* logicSide2 = new TGeoBBox("logicSide2", lside/2, hthick, bbox_hlen);
   TGeoVolume *side2 = new TGeoVolume("DrcSide2",logicSide2, gGeoManager->GetMedium("DIRCairNoSens"));
+  side2->SetLineColor(kCyan-2);
 
-
-
+  // Create bar boxes
+  TGeoBBox* logicbbS = new TGeoBBox("logicbbS", lside/2.+boxgap, hthick+boxgap, bbox_hlen);
+  TGeoBBox* logicbbL = new TGeoBBox("logicbbL", lside/2.+boxgap+boxthick, hthick+boxgap+boxthick, bbox_hlen);  
+  TGeoCompositeShape* logicbb = new TGeoCompositeShape("logicbb", "logicbbL-logicbbS");
+  TGeoVolume *bbox = new TGeoVolume("DrcBarBox", logicbb, gGeoManager->GetMedium("DIRCcarbonFiber")); 
+  bbox->SetLineColor(30); 
+   
+  // 2 special bar boxes where slabs will be missing:
+  TGeoBBox* logicbbS1 = new TGeoBBox("logicbbS1", lside*5./12.+boxgap, hthick+boxgap, bbox_hlen);
+  TGeoBBox* logicbbL1 = new TGeoBBox("logicbbL1", lside*5./12.+boxgap+boxthick, hthick+boxgap+boxthick, bbox_hlen);
+  TGeoTranslation* tra1 = new TGeoTranslation("tra1", -lside/12., 0.,0.);
+  tra1->RegisterYourself();
+  TGeoCompositeShape* logicbb1 = new TGeoCompositeShape("logicbb1","(logicbbL1:tra1)-(logicbbS1:tra1)");
+  TGeoVolume *bbox1 = new TGeoVolume("DrcBarBox1", logicbb1, gGeoManager->GetMedium("DIRCcarbonFiber"));
+  bbox1->SetLineColor(30);
+  
+  TGeoBBox* logicbbS2 = new TGeoBBox("logicbbS2", lside*5./12.+boxgap, hthick+boxgap, bbox_hlen);
+  TGeoBBox* logicbbL2 = new TGeoBBox("logicbbL2", lside*5./12.+boxgap+boxthick, hthick+boxgap+boxthick, bbox_hlen);
+  TGeoTranslation* tra2 = new TGeoTranslation("tra2", lside/12., 0.,0.);
+  tra2->RegisterYourself();  
+  TGeoCompositeShape* logicbb2 = new TGeoCompositeShape("logicbb2","(logicbbL2:tra2)-(logicbbS2:tra2)");
+  TGeoVolume *bbox2 = new TGeoVolume("DrcBarBox2", logicbb2, gGeoManager->GetMedium("DIRCcarbonFiber"));
+  bbox2->SetLineColor(30);
+  
   Int_t n = 0;
   Double_t dx, dy, dz;
 
@@ -613,14 +647,17 @@ void PndDrc::ConstructGeometry()
       if      (n==1 || n==9)
 	{
 	  baseVol->AddNode(side1, n,new TGeoCombiTrans(dx, dy, dz, new TGeoRotation (rot1)) );
+	  baseVol->AddNode(bbox1, n, new TGeoCombiTrans(dx, dy, dz, new TGeoRotation (rot1) ));
 	}
       else if (n==2 || n==10)
 	{
 	  baseVol->AddNode(side2, n,new TGeoCombiTrans(dx, dy, dz, new TGeoRotation (rot1)) );
+	  baseVol->AddNode(bbox2, n, new TGeoCombiTrans(dx, dy, dz, new TGeoRotation (rot1) ));
 	}
       else
 	{
 	  baseVol->AddNode(side, n,new TGeoCombiTrans(dx, dy, dz, new TGeoRotation (rot1)) );
+	  baseVol->AddNode(bbox, n,new TGeoCombiTrans(dx,dy,dz, new TGeoRotation (rot1)) );
 	}
       
     }
@@ -637,20 +674,25 @@ void PndDrc::ConstructGeometry()
   TGeoVolume *box = new TGeoVolume("DrcBox",logicBox, gGeoManager->GetMedium("DIRCairNoSens"));
   TGeoVolume *box1  = new TGeoVolume("DrcBox1",logicBox1, gGeoManager->GetMedium("DIRCairNoSens"));
   TGeoVolume *box2  = new TGeoVolume("DrcBox2",logicBox2, gGeoManager->GetMedium("DIRCairNoSens"));
+  box->SetLineColor(kCyan-4);
+  box1->SetLineColor(kCyan-4);
+  box2->SetLineColor(kCyan-4);
 
   TGeoVolume *mirr = new TGeoVolume("DrcMirr",logicMirror, gGeoManager->GetMedium("Mirror"));
   TGeoVolume *mirr1 = new TGeoVolume("DrcMirr1",logicMirror1, gGeoManager->GetMedium("Mirror"));
   TGeoVolume *mirr2 = new TGeoVolume("DrcMirr2",logicMirror2, gGeoManager->GetMedium("Mirror"));
-
-
+  mirr->SetLineColor(5);
+  mirr->SetLineColor(5);
+  mirr->SetLineColor(5);
+  
   side->AddNode(box, 1,new TGeoCombiTrans(0., 0., -eps, new TGeoRotation (0)) );
   side->AddNode(mirr, 1,new TGeoCombiTrans(0., 0., bbox_hlen-eps, new TGeoRotation (0)) );
 
-  side1->AddNode(box1,  1,new TGeoCombiTrans(-lside*1./12, 0., -eps,          new TGeoRotation (0) ));
-  side1->AddNode(mirr1, 1,new TGeoCombiTrans(-lside*1./12, 0., bbox_hlen-eps, new TGeoRotation (0) ));
+  side1->AddNode(box1,  1,new TGeoCombiTrans(-lside*1./12., 0., -eps,          new TGeoRotation (0) ));
+  side1->AddNode(mirr1, 1,new TGeoCombiTrans(-lside*1./12., 0., bbox_hlen-eps, new TGeoRotation (0) ));
 
-  side2->AddNode(box2,  1,new TGeoCombiTrans(lside*1./12, 0., -eps, new TGeoRotation (0)));
-  side2->AddNode(mirr2, 1,new TGeoCombiTrans(lside*1./12, 0., bbox_hlen-eps, new TGeoRotation (0)) );
+  side2->AddNode(box2,  1,new TGeoCombiTrans( lside*1./12., 0., -eps, new TGeoRotation (0)));
+  side2->AddNode(mirr2, 1,new TGeoCombiTrans( lside*1./12., 0., bbox_hlen-eps, new TGeoRotation (0)) );
 
 
 
@@ -664,10 +706,12 @@ void PndDrc::ConstructGeometry()
   TGeoBBox* logicBarContainer1 = new TGeoBBox("logicBarContainer1",(lside/6)/2, hthick, bbox_hlen-eps);
   TGeoBBox* logicBarContainer2 = new TGeoBBox("logicBarContainer2",(lside/6)/2, hthick, bbox_hlen-eps);
 
-
-  TGeoVolume *barContainer = new TGeoVolume("DrcBarContainer",logicBarContainer, gGeoManager->GetMedium("DIRCairNoSens"));
+  TGeoVolume *barContainer = new TGeoVolume("DrcBarContainer",logicBarContainer, gGeoManager->GetMedium("DIRCairNoSens"));  
   TGeoVolume *barContainer1= new TGeoVolume("DrcBarContainer",logicBarContainer, gGeoManager->GetMedium("DIRCairNoSens"));
   TGeoVolume *barContainer2= new TGeoVolume("DrcBarContainer",logicBarContainer, gGeoManager->GetMedium("DIRCairNoSens"));
+  barContainer->SetLineColor(kCyan-7);
+  barContainer1->SetLineColor(kCyan-7);
+  barContainer2->SetLineColor(kCyan-7);
 
   for (Int_t j = 0; j <6 ; j++)
      { 
@@ -709,6 +753,7 @@ void PndDrc::ConstructGeometry()
     baseSOB->DefineSection(1,     10., radius-hthick,  sob_radius2);
     baseSOB->DefineSection(2, sob_len, radius-hthick,  radius+hthick);
     TGeoVolume *sob = new TGeoVolume("DrcSob",baseSOB, gGeoManager->GetMedium("DIRCairNoSens"));
+    sob->SetLineColor(kMagenta-2);
     cave->AddNode(sob, 1,new TGeoCombiTrans(0., 0., sob_shift, new TGeoRotation (0)));
 
     // for visualization
@@ -716,7 +761,8 @@ void PndDrc::ConstructGeometry()
     logicSOB->DefineSection(0,     0.1, radius-hthick+eps, sob_radius2-eps);
     logicSOB->DefineSection(1,    10.0, radius-hthick+eps, sob_radius2-eps);
     logicSOB->DefineSection(2, sob_len, radius-hthick+eps, radius+hthick-eps);
-    TGeoVolume *lsob = new TGeoVolume("DrcLSob", logicSOB, gGeoManager->GetMedium("Marcol82"));     
+    TGeoVolume *lsob = new TGeoVolume("DrcLSob", logicSOB, gGeoManager->GetMedium("Marcol82"));
+    lsob->SetLineColor(kMagenta-2);     
     sob->AddNode(lsob, 1,new TGeoCombiTrans(0., 0., 0., new TGeoRotation (0)));
 
     // Photodetector
@@ -725,6 +771,7 @@ void PndDrc::ConstructGeometry()
     logicPD->DefineSection(1, 0.1, radius-hthick, sob_radius2-eps);
    // TGeoVolume *pd = new TGeoVolume("DrcPd", logicPD, gGeoManager->GetMedium("DIRCair"));
     TGeoVolume *pd = new TGeoVolume("DrcPd", logicPD, gGeoManager->GetMedium("FusedSil"));
+    pd->SetLineColor(kGreen-6);
     sob->AddNode(pd, 1,new TGeoCombiTrans(0., 0., 0., new TGeoRotation (0)));
     AddSensitiveVolume(pd); 
   
@@ -762,8 +809,10 @@ void PndDrc::ConstructGeometry()
   
     // Fused Silica bars
     // make bar shorter by amount of lens space
-    TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/6)/2)-0.05, hthick, bbox_hlen-len/2-eps);
+    TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/6)/2)-bargap, hthick, bbox_hlen-len/2-eps);
     TGeoVolume *bar = new TGeoVolume("DrcBar",logicBar, gGeoManager->GetMedium("FusedSil"));
+    bar->SetLineColor(kCyan-9);
+    bar->SetTransparency(50);
     // shift by len/2 -> upstream now space with length len available
     barContainer->AddNode(bar, 1,new TGeoCombiTrans(0., 0., len/2, new TGeoRotation (0)) );
     AddSensitiveVolume(bar);
@@ -777,12 +826,14 @@ void PndDrc::ConstructGeometry()
     Double_t t = -r +b/2;
 
     TGeoSphere* logicSphere= new TGeoSphere("S",0.,r, 0. ,180.,0.,360.);
-    TGeoBBox* lBox = new TGeoBBox("B", (lside/6)/2-0.05, hthick, b/2.);
+    TGeoBBox* lBox = new TGeoBBox("B", (lside/6)/2-bargap, hthick, b/2.);
     TGeoTranslation *tr1 = new TGeoTranslation("tr1", 0.,0., t);
     tr1->RegisterYourself();
     TGeoCompositeShape *cs = new TGeoCompositeShape("cs","S*(B:tr1)");
     TGeoVolume *lens1 = new TGeoVolume("DrcLENS1",cs, gGeoManager->GetMedium("FusedSil"));
-
+    lens1->SetLineColor(kRed-8);
+    lens1->SetTransparency(40); 
+     
     // position lens within already shifted bar container at -(bbox_hlen-eps)+len, the lens base is -r + b
     // with -0.01 one can make a gap visible (.1mm) for orientation   
     barContainer->AddNode(lens1, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps)+len -(-r+b) /*-0.01*/  ,
@@ -795,11 +846,13 @@ void PndDrc::ConstructGeometry()
     //Lens 2
     Double_t t2 = -r2;// +b2/2 r2  is the reference point (concave lens) 
     TGeoSphere* logicSphere2 = new TGeoSphere("S2",0 ,r2, 0. ,180.,0.,360.);
-    TGeoBBox*   lBox2        = new TGeoBBox("B2", (lside/6)/2-0.05, hthick, b2/2.);
+    TGeoBBox*   lBox2        = new TGeoBBox("B2", (lside/6)/2-bargap, hthick, b2/2.);
     TGeoTranslation *tr2     = new TGeoTranslation("tr2", 0.,0., t2);
     tr2->RegisterYourself();
     TGeoCompositeShape *cs2 = new TGeoCompositeShape("cs2","(B2:tr2)-S2");
     TGeoVolume *lens2 = new TGeoVolume("DrcLENS2",cs2, gGeoManager->GetMedium("NLAK33A"));
+    lens2->SetLineColor(kRed+2);
+    lens2->SetTransparency(40); 
 
     // place the lens exactly on lens1
     // position lens within already shifted bar container at -(bbox_hlen-eps)+len, the lens base is -r2
@@ -812,12 +865,14 @@ void PndDrc::ConstructGeometry()
     //Lens3 (like lens1, same treatment)
     Double_t t3 = -r3+b3/2;
     TGeoSphere* logicSphere3= new TGeoSphere("S3",0.,r3, 0. ,180.,0.,360.);
-    TGeoBBox* lBox3 = new TGeoBBox("B3", (lside/6)/2-0.05, hthick, b3/2.);
+    TGeoBBox* lBox3 = new TGeoBBox("B3", (lside/6)/2-bargap, hthick, b3/2.);
     TGeoTranslation *tr3 = new TGeoTranslation("tr3", 0.,0., t3);
     tr3->RegisterYourself();
     TGeoCompositeShape *cs3 = new TGeoCompositeShape("cs3","S3*(B3:tr3)");
     TGeoVolume *lens3 = new TGeoVolume("DrcLENS3",cs3, gGeoManager->GetMedium("NLAK33A"));
-
+    lens3->SetLineColor(kRed-6);
+    lens3->SetTransparency(40); 
+     
     // place the lens exactly on lens2 plane side
     // position lens within already shifted bar container at -(bbox_hlen-eps)+len, the lens base is -r3 + b3
     // with -0.03 one can make a gap visible (.1mm due to lens 1&2) for orientation   
@@ -862,8 +917,10 @@ void PndDrc::ConstructGeometry()
   
     // Fused Silica bars
     // make bar shorter by amount of lens space
-    TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/6)/2)-0.05, hthick, bbox_hlen-len/2-eps);
+    TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/6)/2)-bargap, hthick, bbox_hlen-len/2-eps);
     TGeoVolume *bar = new TGeoVolume("DrcBar",logicBar, gGeoManager->GetMedium("FusedSil"));
+    bar->SetLineColor(kCyan-9);
+    bar->SetTransparency(50);
     // shift by len/2 -> upstream now space with length len available
     barContainer->AddNode(bar, 1,new TGeoCombiTrans(0., 0., len/2, new TGeoRotation (0)) );
     AddSensitiveVolume(bar);
@@ -876,12 +933,14 @@ void PndDrc::ConstructGeometry()
     // Lens 1
     Double_t t = -r +b/2;
     TGeoSphere* logicSphere= new TGeoSphere("S",0.,r, 0. ,180.,0.,360.);
-    TGeoBBox* lBox = new TGeoBBox("B", (lside/6)/2-0.05, hthick, b/2.);
+    TGeoBBox* lBox = new TGeoBBox("B", (lside/6)/2-bargap, hthick, b/2.);
     TGeoTranslation *tr1 = new TGeoTranslation("tr1", 0.,0., t);
     tr1->RegisterYourself();
     TGeoCompositeShape *cs = new TGeoCompositeShape("cs","S*(B:tr1)");
     TGeoVolume *lens1 = new TGeoVolume("DrcLENS1",cs, gGeoManager->GetMedium("FusedSil"));
-
+    lens1->SetLineColor(kRed+1);
+    lens1->SetTransparency(40); 
+    
     // position lens within already shifted bar container at -(bbox_hlen-eps)+len, the lens base is -r + b
     // with -0.01 one can make a gap visible (.1mm) for orientation   
     barContainer->AddNode(lens1, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps)+len -(-r+b) /*-0.01*/  , new TGeoRotation (0)));
@@ -893,11 +952,13 @@ void PndDrc::ConstructGeometry()
     //Lens 2
     Double_t t2 = -r2;// +b2/2 r2  is the reference point (concave lens) 
     TGeoSphere* logicSphere2 = new TGeoSphere("S2",0 ,r2, 0. ,180.,0.,360.);
-    TGeoBBox*   lBox2        = new TGeoBBox("B2", (lside/6)/2-0.05, hthick, b2/2.);
+    TGeoBBox*   lBox2        = new TGeoBBox("B2", (lside/6)/2-bargap, hthick, b2/2.);
     TGeoTranslation *tr2     = new TGeoTranslation("tr2", 0.,0., t2);
     tr2->RegisterYourself();
     TGeoCompositeShape *cs2 = new TGeoCompositeShape("cs2","(B2:tr2)-S2");
     TGeoVolume *lens2 = new TGeoVolume("DrcLENS2",cs2, gGeoManager->GetMedium("NLAK33A"));
+    lens2->SetLineColor(kRed-7);
+    lens2->SetTransparency(40); 
 
     // place the lens exactly on lens1
     // position lens within already shifted bar container at -(bbox_hlen-eps)+len, the lens base is -r2
@@ -909,11 +970,13 @@ void PndDrc::ConstructGeometry()
     //Lens3 (like lens1, same treatment)
     Double_t t3 = -r3+b3/2;
     TGeoSphere* logicSphere3= new TGeoSphere("S3",0.,r3, 0. ,180.,0.,360.);
-    TGeoBBox* lBox3 = new TGeoBBox("B3", (lside/6)/2-0.05, hthick, b3/2.);
+    TGeoBBox* lBox3 = new TGeoBBox("B3", (lside/6)/2-bargap, hthick, b3/2.);
     TGeoTranslation *tr3 = new TGeoTranslation("tr3", 0.,0., t3);
     tr3->RegisterYourself();
     TGeoCompositeShape *cs3 = new TGeoCompositeShape("cs3","S3*(B3:tr3)");
     TGeoVolume *lens3 = new TGeoVolume("DrcLENS3",cs3, gGeoManager->GetMedium("NLAK33A"));
+    lens3->SetLineColor(kRed+2);
+    lens3->SetTransparency(40); 
 
     // place the lens exactly on lens2 plane side
     // position lens within already shifted bar container at -(bbox_hlen-eps)+len, the lens base is -r3 + b3
@@ -942,8 +1005,10 @@ void PndDrc::ConstructGeometry()
     Double_t l = 0.5+ 0.2+ 0.5+ a2 -0.2; // dimension of the box containing both lenses
  
     // Fused Silica bars
-    TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/6)/2)-0.05, hthick, bbox_hlen-l/2-eps);
+    TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/6)/2)-bargap, hthick, bbox_hlen-l/2-eps);
     TGeoVolume *bar = new TGeoVolume("DrcBar",logicBar, gGeoManager->GetMedium("FusedSil"));
+    bar->SetLineColor(kCyan-9);
+    bar->SetTransparency(50);
     barContainer->AddNode(bar, 1,new TGeoCombiTrans(0., 0., l/2, new TGeoRotation (0)) );
     AddSensitiveVolume(bar);
 
@@ -959,11 +1024,13 @@ void PndDrc::ConstructGeometry()
     // Lens 1
     Double_t t = -r +b/2;
     TGeoSphere* logicSphere= new TGeoSphere("S",0.,r, 0. ,180.,0.,360.);
-    TGeoBBox* lBox = new TGeoBBox("B", (lside/6)/2-0.05, hthick, b/2.);
+    TGeoBBox* lBox = new TGeoBBox("B", (lside/6)/2-bargap, hthick, b/2.);
     TGeoTranslation *tr1 = new TGeoTranslation("tr1", 0.,0., t);
     tr1->RegisterYourself();
     TGeoCompositeShape *cs = new TGeoCompositeShape("cs","S*B:tr1");
     TGeoVolume *lens1 = new TGeoVolume("DrcLENS1",cs, gGeoManager->GetMedium("FusedSil"));
+    lens1->SetLineColor(kRed-8);
+    lens1->SetTransparency(40); 
     barContainer->AddNode(lens1, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps) +r +a2 + 0.5 - a ,new TGeoRotation (0)));
 
 
@@ -972,11 +1039,13 @@ void PndDrc::ConstructGeometry()
   
     //TGeoSphere* logicSphere2 = new TGeoSphere("S2", r ,r2, 0. ,180.,0.,360.);
     TGeoSphere* logicSphere2 = new TGeoSphere("S2", r2-a2 ,r2, 0. ,180.,0.,360.);
-    TGeoBBox*   lBox2        = new TGeoBBox("B2", (lside/6)/2-0.05, hthick, b2/2.);
+    TGeoBBox*   lBox2        = new TGeoBBox("B2", (lside/6)/2-bargap, hthick, b2/2.);
     TGeoTranslation *tr2     = new TGeoTranslation("tr2", 0.,0., t2);
     tr2->RegisterYourself();
     TGeoCompositeShape *cs2 = new TGeoCompositeShape("cs2","S2*B2:tr2");
     TGeoVolume *lens2 = new TGeoVolume("DrcLENS2",cs2, gGeoManager->GetMedium("NLAK33A"));
+    lens2->SetLineColor(kRed-9);
+    lens2->SetTransparency(40); 
     barContainer->AddNode(lens2, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps)+r2 + 0.2 , new TGeoRotation (0)));
     AddSensitiveVolume(lens2);
     
@@ -991,8 +1060,10 @@ void PndDrc::ConstructGeometry()
   
     // Fused Silica bars
     // make bar shorter by amount of lens space
-    TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/6)/2)-0.05, hthick, bbox_hlen-len/2-eps);
+    TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/6)/2)-bargap, hthick, bbox_hlen-len/2-eps);
     TGeoVolume *bar = new TGeoVolume("DrcBar",logicBar, gGeoManager->GetMedium("FusedSil"));
+    bar->SetLineColor(kCyan-9);
+    bar->SetTransparency(50);
     // shift by len/2 -> upstream now space with length len available
     barContainer->AddNode(bar, 1,new TGeoCombiTrans(0., 0., len/2, new TGeoRotation (0)) );
     AddSensitiveVolume(bar);
