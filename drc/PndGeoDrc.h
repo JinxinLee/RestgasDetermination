@@ -15,6 +15,9 @@ class  PndGeoDrc : public FairGeoSet {
   double fBarHalfThick;                     //!< Radiator bars half thickness [cm].
   double fBarBoxZDown;                      //!< Bar box down stream coordinate [cm].
   double fBarBoxZUp;                        //!< Bar box up   stream coordinate [cm].
+  double fBarGap;			    //!< Half gap between bars [cm].
+  double fBoxGap;			    //!< Gap between bar and bar box [cm].
+  double fBoxThick;			    //!< Bar box thickness [cm].
   
   protected:
   char modName[20];  // name of module
@@ -41,6 +44,18 @@ class  PndGeoDrc : public FairGeoSet {
   /*! The DRC barrel bar box upstream coordinate.
     \return Coordinate [cm]. */
   Double_t  barBoxZUp() {return fBarBoxZUp;}
+  
+  /*! The  half gap between bars.
+    \return The BarGap [cm]. */
+  Double_t  barGap() {return fBarGap;}
+  
+  /*! The gap between bars and the bar box.
+    \return The Gap [cm]. */
+  Double_t  boxGap() {return fBoxGap;}
+  
+  /*! The thickness of the bar box.
+    \return The BoxThickness [cm]. */
+  Double_t  boxThick() {return fBoxThick;}
 
   ClassDef(PndGeoDrc,0) // Class for Drc
 

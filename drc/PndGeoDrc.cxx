@@ -21,10 +21,13 @@ PndGeoDrc::PndGeoDrc() {
   maxModules=20;
 
 
-  fRadius       = 51.2;       // Barrel radius
+  fRadius       = 50.;//  old version = 51.2;       // Barrel radius
   fBarHalfThick = 1.7/2.0;    // bar half thickness
   fBarBoxZDown  = 130.0;      // Downstream coordinate of radiator barrel
   fBarBoxZUp    =-120.0;      // Upstream coordinate of radiator barrel
+  fBoxGap	= 0.1;       // Half gap between bars
+  fBarGap	= 0.01;	      // Gap between bar and bar box
+  fBoxThick	= 0.05;	      // Thickness of bar box
   
  }
 // -------------------------------------------------------------------------
