@@ -166,15 +166,15 @@ PndTpcElectronicsTask::Exec(Option_t* opt)
 	
   //partition data according to pads
   std::cout<<"Building up padmap ...";
-  std::map<unsigned int,std::vector<PndTpcSignal*>* > padmap;
+  std::map<unsigned int,std::vector<PndTpcSignal*> > padmap;
   std::map<unsigned int, std::vector<int> > sigIdMap;
 
   Int_t ns=fsignalArray->GetEntriesFast();
   for(Int_t is=0;is<ns;++is){
     PndTpcSignal* sig=(PndTpcSignal*)fsignalArray->At(is);
     unsigned int id=sig->padId();
-    if(padmap[id]==NULL)padmap[id]=new std::vector<PndTpcSignal*>;
-    padmap[id]->push_back(sig);
+    //if(padmap[id]==NULL)padmap[id]=new std::vector<PndTpcSignal*>;
+    padmap[id].push_back(sig);
     sigIdMap[id].push_back(is);
   }
   std::cout<<"finished. "<<padmap.size()<<" pads hit"<<std::endl;
@@ -184,7 +184,7 @@ PndTpcElectronicsTask::Exec(Option_t* opt)
   //fsignalArray->Clear();
 
   // process each pad individually:
-  std::map<unsigned int,std::vector<PndTpcSignal*>* >::iterator padIt=padmap.begin();
+  std::map<unsigned int,std::vector<PndTpcSignal*> >::iterator padIt=padmap.begin();
   int counter=0;
   while(padIt!=padmap.end()){
     if(counter++%tenpercent==0){
@@ -192,7 +192,7 @@ PndTpcElectronicsTask::Exec(Option_t* opt)
       std::cout.flush();
     }
     // --- ADC ------------------------------------------
-    std::vector<PndTpcSignal*>* sv=padIt->second;
+    std::vector<PndTpcSignal*>* sv=&padIt->second;
     std::vector<PndTpcSample*> samplelist;
     PndTpcDigitizationPolicy().Digitize(sv,&samplelist,ffrontend,fpulseshape);
 
