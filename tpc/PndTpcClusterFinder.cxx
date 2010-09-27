@@ -100,7 +100,7 @@ PndTpcClusterFinder::process(std::vector<PndTpcDigi*>& digis)
       }
       cl->SetMcId(id);
       //set link to the track
-      cl->SetLink(FairLink("MCTrack", id.DominantID().mctrackID()));
+      //cl->SetLink(FairLink("MCTrack", id.DominantID().mctrackID()));
       foutput_buffer->push_back(cl);
     }
     return;
