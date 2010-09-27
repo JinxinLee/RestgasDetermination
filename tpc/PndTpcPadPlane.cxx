@@ -49,7 +49,7 @@ PndTpcPadPlane::PndTpcPadPlane(int fnx,
 
 PndTpcPadPlane::PndTpcPadPlane(const char* const filename,
 			 const PndTpcPadShapePool* const pspool)
-  : Indexer(0,0,0.,0.,0.,0.)
+  : fnSectors(0), Indexer(0,0,0.,0.,0.,0.)
 {
   if(pspool==NULL)std::cout<<"WARNING: no padshapes defined!"
 			   <<" PadPlane will not be usable!"<<std::endl;
