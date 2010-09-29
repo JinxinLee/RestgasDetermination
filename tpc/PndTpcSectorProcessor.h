@@ -37,7 +37,7 @@ class PndTpcSectorProcessor {
 public:
 
   // Constructors/Destructors ---------
-  PndTpcSectorProcessor(bool b=false){fsaveRaw=b;}
+  PndTpcSectorProcessor(bool b=false, bool dm=false){fsaveRaw=b; fDataMode=dm;}
   ~PndTpcSectorProcessor();
 
   // Operators
@@ -74,6 +74,7 @@ private:
   std::vector<PndTpcDigi*> fdigi_buffer;
 
   bool fsaveRaw;
+  bool fDataMode;
 
   // Private Methods -----------------
   void cog(); // center of gravity

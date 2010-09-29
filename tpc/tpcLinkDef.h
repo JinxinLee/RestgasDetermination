@@ -27,7 +27,7 @@
 #pragma link C++ class PndTpcSample+;
 //#pragma link C++ class PndTpcAdcTask+;
 #pragma link C++ class PndTpcDigi+;
-//#pragma link C++ class PndTpcPSATask+;
+#pragma link C++ class PndTpcPSATask+;
 #pragma link C++ class PndTpcSpaceChargeTask+;
 #pragma link C++ class PndTpcEvtMixTask+;
 #pragma link C++ class PndTpcMCEvtMixTask+;
@@ -58,6 +58,15 @@
 #pragma link C++ class BiCubSpline+;
 #pragma link C++ class BSpline+;
 #pragma link C++ class PndTpcLaserCorrectionTask;
+#pragma link C++ class PndTpcSLResidualTask;
+#pragma link C++ class PndTpcSLPatternRecoTask;
+#pragma link C++ class Hypersurface2D;
+#pragma link C++ class Hough2DNode;
+#pragma link C++ class PndTpcEvent;
+#pragma link C++ class PndTpcDataReaderTask;
+//#pragma link C++ class PndTpcTCcrossTalk;
+//#pragma link C++ class PndTpcTCcrossTalkTask;
+//#pragma link C++ class PndTpcCTapplyTask;
 
 
 

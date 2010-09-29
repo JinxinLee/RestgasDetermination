@@ -155,6 +155,7 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
       std::vector<double> amps;
       std::vector<unsigned int> clSize;
       std::vector<unsigned int> cl2DSize;
+      std::vector<TVector3> pps;
       
       
       //Loop over clusters
@@ -165,6 +166,8 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
 	//calculate residual
 	TVector3 cl_rel = cl_pos-sl_pos;
 	double l = sl_dir*cl_rel; //length along SL to projection point
+	TVector3 pp = l*sl_dir;
+	pps.push_back(pp);
 	TVector3 res = cl_rel - l*sl_dir;
 	
 	//calculate chi2
@@ -200,6 +203,7 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
       fitstat->fillPndTpcClusterSize(clSize);
       fitstat->fillPndTpc2DClusterSize(cl2DSize);
       fitstat->fillPndTpcClusterAmp(amps);
+      fitstat->fillPndTpcProjPoints(pps);
       
       
     }

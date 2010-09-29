@@ -87,7 +87,10 @@ PndTpcSectorProcessor::process(){
   //fcluster_buffer.clear();
 
   unsigned int ndigis=fdigi_buffer.size();
-  if(ndigis==0)return;
+  if(ndigis==0){
+    std::cout<<"PndTpcSectorProcessor::process(): Digi buffer is empty!"<<std::endl;
+    return;
+  }
   //if(ndigis>0)std::cout<<ndigis<<" digis in sector "<<fSectorId<<std::endl;
   // loop over digis
   for(unsigned int i=0; i<ndigis; ++i){
@@ -243,7 +246,8 @@ PndTpcSectorProcessor::cog(){
     mcid.Renormalize();
     cl->SetMcId(mcid);
     //set link (temporary solution)
-    //cl->SetLink(FairLink("MCTrack", mcid.DominantID().mctrackID()));
+    if(!fDataMode)
+      cl->SetLink(FairLink("MCTrack", mcid.DominantID().mctrackID()));
 
     // loop again over the digis to calculate 2nd moment
     TMatrixD cov(3,3);

@@ -206,7 +206,7 @@ void plotHough(TString filename, TString type, int evLo, int evHi,
 	marker2D->SetMarkerStyle(4);
 	marker2D->SetMarkerSize((double)size2d/2);
 	marker2D->SetPoint(0,pos.X(),pos.Y()); 
-	marker2D->SetMarkerColor(kOrange+10);
+	marker2D->SetMarkerColor(kBlue+1);
       }
       else {
       	marker2D=clustersXY[size2d];

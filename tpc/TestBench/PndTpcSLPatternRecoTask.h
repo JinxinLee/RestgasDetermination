@@ -20,6 +20,7 @@
 
 //Base class
 #include "FairTask.h"
+#include "FairField.h"
 
 #include "TClonesArray.h"
 #include "TString.h"
@@ -33,6 +34,8 @@
 class PndTpcCluster;
 class Hough2DNode;
 class PndTpcDigiPar;
+class FairField;
+class TFile;
 
 class PndTpcSLPatternRecoTask : public FairTask {
 
@@ -61,17 +64,22 @@ class PndTpcSLPatternRecoTask : public FairTask {
   void SetDepth(int depth) {fDepth=depth;}
   void SetThresh(int thresh) {fThresh=thresh;}
   void SetMinCandHits(int min) {fMin=min;}
+  void SetClusterAmpCut(double c) {fAmpCut=c;}
 
-  void SetProjectionXZ() {fXZ=true;fZY=false;} //find lines in X-Z projection 
-  void SetProjectionZY() {fZY=true;fXZ=false;} //find lines in Z-Y projection (cosmics)
+  void SetProjectionXZ() {fXZ=true;fZY=false;fXY=false;} //find lines in X-Z projection 
+  void SetProjectionZY() {fZY=true;fXZ=false;fXY=false;} //find lines in Z-Y projection (cosmics)
+  void SetProjectionXY() {fZY=false;fXZ=false;fXY=true;} //find lines in X-Y projection (CERN?)
   
   void CutSmallPad(Bool_t opt=kTRUE) {_cutsmallpad=opt;}
   void CutBigPad(Bool_t opt=kTRUE) {_cutbigpad=opt;}
+
+  void SetStoreHistograms(TString file);
   
  private:
 
   double fMins[2];
   double fMaxs[2];
+  double fAmpCut;
 
   unsigned int fDepth;    //termination depth of the FHT search
   unsigned int fThresh;   //STATIC threshold of the FTH search 
@@ -82,17 +90,23 @@ class PndTpcSLPatternRecoTask : public FairTask {
   Bool_t fDistSorting;
   Bool_t fXZ;
   Bool_t fZY;
+  Bool_t fXY;
   Bool_t _cutbigpad;
   Bool_t _cutsmallpad ;
+  Bool_t fStore;
   
   TString fClusterBranchName;
   TString fTrackBranchName;
+  TString fHistoFileName;
+
+  TFile* fHistoFile;
   
   TClonesArray* fClusterArray;
   TClonesArray* fTrackArray;
   
   PndTpcDigiPar* fPar;
   TF1* fRep; //Hough space representation
+  FairField* fField;
 
   int counter;
 
@@ -101,7 +115,7 @@ class PndTpcSLPatternRecoTask : public FairTask {
 
   
  public:
-  ClassDef(PndTpcSLPatternRecoTask,1)
+  ClassDef(PndTpcSLPatternRecoTask,2)
 	
 };
 

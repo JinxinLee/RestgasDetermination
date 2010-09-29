@@ -45,7 +45,7 @@
 
 PndTpcClusterFinderTask::PndTpcClusterFinderTask()
   : FairTask("TPC Cluster Finder"), fpersistence(kFALSE),ftrivial(kFALSE),
-    ftimeslice(2), fmode(0),fthres(1)
+    ftimeslice(2), fmode(0),fthres(1), fDataMode(kFALSE)
 {
   fdigiBranchName = "PndTpcDigi";
 }
@@ -115,7 +115,7 @@ PndTpcClusterFinderTask::Init()
   fcluster_buffer=new std::vector<PndTpcCluster*>;
   ffinder=new PndTpcClusterFinder(PndTpcDigiMapper::getInstance()->getPadPlane(),
 				  fcluster_buffer,
-				  ftimeslice, fmode);
+				  ftimeslice, fmode, -1,fDataMode);
   
   ffinder->checkConsistency();
   ffinder->setTrivialClustering(ftrivial);
@@ -138,8 +138,7 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
    //for sorting
    std::vector<PndTpcDigi*> digis;
    
-
-  // For now: trivial clustering;
+   // For now: trivial clustering;
    Int_t ndigis=fdigiArray->GetEntries();
    //   std::cout << "FINDER"<< ndigis << std::endl;
    for(Int_t i=0;i<ndigis;++i){
@@ -147,24 +146,28 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
      //     digi->Print();
      digis.push_back(digi);
    }
-
+   std::cout<<"number of digis: "<<digis.size()<<std::endl;
    try{
      ffinder->process(digis);
+     
    } catch (std::exception& e) {
      std::cout << e.what() << std::endl;
    } catch (...) {
      std::cout << "unknown exception..." << std::endl;
    }
-   //sort(digis.begin(),digis.end(),PndTpcDigiAge());
+   
+   sort(digis.begin(),digis.end(),PndTpcDigiAge());
 
-   /*for(Int_t i=0;i<ndigis;++i){
+   /*
+   for(Int_t i=0;i<ndigis;++i){
      PndTpcDigi* digi=digis[i];
      TVector3 pos;
      PndTpcDigiMapper::getInstance()->map(digi,pos);
      PndTpcCluster* c=new((*fclusterArray)[i]) PndTpcCluster(pos,digi->amp());
      c->SetMcId(digi->mcId().DominantID());
-     }*/
-
+   }
+   */
+   
    // put clusters into array and clean up buffer
    unsigned int ncl=fcluster_buffer->size();
    unsigned int ndig=0;

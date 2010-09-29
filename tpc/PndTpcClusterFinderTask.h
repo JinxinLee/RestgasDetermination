@@ -56,6 +56,8 @@ public:
   void timeslice(unsigned int t){ftimeslice=t;}
   void SetThreshold(unsigned int t){fthres=t;}
 
+  void SetDataMode(Bool_t opt) {fDataMode=opt;}
+
   // Operations ----------------------
   
   virtual InitStatus Init();
@@ -73,6 +75,8 @@ private:
   
   Bool_t fpersistence;
   Bool_t ftrivial;
+  Bool_t fDataMode;   
+ 
   int fmode;
   unsigned int ftimeslice;
   unsigned int fthres;

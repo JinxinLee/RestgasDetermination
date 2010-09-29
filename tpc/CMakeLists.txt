@@ -15,7 +15,9 @@ ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/tpc
 ${CMAKE_SOURCE_DIR}/tpc/test
 ${CMAKE_SOURCE_DIR}/tpc/spacecharge
-
+${CMAKE_SOURCE_DIR}/tpc/TestBench
+${CMAKE_SOURCE_DIR}/recotasks
+${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/RKTrackRep
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -66,6 +68,7 @@ PndTpcCRRCPulseshape.cxx
 PndTpcDigitizationPolicy.cxx 	    
 PndTpcDigi.cxx 			    
 PndTpcDigiAge.cxx 		    
+PndTpcSampleAge.cxx 		    
 PndTpcDigiAmplitude.cxx 		    
 PndTpcDigiMapper.cxx 		    
 PndTpcSimplePSAStrategy.cxx 	    	    
@@ -113,6 +116,7 @@ PndTpcLaserTask.cxx
 PndTpcLaserFitTask.cxx
 PndTpcLaserTrack.cxx
 PndTpcLaserStat.cxx
+PndTpcPSATask.cxx
 spacecharge/BiCubSpline.cxx
 spacecharge/BSpline.cxx
 spacecharge/CubSpline.cxx
@@ -130,7 +134,20 @@ PndTpcHitMerger.cxx
 PndTpcDEDXStorageHelper.cxx
 PndTpcTestChamberOutputTask.cxx 	    
 PndTpcLaserCorrectionTask.cxx					    
-
+TestBench/PndTpcSLResidualTask.cxx
+TestBench/PndTpcSLPatternRecoTask.cxx
+TestBench/Hypersurface2D.cxx
+TestBench/Hough2DNode.cxx
+TestBench/PndTpcEvent.cxx
+TestBench/PndTpcDataReaderTask.cxx
+#TestBench/PndTpcTCcrossTalk.cxx
+#TestBench/PndTpcTCcrossTalkTask.cxx
+#TestBench/PndTpcCTapplyTask.cxx
+TestBench/PndTpcSampleAmp.cxx
+TestBench/TCmappingManager.cxx
+TestBench/mappingData.cxx
+TestBench/TCconfigManager.cxx
+PndTpcT2KPulseshape.cxx
 )
 
 SET(TPC_SRCS ${TPC_SRCS_RULECHECKER} PndTpcAbsField.cxx PndTpcFieldCylGrid.cxx 		    

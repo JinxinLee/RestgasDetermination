@@ -41,8 +41,9 @@ public:
 
   // Constructors/Destructors ---------
   PndTpcClusterFinder(PndTpcPadPlane* p,
-		   std::vector<PndTpcCluster*>* output_buffer,
-		   unsigned int timeslice, int mode=0, int sectorid=-1);
+		      std::vector<PndTpcCluster*>* output_buffer,
+		      unsigned int timeslice, int mode=0, int sectorid=-1,
+		      bool datamode=false);
   ~PndTpcClusterFinder();
 
   // Operators
@@ -76,6 +77,8 @@ private:
 
   unsigned int fdt; // time slice in units of sample time
   int fmode;
+
+  bool fDataMode;
 
   // Private Methods -----------------
 

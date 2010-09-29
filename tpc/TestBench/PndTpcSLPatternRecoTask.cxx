@@ -25,6 +25,8 @@
 #include <map>
 #include <algorithm>
 #include <cmath>
+#include <sstream>
+#include <string>
 
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
@@ -45,6 +47,9 @@
 #include "PndFieldAdaptor.h"
 #include "GFFieldManager.h"
 
+#include "TFile.h"
+#include "TH2D.h"
+#include "TCanvas.h"
 
 // Class Member definitions -----------
 
@@ -52,9 +57,10 @@ ClassImp(PndTpcSLPatternRecoTask)
 
 PndTpcSLPatternRecoTask::PndTpcSLPatternRecoTask()
 :  FairTask("PndTpc SL Hough Pattern Reco"),
-   fPersistence(kFALSE),fDistSorting(kTRUE),
-   fDepth(6), fThresh(6), fMin(5), counter(0),
-   fXZ(true), fZY(false), _cutbigpad(kFALSE), _cutsmallpad(kFALSE)
+  fPersistence(kFALSE),fDistSorting(kTRUE),
+  fDepth(6), fThresh(6), fMin(5), counter(0),
+  fXZ(true), fZY(false), _cutbigpad(kFALSE), _cutsmallpad(kFALSE),
+  fStore(false), fAmpCut(0.)
     
 {
   fClusterBranchName = "PndTpcCluster";
@@ -62,7 +68,9 @@ PndTpcSLPatternRecoTask::PndTpcSLPatternRecoTask()
 }
 
 PndTpcSLPatternRecoTask::~PndTpcSLPatternRecoTask(){
-
+  delete fRep;
+  if(fStore)
+    delete fHistoFile;
 }
 
 
@@ -78,7 +86,7 @@ PndTpcSLPatternRecoTask::SetParameterSpace(double* mins, double* maxs) {
   fMins[1] = mins[1];
   fMaxs[0] = maxs[0];
   fMaxs[1] = maxs[1];
-  
+  //fRep->SetRange(mins[0],maxs[0]);
 }
 
 void 
@@ -88,6 +96,7 @@ PndTpcSLPatternRecoTask::SetParameterSpace(double min1, double min2,
   fMins[1] = min2;
   fMaxs[0] = max1;
   fMaxs[1] = max2;
+  //fRep->SetRange(min1,max1);
 }
 
 
@@ -116,6 +125,13 @@ PndTpcSLPatternRecoTask::Init()
   // create and register output array
   fTrackArray = new TClonesArray("GFTrack");
   ioman->Register("TrackPreFit","GenFit",fTrackArray,fPersistence);
+
+  //get the magnetic field for curvature seeding
+  fField=(FairField*) FairRunAna::Instance()->GetField();
+  GFFieldManager::getInstance()->init(new PndFieldAdaptor(fField));
+  
+  if(fStore)
+    fHistoFile = new TFile(fHistoFileName, "update");
   
   return kSUCCESS;
 }
@@ -123,22 +139,18 @@ PndTpcSLPatternRecoTask::Init()
 void
 PndTpcSLPatternRecoTask::Exec(Option_t* opt)
 {
+  fHistoFile->cd();
   counter++;
   
   double MIN0 = fMins[0];
   double MIN1 = fMins[1];
   double MAX0 = fMaxs[0];
   double MAX1 = fMaxs[1];
-  
-  
+    
   double x_OFF=0.; //TODO: make member, settable from outside.
   
   if(fXZ)
     x_OFF = 5.; //offset; TODO: read from par
-  
-  //get the magnetic field for curvature seeding
-  FairField* field=FairRunAna::Instance()->GetField();
-  GFFieldManager::getInstance()->init(new PndFieldAdaptor(field));
   
   std::cout<<"PndTpcSLPatternRecoTask::Exec"<<std::endl;
   // Reset output Arrays
@@ -148,6 +160,24 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   // copy into vector
   std::vector<PndTpcCluster*> cll;      //all clusters
   std::vector<Hypersurface2D*> hitreps; //their representation in the par. space
+
+  TH2D* clHist;
+  TH2D* repHist;
+  //TCanvas* canv = new TCanvas();
+
+  if(fStore) {
+    std::string clName = "cl_Ev";
+    std::string repName = "rep_Ev";
+    std::stringstream ss;
+    ss<<counter;
+    clName.append(ss.str());
+    repName.append(ss.str());
+    clHist = new TH2D(clName.c_str(), clName.c_str(), 100,-5,5,100,-5,5);
+    clHist->SetMarkerStyle(20);
+    repHist = new TH2D(repName.c_str(), repName.c_str(), 100,0.,5.,100,0,15);
+    //canv->cd();
+    //repHist->Draw();
+  }
   
   unsigned int totCl=fClusterArray->GetEntriesFast();
   TVector3 pos;
@@ -155,44 +185,51 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   for(unsigned int i=0;i<totCl;++i){    // loop over clusters
     PndTpcCluster* cl=(PndTpcCluster*)fClusterArray->At(i);
     //cl->SetIndex(i);                    //INDEXNG
+    if(cl->amp()<fAmpCut)
+      continue;
     pos = cl->pos();
     if(_cutsmallpad && pos.y()>0.6)
       continue;
     else if(_cutbigpad && pos.y()<0.6) 
       continue;
-	  
+    
     cll.push_back(cl);
-    
-    
+    if(fStore)
+      clHist->Fill(pos.X(), pos.Y());
     
     //TODO: parameter management and specifiable projection plane
     double x = pos.X()+x_OFF;
+    //double x = pos.X();
     double y = pos.Y();
     double z = pos.Z();
 
-    //std::cout<<"x: "<<x<<"  z: "<<z<<std::endl;
-    
     if(fXZ) 
-      hitreps.push_back(new Hypersurface2D(x+x_OFF,z,*fRep,ii));
+      hitreps.push_back(new Hypersurface2D(x,z,*fRep,ii));
     if(fZY)
-      hitreps.push_back(new Hypersurface2D(z+x_OFF,y,*fRep,ii));
+      hitreps.push_back(new Hypersurface2D(z,y,*fRep,ii));
+    if(fXY)
+      hitreps.push_back(new Hypersurface2D(x,y,*fRep,ii));
+    
     
     hitreps.back()->setParamSpace(fMins, fMaxs);
+    //hitreps.back()->getTF1()->Print();
+    repHist->GetListOfFunctions()->Add(hitreps.back()->getTF1()->Clone());
     ii++;
   } //end loop over clusters
+  
   
   
 // Begin FHT search -----------------------------------------------------
   
   //initialize root node:
   double center[2] = {0.f, 0.f};
-  Hough2DNode* root = new Hough2DNode(center,0,totCl);
+  Hough2DNode* root = new Hough2DNode(center,0,cll.size());
   for(int i=0; i<hitreps.size(); i++)
     (hitreps[i])->testIntersect(root);
   
   //test if every hit was inside that node
   int rootvotes = root->getVote();
-  std::cerr<<"DEBUG - Clusters: "<<totCl<<";  Votes: "<<rootvotes
+  std::cerr<<"DEBUG - Clusters (after cut): "<<cll.size()<<";  Votes: "<<rootvotes
 	   <<";  Hitreps: "<<hitreps.size()
 	   <<";  EVENT: "<<counter<<std::endl;
   
@@ -234,13 +271,24 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     sons.clear();
   } //finished tree search
 
+  for(unsigned int h=0; h<hitreps.size(); h++)
+    delete hitreps[h];
+  hitreps.clear();
 
+  
   //End FHT search; Begin candidate extraction -----------------------------
 
   unsigned int surs = survivors.size();
   //exit: PR failed
-  if(surs==0)
+  if(surs==0) {
+    std::cout<<"PndTpcSLPatternRecoTask::Exec(): Fail - no suitable candidates found"
+	     <<std::endl;
+    clHist->Write();
+    repHist->Write();
+    delete clHist;
+    delete repHist;
     return;
+  }
   
   std::cout<<"DEBUG: Begin candidate extraction"<<std::endl;
     
@@ -278,6 +326,8 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
         
     solutions.push_back(sol);    
   }
+  std::cout<<"PndTpcSLPatternRecoTask::Exec(): Found "<<solutions.size()
+	   <<" track candidates"<<std::endl;
   
 // End candidate extraction ----------------------------------------------
 
@@ -293,17 +343,12 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   std::cout<<"  done."<<std::endl;
   
   //build actual trackCand objects
-  std::map<unsigned int,GFTrackCand*> candlist;
+  std::map<unsigned int,GFTrackCand> candlist;
   for(unsigned int i=0; i<solutions.size(); i++) {
-    
-    GFTrackCand* cand=candlist[i];
+    GFTrackCand cand=candlist[i];
     for(unsigned int c=0; c<(solutions[i])->size(); c++) {
-      if(cand==NULL){
-	cand=new GFTrackCand();
-	candlist[i]=cand;
-      }
       PndTpcCluster* cl = (solutions[i])->at(c);
-      cand->addHit(2,cl->index());
+      cand.addHit(2,cl->index());
     }
     
     //extract candidate seed information
@@ -327,8 +372,24 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
       m = -1./(tan(theta));
     else 
       m = 1.e3; 
-    //double t = r/(sin(theta));
+    double t = r/(sin(theta));
     
+    if(fStore) {
+      double y1 = -5.;
+      double x1 = (y1-t)/m - x_OFF;
+    
+      double y2 = 5.;
+      double x2 = (y2-t)/m - x_OFF;
+      //double m = (y2-y1)/(x2-x1);
+      double t_l = y1 - m*x1;
+
+      TF1* line = new TF1("","[0]*x+[1]",-4,4);	
+      line->SetParameter(0,m);
+      line->SetParameter(1,t_l);     
+      clHist->GetListOfFunctions()->Add(line->Clone());
+      delete line;
+    }
+
     //TODO: flexible geometry 
     TVector3 mom;
     mom.SetXYZ(0.1,0.,m*0.1);
@@ -342,19 +403,30 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     TVector3 momerr(mom.X()*0.1,0.5,mom.Z()*0.1); 
    
     //init the trackrep
-    int pdg = 11;
+    int pdg = 211;
     RKTrackRep* rep = new RKTrackRep(clpos,mom,poserr,momerr,pdg);
    
     //build GFTrack object
     
     GFTrack* trk=new((*fTrackArray)[fTrackArray->GetEntriesFast()]) GFTrack(rep);
-    trk->setCandidate(*cand); // here the candidate is copied! 
-   
+    trk->setCandidate(cand); // here the candidate is copied! 
   }
-  
     
   std::cout<<"PndTpcSLPatternRecoTask::Exec() "
 	   <<fTrackArray->GetEntriesFast()<<" tracks created"<<std::endl;
+
+  
+  clHist->Write();
+  repHist->Write();
+  delete clHist;
+  delete repHist;
+  //fHistoFile->Close();
+  
   return;
 }
 
+void
+PndTpcSLPatternRecoTask::SetStoreHistograms(TString file) {
+  fStore=true;
+  fHistoFileName=file;
+}

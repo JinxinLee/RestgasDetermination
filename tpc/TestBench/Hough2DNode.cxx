@@ -67,7 +67,6 @@ Hough2DNode::getSonArray() const {   //return centers of sons
       arr[count*2+1] = _center[1] + 0.25*y*_length;
       count++;
     }
-  
   return arr;
 }
 

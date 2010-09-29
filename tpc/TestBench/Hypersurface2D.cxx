@@ -27,16 +27,17 @@ Hypersurface2D::Hypersurface2D(double par1,double par2, const TF1& rep, int inde
 
   _index = index;
   _rep = new TF1(rep);
+  _rep->SetLineWidth(1);
   _pars = (double*) malloc(2*sizeof(double));
   _mins = (double*) malloc(2*sizeof(double));
   _maxs = (double*) malloc(2*sizeof(double));
   
   _pars[0] = par1;
   _pars[1] = par2;
-
+  
   _rep->SetParameter(0,par1);  //given  in actual parameter space, not unit space
   _rep->SetParameter(1,par2);  
-
+  
   _mins[0] = 0.f;      
   _mins[1] = 0.f;      
      
@@ -74,7 +75,9 @@ Hypersurface2D::testIntersect(Hough2DNode* node) {
   
   //calculate rep value for both projection points
   double val1 = _rep->Eval(p1_par_min);
+  std::cout<<"val1: "<<val1<<"    ";
   double val2 = _rep->Eval(p1_par_max);
+  std::cout<<"val2: "<<val2<<std::endl;
   
   signs+=((val1-p2_par_min)>0);
   signs+=((val1-p2_par_max)>0);

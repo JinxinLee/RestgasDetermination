@@ -47,6 +47,8 @@ class Hypersurface2D {
   //getters ---------------------------
   const double* getParamMins() const {return _mins;}
   const double* getParamMaxs() const {return _maxs;}
+  TF1* getTF1() const {return _rep;}
+
   
   //return coordinates in parameter space:
   const double* getPars() const {return _pars;} 

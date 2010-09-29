@@ -46,7 +46,7 @@
 #include "FairRunAna.h"
 #include "FairField.h"
 #include "PndConstField.h"
-//#include"RKTrackRep.h"
+#include"RKTrackRep.h"
 #include"PndFieldAdaptor.h"
 #include"GFFieldManager.h"
 //#include "AbsBFieldIfc.h"
@@ -255,11 +255,11 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
       
       GFDetPlane pl(pos,u,v);
       
-      //rep = new RKTrackRep(pos,mom,poserr,momerr,pdg);
+      rep = new RKTrackRep(pos,mom,poserr,momerr,pdg);
       
-      GeaneTrackRep* grep=new GeaneTrackRep(_geanePro,pl,mom,poserr,momerr,q,pdg);
-      grep->setPropDir(1); // propagate in flight direction!
-      rep=grep;
+      //GeaneTrackRep* grep=new GeaneTrackRep(_geanePro,pl,mom,poserr,momerr,q,pdg);
+      //grep->setPropDir(1); // propagate in flight direction!
+      //rep=grep;
       
     }
     else { // use LSLTrackRep
