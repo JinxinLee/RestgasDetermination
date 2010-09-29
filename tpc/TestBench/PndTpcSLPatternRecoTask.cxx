@@ -51,8 +51,6 @@
 #include "TH2D.h"
 #include "TCanvas.h"
 
-#include"/home/felix/simulation/trunk/GenfitTools/trackrep/RKTrackRep/RKTrackRep.h"
-
 // Class Member definitions -----------
 
 ClassImp(PndTpcSLPatternRecoTask)
