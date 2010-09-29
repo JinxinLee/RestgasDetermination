@@ -65,6 +65,8 @@ class PndTpcSLPatternRecoTask : public FairTask {
   void SetThresh(int thresh) {fThresh=thresh;}
   void SetMinCandHits(int min) {fMin=min;}
   void SetClusterAmpCut(double c) {fAmpCut=c;}
+  void SetDistSorting(bool opt) {fDistSorting=opt;}
+  void SetXSorting(bool opt) {fXSorting=opt;}
 
   void SetProjectionXZ() {fXZ=true;fZY=false;fXY=false;} //find lines in X-Z projection 
   void SetProjectionZY() {fZY=true;fXZ=false;fXY=false;} //find lines in Z-Y projection (cosmics)
@@ -88,6 +90,7 @@ class PndTpcSLPatternRecoTask : public FairTask {
   Bool_t fPersistence;
   Bool_t fSecondarySupp;
   Bool_t fDistSorting;
+  Bool_t fXSorting;
   Bool_t fXZ;
   Bool_t fZY;
   Bool_t fXY;

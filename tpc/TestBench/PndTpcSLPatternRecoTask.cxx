@@ -51,13 +51,21 @@
 #include "TH2D.h"
 #include "TCanvas.h"
 
+#include"/home/felix/simulation/trunk/GenfitTools/trackrep/RKTrackRep/RKTrackRep.h"
+
 // Class Member definitions -----------
 
 ClassImp(PndTpcSLPatternRecoTask)
 
+bool
+clusterSortX(PndTpcCluster* cl1, PndTpcCluster* cl2) {
+  return cl1->pos().X()<cl2->pos().X();
+}
+
+
 PndTpcSLPatternRecoTask::PndTpcSLPatternRecoTask()
 :  FairTask("PndTpc SL Hough Pattern Reco"),
-  fPersistence(kFALSE),fDistSorting(kTRUE),
+  fPersistence(kFALSE),fDistSorting(kFALSE),
   fDepth(6), fThresh(6), fMin(5), counter(0),
   fXZ(true), fZY(false), _cutbigpad(kFALSE), _cutsmallpad(kFALSE),
   fStore(false), fAmpCut(0.)
@@ -174,7 +182,9 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     repName.append(ss.str());
     clHist = new TH2D(clName.c_str(), clName.c_str(), 100,-5,5,100,-5,5);
     clHist->SetMarkerStyle(20);
-    repHist = new TH2D(repName.c_str(), repName.c_str(), 100,0.,5.,100,0,15);
+    repHist = new TH2D(repName.c_str(), repName.c_str(), 100,fMins[0],fMaxs[0],
+		       100,fMins[1],fMaxs[1]);
+    std::cout<<fMins[0]<<"  "<<fMaxs[0]<<"  "<<fMins[1]<<"  "<<fMaxs[1]<<std::endl;
     //canv->cd();
     //repHist->Draw();
   }
@@ -217,6 +227,15 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     ii++;
   } //end loop over clusters
   
+  // sort clusters 
+  if(fDistSorting) {
+    std::sort(cll.begin(),cll.end(),PndTpcClusterDist(false)); 
+    std::cout<<"\n **** using DISTANCE presorting of PndTpcClusters ****"<<std::endl;
+  }
+  if(fXSorting)
+    std::sort(cll.begin(),cll.end(),clusterSortX); 
+  
+  //std::sort(cll.begin(),cll.end(),PndTpcClusterZ(false)); 
   
   
 // Begin FHT search -----------------------------------------------------
@@ -224,6 +243,7 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   //initialize root node:
   double center[2] = {0.f, 0.f};
   Hough2DNode* root = new Hough2DNode(center,0,cll.size());
+  
   for(int i=0; i<hitreps.size(); i++)
     (hitreps[i])->testIntersect(root);
   
@@ -332,13 +352,8 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
 // End candidate extraction ----------------------------------------------
 
 
-  // sort clusters 
-  if(fDistSorting) {
-    std::sort(cll.begin(),cll.end(),PndTpcClusterDist(false)); 
-    std::cout<<"\n **** using DISTANCE presorting of PndTpcClusters ****"<<std::endl;
-  }
-  else
-    std::sort(cll.begin(),cll.end(),PndTpcClusterZ(false)); 
+  
+    
   
   std::cout<<"  done."<<std::endl;
   
@@ -348,8 +363,10 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     GFTrackCand cand=candlist[i];
     for(unsigned int c=0; c<(solutions[i])->size(); c++) {
       PndTpcCluster* cl = (solutions[i])->at(c);
+      std::cout<<cl->pos().X()<<"   ";
       cand.addHit(2,cl->index());
     }
+    std::cout<<std::endl;
     
     //extract candidate seed information
     Hough2DNode* cand_node = cand_nodes[i];
@@ -390,9 +407,10 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
       delete line;
     }
 
-    //TODO: flexible geometry 
+    //TODO: flexible geometry  - THIS HAS TO BE MODIFIED BY HAND FOR EVERY GEOMETRY CHOICE!!!
     TVector3 mom;
-    mom.SetXYZ(0.1,0.,m*0.1);
+    //mom.SetXYZ(0.1,0.,m*0.1);
+    mom.SetXYZ(1.,m, 0.);
     mom=mom.Unit();
        
     //requires nicely sorted candidates.
@@ -400,12 +418,11 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     
     TVector3 poserr(1.,1.,1.);
     //large mom error in the unknown projection:
-    TVector3 momerr(mom.X()*0.1,0.5,mom.Z()*0.1); 
+    TVector3 momerr(mom.X()*0.1,mom.Y()*0.1,0.5); 
    
     //init the trackrep
-    int pdg = 211;
+    int pdg = 13; //muons - doesn't matter without mag field anyway
     RKTrackRep* rep = new RKTrackRep(clpos,mom,poserr,momerr,pdg);
-   
     //build GFTrack object
     
     GFTrack* trk=new((*fTrackArray)[fTrackArray->GetEntriesFast()]) GFTrack(rep);
