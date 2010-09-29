@@ -48,6 +48,10 @@ public:
 
   const std::vector<double>* GetResX() {return &_PndTpcResX;}
   const std::vector<double>* GetResY() {return &_PndTpcResY;}
+  const std::vector<double>* GetResZ() {return &_PndTpcResZ;}
+  const std::vector<double>* GetChi2X() {return &_PndTpcChi2X;}
+  const std::vector<double>* GetChi2Y() {return &_PndTpcChi2Y;}
+  const std::vector<double>* GetChi2Z() {return &_PndTpcChi2Z;}
   const std::vector<unsigned int>* GetClSizes() {return &_PndTpcClusterSize;}
   const std::vector<unsigned int>* Get2DClSizes() {return &_PndTpc2DClusterSize;}
   const std::vector<double>* GetAmps() {return &_PndTpcClusterAmp;}
@@ -58,6 +62,10 @@ public:
 
   void fillPndTpcResX(const std::vector<double>& r){_PndTpcResX=r;}
   void fillPndTpcResY(const std::vector<double>& r){_PndTpcResY=r;}
+  void fillPndTpcResZ(const std::vector<double>& r){_PndTpcResZ=r;}
+  void fillPndTpcChi2X(const std::vector<double>& r){_PndTpcChi2X=r;}
+  void fillPndTpcChi2Y(const std::vector<double>& r){_PndTpcChi2Y=r;}
+  void fillPndTpcChi2Z(const std::vector<double>& r){_PndTpcChi2Z=r;}
   void fillPndTpcClusterSize(const std::vector<unsigned int>& s){_PndTpcClusterSize=s;}
   void fillPndTpc2DClusterSize(const std::vector<unsigned int>& s){_PndTpc2DClusterSize=s;}
   void fillPndTpcClusterAmp(const std::vector<double>& s){_PndTpcClusterAmp=s;}
@@ -84,6 +92,10 @@ private:
   // Private Data Members ------------
   std::vector<double> _PndTpcResX;
   std::vector<double> _PndTpcResY;
+  std::vector<double> _PndTpcResZ;
+  std::vector<double> _PndTpcChi2X;
+  std::vector<double> _PndTpcChi2Y;
+  std::vector<double> _PndTpcChi2Z;
   std::vector<unsigned int> _PndTpcClusterSize;
   std::vector<unsigned int> _PndTpc2DClusterSize;
   std::vector<double> _PndTpcClusterAmp;
@@ -106,7 +118,7 @@ private:
   // Private Methods -----------------
 
 public:
-  ClassDef(TrackFitStat,7)
+  ClassDef(TrackFitStat,8)
 
 };
 
@@ -115,3 +127,4 @@ public:
 //--------------------------------------------------------------
 // $Log$
 //--------------------------------------------------------------
+//Version 8 : Chi2 info added
