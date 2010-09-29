@@ -144,9 +144,9 @@ TestBench/PndTpcDataReaderTask.cxx
 #TestBench/PndTpcTCcrossTalkTask.cxx
 #TestBench/PndTpcCTapplyTask.cxx
 TestBench/PndTpcSampleAmp.cxx
-TestBench/TCmappingManager.cxx
+#TestBench/TCmappingManager.cxx
 TestBench/mappingData.cxx
-TestBench/TCconfigManager.cxx
+#TestBench/TCconfigManager.cxx
 PndTpcT2KPulseshape.cxx
 )
 
