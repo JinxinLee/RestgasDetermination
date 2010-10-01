@@ -27,12 +27,14 @@ void PndEmcGeoPar::putParams(FairParamList* l)
 {
 	if (!l) return;
 	l->add("PndEmcMapperVersion", fMapperVersion);
+	l->add("PndEmcGeometryVersion", fGeometryVersion);
 }
 
 Bool_t PndEmcGeoPar::getParams(FairParamList* l)
 {
 	if (!l) return kFALSE;
 	if (!l->fill("PndEmcMapperVersion", &fMapperVersion)) return kFALSE;  //AB
+	if (!l->fill("PndEmcGeometryVersion", &fGeometryVersion)) return kFALSE;
 
   return kTRUE;
 }

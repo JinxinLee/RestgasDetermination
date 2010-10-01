@@ -242,8 +242,8 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 				theWaveform->UpdateWaveform(theHit, fNPhotoElectronsPerMeVPMT, fUse_photon_statistic, 0, fFirstADCBinTime, fSampleRate_PMT, pulseshape2);
 					break;
 			default:
-				std::cout<<" UpdateWaveform: Unknown module number in EMC digitization"<<std::endl;
-				abort();
+				std::cout<<" UpdateWaveform: Unknown module number "<<module<<" in EMC digitization. Detector ID = "<<detId<<std::endl;
+				//abort();
 		}
 	}
 	
@@ -327,7 +327,7 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 				break;
 			default:
 				std::cout<<"Add Noise: Unknown module number in EMC digitization"<<std::endl;
-				abort();
+				//abort();
 		}
 	}
 

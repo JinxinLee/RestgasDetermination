@@ -659,6 +659,8 @@ void PndEmc::SetGeometryVersion(const Int_t GeoNumber) {
   PndEmcGeoPar* par=(PndEmcGeoPar*)(rtdb->getContainer("PndEmcGeoPar"));
 
   par->SetMapperVersion(MapperVersion);
+  par->SetGeometryVersion(GeoNumber);
+  
   par->setChanged();
   par->setInputVersion(fRun->GetRunId(),1);
 }

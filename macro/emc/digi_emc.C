@@ -5,10 +5,7 @@
   Int_t iVerbose = 0; // just forget about it, for the moment
   
   // Input file (MC events)
-  TString inFile = "hit_emc.root";
-  
-  // Simulation file, to obtaine geometry
-  TString simFile = "sim_emc.root";
+  TString inFile = "sim_emc.root";
   
   // Number of events to process
   Int_t nEvents = 0;  // if 0 all the vents will be processed
@@ -37,8 +34,7 @@
   
   // -----   Reconstruction run   ------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(simFile);
-  fRun->AddFriend(inFile);
+  fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   
   // -----  Parameter database   --------------------------

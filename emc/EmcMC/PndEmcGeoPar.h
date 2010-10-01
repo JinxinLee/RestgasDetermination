@@ -22,12 +22,18 @@ public:
      fMapperVersion = mapperVersion;
   }
   
+  Int_t  GetGeometryVersion(){return fGeometryVersion;}
+  void   SetGeometryVersion(Int_t geometryVersion){
+	  fGeometryVersion = geometryVersion;
+  }
+  
   void InitEmcMapper();
 
  private:
   Int_t fMapperVersion; 
+  Int_t fGeometryVersion;
   
-  ClassDef(PndEmcGeoPar,1)
+  ClassDef(PndEmcGeoPar,2)
 };
 
 #endif /* !PNDEMCGEOPAR_H */

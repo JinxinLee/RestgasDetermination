@@ -15,6 +15,7 @@ using namespace std;
 #include "PndEmcDigiPar.h"
 #include "PndEmcRecoPar.h"					
 #include "PndEmcDigiNonuniformityPar.h"
+#include "PndEmcErrorMatrixPar.h"
 #include "FairParAsciiFileIo.h"
 #include "TClass.h"										
 #include <iostream>
@@ -56,10 +57,16 @@ void PndEmcContFact::setAllContainers() {
 														"TestDefaultContext");
 	p4->addContext("TestNonDefaultContext");
 
+	FairContainer* p5= new FairContainer("PndEmcErrorMatrixPar",
+													 "Emc Error matrix Parameters",
+													 "TestDefaultContext");
+	p5->addContext("TestNonDefaultContext");
+	
 	containers->Add(p1);
 	containers->Add(p2);
 	containers->Add(p3);
 	containers->Add(p4);
+	containers->Add(p5);
 }
 
 FairParSet* PndEmcContFact::createContainer(FairContainer* c) {
@@ -86,6 +93,9 @@ FairParSet* PndEmcContFact::createContainer(FairContainer* c) {
     p=new PndEmcDigiNonuniformityPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
   }
   
+  if (strcmp(name,"PndEmcErrorMatrixPar")==0) {
+	  p=new PndEmcErrorMatrixPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
+  }
   return p;
 }
 

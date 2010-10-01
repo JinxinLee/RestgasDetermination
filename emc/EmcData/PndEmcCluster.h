@@ -96,11 +96,7 @@ public:
 	void SetZ20(Double_t z20){fZ20=z20;}
 	void SetZ53(Double_t z53){fZ53=z53;}
 	void SetLatMom(Double_t latMom){fLatMom=latMom;}
-	
-	// Error Matrix for Cluster
-	TMatrixD GetErrorMatrix() const; // 4x4 matrix in E, theta, phi, R
-	TMatrixD Get4MomentumErrorMatrix() const; // 4x4 matrix in (px, py, pz, E)
-	
+		
 	Double_t GetEnergyCorrected() const;
 
 	const std::vector<Int_t> &GetMcList() {return fMcList;}
@@ -130,8 +126,4 @@ protected:
 	ClassDef(PndEmcCluster,2)
 };
 
-
-// helper function to convert error matrix
-// copied from BbrGeom/BbrError.cc
-TMatrixD similarityWith(const TMatrixD& mat, const TMatrixD& m1);
 #endif // EMCCLUSTER_HH

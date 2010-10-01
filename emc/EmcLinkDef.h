@@ -51,6 +51,9 @@
 #pragma link C++ class  PndEmcXClMoments+;
 #pragma link C++ class  PndEmcMakeCorr+;
 #pragma link C++ class  PndEmcCorrection+;
+#pragma link C++ class  PndEmcErrorMatrix+;
+#pragma link C++ class  PndEmcErrorMatrixPar+;
+#pragma link C++ class  PndEmcErrorMatrixParObject+;
 
 #pragma link C++ class  vector<PndEmcHit*>;
 #pragma link C++ class  vector<PndEmcPoint*>;

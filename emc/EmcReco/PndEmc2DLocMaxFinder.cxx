@@ -57,9 +57,9 @@ PndEmc2DLocMaxFinder::PndEmc2DLocMaxFinder(Int_t verbose)
 
 PndEmc2DLocMaxFinder::~PndEmc2DLocMaxFinder()
 {
-  delete fGeoPar;
-  delete fDigiPar;
-  delete fRecoPar;
+//   delete fGeoPar;
+//   delete fDigiPar;
+//   delete fRecoPar;
 }
 
 // -----   Public method Init   -------------------------------

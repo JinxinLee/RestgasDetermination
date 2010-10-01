@@ -83,6 +83,8 @@ EmcReco/PndEmcMakeBump.cxx
 EmcReco/PndEmc2DLocMaxFinder.cxx
 EmcReco/PndEmcExpClusterSplitter.cxx
 EmcReco/PndEmcMakeRecoHit.cxx
+EmcReco/PndEmcErrorMatrix.cxx
+EmcReco/PndEmcErrorMatrixPar.cxx
 EmcCorr/PndEmcMakeCorr.cxx
 EmcCorr/PndEmcCorrection.cxx
 #basetasks/PndGlobalEvtTask.cxx

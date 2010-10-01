@@ -80,9 +80,9 @@ PndEmcExpClusterSplitter::PndEmcExpClusterSplitter(Int_t verbose)
 
 PndEmcExpClusterSplitter::~PndEmcExpClusterSplitter()
 {
-	delete fGeoPar;
-	delete fDigiPar;
-	delete fRecoPar;
+// 	delete fGeoPar;
+// 	delete fDigiPar;
+// 	delete fRecoPar;
 }
 
 InitStatus PndEmcExpClusterSplitter::Init() {
