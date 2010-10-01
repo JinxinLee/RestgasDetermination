@@ -60,7 +60,7 @@ public:
   void vote() {_votes++;}
   
   void removeHit(int j) ;
-  //void print(); TODO: redesign (to not depend on <iostream>
+  void print(); //TODO: redesign (to not depend on <iostream>
   
   
 

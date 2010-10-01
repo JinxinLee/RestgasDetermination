@@ -75,9 +75,9 @@ Hypersurface2D::testIntersect(Hough2DNode* node) {
   
   //calculate rep value for both projection points
   double val1 = _rep->Eval(p1_par_min);
-  std::cout<<"val1: "<<val1<<"    ";
+  //std::cout<<"val1: "<<val1<<"    ";
   double val2 = _rep->Eval(p1_par_max);
-  std::cout<<"val2: "<<val2<<std::endl;
+  //std::cout<<"val2: "<<val2<<std::endl;
   
   signs+=((val1-p2_par_min)>0);
   signs+=((val1-p2_par_max)>0);
