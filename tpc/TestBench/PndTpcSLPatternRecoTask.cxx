@@ -50,6 +50,8 @@
 #include "TFile.h"
 #include "TH2D.h"
 #include "TCanvas.h"
+#include "TBox.h"
+#include "TVirtualPad.h"
 
 // Class Member definitions -----------
 
@@ -135,24 +137,24 @@ PndTpcSLPatternRecoTask::Init()
   //get the magnetic field for curvature seeding
   fField=(FairField*) FairRunAna::Instance()->GetField();
   GFFieldManager::getInstance()->init(new PndFieldAdaptor(fField));
-  
-  if(fStore)
-    fHistoFile = new TFile(fHistoFileName, "update");
-  
+    
   return kSUCCESS;
 }
 
 void
 PndTpcSLPatternRecoTask::Exec(Option_t* opt)
 {
-  fHistoFile->cd();
+  if(fStore) {
+    fHistoFile = new TFile(fHistoFileName, "update");
+    fHistoFile->cd();
+  }
   counter++;
   
   double MIN0 = fMins[0];
   double MIN1 = fMins[1];
   double MAX0 = fMaxs[0];
   double MAX1 = fMaxs[1];
-    
+  
   double x_OFF=0.; //TODO: make member, settable from outside.
   
   if(fXZ)
@@ -166,11 +168,12 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   // copy into vector
   std::vector<PndTpcCluster*> cll;      //all clusters
   std::vector<Hypersurface2D*> hitreps; //their representation in the par. space
-
+  
   TH2D* clHist;
   TH2D* repHist;
-  //TCanvas* canv = new TCanvas();
-
+  TCanvas* canv = new TCanvas();
+ 
+   
   if(fStore) {
     std::string clName = "cl_Ev";
     std::string repName = "rep_Ev";
@@ -182,9 +185,6 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     clHist->SetMarkerStyle(20);
     repHist = new TH2D(repName.c_str(), repName.c_str(), 100,fMins[0],fMaxs[0],
 		       100,fMins[1],fMaxs[1]);
-    std::cout<<fMins[0]<<"  "<<fMaxs[0]<<"  "<<fMins[1]<<"  "<<fMaxs[1]<<std::endl;
-    //canv->cd();
-    //repHist->Draw();
   }
   
   unsigned int totCl=fClusterArray->GetEntriesFast();
@@ -210,7 +210,7 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     //double x = pos.X();
     double y = pos.Y();
     double z = pos.Z();
-
+    
     if(fXZ) 
       hitreps.push_back(new Hypersurface2D(x,z,*fRep,ii));
     if(fZY)
@@ -228,7 +228,8 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   // sort clusters 
   if(fDistSorting) {
     std::sort(cll.begin(),cll.end(),PndTpcClusterDist(false)); 
-    std::cout<<"\n **** using DISTANCE presorting of PndTpcClusters ****"<<std::endl;
+    std::cout<<"\n **** using DISTANCE presorting of PndTpcClusters ****"
+	     <<std::endl;
   }
   if(fXSorting)
     std::sort(cll.begin(),cll.end(),clusterSortX); 
@@ -236,11 +237,11 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   //std::sort(cll.begin(),cll.end(),PndTpcClusterZ(false)); 
   
   
-// Begin FHT search -----------------------------------------------------
+  // Begin FHT search -----------------------------------------------------
   
   //initialize root node:
-  double center[2] = {0.f, 0.f};
-  Hough2DNode* root = new Hough2DNode(center,0,cll.size());
+  double rootCenter[2] = {0.f, 0.f};
+  Hough2DNode* root = new Hough2DNode(rootCenter,0,cll.size());
   
   for(int i=0; i<hitreps.size(); i++)
     (hitreps[i])->testIntersect(root);
@@ -252,12 +253,12 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
 	   <<";  EVENT: "<<counter<<std::endl;
   
   //start actual FHT search
-
+  
   std::vector<Hough2DNode*> survivors;
   std::vector<Hough2DNode*> sons;
   survivors.push_back(root);
-
-    
+  
+  
   for(unsigned int t=1; t<fDepth; t++) { //iteration depth
     
     for(unsigned int n=0; n<survivors.size(); n++) { //loop over survivors
@@ -273,7 +274,7 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     } //end loop over survivors
     
     survivors.clear();
-
+    
     for(int s=0; s<sons.size(); s++) {
       Hough2DNode* node = sons.at(s);
       
@@ -288,19 +289,19 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     
     sons.clear();
   } //finished tree search
-
+  
   for(unsigned int h=0; h<hitreps.size(); h++)
     delete hitreps[h];
   hitreps.clear();
-
+  
   
   //End FHT search; Begin candidate extraction -----------------------------
-
+  
   unsigned int surs = survivors.size();
   //exit: PR failed
   if(surs==0) {
-    std::cout<<"PndTpcSLPatternRecoTask::Exec(): Fail - no suitable candidates found"
-	     <<std::endl;
+    std::cout<<"PndTpcSLPatternRecoTask::Exec(): Fail "
+	     <<"- no suitable candidates found"<<std::endl;
     clHist->Write();
     repHist->Write();
     delete clHist;
@@ -309,11 +310,11 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   }
   
   std::cout<<"DEBUG: Begin candidate extraction"<<std::endl;
-    
+  
   std::vector<std::vector<PndTpcCluster*>*> solutions; //track candidates
   std::vector<Hough2DNode*> cand_nodes;
-
-    
+  
+  
   //extract tracks until solutions have less clusters than minCL
   while(true) {
     //sort nodes by final votes
@@ -327,10 +328,10 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
       if(bestHitList[c])
 	sol->push_back(cll[c]);
     }
-     //discard track candidates with less than fMin hits:
+    //discard track candidates with less than fMin hits:
     if(sol->size()<fMin) 
       break;
-        
+    
     cand_nodes.push_back(survivors.front());  //remember cand. nodes
     
     //remove hits for first node from all others
@@ -341,17 +342,13 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
 	if(survivors[n]->checkHit(p))
 	  survivors[n]->removeHit(p);
     }
-        
+    
     solutions.push_back(sol);    
   }
   std::cout<<"PndTpcSLPatternRecoTask::Exec(): Found "<<solutions.size()
 	   <<" track candidates"<<std::endl;
   
-// End candidate extraction ----------------------------------------------
-
-
-  
-    
+  // End candidate extraction ----------------------------------------------
   
   std::cout<<"  done."<<std::endl;
   
@@ -379,9 +376,9 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     
     double theta = (cent[0] + 0.5f)*(fMaxs[0]-fMins[0])+fMins[0];
     double r_shift = (cent[1] + 0.5f)*(fMaxs[1]-fMins[1])+fMins[1];
-
+    
     double r = r_shift - x_OFF*cos(theta);
-        
+    
     double m;
     if(tan(theta)>1.e-4)
       m = -1./(tan(theta));
@@ -392,19 +389,20 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     if(fStore) {
       double y1 = -5.;
       double x1 = (y1-t)/m - x_OFF;
-    
+      
       double y2 = 5.;
       double x2 = (y2-t)/m - x_OFF;
       //double m = (y2-y1)/(x2-x1);
       double t_l = y1 - m*x1;
-
-      TF1* line = new TF1("","[0]*x+[1]",-4,4);	
+      
+      TF1* line = new TF1("","[0]*x+[1]",-5,5);	
       line->SetParameter(0,m);
       line->SetParameter(1,t_l);     
+      line->SetLineColor(kRed+2);
       clHist->GetListOfFunctions()->Add(line->Clone());
       delete line;
     }
-
+    
     //TODO: flexible geometry  - THIS HAS TO BE MODIFIED BY HAND FOR EVERY GEOMETRY CHOICE!!!
     TVector3 mom;
     //mom.SetXYZ(0.1,0.,m*0.1);
@@ -417,7 +415,7 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     TVector3 poserr(1.,1.,1.);
     //large mom error in the unknown projection:
     TVector3 momerr(mom.X()*0.1,mom.Y()*0.1,0.5); 
-   
+    
     //init the trackrep
     int pdg = 13; //muons - doesn't matter without mag field anyway
     RKTrackRep* rep = new RKTrackRep(clpos,mom,poserr,momerr,pdg);
@@ -426,16 +424,51 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     GFTrack* trk=new((*fTrackArray)[fTrackArray->GetEntriesFast()]) GFTrack(rep);
     trk->setCandidate(cand); // here the candidate is copied! 
   }
-    
+  
+  std::vector<TBox*> boxlist;
+  if(fStore) {
+    for(int l=0; l < survivors.size(); l++) {
+      const double* center = survivors[l]->getCenter();
+      double length = survivors[l]->getSideLength();
+      double x1 = (center[0]-0.5*length+0.5)*(fMaxs[0]-fMins[0])+fMins[0];
+      double x2 = (center[0]+0.5*length+0.5)*(fMaxs[0]-fMins[0])+fMins[0];
+      double y1 = (center[1]-0.5*length+0.5)*(fMaxs[1]-fMins[1])+fMins[1];
+      double y2 = (center[1]+0.5*length+0.5)*(fMaxs[1]-fMins[1])+fMins[1];
+      boxlist.push_back(new TBox(x1,y1,x2,y2));
+      boxlist.back()->SetLineColor(kPink+10);
+      boxlist.back()->SetFillStyle(0);
+      boxlist.back()->SetDrawOption("l");
+    }
+  }
+  
+  
   std::cout<<"PndTpcSLPatternRecoTask::Exec() "
 	   <<fTrackArray->GetEntriesFast()<<" tracks created"<<std::endl;
-
+    
+  if(fStore) {
+    canv->Divide(2,1);
+    TVirtualPad* thePad = canv->cd(1);
+    thePad->GetListOfPrimitives()->Add(clHist);
+    thePad = canv->cd(2);
+    thePad->GetListOfPrimitives()->Add(repHist);
+    for(unsigned int b=0; b<boxlist.size(); b++) 
+      thePad->GetListOfPrimitives()->Add(boxlist[b]);
   
-  clHist->Write();
-  repHist->Write();
-  delete clHist;
-  delete repHist;
-  //fHistoFile->Close();
+    //save the canvas
+    fHistoFile->cd();
+    canv->Write();
+    delete canv;
+    for(unsigned int b=0; b<boxlist.size(); b++) 
+      delete boxlist[b];
+    boxlist.clear();
+    
+    //clHist->Write();
+    //repHist->Write();
+    delete clHist;
+    delete repHist;
+    fHistoFile->Close();
+    
+  }
   
   return;
 }
