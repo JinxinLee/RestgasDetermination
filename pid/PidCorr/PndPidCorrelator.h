@@ -28,7 +28,9 @@
 #include "PndPidCorrPar.h"
 #include "PndPidCandidate.h"
 #include "PndEmcXClMoments.h"
-
+#include "PndEmcGeoPar.h"
+#include "PndEmcErrorMatrix.h"
+#include "PndEmcErrorMatrixPar.h"
 
 using std::map;
 
@@ -58,6 +60,9 @@ protected:
   TClonesArray* fSttHit;            //! PndSttHit/PndSttHelixHit TCA
  
   PndPidCorrPar* fCorrPar;          //! Correlation parameters
+  PndEmcGeoPar* fEmcGeoPar;         //! EMC geometry parameters
+  PndEmcErrorMatrixPar* fEmcErrorMatrixPar; //! EMC error matrix parameters
+  PndEmcErrorMatrix *fEmcErrorMatrix; //! EMC error matrix 
   
   Short_t fDebugMode;               // Fill ntuples for debug
   Short_t fMvdMode;                 // MVD Mode: 0 no MVD, 1 MvdPoint, (2) MvdHit

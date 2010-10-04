@@ -10,6 +10,7 @@
 #include "PndEmcDigi.h"
 #include "PndEmcStructure.h"
 #include "PndEmcXtal.h"
+#include "PndEmcErrorMatrix.h"
 #include "PndMdtPoint.h"
 #include "PndMdtHit.h"
 #include "PndMdtTrk.h"
@@ -26,6 +27,7 @@
 #include "TVector3.h"
 #include "TGeoMatrix.h"
 #include "TGeoManager.h"
+#include "TSystem.h"
 
 #include <cmath>
 
@@ -37,6 +39,7 @@ PndPidCorrelator::~PndPidCorrelator() {
   //
   FairRootManager *fManager =FairRootManager::Instance();
   fManager->Write();
+  delete fEmcErrorMatrix; 
 }
 
 //___________________________________________________________
@@ -70,6 +73,7 @@ PndPidCorrelator::PndPidCorrelator() {
   fTrackOutBranch = "";
   sDir = "./";
   sFile = "./pidcorrelator.root";
+  fEmcErrorMatrix=new PndEmcErrorMatrix();
   fGeoH = PndGeoHandling::Instance();
   Reset();
 }
@@ -106,6 +110,7 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title)
   fTrackOutBranch = "";
   sDir = "./";
   sFile = "./pidcorrelator.root";
+  fEmcErrorMatrix=new PndEmcErrorMatrix();
   Reset(); 
 }
 
@@ -371,6 +376,21 @@ InitStatus PndPidCorrelator::Init() {
       cout << "-I- PndPidCorrelator::Init: Filling Debug histograms" << endl;
       
     }
+	
+	// Set Parameters for Emc error matrix 
+	if (fEmcErrorMatrixPar->IsValid())
+	{
+		fEmcErrorMatrix->Init(fEmcErrorMatrixPar->GetParObject());
+		//std::cout<<"PndPidCorrelator: Emc error matrix is read from RTDB"<<std::endl;
+	} else
+	{
+		Int_t emcGeomVersion=fEmcGeoPar->GetGeometryVersion();
+		fEmcErrorMatrix->InitFromFile(emcGeomVersion);
+		fEmcErrorMatrixPar->SetErrorMatrixObject(fEmcErrorMatrix->GetParObject());
+		//std::cout<<"PndPidCorrelator: Emc error matrix is read from file"<<std::endl;
+	}
+	
+	 
   cout << "-I- PndPidCorrelator::Init: Success!" << endl;
   fEventCounter = 1;
   return kSUCCESS;
@@ -388,6 +408,12 @@ void PndPidCorrelator::SetParContainers() {
 
   // Get LHE Correlation parameter container
   fCorrPar = (PndPidCorrPar*) db->getContainer("PndPidCorrPar");
+  
+  // Get Emc geometry parameter container
+  fEmcGeoPar = (PndEmcGeoPar*) db->getContainer("PndEmcGeoPar");
+  
+  // Get Emc error matrix parameter container
+  fEmcErrorMatrixPar = (PndEmcErrorMatrixPar*) db->getContainer("PndEmcErrorMatrixPar");
   
 }
 //______________________________________________________
@@ -481,10 +507,10 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
       TVector3 vtx(0,0,0);
       TVector3 v1=bump->where();
       TVector3 p3;
-      TMatrixD covP4=bump->Get4MomentumErrorMatrix();
       p3.SetMagThetaPhi(bump->GetEnergyCorrected(), v1.Theta(), v1.Phi());
       TLorentzVector lv(p3,p3.Mag());
-      
+		TMatrixD covP4=fEmcErrorMatrix->Get4MomentumErrorMatrix(*clu);
+ 
       PndPidCandidate* pidCand = new PndPidCandidate(0, vtx, lv);
       pidCand->SetP4Cov(covP4);
       pidCand->SetEmcRawEnergy(bump->energy());
