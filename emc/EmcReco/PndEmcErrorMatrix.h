@@ -13,6 +13,7 @@
 #include "TMatrixD.h"
 #include "PndEmcCluster.h"
 #include "TString.h"
+#include <cstdlib>
 
 class PndEmcErrorMatrixPar;
 class PndEmcErrorMatrixParObject;
