@@ -7449,7 +7449,7 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
 //          TypeofBound[i+NpointsInFit]="BV";
           sprintf(&auxBoundStructVarName[i+NpointsInFit][0],"lamm%d",i);
           BoundStructVarName[i+NpointsInFit]=&auxBoundStructVarName[i+NpointsInFit][0];
-          BoundValue[i]=0.;
+          BoundValue[i+NpointsInFit]=0.;
       }
 
 //          fprintf(MACRO," FX  Bounds  DUMMY  %g\n",2.*M);
