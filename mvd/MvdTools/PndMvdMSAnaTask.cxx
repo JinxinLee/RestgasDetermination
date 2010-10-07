@@ -132,7 +132,7 @@ void PndMvdMSAnaTask::Exec(Option_t* opt)
 			Int_t PDGCode = myTrack->GetPdgCode();
 			TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
 			TParticlePDG *fParticle= fdbPDG->GetParticle(PDGCode);
-			Double_t  fCharge= fParticle->Charge();
+			Int_t  fCharge= (Int_t)fParticle->Charge();
       
 			TClonesArray& clref1 = *fTrackParIni;
 			Int_t size1 = clref1.GetEntriesFast();
