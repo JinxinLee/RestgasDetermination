@@ -73,9 +73,9 @@ run_sim_sttcombi_evtgen(Int_t nEvents=10){
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
 
-  FairDetector *Tof = new PndTof("TOF",kTRUE);
-  Tof->SetGeometryFileName("tofbarrel.geo");
-  fRun->AddModule(Tof);
+  //FairDetector *Tof = new PndTof("TOF",kTRUE);
+  //Tof->SetGeometryFileName("tofbarrel.geo");
+  //fRun->AddModule(Tof);
   
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
   Muo->SetBarrel("torino");

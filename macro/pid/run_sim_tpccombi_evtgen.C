@@ -11,15 +11,13 @@ run_sim_tpccombi_evtgen(Int_t nEvents=10){
   
   TString digiFile = "all.par";
   TString parFile = "params_tpccombi.root";
-  
+  TString mcMode = "TGeant3";
   FairRunSim *fRun = new FairRunSim();
 
   // set the MC version used
   // ------------------------
 
-  fRun->SetName("TGeant3");
-  //fRun->SetName("TGeant4");
-
+  fRun->SetName(mcMode);
   fRun->SetOutputFile("points_tpccombi.root");
 
   // Set the parameters
@@ -60,8 +58,9 @@ run_sim_tpccombi_evtgen(Int_t nEvents=10){
   FairModule *Pipe= new PndPipe("PIPE");
   //fRun->AddModule(Pipe);
 
-   FairDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
+  FairDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
   Tpc->SetGeometryFileName("tpc.geo");
+  if(mcMode=="TGeant3")  Tpc->SetAliMC();
   fRun->AddModule(Tpc);
 
   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
@@ -73,9 +72,9 @@ run_sim_tpccombi_evtgen(Int_t nEvents=10){
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
 
-  FairDetector *Tof = new PndTof("TOF",kTRUE);
-  Tof->SetGeometryFileName("tofbarrel.geo");
-  fRun->AddModule(Tof);
+  //FairDetector *Tof = new PndTof("TOF",kTRUE);
+  //Tof->SetGeometryFileName("tofbarrel.geo");
+  //fRun->AddModule(Tof);
   
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
   Muo->SetBarrel("torino");

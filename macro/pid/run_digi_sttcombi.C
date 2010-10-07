@@ -109,9 +109,9 @@
   fRun->AddTask(emcHdrFiller); // ECM header
   
   // -----   TOF hit producers   ---------------------------------
-  PndTofHitProducerIdeal* tofhit = new PndTofHitProducerIdeal();
-  tofhit->SetVerbose(iVerbose);
-  fRun->AddTask(tofhit);
+  //PndTofHitProducerIdeal* tofhit = new PndTofHitProducerIdeal();
+  //tofhit->SetVerbose(iVerbose);
+  //fRun->AddTask(tofhit);
  
   // -----   MDT hit producers   ---------------------------------
   PndMdtHitProducerIdeal* mdtHitProd = new PndMdtHitProducerIdeal();

@@ -15,6 +15,7 @@
   // Number of events to process
   Int_t nEvents = 0;
  
+  TString mcMode = "TGeant3";
   // ----  Load libraries   -------------------------------------------------
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
@@ -55,6 +56,7 @@
 
   // -----   TPC digi producers   ---------------------------------
   PndTpcClusterizerTask* tpcClusterizer = new PndTpcClusterizerTask();
+   if(mcMode=="TGeant3") tpcClusterizer->SetMereChargeConversion();
   //tpcClusterizer->SetPersistence();
   fRun->AddTask(tpcClusterizer);
  
@@ -112,9 +114,9 @@
   fRun->AddTask(emcHdrFiller); // ECM header
   
   // -----   TOF hit producers   ---------------------------------
-  PndTofHitProducerIdeal* tofhit = new PndTofHitProducerIdeal();
-  tofhit->SetVerbose(iVerbose);
-  fRun->AddTask(tofhit);
+  //PndTofHitProducerIdeal* tofhit = new PndTofHitProducerIdeal();
+  //tofhit->SetVerbose(iVerbose);
+  //fRun->AddTask(tofhit);
  
   // -----   MDT hit producers   ---------------------------------
   PndMdtHitProducerIdeal* mdtHitProd = new PndMdtHitProducerIdeal();

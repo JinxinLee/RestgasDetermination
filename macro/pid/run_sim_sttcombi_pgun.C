@@ -73,9 +73,9 @@ run_sim_sttcombi_pgun(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
 
-  FairDetector *Tof = new PndTof("TOF",kTRUE);
-  Tof->SetGeometryFileName("tofbarrel.geo");
-  fRun->AddModule(Tof);
+  //FairDetector *Tof = new PndTof("TOF",kTRUE);
+  //Tof->SetGeometryFileName("tofbarrel.geo");
+  //fRun->AddModule(Tof);
   
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
   Muo->SetBarrel("torino");
