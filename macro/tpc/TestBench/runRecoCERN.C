@@ -21,7 +21,7 @@ gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   //Set JOBNAME and JOBDIR
   // -------------------------------------------------------------------
 
-  TString jobdir = "CERN";
+  TString jobdir = "TEST";
   TString jobname="CERN1"; 
 
   TString digiDir=(basedir+"/")+jobdir;
@@ -93,7 +93,7 @@ gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
 
   PndTpcDataReaderTask* read = new PndTpcDataReaderTask();
   read->SetPersistence();
-  read->SetDatafile("/afs/e18.ph.tum.de/panda/DATA/testbench_cern_2010/decoded/run-2064.root");
+  read->SetDatafile("run-2064.root");
   read->SetClusterBranchName("PndTpcSample");
   //read->SetCutSmallPad();
   //read->SetMinSamples(1000);
@@ -136,12 +136,14 @@ gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   PndTpcSLPatternRecoTask* tpcSLPR = new PndTpcSLPatternRecoTask();
   tpcSLPR->SetStoreHistograms("moppel.root");
   tpcSLPR->SetClusterAmpCut(100.);
-  tpcSLPR->SetProjectionXY();
+  //tpcSLPR->SetProjectionXY();
   tpcSLPR->SetXSorting(true);
-  tpcSLPR->SetParameterSpace(0.,0.,TMath::Pi(),10.);
+  double parMins[4] = {0.,0.,0.,0.};
+  double parMaxs[4] = {TMath::Pi(),10.,TMath::Pi(),10.};
+  tpcSLPR->SetParameterSpace(parMins, parMaxs);
   tpcSLPR->SetDepth(7);
-  tpcSLPR->SetThresh(8);
-  tpcSLPR->SetMinCandHits(10);
+  tpcSLPR->SetThresh(12);
+  tpcSLPR->SetMinCandHits(12);
   //tpcSLPR->SetClusterBranchName("PndTpcCluster_cut");
   fRun->AddTask(tpcSLPR);
 
