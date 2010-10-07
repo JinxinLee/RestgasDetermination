@@ -150,7 +150,6 @@ PndTpcClusterFinder::process(std::vector<PndTpcDigi*>& digis)
   while(secIt!=fsectormap.end()){ // loop over sectors
     std::vector<PndTpcDigi*>* digiList=secIt->second;
     unsigned int ndinsec=digiList->size();
-    std::cout<<"DEBUG: digilist has "<<ndinsec<<" entries"<<std::endl;
     if(ndinsec==0){ 
     	++secIt;
     	continue;

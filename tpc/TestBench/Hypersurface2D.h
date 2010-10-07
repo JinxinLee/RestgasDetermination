@@ -38,7 +38,7 @@ class Hypersurface2D {
   Hypersurface2D(double par1, double par2, const TF1& rep, int ID);
   ~Hypersurface2D();
   
-  bool testIntersect(Hough2DNode* node);
+  bool testIntersect(Hough2DNode*) const;
 
   //set minima and maxima of parameter space
   void setParamSpace(double* mins, double* maxs);    

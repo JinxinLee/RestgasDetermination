@@ -59,18 +59,18 @@ class PndTpcSLPatternRecoTask : public FairTask {
   void SetSecondarySuppression(Bool_t opt=kTRUE) {fSecondarySupp=opt;}
 
   void SetParameterSpace(double* mins, double* maxs);
-  void SetParameterSpace(double min1, double min2, double max1, double max2);
-
+  
   void SetDepth(int depth) {fDepth=depth;}
   void SetThresh(int thresh) {fThresh=thresh;}
   void SetMinCandHits(int min) {fMin=min;}
   void SetClusterAmpCut(double c) {fAmpCut=c;}
+  
   void SetDistSorting(bool opt) {fDistSorting=opt;}
   void SetXSorting(bool opt) {fXSorting=opt;}
 
-  void SetProjectionXZ() {fXZ=true;fZY=false;fXY=false;} //find lines in X-Z projection 
-  void SetProjectionZY() {fZY=true;fXZ=false;fXY=false;} //find lines in Z-Y projection (cosmics)
-  void SetProjectionXY() {fZY=false;fXZ=false;fXY=true;} //find lines in X-Y projection (CERN?)
+  //void SetProjectionXZ() {fXZ=true;fZY=false;fXY=false;} //find lines in X-Z
+  //void SetProjectionZY() {fZY=true;fXZ=false;fXY=false;} //find lines in Z-Y (cosmics)
+  //void SetProjectionXY() {fZY=false;fXZ=false;fXY=true;} //find lines in X-Y(CERN?)
   
   void CutSmallPad(Bool_t opt=kTRUE) {_cutsmallpad=opt;}
   void CutBigPad(Bool_t opt=kTRUE) {_cutbigpad=opt;}
@@ -79,8 +79,8 @@ class PndTpcSLPatternRecoTask : public FairTask {
   
  private:
 
-  double fMins[2];
-  double fMaxs[2];
+  double fMins[4];
+  double fMaxs[4];
   double fAmpCut;
 
   unsigned int fDepth;    //termination depth of the FHT search

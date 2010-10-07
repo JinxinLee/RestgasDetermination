@@ -60,8 +60,8 @@
 #pragma link C++ class PndTpcLaserCorrectionTask;
 #pragma link C++ class PndTpcSLResidualTask;
 #pragma link C++ class PndTpcSLPatternRecoTask;
-#pragma link C++ class Hypersurface2D;
-#pragma link C++ class Hough2DNode;
+//#pragma link C++ class Hypersurface2D;
+//#pragma link C++ class Hough2DNode;
 #pragma link C++ class PndTpcEvent;
 #pragma link C++ class PndTpcDataReaderTask;
 //#pragma link C++ class PndTpcTCcrossTalk;

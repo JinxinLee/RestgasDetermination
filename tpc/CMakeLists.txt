@@ -138,6 +138,8 @@ TestBench/PndTpcSLResidualTask.cxx
 TestBench/PndTpcSLPatternRecoTask.cxx
 TestBench/Hypersurface2D.cxx
 TestBench/Hough2DNode.cxx
+TestBench/Hypersurface4D.cxx
+TestBench/Hough4DNode.cxx
 TestBench/PndTpcEvent.cxx
 TestBench/PndTpcDataReaderTask.cxx
 #TestBench/PndTpcTCcrossTalk.cxx

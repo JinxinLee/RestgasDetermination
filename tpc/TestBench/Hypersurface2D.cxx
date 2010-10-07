@@ -1,7 +1,7 @@
 //-----------------------------------------------------------
 //
 // Description:
-//      Representation of a Hyperplane in 5-dimensional
+//      Representation of a Hyperplane in 2-dimensional
 //      Hough-Space.
 //      -- implementation
 //      
@@ -23,8 +23,10 @@
 #include <cstdlib>
 
 
-Hypersurface2D::Hypersurface2D(double par1,double par2, const TF1& rep, int index) {
-
+Hypersurface2D::Hypersurface2D(double par1,double par2, const TF1& rep, 
+			       int index) 
+  : _paramsSet(false)
+{
   _index = index;
   _rep = new TF1(rep);
   _rep->SetLineWidth(1);
@@ -35,7 +37,8 @@ Hypersurface2D::Hypersurface2D(double par1,double par2, const TF1& rep, int inde
   _pars[0] = par1;
   _pars[1] = par2;
   
-  _rep->SetParameter(0,par1);  //given  in actual parameter space, not unit space
+  //given  in actual parameter space, not unit space
+  _rep->SetParameter(0,par1);  
   _rep->SetParameter(1,par2);  
   
   _mins[0] = 0.f;      
@@ -43,8 +46,6 @@ Hypersurface2D::Hypersurface2D(double par1,double par2, const TF1& rep, int inde
      
   _maxs[0] = 0.f;
   _maxs[1] = 0.f;
-  
-  _paramsSet=false;
 }
 
 
@@ -54,7 +55,7 @@ Hypersurface2D::~Hypersurface2D() {
 
 
 bool 
-Hypersurface2D::testIntersect(Hough2DNode* node) {
+Hypersurface2D::testIntersect(Hough2DNode* node) const {
 
   const double* proj1 = node->getProjection0(); 
   const double* proj2 = node->getProjection1();
@@ -62,7 +63,8 @@ Hypersurface2D::testIntersect(Hough2DNode* node) {
   int signs = 0;
   
   if(!_paramsSet) {
-    std::cerr<<"Hypersurface2D::testIntersect() Parameter space not specified!"
+    std::cerr<<"Hypersurface2D::testIntersect():" 
+	     <<" Parameter space not specified!"
 	     <<" Aborting."<<std::endl;
     return 0;
   }
