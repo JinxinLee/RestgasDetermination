@@ -37,7 +37,7 @@ TBuffer &operator>>(TBuffer &buf, TReadTree *&obj)
 }
 
 #include <iostream>
-#include <strstream>
+//#include <sstream>
 #include <string>
 using namespace std;
 

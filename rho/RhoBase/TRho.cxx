@@ -40,11 +40,12 @@ ClassImp(TRho)
 using namespace std;
 
 TRho::TRho(const char* t) : 
-fVersion(RHOVERSION), fVersionDate(RHODATE), fField(1.51007),
+fVersion(RHOVERSION), fVersionDate(RHODATE),fEventStore(TString("")),fParamStore(TString("")), 
+fField(1.51007),
 fEventManager(0),fEventReader(0),fEventWriter(0),
 fDirectoryManager(0),fPersistenceManager(0),
-fParameterManager(0),fDisplay(0),fAnalysis(0),fCandListManager(0),
-fObjectManager(0), fEventStore(TString("")), fParamStore(TString("")),
+fParameterManager(0),fCandListManager(0),
+fObjectManager(0),fDisplay(0),fAnalysis(0), 
 gblEnv(0),gblPEnv(0)
 {
     if (!gROOT->Initialized()) {

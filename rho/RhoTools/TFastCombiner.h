@@ -37,24 +37,24 @@ class VAbsPidSelector;
 //		---------------------
 
 class TFastCombiner : public TObject 
-{
+  {
     
-public:
+  public:
     
     // constructors
     TFastCombiner(TDecayMode&, VAbsPidSelector* theSelector=0 );
     
     TFastCombiner(TDecayMode&,
-	TList&, VAbsPidSelector* theSelector=0 );
+                  TList&, VAbsPidSelector* theSelector=0 );
     
     TFastCombiner(TDecayMode&,
-	TCandList* list0,
-	TCandList* list1,
-	TCandList* list2=0,
-	TCandList* list3=0,
-	TCandList* list4=0,
-	TCandList* list5=0,
-	VAbsPidSelector* theSelector=0 );
+                  TCandList* list0,
+                  TCandList* list1,
+                  TCandList* list2=0,
+                  TCandList* list3=0,
+                  TCandList* list4=0,
+                  TCandList* list5=0,
+                  VAbsPidSelector* theSelector=0 );
     
     // Destructor
     virtual ~TFastCombiner();
@@ -71,50 +71,50 @@ public:
     // doWrongChargeOnly?
     void DoWrongChargeOnly() {_doWrongChargeOnly=kTRUE;}
     void DoNotWrongChargeOnly() {_doWrongChargeOnly=kFALSE;}
- 
+    
     void DoCheckType(Bool_t yesNo=kTRUE) { _checkType = yesNo; }
-
-private:
+    
+  private:
     
     // the combine function
     void Combine( TList& );
     
     // fill the internal list
     void Combination_( TCandidate* cand0, 
-	TCandidate* cand1=0,
-	TCandidate* cand2=0,
-	TCandidate* cand3=0,
-	TCandidate* cand4=0,
-	TCandidate* cand5=0   );
+                      TCandidate* cand1=0,
+                      TCandidate* cand2=0,
+                      TCandidate* cand3=0,
+                      TCandidate* cand4=0,
+                      TCandidate* cand5=0   );
     
     
     Bool_t CheckChargeAndMass(const TLorentzVector &m, double charge,
-	double lowMass, double hiMass);
-    
-    // the list of owned candidates
-    TCandList *_theList; //!Do not stream
-    
-    // the iterator 
-    TCandListIterator* _theIterator; //!Do not stream
+                              double lowMass, double hiMass);
     
     // the decay mode
     TDecayMode* _theDecayMode; //!Do not stream
     
+    // the composite selector
+    VAbsPidSelector* _theSelector; //!Do not stream
+    
     // bool variable for same lists in input
     Bool_t _sameLists; //!Do not stream
-    
-    // doWrongChargeOnly?
-    Bool_t _doWrongChargeOnly; //!Do not stream
     
     // Check daughter types
     Bool_t _checkType; //!Do not stream
     
-    // the composite selector
-    VAbsPidSelector* _theSelector; //!Do not stream
-
-public:
+    // doWrongChargeOnly?
+    Bool_t _doWrongChargeOnly; //!Do not stream
+    
+    // the iterator 
+    TCandListIterator* _theIterator; //!Do not stream
+    
+    // the list of owned candidates
+    TCandList *_theList; //!Do not stream
+    
+  public:
     ClassDef(TFastCombiner,1) // Combiner class for TCandidates
-};
+  };
 
 #endif
 

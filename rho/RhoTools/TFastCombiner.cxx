@@ -67,7 +67,7 @@ TFastCombiner::TFastCombiner( TDecayMode& mode,
 TFastCombiner::TFastCombiner( TDecayMode& mode,	
 				 TList& ll,VAbsPidSelector* theSelector)
 				 : _theDecayMode( &mode ), _theSelector( theSelector ), 
-				   _checkType( kTRUE ), _sameLists( kFALSE ), _doWrongChargeOnly( kFALSE ), _theIterator(0)
+				    _sameLists( kFALSE ), _checkType( kTRUE ),_doWrongChargeOnly( kFALSE ), _theIterator(0)
 {
     Combine( ll );
 }

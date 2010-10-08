@@ -20,8 +20,8 @@ class TSimpleVertex : public VAbsVertex
 {
   TVector3 fV;
   Double_t fT;
-  Double_t fChiSquared;
   Int_t    fNDof;
+  Double_t fChiSquared;
 
 public:
   TSimpleVertex(); 

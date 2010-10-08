@@ -90,8 +90,8 @@ TFindOmittedParticle::TFindOmittedParticle(
   //: p4Reson(ip4Reson)
   //: mChild(fabs(imChild))
   : mSought2(imSought*imSought)
-  , p4ObsCache(0.0,0.0,0.0,-1.0)		// Non-physical initial value
   , zBoostApprox(izBoostApprox)
+  , p4ObsCache(0.0,0.0,0.0,-1.0)		// Non-physical initial value
 {
   if (imChild == 0.0)
     cerr << "TFindOmittedParticle constructed with mChild=0" << endl;
@@ -165,7 +165,7 @@ TFindOmittedParticle::MakeCone( const TLorentzVector  & p4Obs )
   // child -> sought + observed.
 
   // Square of mass of observed particle.
-  const double mObs2 = p4Obs.Mag2();
+  //const double mObs2 = p4Obs.Mag2();
 
   /* This was an old, labor-intensive way of calculating the 
      decay momentum.  Using conservation of energy is much simpler to

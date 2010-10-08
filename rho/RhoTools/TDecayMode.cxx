@@ -37,7 +37,7 @@ using namespace std;
 TDecayMode::TDecayMode( TParticlePDG* theMother,const TList& theDaughters )
 {
     SetMother( theMother );
-    for( size_t i=0; i<theDaughters.GetSize(); i++ ) {
+    for( Int_t i=0; i<theDaughters.GetSize(); i++ ) {
 	TParticlePDG *p = (TParticlePDG*) theDaughters.At(i);
 	AddDaughter( p );
     }
@@ -60,7 +60,7 @@ _theAntiMother( o._theAntiMother )
 {
     TList *l1 = const_cast<TList *> (&o._theDaughters);
     TList *l2 = const_cast<TList *> (&o._theAntiDaughters);
-    for( size_t i=0; i<_theDaughters.GetSize(); i++ ) {
+    for( Int_t i=0; i<_theDaughters.GetSize(); i++ ) {
 	l1->Add(_theDaughters.At(i));
 	l2->Add(_theAntiDaughters.At(i));
     }

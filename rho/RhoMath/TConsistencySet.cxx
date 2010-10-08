@@ -58,7 +58,7 @@ TConsistencySet::NParents() const
 TConsistency*        
 TConsistencySet::GetConsistency( size_t index )
 {
-    if( index>=fConsistencyList.GetSize() ) return 0;
+    if( index>=(size_t)fConsistencyList.GetSize() ) return 0;
     return (TConsistency*) fConsistencyList.At(index);
 }
 
@@ -71,7 +71,7 @@ TConsistencySet::GetLabelConsistency( const char* label )
 const char* 
 TConsistencySet::GetLabel( size_t index )
 {
-    if( index>=fConsistencyList.GetSize() ) return 0;
+    if( index>=(size_t)fConsistencyList.GetSize() ) return 0;
     return fConsistencyList.At(index)->GetName();
 }
 
@@ -171,7 +171,7 @@ TConsistencySet::Add( const char* label, TConsistency& c )
 	d.ToLower();
 	
 	// test for overlaps
-	size_t index;
+	//size_t index;
 	
 	if( fConsistencyList.FindObject( label ) == 0 ) {
 	    c.SetName(label);

@@ -20,7 +20,7 @@ ClassImp(TEventInfo)
 using namespace std;
 
 TEventInfo::TEventInfo():
-fBeamSpot(TVector3(0,0,0)),fBeamSpotBFlight(TVector3(0,0,0)),fPrimaryVertex(0), fEventShape(0),fMCIP(0)
+fMCIP(0),fBeamSpot(TVector3(0,0,0)),fBeamSpotBFlight(TVector3(0,0,0)),fPrimaryVertex(0),fEventShape(0)
 {}
 
 //--------------

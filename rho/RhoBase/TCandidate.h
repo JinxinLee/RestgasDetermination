@@ -50,22 +50,22 @@ class BtaAbsRecoObject;
 // 		-- Class Interface --
 //		---------------------
 class TCandidate : public TFitParams
-{
+  {
     
     //--------------------
     // Instance Members --
     //--------------------
-        
-    // Lock : if true, modifications are a fatal error
-    Bool_t fLocked;  //! Do not stream
     
     // Fast mode : Do not use error matrix
     Bool_t fFastMode;  //! Do not stream
     
+    // Lock : if true, modifications are a fatal error
+    Bool_t fLocked;  //! Do not stream
+    
     // The mother
     TCandidate* fTheMother;  //! Do not stream
     
-protected:
+  protected:
     
     //--------------------
     // Instance Members --
@@ -74,15 +74,9 @@ protected:
     // Counted reference to the vertex
     VAbsVertex* fDecayVtx;	    //! Vertex
     
-    // Daughters
-    TCandList *fDaugList;	    //! List of daughters
-//    TCandidate* fDaughters[15];	    //! Array of daughters
-    std::vector<TCandidate*>  fDaughters; //! List of Daughters
-    Short_t nDaug;		    //! Number of daughters
-
-    // Constraints
-    TConstraint* fConstraints[5];   //! Array of constraints
-    Short_t nCons;		    //! Number of constraints
+    // Identity
+    const TParticlePDG* fPdtEntry;  //! Pointer to particle database
+    int   fPdgCode;
     
     // is this a resonance ?
     Bool_t fIsAResonance;	    //! Rsonance flag
@@ -90,22 +84,29 @@ protected:
     // Monte-Carlo truth 
     VAbsTruth* fTruth;		    //!  Pointer to MCTruth info          
     
-    // Identity
-    const TParticlePDG* fPdtEntry;  //! Pointer to particle database
-	int   fPdgCode;
-    
     // Interface to objects storable in micro database
     VAbsMicroCandidate* fMicroCand; // !Pointer to micro data
     
     UInt_t fTrackNumber;  //! Micro association
-    UInt_t fMarker[4];    //! Overlap
 
+    // Daughters
+    TCandList *fDaugList;	    //! List of daughters
+    //    TCandidate* fDaughters[15];	    //! Array of daughters
+    std::vector<TCandidate*>  fDaughters; //! List of Daughters
+    Short_t nDaug;		    //! Number of daughters
+    
+    // Constraints
+    TConstraint* fConstraints[5];   //! Array of constraints
+    Short_t nCons;		    //! Number of constraints
+    
+    UInt_t fMarker[4];    //! Overlap
+    
     // added by K Goetzen
     double fPidLH[30];
     int    fMcIdx;
     
     
-public:
+  public:
     
     //--------------------
     // Public interface --
@@ -119,37 +120,37 @@ public:
     TCandidate();
     
     /** Ctor from a momentum vector, charge, and origin vertex.
-    Does not set the particle type, but uses the mass from the 
-    argument 4vector.
-    @param v      A THepLorentzVector representing the 4momentum
-    @param charge The candidates charge, a Double_t so you can represent quarks
-    @param vp     Pointer to the vertex where the candidate was created. The default zero value means to assume the origin
-    */
+     Does not set the particle type, but uses the mass from the 
+     argument 4vector.
+     @param v      A THepLorentzVector representing the 4momentum
+     @param charge The candidates charge, a Double_t so you can represent quarks
+     @param vp     Pointer to the vertex where the candidate was created. The default zero value means to assume the origin
+     */
     TCandidate( const TLorentzVector &v, 
-	Double_t charge = 0, 
-	VAbsVertex* vp = 0 );
+               Double_t charge = 0, 
+               VAbsVertex* vp = 0 );
     
-	/** Ctor from a 3momentum vector, charge, and origin vertex.
-	The particle type (hence mass) is set to pion for charged, photon for neutrals 
-	@param v      A TVector3 representing the 3momentum
-	@param charge The candidates charge, a Double_t so you can represent quarks
-	@param vp     Pointer to the vertex where the candidate was created. The default zero value means to assume the origin
-    */
+    /** Ctor from a 3momentum vector, charge, and origin vertex.
+     The particle type (hence mass) is set to pion for charged, photon for neutrals 
+     @param v      A TVector3 representing the 3momentum
+     @param charge The candidates charge, a Double_t so you can represent quarks
+     @param vp     Pointer to the vertex where the candidate was created. The default zero value means to assume the origin
+     */
     TCandidate( const TVector3 &v, 
-	Double_t charge, 
-	VAbsVertex* vp=0 );
+               Double_t charge, 
+               VAbsVertex* vp=0 );
     
-	/** Ctor from a momentum vector, particle type, and origin vertex.
-	The particle type to pion for charged, photon for neutrals 
-	@param v      A TVector3 representing the momentum
-	@param pdt    A pointer to a PdtEntry for the charge, type, etc.
-	@param vp     Pointer to the vertex where the candidate was created. The default zero value means to assume the origin
-    */
-     TCandidate( const TVector3 &v, 
-        const TParticlePDG* pdt, 
-	VAbsVertex* vp=0 );
-
-
+    /** Ctor from a momentum vector, particle type, and origin vertex.
+     The particle type to pion for charged, photon for neutrals 
+     @param v      A TVector3 representing the momentum
+     @param pdt    A pointer to a PdtEntry for the charge, type, etc.
+     @param vp     Pointer to the vertex where the candidate was created. The default zero value means to assume the origin
+     */
+    TCandidate( const TVector3 &v, 
+               const TParticlePDG* pdt, 
+               VAbsVertex* vp=0 );
+    
+    
     /** Copy ctor */
     TCandidate( const TCandidate & );
     
@@ -159,10 +160,10 @@ public:
     TCandidate(VAbsTruth &truth, Int_t n = 0, VAbsVertex* vp=0, Bool_t fast=kTRUE );
     
     TCandidate( TLorentzVector p4, 
-	TError& p4Err,
-	TCandListIterator& iterDau,
-	VAbsVertex& theVertex,
-	const TParticlePDG* hypo = 0);
+               TError& p4Err,
+               TCandListIterator& iterDau,
+               VAbsVertex& theVertex,
+               const TParticlePDG* hypo = 0);
     //
     // Destructor
     //
@@ -173,9 +174,9 @@ public:
     //
     Double_t             Mass() const;
     Double_t             GetMass() const { return Mass(); }
-
+    
     const TParticlePDG*  PdtEntry() const;
-	int 				PdgCode() {return fPdgCode;}
+    int 				PdgCode() {return fPdgCode;}
     
     //
     // By convention, the 4-momentum is given :
@@ -219,7 +220,7 @@ public:
     // the setType function only sets the type, _the mass is not set_.
     void SetType( const TParticlePDG* pdt );
     void SetType( const char* name );
-	void SetType( int pdgcode );
+    void SetType( int pdgcode );
     
     // Set the mass
     // Inactive for non composite candidates
@@ -350,7 +351,7 @@ public:
     // Prints
     //
     void PrintOn( std::ostream& o=std::cout ) const;
-
+    
     void SetFast(Bool_t yesno) { fFastMode = yesno; }
     Bool_t IsFast() const { return fFastMode; }
     
@@ -366,22 +367,22 @@ public:
     // clones (same Uid), representing a same
     // reconstructed object, or having daughters
     // that are overlapping
-
+    
     Bool_t Overlaps(const TCandidate& c) const {
-	return ( (fMarker[0] & c.fMarker[0])!=0 || (fMarker[1] & c.fMarker[1])!=0 ||
-	    (fMarker[2] & c.fMarker[2])!=0 || (fMarker[3] & c.fMarker[3])!=0 );
+      return ( (fMarker[0] & c.fMarker[0])!=0 || (fMarker[1] & c.fMarker[1])!=0 ||
+              (fMarker[2] & c.fMarker[2])!=0 || (fMarker[3] & c.fMarker[3])!=0 );
     }    	
     
     Bool_t Equals(const TCandidate& c) const {
-	return ( (fMarker[0] == c.fMarker[0]) && (fMarker[1] == c.fMarker[1]) &&
-	    (fMarker[2] == c.fMarker[2]) && (fMarker[3] == c.fMarker[3]) );
+      return ( (fMarker[0] == c.fMarker[0]) && (fMarker[1] == c.fMarker[1]) &&
+              (fMarker[2] == c.fMarker[2]) && (fMarker[3] == c.fMarker[3]) );
     }    	
     
     UInt_t GetMarker(UInt_t m=0) const {
-	if (m<4)
-	    return fMarker[m];
-	else
-	    return 0;
+      if (m<4)
+        return fMarker[m];
+      else
+        return 0;
     }
     
     void SetMarker(UInt_t l,UInt_t m);    
@@ -390,59 +391,59 @@ public:
     Int_t GetTrackNumber()  const { return fTrackNumber; }
     Int_t Uid() const   { return fTrackNumber; }
     void  SetUid(UInt_t uid=0);
-
+    
     // Set Constraints
-
+    
     // Constrain the mass of the candidate to the given mass
     void SetMassConstraint(Double_t mass ) 
     { ::SetMassConstraint( *this, mass ); }
-
+    
     // Constrain the mass of the candidate to its type mass
     void SetMassConstraint()
     { ::SetMassConstraint( *this ); }
-
+    
     // Constrain the lifetime of the candidate (c*tau, in centimeters)
     void SetLifetimeConstraint( Double_t ctau )
     { ::SetLifetimeConstraint( *this, ctau ); }
-
+    
     // Constrain the lifetime of the candidate to its type lifetime
     void SetLifetimeConstraint()
     { ::SetLifetimeConstraint( *this ); }
-
+    
     // Constrain the energy of the candidate
     void SetEnergyConstraint( TDoubleErr &energy,const TVector3& boost=TVector3(0,0,0) )
     { ::SetEnergyConstraint( *this, energy,boost ); }
-
+    
     void SetEnergyConstraint( TVectorErr& eMinusMom, TVectorErr& ePlusMom, Double_t scale=0.5)
     { ::SetEnergyConstraint( *this, eMinusMom, ePlusMom, scale); }
-
+    
     void SetEnergyConstraint( TCandidate& cand, const TEventInfo* ev, Double_t scale=0.5)
     { ::SetEnergyConstraint( *this, ev, scale); }
-
+    
     // Constraint the momentum of the candidate
     void SetMomentumConstraint()
     { ::SetMomentumConstraint( *this ); }
-
+    
     void SetMomentumConstraint( const TVectorErr& momentum, 
-			        const TVector3& boost=TVector3(0,0,0) )
+                               const TVector3& boost=TVector3(0,0,0) )
     { ::SetMomentumConstraint( *this,momentum,boost); }
-
+    
     // Beam Constrain - 
     // Constrain the head of a decay tree to come from a given vertex
     void SetBeamConstraint( const TPointErr& beam )
     { ::SetBeamConstraint( *this, beam ); }
-
+    
     void SetBeamConstraint( const TEventInfo* ev)
     { ::SetBeamConstraint( *this, ev); }
-
+    
     void SetTrajectory(const TLorentzVector& p4, const TError& p4Err,
-	Int_t charge,const TParticlePDG* hypo,
-	VAbsVertex* dVtx );
-	
-     // Add a daughter link
+                       Int_t charge,const TParticlePDG* hypo,
+                       VAbsVertex* dVtx );
+    
+    // Add a daughter link
     // **** put to public K Goetzen
     void AddDaughterLinkSimple( const TCandidate* );
-   
+    
     void SetPidInfo(double *pidinfo=0);
     void SetPidInfo(int hypo, double value);
     double GetPidInfo(int hypo);
@@ -450,8 +451,8 @@ public:
     
     void SetMcIdx(int idx) {fMcIdx=idx;}
     int GetMcIdx() {return fMcIdx;}
-
-private:
+    
+  private:
     
     //
     // Private functions (access to friends only)
@@ -476,14 +477,14 @@ private:
     // fill the list with outgoing candidates (recursive function)
     void AddToVertexingList( TCandList& );
     
-public:
+  public:
     ClassDef(TCandidate,1) // Candidate base class
-	
+    
     friend class PAFReader;
     friend class KangaReader;
     friend class TBooster;
     friend class TOperatorBase;
-};
+  };
 
 // standalone print
 std::ostream&  operator << (std::ostream& o, const TCandidate&);

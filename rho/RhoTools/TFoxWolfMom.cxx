@@ -93,7 +93,7 @@ TFoxWolfMom::TFoxWolfMom( TCandList* tracklist,
   TCandidate theUps( evtinfo->CmFrame(), 0.0 );
   TBooster theBooster( &theUps );
 
-  double dummy(0.0);
+  //double dummy(0.0);
   _privateData->xArray = new TVector(maxorder+1);
   _privateData->fwArray = new TVector(maxorder+1);
   _privateData->sumArray = new TVector(maxorder+1);

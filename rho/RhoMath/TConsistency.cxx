@@ -27,18 +27,18 @@ TBuffer &operator>>(TBuffer &buf, TConsistency *&obj)
 using namespace std;
 
 TConsistency::TConsistency() 
-: fStat(noMeasure), fValue(0), fLikelihood(1.), fSign(unknown)
+: fStat(noMeasure), fValue(0), fSign(unknown), fLikelihood(1.)
 {
 }
 
 TConsistency::TConsistency(Double_t v, Double_t l)
-: fStat(OK), fValue(v), fLikelihood(l), fSign(unknown)
+: fStat(OK), fValue(v), fSign(unknown), fLikelihood(l)
 {
 }
 
 TConsistency::TConsistency(const TConsistency& rhs) 
 : fStat(rhs.fStat), fValue(rhs.fValue)
-, fLikelihood(rhs.fLikelihood), fSign(rhs.fSign)
+, fSign(rhs.fSign), fLikelihood(rhs.fLikelihood)
 {
 }
 

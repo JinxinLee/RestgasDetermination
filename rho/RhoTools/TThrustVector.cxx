@@ -40,7 +40,7 @@ const int nSegsPhi = 10; // number of initial segments in phi
 const int nSegs = nSegsTheta * nSegsPhi; // total number of segments
 
 TThrustVector::TThrustVector()
-  : _thrust(0), _denom_sum(0), _booster(0), _cutInCms(kFALSE), _charged(kFALSE),
+  : _thrust(0), _booster(0), _denom_sum(0), _cutInCms(kFALSE), _charged(kFALSE),
     _checkCharge(kFALSE)
 {
 }
@@ -71,7 +71,7 @@ TThrustVector::Compute(TCandList& list) {
   
   // variables
   TCandidate* trkptr;
-  int i,j;
+  //int i,j;
  
   TCandListIterator iter(list);
    
@@ -106,7 +106,7 @@ TThrustVector::acceptedTrack(const TCandidate *cand) const {
   // Do what TChargedSelector effectively does...
 
   Bool_t answer = kTRUE;
-  Bool_t cutInCms = kFALSE;
+  //Bool_t cutInCms = kFALSE;
   double pMin = 0.0, pMax = 10.0, thMin = 0.0, thMax = TMath::Pi();
   
   double q = cand->Charge();
@@ -419,7 +419,7 @@ double TThrustVector::calc_thrust(const double * axis,
   double result = 0;
   double num_sum = 0;
 
-  for (int i=0;i<nTracks;i++)
+  for (unsigned int i=0;i<nTracks;i++)
     // calculate sum of dot products
     num_sum += fabs( axis[0]*valX[i] + axis[1]*valY[i] + axis[2]*valZ[i] );
 
@@ -433,7 +433,7 @@ void TThrustVector::calc_denom(const double * valX, const double * valY,
 				 const double * valZ, 
 				 const unsigned nTracks) {
 
-    for (int i=0;i<nTracks;i++) // loop over all tracks
+    for (unsigned int i=0;i<nTracks;i++) // loop over all tracks
       // calculate denominator 
       _denom_sum += sqrt( valX[i]*valX[i] + valY[i]*valY[i] + 
 			  valZ[i]*valZ[i] );

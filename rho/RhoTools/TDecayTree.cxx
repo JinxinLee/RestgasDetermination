@@ -70,7 +70,7 @@ TDecayTree::TDecayTree( const TParticlePDG* theMother,
 			   _decayString(0),
 			   _antiString(0){
     assert( SetMother( theMother ) );
-    for( size_t i=0; i< theDaughters.GetNumberOfCandidates(); i++ ) {
+    for( Int_t i=0; i< theDaughters.GetNumberOfCandidates(); i++ ) {
 	AddDaughter( theDaughters.GetConst(i) );
     }
 }
@@ -85,7 +85,7 @@ TDecayTree::TDecayTree( const TString& theMotherName,
 			   _antiString( 0 )
 {
     assert( SetMother( Lookup( theMotherName ) ) );
-    for( size_t i=0; i<n; i++ )
+    for( Int_t i=0; i<n; i++ )
 	assert( AddDaughter(  Lookup( theDaughterNames[i] ) ) );
 }
 
@@ -97,7 +97,7 @@ _theAntiDaughters( 0 ),
 _decayString( 0 ),
 _antiString( 0 ){
     assert( SetMother( (TParticlePDG*)o.Mother(conj) ) );
-    for( size_t i=0; i< o.NDaughters(); i++ )
+    for( Int_t i=0; i< o.NDaughters(); i++ )
 	assert( AddDaughter( o.Daughter(i,conj) ) );    
 }
 
@@ -174,7 +174,7 @@ _antiString(0){
     
     if ( cand == 0 ) return;
     
-    const TParticlePDG* pdt = cand->PdtEntry();
+    //const TParticlePDG* pdt = cand->PdtEntry();
     
     // the mother
     assert( SetMother(cand->PdtEntry()) );
@@ -184,7 +184,7 @@ _antiString(0){
     TCandListIterator itr = cand->DaughterIterator();
     
     TCandidate* dau=0;
-    int i=0;
+    //int i=0;
     while ( dau = itr.Next() ) {
 	if ( dau == 0 ) continue;
 	TDecayTree* dauMode = new TDecayTree(dau);
@@ -216,7 +216,7 @@ TDecayTree::~TDecayTree() {
 TDecayTree& 
 TDecayTree::operator= ( const TDecayTree& other){
     assert ( SetMother ( other.Mother() ) );
-    for( size_t i=0; i< other.NDaughters(); i++ )
+    for( Int_t i=0; i< other.NDaughters(); i++ )
 	assert( AddDaughter( other.Daughter(i) )); 
     return *this;
 }

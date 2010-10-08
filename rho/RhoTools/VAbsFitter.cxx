@@ -73,7 +73,7 @@ VAbsFitter::GetFitted(const TCandidate& c ) const
 Double_t
 VAbsFitter::Chi2Contribution( const TCandidate& b ) const
 {
-    Double_t chi2;
+    //Double_t chi2;
     return fChi2Map(b.Uid())>=0.0 ? fChi2Map(b.Uid()) : -1;
 }
 

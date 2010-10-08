@@ -16,7 +16,7 @@
 class VAbsCollection : public TObject 
 {
   public :
-      VAbsCollection() : fCurrentIndex(0), fok(kFALSE) {}
+      VAbsCollection() : fok(kFALSE), fCurrentIndex(0) {}
     virtual ~VAbsCollection() { };
 
     virtual void Rewind() = 0;

@@ -26,7 +26,7 @@ TParm VAbsPidSelector::fParms;
 TAssociator *VAbsPidSelector::fAssociator=0;
 
 VAbsPidSelector::VAbsPidSelector(const char *name, const char* type) : 
-TNamed(name,name),fQC(0),fCriterion(loose),fTypePlus(0),fTypeMinus(0)
+TNamed(name,name),fTypePlus(0),fTypeMinus(0),fCriterion(loose),fQC(0)
 {
     SetParm("criteria","loose"); // The default setting
 

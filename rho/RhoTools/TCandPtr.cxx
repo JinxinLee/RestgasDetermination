@@ -69,7 +69,7 @@ TCandPtr::GetMother(Int_t &im)
 Int_t
 TCandPtr::operator()( Int_t i )
 {
-  if (i<NDaughters())
+  if (i<(Int_t)NDaughters())
     return _oneToMany?  _indices.At(i+1):_indices.At(i);
   else
     return 0;

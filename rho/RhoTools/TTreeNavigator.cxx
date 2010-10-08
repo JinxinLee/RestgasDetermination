@@ -130,7 +130,7 @@ TTreeNavigator::PrintVertex( const VAbsVertex& v )
 void 
 TTreeNavigator::PrintOn( std::ostream& o ) const
 {
-    size_t i;
+    Int_t i;
     o << "Number of vertices : " << NVertex() << endl;
     o << "Number of final stable candidates : " << NFinalCand();
     for( i=0; i<_finalCands.GetSize(); i++ )

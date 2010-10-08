@@ -27,7 +27,7 @@
 //---------------
 // C++ Headers --
 //---------------
-#include <strstream>
+#include <sstream>
 //#include <ctype.h>
 
 //-----------------------
@@ -246,7 +246,7 @@ TCandReaderNameMom::Read(TCandReader::Status & status,
     // Read the name, up to the '(' of the 3-momentum or another delimiter
     // or space:
     TString name;
-    istrstream stream((char*)(const char*)str);
+    istringstream stream((char*)(const char*)str);
     char c;
     while (EOF != (c = stream.get()) && stream.good()){
 	// If start of vector or delimiter, then end of name, push delimiter back:
@@ -303,7 +303,7 @@ TCandReaderNameVtx::Read(TCandReader::Status & status,
     
     // Read the name, up to the '(' of the point or another delimiter or space:
     TString name;
-    istrstream stream((char*)(const char*)str);
+    istringstream stream((char*)(const char*)str);
     char c;
     while (EOF != (c = stream.get()) && stream.good()){
 	// If start of point or delimiter, then end of name, push delimiter back:
@@ -364,7 +364,7 @@ TCandReaderNameMomVtx::Read(TCandReader::Status & status,
     // Read the name, up to the '(' of the 3-momentum or another delimiter 
     // or space
     TString name;
-    istrstream stream((char*)(const char*)str);
+    istringstream stream((char*)(const char*)str);
     char c;
     while (EOF != (c = stream.get()) && stream.good()){
 	// If start of mom or delimiter, then end of name, push delimiter back:
@@ -443,7 +443,7 @@ TCandReaderNameMomVtx::Read(TCandReader::Status & status,
 	}
     }
     
-    istrstream newStream((char*)(const char*)cleanString);
+    istringstream newStream((char*)(const char*)cleanString);
     double xx(q.X()), yy(q.Y()), zz(q.Z());
     newStream >> xx >> yy >> zz;
     q.SetX(xx);

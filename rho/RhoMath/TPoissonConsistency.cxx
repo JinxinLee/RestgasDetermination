@@ -18,7 +18,7 @@
 #include "RhoMath/TNumRecipes.h"
 #include "RhoMath/TGaussConsistency.h"
 
-static Double_t EPS_CONVERGE = 0.01;
+//static Double_t EPS_CONVERGE = 0.01;
 
 ClassImp(TPoissonConsistency)
 
