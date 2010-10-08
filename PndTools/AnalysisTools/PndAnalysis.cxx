@@ -256,7 +256,7 @@ void PndAnalysis::BuildMcCands()
     pmc->SetMcIdx(i);
     pmc->SetPos(stvtx);
     pmc->SetType(part->GetPdgCode());
-
+    
     // additional helix parameters for checking... 
     Double_t pnt[3], Bf[3];
     pnt[0]=stvtx.X();
@@ -280,20 +280,26 @@ void PndAnalysis::BuildMcCands()
 
 Bool_t PndAnalysis::PropagateToIp(TCandidate* cand)
 { //Propagate from the tracks first parameter set to the POCA from (0,0,0)
+  return PropagateToPoint(cand, new TVector3(0.,0.,0.) );
+}  
+
+Bool_t PndAnalysis::PropagateToPoint(TCandidate* cand, TVector3* mypoint)
+{ //Propagate from the tracks first parameter set to the POCA from mypoint
   //The candidate is updated but the track not touched 
   //Only the uncorrelated errors are propagated, 
   //TODO: implement a real cov matrix
   
   Bool_t rc = kFALSE;
   if(!cand) {
-    Error("PropagateToIp","Candidate not found: %p",cand);
+    Error("PropagateToPoint","Candidate not found: %p",cand);
     return kFALSE;
   }
   PndPidCandidate* pidCand = static_cast<PndPidCandidate*>(&cand->GetMicroCandidate());
   PndTrack* track = (PndTrack*)fTracks->At(pidCand->GetTrackIndex());
-  if (!track) {Warning("PropagateToIp","Could not find track object of index %d",pidCand->GetTrackIndex()); return kFALSE;}
+  if (!track) {Warning("PropagateToPoint","Could not find track object of index %d",pidCand->GetTrackIndex()); return kFALSE;}
   FairGeanePro* geaneProp = new FairGeanePro();
   geaneProp->BackTrackToVertex(); //set where to propagate
+  geaneProp->SetPoint(*mypoint);
   FairTrackParP tStart = track->GetParamFirst();
   FairTrackParH* myStart = new FairTrackParH(tStart);
   FairTrackParH* myResult = new FairTrackParH();
@@ -302,7 +308,7 @@ Bool_t PndAnalysis::PropagateToIp(TCandidate* cand)
   
   // now we propagate
   rc = geaneProp->Propagate(myStart, myResult,pdgcode);
-
+  
   if (!rc) return kFALSE;
   TVector3 pos(myResult->GetX(),myResult->GetY(),myResult->GetZ()); // I want to be sure... 
   //printout for checks
@@ -333,7 +339,7 @@ Bool_t PndAnalysis::PropagateToIp(TCandidate* cand)
   covPosMom[4][4]=A*A; // py py
   A=myResult->GetDPz();
   covPosMom[5][5]=A*A; // pz pz
-
+  
   Double_t M=cand->M();
   Double_t Q=myResult->GetQ();
   if(0==Q)return kFALSE;
@@ -345,8 +351,8 @@ Bool_t PndAnalysis::PropagateToIp(TCandidate* cand)
   covPosMom[6][6]=dA*dA/A; // e e
   
   cand->SetCov7(covPosMom);
-    
-  Info("PropagateToIp","Succsess=%b",rc);
+  
+  Info("PropagateToPoint","Succsess=%b",rc);
   return kTRUE;
 }
 

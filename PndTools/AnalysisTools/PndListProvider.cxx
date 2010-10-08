@@ -150,8 +150,9 @@ void PndListProvider::AddDaughterType(int pdgcode)
 
 int PndListProvider::GetDaughterType(int i)
 {
-  if (fDaughterPDG.size()>i) 
+  if ((int)fDaughterPDG.size()>i) 
     return fDaughterPDG[i]->PdgCode();
+  return -1;
 }
 
 // -------------------------------------------------------------------------
@@ -370,6 +371,7 @@ PndListProvider::GetDecayProdName(int i)
 {
   if (i<fNDaughters)
   return fDaughterListNames[i];
+  else return "";
 }
 
 // -------------------------------------------------------------------------

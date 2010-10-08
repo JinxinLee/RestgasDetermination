@@ -54,9 +54,9 @@ void PndPidListMaker::Init()
 	
 	fListNames.clear();
 	
-	for (int i=0;i<pNames.size();i++)
+	for (unsigned int i=0;i<pNames.size();i++)
 	{
-		for (int j=0;j<critNames.size();j++)
+		for (unsigned int j=0;j<critNames.size();j++)
 		{
 			fListNames.push_back(pNames[i]+critNames[j]);
 			fListNames.push_back(pNames[i]+critNames[j]+"Plus");

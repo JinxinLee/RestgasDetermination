@@ -44,7 +44,7 @@ PndListDefiner::PndListDefiner(std::string name) :
 
 PndListDefiner::~PndListDefiner()
 {
-	int i=0;
+	unsigned int i=0;
 	
 	for (i=0;i<fHisto.size();i++) delete fHisto[i];
 	for (i=0;i<fSelector.size();i++) delete fSelector[i];

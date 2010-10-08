@@ -195,7 +195,7 @@ void PndSimpleAnalysis::InitGenericLists()
   fGenericListNames.push_back("Neutral"); 
   fGenericListNames.push_back("McTruth");
 
-  int i=0;
+  unsigned int i=0;
   
   for (i=0;i<fGenericListNames.size();i++)
     fListMap[fGenericListNames[i]]=i;
@@ -394,7 +394,8 @@ void PndSimpleAnalysis::Exec(Option_t* opt)
   TVector3 pInitBoost(0,0,0);
   if (fpInit.Z()!=0.0) pInitBoost=-fpInit.BoostVector();
   
-  int i=0,j=0,k=0,k2=0;
+  unsigned int i=0;
+  int j=0,k=0,k2=0;
   
   if (!(++evcount%100)) 
   cout <<"evt "<<evcount<<endl;
@@ -501,7 +502,7 @@ void PndSimpleAnalysis::Exec(Option_t* opt)
 			curdump->fNEntries=off+cur->GetLength();
 				
 			//	Dump out the float columns			
-			for (j=0;j<curdump->fNtpFNames.size();j++)
+			for (j=0;j<(int)curdump->fNtpFNames.size();j++)
 			{
 				//hmm, unknown name; should not be!
 				if (fColKeyMap.find(curdump->fNtpFNames[j])==fColKeyMap.end()) continue; 
@@ -614,7 +615,7 @@ void PndSimpleAnalysis::Exec(Option_t* opt)
 						case 160: theArF[off+k]=cur->fList[k].GetPidInfo(5); break; // Barrel DIRC tht_c
 						case 161: theArF[off+k]=cur->fList[k].GetPidInfo(6); break; // Disc DIRC tht_c
 						case 162: theArF[off+k]=cur->fList[k].GetPidInfo(7); break; // RICH tht_c
-						case 163: theArF[off+k]=cur->fList[k].GetPidInfo(8); break; // TOF m¹
+						case 163: theArF[off+k]=cur->fList[k].GetPidInfo(8); break; // TOF mÏ€
 						case 164: theArF[off+k]=cur->fList[k].GetPidInfo(9); break; // MVD dEdx	
 						case 165: theArF[off+k]=cur->fList[k].GetPidInfo(10); break; // STT dEdx
 						case 166: theArF[off+k]=cur->fList[k].GetPidInfo(11); break; // TPC dEdx
@@ -632,7 +633,7 @@ void PndSimpleAnalysis::Exec(Option_t* opt)
 			
 			
 			//	Dump out the int columns			
-			for (j=0;j<curdump->fNtpINames.size();j++)
+			for (j=0;j<(int)curdump->fNtpINames.size();j++)
 			{
 				//hmm, unknown name; should not be!
 				if (fColKeyMap.find(curdump->fNtpINames[j])==fColKeyMap.end()) continue; 
@@ -789,7 +790,7 @@ void PndSimpleAnalysis::FillGenericLists()
 {
   TFactory::Instance()->Reset();
   
-  int i,j, uid=1;
+  int i, uid=1;
   
   // **** loop over all Candidates and add them to the list allCands
   //    
@@ -868,8 +869,8 @@ void PndSimpleAnalysis::FillGenericLists()
 		if (!fListDefiners[i]->fIsUsed) continue;
 		int crithint=i/10;
 		int pidhint=(i%10)/2;
-		VAbsPidSelector *chSel;
-		VAbsPidSelector *pidSel;
+		//VAbsPidSelector *chSel;
+		VAbsPidSelector *pidSel=0;
 			
 		if (i%2) 
 		fListDefiners[i]->fList.Select(chargedCands,minusSel);
@@ -912,16 +913,16 @@ bool PndSimpleAnalysis::SetupAnalysis()
    
    int nLists=fListDefiners.size();
    
-   int i=0,j=0;
+   unsigned int i=0,j=0;
    
    std::vector<int> daupdgs;
-   int daucnt=0;
-   int daulistcnt=0;
+   unsigned int daucnt=0;
+   unsigned int daulistcnt=0;
    
    char line[200];
-   int linecnt=0;
+   unsigned int linecnt=0;
    
-   bool inList=false;
+   //bool inList=false;
    bool hasAnti=false;
    
    bool defineOpen=false;
@@ -1241,7 +1242,7 @@ bool PndSimpleAnalysis::SetupAnalysis()
 			
 			// tokenVec[startcols] is the first column name to dump
 			// in DefineList this is position 2; outside it is pos 3
-			int startcols=2;
+			unsigned int startcols=2;
 			
 			std::string dName=tokenVec[1];
 			
@@ -1487,7 +1488,7 @@ bool PndSimpleAnalysis::SetupAnalysis()
 
 void PndSimpleAnalysis::Finish()
 {
-	for (int i=0;i<fListDefiners.size();i++)
+	for (unsigned int i=0;i<fListDefiners.size();i++)
 	{
 		PndListDefiner *cur=fListDefiners[i];
 		if (cur->fIsAntiList) continue;

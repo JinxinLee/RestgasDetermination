@@ -10,17 +10,17 @@ class TH1F;
 class VAbsPidSelector;
 
 class PndListDefiner 
-{
-public:
+  {
+  public:
     PndListDefiner();
     PndListDefiner(std::string name);
-    ~PndListDefiner();
+    virtual ~PndListDefiner();
     
     void Print();
     int  GetLength();
-	int  GetNDau();
-	int  GetNSels();
-	int  GetNHistos();
+    int  GetNDau();
+    int  GetNSels();
+    int  GetNHistos();
     
     std::string 	fName;
     int         	fPdgCode;
@@ -31,22 +31,22 @@ public:
     bool       	 	fIsFilled;
     bool      	 	fIsGeneric;
     bool       	 	fIsMerged;
-	bool 			fDumpList;
+    bool 			fDumpList;
     TCandList   	fList;
-	std::vector<TH1F*> fHisto;
-	std::vector<VAbsPidSelector*> fSelector;
+    std::vector<TH1F*> fHisto;
+    std::vector<VAbsPidSelector*> fSelector;
     std::vector<int> fDauIdx;
-	
-	// information for the NTuple dumpout
-	int 					  fNEntries;	// Number of entries in list; used for the tuple dumpout
-	std::string				  fColName;		// the prefix for storing in NTuple  
-	std::vector<std::string>  fNtpFNames;	// column names with floats to be stored
-	std::vector<float*>		  fNtpFArrays;	// the corresponding float arrays
-	std::vector<std::string>  fNtpINames;	// column names with ints to be stored  
-	std::vector<int*>		  fNtpIArrays;	// the corresponding int arrays
-	
-	
+    
+    // information for the NTuple dumpout
+    int 					  fNEntries;	// Number of entries in list; used for the tuple dumpout
+    std::string				  fColName;		// the prefix for storing in NTuple  
+    std::vector<std::string>  fNtpFNames;	// column names with floats to be stored
+    std::vector<float*>		  fNtpFArrays;	// the corresponding float arrays
+    std::vector<std::string>  fNtpINames;	// column names with ints to be stored  
+    std::vector<int*>		  fNtpIArrays;	// the corresponding int arrays
+    
+    
   	ClassDef(PndListDefiner,1);
-}; 
+  }; 
 
 #endif

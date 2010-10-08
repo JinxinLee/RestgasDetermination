@@ -23,7 +23,7 @@ class TGeant3;
 class PndAnalysis {
 public:
   PndAnalysis();
-  ~PndAnalysis();
+  virtual ~PndAnalysis();
   
   void Rewind();
   void Reset() { Rewind(); }
@@ -34,6 +34,7 @@ public:
   void SetPidChargedName(TString s) {fChargedPidName = s;}
   void SetPidNeutralName(TString s) {fNeutralPidName = s;}  
   Bool_t PropagateToIp(TCandidate* cand);
+  Bool_t PropagateToPoint(TCandidate* cand, TVector3* mypoint);
   
 private:
   

@@ -66,7 +66,7 @@ void PndKinFitter::Fit()
    fHeadOfTree->RemoveAssociations();
    for (int i=0;i<fDaughters.GetLength();i++)
    fHeadOfTree->AddDaughterLinkSimple(&(fDaughters[i]));
-   int nd=fDaughters.GetLength();
+   //int nd=fDaughters.GetLength(); //unused?
 
    NumCon=0;
    if(f4MomConstraint >0){
@@ -144,7 +144,7 @@ void PndKinFitter::ZeroMatrices(){
 
 void PndKinFitter::Solve()
 {
-  int nd=fDaughters.GetLength();
+  //int nd=fDaughters.GetLength(); //unused?
   double ierr; // used to check inversions
    al1=al0;
 //   int j1Max=50;
@@ -170,7 +170,7 @@ void PndKinFitter::Solve()
   TMatrixD al_new=al0-V_al0*mD_t*lam;
 //  al_new.Print();
   TMatrixD V_al_new=V_al0-V_al0*mD_t*Vd*mD*V_al0;
-  double chi2;
+  double chi2=0.;
   for (int i=0;i<fNcon;i++) chi2+=lam[i][0]*md[i][0];
   fGlobChi2=chi2;
   double covdif=(V_al0[0][0]-V_al_new[0][0]);
@@ -368,7 +368,7 @@ void PndKinFitter::Read4MomKinMatrix()
  int nd=fDaughters.GetLength();
  TMatrixD alp(al1);
  TMatrixD m(nd,1);
- int k,i,j;
+ int k,i;
  for (k=0;k<nd;k++)
   {  
   TLorentzVector p1=fDaughters[k].P4();
@@ -403,7 +403,7 @@ void PndKinFitter::ReadMomKinMatrix()
  int nd=fDaughters.GetLength();
  TMatrixD alp(al1);
  TMatrixD m(nd,1);
- int k,i,j;
+ int k,i;
  for (k=0;k<nd;k++)
   {
   for (i=0;i<3;i++) 
@@ -427,7 +427,7 @@ void PndKinFitter::ReadTotEKinMatrix()
 {int nd=fDaughters.GetLength();
  TMatrixD alp(al1);
  TMatrixD m(nd,1);
- int k,i,j;
+ int k,i;
  for (k=0;k<nd;k++)
 {
  TLorentzVector p1=fDaughters[k].P4();
@@ -452,7 +452,7 @@ void PndKinFitter::ReadTotMomKinMatrix()
 {int nd=fDaughters.GetLength();
  TMatrixD alp(al1);
  TMatrixD m(nd,1);
- int k,i,j;
+ int k,i;
  for (k=0;k<nd;k++)
 {
   double Ptot =sqrt(alp[k*7+0][0]*alp[k*7+0][0]+
