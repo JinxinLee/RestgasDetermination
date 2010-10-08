@@ -25,6 +25,9 @@
 #include "TClonesArray.h"
 #include "TString.h"
 #include "TF1.h"
+#include "TStyle.h"
+
+#include <vector>
 
 
 
@@ -112,6 +115,8 @@ class PndTpcSLPatternRecoTask : public FairTask {
   FairField* fField;
 
   int counter;
+
+  std::vector<Color_t> colors;
 
   // Private methods -----------------------------------------
   //bool compareNodes (Hough2DNode* n1, Hough2DNode* n2); 

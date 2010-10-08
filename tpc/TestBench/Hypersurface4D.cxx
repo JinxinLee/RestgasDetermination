@@ -79,7 +79,7 @@ Hypersurface4D::testIntersect(Hough4DNode* node) const {
     std::cerr<<"Hypersurface4D::testIntersect():"
 	     <<" Parameter space not specified!"
 	     <<" Aborting."<<std::endl;
-    return 0;
+    return false;
   }
   
   //inflate to full-scale parameter space
@@ -90,9 +90,7 @@ Hypersurface4D::testIntersect(Hough4DNode* node) const {
   
   //calculate rep value for both projection points
   double val1 = _rep1->Eval(p1_par_min);
-  //std::cout<<"val1: "<<val1<<"    ";
   double val2 = _rep1->Eval(p1_par_max);
-  //std::cout<<"val2: "<<val2<<std::endl;
   
   signs+=((val1-p2_par_min)>0);
   signs+=((val1-p2_par_max)>0);
@@ -103,7 +101,7 @@ Hypersurface4D::testIntersect(Hough4DNode* node) const {
     return false; 
 
   signs = 0;
-
+  
   //inflate to full-scale parameter space
   double p3_par_max = (_maxs[2]-_mins[2])*(proj3[0]+0.5) + _mins[2];
   double p3_par_min = (_maxs[2]-_mins[2])*(proj3[1]+0.5) + _mins[2];
@@ -112,15 +110,13 @@ Hypersurface4D::testIntersect(Hough4DNode* node) const {
   
   //calculate rep value for both projection points
   val1 = _rep2->Eval(p3_par_min);
-  //std::cout<<"val1: "<<val1<<"    ";
   val2 = _rep2->Eval(p3_par_max);
-  //std::cout<<"val2: "<<val2<<std::endl;
   
   signs+=((val1-p4_par_min)>0);
   signs+=((val1-p4_par_max)>0);
   signs+=((val2-p4_par_min)>0);
   signs+=((val2-p4_par_max)>0);
-  
+    
   if(signs == 4 || signs == 0) 
     return false;
   else {

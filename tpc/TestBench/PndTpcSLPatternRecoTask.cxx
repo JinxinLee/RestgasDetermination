@@ -21,7 +21,6 @@
 #include "PndTpcSLPatternRecoTask.h"
 
 // C/C++ Headers ----------------------
-#include <vector>
 #include <map>
 #include <algorithm>
 #include <cmath>
@@ -133,6 +132,10 @@ PndTpcSLPatternRecoTask::Init()
   //get the magnetic field for curvature seeding
   fField=(FairField*) FairRunAna::Instance()->GetField();
   GFFieldManager::getInstance()->init(new PndFieldAdaptor(fField));
+
+  colors.push_back(kRed+1);
+  colors.push_back(kGreen+2);
+  colors.push_back(kBlue+4);
     
   return kSUCCESS;
 }
@@ -163,16 +166,7 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   double MAX2 = fMaxs[2];
   double MAX3 = fMaxs[3];
 
-  // // // std::cout<<"MIN0: "<<MIN0<<std::endl;
-  // // // std::cout<<"MIN1: "<<MIN1<<std::endl;
-  // // // std::cout<<"MIN2: "<<MIN2<<std::endl;
-  // std::cout<<"MIN3: "<<MIN3<<std::endl;
-  // std::cout<<"MAX0: "<<MAX0<<std::endl;
-  // std::cout<<"MAX1: "<<MAX1<<std::endl;
-  // std::cout<<"MAX2: "<<MAX2<<std::endl;
-  // std::cout<<"MAX3: "<<MAX3<<std::endl;
-
-    
+      
   std::cout<<"PndTpcSLPatternRecoTask::Exec"<<std::endl;
   // Reset output Arrays
   if(fTrackArray==0) Fatal("PndTpcSLPatternReco::Exec()","No TrackArray");
@@ -184,6 +178,7 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   std::vector<Hypersurface4D*> hitreps; 
   
   TH3D* clHist;
+  TH3D* clHist2;
   TH2D* repHistXY;
   TH2D* repHistXZ;
   TCanvas* canv = new TCanvas();
@@ -207,14 +202,15 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     repHistXZ = new TH2D(repNameXZ.c_str(), repNameXZ.c_str(), 
 			 100,fMins[2],fMaxs[2],
 			 100,fMins[3],fMaxs[3]);
+    clHist2 = (TH3D*)clHist->Clone();
   }
+
+  
   
   unsigned int totCl=fClusterArray->GetEntriesFast();
   TVector3 pos;
-  int ii =0;
-  for(unsigned int i=0;i<totCl;++i){    // loop over clusters
+  for(unsigned int i=0;i<totCl;++i){    // initial loop over clusters
     PndTpcCluster* cl=(PndTpcCluster*)fClusterArray->At(i);
-    //cl->SetIndex(i);                    //INDEXNG
     if(cl->amp()<fAmpCut)
       continue;
     pos = cl->pos();
@@ -226,24 +222,9 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     cll.push_back(cl);
     if(fStore)
       clHist->Fill(pos.X(), pos.Y(), pos.Z());
-    
-    //TODO: parameter management and specifiable projection plane
-    double x = pos.X();
-    //double x = pos.X();
-    double y = pos.Y();
-    double z = pos.Z();
-    
-    hitreps.push_back(new Hypersurface4D(x,y,*fRep,
-					 x,z,*fRep,ii));
-    
-    hitreps.back()->setParamSpace(fMins, fMaxs);
-   
-    
-    repHistXY->GetListOfFunctions()->Add(hitreps.back()->getTF1_1()->Clone());
-    repHistXZ->GetListOfFunctions()->Add(hitreps.back()->getTF1_2()->Clone());
-    ii++;
-  } //end loop over clusters
-  
+  } //end initial loop over clusters
+
+
   // sort clusters 
   if(fDistSorting) {
     std::sort(cll.begin(),cll.end(),PndTpcClusterDist(false)); 
@@ -253,9 +234,24 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   if(fXSorting)
     std::sort(cll.begin(),cll.end(),clusterSortX); 
   
-  //std::sort(cll.begin(),cll.end(),PndTpcClusterZ(false)); 
+
+  for(unsigned int i=0;i<cll.size();++i){    //second loop: create Hough reps
+    PndTpcCluster* cl = cll[i];
+    pos=cl->pos();
+    
+    double x = pos.X();
+    double y = pos.Y();
+    double z = pos.Z();
+    
+    hitreps.push_back(new Hypersurface4D(x,y,*fRep,
+					 x,z,*fRep,i));
+    hitreps.back()->setParamSpace(fMins, fMaxs);
+       
+    repHistXY->GetListOfFunctions()->Add(hitreps.back()->getTF1_1()->Clone());
+    repHistXZ->GetListOfFunctions()->Add(hitreps.back()->getTF1_2()->Clone());
+  } //end loop over clusters
   
-  
+   
   // Begin FHT search -----------------------------------------------------
   
   //initialize root node:
@@ -276,7 +272,6 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   std::vector<Hough4DNode*> survivors;
   std::vector<Hough4DNode*> sons;
   survivors.push_back(root);
-  
   
   for(unsigned int t=1; t<fDepth; t++) { //iteration depth
     
@@ -335,14 +330,29 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   std::vector<std::vector<PndTpcCluster*>*> solutions; //track candidates
   std::vector<Hough4DNode*> cand_nodes;
   
-  
+  unsigned int nCand=0;
   //extract tracks until solutions have less clusters than minCL
   while(true) {
     //sort nodes by final votes
     sort(survivors.begin(), survivors.end(), compareNodes);
+    std::cout<<"DEBUG: Survivor votes begin of pass "<<nCand<<std::endl;
+    for(unsigned int s=0; s<survivors.size(); s++)
+      std::cout<<"   "<<survivors[s]->getVote();
+    std::cout<<std::endl;
     
     //extract clusters from best node
     const bool* bestHitList = survivors.front()->getHitList();
+    std::cout<<"DEBUG: Hitlist of best node:"<<std::endl;
+    for(unsigned int b=0; b<cll.size(); b++) {
+      int meh = 0;
+      if(bestHitList[b])
+	meh = 1;    
+      std::cout<<"  "<<meh;
+      nCand++;
+    }
+    std::cout<<std::endl;
+
+	
     
     std::vector<PndTpcCluster*>* sol = new std::vector<PndTpcCluster*>();
     for(int c=0; c<cll.size(); c++) {
@@ -375,11 +385,18 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   //build actual trackCand objects
   std::map<unsigned int,GFTrackCand> candlist;
   TPolyLine3D* line;
+  std::vector<TPolyMarker3D*> markerlist;
   for(unsigned int i=0; i<solutions.size(); i++) {
     GFTrackCand cand=candlist[i];
+    markerlist.push_back(new TPolyMarker3D(solutions[i]->size()));
+    markerlist.back()->SetMarkerStyle(20);
+    if(i<colors.size())
+      markerlist.back()->SetMarkerColor(colors[i]);
+    
     for(unsigned int c=0; c<(solutions[i])->size(); c++) {
       PndTpcCluster* cl = (solutions[i])->at(c);
-      std::cout<<cl->pos().X()<<"   ";
+      TVector3 clpos = cl->pos();
+      markerlist[i]->SetNextPoint(clpos.X(), clpos.Y(), clpos.Z());
       cand.addHit(2,cl->index());
     }
     std::cout<<std::endl;
@@ -488,15 +505,19 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
 	   <<fTrackArray->GetEntriesFast()<<" tracks created"<<std::endl;
     
   if(fStore) {
-    canv->Divide(3,1);
+    canv->Divide(4,1);
     TVirtualPad* thePad = canv->cd(1);
     thePad->GetListOfPrimitives()->Add(clHist);
     thePad->GetListOfPrimitives()->Add(line);
     thePad = canv->cd(2);
+    thePad->GetListOfPrimitives()->Add(clHist2);
+    for(unsigned int k=0; k<markerlist.size(); k++)
+      thePad->GetListOfPrimitives()->Add(markerlist[k]);
+    thePad = canv->cd(3);
     thePad->GetListOfPrimitives()->Add(repHistXY);
     for(unsigned int b=0; b<boxlistXY.size(); b++) 
       thePad->GetListOfPrimitives()->Add(boxlistXY[b]);
-    thePad = canv->cd(3);
+    thePad = canv->cd(4);
     thePad->GetListOfPrimitives()->Add(repHistXZ);
     for(unsigned int b=0; b<boxlistXZ.size(); b++) 
       thePad->GetListOfPrimitives()->Add(boxlistXZ[b]);
@@ -520,6 +541,9 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     fHistoFile->Close();
     
   }
+
+  //cleaning of markerlist not needed, VirtualPad took ownership
+  
   
   return;
 }
