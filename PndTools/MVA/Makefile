@@ -5,23 +5,19 @@
 # Setting the linker and compiler flags and options
 #####################################################
 
-# FLAGSMACHINE=-march=athlon64
+# FLAGSMACHINE  = -march=athlon64
+# FLAGSMACHINE += -m64 -mfpmath=sse -mssse3 
 # CCFLAGS += -Weffc++ -pedantic -fpic
 
 MAKEFLAGS  = -wkr --no-print-directory #-s
 
-FLAGSMACHINE = -march=native -mtune=native
-# FLAGSMACHINE += -m64 -mfpmath=sse -mssse3 
-# FLAGSMACHINE += -mpc64 -mfpmath=sse -msse3 -m3dnow
+FLAGSMACHINE  = -march=native -mtune=native
+# FLAGSMACHINE += -mfpmath=sse -msse3
 
-CCFLAGS  = -W -Wall -Wextra -Wredundant-decls -Wshadow -Werror
-CCFLAGS += -fdiagnostics-show-option -fdiagnostics-show-location=every-line
-CCFLAGS += -Woverlength-strings -Wstack-protector
-CCFLAGS += -O3 -fopenmp -ftracer ${FLAGSMACHINE}
-CCFLAGS += -fsched2-use-traces -funroll-loops -fvariable-expansion-in-unroller
-# CCFLAGS += -fprefetch-loop-arrays
-# CCFLAGS += -malign-double -maccumulate-outgoing-args
-# CCFLAGS += -fstrict-aliasing -Wstrict-aliasing=3
+CCFLAGS  = -W -Wall -Wextra -Wshadow -Wredundant-decls -Werror
+CCFLAGS += -Woverlength-strings -O3 -fopenmp
+CCFLAGS += ${FLAGSMACHINE}
+# CCFLAGS += -fdiagnostics-show-option -fdiagnostics-show-location=every-line
 
 INCLUDE = $(shell root-config --cflags) -I./
 

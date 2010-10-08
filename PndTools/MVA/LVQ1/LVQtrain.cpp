@@ -85,14 +85,15 @@ int main(int argc, char** argv)
   tr.SetLearnPrameters(initC, ethaZ, ethaF, numSweep);
   
   // Use for symm. initialization.
-  //tr.SetNumberOfProto(numProto);
+  tr.SetNumberOfProto(numProto);
 
   // Use for asymm. init.  
-  std::map <std::string, unsigned int> numProtoMap;
-  numProtoMap["electron"] = 70;
-  numProtoMap["pion"] = 150;
-  tr.SetNumberOfProto(numProtoMap);
-
+  /*
+    std::map <std::string, unsigned int> numProtoMap;
+    numProtoMap["electron"] = 70;
+    numProtoMap["pion"] = 150;
+    tr.SetNumberOfProto(numProtoMap);
+  */
   tr.splitTetsSet(10);//10% (DEFAULT)
   tr.SetErrorStepSize(10000);//100 (DEFALUT)
 

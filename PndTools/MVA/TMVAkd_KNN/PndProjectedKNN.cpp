@@ -19,7 +19,8 @@ PndProjectedKNN::PndProjectedKNN(const string& inputFile,
 				 const vector<string>& varNames,
 				 const vector<vector<string> >& varCombinations
 				 )
-  : PndGpidClassifier(inputFile, classNames, varNames), m_varCombinations(varCombinations)
+  : PndGpidClassifier(inputFile, classNames, varNames),
+    m_varCombinations(varCombinations)
 {
   cout << "\t<INFO> Projected_KNN: Initialization." 
 	    << endl;
@@ -82,7 +83,7 @@ void PndProjectedKNN::GetMvaValues(std::vector<float> eventData,
   {
     cerr << "\t<ERROR> Number neighbours can not be zero."
 	      << endl;
-    return;
+    exit(EXIT_FAILURE);
   }
 
   // Get variables.
@@ -105,7 +106,8 @@ void PndProjectedKNN::GetMvaValues(std::vector<float> eventData,
   result.clear();
   for(size_t cls = 0; cls < classes.size(); cls++)
   {
-    result.insert(make_pair(classes[cls].Name, 0.0));
+    result.insert(make_pair(classes[cls].Name, 0.00));
+    //result.insert(make_pair(classes[cls].Name, 1.00));
   }
   
   // Normalize current Event
@@ -117,9 +119,9 @@ void PndProjectedKNN::GetMvaValues(std::vector<float> eventData,
   }
   
   // Each classifier produces number of classes results
-  vector<map<string, float>* > tempResult;
-  
-  for(size_t i = 0; i < m_classifiers.size(); i++)
+  vector< map<string, float>* > tempResult;
+
+  for(size_t i = 0; i < m_classifiers.size(); ++i)
   {
     map<string, float>* rs = new map<string, float>();
     vector<int>* ixs = m_classifiers[i].second;
@@ -129,13 +131,13 @@ void PndProjectedKNN::GetMvaValues(std::vector<float> eventData,
     {
       evt.push_back(eventData[ixs->at(pr)]);
     }
-    
+ 
     PndKnnClassify* clsfy = m_classifiers[i].first;
     clsfy->GetMvaValues(evt, *rs);
     tempResult.push_back(rs);
   }
   
-  //Normalize output
+  // Normalize output
   int numClassifiers = tempResult.size();
   map<string, float>::iterator it;
   
@@ -144,13 +146,17 @@ void PndProjectedKNN::GetMvaValues(std::vector<float> eventData,
     // Copy by value (Not really optimal but simple)
     map<string, float> crs = *tempResult[i];
     
-    for(it = crs.begin(); it != crs.end(); it++)
+    for(it = crs.begin(); it != crs.end(); ++it)
     {
-      result[(*it).first] += (crs[(*it).first] / static_cast<float>(numClassifiers));
+      // Fair voting     
+      result[(*it).first] += ( crs[(*it).first] / static_cast<float>(numClassifiers) );
+
+      // Indep. probs.
+      // result[(*it).first] *= crs[(*it).first];
     }
   }
   
-  //We are done clean tempResult
+  // We are done clean tempResult
   for(size_t i = 0; i < tempResult.size(); i++)
   {
     (tempResult[i])->clear();
@@ -162,11 +168,17 @@ void PndProjectedKNN::GetMvaValues(std::vector<float> eventData,
 //! Init classifiers
 void PndProjectedKNN::InitKNN()
 {
+  // Fetch variables.
   const vector<PndMvaVariable>& vars = m_dataSets.GetVars();
+  
+  // Fetch labels.
   const vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+  
+  // Get input file name.
   const string& inputFile = m_dataSets.GetInFileName();
 
-  vector<string> varNames, classNames;
+  vector<string> varNames;
+  vector<string> classNames;
 
   for(size_t cls = 0; cls < classes.size(); cls++) {
     classNames.push_back(classes[cls].Name);
@@ -177,7 +189,8 @@ void PndProjectedKNN::InitKNN()
 
   for(size_t i = 0; i < m_varCombinations.size(); i++)
   {
-    vector<string> pars = m_varCombinations[i];
+    vector<string>& pars = m_varCombinations[i];
+
     PndKnnClassify* cls = new PndKnnClassify(inputFile, classNames, pars);
     vector<int>* indxs = new vector<int>();
     
@@ -192,7 +205,8 @@ void PndProjectedKNN::InitKNN()
         }
       }
     }
-    
+
+    // Set Classifier params and init.
     cls->SetEvtParam(m_ScaleFact, m_weight);
     cls->SetKnn(m_knn);
     
@@ -204,7 +218,7 @@ void PndProjectedKNN::InitKNN()
 }
 
 //========================= Private functions and vars.
-///Free allocated memory.
+/// Free allocated memory.
 void PndProjectedKNN::destroy()
 {
   for(size_t i = 0; i < m_classifiers.size(); i++)

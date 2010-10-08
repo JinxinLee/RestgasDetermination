@@ -159,7 +159,7 @@ void PndKnnClassify::GetMvaValues(std::vector<float> eventData,
   result.clear();
   for(size_t cls = 0; cls < classes.size(); cls++)
   {
-    result.insert(make_pair(classes[cls].Name, 0.0));
+    result.insert(make_pair(classes[cls].Name, 0.00));
   }
 
   // Normalize current Event
@@ -190,7 +190,6 @@ void PndKnnClassify::GetMvaValues(std::vector<float> eventData,
     
     // Type corresponds with the class name
     int type = event.GetType();
-    
     // Store per class counts in the search results
     countsPerClass[type] += 1;
   }

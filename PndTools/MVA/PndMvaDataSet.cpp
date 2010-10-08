@@ -339,7 +339,7 @@ void PndMvaDataSet::WriteDataSet(const string& outFile)
 void PndMvaDataSet::ReadInput()
 {
   cout << "<INFO> Reading data from  "<< m_input
-	    << endl;
+       << endl;
 
   // Open the input file for reading event data.
   TFile InPutFile(m_input.c_str(),"READ");
@@ -363,16 +363,24 @@ void PndMvaDataSet::ReadInput()
 	       << endl;
       assert (t);
     }
+
+    //disable all branches
+    t->SetBranchStatus("*",0);
+
     // Init a container to bind to the tree branches
-    vector<float> ev (m_vars.size(),0.0);
+    vector<float> ev (m_vars.size(), 0.0);
     
     // Bind the parameters to the tree branches
     for(size_t j = 0; j < m_vars.size(); j++)
     {
       const char* branchName = m_vars[j].Name.c_str();
+      // Activate branches
+      t->SetBranchStatus(branchName, 1);
+      
       //Binding the branches
       t->SetBranchAddress(branchName, &(ev[j]));
-    }// Tree parameters are bounded
+    }
+    // Tree parameters are bounded
     
     // Fetch the number of examples available for the current class
     m_classes[cls].NExamples = t->GetEntriesFast();

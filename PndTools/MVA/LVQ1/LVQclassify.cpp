@@ -125,8 +125,12 @@ int main(int argc, char** argv)
   clas.push_back("pion");
   
   // Variables
-  nam.push_back("p");
+  //nam.push_back("p");
   nam.push_back("emc");
+  nam.push_back("lat");
+  nam.push_back("z20");
+  nam.push_back("z53");
+
   //nam.push_back("thetaC");
   //nam.push_back("tof"); 
   //nam.push_back("stt");

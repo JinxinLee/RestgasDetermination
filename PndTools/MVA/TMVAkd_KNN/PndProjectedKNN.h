@@ -24,7 +24,7 @@ class PndProjectedKNN: public PndGpidClassifier
   virtual ~PndProjectedKNN();
 
   //! Get pdf's
-  void GetMvaValues(std::vector<float> eventData,
+  void GetMvaValues(std::vector<float> eventData, 
 		    std::map<std::string, float>& result);
 
   //! Classify Current event.
@@ -38,8 +38,8 @@ class PndProjectedKNN: public PndGpidClassifier
   };
   
   //! Set number of neighbors
-  inline void SetKnn(const unsigned int N)
-  { m_knn = N; };
+  inline void SetKnn(const unsigned int val)
+  { m_knn = val; };
 
   //! Init classifiers
   void InitKNN();
@@ -49,7 +49,7 @@ class PndProjectedKNN: public PndGpidClassifier
   PndProjectedKNN(const PndProjectedKNN& other);
   PndProjectedKNN& operator= (const PndProjectedKNN& other);
   
-  ///Free allocated memory.
+  // Free allocated memory.
   void destroy();
 
   std::vector<std::vector<std::string> > m_varCombinations;

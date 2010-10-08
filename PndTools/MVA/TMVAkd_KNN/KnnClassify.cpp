@@ -42,17 +42,17 @@ int main(int argc, char** argv)
 {
   if(argc < 5){
     std::cerr << "\t<ERROR>" 
-	      << "./classify <inputWeightFile> <numOfneigh> <InputEventsFile>"
-	      << " <Treename>"
+	      << argv[0] << " <inputWeightFile> <InputEventsFile>"
+	      << " <Treename> <numOfneigh>"
 	      << std::endl;
     return 1;
   }
   
   // Init input variables.
   std::string InPutFileName = argv[1];
-  std::string NumNeistr = argv[2];
-  std::string InputEvents = argv[3];
-  std::string EvtTreeName = argv[4];
+  std::string InputEvents   = argv[2];
+  std::string EvtTreeName   = argv[3];
+  std::string NumNeistr     = argv[4];
   
   // Convert to int.
   std::istringstream buff(NumNeistr);
@@ -72,11 +72,12 @@ int main(int argc, char** argv)
   //clasNames.push_back("gamma");
   
   // Variables (names)
-  vars.push_back("p");
+  //vars.push_back("p");
   vars.push_back("emc");
+  vars.push_back("lat");
   vars.push_back("z20");
   vars.push_back("z53");
-  vars.push_back("lat");
+  
   //vars.push_back("thetaC");
   //vars.push_back("mvd");
   //vars.push_back("tof");
@@ -107,12 +108,18 @@ int main(int argc, char** argv)
   
   // Prepare events to be classified.
   TNtuple* events = (TNtuple*) inFile.Get(EvtTreeName.c_str());
-  // TObjArray* Namen = events->GetListOfBranches();
+
+  // Deactivate all branches
+  events->SetBranchStatus("*",0);
   
   std::vector<float> curEvt(vars.size(), 0.0);
   
   // Bind tree branches to the container.
   for(size_t i = 0; i < vars.size(); i++){
+    // Activate branches
+    events->SetBranchStatus( vars[i].c_str(), 1);
+
+    // Bind
     events->SetBranchAddress( (vars[i]).c_str(), &(curEvt[i]));
   }
  
@@ -125,16 +132,19 @@ int main(int argc, char** argv)
   
   // Perform classification of the available events.
   unsigned int misCl = 0;
+  int numberOfEvt = events->GetEntriesFast();
+  
+  //numberOfEvt = 4;
 
-  for(int ev = 0; ev < events->GetEntriesFast(); ev++){
+  for(int ev = 0; ev < numberOfEvt; ev++){
     events->GetEntry(ev);
-    cls.GetMvaValues(curEvt, res);
+    
+    //cls.GetMvaValues(curEvt, res);
+    //printResult(res, ev);
 
-    const std::string* resStr = cls.Classify(curEvt);
-    //printResult(res);
+    std::string* resStr = cls.Classify(curEvt);
     if( *resStr != EvtTreeName){
       misCl++;
-      printResult(res, ev);
     }
     delete resStr;
   }
@@ -145,24 +155,25 @@ int main(int argc, char** argv)
   std::cout << "<INFO> Classifier timing results:"<< std::endl;
   std::cout<< "RealTime = " << rtime << " seconds, CpuTime = " 
 	   << ctime <<" Seconds.\n" << std::endl;
-
+  
   // Classifier evaluation info.
   std::cout << "+++++++++++++++++++++++++++++++++++++++" 
 	    << std::endl
 	    << " Total number of classified events: "
-	    << events->GetEntriesFast() << std::endl
+	    << numberOfEvt << std::endl
 	    << " Number of missclassified: " << misCl << " = "
-	    << ( static_cast<float>(misCl) * 100.00)/ static_cast<float>(events->GetEntriesFast())
+	    << ( static_cast<float>(misCl) * 100.00)/ static_cast<float>(numberOfEvt)
 	    <<" %"
 	    << std::endl 
-	    << " Correct cassified = " << (events->GetEntriesFast() - misCl)
+	    << " Correct cassified = " << (numberOfEvt - misCl)
 	    << std::endl 
-	    << " (time / event) = " << rtime/(events->GetEntriesFast())
+	    << " (time / event) = " << rtime/ static_cast<double>(numberOfEvt)
 	    << std::endl 
 	    << " With #neighb = " << NumNei 
 	    << std::endl
 	    << "+++++++++++++++++++++++++++++++++++++++" 
 	    << std::endl;
+
   // Close open file
   inFile.Close();
   
