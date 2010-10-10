@@ -70,7 +70,7 @@ PndTpcSLPatternRecoTask::PndTpcSLPatternRecoTask()
   fPersistence(kFALSE),fDistSorting(kFALSE),
   fDepth(6), fThresh(6), fMin(5), counter(0),
   fXZ(true), fZY(false), _cutbigpad(kFALSE), _cutsmallpad(kFALSE),
-  fStore(false), fAmpCut(0.)
+   fStore(false), fAmpCut(0.), fZStackLimit(0)
     
 {
   fClusterBranchName = "PndTpcCluster";
@@ -133,9 +133,13 @@ PndTpcSLPatternRecoTask::Init()
   fField=(FairField*) FairRunAna::Instance()->GetField();
   GFFieldManager::getInstance()->init(new PndFieldAdaptor(fField));
 
+  fMonitorArray = new TClonesArray("TCanvas");
+  //ioman->Register("PRView", "PatternReco", fMonitorArray, fStore);
+  
   colors.push_back(kRed+1);
   colors.push_back(kGreen+2);
   colors.push_back(kBlue+4);
+  colors.push_back(kOrange);
     
   return kSUCCESS;
 }
@@ -182,6 +186,7 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   TH2D* repHistXY;
   TH2D* repHistXZ;
   TCanvas* canv = new TCanvas();
+  //TCanvas* canv = new((*fMonitorArray)[fMonitorArray->GetEntriesFast()]) TCanvas();
  
    
   if(fStore) {
@@ -206,11 +211,11 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   }
 
   
-  
   unsigned int totCl=fClusterArray->GetEntriesFast();
   TVector3 pos;
   for(unsigned int i=0;i<totCl;++i){    // initial loop over clusters
     PndTpcCluster* cl=(PndTpcCluster*)fClusterArray->At(i);
+    
     if(cl->amp()<fAmpCut)
       continue;
     pos = cl->pos();
@@ -225,7 +230,39 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   } //end initial loop over clusters
 
 
-  // sort clusters 
+  //Cut away cluster-abundances on single pads
+  if(fZStackLimit>0) {
+    std::map<unsigned int, std::vector<PndTpcCluster*> > clMap; //<padId, Cl*>
+    std::set<PndTpcCluster*> acceptedClusters;
+    for(unsigned int c=0; c<cll.size(); c++) {
+      PndTpcCluster* clus = cll[c];
+      unsigned int nDigi = clus->nDigi();
+      std::set<unsigned int> padIds; //padIds of this cluster
+      for(unsigned int d=0; d<nDigi; d++)
+	padIds.insert(clus->getDigi(d).padId());
+      std::set<unsigned int>::iterator it;
+      for(it=padIds.begin(); it!=padIds.end(); it++)
+	(clMap[*it]).push_back(clus);
+    }
+    cll.clear();
+    std::map<unsigned int, std::vector<PndTpcCluster*> >::iterator mapit;
+    for(mapit=clMap.begin(); mapit!=clMap.end(); mapit++) {
+      unsigned int entries = mapit->second.size();
+      if(entries>fZStackLimit)
+	continue;
+      for(unsigned int x=0; x<entries; x++)
+	acceptedClusters.insert(mapit->second[x]);
+    }
+    //convert back to cll vector:
+    std::set<PndTpcCluster*>::iterator itCl;
+    for(itCl=acceptedClusters.begin(); itCl!=acceptedClusters.end(); itCl++)
+      cll.push_back(*itCl);
+  }
+	
+      
+	  
+      
+  // ------- CLUSTER SORTING ----------------------
   if(fDistSorting) {
     std::sort(cll.begin(),cll.end(),PndTpcClusterDist(false)); 
     std::cout<<"\n **** using DISTANCE presorting of PndTpcClusters ****"
@@ -316,44 +353,18 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   if(surs==0) {
     std::cout<<"PndTpcSLPatternRecoTask::Exec(): Fail "
 	     <<"- no suitable candidates found"<<std::endl;
-    clHist->Write();
-    repHistXY->Write();
-    repHistXZ->Write();
-    delete clHist;
-    delete repHistXY;
-    delete repHistXZ;
-    return;
   }
-  
-  std::cout<<"DEBUG: Begin candidate extraction"<<std::endl;
   
   std::vector<std::vector<PndTpcCluster*>*> solutions; //track candidates
   std::vector<Hough4DNode*> cand_nodes;
   
-  unsigned int nCand=0;
   //extract tracks until solutions have less clusters than minCL
   while(true) {
     //sort nodes by final votes
     sort(survivors.begin(), survivors.end(), compareNodes);
-    std::cout<<"DEBUG: Survivor votes begin of pass "<<nCand<<std::endl;
-    for(unsigned int s=0; s<survivors.size(); s++)
-      std::cout<<"   "<<survivors[s]->getVote();
-    std::cout<<std::endl;
-    
     //extract clusters from best node
     const bool* bestHitList = survivors.front()->getHitList();
-    std::cout<<"DEBUG: Hitlist of best node:"<<std::endl;
-    for(unsigned int b=0; b<cll.size(); b++) {
-      int meh = 0;
-      if(bestHitList[b])
-	meh = 1;    
-      std::cout<<"  "<<meh;
-      nCand++;
-    }
-    std::cout<<std::endl;
-
-	
-    
+        
     std::vector<PndTpcCluster*>* sol = new std::vector<PndTpcCluster*>();
     for(int c=0; c<cll.size(); c++) {
       if(bestHitList[c])
@@ -380,11 +391,11 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   
   // End candidate extraction ----------------------------------------------
   
-  std::cout<<"  done."<<std::endl;
-  
+
+   
   //build actual trackCand objects
   std::map<unsigned int,GFTrackCand> candlist;
-  TPolyLine3D* line;
+  std::vector<TPolyLine3D*> lines;
   std::vector<TPolyMarker3D*> markerlist;
   for(unsigned int i=0; i<solutions.size(); i++) {
     GFTrackCand cand=candlist[i];
@@ -451,7 +462,8 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     y[1] = m1*x[1]+t1;
     z[1] = m2*x[1]+t2;
     if(fStore) {   
-      line = new TPolyLine3D(2,x,y,z,"l");
+      lines.push_back(new TPolyLine3D(2,x,y,z,"l"));
+      lines.back()->SetLineWidth(2);
     }
     
     TVector3 mom;
@@ -508,11 +520,12 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     canv->Divide(4,1);
     TVirtualPad* thePad = canv->cd(1);
     thePad->GetListOfPrimitives()->Add(clHist);
-    thePad->GetListOfPrimitives()->Add(line);
     thePad = canv->cd(2);
     thePad->GetListOfPrimitives()->Add(clHist2);
     for(unsigned int k=0; k<markerlist.size(); k++)
       thePad->GetListOfPrimitives()->Add(markerlist[k]);
+    for(unsigned int l=0; l<lines.size(); l++)
+      thePad->GetListOfPrimitives()->Add(lines[l]);
     thePad = canv->cd(3);
     thePad->GetListOfPrimitives()->Add(repHistXY);
     for(unsigned int b=0; b<boxlistXY.size(); b++) 
@@ -527,14 +540,12 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     canv->Write();
     delete canv;
     for(unsigned int b=0; b<boxlistXY.size(); b++) 
-      delete boxlistXY[b];
+     delete boxlistXY[b];
     boxlistXY.clear();
     for(unsigned int b=0; b<boxlistXZ.size(); b++) 
-      delete boxlistXZ[b];
+     delete boxlistXZ[b];
     boxlistXZ.clear();
     
-    //clHist->Write();
-    //repHist->Write();
     delete clHist;
     delete repHistXY;
     delete repHistXZ;

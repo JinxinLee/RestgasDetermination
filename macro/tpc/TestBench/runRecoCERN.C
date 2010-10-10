@@ -31,8 +31,18 @@ gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   TString mcFile=inFile;
   mcFile.ReplaceAll("raw","mc");
 
-  TString outFile = inFile; 
+  TString outFile = inFile;
   outFile.ReplaceAll(".raw.root",".reco.root");
+  
+  TString PROutFile = inFile; //monitoring file for the PR task
+  PROutFile.ReplaceAll(".raw.root",".patternReco.root");
+  TFile test(PROutFile);
+  if(!test.IsZombie()) { //delete file
+    gSystem->Setenv("PROUTFILENAME", PROutFile.Data());
+    gROOT->ProcessLine(".! rm $PROUTFILENAME");
+    gSystem->Unsetenv("PROUTFILENAME");
+  }
+  
 
 
   TString paramIn = inFile;
@@ -134,16 +144,16 @@ gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   //fRun->AddTask(tpcIPR);
 
   PndTpcSLPatternRecoTask* tpcSLPR = new PndTpcSLPatternRecoTask();
-  tpcSLPR->SetStoreHistograms("moppel.root");
-  tpcSLPR->SetClusterAmpCut(100.);
-  //tpcSLPR->SetProjectionXY();
+  tpcSLPR->SetStoreHistograms(PROutFile);
+  tpcSLPR->SetClusterAmpCut(50.);
+  tpcSLPR->SetCutTracksParallelZ(5);
   tpcSLPR->SetXSorting(true);
   double parMins[4] = {0.,0.,0.,0.};
   double parMaxs[4] = {TMath::Pi(),10.,TMath::Pi(),10.};
   tpcSLPR->SetParameterSpace(parMins, parMaxs);
-  tpcSLPR->SetDepth(7);
+  tpcSLPR->SetDepth(6);
   tpcSLPR->SetThresh(12);
-  tpcSLPR->SetMinCandHits(12);
+  tpcSLPR->SetMinCandHits(10);
   //tpcSLPR->SetClusterBranchName("PndTpcCluster_cut");
   fRun->AddTask(tpcSLPR);
 
@@ -184,7 +194,7 @@ gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   
-  fRun->Run(0,0);
+  fRun->Run(0,10);
   // ------------------------------------------------------------------------
 
   FairRootManager::Instance()->GetOutFile()->mkdir("QAPlots");

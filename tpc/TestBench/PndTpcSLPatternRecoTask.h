@@ -67,6 +67,7 @@ class PndTpcSLPatternRecoTask : public FairTask {
   void SetThresh(int thresh) {fThresh=thresh;}
   void SetMinCandHits(int min) {fMin=min;}
   void SetClusterAmpCut(double c) {fAmpCut=c;}
+  void SetCutTracksParallelZ(unsigned int limit) {fZStackLimit=limit;}
   
   void SetDistSorting(bool opt) {fDistSorting=opt;}
   void SetXSorting(bool opt) {fXSorting=opt;}
@@ -109,14 +110,17 @@ class PndTpcSLPatternRecoTask : public FairTask {
   
   TClonesArray* fClusterArray;
   TClonesArray* fTrackArray;
-  
+  TClonesArray* fMonitorArray;
+    
   PndTpcDigiPar* fPar;
   TF1* fRep; //Hough space representation
   FairField* fField;
 
   int counter;
+  unsigned int fZStackLimit;
 
   std::vector<Color_t> colors;
+
 
   // Private methods -----------------------------------------
   //bool compareNodes (Hough2DNode* n1, Hough2DNode* n2); 

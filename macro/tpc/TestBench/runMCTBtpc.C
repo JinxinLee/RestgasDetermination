@@ -25,8 +25,8 @@
 
   //Set JOBNAME + JOBDIR (will not be created!)
   // --------------------------------------------------
-  TString jobname="TBtest5";
-  TString jobdir="TBtest";
+  TString jobname="CERN1";
+  TString jobdir="TEST";
   
 
   TString basejobdir=gSystem->Getenv("VMCWORKDIR");
@@ -131,7 +131,7 @@
   //(PDG ID, MULTIPLICITY)
   FairBoxGenerator* boxGen = new FairBoxGenerator(11, 1); 
   
-  boxGen->SetPRange(0.5,0.5); // GeV/c 
+  boxGen->SetPRange(1.5,1.5); // GeV/c 
   boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
   boxGen->SetThetaRange(0, 2.3); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., -100.); // cm 

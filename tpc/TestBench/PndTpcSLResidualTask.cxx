@@ -173,9 +173,10 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
 	//calculate chi2
 	TVector3 cl_err= cl->sig();
 	TVector3 chi2;
-	chi2.SetX((res.X()*res.X())/(cl_err.X()*cl_err.X()));	
-	chi2.SetY((res.Y()*res.Y())/(cl_err.Y()*cl_err.Y()));	
-	chi2.SetZ((res*res)/(cl_err*cl_err));
+	unsigned int NDF=4; //in the case of the straight line
+	chi2.SetX((res.X()*res.X())/(cl_err.X()*cl_err.X())/NDF);	
+	chi2.SetY((res.Y()*res.Y())/(cl_err.Y()*cl_err.Y())/NDF);	
+	chi2.SetZ((res.Z()*res.Z())/(cl_err.Z()*cl_err.Z())/NDF);
 	//chi2.SetZ(res*res/cl_err*cl_err/(candIDs.size()-4));//candif.size-4 is ndf
       
 	//book residual
@@ -194,16 +195,16 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
 	
       }//End loop over clusters
 
-      fitstat->fillPndTpcResX(resX);
-      fitstat->fillPndTpcResY(resY);
-      fitstat->fillPndTpcResZ(resZ);
-      fitstat->fillPndTpcChi2X(chi2X);
-      fitstat->fillPndTpcChi2Y(chi2Y);
-      fitstat->fillPndTpcChi2Z(chi2Z);
-      fitstat->fillPndTpcClusterSize(clSize);
-      fitstat->fillPndTpc2DClusterSize(cl2DSize);
-      fitstat->fillPndTpcClusterAmp(amps);
-      fitstat->fillPndTpcProjPoints(pps);
+      fitstat->fillResX(resX);
+      fitstat->fillResY(resY);
+      fitstat->fillResZ(resZ);
+      fitstat->fillChi2X(chi2X);
+      fitstat->fillChi2Y(chi2Y);
+      fitstat->fillChi2Z(chi2Z);
+      fitstat->fillClusterSize(clSize);
+      fitstat->fill2DClusterSize(cl2DSize);
+      fitstat->fillClusterAmp(amps);
+      fitstat->fillProjPoints(pps);
       
       
     }
