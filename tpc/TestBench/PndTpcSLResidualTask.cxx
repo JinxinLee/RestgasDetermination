@@ -195,16 +195,16 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
 	
       }//End loop over clusters
 
-      fitstat->fillResX(resX);
-      fitstat->fillResY(resY);
-      fitstat->fillResZ(resZ);
-      fitstat->fillChi2X(chi2X);
-      fitstat->fillChi2Y(chi2Y);
-      fitstat->fillChi2Z(chi2Z);
-      fitstat->fillClusterSize(clSize);
-      fitstat->fill2DClusterSize(cl2DSize);
-      fitstat->fillClusterAmp(amps);
-      fitstat->fillProjPoints(pps);
+      fitstat->fillPndTpcResX(resX);
+      fitstat->fillPndTpcResY(resY);
+      fitstat->fillPndTpcResZ(resZ);
+      fitstat->fillPndTpcChi2X(chi2X);
+      fitstat->fillPndTpcChi2Y(chi2Y);
+      fitstat->fillPndTpcChi2Z(chi2Z);
+      fitstat->fillPndTpcClusterSize(clSize);
+      fitstat->fillPndTpc2DClusterSize(cl2DSize);
+      fitstat->fillPndTpcClusterAmp(amps);
+      fitstat->fillPndTpcProjPoints(pps);
       
       
     }
