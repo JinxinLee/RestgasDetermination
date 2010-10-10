@@ -353,6 +353,7 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   if(surs==0) {
     std::cout<<"PndTpcSLPatternRecoTask::Exec(): Fail "
 	     <<"- no suitable candidates found"<<std::endl;
+    return;    
   }
   
   std::vector<std::vector<PndTpcCluster*>*> solutions; //track candidates
