@@ -58,7 +58,7 @@ int main(int argc, char** argv)
 
   // Init PCA transformation object.
   pca.InitPCATranformation(dd);
-  
+
   // To store transform input vars.
   std::vector< std::pair<std::string, std::vector<float>*> > outEvt;
   

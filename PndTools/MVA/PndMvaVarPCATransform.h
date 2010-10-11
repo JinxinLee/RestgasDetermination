@@ -41,7 +41,7 @@ class PndMvaVarPCATransform
   
   /**
    * Transforms the current event variables
-   @@param evd Vector containing the event to transform.
+   *@param evd Vector containing the event to transform.
    *@return Transformed event.
    */
   std::vector<float>* Transform(const std::vector<float>& evd) const;

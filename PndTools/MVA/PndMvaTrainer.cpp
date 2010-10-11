@@ -306,3 +306,20 @@ void PndMvaTrainer::WriteDataSetToOutFile()
   }
   m_dataSets.WriteDataSet(m_outFile);
 }
+
+//! Select input data normalization scheme.
+void PndMvaTrainer::NormalizeData(NormType t)
+{
+  m_normType = t;
+  m_dataSets.NormalizeDataSet(t);
+}
+
+/**
+ * Parameter decorrelation.
+ *
+ * Performs PCA (Principal component analysis) on the input dataset.
+ */
+void PndMvaTrainer::PCATransForm()
+{ 
+  m_dataSets.PCATransForm();
+}

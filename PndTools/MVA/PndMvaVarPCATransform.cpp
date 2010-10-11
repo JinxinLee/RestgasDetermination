@@ -26,8 +26,7 @@ PndMvaVarPCATransform::PndMvaVarPCATransform()
  */
 PndMvaVarPCATransform::~PndMvaVarPCATransform()
 {
-  cout << "<INFO> Cleaning claimed memory by PCA" 
-       <<" and removing objects."
+  cout << "<INFO> Cleaning claimed memory by PCA."
        << endl; 
 
   // Delete Mean value vector.
@@ -66,7 +65,7 @@ bool PndMvaVarPCATransform::InitPCATranformation(const vector<pair<std::string, 
 
 /**
  * Transforms the current event variables
- @@param evd Vector containing the event to transform.
+ *@param evd Vector containing the event to transform.
  *@return Transformed event.
  */
 std::vector<float>* PndMvaVarPCATransform::Transform(const std::vector<float>& evt) const
@@ -77,7 +76,7 @@ std::vector<float>* PndMvaVarPCATransform::Transform(const std::vector<float>& e
   std::vector<float>* p = new std::vector<float>(nvar, 0.0);
   
   for (size_t i = 0; i < nvar; i++) {
-    double pv = 0;
+    double pv = 0.00;
     for (size_t j = 0; j < nvar; j++){
       pv += (static_cast<double>(evt.at(j)) - (*m_MeanValues)(j)) * (*m_EigenVectors)(j,i);
     }

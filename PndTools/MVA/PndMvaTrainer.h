@@ -59,21 +59,20 @@ class PndMvaTrainer
   void splitTetsSet(int percent = 10);
   
   //! Select input data normalization scheme.
-  void NormalizeData(NormType t = NONE){ 
-    m_normType = t;
-    m_dataSets.NormalizeDataSet(t);
-
-    /// DEBUG
-    // m_dataSets.WriteDataSet("InputVarNormalized.root");
-    ///DEBUG
-  };
+  void NormalizeData(NormType t = NONE);
   
+  /**
+   * Parameter decorrelation.
+   *
+   * Performs PCA (Principal component analysis) on the input dataset.
+   */
+  void PCATransForm();
+
   /**
    * Setter to set the weightfile name.
    *@param outFile Output filename.
    */
-  inline void SetOutPutFile(const std::string& outFile)
-  { m_outFile = outFile; };
+  inline void SetOutPutFile(const std::string& outFile);
 
   /**
    * Writes the train and test errors evaluations to a given file.
@@ -127,4 +126,8 @@ class PndMvaTrainer
   PndMvaTrainer(const PndMvaTrainer& other);
   PndMvaTrainer& operator=(const PndMvaTrainer& other);
 };
+
+//========================= Inline implementations =================
+inline void PndMvaTrainer::SetOutPutFile(const std::string& outFile)
+{ m_outFile = outFile; };
 #endif

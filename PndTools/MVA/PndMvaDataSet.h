@@ -31,6 +31,7 @@
 // Local includes
 #include "PndMvaClass.h"
 #include "PndMvaVariable.h"
+#include "PndMvaVarPCATransform.h"
 
 // ========================================================================
 // Normalization schemes
@@ -63,6 +64,13 @@ class PndMvaDataSet
    * @param  outFile  File name to write to
    */
   void WriteDataSet(const std::string& outFile);  
+
+  /**
+   * Parameter decorrelation.
+   *
+   * Performs PCA (Principal component analysis) on the input dataset.
+   */
+  void PCATransForm();
   
   /**
    * Initialize the class conditional means vectors.
@@ -142,6 +150,7 @@ class PndMvaDataSet
   std::map< std::string, std::vector<float>* > m_ClassCondMeans;
 };
 
+// ============= Inline implementation ==================
 inline const std::vector< std::pair<std::string, std::vector<float>*> >& PndMvaDataSet::GetData() const
 {
   return m_events;

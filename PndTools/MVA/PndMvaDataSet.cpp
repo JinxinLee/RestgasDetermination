@@ -335,6 +335,7 @@ void PndMvaDataSet::WriteDataSet(const string& outFile)
 // ============================ Protected ===================================
 /**
  * Read input event data.
+ **** FIXME: Seg.Faul. if file is already opened by other.
  */
 void PndMvaDataSet::ReadInput()
 {
@@ -635,5 +636,36 @@ void PndMvaDataSet::MinMaxDiff()
     m_vars[i].Mean = middle;
     cout << "\t\t diff  = " << diff  << endl;
     cout << "\t\t midle = " << middle << endl;
+  }
+}
+
+/**
+ * Parameter decorrelation.
+ *
+ * Performs PCA (Principal component analysis) on the input dataset.
+ */
+void PndMvaDataSet::PCATransForm()
+{
+  // Create PCA transformation object.
+  PndMvaVarPCATransform pca;
+  
+  // Init PCA transformation object.
+  pca.InitPCATranformation(m_events);
+  
+  // Events loop
+  for(size_t evt = 0; evt < m_events.size(); evt++){
+    
+    // Current event vector
+    std::vector<float>* curEvt = (m_events[evt]).second;
+    
+    // Transform current event
+    std::vector<float>* trsEvt = pca.Transform(*curEvt);
+    
+    // Copy values to the original vector.
+    for(size_t i = 0; i < curEvt->size(); i++){
+      curEvt->at(i) = trsEvt->at(i);
+    }
+    // Delete object
+    delete trsEvt;
   }
 }

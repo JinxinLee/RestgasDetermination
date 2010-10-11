@@ -78,6 +78,7 @@ int main(int argc, char** argv)
   //nam.push_back("tof"); nam.push_back("stt"); 
 
   PndLVQTrain tr(ip, clas, nam, true);
+
   float initC  = 0.9;
   float ethaZ  = 0.1;
   float ethaF  = 0.0001;
@@ -99,6 +100,9 @@ int main(int argc, char** argv)
 
   //VARX, MINMAX, MEDIAN, NONE(DEFAULT)
   tr.NormalizeData(NONE);
+
+  // Perform PCA on input events.
+  //tr.PCATransForm();
 
   // Specify the file containing pre-initialized prototypes.
   tr.SetInitProtoFileName("InitialProto.root");
