@@ -202,7 +202,16 @@ void PndMvaTrainer::WriteToWeightFile(const std::vector< std::pair<std::string,
   }
   meanTree.Fill();
   meanTree.Write();
-  
+
+  // Write PCA Data
+  if(m_dataSets.Used_PCA()){
+    const PndMvaVarPCATransform& pca_tmp = m_dataSets.Get_PCA();
+    const TVectorD& MeanVals   = pca_tmp.GetMeanValues();
+    const TMatrixD& EigenVects = pca_tmp.GetEigenVectors();
+    // Write to output.
+    MeanVals.Write("PCAMeans");
+    EigenVects.Write("PCAEigenVectors");
+  }
   //Close open file
   out.Close();
 }

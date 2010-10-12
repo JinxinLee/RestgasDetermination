@@ -22,7 +22,8 @@ using namespace std;
 PndMvaDataSet::PndMvaDataSet(const string& inputFilename,
 			     const vector<string>& classNames,
 			     const vector<string>& varNames)
-  : m_input(inputFilename)
+  : m_input(inputFilename), m_UsePCA(false), 
+    m_PCA_Means(NULL), m_PCA_EigenVects(NULL)
 {
   // Initialize classes
   for(size_t i = 0; i < classNames.size(); i++)
@@ -35,6 +36,7 @@ PndMvaDataSet::PndMvaDataSet(const string& inputFilename,
   {
     m_vars.push_back(PndMvaVariable(varNames[i]));
   }
+
   // Read input file
   ReadInput();
 }
@@ -59,6 +61,13 @@ PndMvaDataSet::~PndMvaDataSet()
 
   m_classes.clear();
   m_vars.clear();
+  
+  if(m_PCA_Means){
+    delete m_PCA_Means;
+  }
+  if(m_PCA_EigenVects){
+    delete m_PCA_EigenVects;
+  }
 }
 
 /**
@@ -473,6 +482,16 @@ void PndMvaDataSet::ReadInput()
     delete m;
   }
 
+  //TVectorT<double>* PCAMeans = InPutFile.Get("PCAMeans");
+  m_PCA_Means = (TVectorT<double>*) InPutFile.Get("PCAMeans");
+  
+  //TMatrixT<double>* PCAEigenVectors = InPutFile.Get("PCAEigenVectors");
+  m_PCA_EigenVects = (TMatrixT<double>*) InPutFile.Get("PCAEigenVectors");
+
+  if(m_PCA_Means && m_PCA_EigenVects){
+    m_UsePCA = true;
+  }
+
   // Close the open file and delete the file pointer
   InPutFile.Close();
 }
@@ -646,12 +665,13 @@ void PndMvaDataSet::MinMaxDiff()
  */
 void PndMvaDataSet::PCATransForm()
 {
-  // Create PCA transformation object.
-  PndMvaVarPCATransform pca;
-  
   // Init PCA transformation object.
-  pca.InitPCATranformation(m_events);
-  
+  m_PCA.InitPCATranformation(m_events);
+
+  m_UsePCA = true;
+
+  std::cerr << "<INFO> (PCA) Transforming the events from the current data set."
+	    << std::endl;
   // Events loop
   for(size_t evt = 0; evt < m_events.size(); evt++){
     
@@ -659,7 +679,7 @@ void PndMvaDataSet::PCATransForm()
     std::vector<float>* curEvt = (m_events[evt]).second;
     
     // Transform current event
-    std::vector<float>* trsEvt = pca.Transform(*curEvt);
+    std::vector<float>* trsEvt = m_PCA.Transform(*curEvt);
     
     // Copy values to the original vector.
     for(size_t i = 0; i < curEvt->size(); i++){

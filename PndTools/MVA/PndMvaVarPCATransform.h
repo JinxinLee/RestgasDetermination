@@ -65,7 +65,7 @@ class PndMvaVarPCATransform
   
   // Mean values
   TVectorD* m_MeanValues;
-  
+
   // Eigenvectors
   TMatrixD* m_EigenVectors;
 };

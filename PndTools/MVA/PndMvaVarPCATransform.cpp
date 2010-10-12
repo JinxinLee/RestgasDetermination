@@ -19,6 +19,7 @@ using namespace std;
  * Constructor.
  */
 PndMvaVarPCATransform::PndMvaVarPCATransform()
+  : m_MeanValues(NULL), m_EigenVectors(NULL)
 {}
 
 /**
@@ -124,6 +125,7 @@ void PndMvaVarPCATransform::ComputePrincipalComponents(const vector< pair<string
    * Retrieve mean values, eigenvectors. Need to copy ownership.
    */
   m_MeanValues   = new TVectorD( *(pca.GetMeanValues()) );
+
   m_EigenVectors = new TMatrixD( *(pca.GetEigenVectors()) );
   
   // Free memory.

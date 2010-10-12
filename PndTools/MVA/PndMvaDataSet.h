@@ -71,7 +71,7 @@ class PndMvaDataSet
    * Performs PCA (Principal component analysis) on the input dataset.
    */
   void PCATransForm();
-  
+
   /**
    * Initialize the class conditional means vectors.
    */
@@ -97,7 +97,18 @@ class PndMvaDataSet
   
   //! Get name of input file name (weight/event file).
   inline const std::string& GetInFileName() const;
- 
+
+  //========================= PCA =====================//
+  //! If PCA was aaplied.
+  inline bool Used_PCA() const;
+  
+  //! Get PCA object
+  inline const PndMvaVarPCATransform& Get_PCA() const;
+  
+  inline const TVectorD& GetPCA_Means() const;
+  inline const TMatrixD& GetPCA_EigenVects() const;
+  //_________________________ PCA _____________________//
+
  protected:
   /**
    * Read input event data.
@@ -133,7 +144,7 @@ class PndMvaDataSet
    * Determine Min Max difference.
    */
   void MinMaxDiff();
-  
+
   //! Input File name
   std::string m_input;
   
@@ -145,9 +156,21 @@ class PndMvaDataSet
   
   //! Container to keep  the Event data feature vectors
   std::vector< std::pair<std::string, std::vector<float>*> > m_events;
-
+  
   //! Container to keep  the Class Conditional means
   std::map< std::string, std::vector<float>* > m_ClassCondMeans;
+  
+  // PCA transformation.
+  PndMvaVarPCATransform m_PCA;
+
+  // If PCA was applied.
+  bool m_UsePCA;
+
+  // PCA Mean values
+  TVectorD* m_PCA_Means;
+
+  // PCA Eigenvectors
+  TMatrixD* m_PCA_EigenVects;
 };
 
 // ============= Inline implementation ==================
@@ -174,5 +197,23 @@ inline const std::map< std::string, std::vector<float>* >& PndMvaDataSet::GetCla
 inline const std::string& PndMvaDataSet::GetInFileName() const
 {
   return m_input;
+};
+
+inline bool PndMvaDataSet::Used_PCA() const
+{
+  return m_UsePCA;
+};
+
+inline const PndMvaVarPCATransform& PndMvaDataSet::Get_PCA() const
+{
+  return m_PCA;
+};
+inline const TVectorD& PndMvaDataSet::GetPCA_Means() const
+{
+  return *m_PCA_Means;
+};
+inline const TMatrixD& PndMvaDataSet::GetPCA_EigenVects() const
+{
+  return *m_PCA_EigenVects;
 };
 #endif

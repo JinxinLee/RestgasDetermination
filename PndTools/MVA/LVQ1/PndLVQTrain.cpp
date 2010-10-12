@@ -32,7 +32,7 @@ PndLVQTrain::PndLVQTrain(const std::string& inputFile,
  */
 PndLVQTrain::~PndLVQTrain()
 {
-  std::cout << "\nCleaning all initialized objects." 
+  std::cout << "<INFO> Cleaning all initialized objects, LVQ." 
 	    <<std::endl;
   // Clean m_LVQProtos
   for(size_t i = 0; i < m_LVQProtos.size(); i++){
