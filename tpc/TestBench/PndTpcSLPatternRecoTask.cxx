@@ -70,7 +70,7 @@ PndTpcSLPatternRecoTask::PndTpcSLPatternRecoTask()
   fPersistence(kFALSE),fDistSorting(kFALSE),
   fDepth(6), fThresh(6), fMin(5), counter(0),
   fXZ(true), fZY(false), _cutbigpad(kFALSE), _cutsmallpad(kFALSE),
-   fStore(false), fAmpCut(0.), fZStackLimit(0)
+   fStore(false), fAmpCut(0.), fZStackLimit(0), fClLimit(500)
     
 {
   fClusterBranchName = "PndTpcCluster";
@@ -264,6 +264,10 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   }
 	
       
+  if(cll.size()>fClLimit) {
+    std::cout<<"Bad event: more than "<<fClLimit<<" clusters; Aborting"<<std::endl;
+    return;
+  }
 	  
       
   // ------- CLUSTER SORTING ----------------------
@@ -441,20 +445,22 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     //double r2 = r_shift2 - x_OFF*cos(theta2);
     double r2 = r_shift2;
     
+    double limit = 1.e-6;
+    
     double m1;  //slope in the x-y plane
-    if(tan(theta1)>1.e-4)
-      m1 = -1./(tan(theta1));
+    if(std::abs(TMath::Tan(theta1))>limit)
+      m1 = -1./(TMath::Tan(theta1));
     else 
       m1 = 1.e3; 
-
+    
     double m2; //slope in the x-z plane
-    if(tan(theta2)>1.e-4)
-      m2 = -1./(tan(theta2));
+    if(std::abs(TMath::Tan(theta2))>limit)
+      m2 = -1./(TMath::Tan(theta2));
     else 
-      m2 = 1.e3; 
-
-    double t1 = r1/(sin(theta1));
-    double t2 = r2/(sin(theta2));
+      m2 = 1.e3;
+    
+    double t1 = r1/(TMath::Sin(theta1));
+    double t2 = r2/(TMath::Sin(theta2));
     
     //resulting points for line
     double x[2];

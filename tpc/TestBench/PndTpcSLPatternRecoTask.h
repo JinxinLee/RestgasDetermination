@@ -59,8 +59,6 @@ class PndTpcSLPatternRecoTask : public FairTask {
   void SetClusterBranchName(TString cln) {fClusterBranchName=cln;}
   void SetTrackBranchName(TString tn) {fTrackBranchName=tn;}
 
-  void SetSecondarySuppression(Bool_t opt=kTRUE) {fSecondarySupp=opt;}
-
   void SetParameterSpace(double* mins, double* maxs);
   
   void SetDepth(int depth) {fDepth=depth;}
@@ -68,6 +66,7 @@ class PndTpcSLPatternRecoTask : public FairTask {
   void SetMinCandHits(int min) {fMin=min;}
   void SetClusterAmpCut(double c) {fAmpCut=c;}
   void SetCutTracksParallelZ(unsigned int limit) {fZStackLimit=limit;}
+  void SetNClusterLimit(unsigned int ncl) {fClLimit=ncl;}
   
   void SetDistSorting(bool opt) {fDistSorting=opt;}
   void SetXSorting(bool opt) {fXSorting=opt;}
@@ -92,7 +91,6 @@ class PndTpcSLPatternRecoTask : public FairTask {
   unsigned int fMin;      //minimum track candidate size
   
   Bool_t fPersistence;
-  Bool_t fSecondarySupp;
   Bool_t fDistSorting;
   Bool_t fXSorting;
   Bool_t fXZ;
@@ -107,6 +105,8 @@ class PndTpcSLPatternRecoTask : public FairTask {
   TString fHistoFileName;
 
   TFile* fHistoFile;
+
+  unsigned fClLimit; //limit nClusters an event may have
   
   TClonesArray* fClusterArray;
   TClonesArray* fTrackArray;
