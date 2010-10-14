@@ -185,7 +185,7 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   TH3D* clHist2;
   TH2D* repHistXY;
   TH2D* repHistXZ;
-  TCanvas* canv = new TCanvas();
+  TCanvas* canv;
   //TCanvas* canv = new((*fMonitorArray)[fMonitorArray->GetEntriesFast()]) TCanvas();
  
    
@@ -193,11 +193,13 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     std::string clName = "cl_Ev";
     std::string repNameXY = "repXY_Ev";
     std::string repNameXZ = "repXZ_Ev";
+    std::string canvName = "canv_Ev";
     std::stringstream ss;
     ss<<counter;
     clName.append(ss.str());
     repNameXY.append(ss.str());
     repNameXZ.append(ss.str());
+    canvName.append(ss.str());
     clHist = new TH3D(clName.c_str(), clName.c_str(), 100,xMin,xMax,
 		      100,yMin,yMax, 100, zMin, zMax);
     clHist->SetMarkerStyle(20);
@@ -208,8 +210,10 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
 			 100,fMins[2],fMaxs[2],
 			 100,fMins[3],fMaxs[3]);
     clHist2 = (TH3D*)clHist->Clone();
+    canv = new TCanvas(canvName.c_str());
   }
-
+ 
+  //look at: 189, 237/273 (?)
   
   unsigned int totCl=fClusterArray->GetEntriesFast();
   TVector3 pos;
@@ -466,6 +470,14 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
       lines.push_back(new TPolyLine3D(2,x,y,z,"l"));
       lines.back()->SetLineWidth(2);
     }
+    std::cout<<"Resulting line paramaters: "<<std::endl
+	     <<"theta1: "<<theta1<<";  r1:"<<r1<<std::endl
+	     <<"theta2: "<<theta2<<";  r2:"<<r2<<std::endl
+	     <<"m1: "<<m1<<";  t1:"<<t1<<std::endl
+	     <<"m2: "<<m2<<";  t2:"<<t2<<std::endl
+	     <<"x0: "<<x[0]<<";  x1:"<<x[1]<<std::endl
+      	     <<"y0: "<<y[0]<<";  y1:"<<y[1]<<std::endl
+	     <<"z0: "<<z[0]<<";  z1:"<<z[1]<<std::endl;
     
     TVector3 mom;
     mom.SetXYZ(x[1]-x[0], y[1]-y[0], z[1]-z[0]);
