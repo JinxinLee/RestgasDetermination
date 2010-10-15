@@ -37,6 +37,11 @@ PndSttTrackFitterQATask::PndSttTrackFitterQATask() :
 }
 // -------------------------------------------------------------------------
 
+PndSttTrackFitterQATask::PndSttTrackFitterQATask(Int_t verbose) :
+ FairTask("") 
+{ 
+  fVerbose = verbose;
+}
 
 
 // -----   Destructor   ----------------------------------------------------

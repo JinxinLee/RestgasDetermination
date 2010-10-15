@@ -7,9 +7,11 @@
 #include "PndSttHoughDefines.h"
 #include "PndDetectorList.h"
 #include "PndTrackCand.h" 
+#include "PndTrack.h" 
 #include "PndSttTube.h"
 
 #include "FairMCPoint.h"
+#include "FairTrackParP.h"
 #include "FairRootManager.h"
 
 // ROOT includes
@@ -89,7 +91,11 @@ void PndSttTrackFinderIdeal::Init()
     }
 }
 
-Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray* helixHitArray) 
+Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackCandArray, TClonesArray* helixHitArray) // CHECK da cancellare
+{}
+
+
+Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray *trackArray, TClonesArray* helixHitArray) 
 {
   // Check pointers
   if ( !fMCTrackArray ) 
@@ -114,6 +120,13 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray
   }
 
   if ( !trackCandArray ) 
+    {
+      cout << "-E- PndSttTrackFinderIdeal::DoFind: "
+	   << "Track cand array missing! " << endl;
+      return -1;
+    }
+  
+ if ( !trackArray ) 
     {
       cout << "-E- PndSttTrackFinderIdeal::DoFind: "
 	   << "Track array missing! " << endl;
@@ -145,6 +158,7 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray
   FairMCPoint*     pMCpt = NULL;
   PndMCTrack*      pMCtr = NULL;
   PndTrackCand* pTrckCand = NULL; 
+  PndTrack*     pTrck     = NULL; 
 
   // Number of STT hits
   Int_t 
@@ -236,7 +250,7 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray
       nMCacc++;
 
       new((*trackCandArray)[nTracks]) PndTrackCand(); 
-
+     
       if (fVerbose >= 2) cout << "-I- PndSttTrackFinderIdeal: STTTrack " 
 			      << nTracks << " created from MCTrack " 
 			      << iMCTrack << " (" << pMCtr->GetNPoints(kSTT) 
@@ -298,8 +312,6 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray
       
       trackIndex = trackMap[mcTrackIndex];
       pTrckCand = (PndTrackCand*) trackCandArray->At(trackIndex);  
-
-      
       if ( ! pTrckCand ) 
       {
 	  cout << "-E- PndSttTrackFinderIdeal::DoFind: "
@@ -398,7 +410,7 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray
   {
     // loop over 
     pTrckCand = (PndTrackCand*) trackCandArray->At(trackTeller); 
-
+     
     if ( pTrckCand != NULL) 
 	{
 	  pTrckCand->setMcTrackId(correlationMap[trackTeller]);
@@ -439,7 +451,6 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray
 	      myArc.DrawArc(xSeed, ySeed, rSeed);
 	  }
 
-
 	  //  ----------------------------------
 	  // check: seeds directly from MC
 	  Double_t vxSeed = dSeed * TMath::Cos(phiSeed);
@@ -462,7 +473,42 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray
 	  Double_t qop = chargeSeed/dirSeed.Mag(); // q over p 
 	  dirSeed.SetMag(1.);
 
+	  
 	  pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
+	  
+	  // set up PndTrack ***********************************************************************
+	  TVector3 momSeed(mcTrack2->GetMomentum().X(),
+			   mcTrack2->GetMomentum().Y(),
+			   mcTrack2->GetMomentum().Z()); // momentum direction in starting point
+
+	  // get 1st and last hits
+	  Int_t hitcounter = pTrckCand->GetNHits();
+	  PndTrackCandHit candhit = pTrckCand->GetSortedHit(0);
+	  Int_t iHit = candhit.GetHitId();
+	  PndSttPoint *firstpnt = (PndSttPoint*) GetPointFromCollections(iHit);
+	  if(!firstpnt) { cout << "PndSttTrackFinderIdeal::DoFind ERROR: 1st pnt " << iHit << endl;  continue; }
+	  TVector3 MCfirstPos(firstpnt->GetX(), firstpnt->GetY(), firstpnt->GetZ());
+	  TVector3 MCfirstMom(firstpnt->GetPx(), firstpnt->GetPy(), firstpnt->GetPz());
+
+	  candhit = pTrckCand->GetSortedHit(hitcounter - 1);
+	  iHit = candhit.GetHitId();
+	  PndSttPoint *lastpnt = (PndSttPoint*) GetPointFromCollections(iHit);
+	  if(!lastpnt) { cout << "PndSttTrackFinderIdeal::DoFind ERROR last pnt " << iHit << endl;  continue; }
+	  TVector3 MClastPos(lastpnt->GetX(), lastpnt->GetY(), lastpnt->GetZ());
+	  TVector3 MClastMom(lastpnt->GetPx(), lastpnt->GetPy(), lastpnt->GetPz());
+
+ 	  FairTrackParP first(MCfirstPos,  MCfirstMom, 
+			      TVector3(0., 0., 0.), TVector3(0., 0., 0.), ((int) chargeSeed),
+			      MCfirstPos, TVector3(1., 0., 0.), TVector3(0., 1., 0.));
+	 
+
+	  FairTrackParP last(MClastPos,  MClastMom, 
+		 	     TVector3(0., 0., 0.), TVector3(0., 0., 0.), ((int) chargeSeed),
+			     MClastPos, TVector3(1., 0., 0.), TVector3(0., 1., 0.));
+	  
+	  pTrck = new((*trackArray)[trackTeller]) PndTrack(first, last, *pTrckCand, 0, -1., 0, 0, trackTeller, -1);
+	  // *****************************************************************************************
+	
 
 	  // CHECK to be deleted: tests!
 	  // position: MY posSeed, PREV dSeed

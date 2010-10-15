@@ -6,6 +6,7 @@
 
 #include "PndSttTrackFinder.h"
 #include "PndTrackCand.h"
+#include "PndTrack.h"
 #include "PndSttHelixHit.h"
 #include "PndSttTube.h"
 #include "PndSttMapCreator.h"
@@ -111,6 +112,9 @@ InitStatus PndSttFindTracks::Init()
 
   fTrackCandArray = new TClonesArray("PndTrackCand",100); 
   ioman->Register("STTTrackCand", "STT", fTrackCandArray, fPersistence); 
+
+  fTrackArray = new TClonesArray("PndTrack",100); 
+  ioman->Register("STTFoundTrack", "STT", fTrackArray, fPersistence); 
   
   fHelixHitArray = new TClonesArray("PndSttHelixHit",100); 
   ioman->Register("STTPRHelixHit", "STT", fHelixHitArray, fHelixHitProduction);
@@ -209,16 +213,17 @@ void PndSttFindTracks::Exec(Option_t* opt)
   AddAllCollections();
   
   fTrackCandArray->Clear(); 
+  fTrackArray->Clear(); 
   fHelixHitArray->Clear(); 
   
-  fNofTracks = fFinder->DoFind(fTrackCandArray, fHelixHitArray); 
+  fNofTracks = fFinder->DoFind(fTrackCandArray, fTrackArray, fHelixHitArray); 
   
   
   for (Int_t iTrack=0; iTrack < fTrackCandArray->GetEntriesFast(); iTrack++) 
     { 
       PndTrackCand* trackCand = (PndTrackCand*) fTrackCandArray->At(iTrack);
       trackCand->Sort();
-    }
+   }
 }
 // -------------------------------------------------------------------------
 

@@ -94,6 +94,8 @@ class PndSttFindTracks : public FairTask
 
   PndSttTrackFinder* fFinder;    // Pointer to TrackFinder concrete class
   TClonesArray* fTrackCandArray; // Output array of PndTrackCand
+  TClonesArray* fTrackArray;     // Output array of PndTrack
+
   TClonesArray* fHelixHitArray;  // Output array of PndSttHelixHit
 
   Int_t fNofTracks;              // Number of tracks created
