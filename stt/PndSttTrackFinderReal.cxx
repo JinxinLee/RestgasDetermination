@@ -317,7 +317,7 @@ FairMCPoint* PndSttTrackFinderReal::GetPointFromCollections(Int_t hitCounter)
 
 // -------------------- end of PndSttTrackFinderReal::GetPointFromCollections
 
-
+Int_t PndSttTrackFinderReal::DoFind( TClonesArray* trackCandArray, TClonesArray *trackArray, TClonesArray* helixHitArray) {}
 
 
 // -----------------   start of method DoFind
