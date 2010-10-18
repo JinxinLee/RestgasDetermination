@@ -317,11 +317,11 @@ FairMCPoint* PndSttTrackFinderReal::GetPointFromCollections(Int_t hitCounter)
 
 // -------------------- end of PndSttTrackFinderReal::GetPointFromCollections
 
-Int_t PndSttTrackFinderReal::DoFind( TClonesArray* trackCandArray, TClonesArray *trackArray, TClonesArray* helixHitArray) {}
+Int_t PndSttTrackFinderReal::DoFind( TClonesArray* trackCandArray, TClonesArray* helixHitArray) {} // CHECK da cancellare
 
 
 // -----------------   start of method DoFind
-Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray, TClonesArray* helixHitArray) 
+Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *trackArray, TClonesArray* helixHitArray) 
 {
 
                                                 //  list of hit numbers of those falling in this cell
@@ -381,7 +381,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray, TClonesArray* heli
       return -1;
   }
 
-  if ( !trackArray ) 
+  if ( !trackCandArray ) 
     {
       cout << "-E- PndSttTrackFinderReal::DoFind: "
 	   << "Track array missing! " << endl;
@@ -1745,8 +1745,8 @@ if(istampa>2) {  cout<<" da TrackFinder Real :  ancora nTracksFoundSoFar "<<nTra
        } else {
           Pzini = 999999.;
        }
-         new((*trackArray)[ipinco])  PndTrackCand;
-         PndTrackCand *pTrckCand = (PndTrackCand*) trackArray->At(ipinco);
+         new((*trackCandArray)[ipinco])  PndTrackCand;
+         PndTrackCand *pTrckCand = (PndTrackCand*) trackCandArray->At(ipinco);
          ipinco++;
 	  TVector3 dirSeed(Pxini,
 			   Pyini,
@@ -1772,8 +1772,8 @@ if(istampa > 2){
 								    //  This fact is signalled by
 								    //  Pzini = 9999  and the
          Pzini = 9999.;
-         new((*trackArray)[ipinco])  PndTrackCand;
-         PndTrackCand *pTrckCand = (PndTrackCand*) trackArray->At(ipinco);
+         new((*trackCandArray)[ipinco])  PndTrackCand;
+         PndTrackCand *pTrckCand = (PndTrackCand*) trackCandArray->At(ipinco);
          ipinco++;
 	 TVector3 dirSeed(Pxini,
 			   Pyini,
