@@ -37,6 +37,7 @@ PndLheTrackFitter::~PndLheTrackFitter() {
 PndLheTrackFitter::PndLheTrackFitter() {
   //---
   fPndTracks = new TClonesArray("PndTrack");
+  fPndTrkCand = new TClonesArray("PndTrackCand");
   fPndTrackIds = new TClonesArray("PndTrackID");
   fVerbose = kFALSE;
   fSimulation = kFALSE;
@@ -49,6 +50,7 @@ PndLheTrackFitter::PndLheTrackFitter(const char *name, const char *title)
   :FairTask(name) {
   //---
   fPndTracks = new TClonesArray("PndTrack");
+  fPndTrkCand = new TClonesArray("PndTrackCand");
   fPndTrackIds = new TClonesArray("PndTrackID");
   fVerbose = kFALSE;
   fSimulation = kFALSE;
@@ -62,7 +64,9 @@ void PndLheTrackFitter::Register() {
   //---
   FairRootManager::Instance()->Register("LheTrack",
   			 "Lhe", fPndTracks, fPersistence);
- FairRootManager::Instance()->Register("LheTrackID",
+  FairRootManager::Instance()->Register("LheTrackCand",
+                         "Lhe", fPndTrkCand, fPersistence);
+  FairRootManager::Instance()->Register("LheTrackID",
   			 "Lhe", fPndTrackIds, fPersistence);
 }
 
@@ -70,6 +74,7 @@ void PndLheTrackFitter::Register() {
 void PndLheTrackFitter::Reset() {
   //---
   if (fPndTracks->GetEntriesFast() != 0)  fPndTracks->Clear("C");
+  if (fPndTrkCand->GetEntriesFast() != 0)  fPndTrkCand->Clear("C");
   if (fPndTrackIds->GetEntriesFast() != 0)  fPndTrackIds->Clear("C");
 }
 //___________________________________________________________
@@ -280,9 +285,11 @@ void PndLheTrackFitter::Info4Fit(PndLheCandidate *track, Int_t idx) {
    if (track->IsGood()&&track->GetMomentum().Mag()>0.1&&track->GetMomentum().Mag()<20.)
      {
        TClonesArray &pndtracks = *fPndTracks;
+       TClonesArray &pndtrackcand = *fPndTrkCand;
        TClonesArray &pndtrackids = *fPndTrackIds;
-       Int_t size = pndtracks.GetEntriesFast();
+       Int_t size = pndtrackcand.GetEntriesFast();
        trackCand->Sort();
+       PndTrackCand* pndTrackCand = new(pndtrackcand[size]) PndTrackCand(*trackCand);
        PndTrack* pndTrack = new(pndtracks[size]) PndTrack(*firstPar, *lastPar, *trackCand);
        pndTrack->SetRefIndex(idx);
        pndTrack->SetLink(FairLink("LheCandidate", idx));

@@ -24,8 +24,9 @@ class PndLheTrackFitter : public FairTask {
 
 protected:
 
-  FairField*     fMagField;       //
+  FairField*     fMagField;      //!
   TClonesArray* fPndTracks;      //!
+  TClonesArray* fPndTrkCand;     //!
   TClonesArray* fPndTrackIds;    //!
   TClonesArray* fTpcTracks;      //!
   TClonesArray* fTpcHits;        //!
