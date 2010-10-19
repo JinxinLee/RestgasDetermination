@@ -18,5 +18,6 @@
 
 #pragma link C++ class  PndPidMvaAssociatorTask+;
 #pragma link C++ class  PndPidEmcAssociatorTask+;
+#pragma link C++ class  PndPidSttAssociatorTask+;
 #endif
 
