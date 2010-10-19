@@ -21,7 +21,9 @@ PndKnnTrain::PndKnnTrain(const std::string& inputFile,
   : PndMvaTrainer(inputFile, ClassNames, VarNames, trim)
 {
   if(trim)
-  {std::cout << "Trim." << std::endl;}
+  {
+    std::cout << "Trim." << '\n';
+  }
 }
 
 /**
@@ -35,6 +37,6 @@ PndKnnTrain::~PndKnnTrain()
  */
 void PndKnnTrain::Train()
 {
-  //
+  // Write to output file
   WriteDataSetToOutFile();
 }

@@ -19,11 +19,11 @@
 
 void PrintResult(std::map<std::string, float>& res, size_t evNum){
   std::cout << "\n\t================================== \n"
-	    << "Evt num = " << evNum << std::endl;
+	    << "Evt num = " << evNum << '\n';
   for( std::map<std::string, float>::iterator ii=res.begin(); 
        ii != res.end(); ++ii){
     std::cout <<"\t" << (*ii).first 
-	      << "\t=> " << (*ii).second << std::endl;
+	      << "\t=> " << (*ii).second << '\n';
   }
   std::cout << "\n\t================================== \n";
 }
@@ -35,7 +35,8 @@ void PrintResult(std::map<std::string, float>& res, size_t evNum){
 
 int main(int argc, char** argv)
 {
-  if(argc < 5){
+  if(argc < 5)
+  {
     std::cerr <<"\t<ERROR> "
 	      << argv[0] << " <inputFileWeight> <inputEventsFile> "
 	      << "<TreeName> <numOfneigh>"
@@ -99,7 +100,7 @@ int main(int argc, char** argv)
   cls.SetEvtParam(0.8, 1.0);
   cls.InitKNN();
 
-  std::cout << "............... Init is done." << std::endl;
+  std::cout << "............... Init is done." << '\n';
   
   // Open InputFile containing events for classification
   TFile inFile(InputEvtFile.c_str(), "READ");
@@ -113,7 +114,8 @@ int main(int argc, char** argv)
   std::vector<float> curEvt(stru.size(), 0.0);
   
   // Bind tree branches to the container.
-  for(size_t i = 0; i < stru.size(); i++){
+  for(size_t i = 0; i < stru.size(); i++)
+  {
     // Activate branches
     events->SetBranchStatus( stru[i].c_str(), 1);
     // Bind
@@ -128,23 +130,25 @@ int main(int argc, char** argv)
   size_t misCl = 0;
   int numberOfEvt = events->GetEntriesFast();
   
-  //numberOfEvt = 4;
+  numberOfEvt = 10;
   
   std::cout << "<INFO> Classifying " << numberOfEvt
-	    << std::endl;
+	    << '\n';
   
   // Start the timer
   TStopwatch ti;
   ti.Start();
   
-  for(int ev = 0; ev < numberOfEvt; ev++){
+  for(int ev = 0; ev < numberOfEvt; ev++)
+  {
     events->GetEntry(ev);
     
     //cls.GetMvaValues(curEvt, res);
     //PrintResult(res, ev);
     
     std::string* bla = cls.Classify(curEvt);    
-    if((*bla) != TreeName){
+    if((*bla) != TreeName)
+    {
       misCl++;
     }
     delete bla;
@@ -156,27 +160,27 @@ int main(int argc, char** argv)
   //______________________________________________
   double rtime = ti.RealTime();
   double ctime = ti.CpuTime();
-  std::cout << "timer 1: Classifier timing results:"<< std::endl;
-  std::cout<< "RealTime = " << rtime << " seconds, CpuTime = " 
-           << ctime <<" Seconds\n" << std::endl;
+  std::cout << "timer 1: Classifier timing results:"<< '\n'
+            << "RealTime = " << rtime << " seconds, CpuTime = " 
+            << ctime <<" Seconds\n" << '\n';
 
   // Classifier evaluation info.
   std::cout << "+++++++++++++++++++++++++++++++++++++++" 
-	    << std::endl
+	    << '\n'
 	    << " Total number of classified events: "
-	    << numberOfEvt << std::endl
+	    << numberOfEvt << '\n'
 	    << " Number of missclassified: " << misCl << " = "
 	    << ( static_cast<float>(misCl) * 100.00)/ static_cast<float>(numberOfEvt)
 	    <<" %"
-	    << std::endl 
+	    << '\n'
 	    << " Correct cassified = " << (numberOfEvt - misCl)
-	    << std::endl 
+	    << '\n'
 	    << " (time / event) = " << rtime/ static_cast<double>(numberOfEvt)
-	    << std::endl 
+	    << '\n'
 	    << " With #neighb = " << NumNei 
-	    << std::endl
+	    << '\n'
 	    << "+++++++++++++++++++++++++++++++++++++++" 
-	    << std::endl;
+	    << '\n';
   //==============================================
   
   // CLose open file.

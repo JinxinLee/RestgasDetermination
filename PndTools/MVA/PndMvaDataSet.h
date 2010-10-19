@@ -25,6 +25,8 @@
 #include "TTree.h"
 #include "TRandom3.h"
 
+#include "TList.h"
+
 // TMVA
 //#include "TMVA/PDEFoam.h"
 
@@ -47,9 +49,10 @@ class PndMvaDataSet
    *@param classNames    Names of available classes.
    *@param varNames     Available variabl names.
    */
-  PndMvaDataSet(const std::string& inputFilename,
-		const std::vector<std::string>& classNames,
-		const std::vector<std::string>& varNames);
+  PndMvaDataSet(std::string const &inputFilename,
+		std::vector<std::string> const &classNames,
+		std::vector<std::string> const &varNames);
+
   //! Destructor
   virtual ~PndMvaDataSet();
   
@@ -57,20 +60,13 @@ class PndMvaDataSet
    * Normalize event dataset using one of available methods.
    * @param t Normalization type (VARX, MINMAX, MEDIAN).
    */
-  void NormalizeDataSet(const NormType type = NONE);
+  void NormalizeDataSet(NormType const type = NONE);
 
   /**
    * Write the normalized DataSet to the out-put file.
    * @param  outFile  File name to write to
    */
-  void WriteDataSet(const std::string& outFile);  
-
-  /**
-   * Parameter decorrelation.
-   *
-   * Performs PCA (Principal component analysis) on the input dataset.
-   */
-  void PCATransForm();
+  void WriteDataSet(std::string const &outFile);  
 
   /**
    * Initialize the class conditional means vectors.
@@ -81,32 +77,36 @@ class PndMvaDataSet
    * Creates a data set with equal number of events for each class.
    */
   void Trim();
-
   
   //! Get available data.
-  inline const std::vector< std::pair<std::string, std::vector<float>*> >& GetData() const;
+  inline std::vector< std::pair<std::string, std::vector<float>*> > const &GetData() const;
 
-  //! Get the list of available classes.
-  inline const std::vector<PndMvaClass>& GetClasses() const;
+  //! Get the list of available classes (labels).
+  inline std::vector<PndMvaClass> const &GetClasses() const;
   
   //! Get the list of available variables.
-  inline const std::vector<PndMvaVariable>& GetVars() const;
+  inline std::vector<PndMvaVariable> const &GetVars() const;
   
-  //! Get classconditional means for all classes.
-  inline const std::map< std::string, std::vector<float>* >& GetClassCondMeans() const;
+  //! Get classconditional means for all classes (labels).
+  inline std::map< std::string, std::vector<float>* > const &GetClassCondMeans() const;
   
   //! Get name of input file name (weight/event file).
-  inline const std::string& GetInFileName() const;
+  inline std::string const &GetInFileName() const;
 
   //========================= PCA =====================//
-  //! If PCA was aaplied.
+  /**
+   * Parameter decorrelation.
+   *
+   * Performs PCA (Principal component analysis) on the input dataset.
+   */
+  void PCATransForm();
+
+  //! If PCA was applied.
   inline bool Used_PCA() const;
   
   //! Get PCA object
-  inline const PndMvaVarPCATransform& Get_PCA() const;
-  
-  inline const TVectorD& GetPCA_Means() const;
-  inline const TMatrixD& GetPCA_EigenVects() const;
+  inline PndMvaVarPCATransform const &Get_PCA() const;
+
   //_________________________ PCA _____________________//
 
  protected:
@@ -118,9 +118,9 @@ class PndMvaDataSet
  private:
   // Private to avoid mistakes.
   // Copy constructor.
-  PndMvaDataSet(const PndMvaDataSet& other);
-  PndMvaDataSet& operator=(const PndMvaDataSet& other);
-
+  PndMvaDataSet(PndMvaDataSet const &other);
+  PndMvaDataSet& operator=(PndMvaDataSet const &other);
+  
   /**
    * Class conditional mean for a given class. Stored in class
    * conditional means container.
@@ -144,7 +144,7 @@ class PndMvaDataSet
    * Determine Min Max difference.
    */
   void MinMaxDiff();
-
+  
   //! Input File name
   std::string m_input;
   
@@ -162,15 +162,9 @@ class PndMvaDataSet
   
   // PCA transformation.
   PndMvaVarPCATransform m_PCA;
-
+  
   // If PCA was applied.
   bool m_UsePCA;
-
-  // PCA Mean values
-  TVectorD* m_PCA_Means;
-
-  // PCA Eigenvectors
-  TMatrixD* m_PCA_EigenVects;
 };
 
 // ============= Inline implementation ==================
@@ -207,13 +201,5 @@ inline bool PndMvaDataSet::Used_PCA() const
 inline const PndMvaVarPCATransform& PndMvaDataSet::Get_PCA() const
 {
   return m_PCA;
-};
-inline const TVectorD& PndMvaDataSet::GetPCA_Means() const
-{
-  return *m_PCA_Means;
-};
-inline const TMatrixD& PndMvaDataSet::GetPCA_EigenVects() const
-{
-  return *m_PCA_EigenVects;
 };
 #endif

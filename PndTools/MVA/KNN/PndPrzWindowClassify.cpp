@@ -51,16 +51,17 @@ std::string* PndPrzWindowClassify::Classify(std::vector<float> EvtData)
   const vector<PndMvaClass>& classes = m_dataSets.GetClasses();
 
   // Temporary variables for the winning class name and density.
-  std::string CurWin = "PRZ";
+  std::string CurWin = "PRZ_UNKNOWN_WIN";
   float Curprob = std::numeric_limits<float>::min();
   
   // Find the maximum Mva Val.
-  for(size_t i = 0; i < classes.size(); i++){
-    
+  for(size_t i = 0; i < classes.size(); i++)
+  {
     // Get the current label.
     std::string curName = classes[i].Name;
     
-    if( (TMPres[curName]) > Curprob ){
+    if( (TMPres[curName]) > Curprob )
+    {
       Curprob = TMPres[curName];
       CurWin  = curName;
     }
@@ -85,20 +86,25 @@ void PndPrzWindowClassify::GetMvaValues(vector<float> eventData,
   // Get examples.
   const vector <pair<string, vector<float>*> >& events = m_dataSets.GetData();
   
-  // Get labels.
+  // Get labels (classes).
   const vector<PndMvaClass>& labels = m_dataSets.GetClasses();
 
   // Get variables.
-  const vector<PndMvaVariable>& vars = m_dataSets.GetVars();
+  //const vector<PndMvaVariable>& vars = m_dataSets.GetVars();
 
   // Normalize current Event
-  for(size_t k = 0; k < vars.size(); k++){
+  /*
+    for(size_t k = 0; k < vars.size(); k++){
     assert(vars[k].NormFactor != 0);
     eventData[k] -= vars[k].Mean;
     eventData[k] /= vars[k].NormFactor;
-  }
+    }
+  */
+  NormalizeEvent(eventData);
 
   // Init output (result) map
+  result.clear();
+
   for(size_t cl = 0; cl < labels.size(); cl++){
     result[labels[cl].Name] = 0.0;
   }
@@ -107,25 +113,29 @@ void PndPrzWindowClassify::GetMvaValues(vector<float> eventData,
   float phi = 0.00;
   
   // Loop through available labels(classes).
-  for(size_t cl = 0; cl < labels.size(); cl++){
+  for(size_t cl = 0; cl < labels.size(); cl++)
+  {
     // Get current label
     std::string curLabel = labels[cl].Name;
 
     // Loop through training examples with the current label.
-    for(size_t ex = 0; ex < events.size(); ex++){
+    for(size_t ex = 0; ex < events.size(); ex++)
+    {
       // Same labels!!?
-      if( events[ex].first == curLabel){
+      if( events[ex].first == curLabel)
+      {
 	// Get kernel output
 	phi = histKernel( eventData, *(events[ex].second) );
-
+	
 	//result[curLabel] += (1.00/m_volumeN) * phi;
 	result[curLabel] = result[curLabel] + ( phi/m_volumeN );
       }
     }//examples loop
   }// labels loop
-
+  
   // Normalize with number of available samples.
-  for(size_t cl = 0; cl < labels.size(); cl++){
+  for(size_t cl = 0; cl < labels.size(); cl++)
+  {
     //result[labels[cl].Name] = (1.00 /numSamples) * (result[labels[cl].Name]);
     result[labels[cl].Name] = ( (result[labels[cl].Name]) / numSamples );
   }
@@ -141,10 +151,11 @@ void PndPrzWindowClassify::setWindowSize(float wsize)
   const std::vector<PndMvaVariable>& variables = m_dataSets.GetVars();
 
   // init window sizes.
-  for(size_t i = 0; i < variables.size(); i++){
+  for(size_t i = 0; i < variables.size(); i++)
+  {
     m_Wsize[variables[i].Name] = wsize;
   }
-
+  
   // Set hypercube volume.
   m_volumeN = CompHyperCubeVolume();
 }
@@ -169,7 +180,8 @@ float PndPrzWindowClassify::histKernel( const std::vector<float>& evtDat,
   std::vector <float> tmpPar (variables.size(), 0.0);
   
   // Use a box shaped volume. We can also use a sphere (x * x)
-  for(size_t i = 0; i < variables.size(); i++){
+  for(size_t i = 0; i < variables.size(); i++)
+  {
     tmpPar[i] = abs(evtDat[i] - trSample[i])/(m_Wsize[variables[i].Name]);
   }
   
@@ -177,7 +189,8 @@ float PndPrzWindowClassify::histKernel( const std::vector<float>& evtDat,
   std::sort(tmpPar.begin(), tmpPar.end());
   
   // last element is the largest
-  if( 0.5 >= (tmpPar[tmpPar.size() - 1]) ){
+  if( 0.5 >= (tmpPar[tmpPar.size() - 1]) )
+  {
     return 1.00;// Inside current cube
   }
   else{
@@ -193,7 +206,8 @@ float PndPrzWindowClassify::CompHyperCubeVolume()
   float volume = 1;
   
   //Compute the hypercube volume
-  for(std::map <std::string, float>::const_iterator d = m_Wsize.begin(); d != m_Wsize.end(); ++d){
+  for(std::map <std::string, float>::const_iterator d = m_Wsize.begin(); d != m_Wsize.end(); ++d)
+  {
     volume = volume * (d->second);
   }
   return volume;

@@ -33,7 +33,7 @@ PndLVQTrain::PndLVQTrain(const std::string& inputFile,
 PndLVQTrain::~PndLVQTrain()
 {
   std::cout << "<INFO> Cleaning all initialized objects, LVQ." 
-	    <<std::endl;
+	    << '\n';
   // Clean m_LVQProtos
   for(size_t i = 0; i < m_LVQProtos.size(); i++){
     delete m_LVQProtos[i].second;
@@ -69,30 +69,33 @@ void PndLVQTrain::Train()
   long double a       = (ethaZero - ethaFinal)/(ethaFinal * static_cast<double>(tFinal) );
   
   m_ProgStep = (tFinal / 100);
-  std::cerr << "<INFO> Each . equals " << m_ProgStep 
-	    << " learning steps" << std::endl;
+  
+  std::cout << "<INFO> Each . equals " << m_ProgStep 
+	    << " learning steps" << '\n';
 
+  // We need to fix this___ FIXME
   if( a < 0.00 )
   {//Underflow
-    std::cout << "\tToo small value for a." << std::endl;
+    std::cerr << "\tToo small value for a." << std::endl;
     a = std::numeric_limits<double>::min();
   }
   
   if( tFinal <= static_cast<unsigned>(0) )
   {// OverFlow
-    std::cout << "\t tFinal Overflow." << std::endl;
+    std::cerr << "\t tFinal Overflow." << std::endl;
     tFinal = std::numeric_limits<unsigned>::max();
   }
-  
+  // We need to fix this___ FIXME
+
   // Print some information.
   std::cout << "<INFO>: Performing LVQ1 learning with parameters:\n"
 	    <<"Init constant = " << m_initConst <<", ethaZero = " 
 	    << ethaZero << ", ethaFinal = " << ethaFinal
 	    <<", numSweep = " << numSweep << ", tFinal= " << tFinal 
-	    <<", learn coeff. = " << a << std::endl;
+	    <<", learn coeff. = " << a << '\n';
   
   // Start the training
-  std::cout << "Starting to train (LVQ1)....." << std::endl;
+  std::cout << "Starting to train (LVQ1)....." << '\n';
   
   for(unsigned int time = 0; time < tFinal; time++)
   {
@@ -102,7 +105,7 @@ void PndLVQTrain::Train()
     if( ethaT <= (1.50 * std::numeric_limits<double>::min()))
     {
       ethaT  = std::numeric_limits<double>::min();
-      std::cout <<"\tVery small ethaT" << std::endl;
+      std::cerr <<"\tVery small ethaT" << std::endl;
     }
 
     // Show progress.
@@ -165,9 +168,9 @@ void PndLVQTrain::Train()
   // Last evaluation
   EvalClassifierError( (tFinal - 1) );
 
-  std::cerr << std::endl;
-  std::cerr << "<INFO> Finished training and writing to file." 
-	    << std::endl;
+  std::cerr << '\n';
+  std::cout << "<INFO> Finished training and writing to file." 
+	    << '\n';
 
   WriteToWeightFile(m_LVQProtos);
 }
@@ -185,7 +188,7 @@ void PndLVQTrain::Train21()
   // Initialize distance container.
   if(m_distances.size() == 0)
   {
-    std::cerr << "<INFO> Init Distances Container." << std::endl;
+    std::cout << "<INFO> Init Distances Container." << '\n';
     for(unsigned int i = 0; i < m_LVQProtos.size(); i++)
     {
       m_distances.push_back(PndMvaDistObj());
@@ -209,28 +212,30 @@ void PndLVQTrain::Train21()
   
   m_ProgStep = (tFinal / 100);
 
+  // We need to fix this___ FIXME
   if( a < 0.00 )
   {//Underflow
-    std::cout << "Too small value for a." << std::endl;
+    std::cerr << "Too small value for a." << std::endl;
     a = std::numeric_limits<double>::min();
   }
   
   if(tFinal <= static_cast<unsigned>(0))
   {// OverFlow
-    std::cout << "tFinal Overflow." << std::endl;
+    std::cerr << "tFinal Overflow." << std::endl;
     tFinal = std::numeric_limits<unsigned>::max();
   }
-  
+  // We need to fix this___ FIXME
+
   // Print some INFO.
   std::cout << "<INFO>: Performing LVQ2.1 learning with parameters:\n"
 	    <<"Init constant = " << m_initConst << ", ethaZero =" 
 	    << ethaZero << ", ethaFinal = " << ethaFinal
 	    <<", numSweep = " << numSweep << ", tFinal= "<< tFinal 
 	    <<", learn coeff. = " << a << ", Window = " << windowSize 
-	    <<", surroun. = "<< s << std::endl;
+	    <<", surroun. = "<< s << '\n';
   
   // Start learning
-  std::cout << "Starting to train (LVQ2.1)....." << std::endl;
+  std::cout << "Starting to train (LVQ2.1)....." << '\n';
   for(unsigned int time = 0; time < tFinal; time++)
   {
     // Show progress.
@@ -252,7 +257,7 @@ void PndLVQTrain::Train21()
     if( ethaT <= (1.50 * std::numeric_limits<double>::min()))
     {
       ethaT  = std::numeric_limits<double>::min();
-      std::cout <<"Very small ethaT" << std::endl;
+      std::cerr <<"Very small ethaT" << std::endl;
     }
     
     // select a random example
@@ -329,8 +334,8 @@ void PndLVQTrain::Train21()
   EvalClassifierError( (tFinal - 1) );
 
   std::cerr << std::endl;
-  std::cerr << "<INFO> Finished training and writing to file."
-	    << std::endl;
+  std::cout << "<INFO> Finished training and writing to file."
+	    << '\n';
 
   WriteToWeightFile(m_LVQProtos);
 }
@@ -363,7 +368,8 @@ void PndLVQTrain::InitProtoTypes()
     if( classes[i].NExamples < m_numProtoPerClass[(classes[i]).Name] ){
       std::cerr << "<ERROR> Requested number of prototypes larger than "
 		<< "the number of available examples for class: "
-		<< (classes[i]).Name << std::endl << std::endl;
+		<< (classes[i]).Name << '\n' 
+		<< std::endl;
     exit(EXIT_FAILURE);
     }
 
@@ -401,7 +407,7 @@ void PndLVQTrain::InitProtoTypes()
 void PndLVQTrain::InitProtoK_Means()
 {
   std::cout << "<INFO> Initializing LVQ prototypes using K_Means clustering."
-	    << std::endl;
+	    << '\n';
 
   // Fetch labels.
   const std::vector<PndMvaClass>& classes = m_dataSets.GetClasses();
@@ -411,7 +417,7 @@ void PndLVQTrain::InitProtoK_Means()
     std::cout << classes[i].Name << " "
 	      << m_numProtoPerClass[classes[i].Name] << " ";
   }
-  std::cout << std::endl;
+  std::cout << '\n';
 
   // Get available data points.
   const std::vector<std::pair<std::string, std::vector<float>*> >& events = m_dataSets.GetData();
@@ -442,7 +448,7 @@ void PndLVQTrain::InitProtoK_Means()
     // (lable).
     std::cout << "Number of examples for " << clsName 
 	      << " = " <<  clusteringInput.size()
-	      << std::endl;
+	      << '\n';
     
     // Create clusters from current data points.
     PndMvaCluster clust (clusteringInput, numProto);
@@ -491,7 +497,7 @@ void PndLVQTrain::InitProtoK_Means()
 void PndLVQTrain::InitProtoRand()
 {
   std::cout << "<INFO> Initializing LVQ prototypes based on CLM."
-	    << std::endl;
+	    << '\n';
 
   // Initialize LVQ-prototypes.
   double c = m_initConst;//0.8;
@@ -505,7 +511,7 @@ void PndLVQTrain::InitProtoRand()
     std::cout << classes[i].Name << " "
 	      << m_numProtoPerClass[classes[i].Name] << " ";
   }
-  std::cout << std::endl;
+  std::cout << '\n';
 
   // Fetch variables.
   const std::vector<PndMvaVariable>& variables = m_dataSets.GetVars();
@@ -537,7 +543,7 @@ void PndLVQTrain::InitProtoRand()
       }
       if(index > maxIdx)
       {
-	std::cout << "\n\n======================================\n"
+	std::cerr << "\n\n======================================\n"
 		  << "\t<ERROR> Index out of bound "
 		  << index <<" and cls = "<< cl
 		  << "\n=========================================\n"
@@ -556,7 +562,7 @@ void PndLVQTrain::InitProtoRand()
       // May not happen, DEBUG DEBUG DEBUG
       if(curClsName != events[index].first)
       {
-	std::cout << "\n Name collision cls is " << classes[cl].Name
+	std::cerr << "\n Name collision cls is " << classes[cl].Name
 		  << " index is " << index << " minindex " << minIdx
 		  <<" current class name is " << events[index].first 
 		  << std::endl;
@@ -579,7 +585,7 @@ void PndLVQTrain::InitProtoRand()
 void PndLVQTrain::cleanProtoList()
 {
   std::cout << "<INFO> Cleaning the prototype list." 
-            << std::endl;
+            << '\n';
 
   // Clean up the container for proto-types
   for(unsigned int k = 0; k < m_LVQProtos.size(); k++)
@@ -698,7 +704,7 @@ void PndLVQTrain::ReadProtoFromFile()
   const std::vector<PndMvaVariable>& variables = m_dataSets.GetVars();
   
   std::cout << "<INFO> Reading data from  "<< m_initProtoFile
-	    << std::endl;
+	    << '\n';
   
   // Open the input file for reading event data.
   TFile InPutFile(m_initProtoFile.c_str(), "READ");
@@ -709,7 +715,7 @@ void PndLVQTrain::ReadProtoFromFile()
     // Tree name
     const char *name = classes[cls].Name.c_str();
     std::cout << "<INFO> Reading events for "
-	      <<  classes[cls].Name << std::endl;
+	      <<  classes[cls].Name << '\n';
     
     // Get the tree object
     TTree *t = (TTree*) InPutFile.Get(name);
@@ -721,7 +727,7 @@ void PndLVQTrain::ReadProtoFromFile()
     }
     std::cout << "<INFO> There are "<< t->GetEntriesFast()
 	      << " vectors available for the current class."
-	      << std::endl;
+	      << '\n';
     if( t->GetEntriesFast() != m_numProtoPerClass[classes[cls].Name])
     {
       std::cerr << "<ERROR> Number of prototypes and the"

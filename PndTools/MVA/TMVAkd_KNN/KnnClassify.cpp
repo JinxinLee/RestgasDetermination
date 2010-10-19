@@ -21,16 +21,16 @@
 
 void printResult( std::map<std::string,float>& res, unsigned int evtId){
   std::cout << "\t==================================" << std::endl;
-  std::cout << " Evt Num = " << evtId << std::endl;
+  std::cout << " Evt Num = " << evtId << '\n';
   
   for( std::map<std::string,float>::iterator ii=res.begin(); 
        ii != res.end(); ++ii)
   {
     std::cout <<"\t" << (*ii).first 
-	      << "\t=> " << (*ii).second << std::endl;
+	      << "\t=> " << (*ii).second << '\n';
   }
   
-  std::cout << "\t==================================" << std::endl;
+  std::cout << "\t==================================" << '\n';
 }
 
 /* *********************************************
@@ -94,14 +94,15 @@ int main(int argc, char** argv)
   cls.SetKnn(NumNei);
   cls.InitKNN();
   
-  std::cout << ".......... Init is done." << std::endl;
+  std::cout << ".......... Init is done." << '\n';
   
   timer.Stop();
   double rtime = timer.RealTime();
   double ctime = timer.CpuTime();
-  std::cout << "<INFO> Initialization time:" << std::endl;
-  std::cout<< "RealTime = " << rtime << " seconds, CpuTime = " 
-           << ctime <<" Seconds" << std::endl;
+
+  std::cout << "<INFO> Initialization time:" << '\n'
+	    << "RealTime = " << rtime << " seconds, CpuTime = " 
+	    << ctime <<" Seconds" << '\n';
   
   // Open input events file.
   TFile inFile(InputEvents.c_str(), "READ");
@@ -115,14 +116,15 @@ int main(int argc, char** argv)
   std::vector<float> curEvt(vars.size(), 0.0);
   
   // Bind tree branches to the container.
-  for(size_t i = 0; i < vars.size(); i++){
+  for(size_t i = 0; i < vars.size(); i++)
+  {
     // Activate branches
     events->SetBranchStatus( vars[i].c_str(), 1);
-
+    
     // Bind
     events->SetBranchAddress( (vars[i]).c_str(), &(curEvt[i]));
   }
- 
+  
   // Map to store the results
   std::map<std::string, float> res;
   
@@ -134,9 +136,10 @@ int main(int argc, char** argv)
   unsigned int misCl = 0;
   int numberOfEvt = events->GetEntriesFast();
   
-  //numberOfEvt = 4;
-
-  for(int ev = 0; ev < numberOfEvt; ev++){
+  numberOfEvt = 10;
+  
+  for(int ev = 0; ev < numberOfEvt; ev++)
+  {
     events->GetEntry(ev);
     
     //cls.GetMvaValues(curEvt, res);
@@ -152,27 +155,28 @@ int main(int argc, char** argv)
   timer.Stop();
   rtime = timer.RealTime();
   ctime = timer.CpuTime();
-  std::cout << "<INFO> Classifier timing results:"<< std::endl;
-  std::cout<< "RealTime = " << rtime << " seconds, CpuTime = " 
-	   << ctime <<" Seconds.\n" << std::endl;
+
+  std::cout << "<INFO> Classifier timing results:"<< '\n'
+	    << "RealTime = " << rtime << " seconds, CpuTime = "
+	    << ctime <<" Seconds.\n" << '\n';
   
   // Classifier evaluation info.
   std::cout << "+++++++++++++++++++++++++++++++++++++++" 
-	    << std::endl
+	    << '\n'
 	    << " Total number of classified events: "
-	    << numberOfEvt << std::endl
+	    << numberOfEvt << '\n'
 	    << " Number of missclassified: " << misCl << " = "
 	    << ( static_cast<float>(misCl) * 100.00)/ static_cast<float>(numberOfEvt)
 	    <<" %"
-	    << std::endl 
+	    << '\n'
 	    << " Correct cassified = " << (numberOfEvt - misCl)
-	    << std::endl 
+	    << '\n'
 	    << " (time / event) = " << rtime/ static_cast<double>(numberOfEvt)
-	    << std::endl 
+	    << '\n'
 	    << " With #neighb = " << NumNei 
-	    << std::endl
-	    << "+++++++++++++++++++++++++++++++++++++++" 
-	    << std::endl;
+	    << '\n'
+	    << "+++++++++++++++++++++++++++++++++++++++"
+	    << '\n';
 
   // Close open file
   inFile.Close();

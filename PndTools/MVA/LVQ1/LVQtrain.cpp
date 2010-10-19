@@ -69,7 +69,7 @@ int main(int argc, char** argv)
   //clas.push_back("proton");   //clas.push_back("gamma");
 
   // Variable names 
-  nam.push_back("p");
+  //nam.push_back("p");
   nam.push_back("emc");
   nam.push_back("z20");
   nam.push_back("z53");
@@ -77,6 +77,7 @@ int main(int argc, char** argv)
   //nam.push_back("thetaC"); nam.push_back("mvd");
   //nam.push_back("tof"); nam.push_back("stt"); 
 
+  // Create trainer object.
   PndLVQTrain tr(ip, clas, nam, true);
 
   float initC  = 0.9;

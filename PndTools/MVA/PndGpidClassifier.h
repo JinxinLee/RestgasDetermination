@@ -36,9 +36,9 @@ class PndGpidClassifier
    *@ClassNames Names of available (signal) classes.
    *@VarNames Names of the used variables(features).
    */
-  PndGpidClassifier(const std::string& InPut,
-		    const std::vector<std::string>& ClassNames,
-		    const std::vector<std::string>& VarNames);
+  PndGpidClassifier(std::string const &InPut,
+		    std::vector<std::string> const &ClassNames,
+		    std::vector<std::string> const &VarNames);
   //! Destructor
   virtual ~PndGpidClassifier();
   
@@ -53,15 +53,18 @@ class PndGpidClassifier
    *@param EvtData: Event, to be classified.
    *@return Name of the class with the best MVA value.
    */
-  virtual std::string* Classify( std::vector<float> EvtData ) = 0;
+  virtual std::string *Classify( std::vector<float> EvtData ) = 0;
 
  protected:
+  // Normalize the given event vector.
+  virtual void NormalizeEvent(std::vector<float>& EvtVector) const;
+  
   //! Data set. Holds event Weights
   PndMvaDataSet m_dataSets;
- 
+  
  private:
   // To avoid mistakes.
-  PndGpidClassifier(const PndGpidClassifier& other);
-  PndGpidClassifier& operator=(const PndGpidClassifier& other);
+  PndGpidClassifier (PndGpidClassifier const &other);
+  PndGpidClassifier& operator=(PndGpidClassifier const &other);
 };
 #endif //End of class interface

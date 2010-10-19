@@ -19,7 +19,8 @@ using namespace std;
  * Constructor.
  */
 PndMvaVarPCATransform::PndMvaVarPCATransform()
-  : m_MeanValues(NULL), m_EigenVectors(NULL)
+  : m_MeanValues(0),
+    m_EigenVectors(0)
 {}
 
 /**
@@ -28,15 +29,17 @@ PndMvaVarPCATransform::PndMvaVarPCATransform()
 PndMvaVarPCATransform::~PndMvaVarPCATransform()
 {
   cout << "<INFO> Cleaning claimed memory by PCA."
-       << endl; 
+       << '\n';
 
   // Delete Mean value vector.
-  if(m_MeanValues){
+  if(m_MeanValues)
+  {
     delete m_MeanValues;
   }
 
   // Delete Eigenvectors matrix.
-  if(m_EigenVectors){
+  if(m_EigenVectors)
+  {
     delete m_EigenVectors;
   }
 }
@@ -45,20 +48,22 @@ PndMvaVarPCATransform::~PndMvaVarPCATransform()
  * Prepare Transformation for the given dataset events.
  *@param dat Collection of the event feature vectors.
  */
-bool PndMvaVarPCATransform::InitPCATranformation(const vector<pair<std::string, vector<float>*> >& dat)
+bool PndMvaVarPCATransform::InitPCATranformation(vector<pair<std::string, vector<float>*> > const &dat)
 {
-  if( dat.size() <= 0 ){
+  if( dat.size() <= 0 )
+  {
     std::cerr << "<ERROR> No data available in the given data container.\n"
 	      << "Could not perform PCA." << std::endl;
     exit(EXIT_FAILURE);
   }
-  cout << "<INFO> Initializing PCA object and"
-       <<" computing PCA transformation parameters."
-       << endl;
+  std::cout << "<INFO> Initializing PCA object and"
+	    <<" computing PCA transformation parameters."
+	    << '\n';
   
   ComputePrincipalComponents(dat);
 
-  if( m_MeanValues && m_EigenVectors ){
+  if( m_MeanValues && m_EigenVectors )
+  {
     return true;
   }
   return false;
@@ -69,16 +74,25 @@ bool PndMvaVarPCATransform::InitPCATranformation(const vector<pair<std::string, 
  *@param evd Vector containing the event to transform.
  *@return Transformed event.
  */
-std::vector<float>* PndMvaVarPCATransform::Transform(const std::vector<float>& evt) const
+std::vector<float>* PndMvaVarPCATransform::Transform(std::vector<float> const &evt) const
 {
-  const size_t nvar = evt.size();
+  if( !(m_MeanValues && m_EigenVectors) )
+  {
+    std::cerr << "<ERROR> Eigen vectors and mean values are not initialized. "
+	      << "PCA transformation can not be done."
+	      << std::endl;
+    abort();
+  }
+  size_t const nvar = evt.size();
 
   // Allocate memory and initialize.
   std::vector<float>* p = new std::vector<float>(nvar, 0.0);
   
-  for (size_t i = 0; i < nvar; i++) {
+  for (size_t i = 0; i < nvar; i++)
+  {
     double pv = 0.00;
-    for (size_t j = 0; j < nvar; j++){
+    for (size_t j = 0; j < nvar; j++)
+    {
       pv += (static_cast<double>(evt.at(j)) - (*m_MeanValues)(j)) * (*m_EigenVectors)(j,i);
     }
     (*p)[i] = pv;
@@ -90,10 +104,10 @@ std::vector<float>* PndMvaVarPCATransform::Transform(const std::vector<float>& e
  * Given a list of n-dimensional data points, Computes PCA for the
  * current dataset.
  */
-void PndMvaVarPCATransform::ComputePrincipalComponents(const vector< pair<string, vector<float>* > >& dat)
+void PndMvaVarPCATransform::ComputePrincipalComponents(vector< pair<string, vector<float>* > > const &dat)
 {
   cout << "<INFO> Computing PCA for the current dataset."
-       << endl;
+       << '\n';
   size_t nvar = (dat[0].second)->size();
 
   // Temporary to store event parameters.
@@ -107,7 +121,8 @@ void PndMvaVarPCATransform::ComputePrincipalComponents(const vector< pair<string
   TPrincipal pca(nvar, "N");
 
   // Loop through the dataset members.
-  for(size_t ev = 0; ev < dat.size(); ev++){
+  for(size_t ev = 0; ev < dat.size(); ev++)
+  {
     // Fetch parameters of the current event.
     std::vector<float>* curEv = dat[ev].second;
     // Copy values.
@@ -128,6 +143,30 @@ void PndMvaVarPCATransform::ComputePrincipalComponents(const vector< pair<string
 
   m_EigenVectors = new TMatrixD( *(pca.GetEigenVectors()) );
   
+  const TVectorD* eigenVals = pca.GetEigenValues();
+  
+  // Print Some info to screen
+  std::cout << "<INFO> Eigen values:" << '\n';
+  eigenVals->Print();
+
+  std::cout << "<INFO> Mean values:" << '\n';
+  m_MeanValues->Print();
+
+  std::cout << "<INFO> Eigen vectors:" << '\n';
+  m_EigenVectors->Print();
+  
   // Free memory.
   delete [] dvec;
+}
+
+// Set mean values vector.
+void PndMvaVarPCATransform::SetMeanVector(const TVectorD& vect)
+{
+  m_MeanValues = new TVectorD(vect);
+}
+
+// Set Eigenvectors matrix.
+void PndMvaVarPCATransform::SetEigenVectors(const TMatrixD& mat)
+{
+ m_EigenVectors = new TMatrixD(mat);
 }

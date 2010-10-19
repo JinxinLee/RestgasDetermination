@@ -22,8 +22,8 @@ using namespace std;
 PndMvaDataSet::PndMvaDataSet(const string& inputFilename,
 			     const vector<string>& classNames,
 			     const vector<string>& varNames)
-  : m_input(inputFilename), m_UsePCA(false), 
-    m_PCA_Means(NULL), m_PCA_EigenVects(NULL)
+  : m_input(inputFilename),
+    m_UsePCA(false)
 {
   // Initialize classes
   for(size_t i = 0; i < classNames.size(); i++)
@@ -61,13 +61,6 @@ PndMvaDataSet::~PndMvaDataSet()
 
   m_classes.clear();
   m_vars.clear();
-  
-  if(m_PCA_Means){
-    delete m_PCA_Means;
-  }
-  if(m_PCA_EigenVects){
-    delete m_PCA_EigenVects;
-  }
 }
 
 /**
@@ -75,7 +68,7 @@ PndMvaDataSet::~PndMvaDataSet()
  */
 void PndMvaDataSet::Trim()
 {
-  std::cout << "<INFO> Triming data set." << std::endl;
+  std::cout << "<INFO> Triming data set." << '\n';
   
   // If the dtaset is initialized.
   assert(m_events.size() > 1 );
@@ -146,7 +139,7 @@ void PndMvaDataSet::Trim()
   m_events.swap(newEvents);
 
   // Restore indices
-  cout << "<INFO> Restoring class indices." << endl;
+  cout << "<INFO> Restoring class indices." << '\n';
   int minIdx = 0;
   for(size_t idx = 0; idx < m_events.size(); idx++)
   {
@@ -179,32 +172,32 @@ void PndMvaDataSet::NormalizeDataSet(const NormType type)
   {
   case MINMAX:
     cout << "<INFO> Normalizing dataset using Min, Max spread and mid."
-	 << endl;
+	 << '\n';
     MinMaxDiff();
     break;
     
   case MEDIAN:
     cout << "<INFO> Normalizing the dataset "
 	 << "using Median and Inter Quartile Distance (IQR)."
-	 << endl;
+	 << '\n';
     DetermineMedian();
     break;
     
   case VARX:
     cout << "<INFO> Normalizing the dataset "
 	 << "using samle Variance and mean."
-	 << endl;
+	 << '\n';
     ComputeVariance();
     break;
     
   default:
     // case NONE:
-    cout << "\n<INFO> No normalization scheme was selected.\n"
-	 << endl;
+    cout << "<INFO> No normalization scheme was selected."
+	 << '\n';
     break;
   }
   std::cout << "===================================================" 
-	    << std::endl;
+	    << '\n';
 
   // Event Loop
   for(size_t ev = 0; ev < m_events.size(); ev++)
@@ -239,8 +232,8 @@ void PndMvaDataSet::InitClsCondMeans()
  */
 void PndMvaDataSet::WriteDataSet(const string& outFile)
 {
-  cerr << "<INFO> Writing samples to file: "
-       << outFile << endl;
+  cout << "<INFO> Writing samples to file: "
+       << outFile << '\n';
   /* Open out put file and write coordinates of the prototypes */
   TFile out (outFile.c_str(),"RECREATE","DataSetOutput", 9);
   
@@ -349,7 +342,7 @@ void PndMvaDataSet::WriteDataSet(const string& outFile)
 void PndMvaDataSet::ReadInput()
 {
   cout << "<INFO> Reading data from  "<< m_input
-       << endl;
+       << '\n';
 
   // Open the input file for reading event data.
   TFile InPutFile(m_input.c_str(),"READ");
@@ -363,14 +356,14 @@ void PndMvaDataSet::ReadInput()
     // Tree name
     const char *name = m_classes[cls].Name.c_str();
     std::cout << "<INFO> Reading events for "
-	      <<  m_classes[cls].Name << std::endl;
+	      <<  m_classes[cls].Name << '\n';
     
     // Get the tree object
     TTree *t = (TTree*) InPutFile.Get(name);
     if(!t)
     {
-      cerr<< "\t<ERROR> Could not find data tree " << name 
-	       << endl;
+      std::cerr<< "\t<ERROR> Could not find data tree " << name 
+	       << std::endl;
       assert (t);
     }
 
@@ -394,6 +387,7 @@ void PndMvaDataSet::ReadInput()
     
     // Fetch the number of examples available for the current class
     m_classes[cls].NExamples = t->GetEntriesFast();
+
     // Find-out the min and max indices  per class
     maxIdx = maxIdx + t->GetEntriesFast();
     m_classes[cls].StartIdx = minIdx;
@@ -426,7 +420,7 @@ void PndMvaDataSet::ReadInput()
   
   if(fact)
   {
-    cout << "<INFO> Reading normalization values."<< endl;
+    cout << "<INFO> Reading normalization values."<< '\n';
     vector<float> normVars(m_vars.size(), 0.0);
     
     // Bind the parameters to the tree branches
@@ -456,7 +450,7 @@ void PndMvaDataSet::ReadInput()
   
   if(m)
   {
-    cout << "<INFO> Reading mean values."<< endl;
+    cout << "<INFO> Reading mean values."<< '\n';
     
     vector<float> meanVals(m_vars.size(), 0.0);
     
@@ -481,18 +475,34 @@ void PndMvaDataSet::ReadInput()
     }//End of tree loop
     delete m;
   }
-
-  //TVectorT<double>* PCAMeans = InPutFile.Get("PCAMeans");
-  m_PCA_Means = (TVectorT<double>*) InPutFile.Get("PCAMeans");
   
-  //TMatrixT<double>* PCAEigenVectors = InPutFile.Get("PCAEigenVectors");
-  m_PCA_EigenVects = (TMatrixT<double>*) InPutFile.Get("PCAEigenVectors");
+  // Get PCA data. If PCA has been applied.  
+  if( InPutFile.Get("PCAMeans") && InPutFile.Get("PCAEigenVectors") )
+  {
+    std::cout << "<INFO> Found PCA transformed values." << '\n';
 
-  if(m_PCA_Means && m_PCA_EigenVects){
+    // PCA Means.
+    TVectorT<double>* pca_mean = (TVectorT<double>*) InPutFile.Get("PCAMeans");
+    m_PCA.SetMeanVector( *(pca_mean) );
+
+    std::cout << "-I- Mean vector: " << '\n';
+    pca_mean->Print();
+
+    // PCA Eigen vectors.
+    TMatrixT<double>* pca_EigVect = (TMatrixT<double>*) InPutFile.Get("PCAEigenVectors");
+    m_PCA.SetEigenVectors( *(pca_EigVect) );
+
+    std::cout << "-I- Eigen Vectors: " << '\n';
+    pca_EigVect->Print();
+
     m_UsePCA = true;
+
+    // Delete un-needed pointers.
+    delete pca_mean;
+    delete pca_EigVect;
   }
 
-  // Close the open file and delete the file pointer
+  // Close the open file.
   InPutFile.Close();
 }
 
@@ -501,10 +511,10 @@ void PndMvaDataSet::ReadInput()
  * Class conditional mean for a given class. Stored in class
  * conditional means container.
  */
-void PndMvaDataSet::CompClsCondMean(const string& clsName)
+void PndMvaDataSet::CompClsCondMean(std::string const &clsName)
 {
   cout << "<INFO> Determining class conditional mean for "
-       << clsName << "." << endl;
+       << clsName << "." << '\n';
 
   // Find the class.
   size_t classNum = 0;  
@@ -577,19 +587,20 @@ void PndMvaDataSet::ComputeVariance()
     m_vars[i].NormFactor = variance;
     m_vars[i].Mean = mean;
     cout << m_vars[i].Name << "\t mean = " << mean
-	      << "\t\tVar(X) = " << variance << endl;
+	      << "\t\tVar(X) = " << variance << '\n';
     // Reset
     mean = 0.0;
     variance = 0.0;
   }
 }
+
 /**
  * Determines the median for parameters of the loaded DataSet.
  */
 void PndMvaDataSet::DetermineMedian()
 {
   cout << "\t<INFO> Determining median for each parameter." 
-            << endl;
+            << '\n';
   
   float median = 0.00; float Fquartil = 0.00;
   vector <float> varVect(m_events.size(), 0.00);    
@@ -622,7 +633,7 @@ void PndMvaDataSet::DetermineMedian()
     m_vars[i].NormFactor = Fquartil;
     m_vars[i].Mean = median;
     cout << m_vars[i].Name << "\tmedian = " << median 
-	      << "\t IntQuartDist = " << Fquartil << endl;
+	      << "\t IntQuartDist = " << Fquartil << '\n';
   }
 }
 
@@ -642,7 +653,7 @@ void PndMvaDataSet::MinMaxDiff()
       vec[j] = (m_events[j].second)->at(i);
     }
     // Sort variables
-    sort(vec.begin(),vec.end());
+    sort( vec.begin(), vec.end() );
     
     cout << m_vars[i].Name << "\tmin = " << vec[0] 
 	      << "\t\t max = " << vec[vec.size() - 1 ];
@@ -653,8 +664,8 @@ void PndMvaDataSet::MinMaxDiff()
     // Store values
     m_vars[i].NormFactor = diff;
     m_vars[i].Mean = middle;
-    cout << "\t\t diff  = " << diff  << endl;
-    cout << "\t\t midle = " << middle << endl;
+    cout << "\t\t diff  = " << diff  << '\n'
+	 << "\t\t midle = " << middle << '\n';
   }
 }
 
@@ -670,11 +681,11 @@ void PndMvaDataSet::PCATransForm()
 
   m_UsePCA = true;
 
-  std::cerr << "<INFO> (PCA) Transforming the events from the current data set."
-	    << std::endl;
+  std::cout << "<INFO> (PCA) Transforming the events from the current data set."
+	    << '\n';
   // Events loop
-  for(size_t evt = 0; evt < m_events.size(); evt++){
-    
+  for(size_t evt = 0; evt < m_events.size(); evt++)
+  {  
     // Current event vector
     std::vector<float>* curEvt = (m_events[evt]).second;
     
@@ -682,9 +693,11 @@ void PndMvaDataSet::PCATransForm()
     std::vector<float>* trsEvt = m_PCA.Transform(*curEvt);
     
     // Copy values to the original vector.
-    for(size_t i = 0; i < curEvt->size(); i++){
+    for(size_t i = 0; i < curEvt->size(); i++)
+    {
       curEvt->at(i) = trsEvt->at(i);
     }
+    
     // Delete object
     delete trsEvt;
   }

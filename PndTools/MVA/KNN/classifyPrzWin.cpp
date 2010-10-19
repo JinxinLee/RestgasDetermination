@@ -107,9 +107,9 @@ int main(int argc, char** argv)
   timer.Stop();
   double rtime = timer.RealTime();
   double ctime = timer.CpuTime();
-  std::cout << "<INFO> Initialization time:" << std::endl;
-  std::cout<< "RealTime = " << rtime << " seconds, CpuTime = " 
-           << ctime <<" Seconds" << std::endl;
+  std::cout << "<INFO> Initialization time:" << '\n'
+	    << "RealTime = " << rtime << " seconds, CpuTime = " 
+	    << ctime <<" Seconds" << '\n';
   
   // Open input events file.
   TFile inFile(InputEvents.c_str(), "READ");
@@ -131,7 +131,7 @@ int main(int argc, char** argv)
   timer.Reset();
   timer.Start();
   
-  std::cout << "<INFO> Classification." << std::endl;
+  std::cout << "<INFO> Classification." << '\n';
   
   // ___________ Classification ________
   unsigned int misCnt = 0;
@@ -142,16 +142,17 @@ int main(int argc, char** argv)
   Outfile.open(OutPutFile.c_str(), std::ios::out| std::ios::trunc);
   
   Outfile << "# ========================================================="
-	  << std::endl
+	  << '\n'
 	  << "# Classification output of a parzenwindow based classifier."
-          << std::endl
+          << '\n'
 	  << "# Total number of test events = " << totNumEvt
-	  << std::endl
-	  << "# treename = " << EvtTreeName << std::endl
-	  << "# Init Window edges" << std::endl;
+	  << '\n'
+	  << "# treename = " << EvtTreeName << '\n'
+	  << "# Init Window edges" << '\n';
   
-  for(size_t i = 0; i < vars.size(); i++){
-    Outfile << "# " << vars[i] << " = " << wsize[vars[i]] << std::endl;
+  for(size_t i = 0; i < vars.size(); i++)
+  {
+    Outfile << "# " << vars[i] << " = " << wsize[vars[i]] << '\n';
   }
   Outfile << "\n# =========================================================\n";
   
@@ -160,7 +161,7 @@ int main(int argc, char** argv)
     Outfile << vars[i] << " ";
   }
   Outfile << "\n# =========================================================" 
-	  << std::endl;
+	  << '\n';
   
   // ___________ Classify input events ________
   for(int ev = 0; ev < totNumEvt; ev++){
@@ -177,7 +178,7 @@ int main(int argc, char** argv)
   Outfile << std::setprecision(5) << "# Number of Missclassified events = " << misCnt
 	  << " "<< ( static_cast<float>(misCnt * 100)/static_cast<float>(totNumEvt) )
 	  << " %"
-	  << std::endl;  
+	  << '\n';  
 
   // Close open file
   inFile.Close();
@@ -187,11 +188,11 @@ int main(int argc, char** argv)
   rtime = timer.RealTime();
   ctime = timer.CpuTime();
   std::cout << "=============================================="
-	    << std::endl
+	    << '\n'
 	    << "<INFO> Classifier timing results:"
-	    << std::endl
+	    << '\n'
 	    << "RealTime = " << rtime << " seconds, CpuTime = " 
-	    << ctime <<" Seconds.\n" << std::endl;
+	    << ctime <<" Seconds.\n" << '\n';
   
   return 0;
 }

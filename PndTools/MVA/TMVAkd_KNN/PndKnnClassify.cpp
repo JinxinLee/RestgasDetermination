@@ -141,7 +141,7 @@ void PndKnnClassify::GetMvaValues(std::vector<float> eventData,
   // Get examples.
   const vector<pair<string, vector<float>*> >& events = m_dataSets.GetData();
   
-  if( m_knn > events.size())
+  if( m_knn > events.size() )
   {
     cerr << "<ERROR> Requested number of Neighbours is too large."
 	 << endl;
@@ -149,7 +149,8 @@ void PndKnnClassify::GetMvaValues(std::vector<float> eventData,
   }
 
   // Accept or reject eventData.
-  if(eventData.size() != vars.size()){
+  if( eventData.size() != vars.size() )
+  {
     cerr << "\t<ERROR> Number of elements do not match."
 	 << endl;
     return;
@@ -163,12 +164,15 @@ void PndKnnClassify::GetMvaValues(std::vector<float> eventData,
   }
 
   // Normalize current Event
-  for(size_t k = 0; k < vars.size(); k++)
-  {
+  /*
+    for(size_t k = 0; k < vars.size(); k++)
+    {
     assert( vars[k].NormFactor != 0 );
     eventData[k] -= vars[k].Mean;
     eventData[k] /= vars[k].NormFactor;
-  }
+    }
+  */
+  NormalizeEvent(eventData);
 
   // Create event and fetch Neighbours events from the tree
   TMVA::kNN::Event evt(eventData, m_weight, 20);

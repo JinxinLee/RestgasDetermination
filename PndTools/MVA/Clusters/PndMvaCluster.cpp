@@ -67,12 +67,13 @@ ClDataSample* PndMvaCluster::Cluster(const ClusteringType ClType)
   switch(ClType)
   {
   case KMEANS_SOFT://Returns empty centroids (not implemented yet).
-    std::cerr << "<INFO> Soft clustering." << std::endl;
+    std::cout << "<INFO> Soft clustering." << '\n';
     std::cerr << "<ERROR> Not implemented yet." << std::endl;
     return ( new ClDataSample() );
     break;
+
   default://Hard k_means clustering
-    std::cerr << "<INFO> Hard K_Means clustering." << std::endl;
+    std::cout << "<INFO> Hard K_Means clustering." << '\n';
     return K_Means();
     break;
   }
@@ -128,7 +129,7 @@ ClDataSample* PndMvaCluster::K_Means()
 	}
       }
       // move towards a closer centroid
-      if (move)
+      if(move)
       {
 	m_PointsToClusters[pt] = to_cluster;
 	(m_ClustersToPoints[to_cluster])->insert(pt);
@@ -154,7 +155,7 @@ ClDataSample* PndMvaCluster::K_Means()
   }//END OF while (some_point_is_moving)
   
   std::cout << "<-I-> Num Iterations " << num_iter 
-	    << std::endl;  
+	    << '\n';  
   
   //======================================
   // Copy centroid to the output structure
@@ -183,7 +184,7 @@ void PndMvaCluster::ComputeCentroids()
     
     // Loop through the points and update the cluster center
     for(std::set<unsigned int>::const_iterator iter = ClusterPoints->begin();
-	iter != ClusterPoints->end(); iter++)
+	iter != ClusterPoints->end(); ++iter)
     {
       unsigned int pt = *iter;
       std::vector<float>* curPt = m_PointSet[pt];
@@ -250,6 +251,7 @@ void PndMvaCluster::ReInitEmptyCenter(unsigned int centerIdx)
   float maxDist = std::numeric_limits<float>::min();
   float currDist = 0.0;
   unsigned int point_Idx = 0;
+
   // Find the point with the largest dist to its centeroid.
   for(size_t i = 0; i < m_PointsToClusters.size(); i++)
   {
@@ -260,16 +262,19 @@ void PndMvaCluster::ReInitEmptyCenter(unsigned int centerIdx)
       point_Idx = i;
     }
   }
+  
   // Find the responsible cluster and delete index.
   for(size_t cl = 0; cl < m_ClustersToPoints.size(); cl++)
   {
     (m_ClustersToPoints[cl])->erase(point_Idx);
   }
+  
   // Copy point to cluster.
   for(size_t dim = 0; dim < m_dimension; dim++)
   {
     (m_Centroids[centerIdx])->at(dim) = (m_PointSet[point_Idx])->at(dim);
   }
+  
   // Add point to cluster and cluster to point & init cluster
   m_ClustersToPoints[centerIdx]->insert(point_Idx);
   m_PointsToClusters[point_Idx] = centerIdx;
@@ -315,7 +320,7 @@ void PndMvaCluster::printStructs()
   {
     std::cerr << " CTR" << k << " -> ";
     std::set<unsigned int>* curSet = m_ClustersToPoints[k];
-    for( iter = curSet->begin(); iter != curSet->end(); iter++)
+    for( iter = curSet->begin(); iter != curSet->end(); ++iter)
     {
       std::cerr << *iter << ' ';
     }

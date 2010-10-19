@@ -38,7 +38,7 @@ int main(int argc, char** argv)
   if(argc < 3){
     std::cerr <<"\t<ERROR>" 
 	      <<"./classify <inputFile> <numOfneigh>"
-	      <<std::endl;
+	      << std::endl;
       return 1;
   }
   
@@ -69,7 +69,8 @@ int main(int argc, char** argv)
   std::vector<float> evt,evt1,evt2;
   
   evt.clear();
-  for(unsigned int j = 0; j < nam.size(); j++){
+  for(unsigned int j = 0; j < nam.size(); j++)
+  {
     evt.push_back(myran.Gaus(1,1));
     evt1.push_back(myran.Uniform(-1,1));
     evt2.push_back(myran.Uniform(30,50));
@@ -88,12 +89,13 @@ int main(int argc, char** argv)
     //cls.Classify(evt2, res);
     printResult(res);
   }
+  
   ti.Stop();
   double rtime = ti.RealTime();
   double ctime = ti.CpuTime();
 
-  std::cout << "timer 1: Classifier timing results:"<< std::endl;
-  std::cout<< "RealTime = " << rtime << " seconds, CpuTime = " 
-           << ctime <<" Seconds\n" << std::endl;
+  std::cout << "timer 1: Classifier timing results:"<< '\n'
+	    << "RealTime = " << rtime << " seconds, CpuTime = "
+	    << ctime <<" Seconds\n" << '\n';
   return 0;
 }

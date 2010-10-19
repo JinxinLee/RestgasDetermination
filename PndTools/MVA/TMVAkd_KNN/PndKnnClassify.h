@@ -92,5 +92,5 @@ class PndKnnClassify: public PndGpidClassifier
    * Mapping between class names and their indices in the class vector.
    */
   std::map<std::string, size_t> m_classIndices;
-};
-#endif //End of classifier interface definition
+};//End of classifier interface definition
+#endif

@@ -70,9 +70,13 @@ std::string* PndLVQClassify::Classify(std::vector<float> EvtData)
 void PndLVQClassify::GetMvaValues(vector<float> eventData,
 				  map<string,float>& result)
 {
-  // Holds the number of available examples per class
-  const vector<PndMvaVariable>& vars = m_dataSets.GetVars();
+  // Fetch variables
+  //const vector<PndMvaVariable>& vars = m_dataSets.GetVars();
+
+  // Fetch labels (classes)
   const vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+
+  // Fetch prototypes.
   const vector<pair<string, vector<float>*> >& ProtoList = m_dataSets.GetData();
   
   // Initialize results
@@ -84,13 +88,16 @@ void PndLVQClassify::GetMvaValues(vector<float> eventData,
   }
 
   // Normalize current Event
-  for(size_t k = 0; k < vars.size(); k++)
-  {
+  /*
+    for(size_t k = 0; k < vars.size(); k++)
+    {
     assert(vars[k].NormFactor != 0);
     eventData[k] -= vars[k].Mean;
     eventData[k] /= vars[k].NormFactor;
-  }
-  
+    }
+  */
+  NormalizeEvent(eventData);
+
   // Loop trough the prototypes list and compute the distances
   float dist = 0.0;
   for(size_t i = 0; i < ProtoList.size(); i++)
@@ -100,7 +107,8 @@ void PndLVQClassify::GetMvaValues(vector<float> eventData,
     
     dist = ComputeDist(*ev, eventData);
     
-    if( dist < result[clsName] ){
+    if( dist < result[clsName] )
+    {
       result[clsName] = dist;
     }
   }

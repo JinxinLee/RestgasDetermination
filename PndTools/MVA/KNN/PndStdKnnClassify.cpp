@@ -29,6 +29,8 @@ PndStdKnnClassify::PndStdKnnClassify(const string& inputFile,
     m_Knn(0)
 {
   const vector<pair<string, vector<float>*> >& events = m_dataSets.GetData();
+
+  // Init distances container
   for(size_t evt = 0; evt < events.size(); evt++)
   {
     m_distances.push_back(PndMvaDistObj());
@@ -96,8 +98,9 @@ void PndStdKnnClassify::GetMvaValues(vector<float> eventData,
 	 << endl;
     assert (m_Knn != 0);
   }
+
   // Get variables.
-  const vector<PndMvaVariable>& vars = m_dataSets.GetVars();
+  //const vector<PndMvaVariable>& vars = m_dataSets.GetVars();
 
   // Get labels.
   const vector<PndMvaClass>& classes = m_dataSets.GetClasses();
@@ -121,12 +124,15 @@ void PndStdKnnClassify::GetMvaValues(vector<float> eventData,
   }
   
   // Normalize current Event
-  for(size_t k = 0; k < vars.size(); k++)
-  {
+  /*
+    for(size_t k = 0; k < vars.size(); k++)
+    {
     assert(vars[k].NormFactor != 0);
     eventData[k] -= vars[k].Mean;
     eventData[k] /= vars[k].NormFactor;
-  }
+    }
+  */
+  NormalizeEvent(eventData);
 
   // Now we need to compute distances to all available proto types and
   // store the results.

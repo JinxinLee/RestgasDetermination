@@ -29,7 +29,7 @@ class PndMvaVarPCATransform
  public:
   //! Constructor
   PndMvaVarPCATransform();
-  
+
   //! Destructor.
   virtual ~PndMvaVarPCATransform();
   
@@ -47,15 +47,21 @@ class PndMvaVarPCATransform
   std::vector<float>* Transform(const std::vector<float>& evd) const;
 
   //! Get mean values vector
-  inline const TVectorD& GetMeanValues() const;
+  inline TVectorD const &GetMeanValues() const;
 
   //! Get Eigenvectors matrix.
-  inline const TMatrixD& GetEigenVectors() const;
+  inline TMatrixD const &GetEigenVectors() const;
+
+  //! Set mean values vector.
+  void SetMeanVector(const TVectorD& vect);
+
+  //! Set Eigenvectors matrix.
+  void SetEigenVectors(const TMatrixD& mat);
 
  private:
   //! To avoid mistakes.
-  PndMvaVarPCATransform(const PndMvaVarPCATransform& ot);
-  PndMvaVarPCATransform& operator=(const PndMvaVarPCATransform& ot);
+  PndMvaVarPCATransform (PndMvaVarPCATransform const &ot);
+  PndMvaVarPCATransform &operator=(PndMvaVarPCATransform const &ot);
   
   /*
    * Given a list of n-dimensional data points, Computes PCA for the
@@ -69,6 +75,7 @@ class PndMvaVarPCATransform
   // Eigenvectors
   TMatrixD* m_EigenVectors;
 };
+// ENd of interface definition
 
 /**
  * Get mean values vector.
@@ -85,4 +92,4 @@ inline const TMatrixD& PndMvaVarPCATransform::GetEigenVectors() const
 {
   return *m_EigenVectors;
 }
-#endif// ENd of interface definition
+#endif
