@@ -52,14 +52,18 @@ Bool_t PndPidCorrelator::GetSttInfo(PndTrack* track, PndPidCandidate* pidCand) {
     //truncated mean
     Double_t sum = 0;
     Int_t endnum = int(floor(sttCounts * perc));
-    
-    for(Int_t m = 0; m < endnum; m++) sum += dedxvec[m];
-    
-    if(endnum > 0) {
-      pidCand->SetSttMeanDEDX(sum/(Double_t) endnum);
-      
+     
+    // ****************************************
+    // CUT on n of hits: to have a meaningful
+    // truncated mean we require not to have less 
+    // than 5 hits (in the already truncated list)
+    // ****************************************
+    if(endnum > 5) {
+      for(Int_t m = 0; m < endnum; m++) sum += dedxvec[m];
+      pidCand->SetSttMeanDEDX(sum/(Double_t) endnum); // else default in pidCand is SttDEDXMean = 0
     }
-  }
+  } 
+
   pidCand->SetSttHits(sttCounts);
 }
 
