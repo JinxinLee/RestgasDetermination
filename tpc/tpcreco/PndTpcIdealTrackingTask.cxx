@@ -145,12 +145,15 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
   // Reset output Arrays
   if(_trackArray==0) Fatal("PndTpcIdealTracking::Exec)","No TrackArray");
   _trackArray->Delete();
+  // delete GFTrackCands created in Exec
+  while(!nullGFTrackCands.empty()) delete nullGFTrackCands.back(), nullGFTrackCands.pop_back();
   
   // copy into vector
   std::vector<PndTpcCluster*> cll;
   unsigned int n=_clusterArray->GetEntriesFast();
   for(unsigned int i=0;i<n;++i){ // loop over clusters
     PndTpcCluster* cl=(PndTpcCluster*)_clusterArray->At(i);
+    //std::cout<<"cluster nr "<<i<<" "<<cl->pos().x()<<" "<<cl->pos().y()<<" "<<cl->pos().z()<<std::endl;
     cl->SetIndex(i);
     cll.push_back(cl);
   }
@@ -178,6 +181,7 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
     GFTrackCand* cand=candlist[trackid];
     if(cand==NULL){
       cand=new GFTrackCand();
+      nullGFTrackCands.push_back(cand); // needed to correctly delete GFTrackCands created here
       candlist[trackid]=cand;
       
       //security check for faulty MC events

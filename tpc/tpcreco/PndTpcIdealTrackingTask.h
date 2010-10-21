@@ -24,6 +24,7 @@
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
 #include "TRandom3.h"
+#include "GFTrackCand.h"
 
 // Collaborating Class Declarations --
 #include "PndTpcCluster.h"
@@ -69,6 +70,8 @@ private:
   TClonesArray* _mcTrackArray;
   TClonesArray* _trackArray;
  
+  std::vector<GFTrackCand*> nullGFTrackCands; // needed to correctly delete GFTrackCands created in Exec
+
   Bool_t _persistence;
   Bool_t _useGeane;
   Bool_t _useDistSorting;

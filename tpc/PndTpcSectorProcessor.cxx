@@ -88,7 +88,7 @@ PndTpcSectorProcessor::process(){
 
   unsigned int ndigis=fdigi_buffer.size();
   if(ndigis==0){
-    std::cout<<"PndTpcSectorProcessor::process(): Digi buffer is empty!"<<std::endl;
+    //std::cout<<"PndTpcSectorProcessor::process(): Digi buffer is empty!"<<std::endl;
     return;
   }
   //if(ndigis>0)std::cout<<ndigis<<" digis in sector "<<fSectorId<<std::endl;
@@ -171,15 +171,23 @@ PndTpcSectorProcessor::process(){
 void
 PndTpcSectorProcessor::reset()
 {
- fdigi_buffer.clear();
- fcluster_buffer.clear();
- std::map<unsigned int, padprocessor*>::iterator ppit=factivepads.begin();
- while(ppit!=factivepads.end()){
-   //std::cout<<"still "<<ppit->second->ndata()<<" data on padproc"<<std::endl;
-   ppit->second->reset();
-   ++ppit;
- }
- factivepads.clear();
+  fdigi_buffer.clear();
+  
+  // clear cluster buffer
+  while(!fcluster_buffer.empty()) {
+    (fcluster_buffer.back())->clear();
+    delete fcluster_buffer.back();
+    fcluster_buffer.pop_back();
+  }
+  fcluster_buffer.clear();
+  
+  std::map<unsigned int, padprocessor*>::iterator ppit=factivepads.begin();
+  while(ppit!=factivepads.end()){
+    //std::cout<<"still "<<ppit->second->ndata()<<" data on padproc"<<std::endl;
+    ppit->second->reset();
+    ++ppit;
+  }
+  factivepads.clear();
 }
 
 void

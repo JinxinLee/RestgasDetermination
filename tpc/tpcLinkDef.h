@@ -68,6 +68,12 @@
 //#pragma link C++ class PndTpcTCcrossTalkTask;
 //#pragma link C++ class PndTpcCTapplyTask;
 
+#pragma link C++ class Hough2DNode+;
+#pragma link C++ class PndTpcDataReaderTask+;
+#pragma link C++ class PndTpcSLPatternRecoTask+;
+#pragma link C++ class Hypersurface2D+;
+#pragma link C++ class PndTpcEvent+;
+#pragma link C++ class PndTpcSLResidualTask+;
 
 
 #endif

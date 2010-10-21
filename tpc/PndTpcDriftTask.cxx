@@ -206,7 +206,7 @@ PndTpcDriftTask::Exec(Option_t* opt)
       //myElectron->SetLink(FairLink(fprimBranchName, ic));
       //feeding the tracking Histograms with this electrons' data
       FillHistograms(dx, dy, driftl);
-
+//std::cout<<"x="<<pcl->x()<<"  y="<< pcl->y()<<std::endl;
     } // end loop over electrons
 
   } // end loop over clusters 

@@ -63,7 +63,7 @@
 
 // for comparing GEANE and RK
 //#define GEANE 1
-#define PDGID   13
+#define PDGID   11
 #define CHARGE  -1
 
 // Class Member definitions -----------

@@ -83,13 +83,16 @@ private:
   PndTpcDigiPar* fpar;
   PndTpcPadPlane* fPadPlane;
 
+  std::vector<PndTpcSample*> nullSamples; // needed to correctly delete Samples created by PresetNullSample
+
   std::map<unsigned int,std::vector<PndTpcSample*>* > fSampleMap;
 
   unsigned int fPads;
   int fpeak;
   unsigned int fopt;
   // Private Methods -----------------
-
+  void clearSampleMap();
+  
 public:
   ClassDef(PndTpcPSATask,1)
 

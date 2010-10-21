@@ -86,33 +86,33 @@ void PndTpcSimplePSAStrategy::Process(const std::vector<PndTpcSample*> & samples
   int startIndex;
   
   for(int i=0;i<samples.size();i++) {
-	unsigned int newPadID=samples[i]->padId();
-	unsigned int newamp=samples[i]->amp();
+    unsigned int newPadID=samples[i]->padId();
+    unsigned int newamp=samples[i]->amp();
 
-	if(finprogress){
-	  if(newPadID==fcurrentPadID && newamp>=fthreshold){
-		if(newamp>famp){
-		  famp=newamp;
-		}
-		fmcid.AddIDCollection(samples[i]->mcId(),newamp);
-	  }
-	  else{
-		PndTpcDigi* digi=new PndTpcDigi(famp,ft,fcurrentPadID,fmcid);
-		digi->tlength(samples[i]->t()-ft);
-		finprogress=false;
+    if(finprogress){
+      if(newPadID==fcurrentPadID && newamp>=fthreshold){
+        if(newamp>famp){
+          famp=newamp;
+      }
+      fmcid.AddIDCollection(samples[i]->mcId(),newamp);
+      }
+      else{
+      PndTpcDigi* digi=new PndTpcDigi(famp,ft,fcurrentPadID,fmcid);
+      digi->tlength(samples[i]->t()-ft);
+      finprogress=false;
 
-		digis.push_back(digi);
-	  }
-	}
-	else if(newamp>fthreshold){ // start new pulse!
-	  fcurrentPadID=newPadID;
-	  famp=newamp;
-	  ft=samples[i]->t();
-	  fmcid.ClearData();
-	  fmcid.AddIDCollection(samples[i]->mcId(),newamp);
-	  startIndex = i;
-	  finprogress=true;
-	}
+      digis.push_back(digi);
+      }
+    }
+    else if(newamp>fthreshold){ // start new pulse!
+      fcurrentPadID=newPadID;
+      famp=newamp;
+      ft=samples[i]->t();
+      fmcid.ClearData();
+      fmcid.AddIDCollection(samples[i]->mcId(),newamp);
+      startIndex = i;
+      finprogress=true;
+    }
 	
 	
   }

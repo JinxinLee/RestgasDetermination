@@ -51,8 +51,8 @@ PndTpcClusterFinderTask::PndTpcClusterFinderTask()
 }
  
 
-PndTpcClusterFinderTask::~PndTpcClusterFinderTask()
-{}
+PndTpcClusterFinderTask::~PndTpcClusterFinderTask() {
+}
 
 
 void

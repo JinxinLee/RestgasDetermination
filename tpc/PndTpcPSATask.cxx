@@ -39,6 +39,7 @@
 #include "FairRuntimeDb.h"
 #include "PndTpcDigiPar.h"
 #include "PndTpcT2KPulseshape.h"
+#include "PndTpcCRRCPulseshape.h"
 #include "PndTpcPadPlane.h"
 
 
@@ -71,9 +72,11 @@ PndTpcPSATask::PndTpcPSATask()
 
 
 PndTpcPSATask::~PndTpcPSATask()
-{
-  if(ffrontend!=0)delete ffrontend;
-  if(fpsa!=0)delete fpsa;
+{  
+  if(ffrontend!=NULL)delete ffrontend;
+  if(fpsa!=NULL)delete fpsa;
+    
+  clearSampleMap();
 }
 
 InitStatus
@@ -114,45 +117,44 @@ PndTpcPSATask::Init()
   //		     10);     // PSAthreshold
 
   ffrontend = (PndTpcFrontend*) fpar->getFrontend();
-  fpulseshape= new PndTpcT2KPulseshape(fpeak);
+  //fpulseshape= new PndTpcT2KPulseshape(fpeak);
+  fpulseshape= new PndTpcCRRCPulseshape(ffrontend->tdiff(),
+                                        ffrontend->tint(),
+                                        ffrontend->tsig());
 
-   if( fpar->getPSA() == 0)	
-     {
+   if( fpar->getPSA() == 0) {
   	fpsa= new PndTpcSimplePSAStrategy(ffrontend->psaThreshold());
 	std::cout << "Using Simple PSA strategy!" << std::endl;
-     }
-   else 
-     if( fpar->getPSA() == 1)	
-       {
-	 fpsa= new PndTpcPSA_TOT1();
-	 std::cout << "Using PSA_TOT strategy!";
-	 if (fopt) {fpsa->setOpt(fopt); std::cout << " with " << fopt << "nb of empty samples allowed.";}
-	 std::cout << std::endl;
-					  
-       }
-     else 
-       if( fpar->getPSA() == 2)	
-	 {
-	   fpsa= new PndTpcPSA_AD1();//fpulseshape);
-	   fpsa->setPs(fpulseshape);
-	   fpsa->TailCancellation(fTail);
-	   fpsa->setOpt((unsigned int)ffrontend->samplingFrequency());
-	   std::cout << "Using PSA_AD strategy!" << std::endl;
-	 }  
-     else return kERROR;
-  return kSUCCESS;
+   }
+   else if( fpar->getPSA() == 1){
+     fpsa= new PndTpcPSA_TOT1();
+     std::cout << "Using PSA_TOT strategy!";
+     if (fopt) {fpsa->setOpt(fopt); std::cout << " with " << fopt << "nb of empty samples allowed.";}
+     std::cout << std::endl;
+   }
+   else if( fpar->getPSA() == 2){
+     fpsa= new PndTpcPSA_AD1();//fpulseshape);
+     fpsa->setPs(fpulseshape);
+     fpsa->TailCancellation(fTail);
+     fpsa->setOpt((unsigned int)ffrontend->samplingFrequency());
+     std::cout << "Using PSA_AD strategy!" << std::endl;
+   }  
+   else return kERROR;
+   return kSUCCESS;
 }
 
 
 void
 PndTpcPSATask::Exec(Option_t* opt)
 {
-
-  fSampleMap.clear();
+  clearSampleMap();
   std::cout<<"PndTpcPSATask::Exec"<<std::endl;
   // Reset output Array
   if(fdigiArray==0) Fatal("PndTpcPSA::Exec)","No DigiArray");
   fdigiArray->Delete();
+  // delete Samples created by PresetNullSample
+  while(!nullSamples.empty()) delete nullSamples.back(), nullSamples.pop_back();
+
 
   // Sort samples according to padid (create several vectors of samples)
   Int_t ns=fsampleArray->GetEntriesFast();
@@ -180,13 +182,13 @@ PndTpcPSATask::Exec(Option_t* opt)
     unsigned int ndigibefore=digis.size();
     if(vecSa->size()!=0)
       {
-	PresetNullSample(vecSa);
-	//std::cout << "Pad " << padit->first
-	//	  << ": Processing " << vecSa->size() << " samples with PSA (th";
-	fpsa->Process(*vecSa,digis,ffrontend->psaThreshold());
-	//unsigned int ndigiafter=digis.size();
-	//std::cout <<ffrontend->psaThreshold() << ") -- " 
-	//	  << ndigiafter-ndigibefore << " Digis created."<<std::endl;
+        PresetNullSample(vecSa);
+        //std::cout << "Pad " << padit->first
+        //	  << ": Processing " << vecSa->size() << " samples with PSA (th";
+        fpsa->Process(*vecSa,digis,ffrontend->psaThreshold());
+        //unsigned int ndigiafter=digis.size();
+        //std::cout <<ffrontend->psaThreshold() << ") -- " 
+        //	  << ndigiafter-ndigibefore << " Digis created."<<std::endl;
       }
     
     ++padit; // increase iterator 
@@ -227,12 +229,21 @@ void  PndTpcPSATask::PresetNullSample(std::vector<PndTpcSample*> *samplelist)
 		McIdCollection m=pFirstSample->mcId();
 		PndTpcSample *pS=new PndTpcSample(t-1,0,PadID,m);
 		samplelist->insert(samplelist->begin(),pS);
-    }
+    nullSamples.push_back(pS);
+  }
 }
 
 
-
-
+void PndTpcPSATask::clearSampleMap(){
+  //delete vectors (but not PndTpcSamples) and clear sampleMaps
+  std::map<unsigned int,std::vector<PndTpcSample*>* >::iterator secIt=fSampleMap.begin();
+  while(secIt!=fSampleMap.end()){
+    (secIt->second)->clear();
+    delete secIt->second;
+    ++secIt;
+  }
+  fSampleMap.clear();
+}
 
 
 
