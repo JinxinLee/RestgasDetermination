@@ -232,9 +232,12 @@ void PndMvaDataSet::InitClsCondMeans()
  */
 void PndMvaDataSet::WriteDataSet(const string& outFile)
 {
-  cout << "<INFO> Writing samples to file: "
-       << outFile << '\n';
-  /* Open out put file and write coordinates of the prototypes */
+  std::cout << "<INFO> Writing samples to file: "
+	    << outFile << '\n';
+
+  /* 
+   * Open out put file and write coordinates of the prototypes
+   */
   TFile out (outFile.c_str(),"RECREATE","DataSetOutput", 9);
   
   for(size_t cls = 0; cls < m_classes.size(); cls++)

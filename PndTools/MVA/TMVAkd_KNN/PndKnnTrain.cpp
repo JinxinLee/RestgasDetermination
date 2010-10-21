@@ -19,12 +19,7 @@ PndKnnTrain::PndKnnTrain(const std::string& inputFile,
 			 const std::vector<std::string>& VarNames,
 			 bool trim)
   : PndMvaTrainer(inputFile, ClassNames, VarNames, trim)
-{
-  if(trim)
-  {
-    std::cout << "Trim." << '\n';
-  }
-}
+{}
 
 /**
  * Class Destructor.
@@ -38,5 +33,10 @@ PndKnnTrain::~PndKnnTrain()
 void PndKnnTrain::Train()
 {
   // Write to output file
-  WriteDataSetToOutFile();
+  // WriteDataSetToOutFile();
+
+  // Fetch available data.
+  std::vector< std::pair<std::string, std::vector<float>*> > const &w = m_dataSets.GetData();
+  // Write
+  WriteToWeightFile(w);
 }
