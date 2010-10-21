@@ -62,16 +62,14 @@ class PndLVQTrain: public PndMvaTrainer
    * Set CodeBook init type.
    *@param val Initialization type.
    */
-  inline void setProtoInitType(const ProtoInitType iniTypeVal = RANDOM_PR)
-  { m_proto_init = iniTypeVal; };
+  inline void setProtoInitType(const ProtoInitType iniTypeVal = RANDOM_PR);
 
   /**
    * Set the file name which holds the pre-initialized code books.
    *@param val The name of the file which containes the pre
    * initialized code books.
    */
-  inline void SetInitProtoFileName(const std::string& fileName)
-  { m_initProtoFile = fileName; };
+  inline void SetInitProtoFileName(const std::string& fileName);
 
   /**
    * Sets the learning parameters.
@@ -82,13 +80,7 @@ class PndLVQTrain: public PndMvaTrainer
    * @param Nswp: Number of sweeps through the examples collection set.
    */
   inline void SetLearnPrameters(const double initConst, const double etZ,
-				const double etF, const int Nswp)
-  {
-    m_initConst = initConst;
-    m_ethaZero = etZ;
-    m_ethaFinal = etF;
-    m_NumSweep = Nswp;
-  };
+				const double etF, const int Nswp);
 
   /**
    * Set the number of protoTypes to be used for training.
@@ -109,8 +101,7 @@ class PndLVQTrain: public PndMvaTrainer
    * Set how often the classifier has to be evaluated.
    *@param val Evaluate after #val steps.
    */
-  inline void SetErrorStepSize(const unsigned int val)
-  { m_ErrorStep = val; };
+  inline void SetErrorStepSize(const unsigned int val);
 
   //----------------------------------------
   //================== private =============
@@ -186,4 +177,29 @@ class PndLVQTrain: public PndMvaTrainer
   //! Map labels (classes) to number of prototypes.
   std::map < std::string, unsigned int> m_numProtoPerClass;
 };
-#endif //END Interface
+//END Interface definition
+
+inline void PndLVQTrain::setProtoInitType(const ProtoInitType iniTypeVal)
+{
+  m_proto_init = iniTypeVal;
+};
+
+inline void PndLVQTrain::SetInitProtoFileName(const std::string& fileName)
+{
+  m_initProtoFile = fileName;
+};
+
+inline void PndLVQTrain::SetLearnPrameters(const double initConst, const double etZ,
+					   const double etF, const int Nswp)
+{
+  m_initConst = initConst;
+  m_ethaZero = etZ;
+  m_ethaFinal = etF;
+  m_NumSweep = Nswp;
+};
+
+inline void PndLVQTrain::SetErrorStepSize(const unsigned int val)
+{
+  m_ErrorStep = val;
+};
+#endif

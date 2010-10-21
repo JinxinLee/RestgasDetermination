@@ -2,7 +2,7 @@
  * MVA Utility functions and data definitions *
  * Author: M.Babai@rug.nl                     *
  * LICENSE:                                   *
- * Version: 0.1 beta1.                        *
+ * Version:                                   *
  * License:                                   *
  * *******************************************
  */
@@ -13,14 +13,15 @@
  * Computes the Euclidean distance between two given vectors of
  * event features.
  */
-float ComputeDist(const std::vector<float>& EvtData, 
-		  const std::vector<float>& Example)
+float ComputeDist(std::vector<float> const &EvtData, 
+		  std::vector<float> const &Example)
 {
   assert(Example.size() == EvtData.size());
   
   float dist = 0.0;
   
-  for(unsigned int i = 0; i< Example.size(); i++){
+  for(size_t i = 0; i< Example.size(); i++)
+  {
     dist += ( (EvtData[i] - Example[i]) * (EvtData[i] - Example[i]) );
   }
   return sqrt(dist);

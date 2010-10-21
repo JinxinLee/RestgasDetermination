@@ -136,7 +136,7 @@ int main(int argc, char** argv)
   unsigned int misCl = 0;
   int numberOfEvt = events->GetEntriesFast();
   
-  numberOfEvt = 10;
+  numberOfEvt = 20;
   
   for(int ev = 0; ev < numberOfEvt; ev++)
   {

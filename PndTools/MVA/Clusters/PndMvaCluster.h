@@ -18,11 +18,12 @@
 #include "PndMvaUtil.h"
 
 //! Data structure of the space points and the cluster centers
-typedef std::vector<std::vector<float>*> ClDataSample;
+typedef std::vector < std::vector<float>* > ClDataSample;
 
 //! Clustering types
 typedef enum {KMEANS_HARD = 0, KMEANS_SOFT = 1} ClusteringType;
 
+//---------------- Class definition --------------
 class PndMvaCluster
 {
   //--------------------------------------------
@@ -111,7 +112,7 @@ class PndMvaCluster
   ClDataSample m_Centroids;
 
   ///Connection of each point to a centroid.
-  std::vector<unsigned int> m_PointsToClusters;
+  std::vector <unsigned int> m_PointsToClusters;
 
   /// Responsibility list of each centroid.
   std::vector< std::set<unsigned int>* > m_ClustersToPoints;

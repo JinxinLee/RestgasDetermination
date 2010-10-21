@@ -54,15 +54,10 @@ class PndKnnClassify: public PndGpidClassifier
    * @param scFact  Scale factor.
    * @param weight  Events weight.
    */
-  inline void SetEvtParam(const float scFact, const double weight)
-  { 
-    m_ScaleFact = scFact;
-    m_weight = weight;
-  };
+  inline void SetEvtParam(const float scFact, const double weight);
 
   //! Set the number of neighbours.
-  inline void SetKnn(const int N)
-  { m_knn = N; };
+  inline void SetKnn(const int N);
 
   /**
    * Initialize the KNN classifier.
@@ -92,5 +87,17 @@ class PndKnnClassify: public PndGpidClassifier
    * Mapping between class names and their indices in the class vector.
    */
   std::map<std::string, size_t> m_classIndices;
-};//End of classifier interface definition
+};
+//End of classifier interface definition
+
+inline void PndKnnClassify::SetEvtParam(const float scFact, const double weight)
+{
+  m_ScaleFact = scFact;
+  m_weight = weight;
+};
+
+inline void PndKnnClassify::SetKnn(const int N)
+{
+  m_knn = N;
+};
 #endif

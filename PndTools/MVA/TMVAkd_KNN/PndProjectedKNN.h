@@ -31,15 +31,10 @@ class PndProjectedKNN: public PndGpidClassifier
   std::string* Classify(std::vector<float> EvtData);
 
   //! Set params
-  inline void SetEvtParam(const float scFact, const double weight)
-  { 
-    m_ScaleFact = scFact;
-    m_weight = weight;
-  };
+  inline void SetEvtParam(const float scFact, const double weight);
   
   //! Set number of neighbors
-  inline void SetKnn(const unsigned int val)
-  { m_knn = val; };
+  inline void SetKnn(const unsigned int val);
 
   //! Init classifiers
   void InitKNN();
@@ -61,4 +56,16 @@ class PndProjectedKNN: public PndGpidClassifier
   double m_weight;    //! Weight.
   unsigned int m_knn;//! Number of neigbours.
 };
-#endif//End, class interface
+//End, class interface
+
+inline void PndProjectedKNN::SetEvtParam(const float scFact, const double weight)
+{
+  m_ScaleFact = scFact;
+  m_weight = weight;
+};
+
+inline void PndProjectedKNN::SetKnn(const unsigned int val)
+{
+  m_knn = val;
+};
+#endif

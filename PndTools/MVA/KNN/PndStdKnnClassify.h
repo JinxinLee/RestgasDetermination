@@ -55,14 +55,12 @@ class PndStdKnnClassify : public PndGpidClassifier
   /**
    * @param Neighbours: Number of Neighbours.
    */
-  inline void SetKNN(const unsigned int nNeighbours)
-  { m_Knn = nNeighbours; };
+  inline void SetKNN( const unsigned int nNeighbours );
 
   /**
    * Get number of neighbors.
    */
-  inline unsigned int GetKnn() const
-  { return m_Knn; };
+  inline unsigned int GetKnn() const;
   
  private:
   //! To avoid mistakes.
@@ -75,4 +73,15 @@ class PndStdKnnClassify : public PndGpidClassifier
   //! Container to hold the distances to current pattern.
   std::vector<PndMvaDistObj> m_distances;
 };
-#endif //End of PndStdKnnClassify definitions.
+//End of PndStdKnnClassify definitions.
+
+inline unsigned int PndStdKnnClassify::GetKnn() const
+{
+  return m_Knn;
+};
+
+inline void PndStdKnnClassify::SetKNN( const unsigned int nNeighbours )
+{
+  m_Knn = nNeighbours;
+};
+#endif

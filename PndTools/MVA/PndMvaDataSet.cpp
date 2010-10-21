@@ -5,7 +5,7 @@
  * Edited: E.A.Dijck@student.rug.nl      *
  *                                       *
  * LICENSE:                              *
- * Version: 0.1 beta1.                   *
+ * Version:                              *
  * ***************************************
  */
 #include "PndMvaDataSet.h"

@@ -67,4 +67,5 @@ class PndGpidClassifier
   PndGpidClassifier (PndGpidClassifier const &other);
   PndGpidClassifier& operator=(PndGpidClassifier const &other);
 };
-#endif //End of class interface
+//End of class interface
+#endif

@@ -53,7 +53,7 @@ PndKnnClassify::~PndKnnClassify()
  */
 void PndKnnClassify::InitKNN()
 {
-  cerr << "<INFO> Initializing KNN classifier." << endl;
+  std::cout << "<INFO> Initializing KNN classifier." << '\n';
 
   // Get variables.
   const vector<PndMvaVariable>& vars = m_dataSets.GetVars();
@@ -75,7 +75,8 @@ void PndKnnClassify::InitKNN()
   m_module->Fill( static_cast<unsigned int> (vars.size()),
   		  static_cast<unsigned int> (100.0 * m_ScaleFact),
   		  "");//"metric"
-  std::cout << "<INFO> Done initializing." << std::endl;
+
+  std::cout << "<INFO> Done initializing." << '\n';
 }
 
 /**
@@ -86,7 +87,8 @@ void PndKnnClassify::InitKNN()
 std::string* PndKnnClassify::Classify(std::vector<float> EvtData)
 {
   // Zero number of neighbors.
-  if( m_knn == 0 ){
+  if( m_knn == 0 )
+  {
     std::cerr << "\t<ERROR> Number neighbours cannot be zero."
               << std::endl;
     assert (m_knn != 0);
@@ -94,21 +96,25 @@ std::string* PndKnnClassify::Classify(std::vector<float> EvtData)
   
   // Get the Mva-value.
   std::map<std::string, float> TMPres;
+  
   GetMvaValues(EvtData, TMPres);
   
   // Densities are estimated. Report the winner.
   // Get labels.
-  const vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+  const vector<PndMvaClass> &classes = m_dataSets.GetClasses();
   
   // Temporary variables for the winning class name and density.
   std::string CurWin;
+  
   float Curprob = std::numeric_limits <float>::min();
   
   // Find the maximum Mva Val.
-  for(size_t i = 0; i < classes.size(); i++){
+  for(size_t i = 0; i < classes.size(); i++)
+  {
     std::string curName = classes[i].Name;
 
-    if( TMPres[curName] > Curprob){
+    if( TMPres[curName] > Curprob)
+    {
       Curprob = TMPres[curName];
       CurWin  = curName;
     }
@@ -158,6 +164,7 @@ void PndKnnClassify::GetMvaValues(std::vector<float> eventData,
 
   // Initialize results
   result.clear();
+  
   for(size_t cls = 0; cls < classes.size(); cls++)
   {
     result.insert(make_pair(classes[cls].Name, 0.00));
@@ -184,6 +191,7 @@ void PndKnnClassify::GetMvaValues(std::vector<float> eventData,
   ResList lst = m_module->GetkNNList();
   
   ResList::iterator iter;
+  
   for(iter = lst.begin(); iter != lst.end(); ++iter)
   {
     // Fetch the node
@@ -197,6 +205,7 @@ void PndKnnClassify::GetMvaValues(std::vector<float> eventData,
     // Store per class counts in the search results
     countsPerClass[type] += 1;
   }
+  
   // Fill result map with per class counts
   for(size_t cls = 0; cls < classes.size(); cls++)
   {

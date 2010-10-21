@@ -54,4 +54,5 @@ class PndLVQClassify: public PndGpidClassifier
   PndLVQClassify(const PndLVQClassify& other);
   PndLVQClassify& operator=(const PndLVQClassify& other);
 };
-#endif//end of interface definition
+//end of interface definition
+#endif

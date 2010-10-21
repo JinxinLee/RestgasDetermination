@@ -71,7 +71,7 @@ private:
 struct PndMvaDistObj
 {
   //! Constructor
-PndMvaDistObj():m_idx(-1), m_dist(0.0), m_cls("UNKNOWN")
+PndMvaDistObj():m_idx(-1), m_dist(0.0), m_cls("UNKNOWN_LABEL")
   {};
   
 PndMvaDistObj(const int id, const float dist, const std::string& cls)
@@ -83,12 +83,14 @@ PndMvaDistObj(const int id, const float dist, const std::string& cls)
   {};
   
   //! Operator < 
-  inline bool operator<(const PndMvaDistObj& other)const{
+  inline bool operator<(const PndMvaDistObj& other) const
+  {
     return (m_dist < other.m_dist);
   };
   
   //! Operator > 
-  inline bool operator>(const PndMvaDistObj& other)const{
+  inline bool operator>(const PndMvaDistObj& other) const
+  {
     return (m_dist > other.m_dist);
   };
   
@@ -112,14 +114,17 @@ inline  bool CompLess(const PndMvaDistObj* a, const PndMvaDistObj* b)
 
 template <typename T>
 inline const T& minFunct ( const T& a, const T& b )
-{// or: return comp(a,b)?a:b; for the comp version
+{
+  // or: return comp(a,b)?a:b; for the comp version
   return (a < b) ? a : b;
 };
 
 //! Less than, comparison funtion.
 template<typename T>
 inline bool compareL(const T* a, const T* b)
-{ return ( (*a) < (*b) ); };
+{
+  return ( (*a) < (*b) );
+};
 
 /**
  * Computes the Euclidean distance between two given vectors of

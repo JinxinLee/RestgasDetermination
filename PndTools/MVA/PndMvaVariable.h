@@ -28,6 +28,7 @@ struct PndMvaVariable
   virtual ~PndMvaVariable();
 
   PndMvaVariable(const PndMvaVariable& oth);
+
   PndMvaVariable& operator=(const PndMvaVariable& oth);
 
   std::string Name;   /**< Name of the variable. */
@@ -40,7 +41,7 @@ struct PndMvaVariable
 };
 
 //! Constructor implementation.
-inline PndMvaVariable::PndMvaVariable(const std::string& name,
+inline PndMvaVariable::PndMvaVariable(std::string const &name,
 				      float normFactor,
 				      float mean)
 : Name(name), NormFactor(normFactor), Mean(mean)
@@ -51,16 +52,19 @@ inline PndMvaVariable::~PndMvaVariable()
 {};
 
 //! Copy constructor
-inline PndMvaVariable::PndMvaVariable(const PndMvaVariable& oth)
-		      : Name(oth.Name), NormFactor(oth.NormFactor), Mean(oth.Mean)
+inline PndMvaVariable::PndMvaVariable(PndMvaVariable const &oth)
+		      : Name(oth.Name),
+		      NormFactor(oth.NormFactor),
+		      Mean(oth.Mean)
 {};
 
 //! Assignment operator
-inline PndMvaVariable& PndMvaVariable::operator=(const PndMvaVariable& oth)
+inline PndMvaVariable &PndMvaVariable::operator=(PndMvaVariable const &oth)
 {
   Name = oth.Name;
   NormFactor = oth.NormFactor;
   Mean = oth.Mean;
   return (*this);
 }
+// End of interface definition.
 #endif

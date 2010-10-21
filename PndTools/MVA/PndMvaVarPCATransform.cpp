@@ -13,8 +13,6 @@
 
 #include "PndMvaVarPCATransform.h"
 
-using namespace std;
-
 /**
  * Constructor.
  */
@@ -28,9 +26,8 @@ PndMvaVarPCATransform::PndMvaVarPCATransform()
  */
 PndMvaVarPCATransform::~PndMvaVarPCATransform()
 {
-  cout << "<INFO> Cleaning claimed memory by PCA."
-       << '\n';
-
+  //std::cout << "<INFO> Cleaning claimed memory by PCA." << '\n';
+  
   // Delete Mean value vector.
   if(m_MeanValues)
   {
@@ -48,7 +45,7 @@ PndMvaVarPCATransform::~PndMvaVarPCATransform()
  * Prepare Transformation for the given dataset events.
  *@param dat Collection of the event feature vectors.
  */
-bool PndMvaVarPCATransform::InitPCATranformation(vector<pair<std::string, vector<float>*> > const &dat)
+bool PndMvaVarPCATransform::InitPCATranformation(std::vector<std::pair<std::string, std::vector<float>*> > const &dat)
 {
   if( dat.size() <= 0 )
   {
@@ -104,10 +101,10 @@ std::vector<float>* PndMvaVarPCATransform::Transform(std::vector<float> const &e
  * Given a list of n-dimensional data points, Computes PCA for the
  * current dataset.
  */
-void PndMvaVarPCATransform::ComputePrincipalComponents(vector< pair<string, vector<float>* > > const &dat)
+void PndMvaVarPCATransform::ComputePrincipalComponents(std::vector< std::pair< std::string, std::vector<float>* > > const &dat)
 {
-  cout << "<INFO> Computing PCA for the current dataset."
-       << '\n';
+  std::cout << "<INFO> Computing PCA for the current dataset."
+	    << '\n';
   size_t nvar = (dat[0].second)->size();
 
   // Temporary to store event parameters.

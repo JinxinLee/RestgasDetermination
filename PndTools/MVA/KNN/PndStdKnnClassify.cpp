@@ -159,7 +159,7 @@ void PndStdKnnClassify::GetMvaValues(vector<float> eventData,
     result[clas] += 1.0;
   }
   
-  //Normalizing the results
+  // Normalizing the results
   float Psum = 0.0;
   for(size_t cls = 0; cls < classes.size(); cls++)
   {

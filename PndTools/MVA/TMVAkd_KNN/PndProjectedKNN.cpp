@@ -23,7 +23,7 @@ PndProjectedKNN::PndProjectedKNN(const string& inputFile,
     m_varCombinations(varCombinations)
 {
   cout << "\t<INFO> Projected_KNN: Initialization." 
-	    << endl;
+       << '\n';
 }
 
 //! Destructor.
@@ -42,7 +42,8 @@ PndProjectedKNN::~PndProjectedKNN()
 std::string* PndProjectedKNN::Classify(std::vector<float> EvtData)
 {
   // Zero number of neighbors.
-  if( m_knn == 0 ){
+  if( m_knn == 0 )
+  {
     std::cerr << "\t<ERROR> Number neighbours cannot be zero."
               << std::endl;
     assert (m_knn != 0);
@@ -50,6 +51,7 @@ std::string* PndProjectedKNN::Classify(std::vector<float> EvtData)
   
   // Get the Mva-value.
   std::map<std::string, float> TMPres;
+  
   GetMvaValues(EvtData, TMPres);
   
   // Densities are estimated. Report the winner.
@@ -61,10 +63,12 @@ std::string* PndProjectedKNN::Classify(std::vector<float> EvtData)
   float Curprob = std::numeric_limits <float>::min();
   
   // Find the maximum Mva Val.
-  for(size_t i = 0; i < classes.size(); i++){
+  for(size_t i = 0; i < classes.size(); ++i)
+  {
     std::string curName = classes[i].Name;
 
-    if( TMPres[curName] > Curprob){
+    if( TMPres[curName] > Curprob)
+    {
       Curprob = TMPres[curName];
       CurWin  = curName;
     }
@@ -186,6 +190,7 @@ void PndProjectedKNN::InitKNN()
   for(size_t cls = 0; cls < classes.size(); cls++) {
     classNames.push_back(classes[cls].Name);
   }
+
   for(size_t v = 0; v < vars.size(); v++) {
     varNames.push_back(vars[v].Name);
   }

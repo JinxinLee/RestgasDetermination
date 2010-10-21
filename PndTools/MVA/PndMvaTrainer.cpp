@@ -56,7 +56,7 @@ void PndMvaTrainer::splitTetsSet(int percent)
   std::cout << "<INFO> preparing train and test sets.\n"
 	    << "       Test set containes "<< TestEvtCnt
 	    <<" events and train set "<< (events.size() - TestEvtCnt) 
-	    << std::endl;
+	    << '\n';
   
   while(m_testSet_indices.size() < TestEvtCnt)
   {
@@ -79,9 +79,9 @@ void PndMvaTrainer::WriteErroVect(const std::string& FileName)
     Outfile << " " << (m_StepErro[i]).m_step  <<"\t"
 	    << " " << (m_StepErro[i]).m_trErr <<"\t"
 	    << " " << (m_StepErro[i]).m_tsErr 
-	    << std::endl;
+	    << '\n';
   }
-  Outfile << flush;
+  Outfile << std::flush;
   Outfile.close();
 }
 
@@ -93,10 +93,14 @@ void PndMvaTrainer::WriteToWeightFile(const std::vector< std::pair<std::string,
 {
   
   std::cout << "<INFO> Writing classifier out put to "
-	    << m_outFile << std::endl;
-  const std::vector<PndMvaClass>& classes      = m_dataSets.GetClasses();
-  const std::vector<PndMvaVariable>& vars = m_dataSets.GetVars();
- 
+	    << m_outFile << '\n';
+
+  // Get labels
+  const std::vector <PndMvaClass>& classes = m_dataSets.GetClasses();
+  
+  // Get variable names.
+  const std::vector <PndMvaVariable>& vars = m_dataSets.GetVars();
+  
   /* 
    * Open out-put file and write coordinates.
    */
@@ -218,8 +222,8 @@ void PndMvaTrainer::WriteToWeightFile(const std::vector< std::pair<std::string,
 
 void PndMvaTrainer::WriteToWeightFile(const std::vector<TMVA::PDEFoam*>& foamList)
 {
-  std::cerr << "<INFO> Writing Foams to file "
-	    << m_outFile << std::endl;
+  std::cout << "<INFO> Writing Foams to file "
+	    << m_outFile << '\n';
   /* 
    * Open out-put file and write coordinates.
    */
@@ -309,7 +313,8 @@ void PndMvaTrainer::WriteToWeightFile(const std::vector<TMVA::PDEFoam*>& foamLis
 
 void PndMvaTrainer::WriteDataSetToOutFile()
 {
-  if(m_outFile.size() == 0){
+  if(m_outFile.size() == 0)
+  {
     std::cerr << "<Error> Empty Output File Name." << std::endl;
     return;
   }

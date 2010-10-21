@@ -128,6 +128,8 @@ class PndMvaTrainer
 };
 
 //========================= Inline implementations =================
-inline void PndMvaTrainer::SetOutPutFile(const std::string& outFile)
-{ m_outFile = outFile; };
+inline void PndMvaTrainer::SetOutPutFile(std::string const &outFile)
+{
+  m_outFile = outFile;
+};
 #endif

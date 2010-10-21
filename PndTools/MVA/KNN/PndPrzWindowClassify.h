@@ -111,7 +111,7 @@ inline float PndPrzWindowClassify::GetHyperCubeVolume() const
   return m_volumeN;
 };
 
-inline const std::map<std::string, float>& PndPrzWindowClassify::GetWindowSize() const
+inline std::map<std::string, float> const &PndPrzWindowClassify::GetWindowSize() const
 {
   return m_Wsize;
 };

@@ -44,13 +44,20 @@ int main(int argc, char** argv)
   std::vector<std::string> nam;
   // Class Names  
   clas.push_back("electron"); clas.push_back("pion"); 
-  clas.push_back("kaon"); clas.push_back("muon");
-  clas.push_back("proton");
+  //clas.push_back("kaon");
+  //clas.push_back("muon");
+  //clas.push_back("proton");
   
   // Parameter Names
-  nam.push_back("emc"); nam.push_back("tof"); nam.push_back("mvd");
-  nam.push_back("p");   nam.push_back("stt"); nam.push_back("thetaC");
-
+  //nam.push_back("p");
+  nam.push_back("emc");
+  nam.push_back("lat");
+  nam.push_back("z20");
+  nam.push_back("z53");
+  
+  //nam.push_back("tof"); nam.push_back("mvd");
+  //nam.push_back("stt"); nam.push_back("thetaC");
+  
   const char* file = inpt.c_str();
   
   PndKnnTrain kNNtr (file, clas, nam, true);

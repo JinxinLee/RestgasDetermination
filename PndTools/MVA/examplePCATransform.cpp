@@ -42,7 +42,7 @@ int main(int argc, char** argv)
   clas.push_back("proton");
   
   //vars.push_back("p");
-  //vars.push_back("emc");
+  vars.push_back("emc");
   vars.push_back("lat");
   vars.push_back("z20");
   vars.push_back("z53");
