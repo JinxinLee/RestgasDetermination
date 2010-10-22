@@ -6,12 +6,6 @@
 // -------------------------------------------------------------------------
 
 
-#include "PndDrcSurfPolyFlat.h"
-#include "PndDrcOptReflSilver.h"
-#include "PndDrcOptMatLithotecQ0.h"
-#include "PndDrcOptDevSys.h"
-#include "PndDrcOptVol.h"
-#include "PndDrcOptDevManager.h"
 #include "PndGeoDrc.h"
 #include "PndDrcPDPoint.h"
 #include "PndDrcBarPoint.h"
@@ -124,22 +118,6 @@ void PndDrc::Initialize() {
   PndGeoDrcPar *par  = (PndGeoDrcPar*)(rtdb->getContainer("PndGeoDrcPar"));
 
 
-  // create a clone of each bar, which will handle the photon propagation.
-  //
-  //         p4----------p7
-  //        /|          /|                 y
-  //       / |         / |                 |  z
-  //      /  p5-------/--p6                | /
-  //     /  /        /  /                  |/
-  //    /  /        /  /             x ----0
-  //   /  /        /  /
-  //  /  /        /  /
-  // p0---------p3  /
-  // | /         | /
-  // |/          |/
-  // p1---------p2 
-
-
 
 
 
@@ -147,135 +125,135 @@ void PndDrc::Initialize() {
   int verbosity = fVerboseLevel; // 0=quiet ... 5=talk too much
 
 
-  XYZPoint p[8];   // 8 space points of radiator bar in sequence of above
+  //XYZPoint p[8];   // 8 space points of radiator bar in sequence of above
 
-  PndDrcOptDevManager* manager = new PndDrcOptDevManager();
-  manager->SetVerbosity(verbosity);
+  //PndDrcOptDevManager* manager = new PndDrcOptDevManager();
+  //manager->SetVerbosity(verbosity);
 
 
   TObjArray    *sensNodes = par->GetGeoSensitiveNodes();
-
- //  FairGeoNode *fm1= (FairGeoNode *) sensNodes->FindObject("bar"); // barrel (single slab)
-//   FairGeoNode *fm2= (FairGeoNode *) sensNodes->FindObject("pd"); // photodetector
   
-//   fSenIdBar=fm1->getMCid();
-//   fSenId2=fm2->getMCid();
-
- 
-
-  for( int inode=0; inode<sensNodes->GetEntries(); inode++) 
+  //  FairGeoNode *fm1= (FairGeoNode *) sensNodes->FindObject("bar"); // barrel (single slab)
+  //   FairGeoNode *fm2= (FairGeoNode *) sensNodes->FindObject("pd"); // photodetector
+  
+  //   fSenIdBar=fm1->getMCid();
+  //   fSenId2=fm2->getMCid();
+  
+  
+  /*
+    for( int inode=0; inode<sensNodes->GetEntries(); inode++) 
     {// for inode
-      FairGeoNode *node = dynamic_cast<FairGeoNode*> (sensNodes->At(inode));	
-      if ( !node ) continue;
-      
-      TString name = node->getName();
-      TString shapeName = node->getShapePointer()->GetName();
-      TString name_clone = "none";
-
-      std::cout<<" node,name "<<inode<<" "<<name.Data()<<std::endl;//###
-
-      if (shapeName.CompareTo("BOX"))
-	{//if box
-	  name_clone  = name;
-	  name_clone += "_clone";
-	    
-
-	  FairGeoTransform trans = node->getTransform();
-
-	  for (int ii=0; ii<node->getNumPoints(); ii++)
-	    {
-	      FairGeoVector vec = *(node->getPoint(ii));
-	      FairGeoVector vec1 = trans.transFrom(vec);
-	      p[ii].SetXYZ(vec1.X(),vec1.Y(),vec1.Z());
-	      //cout<<" points: "<<vec1.X()<<" "<<vec1.Y()<<" "<<vec1.Z()<<endl;
-	    }
-
-	  // assemble bar
-
-	  // Declare 6 flat surfaces with 4 edge points.
-	  PndDrcSurfPolyFlat a1,a2,a3,a4,a5,a6;
-
-	  a1.SetVerbosity(verbosity);
-	  a1.AddPoint(p[0]);
-	  a1.AddPoint(p[1]);
-	  a1.AddPoint(p[2]);
-	  a1.AddPoint(p[3]);
-	  a1.SetPixel();                // screen
-	  a1.SetName("a_upstream");
-
-	  a2.SetVerbosity(verbosity);
-	  a2.AddPoint(p[1]);
-	  a2.AddPoint(p[5]);
-	  a2.AddPoint(p[6]);
-	  a2.AddPoint(p[2]);
-	  a2.SetName("a_side1");
-
-	  a3.SetVerbosity(verbosity);
-	  a3.AddPoint(p[0]);
-	  a3.AddPoint(p[4]);
-	  a3.AddPoint(p[5]);
-	  a3.AddPoint(p[1]);
-	  a3.SetName("a_side2");
-
-	  a4.SetVerbosity(verbosity);
-	  a4.AddPoint(p[3]);
-	  a4.AddPoint(p[2]);
-	  a4.AddPoint(p[6]);
-	  a4.AddPoint(p[7]);
-	  a4.SetName("a_side3");
-
-	  a5.SetVerbosity(verbosity);
-	  a5.AddPoint(p[0]);
-	  a5.AddPoint(p[3]);
-	  a5.AddPoint(p[7]);
-	  a5.AddPoint(p[4]);
-	  a5.SetName("a_side4");
-	  
-	  PndDrcOptReflSilver refl;
-
-	  a6.SetVerbosity(verbosity);
-	  a6.SetReflectivity(refl);   // mirror
-	  a6.AddPoint(p[7]);
-	  a6.AddPoint(p[6]);
-	  a6.AddPoint(p[5]);
-	  a6.AddPoint(p[4]);
-	  a6.SetName("a_downstream");
-
-	  // create a volume consiting of surfaces
-	  // create a material the bar will consist of
-	  PndDrcOptVol bar;
-	  PndDrcOptMatLithotecQ0 quartz;
-	  bar.SetVerbosity(verbosity);
-	  bar.SetOptMaterial(quartz);
-	  bar.AddSurface(a1);
-	  bar.AddSurface(a2);
-	  bar.AddSurface(a3);
-	  bar.AddSurface(a4);
-	  bar.AddSurface(a5);
-	  bar.AddSurface(a6);
-	  bar.SetName("bar");
-	  //bar.setCopyNumber(inode);
-
-	  // create a screen (simplified photon detector) where photons end and 
-	  // get the status Drc::Measured (no further propagation). For this you need 
-	  // one single plane.
-	  
-
-	  // Build a optical system consisting out of several 
-	  // volumes, mirrors and screens. This layer has the advantage, that 
-	  // a device consisting out of many equal subsystems
-	  // like a bar box, easily can be reproduced. See one of the 
-  // test examples in ./drcprop.
-
-	  PndDrcOptDevSys opt_system;
-	  opt_system.SetVerbosity(verbosity);
-	  opt_system.AddDevice(bar);
-	  opt_system.SetNameCopyNumber(name_clone.Data(),inode);
-	  manager->AddDeviceSystem(opt_system);
-
-	}
-    } 
+    FairGeoNode *node = dynamic_cast<FairGeoNode*> (sensNodes->At(inode));	
+    if ( !node ) continue;
   
+    TString name = node->getName();
+    TString shapeName = node->getShapePointer()->GetName();
+    TString name_clone = "none";
+  
+    std::cout<<" node,name "<<inode<<" "<<name.Data()<<std::endl;//###
+  
+    if (shapeName.CompareTo("BOX"))
+    {//if box
+    name_clone  = name;
+    name_clone += "_clone";
+  
+  
+    FairGeoTransform trans = node->getTransform();
+  
+    for (int ii=0; ii<node->getNumPoints(); ii++)
+    {
+    FairGeoVector vec = *(node->getPoint(ii));
+    FairGeoVector vec1 = trans.transFrom(vec);
+    p[ii].SetXYZ(vec1.X(),vec1.Y(),vec1.Z());
+    //cout<<" points: "<<vec1.X()<<" "<<vec1.Y()<<" "<<vec1.Z()<<endl;
+    }
+  
+    // assemble bar
+  
+    // Declare 6 flat surfaces with 4 edge points.
+    PndDrcSurfPolyFlat a1,a2,a3,a4,a5,a6;
+  
+    a1.SetVerbosity(verbosity);
+    a1.AddPoint(p[0]);
+    a1.AddPoint(p[1]);
+    a1.AddPoint(p[2]);
+    a1.AddPoint(p[3]);
+    a1.SetPixel();                // screen
+    a1.SetName("a_upstream");
+  
+    a2.SetVerbosity(verbosity);
+    a2.AddPoint(p[1]);
+    a2.AddPoint(p[5]);
+    a2.AddPoint(p[6]);
+    a2.AddPoint(p[2]);
+    a2.SetName("a_side1");
+  
+    a3.SetVerbosity(verbosity);
+    a3.AddPoint(p[0]);
+    a3.AddPoint(p[4]);
+    a3.AddPoint(p[5]);
+    a3.AddPoint(p[1]);
+    a3.SetName("a_side2");
+  
+    a4.SetVerbosity(verbosity);
+    a4.AddPoint(p[3]);
+    a4.AddPoint(p[2]);
+    a4.AddPoint(p[6]);
+    a4.AddPoint(p[7]);
+    a4.SetName("a_side3");
+  
+    a5.SetVerbosity(verbosity);
+    a5.AddPoint(p[0]);
+    a5.AddPoint(p[3]);
+    a5.AddPoint(p[7]);
+    a5.AddPoint(p[4]);
+    a5.SetName("a_side4");
+  
+    PndDrcOptReflSilver refl;
+  
+    a6.SetVerbosity(verbosity);
+    a6.SetReflectivity(refl);   // mirror
+    a6.AddPoint(p[7]);
+    a6.AddPoint(p[6]);
+    a6.AddPoint(p[5]);
+    a6.AddPoint(p[4]);
+    a6.SetName("a_downstream");
+  
+    // create a volume consiting of surfaces
+    // create a material the bar will consist of
+    PndDrcOptVol bar;
+    PndDrcOptMatLithotecQ0 quartz;
+    bar.SetVerbosity(verbosity);
+    bar.SetOptMaterial(quartz);
+    bar.AddSurface(a1);
+    bar.AddSurface(a2);
+    bar.AddSurface(a3);
+    bar.AddSurface(a4);
+    bar.AddSurface(a5);
+    bar.AddSurface(a6);
+    bar.SetName("bar");
+    //bar.setCopyNumber(inode);
+  
+    // create a screen (simplified photon detector) where photons end and 
+    // get the status Drc::Measured (no further propagation). For this you need 
+    // one single plane.
+  
+  
+    // Build a optical system consisting out of several 
+    // volumes, mirrors and screens. This layer has the advantage, that 
+    // a device consisting out of many equal subsystems
+    // like a bar box, easily can be reproduced. See one of the 
+    // test examples in ./drcprop.
+  
+    PndDrcOptDevSys opt_system;
+    opt_system.SetVerbosity(verbosity);
+    opt_system.AddDevice(bar);
+    opt_system.SetNameCopyNumber(name_clone.Data(),inode);
+    manager->AddDeviceSystem(opt_system);
+  
+    }
+    } 
+  */
   if (fRunCherenkov==kFALSE) cout << " -I- PndDrc: Switching OFF Cherenkov Propagation" << endl;
   cout << " -I- PndDrc: Intialization successfull" << endl;
   
@@ -570,10 +548,11 @@ void PndDrc::ConstructGeometry()
   Double_t bbox_zdown    =  fGeo->barBoxZDown();  // bar box z downstream
   Double_t bbox_zup      =  fGeo->barBoxZUp();    // bar box z upstream
   Double_t bbox_hlen     =  0.5*(bbox_zdown - bbox_zup);           // bar box half length
-  Double_t bbox_shift    =  bbox_zup + bbox_hlen;                  // bar box shift
-  Double_t bargap        =  fGeo->barGap();			// half gap between bars
-  Double_t boxgap        =  fGeo->boxGap();			// gap between bars and the bar box
-  Double_t boxthick	 =  fGeo->boxThick();			// thickness of the bar box
+  Double_t bbox_shift    =  bbox_zup + bbox_hlen; // bar box shift
+  Double_t bargap        =  fGeo->barGap();       // half gap between bars
+  Double_t barnum        =  fGeo->barNum();       // number of bars per barbox
+  Double_t boxgap        =  fGeo->boxGap(); 	  // gap between bars and the bar box
+  Double_t boxthick	 =  fGeo->boxThick();     // thickness of the bar box
   
   // Create base volume 
   TGeoPgon* basePol = new TGeoPgon("basePol",0, 360., 16, 2);
@@ -592,6 +571,7 @@ void PndDrc::ConstructGeometry()
   cout<<" DIRC lside = "<<lside<<endl;
   cout<<" DIRC rad_out = "<<rad_out<<endl;
   cout<<" DIRC bargap = "<<bargap<<endl;
+  cout<<" DIRC barnum = "<<barnum<<endl;
   cout<<" DIRC boxgap = "<<boxgap<<endl;
   cout<<" DIRC box thick = "<<boxthick<<endl;
   
@@ -615,17 +595,17 @@ void PndDrc::ConstructGeometry()
   bbox->SetLineColor(30); 
    
   // 2 special bar boxes where slabs will be missing:
-  TGeoBBox* logicbbS1 = new TGeoBBox("logicbbS1", lside*5./12.+boxgap, hthick+boxgap, bbox_hlen);
-  TGeoBBox* logicbbL1 = new TGeoBBox("logicbbL1", lside*5./12.+boxgap+boxthick, hthick+boxgap+boxthick, bbox_hlen);
-  TGeoTranslation* tra1 = new TGeoTranslation("tra1", -lside/12., 0.,0.);
+  TGeoBBox* logicbbS1 = new TGeoBBox("logicbbS1", lside*(barnum-1.0)/barnum/2.+boxgap, hthick+boxgap, bbox_hlen);
+  TGeoBBox* logicbbL1 = new TGeoBBox("logicbbL1", lside*(barnum-1.0)/barnum/2.+boxgap+boxthick, hthick+boxgap+boxthick, bbox_hlen);
+  TGeoTranslation* tra1 = new TGeoTranslation("tra1", -lside/barnum/2., 0.,0.);
   tra1->RegisterYourself();
   TGeoCompositeShape* logicbb1 = new TGeoCompositeShape("logicbb1","(logicbbL1:tra1)-(logicbbS1:tra1)");
   TGeoVolume *bbox1 = new TGeoVolume("DrcBarBox1", logicbb1, gGeoManager->GetMedium("DIRCcarbonFiber"));
   bbox1->SetLineColor(30);
   
-  TGeoBBox* logicbbS2 = new TGeoBBox("logicbbS2", lside*5./12.+boxgap, hthick+boxgap, bbox_hlen);
-  TGeoBBox* logicbbL2 = new TGeoBBox("logicbbL2", lside*5./12.+boxgap+boxthick, hthick+boxgap+boxthick, bbox_hlen);
-  TGeoTranslation* tra2 = new TGeoTranslation("tra2", lside/12., 0.,0.);
+  TGeoBBox* logicbbS2 = new TGeoBBox("logicbbS2", lside*(barnum-1)/barnum/2.+boxgap, hthick+boxgap, bbox_hlen);
+  TGeoBBox* logicbbL2 = new TGeoBBox("logicbbL2", lside*(barnum-1)/barnum/2.+boxgap+boxthick, hthick+boxgap+boxthick, bbox_hlen);
+  TGeoTranslation* tra2 = new TGeoTranslation("tra2", lside/barnum/2., 0.,0.);
   tra2->RegisterYourself();  
   TGeoCompositeShape* logicbb2 = new TGeoCompositeShape("logicbb2","(logicbbL2:tra2)-(logicbbS2:tra2)");
   TGeoVolume *bbox2 = new TGeoVolume("DrcBarBox2", logicbb2, gGeoManager->GetMedium("DIRCcarbonFiber"));
@@ -663,36 +643,36 @@ void PndDrc::ConstructGeometry()
     }
 
   // Box contains 6 bars 
-  TGeoBBox* logicBox = new TGeoBBox("logicBox", lside/2, hthick, bbox_hlen-eps);
-  TGeoBBox* logicBox1 = new TGeoBBox("logicBox1",  (lside*5./6.)/2, hthick, bbox_hlen-eps);
-  TGeoBBox* logicBox2 = new TGeoBBox("logicBox2",  (lside*5./6.)/2, hthick, bbox_hlen-eps);
+  TGeoBBox* logicBox  = new TGeoBBox("logicBox", lside/2, hthick, bbox_hlen-eps);
+  TGeoBBox* logicBox1 = new TGeoBBox("logicBox1",  (lside*(barnum-1)/barnum)/2, hthick, bbox_hlen-eps);
+  TGeoBBox* logicBox2 = new TGeoBBox("logicBox2",  (lside*(barnum-1)/barnum)/2, hthick, bbox_hlen-eps);
 
-  TGeoBBox* logicMirror = new TGeoBBox("logicMirror", lside/2, hthick, eps);
-  TGeoBBox* logicMirror1 = new TGeoBBox("logicMirror1", (lside*5./6.)/2, hthick, eps);
-  TGeoBBox* logicMirror2 = new TGeoBBox("logicMirror2", (lside*5./6.)/2, hthick, eps);
+  TGeoBBox* logicMirror  = new TGeoBBox("logicMirror",   lside/2, hthick, eps);
+  TGeoBBox* logicMirror1 = new TGeoBBox("logicMirror1", (lside*(barnum-1)/barnum)/2, hthick, eps);
+  TGeoBBox* logicMirror2 = new TGeoBBox("logicMirror2", (lside*(barnum-1)/barnum)/2, hthick, eps);
 
-  TGeoVolume *box = new TGeoVolume("DrcBox",logicBox, gGeoManager->GetMedium("DIRCairNoSens"));
+  TGeoVolume *box   = new TGeoVolume("DrcBox", logicBox,  gGeoManager->GetMedium("DIRCairNoSens"));
   TGeoVolume *box1  = new TGeoVolume("DrcBox1",logicBox1, gGeoManager->GetMedium("DIRCairNoSens"));
   TGeoVolume *box2  = new TGeoVolume("DrcBox2",logicBox2, gGeoManager->GetMedium("DIRCairNoSens"));
-  box->SetLineColor(kCyan-4);
+  box ->SetLineColor(kCyan-4);
   box1->SetLineColor(kCyan-4);
   box2->SetLineColor(kCyan-4);
 
-  TGeoVolume *mirr = new TGeoVolume("DrcMirr",logicMirror, gGeoManager->GetMedium("Mirror"));
+  TGeoVolume *mirr  = new TGeoVolume("DrcMirr", logicMirror,  gGeoManager->GetMedium("Mirror"));
   TGeoVolume *mirr1 = new TGeoVolume("DrcMirr1",logicMirror1, gGeoManager->GetMedium("Mirror"));
   TGeoVolume *mirr2 = new TGeoVolume("DrcMirr2",logicMirror2, gGeoManager->GetMedium("Mirror"));
   mirr->SetLineColor(5);
   mirr->SetLineColor(5);
   mirr->SetLineColor(5);
   
-  side->AddNode(box, 1,new TGeoCombiTrans(0., 0., -eps, new TGeoRotation (0)) );
+  side->AddNode(box,  1,new TGeoCombiTrans(0., 0., -eps, new TGeoRotation (0)) );
   side->AddNode(mirr, 1,new TGeoCombiTrans(0., 0., bbox_hlen-eps, new TGeoRotation (0)) );
 
-  side1->AddNode(box1,  1,new TGeoCombiTrans(-lside*1./12., 0., -eps,          new TGeoRotation (0) ));
-  side1->AddNode(mirr1, 1,new TGeoCombiTrans(-lside*1./12., 0., bbox_hlen-eps, new TGeoRotation (0) ));
+  side1->AddNode(box1,  1,new TGeoCombiTrans(-lside*1./barnum/2., 0., -eps,          new TGeoRotation (0) ));
+  side1->AddNode(mirr1, 1,new TGeoCombiTrans(-lside*1./barnum/2., 0., bbox_hlen-eps, new TGeoRotation (0) ));
 
-  side2->AddNode(box2,  1,new TGeoCombiTrans( lside*1./12., 0., -eps, new TGeoRotation (0)));
-  side2->AddNode(mirr2, 1,new TGeoCombiTrans( lside*1./12., 0., bbox_hlen-eps, new TGeoRotation (0)) );
+  side2->AddNode(box2,  1,new TGeoCombiTrans( lside*1./barnum/2., 0., -eps, new TGeoRotation (0)));
+  side2->AddNode(mirr2, 1,new TGeoCombiTrans( lside*1./barnum/2., 0., bbox_hlen-eps, new TGeoRotation (0)) );
 
 
 
@@ -702,34 +682,34 @@ void PndDrc::ConstructGeometry()
 
 
   // slabs
-  TGeoBBox* logicBarContainer = new TGeoBBox("logicBarContainer",  (lside/6)/2, hthick, bbox_hlen-eps);
-  TGeoBBox* logicBarContainer1 = new TGeoBBox("logicBarContainer1",(lside/6)/2, hthick, bbox_hlen-eps);
-  TGeoBBox* logicBarContainer2 = new TGeoBBox("logicBarContainer2",(lside/6)/2, hthick, bbox_hlen-eps);
+  TGeoBBox* logicBarContainer  = new TGeoBBox("logicBarContainer", (lside/barnum)/2, hthick, bbox_hlen-eps);
+  TGeoBBox* logicBarContainer1 = new TGeoBBox("logicBarContainer1",(lside/barnum)/2, hthick, bbox_hlen-eps);
+  TGeoBBox* logicBarContainer2 = new TGeoBBox("logicBarContainer2",(lside/barnum)/2, hthick, bbox_hlen-eps);
 
   TGeoVolume *barContainer = new TGeoVolume("DrcBarContainer",logicBarContainer, gGeoManager->GetMedium("DIRCairNoSens"));  
   TGeoVolume *barContainer1= new TGeoVolume("DrcBarContainer",logicBarContainer, gGeoManager->GetMedium("DIRCairNoSens"));
   TGeoVolume *barContainer2= new TGeoVolume("DrcBarContainer",logicBarContainer, gGeoManager->GetMedium("DIRCairNoSens"));
-  barContainer->SetLineColor(kCyan-7);
+  barContainer ->SetLineColor(kCyan-7);
   barContainer1->SetLineColor(kCyan-7);
   barContainer2->SetLineColor(kCyan-7);
 
-  for (Int_t j = 0; j <6 ; j++)
+  for (Int_t j = 0; j <barnum ; j++)
      { 
-       dx= - lside/2 + (lside/6)/2  + j * (lside/6); 
+       dx= - lside/2 + (lside/barnum)/2  + j * (lside/barnum); 
        dy=0.;
        dz=0.;
        box->AddNode(barContainer, 1+j,new TGeoCombiTrans(dx, dy, dz, new TGeoRotation (0)) ); 
      }
-  for (Int_t j = 0; j <5 ; j++)
+  for (Int_t j = 0; j <barnum-1 ; j++)
      {   
-       dx= - lside/2 + (lside/6)  + j * (lside/6); 
+       dx= - lside/2 + (lside/barnum)  + j * (lside/barnum); 
        dy=0.;
        dz=0.;
        box1->AddNode(barContainer, j+1,new TGeoCombiTrans(dx, dy, dz, new TGeoRotation (0)) ); 
      }
-  for (Int_t j = 1; j <6 ; j++)
+  for (Int_t j = 1; j <barnum ; j++)
      {   
-       dx= - lside/2 /*+ (lside/6)*/  + j * (lside/6); 
+       dx= - lside/2 /*+ (lside/6)*/  + j * (lside/barnum); 
        dy=0.;
        dz=0.;
        box2->AddNode(barContainer, j+1,new TGeoCombiTrans(dx, dy, dz, new TGeoRotation (0)) ); 
@@ -809,7 +789,7 @@ void PndDrc::ConstructGeometry()
   
     // Fused Silica bars
     // make bar shorter by amount of lens space
-    TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/6)/2)-bargap, hthick, bbox_hlen-len/2-eps);
+    TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/barnum)/2)-bargap, hthick, bbox_hlen-len/2-eps);
     TGeoVolume *bar = new TGeoVolume("DrcBar",logicBar, gGeoManager->GetMedium("FusedSil"));
     bar->SetLineColor(kCyan-9);
     bar->SetTransparency(50);
@@ -826,7 +806,7 @@ void PndDrc::ConstructGeometry()
     Double_t t = -r +b/2;
 
     TGeoSphere* logicSphere= new TGeoSphere("S",0.,r, 0. ,180.,0.,360.);
-    TGeoBBox* lBox = new TGeoBBox("B", (lside/6)/2-bargap, hthick, b/2.);
+    TGeoBBox* lBox = new TGeoBBox("B", (lside/barnum)/2-bargap, hthick, b/2.);
     TGeoTranslation *tr1 = new TGeoTranslation("tr1", 0.,0., t);
     tr1->RegisterYourself();
     TGeoCompositeShape *cs = new TGeoCompositeShape("cs","S*(B:tr1)");
@@ -846,7 +826,7 @@ void PndDrc::ConstructGeometry()
     //Lens 2
     Double_t t2 = -r2;// +b2/2 r2  is the reference point (concave lens) 
     TGeoSphere* logicSphere2 = new TGeoSphere("S2",0 ,r2, 0. ,180.,0.,360.);
-    TGeoBBox*   lBox2        = new TGeoBBox("B2", (lside/6)/2-bargap, hthick, b2/2.);
+    TGeoBBox*   lBox2        = new TGeoBBox("B2", (lside/barnum)/2-bargap, hthick, b2/2.);
     TGeoTranslation *tr2     = new TGeoTranslation("tr2", 0.,0., t2);
     tr2->RegisterYourself();
     TGeoCompositeShape *cs2 = new TGeoCompositeShape("cs2","(B2:tr2)-S2");
@@ -865,7 +845,7 @@ void PndDrc::ConstructGeometry()
     //Lens3 (like lens1, same treatment)
     Double_t t3 = -r3+b3/2;
     TGeoSphere* logicSphere3= new TGeoSphere("S3",0.,r3, 0. ,180.,0.,360.);
-    TGeoBBox* lBox3 = new TGeoBBox("B3", (lside/6)/2-bargap, hthick, b3/2.);
+    TGeoBBox* lBox3 = new TGeoBBox("B3", (lside/barnum)/2-bargap, hthick, b3/2.);
     TGeoTranslation *tr3 = new TGeoTranslation("tr3", 0.,0., t3);
     tr3->RegisterYourself();
     TGeoCompositeShape *cs3 = new TGeoCompositeShape("cs3","S3*(B3:tr3)");
@@ -917,7 +897,7 @@ void PndDrc::ConstructGeometry()
   
     // Fused Silica bars
     // make bar shorter by amount of lens space
-    TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/6)/2)-bargap, hthick, bbox_hlen-len/2-eps);
+    TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/barnum)/2)-bargap, hthick, bbox_hlen-len/2-eps);
     TGeoVolume *bar = new TGeoVolume("DrcBar",logicBar, gGeoManager->GetMedium("FusedSil"));
     bar->SetLineColor(kCyan-9);
     bar->SetTransparency(50);
@@ -933,7 +913,7 @@ void PndDrc::ConstructGeometry()
     // Lens 1
     Double_t t = -r +b/2;
     TGeoSphere* logicSphere= new TGeoSphere("S",0.,r, 0. ,180.,0.,360.);
-    TGeoBBox* lBox = new TGeoBBox("B", (lside/6)/2-bargap, hthick, b/2.);
+    TGeoBBox* lBox = new TGeoBBox("B", (lside/barnum)/2-bargap, hthick, b/2.);
     TGeoTranslation *tr1 = new TGeoTranslation("tr1", 0.,0., t);
     tr1->RegisterYourself();
     TGeoCompositeShape *cs = new TGeoCompositeShape("cs","S*(B:tr1)");
@@ -952,7 +932,7 @@ void PndDrc::ConstructGeometry()
     //Lens 2
     Double_t t2 = -r2;// +b2/2 r2  is the reference point (concave lens) 
     TGeoSphere* logicSphere2 = new TGeoSphere("S2",0 ,r2, 0. ,180.,0.,360.);
-    TGeoBBox*   lBox2        = new TGeoBBox("B2", (lside/6)/2-bargap, hthick, b2/2.);
+    TGeoBBox*   lBox2        = new TGeoBBox("B2", (lside/barnum)/2-bargap, hthick, b2/2.);
     TGeoTranslation *tr2     = new TGeoTranslation("tr2", 0.,0., t2);
     tr2->RegisterYourself();
     TGeoCompositeShape *cs2 = new TGeoCompositeShape("cs2","(B2:tr2)-S2");
@@ -970,7 +950,7 @@ void PndDrc::ConstructGeometry()
     //Lens3 (like lens1, same treatment)
     Double_t t3 = -r3+b3/2;
     TGeoSphere* logicSphere3= new TGeoSphere("S3",0.,r3, 0. ,180.,0.,360.);
-    TGeoBBox* lBox3 = new TGeoBBox("B3", (lside/6)/2-bargap, hthick, b3/2.);
+    TGeoBBox* lBox3 = new TGeoBBox("B3", (lside/barnum)/2-bargap, hthick, b3/2.);
     TGeoTranslation *tr3 = new TGeoTranslation("tr3", 0.,0., t3);
     tr3->RegisterYourself();
     TGeoCompositeShape *cs3 = new TGeoCompositeShape("cs3","S3*(B3:tr3)");
@@ -1005,7 +985,7 @@ void PndDrc::ConstructGeometry()
     Double_t l = 0.5+ 0.2+ 0.5+ a2 -0.2; // dimension of the box containing both lenses
  
     // Fused Silica bars
-    TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/6)/2)-bargap, hthick, bbox_hlen-l/2-eps);
+    TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/barnum)/2)-bargap, hthick, bbox_hlen-l/2-eps);
     TGeoVolume *bar = new TGeoVolume("DrcBar",logicBar, gGeoManager->GetMedium("FusedSil"));
     bar->SetLineColor(kCyan-9);
     bar->SetTransparency(50);
@@ -1024,7 +1004,7 @@ void PndDrc::ConstructGeometry()
     // Lens 1
     Double_t t = -r +b/2;
     TGeoSphere* logicSphere= new TGeoSphere("S",0.,r, 0. ,180.,0.,360.);
-    TGeoBBox* lBox = new TGeoBBox("B", (lside/6)/2-bargap, hthick, b/2.);
+    TGeoBBox* lBox = new TGeoBBox("B", (lside/barnum)/2-bargap, hthick, b/2.);
     TGeoTranslation *tr1 = new TGeoTranslation("tr1", 0.,0., t);
     tr1->RegisterYourself();
     TGeoCompositeShape *cs = new TGeoCompositeShape("cs","S*B:tr1");
@@ -1039,7 +1019,7 @@ void PndDrc::ConstructGeometry()
   
     //TGeoSphere* logicSphere2 = new TGeoSphere("S2", r ,r2, 0. ,180.,0.,360.);
     TGeoSphere* logicSphere2 = new TGeoSphere("S2", r2-a2 ,r2, 0. ,180.,0.,360.);
-    TGeoBBox*   lBox2        = new TGeoBBox("B2", (lside/6)/2-bargap, hthick, b2/2.);
+    TGeoBBox*   lBox2        = new TGeoBBox("B2", (lside/barnum)/2-bargap, hthick, b2/2.);
     TGeoTranslation *tr2     = new TGeoTranslation("tr2", 0.,0., t2);
     tr2->RegisterYourself();
     TGeoCompositeShape *cs2 = new TGeoCompositeShape("cs2","S2*B2:tr2");
@@ -1060,7 +1040,7 @@ void PndDrc::ConstructGeometry()
   
     // Fused Silica bars
     // make bar shorter by amount of lens space
-    TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/6)/2)-bargap, hthick, bbox_hlen-len/2-eps);
+    TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/barnum)/2)-bargap, hthick, bbox_hlen-len/2-eps);
     TGeoVolume *bar = new TGeoVolume("DrcBar",logicBar, gGeoManager->GetMedium("FusedSil"));
     bar->SetLineColor(kCyan-9);
     bar->SetTransparency(50);

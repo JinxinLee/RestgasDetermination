@@ -16,6 +16,7 @@ class  PndGeoDrc : public FairGeoSet {
   double fBarBoxZDown;                      //!< Bar box down stream coordinate [cm].
   double fBarBoxZUp;                        //!< Bar box up   stream coordinate [cm].
   double fBarGap;			    //!< Half gap between bars [cm].
+  double fBarNum;                           //!< Number of bars per barbox.
   double fBoxGap;			    //!< Gap between bar and bar box [cm].
   double fBoxThick;			    //!< Bar box thickness [cm].
   
@@ -57,7 +58,14 @@ class  PndGeoDrc : public FairGeoSet {
     \return The BoxThickness [cm]. */
   Double_t  boxThick() {return fBoxThick;}
 
-  ClassDef(PndGeoDrc,0) // Class for Drc
+  /*! Number of bars per  bar box.
+    \return The number */
+  Double_t  barNum() {return fBarNum;}
+
+
+
+
+  ClassDef(PndGeoDrc,1) // Class for Drc
 
 
 };

@@ -25,6 +25,7 @@ PndGeoDrc::PndGeoDrc() {
   fBarHalfThick = 1.7/2.0;    // bar half thickness
   fBarBoxZDown  = 130.0;      // Downstream coordinate of radiator barrel
   fBarBoxZUp    =-120.0;      // Upstream coordinate of radiator barrel
+  fBarNum       = 6;          // Number of bars within barbox.
   fBoxGap	= 0.1;       // Half gap between bars
   fBarGap	= 0.01;	      // Gap between bar and bar box
   fBoxThick	= 0.05;	      // Thickness of bar box
