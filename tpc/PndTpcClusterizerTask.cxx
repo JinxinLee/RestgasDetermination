@@ -205,7 +205,7 @@ void PndTpcClusterizerTask::ChargeConversion()
 	if(point->GetEnergyLoss() < fPoti)
 	  continue;
        
-	int nel = floor(((point->GetEnergyLoss())-fPoti)/w_ion) + 1;
+	int nel = int(floor(((point->GetEnergyLoss())-fPoti)/w_ion)) + 1;
 	  
 	//nel=TMath::Min(nel,300); // 300 electrons corresponds to 10 keV
 

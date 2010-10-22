@@ -119,7 +119,6 @@ Float_t PndLheCandidate ::ExtrapolateToR(TVector3 *mom, TVector3 *vertex, const 
 //______________________________________________________________
 void PndLheCandidate::SortHits()
 {
-  Int_t fVerbose = 0;
   TObjArray* lheList = GetRHits();
   if (fVerbose) cout << lheList->GetEntriesFast() << " " << GetNumberOfHits() << endl;
   

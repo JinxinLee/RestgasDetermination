@@ -192,10 +192,10 @@ vector<vector<Int_t> > PndLumiTrackFinder::GetHitsOnTrack(map<Int_t,TVector2> an
 
 			if( flag[(*itAngle2).first]!=1 ) continue;
 
-			Int_t th_tmp = ceil((*tmp).second.X()/fDTheta) ;
-			Int_t th = ceil((*itAngle2).second.X()/fDTheta) ;
-			Int_t ph_tmp = ceil((*tmp).second.Y()/fDPhi);
-			Int_t ph = ceil((*itAngle2).second.Y()/fDPhi) ;
+			Int_t th_tmp = int(ceil((*tmp).second.X()/fDTheta)) ;
+			Int_t th = int(ceil((*itAngle2).second.X()/fDTheta)) ;
+			Int_t ph_tmp = int(ceil((*tmp).second.Y()/fDPhi));
+			Int_t ph = int(ceil((*itAngle2).second.Y()/fDPhi)) ;
 
 
 			if(fabs(th_tmp-th)<=1 && fabs(ph_tmp-ph)<=1){

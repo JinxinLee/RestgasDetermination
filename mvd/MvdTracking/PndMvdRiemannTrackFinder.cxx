@@ -357,8 +357,8 @@ double PndMvdRiemannTrackFinder::GetMaxPlaneDist(double radius, double dip , boo
     	double minTh=fCutDistH->GetYaxis()->GetXmin();
     	double maxTh=fCutDistH->GetYaxis()->GetXmax();
 
-    	int binPt=floor((Pt-minPt)*fCutDistH->GetXaxis()->GetNbins()/(maxPt-minPt))+1;
-    	int binTh=floor((Theta-minTh)*fCutDistH->GetYaxis()->GetNbins()/(maxTh-minTh))+1;
+    	int binPt=int(floor((Pt-minPt)*fCutDistH->GetXaxis()->GetNbins()/(maxPt-minPt)))+1;
+    	int binTh=int(floor((Theta-minTh)*fCutDistH->GetYaxis()->GetNbins()/(maxTh-minTh)))+1;
 
     	if (binPt<1) binPt=1;
     	if (binPt>fCutDistH->GetXaxis()->GetNbins()) binPt=fCutDistH->GetXaxis()->GetNbins();
@@ -382,8 +382,8 @@ double PndMvdRiemannTrackFinder::GetMaxSZChi2(double radius, double dip , bool s
     	double minTh=fCutChi2H->GetYaxis()->GetXmin();
     	double maxTh=fCutChi2H->GetYaxis()->GetXmax();
 
-    	int binPt=floor((Pt-minPt)*fCutChi2H->GetXaxis()->GetNbins()/(maxPt-minPt))+1;
-    	int binTh=floor((Theta-minTh)*fCutChi2H->GetYaxis()->GetNbins()/(maxTh-minTh))+1;
+    	int binPt=int(floor((Pt-minPt)*fCutChi2H->GetXaxis()->GetNbins()/(maxPt-minPt)))+1;
+    	int binTh=int(floor((Theta-minTh)*fCutChi2H->GetYaxis()->GetNbins()/(maxTh-minTh)))+1;
 
     	if (binPt<1) binPt=1;
     	if (binPt>fCutChi2H->GetXaxis()->GetNbins()) binPt=fCutChi2H->GetXaxis()->GetNbins();
