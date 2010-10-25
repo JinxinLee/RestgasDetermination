@@ -622,7 +622,7 @@ void PndLheHitsMaker::GetTpcClusters() {
     hit->SetDetectorID(kTpcCluster);
     hit->SetTrackID(clu->mcId().DominantID().mctrackID());
     hit->SetRefIndex(j);
-    hit->SetLink(FairLink("PndTpcCluster", j));
+    //hit->SetLink(FairLink("PndTpcCluster", j));
     if (fVerbose)  hit->Print();
     
   }  // end of TpcCluster loop  

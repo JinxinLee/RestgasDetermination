@@ -34,7 +34,7 @@ PndGemMCPoint::PndGemMCPoint(Int_t trackID, Int_t detID, TString detName,
   fPzfOut = momOut.Pz();
 
   fDetName = detName;
-  SetLink(FairLink("MCTrack", trackID));
+  //SetLink(FairLink("MCTrack", trackID));
 }
 // -------------------------------------------------------------------------
 

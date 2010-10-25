@@ -92,10 +92,10 @@ class PndGemDigi : public FairMultiLinkedData
   Int_t GetIndex(int i = 0) const{ return GetLink(i).GetIndex();} 
   
   void AddIndex(int index){ 
-    AddLink(FairLink("GEMPoint", index));
+    //AddLink(FairLink("GEMPoint", index));
   } 
   void AddIndex(std::vector<Int_t> index){ 
-    SetLinks(FairMultiLinkedData("GEMPoint", index));
+    //SetLinks(FairMultiLinkedData("GEMPoint", index));
   } 
 
  private:
