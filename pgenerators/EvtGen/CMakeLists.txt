@@ -273,6 +273,7 @@ Cernlib/ranf.F
 ## Set list of example binaries (actually, thats their source code name)
 ## binaries in EvtGenBase are not created...
 set(ALLEvtGen_exe simpleEvtGen example1 irinaEvtGen pandaEvtGen simpleEvtGenRO cgFinder ggEvtGen testEvtGen)
+set(ALLEvtGen_exe simpleEvtGen simpleEvtGenRO)
 
 if(RULE_CHECKER_FOUND)
   CHECK_RULES("${EVTGENDIRECT_SRCS}" "${INCLUDE_DIRECTORIES}" EVTGENDIRECT_RULES)
