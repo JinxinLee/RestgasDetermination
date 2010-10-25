@@ -117,7 +117,9 @@ void
 padprocessor::setState(std::string name){
   if(fstates[name]!=0){
     factive_state=fstates[name];
+    fastate.clear();
     fastate=name;
+    name.clear();
     //std::cout<<"Pad("<<fmyid<<"):: switching to state "<<name<<std::endl;
   }
   else std::cerr<<"Pad("<<fmyid<<"):: Unknown State "<<name<<"!"<<std::endl;
