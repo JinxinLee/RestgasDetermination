@@ -131,7 +131,10 @@ class PndFts : public FairDetector
 
   TObjArray *fPassNodes; //!
   //geometry type
+  Bool_t valid;
   Int_t fGeoType;
+
+
 
   /** Private method AddHit
    **
@@ -179,7 +182,7 @@ inline void PndFts::ResetParameters() {
   fPosIn.SetXYZM(0.0, 0.0, 0.0, 0.0);
   fPosOut.SetXYZM(0.0, 0.0, 0.0, 0.0);
   fMass = 0;
-};
+}
 
 
 #endif
