@@ -99,7 +99,7 @@ class PndPrzWindowClassify : public PndGpidClassifier
 };
 
 // ================================================================
-inline void PndPrzWindowClassify::setWindowSize(const std::map<std::string, float>& wsize)
+inline void PndPrzWindowClassify::setWindowSize(std::map<std::string, float> const &wsize)
 {
   m_Wsize = std::map<std::string, float>(wsize);
   // Set hypercube volume.

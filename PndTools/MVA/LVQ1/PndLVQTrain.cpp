@@ -19,8 +19,10 @@ PndLVQTrain::PndLVQTrain(const std::string& inputFile,
 			 const std::vector<std::string>& VarNames,
 			 bool trim)
   : PndMvaTrainer(inputFile, ClassNames, VarNames, trim),
-    m_initConst(0.8), m_ethaZero(0.1),
-    m_ethaFinal(0.0001), m_NumSweep(900),
+    m_initConst(0.8),
+    m_ethaZero(0.1),
+    m_ethaFinal(0.0001),
+    m_NumSweep(900),
     m_proto_init(RANDOM_PR),
     m_initProtoFile(""),
     m_ErrorStep(100),
@@ -32,10 +34,11 @@ PndLVQTrain::PndLVQTrain(const std::string& inputFile,
  */
 PndLVQTrain::~PndLVQTrain()
 {
-  std::cout << "<INFO> Cleaning all initialized objects, LVQ." 
-	    << '\n';
+  std::cout << "<INFO> Cleaning all initialized objects, LVQ.\n"; 
+
   // Clean m_LVQProtos
-  for(size_t i = 0; i < m_LVQProtos.size(); i++){
+  for(size_t i = 0; i < m_LVQProtos.size(); i++)
+  {
     delete m_LVQProtos[i].second;
   }
   m_LVQProtos.clear();
@@ -71,7 +74,7 @@ void PndLVQTrain::Train()
   m_ProgStep = (tFinal / 100);
   
   std::cout << "<INFO> Each . equals " << m_ProgStep 
-	    << " learning steps" << '\n';
+	    << " learning steps.\n";
 
   // We need to fix this___ FIXME
   if( a < 0.00 )
@@ -95,7 +98,7 @@ void PndLVQTrain::Train()
 	    <<", learn coeff. = " << a << '\n';
   
   // Start the training
-  std::cout << "Starting to train (LVQ1)....." << '\n';
+  std::cout << "Starting to train (LVQ1).....\n";
   
   for(unsigned int time = 0; time < tFinal; time++)
   {
@@ -169,8 +172,7 @@ void PndLVQTrain::Train()
   EvalClassifierError( (tFinal - 1) );
 
   std::cerr << '\n';
-  std::cout << "<INFO> Finished training and writing to file." 
-	    << '\n';
+  std::cout << "<INFO> Finished training and writing to file.\n"; 
 
   WriteToWeightFile(m_LVQProtos);
 }
@@ -188,8 +190,8 @@ void PndLVQTrain::Train21()
   // Initialize distance container.
   if(m_distances.size() == 0)
   {
-    std::cout << "<INFO> Init Distances Container." << '\n';
-    for(unsigned int i = 0; i < m_LVQProtos.size(); i++)
+    std::cout << "<INFO> Init Distances Container.\n";
+    for(size_t i = 0; i < m_LVQProtos.size(); ++i)
     {
       m_distances.push_back(PndMvaDistObj());
     }
@@ -235,7 +237,7 @@ void PndLVQTrain::Train21()
 	    <<", surroun. = "<< s << '\n';
   
   // Start learning
-  std::cout << "Starting to train (LVQ2.1)....." << '\n';
+  std::cout << "Starting to train (LVQ2.1).....\n";
   for(unsigned int time = 0; time < tFinal; time++)
   {
     // Show progress.
@@ -334,8 +336,7 @@ void PndLVQTrain::Train21()
   EvalClassifierError( (tFinal - 1) );
 
   std::cerr << std::endl;
-  std::cout << "<INFO> Finished training and writing to file."
-	    << '\n';
+  std::cout << "<INFO> Finished training and writing to file.\n";
 
   WriteToWeightFile(m_LVQProtos);
 }
@@ -406,8 +407,7 @@ void PndLVQTrain::InitProtoTypes()
  */
 void PndLVQTrain::InitProtoK_Means()
 {
-  std::cout << "<INFO> Initializing LVQ prototypes using K_Means clustering."
-	    << '\n';
+  std::cout << "<INFO> Initializing LVQ prototypes using K_Means clustering.\n";
 
   // Fetch labels.
   const std::vector<PndMvaClass>& classes = m_dataSets.GetClasses();
@@ -432,14 +432,17 @@ void PndLVQTrain::InitProtoK_Means()
 #ifdef _OPENMP
 #pragma omp parallel for  schedule(dynamic)
 #endif  
-  for( cls = 0; cls < numberOfClasses; cls++){
+  for( cls = 0; cls < numberOfClasses; cls++)
+  {
     ClDataSample clusteringInput;
     std::string clsName = (classes[cls]).Name;
     unsigned int numProto = m_numProtoPerClass[clsName];
 
     // Example loop
-    for(size_t evt = 0; evt < events.size(); evt++){
-      if(events[evt].first == clsName){
+    for(size_t evt = 0; evt < events.size(); evt++)
+    {
+      if(events[evt].first == clsName)
+      {
 	clusteringInput.push_back(events[evt].second);
       }
     }// ExampleLoop
@@ -467,12 +470,14 @@ void PndLVQTrain::InitProtoK_Means()
   }// END ClassLoop
   
   // Copy cluster centers (CMs) to LVQ prototypes (code books)
-  for(size_t i = 0 ; i < classes.size(); i++){
+  for(size_t i = 0 ; i < classes.size(); i++)
+  {
     std::string label = classes[i].Name;
 
     //std::vector<std::vector<float>*>* TMP = ProtoVector[label];
     //                       ------ TMP->size() -------
-    for(size_t pr = 0; pr < (ProtoVector[label])->size(); pr++){
+    for(size_t pr = 0; pr < (ProtoVector[label])->size(); pr++)
+    {
       //                                                   ----- TMP.at(pr) ---------
       std::vector<float>* lvpr = new std::vector<float>( *( (ProtoVector[label])->at(pr) ) );
       m_LVQProtos.push_back(std::make_pair(label, lvpr));
@@ -480,9 +485,11 @@ void PndLVQTrain::InitProtoK_Means()
   }
   
   // We are done. Clean-up
-  for(size_t i = 0 ; i < classes.size(); i++){
+  for(size_t i = 0 ; i < classes.size(); i++)
+  {
     std::string label = classes[i].Name;
-    for(size_t pr = 0; pr < (ProtoVector[label])->size(); pr++){
+    for(size_t pr = 0; pr < (ProtoVector[label])->size(); pr++)
+    {
       delete (ProtoVector[label])->at(pr);
     }
     delete ProtoVector[label];
@@ -496,8 +503,7 @@ void PndLVQTrain::InitProtoK_Means()
  */
 void PndLVQTrain::InitProtoRand()
 {
-  std::cout << "<INFO> Initializing LVQ prototypes based on CLM."
-	    << '\n';
+  std::cout << "<INFO> Initializing LVQ prototypes based on CLM.\n";
 
   // Initialize LVQ-prototypes.
   double c = m_initConst;//0.8;
@@ -507,7 +513,8 @@ void PndLVQTrain::InitProtoRand()
   const std::vector<PndMvaClass>& classes = m_dataSets.GetClasses();
 
   // Print number of proto for each class.
-  for(size_t i = 0; i < classes.size(); i++){
+  for(size_t i = 0; i < classes.size(); i++)
+  {
     std::cout << classes[i].Name << " "
 	      << m_numProtoPerClass[classes[i].Name] << " ";
   }
@@ -584,8 +591,7 @@ void PndLVQTrain::InitProtoRand()
  */
 void PndLVQTrain::cleanProtoList()
 {
-  std::cout << "<INFO> Cleaning the prototype list." 
-            << '\n';
+  std::cout << "<INFO> Cleaning the prototype list.\n"; 
 
   // Clean up the container for proto-types
   for(unsigned int k = 0; k < m_LVQProtos.size(); k++)
@@ -613,7 +619,6 @@ void PndLVQTrain::UpdateProto(const std::vector<float>& EvtData,
  */
 void PndLVQTrain::EvalClassifierError(unsigned int stp)
 {
-  //std::cout << "!" ;
   // Get Examples
   const std::vector<std::pair<std::string, std::vector<float>*> >& events = m_dataSets.GetData();
   
@@ -776,7 +781,8 @@ void PndLVQTrain::SetNumberOfProto(const unsigned int numProto)
 {
   // Fetch labels.
   const std::vector < PndMvaClass >& classes = m_dataSets.GetClasses();
-  for(size_t cl = 0; cl < classes.size(); cl++){
+  for(size_t cl = 0; cl < classes.size(); cl++)
+  {
     m_numProtoPerClass[ classes[cl].Name ] = numProto;
   }
 }
@@ -786,18 +792,20 @@ void PndLVQTrain::SetNumberOfProto(const unsigned int numProto)
  *@param labelMap  Map containing number of prototypes 
  * for each class (label).
  */  
-void PndLVQTrain::SetNumberOfProto(const std::map<std::string, unsigned int>& labelMap)
+void PndLVQTrain::SetNumberOfProto(std::map<std::string, unsigned int> const &labelMap)
 {
   // Fetch labels.
   const std::vector < PndMvaClass >& classes = m_dataSets.GetClasses();
   // Init map iterator.
   std::map < std::string, unsigned int >::const_iterator iter;
-  for(size_t cl = 0; cl < classes.size(); cl++){
+  for(size_t cl = 0; cl < classes.size(); cl++)
+  {
     std::string curLabel = classes[cl].Name;
     // Check if the current is specified.
     iter = labelMap.find(curLabel);
     // Num proto defined.
-    if( iter != labelMap.end() ){
+    if( iter != labelMap.end() )
+    {
       m_numProtoPerClass [curLabel] = iter->second;
     }
     else{// Num Proto not defined.

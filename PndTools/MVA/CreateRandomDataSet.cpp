@@ -18,18 +18,19 @@
 
 int main(int argc, char**argv)
 {
-  if(argc < 3){
-    std::cout<< "<INFO> Usage: CreateRandomDataSet <Number of events>"
-	     <<" <OutputFile.root>"
-	     << std::endl;
+  if(argc < 3)
+  {
+    std::cerr<< "<Usage> Usage: CreateRandomDataSet <Number of events>"
+	     << " <OutputFile.root>\n";
     return 1;
   }
 
   int numevt = atoi(argv[1]);
   std::string outFile = argv[2];
   
-  std::cout << "Number of events is " << numevt << " output will be saved in " << outFile
-	    << std::endl;
+  std::cout << "Number of events is " << numevt
+	    << " output will be saved in " << outFile
+	    << '\n';
   
   std::vector< std::vector<float>* > varContainer;
   std::vector <TTree*> trees;
@@ -37,23 +38,25 @@ int main(int argc, char**argv)
   std::vector <std::string> clas;
   std::vector <std::string> vars;
   
-  clas.push_back("electron"); clas.push_back("pion");
-  clas.push_back("muon"); clas.push_back("kaon");
-  clas.push_back("proton");//clas.push_back("gamma");
+  clas.push_back("electron");
+  clas.push_back("pion");
+  clas.push_back("muon");
+  clas.push_back("kaon");
+  clas.push_back("proton");
   
   vars.push_back("p");
   vars.push_back("emc");
   vars.push_back("lat");
   vars.push_back("z20");
   vars.push_back("z53");
-  /*
-    vars.push_back("thetaC"); vars.push_back("stt");
-    vars.push_back("mvd"); vars.push_back("tof");
-  */
+
+  // vars.push_back("thetaC"); vars.push_back("stt");
+  // vars.push_back("mvd"); vars.push_back("tof");
+
   TRandom3 rand(9753);
   
-  std::cout << "<INFO>: Initialization."
-	    << std::endl;
+  std::cout << "<INFO>: Initialization.\n";
+
   /*
    * For each class we need to initialize a vector to be used for
    * writing the var values in the corresponding tree.
@@ -92,12 +95,11 @@ int main(int argc, char**argv)
     //Add the tree to the per class tree holder container
     trees.push_back(sig);
   }
-  std::cout << "<INFO>: Initialization finished."
-	    << std::endl;
+  std::cout << "<INFO>: Initialization finished.\n";
   
   // generate per class ,#number of events.
-  std::cout << "<INFO>: Generating events."
-	    << std::endl;
+  std::cout << "<INFO>: Generating events.\n";
+
   //class loop
   int NumClasses = clas.size();
   int cls = 0;
@@ -122,7 +124,7 @@ int main(int argc, char**argv)
   }
   
   //Write to file;
-  std::cout << "Writing to file." << std::endl;
+  std::cout << "<INFO>Writing to file.\n";
   
   TFile rootFile (outFile.c_str(), "RECREATE", "RandomEventDatafile", 9);
   

@@ -68,7 +68,7 @@ PndMvaDataSet::~PndMvaDataSet()
  */
 void PndMvaDataSet::Trim()
 {
-  std::cout << "<INFO> Triming data set." << '\n';
+  std::cout << "<INFO> Triming data set.\n";
   
   // If the dtaset is initialized.
   assert(m_events.size() > 1 );
@@ -139,7 +139,7 @@ void PndMvaDataSet::Trim()
   m_events.swap(newEvents);
 
   // Restore indices
-  cout << "<INFO> Restoring class indices." << '\n';
+  cout << "<INFO> Restoring class indices.\n";
   int minIdx = 0;
   for(size_t idx = 0; idx < m_events.size(); idx++)
   {
@@ -171,33 +171,28 @@ void PndMvaDataSet::NormalizeDataSet(const NormType type)
   switch(type)
   {
   case MINMAX:
-    cout << "<INFO> Normalizing dataset using Min, Max spread and mid."
-	 << '\n';
+    cout << "<INFO> Normalizing dataset using Min, Max spread and mid.\n";
     MinMaxDiff();
     break;
     
   case MEDIAN:
     cout << "<INFO> Normalizing the dataset "
-	 << "using Median and Inter Quartile Distance (IQR)."
-	 << '\n';
+	 << "using Median and Inter Quartile Distance (IQR).\n";
     DetermineMedian();
     break;
     
   case VARX:
     cout << "<INFO> Normalizing the dataset "
-	 << "using samle Variance and mean."
-	 << '\n';
+	 << "using samle Variance and mean.\n";
     ComputeVariance();
     break;
     
   default:
     // case NONE:
-    cout << "<INFO> No normalization scheme was selected."
-	 << '\n';
+    cout << "<INFO> No normalization scheme was selected.\n";
     break;
   }
-  std::cout << "===================================================" 
-	    << '\n';
+  std::cout << "===================================================\n" ;
 
   // Event Loop
   for(size_t ev = 0; ev < m_events.size(); ev++)
@@ -423,7 +418,7 @@ void PndMvaDataSet::ReadInput()
   
   if(fact)
   {
-    cout << "<INFO> Reading normalization values."<< '\n';
+    cout << "<INFO> Reading normalization values.\n";
     vector<float> normVars(m_vars.size(), 0.0);
     
     // Bind the parameters to the tree branches
@@ -453,7 +448,7 @@ void PndMvaDataSet::ReadInput()
   
   if(m)
   {
-    cout << "<INFO> Reading mean values."<< '\n';
+    cout << "<INFO> Reading mean values.\n";
     
     vector<float> meanVals(m_vars.size(), 0.0);
     
@@ -482,20 +477,20 @@ void PndMvaDataSet::ReadInput()
   // Get PCA data. If PCA has been applied.  
   if( InPutFile.Get("PCAMeans") && InPutFile.Get("PCAEigenVectors") )
   {
-    std::cout << "<INFO> Found PCA transformed values." << '\n';
+    std::cout << "<INFO> Found PCA transformed values.\n";
 
     // PCA Means.
     TVectorT<double>* pca_mean = (TVectorT<double>*) InPutFile.Get("PCAMeans");
     m_PCA.SetMeanVector( *(pca_mean) );
 
-    std::cout << "-I- Mean vector: " << '\n';
+    std::cout << "-I- Mean vector:\n";
     pca_mean->Print();
 
     // PCA Eigen vectors.
     TMatrixT<double>* pca_EigVect = (TMatrixT<double>*) InPutFile.Get("PCAEigenVectors");
     m_PCA.SetEigenVectors( *(pca_EigVect) );
 
-    std::cout << "-I- Eigen Vectors: " << '\n';
+    std::cout << "-I- Eigen Vectors:\n";
     pca_EigVect->Print();
 
     m_UsePCA = true;
@@ -517,7 +512,7 @@ void PndMvaDataSet::ReadInput()
 void PndMvaDataSet::CompClsCondMean(std::string const &clsName)
 {
   cout << "<INFO> Determining class conditional mean for "
-       << clsName << "." << '\n';
+       << clsName << ".\n";
 
   // Find the class.
   size_t classNum = 0;  
@@ -602,8 +597,7 @@ void PndMvaDataSet::ComputeVariance()
  */
 void PndMvaDataSet::DetermineMedian()
 {
-  cout << "\t<INFO> Determining median for each parameter." 
-            << '\n';
+  cout << "\t<INFO> Determining median for each parameter.\n";
   
   float median = 0.00; float Fquartil = 0.00;
   vector <float> varVect(m_events.size(), 0.00);    
@@ -684,8 +678,8 @@ void PndMvaDataSet::PCATransForm()
 
   m_UsePCA = true;
 
-  std::cout << "<INFO> (PCA) Transforming the events from the current data set."
-	    << '\n';
+  std::cout << "<INFO> (PCA) Transforming the events from the current data set.\n";
+
   // Events loop
   for(size_t evt = 0; evt < m_events.size(); evt++)
   {  

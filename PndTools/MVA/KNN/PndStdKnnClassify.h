@@ -80,7 +80,7 @@ inline unsigned int PndStdKnnClassify::GetKnn() const
   return m_Knn;
 };
 
-inline void PndStdKnnClassify::SetKNN( const unsigned int nNeighbours )
+inline void PndStdKnnClassify::SetKNN( unsigned int const nNeighbours )
 {
   m_Knn = nNeighbours;
 };

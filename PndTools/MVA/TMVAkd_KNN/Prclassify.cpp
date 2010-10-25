@@ -17,7 +17,8 @@
 #include "TStopwatch.h"
 
 
-void PrintResult(std::map<std::string, float>& res, size_t evNum){
+void PrintResult(std::map<std::string, float>& res, size_t evNum)
+{
   std::cout << "\n\t================================== \n"
 	    << "Evt num = " << evNum << '\n';
   for( std::map<std::string, float>::iterator ii=res.begin(); 
@@ -100,7 +101,7 @@ int main(int argc, char** argv)
   cls.SetEvtParam(0.8, 1.0);
   cls.InitKNN();
 
-  std::cout << "............... Init is done." << '\n';
+  std::cout << "............... Init is done.\n";
   
   // Open InputFile containing events for classification
   TFile inFile(InputEvtFile.c_str(), "READ");
@@ -160,27 +161,21 @@ int main(int argc, char** argv)
   //______________________________________________
   double rtime = ti.RealTime();
   double ctime = ti.CpuTime();
-  std::cout << "timer 1: Classifier timing results:"<< '\n'
+  std::cout << "timer 1: Classifier timing results:\n"
             << "RealTime = " << rtime << " seconds, CpuTime = " 
-            << ctime <<" Seconds\n" << '\n';
+            << ctime <<" Seconds\n\n";
 
   // Classifier evaluation info.
-  std::cout << "+++++++++++++++++++++++++++++++++++++++" 
-	    << '\n'
+  std::cout << "+++++++++++++++++++++++++++++++++++++++\n" 
 	    << " Total number of classified events: "
-	    << numberOfEvt << '\n'
-	    << " Number of missclassified: " << misCl << " = "
+	    << numberOfEvt
+	    << "\n Number of missclassified: " << misCl << " = "
 	    << ( static_cast<float>(misCl) * 100.00)/ static_cast<float>(numberOfEvt)
-	    <<" %"
-	    << '\n'
+	    <<" %\n"
 	    << " Correct cassified = " << (numberOfEvt - misCl)
-	    << '\n'
-	    << " (time / event) = " << rtime/ static_cast<double>(numberOfEvt)
-	    << '\n'
-	    << " With #neighb = " << NumNei 
-	    << '\n'
-	    << "+++++++++++++++++++++++++++++++++++++++" 
-	    << '\n';
+	    << "\n (time / event) = " << rtime/ static_cast<double>(numberOfEvt)
+	    << "\n With #neighb = " << NumNei 
+	    << "\n+++++++++++++++++++++++++++++++++++++++\n";
   //==============================================
   
   // CLose open file.

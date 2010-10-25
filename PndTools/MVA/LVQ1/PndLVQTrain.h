@@ -179,18 +179,18 @@ class PndLVQTrain: public PndMvaTrainer
 };
 //END Interface definition
 
-inline void PndLVQTrain::setProtoInitType(const ProtoInitType iniTypeVal)
+inline void PndLVQTrain::setProtoInitType(ProtoInitType const iniTypeVal)
 {
   m_proto_init = iniTypeVal;
 };
 
-inline void PndLVQTrain::SetInitProtoFileName(const std::string& fileName)
+inline void PndLVQTrain::SetInitProtoFileName(std::string const &fileName)
 {
   m_initProtoFile = fileName;
 };
 
-inline void PndLVQTrain::SetLearnPrameters(const double initConst, const double etZ,
-					   const double etF, const int Nswp)
+inline void PndLVQTrain::SetLearnPrameters(double const initConst, double const etZ,
+					   double const etF, int const Nswp)
 {
   m_initConst = initConst;
   m_ethaZero = etZ;
@@ -198,7 +198,7 @@ inline void PndLVQTrain::SetLearnPrameters(const double initConst, const double 
   m_NumSweep = Nswp;
 };
 
-inline void PndLVQTrain::SetErrorStepSize(const unsigned int val)
+inline void PndLVQTrain::SetErrorStepSize(unsigned int const val)
 {
   m_ErrorStep = val;
 };

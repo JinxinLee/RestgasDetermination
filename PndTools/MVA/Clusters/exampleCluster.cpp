@@ -30,9 +30,9 @@ void printCentroids(const ClDataSample& dat)
     {
       std::cout << example->at(j) << "  ";
     }
-    std::cout << ")" << std::endl;
+    std::cout << ")\n";
   }
-  std::cout << "==========================" << '\n';
+  std::cout << "==========================\n";
 }
 // *************  DEBUG ONLY **********
 
@@ -48,7 +48,7 @@ int main(int argc, char** argv)
 	      << std::endl;
     return 1;
   }
-  std::cout << "<INFO> MVA Clustering." << '\n';
+  std::cout << "<INFO> MVA Clustering.\n";
   
   // Input File name.
   std::string InFile(argv[1]);
@@ -57,8 +57,8 @@ int main(int argc, char** argv)
   int numCentrrs = atoi(argv[2]);
   
   std::cout << "<INFO> Using input data from file " << InFile
-	    << std::endl <<"\t number of clusters = " << numCentrrs
-	    << "." << '\n';
+	    << '\n' <<"\t number of clusters = " << numCentrrs
+	    << ".\n";
 
   // Construct the class name vector  
   std::vector<std::string>clas;
@@ -125,9 +125,9 @@ int main(int argc, char** argv)
     
   }// End of class loop
   
-  std::cout << "++++++++++++++++++++++++++++++++++++++"<< '\n'
-	    << "Printing the copied values:" << '\n'
-	    << "++++++++++++++++++++++++++++++++++++++"<< '\n';
+  std::cout << "++++++++++++++++++++++++++++++++++++++\n"
+	    << "Printing the copied values:\n"
+	    << "++++++++++++++++++++++++++++++++++++++\n";
   
   for(size_t l = 0; l < ProtoVector.size(); l++)
   {

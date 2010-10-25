@@ -56,7 +56,7 @@ class PndGpidClassifier
   virtual std::string *Classify( std::vector<float> EvtData ) = 0;
 
  protected:
-  // Normalize the given event vector.
+  //! Normalize the given event vector.
   virtual void NormalizeEvent(std::vector<float>& EvtVector) const;
   
   //! Data set. Holds event Weights

@@ -90,9 +90,6 @@ void PndProjectedKNN::GetMvaValues(std::vector<float> eventData,
     exit(EXIT_FAILURE);
   }
 
-  // Get variables.
-  //const vector<PndMvaVariable>& vars = m_dataSets.GetVars();
-  
   // Get labels.
   const vector<PndMvaClass>& classes = m_dataSets.GetClasses();
   
@@ -115,14 +112,6 @@ void PndProjectedKNN::GetMvaValues(std::vector<float> eventData,
   }
   
   // Normalize current Event
-  /*
-    for(size_t k = 0; k < vars.size(); k++)
-    {
-    assert(vars[k].NormFactor != 0);
-    eventData[k] -= vars[k].Mean;
-    eventData[k] /= vars[k].NormFactor;
-    }
-  */
   NormalizeEvent(eventData);
 
   // Each classifier produces number of classes results

@@ -32,11 +32,9 @@ PndKnnTrain::~PndKnnTrain()
  */
 void PndKnnTrain::Train()
 {
-  // Write to output file
-  // WriteDataSetToOutFile();
-
   // Fetch available data.
   std::vector< std::pair<std::string, std::vector<float>*> > const &w = m_dataSets.GetData();
-  // Write
+  
+  // Write to output file
   WriteToWeightFile(w);
 }

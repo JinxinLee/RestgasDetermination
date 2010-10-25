@@ -3,7 +3,7 @@
  * Author: M.Babai@rug.nl                *
  * Edited: E.A.Dijck@student.rug.nl      *
  * LICENSE:                              *
- * Version: 0.1 beta1.                   *
+ * Version:                              *
  * License:                              *
  * ***************************************
  */
@@ -36,23 +36,25 @@ PndLVQClassify::~PndLVQClassify()
  */
 std::string* PndLVQClassify::Classify(std::vector<float> EvtData)
 {
-  // Temporary Store Values.
+  // Temporary!. Store Values.
   std::map<std::string, float> TMPres;
   GetMvaValues(EvtData, TMPres);
 
   // Fetch labels (classes)
-  const vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+  vector<PndMvaClass> const &classes = m_dataSets.GetClasses();
 
   // Temporary variables for the winning class name.
-  std::string CurWin = "UNKNOWN_WINNER";
+  std::string CurWin = "UNKNOWN_WINNER_LABEL";
 
   float CurMvaVal = std::numeric_limits<float>::max();
 
-  // Find minimum the distance.
-  for(size_t i = 0; i < classes.size(); i++){
+  // Find minimum distance.
+  for(size_t i = 0; i < classes.size(); i++)
+  {
     std::string curName = classes[i].Name;
     
-    if( TMPres[curName] < CurMvaVal){
+    if( TMPres[curName] < CurMvaVal)
+    {
       CurMvaVal = TMPres[curName];
       CurWin    = curName;
     }
@@ -70,9 +72,6 @@ std::string* PndLVQClassify::Classify(std::vector<float> EvtData)
 void PndLVQClassify::GetMvaValues(vector<float> eventData,
 				  map<string,float>& result)
 {
-  // Fetch variables
-  //const vector<PndMvaVariable>& vars = m_dataSets.GetVars();
-
   // Fetch labels (classes)
   const vector<PndMvaClass>& classes = m_dataSets.GetClasses();
 
@@ -82,20 +81,12 @@ void PndLVQClassify::GetMvaValues(vector<float> eventData,
   // Initialize results
   result.clear();
   
-  for(size_t id = 0; id < classes.size(); id++)
+  for(size_t id = 0; id < classes.size(); ++id)
   {
     result.insert(make_pair(classes[id].Name, numeric_limits<float>::max()));
   }
 
   // Normalize current Event
-  /*
-    for(size_t k = 0; k < vars.size(); k++)
-    {
-    assert(vars[k].NormFactor != 0);
-    eventData[k] -= vars[k].Mean;
-    eventData[k] /= vars[k].NormFactor;
-    }
-  */
   NormalizeEvent(eventData);
 
   // Loop trough the prototypes list and compute the distances
@@ -112,20 +103,4 @@ void PndLVQClassify::GetMvaValues(vector<float> eventData,
       result[clsName] = dist;
     }
   }
-  
-  // Normalize Resul map
-  float Sum = 0.0;
-  for(size_t i = 0; i < classes.size(); i++)
-  {
-    string clsName = classes[i].Name;
-    Sum += result[clsName];
-  }
-  
-  for(size_t i = 0; i < classes.size(); i++)
-  {
-    string clsName = classes[i].Name;
-    result[clsName] /= Sum;
-    // result[clsName] = 1.0 - result[clsName]; // Do we need this?
-  }
-  
 }

@@ -53,7 +53,7 @@ PndKnnClassify::~PndKnnClassify()
  */
 void PndKnnClassify::InitKNN()
 {
-  std::cout << "<INFO> Initializing KNN classifier." << '\n';
+  std::cout << "<INFO> Initializing KNN classifier.\n";
 
   // Get variables.
   const vector<PndMvaVariable>& vars = m_dataSets.GetVars();
@@ -171,14 +171,6 @@ void PndKnnClassify::GetMvaValues(std::vector<float> eventData,
   }
 
   // Normalize current Event
-  /*
-    for(size_t k = 0; k < vars.size(); k++)
-    {
-    assert( vars[k].NormFactor != 0 );
-    eventData[k] -= vars[k].Mean;
-    eventData[k] /= vars[k].NormFactor;
-    }
-  */
   NormalizeEvent(eventData);
 
   // Create event and fetch Neighbours events from the tree

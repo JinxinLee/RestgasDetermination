@@ -89,23 +89,14 @@ void PndPrzWindowClassify::GetMvaValues(vector<float> eventData,
   // Get labels (classes).
   const vector<PndMvaClass>& labels = m_dataSets.GetClasses();
 
-  // Get variables.
-  //const vector<PndMvaVariable>& vars = m_dataSets.GetVars();
-
   // Normalize current Event
-  /*
-    for(size_t k = 0; k < vars.size(); k++){
-    assert(vars[k].NormFactor != 0);
-    eventData[k] -= vars[k].Mean;
-    eventData[k] /= vars[k].NormFactor;
-    }
-  */
   NormalizeEvent(eventData);
 
   // Init output (result) map
   result.clear();
-
-  for(size_t cl = 0; cl < labels.size(); cl++){
+  
+  for(size_t cl = 0; cl < labels.size(); ++cl)
+  {
     result[labels[cl].Name] = 0.0;
   }
 

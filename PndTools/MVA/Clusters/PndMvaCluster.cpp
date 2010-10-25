@@ -67,13 +67,13 @@ ClDataSample* PndMvaCluster::Cluster(const ClusteringType ClType)
   switch(ClType)
   {
   case KMEANS_SOFT://Returns empty centroids (not implemented yet).
-    std::cout << "<INFO> Soft clustering." << '\n';
+    std::cout << "<INFO> Soft clustering.\n";
     std::cerr << "<ERROR> Not implemented yet." << std::endl;
     return ( new ClDataSample() );
     break;
 
   default://Hard k_means clustering
-    std::cout << "<INFO> Hard K_Means clustering." << '\n';
+    std::cout << "<INFO> Hard K_Means clustering.\n";
     return K_Means();
     break;
   }

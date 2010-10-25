@@ -16,13 +16,14 @@
 float ComputeDist(std::vector<float> const &EvtData, 
 		  std::vector<float> const &Example)
 {
-  assert(Example.size() == EvtData.size());
+  assert( Example.size() == EvtData.size() );
   
   float dist = 0.0;
   
-  for(size_t i = 0; i< Example.size(); i++)
+  for(size_t i = 0; i< Example.size(); ++i)
   {
     dist += ( (EvtData[i] - Example[i]) * (EvtData[i] - Example[i]) );
   }
+  
   return sqrt(dist);
 }

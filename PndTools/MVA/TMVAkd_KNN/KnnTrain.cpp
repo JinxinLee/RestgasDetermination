@@ -66,7 +66,7 @@ int main(int argc, char** argv)
   //NormType tt = VARX;
   kNNtr.NormalizeData(VARX);
   
-  kNNtr.PCATransForm();
+  //kNNtr.PCATransForm();
   
   kNNtr.SetOutPutFile(oupt);
   

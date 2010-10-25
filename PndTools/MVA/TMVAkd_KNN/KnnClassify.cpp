@@ -19,7 +19,8 @@
 #include "TStopwatch.h"
 #include "TNtuple.h"
 
-void printResult( std::map<std::string,float>& res, unsigned int evtId){
+void printResult( std::map<std::string,float>& res, unsigned int evtId)
+{
   std::cout << "\t==================================" << std::endl;
   std::cout << " Evt Num = " << evtId << '\n';
   
@@ -40,7 +41,8 @@ void printResult( std::map<std::string,float>& res, unsigned int evtId){
 
 int main(int argc, char** argv)
 {
-  if(argc < 5){
+  if(argc < 5)
+  {
     std::cerr << "\t<ERROR>" 
 	      << argv[0] << " <inputWeightFile> <InputEventsFile>"
 	      << " <Treename> <numOfneigh>"

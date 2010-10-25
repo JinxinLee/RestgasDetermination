@@ -26,9 +26,10 @@ struct PndMvaVariable
 
   //! Destructor.
   virtual ~PndMvaVariable();
-
+  // Copy Const.
   PndMvaVariable(const PndMvaVariable& oth);
 
+  // Assign.
   PndMvaVariable& operator=(const PndMvaVariable& oth);
 
   std::string Name;   /**< Name of the variable. */
@@ -44,7 +45,9 @@ struct PndMvaVariable
 inline PndMvaVariable::PndMvaVariable(std::string const &name,
 				      float normFactor,
 				      float mean)
-: Name(name), NormFactor(normFactor), Mean(mean)
+		      : Name(name),
+		      NormFactor(normFactor),
+		      Mean(mean)
 {};
 
 //! Destructor

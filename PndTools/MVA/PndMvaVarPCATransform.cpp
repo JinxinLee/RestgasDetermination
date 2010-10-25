@@ -26,8 +26,6 @@ PndMvaVarPCATransform::PndMvaVarPCATransform()
  */
 PndMvaVarPCATransform::~PndMvaVarPCATransform()
 {
-  //std::cout << "<INFO> Cleaning claimed memory by PCA." << '\n';
-  
   // Delete Mean value vector.
   if(m_MeanValues)
   {
@@ -54,8 +52,7 @@ bool PndMvaVarPCATransform::InitPCATranformation(std::vector<std::pair<std::stri
     exit(EXIT_FAILURE);
   }
   std::cout << "<INFO> Initializing PCA object and"
-	    <<" computing PCA transformation parameters."
-	    << '\n';
+	    <<" computing PCA transformation parameters.\n";
   
   ComputePrincipalComponents(dat);
 
@@ -103,8 +100,8 @@ std::vector<float>* PndMvaVarPCATransform::Transform(std::vector<float> const &e
  */
 void PndMvaVarPCATransform::ComputePrincipalComponents(std::vector< std::pair< std::string, std::vector<float>* > > const &dat)
 {
-  std::cout << "<INFO> Computing PCA for the current dataset."
-	    << '\n';
+  std::cout << "<INFO> Computing PCA for the current dataset.\n";
+
   size_t nvar = (dat[0].second)->size();
 
   // Temporary to store event parameters.
@@ -123,7 +120,8 @@ void PndMvaVarPCATransform::ComputePrincipalComponents(std::vector< std::pair< s
     // Fetch parameters of the current event.
     std::vector<float>* curEv = dat[ev].second;
     // Copy values.
-    for(size_t i = 0; i < curEv->size(); i++){
+    for(size_t i = 0; i < curEv->size(); i++)
+    {
       dvec[i] = curEv->at(i);
     }
     // Add array to the Tprincipal object.
@@ -137,19 +135,19 @@ void PndMvaVarPCATransform::ComputePrincipalComponents(std::vector< std::pair< s
    * Retrieve mean values, eigenvectors. Need to copy ownership.
    */
   m_MeanValues   = new TVectorD( *(pca.GetMeanValues()) );
-
+  
   m_EigenVectors = new TMatrixD( *(pca.GetEigenVectors()) );
   
   const TVectorD* eigenVals = pca.GetEigenValues();
   
   // Print Some info to screen
-  std::cout << "<INFO> Eigen values:" << '\n';
+  std::cout << "<INFO> Eigen values:\n";
   eigenVals->Print();
 
-  std::cout << "<INFO> Mean values:" << '\n';
+  std::cout << "<INFO> Mean values:\n";
   m_MeanValues->Print();
 
-  std::cout << "<INFO> Eigen vectors:" << '\n';
+  std::cout << "<INFO> Eigen vectors:\n";
   m_EigenVectors->Print();
   
   // Free memory.

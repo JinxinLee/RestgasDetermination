@@ -23,7 +23,8 @@
 
 int main(int argc, char** argv)
 {
-  if(argc < 3){
+  if(argc < 3)
+  {
     std::cerr << "<ERROR> Usage: "<< argv[0] << " <inputeventFile> <OutFile>"
 	      << std::endl;
     return 1;
@@ -63,7 +64,8 @@ int main(int argc, char** argv)
   std::vector< std::pair<std::string, std::vector<float>*> > outEvt;
   
   // Events loop
-  for(size_t evt = 0; evt < dd.size(); evt++){
+  for(size_t evt = 0; evt < dd.size(); evt++)
+  {
     // Current class name
     std::string curClass = (dd[evt]).first;
     
@@ -76,11 +78,12 @@ int main(int argc, char** argv)
     // Add result to the out vector.
     outEvt.push_back(std::make_pair(curClass, trsEvt));
   }
-
+  
   // Create output File, Trees and write
   TFile outPutFile(outFile.c_str(), "RECREATE", "PCAFileTitle", 9);
-
-  for(size_t cls = 0; cls < clas.size(); cls++){
+  
+  for(size_t cls = 0; cls < clas.size(); cls++)
+  {
     std::vector<float> buffer(vars.size(), 0.0);
     
     std::string name = clas[cls];
@@ -92,7 +95,8 @@ int main(int argc, char** argv)
     TTree sig (treeName, treeDesc);
     
     // Create branches and bind the variables
-    for(size_t j = 0; j < vars.size(); j++){
+    for(size_t j = 0; j < vars.size(); j++)
+    {
       std::string vname = vars[j];
       std::string leaf  = vname + "/F" ;
       const char* bname = vname.c_str();

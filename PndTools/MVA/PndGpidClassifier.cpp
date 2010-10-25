@@ -8,7 +8,6 @@
  */
 #include "PndGpidClassifier.h"
 
-// ===========================  public:
 /**
  *@param InPut Input file name containing weights.
  *@ClassNames Names of available (signal) classes.
@@ -41,7 +40,7 @@ void PndGpidClassifier::NormalizeEvent(std::vector<float>& event) const
   // If the input was PCA_transformed.
   if( m_dataSets.Used_PCA() )
   {
-    const PndMvaVarPCATransform& pca = m_dataSets.Get_PCA();
+    PndMvaVarPCATransform const &pca = m_dataSets.Get_PCA();
     std::vector<float> *trsEvt = pca.Transform(event);
     
     // Copy back to input event.

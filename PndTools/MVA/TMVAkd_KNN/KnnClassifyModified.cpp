@@ -12,18 +12,19 @@
 // Root and PandaRoot.
 #include "TNtuple.h"
 
-void printResult( std::map<std::string,float>& res, unsigned int evtId){
-  std::cout << "\t==================================" << std::endl;
-  std::cout << " Evt Num = " << evtId << std::endl;
+void printResult( std::map<std::string,float>& res, unsigned int evtId)
+{
+  std::cout << "\t==================================" << '\n'
+	    << " Evt Num = " << evtId << '\n';
   
   for( std::map<std::string,float>::iterator ii=res.begin(); 
        ii != res.end(); ++ii)
   {
     std::cout <<"\t" << (*ii).first 
-	      << "\t=> " << (*ii).second << std::endl;
+	      << "\t=> " << (*ii).second << '\n';
   }
   
-  std::cout << "\t==================================" << std::endl;
+  std::cout << "\t==================================" << '\n';
 }
 
 /* *********************************************
@@ -33,7 +34,8 @@ void printResult( std::map<std::string,float>& res, unsigned int evtId){
 
 int main(int argc, char** argv)
 {
-  if(argc < 3){
+  if(argc < 3)
+  {
     std::cerr << "\t<ERROR>" 
 	      << "./classify <treeName to be classified> <OutputFileName>"
 	      << std::endl;
@@ -44,8 +46,10 @@ int main(int argc, char** argv)
   std::string EvtTreeName = argv[1];
   std::string OutFileName = argv[2];
 
-  std::string InPutFileName = "/media/daq/babaiexp/ParamFiles/VarXNormalizedJun23_10_EvtFeatSmallSet.root";
-  std::string InputEvents = "/media/daq/babaiexp/ParamFiles/10_4TestSetParamsCharged.root";
+  // Weight File
+  std::string InPutFileName = "EMC_VarX_PCA_KNN_Weights.root";
+  // Events file
+  std::string InputEvents   = "10_4TestSetParamsNorm.root";
 
   // Containers to hold labels and variable names.
   std::vector<std::string> clasNames;
@@ -54,6 +58,7 @@ int main(int argc, char** argv)
   // Classes (container to hold the class names)
   clasNames.push_back("electron");
   clasNames.push_back("pion");
+
   //clasNames.push_back("kaon");
   //clasNames.push_back("muon");
   //clasNames.push_back("proton");
@@ -61,10 +66,12 @@ int main(int argc, char** argv)
   
   // Variables (names)
   //vars.push_back("p");
+  
   vars.push_back("emc");
+  vars.push_back("lat");
   vars.push_back("z20");
   vars.push_back("z53");
-  vars.push_back("lat");
+
   //vars.push_back("thetaC");
   //vars.push_back("mvd");
   //vars.push_back("tof");
@@ -80,25 +87,28 @@ int main(int argc, char** argv)
   std::vector<float> curEvt(vars.size(), 0.0);
   
   // Bind tree branches to the container.
-  for(size_t i = 0; i < vars.size(); i++){
+  for(size_t i = 0; i < vars.size(); i++)
+  {
     events->SetBranchAddress( (vars[i]).c_str(), &(curEvt[i]));
   }
   
   //Create the classifier object and specify the weight file
   PndKnnClassify cls (InPutFileName, clasNames, vars);
+
   // Set classifier parameters and init.
   cls.SetEvtParam(0.8,1.0);
   cls.InitKNN();
 
   // Open OutputFile.
   std::ofstream Outfile;
+
   Outfile.open(OutFileName.c_str(), std::ios::out| std::ios::trunc);
   Outfile << "# +++++++++++++++++++++++++++++++++++++++" 
-	  << std::endl
+	  << '\n'
 	  << "# Total number of "<< EvtTreeName << " classified events: "
 	  << events->GetEntriesFast()
-	  << std::endl
-	  << "#<neighb>\t<missclassified>\t<%>" << std::endl;
+	  << '\n'
+	  << "#<neighb>\t<missclassified>\t<%>" << '\n';
     
   int nm = MIN_NUM_NEIGH;
   while ( nm <= MAX_NUM_NEIGH)
@@ -106,32 +116,33 @@ int main(int argc, char** argv)
     // Set number of neighbors.
     cls.SetKnn(nm);
     
-    // Map to store the results
-    //std::map<std::string, float> res;
+    std::cout << "-I- NUM. Neigh. = " << nm << '\n';
 
     // Number of misclassified.
     unsigned int misCl = 0;
 
     // Perform classification of the available events.
-    for(int ev = 0; ev < events->GetEntriesFast(); ev++){
+    for(int ev = 0; ev < events->GetEntriesFast(); ev++)
+    {
       events->GetEntry(ev);
-
-      std::string resStr = cls.Classify(curEvt);
       
-      if( resStr != EvtTreeName){
+      std::string* resStr = cls.Classify(curEvt);
+      
+      if( (*resStr) != EvtTreeName){
 	misCl++;
       }
+      delete resStr;
     }
     // Write to output.
     // Classifier evaluation info.
     Outfile <<"  " << nm << "\t" << misCl << "\t"
 	    << ( static_cast<float>(misCl) * 100.00)/ static_cast<float>(events->GetEntriesFast())
-	    << std::endl;
+	    << '\n';
     // Incremtn num neighbors. 
-    nm = nm + 10;
+    nm += 10;
   }
   Outfile << "+++++++++++++++++++++++++++++++++++++++" 
-	  << std::endl;
+	  << '\n';
 
   // Close open file
   inFile.Close();

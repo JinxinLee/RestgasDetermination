@@ -70,9 +70,11 @@ std::string* PndStdKnnClassify::Classify(std::vector<float> EvtData)
   float Curprob = std::numeric_limits <float>::min();
   
   // Find the maximum Mva Val.
-  for(size_t i = 0; i < classes.size(); i++){
+  for(size_t i = 0; i < classes.size(); i++)
+  {
     std::string curName = classes[i].Name;
-    if( TMPres[curName] > Curprob){
+    if( TMPres[curName] > Curprob)
+    {
       Curprob = TMPres[curName];
       CurWin  = curName;
     }
@@ -99,9 +101,6 @@ void PndStdKnnClassify::GetMvaValues(vector<float> eventData,
     assert (m_Knn != 0);
   }
 
-  // Get variables.
-  //const vector<PndMvaVariable>& vars = m_dataSets.GetVars();
-
   // Get labels.
   const vector<PndMvaClass>& classes = m_dataSets.GetClasses();
   
@@ -124,14 +123,6 @@ void PndStdKnnClassify::GetMvaValues(vector<float> eventData,
   }
   
   // Normalize current Event
-  /*
-    for(size_t k = 0; k < vars.size(); k++)
-    {
-    assert(vars[k].NormFactor != 0);
-    eventData[k] -= vars[k].Mean;
-    eventData[k] /= vars[k].NormFactor;
-    }
-  */
   NormalizeEvent(eventData);
 
   // Now we need to compute distances to all available proto types and

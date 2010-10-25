@@ -27,9 +27,10 @@ void printResultMap(std::map<std::string,float>& res)
 {
   std::cout << "\n\t================================== \n";
   for( std::map<std::string,float>::iterator ii=res.begin(); 
-       ii != res.end(); ++ii){
+       ii != res.end(); ++ii)
+  {
     std::cout <<"\t" << (*ii).first 
-	      << "\t=> " << (*ii).second << std::endl;
+	      << "\t=> " << (*ii).second << '\n';
   }
   std::cout << "\n\t================================== \n";
 }
@@ -41,7 +42,8 @@ void printResultMap(std::map<std::string,float>& res)
 
 int main(int argc, char** argv)
 {
-  if(argc < 5){
+  if(argc < 5)
+  {
     std::cerr << "\t<ERROR>" 
 	      << "./classifyPrzWin <inputWeightFile> <InputEventsFile>"
 	      << " <TreeName> <OutPutLogFile>"
@@ -107,9 +109,9 @@ int main(int argc, char** argv)
   timer.Stop();
   double rtime = timer.RealTime();
   double ctime = timer.CpuTime();
-  std::cout << "<INFO> Initialization time:" << '\n'
+  std::cout << "<INFO> Initialization time:\n"
 	    << "RealTime = " << rtime << " seconds, CpuTime = " 
-	    << ctime <<" Seconds" << '\n';
+	    << ctime <<" Seconds.\n";
   
   // Open input events file.
   TFile inFile(InputEvents.c_str(), "READ");
@@ -120,7 +122,8 @@ int main(int argc, char** argv)
   std::vector<float> curEvt(vars.size(), 0.0);
   
   // Bind tree branches to the container.
-  for(size_t i = 0; i < vars.size(); i++){
+  for(size_t i = 0; i < vars.size(); i++)
+  {
     events->SetBranchAddress( (vars[i]).c_str(), &(curEvt[i]));
   }
   
@@ -131,7 +134,7 @@ int main(int argc, char** argv)
   timer.Reset();
   timer.Start();
   
-  std::cout << "<INFO> Classification." << '\n';
+  std::cout << "<INFO> Classification.\n";
   
   // ___________ Classification ________
   unsigned int misCnt = 0;
@@ -141,35 +144,34 @@ int main(int argc, char** argv)
   std::ofstream Outfile;
   Outfile.open(OutPutFile.c_str(), std::ios::out| std::ios::trunc);
   
-  Outfile << "# ========================================================="
-	  << '\n'
-	  << "# Classification output of a parzenwindow based classifier."
-          << '\n'
+  Outfile << "# =========================================================\n"
+	  << "# Classification output of a parzenwindow based classifier.\n"
 	  << "# Total number of test events = " << totNumEvt
-	  << '\n'
-	  << "# treename = " << EvtTreeName << '\n'
-	  << "# Init Window edges" << '\n';
+	  << "\n# treename = " << EvtTreeName << '\n'
+	  << "# Init Window edges\n";
   
   for(size_t i = 0; i < vars.size(); i++)
   {
     Outfile << "# " << vars[i] << " = " << wsize[vars[i]] << '\n';
   }
-  Outfile << "\n# =========================================================\n";
+  Outfile << "\n# =========================================================\n"
+	  << "# Using vaiables: ";
   
-  Outfile << "# Using vaiables: ";
-  for(size_t i = 0; i < vars.size(); i++){
+  for(size_t i = 0; i < vars.size(); i++)
+  {
     Outfile << vars[i] << " ";
   }
-  Outfile << "\n# =========================================================" 
-	  << '\n';
+  Outfile << "\n# =========================================================\n"; 
   
   // ___________ Classify input events ________
-  for(int ev = 0; ev < totNumEvt; ev++){
+  for(int ev = 0; ev < totNumEvt; ev++)
+  {
     events->GetEntry(ev);
     //cls.GetMvaValues(curEvt, res);
     std::string* Winner = cls.Classify(curEvt);
     
-    if( *Winner != EvtTreeName ){
+    if( (*Winner) != EvtTreeName )
+    {
       misCnt++;
     }
     delete Winner;
@@ -177,8 +179,7 @@ int main(int argc, char** argv)
   }
   Outfile << std::setprecision(5) << "# Number of Missclassified events = " << misCnt
 	  << " "<< ( static_cast<float>(misCnt * 100)/static_cast<float>(totNumEvt) )
-	  << " %"
-	  << '\n';  
+	  << " %\n";
 
   // Close open file
   inFile.Close();
@@ -187,12 +188,10 @@ int main(int argc, char** argv)
   timer.Stop();
   rtime = timer.RealTime();
   ctime = timer.CpuTime();
-  std::cout << "=============================================="
-	    << '\n'
-	    << "<INFO> Classifier timing results:"
-	    << '\n'
+  std::cout << "==============================================\n"
+	    << "<INFO> Classifier timing results:\n"
 	    << "RealTime = " << rtime << " seconds, CpuTime = " 
-	    << ctime <<" Seconds.\n" << '\n';
+	    << ctime <<" Seconds.\n\n";
   
   return 0;
 }

@@ -15,17 +15,19 @@
 // *************  DEBUG ONLY **********
 void printProto(const std::vector< std::pair<std::string, std::vector<float>*> >& dat)
 {
-  std::cout << "==========================" << std::endl;
-  for(size_t i = 0; i < dat.size(); i++){
+  std::cout << "==========================\n";
+  for(size_t i = 0; i < dat.size(); i++)
+  {
     std::cout << dat[i].first << " => ";
     std::vector<float>* example = dat[i].second;
-    std::cerr<< " (" << " ";
-    for(size_t j = 0; j < example->size(); j++){
-      std::cerr << example->at(j) << "  ";
+    std::cout << " ( ";
+    for(size_t j = 0; j < example->size(); j++)
+    {
+      std::cout << example->at(j) << "  ";
     }
-    std::cerr<< ")." << std::endl;
+    std::cout<< ").\n";
   }
-  std::cout << "==========================" << std::endl;
+  std::cout << "==========================\n";
 }
 // *************  DEBUG ONLY **********
 
@@ -34,7 +36,8 @@ int main(int argc, char** argv)
   std::vector<std::string> clas;
   std::vector<std::string> nam;
 
-  if(argc < 5){
+  if(argc < 5)
+  {
     std::cerr << "\t<ERROR> Usage\n"
               <<"\t./train <algNum> <NumProtoTypes> <numSweep>"
 	      <<" <InputTrainEventFeatureFile> <OutFile>"
@@ -43,7 +46,7 @@ int main(int argc, char** argv)
   }
   
   int algNum = atoi(argv[1]);
-  std::cout << "Using algoritme " << algNum << std::endl;
+  std::cout << "Using algoritme " << algNum << '\n';
 
   unsigned int numProto = 0;
   std::string numstr = argv[2];// Number of proto's
@@ -61,12 +64,14 @@ int main(int argc, char** argv)
   std::cout << " outPut = " << ot << " ";
 
   std::string OutErr = "Err" + ot;
-  std::cout << " ErrorFile = " << OutErr << std::endl;
+  std::cout << " ErrorFile = " << OutErr << '\n';
 
   // Class names
-  clas.push_back("electron"); clas.push_back("pion");
-  //clas.push_back("kaon");     clas.push_back("muon");
-  //clas.push_back("proton");   //clas.push_back("gamma");
+  clas.push_back("electron");
+  clas.push_back("pion");
+  //clas.push_back("kaon");
+  //clas.push_back("muon");
+  //clas.push_back("proton");
 
   // Variable names 
   //nam.push_back("p");
@@ -74,6 +79,7 @@ int main(int argc, char** argv)
   nam.push_back("z20");
   nam.push_back("z53");
   nam.push_back("lat");
+
   //nam.push_back("thetaC"); nam.push_back("mvd");
   //nam.push_back("tof"); nam.push_back("stt"); 
 

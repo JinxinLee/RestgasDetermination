@@ -53,12 +53,19 @@ int main(int argc, char** argv)
   std::vector<std::string> nam;
   
   // Classes (container to hold the class names)
-  clas.push_back("electron"); clas.push_back("pion"); 
-  clas.push_back("kaon"); //clas.push_back("gamma"); 
-  clas.push_back("muon"); clas.push_back("proton");
+  clas.push_back("electron");
+  clas.push_back("pion");
+  clas.push_back("kaon");
+  clas.push_back("muon");
+  clas.push_back("proton");
 
   // Variables (names)
-  nam.push_back("p"); nam.push_back("emc");
+  //nam.push_back("p");
+  nam.push_back("emc");
+  nam.push_back("lat");
+  nam.push_back("z20");
+  nam.push_back("z53");
+
   //nam.push_back("mvd");  nam.push_back("stt");
   //nam.push_back("tof"); nam.push_back("tpc");
   
@@ -69,7 +76,7 @@ int main(int argc, char** argv)
   std::vector<float> evt,evt1,evt2;
   
   evt.clear();
-  for(unsigned int j = 0; j < nam.size(); j++)
+  for(size_t j = 0; j < nam.size(); j++)
   {
     evt.push_back(myran.Gaus(1,1));
     evt1.push_back(myran.Uniform(-1,1));
@@ -94,8 +101,8 @@ int main(int argc, char** argv)
   double rtime = ti.RealTime();
   double ctime = ti.CpuTime();
 
-  std::cout << "timer 1: Classifier timing results:"<< '\n'
+  std::cout << "timer 1: Classifier timing results:\n"
 	    << "RealTime = " << rtime << " seconds, CpuTime = "
-	    << ctime <<" Seconds\n" << '\n';
+	    << ctime <<" Seconds\n\n";
   return 0;
 }
