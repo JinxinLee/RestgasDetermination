@@ -730,17 +730,16 @@ void PndDrc::ConstructGeometry()
 
     TGeoPgon* baseSOB = new TGeoPgon("baseSOB",0.0, 360., 16, 3);
     baseSOB->DefineSection(0,      0., radius-hthick,  sob_radius2);
-    baseSOB->DefineSection(1,     10., radius-hthick,  sob_radius2);
+    baseSOB->DefineSection(1,     0.1, radius-hthick,  sob_radius2);
     baseSOB->DefineSection(2, sob_len, radius-hthick,  radius+hthick);
     TGeoVolume *sob = new TGeoVolume("DrcSob",baseSOB, gGeoManager->GetMedium("DIRCairNoSens"));
     sob->SetLineColor(kMagenta-2);
     cave->AddNode(sob, 1,new TGeoCombiTrans(0., 0., sob_shift, new TGeoRotation (0)));
 
     // for visualization
-    TGeoPgon* logicSOB = new TGeoPgon("baseSOB",0.0, 360., 16, 3);
-    logicSOB->DefineSection(0,     0.1, radius-hthick+eps, sob_radius2-eps);
-    logicSOB->DefineSection(1,    10.0, radius-hthick+eps, sob_radius2-eps);
-    logicSOB->DefineSection(2, sob_len, radius-hthick+eps, radius+hthick-eps);
+    TGeoPgon* logicSOB = new TGeoPgon("baseSOB",0.0, 360., 16, 2);
+    logicSOB->DefineSection(0,     0.1, radius-hthick+eps, sob_radius2-eps);    
+    logicSOB->DefineSection(1, sob_len, radius-hthick+eps, radius+hthick-eps);
     TGeoVolume *lsob = new TGeoVolume("DrcLSob", logicSOB, gGeoManager->GetMedium("Marcol82"));
     lsob->SetLineColor(kMagenta-2);     
     sob->AddNode(lsob, 1,new TGeoCombiTrans(0., 0., 0., new TGeoRotation (0)));
@@ -748,8 +747,7 @@ void PndDrc::ConstructGeometry()
     // Photodetector
     TGeoPgon* logicPD = new TGeoPgon("logicPD",0.0, 360., 16, 2);
     logicPD->DefineSection(0, 0.0, radius-hthick, sob_radius2-eps);
-    logicPD->DefineSection(1, 0.1, radius-hthick, sob_radius2-eps);
-   // TGeoVolume *pd = new TGeoVolume("DrcPd", logicPD, gGeoManager->GetMedium("DIRCair"));
+    logicPD->DefineSection(1, 0.1, radius-hthick, sob_radius2-eps);   
     TGeoVolume *pd = new TGeoVolume("DrcPd", logicPD, gGeoManager->GetMedium("FusedSil"));
     pd->SetLineColor(kGreen-6);
     sob->AddNode(pd, 1,new TGeoCombiTrans(0., 0., 0., new TGeoRotation (0)));
