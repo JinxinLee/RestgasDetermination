@@ -146,7 +146,9 @@ void PndLheTrackFinderIdeal::Exec(Option_t * option) {
     cand->SetGemHits(gemHits);
     
     PndMCTrack *mc = (PndMCTrack*)fMCTrackArray->At(trackID);
-    Int_t charge = (Int_t)TMath::Sign(1.0, ((TParticlePDG*)pdg->GetParticle(mc->GetPdgCode()))->Charge());
+    Int_t charge;
+    if (mc->GetPdgCode()<100000000) charge = (Int_t)TMath::Sign(1.0, ((TParticlePDG*)pdg->GetParticle(mc->GetPdgCode()))->Charge());
+    else charge = 1;
     cand->SetCharge(charge);
     candlist[trackID] = cand;
   }
