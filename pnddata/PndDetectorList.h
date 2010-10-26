@@ -10,7 +10,8 @@
 #define PNDDETECTORLIST_H 1
 
 enum DetectorId {
-    kDCH,kDRC,kDSK,kEMC,kGEM,kLUMI,kMDT,kMVD,kRPC,kSTT,kTPC,kTOF,kHYPG,kHYP,kFTS};
+/** kDCH must be the 1st id, and kHYP must be the last one. Please put new detectors in between!! **/
+    kDCH,kDRC,kDSK,kEMC,kGEM,kLUMI,kMDT,kMVD,kRPC,kSTT,kTPC,kTOF,kFTS,kHYPG,kHYP};
     
 /** Unique identifier for all Panda Point and Hit types **/
 
