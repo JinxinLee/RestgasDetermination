@@ -51,7 +51,7 @@ class PndDpmGenerator : public FairGenerator
    **/
   virtual Bool_t ReadEvent(FairPrimaryGenerator* primGen);
 
-
+  void SetStartEvent(Int_t start) { iEvent = start; };
 	
  private:
 
