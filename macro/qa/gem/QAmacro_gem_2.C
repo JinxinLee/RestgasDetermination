@@ -93,16 +93,19 @@
     cout << " DONE" << endl;
     Int_t fNofMCPrim   = fhMCPrimVsP  ->Integral();
     Int_t fNofRecoPrim = fhRecoPrimVsP->Integral();
-    Double_t effPrim = 100.*(Double_t)fNofRecoPrim/((Double_t)fNofMCPrim);
+    Double_t effPrim = 0.;
+    if ( fNofMCPrim ) effPrim = 100.*(Double_t)fNofRecoPrim/((Double_t)fNofMCPrim);
     cout << "             Simulated / Reconstructed:" << endl;
     cout << " quantity  :       " << fNofMCPrim << " /           " << fNofRecoPrim << "  >>>> " << effPrim << "%" << endl;
     Double_t mcMomenta   = fhRecoPrimVsP->GetMean();
     Double_t recoMomenta = fhRecoPrimP  ->GetMean();
-    Double_t momQuality = mcMomenta/recoMomenta;
+    Double_t momQuality = 0.;
+    if ( recoMomenta != 0. ) momQuality = mcMomenta/recoMomenta;
     cout << " quality   :     " << mcMomenta << " /         " << recoMomenta << "  >>>> " << momQuality << "" << endl;
 
     Double_t recoMomRMS    = fhRecoPrimP  ->GetRMS();
-    Double_t momResolution = recoMomRMS/mcMomenta*100.;
+    Double_t momResolution = 0.;
+    if ( mcMomenta != 0. ) momResolution = recoMomRMS/mcMomenta*100.;
     cout << " resolution:                            >>>> " << momResolution << "%" << endl;
 
     if ( effPrim       > minEfficiency &&

@@ -66,7 +66,7 @@ Int_t gem_sim(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, in
   fRun->AddModule(dipole);
  
   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
-  Gem->SetGeometryFileName("gem_4Stations.root");
+  Gem->SetGeometryFileName(Form("gem_%dStations.root",nStations));
   Gem->SetVerboseLevel(0);
   fRun->AddModule(Gem);
   
