@@ -52,6 +52,7 @@ using std::cout;
 //#include "FairRunSim.h"
 #include "FairRuntimeDb.h"
 
+#include <cmath>
 
 // -----   Default constructor   -------------------------------------------
 PndDrc::PndDrc() {
