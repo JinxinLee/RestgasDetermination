@@ -97,8 +97,8 @@ void PndSdsTimeWalkCorrTask::Exec(Option_t* opt)
 
 	  for (Int_t ii=0; ii< nPoints; ii++)
 	  {
-		  fTimeCorrection = fTimeWalkCorr->CorrectionTimeWalk(DigiPixelArray[ii].GetCharge());
-		  new((*fDigiCorrArray)[ii]) PndSdsDigiPixel(DigiPixelArray[ii].GetIndices(),DigiPixelArray[ii].GetDetID(),DigiPixelArray[ii].GetSensorID(),DigiPixelArray[ii].GetFE(),DigiPixelArray[ii].GetPixelColumn(),DigiPixelArray[ii].GetPixelRow(),DigiPixelArray[ii].GetCharge(),DigiPixelArray[ii].GetMCPointType(),DigiPixelArray[ii].GetTime()-fTimeCorrection);
+	//	  fTimeCorrection = fTimeWalkCorr->CorrectionTimeWalk(DigiPixelArray[ii].GetCharge());
+	//	  new((*fDigiCorrArray)[ii]) PndSdsDigiPixel(DigiPixelArray[ii].GetIndices(),DigiPixelArray[ii].GetDetID(),DigiPixelArray[ii].GetSensorID(),DigiPixelArray[ii].GetFE(),DigiPixelArray[ii].GetPixelColumn(),DigiPixelArray[ii].GetPixelRow(),fTimeWalkCorr->GetCharge(),DigiPixelArray[ii].GetMCPointType(),DigiPixelArray[ii].GetTime()-fTimeCorrection);
 	  }
 
 	  return;
