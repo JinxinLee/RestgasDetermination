@@ -89,24 +89,21 @@ void runLumi5Geane(const int nEvents=10, const int startEvent=0, TString storePa
  // PndEmcMapper *emcMap = PndEmcMapper::Instance(6);
  
   PndLmdGeaneTask* lmdgeane = new PndLmdGeaneTask();
-  //lmdgeane->SetVerbose(verboseLevel);
+  lmdgeane->SetVerbose(verboseLevel);
   fRun->AddTask(lmdgeane);
-
   rtdb->setOutput(parInput1);
   rtdb->print();
   // =====                        End of Geane                           =====
   // =========================================================================
 
-
-  // -----   Intialise and run   --------------------------------------------
+   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
-  // PndEmcMapper *emcMap = PndEmcMapper::Instance(6);
-  PndEmcMapper *emcMap = PndEmcMapper::Instance();
-  //Geane->SetField(fRun->GetField());
+  //  // PndEmcMapper *emcMap = PndEmcMapper::Instance(6);
+  //  PndEmcMapper *emcMap = PndEmcMapper::Instance();
+  // //Geane->SetField(fRun->GetField());
   fRun->Run(0,nEvents);
   // ------------------------------------------------------------------------
-
-  rtdb->saveOutput();
+   rtdb->saveOutput();
   rtdb->print();
   // -----   Finish   -------------------------------------------------------
   timer.Stop();

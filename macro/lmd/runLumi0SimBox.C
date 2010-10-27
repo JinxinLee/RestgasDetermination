@@ -1,5 +1,6 @@
 // Panda FullSim macro
 
+//void runLumi0SimBox(const int nEvents=10, const double mom=4.06, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=211)
 void runLumi0SimBox(const int nEvents=10, const double mom=8.9, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-2212)
 {
   TStopwatch timer;
@@ -13,10 +14,7 @@ void runLumi0SimBox(const int nEvents=10, const double mom=8.9, TString storePat
   //Load basic libraries
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gSystem->Load("libSds");
-  // gSystem->Load("libSdsReco");
   gSystem->Load("libLmd");
-  // gSystem->Load("libLmdReco");
-  //  gSystem->Load("libLmdTrk");
   FairRunSim *fRun = new FairRunSim();
   cout<<"All libraries succsesfully loaded!"<<endl;
 
@@ -123,9 +121,6 @@ void runLumi0SimBox(const int nEvents=10, const double mom=8.9, TString storePat
   // fBox->SetThetaRange(0.2,0.4); //3...8 mrad
   fBox->SetThetaRange(0.15,0.52); //2...9 mrad
   fBox->SetPhiRange(0.,360.);
-  //  fBox->SetThetaRange(0.3,0.3);
-  // fBox->SetPhiRange(0.,0.);
-  //fBox->SetCosTheta();
   primGen->AddGenerator(fBox);
 
   //EvtGen Generator
