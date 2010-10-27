@@ -979,8 +979,8 @@ void PndDrc::ConstructGeometry()
     //mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
   if(fFocusingSystem == 0){  // N O     L E N S E S
        
-    Double_t len = 0.;
-    fSlabEnd = -bbox_hlen + bbox_shift + len;  
+    Double_t flen = 0.;
+    fSlabEnd = -bbox_hlen + bbox_shift + flen;  
     cout<<"bar ends at = "<<fSlabEnd<<endl;
     
     fAtBarEnd = "DrcBar";
