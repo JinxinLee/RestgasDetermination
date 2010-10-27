@@ -21,6 +21,8 @@ public:
 	void SetBranchNames();
 
 	void SetParContainers();
+
+        ClassDef(PndMvdTimeWalkCorrTask, 1);
 };
 
 #endif /* PNDMVDTIMEWALKCORRTASK_H_ */
