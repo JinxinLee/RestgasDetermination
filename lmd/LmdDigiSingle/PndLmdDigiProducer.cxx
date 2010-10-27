@@ -132,7 +132,7 @@ void PndLmdDigiProducer::Exec(Option_t* opt)
 	//define variables
 	PndLmdMCPoint* point = NULL;
 
-	Int_t nPoints = fPointArray->GetEntriesFast();
+	Int_t nPoint = fPointArray->GetEntriesFast();
 	if(fVerbose>0){
 		std::cout<<"the Nr of points is"<<nPoints<<std::endl;
 	}
@@ -178,18 +178,18 @@ void PndLmdDigiProducer::Exec(Option_t* opt)
 		    	  for(std::vector<PndLmdStrips>::const_iterator kit=leftStrips.begin();kit!=leftStrips.end();++kit)
 		    	  {//register the strips fired
 		    		  AddDigi(iStrip,iPoint,kLMDHitsStrip,point->GetDetName(),
-		    				  fCurrentStripCalLeft->CalFeFromStrip(kit->GetIndex()),
-		    				  fCurrentStripCalLeft->CalChannelFromStrip(kit->GetIndex()),
-		    				  kit->GetCharge());
+					  fCurrentStripCalLeft->CalFeFromStrip(kit->GetIndex()),
+					  fCurrentStripCalLeft->CalChannelFromStrip(kit->GetIndex()),
+					  kit->GetCharge());
 		    		  Int_t chan1 = (fCurrentStripCalLeft->CalFeFromStrip(kit->GetIndex()))*(fCurrentDigiPar->GetNrFeChannels())
-		    		  +( fCurrentStripCalLeft->CalChannelFromStrip(kit->GetIndex()));
-
-          		    cout<<"the iPoint is: "<<iPoint<<endl;
-          		    cout<<"the iStrip is :"<<iStrip-1<<endl;
-          		    cout<<"the channel is :"<<chan1<<endl;
-          		    cout<<"the information of digis: "<<point->GetDetName()<<","<<kit->GetCharge()<<endl;
-          		    cout<<endl;
-
+				    +( fCurrentStripCalLeft->CalChannelFromStrip(kit->GetIndex()));
+				  
+				  cout<<"the iPoint is: "<<iPoint<<endl;
+				  cout<<"the iStrip is :"<<iStrip-1<<endl;
+				  cout<<"the channel is :"<<chan1<<endl;
+				  cout<<"the information of digis: "<<point->GetDetName()<<","<<kit->GetCharge()<<endl;
+				  cout<<endl;
+				  
 		    	  }
 		      }else std::cout<<"the left segment is empty"<<std::endl;
 
