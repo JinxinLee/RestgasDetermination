@@ -26,7 +26,7 @@
 
 // PndMvd includes
 #include "PndGemMCPoint.h"
-//#include "PndGeoHandling.h"
+#include "PndGemDigiPar.h"//eoHandling.h"
 
 class TClonesArray;
 
@@ -55,6 +55,7 @@ class PndGemSmearingTask : public FairTask
 
  private:
 
+  PndGemDigiPar* fDigiPar;
 
   TString fBranchName;
 //  PndGeoHandling* fGeoH;

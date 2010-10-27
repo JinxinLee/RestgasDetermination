@@ -103,15 +103,6 @@ void PndGemMatchHits::Exec(Option_t* opt) {
   for ( Int_t iPoint = 0 ; iPoint < nofPoints ; iPoint++ ) {
     PndGemMCPoint* currentPndGemMCPoint = (PndGemMCPoint*)fPoints->At(iPoint);
     
-    TString nodeName = currentPndGemMCPoint->GetDetName();
-
-    if ( !nodeName.Contains("_Gem") ) {
-      pointZ.push_back(-1.);
-      pointR.push_back(-1.);
-      pointP.push_back(-1.);
-      continue;
-    }
-
     Double_t pointX = currentPndGemMCPoint->GetX();
     Double_t pointY = currentPndGemMCPoint->GetY();
 
@@ -127,7 +118,7 @@ void PndGemMatchHits::Exec(Option_t* opt) {
     pointP.push_back(phiAValue);
     
     if ( fVerbose > 1 )
-      cout << "point " << iPoint << " at " << nodeName.Data() << " (" << pointZ[pointZ.size()-1] << "," << pointR[pointR.size()-1] << "," << pointP[pointP.size()-1] << ")" << endl;
+      cout << "point " << iPoint << ", sensor Id = " << currentPndGemMCPoint->GetSensorId() << " (" << pointZ[pointZ.size()-1] << "," << pointR[pointR.size()-1] << "," << pointP[pointP.size()-1] << ")" << endl;
   }
 
   for ( Int_t iHit = 0 ; iHit < nofHits ; iHit++ ) {

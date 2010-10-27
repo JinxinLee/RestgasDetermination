@@ -164,6 +164,15 @@ PndGemStation* PndGemDigiPar::GetStation(Int_t iStation) {
 }
 // -------------------------------------------------------------------------
 
+// -----   Public method GetNodeName   -------------------------------------
+TString PndGemDigiPar::GetNodeName(Int_t sensorId) {
+  TString detN = Form("/cave_1/Gem_Disks_0/Gem_Disk%d_Volume_0/Gem_Disk%d_Gem%c_Sensor_kapton_0",
+		      GetStationNr(sensorId),
+		      GetStationNr(sensorId),
+		      (GetSensorNr(sensorId)==1?'1':'6'));
+  return detN;
+}
+// -------------------------------------------------------------------------
 
 
 // -------   Public method GetStationById   --------------------------------

@@ -419,12 +419,10 @@ void PndGemTrackFinderQA::PrepareMCTracks() {
   PndGemMCPoint* mcPoint;
   for ( Int_t imcp = 0 ; imcp < nofGemPoints ; imcp++ ) {
     mcPoint = (PndGemMCPoint*)fMCPointArray->At(imcp);
-    TString nodeName = mcPoint->GetDetName();
 
-    Int_t lastDiskStringPos = (string(nodeName.Data())).rfind("Disk");
-    nodeName.Remove(0,lastDiskStringPos+4);
+    Int_t stationNr = fDigiPar->GetStationNr(mcPoint->GetSensorId());
 
-    nofPointsPerStation[mcPoint->GetTrackID()][nodeName.Atoi()-1] += 1;
+    nofPointsPerStation[mcPoint->GetTrackID()][stationNr-1] += 1;
 
     fMCTrackNofGemPoints[mcPoint->GetTrackID()] += 1;
   }

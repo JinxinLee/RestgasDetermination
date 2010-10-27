@@ -30,6 +30,7 @@ PndGemSmearingTask::PndGemSmearingTask() :
   fHitCovMatrix(3,3),
   FairTask("Ideal reconstruction task for PANDA PndGem")
 {
+  fDigiPar     = NULL;
   fSigmaX=0.;
   fSigmaY=0.;
   fSigmaZ=0.;
@@ -42,6 +43,7 @@ PndGemSmearingTask::PndGemSmearingTask(Double_t sx, Double_t sy, Double_t sz) :
   fHitCovMatrix(3,3),
   FairTask("Ideal reconstruction task for PANDA PndGem")
 {
+  fDigiPar     = NULL;
   fSigmaX=sx;
   fSigmaY=sy;
   fSigmaZ=sz;
@@ -53,6 +55,7 @@ PndGemSmearingTask::PndGemSmearingTask(Double_t sx, Double_t sy, Double_t sz) :
 // -----   Destructor   ----------------------------------------------------
 PndGemSmearingTask::~PndGemSmearingTask()
 {
+  if ( fDigiPar)   delete fDigiPar;
 }
 
 // -----   Public method Init   --------------------------------------------
@@ -95,6 +98,8 @@ void PndGemSmearingTask::SetParContainers()
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
 
+  // Get GEM digitisation parameter container
+  fDigiPar = (PndGemDigiPar*)(rtdb->getContainer("PndGemDetectors"));
 }
 
 
@@ -151,7 +156,9 @@ void PndGemSmearingTask::Exec(Option_t* opt)
 void PndGemSmearingTask::InitTransMat()
 {
 //     std::cout<<"InitTransMat() with "<<fCurrentPndGemMCPoint->GetDetName()<<std::endl;
-  gGeoManager->cd(fCurrentPndGemMCPoint->GetDetName().Data() );
+  Int_t sensorId = fCurrentPndGemMCPoint->GetSensorId();
+  TString nodeName = fDigiPar->GetNodeName(sensorId);
+  gGeoManager->cd(nodeName.Data());
   fCurrentTransMat = gGeoManager->GetCurrentMatrix();
   if (fVerbose > 1) {
     fCurrentTransMat->Print("");
@@ -217,8 +224,8 @@ void PndGemSmearingTask::CalcGFDetPlane(TVector3& oVect, TVector3& uVect,TVector
   V[0]=vVect.x();  V[1]=vVect.y();  V[2]=vVect.z();
 
   if (fVerbose > 1) {
-    std::cout<<"PndGemSmearingTask::CalcGFDetPlane from Detector "
-             <<fCurrentPndGemMCPoint->GetDetName()<<std::endl;
+    std::cout<<"PndGemSmearingTask::CalcGFDetPlane from Detector sensorId "
+             <<fCurrentPndGemMCPoint->GetSensorId()<<std::endl;
   }
   //make transformation
   fCurrentTransMat->LocalToMaster(O,o);

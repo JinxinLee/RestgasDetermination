@@ -835,12 +835,10 @@ void PndGemTrackFinderOnHits::PrintMCTrackSegments(TClonesArray* hitArray) {
 
   for ( Int_t imcp = 0 ; imcp < kNofGemPoints ; imcp++ ) {
     mcPoint = (PndGemMCPoint*)fMCPointArray->At(imcp);
-    TString nodeName = mcPoint->GetDetName();
+    
+    Int_t stationNr = fDigiPar->GetStationNr(mcPoint->GetSensorId());
 
-    Int_t lastDiskStringPos = (string(nodeName.Data())).rfind("Disk");
-    nodeName.Remove(0,lastDiskStringPos+4);
-
-    nofPointsPerStation[mcPoint->GetTrackID()][nodeName.Atoi()-1] += 1;
+    nofPointsPerStation[mcPoint->GetTrackID()][stationNr-1] += 1;
   }
 
   Int_t nofCGM = 0;

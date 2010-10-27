@@ -121,6 +121,8 @@ class PndGemDetector : public FairDetector
   
  private:
 
+  Int_t GetSensorId(TString detName);
+
   /** Track information to be stored until the track leaves the
       active volume. **/
   Int_t          fTrackID;           //!  track index
@@ -146,7 +148,7 @@ class PndGemDetector : public FairDetector
    **
    ** Adds a PndGemMCPoint to the HitCollection
    **/
-  PndGemMCPoint* AddHit(Int_t trackID, Int_t detID, TString detName,
+  PndGemMCPoint* AddHit(Int_t trackID, Int_t detID, Int_t sensID,
 			TVector3 posIn, TVector3 posOut,
 			TVector3 momIn, TVector3 momOut, 
 			Double_t time, Double_t length, Double_t eLoss); 

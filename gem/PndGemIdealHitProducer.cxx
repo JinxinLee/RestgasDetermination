@@ -146,18 +146,16 @@ void PndGemIdealHitProducer::Exec(Option_t* opt) {
  			 currentPndGemMCPoint->GetY(),
  			 currentPndGemMCPoint->GetZ()};
     
-    TString nodeName = currentPndGemMCPoint->GetDetName();
+    Int_t sensorId = currentPndGemMCPoint->GetSensorId();
 
-    if ( !nodeName.Contains("_Gem") ) continue;
-    fTNofPoints++;
+    TString nodeName = fDigiPar->GetNodeName(sensorId);
 
     gGeoManager->cd(nodeName.Data());
     TGeoNode* curNode = gGeoManager->GetCurrentNode();
 
-    nodeName.Remove(0,nodeName.Last('/')+1);
-    nodeName.Remove(nodeName.Length()-2,2);
+    sensor = (PndGemSensor*)fDigiPar->GetSensor(sensorId);
 
-    sensor = (PndGemSensor*)fDigiPar->GetSensorByName(nodeName.Data());
+    fTNofPoints++;
 
     Double_t locPosIn[4];
 

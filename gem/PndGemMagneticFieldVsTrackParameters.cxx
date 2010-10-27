@@ -191,10 +191,7 @@ Int_t PndGemMagneticFieldVsTrackParameters::Fill1StationHistograms() {
   for ( Int_t imcp = 0 ; imcp < nofGemPoints ; imcp++ ) {
     mcPoint = (PndGemMCPoint*)fMCPointArray->At(imcp);
 
-    TString nodeName = mcPoint->GetDetName();
-    Int_t lastDiskStringPos = (string(nodeName.Data())).rfind("Disk");
-    nodeName.Remove(0,lastDiskStringPos+4);
-    Int_t stationNumber = nodeName.Atoi()-1;
+    Int_t stationNumber = fDigiPar->GetStationNr(mcPoint->GetSensorId());
 
     mcTrack = (PndMCTrack*)fMCTrackArray->At(mcPoint->GetTrackID());
     TVector3 mcMomVec = mcTrack->GetMomentum();

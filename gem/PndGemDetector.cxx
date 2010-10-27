@@ -143,7 +143,8 @@ Bool_t  PndGemDetector::ProcessHits(FairVolume* vol)
       }
 
      TString detPath = gMC->CurrentVolPath();
-     AddHit(fTrackID, kGEM, detPath,//fGeoH->GetID(detPath),
+     Int_t sensID = GetSensorId(detPath);
+     AddHit(fTrackID, kGEM, sensID,
 	    TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
 	    TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
 	    TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
@@ -277,8 +278,17 @@ bool PndGemDetector::CheckIfSensitive(std::string name)
   return false;
 }
 
-
-
+// -------------------------------------------------------------------------
+Int_t PndGemDetector::GetSensorId(TString detName)
+{
+  detName.Remove(0,detName.Last('/')+1);
+  detName.Remove(0,detName.First("Disk")+4);
+  Int_t stationNr = detName.Atoi();
+  detName.Remove(0,detName.First("Gem")+3);
+  Int_t sensorNr  = 1;
+  if ( detName.Atoi() == 6 ) sensorNr = 2;
+  return stationNr*256+sensorNr;
+}
 
 // -----   Public method ConstructGeometry   -------------------------------
 // void PndGemDetector::ConstructASCIIGeometry()
@@ -347,22 +357,23 @@ void PndGemDetector::SetExclusiveSensorType(const TString sens)
 
 
 // -----   Private method AddHit   -----------------------------------------
-PndGemMCPoint* PndGemDetector::AddHit(Int_t trackID, Int_t detID, TString detName, TVector3 posIn,              TVector3 posOut,TVector3 momIn, TVector3 momOut,
-            Double_t time, Double_t length, Double_t eLoss)
+PndGemMCPoint* PndGemDetector::AddHit(Int_t trackID, Int_t detID, Int_t sensID, 
+				      TVector3 posIn, TVector3 posOut,TVector3 momIn, TVector3 momOut,
+				      Double_t time, Double_t length, Double_t eLoss)
 {
   TClonesArray&
     clref = *fPndGemCollection;
-
+  
   Int_t
     size = clref.GetEntriesFast();
 
     if (fVerboseLevel >= 2)
        std::cout << "-I- PndGemDetector: Adding Point at (" << posIn.X() << ", " << posIn.Y()
       << ", " << posIn.Z() << ") cm, (" << posOut.X() << ", " << posOut.Y()
-      << ", " << posOut.Z() << ") cm,  detector " << detName << " " << detID << ", track "
+      << ", " << posOut.Z() << ") cm,  sensor " << sensID << " " << detID << ", track "
       << trackID << ", energy loss " << eLoss*1e06 << " keV" << std::endl;
 
-  return new(clref[size]) PndGemMCPoint(trackID, detID, detName, posIn, posOut,
+  return new(clref[size]) PndGemMCPoint(trackID, detID, sensID, posIn, posOut,
                         momIn, momOut, time, length, eLoss);
 }
 // -------------------------------------------------------------------------

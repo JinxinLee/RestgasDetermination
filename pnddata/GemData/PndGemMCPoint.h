@@ -33,8 +33,8 @@ class PndGemMCPoint : public FairMCPoint
 {
   friend std::ostream& operator<< (std::ostream& out, const PndGemMCPoint& point){
     out << "-I- PndGemMCPoint: PndGem Point for track " << point.GetTrackID() 
-         << " in detector " << point.GetDetectorID() << " with name "
-       << point.GetDetName() << std::endl;
+         << " in detector " << point.GetDetectorID() << " with sensorID "
+       << point.GetSensorId() << std::endl;
     out << "    Position in  (" << point.GetX() << ", " << point.GetY() << ", " << point.GetZ() << ") cm" << std::endl;
     out << "    Position out (" << point.GetXOut() << ", " << point.GetYOut() << ", " << point.GetZOut() << ") cm" << std::endl;
     out << "    Momentum (" << point.GetPx() << ", " << point.GetPy() << ", " << point.GetPz()
@@ -49,11 +49,10 @@ class PndGemMCPoint : public FairMCPoint
   /** Default constructor **/
   PndGemMCPoint();
 
-
   /** Constructor with arguments
    *@param trackID       Index of MCTrack
    *@param detID         Detector ID
-   *@param detName		   Full nameId of the detector, see PndGemGeoHandling 
+   *@param sensID        Sensor ID
    *@param posIn         Coordinates of ingoing point[cm]
    *@param posOut	 Coordinates of outgoing point[cm]
    *@param momIn         Momentum of track at entrance [GeV]
@@ -62,7 +61,7 @@ class PndGemMCPoint : public FairMCPoint
    *@param length        Track length since creation [cm]
    *@param eLoss         Energy deposit [GeV]
    **/
-  PndGemMCPoint(Int_t trackID, Int_t detID, TString detName,
+  PndGemMCPoint(Int_t trackID, Int_t detID, Int_t sensID,
   	      TVector3 posIn, TVector3 posOut,
 	      TVector3 momIn, TVector3 momOut,
 	      Double_t tof, Double_t length, Double_t eLoss);
@@ -84,7 +83,7 @@ class PndGemMCPoint : public FairMCPoint
   Double_t GetPxOut() const { return fPxfOut; }
   Double_t GetPyOut() const { return fPyfOut; }
   Double_t GetPzOut() const { return fPzfOut; }
-  TString  GetDetName() const { return fDetName;}
+  Int_t    GetSensorId() const { return fSensorId;}
   TVector3 GetPosition() const { return TVector3(fX, fY, fZ);}
   TVector3 GetPositionOut() const { return TVector3(fXfOut, fYfOut, fZfOut);}
 
@@ -95,7 +94,7 @@ class PndGemMCPoint : public FairMCPoint
   /** Modifiers **/
   void SetPositionOut(TVector3 pos);
   void SetMomentumOut(TVector3 mom);
-  void SetDetName(TString name) {fDetName = name;};
+  void SetSensorId   (Int_t sensId);
 
 
   /** Output to screen **/
@@ -107,7 +106,7 @@ class PndGemMCPoint : public FairMCPoint
   Double32_t fXfOut, fYfOut, fZfOut;
 
   Double32_t fPxfOut, fPyfOut, fPzfOut;
-  TString fDetName;
+  Int_t      fSensorId;
 
 
   ClassDef(PndGemMCPoint,1);

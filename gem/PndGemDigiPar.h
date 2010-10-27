@@ -49,7 +49,11 @@ class PndGemDigiPar : public FairParGenericSet
     PndGemStation* GetStation(Int_t iStation);                                       /** Station by index **/
     PndGemStation* GetStationByNr(Int_t stationNr);                                  /** Station by number **/
     PndGemSensor*  GetSensor     (Int_t stationNr, Int_t sensorNr);                  /** Sensor  by number **/
-    Int_t GetDetectorIdByName(TString sensorName);
+    PndGemSensor*  GetSensor     (Int_t sensorId) { return GetSensor(GetStationNr(sensorId),GetSensorNr(sensorId)); }
+    TString        GetNodeName   (Int_t sensorId);
+    Int_t          GetStationNr  (Int_t sensorId) { return sensorId/256; }
+    Int_t          GetSensorNr   (Int_t sensorId) { return sensorId%256; }
+    Int_t         GetDetectorIdByName(TString sensorName);
     PndGemSensor* GetSensorByName    (TString sensorName);
     
     Double_t GetTrackFinderOnHits_ParThetaA() { return fTrackFinderOnHits_ParThetaA; }

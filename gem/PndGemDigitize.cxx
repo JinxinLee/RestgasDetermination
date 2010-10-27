@@ -139,30 +139,27 @@ void PndGemDigitize::Exec(Option_t* opt) {
  			 currentPndGemMCPoint->GetY(),
  			 currentPndGemMCPoint->GetZ()};
     
-    TString nodeName = currentPndGemMCPoint->GetDetName();
+    Int_t sensorId = currentPndGemMCPoint->GetSensorId();
 
-    if ( !nodeName.Contains("_Gem") ) continue;
+    TString nodeName = fDigiPar->GetNodeName(sensorId);
 
     gGeoManager->cd(nodeName.Data());
     TGeoNode* curNode = gGeoManager->GetCurrentNode();
 
-    nodeName.Remove(0,nodeName.Last('/')+1);
-    nodeName.Remove(nodeName.Length()-2,2);
-
-    sensor = (PndGemSensor*)fDigiPar->GetSensorByName(nodeName.Data());
+    sensor = (PndGemSensor*)fDigiPar->GetSensor(sensorId);
     if ( !sensor ) {
       cout << " -E- " << GetName() << ":Exec() There is no sensor: \"" 
-	   << currentPndGemMCPoint->GetDetName() << "\"." << endl;
+	   << nodeName.Data() << "\"." << endl;
       continue;
     }
     Double_t locPosIn[4];
 
     fTNofPoints++;
-
+    
     curNode->MasterToLocal(posIn,locPosIn);
-
+    
     if ( sensor->GetType()!=1 ) { locPosIn[3] = locPosIn[2]; locPosIn[2] = locPosIn[1]; locPosIn[1] = locPosIn[3]; locPosIn[0] = -locPosIn[0]; }
-
+    
     Int_t sensorDetId = sensor->GetDetectorId();
 
     Int_t channelNumber = sensor->GetChannel(locPosIn[0],locPosIn[1],0);
