@@ -22,6 +22,10 @@
 #pragma link C++ class PndSdsSimpleStripClusterFinder+;
 #pragma link C++ class PndSdsStripAdvClusterFinder+;
 #pragma link C++ class PndSdsChargeWeightingAlgorithms+;
+#pragma link C++ class PndSdsTimeWalkCorrTask+;
+#pragma link C++ class PndSdsTimeWalkCorrSimple+;
+#pragma link C++ class PndSdsTimeWalkCorr+;
+
 //tools
 //#pragma link C++ class PndMvdRadDamList+;
 //#pragma link C++ class PndMvdRadDamTask+;

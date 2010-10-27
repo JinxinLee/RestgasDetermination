@@ -108,6 +108,8 @@ MvdReco/PndMvdPixelClusterTask.cxx
 MvdReco/PndMvdIdealClusterTask.cxx
 MvdReco/PndMvdStripClusterTask.cxx
 MvdReco/PndMvdIdealRecoTask.cxx
+MvdReco/PndMvdTimeWalkCorrTask.cxx
+
 
 MvdReco/PndMvdChargeWeightedPixelMapping.cxx
 MvdReco/PndMvdSimplePixelClusterFinder.cxx

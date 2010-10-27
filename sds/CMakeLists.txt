@@ -110,6 +110,9 @@ SdsReco/PndSdsStripAdvClusterFinder.cxx
 SdsReco/PndSdsStripClusterTask.cxx
 SdsReco/PndSdsIdealRecoTask.cxx
 SdsReco/PndSdsChargeWeightingAlgorithms.cxx
+SdsReco/PndSdsTimeWalkCorr.cxx
+SdsReco/PndSdsTimeWalkCorrSimple.cxx
+SdsReco/PndSdsTimeWalkCorrTask.cxx
 
 #MvdTools/PndMvdRadDamList.cxx
 #MvdTools/PndMvdRadDamTask.cxx
