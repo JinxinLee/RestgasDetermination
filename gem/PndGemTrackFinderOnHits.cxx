@@ -351,7 +351,7 @@ Int_t PndGemTrackFinderOnHits::CreateTracks(TClonesArray* hitArray, TClonesArray
     for ( Int_t ih = 0 ; ih < kNofStatDbl ; ih++ ) {
       if ( hitIndices[itr][ih] == -1 ) continue;
       gemHit = (PndGemHit*)hitArray->At(hitIndices[itr][ih]);
-      gemTrackCand->AddHit("GEMHit",hitIndices[itr][ih],gemHit->GetPosition().Mag());
+      gemTrackCand->AddHit(kGemHit,hitIndices[itr][ih],gemHit->GetPosition().Mag());
     }
     
     gemTrackCand->Sort();
