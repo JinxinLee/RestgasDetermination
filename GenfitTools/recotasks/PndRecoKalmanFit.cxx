@@ -221,7 +221,7 @@ PndTrack* PndRecoKalmanFit::Fit(PndTrack *tBefore, Int_t PDG)
     }
   catch(GFException& e)
     {
-      std::cout << e.what() << std::endl;
+      std::cout << "*** PndRecoKalmanFit::Exec" << "\t" << "Genfit Exception: trk->addHitVector " << e.what() << std::endl;
       //throw e;
     }
   // Start Fitter
