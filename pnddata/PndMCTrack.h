@@ -136,6 +136,7 @@ private:
    **  RPC:  Bit 22 - 23  (2 bit max. value 3)
    **  LUMI: Bit 24 - 25  (2 bit max. value 3)
    **  HYPG: Bit 26 - 27  (2 bit max. value 3)
+   **  FTS:  Bit 28 - 29  (2 bit max. value 3)
    
    **  The respective point numbers can be accessed and modified **/
 

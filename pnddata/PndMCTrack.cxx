@@ -123,6 +123,7 @@ Int_t  PndMCTrack::GetNPoints(DetectorId detId) const {
   else if ( detId == kRPC ) return ( (fPoints  & (3 << 22) ) >> 22 );
   else if ( detId == kLUMI) return ( (fPoints  & (3 << 24) ) >> 24 );	
   else if ( detId == kHYPG) return ( (fPoints  & (3 << 26) ) >> 26 );
+  else if ( detId == kFTS)  return ( (fPoints  & (3 << 28) ) >> 28 );
   		
   else {
     cout << "-E- PndMCTrack::GetNPoints: Unknown detector ID "
@@ -212,6 +213,12 @@ void PndMCTrack::SetNPoints(Int_t iDet, Int_t  nPoints) {
     if      ( nPoints < 0 ) nPoints = 0;
     else if ( nPoints > 3 ) nPoints = 3;
     fPoints = ( fPoints & ( ~ ( 3 << 26 ) ) )  |  ( nPoints << 26 );
+  }
+
+  else if ( iDet == kFTS ) {
+    if      ( nPoints < 0 ) nPoints = 0;
+    else if ( nPoints > 3 ) nPoints = 3;
+    fPoints = ( fPoints & ( ~ ( 3 << 28 ) ) )  |  ( nPoints << 28 );
   }
 	
 	
