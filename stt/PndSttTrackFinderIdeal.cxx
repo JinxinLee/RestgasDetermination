@@ -489,6 +489,10 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray
 	  if(!firstpnt) { cout << "PndSttTrackFinderIdeal::DoFind ERROR: 1st pnt " << iHit << endl;  continue; }
 	  TVector3 MCfirstPos(firstpnt->GetX(), firstpnt->GetY(), firstpnt->GetZ());
 	  TVector3 MCfirstMom(firstpnt->GetPx(), firstpnt->GetPy(), firstpnt->GetPz());
+	  PndSttTube *firsttube = (PndSttTube*) fTubeArray->At(firstpnt->GetTubeID());
+	  TVector3 difirst = MCfirstMom; difirst.SetMag(1.);
+	  TVector3 djfirst = firsttube->GetWireDirection(); djfirst.SetMag(1.);
+	  TVector3 dkfirst = difirst.Cross(djfirst); dkfirst.SetMag(1.);
 
 	  candhit = pTrckCand->GetSortedHit(hitcounter - 1);
 	  iHit = candhit.GetHitId();
@@ -496,17 +500,27 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray
 	  if(!lastpnt) { cout << "PndSttTrackFinderIdeal::DoFind ERROR last pnt " << iHit << endl;  continue; }
 	  TVector3 MClastPos(lastpnt->GetX(), lastpnt->GetY(), lastpnt->GetZ());
 	  TVector3 MClastMom(lastpnt->GetPx(), lastpnt->GetPy(), lastpnt->GetPz());
+	  PndSttTube *lasttube = (PndSttTube*) fTubeArray->At(lastpnt->GetTubeID());
+	  TVector3 dilast = MClastMom; dilast.SetMag(1.);
+	  TVector3 djlast = lasttube->GetWireDirection(); djlast.SetMag(1.);
+	  TVector3 dklast = dilast.Cross(djlast); dklast.SetMag(1.);
+
 
  	  FairTrackParP first(MCfirstPos,  MCfirstMom, 
 			      TVector3(0., 0., 0.), TVector3(0., 0., 0.), ((int) chargeSeed),
-			      MCfirstPos, TVector3(1., 0., 0.), TVector3(0., 1., 0.));
+			      MCfirstPos, djfirst, dkfirst);
 	 
 
 	  FairTrackParP last(MClastPos,  MClastMom, 
 		 	     TVector3(0., 0., 0.), TVector3(0., 0., 0.), ((int) chargeSeed),
-			     MClastPos, TVector3(1., 0., 0.), TVector3(0., 1., 0.));
+			     MClastPos, djlast, dklast);
 	  
-	  pTrck = new((*trackArray)[trackTeller]) PndTrack(first, last, *pTrckCand, 0, -1., 0, 0, trackTeller, -1);
+	  // pTrck = new((*trackArray)[trackTeller]) PndTrack(first, last, *pTrckCand, 0, -1., 0, 0, trackTeller, -1);
+	  pTrck = new((*trackArray)[trackTeller]) PndTrack(first, last, *pTrckCand);
+	  pTrck->SetRefIndex(trackTeller);
+	  // pTrck->SetLink("STTTrackCand", trackTeller);
+
+
 	  // *****************************************************************************************
 	
 
