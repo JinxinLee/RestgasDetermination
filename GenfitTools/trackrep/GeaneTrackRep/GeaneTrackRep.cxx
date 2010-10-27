@@ -50,6 +50,40 @@ GeaneTrackRep::GeaneTrackRep(FairGeanePro* geane,
 			     int PDGCode) 
   : GFAbsTrackRep(5), _geane(geane), _pdg(PDGCode), _backw(0)
 {
+  FairTrackParP par(plane.getO(),mom,poserr,momerr,(int)TMath::Sign(1.0, q),plane.getO(),plane.getU(),plane.getV());
+
+  _spu=par.GetSPU(); // direction of the momentum
+
+  fState[0][0]=par.GetQp();
+  fState[1][0]=par.GetTV();
+  fState[2][0]=par.GetTW();
+  fState[3][0]=par.GetV();
+  fState[4][0]=par.GetW();
+
+  // blow up cov-array: ROOT does not support init with symmetric data
+  // See ROOT docu source-file for TMatrixTSym
+  // i=row, j=collumn
+  double* covarray=par.GetCov();
+  int count=0;
+  for(int i=0;i<5;++i){
+    for(int j=i;j<5;++j){
+      fCov[i][j]=covarray[count];
+      if(i!=j)fCov[j][i]=covarray[count];
+      ++count;
+    }
+  }
+  fRefPlane=plane;
+}
+
+GeaneTrackRep::GeaneTrackRep(FairGeanePro* geane, 
+			     const GFDetPlane& plane,
+			     const TVector3& mom,
+			     const TVector3& poserr,
+			     const TVector3& momerr,
+			     int q,
+			     int PDGCode) 
+  : GFAbsTrackRep(5), _geane(geane), _pdg(PDGCode), _backw(0)
+{
   FairTrackParP par(plane.getO(),mom,poserr,momerr,q,plane.getO(),plane.getU(),plane.getV());
 
   _spu=par.GetSPU(); // direction of the momentum

@@ -46,6 +46,13 @@ public:
 		double q,
 		int PDGCode);
 
+  GeaneTrackRep(FairGeanePro* geane,
+                const GFDetPlane& plane, // will be defined at origin of plane
+                const TVector3& mom,
+                const TVector3& poserr,
+                const TVector3& momerr,
+                int q,
+                int PDGCode);
 
   virtual ~GeaneTrackRep();
 
