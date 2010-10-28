@@ -161,9 +161,9 @@ public:
     itsPdfMax = EvtPdfMax<T>(p,itsPdf->evaluate(p)*factor);
     
     while(!(it == end)) {      
-      T p = *it++;
-      double val = itsPdf->evaluate(p)*factor;
-      if(val > itsPdfMax.value()) itsPdfMax = EvtPdfMax<T>(p,val);
+      T fp = *it++;
+      double val = itsPdf->evaluate(fp)*factor;
+      if(val > itsPdfMax.value()) itsPdfMax = EvtPdfMax<T>(fp,val);
     }
   }
   

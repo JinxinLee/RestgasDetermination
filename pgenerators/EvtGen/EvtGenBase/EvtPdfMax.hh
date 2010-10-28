@@ -24,11 +24,11 @@ public:
   EvtPdfMax() 
     : _value(-1),_valueKnown(false),  _locKnown(false) 
   {}
-  EvtPdfMax(double value)  
-    : _value(value),_valueKnown(true),  _locKnown(false) 
+  EvtPdfMax(double fvalue)  
+    : _value(fvalue),_valueKnown(true),  _locKnown(false) 
   {}
-  EvtPdfMax(Point p, double value) 
-    : _value(value), _valueKnown(true),  _locKnown(true), _loc(p) 
+  EvtPdfMax(Point p, double fvalue) 
+    : _value(fvalue), _valueKnown(true),  _locKnown(true), _loc(p) 
   {}
   EvtPdfMax(const EvtPdfMax& other)     
     : COPY_MEM(_value), COPY_MEM(_valueKnown),  COPY_MEM(_locKnown), COPY_MEM(_loc)

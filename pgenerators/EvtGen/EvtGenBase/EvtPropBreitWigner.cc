@@ -13,8 +13,8 @@
 #include "EvtGenBase/EvtPropBreitWigner.hh"
 
 
-EvtPropBreitWigner::EvtPropBreitWigner(double m0, double g0) 
-  : EvtPropagator(m0,g0) 
+EvtPropBreitWigner::EvtPropBreitWigner(double fm0, double fg0) 
+  : EvtPropagator(fm0,fg0) 
 {}
 
 

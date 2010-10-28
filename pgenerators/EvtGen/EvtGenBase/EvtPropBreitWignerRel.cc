@@ -12,8 +12,8 @@
 #include "EvtGenBase/EvtPropBreitWignerRel.hh"
 
 
-EvtPropBreitWignerRel::EvtPropBreitWignerRel(double m0, double g0) 
-  : EvtPropagator(m0,g0) 
+EvtPropBreitWignerRel::EvtPropBreitWignerRel(double fm0, double fg0) 
+  : EvtPropagator(fm0,fg0) 
 {}
 
 
