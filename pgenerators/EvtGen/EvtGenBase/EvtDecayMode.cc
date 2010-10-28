@@ -31,14 +31,14 @@ using std::string;
 using std::vector;
 
 
-EvtDecayMode::EvtDecayMode(std::string mother,vector<string> dau)
-  : _mother(mother)
+EvtDecayMode::EvtDecayMode(std::string fmother,vector<string> fdau)
+  : _mother(fmother)
 {
   unsigned i;
-  for(i=0;i<dau.size();i++) {
+  for(i=0;i<fdau.size();i++) {
     
     string s;
-    s.append(dau[i]);
+    s.append(fdau[i]);
     _dau.push_back(s);
   }
 }

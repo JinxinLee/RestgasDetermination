@@ -541,8 +541,8 @@ void EvtDecayTable::readDecayFile(const std::string dec_name){
 		}
 	      }
 	      //int isname=EvtPDL::getId(name).getId()>=0;
-	      int ismodel=modelist.isModel(name);
-	      if (ismodel) {
+	      int fismodel=modelist.isModel(name);
+	      if (fismodel) {
 		report(ERROR,"EvtGen")
 		  <<"Expected ';' but found:"<<
 		  name.c_str()<<" on line:"<<

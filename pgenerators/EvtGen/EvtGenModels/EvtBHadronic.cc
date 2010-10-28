@@ -199,14 +199,14 @@ void EvtBHadronic::decay( EvtParticle *p){
   case 5:
     q=p4b-p4[0];
     q2=q*q;
-    double f,gf,ap,am;
+    double ff,fgf,fap,fam;
     nbcurrent=3;
-    ffmodel.getvectorff(B0,D1P10,EvtPDL::getMeanMass(D1P10),q2,&f,&gf,&ap,&am);
+    ffmodel.getvectorff(B0,D1P10,EvtPDL::getMeanMass(D1P10),q2,&ff,&fgf,&fap,&fam);
     g.setdiag(1.0,-1.0,-1.0,-1.0);
-    tds = -f*g 
-      -ap*(directProd(p4b,p4b)+directProd(p4b,p4[0]))
-      +gf*EvtComplex(0.0,1.0)*dual(directProd(p4[0]+p4b,p4b-p4[0]))
-      -am*((directProd(p4b,p4b)-directProd(p4b,p4[0])));
+    tds = -ff*g 
+      -fap*(directProd(p4b,p4b)+directProd(p4b,p4[0]))
+      +fgf*EvtComplex(0.0,1.0)*dual(directProd(p4[0]+p4b,p4b-p4[0]))
+      -fam*((directProd(p4b,p4b)-directProd(p4b,p4[0])));
     jb[0]=tds.cont1(p->getDaug(0)->epsParent(0).conj());
     jb[1]=tds.cont1(p->getDaug(0)->epsParent(1).conj());
     jb[2]=tds.cont1(p->getDaug(0)->epsParent(2).conj());

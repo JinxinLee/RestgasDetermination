@@ -256,8 +256,8 @@ void EvtPythia::decay( EvtParticle *p){
 	report(ERROR,"EvtGen") << "This can not be translated to evt number"<<endl;
 	report(ERROR,"EvtGen") << "and the decay will be rejected!"<<endl;
 	report(ERROR,"EvtGen") << "The decay was of particle:"<<ip<<endl;
-	int i=1;
-	pylist_(i);
+	int ii=1;
+	pylist_(ii);
       }
 
       //sort out the partons

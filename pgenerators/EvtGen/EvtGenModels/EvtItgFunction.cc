@@ -33,8 +33,8 @@ extern "C" {
 //----------------
 // Constructors --
 //----------------
-EvtItgFunction::EvtItgFunction( double (*theFunction)(double), double lowerRange, double upperRange):
-  EvtItgAbsFunction(lowerRange, upperRange),
+EvtItgFunction::EvtItgFunction( double (*theFunction)(double), double flowerRange, double fupperRange):
+  EvtItgAbsFunction(flowerRange, fupperRange),
   _myFunction(theFunction)
 {}
 

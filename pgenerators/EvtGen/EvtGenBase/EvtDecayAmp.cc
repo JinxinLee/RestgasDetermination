@@ -83,26 +83,26 @@ void EvtDecayAmp::makeDecay(EvtParticle* p){
 	report(DEBUG,"EvtGen") << "parent channel        :"
 			       <<p->getParent()->getChannel()<<endl;
 
-        int i;
+        int ii;
 	report(DEBUG,"EvtGen") << "parent daughters  :";
-        for (i=0;i<p->getParent()->getNDaug();i++){
+        for (ii=0;ii<p->getParent()->getNDaug();ii++){
 	  report(DEBUG,"") << EvtPDL::name(
-			    p->getParent()->getDaug(i)->getId()).c_str()
+			    p->getParent()->getDaug(ii)->getId()).c_str()
 				 << " ";
         }
 	report(DEBUG,"") << endl;
 
 	report(DEBUG,"EvtGen") << "daughters  :";
-        for (i=0;i<p->getNDaug();i++){
+        for (ii=0;ii<p->getNDaug();ii++){
 	  report(DEBUG,"") << EvtPDL::name(
-			    p->getDaug(i)->getId()).c_str()
+			    p->getDaug(ii)->getId()).c_str()
 				 << " ";
         }
 	report(DEBUG,"") << endl;
 
 	report(DEBUG,"EvtGen") << "daughter momenta  :" << endl;;
-        for (i=0;i<p->getNDaug();i++){
-	  report(DEBUG,"") << p->getDaug(i)->getP4() << " " << p->getDaug(i)->mass();
+        for (ii=0;ii<p->getNDaug();ii++){
+	  report(DEBUG,"") << p->getDaug(ii)->getP4() << " " << p->getDaug(ii)->mass();
 	  report(DEBUG,"") << endl;
         }
 

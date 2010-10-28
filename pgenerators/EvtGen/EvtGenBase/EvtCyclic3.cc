@@ -252,9 +252,9 @@ Pair EvtCyclic3::strToPair(const char* str)
 char* EvtCyclic3::c_str(Index i)
 {
   switch(i) {
-  case A: return "A";
-  case B: return "B";
-  case C: return "C";
+  case A: return (char *)"A";
+  case B: return (char *)"B";
+  case C: return (char *)"C";
   }
   assert(0); return 0; // sngh
 }
@@ -263,22 +263,22 @@ char* EvtCyclic3::c_str(Index i)
 char* EvtCyclic3::c_str(Pair i)
 {
   switch(i) {
-  case BC: return "BC";
-  case CA: return "CA";
-  case AB: return "AB";
+  case BC: return (char *)"BC";
+  case CA: return (char *)"CA";
+  case AB: return (char *)"AB";
   }
   assert(0); return 0; // sngh
 }
 
 char* EvtCyclic3::c_str(Perm p)
 {
-  if(p == ABC) return "ABC";
-  if(p == BCA) return "BCA";
-  if(p == CAB) return "CAB";
-  if(p == CBA) return "CBA";
-  if(p == BAC) return "BAC";
-  if(p == ACB) return "ACB";
-  return "???";
+  if(p == ABC) return (char *)"ABC";
+  if(p == BCA) return (char *)"BCA";
+  if(p == CAB) return (char *)"CAB";
+  if(p == CBA) return (char *)"CBA";
+  if(p == BAC) return (char *)"BAC";
+  if(p == ACB) return (char *)"ACB";
+  return (char *)"???";
 }
 
 char* EvtCyclic3::append(const char* str, EvtCyclic3::Index i)

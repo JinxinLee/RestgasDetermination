@@ -48,11 +48,11 @@ EvtResonance& EvtResonance::operator = ( const EvtResonance  &n)
 
 //constructor
  
-EvtResonance::EvtResonance(const EvtVector4R& p4_p, const EvtVector4R& p4_d1,
-			   const  EvtVector4R& p4_d2, double ampl, 
-			   double theta, double gamma, double bwm, int spin): 
-  _p4_p(p4_p),_p4_d1(p4_d1), _p4_d2(p4_d2),_ampl(ampl), _theta(theta), 
-  _gamma(gamma), _bwm(bwm), _spin(spin) {}
+EvtResonance::EvtResonance(const EvtVector4R& fp4_p, const EvtVector4R& fp4_d1,
+			   const  EvtVector4R& fp4_d2, double fampl, 
+			   double ftheta, double fgamma, double fbwm, int fspin): 
+  _p4_p(fp4_p),_p4_d1(fp4_d1), _p4_d2(fp4_d2),_ampl(fampl), _theta(ftheta), 
+  _gamma(fgamma), _bwm(fbwm), _spin(fspin) {}
 
 //amplitude function
 

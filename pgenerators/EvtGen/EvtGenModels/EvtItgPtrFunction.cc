@@ -32,8 +32,8 @@ extern "C" {
 //----------------
 // Constructors --
 //----------------
-EvtItgPtrFunction::EvtItgPtrFunction( double (*theFunction)(double, const std::vector<double> &), double lowerRange, double upperRange, const std::vector<double> &coeffs1):
-  EvtItgAbsFunction(lowerRange, upperRange),
+EvtItgPtrFunction::EvtItgPtrFunction( double (*theFunction)(double, const std::vector<double> &), double flowerRange, double fupperRange, const std::vector<double> &coeffs1):
+  EvtItgAbsFunction(flowerRange, fupperRange),
   _myFunction(theFunction),
   _coeffs1(coeffs1)
 {}
@@ -53,9 +53,9 @@ EvtItgPtrFunction::myFunction(double x) const{
 }
 
 void
-EvtItgPtrFunction::setCoeff(int vect, int which, double value)
+EvtItgPtrFunction::setCoeff(int vect, int which, double fvalue)
 {
-  if (vect == 1) _coeffs1[which] = value;
+  if (vect == 1) _coeffs1[which] = fvalue;
 }
 
 double

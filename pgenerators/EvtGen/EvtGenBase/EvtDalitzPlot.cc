@@ -36,9 +36,9 @@ EvtDalitzPlot::EvtDalitzPlot()
 {}
 
 
-EvtDalitzPlot::EvtDalitzPlot(double mA, double mB, double mC, double bigM,
+EvtDalitzPlot::EvtDalitzPlot(double fmA, double fmB, double fmC, double fbigM,
 			     double ldel, double rdel)
-  : _mA(mA), _mB(mB), _mC(mC), _bigM(bigM),
+  : _mA(fmA), _mB(fmB), _mC(fmC), _bigM(fbigM),
     _ldel(ldel), _rdel(rdel) 
 {
   sanityCheck();
@@ -100,12 +100,12 @@ void EvtDalitzPlot::sanityCheck() const
 
 double EvtDalitzPlot::m(Index i) const {
 
-  double m = _mA;
-  if(i == B) m = _mB;
+  double fm = _mA;
+  if(i == B) fm = _mB;
   else
-    if(i == C) m = _mC;
+    if(i == C) fm = _mC;
 
-  return m;
+  return fm;
 }
 
 
@@ -170,9 +170,9 @@ double EvtDalitzPlot::mAbsMax(Pair i) const
 
 // parallel
 
-double EvtDalitzPlot::qMin(Pair i, Pair j, double q) const
+double EvtDalitzPlot::qMin(Pair i, Pair j, double fq) const
 {
-  if(i == j) return q;
+  if(i == j) return fq;
 
   else {
 
@@ -186,13 +186,13 @@ double EvtDalitzPlot::qMin(Pair i, Pair j, double q) const
     Index k1 = other(k0,k2);
 
     // Energy, momentum of particle common to rest-frame and angle
-    EvtTwoBodyKine jpair(m(k0),m(k1),sqrt(q)); 
+    EvtTwoBodyKine jpair(m(k0),m(k1),sqrt(fq)); 
     double pk = jpair.p();
     double ek = jpair.e(EvtTwoBodyKine::A,EvtTwoBodyKine::AB);
 
 
     // Energy and momentum of the other particle
-    EvtTwoBodyKine mother(sqrt(q),m(k2),bigM());
+    EvtTwoBodyKine mother(sqrt(fq),m(k2),bigM());
     double ej = mother.e(EvtTwoBodyKine::B,EvtTwoBodyKine::A);
     double pj = mother.p(EvtTwoBodyKine::A);
 
@@ -205,10 +205,10 @@ double EvtDalitzPlot::qMin(Pair i, Pair j, double q) const
 
 // antiparallel
 
-double EvtDalitzPlot::qMax(Pair i, Pair j, double q) const
+double EvtDalitzPlot::qMax(Pair i, Pair j, double fq) const
 {
 
-  if(i == j) return q;
+  if(i == j) return fq;
   else {
 
     // Particle pair j defines the rest-frame
@@ -221,12 +221,12 @@ double EvtDalitzPlot::qMax(Pair i, Pair j, double q) const
     Index k1 = other(k0,k2); 
 
     // Energy, momentum of particle common to rest-frame and angle
-    EvtTwoBodyKine jpair(m(k0),m(k1),sqrt(q)); 
+    EvtTwoBodyKine jpair(m(k0),m(k1),sqrt(fq)); 
     double ek = jpair.e(EvtTwoBodyKine::A,EvtTwoBodyKine::AB);
     double pk = jpair.p();
 
     // Energy and momentum of the other particle
-    EvtTwoBodyKine mother(sqrt(q),m(k2),bigM());
+    EvtTwoBodyKine mother(sqrt(fq),m(k2),bigM());
     double ej = mother.e(EvtTwoBodyKine::B,EvtTwoBodyKine::A);
     double pj = mother.p(EvtTwoBodyKine::A);
 
@@ -243,17 +243,17 @@ double EvtDalitzPlot::getArea(int N, Pair i, Pair j) const
   // The first and the last point are zero, so they are not counted
 
   double dh = (qAbsMax(i) - qAbsMin(i))/((double) N);
-  double sum = 0;
+  double fsum = 0;
 
   int ii;
   for(ii=1;ii<N;ii++) {
 
     double x = qAbsMin(i) + ii*dh;
     double dy = qMax(j,i,x) - qMin(j,i,x);
-    sum += dy;
+    fsum += dy;
   }
 
-  return sum * dh;
+  return fsum * dh;
 }
 
 
@@ -270,13 +270,13 @@ double EvtDalitzPlot::cosTh(EvtCyclic3::Pair i1, double q1, EvtCyclic3::Pair i2,
 }
 
 
-double EvtDalitzPlot::e(Index i, Pair j, double q) const
+double EvtDalitzPlot::e(Index i, Pair j, double fq) const
 {
   if(i == other(j)) {
  
     // i does not belong to pair j
 
-    return (bigM()*bigM()-q-m(i)*m(i))/2/sqrt(q);
+    return (bigM()*bigM()-fq-m(i)*m(i))/2/sqrt(fq);
   }
   else {
     
@@ -286,15 +286,15 @@ double EvtDalitzPlot::e(Index i, Pair j, double q) const
     if(first(j) == i) k = second(j);
     else k = first(j); 
 
-    double e = (q + m(i)*m(i) - m(k)*m(k))/2/sqrt(q);	       
-    return e;
+    double fe = (fq + m(i)*m(i) - m(k)*m(k))/2/sqrt(fq);	       
+    return fe;
   }
 }
 
 
-double EvtDalitzPlot::p(Index i, Pair j, double q) const
+double EvtDalitzPlot::p(Index i, Pair j, double fq) const
 {
-  double en = e(i,j,q);
+  double en = e(i,j,fq);
   double p2 = en*en - m(i)*m(i);
   
   if(p2 < 0) {
@@ -306,19 +306,19 @@ double EvtDalitzPlot::p(Index i, Pair j, double q) const
 }
 
 
-double EvtDalitzPlot::q(EvtCyclic3::Pair i1, double cosTh, EvtCyclic3::Pair i2, double q2) const
+double EvtDalitzPlot::q(EvtCyclic3::Pair i1, double fcosTh, EvtCyclic3::Pair i2, double q2) const
 {
   if(i1 == i2) return q2;
 
   EvtCyclic3::Index f = first(i1);
   EvtCyclic3::Index s = second(i1);
-  return m(f)*m(f) + m(s)*m(s) + 2*e(f,i2,q2)*e(s,i2,q2) - 2*p(f,i2,q2)*p(s,i2,q2)*cosTh;
+  return m(f)*m(f) + m(s)*m(s) + 2*e(f,i2,q2)*e(s,i2,q2) - 2*p(f,i2,q2)*p(s,i2,q2)*fcosTh;
 }
 
 
-double EvtDalitzPlot::jacobian(EvtCyclic3::Pair i, double q) const
+double EvtDalitzPlot::jacobian(EvtCyclic3::Pair i, double fq) const
 {
-  return 2*p(first(i),i,q)*p(other(i),i,q);  // J(BC) = 2pA*pB = 2pA*pC
+  return 2*p(first(i),i,fq)*p(other(i),i,fq);  // J(BC) = 2pA*pB = 2pA*pC
 }
 
 

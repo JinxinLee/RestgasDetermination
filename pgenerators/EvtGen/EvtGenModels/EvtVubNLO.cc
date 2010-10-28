@@ -512,8 +512,8 @@ double EvtVubNLO::SFNorm(  const std::vector<double> &coeffs){
   
   double omega0=1.68;//normalization scale (mB-2*1.8)
   if(_idSF==1){ // exponential SF
-    double omega0=1.68;//normalization scale (mB-2*1.8)
-    return M0(mu_i(),omega0)*pow(_b,_b)/lambda_SF()/ (Gamma(_b)-Gamma(_b,_b*omega0/lambda_SF()));
+    double fomega0=1.68;//normalization scale (mB-2*1.8)
+    return M0(mu_i(),fomega0)*pow(_b,_b)/lambda_SF()/ (Gamma(_b)-Gamma(_b,_b*fomega0/lambda_SF()));
   } else if(_idSF==2){ // Gaussian SF
     double c=cGaus(_b);
     return M0(mu_i(),omega0)*2/lambda_SF()/pow(c,-(1+_b)/2.)/
