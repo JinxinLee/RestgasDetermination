@@ -212,8 +212,6 @@ void PndGemFindHits::SetParContainers() {
 
   // Get GEM digitisation parameter container
   fDigiPar = (PndGemDigiPar*) db->getContainer("PndGemDetectors");
-  cout << "THERE ARE " << fDigiPar->GetNStations() << " GEM STATIONS" << endl;
-
 }
 // -------------------------------------------------------------------------
 
@@ -234,6 +232,9 @@ InitStatus PndGemFindHits::Init() {
   
   // Create sectorwise digi sets
   MakeSets();
+
+  cout << "-I- " << fName.Data() << "::Init(). There are " << fDigiPar->GetNStations() << " GEM stations." << endl;
+  cout << "-I- " << fName.Data() << "::Init(). Initialization succesfull." << endl;
   
   return kSUCCESS;
 }

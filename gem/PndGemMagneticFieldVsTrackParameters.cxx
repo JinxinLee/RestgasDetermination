@@ -142,8 +142,6 @@ InitStatus PndGemMagneticFieldVsTrackParameters::Init() {
     return kERROR;
   }
 
-  cout << "THERE ARE " << fDigiPar->GetNStations() << " GEM STATIONS" << endl;
-  
   fTrackFinderOnHits_ParThetaA = fDigiPar->GetTrackFinderOnHits_ParThetaA();
   fTrackFinderOnHits_ParThetaB = fDigiPar->GetTrackFinderOnHits_ParThetaB();
   
@@ -160,6 +158,9 @@ InitStatus PndGemMagneticFieldVsTrackParameters::Init() {
   }
 
   CreateHistos();
+
+  cout << "-I- " << fName.Data() << "::Init(). There are " << fDigiPar->GetNStations() << " GEM stations." << endl;
+  cout << "-I- " << fName.Data() << "::Init(). Initialization succesfull." << endl;
 
   return kSUCCESS;
 

@@ -118,9 +118,9 @@ InitStatus PndGemTrackFinderQA::Init() {
 
   // Get GEM digitisation parameter container
   fDigiPar = (PndGemDigiPar*)(rtdb->getContainer("PndGemDetectors"));
-  cout << "THERE ARE " << fDigiPar->GetNStations() << " GEM STATIONS" << endl;
 
-  std::cout << "-I- "<< GetName() <<": Intialization successfull" << std::endl;
+  cout << "-I- " << fName.Data() << "::Init(). There are " << fDigiPar->GetNStations() << " GEM stations." << endl;
+  cout << "-I- " << fName.Data() << "::Init(). Initialization succesfull." << endl;
 
   CreateHistos();
 

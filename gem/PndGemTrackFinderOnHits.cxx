@@ -89,7 +89,8 @@ void PndGemTrackFinderOnHits::Init() {
   }
   
   fDigiPar = (PndGemDigiPar*)(rtdb->getContainer("PndGemDetectors"));
-  cout << "THERE ARE " << fDigiPar->GetNStations() << " GEM STATIONS" << endl;
+  cout << "-I- " << "PndGemTrackFinderOnHits" << "::Init(). There are " << fDigiPar->GetNStations() << " GEM stations." << endl;
+  cout << "-I- " << "PndGemTrackFinderOnHits" << "::Init(). Initialization succesfull." << endl;
   fParThetaA = fDigiPar->GetTrackFinderOnHits_ParThetaA();
   fParThetaB = fDigiPar->GetTrackFinderOnHits_ParThetaB();
   

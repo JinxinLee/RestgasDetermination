@@ -84,7 +84,8 @@ class PndGemFindTracks : public FairTask
 
   PndGemTrackFinder* fFinder;    	    ///< Pointer to TrackFinder concrete class
   TClonesArray* fGemHitOrDigiArray;     //
-  TClonesArray* fTrackArray;     	    ///< Output array of PndGemTracks 
+  TClonesArray* fTrackArray;     	    ///< Output array of PndTracks 
+  TClonesArray* fTrackCandArray;     	    ///< Output array of PndTrackCands 
   Int_t fNofTracks;              	    ///< Number of created tracks
   TString fUseHitOrDigi;                ///< Choose use hits or digis, default: hits
   

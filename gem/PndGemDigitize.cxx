@@ -234,7 +234,6 @@ void PndGemDigitize::SetParContainers() {
 
   // Get GEM digitisation parameter container
   fDigiPar = (PndGemDigiPar*)(db->getContainer("PndGemDetectors"));
-  cout << "-I- PndGemDigitize::SetParContainers(). There are " << fDigiPar->GetNStations() << " GEM stations." << endl;
 }
 // -------------------------------------------------------------------------
 
@@ -258,8 +257,8 @@ InitStatus PndGemDigitize::Init() {
   fDigis = new TClonesArray("PndGemDigi",1000);
   ioman->Register("GEMDigi", "Digital response in GEM", fDigis, kTRUE);
 
-  cout << "-I- PndGemDigitize::Init(). There are " << fDigiPar->GetNStations() << " GEM stations." << endl;
-  cout << "-I- PndGemDigitize::Init(). Initialization succesfull." << endl;
+  cout << "-I- " << fName.Data() << "::Init(). There are " << fDigiPar->GetNStations() << " GEM stations." << endl;
+  cout << "-I- " << fName.Data() << "::Init(). Initialization succesfull." << endl;
   return kSUCCESS;
 
 }

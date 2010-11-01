@@ -18,6 +18,10 @@
 // ROOT includes
 #include "TClonesArray.h"
 
+#include "PndTrack.h"
+#include "PndTrackCand.h"
+#include "PndTrackCandHit.h"
+
 #include <iomanip>
 
 // c++ includes
@@ -32,13 +36,16 @@ class iostream;
 class FairBaseParSet;
 class PndGemHit;
 class PndGemDigi;
+class PndTrack;
 class PndTrackCand;
+//class PndTrackCandHit;
 
 // -----   Default constructor   -------------------------------------------
 PndGemFindTracks::PndGemFindTracks() {
-  fFinder         	 = NULL;
-  fGemHitOrDigiArray         = NULL;
+  fFinder              = NULL;
+  fGemHitOrDigiArray   = NULL;
   fTrackArray          = NULL;
+  fTrackCandArray      = NULL;
   fNofTracks           = 0;
   fUseHitOrDigi        = "hit";
 
@@ -56,8 +63,9 @@ PndGemFindTracks::PndGemFindTracks(const char* name,
 				   PndGemTrackFinder* finder) 
   : FairTask(name) {
   fFinder              = finder;
-  fGemHitOrDigiArray         = NULL;
+  fGemHitOrDigiArray   = NULL;
   fTrackArray          = NULL;
+  fTrackCandArray      = NULL;
   fNofTracks           = 0;
   fUseHitOrDigi        = "hit";
 
@@ -72,7 +80,8 @@ PndGemFindTracks::PndGemFindTracks(const char* name,
 
 // -----   Destructor   ----------------------------------------------------
 PndGemFindTracks::~PndGemFindTracks() {
-  fTrackArray->Delete();
+  fTrackArray    ->Delete();
+  fTrackCandArray->Delete();
 }
 // -------------------------------------------------------------------------
 
@@ -117,12 +126,19 @@ InitStatus PndGemFindTracks::Init() {
     }
   }
   
-  // Create and register GemTrack array
+  // Create and register PndTrack array
   fTrackArray = new TClonesArray("PndTrack",100);
   ioman->Register("GEMTrack", "Gem Tracks", fTrackArray, kTRUE);
+
+  // Create and register PndTrackCand array
+  fTrackCandArray = new TClonesArray("PndTrackCand",100);
+  ioman->Register("GEMTrackCand", "Gem Track Cands", fTrackCandArray, kTRUE);
   
   // Call the Init method of the track finder
   fFinder->Init();
+
+  cout << "-I- " << fName.Data() << "::Init(). There are " << fDigiPar->GetNStations() << " GEM stations." << endl;
+  cout << "-I- " << fName.Data() << "::Init(). Initialization succesfull." << endl;
   
   return kSUCCESS;  
 }
@@ -138,8 +154,6 @@ void PndGemFindTracks::SetParContainers() {
   rtdb->getContainer("PndGeoPassivePar");
 
   fDigiPar = (PndGemDigiPar*) rtdb->getContainer("PndGemDetectors");
-  cout << "THERE ARE " << fDigiPar->GetNStations() << " GEM STATIONS" << endl;
-
 }
 // -------------------------------------------------------------------------
 
@@ -151,6 +165,7 @@ void PndGemFindTracks::Exec(Option_t* opt) {
   fTimer.Start();
 
   fTrackArray->Delete();
+  fTrackCandArray->Delete();
   
   fNofTracks = fFinder->DoFind(fGemHitOrDigiArray, fTrackArray);
   
@@ -160,10 +175,19 @@ void PndGemFindTracks::Exec(Option_t* opt) {
   fTNofTracks += fNofTracks;
   fTNofEvents += 1;
 
-  //for (Int_t iTrack=0; iTrack<fTrackArray->GetEntriesFast(); iTrack++) {
-  //PndGemTrack* track = (PndGemTrack*) fTrackArray->At(iTrack);
-  //track->SortHits();
-  //}
+  PndTrackCandHit tcHit;
+
+  for ( Int_t iTrack = 0 ; iTrack < fNofTracks ; iTrack++ ) {
+    PndTrack*     track     = (PndTrack*) fTrackArray->At(iTrack);
+    PndTrackCand* trackCand = new((*fTrackCandArray)[iTrack]) PndTrackCand();
+    PndTrackCand* trackCnd1 = (PndTrackCand*)track->GetTrackCandPtr();
+    for ( Int_t ihit = 0 ; ihit < trackCnd1->GetNHits() ; ihit++ ) {
+      tcHit = trackCnd1->GetSortedHit(ihit);  
+      trackCand->AddHit(tcHit.GetHitId(),tcHit.GetDetId(),tcHit.GetRho());
+      trackCand->setMcTrackId(trackCnd1->getMcTrackId());
+      trackCand->setTrackSeed(trackCnd1->getPosSeed(),trackCnd1->getDirSeed(),trackCnd1->getQoverPseed());
+    }
+  }
 }
 // -------------------------------------------------------------------------
 
@@ -172,6 +196,7 @@ void PndGemFindTracks::Exec(Option_t* opt) {
 // -----   Public method Finish   ------------------------------------------
 void PndGemFindTracks::Finish() {
   fTrackArray->Clear();
+  fTrackCandArray->Clear();
 
   cout << "-------------------- " << fName.Data() << " : Summary ---------------------" << endl;
   cout << " Events:        " << setw(10) << fTNofEvents << endl;
