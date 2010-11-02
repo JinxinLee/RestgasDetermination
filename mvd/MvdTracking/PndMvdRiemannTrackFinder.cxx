@@ -10,6 +10,7 @@ PndMvdRiemannTrackFinder::PndMvdRiemannTrackFinder():PndRiemannTrackFinder(),fZC
 	if (fUseZeroPos)
 		fLayers[0].push_back(0);
 	fGeoH = PndGeoHandling::Instance();
+	fVerbose = 3;
 }
 
 PndMvdRiemannTrackFinder::~PndMvdRiemannTrackFinder(){}
@@ -62,20 +63,24 @@ void PndMvdRiemannTrackFinder::AddHits(TClonesArray* hits, Int_t branchId)
 //		if (flag && geoPath.Contains("PixeloMdkov1-NEW_4")){Layer=10;flag=false;}
 //		if (flag && geoPath.Contains("StripoLdk_2")){Layer=10;flag=false;}
 ////////////////////////////
-		int nLayers = fLayers.size();
-		while (nLayers < Layer+1){
+		fNLayers = fLayers.size();
+		while (fNLayers < Layer+1){
 			std::vector<int> dummy;
 			fLayers.push_back(dummy);
-			nLayers = fLayers.size();
+			fNLayers = fLayers.size();
 		}
 		fLayers[Layer].push_back(fHits.size()-1);  //putting hit in layers array
 	}
+	fNLayers = fLayers.size();
 }
 
 void PndMvdRiemannTrackFinder::FindTracks()
 {
+	std::cout << "PndMvdRiemannTrackFinder" << std::endl;
 	std::vector<std::vector<Int_t> > Tracks = GetStartTracks();				//Get the possible track seeds
     std::vector<int> tooClose;
+    fTracks.clear();
+    fTrackCand.clear();
 	for (unsigned int trackId = 0; trackId < Tracks.size(); trackId++){				//Go through all track seeds and search for additional points
 
 		if (Tracks[trackId].size() != 3)
@@ -98,7 +103,7 @@ void PndMvdRiemannTrackFinder::FindTracks()
 		int startHit=StartTrack[2];
 
 		bool flag=false;
-		for(int i=1;i<11;i++){  ///< finding layer's number of start hit
+		for(int i=1;i<fNLayers;i++){  ///< finding layer's number of start hit
 			for(unsigned int j=0;j<fLayers[i].size();j++){
 				if(fLayers[i][j]==startHit){
 					startLayer=i+1;
@@ -110,13 +115,13 @@ void PndMvdRiemannTrackFinder::FindTracks()
 		}
 
 		int testHit;
-		for (int Layer=startLayer;Layer<11;Layer++){
+		for (int Layer=startLayer;Layer<fNLayers;Layer++){
 			if ((fHits[startHit]->GetZ()<(-fZClosePar)) && (Layer==2 or Layer==3 or Layer==5 or Layer==6 or Layer==8 or Layer==10)) continue;  /// < in case of backward tracks disk layers can't contain hits
 			for(unsigned int testHitInLayer=0; testHitInLayer<fLayers[Layer].size();testHitInLayer++){
 				testHit=fLayers[Layer][testHitInLayer];
 				if ((fHits[startHit]->GetZ())*(fHits[testHit]->GetZ())<0 && fabs(fHits[startHit]->GetZ())>fZClosePar && fabs(fHits[testHit]->GetZ())>fZClosePar)  continue; //check the same direction on z axis
 
-				PndRiemannHit actHit(fHits[testHit]);
+				PndRiemannHit actHit(fHits[testHit], testHit);
 
 				if (fVerbose > 1) std::cout << "Point " << testHit ;
 				if (CheckRiemannHit(&actTrack, &actHit) != true) continue;
@@ -160,7 +165,7 @@ void PndMvdRiemannTrackFinder::FindTracks()
 					<< std::endl;
 			}
 
-			if (fVerbose > 0) std::cout << "Hits in Track: ";
+			if (fVerbose > 0) std::cout << "Hits in Track: " << StartTrack.size() << std::endl;
 			for (unsigned int i = 0; i < StartTrack.size(); i++)
 			{
 				if (fVerbose > 0)
@@ -177,32 +182,31 @@ void PndMvdRiemannTrackFinder::FindTracks()
 			}
 		}
 	}
-	for (unsigned int n = 0; n < fHitsInTracks.size(); n++)
-	{
-		PndTrackCand myTrackCand;
-		for (unsigned int o = 0; o < fHitsInTracks[n].size(); o++)
-		{
-			myTrackCand.AddHit(fMapHitToID[fHitsInTracks[n][o]].first,
-					fMapHitToID[fHitsInTracks[n][o]].second,0);
-		}
-		myTrackCand.setTrackSeed(fTracks[n].getPforHit(0, fMagField), fHitsInTracks[n][0], 1/fTracks[n].P(fMagField));
-//		std::cout << "TrackCand before merging: ";
-//		myTrackCand.Print();
 
+//	std::cout << "In PndMvdRiemannTrackFinder are: " << fTracks.size() << " tracks" << std::endl;
+	for (unsigned int n = 0; n < fTracks.size(); n++){
+		PndTrackCand myTrackCand;
+		std::vector<PndRiemannHit> TrackHits = fTracks[n].getHits();
+
+		for (unsigned int p = 0; p < TrackHits.size(); p++){
+			myTrackCand.AddHit(fMapHitToID[TrackHits[p].hitID()].first, fMapHitToID[TrackHits[p].hitID()].second, TrackHits[p].s());
+		}
 		fTrackCand.push_back(myTrackCand);
+
 		std::pair<double,double> CurvDip(1/fTracks[n].r(),fTracks[n].dip());
 		fCurvAndDipOfCand.push_back(CurvDip);
 	}
 
-	MergeTracks();
-	fTrackCand.clear();
-	fTrackCand = fMergedTrackCand;
-	if (fVerbose > 0) {
-		std::cout << "Tracks after merging:" << std::endl;
-		for (unsigned int p = 0; p < fTrackCand.size(); p++){
-			fTrackCand[p].Print();
-		}
-	}
+//	std::cout << "Hits before merging: " << fTrackCand.size() << std::endl;
+//	MergeTracks();
+//	fTrackCand.clear();
+//	fTrackCand = fMergedTrackCand;
+//	if (fVerbose > 0) {
+//		std::cout << "Tracks after merging:" << fMergedTrackCand.size() << std::endl;
+//		for (unsigned int p = 0; p < fTrackCand.size(); p++){
+//			fTrackCand[p].Print();
+//		}
+//	}
 
 }
 
@@ -216,9 +220,9 @@ std::vector< std::vector<Int_t> > PndMvdRiemannTrackFinder::GetStartTracks()
 	if (fHits.size() > 3){
 	int shift=0;
 	if (fUseZeroPos) shift=1;
-	for(int FirstLayer=1-shift;FirstLayer<11-3;FirstLayer++){ /// going through layers : first, second and third
-		  for(int SecondLayer=FirstLayer+1;SecondLayer<11-2;SecondLayer++){
-			    for(int ThirdLayer=SecondLayer+1;ThirdLayer<11-1;ThirdLayer++){
+	for(int FirstLayer=1-shift;FirstLayer<fNLayers-3;FirstLayer++){ /// going through layers : first, second and third
+		  for(int SecondLayer=FirstLayer+1;SecondLayer<fNLayers-2;SecondLayer++){
+			    for(int ThirdLayer=SecondLayer+1;ThirdLayer<fNLayers-1;ThirdLayer++){
 
 
 			    	 for (unsigned int firstInLayer = 0; firstInLayer < fLayers[FirstLayer].size(); firstInLayer++){

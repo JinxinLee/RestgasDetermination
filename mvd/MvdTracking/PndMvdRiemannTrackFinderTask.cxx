@@ -28,7 +28,7 @@ PndMvdRiemannTrackFinderTask::PndMvdRiemannTrackFinderTask() : FairTask("MVD Rie
 	fMaxDist = 1;
 	fEventNr = 0;	
   PndGeoHandling::Instance();
-
+	fB = 2.0;
 }
 
 PndMvdRiemannTrackFinderTask::~PndMvdRiemannTrackFinderTask()
@@ -73,6 +73,13 @@ InitStatus PndMvdRiemannTrackFinderTask::Init()
   fTrackCandArray = new TClonesArray("PndTrackCand");
   ioman->Register("MVDRiemannTrackCand", "MVD", fTrackCandArray, kTRUE);
 
+  fTrackArray = new TClonesArray("PndTrack");
+  ioman->Register("MVDTrack", "MVD", fTrackArray, kTRUE);
+
+  fRiemannTrackArray = new TClonesArray("PndRiemannTrack");
+//  ioman->Register("MVDRiemannTrack", "MVD", fRiemannTrackArray, kTRUE);
+
+
   std::cout << "-I- PndMvdRiemannTrackFinderTask: Initialisation successfull" << std::endl;
   return kSUCCESS;
 }
@@ -85,12 +92,17 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
   if ( ! fTrackCandArray )
     Fatal("Exec", "No trackCandArray");
 
-  fTrackCandArray->Clear();
+  fTrackCandArray->Delete();
+  fTrackArray->Delete();
+ // fRiemannTrackArray->Delete();
 
   PndMvdRiemannTrackFinder trackFinder;
   trackFinder.SetVerbose(fVerbose);
 
   FairRootManager *ioman = FairRootManager::Instance();
+
+ // std::cout << std::endl;
+//  std::cout << "------------- event " << fEventNr << "----------------" << std::endl;
 
   trackFinder.AddHits(fHitArray, ioman->GetBranchId(fHitBranch));
   trackFinder.AddHits(fHitArray2, ioman->GetBranchId(fHitBranch2));
@@ -111,15 +123,28 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
   std::cout << "Found Tracks: " << trackFinder.NTracks() << " in event no. " << fEventNr++ << std::endl;
   std::cout << "----------------" << std::endl;
 
-  for (int i = 0; i < trackFinder.NTracks(); i++){
-	  new ((*fTrackCandArray)[i])PndTrackCand(trackFinder.GetTrackCand(i));
 
+  for (int i = 0; i < trackFinder.NTracks(); i++){
+	  std::cout << "Writing Track: " << i << std::endl;
+	  new ((*fTrackCandArray)[i])PndTrackCand(trackFinder.GetTrackCand(i));
+	  trackFinder.GetTrack(i).Print();
+	  PndRiemannTrack myTrack = trackFinder.GetTrack(i);
+
+	  new ((*fTrackArray)[i])PndTrack(trackFinder.GetPndTrack(i, fB));
+//	  PndRiemannTrack* newTrack = new ((*fRiemannTrackArray)[i])PndRiemannTrack();
+//	  TVectorD origin = myTrack.orig();
+//	  newTrack->init(origin[0], origin[1], myTrack.r(), myTrack.dip(), 0);
+//	  for (int j = 0; j < myTrack.getNumHits(); j++){
+//		  newTrack->addHit(*myTrack.getHit(j));
+//	  }
   }
 }
 
 void PndMvdRiemannTrackFinderTask::FinishEvent()
 {
-	fTrackCandArray->Clear();
+	fTrackCandArray->Delete();
+	fTrackArray->Delete();
+//	fRiemannTrackArray->Delete();
 }
 
 ClassImp(PndMvdRiemannTrackFinderTask);

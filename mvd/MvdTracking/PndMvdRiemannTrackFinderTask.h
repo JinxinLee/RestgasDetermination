@@ -28,6 +28,8 @@ public:
 
 	void SetCutDistH(TH2F* hist)    {fCutDistH=hist;}
 	void SetCutChi2H(TH2F* hist)    {fCutChi2H=hist;}
+	
+	void SetB(Double_t B){fB = B;}
 
     //void PrintResult();  // not implemented
     void SetVerbose(Int_t verbose){ fVerbose = verbose;};
@@ -44,14 +46,16 @@ private:
   double fMaxSZDist;
   double fMinPointDist;
   double fMaxDist;
+  
+  double fB; 
 
 
 
 	TClonesArray* fHitArray;
 	TClonesArray* fHitArray2;
 	TClonesArray* fTrackCandArray;
-//	TClonesArray* fRiemannTrackArray;
-//	TClonesArray* fTrackArray;
+	TClonesArray* fRiemannTrackArray;
+	TClonesArray* fTrackArray;
 
 	TH2F *fCutDistH;
 	TH2F *fCutChi2H;

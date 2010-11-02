@@ -47,7 +47,7 @@ private:
 	9 - 4b
    10 - 6d
 */
-
+	int fNLayers; ///< number of Layers
 	double GetMaxPlaneDist(double radius, double dip, bool sign); //getting cut distance
 	double GetMaxSZChi2(double radius, double dip, bool sign);    //getting cut Chi2
 	std::vector<int> GetTooCloseHitsInLayer(int LayerNumber , int HitNumber ); // searching for too close hits to HitNumber-Hit in layer LayerNumber
