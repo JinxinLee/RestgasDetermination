@@ -14,6 +14,7 @@ ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/field 
 ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/genfit
+${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
 )
 

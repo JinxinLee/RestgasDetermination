@@ -11,7 +11,7 @@ fMinPointDist(1), fUseZeroPos(true), fCurvDiff(0.05), fDipDiff(0.05),fMinNumberO
 	if (fUseZeroPos){
 		TVector3 pos(0.0,0.0,0.0);
 		TVector3 dpos(0.1,0.1,0.1);
-		PndSdsHit* ZeroHit = new PndSdsHit(-1, -1, pos, dpos, -1, 0, 0,-1); // this is not very nice (one should create a neutral FairHit here
+		FairHit* ZeroHit = new FairHit(-1, pos, dpos, -1);
 		fHits.push_back(ZeroHit);
 		std::pair<int,int> myID(-1, -1);
 		fMapHitToID[fHits.size()-1]=myID;
@@ -58,7 +58,7 @@ void PndRiemannTrackFinder::FindTracks()
 			std::cout << "-E- PndRiemannTrackFinder::FindTracks: Start points: " << Tracks[trackId].size()
 			          << " in Track: " << trackId << std::endl;
 
-		std::vector<Int_t> StartTrack = Tracks[trackId];
+		std::vector<Int_t> StartTrack = Tracks[trackId];					//Take a start track
 
 		if (fVerbose > 1){
 			std::cout << "------------------------------------" << std::endl;
@@ -70,13 +70,13 @@ void PndRiemannTrackFinder::FindTracks()
 			continue;
 		}
 		PndRiemannTrack actTrack = CreateRiemannTrack(StartTrack);
-		int startHit = StartTrack[2];
+		int startHit = StartTrack[2];										//StartTrack always has three points, the last is the one with the largest index
 		for (int testHit = startHit+1; testHit < fHits.size(); testHit++){
 			if (CheckHitDistance(StartTrack[0], testHit)!= true){fHitsTooClose[trackId].push_back(testHit); continue;}
 			if (CheckHitDistance(StartTrack[1], testHit)!= true){fHitsTooClose[trackId].push_back(testHit); continue;}
 			if (CheckHitDistance(StartTrack[2], testHit)!= true){fHitsTooClose[trackId].push_back(testHit); continue;}
 
-			PndRiemannHit actHit(fHits[testHit]);
+			PndRiemannHit actHit(fHits[testHit], testHit);							//Create a Riemann Hit from a FairHit
 
 			if (fVerbose > 1) std::cout << "Point " << testHit ;
 			if (CheckRiemannHit(&actTrack, &actHit) != true) continue;
@@ -116,13 +116,12 @@ void PndRiemannTrackFinder::FindTracks()
 					<< std::endl;
 			}
 
-			if (fVerbose > 0) std::cout << "Hits in Track: ";
-			for (int i = 0; i < StartTrack.size(); i++)
-			{
-				if (fVerbose > 0)
+			if (fVerbose > 0){
+				std::cout << "Hits in Track: ";
+				for (int i = 0; i < StartTrack.size(); i++)
+				{
 					std::cout << " " << fMapHitToID[StartTrack[i]].first << "/" << fMapHitToID[StartTrack[i]].second;
-			}
-			if (fVerbose > 0) {
+				}
 				TVectorD myOrig = actTrack.orig();
 				std::cout << " numHits: " << actTrack.getNumHits() << std::endl;
 				std::cout << " curv: " << 1/actTrack.r() << "+/-" << actTrack.dR()/(actTrack.r() * actTrack.r())
@@ -132,33 +131,30 @@ void PndRiemannTrackFinder::FindTracks()
 			}
 		}
 	}
-	for (int n = 0; n < fHitsInTracks.size(); n++)
-	{
 
+	for (unsigned int n = 0; n < fTracks.size(); n++){
 		PndTrackCand myTrackCand;
+		std::vector<PndRiemannHit> TrackHits = fTracks[n].getHits();
 
-		for (int o = 0; o < fHitsInTracks[n].size(); o++)
-		{
-			myTrackCand.AddHit(fMapHitToID[fHitsInTracks[n][o]].first,
-					fMapHitToID[fHitsInTracks[n][o]].second,0);
+		for (unsigned int p = 0; p < TrackHits.size(); p++){
+			myTrackCand.AddHit(fMapHitToID[TrackHits[p].hitID()].first, fMapHitToID[TrackHits[p].hitID()].second, TrackHits[p].s());
 		}
-		myTrackCand.setTrackSeed(fHitsInTracks[n][0], fTracks[n].getPforHit(0, fMagField), 1/fTracks[n].P(fMagField));
-//		std::cout << "TrackCand before merging: ";
-//		myTrackCand.Print();
 		fTrackCand.push_back(myTrackCand);
+
 		std::pair<double,double> CurvDip(1/fTracks[n].r(),fTracks[n].dip());
 		fCurvAndDipOfCand.push_back(CurvDip);
 	}
 
-	MergeTracks();
-	fTrackCand.clear();
-	fTrackCand = fMergedTrackCand;
-	if (fVerbose > 0) {
-		std::cout << "Tracks after merging:" << std::endl;
-		for (int p = 0; p < fTrackCand.size(); p++){
-			fTrackCand[p].Print();
-		}
-	}
+
+//	MergeTracks();
+//	fTrackCand.clear();
+//	fTrackCand = fMergedTrackCand;
+//	if (fVerbose > 0) {
+//		std::cout << "Tracks after merging:" << std::endl;
+//		for (int p = 0; p < fTrackCand.size(); p++){
+//			fTrackCand[p].Print();
+//		}
+//	}
 
 }
 
@@ -249,7 +245,7 @@ PndRiemannTrack PndRiemannTrackFinder::CreateRiemannTrack(std::vector<Int_t> aHi
 	PndRiemannTrack result;
 	for (int i = 0; i < aHits.size(); i++)
 	{
-		PndRiemannHit hit(fHits[aHits[i]]);
+		PndRiemannHit hit(fHits[aHits[i]], aHits[i]);
 		result.addHit(hit);
 	}
 	result.refit();

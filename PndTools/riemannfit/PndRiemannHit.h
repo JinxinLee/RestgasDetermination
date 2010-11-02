@@ -37,7 +37,7 @@ public:
   // Constructors/Destructors ---------
   PndRiemannHit() : fCovX(3,3){};
   PndRiemannHit(double x,double y, double z, double dx, double dy, double dz);
-  PndRiemannHit(FairHit* cl);
+  PndRiemannHit(FairHit* cl, int hitID = -1);
   ~PndRiemannHit();
 
 
@@ -47,6 +47,7 @@ public:
   void setHit(FairHit* cl);
   const TVector3& x() const {return fX;}
   const FairHit* hit() const {return fHit;}
+  int hitID() const {return fHitID;}
   double s() const {return fS;}
   double z() const;
   double alpha() const {return fAlpha;}
@@ -55,6 +56,16 @@ public:
   double sigmaY() const{return fCovX[1][1];}
   const TMatrixD& covX() const {return fCovX;}
   const double covX(int row, int col) const {return fCovX[row][col];}
+  bool operator< (const PndRiemannHit& aHit) const{							///< Sort hits by arclength, fails if track curls
+	  if (s() >= 0 && aHit.s() >= 0){
+		  return s() < aHit.s();
+	  }
+	  else if (s() <= 0 && aHit.s() <= 0){
+		  return -s() < -aHit.s();
+	  }
+	  else
+		  return s() < aHit.s();
+  }
 
   // Modifiers -----------------------
 

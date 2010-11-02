@@ -28,6 +28,7 @@
 
 // Collaborating Class Headers --------
 #include "PndRiemannHit.h"
+#include "FairTrackParP.h"
 #include "TGraph.h"
 #include "TMath.h"
 #include "TMatrixTSym.h"
@@ -50,52 +51,16 @@ ClassImp(PndRiemannTrack);
 
 PndRiemannTrack::PndRiemannTrack() :
 	fn(3),fav(3), fc(0), fcovPlane(4,4), fjacRXY(3,4), fcovRXY(3,3),
-	fVerbose(1), fFitDone(false), fSZFitDone(false), fweight(0),ftrefit(false),fVertexCut(0.5)
+	fVerbose(0), fFitDone(false), fSZFitDone(false), fweight(0),ftrefit(false),fVertexCut(0.5)
 {}
 
 PndRiemannTrack::~PndRiemannTrack()
 {
 }
-/*PndRiemannTrack::PndRiemannTrack(const PndRiemannTrack& rtrack)
-{
-	fn = rtrack.n();
-	fc = rtrack.c();
-	fm = rtrack.m();
-	ft = rtrack.t();
-	fmError = rtrack.mError();
-	ftError = rtrack.tError();
-	fChi2   = rtrack.szChi2();
-	fFitDone = true;
-	fSZFitDone = true;
-	fHits = rtrack.getHits();
-	fav = rtrack.av();
-	fweight = rtrack.weight();
-	fcovPlane = rtrack.covPlane();
-	fjacRXY = rtrack.jacRXY();
-	fcovRXY = rtrack.covRXY();
-	fVerbose = 0;
-}*/
 
 void
 PndRiemannTrack::init(double x0_, double y0_, double R_,
 			 double mydip, double z0){
-/*  double x0=x0_/100;
-  double y0=y0_/100;
-  double R=R_/100;
-
-  double R2=R*R;
-  double lambda=R2-x0*x0-y0*y0;
-  double D=lambda/sqrt(4*R2+(1-lambda)*(1-lambda));
-  double DC=-D/lambda;
-  double C=DC-D;
-  double A=-2*x0*DC;
-  double B=-2*y0*DC;
-
-  fn[0]=A;
-  fn[1]=B;
-  fn[2]=C;
-  fc=D;
-  */
 
 	fn[1] = TMath::Sqrt(4*y0_*y0_/(4*y0_*y0_+4*x0_*x0_+1));
 	fn[0] = x0_/y0_*fn[1];
@@ -319,6 +284,9 @@ PndRiemannTrack::refit()
   fFitDone = true;
   fSZFitDone = false;
   ftrefit = true;
+
+  sortHits();
+  calcStartStopAlpha();
 }
 
 
@@ -426,6 +394,21 @@ double PndRiemannTrack::calcZPosByS(double s)
 //	if (fVerbose > 0) std::cout<< "PosByS: s:" << s << " Vector: " << result.x() << " " << result.y() << " " << result.z() << std::endl;
 //	return result;
 	return zCoord;
+}
+
+TVector3 PndRiemannTrack::calcPosByS(double s)
+{
+	TVectorD o=orig();
+	const PndRiemannHit* firstHit=getHit(0);
+
+	TVector2 k(firstHit->x().X()-o[0],firstHit->x().Y()-o[1]);
+	Double_t start_phi = k.Phi();
+	Double_t delta_phi = s/r();
+	TVector2 Res2D(r(), 0);
+	Res2D.Rotate(start_phi + delta_phi);
+
+	TVector3 result(Res2D.X(), Res2D.Y(), calcZPosByS(s));
+	return result;
 }
 
 int PndRiemannTrack::calcIntersection(PndRiemannTrack& track, TVector3& p1, TVector3& p2)
@@ -738,6 +721,23 @@ double PndRiemannTrack::szError(PndRiemannHit* hit){
 	return result;
 }
 
+void PndRiemannTrack::calcStartStopAlpha()
+{
+	PndRiemannHit* first = getHit(0);
+	PndRiemannHit* last = getLastHit();
+
+	fStartAlpha = calcAlpha(first);
+	fStopAlpha = calcAlpha(last);
+
+}
+
+double PndRiemannTrack::calcAlpha(PndRiemannHit* myHit)
+{
+	TVectorD origin = orig();
+	TVector2 myVector(myHit->x().x() - origin[0], myHit->x().y() - origin[1]);
+	return myVector.Phi();
+}
+
 // only after szFit!
 double
 PndRiemannTrack::dip() {
@@ -771,22 +771,129 @@ double PndRiemannTrack::Pt(double B)
 	return result;
 }
 
+double PndRiemannTrack::Pl(double B)
+{
+	double pl = Pt(B) * m();
+
+	if (getNumHits() > 2){
+		PndRiemannHit* startHit = getHit(0);
+		PndRiemannHit* nextHit = getHit(1);
+		if (nextHit->z() - startHit->z() > 0){
+			if (pl < 0)
+				pl *= -1;
+		}
+		else{
+			if (pl > 0){
+				pl *= -1;
+			}
+		}
+	}
+	return pl;
+}
+
 double PndRiemannTrack::P(double B)
 {
-	double result = Pt(B)/sin(dipangle());
-	if (fVerbose > 0) std::cout << "fm: " << fm <<  " dipanlge: " << dipangle() << " Pt: " << Pt(B)  << " P: " << result << std::endl;
+	double result = TMath::Sqrt(Pl(B) * Pl(B) + Pt(B) * Pt(B));
 	return result;
 }
 
 TVector3 PndRiemannTrack::getPforHit(int i, double B)
 {
-	PndRiemannHit xVecRiemann (r(), .0, .0, .0, .0, .0);
-	xVecRiemann.calcPosOnTrk(this);
-	double alpha = xVecRiemann.alpha();
-	if (fVerbose > 0) std::cout << "Angle to first point: " << alpha << std::endl;
-	TVector3 result(Pt(B)*cos(alpha), Pt(B)*sin(alpha), dip()*P(B));
-	if (fVerbose > 0) std::cout << "P-Vector for first point: " << result.X() << " " << result.Y() << " " << result.Z() << std::endl;
+	double pt = Pt(B);
+	double p = P(B);
+	double pl = Pl(B);
+	TVectorD origin = orig();
+	TVector3 result;
+	PndRiemannHit* startHit = getHit(0);
+	PndRiemannHit* lastHit = getLastHit();
+	if (lastHit->z() < startHit->z()){
+		pl *= -1;
+	}
+
+
+	if (i < getNumHits())
+	{
+		PndRiemannHit* myHit = getHit(i);
+		//std::cout << "MyHit: " << myHit->x().X() << " " << myHit->x().Y() << std::endl;
+		Double_t arclength = myHit->s()/r();
+
+		Double_t phi = fStartAlpha + arclength;
+		TVector2 ptVec(0,pt);
+		ptVec = ptVec.Rotate(phi);
+		if (i > 0){
+			PndRiemannHit* myHitBefore = getHit(i-1);
+			//std::cout << "MyHitBefore: " << myHitBefore->x().X() << " " << myHitBefore->x().Y() << std::endl;
+			TVector2 difVec(myHit->x().x() - myHitBefore->x().x(), myHit->x().y() - myHitBefore->x().y());
+			//std::cout <<"DifVec: " << difVec.X() << " " << difVec.Y() << std::endl;
+			Double_t length = ptVec * difVec;
+			//std::cout << "Length: " << length << std::endl;
+			if (length < 0){
+				ptVec *= -1;
+			}
+		}
+		else if(getNumHits() > 0){
+			PndRiemannHit* myHitAfter = getHit(1);
+			//std::cout << "MyHitAfter: " << myHitAfter->x().X() << " " << myHitAfter->x().Y() << std::endl;
+			TVector2 difVec2(myHitAfter->x().x() - myHit->x().x(), myHitAfter->x().y() - myHit->x().y());
+			//std::cout <<"DifVec: " << difVec2.X() << " " << difVec2.Y() << std::endl;
+			Double_t length2 = ptVec * difVec2;
+			//std::cout << "Length: " << length2 << std::endl;
+			if (length2 < 0){
+				ptVec *= -1;
+			}
+		}
+		result.SetXYZ(ptVec.X(), ptVec.Y(), pl);
+	}
+
+	if (fVerbose > 0) std::cout << "P-Vector for point " << i << " : " << result.X() << " " << result.Y() << " " << result.Z() << std::endl;
 	return result;
+}
+
+Int_t PndRiemannTrack::getCharge(Double_t B)
+{
+	TVector3 p = getPforHit(0, B);
+	TVector2 pt(p.x(), p.y());
+	TVectorD origin = orig();
+	TVector2 orig2(origin[0], origin[1]);
+
+	TVector2 origRotated = orig2.Rotate(-pt.Phi());
+
+	//std::cout << "OrigRotated: " << origRotated.X() << " " << origRotated.Y() << std::endl;
+
+	if (origRotated.Y() < 0)
+		return 1;
+	else
+		return -1;
+
+}
+
+FairTrackParP PndRiemannTrack::getTrackParPForHit(Int_t i, Double_t B)
+{
+
+	TVector3 hitPos;
+	TVector3 hitPosError;
+	TVector3 momError(2, 2, 2);
+	TVector3 dj(1,0,0);
+	TVector3 dk(0,1,0);
+	TVector3 origin(0, 0, 1);
+
+	getHit(i)->hit()->Position(hitPos);
+	getHit(i)->hit()->PositionError(hitPosError);
+	//std::cout << "Charge: " << getCharge(B) << std::endl;
+	FairTrackParP result(hitPos, getPforHit(i, B), hitPosError, momError, getCharge(B), origin, dj, dk);
+	//std::cout << "TrackParP for Hit " << i << " : ";
+	//result.Print();
+
+	return result;
+}
+
+PndTrack PndRiemannTrack::getPndTrack(Double_t B)
+{
+	FairTrackParP first = getTrackParPForHit(0, B);
+	FairTrackParP last = getTrackParPForHit(getNumHits()-1, B);
+	//FairTrackParP last;
+	PndTrackCand myCand;
+	return PndTrack(first, last, myCand);
 }
 
 // Todo: check for backward going tracks!!!
@@ -820,6 +927,6 @@ void PndRiemannTrack::PrintHits()
 {
 	std::cout << "-I- PndRiemannTrack::PrintHits:" << std::endl;
 	for (int i = 0; i < fHits.size(); i++){
-		std::cout << i << ": " << fHits[i].x().X() << " " << fHits[i].x().Y() << std::endl;
+		std::cout << i << ": " << fHits[i].x().X() << " " << fHits[i].x().Y() << " " << fHits[i].z() << " s: " << fHits[i].s() << std::endl;
 	}
 }

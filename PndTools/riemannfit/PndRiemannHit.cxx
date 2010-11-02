@@ -44,7 +44,7 @@ PndRiemannHit::PndRiemannHit(double mx, double my, double mz,double dx, double d
 }
 
 
-PndRiemannHit::PndRiemannHit(FairHit* cl) : fHit(cl), fCovX(3,3), fVerbose(0)
+PndRiemannHit::PndRiemannHit(FairHit* cl, int myHitID) : fHit(cl), fHitID(myHitID), fCovX(3,3), fVerbose(0)
 {
   setHit(cl);
 }

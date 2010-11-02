@@ -32,6 +32,11 @@
 
 // Collaborating Class Declarations --
 #include "PndRiemannHit.h"
+#include "PndTrack.h"
+
+#include <iostream>
+#include <iomanip>
+#include <algorithm>
 
 
 class PndRiemannTrack : public TObject{
@@ -39,14 +44,13 @@ public:
 
   // Constructors/Destructors ---------
   PndRiemannTrack();
-  //PndRiemannTrack(const PndRiemannTrack& rtrack);
   ~PndRiemannTrack();
 
 
   // Accessors -----------------------
-  const TVectorD& n() const {return fn;}
+  const TVectorD& n() const{return fn;}
   double c() const {return fc;}
-  const TVectorD& av() const {return fav;}
+  const TVectorD& av() const{return fav;}
 
   TVectorD orig() const;
   double dX(){return TMath::Sqrt(fcovRXY[1][1]);}
@@ -57,6 +61,7 @@ public:
   double dipangle();	//< dipangle theta
   double dDip();
   double Pt(double B); //< transvers momentum Pt calculated by the magnetic field B [tesla]
+  double Pl(double B);
   double P(double B);
   double sign() const;
   double getSZm() const {return fm;}
@@ -64,11 +69,20 @@ public:
   unsigned int getNumHits() {return fHits.size();}
   PndRiemannHit* getHit(unsigned int i) {PndRiemannHit* myHit = &(fHits[i]); return myHit;}
   PndRiemannHit* getLastHit() {return getHit(getNumHits()-1);}
-  std::vector<PndRiemannHit> getHits(){return fHits;};
+  std::vector<PndRiemannHit> getHits() const{return fHits;};
   TVector3 getPforHit(int i, double B);
+  PndTrack getPndTrack(Double_t B);
+  FairTrackParP getTrackParPForHit(Int_t i, Double_t B);
+  Int_t getCharge(Double_t B);
 
   double calcZPosByS(double s);
+  TVector3 calcPosByS(double s);
+  void calcStartStopAlpha();
+  double calcAlpha(PndRiemannHit* myHit);
+
   int calcIntersection(PndRiemannTrack& track, TVector3& p1, TVector3& p2);
+
+  void sortHits(){ std::sort(fHits.begin(), fHits.end());}
 
   double weight() const {return fweight;};
   TMatrixD covPlane() const {return fcovPlane;};
@@ -91,13 +105,25 @@ public:
   double calcSZChi2(PndRiemannHit* hit); //calculates the chi2 of the track plus the additional hit
   double szDist(PndRiemannHit* hit);
   double szError(PndRiemannHit* hit);
-  double szChi2(){return fChi2;};
+  double szChi2() const{return fChi2;};
 
   void SetVerbose(int i){fVerbose = i;}
   void SetVertexCut(double cut){fVertexCut = cut;}
   TVector3 calcErrorPosByS(Double_t s, Double_t dS);
 
   void PrintHits();
+
+  virtual void Print(std::ostream& out = std::cout){
+
+	  out << std::setprecision(6) << "Riemann Track: Radius " << r() << " +/- " << dR() << " Origin: " << orig()[0] << " +/- " << dX() << " / " << orig()[1] << " +/- " << dY() << std::endl;
+	  out << "Dip: " << dip() << " +/- " << dDip() << " StartAlpha: " << fStartAlpha << " StopAlpha: " << fStopAlpha << std::endl;
+	  PrintHits();
+  }
+
+  friend std::ostream& operator<< (std::ostream& out, PndRiemannTrack& track){
+	track.Print(out);
+	return out;
+  }
 
 private:
 
@@ -116,6 +142,8 @@ private:
   double fVertexCut;
 
   std::vector<PndRiemannHit> fHits;
+  Double_t fStartAlpha;
+  Double_t fStopAlpha;
   TVectorD fav;  		///< average over all hits
   double fweight; 		///< sum over all weights (1/(sigmaXY*sigmaXY))
   TMatrixD fcovPlane; 	///< full covarince matrix of the plane;
@@ -141,7 +169,7 @@ private:
 
 
 public:
-  ClassDef(PndRiemannTrack,2)
+  ClassDef(PndRiemannTrack,3)
 
 };
 

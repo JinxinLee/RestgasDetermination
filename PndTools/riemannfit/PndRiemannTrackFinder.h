@@ -18,20 +18,21 @@ public:
 	PndRiemannTrackFinder();
 	virtual ~PndRiemannTrackFinder();
 	
-	void FindTracks();										///< Main function to start the riemann track finding
+	void FindTracks();													///< Main function to start the riemann track finding
 	void MergeTracks();
-	void SetHits(std::vector<FairHit*> hits){fHits = hits;};	///< Replaces the existing array of hits with a new one
+	void SetHits(std::vector<FairHit*> hits){fHits = hits;};				///< Replaces the existing array of hits with a new one
 	void AddHits(std::vector<FairHit*> hits, Int_t branchId);				///< Appends the new array of hits to the existing one
 	void AddHits(TClonesArray* hits, Int_t branchId);						///< Appends the new array of hits to the existing one
-	void AddHit(FairHit* hit){fHits.push_back(hit);};		///< Adds one new hit to the array of hits
+	void AddHit(FairHit* hit){fHits.push_back(hit);};						///< Adds one new hit to the array of hits
 	void SetVerbose (int val){fVerbose = val;}
-	int NTracks(){return fTrackCand.size();};					///< Returns the number of found tracks
-	PndRiemannTrack GetTrack(int i){return fTracks[i];};	///< Returns the track with the index i
+	int NTracks(){return fTrackCand.size();};								///< Returns the number of found tracks
+	PndRiemannTrack GetTrack(int i){return fTracks[i];};					///< Returns the track with the index i
+	PndTrack GetPndTrack(int i, double B){return fTracks[i].getPndTrack(B);};
 	std::vector<Int_t> GetTrackCandidates(int i){return fHitsInTracks[i];};	///< Returns the hits belonging to track i
 	std::vector<PndTrackCand> GetTrackCand(){return fTrackCand;}
 	std::vector<PndTrackCand> GetMergedTrackCands(){return fMergedTrackCand;}
 	PndTrackCand GetTrackCand(int i) {return fTrackCand[i];}
-	double HitDistance(FairHit* h1, FairHit* h2);				///< Calculates the distance between two hits
+	double HitDistance(FairHit* h1, FairHit* h2);							///< Calculates the distance between two hits
 	int HitTooClose(std::vector<Int_t> hitsInUse, FairHit* newHit, double threshold); ///< returns if and which hit was too close to the hit which is tested
 	
 	void SetMaxPlaneDistance(double val){fMaxPlaneDist = val;}
@@ -44,34 +45,34 @@ public:
 	void SetDipDiff(double val){fDipDiff = val;}
 
 protected:
-	std::vector<FairHit*> fHits;							///< Vector of FairHits used for track finding (fitting)
-	std::vector<PndRiemannTrack> fTracks;				///< Resulting Riemann Tracks
-	std::vector<std::vector<Int_t> > fHitsInTracks;		///< Vector of indizes which hits where used in which track
+	std::vector<FairHit*> fHits;											///< Vector of all FairHits used for track finding (fitting)
+	std::vector<PndRiemannTrack> fTracks;									///< Resulting Riemann Tracks
+	std::vector<std::vector<Int_t> > fHitsInTracks;							///< Vector of indizes which hits where used in which track
 	std::vector<PndTrackCand> fTrackCand;
-	std::vector< std::pair<double,double> > fCurvAndDipOfCand;  ///< Curvature and dip of fPndTrackCand
+	std::vector< std::pair<double,double> > fCurvAndDipOfCand;  			///< Curvature and dip of fPndTrackCand
 	std::vector<PndTrackCand> fMergedTrackCand;
-	std::vector< std::vector<int> > fHitsTooClose;		///< matrix of TrackNr and hits which are too close to one of the three starting points
-	std::map<int, std::pair<int,int> > fMapHitToID;		///< map to convert the list of hits back into a detID and hitID
-	std::map<std::pair<unsigned int, unsigned int>, int > fMapIDtoHit; ///<map to convert the list of detID/hitID hits into the list of hits for track finding
-	double fMaxPlaneDist;								///< Distance cut between new point and riemann plane
-	double fMaxSZDist;									///< Distance cut between s-z coordinate of a new point and the sz-fit of the hits in the track
-	double fMinPointDist;								///< Minimum distance between two points to use them as point for the base plane
-	double fMaxSZChi2;									///< Maximum allowed Chi2 in an sz fit
-	int    fMinNumberOfHits;							///< Minimum number of hits in track necessary for a match
-	double fCurvDiff;									///< TrackMerger parameter
-	double fDipDiff;									///< TrackMerger parameter
-	double fMagField;									///< size of the magnetic field in Tesla
+	std::vector< std::vector<int> > fHitsTooClose;							///< matrix of TrackNr and hits which are too close to one of the three starting points
+	std::map<int, std::pair<int,int> > fMapHitToID;						///< map to convert the list of hits back into a detID and hitID
+	std::map<std::pair<unsigned int, unsigned int>, int > fMapIDtoHit; 	///<map to convert the list of detID/hitID hits into the list of hits for track finding
+	double fMaxPlaneDist;													///< Distance cut between new point and riemann plane
+	double fMaxSZDist;														///< Distance cut between s-z coordinate of a new point and the sz-fit of the hits in the track
+	double fMinPointDist;													///< Minimum distance between two points to use them as point for the base plane
+	double fMaxSZChi2;														///< Maximum allowed Chi2 in an sz fit
+	int    fMinNumberOfHits;												///< Minimum number of hits in track necessary for a match
+	double fCurvDiff;														///< TrackMerger parameter
+	double fDipDiff;														///< TrackMerger parameter
+	double fMagField;														///< size of the magnetic field in Tesla
 	
 	int fVerbose;
 	bool fUseZeroPos;
 
 	std::vector<std::vector<Int_t> >  GetStartTracks();
-	bool CheckHitDistance(int hit1, int hit2);	///< Tests if the distance is larger than fMinPointDistance
-	bool CheckSZ(PndRiemannTrack aTrack);				///< Tests the results of the sz fit
+	bool CheckHitDistance(int hit1, int hit2);								///< Tests if the distance is larger than fMinPointDistance
+	bool CheckSZ(PndRiemannTrack aTrack);									///< Tests the results of the sz fit
 	bool CheckRiemannHit(PndRiemannTrack* track, PndRiemannHit* hit);
-	bool CheckHitInSameSensor(int hit1, int hit2); ///< Tests if hits in the same sensor are selected
+	bool CheckHitInSameSensor(int hit1, int hit2); 						///< Tests if hits in the same sensor are selected
 	
-	PndRiemannTrack CreateRiemannTrack(std::vector<Int_t> aHits); ///< Creates a PndRiemannTrack from an array of indices of Hits
+	PndRiemannTrack CreateRiemannTrack(std::vector<Int_t> aHits); 			///< Creates a PndRiemannTrack from an array of indices of Hits
 		
 	bool TrackExists(std::vector<Int_t> hitsInTrack);
 	std::vector<int> FindTracksWithSimilarParameters(int TrackInd, std::vector<int>& TracksToTest, double curvDiff, double dipDiff);
@@ -94,7 +95,7 @@ protected:
 
 
 public:
-  ClassDef(PndRiemannTrackFinder,1)
+  ClassDef(PndRiemannTrackFinder,2)
 };
 
 #endif /*PNDRIEMANNTRACKFINDER_H_*/
