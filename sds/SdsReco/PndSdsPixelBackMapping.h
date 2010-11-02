@@ -11,7 +11,7 @@ class PndSdsPixelBackMapping
   public :  
   PndSdsPixelBackMapping();
   PndSdsPixelBackMapping(PndGeoHandling* geo);
-  ~PndSdsPixelBackMapping();
+  virtual ~PndSdsPixelBackMapping();
 
   void SetVerbose (Int_t level) {fVerbose = level;};
   virtual PndSdsHit GetCluster(std::vector<PndSdsDigiPixel> pixelArray) = 0;

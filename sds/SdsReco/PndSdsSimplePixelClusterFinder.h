@@ -19,27 +19,28 @@
 
 
 class PndSdsSimplePixelClusterFinder : public PndSdsPixelClusterFinder
-{
-	public :
-			PndSdsSimplePixelClusterFinder():PndSdsPixelClusterFinder(){};
-			//PndSdsSimplePixelClusterFinder(std::vector<PndSdsDigiPixel> hits):
-			//	PndSdsPixelClusterFinder(hits){
-			//	if(fVerbose>0)std::cout << "Hits in array: " << fHits.size() << std::endl;
-			//};
-
-			///Main method which searches for the clusters.
-			///It returns a matrix of ints where a column corresponds to a cluster and an integer to a hit in the DigiArray
-			std::vector< std::vector< Int_t> > GetClusters(std::vector<PndSdsDigiPixel> hits);
-
-	protected :
-			Int_t fcols;
-			Int_t frows;
-			Double_t fradius;
-
-	private :
-			//PndSdsDigiPixel MoveHit(std::vector<PndSdsDigiPixel>* hitVector, Int_t index);
-			Int_t MoveHit(std::vector<Int_t>* hitVector, Int_t index) const;
-			bool IsInRange(PndSdsDigiPixel hit1, PndSdsDigiPixel hit2) const;
-
-};
+  {
+    public :
+    PndSdsSimplePixelClusterFinder():PndSdsPixelClusterFinder(){};
+    //PndSdsSimplePixelClusterFinder(std::vector<PndSdsDigiPixel> hits):
+    //	PndSdsPixelClusterFinder(hits){
+    //	if(fVerbose>0)std::cout << "Hits in array: " << fHits.size() << std::endl;
+    //};
+    virtual ~PndSdsSimplePixelClusterFinder(){};
+    
+    ///Main method which searches for the clusters.
+    ///It returns a matrix of ints where a column corresponds to a cluster and an integer to a hit in the DigiArray
+    std::vector< std::vector< Int_t> > GetClusters(std::vector<PndSdsDigiPixel> hits);
+    
+    protected :
+    Int_t fcols;
+    Int_t frows;
+    Double_t fradius;
+    
+    private :
+    //PndSdsDigiPixel MoveHit(std::vector<PndSdsDigiPixel>* hitVector, Int_t index);
+    Int_t MoveHit(std::vector<Int_t>* hitVector, Int_t index) const;
+    bool IsInRange(PndSdsDigiPixel hit1, PndSdsDigiPixel hit2) const;
+    
+  };
 #endif

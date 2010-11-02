@@ -23,6 +23,7 @@ nr_fe_top:Int_t 4
 nr_fe_bottom:Int_t 2
 charge_threshold:Double_t 5000
 charge_noise:Double_t 1000
+QCloudSigma:Double_t 0.0008
 sens_Type:Text_t Rect
 fe_Type:Text_t APV25
 cluster_mod:Int_t 0
@@ -50,6 +51,7 @@ nr_fe_top:Int_t 4
 nr_fe_bottom:Int_t 4
 charge_threshold:Double_t 5000
 charge_noise:Double_t 1000
+QCloudSigma:Double_t 0.0008
 sens_Type:Text_t Trap
 fe_Type:Text_t APV25
 cluster_mod:Int_t 0
@@ -78,6 +80,7 @@ nr_fe_top:Int_t 3
 nr_fe_bottom:Int_t 3
 charge_threshold:Double_t 5000
 charge_noise:Double_t 1000
+QCloudSigma:Double_t 0.0008
 sens_Type:Text_t TD
 fe_Type:Text_t APV25
 cluster_mod:Int_t 0
@@ -106,6 +109,7 @@ nr_fe_top:Int_t 3
 nr_fe_bottom:Int_t 1
 charge_threshold:Double_t 5000
 charge_noise:Double_t 1000
+QCloudSigma:Double_t 0.0008
 sens_Type:Text_t TS
 fe_Type:Text_t APV25
 cluster_mod:Int_t 0
@@ -124,6 +128,7 @@ dimX:Double_t 0.01
 dimY:Double_t 0.01
 threshold:Double_t 1100
 noise:Double_t 200
+QCloudSigma:Double_t 0.0008
 FECols:Int_t 104
 FERows:Int_t 104
 ClustRad:Double_t 1.8

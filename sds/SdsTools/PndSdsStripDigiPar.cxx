@@ -3,7 +3,7 @@
 #include "TMath.h"
 
 PndSdsStripDigiPar::PndSdsStripDigiPar(const char* name, const char* title, const char* context)
-  : FairParGenericSet(name,title,context)
+: FairParGenericSet(name,title,context)
 {
   clear();
 }
@@ -11,7 +11,7 @@ PndSdsStripDigiPar::PndSdsStripDigiPar(const char* name, const char* title, cons
 void PndSdsStripDigiPar::putParams(FairParamList* list)
 {
   if(!list) return;
-
+  
   list->add("top_pitch", fTopPitch);
   list->add("bot_pitch", fBotPitch);
   list->add("orient", fOrient);
@@ -25,6 +25,7 @@ void PndSdsStripDigiPar::putParams(FairParamList* list)
   list->add("nr_fe_bottom", fBotNrFE);
   list->add("charge_threshold", fThreshold);
   list->add("charge_noise", fNoise);
+  list->add("QCloudSigma", fCSigma);
   list->add("sens_Type", fSensType); //("sens_Type", fSensType, 's', 1)
   list->add("fe_Type", fFeType); //("fe_Type", fFeType, 's', 1)
   list->add("cluster_mod", fClusterMod);
@@ -34,17 +35,16 @@ void PndSdsStripDigiPar::putParams(FairParamList* list)
   list->add("cluster_corrchargecut", fChargeCut);
   list->add("cluster_singlechargecut", fSingleChargeCut);
   list->add("chargeconv_method", fChargeConvMethod);
-
-//   TObjString* sens = new TObjString( fSensType.Data() );
-//   list->addObject("sens_Type", sens);
-//   TObjString* fe = new TObjString( fFeType.Data() );
-//   list->addObject("fe_Type", fe);
+  //TObjString* sens = new TObjString( fSensType.Data() );
+  //list->addObject("sens_Type", sens);
+  //TObjString* fe = new TObjString( fFeType.Data() );
+  //list->addObject("fe_Type", fe);
 }
 
 Bool_t PndSdsStripDigiPar::getParams(FairParamList* list)
 {
   if (!list) return kFALSE;
-
+  
   if (!list->fill("top_pitch", &fTopPitch)) return kFALSE;
   if (!list->fill("bot_pitch", &fBotPitch)) return kFALSE;
   if (!list->fill("orient",&fOrient)) return kFALSE;
@@ -61,6 +61,7 @@ Bool_t PndSdsStripDigiPar::getParams(FairParamList* list)
   if (!list->fill("nr_fe_bottom", &fBotNrFE)) return kFALSE;
   if (!list->fill("charge_threshold",&fThreshold)) return kFALSE;
   if (!list->fill("charge_noise",&fNoise)) return kFALSE;
+  if (!list->fill("QCloudSigma",&fCSigma)) return kFALSE;
   Text_t stName[80];
   if (!list->fill("sens_Type",stName,80)) return kFALSE;
   fSensType = stName;
@@ -73,9 +74,9 @@ Bool_t PndSdsStripDigiPar::getParams(FairParamList* list)
   if (!list->fill("cluster_radtime", &fRadTime)) return kFALSE;
   if (!list->fill("cluster_corrchargecut", &fChargeCut)) return kFALSE;
   if (!list->fill("cluster_singlechargecut", &fSingleChargeCut)) return kFALSE;
-
+  
   if (!list->fill("chargeconv_method", &fChargeConvMethod)) return kFALSE;
-
+  
   return kTRUE;
 }
 
@@ -85,8 +86,8 @@ void PndSdsStripDigiPar::Print()
 {
   std::cout<<"MVD Digitization Parameters:"<<std::endl;
   std::cout<<"   Sensor type name is          = "<<fSensType.Data()<<std::endl;
-  std::cout<<"   Top Pitch    = "<<fTopPitch<<std::endl;
-  std::cout<<"   Bottom Pitch = "<<fBotPitch<<std::endl;
+  std::cout<<"   Top Pitch    = "<<fTopPitch<<" cm"<<std::endl;
+  std::cout<<"   Bottom Pitch = "<<fBotPitch<<" cm"<<std::endl;
   std::cout<<"   Strip Angle (Top) = "<<fOrient<<"rad = "<<fOrient/TMath::Pi()*180.<<" deg"<<std::endl;
   std::cout<<"   Skew Angle (Top->Bottom) = "<<fSkew<<"rad = "<<fSkew/TMath::Pi()*180.<<" deg"<<std::endl;
   std::cout<<"   Top Anchor   = ("<<fTopAnchor.X()<<","<<fTopAnchor.Y()<<")"<<std::endl;
@@ -96,6 +97,7 @@ void PndSdsStripDigiPar::Print()
   std::cout<<"   Nr of Frontends (Bottom Side)= "<<fBotNrFE<<std::endl;
   std::cout<<"   Charge Threshold (e-)        = "<<fThreshold<<std::endl;
   std::cout<<"   Noise (ENC+Dispersion) (e-)  = "<<fNoise<<std::endl;
+  std::cout<<"   Charge cloud sigma  = "<<fCSigma<<" cm"<<std::endl;  
   std::cout<<"   charge conv. (0:ideal, 1:TOT)    = "<<fChargeConvMethod<<std::endl;
   std::cout<<"   Frontend type name is        = "<<fFeType.Data()<<std::endl;
   std::cout<<"   Clusterfinder Mode                    = "<<fClusterMod<<std::endl;

@@ -24,7 +24,7 @@ class PndSdsChargeWeightingAlgorithms
 
 public:
 	PndSdsChargeWeightingAlgorithms(TClonesArray* arr);
-	~PndSdsChargeWeightingAlgorithms();
+	virtual ~PndSdsChargeWeightingAlgorithms();
 
 	   /**
 	 @fn Double_t center_of_gravity(const StripCluster& Cluster)

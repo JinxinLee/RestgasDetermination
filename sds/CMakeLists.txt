@@ -48,11 +48,11 @@ PndSdsTask.cxx
 SdsDigi/PndSdsCalcFePixel.cxx
 SdsDigi/PndSdsCalcPixel.cxx
 SdsDigi/PndSdsCalcStrip.cxx
-SdsDigi/PndSdsCalcStripDif.cxx
+#SdsDigi/PndSdsCalcStripDif.cxx
 #MvdDigi/PndMvdDigiAna.cxx
 SdsDigi/PndSdsHybridHitProducer.cxx
 SdsDigi/PndSdsStripHitProducer.cxx
-SdsDigi/PndSdsStripHitProducerDif.cxx
+#SdsDigi/PndSdsStripHitProducerDif.cxx
 SdsDigi/PndSdsHitProducerIdeal.cxx
 #MvdDigi/PndMvdDigiTask.cxx
 SdsDigi/PndSdsNoiseProducer.cxx

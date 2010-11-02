@@ -16,7 +16,7 @@ class PndSdsChargeWeightedPixelMapping : public PndSdsPixelBackMapping
   {
     public :
     PndSdsChargeWeightedPixelMapping();
-    ~PndSdsChargeWeightedPixelMapping(){};
+    virtual ~PndSdsChargeWeightedPixelMapping(){};
     PndSdsChargeWeightedPixelMapping(PndGeoHandling* geo);
     PndSdsHit GetCluster(std::vector<PndSdsDigiPixel> pixelArray); ///< Main function of class to calculate the PndSdsHit out of the given PndSdsDigis
     
