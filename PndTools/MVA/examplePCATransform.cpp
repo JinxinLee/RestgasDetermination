@@ -125,7 +125,8 @@ int main(int argc, char** argv)
   
 
   // ========= Cleaning ======================
-  for(size_t i = 0; i < outEvt.size(); i++){
+  for(size_t i = 0; i < outEvt.size(); i++)
+  {
     delete (outEvt[i]).second;
   }
   outEvt.clear();

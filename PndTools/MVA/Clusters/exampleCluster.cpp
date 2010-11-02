@@ -21,7 +21,7 @@ typedef std::vector< std::pair<std::string, std::vector<float>*> > RawPoints;
 // *************  DEBUG ONLY **********
 void printCentroids(const ClDataSample& dat)
 {
-  std::cout << "==========================" << '\n';
+  std::cout << "==========================\n";
   for(size_t i = 0; i < dat.size(); i++)
   {
     std::vector<float>* example = dat[i];
@@ -64,6 +64,7 @@ int main(int argc, char** argv)
   std::vector<std::string>clas;
   clas.push_back("electron");
   clas.push_back("pion");
+ 
   // clas.push_back("kaon");
   //clas.push_back("muon");
   //clas.push_back("proton");

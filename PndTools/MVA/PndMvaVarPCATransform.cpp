@@ -104,6 +104,12 @@ void PndMvaVarPCATransform::ComputePrincipalComponents(std::vector< std::pair< s
 
   size_t nvar = (dat[0].second)->size();
 
+  if(nvar <= 1)
+  {
+    std::cerr << "<ERROR> Cannot perform PCA transformation for "
+	      << nvar << std::endl;
+    abort();
+  }
   // Temporary to store event parameters.
   double *dvec = new double[nvar];
   
@@ -119,11 +125,13 @@ void PndMvaVarPCATransform::ComputePrincipalComponents(std::vector< std::pair< s
   {
     // Fetch parameters of the current event.
     std::vector<float>* curEv = dat[ev].second;
+
     // Copy values.
     for(size_t i = 0; i < curEv->size(); i++)
     {
       dvec[i] = curEv->at(i);
     }
+
     // Add array to the Tprincipal object.
     pca.AddRow( dvec );
   }
