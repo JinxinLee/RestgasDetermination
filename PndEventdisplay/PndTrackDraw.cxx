@@ -24,7 +24,7 @@ using std::endl;
 // -----   Default constructor   -------------------------------------------
 PndTrackDraw::PndTrackDraw():fListOfTracks(0)
 {
-	   fPro = new FairGeanePro();
+
 
 	   fPndTrackList = 0;
 }
@@ -36,13 +36,14 @@ PndTrackDraw::PndTrackDraw(const char* name, Int_t iVerbose)
   : FairTask(name, iVerbose),
     fEveTrList( new TObjArray(16)), fListOfTracks(0)
 {
-	  fPro = new FairGeanePro();
+	 // fPro = new FairGeanePro();
 	  fPndTrackList = 0;
 	  fTrackCandDraw = new PndTrackCandDraw(name, iVerbose);
 }
 // -------------------------------------------------------------------------
 InitStatus PndTrackDraw::Init()
 {
+	fPro = new FairGeanePro();
    if (fVerbose > 1)
 		cout << "PndTrackDraw::Init()" << endl;
    if (fPndTrackList == 0){
@@ -96,6 +97,13 @@ void PndTrackDraw::Exec(Option_t* option)
 		if(fVerbose>2) cout << "PndTrackDraw::Exec "<< i << endl;
         tr=(PndTrack *)fPndTrackList->At(i);
         Int_t pidHypo = tr->GetPidHypo();
+        
+   //     Int_t q= tr->GetParamFirst().GetQ();
+   //     Int_t pidHypo = 0;
+   //     if (q > 0)
+   //     	pidHypo = 211;
+   //     else
+   //     	pidHypo = -211;
         FairTrackParP parFirst = tr->GetParamFirst();
         FairTrackParP parLast = tr->GetParamLast();
         PndTrackCand trackCand = tr->GetTrackCand();
