@@ -22,19 +22,17 @@ using std::cout;
 using std::endl;
 
 // -----   Default constructor   -------------------------------------------
-PndTrackDraw::PndTrackDraw():fListOfTracks(0)
+PndTrackDraw::PndTrackDraw(Bool_t propagate):fListOfTracks(0), fDoPropagation(propagate)
 {
-
-
 	   fPndTrackList = 0;
 }
 // -------------------------------------------------------------------------
 
 
 // -----   Standard constructor   ------------------------------------------
-PndTrackDraw::PndTrackDraw(const char* name, Int_t iVerbose)
+PndTrackDraw::PndTrackDraw(const char* name, Bool_t propagate, Int_t iVerbose)
   : FairTask(name, iVerbose),
-    fEveTrList( new TObjArray(16)), fListOfTracks(0)
+    fEveTrList( new TObjArray(16)), fListOfTracks(0), fDoPropagation(propagate)
 {
 	 // fPro = new FairGeanePro();
 	  fPndTrackList = 0;
@@ -135,7 +133,8 @@ void PndTrackDraw::Exec(Option_t* option)
         std::cout << "ParamFirst Momentum: " << momFirst.X() << " " << momFirst.Y() << " " << momFirst.Z() << std::endl;
         std::cout << "Charge: " << parFirst.GetQ() << std::endl;
 
-        PropagateTrack(parFirst, pidHypo, kRed, arrowList);
+        if (fDoPropagation)
+        	PropagateTrack(parFirst, pidHypo, kRed, arrowList);
 
 		TVector3 posLast = parLast.GetPosition();
 		TVector3 momLast = parLast.GetMomentum() * 10;
@@ -153,7 +152,8 @@ void PndTrackDraw::Exec(Option_t* option)
         std::cout << "ParamLast Momentum: " << momLast.X() << " " << momLast.Y() << " " << momLast.Z() << std::endl;
         std::cout << "Charge: " << parLast.GetQ() << std::endl;
 
-        PropagateTrack(parLast, pidHypo, kBlue, arrowList);
+        if (fDoPropagation)
+        	PropagateTrack(parLast, pidHypo, kBlue, arrowList);
         fListOfTracks->AddElement(arrowList);
 
     }

@@ -35,14 +35,14 @@ class PndTrackDraw : public FairTask {
  public:
 
   /** Default constructor **/
-  PndTrackDraw();
+  PndTrackDraw(Bool_t propagation = kFALSE);
 
 
   /** Standard constructor 
   *@param name        Name of task
   *@param iVerbose    Verbosity level
   **/
-  PndTrackDraw(const char* name, Int_t iVerbose = 1);
+  PndTrackDraw(const char* name, Bool_t propagation = kFALSE, Int_t iVerbose = 1);
 
   /** Destructor **/
   virtual ~PndTrackDraw();
@@ -73,6 +73,7 @@ protected:
  // FairRootManager* fManager;
   PndTrackCandDraw* fTrackCandDraw;
   std::vector<TEveArrow*> fArrows;
+  Bool_t fDoPropagation;
 
   TEveElementList* fListOfTracks;
     
