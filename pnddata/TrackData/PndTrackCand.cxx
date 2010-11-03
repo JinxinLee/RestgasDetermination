@@ -48,6 +48,7 @@ void PndTrackCand::AddHit(TString branchName, UInt_t hitId, Double_t rho)
 void PndTrackCand::Reset()
 {
   fHitId.clear();
+  FairMultiLinkedData::Reset();
 }
 
 int PndTrackCand::HitInTrack(UInt_t detId, UInt_t hitId)
