@@ -34,8 +34,13 @@ eventDisplay()
   parInput1->open(ParFile.Data());
   rtdb->setFirstInput(parInput1);
   FairEventManager *fMan= new FairEventManager();
+
+  FairGeane *Geane = new FairGeane();
+  fRun->AddTask(Geane);
+//
+ //     fRun->Init();
  
-//  SetPalette(1); 
+ // SetPalette(1);
 
  //----------------------Traks and points -------------------------------------
   FairMCTracks *Track =  new FairMCTracks ("Monte-Carlo Tracks");
@@ -52,7 +57,9 @@ eventDisplay()
 //  FairMCPointDraw *PndDskPoint = new FairMCPointDraw ("DskCerenkov",kGreen, kFullSquare);
 //  FairHitDraw *EMCRecoHit = new FairHitDraw("EmcRecoHit");
 //
-  PndTrackCandDraw* Riemann = new PndTrackCandDraw("MVDRiemannTrackCand");
+  PndTrackCandDraw* RiemannCand = new PndTrackCandDraw("MVDRiemannTrackCand");
+  PndTrackDraw* PndTrackRiemann = new PndTrackDraw("MVDTrack");
+//  PndRiemannTrackDraw* RiemannTrack = new PndRiemannTrackDraw("MVDRiemannTrack");
 //PndMvdDigiPixelDraw* MvdDigiPixel = new PndMvdDigiPixelDraw("MVDPixelDigis");
                                                             
   FairHitDraw *MvdRecoHit =   new FairHitDraw ("MVDHitsPixel");
@@ -75,8 +82,9 @@ eventDisplay()
   fMan->AddTask(MvdRecoHit);
   fMan->AddTask(MvdRecoStrip);
   
-  fMan->AddTask(Riemann);
+  fMan->AddTask(RiemannCand);
+  fMan->AddTask(PndTrackRiemann);
 
-  fMan->Init();                     
+  fMan->Init();
 
 }
