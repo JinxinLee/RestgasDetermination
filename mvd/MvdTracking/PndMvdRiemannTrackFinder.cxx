@@ -189,7 +189,9 @@ void PndMvdRiemannTrackFinder::FindTracks()
 		std::vector<PndRiemannHit> TrackHits = fTracks[n].getHits();
 
 		for (unsigned int p = 0; p < TrackHits.size(); p++){
-			myTrackCand.AddHit(fMapHitToID[TrackHits[p].hitID()].first, fMapHitToID[TrackHits[p].hitID()].second, TrackHits[p].s());
+			if (TrackHits[p].hitID() > -1){
+				myTrackCand.AddHit(fMapHitToID[TrackHits[p].hitID()].first, fMapHitToID[TrackHits[p].hitID()].second, TrackHits[p].s());
+			}
 		}
 		fTrackCand.push_back(myTrackCand);
 
