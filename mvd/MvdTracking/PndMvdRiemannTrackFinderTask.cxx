@@ -127,10 +127,12 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
   for (int i = 0; i < trackFinder.NTracks(); i++){
 	  std::cout << "Writing Track: " << i << std::endl;
 	  new ((*fTrackCandArray)[i])PndTrackCand(trackFinder.GetTrackCand(i));
-	  trackFinder.GetTrack(i).Print();
-	  PndRiemannTrack myTrack = trackFinder.GetTrack(i);
+	  if (fVerbose > 0)trackFinder.GetTrack(i).Print();
+	  //PndRiemannTrack myTrack = trackFinder.GetTrack(i);
 
-	  new ((*fTrackArray)[i])PndTrack(trackFinder.GetPndTrack(i, fB));
+	  PndTrack* myTrack = new ((*fTrackArray)[i])PndTrack(trackFinder.GetPndTrack(i, fB));
+	  myTrack->SetLink(FairLink("MVDRiemannTrackCand", i));
+	  if (fVerbose > 0) myTrack->Print();
 //	  PndRiemannTrack* newTrack = new ((*fRiemannTrackArray)[i])PndRiemannTrack();
 //	  TVectorD origin = myTrack.orig();
 //	  newTrack->init(origin[0], origin[1], myTrack.r(), myTrack.dip(), 0);
