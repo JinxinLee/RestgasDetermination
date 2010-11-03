@@ -247,9 +247,12 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
         clit!=clusters.end(); ++clit)
     {
       clindex = fClusterArray->GetEntriesFast();
-      new((*fClusterArray)[clindex]) PndSdsClusterStrip(*(*clit));
+      PndSdsClusterStrip* myCluster = new((*fClusterArray)[clindex]) PndSdsClusterStrip(*(*clit));
+      for(int i = 0; i < myCluster->GetClusterSize(); i++){
+    	  myCluster->AddLink(FairLink(fInBranchName, myCluster->GetDigiIndex(i)));
+      }
     }
-    
+
     //printout for checking
     if(fVerbose > 2) {
       std::cout<<"Check.. Offset: "<<clusterOffset<<"Top Clusters: ";
