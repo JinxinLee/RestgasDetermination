@@ -804,11 +804,11 @@ TVector3 PndRiemannTrack::getPforHit(int i, double B)
 	double pl = Pl(B);
 	TVectorD origin = orig();
 	TVector3 result;
-	PndRiemannHit* startHit = getHit(0);
-	PndRiemannHit* lastHit = getLastHit();
-	if (lastHit->z() < startHit->z()){
-		pl *= -1;
-	}
+//	PndRiemannHit* startHit = getHit(0);
+//	PndRiemannHit* lastHit = getLastHit();
+//	if (lastHit->z() < startHit->z()){
+//		pl *= -1;
+//	}
 
 
 	if (i < getNumHits())
