@@ -36,7 +36,7 @@ Bool_t PndSdsDigiStrip::operator==(const PndSdsDigiStrip& d2) const
           && fChannel==d2.GetChannel()
           && fCharge==d2.GetCharge()
           //           && fMCID==d2.GetMCID()
-          && fTimestamp==d2.GetTimestamp()
+          && fTimeStamp==d2.GetTimestamp()
           );
 }
 
