@@ -37,8 +37,8 @@ public:
   // unambiguously specify a unique algorithm if in doubt about one
   // of the values
 
-  static const algMode  theDefaultAlgMode;
-  static const algId    theDefaultAlgId;
+//  static const algMode  theDefaultAlgMode;
+ // static const algId    theDefaultAlgId;
 //  static const bool     theDefaultFlyResonancesSetting;
     
 public:
