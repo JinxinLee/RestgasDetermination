@@ -275,11 +275,17 @@ void PndMCMatch::GetNextStage(FairMultiLinkedData& startStage, Int_t stopStage){
 	for (int i = 0; i < startStage.GetNLinks(); i++){
 		if (startStage.GetLink(i).GetType() == stopStage){
 			AddToFinalStage(startStage.GetLink(i),1);
+			std::cout << "FinalStage: " << fFinalStageML << std::endl;
+			std::cout << "---------------------" << std::endl;
 		}
 		else if (startStage.GetLink(i).GetType() == fUltimateStage){
 		}
 		else{
 			tempStage = GetEntry(startStage.GetLink(i));
+			std::cout << "TempStage Start";
+			startStage.GetLink(i).Print();
+			std::cout << " --> " << tempStage << std::endl;
+
 //			std::cout << "Link ";
 			//startStage.GetLink(i).Print();
 
@@ -289,23 +295,32 @@ void PndMCMatch::GetNextStage(FairMultiLinkedData& startStage, Int_t stopStage){
 //			}
 			if (tempStage.GetNLinks() == 0){
 				AddToFinalStage(startStage.GetLink(i),1);
+
+				std::cout << "FinalStage: " << fFinalStageML << std::endl;
+				std::cout << "---------------------" << std::endl;
 			}
 			else{
 				double tempStageWeight = GetMCStageType(static_cast<Int_t>(tempStage.GetSource()))->GetWeight();
-				double startLinkWeight = startStage.GetLink(i).GetWeight()/startStage.GetNLinks();
+
+				std::cout << "Tempstage " << tempStage.GetSource() << ": weight " << tempStageWeight << std::endl;
+				double startLinkWeight = startStage.GetLink(i).GetWeight();
+				std::cout << "StartLinkWeight " << startLinkWeight << std::endl;
 				//std::cout << " StageWeight: " << tempStageWeight << " startLinkWeight: " << startLinkWeight;
 				tempStage.MultiplyAllWeights(tempStageWeight);
 
-				if ((tempStageWeight * startLinkWeight) == 0.){
-//					std::cout << " NLinks: " << tempStage.GetNLinks();
-					tempStage.AddAllWeights(startLinkWeight/tempStage.GetNLinks());
+				if ((tempStageWeight * startLinkWeight) == 0){
+					std::cout << " NLinks: " << tempStage.GetNLinks() << " ";
+					tempStage.MultiplyAllWeights(tempStageWeight);
+					tempStage.AddAllWeights(startLinkWeight/startStage.GetNLinks());
+					std::cout << "AddAllWeights: " << startLinkWeight/startStage.GetNLinks() << std::endl;
 				}
-				else
-					tempStage.MultiplyAllWeights(startLinkWeight*startStage.GetNLinks());
-
+				else{
+					tempStage.MultiplyAllWeights(startLinkWeight);
+					std::cout << "MultiplyAllWeights: " << startLinkWeight << std::endl;
+				}
 
 			}
-//			std::cout << " TempStage: " << tempStage;
+			std::cout << "TempStage Stop: " << tempStage << std::endl;
 
 			GetNextStage(tempStage, stopStage);
 		}
