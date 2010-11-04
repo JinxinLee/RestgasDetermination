@@ -5,8 +5,8 @@ PndSdsDigiPixel::PndSdsDigiPixel() : PndSdsDigi()
   fCol = fRow = -1;
 }
 
-PndSdsDigiPixel::PndSdsDigiPixel(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Int_t col, Int_t row, Double_t charge, Int_t mcPointType):
-PndSdsDigi(index, detID, sensorID, fe, charge, mcPointType)
+PndSdsDigiPixel::PndSdsDigiPixel(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Int_t col, Int_t row, Double_t charge, Int_t mcPointType, Double_t timeStamp):
+PndSdsDigi(index, detID, sensorID, fe, charge, mcPointType, timeStamp)
 {
 	fCol	= col;
 	fRow	= row;

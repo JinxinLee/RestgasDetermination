@@ -28,7 +28,7 @@ class PndSdsDigiPixel : public PndSdsDigi
       out << "PndSdsDigiPixel in: " << digi.GetSensorID() << " FE: "
       << digi.GetFE() << " Col/Row " << digi.GetPixelColumn() << "/" << digi.GetPixelRow()
       << " charge " << digi.GetCharge() << " e"
-      << " timestamp "<< digi.GetTimestamp()
+      << " timestamp "<< digi.GetTime()
       << ", from Point(s) ";
       std::vector<Int_t>indices = digi.GetIndices();
       for (unsigned int i = 0; i < indices.size(); i++){
@@ -40,7 +40,7 @@ class PndSdsDigiPixel : public PndSdsDigi
     }
     
     public : PndSdsDigiPixel();
-    PndSdsDigiPixel(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Int_t col, Int_t row, Double_t charge, Int_t mcPointType);
+    PndSdsDigiPixel(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Int_t col, Int_t row, Double_t charge, Int_t mcPointType, Double_t timeStamp = -1);
     
     
 		~PndSdsDigiPixel(){};
