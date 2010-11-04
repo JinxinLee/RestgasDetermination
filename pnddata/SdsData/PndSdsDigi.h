@@ -14,7 +14,7 @@
 #ifndef PNDSDSDIGI_H
 #define PNDSDSDIGI_H
 
-#include "FairMultiLinkedData.h"
+#include "FairTimeStamp.h"
 
 #include "TObject.h"
 #include "TString.h"
@@ -23,13 +23,13 @@
 #include <vector>
 
 
-class PndSdsDigi : public FairMultiLinkedData
+class PndSdsDigi : public FairTimeStamp
   {
     friend std::ostream& operator<< (std::ostream& out, PndSdsDigi& digi){
       out << "PndSds Digi in sensor: " << digi.GetSensorID() << " FE: "
       << digi.GetFE() << " "
       << " charge: " << digi.GetCharge() << " e"
-      << " timestamp: "<<digi.GetTimestamp()
+      << " timestamp: "<<digi.GetTime()
       << ", from Point(s): ";
       std::vector<Int_t> indices = digi.GetIndices();
       for (unsigned int i = 0; i < indices.size(); i++){
@@ -39,8 +39,8 @@ class PndSdsDigi : public FairMultiLinkedData
     }
     
     public : PndSdsDigi();
-    PndSdsDigi(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Double_t charge, Int_t type, Int_t timestamp = -1);
-    PndSdsDigi(Int_t index, Int_t detID, Int_t fSensorID, Int_t fe, Double_t charge, Int_t type, Int_t timestamp = -1);
+    PndSdsDigi(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Double_t charge, Int_t type, Double_t timestamp = -1);
+    PndSdsDigi(Int_t index, Int_t detID, Int_t fSensorID, Int_t fe, Double_t charge, Int_t type, Double_t timestamp = -1);
 		/**<constructor
      * \param index position of PndSdsMCPoint in TClonesArray
      * \param detID detector ID (from/for CbmPoint/Hit)
@@ -59,8 +59,10 @@ class PndSdsDigi : public FairMultiLinkedData
 		int GetNIndices() {return fIndex.size();}
 		Int_t GetIndex(int i = 0) const{ return fIndex[i];}
 		Int_t GetNIndices() const { return fIndex.size();}
-    Int_t GetTimestamp() const { return fTimestamp; }
+	    Double_t GetTimestamp() const { return fTimeStamp;}
     
+	    Int_t GetMCPointType() const {return fMCPointType;}
+
 		virtual void SetMCPointType(Int_t type){fMCPointType = type;}
     
 		virtual void AddIndex(int index)
@@ -88,9 +90,9 @@ class PndSdsDigi : public FairMultiLinkedData
 		Int_t fFE;
 		Double_t fCharge;
 		Int_t fMCPointType;
-    Int_t fTimestamp;	// Timestamp of event + time of flight [ns]
+
     
-    ClassDef(PndSdsDigi,3);
+    ClassDef(PndSdsDigi,4);
   };
 
 #endif
