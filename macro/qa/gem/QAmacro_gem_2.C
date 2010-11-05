@@ -113,6 +113,10 @@
 	 momQuality    < maxQuality &&
 	 momResolution < maxResolution )
       fTest = kTRUE; 
+
+    // in case can't match reco tracks to mc tracks
+    if ( fNofRecoPrim > fNofMCPrim*minEfficiency/100. )
+      fTest = kTRUE;
   }
   else
     cout << " FAILED" << endl;
