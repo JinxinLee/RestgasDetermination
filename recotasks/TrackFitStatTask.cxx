@@ -44,6 +44,7 @@
 #include "MCTruthAnnex.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
+#include "RKTrackRep.h"
 #include "PndTpcSPHit.h"
 
 using std::cout;
@@ -252,6 +253,7 @@ TrackFitStatTask::Exec(Option_t* opt)
 	//LSL rep
 	bool LSLREP = dynamic_cast<LSLTrackRep*>(trackRep);
 	bool GEANEREP = dynamic_cast<GeaneTrackRep*>(trackRep);
+	bool RKREP = dynamic_cast<RKTrackRep*>(trackRep);
 
 	if(_doRes){
 	  // fill tpc residuals
@@ -308,6 +310,17 @@ TrackFitStatTask::Exec(Option_t* opt)
 	
 	  std::cout<<"p="<<p<<"  q="<<q<<"  pstart="<<pstart<<std::endl;
 	}
+	if(RKREP){
+	  p=track->getMom().Mag();
+	  //palt=1./fabs(track->getTrackRep(0)->getState()[4][0]);
+	  //pstart=1./fabs(track->getTrackRep(0)->getStartState()[4][0]);
+	  pstart=0;
+	  q=track->getCharge();
+	
+	  std::cout<<"p="<<p<<"  q="<<q<<"  pstart="<<pstart<<std::endl;
+	}
+ 
+
 
 	std::cout<<"\n *** TrackFitStatTask: Writing fit results to stat object ***\n"<<std::endl;
 	stat->setp(p);
@@ -337,16 +350,16 @@ TrackFitStatTask::Exec(Option_t* opt)
 			cout << "TrackFitStatTask: Can' t get Particle for PDG (2) " << mc->GetPdgCode() << endl;
 		}
 		//if(fabs(p-mcp)/mcp<_mcPCut*0.023*mcp){
-#if 0
-		if(fabs(p-mcp)<_precotol && !(mcit->second) )	{	//just see all misfit canditates
-			cout << "TrackFitStatTask: PDG: " << mc->GetPdgCode() << "with q=" <<q
-			<< " and mcq= " << mcq
-			<< " and mcp= " <<  mcp 
-			<< " passed Momentum cut..."
-			<< " but actually is no valid track at all!" << endl;
-			stat->setpmc(-10.0);
-			stat->setp(-100.0);
-		}
+#if 1
+// 		if(fabs(p-mcp)<_precotol && !(mcit->second) )	{	//just see all misfit canditates
+// 			cout << "TrackFitStatTask: PDG: " << mc->GetPdgCode() << "with q=" <<q
+// 			<< " and mcq= " << mcq
+// 			<< " and mcp= " <<  mcp 
+// 			<< " passed Momentum cut..."
+// 			<< " but actually is no valid track at all!" << endl;
+// 			stat->setpmc(-10.0);
+// 			stat->setp(-100.0);
+// 		}
 
 	//	else if(fabs(p-mcp)<0.01 && (mcit->second) && q==mcq )	{
 		if(fabs(p-mcp)<_precotol && (mcit->second) )	{	
