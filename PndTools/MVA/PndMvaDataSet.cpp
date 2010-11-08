@@ -98,6 +98,9 @@ void PndMvaDataSet::Trim()
   // Select random indices per class
   for(size_t j = 0; j < m_classes.size(); j++)
   {
+    std::cout << "\t-I- Selecting events for " << m_classes[j].Name
+	      <<'\n';
+    
     unsigned int diff = m_classes[j].NExamples  - minEvtCnt;
 
     if(!(diff == 0))
@@ -139,7 +142,7 @@ void PndMvaDataSet::Trim()
   m_events.swap(newEvents);
 
   // Restore indices
-  cout << "<INFO> Restoring class indices.\n";
+  cout << "\t-I- Restoring class indices.\n";
   int minIdx = 0;
   for(size_t idx = 0; idx < m_events.size(); idx++)
   {
@@ -160,6 +163,7 @@ void PndMvaDataSet::Trim()
 	minIdx = idx + 1;
       }
   }
+  std::cout << "<INFO> Finished Trimming." << '\n';
 }
 
 /**
