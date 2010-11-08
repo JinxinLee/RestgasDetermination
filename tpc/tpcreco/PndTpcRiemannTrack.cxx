@@ -410,6 +410,27 @@ PndTpcRiemannTrack::trackpos(){
 
 
 
+// returns winding sense along z-axis
+int
+PndTpcRiemannTrack::winding(){
+  hitIt it=_hits.begin();
+  TVector3 pos1=(*it)->cluster()->pos();
+  ++it;++it;
+  TVector3 pos2=(*it)->cluster()->pos();
+  it=--_hits.end();
+  TVector3 pos3=(*it)->cluster()->pos();
+  int dir= pos1.Mag()<pos3.Mag() ? 1 : -1; // correct for forward and backward going tracks pos=(0,0,0) corresponds to IP
+  pos1.SetZ(0);
+  pos2.SetZ(0);
+  pos3.SetZ(0);
+
+  TVector3 d12=pos2-pos1;
+  TVector3 d21=pos3-pos1;
+  double a=d12.DeltaPhi(d21);
+  std::cout << "dPhi="<<a<<std::endl;
+  return a>0 ? dir : -dir;
+}
+
 
 
 double

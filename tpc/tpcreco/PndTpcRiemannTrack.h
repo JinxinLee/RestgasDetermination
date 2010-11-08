@@ -53,6 +53,7 @@ public:
   double r() const;
   double dip() const;
   double sign() const;
+  int winding() ;
   unsigned int getNumHits() const {return _hits.size();}
   bool isFitted()const {return _isFitted;}
   PndTpcRiemannHit* getHit(unsigned int i) const;

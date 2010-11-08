@@ -18,6 +18,7 @@ ${CMAKE_SOURCE_DIR}/recotasks
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
+${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep2
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/RKTrackRep
 ${CMAKE_SOURCE_DIR}/pnddata

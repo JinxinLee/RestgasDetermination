@@ -38,16 +38,19 @@
 #include "GFTrackCand.h"
 #include "GFTrack.h"
 #include "LSLTrackRep.h"
-#include "GeaneTrackRep.h"
+#include "RKTrackRep.h"
 #include "TH1I.h"
 #include "TH1D.h"
 #include "McIdCollection.h"
 #include "TVector3.h"
 #include "FairMCPoint.h"
+#include "FairRunAna.h"
 #include "GFDetPlane.h"
 #include "TDatabasePDG.h"
-//#include "AbsBFieldIfc.h"
-//#include "FairFieldAdaptor.h"
+#include "FairField.h"
+#include "PndConstField.h"
+#include"PndFieldAdaptor.h"
+#include "GFFieldManager.h"
 
 #include <cmath>
 
@@ -146,13 +149,7 @@ PndTpcRiemannTrackingTask::Init()
   _trackfinder->addCorrelator(new PndTpcProximityHTCorrelator(_proxcut));
 
     
-  //_trackfinder->configure(_xcut,_ycut,_zcut, // proximity cuts
-  //			  _chi2cut,     // chi2cut
-  //			  _minpoints,    // minpoints for fit
-  //			  true,          // do merge
-  //			  0.1,0.1, 3.);    // merge cuts (fractional)
-
-  
+ 
   // init histos
   _multiplicityHisto=new TH1I("multipl","# track candidates",20,0,20);
   _trackSizeH=new TH1I("trksize","# hits in track",100,0,100);
@@ -161,6 +158,8 @@ PndTpcRiemannTrackingTask::Init()
   
   // GeanePro will get Geometry and BField from the Run
   _geanePro = new FairGeanePro();
+  
+
 
   return kSUCCESS;
 }
@@ -178,6 +177,28 @@ if(_riemannTrackArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No Riemann
 if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHitArray");
    _riemannHitArray->Delete();
   
+
+
+//get the magnetic field for curvature seeding
+   double Bz=0;
+   FairField* field=FairRunAna::Instance()->GetField();
+   bool CField = dynamic_cast<PndConstField*>(field);
+   GFFieldManager::getInstance()->init(new PndFieldAdaptor(field));
+   if(!CField) {
+     std::cerr<<"PndTpcIdealTrackingTask: "
+              <<"No const field! Curvature seeding not valid..."
+              <<std::endl;
+     Bz=0.;
+   }
+   //this is crap, but better than hardcoding for the moment ...
+   else
+     Bz=field->GetBz(0.,0.,0.);
+
+
+
+
+
+
   std::vector<PndTpcCluster*> clusterlist;
   
   unsigned int ncl=_clusterArray->GetEntriesFast();
@@ -198,12 +219,12 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
   //}
 
   std::vector<PndTpcRiemannTrack*> riemannlist;
-  PndTpcRiemannHough hough;
-  hough.buildTracks(clusterlist,riemannlist);
+  //PndTpcRiemannHough hough;
+  //hough.buildTracks(clusterlist,riemannlist);
   
-  return;
+  // return;
 
-  //_trackfinder->buildTracks(clusterlist,riemannlist);
+  _trackfinder->buildTracks(clusterlist,riemannlist);
 
   // build trackcands
   std::vector<GFTrackCand*> candlist;
@@ -230,18 +251,38 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
     // at this point hits should be sorted by decreasing z
     // look at radius to decide how to go on
     double r1=trk->getHit(0)->cluster()->pos().Perp(); // biggest z
-    double r2=trk->getHit(nhits-1)->cluster()->pos().Perp(); // smallest z
+    std::cout << "Hit(0): z="<<trk->getHit(0)->cluster()->pos().Z()
+	      << "   r="<<r1
+	      << "   dist="<<trk->getHit(0)->cluster()->pos().Mag()<<std::endl;
 
-    // decide how to sort
+
+    double r2=trk->getHit(nhits-1)->cluster()->pos().Perp(); // smallest z
+    std::cout << "Hit(end): z="<<trk->getHit(nhits-1)->cluster()->pos().Z()
+	      << "   r="<<r2
+	      << "   dist="<<trk->getHit(nhits-1)->cluster()->pos().Mag()<<std::endl;
+
+
+
     // this will probably go wrong for some secondaries
-    for(unsigned int ih=nhits-1;ih>0;--ih){
-      cand->addHit(2,trk->getHit(ih)->cluster()->index());
+    // decide how to sort
+    if(r1<=r2){
+      for(unsigned int ih=0;ih<nhits;++ih){
+	cand->addHit(2,trk->getHit(ih)->cluster()->index());
+      }
     }
-    cand->addHit(2,trk->getHit(0)->cluster()->index());   
-    if(r1<r2)cand->setInverted();
+    else {
+      for(unsigned int ih=nhits-1;ih>0;--ih){
+	cand->addHit(2,trk->getHit(ih)->cluster()->index());
+      }
+      cand->addHit(2,trk->getHit(0)->cluster()->index());   
+    }
+
+      
    
-    cand->setCurv(0.01/fabs(trk->r())*trk->sign());
+    cand->setCurv(0.01/fabs(trk->r())*(trk->winding()));
     cand->setDip(trk->dip());
+    
+    std::cout<<"trk winding="<<trk->winding()<<std::endl;
 
     candlist.push_back(cand);
   }
@@ -297,13 +338,14 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
       PndTpcCluster* cl2=(PndTpcCluster*)_clusterArray->At(hitID);
       pos2=cl2->pos();
       delta=pos2-pos1;
-      if(fabs(delta.Z())>0.1 && delta.X()!=0 && delta.Y()!=0)ok=true;
+      if(fabs(delta.Z())>1. && delta.X()!=0 && delta.Y()!=0)ok=true;
     }
     // if(!ok){
 //       std::cout<<"Track initialization went wrong dz<1mm"<<std::endl;
 //       trk->getTrackRep(0)->setStatusFlag(2);
 //       continue;
 //    }
+    delta.SetMag(1);
     double mx=delta.X()/delta.Z();
     double my=delta.Y()/delta.Z();
     if(fabs(mx)<1E-12)mx<0 ? mx=-1E-12 : mx=+1E-12;
@@ -320,37 +362,45 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
     state[4][0]=one_o_p; 
 
     GFAbsTrackRep* rep=0;
-    if(_geane) {
-      GFDetPlane pl(pos1, pos1.Orthogonal(), pos1.Cross(pos1.Orthogonal()));
+    if(1) {
+      //GFDetPlane pl(pos1, pos1.Orthogonal(), pos1.Cross(pos1.Orthogonal()));
       TVector3 poserr(2,2,2);
       TVector3 mom = delta*(1/one_o_p);
-      TVector3 momerr = 0.5*mom;
-      int pdg = 211; //pions hardcoded atm
-      double q=TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.;
-      GeaneTrackRep* grep = new GeaneTrackRep(_geanePro, pl, mom, poserr, momerr,q,pdg);
-      grep->setPropDir(1);
+      TVector3 momerr(0.5*fabs(mom.X()),0.5*fabs(mom.Y()),0.5*fabs(mom.Z()));
+      std::cout<<"Setting initial values:"<<std::endl;
+      pos1.Print();
+      poserr.Print();
+      mom.Print();
+      momerr.Print();
+      int pdg = cand->getCurv()>0 ? 211 : -211; //pions hardcoded atm
+      //double q=TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.;
+      RKTrackRep* grep = new RKTrackRep(pos1, mom, poserr, momerr,pdg);
+      //grep->setPropDir(1);
       rep=grep; }
     else {	
       LSLTrackRep* lrep=new LSLTrackRep();
     
       lrep->setInverted(cand->inverted());
-      //lrep->SetBField(_fieldIfc);
-      GFTrack* trk=new((*_trackArray)[_trackArray->GetEntriesFast()]) GFTrack(lrep);
-      trk->setCandidate(*cand); // here the candidate is copied!
-      //Is this what we want?
-      
-      std::cout<<"Setting initial p="<<1/state[4][0]<<std::endl;
-      TMatrixT<double> cov(5,5);
-      cov[0][0]=100;
-      cov[1][1]=100;
-      cov[2][2]=16;
-      cov[3][3]=16;
-      cov[4][4]=5;
-      GFDetPlane pl(pos1+TVector3(0,0,-10E-4),TVector3(1,0,0),TVector3(0,1,0));
-      trk->getTrackRep(0)->setData(state, pl, &cov);
-      //      trk->getTrackRep(0)->setStartS(pos1.Z()-10E-4);
       rep=lrep;
     }
+    
+    //lrep->SetBField(_fieldIfc);
+    GFTrack* trk=new((*_trackArray)[_trackArray->GetEntriesFast()]) GFTrack(rep);
+    trk->setCandidate(*cand); // here the candidate is copied!
+    //Is this what we want?
+    
+    std::cout<<"Setting initial p="<<1/state[4][0]<<std::endl;
+    //TMatrixT<double> cov(5,5);
+    //cov[0][0]=100;
+    //cov[1][1]=100;
+    //cov[2][2]=16;
+    // cov[3][3]=16;
+    //cov[4][4]=5;
+    //GFDetPlane pl(pos1+TVector3(0,0,-10E-4),TVector3(1,0,0),TVector3(0,1,0));
+    //trk->getTrackRep(0)->setData(state, pl, &cov);
+    //      trk->getTrackRep(0)->setStartS(pos1.Z()-10E-4);
+    
+    
   }// end loop over tracks
   
   std::cout<<_trackArray->GetEntriesFast()<<" tracks created"<<std::endl;

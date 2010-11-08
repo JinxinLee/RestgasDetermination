@@ -138,12 +138,13 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
   
 
   std::cout<<candlist.size()<<" Riemann Tracks found."<<std::endl;
-  //for(int i=0;i<candlist.size();++i){
-  //  std::cout<<"Track"<<i<<": "
-  //	     <<candlist[i]->getNumHits()<<" hits  R=";
-  //  if(candlist[i]->getNumHits()>=_minHitsForFit)std::cout<<candlist[i]->r();
-  //  std::cout<<std::endl;
-  //}
+  for(int i=0;i<candlist.size();++i){
+    std::cout<<"Track"<<i<<": "
+  	     <<candlist[i]->getNumHits()<<" hits  R=";
+    if(candlist[i]->getNumHits()>=_minHitsForFit)std::cout<<candlist[i]->r();
+    std::cout<<std::endl;
+    candlist[i]->Plot(1);
+  }
   
  return candlist.size();
 }
