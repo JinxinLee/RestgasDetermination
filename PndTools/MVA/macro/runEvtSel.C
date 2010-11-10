@@ -10,4 +10,5 @@ void runEvtSel( int pdg = 11,
   gROOT->LoadMacro("selectEvents.cpp+");
   selectEvents( pdg, partName, paramFile, simFile, 
 		digiFile, recoFile, outFileName);
+  exit(0);
 }

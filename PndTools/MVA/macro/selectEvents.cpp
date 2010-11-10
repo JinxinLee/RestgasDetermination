@@ -14,23 +14,27 @@ void selectEvents(int pdg,
   int counts = 0;
   TStopwatch timer;
   timer.Start();
-  cout << "Count = " << counts << " pdg = " << pdg << endl;
+
+  cout << "\tCount = " << counts << "\n\tpdg = " << pdg << '\n';
   
-  std::vector<int> EvtIds;
+  // First = event id. Second = MC_moment
+  std::vector < std::pair<int, float> > EvtIds;
   
   // EMC cluster energy, num.clusters, numb. crystals
-  float emc, emcCorr, mom;
+  float emc, emcCorr, mom, MCmom, lheMom;
   
   // Selected Zernike moments and LATeral energydeposition
   float z20, z53, latEdep;
   int numClus, numCrys, numBumps;
-
-  mom = emc = emcCorr = z20 = z53 = 0.00;
+  
+  MCmom = lheMom = mom = emc = emcCorr = z20 = z53 = 0.00;
   numClus = numCrys = numBumps = 0;
   
   // N-Tuple to store the variables.
+  //TNtuple EmcNtp (partName.c_str(), partName.c_str(),
+  //	  "id:MCp:p:emc:emcOld:lat:z20:z53:numClus:numCrys:numBumps");
   TNtuple EmcNtp (partName.c_str(), partName.c_str(),
-		  "id:p:emc:emcCorr:numClus:numCrys:lat:z20:z53:numBumps");
+		  "MCp:p:emc:emcOld:lat:z20:z53:numClus:numCrys:numBumps");
 
   // Open Simulation file
   TFile sF(simFile.c_str());
@@ -75,7 +79,7 @@ void selectEvents(int pdg,
   TClonesArray* clusters_arr = new TClonesArray("PndEmcCluster");  
   digiTr->SetBranchAddress("EmcCluster", &clusters_arr);
   
-  // Reco file
+  // Open Reco file
   TFile recoF(recoFile.c_str());
   // Reco tree
   TTree* RecoTr = (TTree *) recoF.Get("cbmsim");
@@ -86,87 +90,103 @@ void selectEvents(int pdg,
   //RecoTr->SetBranchAddress("LheGenTrackPion", &recTrakArr);
   
   // Loop through the simulation data.
-  std::cout << "<INFO> Selecting events." << std::endl;
-  for (int j = 0; j < tsim->GetEntriesFast(); j++){
+  std::cout << "<INFO> Selecting events." << '\n';
+
+  for (int j = 0; j < tsim->GetEntriesFast(); j++)
+  {
     tsim->GetEntry(j);
-    
-    //cout << "<Event>: " << j << endl;
-    
+
     // Select the first interaction point.
     PndEmcPoint* pt   = (PndEmcPoint*) pointList->At(0);
     
-    if(pt){
+    if(pt)
+    {
       int trID = pt->GetTrackID();
       PndMCTrack* track = (PndMCTrack*) trackList->At(trID);
       
-      // Select event with the correct pdg code.
-      if(track->GetPdgCode() == pdg){
+      // Select events with the correct pdg code.
+      if( track->GetPdgCode() == pdg )
+      {
         counts++;
-	EvtIds.push_back(j);
+	// First = event Index, Second = MC Moment
+	EvtIds.push_back( std::make_pair(j, (track->GetMomentum()).Mag()) );
       }
       else{//Decay ????
         std::cout << "<Wrong pdg> :"
 		  << " Track ID = " << trID 
-		  << " Track with pdg = " << track->GetPdgCode()
-		  << std::endl;
+		  << " Track has pdg = " << track->GetPdgCode()
+		  << '\n';
       }
     }
-    else{// No emc interaction??
-      std::cout << "No point on the EMC." << std::endl;
+    else
+    {// No emc interaction??
+      std::cout << "No point on the EMC.\n";
     }
   }
   
-  std::cout << "<INFO> Processing selected events." << std::endl;
-
+  std::cout << "<INFO> Processing selected events.\n";
+  
   // Loop through the selected events.
-  for(size_t i = 0; i < EvtIds.size(); i++){
-    int evid = EvtIds[i];
-    cout << "<Event number> = " << evid << " ";
-    RecoTr->GetEntry(evid);
+  for(size_t i = 0; i < EvtIds.size(); i++)
+  {
+    int evid = EvtIds[i].first;// Event index
+    cout << "Selected Event no = " << evid << " ";
+
+    tsim->GetEntry(evid);
     digiTr->GetEntry(evid);
+    RecoTr->GetEntry(evid);
     
     PndTrack* tra = (PndTrack*) recTrakArr->At(0);
     
-    if(tra){
+    if(tra)
+    {
       // Charged or correct reconstructed.
       FairTrackParP par = tra->GetParamLast();
       
-      std::cout << "number of clusters = "
+      std::cout << "Number of clusters = "
 		<< clusters_arr->GetEntriesFast()
-		<<" number of tracks = "<< recTrakArr->GetEntriesFast() 
-		<< " with P = "<< par.GetMomentum().Mag() 
-		<< endl;
-
-      mom = par.GetMomentum().Mag();
+		<<" Number of tracks = "<< recTrakArr->GetEntriesFast()
+		<< " With P = "<< par.GetMomentum().Mag()
+		<< " MC_p = "  << EvtIds[i].second
+		<< '\n';
+      
+      mom = par.GetMomentum().Mag();// Computed moment
+      MCmom = EvtIds[i].second;// MC moment
     }// End if(tra)
-    else{//Neutral or not correctly reconstructed.
+    else
+    {//Neutral or not correctly reconstructed.
       cout << "<Empty track>: number of clusters = "
-	   << clusters_arr->GetEntriesFast() << endl;
+	   << clusters_arr->GetEntriesFast() << '\n';
     }
     
     // Select the right cluster(highest E_dep).
-    double maxEnergy = -1.0;
-    int clIndex = -1;
+    double maxEnergy = std::numeric_limits <double>::min();
+    int clIndex      = -1;
     
     // Loop through the clusters.
-    for(int cl = 0; cl < clusters_arr->GetEntriesFast(); cl++){
+    for(int cl = 0; cl < clusters_arr->GetEntriesFast(); cl++)
+    {
       PndEmcCluster* clust = (PndEmcCluster*) clusters_arr->At(cl);
-      if(clust->GetEnergyCorrected() > maxEnergy){
+      
+      if(clust->GetEnergyCorrected() > maxEnergy)
+      {
 	maxEnergy = clust->GetEnergyCorrected();
 	clIndex = cl;
       }
     }
     
     // Found the cluster with highest E_dep.
-    if( clIndex >= 0 ){
+    if( clIndex >= 0 )
+    {
       PndEmcCluster* HE_cluster = (PndEmcCluster*) clusters_arr->At(clIndex);
       
-      numClus = clusters_arr->GetEntriesFast();
-      numCrys = HE_cluster->NumberOfDigis();
-      emc = HE_cluster->energy(); 
-      emcCorr = HE_cluster->GetEnergyCorrected();  
-      numBumps = HE_cluster->NBumps();
+      emc     = HE_cluster->energy();
+      emcCorr = HE_cluster->GetEnergyCorrected();
 
+      numClus  = clusters_arr->GetEntriesFast();
+      numCrys  = HE_cluster->NumberOfDigis();
+      numBumps = HE_cluster->NBumps();
+      
       //z20 = clsZmom.AbsZernikeMoment(2, 0, 15);// Z_{n = 2}^{m = 0}
       z20 = HE_cluster->Z20();
       
@@ -176,32 +196,29 @@ void selectEvents(int pdg,
       //latEdep = clsZmom.Lat();
       latEdep = HE_cluster->LatMom();
       
-      // Fill tree
-      //if( (mom > 0) && (mom <= 15) && ((emc/mom) <= 2.0) ){
-      if( (mom <= 15) ){
-	EmcNtp.Fill(evid, mom, emc, emcCorr, numClus, numCrys, 
-		    latEdep, z20, z53, numBumps);
-	std::cout << "emc = " << emc << " emcCorr = " << emcCorr << std::endl;
-      }
+      // Fill tree (NTuple)
+      EmcNtp.Fill(MCmom, mom, emcCorr, emc, latEdep, z20, z53, numClus, numCrys, numBumps);
+
+      std::cout << "Selected Cluster index = "<< clIndex 
+		<< " emcOld = "  << emc 
+		<< " emcCorr = " << emcCorr 
+		<< '\n';
     }
   }
   
-  std::cout << "========================================================"
-	    << std::endl;
-  std::cout << "<INFO>" << std::endl 
-	    << "Total number of events = " << tsim->GetEntriesFast() << std::endl
-            << "No decay = " << counts << std::endl
-            << "No decay array size = " << EvtIds.size() << std::endl;
-  std::cout << "In Ntuple " << EmcNtp.GetEntriesFast() << std::endl;
-  std::cout << "Number of events in reco file = " << RecoTr->GetEntriesFast() 
-	    << std::endl;
-  std::cout << "========================================================"
-	    << std::endl;
+  std::cout << "========================================================\n"
+	    << "<INFO>\nTotal number of events = " << tsim->GetEntriesFast()
+            << "\nNo decay = " << counts
+            << "\nNo decay array size = " << EvtIds.size()
+	    << "\nIn Ntuple " << EmcNtp.GetEntriesFast()
+	    << "\nNumber of events in reco file = " << RecoTr->GetEntriesFast() 
+	    << "\n========================================================\n";
   
-  cout << "<INFO> Writing output to: " << outFileName << endl;
+  std::cout << "<INFO> Writing output to: " << outFileName << '\n';
   
   // Write to the output
-  TFile out(outFileName.c_str(), "RECREATE");
+  TFile out(outFileName.c_str(), "RECREATE","Selected evets File.", 9);
+
   //EmcNtp.Print();
   EmcNtp.Write();
   out.Close();
@@ -220,10 +237,9 @@ void selectEvents(int pdg,
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
-  cout <<"=======================================" << endl;
-  cout << "Macro finished succesfully." << endl;
-  cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
-  cout << endl;
+  cout <<"=======================================\n"
+       << "Macro finished succesfully.\n"
+       << "Real time " << rtime << " s, CPU time " << ctime << " s.\n\n";
   // ------------------------------------------------------------------------
   exit(0);
 }

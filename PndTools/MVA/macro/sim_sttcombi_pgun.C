@@ -2,16 +2,17 @@
 //pi0 = 111, gamma = 22, e- = 11, e+ = -11, proton = 2212, protonMin = -2212
 
 void sim_sttcombi_pgun( int seed = 87619, int nEvents = 10, int pid  = 11,
-			float p1 = 1.0, float p2 = 1.5,
+			float p1 = 1.0, float p2 = 2.0,
 			Char_t paramFile [] = "params_sttcombi.root", 
 			Char_t outFile   [] = "points_sttcombi.root"
 			)
 {
   gRandom->SetSeed(seed);
   
-  std::cerr << "Seed is " << seed    << std::endl;
-  std::cerr << "pdg = "   << pid     << std::endl;
-  std::cerr << "nEvt = "  << nEvents << std::endl;
+  std::cerr << "\nSeed is " << seed
+	    << "\npdg = "   << pid
+	    << "\nnEvt = "  << nEvents
+	    << "\n"         << std::endl;
   
   TStopwatch timer;
   timer.Start();
@@ -164,5 +165,8 @@ void sim_sttcombi_pgun( int seed = 87619, int nEvents = 10, int pid  = 11,
   
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
-  printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  std::cout << "RealTime = " << rtime
+	    << "seconds, CpuTime = " << ctime
+	    << "seconds\n";
+  exit(0);
 }

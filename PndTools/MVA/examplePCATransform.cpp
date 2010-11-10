@@ -50,7 +50,9 @@ int main(int argc, char** argv)
   
   // Read data.
   PndMvaDataSet data(inFile, clas, vars);
-  
+
+  //data.Trim();
+
   // Fetch available events.
   const std::vector< std::pair<std::string, std::vector<float>*> >& dd = data.GetData();
   
@@ -131,5 +133,6 @@ int main(int argc, char** argv)
   }
   outEvt.clear();
   //--------------------------------------------
+  std::cout << "<INFO> Done PCA transformation.\n";
   return 0;
 }

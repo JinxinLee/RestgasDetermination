@@ -8,6 +8,8 @@
 // C++ includes
 #include <iostream>
 #include <vector>
+#include <limits>
+#include <utility>
 
 // Root
 #include "TFile.h"

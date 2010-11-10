@@ -50,7 +50,7 @@ int main(int argc, char** argv)
   clas.push_back("proton");
   
   // Parameter Names
-  // nam.push_back("p");
+  nam.push_back("p");
   nam.push_back("emc");
   nam.push_back("lat");
   nam.push_back("z20");
@@ -64,7 +64,7 @@ int main(int argc, char** argv)
   PndKnnTrain kNNtr (file, clas, nam, true);
 
   //NormType tt = VARX;
-  kNNtr.NormalizeData(VARX);
+  kNNtr.NormalizeData(NONE);
   
   //kNNtr.PCATransForm();
   

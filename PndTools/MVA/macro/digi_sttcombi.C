@@ -168,11 +168,11 @@ void digi_sttcombi(char inFile  [] = "points_sttcombi.root", //Input file (MC ev
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
-  cout << endl << endl;
-  cout << "Macro finished succesfully." << endl;
-  cout << "Output file is "    << outFile << endl;
-  cout << "Parameter file is " << parFile << endl;
-  cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
-  cout << endl;
+  cout << "\n\nMacro finished succesfully.\n"
+       << "Output file is "    << outFile
+       << "\nParameter file is " << parFile
+       << "\nReal time " << rtime << " s, CPU time " << ctime << " s.\n\n";
   // ------------------------------------------------------------------------
+
+  exit(0);
 }

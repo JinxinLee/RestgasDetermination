@@ -15,7 +15,7 @@ FLAGSMACHINE  = -march=native -mtune=native
 # FLAGSMACHINE += -mfpmath=sse -msse3
 
 CCFLAGS  = -W -Wall -Wextra -Wshadow -Wredundant-decls -Werror
-CCFLAGS += -Woverlength-strings -Wnormalized=nfc 
+CCFLAGS += -Woverlength-strings -Wnormalized=nfc
 CCFLAGS += -Winvalid-pch -Wdisabled-optimization
 CCFLAGS += -O3 -fopenmp ${FLAGSMACHINE}
 # CCFLAGS += -Wfloat-equal
