@@ -54,7 +54,8 @@ public:
    *  \return Number of tracks created
    **/
   virtual Int_t DoFind(TClonesArray* hitOrDigiArray,
-		       TClonesArray* trackArray) = 0;
+		       TClonesArray* trackArray,
+		       TClonesArray* trackCandArray) = 0;
   
   
   ClassDef(PndGemTrackFinder,1);

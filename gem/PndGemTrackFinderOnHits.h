@@ -51,7 +51,8 @@ class PndGemTrackFinderOnHits : public PndGemTrackFinder
    * \return  Number of created tracks
    **/
   virtual Int_t DoFind(TClonesArray* hitArray,
-		       TClonesArray* trackArray);
+		       TClonesArray* trackArray,
+		       TClonesArray* trackCandArray);
 
   /** Public modifiers **/
   void SetVerbose(const Int_t& verbose) { fVerbose = verbose; };
@@ -108,7 +109,10 @@ class PndGemTrackFinderOnHits : public PndGemTrackFinder
   Int_t FindTrackSegments(TClonesArray* hitArray, Int_t stat1Id, Int_t stat2Id);
   Int_t MatchTrackSegments();
   void RemoveCloneTracks(Int_t nofRecoTracks);
-  Int_t CreateTracks(TClonesArray* hitArray, TClonesArray* trackArray, Int_t nofRecoTracks);
+  Int_t CreateTracks(TClonesArray* hitArray, 
+		     TClonesArray* trackArray, 
+		     TClonesArray* trackCandArray, 
+		     Int_t nofRecoTracks);
 
   void PrintTrackSegments(TClonesArray* hitArray);
   void PrintTracks(TClonesArray* hitArray, Int_t nofRecoTracks);

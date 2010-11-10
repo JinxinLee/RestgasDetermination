@@ -127,7 +127,8 @@ void PndGemTrackFinderOnHits::SetParContainers() {
 
 // -----   Public method DoFind   ------------------------------------------
 Int_t PndGemTrackFinderOnHits::DoFind(TClonesArray* hitArray,
-				      TClonesArray* trackArray) {
+				      TClonesArray* trackArray,
+				      TClonesArray* trackCandArray) {
 
   // Get GEM digitisation parameter container
   fTrackSegments.clear();
@@ -285,7 +286,7 @@ Int_t PndGemTrackFinderOnHits::DoFind(TClonesArray* hitArray,
     cout << "finished printing tracks" << endl;
   }
 
-  nr = CreateTracks(hitArray, trackArray,nr);
+  nr = CreateTracks(hitArray,trackArray,trackCandArray,nr);
 
   if ( fVerbose ) {
     cout << "------------------------------------------------" << endl;
@@ -298,7 +299,10 @@ Int_t PndGemTrackFinderOnHits::DoFind(TClonesArray* hitArray,
 // ------------------------------------------------------------
 
 // --- Private method to create tracks ------------------------
-Int_t PndGemTrackFinderOnHits::CreateTracks(TClonesArray* hitArray, TClonesArray* trackArray, Int_t nofRecoTracks) {
+Int_t PndGemTrackFinderOnHits::CreateTracks(TClonesArray* hitArray, 
+					    TClonesArray* trackArray, 
+					    TClonesArray* trackCandArray,
+					    Int_t nofRecoTracks) {
   Int_t nofCreatedTracks = 0;
 
   const Int_t kNofRecoTracks = nofRecoTracks;
@@ -312,6 +316,7 @@ Int_t PndGemTrackFinderOnHits::CreateTracks(TClonesArray* hitArray, TClonesArray
   Double_t meanThe[kNofRecoTracks];
   Int_t nofTS[kNofRecoTracks];
 
+  PndTrackCandHit tcHit;
   PndTrackCand* gemTrackCand;
   PndGemHit* gemHit;
 
@@ -385,6 +390,16 @@ Int_t PndGemTrackFinderOnHits::CreateTracks(TClonesArray* hitArray, TClonesArray
 //      Int_t size = pndtracks.GetEntriesFast();
 //      PndTrack* pndTrack = new(pndtracks[size]) PndTrack(*firstPar, *lastPar, *gemTrackCand);
     new((*trackArray)[nofCreatedTracks]) PndTrack(*firstPar, *lastPar, *gemTrackCand);
+    
+    PndTrackCand* trackCand = new((*trackCandArray)[nofCreatedTracks]) PndTrackCand();
+    for ( Int_t ihit = 0 ; ihit < gemTrackCand->GetNHits() ; ihit++ ) {
+      tcHit = gemTrackCand->GetSortedHit(ihit);  
+      trackCand->AddHit(tcHit.GetHitId(),tcHit.GetDetId(),tcHit.GetRho());
+      trackCand->setMcTrackId(gemTrackCand->getMcTrackId());
+      trackCand->setTrackSeed(gemTrackCand->getPosSeed(),
+			      gemTrackCand->getDirSeed(),
+			      gemTrackCand->getQoverPseed());
+    }
 
     /*    PndTrack* checkTrack = (PndTrack*) trackArray->At(nofCreatedTracks);
     for ( Int_t ih = 0 ; ih < kNofStatDbl ; ih++ ) {

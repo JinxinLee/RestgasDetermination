@@ -43,6 +43,7 @@ PndGlobalIdealTrackMerger::PndGlobalIdealTrackMerger() : FairTask("Global Ideal 
     fTrackArray[idet] = NULL;
   }
   fGlobalTrackArray          = NULL;
+  fGlobalTrackCandArray      = NULL;
   fTNofEvents    = 0;
   fTNofTracks    = 0;
 }
@@ -58,6 +59,7 @@ PndGlobalIdealTrackMerger::PndGlobalIdealTrackMerger(Int_t iVerbose)
     fTrackArray[idet] = NULL;
   }
   fGlobalTrackArray          = NULL;
+  fGlobalTrackCandArray      = NULL;
   fTNofEvents    = 0;
   fTNofTracks    = 0;
 }
@@ -65,7 +67,8 @@ PndGlobalIdealTrackMerger::PndGlobalIdealTrackMerger(Int_t iVerbose)
 
 // -----   Destructor   ----------------------------------------------------
 PndGlobalIdealTrackMerger::~PndGlobalIdealTrackMerger() { 
-  fGlobalTrackArray->Delete();
+  fGlobalTrackArray    ->Delete();
+  fGlobalTrackCandArray->Delete();
 }
 
 // -----   Init  -----------------------------------------------------------
@@ -130,6 +133,9 @@ InitStatus PndGlobalIdealTrackMerger::Init() {
   fGlobalTrackArray = new TClonesArray("PndTrack",100);
   ioman->Register("GlobalTrack", "Global Track", fGlobalTrackArray, kTRUE);
 
+  fGlobalTrackCandArray = new TClonesArray("PndTrackCand",100);
+  ioman->Register("GlobalTrackCand", "Global TrackCand", fGlobalTrackCandArray, kTRUE);
+
   std::cout << "-I- " << GetName() << ": Initialization successfull" << std::endl;
   std::cout << "-I- " << GetName() << ": Merging tracks from " << flush;
   for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
@@ -159,7 +165,8 @@ void PndGlobalIdealTrackMerger::SetParContainers() {
 void PndGlobalIdealTrackMerger::Exec(Option_t* opt) {
   if ( fVerbose > 0 ) 
     cout << "=============== EVENT " << fTNofEvents << " =================" << endl;
-  fGlobalTrackArray->Delete();
+  fGlobalTrackArray    ->Delete();
+  fGlobalTrackCandArray->Delete();
 
   fTNofEvents++;
 
@@ -305,6 +312,16 @@ void PndGlobalIdealTrackMerger::Exec(Option_t* opt) {
 
     new((*fGlobalTrackArray)[nofCreatedTracks]) PndTrack(firstPar,lastPar,*globalTrackCand);
 
+    PndTrackCand* trackCand = new((*fGlobalTrackCandArray)[nofCreatedTracks]) PndTrackCand();
+    for ( Int_t ihit = 0 ; ihit < globalTrackCand->GetNHits() ; ihit++ ) {
+      candHit = globalTrackCand->GetSortedHit(ihit);  
+      trackCand->AddHit(candHit.GetHitId(),candHit.GetDetId(),candHit.GetRho());
+      trackCand->setMcTrackId(globalTrackCand->getMcTrackId());
+      trackCand->setTrackSeed(globalTrackCand->getPosSeed(),
+			      globalTrackCand->getDirSeed(),
+			      globalTrackCand->getQoverPseed());
+    }
+
     globalTrack = (PndTrack*)fGlobalTrackArray->At(nofCreatedTracks);
 
     globalTrack->SetRefIndex(itr);
@@ -318,7 +335,8 @@ void PndGlobalIdealTrackMerger::Exec(Option_t* opt) {
 
 // -----   Private method Finish   --------------------------------------------
 void PndGlobalIdealTrackMerger::Finish() {
-  fGlobalTrackArray->Clear();
+  fGlobalTrackArray    ->Clear();
+  fGlobalTrackCandArray->Clear();
 
   cout << "-------------------- " << fName.Data() << " : Summary -----------------------" << endl;
   cout << " Events:        " << setw(10) << fTNofEvents << endl;

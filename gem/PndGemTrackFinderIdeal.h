@@ -45,7 +45,8 @@ class PndGemTrackFinderIdeal : public PndGemTrackFinder
    * \return  Number of created tracks
    **/
   virtual Int_t DoFind(TClonesArray* hitArray,
-		       TClonesArray* trackArray);
+		       TClonesArray* trackArray,
+		       TClonesArray* trackCandArray);
 
   /** Public modifiers **/
   void SetVerbose(const Int_t& verbose) { fVerbose = verbose; };

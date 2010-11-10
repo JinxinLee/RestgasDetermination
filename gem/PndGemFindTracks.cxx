@@ -167,7 +167,7 @@ void PndGemFindTracks::Exec(Option_t* opt) {
   fTrackArray->Delete();
   fTrackCandArray->Delete();
   
-  fNofTracks = fFinder->DoFind(fGemHitOrDigiArray, fTrackArray);
+  fNofTracks = fFinder->DoFind(fGemHitOrDigiArray, fTrackArray, fTrackCandArray);
   
 
   fTimer.Stop();
@@ -175,7 +175,7 @@ void PndGemFindTracks::Exec(Option_t* opt) {
   fTNofTracks += fNofTracks;
   fTNofEvents += 1;
 
-  PndTrackCandHit tcHit;
+  /*  PndTrackCandHit tcHit;
 
   for ( Int_t iTrack = 0 ; iTrack < fNofTracks ; iTrack++ ) {
     PndTrack*     track     = (PndTrack*) fTrackArray->At(iTrack);
@@ -187,7 +187,7 @@ void PndGemFindTracks::Exec(Option_t* opt) {
       trackCand->setMcTrackId(trackCnd1->getMcTrackId());
       trackCand->setTrackSeed(trackCnd1->getPosSeed(),trackCnd1->getDirSeed(),trackCnd1->getQoverPseed());
     }
-  }
+    }*/
 }
 // -------------------------------------------------------------------------
 

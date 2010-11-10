@@ -67,6 +67,7 @@ class PndGlobalIdealTrackMerger : public FairTask
 
   /** Output array of global tracks **/
   TClonesArray* fGlobalTrackArray;     	    ///< Output array of PndTrackCands 
+  TClonesArray* fGlobalTrackCandArray;
 
   /** Event counter **/
   Int_t fTNofEvents;  ///< event counter

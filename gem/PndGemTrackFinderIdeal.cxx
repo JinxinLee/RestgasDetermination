@@ -98,7 +98,8 @@ void PndGemTrackFinderIdeal::Init() {
 
 // -----   Public method DoFind   ------------------------------------------
 Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
-				     TClonesArray* trackArray) {
+				     TClonesArray* trackArray,
+				     TClonesArray* trackCandArray) {
   
   // Count events
   fNofEvents++;
@@ -146,6 +147,7 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
   PndMCTrack*  mcTrack  = NULL;
   PndTrack* gemTrack = NULL;
   PndTrackCand* gemTrackCand = NULL;
+  PndTrackCandHit tcHit;
 
   // Declare variables outside the loop
   Int_t ptIndex = 0;       // MC point index
@@ -312,6 +314,16 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
 							 TVector3(0.,1.,0.));					 
 
     new((*trackArray)[nTracks]) PndTrack(*firstPar, *lastPar, *gemTrackCand);
+
+    PndTrackCand* trackCand = new((*trackCandArray)[nTracks]) PndTrackCand();
+    for ( Int_t ihit = 0 ; ihit < gemTrackCand->GetNHits() ; ihit++ ) {
+      tcHit = gemTrackCand->GetSortedHit(ihit);  
+      trackCand->AddHit(tcHit.GetHitId(),tcHit.GetDetId(),tcHit.GetRho());
+      trackCand->setMcTrackId(gemTrackCand->getMcTrackId());
+      trackCand->setTrackSeed(gemTrackCand->getPosSeed(),
+			      gemTrackCand->getDirSeed(),
+			      gemTrackCand->getQoverPseed());
+    }
 
     gemTrack = (PndTrack*) trackArray->At(nTracks);
     
