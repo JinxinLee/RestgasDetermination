@@ -81,6 +81,7 @@
   TH1F* fhMCPrimVsP   = (TH1F*)gDirectory->Get("GemTrackFinderQA/hMCPrimVsP");
   TH1F* fhRecoPrimVsP = (TH1F*)gDirectory->Get("GemTrackFinderQA/hRecoPrimVsP");
   TH1F* fhRecoPrimP   = (TH1F*)gDirectory->Get("GemTrackFinderQA/hRecoPrimP");
+  TH1F* fhNofHitsPT   = (TH1F*)gDirectory->Get("GemTrackFinderQA/hNofHitsPerTrack");
 
   Double_t minEfficiency = 80.;
   Double_t minQuality    =  1./1.2;
@@ -91,8 +92,9 @@
 
   if ( fhMCPrimVsP && fhRecoPrimVsP && fhRecoPrimP ) {
     cout << " DONE" << endl;
-    Int_t fNofMCPrim   = fhMCPrimVsP  ->Integral();
-    Int_t fNofRecoPrim = fhRecoPrimVsP->Integral();
+    Int_t fNofMCPrim     = fhMCPrimVsP  ->Integral();
+    Int_t fNofRecoPrim   = fhRecoPrimVsP->Integral();
+    Int_t fNofRecoTracks = fhNofHitsPT  ->Integral();
     Double_t effPrim = 0.;
     if ( fNofMCPrim ) effPrim = 100.*(Double_t)fNofRecoPrim/((Double_t)fNofMCPrim);
     cout << "             Simulated / Reconstructed:" << endl;
@@ -115,8 +117,11 @@
       fTest = kTRUE; 
 
     // in case can't match reco tracks to mc tracks
-    if ( fNofRecoPrim > fNofMCPrim*minEfficiency/100. )
+    if ( !fTest && fNofRecoTracks > fNofMCPrim*minEfficiency/100. ) {
+      cout << "=====================================================================" << endl;
+      cout << "Reconstructed tracks do not match MC tracks, but there are enough of them" << endl;
       fTest = kTRUE;
+    }
   }
   else
     cout << " FAILED" << endl;
