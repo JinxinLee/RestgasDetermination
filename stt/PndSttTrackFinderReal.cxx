@@ -141,7 +141,7 @@ if(istampa >=3 )   HANDLEXYZ = fopen("infoPndTrackFinderRealXYZ.txt","w");
 
 //    get   the MCTrack  array
 
-  fMCTrackArray = (TClonesArray*) ioman->ActivateBranch("MCTrack");
+  fMCTrackArray = (TClonesArray*) ioman->GetObject("MCTrack");
 
 //   -------------------------------------------------------------------
 

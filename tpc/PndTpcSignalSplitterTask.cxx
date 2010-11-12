@@ -84,7 +84,7 @@ PndTpcSignalSplitterTask::Init()
       return kERROR;
     }
 
-  ioman->ActivateBranch("EventHeader.");
+  ioman->GetObject("EventHeader.");
   fevtHeader=(FairEventHeader*) ioman->GetObject("EventHeader.");
   if(fevtHeader==0)
     {

@@ -62,7 +62,7 @@ void PndDchTrackFinderIdeal::Init() {
 	}
 
 	// Get MCTrack array
-	fMCTrackArray  = (TClonesArray*) ioman->ActivateBranch("MCTrack");
+	fMCTrackArray  = (TClonesArray*) ioman->GetObject("MCTrack");
 	if( !fMCTrackArray ) {
 		cout << "-E- "<< GetName() <<"::Init: No MCTrack array!"
 		<< endl;
