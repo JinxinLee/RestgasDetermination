@@ -5,6 +5,8 @@ eventDisplay()
     //-----User Settings:-----------------------------------------------
   TString  SimEngine      ="TGeant3"; 
   TString  InputFile     ="points_tpccombi.root";
+  TString  DigiFile      ="digi_tpccombi.root";
+  TString  RecoFile		 = "reco_tpccombi.root";
   TString  ParFile       ="params_tpccombi.root";
   //------------------------------------------------------------------
 
@@ -14,11 +16,14 @@ eventDisplay()
   rootlogon();
   gSystem->Load("libEve");
   gSystem->Load("libEventDisplay");
+  gSystem->Load("libPndEventDisplay");
 
                                      
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(InputFile.Data());
+  fRun->AddFriend(DigiFile.Data());
+  fRun->AddFriend(RecoFile.Data());
   fRun->SetOutputFile("tst.root");
 
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
@@ -26,6 +31,9 @@ eventDisplay()
   parInput1->open(ParFile.Data());
   rtdb->setFirstInput(parInput1);
   FairEventManager *fMan= new FairEventManager();
+
+  FairGeane *Geane = new FairGeane();
+   fRun->AddTask(Geane);
  
  
  //----------------------Traks and points -------------------------------------
@@ -41,7 +49,17 @@ eventDisplay()
   FairMCPointDraw *PndSTTPoint = new FairMCPointDraw ("STTPoint",kMagenta, kFullSquare);
   FairMCPointDraw *PndGEMPoint = new FairMCPointDraw ("GEMPoint",kRed, kFullSquare);
   FairMCPointDraw *PndDskPoint = new FairMCPointDraw ("DskCerenkov",kGreen, kFullSquare);
-                                                            
+
+  FairHitDraw *MvdHitsPixel = new FairHitDraw("MVDHitsPixel");
+  FairHitDraw *MvdHitsStrip = new FairHitDraw("MVDHitsStrip");
+
+  FairHitDraw *GemHit = new FairHitDraw("GEMHit");
+  FairHitDraw *PndTpcCluster = new FairHitDraw("PndTpcCluster");
+
+  PndTrackCandDraw *LheTrackCand = new PndTrackCandDraw("LheTrackCand");
+
+  PndTrackDraw *LheGenTrack = new PndTrackDraw("LheGenTrack", kTRUE);
+
   fMan->AddTask(Track);
   fMan->AddTask(MvdPoints);
   fMan->AddTask(EMCPoints);   
@@ -55,6 +73,14 @@ eventDisplay()
   fMan->AddTask(PndGEMPoint);
   fMan->AddTask(PndDskPoint);
   
+  fMan->AddTask(MvdHitsPixel);
+  fMan->AddTask(MvdHitsStrip);
+  fMan->AddTask(GemHit);
+  fMan->AddTask(PndTpcCluster);
+
+  fMan->AddTask(LheTrackCand);
+  fMan->AddTask(LheGenTrack);
+
   fMan->Init();                     
 
 }
