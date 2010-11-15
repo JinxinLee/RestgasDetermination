@@ -141,7 +141,7 @@ if(istampa >=1 ){
 
 
 //    get   the MCTrack  array
-  fMCTrackArray = (TClonesArray*) ioman->ActivateBranch("MCTrack");
+  fMCTrackArray = (TClonesArray*) ioman->GetObject("MCTrack");
   if ( ! fMCTrackArray) 
     {
       cout << "-E- PndSttMvdTracking::Init: No MCTrack array, return!"
