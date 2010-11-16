@@ -52,8 +52,8 @@ eventDisplay()
   fMan->AddTask( PndDchPoint);
   fMan->AddTask( PndTpcPoint);
   fMan->AddTask( PndSTTPoint);
-  fMan->AddTask( PndGEMPoint)
-  fMan->AddTask( PndDskPoint)
+  fMan->AddTask( PndGEMPoint);
+  fMan->AddTask( PndDskPoint);
   
   fMan->Init();                     
 
