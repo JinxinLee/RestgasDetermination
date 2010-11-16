@@ -11,9 +11,11 @@
 #include "PndSttPoint.h"
 #include "PndSttHelixHit.h"
 #include "PndTrackCand.h"
+#include "PndTrack.h"
 #include "PndDetectorList.h"
 #include "PndSttTube.h"
 #include  <cmath>
+#include "FairTrackParP.h"
 #include "FairMCPoint.h"
 #include "FairRootManager.h"
 //#include "GFKalman.h"
@@ -55,6 +57,7 @@ PndSttTrackFinderReal::PndSttTrackFinderReal()
 
 }
 // -------------------------------------------------------------------------
+
 
 
 
@@ -103,7 +106,7 @@ void PndSttTrackFinderReal::Init()
 
 N_INTENDED=0;
 
-if(istampa >=2 ){
+if(istampa >=1 ){
 //---- fetch the n. of tracks MC that were intended to be generated
    HANDLE = fopen("n_intended_tracks.txt","r");
    fscanf(HANDLE,"%d",&N_INTENDED);
@@ -124,7 +127,7 @@ if(istampa >=3 )   HANDLEXYZ = fopen("infoPndTrackFinderRealXYZ.txt","w");
    SHANDLEY = fopen("deltaSkewYmio.txt","w");
    SHANDLEZ = fopen("deltaSkewZmio.txt","w");
 
-}  //  end of if(istampa >=2)
+}  //  end of if(istampa >=1)
 
 
 // -------------------------
@@ -141,7 +144,7 @@ if(istampa >=3 )   HANDLEXYZ = fopen("infoPndTrackFinderRealXYZ.txt","w");
 
 //    get   the MCTrack  array
 
-  fMCTrackArray = (TClonesArray*) ioman->GetObject("MCTrack");
+  fMCTrackArray = (TClonesArray*) ioman->ActivateBranch("MCTrack");
 
 //   -------------------------------------------------------------------
 
@@ -335,10 +338,11 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 		auxIndex[nmaxHits],
              OLDinfoparal[nmaxHits],
 		enne[MAXTRACKSPEREVENT][nmaxHits];
-    UShort_t istep,inclination_type;
+    UShort_t istep,inclination_type, exitstatus;
 
     Double_t aaa, ddd, delta, deltabis, deltaZ, mindis, distanza, fi_hit,
               ap1, ap2, ap3, carica, cross1, cross2, cross3,
+	     StartPointofTrack[3],
              lowlimit[MAXTRACKSPEREVENT],
              uplimit[MAXTRACKSPEREVENT],
              info[nmaxHits][7],
@@ -414,13 +418,14 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
   }
 
 
-
-   if(istampa>=2 && (nMCTracks  != N_INTENDED)  ){
-    cout<<"Gianluigi : n. MC tracks = "<<nMCTracks<<" and it is different from n. intended tracks (= "<<
-        N_INTENDED<<")\n";
-//    return  -20;
+/*
+   if(istampa>=1 && (nMCTracks  != N_INTENDED)  ){
+    cout<<"Evento n. "<<IVOLTE<<" : n. MC tracks = "<<nMCTracks
+    <<" and it is different from n. intended tracks (= "<<
+        N_INTENDED<<"), returning!\n";
+    return  -20;
   }
-
+*/
 
     
   // Initialise control counters
@@ -595,7 +600,7 @@ jumpout: ;
 
 //--------------- inizio stampaggi
 //  if (istampa >= 2  && IVOLTE<= nmassimo) {
-  if (istampa >= 1  ) {
+  if (istampa >= 2  ) {
       cout<<"Gianluigi : da PndSttTrackFinderReal::DoFind : Nhits totali ="<<Nhits<<",  n Hits ||  = "<<Minclinations[0]<<
           ",  n Hits  skew = "<<NSkewhits<<endl;
   }  //  end of   if(istampa >=
@@ -720,8 +725,7 @@ jumpout: ;
           NumberofMaximaKFI0,
           nAssociatedParallelHits ;
 
-   int   iimax,jjmax,  ncount,
-         ipinco=0;
+   int   iimax,jjmax,  ncount;
 
 
    Double_t angle, max1, HoughR, HoughD, HoughFi, HoughKAPPA, HoughFI0,
@@ -1271,7 +1275,7 @@ if(iplotta && IVOLTE <= nmassimo){
   for(i=0; i<nTracksFoundSoFar;i++){
 
     GoodSkewFit[i]=false;  //  flag indicating if the skew sector info has completed the parameter info;
-                            //  a priori this is set false.
+			   //  a priori this is set false.
 
     nSkewHitsinTrack[i]=0;
 
@@ -1340,7 +1344,8 @@ if(iplotta && IVOLTE <= nmassimo){
                 &KAPPA[i]
                       );
 
-//    Status[i] is negative (-99) only when m = 0. as result of the fit in PndSttFitSZspacebis
+//    Status[i] is negative (-99) when m = 0. and (-100) as result when the fit with glpk
+//		failed.
 
 
       if(Status[i] < 0  ) {
@@ -1348,8 +1353,9 @@ if(iplotta && IVOLTE <= nmassimo){
 //        continue;
       }
 
-      FI0[i]=Fi_initial_helix_referenceframe[i];  //  therefore, FI0[i] has an extra +2*PI or -2*PI added in case of tracks
-                                                  //  crossing the X axis
+      FI0[i]=Fi_initial_helix_referenceframe[i];  //  therefore, FI0[i] has an extra +2*PI or -2*PI added
+						  // in case of tracks
+						  //  crossing the X axis
 
 
 
@@ -1397,7 +1403,7 @@ if(iplotta && IVOLTE <= nmassimo){
 
        GoodSkewFit[i]= true;
 
- }   else {   //    if( STATUS >=0 )
+ }   else {   //   continuation of   if( STATUS >=0 )
 
     nSkewHitsinTrack[i]=TemporarynSkewHitsinTrack;
     for(j=0;j<TemporarynSkewHitsinTrack;j++){ ListSkewHitsinTrack[i][j]=TemporarySkewList[j][0];}
@@ -1594,9 +1600,9 @@ if(istampa>=2) {
 
 
 
-  if(istampa>=2 )  fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE, nMCTracks);
+  if(istampa>=1 )  fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE, nMCTracks);
 
-for (ii=0; ii<nTracksFoundSoFar && istampa>=2 ;ii++){
+for (ii=0; ii<nTracksFoundSoFar && istampa>=1 ;ii++){
    fprintf(HANDLE,"----------------------------------------------------------\n");
    i=daTrackFoundaTrackMC[ii];
 
@@ -1725,10 +1731,14 @@ if( istampa>=2){
 //---------------------------------------------------------------------------------------------------------
 //   loading the hits found and associated to a track in a  PndTrackCand  class; a class per each track
 
-       Double_t Ptras,Pxini,Pyini,Pzini,dista, qop;
+	int   ipinco=0;
+	Double_t Ptras,Pxini,Pyini,Pzini,dista, qop;
+	PndTrackCand *pTrckCand;
 
-if(istampa>2) {  cout<<" da TrackFinder Real :  ancora nTracksFoundSoFar "<<nTracksFoundSoFar<<endl; }
+	TVector3   Momentum,ErrMomentum,Position, ErrPosition;
+
     for(i=0; i<nTracksFoundSoFar;i++){
+
      if(istampa >= 2){
        ii=daTrackFoundaTrackMC[i];
      }
@@ -1737,73 +1747,122 @@ if(istampa>2) {  cout<<" da TrackFinder Real :  ancora nTracksFoundSoFar "<<nTra
        Pxini = -Charge[i]*Ptras*Oy[i]/dista;
        Pyini = Charge[i]*Ptras*Ox[i]/dista;
 
-       TVector3 posSeed(0.,0.,0.);  //  direction in starting point
+       TVector3 posSeed(0.,0.,0.);  //  the starting point of the trajectory
 
      if(   GoodSkewFit[i]  ) {
        if(fabs(KAPPA[i])>1.e-20  ){
-          Pzini = -Charge[i]*0.003*BFIELD/KAPPA[i];
+		Pzini = -Charge[i]*0.003*BFIELD/KAPPA[i];
        } else {
           Pzini = 999999.;
        }
          new((*trackCandArray)[ipinco])  PndTrackCand;
-         PndTrackCand *pTrckCand = (PndTrackCand*) trackCandArray->At(ipinco);
-         ipinco++;
-	  TVector3 dirSeed(Pxini,
+         pTrckCand = (PndTrackCand*) trackCandArray->At(ipinco);
+	 TVector3 dirSeed(Pxini,
 			   Pyini,
 			   Pzini); // momentum direction in starting point
-          qop = Charge[i]/dirSeed.Mag();
-          dirSeed.SetMag(1.);
-if(istampa > 2){
-   cout<<"    da PndSttTrackFinderReal;  caricato PndTrackCand n. "<<ipinco-1
-   <<",  n. traccia sequenziale = "<<i<<
-      "\n  con  dirSeed.X = "<<dirSeed.X()<<",   dirSeed.Y = "<<dirSeed.Y()
-        <<",  dirSeed.Z = "<<dirSeed.Z()<<", qop = "<<qop<<endl;
-}
+         qop = Charge[i]/dirSeed.Mag();
+         dirSeed.SetMag(1.);
 
-          pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
-          pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[i]   );
-          for(j=0; j< nTotalHits[i]; j++){
+         pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
+         pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[i]   );
+         for(j=0; j< nTotalHits[i]; j++){
               pTrckCand->AddHit(kSttHit, (Int_t) BigList[i][j] , j);
-  if(istampa > 2) cout<<"    da PndSttTrackFinderReal;  caricato hit n. "<<BigList[i][j]<<endl;
-          }
-
+         }
       }   else  { //   continuation of    if(   GoodSkewFit[i]  )   //  case in which there is no
                                                                     //  skew hits in this track.
 								    //  This fact is signalled by
 								    //  Pzini = 9999  and the
          Pzini = 9999.;
          new((*trackCandArray)[ipinco])  PndTrackCand;
-         PndTrackCand *pTrckCand = (PndTrackCand*) trackCandArray->At(ipinco);
-         ipinco++;
+         pTrckCand = (PndTrackCand*) trackCandArray->At(ipinco);
 	 TVector3 dirSeed(Pxini,
 			   Pyini,
 			   Pzini); // momentum direction in starting point
          qop = Charge[i]/Ptras;   //  as if Pz=0
-if(istampa > 2){
-   cout<<"    da PndSttTrackFinderReal;  no Kappa information from fit, caricato PndTrackCand n. "<<ipinco-1<<
-      "\n  con  dirSeed.X = "<<dirSeed.X()<<",   dirSeed.Y = "<<dirSeed.Y()
-        <<",  dirSeed.Z = "<<dirSeed.Z()<<", qop = "<<qop<<endl;
-}
 
 
 //          dirSeed.SetMag(1.);
-          pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
-          pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[i]   );
-          for(j=0; j< nTotalHits[i]; j++){
+         pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
+         pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[i]   );
+         for(j=0; j< nTotalHits[i]; j++){
 
                pTrckCand->AddHit(kSttHit, (Int_t) BigList[i][j] , j);
-  if(istampa > 2) cout<<"    da PndSttTrackFinderReal;  caricato hit n. "<<BigList[i][j]<<endl;
-          }
+         }
 
       }    //   end of      if(   GoodSkewFit[i]  )
 
 
 
 
+//--------  do relevant calculation and load the PndTrack  class
+
+//---- first hit
+
+	StartPointofTrack[0]=StartPointofTrack[1]=StartPointofTrack[2]=0.;
+	exitstatus = CalculateSttHitPositionMomentum(
+					Ox[i],
+					Oy[i],
+					R[i],
+					Ptras,
+					Charge[i],
+					KAPPA[i],
+					FI0[i],
+					GoodSkewFit[i],
+					Pzini,
+					info,
+					BigList[i][0],  //  this is the first hit
+					&Momentum,
+					&ErrMomentum,
+					&Position,
+					&ErrPosition
+				);
+	FairTrackParP first( Position,  Momentum, 
+			     ErrPosition, ErrMomentum, Charge[i],
+			     Position, TVector3(1., 0., 0.), TVector3(0., 1., 0.)
+			   );
+
+
+//---- last hit
+	CalculateSttHitPositionMomentum(
+					Ox[i],
+					Oy[i],
+					R[i],
+					Ptras,
+					Charge[i],
+					KAPPA[i],
+					FI0[i],
+					GoodSkewFit[i],
+					Pzini,
+					info,
+					BigList[i][nTotalHits[i]-1],  // this is the last hit
+					&Momentum,
+					&ErrMomentum,
+					&Position,
+					&ErrPosition
+				);
+	FairTrackParP  last( Position,  Momentum, 
+			     ErrPosition, ErrMomentum, Charge[i],
+			     Position, TVector3(1., 0., 0.), TVector3(0., 1., 0.));
+
+
+//----- calculate the position and its error, momentum and its error, 
+//        on the fitted trajectory of the first hit
 
 
 
 
+	new((*trackArray)[ipinco]) PndTrack(
+						first,
+						last,
+						*pTrckCand,
+						0, -1., 0, 0,
+						ipinco,
+						-1
+					   );
+
+//--- now increment the : number of PndTrackCand=number of PndTrack, counter
+
+         ipinco++;
 
     }   //  end of     for(i=0; i<nTracksFoundSoFar;i++)
 
@@ -9535,6 +9594,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
         LL = fabs(vx1*Rx + vy1*Ry);
         if( LL < 1.e-10) continue;
+
         Aellipsis1 = info[i][3]*aaa/LL;
 
         Bellipsis1 = info[i][3]/R;
@@ -9732,7 +9792,7 @@ if(istampa>=3 && IVOLTE <= nmassimo) cout<<"From AssociateBetterAfterFitSkewHits
          temporeZDrift[NAssociated]=ZDrift[i];
          temporeZErrorafterTilt[NAssociated]=ZErrorafterTilt[i];
          NAssociated++;
-if(istampa==2 && IVOLTE <= nmassimo) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack ,  hit skew n. "<<SkewList[i][0]
+if(istampa>=3 && IVOLTE <= nmassimo) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack ,  hit skew n. "<<SkewList[i][0]
              <<",  tempZ[0] "<<tempZ[0]<<",  tempZ[1]  "
 <<tempZ[1]<<", fit prediction (Z) "<<bbb<<",  preso alla terza volta!!"<<endl;
       }
@@ -10357,8 +10417,7 @@ if(istampa==2 && IVOLTE <= nmassimo) cout<<"From AssociateBetterAfterFitSkewHits
 
 
 
-//  use the trick of increasing the rotation angle by 10 degrees in order to obtain always a positive m
-//      rotationangle -= PI/18.;
+//  rotation of 90 degrees
 
       for(i=0;i<nSkewHitsinTrack; i++){
 
@@ -10366,7 +10425,7 @@ if(istampa==2 && IVOLTE <= nmassimo) cout<<"From AssociateBetterAfterFitSkewHits
        Ox[i] = S[ i ] - FInot;
        Oy[i] = -Z[ i ];
 
-         Delta[i] = 3.*StrawRadius;   //  StrawRadius now is 0.5 cm
+	Delta[i] = 3.*StrawRadius;   //  StrawRadius now is 0.5 cm
 
       }
 
@@ -10676,6 +10735,7 @@ if(istampa==2 && IVOLTE <= nmassimo) cout<<"From AssociateBetterAfterFitSkewHits
 
 //----------------------  calling the minimizer
 
+//  WHEN THE FIT WENT WELL, STATUS = 0
 
       int status= glp_main(
             nRows,nameRows,typeRows, //  ROWS info
@@ -10688,7 +10748,7 @@ if(istampa==2 && IVOLTE <= nmassimo) cout<<"From AssociateBetterAfterFitSkewHits
       ,final_values
        );
 
-
+	if (status != 0) return -100;
 
 //------------------------------------------
 
@@ -10711,7 +10771,7 @@ if(istampa==2 && IVOLTE <= nmassimo) cout<<"From AssociateBetterAfterFitSkewHits
       if(fabs( (*emme)  )> 1.e-10) {
         *emme=-1./(*emme);
         return 1;
-      } else {    //  in this case the equation is   0 = x+*qu .
+      } else {
 
         return -99;
       }
@@ -12409,6 +12469,142 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 
 }
 //----------end of function PndSttTrackFinderReal::FixDiscontinuitiesFiangleinSZplane
+
+
+
+
+
+//----------begin of function PndSttTrackFinderReal::CalculateSttHitPositionMomentum
+
+
+
+	Short_t PndSttTrackFinderReal::CalculateSttHitPositionMomentum(
+				Double_t Ox,
+				Double_t Oy,
+				Double_t R,
+				Double_t Ptras,
+				Short_t Charge,
+				Double_t KAPPA,
+				Double_t FI0,
+				bool GoodSkewFit,
+				Double_t Pzini,
+				Double_t info[][7],
+				UShort_t HitNumber,
+				TVector3 *Momentum,
+				TVector3 *ErrMomentum,
+				TVector3 *Position,
+				TVector3 *ErrPosition
+				)
+{
+
+	Double_t	Distance,
+			fi,
+			Px,
+			Py,
+			versor[3];
+
+//	case of a parallel straw hit
+
+	if( fabs(info[HitNumber][5] -1.)< 1.e-10 ) {	// parallel straw
+
+		versor[0] = Ox-info[HitNumber][0];
+		versor[1] = Oy-info[HitNumber][1];
+		Distance = sqrt(versor[0]*versor[0]+versor[1]*versor[1]);
+		if (Distance < 1.e-10) return -10;
+		versor[0] /= Distance;
+		versor[1] /= Distance;
+		if( fabs( R - fabs( Distance - info[HitNumber][3] ) ) // distance trajectory-drift radius
+				<
+		    fabs( R - (Distance + info[HitNumber][3]) )  ) {
+
+			Position->SetX( info[HitNumber][0] - info[HitNumber][3]*versor[0]);
+			Position->SetY( info[HitNumber][1] - info[HitNumber][3]*versor[1]);
+
+		} else {
+
+			Position->SetX( info[HitNumber][0] + info[HitNumber][3]*versor[0]);
+			Position->SetY( info[HitNumber][1] + info[HitNumber][3]*versor[1]);
+
+		}	// end of if ( fabs( R - fabs( Distance - info[HitNumber][3] ) ).....
+
+
+			ErrPosition->SetX(0.02);	// 200 microns
+			ErrPosition->SetY(0.02);	// 200 microns
+
+		// calculate Px and Py
+			Px = Charge*Ptras*versor[1];
+			Py = -Charge*Ptras*versor[0];
+			Momentum->SetX(Px);
+			Momentum->SetY(Py);
+
+			ErrMomentum->SetX(0.05*Ptras); //  set at 5% all the times.
+			ErrMomentum->SetY(0.05*Ptras); //  set at 5% all the times.
+
+		//  calculate the Z position of the hit
+
+		if( GoodSkewFit ) {	// the fit in the SZ plane was meaningful; that means that
+					//  KAPPA != 0. and the N. of Skew hits are at least 2.
+			Position->SetZ( 0. );  // this initialization is to avoid possible problems (??)
+					       // with the Phi() function.
+			fi = Position->Phi();
+			if( Charge>0) {
+				// in this case the particle rotates clockwise for an observer watching
+				// the beam; therefore   fi must be < than FI0
+				if( fi > FI0 ) {
+					fi -= 2.*PI;
+					if( fi > FI0 )  fi = FI0;	// this is just to fix possible
+									// precision problems in the case
+									// fi ~ 2.*PI and FI0 ~ 0.
+				}
+			} else {
+				// in this case the particle rotates counterclockwise for an observer watching
+				// the beam; therefore   fi must be > than FI0
+				if( fi < FI0 ) {
+					fi += 2.*PI;
+					if( fi < FI0 )  fi = FI0;	// this is just to fix possible
+									// precision problems in the case
+									// FI0 ~ 2.*PI and fi ~ 0.
+				}
+			}	//  end of  if( Charge>0)
+
+			Position->SetZ( ( fi - FI0 )/KAPPA );
+			ErrPosition->SetZ(1.) ;	// set always 1 cm error.
+			Momentum->SetZ(Pzini);
+			ErrMomentum->SetZ(0.05*Pzini); //  set at 5% all the times.
+
+		} else {
+			// the fit in the SZ plane was meaningless or the number of skew hits
+			// in this track is < 2  or the fit in the SZ plane with glpk  failed.
+			Position->SetZ(999999.);
+			ErrPosition->SetZ(999999.);
+			Momentum->SetZ(999999.);
+			ErrMomentum->SetZ(999999.);
+		}	// end of if( GoodSkewFit )
+
+
+	};	// end of    if( fabs(info[HitNumber][5] -1.)< 1.e-10 ) )
+
+
+
+
+
+	return 1;
+}
+
+//----------end of function PndSttTrackFinderReal::CalculateSttHitPositionMomentum
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ClassImp(PndSttTrackFinderReal)
