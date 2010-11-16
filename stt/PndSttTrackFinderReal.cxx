@@ -1733,7 +1733,7 @@ if( istampa>=2){
 	int   ipinco=0;
 	Double_t Ptras,Pxini,Pyini,Pzini,dista, qop;
 	PndTrackCand *pTrckCand;
-
+	PndTrack*     pTrck; 
 	TVector3   Momentum,ErrMomentum,Position, ErrPosition;
 
     for(i=0; i<nTracksFoundSoFar;i++){
@@ -1850,14 +1850,18 @@ if( istampa>=2){
 
 
 
-	new((*trackArray)[ipinco]) PndTrack(
-						first,
-						last,
-						*pTrckCand,
-						0, -1., 0, 0,
-						ipinco,
-						-1
-					   );
+// 	new((*trackArray)[ipinco]) PndTrack(
+// 						first,
+// 						last,
+// 						*pTrckCand,
+// 						0, -1., 0, 0,
+// 						ipinco,
+// 						-1
+// 					   );
+
+	pTrck = new((*trackArray)[ipinco]) PndTrack(first, last, *pTrckCand);
+	pTrck->SetRefIndex(ipinco);
+	// pTrck->SetLink("STTTrackCand", ipinco);
 
 //--- now increment the : number of PndTrackCand=number of PndTrack, counter
 
