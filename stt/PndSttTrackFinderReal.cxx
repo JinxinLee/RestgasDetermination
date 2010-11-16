@@ -144,7 +144,7 @@ if(istampa >=3 )   HANDLEXYZ = fopen("infoPndTrackFinderRealXYZ.txt","w");
 
 //    get   the MCTrack  array
 
-  fMCTrackArray = (TClonesArray*) ioman->ActivateBranch("MCTrack");
+  fMCTrackArray = (TClonesArray*) ioman->GetObject("MCTrack");
 
 //   -------------------------------------------------------------------
 
@@ -707,8 +707,7 @@ jumpout: ;
            nBoxConformal[nRdivConformal][nFidivConformal],  //  first index -> radial divisions, 2nd index -> azimuthal divisions; n. of
                                                             //  hits falling in this cell
            HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits];  //  first index -> radial divisions, 2nd index -> azimuthal divisions;
-
-
+  //  UShort_t (*HitsinBoxConformal)[nFidivConformal][nmaxHits]= new UShort_t[nRdivConformal][nFidivConformal][nmaxHits]; // CHECK for valgrind (nov 2010)
 
    Int_t status;
 
