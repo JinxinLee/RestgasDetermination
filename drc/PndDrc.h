@@ -57,8 +57,13 @@ class PndDrc : public FairDetector
   void SetOnlyDirectPho(Bool_t db=kTRUE) {fTakeDirect = db;}
 
   /*! \brief Set the focusing system
-    \param fc (0=no focusing, 1=old lenses with two airgaps between lenses, 2=lenses without
-    airgaps and thick NLAK33=default, 3=like 2 but thin NLAK33 lens)
+    \param fc (
+    0=no focusing, 
+    1=old lenses with two airgaps between lenses, 
+    2=lenses without airgaps and thick NLAK33=default, 
+    3=like 2 but thin NLAK33 lens,
+    4=mirrors downstream
+    )
   */
   void SetFocusingSystem(Int_t fc=2) {fFocusingSystem = fc;}
 

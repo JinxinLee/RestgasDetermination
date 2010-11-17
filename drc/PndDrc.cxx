@@ -114,147 +114,13 @@ PndDrc::~PndDrc() {
 void PndDrc::Initialize() {
   
   FairDetector::Initialize();
-  FairRun       *sim  = FairRun::Instance();
-  FairRuntimeDb *rtdb = sim->GetRuntimeDb();
-  PndGeoDrcPar *par  = (PndGeoDrcPar*)(rtdb->getContainer("PndGeoDrcPar"));
+  //FairRun       *sim  = FairRun::Instance();
+  //FairRuntimeDb *rtdb = sim->GetRuntimeDb();
+  //PndGeoDrcPar *par  = (PndGeoDrcPar*)(rtdb->getContainer("PndGeoDrcPar"));
 
 
 
 
-
- 
-  int verbosity = fVerboseLevel; // 0=quiet ... 5=talk too much
-
-
-  //XYZPoint p[8];   // 8 space points of radiator bar in sequence of above
-
-  //PndDrcOptDevManager* manager = new PndDrcOptDevManager();
-  //manager->SetVerbosity(verbosity);
-
-
-  TObjArray    *sensNodes = par->GetGeoSensitiveNodes();
-  
-  //  FairGeoNode *fm1= (FairGeoNode *) sensNodes->FindObject("bar"); // barrel (single slab)
-  //   FairGeoNode *fm2= (FairGeoNode *) sensNodes->FindObject("pd"); // photodetector
-  
-  //   fSenIdBar=fm1->getMCid();
-  //   fSenId2=fm2->getMCid();
-  
-  
-  /*
-    for( int inode=0; inode<sensNodes->GetEntries(); inode++) 
-    {// for inode
-    FairGeoNode *node = dynamic_cast<FairGeoNode*> (sensNodes->At(inode));	
-    if ( !node ) continue;
-  
-    TString name = node->getName();
-    TString shapeName = node->getShapePointer()->GetName();
-    TString name_clone = "none";
-  
-    std::cout<<" node,name "<<inode<<" "<<name.Data()<<std::endl;//###
-  
-    if (shapeName.CompareTo("BOX"))
-    {//if box
-    name_clone  = name;
-    name_clone += "_clone";
-  
-  
-    FairGeoTransform trans = node->getTransform();
-  
-    for (int ii=0; ii<node->getNumPoints(); ii++)
-    {
-    FairGeoVector vec = *(node->getPoint(ii));
-    FairGeoVector vec1 = trans.transFrom(vec);
-    p[ii].SetXYZ(vec1.X(),vec1.Y(),vec1.Z());
-    //cout<<" points: "<<vec1.X()<<" "<<vec1.Y()<<" "<<vec1.Z()<<endl;
-    }
-  
-    // assemble bar
-  
-    // Declare 6 flat surfaces with 4 edge points.
-    PndDrcSurfPolyFlat a1,a2,a3,a4,a5,a6;
-  
-    a1.SetVerbosity(verbosity);
-    a1.AddPoint(p[0]);
-    a1.AddPoint(p[1]);
-    a1.AddPoint(p[2]);
-    a1.AddPoint(p[3]);
-    a1.SetPixel();                // screen
-    a1.SetName("a_upstream");
-  
-    a2.SetVerbosity(verbosity);
-    a2.AddPoint(p[1]);
-    a2.AddPoint(p[5]);
-    a2.AddPoint(p[6]);
-    a2.AddPoint(p[2]);
-    a2.SetName("a_side1");
-  
-    a3.SetVerbosity(verbosity);
-    a3.AddPoint(p[0]);
-    a3.AddPoint(p[4]);
-    a3.AddPoint(p[5]);
-    a3.AddPoint(p[1]);
-    a3.SetName("a_side2");
-  
-    a4.SetVerbosity(verbosity);
-    a4.AddPoint(p[3]);
-    a4.AddPoint(p[2]);
-    a4.AddPoint(p[6]);
-    a4.AddPoint(p[7]);
-    a4.SetName("a_side3");
-  
-    a5.SetVerbosity(verbosity);
-    a5.AddPoint(p[0]);
-    a5.AddPoint(p[3]);
-    a5.AddPoint(p[7]);
-    a5.AddPoint(p[4]);
-    a5.SetName("a_side4");
-  
-    PndDrcOptReflSilver refl;
-  
-    a6.SetVerbosity(verbosity);
-    a6.SetReflectivity(refl);   // mirror
-    a6.AddPoint(p[7]);
-    a6.AddPoint(p[6]);
-    a6.AddPoint(p[5]);
-    a6.AddPoint(p[4]);
-    a6.SetName("a_downstream");
-  
-    // create a volume consiting of surfaces
-    // create a material the bar will consist of
-    PndDrcOptVol bar;
-    PndDrcOptMatLithotecQ0 quartz;
-    bar.SetVerbosity(verbosity);
-    bar.SetOptMaterial(quartz);
-    bar.AddSurface(a1);
-    bar.AddSurface(a2);
-    bar.AddSurface(a3);
-    bar.AddSurface(a4);
-    bar.AddSurface(a5);
-    bar.AddSurface(a6);
-    bar.SetName("bar");
-    //bar.setCopyNumber(inode);
-  
-    // create a screen (simplified photon detector) where photons end and 
-    // get the status Drc::Measured (no further propagation). For this you need 
-    // one single plane.
-  
-  
-    // Build a optical system consisting out of several 
-    // volumes, mirrors and screens. This layer has the advantage, that 
-    // a device consisting out of many equal subsystems
-    // like a bar box, easily can be reproduced. See one of the 
-    // test examples in ./drcprop.
-  
-    PndDrcOptDevSys opt_system;
-    opt_system.SetVerbosity(verbosity);
-    opt_system.AddDevice(bar);
-    opt_system.SetNameCopyNumber(name_clone.Data(),inode);
-    manager->AddDeviceSystem(opt_system);
-  
-    }
-    } 
-  */
   if (fRunCherenkov==kFALSE) cout << " -I- PndDrc: Switching OFF Cherenkov Propagation" << endl;
   cout << " -I- PndDrc: Intialization successfull" << endl;
   
@@ -689,6 +555,7 @@ void PndDrc::ConstructGeometry()
   TGeoBBox* logicMirror  = new TGeoBBox("logicMirror", lside/barnum/2.-bargap, hthick, mirr_hthick);
   TGeoVolume *mirr  = new TGeoVolume("DrcMirr", logicMirror,  gGeoManager->GetMedium("Mirror"));
   mirr->SetLineColor(5);
+  if (fFocusingSystem != 4)
   barContainer->AddNode(mirr, 1,new TGeoCombiTrans(0., 0., bbox_hlen-mirr_hthick, new TGeoRotation (0)) );
       
     
@@ -734,6 +601,42 @@ void PndDrc::ConstructGeometry()
 
 
     cout<<" DIRC Focussing system option = "<<fFocusingSystem<<endl;
+    //mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+  if (fFocusingSystem == 4)
+    {  // Mirrors at front
+      // Put some mirrors at the downstream end with a focal plane at the PD.
+
+      Double_t mirror_angle  = 0.0; // 0.0 is pointing upstream, -90.0 is pointing to the beam axis
+      Double_t focal_length  = 2*bbox_hlen + sob_len;
+      Double_t mirror_radius = 2 * focal_length;
+      
+      len = -5.0; // negative to make space at downstream end of bar.
+      
+      //TGeoSphere* logicSphere = new TGeoSphere("S",0.,mirror_radius, 0. ,180.,0.,360.);
+      //TGeoBBox*   lBox        = new TGeoBBox("B", (lside/barnum)/2-bargap, hthick, fabs(len)/2.);
+
+      
+      //Double_t t = -r +b/2;
+
+      //TGeoTranslation *tr1 = new TGeoTranslation("tr1", 0.,0., t);
+      //tr1->RegisterYourself();
+      //TGeoCompositeShape *cs = new TGeoCompositeShape("cs","S*(B:tr1)");
+      //TGeoVolume *lens1 = new TGeoVolume("DrcLENS1",cs, gGeoManager->GetMedium("FusedSil"));
+      //lens1->SetLineColor(kRed-8);
+      //lens1->SetTransparency(40); 
+      
+
+      
+      
+
+
+
+
+
+
+    
+    }   // E N D      O F      MIRRORS
+    //mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
     //mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
   if (fFocusingSystem == 3){  // L E N S E S  (no airgaps, thin nlak33)
     // some notes to lens operations (revision 9649) is in
@@ -989,8 +892,8 @@ void PndDrc::ConstructGeometry()
   
   
   // Fused Silica bars
-  // make bar shorter by amount of lens space
-  TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/barnum)/2.)-bargap, hthick, bbox_hlen-len/2.-mirr_hthick);
+  // make bar shorter by amount of lens space (len is negative for free space downstream eg. for mirror option)
+  TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/barnum)/2.)-bargap, hthick, bbox_hlen-fabs(len)/2.-mirr_hthick);
   TGeoVolume *bar = new TGeoVolume("DrcBar",logicBar, gGeoManager->GetMedium("FusedSil"));
   bar->SetLineColor(kCyan-9);
   bar->SetTransparency(50);
