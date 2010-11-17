@@ -156,7 +156,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
       int IVOLTE, ntimes, INTERO, ITRACCIA,
           N_INTENDED;
 //  Double_t SEMILENGTH_STRAIGHT = 75.;
-      static const bool  iplotta = false , ianalizza = true ;
+      static const bool  iplotta = true , ianalizza = true ;
       static const int  nmassimo=10;
       int istampa ;
       TH1F * hx;
@@ -755,26 +755,6 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                           Double_t *Fi_initial_helix_referenceframe,
                           Short_t Charge
                           );
-
-
-
-  Short_t	CalculateSttHitPositionMomentum(
-				Double_t Ox,
-				Double_t Oy,
-				Double_t R,
-				Double_t Ptras,
-				Short_t Charge,
-				Double_t KAPPA,
-				Double_t FI0,
-				bool GoodSkewFit,
-				Double_t Pzini,
-				Double_t info[][7],
-				UShort_t HitNumber,
-				TVector3 *Momentum,	// output
-				TVector3 *ErrMomentum,	// output
-				TVector3 *Position,	// output
-				TVector3 *ErrPosition	// output
-				);
 
 
 //----------------------------------------------
