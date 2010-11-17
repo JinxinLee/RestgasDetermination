@@ -151,13 +151,13 @@ if(istampa >=1 ){
 
 
   // Get SttTrack array // tracce che vengono dal fit di Pavia dell'elica
-  fSttTrackArray  = (TClonesArray*) ioman->GetObject("STTTrack"); 
-  if ( ! fSttTrackArray) 
-    {
-      cout << "-E- PndSttMvdTracking::Init: No SttTrack array, return!"
-	   << endl;
-      return kERROR;
-    }
+//  fSttTrackArray  = (TClonesArray*) ioman->GetObject("STTTrack"); 
+//  if ( ! fSttTrackArray) 
+//    {
+//      cout << "-E- PndSttMvdTracking::Init: No SttTrack array, return!"
+//	   << endl;
+//      return kERROR;
+//    }
 
  // Get SttTrackCand array  dal pattern recognition di STT
   fSttTrackCandArray  = (TClonesArray*) ioman->GetObject("STTTrackCand"); 
@@ -795,18 +795,19 @@ if(istampa>2&& IVOLTE<20) cout<<"Il punto n. "<<i<<" Mvd MC e' associato alla tr
 //---------------  recupero le Helix-Lia  PndSttTrack trovate dopo il PR
 //                 delle STT + fit di Lia
 
-nSttHelixTrack = fSttTrackArray->GetEntriesFast();
-if(istampa>2  && IVOLTE<20){ cout<<"N. totale di PndSttTrack dopo PR+fit Lia = "
+/*
+ nSttHelixTrack = fSttTrackArray->GetEntriesFast();
+ if(istampa>2  && IVOLTE<20){ cout<<"N. totale di PndSttTrack dopo PR+fit Lia = "
                               <<nSttHelixTrack<<endl; }
 
- for(  i= 0; i< nSttHelixTrack; i++){
-  pSttHelixTrack = (PndSttTrack *) fSttTrackArray->At(i);
+  for(  i= 0; i< nSttHelixTrack; i++){
+   pSttHelixTrack = (PndSttTrack *) fSttTrackArray->At(i);
 
 // ------  estraggo il PndTrackCand [che era uscito dal PR]
 //         sul quale HelixFit e' stato applicato
 
   Candidato = pSttHelixTrack->GetTrackCandIndex();
-  /** parameters of the helix: d0, phi0, Rad, tanlambda, z0 **/
+  // parameters of the helix: d0, phi0, Rad, tanlambda, z0
   Dist =pSttHelixTrack->GetDist();
   Phi  = pSttHelixTrack->GetPhi();
   Rad=pSttHelixTrack->GetRad();
@@ -816,6 +817,9 @@ if(istampa>2  && IVOLTE<20){ cout<<"N. totale di PndSttTrack dopo PR+fit Lia = "
   Charge= pSttHelixTrack->GetCharge();
   iflag = pSttHelixTrack->GetFlag();
  }
+
+
+*/
 
 //---------------  fine del recupero le Helix-Lia  PndSttTrack trovate dopo il PR delle STT + fit di Lia
 
@@ -1404,7 +1408,8 @@ cout<<"da PndSttMvdTracking, dopo Match Again, Stt candidato n."
 			if(S[i]<0.) S[i] +=2.*PI;
 			Sbis[i][0] = S[i];
 			DriftRadiusbis[i][0]=DriftRadius[i]=0.;
-			ErrorDriftRadiusbis[i][0]=ErrorDriftRadius[i]=sigmaZMvdStrip[k];
+//			ErrorDriftRadiusbis[i][0]=ErrorDriftRadius[i]=sigmaZMvdPixel[k];
+			ErrorDriftRadiusbis[i][0]=ErrorDriftRadius[i]= 0.01 ;
 		}
 		// adding the Mvd Strips hit
 		for(j=0; j< nMvdStripHitsAssociatedToSttTrack[ncand]; j++){
@@ -1415,7 +1420,8 @@ cout<<"da PndSttMvdTracking, dopo Match Again, Stt candidato n."
 			if(S[i]<0.) S[i] +=2.*PI;
 			Sbis[i][0] = S[i] ;
 			DriftRadiusbis[i][0]=DriftRadius[i]=0.;
-			ErrorDriftRadiusbis[i][0]=ErrorDriftRadius[i]=sigmaZMvdStrip[k];
+//			ErrorDriftRadiusbis[i][0]=ErrorDriftRadius[i]=sigmaZMvdStrip[k];
+			ErrorDriftRadiusbis[i][0]=ErrorDriftRadius[i]= 0.01 ;
 		}
 
 
@@ -1446,14 +1452,22 @@ cout<<"da PndSttMvdTracking, dopo Match Again, Stt candidato n."
 					Sbis[kall][0]=S[i] = s[0];
 					DriftRadiusbis[kall][0]=DriftRadius[i]=zdrift[0];
 //					ErrorDriftRadiusbis[kall][0]=ErrorDriftRadius[i]=zerror[0];
-					ErrorDriftRadiusbis[kall][0]=ErrorDriftRadius[i]=zdrift[0];
+					if( fabs(zdrift[0]) >1.e-10) {
+					 ErrorDriftRadiusbis[kall][0]=ErrorDriftRadius[i]=zdrift[0];
+					} else {
+					 ErrorDriftRadiusbis[kall][0]=ErrorDriftRadius[i]=0.5;
+					}
 					i++;
 
 					ZEDbis[kall][1]=ZED[i]=z[1];
 					Sbis[kall][1]=S[i] = s[1];
 					DriftRadiusbis[kall][1]=DriftRadius[i]=zdrift[1];
 //					ErrorDriftRadiusbis[kall][1]=ErrorDriftRadius[i]=zerror[1];
-					ErrorDriftRadiusbis[kall][1]=ErrorDriftRadius[i]=zdrift[1];
+					if( fabs(zdrift[1]) >1.e-10) {
+					 ErrorDriftRadiusbis[kall][1]=ErrorDriftRadius[i]=zdrift[1];
+					} else {
+					 ErrorDriftRadiusbis[kall][1]=ErrorDriftRadius[i]=0.5;
+					}
 					i++;
 
 				}else if( z[0]<999998.){
@@ -1461,7 +1475,11 @@ cout<<"da PndSttMvdTracking, dopo Match Again, Stt candidato n."
 					Sbis[kall][0]=S[i] = s[0];
 					DriftRadiusbis[kall][0]=DriftRadius[i]=zdrift[0];
 //					ErrorDriftRadiusbis[kall][0]=ErrorDriftRadius[i]=zerror[0];
-					ErrorDriftRadiusbis[kall][0]=ErrorDriftRadius[i]=zdrift[0];
+					if( fabs(zdrift[0]) >1.e-10) {
+					 ErrorDriftRadiusbis[kall][0]=ErrorDriftRadius[i]=zdrift[0];
+					} else {
+					 ErrorDriftRadiusbis[kall][0]=ErrorDriftRadius[i]=0.5;
+					}
 					ZEDbis[kall][1]=999999.;
 					i++;
 				} else if( z[1]<999998.){
@@ -1469,7 +1487,11 @@ cout<<"da PndSttMvdTracking, dopo Match Again, Stt candidato n."
 					Sbis[kall][1]=S[i] = s[1];
 					DriftRadiusbis[kall][1]=DriftRadius[i]=zdrift[1];
 //					ErrorDriftRadiusbis[kall][1]=ErrorDriftRadius[i]=zerror[1];
-					ErrorDriftRadiusbis[kall][1]=ErrorDriftRadius[i]=zdrift[1];
+					if( fabs(zdrift[1]) >1.e-10) {
+					 ErrorDriftRadiusbis[kall][1]=ErrorDriftRadius[i]=zdrift[1];
+					} else {
+					 ErrorDriftRadiusbis[kall][1]=ErrorDriftRadius[i]=0.5;
+					}
 					ZEDbis[kall][0]=999999.;
 					i++;
 				} else {
