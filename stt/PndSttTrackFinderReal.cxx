@@ -1738,7 +1738,6 @@ if( istampa>=2){
 	PndTrackCand *pTrckCand;
 	PndTrack*     pTrck; 
 	TVector3   Momentum,ErrMomentum,Position,ErrPosition;
-
     for(i=0; i<nTracksFoundSoFar;i++){
 
      if(istampa >= 2){
@@ -1748,7 +1747,6 @@ if( istampa>=2){
        Ptras = R[i]*0.003*BFIELD;
        Pxini = -Charge[i]*Ptras*Oy[i]/dista;
        Pyini = Charge[i]*Ptras*Ox[i]/dista;
-
        TVector3 posSeed(0.,0.,0.);  //  the starting point of the trajectory
 
      if(   GoodSkewFit[i]  ) {
@@ -1834,8 +1832,8 @@ if( istampa>=2){
 			// I already know from PndSttInfoXYZ... that versor is not zero.
 				versor[0] /= Distance;
 				versor[1] /= Distance;
-				Px = Charge[i]*Ptras*versor[1];
-				Py = -Charge[i]*Ptras*versor[0];
+				Px = -Charge[i]*Ptras*versor[1];
+				Py = Charge[i]*Ptras*versor[0];
 				Momentum.SetX(Px);
 				Momentum.SetY(Py);
 				Momentum.SetZ(Pzini);
@@ -1861,8 +1859,8 @@ if( istampa>=2){
 			// I already know from PndSttInfoXYZ... that versor is not zero.
 				versor[0] /= Distance;
 				versor[1] /= Distance;
-				Px = Charge[i]*Ptras*versor[1];
-				Py = -Charge[i]*Ptras*versor[0];
+				Px = -Charge[i]*Ptras*versor[1];
+				Py = Charge[i]*Ptras*versor[0];
 				Momentum.SetX(Px);
 				Momentum.SetY(Py);
 				// Momentum.SetZ(Pzini);
@@ -1873,6 +1871,7 @@ if( istampa>=2){
 				ErrPosition, ErrMomentum, Charge[i],
 				Position, TVector3(1., 0., 0.), TVector3(0., 1., 0.)
 					);
+
 				//  now load the PndTrack object
 				pTrck = new((*trackArray)[ipanco]) PndTrack(first, last, *pTrckCand);
 				pTrck->SetRefIndex(ipanco);
@@ -1997,17 +1996,17 @@ if(istampa>=3)  cout<<"da PndSttTrackFinderReal: DoFind, paralleli, infoparal[ L
 
     for( j=0; j< nSkewHitsinTrack[i]; j++){
        PndSttInfoXYZSkew (
-                             Zfinal[i][ infoskew[ ListSkewHitsinTrack[i][j] ] ],       //  Z coordinate of selected Skew hit
-                             ZDriftfinal[i][ infoskew[ ListSkewHitsinTrack[i][j] ] ],   // drift distance IN Z DIRECTION only, of Skew hit
-                             Sfinal[i][ infoskew[ ListSkewHitsinTrack[i][j] ] ],
-                             Ox[i],
-                             Oy[i],
-                             R[i],
-                             KAPPA[i],
-                             FI0[i],
-                             Charge[i],
-                             Posiz
-                            );
+		Zfinal[i][ infoskew[ ListSkewHitsinTrack[i][j] ] ],       //  Z coordinate of selected Skew hit
+		ZDriftfinal[i][ infoskew[ ListSkewHitsinTrack[i][j] ] ],   // drift distance IN Z DIRECTION only, of Skew hit
+		Sfinal[i][ infoskew[ ListSkewHitsinTrack[i][j] ] ],
+		Ox[i],
+		Oy[i],
+		R[i],
+		KAPPA[i],
+		FI0[i],
+		Charge[i],
+		Posiz
+		);
        Xpos_for_LHeTrack[  infoskew[ ListSkewHitsinTrack[i][j] ]  ]=Posiz[0];
        Ypos_for_LHeTrack[  infoskew[ ListSkewHitsinTrack[i][j] ]  ]=Posiz[1];
        Zpos_for_LHeTrack[  infoskew[ ListSkewHitsinTrack[i][j] ]  ]=Posiz[2];
@@ -2052,13 +2051,14 @@ if(istampa>=3)  cout<<"DoFind, skew, infoskew[ ListSkewHitsinTrack[i][j] ] = "<<
       }
 
       TVector3 posErr(0, 0, 0); // CHECK put the errors
-      PndSttHelixHit *  helixhit = new(clref[size]) PndSttHelixHit(ListPointer_to_Hit[iHit]->GetDetectorID(),  
-								ListPointer_to_Hit[iHit]->GetTubeID(), 
-								iHit, ListPointer_to_Hit[iHit]->GetRefIndex(), 
-								pos, posErr,
-								ListPointer_to_Hit[iHit]->GetIsochrone(), 
-								ListPointer_to_Hit[iHit]->GetIsochroneError(),
-								0.0);
+      PndSttHelixHit *  helixhit =
+		new(clref[size]) PndSttHelixHit(ListPointer_to_Hit[iHit]->GetDetectorID(),
+						ListPointer_to_Hit[iHit]->GetTubeID(),
+						iHit, ListPointer_to_Hit[iHit]->GetRefIndex(),
+						pos, posErr,
+						ListPointer_to_Hit[iHit]->GetIsochrone(),
+						ListPointer_to_Hit[iHit]->GetIsochroneError(),
+						0.0);
 
    
     }  //   end of for(iHit=0; iHit<Nhits;iHit++)
