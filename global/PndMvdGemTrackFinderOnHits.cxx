@@ -12,6 +12,7 @@
 #include "FairBaseParSet.h"
 #include "FairTrackParam.h"
 #include "FairTrackParP.h"
+#include "PndSdsMCPoint.h"
 #include "PndGemMCPoint.h"
 #include "PndGemDigiPar.h"
 #include "FairRootManager.h"
@@ -192,9 +193,10 @@ InitStatus PndMvdGemTrackFinderOnHits::ReInit() {
 
 // -----   Public method DoFind   ------------------------------------------
 void PndMvdGemTrackFinderOnHits::Exec(Option_t* opt) {
-  //  if ( fVerbose > 0 ) 
-//   cout << "===========================================" << endl;
-//   cout << "=============== EVENT " << fNofEvents << " =================" << endl;
+  if ( fVerbose > 0 ) {
+    cout << "===========================================" << endl;
+    cout << "=============== EVENT " << fNofEvents << " =================" << endl;
+  }  
   fTrackArray    ->Delete();
   fTrackCandArray->Delete();
 
@@ -207,14 +209,30 @@ void PndMvdGemTrackFinderOnHits::Exec(Option_t* opt) {
   if( !fMCTrackArray || !fMCGemPointArray || !fMCMvdPointArray )
     fMCAvailable = kFALSE;
   
-  for ( Int_t itr = 0 ; itr < 10 ; itr++ ) { 
-//     PndMCTrack* mcTrack = (PndMCTrack*) fMCTrackArray->At(itr);
-//     TVector3 mcmom = mcTrack->GetMomentum();
+  for ( Int_t itr = 0 ; itr < fMCTrackArray->GetEntriesFast() ; itr++ ) { 
+    PndMCTrack* mcTrack = (PndMCTrack*) fMCTrackArray->At(itr);
+    TVector3 mcmom = mcTrack->GetMomentum();
 //     cout << "MC " << itr << " p = : " 
-// 	 << setw(11) << mcmom.Mag() << " GeV, " 
-// 	 << setw(11) << TMath::RadToDeg()*mcmom.Phi()+(mcmom.Phi()>=0.?0:360.) << " deg, "
-// 	 << setw(11) << TMath::RadToDeg()*mcmom.Theta() << " deg." << endl;
+//  	 << setw(11) << mcmom.Mag() << " GeV, " 
+//  	 << setw(11) << TMath::RadToDeg()*mcmom.Phi()+(mcmom.Phi()>=0.?0:360.) << " deg, "
+//  	 << setw(11) << TMath::RadToDeg()*mcmom.Theta() << " deg." << endl;
   }
+  /*
+  for ( Int_t itp = 0 ; itp < fMCMvdPointArray->GetEntriesFast() ; itp++ ) {
+    PndSdsMCPoint* mcPoint = (PndSdsMCPoint*) fMCMvdPointArray->At(itp);
+    cout << " MVD #" << itp << " *" << mcPoint->GetTrackID() << "* " 
+	 << mcPoint->GetX() << " "
+	 << mcPoint->GetY() << " "
+	 << mcPoint->GetZ() << " " << endl;
+  }
+  for ( Int_t itp = 0 ; itp < fMCGemPointArray->GetEntriesFast() ; itp++ ) {
+    PndGemMCPoint* mcPoint = (PndGemMCPoint*) fMCGemPointArray->At(itp);
+    cout << " GEM #" << itp << " *" << mcPoint->GetTrackID() << "* " 
+	 << mcPoint->GetX() << " "
+	 << mcPoint->GetY() << " "
+	 << mcPoint->GetZ() << " " << endl;
+  }
+  */
 
   // Initialise control counters
   Int_t nNoTrack     = 0;
@@ -263,6 +281,8 @@ void PndMvdGemTrackFinderOnHits::Exec(Option_t* opt) {
 
 // --- Private method to create tracks ------------------------
 Int_t PndMvdGemTrackFinderOnHits::CreateTracks(Int_t nofRecoTracks) {
+  Bool_t printInfo = kFALSE;//kTRUE;
+
   Int_t nofCreatedTracks = 0;
   
   const Int_t kNofRecoTracks = nofRecoTracks;
@@ -318,7 +338,6 @@ Int_t PndMvdGemTrackFinderOnHits::CreateTracks(Int_t nofRecoTracks) {
     meanThe[itr] += iterTS.trackTheta;
     nofTS[itr] ++;
   }
-  
   for ( itr = 0 ; itr < nofRecoTracks ; itr++ ) {
     if ( nofTS[itr] == 0 ) continue;
     
@@ -328,8 +347,18 @@ Int_t PndMvdGemTrackFinderOnHits::CreateTracks(Int_t nofRecoTracks) {
 
     trackCand = new((*fTrackCandArray)[nofCreatedTracks]) PndTrackCand();
 
-//     cout << "---------------------------------------------------------" << endl;
-//     cout << "  Track " << itr << " has " << nofHits[itr] << " hits:" << endl;
+    if ( fVerbose > 3 || printInfo ) {
+      cout << "---------------------------------------------------------" << endl;
+      cout << "  Track " << itr << " segments:" << endl;
+
+      for ( Int_t its = 0 ; its < fTrackSegments.size() ; its++ ) {	
+	TrackSegment iterTS = fTrackSegments[its];
+	if ( iterTS.recoTrackIndex != itr ) continue;
+	cout << iterTS.trackMom << " GeV/c, " << iterTS.trackTheta << " deg theta, " << iterTS.trackPhi << " deg phi)" << endl; 
+      }
+      
+      cout << " track has " << nofHits[itr] << " hits:" << endl;
+    }
     Int_t nGemHits = 0;
     Int_t nMvdStrH = 0;
     Int_t nMvdPixH = 0;
@@ -338,26 +367,49 @@ Int_t PndMvdGemTrackFinderOnHits::CreateTracks(Int_t nofRecoTracks) {
       if ( hitIndices[itr][ihit][0] < 0 ) 
 	detId = (-hitIndices[itr][ihit][0])>>27;
           
-//       cout << "    #" << ihit << ". " 
-// 	   << hitIndices[itr][ihit][0] << "." 
-// 	   << hitIndices[itr][ihit][1] << " -> "
-// 	   << detId << endl;
+      if ( fVerbose > 3 || printInfo ) {
+	cout << "    #" << ihit << ". " 
+	     << hitIndices[itr][ihit][0] << "." 
+	     << hitIndices[itr][ihit][1] << " -> "
+	     << detId << flush;
+	     }
 
       if ( detId == kGemHit ) {
 	gemHit = (PndGemHit*)fGemHitArray->At(hitIndices[itr][ihit][1]);
 	trackCand->AddHit(kGemHit,hitIndices[itr][ihit][1],gemHit->GetPosition().Mag());
 	nGemHits += 1;
+	if ( fVerbose > 3 || printInfo ) {
+	  cout << "  ( " << gemHit->GetX()
+	       << "    " << gemHit->GetY()
+	       << "    " << gemHit->GetZ()
+	       << " )  " << flush;
+	}
       }
       else if ( detId == kMVDHitsStrip ) {
 	mvdHit = (PndSdsHit*)fMvdStripHitArray->At(hitIndices[itr][ihit][1]);
 	trackCand->AddHit(kMVDHitsStrip,hitIndices[itr][ihit][1],mvdHit->GetPosition().Mag());
 	nMvdStrH += 1;
+		if ( fVerbose > 3 || printInfo ) {
+	  cout << "  ( " << mvdHit->GetX()
+	       << "    " << mvdHit->GetY()
+	       << "    " << mvdHit->GetZ()
+	       << " )  " << flush;
+	}
       }
       else if ( detId == kMVDHitsPixel ) {
 	mvdHit = (PndSdsHit*)fMvdPixelHitArray->At(hitIndices[itr][ihit][1]);
 	trackCand->AddHit(kMVDHitsPixel,hitIndices[itr][ihit][1],mvdHit->GetPosition().Mag());
 	nMvdPixH += 1;
+		if ( fVerbose > 3 || printInfo ) {
+	  cout << "  ( " << mvdHit->GetX()
+	       << "    " << mvdHit->GetY()
+	       << "    " << mvdHit->GetZ()
+	       << " )  " << flush;
+	       }
       }
+            if ( fVerbose > 3 || printInfo ) {
+	cout << endl;
+	}
     }
 
     trackCand->Sort();
@@ -399,11 +451,20 @@ Int_t PndMvdGemTrackFinderOnHits::CreateTracks(Int_t nofRecoTracks) {
     // 			      gemTrackCand->getQoverPseed());
     //     }
 
-    //    cout << "---------------------------------------------------------" << endl;
+    
+    if ( fVerbose > 2 || printInfo )
+      cout << "TRACK " << nofCreatedTracks << " HAS momentum: (" << meanMom[itr] << " GeV/c, " << meanThe[itr] << " deg theta, " << meanPhi[itr] << " deg phi)" << endl; 
+
+    if ( fVerbose > 3 || printInfo ) {
+      mom.SetMagThetaPhi(TMath::Abs(meanMom[itr]),meanThe[itr]*TMath::DegToRad(),meanPhi[itr]*TMath::DegToRad());
+      
+      cout << endl;
+      cout << " momentum: (" << meanMom[itr] << " GeV/c, " << meanThe[itr] << " deg theta, " << meanPhi[itr] << " deg phi)" << endl; 
+      cout << "---------------------------------------------------------" << endl;
+    }
 
     nofCreatedTracks++;
   }
-  
   return nofCreatedTracks;
 }
 // ------------------------------------------------------------
@@ -422,9 +483,6 @@ void PndMvdGemTrackFinderOnHits::RemoveCloneTracks(Int_t nofRecoTracks) {
   Double_t meanPhi   [kNofRecoTracks]; // mean phi angle of segments in track
   Double_t meanThe   [kNofRecoTracks]; // mean theta angle of segments in track
   Int_t    hitIndices[kNofRecoTracks][maxNofHits][2]; // detId, hitId for each track hit
-  Int_t    hitNofUses[kNofRecoTracks][maxNofHits];
-  Bool_t   hitMultiSt[kNofRecoTracks][maxNofHits];
-  Bool_t   hitMultiIn[kNofRecoTracks];
   Int_t    nofHits   [kNofRecoTracks]; // number of hits in track
   Int_t    nofTS     [kNofRecoTracks]; // number of segments in track
   Double_t trackCons [kNofRecoTracks]; // kind of chi/ndf
@@ -465,34 +523,42 @@ void PndMvdGemTrackFinderOnHits::RemoveCloneTracks(Int_t nofRecoTracks) {
     TrackSegment iterTS = fTrackSegments[its];
     if ( iterTS.recoTrackIndex == -1 ) continue;
     itr = iterTS.recoTrackIndex;
-    
+   
     trackCons[itr] += TMath::Abs((iterTS.trackMom  -meanMom[itr])/meanMom[itr]);
     trackCons[itr] += TMath::Abs( iterTS.trackPhi  -meanPhi[itr]);
     trackCons[itr] += TMath::Abs( iterTS.trackTheta-meanThe[itr]);
   } 
+
   for ( itr = 0 ; itr < kNofRecoTracks ; itr++ ) {
     trackCons[itr] = trackCons[itr]/(3.*nofTS[itr]);
-    hitMultiIn[itr] = kFALSE;
 
     if ( trackCons[itr] > 1. && nofTS[itr] < 6 ) {
       whatToDo[itr] = -1;
-      //      cout << "TRACK " << itr << " with " << nofTS[itr] << " segments will be deleted" << endl;
+      if ( fVerbose > 4 ) 
+	cout << "TRACK " << itr << " with " << nofTS[itr] << " segments will be deleted" << endl;
       continue;
     }
     whatToDo[itr] = itr;
 
     for ( Int_t itr2 = 0 ; itr2 < itr ; itr2++ ) {
-      if ( TMath::Abs(meanPhi[itr]-meanPhi[itr2]) < 5. &&
-	   TMath::Abs(meanThe[itr]-meanThe[itr2]) < 1. &&
-	   TMath::Abs(meanMom[itr]-meanMom[itr2]) < 0.15*TMath::Abs(meanMom[itr2]) ) {
-	if ( whatToDo[itr2] == -1   ) whatToDo[itr2] = itr2;
-	whatToDo[itr] = whatToDo[itr2];
-	break;
-      }
+      Double_t mmm = 0.5*(TMath::Abs(meanMom[itr])+TMath::Abs(meanMom[itr2]));
+      Double_t similarity = (TMath::Abs(meanPhi[itr]-meanPhi[itr2])+
+			     TMath::Abs(meanThe[itr]-meanThe[itr2])+
+			     TMath::Abs(meanMom[itr]-meanMom[itr2])/mmm);
+      //      cout << " -->  " << meanPhi[itr ] << "   " << meanThe[itr ] << "   " << meanMom[itr ] << "    \\ " << endl;
+      //      cout << " -->  " << meanPhi[itr2] << "   " << meanThe[itr2] << "   " << meanMom[itr2] << "    : " << similarity << endl;
+      //       if ( TMath::Abs(meanPhi[itr]-meanPhi[itr2]) < 0. &&
+      // 	   TMath::Abs(meanThe[itr]-meanThe[itr2]) < 0. &&
+      // 	   (TMath::Abs(meanMom[itr]-meanMom[itr2]) < 0.3*TMath::Abs(meanMom[itr2])||
+      // 	    TMath::Abs(meanMom[itr]-meanMom[itr2]) < 0.3*TMath::Abs(meanMom[itr ])) ) {
+      if ( similarity < 2.35 ) 
+	{ // 2.35 chosen basen on several events
+	  if ( whatToDo[itr2] == -1   ) whatToDo[itr2] = itr2;
+	  whatToDo[itr] = whatToDo[itr2];
+	  break;
+	}
     }
-  }
-
-  {
+    
     if ( fVerbose > 4 || printInfo ) {
       cout << " TRACK " << itr << " with " << nofTS[itr] << " segments:" << endl;
       cout << " MEAN = " << meanMom[itr] << " " << meanPhi[itr] << " " << meanThe[itr] << endl;
@@ -503,16 +569,10 @@ void PndMvdGemTrackFinderOnHits::RemoveCloneTracks(Int_t nofRecoTracks) {
   for ( Int_t its = 0 ; its < fTrackSegments.size() ; its++ ) {	
     TrackSegment iterTS = fTrackSegments[its];
     if ( iterTS.recoTrackIndex == -1 ) continue;
-    iterTS.recoTrackIndex = whatToDo[iterTS.recoTrackIndex];
+    iterTS             .recoTrackIndex = whatToDo[iterTS.recoTrackIndex];
+    fTrackSegments[its] = iterTS;
     if ( iterTS.recoTrackIndex == -1 ) continue;
-
     itr = iterTS.recoTrackIndex;
-
-    /*    if ( itr == 5 ) {
-      cout << "---> " 
-	   << iterTS.detId[0] << "." << iterTS.hitIndex[0] << " "
-	   << iterTS.detId[1] << "." << iterTS.hitIndex[1] << endl;
-	   }*/
     
     Bool_t hitInTrack[2] = {kFALSE,kFALSE};
     Bool_t staInTrack[2] = {kFALSE,kFALSE};
@@ -521,53 +581,28 @@ void PndMvdGemTrackFinderOnHits::RemoveCloneTracks(Int_t nofRecoTracks) {
 	if ( hitIndices[itr][ihit][0] == iterTS.detId   [ih1] )
 	  if ( hitIndices[itr][ihit][1] == iterTS.hitIndex[ih1] ) {
 	    hitInTrack[ih1] = kTRUE; 
-	    hitNofUses[itr][ihit] += 1;
-	  }
-	  else {
-	    hitMultiSt[itr][ihit] = kTRUE;
-	    hitMultiIn[itr] = kTRUE;
 	  }
       if ( hitInTrack[ih1] == kFALSE ) {
 	hitIndices[itr][nofHits[itr]][0] = iterTS.detId   [ih1];
 	hitIndices[itr][nofHits[itr]][1] = iterTS.hitIndex[ih1];
-	hitNofUses[itr][nofHits[itr]]    = 1;
-	hitMultiSt[itr][nofHits[itr]]    = kFALSE;
 	nofHits[itr]++;
       }
     }
   }
-  
   for ( itr = 0 ; itr < kNofRecoTracks ; itr++ ) {
-//     cout << "---Track " << itr << " has " << nofHits[itr] << " hits:" << endl;
-//     for ( Int_t ihit = 0 ; ihit < nofHits[itr] ; ihit++ ) 
-//       cout << "    #" << ihit << ". " 
-// 	   << hitIndices[itr][ihit][0] << "." 
-// 	   << hitIndices[itr][ihit][1] << " "
-// 	   << hitNofUses[itr][ihit] << " times" << (hitMultiSt[itr][ihit]?" ***":"") << endl;
-
-    if ( !hitMultiIn[itr] ) continue;
-    for ( Int_t ihit = 0 ; ihit < nofHits[itr] ; ihit++ ) {
-      if ( !hitMultiSt[itr][ihit] ) continue;
-      // is a multi hit
-      Int_t maxUsage = hitNofUses[itr][ihit];
-      Int_t maxHits  = ihit;
-      Bool_t absMax  = kTRUE;
-      for ( Int_t ihit2 = ihit+1 ; ihit2 < nofHits[itr] ; ihit2++ ) {
-	if ( hitIndices[itr][ihit] != hitIndices[itr][ihit2] ) continue;
-	hitMultiSt[itr][ihit2] = kFALSE;
-	if ( hitNofUses[itr][ihit2] == maxUsage )
-	  absMax = kFALSE;
-	if ( hitNofUses[itr][ihit2] >  maxUsage ) {
-	  maxUsage = hitNofUses[itr][ihit2];
-	  maxHits = ihit2;
-	  absMax = kTRUE;
-	}
+    if ( fVerbose > 3 ) 
+      {
+	cout << "---Track " << itr << " has " << nofTS[itr] << " segments and " << nofHits[itr] << " hits:" << endl;
+	for ( Int_t ihit = 0 ; ihit < nofHits[itr] ; ihit++ ) 
+	  cout << "    #" << ihit << ". " 
+	       << hitIndices[itr][ihit][0] << "." 
+	       << hitIndices[itr][ihit][1] << " "
+	       << endl;
       }
-      //      cout << " max usage of hits is " << maxUsage << (absMax?" and is":"but is not") << " unique (" << maxHits << ")" << endl;
-    }
   }
 }
 // ------------------------------------------------------------
+
 
 // --- Private method to match track segments -----------------
 Int_t PndMvdGemTrackFinderOnHits::MatchTrackSegments() {
@@ -601,38 +636,21 @@ Int_t PndMvdGemTrackFinderOnHits::MatchTrackSegments() {
       Bool_t matching = kFALSE;
       for ( Int_t its = 0 ; its < trackSegs.size() ; its++ ) {
 	TrackSegment iterTS = fTrackSegments[trackSegs[its]];
-	if ( !matching ) {
-	  if ( matchTS.detId[0] == iterTS.detId[1] && matchTS.hitIndex[0] == iterTS.hitIndex[1] ) 
-	    { matching = kTRUE; } //break; } // matchTS matches after iterTS
-	  if ( matchTS.detId[1] == iterTS.detId[0] && matchTS.hitIndex[1] == iterTS.hitIndex[0] ) 
-	    { matching = kTRUE; } //break; } // matchTS matches before iterTS
-	  if ( matchTS.detId[0] == iterTS.detId[0] && matchTS.hitIndex[0] == iterTS.hitIndex[0] ) 
-	    { matching = kTRUE; } //break; } // matchTS shares hit on first station with iterTS
-	  if ( matchTS.detId[1] == iterTS.detId[1] && matchTS.hitIndex[1] == iterTS.hitIndex[1] ) 
-	    { matching = kTRUE; } //break; } // matchTS shares hit on second station with iterTS
+
+	if ( TMath::Abs(matchTS.trackPhi  -iterTS.trackPhi)   < 1.0 && 
+	     TMath::Abs(matchTS.trackTheta-iterTS.trackTheta) < 0.2 &&
+	     TMath::Abs(matchTS.trackMom  -iterTS.trackMom)   < 0.1*TMath::Abs(iterTS.trackMom) ) {
+	  matching = kTRUE;
+	  break;
 	}
-	meanMom += iterTS.trackMom/(trackSegs.size());
-	meanPhi += iterTS.trackPhi/(trackSegs.size());
-	meanThe += iterTS.trackTheta/(trackSegs.size());
       }
+      
 //       cout << "mean:(" << meanMom << "," << meanPhi << "," << meanThe << ") "
 // 	   << "does" << (matching?"":" not") << " match with " 
 // 	   << "(" << matchTS.trackMom << "," << matchTS.trackPhi << "," << matchTS.trackTheta << ")" << endl;
       if ( !matching ) continue; // matchTS does not match to any track segment in trackSegs
       
-      if ( meanPhi <   5. && matchTS.trackPhi > 355. ) matchTS.trackPhi-=360.;
-      if ( meanPhi > 355. && matchTS.trackPhi < 5.   ) matchTS.trackPhi+=360.;
-
-      if ( TMath::Abs(matchTS.trackPhi-meanPhi)   > 10. || 
-	   TMath::Abs(matchTS.trackTheta-meanThe) > 2. ||
-	   TMath::Abs(matchTS.trackMom-meanMom)   > 0.3*TMath::Abs(meanMom) ) {
-	if ( fVerbose > 4 || printInfo ) {
-	  cout << " mean > " << meanMom << " " << meanPhi << " " << meanThe << endl;
-	  cout << " ++++ > " << matchTS.trackMom << " " << matchTS.trackPhi << " " << matchTS.trackTheta << endl;
-	}
-	continue;
-      }
-          
+      //      cout << "segment belongs to track" << endl;          
       // check if there exists in trackSegs a segment that uses different hits on some station
       Bool_t sameStationSegment = kFALSE;
       for ( Int_t its = 0 ; its < trackSegs.size() ; its++ ) {
@@ -684,10 +702,11 @@ Int_t PndMvdGemTrackFinderOnHits::MatchTrackSegments() {
       }
     
       if ( sameStationSegment ) continue;
-      
+     
+      //      cout << "trackSegs ( now with " << trackSegs.size() << " ) increased by track: " << itrc2 << endl; 
       trackSegs.push_back(itrc2);
     }
-    if ( trackSegs.size() < 4 ) continue;
+    if ( trackSegs.size() < 5 ) continue;
     
     if ( fVerbose > 4 || printInfo ) 
       cout << "track " << nofRecoTracks << " segments: " << endl;
@@ -718,7 +737,7 @@ Int_t PndMvdGemTrackFinderOnHits::MatchTrackSegments() {
 
 // ---- Private function to find track segments on 2 stations --------------------
 Int_t PndMvdGemTrackFinderOnHits::FindTrackSegments(Int_t stat1Id, Int_t stat2Id) {
-  Bool_t printInfo = kFALSE;//TRUE;
+  Bool_t printInfo = kFALSE;//TRUE;//FALSE;
 
   PndGemStation* stat1 = (PndGemStation*)fDigiPar->GetStation(stat1Id);
   PndGemStation* stat2 = (PndGemStation*)fDigiPar->GetStation(stat2Id);
@@ -794,9 +813,13 @@ Int_t PndMvdGemTrackFinderOnHits::FindTrackSegments(Int_t stat1Id, Int_t stat2Id
       Double_t expectedRad2  = (fParRadPhi0 + fParRadPhi2*TMath::RadToDeg()*TMath::RadToDeg()*(pangle-pangle2)*(pangle-pangle2))*radius*zDistRatio;
       Double_t expRadUncert = 0.05*radius*zDistRatio;
       
-      if ( fVerbose > 3 || printInfo )
+      if ( fVerbose > 3 || printInfo ) {
+	cout << " expRad = " 
+	     << (fParRadPhi0 + fParRadPhi2*TMath::RadToDeg()*TMath::RadToDeg()*(pangle-pangle2)*(pangle-pangle2)) 
+	     << " * " << radius << " * " << zDistRatio << endl;
 	cout << " -> while expected radius was " << expectedRad2 << endl;
-      
+      }
+
       if ( radius2>expectedRad2+expRadUncert || radius2<expectedRad2-expRadUncert ) continue;
       
       if ( fVerbose > 4 || printInfo )
@@ -846,7 +869,7 @@ Int_t PndMvdGemTrackFinderOnHits::FindTrackSegments(Int_t stat1Id, Int_t stat2Id
 
 // ---- Private function to find track segments between mvd and gem --------------------
 Int_t PndMvdGemTrackFinderOnHits::FindTrackSegments(Int_t stat2Id) {
-  Bool_t printInfo = kFALSE;//TRUE;
+  Bool_t printInfo = kFALSE;
 
   Double_t zStation1;
   Double_t zStation2;
@@ -919,11 +942,16 @@ Int_t PndMvdGemTrackFinderOnHits::FindTrackSegments(Int_t stat2Id) {
       if ( fVerbose > 3 || printInfo )
 	cout << "       (radius = " << radius2 << " and phi angle = " << pangle2*TMath::RadToDeg() << ")" << endl;
       
-      Double_t expectedRad2  = (fParRadPhi0 + fParRadPhi2*TMath::RadToDeg()*TMath::RadToDeg()*(pangle-pangle2)*(pangle-pangle2))*radius*zDistRatio;
+      //      Double_t expectedRad2  = (fParRadPhi0 + fParRadPhi2*TMath::RadToDeg()*TMath::RadToDeg()*(pangle-pangle2)*(pangle-pangle2))*radius*zDistRatio;
+      Double_t expectedRad2  = radius*zDistRatio;
       Double_t expRadUncert = 0.05*radius*zDistRatio;
       
-      if ( fVerbose > 3 || printInfo )
+      if ( fVerbose > 3 || printInfo ) {
+	cout << " expRad = " 
+	     << (fParRadPhi0 + fParRadPhi2*TMath::RadToDeg()*TMath::RadToDeg()*(pangle-pangle2)*(pangle-pangle2)) 
+	     << " * " << radius << " * " << zDistRatio << endl;
 	cout << " -> while expected radius was " << expectedRad2 << endl;
+      }
       
       if ( radius2>expectedRad2+expRadUncert || radius2<expectedRad2-expRadUncert ) continue;
       
@@ -932,10 +960,7 @@ Int_t PndMvdGemTrackFinderOnHits::FindTrackSegments(Int_t stat2Id) {
       // calculate phi and momentum basing on the pangle-pangle2;
       Double_t trackMomentum = 666.;
       if ( (pangle-pangle2) != 0 ) 
-	trackMomentum = 1.8*(par0_mom+par1_mom*radius)/((pangle-pangle2)*TMath::RadToDeg());;
-      // this 1.8:
-      // 12.11.2010: first version of the file, parameters are adjusted to GEM detector,
-      // for MVD-GEM combination the found momentum is too far off
+	trackMomentum = (par0_mom+par1_mom*radius)/((pangle-pangle2)*TMath::RadToDeg());;
       if ( fVerbose > 3 || printInfo )
 	cout << "calculated track momentum is " << trackMomentum << endl;
       Double_t trackPhiAngle = pangle+(pangle-pangle2)*zDiffRatio; 
@@ -979,7 +1004,7 @@ Int_t PndMvdGemTrackFinderOnHits::FindTrackSegments(Int_t stat2Id) {
 
 // ---- Private function to find track segments between mvd and gem --------------------
 Int_t PndMvdGemTrackFinderOnHits::FindTrackSegments() {
-  Bool_t printInfo = kFALSE;//TRUE;
+  Bool_t printInfo = kFALSE;//kTRUE;
 
   Double_t zStation1;
   Double_t zStation2;
@@ -1065,8 +1090,12 @@ Int_t PndMvdGemTrackFinderOnHits::FindTrackSegments() {
       Double_t expectedRad2  = (fParRadPhi0 + fParRadPhi2*TMath::RadToDeg()*TMath::RadToDeg()*(pangle-pangle2)*(pangle-pangle2))*radius*zDistRatio;
       Double_t expRadUncert = 0.05*radius*zDistRatio;
       
-      if ( fVerbose > 3 || printInfo )
+      if ( fVerbose > 3 || printInfo ) {
+	cout << " expRad = " 
+	     << (fParRadPhi0 + fParRadPhi2*TMath::RadToDeg()*TMath::RadToDeg()*(pangle-pangle2)*(pangle-pangle2)) 
+	     << " * " << radius << " * " << zDistRatio << endl;
 	cout << " -> while expected radius was " << expectedRad2 << endl;
+      }
       
       if ( radius2>expectedRad2+expRadUncert || radius2<expectedRad2-expRadUncert ) continue;
       
