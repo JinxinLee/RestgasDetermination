@@ -1840,10 +1840,16 @@ if( istampa>=2){
 				ErrMomentum.SetX(0.05*Ptras); //  set at 5% all the times.
 				ErrMomentum.SetY(0.05*Ptras); //  set at 5% all the times.
 				ErrMomentum.SetZ(0.05*Pzini); //  set at 5% all the times.
+				//  the plane of this FairTrackParP better is perpendicular to
+				//  the momentum direction
+				ddd = Ptras*sqrt(Ptras*Ptras+Pzini*Pzini);
 				FairTrackParP first( Position,  Momentum,
 					ErrPosition, ErrMomentum, Charge[i],
-					Position, TVector3(1., 0., 0.), TVector3(0., 1., 0.)
-						);
+//					Position, TVector3(1., 0., 0.), TVector3(0., 1., 0.)
+//						);
+					Position, TVector3(Py/Ptras, -Px/Ptras, 0.),
+					TVector3(Pzini*Px/ddd,Pzini*Py/ddd, -Ptras*Ptras/ddd)
+							);
 				// load in   FairTrackParP first  the relevant quantities
 				// of the last hit
 				Position.SetX( Posiz2[0] );
@@ -1867,11 +1873,13 @@ if( istampa>=2){
 				ErrMomentum.SetX(0.05*Ptras); //  set at 5% all the times.
 				ErrMomentum.SetY(0.05*Ptras); //  set at 5% all the times.
 				// ErrMomentum.SetZ(0.05*Pzini); //  set at 5% all the times.
+				//  the plane of this FairTrackParP better is perpendicular to
+				//  the momentum direction
 				FairTrackParP last( Position,  Momentum,
 				ErrPosition, ErrMomentum, Charge[i],
-				Position, TVector3(1., 0., 0.), TVector3(0., 1., 0.)
-					);
-
+				Position, TVector3(Py/Ptras, -Px/Ptras, 0.),
+					TVector3(Pzini*Px/ddd,Pzini*Py/ddd, -Ptras*Ptras/ddd)
+						);
 				//  now load the PndTrack object
 				pTrck = new((*trackArray)[ipanco]) PndTrack(first, last, *pTrckCand);
 				pTrck->SetRefIndex(ipanco);
