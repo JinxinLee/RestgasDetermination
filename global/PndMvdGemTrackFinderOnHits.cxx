@@ -101,7 +101,7 @@ InitStatus PndMvdGemTrackFinderOnHits::Init() {
   }
   
   // Get MCTrack array
-  fMCTrackArray  = (TClonesArray*) ioman->ActivateBranch("MCTrack");
+  fMCTrackArray  = (TClonesArray*) ioman->GetObject("MCTrack");
   if( !fMCTrackArray ) 
     cout << "-I- "<< GetName() <<"::Init: No MCTrack array!" << endl;
   
