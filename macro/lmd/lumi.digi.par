@@ -1,12 +1,12 @@
 #################################################################
-# Digitization parameters for MVD
+# Digitization parameters for LMD
 # Format:
 # parameter_name:parameter_type(i-integer, d-double) parameter_value
-# PndMvdDigiPar
+# PndLmdDigiPar
 # Description of parameters:
 #################################################################
 #################################################################
-# Digitization parameters for RECTANGULAR Mvd strip sensors
+# Digitization parameters for RECTANGULAR Lmd strip sensors
 #################################################################
 # threshold set to 5*sigmaNoise (noise rate ~ DPM signals rate)
 [SDSStripDigiParRect]
@@ -23,6 +23,7 @@ nr_fe_top:Int_t 4
 nr_fe_bottom:Int_t 2
 charge_threshold:Double_t 5000
 charge_noise:Double_t 1000
+QCloudSigma:Double_t 0.0008
 sens_Type:Text_t Rect
 fe_Type:Text_t APV25
 cluster_mod:Int_t 0
@@ -33,7 +34,7 @@ cluster_corrchargecut:Double_t 12000.
 cluster_singlechargecut:Double_t 3000.
 chargeconv_method:Int_t 0
 #################################################################
-# Digitization parameters for TRAPEZOID Mvd strip sensors
+# Digitization parameters for TRAPEZOID Lmd strip sensors
 #################################################################
 # threshold set to 5*sigmaNoise (noise rate ~ DPM signals rate)
 [SDSStripDigiParTrap]
@@ -50,6 +51,7 @@ nr_fe_top:Int_t 4
 nr_fe_bottom:Int_t 4
 charge_threshold:Double_t 5000
 charge_noise:Double_t 1000
+QCloudSigma:Double_t 0.0008
 sens_Type:Text_t Trap
 fe_Type:Text_t APV25
 cluster_mod:Int_t 0
@@ -78,14 +80,15 @@ nr_fe_top:Int_t 3
 nr_fe_bottom:Int_t 3
 charge_threshold:Double_t 5000
 charge_noise:Double_t 1000
+QCloudSigma:Double_t 0.0008
 sens_Type:Text_t TD
 fe_Type:Text_t APV25
 cluster_mod:Int_t 0
 cluster_mean:Int_t 1
 cluster_radchan:Int_t 2
 cluster_radtime:Int_t 0
-cluster_corrchargecut:Double_t 12000.
-cluster_singlechargecut:Double_t 3000.
+cluster_corrchargecut:Double_t 1200.
+cluster_singlechargecut:Double_t 1000.
 chargeconv_method:Int_t 0
 #################################################################
 # Digitization parameters for RECTANGULAR single-sided
@@ -106,14 +109,15 @@ nr_fe_top:Int_t 3
 nr_fe_bottom:Int_t 1
 charge_threshold:Double_t 5000
 charge_noise:Double_t 1000
+QCloudSigma:Double_t 0.0008
 sens_Type:Text_t TS
 fe_Type:Text_t APV25
 cluster_mod:Int_t 0
 cluster_mean:Int_t 1
 cluster_radchan:Int_t 2
 cluster_radtime:Int_t 0
-cluster_corrchargecut:Double_t 12000.
-cluster_singlechargecut:Double_t 3000.
+cluster_corrchargecut:Double_t 1200.
+cluster_singlechargecut:Double_t 1000.
 chargeconv_method:Int_t 0
 #################################################################
 # Digitization Parameters for SDS Pixel
@@ -124,6 +128,7 @@ dimX:Double_t 0.01
 dimY:Double_t 0.01
 threshold:Double_t 1100
 noise:Double_t 200
+QCloudSigma:Double_t 0.0008
 FECols:Int_t 104
 FERows:Int_t 104
 ClustRad:Double_t 1.8
@@ -132,7 +137,7 @@ chargeconv_method:Int_t 0
 #################################################################
 # Charge to Tot Digitization parameters for SDS
 # parameter_name:parameter_type(i-integer, d-double) parameter_value
-# PndMvdTotDigiPar
+# PndLmdTotDigiPar
 #################################################################
 # Digitization Parameters for SDS Pixel
 #################################################################
@@ -142,14 +147,14 @@ const_current:Double_t 60
 clock_frequency:Double_t 50
 #################################################################
 #################################################################
-# Digitization parameters for RECTANGULAR Mvd strip sensors
+# Digitization parameters for RECTANGULAR Lmd strip sensors
 #################################################################
 [SDSStripTotDigiParRect]
 charge_time:Double_t 100.
 const_current:Double_t 60.
 clock_frequency:Double_t 50.
 #################################################################
-# Digitization parameters for TRAPEZOID Mvd strip sensors
+# Digitization parameters for TRAPEZOID Lmd strip sensors
 #################################################################
 [SDSStripTotDigiParTrap]
 charge_time:Double_t 100.
