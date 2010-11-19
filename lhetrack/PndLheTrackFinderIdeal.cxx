@@ -134,7 +134,8 @@ void PndLheTrackFinderIdeal::Exec(Option_t * option) {
     if ( (ghit->GetDetectorID() == kTpcPoint)     ||
 	 (ghit->GetDetectorID() == kTpcCluster)     )   tpcHits++;
     if ( (ghit->GetDetectorID() == kSttPoint)     ||
-	 (ghit->GetDetectorID() == kSttHit)         )   tpcHits++; // for the moment
+	 (ghit->GetDetectorID() == kSttHit)       ||
+         (ghit->GetDetectorID() == kSttHelixHit)  )   tpcHits++; // for the moment
     if ( (ghit->GetDetectorID() == kMVDPoint)     || 
 	 (ghit->GetDetectorID() == kMVDHitsStrip) ||
 	 (ghit->GetDetectorID() == kMVDHitsPixel)   )   mvdHits++;
