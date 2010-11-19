@@ -171,11 +171,11 @@ GeaneTrackRep::extrapolate(const GFDetPlane& pl,
     }
   }
   // protect against low momentum:
-  if(fabs(fState[0][0])>10){
-    GFException exc("GeaneTrackRep: PROTECT AGAINST LOW MOMENTA",__LINE__,__FILE__);
-    exc.setFatal();
-    throw exc;
-  }
+//   if(fabs(fState[0][0])>10){
+//     GFException exc("GeaneTrackRep: PROTECT AGAINST LOW MOMENTA",__LINE__,__FILE__);
+//     exc.setFatal();
+//     throw exc;
+//   }
 
   // protect against (x,y)=(0,0)
   if(fState[3][0]==0)fState[3][0]=1E-4;
@@ -272,11 +272,11 @@ GeaneTrackRep::extrapolateToPoint(const TVector3& pos,
     }
   }
   // protect against low momentum:
-  if(fabs(fState[0][0])>10){
-    GFException exc("GeaneTrackRep: PROTECT AGAINST LOW MOMENTA",__LINE__,__FILE__);
-    exc.setFatal();
-    throw exc;
-  }
+//   if(fabs(fState[0][0])>10){
+//     GFException exc("GeaneTrackRep: PROTECT AGAINST LOW MOMENTA",__LINE__,__FILE__);
+//     exc.setFatal();
+//     throw exc;
+//   }
 
   // protect against (x,y)=(0,0)
   if(fState[3][0]==0)fState[3][0]=1E-4;
@@ -418,12 +418,12 @@ GeaneTrackRep::getPocaOnLine(const TVector3& p1, const TVector3& p2, bool back){
     }
   }
   // protect against low momentum:
-  if(fabs(fState[0][0])>10){
-    GFException exc("GeaneTrackRep: PROTECT AGAINST LOW MOMENTA",__LINE__,__FILE__);
-    exc.setFatal();
-    throw exc;
+//   if(fabs(fState[0][0])>10){
+//     GFException exc("GeaneTrackRep: PROTECT AGAINST LOW MOMENTA",__LINE__,__FILE__);
+//     exc.setFatal();
+//     throw exc;
 
-  }
+//   }
 
   // protect against (x,y)=(0,0)
   if(fState[3][0]==0)fState[3][0]=1E-4;
