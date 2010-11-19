@@ -51,7 +51,7 @@ ClassImp(PndRiemannTrack);
 
 PndRiemannTrack::PndRiemannTrack() :
 	fn(3),fav(3), fc(0), fcovPlane(4,4), fjacRXY(3,4), fcovRXY(3,3),
-	fVerbose(0), fFitDone(false), fSZFitDone(false), fweight(0),ftrefit(false),fVertexCut(0.5)
+	fVerbose(0), fFitDone(false), fSZFitDone(false), fErrorCalcDone(false), fweight(0),ftrefit(false),fVertexCut(0.5)
 {}
 
 PndRiemannTrack::~PndRiemannTrack()
@@ -92,6 +92,7 @@ PndRiemannTrack::addHit(PndRiemannHit& hit){
   fweight += 1/(hit.sigmaXY()*hit.sigmaXY());
   fFitDone = false;
   fSZFitDone = false;
+  fErrorCalcDone = false;
 }
 
 double
@@ -105,7 +106,7 @@ PndRiemannTrack::dist(PndRiemannHit* hit){
 
 
 void
-PndRiemannTrack::refit()
+PndRiemannTrack::refit(bool withErrorCalc)
 {
 
   TMatrixT<double> my_av(3,1);
@@ -175,111 +176,113 @@ PndRiemannTrack::refit()
   //------------ Calculation of the full covariance matrix -----------
 
   // 1. Calculation of the covarianz matrix of the normal vector
+  if (withErrorCalc){
+	  TMatrixD  CovNorm(3,3);
 
-  TMatrixD  CovNorm(3,3);
+	  for (int i = 0; i < 3; i++){
+		if (i != g){
+			TMatrixD res = eigenVec.GetSub(0,2,i,i)*eigenVec.GetSub(0,2,i,i).T();
+			CovNorm += res * (val * eigenValues[i]/TMath::Power(val-eigenValues[i],2));
+		}
+	  }
+	//  if (fHits.size() > 5)
+	//	  CovNorm *= TMath::Power(fHits.size()-5,-1);  //-5 is very strange. According to the paper this value has to be fixed with simulation???
+	//  else
+		  CovNorm *= TMath::Power(fHits.size(),-1);
+	  if (fVerbose > 1) std::cout << "CovNorm: " << std::endl;
+	  if (fVerbose > 1) MatrixOutput(CovNorm);
 
-  for (int i = 0; i < 3; i++){
-	if (i != g){
-		TMatrixD res = eigenVec.GetSub(0,2,i,i)*eigenVec.GetSub(0,2,i,i).T();
-		CovNorm += res * (val * eigenValues[i]/TMath::Power(val-eigenValues[i],2));
-	}
+
+	  // 2. Calculation of the covarianz matrix of fav
+
+	  TMatrixD covAv(3,3);
+	  for (int i = 0; i < fHits.size();i++){
+		  covAv[0][0] += fHits[i].covX(0,0)/(TMath::Power(fHits[i].sigmaXY(),4));
+		  covAv[1][1] += fHits[i].covX(1,1)/(TMath::Power(fHits[i].sigmaXY(),4));
+		  covAv[1][0] += fHits[i].covX(1,0)/(TMath::Power(fHits[i].sigmaXY(),4));
+		  covAv[2][0] += 2 * (fHits[i].covX(0,0) * fHits[i].x().X() + fHits[i].covX(1,0) * fHits[i].x().Y())
+						 /(TMath::Power(fHits[i].sigmaXY(),4));
+		  covAv[2][1] += 2 * (fHits[i].covX(1,1) * fHits[i].x().Y() + fHits[i].covX(1,0) * fHits[i].x().X())
+						 /(TMath::Power(fHits[i].sigmaXY(),4));
+		  covAv[2][2] += 4 * (fHits[i].covX(0,0) * fHits[i].x().X() * fHits[i].x().X() +
+							  2 * fHits[i].covX(1,0) * fHits[i].x().X() * fHits[i].x().Y() +
+							  fHits[i].covX(1,1) * fHits[i].x().Y() * fHits[i].x().Y())
+						 /(TMath::Power(fHits[i].sigmaXY(),4));
+	  }
+	  covAv[0][1] = covAv[1][0];
+	  covAv[0][2] = covAv[2][0];
+	  covAv[1][2] = covAv[2][1];
+
+	  covAv *= TMath::Power(fweight,-2);
+
+
+	  if (fVerbose > 1) std::cout << "covAv: " << std::endl;
+	  if (fVerbose > 1) MatrixOutput(covAv);
+
+
+	  // 3. Calculation of var(fc)
+
+	  double nCrn = (fn * (covAv * fn));
+	  double rCnr = (fav * (CovNorm * fav));
+
+	  TMatrixD CnCr(CovNorm,TMatrixD::kMult,covAv);
+	  double trCnCr = 0;
+	  for (int i = 0; i < CnCr.GetNcols(); i++){
+		  trCnCr += CnCr[i][i];
+	  }
+	  if (fVerbose > 1) std::cout << "nCrn: " << nCrn << " rCnr: " << rCnr << " trCnCr: " << trCnCr << std::endl;
+	  double varc = nCrn + rCnr + trCnCr;
+
+	  TVectorD corr_cn = CovNorm * fav;
+	  corr_cn *= -1;
+
+	  // 4. Calculation of the covarianz matrix of c,n
+
+	  fcovPlane[0][0] = varc;
+	  fcovPlane[1][1] = CovNorm[0][0];
+	  fcovPlane[2][1] = CovNorm[1][0];
+	  fcovPlane[2][2] = CovNorm[1][1];
+	  fcovPlane[3][1] = CovNorm[2][0];
+	  fcovPlane[3][2] = CovNorm[2][1];
+	  fcovPlane[3][3] = CovNorm[2][2];
+	  fcovPlane[1][0] = corr_cn[0];
+	  fcovPlane[2][0] = corr_cn[1];
+	  fcovPlane[3][0] = corr_cn[2];
+	  /////////////////ADDED by me
+
+		 fcovPlane[1][2] = CovNorm[1][0];
+
+		 fcovPlane[1][3] = CovNorm[2][0];
+		 fcovPlane[2][3] = CovNorm[2][1];
+
+		 fcovPlane[0][1] = corr_cn[0];
+		 fcovPlane[0][2] = corr_cn[1];
+		 fcovPlane[0][3] = corr_cn[2];
+	   ///////////////////////////////
+
+	  //5. Convert plane covariance in start parameter(r,x0,y0) covariances
+	  calcJacRXY();
+
+	  if (fVerbose > 1) std::cout << "jacRXY: " << std::endl;
+	  if (fVerbose > 1) MatrixOutput(fjacRXY);
+
+	  //fcovRXY = fjacRXY * fcovPlane * fjacRXY.T();
+
+	  TMatrixD temp(fjacRXY,TMatrixD::kMult, fcovPlane);
+	  if (fVerbose > 1) std::cout << "temp: " << temp.GetNrows() << "x" << temp.GetNcols() << std::endl;
+
+	  if (fVerbose > 1) std::cout << "temp: " << std::endl;
+	  if (fVerbose > 1) MatrixOutput(temp);
+
+	  fcovRXY = temp * fjacRXY.T();  // J * fcovPlane * J.T()
+
+	  if (fVerbose > 1) std::cout << "covPlane: " << std::endl;
+	  if (fVerbose > 1) MatrixOutput(fcovPlane);
+
+	  if (fVerbose > 1) std::cout << "covRXY: " << std::endl;
+	  if (fVerbose > 1) MatrixOutput(fcovRXY);
+	  fErrorCalcDone = true;
   }
-//  if (fHits.size() > 5)
-//	  CovNorm *= TMath::Power(fHits.size()-5,-1);  //-5 is very strange. According to the paper this value has to be fixed with simulation???
-//  else
-	  CovNorm *= TMath::Power(fHits.size(),-1);
-  if (fVerbose > 1) std::cout << "CovNorm: " << std::endl;
-  if (fVerbose > 1) MatrixOutput(CovNorm);
-
-
-  // 2. Calculation of the covarianz matrix of fav
-
-  TMatrixD covAv(3,3);
-  for (int i = 0; i < fHits.size();i++){
-	  covAv[0][0] += fHits[i].covX(0,0)/(TMath::Power(fHits[i].sigmaXY(),4));
-	  covAv[1][1] += fHits[i].covX(1,1)/(TMath::Power(fHits[i].sigmaXY(),4));
-	  covAv[1][0] += fHits[i].covX(1,0)/(TMath::Power(fHits[i].sigmaXY(),4));
-	  covAv[2][0] += 2 * (fHits[i].covX(0,0) * fHits[i].x().X() + fHits[i].covX(1,0) * fHits[i].x().Y())
-	  				 /(TMath::Power(fHits[i].sigmaXY(),4));
-	  covAv[2][1] += 2 * (fHits[i].covX(1,1) * fHits[i].x().Y() + fHits[i].covX(1,0) * fHits[i].x().X())
-		             /(TMath::Power(fHits[i].sigmaXY(),4));
-	  covAv[2][2] += 4 * (fHits[i].covX(0,0) * fHits[i].x().X() * fHits[i].x().X() +
-			  			  2 * fHits[i].covX(1,0) * fHits[i].x().X() * fHits[i].x().Y() +
-			  			  fHits[i].covX(1,1) * fHits[i].x().Y() * fHits[i].x().Y())
-			  		 /(TMath::Power(fHits[i].sigmaXY(),4));
-  }
-  covAv[0][1] = covAv[1][0];
-  covAv[0][2] = covAv[2][0];
-  covAv[1][2] = covAv[2][1];
-
-  covAv *= TMath::Power(fweight,-2);
-
-
-  if (fVerbose > 1) std::cout << "covAv: " << std::endl;
-  if (fVerbose > 1) MatrixOutput(covAv);
-
-
-  // 3. Calculation of var(fc)
-
-  double nCrn = (fn * (covAv * fn));
-  double rCnr = (fav * (CovNorm * fav));
-
-  TMatrixD CnCr(CovNorm,TMatrixD::kMult,covAv);
-  double trCnCr = 0;
-  for (int i = 0; i < CnCr.GetNcols(); i++){
-	  trCnCr += CnCr[i][i];
-  }
-  if (fVerbose > 1) std::cout << "nCrn: " << nCrn << " rCnr: " << rCnr << " trCnCr: " << trCnCr << std::endl;
-  double varc = nCrn + rCnr + trCnCr;
-
-  TVectorD corr_cn = CovNorm * fav;
-  corr_cn *= -1;
-
-  // 4. Calculation of the covarianz matrix of c,n
-
-  fcovPlane[0][0] = varc;
-  fcovPlane[1][1] = CovNorm[0][0];
-  fcovPlane[2][1] = CovNorm[1][0];
-  fcovPlane[2][2] = CovNorm[1][1];
-  fcovPlane[3][1] = CovNorm[2][0];
-  fcovPlane[3][2] = CovNorm[2][1];
-  fcovPlane[3][3] = CovNorm[2][2];
-  fcovPlane[1][0] = corr_cn[0];
-  fcovPlane[2][0] = corr_cn[1];
-  fcovPlane[3][0] = corr_cn[2];
-  /////////////////ADDED by me
-
-     fcovPlane[1][2] = CovNorm[1][0];
-
-     fcovPlane[1][3] = CovNorm[2][0];
-     fcovPlane[2][3] = CovNorm[2][1];
-
-     fcovPlane[0][1] = corr_cn[0];
-     fcovPlane[0][2] = corr_cn[1];
-     fcovPlane[0][3] = corr_cn[2];
-   ///////////////////////////////
-
-  //5. Convert plane covariance in start parameter(r,x0,y0) covariances
-  calcJacRXY();
-
-  if (fVerbose > 1) std::cout << "jacRXY: " << std::endl;
-  if (fVerbose > 1) MatrixOutput(fjacRXY);
-
-  //fcovRXY = fjacRXY * fcovPlane * fjacRXY.T();
-
-  TMatrixD temp(fjacRXY,TMatrixD::kMult, fcovPlane);
-  if (fVerbose > 1) std::cout << "temp: " << temp.GetNrows() << "x" << temp.GetNcols() << std::endl;
-
-  if (fVerbose > 1) std::cout << "temp: " << std::endl;
-  if (fVerbose > 1) MatrixOutput(temp);
-
-  fcovRXY = temp * fjacRXY.T();  // J * fcovPlane * J.T()
-
-  if (fVerbose > 1) std::cout << "covPlane: " << std::endl;
-  if (fVerbose > 1) MatrixOutput(fcovPlane);
-
-  if (fVerbose > 1) std::cout << "covRXY: " << std::endl;
-  if (fVerbose > 1) MatrixOutput(fcovRXY);
 
   fFitDone = true;
   fSZFitDone = false;
@@ -324,9 +327,9 @@ double PndRiemannTrack::dR()
 }
 
 void
-PndRiemannTrack::szFit(){
+PndRiemannTrack::szFit(bool withErrorCalc){
 	if (fFitDone == false)
-		refit();
+		refit(withErrorCalc);
   unsigned int num=getNumHits();
   if (fVerbose > 1) std::cout << "szFit() for " << num << " Points!" << std::endl;
 

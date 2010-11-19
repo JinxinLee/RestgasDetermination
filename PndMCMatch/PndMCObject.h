@@ -65,6 +65,8 @@ public:
 		return result;
 	}
 
+	void RemoveType(Int_t type);
+
 	virtual void ClearEntries(){fStage.clear();}
 
 	virtual void Print(std::ostream& out = std::cout){out << *this;}

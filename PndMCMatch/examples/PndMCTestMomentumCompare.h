@@ -19,6 +19,7 @@
 #include "FairTask.h"
 #include "PndMCMatch.h"
 #include "PndDetectorList.h"
+#include "TH1.h"
 
 
 #include <vector>
@@ -53,6 +54,11 @@ class PndMCTestMomentumCompare : public FairTask
   PndMCMatch* fMCMatch;
   TClonesArray* fTrack;
   TClonesArray* fMCTrack;
+  TClonesArray* fTrackCand;
+  TH1* fPHisto;
+  TH1* fPtHisto;
+  TH1* fQualyHisto;
+
   Int_t fEventNr;
 
   void Register();

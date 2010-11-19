@@ -26,7 +26,7 @@ class PndMCMatch: public TNamed {
 public:
 	PndMCMatch();
 	PndMCMatch(const char* name, const char* title)
-		:TNamed(name, title), fUltimateStage(0){
+		:TNamed(name, title), fUltimateStage(0), fVerbose(0){
 		fFinalStageML.SetPersistanceCheck(kFALSE);
 	};
 	virtual ~PndMCMatch();
@@ -94,6 +94,7 @@ private:
 	Int_t fUltimateStage; ///< last stage in link chain. Here all recursive operations must stop.
 	std::map<Int_t, PndMCStage*> fList;
 	FairMultiLinkedData fFinalStageML;
+	Int_t fVerbose;
 
 	void FindStagesPointingToLinks(FairMultiLinkedData links, Int_t stop);
 	FairMultiLinkedData FindStagesPointingToLink(FairLink link);

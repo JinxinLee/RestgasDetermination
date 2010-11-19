@@ -276,8 +276,8 @@ void PndMvdRiemannVertexFinderTask::refit(std::vector<int>& CheckedCand)
 					  track.addHit(hit);
 				  }
 		  }
-		  track.refit();
-		  track.szFit();
+		  track.refit(true);
+		  track.szFit(true);
 		  track.SetVertexCut(fVertexCut);
 		  int size=fTrackArray->GetEntriesFast();
 		  new ((*fTrackArray)[size])PndRiemannTrack(track);

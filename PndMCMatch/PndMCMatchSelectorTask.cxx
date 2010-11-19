@@ -88,6 +88,7 @@ void PndMCMatchSelectorTask::Exec(Option_t* opt)
 {
 	std::cout << "Output Selector: " << std::endl;
 	SetWeights();
+	fMCMatch->CreateArtificialStage("MCTrack");
 	std::cout << fMCMatch->GetMCInfo(fStart, fStop);
 	std::cout << std::endl;
 }

@@ -99,9 +99,9 @@ public:
 	    double dip, double z0);
 
   // Operations ----------------------
-  void refit();
+  void refit(bool withErrorCalc = true);
   double dist(PndRiemannHit* hit);
-  void szFit();
+  void szFit(bool withErrorCalc = true);
   double calcSZChi2(PndRiemannHit* hit); //calculates the chi2 of the track plus the additional hit
   double szDist(PndRiemannHit* hit);
   double szError(PndRiemannHit* hit);
@@ -138,6 +138,7 @@ private:
   double fChi2;			///< Chisquare of sz fit
   bool fFitDone;
   bool fSZFitDone;
+  bool fErrorCalcDone;
 
   double fVertexCut;
 

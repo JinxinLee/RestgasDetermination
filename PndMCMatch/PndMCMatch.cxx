@@ -13,7 +13,7 @@
 
 ClassImp(PndMCMatch);
 
-PndMCMatch::PndMCMatch():fUltimateStage(0) {
+PndMCMatch::PndMCMatch():fUltimateStage(0), fVerbose(0) {
 	fFinalStageML.SetPersistanceCheck(kFALSE);
 }
 
@@ -45,7 +45,7 @@ void PndMCMatch::InitStage(Int_t type, std::string fileName, std::string branchN
 	if (fList[type] == 0){
 		PndMCStage* newStage = new PndMCStage(type, fileName, branchName);
 		fList[type] = newStage;
-		//if (fVerbose > 1)
+		if (fVerbose > 1)
 			std::cout << "InitStages: " << *newStage;
 	}
 	else{
@@ -125,13 +125,6 @@ PndMCResult PndMCMatch::GetMCInfoForward(Int_t start, Int_t stop)
 	for (int i = 0; i < startVec.GetNEntries(); i++){
 		FairLink tempLink(startVec.GetStageId(), i);
 
-/*		FairMultiLinkedData tempStage;
-		tempStage.AddLink(tempLink, true);
-		FindStagesPointingToLinks(tempStage, stop);
-		//FindStagesPointingToLink(tempLink);
-		result.SetEntry(&fFinalStageML, i);
-		fFinalStageML.Reset();
-		*/
 		//std::cout << "FairLink: " << tempLink << std::endl;
 		PndMCEntry tempEntry(GetMCInfoForwardSingle(tempLink, stop));
 		if (tempEntry.GetNLinks() > 0)
@@ -142,6 +135,7 @@ PndMCResult PndMCMatch::GetMCInfoForward(Int_t start, Int_t stop)
 		//std::cout << "PndMCEntry: " << tempEntry << std::endl;
 		result.SetEntry(tempEntry);
 	}
+	//result.RemoveType(start);
 	return result;
 
 }
@@ -247,7 +241,12 @@ FairMultiLinkedData PndMCMatch::FindLinksToStage(Int_t stage)
 void PndMCMatch::CreateArtificialStage(TString branchName, std::string fileName)
 {
 	FairRootManager* ioman = FairRootManager::Instance();
-	CreateArtificialStage(ioman->GetBranchId(branchName), fileName, branchName.Data());
+	if (ioman->GetBranchId(branchName) > -1){
+		CreateArtificialStage(ioman->GetBranchId(branchName), fileName, branchName.Data());
+	}
+	else {
+		std::cout << "-E- PndMCMatch::CreateArtificialStage: Branch does not exist: " << branchName << std::endl;
+	}
 }
 
 void PndMCMatch::CreateArtificialStage(Int_t stage, std::string fileName, std::string branchName)
@@ -275,17 +274,20 @@ void PndMCMatch::GetNextStage(FairMultiLinkedData& startStage, Int_t stopStage){
 	for (int i = 0; i < startStage.GetNLinks(); i++){
 		if (startStage.GetLink(i).GetType() == stopStage){
 			AddToFinalStage(startStage.GetLink(i),1);
-			std::cout << "FinalStage: " << fFinalStageML << std::endl;
-			std::cout << "---------------------" << std::endl;
+			if (fVerbose > 0){
+				std::cout << "FinalStage: " << fFinalStageML << std::endl;
+				std::cout << "---------------------" << std::endl;
+			}
 		}
 		else if (startStage.GetLink(i).GetType() == fUltimateStage){
 		}
 		else{
 			tempStage = GetEntry(startStage.GetLink(i));
-			std::cout << "TempStage Start";
-			startStage.GetLink(i).Print();
-			std::cout << " --> " << tempStage << std::endl;
-
+			if (fVerbose > 0){
+				std::cout << "TempStage Start";
+				startStage.GetLink(i).Print();
+				std::cout << " --> " << tempStage << std::endl;
+			}
 //			std::cout << "Link ";
 			//startStage.GetLink(i).Print();
 
@@ -295,32 +297,39 @@ void PndMCMatch::GetNextStage(FairMultiLinkedData& startStage, Int_t stopStage){
 //			}
 			if (tempStage.GetNLinks() == 0){
 				AddToFinalStage(startStage.GetLink(i),1);
-
-				std::cout << "FinalStage: " << fFinalStageML << std::endl;
-				std::cout << "---------------------" << std::endl;
+				if (fVerbose > 0){
+					std::cout << "FinalStage: " << fFinalStageML << std::endl;
+					std::cout << "---------------------" << std::endl;
+				}
 			}
 			else{
 				double tempStageWeight = GetMCStageType(static_cast<Int_t>(tempStage.GetSource()))->GetWeight();
-
-				std::cout << "Tempstage " << tempStage.GetSource() << ": weight " << tempStageWeight << std::endl;
 				double startLinkWeight = startStage.GetLink(i).GetWeight();
-				std::cout << "StartLinkWeight " << startLinkWeight << std::endl;
-				//std::cout << " StageWeight: " << tempStageWeight << " startLinkWeight: " << startLinkWeight;
+
+				if (fVerbose > 0){
+					std::cout << "Tempstage " << tempStage.GetSource() << ": weight " << tempStageWeight << std::endl;
+					std::cout << "StartLinkWeight " << startLinkWeight << std::endl;
+				}
+					//std::cout << " StageWeight: " << tempStageWeight << " startLinkWeight: " << startLinkWeight;
 				tempStage.MultiplyAllWeights(tempStageWeight);
 
 				if ((tempStageWeight * startLinkWeight) == 0){
-					std::cout << " NLinks: " << tempStage.GetNLinks() << " ";
 					tempStage.MultiplyAllWeights(tempStageWeight);
 					tempStage.AddAllWeights(startLinkWeight/startStage.GetNLinks());
-					std::cout << "AddAllWeights: " << startLinkWeight/startStage.GetNLinks() << std::endl;
+					if (fVerbose > 0){
+						std::cout << " NLinks: " << tempStage.GetNLinks() << " ";
+						std::cout << "AddAllWeights: " << startLinkWeight/startStage.GetNLinks() << std::endl;
+					}
 				}
 				else{
 					tempStage.MultiplyAllWeights(startLinkWeight);
-					std::cout << "MultiplyAllWeights: " << startLinkWeight << std::endl;
+					if (fVerbose > 0)
+						std::cout << "MultiplyAllWeights: " << startLinkWeight << std::endl;
 				}
 
 			}
-			std::cout << "TempStage Stop: " << tempStage << std::endl;
+			if (fVerbose > 0)
+				std::cout<< "TempStage Stop: " << tempStage << std::endl;
 
 			GetNextStage(tempStage, stopStage);
 		}

@@ -155,8 +155,8 @@ void PndMvdTPCRiemannTrackFinderTask::Exec(Option_t* opt)
 			  else  {std::cout<<"ERROR"<<"  "<<"det="<<detId<<"  hit="<<hitId<<std::endl; continue;};
 			  track.addHit(hit);
 	  }
-	  track.refit();
-	  track.szFit();
+	  track.refit(true);
+	  track.szFit(true);
 	  new((*fRiemannTracks)[i])PndRiemannTrack(track);
   }
   CheckTPCHitsForMvdSeeds();

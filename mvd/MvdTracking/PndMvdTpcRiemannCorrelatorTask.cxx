@@ -240,8 +240,8 @@ PndRiemannTrack PndMvdTpcRiemannCorrelatorTask::GetRiemannTrack(GFTrackCand* can
 			result.addHit(hit);
 		}
 	}
-	result.refit();
-	result.szFit();
+	result.refit(true);
+	result.szFit(true);
 	return result;
 }
 

@@ -165,11 +165,11 @@ void PndMCMatchCreatorTask::Exec(Option_t* opt)
 
 	fMCMatch->LoadInMCLists(fMCLink);
 
-	std::cout << "NMCStages: " << fMCMatch->GetNMCStages() << std::endl;
+	//std::cout << "NMCStages: " << fMCMatch->GetNMCStages() << std::endl;
 	for (int i = 0; i < fMCMatch->GetNMCStages(); i++){
 		if (fMCMatch->GetMCStage(i)->GetFill() == kTRUE && fMCMatch->GetMCStage(i)->GetLoaded() == kFALSE){
-			std::cout << i << ": ";
-			std::cout << "BranchName: " << fMCMatch->GetMCStage(i)->GetBranchName() << std::endl;
+			//std::cout << i << ": ";
+			//std::cout << "BranchName: " << fMCMatch->GetMCStage(i)->GetBranchName() << std::endl;
 			TClonesArray* clArray = fBranches[fMCMatch->GetMCStage(i)->GetBranchName()];
 			for (int j = 0; j < clArray->GetEntries(); j++){
 				FairLinkedData* myData = (FairLinkedData*)clArray->At(j);
@@ -195,10 +195,10 @@ void PndMCMatchCreatorTask::Exec(Option_t* opt)
 		}
 	}
 
-	if (fVerbose > 0){
-		fMCMatch->Print();
-		std::cout << std::endl;
-	}
+//	if (fVerbose > 0){
+//		fMCMatch->Print();
+//		std::cout << std::endl;
+//	}
 }
 
 void PndMCMatchCreatorTask::Finish()

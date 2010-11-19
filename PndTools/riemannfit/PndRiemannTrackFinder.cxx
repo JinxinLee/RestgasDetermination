@@ -240,6 +240,35 @@ bool PndRiemannTrackFinder::CheckSZ(PndRiemannTrack aTrack)
 	return true;
 }
 
+bool PndRiemannTrackFinder::CheckZeroPassing(std::vector<int> hitIds, int hit)
+{
+	int zeroPresent = -1;
+	for (int i = 0; i < hitIds.size(); i++){
+		if (fMapHitToID[hitIds[i]].first < 0){
+			zeroPresent = i;
+		}
+	}
+	if (zeroPresent > -1) {
+		FairHit* testHit = fHits[hit];
+		FairHit* myHit;
+		if (zeroPresent + 1 < hitIds.size()) {
+			myHit = fHits[hitIds[zeroPresent + 1]];
+		} else {
+			myHit = fHits[hitIds[zeroPresent - 1]];
+		}
+		TVector3 point1, point2, result;
+		//std::cout << " TestHit: " << *testHit << " BaseHit: " << *myHit << std::endl;
+		myHit->Position(point1);
+		testHit->Position(point2);
+		if ((point1 * point2) < 0){
+			//std::cout << "product " << point1 * point2 << " negative: ZeroPassing" << std::endl;
+			if (fVerbose > 1) std::cout << "ZeroPassing!" << std::endl;
+			return true;
+		}
+	}
+	return false;
+}
+
 PndRiemannTrack PndRiemannTrackFinder::CreateRiemannTrack(std::vector<Int_t> aHits)
 {
 	PndRiemannTrack result;
@@ -264,6 +293,17 @@ bool PndRiemannTrackFinder::CheckHitInSameSensor(int hit1, int hit2)
 	if(((PndSdsHit*)first)->GetSensorID() == ((PndSdsHit*)second)->GetSensorID()){
 		std::cout << hit1 << " " << hit2 <<" in Same Sensor: " << ((PndSdsHit*)first)->GetSensorID() << std::endl;
 		return true;
+	}
+	return false;
+}
+
+bool PndRiemannTrackFinder::CheckHitInTrack(std::vector<int> hitIds, int hit)
+{
+	for (int i = 0; i < hitIds.size(); i++){
+		if (hitIds[i] == hit){
+			if (fVerbose > 1) std::cout << "-I- PndRiemannTrackFinder::CheckHitInTrack - Hit: " << hit << " already in track!" << std::endl;
+			return true;
+		}
 	}
 	return false;
 }
@@ -447,11 +487,11 @@ bool PndRiemannTrackFinder::TrackExists(std::vector<Int_t> hitsInTrack){
 	bool result = true;
 	bool oneNumberEqual = false;
 
-	if (fVerbose > 2) std::cout << "TrackExists: fHitsInTrack.size: " << fHitsInTracks.size() << std::endl;
+	//if (fVerbose > 2) std::cout << "TrackExists: fHitsInTrack.size: " << fHitsInTracks.size() << std::endl;
 	for (int i = 0; (i < fHitsInTracks.size()); i++){														//run through tracks in trackList
 		for (int k = 0; (k < hitsInTrack.size()&&(result == true)); k++){									//run through all hits in test track
 			for (int j = 0; (j < fHitsInTracks[i].size()) && (oneNumberEqual == false); j++){				//run through all hits in selected track
-				if (fVerbose > 2) std::cout << hitsInTrack[k] << " ?= " << fHitsInTracks[i][j] << std::endl;
+				//if (fVerbose > 2) std::cout << hitsInTrack[k] << " ?= " << fHitsInTracks[i][j] << std::endl;
 				if (hitsInTrack[k] == fHitsInTracks[i][j])
 					oneNumberEqual = true;
 				else oneNumberEqual = false;

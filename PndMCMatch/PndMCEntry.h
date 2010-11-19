@@ -37,6 +37,8 @@ PndMCEntry(std::set<FairLink> links, Int_t source = -1, Int_t pos = -1)
 	Int_t GetSource() const {return fSource;}
 	Int_t GetPos() const {return fPos;}
 
+	void RemoveType(Int_t type);
+
 	virtual ~PndMCEntry();
 
 	virtual void Print(std::ostream& out){

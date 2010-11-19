@@ -17,3 +17,21 @@ PndMCEntry::~PndMCEntry() {
 	// TODO Auto-generated destructor stub
 }
 
+void PndMCEntry::RemoveType(Int_t type)
+{
+	std::set<FairLink>::iterator endIter = fLinks.end();
+	std::set<FairLink>::iterator it = fLinks.begin();
+	//std::cout << "PndMCEntry " << *this << std::endl;
+	for (; it!=fLinks.end();){
+		//it->Print();
+		//std::cout << std::endl;
+		if (it->GetType() == type){
+			fLinks.erase(it);
+			it = fLinks.begin();
+		}
+		else{
+			it++;
+		}
+	}
+}
+

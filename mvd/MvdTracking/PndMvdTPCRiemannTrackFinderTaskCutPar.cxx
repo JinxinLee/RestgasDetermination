@@ -210,8 +210,8 @@ void PndMvdTPCRiemannTrackFinderTaskCutPar::CalcPlanes()
 			  for(unsigned int k=0;k<((PndTrackCand*)fTrackCandArray->At(j))->GetNHits();k++){
 				  track.addHit(hit[k+shift]);
 			  }
-			  track.refit();
-			  track.szFit();
+			  track.refit(true);
+			  track.szFit(true);
 			  new ((*fRiemannTracks)[j])PndRiemannTrack(track);
 		  }
 		  else {

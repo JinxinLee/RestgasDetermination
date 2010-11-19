@@ -82,3 +82,10 @@ FairMultiLinkedData PndMCObject::PosInList(FairLink link){
 	}
 	return result;
 }
+
+void PndMCObject::RemoveType(Int_t type)
+{
+	for (int i = 0; i < fStage.size(); i++){
+		fStage[i].RemoveType(type);
+	}
+}

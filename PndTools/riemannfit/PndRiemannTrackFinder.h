@@ -71,7 +71,8 @@ protected:
 	bool CheckSZ(PndRiemannTrack aTrack);									///< Tests the results of the sz fit
 	bool CheckRiemannHit(PndRiemannTrack* track, PndRiemannHit* hit);
 	bool CheckHitInSameSensor(int hit1, int hit2); 						///< Tests if hits in the same sensor are selected
-	
+	bool CheckHitInTrack(std::vector<int> hitIds, int hit);				///< Check if this HitId is used in the track already
+	bool CheckZeroPassing(std::vector<int> hitIds, int hit);				///< If the track contains (0,0) all points have to go forward or all have to go backward
 	PndRiemannTrack CreateRiemannTrack(std::vector<Int_t> aHits); 			///< Creates a PndRiemannTrack from an array of indices of Hits
 		
 	bool TrackExists(std::vector<Int_t> hitsInTrack);
