@@ -147,7 +147,6 @@ add_subdirectory(PndTools/AnalysisTools)
 add_subdirectory (PndTools/MVA)
 add_subdirectory(lumi)
 add_subdirectory (pid)
-add_subdirectory (endrc)
 add_subdirectory (PndMCMatch)
 add_subdirectory (global)
 
