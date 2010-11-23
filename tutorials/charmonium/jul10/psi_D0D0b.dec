@@ -1,0 +1,13 @@
+Decay psi(3770)
+  1.0 	D0 anti-D0	VSS;
+Enddecay
+
+Decay D0
+  1.0 	K- pi+ 		PHSP;
+Enddecay
+
+Decay anti-D0
+  1.0 	K+ pi- 		PHSP;
+Enddecay
+
+End
