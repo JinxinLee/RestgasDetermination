@@ -56,6 +56,8 @@ class PndSttMvdTracking : public FairTask
 #define dZStrip 0.03
 #define errorsqPixel 1.01*(dXPixel*dXPixel/4.+dYPixel*dYPixel/4.+dZPixel*dZPixel/4.)
 #define errorsqStrip 1.01*(dXStrip*dXStrip/4.+dYStrip*dYStrip/4.+dZStrip*dZStrip/4.)
+#define errorPixel sqrt(errorsqPixel)
+#define errorStrip sqrt(errorsqStrip)
 
   int istampa ;
   int IVOLTE ;
@@ -151,8 +153,10 @@ class PndSttMvdTracking : public FairTask
 
 
 
-  /** Output array of PndSttMvdTracks **/
-  TClonesArray* fSttMvdTrackArray;
+  /** Output array of PndSttMvd  PndTrackCand **/
+  TClonesArray* fSttMvdPndTrackCandArray;
+  /** Output array of PndSttMvd   PndTrack **/
+  TClonesArray* fSttMvdPndTrackArray;
 
 
 
@@ -524,9 +528,19 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 			UShort_t *ListMvdStripHitsAssociatedToSttTrack,
 			UShort_t *nSttSkewHitsinTrack,
 			UShort_t *ListSttSkewHitsinTrack,
-			Double_t S[nmaxSttHits+nmaxMvdPixelHits+2*nmaxMvdStripHits][2],
-			Double_t ZED[nmaxSttHits+nmaxMvdPixelHits+2*nmaxMvdStripHits][2],
-			Double_t ErrorDriftRadius[nmaxSttHits+nmaxMvdPixelHits+2*nmaxMvdStripHits][2],
+			Double_t S[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits][2],
+			Double_t ZED[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits][2],
+			Double_t DriftRadius[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits][2],
+			Double_t ErrorDriftRadius[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits][2],
+			Double_t SchosenPixel[nmaxMvdPixelHits],
+			Double_t SchosenStrip[nmaxMvdStripHits],
+			Double_t SchosenSkew[nmaxSttHits],
+			Double_t ZchosenPixel[nmaxMvdPixelHits],
+			Double_t ZchosenStrip[nmaxMvdStripHits],
+			Double_t ZchosenSkew[nmaxSttHits],
+			Double_t ErrorchosenPixel[nmaxMvdPixelHits],
+			Double_t ErrorchosenStrip[nmaxMvdStripHits],
+			Double_t ErrorchosenSkew[nmaxSttHits],
 			Double_t KAPPA,
 			Double_t FI0
 				    );
@@ -534,12 +548,29 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 
 
 
-  Double_t dist_SZ(
-  					Double_t KAPPA,
+  Double_t SignedDist_SZ(
+					Double_t KAPPA,
 					Double_t FI0,
 					Double_t ZED,
 					Double_t S
-  					);
+					);
+
+
+
+
+
+    void PndSttInfoXYZParal (
+                             Double_t info[][7],
+                             UShort_t infopar,
+                             Double_t Ox,
+                             Double_t Oy,
+                             Double_t R,
+                             Double_t KAPPA,
+                             Double_t FI0,
+                             Short_t Charge,
+                             Double_t *Posiz      //  output
+                            );
+
 
 
 
