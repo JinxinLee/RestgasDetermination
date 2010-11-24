@@ -3,7 +3,7 @@
 // *******
 
 
-void simfast_cmp(TString part="psi(2S)", TString decfile="PSI2S.DEC",int nevts=1000,TString outfile="")
+void simfast_cmp(TString part="psi(2S)", TString decfile="PSI2S.DEC",int nevts=1000, double mom=15., TString outfile="")
 {
   TStopwatch timer;
   timer.Start();
@@ -30,7 +30,7 @@ void simfast_cmp(TString part="psi(2S)", TString decfile="PSI2S.DEC",int nevts=1
   fRun->SetGenerator(primGen);
 
   /// ... generate your signal on the fly
-  PndEvtGenDirect *EvtGen = new PndEvtGenDirect(part,decfile);
+  PndEvtGenDirect *EvtGen = new PndEvtGenDirect(part,decfile,mom);
   EvtGen->SetStoreTree();
   primGen->AddGenerator(EvtGen);
 //  FairEvtGenGenerator* evtGen = new FairEvtGenGenerator(infile.Data());
