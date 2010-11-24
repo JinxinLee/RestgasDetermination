@@ -226,7 +226,7 @@ void PndPidSttAssociatorTask::MuonDEDXSigmaFunction() {
   // fMuonDEDXSigma->SetParameters(1.68652,  -0.496635); // LHETRACK no cut
   // fMuonDEDXSigma->SetParameters(1.37778,  -0.224275); // STT + MVD
   fMuonDEDXSigma = new TF1("musdedx","pol4(0)", 0.05, 1.5);
-  fMuonDEDXSigma->SetParameters(0.728067, 4.90579, -14.0316, 15.5579, -5.80294); // LHETRACK cut
+  fMuonDEDXSigma->SetParameters(4.17111, -19.6831, 42.7811, -38.5555, 12.383); // LHETRACK cut
 }
 
 void PndPidSttAssociatorTask::PionDEDXSigmaFunction() {
