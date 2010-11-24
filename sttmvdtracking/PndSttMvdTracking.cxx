@@ -15,10 +15,12 @@
 
 #include "PndTrackCand.h"
 #include "PndTrackCandHit.h"
+#include "PndTrack.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
+#include "FairTrackParP.h"
 
 #include "TGeoManager.h"
 #include "TClonesArray.h"
@@ -185,8 +187,14 @@ if(istampa >=1 ){
   }
   // Create and register output array for PndTrackCand of Stt+Mvd combined
 
-  fSttMvdTrackArray = new TClonesArray("PndTrackCand");
-  ioman->Register("PndSttMvdTrackArray","SttMvd",fSttMvdTrackArray, kTRUE);
+  fSttMvdPndTrackCandArray = new TClonesArray("PndTrackCand");
+  ioman->Register("PndSttMvdPndTrackCandArray","SttMvd",fSttMvdPndTrackCandArray, kTRUE);
+
+
+  // Create and register output array for PndTrack of Stt+Mvd combined
+
+  fSttMvdPndTrackArray = new TClonesArray("PndTrack");
+  ioman->Register("PndSttMvdPndTrackArray","SttMvd",fSttMvdPndTrackArray, kTRUE);
 
 
   // Create and register output array
@@ -383,6 +391,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 
 
   Double_t Dist,
+	   Distance,
            HoughFi[MAXTRACKSPEREVENT],
 	   Ntras,
            Phi,
@@ -390,17 +399,21 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
            Rad,
            TanL,
            Z,
+	   ddd,
 	   dis,
 	   delta,
 	   emme,
 	   highqualitycut,
 	   Pxini,
+	   px,
 	   Pyini,
+	   py,
 	   Pzini,
 	   qop,
 	   x,
 	   y,
 	   s[2],
+	   versor[2],
 	   z[2],
 	   zdrift[2],
 	   zerror[2];
@@ -409,27 +422,41 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 	   BETA[MAXTRACKSPEREVENT],
 	   GAMMA[MAXTRACKSPEREVENT],
 	   KAPPA[MAXTRACKSPEREVENT],
-           WDX[nmaxSttHits],
-           WDY[nmaxSttHits],
-           WDZ[nmaxSttHits],
-           Ox[MAXTRACKSPEREVENT],
-           Oy[MAXTRACKSPEREVENT],
-           R[MAXTRACKSPEREVENT],
-           FI0[MAXTRACKSPEREVENT],
-           Fifirst[MAXTRACKSPEREVENT],
+	   WDX[nmaxSttHits],
+	   WDY[nmaxSttHits],
+	   WDZ[nmaxSttHits],
+	   Ox[MAXTRACKSPEREVENT],
+	   Oy[MAXTRACKSPEREVENT],
+	   R[MAXTRACKSPEREVENT],
+	   FI0[MAXTRACKSPEREVENT],
+	   Fifirst[MAXTRACKSPEREVENT],
+	   Posiz1[3],
+	   Posiz2[3],
 	   Px[MAXTRACKSPEREVENT],
 	   Py[MAXTRACKSPEREVENT],
 	   Pz[MAXTRACKSPEREVENT],
-	   S[nmaxSttHits+nmaxMvdPixelHits+2*nmaxMvdStripHits], // multiplication by 2 in the
-	   ZED[nmaxSttHits+nmaxMvdPixelHits+2*nmaxMvdStripHits], // rather improbable chance that
-	   DriftRadius[nmaxSttHits+nmaxMvdPixelHits+2*nmaxMvdStripHits],// all skew hits have double
-	   ErrorDriftRadius[nmaxSttHits+nmaxMvdPixelHits+2*nmaxMvdStripHits],// solutions
-	   Sbis[nmaxSttHits+nmaxMvdPixelHits+2*nmaxMvdStripHits][2], // multiplication by 2 in the
-	   ZEDbis[nmaxSttHits+nmaxMvdPixelHits+2*nmaxMvdStripHits][2], // rather improbable chance that
-	   DriftRadiusbis[nmaxSttHits+nmaxMvdPixelHits+2*nmaxMvdStripHits][2],// all skew hits have double
-	   ErrorDriftRadiusbis[nmaxSttHits+nmaxMvdPixelHits+2*nmaxMvdStripHits][2],// solutions
-           info[nmaxSttHits][7];
+	   S[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits], // multiplication by 2 in the
+	   ZED[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits], // rather improbable chance that
+	   DriftRadius[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits],// all skew hits have double
+	   ErrorDriftRadius[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits],// solutions
+	   Sbis[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits][2], // multiplication by 2 in the
+	   ZEDbis[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits][2], // rather improbable chance that
+	   DriftRadiusbis[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits][2],// all skew hits have double
+	   ErrorDriftRadiusbis[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits][2],// solutions
+	   SchosenPixel[MAXTRACKSPEREVENT][nmaxMvdPixelHits],
+	   SchosenStrip[MAXTRACKSPEREVENT][nmaxMvdStripHits],
+	   SchosenSkew[MAXTRACKSPEREVENT][nmaxSttHits], // NO multiplication by 2 here because for the
+	   				// skew hits only one
+	   				// solution is selected.
+	   ZchosenPixel[MAXTRACKSPEREVENT][nmaxMvdPixelHits],
+	   ZchosenStrip[MAXTRACKSPEREVENT][nmaxMvdStripHits],
+	   ZchosenSkew[MAXTRACKSPEREVENT][nmaxSttHits],
+	   ErrorchosenPixel[MAXTRACKSPEREVENT][nmaxMvdPixelHits],
+	   ErrorchosenStrip[MAXTRACKSPEREVENT][nmaxMvdStripHits],
+	   ErrorchosenSkew[MAXTRACKSPEREVENT][nmaxSttHits],
+	   info[nmaxSttHits][7];
 
+  TVector3   Momentum,ErrMomentum,Position,ErrPosition;
 
 
   FairMCPoint *  pSttMCPoint[nmaxSttHits];
@@ -451,8 +478,9 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 
   PndTrackCandHit pndtrackcandhit; 
 
-  fSttMvdTrackArray->Delete();
+  fSttMvdPndTrackCandArray->Delete();
 
+  fSttMvdPndTrackArray->Delete();
 
   IVOLTE++;
 
@@ -647,17 +675,6 @@ if(istampa>2&& IVOLTE<20) { cout<<" da PndSttMvdTracking  :  Stt hit n. "<<i
 
 
   }  //   end of for( i= 0; i< nSttHit; i++)
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1094,7 +1111,7 @@ if(istampa>2  && IVOLTE<20){
 
 
 
-//---------------------   here call to the function that matches Mvd hits with Stt hits
+//---------------------   here call to the function that matches Mvd hits with Stt tracks
    delta=0.5; //  parameter of proximity for associating Mvd hits to Stt tracks
    highqualitycut=0.2; //  parameter of proximity for associating Mvd hits to Stt tracks
    MatchMvdHitsToSttTracks2(
@@ -1318,9 +1335,6 @@ if(istampa>2) cout<<"da PndSttMvdTracking ncand = "<<ncand<<",  Ox[ncand] = "<<O
 			&status[ncand]    // fit status; true = successful
 				);
 
-if(istampa>2) cout<<"finito refit con Candidato n. "<<ncand
-   <<", evento n. "<<IVOLTE<<endl;
-
 		if(status[ncand]){
 			Ox[ncand] = -ALFA[ncand]/2.;
 			Oy[ncand] = -BETA[ncand]/2.;
@@ -1346,14 +1360,6 @@ if(istampa>2) cout<<"finito refit con Candidato n. "<<ncand
 
 
 
-if(istampa>=2 ){
-	for(int ic=0;ic<nSttTrackCand;ic++){
-cout<<"da PndSttMvdTracking, prima di Match Again, Stt candidato n."
-	<<ic<<", n. pixel associati = "<<nMvdPixelHitsAssociatedToSttTrack[ic]<<
-	" e n. Strip associate = "<<nMvdStripHitsAssociatedToSttTrack[ic]<<endl;
-	}
-}
-
    MatchMvdHitsToSttTracksagain(
 			delta,
 			highqualitycut,
@@ -1369,16 +1375,6 @@ cout<<"da PndSttMvdTracking, prima di Match Again, Stt candidato n."
 			nMvdStripHitsAssociatedToSttTrack, // input and output
 			ListMvdStripHitsAssociatedToSttTrack // input and output
 			);
-
-
-
-if(istampa>2 ){
-	for(int ic=0;ic<nSttTrackCand;ic++){
-cout<<"da PndSttMvdTracking, dopo Match Again, Stt candidato n."
-	<<ic<<", n. pixel associati = "<<nMvdPixelHitsAssociatedToSttTrack[ic]<<
-	" e n. Strip associate = "<<nMvdStripHitsAssociatedToSttTrack[ic]<<endl;
-	}
-}
 
 
 
@@ -1408,7 +1404,6 @@ cout<<"da PndSttMvdTracking, dopo Match Again, Stt candidato n."
 			if(S[i]<0.) S[i] +=2.*PI;
 			Sbis[i][0] = S[i];
 			DriftRadiusbis[i][0]=DriftRadius[i]=0.;
-//			ErrorDriftRadiusbis[i][0]=ErrorDriftRadius[i]=sigmaZMvdPixel[k];
 			ErrorDriftRadiusbis[i][0]=ErrorDriftRadius[i]= 0.01 ;
 		}
 		// adding the Mvd Strips hit
@@ -1420,7 +1415,6 @@ cout<<"da PndSttMvdTracking, dopo Match Again, Stt candidato n."
 			if(S[i]<0.) S[i] +=2.*PI;
 			Sbis[i][0] = S[i] ;
 			DriftRadiusbis[i][0]=DriftRadius[i]=0.;
-//			ErrorDriftRadiusbis[i][0]=ErrorDriftRadius[i]=sigmaZMvdStrip[k];
 			ErrorDriftRadiusbis[i][0]=ErrorDriftRadius[i]= 0.01 ;
 		}
 
@@ -1451,7 +1445,6 @@ cout<<"da PndSttMvdTracking, dopo Match Again, Stt candidato n."
 					ZEDbis[kall][0]=ZED[i]=z[0];
 					Sbis[kall][0]=S[i] = s[0];
 					DriftRadiusbis[kall][0]=DriftRadius[i]=zdrift[0];
-//					ErrorDriftRadiusbis[kall][0]=ErrorDriftRadius[i]=zerror[0];
 					if( fabs(zdrift[0]) >1.e-10) {
 					 ErrorDriftRadiusbis[kall][0]=ErrorDriftRadius[i]=zdrift[0];
 					} else {
@@ -1462,7 +1455,6 @@ cout<<"da PndSttMvdTracking, dopo Match Again, Stt candidato n."
 					ZEDbis[kall][1]=ZED[i]=z[1];
 					Sbis[kall][1]=S[i] = s[1];
 					DriftRadiusbis[kall][1]=DriftRadius[i]=zdrift[1];
-//					ErrorDriftRadiusbis[kall][1]=ErrorDriftRadius[i]=zerror[1];
 					if( fabs(zdrift[1]) >1.e-10) {
 					 ErrorDriftRadiusbis[kall][1]=ErrorDriftRadius[i]=zdrift[1];
 					} else {
@@ -1474,7 +1466,6 @@ cout<<"da PndSttMvdTracking, dopo Match Again, Stt candidato n."
 					ZEDbis[kall][0]=ZED[i]=z[0];
 					Sbis[kall][0]=S[i] = s[0];
 					DriftRadiusbis[kall][0]=DriftRadius[i]=zdrift[0];
-//					ErrorDriftRadiusbis[kall][0]=ErrorDriftRadius[i]=zerror[0];
 					if( fabs(zdrift[0]) >1.e-10) {
 					 ErrorDriftRadiusbis[kall][0]=ErrorDriftRadius[i]=zdrift[0];
 					} else {
@@ -1486,7 +1477,6 @@ cout<<"da PndSttMvdTracking, dopo Match Again, Stt candidato n."
 					ZEDbis[kall][1]=ZED[i]=z[1];
 					Sbis[kall][1]=S[i] = s[1];
 					DriftRadiusbis[kall][1]=DriftRadius[i]=zdrift[1];
-//					ErrorDriftRadiusbis[kall][1]=ErrorDriftRadius[i]=zerror[1];
 					if( fabs(zdrift[1]) >1.e-10) {
 					 ErrorDriftRadiusbis[kall][1]=ErrorDriftRadius[i]=zdrift[1];
 					} else {
@@ -1524,22 +1514,33 @@ cout<<"da PndSttMvdTracking, dopo Match Again, Stt candidato n."
 
 
 //	use the risult just obtained from the fit in SZ to reject the spurious Skew Straw hits
-//	and the Mvd spurious hits
-
+//	and the Mvd spurious hits; also in this function there is the calculation of the Z position
+//	of the SKEW hits and the MVD hits, for a given track candidate (ie for a given Helix
+//	circle in the XY plane)
 
 
 		EliminateSpuriousSZ(
-					&nMvdPixelHitsAssociatedToSttTrack[ncand],
-					&ListMvdPixelHitsAssociatedToSttTrack[ncand][0],
-					&nMvdStripHitsAssociatedToSttTrack[ncand],
-					&ListMvdStripHitsAssociatedToSttTrack[ncand][0],
-					&nSttSkewHitsinTrack[ncand],
-					&ListSttSkewHitsinTrack[ncand][0],
-					Sbis,
-					ZEDbis,
-					ErrorDriftRadiusbis,
-					KAPPA[ncand],
-					FI0[ncand]
+				&nMvdPixelHitsAssociatedToSttTrack[ncand],	// input and output
+				&ListMvdPixelHitsAssociatedToSttTrack[ncand][0],// input and output
+				&nMvdStripHitsAssociatedToSttTrack[ncand],	// input and output
+				&ListMvdStripHitsAssociatedToSttTrack[ncand][0],// input and output
+				&nSttSkewHitsinTrack[ncand],	// input and output
+				&ListSttSkewHitsinTrack[ncand][0],// input and output
+				Sbis,	// input
+				ZEDbis,	// input
+				DriftRadiusbis,	// input
+				ErrorDriftRadiusbis,	// input
+				&SchosenPixel[ncand][0],
+				&SchosenStrip[ncand][0],
+				&SchosenSkew[ncand][0],
+				&ZchosenPixel[ncand][0],
+				&ZchosenStrip[ncand][0],
+				&ZchosenSkew[ncand][0],
+				&ErrorchosenPixel[ncand][0],
+				&ErrorchosenStrip[ncand][0],
+				&ErrorchosenSkew[ncand][0],
+				KAPPA[ncand],
+				FI0[ncand]
 				    );
 
 	}	//  end of for(ncand=0; ncand< nTotalCandidates; ncand++)
@@ -1549,21 +1550,9 @@ cout<<"da PndSttMvdTracking, dopo Match Again, Stt candidato n."
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 //----------------------------------------------------------
 
-//  Questo va razionalizzato maggiormente dopo Groningen!! RIordino degli hits, per la seconda volta.
+//  Questo va razionalizzato maggiormente dopo Groningen!! Riordino degli hits, per la seconda volta.
 
 
 //     ordering all the hits belonging to the candidate track, by increasing R;
@@ -1725,32 +1714,6 @@ for(l =0;l<nSttSkewHitsinTrack[it];l++){
    if( nMCTracks >0 && nSttTrackCand > 0 ){
 
 
-/*
-         AssociateFoundTrackstoMC(
-		  info,
-                  nSttTrackCand,
-                  nSttParHitsinTrack,
-                  ListSttParHitsinTrack,
-                  nSttSkewHitsinTrack,
-                  ListSttSkewHitsinTrack,
-                  daTrackFoundaTrackMC
-                                   );
-   }
-
-*/
-
-/*
-         AssociateFoundTrackstoMCbis(
-		  info,
-                  nSttTrackCand,
-                  nSttParHitsinTrack,
-                  ListSttParHitsinTrack,
-                  nSttSkewHitsinTrack,
-                  ListSttSkewHitsinTrack,
-                  daTrackFoundaTrackMC
-                                   );
-
-*/
 
          AssociateFoundTrackstoMCtris(
 		  info,
@@ -1825,8 +1788,6 @@ if(istampa>2){
 		MCPointtoMCTrackID,
 		FromPixeltoMCTrack,	// output
 		FromStriptoMCTrack	// output
-
-
 		);
 //--------------------
 
@@ -2237,24 +2198,6 @@ if( istampa>=1){
 }  //   end of    if( istampa>=1)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //------------------  end section with comparison MC Mvd hits - associated hits to a certain track
 
 
@@ -2369,15 +2312,13 @@ i=0;
 
 
 //-------  load the new PndTrackCand ; each track has the STT and the Mvd hits associated
+//-------  also load the new PndTrack ; each track has the STT and the Mvd hits associated
 
 	Double_t Oxx, Oyy;
 	for(ncand=0, ipinco = 0; ncand< nTotalCandidates; ncand++){
 		if(!status[ncand]) continue;
 		Oxx = Ox[ncand];
 		Oyy = Oy[ncand];
-//		Rr = R[ncand];
-//		if( Rr<=0. ) Rr=0.;
-//		else   Rr=sqrt(Rr);
 		dis=sqrt( Oxx*Oxx+Oyy*Oyy );
 		if( dis < 1.e-20)  continue;
 		Ptras = R[ncand]*0.003*BFIELD;
@@ -2397,9 +2338,9 @@ i=0;
 		} else {
 			Pzini = 999999.;
 		}
-		new((*fSttMvdTrackArray)[ipinco])  PndTrackCand;
-		PndTrackCand *pTrckCand = (PndTrackCand*) fSttMvdTrackArray->At(ipinco);
-		ipinco++;
+		// PndTrackCand Array loading
+		new((*fSttMvdPndTrackCandArray)[ipinco])  PndTrackCand;
+		PndTrackCand *pTrckCand = (PndTrackCand*) fSttMvdPndTrackCandArray->At(ipinco);
 		TVector3 dirSeed(Pxini,Pyini,Pzini); // momentum direction in starting point
 		qop = CHARGE[ncand]/dirSeed.Mag();
 		dirSeed.SetMag(1.);
@@ -2417,7 +2358,6 @@ i=0;
 			break;
 			case 2:
 			   pTrckCand->AddHit(kSttHit,(Int_t)ListTrackCandHit[ncand][j],j);
-
 			break;
 			case 3:
 			   pTrckCand->AddHit(kSttHit,(Int_t)ListTrackCandHit[ncand][j],j);
@@ -2425,8 +2365,176 @@ i=0;
 			}
 		}
 
+		// PndTrack Array loading
+		//  last = last hit in found track; first = first hit in found track;
+		//  pTrckCand =  pointer to the corresponding  PndTrackCand.
+
+		//  the first hit
+
+		if (ListTrackCandHitType[ncand][0] == 0){  //  Mvd Pixel
+			Posiz1[0] = XMvdPixel[ ListTrackCandHit[ncand][0] ];
+			Posiz1[1] = YMvdPixel[ ListTrackCandHit[ncand][0] ];
+			Posiz1[2] = ZMvdPixel[ ListTrackCandHit[ncand][0] ];
+			ErrPosition.SetX(sigmaXMvdPixel[ ListTrackCandHit[ncand][0] ]/sqrt(12.));
+			ErrPosition.SetY(sigmaXMvdPixel[ ListTrackCandHit[ncand][0] ]/sqrt(12.));
+			ErrPosition.SetZ(sigmaXMvdPixel[ ListTrackCandHit[ncand][0] ]/sqrt(12.));
+		} else if (ListTrackCandHitType[ncand][0] == 1){  //  Mvd Strip
+			Posiz1[0] = XMvdStrip[ ListTrackCandHit[ncand][0] ];
+			Posiz1[1] = YMvdStrip[ ListTrackCandHit[ncand][0] ];
+			Posiz1[2] = ZMvdStrip[ ListTrackCandHit[ncand][0] ];
+			ErrPosition.SetX(sigmaXMvdStrip[ ListTrackCandHit[ncand][0] ]/sqrt(12.));
+			ErrPosition.SetY(sigmaXMvdStrip[ ListTrackCandHit[ncand][0] ]/sqrt(12.));
+			ErrPosition.SetZ(sigmaXMvdStrip[ ListTrackCandHit[ncand][0] ]/sqrt(12.));
+		} else if( ListTrackCandHitType[ncand][0] == 2 ){  // it is a parallel straw hit
+			PndSttInfoXYZParal (
+				info,
+				ListTrackCandHit[ncand][0],
+				Ox[ncand],
+				Oy[ncand],
+				R[ncand],
+				KAPPA[ncand],
+				FI0[ncand],
+				CHARGE[ncand],
+				Posiz1
+				);
+			ErrPosition.SetX(0.02);	// 200 microns
+			ErrPosition.SetY(0.02);	// 200 microns
+			ErrPosition.SetZ(1.);		// 1 cm
+
+		} else if ( ListTrackCandHitType[ncand][0] == 3 ){  // it is a skew straw hit
+
+			Posiz1[0] = Ox[ncand]+R[ncand]*cos(SchosenSkew[ncand][ ListTrackCandHit[ncand][0] ]);
+			Posiz1[1] = Oy[ncand]+R[ncand]*sin(SchosenSkew[ncand][ ListTrackCandHit[ncand][0] ]);
+			Posiz1[2] = ZchosenSkew[ncand][ ListTrackCandHit[ncand][0] ];
+			ErrPosition.SetX(0.02);	// 200 microns
+			ErrPosition.SetY(0.02);	// 200 microns
+			ErrPosition.SetZ(1.);		// 1 cm
+
+		}
+
+		Position.SetX( Posiz1[0] );
+		Position.SetY( Posiz1[1] );
+		Position.SetZ( Posiz1[2] );
+		versor[0] = Ox[ncand]-Posiz1[0];
+		versor[1] = Oy[ncand]-Posiz1[1];
+		Distance = sqrt(versor[0]*versor[0]+versor[1]*versor[1]);
+		versor[0] /= Distance;
+		versor[1] /= Distance;
+		px = -CHARGE[ncand]*Ptras*versor[1];
+		py = CHARGE[ncand]*Ptras*versor[0];
+		Momentum.SetX(px);
+		Momentum.SetY(py);
+		Momentum.SetZ(Pzini);
+		ErrMomentum.SetX(0.05*Ptras); //  set at 5% all the times.
+		ErrMomentum.SetY(0.05*Ptras); //  set at 5% all the times.
+		ErrMomentum.SetZ(0.05*Pzini); //  set at 5% all the times.
+		//  the plane of this FairTrackParP better is perpendicular to
+		//  the momentum direction
+		ddd = Ptras*sqrt(Ptras*Ptras+Pzini*Pzini);
+
+if(istampa>2) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
+	"\tfirst hit, tipo hit = "<<ListTrackCandHitType[ncand][0]<<", X = "<<Posiz1[0]
+	<<", Y = "<<Posiz1[1]<<", Z = "<<Posiz1[2]<<
+	"\tPx = "<<px<<", Py = "<<py<<", Pz = "<<Pzini<<", Ptras "<<Ptras<<endl
+	<<"\t ErrX = "<<ErrPosition[0]
+	<<", ErrY = "<<ErrPosition[1]<<", ErrZ = "<<ErrPosition[2]<<endl<<
+	"\tErrPx = "<<ErrMomentum.X()<<", ErrPy = "<<ErrMomentum.Y()<<", ErrPz = "<<ErrMomentum.Z()<<endl;
+
+		FairTrackParP first( Position,  Momentum,
+		   ErrPosition, ErrMomentum, CHARGE[ncand],
+		   Position,
+		   TVector3(py/Ptras, -px/Ptras, 0.), //  first vector defining the plane
+		   TVector3(Pzini*px/ddd,Pzini*py/ddd,-Ptras*Ptras/ddd) //second vector defining the plane
+						);
 
 
+
+
+		//  the last hit
+
+		k = nTrackCandHit[ncand]-1;
+		if (ListTrackCandHitType[ncand][k] == 0){  //  Mvd Pixel
+			Posiz1[0] = XMvdPixel[ ListTrackCandHit[ncand][k] ];
+			Posiz1[1] = YMvdPixel[ ListTrackCandHit[ncand][k] ];
+			Posiz1[2] = ZMvdPixel[ ListTrackCandHit[ncand][k] ];
+			ErrPosition.SetX(sigmaXMvdPixel[ ListTrackCandHit[ncand][k] ]/sqrt(12.));
+			ErrPosition.SetY(sigmaXMvdPixel[ ListTrackCandHit[ncand][k] ]/sqrt(12.));
+			ErrPosition.SetZ(sigmaXMvdPixel[ ListTrackCandHit[ncand][k] ]/sqrt(12.));
+		} else if (ListTrackCandHitType[ncand][k] == 1){  //  Mvd Strip
+			Posiz1[0] = XMvdStrip[ ListTrackCandHit[ncand][k] ];
+			Posiz1[1] = YMvdStrip[ ListTrackCandHit[ncand][k] ];
+			Posiz1[2] = ZMvdStrip[ ListTrackCandHit[ncand][k] ];
+			ErrPosition.SetX(sigmaXMvdStrip[ ListTrackCandHit[ncand][k] ]/sqrt(12.));
+			ErrPosition.SetY(sigmaXMvdStrip[ ListTrackCandHit[ncand][k] ]/sqrt(12.));
+			ErrPosition.SetZ(sigmaXMvdStrip[ ListTrackCandHit[ncand][k] ]/sqrt(12.));
+		} else if( ListTrackCandHitType[ncand][k] == 2 ){  // it is a parallel straw hit
+			PndSttInfoXYZParal (
+				info,
+				ListTrackCandHit[ncand][k],
+				Ox[ncand],
+				Oy[ncand],
+				R[ncand],
+				KAPPA[ncand],
+				FI0[ncand],
+				CHARGE[ncand],
+				Posiz1
+				);
+			ErrPosition.SetX(0.02);	// 200 microns
+			ErrPosition.SetY(0.02);	// 200 microns
+			ErrPosition.SetZ(1.);		// 1 cm
+
+		} else if ( ListTrackCandHitType[ncand][k] == 3 ){  // it is a skew straw hit
+
+			Posiz1[0] = Ox[ncand]+R[ncand]*cos(SchosenSkew[ncand][ ListTrackCandHit[ncand][k] ]);
+			Posiz1[1] = Oy[ncand]+R[ncand]*sin(SchosenSkew[ncand][ ListTrackCandHit[ncand][k] ]);
+			Posiz1[2] = ZchosenSkew[ncand][ ListTrackCandHit[ncand][k] ];
+			ErrPosition.SetX(0.02);	// 200 microns
+			ErrPosition.SetY(0.02);	// 200 microns
+			ErrPosition.SetZ(1.);		// 1 cm
+
+		}
+
+		Position.SetX( Posiz1[0] );
+		Position.SetY( Posiz1[1] );
+		Position.SetZ( Posiz1[2] );
+		versor[0] = Ox[ncand]-Posiz1[0];
+		versor[1] = Oy[ncand]-Posiz1[1];
+		Distance = sqrt(versor[0]*versor[0]+versor[1]*versor[1]);
+		versor[0] /= Distance;
+		versor[1] /= Distance;
+		px = -CHARGE[ncand]*Ptras*versor[1];
+		py = CHARGE[ncand]*Ptras*versor[0];
+		Momentum.SetX(px);
+		Momentum.SetY(py);
+		Momentum.SetZ(Pzini);
+		//  the plane of this FairTrackParP better is perpendicular to
+		//  the momentum direction
+		ddd = Ptras*sqrt(Ptras*Ptras+Pzini*Pzini);
+
+if(istampa>2) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
+	"\tlast hit, tipo hit = "<<ListTrackCandHitType[ncand][k]
+	<<", X = "<<Posiz1[0]
+	<<", Y = "<<Posiz1[1]<<", Z = "<<Posiz1[2]<<
+	"\tPx = "<<px<<", Py = "<<py<<", Pz = "<<Pzini<<", Ptras "<<Ptras<<endl
+	<<"\t ErrX = "<<ErrPosition[0]
+	<<", ErrY = "<<ErrPosition[1]<<", ErrZ = "<<ErrPosition[2]<<endl<<
+	"\tErrPx = "<<ErrMomentum.X()<<", ErrPy = "<<ErrMomentum.Y()<<", ErrPz = "<<ErrMomentum.Z()<<endl;
+
+		FairTrackParP last( Position,  Momentum,
+		   ErrPosition, ErrMomentum, CHARGE[ncand],
+		   Position,
+		   TVector3(py/Ptras, -px/Ptras, 0.), //  first vector defining the plane
+		   TVector3(Pzini*px/ddd,Pzini*py/ddd,-Ptras*Ptras/ddd) //second vector defining the plane
+						);
+
+
+
+
+		PndTrack *pTrck = new((*fSttMvdPndTrackArray)[ipinco]) PndTrack(first,last,*pTrckCand);
+//		PndTrack *pTrck = (PndTrack*) fSttMvdPndTrackArray->At(ipinco);
+		pTrck->SetRefIndex(ipinco);
+
+		ipinco++;
 	}	// end of     for(ncand=0, ipinco = 0; ncand< nTotalCandidates; ncand++)
 
 //--------------------- end of load the new PndTrackCand
@@ -5539,77 +5647,6 @@ if(istampa>=3 && IVOLTE == 2) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //----------begin of function PndSttMvdTracking::FitSZspace
 
      Short_t PndSttMvdTracking::FitSZspace(
@@ -7906,9 +7943,19 @@ int nevento=1;
 			UShort_t *ListMvdStripHitsAssociatedToSttTrack,
 			UShort_t *nSttSkewHitsinTrack,
 			UShort_t *ListSttSkewHitsinTrack,
-			Double_t S[nmaxSttHits+nmaxMvdPixelHits+2*nmaxMvdStripHits][2],
-			Double_t ZED[nmaxSttHits+nmaxMvdPixelHits+2*nmaxMvdStripHits][2],
-			Double_t ErrorDriftRadius[nmaxSttHits+nmaxMvdPixelHits+2*nmaxMvdStripHits][2],
+			Double_t S[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits][2],
+			Double_t ZED[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits][2],
+			Double_t DriftRadius[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits][2],
+			Double_t ErrorDriftRadius[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits][2],
+			Double_t SchosenPixel[nmaxMvdPixelHits],
+			Double_t SchosenStrip[nmaxMvdStripHits],
+			Double_t SchosenSkew[nmaxSttHits],
+			Double_t ZchosenPixel[nmaxMvdPixelHits],
+			Double_t ZchosenStrip[nmaxMvdStripHits],
+			Double_t ZchosenSkew[nmaxSttHits],
+			Double_t ErrorchosenPixel[nmaxMvdPixelHits],
+			Double_t ErrorchosenStrip[nmaxMvdStripHits],
+			Double_t ErrorchosenSkew[nmaxSttHits],
 			Double_t KAPPA,
 			Double_t FI0
 				    )
@@ -7940,71 +7987,83 @@ int nevento=1;
 	auxnSttSkew=0;
 	for(i=0;i<*nMvdPixelHitsAssociatedToSttTrack;i++){
 
-if(istampa>2 && IVOLTE<20) cout<<"from PndSttMvdTracking::EliminateSpuriousSZ, pixel n. "<<
-ListMvdPixelHitsAssociatedToSttTrack[i]
-<<", KAPPA = "<<KAPPA<<", FI0 = "<<FI0<<",  ZED[i][0] = "<<ZED[i][0]
-		<<", S[i][0] = "<<S[i][0]
-		<<",     dist = "<< dist_SZ(KAPPA,FI0,ZED[i][0],S[i][0])<<   endl;
-
-		if( dist_SZ(KAPPA,FI0,ZED[i][0],S[i][0]) < MvdCut ){
+		if( fabs(SignedDist_SZ(KAPPA,FI0,ZED[i][0],S[i][0])) < MvdCut ){
 			auxListMvdPixel[auxnMvdPixel]=ListMvdPixelHitsAssociatedToSttTrack[i];
+			SchosenPixel[ListMvdPixelHitsAssociatedToSttTrack[i]]=S[i][0];
+			ZchosenPixel[ListMvdPixelHitsAssociatedToSttTrack[i]]=ZED[i][0];
+			ErrorchosenPixel[ListMvdPixelHitsAssociatedToSttTrack[i]]=errorPixel;
 			auxnMvdPixel++;
-if(istampa>2 && IVOLTE<20) cout<<"\t\t...... e passa!\n";
 		}
 	}	// end of  for(i=0;i<*nMvdPixelHitsAssociatedToSttTrack;i++)
 
 	for(j=0;j<*nMvdStripHitsAssociatedToSttTrack;j++){
 		i=j+(*nMvdPixelHitsAssociatedToSttTrack);
-if(istampa>2 && IVOLTE<20) cout<<"from PndSttMvdTracking::EliminateSpuriousSZ, strips n. "<<
-ListMvdStripHitsAssociatedToSttTrack[j]
-<<", KAPPA = "<<KAPPA<<", FI0 = "<<FI0<<",  ZED[i][0] = "<<ZED[i][0]
-		<<", S[i][0] = "<<S[i][0]
-		<<",     dist = "<< dist_SZ(KAPPA,FI0,ZED[i][0],S[i][0])<<   endl;
-		if( dist_SZ(KAPPA,FI0,ZED[i][0],S[i][0]) < MvdCut ){
+
+		if( fabs(SignedDist_SZ(KAPPA,FI0,ZED[i][0],S[i][0])) < MvdCut ){
 			auxListMvdStrip[auxnMvdStrip]=ListMvdStripHitsAssociatedToSttTrack[j];
+			SchosenStrip[ListMvdStripHitsAssociatedToSttTrack[j]]=S[i][0];
+			ZchosenStrip[ListMvdStripHitsAssociatedToSttTrack[j]]=ZED[i][0];
+			ErrorchosenStrip[ListMvdStripHitsAssociatedToSttTrack[j]]=errorStrip;
 			auxnMvdStrip++;
-if(istampa>2 && IVOLTE<20) cout<<"\t\t...... e passa!\n";
 		}
 	}	// end of  for(j=0;j<*nMvdStripHitsAssociatedToSttTrack;j++)
 
 	for(j=0;j<*nSttSkewHitsinTrack;j++){
 		i=j+(*nMvdPixelHitsAssociatedToSttTrack)+
 		    (*nMvdStripHitsAssociatedToSttTrack);
-if(istampa>2 && IVOLTE<20) cout<<"from PndSttMvdTracking::EliminateSpuriousSZ, Stt Skew n. "<<
-ListSttSkewHitsinTrack[j]<<", soluzione 0"
-<<", KAPPA = "<<KAPPA<<", FI0 = "<<FI0<<",  ZED[i][0] = "<<ZED[i][0]
-		<<", S[i][0] = "<<S[i][0]<<", dist = "
-		<< dist_SZ(KAPPA,FI0,ZED[i][0],S[i][0])<<", errore = "<<ErrorDriftRadius[i][0]<<endl;
-if(istampa>2 && IVOLTE<20) cout<<"\t stessa Stt Skew ma  soluzione 1"
-<<", KAPPA = "<<KAPPA<<", FI0 = "<<FI0<<",  ZED[i][1] = "<<ZED[i][1]
-		<<", S[i][1] = "<<S[i][1]<<", dist = "
-		<< dist_SZ(KAPPA,FI0,ZED[i][1],S[i][1])<<", errore = "<<ErrorDriftRadius[i][1]<<endl;
-
-
 
 		if( ZED[i][0]<999990. && ZED[i][1]<999990.){
-			dista0 = dist_SZ(KAPPA,FI0,ZED[i][0],S[i][0]);
-			dista1 = dist_SZ(KAPPA,FI0,ZED[i][1],S[i][1]);
-			if( dista1<dista0){dista = dista1; error = ErrorDriftRadius[i][1];
-			}else		  {dista = dista0; error = ErrorDriftRadius[i][0];}
+			dista0 = SignedDist_SZ(KAPPA,FI0,ZED[i][0],S[i][0]);
+			dista1 = SignedDist_SZ(KAPPA,FI0,ZED[i][1],S[i][1]);
+			if( fabs(dista1)<fabs(dista0)){
+				dista = dista1;
+				error = ErrorDriftRadius[i][1];
+				SchosenSkew[ListSttSkewHitsinTrack[j]]=S[i][1];
+				if( dista>= 0.){
+				  ZchosenSkew[ListSttSkewHitsinTrack[j]]=ZED[i][1]+DriftRadius[i][1];
+				} else {
+				  ZchosenSkew[ListSttSkewHitsinTrack[j]]=ZED[i][1]-DriftRadius[i][1];
+				}
+			}else{
+				dista = dista0;
+				error = ErrorDriftRadius[i][0];
+				SchosenSkew[ListSttSkewHitsinTrack[j]]=S[i][0];
+				if( dista>= 0.){
+				  ZchosenSkew[ListSttSkewHitsinTrack[j]]=ZED[i][0]+DriftRadius[i][0];
+				} else {
+				  ZchosenSkew[ListSttSkewHitsinTrack[j]]=ZED[i][0]-DriftRadius[i][0];
+				}
+			}
 		} else if (ZED[i][0]<999990.){
-			dista = dist_SZ(KAPPA,FI0,ZED[i][0],S[i][0]);
+			dista = SignedDist_SZ(KAPPA,FI0,ZED[i][0],S[i][0]);
 			error = ErrorDriftRadius[i][0];
+			SchosenSkew[ListSttSkewHitsinTrack[j]]=S[i][0];
+			if( dista>= 0.){
+			  ZchosenSkew[ListSttSkewHitsinTrack[j]]=ZED[i][0]+DriftRadius[i][0];
+			} else {
+			  ZchosenSkew[ListSttSkewHitsinTrack[j]]=ZED[i][0]-DriftRadius[i][0];
+			}
 		} else if (ZED[i][1]<999990.){
-			dista = dist_SZ(KAPPA,FI0,ZED[i][1],S[i][1]);
+			dista = SignedDist_SZ(KAPPA,FI0,ZED[i][1],S[i][1]);
 			error = ErrorDriftRadius[i][1];
+			SchosenSkew[ListSttSkewHitsinTrack[j]]=S[i][1];
+			if( dista>= 0.){
+			  ZchosenSkew[ListSttSkewHitsinTrack[j]]=ZED[i][1]+DriftRadius[i][1];
+			} else {
+			  ZchosenSkew[ListSttSkewHitsinTrack[j]]=ZED[i][1]-DriftRadius[i][1];
+			}
 		} else {
 			continue;
 		}
 
 		if(
-			dista < 2.*error
+			fabs(dista) < 2.*error
 				||
-			dista < 2.*minimumSttDriftError
+			fabs(dista) < 2.*minimumSttDriftError
 			){
 			auxListSttSkew[auxnSttSkew]=ListSttSkewHitsinTrack[j];
+			ErrorchosenSkew[ListSttSkewHitsinTrack[j]]=error;
 			auxnSttSkew++;
-if(istampa>2 && IVOLTE<20) cout<<"\t\t...... e passa!\n";
 		}
 	}	// end of  for(j=0;j<*nSttSkewHitsinTrack;j++)
 
@@ -8034,9 +8093,9 @@ if(istampa>2 && IVOLTE<20) cout<<"\t\t...... e passa!\n";
 
 
 
-//-------------------------  begin of function  PndSttMvdTracking::dist_SZ
+//-------------------------  begin of function  PndSttMvdTracking::SignedDist_SZ
 
-  Double_t PndSttMvdTracking::dist_SZ(
+  Double_t PndSttMvdTracking::SignedDist_SZ(
   					Double_t KAPPA,
 					Double_t FI0,
 					Double_t ZED,
@@ -8044,9 +8103,16 @@ if(istampa>2 && IVOLTE<20) cout<<"\t\t...... e passa!\n";
   					)
 {
 
+//	Defining :	ZZ = (S-FI0)/KAPPA
+//	this method returns the distance (WITH ITS SIGN ) :  ZZ - ZED.  Therefore this number
+//	can be negative.
+//	Care is taken to calculate this distance properly taking into
+//	account that we are dealing with the function  FI = mod(KAPPA*Z + FI0, 2*3.14). 
+
 	Short_t n;
 
-	Double_t dis1,
+	Double_t ABSdis1,
+		dis1,
 		dis2,
 		gap;
 
@@ -8059,16 +8125,106 @@ if(istampa>2 && IVOLTE<20) cout<<"\t\t...... e passa!\n";
 	gap = fabs(2.*PI/KAPPA);
 	n = (Short_t) ((KAPPA*ZED+FI0)/(2.*PI));
 	if(n<0) n--;
-	dis1 = fabs( ((S + n*2.*PI ) - FI0)/KAPPA  - ZED );
-	dis2 = gap - dis1;
-	if (dis2<0.) return 0.;	// in this case the distance is actually 0. (because of rounding
+	dis1 = ((S + n*2.*PI ) - FI0)/KAPPA  - ZED ;
+	ABSdis1 = fabs(dis1);
+	dis2 = gap - ABSdis1;
+	if (dis2<= 0.) return 0.;	// in this case the distance is actually 0. (because of rounding
 				// errors it may appear as <0.)
-	if( dis1 < dis2 ) return dis1;
-	else  return dis2;
+	if( ABSdis1 < dis2 )
+	{
+		return dis1;
+	} else {
+		if( dis1>0) return -dis2;
+		else   return dis2;
+	}
 
 }
 
-//-------------------------  end of function  PndSttMvdTracking::dist_SZ
+//-------------------------  end of function  PndSttMvdTracking::SignedDist_SZ
+
+
+
+
+
+
+//---------- begin of function PndSttMvdTracking::PndSttInfoXYZParal
+
+
+    void PndSttMvdTracking::PndSttInfoXYZParal (
+                             Double_t info[][7],
+                             UShort_t infopar,
+                             Double_t Ox,
+                             Double_t Oy,
+                             Double_t R,
+                             Double_t KAPPA,
+                             Double_t FI0,
+                             Short_t Charge,
+                             Double_t *Posiz
+                            )
+{
+
+   Double_t fi, norm, vers[2];
+
+   vers[0] = Ox - info[infopar][0];
+   vers[1] = Oy - info[infopar][1];
+   norm = sqrt( vers[0]*vers[0] + vers[1]*vers[1] );
+
+   if(norm < 1.e-20) {
+     Posiz[0] = -999999999.;
+     return;
+   }
+   
+
+
+
+
+
+   if( fabs( R - fabs( norm - info[infopar][3] ) ) // distance trajectory-drift radius
+				<
+		fabs( R - (norm + info[infopar][3]) )  ) {
+
+	Posiz[0] = info[infopar][0] + info[infopar][3]*vers[0]/norm;
+	Posiz[1] = info[infopar][1] + info[infopar][3]*vers[1]/norm;
+
+   } else {
+
+	Posiz[0] = info[infopar][0] - info[infopar][3]*vers[0]/norm;
+	Posiz[1] = info[infopar][1] - info[infopar][3]*vers[1]/norm;
+
+   }	// end of if ( fabs( R - fabs( Distance - info[infopar][3] ) ).....
+
+
+
+
+//   Posiz[0] = info[infopar][0] + info[infopar][3]*vers[0]/norm;
+//   Posiz[1] = info[infopar][1] + info[infopar][3]*vers[1]/norm;
+
+   if( fabs(KAPPA)<1.e-20 ){
+     Posiz[2] = -888888888.;
+     return;
+   }
+
+
+   fi = atan2(-vers[1],-vers[0]);
+   if(fi<0.)  fi += 2.*PI;
+
+   if ( Charge > 0){
+    if(fi > FI0 )  FI0 += 2.*PI;
+    Posiz[2] = (FI0-fi)/KAPPA;
+   } else {
+    if(fi < FI0 )  fi += 2.*PI;
+    Posiz[2] = (fi-FI0)/KAPPA;
+   }
+
+   return;
+}
+
+//----------end of function PndSttMvdTracking::PndSttInfoXYZParal
+
+
+
+
+
 
 
 
