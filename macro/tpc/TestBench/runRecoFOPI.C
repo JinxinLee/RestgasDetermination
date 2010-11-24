@@ -21,8 +21,8 @@ gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   //Set JOBNAME and JOBDIR
   // -------------------------------------------------------------------
 
-  TString jobdir = "CERN";
-  TString jobname="CERN1"; 
+  TString jobdir = "TEST";
+  TString jobname="FOPI1"; 
 
   TString digiDir=(basedir+"/")+jobdir;
   TString inFile=(digiDir+"/")+jobname;
@@ -31,8 +31,18 @@ gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   TString mcFile=inFile;
   mcFile.ReplaceAll("raw","mc");
 
-  TString outFile = inFile; 
+  TString outFile = inFile;
   outFile.ReplaceAll(".raw.root",".reco.root");
+  
+  TString PROutFile = inFile; //monitoring file for the PR task
+  PROutFile.ReplaceAll(".raw.root",".patternReco.root");
+  TFile test(PROutFile);
+  if(!test.IsZombie()) { //delete file
+    gSystem->Setenv("PROUTFILENAME", PROutFile.Data());
+    gROOT->ProcessLine(".! rm $PROUTFILENAME");
+    gSystem->Unsetenv("PROUTFILENAME");
+  }
+  
 
 
   TString paramIn = inFile;
@@ -93,7 +103,7 @@ gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
 
   PndTpcDataReaderTask* read = new PndTpcDataReaderTask();
   read->SetPersistence();
-  read->SetDatafile("/afs/e18.ph.tum.de/panda/DATA/testbench_cern_2010/decoded/run-2064.root");
+  read->SetDatafile("/home/felix/data/FOPI_TPC/2010/decoded/run_1637.lmd_decoded.root");
   read->SetClusterBranchName("PndTpcSample");
   //read->SetCutSmallPad();
   //read->SetMinSamples(1000);
@@ -134,14 +144,17 @@ gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   //fRun->AddTask(tpcIPR);
 
   PndTpcSLPatternRecoTask* tpcSLPR = new PndTpcSLPatternRecoTask();
-  tpcSLPR->SetStoreHistograms("moppel.root");
+  tpcSLPR->SetStoreHistograms(PROutFile);
   tpcSLPR->SetClusterAmpCut(50.);
-  tpcSLPR->SetProjectionZY();
-  tpcSLPR->SetParameterSpace(-4.,4.,0.,15.);
-  tpcSLPR->SetDepth(8);
-  tpcSLPR->SetThresh(10);
+  tpcSLPR->SetCutTracksParallelZ(5);
+  tpcSLPR->SetXSorting(true);
+  double parMins[4] = {0.,0.,0.,0.};
+  double parMaxs[4] = {TMath::Pi(),100.,TMath::Pi(),100.};
+  tpcSLPR->SetParameterSpace(parMins, parMaxs);
+  tpcSLPR->SetDepth(6);
+  tpcSLPR->SetThresh(12);
   tpcSLPR->SetMinCandHits(10);
-  //  tpcSLPR->SetClusterBranchName("PndTpcCluster_cut");
+  //tpcSLPR->SetClusterBranchName("PndTpcCluster_cut");
   fRun->AddTask(tpcSLPR);
 
 
@@ -181,7 +194,7 @@ gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   
-  fRun->Run(0,0);
+  fRun->Run(0,10);
   // ------------------------------------------------------------------------
 
   FairRootManager::Instance()->GetOutFile()->mkdir("QAPlots");

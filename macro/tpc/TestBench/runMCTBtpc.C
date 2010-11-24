@@ -25,7 +25,7 @@
 
   //Set JOBNAME + JOBDIR (will not be created!)
   // --------------------------------------------------
-  TString jobname="CERN1";
+  TString jobname="FOPI1";
   TString jobdir="TEST";
   
 

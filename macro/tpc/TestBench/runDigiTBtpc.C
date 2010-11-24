@@ -25,7 +25,7 @@
   // Set INPUT DIRECTORY (MC files) and JOBNAME
   // ------------------------------------------------------------------------
   TString inDir="TEST";
-  TString jobname="CERN1";
+  TString jobname="FOPI1";
 
   inDir=(basedir+"/")+inDir;
   TString inFile=(inDir+"/")+jobname;
@@ -129,16 +129,16 @@
   tpcDrifter->SetPersistence();
   tpcDrifter->SetDistort(false);
   tpcDrifter->SetQAPlotCol(qa);
-  fRun->AddTask(tpcDrifter);
+  //fRun->AddTask(tpcDrifter);
 
   PndTpcGemTask* tpcGem = new PndTpcGemTask();
   tpcGem->SetPersistence();
-  fRun->AddTask(tpcGem);
+  //fRun->AddTask(tpcGem);
 
   PndTpcPadResponseTask* tpcPadResponse = new PndTpcPadResponseTask();
   tpcPadResponse->SetPersistence();
   //tpcPadResponse->SetQAPlotCol(qa);
-  fRun->AddTask(tpcPadResponse);
+  //fRun->AddTask(tpcPadResponse);
 
   //PndTpcEvtMixTask* evtmixer = new PndTpcEvtMixTask();
   //  evtmixer->SetBkgFileName("bkg2.raw.root");
@@ -154,7 +154,7 @@
   PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
   tpcElec->SetPersistence();
   //tpcElec->SetQAPlotCol(qa);
-  fRun->AddTask(tpcElec);
+  //fRun->AddTask(tpcElec);
 
 
   // -----   Intialise and run   --------------------------------------------
