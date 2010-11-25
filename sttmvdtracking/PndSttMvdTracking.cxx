@@ -188,13 +188,13 @@ if(istampa >=1 ){
   // Create and register output array for PndTrackCand of Stt+Mvd combined
 
   fSttMvdPndTrackCandArray = new TClonesArray("PndTrackCand");
-  ioman->Register("PndSttMvdPndTrackCandArray","SttMvd",fSttMvdPndTrackCandArray, kTRUE);
+  ioman->Register("SttMvdTrackCand","SttMvd",fSttMvdPndTrackCandArray, kTRUE);
 
 
   // Create and register output array for PndTrack of Stt+Mvd combined
 
   fSttMvdPndTrackArray = new TClonesArray("PndTrack");
-  ioman->Register("PndSttMvdPndTrackArray","SttMvd",fSttMvdPndTrackArray, kTRUE);
+  ioman->Register("SttMvdTrack","SttMvd",fSttMvdPndTrackArray, kTRUE);
 
 
   // Create and register output array
