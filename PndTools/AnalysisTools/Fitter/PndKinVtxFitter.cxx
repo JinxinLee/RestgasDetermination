@@ -61,8 +61,8 @@ void PndKinVtxFitter::FitLeaf(TCandidate *head)
     }
   }
   //}
-  //  fDaughters.Cleanup();
-  //  FindAndAddGenericDaughters(fHeadOfTree);
+    fDaughters.Cleanup();
+    FindAndAddGenericDaughters(fHeadOfTree);
   
   
   Compute();
