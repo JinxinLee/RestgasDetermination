@@ -98,7 +98,10 @@ PndTransMap::PndTransMap(PndTransPar* fieldPar)
 
 
 // ------------   Destructor   --------------------------------------------
-PndTransMap::~PndTransMap() { }
+PndTransMap::~PndTransMap() 
+{
+	//printf("PndTransMap::~PndTransMap() \n ");	
+}
 // ------------------------------------------------------------------------
 void PndTransMap::GetBxyz(const Double_t point[3], Double_t* bField)
 { 

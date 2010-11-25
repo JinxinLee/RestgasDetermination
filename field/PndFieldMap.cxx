@@ -101,6 +101,8 @@ PndFieldMap::PndFieldMap(PndFieldPar* fieldPar)
 
 // ------------   Destructor   --------------------------------------------
 PndFieldMap::~PndFieldMap() {
+	
+	//printf("PndFieldMap::~PndFieldMap() \n");
   if ( fBx ) delete fBx;
   if ( fBy ) delete fBy;
   if ( fBz ) delete fBz;
@@ -530,6 +532,7 @@ void PndFieldMap::ReadRootFile(const char* fileName,
   // Close the root file and delete the data object
   file->Close();
   delete data;
+  delete file;	
   if ( oldFile ) oldFile->cd();
 
 }

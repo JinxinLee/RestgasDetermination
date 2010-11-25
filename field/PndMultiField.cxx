@@ -107,13 +107,13 @@ PndMultiField::PndMultiField(PndMultiFieldPar* fieldPar) {
 
 }
 
-
-
-
-
-
 // ------------   Destructor   --------------------------------------------
 PndMultiField::~PndMultiField() {
+	
+	//printf("PndMultiField::~PndMultiField() \n");
+	fMaps->Delete();
+	delete fMaps;
+	
 }
 
 // -----------   Adding fields   ------------------------------------------

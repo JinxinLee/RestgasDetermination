@@ -65,7 +65,9 @@ PndSolenoidMap::PndSolenoidMap(PndMapPar* fieldPar)
 
 
 // ------------   Destructor   --------------------------------------------
-PndSolenoidMap::~PndSolenoidMap() { }
+PndSolenoidMap::~PndSolenoidMap() 
+{ 
+}
 // ------------------------------------------------------------------------
 void PndSolenoidMap::GetBxyz(const Double_t point[3], Double_t* bField)
 { 
