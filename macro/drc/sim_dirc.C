@@ -18,8 +18,8 @@
   // set the MC version used
   // ------------------------
 
-  //fRun->SetName("TGeant3");
-  fRun->SetName("TGeant4");
+  fRun->SetName("TGeant3");
+  //fRun->SetName("TGeant4");
 
   fRun->SetOutputFile("testrun1.root");
  

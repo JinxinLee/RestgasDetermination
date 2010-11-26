@@ -9,7 +9,7 @@
 
 
 
-sim_complete_tpc(Int_t nEvents = 5, TString  SimEngine ="TGeant3", Float_t mom = 7.24)
+sim_complete_tpc(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.24)
 {
   TMemStat m("gnubuiltin");
 	//-----User Settings:-----------------------------------------------
@@ -171,7 +171,7 @@ sim_complete_tpc(Int_t nEvents = 5, TString  SimEngine ="TGeant3", Float_t mom =
   cout << " All ok " << endl;
   
   delete fRun;
- // exit(0);
+  exit(0);
 
 }  
   

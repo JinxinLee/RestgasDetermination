@@ -6,7 +6,9 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete_stt_vis.C"(100, "TGeant4",2)"
 
-sim_complete_stt_vis(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 0.000000003)
+
+sim_complete_stt_vis(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.24)
+
 {
   //-----User Settings:-----------------------------------------------
   TString  OutputFile     ="sim_complete.root";
@@ -91,7 +93,7 @@ sim_complete_stt_vis(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t 
 */ //-------------------------  DRC       -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetGeometryFileName("dirc.geo"); 
-  Drc->SetRunCherenkov(kTRUE);
+  Drc->SetRunCherenkov(kFALSE);
   fRun->AddModule(Drc); 
  /* //-------------------------  MDT       -----------------
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
