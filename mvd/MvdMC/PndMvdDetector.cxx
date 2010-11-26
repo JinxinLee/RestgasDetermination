@@ -35,11 +35,7 @@ void PndMvdDetector::SetDefaultSensorNames(){
 // -----   Destructor   ----------------------------------------------------
 PndMvdDetector::~PndMvdDetector()
 {
-  if (fPndSdsCollection)
-    {
-      fPndSdsCollection->Delete();
-      delete fPndSdsCollection;
-    }
+ 
 }
 
 // -------------------------------------------------------------------------
