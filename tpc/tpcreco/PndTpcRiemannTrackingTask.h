@@ -33,6 +33,7 @@ class PndTpcRiemannTrackFinder;
 class GFRecoHitFactory;
 class TH1I;
 class TH1D;
+class PndTrackCand;
 
 class PndTpcRiemannTrackingTask : public FairTask {
 public:
@@ -74,6 +75,7 @@ private:
   TClonesArray* _trackArray;
   TClonesArray* _riemannTrackArray;
   TClonesArray* _riemannHitArray;
+  TClonesArray* _trackCandArray;
 
   Bool_t _persistence;
   Bool_t _geane;
@@ -91,8 +93,6 @@ private:
   TH1D* _trackMcIdsH;
 
   PndTpcRiemannTrackFinder* _trackfinder;
-
-  FairGeanePro* _geanePro;
 
   GFRecoHitFactory* _theRecoHitFactory;
 

@@ -51,6 +51,7 @@
 #include "PndConstField.h"
 #include"PndFieldAdaptor.h"
 #include "GFFieldManager.h"
+#include "PndTrackCand.h"
 
 #include <cmath>
 
@@ -135,6 +136,9 @@ PndTpcRiemannTrackingTask::Init()
   _riemannHitArray = new TClonesArray("PndTpcRiemannHit");
   ioman->Register("RiemannHit","Tpc",_riemannHitArray,_persistence);
     
+  
+  _trackCandArray = new TClonesArray("PndTrackCand");
+  ioman->Register("PndTrackCandTpc","Tpc",_trackCandArray,_persistence);
 
 
   //if(_field==NULL){
@@ -157,7 +161,7 @@ PndTpcRiemannTrackingTask::Init()
   _trackMcIdsH=new TH1D("trkmcids","# mcids in track",25,0,25);
   
   // GeanePro will get Geometry and BField from the Run
-  _geanePro = new FairGeanePro();
+  //_geanePro = new FairGeanePro();
   
 
 
@@ -171,7 +175,9 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
   // Reset output Arrays
   if(_trackArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No TrackArray");
    _trackArray->Delete();
-   
+    if(_trackCandArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No TrackCandArray");
+   _trackCandArray->Delete();
+
 if(_riemannTrackArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannTrackArray");
    _riemannTrackArray->Delete();
 if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHitArray");
@@ -195,58 +201,49 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
      Bz=field->GetBz(0.,0.,0.);
 
 
-
-
-
-
   std::vector<PndTpcCluster*> clusterlist;
   
   unsigned int ncl=_clusterArray->GetEntriesFast();
   for(unsigned int icl=0; icl<ncl; ++icl){
     clusterlist.push_back((PndTpcCluster*)_clusterArray->At(icl));
   }
-
   std::cout<<"RiemannTask ncl="<<clusterlist.size()<<std::endl;
 
-  //if(_mvdArray!=NULL){
-  //  unsigned int nmvd=_mvdArray->GetEntriesFast();
-  //  for(unsigned int imvd=0; imvd<nmvd; ++imvd){
-  //    FairMCPoint* mvd=(FairMCPoint*)_mvdArray->At(imvd);
-  //    TVector3 pos;
-  //    mvd->Position(pos);
-  //    clusterlist.push_back(new PndTpcCluster(pos,1,imvd));
-  //  }
-  //}
-
+ 
   std::vector<PndTpcRiemannTrack*> riemannlist;
-  //PndTpcRiemannHough hough;
-  //hough.buildTracks(clusterlist,riemannlist);
-  
-  // return;
-
   _trackfinder->buildTracks(clusterlist,riemannlist);
 
   // build trackcands
   std::vector<GFTrackCand*> candlist;
   unsigned int nr=riemannlist.size();
   for(unsigned int ir=0;ir<nr;++ir){
-    // store pattern reco information
+    // store pattern reco information in output array
     PndTpcRiemannTrack* trk=riemannlist[ir];
     new((*_riemannTrackArray)[_riemannTrackArray->GetEntriesFast()]) PndTpcRiemannTrack(*trk);
     unsigned int nhits=trk->getNumHits();
     for(unsigned int ih=0;ih<nhits;++ih){
       PndTpcRiemannHit* hit=trk->getHit(ih);
+      //std::cout<<hit->cluster()->pos().Z()<<std::endl;
       new ((*_riemannHitArray)[_riemannHitArray->GetEntriesFast()]) PndTpcRiemannHit(*hit);
     }
     
-
+    
+    std::cout<<"Tracklet "<<ir<<"   nhits="<<nhits;
     // build tracks
-    if(nhits<_minpoints)continue;
-    trk->szFit();
+    if(nhits<_minpoints){
+      std::cout<<" ... skipping" << std::endl;
+      continue;
+    } 
+    std::cout<<std::endl;
+    trk->szFit(false);
+    PndTrackCand* pndcand=new((*_trackCandArray)[_trackCandArray->GetEntriesFast()]) PndTrackCand();
+    
     GFTrackCand* cand=new GFTrackCand();
     // reverse order!
     std::cout<<"nhits="<<nhits<<std::endl;
-
+    
+    
+    //trk->getHit(0)->cluster()->pos()
 
     // at this point hits should be sorted by decreasing z
     // look at radius to decide how to go on
@@ -265,26 +262,66 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
 
     // this will probably go wrong for some secondaries
     // decide how to sort
+    std::cout << "ADDING HITS TO CANDS" << std::endl;
     if(r1<=r2){
       for(unsigned int ih=0;ih<nhits;++ih){
 	cand->addHit(2,trk->getHit(ih)->cluster()->index());
+	pndcand->AddHit(2,trk->getHit(ih)->cluster()->index(),trk->getHit(ih)->cluster()->pos().Mag());
       }
     }
     else {
       for(unsigned int ih=nhits-1;ih>0;--ih){
 	cand->addHit(2,trk->getHit(ih)->cluster()->index());
+	pndcand->AddHit(2,trk->getHit(ih)->cluster()->index(),trk->getHit(ih)->cluster()->pos().Mag());
       }
-      cand->addHit(2,trk->getHit(0)->cluster()->index());   
-    }
-
+      cand->addHit(2,trk->getHit(0)->cluster()->index());  
+      pndcand->AddHit(2,trk->getHit(0)->cluster()->index(),trk->getHit(0)->cluster()->pos().Mag());
       
-   
-    cand->setCurv(0.01/fabs(trk->r())*(trk->winding()));
-    cand->setDip(trk->dip());
+    }
+    std::cout << "DONE ... building initializing vectors" << std::endl;
+    // build approximate momentum vector
+    unsigned int detId;
+    unsigned int hitId;
+    cand->getHit(0,detId,hitId);
+    std::cout << detId << "," << hitId << std::endl;
+    TVector3 pos1=((PndTpcCluster*)_clusterArray->At(hitId))->pos();
+    TVector3 pos2;
+    TVector3 delta;
+    bool ok=false;
+    unsigned int index=1;
+    while(!ok && index<cand->getNHits()){
+    cand->getHit(index,detId,hitId);
+std::cout << detId << "," << hitId << std::endl;
+      ++index;
+      PndTpcCluster* cl2=(PndTpcCluster*)_clusterArray->At(hitId);
+      pos2=cl2->pos();
+      delta=pos2-pos1;
+      if(fabs(delta.Z())>1. && delta.X()!=0 && delta.Y()!=0)ok=true;
+    }
+    delta.SetMag(1);
     
-    std::cout<<"trk winding="<<trk->winding()<<std::endl;
+    cand->setCurv(fabs(trk->r()*100.));
+    cand->setDip(trk->dip());
+
+    // p=0.3BR/dip -- assuming 2T BField R in meters -> convert to cm!
+    double p=cand->getCurv()/sin(trk->dip())*0.006; 
+    std::cout << "Setting initial p=" << p << std::endl;
+    std::cout << "Initial p_perp=" << cand->getCurv()*0.006 <<std::endl;
+    std::cout.flush();
+    pndcand->setTrackSeed(pos1,delta,1./p);
+   
+   
+
+    std::cout<<"R="<<trk->r()<<std::endl;
+    std::cout<<"Curv="<<cand->getCurv()<<std::endl;
+    std::cout<<"Dip="<<cand->getDip()<<std::endl;
+    
+    std::cout<<"Winding="<<trk->winding()<<std::endl;
 
     candlist.push_back(cand);
+
+    
+
   }
 
 
@@ -293,6 +330,10 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
   _multiplicityHisto->Fill(candlist.size());
 
   
+
+
+
+
 
   
   // -----------------------------------------------
@@ -346,26 +387,17 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
 //       continue;
 //    }
     delta.SetMag(1);
-    double mx=delta.X()/delta.Z();
-    double my=delta.Y()/delta.Z();
-    if(fabs(mx)<1E-12)mx<0 ? mx=-1E-12 : mx=+1E-12;
-    if(fabs(my)<1E-12)my<0 ? my=-1E-12 : my=+1E-12;
     
-    std::cout<<"mx="<<mx<<"  my="<<my<<std::endl;
-    TMatrixT<double> state(5,1);
-    state[0][0]=pos1.X();
-    state[1][0]=pos1.Y();
-    state[2][0]=mx;
-    state[3][0]=my;
     // p=0.3BR/dip -- assuming 2T BField R in meters -> convert to cm!
-    double one_o_p=cand->getCurv()*fabs(cand->getDip())*166.67; 
-    state[4][0]=one_o_p; 
+    double p=cand->getCurv()/sin(cand->getDip())*0.006; 
+    std::cout << "Setting initial p=" << p << std::endl;
+    std::cout << "Initial p_perp=" << cand->getCurv()*0.006 <<std::endl;
 
     GFAbsTrackRep* rep=0;
     if(1) {
       //GFDetPlane pl(pos1, pos1.Orthogonal(), pos1.Cross(pos1.Orthogonal()));
       TVector3 poserr(2,2,2);
-      TVector3 mom = delta*(1/one_o_p);
+      TVector3 mom = p * delta;
       TVector3 momerr(0.5*fabs(mom.X()),0.5*fabs(mom.Y()),0.5*fabs(mom.Z()));
       std::cout<<"Setting initial values:"<<std::endl;
       pos1.Print();
@@ -388,18 +420,6 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
     GFTrack* trk=new((*_trackArray)[_trackArray->GetEntriesFast()]) GFTrack(rep);
     trk->setCandidate(*cand); // here the candidate is copied!
     //Is this what we want?
-    
-    std::cout<<"Setting initial p="<<1/state[4][0]<<std::endl;
-    //TMatrixT<double> cov(5,5);
-    //cov[0][0]=100;
-    //cov[1][1]=100;
-    //cov[2][2]=16;
-    // cov[3][3]=16;
-    //cov[4][4]=5;
-    //GFDetPlane pl(pos1+TVector3(0,0,-10E-4),TVector3(1,0,0),TVector3(0,1,0));
-    //trk->getTrackRep(0)->setData(state, pl, &cov);
-    //      trk->getTrackRep(0)->setStartS(pos1.Z()-10E-4);
-    
     
   }// end loop over tracks
   

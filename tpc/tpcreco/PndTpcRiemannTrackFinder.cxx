@@ -143,7 +143,7 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
   	     <<candlist[i]->getNumHits()<<" hits  R=";
     if(candlist[i]->getNumHits()>=_minHitsForFit)std::cout<<candlist[i]->r();
     std::cout<<std::endl;
-    candlist[i]->Plot(1);
+    //candlist[i]->Plot(1);
   }
   
  return candlist.size();

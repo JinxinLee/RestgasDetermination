@@ -35,6 +35,7 @@
 #include "TVectorD.h"
 #include "TVector3.h"
 #include "TGraph.h"
+#include "TF1.h"
 #include "TMath.h"
 #include "TPolyMarker3D.h"
 // Class Member definitions -----------
@@ -513,7 +514,7 @@ PndTpcRiemannTrack::r() const {
 }
 
 void
-PndTpcRiemannTrack::szFit(){
+PndTpcRiemannTrack::szFit(bool print){
   trackpos(); // calculate positions on track
   std::list<PndTpcRiemannHit*>::iterator it=_hits.begin();
   std::list<PndTpcRiemannHit*>::iterator lastit=it;
@@ -545,6 +546,18 @@ PndTpcRiemannTrack::szFit(){
   int errorcode;
   g.LeastSquareLinearFit(nn,_t,_m,errorcode,-999,999);
   //std::cout<<"szFit Error Code:"<<errorcode<<std::endl;
+  if(print){
+    g.SetMarkerStyle(21);
+    g.Draw("AP");
+    TF1 f1("f1","[0]*x+[1]",0,100);
+    f1.SetParameter(0,_m);
+    f1.SetParameter(1,_t);
+    f1.SetLineColor(kRed);
+    f1.Draw("same");
+    
+    gApplication->SetReturnFromRun(kTRUE);
+    gSystem->Run();
+  }
   return;
 }
 
@@ -596,7 +609,7 @@ PndTpcRiemannTrack::szDist(PndTpcRiemannHit* hit, bool calcPos){
 // only after szFit!
 double
 PndTpcRiemannTrack::dip() const {
-  return cos(atan(_m));
+  return TMath::PiOver2()-(asin(_m));
 }
 
 

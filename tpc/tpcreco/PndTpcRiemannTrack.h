@@ -88,7 +88,7 @@ public:
   // Operations ----------------------
   void refit();
   double dist(PndTpcRiemannHit* hit);
-  void szFit();
+  void szFit(bool print=false);
   double szDist(PndTpcRiemannHit* hit, bool calcPos=true);
   void trackpos(); // calculate positions along track
   void Plot(bool standalone=true);
