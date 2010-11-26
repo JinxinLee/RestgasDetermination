@@ -30,7 +30,7 @@ eventDisplay()
  
  //----------------------Traks and points -------------------------------------
   FairMCTracks *Track =  new FairMCTracks ("Monte-Carlo Tracks");
-  FairMCPointDraw *MvdPoints =   new FairMCPointDraw ("MVDPoint",kBlue,  kFullSquare);
+//  FairMCPointDraw *MvdPoints =   new FairMCPointDraw ("MVDPoint",kBlue,  kFullSquare);
   FairMCPointDraw *EMCPoints =   new FairMCPointDraw ("EmcHit",kOrange,  kFullSquare);
   FairMCPointDraw *TofPoint =    new FairMCPointDraw ("TofPoint",kYellow,  kFullSquare);
   FairMCPointDraw *TofSciFPoint= new FairMCPointDraw ("TofSciFPoint",kTeal, kFullSquare);
@@ -43,7 +43,7 @@ eventDisplay()
   FairMCPointDraw *PndDskPoint = new FairMCPointDraw ("DskCerenkov",kGreen, kFullSquare);
                                                             
   fMan->AddTask(Track);
-  fMan->AddTask(MvdPoints);
+ // fMan->AddTask(MvdPoints);
   fMan->AddTask(EMCPoints);   
   fMan->AddTask(TofPoint);   
   fMan->AddTask( TofSciFPoint);

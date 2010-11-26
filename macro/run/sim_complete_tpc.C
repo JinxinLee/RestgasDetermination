@@ -9,9 +9,10 @@
 
 
 
-sim_complete_tpc(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.24)
+sim_complete_tpc(Int_t nEvents = 5, TString  SimEngine ="TGeant3", Float_t mom = 7.24)
 {
-  //-----User Settings:-----------------------------------------------
+  TMemStat m("gnubuiltin");
+	//-----User Settings:-----------------------------------------------
   TString  OutputFile     ="sim_complete.root";
   TString  ParOutputfile  ="simparams.root";
   Double_t BeamMomentum   =15.0;
@@ -170,7 +171,7 @@ sim_complete_tpc(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   cout << " All ok " << endl;
   
   delete fRun;
-  exit(0);
+ // exit(0);
 
 }  
   

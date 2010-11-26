@@ -5,7 +5,7 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete_stt.C"(100, "TGeant4",2)"
 
-rad_complete_stt(Int_t nEvents = 1, TString  SimEngine ="TGeant3", Float_t mom = 7.24)
+rad_complete_stt(Int_t nEvents = 1, TString  SimEngine ="TGeant4", Float_t mom = 7.24)
 {
   //-----User Settings:-----------------------------------------------
   TString  OutputFile     ="rad_complete.root";

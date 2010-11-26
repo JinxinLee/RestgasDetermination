@@ -19,7 +19,7 @@
   // set the MC version used
   // ------------------------
 
-  fRun->SetName("TGeant4");
+  fRun->SetName("TGeant3");
   // Choose the Geant Navigation System
 
   fRun->SetOutputFile(simOutput);
