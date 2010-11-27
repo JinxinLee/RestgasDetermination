@@ -87,6 +87,8 @@ EmcReco/PndEmcErrorMatrix.cxx
 EmcReco/PndEmcErrorMatrixPar.cxx
 EmcCorr/PndEmcMakeCorr.cxx
 EmcCorr/PndEmcCorrection.cxx
+EmcCorr/PndEmcClusterCalibrator.cxx
+EmcCorr/PndEmcClusterCalibrationPar.cxx
 #basetasks/PndGlobalEvtTask.cxx
 PndEmcContFact.cxx 
 )

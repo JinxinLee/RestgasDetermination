@@ -54,6 +54,12 @@
 #pragma link C++ class  PndEmcErrorMatrix+;
 #pragma link C++ class  PndEmcErrorMatrixPar+;
 #pragma link C++ class  PndEmcErrorMatrixParObject+;
+#pragma link C++ class  PndEmcClusterCalibrator+;
+#pragma link C++ class  PndEmcAbsClusterCalibrator+;
+#pragma link C++ class  PndEmcClusterHistCalibrator+;
+#pragma link C++ class  PndEmcClusterSimpleCalibrator+;
+#pragma link C++ class  PndEmcClusterCalibrationPar+;
+#pragma link C++ class  PndEmcClusterCalibrationParObject+;
 
 #pragma link C++ class  vector<PndEmcHit*>;
 #pragma link C++ class  vector<PndEmcPoint*>;
