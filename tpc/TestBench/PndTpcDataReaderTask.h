@@ -26,6 +26,7 @@
 #include "PndTpcDigiPar.h"
 #include "PndTpcSample.h"
 #include "PndTpcEvent.h"
+#include "PndTpcEventIdentifier.h"
 
 // Collaborating Class Headers -------
 #include <ostream>
@@ -76,6 +77,7 @@ class PndTpcDataReaderTask : public FairTask {
 
   TChain* fIntree;  //external data input
   PndTpcEvent* fEv; 
+  PndTpcEventIdentifier* fEventId;
   
   //unsigned int fMinDigis;
 

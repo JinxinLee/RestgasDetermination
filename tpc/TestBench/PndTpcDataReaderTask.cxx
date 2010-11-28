@@ -47,7 +47,7 @@ ClassImp(PndTpcDataReaderTask)
 
 PndTpcDataReaderTask::PndTpcDataReaderTask()
 : _persistence(kFALSE),_cutsmallpad(kFALSE),_cutbigpad(kFALSE), fCutoff(0),
-  fEventNb(0), fSpillNb(0)
+  fEventNb(0), fSpillNb(0), fEventId(NULL)
 {
   _digiBranchName = "PndTpcSample";
   fFile = "TBtest/run.root";
@@ -90,8 +90,9 @@ PndTpcDataReaderTask::Init()
   
   // create and register output array
   _sampleOutArray = new TClonesArray("PndTpcSample");
+  fEventId = new PndTpcEventIdentifier();
   ioman->Register("PndTpcSample","PndTpc",_sampleOutArray,_persistence);
-  //ioman->Register("PndTpc", &fEventNb, _persistence);
+  ioman->Register("PndTpcEventIdentifier","PndTpc", fEventId, _persistence);
   //ioman->Register("PndTpc", &fSpillNb, _persistence);
   //_di=new std::vector<PndTpcSample*>;
   return kSUCCESS;
@@ -119,13 +120,15 @@ void PndTpcDataReaderTask::Exec(Option_t* opt)
     fIntree->GetEvent(fLoop);
     fLoop++;
     samples = fEv->getEventVector();
-    fEventNb = fEv->getEventNb();
-    fSpillNb = fEv->getSpillNb();
-    
-    
     std :: cout << "Copying "<< samples->size()<<" samples." <<std::endl; 
+    
     if(samples->size()<fCutoff)
       continue;
+    
+    fEventNb = fEv->getEventNb();
+    fSpillNb = fEv->getSpillNb();
+    fEventId->setEventInSpill(fEventNb);
+    fEventId->setSpill(fSpillNb);
     
     /*
       unsigned int badsample[fNbChip][fMaxSample];
