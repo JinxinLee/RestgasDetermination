@@ -91,8 +91,8 @@ PndTpcDataReaderTask::Init()
   // create and register output array
   _sampleOutArray = new TClonesArray("PndTpcSample");
   ioman->Register("PndTpcSample","PndTpc",_sampleOutArray,_persistence);
-  ioman->Register("PndTpcEvent", "PndTpc", &fEventNb, _persistence);
-  ioman->Register("PndTpcEvent", "PndTpc", &fSpillNb, _persistence);
+  //ioman->Register("PndTpc", &fEventNb, _persistence);
+  //ioman->Register("PndTpc", &fSpillNb, _persistence);
   //_di=new std::vector<PndTpcSample*>;
   return kSUCCESS;
 }
@@ -109,7 +109,7 @@ void PndTpcDataReaderTask::Exec(Option_t* opt)
   
   _sampleOutArray->Delete();
   
-  std::vector<PndTpcSample> samples;
+  const std::vector<PndTpcSample>* samples;
   
   //McIdCollection mcid = new McIdCollection();
   
@@ -123,8 +123,8 @@ void PndTpcDataReaderTask::Exec(Option_t* opt)
     fSpillNb = fEv->getSpillNb();
     
     
-    std :: cout << "Copying "<< samples.size()<<" samples." <<std::endl; 
-    if(samples.size()<fCutoff)
+    std :: cout << "Copying "<< samples->size()<<" samples." <<std::endl; 
+    if(samples->size()<fCutoff)
       continue;
     
     /*
@@ -163,10 +163,10 @@ void PndTpcDataReaderTask::Exec(Option_t* opt)
       }
     */
     
-    std :: cout << "Saving "<< samples.size()<<" samples" <<std::endl;  
+    std :: cout << "Saving "<< samples->size()<<" samples" <<std::endl;  
     
-    for(unsigned int i=0; i<samples.size(); i++)
-      PndTpcSample* theSample = new((*_sampleOutArray)[i]) PndTpcSample(samples[i]);
+    for(unsigned int i=0; i<samples->size(); i++)
+      PndTpcSample* theSample = new((*_sampleOutArray)[i]) PndTpcSample((*samples)[i]);
         
     return;
   }
