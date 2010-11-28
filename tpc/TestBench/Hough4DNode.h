@@ -69,6 +69,8 @@ private:
   double* _proj1;
   double* _proj2;
   double* _proj3;
+  
+  double* _sons;
 
   int _votes;
   int _level;

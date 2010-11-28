@@ -46,21 +46,24 @@ Hypersurface4D::Hypersurface4D(double par1,double par2, const TF1& rep1,
   _rep2->SetParameter(0,par3); 
   _rep2->SetParameter(1,par4);  
   
-  _mins[0] = 0.f;      
-  _mins[1] = 0.f;      
-  _mins[2] = 0.f;      
-  _mins[3] = 0.f;      
+  _mins[0] = 0.;      
+  _mins[1] = 0.;      
+  _mins[2] = 0.;      
+  _mins[3] = 0.;      
      
-  _maxs[0] = 0.f;
-  _maxs[1] = 0.f;
-  _maxs[2] = 0.f;
-  _maxs[3] = 0.f;
+  _maxs[0] = 0.;
+  _maxs[1] = 0.;
+  _maxs[2] = 0.;
+  _maxs[3] = 0.;
 }
 
 
 Hypersurface4D::~Hypersurface4D() {
   delete _rep1;
   delete _rep2;
+  free(_pars);
+  free(_mins);
+  free(_maxs);
 }
 
 
@@ -130,7 +133,9 @@ Hypersurface4D::testIntersect(Hough4DNode* node) const {
 
 void 
 Hypersurface4D::setParamSpace(double* mins, double* maxs) {
-  _mins = mins;
-  _maxs = maxs;  
+  for(unsigned int c=0; c<4; c++) {
+    _mins[c]=mins[c];
+    _maxs[c]=maxs[c];
+  }
   _paramsSet=true;
 }    

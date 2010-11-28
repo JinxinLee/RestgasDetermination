@@ -14,6 +14,7 @@ Hough4DNode::Hough4DNode() {
   _proj1 = NULL;
   _proj2 = NULL;
   _proj3 = NULL;
+  _sons = NULL;
   
 }
 Hough4DNode::~Hough4DNode(){
@@ -31,6 +32,8 @@ Hough4DNode::~Hough4DNode(){
     free(_proj2); 
   if(_proj3 != NULL)
     free(_proj3); 
+  if(_sons!=NULL)
+    free(_sons);  
 }
 
 Hough4DNode::Hough4DNode(const double* center, int level, 
@@ -44,7 +47,10 @@ Hough4DNode::Hough4DNode(const double* center, int level,
   _proj2 = (double*) malloc(2*sizeof(double));
   _proj3 = (double*) malloc(2*sizeof(double));
 
+  _sons = (double*) malloc(16*4*sizeof(double));
+  
   memset(_hitList, 0x00, _nPlanes);
+  memset(_sons, 0x00, 16*4);
   
   _votes = 0;
   _level = level;
@@ -83,21 +89,19 @@ Hough4DNode::Hough4DNode(const double* center, int level,
 
 const double*  
 Hough4DNode::getSonArray() const {   //return centers of sons
-  double* arr = (double*) malloc(16*4*sizeof(double));
   int count=0;
-
-   for(int x=-1; x<2; x+=2)
+  for(int x=-1; x<2; x+=2)
     for(int y=-1; y<2; y+=2)
       for(int z=-1; z<2; z+=2)
 	for(int v=-1; v<2; v+=2) {
-	  arr[count*4] = _center[0] + 0.25*x*_length;
-	  arr[count*4+1] = _center[1] + 0.25*y*_length;
-	  arr[count*4+2] = _center[2] + 0.25*z*_length;
-	  arr[count*4+3] = _center[3] + 0.25*v*_length;
+	  _sons[count*4] = _center[0] + 0.25*x*_length;
+	  _sons[count*4+1] = _center[1] + 0.25*y*_length;
+	  _sons[count*4+2] = _center[2] + 0.25*z*_length;
+	  _sons[count*4+3] = _center[3] + 0.25*v*_length;
 	  count++;
 	}
    
-   return arr;
+   return _sons;
 }
 
 /*

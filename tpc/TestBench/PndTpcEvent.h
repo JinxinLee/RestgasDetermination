@@ -16,15 +16,16 @@
 #include <list>
 #include <string>
 #include <ctime>
+#include <vector>
 
-using namespace std;
 
 //______________________________________________________
 class PndTpcEvent : public TObject { 
 
-private:
+ private:
   std::vector<PndTpcSample> eventVector;
   long int                  eventNb; // nbInRun of event header
+  long int                  fSpillNb;
   long int                  runNb;
   time_t                    _time;
   unsigned int              firstSample;
@@ -33,7 +34,7 @@ private:
   unsigned int              nbofSamplesAfterDrift;
   int 		            HV;      // in % of nominal voltage of GEM 
   int      	            angle;
-  string                    triggerType;
+  std::string               triggerType;  //!
   unsigned int              triggerRate;
   int                       temperature;
   int                       err_mask;
@@ -47,23 +48,27 @@ public:
   friend std::ostream& operator<<(std::ostream& os, const PndTpcEvent& me);
 
   //************  other functions *************************//
-  std::vector<PndTpcSample> getEventVector() const { return eventVector; }
-  long int                      getEventNb() const { return eventNb; } 
-  long int                        getRunNb() const { return runNb; }
-  time_t                           getTime() const { return _time; }
-  unsigned int              getFirstSample() const { return firstSample; }
-  unsigned int         getNbofSamplesDrift() const { return nbofSamplesDrift; }
-  unsigned int   getNbofSamplesBeforeDrift() const { return nbofSamplesBeforeDrift; }
-  unsigned int    getNbofSamplesAfterDrift() const { return nbofSamplesAfterDrift; }
-  int                                getHV() const { return HV; }
-  int                             getAngle() const { return angle; }
-  string                    getTriggerType() const { return triggerType; }
-  unsigned int              getTriggerRate() const { return triggerRate; }
-  int                       getTemperature() const { return temperature; }
-  int                                 good() const { return !err_mask; }
-
+  //TODO: remove un-const function and resolve consequences
+  const std::vector<PndTpcSample>* getEventVector() const { return &eventVector; }
+  std::vector<PndTpcSample>* getEventVector() { return &eventVector; }
+  long int                       getEventNb() const { return eventNb; } 
+  long int                       getSpillNb() const { return fSpillNb; }
+  long int                         getRunNb() const { return runNb; }
+  time_t                            getTime() const { return _time; }
+  unsigned int               getFirstSample() const { return firstSample; }
+  unsigned int          getNbofSamplesDrift() const { return nbofSamplesDrift; }
+  unsigned int    getNbofSamplesBeforeDrift() const { return nbofSamplesBeforeDrift; }
+  unsigned int     getNbofSamplesAfterDrift() const { return nbofSamplesAfterDrift; }
+  int                                 getHV() const { return HV; }
+  int                              getAngle() const { return angle; }
+  std::string                getTriggerType() const { return triggerType; }
+  unsigned int               getTriggerRate() const { return triggerRate; }
+  int                        getTemperature() const { return temperature; }
+  int                                  good() const { return !err_mask; }
+  
   void        eventVectorPushBack(PndTpcSample pts) { eventVector.push_back(pts); }
   void                      setEventNb(long int en) { eventNb = en; }
+  void                      setSpillNb(long int sp) { fSpillNb = sp; }
   void                        setRunNb(long int rn) { runNb = rn; }
   void                            setTime(time_t t) { _time = t; }
   void              setFirstSample(unsigned int fs) { firstSample = fs; }
@@ -72,15 +77,15 @@ public:
   void  setNbofSamplesAfterDrift(unsigned int nsad) { nbofSamplesAfterDrift = nsad; }
   void                                setHV(int hv) { HV = hv; }
   void                             setAngle(int ag) { angle = ag; }
-  void                    setTriggerType(string ty) { triggerType = ty; } 
+  void               setTriggerType(std::string ty) { triggerType = ty; } 
   void              setTriggerRate(unsigned int tr) { triggerRate = tr; } 
   void                       setTemperature(int tp) { temperature = tp;}
 
   const char* getSystemDate();
   void                reset();
 
-  ClassDef(PndTpcEvent, 1)  //Event structure 
-};
+  ClassDef(PndTpcEvent, 2)  //Event structure 
+    };
 
 #endif //  PNDTPCEVENT_H 
 

@@ -79,6 +79,7 @@ class PndTpcSLPatternRecoTask : public FairTask {
   void CutBigPad(Bool_t opt=kTRUE) {_cutbigpad=opt;}
 
   void SetStoreHistograms(TString file);
+ 
   
  private:
 

@@ -68,19 +68,21 @@ clusterSortX(PndTpcCluster* cl1, PndTpcCluster* cl2) {
 PndTpcSLPatternRecoTask::PndTpcSLPatternRecoTask()
 :  FairTask("PndTpc SL Hough Pattern Reco"),
   fPersistence(kFALSE),fDistSorting(kFALSE),
-  fDepth(6), fThresh(6), fMin(5), counter(0),
+  fDepth(6), fThresh(6), fMin(5), counter(-1),
   fXZ(true), fZY(false), _cutbigpad(kFALSE), _cutsmallpad(kFALSE),
    fStore(false), fAmpCut(0.), fZStackLimit(0), fClLimit(500)
     
 {
   fClusterBranchName = "PndTpcCluster";
-  fRep = new TF1("rep","[0]*cos(x)+[1]*sin(x)",-6,6); //standard rep
+  fRep = new TF1("rep","[0]*cos(x)+[1]*sin(x)",-16,16); //standard rep
 }
 
 PndTpcSLPatternRecoTask::~PndTpcSLPatternRecoTask(){
   delete fRep;
-  if(fStore)
+  if(fStore) {
+    fHistoFile->Close();
     delete fHistoFile;
+  }
 }
 
 
@@ -140,7 +142,12 @@ PndTpcSLPatternRecoTask::Init()
   colors.push_back(kGreen+2);
   colors.push_back(kBlue+4);
   colors.push_back(kOrange);
-    
+
+  TDirectory* tmp=gDirectory;
+  if(fStore) {
+    fHistoFile = new TFile(fHistoFileName, "update");
+  }
+  tmp->cd();
   return kSUCCESS;
 }
 
@@ -148,18 +155,17 @@ void
 PndTpcSLPatternRecoTask::Exec(Option_t* opt)
 {
   if(fStore) {
-    fHistoFile = new TFile(fHistoFileName, "update");
     fHistoFile->cd();
   }
   counter++;
 
   //chamber geometry:
-  double xMin = -5.;
-  double xMax = 5.;
-  double yMin = -5.;
-  double yMax = 5.;
+  double xMin = -15.;
+  double xMax = 15.;
+  double yMin = -15.;
+  double yMax = 15.;
   double zMin = 0.;
-  double zMax = 8.;
+  double zMax = 20.;
   
   double MIN0 = fMins[0];
   double MIN1 = fMins[1];
@@ -203,6 +209,7 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     clHist = new TH3D(clName.c_str(), clName.c_str(), 100,xMin,xMax,
 		      100,yMin,yMax, 100, zMin, zMax);
     clHist->SetMarkerStyle(20);
+    clHist->SetMarkerSize(0.5);
     repHistXY = new TH2D(repNameXY.c_str(), repNameXY.c_str(), 
 			 100, fMins[0],fMaxs[0],
 			 100,fMins[1],fMaxs[1]);
@@ -288,6 +295,7 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     double y = pos.Y();
     double z = pos.Z();
     
+    //TODO: make this configurable
     hitreps.push_back(new Hypersurface4D(x,y,*fRep,
 					 x,z,*fRep,i));
     hitreps.back()->setParamSpace(fMins, fMaxs);
@@ -355,7 +363,7 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   
   
   //End FHT search; Begin candidate extraction -----------------------------
-  
+ 
   unsigned int surs = survivors.size();
   //exit: PR failed
   if(surs==0) {
@@ -410,6 +418,7 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     GFTrackCand cand=candlist[i];
     markerlist.push_back(new TPolyMarker3D(solutions[i]->size()));
     markerlist.back()->SetMarkerStyle(20);
+    markerlist.back()->SetMarkerSize(0.5);
     if(i<colors.size())
       markerlist.back()->SetMarkerColor(colors[i]);
     
@@ -566,15 +575,19 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     boxlistXZ.clear();
     
     delete clHist;
+    delete clHist2;
     delete repHistXY;
     delete repHistXZ;
-    fHistoFile->Close();
+    //fHistoFile->Close();
     
   }
 
   //cleaning of markerlist not needed, VirtualPad took ownership
   
-  
+  //clean up survivors:
+  for(unsigned int bleh=0; bleh<survivors.size(); bleh++)
+    delete survivors[bleh];
+  survivors.clear();
   return;
 }
 

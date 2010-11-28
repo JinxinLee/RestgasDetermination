@@ -83,6 +83,8 @@ class PndTpcDataReaderTask : public FairTask {
   PndTpcDigiPar* fPar;
   
   unsigned int fLoop;
+  unsigned int fEventNb;
+  unsigned int fSpillNb;
   
   //unsigned int fMaxSample;
   //unsigned int fCutOcc;

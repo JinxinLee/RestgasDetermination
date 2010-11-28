@@ -20,7 +20,7 @@ Spread:Double_t 0.02
 MinSignalAmp:Double_t 6
 rMin:Double_t 0.
 rMax:Double_t 11.
-PadPlaneFile:Int_t 28
+PadPlaneFile:Int_t 30
 PadShapeFile:Int_t 29
 PadShapeRange:Double_t 0.5
 PadShapeStep:Double_t 0.02

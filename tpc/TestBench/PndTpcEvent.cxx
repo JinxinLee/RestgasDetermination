@@ -8,8 +8,10 @@
 //=======================================================
 
 #include "PndTpcEvent.h"
+#include <iostream>
 
 ClassImp(PndTpcEvent)
+
 
 //___________________________________________________________________________
 PndTpcEvent::PndTpcEvent()
@@ -18,29 +20,31 @@ PndTpcEvent::PndTpcEvent()
 ,nbofSamplesAfterDrift(10), firstSample(0)
 ,HV(100), angle(0), triggerType("rnd"), triggerRate(-1)
 ,temperature(-1), err_mask(0)   // 0 means no error, otherwise error. 
-{;}
+{
+  eventVector.reserve(200000);
+}
 
 //___________________________________________________________________________
 PndTpcEvent::~PndTpcEvent()
-{;} 
+{;}
 
 //___________________________________________________________________________
 std::ostream& operator<<(std::ostream& os, const PndTpcEvent& me)
 {
   os << "PndTpcEvent:\n"
-     << "   eventNb(nbInRun)       ="<<me.eventNb<<endl 
-     << "   runNb                  ="<<me.runNb<<endl
-     << "   firstSample            ="<<me.firstSample<<endl
-     << "   nbofSamplesDrift       ="<<me.nbofSamplesDrift<<endl 
-     << "   nbofSamplesBeforeDrift ="<<me.nbofSamplesBeforeDrift<<endl
-     << "   nbofSamplesAfterDrift  ="<<me.nbofSamplesAfterDrift<<endl
-     << "   HV(in % of GEM setup)  ="<<me.HV<<endl
-     << "   angle( of TPC)         ="<<me.angle<<endl
-     << "   triggerType            ="<<me.triggerType<<endl
-     << "   triggerRate            ="<<me.triggerRate<<endl
-     << "   temperature            ="<<me.temperature<<endl
-     << "   err_mask               ="<<me.err_mask<<endl
-     << "   time                   ="<<ctime(&(me._time))<<endl;
+     << "   eventNb(nbInRun)       ="<<me.eventNb<<std::endl 
+     << "   runNb                  ="<<me.runNb<<std::endl
+     << "   firstSample            ="<<me.firstSample<<std::endl
+     << "   nbofSamplesDrift       ="<<me.nbofSamplesDrift<<std::endl 
+     << "   nbofSamplesBeforeDrift ="<<me.nbofSamplesBeforeDrift<<std::endl
+     << "   nbofSamplesAfterDrift  ="<<me.nbofSamplesAfterDrift<<std::endl
+     << "   HV(in % of GEM setup)  ="<<me.HV<<std::endl
+     << "   angle( of TPC)         ="<<me.angle<<std::endl
+     << "   triggerType            ="<<me.triggerType<<std::endl
+     << "   triggerRate            ="<<me.triggerRate<<std::endl
+     << "   temperature            ="<<me.temperature<<std::endl
+     << "   err_mask               ="<<me.err_mask<<std::endl
+     << "   time                   ="<<ctime(&(me._time))<<std::endl;
   return os;
 }
 
@@ -53,7 +57,7 @@ const char* PndTpcEvent::getSystemDate()
   date = ctime(&timer); //convert the time_t to the string
 
   // **** erase the \n charactor from the "date" ******//
-  string tmp;
+  std::string tmp;
   tmp = date;
   tmp.replace(tmp.length()-1, 2, ": ");
   date = tmp.data();
@@ -67,6 +71,7 @@ void PndTpcEvent::reset()
   eventNb = -1; runNb = -1; 
   err_mask = 0;
   eventVector.clear();
+  eventVector.reserve(200000);
 }
 
 //=======================================================
