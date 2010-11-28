@@ -13,6 +13,7 @@
 //      Sebastian Neubert    TUM            (original author)
 //	Xiaodong Zhang       TUM       (modify it on Oct. 06, 2009) 
 //      Maxence Vandenbroucke TUM      (modify it on Jan. 26, 2010) 
+//      Felix Boehmer        TUM       (modified on Nov. 28, 2010) 
 //-----------------------------------------------------------
 
 #ifndef TPCSAMPLE_HH
@@ -25,8 +26,6 @@
 #include <ostream> // remove if you do not need streaming op
 #include <assert.h>
 #include "McIdCollection.h"
-#include "PndTpcSignal.h"
-
 
 // Collaborating Class Declarations --
 
@@ -37,30 +36,14 @@ public:
   // Constructors/Destructors ---------
   PndTpcSample();
   PndTpcSample(const int T, 
-	    const int Amp, 
-	    const unsigned int PadID, 
-	       const McIdCollection& mcid
-            ); 
-  PndTpcSample(const int T, 
-	    const int Amp, 
-	    const unsigned int PadID, 
-	       const McIdCollection& mcid,
-	       const std::vector<PndTpcSignal> sigs //storing original signals
-            ); 
-
+	       const int Amp, 
+	       const unsigned int PadID, 
+	       const McIdCollection& mcid); 
+  
   PndTpcSample(const int T,                       
-            const int Amp,
-            const unsigned int PadID);
-  PndTpcSample(const int T, 
-	    const int Amp, 
-	    const unsigned int PadID, 
-	    const McIdCollection& mcid,
-	       const Bool_t Fct
-            ); 
-  PndTpcSample(const int T,                       
-            const int Amp,
-            const unsigned int PadID,
-	       const Bool_t Fct);
+	       const int Amp,
+	       const unsigned int PadID);
+  
   ~PndTpcSample();
 
   // Operators
@@ -72,8 +55,7 @@ public:
   int amp() const {return famp;}
   int   t() const {return ft;}
   int padId() const {return fpadId;}
-  Bool_t ct() const {return fct;}//crosstalk flag
- 
+  
   const McIdCollection& mcId() const {return fmcId;}
   //*** next four functions added by x. zhang on 08.10.2009 ****//
   unsigned int  sourceId() const { return fsourceId; }
@@ -90,12 +72,11 @@ public:
   void setADCId(unsigned int aId) { fadcId = aId; }
   void setChipId(unsigned int cId) { fchipId = cId; }
   void setChannelId(unsigned int chId) { fchannelId = chId; }
-  void setCt(Bool_t b=kTRUE){fct=b;}
-
+  
   // Operations ----------------------
   void reset();
 
-
+  /*
   unsigned int nSig() const {
     return fsigs.size();
   }
@@ -106,7 +87,7 @@ public:
     assert (i<fsigs.size());
     return fsigs.at(i);
   }
-  
+  */
 
 private:
 
@@ -114,19 +95,18 @@ private:
   int famp;
   int ft;
   int fpadId;
-  Bool_t fct;//crosstalk tag
   unsigned int fsourceId;
   unsigned int fadcId;
   unsigned int fchipId;
   unsigned int fchannelId;       // added by X. Zhang, Oct. 29, 2009               
   
-  std::vector <PndTpcSignal> fsigs;
+  //std::vector <PndTpcSignal> fsigs;
   
   McIdCollection fmcId;
   // Private Methods -----------------
 
 public:
-  ClassDef(PndTpcSample,4)
+  ClassDef(PndTpcSample,5)
 
 };
 

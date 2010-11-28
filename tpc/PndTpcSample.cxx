@@ -31,51 +31,26 @@ ClassImp(PndTpcSample)
 
 
 PndTpcSample::PndTpcSample()
-  : famp(0),ft(0),fpadId(0),fct(kFALSE)
+: famp(0),ft(0),fpadId(0)
 {;}
 
 PndTpcSample::PndTpcSample( const int T, 
-		      const int Amp, 
-		      const unsigned int PadID,
-		      const McIdCollection& mcid)
-  : famp(Amp),ft(T),fpadId(PadID),fmcId(mcid), fct(kFALSE)
-{;}
-
-PndTpcSample::PndTpcSample( const int T, 
-		      const int Amp, 
-		      const unsigned int PadID,
-			    const McIdCollection& mcid,
-		      const std::vector <PndTpcSignal> sigs )
-  : famp(Amp),ft(T),fpadId(PadID),fmcId(mcid), fct(kFALSE), fsigs(sigs)
+			    const int Amp, 
+			    const unsigned int PadID,
+			    const McIdCollection& mcid)
+  : famp(Amp),ft(T),fpadId(PadID),fmcId(mcid)
 {;}
 
 PndTpcSample::PndTpcSample( const int T,
-                      const int Amp,
-                      const unsigned int PadID)
-  : famp(Amp),ft(T),fpadId(PadID), fct(kFALSE) 
+			    const int Amp,
+			    const unsigned int PadID)
+  : famp(Amp),ft(T),fpadId(PadID)
 {;}
-
-
-PndTpcSample::PndTpcSample( const int T, 
-		      const int Amp, 
-		      const unsigned int PadID,
-		      const McIdCollection& mcid,
-		      const Bool_t Fct)
-  : famp(Amp),ft(T),fpadId(PadID),fmcId(mcid), fct(Fct)
-{;}
-
-PndTpcSample::PndTpcSample( const int T,
-                      const int Amp,
-                      const unsigned int PadID,
-			    const Bool_t Fct)
-  : famp(Amp),ft(T),fpadId(PadID), fct(Fct)
-{;}
-
 
 
 PndTpcSample::~PndTpcSample()
-{
-}
+{;}
+
 
 
 bool 
@@ -96,9 +71,8 @@ std::ostream& operator<< (std::ostream& s, const PndTpcSample& me){
     << "   channelId     ="<<me.fchannelId<<"\n"
     << "   chipId        ="<<me.fchipId<<"\n"
     << "   adcId         ="<<me.fadcId<<"\n"
-    << "   sourceId      ="<<me.fsourceId<<"\n"
-    << "   ct tag        ="<<me.fct;
-  return s;
+    << "   sourceId      ="<<me.fsourceId<<std::endl;
+    return s;
 }
 
 void PndTpcSample::reset(){
@@ -107,7 +81,6 @@ void PndTpcSample::reset(){
   famp = 0;
   fchannelId = 0;
   fchipId = 0;
-  fct=kFALSE;
   //fadcId = 0;
   //fsourceId = 0;
 
