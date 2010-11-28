@@ -52,6 +52,7 @@
 #include"PndFieldAdaptor.h"
 #include "GFFieldManager.h"
 #include "PndTrackCand.h"
+#include "PndTrack.h"
 
 #include <cmath>
 
@@ -140,6 +141,9 @@ PndTpcRiemannTrackingTask::Init()
   _trackCandArray = new TClonesArray("PndTrackCand");
   ioman->Register("PndTrackCandTpc","Tpc",_trackCandArray,_persistence);
 
+  _pndTrackArray = new TClonesArray("PndTrack");
+  ioman->Register("PndTrackTpc","Tpc",_pndTrackArray,_persistence);
+
 
   //if(_field==NULL){
   //  Error("DemoRiemannTrackingTask::Init","BField not found!");
@@ -175,6 +179,9 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
   // Reset output Arrays
   if(_trackArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No TrackArray");
    _trackArray->Delete();
+
+if(_pndTrackArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No PndTrackArray");
+   _pndTrackArray->Delete();
     if(_trackCandArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No TrackCandArray");
    _trackCandArray->Delete();
 
@@ -191,10 +198,10 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
    bool CField = dynamic_cast<PndConstField*>(field);
    GFFieldManager::getInstance()->init(new PndFieldAdaptor(field));
    if(!CField) {
-     std::cerr<<"PndTpcIdealTrackingTask: "
-              <<"No const field! Curvature seeding not valid..."
+     std::cerr<<"PndTpcRiemannTrackingTask: "
+              <<"No const field! Curvature seeding not valid... Setting Bz=2T"
               <<std::endl;
-     Bz=0.;
+     Bz=2.;
    }
    //this is crap, but better than hardcoding for the moment ...
    else
@@ -228,7 +235,7 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
     }
     
     
-    std::cout<<"Tracklet "<<ir<<"   nhits="<<nhits;
+    std::cout<<"Tracklet "<<ir<<"   nhits="<<nhits<<"   R="<<trk->r();
     // build tracks
     if(nhits<_minpoints){
       std::cout<<" ... skipping" << std::endl;
@@ -237,7 +244,9 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
     std::cout<<std::endl;
     trk->szFit(false);
     PndTrackCand* pndcand=new((*_trackCandArray)[_trackCandArray->GetEntriesFast()]) PndTrackCand();
-    
+    PndTrack* pndtrack=new((*_pndTrackArray)[_pndTrackArray->GetEntriesFast()]) PndTrack();
+    pndtrack->SetTrackCand(*pndcand);
+
     GFTrackCand* cand=new GFTrackCand();
     // reverse order!
     std::cout<<"nhits="<<nhits<<std::endl;
@@ -304,12 +313,12 @@ std::cout << detId << "," << hitId << std::endl;
     cand->setDip(trk->dip());
 
     // p=0.3BR/dip -- assuming 2T BField R in meters -> convert to cm!
-    double p=cand->getCurv()/sin(trk->dip())*0.006; 
+    double p=trk->r()/sin(trk->dip())*0.3*Bz; 
     std::cout << "Setting initial p=" << p << std::endl;
-    std::cout << "Initial p_perp=" << cand->getCurv()*0.006 <<std::endl;
+    std::cout << "Initial p_perp=" << trk->r()*0.3*Bz <<std::endl;
     std::cout.flush();
-    pndcand->setTrackSeed(pos1,delta,1./p);
-   
+    if(p!=0)pndcand->setTrackSeed(pos1,delta,1./p);
+    else throw;
    
 
     std::cout<<"R="<<trk->r()<<std::endl;
@@ -431,6 +440,8 @@ std::cout << detId << "," << hitId << std::endl;
 
 void
 PndTpcRiemannTrackingTask::WriteHistograms(const TString& filename) {
+  std::cerr<< "PndTpcRiemannTrackingTask::WriteHistograms"<<std::endl;
+
   TFile* file=FairRootManager::Instance()->GetOutFile();
   file->mkdir("RiemannTracking");
   file->cd("RiemannTracking");
