@@ -10,7 +10,7 @@ void reco_complete_tpc()
   Int_t iVerbose = 0; // just forget about it, for the moment
   
 	// Number of events to process
-  Int_t nEvents = 0;  // if 0 all the vents will be processed
+  Int_t nEvents = 100;  // if 0 all the vents will be processed
   
   // Parameter file
   TString parFile = "simparams.root"; // at the moment you do not need it
@@ -60,16 +60,16 @@ void reco_complete_tpc()
   
   PndEmcMakeCluster* emcMakeCluster= new PndEmcMakeCluster(iVerbose);
   emcMakeCluster->SetStorageOfData(kFALSE);
-  fRun->AddTask(emcMakeCluster);
+  //fRun->AddTask(emcMakeCluster);
   PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
-  fRun->AddTask(emcHdrFiller); // ECM header
+  //fRun->AddTask(emcHdrFiller); // ECM header
   PndEmcMakeBump* emcMakeBump= new PndEmcMakeBump();
-  fRun->AddTask(emcMakeBump);
+  //fRun->AddTask(emcMakeBump);
 
   //------ Ideal DCH track finder --------------------
   PndDchFindTracks* finderTask = new PndDchFindTracks("dchFindTracks");
   finderTask->SetUseHitOrDigi("chit");
-  fRun->AddTask(finderTask);
+  //fRun->AddTask(finderTask);
   // ------------------------------------------------- 
   PndDchTrackFinderIdealCylHit* mcTrackFinder = new  PndDchTrackFinderIdealCylHit();
   mcTrackFinder->SetPrimary(1);  // 1 = Only primary tracks are processed, 0 = all (default)
@@ -77,11 +77,11 @@ void reco_complete_tpc()
   //--------------------------------------------------
   PndDchMatchTracks *matchTask = new PndDchMatchTracks();//match PndDchTracks and MCTracks
   matchTask->SetUseHitOrDigi("chit");
-  fRun->AddTask(matchTask);
+  //fRun->AddTask(matchTask);
 
   //----- MVD Hit Reco -----
   PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
-  fRun->AddTask(mvdmccls);
+  //fRun->AddTask(mvdmccls);
 
 
 	
@@ -90,7 +90,7 @@ void reco_complete_tpc()
   PndGemFindTracks* gemFinderTask = new  
   PndGemFindTracks("PndGemFindTracks");
   gemFinderTask->SetUseHitOrDigi("hit"); // hit = (default), digi
-  fRun->AddTask(gemFinderTask);
+  // fRun->AddTask(gemFinderTask);
 	
   PndGemTrackFinderOnHits* gemTrackFinder = new   PndGemTrackFinderOnHits();
   gemTrackFinder->SetVerbose(0);  // verbosity level
@@ -99,7 +99,7 @@ void reco_complete_tpc()
 	
   PndGemTrackFinderQA* gemTrackFinderQA = new PndGemTrackFinderQA();
   gemTrackFinderQA->SetVerbose(0);
-  fRun->AddTask(gemTrackFinderQA);
+  // fRun->AddTask(gemTrackFinderQA);
 	
 
 
@@ -112,22 +112,22 @@ void reco_complete_tpc()
   fRun->AddTask(tpcCF);
 
   
-  PndTpcIdealTrackingTask* tpcIPR = new PndTpcIdealTrackingTask();
-  tpcIPR->useGeane(true);
-  tpcIPR->useDistSorting(true);
-  fRun->AddTask(tpcIPR);
-  tpcIPR->SetPersistence();
+  //PndTpcIdealTrackingTask* tpcIPR = new PndTpcIdealTrackingTask();
+  //tpcIPR->useGeane(true);
+  //tpcIPR->useDistSorting(true);
+  //fRun->AddTask(tpcIPR);
+  //tpcIPR->SetPersistence();
 
 
-//   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
-//   tpcSPR->SetTrkFinderParameters(2.,// proxcut
-// 				 0.02, // proxcut on rieman sphere
-// 				 2.E-3, // planecut
-// 				 4.0, // szcut
-// 				 4); // minnumhits for fit
-//   tpcSPR->SetPersistence();
-//   tpcSPR->useGeane();
-//   fRun->AddTask(tpcSPR);
+  PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
+  tpcSPR->SetTrkFinderParameters(3.,// proxcut
+				 0.05, // proxcut on rieman sphere
+				 5.E-3, // planecut
+				 4.0, // szcut
+				 4); // minnumhits for fit
+  tpcSPR->SetPersistence();
+  tpcSPR->useGeane();
+  fRun->AddTask(tpcSPR);
   
   KalmanTask* kalman =new KalmanTask();
   kalman->SetPersistence();
@@ -159,6 +159,8 @@ void reco_complete_tpc()
   fRun->Run(0,nEvents);
   // ------------------------------------------------------------------------
 
+  tpcSPR->WriteHistograms("blub");
+  fitstat->WriteHistograms("fitstat.root");
 
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
