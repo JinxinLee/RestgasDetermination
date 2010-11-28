@@ -48,6 +48,7 @@
 #include "PndTpcSPHit.h"
 
 using std::cout;
+using std::cerr;
 using std::endl;
 
 TrackFitStatTask::TrackFitStatTask()
@@ -55,7 +56,7 @@ TrackFitStatTask::TrackFitStatTask()
     _mcPCut(0.01), _pmin(0), _pmax(100), _thetamin(0), 
     _thetamax(TMath::TwoPi()), _minPndTpcHits(0), _pdgselect(false),_precotol(0.01)
 {
-  _trackBranchName = "TrackPreFit";
+  _trackBranchName = "TrackPostFit";
   _mcBranchName = "MCTrack";
   _mcPndTpcBranchName = "PndTpcPoint";
 }
@@ -140,19 +141,22 @@ TrackFitStatTask::Exec(Option_t* opt)
   _mcAnnexArray->Delete();
 
   // prepare MonteCarlo Truth info
-  std::map<PndMCTrack*,int> mctruthmap;
-  int nmctrks=_mcTrackArray->GetEntriesFast();
-  int ntpcMChits=_mcPndTpcHitArray->GetEntriesFast();
+  std::map<unsigned int,int> mctruthmap; // index in array mapped to 0,1,2
+                                         // 0 -> not valid
+                                         // 1 -> valid but not found
+                                         // 2 -> valid, found
+  unsigned int nmc=_mcTrackArray->GetEntriesFast();
+  unsigned int ntpcMChits=_mcPndTpcHitArray->GetEntriesFast();
   
   //nmctrks=1; 	///////////////////////!GetFirstTrackOnly!!!!!!!!
-   for(int imc=0; imc<nmctrks;++imc)
+   for(unsigned int imc=0; imc<nmc;++imc)
   { // loop over mc-tracks
-  	 bool bValidTrack=true; 	//the solution introduced with this variable is not examplary...
+  	 bool bValidTrack=true; 
 	// check if this mctrack has created enough hits in tpc
 	int counter=0;
 	double length=0;
 	TVector2 oldpoint;
-	for(int ih=0; ih<ntpcMChits;++ih)
+	for(unsigned int ih=0; ih<ntpcMChits;++ih)
 	{
 		PndTpcPoint* point=(PndTpcPoint*)_mcPndTpcHitArray->At(ih);
 		if(point->GetTrackID()==imc)	{
@@ -188,24 +192,28 @@ TrackFitStatTask::Exec(Option_t* opt)
 		}
 	
 	if(mcq==0)	{
-		bValidTrack=false;
+	  //cerr<<"Not charged"<<endl;
+	    bValidTrack=false;
 	}	 	
 	if(_pdgselect && mc->GetPdgCode()!=_pdgId)	{
+	  //cerr<<"Not selected PDGId"<<endl;
 		bValidTrack=false;
 	}
 	double pmc=mc->Get4Momentum().P();				
 	if(pmc<_pmin || _pmax<pmc) {
+	  //cerr<<"Not in selected momentum range"<<endl;
 		bValidTrack=false;										
 	}
 	double theta_mc=mc->Get4Momentum().Theta();		
 	if(theta_mc<_thetamin || _thetamax<theta_mc)	{
+	  //cerr<<"Not in selected angular range"<<endl;
 	 	bValidTrack=false;
 	 }
 	
 	// if we are here the track lies inside our valid sample
 	// -> put it into the map
 	if(bValidTrack)	{	
-		mctruthmap[mc]=1;	//i don' t think it will change anything, to put a 1 here
+		mctruthmap[imc]=1;	//i don' t think it will change anything, to put a 1 here
 		std::cout<<"Valid MCTrack found with p="<<pmc<<" GeV/c"
 		<<"  PDGId="<<mc->GetPdgCode()
 		<<"  q="<<mcq
@@ -213,9 +221,9 @@ TrackFitStatTask::Exec(Option_t* opt)
 		<<"  theta="<<theta_mc<<std::endl;
 	}
 	else	{
-		mctruthmap[mc]=0;
+		mctruthmap[imc]=0;
 	}
-  }
+  }// end loop over mc tracks
 
 
 
@@ -322,7 +330,7 @@ TrackFitStatTask::Exec(Option_t* opt)
  
 
 
-	std::cout<<"\n *** TrackFitStatTask: Writing fit results to stat object ***\n"<<std::endl;
+	//std::cout<<"\n *** TrackFitStatTask: Writing fit results to stat object ***\n"<<std::endl;
 	stat->setp(p);
 	stat->setmom(track->getMom());
 	stat->setpstart(pstart);
@@ -336,14 +344,13 @@ TrackFitStatTask::Exec(Option_t* opt)
 	}
 	
 	// try to associate a MonteCarlo Track
-	std::map<PndMCTrack*,int>::iterator mcit=mctruthmap.begin();
-	int index=0;
-	while(mcit!=mctruthmap.end())
-		{
-		PndMCTrack* mc=mcit->first;
-		double mcp=mc->Get4Momentum().P();
-		double mcq=-100;
-		if(TDatabasePDG::Instance()->GetParticle(mc->GetPdgCode()))	{
+       	int index=0;
+	for(unsigned int imc=0;imc<nmc;++imc){
+	  //cerr << mctruthmap[imc] << endl;
+	  PndMCTrack* mc=(PndMCTrack*)_mcTrackArray->At(imc);
+	  double mcp=mc->Get4Momentum().P();
+	  double mcq=-100;
+	  if(TDatabasePDG::Instance()->GetParticle(mc->GetPdgCode()))	{
 			mcq=TDatabasePDG::Instance()->GetParticle(mc->GetPdgCode())->Charge()/3.;
 		}
 		else	{
@@ -362,52 +369,52 @@ TrackFitStatTask::Exec(Option_t* opt)
 // 		}
 
 	//	else if(fabs(p-mcp)<0.01 && (mcit->second) && q==mcq )	{
-		if(fabs(p-mcp)<_precotol && (mcit->second) )	{	
+	  if(fabs(p-mcp)<_precotol && (mctruthmap[imc]>0) )	{	
 	//	if(mcit->second) 	{	//set properties of first track, momentum reconstruction not possible now
-			cout << "Setting mcp="<<mcp<<  endl;	//if it occurs twice the charge cut fails, too
-			stat->setpmc(mcp);
-			stat->setp(p);				
-			stat->setmccharge(mcq);
-			stat->setpdg(mc->GetPdgCode());
-			stat->setmotherid(mc->GetMotherID());
-			//assert(mc->GetMotherID()==-1); 
-			MCTruthAnnex* annex=(MCTruthAnnex*)_mcAnnexArray->At(index);
-			annex->setReco();
-			++(mcit->second);
-			//break;
-		}
-		else	if((mcit->second))  {
-			stat->setpmc(mcp);	//hat eigentlich keine Beduetung, da nicht klar ist zu welchem Track das gehört
-			stat->setp(-100.0);
-			stat->setmotherid(mc->GetMotherID());
-			stat->setpdg(mc->GetPdgCode());
-			stat->setmccharge(mcq);
-		}
-		else	{
-			stat->setpmc(-100.0);
-			stat->setp(-100.0);
-		}
+	    cout << "Setting mcp="<<mcp<<  endl;	//if it occurs twice the charge cut fails, too
+	    stat->setpmc(mcp);
+	    stat->setp(p);				
+	    stat->setmccharge(mcq);
+	    stat->setpdg(mc->GetPdgCode());
+	    stat->setmotherid(mc->GetMotherID());
+	    //assert(mc->GetMotherID()==-1); 
+	    MCTruthAnnex* annex=(MCTruthAnnex*)_mcAnnexArray->At(index);
+	    annex->setReco();
+	    ++mctruthmap[imc];
+	    //break;
+	  }
+	  else	if(mctruthmap[imc]>0)  {
+	    stat->setpmc(mcp);	
+	    stat->setp(-100.0);
+	    stat->setmotherid(mc->GetMotherID());
+	    stat->setpdg(mc->GetPdgCode());
+	    stat->setmccharge(mcq);
+	  }
+	  else	{
+	    stat->setpmc(-100.0);
+	    stat->setp(-100.0);
+	  }
 #endif
-		++mcit;
-		++index;
+	  ++index;
 	} // end loop over mc-tracks
-
+	
   } // end loop over tracks
   
   // analyse mc-truth association
-  std::map<PndMCTrack*,int>::iterator mcit=mctruthmap.begin();
-  int counter=0;
-  while(mcit!=mctruthmap.end())
+  
+  int foundcounter=0;
+  int validcounter=0;
+  for(unsigned int imc=0;imc<nmc;++imc)
     {
-      //if(mcit->second>0)++counter;	//so mcit->second could be 2, not only one as expected
-	 if(mcit->second>1)++counter;
-      ++mcit;
+      //cerr << mctruthmap[imc] << endl;
+      if(mctruthmap[imc]>0)++validcounter;	
+      if(mctruthmap[imc]>1)++foundcounter;
     }
+  
+  std::cout<<"TrackFitStatTask:: "<<foundcounter<<" tracks of "<<validcounter<<" found"<<std::endl;
 
-  std::cout<<"TrackFitStatTask:: "<<counter<<" tracks of "<<mctruthmap.size()<<" found"<<std::endl;
-
-  if(mctruthmap.size()>0){
-    double eff=((double)counter)/((double)(mctruthmap.size()));
+  if(validcounter>0){
+    double eff=((double)foundcounter)/((double)(validcounter));
     _efficiency->Fill(eff);
   }
   
