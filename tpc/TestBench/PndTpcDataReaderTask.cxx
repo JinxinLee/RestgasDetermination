@@ -90,11 +90,9 @@ PndTpcDataReaderTask::Init()
   
   // create and register output array
   _sampleOutArray = new TClonesArray("PndTpcSample");
-  fEventId = new PndTpcEventIdentifier();
+  fEventIdOutArray = new TClonesArray("PndTpcEventIdentifier");
   ioman->Register("PndTpcSample","PndTpc",_sampleOutArray,_persistence);
-  ioman->Register("PndTpcEventIdentifier","PndTpc", fEventId, _persistence);
-  //ioman->Register("PndTpc", &fSpillNb, _persistence);
-  //_di=new std::vector<PndTpcSample*>;
+  ioman->Register("PndTpcEventIdentifier","PndTpc", fEventIdOutArray, _persistence);
   return kSUCCESS;
 }
 
@@ -109,6 +107,7 @@ void PndTpcDataReaderTask::Exec(Option_t* opt)
     Fatal("PndTpcDataReaderTask::Exec()","No SampleOutArray");
   
   _sampleOutArray->Delete();
+  fEventIdOutArray->Delete();
   
   const std::vector<PndTpcSample>* samples;
   
@@ -127,8 +126,8 @@ void PndTpcDataReaderTask::Exec(Option_t* opt)
     
     fEventNb = fEv->getEventNb();
     fSpillNb = fEv->getSpillNb();
-    fEventId->setEventInSpill(fEventNb);
-    fEventId->setSpill(fSpillNb);
+    PndTpcEventIdentifier* id = new((*fEventIdOutArray)[0]) PndTpcEventIdentifier(fEventNb,
+										 fSpillNb);
     
     /*
       unsigned int badsample[fNbChip][fMaxSample];

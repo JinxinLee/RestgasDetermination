@@ -12,9 +12,9 @@
 #ifndef PNDTPCEVENTIDENTIFIER_H
 #define PNDTPCEVENTIDENTIFIER_H
 
-#include "TNamed.h" 
+#include "TObject.h" 
 
-class PndTpcEventIdentifier : public TNamed { 
+class PndTpcEventIdentifier : public TObject { 
   
  public: 
   PndTpcEventIdentifier();  //"sonst geht des nicht"

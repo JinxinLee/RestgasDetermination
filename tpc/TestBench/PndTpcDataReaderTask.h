@@ -93,6 +93,7 @@ class PndTpcDataReaderTask : public FairTask {
   //unsigned int fNbChip;
 
   TClonesArray* _sampleOutArray;
+  TClonesArray* fEventIdOutArray;
   
   Bool_t _persistence;
   unsigned int fCutoff;
