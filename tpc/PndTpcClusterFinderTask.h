@@ -55,7 +55,7 @@ public:
   
   void timeslice(unsigned int t){ftimeslice=t;}
   void SetThreshold(unsigned int t){fthres=t;}
-
+  void SetDiffFactor(double d){fDiffFactor=d;} // for Cluster splitting
   void SetDataMode(Bool_t opt) {fDataMode=opt;}
 
   // Operations ----------------------
@@ -80,7 +80,8 @@ private:
   int fmode;
   unsigned int ftimeslice;
   unsigned int fthres;
-  
+  double fDiffFactor;
+
   const PndTpcFrontend* ffrontend;
   PndTpcPadPlane* fpadplane;
   const PndTpcGem* fgem;

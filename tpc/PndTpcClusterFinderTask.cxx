@@ -45,7 +45,7 @@
 
 PndTpcClusterFinderTask::PndTpcClusterFinderTask()
   : FairTask("TPC Cluster Finder"), fpersistence(kFALSE),ftrivial(kFALSE),
-    ftimeslice(2), fmode(0),fthres(1), fDataMode(kFALSE)
+    ftimeslice(2), fmode(0),fthres(1), fDataMode(kFALSE), fDiffFactor(1.)
 {
   fdigiBranchName = "PndTpcDigi";
 }
@@ -115,7 +115,7 @@ PndTpcClusterFinderTask::Init()
   fcluster_buffer=new std::vector<PndTpcCluster*>;
   ffinder=new PndTpcClusterFinder(PndTpcDigiMapper::getInstance()->getPadPlane(),
 				  fcluster_buffer,
-				  ftimeslice, fmode, -1,fDataMode);
+				  ftimeslice, fmode, -1,fDataMode,fDiffFactor);
   
   ffinder->checkConsistency();
   ffinder->setTrivialClustering(ftrivial);

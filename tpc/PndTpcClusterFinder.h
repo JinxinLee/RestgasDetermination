@@ -43,7 +43,8 @@ public:
   PndTpcClusterFinder(PndTpcPadPlane* p,
 		      std::vector<PndTpcCluster*>* output_buffer,
 		      unsigned int timeslice, int mode=0, int sectorid=-1,
-		      bool datamode=false);
+		      bool datamode=false,
+		      double diffFactor=1.);
   ~PndTpcClusterFinder();
 
   // Operators

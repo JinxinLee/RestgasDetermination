@@ -32,6 +32,7 @@
 #include "TMatrixD.h"
 #include "FairMultiLinkedData.h"
 #include "PndDetectorList.h"
+#include "TORPPState_Compare.h"
 
 // Class Member definitions -----------
 
@@ -50,7 +51,8 @@ PndTpcSectorProcessor::~PndTpcSectorProcessor()
 void
 PndTpcSectorProcessor::Init(PndTpcPadPlane* p,
 			 unsigned int id,
-			 std::vector<PndTpcCluster*>* ob)
+			 std::vector<PndTpcCluster*>* ob,
+			    double diffFactor)
 {
   fpadplane=p;
   fSectorId=id;
@@ -62,6 +64,7 @@ PndTpcSectorProcessor::Init(PndTpcPadPlane* p,
   while(ipad!=pads->end()){
     fpproc[ipad->second->id()]=new padprocessor(ipad->second->id());
     fpproc[ipad->second->id()]->setClusterBuffer(&fcluster_buffer);
+    dynamic_cast<ppstate_compare*>(fpproc[ipad->second->id()]->getState("compare"))->setDiffFactor(diffFactor);
     ++ipad;
   }
   // Connect PadProcessor neighbours

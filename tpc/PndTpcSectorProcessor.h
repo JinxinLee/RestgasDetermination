@@ -52,7 +52,8 @@ public:
   // Modifiers -----------------------
   void Init(PndTpcPadPlane* p,
 	    unsigned int id,
-	    std::vector<PndTpcCluster*>* ob);
+	    std::vector<PndTpcCluster*>* ob,
+	    double diffFactor=1.); // minimal relative difference for maximum
   void putDigi(PndTpcDigi* d){fdigi_buffer.push_back(d);}
 
   // Operations ----------------------

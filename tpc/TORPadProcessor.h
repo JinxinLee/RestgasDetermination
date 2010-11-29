@@ -55,7 +55,7 @@ public:
   void addNeighbour(padprocessor* pp);
   //void SetOutBuffer();
   void addState(ppstate* state, std::string name);
-
+  ppstate* getState(std::string name){return fstates[name];}
   void put(PndTpcDigi* data); // transport data into this pad
   PndTpcDigi* get(unsigned int i) {return fdata[i];}
 
