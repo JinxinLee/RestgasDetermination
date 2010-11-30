@@ -17,6 +17,7 @@ ${CMAKE_SOURCE_DIR}/mvd/MvdData
 ${CMAKE_SOURCE_DIR}/mvd/MvdTools
 ${CMAKE_SOURCE_DIR}/pnddata/MvdData
 ${CMAKE_SOURCE_DIR}/pnddata/SdsData
+${CMAKE_SOURCE_DIR}/stt
 ${CMAKE_SOURCE_DIR}/stt/sttreco
 ${CMAKE_SOURCE_DIR}/pnddata/SttData
 ${CMAKE_SOURCE_DIR}/tpc/tpcreco
@@ -52,6 +53,7 @@ PndGlobalTrackFitQA.cxx
 PndMvdGemTrackFinderOnHits.cxx
 #PndGlobalPrepareKalmanTracks.cxx
 #PndGlobalKalmanTask.cxx
+PndBarrelTrackFinder.cxx
 )
 if(RULE_CHECKER_FOUND)
   CHECK_RULES("${GLOBAL_SRCS}" "${INCLUDE_DIRECTORIES}" GLOBAL_RULES)

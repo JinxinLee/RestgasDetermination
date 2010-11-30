@@ -14,6 +14,7 @@
 #pragma link C++ class PndGlobalTrackMergerQA+;
 #pragma link C++ class PndGlobalTrackFitQA+;
 #pragma link C++ class PndMvdGemTrackFinderOnHits+;
+#pragma link C++ class PndBarrelTrackFinder+;
 /* #pragma link C++ class PndGlobalPrepareKalmanTracks+; */
 /* #pragma link C++ class PndGlobalKalmanTask+; */
 
