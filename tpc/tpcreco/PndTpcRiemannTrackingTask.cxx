@@ -300,7 +300,7 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
     unsigned int index=1;
     while(!ok && index<cand->getNHits()){
     cand->getHit(index,detId,hitId);
-std::cout << detId << "," << hitId << std::endl;
+    //std::cout << detId << "," << hitId << std::endl;
       ++index;
       PndTpcCluster* cl2=(PndTpcCluster*)_clusterArray->At(hitId);
       pos2=cl2->pos();
@@ -311,14 +311,14 @@ std::cout << detId << "," << hitId << std::endl;
     
     cand->setCurv(fabs(trk->r()*100.));
     cand->setDip(trk->dip());
-
+    if(trk->dip()<1E-5)continue;
     // p=0.3BR/dip -- assuming 2T BField R in meters -> convert to cm!
     double p=trk->r()/sin(trk->dip())*0.3*Bz; 
     std::cout << "Setting initial p=" << p << std::endl;
     std::cout << "Initial p_perp=" << trk->r()*0.3*Bz <<std::endl;
     std::cout.flush();
+    if(p<1E-5)continue;
     if(p!=0)pndcand->setTrackSeed(pos1,delta,1./p);
-    else throw;
    
 
     std::cout<<"R="<<trk->r()<<std::endl;

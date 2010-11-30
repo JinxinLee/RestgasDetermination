@@ -609,6 +609,8 @@ PndTpcRiemannTrack::szDist(PndTpcRiemannHit* hit, bool calcPos){
 // only after szFit!
 double
 PndTpcRiemannTrack::dip() const {
+  std::cout << _m << std::endl;
+  if(_m>=1. || _m<=-1.)return 0;
   return TMath::PiOver2()-(asin(_m));
 }
 
