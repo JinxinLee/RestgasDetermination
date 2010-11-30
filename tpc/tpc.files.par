@@ -28,3 +28,4 @@ tpc/TestBench/padplane.dat
 tpc/TestChamber/TestBenchPad.dat
 tpc/TestBench/newPadTC.dat
 tpc/TestBench/TBhexa_pads.dat
+tpc/TestBench/padPlane_FOPI.dat
