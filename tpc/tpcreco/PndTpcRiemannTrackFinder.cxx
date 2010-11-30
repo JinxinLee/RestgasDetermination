@@ -75,11 +75,16 @@ unsigned int
 PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
 				   std::vector<PndTpcRiemannTrack*>& candlist)
 {
-  //std::sort(cll.begin(),cll.end(),PndTpcClusterRadius());
+  std::sort(cll.begin(),cll.end(),PndTpcClusterRadius());
   unsigned int ncl=cll.size();
 
   for(unsigned int icl=0;icl<ncl;++icl){ // loop over clusters
-    //if(icl<30)cll[icl]->pos().Print();
+    if(icl<30){
+      std::cout<<"Perp: "<<cll[icl]->pos().Perp()
+	       <<"   Mag: "<<cll[icl]->pos().Mag()	
+	       <<"   Z: "<<cll[icl]->pos().Z()<<std::endl;
+
+    }
     PndTpcRiemannHit* rhit=new PndTpcRiemannHit(cll[icl]);
     unsigned int ntrks=candlist.size();
     unsigned int maxlevel=0; // index of deepest correlator reached
