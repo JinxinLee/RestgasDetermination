@@ -25,6 +25,6 @@ PndTpcClusterRadius::operator()(PndTpcCluster* s1, PndTpcCluster* s2)
 {
   double r1=s1->pos().Perp();
   double r2=s2->pos().Perp();
-  return r1>r2;
+  return r1<r2;
 }
 
