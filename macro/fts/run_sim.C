@@ -4,7 +4,6 @@ run_sim(Int_t nEvents=100, Int_t pid=13, Float_t p1=5.0, Float_t p2=-1){
   timer.Start();
   gDebug=0;
 
-
   // Load basic libraries
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
