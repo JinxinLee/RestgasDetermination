@@ -1,0 +1,68 @@
+// Complete Digitization
+
+#ifndef PNDFTSHITPRODUCERREALFULL_H
+#define PNDFTSHITPRODUCERREALFULL_H 1
+
+
+#include "FairTask.h"
+#include "PndGeoFtsPar.h"
+#include "TVector3.h"
+
+class PndFtsHit;
+class PndFtsHitInfo;
+class TClonesArray;
+class TObjectArray;
+
+
+class PndFtsHitProducerRealFull : public FairTask
+{
+
+ public:
+
+  /** Default constructor **/  
+  PndFtsHitProducerRealFull();
+
+
+  /** Destructor **/
+  ~PndFtsHitProducerRealFull();
+
+
+  /** Virtual method Init **/
+  virtual InitStatus Init();
+
+
+  /** Virtual method Exec **/
+  virtual void Exec(Option_t* opt);
+
+  PndFtsHit* AddHit(Int_t detID, Int_t tubeID, Int_t chamberID, Int_t iPoint, TVector3& pos, TVector3& dpos, Double_t p, Double_t rsim, Double_t closestDistanceError, Double_t depcharge);
+
+  PndFtsHitInfo* AddHitInfo(Int_t fileNumber, Int_t eventNumber, Int_t trackID, Int_t pointID, Int_t nMerged, Bool_t isFake);
+
+  void FoldZPosWithResolution(Double_t &zpos, Double_t &zposError, TVector3 localInPos, TVector3 localOutPos);
+
+  /** set persistence flag **/
+  void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
+
+  void SetParContainers();
+
+ private: 
+
+  /** Input array of PndFtsPoints **/
+  TClonesArray* fPointArray;
+
+  /** Output array of PndFtsHits **/
+  TClonesArray* fHitArray;  
+
+  /** Output array of PndFtsHitInfo **/
+  TClonesArray* fHitInfoArray;
+
+  /** object persistence **/
+  Bool_t  fPersistence; //!
+
+  PndGeoFtsPar *fFtsParameters;  //  CHECK added
+
+  ClassDef(PndFtsHitProducerRealFull,1);
+
+};
+
+#endif
