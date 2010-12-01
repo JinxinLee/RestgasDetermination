@@ -1,3 +1,10 @@
+//////////////////////////////////////////////////////////
+// Mapper for TFT
+// chamberID layerID tubeIDtot
+//
+// author: Isabella Garzia
+//////////////////////////////////////////////////////////
+
 
 #include "PndFtsMapCreator.h"
 #include "PndFtsTube.h"
@@ -17,13 +24,31 @@
 #include "TGeoVolume.h"
 #include "TGeoTube.h"
 #include "TClonesArray.h"
-
+#include "FairRootManager.h"
 
 #include <iostream>
 
 using namespace std;
 
-PndFtsMapCreator::PndFtsMapCreator(){}
+PndFtsMapCreator* PndFtsMapCreator::fgMapperInstance = 0;
+
+PndFtsMapCreator* PndFtsMapCreator::Instance() {
+  if (0 == fgMapperInstance)
+    fgMapperInstance = new PndFtsMapCreator();
+  return fgMapperInstance;
+}
+
+PndFtsMapCreator::PndFtsMapCreator() {
+  // Geometry loading                                                                    
+  FairRootManager* ioman = FairRootManager::Instance();
+  TFile *infile = ioman->GetInFile();
+  //TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");             
+
+}
+
+
+
+//PndFtsMapCreator::PndFtsMapCreator(){}
 	// to use in PndFts
 PndFtsMapCreator::PndFtsMapCreator(Int_t geoType){
   fGeoType = geoType;
@@ -48,49 +73,27 @@ void PndFtsMapCreator::SetGeneralParameters() {   //  CHECK whether it depends o
   fTubeInRad = fFtsParameters->GetTubeInRad();   // tube inner radius
   fTubeOutRad = fFtsParameters->GetTubeOutRad(); // tube outer radius
 }
-	
+
 // during simulation (for tubeID)
 Int_t PndFtsMapCreator::GetTubeIDFromPath(TString path) {
   if(fGeoType == 1) return GetTubeIDFromPathGeoType1(path);
   return -999;
 }
 
-// during parameters reading
-Int_t PndFtsMapCreator::GetTubeIDFromName(TString name){
-if(fGeoType == 1) return GetTubeIDFromNameGeoType1(name);
-  return -999;
-}
-
-// retrieve parameters from tube ID
-PndFtsTube * PndFtsMapCreator::GetTubeFromTubeID(Int_t tubeid) {
-if(fGeoType == 1) return GetTubeFromTubeIDGeoType1(tubeid);
-  return NULL;
-}
-
-// fill the tube map at the beginning of the run
-TClonesArray * PndFtsMapCreator::FillTubeArray() {
-  std::cout<<"PndFtsMapCreator::FillTubeArray##########fGeoType="<<fGeoType<<std::endl;
-if(fGeoType == 1) return FillTubeArrayGeoType1();
-  return NULL;
-}
-
-TString PndFtsMapCreator::GetNameFromTubeID(Int_t tubeid) {
-  PndFtsTube *tube = GetTubeFromTubeID(tubeid);
-  if(!tube) return "NULL";       
-
-  return tube->GetName();
-//   if(fGeoType == 1) return GetNameFromTubeIDGeoType1(tubeid); // this can' t work without the difference copy/solo anymore
-}
 
 // ===== GEO TYPE 1 =====
 	// sensitive volume is gas
 	// when reading the parameters we use fts01tube to retrieve geometrical information
 	// OK
 	// during simulation
+
 Int_t PndFtsMapCreator::GetTubeIDFromPathGeoType1(TString path){
   TString tmpstring = GetNameFromPathGeoType1(path);
   return GetTubeIDFromNameGeoType1(tmpstring);
 }
+
+
+
 
 Int_t PndFtsMapCreator::GetChamberIDFromPath(TString path){
   TString pathstring=path;
@@ -264,11 +267,11 @@ Int_t PndFtsMapCreator::GetTubeIDTot(Int_t chamberid, Int_t layerid, Int_t tubei
   //un suo numero identificativo
   if(chamber==1 || chamberid==2){
      if(tmpstring.Contains("down") || tube>70){
-       if(tmpstring.Contains("down_1/fts")){totTubeID=tube+58;}
+       if(tmpstring.Contains("down_1/fts")){tube=tube+58;}
        totTubeID=tube+12*layer;
      }
      if(tmpstring.Contains("up")){
-       if(tmpstring.Contains("up_1/fts")){totTubeID=tube+58;}
+       if(tmpstring.Contains("up_1/fts")){tube=tube+58;}
        totTubeID=tube+12*(layer-1);
      }
      if(tube<=58){totTubeID=tube;}
@@ -283,22 +286,22 @@ Int_t PndFtsMapCreator::GetTubeIDTot(Int_t chamberid, Int_t layerid, Int_t tubei
       if(layer%2!=1 && tubeid>90){totTubeID=tube+24;}
     }
     if(tmpstring.Contains("down")&& !tmpstring.Contains("down_1/fts")){
-      if(layer%2){totTubeID=tube+12;} //odd layer
+      if(layer%2==1){totTubeID=tube+12;} //odd layer
       else{totTubeID=tube+24;}
     }
     if(tmpstring.Contains("up")&& !tmpstring.Contains("up_1/fts")){
-      if(layer%2){totTubeID=tube;} //odd layer
+      if(layer%2==1){totTubeID=tube;} //odd layer
       else{totTubeID=tube+12;}
     }
   }
 
   if(chamber==5){
      if(tmpstring.Contains("down") || tube>5329){
-       if(tmpstring.Contains("down_1/fts")){totTubeID=tube+191;}
+       if(tmpstring.Contains("down_1/fts")){tube=tube+191;}
        totTubeID=tube+(12*32)+(18*(layer-32));
      }
      if(tmpstring.Contains("up")){
-       if(tmpstring.Contains("up_1/fts")){totTubeID=tube+191;}
+       if(tmpstring.Contains("up_1/fts")){tube=tube+191;}
        totTubeID=tube+(12*32)+(18*(layer-33));
      }
      if(tube<=5311){totTubeID=tube+(12*32);}
@@ -306,11 +309,11 @@ Int_t PndFtsMapCreator::GetTubeIDTot(Int_t chamberid, Int_t layerid, Int_t tubei
 
  if(chamber==6){
      if(tmpstring.Contains("down") || tube>8625){
-       if(tmpstring.Contains("down_1/fts")){totTubeID=tube+287;}
+       if(tmpstring.Contains("down_1/fts")){tube=tube+287;}
        totTubeID=tube+(12*32)+(18*(layer-32));
      }
      if(tmpstring.Contains("up")){
-       if(tmpstring.Contains("up_1/fts")){totTubeID=tube+287;}
+       if(tmpstring.Contains("up_1/fts")){tube=tube+287;}
        totTubeID=tube+(12*32)+(18*(layer-33));
      }
      if(tube<=8607){totTubeID=tube+(12*32)+(18*8);}
@@ -318,149 +321,6 @@ Int_t PndFtsMapCreator::GetTubeIDTot(Int_t chamberid, Int_t layerid, Int_t tubei
    
  return totTubeID;  
 
-}
-
-// OK
-// name "#"
-TString PndFtsMapCreator::GetNameFromTubeIDGeoType1(Int_t tubeid, Bool_t isCopy) {
-
-	  // two possibilities:
-	  // copy : XXX --> fts01tube#XXX 
-	  // solo : XXX --> fts01tubeXXX
-
-  TString tmpstring;
-  tmpstring += tubeid ;
-
-  if(isCopy == kTRUE) {
-    tmpstring.Prepend("fts01tube#");
-  }
-  else {
-    tmpstring.Prepend("fts01tube");
-  }
-  return tmpstring;
-
-}
-
-PndFtsTube * PndFtsMapCreator::GetTubeFromTubeIDGeoType1(Int_t tubeid) {
-
-  std::cout<<"PndFtsMapCreator::GetTubeFromTubeIDGeoType1????????"<<std::endl;
-
-
-  TObjArray *geoPassNodes = fFtsParameters->GetGeoPassiveNodes();
-
-  Bool_t isCopy = copy_map[tubeid];
-  TString tubename  = GetNameFromTubeIDGeoType1(tubeid, isCopy);
-  FairGeoNode *pnode  = (FairGeoNode*) geoPassNodes->FindObject(tubename);
- 
-  if(!pnode) {
-    cout << "PndFtsMapCreator::GetTubeFromTubeIDGeoType1: tube " << tubename << " not found (nor as a copy)" << endl;
-    return NULL;
-  }
-
-  FairGeoTransform *lab = pnode->getLabTransform();
-  FairGeoVector     tra = lab->getTransVector();
-  FairGeoRotation   rot = lab->getRotMatrix();
-
- // geometrical info
-  double x = tra.getX()/10.; // in cm
-  double y = tra.getY()/10.; // in cm
-  double z = tra.getZ()/10.; // in cm
-  double r[3][3];
-  for(int i = 0; i < 3; i++)for(int j = 0; j < 3; j++) r[i][j] = rot.getElement(i,j);
-
-  TGeoVolume* rootvol = pnode->getRootVolume();
-  TGeoTube *tube = (TGeoTube*) rootvol->GetShape();
-  Double_t halflength = tube->GetDz(); // in cm
-
-  // sets up the correspondence int (tubeID) <--> int (1 = copy/0 = solo)
-  //  copy_map[key] = alloc
-  copy_map[tubeid] = isCopy;
-
- return new PndFtsTube((float)x,(float)y,(float)z, 
-                    r[0][0],r[0][1],r[0][2],
-                    r[1][0],r[1][1],r[1][2],
-                    r[2][0],r[2][1],r[2][2],
-                    fTubeInRad, fTubeOutRad, halflength);
-}
-
-
-PndFtsTube * PndFtsMapCreator::GetTubeFromTubeIDToFillGeoType1(Int_t tubeid) {
-
-  TObjArray *geoPassNodes = fFtsParameters->GetGeoPassiveNodes();
-
-  Bool_t isCopy = kTRUE;
-
-  // try as if it was a copy fts01tube#XXX
-  TString  tubename = GetNameFromTubeIDGeoType1(tubeid, isCopy);
-  FairGeoNode *pnode = (FairGeoNode*) geoPassNodes->FindObject(tubename);
-
-  if(!pnode) { // try as if it was a solo fts01tubeXXX
-    isCopy = kFALSE;
-    tubename = GetNameFromTubeIDGeoType1(tubeid, isCopy);
-    pnode = (FairGeoNode*) geoPassNodes->FindObject(tubename);
-  }
-
-if(!pnode) {
-    cout << "PndFtsMapCreator::GetTubeFromTubeIDToFillGeoType1: tube " << tubename << " not found (nor as a copy)" << endl;
-    return NULL;
-  }
-
-  FairGeoTransform *lab = pnode->getLabTransform();
-  FairGeoVector     tra = lab->getTransVector();
-  FairGeoRotation   rot = lab->getRotMatrix();
-
-// geometrical info
-  double x = tra.getX()/10.; // in cm
-  double y = tra.getY()/10.; // in cm
-  double z = tra.getZ()/10.; // in cm
-  double r[3][3];
-  for(int i = 0; i < 3; i++)for(int j = 0; j < 3; j++) r[i][j] = rot.getElement(i,j);
-
-  TGeoVolume* rootvol = pnode->getRootVolume();
-  TGeoTube *tube = (TGeoTube*) rootvol->GetShape();
-  Double_t halflength = tube->GetDz(); // in cm
-
-  // sets up the correspondence int (tubeID) <--> int (1 = copy/0 = solo)
-  //  copy_map[key] = alloc
-  copy_map[tubeid] = isCopy;
-
-  return new PndFtsTube((float)x,(float)y,(float)z, 
-                    r[0][0],r[0][1],r[0][2],
-                    r[1][0],r[1][1],r[1][2],
-                    r[2][0],r[2][1],r[2][2],
-                    fTubeInRad, fTubeOutRad, halflength);
-}
-
-TClonesArray* PndFtsMapCreator::FillTubeArrayGeoType1() {
-	 std::cout<<"PndFtsMapCreator::FillTubeArrayGeoType1()##########"<<std::endl;
-
-  TObjArray *geoPassNodes = fFtsParameters->GetGeoPassiveNodes();
-  TClonesArray *tubeArray = new TClonesArray("PndFtsTube");
-  tubeArray->Clear();
-  std::cout<<"PndFtsMapCreator::FillTubeArrayGeoType1():geoPassNodes->GetEntriesFast() "<<geoPassNodes->GetEntriesFast()<<std::endl;
-  for(int i = 0; i < geoPassNodes->GetEntriesFast(); i++) {
-    //FairGeoNode *pnode = (FairGeoNode*) geoPassNodes->At(i);
-    FairGeoVolume *pnode = (FairGeoVolume*) geoPassNodes->At(i);
-    if(!pnode) continue;
-    std::cout<<"pnode="<<pnode<<std::endl;
-    ////ho commentato questa parte perchè deve essere modificata////////
-    
-    TString tubename = pnode->GetName();
-    std::cout<<"tubename############="<<tubename<<std::endl;
-    std::cout<<"PndFtsMapCreator::FillTubeArrayGeoType1()##########"<<std::endl;
-    /*
-    ///modificare////
-    //if(!tubename.Contains("fts01tube") continue; //verifica!
-
-    Int_t tubeID = GetTubeIDFromNameGeoType1(tubename);
-
-    PndFtsTube *ftstube = GetTubeFromTubeIDToFillGeoType1(tubeID);
-    // correspondance position in TCA <-> tubeID
-    new((*tubeArray)[tubeID]) PndFtsTube(*ftstube);
-    */  
-  }
-
-  return tubeArray;
 }
 
 ClassImp(PndFtsMapCreator)
