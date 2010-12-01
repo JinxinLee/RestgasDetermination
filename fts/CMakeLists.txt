@@ -34,7 +34,9 @@ PndFtsContFact.cxx
 PndFtsMapCreator.cxx
 PndFtsTube.cxx
 PndFtsSingleStraw.cxx
-#PndFtsHitProducerRealFast.cxx
+PndFtsHitProducerRealFast.cxx
+PndFtsHitProducerIdeal.cxx
+PndFtsHitProducerRealFull.cxx
 )
 
 if(RULE_CHECKER_FOUND)
