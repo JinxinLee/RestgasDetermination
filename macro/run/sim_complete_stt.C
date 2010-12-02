@@ -167,7 +167,6 @@ sim_complete_stt(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
   
-  delete fRun;
   exit(0);
 
 }  

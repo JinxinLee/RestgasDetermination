@@ -11,8 +11,7 @@
 
 sim_complete_tpc(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.24)
 {
-  TMemStat m("gnubuiltin");
-	//-----User Settings:-----------------------------------------------
+  //-----User Settings:-----------------------------------------------
   TString  OutputFile     ="sim_complete.root";
   TString  ParOutputfile  ="simparams.root";
   Double_t BeamMomentum   =15.0;
@@ -170,7 +169,6 @@ sim_complete_tpc(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
   
-  delete fRun;
   exit(0);
 
 }  
