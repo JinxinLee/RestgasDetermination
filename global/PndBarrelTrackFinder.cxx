@@ -759,7 +759,7 @@ void PndBarrelTrackFinder::Exec(Option_t* opt) {
     tp0.y   = meanRad*TMath::Sin(meanPhi);
     tp0.r   = meanRad;
     tp0.p_z = meanP_Z;
-    tp0.n   = 666+goodPNR;
+    tp0.n   = (Int_t)(666+goodPNR);
     fTracksVector[itr].trackPars.push_back(tp0);
   
     if ( fVerbose > 2 ) {
