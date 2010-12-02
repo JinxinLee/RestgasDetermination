@@ -155,7 +155,7 @@ Bool_t PndDpmDirect::ReadEvent(FairPrimaryGenerator* primGen) {
     }
 		
 		// add track
-		printf("- I -: new particle at: %f, %f, %f ...\n", fX, fY, fZ);
+		// printf("- I -: new particle at: %f, %f, %f ...\n", fX, fY, fZ);
 		primGen->AddTrack(Id[i], Px[i], Py[i], Pz[i], fX, fY, fZ);
 
    }
