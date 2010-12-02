@@ -22,6 +22,7 @@ using std::endl;
 
 //RHO stuff
 #include "TRho.h"
+#include "TFactory.h"
 #include "TCandidate.h"
 #include "TCandList.h"
 #include "TPidSelector.h"
@@ -136,6 +137,7 @@ Bool_t PndAnalysis::FillList(TCandList &l, std::string listkey)
 	{
     fRootManager->ReadEvent(fEvtCount-1);
 		fEventRead=true;
+    TFactory::Instance()->Reset();
 	}
   
 	if (listkey=="McTruth")
@@ -156,20 +158,22 @@ Bool_t PndAnalysis::FillList(TCandList &l, std::string listkey)
       for (Int_t i1=0; i1<fNeutralCands->GetEntriesFast(); i1++)
       {
         VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fNeutralCands->At(i1);		
-        TCandidate tc(*mic,i1+1);
+        TCandidate buffcand(*mic,i1+1);
+        TCandidate *tc = TFactory::Instance()->NewCandidate(buffcand);
+
         // TODO: Do we want to set something here? It is neutrals anyway.
         if(i1<fNeutralProbability->GetEntriesFast())
         {
           PndPidProbability *neuProb = (PndPidProbability*)fNeutralProbability->At(i1);
           // numbering see PndPidListMaker
-          tc.SetPidInfo(0,neuProb->GetElectronPidProb());
-          tc.SetPidInfo(1,neuProb->GetMuonPidProb());
-          tc.SetPidInfo(2,neuProb->GetPionPidProb());
-          tc.SetPidInfo(3,neuProb->GetKaonPidProb());
-          tc.SetPidInfo(4,neuProb->GetProtonPidProb());
+          tc->SetPidInfo(0,neuProb->GetElectronPidProb());
+          tc->SetPidInfo(1,neuProb->GetMuonPidProb());
+          tc->SetPidInfo(2,neuProb->GetPionPidProb());
+          tc->SetPidInfo(3,neuProb->GetKaonPidProb());
+          tc->SetPidInfo(4,neuProb->GetProtonPidProb());
         }        
-        neutralCands.Add(tc);
-        allCands.Add(tc);
+        neutralCands.Add(*tc);
+        allCands.Add(*tc);
       }
     
 		if (fChargedCands && chargedCands.GetLength()==0) 
@@ -177,19 +181,20 @@ Bool_t PndAnalysis::FillList(TCandList &l, std::string listkey)
       for (Int_t i1=0; i1<fChargedCands->GetEntriesFast(); i1++)
       {
         VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fChargedCands->At(i1);
-        TCandidate tc(*mic,i1+1);
+        TCandidate buffcand(*mic,i1+1);
+        TCandidate *tc = TFactory::Instance()->NewCandidate(buffcand);
         if(i1<fChargedProbability->GetEntriesFast())
         {
           PndPidProbability *chProb = (PndPidProbability*)fChargedProbability->At(i1);
           // numbering see PndPidListMaker
-          tc.SetPidInfo(0,chProb->GetElectronPidProb());
-          tc.SetPidInfo(1,chProb->GetMuonPidProb());
-          tc.SetPidInfo(2,chProb->GetPionPidProb());
-          tc.SetPidInfo(3,chProb->GetKaonPidProb());
-          tc.SetPidInfo(4,chProb->GetProtonPidProb());
+          tc->SetPidInfo(0,chProb->GetElectronPidProb());
+          tc->SetPidInfo(1,chProb->GetMuonPidProb());
+          tc->SetPidInfo(2,chProb->GetPionPidProb());
+          tc->SetPidInfo(3,chProb->GetKaonPidProb());
+          tc->SetPidInfo(4,chProb->GetProtonPidProb());
         }        
-        chargedCands.Add(tc);
-        allCands.Add(tc);
+        chargedCands.Add(*tc);
+        allCands.Add(*tc);
       }
     }
 	}
@@ -250,7 +255,13 @@ void PndAnalysis::BuildMcCands()
     //TClonesArray& ref = *fMcCands;
     Int_t size = fMcCands->GetEntriesFast();
     
-   	TCandidate *pmc=new ((*fMcCands)[size]) TCandidate(p4,charge);
+    //either
+   	//TCandidate buffcand(p4,charge);
+    //TCandidate *pmc = TFactory::Instance()->NewCandidate(buffcand);
+    //fMcCands->Add(pmc);
+    //or
+    TCandidate *pmc=new ((*fMcCands)[size]) TCandidate(p4,charge);
+    
    	
     //pmc->SetMcIdx(size);
     pmc->SetMcIdx(i);
