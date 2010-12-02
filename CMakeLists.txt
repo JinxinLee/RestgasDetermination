@@ -6,7 +6,7 @@
 # and PANDAROOT.
 
 # Check if cmake has the required version
-CMAKE_MINIMUM_REQUIRED(VERSION 2.4.3 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0 FATAL_ERROR)
 
 # Set name of our project to "PANDAROOT". Has to be done
 # after check of cmake version since this is a new feature                  
@@ -120,6 +120,7 @@ add_subdirectory (mdt)
 add_subdirectory (emc)
 add_subdirectory (drc)
 add_subdirectory (drc/drcprop)
+add_subdirectory (fts)
 add_subdirectory (hyp)
 add_subdirectory (genfit)
 add_subdirectory (recotasks)
