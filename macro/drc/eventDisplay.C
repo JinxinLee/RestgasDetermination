@@ -33,7 +33,7 @@ eventDisplay()
   fMan->AddTask( PndPdPoint);
 
     
- fRun->Init();
+// fRun->Init();
  fMan->Init();                     
   
 

@@ -103,9 +103,23 @@ sim_dirc_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1)
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
- 
-  PndDpmDirect *dpmGen = new PndDpmDirect(mom,mode);
-  primGen->AddGenerator(dpmGen);
+  FairBoxGenerator* boxGen = new FairBoxGenerator(50000050, 1000); // 50000050 = Cherenkov photon; 1 = multipl.
+
+   boxGen->SetPRange(3.5e-9,3.5e-9); // GeV/c
+
+   boxGen->SetPhiRange(-78.5, 101.5); // Azimuth angle range [degree]
+
+   boxGen->SetThetaRange(134.9999, 135.0001); // Polar angle in lab system range [degree] 120 - 180
+   
+   //boxGen->SetCosTheta();
+
+   boxGen->SetXYZ(48.7, 11.2, -119.8); // mm o cm ??
+   //boxGen->SetBoxXYZ();
+   
+   primGen->AddGenerator(boxGen); 
+
+ // PndDpmDirect *dpmGen = new PndDpmDirect(mom,mode);
+  //primGen->AddGenerator(dpmGen);
 
   fRun->SetStoreTraj(kTRUE); // to store particle trajectories  
 
