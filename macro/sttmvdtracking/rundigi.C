@@ -9,8 +9,8 @@
   Int_t iVerbose = 0;
   Int_t nEvents  = 0;
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  TString inFile = "Mvd_Test.root";
-  TString parFile = "Mvd_Params.root";
+  TString inFile = "MvdStt_Test.root";
+  TString parFile = "MvdStt_Params.root";
   TString digiparFile = gSystem->Getenv("VMCWORKDIR");
   digiparFile += "/macro/params/all.par";
 
