@@ -519,7 +519,7 @@ void PndEmc::Print() const {
 
 // -----   Public method Reset   ----------------------------------------------
 void PndEmc::Reset() {
-   fEmcCollection->Clear();
+   fEmcCollection->Delete();
  
   fPosIndex = 0;
 }
