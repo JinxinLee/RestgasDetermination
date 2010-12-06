@@ -9,8 +9,8 @@
   Int_t nEvents = 10;
 
   //FileNames
-  TString simOutput="Mvd_Test.root";
-  TString parOutput="Mvd_Params.root";
+  TString simOutput="MvdStt_Test.root";
+  TString parOutput="MvdStt_Params.root";
 
   // Load basic libraries
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
