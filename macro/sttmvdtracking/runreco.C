@@ -68,13 +68,13 @@
   mvdTrackFinder->SetVerbose(iVerbose);
   mvdTrackFinder->SetMaxDist(0.05);
   fRun->AddTask(mvdTrackFinder);
-// rtdb->setOutput(parInput1);
-// rtdb->print();
+  // rtdb->setOutput(parInput1);
+  // rtdb->print();
 
- // -----  end  MVD  Rieman finder  --------------------------------------------
-// TRACK FINDING =============================================================================
-// OUTPUT: PndTrackCand                    -> STTTrackCand
-//  PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
+  // -----  end  MVD  Rieman finder  --------------------------------------------
+  // TRACK FINDING =============================================================================
+  // OUTPUT: PndTrackCand                    -> STTTrackCand
+  //  PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
   PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(0);
   PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
   sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
@@ -82,15 +82,15 @@
 
 
   // =========================================================================
-//-------------------------- stt-mvd   task ----------------------------------
-  PndSttMvdTracking *  SttMvdTracking = new PndSttMvdTracking(1);
+  //-------------------------- stt-mvd   task ----------------------------------
+  PndSttMvdTracking *  SttMvdTracking = new PndSttMvdTracking(0);
   fRun->AddTask(SttMvdTracking);
-
-
   // =========================================================================
 
+
+
   rtdb->setOutput(parInput1);
-//  rtdb->print();
+  //  rtdb->print();
   
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
@@ -100,8 +100,8 @@
 
   SttMvdTracking->WriteHistograms();
 
- rtdb->saveOutput();
- rtdb->print();
+  rtdb->saveOutput();
+  rtdb->print();
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();
