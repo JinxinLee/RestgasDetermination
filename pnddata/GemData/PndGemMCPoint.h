@@ -94,7 +94,7 @@ class PndGemMCPoint : public FairMCPoint
   /** Modifiers **/
   void SetPositionOut(TVector3 pos);
   void SetMomentumOut(TVector3 mom);
-  void SetSensorId   (Int_t sensId);
+  void SetSensorId   (Int_t sensId)    { fSensorId = sensId; };
 
 
   /** Output to screen **/
