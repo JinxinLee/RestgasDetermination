@@ -1,12 +1,12 @@
-// Macro to simulate the MVD in pandaroot
-// Updated 30.11.2009
-// Ralf Kliemt
+// Macro to generate 10 events with MVD and STT (120 cm long straws) geometry in pandaroot
+// Updated 6.12.2010
+// Gianluigi Boca
 {
   TStopwatch timer;
   timer.Start();
   gDebug=0;
   int verboseLevel = 0;
-  Int_t nEvents = 1000;
+  Int_t nEvents = 10;
 
   //FileNames
   TString simOutput="Mvd_Test.root";
@@ -55,16 +55,6 @@
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
-  // Particle Generator (pdgid,mult, px,py,pz, vx,vy,vz)
-  // single pions for testing
-//      FairParticleGenerator* partGenX   = new FairParticleGenerator(211,1, 1.,0.,0., 0.,0.,0.);
-//      FairParticleGenerator* partGenY   = new FairParticleGenerator(211,1, 0.,1.,0., 0.,0.,0.);
-//      FairParticleGenerator* partGenZ   = new FairParticleGenerator(211,1, 0.,0.1,1., 0.,0.,0.);
-//      FairParticleGenerator* partGenXYZ = new FairParticleGenerator(211,1, 1.,1.,5., 0.,0.,0.);
-//      primGen->AddGenerator(partGenX);
-//      primGen->AddGenerator(partGenY);
-//      primGen->AddGenerator(partGenZ);
-//      primGen->AddGenerator(partGenXYZ);
 
  // Ion Generator
  //    FairIonGenerator *fIongen= new FairIonGenerator(79, 197,79,1, 0.,0., 25, 0.,0.,-1.);
