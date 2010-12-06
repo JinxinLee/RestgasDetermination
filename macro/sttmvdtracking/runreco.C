@@ -7,13 +7,13 @@
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
-  TString MCFile = "Mvd_Test.root";
-  TString parFile = "Mvd_Params.root";
+  TString MCFile = "MvdStt_Test.root";
+  TString parFile = "MvdStt_Params.root";
   Int_t nEvents = 0;
   // ----  Load libraries   -------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");  
-
-//  gSystem->("libSttMvdTracking");
+  rootlogon();
+  gSystem->Load("libSttMvdTracking");
 
   // ------------------------------------------------------------------------
   // Output file
@@ -91,8 +91,6 @@
 
   rtdb->setOutput(parInput1);
 //  rtdb->print();
-  // =====                 End of HitProducers                           =====
-  // =========================================================================
   
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
