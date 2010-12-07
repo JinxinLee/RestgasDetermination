@@ -51,27 +51,27 @@
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
   // ------------------------------------------------------------------------
-  // -----   LHETRACK  ---------------------------------
+ 
+  PndMvdRiemannTrackFinderTask* mvdTrackFinder = new PndMvdRiemannTrackFinderTask();
+  mvdTrackFinder->SetVerbose(iVerbose);
+  mvdTrackFinder->SetMaxDist(0.05);
+  fRun->AddTask(mvdTrackFinder);
+
+  //  PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
+  PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(0);
+  PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
+  sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
+  fRun->AddTask(sttFindTracks);
   
-  PndLheHitsMaker* trackMS = new PndLheHitsMaker("Tracking routine");
-  trackMS->SetSttMode(5);  // 0 OFF, 1 SttPoint, 2 SttHit, (3) SttHelixHit, 4 SttHelixHit MC, 5 SttPRHelixHit // STTPoint smearing [cm], if negative no smearing
-  trackMS->SetMvdMode(2);  // 0 OFF, 1 MVDPoint, 2 MVDHit     // MVDPoint smearing [cm], if negative no smearing
-  trackMS->SetGemMode(2);  // 0 OFF, 1 GEMPoint, 2 GEMHit     // GEMPoint smearing [cm], if negative no smearing
-  fRun->AddTask(trackMS);
-  
-  PndLheTrackFinder* trackFinder    = new PndLheTrackFinder();
-  //PndLheTrackFinderIdeal* trackFinder    = new PndLheTrackFinderIdeal();
-  fRun->AddTask(trackFinder);
-  
-  PndLheTrackFitter* trackFitter    = new PndLheTrackFitter("fitting");
-  fRun->AddTask(trackFitter);
+  PndSttMvdTracking *  SttMvdTracking = new PndSttMvdTracking(0);
+  fRun->AddTask(SttMvdTracking);
   
   PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
-  recoKalman->SetTrackInBranchName("LheTrack");
-  recoKalman->SetTrackOutBranchName("LheGenTrack");
+  recoKalman->SetTrackInBranchName("SttMvdTrack");
+  recoKalman->SetTrackOutBranchName("SttMvdGenTrack");
   //recoKalman->SetNumIterations(3);
   fRun->AddTask(recoKalman);
- 
+  
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(6);
   fRun->Init();

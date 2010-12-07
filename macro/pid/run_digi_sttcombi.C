@@ -57,26 +57,6 @@
   PndSttHitProducerRealFast* sttHitProducer = new PndSttHitProducerRealFast();
   fRun->AddTask(sttHitProducer);
  
-  // trackfinding ....
-  PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(iVerbose);
-  //PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
-  PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
-  sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
-  sttFindTracks->SetHelixHitProduction();
-  fRun->AddTask(sttFindTracks);
-  // trackmatching ....
-  PndSttMatchTracks* sttTrackMatcher = new PndSttMatchTracks("Match tracks", "STT", iVerbose);
-  sttTrackMatcher->AddHitCollectionName("STTHit", "STTPoint");
-  fRun->AddTask(sttTrackMatcher);
-  // trackfitting ....
-  PndSttTrackFitter* sttTrackFitter = new PndSttHelixTrackFitter(0);
-  PndSttFitTracks* sttFitTracks = new PndSttFitTracks("STT Track Fitter", "FairTask", sttTrackFitter);
-  sttFitTracks->AddHitCollectionName("STTHit");
-  fRun->AddTask(sttFitTracks);
-  // helix hit production ....
-  PndSttHelixHitProducer* sttHHProducer = new PndSttHelixHitProducer();
-  fRun->AddTask(sttHHProducer);
-
   // -----   MDV digi producers   --------------------------------- 
   PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
   mvddigi->SetVerbose(iVerbose);
