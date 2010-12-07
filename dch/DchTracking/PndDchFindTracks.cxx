@@ -187,7 +187,7 @@ void PndDchFindTracks::Exec(Option_t* opt) {
 
 // -----   Public method Finish   ------------------------------------------
 void PndDchFindTracks::Finish() {
-	fTrackArray->Clear();
+	fTrackArray->Delete();
 
   cout << "-------------------- " << fName.Data() << " : Summary ---------------------" << endl;
   cout << " Events:        " << setw(10) << fTNofEvents << endl;

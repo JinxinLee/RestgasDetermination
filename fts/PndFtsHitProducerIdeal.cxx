@@ -106,8 +106,8 @@ void PndFtsHitProducerIdeal::Exec(Option_t* opt)
   if ( ! fHitArray ) 
     Fatal("Exec", "No HitArray");
   
-  fHitArray->Clear();
-  fHitInfoArray->Clear();
+  fHitArray->Delete();
+  fHitInfoArray->Delete();
   
   // Declare some variables
   PndFtsPoint

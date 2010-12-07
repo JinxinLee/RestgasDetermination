@@ -38,7 +38,7 @@ class PndEmcPoint : public FairMCPoint
 	      Short_t mod, Short_t row, Short_t crys, Short_t copy);
   
   /** Copy constructor **/
-  PndEmcPoint(const PndEmcPoint& point) { *this = point; /*SetLinks(point.GetLinks());*/ };
+  PndEmcPoint(const PndEmcPoint& point) { *this = point; SetLinks(point.GetLinks());};
   
 
   /** Destructor **/
@@ -62,7 +62,7 @@ class PndEmcPoint : public FairMCPoint
   void SetModule(Short_t mod)        { nModule     = mod;};
   void SetRow(Short_t row)           { nRow        = row;};
   void SetCrystal(Short_t crys)      { nCrystal    = crys;};
-  virtual void SetTrackID(Int_t trackId) {FairMCPoint::SetTrackID(trackId); /*SetLink(FairLink("MCTrack", trackId));*/}  //14.09.10 Stefano FIX
+  virtual void SetTrackID(Int_t trackId) {FairMCPoint::SetTrackID(trackId); SetLink(FairLink("MCTrack", trackId));}  //14.09.10 Stefano FIX
   
   /** Output to screen **/
   virtual void Print(const Option_t* opt) const;

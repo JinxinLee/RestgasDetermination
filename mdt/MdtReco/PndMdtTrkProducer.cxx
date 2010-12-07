@@ -280,7 +280,7 @@ void PndMdtTrkProducer::SetGeometry() {
 void PndMdtTrkProducer::Exec(Option_t* opt)
 {
   // Reset output array
-  fTrkArray->Clear();
+  fTrkArray->Delete();
   if (!MdtMapping()) return; // exit if the event contains no Mdt hits
   if(fRec_method == 1) AlgorithmWithLheGenTrack();
 

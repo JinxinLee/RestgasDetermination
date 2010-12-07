@@ -446,7 +446,7 @@ void PndLheHitsMaker::GetMvdPoints() {
 	  hit->SetDz(fMvdResolution);
 	}
       
-      hit->SetDetectorID(kMVDPoint);
+      hit->SetDetectorID(FairRootManager::Instance()->GetBranchId("MVDPoint"));
       hit->SetTrackID(point->GetTrackID());
       hit->SetRefIndex(j);
       hit->SetLink(FairLink("MVDPoint", j));
@@ -484,7 +484,7 @@ void PndLheHitsMaker::GetMvdHits() {
       hit->SetDy(0.005);
       hit->SetDz(0.005);
 
-      hit->SetDetectorID(kMVDHitsPixel);
+      hit->SetDetectorID(FairRootManager::Instance()->GetBranchId("MVDHitsPixel"));
       
       if ( (fMvdSimMode) && (point->GetRefIndex()!=-1) )
 	{
@@ -522,7 +522,7 @@ void PndLheHitsMaker::GetMvdHits() {
       hit->SetDx(0.005);
       hit->SetDy(0.005);
       hit->SetDz(0.005);
-      hit->SetDetectorID(kMVDHitsStrip);
+      hit->SetDetectorID(FairRootManager::Instance()->GetBranchId("MVDHitsStrip"));
 
       if ( (fMvdSimMode) && (point->GetRefIndex()!=-1) )
 	{
@@ -585,7 +585,7 @@ void PndLheHitsMaker::GetTpcPoints() {
 	hit->SetDz(2*fTpcResolution);
       }
     
-    hit->SetDetectorID(kTpcPoint);
+    hit->SetDetectorID(FairRootManager::Instance()->GetBranchId("PndTpcPoint"));
     hit->SetTrackID(point->GetTrackID());
     hit->SetRefIndex(j);
     hit->SetLink(FairLink("PndTpcPoint", j));
@@ -619,10 +619,10 @@ void PndLheHitsMaker::GetTpcClusters() {
     hit->SetDy(clu->sig().Y());
     hit->SetDz(clu->sig().Z());
 
-    hit->SetDetectorID(kTpcCluster);
+    hit->SetDetectorID(FairRootManager::Instance()->GetBranchId("PndTpcCluster"));
     hit->SetTrackID(clu->mcId().DominantID().mctrackID());
     hit->SetRefIndex(j);
-    //hit->SetLink(FairLink("PndTpcCluster", j));
+    hit->SetLink(FairLink("PndTpcCluster", j));
     if (fVerbose)  hit->Print();
     
   }  // end of TpcCluster loop  
@@ -676,7 +676,7 @@ void PndLheHitsMaker::GetSttPoints() {
 	hit->SetDz(2*fSttResolution);
       }
     
-    hit->SetDetectorID(kSttPoint);
+    hit->SetDetectorID(FairRootManager::Instance()->GetBranchId("STTPoint"));
     hit->SetTrackID(point->GetTrackID());
     hit->SetRefIndex(j);
     hit->SetLink(FairLink("STTPoint", j));
@@ -711,7 +711,7 @@ void PndLheHitsMaker::GetSttHit() {
     hit->SetDy(.5);
     hit->SetDz(.5);
 
-    hit->SetDetectorID(kSttHit);
+    hit->SetDetectorID(FairRootManager::Instance()->GetBranchId("STTHit"));
     hit->SetTrackID(hit->GetRefIndex());
     hit->SetRefIndex(j);
     hit->SetLink(FairLink("STTHit", j));
@@ -758,7 +758,7 @@ void PndLheHitsMaker::GetSttHelixHit() {
     hit->SetDy(.5);
     hit->SetDz(.5);
 
-    hit->SetDetectorID(kSttHelixHit);
+    hit->SetDetectorID(FairRootManager::Instance()->GetBranchId("STTHelixHit"));
     hit->SetTrackID(-1);
     if ( (fSttSimMode) && (sttHit->GetRefIndex()!=-1) )
     {
@@ -809,7 +809,7 @@ void PndLheHitsMaker::GetSttPRHelixHit() {
     hit->SetDy(.5);
     hit->SetDz(.5);
 
-    hit->SetDetectorID(kSttHelixHit);
+    hit->SetDetectorID(FairRootManager::Instance()->GetBranchId("STTHelixHit"));
     hit->SetTrackID(-1);
     if ( (fSttSimMode) && (sttHit->GetRefIndex()!=-1) )
     {
@@ -849,7 +849,7 @@ void PndLheHitsMaker::GetSttHelixHitMC() {
     hit->SetDy(.5);
     hit->SetDz(.5);
 
-    hit->SetDetectorID(kSttHelixHit);
+    hit->SetDetectorID(FairRootManager::Instance()->GetBranchId("STTHelixHit"));
     hit->SetTrackID(sttPoint->GetTrackID());
     
     hit->SetRefIndex(j);
@@ -883,7 +883,7 @@ void PndLheHitsMaker::GetEmcClusters() {
     hit->SetDy(1.);
     hit->SetDz(1.);
 
-    hit->SetDetectorID(kEmcCluster);
+    hit->SetDetectorID(FairRootManager::Instance()->GetBranchId("EmcCluster"));
     //hit->SetTrackID(point->GetTrackID());
     hit->SetTrackID(-1);
     hit->SetRefIndex(j);
@@ -918,7 +918,7 @@ void PndLheHitsMaker::GetEmcBumps() {
     hit->SetDy(1.);
     hit->SetDz(1.);
 
-    hit->SetDetectorID(kEmcBump);
+    hit->SetDetectorID(FairRootManager::Instance()->GetBranchId("EmcBump"));
     //hit->SetTrackID(point->GetTrackID());
     hit->SetTrackID(-1);
 
@@ -980,7 +980,7 @@ void PndLheHitsMaker::GetGemPoints() {
 	hit->SetDz(fGemResolution);
       }
     
-    hit->SetDetectorID(kGemPoint);
+    hit->SetDetectorID(FairRootManager::Instance()->GetBranchId("GemPoint"));
     hit->SetTrackID(point->GetTrackID());
     hit->SetRefIndex(j);
 
@@ -1016,7 +1016,7 @@ void PndLheHitsMaker::GetGemHits() {
     hit->SetDy(point->GetDy());
     hit->SetDz(point->GetDz());
     
-    hit->SetDetectorID(kGemHit);
+    hit->SetDetectorID(FairRootManager::Instance()->GetBranchId("GemHit"));
     hit->SetTrackID(-1);
     if ( (fGemSimMode) && (point->GetRefIndex()!=-1) )
     {

@@ -170,7 +170,7 @@ void PndGemDetector::EndOfEvent()
   if (fVerboseLevel)
     Print();
 
-  fPndGemCollection->Clear();
+  fPndGemCollection->Delete();
   fPosIndex = 0;
 }
 // -------------------------------------------------------------------------
@@ -220,7 +220,7 @@ void PndGemDetector::Print() const
 // -----   Public method Reset   -------------------------------------------
 void PndGemDetector::Reset()
 {
-  fPndGemCollection->Clear();
+  fPndGemCollection->Delete();
   ResetParameters();
 }
 // -------------------------------------------------------------------------

@@ -27,7 +27,7 @@ PndSttHelixHit::PndSttHelixHit(Int_t detID, Int_t tubeID, Int_t hitindex, Int_t 
   fIsochrone = isochrone;
   fIsochroneError = isochroneError;
   fTubeID = tubeID; // CHECK added
-  //SetLink(FairLink("STTHit", hitindex));
+  SetLink(FairLink("STTHit", hitindex));
 
 }
 

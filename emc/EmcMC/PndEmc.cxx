@@ -1219,7 +1219,7 @@ PndEmcPoint* PndEmc::AddHit(Int_t trackID, Int_t detID, Int_t evtID, TVector3 po
       << trackID <<", energy loss " << eLoss*1e06 << " keV, module " << mod << " row " << row << " crystal " <<  crys << " copy " << copy << endl;
   
  	PndEmcPoint* myPoint = new(clref[size]) PndEmcPoint(trackID, detID, evtID, pos, mom, time, length, eLoss, mod, row, crys, copy); 
-	// myPoint->SetLink(FairLink("MCTrack", trackID)); // 14.09.10 Stefano FIX
+	myPoint->SetLink(FairLink("MCTrack", trackID)); // 14.09.10 Stefano FIX
 	return myPoint;
 }
 

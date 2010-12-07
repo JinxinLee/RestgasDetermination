@@ -252,7 +252,7 @@ TClonesArray* PndSttMapCreator::FillTubeArrayGeoType1() {
   
   TObjArray *geoPassNodes = fSttParameters->GetGeoPassiveNodes();
   TClonesArray *tubeArray = new TClonesArray("PndSttTube");
-  tubeArray->Clear();
+  tubeArray->Delete();
   for(int i = 0; i < geoPassNodes->GetEntriesFast(); i++) {
     FairGeoNode *pnode = (FairGeoNode*) geoPassNodes->At(i);
     if(!pnode) continue;

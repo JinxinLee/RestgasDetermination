@@ -112,11 +112,29 @@ void PndMCTestMomentumCompare::Exec(Option_t* opt) {
 						std::cout << "NLinks " << forward1.GetEntry(i).GetNLinks() << " Weight: " << myResult.GetEntry(j).GetLink(0).GetWeight() << std::endl;
 						if (forward1.GetEntry(i).GetNLinks() == myResult.GetEntry(j).GetLink(0).GetWeight()) {
 							fQualyHisto->Fill(9);
-							std::cout << "Fill 9 " << std::endl;
+							std::cout << "Fill 9" << std::endl;
 							break;
 						} else {
 							fQualyHisto->Fill(8);
 							std::cout << "Fill 8" << std::endl;
+							break;
+						}
+					}
+				}
+				else if (myResult.GetEntry(j).GetNLinks() == 2){
+					int weight1 = myResult.GetEntry(j).GetLink(0).GetWeight();
+					int weight2 = myResult.GetEntry(j).GetLink(1).GetWeight();
+					if ((weight1 > 2 && weight2 == 1) || (weight1 == 1 && weight2 > 2)){
+						int mcIndex = -1;
+						if (weight1 > 2){
+							mcIndex = myResult.GetEntry(j).GetLink(0).GetIndex();
+						}
+						else{
+							mcIndex = myResult.GetEntry(j).GetLink(1).GetIndex();
+						}
+						if (mcIndex == i){
+							fQualyHisto->Fill(7);
+							std::cout << "Fill 7" << std::endl;
 							break;
 						}
 					}
@@ -171,11 +189,11 @@ void PndMCTestMomentumCompare::Finish() {
 	fPHisto->Write();
 	fPtHisto->Write();
 	fQualyHisto->Write();
-	std::cout << "fQualyHisto: NPossible Tracks "
-			<< fQualyHisto->GetBinContent(1) << " Ghosts: "
-			<< fQualyHisto->GetBinContent(6) << " Found: "
-			<< fQualyHisto->GetBinContent(9) << " FullyReco: "
-			<< fQualyHisto->GetBinContent(10) << std::endl;
+	std::cout << "fQualyHisto: NPossible Tracks " << fQualyHisto->GetBinContent(1)
+			  << " Ghosts: "    << fQualyHisto->GetBinContent(6)
+			  << " Spurious: "  << fQualyHisto->GetBinContent(8)
+			  << " Found: " 	<< fQualyHisto->GetBinContent(9)
+			  << " FullyReco: "	<< fQualyHisto->GetBinContent(10) << std::endl;
 }
 
 ClassImp( PndMCTestMomentumCompare);

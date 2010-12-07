@@ -37,7 +37,7 @@ PndTpcPoint::PndTpcPoint(Int_t trackID, Int_t detID, TVector3 pos, TVector3 mom,
 			 Double_t tof, Double_t length, Double_t eLoss)
   : FairMCPoint(trackID, detID, pos, mom, tof, length, eLoss)
 {
-  //SetLink(FairLink("MCTrack", trackID));
+  SetLink(FairLink("MCTrack", trackID));
 }
 
 void 

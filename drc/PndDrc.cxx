@@ -324,8 +324,8 @@ void PndDrc::Print() const {
 
 // -----   Public method Reset   ----------------------------------------------
 void PndDrc::Reset() {
-   fDrcPDCollection->Clear();
-   fDrcBarCollection->Clear();
+   fDrcPDCollection->Delete();
+   fDrcBarCollection->Delete();
    fPosIndex = 0;
 }
 // ----------------------------------------------------------------------------

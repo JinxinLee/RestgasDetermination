@@ -103,8 +103,8 @@ void PndSttHitProducerRealFull::Exec(Option_t* opt) {
   // Reset output array
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
   
-  fHitArray->Clear();
-  fHitInfoArray->Clear();
+  fHitArray->Delete();
+  fHitInfoArray->Delete();
 
   Int_t detID = 0;    // detectorID
   TVector3 pos, dpos; // position and error vectors

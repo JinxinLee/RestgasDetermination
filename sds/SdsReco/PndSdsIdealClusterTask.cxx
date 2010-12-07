@@ -146,7 +146,7 @@ void PndSdsIdealClusterTask::Exec(Option_t* opt)
 	for (UInt_t j=0;j < clusters[i].size();j++)
 		clusterArray.push_back(DigiPixelArray[clusters[i][j]]);
 	PndSdsHit myCluster = mapping->GetCluster(clusterArray);
-	myCluster.SetClusterIndex(kMVDClusterPixel, i);
+	myCluster.SetClusterIndex(FairRootManager::Instance()->GetBranchId(fClustBranchName), i);
 	std::cout << "ClusterData: " << std::endl;
 	myCluster.Print();
 	new ((*fHitArray)[i]) PndSdsHit(myCluster);

@@ -265,7 +265,7 @@ PndTpcElectronicsTask::Exec(Option_t* opt)
     int iarray=fdigiArray->GetEntriesFast();
     for(int idigi=0;idigi<ndigi;++idigi) {
       PndTpcDigi* dig=new((*fdigiArray)[iarray+idigi]) PndTpcDigi(*(digis[idigi]));
-      //dig->SetLinks(FairMultiLinkedData(fsignalBranchName, sigIdMap[padIt->first]));
+      dig->SetLinks(FairMultiLinkedData(fsignalBranchName, sigIdMap[padIt->first]));
       delete digis[idigi]; // clean up temporay store
       meandigit=dig->t();
     }

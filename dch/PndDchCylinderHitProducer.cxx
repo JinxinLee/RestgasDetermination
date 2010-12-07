@@ -97,7 +97,7 @@ void PndDchCylinderHitProducer::Exec(Option_t* opt) {
 
 	// Reset output array
 	if( !fCylHitArray ) Fatal("Exec", "No PndDchCylinderHit array");
-	fCylHitArray->Clear();
+	fCylHitArray->Delete();
 
 	// Loop over Digis
 	PndDchDigi* digi  = 0;

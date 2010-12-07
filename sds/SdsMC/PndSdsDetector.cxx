@@ -183,7 +183,7 @@ Bool_t  PndSdsDetector::ProcessHits(FairVolume* vol)
     }
     
     TString detPath = gMC->CurrentVolPath();
-    PndSdsMCPoint* myPoint = AddHit(fTrackID, kMVDPoint, fGeoH->GetShortID(detPath),
+    PndSdsMCPoint* myPoint = AddHit(fTrackID, FairRootManager::Instance()->GetBranchId("MCTrack"), fGeoH->GetShortID(detPath),
                                     TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
                                     TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
                                     TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),

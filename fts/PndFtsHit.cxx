@@ -27,7 +27,7 @@ PndFtsHit::PndFtsHit(Int_t detID, Int_t tubeID, Int_t chamberID, Int_t mcindex, 
   fIsochroneError = isochroneError;
   fDepCharge = chDep;
 
-  //SetLink(FairLink(kFtsPoint, mcindex));
+  SetLink(FairLink("FTSPoint", mcindex));
 
 }
 

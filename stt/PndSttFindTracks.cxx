@@ -212,9 +212,9 @@ void PndSttFindTracks::Exec(Option_t* opt)
   
   AddAllCollections();
   
-  fTrackCandArray->Clear(); 
-  fTrackArray->Clear(); 
-  fHelixHitArray->Clear(); 
+  fTrackCandArray->Delete(); 
+  fTrackArray->Delete(); 
+  fHelixHitArray->Delete(); 
   
   fNofTracks = fFinder->DoFind(fTrackCandArray, fTrackArray, fHelixHitArray); 
   

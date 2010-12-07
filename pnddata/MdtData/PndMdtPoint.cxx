@@ -26,7 +26,7 @@ PndMdtPoint::PndMdtPoint( Int_t trackID, Int_t detID, TVector3 pos, TVector3 mom
   fPDG           = pdg;
   fPosIn         = pos_in;
   fMomIn         = mom_in;
-  //SetLink(FairLink("MCTrack", trackID));
+  SetLink(FairLink("MCTrack", trackID));
 }
 
 

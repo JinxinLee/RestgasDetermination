@@ -195,8 +195,8 @@ void PndGemFindTracks::Exec(Option_t* opt) {
 
 // -----   Public method Finish   ------------------------------------------
 void PndGemFindTracks::Finish() {
-  fTrackArray->Clear();
-  fTrackCandArray->Clear();
+  fTrackArray->Delete();
+  fTrackCandArray->Delete();
 
   cout << "-------------------- " << fName.Data() << " : Summary ---------------------" << endl;
   cout << " Events:        " << setw(10) << fTNofEvents << endl;

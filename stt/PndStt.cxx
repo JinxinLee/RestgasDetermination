@@ -329,7 +329,7 @@ void PndStt::EndOfEvent()
 {
     if (fVerboseLevel) 
 	Print();
-    fSttCollection->Clear();
+    fSttCollection->Delete();
     fPosIndex = 0;
 }
 // -------------------------------------------------------------------------
@@ -376,7 +376,7 @@ void PndStt::Print() const
 // -----   Public method Reset   -------------------------------------------
 void PndStt::Reset() 
 {
-    fSttCollection->Clear();
+    fSttCollection->Delete();
     ResetParameters();
 }
 // -------------------------------------------------------------------------

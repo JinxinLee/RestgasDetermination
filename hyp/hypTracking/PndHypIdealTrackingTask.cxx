@@ -105,7 +105,7 @@ void PndHypIdealTrackingTask::SetParContainers()
 void PndHypIdealTrackingTask::Exec(Option_t* opt)
 {
  	if ( ! fTrackOutputArray ) Fatal("Exec", "No fTrackOutputArray");
- 	fTrackOutputArray->Clear();
+ 	fTrackOutputArray->Delete();
   
   // CREATE MONTECARLO MAP
   std::map<Int_t, PndMCTrack*> mcmap;

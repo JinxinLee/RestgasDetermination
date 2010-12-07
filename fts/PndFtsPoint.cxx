@@ -47,7 +47,7 @@ PndFtsPoint::PndFtsPoint(Int_t trackID, Int_t detID, Int_t tubeID, Int_t chamber
   fPz = (momIn.Pz() + momOut.Pz()) / 2.;
 
   fMass = mass; // stt1
-  //SetLink(FairLink(kMCTrack, trackID));
+  SetLink(FairLink("MCTrack", trackID));
 
 }
 // -------------------------------------------------------------------------

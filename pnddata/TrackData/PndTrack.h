@@ -33,7 +33,8 @@ public:
 	void SetFlag(Int_t i)            { fFlag=i; }
 	void SetChi2(Double_t d)         { fChi2=d; }
 	void SetNDF(Int_t i)             { fNDF=i; }
-        void SetRefIndex(Int_t i)        { fRefIndex=i;}// SetLink(kTrackCand, i); }
+    void SetRefIndex(TString branch, Int_t i)        { fRefIndex=i; SetLink(FairLink(branch, i)); }
+    void SetRefIndex(Int_t i){fRefIndex = i;}
 	void SetTrackCand(const PndTrackCand& cand) { fTrackCand = cand; };
 	
 	PndTrackCand GetTrackCand()      { return fTrackCand; }

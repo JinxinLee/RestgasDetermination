@@ -42,7 +42,7 @@ PndTpcPrimaryCluster::PndTpcPrimaryCluster(const double T,
 				     const unsigned int McHitId)
   : ft(T), fq(Q), fmcTrackId(McTrackId),fmcHitId(McHitId),fpos(Pos)
 {
-	//SetLink(FairLink("PndTpcPoint", McHitId));
+	SetLink(FairLink("PndTpcPoint", McHitId));
 }
 
 

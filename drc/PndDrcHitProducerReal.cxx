@@ -120,9 +120,9 @@ InitStatus PndDrcHitProducerReal::Init()
 void PndDrcHitProducerReal::Exec(Option_t* option)
 {
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
-  fHitArray->Clear();
+  fHitArray->Delete();
   if ( ! fPDHitArray ) Fatal("Exec", "No Photon HitArray");
-  fPDHitArray->Clear();
+  fPDHitArray->Delete();
   nevents++;
   if (fVerbose > 1) printf("\n\n=====> Event No. %d\n", nevents); 
 

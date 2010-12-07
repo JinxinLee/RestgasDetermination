@@ -1409,8 +1409,8 @@ void PndMvdGemTrackFinderOnHits::PrintMCTracks(Int_t nofRecoTracks) {
 
 // -----   Private method Finish   --------------------------------------------
 void PndMvdGemTrackFinderOnHits::Finish() {
-  fTrackArray    ->Clear();
-  fTrackCandArray->Clear();
+  fTrackArray    ->Delete();
+  fTrackCandArray->Delete();
 
   cout << "-------------------- " << fName.Data() << " : Summary -----------------------" << endl;
   cout << " Events:        " << setw(10) << fNofEvents << endl;

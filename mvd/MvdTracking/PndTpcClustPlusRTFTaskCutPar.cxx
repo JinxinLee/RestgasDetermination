@@ -176,8 +176,8 @@ void PndTpcClustPlusRTFTaskCutPar::Exec(Option_t* opt)
   // Reset output array
   if ( ! fTrackCandArray )
     Fatal("Exec", "No trackCandArray");
-  fMVDRiemannTracks->Clear();
-  fTPCRiemannTracks->Clear();
+  fMVDRiemannTracks->Delete();
+  fTPCRiemannTracks->Delete();
   CalcPlanes();
   CalcParHists();
   std::cout << "Done event no. " << fEventNr++ << std::endl;
@@ -416,8 +416,8 @@ void PndTpcClustPlusRTFTaskCutPar::CalcCuts()
 
 void PndTpcClustPlusRTFTaskCutPar::FinishEvent()
 {
-	fMVDRiemannTracks->Clear();
-	fTPCRiemannTracks->Clear();
+	fMVDRiemannTracks->Delete();
+	fTPCRiemannTracks->Delete();
 }
 
 ClassImp(PndTpcClustPlusRTFTaskCutPar);

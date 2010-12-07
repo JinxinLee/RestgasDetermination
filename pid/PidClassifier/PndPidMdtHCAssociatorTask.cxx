@@ -52,7 +52,7 @@ void PndPidMdtHCAssociatorTask::SetParContainers() {
 }
 //______________________________________________________
 void PndPidMdtHCAssociatorTask::Exec(Option_t * option) {
-  if (fPidChargedProb->GetEntriesFast() != 0) fPidChargedProb->Clear();
+  if (fPidChargedProb->GetEntriesFast() != 0) fPidChargedProb->Delete();
   if(fVerbose>1) std::cout << "-I- Start PndPidMdtHCAssociatorTask. "<<std::endl;
 
   // Get the Candidates

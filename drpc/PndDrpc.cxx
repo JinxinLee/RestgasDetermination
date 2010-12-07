@@ -301,8 +301,8 @@ void PndDrpc::Print()
 
 void PndDrpc::Reset()
 {
-  fPoints->Clear();
-  fMCPoints->Clear();
+  fPoints->Delete();
+  fMCPoints->Delete();
 
   fPosIndex=0;
 }

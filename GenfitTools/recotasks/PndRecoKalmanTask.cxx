@@ -89,7 +89,7 @@ void PndRecoKalmanTask::Exec(Option_t* opt)
 {
   if (fVerbose>0) std::cout<<"PndRecoKalmanTask::Exec"<<std::endl;
   
-  fFitTrackArray->Clear();
+  fFitTrackArray->Delete();
   
   Int_t ntracks=fTrackArray->GetEntriesFast();
   

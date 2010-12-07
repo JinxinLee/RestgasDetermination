@@ -145,7 +145,7 @@ void PndDchDetector::Print() const {
 
 // -----   Public method Reset   ----------------------------------------------
 void PndDchDetector::Reset() {
-  fDchPointCollection->Clear();  
+  fDchPointCollection->Delete();
   fPosIndex = 0;
 }
 // ----------------------------------------------------------------------------

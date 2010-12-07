@@ -53,7 +53,7 @@ PndEmcWaveform::PndEmcWaveform(int trackId, long detId, long waveform_length, In
 	fSignal(waveform_length,0.),
 	fHitIndex(hitIndex)
 {
-	//SetLink(FairLink("EmcHit", hitIndex));
+	SetLink(FairLink("EmcHit", hitIndex));
 }
 
 PndEmcWaveform::PndEmcWaveform(const PndEmcWaveform& copy)

@@ -33,10 +33,10 @@ Bool_t PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
     {
       PndSdsHit *mvdHit = NULL;
       PndTrackCandHit candHit = trackCand.GetSortedHit(ii);
-      if ( (candHit.GetDetId()!=kMVDHitsPixel) && (candHit.GetDetId()!=kMVDHitsStrip) ) continue;
+      if ( (candHit.GetDetId()!=FairRootManager::Instance()->GetBranchId("MVDHitsPixel")) && (candHit.GetDetId()!=FairRootManager::Instance()->GetBranchId("MVDHitsStrip")) ) continue;
       
-      if (candHit.GetDetId()==kMVDHitsPixel) mvdHit = (PndSdsHit*)fMvdHitsPixel->At(candHit.GetHitId());
-      if (candHit.GetDetId()==kMVDHitsStrip) mvdHit = (PndSdsHit*)fMvdHitsStrip->At(candHit.GetHitId());
+      if (candHit.GetDetId()==FairRootManager::Instance()->GetBranchId("MVDHitsPixel")) mvdHit = (PndSdsHit*)fMvdHitsPixel->At(candHit.GetHitId());
+      if (candHit.GetDetId()==FairRootManager::Instance()->GetBranchId("MVDHitsStrip")) mvdHit = (PndSdsHit*)fMvdHitsStrip->At(candHit.GetHitId());
       if (mvdHit==0) continue;
       TVector3 mvdPos;
       mvdHit->Position(mvdPos);

@@ -94,7 +94,7 @@ class PndSdsMCPoint : public FairMCPoint
   //void SetDetName(TString name) {fDetName = name;};
   void SetSensorID(Int_t sensorID){fSensorID = sensorID;}
   virtual void SetTrackID(Int_t id){ 
-          //SetLink(kMCTrack, id); 
+          //SetLink("MCTrack", id);
           FairMCPoint::SetTrackID(id); 
   }; 
 

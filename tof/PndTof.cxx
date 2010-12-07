@@ -403,8 +403,8 @@ void PndTof::Print() const {
 
 // -----   Public method Reset   ----------------------------------------------
 void PndTof::Reset() {
-   fTofCollection->Clear();
-   fTofSciFCollection->Clear();
+   fTofCollection->Delete();
+   fTofSciFCollection->Delete();
    
  
   fPosIndex = 0;

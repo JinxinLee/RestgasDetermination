@@ -54,7 +54,7 @@ void PndSttTrack::AddHelixHit(Int_t size, Int_t index, Int_t helixhitindex)
   //  fHelixHits.Reset();
     fHelixHits.Set(size);
     fHelixHits[index] = helixhitindex;
-    //AddLink(FairLink("STTHelixHit", helixhitindex));
+    AddLink(FairLink("STTHelixHit", helixhitindex));
 }
 
 //  ================================================= 

@@ -251,7 +251,7 @@ void PndLheCandidate::SetCircle(Double_t x, Double_t y, Double_t r) {
   // Adds a hit to the track.
 
   fRealHits->AddLast(point);
-  //AddLink(point->GetLink(0));
+  AddLink(point->GetLink(0));
   //  point->SetUsage(kTRUE);
 }
 

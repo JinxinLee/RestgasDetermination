@@ -68,12 +68,15 @@ class PndSdsDigi : public FairTimeStamp
 		virtual void AddIndex(int index)
 		{
 			fIndex.push_back(index);
+			std::cout << "MCPointType: " << fMCPointType << std::endl;
 			AddLink(FairLink(fMCPointType, index));
 		}
     
 		virtual void AddIndex(std::vector<Int_t> index)
 		{
 			fIndex = index;
+
+			std::cout << "MCPointType: " << fMCPointType << std::endl;
 			AddLinks(FairMultiLinkedData(fMCPointType, index));
 		}
 		void SetCharge(double charge){fCharge = charge;}

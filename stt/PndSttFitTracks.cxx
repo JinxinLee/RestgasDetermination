@@ -130,7 +130,7 @@ void PndSttFitTracks::Exec(Option_t* opt)
 	new((*fTrackArray)[size]) PndSttTrack(); 
  	PndSttTrack* pTrack = (PndSttTrack*) fTrackArray->At(size); 
 	pTrack->SetTrackCandIndex(iTrack);
-	//pTrack->SetLink(FairLink("SttTrackCand", iTrack));
+	pTrack->SetLink(FairLink("SttTrackCand", iTrack));
 
 	fFitter->DoFit(pTrackCand, pTrack);
 

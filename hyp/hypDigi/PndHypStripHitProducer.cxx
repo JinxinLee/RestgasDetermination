@@ -229,11 +229,11 @@ void PndHypStripHitProducer::Exec(Option_t* opt)
   //if ( ! fHitArray ) 
   // Fatal("Exec", "No HitArray");
   
-  //fHitArray->Clear();
+  //fHitArray->Delete();
   
-  fStripArray->Clear();
+  fStripArray->Delete();
   
-  //  fFeStripArray->Clear();
+  //  fFeStripArray->Delete();
   
   // Declare some variables
   PndHypPoint *point = NULL;

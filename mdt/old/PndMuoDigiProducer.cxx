@@ -103,7 +103,7 @@ if(ptemp !=NULL) {
   // Reset output array
   if ( ! fDigiArray ) Fatal("Exec", "No DigiArray");
   
-  fDigiArray->Clear();
+  fDigiArray->Delete();
   
   // Declare some variables
   PndMuoPoint* point  = NULL;

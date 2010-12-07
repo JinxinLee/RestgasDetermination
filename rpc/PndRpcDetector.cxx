@@ -237,7 +237,7 @@ void PndRpcDetector::Print() const {
 
 // -----   Public method Reset   ----------------------------------------------
 void PndRpcDetector::Reset() {
-  fRpcPointCollection->Clear();  
+  fRpcPointCollection->Delete();  
   fPosIndex = 0;
 }
 // ----------------------------------------------------------------------------

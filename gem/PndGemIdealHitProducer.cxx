@@ -135,7 +135,7 @@ void PndGemIdealHitProducer::Exec(Option_t* opt) {
   PndGemSensor* sensor;
 
   Int_t nofHits = 0;
-  fHitArray->Clear();
+  fHitArray->Delete();
   Double_t dr, dp;
   Double_t radius, innerR;
   
@@ -207,7 +207,7 @@ void PndGemIdealHitProducer::Exec(Option_t* opt) {
 
 // -----   Private method Finish   -----------------------------------------
 void PndGemIdealHitProducer::Finish() {
-  if ( fHitArray ) fHitArray->Clear();
+  if ( fHitArray ) fHitArray->Delete();
 
   cout << "-------------------- " << fName.Data() << " : Summary ---------------" << endl;
   cout << " Events:        " << setw(10) << fTNofEvents << endl;

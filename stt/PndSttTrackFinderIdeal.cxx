@@ -517,8 +517,8 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray
 	  
 	  // pTrck = new((*trackArray)[trackTeller]) PndTrack(first, last, *pTrckCand, 0, -1., 0, 0, trackTeller, -1);
 	  pTrck = new((*trackArray)[trackTeller]) PndTrack(first, last, *pTrckCand);
-	  pTrck->SetRefIndex(trackTeller);
-	  // pTrck->SetLink("STTTrackCand", trackTeller);
+	  pTrck->SetRefIndex("STTTrackCand", trackTeller);
+//	  pTrck->SetLink("STTTrackCand", trackTeller);
 
 
 	  // *****************************************************************************************

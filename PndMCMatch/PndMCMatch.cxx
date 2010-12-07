@@ -241,6 +241,8 @@ FairMultiLinkedData PndMCMatch::FindLinksToStage(Int_t stage)
 void PndMCMatch::CreateArtificialStage(TString branchName, std::string fileName)
 {
 	FairRootManager* ioman = FairRootManager::Instance();
+	std::cout << "Create Artificial Stage for " << branchName;
+	std::cout << " with ID " << ioman->GetBranchId(branchName) << std::endl;
 	if (ioman->GetBranchId(branchName) > -1){
 		CreateArtificialStage(ioman->GetBranchId(branchName), fileName, branchName.Data());
 	}

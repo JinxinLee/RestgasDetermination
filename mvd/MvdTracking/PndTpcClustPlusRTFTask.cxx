@@ -115,8 +115,8 @@ InitStatus PndTpcClustPlusRTFTask::Init()
 // -----   Public method Exec   --------------------------------------------
 void PndTpcClustPlusRTFTask::Exec(Option_t* opt)
 {
-	fTPCTrackCandArray->Clear();
-	fFinalTrackCand->Clear();
+	fTPCTrackCandArray->Delete();
+	fFinalTrackCand->Delete();
 
 	std::vector< std::pair< std::vector< std::pair<int,double> > , std::pair<double,double>  > > Blocks;
 	TVector3 pos;
@@ -591,8 +591,8 @@ double PndTpcClustPlusRTFTask::GetMaxSZChi2(double radius, double dip, bool sign
 
 void PndTpcClustPlusRTFTask::FinishEvent()
 {
-	fTPCTrackCandArray->Clear();
-	fFinalTrackCand->Clear();
+	fTPCTrackCandArray->Delete();
+	fFinalTrackCand->Delete();
 }
 
 ClassImp(PndTpcClustPlusRTFTask);

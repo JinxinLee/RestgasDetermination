@@ -143,7 +143,7 @@ void PndPidMvaAssociatorTask::SetParContainers()
 //______________________________________________________
 void PndPidMvaAssociatorTask::Exec(Option_t* option)
 {
-  if (fPidChargedProb->GetEntriesFast() != 0) fPidChargedProb->Clear();
+  if (fPidChargedProb->GetEntriesFast() != 0) fPidChargedProb->Delete();
   std::cout << "<INFO> Call to Exec with " << option << std::endl;  
   if(fVerbose > 1){
     std::cout << "-I- Start PndPidAssociatorTask. "<<std::endl;

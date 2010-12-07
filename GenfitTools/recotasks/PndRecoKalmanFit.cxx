@@ -91,56 +91,56 @@ Bool_t PndRecoKalmanFit::Init()
   TClonesArray* stripar=(TClonesArray*) ioman->GetObject("MVDHitsStrip");
   if(stripar!=0)
     {
-      fTheRecoHitFactory->addProducer(kMVDHitsStrip,new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(stripar));
+      fTheRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("MVDHitsStrip"),new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(stripar));
       std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "MVDHitsStrip array  found" << std::endl;
     }
   
   TClonesArray* pixelar=(TClonesArray*) ioman->GetObject("MVDHitsPixel");
   if(pixelar!=0)
     { 
-      fTheRecoHitFactory->addProducer(kMVDHitsPixel,new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(pixelar));
+      fTheRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("MVDHitsPixel"),new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(pixelar));
       std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "MVDHitsPixel array  found" << std::endl;
     }
   
   TClonesArray* ar=(TClonesArray*) ioman->GetObject("PndTpcCluster");
   if(ar!=0)
     {
-      fTheRecoHitFactory->addProducer(kTpcCluster,new GFRecoHitProducer<PndTpcCluster,PndTpcSPHit>(ar));
+      fTheRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("PndTpcCluster"),new GFRecoHitProducer<PndTpcCluster,PndTpcSPHit>(ar));
       std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "PndTpcCluster array  found" << std::endl;
     }
   
   TClonesArray* sttr=(TClonesArray*) ioman->GetObject("SttHelixHit");
   if(sttr!=0)
     {
-      fTheRecoHitFactory->addProducer(kSttHelixHit,new PndSttRecoHitProducer<PndSttHelixHit,PndSttRecoHit>(sttr, tubeArray));
+      fTheRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("STTHelixHit"),new PndSttRecoHitProducer<PndSttHelixHit,PndSttRecoHit>(sttr, tubeArray));
       std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "SttHelixHit array  found" << std::endl;
     }
   
   TClonesArray* sthit=(TClonesArray*) ioman->GetObject("STTHit");
   if(sthit!=0)
     {
-      fTheRecoHitFactory->addProducer(kSttHit,new PndSttRecoHitProducer<PndSttHit,PndSttRecoHit>(sthit, tubeArray)); 
+      fTheRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("STTHit"),new PndSttRecoHitProducer<PndSttHit,PndSttRecoHit>(sthit, tubeArray));
       std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "SttHit array  found" << std::endl;
     }
   
   TClonesArray* gemar=(TClonesArray*) ioman->GetObject("GEMHit");
   if(gemar!=0)
     {
-      fTheRecoHitFactory->addProducer(kGemHit,new GFRecoHitProducer<PndGemHit,PndGemRecoHit>(gemar)); 
+      fTheRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("GemHit"),new GFRecoHitProducer<PndGemHit,PndGemRecoHit>(gemar));
       std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "GEMHit array  found" << std::endl;
     }
   
   TClonesArray* dchar=(TClonesArray*) ioman->GetObject("PndDchCylinderHit");
   if(dchar!=0)
     {
-      fTheRecoHitFactory->addProducer(kDchHit,new GFRecoHitProducer<PndDchCylinderHit,PndDchRecoHit2>(dchar));
+      fTheRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("DchHit"),new GFRecoHitProducer<PndDchCylinderHit,PndDchRecoHit2>(dchar));
       std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "PndDchCylinderHit array  found" << std::endl;
     }
   
   TClonesArray* mdtar=(TClonesArray*) ioman->GetObject("MdtHit");
   if(mdtar!=0)
     {
-      fTheRecoHitFactory->addProducer(kMdtHit,new GFRecoHitProducer<PndMdtHit,PndMdtRecoHit>(mdtar));
+      fTheRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("MdtHit"),new GFRecoHitProducer<PndMdtHit,PndMdtRecoHit>(mdtar));
       std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "MdtHit array  found" << std::endl;
     }
   

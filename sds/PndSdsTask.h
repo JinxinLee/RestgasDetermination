@@ -23,7 +23,9 @@ public:
 	virtual void SetInBranchId(){
 		FairRootManager *ioman = FairRootManager::Instance();
 		fInBranchId = ioman->GetBranchId(fInBranchName);
+		fOutBranchId = ioman->GetBranchId(fOutBranchName);
 		std::cout << "InBranchId: " << fInBranchId << " for Branch: " << fInBranchName.Data() << std::endl;
+		std::cout << "OutBranchId: " << fOutBranchId << " for Branch: " << fOutBranchName.Data() << std::endl;
 	}
 
 protected:
@@ -32,6 +34,7 @@ protected:
 	TString fFolderName;
 
 	Int_t fInBranchId;
+	Int_t fOutBranchId;
 
 	ClassDef(PndSdsTask,1);
 };
