@@ -318,7 +318,7 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
     PndTrackCand* trackCand = new((*trackCandArray)[nTracks]) PndTrackCand();
     for ( Int_t ihit = 0 ; ihit < gemTrackCand->GetNHits() ; ihit++ ) {
       tcHit = gemTrackCand->GetSortedHit(ihit);  
-      trackCand->AddHit(tcHit.GetHitId(),tcHit.GetDetId(),tcHit.GetRho());
+      trackCand->AddHit(tcHit.GetDetId(),tcHit.GetHitId(),tcHit.GetRho());
       trackCand->setMcTrackId(gemTrackCand->getMcTrackId());
       trackCand->setTrackSeed(gemTrackCand->getPosSeed(),
 			      gemTrackCand->getDirSeed(),
