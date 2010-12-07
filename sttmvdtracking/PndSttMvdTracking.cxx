@@ -1496,7 +1496,7 @@ if(istampa>2) cout<<"da PndSttMvdTracking ncand = "<<ncand<<",  Ox[ncand] = "<<O
 			nMvdStripHitsAssociatedToSttTrack[ncand];
 
 		resultFitSZagain[ncand] = FitSZspace(
-					j+1,	//  only the Mvd hits
+					j,	//  only the Mvd hits
 					S,
 					ZED,
 					DriftRadius,
@@ -5652,9 +5652,9 @@ if(istampa>=3 && IVOLTE == 2) {
      Short_t PndSttMvdTracking::FitSZspace(
 			UShort_t nSkewHitsinTrack,
 			Double_t *S,
-			Double_t *Z,
+			Double_t *Z, //
 			Double_t *DriftRadius,
-			Double_t *ErrorDriftRadius,
+			Double_t *ErrorDriftRadius, //
 			Double_t FInot,
 			UShort_t NMAX,
 			Double_t *emme
@@ -6019,6 +6019,7 @@ if(istampa>=3 && IVOLTE == 2) {
                                                 i,1./Delta[i],i,i,i,i,i,i);//---stampaggi
 	}
 */
+
 
         Coefficients[ii]=  1./Delta[i];
         Coefficients[ii+1]= -1.;
