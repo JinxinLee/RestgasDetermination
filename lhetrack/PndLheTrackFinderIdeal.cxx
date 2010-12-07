@@ -131,16 +131,15 @@ void PndLheTrackFinderIdeal::Exec(Option_t * option) {
     Int_t tpcHits = cand->GetTpcHits();
     Int_t mvdHits = cand->GetMvdHits();
     Int_t gemHits = cand->GetGemHits();
-    if ( (ghit->GetDetectorID() == kTpcPoint)     ||
-	 (ghit->GetDetectorID() == kTpcCluster)     )   tpcHits++;
-    if ( (ghit->GetDetectorID() == kSttPoint)     ||
-	 (ghit->GetDetectorID() == kSttHit)       ||
-         (ghit->GetDetectorID() == kSttHelixHit)  )   tpcHits++; // for the moment
-    if ( (ghit->GetDetectorID() == kMVDPoint)     || 
-	 (ghit->GetDetectorID() == kMVDHitsStrip) ||
-	 (ghit->GetDetectorID() == kMVDHitsPixel)   )   mvdHits++;
-    if ( (ghit->GetDetectorID() == kGemPoint)     ||
-	 (ghit->GetDetectorID() == kGemHit)         )   gemHits++;
+    if ( (ghit->GetDetectorID() == FairRootManager::Instance()->GetBranchId("PndTpcPoint"))     ||
+	 (ghit->GetDetectorID() == FairRootManager::Instance()->GetBranchId("PndTpcCluster"))     )   tpcHits++;
+    if ( (ghit->GetDetectorID() == FairRootManager::Instance()->GetBranchId("STTPoint"))     ||
+	 (ghit->GetDetectorID() == FairRootManager::Instance()->GetBranchId("STTHit"))         )   tpcHits++; // for the moment
+    if ( (ghit->GetDetectorID() == FairRootManager::Instance()->GetBranchId("MVDPoint"))     ||
+	 (ghit->GetDetectorID() == FairRootManager::Instance()->GetBranchId("MVDHitsStrip")) ||
+	 (ghit->GetDetectorID() == FairRootManager::Instance()->GetBranchId("MVDHitsPixel"))   )   mvdHits++;
+    if ( (ghit->GetDetectorID() == FairRootManager::Instance()->GetBranchId("GemPoint"))     ||
+	 (ghit->GetDetectorID() == FairRootManager::Instance()->GetBranchId("GemHit"))         )   gemHits++;
     
     cand->SetTpcHits(tpcHits);
     cand->SetMvdHits(mvdHits); 
