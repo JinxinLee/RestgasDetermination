@@ -41,7 +41,7 @@ public:
   PndTpcDigi(const double Amp,
 		  const double T,
 		  const unsigned int PadID,
-		  const McIdCollection& mcid);
+		  const McIdCollection& mcid, const unsigned int index = 0);
   ~PndTpcDigi(){;}
 
   // Operators
@@ -55,6 +55,7 @@ public:
   unsigned int padId() const {return fpadID;}
   const McIdCollection& mcId() const {return fmcid;}
   double tlength() const {return ftlength;}
+  unsigned int index() const {return findex;}
   // Modifiers -----------------------
   void amp(double val)  {famp=val;}
   void t(double val) { ft=val;}
@@ -63,6 +64,7 @@ public:
   unsigned int nMcIds() const {return fmcid.nIDs();}
   double maxMcWeight() const {return fmcid.MaxRelWeight();}
   void tlength(double dt){ftlength=dt;}
+  void index(unsigned int caindex){findex = caindex;}
 
   //Samples Vector-------------------
   
@@ -92,6 +94,7 @@ private:
   double famp;
   double ft;
   unsigned int fpadID;
+  unsigned int findex; //Position of Digi in TClonesArray (needed for FairLinks to work with PndTpcCluster)
 
   double ftlength; // optional: range in t from which digi was constructed //TODO: Initalize correctly?
 

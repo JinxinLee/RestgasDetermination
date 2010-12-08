@@ -88,6 +88,7 @@ public:
   }
   void addDigi(const PndTpcDigi& d){
     digis.push_back(d);
+    AddLink(FairLink("PndTpcDigi", d.index()));
   }
   const PndTpcDigi& getDigi(int i) const{
     assert (i<digis.size());

@@ -49,7 +49,7 @@ PndTpcCluster::PndTpcCluster(const PndTpcCluster& clust)
     fmcid(clust.fmcid)
 { 
   for(unsigned int i=0; i<(clust.digis).size(); ++i) 
-    digis.push_back(PndTpcDigi((clust.digis)[i]));
+    addDigi(PndTpcDigi((clust.digis)[i]));
 }
 
 PndTpcCluster::PndTpcCluster(const TVector3& Pos, double Amp, 
