@@ -242,14 +242,12 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 		fMass = gMC->TrackMass();
 		Double_t fEnergy = TMath::Sqrt(fP*fP + fMass*fMass); 
 		//Double_t fAngIn;
-		if ( fabs(Pz/fP) > 1. || fP == 0.){ fAngIn = -1.;
-		}else{ fAngIn = acos(Pz/fP);}
-		//Double_t fThetaC;
-		if (fabs(1./(1.47*(fP/fEnergy))) > 1. || fP == 0. || fEnergy == 0.){
-			fThetaC = -1.;
-		}else{
-			fThetaC = acos(1/(1.47*(fP/fEnergy)));
-		} 
+		if ( fP==0 ) {fAngIn = -1.;}
+		else if ( fabs(Pz/fP) > 1. ){ fAngIn = -1.;}
+		else { fAngIn = acos(Pz/fP);}
+		if ( fP == 0. || fEnergy == 0.){ fThetaC = -1.;}
+		else if (fabs(1./(1.47*(fP/fEnergy))) > 1. ){ fThetaC = -1.;}
+		else{ fThetaC = acos(1/(1.47*(fP/fEnergy)));} 
 		AddBarHit(fTrackID,
 			fCopyNo,
 			TVector3(fPos.X(),   fPos.Y(),   fPos.Z()),
