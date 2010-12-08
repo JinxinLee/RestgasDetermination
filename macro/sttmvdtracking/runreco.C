@@ -87,6 +87,20 @@
   fRun->AddTask(SttMvdTracking);
   // =========================================================================
 
+  // =========================================================================
+  //                             TRACK FITTING
+  //
+  // ---- Geane --------------------------------------------------------------
+  FairGeane *Geane = new FairGeane();
+  fRun->AddTask(Geane);
+  //
+  // ----- Kalman task -------------------------------------------------------
+  PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
+  recoKalman->SetTrackInBranchName("SttMvdTrack");
+  recoKalman->SetTrackOutBranchName("SttMvdKalmanTrack");
+  //recoKalman->SetNumIterations(3);
+  fRun->AddTask(recoKalman);
+  // =========================================================================
 
 
   rtdb->setOutput(parInput1);
