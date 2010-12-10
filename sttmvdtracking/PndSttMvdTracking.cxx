@@ -885,9 +885,9 @@ if(istampa>=2  && IVOLTE<20)
                                           // per estrarre tutte le info che voglio.
        ListHitTypeMvdTrackCand[i][j] = pndtrackcandhit.GetDetId(); // questo e' il n. Hit nativo che posso usare
                                           // per estrarre tutte le info che voglio.
-       if( ListHitTypeMvdTrackCand[i][j]==kMVDHitsPixel){
+       if( ListHitTypeMvdTrackCand[i][j]==FairRootManager::Instance()->GetBranchId("MVDHitsPixel")){
 		inMvdTrackCandPixel[ ListHitMvdTrackCand[i][j] ]= true;
-	} else if( ListHitTypeMvdTrackCand[i][j]==kMVDHitsStrip){
+	} else if( ListHitTypeMvdTrackCand[i][j]==FairRootManager::Instance()->GetBranchId("MVDHitsStrip")){
 		inMvdTrackCandStrip[ ListHitMvdTrackCand[i][j] ]= true;
 	}
 		
@@ -895,7 +895,7 @@ if(istampa>=2  && IVOLTE<20)
 
 if(istampa>=2  && IVOLTE<20){  cout<<"           hit n. "<<ListHitMvdTrackCand[i][j]
 	<<" e suo Detector Id "<<ListHitTypeMvdTrackCand[i][j]
-	<<" (Pixel DetId = "<<kMVDHitsPixel<<", Strip DetId = "<<kMVDHitsStrip<<")"<<endl;}
+	<<" (Pixel DetId = "<<FairRootManager::Instance()->GetBranchId("MVDHitsPixel")<<", Strip DetId = "<<FairRootManager::Instance()->GetBranchId("MVDHitsStrip")<<")"<<endl;}
 
 
      }    //   end of    for(j=0; j<nHitMvdTrackCand; j++)
@@ -2351,16 +2351,16 @@ i=0;
 		for(j=0; j< nTrackCandHit[ncand]; j++){
 			switch (ListTrackCandHitType[ncand][j]){
 			case 0:
-			   pTrckCand->AddHit(kMVDHitsPixel,(Int_t)ListTrackCandHit[ncand][j],j);
+			   pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId("MVDHitsPixel"),(Int_t)ListTrackCandHit[ncand][j],j);
 			break;
 			case 1:
-			   pTrckCand->AddHit(kMVDHitsStrip,(Int_t)ListTrackCandHit[ncand][j],j);
+			   pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId("MVDHitsStrip"),(Int_t)ListTrackCandHit[ncand][j],j);
 			break;
 			case 2:
-			   pTrckCand->AddHit(kSttHit,(Int_t)ListTrackCandHit[ncand][j],j);
+			   pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId("STTHit"),(Int_t)ListTrackCandHit[ncand][j],j);
 			break;
 			case 3:
-			   pTrckCand->AddHit(kSttHit,(Int_t)ListTrackCandHit[ncand][j],j);
+			   pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId("STTHit"),(Int_t)ListTrackCandHit[ncand][j],j);
 			break;
 			}
 		}
@@ -7054,7 +7054,7 @@ if(istampa>2 ){cout<<"da PndSttMvdTracking evento n. "<<IVOLTE<<" -------Stt Tra
 			nHighQuality[ngoodmix]=0;
 			for( jmvdhit=0; jmvdhit<nHitMvdTrackCand[imvdcand]; jmvdhit++){
 
-				if(ListHitTypeMvdTrackCand[imvdcand][jmvdhit]==kMVDHitsPixel){
+				if(ListHitTypeMvdTrackCand[imvdcand][jmvdhit]==FairRootManager::Instance()->GetBranchId("MVDHitsPixel")){
 					ncont++;
 					angle = atan2(
 					YMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]]-Oy[i],
@@ -7084,13 +7084,13 @@ if(istampa>2 ){cout<<"da PndSttMvdTracking : pixel hit "<<ListHitMvdTrackCand[im
 					{
 						List[ngoodmix][nn[ngoodmix]]=
 							ListHitMvdTrackCand[imvdcand][jmvdhit];
-						ListType[ngoodmix][nn[ngoodmix]]= kMVDHitsPixel;
+						ListType[ngoodmix][nn[ngoodmix]]= FairRootManager::Instance()->GetBranchId("MVDHitsPixel");
 						Dist += dist;
 						if( dist<highqualitycut) nHighQuality[ngoodmix]++;
 						nn[ngoodmix]++;
 					}
 
-				} else if (ListHitTypeMvdTrackCand[imvdcand][jmvdhit]==kMVDHitsStrip){
+				} else if (ListHitTypeMvdTrackCand[imvdcand][jmvdhit]==FairRootManager::Instance()->GetBranchId("MVDHitsStrip")){
 
 					ncont++;
 					angle = atan2(
@@ -7120,7 +7120,7 @@ if(istampa>2 ){cout<<"da PndSttMvdTracking : Strip hit "<<  ListHitMvdTrackCand[
 					{
 						List[ngoodmix][nn[ngoodmix]]=
 							ListHitMvdTrackCand[imvdcand][jmvdhit];
-						ListType[ngoodmix][nn[ngoodmix]]= kMVDHitsStrip;
+						ListType[ngoodmix][nn[ngoodmix]]= FairRootManager::Instance()->GetBranchId("MVDHitsStrip");
 						Dist += dist;
 						if( dist<highqualitycut) nHighQuality[ngoodmix]++;
 
@@ -7190,7 +7190,7 @@ if(istampa>2 ){cout<<"da PndSttMvdTracking : alone\t DS Pixel hit n. "<< ListMvd
 			{
 				List[ngoodmix][nn[ngoodmix]]=
 					ListMvdDSPixelHitNotTrackCand[jmvdhit];
-					ListType[ngoodmix][nn[ngoodmix]]= kMVDHitsPixel;
+					ListType[ngoodmix][nn[ngoodmix]]= FairRootManager::Instance()->GetBranchId("MVDHitsPixel");
 				DIST[ngoodmix] += dist;
 				if( dist<highqualitycut) nHighQuality[ngoodmix]++;
 						nn[ngoodmix]++;
@@ -7226,7 +7226,7 @@ if(istampa>2 ){cout<<"da PndSttMvdTracking : alone\t DS Strip hit n. "<< ListMvd
 			{
 				List[ngoodmix][nn[ngoodmix]]=
 				ListMvdDSStripHitNotTrackCand[jmvdhit];
-				ListType[ngoodmix][nn[ngoodmix]]= kMVDHitsStrip;
+				ListType[ngoodmix][nn[ngoodmix]]= FairRootManager::Instance()->GetBranchId("MVDHitsStrip");
 				DIST[ngoodmix] += dist;
 				if( dist<highqualitycut) nHighQuality[ngoodmix]++;
 				nn[ngoodmix]++;
@@ -7241,9 +7241,9 @@ if(istampa>2 ){cout<<"da PndSttMvdTracking : alone\t DS Strip hit n. "<< ListMvd
 if(istampa>=2 && IVOLTE<20 ){cout<<"\tevento n. "<<IVOLTE<<" questi Mvd ALONE DS hits passano  :\n"<<endl;
 
 	for(int icc=0; icc<nn[ngoodmix-1]; icc++){
-		if(ListType[ngoodmix-1][icc]==kMVDHitsPixel) {
+		if(ListType[ngoodmix-1][icc]==FairRootManager::Instance()->GetBranchId("MVDHitsPixel")) {
 			cout<<"\tDS Pixel hit n. "<<List[ngoodmix-1][icc]<<endl;
-		} else if(ListType[ngoodmix-1][icc]==kMVDHitsStrip){
+		} else if(ListType[ngoodmix-1][icc]==FairRootManager::Instance()->GetBranchId("MVDHitsStrip")){
 			cout<<"\tDS Strip hit n. "<<List[ngoodmix-1][icc]<<endl;
 		} else{
 			cout<<"\tstranissimo , hit tipo "<<ListType[ngoodmix-1][icc]<<endl;
@@ -7288,7 +7288,7 @@ if(istampa>2 ){cout<<"da PndSttMvdTracking : alone\t US Pixel hit n. "<< ListMvd
 			{
 				List[ngoodmix][nn[ngoodmix]]=
 					ListMvdUSPixelHitNotTrackCand[jmvdhit];
-					ListType[ngoodmix][nn[ngoodmix]]= kMVDHitsPixel;
+					ListType[ngoodmix][nn[ngoodmix]]= FairRootManager::Instance()->GetBranchId("MVDHitsPixel");
 				DIST[ngoodmix] += dist;
 				if( dist<highqualitycut) nHighQuality[ngoodmix]++;
 						nn[ngoodmix]++;
@@ -7324,7 +7324,7 @@ if(istampa>2 ){cout<<"da PndSttMvdTracking : alone\t US Strip hit n. "<< ListMvd
 			{
 				List[ngoodmix][nn[ngoodmix]]=
 				ListMvdUSStripHitNotTrackCand[jmvdhit];
-				ListType[ngoodmix][nn[ngoodmix]]= kMVDHitsStrip;
+				ListType[ngoodmix][nn[ngoodmix]]= FairRootManager::Instance()->GetBranchId("MVDHitsStrip");
 				DIST[ngoodmix] += dist;
 				if( dist<highqualitycut) nHighQuality[ngoodmix]++;
 				nn[ngoodmix]++;
@@ -7339,9 +7339,9 @@ if(istampa>2 ){cout<<"da PndSttMvdTracking : alone\t US Strip hit n. "<< ListMvd
 if(istampa>=2 && IVOLTE<20 ){cout<<"\tevento n. "<<IVOLTE<<" questi Mvd ALONE US hits passano  :\n"<<endl;
 
 	for(int icc=0; icc<nn[ngoodmix-1]; icc++){
-		if(ListType[ngoodmix-1][icc]==kMVDHitsPixel) {
+		if(ListType[ngoodmix-1][icc]==FairRootManager::Instance()->GetBranchId("MVDHitsPixel")) {
 			cout<<"\tUS Pixel hit n. "<<List[ngoodmix-1][icc]<<endl;
-		} else if(ListType[ngoodmix-1][icc]==kMVDHitsStrip){
+		} else if(ListType[ngoodmix-1][icc]==FairRootManager::Instance()->GetBranchId("MVDHitsStrip")){
 			cout<<"\tUS Strip hit n. "<<List[ngoodmix-1][icc]<<endl;
 		} else{
 			cout<<"\tstranissimo , hit tipo "<<ListType[ngoodmix-1][icc]<<endl;
@@ -7403,7 +7403,7 @@ if(istampa>2 ){cout<<"da PndSttMvdTracking :\t goodmix n. "<<j1<<", total distan
 	if( ngoodmix>0){
 		chosenmix=chosenmix2;
 		for(j=0;j<nn[chosenmix];j++){
-			if( ListType[chosenmix][j]==kMVDHitsPixel ){
+			if( ListType[chosenmix][j]==FairRootManager::Instance()->GetBranchId("MVDHitsPixel") ){
 				ListMvdPixelHitsAssociatedToSttTrack[i]
 				   [nMvdPixelHitsAssociatedToSttTrack[i]]=List[chosenmix][j];
 				nMvdPixelHitsAssociatedToSttTrack[i]++;
