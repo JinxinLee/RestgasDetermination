@@ -34,7 +34,6 @@ public:
 
   virtual void Exec(Option_t* opt);
   
-  void AddHitBranch(unsigned int detId, const TString& m);
  void SetParContainers();
 private:
 
