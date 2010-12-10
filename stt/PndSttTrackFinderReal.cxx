@@ -1902,7 +1902,9 @@ if( istampa>=2){
          pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
          pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[i]   );
          for(j=0; j< nTotalHits[i]; j++){
-              pTrckCand->AddHit(kSttHit, (Int_t) BigList[i][j] , j);
+              pTrckCand->AddHit(
+		FairRootManager::Instance()->GetBranchId("STTHit"),
+		(Int_t) BigList[i][j] , j);
          }
 
       }   else  { //   continuation of    if(   GoodSkewFit[i]  )   //  case in which there is no
@@ -1913,8 +1915,8 @@ if( istampa>=2){
          new((*trackCandArray)[ipinco])  PndTrackCand;
          pTrckCand = (PndTrackCand*) trackCandArray->At(ipinco);
 	 TVector3 dirSeed(Pxini,
-			   Pyini,
-			   Pzini); // momentum direction in starting point
+			Pyini,
+			Pzini); // momentum direction in starting point
          qop = Charge[i]/Ptras;   //  as if Pz=0
 
 
@@ -1923,7 +1925,9 @@ if( istampa>=2){
          pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[i]   );
          for(j=0; j< nTotalHits[i]; j++){
 
-               pTrckCand->AddHit(kSttHit, (Int_t) BigList[i][j] , j);
+               pTrckCand->AddHit(
+		FairRootManager::Instance()->GetBranchId("STTHit"),
+		(Int_t) BigList[i][j] , j);
          }
 
 
