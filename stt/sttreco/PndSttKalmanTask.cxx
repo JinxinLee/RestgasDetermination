@@ -67,18 +67,13 @@ PndSttKalmanTask::Init()
   // Build hit factory -----------------------------
   _theRecoHitFactory = new GFRecoHitFactory();
   
-  std::map<unsigned int,TString>::iterator iter=_hitBranchMap.begin();
-
-  while(iter!=_hitBranchMap.end()){
-    TClonesArray* ar=(TClonesArray*) ioman->GetObject(iter->second);
+  TClonesArray* ar=(TClonesArray*) ioman->GetObject("STTHit");
     if(ar==0){
-      Error("PndSttKalmanTask::Init","point-array %s not found!",iter->second.Data());
+      Error("PndSttKalmanTask::Init","STTHit array not found!");
     }
     else{ 
-      _theRecoHitFactory->addProducer(iter->first,new PndSttRecoHitProducer<PndSttHit,PndSttRecoHit>(ar, tubeAr));
+      _theRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("STTHit"), new PndSttRecoHitProducer<PndSttHit,PndSttRecoHit>(ar, tubeAr));
     }
-    ++iter;
-  }//end loops over hit types
   
   GFException::quiet(true);
 
@@ -113,13 +108,5 @@ PndSttKalmanTask::Exec(Option_t* opt)
     }
   return;
 }
-
-void 
-PndSttKalmanTask::AddHitBranch(unsigned int detId, const TString& m){
-  
-  std::cout << "hit branch " << m << " " << detId  << std::endl;
-  _hitBranchMap[detId]=m;
-}
-
 
 ClassImp(PndSttKalmanTask)

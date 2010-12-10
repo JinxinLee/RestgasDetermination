@@ -78,23 +78,18 @@ PndSttKalmanTask2::Init()
   // Build hit factory -----------------------------
   _theRecoHitFactory = new GFRecoHitFactory();
   
-  std::map<unsigned int,TString>::iterator iter=_hitBranchMap.begin();
-     
-  while(iter!=_hitBranchMap.end()){
-    TClonesArray* ar=(TClonesArray*) ioman->GetObject(iter->second);
-    if(ar==0){
-      Error("PndSttKalmanTask2::Init","point-array %s not found!",iter->second.Data());
-    }
-    else{ 
-      // use helix hit
-      _theRecoHitFactory->addProducer(iter->first,new PndSttRecoHitProducer<PndSttHelixHit,PndSttRecoHit>(ar, tubeAr));
-    }
-    ++iter;
-  }//end loops over hit types
-
+  TClonesArray* ar=(TClonesArray*) ioman->GetObject("SttHelixHit");
+  if(ar==0){
+    Error("PndSttKalmanTask2::Init","SttHeliHit array not found!");
+  }
+  else{ 
+    // use helix hit
+    _theRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("SttHelixHit"),new PndSttRecoHitProducer<PndSttHelixHit,PndSttRecoHit>(ar, tubeAr));
+  }
+  
   GFException::quiet(true);
   
- return kSUCCESS;
+  return kSUCCESS;
 }
 
 // CHECK added 
@@ -132,13 +127,6 @@ PndSttKalmanTask2::Exec(Option_t* opt)
       }
     }
   return;
-}
-
-void 
-PndSttKalmanTask2::AddHitBranch(unsigned int detId, const TString& m){
-  
-  std::cout << "hit branch " << m << " " << detId  << std::endl;
-  _hitBranchMap[detId]=m;
 }
 
 

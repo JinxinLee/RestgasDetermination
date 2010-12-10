@@ -212,7 +212,7 @@ void PndSttPatternRecoTask2:: Exec(Option_t* opt)
        	  sigz = 0.15;
        	  sigradius = 0.0150;
   
-	  int detId = currenthit->GetDetectorID() ;
+	  int detId = FairRootManager::Instance()->GetBranchId("SttHelixHit");
 
 	  cand->addHit(detId, iHit);
       	}

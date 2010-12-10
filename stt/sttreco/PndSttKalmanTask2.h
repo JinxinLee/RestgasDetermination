@@ -5,7 +5,6 @@
 #include "FairTask.h"
 #include "PndGeoSttPar.h"
 // Collaborating Class Headers -------
-#include <map>
 #include "TString.h"
 
 // Collaborating Class Declarations --
@@ -41,7 +40,7 @@ private:
 
   // Private Data Members ------------
   TString _trackBranchName;
-  std::map<unsigned int,TString> _hitBranchMap;
+
   TClonesArray* fTrackArray;
   //  TClonesArray *fSttHelixHitArray;
   GFRecoHitFactory* _theRecoHitFactory;
