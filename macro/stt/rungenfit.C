@@ -63,12 +63,10 @@
   if(whichhit == 1){
     // use hit
     PndSttKalmanTask* RecoHitPro = new PndSttKalmanTask();
-    RecoHitPro->AddHitBranch(9, "STTHit");
    }
   else if(whichhit == 2){
     // use helixhit
     PndSttKalmanTask2*RecoHitPro = new PndSttKalmanTask2();
-    RecoHitPro->AddHitBranch(9,"SttHelixHit");
    }
   
   fRun->AddTask(RecoHitPro); 
