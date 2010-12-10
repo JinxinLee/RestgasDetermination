@@ -339,15 +339,15 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray
 	// 	cout << "LOW MOMENTUM --> AddHit by HitID " << endl;
 	if(pTrckCand->GetNHits() > 25) continue;
 	// CHECK: test iHit and how to organize sorting (here...)
-	//	pTrckCand->AddHit(pMhit->GetDetectorID(), iHit, iHit); 
-	pTrckCand->AddHit(kSttHit, iHit, iHit); 
+	//	pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId("STTHit"), iHit, iHit); 
+	pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId("STTHit"), iHit, iHit); 
 
       }
       else {
 	// 	cout << "HIGH MOMENTUM --> AddHit by R " << endl;
 	// CHECK: test iHit and how to organize sorting (... and here)
-	//	pTrckCand->AddHit(pMhit->GetDetectorID(), iHit, wireRad); 
-	pTrckCand->AddHit(kSttHit, iHit, wireRad); 
+	//	pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId("STTHit"), iHit, wireRad); 
+	pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId("STTHit"), iHit, wireRad); 
 
       }
 
