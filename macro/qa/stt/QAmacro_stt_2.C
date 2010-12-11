@@ -73,7 +73,6 @@
   PndSttPatternRecoTask2* STTPR = new PndSttPatternRecoTask2();
   fRun->AddTask(STTPR);
   PndSttKalmanTask2 *Kalman = new PndSttKalmanTask2();
-  Kalman->AddHitBranch(9,"SttHelixHit"); // CHECK to be changed to kSTT
   fRun->AddTask(Kalman); 
 
   // -----   Initialize and run   --------------------------------------------
