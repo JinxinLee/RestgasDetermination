@@ -39,6 +39,7 @@ rootlogon()
   if(isLibrary("libMvd"))gSystem->Load("libMvd");
   if(isLibrary("libMvdReco"))gSystem->Load("libMvdReco");
   if(isLibrary("libMvdTrk"))gSystem->Load("libMvdTrk");
+  if(isLibrary("libSttMvdTracking"))gSystem->Load("libSttMvdTracking");
   if(isLibrary("libGem"))gSystem->Load("libGem");
   if(isLibrary("libTof"))gSystem->Load("libTof");
   if(isLibrary("libDrcProp"))gSystem->Load("libDrcProp");
