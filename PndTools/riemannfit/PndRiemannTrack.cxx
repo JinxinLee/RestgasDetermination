@@ -296,6 +296,7 @@ PndRiemannTrack::refit(bool withErrorCalc)
 TVectorD
 PndRiemannTrack::orig() const {
   TVectorD o(2);
+  if(fn[2]==0) return o; // RK is that good to return here?
   double den=TMath::Power((2 * fn[2]),-1);  // modified for paraboloid
   o[0]=-fn[0]*den;
   o[1]=-fn[1]*den;
