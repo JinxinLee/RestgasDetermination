@@ -43,8 +43,8 @@
   // OUTPUT: PndTrackCand                    -> STTTrackCand
   //         PndSttHelixHit (if switched on) -> STTPRHelixHit
   // trackfinding ....
-  PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
-  //  PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(iVerbose);
+  //  PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
+  PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(0);
   PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
   sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
   //  sttFindTracks->SetHelixHitProduction(); // if you want helix hit to be produced by PR uncomment this (STTPRHelixHit)
