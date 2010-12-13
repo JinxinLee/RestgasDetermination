@@ -3,7 +3,7 @@
 	  Int_t iVerbose = 0;
 	TString MCFile = "Mvd_Test.root";
 	  TString parFile = "Mvd_Params.root";
-	  Int_t nEvents = 100;
+	  Int_t nEvents = 1000000;
 	  // ----  Load libraries   -------------------------------------------------
 	  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 	  // ------------------------------------------------------------------------
@@ -13,7 +13,7 @@
 	  TString RecoFile = creator.GetRecoFileName(false).c_str();
 	  TString FitFile = creator.GetTrackFindingFileName(false).c_str();
 
-	  TString outFile = "Mvd_Links.root";
+	  TString outFile = "Mvd_Test_links.root";
 
 	  std::cout << "MCFile  : " << MCFile.Data()<< std::endl;
 	  std::cout << "DigiFile: " << DigiFile.Data()<< std::endl;
@@ -71,8 +71,8 @@
   PndMCMatchCreatorTask* mcMatch = new PndMCMatchCreatorTask();
   fRun->AddTask(mcMatch);
 
-  PndMCMatchSelectorTask* mcSelect = new PndMCMatchSelectorTask("MVDRiemannTrackCand","MCTrack");
-  fRun->AddTask(mcSelect);
+ PndMCTestPatterRecoQuality* mcTest = new PndMCTestPatternRecoQuality();
+ fRun->AddTask(mcTest);
 
   fRun->Init();
   fRun->Run(0,nEvents);
