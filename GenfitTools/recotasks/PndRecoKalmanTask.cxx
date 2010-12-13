@@ -119,7 +119,7 @@ void PndRecoKalmanTask::Exec(Option_t* opt)
     fitTrack = fFitter->Fit(prefitTrack, PDGCode);
     
     PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
-                                                    fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr, kLheTrack);
+                                                    fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr, FairRootManager::Instance()->GetBranchId(fTrackInBranchName));
   }
   
   if (fVerbose>0) std::cout<<"Fitting done"<<std::endl;
