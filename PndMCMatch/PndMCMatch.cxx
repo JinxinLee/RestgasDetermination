@@ -260,7 +260,8 @@ void PndMCMatch::CreateArtificialStage(Int_t stage, std::string fileName, std::s
 		FairMultiLinkedData artData;
 		artData.SetLink(FairLink((Int_t)-1, -1));
 		for (int i = 0; i < stageLinks.GetNLinks(); i++){
-			fList[stage]->SetEntry(&artData, stageLinks.GetLink(i).GetIndex());
+			if (stageLinks.GetLink(i).GetIndex() > -1)
+				fList[stage]->SetEntry(&artData, stageLinks.GetLink(i).GetIndex());
 		}
 		fList[stage]->SetLoaded(kTRUE);
 

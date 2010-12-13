@@ -54,6 +54,11 @@ class PndFileNameCreator : public TObject
     std::string GetCustomFileName(std::string ext, bool cut = false);
     std::string GetCustomFileName(std::string inputFileName, std::string ext, bool cut = false);
     
+    std::string GetCustomFileNameInitial(std::string ext);
+
+    std::string GetPath();
+    std::string GetFileName();
+
   private:
     std::string fFileName;
     std::string fExtPar;
@@ -68,8 +73,9 @@ class PndFileNameCreator : public TObject
     std::string fExtVertex;
     
     std::string TruncateFileName(bool cut);
+    std::string TruncateInitial();
     Int_t fVerbose;
-    ClassDef(PndFileNameCreator, 1);
+    ClassDef(PndFileNameCreator, 2);
   };
 
 #endif

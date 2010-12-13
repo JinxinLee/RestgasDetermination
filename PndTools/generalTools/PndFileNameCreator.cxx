@@ -161,10 +161,47 @@ std::string PndFileNameCreator::GetCustomFileName(std::string ext, bool cut)
   if(fVerbose>0) std::cout<<" -I- PndFileNameCreator file: "<<result.c_str()<<std::endl;
 	return result;
 }
+
 std::string PndFileNameCreator::GetCustomFileName(std::string inputFileName, std::string ext, bool cut)
 {
 	fFileName = inputFileName;
 	return GetCustomFileName(ext, cut);
+}
+
+std::string PndFileNameCreator::GetCustomFileNameInitial(std::string ext)
+{
+	std::string result = ext;
+	result += TruncateInitial();
+
+	if (fVerbose>0) std::cout << " -I- PndFileNameCreator::GetCustomFileNameInitial: " << result.c_str() << std::endl;
+	return result;
+}
+
+std::string PndFileNameCreator::GetPath()
+{
+	std::stringstream result;
+	std::vector<std::string> resString;
+
+	PndStringSeparator pathAna(fFileName,"/");
+	resString = pathAna.GetStringVector();
+	if(fVerbose>1) pathAna.Print();
+	if (fFileName.find("/") == 0)
+		result << "./";
+	for (UInt_t i = 0; i < resString.size()-1; i++){
+		result << resString[i] << "/";
+	}
+	return result.str();
+}
+
+std::string PndFileNameCreator::GetFileName()
+{
+	std::stringstream result;
+	std::vector<std::string> resString;
+
+	PndStringSeparator pathAna(fFileName,"/");
+	resString = pathAna.GetStringVector();
+
+	return resString[resString.size()-1];
 }
 
 std::string PndFileNameCreator::TruncateFileName(bool cut)
@@ -174,16 +211,9 @@ std::string PndFileNameCreator::TruncateFileName(bool cut)
 	std::string path, name;
 	Int_t cutLast = 0;
   
-	PndStringSeparator pathAna(fFileName,"/");
-	resString = pathAna.GetStringVector();
-	if(fVerbose>1) pathAna.Print();
-	if (fFileName.find("/") == 0)
-		result << "/";
-	for (UInt_t i = 0; i < resString.size()-1; i++){
-		result << resString[i] << "/";
-	}
-	path = result.str();
-	name = resString[resString.size()-1];
+
+	path = GetPath();
+	name = GetFileName();
 	//if(fVerbose>1) std::cout << "Path: " << path << " FileName: " << name << std::endl;
 	result.str("");
   
@@ -209,5 +239,23 @@ std::string PndFileNameCreator::TruncateFileName(bool cut)
 	return result.str();
 }
 
+std::string PndFileNameCreator::TruncateInitial()
+{
+	std::vector<std::string> resString;
+	std::stringstream result;
+	std::string path, name;
+
+	path = GetPath();
+	name = GetFileName();
+
+	PndStringSeparator stringAna(name, "._");
+	resString = stringAna.GetStringVector();
+
+	for (UInt_t i = 1; i < resString.size() - 1; i++){
+		result << "_" << resString[i];
+	}
+	result << ".root";
+	return result.str();
+}
 ClassImp(PndFileNameCreator);
 
