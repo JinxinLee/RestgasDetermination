@@ -4,6 +4,7 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
+#pragma link C++ class PndMCTestPatternRecoQuality+;
 #pragma link C++ class PndMCTestMomentumCompare+;
 #pragma link C++ class PndMCTestHitCompare+;
 #pragma link C++ class PndMCIdealTrackFinder+;
