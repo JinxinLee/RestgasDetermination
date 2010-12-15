@@ -85,8 +85,10 @@ void selectEvents(int pdg,
   TTree* RecoTr = (TTree *) recoF.Get("cbmsim");
   
   // Track list
-  TClonesArray* recTrakArr = new TClonesArray("PndTrack");  
-  RecoTr->SetBranchAddress("LheTrack", &recTrakArr);
+  TClonesArray* recTrakArr = new TClonesArray("PndTrack");
+  RecoTr->SetBranchAddress("SttMvdGenTrack", &recTrakArr);
+  //TClonesArray* recTrakArr = new TClonesArray("PndTrack");
+  //RecoTr->SetBranchAddress("LheTrack", &recTrakArr);
   //RecoTr->SetBranchAddress("LheGenTrackPion", &recTrakArr);
   
   // Loop through the simulation data.

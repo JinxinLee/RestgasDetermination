@@ -64,29 +64,30 @@ void digi_sttcombi(char inFile  [] = "points_sttcombi.root", //Input file (MC ev
  
   // trackfinding ....
   //PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(iVerbose);
-  PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
-
-  PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask",
-							 sttTrackFinder, iVerbose);
-  sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
-  sttFindTracks->SetHelixHitProduction();
-  fRun->AddTask(sttFindTracks);
-
-  // trackmatching ....
-  PndSttMatchTracks* sttTrackMatcher = new PndSttMatchTracks("Match tracks", "STT", iVerbose);
-  sttTrackMatcher->AddHitCollectionName("STTHit", "STTPoint");
-  fRun->AddTask(sttTrackMatcher);
+  //PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
+  /*
+    PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask",
+    sttTrackFinder, iVerbose);
+    sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
+    sttFindTracks->SetHelixHitProduction();
+    fRun->AddTask(sttFindTracks);
+    
+    // trackmatching ....
+    PndSttMatchTracks* sttTrackMatcher = new PndSttMatchTracks("Match tracks", "STT", iVerbose);
+    sttTrackMatcher->AddHitCollectionName("STTHit", "STTPoint");
+    fRun->AddTask(sttTrackMatcher);
+    
+    // trackfitting ....
+    PndSttTrackFitter* sttTrackFitter = new PndSttHelixTrackFitter(0);
+    PndSttFitTracks* sttFitTracks = new PndSttFitTracks("STT Track Fitter", "FairTask", sttTrackFitter);
+    sttFitTracks->AddHitCollectionName("STTHit");
+    fRun->AddTask(sttFitTracks);
+    
+    // helix hit production ....
+    PndSttHelixHitProducer* sttHHProducer = new PndSttHelixHitProducer();
+    fRun->AddTask(sttHHProducer);
+  */
   
-  // trackfitting ....
-  PndSttTrackFitter* sttTrackFitter = new PndSttHelixTrackFitter(0);
-  PndSttFitTracks* sttFitTracks = new PndSttFitTracks("STT Track Fitter", "FairTask", sttTrackFitter);
-  sttFitTracks->AddHitCollectionName("STTHit");
-  fRun->AddTask(sttFitTracks);
-  
-  // helix hit production ....
-  PndSttHelixHitProducer* sttHHProducer = new PndSttHelixHitProducer();
-  fRun->AddTask(sttHHProducer);
-
   // -----   MDV digi producers   --------------------------------- 
   PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
   mvddigi->SetVerbose(iVerbose);
@@ -129,10 +130,12 @@ void digi_sttcombi(char inFile  [] = "points_sttcombi.root", //Input file (MC ev
   fRun->AddTask(emcHdrFiller); // ECM header
   
   // -----   TOF hit producers   ---------------------------------
-  PndTofHitProducerIdeal* tofhit = new PndTofHitProducerIdeal();
-  tofhit->SetVerbose(iVerbose);
-  fRun->AddTask(tofhit);
- 
+  /*
+    PndTofHitProducerIdeal* tofhit = new PndTofHitProducerIdeal();
+    tofhit->SetVerbose(iVerbose);
+    fRun->AddTask(tofhit);
+  */
+
   // -----   MDT hit producers   ---------------------------------
   PndMdtHitProducerIdeal* mdtHitProd = new PndMdtHitProducerIdeal();
   mdtHitProd->SetPositionSmearing(.3); // position smearing [cm]

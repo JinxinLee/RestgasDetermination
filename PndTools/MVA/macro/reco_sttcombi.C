@@ -39,6 +39,7 @@ void reco_sttcombi(char inDigiFile [] = "digi_sttcombi.root",   //Input file Dig
   fRun->SetInputFile(inDigiFile);
   fRun->AddFriend(inSimFile);
   fRun->SetOutputFile(outFile);
+
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
   // ------------------------------------------------------------------------
@@ -58,28 +59,51 @@ void reco_sttcombi(char inDigiFile [] = "digi_sttcombi.root",   //Input file Dig
   // ------------------------------------------------------------------------
   // -----   LHETRACK  ---------------------------------
   
-  PndLheHitsMaker* trackMS = new PndLheHitsMaker("Tracking routine");
-  // 0 OFF, 1 SttPoint, 2 SttHit, (3) SttHelixHit, 4 SttHelixHit MC,
-  // 5 SttPRHelixHit // STTPoint smearing [cm], if negative no smearing
-  trackMS->SetSttMode(5);
-  trackMS->SetMvdMode(2);// 0 OFF, 1 MVDPoint, 2 MVDHit // MVDPoint smearing [cm], if negative no smearing
-  trackMS->SetGemMode(2);// 0 OFF, 1 GEMPoint, 2 GEMHit // GEMPoint smearing [cm], if negative no smearing
-  fRun->AddTask(trackMS);
+  PndMvdRiemannTrackFinderTask* mvdTrackFinder = new PndMvdRiemannTrackFinderTask();
+  mvdTrackFinder->SetVerbose(iVerbose);
+  mvdTrackFinder->SetMaxDist(0.05);
+  fRun->AddTask(mvdTrackFinder);
+
+  /*
+    PndLheHitsMaker* trackMS = new PndLheHitsMaker("Tracking routine");
+    // 0 OFF, 1 SttPoint, 2 SttHit, (3) SttHelixHit, 4 SttHelixHit MC,
+    // 5 SttPRHelixHit // STTPoint smearing [cm], if negative no smearing
+    trackMS->SetSttMode(5);
+    trackMS->SetMvdMode(2);// 0 OFF, 1 MVDPoint, 2 MVDHit // MVDPoint smearing [cm], if negative no smearing
+    trackMS->SetGemMode(2);// 0 OFF, 1 GEMPoint, 2 GEMHit // GEMPoint smearing [cm], if negative no smearing
+    fRun->AddTask(trackMS);
+    
+    PndLheTrackFinder* trackFinder    = new PndLheTrackFinder();
+    //PndLheTrackFinderIdeal* trackFinder    = new PndLheTrackFinderIdeal();
+    fRun->AddTask(trackFinder);
+    
+    PndLheTrackFitter* trackFitter    = new PndLheTrackFitter("TrackFitting");
+    fRun->AddTask(trackFitter);
+  */
   
-  PndLheTrackFinder* trackFinder    = new PndLheTrackFinder();
-  //PndLheTrackFinderIdeal* trackFinder    = new PndLheTrackFinderIdeal();
-  fRun->AddTask(trackFinder);
+  //  PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
+  PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(0);
+  PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
+  sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
+  fRun->AddTask(sttFindTracks);
   
-  PndLheTrackFitter* trackFitter    = new PndLheTrackFitter("TrackFitting");
-  fRun->AddTask(trackFitter);
-  
+  PndSttMvdTracking *  SttMvdTracking = new PndSttMvdTracking(0);
+  fRun->AddTask(SttMvdTracking);
   
   PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
-  recoKalman->SetTrackInBranchName("LheTrack");
-  recoKalman->SetTrackOutBranchName("LheGenTrack");
-  // recoKalman->SetNumIterations(3);
+  recoKalman->SetTrackInBranchName("SttMvdTrack");
+  recoKalman->SetTrackOutBranchName("SttMvdGenTrack");
+  //recoKalman->SetNumIterations(3);
+  //recoKalman->SetParticleHypo("electron");
   fRun->AddTask(recoKalman);
   
+  /*
+    PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
+    recoKalman->SetTrackInBranchName("LheTrack");
+    recoKalman->SetTrackOutBranchName("LheGenTrack");
+    // recoKalman->SetNumIterations(3);
+    fRun->AddTask(recoKalman);
+  */
   //////////////////
   /*
     PndRecoMultiKalmanTask* recoKalman = new PndRecoMultiKalmanTask();

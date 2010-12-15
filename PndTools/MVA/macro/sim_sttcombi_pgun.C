@@ -2,7 +2,7 @@
 //pi0 = 111, gamma = 22, e- = 11, e+ = -11, proton = 2212, protonMin = -2212
 
 void sim_sttcombi_pgun( int seed = 87619, int nEvents = 10, int pid  = 11,
-			float p1 = 1.0, float p2 = 2.0,
+			float p1 = 1.0, float p2 = 1.5,
 			Char_t paramFile [] = "params_sttcombi.root", 
 			Char_t outFile   [] = "points_sttcombi.root"
 			)
@@ -70,7 +70,7 @@ void sim_sttcombi_pgun( int seed = 87619, int nEvents = 10, int pid  = 11,
   Dipole->SetGeometryFileName("dipole.geo");
   fRun->AddModule(Dipole);
   
-  FairModule* Pipe= new PndPipe("PIPE");
+  //FairModule* Pipe= new PndPipe("PIPE");
   //fRun->AddModule(Pipe);
   
   FairDetector* Stt= new PndStt("STT", kTRUE);
@@ -82,14 +82,16 @@ void sim_sttcombi_pgun( int seed = 87619, int nEvents = 10, int pid  = 11,
   fRun->AddModule(Mvd);
 
   PndEmc* Emc = new PndEmc("EMC",kTRUE);
-  Emc->SetGeometryVersion(15); 
+  Emc->SetGeometryVersion(15);
   Emc->SetStorageOfData(kTRUE);
   fRun->AddModule(Emc);
-  
-  FairDetector* Tof = new PndTof("TOF",kTRUE);
-  Tof->SetGeometryFileName("tofbarrel.geo");
-  fRun->AddModule(Tof);
-  
+
+  /*
+    FairDetector* Tof = new PndTof("TOF",kTRUE);
+    Tof->SetGeometryFileName("tofbarrel.geo");
+    fRun->AddModule(Tof);
+  */
+
   PndMdt* Muo = new PndMdt("MDT",kTRUE);
   Muo->SetBarrel("torino");
   Muo->SetEndcap("torino");

@@ -77,16 +77,22 @@ void PndLVQTrain::Train()
 	    << " learning steps.\n";
 
   // We need to fix this___ FIXME
-  if( a < 0.00 )
+  if( a <= 0.00 )
   {//Underflow
-    std::cerr << "\tToo small value for a." << std::endl;
-    a = std::numeric_limits<double>::min();
+    std::cerr << "<ERROR> Too small value for parameter a .\n"
+	      << "\tWe will proceed using std::numeric_limits<long double>::min()."
+	      << "\n\n\n\n"
+	      << std::endl;
+    a = std::numeric_limits<long double>::min();
   }
   
-  if( tFinal <= static_cast<unsigned>(0) )
+  if( (tFinal + static_cast<unsigned int>(1)) <= tFinal )
   {// OverFlow
-    std::cerr << "\t tFinal Overflow." << std::endl;
-    tFinal = std::numeric_limits<unsigned>::max();
+    std::cerr << "<ERROR> tFinal Overflow.\n"
+	      << "\tWe will proceed using std::numeric_limits<unsigned int>::max()."
+	      << "\n\n\n\n"
+	      << std::endl;
+    tFinal = std::numeric_limits<unsigned int>::max();
   }
   // We need to fix this___ FIXME
 
@@ -215,16 +221,22 @@ void PndLVQTrain::Train21()
   m_ProgStep = (tFinal / 100);
 
   // We need to fix this___ FIXME
-  if( a < 0.00 )
+  if( a <= 0.00 )
   {//Underflow
-    std::cerr << "Too small value for a." << std::endl;
-    a = std::numeric_limits<double>::min();
+    std::cerr << "<ERROR> Too small value for parameter a .\n"
+	      << "\tWe will proceed using std::numeric_limits<long double>::min()."
+	      << "\n\n\n\n"
+	      << std::endl;
+    a = std::numeric_limits<long double>::min();
   }
   
-  if(tFinal <= static_cast<unsigned>(0))
+  if( (tFinal + static_cast<unsigned int>(1)) <= tFinal )
   {// OverFlow
-    std::cerr << "tFinal Overflow." << std::endl;
-    tFinal = std::numeric_limits<unsigned>::max();
+    std::cerr << "<ERROR> tFinal Overflow.\n"
+	      << "\tWe will proceed using std::numeric_limits<unsigned int>::max()."
+	      << "\n\n\n\n"
+	      << std::endl;
+    tFinal = std::numeric_limits<unsigned int>::max();
   }
   // We need to fix this___ FIXME
 
