@@ -330,14 +330,14 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
                                                 //  list of hit numbers of those falling in this cell
     Short_t Charge[MAXTRACKSPEREVENT],
             Status[MAXTRACKSPEREVENT],
-            daTrackFoundaTrackMC[MAXTRACKSPEREVENT];
+            daTrackFoundaTrackMC[MAXTRACKSPEREVENT],
+		enne[MAXTRACKSPEREVENT][nmaxHits];
 //            daMCTrackaTrackFound[MAXMCTRACKS];
 
 
     UShort_t	emme,
 		auxIndex[nmaxHits],
-             OLDinfoparal[nmaxHits],
-		enne[MAXTRACKSPEREVENT][nmaxHits];
+             OLDinfoparal[nmaxHits];
     UShort_t istep,inclination_type, exitstatus;
 
     Double_t aaa, ddd, delta, deltabis, deltaZ, mindis, distanza, fi_hit,
@@ -474,12 +474,14 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
       
       // MC point
       Int_t ptIndex = pMhit->GetRefIndex();
-      if (ptIndex < 0) continue;           // fake or background hit
-      pMCpt = GetPointFromCollections(iHit); // <== FairMCPoint
-      if (!pMCpt){
-       cout<<"from PndSttTrackFinderReal :  # MC points pointer missing, return!\n";
-       continue;
-      }
+	if (ptIndex >= 0) {	// fake or background hit
+		pMCpt = GetPointFromCollections(iHit); // <== FairMCPoint
+	}
+//      if (ptIndex < 0) continue;           // fake or background hit
+//      if (!pMCpt){
+//       cout<<"from PndSttTrackFinderReal :  # MC points pointer missing, return!\n";
+//       continue;
+//      }
       
       // tubeID  CHECK added
       Int_t tubeID = pMhit->GetTubeID();
@@ -494,8 +496,8 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
       TVector3 wiredirection = tube->GetWireDirection();
 
       // "real" MC coordinates (in + out)/2.
-      TVector3 mcpoint;
-      pMCpt->Position(mcpoint);
+//      TVector3 mcpoint;
+//      pMCpt->Position(mcpoint);
 
       if(wiredirection.Z() >=0.) {
        WDX = wiredirection.X();     WDY = wiredirection.Y(); WDZ = wiredirection.Z();
@@ -512,7 +514,11 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
       info[iHit][2]= tube->GetPosition().Z();
       info[iHit][3]= dradius;
       info[iHit][4]= tube->GetHalfLength();
-      info[iHit][6]= pMCpt->GetTrackID();
+	if (ptIndex >= 0) {
+		info[iHit][6]= pMCpt->GetTrackID();
+	}else{
+		info[iHit][6]= -20.;
+	}
 
       if( fabs( WDX )< 0.00001 && fabs( WDY )< 0.00001 ){
           info[iHit][5]= 1.;
@@ -551,33 +557,24 @@ jumpout: ;
 
 //   calcoli validi solo per il MC   -----------------------------
 
-      veritaMC[iHit][0]= pMCpt->GetX();
-      veritaMC[iHit][1]= pMCpt->GetY();
-      veritaMC[iHit][2]= pMCpt->GetZ();
+	if (ptIndex >= 0) {
+		veritaMC[iHit][0]= pMCpt->GetX();
+		veritaMC[iHit][1]= pMCpt->GetY();
+		veritaMC[iHit][2]= pMCpt->GetZ();
+	}
 
-      FromHitToMCTrack[iHit] = (UShort_t) ( info[iHit][6] + 0.001 );
-
-/*
-    if(info[iHit][5]==1. ){
-      //  associazione hits paralleli
-      FromMCTrackToHit[ FromHitToMCTrack[iHit] ][ nHitsInMCTrack[ FromHitToMCTrack[iHit] ] ] = iHit;
-      nHitsInMCTrack[  FromHitToMCTrack[iHit]  ]++ ;
-
-   } else {
-      //  associazione hits skew
-      FromMCTrackToSkewHit[ FromHitToMCTrack[iHit] ][ nSkewHitsInMCTrack[ FromHitToMCTrack[iHit] ] ] = iHit;
-      nSkewHitsInMCTrack[  FromHitToMCTrack[iHit]  ]++ ;
-
-   }   // end of if(info[iHit][5]==1. )
-
-
-*/
+//	FromHitToMCTrack[iHit] = (Short_t) ( info[iHit][6] + 0.001 );
 
 
 
 //--------------- inizio stampaggi,  stampe di controllo
   if (istampa >= 2  && IVOLTE<= nmassimo) {
      cout <<"iHit "<< iHit << endl;
+      	if (ptIndex < 0) {
+		cout<<"...this hit must be noise (not associate to any MC Track)\n";
+		continue;
+	}
+
       cout <<"             hit X, Y, Z space position "   << veritaMC[iHit][0] << " " <<
                        veritaMC[iHit][1] << " " << veritaMC[iHit][2]<<endl; 
       cout <<"             hit wire pos. in middle "   << tube->GetPosition().X() << " " << tube->GetPosition().Y() << " " << tube->GetPosition().Z() 
@@ -1538,21 +1535,21 @@ if(istampa>=2) {
 // --- parallel hits
 	for(exphit=0; exphit<nHitsinTrack[jexp]; exphit++){
 		iHit = infoparal[ ListHitsinTrack[jexp][exphit] ];
-		enne[jexp][exphit] = (UShort_t) ( info[iHit][6] + 0.01);
-		if( enne[jexp][exphit] ==   daTrackFoundaTrackMC[jexp] ){
+		enne[jexp][exphit] = (Short_t) ( info[iHit][6] + 0.01);
+		if( enne[jexp][exphit] == daTrackFoundaTrackMC[jexp] ){
 			ParalCommonList[jexp][ nParalCommon[jexp] ] = iHit;
 			nParalCommon[jexp]++;
 		} else {
 			ParSpuriList[jexp][ nSpuriParinTrack[jexp] ] = iHit;
-			nSpuriParinTrack[jexp]++;			
+			nSpuriParinTrack[jexp]++;
 		}
 
 	}
 //--- ricerca degli hits non mecciati, della traccia MC associata a questa traccia trovata.
 	for(i=0; i<Minclinations[0]; i++){
 		if( !ExclusionListbis[ infoparal[i] ] ) continue;
-		emme = (UShort_t) ( info[ infoparal[i] ][6] + 0.01);
-		if( emme ==   daTrackFoundaTrackMC[jexp] ){
+		emme = (Short_t) ( info[ infoparal[i] ][6] + 0.01);
+		if( emme == daTrackFoundaTrackMC[jexp] ){
 			for(exphit=0; exphit<nHitsinTrack[jexp]; exphit++){
 				if(ListHitsinTrack[jexp][exphit] == i) goto pinco ;
 			}
@@ -1567,7 +1564,7 @@ if(istampa>=2) {
 
 	for(exphit=0; exphit<nSkewHitsinTrack[jexp]; exphit++){
 		iHit = infoskew[ ListSkewHitsinTrack[jexp][exphit] ];
-		enne[jexp][exphit] = (UShort_t) ( info[iHit][6] + 0.01);
+		enne[jexp][exphit] = (Short_t) ( info[iHit][6] + 0.01);
 		if( enne[jexp][exphit] ==   daTrackFoundaTrackMC[jexp] ){
 			SkewCommonList[jexp][ nSkewCommon[jexp] ] = iHit;
 			nSkewCommon[jexp]++;
@@ -1580,7 +1577,7 @@ if(istampa>=2) {
 //--- ricerca degli hits non mecciati, della traccia MC associata a questa traccia trovata.
 	for(i=0; i<NSkewhits; i++){
 		if( !ExclusionListSkewbis[ infoskew[i] ] ) continue;
-		emme = (UShort_t) ( info[ infoskew[i] ][6] + 0.01);
+		emme = (Short_t) ( info[ infoskew[i] ][6] + 0.01);
 		if( emme ==   daTrackFoundaTrackMC[jexp] ){
 			for(exphit=0; exphit<nSkewHitsinTrack[jexp]; exphit++){
 				if(i == ListSkewHitsinTrack[jexp][exphit]) goto pinco2 ;
@@ -2118,9 +2115,15 @@ if(istampa>=3)  cout<<"DoFind, paralleli, n. hits (original notation) = "<<
 
 
 if(istampa>=2){
-       fprintf(PHANDLEX,"%g\n", veritaMC[ ParalCommonList[i][j] ] [0] - Posiz[0]);
-       fprintf(PHANDLEY,"%g\n", veritaMC[ ParalCommonList[i][j] ] [1] - Posiz[1]);
-       fprintf(PHANDLEZ,"%g\n", veritaMC[ ParalCommonList[i][j] ] [2] - Posiz[2]);
+	if( info[ParalCommonList[i][j]][6]<0. ){
+		fprintf(PHANDLEX,"Noise hit\n");
+		fprintf(PHANDLEY,"Noise hit\n");
+		fprintf(PHANDLEZ,"Noise hit\n");
+	} else {
+		fprintf(PHANDLEX,"%g\n", veritaMC[ ParalCommonList[i][j] ] [0] - Posiz[0]);
+		fprintf(PHANDLEY,"%g\n", veritaMC[ ParalCommonList[i][j] ] [1] - Posiz[1]);
+		fprintf(PHANDLEZ,"%g\n", veritaMC[ ParalCommonList[i][j] ] [2] - Posiz[2]);
+	}
 }
 
 
@@ -2153,9 +2156,15 @@ if(istampa>=3)  cout<<"DoFind, skew, n. hits (original notation) = "<<
 
 
 if(istampa>=2){
-       fprintf(SHANDLEX,"%g\n", veritaMC[ SkewCommonList[i][j] ] [0] - Posiz[0]);
-       fprintf(SHANDLEY,"%g\n", veritaMC[ SkewCommonList[i][j] ] [1] - Posiz[1]);
-       fprintf(SHANDLEZ,"%g\n", veritaMC[ SkewCommonList[i][j] ] [2] - Posiz[2]);
+	if( info[SkewCommonList[i][j]][6]<0. ){
+		fprintf(SHANDLEX,"Noise hit\n");
+		fprintf(SHANDLEY,"Noise hit\n");
+		fprintf(SHANDLEZ,"Noise hit\n");
+	} else {
+		fprintf(SHANDLEX,"%g\n", veritaMC[ SkewCommonList[i][j] ] [0] - Posiz[0]);
+		fprintf(SHANDLEY,"%g\n", veritaMC[ SkewCommonList[i][j] ] [1] - Posiz[1]);
+		fprintf(SHANDLEZ,"%g\n", veritaMC[ SkewCommonList[i][j] ] [2] - Posiz[2]);
+	}
 }
 
          }  //   end of for( j=0; j<nSkewCommon[i]; j++)
@@ -12154,16 +12163,19 @@ nohits: ;
                                                         )
 {
 
-   bool	       inclusionMC[nTracksFoundSoFar][nmaxHits],
+   bool		firstime,
+		inclusionMC[nTracksFoundSoFar][nmaxHits],
 		inclusionExp[nTracksFoundSoFar];
 
    UShort_t	ntoMCtrack[nTracksFoundSoFar],
 		toMCtracklist[nTracksFoundSoFar][nmaxHits],
 		toMCtrackfrequency[nTracksFoundSoFar][nmaxHits];
 
-   UShort_t  i, j, enne, jtemp,jexp;
+   UShort_t  i, j, jtemp,jexp;
 
-   Short_t  itemp, massimo;
+   Short_t	enne,
+		itemp,
+		massimo;
 
 
 
@@ -12181,40 +12193,60 @@ nohits: ;
 
 
      for(jexp=0; jexp< nTracksFoundSoFar ;jexp++){
-	ntoMCtrack[jexp]=1;
-	toMCtracklist[jexp][0]=(UShort_t)( info[ infoparal[ ListHitsinTrack[jexp][0] ] ][6]+0.01);
-	toMCtrackfrequency[jexp][0]=1;
+
+	firstime=true;
+	ntoMCtrack[jexp]=0;
 
 // prima  gli hits paralleli ---------------------
-	for(i=1; i<nHitsinTrack[jexp]; i++){
-		enne = (UShort_t)( info[ infoparal[ ListHitsinTrack[jexp][i] ] ][6]+0.01 );
-		for(j=0; j<ntoMCtrack[jexp]; j++){
-			if( enne == toMCtracklist[jexp][j] ) {
-				toMCtrackfrequency[jexp][j]++;
-				goto out1 ;
+
+
+	for(i=0; i<nHitsinTrack[jexp]; i++){
+		enne = (Short_t)( info[ infoparal[ ListHitsinTrack[jexp][i] ] ][6]+0.01 );
+		if(enne<0) continue;   //  hit not associated to any MC track; noise hit.
+		if(firstime) {
+			ntoMCtrack[jexp]=1;
+			toMCtracklist[jexp][0]= enne;
+			toMCtrackfrequency[jexp][0]=1;
+			firstime = false;
+		} else {
+
+			for(j=0; j<ntoMCtrack[jexp]; j++){
+				if( enne == toMCtracklist[jexp][j] ) {
+					toMCtrackfrequency[jexp][j]++;
+					goto out1 ;
+				}
 			}
-		}
-		toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
-		toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
-		ntoMCtrack[jexp]++;
+			toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
+			toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
+			ntoMCtrack[jexp]++;
 out1:  ;
+		}
+
 	}   //  end of for(i=0; i<nHitsinTrack[jexp]; i++)
 
 
 
-// poi  gli hits skew ---------------------
+// poi gli hits skew ---------------------
 	for(i=0; i<nSkewHitsinTrack[jexp]; i++){
-		enne = (UShort_t)( info[ infoskew[ ListSkewHitsinTrack[jexp][i] ] ][6]+0.01 );
-		for(j=0; j<ntoMCtrack[jexp]; j++){
-			if( enne == toMCtracklist[jexp][j] ) {
-				toMCtrackfrequency[jexp][j]++;
-				goto out2 ;
+		enne = (Short_t)( info[ infoskew[ ListSkewHitsinTrack[jexp][i] ] ][6]+0.01 );
+		if(enne<0) continue;   //  hit not associated to any MC track; noise hit.
+		if(firstime) {
+			ntoMCtrack[jexp]=1;
+			toMCtracklist[jexp][0]= enne;
+			toMCtrackfrequency[jexp][0]=1;
+			firstime = false;
+		} else {
+			for(j=0; j<ntoMCtrack[jexp]; j++){
+				if( enne == toMCtracklist[jexp][j] ) {
+					toMCtrackfrequency[jexp][j]++;
+					goto out2 ;
+				}
 			}
-		}
-		toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
-		toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
-		ntoMCtrack[jexp]++;
+			toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
+			toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
+			ntoMCtrack[jexp]++;
 out2:  ;
+		}
 	}   //  end of for(i=0; j<nHitsinTrack[jexp]; i++)
 
 
@@ -12225,9 +12257,9 @@ out2:  ;
      itemp=0;
      while ( itemp > -1){
 	itemp=-1;
+	massimo = -1;
 	for(jexp=0; jexp< nTracksFoundSoFar ;jexp++){
 		if( !inclusionExp[jexp])  continue;
-		massimo = -1;
 		for(i=0; i< ntoMCtrack[jexp]; i++){
 			if( !inclusionMC[jexp][i])  continue;
 			if( toMCtrackfrequency[jexp][i]>massimo){
@@ -12283,23 +12315,23 @@ out2:  ;
                                                         )
 {
 
-   bool	       inclusionMC[nTracksFoundSoFar][nmaxHits],
+   bool	firstime,
+	inclusionMC[nTracksFoundSoFar][nmaxHits],
 		inclusionExp[nTracksFoundSoFar];
 
    UShort_t	ntoMCtrack[nTracksFoundSoFar],
-		toMCtracklist[nTracksFoundSoFar][nmaxHits],
 		toMCtrackfrequency[nTracksFoundSoFar][nmaxHits];
 
-   UShort_t  i, j, enne, jtemp,jexp;
+   UShort_t  i, j, jtemp,jexp;
 
-   Short_t  itemp, massimo;
+   Short_t	enne,
+		itemp,
+		massimo,
+		toMCtracklist[nTracksFoundSoFar][nmaxHits];
 
 
 
    for(i=0; i<nTracksFoundSoFar;i++){
-
-
-
      daTrackFoundaTrackMC[i]=-1;
      inclusionExp[i]=true;
 	for(j=0; j<nHitsinTrack[i]+nSkewHitsinTrack[i];j++){
@@ -12310,23 +12342,33 @@ out2:  ;
 
 
      for(jexp=0; jexp< nTracksFoundSoFar ;jexp++){
-	ntoMCtrack[jexp]=1;
-	toMCtracklist[jexp][0]=(UShort_t)( info[infoparal[ ListHitsinTrack[jexp][0] ] ][6]+0.01);
-	toMCtrackfrequency[jexp][0]=1;
 
-// prima  gli hits paralleli ---------------------
-	for(i=1; i<nHitsinTrack[jexp]; i++){
-		enne = (UShort_t)( info[ infoparal[ ListHitsinTrack[jexp][i] ] ][6]+0.01 );
-		for(j=0; j<ntoMCtrack[jexp]; j++){
-			if( enne == toMCtracklist[jexp][j] ) {
-				toMCtrackfrequency[jexp][j]++;
-				goto out1 ;
+	firstime=true;
+	ntoMCtrack[jexp]=0;
+
+
+// ------ only the parallel hits are taken into consideration
+	for(i=0; i<nHitsinTrack[jexp]; i++){
+
+		enne = (Short_t)( info[ infoparal[ ListHitsinTrack[jexp][i] ] ][6]+0.01 );
+		if(enne<0) continue;   //  hit not associated to any MC track; noise hit.
+		if(firstime) {
+			ntoMCtrack[jexp]=1;
+			toMCtracklist[jexp][0]= enne;
+			toMCtrackfrequency[jexp][0]=1;
+			firstime = false;
+		} else {
+			for(j=0; j<ntoMCtrack[jexp]; j++){
+				if( enne == toMCtracklist[jexp][j] ) {
+					toMCtrackfrequency[jexp][j]++;
+					goto out1 ;
+				}
 			}
-		}
-		toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
-		toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
-		ntoMCtrack[jexp]++;
+			toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
+			toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
+			ntoMCtrack[jexp]++;
 out1:  ;
+		}
 	}   //  end of for(i=0; i<nHitsinTrack[jexp]; i++)
 
 
