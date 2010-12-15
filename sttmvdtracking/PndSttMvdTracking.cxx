@@ -4145,16 +4145,17 @@ out2:  ;
                                                         )
 {
 
-   bool	       inclusionMC[nTracksFoundSoFar][nmaxSttHits],
+   bool	firstime,
+	inclusionMC[nTracksFoundSoFar][nmaxSttHits],
 		inclusionExp[nTracksFoundSoFar];
 
    UShort_t	ntoMCtrack[nTracksFoundSoFar],
-		toMCtracklist[nTracksFoundSoFar][nmaxSttHits],
 		toMCtrackfrequency[nTracksFoundSoFar][nmaxSttHits];
 
-   UShort_t  i, j, enne, jtemp,jexp , nmid;
+   UShort_t  i, j, jtemp,jexp , nmid;
 
-   Short_t  itemp, massimo;
+   Short_t  enne, itemp, massimo,
+		toMCtracklist[nTracksFoundSoFar][nmaxSttHits];
 
 	Double_t dx,
 		 Cx,
@@ -4223,6 +4224,14 @@ int nevento=4;
 
 
      for(jexp=0; jexp< nTracksFoundSoFar ;jexp++){
+
+	firstime=true;
+	ntoMCtrack[jexp]=0;
+
+
+
+
+/*
 	ntoMCtrack[jexp]=1;
 	toMCtracklist[jexp][0]=(UShort_t)( info[ ListHitsinTrack[jexp][0]  ][6]+0.01);
 	toMCtrackfrequency[jexp][0]=1;
@@ -4236,33 +4245,56 @@ int nevento=4;
 		toMCtrackdistance[jexp][0]= FindDistance(Ox[jexp],Oy[jexp],R[jexp],tanlow[jexp],
 							tanmid[jexp],tanup[jexp],alfa,beta,gamma);
 	}
+*/
+
 
 
 // solo  gli hits paralleli ---------------------
-	for(i=1; i<nHitsinTrack[jexp]; i++){
-		enne = (UShort_t)( info[  ListHitsinTrack[jexp][i] ][6]+0.01 );
-		for(j=0; j<ntoMCtrack[jexp]; j++){
-			if( enne == toMCtracklist[jexp][j] ) {
-				toMCtrackfrequency[jexp][j]++;
-				goto out1 ;
+	for(i=0; i<nHitsinTrack[jexp]; i++){
+		enne = (Short_t)( info[  ListHitsinTrack[jexp][i] ][6]+0.01 );
+		if(enne<0) continue;   //  hit not associated to any MC track; noise hit.
+
+		if(firstime) {
+			toMCtracklist[jexp][0]= enne;
+			toMCtrackfrequency[jexp][0]=1;
+			firstime = false;
+
+			getMCInfo( enne, &Cx, &Cy, &Rr);
+			if( Rr<0.) {
+				toMCtrackdistance[jexp][0]=-1.;
+			} else {
+				alfa = -2.*Cx;
+				beta = -2.*Cy;
+				gamma = Cx*Cx+Cy*Cy-Rr*Rr;
+				toMCtrackdistance[jexp][0]= FindDistance(Ox[jexp],Oy[jexp],
+					R[jexp],tanlow[jexp],tanmid[jexp],tanup[jexp],alfa,beta,gamma);
 			}
-		}
-		toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
-		toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
-		getMCInfo( toMCtracklist[jexp][ntoMCtrack[jexp]], &Cx, &Cy, &Rr);
-		if( Rr<0.) {
-			toMCtrackdistance[jexp][ntoMCtrack[jexp]]=-1.;
-		} else {
-			alfa = -2.*Cx;
-			beta = -2.*Cy;
-			gamma = Cx*Cx+Cy*Cy-Rr*Rr;
-			toMCtrackdistance[jexp][ntoMCtrack[jexp]]= FindDistance(Ox[jexp],Oy[jexp],
-				R[jexp],tanlow[jexp],tanmid[jexp],tanup[jexp],alfa,beta,gamma);
-		}
+			ntoMCtrack[jexp]=1;
 
-		ntoMCtrack[jexp]++;
+		} else {	// continuation of  if(firstime)
 
+			for(j=0; j<ntoMCtrack[jexp]; j++){
+				if( enne == toMCtracklist[jexp][j] ) {
+					toMCtrackfrequency[jexp][j]++;
+					goto out1 ;
+				}
+			}
+			toMCtracklist[jexp][ ntoMCtrack[jexp] ] = enne;
+			toMCtrackfrequency[jexp][ ntoMCtrack[jexp] ] = 1;
+			getMCInfo( enne, &Cx, &Cy, &Rr);
+			if( Rr<0.) {
+				toMCtrackdistance[jexp][ntoMCtrack[jexp]]=-1.;
+			} else {
+				alfa = -2.*Cx;
+				beta = -2.*Cy;
+				gamma = Cx*Cx+Cy*Cy-Rr*Rr;
+				toMCtrackdistance[jexp][ntoMCtrack[jexp]]= FindDistance(Ox[jexp],Oy[jexp],
+					R[jexp],tanlow[jexp],tanmid[jexp],tanup[jexp],alfa,beta,gamma);
+			}
+			ntoMCtrack[jexp]++;
 out1:  ;
+		}
+
 	}   //  end of for(i=0; i<nHitsinTrack[jexp]; i++)
 
 
