@@ -81,8 +81,11 @@ Bool_t PndRecoKalmanFit::Init()
   // STT map loading
   FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
   PndGeoSttPar *sttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
-  PndSttMapCreator *mapper = new PndSttMapCreator(sttParameters);
-  TClonesArray *tubeArray = mapper->FillTubeArray();
+  TClonesArray *tubeArray = NULL;
+  if(sttParameters->GetGeometryType() != -1) {
+    PndSttMapCreator *mapper = new PndSttMapCreator(sttParameters);
+    tubeArray = mapper->FillTubeArray();
+  }
 
   // Build hit factory -----------------------------
   fTheRecoHitFactory = new GFRecoHitFactory();
