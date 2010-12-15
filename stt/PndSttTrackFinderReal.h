@@ -170,7 +170,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
       FILE * SHANDLEY ;
       FILE * SHANDLEZ ;
     Double_t veritaMC[nmaxHits][3];
-    UShort_t  FromHitToMCTrack[nmaxHits],
+    UShort_t
 //              FromMCTrackToHit[MAXMCTRACKS][nmaxHits],
               nHitsInMCTrack[MAXTRACKSPEREVENT],
 //              FromMCTrackToSkewHit[MAXMCTRACKS][nmaxHits],
@@ -184,6 +184,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
            infoparal[nmaxHits],
            infoskew[nmaxHits];
 
+//	Short_t  FromHitToMCTrack[nmaxHits];
 
   Double_t radiaConf[nRdivConformal];
 
