@@ -168,8 +168,8 @@ void PndLheCandidate ::SetDefaults() {
   // Default setup for the track.
 
   //  fRealHits = new TRefArray();
-  fRealHits = new TObjArray(0);
-
+  fRealHits = new TObjArray();
+  fRealHits->SetOwner(kTRUE); // to avoid memory leaks
   fTrackNumber = -1;
 
   SetPid(0);
