@@ -14,6 +14,7 @@ PndGeoSttPar::PndGeoSttPar(const char* name,const char* title,const char* contex
 {
     fGeoSensNodes = new TObjArray();
     fGeoPassNodes = new TObjArray();
+    fGeoType = -1;
 }
 
 PndGeoSttPar::~PndGeoSttPar(void) 
