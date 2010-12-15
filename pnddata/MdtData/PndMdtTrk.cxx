@@ -14,7 +14,7 @@ PndMdtTrk::~PndMdtTrk()
 
 PndTrackCand* PndMdtTrk::AddTrackCand(const PndTrackCand* inTrackCand)
 {
-  PndTrackCand *outTrackCand = new PndTrackCand(*inTrackCand);
+  PndTrackCand *outTrackCand = (PndTrackCand*)inTrackCand->Clone();
   for (Int_t ii=0; ii<15; ii++) 
     {
       if (fHitList[ii]!=-1)
