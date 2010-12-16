@@ -824,6 +824,7 @@ void PndSimpleAnalysis::FillGenericLists()
 		TCandidate tcc(*mic,uid++);
 		
 		// are pid data available?
+		if (fChargedProbability)
 		if (i<fChargedProbability->GetEntriesFast())
 		{
 			PndPidProbability *chProb = (PndPidProbability*)fChargedProbability->At(i);
@@ -844,6 +845,7 @@ void PndSimpleAnalysis::FillGenericLists()
 		TCandidate tcn(*mic,uid++);
 		
 		// are pid data available?
+		if (fNeutralProbability)
 		if (i<fNeutralProbability->GetEntriesFast())
 		{
 			PndPidProbability *neuProb = (PndPidProbability*)fNeutralProbability->At(i);
