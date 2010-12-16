@@ -76,7 +76,7 @@ find_package(CERNLIB)
 
 find_package(RuleChecker)
 
-
+find_package(OpenGL)
 
 # Set the library version in the main CMakeLists.txt
 SET(FAIRROOT_MAJOR_VERSION 0)
@@ -135,8 +135,12 @@ add_subdirectory (GenfitTools)
 add_subdirectory(tutorials/charmtask)
 add_subdirectory (fsim)
 add_subdirectory(rho)
-add_subdirectory(eventdisplay)
-add_subdirectory(PndEventdisplay)
+
+If (OPENGL_FOUND AND OPENGL_GLU_FOUND)
+  add_subdirectory(eventdisplay)
+  add_subdirectory(PndEventdisplay)
+EndIf (OPENGL_FOUND AND OPENGL_GLU_FOUND)
+
 add_subdirectory (rpc) 
 #add_subdirectory (gpid)
 add_subdirectory (drpc)
