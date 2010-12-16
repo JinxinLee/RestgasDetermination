@@ -6,7 +6,7 @@
   timer.Start();
   gDebug=0;
   int verboseLevel = 0;
-  Int_t nEvents = 1;
+  Int_t nEvents = 10;
 
   //FileNames
   TString simOutput="Mvd_Test.root";
