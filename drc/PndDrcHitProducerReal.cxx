@@ -171,19 +171,21 @@ void PndDrcHitProducerReal::ProcessBarPoint()
 
     Double_t rad = TMath::Pi()/180.;
     Double_t r = fGeo->radius();//radius in the middle of the bar =51.2cm
-    Double_t hthick        =  fGeo->barHalfThick();//half thickness of the bars=1.7/2 cm
+    Double_t hthick =  fGeo->barHalfThick();//half thickness of the bars=1.7/2 cm
     Double_t rad_out = (r-hthick)/cos((22.5/2)*rad); // radius at corner - thickness ###
     Double_t lside   = 2*rad_out*sin((22.5/2)*rad);
     Double_t phis = (s*22.5+ 258.75 )*rad; // 22.5 degrees are 360/16
     Double_t Xs =  r*cos(phis);
     Double_t Ys = r*sin(phis);
     Double_t thts = phis- TMath::Pi()/2;
-    Double_t Xb =  (5*lside/12 - (lside/6)*(b))*cos(thts);
-    Double_t Yb =  (5*lside/12 - (lside/6)*(b))*sin(thts);
+    Double_t barN = fGeo->barNum();
+    Double_t Xb =  (5*lside/12 - (lside/barN)*(b))*cos(thts);
+    Double_t Yb =  (5*lside/12 - (lside/barN)*(b))*sin(thts);
    
     Double_t fXHit = Xs+Xb;
     Double_t fYHit = -(Ys+Yb);
-    Double_t fZHit = 0.;
+    //Double_t fZHit = 0.;
+    Double_t fZHit = fGeo->barBoxZUp() - fGeo->EVlen();
  
     //  cout << "hit phi: "<< acos(fXHit/r) << endl;
     
@@ -233,7 +235,7 @@ void PndDrcHitProducerReal::ProcessPhotonPoint()
        Double_t PPz= Ppt->GetPz();
 
        Double_t etot = sqrt(PPx*PPx + PPy*PPy +PPz*PPz);// in GeV
-       Double_t lambda=197.0*2.0*TMath::Pi()/nRefrac/(etot*1.0E9);//wavelength of photon in nm
+       Double_t lambda=197.0*2.0*TMath::Pi()/(etot*1.0E9);//wavelength of photon in nm
        detection=0;
        if(fisDetEff){
          if (lambda >= lambda_min && lambda < lambda_max) {

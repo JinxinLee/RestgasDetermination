@@ -19,6 +19,7 @@
 #include "TVector3.h"
 #include "TPolyLine.h"
 #include "TLine.h"
+#include "TLegend.h"
 #include "TRandom.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
@@ -142,6 +143,7 @@ void DrawHits::ProcessBarHit()
 
  // Loop over PndDrcHit
   for(Int_t j=0; j<fHitArray->GetEntriesFast(); j++) {
+ //for(Int_t j=0; j<fBarPointArray->GetEntriesFast(); j++) {
        if (fVerbose > 1) printf("\n\n=====> Event No. %d\n", nevents); 
 
        hit = (PndDrcHit*)fHitArray->At(j);
@@ -152,6 +154,7 @@ void DrawHits::ProcessBarHit()
        
        Int_t mcRef= hit->GetRefIndex();
        pt= (PndDrcBarPoint*)fBarPointArray->At(mcRef);
+  //     pt= (PndDrcBarPoint*)fBarPointArray->At(j);
        Int_t chtrID= pt->GetTrackID();
        tr = (PndMCTrack*)fMCArray->At(chtrID);
        Int_t chtrPdg= tr->GetPdgCode();
@@ -163,6 +166,17 @@ void DrawHits::ProcessBarHit()
        Double_t trP = sqrt(trPx*trPx + trPy*trPy +trPz*trPz);
        Double_t mass = pt->GetMass();
        Double_t energy = sqrt(trP*trP + mass*mass);
+       
+       // for my tree phoTree:
+       xEnt = pt->GetX();
+       yEnt = pt->GetY();
+       zEnt = pt->GetZ();
+       
+       xbar = xH;
+       ybar = yH;
+       zbar = zH;
+              
+       //phoTree->Fill();
        
        Double_t angIn= pt->GetAngIn();
        Double_t angDeg=angIn*deg;
@@ -176,6 +190,7 @@ void DrawHits::ProcessBarHit()
          if(abs(chtrPdg) == 11)fhThetaCMomE->Fill(trP,fThetaC);
        if(chtrMid == -1){
          fhMomAng->Fill(angDeg,trP);
+	 cout<<"ang = "<<angDeg<<", mom = "<<trP<<endl;
 
        }//prim particle
        fhThetaC->Fill(fThetaC);
@@ -213,7 +228,7 @@ void DrawHits::ProcessPhotonMC()
         if( nevents==1 && trMpdg ==-211)fhXYPDMCPtpin->Fill(xP,yP);
         if( nevents==1 && trMpdg ==13)fhXYPDMCPtmp->Fill(xP,yP);
         if( nevents ==1 && trMpdg ==-13)fhXYPDMCPtmn->Fill(xP,yP);
-    
+	    
         // Momentum of photon at PD   point
          Double_t Pfx= Ppt->GetPx();
          Double_t Pfy= Ppt->GetPy();
@@ -221,10 +236,18 @@ void DrawHits::ProcessPhotonMC()
          Double_t Pf = sqrt(Pfx*Pfx + Pfy*Pfy +Pfz*Pfz);
          Double_t etot = sqrt(Pfx*Pfx + Pfy*Pfy +Pfz*Pfz);
          Double_t nRefrac=1.467;
-         Double_t lambda=197.0*2.0*TMath::Pi()/nRefrac/(etot*1.0E9);//wavelength of photon in nm
+         //Double_t lambda=197.0*2.0*TMath::Pi()/nRefrac/(etot*1.0E9);//wavelength of photon in nm
+	 Double_t lambda=197.0*2.0*TMath::Pi()/(etot*1.0E9);
 
+       //if(lambda > 350. && lambda < 600.){ 
        fhLambdaMC->Fill(lambda);
-
+       TVector3 photon;
+       TVector3 mother;
+       photon.SetXYZ(ptr->GetMomentum().X(), ptr->GetMomentum().Y(), ptr->GetMomentum().Z());
+       mother.SetXYZ(trMr->GetMomentum().X(), trMr->GetMomentum().Y(), trMr->GetMomentum().Z());              
+       fhCHrealMC->Fill(photon.Angle(mother));
+       fhCHlamMC->Fill(lambda,mother.Angle(photon));
+       //}
      }// Prim particle
   }//Photon points
 
@@ -263,7 +286,38 @@ void DrawHits::ProcessPhotonHit()
       Double_t yPHit= pdhit->GetY();
       Double_t zPHit= pdhit->GetZ();
       Double_t time = pdhit->GetTime();
-
+      
+      // for my tree:
+      xhit = xPHit;
+      yhit = yPHit;
+      zhit = zPHit;
+      thit = time;
+      
+      pxMo = trMr->GetMomentum().X();
+      pyMo = trMr->GetMomentum().Y();
+      pzMo = trMr->GetMomentum().Z();
+      fPMo.SetXYZ(pxMo, pyMo, pzMo);
+      
+      fhPhoTheta->Fill(fPMo.Theta()/3.1415*180.);
+     
+      pxPho = tr->GetMomentum().X(); // initial momentum of a photon
+      pyPho = tr->GetMomentum().Y();
+      pzPho = tr->GetMomentum().Z();
+      
+      fStartVertex = tr->GetStartVertex();
+      
+      // momentum of a photon on the PD Plane
+      fPx= Ppt->GetPx();
+      fPy= Ppt->GetPy();
+      fPz= Ppt->GetPz();
+            
+      // extrapolation of momentum on the PD Plane to the bar:
+      fXcross = xPHit - fPx/fPz*(120. + zPHit);
+      fYcross = yPHit - fPy/fPz*(120. + zPHit);
+     
+      //phoTree->Fill();
+      // ------------
+      
       Double_t xP= Ppt->GetX();
       Double_t yP= Ppt->GetY();
       Double_t zP= Ppt->GetZ();
@@ -273,12 +327,22 @@ void DrawHits::ProcessPhotonHit()
       Double_t PPz= Ppt->GetPz();
       Double_t etot = sqrt(PPx*PPx + PPy*PPy +PPz*PPz);
       Double_t nRefrac=1.467;
-      Double_t lambdah=197.0*2.0*TMath::Pi()/nRefrac/(etot*1.0E9);//wavelength of photon in nm
-    
-      fhLambda->Fill(lambdah);
+      //Double_t lambdah=197.0*2.0*TMath::Pi()/nRefrac/(etot*1.0E9);//wavelength of photon in nm
+      Double_t lambdah=197.0*2.0*TMath::Pi()/(etot*1.0E9);
+      
       fhPDTime->Fill(time);
+      //if(lambdah > 350. && lambdah < 600.){ 
+      fhLambda->Fill(lambdah);
+      TVector3 photon1;
+      TVector3 mother1;
+      photon1.SetXYZ(tr->GetMomentum().X(), tr->GetMomentum().Y(), tr->GetMomentum().Z());
+      mother1.SetXYZ(trMr->GetMomentum().X(), trMr->GetMomentum().Y(), trMr->GetMomentum().Z());
+      fhCHreal->Fill(photon1.Angle(mother1));
+      fhCHlam->Fill(lambdah, photon1.Angle(mother1));
+      //}
     
       fhXYPDHit->Fill(xPHit,yPHit);
+            
       if( nevents == 1 && trMpdg ==321)fhXYPDHitKp->Fill(xPHit,yPHit);
       if( nevents == 1 && trMpdg ==-321)fhXYPDHitKn->Fill(xPHit,yPHit);
       if( nevents == 1 && trMpdg ==211)fhXYPDHitpip->Fill(xPHit,yPHit);
@@ -288,9 +352,29 @@ void DrawHits::ProcessPhotonHit()
    }// photon from primary particle 
  }// photon hits
 }
+
 //---------------------------------------------------------------
 void DrawHits::CreateHisto()
 {
+  // Creation of the TTree to hold the data for Cherenkov angle 
+  phoTree = new TTree(fTreeName, "tree to get cherenkov angle");
+  phoTree->Branch("HitX", &xhit, "HitX/D");
+  phoTree->Branch("HitY", &yhit, "HitY/D");
+  phoTree->Branch("HitZ", &zhit, "HitZ/D");
+  phoTree->Branch("HitT", &thit, "HitT/D");
+  phoTree->Branch("MotherPx", &pxMo, "MotherPx/D");
+  phoTree->Branch("MotherPy", &pyMo, "MotherPy/D");
+  phoTree->Branch("MotherPz", &pzMo, "MotherPz/D"); 
+  phoTree->Branch("InitPhoPx", &pxPho, "InitPhoPx/D");
+  phoTree->Branch("InitPhoPy", &pyPho, "InitPhoPy/D");
+  phoTree->Branch("InitPhoPz", &pzPho, "InitPhoPz/D");
+  phoTree->Branch("xEntry", &xEnt, "xEntry/D");
+  phoTree->Branch("yEntry", &yEnt, "yEntry/D");
+  phoTree->Branch("zEntry", &zEnt, "zEntry/D");
+  phoTree->Branch("xBar", &xbar, "xBar/D");
+  phoTree->Branch("yBar", &ybar, "yBar/D");
+  phoTree->Branch("zBar", &zbar, "zBar/D");
+  
   // Histogram list
   fHistoList = new TList(); 
   
@@ -303,16 +387,26 @@ void DrawHits::CreateHisto()
   fhThetaCMomM = new TH2D("fhThetaCMomM", " ThetaC vs. Mom", 100,  0, 8.0, 100, 0, 1.);
   fhThetaCMomE = new TH2D("fhThetaCMomE", " ThetaC vs. Mom", 100,  0, 8.0, 100, 0, 1.);
   fhMomAng = new TH2D("fhMomAng", " Mom vs. Angle", 100, 0, 140.0, 100, 0.0,8.0);
-
+  fhPhoTheta = new TH1F("fhPhoTheta","Number of photons as a function of initial track theta", 150, 0., 150.); 
+  fhPDPlane = new TH2F("fhPDPlane", "pixels hit by photons", 338,-109.85,109.85, 338,-109.85,109.85);
+ 
   //Histogram for Hits in Photon Detector
  
-  fhLambda =new TH1D("fhLambda", "No of Photons  vs. Lambda", 100, 200, 600);
-  fhPDTime =new TH1D("fhPDTime", "Time in ns", 100, 0, 100);
+  fhLambda =new TH1D("fhLambda", "No of Photons  vs. Lambda", 200, 100, 1000);
+  fhPDTime =new TH1D("fhPDTime", "Time in ns", 100, 0, 500);
   fhXYPDHit = new TH2D("fhXYPDHit", "XY distribution of Photon Hits", 1000, -110, 110, 1000, -110, 110);
+  
+  fhCHreal = new TH1D("fhCHreal","Generated Cherenkov angle, hits", 100, 0.78, 0.88);
+  fhCHlam = new TH2D("fhCHlam","Cherenkov angle as a function of lambda", 1000,0.,1000.,100,0.7,0.9);
   
 //Histogram for MCPoints in Photon Detector
   fhXYPDMCPt = new TH2D("fhXYPDMCpt", "XY distribution of Photon MCPt", 1000, -110, 110, 1000, -110, 110);
-  fhLambdaMC =new TH1D("fhLambdaMC", "No of Photons  vs. Lambda", 100, 200, 600);
+  fhLambdaMC =new TH1D("fhLambdaMC", "No of Photons  vs. Lambda", 200, 100, 1000);
+ 
+  fhCHrealMC = new TH1D("fhCHrealMC","Generated Cherenkov angle, MC",100, 0.78, 0.88);
+  fhCHlamMC = new TH2D("fhCHlamMC","Cherenkov angle as a function of lambda", 1000,0.,1000.,100,0.7,0.9);
+  
+  fhCHlamE = new TH2D("fhCHlamE","CHerenkov angle as a function of lambda", 1000,0.,1000.,100,0.7,0.9);
 
 //Histogram for visualization
   fhXYPDMCPtKp = new TH2D("fhXYPDMCptKp", "XY distribution of Photon MCPt", 1000, -110, 110, 1000, -110, 110);
@@ -337,17 +431,24 @@ void DrawHits::CreateHisto()
   fHistoList->Add(fhThetaCMomM);
   fHistoList->Add(fhThetaCMomE);
   fHistoList->Add(fhMomAng);
-
+  fHistoList->Add(fhPhoTheta); 
+  fHistoList->Add(fhPDPlane);
+ 
   fHistoList->Add(fhLambda);
   fHistoList->Add(fhLambdaMC);
   fHistoList->Add(fhXYPDHit);
   fHistoList->Add(fhXYPDMCPt);
   fHistoList->Add(fhPDTime);
+  fHistoList->Add(fhCHreal);
+  fHistoList->Add(fhCHrealMC);
+  fHistoList->Add(fhCHlam);
+  fHistoList->Add(fhCHlamMC);
+  fHistoList->Add(fhCHlamE);  
 }
-
 //------------------Write to File----------------------------------------------
 void DrawHits::WriteToFile()
 {
+	      phoTree->Write();
               TIter next(fHistoList);
 	                   while ( TH1* histo = ((TH1*)next()) ) histo->Write();
 }
@@ -378,7 +479,7 @@ void DrawHits::DrawHisto()
   fhThetaCMass->Draw();
    C1->cd();
    TCanvas *C1A= new TCanvas("C1A"," Mom vs. Cherenkov angle",500,500);
-   C1A->Divide(1,1);
+   C1A->Divide(1,2);
    C1A->cd(1);
   fhThetaCMomK->SetMarkerColor(kBlue);
   fhThetaCMomP->SetMarkerColor(kMagenta);
@@ -401,7 +502,8 @@ void DrawHits::DrawHisto()
   fhThetaCMomM->Draw("same");
   fhThetaCMomP->Draw("same");
   fhThetaCMomE->Draw("same");
-   C1A->cd();
+   C1A->cd(2);
+  fhPhoTheta->Draw(); 
   
   TCanvas *C1B= new TCanvas("C1B"," Momentum vs. track angle",500,500);
    C1B->Divide(1,1);
@@ -417,7 +519,7 @@ void DrawHits::DrawHisto()
   fhMomAng->Draw();
   C1B->cd();
   TCanvas *C2= new TCanvas("C2","Photon Distribution" ,700,700);
-  C2->Divide(2,2);
+  C2->Divide(2,3);
   C2->cd(1);
   fhXYPDHit->SetMarkerColor(kBlue);
   fhXYPDHit->SetMarkerStyle(20);
@@ -456,6 +558,12 @@ void DrawHits::DrawHisto()
   fhLambda->SetTitle(0);	    
 //  fhLambda->SetStats(0);	    
   fhLambda->Draw();
+  C2->cd(5);  
+  fhCHrealMC->Draw();
+  fhCHrealMC->Fit("gaus");
+  C2->cd(6);  
+  fhCHreal->Draw();
+  fhCHreal->Fit("gaus");
   C2->cd();
    TCanvas *C3= new TCanvas("C3","Time ",900,500);
    C3->Divide();
@@ -559,7 +667,25 @@ void DrawHits::DrawHisto()
   }
   p1->Draw("same");
   p2->Draw("same");
-   C5->cd();
+ 
+  SetPlotStyle();
+  TCanvas *C7= new TCanvas("C7","Full sim study",500,500);  
+  fhPDPlane->SetMarkerStyle(20);
+  fhPDPlane->SetMarkerSize(0.3);
+  fhPDPlane->SetMarkerColor(8);
+  fhPDPlane->Draw();
+  //fhPDPlane->Draw("COL2Z"); 
+  for(Int_t i=0; i<16; i++){
+  TLine *l2 =new TLine(xout[i],yout[i],xin[i],yin[i]);
+  l2->Draw("same");
+  }
+  p1->Draw("same");
+  p2->Draw("same");
+  TLegend* leg = new TLegend(0.5,0.5,0.75,0.6); 
+  leg->AddEntry(fhPDPlane,"other photons","p");
+  leg->SetTextSize(0.03); 
+  leg->Draw("same");
+  
 }
 // -------------------------------------------------------------------------
 ClassImp(DrawHits)
