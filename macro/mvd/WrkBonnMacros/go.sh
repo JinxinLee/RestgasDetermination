@@ -135,9 +135,9 @@ else
 fi
 
 if [ "$T1 -eq 0" -a "$T2 -eq 0" -a "$T3 -eq 0" ]; then
-    CHECK=0
-else
     CHECK=1
+else
+    CHECK=0
 fi
 
 let "COUNT += 1"
