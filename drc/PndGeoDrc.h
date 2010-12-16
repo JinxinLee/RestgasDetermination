@@ -19,6 +19,7 @@ class  PndGeoDrc : public FairGeoSet {
   double fBarNum;                           //!< Number of bars per barbox.
   double fBoxGap;			    //!< Gap between bar and bar box [cm].
   double fBoxThick;			    //!< Bar box thickness [cm].
+  double fEVlength;			    //!< Length of Expansion Volume [cm].
   
   protected:
   char modName[20];  // name of module
@@ -61,6 +62,9 @@ class  PndGeoDrc : public FairGeoSet {
   /*! Number of bars per  bar box.
     \return The number */
   Double_t  barNum() {return fBarNum;}
+  
+  /*! The length of the Expansion Volume [cm]. */
+  Double_t  EVlen() {return fEVlength;}
 
 
 

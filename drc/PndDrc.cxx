@@ -162,7 +162,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
     if (gMC->IsTrackExiting()==1){
       if (nam.BeginsWith("DrcBar") ) {            
         if (fPos.Z() > fSlabEnd ){
-//           gMC->StopTrack();			// for photons gun!!!   
+//           gMC->StopTrack();			// for photon gun!!!   
 //           if (fVerboseLevel >0) cout<< "Photon killed" << " at z= "<<fPos.Z()<<endl;
         }	
 	
@@ -431,7 +431,7 @@ void PndDrc::ConstructGeometry()
 
   //Create the sides           lside is the width in the middle of the barbox
 
-  Double_t rad_out = (radius-hthick)/cos(2*pi/16/2); // radius at corner - thickness ###
+  Double_t rad_out = (radius-hthick)/cos(2*pi/16./2); // radius at corner - thickness ###
   Double_t lside   = 2.*rad_out*sin(2.*pi/16./2.) - (2.*boxthick) - (2.*boxgap);
   cout<<" DIRC min. radius = "<<radius-hthick<<endl;
   cout<<" DIRC max. radius = "<<rad_out+2*hthick<<endl;
@@ -559,7 +559,7 @@ void PndDrc::ConstructGeometry()
     
     // SOB
 
-    Double_t sob_len     = 30.0;
+    Double_t sob_len     = fGeo->EVlen(); // 30. in current version
     Double_t sob_shift   = -bbox_hlen + bbox_shift - sob_len;
 
     Double_t sob_radius2 = radius+hthick + sob_len*tan(60./180.*pi);

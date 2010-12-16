@@ -29,6 +29,7 @@ PndGeoDrc::PndGeoDrc() {
   fBoxGap	= 0.1;       // Half gap between bars
   fBarGap	= 0.01;	      // Gap between bar and bar box
   fBoxThick	= 0.05;	      // Thickness of bar box
+  fEVlength     = 30.;        // Length of expansion volume
   
  }
 // -------------------------------------------------------------------------
