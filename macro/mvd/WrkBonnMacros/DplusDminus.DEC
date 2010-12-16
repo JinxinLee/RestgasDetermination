@@ -1,0 +1,15 @@
+# Force the DMeson Dalitz decay (BF=9.2%)
+
+Decay pbarpSystem
+1.000   D+  D-          PHSP;
+Enddecay
+
+Decay D+
+1.000   K-  pi+  pi+    D_DALITZ;
+Enddecay
+
+Decay D-
+1.000   K+  pi-  pi-    D_DALITZ;
+Enddecay
+
+End 
