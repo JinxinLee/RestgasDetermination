@@ -54,6 +54,8 @@ PndMvdGemTrackFinderOnHits.cxx
 #PndGlobalPrepareKalmanTracks.cxx
 #PndGlobalKalmanTask.cxx
 PndBarrelTrackFinder.cxx
+PndBarrelTrackFinderQA.cxx
+#PndFitMCCircle.cxx
 )
 if(RULE_CHECKER_FOUND)
   CHECK_RULES("${GLOBAL_SRCS}" "${INCLUDE_DIRECTORIES}" GLOBAL_RULES)

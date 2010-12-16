@@ -1,8 +1,8 @@
 //* $Id: */
 
 // -------------------------------------------------------------------------
-// -----                    PndBarrelTrackFinder source file                 -----
-// -----                  Created 12/02/2009 by R. Karabowicz          -----
+// -----                    PndBarrelTrackFinder source file           -----
+// -----                  Created 05/12/2010 by R. Karabowicz          -----
 // -------------------------------------------------------------------------
 
 // Includes from GEM
@@ -21,6 +21,12 @@
 #include "TGeoManager.h"
 #include "TGeoNode.h"
 #include "TRandom.h"
+
+#include "FairTrackParam.h"
+#include "FairHit.h"
+#include "PndTrack.h"
+#include "PndTrackCand.h"
+#include "PndTrackCandHit.h"
 
 #include "PndDetectorList.h"
 #include "PndGemHit.h"
@@ -53,9 +59,28 @@ PndBarrelTrackFinder::PndBarrelTrackFinder() : FairTask("Barrel Track Finder", 1
     fIncludeDet[idet] = kFALSE;
     fHitArray  [idet] = NULL;
   }
+  fBarrelTrackArray          = NULL;
+  fBarrelTrackCandArray      = NULL;
+
   fTNofEvents    = 0;
   fTNofTracks    = 0;
   fTracksVector.clear();
+
+  fHitDetId.clear();
+  fHitDetNo.clear();
+  fHitVector.clear();
+  fHitVectDI.clear();
+  fHitVectHN.clear();
+
+  fMaximalDist    = 0.01;
+  fReasonableDist = 0.2;
+
+  fMaximalZ_PD    = 2.;
+  fReasonableZ_PD = 5.;
+
+  fMaximalRadDiff = 0.1;
+  fMaximalPhiDiff = 0.1;
+  
   Reset();
 }
 // -------------------------------------------------------------------------
@@ -69,9 +94,28 @@ PndBarrelTrackFinder::PndBarrelTrackFinder(Int_t iVerbose)
     fIncludeDet[idet] = kFALSE;
     fHitArray  [idet] = NULL;
   }
+  fBarrelTrackArray          = NULL;
+  fBarrelTrackCandArray      = NULL;
+
   fTNofEvents    = 0;
   fTNofTracks    = 0;
   fTracksVector.clear();
+
+  fHitDetId.clear();
+  fHitDetNo.clear();
+  fHitVector.clear();
+  fHitVectDI.clear();
+  fHitVectHN.clear();
+
+  fMaximalDist    = 0.01;
+  fReasonableDist = 0.2;
+
+  fMaximalZ_PD    = 2.;
+  fReasonableZ_PD = 5.;
+
+  fMaximalRadDiff = 0.1;
+  fMaximalPhiDiff = 0.1;
+
   Reset();
 }
 // -------------------------------------------------------------------------
@@ -85,9 +129,27 @@ PndBarrelTrackFinder::PndBarrelTrackFinder(const char* name, Int_t iVerbose)
     fIncludeDet[idet] = kFALSE;
     fHitArray  [idet] = NULL;
   }
+  fBarrelTrackArray          = NULL;
+  fBarrelTrackCandArray      = NULL;
+
   fTNofEvents    = 0;
   fTNofTracks    = 0;
   fTracksVector.clear();
+
+  fHitDetId.clear();
+  fHitDetNo.clear();
+  fHitVector.clear();
+  fHitVectDI.clear();
+  fHitVectHN.clear();
+
+  fMaximalDist    = 0.01;
+  fReasonableDist = 0.2;
+  fMaximalZ_PD    = 2.;
+  fReasonableZ_PD = 5.;
+
+  fMaximalRadDiff = 0.1;
+  fMaximalPhiDiff = 0.1;
+
   Reset();
 }
 // -------------------------------------------------------------------------
@@ -96,6 +158,8 @@ PndBarrelTrackFinder::PndBarrelTrackFinder(const char* name, Int_t iVerbose)
 
 // -----   Destructor   ----------------------------------------------------
 PndBarrelTrackFinder::~PndBarrelTrackFinder() { 
+  fBarrelTrackArray    ->Delete();
+  fBarrelTrackCandArray->Delete();
   Reset();
 }
 // -------------------------------------------------------------------------
@@ -113,9 +177,13 @@ void PndBarrelTrackFinder::UseMvdSttTpcGem(const Bool_t useMvd, const Bool_t use
 // -----   Public method Exec   --------------------------------------------
 void PndBarrelTrackFinder::Exec(Option_t* opt) {
   Reset();
+  fBarrelTrackArray    ->Delete();
+  fBarrelTrackCandArray->Delete();
 
   if ( fVerbose > 0 ) 
     cout << "=============== EVENT " << fTNofEvents << " =================" << endl;
+
+  Int_t nofCreatedTracks = 0;
 
   Int_t nofHits = 0;
   Int_t firstDH[5];
@@ -126,12 +194,6 @@ void PndBarrelTrackFinder::Exec(Option_t* opt) {
   Double_t sH4[3] = {0.,0.,0.};
   Double_t circPar[3] = {0.,0.,0.};
       
-  std::vector<Int_t>    hitDetId;
-  std::vector<Int_t>    hitDetNo;
-  std::vector<FairHit*> hitVector;
-  std::vector<Int_t>    hitVectDI;
-  std::vector<Int_t>    hitVectHN;
-
   Int_t INTERESTINGTRACK = -1;
   // putting hits into one common array
   for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
@@ -140,17 +202,25 @@ void PndBarrelTrackFinder::Exec(Option_t* opt) {
       nofHits += fHitArray[idet]->GetEntriesFast();
       //      cout << fDetName[idet].Data() << " hits from " << firstDH[idet] << " to " << nofHits << "   ( " << fHitArray[idet]->GetEntriesFast() << " hits )" << endl;
       for ( Int_t ihit = firstDH[idet] ; ihit < nofHits ; ihit++ ) { // hit mixing could go here
-	hitDetId.push_back(idet);
-	hitDetNo.push_back(ihit-firstDH[idet]);
+	fHitDetId.push_back(idet);
+	fHitDetNo.push_back(ihit-firstDH[idet]);
       }
     }
   }
-  std::vector<Bool_t> hitUsed(hitDetId.size(),kFALSE);
+  std::vector<Bool_t> hitUsed(fHitDetId.size(),kFALSE);
 
   FairHit* detHit;
   
   Int_t hitN = 0;
   // looping over hits as they are in the common array
+
+  Double_t resDist = 0.2;
+  Double_t resZ_PD = 2.;
+  
+  Double_t maxDist = 0.01;//05;
+  //     if ( fHitDetId[hitN] <= 1 ) maxDist = 0.15; // MVD
+  //     if ( fHitDetId[hitN] == 4 ) maxDist = 0.1;  // GEM
+  
   for ( Int_t ihit = 0 ; ihit < nofHits ; ihit++ ) {
 
     hitN = (hitN+gRandom->Integer(nofHits))%nofHits;
@@ -159,505 +229,165 @@ void PndBarrelTrackFinder::Exec(Option_t* opt) {
       hitN = (hitN+1)%nofHits;
     }
     hitUsed[hitN] = kTRUE;
-    //    cout << " for hit " << ihit << " would like to take hit " << hitN << " >> " << hitDetId[hitN] << "." << hitDetNo[hitN] << endl;
+    //    cout << " for hit " << ihit << " would like to take hit " << hitN << " >> " << fHitDetId[hitN] << "." << fHitDetNo[hitN] << endl;
 
     //    hitN = (firstDH[2]+ihit)%nofHits; // hit mixing could go here
 
-    if ( hitDetId[hitN] == 0 || hitDetId[hitN] == 1 )
-      detHit = (PndSdsHit*)fHitArray[hitDetId[hitN]]->At(hitDetNo[hitN]);
-    else                   if ( hitDetId[hitN] == 2 )
-      detHit = (PndSttHit*)fHitArray[hitDetId[hitN]]->At(hitDetNo[hitN]);
-    else                   if ( hitDetId[hitN] == 4 )
-      detHit = (PndGemHit*)fHitArray[hitDetId[hitN]]->At(hitDetNo[hitN]);
+    if ( fHitDetId[hitN] == 0 || fHitDetId[hitN] == 1 )
+      detHit = (PndSdsHit*)fHitArray[fHitDetId[hitN]]->At(fHitDetNo[hitN]);
+    else                    if ( fHitDetId[hitN] == 2 )
+      detHit = (PndSttHit*)fHitArray[fHitDetId[hitN]]->At(fHitDetNo[hitN]);
+    else                    if ( fHitDetId[hitN] == 4 )
+      detHit = (PndGemHit*)fHitArray[fHitDetId[hitN]]->At(fHitDetNo[hitN]);
     
-    Double_t resDist = 0.2;
-    Double_t resP_ZD = 0.0005;
+    if ( fVerbose > 3 ) {
+      cout << "--------------------------------------------------------" << endl;
+      cout << ihit << " (" << hitN << ") > " << fHitDetId[hitN] << "." << fHitDetNo[hitN] << " in " << fDetName[fHitDetId[hitN]].Data() << " at " 
+	   << detHit->GetX() << " " << detHit->GetY() << " " << detHit->GetZ() 
+	   << "    error " << detHit->GetDx() << " " << detHit->GetDy() << " " << detHit->GetDz() << endl;
+    }
+    if ( fVerbose > 3 )
+      PrintTracks();
 
-    Double_t maxDist = 0.01;//05;
-//     if ( hitDetId[hitN] <= 1 ) maxDist = 0.15; // MVD
-//     if ( hitDetId[hitN] == 4 ) maxDist = 0.1;  // GEM
-        
+    Bool_t       sttHit = kFALSE;
     Bool_t skewedSttHit = kFALSE;
-    Int_t  iTube      = -1;
-    if ( hitDetId[hitN] == 2 ) {
-      iTube = ((PndSttHit*)detHit)->GetTubeID(); 
+    if ( fHitDetId[hitN] == 2 ) {
+      sttHit = kTRUE;
+      Int_t iTube = ((PndSttHit*)detHit)->GetTubeID(); 
       PndSttTube *sttTube = (PndSttTube*) fTubeArray->At(iTube);
-      //      cout << "tube " << iTube << " wiredir = " << sttTube->GetWireDirection().X() << " " << sttTube->GetWireDirection().Y() << " " << sttTube->GetWireDirection().Z() << endl;
+      if ( sttTube->GetWireDirection().Z() < 1. ) {
+	skewedSttHit = kTRUE;
+	if ( fVerbose > 3 ) 
+	  cout << "SKEWED HIT" << endl;
+      }
+    }
+
+    Bool_t hitBelongsToKnownTrack = kFALSE;
+    for ( Int_t itr = 0 ; itr < fTracksVector.size() ; itr++ ) {
+      if   ( !sttHit )      { if ( MatchHitWithZInfoTT  (detHit,fHitDetId[hitN],fHitDetNo[hitN],itr) ) hitBelongsToKnownTrack = kTRUE; }
+      else 
+	if ( skewedSttHit ) { if ( MatchSkewedSttHitTT  (detHit,fHitDetId[hitN],fHitDetNo[hitN],itr) ) hitBelongsToKnownTrack = kTRUE; }
+	else                { if ( MatchParallelSttHitTT(detHit,fHitDetId[hitN],fHitDetNo[hitN],itr) ) hitBelongsToKnownTrack = kTRUE; }
+    }
+    if ( hitBelongsToKnownTrack ) continue;
+
+    if ( skewedSttHit ) {
+      AddHitToPreviousHits     (detHit,fHitDetId[hitN],fHitDetNo[hitN]);
+      continue;
+    }
+    
+    Bool_t hitMatchedToHit = kFALSE;
+    for ( Int_t ihitP = fHitVector.size()-1 ; ihitP >= 0 ; ihitP-- ) {
+      if ( MatchHitToHit(detHit,fHitDetId[hitN],fHitDetNo[hitN],ihitP) ) hitMatchedToHit = kTRUE;
+    }
+    if ( hitMatchedToHit ) continue;
+    
+    AddHitToPreviousHits     (detHit,fHitDetId[hitN],fHitDetNo[hitN]);
+  }
+
+//   PrintTracks();
+//   cout << "REMOVING TRACKS!" << endl;
+  RemoveShortTracks();
+  //  PrintTracks();
+
+  // deal with left previous hits
+  for ( Int_t iuh = fHitVector.size()-1 ; iuh >= 0 ; iuh-- ) {
+    if ( fVerbose > 3 )
+      cout << "PREVIOUS HIT " << iuh << " out of " << fHitVector.size() << endl;
+    Bool_t       sttHit = kFALSE;
+    Bool_t skewedSttHit = kFALSE;
+    if ( fHitVectDI[iuh] == 2 ) {
+      sttHit = kTRUE;
+      Int_t iTube = ((PndSttHit*)fHitVector[iuh])->GetTubeID(); 
+      PndSttTube *sttTube = (PndSttTube*) fTubeArray->At(iTube);
       if ( sttTube->GetWireDirection().Z() < 1. ) {
 	skewedSttHit = kTRUE;
       }
     }
 
-    sH1[0] = detHit->GetX();
-    sH1[1] = detHit->GetY();
-    sH1[2] = 0.;
-    if ( iTube != -1 ) // this is a STT hit
-      sH1[2] = ((PndSttHit*)detHit)->GetIsochrone();
-    
-    if ( fVerbose > 3 ) {
-      cout << "--------------------------------------------------" << endl;
-      cout << ihit << "." << hitN << " > " << fDetName[hitDetId[hitN]].Data() << " hit " << hitDetNo[hitN] << " position: " 
-	   << detHit->GetX() << " " << detHit->GetY() << " " << detHit->GetZ() 
-	   << "    error " << detHit->GetDx() << " " << detHit->GetDy() << " " << detHit->GetDz() << " >>> " << sH1[0] << " " << sH1[1] << " " << sH1[2] << endl;
+    Bool_t hitBelongsToKnownTrack = kFALSE;
+    for ( Int_t itr = 0 ; itr < fTracksVector.size() ; itr++ ) {
+      if ( HitBelongsToTrack(fHitVectDI[iuh],fHitVectHN[iuh],itr) ) continue;
+      if   ( !sttHit )      { if ( MatchHitWithZInfoTT  (fHitVector[iuh],fHitVectDI[iuh],fHitVectHN[iuh],itr) ) hitBelongsToKnownTrack = kTRUE; }
+      else 
+	if ( skewedSttHit ) { if ( MatchSkewedSttHitTT  (fHitVector[iuh],fHitVectDI[iuh],fHitVectHN[iuh],itr) ) hitBelongsToKnownTrack = kTRUE; }
+	else                { if ( MatchParallelSttHitTT(fHitVector[iuh],fHitVectDI[iuh],fHitVectHN[iuh],itr) ) hitBelongsToKnownTrack = kTRUE; }
     }
-
-    Double_t phi1 = CalcPhi(detHit->GetX(),detHit->GetY());
-    
-    // loop over known tracks to check if the hit belongs to one
-    Bool_t hitBelongsToAnyTrack = kFALSE;
-    Int_t nTracks = fTracksVector.size();
-    Int_t nPars = 0;
-    for ( Int_t itr = 0 ; itr < nTracks ; itr++ ) { 
-      nPars += fTracksVector[itr].trackPars.size();
-    }
-    //    cout << "there are " << nTracks << " tracks and " << nPars << " parameters" << endl;
-
-    if ( skewedSttHit == kFALSE ) {
-      for ( Int_t itr = 0 ; itr < nTracks ; itr++ ) { 
-	Bool_t hitBelongsToTrack = kFALSE;
-      
-	Double_t meanPhi = 0.;
-	Double_t meanRad = 0.;
-	Double_t variPhi = 0.;
-	Double_t variRad = 0.;
-	Double_t goodPNR = 0.;
-
- 	Double_t phiT = CalcPhi(fTracksVector[itr].trackHits[0]->GetX(),fTracksVector[itr].trackHits[0]->GetY());
-	Double_t phi1TDiffr = TMath::Abs(phi1-phiT);
-	if ( phi1TDiffr > TMath::Pi()/4. && phi1TDiffr < TMath::Pi()*7./4. ) continue;
-
-	for ( Int_t ipar = 0 ; ipar < fTracksVector[itr].trackPars.size() ; ipar++ ) {
-	  if ( fTracksVector[itr].trackPars[ipar].n < 0.9*fTracksVector[itr].trackHits.size() ) continue;
-	  
-	  circPar[0] = fTracksVector[itr].trackPars[ipar].x;
-	  circPar[1] = fTracksVector[itr].trackPars[ipar].y;
-	  circPar[2] = fTracksVector[itr].trackPars[ipar].r;
-	  
-	  if ( fVerbose > 4 ) {
-	    //ihit == 82 || ihit == 90 || ihit == 97 || ihit == 112 || ihit == 119 || ihit == 120 || ihit == 128 || ihit == 138 ) {
-	    cout << " ..... to parameter " << CalcPhi(circPar[0],circPar[1]) << " " << circPar[2] << ": distance is " << FindCircDist(sH1,circPar) << flush;
-	    if ( sH1[2] < 1.e-5 ) 
-	      cout << "   new p_z is " << CalcP_Z(circPar,sH1[0],sH1[1],detHit->GetZ()) << " vs " << fTracksVector[itr].trackPars[ipar].p_z << " old" << flush;
-	    cout << endl;
-	  }
-
-	  if ( FindCircDist(sH1,circPar) < maxDist ||
-	       ( sH1[2] < 1.e-5 && FindCircDist(sH1,circPar) < resDist &&
-		 TMath::Abs(CalcP_Z(circPar,sH1[0],sH1[1],detHit->GetZ())-fTracksVector[itr].trackPars[ipar].p_z) < resP_ZD ) ) { 
-	    hitBelongsToTrack = kTRUE;
-
-	    meanPhi += CalcPhi(circPar[0],circPar[1]);
-	    meanRad += circPar[2];
-	    variPhi += CalcPhi(circPar[0],circPar[1])*CalcPhi(circPar[0],circPar[1]);
-	    variRad += circPar[2]*circPar[2];
-	    goodPNR += 1.;
-	    
-	    fTracksVector[itr].trackPars[ipar].n += 1; // because another hit is close to this parameter
-
-	    if ( fVerbose > 4 ) 
-	      cout << " par: " << CalcPhi(circPar[0],circPar[1]) << " | " << circPar[2] << " of track " << itr << " matches to this hit with dist " << FindCircDist(sH1,circPar) << endl;
-	  }	    
-	}
-	if ( !hitBelongsToTrack ) continue;
-
-	// we should put the hit in the track
-	// but I want to check, if the trackPars created using this hit and all other track hits are good enough...
-	for ( Int_t ihitP = 0 ; ihitP < fTracksVector[itr].trackHitD.size() ; ihitP++ ) {
-	  sH2[0] = fTracksVector[itr].trackHits[ihitP]->GetX();
-	  sH2[1] = fTracksVector[itr].trackHits[ihitP]->GetY();
-	  sH2[2] = 0.;
-	  if ( fTracksVector[itr].trackHitD[ihitP] == 2 )
-	    sH2[2] = ((PndSttHit*)fTracksVector[itr].trackHits[ihitP])->GetIsochrone();
-	  
-	  Int_t stepCno = 1; 
-	  if ( sH1[2] < 1.e-5 ) stepCno  = 2;
-	  if ( sH2[2] < 1.e-5 ) stepCno += 2; 
-	  if ( fVerbose > 5 ) 
-	    cout << "stepCno = " << stepCno << " cause " << sH1[2] << " and " << sH2[2] << endl;
-
-	  for ( Int_t icirc = 0 ; icirc < 4 ; icirc += stepCno ) {
-	    if ( FindCircPar(sH1,sH2,sH3,icirc,circPar) ) {
-	      if ( circPar[2] < 10. || circPar[2] > 100000. ) continue;
-	      //	      cout << " phi: " << meanPhi << " vs " << CalcPhi(circPar[0],circPar[1]) 
-	      //		   << " rad: " << meanRad << " vs " << circPar[2] << endl;
-	      Double_t newParP_Z = 0.;	  
-	      if      ( sH1[2] < 1.e-5 ) newParP_Z = CalcP_Z(circPar,sH1[0],sH1[1],detHit->GetZ());
-	      else if ( sH2[2] < 1.e-5 ) newParP_Z = CalcP_Z(circPar,sH2[0],sH2[1],fTracksVector[itr].trackHits[ihitP]->GetZ());
-
-	      if ( fVerbose > 5 ) //itr == INTERESTINGTRACK ) 
-		cout << "should compare (" << CalcPhi(circPar[0],circPar[1]) << " " << circPar[2] << ") with " 
-		     << " (" << meanPhi << "+-" << variPhi << " " << meanRad << "+-" << variRad << ")" << endl;
-// 	      if ( goodPNR > 4 &&
-// 		   ( TMath::Abs(meanPhi - CalcPhi(circPar[0],circPar[1])) > 0.05 ||
-// 		     TMath::Abs(meanRad - circPar[2])                     > 0.2 *meanRad+10. ) )
-// 		continue;
-	      
-
-	      Int_t nofCloseHits = 2;
-	      for ( Int_t ihitF = 0 ; ihitF < fTracksVector[itr].trackHitD.size() ; ihitF++ ) {
-		if ( ihitF == ihitP ) continue;
-		sH4[0] = fTracksVector[itr].trackHits[ihitF]->GetX();
-		sH4[1] = fTracksVector[itr].trackHits[ihitF]->GetY();
-		sH4[2] = 0.;
-		if ( fTracksVector[itr].trackHitD[ihitF] == 2 )
-		  sH4[2] = ((PndSttHit*)fTracksVector[itr].trackHits[ihitF])->GetIsochrone();
-
-		Double_t maxDistComp = 0.01;
-// 		Double_t maxDistComp = 0.1;
-// 		if ( fTracksVector[itr].trackHitD[ihitF] <= 1 ) maxDistComp = 0.15; // MVD
-// 		if ( fTracksVector[itr].trackHitD[ihitF] == 4 ) maxDistComp = 0.1;  // GEM
-
-		if ( FindCircDist(sH4,circPar) < maxDist ||
-		     ( TMath::Abs(newParP_Z) > 1.e-6 && FindCircDist(sH4,circPar) < resDist &&
-		       TMath::Abs(CalcP_Z(circPar,sH4[0],sH4[1],fTracksVector[itr].trackHits[ihitF]->GetZ())-newParP_Z) < resP_ZD ) ) { 
-		  
-		  //		if ( FindCircDist(sH4,circPar) < maxDistComp ) 
-		  nofCloseHits += 1;
-		}
-	      }
-
-	      if ( fVerbose > 5 ) //( itr == INTERESTINGTRACK ) 
-		cout << "there are " << nofCloseHits << " with limit set to " << 0.6*fTracksVector[itr].trackHits.size() << " (0.6*" << fTracksVector[itr].trackHits.size() << ")" << endl;
-	      if ( nofCloseHits < 0.6*fTracksVector[itr].trackHits.size() ) continue; // the track param has not enough close hits
-
-	      TrackParameter tp0;
-	      tp0.x = circPar[0];
-	      tp0.y = circPar[1];
-	      tp0.r = circPar[2];
-	      tp0.p_z = 0.;
-	      // temporary recognition of non-STT hit
-	      // should take only parameters created using hit with VALID z information
-	      if      ( sH1[2] < 1.e-5 ) tp0.p_z = CalcP_Z(circPar,sH1[0],sH1[1],detHit->GetZ());
-	      else if ( sH2[2] < 1.e-5 ) tp0.p_z = CalcP_Z(circPar,sH2[0],sH2[1],fTracksVector[itr].trackHits[ihitP]->GetZ());
-	      tp0.n = nofCloseHits;
-
-	      fTracksVector[itr].trackPars.push_back(tp0);
-
-	      hitBelongsToTrack = kTRUE;
-	    }
-	  }
-	}
-	if ( fVerbose > 5 ) {//itr == INTERESTINGTRACK || fTracksVector[itr].trackHits.size() == 2 ) {//hitDetId[hitN] == 4 ) { //2 && hitDetNo[hitN] == 52 ) {
-	  cout << "  (" << fTracksVector[itr].trackHits[0]->GetX() << "," << fTracksVector[itr].trackHits[0]->GetY() << ") +"
-	       << "  (" << fTracksVector[itr].trackHits[1]->GetX() << "," << fTracksVector[itr].trackHits[1]->GetY() << ") +"
-	       << "? (" << sH1[0] << "," << sH1[1] << ")" << endl;
-	  cout << "HIT DOES " << (hitBelongsToTrack?"":"NOT ") << "BELONG TO TRACK " << itr << " WITH (pars " << goodPNR << " of " << ") ("
-	       << fTracksVector[itr].trackHits.size() << " hits, " << fTracksVector[itr].trackPars.size() << " pars) phi,rad,n: " << endl;
-	  for ( Int_t ipar = 0 ; ipar < fTracksVector[itr].trackPars.size() ; ipar++ ) 
-	    cout << CalcPhi(fTracksVector[itr].trackPars[ipar].x,fTracksVector[itr].trackPars[ipar].y) << " " 
-		 << fTracksVector[itr].trackPars[ipar].r << " "
-		 << fTracksVector[itr].trackPars[ipar].n << "  |  " << flush;
-	  cout << endl;
-	}
-	
-	if ( !hitBelongsToTrack ) continue;
-	fTracksVector[itr].trackHits.push_back(detHit);
-	fTracksVector[itr].trackHitD.push_back(hitDetId[hitN]);
-	fTracksVector[itr].trackHitN.push_back(hitDetNo[hitN]);
-	hitBelongsToAnyTrack = kTRUE;
-      }
-      if ( hitBelongsToAnyTrack ) continue;
-    }
-    
-    // skewed STT hit can not be used for track circle finding
-    if ( skewedSttHit == kTRUE ) {
- 
-      PndSttTube *sttTube = (PndSttTube*) fTubeArray->At(iTube);
-      
-      Double_t ra = TMath::ATan(TMath::Sqrt(sttTube->GetWireDirection().X()*sttTube->GetWireDirection().X()+
-					    sttTube->GetWireDirection().Y()*sttTube->GetWireDirection().Y())/
-				sttTube->GetWireDirection().Z());
-      Double_t a  = 0.5*((PndSttHit*)detHit)->GetIsochrone()*(1.+1./TMath::Cos(ra));
-      
-      Double_t tubePar[8];
-      tubePar[0] = sttTube->GetPosition().X();
-      tubePar[1] = sttTube->GetPosition().Y();
-      tubePar[2] = sttTube->GetPosition().Z();
-      tubePar[3] = sttTube->GetHalfLength();
-      tubePar[4] = sttTube->GetWireDirection().X();
-      tubePar[5] = sttTube->GetWireDirection().Y();
-      tubePar[6] = sttTube->GetWireDirection().Z();
-      tubePar[7] = a;
-
-      Bool_t hitFits = kFALSE;
-
-      for ( Int_t itr = 0 ; itr < fTracksVector.size() ; itr++ ) { 
-	if ( fTracksVector[itr].trackHits.size() <= 3 ) continue;
-
-	Bool_t trackFits = kFALSE;
-	Int_t nofPars = fTracksVector[itr].trackPars.size(); // do it like this, cause can ADD parameters in the loop
-	
-	Double_t meanP_Z = 0.;
-	Double_t goodP_Z = 0.;
-	for ( Int_t ipar = 0 ; ipar < nofPars ; ipar++ ) {
-	  if ( fTracksVector[itr].trackPars[ipar].n < 0.9*fTracksVector[itr].trackHits.size() ) continue;
-	  if ( fTracksVector[itr].trackPars[ipar].p_z < 1.e-6 ) continue;
-	  meanP_Z += fTracksVector[itr].trackPars[ipar].p_z < 1.e-6;
-	  goodP_Z += 1.;
-	}
-	if ( goodP_Z > 0.5 ) 
-	  meanP_Z/goodP_Z;
-	
-	for ( Int_t itp = 0 ; itp < nofPars ; itp++ ) {
-	  if ( fTracksVector[itr].trackPars[itp].n < 0.9*fTracksVector[itr].trackHits.size() ) continue;
-	  Double_t tempRad = fTracksVector[itr].trackPars[itp].r;
-	  Double_t tempPhi = CalcPhi(fTracksVector[itr].trackPars[itp].x,fTracksVector[itr].trackPars[itp].y);
-	  
-	  Double_t tempCirc[4] = {fTracksVector[itr].trackPars[itp].x,
-				  fTracksVector[itr].trackPars[itp].y,
-				  fTracksVector[itr].trackPars[itp].r,
-				  tempPhi};
-	  Double_t intReg[4];
-	  
-	  Int_t nofReg = FindInterestingRegions(tempCirc,tubePar,intReg);
-	  if ( nofReg==0 ) continue;
-
-	  /*cout << "hit " << ihit << "." << hitN << " (" << hitDetId[hitN] << "." << hitDetNo[hitN] << ") connects to " << itr << "/" << itp << " with " << tempRad << " " << tempPhi << " " << fTracksVector[itr].trackPars[itp].p_z << ")" << itr << " at p_z = " << flush;
-	  for ( Int_t ireg = 0 ; ireg < nofReg ; ireg++ ) 
-	    cout << intReg[ireg] << "   " << flush;
-	    cout << endl;*/
-	  
-	  Bool_t parFits = kFALSE;
-	  // this par has no p_z information
-	  if ( TMath::Abs(fTracksVector[itr].trackPars[itp].p_z) < 1.e-6 ) {
-	    // check if there exist reasonable choice
-	    Double_t smallestDiff = 666.;
-	    Int_t    smallestRegD = -1;
-	    if ( goodP_Z > 0.5 ) {
- 	      for ( Int_t ireg = 0 ; ireg < nofReg ; ireg++ ) {
-		if ( TMath::Abs(intReg[ireg]-meanP_Z ) < smallestDiff ) {
-		  smallestDiff = TMath::Abs(intReg[ireg]-meanP_Z);
-		  smallestRegD = ireg;
-		}
-	      }
-	    }
-	    if ( smallestDiff < resP_ZD ) {
-	      fTracksVector[itr].trackPars[itp].p_z  = intReg[smallestRegD];
-	      parFits = kTRUE;
-	    }
-	    else {
-	      fTracksVector[itr].trackPars[itp].p_z  = intReg[0];
-	      parFits = kTRUE;
-	      
-	      if ( nofReg > 1 ) {
-		for ( Int_t ireg = 1 ; ireg < nofReg ; ireg++ ) {
-		  TrackParameter tp0;
-		  tp0.x = tempCirc[0];
-		  tp0.y = tempCirc[1];
-		  tp0.r = tempCirc[2];
-		  tp0.p_z = intReg[ireg];
-		  tp0.n   = fTracksVector[itr].trackPars[itp].n+1;
-		  fTracksVector[itr].trackPars.push_back(tp0);
-		  //		  cout << "creating another trackPar to track " << itr << " with alternative p_z -> " << intReg[ireg] << endl;
-		}
-	      }
-	    }
-	  }
-	  else {	  // this par has already some p_z, check which found one corresponds to the one already there
-	    Double_t smallestDiff = 666.;
-	    Int_t    smallestRegD = -1;
-	    for ( Int_t ireg = 0 ; ireg < nofReg ; ireg++ ) {
-	      if ( TMath::Abs(intReg[ireg]-fTracksVector[itr].trackPars[itp].p_z ) < smallestDiff ) {
-		smallestDiff = TMath::Abs(intReg[ireg]-fTracksVector[itr].trackPars[itp].p_z);
-		smallestRegD = ireg;
-	      }
-	    }
-	    if ( smallestRegD > resP_ZD ) continue;
-// 	    cout << "updating existing trackPar " << itr << "." << itp << " by putting " 
-// 		 << (fTracksVector[itr].trackPars[itp].p_z+intReg[smallestRegD])/2. << " = ( " 
-// 		 << fTracksVector[itr].trackPars[itp].p_z << " + " 
-// 		 << intReg[smallestRegD] << " ) / 2." << endl;
-	    fTracksVector[itr].trackPars[itp].p_z = (fTracksVector[itr].trackPars[itp].p_z+intReg[smallestRegD])/2.;
-
-	    parFits = kTRUE;
-	  }
-	  if ( !parFits ) continue;
-	  
-	  fTracksVector[itr].trackPars[itp].n += 1;
-	  trackFits = kTRUE;
-	}
-	if ( !trackFits ) continue;
-
-	//	cout << "!!!!! ADDING HIT " << hitDetId[hitN] << "." << hitDetNo[hitN] << " to track " << itr << endl;
-	fTracksVector[itr].trackHits.push_back(detHit);
-	fTracksVector[itr].trackHitD.push_back(hitDetId[hitN]);
-	fTracksVector[itr].trackHitN.push_back(hitDetNo[hitN]);
-	hitFits = kTRUE;
-// 	cout << "hit " << ihit << " connects to track (" << meanRad << " " << meanPhi << " " << meanP_Z << ")" << itr << " at p_z = " << flush;
-// 	for ( Int_t ireg = 0 ; ireg < nofReg ; ireg++ ) 
-// 	  cout << intReg[ireg] << "   " << flush;
-// 	cout << endl;
-      }
-      if ( hitFits ) continue;
-
-      hitVector.push_back(detHit);
-      hitVectDI.push_back(hitDetId[hitN]);
-      hitVectHN.push_back(hitDetNo[hitN]);
+    if ( hitBelongsToKnownTrack ) {
+      RemoveHitFromPreviousHits(iuh);
       continue;
     }
 
-    // prepare arrays to fit circles to this hit and all previous from hitVector
-    Int_t nHits = hitVector.size();
-    //    cout << "just checking, got " << nHits << " hits at z= " << flush; 
-//     Double_t circPar[3];
-//     if ( iTube != -1 ) // this is a STT hit
-//       sH1[2] = ((PndSttHit*)detHit)->GetIsochrone();
-
-    std::vector<Int_t> removeHitArray(0);
-
-    // loop over previous hits
-    for ( Int_t iph = 0 ; iph < nHits ; iph++ ) {
-      //      if ( ihit == 52 || ihit == 54 ) cout << "ph XY = " << hitVector[iph]->GetX() << " " << hitVector[iph]->GetY() << endl;
-      sH2[0] = hitVector[iph]->GetX();
-      sH2[1] = hitVector[iph]->GetY();
-      sH2[2] = 0.;
-      //      cout << hitVector[iph]->GetZ() << " " << flush;
-      if ( hitVectDI[iph] == 2 )
-	sH2[2] = ((PndSttHit*)hitVector[iph])->GetIsochrone();
-      else {
-	if ( hitDetId[hitN] == hitVectDI[iph] ) 
-	  if ( TMath::Abs(detHit->GetZ()-hitVector[iph]->GetZ()) < 3. ) 
-	    continue;
-      }
-    
-      Double_t phi2 = CalcPhi(sH2[0],sH2[1]);
-      
-      Double_t phiDiffr = TMath::Abs(phi1-phi2);
-      if ( phiDiffr > TMath::Pi()/10. && phiDiffr < TMath::Pi()*19./10. ) continue;
-
-      Int_t stepCno = 1; 
-      if ( sH1[2] < 1.e-5 ) stepCno  = 2;
-      if ( sH2[2] < 1.e-5 ) stepCno += 2; 
-
-      Int_t fTN = -1;
-      for ( Int_t icirc = 0 ; icirc < 4 ; icirc += stepCno ) {
-	//	cout << icirc << " -------------------------------------------------" << endl;
-	if ( FindCircPar(sH1,sH2,sH3,icirc,circPar) ) {
-	      if ( circPar[2] < 10. || circPar[2] > 100000. ) continue;
-//  	  cout << "  " << sH1[0] << " " << sH1[1] << " " << sH1[2] << endl;
-//  	  cout << "+ " << sH2[0] << " " << sH2[1] << " " << sH2[2] << endl;
-//  	  cout << "+ " << sH3[0] << " " << sH3[1] << " " << sH3[2] << endl;
-//  	  cout << "= " << CalcPhi(circPar[0],circPar[1]) << " " << circPar[2] << endl;
-
-	  TrackParameter tp0;
-	  tp0.x = circPar[0];
-	  tp0.y = circPar[1];
-	  tp0.r = circPar[2];
-	  tp0.p_z = 0.;
-	  // temporary recognition of non-STT hit
-	  // should take only parameters created using hit with VALID z information
-	  if      ( sH1[2] < 1.e-5 ) tp0.p_z = CalcP_Z(circPar,sH1[0],sH1[1],detHit->GetZ());
-	  else if ( sH2[2] < 1.e-5 ) tp0.p_z = CalcP_Z(circPar,sH2[0],sH2[1],hitVector[iph]->GetZ());
-	  tp0.n = 2;
-
-	  if ( fTN == -1 ) {
-	    TrackBasis tb0;
-	    tb0.trackPars.push_back(tp0);
-	    tb0.trackHits.push_back(hitVector[iph]);
-	    tb0.trackHitD.push_back(hitVectDI[iph]);
-	    tb0.trackHitN.push_back(hitVectHN[iph]);
-	    tb0.trackHits.push_back(detHit);
-	    tb0.trackHitD.push_back(hitDetId[hitN]);
-	    tb0.trackHitN.push_back(hitDetNo[hitN]);
-	    tb0.meanX   = tp0.x;
-	    tb0.meanY   = tp0.y;
-	    tb0.meanR   = tp0.r;
-	    tb0.meanP_Z = tp0.p_z;
-
-	    fTN = fTracksVector.size();
-	    fTracksVector.push_back(tb0);
-	    removeHitArray.push_back(iph);
-	    if ( fVerbose > 3 ) {
-	      cout << "created another track" << endl;
-	      //	    if ( ihit == 54 ) {
-	      cout << "   >> with " << CalcPhi(tp0.x,tp0.y) << " (" << tp0.x << "," << tp0.y << ") " << tp0.r << " " << tp0.p_z << "(" << CalcPhi(tp0.x-sH1[0],tp0.y-sH1[1]) << " on " << detHit->GetZ() << ")" << endl;
-	      // 	      Double_t tmpx = sH1[0]-tp0.x;
-	      // 	      Double_t tmpy = sH1[1]-tp0.y;
-	      // 	      cout << " should be: " << sH1[0] << " " << sH1[1] << " ---> " << tmpx << " " << tmpy << endl;
-	      // 	      Double_t rotA = TMath::Pi()-CalcPhi(tp0.x,tp0.y);
-	      // 	      cout << "rotate by " << rotA*TMath::RadToDeg() << " deg" << endl;
-	      // 	      Double_t tmpx2 = tmpx*TMath::Cos(rotA)-tmpy*TMath::Sin(rotA);
-	      // 	      Double_t tmpy2 = tmpx*TMath::Sin(rotA)+tmpy*TMath::Cos(rotA);
-	      // 	      cout << " and then : " << tmpx   << " " << tmpy   << " ---> " << tmpx2 << " " << tmpy2 << endl;
-	      // 	      cout << " and finally: " << CalcPhi(tmpx2,tmpy2) << endl;
-	    }
-	  }
-	  else {
-	    fTracksVector[fTN].meanR = -666.;
-	    fTracksVector[fTN].trackPars.push_back(tp0);
-	    if ( fVerbose > 3 ) {//ihit == 54 ) {
-	      cout << "   >> with " << CalcPhi(tp0.x,tp0.y) << " (" << tp0.x << "," << tp0.y << ") " << tp0.r << " " << tp0.p_z << "(" << CalcPhi(tp0.x-sH1[0],tp0.y-sH1[1]) << " on " << detHit->GetZ() << ")" << endl;
-// 	      Double_t tmpx = sH1[0]-tp0.x;
-// 	      Double_t tmpy = sH1[1]-tp0.y;
-// 	      cout << " should be: " << sH1[0] << " " << sH1[1] << " ---> " << tmpx << " " << tmpy << endl;
-// 	      Double_t rotA = TMath::Pi()-CalcPhi(tp0.x,tp0.y);
-// 	      cout << "rotate by " << rotA*TMath::RadToDeg() << " deg" << endl;
-// 	      Double_t tmpx2 = tmpx*TMath::Cos(rotA)-tmpy*TMath::Sin(rotA);
-// 	      Double_t tmpy2 = tmpx*TMath::Sin(rotA)+tmpy*TMath::Cos(rotA);
-// 	      cout << " and then : " << tmpx   << " " << tmpy   << " ---> " << tmpx2 << " " << tmpy2 << endl;
-// 	      cout << " and finally: " << CalcPhi(tmpx2,tmpy2) << endl;
-	    }
-	    //	    if ( ihit == 54 ) cout << "   >> with " << CalcPhi(tp0.x,tp0.y) << " (" << tp0.x << "," << tp0.y << ") " << tp0.r << " " << tp0.p_z << "(" << CalcPhi(tp0.x-sH1[0],tp0.y-sH1[1]) << " on " << detHit->GetZ() << ")" << endl;
-	  }
-	}
-      }
-      
-    }
-  
-
-    //    cout << endl << "There are " << fTracksVector.size() << " segments in the event" << endl;
-    for ( Int_t irh = removeHitArray.size()-1 ; irh >= 0 ; irh-- ) {
-      for ( Int_t ilhit = removeHitArray[irh] ; ilhit < hitVector.size()-1 ; ilhit++ ) {
-	hitVector[ilhit] = hitVector[ilhit+1];
-	hitVectDI[ilhit] = hitVectDI[ilhit+1];
-	hitVectHN[ilhit] = hitVectHN[ilhit+1];
-      }
-      hitVector.pop_back();
-      hitVectDI.pop_back();
-      hitVectHN.pop_back();
-    }
-
-    if ( removeHitArray.size() > 0 ) continue;
-
-    hitVector.push_back(detHit);
-    hitVectDI.push_back(hitDetId[hitN]);
-    hitVectHN.push_back(hitDetNo[hitN]);
   }
+
+  /*  cout << "==============================================================" << endl;
+  cout << "==============================================================" << endl;
+  cout << "there are still " << fHitVector.size() << " unused hits: " << flush;
+  for ( Int_t iuh = 0 ; iuh < fHitVector.size() ; iuh++ ) 
+    cout << fHitVectDI[iuh] << "." << fHitVectHN[iuh] << " " << flush;
+  cout << endl;
+  cout << "==============================================================" << endl;
+  cout << "==============================================================" << endl;
+  cout << "FOUND " << fTracksVector.size() << " tracks:" << endl;*/
+  if ( fVerbose > 3 )
+    PrintTracks();
+//   cout << "==============================================================" << endl;
+//   cout << "==============================================================" << endl;
+
+  WriteTracks();
   
-  //  cout << endl << "There are " << fTracksVector.size() << " segments in the event" << endl;
+  fTNofEvents++;
+  fTNofTracks += fTracksVector.size();
+
+  fTracksVector.clear();
+  fHitDetId.clear();
+  fHitDetNo.clear();
+  fHitVector.clear();
+  fHitVectDI.clear();
+  fHitVectHN.clear();
+
+  return;
+
   for ( Int_t itr = 0 ; itr < fTracksVector.size() ; itr++ ) {
     if ( fTracksVector[itr].trackHitD.size() < 4 ) continue;
     Double_t meanPhi = 0.;
     Double_t meanRad = 0.;
     Double_t goodPNR = 0.;
-    Double_t meanP_Z = 0.;
-    Double_t goodP_Z = 0.;
+    Double_t meanZ_P = 0.;
+    Double_t goodZ_P = 0.;
     std::vector<Bool_t> parGood(fTracksVector[itr].trackPars.size(),kFALSE);
     for ( Int_t ipar = 0 ; ipar < fTracksVector[itr].trackPars.size() ; ipar++ ) {
       Bool_t reasPar = kFALSE;
       Double_t tempPhi = CalcPhi(fTracksVector[itr].trackPars[ipar].x,fTracksVector[itr].trackPars[ipar].y);
-      if ( fTracksVector[itr].trackPars[ipar].n >= 0.9*fTracksVector[itr].trackHitD.size() ) reasPar = kTRUE;
+      if ( fTracksVector[itr].trackPars[ipar].n >= 0.6*fTracksVector[itr].trackHitD.size() ) reasPar = kTRUE;
       //      if ( fTracksVector[itr].trackPars[ipar].n >= 0.6*fTracksVector[itr].trackHitD.size() &&
       if ( ( TMath::Abs(meanPhi/goodPNR-tempPhi) < 1./10. || TMath::Abs(meanPhi/goodPNR-tempPhi) > (2.*TMath::Pi()-(1./10.)) ) &&
 	   ( TMath::Abs(meanRad/goodPNR-fTracksVector[itr].trackPars[ipar].r) < 0.1*meanRad/goodPNR ) &&
-	   ( TMath::Abs(fTracksVector[itr].trackPars[ipar].p_z) > 1.e-6 && goodP_Z > 0.5 && TMath::Abs(fTracksVector[itr].trackPars[ipar].p_z-meanP_Z/goodP_Z) < 0.005 ) ) reasPar = kTRUE;
-      //      cout << tempPhi << " " << fTracksVector[itr].trackPars[ipar].r << " " << fTracksVector[itr].trackPars[ipar].p_z << " VS " << endl;
+	   ( goodZ_P > 0.5 && fTracksVector[itr].trackPars[ipar].z_p < 1.e6 && TMath::Abs(fTracksVector[itr].trackPars[ipar].z_p-meanZ_P/goodZ_P) < resZ_PD ) )
+	reasPar = kTRUE;
+      //      cout << tempPhi << " " << fTracksVector[itr].trackPars[ipar].r << " " << fTracksVector[itr].trackPars[ipar].z_p << " VS " << endl;
       parGood[ipar] = reasPar;
       if ( reasPar == kFALSE ) continue;
       meanPhi += CalcPhi(fTracksVector[itr].trackPars[ipar].x,fTracksVector[itr].trackPars[ipar].y);
       meanRad += fTracksVector[itr].trackPars[ipar].r;
       goodPNR += 1.;
-      if ( TMath::Abs(fTracksVector[itr].trackPars[ipar].p_z) > 1.e-6 ) {
-	meanP_Z += fTracksVector[itr].trackPars[ipar].p_z;
-	goodP_Z += 1.;
+      if ( fTracksVector[itr].trackPars[ipar].z_p < 1.e6 ) {
+	meanZ_P += fTracksVector[itr].trackPars[ipar].z_p;
+	goodZ_P += 1.;
       }
     }
     //    if ( goodPNR < fTracksVector[itr].trackHits.size() ) continue;
     meanPhi /= goodPNR;
     meanRad /= goodPNR;
-    if ( goodP_Z > 0.5 )
-      meanP_Z /= goodP_Z;
-
+    if ( goodZ_P > 0.5 )
+      meanZ_P = meanZ_P/goodZ_P;
+    else
+      meanZ_P = 2.e6;
+    
+    //     cout << "TRACK " << itr << " > " << meanPhi << " " << meanRad << " " << meanZ_P << " with "
+    // 	 << fTracksVector[itr].trackHitD.size() << " hits and " 
+    // 	 << fTracksVector[itr].trackPars.size() << " params. " << endl;
+    
     //    cout << "TRACK " << itr << " >>> " << flush;
     for ( Int_t ihit = fTracksVector[itr].trackHitD.size()-1 ; ihit >= 0 ; ihit-- ) {
       //cout << fTracksVector[itr].trackHitD[ihit] << "." << fTracksVector[itr].trackHitN[ihit] << " " << flush;
@@ -694,28 +424,31 @@ void PndBarrelTrackFinder::Exec(Option_t* opt) {
 	fTracksVector[itr].trackHitN.pop_back();
       }
     }
-    if ( fTracksVector[itr].trackHitD.size() < 4 ) continue;
+    if ( fTracksVector[itr].trackHitD.size() < 4 ) {
+      //      cout << "removing track " << itr << " cause not enough hits?: " << fTracksVector[itr].trackHitD.size() << endl;
+      continue;
+    }
 
     for ( Int_t iptr = 0 ; iptr < itr ; iptr++ ) {
       if ( fTracksVector[iptr].trackPars[fTracksVector[iptr].trackPars.size()-1].n < 666 ) continue;
       Double_t prevPhi = CalcPhi(fTracksVector[iptr].trackPars[fTracksVector[iptr].trackPars.size()-1].x,
 				 fTracksVector[iptr].trackPars[fTracksVector[iptr].trackPars.size()-1].y);
       Double_t prevRad =         fTracksVector[iptr].trackPars[fTracksVector[iptr].trackPars.size()-1].r;
-      Double_t prevP_Z =         fTracksVector[iptr].trackPars[fTracksVector[iptr].trackPars.size()-1].p_z;
+      Double_t prevZ_P =         fTracksVector[iptr].trackPars[fTracksVector[iptr].trackPars.size()-1].z_p;
 
       Bool_t sameTrack = kFALSE;
       if ( TMath::Abs(prevPhi-meanPhi) < 0.1 || TMath::Abs(prevPhi-meanPhi) > TMath::Pi()-0.1 ) {
 	if ( TMath::Abs(meanRad-prevRad) < 0.1*meanRad ) {
-	  if ( prevP_Z < 1.e-6 || meanP_Z < 1.e-6 ) sameTrack = kTRUE;
-	  else if ( TMath::Abs(prevP_Z-meanP_Z) < 0.001 ) sameTrack = kTRUE;
+	  if ( prevZ_P > 1.e6 || meanZ_P > 1.e6 ) sameTrack = kTRUE;
+	  else if ( TMath::Abs(prevZ_P-meanZ_P) < resZ_PD ) sameTrack = kTRUE;
 	}
       }
       if ( !sameTrack ) continue;
       Double_t goodPRV = (Double_t)fTracksVector[iptr].trackPars[fTracksVector[iptr].trackPars.size()-1].n-666;
 
       if ( fVerbose > 3 ) 
-	cout << "hm, seems that this track (" << meanPhi << " " << meanRad << " " << meanP_Z << " + " << goodPNR << ")" << endl
-	     << "           is the same as (" << prevPhi << " " << prevRad << " " << prevP_Z << " + " << goodPRV << ")" << endl;
+	cout << "hm, seems that this track (" << meanPhi << " " << meanRad << " " << meanZ_P << " + " << goodPNR << ")" << endl
+	     << "           is the same as (" << prevPhi << " " << prevRad << " " << prevZ_P << " + " << goodPRV << ")" << endl;
 
       for ( Int_t ipthit = 0 ; ipthit < fTracksVector[iptr].trackHits.size() ; ipthit++ ) {
 	Bool_t newHit = kTRUE;
@@ -739,15 +472,15 @@ void PndBarrelTrackFinder::Exec(Option_t* opt) {
 	fTracksVector[itr].trackHitD.push_back(fTracksVector[iptr].trackHitD[ipthit]);
 	fTracksVector[itr].trackHitN.push_back(fTracksVector[iptr].trackHitN[ipthit]);
       }
-      
+ 
       meanPhi = (meanPhi*goodPNR+prevPhi*goodPRV)/(goodPNR+goodPRV);
       meanRad = (meanRad*goodPNR+prevRad*goodPRV)/(goodPNR+goodPRV);
-      Double_t newP_Z = 0.;
-      Double_t denP_Z = 0.;
-      if ( TMath::Abs(meanP_Z) > 1.e-6 ) { newP_Z += meanP_Z*goodPNR; denP_Z += goodPNR; }
-      if ( TMath::Abs(prevP_Z) > 1.e-6 ) { newP_Z += prevP_Z*goodPRV; denP_Z += goodPRV; }
-      //  cout << "P_Z = " << meanP_Z << " " << prevP_Z << " " << goodPNR << " " << goodPRV << " " << newP_Z << " " << denP_Z << endl;
-      meanP_Z = newP_Z/denP_Z;
+      Double_t newZ_P = 0.;
+      Double_t denZ_P = 0.;
+      if ( meanZ_P < 1.e6 ) { newZ_P += meanZ_P*goodPNR; denZ_P += goodPNR; }
+      if ( prevZ_P < 1.e6 ) { newZ_P += prevZ_P*goodPRV; denZ_P += goodPRV; }
+      //  cout << "Z_P = " << meanZ_P << " " << prevZ_P << " " << goodPNR << " " << goodPRV << " " << newZ_P << " " << denZ_P << endl;
+      meanZ_P = newZ_P/denZ_P;
       
       goodPNR += goodPRV;
 
@@ -758,9 +491,10 @@ void PndBarrelTrackFinder::Exec(Option_t* opt) {
     tp0.x   = meanRad*TMath::Cos(meanPhi);
     tp0.y   = meanRad*TMath::Sin(meanPhi);
     tp0.r   = meanRad;
-    tp0.p_z = meanP_Z;
+    tp0.z_p = meanZ_P;
     tp0.n   = (Int_t)(666+goodPNR);
     fTracksVector[itr].trackPars.push_back(tp0);
+    //    cout << "putting last track par: " << meanPhi << " " << meanRad << " " << meanZ_P << " n = " << tp0.n << " cause pnr = " << goodPNR << endl;
   
     if ( fVerbose > 2 ) {
       for ( Int_t ipar = 0 ; ipar < fTracksVector[itr].trackPars.size() ; ipar++ ) {
@@ -770,7 +504,7 @@ void PndBarrelTrackFinder::Exec(Option_t* opt) {
 	  cout << "                     BAD         " << flush;
 	cout << "                                 " << CalcPhi(fTracksVector[itr].trackPars[ipar].x,fTracksVector[itr].trackPars[ipar].y) 
 	     << " " << fTracksVector[itr].trackPars[ipar].r
-	     << " " << fTracksVector[itr].trackPars[ipar].p_z
+	     << " " << fTracksVector[itr].trackPars[ipar].z_p
 	     << " " << fTracksVector[itr].trackPars[ipar].n 
 	     << endl;
       }
@@ -783,34 +517,959 @@ void PndBarrelTrackFinder::Exec(Option_t* opt) {
 	     << fTracksVector[itr].trackHits[ihit]->GetY() << " " 
 	     << ((fTracksVector[itr].trackHitD[ihit]!=2)?(fTracksVector[itr].trackHits[ihit]->GetZ()):0.) << endl;
     if ( fVerbose > 3 )
-      cout << "seg " << itr << "(" << fTracksVector[itr].trackHitD.size() << " hits) pars: " << meanPhi << " " << meanRad << " (basing on " << goodPNR << " parameters) and p_z = " << meanP_Z << " (" << goodP_Z << " pars)" << endl;
+      cout << "seg " << itr << "(" << fTracksVector[itr].trackHitD.size() << " hits) pars: " << meanPhi << " " << meanRad << " (basing on " << goodPNR << " parameters) and z_p = " << meanZ_P << " (" << goodZ_P << " pars)" << endl;
     
     //    cout << "---------------------------------------------" << endl;
   }
-  
+    
 
   //  cout << endl << "There are " << fTracksVector.size() << " segments in the event" << endl;
   for ( Int_t itr = 0 ; itr < fTracksVector.size() ; itr++ ) {
     if ( fTracksVector[itr].trackPars[fTracksVector[itr].trackPars.size()-1].n < 676 ) continue;
-      Double_t prevPhi = CalcPhi(fTracksVector[itr].trackPars[fTracksVector[itr].trackPars.size()-1].x,
-				 fTracksVector[itr].trackPars[fTracksVector[itr].trackPars.size()-1].y);
-      Double_t prevRad =         fTracksVector[itr].trackPars[fTracksVector[itr].trackPars.size()-1].r;
-      Double_t prevP_Z =         fTracksVector[itr].trackPars[fTracksVector[itr].trackPars.size()-1].p_z;
-      Double_t goodPRV = (Double_t)fTracksVector[itr].trackPars[fTracksVector[itr].trackPars.size()-1].n-666;
-      //      cout << " seg " << itr << " (" << fTracksVector[itr].trackHitD.size() << " hits) pars: " << prevPhi << " " << prevRad << " " << prevP_Z << " (basing on " << goodPRV << " parameters) " << endl;
-      if ( TMath::IsNaN(prevP_Z) ) prevP_Z = 0.;
-      cout << "F " << prevPhi << " " << prevRad << " " << prevP_Z << endl;
-//       for ( Int_t ihit = 0 ; ihit < fTracksVector[itr].trackHitD.size() ; ihit++ )
-// 	cout << fTracksVector[itr].trackHitD[ihit] << "." << fTracksVector[itr].trackHitN[ihit] << " " << flush;
-//       cout << endl;
+    Double_t prevPhi = CalcPhi(fTracksVector[itr].trackPars[fTracksVector[itr].trackPars.size()-1].x,
+			       fTracksVector[itr].trackPars[fTracksVector[itr].trackPars.size()-1].y);
+    Double_t prevRad =         fTracksVector[itr].trackPars[fTracksVector[itr].trackPars.size()-1].r;
+    Double_t prevZ_P =         fTracksVector[itr].trackPars[fTracksVector[itr].trackPars.size()-1].z_p;
+    Double_t goodPRV = (Double_t)fTracksVector[itr].trackPars[fTracksVector[itr].trackPars.size()-1].n-666;
+    //      cout << " seg " << itr << " (" << fTracksVector[itr].trackHitD.size() << " hits) pars: " << prevPhi << " " << prevRad << " " << prevZ_P << " (basing on " << goodPRV << " parameters) " << endl;
+    if ( TMath::IsNaN(prevZ_P) ) prevZ_P = 2.e6;
+
+    //       for ( Int_t ihit = 0 ; ihit < fTracksVector[itr].trackHitD.size() ; ihit++ )
+    // 	cout << fTracksVector[itr].trackHitD[ihit] << "." << fTracksVector[itr].trackHitN[ihit] << " " << flush;
+    //       cout << endl;
+    Double_t calcPt = prevRad/165.974;
+    Double_t calcPz = prevZ_P*0.0058997;
+    Double_t calcP  = TMath::Sqrt(calcPt*calcPt+calcPz*calcPz);
+    Double_t calcThe = TMath::ACos(calcPz/calcP);
+    
+    Double_t calcPhi = prevPhi-TMath::Pi()/2.;
+    Double_t calcChg = 1.;
+    if ( calcPhi < 0. ) calcPhi += TMath::Pi()*2.;
+    Double_t firpPhi = CalcPhi(fTracksVector[itr].trackHits[0]->GetX(),fTracksVector[itr].trackHits[0]->GetY());
+    if ( TMath::Abs(calcPhi-firpPhi) > TMath::Pi()/2. && TMath::Abs(calcPhi-firpPhi) < 3.*TMath::Pi()/2. ) {
+      calcPhi = prevPhi+TMath::Pi()/2.;
+      if ( calcPhi > 2.*TMath::Pi() ) calcPhi -= TMath::Pi()*2.;
+      calcChg = -1.;
+    }
+    if ( calcPhi > TMath::Pi() )
+      calcPhi -= 2.*TMath::Pi();
+
+    cout << "F " << prevPhi << " " << prevRad << " " << prevZ_P << "    " << calcPt << "  " << calcPhi << " " << calcPz << " " << calcP << " " << calcPhi << " " << calcThe << endl;//flush;
+    
+    //    cout << "                      MTP: " << calcP << " " << calcPhi << " " << calcThe << " and charge = " << calcChg << flush;
+    
+    TVector3 trackPosition(0.,0.,0.);
+    TVector3 trackMomentum;
+    trackMomentum.SetMagThetaPhi(calcP,calcThe,calcPhi);
+    
+    PndTrackCand* trackCand = new((*fBarrelTrackCandArray)[nofCreatedTracks]) PndTrackCand();
+
+    std::vector<Int_t> trackHitsPerDet(5,0);
+    for ( Int_t ihit = 0 ; ihit < fTracksVector[itr].trackHitD.size() ; ihit++ ) {
+      trackHitsPerDet[fTracksVector[itr].trackHitD[ihit]] += 1;
+      Double_t tempPos = TMath::Sqrt(fTracksVector[itr].trackHits[ihit]->GetX()*fTracksVector[itr].trackHits[ihit]->GetX()+
+				     fTracksVector[itr].trackHits[ihit]->GetY()*fTracksVector[itr].trackHits[ihit]->GetY()+
+				     fTracksVector[itr].trackHits[ihit]->GetZ()*fTracksVector[itr].trackHits[ihit]->GetZ());
+      trackCand->AddHit(fDetType[fTracksVector[itr].trackHitD[ihit]],
+			fTracksVector[itr].trackHitN[ihit],
+			tempPos);
+			//			fTracksVector[itr].trackHits[ihit]->GetPosition().Mag());
+      trackCand->setMcTrackId(nofCreatedTracks);
+      trackCand->setTrackSeed(trackPosition,
+			      trackMomentum,
+			      calcChg/calcP);
+    }
+    trackCand->Sort();
+
+    FairTrackParP*	    firstPar = new FairTrackParP(trackPosition,trackMomentum,
+							 TVector3(0.5, 0.5, 0.5),
+							 0.1*trackMomentum,
+							 calcChg,
+							 trackPosition,
+							 TVector3(1.,0.,0.),
+							 TVector3(0.,1.,0.));					 
+    TVector3 tempVect1(trackHitsPerDet[0],trackHitsPerDet[1],trackHitsPerDet[2]);
+    TVector3 tempVect2(trackHitsPerDet[3],trackHitsPerDet[4],0.); 
+
+  //    FairTrackParP*	    lastPar = new FairTrackParP(trackPosition,trackMomentum,
+  FairTrackParP*	    lastPar = new FairTrackParP(tempVect1,tempVect2,
+							TVector3(0.5, 0.5, 0.5),
+							0.1*trackMomentum,
+							calcChg,
+							trackPosition,
+							TVector3(1.,0.,0.),
+							TVector3(0.,1.,0.));					 
+    
+    new((*fBarrelTrackArray)[nofCreatedTracks]) PndTrack(*firstPar,*lastPar,*trackCand);
+
+    nofCreatedTracks++;
+
+    //    cout << endl;
   }
 
   fTNofEvents++;
   
   fTracksVector.clear();
+  fHitDetId.clear();
+  fHitDetNo.clear();
+  fHitVector.clear();
+  fHitVectDI.clear();
+  fHitVectHN.clear();
 
+  fTNofTracks += nofCreatedTracks;
 }
 // -------------------------------------------------------------------------
+
+// -----   Private method MatchHitToTrack   -------------------------------
+Bool_t PndBarrelTrackFinder::MatchHitToTrack (FairHit* thisHit, Int_t detId, Int_t hitNo, Int_t trackNo) {
+}
+// -------------------------------------------------------------------------
+
+// -----   Private method HitBelongsToTrack   -------------------------------
+Bool_t PndBarrelTrackFinder::HitBelongsToTrack(Int_t detId, Int_t hitNo, Int_t trackNo) {
+  for ( Int_t ihitP = 0 ; ihitP < fTracksVector[trackNo].trackHitD.size() ; ihitP++ ) {
+    if ( fTracksVector[trackNo].trackHitD[ihitP] == detId &&
+	 fTracksVector[trackNo].trackHitN[ihitP] == hitNo ) 
+      return kTRUE;
+  }
+  return kFALSE;
+}
+// -------------------------------------------------------------------------
+
+// -----   Private method MatchSkewedSttHitTT   -------------------------------
+Bool_t PndBarrelTrackFinder::MatchSkewedSttHitTT     (FairHit* thisHit, Int_t detId, Int_t hitNo, Int_t trackNo) {
+  Bool_t printInfo = kFALSE;//kTRUE;
+//   if ( fVerbose > 4 ) 
+//     cout << "skewed hit" << endl;
+  if ( TMath::Abs(fTracksVector[trackNo].meanR) < 1. ) return kFALSE;
+
+  Int_t iTube = ((PndSttHit*)thisHit)->GetTubeID(); 
+  PndSttTube *sttTube = (PndSttTube*) fTubeArray->At(iTube);
+      
+  Double_t ra = TMath::ATan(TMath::Sqrt(sttTube->GetWireDirection().X()*sttTube->GetWireDirection().X()+
+					sttTube->GetWireDirection().Y()*sttTube->GetWireDirection().Y())/
+			    sttTube->GetWireDirection().Z());
+  Double_t a  = 0.5*((PndSttHit*)thisHit)->GetIsochrone()*(1.+1./TMath::Cos(ra));
+      
+  Double_t tubePar[8];
+  tubePar[0] = sttTube->GetPosition().X();
+  tubePar[1] = sttTube->GetPosition().Y();
+  tubePar[2] = sttTube->GetPosition().Z();
+  tubePar[3] = sttTube->GetHalfLength();
+  tubePar[4] = sttTube->GetWireDirection().X();
+  tubePar[5] = sttTube->GetWireDirection().Y();
+  tubePar[6] = sttTube->GetWireDirection().Z();
+  tubePar[7] = a;
+  
+  Bool_t hitFits = kFALSE;
+
+  if ( fVerbose > 4 || printInfo )     
+    cout << "matching to track " << trackNo << " with " << fTracksVector[trackNo].trackHits.size() << " hits" << endl;
+  
+  Bool_t trackFits = kFALSE;
+  Int_t nofPars = fTracksVector[trackNo].trackPars.size(); // do it like this, cause can ADD parameters in the loop
+  
+  Double_t meanPhi = CalcPhi(fTracksVector[trackNo].meanX,fTracksVector[trackNo].meanY);
+  Double_t meanCirc[4] = {fTracksVector[trackNo].meanX,
+			  fTracksVector[trackNo].meanY,
+			  fTracksVector[trackNo].meanR,
+			  meanPhi};
+  Double_t intReg[4];
+  
+  Int_t nofReg = FindInterestingRegions(meanCirc,tubePar,intReg);
+  if ( nofReg==0 ) return kFALSE;
+  
+  if ( fVerbose > 4 || printInfo ) {
+    cout << " --> connects to "   << trackNo << " with (" 
+	 << meanPhi << " " 
+	 << meanCirc[2] << " "
+	 << fTracksVector[trackNo].meanZ_P << ") at z_p = " << flush;
+      for ( Int_t ireg = 0 ; ireg < nofReg ; ireg++ ) 
+	cout << intReg[ireg] << "   " << flush;
+      cout << endl;
+  }
+
+  // there is no mean z_p, attach all we can
+  if ( fTracksVector[trackNo].meanZ_P > 1.e6 ) {
+    for ( Int_t ireg = 0 ; ireg < nofReg ; ireg++ ) {
+      TrackParameter tp0;
+      tp0.x = meanCirc[0];
+      tp0.y = meanCirc[1];
+      tp0.r = meanCirc[2];
+      tp0.z_p = intReg[ireg];
+      tp0.n   = 400/nofReg;//fTracksVector[trackNo].trackHits.size();
+      fTracksVector[trackNo].trackPars.push_back(tp0);
+      if ( fVerbose > 4 || printInfo )
+	cout << "creating another trackPar to track " << trackNo << " with z_p -> " << intReg[ireg] << endl;
+    }
+    fTracksVector[trackNo].trackHits.push_back(thisHit);
+    fTracksVector[trackNo].trackHitD.push_back(detId);
+    fTracksVector[trackNo].trackHitN.push_back(hitNo);
+
+    ExtractMeanZ_PFromTrack(trackNo);
+  }
+  // there is already mean z_p !!!, check if any is good
+  else {
+    //    cout << "should compare if any of new found z_p: " << flush;
+    for ( Int_t ireg = 0 ; ireg < nofReg ; ireg++ ) {
+      //cout << intReg[ireg] << " " << flush;
+      if ( TMath::Abs(intReg[ireg]-fTracksVector[trackNo].meanZ_P) < fReasonableZ_PD )
+	trackFits = kTRUE;
+    }
+    //    cout << " is close enough to mean: " << fTracksVector[trackNo].meanZ_P << endl; 
+    if ( !trackFits ) return kFALSE;
+
+    fTracksVector[trackNo].trackHits.push_back(thisHit);
+    fTracksVector[trackNo].trackHitD.push_back(detId);
+    fTracksVector[trackNo].trackHitN.push_back(hitNo);
+  }
+
+  return kTRUE;
+}
+// -------------------------------------------------------------------------
+
+// -----   Private method MatchParallelSttHitTT   -------------------------------
+Bool_t PndBarrelTrackFinder::MatchParallelSttHitTT    (FairHit* thisHit, Int_t detId, Int_t hitNo, Int_t trackNo) {
+  Bool_t hitBelongsToTrack = kFALSE;
+
+  Double_t sH1[3] = {thisHit->GetX(),thisHit->GetY(),0.};
+  sH1[2] = ((PndSttHit*)thisHit)->GetIsochrone();
+  Double_t sH2[3]; // in the loop over track previous hits
+  Double_t sH3[3] = {0.,0.,0.}; // set to origin now, should be another hit (double for loop over hits)
+  Double_t sH4[3]; // another loop over hits
+  Double_t circPar[3];
+ 
+  Double_t thisHitPhi   = CalcPhi(sH1[0],sH1[1]);
+  Double_t thisTrackPhi = CalcPhi(fTracksVector[trackNo].trackHits[0]->GetX(),fTracksVector[trackNo].trackHits[0]->GetY());
+  Double_t phiHTDiffr   = TMath::Abs(thisHitPhi-thisTrackPhi);
+  if ( phiHTDiffr > TMath::Pi()/4. && phiHTDiffr < TMath::Pi()*7./4. ) return kFALSE; // checking if hit and track match approximately, should make it radius dependent
+  
+  if ( TMath::Abs(fTracksVector[trackNo].meanR) > 1. ) {
+    circPar[0] = fTracksVector[trackNo].meanX;
+    circPar[1] = fTracksVector[trackNo].meanY;
+    circPar[2] = fTracksVector[trackNo].meanR;
+
+    if ( FindCircDist(circPar,sH1) < fReasonableDist )
+      hitBelongsToTrack = kTRUE;
+    if ( !hitBelongsToTrack ) return kFALSE;
+    
+    // putting thisHit into track
+    fTracksVector[trackNo].trackHits.push_back(thisHit);
+    fTracksVector[trackNo].trackHitD.push_back(detId);
+    fTracksVector[trackNo].trackHitN.push_back(hitNo);
+
+    if ( fVerbose > 3 )
+      cout << "this stt hit belongs to track " << trackNo << endl;
+  }
+  else {
+    // track has no mean information yet
+    for ( Int_t ipar = 0 ; ipar < fTracksVector[trackNo].trackPars.size() ; ipar++ ) {
+      if ( fTracksVector[trackNo].trackPars[ipar].n < 0.9*fTracksVector[trackNo].trackHits.size() ) continue;
+      
+      circPar[0] = fTracksVector[trackNo].trackPars[ipar].x;
+      circPar[1] = fTracksVector[trackNo].trackPars[ipar].y;
+      circPar[2] = fTracksVector[trackNo].trackPars[ipar].r;
+      
+      if ( fVerbose > 4 ) {
+	cout << " ..... to parameter " << CalcPhi(circPar[0],circPar[1]) << " " << circPar[2] << ": distance is " << FindCircDist(sH1,circPar) << flush;
+	cout << endl;
+      }
+    
+      if ( FindCircDist(sH1,circPar) < fMaximalDist ) {
+	hitBelongsToTrack = kTRUE;
+      
+	fTracksVector[trackNo].trackPars[ipar].n += 1; // because thisHit is close to parameter ipar
+      
+	if ( fVerbose > 4 ) 
+	  cout << " par: " << CalcPhi(circPar[0],circPar[1]) << " | " << circPar[2] << " of track " << trackNo 
+	       << " matches to this hit with dist " << FindCircDist(sH1,circPar) << endl;
+      }	    
+    }
+    if ( !hitBelongsToTrack ) return kFALSE;
+
+    // calculating track parameters with previous hits belonging to the track
+    for ( Int_t ihitP = 0 ; ihitP < fTracksVector[trackNo].trackHitD.size() ; ihitP++ ) {
+      sH2[0] = fTracksVector[trackNo].trackHits[ihitP]->GetX();
+      sH2[1] = fTracksVector[trackNo].trackHits[ihitP]->GetY();
+      sH2[2] = 0.;
+      if ( fTracksVector[trackNo].trackHitD[ihitP] == 2 )
+	sH2[2] = ((PndSttHit*)fTracksVector[trackNo].trackHits[ihitP])->GetIsochrone();
+      
+      Int_t stepCno = 1; 
+      if ( sH2[2] < 1.e-5 ) stepCno += 2; 
+      
+      for ( Int_t icirc = 0 ; icirc < 4 ; icirc += stepCno ) {
+	if ( FindCircPar(sH1,sH2,sH3,icirc,circPar) ) {
+	  if ( circPar[2] < 10. || circPar[2] > 100000. ) continue; // for now remove too egzotic tracks
+	  
+	  Double_t newParZ_P = 2.e6;
+	  if ( sH2[2] < 1.e-5 ) newParZ_P = CalcZ_P(circPar,sH2[0],sH2[1],fTracksVector[trackNo].trackHits[ihitP]->GetZ());
+	  
+	  Int_t nofCloseHits = 2;
+	  for ( Int_t ihitF = 0 ; ihitF < fTracksVector[trackNo].trackHitD.size() ; ihitF++ ) {
+	    if ( ihitF == ihitP ) continue;
+	    sH4[0] = fTracksVector[trackNo].trackHits[ihitF]->GetX();
+	    sH4[1] = fTracksVector[trackNo].trackHits[ihitF]->GetY();
+	    sH4[2] = 0.;
+	    if ( fTracksVector[trackNo].trackHitD[ihitF] == 2 )
+	      sH4[2] = ((PndSttHit*)fTracksVector[trackNo].trackHits[ihitF])->GetIsochrone();
+	    
+	    if ( FindCircDist(sH4,circPar) < fMaximalDist ||     // if the hit is very very close to the new parameter in xy plane
+		 ( newParZ_P < 1.e6 && FindCircDist(sH4,circPar) < fReasonableDist &&   // if the hit is close to the new parameter in xy plane and pz space
+		   TMath::Abs(CalcZ_P(circPar,sH4[0],sH4[1],fTracksVector[trackNo].trackHits[ihitF]->GetZ())-newParZ_P) < fMaximalZ_PD ) ) { 
+	      nofCloseHits += 1;
+	    }
+	  }
+	  
+	  if ( fVerbose > 5 ) 
+	    cout << "there are " << nofCloseHits << " with limit set to " << 0.6*fTracksVector[trackNo].trackHits.size() << " (0.6*" << fTracksVector[trackNo].trackHits.size() << ")" << endl;
+	  if ( nofCloseHits < 0.6*fTracksVector[trackNo].trackHits.size() ) continue; // the track param has not enough close hits among previous track hits
+	  
+	  TrackParameter tp0;
+	  tp0.x   = circPar[0];
+	  tp0.y   = circPar[1];
+	  tp0.r   = circPar[2];
+	  tp0.z_p = newParZ_P;
+	  tp0.n   = nofCloseHits;
+	  
+	  fTracksVector[trackNo].trackPars.push_back(tp0);
+	  
+	}
+      }
+    }
+
+    // putting thisHit into track
+    fTracksVector[trackNo].trackHits.push_back(thisHit);
+    fTracksVector[trackNo].trackHitD.push_back(detId);
+    fTracksVector[trackNo].trackHitN.push_back(hitNo);
+
+    if ( fVerbose > 5 ) {
+      cout << "HIT DOES " << (hitBelongsToTrack?"":"NOT ") << "BELONG TO TRACK " << trackNo << " WITH "
+	   << fTracksVector[trackNo].trackHits.size() << " HITS, " << fTracksVector[trackNo].trackPars.size() << " PARS: phi,rad,z_p,n: " << endl;
+      for ( Int_t ipar = 0 ; ipar < fTracksVector[trackNo].trackPars.size() ; ipar++ ) 
+	cout << CalcPhi(fTracksVector[trackNo].trackPars[ipar].x,fTracksVector[trackNo].trackPars[ipar].y) << " " 
+	     << fTracksVector[trackNo].trackPars[ipar].r << " "
+	     << fTracksVector[trackNo].trackPars[ipar].z_p << " "
+	     << fTracksVector[trackNo].trackPars[ipar].n << "  |  " << flush;
+      cout << endl;
+    }
+
+    ExtractMeanRPhiFromTrack(trackNo);
+  }
+
+  return kTRUE;
+}
+// -------------------------------------------------------------------------
+
+// -----   Private method MatchHitWithZInfoTT   -------------------------------
+Bool_t PndBarrelTrackFinder::MatchHitWithZInfoTT     (FairHit* thisHit, Int_t detId, Int_t hitNo, Int_t trackNo) {
+  Bool_t hitBelongsToTrack = kFALSE;
+
+  Double_t sH1[3] = {thisHit->GetX(),thisHit->GetY(),0.};
+  Double_t sH2[3]; // in the loop over track previous hits
+  Double_t sH3[3] = {0.,0.,0.}; // set to origin now, should be another hit (double for loop over hits)
+  Double_t sH4[3]; // another loop over hits
+  Double_t circPar[3];
+ 
+  Double_t thisHitPhi   = CalcPhi(sH1[0],sH1[1]);
+  Double_t thisTrackPhi = CalcPhi(fTracksVector[trackNo].trackHits[0]->GetX(),fTracksVector[trackNo].trackHits[0]->GetY());
+  Double_t phiHTDiffr   = TMath::Abs(thisHitPhi-thisTrackPhi);
+  if ( phiHTDiffr > TMath::Pi()/4. && phiHTDiffr < TMath::Pi()*7./4. ) return kFALSE; // checking if hit and track match approximately, should make it radius dependent
+  
+  if ( TMath::Abs(fTracksVector[trackNo].meanR) > 1. ) {
+    circPar[0] = fTracksVector[trackNo].meanX;
+    circPar[1] = fTracksVector[trackNo].meanY;
+    circPar[2] = fTracksVector[trackNo].meanR;
+
+    if ( FindCircDist(circPar,sH1) < fReasonableDist )
+      hitBelongsToTrack = kTRUE;
+    if ( !hitBelongsToTrack ) return kFALSE;
+
+    if ( fTracksVector[trackNo].meanZ_P > 1.e6 ) {
+      TrackParameter tp0;
+      tp0.x = circPar[0];
+      tp0.y = circPar[1];
+      tp0.r = circPar[2];
+      tp0.z_p = CalcZ_P(circPar,sH1[0],sH1[1],thisHit->GetZ());
+      tp0.n   = 400;
+      fTracksVector[trackNo].trackPars.push_back(tp0);
+
+      // putting thisHit into track
+      fTracksVector[trackNo].trackHits.push_back(thisHit);
+      fTracksVector[trackNo].trackHitD.push_back(detId);
+      fTracksVector[trackNo].trackHitN.push_back(hitNo);
+      ExtractMeanZ_PFromTrack(trackNo);
+    }
+    else {
+      //      cout << "should compare if new found z_p " << CalcZ_P(circPar,sH1[0],sH1[1],thisHit->GetZ()) << " is close enough to mean: " << fTracksVector[trackNo].meanZ_P << endl; 
+
+      if ( TMath::Abs(CalcZ_P(circPar,sH1[0],sH1[1],thisHit->GetZ())-fTracksVector[trackNo].meanZ_P) < fReasonableZ_PD ) {
+	// putting thisHit into track
+	fTracksVector[trackNo].trackHits.push_back(thisHit);
+	fTracksVector[trackNo].trackHitD.push_back(detId);
+	fTracksVector[trackNo].trackHitN.push_back(hitNo);
+      }
+      else
+	return kFALSE;
+    }
+    if ( fVerbose > 3 )
+      cout << " This hit belongs to track " << trackNo << " with " << CalcZ_P(circPar,sH1[0],sH1[1],thisHit->GetZ()) << endl;
+  }
+  else {
+    // track has no mean information yet
+    for ( Int_t ipar = 0 ; ipar < fTracksVector[trackNo].trackPars.size() ; ipar++ ) {
+      if ( fTracksVector[trackNo].trackPars[ipar].n < 0.9*fTracksVector[trackNo].trackHits.size() ) continue;
+      
+      circPar[0] = fTracksVector[trackNo].trackPars[ipar].x;
+      circPar[1] = fTracksVector[trackNo].trackPars[ipar].y;
+      circPar[2] = fTracksVector[trackNo].trackPars[ipar].r;
+      
+      if ( fVerbose > 4 ) {
+	cout << " ..... to parameter " << CalcPhi(circPar[0],circPar[1]) << " " << circPar[2] << ": distance is " << FindCircDist(sH1,circPar) << flush;
+	cout << "   new z_p is " << CalcZ_P(circPar,sH1[0],sH1[1],thisHit->GetZ()) << " vs " << fTracksVector[trackNo].trackPars[ipar].z_p << " old" << flush;
+	cout << endl;
+      }
+      
+      if ( FindCircDist(sH1,circPar) < fMaximalDist ||
+	   ( FindCircDist(sH1,circPar) < fReasonableDist &&
+	     TMath::Abs(CalcZ_P(circPar,sH1[0],sH1[1],thisHit->GetZ())-fTracksVector[trackNo].trackPars[ipar].z_p) < fMaximalZ_PD ) ) { 
+	hitBelongsToTrack = kTRUE;
+	
+	fTracksVector[trackNo].trackPars[ipar].n += 1; // because thisHit is close to parameter ipar
+	
+	if ( fVerbose > 4 ) 
+	  cout << " par: " << CalcPhi(circPar[0],circPar[1]) << " | " << circPar[2] << " of track " << trackNo 
+	       << " matches to this hit with dist " << FindCircDist(sH1,circPar) << endl;
+      }	    
+    }
+    if ( !hitBelongsToTrack ) return kFALSE;
+    
+    // calculating track parameters with previous hits belonging to the track
+    for ( Int_t ihitP = 0 ; ihitP < fTracksVector[trackNo].trackHitD.size() ; ihitP++ ) {
+      sH2[0] = fTracksVector[trackNo].trackHits[ihitP]->GetX();
+      sH2[1] = fTracksVector[trackNo].trackHits[ihitP]->GetY();
+      sH2[2] = 0.;
+      if ( fTracksVector[trackNo].trackHitD[ihitP] == 2 )
+	sH2[2] = ((PndSttHit*)fTracksVector[trackNo].trackHits[ihitP])->GetIsochrone();
+      
+      Int_t stepCno = 2;
+      if ( sH2[2] < 1.e-5 ) stepCno += 2; 
+      
+      for ( Int_t icirc = 0 ; icirc < 4 ; icirc += stepCno ) {
+	if ( FindCircPar(sH1,sH2,sH3,icirc,circPar) ) {
+	  if ( circPar[2] < 10. || circPar[2] > 100000. ) continue; // for now remove too egzotic tracks
+	  
+	  Double_t newParZ_P = CalcZ_P(circPar,sH1[0],sH1[1],thisHit->GetZ());
+	  
+	  Int_t nofCloseHits = 2;
+	  for ( Int_t ihitF = 0 ; ihitF < fTracksVector[trackNo].trackHitD.size() ; ihitF++ ) {
+	    if ( ihitF == ihitP ) continue;
+	    sH4[0] = fTracksVector[trackNo].trackHits[ihitF]->GetX();
+	    sH4[1] = fTracksVector[trackNo].trackHits[ihitF]->GetY();
+	    sH4[2] = 0.;
+	    if ( fTracksVector[trackNo].trackHitD[ihitF] == 2 )
+	      sH4[2] = ((PndSttHit*)fTracksVector[trackNo].trackHits[ihitF])->GetIsochrone();
+	    
+	    if ( FindCircDist(sH4,circPar) < fMaximalDist ||     // if the hit is very very close to the new parameter in xy plane
+		 ( FindCircDist(sH4,circPar) < fReasonableDist &&   // if the hit is close to the new parameter in xy plane and pz space
+		   TMath::Abs(CalcZ_P(circPar,sH4[0],sH4[1],fTracksVector[trackNo].trackHits[ihitF]->GetZ())-newParZ_P) < fMaximalZ_PD ) ) { 
+	      nofCloseHits += 1;
+	    }
+	  }
+	  
+	  if ( fVerbose > 5 ) 
+	    cout << "there are " << nofCloseHits << " with limit set to " << 0.6*fTracksVector[trackNo].trackHits.size() << " (0.6*" << fTracksVector[trackNo].trackHits.size() << ")" << endl;
+	  if ( nofCloseHits < 0.6*fTracksVector[trackNo].trackHits.size() ) continue; // the track param has not enough close hits among previous track hits
+	  
+	  TrackParameter tp0;
+	  tp0.x   = circPar[0];
+	  tp0.y   = circPar[1];
+	  tp0.r   = circPar[2];
+	  tp0.z_p = newParZ_P;
+	  tp0.n   = nofCloseHits;
+	  
+	  fTracksVector[trackNo].trackPars.push_back(tp0);
+	  
+	}
+      }
+    }
+
+    // putting thisHit into track
+    fTracksVector[trackNo].trackHits.push_back(thisHit);
+    fTracksVector[trackNo].trackHitD.push_back(detId);
+    fTracksVector[trackNo].trackHitN.push_back(hitNo);
+
+    if ( fVerbose > 5 ) {
+      cout << "HIT DOES " << (hitBelongsToTrack?"":"NOT ") << "BELONG TO TRACK " << trackNo << " WITH "
+	   << fTracksVector[trackNo].trackHits.size() << " HITS, " << fTracksVector[trackNo].trackPars.size() << " PARS: phi,rad,z_p,n: " << endl;
+      for ( Int_t ipar = 0 ; ipar < fTracksVector[trackNo].trackPars.size() ; ipar++ ) 
+	cout << CalcPhi(fTracksVector[trackNo].trackPars[ipar].x,fTracksVector[trackNo].trackPars[ipar].y) << " " 
+	     << fTracksVector[trackNo].trackPars[ipar].r << " "
+	     << fTracksVector[trackNo].trackPars[ipar].z_p << " "
+	     << fTracksVector[trackNo].trackPars[ipar].n << "  |  " << flush;
+      cout << endl;
+    }
+
+    ExtractMeanRPhiFromTrack(trackNo);
+  }  
+
+  return kTRUE;
+}
+// -------------------------------------------------------------------------
+
+// -----   Private method MatchHitToHit   -------------------------------
+Bool_t PndBarrelTrackFinder::MatchHitToHit   (FairHit* thisHit, Int_t detId, Int_t hitNo, Int_t prevHNo) {
+  Double_t sH1[3] = {thisHit->GetX(),thisHit->GetY(),0.};
+  if ( detId == 2 ) 
+    sH1[2] = ((PndSttHit*)thisHit)->GetIsochrone();
+
+  Double_t sH2[3] = {fHitVector[prevHNo]->GetX(),fHitVector[prevHNo]->GetY(),0.};
+  if ( fHitVectDI[prevHNo] == 2 ) 
+    sH2[2] = ((PndSttHit*)fHitVector[prevHNo])->GetIsochrone();
+
+  Double_t sH3[3] = {0.,0.,0.}; // set to origin now, should be another hit (double for loop over hits)
+  Double_t circPar[3];
+
+  //      cout << fHitVector[prevHNo]->GetZ() << " " << flush;
+  if ( fHitVectDI[prevHNo] == 2 ) {
+    Int_t prevTube = ((PndSttHit*)fHitVector[prevHNo])->GetTubeID(); 
+    PndSttTube *sttTube = (PndSttTube*) fTubeArray->At(prevTube);
+    if ( sttTube->GetWireDirection().Z() < 1. )
+      return kFALSE;
+    sH2[2] = ((PndSttHit*)fHitVector[prevHNo])->GetIsochrone();
+  }
+  else {
+    if ( detId == fHitVectDI[prevHNo] ) 
+      if ( TMath::Abs(thisHit->GetZ()-fHitVector[prevHNo]->GetZ()) < 3. ) 
+	return kFALSE;
+  }
+  
+  Bool_t hitsMatched = kFALSE;
+
+  Double_t thisHitPhi = CalcPhi(sH1[0],sH1[1]);
+  Double_t prevHitPhi = CalcPhi(sH2[0],sH2[1]);
+  
+  Double_t phiDiffr = TMath::Abs(thisHitPhi-prevHitPhi);
+  if ( phiDiffr > TMath::Pi()/10. && phiDiffr < TMath::Pi()*19./10. ) return kFALSE;
+  
+  Int_t stepCno = 1; 
+  if ( sH1[2] < 1.e-5 ) stepCno  = 2;
+  if ( sH2[2] < 1.e-5 ) stepCno += 2; 
+//   cout << "stepCno = " << stepCno << " cause " << sH1[2] << " and " << sH2[2] << endl;
+  
+  Int_t fTN = -1;
+  for ( Int_t icirc = 0 ; icirc < 4 ; icirc += stepCno ) {
+    //    cout << icirc << endl;
+    if ( FindCircPar(sH1,sH2,sH3,icirc,circPar) ) {
+      //      cout << " ---> " << circPar[2] << endl;
+      if ( circPar[2] < 10. || circPar[2] > 100000. ) continue;
+      
+      TrackParameter tp0;
+      tp0.x = circPar[0];
+      tp0.y = circPar[1];
+      tp0.r = circPar[2];
+      tp0.z_p = 2.e6;
+      // temporary recognition of non-STT hit
+      // should take only parameters created using hit with VALID z information
+      if      ( sH1[2] < 1.e-5 ) tp0.z_p = CalcZ_P(circPar,sH1[0],sH1[1],thisHit->GetZ());
+      else if ( sH2[2] < 1.e-5 ) tp0.z_p = CalcZ_P(circPar,sH2[0],sH2[1],fHitVector[prevHNo]->GetZ());
+      //	  cout << "and new z_p = " << tp0.z_p << endl;
+      tp0.n = 2;
+      
+      if ( fTN == -1 ) {
+	TrackBasis tb0;
+	tb0.trackPars.push_back(tp0);
+	tb0.trackHits.push_back(fHitVector[prevHNo]);
+	tb0.trackHitD.push_back(fHitVectDI[prevHNo]);
+	tb0.trackHitN.push_back(fHitVectHN[prevHNo]);
+	tb0.trackHits.push_back(thisHit);
+	tb0.trackHitD.push_back(detId);
+	tb0.trackHitN.push_back(hitNo);
+	tb0.meanX   = 0.;
+	tb0.meanY   = 0.;
+	tb0.meanR   = 0.;
+	tb0.meanZ_P = 2.e6;
+	
+	fTN = fTracksVector.size();
+	fTracksVector.push_back(tb0);
+
+	hitsMatched = kTRUE;
+	// 	    cout << "creating track " << fTracksVector.size() << " from hits " 
+	// 		 << fHitVectDI[prevHNo] << "." << fHitVectHN[prevHNo] << " and " 
+	// 		 << fHitDetId[hitN] << "." << fHitDetNo[hitN] << endl;
+	if ( fVerbose > 3 ) {
+	  cout << "!!! created track " << fTracksVector.size()-1 << " with " << fHitVectDI[prevHNo] << "." << fHitVectHN[prevHNo] << endl;
+	  //	    if ( ihit == 54 ) {
+	  cout << "   >> with " << CalcPhi(tp0.x,tp0.y) << " (" << tp0.x << "," << tp0.y << ") " << tp0.r << " " << tp0.z_p << endl; //"(" << CalcPhi(tp0.x-sH1[0],tp0.y-sH1[1]) << " on " << detHit->GetZ() << ")" << endl;
+	  // 	      Double_t tmpx = sH1[0]-tp0.x;
+	  // 	      Double_t tmpy = sH1[1]-tp0.y;
+	  // 	      cout << " should be: " << sH1[0] << " " << sH1[1] << " ---> " << tmpx << " " << tmpy << endl;
+	  // 	      Double_t rotA = TMath::Pi()-CalcPhi(tp0.x,tp0.y);
+	  // 	      cout << "rotate by " << rotA*TMath::RadToDeg() << " deg" << endl;
+	  // 	      Double_t tmpx2 = tmpx*TMath::Cos(rotA)-tmpy*TMath::Sin(rotA);
+	  // 	      Double_t tmpy2 = tmpx*TMath::Sin(rotA)+tmpy*TMath::Cos(rotA);
+	  // 	      cout << " and then : " << tmpx   << " " << tmpy   << " ---> " << tmpx2 << " " << tmpy2 << endl;
+	  // 	      cout << " and finally: " << CalcPhi(tmpx2,tmpy2) << endl;
+	}
+      }
+      else {
+	fTracksVector[fTN].trackPars.push_back(tp0);
+	if ( fVerbose > 3 ) {
+	  cout << "   >> with " << CalcPhi(tp0.x,tp0.y) << " (" << tp0.x << "," << tp0.y << ") " << tp0.r << " " << tp0.z_p << "(" << CalcPhi(tp0.x-sH1[0],tp0.y-sH1[1]) << " on " << thisHit->GetZ() << ")" << endl;
+	}
+      }
+    }
+  }
+
+  if ( hitsMatched ) RemoveHitFromPreviousHits(prevHNo);
+  return hitsMatched;
+}
+// -------------------------------------------------------------------------
+
+// -----   Private method ExtractMeanRPhiFromTrack   -------------------------------
+Bool_t PndBarrelTrackFinder::ExtractMeanRPhiFromTrack     (Int_t trackNo) {
+  if ( fVerbose > 3 )
+    cout << "extracting mean rphi from track " << trackNo << " with " << fTracksVector[trackNo].trackHits.size() << " hits." << endl;
+  if ( fTracksVector[trackNo].trackHits.size() < 4 ) return kFALSE;
+  if ( TMath::Abs(fTracksVector[trackNo].meanR) > 0.1 ) return kTRUE;
+  
+  Double_t meanPhi = 0.;
+  Double_t meanRad = 0.;
+  Double_t goodPNR = 0.;
+  for ( Int_t ipar = 0 ; ipar < fTracksVector[trackNo].trackPars.size() ; ipar++ ) {
+    if ( fTracksVector[trackNo].trackPars[ipar].n < 0.9*fTracksVector[trackNo].trackHitD.size() ) continue;
+    meanPhi += CalcPhi(fTracksVector[trackNo].trackPars[ipar].x,fTracksVector[trackNo].trackPars[ipar].y);
+    meanRad += fTracksVector[trackNo].trackPars[ipar].r;
+    goodPNR += 1.;
+  }
+  if ( goodPNR < 0.5 ) return kFALSE;
+  meanRad = meanRad/goodPNR;
+  meanPhi = meanPhi/goodPNR;
+
+  Double_t sH1[3] = {meanRad*TMath::Cos(meanPhi),
+		     meanRad*TMath::Sin(meanPhi),
+		     meanRad};
+  Double_t sH2[3] = {0.,0.,0.};
+
+  Int_t nofCloseHits = 0;
+  for ( Int_t ihit = 0 ; ihit < fTracksVector[trackNo].trackHits.size() ; ihit++ ) {
+    sH2[0] = fTracksVector[trackNo].trackHits[ihit]->GetX();
+    sH2[1] = fTracksVector[trackNo].trackHits[ihit]->GetY();
+    sH2[2] = 0.;
+    if ( fTracksVector[trackNo].trackHitD[ihit] == 2 ) {
+      sH2[2] = ((PndSttHit*)fTracksVector[trackNo].trackHits[ihit])->GetIsochrone();
+    }
+
+    if ( FindCircDist(sH1,sH2) < fReasonableDist ) {
+      nofCloseHits++;
+    }
+  }
+  if ( nofCloseHits < 0.9*fTracksVector[trackNo].trackHitD.size() ) return kFALSE;
+
+  fTracksVector[trackNo].meanX = sH1[0];
+  fTracksVector[trackNo].meanY = sH1[1];
+  fTracksVector[trackNo].meanR = sH1[2];
+
+  for ( Int_t ipar = 0 ; ipar < fTracksVector[trackNo].trackPars.size() ; ipar++ ) {
+    if ( fTracksVector[trackNo].trackPars[ipar].n < 0.9*fTracksVector[trackNo].trackHitD.size() ) continue;
+    if ( fTracksVector[trackNo].trackPars[ipar].z_p > 1.e6 ) continue;
+    fTracksVector[trackNo].trackPars[ipar].n = 400;
+  }
+
+  return kTRUE;
+}
+// -------------------------------------------------------------------------
+
+// -----   Private method ExtractMeanZ_PFromTrack   -------------------------------
+Bool_t PndBarrelTrackFinder::ExtractMeanZ_PFromTrack     (Int_t trackNo) {
+  if ( fVerbose > 3 )
+    cout << "extracting mean Z_P from track " << trackNo << " with " << fTracksVector[trackNo].trackHits.size() << " hits." << endl;
+  if ( fTracksVector[trackNo].meanZ_P < 1.e6 ) return kTRUE;
+
+  // count hits with z information
+  Int_t nofZHits = 0;  
+  for ( Int_t ihit = 0 ; ihit < fTracksVector[trackNo].trackHits.size() ; ihit++ ) {
+    if ( fTracksVector[trackNo].trackHitD[ihit] != 2 ) nofZHits++;
+    else {
+      Int_t tubeId = ((PndSttHit*)fTracksVector[trackNo].trackHits[ihit])->GetTubeID();
+      PndSttTube* sttTube = (PndSttTube*) fTubeArray->At(tubeId);
+      if ( sttTube->GetWireDirection().Z() < 1. )
+	nofZHits++;
+    }
+  }
+  if ( nofZHits < 4 ) return kFALSE;
+
+  if ( fVerbose > 3 )
+    cout << "trying to etract mean z_p. There are " << nofZHits << " hits with Z information, parameters z_p: " << flush;
+
+  Int_t nofClosePars =  0;
+  Int_t highestNPars =  2;
+  Int_t highestNPPar = -1;
+  Double_t meanZ_P     = 0.;
+  Double_t sumOfDist   = 0.;
+  Double_t smallestSOD = 1000.;
+  Double_t bestMeanZ_P = 0.;
+  for ( Int_t ipar = 0 ; ipar < fTracksVector[trackNo].trackPars.size() ; ipar++ ) {
+    if ( fTracksVector[trackNo].trackPars[ipar].n < 99 ) continue;
+    if ( fTracksVector[trackNo].trackPars[ipar].z_p > 1.e6 ) continue;
+
+    meanZ_P      = 0.;
+    sumOfDist    = 0.;
+    nofClosePars = 0;
+
+    for ( Int_t ipar2 = 0 ; ipar2 < fTracksVector[trackNo].trackPars.size() ; ipar2++ ) {
+      if ( fTracksVector[trackNo].trackPars[ipar2].n < 99 ) continue;
+      if ( fTracksVector[trackNo].trackPars[ipar2].z_p > 1.e6 ) continue;
+      if ( TMath::Abs(fTracksVector[trackNo].trackPars[ipar].z_p-
+		      fTracksVector[trackNo].trackPars[ipar2].z_p) > fReasonableZ_PD ) continue;
+      meanZ_P += fTracksVector[trackNo].trackPars[ipar2].z_p;
+      sumOfDist += TMath::Abs(fTracksVector[trackNo].trackPars[ipar].z_p-fTracksVector[trackNo].trackPars[ipar2].z_p);
+      nofClosePars++;
+    }
+
+    if ( nofClosePars >= highestNPars ) {
+      if ( nofClosePars > highestNPars ) smallestSOD = 1000.;
+      if ( sumOfDist < smallestSOD ) {
+	highestNPars = nofClosePars;
+	highestNPPar = ipar;
+	smallestSOD  = sumOfDist;
+	bestMeanZ_P  = meanZ_P/((Double_t)(nofClosePars));
+      }
+    }
+
+    if ( fVerbose > 3 )
+      cout << fTracksVector[trackNo].trackPars[ipar].z_p << "(" << fTracksVector[trackNo].trackPars[ipar].n << "/" << nofClosePars << "/" << sumOfDist << ") " << flush;
+  }
+  if ( fVerbose > 3 ) {
+    cout << endl;
+    cout << "best parameter number " << highestNPPar << " with " << highestNPars << " close parameters, sumOfDist = " << smallestSOD << " and meanZ_P = " << bestMeanZ_P << endl;
+  }
+
+  if ( highestNPars < 4 )
+    return kFALSE;
+
+  fTracksVector[trackNo].meanZ_P = bestMeanZ_P;
+
+  return kTRUE;
+}
+// -------------------------------------------------------------------------
+
+// -----   Private method PrintTracks   -------------------------------
+void   PndBarrelTrackFinder::PrintTracks() {
+
+  for ( Int_t itr = 0 ; itr < fTracksVector.size() ; itr++ ) {
+    cout << "          ------------------------------------------------------------" << endl;
+    cout << "          |   track " << setw(2) << itr << ": " << flush;
+    
+    if ( TMath::Abs(fTracksVector[itr].meanR) > 0.1 ) {
+      for ( Int_t ihit = 0 ; ihit < fTracksVector[itr].trackHitD.size() ; ihit++ ) {
+	Bool_t skewedSttHit = kFALSE;
+	if ( fTracksVector[itr].trackHitD[ihit] == 2 ) {
+	  Int_t iTube = ((PndSttHit*) fTracksVector[itr].trackHits[ihit])->GetTubeID(); 
+	  PndSttTube *sttTube = (PndSttTube*) fTubeArray->At(iTube);
+	  if ( sttTube->GetWireDirection().Z() < 1. ) {
+	    skewedSttHit = kTRUE;
+	  }
+	}
+
+	cout << "\033[" << (skewedSttHit?33:91+fTracksVector[itr].trackHitD[ihit]) << "m" 
+	     << fTracksVector[itr].trackHitN[ihit] << " " 
+	     << "\033[0m" << flush;
+      }
+      cout << endl;
+      
+      Double_t thisPhi = CalcPhi(fTracksVector[itr].meanX,
+				 fTracksVector[itr].meanY);
+      Double_t thisRad =         fTracksVector[itr].meanR;
+      Double_t thisZ_P =         fTracksVector[itr].meanZ_P;
+      if ( TMath::IsNaN(thisZ_P) ) thisZ_P = 2.e6;
+      
+      Double_t calcPt = thisRad/165.974;
+      Double_t calcPz = thisZ_P*0.0058997;
+      Double_t calcP  = TMath::Sqrt(calcPt*calcPt+calcPz*calcPz);
+      Double_t calcThe = TMath::ACos(calcPz/calcP);
+      
+      Double_t calcPhi = thisPhi-TMath::Pi()/2.;
+      Double_t calcChg = 1.;
+      if ( calcPhi < 0. ) calcPhi += TMath::Pi()*2.;
+      Double_t firpPhi = CalcPhi(fTracksVector[itr].trackHits[0]->GetX(),fTracksVector[itr].trackHits[0]->GetY());
+      if ( TMath::Abs(calcPhi-firpPhi) > TMath::Pi()/2. && TMath::Abs(calcPhi-firpPhi) < 3.*TMath::Pi()/2. ) {
+	calcPhi = thisPhi+TMath::Pi()/2.;
+	if ( calcPhi > 2.*TMath::Pi() ) calcPhi -= TMath::Pi()*2.;
+	calcChg = -1.;
+      }
+      if ( calcPhi > TMath::Pi() )
+	calcPhi -= 2.*TMath::Pi();
+      
+      TVector3 trackMomentum;
+      trackMomentum.SetMagThetaPhi(calcP,calcThe,calcPhi);
+
+      cout << "          | " 
+	   << "\033[96m" 
+	   << setw(7) << setprecision(6) << thisPhi << " " 
+	   << setw(7) << setprecision(6) << thisRad << " " 
+	   << setw(7) << setprecision(6) << thisZ_P << " " 
+	   << setw(7) << setprecision(6) << calcPt  << " " 
+	   << setw(7) << setprecision(6) << calcPz  << " " 
+	   << setw(7) << setprecision(6) << calcP   << " " 
+	   << setw(7) << setprecision(6) << calcPhi << " " 
+	   << setw(7) << setprecision(6) << calcThe << "\033[0m" << endl;
+    }
+
+    else {
+      for ( Int_t ihit = 0 ; ihit < fTracksVector[itr].trackHitD.size() ; ihit++ )
+	cout << setw(1) << fTracksVector[itr].trackHitD[ihit] << "." << fTracksVector[itr].trackHitN[ihit] << " " << flush;
+      cout << endl;
+
+      for ( Int_t ipar = 0 ; ipar < fTracksVector[itr].trackPars.size() ; ipar++ ) {
+	cout << "          |           /" << setw(2) << ipar << " " 
+	     << setw(6) << setprecision(6) << CalcPhi(fTracksVector[itr].trackPars[ipar].x,fTracksVector[itr].trackPars[ipar].y) << " " 
+	     << setw(6) << setprecision(6) << fTracksVector[itr].trackPars[ipar].r << " " 
+	     << setw(6) << setprecision(6) << fTracksVector[itr].trackPars[ipar].z_p << " "
+	     << setw(6) << setprecision(6) << fTracksVector[itr].trackPars[ipar].n << endl;
+      }
+    }
+    
+  }
+  if ( fTracksVector.size() > 0 )
+    cout << "          ------------------------------------------------------------" << endl;
+}
+// -------------------------------------------------------------------------
+
+// -----   Private method CleanTracks   -------------------------------
+Int_t  PndBarrelTrackFinder::CleanTracks() {
+}
+// -------------------------------------------------------------------------
+
+// -----   Private method RemoveShortTracks   -------------------------------
+void  PndBarrelTrackFinder::RemoveShortTracks() {
+  for ( Int_t itr = fTracksVector.size()-1 ; itr >= 0 ; itr-- ) {
+    if ( TMath::Abs(fTracksVector[itr].meanZ_P) < 1.e6 && TMath::Abs(fTracksVector[itr].meanR) > 1. ) continue;
+    for ( Int_t ihit = 0 ; ihit < fTracksVector[itr].trackHits.size() ; ihit++ ) {
+      AddHitToPreviousHits     (fTracksVector[itr].trackHits[ihit],
+				fTracksVector[itr].trackHitD[ihit],
+				fTracksVector[itr].trackHitN[ihit]);
+    }
+    for ( Int_t intr = itr ; intr < fTracksVector.size()-1 ; intr++ ) {
+      fTracksVector[intr] = fTracksVector[intr+1];
+    }
+    fTracksVector.pop_back();
+  }
+}
+// -------------------------------------------------------------------------
+
+// -----   Private method WriteTracks   -------------------------------
+Int_t  PndBarrelTrackFinder::WriteTracks() {
+  Int_t nofCreatedTracks = 0;
+
+  for ( Int_t itr = 0 ; itr < fTracksVector.size() ; itr++ ) {
+    Double_t thisPhi = CalcPhi(fTracksVector[itr].meanX,
+			       fTracksVector[itr].meanY);
+    Double_t thisRad =         fTracksVector[itr].meanR;
+    Double_t thisZ_P =         fTracksVector[itr].meanZ_P;
+    if ( TMath::IsNaN(thisZ_P) ) thisZ_P = 2.e6;
+
+    //       for ( Int_t ihit = 0 ; ihit < fTracksVector[itr].trackHitD.size() ; ihit++ )
+    // 	cout << fTracksVector[itr].trackHitD[ihit] << "." << fTracksVector[itr].trackHitN[ihit] << " " << flush;
+    //       cout << endl;
+    Double_t calcPt = thisRad/165.974;
+    Double_t calcPz = thisZ_P*0.0058997;
+    Double_t calcP  = TMath::Sqrt(calcPt*calcPt+calcPz*calcPz);
+    Double_t calcThe = TMath::ACos(calcPz/calcP);
+    
+    Double_t calcPhi = thisPhi-TMath::Pi()/2.;
+    Double_t calcChg = 1.;
+    if ( calcPhi < 0. ) calcPhi += TMath::Pi()*2.;
+    Double_t firpPhi = CalcPhi(fTracksVector[itr].trackHits[0]->GetX(),fTracksVector[itr].trackHits[0]->GetY());
+    if ( TMath::Abs(calcPhi-firpPhi) > TMath::Pi()/2. && TMath::Abs(calcPhi-firpPhi) < 3.*TMath::Pi()/2. ) {
+      calcPhi = thisPhi+TMath::Pi()/2.;
+      if ( calcPhi > 2.*TMath::Pi() ) calcPhi -= TMath::Pi()*2.;
+      calcChg = -1.;
+    }
+    if ( calcPhi > TMath::Pi() )
+      calcPhi -= 2.*TMath::Pi();
+
+    //    cout << "F " << thisPhi << " " << thisRad << " " << thisZ_P << "    " << calcPt << "  " << calcPhi << " " << calcPz << " " << calcP << " " << calcPhi << " " << calcThe << endl;//flush;
+    
+    //    cout << "                      MTP: " << calcP << " " << calcPhi << " " << calcThe << " and charge = " << calcChg << flush;
+    
+    TVector3 trackPosition(0.,0.,0.);
+    TVector3 trackMomentum;
+    trackMomentum.SetMagThetaPhi(calcP,calcThe,calcPhi);
+    
+    PndTrackCand* trackCand = new((*fBarrelTrackCandArray)[nofCreatedTracks]) PndTrackCand();
+
+    std::vector<Int_t> trackHitsPerDet(5,0);
+    for ( Int_t ihit = 0 ; ihit < fTracksVector[itr].trackHitD.size() ; ihit++ ) {
+      trackHitsPerDet[fTracksVector[itr].trackHitD[ihit]] += 1;
+      Double_t tempPos = TMath::Sqrt(fTracksVector[itr].trackHits[ihit]->GetX()*fTracksVector[itr].trackHits[ihit]->GetX()+
+				     fTracksVector[itr].trackHits[ihit]->GetY()*fTracksVector[itr].trackHits[ihit]->GetY()+
+				     fTracksVector[itr].trackHits[ihit]->GetZ()*fTracksVector[itr].trackHits[ihit]->GetZ());
+      trackCand->AddHit(fDetType[fTracksVector[itr].trackHitD[ihit]],
+			fTracksVector[itr].trackHitN[ihit],
+			tempPos);
+			//			fTracksVector[itr].trackHits[ihit]->GetPosition().Mag());
+      trackCand->setMcTrackId(nofCreatedTracks);
+      trackCand->setTrackSeed(trackPosition,
+			      trackMomentum,
+			      calcChg/calcP);
+    }
+    trackCand->Sort();
+
+    FairTrackParP*	    firstPar = new FairTrackParP(trackPosition,trackMomentum,
+							 TVector3(0.5, 0.5, 0.5),
+							 0.1*trackMomentum,
+							 calcChg,
+							 trackPosition,
+							 TVector3(1.,0.,0.),
+							 TVector3(0.,1.,0.));					 
+    TVector3 tempVect1(trackHitsPerDet[0],trackHitsPerDet[1],trackHitsPerDet[2]);
+    TVector3 tempVect2(trackHitsPerDet[3],trackHitsPerDet[4],0.); 
+
+    //    FairTrackParP*	    lastPar = new FairTrackParP(trackPosition,trackMomentum,
+    FairTrackParP*	    lastPar = new FairTrackParP(tempVect1,tempVect2,
+							TVector3(0.5, 0.5, 0.5),
+							0.1*trackMomentum,
+							calcChg,
+							trackPosition,
+							TVector3(1.,0.,0.),
+							TVector3(0.,1.,0.));					 
+    
+    new((*fBarrelTrackArray)[nofCreatedTracks]) PndTrack(*firstPar,*lastPar,*trackCand);
+
+    nofCreatedTracks++;
+
+    //    cout << endl;
+  }
+
+  return nofCreatedTracks;
+}
+// -------------------------------------------------------------------------
+
+// -----   Private method RemoveHitFromPreviousHits   -------------------------------
+void PndBarrelTrackFinder::RemoveHitFromPreviousHits(Int_t hitNo) {
+  //    cout << endl << "There are " << fTracksVector.size() << " segments in the event" << endl;
+  for ( Int_t irh = hitNo ; irh < fHitVector.size()-1 ; irh++ ) {
+    fHitVector[irh] = fHitVector[irh+1];
+    fHitVectDI[irh] = fHitVectDI[irh+1];
+    fHitVectHN[irh] = fHitVectHN[irh+1];
+  }
+  fHitVector.pop_back();
+  fHitVectDI.pop_back();
+  fHitVectHN.pop_back();
+}
+// -------------------------------------------------------------------------
+
+// -----   Private method AddHitToPreviousHits   -------------------------------
+void PndBarrelTrackFinder::AddHitToPreviousHits     (FairHit* thisHit, Int_t detId, Int_t hitNo) {
+  if ( fVerbose > 3 )
+    cout << "!!! ADDING HIT " << detId << "." << hitNo << endl;
+  fHitVector.push_back(thisHit);
+  fHitVectDI.push_back(detId);
+  fHitVectHN.push_back(hitNo);
+}
+// -------------------------------------------------------------------------
+
 
 // -----   Private method FindCircPar   -------------------------------
 // the method finds a circle cl tangent to the three given circles c1, c2, c3 (circle given by x,y,r)
@@ -890,7 +1549,7 @@ Int_t PndBarrelTrackFinder::FindInterestingRegions(Double_t* circ, Double_t* tub
     //    cout << " tube crosses circle in " << z[0] << " or " << z[1] << endl;
     
     for ( Int_t iz = 0 ; iz < 2 ; iz++ ) {
-      Double_t p_z = 0.;
+      Double_t z_p = 2.e6;
       if ( TMath::Abs(z[iz]-tube[2]) > tube[3] ) continue;
       //      cout << "checking z = " << z[iz] << endl;
       Double_t x  = tube[0] + ax * ( z[iz] - tube[2] );
@@ -906,10 +1565,10 @@ Int_t PndBarrelTrackFinder::FindInterestingRegions(Double_t* circ, Double_t* tub
       Double_t phiDiffr = (pointPhi-circ[3]);
       if ( phiDiffr >  TMath::Pi() ) phiDiffr -= 2.*TMath::Pi();
       if ( phiDiffr < -TMath::Pi() ) phiDiffr += 2.*TMath::Pi();
-      p_z = phiDiffr/z[iz];
-      
-      //      cout << "got " << p_z << " while from other calc. it is: " << CalcP_Z(circ,x,y,z[iz]) << endl;
-      reg[nofReg] = p_z;
+      z_p = z[iz]/TMath::Abs(phiDiffr);
+      //      cout << "the z_p = " << z_p << " cause dz = " << z[iz] << " and dphi = " << phiDiffr << endl;
+      //      cout << "got " << z_p << " while from other calc. it is: " << CalcZ_P(circ,x,y,z[iz]) << endl;
+      reg[nofReg] = z_p;
       nofReg++;
     }
   }
@@ -927,8 +1586,8 @@ Double_t PndBarrelTrackFinder::CalcPhi(Double_t x, Double_t y) {
 }
 // -------------------------------------------------------------------------
 
-// -----   Private method CalcP_Z   ----------------------------------------
-Double_t PndBarrelTrackFinder::CalcP_Z(Double_t* circ, Double_t hx, Double_t hy, Double_t hz) {
+// -----   Private method CalcZ_P   ----------------------------------------
+Double_t PndBarrelTrackFinder::CalcZ_P(Double_t* circ, Double_t hx, Double_t hy, Double_t hz) {
   Double_t tmpx = hx-circ[0];
   Double_t tmpy = hy-circ[1];
   Double_t rotA = TMath::Pi()-CalcPhi(circ[0],circ[1]);
@@ -936,7 +1595,7 @@ Double_t PndBarrelTrackFinder::CalcP_Z(Double_t* circ, Double_t hx, Double_t hy,
   Double_t tmpy2 = tmpx*TMath::Sin(rotA)+tmpy*TMath::Cos(rotA);
   Double_t phiT = CalcPhi(tmpx2,tmpy2);
   if ( phiT > TMath::Pi() ) phiT = -(2.*TMath::Pi()-phiT);
-  return phiT/hz;
+  return hz/TMath::Abs(phiT);
   //Double_t phiT = CalcPhi(hx-circ[0],hy-circ[1]);
   //  return phiT/hz;
 }
@@ -987,11 +1646,17 @@ InitStatus PndBarrelTrackFinder::Init() {
     return kERROR;
   }
   
-  fDetName[0] = "MVD";
-  fDetName[1] = "MVD";
+  fDetName[0] = "MVD Pixel";
+  fDetName[1] = "MVD Strip";
   fDetName[2] = "STT";
   fDetName[3] = "TPC";
   fDetName[4] = "GEM";
+
+  fDetType[0] = kMVDHitsPixel;
+  fDetType[1] = kMVDHitsStrip;
+  fDetType[2] = kSttHit;
+  fDetType[3] = kTpcCluster;
+  fDetType[4] = kGemHit;
 
   TString hitArrayName[5] = {"MVDHitsPixel",
 			     "MVDHitsStrip",
@@ -1011,6 +1676,13 @@ InitStatus PndBarrelTrackFinder::Init() {
     }
   }
   
+  // Create and register PndTrack and PndTrackCand arrays
+  fBarrelTrackArray = new TClonesArray("PndTrack",100);
+  ioman->Register("BarrelTrack", "Barrel Track", fBarrelTrackArray, kTRUE);
+
+  fBarrelTrackCandArray = new TClonesArray("PndTrackCand",100);
+  ioman->Register("BarrelTrackCand", "Barrel TrackCand", fBarrelTrackCandArray, kTRUE);
+
   std::cout << "-I- " << GetName() << ": Initialization successfull" << std::endl;
   std::cout << "-I- " << GetName() << ": Looking for tracks in " << flush;
   for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
@@ -1022,9 +1694,9 @@ InitStatus PndBarrelTrackFinder::Init() {
 
   PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
   fTubeArray = mapper->FillTubeArray();
-  cout << "****************************************************" << endl;
-  cout << "**  " << fTubeArray->GetEntriesFast() << "  TUBES  ***********************************" << endl;
-  cout << "****************************************************" << endl;
+//   cout << "****************************************************" << endl;
+//   cout << "**  " << fTubeArray->GetEntriesFast() << "  TUBES  ***********************************" << endl;
+//   cout << "****************************************************" << endl;
   
   return kSUCCESS;
 }
@@ -1049,6 +1721,13 @@ void PndBarrelTrackFinder::Reset() {
 
 // -----   Public method Finish   ------------------------------------------
 void PndBarrelTrackFinder::Finish() {
+  fBarrelTrackArray    ->Clear();
+  fBarrelTrackCandArray->Clear();
+
+  cout << "-------------------- " << fName.Data() << " : Summary -----------------------" << endl;
+  cout << " Events:        " << setw(10) << fTNofEvents << endl;
+  cout << " Tracks:     " << setw(10) << fTNofTracks << "    ( " << (Double_t)fTNofTracks/((Double_t)fTNofEvents) << " per event )" << endl;
+  cout << "--------------------------------------------------------------------------------" << endl; 
 }
 // -------------------------------------------------------------------------
 

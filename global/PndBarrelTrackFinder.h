@@ -2,18 +2,18 @@
 
 // -------------------------------------------------------------------------
 // -----                    PndBarrelTrackFinder header file                 -----
-// -----                  Created 12/02/2009 by R. Karabowicz          -----
+// -----                  Created 05/12/2010 by R. Karabowicz          -----
 // -------------------------------------------------------------------------
 
 
 /** PndGemDigitise
  *@author Radoslaw Karabowicz <r.karabowicz@gsi.de>
- *@since 12.02.2009
+ *@since 08.12.2009
  *@version 1.0
  **
- ** PANDA task class for digitising GEM
- ** Task level SIM
- ** Produces objects of type PndGemDigi out of PndGemMCPoint.
+ ** PANDA task class for finding tracks in CT nad GEM
+ ** Task level TRACK
+ ** Produces objects of type PndTrack and PndTrackCand
  **/
 
 
@@ -37,11 +37,11 @@ struct TrackParameter{
   Double_t x;
   Double_t y;
   Double_t r;
-  Double_t p_z;
+  Double_t z_p;
   Int_t n;
   // x,y,r parameters of the circle,
   //  //  p=atan(x/y), 
-  // p_z - phi angle increase per 1 cm in z, 
+  // z_p - z increase divided by phi angle increase,
   //  //  p_1=atan(x_1/y_1) of the first hit, 
   // n='goodness' of parameter
 };
@@ -54,7 +54,7 @@ struct TrackBasis{
   Double_t meanX;
   Double_t meanY;
   Double_t meanR;
-  Double_t meanP_Z;
+  Double_t meanZ_P;
 }; 
 
 
@@ -88,20 +88,60 @@ class PndBarrelTrackFinder : public FairTask
 
   std::vector<TrackBasis> fTracksVector;
 
+  std::vector<Int_t>    fHitDetId;
+  std::vector<Int_t>    fHitDetNo;
+  // previous hits
+  std::vector<FairHit*> fHitVector;
+  std::vector<Int_t>    fHitVectDI;
+  std::vector<Int_t>    fHitVectHN;
+
   Bool_t        fIncludeDet[5];
   TClonesArray* fHitArray  [5];
   TString       fDetName   [5];
+  Int_t         fDetType   [5];
+
+  /** Output array of global tracks **/
+  TClonesArray* fBarrelTrackArray;     	    ///< Output array of PndTrackCands 
+  TClonesArray* fBarrelTrackCandArray;
 
   /** Event counter **/
   Int_t fTNofEvents;  ///< event counter
   Int_t fTNofTracks;
+
+  Double_t fMaximalDist;
+  Double_t fReasonableDist;
+  Double_t fMaximalZ_PD;
+  Double_t fReasonableZ_PD;
+  Double_t fMaximalRadDiff;
+  Double_t fMaximalPhiDiff;
+
+  Bool_t MatchHitToTrack          (FairHit* thisHit, Int_t detId, Int_t hitNo, Int_t trackNo);
+  Bool_t MatchSkewedSttHitTT      (FairHit* thisHit, Int_t detId, Int_t hitNo, Int_t trackNo);
+  Bool_t MatchParallelSttHitTT    (FairHit* thisHit, Int_t detId, Int_t hitNo, Int_t trackNo);
+  Bool_t MatchHitWithZInfoTT      (FairHit* thisHit, Int_t detId, Int_t hitNo, Int_t trackNo);
+
+  Bool_t ExtractMeanRPhiFromTrack (Int_t trackNo);
+  Bool_t ExtractMeanZ_PFromTrack  (Int_t trackNo);
+
+  Bool_t MatchHitToHit            (FairHit* thisHit, Int_t detId, Int_t hitNo, Int_t prevHNo);
+  void   RemoveHitFromPreviousHits(Int_t hitNo);
+
+  Bool_t HitBelongsToTrack(Int_t detId, Int_t hitNo, Int_t trackNo);
+
+  void   AddHitToPreviousHits     (FairHit* thisHit, Int_t detId, Int_t hitNo);
+
+  void   PrintTracks();
+  Int_t  CleanTracks();
+  Int_t  WriteTracks();
+
+  void   RemoveShortTracks();
 
   Bool_t   FindCircPar(Double_t* c1, Double_t* c2, Double_t* c3, Int_t cno, Double_t* cl);
   Double_t FindCircDist(Double_t* c1, Double_t* c2);
   Int_t    FindInterestingRegions(Double_t* circ, Double_t* tube, Double_t* reg);
 
   Double_t CalcPhi(Double_t x, Double_t y);
-  Double_t CalcP_Z(Double_t* circ, Double_t hx, Double_t hy, Double_t hz);
+  Double_t CalcZ_P(Double_t* circ, Double_t hx, Double_t hy, Double_t hz);
 
   /** Get parameter containers **/
   virtual void SetParContainers();
