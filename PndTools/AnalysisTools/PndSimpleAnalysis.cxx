@@ -195,7 +195,7 @@ void PndSimpleAnalysis::InitGenericLists()
   fGenericListNames.push_back("Neutral"); 
   fGenericListNames.push_back("McTruth");
 
-  unsigned int i=0;
+  int i=0;
   
   for (i=0;i<fGenericListNames.size();i++)
     fListMap[fGenericListNames[i]]=i;
@@ -207,7 +207,7 @@ void PndSimpleAnalysis::InitGenericLists()
     PndListDefiner *ldef=new PndListDefiner;
     ldef->fName = fGenericListNames[i];
     ldef->fPdgCode = pcodes[i%10];
-    ldef->fCharge = 1-(i%2*2);  
+    ldef->fCharge = (float)(1-(i%2*2));  
     ldef->fIsAntiList = (i%2)?true:false;
     ldef->fAntiIdx = (i%2) ? i-1 : i+1;
     ldef->fIsGeneric = true;
@@ -232,7 +232,7 @@ void PndSimpleAnalysis::InitGenericLists()
   ldef->fIsGeneric = false;
   fListDefiners.push_back(ldef);
   
-//  for (i=0;i<fListDefiners.size();i++) {cout << i <<" : "; fListDefiners[i]->Print();}
+  //for (i=0;i<fListDefiners.size();i++) {cout << i <<" : "; fListDefiners[i]->Print();}
 }
 // -------------------------------------------------------------------------
 
