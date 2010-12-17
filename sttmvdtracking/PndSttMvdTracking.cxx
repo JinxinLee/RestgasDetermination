@@ -519,8 +519,8 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 //----------   fetching the STT  MC points
  nSttMCPoint = fSttPointArray->GetEntriesFast();
  if (nSttMCPoint ==0){
-	cout<<"da PndSttMvdTracking  :  N. di Stt MC points = 0, return!\n"<<endl;
-	return;
+	cout<<"da PndSttMvdTracking  :  N. di Stt MC points = 0\n"<<endl;
+//	return;
  }
 
  if(istampa>1&& IVOLTE<20) cout<<"da PndSttMvdTracking  : n. punti MC = "<<nSttMCPoint<<endl;
