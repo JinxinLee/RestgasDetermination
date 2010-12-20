@@ -173,7 +173,7 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   void	SetMcIndex(int idx) {fMcIndex=idx; }
   void  SetTrackIndex(int idx) {fTrackIndex=idx; }	
 
-  void SetHelixParams(Double_t *par) {if (par!=0) if (par!=0) for (int i=0; i<5;i++) fParams[i] = par[i];}
+  void SetHelixParams(Double_t *par) {if (par!=0) for (int i=0; i<5;i++) fParams[i] = par[i];}
 
   
   // ************************
