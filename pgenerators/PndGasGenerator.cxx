@@ -39,7 +39,7 @@ PndGasGenerator::PndGasGenerator(Int_t pdgid, Int_t mult) :
 }
 
 // ------------------------------------------------------------------------
-void PndGasGenerator::Init()
+Bool_t PndGasGenerator::Init()
 {
   // Initialize generator
 

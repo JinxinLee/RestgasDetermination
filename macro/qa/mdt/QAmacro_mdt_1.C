@@ -61,7 +61,7 @@ void QAmacro_mdt_1()
   // first number: PDG particle code: 2nd number: particle multiplicity per event
   
  boxGen->SetPRange(2.192840326,2.192840326); // GeV/c
- boxGen->SetPtRange(0.798217349,0.798217349); // GeV/c
+// boxGen->SetPtRange(0.798217349,0.798217349); // GeV/c
  boxGen->SetXYZ(0., 0., 0.); // vertex coordinates [mm]
  primGen->AddGenerator(boxGen);  
   

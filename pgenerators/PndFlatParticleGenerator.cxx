@@ -50,7 +50,7 @@ PndFlatParticleGenerator::PndFlatParticleGenerator(Int_t pdgid, Int_t mult) :
 	SetPhiRange();
 }
 // ------------------------------------------------------------------------
-void PndFlatParticleGenerator::Init()
+Bool_t PndFlatParticleGenerator::Init()
 {
   // Initialize generator
 

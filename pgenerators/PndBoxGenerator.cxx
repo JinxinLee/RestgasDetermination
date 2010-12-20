@@ -37,7 +37,7 @@ PndBoxGenerator::PndBoxGenerator(Int_t pdgid, Int_t mult) :
   SetPhiRange  ();
 }
 // ------------------------------------------------------------------------
-void PndBoxGenerator::Init()
+Bool_t PndBoxGenerator::Init()
 {
   // Initialize generator
 
