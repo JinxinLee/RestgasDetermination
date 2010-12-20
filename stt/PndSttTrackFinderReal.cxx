@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
-// -----                PndSttTrackFinderReal source file             -----
-// -----                  Created 28/03/06  by V. Friese               -----
+// -----		PndSttTrackFinderReal source file	-----
+// -----		by Gianluigi Boca		-----
 // -------------------------------------------------------------------------
 #include "glpk.h"
 
@@ -1752,9 +1752,22 @@ if( istampa>=2){
 
        if(fabs(KAPPA[i])>1.e-20  ){
 		Pzini = -Charge[i]*0.003*BFIELD/KAPPA[i];
+		TVector3 dirSeed(Pxini,
+			   Pyini,
+			   Pzini); // momentum direction in starting point
+		qop = Charge[i]/dirSeed.Mag();
+		dirSeed.SetMag(1.);
 
-		//--------  do relevant calculation for this track and load the PndTrack  class
-		//---- first hit
+		pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
+		pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[i]   );
+		for(j=0; j< nTotalHits[i]; j++){
+			pTrckCand->AddHit(
+			FairRootManager::Instance()->GetBranchId("STTHit"),
+			(Int_t) BigList[i][j] , j);
+		}
+
+	//--------  do relevant calculation for this track and load the PndTrack  class
+	//---- first hit
 		if(fabs(info[ BigList[i][0] ][5] -1.)< 1.e-10 ) {// it is a parallel straw
 			PndSttInfoXYZParal (
                              info,
@@ -1883,26 +1896,27 @@ if( istampa>=2){
 				ipanco++;
 			}	// end of  if( Posiz2[0]>-777777776.&&Posiz2[2] > -888888887.)
 		}	// end of  if( Posiz1[0] > -777777776. && Posiz1[2] > -888888887.)
-		//--------  end relevant calculation for this track and load the PndTrack  object
+	//--------  end relevant calculation for this track and load the PndTrack  object
 
+       } else {	//   continuation of   if(fabs(KAPPA[i])>1.e-20  )
 
-       } else {
-          Pzini = 999999.;
-       }
-
-	 TVector3 dirSeed(Pxini,
+		Pzini = 999999.;
+		TVector3 dirSeed(Pxini,
 			   Pyini,
 			   Pzini); // momentum direction in starting point
-         qop = Charge[i]/dirSeed.Mag();
-         dirSeed.SetMag(1.);
+		qop = Charge[i]/dirSeed.Mag();
+		dirSeed.SetMag(1.);
 
-         pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
-         pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[i]   );
-         for(j=0; j< nTotalHits[i]; j++){
-              pTrckCand->AddHit(
-		FairRootManager::Instance()->GetBranchId("STTHit"),
-		(Int_t) BigList[i][j] , j);
-         }
+		pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
+		pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[i]   );
+		for(j=0; j< nTotalHits[i]; j++){
+			pTrckCand->AddHit(
+			FairRootManager::Instance()->GetBranchId("STTHit"),
+			(Int_t) BigList[i][j] , j);
+		}
+       }	// end of  if(fabs(KAPPA[i])>1.e-20  )
+
+
 
       }   else  { //   continuation of    if(   GoodSkewFit[i]  )   //  case in which there is no
                                                                     //  skew hits in this track.
