@@ -215,10 +215,14 @@ void PndBarrelTrackFinderQA::Exec(Option_t* opt) {
       fhMomMagCompAll1D->Fill(mcMag-reMag);
       fhMomPhiCompAll1D->Fill(mcPhi-rePhi);
       fhMomTheCompAll1D->Fill(mcThe-reThe);
+      fhMomResCompAll1D->Fill((mcMag-reMag)/mcMag*100);
+      fhMomResVsMomMag->Fill(mcMag,(mcMag-reMag)/mcMag*100);
+      fhMomResVsMomPhi->Fill(mcPhi,(mcMag-reMag)/mcMag*100);
+      fhMomResVsMomThe->Fill(mcThe,(mcMag-reMag)/mcMag*100);
 
       if ( TMath::Abs(mcMag-reMag) < 0.1*mcMag &&
-	   TMath::Abs(mcPhi-rePhi) < 1.5 ) { // && 
-	//	   TMath::Abs(mcThe-reThe) < 1.5 ) {
+	   TMath::Abs(mcPhi-rePhi) < 1.5 &&
+	   TMath::Abs(mcThe-reThe) < 1.5 ) {
 	if ( matchingRecoTrack != -1 ) {
 	  // it's a clone!
 	  continue;
@@ -226,7 +230,6 @@ void PndBarrelTrackFinderQA::Exec(Option_t* opt) {
 	fhMomMagRecHist->Fill(mcMag);
 	fhMomPhiRecHist->Fill(mcPhi);
 	fhMomTheRecHist->Fill(mcThe);
-	fhMomResCompAll1D->Fill((mcMag-reMag)/mcMag*100);
 
 	matchingRecoTrack = itr;
 	
@@ -250,7 +253,6 @@ void PndBarrelTrackFinderQA::CreateHistos() {
   fhMomPhiCompAll2D = new TH2F("fhMomPhiCompAll2D","Momentum phi angle comparison;#phi_{MC} [deg];#phi_{reco} [deg]",180,-180.,180.,180,-180.,180.);
   fhMomTheCompAll2D = new TH2F("fhMomTheCompAll2D","Momentum theta angle comparison;#theta_{MC} [deg];#theta_{reco} [deg]",180,0.,180.,180,0.,180.);
   fhMomMagCompAll1D = new TH1F("fhMomMagCompAll1D","Momentum magnitude comparison;p_{MC}-p_{reco} [GeV/c]",200,-10.,10.);
-  fhMomResCompAll1D = new TH1F("fhMomResCompAll1D","Momentum resolution comparison;(p_{MC}-p_{reco})/p_{MC} [%]",200,-50.,50.);
   fhMomPhiCompAll1D = new TH1F("fhMomPhiCompAll1D","Momentum phi angle comparison;#phi_{MC}-#phi_{reco} [deg]",200,-10.,10.);
   fhMomTheCompAll1D = new TH1F("fhMomTheCompAll1D","Momentum theta angle comparison;#theta_{MC}-#theta_{reco} [deg]",200,-10.,10.);
 
@@ -258,9 +260,18 @@ void PndBarrelTrackFinderQA::CreateHistos() {
   fHistoList->Add(fhMomPhiCompAll2D);
   fHistoList->Add(fhMomTheCompAll2D);
   fHistoList->Add(fhMomMagCompAll1D);
-  fHistoList->Add(fhMomResCompAll1D);
   fHistoList->Add(fhMomPhiCompAll1D);
   fHistoList->Add(fhMomTheCompAll1D);
+
+  fhMomResCompAll1D = new TH1F("fhMomResCompAll1D","Momentum resolution comparison;(p_{MC}-p_{reco})/p_{MC} [%]",200,-50.,50.);
+  fhMomResVsMomMag  = new TH2F("fhMomResVsMomMag", "Momentum resolution vs momentum;p_{MC} [GeV/c];(p_{MC}-p_{reco})/p_{MC} [%]",      80,   0., 20.,200,-50.,50.);
+  fhMomResVsMomPhi  = new TH2F("fhMomResVsMomPhi", "Momentum resolution vs phi angle;#phi_{MC} [deg];(p_{MC}-p_{reco})/p_{MC} [%]"    ,90,-180.,180.,200,-50.,50.);
+  fhMomResVsMomThe  = new TH2F("fhMomResVsMomThe", "Momentum resolution vs theta angle;#theta_{MC} [deg];(p_{MC}-p_{reco})/p_{MC} [%]",90,   0.,180.,200,-50.,50.);
+  fHistoList->Add(fhMomResCompAll1D);
+  fHistoList->Add(fhMomResVsMomMag);
+  fHistoList->Add(fhMomResVsMomPhi);
+  fHistoList->Add(fhMomResVsMomThe);
+
 
   fhMomMagSimHist = new TH1F("fhMomMagSimHist","Number of simulated tracks vs MC momentum magnitude;p [GeV/c];a.u.",200,0.,20.);
   fhMomMagRecHist = new TH1F("fhMomMagRecHist","Number of reconstructed tracks vs MC momentum magnitude;p [GeV/c];a.u.",200,0.,20.);

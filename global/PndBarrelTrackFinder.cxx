@@ -188,13 +188,6 @@ void PndBarrelTrackFinder::Exec(Option_t* opt) {
   Int_t nofHits = 0;
   Int_t firstDH[5];
   
-  Double_t sH1[3] = {0.,0.,0.};
-  Double_t sH2[3] = {0.,0.,0.};
-  Double_t sH3[3] = {0.,0.,0.};
-  Double_t sH4[3] = {0.,0.,0.};
-  Double_t circPar[3] = {0.,0.,0.};
-      
-  Int_t INTERESTINGTRACK = -1;
   // putting hits into one common array
   for ( Int_t idet = 0 ; idet < 5 ; idet++ ) {
     firstDH[idet] = nofHits;
@@ -214,13 +207,6 @@ void PndBarrelTrackFinder::Exec(Option_t* opt) {
   Int_t hitN = 0;
   // looping over hits as they are in the common array
 
-  Double_t resDist = 0.2;
-  Double_t resZ_PD = 2.;
-  
-  Double_t maxDist = 0.01;//05;
-  //     if ( fHitDetId[hitN] <= 1 ) maxDist = 0.15; // MVD
-  //     if ( fHitDetId[hitN] == 4 ) maxDist = 0.1;  // GEM
-  
   for ( Int_t ihit = 0 ; ihit < nofHits ; ihit++ ) {
 
     hitN = (hitN+gRandom->Integer(nofHits))%nofHits;
@@ -329,7 +315,7 @@ void PndBarrelTrackFinder::Exec(Option_t* opt) {
   cout << "==============================================================" << endl;
   cout << "==============================================================" << endl;
   cout << "FOUND " << fTracksVector.size() << " tracks:" << endl;*/
-  if ( fVerbose > 3 )
+  if ( fVerbose > 0 )
     PrintTracks();
 //   cout << "==============================================================" << endl;
 //   cout << "==============================================================" << endl;
@@ -352,6 +338,8 @@ void PndBarrelTrackFinder::Exec(Option_t* opt) {
 
 // -----   Private method MatchHitToTrack   -------------------------------
 Bool_t PndBarrelTrackFinder::MatchHitToTrack (FairHit* thisHit, Int_t detId, Int_t hitNo, Int_t trackNo) {
+  if ( thisHit ) cout << detId << "." << hitNo << " to " << trackNo << endl;
+  return kFALSE;
 }
 // -------------------------------------------------------------------------
 
@@ -391,13 +379,10 @@ Bool_t PndBarrelTrackFinder::MatchSkewedSttHitTT     (FairHit* thisHit, Int_t de
   tubePar[6] = sttTube->GetWireDirection().Z();
   tubePar[7] = a;
   
-  Bool_t hitFits = kFALSE;
-
   if ( fVerbose > 4 || printInfo )     
     cout << "matching to track " << trackNo << " with " << fTracksVector[trackNo].trackHits.size() << " hits" << endl;
   
   Bool_t trackFits = kFALSE;
-  Int_t nofPars = fTracksVector[trackNo].trackPars.size(); // do it like this, cause can ADD parameters in the loop
   
   Double_t meanPhi = CalcPhi(fTracksVector[trackNo].meanX,fTracksVector[trackNo].meanY);
   Double_t meanCirc[4] = {fTracksVector[trackNo].meanX,
@@ -1020,13 +1005,13 @@ void   PndBarrelTrackFinder::PrintTracks() {
       Double_t calcThe = TMath::ACos(calcPz/calcP);
       
       Double_t calcPhi = thisPhi-TMath::Pi()/2.;
-      Double_t calcChg = 1.;
+      Double_t calcChg = -1.;
       if ( calcPhi < 0. ) calcPhi += TMath::Pi()*2.;
       Double_t firpPhi = CalcPhi(fTracksVector[itr].trackHits[0]->GetX(),fTracksVector[itr].trackHits[0]->GetY());
       if ( TMath::Abs(calcPhi-firpPhi) > TMath::Pi()/2. && TMath::Abs(calcPhi-firpPhi) < 3.*TMath::Pi()/2. ) {
 	calcPhi = thisPhi+TMath::Pi()/2.;
 	if ( calcPhi > 2.*TMath::Pi() ) calcPhi -= TMath::Pi()*2.;
-	calcChg = -1.;
+	calcChg = 1.;
       }
       if ( calcPhi > TMath::Pi() )
 	calcPhi -= 2.*TMath::Pi();
@@ -1068,6 +1053,7 @@ void   PndBarrelTrackFinder::PrintTracks() {
 
 // -----   Private method CleanTracks   -------------------------------
 Int_t  PndBarrelTrackFinder::CleanTracks() {
+  return -1;
 }
 // -------------------------------------------------------------------------
 
@@ -1108,13 +1094,13 @@ Int_t  PndBarrelTrackFinder::WriteTracks() {
     Double_t calcThe = TMath::ACos(calcPz/calcP);
     
     Double_t calcPhi = thisPhi-TMath::Pi()/2.;
-    Int_t calcChg = 1;
+    Int_t calcChg = -1;
     if ( calcPhi < 0. ) calcPhi += TMath::Pi()*2.;
     Double_t firpPhi = CalcPhi(fTracksVector[itr].trackHits[0]->GetX(),fTracksVector[itr].trackHits[0]->GetY());
     if ( TMath::Abs(calcPhi-firpPhi) > TMath::Pi()/2. && TMath::Abs(calcPhi-firpPhi) < 3.*TMath::Pi()/2. ) {
       calcPhi = thisPhi+TMath::Pi()/2.;
       if ( calcPhi > 2.*TMath::Pi() ) calcPhi -= TMath::Pi()*2.;
-      calcChg = -1;
+      calcChg = 1;
     }
     if ( calcPhi > TMath::Pi() )
       calcPhi -= 2.*TMath::Pi();
@@ -1135,6 +1121,9 @@ Int_t  PndBarrelTrackFinder::WriteTracks() {
       Double_t tempPos = TMath::Sqrt(fTracksVector[itr].trackHits[ihit]->GetX()*fTracksVector[itr].trackHits[ihit]->GetX()+
 				     fTracksVector[itr].trackHits[ihit]->GetY()*fTracksVector[itr].trackHits[ihit]->GetY()+
 				     fTracksVector[itr].trackHits[ihit]->GetZ()*fTracksVector[itr].trackHits[ihit]->GetZ());
+//       cout << ">>> " << fDetName[fTracksVector[itr].trackHitD[ihit]] << " hit will be written as "
+// 	   << fDetType[fTracksVector[itr].trackHitD[ihit]] << "." << fTracksVector[itr].trackHitN[ihit] << endl;
+
       trackCand->AddHit(fDetType[fTracksVector[itr].trackHitD[ihit]],
 			fTracksVector[itr].trackHitN[ihit],
 			tempPos);

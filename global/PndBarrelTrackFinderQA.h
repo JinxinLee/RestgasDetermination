@@ -89,6 +89,10 @@ class PndBarrelTrackFinderQA : public FairTask
   TH1F* fhRecoMomPhi;
   TH1F* fhRecoMomThe;
 
+  TH2F* fhMomResVsMomMag;
+  TH2F* fhMomResVsMomPhi;
+  TH2F* fhMomResVsMomThe;
+
   TH2F* fhNofMvdPixsVsThetaHist;
   TH2F* fhNofMvdStrsVsThetaHist;
   TH2F* fhNofSttHitsVsThetaHist;
