@@ -103,6 +103,7 @@ PndGemDigitize::PndGemDigitize(const char* name, Int_t iVerbose)
 
 // -----   Destructor   ----------------------------------------------------
 PndGemDigitize::~PndGemDigitize() { 
+  Reset();
   if ( fDigiPar)   delete fDigiPar;
   if ( fDigis ) {
     fDigis->Delete();
@@ -112,7 +113,7 @@ PndGemDigitize::~PndGemDigitize() {
     fDigiMatches->Delete();
     delete fDigiMatches;
   }
-  Reset();
+
 }
 // -------------------------------------------------------------------------
 
