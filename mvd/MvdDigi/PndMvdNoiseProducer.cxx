@@ -29,7 +29,7 @@
 PndMvdNoiseProducer::PndMvdNoiseProducer() :
 FairTask("Charge Noise Producer"), fGeoH(0)
 {
-	fBranchName 	= "MVDStripDigis";
+  fBranchName 	= "MVDStripDigis";
   fPersistance = kTRUE;
   fGeoH = PndGeoHandling::Instance();
 }
@@ -41,7 +41,7 @@ FairTask("Charge Noise Producer"), fGeoH(0)
 PndMvdNoiseProducer::~PndMvdNoiseProducer()
 {
 	if (fStripRectChargeConv) delete fStripRectChargeConv;
-	if (fStripTrapChargeConv) delete fStripRectChargeConv;
+	if (fStripTrapChargeConv) delete fStripTrapChargeConv;
 	if (fPixChargeConv) delete fPixChargeConv;
 }
 
