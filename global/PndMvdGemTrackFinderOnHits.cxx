@@ -418,8 +418,6 @@ Int_t PndMvdGemTrackFinderOnHits::CreateTracks(Int_t nofRecoTracks) {
     TVector3 mom;
     mom.SetMagThetaPhi(TMath::Abs(meanMom[itr]),meanThe[itr]*TMath::DegToRad(),meanPhi[itr]*TMath::DegToRad());
     
-    trackCand->setTrackSeed(pos,mom.Unit(),1./meanMom[itr]);
-    
     Int_t charge = -1;
     if ( mom.Mag() < 0. ) charge = 1;
     
@@ -440,17 +438,6 @@ Int_t PndMvdGemTrackFinderOnHits::CreateTracks(Int_t nofRecoTracks) {
 							TVector3(0.,1.,0.));					 
     
     new((*fTrackArray)[nofCreatedTracks]) PndTrack(*firstPar, *lastPar, *trackCand);
-    
-    //     PndTrackCand* trackCand = new((*fTrackCandArray)[nofCreatedTracks]) PndTrackCand();
-    //     for ( Int_t ihit = 0 ; ihit < gemTrackCand->GetNHits() ; ihit++ ) {
-    //       tcHit = gemTrackCand->GetSortedHit(ihit);  
-    //       trackCand->AddHit(tcHit.GetHitId(),tcHit.GetDetId(),tcHit.GetRho());
-    //       trackCand->setMcTrackId(gemTrackCand->getMcTrackId());
-    //       trackCand->setTrackSeed(gemTrackCand->getPosSeed(),
-    // 			      gemTrackCand->getDirSeed(),
-    // 			      gemTrackCand->getQoverPseed());
-    //     }
-
     
     if ( fVerbose > 2 || printInfo )
       cout << "TRACK " << nofCreatedTracks << " HAS momentum: (" << meanMom[itr] << " GeV/c, " << meanThe[itr] << " deg theta, " << meanPhi[itr] << " deg phi)" << endl; 

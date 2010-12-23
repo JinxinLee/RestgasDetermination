@@ -174,20 +174,6 @@ void PndGemFindTracks::Exec(Option_t* opt) {
   fTTime      += fTimer.RealTime();
   fTNofTracks += fNofTracks;
   fTNofEvents += 1;
-
-  /*  PndTrackCandHit tcHit;
-
-  for ( Int_t iTrack = 0 ; iTrack < fNofTracks ; iTrack++ ) {
-    PndTrack*     track     = (PndTrack*) fTrackArray->At(iTrack);
-    PndTrackCand* trackCand = new((*fTrackCandArray)[iTrack]) PndTrackCand();
-    PndTrackCand* trackCnd1 = (PndTrackCand*)track->GetTrackCandPtr();
-    for ( Int_t ihit = 0 ; ihit < trackCnd1->GetNHits() ; ihit++ ) {
-      tcHit = trackCnd1->GetSortedHit(ihit);  
-      trackCand->AddHit(tcHit.GetHitId(),tcHit.GetDetId(),tcHit.GetRho());
-      trackCand->setMcTrackId(trackCnd1->getMcTrackId());
-      trackCand->setTrackSeed(trackCnd1->getPosSeed(),trackCnd1->getDirSeed(),trackCnd1->getQoverPseed());
-    }
-    }*/
 }
 // -------------------------------------------------------------------------
 

@@ -124,7 +124,7 @@ void PndGemIdealPatternRecoTask::Exec(Option_t* opt) {
     int trackId = point->GetTrackID();
     if(cands[trackId]==NULL) {
       cands[trackId] = new PndTrackCand;
-      cands[trackId]->setMcTrackId(trackId);
+      //      cands[trackId]->setMcTrackId(trackId);
       PndMCTrack *myMCTrack = (PndMCTrack*)fMCTrackArr->At(trackId);
       int pdg = myMCTrack->GetPdgCode();
       double charge;
@@ -134,11 +134,6 @@ void PndGemIdealPatternRecoTask::Exec(Option_t* opt) {
       else{
 	charge = 0.;
       }
-      cands[trackId]->setTrackSeed(
-				   myMCTrack->GetStartVertex(),
-				   myMCTrack->GetMomentum(),
-				   charge/myMCTrack->GetMomentum().Mag()
-				   );
 
     }
     cands[trackId]->AddHit(kGemHit,ihit,gemHit->GetPosition().Mag());

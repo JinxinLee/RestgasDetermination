@@ -366,8 +366,6 @@ Int_t PndGemTrackFinderOnHits::CreateTracks(TClonesArray* hitArray,
     TVector3 mom;
     mom.SetMagThetaPhi(TMath::Abs(meanMom[itr]),meanThe[itr]*TMath::DegToRad(),meanPhi[itr]*TMath::DegToRad());
 
-    gemTrackCand->setTrackSeed(pos,mom.Unit(),1./meanMom[itr]);//mom.Mag());
-
     Int_t charge = -1;
     if ( mom.Mag() < 0. ) charge = 1;
 
@@ -395,10 +393,7 @@ Int_t PndGemTrackFinderOnHits::CreateTracks(TClonesArray* hitArray,
     for ( Int_t ihit = 0 ; ihit < gemTrackCand->GetNHits() ; ihit++ ) {
       tcHit = gemTrackCand->GetSortedHit(ihit);  
       trackCand->AddHit(tcHit.GetDetId(),tcHit.GetHitId(),tcHit.GetRho());
-      trackCand->setMcTrackId(gemTrackCand->getMcTrackId());
-      trackCand->setTrackSeed(gemTrackCand->getPosSeed(),
-			      gemTrackCand->getDirSeed(),
-			      gemTrackCand->getQoverPseed());
+      //      trackCand->setMcTrackId(gemTrackCand->getMcTrackId());
     }
 
     /*    PndTrack* checkTrack = (PndTrack*) trackArray->At(nofCreatedTracks);

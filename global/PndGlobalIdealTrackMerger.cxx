@@ -196,7 +196,7 @@ void PndGlobalIdealTrackMerger::Exec(Option_t* opt) {
       
 	if ( arrayName.Contains("TrackCand") ) { // array of PndTrackCand
 	  localTrackCand = (PndTrackCand*)fTrackArray[idet]->At(itr);
-	  mcTrId = localTrackCand->getMcTrackId();
+	  //	  mcTrId = localTrackCand->getMcTrackId();
 	}
 	else { // array of PndTrack
 	  localTrack = (PndTrack*)fTrackArray[idet]->At(itr);
@@ -240,9 +240,9 @@ void PndGlobalIdealTrackMerger::Exec(Option_t* opt) {
       if ( arrayName.Contains("TrackCand") ) { // array of PndTrackCand
 	localTrackCand = (PndTrackCand*)fTrackArray[idet]->At(fMCDetTracks[itr][idet]);
 	trackMcId = localTrackCand->getMcTrackId();
-	TVector3 posSeed = localTrackCand->getPosSeed();
-	TVector3 dirSeed = localTrackCand->getDirSeed();
-	Double_t QoverPs = localTrackCand->getQoverPseed();
+ 	TVector3 posSeed;// = localTrackCand->getPosSeed();
+ 	TVector3 dirSeed;// = localTrackCand->getDirSeed();
+ 	Double_t QoverPs;// = localTrackCand->getQoverPseed();
 	//	cout << "track " << fDetName[idet].Data() << " Q/P = " << TMath::Abs(QoverPs) << endl;
 	Int_t charge = (QoverPs>0?1:-1);
 	dirSeed  = dirSeed.Unit();
@@ -316,10 +316,7 @@ void PndGlobalIdealTrackMerger::Exec(Option_t* opt) {
     for ( Int_t ihit = 0 ; ihit < globalTrackCand->GetNHits() ; ihit++ ) {
       candHit = globalTrackCand->GetSortedHit(ihit);  
       trackCand->AddHit(candHit.GetHitId(),candHit.GetDetId(),candHit.GetRho());
-      trackCand->setMcTrackId(globalTrackCand->getMcTrackId());
-      trackCand->setTrackSeed(globalTrackCand->getPosSeed(),
-			      globalTrackCand->getDirSeed(),
-			      globalTrackCand->getQoverPseed());
+      //      trackCand->setMcTrackId(globalTrackCand->getMcTrackId());
     }
 
     globalTrack = (PndTrack*)fGlobalTrackArray->At(nofCreatedTracks);

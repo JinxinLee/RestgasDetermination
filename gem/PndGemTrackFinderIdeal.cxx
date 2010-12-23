@@ -295,8 +295,7 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
     double charge = 0.;
     if(pdg<100000000) charge = TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.;
 
-    gemTrackCand->setTrackSeed(pos,mom.Unit(),charge/mom.Mag());
-    gemTrackCand->setMcTrackId(iMCTrack);
+//     gemTrackCand->setMcTrackId(iMCTrack);
 
     FairTrackParP*	    firstPar = new FairTrackParP(pos,mom,
 							 TVector3(0.5, 0.5, 0.5),
@@ -319,10 +318,7 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
     for ( Int_t ihit = 0 ; ihit < gemTrackCand->GetNHits() ; ihit++ ) {
       tcHit = gemTrackCand->GetSortedHit(ihit);  
       trackCand->AddHit(tcHit.GetDetId(),tcHit.GetHitId(),tcHit.GetRho());
-      trackCand->setMcTrackId(gemTrackCand->getMcTrackId());
-      trackCand->setTrackSeed(gemTrackCand->getPosSeed(),
-			      gemTrackCand->getDirSeed(),
-			      gemTrackCand->getQoverPseed());
+//       trackCand->setMcTrackId(gemTrackCand->getMcTrackId());
     }
 
     gemTrack = (PndTrack*) trackArray->At(nTracks);

@@ -1128,10 +1128,7 @@ Int_t  PndBarrelTrackFinder::WriteTracks() {
 			fTracksVector[itr].trackHitN[ihit],
 			tempPos);
 			//			fTracksVector[itr].trackHits[ihit]->GetPosition().Mag());
-      trackCand->setMcTrackId(nofCreatedTracks);
-      trackCand->setTrackSeed(trackPosition,
-			      trackMomentum,
-			      ((Double_t)calcChg)/calcP);
+//       trackCand->setMcTrackId(nofCreatedTracks);
     }
     trackCand->Sort();
 
