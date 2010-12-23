@@ -205,7 +205,9 @@ void PndMvaDataSet::NormalizeDataSet(const NormType type)
     for(size_t i = 0; i < m_vars.size(); i++)
     {
       // Avoid zero division
-      assert(m_vars[i].NormFactor != 0);
+      //assert(m_vars[i].NormFactor != 0);
+      assert( (m_vars[i].NormFactor > 0) || (m_vars[i].NormFactor < 0) );
+
       // [A = (A - mean)/var] (Var = NormFactor)
       (m_events[ev].second)->at(i) = (m_events[ev].second)->at(i) - (m_vars[i].Mean);
       (m_events[ev].second)->at(i) = (m_events[ev].second)->at(i) / (m_vars[i].NormFactor);

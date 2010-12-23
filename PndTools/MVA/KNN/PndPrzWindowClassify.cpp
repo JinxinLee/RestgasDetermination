@@ -81,8 +81,9 @@ void PndPrzWindowClassify::GetMvaValues(vector<float> eventData,
 					map<string, float>& result)
 {
   // Zero volume makes no sense.
-  assert( m_volumeN != 0.0 );
-  
+  //assert( m_volumeN != 0.0 );
+  assert( m_volumeN > 0.0 );
+
   // Get examples.
   const vector <pair<string, vector<float>*> >& events = m_dataSets.GetData();
   

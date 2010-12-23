@@ -199,12 +199,16 @@ void selectEvents(int pdg,
       latEdep = HE_cluster->LatMom();
       
       // Fill tree (NTuple)
-      EmcNtp.Fill(MCmom, mom, emcCorr, emc, latEdep, z20, z53, numClus, numCrys, numBumps);
+      if(tra->GetFlag() > 0)// If something wrong happened during the fitting
+      {
+	EmcNtp.Fill(MCmom, mom, emcCorr, emc, latEdep, z20, z53, numClus, numCrys, numBumps);
 
-      std::cout << "Selected Cluster index = "<< clIndex 
-		<< " emcOld = "  << emc 
-		<< " emcCorr = " << emcCorr 
-		<< '\n';
+	std::cout << "Selected Cluster index = "<< clIndex 
+		  << " emcOld = "  << emc
+		  << " emcCorr = " << emcCorr
+		  << " Track Flag = " << tra->GetFlag()
+		  << '\n';
+      }
     }
   }
   

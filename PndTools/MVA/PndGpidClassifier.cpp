@@ -32,7 +32,9 @@ void PndGpidClassifier::NormalizeEvent(std::vector<float>& event) const
   // Normalize current Event
   for(size_t k = 0; k < vars.size(); ++k)
   {
-    assert(vars[k].NormFactor != 0);
+    //assert(vars[k].NormFactor != 0);
+    assert( (vars[k].NormFactor > 0) || (vars[k].NormFactor < 0) );
+
     event[k] -= vars[k].Mean;
     event[k] /= vars[k].NormFactor;
   }
