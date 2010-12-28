@@ -48,7 +48,9 @@ class PndSttTrackFitterQATask : public FairTask
   TClonesArray* fHitArray;
   /** Input array of PndSttTracks **/
   TClonesArray* fTrackArray;
- /** Input array of PndTracksCand **/
+ /** Input array of PndTracks **/
+  TClonesArray* fFoundTrackArray;
+  /** Input array of PndTrackCands **/
   TClonesArray* fTrackCandArray;
   /** Input array of MCTracks **/
   TClonesArray* fMCTrackArray;

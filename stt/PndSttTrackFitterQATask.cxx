@@ -12,6 +12,7 @@
 #include "PndSttTube.h"
 #include "PndSttTrack.h"
 #include "PndTrackCand.h"
+#include "PndTrack.h"
 #include "PndTrackCandHit.h"
 #include "PndSttHelixHit.h"
 #include "PndMCTrack.h"
@@ -122,6 +123,16 @@ InitStatus PndSttTrackFitterQATask::Init()
       return kERROR;
     }
 
+  // Get SttFoundTrack array
+  fFoundTrackArray  = (TClonesArray*) ioman->GetObject("STTFoundTrack"); 
+  if ( ! fFoundTrackArray) 
+    {
+      cout << "-E- PndSttTrackFitterQATask::Init: No SttFoundTrack array!"
+	   << endl;
+      return kERROR;
+    }
+
+
  // Get SttTrackCand array
   fTrackCandArray  = (TClonesArray*) ioman->GetObject("STTTrackCand"); 
   if ( ! fTrackCandArray) 
@@ -178,6 +189,7 @@ void PndSttTrackFitterQATask::Exec(Option_t* opt)
   // Declare some variables
   PndSttTrack*  pTrack  = NULL;
   PndTrackCand* pTrackCand  = NULL;
+  PndTrack* pFoundTrack = NULL;
   PndMCTrack * mcTrack = NULL;
 
   if ( ! fTrackArray ) Fatal("Exec", "No fTrackArray");
@@ -191,6 +203,17 @@ void PndSttTrackFitterQATask::Exec(Option_t* opt)
     Int_t trackCandID = pTrack->GetTrackCandIndex();
     pTrackCand = (PndTrackCand *) fTrackCandArray->At(trackCandID);
     if(!pTrackCand) continue;
+
+    bool foundtrack = false;
+    for(int k = 0; k < fFoundTrackArray->GetEntriesFast(); k++) {
+      pFoundTrack = (PndTrack*) fFoundTrackArray->At(k);
+      if(!pFoundTrack) continue;
+      if(pFoundTrack->GetRefIndex() == trackCandID) {
+	foundtrack = true;
+	break;
+      }
+    }
+    if(foundtrack == false) continue;
 
     // ================= momentum residual ========================
     if(pTrack->GetFlag() < 3) continue; // only prefit-fit-zfit CHECK
@@ -213,9 +236,8 @@ void PndSttTrackFitterQATask::Exec(Option_t* opt)
 
     // -------------------------------------------------------------------
     // FOUND track
-    TVector3 foundMom = pTrackCand->getDirSeed();
-    Double_t momMag = fabs(1./pTrackCand->getQoverPseed());
-    foundMom.SetMag(momMag);
+    TVector3 foundMom = pFoundTrack->GetParamFirst().GetMomentum();
+    Double_t momMag = foundMom.Mag();
 
     // -------------------------------------------------------------------
     // MC track
