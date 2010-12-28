@@ -109,7 +109,11 @@ Int_t PndSttHelixTrackFitter::DoFit(PndTrackCand* pTrackCand, PndSttTrack* pTrac
 
 
   if(fConstraint == 0) return DoFitPlain(pTrackCand, pTrack, pidHypo);
-  else if (fConstraint == 1)  return DoFitThroughOrigin(pTrackCand, pTrack, pidHypo);
+  else if (fConstraint == 1) {
+    cout << "PndSttHelixTrackFitter::DoFit, Constraint 1 not usable now. A big change is needed to use start point from PndTrack and not PndTrackCand anymore" << endl;
+    return 1;
+    // return DoFitThroughOrigin(pTrackCand, pTrack, pidHypo);
+  }
   else { 
     cout << "PndSttHelixTrackFitter::DoFit, Constraint " << fConstraint << " not implemented" << endl;
     return 1;
@@ -2765,135 +2769,145 @@ Int_t PndSttHelixTrackFitter::ZFitThroughOrigin(PndTrackCand* pTrackCand, Int_t 
   //   fiterrm = sqrt(fiterrm2);
 }
 // -------------------------------------------------------------------------------
+//    ***************** CHECK *******************
+// TO USE THIS A BIG CHANGE IS NEEDED TO RETRIEVE THE START
+// POINT FROM PndTrack
+/**
+
 Int_t PndSttHelixTrackFitter::DoFitThroughOrigin(PndTrackCand* pTrackCand, PndSttTrack* pTrack, Int_t pidHypo)
 {
-  // TO BE USED ONLY when PndSttTrackFinderReal is applied:
-  // the PR finds only PRIMARY TRACKS ==>
-  // the track can be forced to come from the IP (0, 0, 0)
-  //
-  // the starting point is the PR found track seed
+// TO BE USED ONLY when PndSttTrackFinderReal is applied:
+// the PR finds only PRIMARY TRACKS ==>
+// the track can be forced to come from the IP (0, 0, 0)
+//
+// the starting point is the PR found track seed
 
 
-  if(!pTrackCand) return 0;
-  fTrack = pTrack; // CHECK canc
-  fTrackCand = pTrackCand; 
-  if(fDisplayLevel > 0) {
-    RunEventDisplay(pTrackCand);
-    char goOnChar;
-    cout << "press any key to continue: " << endl;
-    cin >> goOnChar;
-  }
+if(!pTrackCand) return 0;
+fTrack = pTrack; // CHECK canc
+fTrackCand = pTrackCand; 
+if(fDisplayLevel > 0) {
+RunEventDisplay(pTrackCand);
+char goOnChar;
+cout << "press any key to continue: " << endl;
+cin >> goOnChar;
+}
   
-  Int_t fit = 0;
+Int_t fit = 0;
  
-  //  fit = XYFitThroughOrigin(pTrackCand, 1);
-  // take start point from PR ===================================================
-  TVector3 foundMom = pTrackCand->getDirSeed();
-  Double_t momMag = fabs(1./pTrackCand->getQoverPseed());
-  foundMom.SetMag(momMag);
-  TVector3 foundVtx = pTrackCand->getPosSeed();
-  int foundCharge = (int) (pTrackCand->getQoverPseed()/fabs(pTrackCand->getQoverPseed()));
-  Double_t foundRad = foundMom.Perp() / 0.006; 
-  // track from tangent ---------------------
-  double found_m1 = foundMom.Y() / foundMom.X();
-  double found_q1 = foundVtx.Y() - foundVtx.X() * found_m1;
-  double found_m2 = -1./found_m1;
-  double found_q2 = foundVtx.Y() - foundVtx.X() * found_m2;
+//  fit = XYFitThroughOrigin(pTrackCand, 1);
+//    ***************** CHECK *******************
+// TO USE THIS A BIG CHANGE IS NEEDED TO RETRIEVE THE START
+// POINT FROM PndTrack
   
-  double alpha = TMath::ATan2(foundMom.X(), foundMom.Y());
-  double foundX0, foundY0;
-  if(foundCharge > 0) { 
-      foundX0 = foundVtx.X() + foundRad * TMath::Cos(alpha);
-      foundY0 = foundVtx.Y() - foundRad * TMath::Sin(alpha);
-  }
-  else {
-    foundX0 = foundVtx.X() - foundRad * TMath::Cos(alpha);
-    foundY0 = foundVtx.Y() + foundRad * TMath::Sin(alpha);
-  }
-
-  Double_t foundDist, foundPhi;
-  
-  foundDist = TMath::Sqrt(foundX0 * foundX0 + foundY0 * foundY0) - foundRad;
-  foundPhi = atan2(foundY0, foundX0);
-  
-  Double_t foundTanL, foundZ = 0; // CHECK
-  foundTanL = foundMom.Z()/foundMom.Perp();
-  
-  fTrack->SetDist(foundDist);
-  fTrack->SetPhi(foundPhi);
-  fTrack->SetRad(foundRad); 
-  fTrack->SetTanL(foundTanL);
-  fTrack->SetZ(foundZ);
-  fTrack->SetCharge(foundCharge);
-  
-  if(fDisplayLevel >= 4) {
-    TArc *foundcir = new TArc(foundX0, foundY0, foundRad); 
-    eventCanvas->cd(1);
-    foundcir->SetLineColor(8);
-    foundcir->SetFillStyle(0);
-    foundcir->Draw("SAME");
-  }
-  // ==========================================================
-
-  
-  // if the track finding is ok
-  if(fTrack->GetRad() == 0 || !(fTrack->GetRad()) || fTrack->GetRad() > 3000) {
-    //  fTrack->SetRad(-999); 
-    //    if(fVerbose == 2)
-    cout << "-E- track finding FAILED" << endl;
-    return 0;
-  }
-  else {
-    pTrack->SetFlag(1); // prefit done 
-    Bool_t Rint = IntersectionFinder(pTrackCand);
-    //    cout << "refit" << endl;                                       
-    // if refit is OK
-    if(Rint == kTRUE) {
-      fit = XYFitThroughOrigin(pTrackCand, 2);  
-      Rint = IntersectionFinder(pTrackCand);
-      if(Rint == kTRUE)  fit = XYFitThroughOrigin(pTrackCand, 2); // MinuitFit(pTrackCand, 2);  
-      Rint = IntersectionFinder(pTrackCand);
-      if(Rint == kTRUE)  fit = XYFitThroughOrigin(pTrackCand, 2); // MinuitFit(pTrackCand, 2);  
-
-    }
-    else {
-      return 0;
-    }
-    if(fit == 1 && fTrack->GetRad()>0&& fTrack->GetRad() < 3000) { 
-     
-      pTrack->SetFlag(2); // refit done 
-      Bool_t zint = ZFinderThroughOrigin(pTrackCand, 1); 
-
-      if(zint == kTRUE) {
-	Int_t zfit = ZFitThroughOrigin(pTrackCand, 1);
-	if(zfit == 1) {
-	  pTrack->SetFlag(3); // z fit done 
-	} 
-      }
-      else if(fVerbose == 2) cout << "-E- zfinder FAILED" << endl;
-    }
-  }
-  
-  if(fVerbose == 2) {
-    cout << "param last d    : "  << fTrack->GetDist() << endl;
-    cout << "param last phi  : "  << fTrack->GetPhi() << endl;
-    cout << "param last R    : " << fTrack->GetRad() << endl;
-    cout << "param last tanL : " << fTrack->GetTanL() << endl;
-    cout << "param last q    : " << fTrack->GetCharge() << endl;
-    double pt, pl;
-    pt = fTrack->GetRad() * 0.006;
-    pl = fTrack->GetRad() * fTrack->GetTanL() * 0.006;
-    cout << "pT              : " << pt << endl;
-    cout << "pL              : " << pl << endl;
-    cout << "px, py, pz      : " << pt * cos(-h * TMath::Pi()/2. + fTrack->GetPhi()) << " " << pt * sin(-h * TMath::Pi()/2. + fTrack->GetPhi()) << " " << pl << endl;
-  }
-  
-
-  if(fDisplayLevel > 0) FinishEventDisplay(fTrack);
-  
-  return 0;
+// take start point from PR ===================================================
+TVector3 foundMom = pTrackCand->getDirSeed();
+Double_t momMag = fabs(1./pTrackCand->getQoverPseed());
+foundMom.SetMag(momMag);
+TVector3 foundVtx = pTrackCand->getPosSeed();
+int foundCharge = (int) (pTrackCand->getQoverPseed()/fabs(pTrackCand->getQoverPseed()));
+Double_t foundRad = foundMom.Perp() / 0.006; 
+// track from tangent ---------------------
+double found_m1 = foundMom.Y() / foundMom.X();
+double found_q1 = foundVtx.Y() - foundVtx.X() * found_m1;
+double found_m2 = -1./found_m1;
+double found_q2 = foundVtx.Y() - foundVtx.X() * found_m2;
+   
+double alpha = TMath::ATan2(foundMom.X(), foundMom.Y());
+double foundX0, foundY0;
+if(foundCharge > 0) { 
+foundX0 = foundVtx.X() + foundRad * TMath::Cos(alpha);
+foundY0 = foundVtx.Y() - foundRad * TMath::Sin(alpha);
+}
+else {
+foundX0 = foundVtx.X() - foundRad * TMath::Cos(alpha);
+foundY0 = foundVtx.Y() + foundRad * TMath::Sin(alpha);
+}
+   
+Double_t foundDist, foundPhi;
+   
+foundDist = TMath::Sqrt(foundX0 * foundX0 + foundY0 * foundY0) - foundRad;
+foundPhi = atan2(foundY0, foundX0);
+   
+Double_t foundTanL, foundZ = 0; // CHECK
+foundTanL = foundMom.Z()/foundMom.Perp();
+   
+fTrack->SetDist(foundDist);
+fTrack->SetPhi(foundPhi);
+fTrack->SetRad(foundRad); 
+fTrack->SetTanL(foundTanL);
+fTrack->SetZ(foundZ);
+fTrack->SetCharge(foundCharge);
+   
+if(fDisplayLevel >= 4) {
+TArc *foundcir = new TArc(foundX0, foundY0, foundRad); 
+eventCanvas->cd(1);
+foundcir->SetLineColor(8);
+foundcir->SetFillStyle(0);
+foundcir->Draw("SAME");
 }
 
+// ==========================================================
+
+  
+// if the track finding is ok
+if(fTrack->GetRad() == 0 || !(fTrack->GetRad()) || fTrack->GetRad() > 3000) {
+//  fTrack->SetRad(-999); 
+//    if(fVerbose == 2)
+cout << "-E- track finding FAILED" << endl;
+return 0;
+}
+else {
+pTrack->SetFlag(1); // prefit done 
+Bool_t Rint = IntersectionFinder(pTrackCand);
+//    cout << "refit" << endl;                                       
+// if refit is OK
+if(Rint == kTRUE) {
+fit = XYFitThroughOrigin(pTrackCand, 2);  
+Rint = IntersectionFinder(pTrackCand);
+if(Rint == kTRUE)  fit = XYFitThroughOrigin(pTrackCand, 2); // MinuitFit(pTrackCand, 2);  
+Rint = IntersectionFinder(pTrackCand);
+if(Rint == kTRUE)  fit = XYFitThroughOrigin(pTrackCand, 2); // MinuitFit(pTrackCand, 2);  
+
+}
+else {
+return 0;
+}
+if(fit == 1 && fTrack->GetRad()>0&& fTrack->GetRad() < 3000) { 
+     
+pTrack->SetFlag(2); // refit done 
+Bool_t zint = ZFinderThroughOrigin(pTrackCand, 1); 
+
+if(zint == kTRUE) {
+Int_t zfit = ZFitThroughOrigin(pTrackCand, 1);
+if(zfit == 1) {
+pTrack->SetFlag(3); // z fit done 
+} 
+}
+else if(fVerbose == 2) cout << "-E- zfinder FAILED" << endl;
+}
+}
+  
+if(fVerbose == 2) {
+cout << "param last d    : "  << fTrack->GetDist() << endl;
+cout << "param last phi  : "  << fTrack->GetPhi() << endl;
+cout << "param last R    : " << fTrack->GetRad() << endl;
+cout << "param last tanL : " << fTrack->GetTanL() << endl;
+cout << "param last q    : " << fTrack->GetCharge() << endl;
+double pt, pl;
+pt = fTrack->GetRad() * 0.006;
+pl = fTrack->GetRad() * fTrack->GetTanL() * 0.006;
+cout << "pT              : " << pt << endl;
+cout << "pL              : " << pl << endl;
+cout << "px, py, pz      : " << pt * cos(-h * TMath::Pi()/2. + fTrack->GetPhi()) << " " << pt * sin(-h * TMath::Pi()/2. + fTrack->GetPhi()) << " " << pl << endl;
+}
+  
+
+if(fDisplayLevel > 0) FinishEventDisplay(fTrack);
+  
+return 0;
+}
+**/
 void PndSttHelixTrackFitter::InitEventDisplay()
 {
   // 0 no display
