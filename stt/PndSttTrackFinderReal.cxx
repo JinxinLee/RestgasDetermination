@@ -1890,13 +1890,68 @@ if( istampa>=2){
 				Position, TVector3(Py/Ptras, -Px/Ptras, 0.),
 					TVector3(Pzini*Px/ddd,Pzini*Py/ddd, -Ptras*Ptras/ddd)
 						);
-				//  now load the PndTrack object
+				//--------   load PndTrack object
 				pTrck = new((*trackArray)[ipanco]) PndTrack(first, last, *pTrckCand);
 				pTrck->SetRefIndex(ipanco);
 				ipanco++;
-			}	// end of  if( Posiz2[0]>-777777776.&&Posiz2[2] > -888888887.)
+
+			}  else { // continuation  of  if( Posiz2[0]>-777777776.&&Posiz2[2] > -888888887.)
+				//case of something wrong with last hit
+				FairTrackParP first(
+					TVector3(0., 0., 0.), //  dummy Position
+					TVector3(0., 0., 0.), //  dummy Momentum
+					TVector3(0., 0., 0.), //  dummy ErrPosition
+					TVector3(0., 0., 0.), //  dummy ErrMomentum
+					0, //  dummy Charge
+					TVector3(0., 0., 0.), //  dummy Position again
+					TVector3(1., 0., 0.), //  dummy direction versor
+					TVector3(1., 0., 0.) //  dummy direction versor
+						);
+				FairTrackParP last(
+					TVector3(-99999., -99999., -99999.), //  dummy Position
+					TVector3(-99999., -99999., -99999.), //  dummy Momentum
+					TVector3(-99999., -99999., -99999.), //  dummy ErrPosition
+					TVector3(-99999., -99999., -99999.), //  dummy ErrMomentum
+					0, //  dummy Charge
+					TVector3(-99999., -99999., -99999.), //  dummy Position again
+					TVector3(1., 0., 0.), //  dummy direction versor
+					TVector3(1., 0., 0.) //  dummy direction versor
+						);
+				//--------   load PndTrack object
+				pTrck = new((*trackArray)[ipanco]) PndTrack(first, last, *pTrckCand);
+				pTrck->SetRefIndex(ipanco);
+				ipanco++;
+
+			}   // end of if( Posiz2[0]>-777777776.&&Posiz2[2] > -888888887.
+
+		}  else { // continuation of  if( Posiz1[0] > -777777776. && Posiz1[2] > -888888887.)
+			//case of something wrong with first hit
+			FairTrackParP first(
+					TVector3(-99999., -99999., -99999.), //  dummy Position
+					TVector3(-99999., -99999., -99999.), //  dummy Momentum
+					TVector3(-99999., -99999., -99999.), //  dummy ErrPosition
+					TVector3(-99999., -99999., -99999.), //  dummy ErrMomentum
+					0, //  dummy Charge
+					TVector3(-99999., -99999., -99999.), //  dummy Position again
+					TVector3(1., 0., 0.), //  dummy direction versor
+					TVector3(1., 0., 0.) //  dummy direction versor
+						);
+				FairTrackParP last(
+					TVector3(0., 0., 0.), //  dummy Position
+					TVector3(0., 0., 0.), //  dummy Momentum
+					TVector3(0., 0., 0.), //  dummy ErrPosition
+					TVector3(0., 0., 0.), //  dummy ErrMomentum
+					0, //  dummy Charge
+					TVector3(0., 0., 0.), //  dummy Position again
+					TVector3(1., 0., 0.), //  dummy direction versor
+					TVector3(1., 0., 0.) //  dummy direction versor
+						);
+			//--------   load PndTrack object
+			pTrck = new((*trackArray)[ipanco]) PndTrack(first, last, *pTrckCand);
+			pTrck->SetRefIndex(ipanco);
+			ipanco++;
 		}	// end of  if( Posiz1[0] > -777777776. && Posiz1[2] > -888888887.)
-	//--------  end relevant calculation for this track and load the PndTrack  object
+
 
        } else {	//   continuation of   if(fabs(KAPPA[i])>1.e-20  )
 
@@ -1914,6 +1969,36 @@ if( istampa>=2){
 			FairRootManager::Instance()->GetBranchId("STTHit"),
 			(Int_t) BigList[i][j] , j);
 		}
+
+
+		// load dummy quantities in PndTrack
+		FairTrackParP first(
+					TVector3(0., 0., 0.), //  dummy Position
+					TVector3(0., 0., 0.), //  dummy Momentum
+					TVector3(0., 0., 0.), //  dummy ErrPosition
+					TVector3(0., 0., 0.), //  dummy ErrMomentum
+					0, //  dummy Charge
+					TVector3(0., 0., 0.), //  dummy Position again
+					TVector3(1., 0., 0.), //  dummy direction versor
+					TVector3(1., 0., 0.) //  dummy direction versor
+				);
+		FairTrackParP last(
+					TVector3(-99999., -99999., -99999.), //  dummy Position
+					TVector3(-99999., -99999., -99999.), //  dummy Momentum
+					TVector3(-99999., -99999., -99999.), //  dummy ErrPosition
+					TVector3(-99999., -99999., -99999.), //  dummy ErrMomentum
+					0, //  dummy Charge
+					TVector3(-99999., -99999., -99999.), //  dummy Position again
+					TVector3(1., 0., 0.), //  dummy direction versor
+					TVector3(1., 0., 0.) //  dummy direction versor
+				);
+		//--------   load PndTrack object
+		pTrck = new((*trackArray)[ipanco]) PndTrack(first, last, *pTrckCand);
+		pTrck->SetRefIndex(ipanco);
+		ipanco++;
+
+
+
        }	// end of  if(fabs(KAPPA[i])>1.e-20  )
 
 
@@ -1942,6 +2027,31 @@ if( istampa>=2){
          }
 
 
+	// load dummy quantities in PndTrack
+	FairTrackParP first(
+					TVector3(0., 0., 0.), //  dummy Position
+					TVector3(0., 0., 0.), //  dummy Momentum
+					TVector3(0., 0., 0.), //  dummy ErrPosition
+					TVector3(0., 0., 0.), //  dummy ErrMomentum
+					0, //  dummy Charge
+					TVector3(0., 0., 0.), //  dummy Position again
+					TVector3(1., 0., 0.), //  dummy direction versor
+					TVector3(1., 0., 0.) //  dummy direction versor
+			);
+	FairTrackParP last(
+					TVector3(-99999., -99999., -99999.), //  dummy Position
+					TVector3(-99999., -99999., -99999.), //  dummy Momentum
+					TVector3(-99999., -99999., -99999.), //  dummy ErrPosition
+					TVector3(-99999., -99999., -99999.), //  dummy ErrMomentum
+					0, //  dummy Charge
+					TVector3(-99999., -99999., -99999.), //  dummy Position again
+					TVector3(1., 0., 0.), //  dummy direction versor
+					TVector3(1., 0., 0.) //  dummy direction versor
+			);
+	//--------   load PndTrack object
+	pTrck = new((*trackArray)[ipanco]) PndTrack(first, last, *pTrckCand);
+	pTrck->SetRefIndex(ipanco);
+	ipanco++;
 
 
 
