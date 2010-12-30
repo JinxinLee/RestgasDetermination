@@ -1973,12 +1973,12 @@ if( istampa>=2){
 
 		// load dummy quantities in PndTrack
 		FairTrackParP first(
-					TVector3(0., 0., 0.), //  dummy Position
-					TVector3(0., 0., 0.), //  dummy Momentum
-					TVector3(0., 0., 0.), //  dummy ErrPosition
-					TVector3(0., 0., 0.), //  dummy ErrMomentum
+					TVector3(-99999., -99999., -99999.), //  dummy Position
+					TVector3(-99999., -99999., -99999.), //  dummy Momentum
+					TVector3(-99999., -99999., -99999.), //  dummy ErrPosition
+					TVector3(-99999., -99999., -99999.), //  dummy ErrMomentum
 					0, //  dummy Charge
-					TVector3(0., 0., 0.), //  dummy Position again
+					TVector3(-99999., -99999., -99999.), //  dummy Position again
 					TVector3(1., 0., 0.), //  dummy direction versor
 					TVector3(1., 0., 0.) //  dummy direction versor
 				);
@@ -2029,12 +2029,12 @@ if( istampa>=2){
 
 	// load dummy quantities in PndTrack
 	FairTrackParP first(
-					TVector3(0., 0., 0.), //  dummy Position
-					TVector3(0., 0., 0.), //  dummy Momentum
-					TVector3(0., 0., 0.), //  dummy ErrPosition
-					TVector3(0., 0., 0.), //  dummy ErrMomentum
+					TVector3(-99999., -99999., -99999.), //  dummy Position
+					TVector3(-99999., -99999., -99999.), //  dummy Momentum
+					TVector3(-99999., -99999., -99999.), //  dummy ErrPosition
+					TVector3(-99999., -99999., -99999.), //  dummy ErrMomentum
 					0, //  dummy Charge
-					TVector3(0., 0., 0.), //  dummy Position again
+					TVector3(-99999., -99999., -99999.), //  dummy Position again
 					TVector3(1., 0., 0.), //  dummy direction versor
 					TVector3(1., 0., 0.) //  dummy direction versor
 			);
