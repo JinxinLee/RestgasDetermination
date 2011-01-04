@@ -21,18 +21,16 @@ void selectEvents(int pdg,
   std::vector < std::pair<int, float> > EvtIds;
   
   // EMC cluster energy, num.clusters, numb. crystals
-  float emc, emcCorr, mom, MCmom, lheMom;
+  float emc, emcOld, mom, MCmom;
   
   // Selected Zernike moments and LATeral energydeposition
   float z20, z53, latEdep;
   int numClus, numCrys, numBumps;
   
-  MCmom = lheMom = mom = emc = emcCorr = z20 = z53 = 0.00;
+  MCmom = mom = emc = emcOld = z20 = z53 = 0.00;
   numClus = numCrys = numBumps = 0;
   
   // N-Tuple to store the variables.
-  //TNtuple EmcNtp (partName.c_str(), partName.c_str(),
-  //	  "id:MCp:p:emc:emcOld:lat:z20:z53:numClus:numCrys:numBumps");
   TNtuple EmcNtp (partName.c_str(), partName.c_str(),
 		  "MCp:p:emc:emcOld:lat:z20:z53:numClus:numCrys:numBumps");
 
@@ -87,7 +85,7 @@ void selectEvents(int pdg,
   // Track list
   TClonesArray* recTrakArr = new TClonesArray("PndTrack");
   RecoTr->SetBranchAddress("SttMvdGenTrack", &recTrakArr);
-  //TClonesArray* recTrakArr = new TClonesArray("PndTrack");
+
   //RecoTr->SetBranchAddress("LheTrack", &recTrakArr);
   //RecoTr->SetBranchAddress("LheGenTrackPion", &recTrakArr);
   
@@ -182,8 +180,8 @@ void selectEvents(int pdg,
     {
       PndEmcCluster* HE_cluster = (PndEmcCluster*) clusters_arr->At(clIndex);
       
-      emc     = HE_cluster->energy();
-      emcCorr = HE_cluster->GetEnergyCorrected();
+      emcOld   = HE_cluster->energy();
+      emc      = HE_cluster->GetEnergyCorrected();
 
       numClus  = clusters_arr->GetEntriesFast();
       numCrys  = HE_cluster->NumberOfDigis();
@@ -199,16 +197,17 @@ void selectEvents(int pdg,
       latEdep = HE_cluster->LatMom();
       
       // Fill tree (NTuple)
-      if(tra->GetFlag() > 0)// If something wrong happened during the fitting
-      {
-	EmcNtp.Fill(MCmom, mom, emcCorr, emc, latEdep, z20, z53, numClus, numCrys, numBumps);
-
-	std::cout << "Selected Cluster index = "<< clIndex 
-		  << " emcOld = "  << emc
-		  << " emcCorr = " << emcCorr
-		  << " Track Flag = " << tra->GetFlag()
-		  << '\n';
-      }
+      // If something wrong happened during the fitting
+      //if(tra->GetFlag() > 0)// Crash on 64 bit ???
+      //{
+      EmcNtp.Fill(MCmom, mom, emc, emcOld, latEdep, z20, z53, numClus, numCrys, numBumps);
+      
+      std::cout << "Selected Cluster index = "<< clIndex 
+		<< " emcOld = " << emcOld
+		<< " emc = "    << emc
+		<< '\n';
+      //  << " Track Flag = " << tra->GetFlag()
+      //}
     }
   }
   
@@ -225,8 +224,8 @@ void selectEvents(int pdg,
   // Write to the output
   TFile out(outFileName.c_str(), "RECREATE","Selected evets File.", 9);
 
-  //EmcNtp.Print();
   EmcNtp.Write();
+  
   out.Close();
   
   //=========== Clean-up

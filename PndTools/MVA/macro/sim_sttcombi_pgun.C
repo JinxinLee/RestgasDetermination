@@ -1,7 +1,7 @@
 //pi+ = 211, pi- = -211, mu+ = -13, mu- = 13, K+ = 321, K- = -321, K0L = 130
 //pi0 = 111, gamma = 22, e- = 11, e+ = -11, proton = 2212, protonMin = -2212
 
-void sim_sttcombi_pgun( int seed = 87619, int nEvents = 10, int pid  = 11,
+void sim_sttcombi_pgun( int seed = 8769, int nEvents = 10, int pid  = 11,
 			float p1 = 1.0, float p2 = 1.5,
 			Char_t paramFile [] = "params_sttcombi.root", 
 			Char_t outFile   [] = "points_sttcombi.root"
@@ -62,7 +62,6 @@ void sim_sttcombi_pgun( int seed = 87619, int nEvents = 10, int pid  = 11,
   fRun->AddModule(Cave); 
   
   FairModule* Magnet= new PndMagnet("MAGNET");
-  //Magnet->SetGeometryFileName("FullSolenoid_V842.root");
   Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
   fRun->AddModule(Magnet);
   
@@ -143,14 +142,6 @@ void sim_sttcombi_pgun( int seed = 87619, int nEvents = 10, int pid  = 11,
   //-------------------------------
   PndMultiField* fField= new PndMultiField("FULL");
   fRun->SetField(fField);
-
-  // EMC Hit producer
-  //-------------------------------
-  /*
-    PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
-    emcHitProd->SetStorageOfData(kTRUE);
-    fRun->AddTask(emcHitProd);
-  */
   
   /**Initialize the session*/
   fRun->Init();
