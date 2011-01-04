@@ -79,6 +79,7 @@ class PndTpcSLPatternRecoTask : public FairTask {
   void CutBigPad(Bool_t opt=kTRUE) {_cutbigpad=opt;}
 
   void SetStoreHistograms(TString file);
+  void SetDebugOutput(Bool_t opt=true) {fDebug=opt;}
  
   
  private:
@@ -100,7 +101,8 @@ class PndTpcSLPatternRecoTask : public FairTask {
   Bool_t _cutbigpad;
   Bool_t _cutsmallpad ;
   Bool_t fStore;
-  
+  Bool_t fDebug;
+
   TString fClusterBranchName;
   TString fTrackBranchName;
   TString fHistoFileName;

@@ -67,10 +67,10 @@ clusterSortX(PndTpcCluster* cl1, PndTpcCluster* cl2) {
 
 PndTpcSLPatternRecoTask::PndTpcSLPatternRecoTask()
 :  FairTask("PndTpc SL Hough Pattern Reco"),
-  fPersistence(kFALSE),fDistSorting(kFALSE),
-  fDepth(6), fThresh(6), fMin(5), counter(-1),
-  fXZ(true), fZY(false), _cutbigpad(kFALSE), _cutsmallpad(kFALSE),
-   fStore(false), fAmpCut(0.), fZStackLimit(0), fClLimit(500)
+   fPersistence(kFALSE),fDistSorting(kFALSE),
+   fDepth(6), fThresh(6), fMin(5), counter(-1),
+   fXZ(true), fZY(false), _cutbigpad(kFALSE), _cutsmallpad(kFALSE),
+   fStore(false), fAmpCut(0.), fZStackLimit(0), fClLimit(500), fDebug(false)
     
 {
   fClusterBranchName = "PndTpcCluster";
@@ -144,10 +144,10 @@ PndTpcSLPatternRecoTask::Init()
   colors.push_back(kOrange);
 
   TDirectory* tmp=gDirectory;
+  tmp->cd();
   if(fStore) {
     fHistoFile = new TFile(fHistoFileName, "update");
   }
-  tmp->cd();
   return kSUCCESS;
 }
 
@@ -192,8 +192,6 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   TH2D* repHistXY;
   TH2D* repHistXZ;
   TCanvas* canv;
-  //TCanvas* canv = new((*fMonitorArray)[fMonitorArray->GetEntriesFast()]) TCanvas();
- 
    
   if(fStore) {
     std::string clName = "cl_Ev";
@@ -299,9 +297,11 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     hitreps.push_back(new Hypersurface4D(x,y,*fRep,
 					 x,z,*fRep,i));
     hitreps.back()->setParamSpace(fMins, fMaxs);
-       
-    repHistXY->GetListOfFunctions()->Add(hitreps.back()->getTF1_1()->Clone());
-    repHistXZ->GetListOfFunctions()->Add(hitreps.back()->getTF1_2()->Clone());
+    
+    if(fStore) {
+      repHistXY->GetListOfFunctions()->Add(hitreps.back()->getTF1_1()->Clone());
+      repHistXZ->GetListOfFunctions()->Add(hitreps.back()->getTF1_2()->Clone());
+    }
   } //end loop over clusters
   
    
@@ -316,9 +316,11 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   
   //test if every hit was inside that node
   int rootvotes = root->getVote();
-  std::cerr<<"DEBUG - Clusters (after cut): "<<cll.size()<<";  Votes: "<<rootvotes
-	   <<";  Hitreps: "<<hitreps.size()
-	   <<";  EVENT: "<<counter<<std::endl;
+  if(fDebug) {
+    std::cerr<<"   Clusters (after cut): "<<cll.size()<<";  Votes: "<<rootvotes
+	     <<";  Hitreps: "<<hitreps.size()
+	     <<";  EVENT: "<<counter<<std::endl;
+  }
   
   //start actual FHT search
   
@@ -428,7 +430,6 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
       markerlist[i]->SetNextPoint(clpos.X(), clpos.Y(), clpos.Z());
       cand.addHit(2,cl->index());
     }
-    std::cout<<std::endl;
     
     //extract candidate seed information
     Hough4DNode* cand_node = cand_nodes[i];
@@ -485,14 +486,16 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
       lines.push_back(new TPolyLine3D(2,x,y,z,"l"));
       lines.back()->SetLineWidth(2);
     }
-    std::cout<<"Resulting line paramaters: "<<std::endl
-	     <<"theta1: "<<theta1<<";  r1:"<<r1<<std::endl
-	     <<"theta2: "<<theta2<<";  r2:"<<r2<<std::endl
-	     <<"m1: "<<m1<<";  t1:"<<t1<<std::endl
-	     <<"m2: "<<m2<<";  t2:"<<t2<<std::endl
-	     <<"x0: "<<x[0]<<";  x1:"<<x[1]<<std::endl
-      	     <<"y0: "<<y[0]<<";  y1:"<<y[1]<<std::endl
-	     <<"z0: "<<z[0]<<";  z1:"<<z[1]<<std::endl;
+    if(fDebug) {
+      std::cout<<"   Resulting line paramaters: "<<std::endl
+	       <<"   theta1: "<<theta1<<";  r1:"<<r1<<std::endl
+	       <<"   theta2: "<<theta2<<";  r2:"<<r2<<std::endl
+	       <<"   m1: "<<m1<<";  t1:"<<t1<<std::endl
+	       <<"   m2: "<<m2<<";  t2:"<<t2<<std::endl
+	       <<"   x0: "<<x[0]<<";  x1:"<<x[1]<<std::endl
+	       <<"   y0: "<<y[0]<<";  y1:"<<y[1]<<std::endl
+	       <<"   z0: "<<z[0]<<";  z1:"<<z[1]<<std::endl;
+    }
     
     TVector3 mom;
     mom.SetXYZ(x[1]-x[0], y[1]-y[0], z[1]-z[0]);
@@ -541,8 +544,8 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   }
   
   
-  std::cout<<"PndTpcSLPatternRecoTask::Exec() "
-	   <<fTrackArray->GetEntriesFast()<<" tracks created"<<std::endl;
+  std::cout<<"PndTpcSLPatternRecoTask::Exec(): "
+	   <<fTrackArray->GetEntriesFast()<<" track(s) created"<<std::endl;
     
   if(fStore) {
     canv->Divide(4,1);
@@ -568,10 +571,10 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     canv->Write();
     delete canv;
     for(unsigned int b=0; b<boxlistXY.size(); b++) 
-     delete boxlistXY[b];
+      delete boxlistXY[b];
     boxlistXY.clear();
     for(unsigned int b=0; b<boxlistXZ.size(); b++) 
-     delete boxlistXZ[b];
+      delete boxlistXZ[b];
     boxlistXZ.clear();
     
     delete clHist;
@@ -592,7 +595,7 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
 }
 
 void
-PndTpcSLPatternRecoTask::SetStoreHistograms(TString file) {
+  PndTpcSLPatternRecoTask::SetStoreHistograms(TString file) {
   fStore=true;
   fHistoFileName=file;
 }
