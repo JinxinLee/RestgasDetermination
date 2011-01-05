@@ -7,9 +7,9 @@ void sim_sttcombi_pgun( int seed = 8769, int nEvents = 10, int pid  = 11,
 			Char_t outFile   [] = "points_sttcombi.root"
 			)
 {
-  gRandom->SetSeed(seed);
+  gRandom->SetSeed((seed + 10));
   
-  std::cerr << "\nSeed is " << seed
+  std::cerr << "\nSeed is " << (seed + 10)
 	    << "\npdg = "   << pid
 	    << "\nnEvt = "  << nEvents
 	    << "\n"         << std::endl;

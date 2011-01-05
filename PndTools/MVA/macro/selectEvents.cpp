@@ -129,7 +129,9 @@ void selectEvents(int pdg,
   // Loop through the selected events.
   for(size_t i = 0; i < EvtIds.size(); i++)
   {
+    mom = MCmom = -1.00;
     int evid = EvtIds[i].first;// Event index
+    
     cout << "Selected Event no = " << evid << " ";
 
     tsim->GetEntry(evid);
@@ -176,7 +178,7 @@ void selectEvents(int pdg,
     }
     
     // Found the cluster with highest E_dep.
-    if( clIndex >= 0 )
+    if( tra && (clIndex >= 0) )
     {
       PndEmcCluster* HE_cluster = (PndEmcCluster*) clusters_arr->At(clIndex);
       
@@ -198,16 +200,16 @@ void selectEvents(int pdg,
       
       // Fill tree (NTuple)
       // If something wrong happened during the fitting
-      //if(tra->GetFlag() > 0)// Crash on 64 bit ???
-      //{
-      EmcNtp.Fill(MCmom, mom, emc, emcOld, latEdep, z20, z53, numClus, numCrys, numBumps);
-      
-      std::cout << "Selected Cluster index = "<< clIndex 
-		<< " emcOld = " << emcOld
-		<< " emc = "    << emc
-		<< '\n';
-      //  << " Track Flag = " << tra->GetFlag()
-      //}
+      if(tra->GetFlag() > 0)
+      {
+	EmcNtp.Fill(MCmom, mom, emc, emcOld, latEdep, z20, z53, numClus, numCrys, numBumps);
+	
+	std::cout << "Selected Cluster index = "<< clIndex
+		  << " emcOld = " << emcOld
+		  << " emc = "    << emc
+		  << " Track Flag = " << tra->GetFlag()
+		  << '\n';
+      }
     }
   }
   
