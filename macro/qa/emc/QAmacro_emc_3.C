@@ -55,6 +55,7 @@
 	int ndigi, npoint;
 	double max_energy=0;
 	
+        TH1F *ht=new TH1F("ht","Theta distribution",200,0.,180);
 	TH1F *h1= new TH1F("h1","Theta difference",200,-5.,5.);
 	TH1F *h2= new TH1F("h2","Phi difference",200,-5.,5.);
 	TH1F *h3= new TH1F("h3","Cluster energy",100,0.85,1.05);
@@ -81,6 +82,8 @@
 			hE1->Fill(esum.E1());
 			hE1E9->Fill(esum.E1E9());
 			hE9E25->Fill(esum.E9E25());
+			TVector3 cluster_pos=cluster->where();
+			ht->Fill(cluster_pos.Theta()*180./3.1415);
 		}
 	}
 
@@ -173,6 +176,12 @@ else
     cout<<"    Energy RMS  = " << energyCheckRMS << endl;
     fTest=kFALSE;
 }
+
+ if (ht->GetBinContent(15)==0)
+   {
+     fTest = kFALSE;
+     cout << "\n FW endcap absent - BAD" << endl;
+   }
 
 if (fTest){
     cout << " Test passed" << endl;
