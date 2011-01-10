@@ -20,7 +20,7 @@ using namespace std;
 PndLVQClassify::PndLVQClassify(const string& inputFile,
 			       const vector<string>& classNames, 
 			       const vector<string>& varNames)
-  : PndGpidClassifier(inputFile, classNames, varNames)
+  : PndMvaClassifier(inputFile, classNames, varNames)
 {}
 
 /**

@@ -19,7 +19,7 @@ PndProjectedKNN::PndProjectedKNN(const string& inputFile,
 				 const vector<string>& varNames,
 				 const vector<vector<string> >& varCombinations
 				 )
-  : PndGpidClassifier(inputFile, classNames, varNames),
+  : PndMvaClassifier(inputFile, classNames, varNames),
     m_varCombinations(varCombinations)
 {
   cout << "\t<INFO> Projected_KNN: Initialization." 

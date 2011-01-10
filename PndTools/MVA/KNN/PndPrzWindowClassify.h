@@ -13,12 +13,12 @@
 #define PND_PRZ_WINDOW_CLASSIFY_H
 
 // Local includes
-#include "PndGpidClassifier.h"
+#include "PndMvaClassifier.h"
 
 /*
  * Parzen Window based classification alg. implementation.
  */
-class PndPrzWindowClassify : public PndGpidClassifier 
+class PndPrzWindowClassify : public PndMvaClassifier 
 {
  public:
   /*

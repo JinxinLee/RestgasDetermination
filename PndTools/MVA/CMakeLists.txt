@@ -25,6 +25,11 @@ ${ROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(MVA_SRCS
+PndMvaClassifier.cpp
+PndMvaDataSet.cpp
+PndMvaTrainer.cpp
+PndMvaUtil.cpp
+PndMvaVarPCATransform.cpp
 Clusters/PndMvaCluster.cpp
 KNN/PndStdKnnClassify.cpp
 KNN/PndPrzWindowClassify.cpp
@@ -33,11 +38,6 @@ LVQ1/PndLVQTrain.cpp
 TMVAkd_KNN/PndKnnClassify.cpp
 TMVAkd_KNN/PndKnnTrain.cpp
 TMVAkd_KNN/PndProjectedKNN.cpp
-PndGpidClassifier.cpp
-PndMvaDataSet.cpp
-PndMvaTrainer.cpp
-PndMvaUtil.cpp
-PndMvaVarPCATransform.cpp
 )
 
 if(RULE_CHECKER_FOUND)
@@ -45,6 +45,13 @@ if(RULE_CHECKER_FOUND)
 endif(RULE_CHECKER_FOUND)
 
 set(MVA_HEADERS
+PndMvaClassifier.h
+PndMvaDataSet.h
+PndMvaTrainer.h
+PndMvaUtil.h
+PndMvaVariable.h
+PndMvaClass.h
+PndMvaVarPCATransform.h
 Clusters/PndMvaCluster.h
 KNN/PndStdKnnClassify.h
 KNN/PndPrzWindowClassify.h
@@ -53,13 +60,6 @@ LVQ1/PndLVQTrain.h
 TMVAkd_KNN/PndKnnClassify.h
 TMVAkd_KNN/PndKnnTrain.h
 TMVAkd_KNN/PndProjectedKNN.h
-PndGpidClassifier.h
-PndMvaDataSet.h
-PndMvaTrainer.h
-PndMvaUtil.h
-PndMvaVariable.h
-PndMvaClass.h
-PndMvaVarPCATransform.h
 )
 
 # fill list of header files from list of source files

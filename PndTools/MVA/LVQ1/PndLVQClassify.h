@@ -14,10 +14,10 @@
 #include <limits>
 
 // Local includes
-#include "PndGpidClassifier.h"
+#include "PndMvaClassifier.h"
 
 //! Interface definition of the LVQ classifier.
-class PndLVQClassify: public PndGpidClassifier
+class PndLVQClassify: public PndMvaClassifier
 {
  public:
   /**

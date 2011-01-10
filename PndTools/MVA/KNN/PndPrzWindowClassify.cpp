@@ -23,7 +23,7 @@ using namespace std;
 PndPrzWindowClassify::PndPrzWindowClassify(const string& inputFile,
 					   const vector<string>& classNames, 
 					   const vector<string>& varNames)
-  : PndGpidClassifier(inputFile, classNames, varNames),
+  : PndMvaClassifier(inputFile, classNames, varNames),
     m_volumeN(0)
 {}
 

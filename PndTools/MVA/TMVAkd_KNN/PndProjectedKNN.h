@@ -12,7 +12,7 @@
 // Local Headers
 #include "PndKnnClassify.h"
 
-class PndProjectedKNN: public PndGpidClassifier
+class PndProjectedKNN: public PndMvaClassifier
 {
  public:
   //! Constructor

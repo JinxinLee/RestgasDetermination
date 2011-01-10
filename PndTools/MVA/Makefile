@@ -14,9 +14,9 @@ MAKEFLAGS  = -wkr --no-print-directory #-s
 FLAGSMACHINE  = -march=native -mtune=native
 # FLAGSMACHINE += -mfpmath=sse -msse3
 
-CCFLAGS  = -W -Wall -Wextra -Wshadow -Wredundant-decls -Wfloat-equal
-CCFLAGS += -Woverlength-strings -Wnormalized=nfc
-CCFLAGS += -Winvalid-pch -Wdisabled-optimization -Werror
+CCFLAGS  = -W -Wall -Wextra -Wshadow -Wredundant-decls
+CCFLAGS += -Wnormalized=nfc -Wdisabled-optimization -Woverlength-strings
+CCFLAGS += -Winvalid-pch -Wfloat-equal -Werror
 CCFLAGS += -O3 -fopenmp ${FLAGSMACHINE}
 # CCFLAGS += -fdiagnostics-show-option -fdiagnostics-show-location=every-line
 
@@ -32,7 +32,7 @@ LIBS += -lMLP -lXMLIO -fopenmp
 
 # Define targets
 TRGTS  = PndMvaUtil PndMvaVarPCATransform PndMvaDataSet
-TRGTS += PndGpidClassifier PndMvaTrainer CreateRandomDataSet
+TRGTS += PndMvaClassifier PndMvaTrainer CreateRandomDataSet
 TRGTS += examplePCATransform Classifiers examples
 
 all: $(TRGTS)
@@ -41,7 +41,7 @@ all: $(TRGTS)
 	@echo "-> before running the application."
 	@echo ""
 
-PndGpidClassifier: % : %.cpp PndMvaDataSet
+PndMvaClassifier: % : %.cpp PndMvaDataSet
 	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ./build/$@.o
 	@echo "Done building:" $@
 
@@ -74,28 +74,29 @@ Classifiers:
 	$(MAKE) -C LVQ1;
 	$(MAKE) -C TMVAkd_KNN;
 	$(MAKE) -C Clusters;
+	$(MAKE) -C TMVA_MLP;
 #	$(MAKE) -C TMVA_PDE_FOAM;
 
-examples: PndMvaUtil PndMvaDataSet PndGpidClassifier Classifiers
+examples: PndMvaUtil PndMvaDataSet PndMvaClassifier Classifiers
 	@echo ""
 	@echo "       =++++++ Linking example applications. ++++++="
 	@echo ""
 
 # Build stdKnn Cassifier.
-	$(CXX) $(CCFLAGS) $(LIBS) build/classifyStdKnn.o  build/PndStdKnnClassify.o build/PndGpidClassifier.o \
+	$(CXX) $(CCFLAGS) $(LIBS) build/classifyStdKnn.o  build/PndStdKnnClassify.o build/PndMvaClassifier.o \
 	build/PndMvaUtil.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o -o build/classifyStdKnn
 
 # Build LVQ Cassifier.
-	$(CXX) $(CCFLAGS) $(LIBS) build/LVQclassify.o build/PndLVQClassify.o build/PndGpidClassifier.o \
+	$(CXX) $(CCFLAGS) $(LIBS) build/LVQclassify.o build/PndLVQClassify.o build/PndMvaClassifier.o \
 	build/PndMvaUtil.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o -o build/LVQclassify
 
 # Build kd-tree KNN Cassifier.
-	$(CXX) $(CCFLAGS) $(LIBS) build/KnnClassify.o build/PndKnnClassify.o build/PndGpidClassifier.o \
+	$(CXX) $(CCFLAGS) $(LIBS) build/KnnClassify.o build/PndKnnClassify.o build/PndMvaClassifier.o \
 	build/PndMvaUtil.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o -o build/KNNclassify
 
 # Build Projected KNN Cassifier.
 	$(CXX) $(CCFLAGS) $(LIBS) build/Prclassify.o build/PndProjectedKNN.o build/PndKnnClassify.o \
-	build/PndGpidClassifier.o build/PndMvaUtil.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o \
+	build/PndMvaClassifier.o build/PndMvaUtil.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o \
 	-o build/PrKNNclassify
 
 # Build LVQ Trainer.
@@ -112,14 +113,14 @@ examples: PndMvaUtil PndMvaDataSet PndGpidClassifier Classifiers
 
 # Build an example app using parzenWindow classifier.
 	$(CXX) $(CCFLAGS) $(LIBS) build/classifyPrzWin.o  build/PndPrzWindowClassify.o \
-	build/PndGpidClassifier.o build/PndMvaUtil.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o \
+	build/PndMvaClassifier.o build/PndMvaUtil.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o \
 	-o build/przWinClassify
 
 # Build PDE-Foam trainer and classifier.
 #	$(CXX) $(CCFLAGS) $(LIBS) build/FoamTrainTest.o build/PndMvaTrainer.o build/PndMvaUtil.o \
 #	build/PndPDEFoamTrain.o build/PndMvaDataSet.o -o build/FoamTrainTest
 
-#	$(CXX) $(CCFLAGS) $(LIBS) build/FoamClassifyTest.o build/PndPDEFoamClassify.o build/PndGpidClassifier.o \
+#	$(CXX) $(CCFLAGS) $(LIBS) build/FoamClassifyTest.o build/PndPDEFoamClassify.o build/PndMvaClassifier.o \
 #	build/PndMvaDataSet.o build/PndMvaUtil.o -o build/FoamClassifyTest
 
 # Build a random dataset creator.
@@ -137,3 +138,4 @@ clean:
 	cd LVQ1; $(MAKE) clean
 	cd TMVAkd_KNN; $(MAKE) clean
 	cd TMVA_PDE_FOAM; $(MAKE) clean
+	cd TMVA_MLP; $(MAKE) clean

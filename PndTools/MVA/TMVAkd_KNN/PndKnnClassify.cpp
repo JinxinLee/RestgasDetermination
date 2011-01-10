@@ -20,7 +20,7 @@ using namespace std;
 PndKnnClassify::PndKnnClassify(const string& inputFile,
 			       const vector<string>& classNames, 
 			       const vector<string>& varNames)
-  : PndGpidClassifier(inputFile, classNames, varNames)
+  : PndMvaClassifier(inputFile, classNames, varNames)
 {
   // Initialize the class indices map.
   for(size_t cls = 0; cls < classNames.size(); cls++)

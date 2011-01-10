@@ -25,7 +25,7 @@ using namespace std;
 PndStdKnnClassify::PndStdKnnClassify(const string& inputFile,
 				     const vector<string>& classNames, 
 				     const vector<string>& varNames)
-  : PndGpidClassifier(inputFile, classNames, varNames), 
+  : PndMvaClassifier(inputFile, classNames, varNames), 
     m_Knn(0)
 {
   const vector<pair<string, vector<float>*> >& events = m_dataSets.GetData();

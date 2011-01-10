@@ -10,7 +10,7 @@
 #define PND_KNN_CLASSIFY_H
 
 // LOCAL includes
-#include "PndGpidClassifier.h"
+#include "PndMvaClassifier.h"
 
 // TMVA
 #include "TMVA/NodekNN.h"
@@ -19,7 +19,7 @@
 /**
  * KNN based classification alg. implementation.
  */
-class PndKnnClassify: public PndGpidClassifier
+class PndKnnClassify: public PndMvaClassifier
 {
  public:
   /**

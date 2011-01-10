@@ -6,8 +6,8 @@
  * License:                                     *
  * **********************************************
  */
-#ifndef PND_GPID_CLASSIFIER_H
-#define PND_GPID_CLASSIFIER_H
+#ifndef PND_MVA_CLASSIFIER_H
+#define PND_MVA_CLASSIFIER_H
 
 // C++ includes
 #include <iostream>
@@ -27,7 +27,7 @@
 /**
  * Main interface definition.
 */
-class PndGpidClassifier
+class PndMvaClassifier
 {
  public:
   //! Constructor
@@ -36,11 +36,11 @@ class PndGpidClassifier
    *@ClassNames Names of available (signal) classes.
    *@VarNames Names of the used variables(features).
    */
-  PndGpidClassifier(std::string const &InPut,
+  PndMvaClassifier(std::string const &InPut,
 		    std::vector<std::string> const &ClassNames,
 		    std::vector<std::string> const &VarNames);
   //! Destructor
-  virtual ~PndGpidClassifier();
+  virtual ~PndMvaClassifier();
   
   /**
    * @param EvtData: Event data to be classified.
@@ -64,8 +64,8 @@ class PndGpidClassifier
   
  private:
   // To avoid mistakes.
-  PndGpidClassifier (PndGpidClassifier const &other);
-  PndGpidClassifier& operator=(PndGpidClassifier const &other);
+  PndMvaClassifier (PndMvaClassifier const &other);
+  PndMvaClassifier& operator=(PndMvaClassifier const &other);
 };
 //End of class interface
 #endif

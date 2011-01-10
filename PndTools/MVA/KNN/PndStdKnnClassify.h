@@ -14,12 +14,12 @@
 #define PND_STD_KNN_CLASSIFY_H
 
 // Local includes
-#include "PndGpidClassifier.h"
+#include "PndMvaClassifier.h"
 
 /*
  * KNN based classification alg. implementation.
  */
-class PndStdKnnClassify : public PndGpidClassifier 
+class PndStdKnnClassify : public PndMvaClassifier 
 {
  public:
   /*

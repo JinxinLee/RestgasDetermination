@@ -76,8 +76,9 @@ void reco_sttcombi(char inDigiFile [] = "digi_sttcombi.root",   //Input file Dig
   PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
   recoKalman->SetTrackInBranchName("SttMvdTrack");
   recoKalman->SetTrackOutBranchName("SttMvdGenTrack");
-  //recoKalman->SetNumIterations(3);
-  //recoKalman->SetParticleHypo("electron");
+  // recoKalman->SetNumIterations(3);
+  // recoKalman->SetParticleHypo("electron");
+  // recoKalman->SetParticleHypo(11);
   fRun->AddTask(recoKalman);
   
   //////////////////

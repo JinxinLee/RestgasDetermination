@@ -14,8 +14,9 @@ void selectEvents(int pdg,
   int counts = 0;
   TStopwatch timer;
   timer.Start();
-
-  cout << "\tCount = " << counts << "\n\tpdg = " << pdg << '\n';
+  
+  cout << "\tCount = " << counts
+       << "\n\tpdg = " << pdg << '\n';
   
   // First = event id. Second = MC_moment
   std::vector < std::pair<int, float> > EvtIds;
@@ -73,12 +74,13 @@ void selectEvents(int pdg,
   // Digi tree
   TTree* digiTr = (TTree *) digiF.Get("cbmsim");
   
-  // CLusters
+  // CLusters Array
   TClonesArray* clusters_arr = new TClonesArray("PndEmcCluster");  
   digiTr->SetBranchAddress("EmcCluster", &clusters_arr);
   
   // Open Reco file
   TFile recoF(recoFile.c_str());
+
   // Reco tree
   TTree* RecoTr = (TTree *) recoF.Get("cbmsim");
   
@@ -111,7 +113,7 @@ void selectEvents(int pdg,
 	// First = event Index, Second = MC Moment
 	EvtIds.push_back( std::make_pair(j, (track->GetMomentum()).Mag()) );
       }
-      else{//Decay ????
+      else{ // Decay ????
         std::cout << "<Wrong pdg> :"
 		  << " Track ID = " << trID 
 		  << " Track has pdg = " << track->GetPdgCode()
@@ -130,7 +132,8 @@ void selectEvents(int pdg,
   for(size_t i = 0; i < EvtIds.size(); i++)
   {
     mom = MCmom = -1.00;
-    int evid = EvtIds[i].first;// Event index
+    // Event index
+    int evid = EvtIds[i].first;
     
     cout << "Selected Event no = " << evid << " ";
 
@@ -145,73 +148,75 @@ void selectEvents(int pdg,
       // Charged or correct reconstructed.
       FairTrackParP par = tra->GetParamLast();
       
+      mom = par.GetMomentum().Mag();// Computed moment
+      MCmom = EvtIds[i].second;// MC moment
+      
       std::cout << "Number of clusters = "
 		<< clusters_arr->GetEntriesFast()
 		<<" Number of tracks = "<< recTrakArr->GetEntriesFast()
-		<< " With P = "<< par.GetMomentum().Mag()
-		<< " MC_p = "  << EvtIds[i].second
+		<< " With p = "<< mom
+		<< " MC_p = "  << MCmom
 		<< '\n';
+
+      // Select the right cluster(highest E_dep).
+      double maxEnergy = std::numeric_limits <double>::min();
+      int clIndex      = -1;
       
-      mom = par.GetMomentum().Mag();// Computed moment
-      MCmom = EvtIds[i].second;// MC moment
+      // Loop through the clusters.
+      for(int cl = 0; cl < clusters_arr->GetEntriesFast(); cl++)
+      {
+	PndEmcCluster* clust = (PndEmcCluster*) clusters_arr->At(cl);
+	
+	if(clust->GetEnergyCorrected() > maxEnergy)
+	{
+	  maxEnergy = clust->GetEnergyCorrected();
+	  clIndex = cl;
+	}
+      }
+      
+      // Found the cluster with highest E_dep.
+      if( clIndex >= 0 )
+      {
+	PndEmcCluster* HE_cluster = (PndEmcCluster*) clusters_arr->At(clIndex);
+	
+	emcOld   = HE_cluster->energy();
+	emc      = HE_cluster->GetEnergyCorrected();
+	
+	numClus  = clusters_arr->GetEntriesFast();
+	numCrys  = HE_cluster->NumberOfDigis();
+	numBumps = HE_cluster->NBumps();
+	
+	// Z_{n = 2}^{m = 0}
+	z20 = HE_cluster->Z20();
+	
+	// Z_{n = 5}^{m = 3}
+	z53 = HE_cluster->Z53();
+	
+	//lat Edep
+	latEdep = HE_cluster->LatMom();
+	
+	// Fill tree (NTuple)
+	// If something WENT wrong, during the fitting
+	if( tra->GetFlag() > 0 )
+	{
+	  EmcNtp.Fill(MCmom, mom, emc, emcOld,
+		      latEdep, z20, z53,
+		      numClus, numCrys, numBumps);
+	  
+	  std::cout << "Selected Cluster index = "<< clIndex
+		    << " emcOld = " << emcOld
+		    << " emc = "    << emc
+		    << " Track Flag = " << tra->GetFlag()
+		    << '\n';
+	}// IF(tra->GetFlag() > 0)
+      }// IF(clIndex >= 0)
     }// End if(tra)
     else
     {//Neutral or not correctly reconstructed.
       cout << "<Empty track>: number of clusters = "
 	   << clusters_arr->GetEntriesFast() << '\n';
     }
-    
-    // Select the right cluster(highest E_dep).
-    double maxEnergy = std::numeric_limits <double>::min();
-    int clIndex      = -1;
-    
-    // Loop through the clusters.
-    for(int cl = 0; cl < clusters_arr->GetEntriesFast(); cl++)
-    {
-      PndEmcCluster* clust = (PndEmcCluster*) clusters_arr->At(cl);
-      
-      if(clust->GetEnergyCorrected() > maxEnergy)
-      {
-	maxEnergy = clust->GetEnergyCorrected();
-	clIndex = cl;
-      }
-    }
-    
-    // Found the cluster with highest E_dep.
-    if( tra && (clIndex >= 0) )
-    {
-      PndEmcCluster* HE_cluster = (PndEmcCluster*) clusters_arr->At(clIndex);
-      
-      emcOld   = HE_cluster->energy();
-      emc      = HE_cluster->GetEnergyCorrected();
-
-      numClus  = clusters_arr->GetEntriesFast();
-      numCrys  = HE_cluster->NumberOfDigis();
-      numBumps = HE_cluster->NBumps();
-      
-      //z20 = clsZmom.AbsZernikeMoment(2, 0, 15);// Z_{n = 2}^{m = 0}
-      z20 = HE_cluster->Z20();
-      
-      //z53 = clsZmom.AbsZernikeMoment(5, 3, 15);// Z_{n = 5}^{m = 3}
-      z53 = HE_cluster->Z53();
-      
-      //latEdep = clsZmom.Lat();
-      latEdep = HE_cluster->LatMom();
-      
-      // Fill tree (NTuple)
-      // If something wrong happened during the fitting
-      if(tra->GetFlag() > 0)
-      {
-	EmcNtp.Fill(MCmom, mom, emc, emcOld, latEdep, z20, z53, numClus, numCrys, numBumps);
-	
-	std::cout << "Selected Cluster index = "<< clIndex
-		  << " emcOld = " << emcOld
-		  << " emc = "    << emc
-		  << " Track Flag = " << tra->GetFlag()
-		  << '\n';
-      }
-    }
-  }
+  }//Selected Event loop
   
   std::cout << "========================================================\n"
 	    << "<INFO>\nTotal number of events = " << tsim->GetEntriesFast()
@@ -225,7 +230,7 @@ void selectEvents(int pdg,
   
   // Write to the output
   TFile out(outFileName.c_str(), "RECREATE","Selected evets File.", 9);
-
+  
   EmcNtp.Write();
   
   out.Close();
@@ -242,6 +247,7 @@ void selectEvents(int pdg,
   delete recTrakArr;
   
   timer.Stop();
+  
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   cout <<"=======================================\n"
