@@ -84,6 +84,8 @@ class PndTpcSLPatternRecoTask : public FairTask {
   
  private:
 
+  void KillHistograms(std::map<std::string, TH1*>&);
+
   double fMins[4];
   double fMaxs[4];
   double fAmpCut;
@@ -123,6 +125,7 @@ class PndTpcSLPatternRecoTask : public FairTask {
   unsigned int fZStackLimit;
 
   std::vector<Color_t> colors;
+  std::map<std::string, TH1*> fHistCont;   //container for histograms
 
 
   // Private methods -----------------------------------------
@@ -130,7 +133,7 @@ class PndTpcSLPatternRecoTask : public FairTask {
 
   
  public:
-  ClassDef(PndTpcSLPatternRecoTask,2)
+  ClassDef(PndTpcSLPatternRecoTask,3)
 	
 };
 
