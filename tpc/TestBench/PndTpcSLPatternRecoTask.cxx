@@ -187,10 +187,6 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   //their representation in the par. space:
   std::vector<Hypersurface4D*> hitreps; 
   
-  TH3D* clHist;
-  TH3D* clHist2;
-  TH2D* repHistXY;
-  TH2D* repHistXZ;
   TCanvas* canv;
    
   if(fStore) {
@@ -204,22 +200,20 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     repNameXY.append(ss.str());
     repNameXZ.append(ss.str());
     canvName.append(ss.str());
-    clHist = new TH3D(clName.c_str(), clName.c_str(), 100,xMin,xMax,
-		      100,yMin,yMax, 100, zMin, zMax);
-    clHist->SetMarkerStyle(20);
-    clHist->SetMarkerSize(0.5);
-    repHistXY = new TH2D(repNameXY.c_str(), repNameXY.c_str(), 
-			 100, fMins[0],fMaxs[0],
-			 100,fMins[1],fMaxs[1]);
-    repHistXZ = new TH2D(repNameXZ.c_str(), repNameXZ.c_str(), 
-			 100,fMins[2],fMaxs[2],
-			 100,fMins[3],fMaxs[3]);
-    clHist2 = (TH3D*)clHist->Clone();
+    fHistCont["clHist"] = new TH3D(clName.c_str(), clName.c_str(), 100,xMin,xMax,
+				   100,yMin,yMax, 100, zMin, zMax);
+    fHistCont["clHist"]->SetMarkerStyle(20);
+    fHistCont["clHist"]->SetMarkerSize(0.5);
+    fHistCont["repHistXY"] = new TH2D(repNameXY.c_str(), repNameXY.c_str(), 
+				      100, fMins[0],fMaxs[0],
+				      100,fMins[1],fMaxs[1]);
+    fHistCont["repHistXZ"] = new TH2D(repNameXZ.c_str(), repNameXZ.c_str(), 
+				      100,fMins[2],fMaxs[2],
+				      100,fMins[3],fMaxs[3]);
+    fHistCont["clHist2"] = (TH3D*)fHistCont["clHist"]->Clone();
     canv = new TCanvas(canvName.c_str());
   }
  
-  //look at: 189, 237/273 (?)
-  
   unsigned int totCl=fClusterArray->GetEntriesFast();
   TVector3 pos;
   for(unsigned int i=0;i<totCl;++i){    // initial loop over clusters
@@ -235,7 +229,7 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     
     cll.push_back(cl);
     if(fStore)
-      clHist->Fill(pos.X(), pos.Y(), pos.Z());
+      ((TH3D*)fHistCont["clHist"])->Fill(pos.X(), pos.Y(), pos.Z());
   } //end initial loop over clusters
 
 
@@ -271,6 +265,8 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
       
   if(cll.size()>fClLimit) {
     std::cout<<"Bad event: more than "<<fClLimit<<" clusters; Aborting"<<std::endl;
+    //clear up memory used for histograms
+    KillHistograms(fHistCont);
     return;
   }
 	  
@@ -299,8 +295,8 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     hitreps.back()->setParamSpace(fMins, fMaxs);
     
     if(fStore) {
-      repHistXY->GetListOfFunctions()->Add(hitreps.back()->getTF1_1()->Clone());
-      repHistXZ->GetListOfFunctions()->Add(hitreps.back()->getTF1_2()->Clone());
+      fHistCont["repHistXY"]->GetListOfFunctions()->Add(hitreps.back()->getTF1_1()->Clone());
+      fHistCont["repHistXZ"]->GetListOfFunctions()->Add(hitreps.back()->getTF1_2()->Clone());
     }
   } //end loop over clusters
   
@@ -371,6 +367,8 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   if(surs==0) {
     std::cout<<"PndTpcSLPatternRecoTask::Exec(): Fail "
 	     <<"- no suitable candidates found"<<std::endl;
+    //clear up memory used for histograms
+    KillHistograms(fHistCont);
     return;    
   }
   
@@ -550,19 +548,19 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   if(fStore) {
     canv->Divide(4,1);
     TVirtualPad* thePad = canv->cd(1);
-    thePad->GetListOfPrimitives()->Add(clHist);
+    thePad->GetListOfPrimitives()->Add(fHistCont["clHist"]);
     thePad = canv->cd(2);
-    thePad->GetListOfPrimitives()->Add(clHist2);
+    thePad->GetListOfPrimitives()->Add(fHistCont["clHist2"]);
     for(unsigned int k=0; k<markerlist.size(); k++)
       thePad->GetListOfPrimitives()->Add(markerlist[k]);
     for(unsigned int l=0; l<lines.size(); l++)
       thePad->GetListOfPrimitives()->Add(lines[l]);
     thePad = canv->cd(3);
-    thePad->GetListOfPrimitives()->Add(repHistXY);
+    thePad->GetListOfPrimitives()->Add(fHistCont["repHistXY"]);
     for(unsigned int b=0; b<boxlistXY.size(); b++) 
       thePad->GetListOfPrimitives()->Add(boxlistXY[b]);
     thePad = canv->cd(4);
-    thePad->GetListOfPrimitives()->Add(repHistXZ);
+    thePad->GetListOfPrimitives()->Add(fHistCont["repHistXZ"]);
     for(unsigned int b=0; b<boxlistXZ.size(); b++) 
       thePad->GetListOfPrimitives()->Add(boxlistXZ[b]);
   
@@ -576,11 +574,7 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     for(unsigned int b=0; b<boxlistXZ.size(); b++) 
       delete boxlistXZ[b];
     boxlistXZ.clear();
-    
-    delete clHist;
-    delete clHist2;
-    delete repHistXY;
-    delete repHistXZ;
+     
     //fHistoFile->Close();
     
   }
@@ -591,6 +585,8 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   for(unsigned int bleh=0; bleh<survivors.size(); bleh++)
     delete survivors[bleh];
   survivors.clear();
+  //clear up memory used for histograms
+  KillHistograms(fHistCont);
   return;
 }
 
@@ -598,4 +594,13 @@ void
   PndTpcSLPatternRecoTask::SetStoreHistograms(TString file) {
   fStore=true;
   fHistoFileName=file;
+}
+
+
+void 
+PndTpcSLPatternRecoTask::KillHistograms(std::map<std::string, TH1*>& map) {
+  std::map<std::string, TH1*>::iterator it;
+  for(it=map.begin(); it!=map.end(); it++) 
+    delete it->second;
+  map.clear();
 }
