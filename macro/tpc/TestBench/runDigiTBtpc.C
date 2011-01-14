@@ -25,7 +25,7 @@
   // Set INPUT DIRECTORY (MC files) and JOBNAME
   // ------------------------------------------------------------------------
   TString inDir="TEST";
-  TString jobname="FOPI1";
+  TString jobname="dummy";
 
   inDir=(basedir+"/")+inDir;
   TString inFile=(inDir+"/")+jobname;
@@ -109,7 +109,7 @@
   //ONLY USE THIS WHEN USING ALICE SETTINGS WITH GEANT3
   tpcClusterizer->SetMereChargeConversion();  
   tpcClusterizer->SetFirstPoti(15.13); //ArgonCO2 mixture in eV
-  fRun->AddTask(tpcClusterizer);
+  //fRun->AddTask(tpcClusterizer);
   
   /**   use Alice Style MC    
    				make one hit per collision with atom

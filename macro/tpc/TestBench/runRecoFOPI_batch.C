@@ -1,19 +1,18 @@
+void runRecoFOPI_batch(TString filename, TString outpath) 
 {
 //Data analysis framework for the test bench tpc data.
 //Maxence Vandenbroucke 11/01/2010
-
+  
 // ========================================================================
 // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 1;
-
-
-
-
-// ----  Load libraries   -------------------------------------------------
-//gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-//basiclibs();
-gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-//gROOT->Macro("tpc/TestChamber/macro/christian_style.C");
+  
+  
+  // ----  Load libraries   -------------------------------------------------
+  //gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+  //basiclibs();
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  //gROOT->Macro("tpc/TestChamber/macro/christian_style.C");
   rootlogon();
   
   TString basedir = gSystem->Getenv("VMCWORKDIR");
@@ -21,30 +20,30 @@ gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   //Set JOBNAME and JOBDIR
   // -------------------------------------------------------------------
 
-  TString jobdir = "TEST";
-  TString jobname="FOPI1297"; 
-
-  TString digiDir=(basedir+"/")+jobdir;
-  TString inFile=(digiDir+"/")+jobname;
-  inFile+=".raw.root";
- 
+  TString jobdir = outpath; 
+  jobdir+="/reconstructed/";
+  TString jobname=filename;
+  jobname.ReplaceAll(".lmd_decoded_repaired.root","");
+  
+  TString inFile=jobdir;
+  inFile+="dummy/dummy.raw.root";
+  
   TString mcFile=inFile;
   mcFile.ReplaceAll("raw","mc");
 
-  TString outFile = inFile;
-  outFile.ReplaceAll(".raw.root",".reco.root");
+  TString outFile = jobname;
+  outFile+=".reco.root";
   
-  TString PROutFile = inFile; //monitoring file for the PR task
-  PROutFile.ReplaceAll(".raw.root",".patternReco.root");
-  TFile test(PROutFile);
+  TString PROutFile = outFile;;
+  PROutFile.ReplaceAll(".reco.root",".patternReco.root");
+  TFile test(PROutFile, "recreate");
   if(!test.IsZombie()) { //delete file
     gSystem->Setenv("PROUTFILENAME", PROutFile.Data());
     gROOT->ProcessLine(".! rm $PROUTFILENAME");
     gSystem->Unsetenv("PROUTFILENAME");
   }
   
-
-
+  
   TString paramIn = inFile;
   paramIn.ReplaceAll(".raw.root",".param.root");
   TString paramOut = outFile;
@@ -57,8 +56,7 @@ gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   std::cout<<"ParamIn: "<<paramIn<<std::endl;
   std::cout<<"ParamOut: "<<paramOut<<std::endl;
 
-
-
+  
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
@@ -88,7 +86,7 @@ gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   TString tpcDigiFile = gSystem->Getenv("VMCWORKDIR");
   tpcDigiFile += "/tpc/TestBench/tpc.TBtestChamber.par";
   parInput2->open(tpcDigiFile.Data(),"in");
-
+  
   rtdb->setFirstInput(parInput2); //root file IO tends to fail, use ASCII first
   rtdb->setSecondInput(parInput1);
 
@@ -99,11 +97,11 @@ gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   QAPlotCollection* qa=new QAPlotCollection("TpcDigiQAPlots");  
 
 
-    // -----    Reco Sequence  --------------------------------------------
-
+  // -----    Reco Sequence  --------------------------------------------
+  
   PndTpcDataReaderTask* read = new PndTpcDataReaderTask();
   read->SetPersistence();
-  read->SetDatafile("/home/felix/data/FOPI_TPC/2010/decoded/runC_1702.lmd_decoded_repaired.root");
+  read->SetDatafile(filename);
   read->SetClusterBranchName("PndTpcSample");
   //read->SetCutSmallPad();
   //read->SetMinSamples(1000);

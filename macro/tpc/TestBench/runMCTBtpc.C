@@ -21,11 +21,11 @@
 
   // SET NUMBER OF EVENTS
   // --------------------------------------------------
-  Int_t nEvents = 1000;
+  Int_t nEvents = 5000;
 
   //Set JOBNAME + JOBDIR (will not be created!)
   // --------------------------------------------------
-  TString jobname="FOPI1";
+  TString jobname="dummy";
   TString jobdir="TEST";
   
 
@@ -37,7 +37,7 @@
   TString copy = jobdir;
   
   jobdir+=jobname;
-
+  
   TString base=jobdir;
   TString outfile=base+".mc.root";
   TString dbfile=base+".param.root";
@@ -158,7 +158,7 @@
   // FairFieldMap *fMagField= new FairFieldMap("FIELD.v04_pavel.map");
   // Constant Field
   PndConstField *fMagField=new PndConstField();
-  fMagField->SetField(0, 0 ,0. ); // values are in kG
+  fMagField->SetField(0, 0 , 3. ); // values are in kG
   // MinX=-75, MinY=-40,MinZ=-12 ,MaxX=75, MaxY=40 ,MaxZ=124 ); //
   // values are in cm
   fMagField->SetFieldRegion(-50, 50,-50, 50, -2000, 2000);
