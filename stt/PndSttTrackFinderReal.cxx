@@ -1905,7 +1905,7 @@ if( istampa>=2){
 					0, //  dummy Charge
 					TVector3(0., 0., 0.), //  dummy Position again
 					TVector3(1., 0., 0.), //  dummy direction versor
-					TVector3(1., 0., 0.) //  dummy direction versor
+					TVector3(0., 1., 0.) //  dummy direction versor
 						);
 				FairTrackParP last(
 					TVector3(-99999., -99999., -99999.), //  dummy Position
@@ -1915,7 +1915,7 @@ if( istampa>=2){
 					0, //  dummy Charge
 					TVector3(-99999., -99999., -99999.), //  dummy Position again
 					TVector3(1., 0., 0.), //  dummy direction versor
-					TVector3(1., 0., 0.) //  dummy direction versor
+					TVector3(0., 1., 0.) //  dummy direction versor
 						);
 				//--------   load PndTrack object
 				pTrck = new((*trackArray)[ipanco]) PndTrack(first, last, *pTrckCand);
@@ -1934,7 +1934,7 @@ if( istampa>=2){
 					0, //  dummy Charge
 					TVector3(-99999., -99999., -99999.), //  dummy Position again
 					TVector3(1., 0., 0.), //  dummy direction versor
-					TVector3(1., 0., 0.) //  dummy direction versor
+					TVector3(0., 1., 0.) //  dummy direction versor
 						);
 				FairTrackParP last(
 					TVector3(0., 0., 0.), //  dummy Position
@@ -1944,7 +1944,7 @@ if( istampa>=2){
 					0, //  dummy Charge
 					TVector3(0., 0., 0.), //  dummy Position again
 					TVector3(1., 0., 0.), //  dummy direction versor
-					TVector3(1., 0., 0.) //  dummy direction versor
+					TVector3(0., 1., 0.) //  dummy direction versor
 						);
 			//--------   load PndTrack object
 			pTrck = new((*trackArray)[ipanco]) PndTrack(first, last, *pTrckCand);
@@ -1980,7 +1980,7 @@ if( istampa>=2){
 					0, //  dummy Charge
 					TVector3(-99999., -99999., -99999.), //  dummy Position again
 					TVector3(1., 0., 0.), //  dummy direction versor
-					TVector3(1., 0., 0.) //  dummy direction versor
+					TVector3(0., 1., 0.) //  dummy direction versor
 				);
 		FairTrackParP last(
 					TVector3(-99999., -99999., -99999.), //  dummy Position
@@ -1990,7 +1990,7 @@ if( istampa>=2){
 					0, //  dummy Charge
 					TVector3(-99999., -99999., -99999.), //  dummy Position again
 					TVector3(1., 0., 0.), //  dummy direction versor
-					TVector3(1., 0., 0.) //  dummy direction versor
+					TVector3(0., 1., 0.) //  dummy direction versor
 				);
 		//--------   load PndTrack object
 		pTrck = new((*trackArray)[ipanco]) PndTrack(first, last, *pTrckCand);
@@ -2036,7 +2036,7 @@ if( istampa>=2){
 					0, //  dummy Charge
 					TVector3(-99999., -99999., -99999.), //  dummy Position again
 					TVector3(1., 0., 0.), //  dummy direction versor
-					TVector3(1., 0., 0.) //  dummy direction versor
+					TVector3(0., 1., 0.) //  dummy direction versor
 			);
 	FairTrackParP last(
 					TVector3(-99999., -99999., -99999.), //  dummy Position
@@ -2046,7 +2046,7 @@ if( istampa>=2){
 					0, //  dummy Charge
 					TVector3(-99999., -99999., -99999.), //  dummy Position again
 					TVector3(1., 0., 0.), //  dummy direction versor
-					TVector3(1., 0., 0.) //  dummy direction versor
+					TVector3(0., 1., 0.) //  dummy direction versor
 			);
 	//--------   load PndTrack object
 	pTrck = new((*trackArray)[ipanco]) PndTrack(first, last, *pTrckCand);
