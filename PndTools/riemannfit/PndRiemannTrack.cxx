@@ -319,7 +319,9 @@ PndRiemannTrack::r() const {
     nom=1.E-4;
     if (fVerbose > 1) std::cout<<"PndRiemannTrack::nom<0! set r=1E-4!"<<std::endl;
   }
-  return sqrt(nom)/TMath::Abs(a);
+  if (TMath::Abs(a) > 0)
+	  return sqrt(nom)/TMath::Abs(a);
+  else return 0;
 }
 
 double PndRiemannTrack::dR()
