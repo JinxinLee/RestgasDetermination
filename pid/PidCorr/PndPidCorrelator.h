@@ -41,6 +41,8 @@ protected:
 
   TClonesArray* fTrack;             //! PndTrack TCA
   TClonesArray* fTrackID;           //! PndTrackID TCA
+  TClonesArray* fTrack2;            //! 2nd PndTrack TCA
+  TClonesArray* fTrackID2;          //! 2nd PndTrackID TCA
   TClonesArray* fPidChargedCand;    //! PndPidCandidate TCA for charged particles
   TClonesArray* fPidNeutralCand;    //! PndPidCandidate TCA for neutral particles
   TClonesArray* fMdtTrack;          //! PndTrack TCA for MDT refit
@@ -70,8 +72,8 @@ protected:
   Short_t fTofMode;                 // TOF Mode: 0 no TOF, 1 -empty-,  (2) TofHit
   Short_t fEmcMode;                 // EMC Mode: 0 no EMC, 1 -empty-,  (2) EmcCluster, 3 EmcBumps
   Short_t fMdtMode;                 // MDT Mode: 0 no MDT, 1 -empty-,  (2) MdtHit 
-  Short_t fDrcMode;                 // DRC Mode: 0 no DRC, 1 -empty-,  (2" DrcHit
-  Short_t fDskMode;                 // DSK Mode: 0 no DSK, 1 -empty-,  (2" DskParticle
+  Short_t fDrcMode;                 // DRC Mode: 0 no DRC, 1 -empty-,  (2) DrcHit
+  Short_t fDskMode;                 // DSK Mode: 0 no DSK, 1 -empty-,  (2) DskParticle
  
   Double_t fMvdELoss;               // Energy Loss in MVD 
   Double_t fMvdPath;                // MVD path crossed by the particle
@@ -80,6 +82,8 @@ protected:
   map<Int_t, Bool_t> fClusterList;  // List of clusters correlated to tracks
   TString fTrackBranch;             //  options to choose PndTrack branches
   TString fTrackIDBranch;           //  options to choose PndTrackID branches
+  TString fTrackBranch2;            //  options to choose 2nd PndTrack branches
+  TString fTrackIDBranch2;          //  options to choose 2nd PndTrackID branches
   TString fTrackOutBranch;          //  options to choose output branch
   Bool_t fVerbose;                  // Switch ON/OFF debug messages 
   Bool_t fSimulation;               // Switch simulation diagnostic
@@ -133,8 +137,10 @@ public:
   void SetDebugMode(Bool_t debug)         { fDebugMode = debug; };
   void SetDebugFilename(TString filename) { sFile = filename; };
   void SetMdtRefit(Bool_t mdt)            { fMdtRefit = mdt; };
-  void SetInputBranch(TString branch)     { fTrackBranch = branch; };	
+  void SetInputBranch(TString branch)     { fTrackBranch = branch; };
+  void SetInputBranch2(TString branch)    { fTrackBranch2 = branch; };
   void SetInputIDBranch(TString branch)   { fTrackIDBranch = branch; };	 
+  void SetInputIDBranch2(TString branch)  { fTrackIDBranch2 = branch; };
   void SetOutputBranch(TString branch)    { fTrackOutBranch = branch; };
   void SetVerbose(Bool_t verb)            { fVerbose = verb  ;};
   void SetSimulation(Bool_t sim)          { fSimulation = sim; };

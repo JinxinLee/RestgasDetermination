@@ -47,6 +47,8 @@ PndPidCorrelator::PndPidCorrelator() {
   //---
   fTrack = new TClonesArray("PndTrack");
   fTrackID = new TClonesArray("PndTrackID");
+  fTrack2 = new TClonesArray("PndTrack");
+  fTrackID2 = new TClonesArray("PndTrackID");
   fPidChargedCand = new TClonesArray("PndPidCandidate");
   fPidNeutralCand = new TClonesArray("PndPidCandidate");
   fMdtTrack = new TClonesArray("PndTrack");
@@ -70,6 +72,8 @@ PndPidCorrelator::PndPidCorrelator() {
   dskCorr = 0;
   fTrackBranch = "";
   fTrackIDBranch = "";
+  fTrackBranch2 = "";
+  fTrackIDBranch2 = "";
   fTrackOutBranch = "";
   sDir = "./";
   sFile = "./pidcorrelator.root";
@@ -84,6 +88,8 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title)
   //---
   fTrack = new TClonesArray("PndTrack");
   fTrackID = new TClonesArray("PndTrackID");
+  fTrack2 = new TClonesArray("PndTrack");
+  fTrackID2 = new TClonesArray("PndTrackID");
   fPidChargedCand = new TClonesArray("PndPidCandidate"); 
   fPidNeutralCand = new TClonesArray("PndPidCandidate");
   fMdtTrack = new TClonesArray("PndTrack");
@@ -107,6 +113,8 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title)
   dskCorr = 0;
   fTrackBranch = "";
   fTrackIDBranch = ""; 
+  fTrackBranch2 = "";
+  fTrackIDBranch2 = "";
   fTrackOutBranch = "";
   sDir = "./";
   sFile = "./pidcorrelator.root";
@@ -133,6 +141,24 @@ InitStatus PndPidCorrelator::Init() {
       if ( ! fTrackID ) {
 	cout << "-I- PndPidCorrelator::Init: No PndTrackID array! Switching MC propagation OFF" << endl;
 	fTrackIDBranch = "";
+      }
+    }
+
+  if (fTrackBranch2!="")
+    {
+      fTrack2 = (TClonesArray *)fManager->GetObject(fTrackBranch2);
+      if ( ! fTrack2 ) {
+        cout << "-I- PndPidCorrelator::Init: No 2nd PndTrack array!" << endl;
+        return kERROR;
+    }
+  }
+
+  if (fTrackIDBranch2!="")
+    {
+      fTrackID2 = (TClonesArray *)fManager->GetObject(fTrackIDBranch2);
+      if ( ! fTrackID2 ) {
+        cout << "-I- PndPidCorrelator::Init: No 2nd PndTrackID array! Switching MC propagation OFF" << endl;
+        fTrackIDBranch2 = "";
       }
     }
   
@@ -406,7 +432,7 @@ void PndPidCorrelator::SetParContainers() {
   FairRuntimeDb* db = run->GetRuntimeDb();
   if ( ! db ) Fatal("PndPidCorrelator:: SetParContainers", "No runtime database");
 
-  // Get LHE Correlation parameter container
+  // Get PID Correlation parameter container
   fCorrPar = (PndPidCorrPar*) db->getContainer("PndPidCorrPar");
   
   // Get Emc geometry parameter container
@@ -466,6 +492,41 @@ void PndPidCorrelator::ConstructChargedCandidate() {
     if ( (fDskMode>0)  && (fDskParticle->GetEntriesFast()>0) ) GetDskInfo(helix, pidCand); 
     AddChargedCandidate(pidCand);
   } 
+
+  if (fTrackBranch2!="")
+    {
+      Int_t nTracks2 = fTrack2->GetEntriesFast();
+      for (Int_t i = 0; i < nTracks2; i++) {
+      PndTrack* track = (PndTrack*) fTrack2->At(i);
+      PndTrackID* trackID = (PndTrackID*) fTrackID2->At(i);
+      Int_t ierr = 0;
+      FairTrackParP par = track->GetParamLast();
+      if ((par.GetMomentum().Mag()<0.1) || (par.GetMomentum().Mag()>15.) )continue;
+      FairTrackParH *helix = new FairTrackParH(&par, ierr);
+
+      PndPidCandidate* pidCand =  new PndPidCandidate();
+      if (fTrackIDBranch2!="")
+        {
+          if (trackID->GetNCorrTrackId()>0)
+            {
+                pidCand->SetMcIndex(trackID->GetCorrTrackID());
+            }
+        }
+      pidCand->SetTrackIndex(i);
+      pidCand->AddLink(FairLink("PndTrack", i));
+      if (!GetTrackInfo(track, pidCand)) continue;
+      GetMvdInfo(track, pidCand);
+      //GetTpcInfo(track, pidCand);
+      if ( (fSttMode==3) && (fSttHit    ->GetEntriesFast()>0) ) GetSttInfo(track, pidCand);
+      if ( (fTofMode==2) && (fTofHit    ->GetEntriesFast()>0) ) GetTofInfo(helix, pidCand);
+      if ( (fEmcMode>0)  && (fEmcCluster->GetEntriesFast()>0) ) GetEmcInfo(helix, pidCand);
+      if ( (fMdtMode>0)  && (fMdtHit    ->GetEntriesFast()>0) ) GetMdtInfo(track, pidCand);
+      if ( (fDrcMode>0)  && (fDrcHit    ->GetEntriesFast()>0) ) GetDrcInfo(helix, pidCand);
+      if ( (fDskMode>0)  && (fDskParticle->GetEntriesFast()>0) ) GetDskInfo(helix, pidCand);
+      AddChargedCandidate(pidCand);
+    }
+  }
+
 }
 
 //______________________________________________________
