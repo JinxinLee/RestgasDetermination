@@ -4759,13 +4759,14 @@ void PndSttMvdTracking::Merge(UShort_t nl, Double_t *left, UShort_t *ind_left, U
 // --
 
 //-------------- stampaggi
-if(istampa>2){
+if(istampa>=2){
 	cout<<"from FitHelixCylinder, Evento "<<IVOLTE<<", nHitsinTrack = "<<nHitsinTrack
 	<<"\nfrom FitHelixCylinder, nPointsinFit = "<<NpointsInFit<<endl;
 	for(i=0 ; i< NpointsInFit ; i++) {
 		cout<<"  Xconformal["<<i<<"] = "<<Xconformal[ i ]<<
 		";   Yconformal["<<i<<"] = "<<Yconformal[ i ]<<",  drift radius conformal "<<
-		DriftRadiusconformal[i]<<endl;
+		DriftRadiusconformal[i]<<endl<<"\tErrordiriftradiusconformal = "
+		<<ErrorDriftRadiusconformal[i]<<endl;
 	}
 }
 //------------ end stampaggi
@@ -6631,6 +6632,7 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 		 gamma,
 		 qu,
 		 ErrorStraw = 0.03,
+		 ErrorMvd = 0.01,
 		 Xconformal[*nTrackCandHit],
 		 Yconformal[*nTrackCandHit],
 		 DriftRadiusconformal[*nTrackCandHit],
@@ -6656,16 +6658,13 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 						// center of reference frame (given by tv[0], tv[1]). This
 						// would cause the subsequent fit to fail.
 
-			gamma = dist2 -
-				sigmaXMvdPixel[ListTrackCandHit[i]]
-				*sigmaXMvdPixel[ListTrackCandHit[i]]; // for Pixels
-				// I assume the 'drift radius' to be  the largest error of
-				//  the Pixel (which is in the X  dimension)
+			gamma = dist2 - ErrorMvd*ErrorMvd; // for Pixels
+				// I assume the 'drift radius' to be  the max dimension of
+				//  the Pixel
 			Xconformal[iparallel] = (XMvdPixel[ListTrackCandHit[i]]-tv[0])/gamma;
 			Yconformal[iparallel] = (YMvdPixel[ListTrackCandHit[i]]-tv[1])/gamma;
 			DriftRadiusconformal[iparallel]=0.;
-			ErrorDriftRadiusconformal[iparallel]=
-				factor*sigmaXMvdPixel[ListTrackCandHit[i]]/gamma;
+			ErrorDriftRadiusconformal[iparallel]=factor*ErrorMvd/gamma;
 			iparallel++;
 		} else if ( ListTrackCandHitType[i] == 1 ){	// mvd strips
 			//----- translate the little circumference in XY representing
@@ -6679,16 +6678,13 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 						// center of reference frame (given by tv[0], tv[1]). This
 						// would cause the subsequent fit to fail.
 
-			gamma = dist2 -
-				sigmaXMvdStrip[ListTrackCandHit[i]]
-				*sigmaXMvdStrip[ListTrackCandHit[i]]; // for Pixels
+			gamma = dist2 - ErrorMvd*ErrorMvd;// for Strips also
 				// I assume the 'drift radius' to be  the largest error of
 				//  the Strips (which is in the X dimension)
 			Xconformal[iparallel] = (XMvdStrip[ListTrackCandHit[i]]-tv[0])/gamma;
 			Yconformal[iparallel] = (YMvdStrip[ListTrackCandHit[i]]-tv[1])/gamma;
 			DriftRadiusconformal[iparallel]=0.;
-			ErrorDriftRadiusconformal[iparallel]=
-				factor*sigmaXMvdStrip[ListTrackCandHit[i]]/gamma;
+			ErrorDriftRadiusconformal[iparallel]=factor* ErrorMvd/gamma;
 			iparallel++;
 		} else if ( ListTrackCandHitType[i] == 2 ){	// Stt parallel hit.
 
@@ -6711,6 +6707,13 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 	}	// end of for(i=0, iparallel=0;
 
 	if( *nTrackCandHit < 2)  return;
+if(istampa>=2){
+	cout<<"cavolaccio, n. Hits = "<<iparallel<<endl;
+	for(int ig=0;ig<iparallel;ig++){
+		cout<<"\tcavolo, ErrorDriftRadiusconformal["<<ig<<"] = "<<
+		ErrorDriftRadiusconformal[ig]<<endl;
+	}
+}
 	exitstatus = FitHelixCylinder(  iparallel,
 					Xconformal,
 					Yconformal,
