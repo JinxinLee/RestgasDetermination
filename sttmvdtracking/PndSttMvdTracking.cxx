@@ -4759,8 +4759,8 @@ void PndSttMvdTracking::Merge(UShort_t nl, Double_t *left, UShort_t *ind_left, U
 // --
 
 //-------------- stampaggi
-if(istampa>=2){
-	cout<<"from FitHelixCylinder, Evento "<<IVOLTE<<", nHitsinTrack = "<<nHitsinTrack
+if(istampa>=1){
+	cout<<"from FitHelixCylinder,prima di rotazione,  Evento "<<IVOLTE<<", nHitsinTrack = "<<nHitsinTrack
 	<<"\nfrom FitHelixCylinder, nPointsinFit = "<<NpointsInFit<<endl;
 	for(i=0 ; i< NpointsInFit ; i++) {
 		cout<<"  Xconformal["<<i<<"] = "<<Xconformal[ i ]<<
@@ -4801,6 +4801,17 @@ if(istampa>=2){
 	}
       }
 
+//-------------- stampaggi
+if(istampa>=1){
+	cout<<"from FitHelixCylinder, dopo rotazione, Evento "<<IVOLTE<<", nHitsinTrack = "<<nHitsinTrack
+	<<"\nfrom FitHelixCylinder, nPointsinFit = "<<NpointsInFit<<endl;
+	for(i=0 ; i< NpointsInFit ; i++) {
+		cout<<"  Ox["<<i<<"] = "<<Ox[ i ]<<
+		";   Oy["<<i<<"] = "<<Oy[ i ]<<",  Delta "<<
+		Delta[i]<<endl;
+	}
+}
+//------------ end stampaggi
 //--------- calculation of # structural variables (see Gianluigi's logbook pag. 236) etc.etc.
 
 	int NStructVar =     4           +    1       +  nMvdHits * 2     +                nSttHits *4 ;
@@ -5471,7 +5482,9 @@ if(istampa>=2){
 /*
       fprintf(FMCS,"ENDATA\n");
       fclose(FMCS);
+*/
 
+if(istampa>=1){
 
 cout<<"n.  punti nel fit "<<NpointsInFit<<endl;
 
@@ -5521,7 +5534,8 @@ for(int ic =0;ic<nBounds; ic++){
    cout<<"n. "<<ic<<",  Bound Type   "<<TypeofBound[ic]<<endl;
    cout<<"n. "<<ic<<",  Bound Name   "<<BoundStructVarName[ic]<<endl;
 }
-*/
+ }	// end of if(istampa
+
 //-------fine stampaggi
 
 //-----------------------  funzioni chiamate direttamente
@@ -5538,16 +5552,16 @@ for(int ic =0;ic<nBounds; ic++){
 
 
 //--------stampaggi
-/*
-printf("from main, final printout con routines chiamate direttamente -------------------------------\n");
+if(istampa>=1){
+printf("from FitHelixCylinder  printout dopo glp_main -------------------------------\n");
 printf("      number of structural variables %d\n",NStructVar);
 int ica;
 for(ica=0;ica<NStructVar;ica++){
     printf("name of structural variable %s and its final value %g\n",
            StructVarName[ica], final_values[ica]);
 }
-printf("from main, end of final printout  con routines chiamate direttamente -------------------------------\n");
-*/
+printf("from FitHelixCylinder  printout dopo glp_main  -------------------------------\n");
+}	// end of if(istampa
 //--------fine stampaggi
 
 
@@ -5753,6 +5767,16 @@ if(istampa>=3 && IVOLTE == 2) {
 
 
 
+//-------------- stampaggi
+if(istampa>=2){
+	cout<<"from FitSZspace, Evento "<<IVOLTE<<", NpointsInFit = "<<NpointsInFit<<endl;
+	for(i=0 ; i< NpointsInFit ; i++) {
+		cout<<"  Z["<<i<<"] = "<<Z[ i ]<<
+		";   S["<<i<<"] = "<<S[ i ]<<"\tErrordiriftradius = "
+		<<ErrorDriftRadius[i]<<endl;
+	}
+}
+//------------ end stampaggi
 
 
 
@@ -5779,6 +5803,12 @@ if(istampa>=3 && IVOLTE == 2) {
 		nSttHits++;
 	}
       }
+
+
+
+
+
+
 
 //--------- calculation of # structural variables (see Gianluigi's logbook pag. 236) etc.etc.
 
