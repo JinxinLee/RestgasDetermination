@@ -1403,7 +1403,7 @@ if(istampa>2) cout<<"da PndSttMvdTracking ncand = "<<ncand<<",  Ox[ncand] = "<<O
 			S[i] = atan2( YMvdPixel[k]-Oy[ncand],XMvdPixel[k]-Ox[ncand]);
 			if(S[i]<0.) S[i] +=2.*PI;
 			Sbis[i][0] = S[i];
-			DriftRadiusbis[i][0]=DriftRadius[i]=0.;
+			DriftRadiusbis[i][0]=DriftRadius[i]=-1.;
 			ErrorDriftRadiusbis[i][0]=ErrorDriftRadius[i]= 0.01 ;
 		}
 		// adding the Mvd Strips hit
@@ -1414,7 +1414,7 @@ if(istampa>2) cout<<"da PndSttMvdTracking ncand = "<<ncand<<",  Ox[ncand] = "<<O
 			S[i] = atan2( YMvdStrip[k]-Oy[ncand],XMvdStrip[k]-Ox[ncand]);
 			if(S[i]<0.) S[i] +=2.*PI;
 			Sbis[i][0] = S[i] ;
-			DriftRadiusbis[i][0]=DriftRadius[i]=0.;
+			DriftRadiusbis[i][0]=DriftRadius[i]=-1.;
 			ErrorDriftRadiusbis[i][0]=ErrorDriftRadius[i]= 0.01 ;
 		}
 
@@ -4709,7 +4709,16 @@ void PndSttMvdTracking::Merge(UShort_t nl, Double_t *left, UShort_t *ind_left, U
 //----------end of function PndSttMvdTracking::Merge
 
 
-//----------begin of function PndSttMvdTracking::FitHelixCylinder
+//----------begin of function PndSttMvdTracking::
+
+
+
+
+
+
+
+
+
 
       Short_t PndSttMvdTracking::FitHelixCylinder( UShort_t nHitsinTrack,
 		Double_t *Xconformal,
@@ -4791,7 +4800,7 @@ if(istampa>=1){
                Yconformal[ i ]*cose;
           Delta[i] = 3.*ErrorDriftRadiusconformal[ i ];   //   3 times the Drift Radius
 
-	if( fabs(DriftRadiusconformal[ i ])<1.e-10 )
+	if( DriftRadiusconformal[ i ]<0. )
 	{
 		mvdhit[i]=true;
 		nMvdHits++;
@@ -5484,7 +5493,7 @@ if(istampa>=1){
       fclose(FMCS);
 */
 
-if(istampa>=1){
+if(istampa>=4){
 
 cout<<"n.  punti nel fit "<<NpointsInFit<<endl;
 
@@ -5794,7 +5803,7 @@ if(istampa>=2){
        Delta[i] = ErrorDriftRadius[i];
 //          Delta[i] = 3.*ErrorDriftRadius[ i ];   //   3 times the Drift Radius
 
-	if( fabs(DriftRadius[ i ])<1.e-10 )
+	if( DriftRadius[ i ]<0. )
 	{
 		mvdhit[i]=true;
 		nMvdHits++;
@@ -6693,7 +6702,7 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 				//  the Pixel
 			Xconformal[iparallel] = (XMvdPixel[ListTrackCandHit[i]]-tv[0])/gamma;
 			Yconformal[iparallel] = (YMvdPixel[ListTrackCandHit[i]]-tv[1])/gamma;
-			DriftRadiusconformal[iparallel]=0.;
+			DriftRadiusconformal[iparallel]=-1.;// only to signal later this is a Mvd hit.
 			ErrorDriftRadiusconformal[iparallel]=factor*ErrorMvd/gamma;
 			iparallel++;
 		} else if ( ListTrackCandHitType[i] == 1 ){	// mvd strips
@@ -6713,7 +6722,7 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 				//  the Strips (which is in the X dimension)
 			Xconformal[iparallel] = (XMvdStrip[ListTrackCandHit[i]]-tv[0])/gamma;
 			Yconformal[iparallel] = (YMvdStrip[ListTrackCandHit[i]]-tv[1])/gamma;
-			DriftRadiusconformal[iparallel]=0.;
+			DriftRadiusconformal[iparallel]=-1.;// only to signal later this is a Mvd hit.
 			ErrorDriftRadiusconformal[iparallel]=factor* ErrorMvd/gamma;
 			iparallel++;
 		} else if ( ListTrackCandHitType[i] == 2 ){	// Stt parallel hit.
@@ -6722,7 +6731,7 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 				(info[ListTrackCandHit[i]][0]-tv[0])+
 				(info[ListTrackCandHit[i]][1]-tv[1])*
 				(info[ListTrackCandHit[i]][1]-tv[1]);
-			if(dist2<maxdis2) continue;	// this is to exclude Mvd hits too close to the traslated
+			if(dist2<maxdis2) continue;	// this is to exclude hits too close to the traslated
 						// center of reference frame (given by tv[0], tv[1]). This
 						// would cause the subsequent fit to fail.
 			gamma = dist2 -
