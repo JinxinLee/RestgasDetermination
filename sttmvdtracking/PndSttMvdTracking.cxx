@@ -57,6 +57,7 @@ PndSttMvdTracking::PndSttMvdTracking(Int_t verbose) : FairTask("STT Stt-Mvd Trac
 
 // -----   Destructor   ----------------------------------------------------
 PndSttMvdTracking::~PndSttMvdTracking() { 
+
 }
 // -------------------------------------------------------------------------
 
@@ -1797,7 +1798,7 @@ if(istampa>2){
 
 
 
-//	assumo che la traccia MC associata alla traccia Stt e' quella giusta e di
+//	assumo che la traccia MC associata alla traccia Stt sia quella giusta e di
 //	conseguenza calcolo gli hits Mvd spuri e comuni
 	UShort_t	nMvdPixelCommon[nSttTrackCand],
 			MvdPixelCommonList[nSttTrackCand][nMvdPixelHit],
@@ -8285,11 +8286,11 @@ int nevento=1;
 
    if ( Charge > 0){
     if(fi > FI0 )  FI0 += 2.*PI;
-    Posiz[2] = (FI0-fi)/KAPPA;
+//    Posiz[2] = (FI0-fi)/KAPPA;
    } else {
     if(fi < FI0 )  fi += 2.*PI;
-    Posiz[2] = (fi-FI0)/KAPPA;
    }
+    Posiz[2] = (fi-FI0)/KAPPA;
 
    return;
 }
