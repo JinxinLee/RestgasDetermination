@@ -12617,11 +12617,11 @@ out1:  ;
 
    if ( Charge > 0){
     if(fi > FI0 )  FI0 += 2.*PI;
-    Posiz[2] = (FI0-fi)/KAPPA;
+//    Posiz[2] = (FI0-fi)/KAPPA;
    } else {
     if(fi < FI0 )  fi += 2.*PI;
-    Posiz[2] = (fi-FI0)/KAPPA;
    }
+    Posiz[2] = (fi-FI0)/KAPPA;
 
    return;
 }
