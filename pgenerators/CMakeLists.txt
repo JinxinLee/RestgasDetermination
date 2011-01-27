@@ -9,6 +9,7 @@ ${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/generators
 ${CMAKE_SOURCE_DIR}/pgenerators
+${SIMPATH}/generators/pythia8/include
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -28,6 +29,7 @@ PndBoxGenerator.cxx
 PndUrqmdSmmGenerator.cxx
 PndJRGenerator.cxx
 PndPythiaGenerator.cxx
+PndPythia8Generator.cxx
 PndFlatParticleGenerator.cxx
 PndFlukaGenerator.cxx
 PndGasGenerator.cxx

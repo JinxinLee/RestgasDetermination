@@ -12,6 +12,7 @@
 #pragma link C++ class  PndUrqmdSmmGenerator+;
 #pragma link C++ class  PndJRGenerator+;
 #pragma link C++ class  PndPythiaGenerator+;
+#pragma link C++ class  PndPythia8Generator+;
 #pragma link C++ class  PndFlatParticleGenerator+;
 #pragma link C++ class  PndFlukaGenerator+;
 #pragma link C++ class  PndRangeValues+;

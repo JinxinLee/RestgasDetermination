@@ -16,6 +16,7 @@ rootlogon()
       if(isLibrary("libEvtGenDirect"))gSystem->Load("libEvtGenDirect");
     }
   }
+  if(isLibrary("libpythia8.so"))gSystem->Load("libpythia8.so");
   if(isLibrary("libPndBase"))gSystem->Load("libPndBase");
   if(isLibrary("libGlobalTasks"))gSystem->Load("libGlobalTasks");
   if(isLibrary("libTrkBase"))gSystem->Load("libTrkBase");
