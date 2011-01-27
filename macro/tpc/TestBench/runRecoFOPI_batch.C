@@ -155,6 +155,7 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   tpcSLPR->SetThresh(15);
   tpcSLPR->SetMinCandHits(13);
   //tpcSLPR->SetClusterBranchName("PndTpcCluster_cut");
+  tpcSLPR->SetAbsMomentum(1000);
   fRun->AddTask(tpcSLPR);
 
 
