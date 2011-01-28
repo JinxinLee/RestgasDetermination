@@ -6,12 +6,14 @@ void create4StationsGem()
   //-----------------------------
   const Int_t     kNofDisks = 4;
 
-//   const Double_t  kDiskInnerRadius[kNofDisks]    = {  5.0,   5.0,   5.0,   5.0};
-//   const Double_t  kDiskOuterRadius[kNofDisks]    = { 42.0,  42.0,  66.0,  90.0};
-//   const Double_t  kDiskZPosition  [kNofDisks]    = { 90.0, 120.0, 150.0, 180.0};
+//   const Double_t  kDiskInnerRadius[kNofDisks]    = {   5.0,   5.0,   5.0};
+//   const Double_t  kDiskOuterRadius[kNofDisks]    = {  42.0,  66.0,  90.0};
+//   const Double_t  kDiskZPosition  [kNofDisks]    = { 120.0, 150.0, 180.0};
   const Double_t  kDiskInnerRadius[kNofDisks]    = {  2.5,  2.5,  2.5,  2.5};
   const Double_t  kDiskOuterRadius[kNofDisks]    = { 45.0, 45.0, 56.0, 74.0};
   const Double_t  kDiskZPosition  [kNofDisks]    = { 84.0,117.0,153.0,189.0};
+  const Int_t     kDiskNFoils     [kNofDisks]    = {  2  ,  2  ,  2  ,  4  };
+  const Double_t  kMiddleROBarHfTh[kNofDisks]    = {  4.3,  4.3,  4.3,  4.3};
 
   const Double_t kHalfStationThickness = 3.00;
 
@@ -59,8 +61,14 @@ void create4StationsGem()
 					      1.0010,                   // +1=37 space
 					      0.0001,  0.0007};         // +2=39 window
 
-  const Double_t kSensorStripAngle[2][2] = {  0.  , 90.  , 60.  ,-60.  };
-  const Double_t kSensorStripPitch[2][2] = {  0.02,  0.02,  0.03,  0.03};
+
+// type 0: r,phi  strips
+// type 1: tilted strips
+// type 2: x,y    strips
+  const Int_t    kSensorStripType [2]    = {  0   ,         2   };  
+  
+  const Double_t kSensorStripAngle[2][2] = {  0.  ,  0.  ,  0.  ,  0.  };
+  const Double_t kSensorStripPitch[2][2] = {  0.02,  0.02,  0.02,  0.02};
 
   Double_t firstLayerOffset = 0.;
 
@@ -133,15 +141,18 @@ void create4StationsGem()
 
   TGeoVolumeAssembly* SubunitVol = new TGeoVolumeAssembly("Gem_Disks");
 
-  TGeoShape       *DiskShape[kNofDisks];
-  TGeoVolume      *DiskVol  [kNofDisks];
-  TGeoTranslation *DiskTrans[kNofDisks];
-  TGeoCombiTrans  *DiskCombi[kNofDisks];
+  TGeoShape        *DiskShape[kNofDisks];
+  TGeoVolume       *DiskVol  [kNofDisks];
+  TGeoTranslation  *DiskTrans[kNofDisks];
+  TGeoCombiTrans   *DiskCombi[kNofDisks];
 
-  TGeoShape       *DiskLayersShape[kNofDisks][kNofLayers];
-  TGeoVolume      *DiskLayersVol  [kNofDisks][kNofLayers];
-  TGeoTranslation *DiskLayersTrans[kNofDisks][kNofLayers];
-  TGeoCombiTrans  *DiskLayersCombi[kNofDisks][kNofLayers];
+  TGeoShape        *DiskLayersShapeA[kNofDisks][kNofLayers][4];
+  TGeoShape        *DiskLayersShapeB[kNofDisks][kNofLayers][4];
+  TGeoSubtraction  *DiskLayersSubtr [kNofDisks][kNofLayers][4];
+  TGeoShape        *DiskLayersShapeC[kNofDisks][kNofLayers][4]; // final, C = A-B
+  TGeoVolume       *DiskLayersVol  [kNofDisks][kNofLayers][4];
+  TGeoTranslation  *DiskLayersTrans[kNofDisks][kNofLayers][4];
+  TGeoCombiTrans   *DiskLayersCombi[kNofDisks][kNofLayers][4];
 
   TString outParFileName = Form("%s/macro/params/gem_4Stations.digi.par",vmcWorkdir.Data());
   
@@ -190,25 +201,56 @@ void create4StationsGem()
 	continue;
       }
 
-      DiskLayersShape[istat][ilay] = new TGeoTube  (Form("disk%d%sshape",istat+1,kLayerName[ilay].Data()),
-						    kDiskInnerRadius[istat],kDiskOuterRadius[istat],
-						    kLayerThick[ilay]/2.);
-      TString layerMaterial = kLayerName[ilay].Data();
-      layerMaterial.Remove(0,layerMaterial.Last('_')+1);
-      DiskLayersVol  [istat][ilay] = new TGeoVolume(Form("Gem_Disk%d_%s",istat+1,kLayerName[ilay].Data()),
-						    DiskLayersShape[istat][ilay],
-						    gGeoMan->GetMedium(layerMaterial.Data()));
+      Double_t segPhiSpan = 360./(Double_t(kDiskNFoils[istat]));
+      Double_t segBegin   =  90.;
+      for ( Int_t iseg = 0 ; iseg < kDiskNFoils[istat] ; iseg++ ) {
+	DiskLayersShapeA[istat][ilay][iseg] = new TGeoTubeSeg(Form("disk%dseg%d%sshape",istat+1,iseg+1,kLayerName[ilay].Data()),
+							     kDiskInnerRadius[istat],kDiskOuterRadius[istat],
+							     kLayerThick[ilay]/2.,
+							     segBegin,segBegin+segPhiSpan);
+	DiskLayersShapeB[istat][ilay][iseg] = new TGeoBBox   (Form("robo%dseg%d%sshape",istat+1,iseg+1,kLayerName[ilay].Data()),
+							      kMiddleROBarHfTh[istat]/2.,
+							      kDiskOuterRadius[istat],
+							      kLayerThick[ilay]);
+	DiskLayersSubtr [istat][ilay][iseg] = new TGeoSubtraction(DiskLayersShapeA[istat][ilay][iseg],
+								  DiskLayersShapeB[istat][ilay][iseg]);
+	DiskLayersShapeC[istat][ilay][iseg] = new TGeoCompositeShape(Form("comp%dseg%d%sshape",istat+1,iseg+1,kLayerName[ilay].Data()),
+								     DiskLayersSubtr[istat][ilay][iseg]);
+	segBegin += segPhiSpan;
+	
+	TString layerMaterial = kLayerName[ilay].Data();
+	layerMaterial.Remove(0,layerMaterial.Last('_')+1);
+	DiskLayersVol  [istat][ilay][iseg] = new TGeoVolume(Form("Gem_Disk%d_Seg%d_%s",istat+1,iseg+1,kLayerName[ilay].Data()),
+							    DiskLayersShapeC[istat][ilay][iseg],
+							    gGeoMan->GetMedium(layerMaterial.Data()));
+	
+	//      cout << "layer material = " << layerMaterial.Data() << endl;
+	if ( layerMaterial.Contains("copper" ) )
+	  DiskLayersVol[istat][ilay][iseg]->SetLineColor(2);
+	if ( layerMaterial.Contains("kapton" ) )
+	  DiskLayersVol[istat][ilay][iseg]->SetLineColor(3);
+	if ( layerMaterial.Contains("aluminium" ) )
+	  DiskLayersVol[istat][ilay][iseg]->SetLineColor(4);
+	DiskLayersTrans[istat][ilay][iseg] = new TGeoTranslation(0.,0.,layerPosition);
+	DiskLayersCombi[istat][ilay][iseg] = new TGeoCombiTrans(*DiskLayersTrans[istat][ilay][iseg],*dummyrot);
+	DiskLayersCombi[istat][ilay][iseg]->SetName(Form("Gem_Disk%d_Seg%d_%s",istat+1,iseg+1,kLayerName[ilay].Data()));
+	DiskLayersCombi[istat][ilay][iseg]->RegisterYourself();
+	DiskVol[istat]->AddNode(DiskLayersVol  [istat][ilay][iseg],0,DiskLayersCombi[istat][ilay][iseg]);
+	
+      }
 
       cout << "volume " << kLayerName[ilay] << " from " 
 	   << setprecision(10) << kDiskZPosition[istat]+layerPosition-kLayerThick[ilay]/2. << " to "
 	   << setprecision(10) << kDiskZPosition[istat]+layerPosition+kLayerThick[ilay]/2. << endl;
-
-
+      
       if ( kLayerName[ilay].Contains("Gem") && kLayerName[ilay].Contains("Sensor") ) {
-	Double_t nofStrips = TMath::Ceil(2.*TMath::Pi()*kDiskInnerRadius[istat]/kSensorStripPitch[sensorNumber][0]);
-	Double_t newRadius = nofStrips*kSensorStripPitch[sensorNumber][0]/2./TMath::Pi();
+	Double_t newRadius = kDiskInnerRadius[istat];
+	if ( kSensorStripType[sensorNumber] != 2 ) {
+	  Double_t nofStrips = TMath::Ceil(2.*TMath::Pi()*kDiskInnerRadius[istat]/kSensorStripPitch[sensorNumber][0]);
+	  newRadius          = nofStrips*kSensorStripPitch[sensorNumber][0]/2./TMath::Pi();
+	}
 	cout << "!!!! " << istat << " " << ilay << " > there shall be " << nofStrips << " strips here so the radius should be " << newRadius << endl;
-	pout << "                        " << sensorNumber+1 << ",  1,  " 
+	pout << "                        " << sensorNumber+1 << ",  " << kSensorStripType[sensorNumber] << ",  " 
 	     << setw(9) << 0. << ",  "
 	     << setw(9) << 0. << ",  " 
 	     << setw(9) << kDiskZPosition[istat]+layerPosition << ",  "
@@ -217,27 +259,15 @@ void create4StationsGem()
 	     << setw(9) << kDiskOuterRadius[istat] << ",  "
 	     << setw(9) << kLayerThick[ilay] << ",  "
 	     << setw(9) << kSensorStripAngle[sensorNumber][0] << ",  "
-	     << setw(9) << kSensorStripAngle[sensorNumber][1] << ",  "
+	  //	     << setw(9) << kSensorStripAngle[sensorNumber][1] << ",  "
+	     << setw(9) << kMiddleROBarHfTh[istat] << ",  "
 	     << setw(9) << kSensorStripPitch[sensorNumber][0] << ",  "
 	     << setw(9) << kSensorStripPitch[sensorNumber][1] << ((istat==kNofDisks-1&&sensorNumber==1)?"":", \\") 
 	     << endl;
 	sensorNumber++;
       }
 
-      //      cout << "layer material = " << layerMaterial.Data() << endl;
-      if ( layerMaterial.Contains("copper" ) )
-	DiskLayersVol[istat][ilay]->SetLineColor(2);
-      if ( layerMaterial.Contains("kapton" ) )
-	DiskLayersVol[istat][ilay]->SetLineColor(3);
-      if ( layerMaterial.Contains("aluminium" ) )
-	DiskLayersVol[istat][ilay]->SetLineColor(4);
-      DiskLayersTrans[istat][ilay] = new TGeoTranslation(0.,0.,layerPosition);
-      DiskLayersCombi[istat][ilay] = new TGeoCombiTrans(*DiskLayersTrans[istat][ilay],*dummyrot);
-      DiskLayersCombi[istat][ilay]->SetName(Form("Gem_Disk%d_%s",istat+1,kLayerName[ilay].Data()));
-      DiskLayersCombi[istat][ilay]->RegisterYourself();
-      DiskVol[istat]->AddNode(DiskLayersVol  [istat][ilay],0,DiskLayersCombi[istat][ilay]);
-      
-      layerPosition += kLayerThick[ilay]/2.;
+	layerPosition += kLayerThick[ilay]/2.;
     }
     SubunitVol->AddNode(DiskVol[istat],0,DiskCombi[istat]);
   }
