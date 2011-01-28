@@ -133,6 +133,17 @@ void PndGemDigitize::Exec(Option_t* opt) {
 
   Int_t nofHitsOutside = 0;
   Int_t nofPoints = fPoints->GetEntriesFast();
+
+//   cout << "GEM digitize points:" << endl;
+//   for ( Int_t iPoint = 0 ; iPoint < nofPoints ; iPoint++ ) {
+//     PndGemMCPoint* currentPndGemMCPoint = (PndGemMCPoint*)fPoints->At(iPoint);
+//     cout << iPoint << " : " 
+// 	 << currentPndGemMCPoint->GetX() << " "
+// 	 << currentPndGemMCPoint->GetY() << " "
+// 	 << currentPndGemMCPoint->GetZ() << endl;
+//   }
+//   cout << "GEM digis: " << endl;
+
   for ( Int_t iPoint = 0 ; iPoint < nofPoints ; iPoint++ ) {
     PndGemMCPoint* currentPndGemMCPoint = (PndGemMCPoint*)fPoints->At(iPoint);
 
@@ -147,6 +158,12 @@ void PndGemDigitize::Exec(Option_t* opt) {
     gGeoManager->cd(nodeName.Data());
     TGeoNode* curNode = gGeoManager->GetCurrentNode();
 
+//     cout << "id " << sensorId << " -> " 
+// 	 << fDigiPar->GetStationNr(sensorId) << "."
+// 	 << fDigiPar->GetSensorNr(sensorId) << "."
+// 	 << fDigiPar->GetSegmentNr(sensorId) << " > " 
+// 	 << nodeName.Data() << endl;
+
     sensor = (PndGemSensor*)fDigiPar->GetSensor(sensorId);
     if ( !sensor ) {
       cout << " -E- " << GetName() << ":Exec() There is no sensor: \"" 
@@ -158,12 +175,18 @@ void PndGemDigitize::Exec(Option_t* opt) {
     fTNofPoints++;
     
     curNode->MasterToLocal(posIn,locPosIn);
+
+    //    cout << "position:  " << posIn[0] << " " << posIn[1] << " " << posIn[2] << endl;
+    //	 << " transf to " << locPosIn[0] << " " << locPosIn[1] << " " << locPosIn[2] << endl;
     
-    if ( sensor->GetType()!=1 ) { locPosIn[3] = locPosIn[2]; locPosIn[2] = locPosIn[1]; locPosIn[1] = locPosIn[3]; locPosIn[0] = -locPosIn[0]; }
+    //    if ( sensor->GetType()!=1 ) { locPosIn[3] = locPosIn[2]; locPosIn[2] = locPosIn[1]; locPosIn[1] = locPosIn[3]; locPosIn[0] = -locPosIn[0]; }
     
     Int_t sensorDetId = sensor->GetDetectorId();
 
     Int_t channelNumber = sensor->GetChannel(locPosIn[0],locPosIn[1],0);
+    if ( fDigiPar->GetStationNr(sensorId) == 1 ) {
+      //      cout << sensor->GetType() << ": for point " << locPosIn[0] << " " << locPosIn[1] << " ---> channel " << channelNumber << endl;
+    }
     if ( channelNumber == -1 ) {
       if ( fSaveOutsideHits ) {
 	TVector3 pos;
@@ -184,6 +207,8 @@ void PndGemDigitize::Exec(Option_t* opt) {
 
 	Int_t digiDetId = sensorDetId | kGemDigi << 21 | 0 << 5;
       
+	//	cout << fNDigis << " : " << sensorDetId << " " << channelNumber << endl;
+
 	new ((*fDigis)[fNDigis]) PndGemDigi(digiDetId, channelNumber, iPoint);
 	fChannelMap[a] = fNDigis;
 	fNDigis++;
@@ -206,6 +231,8 @@ void PndGemDigitize::Exec(Option_t* opt) {
 
       Int_t digiDetId = sensorDetId | kGemDigi << 21 | 1 << 5;
       
+      //      cout << fNDigis << " : " << sensorDetId << " " << channelNumber << endl;
+
       new ((*fDigis)[fNDigis]) PndGemDigi(digiDetId, channelNumber, iPoint);
       fChannelMap[a] = fNDigis;
       fNDigis++;

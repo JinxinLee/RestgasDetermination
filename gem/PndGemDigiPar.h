@@ -51,8 +51,13 @@ class PndGemDigiPar : public FairParGenericSet
     PndGemSensor*  GetSensor     (Int_t stationNr, Int_t sensorNr);                  /** Sensor  by number **/
     PndGemSensor*  GetSensor     (Int_t sensorId) { return GetSensor(GetStationNr(sensorId),GetSensorNr(sensorId)); }
     TString        GetNodeName   (Int_t sensorId);
-    Int_t          GetStationNr  (Int_t sensorId) { return sensorId/256; }
-    Int_t          GetSensorNr   (Int_t sensorId) { return sensorId%256; }
+    Int_t          GetStationNr  (Int_t sensorId) { 
+      return ( sensorId & (15<<8) ) >> 8; }
+    Int_t          GetSensorNr   (Int_t sensorId) {
+      return ( sensorId & (15<<4) ) >> 4; }
+    Int_t          GetSegmentNr  (Int_t sensorId) { 
+      return ( sensorId & (15<<0) ) >> 0; }
+ 
     Int_t         GetDetectorIdByName(TString sensorName);
     PndGemSensor* GetSensorByName    (TString sensorName);
     

@@ -136,7 +136,7 @@ void PndGemIdealPatternRecoTask::Exec(Option_t* opt) {
       }
 
     }
-    cands[trackId]->AddHit(kGemHit,ihit,gemHit->GetPosition().Mag());
+    cands[trackId]->AddHit(FairRootManager::Instance()->GetBranchId("GEMHit"),ihit,gemHit->GetPosition().Mag());
   }
 
   for(std::map<int,PndTrackCand*>::iterator iter=cands.begin();

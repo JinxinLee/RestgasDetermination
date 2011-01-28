@@ -121,6 +121,8 @@ void PndGemFindHits::Exec(Option_t* opt) {
 
   fTimer.Stop();  
 
+  //  cout << "GEM found hits: " << endl;
+
   Int_t nStations = fDigiPar->GetNStations();
   for (Int_t iStation=0; iStation<nStations; iStation++) {
     PndGemStation* station = (PndGemStation*)fDigiPar->GetStation(iStation);
@@ -234,8 +236,12 @@ InitStatus PndGemFindHits::Init() {
   MakeSets();
 
   cout << "-I- " << fName.Data() << "::Init(). There are " << fDigiPar->GetNStations() << " GEM stations." << endl;
-  cout << "-I- " << fName.Data() << "::Init(). Initialization succesfull." << endl;
+  cout << "-I- " << fName.Data() << "::Init(). Initialization succesfull." << endl;  
   
+  PndGemStation* station = (PndGemStation*)fDigiPar->GetStation(0);
+  PndGemSensor* sensor = (PndGemSensor*)station->GetSensor(0);
+  cout << "sensor out rad is " << sensor->GetOuterRadius() << endl;
+
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
@@ -386,10 +392,17 @@ Int_t PndGemFindHits::FindHits(PndGemSensor* sensor,
       iChanB = digiB->GetChannelNr();
       
       Int_t sensorDetId = sensor->Intersect(iChanF,iChanB,xHit,yHit,zHit,dr,dp);
-      
+      //      cout << "intersecting channels " << iChanF << " and " << iChanB << " gave " << sensorDetId << endl;
       // 	cout << "got the following position from sensor " << sensorDetId << " : (" 
       // 	     << xHit << ", " << yHit << ", " << zHit << ")" << endl;
       if ( sensorDetId == -1 ) continue;
+
+      Double_t rad = TMath::Sqrt(xHit*xHit+yHit*yHit);
+      if ( rad < sensor->GetInnerRadius() || rad > sensor->GetOuterRadius() ) {
+	cout << " point " << xHit << "," << yHit << " (" << rad << ") is still ok??? at station " 
+	     << sensor->GetStationNr() << "." 
+	     << sensor->GetSensorNr() << endl;
+      }
       
       sigmaX = dp;
       if ( dr > sigmaX ) sigmaX = dr;
@@ -408,13 +421,14 @@ Int_t PndGemFindHits::FindHits(PndGemSensor* sensor,
 
       Int_t hitDetId = sensorDetId | kGemHit << 21;
 
+      //      cout << nHits << " : " << pos.X() << " " << pos.Y() << " " << pos.Z() << endl;
       new ((*fHits)[nHits++]) PndGemHit(hitDetId, pos, dpos,  
 					iDigiF, iDigiB, dr, dp, refIndex);
 
       fTNofHits++;
     }
   }
-  
+
   return 0;
 }
 // -------------------------------------------------------------------------

@@ -264,7 +264,8 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
       }
       if ( mcTrackIndex != iMCTrack ) continue;
 
-      gemTrackCand->AddHit("GEMHit",iHit,gemHit->GetPosition().Mag());
+      gemTrackCand->AddHit(FairRootManager::Instance()->GetBranchId("GEMHit"),
+			   iHit,gemHit->GetPosition().Mag());
 
       if(fVerbose > 3) {
 	cout << "GEM hit " << iHit << " from GEM point "
@@ -317,7 +318,8 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
     PndTrackCand* trackCand = new((*trackCandArray)[nTracks]) PndTrackCand();
     for ( Int_t ihit = 0 ; ihit < gemTrackCand->GetNHits() ; ihit++ ) {
       tcHit = gemTrackCand->GetSortedHit(ihit);  
-      trackCand->AddHit(tcHit.GetDetId(),tcHit.GetHitId(),tcHit.GetRho());
+      trackCand->AddHit(FairRootManager::Instance()->GetBranchId("GEMHit"),
+			tcHit.GetHitId(),tcHit.GetRho());
 //       trackCand->setMcTrackId(gemTrackCand->getMcTrackId());
     }
 

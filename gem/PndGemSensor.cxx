@@ -23,6 +23,7 @@ using std::vector;
 PndGemSensor::PndGemSensor() {
 
   fDetectorId = 0;
+  fType       = 0;
   fPosition[0] = fPosition[1] = fPosition[2] = fRotation = fInnerRadius = fOuterRadius = fD = fStripAngle[0] = fStripAngle[1] = fPitch[0] = fPitch[1] = 0.;
   fNChannelsFront = fNChannelsBack = 0;
   fSigmaX = fSigmaY = fSigmaXY = 0.;
@@ -57,20 +58,21 @@ PndGemSensor::PndGemSensor(TString tempName, Int_t detId, Int_t iType,
   fPitch[0]     = pitch0; // strip pitch
   fPitch[1]     = pitch1; // strip pitch
 
-  if ( TMath::Abs(fStripAngle[0]) < 89. ) {
+  if ( fType == 0 ) { // r phi version
     fNChannelsFront = (Int_t)(TMath::Ceil(2.*TMath::Pi()*fInnerRadius/fPitch[0]));
+    fNChannelsBack  = 2*(Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[1]));
   }
-  else {
-    fNChannelsFront = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
-  }
-  if ( TMath::Abs(fStripAngle[1]) < 89. ) {
+  if ( fType == 1 ) { // tilted version, should not be used any more
+    fNChannelsFront = (Int_t)(TMath::Ceil(2.*TMath::Pi()*fInnerRadius/fPitch[0]));
     fNChannelsBack  = (Int_t)(TMath::Ceil(2.*TMath::Pi()*fInnerRadius/fPitch[1]));
   }
-  else {
-    fNChannelsBack  = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[1]));
+  if ( fType == 2 ) { // x y version
+    fNChannelsFront =   (Int_t)(TMath::Ceil(2.*fOuterRadius/fPitch[0]))+
+                        (Int_t)(TMath::Ceil(2.*fInnerRadius/fPitch[0]));
+    fNChannelsBack  = 2*(Int_t)(TMath::Ceil(2.*fOuterRadius/fPitch[1]));
   }
 
-  cout << tempName.Data() << " has " << fNChannelsFront << " front and " << fNChannelsBack << " back channels" << endl;
+  cout << tempName.Data() << " type " << fType << " has " << fNChannelsFront << " front and " << fNChannelsBack << " back channels" << endl;
 
   fSigmaX = fSigmaY = fSigmaXY = 0.;
 }
@@ -101,20 +103,21 @@ PndGemSensor::PndGemSensor(TString tempName, Int_t stationNr, Int_t sectorNr, In
   fPitch[0]     = pitch0; // strip pitch
   fPitch[1]     = pitch1; // strip pitch
 
-  if ( TMath::Abs(fStripAngle[0]) < 89. ) {
+  if ( fType == 0 ) { // r phi version
     fNChannelsFront = (Int_t)(TMath::Ceil(2.*TMath::Pi()*fInnerRadius/fPitch[0]));
+    fNChannelsBack  = 2*(Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[1]));
   }
-  else {
-    fNChannelsFront = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
-  }
-  if ( TMath::Abs(fStripAngle[1]) < 89. ) {
+  if ( fType == 1 ) { // tilted version, should not be used any more
+    fNChannelsFront = (Int_t)(TMath::Ceil(2.*TMath::Pi()*fInnerRadius/fPitch[0]));
     fNChannelsBack  = (Int_t)(TMath::Ceil(2.*TMath::Pi()*fInnerRadius/fPitch[1]));
   }
-  else {
-    fNChannelsBack  = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[1]));
+  if ( fType == 2 ) { // x y version
+    fNChannelsFront = 2*(Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]))+
+                      4*(Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+    fNChannelsBack  = 2*(Int_t)(TMath::Ceil(2.*fOuterRadius/fPitch[1]));
   }
 
-  cout << tempName.Data() << " has " << fNChannelsFront << " front and " << fNChannelsBack << " back channels" << endl;
+  cout << tempName.Data() << " type " << fType << " has " << fNChannelsFront << " front and " << fNChannelsBack << " back channels" << endl;
 
   fSigmaX = fSigmaY = fSigmaXY = 0.;
 }
@@ -194,45 +197,60 @@ Int_t PndGemSensor::GetChannel(Double_t x, Double_t y, Int_t iSide) {
     return -1;
   }
 
+  if ( !Inside(x,y) ) return -1;
   Double_t radius = TMath::Sqrt(x*x+y*y);
-  Double_t cosAng = TMath::Cos(fStripAngle[iSide]*TMath::DegToRad());
-
-  if ( !Inside(radius) ) return -1;
-
-  if ( TMath::Abs(fStripAngle[iSide]) < 89. ) {
-    Double_t corrThetaDeg = 0.;
-    if ( fStripAngle[iSide] != 0. ) {
-      Double_t xh = ( -2.*fInnerRadius*cosAng + TMath::Sqrt(4.*fInnerRadius*fInnerRadius*cosAng*cosAng-4.*fInnerRadius*fInnerRadius+4.*radius*radius) ) / 2.;
-      corrThetaDeg = TMath::ACos((fInnerRadius*fInnerRadius+radius*radius-xh*xh)/(2.*fInnerRadius*radius));
-      if ( fStripAngle[iSide] < 0 ) corrThetaDeg *= -1.;
-   
-      Double_t newX = x*TMath::Cos(corrThetaDeg)-y*TMath::Sin(corrThetaDeg);
-      Double_t newY = x*TMath::Sin(corrThetaDeg)+y*TMath::Cos(corrThetaDeg);
-      x = newX;
-      y = newY;
+  
+  if ( fType == 1 ) {
+    cout << "do not use this type anymore" << endl;
+    return -1;
+  }
+  if ( fType == 0 ) { // angle info for iSide 0, radius info for iSide 1
+    if ( iSide == 0 ) {
+      Double_t hitPhi = TMath::ACos(y/radius);
+      if ( x < 0. ) 
+	hitPhi = 2.*TMath::Pi()-hitPhi;
+      hitPhi = 2.*TMath::Pi()-hitPhi;
+      return (Int_t)(TMath::Ceil((hitPhi*fInnerRadius)/fPitch[iSide]));
     }
-
-    Double_t hitTheta = 0;
-    if ( y == 0 ) {
-      hitTheta = (x>0?0.5:1.5);
+    if ( iSide == 1 ) {
+      if ( x < 0. )
+	return (Int_t)(TMath::Ceil((radius-fInnerRadius)/fPitch[1]));
+      else
+	return (Int_t)(TMath::Ceil((radius-fInnerRadius)/fPitch[1])) + fNChannelsBack/2;
     }
-    else {
-      hitTheta = TMath::ATan(x/y)/TMath::Pi();
-      if ( y < 0. )   hitTheta = 1.+hitTheta;
-      else 
-	if ( x < 0. ) hitTheta = 2.+hitTheta;
+  }
+  if ( fType == 2 ) { // x y strips
+    if ( iSide == 0 ) { // x information encoded
+      Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
+      Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+      if ( x <= -fInnerRadius )
+	return (Int_t)((x+fOuterRadius)/fPitch[0]);
+      if ( x < 0. && y >= 0. )
+	return nlStrips           +(Int_t)((x+fInnerRadius)/fPitch[0]);
+      if ( x < 0. && y < 0. )
+	return nlStrips+  nsStrips+(Int_t)((x+fInnerRadius)/fPitch[0]);
+      // now x can't be smaller than 0.
+      if ( x >= fInnerRadius ) 
+	return nlStrips+4*nsStrips+(Int_t)((x-fInnerRadius)/fPitch[0]);
+      if ( y >= 0. )
+	return nlStrips+2*nsStrips+(Int_t)((x)/fPitch[0]);
+      if ( y <  0. )
+	return nlStrips+3*nsStrips+(Int_t)((x)/fPitch[0]);
     }
-    
-    return (Int_t)(TMath::Ceil((hitTheta*TMath::Pi()*fInnerRadius)/fPitch[iSide]));
-  } 
-
-  // concentric strips case
-  return ( (Int_t)(TMath::Ceil((radius-fInnerRadius)/fPitch[iSide])) );
+    if ( iSide == 1 ) { // y information encoded
+      if ( x <  0. ) 
+	return (Int_t)((y+fOuterRadius)/fPitch[1]);
+      if ( x >= 0. ) 
+	return (Int_t)((y+fOuterRadius)/fPitch[1])+fNChannelsBack/2;
+    }
+  }
+  return -1;
 }
 // -------------------------------------------------------------------------
 
 // -----   Public method Inside   ------------------------------------------
 Bool_t PndGemSensor::Inside(Double_t x, Double_t y) {
+  if ( TMath::Abs(x) < fStripAngle[1]/2. ) return kFALSE;
   Double_t radSq = x*x+y*y;
   if ( radSq < fInnerRadius*fInnerRadius ) return kFALSE;
   if ( radSq > fOuterRadius*fOuterRadius ) return kFALSE;
@@ -251,61 +269,66 @@ Bool_t PndGemSensor::Inside(Double_t radius) {
 // -----   Public method Intersect   ---------------------------------------
 Int_t PndGemSensor::Intersect(Int_t iFStrip, Int_t iBStrip, Double_t& xCross, Double_t& yCross, Double_t& zCross) {
   //  cout << "trying to find intersection of strip " << iFStrip << " and " << iBStrip << endl;
-  
-  if ( fStripAngle[0] == 0. && fStripAngle[1] == 90. ) {
-    Double_t theta  = fPitch[0]*((Double_t)iFStrip-0.5) / fInnerRadius;
-    Double_t radius = fPitch[1]*((Double_t)iBStrip-0.5) + fInnerRadius;
-    yCross = radius*TMath::Cos(theta);
-    xCross = radius*TMath::Sin(theta);
-    zCross = fPosition[2];
-    return fDetectorId;
-  }
-  else {
-    if ( fStripAngle[0] == - fStripAngle[1] && 
-	 fPitch     [0] ==   fPitch     [1] ) {
-      //      cout << iFStrip << " x " << iBStrip << flush;
-      //      if ( iFStrip > 3*fNChannelsFront/4 && iBStrip < fNChannelsBack/4 ) iBStrip += fNChannelsBack;
-      if ( iFStrip > iBStrip ) iBStrip += fNChannelsBack;
-      //      cout << " --> " << iFStrip << " x " << iBStrip << flush;
-      
-      Double_t theta  = fPitch[0]*((Double_t)iFStrip+(Double_t)iBStrip-1.) / (2. * fInnerRadius);
-      //      cout << " ----> theta = " << TMath::RadToDeg()*theta << flush;
-      
-      Double_t insideTheta = fPitch[0]*((Double_t)iBStrip-(Double_t)iFStrip) / (2. * fInnerRadius);
-      //      cout << " ----> ins.theta = " << TMath::RadToDeg()*insideTheta << flush;
-      
-      if ( insideTheta < 0 || insideTheta > TMath::Pi()/2. ) { return -1; }
-      
-      Double_t radius = fInnerRadius*TMath::Cos(insideTheta);
-      
-      //      cout << " ----> radius = " << radius << flush;
-      
-      Double_t beta = TMath::Pi()-TMath::DegToRad()*fStripAngle[0]-(TMath::Pi()/2.-insideTheta);
-      
-      //      cout << " ----> beta = " << TMath::RadToDeg()*beta << flush;
-      
-      radius += TMath::Tan(beta)*fInnerRadius*TMath::Sin(insideTheta);
-      
-      //      cout << " >>> " << radius << endl;
-      
-      //      if ( radius > 0 ) { cout << endl; return -1;}
-      
-      if ( radius < fInnerRadius || radius > fOuterRadius ) { return -1;}
-      
-      //      cout << " at sensor " << fName.Data() << endl;
-      
-      //     Double_t theta1  = fPitch[0]*((Double_t)iFStrip-0.5) / fInnerRadius;
-      //     Double_t theta2  = fPitch[0]*((Double_t)iBStrip-0.5) / fInnerRadius;
-      
-      //       Double_t radius = fPitch[1]*((Double_t)iBStrip-(Double_t)iFStrip-1.) /  2. + fInnerRadius;
-      yCross = radius*TMath::Cos(theta);
-      xCross = radius*TMath::Sin(theta);
-      zCross = fPosition[2];
-      return fDetectorId;
-    }
+
+  if ( fType == -1 ) {
+    cout << "not supported anymore" << endl;
     return -1;
   }
-  //  }
+  // the hits are on different sides
+  if ( iFStrip <  fNChannelsFront/2 && iBStrip >= fNChannelsBack/2 ) return -1;
+  if ( iFStrip >= fNChannelsFront/2 && iBStrip <  fNChannelsBack/2 ) return -1;
+  
+  Int_t bs = iBStrip;
+  if ( bs >= fNChannelsBack/2 ) bs -= fNChannelsBack/2;
+  if ( fType == 0 ) { // r phi strips
+    Double_t phi    = fPitch[0]*((Double_t)iFStrip-0.5) / fInnerRadius;
+    Double_t radius = fPitch[1]*((Double_t) bs    -0.5) + fInnerRadius;
+    yCross =  radius*TMath::Cos(phi);
+    xCross = -radius*TMath::Sin(phi);
+    zCross = fPosition[2];
+    if ( Inside(xCross,yCross) )
+      return fDetectorId;
+    else
+      return -1;
+  }
+  if ( fType == 2 ) { // x y strips
+    Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
+    Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+    Double_t x = -666.;
+    yCross = -fOuterRadius+(Double_t(bs)+0.5)*fPitch[1];
+    zCross = fPosition[2];
+    if ( iFStrip < nlStrips ) {
+      xCross = -fOuterRadius+(Double_t(iFStrip)+0.5)*fPitch[0];
+      if ( !Inside(xCross,yCross) ) return -1;
+      return fDetectorId;
+    }
+    if ( iFStrip < nlStrips+  nsStrips ) {
+      if ( bs <  fNChannelsBack/4 ) return -1;
+      xCross = -fOuterRadius+(Double_t(iFStrip)+0.5)*fPitch[0];
+      if ( !Inside(xCross,yCross) ) return -1;
+      return fDetectorId;
+    }
+    if ( iFStrip < nlStrips+2*nsStrips ) {
+      if ( bs >= fNChannelsBack/4 ) return -1;
+      xCross = -fOuterRadius+(Double_t(iFStrip-nsStrips)+0.5)*fPitch[0];
+      if ( !Inside(xCross,yCross) ) return -1;
+      return fDetectorId;
+    }
+    if ( iFStrip < nlStrips+3*nsStrips ) {
+      if ( bs <  fNChannelsBack/4 ) return -1;
+      xCross = -fOuterRadius+(Double_t(iFStrip-nsStrips)+0.5)*fPitch[0];
+      if ( !Inside(xCross,yCross) ) return -1;
+      return fDetectorId;
+    }
+    if ( iFStrip < nlStrips+4*nsStrips ) {
+      if ( bs >= fNChannelsBack/4 ) return -1;
+      xCross = -fOuterRadius+(Double_t(iFStrip-3*nsStrips)+0.5)*fPitch[0];
+      if ( !Inside(xCross,yCross) ) return -1;
+      return fDetectorId;
+    }
+
+  }
+
   return -1;
 }
 // -------------------------------------------------------------------------
@@ -315,61 +338,78 @@ Int_t PndGemSensor::Intersect(Int_t iFStrip, Int_t iBStrip, Double_t& xCross, Do
 Int_t PndGemSensor::Intersect(Int_t iFStrip, Int_t iBStrip, Double_t& xCross, Double_t& yCross, Double_t& zCross,
 			      Double_t& dr, Double_t& dp) {
   //  cout << "trying to find intersection of strip " << iFStrip << " and " << iBStrip << endl;
-  
-  Double_t phi;
 
-  if ( fStripAngle[0] == 0. && fStripAngle[1] == 90. ) {
-    phi  = fPitch[0]*((Double_t)iFStrip-0.5) / fInnerRadius;
-    Double_t radius = fPitch[1]*((Double_t)iBStrip-0.5) + fInnerRadius;
-    yCross = radius*TMath::Cos(phi);
-    xCross = radius*TMath::Sin(phi);
+  if ( fType == -1 ) {
+    cout << "not supported anymore" << endl;
+    return -1;
+  }
+  // the hits are on different sides
+  //cout << iFStrip << " of " << fNChannelsFront << " and " << iBStrip << " of " << fNChannelsBack << endl;
+  if ( iFStrip <  fNChannelsFront/2 && iBStrip >= fNChannelsBack/2 ) return -1;
+  if ( iFStrip >= fNChannelsFront/2 && iBStrip <  fNChannelsBack/2 ) return -1;
+  Int_t bs = iBStrip;
+  if ( bs >= fNChannelsBack/2 ) bs -= fNChannelsBack/2;
+  if ( fType == 0 ) { // r phi strips
+    Double_t phi    = fPitch[0]*((Double_t)iFStrip-0.5) / fInnerRadius;
+    Double_t radius = fPitch[1]*((Double_t) bs    -0.5) + fInnerRadius;
+    yCross =  radius*TMath::Cos(phi);
+    xCross = -radius*TMath::Sin(phi);
     zCross = fPosition[2];
 
-    if ( phi > 2.*TMath::Pi() ) phi = phi - 2.*TMath::Pi();
     dp = fPitch[0]*radius/fInnerRadius/TMath::Sqrt(12.);
     dr = fPitch[1]/TMath::Sqrt(12.);
 
+    if ( Inside(xCross,yCross) )
+      return fDetectorId;
+    else
+      return -1;
+  }
+  if ( fType == 2 ) { // x y strips
+    Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
+    Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
+    Double_t x = -666.;
+    yCross = -fOuterRadius+(Double_t(bs)+0.5)*fPitch[1];
+    zCross = fPosition[2];
+
+    if      ( iFStrip < nlStrips )
+      xCross = -fOuterRadius+(Double_t(iFStrip)+0.5)*fPitch[0];
+    else if ( iFStrip < nlStrips+  nsStrips ) {
+      if ( bs <  fNChannelsBack/4 ) return -1;
+      xCross = -fOuterRadius+(Double_t(iFStrip)+0.5)*fPitch[0];
+    }
+    else if ( iFStrip < nlStrips+2*nsStrips ) {
+      if ( bs >= fNChannelsBack/4 ) return -1;
+      xCross = -fOuterRadius+(Double_t(iFStrip-nsStrips)+0.5)*fPitch[0];
+    }
+    else if ( iFStrip < nlStrips+3*nsStrips ) {
+      if ( bs <  fNChannelsBack/4 ) return -1;
+      xCross = -fOuterRadius+(Double_t(iFStrip-nsStrips)+0.5)*fPitch[0];
+    }
+    else if ( iFStrip < nlStrips+4*nsStrips ) {
+      if ( bs >= fNChannelsBack/4 ) return -1;
+      xCross = -fOuterRadius+(Double_t(iFStrip-2*nsStrips)+0.5)*fPitch[0];
+    }
+    else
+      xCross = -fOuterRadius+(Double_t(iFStrip-2*nsStrips)+0.5)*fPitch[0];
+
+    if ( !Inside(xCross,yCross) ) return -1;
+
+    Double_t rMax = TMath::Sqrt( (TMath::Abs(xCross)+fPitch[0])*(TMath::Abs(xCross)+fPitch[0])+
+				 (TMath::Abs(yCross)+fPitch[1])*(TMath::Abs(yCross)+fPitch[1]) );
+    Double_t rMin = TMath::Sqrt( (TMath::Abs(xCross)-fPitch[0])*(TMath::Abs(xCross)-fPitch[0])+
+				 (TMath::Abs(yCross)-fPitch[1])*(TMath::Abs(yCross)-fPitch[1]) );
+    Double_t phi1 = TMath::ATan( (TMath::Abs(yCross)-fPitch[1])/(TMath::Abs(xCross)+fPitch[0]) );
+    Double_t phi2 = TMath::ATan( (TMath::Abs(yCross)+fPitch[1])/(TMath::Abs(xCross)-fPitch[0]) );
+    dp = TMath::Abs(phi1-phi2);
+    dp = TMath::Tan(dp)*(rMax+rMin)/2./TMath::Sqrt(12.);
+
+    dr = (rMax-rMin)/TMath::Sqrt(12.);
+//     if ( dp > 350 ) 
+//       dp = TMath::Abs(360.-dp);
+
     return fDetectorId;
   }
-  else {
-    if ( fStripAngle[0] == - fStripAngle[1] && 
-	 fPitch     [0] ==   fPitch     [1] ) {
-
-      if ( iFStrip > iBStrip ) iBStrip += fNChannelsBack;
-      
-      phi  = fPitch[0]*((Double_t)iFStrip+(Double_t)iBStrip-1.) / (2. * fInnerRadius);
-      
-      Double_t insidePhi = fPitch[0]*((Double_t)iBStrip-(Double_t)iFStrip) / (2. * fInnerRadius);
-
-      if ( insidePhi < 0 || insidePhi > TMath::Pi()/2. ) { return -1; }
-      
-      Double_t radius = fInnerRadius*TMath::Cos(insidePhi);
-      
-      Double_t beta = TMath::Pi()-TMath::DegToRad()*fStripAngle[0]-(TMath::Pi()/2.-insidePhi);
-      
-      radius += TMath::Tan(beta)*fInnerRadius*TMath::Sin(insidePhi);
-      
-      if ( radius < fInnerRadius || radius > fOuterRadius ) { return -1;}
-
- 
-      yCross = radius*TMath::Cos(phi);
-      xCross = radius*TMath::Sin(phi);
-      zCross = fPosition[2];
-
-      insidePhi = fPitch[0]*((Double_t)iBStrip-(Double_t)iFStrip+1) / (2. * fInnerRadius);
-      Double_t radiusBig = fInnerRadius*TMath::Cos(insidePhi);
-      beta = TMath::Pi()-TMath::DegToRad()*fStripAngle[0]-(TMath::Pi()/2.-insidePhi);
-      radiusBig += TMath::Tan(beta)*fInnerRadius*TMath::Sin(insidePhi);
-
-      if ( phi > 2.*TMath::Pi() ) phi = phi - 2.*TMath::Pi();
-      dr = 2.*(radiusBig - radius)/TMath::Sqrt(12.);
-      dp = dr/TMath::Tan(beta);
-
-      return fDetectorId;
-    }
-    return -1;
-  }
-  //  }
+  
   return -1;
 }
 // -------------------------------------------------------------------------

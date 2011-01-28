@@ -281,13 +281,18 @@ bool PndGemDetector::CheckIfSensitive(std::string name)
 // -------------------------------------------------------------------------
 Int_t PndGemDetector::GetSensorId(TString detName)
 {
+  //  std::cout << "name is " << detName.Data() << " -> " << std::flush;
   detName.Remove(0,detName.Last('/')+1);
   detName.Remove(0,detName.First("Disk")+4);
   Int_t stationNr = detName.Atoi();
+  detName.Remove(0,detName.First("Seg")+3);
+  Int_t segmentNr = detName.Atoi();
   detName.Remove(0,detName.First("Gem")+3);
-  Int_t sensorNr  = 1;
-  if ( detName.Atoi() == 6 ) sensorNr = 2;
-  return stationNr*256+sensorNr;
+  Int_t sensorNr  = detName.Atoi();
+  if ( sensorNr == 6 ) sensorNr = 2;
+//   std::cout << "stat " << stationNr << " sens " << sensorNr << " seg " << segmentNr << " > " 
+// 	    << stationNr*256+sensorNr*16+segmentNr << std::endl;
+  return stationNr*256+sensorNr*16+segmentNr;
 }
 
 // -----   Public method ConstructGeometry   -------------------------------

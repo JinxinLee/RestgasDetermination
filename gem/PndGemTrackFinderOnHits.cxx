@@ -357,7 +357,8 @@ Int_t PndGemTrackFinderOnHits::CreateTracks(TClonesArray* hitArray,
     for ( Int_t ih = 0 ; ih < kNofStatDbl ; ih++ ) {
       if ( hitIndices[itr][ih] == -1 ) continue;
       gemHit = (PndGemHit*)hitArray->At(hitIndices[itr][ih]);
-      gemTrackCand->AddHit(kGemHit,hitIndices[itr][ih],gemHit->GetPosition().Mag());
+      gemTrackCand->AddHit(FairRootManager::Instance()->GetBranchId("GEMHit"),
+			   hitIndices[itr][ih],gemHit->GetPosition().Mag());
     }
     
     gemTrackCand->Sort();
@@ -392,7 +393,8 @@ Int_t PndGemTrackFinderOnHits::CreateTracks(TClonesArray* hitArray,
     PndTrackCand* trackCand = new((*trackCandArray)[nofCreatedTracks]) PndTrackCand();
     for ( Int_t ihit = 0 ; ihit < gemTrackCand->GetNHits() ; ihit++ ) {
       tcHit = gemTrackCand->GetSortedHit(ihit);  
-      trackCand->AddHit(tcHit.GetDetId(),tcHit.GetHitId(),tcHit.GetRho());
+      trackCand->AddHit(FairRootManager::Instance()->GetBranchId("GEMHit"),
+			tcHit.GetHitId(),tcHit.GetRho());
       //      trackCand->setMcTrackId(gemTrackCand->getMcTrackId());
     }
 
