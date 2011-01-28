@@ -129,7 +129,7 @@ Bool_t PndRecoKalmanFit::Init()
   TClonesArray* gemar=(TClonesArray*) ioman->GetObject("GEMHit");
   if(gemar!=0)
     {
-      fTheRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("GemHit"),new GFRecoHitProducer<PndGemHit,PndGemRecoHit>(gemar));
+      fTheRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("GEMHit"),new GFRecoHitProducer<PndGemHit,PndGemRecoHit>(gemar));
       std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "GEMHit array  found" << std::endl;
     }
   
