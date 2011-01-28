@@ -228,6 +228,22 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
 	}
 	
 	///////////////////////////////////////////////////////////////////////////
+	// Case of barrel section with hole
+	///////////////////////////////////////////////////////////////////////////
+	if (node_path.Contains("Emc12Hole")){
+		int tmp1,tmp2;
+		if (node_path.Contains("EmcLayer2Hole"))
+		{
+			sscanf(node_path.Data(),"cave/Emc12Hole_%d/EmcLayer2Hole_0/emc%dr%dc%d_0$",&copy,&module,&row,&crystal);
+		}
+		else
+		{
+			sscanf(node_path.Data(),"cave/Emc12Hole_%d/EmcLayer1_0/emc%dr%dc%d_0$",&copy,&module,&row,&crystal);
+		}
+		return true;
+	}
+	
+	///////////////////////////////////////////////////////////////////////////
 	// Case of barrel
 	///////////////////////////////////////////////////////////////////////////
 	if (node_path.Contains("EmcLayer")){

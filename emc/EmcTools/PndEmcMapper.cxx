@@ -107,6 +107,7 @@ PndEmcMapperGeoAllDat::PndEmcMapperGeoAllDat()
 			for (Int_t crystal=1; crystal<=10;crystal++)
 				for (Int_t copy=1; copy<=16;copy++)
 				{
+					if ((copy==1 || copy==9) && (crystal>=4 && crystal<=6) && (row<=3)) continue;
 					iPhi=(11-crystal)+(copy-1)*10;
 					iTheta=-row+30;
 				
@@ -217,6 +218,7 @@ PndEmcMapperGeo1245Dat3Root::PndEmcMapperGeo1245Dat3Root()
 				for (Int_t crystal=1; crystal<=10;crystal++)
 					for (Int_t copy=1; copy<=16;copy++)
 					{
+						if ((copy==1 || copy==9) && (crystal>=4 && crystal<=6) && (row<=3)) continue;
 						iPhi=(11-crystal)+(copy-1)*10;
 						iTheta=-row+30;
 						
@@ -420,6 +422,7 @@ PndEmcMapperGeo125Dat34Root::PndEmcMapperGeo125Dat34Root()
 			for (Int_t crystal=1; crystal<=10;crystal++)
 				for (Int_t copy=1; copy<=16;copy++)
 				{
+					if ((copy==1 || copy==9) && (crystal>=4 && crystal<=6) && (row<=3)) continue;
 					iPhi=(11-crystal)+(copy-1)*10;
 					iTheta=-row+30;
 				
@@ -527,6 +530,7 @@ PndEmcMapperGeo12Dat345Root::PndEmcMapperGeo12Dat345Root()
 			for (Int_t crystal=1; crystal<=10;crystal++)
 				for (Int_t copy=1; copy<=16;copy++)
 				{
+					if ((copy==1 || copy==9) && (crystal>=4 && crystal<=6) && (row<=3)) continue;
 					iPhi=(11-crystal)+(copy-1)*10;
 					iTheta=-row+30;
 
@@ -628,13 +632,14 @@ PndEmcMapperGeo1235Dat4Root::PndEmcMapperGeo1235Dat4Root()
 	// 72(iTheta)x160(iPhi) for barrel part
 	// index iTheta from 1 (backward part) till 72 (forward)
 	for (Int_t module=1; module<=6; module++)
-	{
+	{ 
 		if (module ==2)
 		{
 			for (Int_t row=1; row<=29;row++)
 				for (Int_t crystal=1; crystal<=10;crystal++)
 					for (Int_t copy=1; copy<=16;copy++)
 					{
+						if ((copy==1 || copy==9) && (crystal>=4 && crystal<=6) && (row<=3)) continue;
 						iPhi=(11-crystal)+(copy-1)*10;
 						iTheta=-row+30;
 					

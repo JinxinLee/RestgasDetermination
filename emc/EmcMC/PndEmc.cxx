@@ -1009,6 +1009,7 @@ void PndEmc::ConstructASCIIGeometry() {
   
   TGeoVolume *flayer1 = new TGeoVolumeAssembly("EmcLayer1");
   TGeoVolume *flayer2 = new TGeoVolumeAssembly("EmcLayer2");
+  TGeoVolume *flayer2Hole = new TGeoVolumeAssembly("EmcLayer2Hole");
   TGeoVolume *flayer3 = new TGeoVolumeAssembly("Emc3");
   TGeoVolume *flayer4 = new TGeoVolumeAssembly("Emc4");
   TGeoVolume *flayer5 = new TGeoVolumeAssembly("Fsc");
@@ -1051,12 +1052,16 @@ void PndEmc::ConstructASCIIGeometry() {
 	    
 	    if(module ==1) flayer1->AddNode(volume,0, new TGeoCombiTrans(data.posX/10., data.posY/10., data.posZ/10.+3.7, new TGeoRotation (rot))); // shift of 37 mm with respect to interaction point
 	    if(module ==2) flayer2->AddNode(volume,0, new TGeoCombiTrans(data.posX/10., data.posY/10., data.posZ/10.+3.7, new TGeoRotation (rot))); // shift of 37 mm with respect to interaction point
+	    if ((module ==2)&&
+		!((crystal>=4 && crystal<=6) && (row<=3))
+		)
+	      flayer2Hole->AddNode(volume,0, new TGeoCombiTrans(data.posX/10., data.posY/10., data.posZ/10.+3.7, new TGeoRotation (rot))); // shift of 37 mm with respect to interaction point
 	    if(module ==3) flayer3->AddNode(volume,0, new TGeoCombiTrans(data.posX/10., data.posY/10., data.posZ/10., new TGeoRotation (rot)));
 	    if(module ==4) flayer4->AddNode(volume,0, new TGeoCombiTrans(data.posX/10., data.posY/10., data.posZ/10., new TGeoRotation (rot))); 
 	    if(module ==6) flayer6->AddNode(volume,0, new TGeoCombiTrans(data.posX/10., data.posY/10., data.posZ/10., new TGeoRotation (rot)));
 	    bIsModuleOn[module-1] = kTRUE;
 	    AddSensitiveVolume(volume);
-	  }
+	  } 
 	
 	if (module==5 && !bIsFastFsc) 
 	  {  // Construction of forward spectrometer geometry
@@ -1150,12 +1155,16 @@ void PndEmc::ConstructASCIIGeometry() {
   
   
   TGeoVolume *flayer12 = new TGeoVolumeAssembly("Emc12");
+  TGeoVolume *flayer12Hole = new TGeoVolumeAssembly("Emc12Hole");
   if (bIsModuleOn[0]) flayer12->AddNode(flayer1,0, new TGeoCombiTrans(0., 0., 0., new TGeoRotation(0)));
   if (bIsModuleOn[1]) flayer12->AddNode(flayer2,0, new TGeoCombiTrans(0., 0., 0., new TGeoRotation(0)));
+  if (bIsModuleOn[0]) flayer12Hole->AddNode(flayer1,0, new TGeoCombiTrans(0., 0., 0., new TGeoRotation(0)));
+  if (bIsModuleOn[1]) flayer12Hole->AddNode(flayer2Hole,0, new TGeoCombiTrans(0., 0., 0., new TGeoRotation(0)));
+  
   TString vname = "cave";
   vname = vname.Strip();
   TGeoVolume* vcave = gGeoManager->FindVolumeFast(vname.Data());
-  if (bIsModuleOn[0] || bIsModuleOn[1]) vcave->AddNode(flayer12, 1);
+  //if (bIsModuleOn[0] || bIsModuleOn[1]) vcave->AddNode(flayer12, 1);
   if (bIsModuleOn[2]) vcave->AddNode(flayer3, 1);
   if (bIsModuleOn[3]) vcave->AddNode(flayer4, 1); 
   if (bIsModuleOn[4]) vcave->AddNode(flayer5, 1); 
@@ -1163,12 +1172,13 @@ void PndEmc::ConstructASCIIGeometry() {
   
   // 15 copies for barrel part of EMC (1st copy exists in emc_module12345.dat)
   if (bIsModuleOn[0] || bIsModuleOn[1])
-    for (Int_t n=1;n<=15;n++){ 
+    for (Int_t n=0;n<=15;n++){ 
       TGeoRotation rot1;
       rot1.RotateZ(22.5*n);
-      vcave->AddNode(flayer12, n+1,new TGeoCombiTrans(0., 0., 0., new TGeoRotation (rot1)) );
+      if (n==0 || n==8) vcave->AddNode(flayer12Hole, n+1,new TGeoCombiTrans(0., 0., 0., new TGeoRotation (rot1)) );
+      else vcave->AddNode(flayer12, n+1,new TGeoCombiTrans(0., 0., 0., new TGeoRotation (rot1)) );
     }
-   
+  
   // 3 copies for forward endcap of EMC  (1st copy exists in emc_module12345.dat)
   if (bIsModuleOn[2])
     for (Int_t n=1;n<=3;n++){
@@ -1219,7 +1229,7 @@ PndEmcPoint* PndEmc::AddHit(Int_t trackID, Int_t detID, Int_t evtID, TVector3 po
       << trackID <<", energy loss " << eLoss*1e06 << " keV, module " << mod << " row " << row << " crystal " <<  crys << " copy " << copy << endl;
   
  	PndEmcPoint* myPoint = new(clref[size]) PndEmcPoint(trackID, detID, evtID, pos, mom, time, length, eLoss, mod, row, crys, copy); 
-	myPoint->SetLink(FairLink("MCTrack", trackID)); // 14.09.10 Stefano FIX
+	// myPoint->SetLink(FairLink("MCTrack", trackID)); // 14.09.10 Stefano FIX
 	return myPoint;
 }
 
