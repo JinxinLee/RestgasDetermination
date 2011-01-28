@@ -2,6 +2,8 @@
 // -------------------------------------------------------------------------
 // -----                        PndDrc source file                     -----
 // -----               Created 11/10/06 by Annalisa Cecchi             -----
+// -----               Modified 2006++  by Carsten Schwarz             -----
+// -----               Modified 2010++  by Maria Patsyuk               -----
 // -----                                                               -----
 // -------------------------------------------------------------------------
 
@@ -420,6 +422,7 @@ void PndDrc::ConstructGeometry()
   Double_t boxgap        =  fGeo->boxGap(); 	  // gap between bars and the bar box
   Double_t boxthick	 =  fGeo->boxThick();     // thickness of the bar box
   Double_t len           =  0.;                   // length of the lenses block. see further
+
   
   // Create base volume 
   TGeoPgon* basePol = new TGeoPgon("basePol",0, 360., 16, 2);
@@ -604,30 +607,110 @@ void PndDrc::ConstructGeometry()
     {  // Mirrors at front
       // Put some mirrors at the downstream end with a focal plane at the PD.
 
-      Double_t mirror_angle  = 0.0; // 0.0 is pointing upstream, -90.0 is pointing to the beam axis
-      Double_t focal_length  = 2*bbox_hlen + sob_len;
+
+      
+
+      
+      double zpos=120;
+      //std::cin>>zpos;
+      
+
+      // The bar is produced with " bbox_hlen-fabs(len)/2.-mirr_hthick"
+      len = -130 + zpos + 1;
+      //len = -247.0; // negative to make space at downstream end of bar.
+      
+      Double_t len1 = 1.5; // 1st block
+      
+      Double_t mirror_angle  = 0.0;// 0.0 is pointing upstream, -90.0 is pointing to the beam axis
+      Double_t focal_length  = 2 * bbox_hlen + sob_len - fabs(len) + len1;
       Double_t mirror_radius = 2 * focal_length;
-      
-      len = -5.0; // negative to make space at downstream end of bar.
-      
-      //TGeoSphere* logicSphere = new TGeoSphere("S",0.,mirror_radius, 0. ,180.,0.,360.);
-      //TGeoBBox*   lBox        = new TGeoBBox("B", (lside/barnum)/2-bargap, hthick, fabs(len)/2.);
+ 
+      cout<<" mirror radius: "<<mirror_radius<<endl;
+     
+
+      // no angle for the moment
+      // block
+      TGeoSphere* logicSphere = new TGeoSphere("S",0.,mirror_radius, 0. ,180.,0.,360.);
+      TGeoBBox*   lBox        = new TGeoBBox("B", (lside/barnum)/2-bargap, hthick, fabs(len1)/2.);
 
       
-      //Double_t t = -r +b/2;
+      Double_t t = mirror_radius - len1/2;
 
-      //TGeoTranslation *tr1 = new TGeoTranslation("tr1", 0.,0., t);
-      //tr1->RegisterYourself();
-      //TGeoCompositeShape *cs = new TGeoCompositeShape("cs","S*(B:tr1)");
-      //TGeoVolume *lens1 = new TGeoVolume("DrcLENS1",cs, gGeoManager->GetMedium("FusedSil"));
-      //lens1->SetLineColor(kRed-8);
-      //lens1->SetTransparency(40); 
+      TGeoTranslation *tr1 = new TGeoTranslation("tr1", 0.,0., t);
+      tr1->RegisterYourself();
+      TGeoCompositeShape *cs = new TGeoCompositeShape("cs","S*(B:tr1)");
+
+      TGeoVolume *block1 = new TGeoVolume("DrcBlock1",cs, gGeoManager->GetMedium("FusedSil"));
+      block1->SetLineColor(kRed);
+      block1->SetTransparency(40);
       
 
+
+      Double_t shift1 = len1-mirror_radius; // Now the start of block1 is at zero
+      shift1         += bbox_hlen-fabs(len)-2*mirr_hthick;
       
       
+      barContainer->AddNode(block1, 
+			    1,
+			    new TGeoCombiTrans(0., 
+					       0., 
+					       shift1,
+					       new TGeoRotation (0)
+					       )
+			    );
+      AddSensitiveVolume(block1);
 
 
+
+      Double_t gap  = 0;
+      Double_t len2 = fabs(len) - len1 - gap;
+      
+
+      // no angle for the moment
+      // block
+      TGeoSphere* logicSphere2 = new TGeoSphere("S2",0,mirror_radius,             0. ,180.,0.,360.);
+      TGeoBBox*   lBox2        = new TGeoBBox("B2", (lside/barnum)/2-bargap, hthick, fabs(len2)/2.);
+
+      //                                     make radius part of block
+      Double_t t2 = mirror_radius + len2/2 - 1;
+
+      TGeoTranslation *tr2 = new TGeoTranslation("tr2", 0.,0., t2);
+      tr2->RegisterYourself();
+      TGeoCompositeShape *cs2 = new TGeoCompositeShape("cs2","(B2:tr2)-S2");
+
+      TGeoVolume *block2 = new TGeoVolume("DrcBlock2",cs2, gGeoManager->GetMedium("Mirror"));
+      block2->SetLineColor(kGreen);
+      block2->SetTransparency(40);
+      
+
+      Double_t shift2  = -mirror_radius; // Now the start of the block is at zero
+      shift2          += bbox_hlen-fabs(len)-2*mirr_hthick; // at end of bar
+      shift2          += len1 + gap;
+      
+      
+       
+      barContainer->AddNode(block2, 
+			    1,
+			    new TGeoCombiTrans(0., 
+					       0.,
+					       shift2,
+					       //  bbox_hlen-mirror_radius-2*mirr_hthick-len2+len1+1,
+					       //bbox_hlen-mirror_radius-len2+0.1,
+					       new TGeoRotation (0)
+					       )
+			    );
+      AddSensitiveVolume(block2);
+      
+ 
+
+
+
+
+      Double_t flen = 0.;
+      fSlabEnd = -bbox_hlen + bbox_shift + flen;  
+      cout<<"bar ends at = "<<fSlabEnd<<endl;
+      
+      fAtBarEnd = "DrcBar";
 
 
 
@@ -889,13 +972,21 @@ void PndDrc::ConstructGeometry()
   }  // E N D      O F      N O      L E N S E S 
   
   
+    //mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+
+
   // Fused Silica bars
-  // make bar shorter by amount of lens space (len is negative for free space downstream eg. for mirror option)
+  // make bar shorter by amount of lens space . The parameter len is negative for free space 
+  // downstream eg. for mirror option. Therefore, use fabs(len).
+  // 
   TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/barnum)/2.)-bargap, hthick, bbox_hlen-fabs(len)/2.-mirr_hthick);
   TGeoVolume *bar = new TGeoVolume("DrcBar",logicBar, gGeoManager->GetMedium("FusedSil"));
   bar->SetLineColor(kCyan-9);
   bar->SetTransparency(50);
-  // shift by len/2 -> upstream now space with length len available
+  //
+  // shift by len/2 -> upstream now space with length len available. No abs(len) here! Bar is shifted 
+  // according to sign of len.
+  //
   barContainer->AddNode(bar, 1,new TGeoCombiTrans(0., 0., len/2.-mirr_hthick, new TGeoRotation (0)) );
   AddSensitiveVolume(bar);
 
