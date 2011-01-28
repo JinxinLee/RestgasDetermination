@@ -4,6 +4,7 @@ from ROOT import std
 
 dir = "/nfs/hicran/data/tpc/fopi/2010/decoded"
 
+outfile = ROOT.TFile("anaOut.root", "recreate")
 
 ROOT.gROOT.ProcessLine(".x rootlogon.C") 
 ROOT.gROOT.ProcessLine('gSystem->Load("libPhysics")')
@@ -32,6 +33,9 @@ cuts = (0,10,20,30,40,50,60)
 
 resXs = dict([(i, ROOT.TH1D("StatsResX"+str(cuts[i]), 
                             "Cosmic Residuals X", 500,-1,1)) for i in range(len(cuts))])
+resXIDs = dict([(i, ROOT.TH1D("StatsResXID"+str(cuts[i]), 
+                              "Cosmic Residuals X w/o edges", 
+                              500,-1,1)) for i in range(len(cuts))])
 resYs = dict([(i, ROOT.TH1D("StatsResY"+str(cuts[i]), 
                             "Cosmic Residuals Y", 500,-1,1)) for i in range(len(cuts))])
 resZs = dict([(i, ROOT.TH1D("StatsResZ"+str(cuts[i]), 
@@ -40,10 +44,12 @@ resZs = dict([(i, ROOT.TH1D("StatsResZ"+str(cuts[i]),
 resXYs = dict([(i, ROOT.TH1D("StatsResXY"+str(cuts[i]), 
                              "Cosmic Residuals XY", 500,-1,1)) for i in range(len(cuts))])
 resXsYs = dict([(i, ROOT.TH2D("StatsResXsYs"+str(cuts[i]), 
-                             "Cosmic Residuals XY", 500,-0.5,0.5
-                              ,500,-0.5,0.5)) for i in range(len(cuts))])
+                             "Cosmic Residuals XY", 500,-0.5,0.5,
+                              500,-0.5,0.5)) for i in range(len(cuts))])
 
-for f in range(10) :
+clSize2D = ROOT.TH1D("clSize2D", "2D Cluster Size Distribution", 100,0,100)
+
+for f in range(15) :
     #list = file.split("_")
     #num = int(list[1][2:4])
     file = files[f]
@@ -53,20 +59,33 @@ for f in range(10) :
     tree.SetBranchStatus("*", 0)
    #tree.SetBranchStatus("PndTpcSLResiduals.*", 1)
     tree.SetBranchStatus("TrackFitStat.*", 1)
-    #tree.SetBranchStatus("PndTpcSample.*", 1)
+    tree.SetBranchStatus("PndTpcCluster.*", 1)
     
     for e in tree :
         for tfs in e.TrackFitStat :
-            for p in range(tfs.GetHitPositionsZ().size()) :
+            for cl in e.PndTpcCluster :
+                clSize2D.Fill(cl.get2DSize())
+            numHits = tfs.GetHitPositionsZ().size()
+            for p in range(numHits) :
                 z = tfs.GetHitPositionsZ().at(p) * velCorr
-                if z > 1.7 :   #cut away noie in first 10 samples. DIRTY! temporary
+                
+                if z > 1.7 :   #cut away noise in first 10 samples. DIRTY! temporary
+                    x = tfs.GetHitPositionsX().at(p)
+                    y = tfs.GetHitPositionsY().at(p)
+                    xyRad = math.sqrt(x**2 + y**2)
+                    
                     for i in range(len(cuts)) :
                         if z < cuts[i] :
-                            resXs[i-1].Fill(tfs.GetResX().at(p))
-                            resYs[i-1].Fill(tfs.GetResY().at(p))
+                            resX = tfs.GetResX().at(p)
+                            resY = tfs.GetResY().at(p)
+                            resXs[i-1].Fill(resX)
+                            resYs[i-1].Fill(resY)
                             resZs[i-1].Fill(tfs.GetResZ().at(p))
-                            resXYs[i-1].Fill(math.sqrt(tfs.GetResX().at(p)**2+tfs.GetResY().at(p)**2)) 
+                            resXYs[i-1].Fill(math.sqrt(resX**2 + resY**2)) 
                             resXsYs[i-1].Fill(tfs.GetResX().at(p), tfs.GetResY().at(p)) 
+                            if xyRad > 8 and xyRad < 12:
+                            #if numHits > 20 :
+                                resXIDs[i-1].Fill(resX)
                             break
                              
                     x = tfs.GetHitPositionsX().at(p)
@@ -75,15 +94,20 @@ for f in range(10) :
                     occZ.Fill(z)
                     recoMom.Fill(tfs.GetP())
                 
+outfile.cd()
+
 c1 = ROOT.TCanvas()
 c1.Divide(3,2)
 for i in range(6) :
     c1.cd(i+1)
     resXsYs[i].Draw("COLZ")
+    resXsYs[i].Write()
 c2 = ROOT.TCanvas()
 occXY.Draw("COLZ")
+occXY.Write()
 c3 = ROOT.TCanvas()
 occZ.Draw()
+occZ.Write()
 
 diffX = ROOT.TGraph(6)
 diffX.SetName("diffX")
@@ -114,12 +138,40 @@ for i in range(6) :
     fit.SetParameter(5, testfit.GetParameter(2))
     fit.SetParLimits(5, testfit.GetParameter(2), testfit.GetParameter(2)*30)
     resXs[i].Fit(fit, "+", "", -1,1)
-    diffX.SetPoint(i,cuts[i]+5,fit.GetParameter(2))
+    diffX.SetPoint(i,cuts[i]+5,fit.GetParameter(2)*10000)
+    resXs[i].Write()
 
 c5 = ROOT.TCanvas()
 c5.Divide(3,2)
 for i in range(6) :
     c5.cd(i+1)
+    resZs[i].SetFillColor(ROOT.kAzure-8)
+    resZs[i].Draw()
+    testfit = ROOT.TF1("testfitZ"+str(1),"gaus",-1,1)
+    resZs[i].Fit(testfit, "N+", "", -1,1)
+    
+    fit = ROOT.TF1("fitfuncZ"+str(1),"gaus + gaus(3)",-1,1)
+    fit.SetNpx(1000)
+    fit.SetParameter(0,testfit.GetParameter(0))
+    fit.SetParLimits(0,testfit.GetParameter(0)*0.5, testfit.GetParameter(0)*2)
+    fit.SetParameter(1,testfit.GetParameter(1))
+    fit.SetParLimits(1,testfit.GetParameter(1)-0.05, testfit.GetParameter(1)+0.05)
+    fit.SetParameter(2,testfit.GetParameter(2))
+    fit.SetParLimits(2,testfit.GetParameter(2)*0.2, testfit.GetParameter(2)*5)
+    
+    fit.SetParameter(3, 10)
+    fit.SetParLimits(3, 0, testfit.GetParameter(0)/2)
+    fit.SetParameter(4, 0)
+    fit.SetParLimits(4, testfit.GetParameter(1)-0.05, testfit.GetParameter(1)+0.05)
+    fit.SetParameter(5, testfit.GetParameter(2))
+    fit.SetParLimits(5, testfit.GetParameter(2), testfit.GetParameter(2)*30)
+    resZs[i].Fit(fit, "+", "", -1,1)
+    resZs[i].Write()
+
+c6 = ROOT.TCanvas()
+c6.Divide(3,2)
+for i in range(6) :
+    c6.cd(i+1)
     resYs[i].SetFillColor(ROOT.kAzure-8)
     resYs[i].Draw()
     testfit = ROOT.TF1("testfitY"+str(1),"gaus",-1,1)
@@ -130,30 +182,64 @@ for i in range(6) :
     fit.SetParameter(0,testfit.GetParameter(0))
     fit.SetParLimits(0,testfit.GetParameter(0)*0.5, testfit.GetParameter(0)*2)
     fit.SetParameter(1,testfit.GetParameter(1))
-    #fit.SetParLimits(1,testfit.GetParameter(1)*(-300), testfit.GetParameter(1)*300)
+    fit.SetParLimits(1,testfit.GetParameter(1)-0.05, testfit.GetParameter(1)+0.05)
     fit.SetParameter(2,testfit.GetParameter(2))
     fit.SetParLimits(2,testfit.GetParameter(2)*0.2, testfit.GetParameter(2)*5)
     
     fit.SetParameter(3, 10)
     fit.SetParLimits(3, 0, testfit.GetParameter(0)/2)
     fit.SetParameter(4, 0)
-    #fit.SetParLimits(4, testfit.GetParameter(1)*(-300), testfit.GetParameter(1)*300)
+    fit.SetParLimits(4, testfit.GetParameter(1)-0.05, testfit.GetParameter(1)+0.05)
     fit.SetParameter(5, testfit.GetParameter(2))
     fit.SetParLimits(5, testfit.GetParameter(2), testfit.GetParameter(2)*30)
     resYs[i].Fit(fit, "+", "", -1,1)
-
-
-c6 = ROOT.TCanvas()
-c6.Divide(3,2)
-for i in range(6) :
-    c6.cd(i+1)
-    resXYs[i].SetFillColor(ROOT.kAzure-8)
-    resXYs[i].Draw()
+    resYs[i].Write()
 
 c7 = ROOT.TCanvas()
+c7.Divide(3,2)
+for i in range(6) :
+    c7.cd(i+1)
+    resXIDs[i].SetFillColor(ROOT.kAzure-8)
+    resXIDs[i].Draw()
+    testfit = ROOT.TF1("testfitXID"+str(1),"gaus",-1,1)
+    resXIDs[i].Fit(testfit, "N+", "", -1,1)
+    
+    fit = ROOT.TF1("fitfuncXID"+str(1),"gaus + gaus(3)",-1,1)
+    fit.SetNpx(1000)
+    fit.SetParameter(0,testfit.GetParameter(0))
+    fit.SetParLimits(0,testfit.GetParameter(0)*0.5, testfit.GetParameter(0)*2)
+    fit.SetParameter(1,testfit.GetParameter(1))
+    fit.SetParLimits(1,testfit.GetParameter(1)-0.05, testfit.GetParameter(1)+0.05)
+    fit.SetParameter(2,testfit.GetParameter(2))
+    fit.SetParLimits(2,testfit.GetParameter(2)*0.2, testfit.GetParameter(2)*5)
+    
+    fit.SetParameter(3, 10)
+    fit.SetParLimits(3, 0, testfit.GetParameter(0)/2)
+    fit.SetParameter(4, 0)
+    fit.SetParLimits(4, testfit.GetParameter(1)-0.05, testfit.GetParameter(1)+0.05)
+    fit.SetParameter(5, testfit.GetParameter(2))
+    fit.SetParLimits(5, testfit.GetParameter(2), testfit.GetParameter(2)*30)
+    resXIDs[i].Fit(fit, "+", "", -1,1)
+    resXIDs[i].Write()
+
+
+c8 = ROOT.TCanvas()
+c8.Divide(3,2)
+for i in range(6) :
+    c8.cd(i+1)
+    resXYs[i].SetFillColor(ROOT.kAzure-8)
+    resXYs[i].Draw()
+    resXYs[i].Write()
+
+c9 = ROOT.TCanvas()
 diffX.Draw("A*")
 diffX.GetXaxis().SetTitle("Drift Length Z (cm)")
+diffX.GetYaxis().SetTitle("X Resolution (#mu m)")
+diffX.Write()
 
+c10 = ROOT.TCanvas()
+clSize2D.Draw()
 
 input()
 
+outfile.Close()
