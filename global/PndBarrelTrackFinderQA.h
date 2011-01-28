@@ -75,6 +75,16 @@ class PndBarrelTrackFinderQA : public FairTask
   TH1F* fhMomPhiCompAll1D;
   TH1F* fhMomTheCompAll1D;
 
+  TH1F* fhMomMagSimAllHist;
+  TH1F* fhMomMagRecAllHist;
+  TH1F* fhMomMagEffAllHist;
+  TH1F* fhMomPhiSimAllHist;
+  TH1F* fhMomPhiRecAllHist;
+  TH1F* fhMomPhiEffAllHist;
+  TH1F* fhMomTheSimAllHist;
+  TH1F* fhMomTheRecAllHist;
+  TH1F* fhMomTheEffAllHist;
+
   TH1F* fhMomMagSimHist;
   TH1F* fhMomMagRecHist;
   TH1F* fhMomMagEffHist;
@@ -85,6 +95,17 @@ class PndBarrelTrackFinderQA : public FairTask
   TH1F* fhMomTheRecHist;
   TH1F* fhMomTheEffHist;
 
+  TH1F* fhMomMagAllRecoHist;
+  TH1F* fhMomPhiAllRecoHist;
+  TH1F* fhMomTheAllRecoHist;
+
+  TH1F* fhMomMagCloneHist;
+  TH1F* fhMomPhiCloneHist;
+  TH1F* fhMomTheCloneHist;
+  TH1F* fhMomMagGhostHist;
+  TH1F* fhMomPhiGhostHist;
+  TH1F* fhMomTheGhostHist;
+
   TH1F* fhRecoMomMag;
   TH1F* fhRecoMomPhi;
   TH1F* fhRecoMomThe;
@@ -92,6 +113,19 @@ class PndBarrelTrackFinderQA : public FairTask
   TH2F* fhMomResVsMomMag;
   TH2F* fhMomResVsMomPhi;
   TH2F* fhMomResVsMomThe;
+  TH2F* fhPhiResVsMomMag;
+  TH2F* fhPhiResVsMomPhi;
+  TH2F* fhPhiResVsMomThe;
+  TH2F* fhTheResVsMomMag;
+  TH2F* fhTheResVsMomPhi;
+  TH2F* fhTheResVsMomThe;
+
+  TH2F* fhNofDetPntsVsMagFoundHist[4];
+  TH2F* fhNofDetPntsVsPhiFoundHist[4];
+  TH2F* fhNofDetPntsVsTheFoundHist[4];
+  TH2F* fhNofDetPntsVsMagNotFdHist[4];
+  TH2F* fhNofDetPntsVsPhiNotFdHist[4];
+  TH2F* fhNofDetPntsVsTheNotFdHist[4];
 
   TH2F* fhNofMvdPixsVsThetaHist;
   TH2F* fhNofMvdStrsVsThetaHist;

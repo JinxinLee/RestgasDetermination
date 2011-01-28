@@ -376,7 +376,8 @@ Int_t PndMvdGemTrackFinderOnHits::CreateTracks(Int_t nofRecoTracks) {
 
       if ( detId == kGemHit ) {
 	gemHit = (PndGemHit*)fGemHitArray->At(hitIndices[itr][ihit][1]);
-	trackCand->AddHit(kGemHit,hitIndices[itr][ihit][1],gemHit->GetPosition().Mag());
+	trackCand->AddHit(FairRootManager::Instance()->GetBranchId("GEMHit"),
+			  hitIndices[itr][ihit][1],gemHit->GetPosition().Mag());
 	nGemHits += 1;
 	if ( fVerbose > 3 || printInfo ) {
 	  cout << "  ( " << gemHit->GetX()
@@ -387,7 +388,7 @@ Int_t PndMvdGemTrackFinderOnHits::CreateTracks(Int_t nofRecoTracks) {
       }
       else if ( detId == kMVDHitsStrip ) {
 	mvdHit = (PndSdsHit*)fMvdStripHitArray->At(hitIndices[itr][ihit][1]);
-	trackCand->AddHit(kMVDHitsStrip,hitIndices[itr][ihit][1],mvdHit->GetPosition().Mag());
+	trackCand->AddHit(FairRootManager::Instance()->GetBranchId("MVDHitsStrip"),hitIndices[itr][ihit][1],mvdHit->GetPosition().Mag());
 	nMvdStrH += 1;
 		if ( fVerbose > 3 || printInfo ) {
 	  cout << "  ( " << mvdHit->GetX()
@@ -398,7 +399,7 @@ Int_t PndMvdGemTrackFinderOnHits::CreateTracks(Int_t nofRecoTracks) {
       }
       else if ( detId == kMVDHitsPixel ) {
 	mvdHit = (PndSdsHit*)fMvdPixelHitArray->At(hitIndices[itr][ihit][1]);
-	trackCand->AddHit(kMVDHitsPixel,hitIndices[itr][ihit][1],mvdHit->GetPosition().Mag());
+	trackCand->AddHit(FairRootManager::Instance()->GetBranchId("MVDHitsPixel"),hitIndices[itr][ihit][1],mvdHit->GetPosition().Mag());
 	nMvdPixH += 1;
 		if ( fVerbose > 3 || printInfo ) {
 	  cout << "  ( " << mvdHit->GetX()

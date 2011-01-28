@@ -111,7 +111,7 @@ InitStatus PndGlobalIdealTrackMerger::Init() {
   fDetName[3] = "GEM";
   fDetName[4] = "DCH";
   TString trArrayName[5] = {"MVDIdealTrackCand",
-			    "STTTrackCand",
+			    "STTFoundTrack",
 			    "TPCTrackCand",
 			    "GEMTrack",
 			    "DCHTrackCand"};

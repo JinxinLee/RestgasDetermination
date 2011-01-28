@@ -99,6 +99,7 @@ class PndBarrelTrackFinder : public FairTask
   TClonesArray* fHitArray  [5];
   TString       fDetName   [5];
   Int_t         fDetType   [5];
+  TString       fHitArrayName[5];
 
   /** Output array of global tracks **/
   TClonesArray* fBarrelTrackArray;     	    ///< Output array of PndTrackCands 
@@ -135,6 +136,7 @@ class PndBarrelTrackFinder : public FairTask
   Int_t  WriteTracks();
 
   void   RemoveShortTracks();
+  void   RemoveCloneTracks();
 
   Bool_t   FindCircPar(Double_t* c1, Double_t* c2, Double_t* c3, Int_t cno, Double_t* cl);
   Double_t FindCircDist(Double_t* c1, Double_t* c2);
