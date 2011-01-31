@@ -61,14 +61,15 @@ class PndSttMvdTracking : public FairTask
 
   int istampa ;
   int IVOLTE ;
-  static const bool  iplotta = false , ianalizza = true ;
+  static const bool  iplotta = true , ianalizza = true ;
   static const UShort_t   nmaxSttHits = maxTracks*26,
                           nmaxMvdPixelHits=500,
 			  nmaxMvdStripHits=500,
                           nmaxMvdPixelHitsInTrack=30,
 			  nmaxMvdStripHitsInTrack=30,
                           MAXTRACKSPEREVENT=maxTracks,
-			  MAXMVDTRACKSPEREVENT=50,
+//			  MAXMVDTRACKSPEREVENT=50,
+			  MAXMVDTRACKSPEREVENT=200,
                           MAXMCTRACKS=30;
   static const Double_t   BFIELD=2.,  // in Tesla
                           PI = 3.141592654,
