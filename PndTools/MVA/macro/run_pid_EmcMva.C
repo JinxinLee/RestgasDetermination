@@ -9,7 +9,7 @@
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
   // ------------------------------------------------------------------------
   // Output file
-  TString parFile = "params_sttcombi.root";
+  TString parFile    = "params_sttcombi.root";
   TString inSimuFile = "points_sttcombi.root";
   TString inDigiFile = "digi_sttcombi.root";
   TString inRecoFile = "reco_sttcombi.root";
@@ -50,8 +50,8 @@
   
   PndPidCorrelator* corr = new PndPidCorrelator();
   //corr->SetVerbose();
-  corr->SetInputBranch("LheTrack");
-  corr->SetInputIDBranch("LheTrackID");
+  corr->SetInputBranch("SttMvdGenTrack");
+  //corr->SetInputIDBranch("LheTrackID");
   corr->SetDebugMode(kTRUE);
   fRun->AddTask(corr);
   
@@ -62,14 +62,11 @@
 
   clas.push_back("electron");
   clas.push_back("pion");
-  //clas.push_back("kaon"); 
-  //clas.push_back("proton");
-  //clas.push_back("muon");
   
   PndPidEmcAssociatorTask* ts = new PndPidEmcAssociatorTask();
   // Set the path to the weightFiles; otherwise the standard
   // path is used.
-  ts->SetWeightFileName("/media/daq/babaiexp/Gpid_files/TrainEventsDatasetLargeFset.root");
+  ts->SetWeightFileName("/media/daq/babaiexp/RndData/EventFeatureRnd1K.root");
   
   // Set class names.
   ts->SetClassNames(clas);

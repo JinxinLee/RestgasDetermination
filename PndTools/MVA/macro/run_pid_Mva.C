@@ -9,7 +9,7 @@
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
   // ------------------------------------------------------------------------
   // Output file
-  TString parFile = "params_sttcombi.root";
+  TString parFile    = "params_sttcombi.root";
   TString inSimuFile = "points_sttcombi.root";
   TString inDigiFile = "digi_sttcombi.root";
   TString inRecoFile = "reco_sttcombi.root";
@@ -48,8 +48,8 @@
   
   PndPidCorrelator* corr = new PndPidCorrelator();
   //corr->SetVerbose();
-  corr->SetInputBranch("LheGenTrack");
-  corr->SetInputIDBranch("LheTrackID");
+  corr->SetInputBranch("SttMvdGenTrack");
+  //corr->SetInputIDBranch("LheTrackID");
   corr->SetDebugMode(kTRUE);
   fRun->AddTask(corr);
   
@@ -61,24 +61,22 @@
 
   clas.push_back("electron");
   clas.push_back("pion");
-  //clas.push_back("kaon"); 
-  //clas.push_back("proton");
-  //clas.push_back("muon");
   
-  nam.push_back("p");
   nam.push_back("emc");
-  //nam.push_back("z20");
-  //nam.push_back("thetaC"); 
-  nam.push_back("stt");
-
+  nam.push_back("lat");
+  nam.push_back("z20");
+  nam.push_back("z53");
+  
   PndPidMvaAssociatorTask* ts = new PndPidMvaAssociatorTask();
+  
   // Set the path to the weightFiles; otherwise the standard
   // path is used.
-  ts->SetWeightFileName("/home/babai/TrainProtoFiles/NormalizedEventsDatasetLargeFset.root");
+  ts->SetWeightFileName("/media/daq/babaiexp/RndData/EventFeatureRnd1K.root");
   
   // Set variable- and class-names.
   ts->SetVarNames(nam);
   ts->SetClassNames(clas);
+  ts->SetNumNeigh(250);
   
   //Add task
   fRun->AddTask(ts);

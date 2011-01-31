@@ -23,7 +23,7 @@ class PndPidEmcAssociatorTask: public PndPidMvaAssociatorTask
   /**
    * Constructor.
    */
-  PndPidEmcAssociatorTask(const char *name, const char *title="PndPidEmcAssociatorTask");
+  PndPidEmcAssociatorTask(char const* name, char const* title="PndPidEmcAssociatorTask");
   
   /**
    * Destructor.
@@ -33,13 +33,13 @@ class PndPidEmcAssociatorTask: public PndPidMvaAssociatorTask
   //=============== Private members.
  private:
   // Copy const.
-  PndPidEmcAssociatorTask(const PndPidMvaAssociatorTask& other);
+  PndPidEmcAssociatorTask(PndPidMvaAssociatorTask const& other);
   // Assignment operator.
-  PndPidEmcAssociatorTask& operator=(const PndPidMvaAssociatorTask& other);
+  PndPidEmcAssociatorTask& operator=(PndPidMvaAssociatorTask const& other);
   
-  void SetVarNames(const std::vector<std::string>& vNames);
-  const std::vector<std::string>& SetEmcParNames()const;
+  void SetVarNames(std::vector<std::string> const& vNames);
+  std::vector<std::string> const* SetEmcParNames() const;
 
-  ClassDef(PndPidEmcAssociatorTask, 1)
+  ClassDef(PndPidEmcAssociatorTask, 1);
 };
 #endif//End of interface definition (PndPidEmcAssociatorTask)

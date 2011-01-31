@@ -37,7 +37,7 @@ class PndPidMvaAssociatorTask: public FairTask
   /**
    * Constructor.
    */
-  PndPidMvaAssociatorTask(const char *name, const char *title="PndPidMvaAssociatorTask");
+  PndPidMvaAssociatorTask(char const* name, char const* title="PndPidMvaAssociatorTask");
   
   /**
    * Destructor.
@@ -52,30 +52,31 @@ class PndPidMvaAssociatorTask: public FairTask
   
   void Reset();
   
-  void SetVerbose(Bool_t verb){fVerbose = verb;};
-	
+  void SetVerbose(Bool_t verb)
+  {fVerbose = verb;};
+  
   /** Set parameter containers **/
   virtual void SetParContainers();
   
   virtual void Finish();
-
+  
   /**
    *@param vNames Input variable names.
    */
-  virtual void SetVarNames(const std::vector<std::string>& vNames)
+  virtual void SetVarNames(std::vector<std::string> const& vNames)
   {fVarNames = vNames;};
   
   /**
    *@param clNames Input class names.
    */
-  void SetClassNames(const std::vector<std::string>& clNames)
+  void SetClassNames(std::vector<std::string> const& clNames)
   {fClassNames = clNames;};
   
   /**
    *@param wFileName Input weight file. If not specified the standard
    * file from the standard location is loaded.
    */
-  void SetWeightFileName(const std::string& wFileName)
+  void SetWeightFileName(std::string const& wFileName)
   {fWeightsFileName = wFileName;};
   
   void SetNumNeigh(int val)
@@ -84,9 +85,9 @@ class PndPidMvaAssociatorTask: public FairTask
   //=============== Private members.
  private:
   // Copy const.
-  PndPidMvaAssociatorTask(const PndPidMvaAssociatorTask& other);
+  PndPidMvaAssociatorTask(PndPidMvaAssociatorTask const& other);
   // Assignment operator.
-  PndPidMvaAssociatorTask& operator=(const PndPidMvaAssociatorTask& other);
+  PndPidMvaAssociatorTask& operator=(PndPidMvaAssociatorTask const& other);
   
   /**
    * Performs the actual classification.
@@ -95,7 +96,7 @@ class PndPidMvaAssociatorTask: public FairTask
    */
   void DoPidMatch(PndPidCandidate& pidcand, PndPidProbability& prob);
   
-  const std::vector<float>& PrepareEvtVect(const PndPidCandidate& pidcand)const;
+  std::vector<float> const* PrepareEvtVect(PndPidCandidate const& pidcand) const;
   
   FairRootManager *fManager;
   
@@ -123,6 +124,6 @@ class PndPidMvaAssociatorTask: public FairTask
   TClonesArray* fPidNeutralProb; //! PndPidProbability TCA for neutral particles
   TClonesArray* fMCTrack;        //! Monte-Carlo Truth track TCA
   
-  ClassDef(PndPidMvaAssociatorTask, 1)
+  ClassDef(PndPidMvaAssociatorTask, 1);
 };
 #endif//End of interface definition (PndPidMvaAssociatorTask)
