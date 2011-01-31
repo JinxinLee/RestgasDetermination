@@ -124,6 +124,7 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   tpcCF->SetPersistence();
   tpcCF->SetDigiBranchName("PndTpcDigi");
   tpcCF->timeslice(5); //in samples
+  tpcCF->SetDiffFactor(1.3);
   //tpcCF->SetTrivialClustering();
   fRun->AddTask(tpcCF);
 
@@ -144,16 +145,17 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   
 
   PndTpcSLPatternRecoTask* tpcSLPR = new PndTpcSLPatternRecoTask();
+  tpcSLPR->SetPersistence(true);
   tpcSLPR->SetStoreHistograms(PROutFile);
-  tpcSLPR->SetClusterAmpCut(50.);
+  tpcSLPR->SetClusterAmpCut(40.);
   tpcSLPR->SetCutTracksParallelZ(5);
   tpcSLPR->SetXSorting(true);
   double parMins[4] = {-TMath::Pi(),0.,-TMath::Pi(),0.};
   double parMaxs[4] = {TMath::Pi(),30.,TMath::Pi(),30.};
   tpcSLPR->SetParameterSpace(parMins, parMaxs);
-  tpcSLPR->SetDepth(8);
-  tpcSLPR->SetThresh(15);
-  tpcSLPR->SetMinCandHits(13);
+  tpcSLPR->SetDepth(7);
+  tpcSLPR->SetThresh(20);
+  tpcSLPR->SetMinCandHits(20);
   //tpcSLPR->SetClusterBranchName("PndTpcCluster_cut");
   tpcSLPR->SetAbsMomentum(1000);
   fRun->AddTask(tpcSLPR);
