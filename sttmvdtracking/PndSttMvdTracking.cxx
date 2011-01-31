@@ -486,13 +486,6 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
   IVOLTE++;
 
 
-//   temporaneo!!!!!!!!!!!!!!!!!!!!!
-	if(IVOLTE == 69  || IVOLTE==105 || IVOLTE==112 || IVOLTE==116
-		|| IVOLTE==168){
-		cout<<"evento n. "<<IVOLTE<<" tropppo pesante da processare, return!\n";
-		  return;
-	}
-
 
 //----------   fetching the MC truth tracks
 	nMCTracks = fMCTrackArray->GetEntriesFast(); // num. tracce/evento
