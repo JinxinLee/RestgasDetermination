@@ -52,8 +52,7 @@ class PndPidMvaAssociatorTask: public FairTask
   
   void Reset();
   
-  void SetVerbose(Bool_t verb)
-  {fVerbose = verb;};
+  inline void SetVerbose(Bool_t verb);
   
   /** Set parameter containers **/
   virtual void SetParContainers();
@@ -63,24 +62,20 @@ class PndPidMvaAssociatorTask: public FairTask
   /**
    *@param vNames Input variable names.
    */
-  virtual void SetVarNames(std::vector<std::string> const& vNames)
-  {fVarNames = vNames;};
+  inline virtual void SetVarNames(std::vector<std::string> const& vNames);
   
   /**
    *@param clNames Input class names.
    */
-  void SetClassNames(std::vector<std::string> const& clNames)
-  {fClassNames = clNames;};
+  inline void SetClassNames(std::vector<std::string> const& clNames);
   
   /**
    *@param wFileName Input weight file. If not specified the standard
    * file from the standard location is loaded.
    */
-  void SetWeightFileName(std::string const& wFileName)
-  {fWeightsFileName = wFileName;};
+  inline void SetWeightFileName(std::string const& wFileName);
   
-  void SetNumNeigh(int val)
-  {fNumNeigh = val;};
+  inline void SetNumNeigh(int val);
   
   //=============== Private members.
  private:
@@ -125,5 +120,30 @@ class PndPidMvaAssociatorTask: public FairTask
   TClonesArray* fMCTrack;        //! Monte-Carlo Truth track TCA
   
   ClassDef(PndPidMvaAssociatorTask, 1);
+};
+
+inline void PndPidMvaAssociatorTask::SetVerbose(Bool_t verb)
+{
+  fVerbose = verb;
+};
+
+inline void PndPidMvaAssociatorTask::SetVarNames(std::vector<std::string> const& vNames)
+{
+  fVarNames = vNames;
+};
+
+inline void PndPidMvaAssociatorTask::SetClassNames(std::vector<std::string> const& clNames)
+{
+  fClassNames = clNames;
+};
+
+inline void PndPidMvaAssociatorTask::SetWeightFileName(std::string const& wFileName)
+{
+  fWeightsFileName = wFileName;
+};
+
+inline void PndPidMvaAssociatorTask::SetNumNeigh(int val)
+{
+  fNumNeigh = val;
 };
 #endif//End of interface definition (PndPidMvaAssociatorTask)
