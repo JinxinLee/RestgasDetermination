@@ -91,7 +91,7 @@ KalmanTask::Init()
   //book fpe handler
   signal(8,sighandler);
   signal(10,sighandler);
-  signal(11,sighandler);
+  //signal(11,sighandler);
   
   //Get ROOT Manager
   FairRootManager* ioman= FairRootManager::Instance();

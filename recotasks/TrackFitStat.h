@@ -45,6 +45,7 @@ public:
   Int_t GetMotherID()	{ return _motherID; }
   Double_t GetMCP()		{ return _pmc;	}
   Double_t GetP()       {return _p;}
+  TVector3 GetMom()     {return _mom;}
 
   const std::vector<double>* GetResX() {return &_PndTpcResX;}
   const std::vector<double>* GetResY() {return &_PndTpcResY;}
@@ -56,6 +57,9 @@ public:
   const std::vector<unsigned int>* Get2DClSizes() {return &_PndTpc2DClusterSize;}
   const std::vector<double>* GetAmps() {return &_PndTpcClusterAmp;}
   const std::vector<TVector3>* GetProjectionPoints() {return &_PndTpcProj;}
+  const std::vector<double>* GetHitPositionsX() {return &_PndTpcPosX;}
+  const std::vector<double>* GetHitPositionsY() {return &_PndTpcPosY;}
+  const std::vector<double>* GetHitPositionsZ() {return &_PndTpcPosZ;}
 
 
   // Modifiers -----------------------
@@ -70,7 +74,13 @@ public:
   void fillPndTpc2DClusterSize(const std::vector<unsigned int>& s){_PndTpc2DClusterSize=s;}
   void fillPndTpcClusterAmp(const std::vector<double>& s){_PndTpcClusterAmp=s;}
   void fillPndTpcProjPoints(const std::vector<TVector3>& s){_PndTpcProj=s;}
+  void fillPndTpcHitPositionsX(const std::vector<double>& s){_PndTpcPosX=s;}
+  void fillPndTpcHitPositionsY(const std::vector<double>& s){_PndTpcPosY=s;}
+  void fillPndTpcHitPositionsZ(const std::vector<double>& s){_PndTpcPosZ=s;}
+  
   void addFailedHits(int NFH) {_failedHits+=NFH;}
+  void setNDF(unsigned int ndf) {_NDF=ndf;}
+  void setChi2(double chi2) {_ChiSqu=chi2;}
 
   // Operations ----------------------
 
@@ -86,6 +96,9 @@ public:
   unsigned int nhits() const {return _PndTpcResX.size();}
 
   unsigned int getFailedHits() {return _failedHits;}
+  unsigned int getNDF() const {return _NDF;}    //NDF from fit
+  double getChi2() const {return _ChiSqu;}      //ChiSqu from fit
+  
 
 private:
 
@@ -100,6 +113,9 @@ private:
   std::vector<unsigned int> _PndTpc2DClusterSize;
   std::vector<double> _PndTpcClusterAmp;
   std::vector<TVector3> _PndTpcProj;
+  std::vector<double> _PndTpcPosX;
+  std::vector<double> _PndTpcPosY;
+  std::vector<double> _PndTpcPosZ;
 
   double _p;
   double _pmc;
@@ -114,11 +130,13 @@ private:
   unsigned int _failedHits;   //stores the number of failed hits (cov was zero)
   
   bool _hasMc;
+  double _ChiSqu;
+  unsigned int _NDF;
 
   // Private Methods -----------------
 
 public:
-  ClassDef(TrackFitStat,8)
+  ClassDef(TrackFitStat,10)
 
 };
 
