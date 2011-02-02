@@ -28,7 +28,7 @@ PndPidEmcAssociatorTask::PndPidEmcAssociatorTask()
 /**
  * Constructor.
  */
-PndPidEmcAssociatorTask::PndPidEmcAssociatorTask(const char *name, const char *title)
+PndPidEmcAssociatorTask::PndPidEmcAssociatorTask(char const* name, char const* title)
   : PndPidMvaAssociatorTask(name)
 {
   std::cout << title << '\n';
