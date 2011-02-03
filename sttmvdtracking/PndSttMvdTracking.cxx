@@ -417,7 +417,9 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 	   versor[2],
 	   z[2],
 	   zdrift[2],
-	   zerror[2];
+	   zerror[2],
+	   primoangolo[MAXTRACKSPEREVENT],
+	   ultimoangolo[MAXTRACKSPEREVENT];
 
   Double_t ALFA[MAXTRACKSPEREVENT],
 	   BETA[MAXTRACKSPEREVENT],
@@ -1690,7 +1692,11 @@ for(l =0;l<nSttSkewHitsinTrack[it];l++){
 };
 
 }
+
 }
+
+
+
 //----- end stampaggi
 
 
@@ -2199,110 +2205,6 @@ if( istampa>=1){
 
 
 
-//------------------------------   plottamenti --------------------------------------------
- if(iplotta && IVOLTE<10){
-
-
-    for(  i= 0; i< nSttTrackCand; i++){
-
-	if( nSttParHitsinTrack[i]+nMvdPixelHitsAssociatedToSttTrack[i]+
-		nMvdStripHitsAssociatedToSttTrack[i]>0) {
-
-           WriteMacroSttParallelAssociatedHitsandMvdwithMC(
-                   Ox[i], Oy[i], R[i],
-                   nSttParHitsinTrack[i],
-		   ListSttParHitsinTrack,
-                   info,
-                   i,
-
-		daTrackFoundaTrackMC[i],
-		nParalCommon,
-		ParalCommonList,
-		nSpuriParinTrack,
-		ParSpuriList,
-		nMCParalAlone,
-		MCParalAloneList,
-
-		nMvdPixelHitsAssociatedToSttTrack[i],
-		ListMvdPixelHitsAssociatedToSttTrack,
-		nMvdStripHitsAssociatedToSttTrack[i],
-		ListMvdStripHitsAssociatedToSttTrack,
-
-		nMvdPixelCommon[i],
-		&MvdPixelCommonList[i][0],
-		nMvdPixelSpuriinTrack[i],
-		&MvdPixelSpuriList[i][0],
-		nMCMvdPixelAlone[i],
-		&MCMvdPixelAloneList[i][0],
-
-		nMvdStripCommon[i],
-		&MvdStripCommonList[i][0],
-		nMvdStripSpuriinTrack[i],
-		&MvdStripSpuriList[i][0],
-		nMCMvdStripAlone[i],
-		&MCMvdStripAloneList[i][0]
-
-		                      );
-	}	// end of  if ( nSttParHitsinTrack[i]+ ...
-
-
-
-
-
-
-
-      if(  nSttSkewHitsinTrack[i]+nMvdPixelHitsAssociatedToSttTrack[i]+
-      	nMvdStripHitsAssociatedToSttTrack[i]>0){
-
-
-
-
-
-             WriteMacroSkewAssociatedHitswithMC(
-                   KAPPA[i],FI0[i], Ox[i], Oy[i], R[i],
-                   info,
-		   WDX,WDY,WDZ,
-                   i,0,
-                   nSttSkewHitsinTrack[i],
-                   ListSttSkewHitsinTrack,
-                   nSkewCommon[i],
-                   SkewCommonList,
-                   daTrackFoundaTrackMC[i],
-                   nMCSkewAlone[i],
-                   MCSkewAloneList,
-		   nMvdPixelHitsAssociatedToSttTrack,
-		   ListMvdPixelHitsAssociatedToSttTrack,
-		   nMvdStripHitsAssociatedToSttTrack,
-		   ListMvdStripHitsAssociatedToSttTrack,
-
-
-		nMvdPixelCommon[i],
-		&MvdPixelCommonList[i][0],
-		nMvdPixelSpuriinTrack[i],
-		&MvdPixelSpuriList[i][0],
-		nMCMvdPixelAlone[i],
-		&MCMvdPixelAloneList[i][0],
-
-		nMvdStripCommon[i],
-		&MvdStripCommonList[i][0],
-		nMvdStripSpuriinTrack[i],
-		&MvdStripSpuriList[i][0],
-		nMCMvdStripAlone[i],
-		&MCMvdStripAloneList[i][0]
-
-                                                     );
-      }
-    }            //   end of   for(  i= 0; i< nSttTrackCand; i++)
-i=0;
-        WriteMacroParallelHitsGeneral(
-                   nSttHit, info,
-		   nSttTrackCand,Ox,Oy,R
-					);
-    }   //    end of   if(iplotta)
-
-//---------------------  fine plottamenti --------------------------------------------
-
-
 
 
 //-------  load the new PndTrackCand ; each track has the STT and the Mvd hits associated
@@ -2536,6 +2438,242 @@ if(istampa>2) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+//------------------------------   plottamenti --------------------------------------------
+
+
+
+if(istampa>=2){
+for(int it=0; it<nSttTrackCand;it++){
+cout<<"da PndSttMvdTracking, IVOLTE = "<<IVOLTE<<", traccia n. "<<it<<", elenco ordinato degli hits :\n";
+for(l =0;l<nMvdPixelHitsAssociatedToSttTrack[it]+nMvdStripHitsAssociatedToSttTrack[it]
+	+nSttParHitsinTrack[it]+nSttSkewHitsinTrack[it];l++){
+
+	if( ListTrackCandHitType[it][l]==0){
+		cout<<"\t hit tipo Pixel, X = "<<
+			 XMvdPixel[ ListTrackCandHit[it][l] ]<<
+			 ", Y = "<<YMvdPixel[ ListTrackCandHit[it][l] ]<<
+			 ", dist = "<<sqrt(
+			 XMvdPixel[ ListTrackCandHit[it][l] ]*
+			 XMvdPixel[ ListTrackCandHit[it][l] ]+
+			 YMvdPixel[ ListTrackCandHit[it][l] ]*
+			 YMvdPixel[ ListTrackCandHit[it][l] ])<<endl;
+	}else if (ListTrackCandHitType[it][l]==1){
+		cout<<"\t hit tipo Strip , X = "<<
+			 XMvdStrip[ ListTrackCandHit[it][l] ]<<
+			 ", Y = "<<YMvdStrip[ ListTrackCandHit[it][l] ]<<
+			 ", dist = "<<sqrt(
+			 XMvdStrip[ ListTrackCandHit[it][l] ]*
+			 XMvdStrip[ ListTrackCandHit[it][l] ]+
+			 YMvdStrip[ ListTrackCandHit[it][l] ]*
+			 YMvdStrip[ ListTrackCandHit[it][l] ])<<endl;
+	}else if (ListTrackCandHitType[it][l]==2){
+		cout<<"\t hit tipo Parallelo , X = "<<
+			 info[ ListTrackCandHit[it][l] ][0]<<
+			 ", Y = "<<info[ ListTrackCandHit[it][l] ][1]<<
+			 ", dist = "<<sqrt(
+			 info[ ListTrackCandHit[it][l] ][0]*
+			 info[ ListTrackCandHit[it][l] ][0]+
+			 info[ ListTrackCandHit[it][l] ][1]*
+			 info[ ListTrackCandHit[it][l] ][1])<<endl;
+	}else if(ListTrackCandHitType[it][l]==3){
+		cout<<"\t hit tipo skew , X approssimato = "<<
+			 info[ ListTrackCandHit[it][l] ][0]<<
+			 ", Y approssimato = "<<info[ ListTrackCandHit[it][l] ][1]<<
+			 ", dist = "<<sqrt(
+			 info[ ListTrackCandHit[it][l] ][0]*
+			 info[ ListTrackCandHit[it][l] ][0]+
+			 info[ ListTrackCandHit[it][l] ][1]*
+			 info[ ListTrackCandHit[it][l] ][1])<<endl;
+	} else {
+		cout<<"\tHit di nessun tipo ????\n";
+	}
+     }
+  }
+}	// end of    if(istampa>=2)
+
+
+
+
+
+
+ if(iplotta && IVOLTE<10){
+
+
+    for(  i= 0; i< nSttTrackCand; i++){
+
+
+	int npunti=-1+nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i]+
+		nMvdPixelHitsAssociatedToSttTrack[i]+nMvdStripHitsAssociatedToSttTrack[i];
+
+		if (ListTrackCandHitType[i][npunti] == 0){  //  Mvd Pixel
+			ultimoangolo[i] = atan2( YMvdPixel[ ListTrackCandHit[i][npunti] ]-Oy[i],
+						 XMvdPixel[ ListTrackCandHit[i][npunti] ]-Ox[i]);
+		} else if (ListTrackCandHitType[i][npunti] == 1){  //  Mvd Strip
+			ultimoangolo[i] = atan2( YMvdStrip[ ListTrackCandHit[i][npunti] ]-Oy[i],
+						 XMvdStrip[ ListTrackCandHit[i][npunti] ]-Ox[i]);
+		} else if( ListTrackCandHitType[i][npunti] == 2 ){  // it is a parallel straw hit
+			PndSttInfoXYZParal (
+				info,
+				ListTrackCandHit[i][npunti],
+				Ox[i],
+				Oy[i],
+				R[i],
+				KAPPA[i],
+				FI0[i],
+				CHARGE[i],
+				Posiz1
+				);
+			ultimoangolo[i] = atan2( Posiz1[1]-Oy[i],Posiz1[0]-Ox[i]);
+		} else if ( ListTrackCandHitType[i][npunti] == 3 ){  // it is a skew straw hit
+
+			ultimoangolo[i] = SchosenSkew[i][ ListTrackCandHit[i][npunti] ];
+		}
+		if( ultimoangolo[i]<0.) ultimoangolo[i]+= 2.*PI;
+
+
+
+	double primo;
+	primoangolo[i] = fmod(FI0[i],2.*PI);
+	if(CHARGE[i]>0.){
+		if( ultimoangolo[i]> primoangolo[i]) ultimoangolo[i]-=2.*PI;
+		primo=ultimoangolo[i]*180./PI;
+		ultimoangolo[i]=primoangolo[i]*180./PI;
+		primoangolo[i]=primo;
+		
+	}else{
+		if( ultimoangolo[i]<primoangolo[i]) ultimoangolo[i]+=2.*PI;
+		ultimoangolo[i]=ultimoangolo[i]*180./PI;
+		primoangolo[i]=primoangolo[i]*180./PI;
+	}
+
+
+
+
+
+
+
+
+	if( nSttParHitsinTrack[i]+nMvdPixelHitsAssociatedToSttTrack[i]+
+		nMvdStripHitsAssociatedToSttTrack[i]>0) {
+
+           WriteMacroSttParallelAssociatedHitsandMvdwithMC(
+                   Ox[i], Oy[i], R[i],
+			primoangolo[i],ultimoangolo[i],
+                   nSttParHitsinTrack[i],
+		   ListSttParHitsinTrack,
+                   info,
+                   i,
+
+		daTrackFoundaTrackMC[i],
+		nParalCommon,
+		ParalCommonList,
+		nSpuriParinTrack,
+		ParSpuriList,
+		nMCParalAlone,
+		MCParalAloneList,
+
+		nMvdPixelHitsAssociatedToSttTrack[i],
+		ListMvdPixelHitsAssociatedToSttTrack,
+		nMvdStripHitsAssociatedToSttTrack[i],
+		ListMvdStripHitsAssociatedToSttTrack,
+
+		nMvdPixelCommon[i],
+		&MvdPixelCommonList[i][0],
+		nMvdPixelSpuriinTrack[i],
+		&MvdPixelSpuriList[i][0],
+		nMCMvdPixelAlone[i],
+		&MCMvdPixelAloneList[i][0],
+
+		nMvdStripCommon[i],
+		&MvdStripCommonList[i][0],
+		nMvdStripSpuriinTrack[i],
+		&MvdStripSpuriList[i][0],
+		nMCMvdStripAlone[i],
+		&MCMvdStripAloneList[i][0]
+
+		                      );
+	}	// end of  if ( nSttParHitsinTrack[i]+ ...
+      if(  nSttSkewHitsinTrack[i]+nMvdPixelHitsAssociatedToSttTrack[i]+
+      	nMvdStripHitsAssociatedToSttTrack[i]>0){
+             WriteMacroSkewAssociatedHitswithMC(
+                   KAPPA[i],FI0[i], Ox[i], Oy[i], R[i],
+                   info,
+		   WDX,WDY,WDZ,
+                   i,0,
+                   nSttSkewHitsinTrack[i],
+                   ListSttSkewHitsinTrack,
+                   nSkewCommon[i],
+                   SkewCommonList,
+                   daTrackFoundaTrackMC[i],
+                   nMCSkewAlone[i],
+                   MCSkewAloneList,
+		   nMvdPixelHitsAssociatedToSttTrack,
+		   ListMvdPixelHitsAssociatedToSttTrack,
+		   nMvdStripHitsAssociatedToSttTrack,
+		   ListMvdStripHitsAssociatedToSttTrack,
+
+
+		nMvdPixelCommon[i],
+		&MvdPixelCommonList[i][0],
+		nMvdPixelSpuriinTrack[i],
+		&MvdPixelSpuriList[i][0],
+		nMCMvdPixelAlone[i],
+		&MCMvdPixelAloneList[i][0],
+
+		nMvdStripCommon[i],
+		&MvdStripCommonList[i][0],
+		nMvdStripSpuriinTrack[i],
+		&MvdStripSpuriList[i][0],
+		nMCMvdStripAlone[i],
+		&MCMvdStripAloneList[i][0]
+
+                                                     );
+      }
+    }            //   end of   for(  i= 0; i< nSttTrackCand; i++)
+i=0;
+
+
+
+        WriteMacroParallelHitsGeneral(
+                   nSttHit, info,
+		   nSttTrackCand,Ox,Oy,R,
+		   FI0,
+		   ultimoangolo,
+		   primoangolo
+
+
+					);
+    }   //    end of   if(iplotta)
+
+//---------------------  fine plottamenti --------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 return;
 
 }
@@ -2663,6 +2801,8 @@ return;
 
   void PndSttMvdTracking::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
                    Double_t Ox,Double_t Oy,Double_t R,
+		   Double_t primoangolo,
+		   Double_t ultimoangolo,
                    UShort_t Nhits,
 		   UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
                    Double_t info[][7],
@@ -2806,8 +2946,9 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 
        fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
 
-       fprintf(MACRO,"TEllipse* TC = new TEllipse(%f,%f,%f,%f,0.,360.);\n",Ox,Oy,R,R);
-       fprintf(MACRO,"TC->SetLineColor(2);\nTC->SetFillStyle(0);\nTC->Draw();\n");
+       fprintf(MACRO,"TEllipse* TC = new TEllipse(%f,%f,%f,%f,%f,%f);\n",Ox,Oy,R,R,primoangolo,ultimoangolo);
+
+       fprintf(MACRO,"TC->SetLineColor(2);\nTC->SetFillStyle(0);\nTC->Draw(\"only\");\n");
 
        fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
        fprintf(MACRO,"Assex->Draw();\n");
@@ -2943,8 +3084,10 @@ panco: ;
            	Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
            	Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
             	fprintf(MACRO,
-"TEllipse* MC%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nMC%d->SetFillStyle(0);\nMC%d->SetLineColor(3);\nMC%d->Draw();\n",
-                     im,Cx,Cy,Rr,Rr,im,im,im);
+//"TEllipse* MC%d = new TEllipse(%f,%f,%f,%f,%f,%f);\nMC%d->SetFillStyle(0);\nMC%d->SetLineColor(3);\nMC%d->Draw(\"only\");\n",
+//                     im,Cx,Cy,Rr,Rr,primoangolo,ultimoangolo,im,im,im);
+"TEllipse* MC%d = new TEllipse(%f,%f,%f,%f,%f,%f);\nMC%d->SetFillStyle(0);\nMC%d->SetLineColor(3);\nMC%d->Draw(\"only\");\n",
+                     im,Cx,Cy,Rr,Rr,0.,360.,im,im,im);
 	}
        }
 //----------- fine parte del MC
@@ -2978,7 +3121,11 @@ panco: ;
   void PndSttMvdTracking::WriteMacroParallelHitsGeneral(
                    Int_t Nhits, Double_t info[][7],
                    UShort_t nTracksFoundSoFar,
-                   Double_t *Ox, Double_t *Oy, Double_t *Radius
+                   Double_t *Ox, Double_t *Oy, Double_t *Radius,
+		   Double_t *FI0,
+		   Double_t *ultimoangolo,
+		   Double_t *primoangolo
+
 
 /*
 		   UShort_t nMvdPixelHit
@@ -3116,9 +3263,15 @@ panco: ;
        aaa = Ox[i];
        bbb = Oy[i];
        rrr = Radius[i];
+
+
+
+
           fprintf(MACRO,
-"TEllipse* ris%d=new TEllipse(%f,%f,%f,%f,0.,360.);\nris%d->SetFillStyle(0);\nris%d->SetLineColor(2);\nris%d->Draw();\n",
-                     i,aaa,bbb,rrr,rrr,i,i,i);
+//"TEllipse* ris%d=new TEllipse(%f,%f,%f,%f,0.,360.);\nris%d->SetFillStyle(0);\nris%d->SetLineColor(2);\nris%d->Draw();\n",
+//                     i,aaa,bbb,rrr,rrr,i,i,i);
+"TEllipse* ris%d=new TEllipse(%f,%f,%f,%f,%f,%f);\nris%d->SetFillStyle(0);\nris%d->SetLineColor(2);\nris%d->Draw(\"only\");\n",
+                     i,aaa,bbb,rrr,rrr,primoangolo[i],ultimoangolo[i],i,i,i);
 
 
     }
@@ -3188,7 +3341,8 @@ panco: ;
        for( i=0; i< Nhits; i++) {
          if( info[i][5] == 1 ) {     // parallel straws
             fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetFillStyle(0);\nE%d->Draw();\n",
-                     i,info[i][0],info[i][1],info[i][3],info[i][3],i,i);
+                     i,info[i][0],info[i][1],info[i][3],info[i][3],i,i
+		     );
           }
        }
 
@@ -3225,8 +3379,11 @@ panco: ;
        aaa = Ox[i];
        bbb = Oy[i];
        rrr = Radius[i];
-       fprintf(MACRO,"TEllipse* ris%d=new TEllipse(%f,%f,%f,%f,0.,360.);\nris%d->SetFillStyle(0);\nris%d->SetLineColor(2);\nris%d->Draw();\n",
-                     i,aaa,bbb,rrr,rrr,i,i,i);
+       fprintf(MACRO,
+//       "TEllipse* ris%d=new TEllipse(%f,%f,%f,%f,0.,360.);\nris%d->SetFillStyle(0);\nris%d->SetLineColor(2);\nris%d->Draw();\n",
+//                     i,aaa,bbb,rrr,rrr,i,i,i);
+"TEllipse* ris%d=new TEllipse(%f,%f,%f,%f,%f,%f);\nris%d->SetFillStyle(0);\nris%d->SetLineColor(2);\nris%d->Draw(\"only\");\n",
+                     i,aaa,bbb,rrr,rrr,primoangolo[i],ultimoangolo[i],i,i,i);
 
     }
 
@@ -3234,6 +3391,7 @@ panco: ;
 //----------------- ora le traccia MC
   for(i=0; i<nMCTracks;i++) {
 	Int_t icode;
+		Double_t alfa0, newalfa, newx, newy,primo, ultimo ;
          Double_t Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Px, Py, carica  ;
 		PndMCTrack* pMC;
 		pMC = (PndMCTrack*) fMCTrackArray->At(i);
@@ -3252,9 +3410,28 @@ panco: ;
          		Rr =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
            		Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
            		Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
+
+	//  calcolo per plottare  solo la parte rilevante della traccia MC.
+		primo=alfa0 = atan2(Oyy-Cy, Oxx-Cx);
+		for(j=0;j<90;j++){
+			newalfa = alfa0 - carica*j*PI/45;
+			newx = Cx + Rr*cos(newalfa);
+			newy = Cy + Rr*sin(newalfa);
+			if(newx > xmax || newx < xmin || newy>ymax||newy<ymin){
+				ultimo = newalfa;
+				if(primo > ultimo ) { primo = ultimo; ultimo = alfa0;};
+				goto pippo ;
+			}
+		}
+	primo   = 0.;
+	ultimo = 2.*PI;
+pippo:	;
+
 			fprintf(MACRO,
-"TEllipse* MC%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nMC%d->SetFillStyle(0);\nMC%d->SetLineColor(3);\nMC%d->Draw();\n",
-			i,Cx,Cy,Rr,Rr,i,i,i);
+//"TEllipse* MC%d = new TEllipse(%f,%f,%f,%f,%f,%f);\nMC%d->SetFillStyle(0);\nMC%d->SetLineColor(3);\nMC%d->Draw(\"only\");\n",
+//			i,Cx,Cy,Rr,Rr,primoangolo[i],ultimoangolo[i],i,i,i);
+"TEllipse* MC%d = new TEllipse(%f,%f,%f,%f,%f,%f);\nMC%d->SetFillStyle(0);\nMC%d->SetLineColor(3);\nMC%d->Draw(\"only\");\n",
+			i,Cx,Cy,Rr,Rr,primo*180./PI,ultimo*180./PI,i,i,i);
 		}
 	}
 
