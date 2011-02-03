@@ -61,7 +61,7 @@ class PndSttMvdTracking : public FairTask
 
   int istampa ;
   int IVOLTE ;
-  static const bool  iplotta = true , ianalizza = true ;
+  static const bool  iplotta = false , ianalizza = true ;
   static const UShort_t   nmaxSttHits = maxTracks*26,
                           nmaxMvdPixelHits=500,
 			  nmaxMvdStripHits=500,
@@ -173,6 +173,8 @@ class PndSttMvdTracking : public FairTask
 
   void WriteMacroSttParallelAssociatedHitsandMvdwithMC(
                    Double_t Ox,Double_t Oy,Double_t R,
+		   Double_t primoangolo,
+		   Double_t ultimoangolo,
                    UShort_t Nhits,
 		   UShort_t ListParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
                    Double_t info[][7],
@@ -215,7 +217,10 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
                    UShort_t nTracksFoundSoFar,
                    Double_t *Ox,
 		   Double_t *Oy,
-		   Double_t *R
+		   Double_t *R,
+		   Double_t *FI0,
+		   Double_t *ultimoangolo,
+		   Double_t *primoangolo
 
 
                                                      );      
