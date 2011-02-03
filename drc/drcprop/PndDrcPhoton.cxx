@@ -90,8 +90,9 @@ void PndDrcPhoton::SetPosition(const XYZPoint& pos)
     double n = (fDev->OptMaterial()).RefIndex(fLambda);
     double dndl = (fDev->OptMaterial()).RefIndexDeriv(fLambda);
     double len = sqrt((pos-fPosition).Mag2()); // mm
-    double v_phase = 299.792/n;
-    double v_group =  v_phase * ( 1.0 - fLambda/n*dndl);
+    double v_phase = 299.792/n; // mm/ns
+    double n_group = n - fLambda*dndl;
+    double v_group = 299.792/n_group;
     double time = len/v_group;
     fTime += time;          // pos in mm time in ns
   }
