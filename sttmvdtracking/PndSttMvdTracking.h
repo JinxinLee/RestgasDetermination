@@ -5,6 +5,10 @@
 #include "PndMCTrack.h"
 #include "PndSttTrack.h"
 #include "FairTask.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
+#include "FairTrackParP.h"
 #include "PndGeoSttPar.h"
 
 #include "TVector3.h"
@@ -207,7 +211,17 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 		UShort_t nMvdStripSpuriinTrack,
 		UShort_t *MvdStripSpuriList,
 		UShort_t nMCMvdStripAlone,
-		UShort_t *MCMvdStripAloneList
+		UShort_t *MCMvdStripAloneList,
+
+		UShort_t nSkewHitsinTrack,
+		UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
+		Double_t SchosenSkew[nmaxSttHits],
+		UShort_t nSkewCommon[MAXTRACKSPEREVENT],
+		UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxSttHits],
+		UShort_t nMCSkewAlone,
+		UShort_t MCSkewAloneList[MAXMCTRACKS][nmaxSttHits],
+		Double_t MCSkewAloneX[nmaxSttHits],
+		Double_t MCSkewAloneY[nmaxSttHits]
 			);
 
 
@@ -262,6 +276,25 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 		UShort_t nMCMvdStripAlone,
 		UShort_t *MCMvdStripAloneList
 						);
+
+
+
+    void WriteMacroAllHitsRestanti(
+		UShort_t nSttHit,
+		UShort_t nSttParHit,
+		UShort_t nSttSkewHit,
+		Double_t info[][7],
+		UShort_t nSttTrackCand,
+		UShort_t nTrackCandHit[MAXTRACKSPEREVENT],
+		UShort_t ListTrackCandHit[MAXTRACKSPEREVENT][nmaxSttHits+
+	                           nmaxMvdPixelHitsInTrack+
+				   nmaxMvdStripHitsInTrack],
+		UShort_t ListTrackCandHitType[MAXTRACKSPEREVENT][nmaxSttHits+
+	                           nmaxMvdPixelHitsInTrack+
+				   nmaxMvdStripHitsInTrack]
+					);
+
+
 
     void AssociateFoundTrackstoMC(
 		  Double_t info[][7],
