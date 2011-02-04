@@ -419,7 +419,9 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 	   zdrift[2],
 	   zerror[2],
 	   primoangolo[MAXTRACKSPEREVENT],
-	   ultimoangolo[MAXTRACKSPEREVENT];
+	   ultimoangolo[MAXTRACKSPEREVENT],
+	   MCSkewAloneX[nmaxSttHits],
+	   MCSkewAloneY[nmaxSttHits];
 
   Double_t ALFA[MAXTRACKSPEREVENT],
 	   BETA[MAXTRACKSPEREVENT],
@@ -2245,7 +2247,7 @@ if( istampa>=1){
 
 
 		for(j=0; j< nTrackCandHit[ncand]; j++){
-			switch (ListTrackCandHitType[ncand][j]){
+		     switch (ListTrackCandHitType[ncand][j]){
 			case 0:
 			   pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId("MVDHitsPixel"),(Int_t)ListTrackCandHit[ncand][j],j);
 			break;
@@ -2258,7 +2260,7 @@ if( istampa>=1){
 			case 3:
 			   pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId("STTHit"),(Int_t)ListTrackCandHit[ncand][j],j);
 			break;
-			}
+		     }
 		}
 
 		// PndTrack Array loading
@@ -2569,6 +2571,11 @@ for(l =0;l<nMvdPixelHitsAssociatedToSttTrack[it]+nMvdStripHitsAssociatedToSttTra
 	if( nSttParHitsinTrack[i]+nMvdPixelHitsAssociatedToSttTrack[i]+
 		nMvdStripHitsAssociatedToSttTrack[i]>0) {
 
+	   for( j=0;j<nMCSkewAlone[i];j++){
+	   	MCSkewAloneX[ MCSkewAloneList[i][j] ]=pSttMCPoint[i]->GetX();
+	   	MCSkewAloneY[ MCSkewAloneList[i][j] ]=pSttMCPoint[i]->GetY();
+	   }
+
            WriteMacroSttParallelAssociatedHitsandMvdwithMC(
                    Ox[i], Oy[i], R[i],
 			primoangolo[i],ultimoangolo[i],
@@ -2602,9 +2609,19 @@ for(l =0;l<nMvdPixelHitsAssociatedToSttTrack[it]+nMvdStripHitsAssociatedToSttTra
 		nMvdStripSpuriinTrack[i],
 		&MvdStripSpuriList[i][0],
 		nMCMvdStripAlone[i],
-		&MCMvdStripAloneList[i][0]
+		&MCMvdStripAloneList[i][0],
 
-		                      );
+		nSttSkewHitsinTrack[i],
+		ListSttSkewHitsinTrack,
+		&SchosenSkew[i][0],
+		nSkewCommon,
+		SkewCommonList,
+		nMCSkewAlone[i],
+		MCSkewAloneList,
+		MCSkewAloneX,
+		MCSkewAloneY
+				);
+
 	}	// end of  if ( nSttParHitsinTrack[i]+ ...
       if(  nSttSkewHitsinTrack[i]+nMvdPixelHitsAssociatedToSttTrack[i]+
       	nMvdStripHitsAssociatedToSttTrack[i]>0){
@@ -2653,9 +2670,32 @@ i=0;
 		   FI0,
 		   ultimoangolo,
 		   primoangolo
-
-
 					);
+
+
+
+
+
+        WriteMacroAllHitsRestanti(
+		nSttHit,
+		nSttParHit,
+		nSttSkewHit,
+		info,
+		nSttTrackCand,
+		nTrackCandHit,
+		ListTrackCandHit,
+		ListTrackCandHitType
+					);
+
+
+
+
+
+
+
+
+
+
     }   //    end of   if(iplotta)
 
 //---------------------  fine plottamenti --------------------------------------------
@@ -2834,7 +2874,17 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 		UShort_t nMvdStripSpuriinTrack,
 		UShort_t *MvdStripSpuriList,
 		UShort_t nMCMvdStripAlone,
-		UShort_t *MCMvdStripAloneList
+		UShort_t *MCMvdStripAloneList,
+
+		UShort_t nSkewHitsinTrack,
+		UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
+		Double_t SchosenSkew[nmaxSttHits],
+		UShort_t nSkewCommon[MAXTRACKSPEREVENT],
+		UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxSttHits],
+		UShort_t nMCSkewAlone,
+		UShort_t MCSkewAloneList[MAXMCTRACKS][nmaxSttHits],
+		Double_t MCSkewAloneX[nmaxSttHits],
+		Double_t MCSkewAloneY[nmaxSttHits]
 					)
 {
 
@@ -2868,7 +2918,7 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 
 //---------- parallel straws Macro now
       char nome[300], nome2[300];
-      sprintf(nome,"MacroSttParallelHitsMvdHitswithMCEvent%dT%d", IVOLTE,iTrack);
+      sprintf(nome,"MacroAllSttMvdwithMCEvent%dT%d", IVOLTE,iTrack);
       sprintf(nome2,"%s.C",nome);
       FILE * MACRO = fopen(nome2,"w");
 //      fprintf(MACRO,"void %s()\n{\n",nome);
@@ -2879,6 +2929,13 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
       ymax=-1.e20;
        for( ii=0; ii< Nhits; ii++) {
             i = ListHitsinTrack[iTrack][ii] ;
+            if (info[i][0]-info[i][3] < xmin)   xmin = info[i][0]-info[i][3];
+            if (info[i][0]+info[i][3] > xmax)   xmax = info[i][0]+info[i][3];
+            if (info[i][1]-info[i][3] < ymin)   ymin = info[i][1]-info[i][3];
+            if (info[i][1]+info[i][3] > ymax)   ymax = info[i][1]+info[i][3];
+       }
+       for( ii=0; ii< nSkewHitsinTrack; ii++) {
+            i = ListSkewHitsinTrack[iTrack][ii] ;
             if (info[i][0]-info[i][3] < xmin)   xmin = info[i][0]-info[i][3];
             if (info[i][0]+info[i][3] > xmax)   xmax = info[i][0]+info[i][3];
             if (info[i][1]-info[i][3] < ymin)   ymin = info[i][1]-info[i][3];
@@ -2990,15 +3047,49 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 //-------------
 
 
-//       for( ii=0; ii< nMvdStripHit; ii++) {
+
+
+
+
+
+
+//------------- hits skew in comune e spuri di traccia MC
+
+       for( i=0; i< nSkewHitsinTrack; i++) {
+        ii = ListSkewHitsinTrack[iTrack][i];
+	    aaa=Ox+R*cos(SchosenSkew[ii]);
+	    bbb=Oy+R*sin(SchosenSkew[ii]);
+
+            fprintf(MACRO,"TMarker* SS%d = new TMarker(%f,%f,%d);\n",
+                    ii,aaa,bbb,28);
+
+		for( int k=0; k<nSkewCommon[iTrack];k++){
+			if( SkewCommonList[iTrack][k]== ii){
+		fprintf(MACRO,"SS%d->SetMarkerColor(1);\nSS%d->Draw();\n",
+                    ii,ii);
+				goto punco ;
+			}
+		}
+		fprintf(MACRO,"SS%d->SetMarkerColor(2);\nSS%d->Draw();\n",ii,ii);
+punco: ;
+
+       }
+//------------- hits paralleli MC 'alone'
+       for( ii=0; ii< nMCSkewAlone; ii++) {
+            i = MCSkewAloneList[iTrack][ii] ;
+           fprintf(MACRO,
+   "TMarker* SSA%d = new TMarker(%f,%f,%d);\nSSA%d->SetMarkerColor(4);\nSSA%d->Draw();\n",
+                     i,MCSkewAloneX[i],MCSkewAloneY[i],28,i,i);
+       }
+
+//------------- now the Strips
+
        for( i=0; i< nMvdStripHitsAssociatedToSttTra; i++) {
         ii = ListMvdStripHitsAssociatedToSttTrack[iTrack][i];
             x1= XMvdStrip[ii]-sigmaXMvdStrip[ii];
             x2= XMvdStrip[ii]+sigmaXMvdStrip[ii];
             y1= YMvdStrip[ii]-sigmaYMvdStrip[ii];
             y2= YMvdStrip[ii]+sigmaYMvdStrip[ii];
-//            fprintf(MACRO,"TBox* BS%d = new TBox(%f,%f,%f,%f);\nBS%d->SetFillColor(2);\nBS%d->Draw();\n",
-//                     ii,x1,y1,x2,y2,ii,ii);
 
             fprintf(MACRO,"TMarker* BS%d = new TMarker(%f,%f,%d);\n",
                     ii,XMvdStrip[ii],YMvdStrip[ii],25);
@@ -3173,7 +3264,7 @@ panco: ;
 
 
 //---------- parallel straws Macro now
-      sprintf(nome,"MacroGeneralParallelHitsMvdHitsEvent%d", IVOLTE);
+      sprintf(nome,"MacroAllHitsEvent%d", IVOLTE);
       sprintf(nome2,"%s.C",nome);
       FILE * MACRO = fopen(nome2,"w");
       fprintf(MACRO,"void %s()\n{\n",nome);
@@ -3181,13 +3272,24 @@ panco: ;
       xmax=-1.e20;
       ymin=1.e20;
       ymax=-1.e20;
-       for( i=0; i< Nhits; i++) {
-         if( info[i][5] == 1 ) {     // parallel straws
+       for( i=0; i< Nhits; i++) {	// all straws, anche le skew
             if (info[i][0]-info[i][3] < xmin)   xmin = info[i][0]-info[i][3];
             if (info[i][0]+info[i][3] > xmax)   xmax = info[i][0]+info[i][3];
             if (info[i][1]-info[i][3] < ymin)   ymin = info[i][1]-info[i][3];
             if (info[i][1]+info[i][3] > ymax)   ymax = info[i][1]+info[i][3];
-          }
+       }
+       for( ii=0; ii< nMvdPixelHit; ii++) {
+            if (XMvdPixel[ii] < xmin)   xmin = XMvdPixel[ii];
+            if (XMvdPixel[ii] > xmax)   xmax = XMvdPixel[ii] ;
+            if (YMvdPixel[ii] < ymin)   ymin = YMvdPixel[ii];
+            if (YMvdPixel[ii] > ymax)   ymax = YMvdPixel[ii];
+       }
+
+       for( ii=0; ii< nMvdStripHit; ii++) {
+            if (XMvdStrip[ii] < xmin)   xmin = XMvdStrip[ii];
+            if (XMvdStrip[ii] > xmax)   xmax = XMvdStrip[ii] ;
+            if (YMvdStrip[ii] < ymin)   ymin = YMvdStrip[ii];
+            if (YMvdStrip[ii] > ymax)   ymax = YMvdStrip[ii];
        }
 
        if( xmin > 0. ) xmin = 0.;
@@ -3228,7 +3330,10 @@ panco: ;
          if( info[i][5] == 1 ) {     // parallel straws
             fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetFillStyle(0);\nE%d->Draw();\n",
                      i,info[i][0],info[i][1],info[i][3],info[i][3],i,i);
-          }
+          } else {	// skew straws.
+	    fprintf(MACRO,"TMarker* SS%d = new TMarker(%f,%f,%d);\nSS%d->SetMarkerColor(1);\nSS%d->Draw();\n",
+		i,info[i][0],info[i][1],28,i,i,i);
+	  }
        }
 
        for( ii=0; ii< nMvdStripHit; ii++) {
@@ -3263,10 +3368,6 @@ panco: ;
        aaa = Ox[i];
        bbb = Oy[i];
        rrr = Radius[i];
-
-
-
-
           fprintf(MACRO,
 //"TEllipse* ris%d=new TEllipse(%f,%f,%f,%f,0.,360.);\nris%d->SetFillStyle(0);\nris%d->SetLineColor(2);\nris%d->Draw();\n",
 //                     i,aaa,bbb,rrr,rrr,i,i,i);
@@ -3287,46 +3388,10 @@ panco: ;
 
 //---------- parallel straws Macro now con anche le tracce MC
 
-      sprintf(nome,"MacroGeneralParallelHitsMvdHitswithMCEvent%d", IVOLTE);
+      sprintf(nome,"MacroAllHitswithMCEvent%d", IVOLTE);
       sprintf(nome2,"%s.C",nome);
       MACRO = fopen(nome2,"w");
       fprintf(MACRO,"void %s()\n{\n",nome);
-      xmin=1.e20;
-      xmax=-1.e20;
-      ymin=1.e20;
-      ymax=-1.e20;
-       for( i=0; i< Nhits; i++) {
-         if( info[i][5] == 1 ) {     // parallel straws
-            if (info[i][0]-info[i][3] < xmin)   xmin = info[i][0]-info[i][3];
-            if (info[i][0]+info[i][3] > xmax)   xmax = info[i][0]+info[i][3];
-            if (info[i][1]-info[i][3] < ymin)   ymin = info[i][1]-info[i][3];
-            if (info[i][1]+info[i][3] > ymax)   ymax = info[i][1]+info[i][3];
-          }
-       }
-
-       if( xmin > 0. ) xmin = 0.;
-       if( xmax < 0.)  xmax = 0.;
-       if( ymin > 0. ) ymin = 0.;
-       if( ymax < 0.)  ymax = 0.;
-
-       deltax = xmax-xmin;
-       deltay = ymax - ymin;
-
-       if( deltax > deltay) {
-         ymin -=  0.5*(deltax-deltay);
-         ymax = ymin+ deltax;
-         delta = deltax;
-       }  else  {
-         xmin -=  0.5*(deltay-deltax);
-         xmax = xmin+ deltay;
-         delta= deltay;
-       }
-
-       xmax = xmax + delta*0.05;
-       xmin = xmin - delta*0.05;
-
-       ymax = ymax + delta*0.05;
-       ymin = ymin - delta*0.05;
 
 
        fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
@@ -3341,9 +3406,11 @@ panco: ;
        for( i=0; i< Nhits; i++) {
          if( info[i][5] == 1 ) {     // parallel straws
             fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetFillStyle(0);\nE%d->Draw();\n",
-                     i,info[i][0],info[i][1],info[i][3],info[i][3],i,i
-		     );
-          }
+                     i,info[i][0],info[i][1],info[i][3],info[i][3],i,i);
+          } else {	// skew straws.
+	    fprintf(MACRO,"TMarker* SS%d = new TMarker(%f,%f,%d);\nSS%d->SetMarkerColor(1);\nSS%d->Draw();\n",
+		i,info[i][0],info[i][1],28,i,i,i);
+	  }
        }
 
        for( ii=0; ii< nMvdStripHit; ii++) {
@@ -4038,6 +4105,182 @@ nohits: ;
 
 
 //----------end of function PndSttMvdTracking::WriteMacroSkewAssociatedHitswithMC
+
+
+
+//----------begin of function PndSttMvdTracking::WriteMacroAllHitsRestanti
+
+
+    void PndSttMvdTracking::WriteMacroAllHitsRestanti(
+		UShort_t nSttHit,
+		UShort_t nSttParHit,
+		UShort_t nSttSkewHit,
+		Double_t info[][7],
+		UShort_t nSttTrackCand,
+		UShort_t nTrackCandHit[MAXTRACKSPEREVENT],
+		UShort_t ListTrackCandHit[MAXTRACKSPEREVENT][nmaxSttHits+
+	                           nmaxMvdPixelHitsInTrack+
+				   nmaxMvdStripHitsInTrack],
+		UShort_t ListTrackCandHitType[MAXTRACKSPEREVENT][nmaxSttHits+
+	                           nmaxMvdPixelHitsInTrack+
+				   nmaxMvdStripHitsInTrack]
+					)
+ {
+
+
+//	nSttHit = parallel+skew.
+
+	bool	exclusionStt[nSttHit],
+		exclusionPixel[nMvdPixelHit],
+		exclusionStrip[nMvdStripHit];
+
+	char	nome[300],
+		nome2[300];
+
+	int i,j,k;
+
+
+	Double_t	delta,
+			deltax,
+			deltay,
+			xmin,
+			xmax,
+			ymin,
+			ymax;
+
+	for(i=0;i<nSttHit;i++){
+		exclusionStt[i]=false;
+	}
+	for(i=0;i<nMvdPixelHit;i++){
+		exclusionPixel[i]=false;
+	}
+	for(i=0;i<nMvdStripHit;i++){
+		exclusionStrip[i]=false;
+	}
+
+
+
+	for(i=0;i<nSttTrackCand;i++){
+
+		for(j=0;j<nTrackCandHit[i];j++){
+
+		     switch (ListTrackCandHitType[i][j]){
+			case 0:
+			   exclusionPixel[ ListTrackCandHit[i][j] ] = true;
+			   break;
+			case 1:
+			   exclusionStrip[ ListTrackCandHit[i][j] ] = true;
+			   break;
+			default:
+			   exclusionStt[ ListTrackCandHit[i][j] ] = true;
+			   break;
+		     }
+		}	// end of  for(j=0;j<nTrackCandHit[i];j++)
+	}	//  end of  for(i=0;i<nSttTrackCand;i++)
+
+
+
+//	determina il boundary del plot tenendo conto di TUTTI gli hits.
+      xmin=1.e20;
+      xmax=-1.e20;
+      ymin=1.e20;
+      ymax=-1.e20;
+       for( i=0; i< nSttHit; i++) {
+            if (info[i][0]-info[i][3] < xmin)   xmin = info[i][0]-info[i][3];
+            if (info[i][0]+info[i][3] > xmax)   xmax = info[i][0]+info[i][3];
+            if (info[i][1]-info[i][3] < ymin)   ymin = info[i][1]-info[i][3];
+            if (info[i][1]+info[i][3] > ymax)   ymax = info[i][1]+info[i][3];
+          }
+       for( i=0; i< nMvdPixelHit; i++) {
+            if (XMvdPixel[i] < xmin)   xmin = XMvdPixel[i];
+            if (XMvdPixel[i] > xmax)   xmax = XMvdPixel[i];
+            if (YMvdPixel[i] < ymin)   ymin = YMvdPixel[i];
+            if (YMvdPixel[i] > ymax)   ymax = YMvdPixel[i];
+          }
+       for( i=0; i< nMvdStripHit; i++) {
+            if (XMvdStrip[i] < xmin)   xmin = XMvdStrip[i];
+            if (XMvdStrip[i] > xmax)   xmax = XMvdStrip[i];
+            if (YMvdStrip[i] < ymin)   ymin = YMvdStrip[i];
+            if (YMvdStrip[i] > ymax)   ymax = YMvdStrip[i];
+          }
+
+       if( xmin > 0. ) xmin = 0.;
+       if( xmax < 0.)  xmax = 0.;
+       if( ymin > 0. ) ymin = 0.;
+       if( ymax < 0.)  ymax = 0.;
+
+       deltax = xmax-xmin;
+       deltay = ymax - ymin;
+
+
+       if( deltax > deltay) {
+         ymin -=  0.5*(deltax-deltay);
+         ymax = ymin+ deltax;
+         delta = deltax;
+       }  else  {
+         xmin -=  0.5*(deltay-deltax);
+         xmax = xmin+ deltay;
+         delta= deltay;
+       }
+
+       xmax = xmax + delta*0.05;
+       xmin = xmin - delta*0.05;
+
+       ymax = ymax + delta*0.05;
+       ymin = ymin - delta*0.05;
+
+
+      sprintf(nome,"MacroHitsRestantiEvent%d", IVOLTE);
+      sprintf(nome2,"%s.C",nome);
+      FILE * MACRO = fopen(nome2,"w");
+      fprintf(MACRO,"void %s()\n{\n",nome);
+      fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
+       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
+       fprintf(MACRO,"Assex->Draw();\n");
+       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
+       fprintf(MACRO,"Assey->Draw();\n");
+
+
+
+       for( i=0; i< nSttHit; i++) {
+         if( !exclusionStt[i]) {     // all straws
+         if( info[i][5] == 1 ) {     // parallel straws
+            fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetFillStyle(0);\nE%d->Draw();\n",
+                     i,info[i][0],info[i][1],info[i][3],info[i][3],i,i);
+	 }  else  {	//  skew straws.
+	    fprintf(MACRO,"TMarker* SS%d = new TMarker(%f,%f,%d);\nSS%d->SetMarkerColor(1);\nSS%d->Draw();\n",
+		i,info[i][0],info[i][1],28,i,i,i);
+	 }
+          }
+       }
+       for( i=0; i< nMvdPixelHit; i++) {
+         if( !exclusionPixel[i]) {     // all Pixels
+            fprintf(MACRO,"TMarker* BP%d = new TMarker(%f,%f,%d);\nBP%d->SetMarkerColor(1);\nBP%d->Draw();\n",
+                    i,XMvdPixel[i],YMvdPixel[i],26,i,i);
+          }
+       }
+       for( i=0; i< nMvdStripHit; i++) {
+         if( !exclusionStrip[i]) {     // all Pixels
+            fprintf(MACRO,"TMarker* BS%d = new TMarker(%f,%f,%d);\nBS%d->SetMarkerColor(1);\nBS%d->Draw();\n",
+                    i,XMvdStrip[i],YMvdStrip[i],25,i,i,i);
+          }
+       }
+
+      fprintf(MACRO,"}\n");
+      fclose(MACRO);
+
+
+
+	return;
+ }
+
+
+
+
+
+
+
+//----------end of function PndSttMvdTracking::WriteMacroAllHitsRestanti
 
 
 
