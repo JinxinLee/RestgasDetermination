@@ -34,15 +34,16 @@ void printResult(std::map<std::string,float>& res)
  * Default Constructor.
  */
 PndPidMvaAssociatorTask::PndPidMvaAssociatorTask()
-  : FairTask("PndPidMvaAssociatorTaskSTD")
+  : FairTask("PndPidMvaAssociatorTaskSTD"), fNumNeigh(200), fClassifier(0),
+    fMethodName("KNN")
 {
   std::cout << "<INFO> Call Default task constructor. " 
 	    << "(PndPidAssociatorTask)\n";
   // Init charged and neutral probab. containers.
   fPidChargedProb = new TClonesArray("PndPidProbability");
   fPidNeutralProb = new TClonesArray("PndPidProbability");
-  
-  fNumNeigh = 200;
+
+  // Set Default path to the weight file  
   SetDefaultWeightsPath();
 }
 
@@ -51,14 +52,15 @@ PndPidMvaAssociatorTask::PndPidMvaAssociatorTask()
  * Constructor.
  */
 PndPidMvaAssociatorTask::PndPidMvaAssociatorTask(char const* name, char const* title)
-  : FairTask(name)
+  : FairTask(name), fNumNeigh(200), fClassifier(0),
+    fMethodName("KNN")
 {
   std::cout << title << '\n';
   // Init charged and neutral probab. containers.
   fPidChargedProb = new TClonesArray("PndPidProbability");
   fPidNeutralProb = new TClonesArray("PndPidProbability");
-  
-  fNumNeigh = 200;
+
+  // Set Default path to the weight file
   SetDefaultWeightsPath();
 }
 
@@ -77,13 +79,26 @@ PndPidMvaAssociatorTask::~PndPidMvaAssociatorTask()
   // Clean-up allocated stuff.
   fManager->Write();
   
-  if(fManager) delete fManager;
-  if(fPidChargedCand) delete fPidChargedCand;
-  if(fPidNeutralCand) delete fPidNeutralCand;
-  if(fPidChargedProb) delete fPidChargedProb;
-  if(fPidNeutralProb) delete fPidNeutralProb;
-  if(fMCTrack) delete  fMCTrack;
-  if(fKnnCls) delete fKnnCls;
+  if(fManager)
+    delete fManager;
+  
+  if(fPidChargedCand)
+    delete fPidChargedCand;
+  
+  if(fPidNeutralCand)
+    delete fPidNeutralCand;
+  
+  if(fPidChargedProb)
+    delete fPidChargedProb;
+  
+  if(fPidNeutralProb)
+    delete fPidNeutralProb;
+  
+  if(fMCTrack)
+    delete  fMCTrack;
+  // FIXME
+  if(fClassifier)
+    delete fClassifier;
 }
 
 //___________________________________________________________
@@ -112,33 +127,29 @@ InitStatus PndPidMvaAssociatorTask::Init()
 	      << std::endl;
     return kERROR;
   }
-  // Get track array.
-  /*
-    fMCTrack = (TClonesArray*) fManager->GetObject("MCTrack");
-    if (!fMCTrack){
-    std::cout << "-I- PndPidAssociatorTask::Init: No MC Track array there!" << std::endl;
-    return kERROR;
-    }
-  */
+
   Register();
   
-  std::cout << "<INFO> Using weight file  " << fWeightsFileName
+  std::cout << "<INFO> Using weight file  "
+	    << fWeightsFileName
 	    << "\n<INFO> Init classifiers.\n";
   
   // Init Classifier object
-  fKnnCls = new PndKnnClassify(fWeightsFileName, fClassNames, fVarNames);
+  PndKnnClassify* KnnCls = new PndKnnClassify(fWeightsFileName, fClassNames, fVarNames);
   
-  if(!fKnnCls)
+  if(!KnnCls)
   {
     std::cerr << "<Error> Failed to initialize classifier." << std::endl;
     return kERROR;
   }
   
-  //Fixme Fixme
-  fKnnCls->SetEvtParam(0.8, 1.0);
-  fKnnCls->SetKnn(fNumNeigh);
-  fKnnCls->InitKNN();
+  // Fixme Fixme
+  KnnCls->SetEvtParam(0.8, 1.0);
+  KnnCls->SetKnn(fNumNeigh);
+  KnnCls->InitKNN();
   
+  fClassifier = dynamic_cast<PndMvaClassifier*>(KnnCls);
+
   std::cout << "-I- PndPidMvaAssociatorTask::Init: Success!\n";
   return kSUCCESS;
 }
@@ -208,7 +219,9 @@ void PndPidMvaAssociatorTask::DoPidMatch(PndPidCandidate& pidcand,
 {
   std::map<std::string, float> out;
   std::vector<float> const* evtPidData = PrepareEvtVect(pidcand);
-  fKnnCls->GetMvaValues( *evtPidData, out);
+  // Perform Recognition.
+  fClassifier->GetMvaValues( *evtPidData, out);
+  
   delete evtPidData;
 
 #ifdef DEBUG

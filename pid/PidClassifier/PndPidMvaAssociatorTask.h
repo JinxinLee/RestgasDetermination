@@ -24,7 +24,7 @@
 #include "PndPidProbability.h"
 
 #include "PndKnnClassify.h"
-//#include "PndLVQClassify.h"
+#include "PndLVQClassify.h"
 
 class PndPidMvaAssociatorTask: public FairTask
 {
@@ -76,6 +76,8 @@ class PndPidMvaAssociatorTask: public FairTask
   inline void SetWeightFileName(std::string const& wFileName);
   
   inline void SetNumNeigh(int val);
+
+  inline void BookClassifier(std::string const& methodName);
   
   //=============== Private members.
  private:
@@ -107,12 +109,15 @@ class PndPidMvaAssociatorTask: public FairTask
   //! Path to the file holding weights (proto-types, examples, ...)
   std::string fWeightsFileName;
   
-  //! MVA classifier object.
-  PndKnnClassify* fKnnCls;
-  
   //! Number of neighbors
   int fNumNeigh;
-  
+
+  //! MVA classifier object.
+  PndMvaClassifier* fClassifier;
+
+  //! MVA Method name.
+  std::string fMethodName;
+
   TClonesArray* fPidChargedCand; //! PndPidCandidate TCA for charged particles
   TClonesArray* fPidNeutralCand; //! PndPidCandidate TCA for neutral particles
   TClonesArray* fPidChargedProb; //! PndPidProbability TCA for charged particles
@@ -145,5 +150,10 @@ inline void PndPidMvaAssociatorTask::SetWeightFileName(std::string const& wFileN
 inline void PndPidMvaAssociatorTask::SetNumNeigh(int val)
 {
   fNumNeigh = val;
+};
+
+inline void PndPidMvaAssociatorTask::BookClassifier(std::string const& methodNameStr)
+{
+  fMethodName = methodNameStr;
 };
 #endif//End of interface definition (PndPidMvaAssociatorTask)
