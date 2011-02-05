@@ -7159,7 +7159,7 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 if(istampa>=2){
 	cout<<"PndSttMvdTracking::RefitMvdStt, n. Hits (Mvd+Stt || ) = "<<iparallel<<endl;
 	for(int ig=0;ig<iparallel;ig++){
-		if( DriftRadiusconformal[iparallel] <0.) {
+		if( DriftRadiusconformal[ig] <0.) {
 				cout<<"\tMvd Hit;   ";
 			} else {
 				cout<<"\tStt || Hit;   ";
