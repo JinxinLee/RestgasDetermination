@@ -404,14 +404,14 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
   }
 
   if(Nhits <   MINIMUMHITSPERTRACK) {
-    cout<<"from PndSttTrackFinderReal :  # Stt hits = "<<Nhits
+    cout<<"from PndSttTrackFinderReal :  # Stt hits (|| + //) = "<<Nhits
     <<" and it is < MINIMUMHITSPERTRACK = "
     <<MINIMUMHITSPERTRACK<<", return !"<<endl;
     return  -10;
   }
 
   if(Nhits >= nmaxHits ) {
-    cout<<"from PndSttTrackFinderReal :  # Stt hits = "<<Nhits<<" and it is >= nmaxHits = "
+    cout<<"from PndSttTrackFinderReal :  # Stt hits (|| + //)  = "<<Nhits<<" and it is >= nmaxHits = "
     <<nmaxHits<<", return !"<<endl;
     return  -10;
   }
