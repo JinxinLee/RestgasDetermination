@@ -419,9 +419,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 	   zdrift[2],
 	   zerror[2],
 	   primoangolo[MAXTRACKSPEREVENT],
-	   ultimoangolo[MAXTRACKSPEREVENT],
-	   MCSkewAloneX[nmaxSttHits],
-	   MCSkewAloneY[nmaxSttHits];
+	   ultimoangolo[MAXTRACKSPEREVENT];
 
   Double_t ALFA[MAXTRACKSPEREVENT],
 	   BETA[MAXTRACKSPEREVENT],
@@ -2617,10 +2615,8 @@ for(l =0;l<nMvdPixelHitsAssociatedToSttTrack[it]+nMvdStripHitsAssociatedToSttTra
 		nSkewCommon,
 		SkewCommonList,
 		nMCSkewAlone[i],
-		MCSkewAloneList,
-		MCSkewAloneX,
-		MCSkewAloneY
-				);
+		MCSkewAloneList
+						);
 
 	}	// end of  if ( nSttParHitsinTrack[i]+ ...
       if(  nSttSkewHitsinTrack[i]+nMvdPixelHitsAssociatedToSttTrack[i]+
@@ -2882,9 +2878,9 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 		UShort_t nSkewCommon[MAXTRACKSPEREVENT],
 		UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxSttHits],
 		UShort_t nMCSkewAlone,
-		UShort_t MCSkewAloneList[MAXMCTRACKS][nmaxSttHits],
-		Double_t MCSkewAloneX[nmaxSttHits],
-		Double_t MCSkewAloneY[nmaxSttHits]
+		UShort_t MCSkewAloneList[MAXMCTRACKS][nmaxSttHits]
+//		Double_t MCSkewAloneX[nmaxSttHits],
+//		Double_t MCSkewAloneY[nmaxSttHits]
 					)
 {
 
@@ -7161,9 +7157,14 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 
 	if( *nTrackCandHit < 2)  return;
 if(istampa>=2){
-	cout<<"cavolaccio, n. Hits = "<<iparallel<<endl;
+	cout<<"PndSttMvdTracking::RefitMvdStt, n. Hits (Mvd+Stt || ) = "<<iparallel<<endl;
 	for(int ig=0;ig<iparallel;ig++){
-		cout<<"\tcavolo, ErrorDriftRadiusconformal["<<ig<<"] = "<<
+		if( DriftRadiusconformal[iparallel] <0.) {
+				cout<<"\tMvd Hit;   ";
+			} else {
+				cout<<"\tStt || Hit;   ";
+			}
+		cout<<"ErrorDriftRadiusconformal["<<ig<<"] = "<<
 		ErrorDriftRadiusconformal[ig]<<endl;
 	}
 }
@@ -7629,9 +7630,9 @@ if(istampa>=2 && IVOLTE<20 ){cout<<"\tquesto Mvd candidato (n. ngoodmix = "<<ngo
 	") passa con i seguenti hits :"<<endl;
 
 	for(int icc=0; icc<nn[ngoodmix-1]; icc++){
-		if(ListType[ngoodmix-1][icc]==8) {
+		if(ListType[ngoodmix-1][icc]==FairRootManager::Instance()->GetBranchId("MVDHitsPixel")) {
 			cout<<"\tPixel hit n. "<<List[ngoodmix-1][icc]<<endl;
-		} else if(ListType[ngoodmix-1][icc]==7){
+		} else if(ListType[ngoodmix-1][icc]==FairRootManager::Instance()->GetBranchId("MVDHitsStrip")){
 			cout<<"\tStrip hit n. "<<List[ngoodmix-1][icc]<<endl;
 		} else{
 			cout<<"\tstranissimo , hit tipo "<<ListType[ngoodmix-1][icc]<<endl;
