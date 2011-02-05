@@ -101,7 +101,9 @@ class PndSttMvdTracking : public FairTask
   Double_t CxMC[MAXMCTRACKS],
              CyMC[MAXMCTRACKS],
              R_MC[MAXMCTRACKS],
-             MCtruthTrkInfo[15][MAXMCTRACKS];
+             MCtruthTrkInfo[15][MAXMCTRACKS],
+	     MCSkewAloneX[nmaxSttHits],
+	     MCSkewAloneY[nmaxSttHits];
   Double_t
            XMvdPixel[nmaxMvdPixelHits],
            YMvdPixel[nmaxMvdPixelHits],
@@ -176,28 +178,26 @@ class PndSttMvdTracking : public FairTask
 
 
   void WriteMacroSttParallelAssociatedHitsandMvdwithMC(
-                   Double_t Ox,Double_t Oy,Double_t R,
+                   Double_t Ox,
+		   Double_t Oy,
+		   Double_t R,
 		   Double_t primoangolo,
 		   Double_t ultimoangolo,
                    UShort_t Nhits,
 		   UShort_t ListParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
                    Double_t info[][7],
                    UShort_t imaxima,
-
 		Short_t daSttTrackaMCTrack,
 		UShort_t nParalCommon[MAXTRACKSPEREVENT],
 		UShort_t ParalCommonList[MAXMCTRACKS][nmaxSttHits],
 		UShort_t nSpuriParinTrack[MAXTRACKSPEREVENT],
 		UShort_t ParSpuriList[MAXTRACKSPEREVENT][nmaxSttHits],
-
 		UShort_t nMCParalAlone[MAXTRACKSPEREVENT],
 		UShort_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHits],
-
 	UShort_t nMvdPixelHitsAssociatedToSttTra,
 UShort_t ListMvdPixelHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHits],
 	UShort_t nMvdStripHitsAssociatedToSttTra,
 UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHits],
-
 
 		UShort_t nMvdPixelCommon,
 		UShort_t *MvdPixelCommonList,
@@ -219,9 +219,7 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 		UShort_t nSkewCommon[MAXTRACKSPEREVENT],
 		UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxSttHits],
 		UShort_t nMCSkewAlone,
-		UShort_t MCSkewAloneList[MAXMCTRACKS][nmaxSttHits],
-		Double_t MCSkewAloneX[nmaxSttHits],
-		Double_t MCSkewAloneY[nmaxSttHits]
+		UShort_t MCSkewAloneList[MAXMCTRACKS][nmaxSttHits]
 			);
 
 
