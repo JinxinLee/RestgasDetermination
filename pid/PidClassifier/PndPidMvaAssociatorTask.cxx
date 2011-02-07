@@ -34,8 +34,8 @@ void printResult(std::map<std::string,float>& res)
  * Default Constructor.
  */
 PndPidMvaAssociatorTask::PndPidMvaAssociatorTask()
-  : FairTask("PndPidMvaAssociatorTaskSTD"), fNumNeigh(200), fClassifier(0),
-    fMethodName("KNN")
+  : FairTask("PndPidMvaAssociatorTaskSTD"), fNumNeigh(200),
+    fClassifier(0)
 {
   std::cout << "<INFO> Call Default task constructor. " 
 	    << "(PndPidAssociatorTask)\n";
@@ -52,8 +52,8 @@ PndPidMvaAssociatorTask::PndPidMvaAssociatorTask()
  * Constructor.
  */
 PndPidMvaAssociatorTask::PndPidMvaAssociatorTask(char const* name, char const* title)
-  : FairTask(name), fNumNeigh(200), fClassifier(0),
-    fMethodName("KNN")
+  : FairTask(name), fNumNeigh(200),
+    fClassifier(0)
 {
   std::cout << title << '\n';
   // Init charged and neutral probab. containers.
@@ -68,6 +68,8 @@ void PndPidMvaAssociatorTask::SetDefaultWeightsPath()
 {
   fWeightsFileName  = std::string(getenv("VMCWORKDIR"));
   fWeightsFileName += std::string("/PndTools/MVA/PndMVAWeights/");
+  std::cout<<"<INFO> Default Weights path is set to "
+	   << fWeightsFileName << '\n';
 }
 
 //___________________________________________________________
@@ -96,7 +98,7 @@ PndPidMvaAssociatorTask::~PndPidMvaAssociatorTask()
   
   if(fMCTrack)
     delete  fMCTrack;
-  // FIXME
+
   if(fClassifier)
     delete fClassifier;
 }
@@ -133,22 +135,61 @@ InitStatus PndPidMvaAssociatorTask::Init()
   std::cout << "<INFO> Using weight file  "
 	    << fWeightsFileName
 	    << "\n<INFO> Init classifiers.\n";
-  
+
+  // FIXME FIXME HIER BEN JE BEZIG
   // Init Classifier object
-  PndKnnClassify* KnnCls = new PndKnnClassify(fWeightsFileName, fClassNames, fVarNames);
-  
-  if(!KnnCls)
+  switch(fMethodType)
   {
-    std::cerr << "<Error> Failed to initialize classifier." << std::endl;
-    return kERROR;
-  }
-  
-  // Fixme Fixme
-  KnnCls->SetEvtParam(0.8, 1.0);
-  KnnCls->SetKnn(fNumNeigh);
-  KnnCls->InitKNN();
-  
-  fClassifier = dynamic_cast<PndMvaClassifier*>(KnnCls);
+  case TMVA_MLP:// Multi label MLP classifier from TMVA.
+    {
+      std::cerr << "TMVA_MLP Not yet available."
+		<< std::endl;
+    }
+    break;
+ 
+  case TMVA_BDT:// Multi label BDT classifier from TMVA.
+    {
+      std::cerr << "TMVA_BDT Not yet available."
+		<< std::endl;
+    }
+    break;
+
+  case LVQ:
+    {
+      PndLVQClassify* LvqCls = new PndLVQClassify(fWeightsFileName, fClassNames, fVarNames);
+      
+      if(!LvqCls)
+      {
+	std::cerr << "<Error> Failed to initialize LVQ classifier."
+		  << std::endl;
+	return kERROR;
+      }
+      
+      fClassifier = dynamic_cast<PndMvaClassifier*>(LvqCls);
+    }
+    break;
+    
+  case KNN:
+  default:
+    {
+      PndKnnClassify* KnnCls = new PndKnnClassify(fWeightsFileName, fClassNames, fVarNames);
+      
+      if(!KnnCls)
+      {
+	std::cerr << "<Error> Failed to initialize KNN classifier."
+		  << std::endl;
+	return kERROR;
+      }
+      
+      // Set parameters.
+      KnnCls->SetEvtParam(0.8, 1.0);
+      KnnCls->SetKnn(fNumNeigh);
+      KnnCls->InitKNN();
+      
+      fClassifier = dynamic_cast<PndMvaClassifier*>(KnnCls);
+    }
+    break;
+  }// End of switch(fMethodType)
 
   std::cout << "-I- PndPidMvaAssociatorTask::Init: Success!\n";
   return kSUCCESS;

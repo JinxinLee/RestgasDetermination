@@ -26,6 +26,13 @@
 #include "PndKnnClassify.h"
 #include "PndLVQClassify.h"
 
+// ========================================================================
+//! Method types for selecting which classifier to use.
+typedef enum { KNN = 0, LVQ = 1, 
+	       TMVA_MLP = 2, TMVA_BDT = 3 // Multi label TMVA MLP & BDT.
+} MethodType;
+
+// ========================================================================
 class PndPidMvaAssociatorTask: public FairTask
 {
  public:
@@ -77,8 +84,9 @@ class PndPidMvaAssociatorTask: public FairTask
   
   inline void SetNumNeigh(int val);
 
-  inline void BookClassifier(std::string const& methodName);
-  
+  inline void SetClassifier(std::string const& methodName);
+  inline void SetClassifier(MethodType const& methodT);
+
   //=============== Private members.
  private:
   // Copy const.
@@ -116,7 +124,7 @@ class PndPidMvaAssociatorTask: public FairTask
   PndMvaClassifier* fClassifier;
 
   //! MVA Method name.
-  std::string fMethodName;
+  MethodType fMethodType;
 
   TClonesArray* fPidChargedCand; //! PndPidCandidate TCA for charged particles
   TClonesArray* fPidNeutralCand; //! PndPidCandidate TCA for neutral particles
@@ -152,8 +160,19 @@ inline void PndPidMvaAssociatorTask::SetNumNeigh(int val)
   fNumNeigh = val;
 };
 
-inline void PndPidMvaAssociatorTask::BookClassifier(std::string const& methodNameStr)
+inline void PndPidMvaAssociatorTask::SetClassifier(std::string const& methodNameStr)
 {
-  fMethodName = methodNameStr;
+  if(methodNameStr == "KNN")
+  {
+    fMethodType = KNN;
+  }
+  else if(methodNameStr == "LVQ")
+  {
+    fMethodType = LVQ;
+  }
+};
+inline void PndPidMvaAssociatorTask::SetClassifier(MethodType const& methodT)
+{
+  fMethodType = methodT;
 };
 #endif//End of interface definition (PndPidMvaAssociatorTask)
