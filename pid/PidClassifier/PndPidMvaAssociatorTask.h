@@ -82,10 +82,21 @@ class PndPidMvaAssociatorTask: public FairTask
    */
   inline void SetWeightFileName(std::string const& wFileName);
   
-  inline void SetNumNeigh(int val);
-
   inline void SetClassifier(std::string const& methodName);
   inline void SetClassifier(MethodType const& methodT);
+
+  //______________ KNN- Classifier parameter _____________
+  /**
+   *@param val nNumber of neighbors to be uset for KNN classifier.
+   */
+  inline void SetNumNeigh(int val);
+  
+  /**
+   * Set the scale factor and the event weight for KNN classifier.
+   * @param scFact  Scale factor.
+   * @param weight  Events weight.
+   */
+  inline void SetKnnEventParams(float scFact,  double weight);
 
   //=============== Private members.
  private:
@@ -118,7 +129,9 @@ class PndPidMvaAssociatorTask: public FairTask
   std::string fWeightsFileName;
   
   //! Number of neighbors
-  int fNumNeigh;
+  int    fNumNeigh;
+  float  fScFact;
+  double fWeight;
 
   //! MVA classifier object.
   PndMvaClassifier* fClassifier;
@@ -170,9 +183,19 @@ inline void PndPidMvaAssociatorTask::SetClassifier(std::string const& methodName
   {
     fMethodType = LVQ;
   }
+  else
+  {
+    std::cerr << "<ERROR> Unknown Method."
+               << std::endl;
+  }
 };
 inline void PndPidMvaAssociatorTask::SetClassifier(MethodType const& methodT)
 {
   fMethodType = methodT;
+};
+inline void PndPidMvaAssociatorTask::SetKnnEventParams(float scFact, double weight)
+{
+  fScFact = scFact;
+  fWeight = weight;
 };
 #endif//End of interface definition (PndPidMvaAssociatorTask)

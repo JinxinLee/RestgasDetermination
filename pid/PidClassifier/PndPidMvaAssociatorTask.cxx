@@ -34,7 +34,8 @@ void printResult(std::map<std::string,float>& res)
  * Default Constructor.
  */
 PndPidMvaAssociatorTask::PndPidMvaAssociatorTask()
-  : FairTask("PndPidMvaAssociatorTaskSTD"), fNumNeigh(200),
+  : FairTask("PndPidMvaAssociatorTaskSTD"),
+    fNumNeigh(200), fScFact(0.8), fWeight(1.00),
     fClassifier(0)
 {
   std::cout << "<INFO> Call Default task constructor. " 
@@ -52,7 +53,8 @@ PndPidMvaAssociatorTask::PndPidMvaAssociatorTask()
  * Constructor.
  */
 PndPidMvaAssociatorTask::PndPidMvaAssociatorTask(char const* name, char const* title)
-  : FairTask(name), fNumNeigh(200),
+  : FairTask(name),
+    fNumNeigh(200), fScFact(0.8), fWeight(1.00),
     fClassifier(0)
 {
   std::cout << title << '\n';
@@ -136,7 +138,6 @@ InitStatus PndPidMvaAssociatorTask::Init()
 	    << fWeightsFileName
 	    << "\n<INFO> Init classifiers.\n";
 
-  // FIXME FIXME HIER BEN JE BEZIG
   // Init Classifier object
   switch(fMethodType)
   {
@@ -182,7 +183,7 @@ InitStatus PndPidMvaAssociatorTask::Init()
       }
       
       // Set parameters.
-      KnnCls->SetEvtParam(0.8, 1.0);
+      KnnCls->SetEvtParam(fScFact, fWeight);
       KnnCls->SetKnn(fNumNeigh);
       KnnCls->InitKNN();
       
@@ -206,8 +207,11 @@ void PndPidMvaAssociatorTask::Exec(Option_t* option)
   {
     fPidChargedProb->Delete();
   }
+
+#ifdef DEBUG
   std::cout << "<INFO> Call to Exec with " << option << '\n';
-  
+#endif
+
   if(fVerbose > 1)
   {
     std::cout << "-I- Start PndPidAssociatorTask.\n";
