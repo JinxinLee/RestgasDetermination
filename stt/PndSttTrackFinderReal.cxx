@@ -42,7 +42,6 @@ using std::map;
 PndSttTrackFinderReal::PndSttTrackFinderReal()
 { 
 //  fVerbose      = 1;
-  MINIMUMOUTERHITSPERTRACK=5;
                  Fimin=0.;     Fimax=2.*PI;
                  FI0min = 0.; FI0max = 2.*PI;
                stepD=(Dmax-Dmin)/nbinD;
@@ -847,49 +846,9 @@ jumpout: ;
 
 
 
-/*
-      //   first the parallel straws
-      for(i=0; i< Minclinations[0]-1; i++){
-       if( ExclusionList[ infoparal[i] ] ){
-         for(j=i+1; j< Minclinations[0]; j++){
-
-           if(
-             fabs(info[ infoparal[i] ][0] - info[ infoparal[j] ][0])<1.e-20
-                             &&
-             fabs(info[ infoparal[i] ][1] - info[ infoparal[j] ][1])<1.e-20  ) {
-
-               ExclusionList[   infoparal[j]   ]= false ;
-               ExclusionListbis[   infoparal[j]   ]= false ;
-
-           }
-         } //  end of  for(j=i+1; j< Minclinations[0]; j++)
-       }  //   end of if( ExclusionList[   infoparal[i]   ] )
-      }   //   end of for(i=0; i< Minclinations[0]-1; i++)
-
-*/
 
 
 
-      //   then the skew straws
-
-/*
-      for(i=0; i< NSkewhits-1; i++){
-       if( ExclusionListSkew[ infoskew[i] ] ){
-         for(j=i+1; j< NSkewhits; j++){
-           if(
-             fabs(info[ infoskew[i] ][0] - info[ infoskew[j] ][0])<1.e-20
-                             &&
-             fabs(info[ infoskew[i] ][1] - info[ infoskew[j] ][1])<1.e-20  ) {
-
-               ExclusionListSkew[   infoskew[j]   ]= false ;
-               ExclusionListSkewbis[   infoskew[j]   ]= false ;
-
-           }
-         } //  end of  for(j=1; j< NSkewhits; j++)
-       }  //   end of if( ExclusionList[ infoskew[i] ] )
-      }   //   end of for(i=0; i< Minclinations[0]-1; i++)
-
-*/
 
 //-----------------------------------  end of exclusion of straws with multiple hits
 
@@ -936,10 +895,15 @@ jumpout: ;
                            &ListHitsinTrack[nTracksFoundSoFar][0]
                                                     );
 
+
+ if(istampa>=2){
+        cout<<"      nHitsinTrack = "<<nHitsinTrack[nTracksFoundSoFar]<<
+  " and if it is < the MINIMUMHIITSPERTRACK ("<< MINIMUMHITSPERTRACK<<
+  ") this candidate track is skipped\n";
+
+ }
+
       if( nHitsinTrack[nTracksFoundSoFar] < MINIMUMHITSPERTRACK) {
-//        cout<<"      nHitsinTrack = "<<nHitsinTrack[nTracksFoundSoFar]<<
-//  "  is < the MINIMUMHIITSPERTRACK ("<< MINIMUMHITSPERTRACK<<
-//  ");  skip this candidate track\n";
         continue;
       }
 
@@ -984,6 +948,9 @@ jumpout: ;
                            nBoxConformal,
                            HitsinBoxConformal,
                            OutputListHitsinTrack);
+
+// cout<<" Naux = "<<Naux<<", MINIMUMOUTERHITSPERTRACK = "<<MINIMUMOUTERHITSPERTRACK
+//	<<", Nouter = " <<Nouter<<endl;
 
       if( Naux >= MINIMUMOUTERHITSPERTRACK && Naux > 0.7 * Nouter )  break;
 
@@ -6967,6 +6934,9 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
     nRcell = RConformalIndex[   infoparal[  ListHitsinTrack[i] ]   ];
     nFicell = FiConformalIndex[  infoparal[  ListHitsinTrack[i]  ]  ];
 
+// if(IVOLTE==3)cout<<"nRcell = "<<nRcell<<", nFicell = "<< nFicell<<endl;
+
+
 //---------------
 
     if (nRcell - NRCELLDISTANCE < 0 ) {
@@ -6995,7 +6965,7 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
                                       &&
               TemporaryExclusionList[   infoparal[  HitsinBoxConformal[iR][iFi][j]  ]   ]) {
             ListHitsinTrack[nHitsinTrack]=HitsinBoxConformal[iR][iFi][j] ;   //  hit number in the PARALLEL straws scheme
-//if(IVOLTE==4)   cout<<"nFi cell di hit accettato "<<iFi<<endl;
+//if(IVOLTE==3)   cout<<"\tnFi cell di hit accettato "<<iFi<<" e iR di hit accettato = "<<iR<<endl;
 
             nHitsinTrack++;
             TemporaryExclusionList[ infoparal[  HitsinBoxConformal[iR][iFi][j]  ]  ]= false;
@@ -7011,24 +6981,6 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
    }    //  end      while ( nRemainingHits > 0 && i < nHitsinTrack)
 
 
-
-//   ordering the hits by INCREASING CONFORMAL RADIUS (decreasing space radius)
-/*
-    for (j = 0; j< nHitsinTrack; j++){
-      auxIndex[j]=ListHitsinTrack[j];
-      auxRvalues[j]=
-                    info[ infoparal[ ListHitsinTrack[j] ]  ][0]*
-                    info[ infoparal[ ListHitsinTrack[j] ]  ][0]+
-                    info[ infoparal[ ListHitsinTrack[j] ]  ][1]*
-                    info[ infoparal[ ListHitsinTrack[j] ]  ][1];
-    }
-
-
-    PndStt_Merge_Sort( nHitsinTrack, auxRvalues, auxIndex);
-    for (j = 0; j< nHitsinTrack; j++){
-      ListHitsinTrack[nHitsinTrack-1-j]=auxIndex[j];
-    }
-*/
 
 
 
