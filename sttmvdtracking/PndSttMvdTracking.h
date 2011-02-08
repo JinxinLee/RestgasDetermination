@@ -65,7 +65,7 @@ class PndSttMvdTracking : public FairTask
 
   int istampa ;
   int IVOLTE ;
-  static const bool  iplotta = false , ianalizza = true ;
+  static const bool  iplotta = true , ianalizza = true ;
   static const UShort_t   nmaxSttHits = maxTracks*26,
                           nmaxMvdPixelHits=500,
 			  nmaxMvdStripHits=500,
@@ -610,6 +610,12 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 
 
 
+   void FixDiscontinuitiesFiangleinSZplane(
+                          UShort_t TemporarynSkewHitsinTrack,
+                          Double_t *S,
+                          Double_t *Fi_initial_helix_referenceframe,
+                          Short_t Charge
+                                                                );
 
 
   ClassDef(PndSttMvdTracking,1);
