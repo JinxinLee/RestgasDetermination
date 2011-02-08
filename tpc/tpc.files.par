@@ -29,3 +29,5 @@ tpc/TestChamber/TestBenchPad.dat
 tpc/TestBench/newPadTC.dat
 tpc/TestBench/TBhexa_pads.dat
 tpc/TestBench/padPlane_FOPI.dat
+tpc/TestBench/ARGON-90_CO2-10_B0_PRES1013.asc
+tpc/TestBench/PadShapePrototype.dat
