@@ -1057,7 +1057,7 @@ if(istampa>=2  && IVOLTE<20){  cout<<"           hit n. "<<ListHitMvdTrackCand[i
              KAPPA[i]=0.;
 	}
 
-if(istampa > 2&& IVOLTE<20){
+if(istampa >= 2&& IVOLTE<20){
    cout<<"    da PndSttMvdtracking, Evento n. "<<IVOLTE<<
    ";  estratto Stt PndTrackCand n. "<<i
         <<", qop = "<<qop<<
@@ -1128,7 +1128,7 @@ if(istampa>2  && IVOLTE<20){
 
 
 
-if(istampa>2&& IVOLTE<20){
+if(istampa>=2&& IVOLTE<20){
            cout<<"da PndSttMvdTracking ;  n. SttTrackCand totali = "<<nSttTrackCand
 	       <<"--------------------------------------\n";
       for(  i= 0; i< nSttTrackCand; i++){
@@ -1490,6 +1490,42 @@ if(istampa>2) cout<<"da PndSttMvdTracking ncand = "<<ncand<<",  Ox[ncand] = "<<O
 
 			j=nMvdPixelHitsAssociatedToSttTrack[ncand]+
 			nMvdStripHitsAssociatedToSttTrack[ncand];
+if(istampa>=2){
+
+cout<<"PndSttMvdTracking : nMvdPixelHitsAssociatedToSttTrack[ncand]+nMvdStripHitsAssociatedToSttTrack[ncand] = "
+	<<j<<", per ncand = "<<ncand<<endl;
+cout<<"PndSttMvdTracking, prima del fix-discontinuities : FI0[ncand] = "<<FI0[ncand]<<endl;
+	for(int ik=0;ik<j;ik++){
+		cout<<"PndSttMvdTracking, prima del fix-discontinuities : Mvd hit n. "
+		<<ik<<", S = "<<S[ik]<<", Z = "<<ZED[ik]<<endl;
+	}
+		}	//end of if(istampa>=2)
+
+
+//  finding if there are discontinuity at 0 for fi value of the Mvd Hit.
+//  In case of discontinuity at 0, add 2*PI to fi of those hits with fi in the 1st quadrant.
+//  This is necessary because the discontinuities would make the fit
+//  in the SZ plane fail.
+//  In this discontinuity fixing, the value FI0 of the vertex (0,0) is also included.
+//  If there is discontinuity fixing, the values of S[i] AND POSSIBLY Fi_initial_helix_referenceframe[i]
+//  might be modified (+2.*PI) from  now on.
+
+
+      FixDiscontinuitiesFiangleinSZplane(
+		j,
+		S,
+		&FI0[ncand],
+		CHARGE[ncand]
+					);
+if(istampa>=2){
+
+cout<<"PndSttMvdTracking, dopo di fix-discontinuities : FI0[ncand]  = "<<FI0[ncand]<<endl;
+	for(int ik=0;ik<j;ik++){
+		cout<<"PndSttMvdTracking, dopo del fix-discontinuities : Mvd hit n. "
+		<<ik<<", S = "<<S[ik]<<", Z = "<<ZED[ik]<<endl;
+	}
+		}	//end of if(istampa>=2)
+
 
 		resultFitSZagain[ncand] = FitSZspace(
 					j,	//  only the Mvd hits
@@ -1501,6 +1537,9 @@ if(istampa>2) cout<<"da PndSttMvdTracking ncand = "<<ncand<<",  Ox[ncand] = "<<O
 					20,	// maximum number allowed in the fit
 					&emme
 						);
+
+if(istampa>=2)cout<<"da PndSttMvdTracking :  resultFitSZagain[ncand] = "
+<<resultFitSZagain[ncand]<<", new KAPPA = "<<emme<<endl;
 
 
 		if( resultFitSZagain[ncand]==1) KAPPA[ncand] = emme;
@@ -5971,7 +6010,7 @@ for(int ic =0;ic<nBounds; ic++){
 
 
 //--------stampaggi
-if(istampa>=1){
+if(istampa>=3){
 printf("from FitHelixCylinder  printout dopo glp_main -------------------------------\n");
 printf("      number of structural variables %d\n",NStructVar);
 int ica;
@@ -7535,7 +7574,7 @@ int temporaneo=4;
 		for( imvdcand=0; imvdcand<nMvdTrackCand; imvdcand++){
 			Dist = 0.;
 			ncont=0;
-if(istampa>2 ){cout<<"da PndSttMvdTracking evento n. "<<IVOLTE<<" -------Stt Track Cand n. "<<i
+if(istampa>=2 ){cout<<"da PndSttMvdTracking evento n. "<<IVOLTE<<" -------Stt Track Cand n. "<<i
 	<<" (Ox="<<Ox[i]<<", Oy="<<Oy[i]<<", R="<<R[i]<<")"
 	<<",  Mvd cand n. "<<imvdcand<<endl<<
 	"\tn. Hits in questo MvdTrackCand = "<<nHitMvdTrackCand[imvdcand]<<endl;}
@@ -7560,7 +7599,7 @@ if(istampa>2 ){cout<<"da PndSttMvdTracking evento n. "<<IVOLTE<<" -------Stt Tra
 						) -R[i]);
 
 
-if(istampa>2 ){cout<<"da PndSttMvdTracking : pixel hit "<<ListHitMvdTrackCand[imvdcand][jmvdhit] <<", X = "<<
+if(istampa>=2 ){cout<<"da PndSttMvdTracking : pixel hit "<<ListHitMvdTrackCand[imvdcand][jmvdhit] <<", X = "<<
      XMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]]
      <<", Y = "<<
      YMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]]
@@ -7597,7 +7636,7 @@ if(istampa>2 ){cout<<"da PndSttMvdTracking : pixel hit "<<ListHitMvdTrackCand[im
 						) -R[i]);
 
 
-if(istampa>2 ){cout<<"da PndSttMvdTracking : Strip hit "<<  ListHitMvdTrackCand[imvdcand][jmvdhit] <<
+if(istampa>=2 ){cout<<"da PndSttMvdTracking : Strip hit "<<  ListHitMvdTrackCand[imvdcand][jmvdhit] <<
 ", X = "<<
      XMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]]
      <<", Y = "<<
@@ -8712,6 +8751,47 @@ int nevento=1;
 //----------end of function PndSttMvdTracking::PndSttInfoXYZParal
 
 
+
+
+//----------start of function PndSttMvdTracking::FixDiscontinuitiesFiangleinSZplane
+
+  void PndSttMvdTracking::FixDiscontinuitiesFiangleinSZplane(
+                          UShort_t TemporarynSkewHitsinTrack,
+                          Double_t *S,
+                          Double_t *Fi_initial_helix_referenceframe,
+                          Short_t Charge
+                                                                )
+{
+
+     UShort_t i;
+     Double_t max, min;
+
+     for(i=0, min = 9999., max = -9999.; i<TemporarynSkewHitsinTrack; i++){
+        if( S[i] > max ) max = S[i];
+        if( S[i] < min ) min = S[i];
+     }
+
+
+     if( max-min> PI) {
+       for(i=0, min = 9999., max = -9999.; i<TemporarynSkewHitsinTrack; i++){
+        if( S[i] < PI ) S[i] += 2.*PI;
+        if( S[i] > max ) max = S[i];
+        if( S[i] < min ) min = S[i];
+       }
+        
+     }
+
+
+     if( Charge >0 ){
+       if( *Fi_initial_helix_referenceframe < max ) *Fi_initial_helix_referenceframe  += 2.*PI;
+     } else {
+       if( *Fi_initial_helix_referenceframe > min ) *Fi_initial_helix_referenceframe  -= 2.*PI;
+     }
+
+     return;
+
+}
+//----------end of function PndSttMvdTracking::FixDiscontinuitiesFiangleinSZplane
 
 
 
