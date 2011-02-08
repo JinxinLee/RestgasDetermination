@@ -67,6 +67,7 @@ class PndTpcSLPatternRecoTask : public FairTask {
   void SetClusterAmpCut(double c) {fAmpCut=c;}
   void SetCutTracksParallelZ(unsigned int limit) {fZStackLimit=limit;}
   void SetNClusterLimit(unsigned int ncl) {fClLimit=ncl;}
+  void SetAbsMomentum(unsigned int s) {fMomScale=s;}  //set absolute momentum
   
   void SetDistSorting(bool opt) {fDistSorting=opt;}
   void SetXSorting(bool opt) {fXSorting=opt;}
@@ -123,6 +124,7 @@ class PndTpcSLPatternRecoTask : public FairTask {
 
   int counter;
   unsigned int fZStackLimit;
+  unsigned int fMomScale;
 
   std::vector<Color_t> colors;
   std::map<std::string, TH1*> fHistCont;   //container for histograms

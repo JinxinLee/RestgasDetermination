@@ -70,11 +70,12 @@ PndTpcSLPatternRecoTask::PndTpcSLPatternRecoTask()
    fPersistence(kFALSE),fDistSorting(kFALSE),
    fDepth(6), fThresh(6), fMin(5), counter(-1),
    fXZ(true), fZY(false), _cutbigpad(kFALSE), _cutsmallpad(kFALSE),
-   fStore(false), fAmpCut(0.), fZStackLimit(0), fClLimit(500), fDebug(false)
+   fStore(false), fAmpCut(0.), fZStackLimit(0), fClLimit(500), fDebug(false),
+   fMomScale(1)
     
 {
   fClusterBranchName = "PndTpcCluster";
-  fRep = new TF1("rep","[0]*cos(x)+[1]*sin(x)",-16,16); //standard rep
+  fRep = new TF1("rep","[0]*cos(x)+[1]*sin(x)",-15,15); //standard rep
 }
 
 PndTpcSLPatternRecoTask::~PndTpcSLPatternRecoTask(){
@@ -91,6 +92,8 @@ bool compareNodes (Hough4DNode* n1, Hough4DNode* n2) {
   return (n1->getVote() > n2->getVote()); 
 }
 
+
+//TODO: set geometry from outside
 
 void 
 PndTpcSLPatternRecoTask::SetParameterSpace(double* mins, double* maxs) {
@@ -165,7 +168,7 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   double yMin = -15.;
   double yMax = 15.;
   double zMin = 0.;
-  double zMax = 20.;
+  double zMax = 70.;
   
   double MIN0 = fMins[0];
   double MIN1 = fMins[1];
@@ -192,13 +195,13 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   if(fStore) {
     std::string clName = "cl_Ev";
     std::string repNameXY = "repXY_Ev";
-    std::string repNameXZ = "repXZ_Ev";
+    std::string repNameYZ = "repYZ_Ev";
     std::string canvName = "canv_Ev";
     std::stringstream ss;
     ss<<counter;
     clName.append(ss.str());
     repNameXY.append(ss.str());
-    repNameXZ.append(ss.str());
+    repNameYZ.append(ss.str());
     canvName.append(ss.str());
     fHistCont["clHist"] = new TH3D(clName.c_str(), clName.c_str(), 100,xMin,xMax,
 				   100,yMin,yMax, 100, zMin, zMax);
@@ -207,7 +210,7 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     fHistCont["repHistXY"] = new TH2D(repNameXY.c_str(), repNameXY.c_str(), 
 				      100, fMins[0],fMaxs[0],
 				      100,fMins[1],fMaxs[1]);
-    fHistCont["repHistXZ"] = new TH2D(repNameXZ.c_str(), repNameXZ.c_str(), 
+    fHistCont["repHistYZ"] = new TH2D(repNameYZ.c_str(), repNameYZ.c_str(), 
 				      100,fMins[2],fMaxs[2],
 				      100,fMins[3],fMaxs[3]);
     fHistCont["clHist2"] = (TH3D*)fHistCont["clHist"]->Clone();
@@ -290,13 +293,13 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     double z = pos.Z();
     
     //TODO: make this configurable
-    hitreps.push_back(new Hypersurface4D(x,y,*fRep,
-					 x,z,*fRep,i));
+    hitreps.push_back(new Hypersurface4D(x,y/3.,*fRep,
+					 y,z/5.,*fRep,i));
     hitreps.back()->setParamSpace(fMins, fMaxs);
     
     if(fStore) {
       fHistCont["repHistXY"]->GetListOfFunctions()->Add(hitreps.back()->getTF1_1()->Clone());
-      fHistCont["repHistXZ"]->GetListOfFunctions()->Add(hitreps.back()->getTF1_2()->Clone());
+      fHistCont["repHistYZ"]->GetListOfFunctions()->Add(hitreps.back()->getTF1_2()->Clone());
     }
   } //end loop over clusters
   
@@ -461,7 +464,7 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     else 
       m1 = 1.e3; 
     
-    double m2; //slope in the x-z plane
+    double m2; //slope in the y-z plane
     if(std::abs(TMath::Tan(theta2))>limit)
       m2 = -1./(TMath::Tan(theta2));
     else 
@@ -476,10 +479,10 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     double z[2];
     
     x[0] = xMin; x[1] = xMax;
-    y[0] = m1*x[0]+t1;
-    z[0] = m2*x[0]+t2;
-    y[1] = m1*x[1]+t1;
-    z[1] = m2*x[1]+t2;
+    y[0] = (m1*x[0]+t1)*3;
+    z[0] = (m2*y[0]+t2)*5;
+    y[1] = (m1*x[1]+t1)*3;
+    z[1] = (m2*y[1]+t2)*5;
     if(fStore) {   
       lines.push_back(new TPolyLine3D(2,x,y,z,"l"));
       lines.back()->SetLineWidth(2);
@@ -498,6 +501,7 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     TVector3 mom;
     mom.SetXYZ(x[1]-x[0], y[1]-y[0], z[1]-z[0]);
     mom=mom.Unit();
+    mom*=fMomScale;
        
     //requires nicely sorted candidates.
     TVector3 clpos=(solutions[i])->at(0)->pos();
@@ -508,6 +512,13 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     
     //init the trackrep
     int pdg = 13; //muons - doesn't matter without mag field anyway
+    
+    std::cout<<"  ... Creating track candidate with"<<std::endl
+	     <<"      Momentum: ";
+    mom.Print();
+    std::cout<<"      Initial Position: ";
+    pos.Print();
+    
     RKTrackRep* rep = new RKTrackRep(clpos,mom,poserr,momerr,pdg);
     //build GFTrack object
     
@@ -516,7 +527,7 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   }
   
   std::vector<TBox*> boxlistXY;
-  std::vector<TBox*> boxlistXZ;
+  std::vector<TBox*> boxlistYZ;
   if(fStore) {
     for(int l=0; l < survivors.size(); l++) {
       const double* center = survivors[l]->getCenter();
@@ -534,10 +545,10 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
       double x4 = (center[2]+0.5*length+0.5)*(fMaxs[2]-fMins[2])+fMins[2];
       double y3 = (center[3]-0.5*length+0.5)*(fMaxs[3]-fMins[3])+fMins[3];
       double y4 = (center[3]+0.5*length+0.5)*(fMaxs[3]-fMins[3])+fMins[3];
-      boxlistXZ.push_back(new TBox(x3,y3,x4,y4));
-      boxlistXZ.back()->SetLineColor(kPink+10);
-      boxlistXZ.back()->SetFillStyle(0);
-      boxlistXZ.back()->SetDrawOption("l");
+      boxlistYZ.push_back(new TBox(x3,y3,x4,y4));
+      boxlistYZ.back()->SetLineColor(kPink+10);
+      boxlistYZ.back()->SetFillStyle(0);
+      boxlistYZ.back()->SetDrawOption("l");
     }
   }
   
@@ -560,9 +571,9 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     for(unsigned int b=0; b<boxlistXY.size(); b++) 
       thePad->GetListOfPrimitives()->Add(boxlistXY[b]);
     thePad = canv->cd(4);
-    thePad->GetListOfPrimitives()->Add(fHistCont["repHistXZ"]);
-    for(unsigned int b=0; b<boxlistXZ.size(); b++) 
-      thePad->GetListOfPrimitives()->Add(boxlistXZ[b]);
+    thePad->GetListOfPrimitives()->Add(fHistCont["repHistYZ"]);
+    for(unsigned int b=0; b<boxlistYZ.size(); b++) 
+      thePad->GetListOfPrimitives()->Add(boxlistYZ[b]);
   
     //save the canvas
     fHistoFile->cd();
@@ -571,9 +582,9 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     for(unsigned int b=0; b<boxlistXY.size(); b++) 
       delete boxlistXY[b];
     boxlistXY.clear();
-    for(unsigned int b=0; b<boxlistXZ.size(); b++) 
-      delete boxlistXZ[b];
-    boxlistXZ.clear();
+    for(unsigned int b=0; b<boxlistYZ.size(); b++) 
+      delete boxlistYZ[b];
+    boxlistYZ.clear();
      
     //fHistoFile->Close();
     

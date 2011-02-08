@@ -121,6 +121,8 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
   for(unsigned int n=0; n<nTr; n++) {
     GFTrack* tr = (GFTrack*) fTrackArray->At(n);
     int failedHits = tr->getFailedHits();
+    unsigned int NDF = tr->getNDF();
+    double Chi2 = tr->getChiSqu();
 
     GFTrackCand cand = tr->getCand();
     candIDs.clear(); 
@@ -156,6 +158,9 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
       std::vector<unsigned int> clSize;
       std::vector<unsigned int> cl2DSize;
       std::vector<TVector3> pps;
+      std::vector<double> posX;	
+      std::vector<double> posY;	
+      std::vector<double> posZ;	
       
       
       //Loop over clusters
@@ -173,10 +178,10 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
 	//calculate chi2
 	TVector3 cl_err= cl->sig();
 	TVector3 chi2;
-	unsigned int NDF=4; //in the case of the straight line
-	chi2.SetX((res.X()*res.X())/(cl_err.X()*cl_err.X())/NDF);	
-	chi2.SetY((res.Y()*res.Y())/(cl_err.Y()*cl_err.Y())/NDF);	
-	chi2.SetZ((res.Z()*res.Z())/(cl_err.Z()*cl_err.Z())/NDF);
+	unsigned int nDim = 4;
+	chi2.SetX((res.X()*res.X())/(cl_err.X()*cl_err.X())/nDim);	
+	chi2.SetY((res.Y()*res.Y())/(cl_err.Y()*cl_err.Y())/nDim);	
+	chi2.SetZ((res.Z()*res.Z())/(cl_err.Z()*cl_err.Z())/nDim);
 	//chi2.SetZ(res*res/cl_err*cl_err/(candIDs.size()-4));//candif.size-4 is ndf
       
 	//book residual
@@ -185,13 +190,17 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
 
 	resX.push_back(res.X());
 	resY.push_back(res.Y());
-	resZ.push_back(sqrt(res*res));
+	resZ.push_back(res.Z());
 	chi2X.push_back(chi2.X());
 	chi2Y.push_back(chi2.Y());
 	chi2Z.push_back(chi2.Z());
 	amps.push_back(cl->amp());
 	clSize.push_back(cl->size());	
 	cl2DSize.push_back(cl->get2DSize());
+	posX.push_back(cl_pos.X());
+	posY.push_back(cl_pos.Y());
+	posZ.push_back(cl_pos.Z());
+	
 	
       }//End loop over clusters
 
@@ -205,7 +214,11 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
       fitstat->fillPndTpc2DClusterSize(cl2DSize);
       fitstat->fillPndTpcClusterAmp(amps);
       fitstat->fillPndTpcProjPoints(pps);
-      
+      fitstat->fillPndTpcHitPositionsX(posX);
+      fitstat->fillPndTpcHitPositionsY(posY);
+      fitstat->fillPndTpcHitPositionsZ(posZ);
+      fitstat->setChi2(Chi2);
+      fitstat->setNDF(NDF);
       
     }
   }

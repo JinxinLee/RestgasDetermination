@@ -6,14 +6,14 @@
 # Description of parameters
 #################################################################
 [PndTpcDigiPar]
-PndTpcGasFile:Int_t 25
-EField:Double_t 250
+PndTpcGasFile:Int_t 31   #AR/CO2 90/10
+EField:Double_t 350.
 AttachFlag:Int_t 0
 LogitudinaldiffusionFlag:Int_t 1
 TransversediffusionFlag:Int_t 1
 DriftDistortionFlag:Int_t 0
-zGem:Double_t 0.2
-zMax:Double_t 8.
+zGem:Double_t -15
+zMax:Double_t 75
 Gain:Double_t 4000
 Supression:Double_t 0.001
 Spread:Double_t 0.02
@@ -21,7 +21,7 @@ MinSignalAmp:Double_t 6
 rMin:Double_t 0.
 rMax:Double_t 11.
 PadPlaneFile:Int_t 30
-PadShapeFile:Int_t 29
+PadShapeFile:Int_t 32
 PadShapeRange:Double_t 0.5
 PadShapeStep:Double_t 0.02
 PadShapeIntStep:Double_t 0.01
