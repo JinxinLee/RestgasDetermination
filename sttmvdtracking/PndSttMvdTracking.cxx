@@ -499,17 +499,6 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 		cout<<"da PndSttMvdTracking  :  N. di MC truth tracks = 0, return!\n"<<endl;
 		return;
 	}
-
-
-
-//------------------------------
-
-
-
-
-
-
-
 //------------------------------
 
 //----------   fetching the STT  MC points
@@ -980,12 +969,13 @@ if(istampa>=2  && IVOLTE<20){  cout<<"           hit n. "<<ListHitMvdTrackCand[i
 	                    }
 
 
-  for(j=0,nSttParHitsinTrack[i]=0,nSttSkewHitsinTrack[i]=0; j<nSttHitsinTrack[i]; j++){
-    pndtrackcandhit = pSttTrackCand->GetSortedHit(j);
-
     //  for the calculation of the approximate Fi of the first hit in thos track
+    pndtrackcandhit = pSttTrackCand->GetSortedHit(0);
     x = info[ pndtrackcandhit.GetHitId() ][0];  //  this is in the middle of the tube
     y = info[ pndtrackcandhit.GetHitId() ][1];  //  this is in the middle of the tube
+
+  for(j=0,nSttParHitsinTrack[i]=0,nSttSkewHitsinTrack[i]=0; j<nSttHitsinTrack[i]; j++){
+    pndtrackcandhit = pSttTrackCand->GetSortedHit(j);
 
     ListSttHitsinTrack[i][j] = pndtrackcandhit.GetHitId(); // # hit of Stt
 
@@ -1069,8 +1059,11 @@ if(istampa >= 2&& IVOLTE<20){
 	FI0[i] = atan2(-Oy[i], -Ox[i]);
 	HoughFi[i] = FI0[i] + PI;
 	if(HoughFi[i]<0.) HoughFi[i]=0.;
-	if( FI0[i] < 0. )  FI0[i]+= 2.*PI;
-	if( Fifirst[i] < 0. )  Fifirst[i]+= 2.*PI;
+	if( FI0[i] < 0. )  FI0[i]+= 2.*PI; if( FI0[i] < 0. ) FI0[i]=0.;
+	if( Fifirst[i] < 0. )  Fifirst[i]+= 2.*PI;if( Fifirst[i] < 0. )  Fifirst[i]=0.;
+
+
+
 
 if(istampa>2  && IVOLTE<20){
   cout<<"    e FI0 = "<<FI0[i]<<",  e Fi = "  <<HoughFi[i]<<endl;
@@ -2049,6 +2042,23 @@ for (i=0;i<nMCTracks;i++){
          Pyy = pMCtr->GetMomentum().Y();
          aaa = sqrt( Pxx*Pxx + Pyy*Pyy);
          Rr =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
+
+
+
+	if(istampa>=2){
+		TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
+		TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
+		if (icode>1000000000) carica = 1.;
+		else  carica = fParticle->Charge()/3. ;    //   charge of track
+		Cx = Oxx + Pyy*1000./(BFIELD*CVEL*carica);
+		Cy = Oyy - Pxx*1000./(BFIELD*CVEL*carica);
+		cout<<"da PndSttMvdTracking, evento (cominciando da 1) n. "<<IVOLTE<<
+		",  traccia MC n. "<<i<<",  R MC = "<<Rr<<", Centro X = "<<Cx
+		<<", Centro Y = "<<Cy<<endl;
+	}
+
+
+
 /*
          TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
          TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
@@ -7546,7 +7556,25 @@ int temporaneo=4;
 
 	for(i=0; i<nSttTrackCand; i++){
 
+if(istampa>=2 ){cout<<"da PndSttMvdTracking evento n. "<<IVOLTE<<" -------Stt Track Cand n. "<<i
+	<<" (Ox="<<Ox[i]<<", Oy="<<Oy[i]<<", R="<<R[i]<<", FI0 (degrees) = "<< FI0[i]*180/PI
+	<<", fiprimo (degrees) = "<< Fifirst[i]*180/PI <<")"<<endl;}
+
+	if(CHARGE[i]>0){	// track must rotate clockwise looking into the beam.
+		anglemax = FI0[i];
+		anglemin = Fifirst[i];
+	} else {
+		anglemin = FI0[i];
+		anglemax = Fifirst[i];
+	}
+		if(anglemax < anglemin) anglemin -= 2.*PI;
+		if(anglemax < anglemin) anglemax==anglemin; // this is just to be super-sure.
+
+
+
+
 //   handle those cases when FI0 and Fifirst are just around 0.
+/*
 		if( fabs( FI0[i] - Fifirst[i]) > PI ) {     //  this is the special case
 			specialcase = true;
 			if( FI0[i] < Fifirst[i] ){
@@ -7565,6 +7593,7 @@ int temporaneo=4;
 			anglemax = FI0[i];
 			anglemin = Fifirst[i];
 		}
+*/
 
 //--------------------
 		nMvdPixelHitsAssociatedToSttTrack[i]=0;
@@ -7575,8 +7604,9 @@ int temporaneo=4;
 			Dist = 0.;
 			ncont=0;
 if(istampa>=2 ){cout<<"da PndSttMvdTracking evento n. "<<IVOLTE<<" -------Stt Track Cand n. "<<i
-	<<" (Ox="<<Ox[i]<<", Oy="<<Oy[i]<<", R="<<R[i]<<")"
-	<<",  Mvd cand n. "<<imvdcand<<endl<<
+	<<" (Ox="<<Ox[i]<<", Oy="<<Oy[i]<<", R="<<R[i]<<", FI0 (degrees) = "<< FI0[i]*180/PI
+	<<", fiprimo (degrees) = "<< Fifirst[i]*180/PI <<")"
+	<<"\n\tMvd cand n. "<<imvdcand<<endl<<
 	"\tn. Hits in questo MvdTrackCand = "<<nHitMvdTrackCand[imvdcand]<<endl;}
 			nn[ngoodmix]=0;
 			nHighQuality[ngoodmix]=0;
@@ -7589,16 +7619,16 @@ if(istampa>=2 ){cout<<"da PndSttMvdTracking evento n. "<<IVOLTE<<" -------Stt Tr
 					XMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]]-Ox[i]
 							);
 					if(angle<0.) angle += 2.*PI;
-					if(specialcase){ if (angle<PI) angle += 2.*PI; }
-
-					dist=fabs( sqrt(
-	 (Ox[i]-XMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]])*
-	 (Ox[i]-XMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]])
-	+(Oy[i]-YMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]])*
-	 (Oy[i]-YMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]])
-						) -R[i]);
+					if( angle>anglemax) angle -= 2.*PI;
 
 
+					if(angle > anglemin)
+					{
+						dist=fabs( sqrt(
+					 (Ox[i]-XMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]])*
+					 (Ox[i]-XMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]])
+					+(Oy[i]-YMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]])*
+					 (Oy[i]-YMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]])) -R[i]);
 if(istampa>=2 ){cout<<"da PndSttMvdTracking : pixel hit "<<ListHitMvdTrackCand[imvdcand][jmvdhit] <<", X = "<<
      XMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]]
      <<", Y = "<<
@@ -7606,17 +7636,16 @@ if(istampa>=2 ){cout<<"da PndSttMvdTracking : pixel hit "<<ListHitMvdTrackCand[i
      <<", dist "<<dist<<", angle = "<<angle<<" (min="<<anglemin<<", max="<<anglemax<<
      ", max dist "<<delta<<")"<<endl;
     }
-
-
-					if(dist<delta &&angle > anglemin && angle < anglemax)
-					{
-						List[ngoodmix][nn[ngoodmix]]=
+						if(dist<delta)
+						{
+						     List[ngoodmix][nn[ngoodmix]]=
 							ListHitMvdTrackCand[imvdcand][jmvdhit];
-						ListType[ngoodmix][nn[ngoodmix]]= FairRootManager::Instance()->GetBranchId("MVDHitsPixel");
-						Dist += dist;
-						if( dist<highqualitycut) nHighQuality[ngoodmix]++;
-						nn[ngoodmix]++;
-					}
+						     ListType[ngoodmix][nn[ngoodmix]]= FairRootManager::Instance()->GetBranchId("MVDHitsPixel");
+						     Dist += dist;
+						     if( dist<highqualitycut) nHighQuality[ngoodmix]++;
+						     nn[ngoodmix]++;
+						}
+					}	// end of  if(angle > anglemin)
 
 				} else if (ListHitTypeMvdTrackCand[imvdcand][jmvdhit]==FairRootManager::Instance()->GetBranchId("MVDHitsStrip")){
 
@@ -7626,16 +7655,15 @@ if(istampa>=2 ){cout<<"da PndSttMvdTracking : pixel hit "<<ListHitMvdTrackCand[i
 					XMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]]-Ox[i]
 							);
 					if(angle<0.) angle += 2.*PI;
-					if(specialcase){ if (angle<PI) angle += 2.*PI; }
+					if( angle>anglemax) angle -= 2.*PI;
 
-					dist=fabs( sqrt(
-	 (Ox[i]-XMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]])*
-	 (Ox[i]-XMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]])
-	+(Oy[i]-YMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]])*
-	 (Oy[i]-YMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]])
-						) -R[i]);
-
-
+					if(angle > anglemin)
+					{
+						dist=fabs( sqrt(
+					 (Ox[i]-XMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]])*
+					 (Ox[i]-XMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]])
+					+(Oy[i]-YMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]])*
+					 (Oy[i]-YMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]])) -R[i]);
 if(istampa>=2 ){cout<<"da PndSttMvdTracking : Strip hit "<<  ListHitMvdTrackCand[imvdcand][jmvdhit] <<
 ", X = "<<
      XMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]]
@@ -7644,17 +7672,18 @@ if(istampa>=2 ){cout<<"da PndSttMvdTracking : Strip hit "<<  ListHitMvdTrackCand
      <<", dist "<<dist<<", angle = "<<angle<<" (min="<<anglemin<<", max="<<anglemax<<
      ", max dist "<<delta<<")"<<endl;
     }
-					if(dist<delta&& angle > anglemin && angle < anglemax)
-					{
-						List[ngoodmix][nn[ngoodmix]]=
+						if(dist<delta)
+						{
+						   List[ngoodmix][nn[ngoodmix]]=
 							ListHitMvdTrackCand[imvdcand][jmvdhit];
-						ListType[ngoodmix][nn[ngoodmix]]= FairRootManager::Instance()->GetBranchId("MVDHitsStrip");
-						Dist += dist;
-						if( dist<highqualitycut) nHighQuality[ngoodmix]++;
+						   ListType[ngoodmix][nn[ngoodmix]]= FairRootManager::Instance()->GetBranchId("MVDHitsStrip");
+						   Dist += dist;
+						   if( dist<highqualitycut) nHighQuality[ngoodmix]++;
 
-						nn[ngoodmix]++;
-					}	// end of   if(ListHitTypeMvd......
-				}
+						   nn[ngoodmix]++;
+						}
+					}	// end of   if(angle > anglemin)
+				} // end of    if(ListHitTypeMvdTrackCand[imvdcand][jmvdhit]
 
 			}	// end of   for( jmvdhit=0; jmvdhit<nHitMvdTrackCand[imvdcand];
 
