@@ -83,7 +83,7 @@ InitStatus PndSttMvdTracking::Init() {
 
 
 
-  IVOLTE=0;
+  IVOLTE=-1;
 
 
 
