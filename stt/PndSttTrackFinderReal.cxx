@@ -135,7 +135,7 @@ if(istampa >=3 )   HANDLEXYZ = fopen("infoPndTrackFinderRealXYZ.txt","w");
 
    fHelixHitProduction = true;
 
-   IVOLTE=0; ntimes = 0;
+   IVOLTE=-1; ntimes = 0;
 
 
   // Get and check FairRootManager
@@ -362,8 +362,8 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 
      IVOLTE++;
 
-     if(istampa>=2 && IVOLTE <= nmassimo) 
-         cout<<"\nda PndSttTrackFinderReal : evento (a partire da 1)  n. "<<IVOLTE<<endl;
+     if(istampa>=1) 
+         cout<<"\nda PndSttTrackFinderReal : evento (a partire da 0)  n. "<<IVOLTE<<endl;
 
 //------------------------------------ fine modifiche Gianluigi, 9-7-08
 
@@ -392,7 +392,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 
 //       PndMCTrack*      pMCtr = NULL;     //  questo e' gia' definito in PndSttTrackFinderReal.h
    nMCTracks = fMCTrackArray->GetEntriesFast(); // num. tracce/evento
-   if(istampa>=2)  cout<<"evento n. "<<IVOLTE<<", n. tracce MC = "<<nMCTracks<<endl;
+   if(istampa>=1)  cout<<"Gianluigi, evento n. "<<IVOLTE<<", n. tracce MC = "<<nMCTracks<<endl;
 
   // Number of STT hits
   Int_t Nhits = 0;
@@ -453,7 +453,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
     NSkewhits=Ninclinate=0;
 
 
-  if (istampa >= 2 ) cout<<"Gianluigi : da PndSttTrackFinderReal::DoFind : Nhits="<<Nhits<<endl;
+  if (istampa >= 1 ) cout<<"Gianluigi : da PndSttTrackFinderReal::DoFind : Nhits="<<Nhits<<endl;
 
   //   generated momenta and starting position of each track
 
@@ -473,9 +473,14 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
       
       // MC point
       Int_t ptIndex = pMhit->GetRefIndex();
-	if (ptIndex >= 0) {	// fake or background hit
+	if (ptIndex >= 0) {
 		pMCpt = GetPointFromCollections(iHit); // <== FairMCPoint
+
 	}
+
+
+
+
 //      if (ptIndex < 0) continue;           // fake or background hit
 //      if (!pMCpt){
 //       cout<<"from PndSttTrackFinderReal :  # MC points pointer missing, return!\n";
