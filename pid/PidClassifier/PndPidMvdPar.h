@@ -3,6 +3,16 @@
 
 #include "TObject.h"
 
+// **************************************************************************
+//  Author: Laura Zotti e-mail: zotti@to.infn.it
+//
+//  params for MVD Associator
+//
+// Created: 02-03-10
+// Modified:
+//
+// **************************************************************************
+
 class PndPidMvdPar : public TObject
 {
  public:
