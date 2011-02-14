@@ -1,6 +1,9 @@
 // Macro created 20/09/2006 by S.Spataro
 // It creates a geant simulation file for emc
-run_sim_tpccombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1){
+run_sim_tpccombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t seed=0){
+
+  gRandom->SetSeed(seed);
+
   TStopwatch timer;
   timer.Start();
   gDebug=0;
