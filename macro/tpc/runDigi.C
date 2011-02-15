@@ -133,7 +133,7 @@
   fRun->AddTask(tpcGem);
 
   PndTpcPadResponseTask* tpcPadResponse = new PndTpcPadResponseTask();
-  tpcPadResponse->SetPersistence();
+  //tpcPadResponse->SetPersistence();
   //tpcPadResponse->SetQAPlotCol(qa);
   fRun->AddTask(tpcPadResponse);
 
@@ -145,8 +145,19 @@
 
   PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
   tpcElec->SetPersistence();
+  //tpcElec->SetSamplePersistence();
   //tpcElec->SetQAPlotCol(qa);
   fRun->AddTask(tpcElec);
+  
+  PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
+  tpcCF->SetMode(1); // individual timeslice
+  tpcCF->SetDataMode(true);
+  tpcCF->SetPersistence();
+  tpcCF->SetDigiBranchName("PndTpcDigi");
+  tpcCF->timeslice(10); //in samples
+  tpcCF->SetDiffFactor(1.3);
+  //tpcCF->SetTrivialClustering();
+  fRun->AddTask(tpcCF);
 
 
   // -----   Intialise and run   --------------------------------------------

@@ -31,13 +31,19 @@ files.sort()
 # define cuts in Z
 cuts = (0,10,20,30,40,50,60)
 
+# define offset in Z 1 mu s * 2.8
+OFFSET = -2.8
+
 resUs = dict([(i, ROOT.TH1D("StatsResX"+str(cuts[i]), 
-                            "Cosmic Residuals Z'", 500,-1,1)) for i in range(len(cuts))])
-resVIDs = dict([(i, ROOT.TH1D("StatsResXID"+str(cuts[i]), 
-                              "Cosmic Residuals X w/o clusters of size 1 edges", 
-                              500,-1,1)) for i in range(len(cuts))])
+                            "Cosmic Residuals Z'", 500,-1,1)) 
+              for i in range(len(cuts))])
+resVIDs = dict([(i, ROOT.TH1D("StatsResVID"+str(cuts[i]), 
+                              "Cosmic Residuals V(X') single track events", 
+                              500,-1,1)) 
+                for i in range(len(cuts))])
 resVs = dict([(i, ROOT.TH1D("StatsResV"+str(cuts[i]), 
-                            "Cosmic Residuals V (X')", 500,-1,1)) for i in range(len(cuts))])
+                            "Cosmic Residuals V (X')", 500,-1,1)) 
+              for i in range(len(cuts))])
 
 cl2Ds = dict([(i, ROOT.TH1D("cl2Ds"+str(cuts[i]), 
                             "Cluster Size Distributions as Function of Z", 50,0,50)) 
@@ -46,8 +52,9 @@ cl2Ds = dict([(i, ROOT.TH1D("cl2Ds"+str(cuts[i]),
 #resUVs = dict([(i, ROOT.TH1D("StatsResXY"+str(cuts[i]), 
 #                             "Cosmic Residuals X'Y'", 500,-1,1)) for i in range(len(cuts))])
 resVsUs = dict([(i, ROOT.TH2D("StatsResXsYs"+str(cuts[i]), 
-                              "Cosmic Residuals X'Y'", 500,-0.5,0.5,
-                              500,-0.5,0.5)) for i in range(len(cuts))])
+                              "Cosmic Residuals U(Z') vs V(X')", 500,-0.5,0.5,
+                              500,-0.5,0.5)) 
+                for i in range(len(cuts))])
 
 clSize2D = ROOT.TH1D("clSize2D", "2D Cluster Size Distribution", 100,0,100)
 clSize2D.SetFillColor(ROOT.kBlack)
@@ -55,43 +62,71 @@ clSize = ROOT.TH1D("clSize", "Cluster Size Distribution", 100,0,100)
 clSize.SetLineColor(ROOT.kRed+3)
 
 chi2prob = ROOT.TH1D("chi2prob", "ChiSqu Probability Distribution", 500,0,1)
-chi2raw = ROOT.TH1D("chi2raw", "ChiSqu2 / NDF", 200,0,10)
+chi2raw = ROOT.TH1D("chi2raw", "ChiSqu2 / NDF", 300,0,10)
 
-diffT = ROOT.TF1("diffT","[0]*TMath::Sqrt(x+[1])",0,75)
+phiDist = ROOT.TH1D("phiDist", "Phi Distribution of fitted Tracks", 300,-3.5,3.5)
+thetaDist = ROOT.TH1D("thetaDist", "Theta Distribution of fitted Tracks", 300,-3.5,3.5)
+
+sigxDist = ROOT.TH1D("sigxDist", "Cluster SigmaX Distribution", 500, 0, 0.3)
+sigyDist = ROOT.TH1D("sigyDist", "Cluster SigmaY Distribution", 500, 0, 0.3)
+sigXvsClSize = ROOT.TH2D("sigXClSize", "Cluster SigmaX vs Cluster Size",
+                         80,0,40,500,0,0.3)
+sigXvsDrift = ROOT.TH2D("sigXvsZ", "Cluster SigmaX vs Drift Length Z",
+                         400,0,65,400,0,3000)
+sigXvsDrift.GetYaxis().SetTitle("#sigma_X (#mu m)")
+
+diffT = ROOT.TF1("diffT","[0]*TMath::Sqrt(x-[1])",0,75)
 diffT.SetNpx(1000)
+diffT.SetLineWidth(2)
+diffT.SetLineStyle(4)
 diffT.SetParameter(0,0.0227*10000)
-diffT.SetParameter(1,15.)
+diffT.SetParameter(1,OFFSET)
 
 chi2func = ROOT.TF1("meh", "[0]*x*TMath::Exp(-2*x)",0,10)
 chi2func.SetParameter(0,2500)
 
 
-for f in range(25) :
+#for file in files :
+for f in range(1) :
     
-    file = files[f]
-    #file = "/nfs/hicran/data/tpc/fopi/2010/decoded/runC_1703.reco.root"
+    #file = files[f]
+    file = "/nfs/hicran/data/tpc/fopi/2010/decoded/runC_1735.reco.root"
     print(file)
     Rfile = ROOT.TFile(file, "read")
     tree = Rfile.Get("cbmsim")
     tree.SetBranchStatus("*", 0)
    #tree.SetBranchStatus("PndTpcSLResiduals.*", 1)
     tree.SetBranchStatus("TrackFitStat.*", 1)
-   #tree.SetBranchStatus("PndTpcCluster.*", 1)
-   # tree.SetBranchStatus("TrackPostFit.*", 1)
+    tree.SetBranchStatus("PndTpcCluster.*", 1)
+   #tree.SetBranchStatus("TrackPostFit.*", 1)
     
     for e in tree :
+        for cl in e.PndTpcCluster :
+            sig = cl.sig()
+            sigxDist.Fill(sig.X())
+            sigyDist.Fill(sig.Y())
+            size = cl.size()
+            pos = cl.pos()
+            sigXvsClSize.Fill(size, sig.X())
+            sigXvsDrift.Fill(pos.Z(), sig.X()*10000)
+            
+        nTracks = e.TrackFitStat.GetEntriesFast()    
         for tfs in e.TrackFitStat :
             chi2 = tfs.getChi2()
-            #NDF = tfs.getNDF()
+            #redChi2 = tfs.getRedChi2()
+            NDF = tfs.getNDF()
             NDIM=4
             
             numHits = tfs.GetHitPositionsZ().size()
-            chi2Prob = ROOT.TMath.Prob(chi2, 2*numHits-NDIM)
+            chi2Prob = ROOT.TMath.Prob(chi2, NDF)
             chi2prob.Fill(chi2Prob)
-            chi2raw.Fill(chi2/(2*numHits-NDIM))
+            chi2raw.Fill(chi2/(NDF))
 
             mom = tfs.GetMom()
             mom.SetMag(1.)
+            phiDist.Fill(mom.Phi())
+            thetaDist.Fill(mom.Theta())
+
             #build orthogonal vector to fix plane - res x mom
             vecX = ROOT.TVector3(1,0,0)
             vecZ = ROOT.TVector3(0,0,1)
@@ -100,7 +135,7 @@ for f in range(25) :
             v = mom.Cross(u)
             
             for p in range(numHits) :
-                z = tfs.GetHitPositionsZ().at(p) 
+                z = tfs.GetHitPositionsZ().at(p)
                 x = tfs.GetHitPositionsX().at(p)
                 y = tfs.GetHitPositionsY().at(p)
                 
@@ -125,13 +160,14 @@ for f in range(25) :
                         
                         resUs[i-1].Fill(resU)
                         resVs[i-1].Fill(resV)
-#                        resUVs[i-1].Fill(math.sqrt(resX**2 + resY**2)) 
-                        resVsUs[i-1].Fill(resV, resU)
                         
+                        #resUVs[i-1].Fill(math.sqrt(resX**2 + resY**2)) 
+                        resVsUs[i-1].Fill(resV, resU)
+                                                
                         #compare with these filters:
-                        if cl2Dsize > 1 :
+                        if nTracks == 1 :
                             resVIDs[i-1].Fill(resV)
-                            
+                                                        
                             #if xyRad > 8 and xyRad < 12:
                             #if numHits > 20 :
                                                   
@@ -150,6 +186,8 @@ c1 = ROOT.TCanvas()
 c1.Divide(3,2)
 for i in range(6) :
     c1.cd(i+1)
+    resVsUs[i].GetXaxis().SetTitle("Residual V (cm)")
+    resVsUs[i].GetYaxis().SetTitle("Residual U (cm)")
     resVsUs[i].Draw("COLZ")
     resVsUs[i].Write()
 c2 = ROOT.TCanvas()
@@ -175,6 +213,7 @@ c4.Divide(3,2)
 for i in range(6) :
     c4.cd(i+1)
     resVs[i].SetFillColor(ROOT.kAzure-8)
+    resVs[i].GetXaxis().SetTitle("Residual V (cm)")
     resVs[i].Draw()
     testfit = ROOT.TF1("testfitX"+str(1),"gaus",-1,1)
     resVs[i].Fit(testfit, "N+", "", -1,1)
@@ -215,6 +254,7 @@ c6.Divide(3,2)
 for i in range(6) :
     c6.cd(i+1)
     resUs[i].SetFillColor(ROOT.kAzure-8)
+    resUs[i].GetXaxis().SetTitle("Residual U (cm)")
     resUs[i].Draw()
     testfit = ROOT.TF1("testfitY"+str(1),"gaus",-1,1)
     resUs[i].Fit(testfit, "N+", "", -1,1)
@@ -241,8 +281,8 @@ c7 = ROOT.TCanvas()
 c7.Divide(3,2)
 for i in range(6) :
     c7.cd(i+1)
-    
     resVIDs[i].SetFillColor(ROOT.kAzure-8)
+    resVIDs[i].GetXaxis().SetTitle("Residual V (cm)")
     resVIDs[i].Draw()
     testfit = ROOT.TF1("testfitX"+str(1),"gaus",-1,1)
     resVIDs[i].Fit(testfit, "N+", "", -1,1)
@@ -284,7 +324,6 @@ diffVID.SetMarkerStyle(21)
 diffVID.Draw("LP")
 diffV.Write()
 diffVID.Write()
-diffT.SetLineStyle(4)
 diffT.Draw("same")
 
 
@@ -300,8 +339,31 @@ chi2prob.Draw()
 c12 = ROOT.TCanvas()
 chi2raw.Draw()
 chi2func.SetNpx(1000)
-chi2func.Draw("same")
+#chi2func.Draw("same")
+
+c13 = ROOT.TCanvas()
+c13.Divide(2,1)
+c13.cd(1)
+phiDist.Draw()
+c13.cd(2)
+thetaDist.Draw()
+
+c14 = ROOT.TCanvas()
+c14.Divide(2,1)
+c14.cd(1)
+sigxDist.Draw()
+c14.cd(2)
+sigyDist.Draw()
+
+c15 = ROOT.TCanvas()
+c15.Divide(2,1)
+c15.cd(1).SetLogz()
+sigXvsClSize.Draw("colz")
+c15.cd(2).SetLogz()
+sigXvsDrift.Draw("colz")
+diffT.Draw("same")
 
 input()
 
 outfile.Close()
+

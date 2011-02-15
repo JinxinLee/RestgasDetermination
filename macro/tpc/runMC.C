@@ -18,7 +18,7 @@
 
   // SET NUMBER OF EVENTS
   // --------------------------------------------------
-  Int_t nEvents = 1000;
+  Int_t nEvents = 10000;
 
   //Set JOBNAME + JOBDIR (will not be created!)
   // --------------------------------------------------
@@ -134,7 +134,7 @@
   //(PDG ID, MULTIPLICITY)
   FairBoxGenerator* boxGen = new FairBoxGenerator(211, 1); 
   
-  boxGen->SetPRange(0.5,0.5); // GeV/c 
+  boxGen->SetPRange(0.5,2.5); // GeV/c 
   boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
   boxGen->SetThetaRange(30, 140); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
