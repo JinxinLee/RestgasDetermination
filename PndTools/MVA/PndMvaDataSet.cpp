@@ -12,30 +12,63 @@
 
 using namespace std;
 
-// ============================ Public =====================================
 /**
  * Constructor.
  *@param inputFilename  Input File name.
- *@param classNames    Names of available classes.
+ *@param classNames     Names of available Labels (classes).
+ *@param varNames       Available variabl names.
+ *@param type           Application Type.
+ */
+PndMvaDataSet::PndMvaDataSet(std::string const& WeightFile,
+			     std::vector<std::string> const& classNames,
+			     std::vector<std::string> const& varNames,
+			     AppType type)
+  : m_input(WeightFile),
+    m_UsePCA(false)
+{
+  // Init labels.
+  InitClasses(classNames);
+
+  // Init variables.
+  InitVariables(varNames);
+
+  switch (type)
+  {
+  case CLASSIFY:
+    ValidateWeightFile();
+    ReadWeightsFromFile();
+    // Read input file
+    ReadInput();
+    break;
+  case TMVATRAIN:
+  case TMVACLS:
+    std::cout << "Yet To be done\n"
+	      << "NIet alles tegelijkertijd, :P\n";
+    break;
+  case TRAIN: // Read input file
+  default:
+    ReadInput();
+    break;
+  }
+}
+
+/**
+ * Constructor.
+ *@param inputFilename  Input File name.
+ *@param classNames    Names of available Labels (classes).
  *@param varNames     Available variabl names.
  */
-PndMvaDataSet::PndMvaDataSet(const string& inputFilename,
-			     const vector<string>& classNames,
-			     const vector<string>& varNames)
+PndMvaDataSet::PndMvaDataSet(string const& inputFilename,
+			     vector<string> const& classNames,
+			     vector<string> const& varNames)
   : m_input(inputFilename),
     m_UsePCA(false)
 {
   // Initialize classes
-  for(size_t i = 0; i < classNames.size(); i++)
-  {
-    m_classes.push_back(PndMvaClass(classNames[i]));
-  }
+  InitClasses(classNames);
 
   // Init varaiables
-  for(size_t i = 0; i < varNames.size(); i++)
-  {
-    m_vars.push_back(PndMvaVariable(varNames[i]));
-  }
+  InitVariables(varNames);
 
   // Read input file
   ReadInput();
@@ -170,7 +203,7 @@ void PndMvaDataSet::Trim()
  * Normalize event dataset using one of available methods.
  *@param t Normalization type (VARX, MINMAX, MEDIAN).
  */
-void PndMvaDataSet::NormalizeDataSet(const NormType type)
+void PndMvaDataSet::NormalizeDataSet(NormType const type)
 {
   switch(type)
   {
@@ -187,7 +220,7 @@ void PndMvaDataSet::NormalizeDataSet(const NormType type)
     
   case VARX:
     cout << "<INFO> Normalizing the dataset "
-	 << "using samle Variance and mean.\n";
+	 << "using sample Variance and mean.\n";
     ComputeVariance();
     break;
     
@@ -231,10 +264,11 @@ void PndMvaDataSet::InitClsCondMeans()
  * Write the normalized DataSet to the out-put file.
  * @param  outFile  File name to write to
  */
-void PndMvaDataSet::WriteDataSet(const string& outFile)
+void PndMvaDataSet::WriteDataSet(std::string const& outFile)
 {
-  std::cout << "<INFO> Writing samples to file: "
-	    << outFile << '\n';
+  std::cout << "<INFO> Writing DataSet samples to file: "
+	    << outFile
+	    << '\n';
 
   /* 
    * Open out put file and write coordinates of the prototypes
@@ -247,8 +281,8 @@ void PndMvaDataSet::WriteDataSet(const string& outFile)
     
     string name = m_classes[cls].Name;
     string desc = "Description Of " + name;
-    const char* treeName = name.c_str();
-    const char* treeDesc = desc.c_str();
+    char const* treeName = name.c_str();
+    char const* treeDesc = desc.c_str();
     
     // Create a tree
     TTree sig (treeName, treeDesc);
@@ -258,8 +292,8 @@ void PndMvaDataSet::WriteDataSet(const string& outFile)
     {
       string vname = m_vars[j].Name;
       string leaf  = vname + "/F" ;
-      const char* bname = vname.c_str();
-      const char* lname = leaf.c_str();
+      char const* bname = vname.c_str();
+      char const* lname = leaf.c_str();
       
       // Bind the parameters to the tree elements.
       sig.Branch(bname, &buffer[j], lname);
@@ -281,6 +315,7 @@ void PndMvaDataSet::WriteDataSet(const string& outFile)
     sig.Write();
   }//End for cls
 
+  //_____________ Write normalization and transformation data.
   // Write normFactors
   vector<float> buffer(m_vars.size(), 0.0);
   string name = "NormFact";
@@ -293,8 +328,8 @@ void PndMvaDataSet::WriteDataSet(const string& outFile)
   {
     string vname = m_vars[j].Name;
     string leaf  = vname + "/F" ;
-    const char* bname = vname.c_str();
-    const char* lname = leaf.c_str();
+    char const* bname = vname.c_str();
+    char const* lname = leaf.c_str();
     
     // Bind the parameters to the tree elements.
     fact.Branch(bname, &buffer[j], lname);
@@ -319,8 +354,8 @@ void PndMvaDataSet::WriteDataSet(const string& outFile)
   {
     string vname = m_vars[j].Name;
     string leaf  = vname + "/F" ;
-    const char* bname = vname.c_str();
-    const char* lname = leaf.c_str();
+    char const* bname = vname.c_str();
+    char const* lname = leaf.c_str();
     
     // Bind the parameters to the tree elements.
     meanTree.Branch(bname, &buffer[j], lname);
@@ -338,14 +373,14 @@ void PndMvaDataSet::WriteDataSet(const string& outFile)
   out.Close();
 }
 
-// ============================ Protected ===================================
 /**
  * Read input event data.
  **** FIXME: Seg.Faul. if file is already opened by other.
  */
 void PndMvaDataSet::ReadInput()
 {
-  cout << "<INFO> Reading data from  "<< m_input
+  cout << "<INFO> Reading data from  "
+       << m_input
        << '\n';
 
   // Open the input file for reading event data.
@@ -358,7 +393,7 @@ void PndMvaDataSet::ReadInput()
   for(size_t cls = 0; cls < m_classes.size(); cls++)
   {
     // Tree name
-    const char *name = m_classes[cls].Name.c_str();
+    char const* name = m_classes[cls].Name.c_str();
     std::cout << "<INFO> Reading events for "
 	      <<  m_classes[cls].Name << '\n';
     
@@ -366,7 +401,8 @@ void PndMvaDataSet::ReadInput()
     TTree *t = (TTree*) InPutFile.Get(name);
     if(!t)
     {
-      std::cerr<< "\t<ERROR> Could not find data tree " << name 
+      std::cerr<< "\t<ERROR> Could not find data tree "
+	       << name
 	       << std::endl;
       assert (t);
     }
@@ -380,7 +416,7 @@ void PndMvaDataSet::ReadInput()
     // Bind the parameters to the tree branches
     for(size_t j = 0; j < m_vars.size(); j++)
     {
-      const char* branchName = m_vars[j].Name.c_str();
+      char const* branchName = m_vars[j].Name.c_str();
       // Activate branches
       t->SetBranchStatus(branchName, 1);
       
@@ -419,7 +455,7 @@ void PndMvaDataSet::ReadInput()
     delete t;
   }// End of for(cls) loop for all classes
 
-  // Read Norm facts
+  //__________________ Read Norm facts
   TTree* fact = (TTree*) InPutFile.Get("NormFact");
   
   if(fact)
@@ -430,7 +466,7 @@ void PndMvaDataSet::ReadInput()
     // Bind the parameters to the tree branches
     for(size_t j = 0; j < m_vars.size(); j++)
     {
-      const char* branchName = m_vars[j].Name.c_str();
+      char const* branchName = m_vars[j].Name.c_str();
       
       //Binding the branches
       fact->SetBranchAddress(branchName, &(normVars[j]));
@@ -449,7 +485,7 @@ void PndMvaDataSet::ReadInput()
     delete fact;
   }
 
-  // Read Means
+  //__________________________ Read Means
   TTree* m = (TTree*) InPutFile.Get("Means");
   
   if(m)
@@ -461,7 +497,7 @@ void PndMvaDataSet::ReadInput()
     // Bind the parameters to the tree branches
     for(size_t j = 0; j < m_vars.size(); j++)
     {
-      const char* branchName = m_vars[j].Name.c_str();
+      char const* branchName = m_vars[j].Name.c_str();
       
       //Binding the branches
       m->SetBranchAddress(branchName, &(meanVals[j]));
@@ -480,7 +516,8 @@ void PndMvaDataSet::ReadInput()
     delete m;
   }
   
-  // Get PCA data. If PCA has been applied.  
+  //________________________ Get PCA data.
+  //If PCA has been applied.  
   if( InPutFile.Get("PCAMeans") && InPutFile.Get("PCAEigenVectors") )
   {
     std::cout << "<INFO> Found PCA transformed values.\n";
@@ -510,12 +547,17 @@ void PndMvaDataSet::ReadInput()
   InPutFile.Close();
 }
 
-// ============================ Private =====================================
+/**
+ * Read Weights and parameters from file.
+ */
+void PndMvaDataSet::ReadWeightsFromFile()
+{}
+
 /**
  * Class conditional mean for a given class. Stored in class
  * conditional means container.
  */
-void PndMvaDataSet::CompClsCondMean(std::string const &clsName)
+void PndMvaDataSet::CompClsCondMean(std::string const& clsName)
 {
   cout << "<INFO> Determining class conditional mean for "
        << clsName << ".\n";
@@ -632,11 +674,14 @@ void PndMvaDataSet::DetermineMedian()
       median = varVect[(varVect.size() / 2)];
       Fquartil = varVect[( (varVect.size() + 1)/4) - 1 ];
     }
+
     // Store values
     m_vars[i].NormFactor = Fquartil;
     m_vars[i].Mean = median;
+
     cout << m_vars[i].Name << "\tmedian = " << median 
-	      << "\t IntQuartDist = " << Fquartil << '\n';
+	 << "\t IntQuartDist = " << Fquartil 
+	 << '\n';
   }
 }
 
@@ -704,4 +749,57 @@ void PndMvaDataSet::PCATransForm()
     // Delete object
     delete trsEvt;
   }
+}
+
+// Init Classe.
+void PndMvaDataSet::InitClasses(std::vector<std::string> const& classNames)
+{
+  // Initialize classes
+  for(size_t i = 0; i < classNames.size(); i++)
+  {
+    m_classes.push_back(PndMvaClass(classNames[i]));
+  }
+}
+
+//Init Variables.
+void PndMvaDataSet::InitVariables(std::vector<std::string> const& varNames)
+{
+  // Init varaiables
+  for(size_t i = 0; i < varNames.size(); i++)
+  {
+    m_vars.push_back(PndMvaVariable(varNames[i]));
+  }
+}
+
+// Validate the input file.
+bool PndMvaDataSet::ValidateWeightFile()
+{
+  std::cout << "<INFO> Validating the weight file: "
+	    << m_input
+	    << '\n';
+  
+  // Open the input file for reading event data.
+  TFile inF(m_input.c_str(),"READ");
+  
+  // Get list of objects from the file.
+  TList* objKeys = inF.GetListOfKeys();
+
+  // Loop the list of objects.
+  for(int obk= 0; obk < objKeys->GetEntries(); ++obk)
+  {
+    // Get object key name.
+    std::string keyName ( (objKeys->At(obk))->GetName() );
+    
+    // Get Object key.
+    TKey* key = inF.FindKey(keyName.c_str());
+    
+    // FIXME FIXME Hier ben je bezig.
+    std::cout << key->GetClassName() << " "
+	      << key->GetName()      << " "
+	      << key->GetTitle()     << "\n";
+    //------======================================
+    //First get the class labels.
+  }
+  inF.Close();
+  return true;
 }

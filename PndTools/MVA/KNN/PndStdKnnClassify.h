@@ -22,16 +22,16 @@
 class PndStdKnnClassify : public PndMvaClassifier 
 {
  public:
-  /*
+  /**
    * @param inputFile: The name of the file that holds the weights
    * @param classNames: The names of classes to which an event might be
    * assigned to.
    * @param varNames: Variable names from which the feature vector is
    * built.
    */
-  PndStdKnnClassify(const std::string& inputFile,
-		    const std::vector<std::string>& classNames, 
-		    const std::vector<std::string>& varNames);
+  PndStdKnnClassify(std::string const& inputFile,
+		    std::vector<std::string> const& classNames, 
+		    std::vector<std::string> const& varNames);
 
   //! Destructor  
   virtual ~PndStdKnnClassify();
@@ -55,7 +55,7 @@ class PndStdKnnClassify : public PndMvaClassifier
   /**
    * @param Neighbours: Number of Neighbours.
    */
-  inline void SetKNN( const unsigned int nNeighbours );
+  inline void SetKNN( unsigned int const nNeighbours );
 
   /**
    * Get number of neighbors.

@@ -363,10 +363,12 @@ void PndLVQTrain::InitProtoTypes()
   // number of proto = 0 makes No sence.
   bool nonZeroProto = true;
   for(std::map<std::string, unsigned int>::const_iterator iter = m_numProtoPerClass.begin(); 
-      iter != m_numProtoPerClass.end(); iter++){
+      iter != m_numProtoPerClass.end(); iter++)
+  {
     nonZeroProto = nonZeroProto && (iter->second != 0);
   }
-  if( !nonZeroProto ){
+  if( !nonZeroProto )
+  {
     std::cerr << "<ERROR> Undefined number of prototypes for one or more classes."
 	      << std::endl;
     assert(nonZeroProto);
@@ -376,26 +378,27 @@ void PndLVQTrain::InitProtoTypes()
   // Fetch labels.
   const std::vector<PndMvaClass>& classes = m_dataSets.GetClasses();
   
-  for(size_t i = 0; i < classes.size(); i++){
-
-    if( classes[i].NExamples < m_numProtoPerClass[(classes[i]).Name] ){
+  for(size_t i = 0; i < classes.size(); i++)
+  {
+    if( classes[i].NExamples < m_numProtoPerClass[(classes[i]).Name] )
+    {
       std::cerr << "<ERROR> Requested number of prototypes larger than "
 		<< "the number of available examples for class: "
 		<< (classes[i]).Name << '\n' 
 		<< std::endl;
-    exit(EXIT_FAILURE);
+      exit(EXIT_FAILURE);
     }
-
   }
-
+  
   // Clear protypes list
   cleanProtoList();
-
+  
   // Select initialization method & initialize.
   switch(m_proto_init)
   {
   case FILE_PR:// Read from file
-    if(m_initProtoFile == ""){
+    if(m_initProtoFile == "")
+    {
       std::cerr << "<ERROR> Empty file name.\n"
 		<<"\tYou need to specify the file "
 		<<"containing the initial code books." 
@@ -405,9 +408,12 @@ void PndLVQTrain::InitProtoTypes()
     // Read Code Books (protoTypes) from file
     ReadProtoFromFile();
     break;
+    
   case KMEANS_PR:// Kmeans_clustering
     InitProtoK_Means();
     break;
+    
+  case RANDOM_PR:
   default:// Random init proto
     InitProtoRand();
     break;
@@ -422,12 +428,15 @@ void PndLVQTrain::InitProtoK_Means()
   std::cout << "<INFO> Initializing LVQ prototypes using K_Means clustering.\n";
 
   // Fetch labels.
-  const std::vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+  std::vector<PndMvaClass> const& classes = m_dataSets.GetClasses();
 
   // Print number of proto for each class.
-  for(size_t i = 0; i < classes.size(); i++){
-    std::cout << classes[i].Name << " "
-	      << m_numProtoPerClass[classes[i].Name] << " ";
+  std::cout << "<INFO> Number of protoTypes per class:\n\t";
+  for(size_t i = 0; i < classes.size(); i++)
+  {
+    std::cout << classes[i].Name << " = "
+	      << m_numProtoPerClass[classes[i].Name]
+	      << ", ";
   }
   std::cout << '\n';
 
@@ -437,7 +446,7 @@ void PndLVQTrain::InitProtoK_Means()
   // Init temporary prototype container.
   std::map<std::string, ClDataSample*> ProtoVector;//(classes.size());
   
-  //======== Class loop  
+  //======== Class loop
   int cls = 0;
   int numberOfClasses = static_cast<int> (classes.size());
   
@@ -522,24 +531,26 @@ void PndLVQTrain::InitProtoRand()
   TRandom3 trand(m_RND_seed);
 
   // Fetch labels.
-  const std::vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+  std::vector<PndMvaClass> const& classes = m_dataSets.GetClasses();
 
   // Print number of proto for each class.
+  std::cout << "<INFO> Number of protoTypes per class:\n\t";
   for(size_t i = 0; i < classes.size(); i++)
   {
-    std::cout << classes[i].Name << " "
-	      << m_numProtoPerClass[classes[i].Name] << " ";
+    std::cout << classes[i].Name << " = "
+	      << m_numProtoPerClass[classes[i].Name]
+	      << ", ";
   }
   std::cout << '\n';
 
   // Fetch variables.
-  const std::vector<PndMvaVariable>& variables = m_dataSets.GetVars();
+  std::vector<PndMvaVariable> const& variables = m_dataSets.GetVars();
   
   // Fetch examples.
-  const std::vector<std::pair<std::string, std::vector<float>*> >& events = m_dataSets.GetData();
+  std::vector<std::pair<std::string, std::vector<float>*> > const& events = m_dataSets.GetData();
   
   // Fetch class conditional means.
-  const std::map< std::string, std::vector<float>* >& ClsCondMeans = m_dataSets.GetClassCondMeans();
+  std::map< std::string, std::vector<float>* > const& ClsCondMeans = m_dataSets.GetClassCondMeans();
 
   for(size_t cl = 0; cl < classes.size(); cl++)
   {
@@ -548,7 +559,8 @@ void PndLVQTrain::InitProtoRand()
     std::string curClsName = classes[cl].Name;
     unsigned int numProto = m_numProtoPerClass[curClsName];
     
-    for(unsigned int i = 0; i < numProto; i++){
+    for(unsigned int i = 0; i < numProto; i++)
+    {
       // select a random example
       if(minIdx == 0)
       {

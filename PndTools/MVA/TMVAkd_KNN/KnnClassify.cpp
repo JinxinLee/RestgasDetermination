@@ -21,17 +21,19 @@
 
 void printResult( std::map<std::string,float>& res, unsigned int evtId)
 {
-  std::cout << "\t==================================" << std::endl;
-  std::cout << " Evt Num = " << evtId << '\n';
+  std::cout << "\t==================================\n"
+	    << " Evt Num = " << evtId
+	    << '\n';
   
   for( std::map<std::string,float>::iterator ii=res.begin(); 
        ii != res.end(); ++ii)
   {
     std::cout <<"\t" << (*ii).first 
-	      << "\t=> " << (*ii).second << '\n';
+	      << "\t=> " << (*ii).second
+	      << '\n';
   }
   
-  std::cout << "\t==================================" << '\n';
+  std::cout << "\t==================================\n";
 }
 
 /* *********************************************
@@ -96,22 +98,22 @@ int main(int argc, char** argv)
   cls.SetKnn(NumNei);
   cls.InitKNN();
   
-  std::cout << ".......... Init is done." << '\n';
+  std::cout << ".......... Init is done.\n";
   
   timer.Stop();
   double rtime = timer.RealTime();
   double ctime = timer.CpuTime();
 
-  std::cout << "<INFO> Initialization time:" << '\n'
+  std::cout << "<INFO> Initialization time:\n"
 	    << "RealTime = " << rtime << " seconds, CpuTime = " 
-	    << ctime <<" Seconds" << '\n';
+	    << ctime <<" Seconds.\n";
   
   // Open input events file.
   TFile inFile(InputEvents.c_str(), "READ");
   
   // Prepare events to be classified.
   TNtuple* events = (TNtuple*) inFile.Get(EvtTreeName.c_str());
-
+  
   // Deactivate all branches
   events->SetBranchStatus("*",0);
   
@@ -138,7 +140,7 @@ int main(int argc, char** argv)
   unsigned int misCl = 0;
   int numberOfEvt = events->GetEntriesFast();
   
-  numberOfEvt = 20;
+  //numberOfEvt = 20;
   
   for(int ev = 0; ev < numberOfEvt; ev++)
   {
@@ -146,9 +148,10 @@ int main(int argc, char** argv)
     
     //cls.GetMvaValues(curEvt, res);
     //printResult(res, ev);
-
+    
     std::string* resStr = cls.Classify(curEvt);
-    if( *resStr != EvtTreeName){
+    if( *resStr != EvtTreeName)
+    {
       misCl++;
     }
     delete resStr;
@@ -157,28 +160,22 @@ int main(int argc, char** argv)
   timer.Stop();
   rtime = timer.RealTime();
   ctime = timer.CpuTime();
-
-  std::cout << "<INFO> Classifier timing results:"<< '\n'
+  
+  std::cout << "<INFO> Classifier timing results:\n"
 	    << "RealTime = " << rtime << " seconds, CpuTime = "
-	    << ctime <<" Seconds.\n" << '\n';
+	    << ctime <<" Seconds.\n\n";
   
   // Classifier evaluation info.
-  std::cout << "+++++++++++++++++++++++++++++++++++++++" 
-	    << '\n'
+  std::cout << "+++++++++++++++++++++++++++++++++++++++\n" 
 	    << " Total number of classified events: "
 	    << numberOfEvt << '\n'
 	    << " Number of missclassified: " << misCl << " = "
 	    << ( static_cast<float>(misCl) * 100.00)/ static_cast<float>(numberOfEvt)
-	    <<" %"
-	    << '\n'
+	    <<" %\n"
 	    << " Correct cassified = " << (numberOfEvt - misCl)
-	    << '\n'
-	    << " (time / event) = " << rtime/ static_cast<double>(numberOfEvt)
-	    << '\n'
-	    << " With #neighb = " << NumNei 
-	    << '\n'
-	    << "+++++++++++++++++++++++++++++++++++++++"
-	    << '\n';
+	    << "\n (time / event) = " << rtime/ static_cast<double>(numberOfEvt)
+	    << "\n With #neighb = " << NumNei 
+	    << "\n+++++++++++++++++++++++++++++++++++++++\n";
 
   // Close open file
   inFile.Close();

@@ -26,9 +26,9 @@ class PndLVQClassify: public PndMvaClassifier
    * @param classNames: class names.
    * @param varNames: variable names of the features.
    */
-  PndLVQClassify(const std::string& inputFile,
-		 const std::vector<std::string>& classNames, 
-		 const std::vector<std::string>& varNames);
+  PndLVQClassify(std::string const& inputFile,
+		 std::vector<std::string> const& classNames, 
+		 std::vector<std::string> const& varNames);
   /**
    * Destructor
    */
@@ -50,9 +50,9 @@ class PndLVQClassify: public PndMvaClassifier
   std::string* Classify(std::vector<float> EvtData);
 
  private:
-  //! To avoid mistakes
-  PndLVQClassify(const PndLVQClassify& other);
-  PndLVQClassify& operator=(const PndLVQClassify& other);
+  //! To avoid mistakes (No deep copy)
+  PndLVQClassify(PndLVQClassify const& other);
+  PndLVQClassify& operator=(PndLVQClassify const& other);
 };
 //end of interface definition
 #endif

@@ -12,7 +12,8 @@ HDR = -I../
 TARGETS = PndStdKnnClassify classifyStdKnn PndPrzWindowClassify classifyPrzWin
 
 # Define targets
-all: $(TARGETS)
+# all: $(TARGETS)
+default: $(TARGETS)
 
 PndStdKnnClassify: % : %.cpp
 	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o

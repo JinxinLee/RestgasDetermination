@@ -36,9 +36,9 @@ class PndMvaClassifier
    *@ClassNames Names of available (signal) classes.
    *@VarNames Names of the used variables(features).
    */
-  PndMvaClassifier(std::string const &InPut,
-		    std::vector<std::string> const &ClassNames,
-		    std::vector<std::string> const &VarNames);
+  PndMvaClassifier(std::string const& InPut,
+		   std::vector<std::string> const& ClassNames,
+		   std::vector<std::string> const& VarNames);
   //! Destructor
   virtual ~PndMvaClassifier();
   
@@ -64,8 +64,8 @@ class PndMvaClassifier
   
  private:
   // To avoid mistakes.
-  PndMvaClassifier (PndMvaClassifier const &other);
-  PndMvaClassifier& operator=(PndMvaClassifier const &other);
+  PndMvaClassifier (PndMvaClassifier const& other);
+  PndMvaClassifier& operator=(PndMvaClassifier const& other);
 };
 //End of class interface
 #endif

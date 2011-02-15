@@ -30,18 +30,20 @@ std::string int2str (int n)
 
 int main(int argc, char** argv)
 {
-  if(argc < 3){
+  if(argc < 3)
+  {
     std::cerr << "\t<ERROR> Usage\n"
 	      <<"\t./train <InFile> <OutFile>"
 	      << std::endl;
     return 1;
   }
-
+  
   std::string inpt   = argv[1];
   std::string oupt   = argv[2];
   
   std::vector<std::string> clas;
   std::vector<std::string> nam;
+  
   // Class Names  
   clas.push_back("electron");
   clas.push_back("pion"); 
@@ -50,23 +52,20 @@ int main(int argc, char** argv)
   clas.push_back("proton");
   
   // Parameter Names
-  nam.push_back("p");
   nam.push_back("emc");
   nam.push_back("lat");
   nam.push_back("z20");
   nam.push_back("z53");
   
-  //nam.push_back("tof"); nam.push_back("mvd");
-  //nam.push_back("stt"); nam.push_back("thetaC");
-  
   const char* file = inpt.c_str();
   
+  // Create classifier object.
   PndKnnTrain kNNtr (file, clas, nam, true);
 
   //NormType tt = VARX;
   kNNtr.NormalizeData(NONE);
   
-  //kNNtr.PCATransForm();
+  kNNtr.PCATransForm();
   
   kNNtr.SetOutPutFile(oupt);
   

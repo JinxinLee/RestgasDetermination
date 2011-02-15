@@ -17,7 +17,12 @@
 #include "PndMvaCluster.h"
 
 //! How to initialize LVQ code books.
-typedef enum {RANDOM_PR = 0, KMEANS_PR = 1, FILE_PR = 2} ProtoInitType;
+typedef enum
+{
+  RANDOM_PR = 0,// Random initialization.
+  KMEANS_PR = 1,// Init using K-Means clustering.
+  FILE_PR = 2   // Read pre-init from file.
+} ProtoInitType;
 
 //! Interface definition for LVQ trainers.
 class PndLVQTrain: public PndMvaTrainer
@@ -31,9 +36,9 @@ class PndLVQTrain: public PndMvaTrainer
    * @param ClassNames: class names.
    * @param VarNames: variable names of the features.
    */
-  PndLVQTrain(const std::string& InPut,
-	      const std::vector<std::string>& ClassNames, 
-	      const std::vector<std::string>& VarNames,
+  PndLVQTrain(std::string const& InPut,
+	      std::vector<std::string> const& ClassNames, 
+	      std::vector<std::string> const& VarNames,
 	      bool trim = true);
   /**
    * Destructor
@@ -52,24 +57,24 @@ class PndLVQTrain: public PndMvaTrainer
 
   ////================= DEBUG Only
   inline std::vector< std::pair<std::string, std::vector<float>*> >& train1sec()
-    {
-      InitProtoK_Means();
-      return m_LVQProtos;
-    };
+  {
+    InitProtoK_Means();
+    return m_LVQProtos;
+  };
   ////================= DEBUG Only
 
   /**
    * Set CodeBook init type.
    *@param val Initialization type.
    */
-  inline void setProtoInitType(const ProtoInitType iniTypeVal = RANDOM_PR);
+  inline void setProtoInitType(ProtoInitType iniTypeVal = RANDOM_PR);
 
   /**
    * Set the file name which holds the pre-initialized code books.
    *@param val The name of the file which containes the pre
    * initialized code books.
    */
-  inline void SetInitProtoFileName(const std::string& fileName);
+  inline void SetInitProtoFileName(std::string const& fileName);
 
   /**
    * Sets the learning parameters.
@@ -79,8 +84,8 @@ class PndLVQTrain: public PndMvaTrainer
    * @param etF: Final value for Etha (learning rate)
    * @param Nswp: Number of sweeps through the examples collection set.
    */
-  inline void SetLearnPrameters(const double initConst, const double etZ,
-				const double etF, const int Nswp);
+  inline void SetLearnPrameters(double const initConst, double const etZ,
+				double const etF, int const Nswp);
 
   /**
    * Set the number of protoTypes to be used for training.
@@ -88,27 +93,27 @@ class PndLVQTrain: public PndMvaTrainer
    * labels(classes).
    *@param numProto  Number of prototypes.
    */  
-  void SetNumberOfProto(const unsigned int numProto);
+  void SetNumberOfProto(unsigned int const numProto);
   
   /**
    * Set the number of protoTypes to be used for training.
    *@param labelMap  Map containing number of prototypes 
    * for each class (label).
    */  
-  void SetNumberOfProto(const std::map<std::string, unsigned int>& labelMap);
+  void SetNumberOfProto(std::map<std::string, unsigned int> const& labelMap);
   
   /**
    * Set how often the classifier has to be evaluated.
    *@param val Evaluate after #val steps.
    */
-  inline void SetErrorStepSize(const unsigned int val);
+  inline void SetErrorStepSize(unsigned int const val);
 
   //----------------------------------------
   //================== private =============
  private:
   // To avoid mistakes, :).
-  PndLVQTrain(const PndLVQTrain& other);
-  PndLVQTrain& operator=(const PndLVQTrain& other);
+  PndLVQTrain(PndLVQTrain const& other);
+  PndLVQTrain& operator=(PndLVQTrain const& other);
 
   //! Evaluate the classifier, train and test error.
   void EvalClassifierError(unsigned int stp);
@@ -137,9 +142,9 @@ class PndLVQTrain: public PndMvaTrainer
   /**
    * Updates the LVQ prototypes.
    */
-  void UpdateProto(const std::vector<float>& EvtData, 
+  void UpdateProto(std::vector<float> const& EvtData, 
 		   std::vector<float>& proto, 
-		   const int delta, const double ethaT);
+		   int const delta, double const ethaT);
   /**
    * Read pre-initialized code books from file and store the vectors
    * in LVQ prototype container.
@@ -178,13 +183,13 @@ class PndLVQTrain: public PndMvaTrainer
   std::map < std::string, unsigned int> m_numProtoPerClass;
 };
 //END Interface definition
-
-inline void PndLVQTrain::setProtoInitType(ProtoInitType const iniTypeVal)
+//_______________________ Inline functions _________________________
+inline void PndLVQTrain::setProtoInitType(ProtoInitType iniTypeVal)
 {
   m_proto_init = iniTypeVal;
 };
 
-inline void PndLVQTrain::SetInitProtoFileName(std::string const &fileName)
+inline void PndLVQTrain::SetInitProtoFileName(std::string const& fileName)
 {
   m_initProtoFile = fileName;
 };

@@ -16,7 +16,6 @@ class PndMultiClassMlpClassify : public PndMvaClassifier
 {
   //______________ Public ____________________
  public:
-  PndMultiClassMlpClassify();
   PndMultiClassMlpClassify(std::string const& inputFile,
 			   std::vector<std::string> const& classNames, 
 			   std::vector<std::string> const& varNames);
@@ -31,5 +30,7 @@ class PndMultiClassMlpClassify : public PndMvaClassifier
  protected:
   //______________ Private ____________________
  private:
+  PndMultiClassMlpClassify(PndMultiClassMlpClassify const& oth);
+  PndMultiClassMlpClassify& operator=(PndMultiClassMlpClassify const& oth);
 };
 #endif

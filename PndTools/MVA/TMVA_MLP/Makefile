@@ -11,7 +11,8 @@ HDR = -I../
 TARGETS  = PndMultiClassMlpTrain PndMultiClassMlpClassify
 TARGETS += mlpTrain mlpClassify
 
-all: $(TARGETS)
+# all: $(TARGETS)
+default: $(TARGETS)
 
 PndMultiClassMlpTrain: % : %.cpp
 	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o

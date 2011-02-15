@@ -11,7 +11,8 @@ HDR = -I../
 # Define targets
 TARGETS = exampleCluster
 
-all: $(TARGETS)
+# all: $(TARGETS)
+default: $(TARGETS)
 
 PndMvaCluster:% : %.cpp
 	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o

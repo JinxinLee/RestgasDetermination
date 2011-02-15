@@ -24,8 +24,8 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TRandom3.h"
-
-#include "TList.h"
+#include "TKey.h"
+class TList;
 
 // TMVA
 //#include "TMVA/PDEFoam.h"
@@ -36,8 +36,21 @@
 #include "PndMvaVarPCATransform.h"
 
 // ========================================================================
+// Application type
+typedef enum{
+  TRAIN     = 0, // Training algorithm.
+  CLASSIFY  = 1, // Read weights to do classification..
+  TMVATRAIN = 20, // Provide input for TMVA Training.
+  TMVACLS   = 30
+} AppType;
+
 // Normalization schemes
-typedef enum {NONE = 0, VARX = 1, MINMAX = 2, MEDIAN = 3} NormType;
+typedef enum{
+  NONE   = 0, // Do nothing
+  VARX   = 1, // Use Sample variance
+  MINMAX = 2, // Use Sample Min and Max
+  MEDIAN = 3  // Use median and interquartile range (IQR).
+} NormType;
 
 // ========================================================================
 class PndMvaDataSet
@@ -46,12 +59,23 @@ class PndMvaDataSet
   /**
    * Constructor.
    *@param inputFilename  Input File name.
-   *@param classNames    Names of available classes.
+   *@param classNames     Names of available Labels (classes).
+   *@param varNames       Available variabl names.
+   *@param type           Application Type.
+   */
+  PndMvaDataSet(std::string const& WeightFile,
+		std::vector<std::string> const& classNames,
+		std::vector<std::string> const& varNames,
+		AppType type);
+  /**
+   * Constructor.
+   *@param inputFilename  Input File name.
+   *@param classNames    Names of available Labels (classes).
    *@param varNames     Available variabl names.
    */
-  PndMvaDataSet(std::string const &inputFilename,
-		std::vector<std::string> const &classNames,
-		std::vector<std::string> const &varNames);
+  PndMvaDataSet(std::string const& inputFilename,
+		std::vector<std::string> const& classNames,
+		std::vector<std::string> const& varNames);
 
   //! Destructor
   virtual ~PndMvaDataSet();
@@ -66,7 +90,7 @@ class PndMvaDataSet
    * Write the normalized DataSet to the out-put file.
    * @param  outFile  File name to write to
    */
-  void WriteDataSet(std::string const &outFile);  
+  void WriteDataSet(std::string const& outFile);  
 
   /**
    * Initialize the class conditional means vectors.
@@ -79,19 +103,19 @@ class PndMvaDataSet
   void Trim();
   
   //! Get available data.
-  inline std::vector< std::pair<std::string, std::vector<float>*> > const &GetData() const;
+  inline std::vector< std::pair<std::string, std::vector<float>*> > const& GetData() const;
 
   //! Get the list of available classes (labels).
-  inline std::vector<PndMvaClass> const &GetClasses() const;
+  inline std::vector<PndMvaClass> const& GetClasses() const;
   
   //! Get the list of available variables.
-  inline std::vector<PndMvaVariable> const &GetVars() const;
+  inline std::vector<PndMvaVariable> const& GetVars() const;
   
   //! Get classconditional means for all classes (labels).
-  inline std::map< std::string, std::vector<float>* > const &GetClassCondMeans() const;
+  inline std::map< std::string, std::vector<float>* > const& GetClassCondMeans() const;
   
   //! Get name of input file name (weight/event file).
-  inline std::string const &GetInFileName() const;
+  inline std::string const& GetInFileName() const;
 
   //========================= PCA =====================//
   /**
@@ -105,27 +129,41 @@ class PndMvaDataSet
   inline bool Used_PCA() const;
   
   //! Get PCA object
-  inline PndMvaVarPCATransform const &Get_PCA() const;
+  inline PndMvaVarPCATransform const& Get_PCA() const;
 
   //_________________________ PCA _____________________//
-
- protected:
+  
+ protected:  
   /**
    * Read input event data.
    */
   void ReadInput();
   
+  /**
+   * Read Weights and parameters from file.
+   */
+  void ReadWeightsFromFile();
+
  private:
   // Private to avoid mistakes.
   // Copy constructor.
-  PndMvaDataSet(PndMvaDataSet const &other);
-  PndMvaDataSet& operator=(PndMvaDataSet const &other);
+  PndMvaDataSet(PndMvaDataSet const& other);
+  PndMvaDataSet& operator=(PndMvaDataSet const& other);
   
+  // Validate the input file
+  bool ValidateWeightFile();
+
+  // Init Classe.
+  void InitClasses(std::vector<std::string> const& labels);
+  
+  //Init Variables.
+  void InitVariables(std::vector<std::string> const& variables);
+
   /**
    * Class conditional mean for a given class. Stored in class
    * conditional means container.
    */
-  void CompClsCondMean(const std::string& clsName);
+  void CompClsCondMean(std::string const& clsName);
   
   /**
    * Computes Variance (unbiased estimator) for each parameter in the
@@ -166,29 +204,30 @@ class PndMvaDataSet
   // If PCA was applied.
   bool m_UsePCA;
 };
+// End of class interface definition.
 
 // ============= Inline implementation ==================
-inline const std::vector< std::pair<std::string, std::vector<float>*> >& PndMvaDataSet::GetData() const
+inline std::vector< std::pair<std::string, std::vector<float>*> > const& PndMvaDataSet::GetData() const
 {
   return m_events;
 };
 
-inline const std::vector<PndMvaClass>& PndMvaDataSet::GetClasses() const
+inline std::vector<PndMvaClass> const& PndMvaDataSet::GetClasses() const
 {
   return m_classes;
 };
 
-inline const std::vector<PndMvaVariable>& PndMvaDataSet::GetVars() const
+inline std::vector<PndMvaVariable> const& PndMvaDataSet::GetVars() const
 {
   return m_vars;
 };
 
-inline const std::map< std::string, std::vector<float>* >& PndMvaDataSet::GetClassCondMeans() const
+inline std::map< std::string, std::vector<float>* > const& PndMvaDataSet::GetClassCondMeans() const
 {
   return m_ClassCondMeans;
 };
 
-inline const std::string& PndMvaDataSet::GetInFileName() const
+inline std::string const& PndMvaDataSet::GetInFileName() const
 {
   return m_input;
 };
@@ -198,7 +237,7 @@ inline bool PndMvaDataSet::Used_PCA() const
   return m_UsePCA;
 };
 
-inline const PndMvaVarPCATransform& PndMvaDataSet::Get_PCA() const
+inline PndMvaVarPCATransform const& PndMvaDataSet::Get_PCA() const
 {
   return m_PCA;
 };

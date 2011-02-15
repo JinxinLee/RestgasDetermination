@@ -2,6 +2,6 @@
 
 int main()
 {
-  PndMultiClassMlpClassify a;
+  //PndMultiClassMlpClassify a;
   return 0;
 }

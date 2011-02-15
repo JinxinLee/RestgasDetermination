@@ -2,6 +2,6 @@
 
 int main()
 {
-  PndMultiClassMlpTrain a;
+  //PndMultiClassMlpTrain a;
   return 0;
 }

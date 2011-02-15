@@ -11,7 +11,8 @@ HDR = -I../
 TARGETS  = PndKnnTrain PndKnnClassify PndProjectedKNN 
 TARGETS += KnnClassify KnnTrain Prclassify
 
-all: $(TARGETS)
+# all: $(TARGETS)
+default: $(TARGETS)
 
 PndKnnTrain: % : %.cpp
 	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o

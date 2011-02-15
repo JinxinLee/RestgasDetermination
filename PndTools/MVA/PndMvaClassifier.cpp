@@ -13,10 +13,10 @@
  *@ClassNames Names of available (signal) classes.
  *@VarNames Names of the used variables(features).
  */
-PndMvaClassifier::PndMvaClassifier(const std::string& InPut,
-				   const std::vector<std::string>& ClassNames, 
-				   const std::vector<std::string>& VarNames)
-  : m_dataSets(InPut, ClassNames, VarNames)
+PndMvaClassifier::PndMvaClassifier( std::string const& InPut,
+				    std::vector<std::string> const& ClassNames, 
+				    std::vector<std::string> const& VarNames)
+  : m_dataSets(InPut, ClassNames, VarNames, CLASSIFY)
 {}
 
 //! Destructor.

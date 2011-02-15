@@ -66,7 +66,8 @@
   PndPidEmcAssociatorTask* ts = new PndPidEmcAssociatorTask();
   // Set the path to the weightFiles; otherwise the standard
   // path is used.
-  ts->SetWeightFileName("/media/daq/babaiexp/RndData/EventFeatureRnd1K.root");
+  //ts->SetWeightFileName("/media/daq/babaiexp/RndData/EventFeatureRnd1K.root");
+  ts->SetWeightFileName("/media/daq/babaiexp/ParamFiles/TestFeatureSmallStat_PreProc.root");  
   
   // Set class names.
   ts->SetClassNames(clas);
@@ -86,11 +87,10 @@
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
-  cout << endl << endl;
-  cout << "Macro finished succesfully." << endl;
-  cout << "Output file is "    << outFile << endl;
-  cout << "Parameter file is " << parFile << endl;
-  cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
-  cout << endl;
+  cout << "\nMacro finished succesfully.\n"
+       << "Output file is "    << outFile
+       << "\nParameter file is " << parFile
+       << "\nReal time " << rtime << " s, CPU time " 
+       << ctime << " s.\n";
   // ------------------------------------------------------------------------
 }

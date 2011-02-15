@@ -11,7 +11,8 @@ HDR = -I../ -I../Clusters/
 # Define targets
 TARGETS = PndLVQClassify PndLVQTrain LVQtrain LVQclassify
 
-all: $(TARGETS)
+# all: $(TARGETS)
+default: $(TARGETS)
 
 PndLVQClassify: % : %.cpp
 	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o

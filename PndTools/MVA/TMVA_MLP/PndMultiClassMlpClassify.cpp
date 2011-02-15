@@ -13,10 +13,13 @@ PndMultiClassMlpClassify::~PndMultiClassMlpClassify()
 void PndMultiClassMlpClassify::GetMvaValues( std::vector<float> EvtData,
 					     std::map<std::string, float>& result )
 {
-  std::cout << EvtData.size() + result.size();
+  std::cout << "Not implemented yet "
+	    << EvtData.size() + result.size()
+	    <<'\n';
 }
+
 std::string* PndMultiClassMlpClassify::Classify( std::vector<float> EvtData )
 {
   std::cout << EvtData.size();
-  return (new std::string("Not_Implemented_YET"));
+  return (new std::string("\n\tNot_Implemented_YET\n\n"));
 }

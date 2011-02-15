@@ -17,9 +17,9 @@ using namespace std;
  * @param classNames: class names.
  * @param varNames: variable names of the features.
  */
-PndLVQClassify::PndLVQClassify(const string& inputFile,
-			       const vector<string>& classNames, 
-			       const vector<string>& varNames)
+PndLVQClassify::PndLVQClassify(string const& inputFile,
+			       vector<string> const& classNames, 
+			       vector<string> const& varNames)
   : PndMvaClassifier(inputFile, classNames, varNames)
 {}
 

@@ -14,17 +14,18 @@
 
 void printResult( std::map<std::string,float>& res, unsigned int evtId)
 {
-  std::cout << "\t==================================" << '\n'
+  std::cout << "\t==================================\n"
 	    << " Evt Num = " << evtId << '\n';
   
   for( std::map<std::string,float>::iterator ii=res.begin(); 
        ii != res.end(); ++ii)
   {
     std::cout <<"\t" << (*ii).first 
-	      << "\t=> " << (*ii).second << '\n';
+	      << "\t=> " << (*ii).second
+	      << '\n';
   }
   
-  std::cout << "\t==================================" << '\n';
+  std::cout << "\t==================================\n";
 }
 
 /* *********************************************
@@ -48,6 +49,7 @@ int main(int argc, char** argv)
 
   // Weight File
   std::string InPutFileName = "EMC_VarX_PCA_KNN_Weights.root";
+  
   // Events file
   std::string InputEvents   = "10_4TestSetParamsNorm.root";
 
@@ -103,12 +105,10 @@ int main(int argc, char** argv)
   std::ofstream Outfile;
 
   Outfile.open(OutFileName.c_str(), std::ios::out| std::ios::trunc);
-  Outfile << "# +++++++++++++++++++++++++++++++++++++++" 
-	  << '\n'
-	  << "# Total number of "<< EvtTreeName << " classified events: "
-	  << events->GetEntriesFast()
-	  << '\n'
-	  << "#<neighb>\t<missclassified>\t<%>" << '\n';
+  Outfile << "# +++++++++++++++++++++++++++++++++++++++\n"
+	  << "# Total number of "<< EvtTreeName
+	  << " classified events: " << events->GetEntriesFast()
+	  << "\n#<neighb>\t<missclassified>\t<%>\n";
     
   int nm = MIN_NUM_NEIGH;
   while ( nm <= MAX_NUM_NEIGH)
@@ -128,7 +128,8 @@ int main(int argc, char** argv)
       
       std::string* resStr = cls.Classify(curEvt);
       
-      if( (*resStr) != EvtTreeName){
+      if( (*resStr) != EvtTreeName)
+      {
 	misCl++;
       }
       delete resStr;
@@ -141,8 +142,7 @@ int main(int argc, char** argv)
     // Incremtn num neighbors. 
     nm += 10;
   }
-  Outfile << "+++++++++++++++++++++++++++++++++++++++" 
-	  << '\n';
+  Outfile << "+++++++++++++++++++++++++++++++++++++++\n";
 
   // Close open file
   inFile.Close();

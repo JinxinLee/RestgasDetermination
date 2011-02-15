@@ -66,9 +66,8 @@
   nam.push_back("lat");
   nam.push_back("z20");
   nam.push_back("z53");
-  
+
   PndPidMvaAssociatorTask* ts = new PndPidMvaAssociatorTask();
-  
   // Set the path to the weightFiles; otherwise the standard
   // path is used.
   ts->SetWeightFileName("/media/daq/babaiexp/RndData/EventFeatureRnd1K.root");
@@ -80,7 +79,7 @@
   
   //Add task
   fRun->AddTask(ts);
- 
+  
   //////////////
   fRun->Init();
   fRun->Run(0,nEvents);
@@ -92,11 +91,10 @@
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
-  cout << endl << endl;
-  cout << "Macro finished succesfully." << endl;
-  cout << "Output file is "    << outFile << endl;
-  cout << "Parameter file is " << parFile << endl;
-  cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
-  cout << endl;
+  cout << "\n\nMacro finished succesfully.\n"
+       << "Output file is "    << outFile
+       << "\nParameter file is " << parFile
+       << "\nReal time " << rtime << " s, CPU time " 
+       << ctime << " s.\n";
   // ------------------------------------------------------------------------
 }

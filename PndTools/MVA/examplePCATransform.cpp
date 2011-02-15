@@ -25,7 +25,8 @@ int main(int argc, char** argv)
 {
   if(argc < 3)
   {
-    std::cerr << "<ERROR> Usage: "<< argv[0] << " <inputeventFile> <OutFile>"
+    std::cerr << "<ERROR> Usage: "<< argv[0] 
+	      << " <inputeventFile> <OutFile>"
 	      << std::endl;
     return 1;
   }
@@ -54,7 +55,7 @@ int main(int argc, char** argv)
   //data.Trim();
 
   // Fetch available events.
-  const std::vector< std::pair<std::string, std::vector<float>*> >& dd = data.GetData();
+  std::vector< std::pair<std::string, std::vector<float>*> > const& dd = data.GetData();
   
   // Create PCA transformation object.
   PndMvaVarPCATransform pca;
@@ -82,7 +83,7 @@ int main(int argc, char** argv)
   }
   
   // Create output File, Trees and write
-  TFile outPutFile(outFile.c_str(), "RECREATE", "PCAFileTitle", 9);
+  TFile outPutFile(outFile.c_str(), "RECREATE", "PCA_Transformed_Events", 9);
   
   for(size_t cls = 0; cls < clas.size(); cls++)
   {
@@ -90,8 +91,8 @@ int main(int argc, char** argv)
     
     std::string name = clas[cls];
     std::string desc = "Description Of " + name;
-    const char* treeName = name.c_str();
-    const char* treeDesc = desc.c_str();
+    char const* treeName = name.c_str();
+    char const* treeDesc = desc.c_str();
     
     // Create a tree
     TTree sig (treeName, treeDesc);
@@ -101,8 +102,8 @@ int main(int argc, char** argv)
     {
       std::string vname = vars[j];
       std::string leaf  = vname + "/F" ;
-      const char* bname = vname.c_str();
-      const char* lname = leaf.c_str();
+      char const* bname = vname.c_str();
+      char const* lname = leaf.c_str();
       
       // Bind the parameters to the tree elements.
       sig.Branch(bname, &buffer[j], lname);

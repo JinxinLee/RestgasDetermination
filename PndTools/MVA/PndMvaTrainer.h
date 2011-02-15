@@ -39,9 +39,9 @@ class PndMvaTrainer
    * Note that all of the members of these lists are selected 
    * and used during the training runs.
    */
-  PndMvaTrainer(const std::string& InPut,
-		const std::vector<std::string>& ClassNames, 
-		const std::vector<std::string>& VarNames,
+  PndMvaTrainer(std::string const& InPut,
+		std::vector<std::string> const& ClassNames, 
+		std::vector<std::string> const& VarNames,
 		bool trim = true);
 
   //! Destructor
@@ -72,13 +72,13 @@ class PndMvaTrainer
    * Setter to set the weightfile name.
    *@param outFile Output filename.
    */
-  inline void SetOutPutFile(const std::string& outFile);
+  inline void SetOutPutFile(std::string const& outFile);
 
   /**
    * Writes the train and test errors evaluations to a given file.
    *@param FileName Output file name.
    */
-  void WriteErroVect(const std::string& FileName);
+  void WriteErroVect(std::string const& FileName);
 
   //==============================================
   //================ Protected ===================
@@ -86,20 +86,21 @@ class PndMvaTrainer
   /**
    * Write the training and normalization data to outFile.
    */
-  void WriteToWeightFile(const std::vector< std::pair<std::string, 
-			 std::vector<float>*> >& weights);
+  void WriteToWeightFile(std::vector< std::pair<std::string, 
+			 std::vector<float>*> > const& weights);
   /**
    * Writes generated TMVA Foams to file.
    *@param foams The list of the foams to be stored.
    * Note that the implementation of TMVA foams here is in early
    * experimental stage.
    */
-  void WriteToWeightFile(const std::vector<TMVA::PDEFoam*>& foams);
+  void WriteToWeightFile(std::vector<TMVA::PDEFoam*> const& foams);
   
   void WriteDataSetToOutFile();
   
   //! Classifier error evaluation
-  virtual void EvalClassifierError(){};
+  virtual void EvalClassifierError()
+  {};
   
   //! Indices of the test set.
   std::set <int> m_testSet_indices;
@@ -123,12 +124,12 @@ class PndMvaTrainer
   //================ Private =====================
  private:
  //! To avoid mistakes.
-  PndMvaTrainer(const PndMvaTrainer& other);
-  PndMvaTrainer& operator=(const PndMvaTrainer& other);
-};
+  PndMvaTrainer(PndMvaTrainer const& other);
+  PndMvaTrainer& operator=(PndMvaTrainer const& other);
+};// End of class definition.
 
 //========================= Inline implementations =================
-inline void PndMvaTrainer::SetOutPutFile(std::string const &outFile)
+inline void PndMvaTrainer::SetOutPutFile(std::string const& outFile)
 {
   m_outFile = outFile;
 };

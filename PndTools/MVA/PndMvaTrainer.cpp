@@ -12,11 +12,11 @@
 using namespace std;
 
 //! Constructor
-PndMvaTrainer::PndMvaTrainer(const std::string& InPut,
-			     const std::vector<std::string>& ClassNames, 
-			     const std::vector<std::string>& VarNames,
+PndMvaTrainer::PndMvaTrainer(std::string const& InPut,
+			     std::vector<std::string> const& ClassNames, 
+			     std::vector<std::string> const& VarNames,
 			     bool trim)
-  : m_dataSets(InPut, ClassNames, VarNames)
+  : m_dataSets(InPut, ClassNames, VarNames, TRAIN)
 {
   // Trim data set
   if(trim)
@@ -49,7 +49,7 @@ void PndMvaTrainer::splitTetsSet(int percent)
 {
   TRandom3 rndIndx(m_RND_seed);
   
-  const std::vector<std::pair<std::string, std::vector<float>*> >& events = m_dataSets.GetData();
+  std::vector<std::pair<std::string, std::vector<float>*> > const& events = m_dataSets.GetData();
   
   unsigned int TestEvtCnt = (percent * events.size()) / 100 ;
   
@@ -65,7 +65,7 @@ void PndMvaTrainer::splitTetsSet(int percent)
   }
 }
 
-void PndMvaTrainer::WriteErroVect(const std::string& FileName)
+void PndMvaTrainer::WriteErroVect(std::string const& FileName)
 {
   std::ofstream Outfile;
   
@@ -88,18 +88,19 @@ void PndMvaTrainer::WriteErroVect(const std::string& FileName)
 /**
  * Write the training and normalization data to outFile.
  */
-void PndMvaTrainer::WriteToWeightFile(const std::vector< std::pair<std::string, 
-				      std::vector<float>*> >& weights)
+void PndMvaTrainer::WriteToWeightFile(std::vector< std::pair<std::string, 
+				      std::vector<float>*> > const& weights)
 {
   
   std::cout << "<INFO> Writing classifier out put to "
-	    << m_outFile << '\n';
+	    << m_outFile
+	    << '\n';
 
   // Get labels
-  const std::vector <PndMvaClass>& classes = m_dataSets.GetClasses();
+  std::vector <PndMvaClass> const& classes = m_dataSets.GetClasses();
   
   // Get variable names.
-  const std::vector <PndMvaVariable>& vars = m_dataSets.GetVars();
+  std::vector <PndMvaVariable> const& vars = m_dataSets.GetVars();
   
   /* 
    * Open out-put file and write coordinates.
@@ -108,11 +109,12 @@ void PndMvaTrainer::WriteToWeightFile(const std::vector< std::pair<std::string,
   {
     std::cerr << "<ERROR> The output file name could not be an empty string.\n"
 	      << "        Set the outPut name if you want to store"
-	      << " the generated weights." << std::endl;
+	      << " the generated weights."
+	      << std::endl;
     return;
   }
 
-  TFile out (m_outFile.c_str(), "RECREATE", "WeightOutput", 9);
+  TFile out (m_outFile.c_str(), "RECREATE", "WeightFileOutput", 9);
 
   for(size_t cls = 0; cls < classes.size(); cls++)
   {
@@ -120,8 +122,8 @@ void PndMvaTrainer::WriteToWeightFile(const std::vector< std::pair<std::string,
     
     std::string name = classes[cls].Name;
     std::string desc = "Description Of " + name;
-    const char* treeName = name.c_str();
-    const char* treeDesc = desc.c_str();
+    char const* treeName = name.c_str();
+    char const* treeDesc = desc.c_str();
     
     // Create a tree
     TTree sig (treeName, treeDesc);
@@ -131,8 +133,8 @@ void PndMvaTrainer::WriteToWeightFile(const std::vector< std::pair<std::string,
     {
       std::string vname = vars[j].Name;
       std::string leaf  = vname + "/F" ;
-      const char* bname = vname.c_str();
-      const char* lname = leaf.c_str();
+      char const* bname = vname.c_str();
+      char const* lname = leaf.c_str();
       
       // Bind the parameters to the tree elements.
       sig.Branch(bname, &buffer[j], lname);
@@ -151,10 +153,14 @@ void PndMvaTrainer::WriteToWeightFile(const std::vector< std::pair<std::string,
       }
     }
     // Write the created tree
+    std::cout << "<INFO> Writing weights for " << name
+	      << '\n';
     sig.Write();
   }//End for cls
 
-  // Write normFactors
+  // _______________ Normalization and transformation data _________
+
+  //________ Write normFactors
   std::vector<float> buffer(vars.size(), 0.0);
   std::string name = "NormFact";
   std::string desc = "desc of " + name;
@@ -166,8 +172,8 @@ void PndMvaTrainer::WriteToWeightFile(const std::vector< std::pair<std::string,
   {
     std::string vname = vars[j].Name;
     std::string leaf  = vname + "/F" ;
-    const char* bname = vname.c_str();
-    const char* lname = leaf.c_str();
+    char const* bname = vname.c_str();
+    char const* lname = leaf.c_str();
     
     // Bind the parameters to the tree elements.
     fact.Branch(bname, &buffer[j], lname);
@@ -181,7 +187,7 @@ void PndMvaTrainer::WriteToWeightFile(const std::vector< std::pair<std::string,
   fact.Fill();
   fact.Write();
 
-  // Write mean
+  //_______ Write mean
   name = "Means";
   desc = "desc of " + name;
   
@@ -192,8 +198,8 @@ void PndMvaTrainer::WriteToWeightFile(const std::vector< std::pair<std::string,
   {
     std::string vname = vars[j].Name;
     std::string leaf  = vname + "/F" ;
-    const char* bname = vname.c_str();
-    const char* lname = leaf.c_str();
+    char const* bname = vname.c_str();
+    char const* lname = leaf.c_str();
     
     // Bind the parameters to the tree elements.
     meanTree.Branch(bname, &buffer[j], lname);
@@ -207,23 +213,52 @@ void PndMvaTrainer::WriteToWeightFile(const std::vector< std::pair<std::string,
   meanTree.Fill();
   meanTree.Write();
 
-  // Write PCA Data
-  if(m_dataSets.Used_PCA()){
-    const PndMvaVarPCATransform& pca_tmp = m_dataSets.Get_PCA();
-    const TVectorD& MeanVals   = pca_tmp.GetMeanValues();
-    const TMatrixD& EigenVects = pca_tmp.GetEigenVectors();
+  //_______________ Write PCA Data
+  if(m_dataSets.Used_PCA())
+  {
+    PndMvaVarPCATransform const& pca_tmp = m_dataSets.Get_PCA();
+    TVectorD const& MeanVals   = pca_tmp.GetMeanValues();
+    TMatrixD const& EigenVects = pca_tmp.GetEigenVectors();
+    
     // Write to output.
     MeanVals.Write("PCAMeans");
     EigenVects.Write("PCAEigenVectors");
   }
+
+  //___________ List of classes, variables, Object names, ....
+  // Classes.
+  TObjArray Labels(0, 0);
+  Labels.SetName("Labels");
+  Labels.SetOwner(kTRUE);
+  // Add labels
+  for(size_t cls = 0; cls < classes.size(); cls++)
+  {
+    std::string la = classes[cls].Name;
+    Labels.Add(new TObjString(la.c_str()));
+  }
+  Labels.Write("Labels", TObject::kSingleKey);
+
+  // Variables
+  TObjArray variables(0, 0);
+  variables.SetName("Variables");
+  variables.SetOwner(kTRUE);
+  // Add labels
+  for(size_t j = 0; j < vars.size(); j++)
+  {
+    std::string vn = vars[j].Name;
+    variables.Add(new TObjString(vn.c_str()));    
+  }
+  variables.Write("Variable", TObject::kSingleKey);
+  //__________________________________
   //Close open file
   out.Close();
 }
 
-void PndMvaTrainer::WriteToWeightFile(const std::vector<TMVA::PDEFoam*>& foamList)
+void PndMvaTrainer::WriteToWeightFile(std::vector<TMVA::PDEFoam*> const& foamList)
 {
   std::cout << "<INFO> Writing Foams to file "
-	    << m_outFile << '\n';
+	    << m_outFile
+	    << '\n';
   /* 
    * Open out-put file and write coordinates.
    */
@@ -231,7 +266,8 @@ void PndMvaTrainer::WriteToWeightFile(const std::vector<TMVA::PDEFoam*>& foamLis
   {
     std::cerr << "<ERROR> The output file name could not be an empty string.\n"
 	      << "        Set the outPut name if you want to store"
-	      << " the generated weights." << std::endl;
+	      << " the generated weights."
+	      << std::endl;
     return;
   }
   
@@ -248,7 +284,7 @@ void PndMvaTrainer::WriteToWeightFile(const std::vector<TMVA::PDEFoam*>& foamLis
 	      << std::endl;
   }
   
-  const std::vector<PndMvaVariable>& vars = m_dataSets.GetVars();
+  std::vector<PndMvaVariable> const& vars = m_dataSets.GetVars();
   // Write normFactors
   std::vector<float> buffer(vars.size(), 0.0);
   std::string name = "NormFact";
@@ -261,8 +297,8 @@ void PndMvaTrainer::WriteToWeightFile(const std::vector<TMVA::PDEFoam*>& foamLis
   {
     std::string vname = vars[j].Name;
     std::string leaf  = vname + "/F" ;
-    const char* bname = vname.c_str();
-    const char* lname = leaf.c_str();
+    char const* bname = vname.c_str();
+    char const* lname = leaf.c_str();
     
     // Bind the parameters to the tree elements.
     fact.Branch(bname, &buffer[j], lname);
@@ -286,8 +322,8 @@ void PndMvaTrainer::WriteToWeightFile(const std::vector<TMVA::PDEFoam*>& foamLis
   {
     std::string vname = vars[j].Name;
     std::string leaf  = vname + "/F" ;
-    const char* bname = vname.c_str();
-    const char* lname = leaf.c_str();
+    char const* bname = vname.c_str();
+    char const* lname = leaf.c_str();
     
     // Bind the parameters to the tree elements.
     meanTree.Branch(bname, &buffer[j], lname);
@@ -303,19 +339,14 @@ void PndMvaTrainer::WriteToWeightFile(const std::vector<TMVA::PDEFoam*>& foamLis
   
   // Close open file
   rootFile.Close();
-
-  //FIXME Test may delete
-  /*
-    std::cout << "Writing foam to stream\n"
-    <<*(foamList[0]) << std::endl;
-  */
 }
 
 void PndMvaTrainer::WriteDataSetToOutFile()
 {
   if(m_outFile.size() == 0)
   {
-    std::cerr << "<Error> Empty Output File Name." << std::endl;
+    std::cerr << "<Error> Empty Output File Name."
+	      << std::endl;
     return;
   }
   m_dataSets.WriteDataSet(m_outFile);

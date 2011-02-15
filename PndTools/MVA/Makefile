@@ -9,7 +9,7 @@
 # FLAGSMACHINE += -m64 -mfpmath=sse -mssse3 
 # CCFLAGS += -Weffc++ -pedantic -fpic
 
-MAKEFLAGS  = -wkr --no-print-directory #-s
+MAKEFLAGS  = -wkr --no-print-directory #--debug -s
 
 FLAGSMACHINE  = -march=native -mtune=native
 # FLAGSMACHINE += -mfpmath=sse -msse3
@@ -130,6 +130,16 @@ examples: PndMvaUtil PndMvaDataSet PndMvaClassifier Classifiers
 # Build PCA example
 	$(CXX) $(CCFLAGS) $(LIBS) build/examplePCATransform.o build/PndMvaVarPCATransform.o \
 	build/PndMvaDataSet.o -o build/pcaExample
+
+# Build MLP trainer.
+	$(CXX) $(CCFLAGS) $(LIBS) build/mlpTrain.o build/PndMvaTrainer.o build/PndMvaUtil.o \
+	build/PndMultiClassMlpTrain.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o \
+	-o build/mlpTrain
+
+# Build MLP Classifier.
+	$(CXX) $(CCFLAGS) $(LIBS) build/mlpClassify.o build/PndMvaClassifier.o build/PndMvaUtil.o \
+	build/PndMultiClassMlpClassify.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o \
+	-o build/mlpClassify
 
 clean:
 	rm -f *~ *.o *.root build/*

@@ -23,7 +23,8 @@ void printResult(std::map<std::string,float>& res){
   for( std::map<std::string,float>::iterator ii=res.begin(); 
        ii != res.end(); ++ii){
     std::cout <<"\t" << (*ii).first 
-	      << "\t=> " << (*ii).second << std::endl;
+	      << "\t=> " << (*ii).second
+	      <<'\n';
   }
   std::cout << "\n\t================================== \n";
 }
@@ -71,6 +72,7 @@ int main(int argc, char** argv)
   
   //Create the classifier object and specify the weight file
   PndStdKnnClassify cls (InPutFileName, clas, nam);
+
   cls.SetKNN(NumNei);
     
   std::vector<float> evt,evt1,evt2;
@@ -88,7 +90,7 @@ int main(int argc, char** argv)
   
   TStopwatch ti;
   ti.Start();
-  
+
   for(int i = 0; i < 3; i++)
   {
     cls.GetMvaValues(evt, res);
@@ -96,13 +98,15 @@ int main(int argc, char** argv)
     //cls.Classify(evt2, res);
     printResult(res);
   }
-  
+
   ti.Stop();
   double rtime = ti.RealTime();
   double ctime = ti.CpuTime();
 
   std::cout << "timer 1: Classifier timing results:\n"
 	    << "RealTime = " << rtime << " seconds, CpuTime = "
-	    << ctime <<" Seconds\n\n";
+	    << ctime
+	    <<" Seconds\n\n";
+
   return 0;
 }

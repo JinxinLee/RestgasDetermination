@@ -14,7 +14,6 @@
 #include "PndStdKnnClassify.h"
 
 using namespace std;
-
 /*
  * @param inputFile: The name of the file that holds the weights
  * @param classNames: The names of classes to which an event might be
@@ -22,13 +21,13 @@ using namespace std;
  * @param varNames: Variable names from which the feature vector is
  * built.
  */
-PndStdKnnClassify::PndStdKnnClassify(const string& inputFile,
-				     const vector<string>& classNames, 
-				     const vector<string>& varNames)
-  : PndMvaClassifier(inputFile, classNames, varNames), 
+PndStdKnnClassify::PndStdKnnClassify(string const& inputFile,
+				     vector<string> const& classNames, 
+				     vector<string> const& varNames)
+  : PndMvaClassifier(inputFile, classNames, varNames),
     m_Knn(0)
 {
-  const vector<pair<string, vector<float>*> >& events = m_dataSets.GetData();
+  vector<pair<string, vector<float>*> > const& events = m_dataSets.GetData();
 
   // Init distances container
   for(size_t evt = 0; evt < events.size(); evt++)
