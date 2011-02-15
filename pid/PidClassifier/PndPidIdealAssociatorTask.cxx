@@ -92,17 +92,15 @@ void PndPidIdealAssociatorTask::Exec(Option_t * option) {
   // Get the Candidates
   for(Int_t i=0; i<fPidChargedCand->GetEntriesFast(); i++){
     PndPidCandidate* pidcand = (PndPidCandidate*)fPidChargedCand->At(i);
-    PndPidProbability* prob = new((*fPidChargedProb)[i]) PndPidProbability(0.,0.,0.,0.,0.,-1);// initializes with zeros
-    prob->SetIndex(i);
+    PndPidProbability* prob = new((*fPidChargedProb)[i]) PndPidProbability(0.2,0.2,0.2,0.2,0.2,i);// initializes with equal probability
     if(fVerbose>1) std::cout<<"-I- PndPidIdealAssociatorTask Charged BEFORE  "<< pidcand->GetLorentzVector().M()<<std::endl;;
     DoPidMatch(pidcand,prob);
     if(fVerbose>1) std::cout<<"-I- PndPidIdealAssociatorTask Charged AFTER   "<< pidcand->GetLorentzVector().M()<<std::endl;;
   }
   for(Int_t i=0; i<fPidNeutralCand->GetEntriesFast(); i++){
     PndPidCandidate* pidcand = (PndPidCandidate*)fPidNeutralCand->At(i);
-    PndPidProbability* prob = new((*fPidNeutralProb)[i]) PndPidProbability(0.,0.,0.,0.,0.,-1);// initializes with zeros
-    prob->SetIndex(i);
-    DoPidMatch(pidcand,prob);
+    PndPidProbability* prob = new((*fPidNeutralProb)[i]) PndPidProbability(0.,0.,0.,0.,0.,i);// initializes with zeros
+    //DoPidMatch(pidcand,prob); //TODO match idealy neutral cands, esp. when we have pi0s 
   }
   
 }
@@ -126,35 +124,55 @@ void PndPidIdealAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProba
   switch(mcpdg) {
     case -11: //positron
     case 11: //electron
+      prob->SetProtonPdf(0.);
+      prob->SetKaonPdf(0.);
+      prob->SetPionPdf(0.);
+      prob->SetMuonPdf(0.);
       prob->SetElectronPdf(1.);
       break;
       
     case -13: //muon+
     case 13: //muon-
+      prob->SetProtonPdf(0.);
+      prob->SetKaonPdf(0.);
+      prob->SetPionPdf(0.);
       prob->SetMuonPdf(1.);
+      prob->SetElectronPdf(0.);
       break;
       
     case 211: //pion+
     case -211: //pion-
+      prob->SetProtonPdf(0.);
+      prob->SetKaonPdf(0.);
       prob->SetPionPdf(1.);
+      prob->SetMuonPdf(0.);
+      prob->SetElectronPdf(0.);
       break;
       
     case -321: //Kaon+
     case 321: //Kaon-
+      prob->SetProtonPdf(0.);
       prob->SetKaonPdf(1.);
+      prob->SetPionPdf(0.);
+      prob->SetMuonPdf(0.);
+      prob->SetElectronPdf(0.);
       break;
       
     case -2212: //antiproton
     case 2212: //proton
       prob->SetProtonPdf(1.);
+      prob->SetKaonPdf(0.);
+      prob->SetPionPdf(0.);
+      prob->SetMuonPdf(0.);
+      prob->SetElectronPdf(0.);
       break;
       
     default:
-      prob->SetProtonPdf(1.);
-      prob->SetKaonPdf(1.);
-      prob->SetPionPdf(1.);
-      prob->SetMuonPdf(1.);
-      prob->SetElectronPdf(1.);
+      prob->SetProtonPdf(0.2);
+      prob->SetKaonPdf(0.2);
+      prob->SetPionPdf(0.2);
+      prob->SetMuonPdf(0.2);
+      prob->SetElectronPdf(0.2);
       break;
   }
   

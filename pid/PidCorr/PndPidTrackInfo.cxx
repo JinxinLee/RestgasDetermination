@@ -45,13 +45,31 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
     
     pocaz.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ()); //cm ??
     momentum = fRes->GetMomentum();
-    FairTrackParP *fParab = new FairTrackParP(fRes, TVector3(1.,0.,0.), TVector3(0.,1.,0.), ierr);
+    
+    // ********  
+    // ********  
+    
+    // ********  this block replaces
+    TVector3 di = momentum;
+    di.SetMag(1.);
+    TVector3 dj = di.Orthogonal();
+    TVector3 dk = di.Cross(dj);
+    FairTrackParP *fParab = new FairTrackParP(fRes, dj, dk, ierr);
+    // ******* that line (recipe by Lia)
+    //FairTrackParP *fParab = new FairTrackParP(fRes, TVector3(1.,0.,0.), TVector3(0.,1.,0.), ierr);
+    // ******* that line (recipe by Lia)
+    
+    // ********  
+    // ********  
+    
     Double_t globalCov[6][6];
     fParab->GetMARSCov(globalCov);
     
     Int_t ii,jj;
     TMatrixD err(6,6);
     for (ii=0;ii<6;ii++) for(jj=0;jj<6;jj++) err[ii][jj]=globalCov[ii][jj];
+    
+    //err.Print();
     
     TLorentzVector lv;
     lv.SetVectM(momentum, TDatabasePDG::Instance()->GetParticle(fPidHyp)->Mass()); // set mass hypothesis

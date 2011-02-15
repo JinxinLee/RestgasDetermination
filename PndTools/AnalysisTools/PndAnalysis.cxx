@@ -82,6 +82,9 @@ void PndAnalysis::Init()
   fNeutralCands = ReadTCA("PidNeutralCand");
   fNeutralProbability = ReadTCA(fChargedPidName.Data());
   fTracks = ReadTCA("LheGenTrack");
+  if(!fTracks) fTracks = ReadTCA("SttMvdGenTrack");
+  if(!fTracks) fTracks = ReadTCA("FTSGenTrack");
+  if(!fTracks) fTracks = ReadTCA("FTSTrkIdeal");
   fBuildMcCands = false;
   fMcCands = ReadTCA("PndMcTracks");
   if ( ! fMcCands )
@@ -113,7 +116,8 @@ Int_t PndAnalysis::GetEvent(Int_t n)
 	chargedCands.Cleanup();
 	neutralCands.Cleanup();
 	mcCands.Cleanup();
-	
+    TFactory::Instance()->Reset();
+
 	fEventRead=false;
 	
 	if (n>=0) fEvtCount=n+1;
@@ -137,7 +141,6 @@ Bool_t PndAnalysis::FillList(TCandList &l, std::string listkey)
 	{
     fRootManager->ReadEvent(fEvtCount-1);
 		fEventRead=true;
-    TFactory::Instance()->Reset();
 	}
   
 	if (listkey=="McTruth")
@@ -165,6 +168,10 @@ Bool_t PndAnalysis::FillList(TCandList &l, std::string listkey)
         if(i1<fNeutralProbability->GetEntriesFast())
         {
           PndPidProbability *neuProb = (PndPidProbability*)fNeutralProbability->At(i1);
+          if(neuProb == 0) {
+            Error("FillList", "Neutral PID Probability object not found, skip setting pid for candidate %i.",i1);
+            continue;
+          }
           // numbering see PndPidListMaker
           tc->SetPidInfo(0,neuProb->GetElectronPidProb());
           tc->SetPidInfo(1,neuProb->GetMuonPidProb());
@@ -178,14 +185,18 @@ Bool_t PndAnalysis::FillList(TCandList &l, std::string listkey)
     
 		if (fChargedCands && chargedCands.GetLength()==0) 
     {
-      for (Int_t i1=0; i1<fChargedCands->GetEntriesFast(); i1++)
+      for (Int_t i2=0; i2<fChargedCands->GetEntriesFast(); i2++)
       {
-        VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fChargedCands->At(i1);
-        TCandidate buffcand(*mic,i1+1);
+        VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fChargedCands->At(i2);
+        TCandidate buffcand(*mic,i2+1);
         TCandidate *tc = TFactory::Instance()->NewCandidate(buffcand);
-        if(i1<fChargedProbability->GetEntriesFast())
+        if(i2<fChargedProbability->GetEntriesFast())
         {
-          PndPidProbability *chProb = (PndPidProbability*)fChargedProbability->At(i1);
+          PndPidProbability *chProb = (PndPidProbability*)fChargedProbability->At(i2);
+          if(chProb == 0) {
+            Error("FillList", "Charged PID Probability object not found, skip setting pid for candidate %i.",i2);
+            continue;
+          }
           // numbering see PndPidListMaker
           tc->SetPidInfo(0,chProb->GetElectronPidProb());
           tc->SetPidInfo(1,chProb->GetMuonPidProb());

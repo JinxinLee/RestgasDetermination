@@ -89,7 +89,7 @@ void PndKinVtxFitter::SetMatrices(){
   fNpart=nd;
   fNpar =nd*fNvar;
   fNcon=NumCon;
-  //  cout << fNcon << "Num " << endl;
+  //  if(fVerbose) cout << fNcon << "Num " << endl;
   fNc=0;
   fNiter=0;
   
@@ -143,7 +143,7 @@ void PndKinVtxFitter::Compute()
   vtx_st[0][0]=startVtx.X();vtx_st[1][0]=startVtx.Y();vtx_st[2][0]=startVtx.Z();
   // vtx_st[0][0]=0.0;vtx_st[1][0]=0.0;vtx_st[2][0]=0.0;
   vtx_ex=vtx_st;
-  cout<<"Initial vertex Position is"<<vtx_ex[0][0]<<" "<<vtx_ex[1][0]<<" "<<vtx_ex[2][0]<<endl;
+  if(fVerbose) cout<<"Initial vertex Position is"<<vtx_ex[0][0]<<" "<<vtx_ex[1][0]<<" "<<vtx_ex[2][0]<<endl;
   
   // al1=al0;
   // V_al1=V_al0;
@@ -184,7 +184,7 @@ void PndKinVtxFitter::Compute()
     
     
     //   if( ierr != 0 ){
-    //  cout << "Inversion of constraint-matrix failed! " << endl;
+    //  if(fVerbose) cout << "Inversion of constraint-matrix failed! " << endl;
     //  return 0;}
     //  Vd.Print();
     
@@ -193,7 +193,7 @@ void PndKinVtxFitter::Compute()
     // Lagrange multiplier
     //TMatrixD lam0=Vd*md;
     TMatrixD lam0 = Vd* ( mD*del_al + md);
-    //    cout << " lam0 calculated" << endl;
+    //    if(fVerbose) cout << " lam0 calculated" << endl;
     
     //  Position Derivative matrix ...............
     TMatrixD mE_t=mE;
@@ -206,18 +206,18 @@ void PndKinVtxFitter::Compute()
     TMatrixD V_vtx_new(3,3); 	  
     TMatrixD vtx_new(vtx_ex);
     vtx_new -= Vx*mE_t*lam0;
-    //     cout << " New vtx calculated" << endl;
+    //     if(fVerbose) cout << " New vtx calculated" << endl;
     // vtx_new.Print();
     V_vtx_new = Vx;
     
     // Final Lagarange multiplier ........
     TMatrixD lam = lam0 + (Vd * mE) * (vtx_new - vtx_ex);
-    //  cout << " New lam calculated" << endl;
+    //  if(fVerbose) cout << " New lam calculated" << endl;
     
     // New track parameters.............
     TMatrixD al_new(al0);
     al_new -= V_al0*mD_t*lam;
-    //   cout << " New track param calculated" << endl;
+    //   if(fVerbose) cout << " New track param calculated" << endl;
     
     
     
@@ -268,8 +268,8 @@ void PndKinVtxFitter::Compute()
       V_al0 = V_al_new;    
       V_vtx = V_vtx_new;
     }
-    cout << "iteration Number " << " " << j1 << endl;
-    cout << " chi2 in iterartion" << " " << chi2[0][0] << endl;
+    if(fVerbose) cout << "iteration Number " << " " << j1 << endl;
+    if(fVerbose) cout << " chi2 in iterartion" << " " << chi2[0][0] << endl;
   } // end of iteration-loop
   
   TMatrixD al_new_vtx(7*nd,1);
@@ -340,8 +340,8 @@ void PndKinVtxFitter::SetOutput()
   //          sum.SetXYZM(fpx,fpy,fpz,fM);
   TVector3 vtx(vtx_ex[0][0],vtx_ex[1][0],vtx_ex[2][0]);
   fHeadOfTree->SetP7(vtx,sum);
-  cout<<"Final vertex Position is"<<vtx_ex[0][0]<<" "<<vtx_ex[1][0]<<" "<<vtx_ex[2][0]<<endl;
-  cout<<"Final Momenta are "<<al0[0][0]<<" "<<al1[1][0]<<" "<<al1[2][0]<<endl;
+  if(fVerbose) cout<<"Final vertex Position is"<<vtx_ex[0][0]<<" "<<vtx_ex[1][0]<<" "<<vtx_ex[2][0]<<endl;
+  if(fVerbose) cout<<"Final Momenta are "<<al0[0][0]<<" "<<al1[1][0]<<" "<<al1[2][0]<<endl;
   fHeadOfTree->SetCov7(covC); //New covariance matrix
 }
 
@@ -454,13 +454,13 @@ void PndKinVtxFitter::ReadKinMatrix()
     if (J>=1.0 || J<= -1.0) { J = (J>=1.0 ? 0.99 : -0.99);}
     
     double S = 1./(pT_2*sqrt(1-(J*J)));
-    // cout << ch << "ch" << S << "pt2" << J << "bField" << bField <<endl;
+    // if(fVerbose) cout << ch << "ch" << S << "pt2" << J << "bField" << bField <<endl;
     double asin_J = asin(J);
     //charged particle 
     if(ch !=0)
     {
       mD[fNc+0+k2][kN+0]  = delY ;
-      //cout << al0[kN+4][0] << " " << delY << endl;
+      //if(fVerbose) cout << al0[kN+4][0] << " " << delY << endl;
       mD[fNc+0+k2][kN+1]  = -(delX) ;
       mD[fNc+0+k2][kN+2]  = 0. ;
       mD[fNc+0+k2][kN+3]  = 0. ;
@@ -832,7 +832,7 @@ void PndKinVtxFitter::TransportToVertex(TMatrixD &a_in, TMatrixD &a_cov_in, TMat
     kN=7*k;
     
     double a = -0.00299792458*2.0*fDaughters[k].GetCharge();
-    //   cout << "a" << a << endl;
+    //   if(fVerbose) cout << "a" << a << endl;
     
     double px=a_in[kN+0][0]; 
     double py=a_in[kN+1][0]; 

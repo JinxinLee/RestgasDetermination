@@ -875,11 +875,13 @@ void TCandidate::PrintOn(std::ostream& o) const
 	<< GetMarker(0)
 	<< ") ";
   o.unsetf(ios::hex | ios::showbase);
-  
+
   // print daughter links
   o << "d: "<< nDaug;
   for (int i=0;i<nDaug;i++) o << " " << fDaughters[i]->Uid();
   if (DecayVtx()) o << " dcy: "<<*DecayVtx();
+  o << " PID:";
+  for(int k=0;k<5;k++) o << fPidLH[k] <<","; // take the first 5 pid entries to check charged p,pi,e,mu,K
 }
 
 

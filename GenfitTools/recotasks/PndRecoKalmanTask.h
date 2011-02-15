@@ -43,13 +43,14 @@ public:
   // Accessors -----------------------
   
   // Modifiers -----------------------
-  void SetTrackInBranchName(const TString& name)   { fTrackInBranchName = name; } 
+  void SetTrackInBranchName(const TString& name)   { fTrackInBranchName = name;  } 
   void SetTrackOutBranchName(const TString& name)  { fTrackOutBranchName = name; }
-  void SetPersistence(Bool_t opt = kTRUE)        { fPersistence = opt;      }
-  void SetGeane(Bool_t opt = kTRUE)              { fUseGeane = opt;         }
-  void SetNumIterations(Int_t num)               { fNumIt = num;        }
-  void SetParticleHypo(TString s);
+  void SetPersistence(Bool_t opt = kTRUE)          { fPersistence = opt;         }
+  void SetGeane(Bool_t opt = kTRUE)                { fUseGeane = opt;            }
+  void SetNumIterations(Int_t num)                 { fNumIt = num;               }
+  void SetParticleHypo(TString s); 
   void SetParticleHypo(Int_t h);
+  void SetBusyCut(Int_t b)                         { fBusyCut=b;                 }
 
   // Operations ----------------------
   virtual InitStatus Init();
@@ -74,7 +75,8 @@ private:
   Int_t fNumIt;                  //! Number of iterations
   PndGeoSttPar *fSttParameters;  //! STT params
   Int_t fPDGHyp;                 //! Hypothesis
-
+  Int_t fBusyCut;                 //! Skip too busy events with more tracks
+  
   ClassDef(PndRecoKalmanTask,1);
 
 };

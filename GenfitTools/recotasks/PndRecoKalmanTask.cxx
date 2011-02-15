@@ -42,6 +42,7 @@ PndRecoKalmanTask::PndRecoKalmanTask(const char* name, Int_t iVerbose)
   fUseGeane = kTRUE;
   fNumIt = 1;
   fFitter = new PndRecoKalmanFit();
+  fBusyCut=20;
 }
 
 
@@ -97,7 +98,7 @@ void PndRecoKalmanTask::Exec(Option_t* opt)
   if (fVerbose>1) std::cout << " -I- PndRecoKalmanTask: contains " << ntracks << " Tracks."<< std::endl;
   
   // Cut too busy events TODO
-  if(ntracks>20)
+  if(ntracks>fBusyCut)
   {
     std::cout<<" -I- PndRecoKalmanTask::Exec: ntracks=" << ntracks << " Evil Event! skipping" << std::endl;
     return;

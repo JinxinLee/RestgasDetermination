@@ -27,11 +27,17 @@
 
 class PndTrackCandHit : public TObject{
 public:
- PndTrackCandHit():fHitId(-1), fDetId(-1), fRho(0){}
- PndTrackCandHit(Int_t detId, Int_t hitId, Double_t rho):fHitId(hitId), fDetId(detId), fRho(rho){}
- ~PndTrackCandHit() {}
+  PndTrackCandHit():fHitId(-1), fDetId(-1), fRho(0){}
+  PndTrackCandHit(Int_t detId, Int_t hitId, Double_t rho):fHitId(hitId), fDetId(detId), fRho(rho){}
+  ~PndTrackCandHit() {}
   bool operator< (const PndTrackCandHit& rhs) const
   {return fRho<rhs.fRho;};
+  bool operator> (const PndTrackCandHit& rhs) const
+  {return fRho>rhs.fRho;};
+  bool operator<= (const PndTrackCandHit& rhs) const
+  {return fRho<=rhs.fRho;};
+  bool operator>= (const PndTrackCandHit& rhs) const
+  {return fRho>=rhs.fRho;};
   bool operator== (const PndTrackCandHit& hit) const {
     return (fHitId == hit.fHitId && fDetId == hit.fDetId);
   }
@@ -41,14 +47,14 @@ public:
   Int_t GetHitId()const {return fHitId;}
   Int_t GetDetId()const {return fDetId;}
   Double_t GetRho()const {return fRho;}
-
+  
   void Print();
-
- private :
+  
+  private :
   Int_t fHitId;
   Int_t fDetId;
   Double_t fRho;		///< sorting parameter
-
+  
   ClassDef(PndTrackCandHit,1);
 };
 
