@@ -4,7 +4,7 @@ rootlogon()
   basiclibs();
   
   // Load Panda libraries
-  if(isLibrary("libDpmEvtGen"))gSystem->Load("libDpmEvtGen");
+  //  if(isLibrary("libDpmEvtGen"))gSystem->Load("libDpmEvtGen");
   if(isLibrary("libFlukaResults"))gSystem->Load("libFlukaResults");
   if(isLibrary("libGeoBase"))gSystem->Load("libGeoBase");
   if(isLibrary("libParBase"))gSystem->Load("libParBase");
@@ -16,7 +16,6 @@ rootlogon()
       if(isLibrary("libEvtGenDirect"))gSystem->Load("libEvtGenDirect");
     }
   }
-  if(isLibrary("libpythia8.so"))gSystem->Load("libpythia8.so");
   if(isLibrary("libPndBase"))gSystem->Load("libPndBase");
   if(isLibrary("libGlobalTasks"))gSystem->Load("libGlobalTasks");
   if(isLibrary("libTrkBase"))gSystem->Load("libTrkBase");
@@ -31,8 +30,9 @@ rootlogon()
   if(isLibrary("libtrackrep"))gSystem->Load("libtrackrep");
   if(isLibrary("libgenfitAdapters"))gSystem->Load("libgenfitAdapters");
   if(isLibrary("libriemann"))gSystem->Load("libriemann");
-  if(isLibrary("libtpc"))gSystem->Load("libtpc"); 
-  if(isLibrary("libtpcreco"))gSystem->Load("libtpcreco");
+  if(isLibrary("libTpcBase"))gSystem->Load("libTpcBase"); 
+  if(isLibrary("libTpc"))gSystem->Load("libTpc"); 
+  if(isLibrary("libTpcReco"))gSystem->Load("libTpcReco");
   if(isLibrary("libStt"))gSystem->Load("libStt");
   if(isLibrary("libSttReco"))gSystem->Load("libSttReco");
   if(isLibrary("libSds"))gSystem->Load("libSds");
@@ -40,7 +40,6 @@ rootlogon()
   if(isLibrary("libMvd"))gSystem->Load("libMvd");
   if(isLibrary("libMvdReco"))gSystem->Load("libMvdReco");
   if(isLibrary("libMvdTrk"))gSystem->Load("libMvdTrk");
-  if(isLibrary("libSttMvdTracking"))gSystem->Load("libSttMvdTracking");
   if(isLibrary("libGem"))gSystem->Load("libGem");
   if(isLibrary("libTof"))gSystem->Load("libTof");
   if(isLibrary("libDrcProp"))gSystem->Load("libDrcProp");
@@ -63,6 +62,19 @@ rootlogon()
   if(isLibrary("libGlobal"))gSystem->Load("libGlobal");
   if(isLibrary("libMCMatch"))gSystem->Load("libMCMatch");
   if(isLibrary("libMva"))gSystem->Load("libMva");
+
+  gSystem->Load("libMemStat");
+
+  cout << "...using style 'Plain'\n";
+  gROOT->SetStyle("Plain");
+  
+
+  gSystem->AddIncludePath("-I$VMCWORKDIR");
+  gSystem->AddIncludePath("-I$VMCWORKDIR/base");
+  gSystem->AddIncludePath("-I$VMCWORKDIR/pnddata");
+  gSystem->AddIncludePath("-I$VMCWORKDIR/field");
+  gSystem->AddIncludePath("-I$VMCWORKDIR/tpc");
+
 	
 }
 
