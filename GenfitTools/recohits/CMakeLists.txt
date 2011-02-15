@@ -44,6 +44,7 @@ PndMdtRecoHit.cxx
 PndSdsRecoHit.cxx
 PndSttRecoHit.cxx
 PndSttRecoHitProducer.cxx
+PndHitRecoHit.cxx
 )
 
 if(RULE_CHECKER_FOUND)

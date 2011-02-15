@@ -11,5 +11,6 @@
 #pragma link C++ class PndMdtRecoHit+;
 #pragma link C++ class PndSdsRecoHit+;
 #pragma link C++ class PndSttRecoHit+;
+#pragma link C++ class PndHitRecoHit+;
 
 #endif

@@ -52,7 +52,7 @@ PndFtsMapCreator::PndFtsMapCreator() {
 	// to use in PndFts
 PndFtsMapCreator::PndFtsMapCreator(Int_t geoType){
   fGeoType = geoType;
-  if(fGeoType != 1) cout << "geometry not supported by map" << endl; // CHECK
+  if(fGeoType != 1) Info("PndFtsMapCreator","Geometry %i not supported by map", fGeoType); // CHECK
 }
 
 // crete geometry from parameters file
@@ -64,7 +64,7 @@ PndFtsMapCreator::PndFtsMapCreator(PndGeoFtsPar *ftsPar)
   // choose geometry type
   fGeoType = ftsPar->GetGeometryType(); // classic, optimized, average, detailed, CAD
 
-  if(fGeoType != 1) cout << "geometry not supported by map" << endl; // CHECK
+  if(fGeoType != 1) Info("PndFtsMapCreator","Geometry %i not supported by map", fGeoType); // CHECK
  }
 
 PndFtsMapCreator::~PndFtsMapCreator(){}
