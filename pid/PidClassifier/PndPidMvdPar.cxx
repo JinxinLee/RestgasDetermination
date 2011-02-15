@@ -1,5 +1,5 @@
 
-// update 9/02/2010
+// update 15/02/2011
 // pid parameter for the Mvd-2.1_FullVersion.root geometry files
 
 #include "PndPidMvdPar.h"
@@ -73,50 +73,50 @@ PndPidMvdPar::~PndPidMvdPar()
 
 void PndPidMvdPar::SetElectronPara()
 {
-  fElecMpvP0=-0.003129;
-  fElecMpvP1=-9.839e-05;
-  fElecMpvP2=-0.0008691;
-  fElecSigmaP0=-1.152E-05;
-  fElecSigmaP1=0.0002087;
+  fElecMpvP0=-0.00312858;
+  fElecMpvP1=-1.507E-6;
+  fElecMpvP2=-1.07387E-3;
+  fElecSigmaP0=-1.23101E-05;
+  fElecSigmaP1=0.000209078;
 }
 void PndPidMvdPar::SetMuonPara()
 {
-  fMuonMpvP0=-0.002869;
-  fMuonMpvP1=0.007084;
-  fMuonMpvP2=-0.01502;
-  fMuonSigmaP0=-5.555E-06;
-  fMuonSigmaP1=0.0001891;
+  fMuonMpvP0=-2.87821E-3;
+  fMuonMpvP1=7.37147E-3;
+  fMuonMpvP2=-1.60083E-2;
+  fMuonSigmaP0=-5.80053E-06;
+  fMuonSigmaP1=1.89061E-4;
 
 }
 void PndPidMvdPar::SetPionPara()
 {
-  fPionMpvP0=-0.002839;
-  fPionMpvP1=0.006213;
-  fPionMpvP2=-0.005356;
-  fPionSigmaP0=-0.0001743;
-  fPionSigmaP1=-0.005183;
-  fPionSigmaP2=0.03017;
+  fPionMpvP0=-0.00284155;
+  fPionMpvP1=0.00648687;
+  fPionMpvP2=-0.00606107;
+  fPionSigmaP0=-0.000174549;
+  fPionSigmaP1=-0.00520594;
+  fPionSigmaP2=2.97958E-2;
 }
 
 void PndPidMvdPar::SetKaonPara()
 {
-  fKaonMpvP0=-0.002724;
-  fKaonMpvP1=0.01344;
-  fKaonMpvP2=0.1853;
-  fKaonSigmaP0=-0.0001717;
-  fKaonSigmaP1=0.008792;
-  fKaonSigmaP2=0.1795;
+  fKaonMpvP0=-0.00272739;
+  fKaonMpvP1=0.0137811;
+  fKaonMpvP2=0.184134;
+  fKaonSigmaP0=-0.000170837;
+  fKaonSigmaP1=0.00831504;
+  fKaonSigmaP2=0.181227;
 
 }
 
 void PndPidMvdPar::SetProtonPara()
 {
-  fProtonMpvP0=-0.00259;
-  fProtonMpvP1=0.00559;
-  fProtonMpvP2=0.827;
-  fProtonSigmaP0=-0.0001326;
-  fProtonSigmaP1=-0.2268;
-  fProtonSigmaP2=1.142;
+  fProtonMpvP0=-2.56891E-3;
+  fProtonMpvP1=-3.84895E-4;
+  fProtonMpvP2=0.842041;
+  fProtonSigmaP0=-0.000138299;
+  fProtonSigmaP1=-0.235109;
+  fProtonSigmaP2=1.06521;
 }
 
 ClassImp(PndPidMvdPar)
