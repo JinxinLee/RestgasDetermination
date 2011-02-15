@@ -71,6 +71,7 @@ public:
     EvalBoundingRect();}
   void setsectorId(const unsigned int Id){fsectorId=Id;}
   void addNeighbour(const unsigned int& Id){fneighbourIds.push_back(Id);}
+  bool removeNeighbour(unsigned int Id);
   unsigned int nNeighbours() const {return fneighbourIds.size();}
   unsigned int getNeighbour(const unsigned int& Id) const {return fneighbourIds[Id];}
 

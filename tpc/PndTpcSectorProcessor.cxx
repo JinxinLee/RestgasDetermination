@@ -36,6 +36,7 @@
 
 // Class Member definitions -----------
 
+#define DEBUG 0
 
 PndTpcSectorProcessor::~PndTpcSectorProcessor()
 {
@@ -212,9 +213,17 @@ PndTpcSectorProcessor::cog(){
       mcid.AddIDCollection(adigi->mcId(),a);
       TVector3 thispos;
       PndTpcDigiMapper::getInstance()->map(adigi,thispos);
+      if(DEBUG) {
+	std::cout<<"PndTpcSectorProcessor: Digi position: ";
+	thispos.Print();
+      }
       double dx;
       double dy;
       PndTpcDigiMapper::getInstance()->padsize(adigi->padId(),dx,dy);
+      if(DEBUG) {
+	std::cout<<"PndTpcSectorProcessor: Got PadSize dx: "
+		 <<dx<<", dy: "<<dy<<std::endl;
+      }
 
       McId dummyID(1,1);
       McIdCollection dummyColl;
@@ -230,8 +239,18 @@ PndTpcSectorProcessor::cog(){
       
       double Dl = PndTpcDigiMapper::getInstance()->getGas()->Dl();
       double Dt = PndTpcDigiMapper::getInstance()->getGas()->Dt();
+      if(DEBUG) {
+	std::cout<<"PndTpcSectorProcessor: Gas DiffL: "<<Dl 
+		 <<", Gas DiffT: "<<Dt<<std::endl;
+      }
       
       double driftl=thispos.z()-PndTpcDigiMapper::getInstance()->zGem();
+      if(DEBUG) {
+	std::cout<<"PndTpcSectorProcessor: zGem is "
+		 <<PndTpcDigiMapper::getInstance()->zGem()<<std::endl
+		 <<", drift length: "<<driftl<<std::endl;
+      }
+      
       //assert(driftl>=0);
       double absdriftl=fabs(driftl);
       
@@ -252,13 +271,15 @@ PndTpcSectorProcessor::cog(){
     sig.SetX(sqrt(sig.X())/amp);
     sig.SetY(sqrt(sig.Y())/amp);
     sig.SetZ(sqrt(sig.Z())/amp);
-
+    if(DEBUG && ndigis==1){
+      sig.Print();
+    }
     PndTpcCluster* cl=new PndTpcCluster(pos,sig,amp,id,ndigis);
     mcid.Renormalize();
     cl->SetMcId(mcid);
     //set link (temporary solution)
-    if(!fDataMode)
-      cl->SetLink(FairLink("MCTrack", mcid.DominantID().mctrackID()));
+    //if(!fDataMode)
+    //cl->SetLink(FairLink("MCTrack", mcid.DominantID().mctrackID()));
 
     // loop again over the digis to calculate 2nd moment
     TMatrixD cov(3,3);
@@ -272,7 +293,7 @@ PndTpcSectorProcessor::cog(){
       TMatrixD acov(c,TMatrixD::kMult,c_t);
       cov+=acov;
       
-      cl->addDigi(*adigi);
+      cl->addDigi(adigi);
     }
     cov*=1./(double)ndigis;
     cl->SetCov(cov);

@@ -6,19 +6,15 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-#pragma link C++ class PndTpcTester+;
+//#pragma link C++ class PndTpcTester+;
 #pragma link C++ class PndTpcDetector+;
-#pragma link C++ class PndTpcPoint+;
 #pragma link C++ class PndTpcGeo+;
 #pragma link C++ class PndTpcGeoPar+;
 #pragma link C++ class PndTpcDigiPar+;
 #pragma link C++ class PndTpcContFact+;
 #pragma link C++ class PndTpcClusterizerTask+;
-#pragma link C++ class PndTpcPrimaryCluster+;
 #pragma link C++ class PndTpcDriftTask+;
 //#pragma link C++ class PndTpcRadialDriftTask+;
-#pragma link C++ class PndTpcDriftedElectron+;
-#pragma link C++ class PndTpcAvalanche+;
 #pragma link C++ class PndTpcGemTask+;
 #pragma link C++ class PndTpcSignal+;
 #pragma link C++ class McId+;
@@ -49,11 +45,11 @@
 #pragma link C++ class PndTpcLaserStat+;
 #pragma link C++ class PndTpcLaserTrack+;
 #pragma link C++ class QAPlotCollection+;
-#pragma link C++ class DEDx+;
-#pragma link C++ class PndTpcMCDEdxTask+;
-#pragma link C++ class PndTpcRawDEdxCollection+;
-#pragma link C++ class PndTpcDEDXFits+;
-#pragma link C++ class PndTpcHitMerger+;
+//#pragma link C++ class DEDx+;
+//#pragma link C++ class PndTpcMCDEdxTask+;
+//#pragma link C++ class PndTpcRawDEdxCollection+;
+//#pragma link C++ class PndTpcDEDXFits+;
+//#pragma link C++ class PndTpcHitMerger+;
 #pragma link C++ class PndTpcTestChamberOutputTask+;
 #pragma link C++ class BiCubSpline+;
 #pragma link C++ class BSpline+;

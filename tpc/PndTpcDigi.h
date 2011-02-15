@@ -67,28 +67,30 @@ public:
   void index(unsigned int caindex){findex = caindex;}
 
   //Samples Vector-------------------
-  
+ 
+  /*
   unsigned int nSample() const {
     return samples.size();
   }
-  void addSample(const PndTpcSample& d){
+  
+  void addSample(const PndTpcSample* d){
     samples.push_back(d);
-    
-    
   }
-  const PndTpcSample& getSample(int i) const{
+  
+  const PndTpcSample* getSample(int i) const{
     assert (i<samples.size());
-    return samples.at(i);
+    return samples[i];
   }
-
-
-
+  */
+  
   // Operations ----------------------
   void Print() const {
     std::cout << "===== PndTpcDigi::print() =====" << std::endl;
-    std::cout << "padId " << padId() << " | amp " << amp() << " | t " << t() << std::endl;
+    std::cout << "padId " << padId() << " | amp " << amp() << " | t " 
+	      << t() << std::endl;
   }
-private:
+  
+ private:
 
   // Private Data Members ------------
   double famp;
@@ -102,7 +104,7 @@ private:
   // Private Methods -----------------
 
   //for optional saving of raw info that went into the cluster
-  std::vector<PndTpcSample> samples;
+  //std::vector<const PndTpcSample*> samples;
 
 
 public:

@@ -129,7 +129,7 @@ PndTpcRiemannTrackingTask::Init()
 
   // create and register output array
   _trackArray = new TClonesArray("GFTrack");
-  ioman->Register("TrackPreFit","GenFit",_trackArray,_persistence);
+  ioman->Register("TrackPreFit","GenFit",_trackArray,false);
 
   _riemannTrackArray = new TClonesArray("PndTpcRiemannTrack");
   ioman->Register("RiemannTrack","Tpc",_riemannTrackArray,_persistence);

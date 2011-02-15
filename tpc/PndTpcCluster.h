@@ -30,7 +30,6 @@
 #include "PndTpcDigiMapper.h"
 
 // Collaborating Class Declarations --
-class GFTrack;
 
 class PndTpcCluster : public FairHit {
 
@@ -83,17 +82,20 @@ public:
   // Operations ----------------------
  
   
+  //TRANSIENT FUNCTIONALITY: ------------------------------------------------------
   unsigned int nDigi() const {
     return digis.size();
   }
-  void addDigi(const PndTpcDigi& d){
+  void addDigi(const PndTpcDigi* d){
     digis.push_back(d);
-    AddLink(FairLink("PndTpcDigi", d.index()));
+    //AddLink(FairLink("PndTpcDigi", d.index()));
   }
-  const PndTpcDigi& getDigi(int i) const{
+  //BEWARE: Cannot be used after reading Cluster from file (if digi is not loaded)
+  const PndTpcDigi* getDigi(int i) const{
     assert (i<digis.size());
-    return digis.at(i);
+    return digis[i];
   }
+  //--------------------------------------------------------------------------------
   
   
   
@@ -118,7 +120,8 @@ private:
   int findexInTrack;	//index in track for spatial sorting
 
   //for optional saving of raw info that went into the cluster
-  std::vector<PndTpcDigi> digis;
+  //
+  std::vector<const PndTpcDigi*> digis;
 
 
   // Private Methods -----------------

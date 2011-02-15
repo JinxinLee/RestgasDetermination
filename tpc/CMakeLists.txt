@@ -39,20 +39,13 @@ PndTpcGeoPar.cxx
 PndTpcDigiPar.cxx
 PndTpcContFact.cxx 		    
 PndTpcDetector.cxx 		    
-PndTpcPoint.cxx 	
 PndTpcClusterizerTask.cxx 	    
 PndTpcGas.cxx 			    
-PndTpcPrimaryCluster.cxx 	    
 LinearInterpolPolicy.cxx 	    
-PndTpcDriftedElectron.cxx 	    
 PndTpcDriftTask.cxx 		    
 #PndTpcRadialDriftTask.cxx 		    
-PndTpcAvalanche.cxx 		    
 PndTpcGem.cxx 			    
 PndTpcGemTask.cxx 		    
-PndTpcSignal.cxx 		    
-PndTpcSignalAge.cxx 		    
-McId.cxx 			    
 PndTpcAbsPadShape.cxx 		    
 PndTpcPRLookupTable.cxx 	    
 PndTpcPadPlane.cxx 		    
@@ -62,13 +55,8 @@ PndTpcPadShapeSquare.cxx
 PndTpcPadShapePolygon.cxx 	    
 PndTpcPadResponseTask.cxx 	    
 PndTpcFrontend.cxx 		    
-McIdCollection.cxx 		    
-PndTpcSample.cxx 		    
 PndTpcCRRCPulseshape.cxx 	    
 PndTpcDigitizationPolicy.cxx 	    
-PndTpcDigi.cxx 			    
-PndTpcDigiAge.cxx 		    
-PndTpcSampleAge.cxx 		    
 PndTpcDigiAmplitude.cxx 		    
 PndTpcDigiMapper.cxx 		    
 PndTpcSimplePSAStrategy.cxx 	    	    
@@ -89,7 +77,6 @@ PndTpcElectronicsTask.cxx
 PndTpcClusterFinder.cxx   
 PndTpcClusterFinderSimple.cxx   
 PndTpcClusterFinderTask.cxx 	    
-PndTpcCluster.cxx	    
 PndTpcClusterCOG.cxx
 PndTpcClusterRadius.cxx 
 PndTpcClusterZ.cxx
@@ -104,7 +91,7 @@ TORPPState_End.cxx
 PndTpcSectorProcessor.cxx 	    
 PndTpcRungeKutta.cxx 		    
 PndTpcInhFieldDrifter.cxx 	    
-test/PndTpcTester.cxx 		    
+#test/PndTpcTester.cxx 		    
 PndTpcPSAplot.cxx  
 DebugLogger.cxx       
 TCovEllipse.cxx
@@ -126,12 +113,12 @@ spacecharge/SplineTF1Interface.cxx
 spacecharge/SplineTF2Interface.cxx
 spacecharge/PndTpcLaserFitTaskStat.cxx
 QAPlotCollection.cxx
-DEDX.cxx
-PndTpcMCDEdxTask.cxx
-PndTpcRawDEdxCollection.cxx
-PndTpcDEDXFits.cxx
-PndTpcHitMerger.cxx
-PndTpcDEDXStorageHelper.cxx
+#DEDX.cxx
+#PndTpcMCDEdxTask.cxx
+#PndTpcRawDEdxCollection.cxx
+#PndTpcDEDXFits.cxx
+#PndTpcHitMerger.cxx
+#PndTpcDEDXStorageHelper.cxx
 PndTpcTestChamberOutputTask.cxx 	    
 PndTpcLaserCorrectionTask.cxx					    
 TestBench/PndTpcSLResidualTask.cxx
@@ -141,11 +128,11 @@ TestBench/Hough2DNode.cxx
 TestBench/Hypersurface4D.cxx
 TestBench/Hough4DNode.cxx
 TestBench/PndTpcEvent.cxx
+TestBench/PndTpcEventIdentifier.cxx
 TestBench/PndTpcDataReaderTask.cxx
 #TestBench/PndTpcTCcrossTalk.cxx
 #TestBench/PndTpcTCcrossTalkTask.cxx
 #TestBench/PndTpcCTapplyTask.cxx
-TestBench/PndTpcSampleAmp.cxx
 #TestBench/TCmappingManager.cxx
 #TestBench/mappingData.cxx
 #TestBench/TCconfigManager.cxx
@@ -153,8 +140,23 @@ PndTpcT2KPulseshape.cxx
 )
 
 SET(TPC_SRCS ${TPC_SRCS_RULECHECKER} PndTpcAbsField.cxx PndTpcFieldCylGrid.cxx 		    
-) 		    
+) 
 
+SET(TPC_BASE_SOURCES
+  PndTpcPoint.cxx 
+  PndTpcPrimaryCluster.cxx 	    
+  PndTpcDriftedElectron.cxx 	    
+  PndTpcAvalanche.cxx 		    
+  PndTpcSignal.cxx 		    
+  PndTpcSignalAge.cxx 		    
+  McId.cxx 			    
+  McIdCollection.cxx 			    
+  PndTpcSample.cxx 		    
+  PndTpcSampleAge.cxx 		    
+  PndTpcDigi.cxx 			    
+  PndTpcDigiAge.cxx 		    
+  PndTpcCluster.cxx
+  )
 
 if(RULE_CHECKER_FOUND)
   CHECK_RULES("${TPC_SRCS_RULECHECKER}" "${INCLUDE_DIRECTORIES}" TPC_RULES)
@@ -162,18 +164,27 @@ endif(RULE_CHECKER_FOUND)
 
 # fill list of header files from list of source files
 # by exchanging the file extension
+
 CHANGE_FILE_EXTENSION(*.cxx *.h TPC_HEADERS "${TPC_SRCS}")
+CHANGE_FILE_EXTENSION(*.cxx *.h TPC_BASE_HEADERS "${TPC_BASE_SOURCES}")
 
 
 set(TPC_LINKDEF  tpcLinkDef.h)
+set(TPC_BASE_LINKDEF  tpcBaseLinkDef.h)
 set(TPC_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/tpcDict.cxx) 
+set(TPC_BASE_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/tpcBaseDict.cxx) 
 
 ROOT_GENERATE_DICTIONARY("${TPC_HEADERS}" "${TPC_LINKDEF}" "${TPC_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
+ROOT_GENERATE_DICTIONARY("${TPC_BASE_HEADERS}" "${TPC_BASE_LINKDEF}" "${TPC_BASE_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
 
 SET(TPC_SRCS ${TPC_SRCS} ${TPC_DICTIONARY} dbgstream.cxx)
+SET(TPC_BASE_SOURCES ${TPC_BASE_SOURCES} ${TPC_BASE_DICTIONARY}) 
 
-add_library(tpc SHARED ${TPC_SRCS})
-target_link_libraries(tpc ${ROOT_LIBRARIES})
-set_target_properties(tpc PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
+add_library(Tpc SHARED ${TPC_SRCS})
+target_link_libraries(Tpc ${ROOT_LIBRARIES})
+set_target_properties(Tpc PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
+add_library(TpcBase SHARED ${TPC_BASE_SOURCES})
+target_link_libraries(TpcBase ${ROOT_LIBRARIES})
+set_target_properties(TpcBase PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
-install(TARGETS tpc DESTINATION ${CMAKE_BINARY_DIR}/lib)
+install(TARGETS Tpc TpcBase DESTINATION ${CMAKE_BINARY_DIR}/lib)

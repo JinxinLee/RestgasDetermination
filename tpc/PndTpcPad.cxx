@@ -155,3 +155,14 @@ PndTpcPad::Draw(int c) const
 {
   fshape->Draw(fx,fy,fangle, c);
 }
+
+bool
+PndTpcPad::removeNeighbour(unsigned int n) {
+  std::vector<unsigned int>::iterator it;
+  for(it=fneighbourIds.begin(); it!=fneighbourIds.end(); it++) 
+    if(*it==n) {
+      fneighbourIds.erase(it);
+      return false; //no error
+    }
+  return true; //not found
+}

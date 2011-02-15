@@ -26,6 +26,7 @@
 #include "stdlib.h"
 // Collaborating Class Headers --------
 #include "TError.h"
+#include "TString.h"
 #include "PndTpcPadShapePool.h"
 #include "PndTpcAbsPadShape.h"
 
@@ -55,7 +56,8 @@ PndTpcPadPlane::PndTpcPadPlane(const char* const filename,
 			   <<" PadPlane will not be usable!"<<std::endl;
   //open file to construct Indexer
   std::ifstream infile(filename, std::fstream::in);
-  Warning("PndTpcPadPlane::PndTpcPadPlane","Reading file...");
+  TString meh(filename);
+  Warning("PndTpcPadPlane::PndTpcPadPlane","Reading file..."+meh);
   if (!infile.good())
     Fatal("PndTpcPadPlane::PndTpcPadPlane","The file can not be found.");
   //search the file for the line describing the Indexer

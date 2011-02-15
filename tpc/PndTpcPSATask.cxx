@@ -34,7 +34,7 @@
 #include "PndTpcFrontend.h"
 #include "PndTpcSimplePSAStrategy.h"
 #include "PndTpcPSA_TOT1.h"
-#include "PndTpcPSA_AD1.h"
+//#include "PndTpcPSA_AD1.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 #include "PndTpcDigiPar.h"
@@ -132,13 +132,15 @@ PndTpcPSATask::Init()
      if (fopt) {fpsa->setOpt(fopt); std::cout << " with " << fopt << "nb of empty samples allowed.";}
      std::cout << std::endl;
    }
+   /*
    else if( fpar->getPSA() == 2){
      fpsa= new PndTpcPSA_AD1();//fpulseshape);
      fpsa->setPs(fpulseshape);
      fpsa->TailCancellation(fTail);
      fpsa->setOpt((unsigned int)ffrontend->samplingFrequency());
      std::cout << "Using PSA_AD strategy!" << std::endl;
-   }  
+   } 
+   */
    else return kERROR;
    return kSUCCESS;
 }
@@ -205,15 +207,14 @@ PndTpcPSATask::Exec(Option_t* opt)
   
   //copy data into digi_array (TClonesvector)
   int ndigi=digis.size();
-  int nsamplesused=0;
+
   for(int idigi=0;idigi<ndigi;++idigi) {
     new((*fdigiArray)[idigi]) PndTpcDigi(*(digis[idigi]));
-    nsamplesused+=digis[idigi]->nSample();
+
     delete digis[idigi]; // clean up temporay store
   }
 
   std::cout<<fdigiArray->GetEntriesFast()<<" Digis created"<<std::endl;
-  std::cout<<"Containing "<<nsamplesused<<" samples out of "<< ns <<" samples in event"<< std::endl;
   return;
 }
 

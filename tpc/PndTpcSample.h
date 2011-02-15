@@ -62,6 +62,7 @@ public:
   unsigned int     adcId() const { return fadcId; }
   unsigned int    chipId() const { return fchipId; }
   unsigned int channelId() const { return fchannelId; }
+  time_t    ADCTimeStamp() const { return ftimeStamp; }
 
   // Modifiers -----------------------
   //*** next four functions added by x. zhang on 08.10.2009 ****//
@@ -72,6 +73,7 @@ public:
   void setADCId(unsigned int aId) { fadcId = aId; }
   void setChipId(unsigned int cId) { fchipId = cId; }
   void setChannelId(unsigned int chId) { fchannelId = chId; }
+  void setADCTimeStamp(time_t time) { ftimeStamp = time;}
   
   // Operations ----------------------
   void reset();
@@ -98,7 +100,9 @@ private:
   unsigned int fsourceId;
   unsigned int fadcId;
   unsigned int fchipId;
-  unsigned int fchannelId;       // added by X. Zhang, Oct. 29, 2009               
+  unsigned int fchannelId;     // added by X. Zhang, Oct. 29, 2009     
+
+  time_t ftimeStamp;
   
   //std::vector <PndTpcSignal> fsigs;
   
@@ -106,7 +110,7 @@ private:
   // Private Methods -----------------
 
 public:
-  ClassDef(PndTpcSample,5)
+  ClassDef(PndTpcSample,6)
 
 };
 

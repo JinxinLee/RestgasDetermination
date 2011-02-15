@@ -245,7 +245,7 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
       unsigned int nDigi = clus->nDigi();
       std::set<unsigned int> padIds; //padIds of this cluster
       for(unsigned int d=0; d<nDigi; d++)
-	padIds.insert(clus->getDigi(d).padId());
+	padIds.insert(clus->getDigi(d)->padId());
       std::set<unsigned int>::iterator it;
       for(it=padIds.begin(); it!=padIds.end(); it++)
 	(clMap[*it]).push_back(clus);

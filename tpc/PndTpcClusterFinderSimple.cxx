@@ -100,7 +100,7 @@ PndTpcCluster* PndTpcPrelimCluster::convPndTpcCluster(bool saveRaw) {
 
   if(saveRaw){//defined in PndTpcAbsClusterFinder.h and default false
     for(unsigned int i=0;i<fdigis.size();++i){
-      c->addDigi(fdigis.at(i));
+      c->addDigi(&fdigis.at(i));
     }
   }
 

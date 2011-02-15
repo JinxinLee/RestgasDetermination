@@ -57,13 +57,13 @@ PndTpcIdealTrackingTask2.cxx
 PndTpcRiemannMCTask.cxx
 PndTpcRiemannMCResidual.cxx
 ##############################
-PndTpcRecoDEdxTask.cxx
-PndTpcDEDXDiagnosticPoint.cxx
-PndTpcDEDXDiagnostics.cxx
-PndTpcDEDXDiagnosticsTask.cxx
-PndTpcAdvancedDxEvalPoint.cxx
-PndTpcSimpleDxEvalPoint.cxx
-PndTpcDXCalculator.cxx
+#PndTpcRecoDEdxTask.cxx
+#PndTpcDEDXDiagnosticPoint.cxx
+#PndTpcDEDXDiagnostics.cxx
+#PndTpcDEDXDiagnosticsTask.cxx
+#PndTpcAdvancedDxEvalPoint.cxx
+#PndTpcSimpleDxEvalPoint.cxx
+#PndTpcDXCalculator.cxx
 PndTpcClusterTrack.cxx
 PndTpcTFSInfo.cxx
 PndTpcSPHit.cxx	
@@ -88,8 +88,8 @@ ROOT_GENERATE_DICTIONARY("${TPCRECO_HEADERS}" "${TPCRECO_LINKDEF}" "${TPCRECO_DI
 
 SET(TPCRECO_SRCS ${TPCRECO_SRCS} ${TPCRECO_DICTIONARY})
 
-add_library(tpcreco SHARED ${TPCRECO_SRCS})
-target_link_libraries(tpcreco ${ROOT_LIBRARIES})
-set_target_properties(tpcreco PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
+add_library(TpcReco SHARED ${TPCRECO_SRCS})
+target_link_libraries(TpcReco ${ROOT_LIBRARIES})
+set_target_properties(TpcReco PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
-install(TARGETS tpcreco DESTINATION ${CMAKE_BINARY_DIR}/lib)
+install(TARGETS TpcReco DESTINATION ${CMAKE_BINARY_DIR}/lib)

@@ -124,8 +124,8 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
 		mcid.Renormalize();
 		PndTpcDigi* digi=new PndTpcDigi(A,t0,samples[i]->padId(),mcid);
 		digi->tlength(length);
-		for (int yi=0;yi<samplesInPulse.size();++yi)
-		  digi->addSample(*samplesInPulse.at(yi));
+		//for (int yi=0;yi<samplesInPulse.size();++yi)
+		//  digi->addSample(samplesInPulse[yi]);
 		digis.push_back(digi);
 		samplesInPulse.clear();
 

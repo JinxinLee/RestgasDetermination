@@ -46,10 +46,9 @@ PndTpcCluster::PndTpcCluster(const PndTpcCluster& clust)
     famp(clust.famp), fhasaxis(clust.fhasaxis), fnPad(clust.fnPad), 
     fnPadX(clust.fnPadX),fnPadY(clust.fnPadY),
     findex(clust.findex), fsize(clust.fsize),findexInTrack(clust.findexInTrack),
-    fmcid(clust.fmcid)
+    fmcid(clust.fmcid), digis(clust.digis)
 { 
-  for(unsigned int i=0; i<(clust.digis).size(); ++i) 
-    addDigi(PndTpcDigi((clust.digis)[i]));
+  ;
 }
 
 PndTpcCluster::PndTpcCluster(const TVector3& Pos, double Amp, 
@@ -89,7 +88,7 @@ unsigned int
 PndTpcCluster::get2DSize() { //return the 2-dimensional size of the cluster
   std::set<unsigned int> ids;
   for(int k=0; k<digis.size(); k++) {
-    unsigned int id = (digis[k]).padId();
+    unsigned int id = (digis[k])->padId();
     ids.insert(id);
   }
   return ids.size();

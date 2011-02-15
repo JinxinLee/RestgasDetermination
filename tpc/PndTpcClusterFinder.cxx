@@ -99,12 +99,12 @@ PndTpcClusterFinder::process(std::vector<PndTpcDigi*>& digis)
       McIdCollection id=digis[i]->mcId();
       PndTpcCluster* cl=new PndTpcCluster(pos,digis[i]->amp(),0);
       if(fsaveRaw){
-	cl->addDigi(*(digis[i]));
+	cl->addDigi((digis[i]));
       }
       cl->SetMcId(id);
       //set link to the track
-      if(!fDataMode)
-	cl->SetLink(FairLink("MCTrack", id.DominantID().mctrackID()));
+      //if(!fDataMode)
+      //cl->SetLink(FairLink("MCTrack", id.DominantID().mctrackID()));
       foutput_buffer->push_back(cl);
     }
     return;
@@ -144,7 +144,7 @@ PndTpcClusterFinder::process(std::vector<PndTpcDigi*>& digis)
       unsigned int sectorId=fpadplane->GetPad(digis[idi]->padId())->sectorId();
       fsectormap[sectorId]->push_back(digis[idi]);
     }
-    std::cout<<"DEBUG: built sector map"<<std::endl;
+   
     
   // now process each sectorprocessor independently
   std::map<unsigned int,std::vector<PndTpcDigi*>* >::iterator secIt=fsectormap.begin();
