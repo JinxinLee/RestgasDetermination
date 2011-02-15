@@ -76,7 +76,6 @@ find_package(CERNLIB)
 
 find_package(RuleChecker)
 
-find_package(OpenGL)
 
 # Set the library version in the main CMakeLists.txt
 SET(FAIRROOT_MAJOR_VERSION 0)
@@ -136,10 +135,19 @@ add_subdirectory(tutorials/charmtask)
 add_subdirectory (fsim)
 add_subdirectory(rho)
 
-If (OPENGL_FOUND AND OPENGL_GLU_FOUND)
+FIND_PATH(TEvePath NAMES TEveEventManager.h PATHS
+  ${SIMPATH}/tools/root/include
+  NO_DEFAULT_PATH
+)
+
+If(TEvePath)
+#find_package(OpenGL)
+#If (OPENGL_FOUND AND OPENGL_GLU_FOUND)
+  Message("Found TEve, so the eventdisplay will be compiled.")
   add_subdirectory(eventdisplay)
   add_subdirectory(PndEventdisplay)
-EndIf (OPENGL_FOUND AND OPENGL_GLU_FOUND)
+#EndIf (OPENGL_FOUND AND OPENGL_GLU_FOUND)
+EndIf(TEvePath)
 
 add_subdirectory (rpc) 
 #add_subdirectory (gpid)
