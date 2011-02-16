@@ -1287,7 +1287,7 @@ Int_t  PndBarrelTrackFinder::WriteTracks() {
 							 TVector3(1.,0.,0.),
 							 TVector3(0.,1.,0.));					 
     TVector3 tempVect1(trackHitsPerDet[0],trackHitsPerDet[1],trackHitsPerDet[2]);
-    TVector3 tempVect2(trackHitsPerDet[3],trackHitsPerDet[4],0.); 
+    TVector3 tempVect2(trackHitsPerDet[3],trackHitsPerDet[4],1.); 
 
     //    FairTrackParP*	    lastPar = new FairTrackParP(trackPosition,trackMomentum,
     FairTrackParP*	    lastPar = new FairTrackParP(tempVect1,tempVect2,
@@ -1339,7 +1339,9 @@ void PndBarrelTrackFinder::AddHitToPreviousHits     (FairHit* thisHit, Int_t det
 // parameter cno (from 0 to 7) is a bit mask on whether a given circle is inside or outside circle cl
 Bool_t PndBarrelTrackFinder::FindCircPar(Double_t* c1, Double_t* c2, Double_t* c3, Int_t cno, Double_t* cl) {
   if ( cno < 0 || cno > 7 ) return kFALSE;
-  
+//   cout << "c1 : " << c1[0] << "," << c1[1] << " - " << c1[2] << endl;
+//   cout << "c2 : " << c2[0] << "," << c2[1] << " - " << c2[2] << endl;
+//   cout << "c3 : " << c3[0] << "," << c3[1] << " - " << c3[2] << endl;
   Double_t s1 = -1+2*(cno%2); cno/=2;
   Double_t s2 = -1+2*(cno%2); cno/=2;
   Double_t s3 = -1+2*(cno%2);
@@ -1353,6 +1355,8 @@ Bool_t PndBarrelTrackFinder::FindCircPar(Double_t* c1, Double_t* c2, Double_t* c
   Double_t b3 = 2.*(c1[1]-c3[1]);
   Double_t e3 = 2.*(s1*c1[2]-s3*c3[2]);
   Double_t d3 = (c1[0]*c1[0]+c1[1]*c1[1]-c1[2]*c1[2]) - (c3[0]*c3[0]+c3[1]*c3[1]-c3[2]*c3[2]);
+  //  cout << "a2 " << a2 << " a3 " << a3 << " b2 " << b2 << " b3 " << b3 << " /// a2*b3-a3*b2 = " << a2*b3-a3*b2 << endl;
+  if ( TMath::Abs(a2*b3-a3*b2) < 0.001 ) return kFALSE;
 
   Double_t ax = (d2*b3-d3*b2)/(a2*b3-a3*b2);
   Double_t bx = (e2*b3-e3*b2)/(a2*b3-a3*b2);
