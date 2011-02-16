@@ -13,17 +13,6 @@ ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/fts
-${CMAKE_SOURCE_DIR}/PndTools/generalTools
-${CMAKE_SOURCE_DIR}/geane
-${CMAKE_SOURCE_DIR}/genfit
-${CMAKE_SOURCE_DIR}/GenfitTools/trackrep
-${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
-${CMAKE_SOURCE_DIR}/GenfitTools/adapters
-${CMAKE_SOURCE_DIR}/GenfitTools/recohits
-${CMAKE_SOURCE_DIR}/GenfitTools/recotasks
-
-
-
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -50,8 +39,6 @@ PndFtsHitProducerRealFast.cxx
 PndFtsHitProducerIdeal.cxx
 PndFtsHitProducerRealFull.cxx
 PndFtsTrackerIdeal.cxx
-PndFtsKalmanTask.cxx
-PndFtsKalmanFit.cxx
 )
 
 if(RULE_CHECKER_FOUND)
