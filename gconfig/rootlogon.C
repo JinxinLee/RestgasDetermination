@@ -4,7 +4,8 @@ rootlogon()
   basiclibs();
   
   // Load Panda libraries
-  //  if(isLibrary("libDpmEvtGen"))gSystem->Load("libDpmEvtGen");
+  if(isLibrary("libDpmEvtGen"))gSystem->Load("libDpmEvtGen");
+  if(isLibrary("libpythia8"))gSystem->Load("libpythia8");
   if(isLibrary("libFlukaResults"))gSystem->Load("libFlukaResults");
   if(isLibrary("libGeoBase"))gSystem->Load("libGeoBase");
   if(isLibrary("libParBase"))gSystem->Load("libParBase");
@@ -40,6 +41,7 @@ rootlogon()
   if(isLibrary("libMvd"))gSystem->Load("libMvd");
   if(isLibrary("libMvdReco"))gSystem->Load("libMvdReco");
   if(isLibrary("libMvdTrk"))gSystem->Load("libMvdTrk");
+  if(isLibrary("libSttMvdTracking"))gSystem->Load("libSttMvdTracking");
   if(isLibrary("libGem"))gSystem->Load("libGem");
   if(isLibrary("libTof"))gSystem->Load("libTof");
   if(isLibrary("libDrcProp"))gSystem->Load("libDrcProp");
@@ -63,19 +65,7 @@ rootlogon()
   if(isLibrary("libMCMatch"))gSystem->Load("libMCMatch");
   if(isLibrary("libMva"))gSystem->Load("libMva");
 
-  gSystem->Load("libMemStat");
-
-  cout << "...using style 'Plain'\n";
-  gROOT->SetStyle("Plain");
-  
-
-  gSystem->AddIncludePath("-I$VMCWORKDIR");
-  gSystem->AddIncludePath("-I$VMCWORKDIR/base");
-  gSystem->AddIncludePath("-I$VMCWORKDIR/pnddata");
-  gSystem->AddIncludePath("-I$VMCWORKDIR/field");
-  gSystem->AddIncludePath("-I$VMCWORKDIR/tpc");
-
-	
+  //gSystem->Load("libMemStat");
 }
 
 Bool_t isLibrary(const char* libName)
