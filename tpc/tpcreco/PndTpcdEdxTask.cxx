@@ -243,7 +243,7 @@ PndTpcdEdxTask::Exec(Option_t* opt)
     
     bool unsorted =false;
     
-    std::vector<PndTpcDigi> digis;
+    std::vector<const PndTpcDigi*> digis;
     for(int i=0;i<hits.size();++i){
       int ndigi = ((PndTpcSPHit*)(hits.at(i)))->getCluster()->nDigi();
       for(unsigned int j=0;j<ndigi;++j){
@@ -301,19 +301,19 @@ PndTpcdEdxTask::Exec(Option_t* opt)
       bool _abort(true);
       for(unsigned int i=0;i<digis.size();++i){
 	TVector3 digiPos;
-	PndTpcDigiMapper::getInstance()->map(&(digis.at(i)),digiPos);
+	PndTpcDigiMapper::getInstance()->map(digis[i],digiPos);
 	double behindHere = normHere * (here.dist(digiPos));
 	double behindNext = normNext * (next.dist(digiPos));
 	if(behindHere<0.){//in front of
 	  _abort=false;
 	  if(behindNext>=0.){
-	    dE+=digis.at(i).amp();
+	    dE+=digis[i]->amp();
 	  }
 	}
 	else{
 	  if(behindNext<0.){//in front of
 	    _abort=false;
-	    dE+=digis.at(i).amp();
+	    dE+=digis[i]->amp();
 	  }
 	}
       }
