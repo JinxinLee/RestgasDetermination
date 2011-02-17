@@ -2,7 +2,8 @@
 import ROOT, glob, math
 from ROOT import std
 
-dir = "/nfs/hicran/data/tpc/fopi/2010/decoded"
+#dir = "/nfs/hicran/data/tpc/fopi/2010/decoded"
+dir = "/nfs/nas/user/sneubert/PANDA/"
 
 outfile = ROOT.TFile("anaOut.root", "recreate")
 
@@ -35,14 +36,22 @@ cuts = (0,10,20,30,40,50,60)
 OFFSET = -2.8
 
 resUs = dict([(i, ROOT.TH1D("StatsResX"+str(cuts[i]), 
-                            "Cosmic Residuals Z'", 500,-1,1)) 
+                            "Cosmic Residuals U (Z')", 500,-1,1)) 
               for i in range(len(cuts))])
+pullsUs = dict([(i, ROOT.TH1D("StatsPullX"+str(cuts[i]), 
+                            "Cosmic Pulls U (Z')", 500,-1,1)) 
+              for i in range(len(cuts))])
+
+
 resVIDs = dict([(i, ROOT.TH1D("StatsResVID"+str(cuts[i]), 
-                              "Cosmic Residuals V(X') single track events", 
+                              "Cosmic Residuals V (X') single track events", 
                               500,-1,1)) 
                 for i in range(len(cuts))])
 resVs = dict([(i, ROOT.TH1D("StatsResV"+str(cuts[i]), 
                             "Cosmic Residuals V (X')", 500,-1,1)) 
+              for i in range(len(cuts))])
+pullsVs = dict([(i, ROOT.TH1D("StatsPullV"+str(cuts[i]), 
+                            "Cosmic Pulls V (X')", 500,-1,1)) 
               for i in range(len(cuts))])
 
 cl2Ds = dict([(i, ROOT.TH1D("cl2Ds"+str(cuts[i]), 
@@ -114,9 +123,22 @@ for f in range(20) :
    #tree.SetBranchStatus("PndTpcSLResiduals.*", 1)
     tree.SetBranchStatus("TrackFitStat.*", 1)
     tree.SetBranchStatus("PndTpcCluster.*", 1)
-   #tree.SetBranchStatus("TrackPostFit.*", 1)
+    #tree.SetBranchStatus("TrackPostFit.*", 1)
     
     for e in tree :
+        #for trk in e.TrackPostFit :
+        #    trk.Print()
+        #    cand = trk.getCand()
+        #    #cand.Print()
+        #    res = std.vector('double')()
+        #    trk.getResiduals(2,0,0,res)
+        #    # LOOP OVER CANDIDATE AND PLOT PULLS
+        #    hitIDs = cand.getHitIDs
+        #    #for id in hitIDs :
+        #        # GET CLUSTER, SIGMA AND RESIDUAL
+                
+            
+
         for cl in e.PndTpcCluster :
             sig = cl.sig()
             sigxDist.Fill(sig.X())
@@ -168,8 +190,16 @@ for f in range(20) :
                 resZ = tfs.GetResZ().at(p)
                 res = ROOT.TVector3(resX,resY,resZ)
                 
+                sigX = tfs.GetSigX().at(p)
+                sigY = tfs.GetSigY().at(p)
+                sigZ = tfs.GetSigZ().at(p)
+                sig = ROOT.TVector3(sigX,sigY,sigZ)
+
                 resU = res.Dot(u)
-                resV = res.Dot(v)                
+                resV = res.Dot(v)   
+
+                sigU = sig.Dot(u)
+                sigV = sig.Dot(v)   
                 
                 cl2Dsize = tfs.Get2DClSizes().at(p)
                 clTotSize = tfs.GetClSizes().at(p)
@@ -183,6 +213,9 @@ for f in range(20) :
                         resUs[i-1].Fill(resU)
                         resVs[i-1].Fill(resV)
                         
+                        pullsUs[i-1].Fill(resU/sigU)
+                        pullsVs[i-1].Fill(resV/sigV)
+
                         #resUVs[i-1].Fill(math.sqrt(resX**2 + resY**2)) 
                         resVsUs[i-1].Fill(resV, resU)
                                                 
@@ -263,7 +296,9 @@ for i in range(6) :
     #calculate ratio of central and background integrals
     ratio = fit.GetParameter(3)*fit.GetParameter(5)/(fit.GetParameter(0)*fit.GetParameter(2))
     bckgrShare.SetPoint(i,cuts[i]+5,ratio)
-                             
+   
+
+                          
 
 c5 = ROOT.TCanvas()
 c5.Divide(3,2)
@@ -395,6 +430,38 @@ resDX.Draw("same")
 
 c16 = ROOT.TCanvas()
 nTracksDist.Draw()
+
+
+c17 = ROOT.TCanvas()
+c17.Divide(3,2)
+for i in range(6) :
+    c17.cd(i+1)
+    sigVs[i].SetFillColor(ROOT.kAzure-8)
+    sigVs[i].GetXaxis().SetTitle("Pull V")
+    sigVs[i].Draw()
+    testfit = ROOT.TF1("testfitX"+str(1),"gaus",-1,1)
+    sigVs[i].Fit(testfit, "N+", "", -1,1)
+    
+    fit = ROOT.TF1("fitfuncX"+str(1),"gaus + gaus(3)",-1,1)
+    fit.SetNpx(1000)
+    fit.SetParameter(0,testfit.GetParameter(0))
+    fit.SetParLimits(0,testfit.GetParameter(0)*0.2, testfit.GetParameter(0)*5)
+    fit.SetParameter(1,testfit.GetParameter(1))
+    fit.SetParLimits(1,testfit.GetParameter(1)-0.08, testfit.GetParameter(1)+0.08)
+    fit.SetParameter(2,testfit.GetParameter(2))
+    fit.SetParLimits(2,testfit.GetParameter(2)*0.1, testfit.GetParameter(2)*20)
+    
+    fit.SetParameter(3, 100)
+    fit.SetParLimits(3, 0, testfit.GetParameter(0)/4.)
+    fit.SetParameter(4, 0)
+    fit.SetParLimits(4, testfit.GetParameter(1)-0.08, testfit.GetParameter(1)+0.08)
+    fit.SetParameter(5, testfit.GetParameter(2))
+    fit.SetParLimits(5, testfit.GetParameter(2), testfit.GetParameter(2)*30)
+    sigVs[i].Fit(fit, "+", "", -1,1)
+    diffV.SetPoint(i,cuts[i]+5,fit.GetParameter(2)*10000)
+    sigVs[i].Write()
+  
+
 
 input()
 
