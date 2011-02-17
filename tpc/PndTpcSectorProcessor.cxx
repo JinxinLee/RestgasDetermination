@@ -23,6 +23,9 @@
 // C/C++ Headers ----------------------
 #include <iostream>
 #include "assert.h"
+#include <map>
+
+using std::map;
 
 // Collaborating Class Headers --------
 #include "PndTpcPadPlane.h"
@@ -53,10 +56,13 @@ void
 PndTpcSectorProcessor::Init(PndTpcPadPlane* p,
 			 unsigned int id,
 			 std::vector<PndTpcCluster*>* ob,
-			    double diffFactor)
+			    double diffFactor,
+			    double G, double C)
 {
   fpadplane=p;
   fSectorId=id;
+  fG=G;
+  fC=C;
   foutput_buffer=ob;
 
   // Build PadProcessors
@@ -198,18 +204,32 @@ void
 PndTpcSectorProcessor::cog(){
   assert(fpadplane!=NULL);
   assert(foutput_buffer!=NULL);
+  McId dummyID(1,1);
+  McIdCollection dummyColl;
+  dummyColl.AddID(dummyID);
+  
+  //this block is to define the z jitter
+  TVector3 zDiff1,zDiff2;
+  PndTpcDigi zDiffDigi1(1,1,1,dummyColl),zDiffDigi2(1,2,1,dummyColl);
+  PndTpcDigiMapper::getInstance()->map(&zDiffDigi1,zDiff1);
+  PndTpcDigiMapper::getInstance()->map(&zDiffDigi2,zDiff2);
+  double zDiff = zDiff2.z() - zDiff1.z();
+  //end of z jitter
   // Calculate COG
   for(unsigned int ic=0;ic<fcluster_buffer.size();++ic){
     std::vector<PndTpcDigi*>* digis=fcluster_buffer[ic];
     TVector3 pos(0,0,0);
     double amp=0;
-    TVector3 sig(0,0,0);
     unsigned int id=0;
     McIdCollection mcid;
     unsigned int ndigis=digis->size();
+    map<unsigned int,unsigned int> padmap; // padmap[1]=how often pad 1 has been hit
+    double dx;
+    double dy;
     for(;id<ndigis;++id){
       PndTpcDigi* adigi=(*digis)[id];
       double a=(double)adigi->amp();
+      padmap[adigi->padId()]+=1;
       mcid.AddIDCollection(adigi->mcId(),a);
       TVector3 thispos;
       PndTpcDigiMapper::getInstance()->map(adigi,thispos);
@@ -217,66 +237,68 @@ PndTpcSectorProcessor::cog(){
 	std::cout<<"PndTpcSectorProcessor: Digi position: ";
 	thispos.Print();
       }
-      double dx;
-      double dy;
       PndTpcDigiMapper::getInstance()->padsize(adigi->padId(),dx,dy);
       if(DEBUG) {
 	std::cout<<"PndTpcSectorProcessor: Got PadSize dx: "
 		 <<dx<<", dy: "<<dy<<std::endl;
       }
-
-      McId dummyID(1,1);
-      McIdCollection dummyColl;
-      dummyColl.AddID(dummyID);
-      
-      //this block is to define the z jitter
-      TVector3 zDiff1,zDiff2;
-      PndTpcDigi zDiffDigi1(1,1,1,dummyColl),zDiffDigi2(1,2,1,dummyColl);
-      PndTpcDigiMapper::getInstance()->map(&zDiffDigi1,zDiff1);
-      PndTpcDigiMapper::getInstance()->map(&zDiffDigi2,zDiff2);
-      double zDiff = zDiff2.z() - zDiff1.z();
-      //end of z jitter
-      
-      double Dl = PndTpcDigiMapper::getInstance()->getGas()->Dl();
-      double Dt = PndTpcDigiMapper::getInstance()->getGas()->Dt();
-      if(DEBUG) {
-	std::cout<<"PndTpcSectorProcessor: Gas DiffL: "<<Dl 
-		 <<", Gas DiffT: "<<Dt<<std::endl;
-      }
-      
-      double driftl=thispos.z()-PndTpcDigiMapper::getInstance()->zGem();
-      if(DEBUG) {
-	std::cout<<"PndTpcSectorProcessor: zGem is "
-		 <<PndTpcDigiMapper::getInstance()->zGem()<<std::endl
-		 <<", drift length: "<<driftl<<std::endl;
-      }
-      
-      //assert(driftl>=0);
-      double absdriftl=fabs(driftl);
-      
-      double diffSigmaL = Dl * sqrt(absdriftl);
-      double diffSigmaT = Dt * sqrt(absdriftl);
-      double sigmaX_sq = dx*dx/12. + diffSigmaT*diffSigmaT;
-      double sigmaY_sq = dy*dy/12. + diffSigmaT*diffSigmaT;
-      double sigmaZ_sq = zDiff*zDiff/12. + diffSigmaL*diffSigmaL;
-      
-      TVector3 thissig(sigmaX_sq,sigmaY_sq,sigmaZ_sq);
-      sig+=a*a*thissig;
-
-
-      pos+=a*thispos;
+       pos+=a*thispos;
       amp+=a;
-    }
+    } // end loop over digis in cluster
     pos*=1./amp;
-    sig.SetX(sqrt(sig.X())/amp);
-    sig.SetY(sqrt(sig.Y())/amp);
-    sig.SetZ(sqrt(sig.Z())/amp);
+
+    // calculate errors: ------------------------------------------
+    double Dl = PndTpcDigiMapper::getInstance()->getGas()->Dl();
+    double Dt = PndTpcDigiMapper::getInstance()->getGas()->Dt();
+    double driftl=pos.z()-PndTpcDigiMapper::getInstance()->zGem();
+     
+    if(DEBUG) {
+      std::cout<<"PndTpcSectorProcessor: Gas DiffL: "<<Dl 
+	       <<", Gas DiffT: "<<Dt<<std::endl;
+    }
+    if(DEBUG) {
+      std::cout<<"PndTpcSectorProcessor: zGem is "
+	       <<PndTpcDigiMapper::getInstance()->zGem()<<std::endl
+	       <<", drift length: "<<driftl<<std::endl;
+    }
+    
+    double absdriftl=fabs(driftl);
+    double diffSigmaL = Dl * Dl * absdriftl;
+    double diffSigmaT = Dt * Dt * absdriftl;
+    TVector3 sig(0,0,0);
+   
+    
+    for(id=0;id<ndigis;++id){
+      PndTpcDigi* adigi=(*digis)[id];
+      double a=(double)adigi->amp();
+       TVector3 thispos;
+      PndTpcDigiMapper::getInstance()->map(adigi,thispos);
+      TVector3 df=thispos-pos;
+
+      double sigmaX_sq = a*df.X()*df.X();
+      double sigmaY_sq = a*df.Y()*df.Y();
+      double sigmaZ_sq = a*df.Z()*df.Z();
+    
+    TVector3 thissig(sigmaX_sq,sigmaY_sq,sigmaZ_sq);
+    sig+=thissig;
+    
+    } // end second loop over digis
+
+    //if(ndigis==1 && sig.Mag()>1E-5)sig.Print();
+
+    if(sig.X()<1E-5)sig.SetX(sqrt(dx*dx/12+diffSigmaT));
+    else sig.SetX(sqrt((sig.X()+fG*diffSigmaT)/amp)*fC/amp);
+    if(sig.Y()<1E-5)sig.SetY(sqrt(dy*dy/12+diffSigmaT));
+    else sig.SetY(sqrt((sig.Y()+fG*diffSigmaT)/amp)*fC/amp);
+    if(sig.Z()<1E-5)sig.SetZ(sqrt(zDiff*zDiff/12+diffSigmaL));
+    else sig.SetZ(sqrt((sig.Z()+fG*diffSigmaL)/amp)*fC/amp);
     if(DEBUG && ndigis==1){
       sig.Print();
     }
-    PndTpcCluster* cl=new PndTpcCluster(pos,sig,amp,id,ndigis);
+    PndTpcCluster* cl=new PndTpcCluster(pos,sig,amp,ic,ndigis);
     mcid.Renormalize();
     cl->SetMcId(mcid);
+    cl->nPad(padmap.size());
     //set link (temporary solution)
     //if(!fDataMode)
     //cl->SetLink(FairLink("MCTrack", mcid.DominantID().mctrackID()));

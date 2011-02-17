@@ -44,7 +44,8 @@ PndTpcClusterFinder::PndTpcClusterFinder(PndTpcPadPlane* p,
 					 unsigned int timeslice, 
 					 int mode, int sectorid,
 					 bool datamode,
-					 double diffFactor)
+					 double diffFactor,
+					 double G, double C)
   : fpadplane(p), foutput_buffer(ob), fdt(timeslice), fmode(mode),
     fDataMode(datamode)
 {
@@ -66,7 +67,7 @@ PndTpcClusterFinder::PndTpcClusterFinder(PndTpcPadPlane* p,
   for(unsigned int is=0;is<nsec;++is){
     unsigned int Sectorid=ids[is];
     fsproc[Sectorid]=new PndTpcSectorProcessor(fsaveRaw, fDataMode);
-    fsproc[Sectorid]->Init(fpadplane,Sectorid,ob,diffFactor);
+    fsproc[Sectorid]->Init(fpadplane,Sectorid,ob,diffFactor,G,C);
     fsectormap[Sectorid]=new std::vector<PndTpcDigi*>();
   }
   std::cout<<"PndTpcClusterFinder: "

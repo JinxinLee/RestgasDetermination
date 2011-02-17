@@ -53,12 +53,14 @@ public:
   void Init(PndTpcPadPlane* p,
 	    unsigned int id,
 	    std::vector<PndTpcCluster*>* ob,
-	    double diffFactor=1.); // minimal relative difference for maximum
+	    double diffFactor=1., // minimal relative difference for maximum
+	    double G=1, double C=1);
   void putDigi(PndTpcDigi* d){fdigi_buffer.push_back(d);}
 
   // Operations ----------------------
   void process();
   void reset();
+
 
 private:
 
@@ -76,6 +78,9 @@ private:
 
   bool fsaveRaw;
   bool fDataMode;
+
+  double fC; // normalization constant for errors
+  double fG; // Gain/(electrons per ADC count)
 
   // Private Methods -----------------
   void cog(); // center of gravity

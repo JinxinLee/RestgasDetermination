@@ -56,7 +56,10 @@ public:
   void timeslice(unsigned int t){ftimeslice=t;}
   void SetThreshold(unsigned int t){fthres=t;}
   void SetDiffFactor(double d){fDiffFactor=d;} // for Cluster splitting
+  void SetErrorPars(double ADCsens,double C){fAdcSens=ADCsens;fC=C;} 
   void SetDataMode(Bool_t opt) {fDataMode=opt;}
+  void SetSingleDigiClusterAmpCut(unsigned int cut){fSDiClAmpCut=cut;}
+
 
   // Operations ----------------------
   
@@ -80,7 +83,10 @@ private:
   int fmode;
   unsigned int ftimeslice;
   unsigned int fthres;
+  unsigned int fSDiClAmpCut;
   double fDiffFactor;
+  double fAdcSens;     // electrons per adc channel
+  double fC;           // scale for error calculation 
 
   const PndTpcFrontend* ffrontend;
   PndTpcPadPlane* fpadplane;

@@ -45,7 +45,7 @@
 
 PndTpcClusterFinderTask::PndTpcClusterFinderTask()
   : FairTask("TPC Cluster Finder"), fpersistence(kFALSE),ftrivial(kFALSE),
-    ftimeslice(2), fmode(0),fthres(1), fDataMode(kFALSE), fDiffFactor(1.)
+    ftimeslice(2), fmode(0),fthres(1), fSDiClAmpCut(0), fDataMode(kFALSE), fDiffFactor(1.)
 {
   fdigiBranchName = "PndTpcDigi";
 }
@@ -107,6 +107,7 @@ PndTpcClusterFinderTask::Init()
   fzGem=     fpar->getZGem();
   double sf= fpar->getFrontend()->samplingFrequency();
   double t0= fpar->getFrontend()->t0();
+  double gain=fpar->getGain();
 
   std::cout << "T0 " << t0 << "sF " << sf << std::endl;
 
@@ -115,7 +116,7 @@ PndTpcClusterFinderTask::Init()
   fcluster_buffer=new std::vector<PndTpcCluster*>;
   ffinder=new PndTpcClusterFinder(PndTpcDigiMapper::getInstance()->getPadPlane(),
 				  fcluster_buffer,
-				  ftimeslice, fmode, -1,fDataMode,fDiffFactor);
+				  ftimeslice, fmode, -1,fDataMode,fDiffFactor,gain/fAdcSens,fC);
   
   ffinder->checkConsistency();
   ffinder->setTrivialClustering(ftrivial);
@@ -175,7 +176,8 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
    for(unsigned int icl=0;icl<ncl;++icl)
      {
        if((*fcluster_buffer)[icl]->amp()>fthres)
-	 {
+	 if((*fcluster_buffer)[icl]->size()>1 || (*fcluster_buffer)[icl]->amp()>fSDiClAmpCut)
+	   {
 	   PndTpcCluster* cl=new((*fclusterArray)[ncl_rec]) PndTpcCluster(*(*fcluster_buffer)[icl]);
 	   cl->SetIndex(ncl_rec);
 	   ndig+=(*fcluster_buffer)[icl]->size();
