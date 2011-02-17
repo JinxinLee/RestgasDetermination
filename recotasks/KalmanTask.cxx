@@ -164,10 +164,12 @@ void
 KalmanTask::Exec(Option_t* opt)
 {
   std::cout<<"KalmanTask::Exec"<<std::endl;
-  _trackOutArray->Delete();
+  if(_trackOutArray->GetEntriesFast()>0)_trackOutArray->Delete();
+  std::cout<<"KalmanTask::Exec2"<<std::endl;
   // Reset output Array
   if(_trackArray==0) Fatal("Kalman::Exec)","No TrackArray");
-  //_trackArray->Delete();
+    std::cout<<"KalmanTask::Exec3"<<std::endl;
+
 
   Int_t ntracks=_trackArray->GetEntriesFast();
   
