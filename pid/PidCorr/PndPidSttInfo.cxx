@@ -33,7 +33,8 @@ Bool_t PndPidCorrelator::GetSttInfo(PndTrack* track, PndPidCandidate* pidCand) {
     {
       PndSttHelixHit *sttHit = NULL;
       PndTrackCandHit candHit = trackCand.GetSortedHit(ii);
-      if (candHit.GetDetId()!=FairRootManager::Instance()->GetBranchId("STTHelixHit")) continue;
+      if ( (candHit.GetDetId()!=FairRootManager::Instance()->GetBranchId("STTHelixHit")) ||
+	   (candHit.GetDetId()!=FairRootManager::Instance()->GetBranchId("STTHit")) ) continue;
       sttHit = (PndSttHelixHit*)fSttHit->At(candHit.GetHitId());
       if (sttHit==0) continue;
       if (sttHit->GetdEdx() != 0.) 

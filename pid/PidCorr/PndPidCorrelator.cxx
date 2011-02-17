@@ -171,7 +171,7 @@ InitStatus PndPidCorrelator::Init() {
   }
   else
   {
-    fSttHit = (TClonesArray*) fManager->GetObject("SttHit");
+    fSttHit = (TClonesArray*) fManager->GetObject("STTHit");
     if ( fSttHit ) 
     {
       cout << "-I- PndPidCorrelator::Init: Using SttHit" << endl;
