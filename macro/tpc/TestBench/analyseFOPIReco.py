@@ -2,8 +2,10 @@
 import ROOT, glob, math
 from ROOT import std
 
-#dir = "/nfs/hicran/data/tpc/fopi/2010/decoded"
-dir = "/nfs/nas/user/sneubert/PANDA/"
+dir = "/nfs/hicran/data/tpc/fopi/2010/decoded"
+#dir = "/nfs/nas/user/sneubert/PANDA/"
+
+preliminary = 1
 
 outfile = ROOT.TFile("anaOut.root", "recreate")
 
@@ -39,7 +41,7 @@ resUs = dict([(i, ROOT.TH1D("StatsResX"+str(cuts[i]),
                             "Cosmic Residuals U (Z')", 500,-1,1)) 
               for i in range(len(cuts))])
 pullsUs = dict([(i, ROOT.TH1D("StatsPullX"+str(cuts[i]), 
-                            "Cosmic Pulls U (Z')", 500,-1,1)) 
+                            "Cosmic Pulls U (Z')", 100,-3,3)) 
               for i in range(len(cuts))])
 
 
@@ -51,7 +53,7 @@ resVs = dict([(i, ROOT.TH1D("StatsResV"+str(cuts[i]),
                             "Cosmic Residuals V (X')", 500,-1,1)) 
               for i in range(len(cuts))])
 pullsVs = dict([(i, ROOT.TH1D("StatsPullV"+str(cuts[i]), 
-                            "Cosmic Pulls V (X')", 500,-1,1)) 
+                            "Cosmic Pulls V (X')", 100,-3,3)) 
               for i in range(len(cuts))])
 
 cl2Ds = dict([(i, ROOT.TH1D("cl2Ds"+str(cuts[i]), 
@@ -112,7 +114,7 @@ chi2func.SetParameter(0,2500)
 
 
 #for file in files :
-for f in range(20) :
+for f in range(10) :
     
     file = files[f]
     #file = "/nfs/hicran/data/tpc/fopi/2010/decoded/runC_1735.reco.root"
@@ -152,6 +154,9 @@ for f in range(20) :
         nTracks = e.TrackFitStat.GetEntriesFast()  
         if nTracks > 0 :
             nTracksDist.Fill(nTracks)
+            
+        #if nTracks > 1 :
+        #    continue
 
         for tfs in e.TrackFitStat :
             chi2 = tfs.getChi2()
@@ -292,6 +297,24 @@ for i in range(6) :
     fit.SetParLimits(5, testfit.GetParameter(2), testfit.GetParameter(2)*30)
     resVs[i].Fit(fit, "+", "", -1,1)
     diffV.SetPoint(i,cuts[i]+5,fit.GetParameter(2)*10000)
+
+   # preliminary
+    if preliminary :
+        histo = resVs[i];
+        xaxis = histo.GetXaxis()
+        xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
+        xrange=xaxis.GetXmax()-xaxis.GetXmin()
+        yrange=-histo.GetMinimum()+histo.GetMaximum()
+        ycenter=(histo.GetMinimum()+histo.GetMaximum())*0.5
+        x=xcenter-0.3*xrange
+        y=ycenter-0.3*yrange
+        prelim= ROOT.TLatex(x,y,"preliminary")
+        prelim.SetTextColor(ROOT.kGray)
+        prelim.SetTextSize(0.1)
+        prelim.SetTextAngle(20)
+        prelim.DrawLatex(x,y,"preliminary")
+    # end preliminray
+
     resVs[i].Write()
     #calculate ratio of central and background integrals
     ratio = fit.GetParameter(3)*fit.GetParameter(5)/(fit.GetParameter(0)*fit.GetParameter(2))
@@ -334,6 +357,24 @@ for i in range(6) :
     fit.SetParameter(5, testfit.GetParameter(2)*3)
     fit.SetParLimits(5, testfit.GetParameter(2)*1.4, testfit.GetParameter(2)*20)
     resUs[i].Fit(fit, "+", "", -1,1)
+
+   # preliminary
+    if preliminary :
+        histo = resUs[i];
+        xaxis = histo.GetXaxis()
+        xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
+        xrange=xaxis.GetXmax()-xaxis.GetXmin()
+        yrange=-histo.GetMinimum()+histo.GetMaximum()
+        ycenter=(histo.GetMinimum()+histo.GetMaximum())*0.5
+        x=xcenter-0.3*xrange
+        y=ycenter-0.3*yrange
+        prelim= ROOT.TLatex(x,y,"preliminary")
+        prelim.SetTextColor(ROOT.kGray)
+        prelim.SetTextSize(0.1)
+        prelim.SetTextAngle(20)
+        prelim.DrawLatex(x,y,"preliminary")
+    # end preliminray
+
     resUs[i].Write()
 
 c7 = ROOT.TCanvas()
@@ -363,6 +404,24 @@ for i in range(6) :
     fit.SetParLimits(5, testfit.GetParameter(2), testfit.GetParameter(2)*50)
 
     resVIDs[i].Fit(fit, "+", "", -1,1)
+
+    # preliminary
+    if preliminary :
+        histo = resVIDs[i];
+        xaxis = histo.GetXaxis()
+        xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
+        xrange=xaxis.GetXmax()-xaxis.GetXmin()
+        yrange=-histo.GetMinimum()+histo.GetMaximum()
+        ycenter=(histo.GetMinimum()+histo.GetMaximum())*0.5
+        x=xcenter-0.3*xrange
+        y=ycenter-0.3*yrange
+        prelim= ROOT.TLatex(x,y,"preliminary")
+        prelim.SetTextColor(ROOT.kGray)
+        prelim.SetTextSize(0.1)
+        prelim.SetTextAngle(20)
+        prelim.DrawLatex(x,y,"preliminary")
+    # end preliminray
+
     diffVID.SetPoint(i,cuts[i]+5,fit.GetParameter(2)*10000)
     resVIDs[i].Write()
 
@@ -384,6 +443,23 @@ diffVID.Draw("LP")
 diffV.Write()
 diffVID.Write()
 diffT.Draw("same")
+# preliminary
+if preliminary :
+    histo = diffV;
+    xaxis = histo.GetXaxis()
+    yaxis = histo.GetYaxis()
+    xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
+    xrange=xaxis.GetXmax()-xaxis.GetXmin()
+    ycenter=yaxis.GetBinCenter(int(yaxis.GetNbins()*0.5))
+    yrange=yaxis.GetXmax()-yaxis.GetXmin()
+    x=xcenter-0.3*xrange
+    y=ycenter-0.3*yrange
+    prelim= ROOT.TLatex(x,y,"preliminary")
+    prelim.SetTextColor(ROOT.kGray)
+    prelim.SetTextSize(0.1)
+    prelim.SetTextAngle(20)
+    prelim.DrawLatex(x,y,"preliminary")
+# end preliminray
 
 
 c10 = ROOT.TCanvas()
@@ -391,18 +467,85 @@ c10.Divide(2,1)
 c10.cd(1)
 clSize2D.Draw()
 clSize.Draw("same")
+# preliminary
+if preliminary :
+    histo = clSize2D
+    xaxis = histo.GetXaxis()
+    xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
+    xrange=xaxis.GetXmax()-xaxis.GetXmin()
+    yrange=-histo.GetMinimum()+histo.GetMaximum()
+    ycenter=(histo.GetMinimum()+histo.GetMaximum())*0.5
+    x=xcenter-0.3*xrange
+    y=ycenter-0.3*yrange
+    prelim= ROOT.TLatex(x,y,"preliminary")
+    prelim.SetTextColor(ROOT.kGray)
+    prelim.SetTextSize(0.1)
+    prelim.SetTextAngle(20)
+    prelim.DrawLatex(x,y,"preliminary")
+# end preliminray
+
 c10.cd(2).SetLogz(1)
 clSizevsDrift.Draw("colz")
+# preliminary
+if preliminary :
+    histo = clSizevsDrift
+    xaxis = histo.GetXaxis()
+    xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
+    xrange=xaxis.GetXmax()-xaxis.GetXmin()
+    yrange=-histo.GetMinimum()+histo.GetMaximum()
+    ycenter=(histo.GetMinimum()+histo.GetMaximum())*0.5
+    x=xcenter-0.3*xrange
+    y=ycenter-0.3*yrange
+    prelim= ROOT.TLatex(x,y,"preliminary")
+    prelim.SetTextColor(ROOT.kGray)
+    prelim.SetTextSize(0.1)
+    prelim.SetTextAngle(20)
+    prelim.DrawLatex(x,y,"preliminary")
+# end preliminray
 
 c11 = ROOT.TCanvas()
 c11.cd()
 ROOT.gPad.SetLogy(1)
 chi2prob.Draw()
 chi2probID.Draw("same")
+# preliminary
+if preliminary :
+    histo = chi2prob;
+    xaxis = histo.GetXaxis()
+    xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
+    xrange=xaxis.GetXmax()-xaxis.GetXmin()
+    yrange=-histo.GetMinimum()+histo.GetMaximum()
+    ycenter=(histo.GetMinimum()+histo.GetMaximum())*0.5
+    x=xcenter-0.3*xrange
+    y=math.log(ycenter-0.3*yrange)
+    prelim= ROOT.TLatex(x,y,"preliminary")
+    prelim.SetTextColor(ROOT.kGray)
+    prelim.SetTextSize(0.1)
+    prelim.SetTextAngle(20)
+    prelim.DrawLatex(x,y,"preliminary")
+# end preliminray
+
 
 c12 = ROOT.TCanvas()
 chi2raw.Draw()
 chi2func.SetNpx(1000)
+# preliminary
+if preliminary :
+    histo = chi2raw;
+    xaxis = histo.GetXaxis()
+    xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
+    xrange=xaxis.GetXmax()-xaxis.GetXmin()
+    yrange=-histo.GetMinimum()+histo.GetMaximum()
+    ycenter=(histo.GetMinimum()+histo.GetMaximum())*0.5
+    x=xcenter-0.3*xrange
+    y=ycenter-0.3*yrange
+    prelim= ROOT.TLatex(x,y,"preliminary")
+    prelim.SetTextColor(ROOT.kGray)
+    prelim.SetTextSize(0.1)
+    prelim.SetTextAngle(20)
+    prelim.DrawLatex(x,y,"preliminary")
+# end preliminray
+
 #chi2func.Draw("same")
 
 c13 = ROOT.TCanvas()
@@ -416,33 +559,104 @@ c14 = ROOT.TCanvas()
 c14.Divide(2,1)
 c14.cd(1)
 sigxDist.Draw()
+# preliminary
+if preliminary :
+    histo = sigxDist;
+    xaxis = histo.GetXaxis()
+    xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
+    xrange=xaxis.GetXmax()-xaxis.GetXmin()
+    yrange=-histo.GetMinimum()+histo.GetMaximum()
+    ycenter=(histo.GetMinimum()+histo.GetMaximum())*0.5
+    x=xcenter-0.3*xrange
+    y=ycenter-0.3*yrange
+    prelim= ROOT.TLatex(x,y,"preliminary")
+    prelim.SetTextColor(ROOT.kGray)
+    prelim.SetTextSize(0.1)
+    prelim.SetTextAngle(20)
+    prelim.DrawLatex(x,y,"preliminary")
+# end preliminray
 c14.cd(2)
 sigyDist.Draw()
+# preliminary
+if preliminary :
+    histo = sigyDist;
+    xaxis = histo.GetXaxis()
+    xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
+    xrange=xaxis.GetXmax()-xaxis.GetXmin()
+    yrange=-histo.GetMinimum()+histo.GetMaximum()
+    ycenter=(histo.GetMinimum()+histo.GetMaximum())*0.5
+    x=xcenter-0.3*xrange
+    y=ycenter-0.3*yrange
+    prelim= ROOT.TLatex(x,y,"preliminary")
+    prelim.SetTextColor(ROOT.kGray)
+    prelim.SetTextSize(0.1)
+    prelim.SetTextAngle(20)
+    prelim.DrawLatex(x,y,"preliminary")
+# end preliminray
+
 
 c15 = ROOT.TCanvas()
 c15.Divide(2,1)
 c15.cd(1).SetLogz()
 sigXvsClSize.Draw("colz")
+# preliminary
+if preliminary :
+    histo = sigXvsClSize;
+    xaxis = histo.GetXaxis()
+    xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
+    xrange=xaxis.GetXmax()-xaxis.GetXmin()
+    yrange=-histo.GetMinimum()+histo.GetMaximum()
+    ycenter=(histo.GetMinimum()+histo.GetMaximum())*0.5
+    x=xcenter-0.3*xrange
+    y=ycenter-0.3*yrange
+    prelim= ROOT.TLatex(x,y,"preliminary")
+    prelim.SetTextColor(ROOT.kGray)
+    prelim.SetTextSize(0.1)
+    prelim.SetTextAngle(20)
+    prelim.DrawLatex(x,y,"preliminary")
+# end preliminray
+
 c15.cd(2).SetLogz()
 sigXvsDrift.Draw("colz")
 diffT.Draw("same")
-resDX.Draw("same")
+#resDX.Draw("same")
+# preliminary
+if preliminary :
+    histo = sigXvsDrift;
+    xaxis = histo.GetXaxis()
+    yaxis = histo.GetYaxis()
+    xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
+    xrange=xaxis.GetXmax()-xaxis.GetXmin()
+    ycenter=yaxis.GetBinCenter(int(yaxis.GetNbins()*0.5))
+    yrange=yaxis.GetXmax()-yaxis.GetXmin()
+    x=xcenter-0.3*xrange
+    y=ycenter-0.3*yrange
+    prelim= ROOT.TLatex(x,y,"preliminary")
+    prelim.SetTextColor(ROOT.kGray)
+    prelim.SetTextSize(0.1)
+    prelim.SetTextAngle(20)
+    prelim.DrawLatex(x,y,"preliminary")
+# end preliminray
+
 
 c16 = ROOT.TCanvas()
 nTracksDist.Draw()
 
 
 c17 = ROOT.TCanvas()
+ROOT.gStyle.SetOptFit(1111)
 c17.Divide(3,2)
+
 for i in range(6) :
     c17.cd(i+1)
-    sigVs[i].SetFillColor(ROOT.kAzure-8)
-    sigVs[i].GetXaxis().SetTitle("Pull V")
-    sigVs[i].Draw()
-    testfit = ROOT.TF1("testfitX"+str(1),"gaus",-1,1)
-    sigVs[i].Fit(testfit, "N+", "", -1,1)
+    pullsVs[i].SetFillColor(ROOT.kAzure-8)
+    pullsVs[i].GetXaxis().SetTitle("Pulls V")
+    pullsVs[i].Draw()
+
+    testfit = ROOT.TF1("testfitX"+str(1),"gaus",-3,3)
+    pullsVs[i].Fit(testfit, "N+", "", -3,3)
     
-    fit = ROOT.TF1("fitfuncX"+str(1),"gaus + gaus(3)",-1,1)
+    fit = ROOT.TF1("fitfuncX"+str(1),"gaus + gaus(3)",-3,3)
     fit.SetNpx(1000)
     fit.SetParameter(0,testfit.GetParameter(0))
     fit.SetParLimits(0,testfit.GetParameter(0)*0.2, testfit.GetParameter(0)*5)
@@ -457,11 +671,29 @@ for i in range(6) :
     fit.SetParLimits(4, testfit.GetParameter(1)-0.08, testfit.GetParameter(1)+0.08)
     fit.SetParameter(5, testfit.GetParameter(2))
     fit.SetParLimits(5, testfit.GetParameter(2), testfit.GetParameter(2)*30)
-    sigVs[i].Fit(fit, "+", "", -1,1)
-    diffV.SetPoint(i,cuts[i]+5,fit.GetParameter(2)*10000)
-    sigVs[i].Write()
+    pullsVs[i].Fit(fit, "+", "", -3,3)
+
+    # preliminary
+    if preliminary :
+        histo = pullsVs[i];
+        xaxis = histo.GetXaxis()
+        xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
+        xrange=xaxis.GetXmax()-xaxis.GetXmin()
+        yrange=-histo.GetMinimum()+histo.GetMaximum()
+        ycenter=(histo.GetMinimum()+histo.GetMaximum())*0.5
+        x=xcenter-0.3*xrange
+        y=ycenter-0.3*yrange
+        prelim= ROOT.TLatex(x,y,"preliminary")
+        prelim.SetTextColor(ROOT.kGray)
+        prelim.SetTextSize(0.1)
+        prelim.SetTextAngle(20)
+        prelim.DrawLatex(x,y,"preliminary")
+    # end preliminray
+        
+    pullsVs[i].Write()
   
 
+#c17.Update()
 
 input()
 
