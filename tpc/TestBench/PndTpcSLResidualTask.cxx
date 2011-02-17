@@ -151,6 +151,10 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
       std::vector<double> resX;
       std::vector<double> resY;
       std::vector<double> resZ;
+      std::vector<double> sigX;
+      std::vector<double> sigY;
+      std::vector<double> sigZ;
+
       std::vector<double> chi2X;
       std::vector<double> chi2Y;
       std::vector<double> chi2Z;
@@ -174,9 +178,9 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
 	TVector3 pp = l*sl_dir;
 	pps.push_back(pp);
 	TVector3 res = cl_rel - l*sl_dir;
-	
 	//calculate chi2
 	TVector3 cl_err= cl->sig();
+
 	TVector3 chi2;
 	unsigned int nDim = 4;
 	chi2.SetX((res.X()*res.X())/(cl_err.X()*cl_err.X())/nDim);	
@@ -191,6 +195,13 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
 	resX.push_back(res.X());
 	resY.push_back(res.Y());
 	resZ.push_back(res.Z());
+	sigX.push_back(cl_err.X());
+	sigY.push_back(cl_err.Y());
+	sigZ.push_back(cl_err.Z());
+
+
+
+
 	chi2X.push_back(chi2.X());
 	chi2Y.push_back(chi2.Y());
 	chi2Z.push_back(chi2.Z());
@@ -207,6 +218,10 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
       fitstat->fillPndTpcResX(resX);
       fitstat->fillPndTpcResY(resY);
       fitstat->fillPndTpcResZ(resZ);
+      fitstat->fillPndTpcSigX(sigX);
+      fitstat->fillPndTpcSigY(sigY);
+      fitstat->fillPndTpcSigZ(sigZ);
+
       fitstat->fillPndTpcChi2X(chi2X);
       fitstat->fillPndTpcChi2Y(chi2Y);
       fitstat->fillPndTpcChi2Z(chi2Z);
