@@ -125,6 +125,8 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   tpcCF->SetDigiBranchName("PndTpcDigi");
   tpcCF->timeslice(5); //in samples
   tpcCF->SetDiffFactor(1.3);
+  tpcCF->SetSingleDigiClusterAmpCut(15);
+  tpcCF->SetErrorPars(400,1000);
   //tpcCF->SetTrivialClustering();
   fRun->AddTask(tpcCF);
 
@@ -132,7 +134,7 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   //PndTpcCTapplyTask* CTapply = new PndTpcCTapplyTask();
   //CTapply->SetPersistence();
   //fRun->AddTask(CTapply);
-  
+    
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
   tpcSPR->SetTrkFinderParameters(1.,// proxcut
                                  0.05, // proxcut on rieman sphere
@@ -189,10 +191,10 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   PndTpcSLResidualTask* SLres = new PndTpcSLResidualTask();
   SLres->SetPersistence();
   //SLres->SetClusterBranchName("PndTpcCluster_cut");
-  SLres->SetSecondarySuppression(true);
+  SLres->SetSecondarySuppression(false);
   fRun->AddTask(SLres);
   
-
+  
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
