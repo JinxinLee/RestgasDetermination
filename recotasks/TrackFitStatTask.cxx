@@ -267,14 +267,14 @@ TrackFitStatTask::Exec(Option_t* opt)
 	  // fill tpc residuals
 	  std::vector<double> res;
 	  std::vector<double> sigmas;
-	  track->getResiduals(2,0,0,res,sigmas);
+	  track->getResiduals(2,0,0,res);//,sigmas);
 	  stat->fillPndTpcResX(res);
-	  stat->fillPndTpcSigX(sigmas);
+	  //stat->fillPndTpcSigX(sigmas);
 	  res.clear();
 	  sigmas.clear();
-	  track->getResiduals(2,1,0,res,sigmas);
+	  track->getResiduals(2,1,0,res);//,sigmas);
 	  stat->fillPndTpcResY(res);
-	  stat->fillPndTpcSigY(sigmas);
+	  //stat->fillPndTpcSigY(sigmas);
 	  
 	  
 	  std::vector<unsigned int> clustersize;
