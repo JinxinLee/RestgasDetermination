@@ -191,8 +191,9 @@ void PndTpcPSA_TOT1::processPulse(std::vector<PndTpcSample*> samples,
 							   double& t0,double& A, double& length){
   A=0.;
   t0=0.;
+  // find maximum
   for(unsigned int i=0;i<samples.size();i++) {
-	A+=samples[i]->amp();
+    if(A<samples[i]->amp())A=samples[i]->amp();
   }
   length=samples[samples.size()-1]->t()-samples[0]->t();
   t0=samples[0]->t() + fPULSEDELAYFACTOR*length;
