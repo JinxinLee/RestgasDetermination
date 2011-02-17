@@ -216,7 +216,7 @@ void PndTrackDraw::PropagateTrack(FairTrackParP& trackPar, Int_t pidHypo, Int_t 
 	for (Int_t n = -Np; n < Np; n++) {
 		if (n == 0)
 			continue;
-		TVector3 stopO(0., 0., posTrack.z() + n);
+		TVector3 stopO(0., 0., posTrack.z() + (0.1) * n);
 		fPro->PropagateToPlane(stopO, startU, startV);
 		//FairTrackParP parResult;
 		if (n * momTrack.Z() < 0)

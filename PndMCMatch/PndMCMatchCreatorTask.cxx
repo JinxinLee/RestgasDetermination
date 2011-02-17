@@ -195,10 +195,10 @@ void PndMCMatchCreatorTask::Exec(Option_t* opt)
 		}
 	}
 
-	//if (fVerbose > 0){
+	if (fVerbose > 0){
 		fMCMatch->Print();
 		std::cout << std::endl;
-//	}
+	}
 }
 
 void PndMCMatchCreatorTask::Finish()

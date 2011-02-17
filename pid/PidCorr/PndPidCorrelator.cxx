@@ -483,7 +483,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
       pidCand->SetMcIndex(trackCand.getMcTrackId());
     }
     pidCand->SetTrackIndex(i);
-    pidCand->AddLink(FairLink("PndTrack", i));
+    pidCand->AddLink(FairLink(fTrackBranch, i));
     if (!GetTrackInfo(track, pidCand)) continue;
     GetMvdInfo(track, pidCand); 
     //GetTpcInfo(track, pidCand); 
