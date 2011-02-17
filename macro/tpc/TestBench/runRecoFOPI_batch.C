@@ -126,7 +126,7 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   tpcCF->timeslice(5); //in samples
   tpcCF->SetDiffFactor(1.3);
   tpcCF->SetSingleDigiClusterAmpCut(15);
-  tpcCF->SetErrorPars(400,1000);
+  tpcCF->SetErrorPars(600,1000);
   //tpcCF->SetTrivialClustering();
   fRun->AddTask(tpcCF);
 
