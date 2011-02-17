@@ -60,8 +60,12 @@ clSize2D = ROOT.TH1D("clSize2D", "2D Cluster Size Distribution", 100,0,100)
 clSize2D.SetFillColor(ROOT.kBlack)
 clSize = ROOT.TH1D("clSize", "Cluster Size Distribution", 100,0,100)
 clSize.SetLineColor(ROOT.kRed+3)
+clSizevsDrift = ROOT.TH2D("clnSizevsDrift", "Cluster Size vs. Drift",
+                          100,0,75,60,0,60)
 
 chi2prob = ROOT.TH1D("chi2prob", "ChiSqu Probability Distribution", 500,0,1)
+chi2probID = ROOT.TH1D("chi2probID", "ChiSqu Probability Distribution", 500,0,1)
+chi2probID.SetLineColor(ROOT.kRed+2)
 chi2raw = ROOT.TH1D("chi2raw", "ChiSqu2 / NDF", 300,0,10)
 
 phiDist = ROOT.TH1D("phiDist", "Phi Distribution of fitted Tracks", 300,-3.5,3.5)
@@ -75,22 +79,34 @@ sigXvsDrift = ROOT.TH2D("sigXvsZ", "Cluster SigmaX vs Drift Length Z",
                          400,0,65,400,0,3000)
 sigXvsDrift.GetYaxis().SetTitle("#sigma_X (#mu m)")
 
-diffT = ROOT.TF1("diffT","[0]*TMath::Sqrt(x-[1])",0,75)
+nTracksDist = ROOT.TH1D("nTracksDist", "Distribution of track multiplicity",10,0,10)
+
+pullAllV = ROOT.TH1D("pullAllV", "V (X') Pull Distribution", 200,-3,3)
+
+DIFFX = 0.0227*10000 #(mu m/ mu s)
+
+diffT = ROOT.TF1("diffT","[0]*TMath::Sqrt(x)",0,75)
 diffT.SetNpx(1000)
 diffT.SetLineWidth(2)
 diffT.SetLineStyle(4)
-diffT.SetParameter(0,0.0227*10000)
-diffT.SetParameter(1,OFFSET)
+diffT.SetParameter(0,DIFFX)
+
+resDX = ROOT.TF1("resDX", "TMath::Sqrt([0]/12 + [1]*x)", 0, 75)
+resDX.SetNpx(1000)
+resDX.SetParameter(0,3000**2)
+resDX.SetParameter(1,DIFFX**2)
+resDX.SetLineWidth(2)
+
 
 chi2func = ROOT.TF1("meh", "[0]*x*TMath::Exp(-2*x)",0,10)
 chi2func.SetParameter(0,2500)
 
 
 #for file in files :
-for f in range(1) :
+for f in range(20) :
     
-    #file = files[f]
-    file = "/nfs/hicran/data/tpc/fopi/2010/decoded/runC_1735.reco.root"
+    file = files[f]
+    #file = "/nfs/hicran/data/tpc/fopi/2010/decoded/runC_1735.reco.root"
     print(file)
     Rfile = ROOT.TFile(file, "read")
     tree = Rfile.Get("cbmsim")
@@ -109,8 +125,12 @@ for f in range(1) :
             pos = cl.pos()
             sigXvsClSize.Fill(size, sig.X())
             sigXvsDrift.Fill(pos.Z(), sig.X()*10000)
+            clSizevsDrift.Fill(pos.Z(),size)
             
-        nTracks = e.TrackFitStat.GetEntriesFast()    
+        nTracks = e.TrackFitStat.GetEntriesFast()  
+        if nTracks > 0 :
+            nTracksDist.Fill(nTracks)
+
         for tfs in e.TrackFitStat :
             chi2 = tfs.getChi2()
             #redChi2 = tfs.getRedChi2()
@@ -121,6 +141,8 @@ for f in range(1) :
             chi2Prob = ROOT.TMath.Prob(chi2, NDF)
             chi2prob.Fill(chi2Prob)
             chi2raw.Fill(chi2/(NDF))
+            if nTracks == 1:
+                chi2probID.Fill(chi2Prob)
 
             mom = tfs.GetMom()
             mom.SetMag(1.)
@@ -179,7 +201,9 @@ for f in range(1) :
                 occZ.Fill(z)
                 recoMom.Fill(tfs.GetP())
             
-                
+           
+
+    
 outfile.cd()
 
 c1 = ROOT.TCanvas()
@@ -328,13 +352,18 @@ diffT.Draw("same")
 
 
 c10 = ROOT.TCanvas()
+c10.Divide(2,1)
+c10.cd(1)
 clSize2D.Draw()
 clSize.Draw("same")
+c10.cd(2).SetLogz(1)
+clSizevsDrift.Draw("colz")
 
 c11 = ROOT.TCanvas()
 c11.cd()
 ROOT.gPad.SetLogy(1)
 chi2prob.Draw()
+chi2probID.Draw("same")
 
 c12 = ROOT.TCanvas()
 chi2raw.Draw()
@@ -362,6 +391,10 @@ sigXvsClSize.Draw("colz")
 c15.cd(2).SetLogz()
 sigXvsDrift.Draw("colz")
 diffT.Draw("same")
+resDX.Draw("same")
+
+c16 = ROOT.TCanvas()
+nTracksDist.Draw()
 
 input()
 
