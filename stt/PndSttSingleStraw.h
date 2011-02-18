@@ -109,7 +109,7 @@ class PndSttSingleStraw : public TNamed {
   // to define the track
   void TInit(Double_t Mass, Double_t Momentum, Double_t InOut[] ); // for each track
 
- //   other   possible calls 
+  // other possible calls 
 
   Double_t StrawCharge();               // total discharge electron calculation
                                         // energy loss in GeV 
@@ -118,8 +118,7 @@ class PndSttSingleStraw : public TNamed {
                                         // return number of primary electrons
   Int_t StrawTime();                    // output time of the straw (ns) & 
                                         // PulseTime[Int_t] in ns
-  //Int_t StrawTot();                     // Time over threshold time of the straw (ns)  not implemented
-
+  Int_t StrawTot();                     // time window over threshold of the signal
   Double_t TimnsToDiscm(Double_t time); // from time (ns) to  radius in cm
                                         
   //-----------------------------------------------------------------------------
@@ -140,7 +139,6 @@ class PndSttSingleStraw : public TNamed {
   Double_t STUrban();                      // Urban energy loss
   Int_t TimeEle();                         // arrivals times of all the electrons
   Double_t DistEle(Double_t tns);          // distance of all the electrons
-
   //------------------------------------------------------------------------------
 
 private:
@@ -169,6 +167,7 @@ private:
   Double_t ArWPerc, CO2WPerc, CH4WPerc;  // weight percentages
   Double_t pSTP;    // pressure (STP reference)
   Double_t Radius;  // straw radius
+  Int_t Field;      // flag for magnetic field --> if =1, magnetic field on
   Double_t AAr;     // Argon
   Double_t ZAr;     // Argon
   Double_t RhoAr;   // g/cm3  (1.78 mg/cm3)
@@ -260,15 +259,16 @@ private:
   Double_t Wx1,Wy1,Wz1, Wx2,Wy2,Wz2;   // wire coordinates
   Double_t Wp,Wq,Wr;  // director cosine of the wire
   Double_t PulseMax;
-  Double_t PulseTime;
+  Double_t PulseTime, PulseTime1;
   Double_t Thresh1;  // first threshold
   Double_t Thresh2; 
-  Int_t Nchann; // number of channels for the straw signal
+  Double_t OffT;    // time offset
+  Int_t Nchann;     // number of channels for the straw signal
 
   // ----------------------------------------------------------------------
   // dummy
 
-  Double_t Out1;
+  Double_t Out1, Out4;
   Int_t Out2, Out3;
 
 };

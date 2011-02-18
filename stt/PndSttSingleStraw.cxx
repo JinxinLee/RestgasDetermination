@@ -47,12 +47,14 @@
 //  void PutWireXYZ(Double_t w1, Double_t w2, Double_t w3, 
 //		  Double_t w4, Double_t w5, Double_t w6);     define  the wire
 //
-//  Double_t FastRec(Double_t TrueDcm, Int_t Flag);   fast approximation: 
-//                                                    from the true distance   (cm)
-//                                                    to the reconstructed one (cm)
-//                                                    Flag=0 standard
-//                                                    Flag=1 Julich expt. curve
-//                                                    (active with press =2 in TCo
+//  Double_t FastRec(Double_t TrueDcm, Int_t flag);  fast approximation: 
+//                                                   from the true distance   (cm)
+//                                                   to the reconstructed one (cm)
+//                                                   flag=0 simulation
+//                                                   flag=1 Julich exp curve COSY-TOF (old)
+//                                                   flag=2 Julich exp curve COSY-TOF (Feb 2011)
+//                                                   flag=3 Julich exp curve from prototype
+//                                                   (active with press = 2 in TConst)
 //
 //  void TInit(Double_t xPMass, Double_t xPMom, Double_t InOut[]); constant initialization
 //
@@ -127,143 +129,140 @@ void PndSttSingleStraw::TConst(Double_t R1, Double_t P1, Double_t A1, Double_t C
 
   // set constants for the simulation
   // Input
-  // P1    = tube absolute pressure pSTP
-  // R1  = tube radius Radius
-  // A1 = argon percentage ArPerc
-  // C1 = C=2 percentage C=2Perc
+  // P1 = tube absolute pressure pSTP
+  // R1 = tube radius Radius
+  // A1 = argon percentage ---> ArPerc
+  // C1 = CO2 percentage   ---> C02Perc
   //
 
-  Radius=R1;
-  pSTP=P1;
+  Radius = R1;
+  pSTP   = P1;
+  Field  = 1;   // magnetic field as a default (to change use PutField)
   // Input for the media (volume percentages)
   ArPerc  = A1;
   CO2Perc = C1;
 
   // cluster dimensions in Ar and CO2 (experimantal values)
 
-//   Double_t PClus[20] = 
-//      {0., .656,   .150,   .064,  .035,  .0225, .0155, .0105, .0081, 
-//       .0061,  .0049, .0039, .0030, .0025, .0020, .0016, .0012, 
-//       .00095, .00075, .00063};      // Fischle fit
-
-   Double_t PClus[20] = 
-    {0., .802,   .0707,   .020,  .013,  .008, .006, .005, .006, 
-           .008,  .009, .007, .0050, .0040, .0033, .0029, .0025, 
-           .0023, .0022, .002}; // Lapique 1st calculation
-
-// Double_t PClus[20] = 
-//     {0., .841,   .0340,   .021,  .013,  .008, .006, .004, .003, 
-//            .008,  .013, .008, .0050, .004, .0030, .0028, .0025, 
-//            .0023, .0022, .002}; // Lapique 2nd calculation
-
-
-// Double_t PClus[20] = 
-//     {0., .656, .150,   .064,  .035,  .0225, .0155, .0105, .0081, 
-//            .0061,  .0049, .0039, .0030, .0025, .0020, .0016, .0012, 
-//            .00080, .00059, .00045}; // Fischle empirical 
-
-// PDouble_t Clus[20] = 
-//     {0., .656,   .148,   .0649,  .0337,  .0244, .0141, .0078, .0095, 
-//         .0063,  .0062, .0042, .0028, .0018, .0023, .0017, .0014, 
-// 	   .00060, .00050, .00063};    // Fischle exp
-
-   Double_t CO2Clus[20] = 
-    {0., .730, .162,   .038,  .020,  .0110, .0147, .0060, .0084, 
-           .0052,  .0020, .0042, .0021, .0025, .0038, .0021, .0009, 
-           .00013, .00064, .00048}; // Fischle exp
-
-//    Double_t CH4Clus[20] = 
-//     {0., .786, .120, .032,  .013,  .0098, .0055, .0057, .0027, 
-//            .0029,  .0020, .0016, .0013, .0010, .0012, .0006, .0005, 
-//            .00042, .00037, .00033};  // Fischle exp
+  //   Double_t PClus[20] = 
+  //      {0., .656,   .150,   .064,  .035,  .0225, .0155, .0105, .0081, 
+  //       .0061,  .0049, .0039, .0030, .0025, .0020, .0016, .0012, 
+  //       .00095, .00075, .00063};      // Fischle fit
   
-
+  Double_t PClus[20] = 
+    {0., .802,   .0707,   .020,  .013,  .008, .006, .005, .006, 
+     .008,  .009, .007, .0050, .0040, .0033, .0029, .0025, 
+     .0023, .0022, .002}; // Lapique 1st calculation
+  
+  // Double_t PClus[20] = 
+  //     {0., .841,   .0340,   .021,  .013,  .008, .006, .004, .003, 
+  //            .008,  .013, .008, .0050, .004, .0030, .0028, .0025, 
+  //            .0023, .0022, .002}; // Lapique 2nd calculation
+  
+  // Double_t PClus[20] = 
+  //     {0., .656, .150,   .064,  .035,  .0225, .0155, .0105, .0081, 
+  //            .0061,  .0049, .0039, .0030, .0025, .0020, .0016, .0012, 
+  //            .00080, .00059, .00045}; // Fischle empirical 
+  
+  // PDouble_t Clus[20] = 
+  //     {0., .656,   .148,   .0649,  .0337,  .0244, .0141, .0078, .0095, 
+  //         .0063,  .0062, .0042, .0028, .0018, .0023, .0017, .0014, 
+  // 	   .00060, .00050, .00063};    // Fischle exp
+  
+  Double_t CO2Clus[20] = 
+    {0., .730, .162,   .038,  .020,  .0110, .0147, .0060, .0084, 
+     .0052,  .0020, .0042, .0021, .0025, .0038, .0021, .0009, 
+     .00013, .00064, .00048}; // Fischle exp
+  
+  //    Double_t CH4Clus[20] = 
+  //     {0., .786, .120, .032,  .013,  .0098, .0055, .0057, .0027, 
+  //            .0029,  .0020, .0016, .0013, .0010, .0012, .0006, .0005, 
+  //            .00042, .00037, .00033};  // Fischle exp
+  
   CH4Perc = 0.07;
 
   // -----------------------------------------------------
   // gain of the avalanche 
   // Ar/CO2 90/10 1 bar (NTP) MAGY GARFIELD 20-7-2006 
-  GasGain=100000.;
+  //   GasGain=100000.;
+  // Ar/CO2 90/10 2 bar (NTP) 1800 V experimental Juelich value
+  GasGain = 50000.;
 
   // argon ----------------------------------------------------
-  AAr = 39.948;   // Argon (39.948)
-  ZAr= 18.0;       // Argon (18)
-  RhoAr = pSTP*1.78*1.e-03;  // g/cm3  (1.78 mg/cm3)
-  IAr  = 188*1.e-09;     // ionization potential (GeV) (188 eV)
-  WiAr =27.0;   // energy to create an ion pair  (standard 26.7 eV)
-  NclAr = 25.;  // cluster/cm in Argon
+  AAr = 39.948;     // Argon (39.948)
+  ZAr = 18.0;       // Argon (18)
+  RhoAr = pSTP*1.662*1.e-03;  // g/cm3  (1.662 mg/cm3)
+  IAr  =  188*1.e-09;         // ionization potential (GeV) (188 eV)
+  WiAr =  27.0;     // energy to create an ion pair (standard 26.7 eV)
+  NclAr = 25.;      // cluster/cm in Argon
   //  CO2 -----------------------------------------------------
-  ACO2 = 44;    // CO2 
-  ZCO2 = 22.;   // CO2 
-  RhoCO2 = pSTP*1.98*1.e-03;  // g/cm3  CO2 (1.98 mg/cm3)
-  ICO2   = 95.8*1.e-09;     // ionization potential (GeV) (96 eV)
-  WiCO2  = 33.0;   // energy to create an ion pair (33 eV)
-  NclCO2 = 35.5;   // clusters/cm CO2  35.5
+  ACO2 = 44;        // CO2 
+  ZCO2 = 22.;       // CO2 
+  RhoCO2 = pSTP*1.842*1.e-03;  // g/cm3  CO2 (1.842 mg/cm3)
+  ICO2   = 95.8*1.e-09;        // ionization potential (GeV) (96 eV)
+  WiCO2  = 33.0;    // energy to create an ion pair (33 eV)
+  NclCO2 = 35.5;    // clusters/cm CO2  35.5
   // Methane CH4 ---------------------------------------------------------
-  ACH4   = 16;   // CO2 (39.948)
-  ZCH4   = 10.;   // CO2 (18)
+  ACH4   = 16;      // CO2 (39.948)
+  ZCH4   = 10.;     // CO2 (18)
   RhoCH4 = pSTP*0.71*1.e-03;  // g/cm3  CO2 (0.71 mg/cm3)
-  ICH4   = 40.6*1.e-09;     // ionization potential (GeV) (45 eV)
-  WiCH4  = 28.0;   // energy to create an ion pair  
+  ICH4   = 40.6*1.e-09;       // ionization potential (GeV) (45 eV)
+  WiCH4  = 28.0;    // energy to create an ion pair  
   NclCH4 = 25.0;
   // Input for the media (weight percentages) ----------------------------
   ArWPerc  = ArPerc *AAr /(ArPerc*AAr + CO2Perc*ACO2);
   CO2WPerc = CO2Perc*ACO2/(ArPerc*AAr + CO2Perc*ACO2);
  
-  // mixture densiies ----------------------------------------------------
+  // mixture densities ----------------------------------------------------
   RhoMixCO2 = 1./((ArWPerc/RhoAr) + (CO2WPerc/RhoCO2)); 
   RhoMixCH4 = 1./((ArWPerc/RhoAr) + (CH4WPerc/RhoCH4)); 
 
   //----------------------------------------------------------------------
-  //  particles  (Gev, energy losses in Kev)
-
-  PZeta = 1;   // projectile charge
-  piMass = 0.139;  // particle mass (GeV)
+  // particles  (Gev, energy losses in keV)
+  PZeta = 1;            // projectile charge
+  piMass = 0.139;       // particle mass (GeV)
   eMass = 0.511/1000.;  // electron mass (GeV) (0.511 MeV)
-  prMass = 0.93827; // proton mass (GeV)
+  prMass = 0.93827;     // proton mass (GeV)
 
   // ---------------------------------------------------------------------
-  // thresholds for the straw tubes  (default values) see TInit for current values
+  // thresholds for the straw tubes (default values) see TInit for current values
   Thresh1=10;
   Thresh2=30;
   // channels for the signal
   Nchann = 500;  
 
   // ---------------------------------------------Emin------------------------
-
-  NPolya= 100; // steps for the calculation of the Polya distributions
-  Xmax=0.;     // Polya istribution is calculated between o and Xmax (see Polya)
-  bPolya = 0.5;
+  NPolya= 100;    // steps for the calculation of the Polya distributions
+  Xmax=0.;        // Polya istribution is calculated between o and Xmax (see Polya)
+  bPolya = 0.4;
   Polya(bPolya);  // cumulative of the Polya distribution
   // -----------------------------------------------------------------------
 
   // cumulative for the number of electron per cluster
-
   Double_t Wnorm = (ArPerc*NclAr + CO2Perc*NclCO2);
   CumClus[0]=(ArPerc*NclAr*PClus[0] + CO2Perc*NclCO2*CO2Clus[0])/Wnorm;
 
   for(Int_t i=1; i<=20; i++) {
-    CumClus[i]=(ArPerc*NclAr*PClus[i] + CO2Perc*NclCO2*CO2Clus[i])/Wnorm
-                                       + CumClus[i-1];
+    CumClus[i]=(ArPerc*NclAr*PClus[i] + CO2Perc*NclCO2*CO2Clus[i])/Wnorm + CumClus[i-1];
   }
   CumClus[20]=1.;
 
   Double_t sum=0.;
   for(Int_t i=0; i<=19; i++) {
     sum += PClus[i];
-    //    cout<<" PClus["<<i<<"] = "<<PClus[i]<<endl;
+    //     cout << "PClus["<<i<<"] = " << PClus[i] << endl;
   }  
-  for(Int_t i=0;i<=20;i++) { //cout<<"CumClus["<<i<<"] = "<<CumClus[i]<<endl;
-}
-  // cout<<" Sum of Probabilities = "<<sum<<endl;
+  //   for(Int_t i=0;i<=20;i++) { 
+  //     cout << "CumClus["<<i<<"] = " << CumClus[i] << endl;
+  //   }
+  // cout << "Sum of Probabilities = " << sum << endl;
 
 }
 
 // ==============================================================
 void PndSttSingleStraw::PutWireXYZ(Double_t w1, Double_t w2, Double_t w3, 
-			Double_t w4, Double_t w5, Double_t w6){
+				   Double_t w4, Double_t w5, Double_t w6){
   // get wire coordinates
-
   Wx1=w1;
   Wy1=w2;
   Wz1=w3;
@@ -271,21 +270,18 @@ void PndSttSingleStraw::PutWireXYZ(Double_t w1, Double_t w2, Double_t w3,
   Wx2=w4;
   Wy2=w5;
   Wz2=w6;
-
 }
+
 // =============================================================
-
-
 void PndSttSingleStraw::TInit(Double_t xPMass, Double_t xPMom, Double_t InOut[]) {
-
- // initialization of the constants for each track and each straw
-
+  
+  // initialization of the constants for each track and each straw
   // transfer of data 
   // track geometrical quantities
   Xin=InOut[0];   Yin=InOut[1];   Zin=InOut[2];
   Xout=InOut[3];  Yout=InOut[4];  Zout=InOut[5];
   PMass = xPMass;
-  PMom = xPMom;
+  PMom  = xPMom;
  
   // path into the straw
   Dx = sqrt((Xout-Xin)*(Xout-Xin) +
@@ -311,13 +307,13 @@ void PndSttSingleStraw::TInit(Double_t xPMass, Double_t xPMom, Double_t InOut[])
  // initialization of the constants
  // maximum energy transfer Emax (GeV) and related quantities 
  
-  PEn = sqrt(PMom*PMom + PMass*PMass); // particle energy GeV
-  beta = PMom/PEn;
-  gamma= 1/sqrt(1.-beta*beta);
-  Double_t begam = beta*gamma;  // local
-  Double_t mratio= eMass/PMass;  // local
+  PEn   = sqrt(PMom*PMom + PMass*PMass); // particle energy GeV
+  beta  = PMom/PEn;
+  gamma = 1/sqrt(1.-beta*beta);
+  Double_t begam  = beta*gamma;   // local
+  Double_t mratio = eMass/PMass;  // local
 
-  // calculation of the polarization Sternheimer factor  for Argon
+  // calculation of the polarization Sternheimer factor for Argon
   Double_t ms   = 2.80;
   Double_t Xst  = log10(begam*sqrt(pSTP));
   Double_t Cs   =-11.92;
@@ -353,8 +349,7 @@ void PndSttSingleStraw::TInit(Double_t xPMass, Double_t xPMom, Double_t InOut[])
   Emp  = RhoMixCO2 * ((ArWPerc*EmpAr/RhoAr)  + (CO2WPerc*EmpCO2/RhoCO2));
 
   // mean weighted interaction
-  Wi = (ArPerc*NclAr*WiAr + CO2Perc*NclCO2*WiCO2)
-                              /(ArPerc*NclAr + CO2Perc*NclCO2);
+  Wi = (ArPerc*NclAr*WiAr + CO2Perc*NclCO2*WiCO2)/(ArPerc*NclAr + CO2Perc*NclCO2);
   // number of clusters
   Double_t nAr  = ArWPerc  * RhoMixCO2/AAr;
   Double_t nCO2 = CO2WPerc * RhoMixCO2/ACO2;
@@ -363,28 +358,27 @@ void PndSttSingleStraw::TInit(Double_t xPMass, Double_t xPMom, Double_t InOut[])
  
   Lcl=1./Ncl;           // mean free path between clusters (cm)
   Ecl = 2.8;            // mean number of electrons per clusters (def 2.8)
-  Cutoff = Ncl*Ecl*25;  // limit to the number of primary electrons (*20)
+  Cutoff = Ncl*Ecl*40;  // limit to the number of primary electrons (*20)
   Ntote = Ecl*Ncl;      // total mean number of electrons per cm
 
   // ---------------------------------------------------------------------
   // thresholds for the straw tubes  (current values)
   // total number of electrons * scaling factor (max of signal x electron=1)
 
-  Thresh1=Ncl*Ecl* 0.10;
-  Thresh2=Ncl*Ecl* 0.15;
+  Thresh1 = 0.5*Ncl*Ecl* 0.05;  // default 0.5*Ncl*Ecl* 0.05;
+  Thresh2 = 0.5*Ncl*Ecl* 0.10;  // default 0.5*Ncl*Ecl* 0.10;
+  OffT = 10.; // 10.;   // time offset in ns for trheshold calibration;
 
   // -----------------------------------------------------------------------
 
   TDirCos();  // director cosine of the track
  
   // control prints
-
-//  cout<<" Dx "<<Dx<<" Csi  "<<Csi*1.e+09<<" Emax MeV "<<
-//    Emax*1.e+03<<" PMass  "<<PMass<<" gamma "<<
-//    gamma<<endl;
-//   cout<<" RRise "<<RRise(gamma)<<endl;
-//   cout<<" Thresh1 = "<<Thresh1<<" Thresh2 = "<<Thresh2<<endl;
-
+  //  cout<<" Dx "<<Dx<<" Csi  "<<Csi*1.e+09<<" Emax MeV "<<
+  //    Emax*1.e+03<<" PMass  "<<PMass<<" gamma "<<
+  //    gamma<<endl;
+  //   cout<<" RRise "<<RRise(gamma)<<endl;
+  //   cout<<" Thresh1 = "<<Thresh1<<" Thresh2 = "<<Thresh2<<endl;
 }
 
 
@@ -392,14 +386,10 @@ void PndSttSingleStraw::TInit(Double_t xPMass, Double_t xPMom, Double_t InOut[])
 
 // energy loss in GeV
 Double_t PndSttSingleStraw::STEloss() {
-
-
   return  gRandom->Landau(Emp*Dx,Csi*Dx);  // in GeV
-
 }
+
 // =============================================================
-
-
 Double_t PndSttSingleStraw::STUrban() {
  
 //
@@ -422,7 +412,6 @@ Double_t PndSttSingleStraw::STUrban() {
   Cuc = 2.*PMass*beta*beta*gamma*gamma;
 
   // calculation for Argon
-
   Cu = EmedAr;
   f2 = 2./ZAr;
   f1 = 1. -f2;
@@ -436,7 +425,6 @@ Double_t PndSttSingleStraw::STUrban() {
   Sig3Ar = Cu*Emax*ru / (IAr*(Emax+IAr)*TMath::Log((Emax+IAr)/IAr));
 
   // Calculation for CO2
-
   Cu = EmedCO2;
   f2 = 2./ZCO2;
   f1 = 1. -f2;
@@ -451,8 +439,6 @@ Double_t PndSttSingleStraw::STUrban() {
   Sig3CO2 = Cu*Emax*ru / (ICO2*(Emax+ICO2)*TMath::Log((Emax+ICO2)/ICO2));
 
   // calculation for the mixture
-
-
   nAr  = ArWPerc  * RhoMixCO2/AAr;
   nCO2 = CO2WPerc * RhoMixCO2/ACO2;
   IMix = TMath::Exp((nAr*ZAr*TMath::Log(IAr) + nCO2*ZCO2*TMath::Log(ICO2))/
@@ -472,7 +458,6 @@ Double_t PndSttSingleStraw::STUrban() {
   NUrban = Sig1Mix+Sig2Mix+Sig3Mix;  // total number of collisions (mean value)
 
   // Urban distribution calculation
-
   N1Mix = gRandom->Poisson(Sig1Mix);
   N2Mix = gRandom->Poisson(Sig2Mix);
   N3Mix = gRandom->Poisson(Sig3Mix);
@@ -498,16 +483,11 @@ Double_t PndSttSingleStraw::STUrban() {
   SigUrb = TMath::Sqrt(Sig23);
 
   // return the energy lost in keV
-
-
-
   return  N1Mix*E1Mix + N2Mix*E2Mix + E3Mix;  // in GeV
-
-
 }
+
+
 // =============================================================
-
-
 Double_t PndSttSingleStraw::StrawCharge() {
 
   // sampling of the ionization energy loss, number of
@@ -530,11 +510,9 @@ Double_t PndSttSingleStraw::StrawCharge() {
       Ecurr =  Wi;
       TotEnEle += Ecurr;
       ClusEner += Ecurr;
-
     }
 
     // effective number of electrons per cluster
-
     CNeleT.push_back(int(ClusEner/Wi));
   }
 
@@ -552,9 +530,8 @@ Double_t PndSttSingleStraw::StrawCharge() {
   return TotEnEle*1.e-09;    // in Gev
 }
 
+
 // =============================================================
-
-
 Int_t PndSttSingleStraw::Cluster() {
 
   // calculate the number of clusters CNumb
@@ -585,8 +562,6 @@ Int_t PndSttSingleStraw::Cluster() {
 
 
 // =============================================================
-
-
 Int_t PndSttSingleStraw::Eject() {
   // find the number of electrons in a cluster
   Int_t Inelect;
@@ -604,8 +579,6 @@ Int_t PndSttSingleStraw::Eject() {
 
 
 // =============================================================
-
-
 Double_t  PndSttSingleStraw::RRise(Double_t gamma2) {
 
   // interpolate the relativisic rise of the
@@ -637,8 +610,8 @@ Double_t  PndSttSingleStraw::RRise(Double_t gamma2) {
   return Rise;
 }
 
-// ==========================================================================
 
+// ==========================================================================
 void PndSttSingleStraw::Polya(Double_t bpar) {
 
   // calculate the cumulative of the Polya distribution 
@@ -687,7 +660,6 @@ void PndSttSingleStraw::Polya(Double_t bpar) {
 
 
 // =====================================================================
-
 Double_t PndSttSingleStraw::PolyaSamp() {
 
   // sampling a wire gain fluctuation in the gas
@@ -702,8 +674,8 @@ Double_t PndSttSingleStraw::PolyaSamp() {
   return xsamp;
 }
 
-// =====================================================================
 
+// =====================================================================
 TVector3  PndSttSingleStraw::WDistCalc(Double_t DisTot) {
 
   // calculation of the distance of the cluster from the wire
@@ -769,12 +741,10 @@ TVector3  PndSttSingleStraw::WDistCalc(Double_t DisTot) {
   TVector3 TDist(XX,YY,ZZ);
 
   return TDist;
-
 }
 
 
 // =====================================================================
-
 void PndSttSingleStraw::TDirCos() {
 
   // director cosines of the track (called for each track)
@@ -792,7 +762,6 @@ void PndSttSingleStraw::TDirCos() {
 
 
 // =====================================================================
-
 Int_t PndSttSingleStraw::TimeEle() {
 
   TeleTime.clear();
@@ -818,28 +787,44 @@ Int_t PndSttSingleStraw::TimeEle() {
       // V=1600V diameter 4 mm 90/10
 	etime= -1.624e-05 + 0.1258*dst + 0.8079*pow(dst,2) -2.918*pow(dst,3)
 	  + 10.33*pow(dst,4) -10.84*pow(dst,5);
+	etime*=1000.;   // from micros to ns
       }
       else{
       // V=1600V diameter 5 mm   90/10
 	etime= -6.763e-05 + 0.1471*dst +0.3625*pow(dst,2) +0.3876*pow(dst,3)
 	  +1.04*pow(dst,4) -1.693*pow(dst,5);
+	etime*=1000.;   // from micros to ns
       }
     }
     else{
-      // 2 bar 2000V, 5 mm, 80/20
-      etime= -0.0001014 + 0.1463*dst -0.1694*pow(dst,2) +2.4248*pow(dst,3)
-	-1.793*pow(dst,4);
+      // 2.2 bar 2150 V, 5 mm, 90/10 and/or 80/20 wire 20 micron 
+      // (may 2009 data)
+      if(Field==1 &&  CO2Perc <0.15){
+	etime= -1.569123e-03 + 2.228707e-01*dst -2.100147e-01*pow(dst,2)  
+	  +1.240429*pow(dst,3)  -5.929662e-01*pow(dst,4);
+	etime=etime*1000.;  // from micros to ns
+      }
+      else if(Field==1 &&  CO2Perc >0.15){
+	etime = -3.022419e-04 + 1.490671e-01*dst -1.947376e-01*pow(dst,2)
+	  +2.764081e+00*pow(dst,3) -2.129739e+00*pow(dst,4);
+	etime=etime*1000.;  // from micros to ns
+      }
+      //no magnetic field 90/10
+      else{
+	etime= -1.472305e-03 + 2.139223e-01*dst -5.835399e-02*pow(dst,2) 
+	  -6.727544e-02*pow(dst,3) +6.334636e-01*pow(dst,4);
+	etime=etime*1000.;  // from micros to ns
+      }
     }
 
-    etime*=1000.;   // nano seconds 
     TeleTime.push_back(etime);    
   }
 
   return TeleTime.size();
 }
 
-// =====================================================================
 
+// =====================================================================
 Double_t PndSttSingleStraw::Signal(Double_t t, Double_t t0) {
 
   // electric signal at time  t of a cluster arriving at t0
@@ -856,11 +841,10 @@ Double_t PndSttSingleStraw::Signal(Double_t t, Double_t t0) {
   else elesig = 0.;
 
   return elesig;
- 
 }
 
-// =====================================================================
 
+// =====================================================================
 Int_t  PndSttSingleStraw::StrawSignal(Int_t nsteps) {
 
   // creation of nstep values of
@@ -921,8 +905,8 @@ Int_t  PndSttSingleStraw::StrawSignal(Int_t nsteps) {
   return neltot;
 }
 
-// =====================================================================
 
+// =====================================================================
 Int_t  PndSttSingleStraw::StrawTime() {
 
   // simulate the discrimination of the straw signal 
@@ -951,16 +935,45 @@ Int_t  PndSttSingleStraw::StrawTime() {
 //    }
 
   }
-  if(flag1==1 && flag2==1) PulseTime=PulseT.at(ind);
+  if(flag1==1 && flag2==1) PulseTime=PulseT.at(ind)-OffT;  // time in ns;
  
   return ind;
 } 
 
 
+// =====================================================================
+Int_t  PndSttSingleStraw::StrawTot() {
+
+  // simulate the discrimination of the straw signal 
+  // and give the time window over threshold of the signal
+  // return the integer difference between the two memory locations
+  // and set the two times PulseTime and PulseTime1
+
+
+  PulseTime=0.;
+  PulseTime1=0.;
+
+  Int_t ind=0, ind1=0;
+  Int_t flag1=0;
+  Int_t flag2=1;
+  
+  for(Int_t k=0; k<(Int_t) Pulse.size(); k++){
+    if(flag1==0 && Pulse[k]>Thresh1) {
+      flag1=1;
+      ind=k;
+    }
+
+    //  find the second threshold
+    if(Pulse[k]>Thresh1)ind1=k;
+  }
+  if(flag1==1 && flag2==1) PulseTime=PulseT.at(ind);
+  PulseTime1 = PulseT.at(ind1);
+
+  return ind1-ind;
+} 
 
 
 // =====================================================================
-
 Double_t  PndSttSingleStraw::TrueDist(Double_t Point[]) {
   // service routine that finds the distance in cm from the wire
   // by knowing the wire coordinates (class variables)
@@ -998,13 +1011,14 @@ Double_t  PndSttSingleStraw::TrueDist(Double_t Point[]) {
   return truedist;   // distance in cm
 }
 
-// =====================================================================
 
+// =====================================================================
 Double_t  PndSttSingleStraw::TimnsToDiscm(Double_t time) {
 
   // distance in cm from time in ns for pSTP =1 and pSTP=2 atm 
+  // where the time is given by the threshold on the signal
   // utility routine for the track reconstruction
-  //last update: A. Rotondi 3-3-2007
+  // last update: A. Rotondi 24-5-2009
 
   Double_t drift;
 
@@ -1056,98 +1070,51 @@ Double_t  PndSttSingleStraw::TimnsToDiscm(Double_t time) {
   }
 
   else {
-     // 2 absolute atm  5 mm   80/20 (1 bar overpressure)
-    if(time <= 50.) { 
-
-      // on thresh static 10%
-
-      drift =    -0.0300 +1.28551e-02
-	         +1.44029e-02*time 
-	         -3.67834e-03*pow(time,2)  
-	         +3.32034e-04*pow(time,3) 
-	         -6.36592e-06*pow(time,4) 
-	         -7.82907e-08*pow(time,5)
-                 +3.58931e-09*pow(time,6)     
-                 -2.93491e-11*pow(time,7) ; 
-
- 
-      // one thresh static 3%
-//       drift =    +5.35238e-02
-// 	         -4.25959e-02 *time 
-// 	         +7.59448e-03 *pow(time,2)  
-// 	         -1.44009e-04 *pow(time,3) 
-// 	         -1.76365e-06 *pow(time,4) 
-// 	         +3.29531e-08 *pow(time,5)
-// 	         +1.12115e-09 *pow(time,6)     
-//                  -1.72919e-11 *pow(time,7) ; 
-
-
-
+    // 2 absolute atm  5 mm  2150 V   90/10 (1 bar overpressure may 2009)
+    if(CO2Perc < 0.15){
+      //  constant fraction threshold 5%  5 ns offset
+      //        drift = -1.343144e-01  
+      // 	 +5.101958e-02 *time    
+      // 	 +9.116481e-05 *pow(time,2)
+      // 	 -5.787444e-06 *pow(time,3)
+      // 	 +5.015327e-08 *pow(time,4)
+      // 	 -1.624539e-10 *pow(time,5)
+      // 	 +1.414059e-13 *pow(time,6);
+      
+      //  fixed threshold 5% with 10 ns offset 90/10 and 80/20 (may 2009)
+      drift = 2.498729e-02    
+	-2.788627e-03 *time  
+	+3.997619e-03 *pow(time,2)  
+	-1.289555e-04 *pow(time,3)
+	+2.101670e-06 *pow(time,4)
+	-1.959622e-08 *pow(time,5)
+	+1.053198e-10 *pow(time,6)
+	-3.030411e-13 *pow(time,7)
+	+3.609173e-16 *pow(time,8);
     }
-    else if(50. < time && time < 130.) {
-
-
-      // on thresh static 10%
-
-      drift =   -0.0190 +4.40993e-01
-	        -2.91442e-02*time 
-	        +3.06237e-03*pow(time,2)  
-	        -6.07870e-05*pow(time,3) 
-	        +5.97431e-07*pow(time,4) 
-	        -3.09238e-09*pow(time,5)
-	        +7.70537e-12*pow(time,6)     
-                -6.49086e-15*pow(time,7) ;
-
-
-
-      // one thresh static 3%
-//       drift =    +2.25702e-02
-// 	         +5.17806e-02 *time 
-// 	         +2.53060e-04 *pow(time,2)  
-// 	         -1.60338e-05 *pow(time,3) 
-// 	         +2.14805e-07 *pow(time,4) 
-// 	         -1.30249e-09 *pow(time,5)
-// 	         +3.38791e-12 *pow(time,6)     
-//                  -2.10503e-15 *pow(time,7) ; 
-
-
-    }  
-
     else{
-
-      // on thresh static 10%
-      drift =   -0.0100 +4.28757e-01
-	        -1.95413e-02*time 
-	        +3.02333e-03*pow(time,2)  
-	        -6.13920e-05*pow(time,3) 
-	        +5.93656e-07*pow(time,4) 
-	        -3.05271e-09*pow(time,5)
-	        +8.05446e-12*pow(time,6)     
-                -8.59626e-15*pow(time,7) ; 
-
-      // one thresh static 3%
-//       drift =    +1.57217e-01
-// 	         +5.79365e-02*time 
-// 	         +2.15636e-04*pow(time,2)  
-// 	         -1.66405e-05*pow(time,3) 
-// 	         +2.13726e-07*pow(time,4) 
-// 	         -1.26888e-09 *pow(time,5)
-// 	         +3.68533e-12 *pow(time,6)     
-//                  -4.24032e-15 *pow(time,7) ; 
-
-
+      // fixed threshold 80/20
+      drift = -4.843174e-02  
+	+4.859828e-03 *time    
+	+4.593485e-03 *pow(time,2)     
+	-1.677031e-04 *pow(time,3)  
+	+2.955270e-06 *pow(time,4)  
+	-2.996812e-08 *pow(time,5)  
+	+1.832841e-10 *pow(time,6)  
+	-6.678677e-13 *pow(time,7)  
+	+1.335729e-15 *pow(time,8)  
+	-1.128932e-18 *pow(time,9);  
     }
   }
 
- 
   drift =  0.1*drift;  
   if(drift < 0.) drift=0.;
   return drift;  
 
 }
 
-// --------------------------------------------------------------------------------
 
+// --------------------------------------------------------------------------------
 Double_t PndSttSingleStraw::PartToTime(Double_t xPMass, Double_t xPMom, Double_t InOut[]) {
 
  // find the time of a particle of mass xPmass, momentum xPMom, with 
@@ -1158,10 +1125,11 @@ Double_t PndSttSingleStraw::PartToTime(Double_t xPMass, Double_t xPMom, Double_t
   Out1 = StrawCharge();           // energy loss (GeV) to generate charge
   Out2 = StrawSignal(Nchann);     // generate the straw signal
   Out3 = StrawTime();             // find the straw drift time PulseTime
-  
+  Out4 = StrawTot();              // find the time over threshold
+
   return PulseTime;
-  
 }
+
 
 // --------------------------------------------------------------------------------   
 Double_t  PndSttSingleStraw::PartToADC() {
@@ -1179,8 +1147,8 @@ Double_t  PndSttSingleStraw::PartToADC() {
   return ADCsignal;
 }
 
-// --------------------------------------------------------------------------------   
 
+// --------------------------------------------------------------------------------   
 Double_t  PndSttSingleStraw::FastPartToADC() {
 
   // return the energy loss (from the Urban distribution)
@@ -1212,77 +1180,102 @@ Double_t  PndSttSingleStraw::FastRec(Double_t TrueDcm, Int_t Flag) {
   // by sampling on the simulated reconstruction curve
   // When Press =2 and Flag=1 one uses the julich experimental data
   // A. Rotondi March 2007
+  // When Press = 2 and Flag=2 one uses the juelich experimental data from COSY-TOF (Feb 2011)
+  // When Press = 2 and Flag=3 one uses the juelich experimental data from the small setup
+  // (Apr 2010)
+  
 
   Double_t  resmic;
-
+  
   // 1 atm pressure
- if(pSTP < 1.9) {
-   if(Radius < 0.45){
-     if(TrueDcm < 0.38){
-       resmic =   1.24506e+02  -1.80117e+02*TrueDcm
-	 +3.76905e+03*pow(TrueDcm,2) -4.63251e+04*pow(TrueDcm,3)  
-	 +1.80068e+05*pow(TrueDcm,4)   -2.21094e+05*pow(TrueDcm,5);
-     }
-     else resmic = 57.;
-   }
-   // radius > 0.4 cm
-   else{   
-     if(TrueDcm < 0.48){
-       resmic =     1.53656e+02  
-	 -5.07749e+03*TrueDcm 
-	 +1.73707e+05*pow(TrueDcm,2)  
-	 -2.72285e+06*pow(TrueDcm,3)   
-	 +2.28719e+07*pow(TrueDcm,4)   
-	 -1.12921e+08*pow(TrueDcm,5) 
-	 +3.39427e+08*pow(TrueDcm,6) 
-	 -6.12741e+08 *pow(TrueDcm,7) 
-	 +6.12041e+08 *pow(TrueDcm,8)  
-	 -2.60444e+08*pow(TrueDcm,9) ;  
-     }
-     else resmic = 72.;
-   
-   }
- }
- // 2 atm pressure radius 5 cm
-
- else {
-   if(Flag==0) {
-     if(TrueDcm < 0.48){
-       resmic =      +1.06966e+02  
-	 -4.03073e+03 *TrueDcm 
-	 +1.60851e+05 *pow(TrueDcm,2)  
-	 -2.87722e+06 *pow(TrueDcm,3)   
-	 +2.67581e+07 *pow(TrueDcm,4)   
-	 -1.43397e+08 *pow(TrueDcm,5) 
-	 +4.61046e+08 *pow(TrueDcm,6) 
-	 -8.79170e+08 *pow(TrueDcm,7) 
-	 +9.17095e+08 *pow(TrueDcm,8)  
-	 -4.03253e+08 *pow(TrueDcm,9) ;  
-     }
-     else resmic=30.;
-   }
-   else{
-     // data from julich 
-     if(TrueDcm < 0.48){
-       resmic =    20. +1.48048e+02
-	 -3.35951e+02*TrueDcm 
-	 -1.87575e+03*pow(TrueDcm,2)  
-	 +1.92910e+04*pow(TrueDcm,3)   
-	 -6.90036e+04*pow(TrueDcm,4)   
-	 +1.07960e+05*pow(TrueDcm,5) 
-	 -5.90064e+04*pow(TrueDcm,6) ;  
-     }
-     else resmic=65.;
-   }
- }
-
- //real distance in cm
- Double_t rsim = gRandom->Gaus(TrueDcm, resmic*0.0001);
- if (rsim<0.) rsim = TrueDcm - TrueDcm*gRandom->Uniform(0.,1.);
- else if (rsim>0.5) rsim = TrueDcm + (0.5-TrueDcm)*gRandom->Uniform(0.,1.);
-
- return rsim;
+  if(pSTP < 1.9) {
+    if(Radius < 0.45){
+      if(TrueDcm < 0.38){
+	resmic =   1.24506e+02  -1.80117e+02*TrueDcm
+	  +3.76905e+03*pow(TrueDcm,2) -4.63251e+04*pow(TrueDcm,3)  
+	  +1.80068e+05*pow(TrueDcm,4)   -2.21094e+05*pow(TrueDcm,5);
+      }
+      else resmic = 57.;
+    }
+    // radius > 0.4 cm
+    else{   
+      //      if(TrueDcm < 0.48){
+      resmic =     1.53656e+02  
+	-5.07749e+03*TrueDcm 
+	+1.73707e+05*pow(TrueDcm,2)  
+	-2.72285e+06*pow(TrueDcm,3)   
+	+2.28719e+07*pow(TrueDcm,4)   
+	-1.12921e+08*pow(TrueDcm,5) 
+	+3.39427e+08*pow(TrueDcm,6) 
+	-6.12741e+08 *pow(TrueDcm,7) 
+	+6.12041e+08 *pow(TrueDcm,8)  
+	-2.60444e+08*pow(TrueDcm,9) ;  
+      //       }
+      //       else resmic = 72.;
+    }
+  }
+  
+  // 2 atm pressure radius 5 cm
+  else {
+    if(Flag==0) {
+      // data from simulation
+      //       if(TrueDcm < 0.48){
+      resmic =      +1.06966e+02  
+	-4.03073e+03 *TrueDcm 
+	+1.60851e+05 *pow(TrueDcm,2)  
+	-2.87722e+06 *pow(TrueDcm,3)   
+	+2.67581e+07 *pow(TrueDcm,4)   
+	-1.43397e+08 *pow(TrueDcm,5) 
+	+4.61046e+08 *pow(TrueDcm,6) 
+	-8.79170e+08 *pow(TrueDcm,7) 
+	+9.17095e+08 *pow(TrueDcm,8)  
+	-4.03253e+08 *pow(TrueDcm,9) ;  
+      //       }
+      //       else resmic=30.;
+    }
+    else if (Flag==1) {
+      // data from COSY-TOF (old)
+      //       if(TrueDcm < 0.48){
+      resmic =    +1.48048e+02
+	-3.35951e+02*TrueDcm 
+	-1.87575e+03*pow(TrueDcm,2)  
+	+1.92910e+04*pow(TrueDcm,3)   
+	-6.90036e+04*pow(TrueDcm,4)   
+	+1.07960e+05*pow(TrueDcm,5) 
+	-5.90064e+04*pow(TrueDcm,6) ;  
+      //     }
+      //       else resmic=65.;
+    }
+    else if (Flag==2) {
+      // data from COSY-TOF (Feb 2011)
+      resmic = +0.02152
+	+0.6764*TrueDcm
+	-1.008*pow(TrueDcm,2)
+	+0.7421*pow(TrueDcm,3)
+	-0.3036*pow(TrueDcm,4)
+	+0.06955*pow(TrueDcm,5)
+	-0.008327*pow(TrueDcm,6)
+	+0.0004049*pow(TrueDcm,7);
+    }
+    else {
+      // data from juelich prototype
+      resmic = 4.521331e-01
+	-2.087216e-01 *10.*TrueDcm
+	+4.911102e-02 *pow(10.*TrueDcm,2)
+	-3.934728e-03 *pow(10.*TrueDcm,3);
+      resmic = resmic*1000.;
+    }
+  }
+  
+  //real distance in cm
+  Double_t rsim = gRandom->Gaus(TrueDcm, resmic*0.0001);
+  if (rsim<0.) rsim = TrueDcm - TrueDcm*gRandom->Uniform(0.,1.);
+  else if (rsim>0.5) rsim = TrueDcm + (0.5-TrueDcm)*gRandom->Uniform(0.,1.);
+  
+  return rsim;
 }
+
+
 // --------------------------------------------------------------------------------   
 Double_t  PndSttSingleStraw::DiffLong(Double_t Distcm) {
 
@@ -1318,6 +1311,8 @@ Double_t  PndSttSingleStraw::DiffLong(Double_t Distcm) {
   }
   return DiffMic;
 }
+
+
 // --------------------------------------------------------------------------------   
 Double_t  PndSttSingleStraw::DiffTran(Double_t Distcm) {
 
@@ -1353,6 +1348,8 @@ Double_t  PndSttSingleStraw::DiffTran(Double_t Distcm) {
   }
   return DiffMic;
 }
+
+
 // --------------------------------------------------------
 Double_t  PndSttSingleStraw::DistEle(Double_t time) {
 

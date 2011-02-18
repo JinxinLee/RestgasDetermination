@@ -148,13 +148,14 @@ void PndSttHitProducerRealFast::Exec(Option_t* opt) {
     // single straw tube simulation -----------------------
     PndSttSingleStraw stt;
     
-    //setting the single straw tube simulation constants
+    // setting the single straw tube simulation constants
     // 3 options currently available:
     // TConst(tube radius (cm), gas pressure (bar), Ar%, CO2%)
     // stt.TConst(0.4, 1, 0.9, 0.1); 
-    //stt.TConst(0.5, 1, 0.9, 0.1);//1 bar
-    stt.TConst(0.5, 2, 0.8, 0.2);  //2 bar
-    
+    // stt.TConst(0.5, 1, 0.9, 0.1); // 1 bar
+    // stt.TConst(0.5, 2, 0.8, 0.2); // 2 bar
+    stt.TConst(0.5, 2, 0.9, 0.1); // 2 bar
+
     // wire positioning   
     stt.PutWireXYZ(0.,  0., -75., 0., 0., 75.);
 
@@ -181,62 +182,51 @@ void PndSttHitProducerRealFast::Exec(Option_t* opt) {
     //if(radius <0. ||radius==0.) radius =-999;
     
     // fast simulation 
-    Double_t radius= stt.FastRec(true_rad,1) ; //,0) standard curve ,1) Juelich exp curve
-                                               //Juelich is at 2 bar pressure
+    Int_t flag = 2;     // 0) standard curve, from simulation
+                        // 1) Juelich exp curve from COSY-TOF (old) (2 bar, 80/20)
+                        // 2) Juelich exp curve from COSY-TOF (Feb 2011) (1.25 bar, 80/20)
+                        // 3) Juelich exp curve from prototype (Apr 2010)(2 bar, 90/10)
+
+    Double_t radius= stt.FastRec(true_rad, flag); 
+
     // dE calculation
-    //  double depCharge = stt.PartToADC();
-      
-     // dE calculation ------- check
+    // double depCharge = stt.PartToADC();
+    // dE calculation ------- check
     // charge calculation
     Double_t depcharge = stt.FastPartToADC(); // CHECK   arbitrary units!
     // dE/dx calculation postponed
     Double_t dedx = -999;
-    
-    // stt2: detID, pos, dpos, index come from --------------
-    // stt2 (FairHit):
-    Double_t closestDistanceError = GetError(radius);//calculates the error according                                                      to Juelich experimental curves
+
+    // error calculation according to the curve chosen by flag
+    Double_t closestDistanceError = GetError(radius, flag); 
+
     //cout<<"radius "<<radius<<" error "<<closestDistanceError<<endl;                    
-    //closestDistanceError = 0.0150; //150 microns check this point!                             
+    //closestDistanceError = 0.0150; //150 microns check this point!
     //closestDistanceError =TMath::Sqrt(2.)*radius/TMath::Sqrt(12);
     TVector3 position = tube->GetPosition(); // CHECK added
 
-    // ----------------
-    // stt2, ma cancellati in stt1 (controlla: in stt2 la posizione dell' hit non 
-    // corrisponde al centro del tubo (xcentro, ycentro, 35.), ma per il Real deve
-    // essere cosi' ??perche' in stt2 non e' cosi'??
-    // TVector3 posInLocal(point->GetXInLocal(), point->GetYInLocal(), point->GetZInLocal());
-    // TVector3 posOutLocal(point->GetXOutLocal(), point->GetYOutLocal(), point->GetZOutLocal());
-    // Double_t zpos = position.Z() + ((posOutLocal.Z() + posInLocal.Z()) / 2.);
-    // Double_t zposError;
-    // FoldZPosWithResolution(zpos, zposError, posInLocal, posOutLocal);
-    //    pos.SetXYZ(position.X(), position.Y(), zpos); // <--- stt2
-    // ----------------
-
-    pos.SetXYZ(position.X(), position.Y(), position.Z()); // <--- stt1
+    pos.SetXYZ(position.X(), position.Y(), position.Z()); 
 
     //    dpos.SetXYZ(innerStrawDiameter / 2., innerStrawDiameter / 2., GetLongitudinalResolution(position.Z()));
     dpos.SetXYZ(0.5, 0.5, 3.); // per adesso (stessi che in Ideal:
                                // innerStrawDiameter/2 = 0.5,
                                // longitudinalResolution = 3.)
-    //----- end stt2 ------------------------------------------
-
-
     //    cout << "r: " << radius << " err: " << closestDistanceError << endl;
     //cout<<" radius "<<radius<<endl;
+
     // create hit
     AddHit(detID, tubeID, iPoint, pos, dpos, pulset, radius, closestDistanceError, depcharge);
-
     AddHitInfo(0, 0, point->GetTrackID(), iPoint, 0, kFALSE);
 
   }// Loop over MCPoints
 
 
   // Event summary
-  //cout << "-I- PndSttHitProducerRealFast: " << nPoints << " SttPoints, "
-  //     << nPoints << " Hits created." << endl;
-  
+  // cout << "-I- PndSttHitProducerRealFast: " << nPoints << " SttPoints, "
+  //      << nPoints << " Hits created." << endl;
 }
 // -------------------------------------------------------------------------
+
 void PndSttHitProducerRealFast::FoldZPosWithResolution(Double_t &zpos, Double_t &zposError, 
 						    TVector3 localInPos, TVector3 localOutPos)
 {
@@ -271,25 +261,72 @@ PndSttHitInfo* PndSttHitProducerRealFast::AddHitInfo(Int_t fileNumber, Int_t eve
   Int_t size = clref.GetEntriesFast();
   return new(clref[size])  PndSttHitInfo(fileNumber, eventNumber, trackID, pointID, nMerged, isFake);
 }
+// -------------------------------------------------------------------------
 
-
-Double_t PndSttHitProducerRealFast::GetError(Double_t TrueDcm) {
-
-  // data from julich 
-  Double_t resmic=-1;
-  if(TrueDcm < 0.48){
-    resmic =    20. +1.48048e+02
-      -3.35951e+02*TrueDcm 
-      -1.87575e+03*pow(TrueDcm,2)  
-      +1.92910e+04*pow(TrueDcm,3)   
-      -6.90036e+04*pow(TrueDcm,4)   
-      +1.07960e+05*pow(TrueDcm,5) 
-      -5.90064e+04*pow(TrueDcm,6) ;  
-  }
-  else resmic=65.;
+// --------- Get Error on radius -------------------------------------------
+Double_t PndSttHitProducerRealFast::GetError(Double_t TrueDcm, Int_t rescurve) {
   
-  return resmic*0.0001;
+  Double_t resmic=-1;
+
+  // TrueDcm in cm
+
+  // simulation res curve used
+  if (rescurve==0) {
+    //       if(TrueDcm < 0.48){
+    resmic =      +1.06966e+02  
+      -4.03073e+03 *TrueDcm 
+      +1.60851e+05 *pow(TrueDcm,2)  
+      -2.87722e+06 *pow(TrueDcm,3)   
+      +2.67581e+07 *pow(TrueDcm,4)   
+      -1.43397e+08 *pow(TrueDcm,5) 
+      +4.61046e+08 *pow(TrueDcm,6) 
+      -8.79170e+08 *pow(TrueDcm,7) 
+      +9.17095e+08 *pow(TrueDcm,8)  
+      -4.03253e+08 *pow(TrueDcm,9); 
+    //       }
+    //       else resmic=30.;
+  }
+
+  // Juelich exp curve from COSY-TOF (old) used
+  else if (rescurve==1) {
+    //     if (TrueDcm < 0.48) {
+    resmic =     +1.48048e+02
+	-3.35951e+02*TrueDcm 
+	-1.87575e+03*pow(TrueDcm,2)  
+	+1.92910e+04*pow(TrueDcm,3)   
+	-6.90036e+04*pow(TrueDcm,4)   
+	+1.07960e+05*pow(TrueDcm,5) 
+	-5.90064e+04*pow(TrueDcm,6);
+    //     } 
+    //     else resmic=65.;
+  }
+  
+  // Juelich exp curve from COSY-TOF (Feb 2011) used
+  else if (rescurve==2) {
+    resmic = +0.02152
+      +0.6764*TrueDcm
+      -1.008*pow(TrueDcm,2)
+      +0.7421*pow(TrueDcm,3)
+      -0.3036*pow(TrueDcm,4)
+      +0.06955*pow(TrueDcm,5)
+      -0.008327*pow(TrueDcm,6)
+      +0.0004049*pow(TrueDcm,7);
+  }
+  
+  // Juelich exp curve from prototype (Apr 2010) used
+  else if (rescurve==3) {
+    // TrueDcm needed in mm --> error in mm
+    resmic = 4.521331e-01
+      -2.087216e-01 *10.*TrueDcm
+      +4.911102e-02 *pow(10.*TrueDcm,2)
+      -3.934728e-03 *pow(10.*TrueDcm,3);
+    resmic = resmic*1000.; // error in micron
+  }
+
+  // resmic in micron
+  return resmic*0.0001; // --> resmic in cm
 }
+// -------------------------------------------------------------------------
 
 
 ClassImp(PndSttHitProducerRealFast)

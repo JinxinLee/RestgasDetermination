@@ -43,7 +43,7 @@ class PndSttHitProducerRealFast : public FairTask
 
   void FoldZPosWithResolution(Double_t &zpos, Double_t &zposError, TVector3 localInPos, TVector3 localOutPos);
   
-  Double_t GetError(Double_t);
+  Double_t GetError(Double_t, Int_t);
 
  
   /** set persistence flag **/
