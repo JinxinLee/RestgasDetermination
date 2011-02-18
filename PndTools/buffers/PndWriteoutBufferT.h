@@ -35,8 +35,8 @@ public:
 	PndWriteoutBufferT(TString branchName, TString className);
 	virtual ~PndWriteoutBufferT(){};
 
-	virtual void WriteOutData(double time);
-	virtual void WriteOutAllData();
+	virtual std::vector<T> WriteOutData(double time);
+	virtual std::vector<T> WriteOutAllData();
 
 	virtual std::vector<T> GetRemoveOldData(double time);
 	virtual std::vector<T> GetAllData();

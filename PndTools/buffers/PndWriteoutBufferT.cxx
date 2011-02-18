@@ -20,13 +20,13 @@ template<class T> PndWriteoutBufferT<T>::PndWriteoutBufferT(TString branchName, 
 		fTreeSave = true;
 }
 
-template<class T> void PndWriteoutBufferT<T>::WriteOutData(double time)
+template<class T> std::vector<T> PndWriteoutBufferT<T>::WriteOutData(double time)
 {
 	FairRootManager* ioman = FairRootManager::Instance();
-
+	std::vector<T> data;
 	if (fActivateTimeOrder){
 		std::cout << "WriteOutData for time: " << time << std::endl;
-		std::vector<T> data = GetRemoveOldData(time);
+		data = GetRemoveOldData(time);
 		if (data.size() > 0){
 			TClonesArray* myArray = ioman->GetEmptyTClonesArray(fBranchName);
 			if (!myArray)
@@ -40,11 +40,14 @@ template<class T> void PndWriteoutBufferT<T>::WriteOutData(double time)
 	else{
 		ioman->GetEmptyTClonesArray(fBranchName);
 	}
+	return data;
 }
 
-template<class T> void PndWriteoutBufferT<T>::WriteOutAllData()
+template<class T> std::vector<T> PndWriteoutBufferT<T>::WriteOutAllData()
 {
-	WriteOutData(fDeadTime_map.rbegin()->first);
+	if (fDeadTime_map.size() > 0){
+		return WriteOutData(fDeadTime_map.rbegin()->first);
+	}
 }
 
 template<class T> std::vector<T> PndWriteoutBufferT<T>::GetRemoveOldData(double time)
@@ -100,6 +103,7 @@ template<class T> void PndWriteoutBufferT<T>::FillNewData(T& data, double active
 		}
 		else{
 			//std::cout << " Hat nicht geklappt! " << std::endl;
+			std::cout << " Data Inserted: " << data << std::endl;
 			fData_map.insert(std::pair<T, double>(data, activeTime));
 			fDeadTime_map.insert(std::pair<double, T>(activeTime, data));
 		}
@@ -107,6 +111,7 @@ template<class T> void PndWriteoutBufferT<T>::FillNewData(T& data, double active
 	else{
 		FairRootManager* ioman = FairRootManager::Instance();
 		TClonesArray* myArray = ioman->GetTClonesArray(fBranchName);
+		std::cout << "Data Inserted: " << data << std::endl;
 		new ((*myArray)[myArray->GetEntries()]) T(data);
 	}
 }
