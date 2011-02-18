@@ -22,6 +22,7 @@ rootlogon()
   if(isLibrary("libTrkBase"))gSystem->Load("libTrkBase");
   if(isLibrary("libgeneralTools"))gSystem->Load("libgeneralTools");
   if(isLibrary("libPndData"))gSystem->Load("libPndData");
+  if(isLibrary("libbuffers"))gSystem->Load("libbuffers");
   if(isLibrary("libField"))gSystem->Load("libField");
   if(isLibrary("libPassive"))gSystem->Load("libPassive");
   if(isLibrary("libGen"))gSystem->Load("libGen");
