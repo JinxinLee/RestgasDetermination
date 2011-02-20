@@ -45,7 +45,8 @@
 
 PndTpcClusterFinderTask::PndTpcClusterFinderTask()
   : FairTask("TPC Cluster Finder"), fpersistence(kFALSE),ftrivial(kFALSE),
-    ftimeslice(2), fmode(0),fthres(1), fSDiClAmpCut(0), fDataMode(kFALSE), fDiffFactor(1.)
+    ftimeslice(2), fmode(0),fthres(1), fSDiClAmpCut(0), fDataMode(kFALSE), fDiffFactor(1.),
+    fAdcSens(600.), fC(300.)
 {
   fdigiBranchName = "PndTpcDigi";
 }

@@ -34,6 +34,7 @@
 #include "PndTpcCluster.h"
 #include "TrackFitStat.h"
 
+#define DEBUG 1
 
 
 PndTpcSLResidualTask::PndTpcSLResidualTask()
@@ -108,7 +109,7 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
   //clear output
   if(fFitStatArray==0) Fatal("TrackFitStat::Exec()","No FitStat OutputArray");
   fFitStatArray->Delete();
-  if(fResArray==0) Fatal("TrackFitStat::Exec()","No McAnnex OutputArray");
+  if(fResArray==0) Fatal("TrackFitStat::Exec()","SL Residual output array missing");
   fResArray->Delete();
 
   //get fit results
@@ -135,6 +136,10 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
       
       unsigned int nFS = fFitStatArray->GetEntriesFast();
       TrackFitStat* fitstat = new ((*fFitStatArray)[nFS]) TrackFitStat();
+      if(DEBUG) {
+	std::cout<<"PndTpcSLResidualTask::Exec(): Processing track #"
+		 <<nFS<<std::endl;
+      }
       
       TVector3 mom = tr->getMom();     //momentum after fit
   
