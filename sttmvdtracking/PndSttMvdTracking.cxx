@@ -552,7 +552,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 	return;
  }
 
- if (istampa >= 2  && IVOLTE==3) {
+ if (istampa >= 3  && IVOLTE<20) {
      cout<<"da PndSttMvdTracking  : evento (partendo da 0)  N. "<<
        IVOLTE<< "\n       N. totale Hits in STT  : "<<nSttHit<<endl;
  }
@@ -667,7 +667,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 
 
 //--------------- inizio stampaggi,  stampe di controllo
-  if (istampa >= 2  && IVOLTE==3) {
+  if (istampa >= 3) {
       cout <<"da PndSttMvdTracking, iHit "<< i << endl;
       cout <<"             hit X, Y, Z space position "   << pSttMCPoint[i]->GetX() << " " <<
                        pSttMCPoint[i]->GetY() << " " << pSttMCPoint[i]->GetZ()<<endl; 
@@ -1610,6 +1610,12 @@ if(istampa>2&& IVOLTE<20){
 
 
 	if(Mvdhits[ncand]){	//	in this case there is at least 1 Mvd hits associated to Stt track.
+
+
+	nSttSkewHitsinTrack[ncand]<6 ? j += nSttSkewHitsinTrack[ncand] :   j += 6; 
+
+
+
 		FixDiscontinuitiesFiangleinSZplane(
 			j,
 			S,
@@ -1620,8 +1626,9 @@ if(istampa>2&& IVOLTE<20){
 //---------------------   here do the fit again in the SZ space if there are Mvd hits.
 //			   For this, reordering of the  Mvd hits is not necessary.
 
+
 		resultFitSZagain[ncand] = FitSZspace(
-					j,	//  only the Mvd hits
+					j,	// n. hits to be fitted
 					S,
 					ZED,
 					DriftRadius,
@@ -1642,6 +1649,7 @@ if(istampa>2&& IVOLTE<20){
 //	of the SKEW hits and the MVD hits, for a given track candidate (ie for a given Helix
 //	circle in the XY plane)
 
+// %%%%%%%%%%%%%%%
 // %%%%%%%%%%%%%%%%%%%
 	EliminateSpuriousSZ(
 				&nMvdPixelHitsAssociatedToSttTrack[ncand],	// input and output
@@ -5425,16 +5433,7 @@ void PndSttMvdTracking::Merge(UShort_t nl, Double_t *left, UShort_t *ind_left, U
 //----------end of function PndSttMvdTracking::Merge
 
 
-//----------begin of function PndSttMvdTracking::
-
-
-
-
-
-
-
-
-
+//----------begin of function PndSttMvdTracking::FitHelixCylinder
 
       Short_t PndSttMvdTracking::FitHelixCylinder( UShort_t nHitsinTrack,
 		Double_t *Xconformal,
@@ -6372,7 +6371,6 @@ if(istampa>=2) cout<<"Risults : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = 
 
 
 
-
 //----------begin of function PndSttMvdTracking::FitSZspace
 
      Short_t PndSttMvdTracking::FitSZspace(
@@ -6399,6 +6397,8 @@ if(istampa>=2) cout<<"Risults : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = 
 
 
      Double_t ave,
+		avex,
+		avey,
 		cose,
 		sine,
 	      M = 50.,
@@ -6430,38 +6430,36 @@ if(istampa>=2) cout<<"Risults : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = 
 
 
 	ave=0.;
+	avex=0.;
+	avey=0.;
 	n=0;
 	for(i=0;i<nSkewHitsinTrack;i++){
-		if( fabs(Z[ i ]) > 1.e-10){
+		if( fabs(Z[ i ]) > 1.e-10&& DriftRadius[ i ]>0.){
 			n++;
 			ave += (S[ i ] - FInot)/Z[ i ];
+			avex += Z[ i ];
+			avey += (S[ i ] - FInot);
+
 		}
 	}
 
 	if( n>0) {
 		ave /=n;
-		rotationangle = atan(ave);
+		avex /=n;
+		avey /=n;
+//		rotationangle = atan(ave);
+		rotationangle = atan2(avey,avex);
 	} else {
 		rotationangle=PI/2.;
 	}
 
 
 
-//-------------- stampaggi
-if(istampa>2){
-	cout<<"from FitSZspace, Evento "<<IVOLTE<<", NpointsInFit = "<<NpointsInFit<<endl;
-	for(i=0 ; i< NpointsInFit ; i++) {
-		cout<<"  Z["<<i<<"] = "<<Z[ i ]<<
-		";   S["<<i<<"] = "<<S[ i ]<<"\tErrordiriftradius = "
-		<<ErrorDriftRadius[i]<<endl;
-	}
-}
-//------------ end stampaggi
-
 
 
 //  use the trick of increasing the rotation angle by 10 degrees in order to obtain always a positive m
-      rotationangle -= PI/18.;
+//      rotationangle -= PI/18.;
+//      rotationangle = PI/2.;
 
 
       cose = cos(rotationangle);
@@ -6478,11 +6476,14 @@ if(istampa>2){
 	{
 		mvdhit[i]=true;
 		nMvdHits++;
+		Delta[i] = 0.1;
 	} else {
 		mvdhit[i]=false;
 		nSttHits++;
+		DriftRadius[ i ] *= sine;
 	}
       }
+
 
 
 
@@ -7283,22 +7284,10 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 
 
 
-
-
-
-
-
-
-
-
-
 }
 
 
 //----------end of function PndSttMvdTracking::FitSZspace
-
-
-
 
 
 
