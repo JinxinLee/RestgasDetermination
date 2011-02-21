@@ -53,28 +53,28 @@
   int mum_tracks = 3 * nevents;
   int mup_tracks = 3 * nevents;
   // mu - HELIX
-  double mum_hel_res          = 0.03;
+  double mum_hel_res          = 0.038;
   double mum_hel_res_tol      = 0.01;
   double mum_hel_eff          = 0.87;
   double mum_hel_eff_tol      = 0.1;
   double mum_hel_peak_eff     = 0.8;
   double mum_hel_peak_eff_tol = 0.1;
   // mu - GENFIT
-  double mum_gen_res          = 0.023;
+  double mum_gen_res          = 0.031;
   double mum_gen_res_tol      = 0.01;
   double mum_gen_eff          = 0.87;
   double mum_gen_eff_tol      = 0.1;
   double mum_gen_peak_eff     = 0.83;
   double mum_gen_peak_eff_tol = 0.1;
   // mu + HELIX
-  double mup_hel_res          = 0.03;
+  double mup_hel_res          = 0.04;
   double mup_hel_res_tol      = 0.01;
   double mup_hel_eff          = 0.86;
   double mup_hel_eff_tol      = 0.1;
   double mup_hel_peak_eff     = 0.8;
   double mup_hel_peak_eff_tol = 0.1;
   // mu + GENFIT
-  double mup_gen_res          = 0.023;
+  double mup_gen_res          = 0.033;
   double mup_gen_res_tol      = 0.01;
   double mup_gen_eff          = 0.86;
   double mup_gen_eff_tol      = 0.1;

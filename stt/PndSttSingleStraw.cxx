@@ -1248,14 +1248,32 @@ Double_t  PndSttSingleStraw::FastRec(Double_t TrueDcm, Int_t Flag) {
     }
     else if (Flag==2) {
       // data from COSY-TOF (Feb 2011)
-      resmic = +0.02152
-	+0.6764*TrueDcm
-	-1.008*pow(TrueDcm,2)
-	+0.7421*pow(TrueDcm,3)
-	-0.3036*pow(TrueDcm,4)
-	+0.06955*pow(TrueDcm,5)
-	-0.008327*pow(TrueDcm,6)
-	+0.0004049*pow(TrueDcm,7);
+      // the parametrization comes from mm vs mm:
+      // => TrueDcm must be in mm
+      TrueDcm *= 10.; // cm -> mm
+      // and resmic will be given in mm ...
+
+      // old parametriz
+      //     resmic = +0.02152
+      // 	+0.6764*TrueDcm
+      // 	-1.008*pow(TrueDcm,2)
+      // 	+0.7421*pow(TrueDcm,3)
+      // 	-0.3036*pow(TrueDcm,4)
+      // 	+0.06955*pow(TrueDcm,5)
+      // 	-0.008327*pow(TrueDcm,6)
+      // 	+0.0004049*pow(TrueDcm,7);
+
+      // pol5 parametriz
+      resmic = 0.188119 
+	+ 0.00211993 * TrueDcm
+	+ 0.00336004 * pow(TrueDcm, 2)
+	- 0.0103979  * pow(TrueDcm, 3)
+	+ 0.0033461  * pow(TrueDcm, 4)
+	-0.000315764 * pow(TrueDcm, 5);
+      
+   // convert resmic to micron and TrueDcm to cm
+      resmic *= 1000.;
+      TrueDcm *= 0.1;
     }
     else {
       // data from juelich prototype
