@@ -57,7 +57,6 @@ PndSttMvdTracking::PndSttMvdTracking(Int_t verbose) : FairTask("STT Stt-Mvd Trac
 
 // -----   Destructor   ----------------------------------------------------
 PndSttMvdTracking::~PndSttMvdTracking() { 
-
 }
 // -------------------------------------------------------------------------
 
