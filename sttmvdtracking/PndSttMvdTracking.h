@@ -67,17 +67,20 @@ class PndSttMvdTracking : public FairTask
   int IVOLTE ;
   static const bool  iplotta = false , ianalizza = true ;
   static const UShort_t   nmaxSttHits = maxTracks*26,
-                          nmaxMvdPixelHits=500,
+			  nmaxMvdPixelHits=500,
 			  nmaxMvdStripHits=500,
-                          nmaxMvdPixelHitsInTrack=30,
+			  nmaxMvdPixelHitsInTrack=30,
 			  nmaxMvdStripHitsInTrack=30,
-                          MAXTRACKSPEREVENT=maxTracks,
+			  MAXTRACKSPEREVENT=maxTracks,
 //			  MAXMVDTRACKSPEREVENT=50,
 			  MAXMVDTRACKSPEREVENT=200,
-                          MAXMCTRACKS=30;
+			  MAXMCTRACKS=30,
+			  MAXTURNSOFTRACK=5;
   static const Double_t   BFIELD=2.,  // in Tesla
-                          PI = 3.141592654,
-                          CVEL = 2.99792,  //  velocity of light
+			  PI = 3.141592654,
+			  CVEL = 2.99792,  //  velocity of light
+			  RStrawDetectorMin = 16., // minimum radius of the Stt detector in  cm
+			  RStrawDetectorMax = 42.2, // maximum radius of the Stt detector in  cm
 			  StrawRadius = 0.5;
   bool    ExclusionListStt[nmaxSttHits];
 
@@ -98,7 +101,9 @@ class PndSttMvdTracking : public FairTask
 			ListMvdDSStripHitNotTrackCand[nmaxMvdStripHitsInTrack],
 			ListMvdUSStripHitNotTrackCand[nmaxMvdStripHitsInTrack];
 
-  Double_t CxMC[MAXMCTRACKS],
+  Double_t	SEMILENGTH_STRAIGHT,
+		ZCENTER_STRAIGHT,
+		CxMC[MAXMCTRACKS],
              CyMC[MAXMCTRACKS],
              R_MC[MAXMCTRACKS],
              MCtruthTrkInfo[15][MAXMCTRACKS],
@@ -405,6 +410,7 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
                     );
 
   void MatchMvdHitsToSttTracksagain(
+			bool *Mvdhits,
 			Double_t delta,
 			Double_t highqualitycut,
 			UShort_t nSttTrackCand,
@@ -586,11 +592,12 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 
 
   Double_t SignedDist_SZ(
-					Double_t KAPPA,
-					Double_t FI0,
-					Double_t ZED,
-					Double_t S
-					);
+				Double_t KAPPA,
+				Double_t FI0,
+				Double_t ZED,
+				Double_t S,
+				Short_t *nrounds
+			);
 
 
 
@@ -616,6 +623,38 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
                           Double_t *Fi_initial_helix_referenceframe,
                           Short_t Charge
                                                                 );
+
+  UShort_t AssociateSkewHitsToXYTrack(
+                   bool *ExclusionListSkew,
+		   UShort_t NSkewhits,
+		   UShort_t *infoskew,
+                   Double_t Ox,
+                   Double_t Oy,
+                   Double_t R,
+                   Double_t info[][7],
+                   Double_t *WDX,
+                   Double_t *WDY,
+                   Double_t *WDZ,
+                   Double_t Fi_low_limit,
+                   Double_t Fi_up_limit,
+                   Short_t  Charge,
+                   Double_t Fi_initial_helix_referenceframe,
+                   Double_t Fi_final_helix_referenceframe,
+                   UShort_t SkewList[nmaxSttHits][2], // output,  list of selected skew hits (in skew numbering)
+                   Double_t *S,       //  output,  S coordinate of selected Skew hit
+                   Double_t *Z,       //  output,  Z coordinate of selected Skew hit
+                   Double_t *ZDrift,   //  output,  drift distance IN Z DIRECTION only, of selected Skew hit
+                   Double_t *ZErrorafterTilt   //  output,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
+							);
+
+   void   PndSttFindingParallelTrackAngularRange(
+			Double_t oX,
+			Double_t oY,
+			Double_t R,
+			Short_t  Charge,
+			Double_t *Fi_low_limit,
+			Double_t *Fi_up_limit 
+						);
 
 
   ClassDef(PndSttMvdTracking,1);
