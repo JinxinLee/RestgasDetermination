@@ -14,6 +14,18 @@ using namespace std;
 
 /**
  * Constructor.
+ *@param inputFilename  Input weights File name.
+ */
+/*
+  PndMvaDataSet::PndMvaDataSet(std::string const& WeightFile)
+  : m_input(WeightFile),
+  m_UsePCA(false),
+  m_NormType(NONORM),
+  m_AppType(UNKAPP)
+  {}
+*/
+/**
+ * Constructor.
  *@param inputFilename  Input File name.
  *@param classNames     Names of available Labels (classes).
  *@param varNames       Available variabl names.
@@ -24,7 +36,9 @@ PndMvaDataSet::PndMvaDataSet(std::string const& WeightFile,
 			     std::vector<std::string> const& varNames,
 			     AppType type)
   : m_input(WeightFile),
-    m_UsePCA(false)
+    m_UsePCA(false),
+    m_NormType(NONORM),
+    m_AppType(type)
 {
   // Init labels.
   InitClasses(classNames);
@@ -32,46 +46,34 @@ PndMvaDataSet::PndMvaDataSet(std::string const& WeightFile,
   // Init variables.
   InitVariables(varNames);
 
+  // FIXME DELETE ME.
+  //InitDataSet();
+  /*
   switch (type)
   {
-  case CLASSIFY:
-    ValidateWeightFile();
-    ReadWeightsFromFile();
-    // Read input file
-    ReadInput();
-    break;
   case TMVATRAIN:
   case TMVACLS:
     std::cout << "Yet To be done\n"
 	      << "NIet alles tegelijkertijd, :P\n";
     break;
-  case TRAIN: // Read input file
-  default:
+  case CLASSIFY:
+    ValidateWeightFile();
+    //FIXME FIXME FIXME
+    ReadWeightsFromFile();
+    // Read input file
     ReadInput();
     break;
-  }
-}
-
-/**
- * Constructor.
- *@param inputFilename  Input File name.
- *@param classNames    Names of available Labels (classes).
- *@param varNames     Available variabl names.
- */
-PndMvaDataSet::PndMvaDataSet(string const& inputFilename,
-			     vector<string> const& classNames,
-			     vector<string> const& varNames)
-  : m_input(inputFilename),
-    m_UsePCA(false)
-{
-  // Initialize classes
-  InitClasses(classNames);
-
-  // Init varaiables
-  InitVariables(varNames);
-
-  // Read input file
-  ReadInput();
+  case TRAIN: // Read input file
+    ReadInput();
+    break;
+  case UNKAPP:
+  default:
+    std::cerr << "<ERROR> Unknown application type.\n"
+	      << "We do not know what to do\n"
+	      << std::endl;
+    return;
+    break;
+    }*/
 }
 
 //! Destructor
@@ -97,13 +99,57 @@ PndMvaDataSet::~PndMvaDataSet()
 }
 
 /**
+ * Init Dataset. Determine how to handle input, based on the
+ * application type.
+ */
+void PndMvaDataSet::Initialize()
+{
+  switch (m_AppType)
+  {
+  case TMVATRAIN:// Train TMVA method
+  case TMVACLS: // Use trained TMVA method.
+    std::cout << "Yet To be done\n"
+	      << "NIet alles tegelijk,:P\n";
+    break;
+  case CLASSIFY:
+    // Validate the weight File
+    if(ValidateWeightFile())
+    {
+      // Read weight File.
+      // ReadWeightsFromFile();
+      
+      // Read input file
+      ReadInput();
+    }
+    else
+    {
+      // FIXME Better to do exception :?
+      exit(1);
+    }
+    break;
+  case TRAIN:
+    // Read input file
+    ReadInput();
+    break;
+  case UNKAPP:
+  default:
+    std::cerr << "<ERROR> Unknown application type.\n"
+	      << "We do not know what to do\n"
+	      << std::endl;
+    exit(1);
+    break;
+  }
+  std::cout <<"<INFO> Initialization done.\n" ;
+}
+
+/**
  * Creates a data set with equal number of events for each class.
  */
 void PndMvaDataSet::Trim()
 {
   std::cout << "<INFO> Triming data set.\n";
   
-  // If the dtaset is initialized.
+  // If the data set is initialized.
   assert(m_events.size() > 1 );
 
   time_t seconds;
@@ -203,12 +249,15 @@ void PndMvaDataSet::Trim()
  * Normalize event dataset using one of available methods.
  *@param t Normalization type (VARX, MINMAX, MEDIAN).
  */
-void PndMvaDataSet::NormalizeDataSet(NormType const type)
+void PndMvaDataSet::NormalizeDataSet(NormType type)
 {
+  m_NormType = type;
+
   switch(type)
   {
   case MINMAX:
-    cout << "<INFO> Normalizing dataset using Min, Max spread and mid.\n";
+    cout << "<INFO> Normalizing dataset using Min,"
+	 << "Max spread and mid.\n";
     MinMaxDiff();
     break;
     
@@ -223,9 +272,9 @@ void PndMvaDataSet::NormalizeDataSet(NormType const type)
 	 << "using sample Variance and mean.\n";
     ComputeVariance();
     break;
-    
+
+  case NONORM:
   default:
-    // case NONE:
     cout << "<INFO> No normalization scheme was selected.\n";
     break;
   }
@@ -375,7 +424,6 @@ void PndMvaDataSet::WriteDataSet(std::string const& outFile)
 
 /**
  * Read input event data.
- **** FIXME: Seg.Faul. if file is already opened by other.
  */
 void PndMvaDataSet::ReadInput()
 {
@@ -551,7 +599,11 @@ void PndMvaDataSet::ReadInput()
  * Read Weights and parameters from file.
  */
 void PndMvaDataSet::ReadWeightsFromFile()
-{}
+{
+  std::cerr <<"<ERROR> NOT IMPLEMENTED YET.\n"
+	    << "IMPLEMENT ME."
+	    << std::endl;
+}
 
 /**
  * Class conditional mean for a given class. Stored in class
@@ -774,13 +826,61 @@ void PndMvaDataSet::InitVariables(std::vector<std::string> const& varNames)
 // Validate the input file.
 bool PndMvaDataSet::ValidateWeightFile()
 {
-  std::cout << "<INFO> Validating the weight file: "
+  std::cout << "<INFO> Scanning the File: "
 	    << m_input
 	    << '\n';
-  
+
   // Open the input file for reading event data.
-  TFile inF(m_input.c_str(),"READ");
+  TFile inF(m_input.c_str(), "READ");
   
+  // Get the list of available labels.
+  TObjArray* Labels = (TObjArray*) inF.Get("Labels");
+  
+  // Get the list of variables.
+  TObjArray* Variables = (TObjArray*) inF.Get("Variable");
+  
+  // Number of classes and variables
+  size_t numLabels = static_cast<size_t>(Labels->GetEntriesFast());
+  size_t numVars   = static_cast<size_t>(Variables->GetEntriesFast());
+
+  //If the class and variable Names agree.
+  std::cout << "-I- The file containes data for the following labels:\n\t";
+  for(size_t i = 0; i < numLabels; ++i)
+  {
+    TObjString* cur = (TObjString*) Labels->At(i);
+    std::cout << " " << (cur->GetString()).Data();
+  }
+  
+  std::cout << "\n-I- Available variables are:\n\t";
+  for(size_t i = 0; i < numVars; ++i)
+  {
+    TObjString* cur = (TObjString*) Variables->At(i);
+    std::cout << " " << (cur->GetString()).Data();
+  }
+  std::cout << '\n';
+  
+  // Equal # of labels
+  if( numLabels != m_classes.size() )
+  {
+    std::cerr << "<ERROR> The number of labels mismatch."
+	      << std::endl;
+    //assert( numLabels == m_classes.size() );
+  }
+  // Equal # of variables  
+  if( numVars != m_vars.size() )
+  {
+    std::cerr << "<ERROR> The number of variables mismatch."
+	      << std::endl;
+    //assert( numVars != m_vars.size() );
+  }
+  // Close open file.
+  inF.Close();
+
+  return (
+	  (numLabels == m_classes.size()) && 
+	  (numVars   == m_vars.size())
+	  );
+  /*
   // Get list of objects from the file.
   TList* objKeys = inF.GetListOfKeys();
 
@@ -799,7 +899,5 @@ bool PndMvaDataSet::ValidateWeightFile()
 	      << key->GetTitle()     << "\n";
     //------======================================
     //First get the class labels.
-  }
-  inF.Close();
-  return true;
+    }*/
 }

@@ -16,28 +16,34 @@ PndMvaTrainer::PndMvaTrainer(std::string const& InPut,
 			     std::vector<std::string> const& ClassNames, 
 			     std::vector<std::string> const& VarNames,
 			     bool trim)
-  : m_dataSets(InPut, ClassNames, VarNames, TRAIN)
-{
-  // Trim data set
-  if(trim)
-  {
-    m_dataSets.Trim();
-  }
-
-  // Initialize class conditional means.
-  m_dataSets.InitClsCondMeans();
-  
-  // Init random seed for this run.
-  time_t seconds;
-  seconds = time (NULL);
-  m_RND_seed = seconds;
-}
+  : m_dataSets(InPut, ClassNames, VarNames, TRAIN),
+    m_trim(trim)
+{}
 
 //! Destructor
 PndMvaTrainer::~PndMvaTrainer()
 {
   m_testSet_indices.clear();
   m_StepErro.clear();
+}
+
+void PndMvaTrainer::Initialize()
+{
+  m_dataSets.Initialize();
+
+  // Trim data set
+  if(m_trim)
+  {
+    m_dataSets.Trim();
+  }
+  
+  // Initialize class conditional means.
+  m_dataSets.InitClsCondMeans();
+  
+  // Init random seed for this run.
+  time_t seconds;
+  seconds = time (NULL);
+  m_RND_seed = seconds; 
 }
 
 /**
@@ -92,7 +98,7 @@ void PndMvaTrainer::WriteToWeightFile(std::vector< std::pair<std::string,
 				      std::vector<float>*> > const& weights)
 {
   
-  std::cout << "<INFO> Writing classifier out put to "
+  std::cout << "<INFO> Writing classifier Output to "
 	    << m_outFile
 	    << '\n';
 
@@ -160,7 +166,7 @@ void PndMvaTrainer::WriteToWeightFile(std::vector< std::pair<std::string,
 
   // _______________ Normalization and transformation data _________
 
-  //________ Write normFactors
+  //______________________ Write normFactors
   std::vector<float> buffer(vars.size(), 0.0);
   std::string name = "NormFact";
   std::string desc = "desc of " + name;
@@ -187,7 +193,7 @@ void PndMvaTrainer::WriteToWeightFile(std::vector< std::pair<std::string,
   fact.Fill();
   fact.Write();
 
-  //_______ Write mean
+  //______________________ Write mean
   name = "Means";
   desc = "desc of " + name;
   
@@ -242,15 +248,29 @@ void PndMvaTrainer::WriteToWeightFile(std::vector< std::pair<std::string,
   TObjArray variables(0, 0);
   variables.SetName("Variables");
   variables.SetOwner(kTRUE);
-  // Add labels
+  // Add variables
   for(size_t j = 0; j < vars.size(); j++)
   {
     std::string vn = vars[j].Name;
     variables.Add(new TObjString(vn.c_str()));    
   }
   variables.Write("Variable", TObject::kSingleKey);
+  
+  // List of other performed operations input.
+  TObjArray Modifiers (0, 0);
+  Modifiers.SetName("Modifiers");
+  Modifiers.SetOwner(kTRUE);
+
+  Modifiers.Add(new TObjString("Means"));
+  Modifiers.Add(new TObjString("NormFact"));
+  if(m_dataSets.Used_PCA())
+  {
+    Modifiers.Add(new TObjString("PCAMeans"));
+    Modifiers.Add(new TObjString("PCAEigenVectors"));
+  }
+  Modifiers.Write("Modifiers", TObject::kSingleKey);
   //__________________________________
-  //Close open file
+  //Close open the file
   out.Close();
 }
 
@@ -341,16 +361,18 @@ void PndMvaTrainer::WriteToWeightFile(std::vector<TMVA::PDEFoam*> const& foamLis
   rootFile.Close();
 }
 
-void PndMvaTrainer::WriteDataSetToOutFile()
-{
+/*
+  void PndMvaTrainer::WriteDataSetToOutFile()
+  {
   if(m_outFile.size() == 0)
   {
-    std::cerr << "<Error> Empty Output File Name."
-	      << std::endl;
-    return;
+  std::cerr << "<Error> Empty Output File Name."
+  << std::endl;
+  return;
   }
   m_dataSets.WriteDataSet(m_outFile);
-}
+  }
+*/
 
 //! Select input data normalization scheme.
 void PndMvaTrainer::NormalizeData(NormType t)

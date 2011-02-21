@@ -71,7 +71,8 @@ void PndPidMvaAssociatorTask::SetDefaultWeightsPath()
   fWeightsFileName  = std::string(getenv("VMCWORKDIR"));
   fWeightsFileName += std::string("/PndTools/MVA/PndMVAWeights/");
   std::cout<<"<INFO> Default Weights path is set to "
-	   << fWeightsFileName << '\n';
+	   << fWeightsFileName
+	   << '\n';
 }
 
 //___________________________________________________________
@@ -158,14 +159,15 @@ InitStatus PndPidMvaAssociatorTask::Init()
   case LVQ:
     {
       PndLVQClassify* LvqCls = new PndLVQClassify(fWeightsFileName, fClassNames, fVarNames);
-      
+
       if(!LvqCls)
       {
 	std::cerr << "<Error> Failed to initialize LVQ classifier."
 		  << std::endl;
 	return kERROR;
       }
-      
+
+      LvqCls->Initialize();
       fClassifier = dynamic_cast<PndMvaClassifier*>(LvqCls);
     }
     break;
@@ -183,6 +185,7 @@ InitStatus PndPidMvaAssociatorTask::Init()
       }
       
       // Set parameters.
+      KnnCls->Initialize();
       KnnCls->SetEvtParam(fScFact, fWeight);
       KnnCls->SetKnn(fNumNeigh);
       KnnCls->InitKNN();

@@ -20,9 +20,9 @@ using namespace std;
  * @param varNames: Variable names from which the feature vector is
  * built.
  */
-PndPrzWindowClassify::PndPrzWindowClassify(const string& inputFile,
-					   const vector<string>& classNames, 
-					   const vector<string>& varNames)
+PndPrzWindowClassify::PndPrzWindowClassify(string const& inputFile,
+					   vector<string> const& classNames, 
+					   vector<string> const& varNames)
   : PndMvaClassifier(inputFile, classNames, varNames),
     m_volumeN(0)
 {}

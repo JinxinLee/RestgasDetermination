@@ -59,7 +59,7 @@ class PndMvaTrainer
   void splitTetsSet(int percent = 10);
   
   //! Select input data normalization scheme.
-  void NormalizeData(NormType t = NONE);
+  void NormalizeData(NormType t = NONORM);
   
   /**
    * Parameter decorrelation.
@@ -80,9 +80,14 @@ class PndMvaTrainer
    */
   void WriteErroVect(std::string const& FileName);
 
+  void Initialize();
+
   //==============================================
   //================ Protected ===================
  protected:
+
+  inline void SetAppType(AppType t);
+
   /**
    * Write the training and normalization data to outFile.
    */
@@ -96,7 +101,7 @@ class PndMvaTrainer
    */
   void WriteToWeightFile(std::vector<TMVA::PDEFoam*> const& foams);
   
-  void WriteDataSetToOutFile();
+  //void WriteDataSetToOutFile();
   
   //! Classifier error evaluation
   virtual void EvalClassifierError()
@@ -126,11 +131,18 @@ class PndMvaTrainer
  //! To avoid mistakes.
   PndMvaTrainer(PndMvaTrainer const& other);
   PndMvaTrainer& operator=(PndMvaTrainer const& other);
+  // Either trim or not
+  bool m_trim;
 };// End of class definition.
 
 //========================= Inline implementations =================
 inline void PndMvaTrainer::SetOutPutFile(std::string const& outFile)
 {
   m_outFile = outFile;
+};
+
+inline void PndMvaTrainer::SetAppType(AppType t)
+{
+  m_dataSets.SetAppType(t);
 };
 #endif

@@ -50,7 +50,7 @@ int main(int argc, char** argv)
   vars.push_back("z53");
   
   // Read data.
-  PndMvaDataSet data(inFile, clas, vars);
+  PndMvaDataSet data(inFile, clas, vars,TRAIN);
 
   //data.Trim();
 

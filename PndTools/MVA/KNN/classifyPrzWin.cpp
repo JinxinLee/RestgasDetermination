@@ -71,10 +71,9 @@ int main(int argc, char** argv)
   // Classes (container to hold the class names)
   clasNames.push_back("electron");
   clasNames.push_back("pion");
-  //clasNames.push_back("kaon");
-  //clasNames.push_back("muon");
-  //clasNames.push_back("proton");
-  //clasNames.push_back("gamma");
+  clasNames.push_back("kaon");
+  clasNames.push_back("muon");
+  clasNames.push_back("proton");
   
   // Variables (names)
   //vars.push_back("p");
@@ -102,7 +101,8 @@ int main(int argc, char** argv)
   
   //Create the classifier object and specify the weight file
   PndPrzWindowClassify cls (InPutFile, clasNames, vars);
-  
+  cls.Initialize();
+
   // Set classifier parameters and init.
   cls.setWindowSize(wsize);
   

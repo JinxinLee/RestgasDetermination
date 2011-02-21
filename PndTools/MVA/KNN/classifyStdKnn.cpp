@@ -36,11 +36,12 @@ void printResult(std::map<std::string,float>& res){
 
 int main(int argc, char** argv)
 {
-  if(argc < 3){
+  if(argc < 3)
+  {
     std::cerr <<"\t<ERROR>" 
 	      <<"./classify <inputFile> <numOfneigh>"
 	      << std::endl;
-      return 1;
+    return 1;
   }
   
   std::string InPutFileName = argv[1];
@@ -72,6 +73,8 @@ int main(int argc, char** argv)
   
   //Create the classifier object and specify the weight file
   PndStdKnnClassify cls (InPutFileName, clas, nam);
+  
+  cls.Initialize();
 
   cls.SetKNN(NumNei);
     

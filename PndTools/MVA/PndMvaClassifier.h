@@ -55,9 +55,13 @@ class PndMvaClassifier
    */
   virtual std::string *Classify( std::vector<float> EvtData ) = 0;
 
+  void Initialize();
+
  protected:
   //! Normalize the given event vector.
   virtual void NormalizeEvent(std::vector<float>& EvtVector) const;
+
+  inline void SetAppType(AppType t);
   
   //! Data set. Holds event Weights
   PndMvaDataSet m_dataSets;
@@ -66,6 +70,11 @@ class PndMvaClassifier
   // To avoid mistakes.
   PndMvaClassifier (PndMvaClassifier const& other);
   PndMvaClassifier& operator=(PndMvaClassifier const& other);
+};
+
+inline void PndMvaClassifier::SetAppType(AppType t)
+{
+  m_dataSets.SetAppType(t);
 };
 //End of class interface
 #endif

@@ -23,6 +23,11 @@ PndMvaClassifier::PndMvaClassifier( std::string const& InPut,
 PndMvaClassifier::~PndMvaClassifier()
 {}
 
+void PndMvaClassifier::Initialize()
+{
+  m_dataSets.Initialize();
+}
+
 // Normalize the given event vector.
 void PndMvaClassifier::NormalizeEvent(std::vector<float>& event) const
 {

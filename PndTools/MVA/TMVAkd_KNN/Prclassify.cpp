@@ -96,6 +96,7 @@ int main(int argc, char** argv)
 
   // Create the classifier object and specify the weight file
   PndProjectedKNN cls (InPutFileName, clas, stru, combination);
+  cls.Initialize();
 
   cls.SetKnn(NumNei);
   cls.SetEvtParam(0.8, 1.0);

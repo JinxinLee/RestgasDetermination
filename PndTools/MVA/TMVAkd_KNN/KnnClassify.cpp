@@ -70,10 +70,9 @@ int main(int argc, char** argv)
   // Classes (container to hold the class names)
   clasNames.push_back("electron");
   clasNames.push_back("pion");
-  //clasNames.push_back("kaon");
-  //clasNames.push_back("muon");
-  //clasNames.push_back("proton");
-  //clasNames.push_back("gamma");
+  clasNames.push_back("kaon");
+  clasNames.push_back("muon");
+  clasNames.push_back("proton");
   
   // Variables (names)
   //vars.push_back("p");
@@ -84,7 +83,6 @@ int main(int argc, char** argv)
   
   //vars.push_back("thetaC");
   //vars.push_back("mvd");
-  //vars.push_back("tof");
   //vars.push_back("stt"); 
   
   TStopwatch timer;
@@ -92,6 +90,7 @@ int main(int argc, char** argv)
   
   //Create the classifier object and specify the weight file
   PndKnnClassify cls (InPutFileName, clasNames, vars);
+  cls.Initialize();
 
   // Set classifier parameters and init.
   cls.SetEvtParam(0.8,1.0);

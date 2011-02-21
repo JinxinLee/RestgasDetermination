@@ -8,27 +8,23 @@
 #define PND_MVA_DATASET_H
 
 // C++ includes
-#include <vector>
-#include <map>
-#include <set>
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
+#include <map>
+#include <set>
 #include <algorithm>
 #include <cmath>
 #include <cassert>
 #include <limits>
 #include <typeinfo>
+#include <exception>
 
 // ROOT
 #include "TFile.h"
 #include "TTree.h"
 #include "TRandom3.h"
-#include "TKey.h"
-class TList;
-
-// TMVA
-//#include "TMVA/PDEFoam.h"
 
 // Local includes
 #include "PndMvaClass.h"
@@ -38,15 +34,16 @@ class TList;
 // ========================================================================
 // Application type
 typedef enum{
-  TRAIN     = 0, // Training algorithm.
-  CLASSIFY  = 1, // Read weights to do classification..
-  TMVATRAIN = 20, // Provide input for TMVA Training.
-  TMVACLS   = 30
+  UNKAPP    = 0,
+  TRAIN     = 1, // Training algorithm.
+  CLASSIFY  = 2, // Read weights to do classification..
+  TMVATRAIN = 10, // Provide input for TMVA Training.
+  TMVACLS   = 20
 } AppType;
 
 // Normalization schemes
 typedef enum{
-  NONE   = 0, // Do nothing
+  NONORM = 0, // Do nothing
   VARX   = 1, // Use Sample variance
   MINMAX = 2, // Use Sample Min and Max
   MEDIAN = 3  // Use median and interquartile range (IQR).
@@ -56,6 +53,16 @@ typedef enum{
 class PndMvaDataSet
 {
  public:
+
+  /**
+   * Constructor.
+   *@param inputFilename  Input weights File name.
+   *
+   * Needed information on labels and variables is fetched from the
+   * data file.
+   */
+  //PndMvaDataSet(std::string const& inputFilename);
+
   /**
    * Constructor.
    *@param inputFilename  Input File name.
@@ -67,16 +74,7 @@ class PndMvaDataSet
 		std::vector<std::string> const& classNames,
 		std::vector<std::string> const& varNames,
 		AppType type);
-  /**
-   * Constructor.
-   *@param inputFilename  Input File name.
-   *@param classNames    Names of available Labels (classes).
-   *@param varNames     Available variabl names.
-   */
-  PndMvaDataSet(std::string const& inputFilename,
-		std::vector<std::string> const& classNames,
-		std::vector<std::string> const& varNames);
-
+  
   //! Destructor
   virtual ~PndMvaDataSet();
   
@@ -84,13 +82,14 @@ class PndMvaDataSet
    * Normalize event dataset using one of available methods.
    * @param t Normalization type (VARX, MINMAX, MEDIAN).
    */
-  void NormalizeDataSet(NormType const type = NONE);
+  void NormalizeDataSet(NormType type = NONORM);
 
   /**
    * Write the normalized DataSet to the out-put file.
    * @param  outFile  File name to write to
    */
-  void WriteDataSet(std::string const& outFile);  
+  // void WriteDataSet(std::string const& outFile)__attribute__((deprecated));
+  void WriteDataSet(std::string const& outFile);
 
   /**
    * Initialize the class conditional means vectors.
@@ -132,8 +131,22 @@ class PndMvaDataSet
   inline PndMvaVarPCATransform const& Get_PCA() const;
 
   //_________________________ PCA _____________________//
-  
- protected:  
+
+  // Get normalization type.
+  inline NormType GetNormType() const;
+
+  // Get & set Application type.
+  inline AppType GetAppType () const;
+  inline void SetAppType(AppType t);
+
+  /**
+   * Init Dataset. Determine how to handle input, based on the
+   * application type.
+   */
+  void Initialize();
+
+  //==============================================================
+ protected:
   /**
    * Read input event data.
    */
@@ -144,20 +157,21 @@ class PndMvaDataSet
    */
   void ReadWeightsFromFile();
 
+  //==============================================================
  private:
   // Private to avoid mistakes.
-  // Copy constructor.
+  // Copy constructor (Shallow copy).
   PndMvaDataSet(PndMvaDataSet const& other);
   PndMvaDataSet& operator=(PndMvaDataSet const& other);
   
-  // Validate the input file
-  bool ValidateWeightFile();
-
   // Init Classe.
   void InitClasses(std::vector<std::string> const& labels);
   
   //Init Variables.
   void InitVariables(std::vector<std::string> const& variables);
+  
+  // Validate the input file
+  bool ValidateWeightFile();
 
   /**
    * Class conditional mean for a given class. Stored in class
@@ -203,6 +217,12 @@ class PndMvaDataSet
   
   // If PCA was applied.
   bool m_UsePCA;
+
+  // Normalization scheme
+  NormType m_NormType;
+
+  // Application type.
+  AppType  m_AppType;
 };
 // End of class interface definition.
 
@@ -240,5 +260,17 @@ inline bool PndMvaDataSet::Used_PCA() const
 inline PndMvaVarPCATransform const& PndMvaDataSet::Get_PCA() const
 {
   return m_PCA;
+};
+inline NormType PndMvaDataSet::GetNormType() const
+{
+  return m_NormType;
+};
+inline AppType PndMvaDataSet::GetAppType() const
+{
+  return m_AppType;
+};
+inline void PndMvaDataSet::SetAppType(AppType t)
+{
+  m_AppType = t;
 };
 #endif

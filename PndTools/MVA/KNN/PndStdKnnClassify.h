@@ -61,6 +61,8 @@ class PndStdKnnClassify : public PndMvaClassifier
    * Get number of neighbors.
    */
   inline unsigned int GetKnn() const;
+
+  void Initialize();
   
  private:
   //! To avoid mistakes.

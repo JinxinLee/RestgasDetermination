@@ -62,13 +62,18 @@ int main(int argc, char** argv)
   // Create classifier object.
   PndKnnTrain kNNtr (file, clas, nam, true);
 
+  kNNtr.Initialize();
+
   //NormType tt = VARX;
-  kNNtr.NormalizeData(NONE);
+  kNNtr.NormalizeData(NONORM);
   
-  kNNtr.PCATransForm();
+  // Transform using PCA
+  //kNNtr.PCATransForm();
   
+  //Set output file name
   kNNtr.SetOutPutFile(oupt);
   
+  // Perform training
   kNNtr.Train();
 
   return 0;

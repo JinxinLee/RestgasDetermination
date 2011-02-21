@@ -41,7 +41,7 @@ std::string* PndLVQClassify::Classify(std::vector<float> EvtData)
   GetMvaValues(EvtData, TMPres);
 
   // Fetch labels (classes)
-  vector<PndMvaClass> const &classes = m_dataSets.GetClasses();
+  vector<PndMvaClass> const& classes = m_dataSets.GetClasses();
 
   // Temporary variables for the winning class name.
   std::string CurWin = "UNKNOWN_WINNER_LABEL";
@@ -73,10 +73,10 @@ void PndLVQClassify::GetMvaValues(vector<float> eventData,
 				  map<string,float>& result)
 {
   // Fetch labels (classes)
-  const vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+  vector<PndMvaClass> const& classes = m_dataSets.GetClasses();
 
   // Fetch prototypes.
-  const vector<pair<string, vector<float>*> >& ProtoList = m_dataSets.GetData();
+  vector<pair<string, vector<float>*> > const& ProtoList = m_dataSets.GetData();
   
   // Initialize results
   result.clear();

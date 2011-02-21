@@ -82,7 +82,7 @@ int main(int argc, char** argv)
   //vars.push_back("mvd"); vars.push_back("tof");
   
   // Read the input points.
-  PndMvaDataSet data(InFile, clas, vars);
+  PndMvaDataSet data(InFile, clas, vars, TRAIN);
 
   // Get available examples
   const RawPoints& samples = data.GetData();

@@ -76,9 +76,9 @@ int main(int argc, char** argv)
   // Variable names 
   //nam.push_back("p");
   nam.push_back("emc");
+  nam.push_back("lat");
   nam.push_back("z20");
   nam.push_back("z53");
-  nam.push_back("lat");
 
   //nam.push_back("thetaC"); nam.push_back("mvd");
   //nam.push_back("tof"); nam.push_back("stt"); 
@@ -94,7 +94,9 @@ int main(int argc, char** argv)
   
   // Use for symm. initialization.
   tr.SetNumberOfProto(numProto);
-
+  
+  tr.Initialize();
+  
   // Use for asymm. init.  
   /*
     std::map <std::string, unsigned int> numProtoMap;
@@ -105,8 +107,8 @@ int main(int argc, char** argv)
   tr.splitTetsSet(10);//10% (DEFAULT)
   tr.SetErrorStepSize(10000);//100 (DEFALUT)
 
-  //VARX, MINMAX, MEDIAN, NONE(DEFAULT)
-  tr.NormalizeData(NONE);
+  //VARX, MINMAX, MEDIAN, NONORM(DEFAULT)
+  tr.NormalizeData(NONORM);
 
   // Perform PCA on input events.
   //tr.PCATransForm();

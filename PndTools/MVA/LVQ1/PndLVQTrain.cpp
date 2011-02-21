@@ -14,9 +14,9 @@
  * @param ClassNames: class names.
  * @param VarNames: variable names of the features.
  */
-PndLVQTrain::PndLVQTrain(const std::string& inputFile,
-			 const std::vector<std::string>& ClassNames, 
-			 const std::vector<std::string>& VarNames,
+PndLVQTrain::PndLVQTrain(std::string const& inputFile,
+			 std::vector<std::string> const& ClassNames, 
+			 std::vector<std::string> const& VarNames,
 			 bool trim)
   : PndMvaTrainer(inputFile, ClassNames, VarNames, trim),
     m_initConst(0.8),
@@ -60,7 +60,7 @@ void PndLVQTrain::Train()
   InitProtoTypes();
   
   // Fetch available event examples
-  const std::vector<std::pair<std::string, std::vector<float>*> >& events = m_dataSets.GetData();
+  std::vector<std::pair<std::string, std::vector<float>*> > const& events = m_dataSets.GetData();
   
   std::set <int>::const_iterator testSetIter;
   
@@ -204,7 +204,7 @@ void PndLVQTrain::Train21()
   }
 
   // Fetch available event examples.
-  const std::vector<std::pair<std::string, std::vector<float>*> >& events = m_dataSets.GetData();
+  std::vector<std::pair<std::string, std::vector<float>*> > const& events = m_dataSets.GetData();
 
   std::set <int>::const_iterator testSetIter;
 
@@ -376,7 +376,7 @@ void PndLVQTrain::InitProtoTypes()
   
   // Number of proto larger dan number of events!
   // Fetch labels.
-  const std::vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+  std::vector<PndMvaClass> const& classes = m_dataSets.GetClasses();
   
   for(size_t i = 0; i < classes.size(); i++)
   {
@@ -441,7 +441,7 @@ void PndLVQTrain::InitProtoK_Means()
   std::cout << '\n';
 
   // Get available data points.
-  const std::vector<std::pair<std::string, std::vector<float>*> >& events = m_dataSets.GetData();
+  std::vector<std::pair<std::string, std::vector<float>*> > const& events = m_dataSets.GetData();
   
   // Init temporary prototype container.
   std::map<std::string, ClDataSample*> ProtoVector;//(classes.size());
@@ -628,9 +628,9 @@ void PndLVQTrain::cleanProtoList()
 /**
  * Updates the LVQ prototypes.
  */
-void PndLVQTrain::UpdateProto(const std::vector<float>& EvtData, 
+void PndLVQTrain::UpdateProto(std::vector<float> const& EvtData, 
 			      std::vector<float>& proto, 
-			      const int delta, const double ethaT)
+			      int const delta, double const ethaT)
 {
   for(size_t i = 0; i < proto.size(); i++)
   {
@@ -644,7 +644,7 @@ void PndLVQTrain::UpdateProto(const std::vector<float>& EvtData,
 void PndLVQTrain::EvalClassifierError(unsigned int stp)
 {
   // Get Examples
-  const std::vector<std::pair<std::string, std::vector<float>*> >& events = m_dataSets.GetData();
+  std::vector<std::pair<std::string, std::vector<float>*> > const& events = m_dataSets.GetData();
   
   // Test-set iterator.
   std::set <int>::const_iterator iter;
@@ -727,10 +727,10 @@ void PndLVQTrain::EvalClassifierError(unsigned int stp)
 void PndLVQTrain::ReadProtoFromFile()
 {
   // Fetch the available labels.
-  const std::vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+  std::vector<PndMvaClass> const& classes = m_dataSets.GetClasses();
 
   // Get parameters.
-  const std::vector<PndMvaVariable>& variables = m_dataSets.GetVars();
+  std::vector<PndMvaVariable> const& variables = m_dataSets.GetVars();
   
   std::cout << "<INFO> Reading data from  "<< m_initProtoFile
 	    << '\n';
@@ -742,7 +742,7 @@ void PndLVQTrain::ReadProtoFromFile()
   for(size_t cls = 0; cls < classes.size(); cls++)
   {
     // Tree name
-    const char *name = classes[cls].Name.c_str();
+    char const* name = classes[cls].Name.c_str();
     std::cout << "<INFO> Reading events for "
 	      <<  classes[cls].Name << '\n';
     
@@ -770,7 +770,7 @@ void PndLVQTrain::ReadProtoFromFile()
     // Bind the parameters to the tree branches
     for(size_t j = 0; j < variables.size(); j++)
     {
-      const char* branchName = variables[j].Name.c_str();
+      char const* branchName = variables[j].Name.c_str();
       //Binding the branches
       t->SetBranchAddress(branchName, &(ev[j]));
     }// Tree parameters are bounded
@@ -801,7 +801,7 @@ void PndLVQTrain::ReadProtoFromFile()
  * Set the number of protoTypes to be used for training.
  *@param numProto  Number of prototypes.
  */  
-void PndLVQTrain::SetNumberOfProto(const unsigned int numProto)
+void PndLVQTrain::SetNumberOfProto(unsigned int const numProto)
 {
   // Fetch labels.
   const std::vector < PndMvaClass >& classes = m_dataSets.GetClasses();
@@ -816,10 +816,10 @@ void PndLVQTrain::SetNumberOfProto(const unsigned int numProto)
  *@param labelMap  Map containing number of prototypes 
  * for each class (label).
  */  
-void PndLVQTrain::SetNumberOfProto(std::map<std::string, unsigned int> const &labelMap)
+void PndLVQTrain::SetNumberOfProto(std::map<std::string, unsigned int> const& labelMap)
 {
   // Fetch labels.
-  const std::vector < PndMvaClass >& classes = m_dataSets.GetClasses();
+  std::vector < PndMvaClass > const& classes = m_dataSets.GetClasses();
   // Init map iterator.
   std::map < std::string, unsigned int >::const_iterator iter;
   for(size_t cl = 0; cl < classes.size(); cl++)
