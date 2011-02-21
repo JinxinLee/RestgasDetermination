@@ -52,7 +52,25 @@
   //corr->SetInputIDBranch("LheTrackID");
   //corr->SetDebugMode(kTRUE);
   fRun->AddTask(corr);
-  
+ 
+  PndPidIdealAssociatorTask *assMC= new PndPidIdealAssociatorTask();
+  fRun->AddTask(assMC);
+
+  PndPidMvdAssociatorTask *assMvd= new PndPidMvdAssociatorTask();
+  fRun->AddTask(assMvd);
+
+  PndPidMdtHCAssociatorTask *assMdt= new PndPidMdtHCAssociatorTask();
+  fRun->AddTask(assMdt);
+
+  PndPidDrcAssociatorTask *assDrc= new PndPidDrcAssociatorTask();
+  fRun->AddTask(assDrc);
+
+  PndPidDiscAssociatorTask *assDisc= new PndPidDiscAssociatorTask();
+  fRun->AddTask(assDisc);
+
+  PndPidSttAssociatorTask *assStt= new PndPidSttAssociatorTask();
+  fRun->AddTask(assStt);
+ 
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(6);
   fRun->Init();
