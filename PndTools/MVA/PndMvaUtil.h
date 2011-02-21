@@ -130,8 +130,8 @@ inline bool compareL(const T* a, const T* b)
  * Computes the Euclidean distance between two given vectors of
  * event features.
  */
-float ComputeDist(const std::vector<float>& EvtData, 
-		  const std::vector<float>& Example);
+float ComputeDist(std::vector<float> const& EvtData, 
+		  std::vector<float> const& Example);
 
 // C style function declarations
 #ifdef __cplusplus

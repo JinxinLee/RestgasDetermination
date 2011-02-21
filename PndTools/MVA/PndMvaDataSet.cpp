@@ -14,18 +14,6 @@ using namespace std;
 
 /**
  * Constructor.
- *@param inputFilename  Input weights File name.
- */
-/*
-  PndMvaDataSet::PndMvaDataSet(std::string const& WeightFile)
-  : m_input(WeightFile),
-  m_UsePCA(false),
-  m_NormType(NONORM),
-  m_AppType(UNKAPP)
-  {}
-*/
-/**
- * Constructor.
  *@param inputFilename  Input File name.
  *@param classNames     Names of available Labels (classes).
  *@param varNames       Available variabl names.
@@ -42,38 +30,9 @@ PndMvaDataSet::PndMvaDataSet(std::string const& WeightFile,
 {
   // Init labels.
   InitClasses(classNames);
-
+  
   // Init variables.
   InitVariables(varNames);
-
-  // FIXME DELETE ME.
-  //InitDataSet();
-  /*
-  switch (type)
-  {
-  case TMVATRAIN:
-  case TMVACLS:
-    std::cout << "Yet To be done\n"
-	      << "NIet alles tegelijkertijd, :P\n";
-    break;
-  case CLASSIFY:
-    ValidateWeightFile();
-    //FIXME FIXME FIXME
-    ReadWeightsFromFile();
-    // Read input file
-    ReadInput();
-    break;
-  case TRAIN: // Read input file
-    ReadInput();
-    break;
-  case UNKAPP:
-  default:
-    std::cerr << "<ERROR> Unknown application type.\n"
-	      << "We do not know what to do\n"
-	      << std::endl;
-    return;
-    break;
-    }*/
 }
 
 //! Destructor
@@ -113,17 +72,19 @@ void PndMvaDataSet::Initialize()
     break;
   case CLASSIFY:
     // Validate the weight File
-    if(ValidateWeightFile())
+    try
     {
+      ValidateWeightFile();
       // Read weight File.
       // ReadWeightsFromFile();
       
       // Read input file
       ReadInput();
-    }
-    else
+    }    
+    catch (PndMvaDataSetException &e)
     {
-      // FIXME Better to do exception :?
+      std::cerr << e.what()
+		<< std::endl;
       exit(1);
     }
     break;
@@ -136,7 +97,7 @@ void PndMvaDataSet::Initialize()
     std::cerr << "<ERROR> Unknown application type.\n"
 	      << "We do not know what to do\n"
 	      << std::endl;
-    exit(1);
+    exit(2);
     break;
   }
   std::cout <<"<INFO> Initialization done.\n" ;
@@ -824,12 +785,12 @@ void PndMvaDataSet::InitVariables(std::vector<std::string> const& varNames)
 }
 
 // Validate the input file.
-bool PndMvaDataSet::ValidateWeightFile()
+void PndMvaDataSet::ValidateWeightFile() throw (PndMvaDataSetException)
 {
   std::cout << "<INFO> Scanning the File: "
 	    << m_input
 	    << '\n';
-
+  
   // Open the input file for reading event data.
   TFile inF(m_input.c_str(), "READ");
   
@@ -842,7 +803,7 @@ bool PndMvaDataSet::ValidateWeightFile()
   // Number of classes and variables
   size_t numLabels = static_cast<size_t>(Labels->GetEntriesFast());
   size_t numVars   = static_cast<size_t>(Variables->GetEntriesFast());
-
+  
   //If the class and variable Names agree.
   std::cout << "-I- The file containes data for the following labels:\n\t";
   for(size_t i = 0; i < numLabels; ++i)
@@ -862,42 +823,13 @@ bool PndMvaDataSet::ValidateWeightFile()
   // Equal # of labels
   if( numLabels != m_classes.size() )
   {
-    std::cerr << "<ERROR> The number of labels mismatch."
-	      << std::endl;
-    //assert( numLabels == m_classes.size() );
+    throw (PndMvaDataSetException("<ERROR> The number of labels mismatch."));
   }
   // Equal # of variables  
   if( numVars != m_vars.size() )
   {
-    std::cerr << "<ERROR> The number of variables mismatch."
-	      << std::endl;
-    //assert( numVars != m_vars.size() );
+    throw (PndMvaDataSetException("<ERROR> The number of variables mismatch."));
   }
   // Close open file.
   inF.Close();
-
-  return (
-	  (numLabels == m_classes.size()) && 
-	  (numVars   == m_vars.size())
-	  );
-  /*
-  // Get list of objects from the file.
-  TList* objKeys = inF.GetListOfKeys();
-
-  // Loop the list of objects.
-  for(int obk= 0; obk < objKeys->GetEntries(); ++obk)
-  {
-    // Get object key name.
-    std::string keyName ( (objKeys->At(obk))->GetName() );
-    
-    // Get Object key.
-    TKey* key = inF.FindKey(keyName.c_str());
-    
-    // FIXME FIXME Hier ben je bezig.
-    std::cout << key->GetClassName() << " "
-	      << key->GetName()      << " "
-	      << key->GetTitle()     << "\n";
-    //------======================================
-    //First get the class labels.
-    }*/
 }

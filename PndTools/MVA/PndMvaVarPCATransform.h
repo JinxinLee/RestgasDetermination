@@ -37,37 +37,37 @@ class PndMvaVarPCATransform
    * Prepare Transformation for the given dataset events.
    *@param dat Collection of the event feature vectors.
    */
-  bool InitPCATranformation(const std::vector<std::pair<std::string, std::vector<float>*> >& dat);
+  bool InitPCATranformation(std::vector<std::pair<std::string, std::vector<float>*> > const& dat);
   
   /**
    * Transforms the current event variables
    *@param evd Vector containing the event to transform.
    *@return Transformed event.
    */
-  std::vector<float>* Transform(const std::vector<float>& evd) const;
+  std::vector<float>* Transform(std::vector<float> const& evd) const;
 
   //! Get mean values vector
-  inline TVectorD const &GetMeanValues() const;
+  inline TVectorD const& GetMeanValues() const;
 
   //! Get Eigenvectors matrix.
-  inline TMatrixD const &GetEigenVectors() const;
+  inline TMatrixD const& GetEigenVectors() const;
 
   //! Set mean values vector.
-  void SetMeanVector(const TVectorD& vect);
+  void SetMeanVector(TVectorD const& vect);
 
   //! Set Eigenvectors matrix.
-  void SetEigenVectors(const TMatrixD& mat);
+  void SetEigenVectors(TMatrixD const& mat);
 
  private:
   //! To avoid mistakes.
-  PndMvaVarPCATransform (PndMvaVarPCATransform const &ot);
-  PndMvaVarPCATransform &operator=(PndMvaVarPCATransform const &ot);
+  PndMvaVarPCATransform (PndMvaVarPCATransform const& ot);
+  PndMvaVarPCATransform &operator=(PndMvaVarPCATransform const& ot);
   
   /*
    * Given a list of n-dimensional data points, Computes PCA for the
    * current dataset.
    */
-  void ComputePrincipalComponents(const std::vector< std::pair<std::string, std::vector<float>*> >& dat);
+  void ComputePrincipalComponents(std::vector< std::pair<std::string, std::vector<float>*> > const& dat);
   
   // Mean values
   TVectorD* m_MeanValues;
@@ -80,7 +80,7 @@ class PndMvaVarPCATransform
 /**
  * Get mean values vector.
  */
-inline const TVectorD& PndMvaVarPCATransform::GetMeanValues() const
+inline TVectorD const& PndMvaVarPCATransform::GetMeanValues() const
 {
   return *m_MeanValues;
 }
@@ -88,7 +88,7 @@ inline const TVectorD& PndMvaVarPCATransform::GetMeanValues() const
 /**
  * Get Eigenvectors matrix.
  */
-inline const TMatrixD& PndMvaVarPCATransform::GetEigenVectors() const
+inline TMatrixD const& PndMvaVarPCATransform::GetEigenVectors() const
 {
   return *m_EigenVectors;
 }

@@ -49,6 +49,37 @@ typedef enum{
   MEDIAN = 3  // Use median and interquartile range (IQR).
 } NormType;
 
+////___________________ Exception _________________
+
+class PndMvaDataSetException: public std::exception
+{
+ public:
+ PndMvaDataSetException()
+   : m_message("NOT_KNOWN_EXCEPTION")
+    {};
+ 
+ PndMvaDataSetException(std::string const& val)
+   : m_message(val)
+  {};
+  
+  ~PndMvaDataSetException() throw()
+    {};
+  
+  virtual char const* what() const throw()
+  {
+    return m_message.c_str();
+  };
+  
+  virtual std::string const& describe()
+  {
+    return m_message;
+  };
+ 
+ private:
+  std::string m_message;
+};
+////___________________ Exception _________________
+
 // ========================================================================
 class PndMvaDataSet
 {
@@ -88,8 +119,7 @@ class PndMvaDataSet
    * Write the normalized DataSet to the out-put file.
    * @param  outFile  File name to write to
    */
-  // void WriteDataSet(std::string const& outFile)__attribute__((deprecated));
-  void WriteDataSet(std::string const& outFile);
+  void WriteDataSet(std::string const& outFile);//__attribute__((deprecated));
 
   /**
    * Initialize the class conditional means vectors.
@@ -143,7 +173,7 @@ class PndMvaDataSet
    * Init Dataset. Determine how to handle input, based on the
    * application type.
    */
-  void Initialize();
+  virtual void Initialize();
 
   //==============================================================
  protected:
@@ -171,7 +201,7 @@ class PndMvaDataSet
   void InitVariables(std::vector<std::string> const& variables);
   
   // Validate the input file
-  bool ValidateWeightFile();
+  void ValidateWeightFile() throw (PndMvaDataSetException);
 
   /**
    * Class conditional mean for a given class. Stored in class

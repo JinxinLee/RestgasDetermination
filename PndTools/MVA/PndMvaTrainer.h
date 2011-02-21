@@ -80,7 +80,7 @@ class PndMvaTrainer
    */
   void WriteErroVect(std::string const& FileName);
 
-  void Initialize();
+  virtual void Initialize();
 
   //==============================================
   //================ Protected ===================

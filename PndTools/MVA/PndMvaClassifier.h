@@ -55,7 +55,7 @@ class PndMvaClassifier
    */
   virtual std::string *Classify( std::vector<float> EvtData ) = 0;
 
-  void Initialize();
+  virtual void Initialize();
 
  protected:
   //! Normalize the given event vector.

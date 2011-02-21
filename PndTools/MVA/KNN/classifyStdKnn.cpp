@@ -39,7 +39,7 @@ int main(int argc, char** argv)
   if(argc < 3)
   {
     std::cerr <<"\t<ERROR>" 
-	      <<"./classify <inputFile> <numOfneigh>"
+	      << argv[0] <<" <inputFile> <numOfneigh>"
 	      << std::endl;
     return 1;
   }
@@ -62,7 +62,6 @@ int main(int argc, char** argv)
   clas.push_back("proton");
 
   // Variables (names)
-  //nam.push_back("p");
   nam.push_back("emc");
   nam.push_back("lat");
   nam.push_back("z20");
