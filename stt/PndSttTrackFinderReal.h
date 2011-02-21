@@ -94,7 +94,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
       static const UShort_t
-            nmaxHits = maxTracks*26, // max 20  tracks in Stt, with average 26 hits per track
+            nmaxHits = maxTracks*50, // max 20  tracks in Stt, with average 50 hits per track
             MAXMCTRACKS=30,
             MAXTRACKSPEREVENT=maxTracks,
             nmaxinclinationversors=20,
@@ -121,6 +121,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                  Rmax=700.,
                  StrawRadius = 0.5,
                  StrawDriftError = 0.02,
+		 SKEWinclination_DEGREES = 3.,
                  CXmin=-150.,  CXmax=150.,
                  CYmin=-300.,  CYmax=300.,
                  Dmin=-21.,    Dmax=21.,
