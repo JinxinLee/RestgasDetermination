@@ -753,12 +753,12 @@ jumpout: ;
                trajectory_vertex[3],
                infoparalConformal[nmaxHits][5],
                auxinfoparalConformal[nmaxHits][5],
-               S[nmaxHits],
-               Z[nmaxHits],
+               S[2*nmaxHits],
+               Z[2*nmaxHits],
                temporeS[nmaxHits],
                temporeZ[nmaxHits],
-               ZDrift[nmaxHits],
-               ZErrorafterTilt[nmaxHits],
+               ZDrift[2*nmaxHits],
+               ZErrorafterTilt[2*nmaxHits],
                temporeZDrift[nmaxHits],
                temporeZErrorafterTilt[nmaxHits],
                Posiz[3],
@@ -1269,7 +1269,7 @@ if(iplotta && IVOLTE <= nmassimo){
                    Fi_final_helix_referenceframe[i],
                    TemporarySkewList, // output,  list of selected skew hits (in skew numbering)
                    S,       //  output,  S coordinate of selected Skew hit
-                   Z,       //  output,  Z coordinate of selected Skew hit
+                   Z,       //  output,  Z coordinate of center wire of selected Skew hit
                    ZDrift,   //  output,  drift distance IN Z DIRECTION only, of selected Skew hit
                    ZErrorafterTilt   //  output,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
                                                      );
@@ -1341,14 +1341,14 @@ if(iplotta && IVOLTE <= nmassimo){
                    TemporarynSkewHitsinTrack,
                    TemporarySkewList, // input,  list of selected skew hits (in skew numbering)
                    S,       //  input,  S coordinate of selected Skew hit
-                   Z,       //  input,  Z coordinate of selected Skew hit
+                   Z,       //  input,  Z coordinate of center wire of selected Skew hit
                    ZDrift,   //  input,  drift distance IN Z DIRECTION only, of selected Skew hit
                    ZErrorafterTilt,   //  input,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
                    KAPPA[i],    // input, KAPPA result of fit
                    FI0[i],    // input, FI0 result of fit,
                    tempore,  //  output, associated skew hits
                    temporeS,  //  output, associated skew hit  S
-                   temporeZ,  //  output, associated skew hits Z
+                   temporeZ,  //  output, associated skew hits Zcoordinate of center wire
                    temporeZDrift,  //  output, associated skew hit Z drift
                    temporeZErrorafterTilt,  //  output, associated skew hits Z error after tilt
                    &STATUS   // output
@@ -1459,7 +1459,6 @@ if(istampa>=2) {
 
 
    }   //  end of     for(i=0; i<nTracksFoundSoFar;i++)
-
 
 
 
@@ -1687,7 +1686,6 @@ if( istampa>=2){
 
     fprintf(HANDLE,"----------------------------------------------------------\n");
 
-
 }  //   end of    if( istampa>=2)
 
 
@@ -1767,7 +1765,7 @@ if( istampa>=2){
                             );
 		}
 		//  if all X, Y, Z positions were found for the first hit, go on
-		if( Posiz1[0] > -777777776. && Posiz1[2] > -888888887.)
+		if( Posiz1[0] > -777777776. )
 		{
 			//---- last hit
 			if(fabs(info[ BigList[i][nTotalHits[i]-1] ][5] -1.)< 1.e-10 ) {// it is a parallel straw
@@ -1796,7 +1794,7 @@ if( istampa>=2){
                              Posiz2
                             );
 			}
-			if( Posiz2[0] > -777777776. && Posiz2[2] > -888888887. )
+			if( Posiz2[0] > -777777776.  )
 			{
 
 				// load in   FairTrackParP first  the relevant quantities
@@ -1867,7 +1865,7 @@ if( istampa>=2){
 				pTrck->SetRefIndex(ipanco);
 				ipanco++;
 
-			}  else { // continuation  of  if( Posiz2[0]>-777777776.&&Posiz2[2] > -888888887.)
+			}  else { // continuation  of  if( Posiz2[0]>-777777776.)
 				//case of something wrong with last hit
 				FairTrackParP first(
 						    TVector3(-99999., -99999., -99999.), //  dummy Position
@@ -1895,9 +1893,9 @@ if( istampa>=2){
 				pTrck->SetFlag(-1);
 				ipanco++;
 
-			}   // end of if( Posiz2[0]>-777777776.&&Posiz2[2] > -888888887.
+			}   // end of if( Posiz2[0]>-777777776. )
 
-		}  else { // continuation of  if( Posiz1[0] > -777777776. && Posiz1[2] > -888888887.)
+		}  else { // continuation of  if( Posiz1[0] > -777777776.)
 			//case of something wrong with first hit
 			FairTrackParP first(
 					TVector3(-99999., -99999., -99999.), //  dummy Position
@@ -1924,7 +1922,7 @@ if( istampa>=2){
 			pTrck->SetRefIndex(ipanco);
 			pTrck->SetFlag(-1);
 			ipanco++;
-		}	// end of  if( Posiz1[0] > -777777776. && Posiz1[2] > -888888887.)
+		}	// end of  if( Posiz1[0] > -777777776.)
 
 
        } else {	//   continuation of   if(fabs(KAPPA[i])>1.e-20  )
@@ -2046,7 +2044,6 @@ if( istampa>=2){
          ipinco++;
 
     }   //  end of     for(i=0; i<nTracksFoundSoFar;i++)
-
 
 
 
@@ -2184,7 +2181,6 @@ if(istampa>=3)  cout<<"DoFind, skew, infoskew[ ListSkewHitsinTrack[i][j] ] = "<<
 
 
 //---------------   printouts of comparison with MC for judging algorithm performance
-
   if( nMCTracks >0 &&  nMCTracks<MAXMCTRACKS) {
     for(i=0; i<nTracksFoundSoFar;i++){
        if(!GoodSkewFit[i])   continue;
@@ -2287,8 +2283,7 @@ if(istampa>=2){
 
 //------------------------------------- macro di display delle skew
 
-if(iplotta && IVOLTE <= nmassimo&& nMCTracks<MAXMCTRACKS){
-
+if(iplotta && IVOLTE <= nmassimo){
 
 
   for(i=0; i<nTracksFoundSoFar;i++){
@@ -3288,7 +3283,6 @@ cout<<"Esce da PndSttTrkFindHelix.........\n";
                   (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
                   (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
                             );
-              if( distance >= info[i][4] ) continue;
 
 
               Rx = POINTS1[j]-Ox ;   //  x component Radial vector of cylinder of trajectory
@@ -3314,6 +3308,7 @@ cout<<"Esce da PndSttTrkFindHelix.........\n";
               Aellipsis1 = info[i][3]*aaa/LL;
               Bellipsis1 = info[i][3]/R;
 
+              if( distance >= info[i][4] + Aellipsis1 ) continue;
 
 // checks that the projected ellipsis doesn't go out the boundaries of both the skew straw and the trajectory cylinder
 
@@ -5978,7 +5973,6 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
                   (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
                   (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
                             );
-        if( distance >= info[i][4] ) continue;
 
 
         Rx = POINTS1[j]-Ox ;   //  x component Radial vector of cylinder of trajectory
@@ -6003,6 +5997,7 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
 
         Bellipsis1 = info[i][3]/R;
 
+        if( distance >= info[i][4] + Aellipsis1) continue;
 
 
 // checks that the projected ellipsis doesn't go out the boundaries of both the skew straw and the trajectory cylinder
@@ -6253,7 +6248,6 @@ nohits: ;
                   (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
                   (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
                             );
-        if( distance >= info[i][4] ) continue;
 
 
         Rx = POINTS1[j]-Ox ;   //  x component Radial vector of cylinder of trajectory
@@ -6278,6 +6272,7 @@ nohits: ;
 
         Bellipsis1 = info[i][3]/R;
 
+        if( distance >= info[i][4] + Aellipsis1) continue;
 
 
 // checks that the projected ellipsis doesn't go out the boundaries of both the skew straw and the trajectory cylinder
@@ -6364,7 +6359,6 @@ fuori: ;
                   (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
                   (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
                             );
-        if( distance >= info[i][4] ) continue;
 
 
         Rx = POINTS1[j]-Ox ;   //  x component Radial vector of cylinder of trajectory
@@ -6389,6 +6383,7 @@ fuori: ;
 
         Bellipsis1 = info[i][3]/R;
 
+        if( distance >= info[i][4] + Aellipsis1) continue;
 
 
 // checks that the projected ellipsis doesn't go out the boundaries of both the skew straw and the trajectory cylinder
@@ -9713,9 +9708,6 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
 //   calculate the Fi range allowed to the skew hits, with Fi calculated in the TRACK CYLINDER REFERENCE FRAME.
 
-
-
-
 //      Smin=zmin = 1.e10;
 //      Smax=zmax = -zmin;
       NAssociated=0;
@@ -9752,7 +9744,6 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
                   (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
                   (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
                             );
-        if( distance >= info[i][4] ) continue;
 
 
         Rx = POINTS1[j]-Ox ;   //  x component Radial vector of cylinder of trajectory
@@ -9778,6 +9769,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
         Bellipsis1 = info[i][3]/R;
 
+        if( distance >= info[i][4] + Aellipsis1 ) continue;
 
 // checks that the projected ellipsis doesn't go out the boundaries of both the skew straw and the trajectory cylinder
 
@@ -9839,13 +9831,6 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
         Double_t Zlast2 = (Fi_final_helix_referenceframe-Fi_initial_helix_referenceframe)*Zh2
                                   /(Sh2-Fi_initial_helix_referenceframe);
 
-
-if( istampa>=3 && IVOLTE <= nmassimo){
-     cout<<"   Zlast1 "<<Zlast1<<",  Zlast2 "<<Zlast2<<endl;
-     cout<<"   centro straight straws "<<ZCENTER_STRAIGHT<<", lunghezza straight "<<SEMILENGTH_STRAIGHT
-<<",  fabs(Zlast1 - ZCENTER_STRAIGHT) "<< fabs(Zlast1 - ZCENTER_STRAIGHT)<<",    fabs(Zlast2 - ZCENTER_STRAIGHT) "
- << fabs(Zlast2 - ZCENTER_STRAIGHT)    <<endl;
-}
 
 
 
@@ -9909,9 +9894,12 @@ if( istampa>=3 && IVOLTE <= nmassimo){
 
     Double_t bbb,
              tempZ[2],
-             zmin, zmax, deltaz, zdist;
+             zmin, zmax, deltaz,
+		zdist[2],
+		zdist1,
+		zdist2;
 
-    Double_t allowed_distance = 4.*StrawRadius/sin(3.*PI/180.);
+    Double_t allowed_distance = 4.*StrawRadius/sin(SKEWinclination_DEGREES*PI/180.);
 
 
     if(fabs(KAPPA)<1.e-20) {
@@ -9931,51 +9919,39 @@ if( istampa>=3 && IVOLTE <= nmassimo){
     }
     deltaz = zmax-zmin;
 
-
-
-
      for(i=0; i<TemporarynSkewHitsinTrack; i++){
        bbb=(S[i]-FI0)/KAPPA;
-if(istampa>=3 && IVOLTE <= nmassimo) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack ,  hit skew n. "<<SkewList[i][0]
-                               <<", Zhit  "<<Z[i]<<",  S hit  "<<S[i]<<endl;
       for(sign=0;sign<=1; sign ++){
-if(istampa>=3 && IVOLTE <= nmassimo) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack :  segno "<<-1+sign*2<<endl;
        tempZ[sign]=Z[i]+(2*sign-1)*ZDrift[i];
        if( tempZ[sign] > zmax ){
-         tempZ[sign]=fmod( tempZ[sign]-zmax, deltaz) - deltaz;
+         tempZ[sign]=fmod( tempZ[sign]-zmax, deltaz) + zmin;
        } else if (tempZ[sign]<zmin){
-         tempZ[sign]=fmod( tempZ[sign]-zmin, deltaz) + deltaz;
+         tempZ[sign]=fmod( tempZ[sign]-zmin, deltaz) + zmax;
        }
 
-       zdist = fabs( bbb - tempZ[sign]);
-if(istampa>=3 && IVOLTE <= nmassimo) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack ,  hit skew n. "<<SkewList[i][0]<<",  tempZ "<<tempZ[sign]
-                           <<",   zdist  "<<zdist<<",  ZDrift[i] "<<ZDrift[i]
-                             <<", ZErrorafterTilt  "<<ZErrorafterTilt[i]<<endl;
-         if(  zdist < allowed_distance ){
+	zdist1 = fabs( bbb - tempZ[sign]);
+	zdist2 = deltaz- zdist1;
+	if(zdist2<0.) zdist2 = 0.;  // protect against rounding errors.
+	zdist[sign] = zdist1 < zdist2 ? zdist1 : zdist2;
+      }  //  end of for(sign=0;sign<=1; sign++)
+
+
+	zdist1 = zdist[0] < zdist[1] ? zdist[0] : zdist[1];
+
+
+	if(  zdist1 < allowed_distance ){
+
 //       if(  zdist < 4.*ZErrorafterTilt[i] ){
-if(istampa>=3 && IVOLTE <= nmassimo) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack ,  hit skew n. "<< SkewList[i][0]
-      <<",  tempZ "<<tempZ[sign]<<",   zdist  "<<zdist<<",  preso!!"<<endl;
+
          tempore[NAssociated]=SkewList[ i ][0];
          temporeS[NAssociated]=S[i];
          temporeZ[NAssociated]=Z[i];
          temporeZDrift[NAssociated]=ZDrift[i];
          temporeZErrorafterTilt[NAssociated]=ZErrorafterTilt[i];
          NAssociated++;
-         goto labella ;
        }
-      }  //  end of for(sign=0;sign<=1; sign++)
-      if( tempZ[0]< bbb && tempZ[1] > bbb ) {
-         tempore[NAssociated]=SkewList[i][0];
-         temporeS[NAssociated]=S[i];
-         temporeZ[NAssociated]=Z[i];
-         temporeZDrift[NAssociated]=ZDrift[i];
-         temporeZErrorafterTilt[NAssociated]=ZErrorafterTilt[i];
-         NAssociated++;
-if(istampa>=3 && IVOLTE <= nmassimo) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack ,  hit skew n. "<<SkewList[i][0]
-             <<",  tempZ[0] "<<tempZ[0]<<",  tempZ[1]  "
-<<tempZ[1]<<", fit prediction (Z) "<<bbb<<",  preso alla terza volta!!"<<endl;
-      }
-      labella:  ;
+
+
      }   //  end of for(i=0; i<TemporarynSkewHitsinTrack; i++)
 
 
@@ -12023,7 +11999,6 @@ cout<<"    j= "<<j<<", n. Hit in original numbering = "<<BigList[j]<<" e suo FI 
                   (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
                   (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
                             );
-        if( distance >= info[i][4] ) continue;
 
 
         Rx = POINTS1[j]-Ox ;   //  x component Radial vector of cylinder of trajectory
@@ -12048,6 +12023,7 @@ cout<<"    j= "<<j<<", n. Hit in original numbering = "<<BigList[j]<<" e suo FI 
 
         Bellipsis1 = info[i][3]/R;
 
+        if( distance >= info[i][4] + Aellipsis1) continue;
 
 
 // checks that the projected ellipsis doesn't go out the boundaries of both the skew straw and the trajectory cylinder
@@ -12599,9 +12575,7 @@ out1:  ;
 
 
     void PndSttTrackFinderReal::PndSttInfoXYZSkew (
-//                             Double_t info[][7],
-//                             UShort_t infosk,
-                             Double_t Z,       //  Z coordinate of selected Skew hit
+                             Double_t Z,       //  Z coordinate (center wire) of selected Skew hit
                              Double_t ZDrift,   // drift distance IN Z DIRECTION only, of selected Skew hit
                              Double_t S,
                              Double_t Ox,
@@ -12613,11 +12587,15 @@ out1:  ;
                              Double_t *Posiz      //  output
                             )
 {
+    Short_t  sign;
 
-//if(istampa >=3 && IVOLTE <= nmassimo){
-if(istampa>=3){
-cout<<"  stampa da PndSttInfoXYZSkew  "<<", Z hit = "<<Z<<", Zdrift = "<<ZDrift<<", S = "<<S<<endl;
-}
+    Double_t bbb,
+             tempZ[2],
+             zmin, zmax, deltaz,
+		zdist[2],
+		zdist1,
+		zdist2;
+
 
 
    Double_t Zline;
@@ -12648,14 +12626,44 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
       }
    }
 
-     Zline = (S-FI0)/KAPPA;
 
 
-   if(  fabs( Zline - ZDrift - Z ) < fabs( Zline + ZDrift - Z ) ){
-       Posiz[2] = ZDrift + Z;
-   } else {
-       Posiz[2] = Z - ZDrift;
-   }
+
+
+
+
+    if(KAPPA>0) {
+     zmin = -FI0/KAPPA;
+     zmax = (2.*PI-FI0)/KAPPA;
+    }  else {
+     zmax = -FI0/KAPPA;
+     zmin = (2.*PI-FI0)/KAPPA;
+    }
+    deltaz = zmax-zmin;
+
+
+       bbb=(S-FI0)/KAPPA;
+      for(sign=0;sign<=1; sign ++){
+       tempZ[sign]=Z+(2*sign-1)*ZDrift;
+       if( tempZ[sign] > zmax ){
+         tempZ[sign]=fmod( tempZ[sign]-zmax, deltaz) + zmin;
+       } else if (tempZ[sign]<zmin){
+         tempZ[sign]=fmod( tempZ[sign]-zmin, deltaz) + zmax;
+       }
+
+
+	zdist1 = fabs( bbb - tempZ[sign]);
+	zdist2 = deltaz- zdist1;
+	if( zdist2<0.) zdist2 =0.;	// protect against rounding errors.
+	zdist[sign] = zdist1 < zdist2 ? zdist1 : zdist2;
+
+
+
+      }  //  end of for(sign=0;sign<=1; sign++)
+
+
+	zdist[0] < zdist[1] ? Posiz[2] = Z -  ZDrift : Posiz[2] = Z +  ZDrift ;
+
 
 
 
