@@ -74,12 +74,19 @@
   fRun->AddTask(tpcPadResponse);
 
   PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
-  //tpcElec->SetPersistence();
+  tpcElec->SetPersistence();
   fRun->AddTask(tpcElec);
 
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
   tpcCF->SetPersistence();
   tpcCF->timeslice(20); // = 4 sample times = 100ns @ 40MHz
+  //
+  // Following three lines added on request by Felix, 20/02/2011
+  //
+  tpcCF->SetMode(1);
+  tpcCF->SetDiffFactor(1.3);
+  tpcCF->SetErrorPars(600,300);
+  //
   fRun->AddTask(tpcCF);
 
   // -----   MDV digi producers   --------------------------------- 
