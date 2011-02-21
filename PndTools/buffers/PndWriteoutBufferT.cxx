@@ -12,7 +12,7 @@
 #include <iostream>
 
 template<class T> PndWriteoutBufferT<T>::PndWriteoutBufferT(TString branchName, TString className):
-	fBranchName(branchName), fClassName(className), fActivateTimeOrder(kTRUE)
+	fBranchName(branchName), fClassName(className), fActivateTimeOrder(kTRUE), fVerbose(2)
 {
 	if (fBranchName == "" || fClassName == "")
 		fTreeSave = false;
@@ -25,7 +25,7 @@ template<class T> std::vector<T> PndWriteoutBufferT<T>::WriteOutData(double time
 	FairRootManager* ioman = FairRootManager::Instance();
 	std::vector<T> data;
 	if (fActivateTimeOrder){
-		std::cout << "WriteOutData for time: " << time << std::endl;
+		if (fVerbose > 1) std::cout << "WriteOutData for time: " << time << std::endl;
 		data = GetRemoveOldData(time);
 		if (data.size() > 0){
 			TClonesArray* myArray = ioman->GetEmptyTClonesArray(fBranchName);
@@ -55,7 +55,7 @@ template<class T> std::vector<T> PndWriteoutBufferT<T>::GetRemoveOldData(double 
 	typedef typename std::multimap<double, T>::iterator DTMapIter;
 	std::vector<T> result;
 	for(DTMapIter it = fDeadTime_map.begin(); it != fDeadTime_map.lower_bound(time); it++){
-		std::cout << "-I- GetRemoveOldData: DeadTime: " << it->first << " Pixel: " << it->second << std::endl;
+		if (fVerbose > 1) std::cout << "-I- GetRemoveOldData: DeadTime: " << it->first << " Pixel: " << it->second << std::endl;
 		result.push_back(it->second);
 		if (fData_map.find(it->second) != fData_map.end()){
 			fData_map.erase(fData_map.find(it->second));
@@ -80,16 +80,16 @@ template<class T> void PndWriteoutBufferT<T>::FillNewData(T& data, double active
 
 		DataMapIter datait = fData_map.find(data);
 		if(datait != fData_map.end()){					//if an older active data object is already present
-			std::cout << " OldData found! " << std::endl;
-			std::cout << "New Data: " << activeTime << " : " << data << std::endl;
+			if (fVerbose > 1) std::cout << " OldData found! " << std::endl;
+			if (fVerbose > 1) std::cout << "New Data: " << activeTime << " : " << data << std::endl;
 			double currentdeadtime = datait->second;
 			T oldData;
 			for (DTMapIter it = fDeadTime_map.lower_bound(currentdeadtime); it != fDeadTime_map.upper_bound(currentdeadtime); it++){
 				oldData = it->second;
-				std::cout << "Check Data: " << it->first << " : " << oldData << std::endl;
+				if (fVerbose > 1) std::cout << "Check Data: " << it->first << " : " << oldData << std::endl;
 				if (oldData == data){
-					std::cout << " oldData == data " << std::endl;
-					std::cout << it->first << " : " << it->second << std::endl;
+					if (fVerbose > 1) std::cout << " oldData == data " << std::endl;
+					if (fVerbose > 1) std::cout << it->first << " : " << it->second << std::endl;
 					fDeadTime_map.erase(it);
 					break;
 				}
@@ -98,12 +98,12 @@ template<class T> void PndWriteoutBufferT<T>::FillNewData(T& data, double active
 			fData_map[data] = newDeadTime;
 			T modifiedData = Modify(oldData, data);
 			fDeadTime_map.insert(std::pair<double, T>(newDeadTime, modifiedData));
-			std::cout << "Modified Data: " << newDeadTime << " : " << modifiedData << std::endl;
+			if (fVerbose > 1) std::cout << "Modified Data: " << newDeadTime << " : " << modifiedData << std::endl;
 			//T newData = Modify(myData, data);
 		}
 		else{
 			//std::cout << " Hat nicht geklappt! " << std::endl;
-			std::cout << " Data Inserted: " << data << std::endl;
+			if (fVerbose > 1) std::cout << " Data Inserted: " << activeTime << " : " << data << std::endl;
 			fData_map.insert(std::pair<T, double>(data, activeTime));
 			fDeadTime_map.insert(std::pair<double, T>(activeTime, data));
 		}
@@ -111,7 +111,7 @@ template<class T> void PndWriteoutBufferT<T>::FillNewData(T& data, double active
 	else{
 		FairRootManager* ioman = FairRootManager::Instance();
 		TClonesArray* myArray = ioman->GetTClonesArray(fBranchName);
-		std::cout << "Data Inserted: " << data << std::endl;
+		if (fVerbose > 1) std::cout << "Data Inserted: " << activeTime << " : " << data << std::endl;
 		new ((*myArray)[myArray->GetEntries()]) T(data);
 	}
 }

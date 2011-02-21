@@ -15,6 +15,7 @@ template<class T>void PndRingSorterT<T>::AddElement(T& digi, int timestamp){
 	}
 	int index = CalcIndex(timestamp);
 	if (timestamp >= fLowerBoundPointer.second + GetBufferSize()){
+		if (fVerbose > 0) std::cout << "-I- PndRingSorterT::AddElement : Timestamp " << timestamp << " larger than bufferspace: " << fLowerBoundPointer.second + GetBufferSize() << " writing out " << index+1 << std::endl;
 		WriteOutElements(index+1);
 		SetLowerBound(index+1);
 	}
@@ -41,15 +42,20 @@ template<class T> void PndRingSorterT<T>::WriteOutElements(int index){
 		for (int i = fLowerBoundPointer.first; i < index; i++)
 			WriteOutElement(i);
 	}
-
+	if (fVerbose > 1){
+		std::cout << "-I- PndRingSorter::WriteOutElements: Size of Output-Array: " << fOutputData.size() << std::endl;
+		for (int i = 0; i < fOutputData.size(); i++)
+			std::cout << fOutputData[i].size() << " | ";
+		std::cout << std::endl;
+	}
 }
 template<class T> void PndRingSorterT<T>::WriteOutElement(int index){
 	std::stack<T>* myStack = &fRingBuffer.at(index);
 	if (!myStack->empty()) {
-		std::cout << "RingSorter: " << std::endl;
+		if (fVerbose > 1)std::cout << "RingSorter: " << std::endl;
 		fOutputData.push_back(*myStack);
 		while (!myStack->empty()) {
-			std::cout << myStack->top() << std::endl;
+			if (fVerbose > 1)std::cout << myStack->top() << std::endl;
 			myStack->pop();
 		}
 		std::cout << std::endl;

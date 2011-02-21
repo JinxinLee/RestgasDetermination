@@ -18,7 +18,7 @@
 
 template <class T> class PndRingSorterT : public TObject{
 public:
-	PndRingSorterT(int size = 100, double width = 10):fLowerBoundPointer(0,0), fCellWidth(width)
+	PndRingSorterT(int size = 100, double width = 10):fLowerBoundPointer(0,0), fCellWidth(width), fVerbose(2)
 	{
 		fRingBuffer.resize(size);
 	}
@@ -36,7 +36,7 @@ public:
 		return fOutputData;
 	}
 
-	virtual void DeleteOutputData(){fOutputData.clear();}
+	virtual void DeleteOutputData(){fOutputData.clear(); }
 	virtual void SetLowerBound(int index);
 
 	virtual void Print(std::ostream& out = std::cout){
@@ -54,6 +54,7 @@ private:
 	std::vector<std::stack<T> > fOutputData;
 	std::pair<int, double> fLowerBoundPointer;
 	double fCellWidth;
+	int fVerbose;
 
 	ClassDef(PndRingSorterT,1)
 

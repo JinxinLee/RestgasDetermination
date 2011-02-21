@@ -31,7 +31,7 @@
 
 template <class T> class PndWriteoutBufferT{//: public TObject{
 public:
-	PndWriteoutBufferT():fTreeSave(false), fActivateTimeOrder(kFALSE){};
+	PndWriteoutBufferT():fTreeSave(false), fActivateTimeOrder(kFALSE), fVerbose(2) {};
 	PndWriteoutBufferT(TString branchName, TString className);
 	virtual ~PndWriteoutBufferT(){};
 
@@ -53,6 +53,7 @@ protected:
 	TString fClassName;
 	bool fTreeSave;
 	Bool_t fActivateTimeOrder;
+	int fVerbose;
 	//ClassDef(PndWriteoutBufferT, 1);
 };
 
