@@ -45,7 +45,7 @@ int main(int argc, char** argv)
   if(argc < 5)
   {
     std::cerr << "\t<ERROR>" 
-	      << "./classifyPrzWin <inputWeightFile> <InputEventsFile>"
+	      << argv[0] <<" <inputWeightFile> <InputEventsFile>"
 	      << " <TreeName> <OutPutLogFile>"
 	      << std::endl;
     return 1;

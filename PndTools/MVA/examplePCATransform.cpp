@@ -51,6 +51,7 @@ int main(int argc, char** argv)
   
   // Read data.
   PndMvaDataSet data(inFile, clas, vars,TRAIN);
+  data.Initialize();
 
   //data.Trim();
 

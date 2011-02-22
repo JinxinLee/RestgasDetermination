@@ -65,14 +65,14 @@ int main(int argc, char** argv)
   kNNtr.Initialize();
 
   //NormType tt = VARX;
-  kNNtr.NormalizeData(NONORM);
+  //kNNtr.NormalizeData(NONORM);
+  kNNtr.NormalizeData(VARX);
   
   // Transform using PCA
   //kNNtr.PCATransForm();
   
   //Set output file name
   kNNtr.SetOutPutFile(oupt);
-  
   // Perform training
   kNNtr.Train();
 

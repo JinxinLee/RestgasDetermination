@@ -62,12 +62,14 @@
 
   clas.push_back("electron");
   clas.push_back("pion");
+  clas.push_back("kaon");
+  clas.push_back("muon");
+  clas.push_back("proton");
   
   PndPidEmcAssociatorTask* ts = new PndPidEmcAssociatorTask();
   // Set the path to the weightFiles; otherwise the standard
   // path is used.
-  //ts->SetWeightFileName("/media/daq/babaiexp/RndData/EventFeatureRnd1K.root");
-  ts->SetWeightFileName("/media/daq/babaiexp/ParamFiles/TestFeatureSmallStat_PreProc.root");  
+  ts->SetWeightFileName("/tmp/test.root");
   
   // Set class names.
   ts->SetClassNames(clas);
@@ -93,4 +95,5 @@
        << "\nReal time " << rtime << " s, CPU time " 
        << ctime << " s.\n";
   // ------------------------------------------------------------------------
+  exit(0);
 }

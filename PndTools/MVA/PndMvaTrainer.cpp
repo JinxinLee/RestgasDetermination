@@ -56,7 +56,8 @@ void PndMvaTrainer::splitTetsSet(int percent)
   TRandom3 rndIndx(m_RND_seed);
   
   std::vector<std::pair<std::string, std::vector<float>*> > const& events = m_dataSets.GetData();
-  
+  assert( events.size() != 0);
+
   unsigned int TestEvtCnt = (percent * events.size()) / 100 ;
   
   std::cout << "<INFO> preparing train and test sets.\n"

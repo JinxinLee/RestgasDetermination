@@ -835,7 +835,8 @@ void PndLVQTrain::SetNumberOfProto(std::map<std::string, unsigned int> const& la
     else{// Num Proto not defined.
       m_numProtoPerClass [curLabel] = 0;
       std::cerr << "<ERROR> Number of prototypes for curLabel was not defined."
-		<< "        Program is halted." << std::endl;
+		<< "        Program is halted."
+		<< std::endl;
       exit(EXIT_FAILURE);      
     }
   }

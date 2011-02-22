@@ -44,7 +44,8 @@ int main(int argc, char** argv)
 {
   if(argc < 3)
   {
-    std::cerr << "<ERROR> Usage: exampleCluster <DataInputFile> <numCentroids>"
+    std::cerr << "<ERROR> Usage:" << argv[0]
+	      <<" <DataInputFile> <numCentroids>"
 	      << std::endl;
     return 1;
   }
@@ -83,7 +84,8 @@ int main(int argc, char** argv)
   
   // Read the input points.
   PndMvaDataSet data(InFile, clas, vars, TRAIN);
-
+  // Init structures and read.
+  data.Initialize();
   // Get available examples
   const RawPoints& samples = data.GetData();
 

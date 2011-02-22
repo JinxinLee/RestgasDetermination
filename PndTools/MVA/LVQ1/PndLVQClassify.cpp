@@ -103,4 +103,18 @@ void PndLVQClassify::GetMvaValues(vector<float> eventData,
       result[clsName] = dist;
     }
   }
+  // Normalize
+  float distSum = 0.00;
+  for(size_t cls = 0; cls < classes.size(); ++cls)
+  {
+    std::string Name = classes[cls].Name;
+    distSum += result[Name];
+  }
+  
+  for(size_t cls = 0; cls < classes.size(); ++cls)
+  {
+    std::string Name = classes[cls].Name;
+    result[Name] /= distSum;
+  }
+
 }

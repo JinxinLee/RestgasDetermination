@@ -16,6 +16,11 @@
 #include "TMVA/NodekNN.h"
 #include "TMVA/ModulekNN.h"
 
+//____________________________________________
+//!< Type definition of the neighbour list.
+typedef std::list < std::pair<const TMVA::kNN::Node<TMVA::kNN::Event>*, float> > ResList;
+//____________________________________________
+
 /**
  * KNN based classification alg. implementation.
  */
@@ -29,9 +34,9 @@ class PndKnnClassify: public PndMvaClassifier
    * @param varNames: Variable names from which the feature vector is
    * built.
    */
-  PndKnnClassify(const std::string& inputFile,
-		 const std::vector<std::string>& classNames, 
-		 const std::vector<std::string>& varNames);
+  PndKnnClassify(std::string const& inputFile,
+		 std::vector<std::string> const& classNames, 
+		 std::vector<std::string> const& varNames);
   //! Destructor
   virtual ~PndKnnClassify();
   
@@ -54,16 +59,16 @@ class PndKnnClassify: public PndMvaClassifier
    * @param scFact  Scale factor.
    * @param weight  Events weight.
    */
-  inline void SetEvtParam(const float scFact, const double weight);
+  inline void SetEvtParam(float const scFact, double const weight);
 
   //! Set the number of neighbours.
-  inline void SetKnn(const int N);
-
-  /**
-   * Initialize the KNN classifier.
-   */
-  void InitKNN();
+  inline void SetKnn(int const N);
   
+  /**
+   * Initialize the needed internal and external data structures.
+   */
+  virtual void Initialize();
+
   /// DEBUG Produces a lot of output.
   void print(){m_module->Print();}
   /// DEBUG
@@ -71,12 +76,17 @@ class PndKnnClassify: public PndMvaClassifier
   // ==================  Private ===============
  private:
   // To avoid mistakes. ;)
-  PndKnnClassify(const PndKnnClassify& other);
-  PndKnnClassify& operator=(const PndKnnClassify& other);
+  PndKnnClassify(PndKnnClassify const& other);
+  PndKnnClassify& operator=(PndKnnClassify const& other);
+
+  /**
+   * Initialize the KNN classifier.
+   */
+  void InitKNN();
   
   //!< Type definition of the neighbour list.
-  typedef std::list < std::pair<const TMVA::kNN::Node<TMVA::kNN::Event>*, float> > ResList;
-
+  //typedef std::list < std::pair<const TMVA::kNN::Node<TMVA::kNN::Event>*, float> > ResList;
+  
   //!< Number of required neighbours.
   unsigned int m_knn;
   float m_ScaleFact;//!< Scalefactor Default =  0.8

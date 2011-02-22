@@ -84,16 +84,6 @@ class PndMvaDataSetException: public std::exception
 class PndMvaDataSet
 {
  public:
-
-  /**
-   * Constructor.
-   *@param inputFilename  Input weights File name.
-   *
-   * Needed information on labels and variables is fetched from the
-   * data file.
-   */
-  //PndMvaDataSet(std::string const& inputFilename);
-
   /**
    * Constructor.
    *@param inputFilename  Input File name.
@@ -119,7 +109,8 @@ class PndMvaDataSet
    * Write the normalized DataSet to the out-put file.
    * @param  outFile  File name to write to
    */
-  void WriteDataSet(std::string const& outFile);//__attribute__((deprecated));
+  //void WriteDataSet(std::string const& outFile) __attribute__ ((deprecated));
+  void WriteDataSet(std::string const& outFile);
 
   /**
    * Initialize the class conditional means vectors.
@@ -201,7 +192,7 @@ class PndMvaDataSet
   void InitVariables(std::vector<std::string> const& variables);
   
   // Validate the input file
-  void ValidateWeightFile() throw (PndMvaDataSetException);
+  void ValidateWeightFile();/* throw (PndMvaDataSetException)*/
 
   /**
    * Class conditional mean for a given class. Stored in class
@@ -259,6 +250,7 @@ class PndMvaDataSet
 // ============= Inline implementation ==================
 inline std::vector< std::pair<std::string, std::vector<float>*> > const& PndMvaDataSet::GetData() const
 {
+  assert(m_events.size() !=  0);
   return m_events;
 };
 

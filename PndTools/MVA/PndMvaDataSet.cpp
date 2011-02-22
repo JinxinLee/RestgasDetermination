@@ -76,8 +76,7 @@ void PndMvaDataSet::Initialize()
     {
       ValidateWeightFile();
       // Read weight File.
-      // ReadWeightsFromFile();
-      
+      // ReadWeightsFromFile();      
       // Read input file
       ReadInput();
     }    
@@ -95,7 +94,7 @@ void PndMvaDataSet::Initialize()
   case UNKAPP:
   default:
     std::cerr << "<ERROR> Unknown application type.\n"
-	      << "We do not know what to do\n"
+	      << "I do not know what to do.\n"
 	      << std::endl;
     exit(2);
     break;
@@ -213,6 +212,15 @@ void PndMvaDataSet::Trim()
 void PndMvaDataSet::NormalizeDataSet(NormType type)
 {
   m_NormType = type;
+
+  if( m_events.size() == 0 )
+  {
+    std::cerr << "<ERROR> Un-Initialized data set.\n"
+	      << "        Number of training examples equals zero.\n"
+	      << "        Fix this and try again."
+	      << std::endl;
+    exit(1);
+  }
 
   switch(type)
   {
@@ -785,7 +793,7 @@ void PndMvaDataSet::InitVariables(std::vector<std::string> const& varNames)
 }
 
 // Validate the input file.
-void PndMvaDataSet::ValidateWeightFile() throw (PndMvaDataSetException)
+void PndMvaDataSet::ValidateWeightFile() /* throw (PndMvaDataSetException) */
 {
   std::cout << "<INFO> Scanning the File: "
 	    << m_input
@@ -796,14 +804,29 @@ void PndMvaDataSet::ValidateWeightFile() throw (PndMvaDataSetException)
   
   // Get the list of available labels.
   TObjArray* Labels = (TObjArray*) inF.Get("Labels");
-  
+  if(!Labels)
+  {
+    throw (PndMvaDataSetException("<ERROR> Unknown file content. Labels are missing."));
+  }
   // Get the list of variables.
   TObjArray* Variables = (TObjArray*) inF.Get("Variable");
-  
+  if(!Variables)
+  {
+    throw (PndMvaDataSetException("<ERROR> Unknown file content. Vars are missing."));
+  }
+
+  // Get modifiers.
+  TObjArray* modifs = (TObjArray*) inF.Get("Modifiers");
+  if(!modifs)
+  {
+    throw (PndMvaDataSetException("<ERROR> Unknown file content. Missing information."));
+  }
+
   // Number of classes and variables
   size_t numLabels = static_cast<size_t>(Labels->GetEntriesFast());
   size_t numVars   = static_cast<size_t>(Variables->GetEntriesFast());
-  
+  size_t numModif  = static_cast<size_t>(modifs->GetEntriesFast());
+
   //If the class and variable Names agree.
   std::cout << "-I- The file containes data for the following labels:\n\t";
   for(size_t i = 0; i < numLabels; ++i)
@@ -829,6 +852,20 @@ void PndMvaDataSet::ValidateWeightFile() throw (PndMvaDataSetException)
   if( numVars != m_vars.size() )
   {
     throw (PndMvaDataSetException("<ERROR> The number of variables mismatch."));
+  }
+  // If the modifiers are correctly included and available in the
+  // weight file.
+  for(size_t i = 0; i < numModif; ++i)
+  {
+    TObjString* cur = (TObjString*) modifs->At(i);
+    TObject* obj = (TObject*) inF.Get( (cur->GetString()) );    
+    
+    if(!obj)
+    {
+      std::string errorTxt( (cur->GetString()).Data() );
+      errorTxt = "<ERROR> Failed to fetch " + errorTxt + " from input file.";
+      throw(PndMvaDataSetException(errorTxt));
+    }
   }
   // Close open file.
   inF.Close();

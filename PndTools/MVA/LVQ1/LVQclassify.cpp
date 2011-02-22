@@ -131,6 +131,7 @@ int main(int argc, char** argv)
   PndLVQClassify cls (inF, clas, nam);
 
   cls.Initialize();  
+  
   // Read events.
   readEvents(evtF.c_str(), nam, clas, events);
   

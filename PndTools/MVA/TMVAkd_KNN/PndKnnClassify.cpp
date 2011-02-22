@@ -209,7 +209,7 @@ void PndKnnClassify::GetMvaValues(std::vector<float> eventData,
   
   for(size_t cls = 0; cls < classes.size(); cls++)
   {
-    const string& clName = classes[cls].Name;
+    std::string const& clName = classes[cls].Name;
     size_t num = classes[cls].NExamples;
     result[clName] /= static_cast<float>(num);
     probSum += result[clName];
@@ -220,4 +220,10 @@ void PndKnnClassify::GetMvaValues(std::vector<float> eventData,
     const string& clName = classes[cls].Name;
     result[clName] /= probSum;
   }
+}
+
+void PndKnnClassify::Initialize()
+{
+  PndMvaClassifier::Initialize();
+  InitKNN();
 }

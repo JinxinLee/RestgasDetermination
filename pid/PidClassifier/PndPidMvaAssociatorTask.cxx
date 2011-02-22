@@ -166,8 +166,9 @@ InitStatus PndPidMvaAssociatorTask::Init()
 		  << std::endl;
 	return kERROR;
       }
-
+      // Init
       LvqCls->Initialize();
+
       fClassifier = dynamic_cast<PndMvaClassifier*>(LvqCls);
     }
     break;
@@ -188,7 +189,6 @@ InitStatus PndPidMvaAssociatorTask::Init()
       KnnCls->Initialize();
       KnnCls->SetEvtParam(fScFact, fWeight);
       KnnCls->SetKnn(fNumNeigh);
-      KnnCls->InitKNN();
       
       fClassifier = dynamic_cast<PndMvaClassifier*>(KnnCls);
     }

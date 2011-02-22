@@ -90,12 +90,12 @@ int main(int argc, char** argv)
   
   //Create the classifier object and specify the weight file
   PndKnnClassify cls (InPutFileName, clasNames, vars);
-  cls.Initialize();
 
   // Set classifier parameters and init.
   cls.SetEvtParam(0.8,1.0);
   cls.SetKnn(NumNei);
-  cls.InitKNN();
+  cls.Initialize();
+
   
   std::cout << ".......... Init is done.\n";
   

@@ -209,7 +209,7 @@ void PndProjectedKNN::InitKNN()
     
     // FIXME <WARNING> Maybe this must be changed. 
     // The input file is read n-times.
-    cls->InitKNN();
+    cls->Initialize();
     m_classifiers.push_back(make_pair(cls, indxs)); 
   }
 }

@@ -96,7 +96,6 @@ int main(int argc, char** argv)
   tr.SetNumberOfProto(numProto);
   
   tr.Initialize();
-  
   // Use for asymm. init.  
   /*
     std::map <std::string, unsigned int> numProtoMap;
@@ -105,8 +104,9 @@ int main(int argc, char** argv)
     tr.SetNumberOfProto(numProtoMap);
   */
   tr.splitTetsSet(10);//10% (DEFAULT)
+  
   tr.SetErrorStepSize(10000);//100 (DEFALUT)
-
+  
   //VARX, MINMAX, MEDIAN, NONORM(DEFAULT)
   tr.NormalizeData(NONORM);
 

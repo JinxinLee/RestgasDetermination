@@ -56,9 +56,15 @@ class PndLVQTrain: public PndMvaTrainer
   void Train21();
 
   ////================= DEBUG Only
-  inline std::vector< std::pair<std::string, std::vector<float>*> >& train1sec()
+  inline std::vector< std::pair<std::string, std::vector<float>*> > const& train1sec()
   {
     InitProtoK_Means();
+    return m_LVQProtos;
+  };
+  
+  inline std::vector< std::pair<std::string, std::vector<float>*> > const& train2sec()
+  {
+    InitProtoRand();
     return m_LVQProtos;
   };
   ////================= DEBUG Only

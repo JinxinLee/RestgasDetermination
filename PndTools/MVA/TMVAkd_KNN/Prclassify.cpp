@@ -71,7 +71,7 @@ int main(int argc, char** argv)
   //clas.push_back("proton");
   
   // Event structure
-  stru.push_back("p");
+  //stru.push_back("p");
   stru.push_back("emc");
   stru.push_back("lat");
   stru.push_back("z20");
@@ -100,7 +100,6 @@ int main(int argc, char** argv)
 
   cls.SetKnn(NumNei);
   cls.SetEvtParam(0.8, 1.0);
-  cls.InitKNN();
 
   std::cout << "............... Init is done.\n";
   

@@ -82,7 +82,7 @@ int main(int argc, char** argv)
   evt.clear();
   for(size_t j = 0; j < nam.size(); j++)
   {
-    evt.push_back(myran.Gaus(1,1));
+    evt.push_back(myran.Gaus(1,10));
     evt1.push_back(myran.Uniform(-1,1));
     evt2.push_back(myran.Uniform(30,50));
   }
