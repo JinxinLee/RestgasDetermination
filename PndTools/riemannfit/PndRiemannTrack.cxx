@@ -911,7 +911,13 @@ PndRiemannTrack::sign() const {
 
 void PndRiemannTrack::calcJacRXY()
 {
-	double val = (TMath::Sqrt(1-fn[2]*fn[2]-4*fc*fn[2]));
+	double val = -1.;
+	if ((1-fn[2]*fn[2]-4*fc*fn[2]) > 0)
+		val = (TMath::Sqrt(1-fn[2]*fn[2]-4*fc*fn[2]));
+	else{
+		std::cout << "-E- PndRiemannTrack::calcJacRXY val is imaginary: Sqrt of " << (1-fn[2]*fn[2]-4*fc*fn[2]) << std::endl;
+		return;
+	}
 	fjacRXY.Clear();
 	fjacRXY.ResizeTo(3,4);
 /*	fjacRXY[0][0] = -1/val;
@@ -921,12 +927,16 @@ void PndRiemannTrack::calcJacRXY()
 	fjacRXY[2][2] = -fn[1]/(2*fn[2]);
 	fjacRXY[2][3] = fn[1]/(2*fn[2]*fn[2]);*/
 
-	fjacRXY[0][0] = -1/val;
-	fjacRXY[0][3] = -1/(2*fn[2]) * (fn[2]+2*fc)/val - val/(2*fn[2]*fn[2]);
-	fjacRXY[1][1] = -1/(2*fn[2]);//<---------
-	fjacRXY[1][3] = fn[0]/(2*fn[2]*fn[2]);
-	fjacRXY[2][2] = -1/(2*fn[2]);//<---------
-	fjacRXY[2][3] = fn[1]/(2*fn[2]*fn[2]);
+	if (fn[2] != 0.){
+		fjacRXY[0][0] = -1/val;
+		fjacRXY[0][3] = -1/(2*fn[2]) * (fn[2]+2*fc)/val - val/(2*fn[2]*fn[2]);
+		fjacRXY[1][1] = -1/(2*fn[2]);//<---------
+		fjacRXY[1][3] = fn[0]/(2*fn[2]*fn[2]);
+		fjacRXY[2][2] = -1/(2*fn[2]);//<---------
+		fjacRXY[2][3] = fn[1]/(2*fn[2]*fn[2]);
+	}
+	else
+		std::cout << "-E- PndRiemannTrack::calcJacRXY fn[2] is zero!" << std::endl;
 }
 
 void PndRiemannTrack::PrintHits()
