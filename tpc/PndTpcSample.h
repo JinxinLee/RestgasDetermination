@@ -110,7 +110,7 @@ private:
   // Private Methods -----------------
 
 public:
-  ClassDef(PndTpcSample,6)
+  ClassDef(PndTpcSample,7)
 
 };
 

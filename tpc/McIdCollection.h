@@ -69,7 +69,7 @@ private:
   // Private Methods -----------------
 
 public:
-  ClassDef(McIdCollection,1)
+  ClassDef(McIdCollection,2)
 
 };
 
