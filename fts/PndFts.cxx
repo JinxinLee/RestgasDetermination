@@ -194,8 +194,8 @@ Bool_t  PndFts::ProcessHits(FairVolume* vol)
 	fVolumeID = kFTS;//vol->getMCid();
 
 	  if(fTrackID !=0){
-	    std::cout<<"test Vol----------"<<vol->getMCid()<<std::endl;
-	    std::cout<<"fTrackID-----"<<fTrackID<<std::endl;
+	    if (fVerboseLevel>2) std::cout<<"test Vol----------"<<vol->getMCid()<<std::endl;
+	    if (fVerboseLevel>2) std::cout<<"fTrackID-----"<<fTrackID<<std::endl;
 	  }
 
 	  fMass = gMC->TrackMass();   // mass (GeV)
@@ -259,7 +259,7 @@ Bool_t  PndFts::ProcessHits(FairVolume* vol)
 	    
 
 	  if(fTrackID!=0){
-	    std::cout<<"sono prima del mapper------"<<std::endl;
+	    if (fVerboseLevel>2) std::cout<<"sono prima del mapper------"<<std::endl;
 	  }
 
 	  fpostot.SetXYZM((fpostotin.X() +  fpostotout.X())/2., (fpostotin.Y() + fpostotout.Y())/2.,(fpostotin.Z() + fpostotout.Z())/2.,0.0);
@@ -290,7 +290,7 @@ Bool_t  PndFts::ProcessHits(FairVolume* vol)
 		 fTime, fLength, fELoss, fMass); 
 
 	 if (fTrackID !=0){
-	   std::cout<<"AddHit PndFts.cxx= "<<fTrackID<<std::endl;
+	   if (fVerboseLevel>2) std::cout<<"AddHit PndFts.cxx= "<<fTrackID<<std::endl;
 	 }         
 
 
