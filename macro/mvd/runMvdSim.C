@@ -6,7 +6,7 @@
   timer.Start();
   gDebug=0;
   int verboseLevel = 0;
-  Int_t nEvents = 10;
+  Int_t nEvents = 100;
 
   //FileNames
   TString simOutput="Mvd_Test.root";
@@ -19,7 +19,7 @@
   // set the MC version used
   // ------------------------
 
-  fRun->SetName("TGeant4");
+  fRun->SetName("TGeant3");
   // Choose the Geant Navigation System
 
   fRun->SetOutputFile(simOutput);
@@ -74,6 +74,8 @@
 
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
+
+  primGen->SetEventMeanTime(100);
 
   // Particle Generator (pdgid,mult, px,py,pz, vx,vy,vz)
   // single pions for testing
