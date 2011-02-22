@@ -1,6 +1,7 @@
 // Macro created 20/09/2006 by S.Spataro
 // It creates a geant simulation file for emc
-run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1){
+run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t seed=0){
+  gRandom->SetSeed(seed);
   TStopwatch timer;
   timer.Start();
   gDebug=0;
@@ -58,7 +59,7 @@ run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1){
   fRun->AddModule(Dipole);
 
   FairModule *Pipe= new PndPipe("PIPE");
-  //fRun->AddModule(Pipe);
+  fRun->AddModule(Pipe);
 
   FairDetector *Stt= new PndStt("STT", kTRUE);
   Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
@@ -69,14 +70,10 @@ run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1){
   fRun->AddModule(Mvd);
 
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
-  Emc->SetGeometryVersion(15); 
+  Emc->SetGeometryVersion(19); 
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
 
-  //FairDetector *Tof = new PndTof("TOF",kTRUE);
-  //Tof->SetGeometryFileName("tofbarrel.geo");
-  //fRun->AddModule(Tof);
-  
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
   Muo->SetBarrel("torino");
   Muo->SetEndcap("torino");
@@ -105,7 +102,7 @@ run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1){
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
-  PndDpmDirect *dpmGen = new PndDpmDirect(mom,mode);
+  PndDpmDirect *dpmGen = new PndDpmDirect(mom,mode,seed, 2.);
   primGen->AddGenerator(dpmGen);
 
   // Create and Set Magnetic Field
