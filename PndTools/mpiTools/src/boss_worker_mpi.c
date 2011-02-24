@@ -756,14 +756,12 @@ int DoJob(unsigned int *info, job_description *job, double *time_elapsed, double
 
   sprintf(scratch_path,"%s",&(job->array[3*JOBSTRINGSIZE]));	
   sprintf(move_files,"%s",&(job->array[4*JOBSTRINGSIZE]));	
-
-  sprintf(command,"%s/%u",scratch_path,info[0]);
+  sprintf(scratch_dir,"%s/%u",scratch_path,info[0]);
 
   if (!dummy_mode) 
     {
       if (clear_scratch)
 	{
-	 sprintf(scratch_dir,"%s/%u",scratch_path,info[0]);
 	 if (0 == access(scratch_dir,F_OK))
 	   {
 	     if (verbose_mode || dummy_mode)
@@ -771,22 +769,24 @@ int DoJob(unsigned int *info, job_description *job, double *time_elapsed, double
 		 printf("<W:%i> Removing scratch directory %s\n",rank,scratch_dir);
 		 fflush(stdout);
 	       }
-	     if (!(0==rmdir(scratch_dir)))
+	     sprintf(command,"%s %s NULL 0 1",move_files,scratch_dir);
+	     retval=MakeSystemCallWithTimeOut(command,REMOVE_TIMEOUT);
+             if (retval)
 	       {
-		 fprintf(stderr,"<W:%i> Error removing directory \"%s\": %s\n",rank,scratch_dir,strerror(errno));
+		 fprintf(stderr,"<W:%i> Error removing directory \"%s\"\n",rank,scratch_dir);
 		 fflush(stderr);
 	       }
 	   }
 	}
 
-      if (!(0==mkdir(command,0777)))
+      if (!(0==mkdir(scratch_dir,0777)))
 	{
 	  fprintf(stderr,"<W:%i> Error creating directory \"%s\": %s\n",rank,command,strerror(errno));
 	  fflush(stderr);
 	  return JOB_INPUT_ERROR;
 	}
       
-      if (!(0==chdir(command)))
+      if (!(0==chdir(scratch_dir)))
 	{
 	  fprintf(stderr,"<W:%i> Error changing to directory \"%s\": %s\n",rank,command,strerror(errno));
 	  fflush(stderr);
