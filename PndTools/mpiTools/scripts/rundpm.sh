@@ -36,14 +36,14 @@ echo "Nevents    = " $2
 echo "Seed       = " $ranseed 
 echo 
 
-source $HOME/buildPanda/config.sh > logfile 2>&1
+source $HOME/buildPanda/config.sh > /dev/null 2>&1
 echo "Copying macros from dc4 directory...."
 cp $VMCWORKDIR/macro/run/dc4/*.C .
 
 echo "-----------------------------------------------------------------------"
 echo "starting simulation"
 
-root -b -q "run_sim_${4}combi_dpm.C($2,$3,1,$ranseed)"  >> logfile 2>&1
+root -b -q "run_sim_${4}combi_dpm.C($2,$3,1,$ranseed)"  >> /dev/null 2>&1
 
 echo ""
 if [ -s "params_${4}combi.root" -a -s "points_${4}combi.root" ]; then
@@ -53,7 +53,7 @@ else
   exit 12
 fi	
 
-root -b -q "run_digi_${4}combi.C"  >> logfile 2>&1
+root -b -q "run_digi_${4}combi.C"  >> /dev/null 2>&1
 
 echo ""
 if [ -s "params_${4}combi.root" -a -s "digi_${4}combi.root" ]; then
@@ -63,7 +63,7 @@ else
   exit 13
 fi	
 
-root -b -q "run_reco_${4}combi.C"  >> logfile 2>&1
+root -b -q "run_reco_${4}combi.C"  >> /dev/null 2>&1
 
 echo ""
 if [ -s "params_${4}combi.root" -a -s "reco_${4}combi.root" ]; then
@@ -73,7 +73,7 @@ else
   exit 14
 fi	
 
-root -b -q "run_pid_${4}.C"  >> logfile 2>&1
+root -b -q "run_pid_${4}.C"  >> /dev/null 2>&1
 
 echo ""
 if [ -s "params_${4}combi.root" -a -s "pid_${4}combi.root" ]; then
@@ -85,7 +85,7 @@ fi
 
 rm -f *.C
 rm -f *.dat
-rm -f logfile
+rm -f rundpm.sh
 
 echo ""
 echo "------------------------- YUHUU --------------------------------"
