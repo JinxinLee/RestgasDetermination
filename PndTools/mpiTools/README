@@ -104,6 +104,7 @@ To run the program "bin/boss_worker_mpi" one can specify the following options:
     -r <number>    --- Starting run identification number (default=<time>)
     -n <level>     --- Set nice/priority level of the job to <level>
     -k             --- Do not delete files in buffer space
+    -c             --- Clear scratch space before start of the job
     -v             --- Be verbose (default is silent)
     -d             --- Run in dummy mode (default off)
 

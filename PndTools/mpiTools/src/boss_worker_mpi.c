@@ -16,6 +16,7 @@
 //                                           -l <val>       [MAX LOAD LEVEL]
 //                                           -n <level>     [NICE LEVEL]
 //                                           -k             [KEEP FILES IN SCRATCH}
+//                                           -c             [CLEAR SCRATCH BEFORE JOB START]
 //                                           -v             [BE VERBOSE]
 //                                           -d             [RUN IN DUMMY MODE]
 //
@@ -25,7 +26,7 @@
 // to be distributed among the workers. For more information, we refer to the README file.
 // Most of the parameters mentioned above can be specified, and overruled, in the [JOBFILE].
 //
-// Johan Messchendorp, 24/12/2008.
+// Johan Messchendorp, 24/02/2011.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////
 #include <stdlib.h>
@@ -105,6 +106,7 @@ char jobdescription_filename[VERYLONGCHARSIZE];// The filename containing the in
 char scratch_path[VERYLONGCHARSIZE];           // The path name pointing to the directory for local buffer storage
 char move_files[VERYLONGCHARSIZE];             // Name and path of the executable used to move files
 int  keep_buffer;                              // In case this flag set, the buffer output will be kept
+int  clear_scratch;                            // In case this flag set, the scratch directory will be first cleared
 int  dummy_mode;                               // Flag which is set to one in case of a dry/dummy run
 int  verbose_mode;                             // Verbosity flag
 unsigned int timeout[2];                       // Timeout (s) of workers: 
@@ -188,6 +190,7 @@ void PrintOptions()
   printf("    -n <level>     --- Nice level of the jobs (default=%d)\n",
 	 nice_level);
   printf("    -k             --- Do not delete files in buffer space\n");
+  printf("    -c             --- Clear scratch space before starting the job\n");
   printf("    -v             --- Be verbose\n");
   printf("    -d             --- Enable dummy mode\n\n");
    
@@ -223,6 +226,7 @@ int ReadArguments(unsigned int argc,char **argv)
   dummy_mode=0;
   verbose_mode=0;
   keep_buffer=0;
+  clear_scratch=0;
 
   time(&now); // Use time as starting value for the run ID
   runid=now;
@@ -274,6 +278,10 @@ int ReadArguments(unsigned int argc,char **argv)
       else if (!(strcmp(argv[i],"-k")))
 	{
 	  keep_buffer=1;
+	}
+      else if (!(strcmp(argv[i],"-c")))
+	{
+	  clear_scratch=1;
 	}
       else if (!(strcmp(argv[i],"-v")))
 	{
@@ -735,7 +743,7 @@ void* MoveJob(void *in)
 int DoJob(unsigned int *info, job_description *job, double *time_elapsed, double *time_comp)
 {
   unsigned int  i;
-  char            command[VERYLONGCHARSIZE],retval;
+  char            command[VERYLONGCHARSIZE],scratch_dir[VERYLONGCHARSIZE],retval;
   char *          scriptname=NULL;
   pthread_t *     moveThread;
   thread_info *   move_info=NULL;
@@ -753,6 +761,24 @@ int DoJob(unsigned int *info, job_description *job, double *time_elapsed, double
 
   if (!dummy_mode) 
     {
+      if (clear_scratch)
+	{
+	 sprintf(scratch_dir,"%s/%u",scratch_path,info[0]);
+	 if (0 == access(scratch_dir,F_OK))
+	   {
+	     if (verbose_mode || dummy_mode)
+	       {
+		 printf("<W:%i> Removing scratch directory %s\n",rank,scratch_dir);
+		 fflush(stdout);
+	       }
+	     if (!(0==rmdir(scratch_dir)))
+	       {
+		 fprintf(stderr,"<W:%i> Error removing directory \"%s\": %s\n",rank,scratch_dir,strerror(errno));
+		 fflush(stderr);
+	       }
+	   }
+	}
+
       if (!(0==mkdir(command,0777)))
 	{
 	  fprintf(stderr,"<W:%i> Error creating directory \"%s\": %s\n",rank,command,strerror(errno));
