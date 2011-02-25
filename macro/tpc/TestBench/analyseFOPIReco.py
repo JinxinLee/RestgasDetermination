@@ -1,10 +1,18 @@
-
 import ROOT, glob, math
 from ROOT import std
 
-dir = "/nfs/hicran/data/tpc/fopi/2010/decoded"
-#dir = "/nfs/nas/user/sneubert/PANDA/"
+def drawPrelim() :
+    prelim= ROOT.TLatex()
+    prelim.SetTextColor(ROOT.kGray)
+    prelim.SetTextSize(0.07)
+    prelim.SetTextAngle(20)
+    prelim.SetNDC()
+    prelim.DrawLatex(0.38,0.45,"preliminary")
+    return
 
+dir = "/nfs/hicran/data/tpc/fopi/2010/productions/reconstructed4"
+
+#Draw the "preliminary labels?
 preliminary = 1
 
 outfile = ROOT.TFile("anaOut.root", "recreate")
@@ -32,40 +40,55 @@ files.sort()
 #velCorr = driftVelReal / driftVelSim
 
 # define cuts in Z
-cuts = (0,10,20,30,40,50,60)
+zCuts = (0,10,20,30,40,50,60)
+#define cuts in Size
+sCuts = (0,1,2,3,5,10,20)
 
 # define offset in Z 1 mu s * 2.8
 OFFSET = -2.8
 
-resUs = dict([(i, ROOT.TH1D("StatsResX"+str(cuts[i]), 
+resUs = dict([(i, ROOT.TH1D("StatsResX"+str(zCuts[i]), 
                             "Cosmic Residuals U (Z')", 500,-1,1)) 
-              for i in range(len(cuts))])
-pullsUs = dict([(i, ROOT.TH1D("StatsPullX"+str(cuts[i]), 
+              for i in range(len(zCuts))])
+pullsUs = dict([(i, ROOT.TH1D("StatsPullX"+str(zCuts[i]), 
                             "Cosmic Pulls U (Z')", 100,-3,3)) 
-              for i in range(len(cuts))])
+              for i in range(len(zCuts))])
 
 
-resVIDs = dict([(i, ROOT.TH1D("StatsResVID"+str(cuts[i]), 
+resVIDs = dict([(i, ROOT.TH1D("StatsResVID"+str(zCuts[i]), 
                               "Cosmic Residuals V (X') single track events", 
                               500,-1,1)) 
-                for i in range(len(cuts))])
-resVs = dict([(i, ROOT.TH1D("StatsResV"+str(cuts[i]), 
+                for i in range(len(zCuts))])
+resVs = dict([(i, ROOT.TH1D("StatsResV"+str(zCuts[i]), 
                             "Cosmic Residuals V (X')", 500,-1,1)) 
-              for i in range(len(cuts))])
-pullsVs = dict([(i, ROOT.TH1D("StatsPullV"+str(cuts[i]), 
+              for i in range(len(zCuts))])
+
+
+resVvsZvsS = dict([(i, dict([(j, ROOT.TH1D("resVvsZvsS"+str(i)+str(j),
+                                           "Cosmic Residuals V (X') Z>"+str(zCuts[i])
+                                           +"ClSize>"+str(sCuts[j]),500,-1,1,))
+                             for j in range(len(sCuts))]))
+                   for i in range(len(zCuts))])
+                                         
+
+pullsVs = dict([(i, ROOT.TH1D("StatsPullV"+str(zCuts[i]), 
                             "Cosmic Pulls V (X')", 100,-3,3)) 
-              for i in range(len(cuts))])
+              for i in range(len(zCuts))])
 
-cl2Ds = dict([(i, ROOT.TH1D("cl2Ds"+str(cuts[i]), 
+cl2Ds = dict([(i, ROOT.TH1D("cl2Ds"+str(zCuts[i]), 
                             "Cluster Size Distributions as Function of Z", 50,0,50)) 
-              for i in range(len(cuts))])
+              for i in range(len(zCuts))])
 
-#resUVs = dict([(i, ROOT.TH1D("StatsResXY"+str(cuts[i]), 
-#                             "Cosmic Residuals X'Y'", 500,-1,1)) for i in range(len(cuts))])
-resVsUs = dict([(i, ROOT.TH2D("StatsResXsYs"+str(cuts[i]), 
+clSvA = dict([(i, ROOT.TH1D("clsVa"+str(i), "Amplitude Distribution for ClSize>"
+                            +str(sCuts[i]),500,0,1000)) for i in range(len(sCuts))])
+
+
+#resUVs = dict([(i, ROOT.TH1D("StatsResXY"+str(zCuts[i]), 
+#                             "Cosmic Residuals X'Y'", 500,-1,1)) for i in range(len(zCuts))])
+resVsUs = dict([(i, ROOT.TH2D("StatsResXsYs"+str(zCuts[i]), 
                               "Cosmic Residuals U(Z') vs V(X')", 500,-0.5,0.5,
                               500,-0.5,0.5)) 
-                for i in range(len(cuts))])
+                for i in range(len(zCuts))])
 
 clSize2D = ROOT.TH1D("clSize2D", "2D Cluster Size Distribution", 100,0,100)
 clSize2D.SetFillColor(ROOT.kBlack)
@@ -73,6 +96,21 @@ clSize = ROOT.TH1D("clSize", "Cluster Size Distribution", 100,0,100)
 clSize.SetLineColor(ROOT.kRed+3)
 clSizevsDrift = ROOT.TH2D("clnSizevsDrift", "Cluster Size vs. Drift",
                           100,0,75,60,0,60)
+clOccRbins = 50
+clOccZbins = 200
+clOccRmin = 5
+clOccRmax = 15
+clOccZmin = 0
+clOccZmax = 75
+clOcc = ROOT.TH2D("clOcc", "Cluster Chamber Occupancy Z-R",
+                  clOccZbins, clOccZmin, clOccZmax,
+                  clOccRbins, clOccRmin, clOccRmax)
+clOccPR = ROOT.TH2D("clOccPR", "Track Cluster Chamber Occupancy Z-R",
+                    clOccZbins, clOccZmin, clOccZmax,
+                    clOccRbins, clOccRmin, clOccRmax)
+clOccPRAmp = ROOT.TH2D("clOccPRAmp", "Track Cluster Chamber Occupancy Z-R (weighted with amp)",
+                       clOccZbins, clOccZmin, clOccZmax,
+                       clOccRbins, clOccRmin, clOccRmax)
 
 chi2prob = ROOT.TH1D("chi2prob", "ChiSqu Probability Distribution", 500,0,1)
 chi2probID = ROOT.TH1D("chi2probID", "ChiSqu Probability Distribution", 500,0,1)
@@ -113,20 +151,23 @@ chi2func = ROOT.TF1("meh", "[0]*x*TMath::Exp(-2*x)",0,10)
 chi2func.SetParameter(0,2500)
 
 
-#for file in files :
-for f in range(10) :
+#  ---------------------------------------- ANA LOOP --------------------------------------
+
+for file in files :
+#or f in range(50) :
     
-    file = files[f]
-    #file = "/nfs/hicran/data/tpc/fopi/2010/decoded/runC_1735.reco.root"
+    #file = files[f]
     print(file)
-    Rfile = ROOT.TFile(file, "read")
+    Rfile = ROOT.TFile.Open(file, "read")
+    #print(Rfile.GetOpenTimeout())
     tree = Rfile.Get("cbmsim")
     tree.SetBranchStatus("*", 0)
-   #tree.SetBranchStatus("PndTpcSLResiduals.*", 1)
+    #tree.SetBranchStatus("PndTpcSLResiduals.*", 1)
     tree.SetBranchStatus("TrackFitStat.*", 1)
     tree.SetBranchStatus("PndTpcCluster.*", 1)
     #tree.SetBranchStatus("TrackPostFit.*", 1)
     
+    counter = 0
     for e in tree :
         #for trk in e.TrackPostFit :
         #    trk.Print()
@@ -139,25 +180,24 @@ for f in range(10) :
         #    #for id in hitIDs :
         #        # GET CLUSTER, SIGMA AND RESIDUAL
                 
-            
-
         for cl in e.PndTpcCluster :
             sig = cl.sig()
             sigxDist.Fill(sig.X())
             sigyDist.Fill(sig.Y())
             size = cl.size()
             pos = cl.pos()
+            amp = cl.amp()
+            rad = math.sqrt(pos.X()**2 + pos.Y()**2)
             sigXvsClSize.Fill(size, sig.X())
             sigXvsDrift.Fill(pos.Z(), sig.X()*10000)
             clSizevsDrift.Fill(pos.Z(),size)
+            clOcc.Fill(pos.Z(), rad)
+            
             
         nTracks = e.TrackFitStat.GetEntriesFast()  
         if nTracks > 0 :
             nTracksDist.Fill(nTracks)
             
-        #if nTracks > 1 :
-        #    continue
-
         for tfs in e.TrackFitStat :
             chi2 = tfs.getChi2()
             #redChi2 = tfs.getRedChi2()
@@ -170,7 +210,7 @@ for f in range(10) :
             chi2raw.Fill(chi2/(NDF))
             if nTracks == 1:
                 chi2probID.Fill(chi2Prob)
-
+                
             mom = tfs.GetMom()
             mom.SetMag(1.)
             phiDist.Fill(mom.Phi())
@@ -183,12 +223,25 @@ for f in range(10) :
             u = mom.Cross(vecX)
             v = mom.Cross(u)
             
+            shout = 1
+            thetaDeg = mom.Theta()*180/(math.pi)
+            
             for p in range(numHits) :
                 z = tfs.GetHitPositionsZ().at(p)
                 x = tfs.GetHitPositionsX().at(p)
                 y = tfs.GetHitPositionsY().at(p)
+
+                clAmp = tfs.GetAmps().at(p)
                 
+                #look for tracks parallel to readout at end of chamber
+                if shout and z > 56 and thetaDeg>88 and thetaDeg<92 :
+                    shout=0
+                    print "Found track at end of chamber: Ev %i in file" %counter
+                                
                 xyRad = math.sqrt(x**2 + y**2)
+
+                clOccPR.Fill(z,xyRad)
+                clOccPRAmp.Fill(z,xyRad,clAmp)                
 
                 resX = tfs.GetResX().at(p)
                 resY = tfs.GetResY().at(p)
@@ -208,11 +261,17 @@ for f in range(10) :
                 
                 cl2Dsize = tfs.Get2DClSizes().at(p)
                 clTotSize = tfs.GetClSizes().at(p)
+                
                 clSize2D.Fill(cl2Dsize)
                 clSize.Fill(clTotSize)
                 
-                for i in range(len(cuts)) :
-                    if z < cuts[i] :
+                for j in range(len(sCuts)):
+                    if cl2Dsize <= sCuts[j] :
+                        clSvA[j-1].Fill(clAmp)
+                        break
+                
+                for i in range(len(zCuts)) :
+                    if z < zCuts[i] :
                         cl2Ds[i-1].Fill(cl2Dsize)
                         
                         resUs[i-1].Fill(resU)
@@ -223,23 +282,29 @@ for f in range(10) :
 
                         #resUVs[i-1].Fill(math.sqrt(resX**2 + resY**2)) 
                         resVsUs[i-1].Fill(resV, resU)
-                                                
+                        
                         #compare with these filters:
                         if nTracks == 1 :
                             resVIDs[i-1].Fill(resV)
                                                         
                             #if xyRad > 8 and xyRad < 12:
                             #if numHits > 20 :
-                                                  
+                        for j in range(len(sCuts)) :
+                            if cl2Dsize <= sCuts[j] :
+                                resVvsZvsS[i-1][j-1].Fill(resV)
+                                break
+                            
                         break
+
                     
                 x = tfs.GetHitPositionsX().at(p)
                 y = tfs.GetHitPositionsY().at(p)
                 occXY.Fill(x,y)
                 occZ.Fill(z)
                 recoMom.Fill(tfs.GetP())
-            
-           
+               
+        counter+=1    
+#  ------------------------------- END OF ANA LOOP ---------------------------------------           
 
     
 outfile.cd()
@@ -251,6 +316,9 @@ for i in range(6) :
     resVsUs[i].GetXaxis().SetTitle("Residual V (cm)")
     resVsUs[i].GetYaxis().SetTitle("Residual U (cm)")
     resVsUs[i].Draw("COLZ")
+    # preliminary
+    if preliminary :
+        drawPrelim()
     resVsUs[i].Write()
 c2 = ROOT.TCanvas()
 occXY.Draw("COLZ")
@@ -290,35 +358,22 @@ for i in range(6) :
     fit.SetParLimits(2,testfit.GetParameter(2)*0.1, testfit.GetParameter(2)*20)
     
     fit.SetParameter(3, 100)
-    fit.SetParLimits(3, 0, testfit.GetParameter(0)/4.)
+    fit.SetParLimits(3, 0, testfit.GetParameter(0)/3.)
     fit.SetParameter(4, 0)
     fit.SetParLimits(4, testfit.GetParameter(1)-0.08, testfit.GetParameter(1)+0.08)
     fit.SetParameter(5, testfit.GetParameter(2))
-    fit.SetParLimits(5, testfit.GetParameter(2), testfit.GetParameter(2)*30)
+    fit.SetParLimits(5, testfit.GetParameter(2)*2, testfit.GetParameter(2)*30)
     resVs[i].Fit(fit, "+", "", -1,1)
-    diffV.SetPoint(i,cuts[i]+5,fit.GetParameter(2)*10000)
+    diffV.SetPoint(i,zCuts[i]+5,fit.GetParameter(2)*10000)
 
-   # preliminary
+    # preliminary
     if preliminary :
-        histo = resVs[i];
-        xaxis = histo.GetXaxis()
-        xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
-        xrange=xaxis.GetXmax()-xaxis.GetXmin()
-        yrange=-histo.GetMinimum()+histo.GetMaximum()
-        ycenter=(histo.GetMinimum()+histo.GetMaximum())*0.5
-        x=xcenter-0.3*xrange
-        y=ycenter-0.3*yrange
-        prelim= ROOT.TLatex(x,y,"preliminary")
-        prelim.SetTextColor(ROOT.kGray)
-        prelim.SetTextSize(0.1)
-        prelim.SetTextAngle(20)
-        prelim.DrawLatex(x,y,"preliminary")
-    # end preliminray
+        drawPrelim()
 
     resVs[i].Write()
     #calculate ratio of central and background integrals
     ratio = fit.GetParameter(3)*fit.GetParameter(5)/(fit.GetParameter(0)*fit.GetParameter(2))
-    bckgrShare.SetPoint(i,cuts[i]+5,ratio)
+    bckgrShare.SetPoint(i,zCuts[i]+5,ratio)
    
 
                           
@@ -360,20 +415,7 @@ for i in range(6) :
 
    # preliminary
     if preliminary :
-        histo = resUs[i];
-        xaxis = histo.GetXaxis()
-        xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
-        xrange=xaxis.GetXmax()-xaxis.GetXmin()
-        yrange=-histo.GetMinimum()+histo.GetMaximum()
-        ycenter=(histo.GetMinimum()+histo.GetMaximum())*0.5
-        x=xcenter-0.3*xrange
-        y=ycenter-0.3*yrange
-        prelim= ROOT.TLatex(x,y,"preliminary")
-        prelim.SetTextColor(ROOT.kGray)
-        prelim.SetTextSize(0.1)
-        prelim.SetTextAngle(20)
-        prelim.DrawLatex(x,y,"preliminary")
-    # end preliminray
+       drawPrelim()
 
     resUs[i].Write()
 
@@ -386,7 +428,7 @@ for i in range(6) :
     resVIDs[i].Draw()
     testfit = ROOT.TF1("testfitX"+str(1),"gaus",-1,1)
     resVIDs[i].Fit(testfit, "N+", "", -1,1)
-    
+
     fit = ROOT.TF1("fitfuncX"+str(1),"gaus + gaus(3)",-1,1)
     fit.SetNpx(1000)
     fit.SetParameter(0,testfit.GetParameter(0))
@@ -396,33 +438,21 @@ for i in range(6) :
     fit.SetParameter(2,testfit.GetParameter(2))
     fit.SetParLimits(2,testfit.GetParameter(2)*0.1, testfit.GetParameter(2)*20)
     
-    fit.SetParameter(3, 10)
+    fit.SetParameter(3, 100)
     fit.SetParLimits(3, 0, testfit.GetParameter(0)/3.)
     fit.SetParameter(4, 0)
-    fit.SetParLimits(4, testfit.GetParameter(1)-0.8, testfit.GetParameter(1)+0.8)
-    fit.SetParameter(5, testfit.GetParameter(2)*2)
-    fit.SetParLimits(5, testfit.GetParameter(2), testfit.GetParameter(2)*50)
+    fit.SetParLimits(4, testfit.GetParameter(1)-0.08, testfit.GetParameter(1)+0.08)
+    fit.SetParameter(5, testfit.GetParameter(2))
+    fit.SetParLimits(5, testfit.GetParameter(2)*2, testfit.GetParameter(2)*30)
 
     resVIDs[i].Fit(fit, "+", "", -1,1)
 
     # preliminary
     if preliminary :
-        histo = resVIDs[i];
-        xaxis = histo.GetXaxis()
-        xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
-        xrange=xaxis.GetXmax()-xaxis.GetXmin()
-        yrange=-histo.GetMinimum()+histo.GetMaximum()
-        ycenter=(histo.GetMinimum()+histo.GetMaximum())*0.5
-        x=xcenter-0.3*xrange
-        y=ycenter-0.3*yrange
-        prelim= ROOT.TLatex(x,y,"preliminary")
-        prelim.SetTextColor(ROOT.kGray)
-        prelim.SetTextSize(0.1)
-        prelim.SetTextAngle(20)
-        prelim.DrawLatex(x,y,"preliminary")
+        drawPrelim()
     # end preliminray
 
-    diffVID.SetPoint(i,cuts[i]+5,fit.GetParameter(2)*10000)
+    diffVID.SetPoint(i,zCuts[i]+5,fit.GetParameter(2)*10000)
     resVIDs[i].Write()
 
 c8 = ROOT.TCanvas()
@@ -445,21 +475,7 @@ diffVID.Write()
 diffT.Draw("same")
 # preliminary
 if preliminary :
-    histo = diffV;
-    xaxis = histo.GetXaxis()
-    yaxis = histo.GetYaxis()
-    xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
-    xrange=xaxis.GetXmax()-xaxis.GetXmin()
-    ycenter=yaxis.GetBinCenter(int(yaxis.GetNbins()*0.5))
-    yrange=yaxis.GetXmax()-yaxis.GetXmin()
-    x=xcenter-0.3*xrange
-    y=ycenter-0.3*yrange
-    prelim= ROOT.TLatex(x,y,"preliminary")
-    prelim.SetTextColor(ROOT.kGray)
-    prelim.SetTextSize(0.1)
-    prelim.SetTextAngle(20)
-    prelim.DrawLatex(x,y,"preliminary")
-# end preliminray
+  drawPrelim()
 
 
 c10 = ROOT.TCanvas()
@@ -469,39 +485,13 @@ clSize2D.Draw()
 clSize.Draw("same")
 # preliminary
 if preliminary :
-    histo = clSize2D
-    xaxis = histo.GetXaxis()
-    xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
-    xrange=xaxis.GetXmax()-xaxis.GetXmin()
-    yrange=-histo.GetMinimum()+histo.GetMaximum()
-    ycenter=(histo.GetMinimum()+histo.GetMaximum())*0.5
-    x=xcenter-0.3*xrange
-    y=ycenter-0.3*yrange
-    prelim= ROOT.TLatex(x,y,"preliminary")
-    prelim.SetTextColor(ROOT.kGray)
-    prelim.SetTextSize(0.1)
-    prelim.SetTextAngle(20)
-    prelim.DrawLatex(x,y,"preliminary")
-# end preliminray
+   drawPrelim()
 
 c10.cd(2).SetLogz(1)
 clSizevsDrift.Draw("colz")
 # preliminary
 if preliminary :
-    histo = clSizevsDrift
-    xaxis = histo.GetXaxis()
-    xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
-    xrange=xaxis.GetXmax()-xaxis.GetXmin()
-    yrange=-histo.GetMinimum()+histo.GetMaximum()
-    ycenter=(histo.GetMinimum()+histo.GetMaximum())*0.5
-    x=xcenter-0.3*xrange
-    y=ycenter-0.3*yrange
-    prelim= ROOT.TLatex(x,y,"preliminary")
-    prelim.SetTextColor(ROOT.kGray)
-    prelim.SetTextSize(0.1)
-    prelim.SetTextAngle(20)
-    prelim.DrawLatex(x,y,"preliminary")
-# end preliminray
+    drawPrelim()
 
 c11 = ROOT.TCanvas()
 c11.cd()
@@ -510,20 +500,7 @@ chi2prob.Draw()
 chi2probID.Draw("same")
 # preliminary
 if preliminary :
-    histo = chi2prob;
-    xaxis = histo.GetXaxis()
-    xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
-    xrange=xaxis.GetXmax()-xaxis.GetXmin()
-    yrange=-histo.GetMinimum()+histo.GetMaximum()
-    ycenter=(histo.GetMinimum()+histo.GetMaximum())*0.5
-    x=xcenter-0.3*xrange
-    y=math.log(ycenter-0.3*yrange)
-    prelim= ROOT.TLatex(x,y,"preliminary")
-    prelim.SetTextColor(ROOT.kGray)
-    prelim.SetTextSize(0.1)
-    prelim.SetTextAngle(20)
-    prelim.DrawLatex(x,y,"preliminary")
-# end preliminray
+    drawPrelim()
 
 
 c12 = ROOT.TCanvas()
@@ -531,20 +508,7 @@ chi2raw.Draw()
 chi2func.SetNpx(1000)
 # preliminary
 if preliminary :
-    histo = chi2raw;
-    xaxis = histo.GetXaxis()
-    xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
-    xrange=xaxis.GetXmax()-xaxis.GetXmin()
-    yrange=-histo.GetMinimum()+histo.GetMaximum()
-    ycenter=(histo.GetMinimum()+histo.GetMaximum())*0.5
-    x=xcenter-0.3*xrange
-    y=ycenter-0.3*yrange
-    prelim= ROOT.TLatex(x,y,"preliminary")
-    prelim.SetTextColor(ROOT.kGray)
-    prelim.SetTextSize(0.1)
-    prelim.SetTextAngle(20)
-    prelim.DrawLatex(x,y,"preliminary")
-# end preliminray
+    drawPrelim()
 
 #chi2func.Draw("same")
 
@@ -561,38 +525,14 @@ c14.cd(1)
 sigxDist.Draw()
 # preliminary
 if preliminary :
-    histo = sigxDist;
-    xaxis = histo.GetXaxis()
-    xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
-    xrange=xaxis.GetXmax()-xaxis.GetXmin()
-    yrange=-histo.GetMinimum()+histo.GetMaximum()
-    ycenter=(histo.GetMinimum()+histo.GetMaximum())*0.5
-    x=xcenter-0.3*xrange
-    y=ycenter-0.3*yrange
-    prelim= ROOT.TLatex(x,y,"preliminary")
-    prelim.SetTextColor(ROOT.kGray)
-    prelim.SetTextSize(0.1)
-    prelim.SetTextAngle(20)
-    prelim.DrawLatex(x,y,"preliminary")
-# end preliminray
+   drawPrelim()
+
+
 c14.cd(2)
 sigyDist.Draw()
 # preliminary
 if preliminary :
-    histo = sigyDist;
-    xaxis = histo.GetXaxis()
-    xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
-    xrange=xaxis.GetXmax()-xaxis.GetXmin()
-    yrange=-histo.GetMinimum()+histo.GetMaximum()
-    ycenter=(histo.GetMinimum()+histo.GetMaximum())*0.5
-    x=xcenter-0.3*xrange
-    y=ycenter-0.3*yrange
-    prelim= ROOT.TLatex(x,y,"preliminary")
-    prelim.SetTextColor(ROOT.kGray)
-    prelim.SetTextSize(0.1)
-    prelim.SetTextAngle(20)
-    prelim.DrawLatex(x,y,"preliminary")
-# end preliminray
+    drawPrelim()
 
 
 c15 = ROOT.TCanvas()
@@ -601,20 +541,7 @@ c15.cd(1).SetLogz()
 sigXvsClSize.Draw("colz")
 # preliminary
 if preliminary :
-    histo = sigXvsClSize;
-    xaxis = histo.GetXaxis()
-    xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
-    xrange=xaxis.GetXmax()-xaxis.GetXmin()
-    yrange=-histo.GetMinimum()+histo.GetMaximum()
-    ycenter=(histo.GetMinimum()+histo.GetMaximum())*0.5
-    x=xcenter-0.3*xrange
-    y=ycenter-0.3*yrange
-    prelim= ROOT.TLatex(x,y,"preliminary")
-    prelim.SetTextColor(ROOT.kGray)
-    prelim.SetTextSize(0.1)
-    prelim.SetTextAngle(20)
-    prelim.DrawLatex(x,y,"preliminary")
-# end preliminray
+    drawPrelim()
 
 c15.cd(2).SetLogz()
 sigXvsDrift.Draw("colz")
@@ -622,21 +549,7 @@ diffT.Draw("same")
 #resDX.Draw("same")
 # preliminary
 if preliminary :
-    histo = sigXvsDrift;
-    xaxis = histo.GetXaxis()
-    yaxis = histo.GetYaxis()
-    xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
-    xrange=xaxis.GetXmax()-xaxis.GetXmin()
-    ycenter=yaxis.GetBinCenter(int(yaxis.GetNbins()*0.5))
-    yrange=yaxis.GetXmax()-yaxis.GetXmin()
-    x=xcenter-0.3*xrange
-    y=ycenter-0.3*yrange
-    prelim= ROOT.TLatex(x,y,"preliminary")
-    prelim.SetTextColor(ROOT.kGray)
-    prelim.SetTextSize(0.1)
-    prelim.SetTextAngle(20)
-    prelim.DrawLatex(x,y,"preliminary")
-# end preliminray
+    drawPrelim()
 
 
 c16 = ROOT.TCanvas()
@@ -675,27 +588,59 @@ for i in range(6) :
 
     # preliminary
     if preliminary :
-        histo = pullsVs[i];
-        xaxis = histo.GetXaxis()
-        xcenter=xaxis.GetBinCenter(int(xaxis.GetNbins()*0.5))
-        xrange=xaxis.GetXmax()-xaxis.GetXmin()
-        yrange=-histo.GetMinimum()+histo.GetMaximum()
-        ycenter=(histo.GetMinimum()+histo.GetMaximum())*0.5
-        x=xcenter-0.3*xrange
-        y=ycenter-0.3*yrange
-        prelim= ROOT.TLatex(x,y,"preliminary")
-        prelim.SetTextColor(ROOT.kGray)
-        prelim.SetTextSize(0.1)
-        prelim.SetTextAngle(20)
-        prelim.DrawLatex(x,y,"preliminary")
-    # end preliminray
+        drawPrelim()
         
     pullsVs[i].Write()
-  
 
 #c17.Update()
+
+c18 = ROOT.TCanvas()
+c18.Divide(len(sCuts)-1, len(zCuts)-1)
+for i in range(len(zCuts)) :
+    for j in range(len(sCuts)) :
+        c18.cd(i*(len(zCuts)-1)+j+1)
+        resVvsZvsS[i][j].SetFillColor(ROOT.kSpring+5)
+        resVvsZvsS[i][j].Draw()
+        drawPrelim()
+        resVvsZvsS[i][j].Write()
+
+
+c19 = ROOT.TCanvas()
+c19.Divide(2,2)
+
+#properly normalize
+rBinWidth = (clOccRmax-clOccRmin)/float(clOccRbins)
+for z in range(clOccZbins):
+    for r in range(clOccRbins) :
+        cont = clOcc.GetBinContent(z+1,r+1)
+        rad = r*rBinWidth + clOccRmin
+        R1 = rad - 0.5*rBinWidth
+        R2 = rad + 0.5*rBinWidth
+        clOcc.SetBinContent(z+1,r+1,cont/(R2**2 - R1**2))
+        cont = clOccPR.GetBinContent(z+1,r+1)
+        clOccPR.SetBinContent(z+1,r+1,cont/(R2**2 - R1**2))
+        cont = clOccPRAmp.GetBinContent(z+1,r+1)
+        clOccPRAmp.SetBinContent(z+1,r+1,cont/(R2**2 - R1**2))
+c19.cd(1)
+clOcc.Draw("colz")
+clOcc.Write()
+c19.cd(3)
+clOccPR.Draw("colz")
+clOccPR.Write()
+c19.cd(4)
+clOccPRAmp.Draw("colz")
+clOccPRAmp.Write()
+
+
+c20 = ROOT.TCanvas()
+c20.Divide(len(sCuts),1)
+for i in range(len(sCuts)) :
+    c20.cd(i+1)
+    clSvA[i].Draw()
+    clSvA[i].Write()
 
 input()
 
 outfile.Close()
+
 
