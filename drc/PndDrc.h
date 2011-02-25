@@ -13,6 +13,8 @@
 //#include "TClonesArray.h"
 #include "TLorentzVector.h"
 #include "FairDetector.h"
+#include "TGraph.h"
+#include "TRandom3.h"
 
 //using namespace std;
 
@@ -40,6 +42,12 @@ class PndDrc : public FairDetector
 
   /** Destructor **/
   virtual ~PndDrc();
+  
+  
+  /*! \brief  Kill photons at production point according to the detector efficiency distribution.
+    \param dep 
+  */
+  void SetDetEffAtProduction(Bool_t dep = kFALSE){fDetEffAtProduction = dep;}
 
 
   /*! \brief  Set time after which photons are killed.
@@ -53,20 +61,35 @@ class PndDrc : public FairDetector
 
   /*!  \brief No reflected photons from the side of expansion volume
     \param db Flag
+    kFALSE = only reflected photons
+    kTRUE = only direct photons
   */ 
   void SetOnlyDirectPho(Bool_t db=kTRUE) {fTakeDirect = db;}
-
-  /*! \brief Set the focusing system
-    \param fc (
-    0=no focusing, 
-    1=old lenses with two airgaps between lenses, 
-    2=lenses without airgaps and thick NLAK33=default, 
-    3=like 2 but thin NLAK33 lens,
-    4=mirrors downstream
-    )
+    
+  /*!  \brief Set Prizm:
+    \param pr (
+    kTRUE = there is a prizm
+    kFALSE = there is no prizm
+    )    
   */
-  void SetFocusingSystem(Int_t fc=2) {fFocusingSystem = fc;}
-
+  void SetPrizm(Bool_t pr = kFALSE){fprizm = pr;}
+  
+  /*!  \brief Set Focusing System in case of no prism !!:
+    \param fo (
+    0 = no focusing
+    1 = lens
+    2 = forward mirror
+    )    
+  */ 
+  void SetFocusingSystem(Int_t fo = 0){
+    if(fprizm == kTRUE){
+      std::cout<<"SetPrism should be kFALSE!!!"<<std::cout;
+    }
+    if(fprizm == kFALSE){
+      fFocusingSystem = fo;
+    }
+  }  
+  
   /** Virtual method Initialize
    ** Initialises detector. Stores volume IDs for DIRC detector and mirror.
    **/
@@ -131,10 +154,11 @@ class PndDrc : public FairDetector
    **
    **/
   virtual void ConstructGeometry();
+  //  virtual void ConstructOpGeometry();
   //  void ConstructASCIIGeometry();
   //  virtual void ConstructRootGeometry();
-  //  std::vector<std::string> fListOfSensitives;
-  //  bool CheckIfSensitive(std::string name);
+    std::vector<std::string> fListOfSensitives;  
+    bool CheckIfSensitive(std::string name);
 
   PndDrcPDPoint* AddHit(Int_t trackID, 
 			Int_t copyNo, 
@@ -175,14 +199,36 @@ class PndDrc : public FairDetector
   Int_t          fPosIndex;                 //! 
   Int_t          volDetector;               //!  MC volume ID of drc
   Double_t       fMass;
-
+  TLorentzVector fMom1;
+  
+  // used in ProcessHits function:
+  Int_t		 fbarID;	   //!  ID number of DrcBarSensors
+  Int_t          fpdID;		   //!  ID number of DrcPdSensor
+  Int_t		 flensID;	   //!  ID number of outer lenses
+  Int_t		 fbboxID;      	   //!  ID number of DrcBarBoxes
+  
+  TGraph*        fDetEff;          //!  Detector Efficiency as a function of photon wavelength
+  Bool_t         fDetEffAtProduction;
+  TRandom3	 frand;
+  Int_t          fLastTrackID;
+  Double_t       fCollectionEff;//Collection Efficiency 
+  Double_t       fPackingFraction;//Packing Efficiency 
+  
   Double_t       fSlabEnd;   //!< Slab end defined in Construction and used in ProcessHits
   
   Bool_t         fStopTime;
   Double_t       fPhoMaxTime;
-  Bool_t         fTakeDirect;
-  Int_t          fFocusingSystem;
+  Bool_t         fTakeDirect;  
   TString        fAtBarEnd;
+  Bool_t         fprizm;
+  Int_t 	 fFocusingSystem; 
+  
+  // lens shift:
+  Double_t       fdz_lens3;
+  Double_t       fdz_lens2;
+  Double_t       fdz_lens1;
+  Double_t	 fdz_mirr1;
+  Double_t	 fdz_mirr2;
 
   PndGeoDrc*     fGeo;             //! Pointer to basic DRC geometry data
 
@@ -192,12 +238,14 @@ class PndDrc : public FairDetector
   TClonesArray*  fDrcPDCollection;        //! Hit collection
   TClonesArray*  fDrcBarCollection;        //! Hit collection in the bar
   Int_t          fEventID;
+  
+  Int_t aaa;
 
   // reset all parameters   
   void ResetParameters();
 
   Int_t  fSenId1, fSenId2, fSenIdBar;
-  ClassDef(PndDrc,3)
+  ClassDef(PndDrc,4)
 
 }; 
 
