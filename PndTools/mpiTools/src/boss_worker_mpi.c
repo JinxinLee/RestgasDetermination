@@ -815,7 +815,8 @@ int DoJob(unsigned int *info, job_description *job, double *time_elapsed, double
     }
   else
     {
-      sprintf(command,"%s %s ../%u/. 1 0",move_files,&(job->array[JOBSTRINGSIZE]),info[0]);
+      //      sprintf(command,"%s %s ../%u/. 1 0",move_files,&(job->array[JOBSTRINGSIZE]),info[0]);
+      sprintf(command,"%s %s . 1 0",move_files,&(job->array[JOBSTRINGSIZE]));
       if (!dummy_mode)
 	{
 	  te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
@@ -848,7 +849,8 @@ int DoJob(unsigned int *info, job_description *job, double *time_elapsed, double
 
   /* Copy the script to the local scratch disk */
 
-  sprintf(command,"%s %s ../%u/. 1 0",move_files,&(job->array[0]),info[0]);
+  //  sprintf(command,"%s %s ../%u/. 1 0",move_files,&(job->array[0]),info[0]);
+  sprintf(command,"%s %s . 1 0",move_files,&(job->array[0]));
   if (!dummy_mode)
     {
       te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
