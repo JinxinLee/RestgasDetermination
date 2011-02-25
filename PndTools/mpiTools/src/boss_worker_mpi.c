@@ -780,16 +780,18 @@ int DoJob(unsigned int *info, job_description *job, double *time_elapsed, double
 	   }
 	}
 
-      if (!(0==mkdir(scratch_dir,0777)))
+      sprintf(command,"mkdir %s",scratch_dir);
+      if (!(0==system(command)))
 	{
-	  fprintf(stderr,"<W:%i> Error creating directory \"%s\": %s\n",rank,scratch_dir,strerror(errno));
+	  fprintf(stderr,"<W:%i> Error creating directory \"%s\"\n",rank,scratch_dir);
 	  fflush(stderr);
 	  return JOB_INPUT_ERROR;
 	}
       
-      if (!(0==chdir(scratch_dir)))
+      sprintf(command,"cd %s",scratch_dir);
+      if (!(0==system(command)))
 	{
-	  fprintf(stderr,"<W:%i> Error changing to directory \"%s\": %s\n",rank,scratch_dir,strerror(errno));
+	  fprintf(stderr,"<W:%i> Error changing to directory \"%s\"\n",rank,scratch_dir);
 	  fflush(stderr);
 	  return JOB_INPUT_ERROR;
 	}
