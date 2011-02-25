@@ -92,6 +92,13 @@
 
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kTRUE); // for fast sim Cherenkov -> kFALSE
+  Drc->SetDetEffAtProduction(kFALSE);
+  //Drc->SetStopTime(200.); 
+  Drc->SetVerboseLevel(0);
+  Drc->SetPrizm(kFALSE);
+  // focusing system could be set only WITHOUT the prism!!!!!
+  Drc->SetFocusingSystem(0);
+  //Drc->SetOnlyDirectPho(kTRUE); // does not work with lenses!!! 
   //Drc->SetGeometryFileName("dirc.geo"); 
   fRun->AddModule(Drc);
   
