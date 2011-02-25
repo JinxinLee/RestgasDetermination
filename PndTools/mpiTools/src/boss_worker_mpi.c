@@ -782,16 +782,14 @@ int DoJob(unsigned int *info, job_description *job, double *time_elapsed, double
 
       if (!(0==mkdir(scratch_dir,0777)))
         {
-          fprintf(stderr,"<W:%i> Error creating directory \"%s\": %s\n",rank,sc\
-		  ratch_dir,strerror(errno));
+          fprintf(stderr,"<W:%i> Error creating directory \"%s\": %s\n",rank,scratch_dir,strerror(errno));
           fflush(stderr);
           return JOB_INPUT_ERROR;
         }
 
       if (!(0==chdir(scratch_dir)))
 	{
-          fprintf(stderr,"<W:%i> Error changing to directory \"%s\": %s\n",rank\
-		  ,scratch_dir,strerror(errno));
+          fprintf(stderr,"<W:%i> Error changing to directory \"%s\": %s\n",rank,scratch_dir,strerror(errno));
           fflush(stderr);
           return JOB_INPUT_ERROR;
         }
