@@ -201,6 +201,7 @@ An overview of all the keywords, can be found below:
 ---> SCRATCH <path>
 
      Set the scratch directory to <path>. For the following jobs, the temporarily scratch disk will be <path>.
+     Please note that you cannot use environmental variables in <path>.
 
 ---> MOVECMD <cmd>
 
