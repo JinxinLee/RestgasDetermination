@@ -780,21 +780,21 @@ int DoJob(unsigned int *info, job_description *job, double *time_elapsed, double
 	   }
 	}
 
-      sprintf(command,"mkdir %s",scratch_dir);
-      if (!(0==system(command)))
+      if (!(0==mkdir(scratch_dir,0777)))
+        {
+          fprintf(stderr,"<W:%i> Error creating directory \"%s\": %s\n",rank,sc\
+		  ratch_dir,strerror(errno));
+          fflush(stderr);
+          return JOB_INPUT_ERROR;
+        }
+
+      if (!(0==chdir(scratch_dir)))
 	{
-	  fprintf(stderr,"<W:%i> Error creating directory \"%s\"\n",rank,scratch_dir);
-	  fflush(stderr);
-	  return JOB_INPUT_ERROR;
-	}
-      
-      sprintf(command,"cd %s",scratch_dir);
-      if (!(0==system(command)))
-	{
-	  fprintf(stderr,"<W:%i> Error changing to directory \"%s\"\n",rank,scratch_dir);
-	  fflush(stderr);
-	  return JOB_INPUT_ERROR;
-	}
+          fprintf(stderr,"<W:%i> Error changing to directory \"%s\": %s\n",rank\
+		  ,scratch_dir,strerror(errno));
+          fflush(stderr);
+          return JOB_INPUT_ERROR;
+        }
     }
 
   if (verbose_mode || dummy_mode)
@@ -815,8 +815,7 @@ int DoJob(unsigned int *info, job_description *job, double *time_elapsed, double
     }
   else
     {
-      //      sprintf(command,"%s %s ../%u/. 1 0",move_files,&(job->array[JOBSTRINGSIZE]),info[0]);
-      sprintf(command,"%s %s . 1 0",move_files,&(job->array[JOBSTRINGSIZE]));
+      sprintf(command,"%s %s ../%u/. 1 0",move_files,&(job->array[JOBSTRINGSIZE]),info[0]);
       if (!dummy_mode)
 	{
 	  te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
@@ -849,8 +848,7 @@ int DoJob(unsigned int *info, job_description *job, double *time_elapsed, double
 
   /* Copy the script to the local scratch disk */
 
-  //  sprintf(command,"%s %s ../%u/. 1 0",move_files,&(job->array[0]),info[0]);
-  sprintf(command,"%s %s . 1 0",move_files,&(job->array[0]));
+  sprintf(command,"%s %s ../%u/. 1 0",move_files,&(job->array[0]),info[0]);
   if (!dummy_mode)
     {
       te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
