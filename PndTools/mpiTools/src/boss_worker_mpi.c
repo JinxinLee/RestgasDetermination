@@ -319,24 +319,25 @@ int ReadArguments(unsigned int argc,char **argv)
 }
 
 //
-// unsigned int GetFreeDiskSpace()
-// -------------------------------
+// int GetFreeDiskSpace()
+// ----------------------
 //
 // Description: Calculates the available disk space
 // Input:       none
 // Output:      returns the amount of disk space available on scratch in MBytes
+//              if negative, then program could not get information from filesystem
 // Depends on:  static variables define globally 
 //
 
-unsigned int GetFreeDiskSpace()
+int GetFreeDiskSpace()
 {
   struct statvfs fiData;
 
   if((statvfs(scratch_path,&fiData)) < 0 ) 
     {
-      fprintf(stderr,"<W:%i> Failed to obtain disk space for %s\n", rank, scratch_path);
+      fprintf(stderr,"<W:%i> Failed to obtain disk space for \"%s\": proceed anyway!\n", rank, scratch_path);
       fflush(stderr);
-      return 0;
+      return -1;
     } 
 
   return ((fiData.f_bfree/1024)*(fiData.f_bsize/1024));  /* in MBytes */
@@ -1302,7 +1303,7 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime,
 	      if (njobs)
 		{
 		  /* Not enough disk space available, too many pending jobs, or too much load, put worker to sleep! */
-		  if (msg[4]<minimum_disk_space || msg[5]>=maximum_running_jobs || msg[6]>=((int) 100*maximum_load)) 
+		  if ((msg[4]<minimum_disk_space && msg[4]>0) || msg[5]>=maximum_running_jobs || msg[6]>=((int) 100*maximum_load)) 
 		    {
 		      if (verbose_mode)
 			{
