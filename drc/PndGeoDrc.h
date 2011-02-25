@@ -19,7 +19,21 @@ class  PndGeoDrc : public FairGeoSet {
   double fBarNum;                           //!< Number of bars per barbox.
   double fBoxGap;			    //!< Gap between bar and bar box [cm].
   double fBoxThick;			    //!< Bar box thickness [cm].
+    
+  double fBarBoxNum;			    //!< Total number of bar boxes in the barrel. 
+  double fBarBoxGap; 	      		    //!< Gap between neighboring bar boxes [cm].
+  double fPipehAngle;			    //!< Half of the phi angle taken by the target pipe [degrees].
+  
   double fEVlength;			    //!< Length of Expansion Volume [cm].
+  double fEVdrop;	      		    //!< [cm] drop of the EV - inner radius
+  double fEVoffset;	                    //!< [cm] offset of the EV - outer radius
+  double fEVangle;			    //!< [degrees] EV opening angle
+  
+  // prism parameters:
+  double fPhLength;       		    //!< [cm] half length of the prism
+  double fPAngle;       		    //!< [degrees] opening angle of the prism
+  double fPDrop;       			    //!< [cm] drop of the prism - inner side
+  double fPOffset;	      		    //!< [cm] offset of the prism - outer side   
   
   protected:
   char modName[20];  // name of module
@@ -66,8 +80,35 @@ class  PndGeoDrc : public FairGeoSet {
   /*! The length of the Expansion Volume [cm]. */
   Double_t  EVlen() {return fEVlength;}
 
-
-
+  /*! The Gap between neighboring bar boxes [cm]. */
+  Double_t  BBoxGap() {return fBarBoxGap;}
+  
+  /*! Total number of bar boxes in the barrel. */
+  Double_t  BBoxNum() {return fBarBoxNum;}
+ 
+  /*! Half of the phi angle taken by the target pipe [degrees]. */
+  Double_t  PipehAngle() {return fPipehAngle;}
+  
+  /*! The drop of the Expansion Volume [cm]. */
+  Double_t  EVdrop() {return fEVdrop;}
+  
+  /*! The offset of the Expansion Volume [cm]. */
+  Double_t  EVoffset() {return fEVoffset;}
+  
+  /*! The opening angle of the EV [degrees]. */
+  Double_t  EVangle() {return fEVangle;}
+  
+  /*! The offset of the Prism [cm]. */
+  Double_t  PrismOffset() {return fPOffset;}
+  
+  /*! The drop of the Prism [cm]. */
+  Double_t  PrismDrop() {return fPDrop;}
+  
+  /*! The half length of the Prism [cm]. */
+  Double_t  PrismhLength() {return fPhLength;}
+  
+  /*! The opening angle of the Prism [degrees]. */
+  Double_t  PrismAngle() {return fPAngle;}
 
   ClassDef(PndGeoDrc,1) // Class for Drc
 
