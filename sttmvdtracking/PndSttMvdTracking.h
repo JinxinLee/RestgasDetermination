@@ -65,7 +65,7 @@ class PndSttMvdTracking : public FairTask
 
   int istampa ;
   int IVOLTE ;
-  static const bool  iplotta = false , ianalizza = true ;
+  static const bool  iplotta = true , ianalizza = true ;
   static const UShort_t   nmaxSttHits = maxTracks*26,
 			  nmaxMvdPixelHits=500,
 			  nmaxMvdStripHits=500,
@@ -75,13 +75,14 @@ class PndSttMvdTracking : public FairTask
 //			  MAXMVDTRACKSPEREVENT=50,
 			  MAXMVDTRACKSPEREVENT=200,
 			  MAXMCTRACKS=30,
-			  MAXTURNSOFTRACK=5;
+			  MAXTURNSOFTRACK=3;
   static const Double_t   BFIELD=2.,  // in Tesla
 			  PI = 3.141592654,
 			  CVEL = 2.99792,  //  velocity of light
 			  RStrawDetectorMin = 16., // minimum radius of the Stt detector in  cm
 			  RStrawDetectorMax = 42.2, // maximum radius of the Stt detector in  cm
-			  StrawRadius = 0.5;
+			  StrawRadius = 0.5,
+			  STRAWRESOLUTION= 0.015;
   bool    ExclusionListStt[nmaxSttHits];
 
 	UShort_t	nMvdPixelHit,
@@ -223,7 +224,7 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 		Double_t SchosenSkew[nmaxSttHits],
 		UShort_t nSkewCommon[MAXTRACKSPEREVENT],
 		UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxSttHits],
-		UShort_t nMCSkewAlone,
+		UShort_t nMCSkewAlone[MAXMCTRACKS],
 		UShort_t MCSkewAloneList[MAXMCTRACKS][nmaxSttHits]
 			);
 
@@ -450,7 +451,7 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 
 
 
-     Short_t FitSZspace(
+  Short_t FitSZspace(
 			UShort_t nSkewHitsinTrack,
 			Double_t *S,
 			Double_t *Z,
