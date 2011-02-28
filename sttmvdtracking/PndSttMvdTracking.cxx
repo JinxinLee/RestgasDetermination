@@ -57,6 +57,7 @@ PndSttMvdTracking::PndSttMvdTracking(Int_t verbose) : FairTask("STT Stt-Mvd Trac
 
 // -----   Destructor   ----------------------------------------------------
 PndSttMvdTracking::~PndSttMvdTracking() { 
+
 }
 // -------------------------------------------------------------------------
 
@@ -1328,6 +1329,20 @@ if(istampa>2&& IVOLTE<20){
 			if( FI0[ncand] < 0. )  FI0[ncand]+= 2.*PI;
 		}
 
+if(istampa>=2) {
+cout<<"PndSttMvdTracking, prima di MatchMvdHitsToSttTracksagain, IVOLTE = "<<
+IVOLTE<<", ncand "<<ncand<<endl;
+for(int icaz=0;icaz<nMvdPixelHitsAssociatedToSttTrack[ncand];icaz++)
+{
+	cout<<"\tpixel hit n. "<<
+	ListMvdPixelHitsAssociatedToSttTrack[ncand][icaz]<<endl;
+}
+for(int icaz=0;icaz<nMvdStripHitsAssociatedToSttTrack[ncand];icaz++)
+{
+	cout<<"\tStrip hit n. "<<
+	ListMvdStripHitsAssociatedToSttTrack[ncand][icaz]<<endl;
+}
+}
 
 	}	// end of for(ncand=0; ncand< nTotalCandidates; ncand++)
 
@@ -1340,8 +1355,8 @@ if(istampa>2&& IVOLTE<20){
 //  circular trajectory in XY found  for the second time, after first refit
 
    delta=0.5; //  parameter of proximity for associating Mvd hits to Stt tracks
-   highqualitycut=0.3; //  parameter of proximity for associating Mvd hits to Stt tracks
-
+//   highqualitycut=0.3; //  parameter of proximity for associating Mvd hits to Stt tracks
+   highqualitycut=0.5; //  parameter of proximity for associating Mvd hits to Stt tracks
 
 
    MatchMvdHitsToSttTracksagain(
@@ -1368,18 +1383,33 @@ if(istampa>2&& IVOLTE<20){
 
   for(ncand=0; ncand< nTotalCandidates; ncand++)
   {
+if(istampa>=2) {
+cout<<"PndSttMvdTracking, dopo di MatchMvdHitsToSttTracksagain, IVOLTE = "<<
+IVOLTE<<", ncand "<<ncand<<endl;
+for(int icaz=0;icaz<nMvdPixelHitsAssociatedToSttTrack[ncand];icaz++)
+{
+	cout<<"\tpixel hit n. "<<
+	ListMvdPixelHitsAssociatedToSttTrack[ncand][icaz]<<endl;
+}
+for(int icaz=0;icaz<nMvdStripHitsAssociatedToSttTrack[ncand];icaz++)
+{
+	cout<<"\tStrip hit n. "<<
+	ListMvdStripHitsAssociatedToSttTrack[ncand][icaz]<<endl;
+}
+}
 	if( ! Mvdhits[ncand]) continue;
 
 	//   finding the FI angular range (in the laboratory frame) spanned by this parallel track
-	//   taking into account the Rmax and Rmin of the straw detector.
+	//   taking into account the Rmax and Rmin of the straw detector and under the
+	//   hypothesis that the track originates at (0,0).
 
 	PndSttFindingParallelTrackAngularRange(
 		Ox[ncand],
 		Oy[ncand],
 		R[ncand],
 		CHARGE[ncand],
-		&Fi_low_limit[ncand],	// Fi (in XY laboratory frame) lower limit using the Stt detector minimum radius
-		&Fi_up_limit[ncand]	// Fi (in XY laboratory frame) upper limit using the Stt detector maximum radius
+		&Fi_low_limit[ncand],	// Fi (in XY laboratory frame) lower limit using the Stt detector minimum/maximum radius
+		&Fi_up_limit[ncand]	// Fi (in XY laboratory frame) upper limit using the Stt detector maximum/minimum radius
 						);
 
 
@@ -1392,6 +1422,25 @@ if(istampa>2&& IVOLTE<20){
 	if( Fi_final_helix_referenceframe < FI0[ncand] )  Fi_final_helix_referenceframe = FI0[ncand];
 
 
+if(istampa>=2) {
+cout<<"PndSttMvdTracking, prima di AssociateSkewHitsToXYTrack, IVOLTE = "<<
+IVOLTE<<", ncand "<<ncand<<", FI0 = "<< FI0[ncand] <<"FI finale = "<<Fi_final_helix_referenceframe<<endl;
+for(int icaz=0;icaz<nMvdPixelHitsAssociatedToSttTrack[ncand];icaz++)
+{
+	cout<<"\tpixel hit n. "<<
+	ListMvdPixelHitsAssociatedToSttTrack[ncand][icaz]<<endl;
+}
+for(int icaz=0;icaz<nMvdStripHitsAssociatedToSttTrack[ncand];icaz++)
+{
+	cout<<"\tStrip hit n. "<<
+	ListMvdStripHitsAssociatedToSttTrack[ncand][icaz]<<endl;
+}
+for(int icaz=0;icaz<nSttSkewHitsinTrack[ncand];icaz++)
+{
+	cout<<"\tSkew straw hit n. "<<
+	ListSttSkewHitsinTrack[ncand][icaz]<<endl;
+}
+}
 
 	TemporarynSkewHitsinTrack = AssociateSkewHitsToXYTrack(
                    ExclusionListStt,
@@ -1404,11 +1453,11 @@ if(istampa>2&& IVOLTE<20){
 		WDX,
 		WDY,
 		WDZ,
-                   Fi_low_limit[ncand],
-                   Fi_up_limit[ncand],
+                   Fi_low_limit[ncand],	// Fi (in Helix XY frame) lower limit using the Stt detector minimum/maximum radius
+                   Fi_up_limit[ncand],	// Fi (in Helix XY frame) upper limit using the Stt detector maximum/minimum radius
                    CHARGE[ncand],
                    FI0[ncand],	// Fi of the vertex of track (0,0) in the Helix XY frame.
-                   Fi_final_helix_referenceframe,// Fi of last parallel Stt hit of track, in the Helix XY frame.
+                   Fi_final_helix_referenceframe, // Fi of last parallel Stt hit of track, in the Helix XY frame.
                    TemporarySkewList, // output,  list of selected skew hits (in skew numbering)
                    TemporaryS,       //  output,  S coordinate of selected Skew hit
                    TemporaryZ,       //  output,  Z coordinate of selected Skew hit (center wire)
@@ -1420,6 +1469,25 @@ if(istampa>2&& IVOLTE<20){
 	{
 		ListSttSkewHitsinTrack[ncand][j]=TemporarySkewList[j][0];
 	}
+if(istampa>=2) {
+cout<<"PndSttMvdTracking, dopo di AssociateSkewHitsToXYTrack, IVOLTE = "<<
+IVOLTE<<", ncand "<<ncand<<", FI0 = "<< FI0[ncand] <<"FI finale = "<<Fi_final_helix_referenceframe<<endl;
+for(int icaz=0;icaz<nMvdPixelHitsAssociatedToSttTrack[ncand];icaz++)
+{
+	cout<<"\tpixel hit n. "<<
+	ListMvdPixelHitsAssociatedToSttTrack[ncand][icaz]<<endl;
+}
+for(int icaz=0;icaz<nMvdStripHitsAssociatedToSttTrack[ncand];icaz++)
+{
+	cout<<"\tStrip hit n. "<<
+	ListMvdStripHitsAssociatedToSttTrack[ncand][icaz]<<endl;
+}
+for(int icaz=0;icaz<nSttSkewHitsinTrack[ncand];icaz++)
+{
+	cout<<"\tSkew straw hit n. "<<
+	ListSttSkewHitsinTrack[ncand][icaz]<<endl;
+}
+}
   }	// end of for(ncand=0; ncand< nTotalCandidates; ncand++)
 
 
@@ -1468,17 +1536,17 @@ if(istampa>2&& IVOLTE<20){
 					WDX,
 					WDY,
 					WDZ,
-					s,
+					s,	// output, alway between 0 and 2*PI
 					z,	// Zcoordinate of the central wire.
-					zdrift,
-					zerror
+					zdrift, //  drift radius projected onto the Helix
+					zerror  // STRAWRESOLUTION (0.015 cm) projected onto the Helix.
 					);
 				if( z[0]<999998. && z[1]<999998.){
 					ZEDbis[kall][0]=ZED[i]=z[0];
 					Sbis[kall][0]=S[i] = s[0];
 					DriftRadiusbis[kall][0]=DriftRadius[i]=zdrift[0];
 					if( fabs(zdrift[0]) >1.e-10) {
-					 ErrorDriftRadiusbis[kall][0]=ErrorDriftRadius[i]=zdrift[0];
+					 ErrorDriftRadiusbis[kall][0]=ErrorDriftRadius[i]=zerror[0];
 					} else {
 					 ErrorDriftRadiusbis[kall][0]=ErrorDriftRadius[i]=0.5;
 					}
@@ -1488,7 +1556,7 @@ if(istampa>2&& IVOLTE<20){
 					Sbis[kall][1]=S[i] = s[1];
 					DriftRadiusbis[kall][1]=DriftRadius[i]=zdrift[1];
 					if( fabs(zdrift[1]) >1.e-10) {
-					 ErrorDriftRadiusbis[kall][1]=ErrorDriftRadius[i]=zdrift[1];
+					 ErrorDriftRadiusbis[kall][1]=ErrorDriftRadius[i]=zerror[1];
 					} else {
 					 ErrorDriftRadiusbis[kall][1]=ErrorDriftRadius[i]=0.5;
 					}
@@ -1536,7 +1604,7 @@ if(istampa>2&& IVOLTE<20){
 					Sbis[kall][0]=S[i] = s[0];
 					DriftRadiusbis[kall][0]=DriftRadius[i]=zdrift[0];
 					if( fabs(zdrift[0]) >1.e-10) {
-					 ErrorDriftRadiusbis[kall][0]=ErrorDriftRadius[i]=zdrift[0];
+					 ErrorDriftRadiusbis[kall][0]=ErrorDriftRadius[i]=zerror[0];
 					} else {
 					 ErrorDriftRadiusbis[kall][0]=ErrorDriftRadius[i]=0.5;
 					}
@@ -1562,7 +1630,7 @@ if(istampa>2&& IVOLTE<20){
 					Sbis[kall][1]=S[i] = s[1];
 					DriftRadiusbis[kall][1]=DriftRadius[i]=zdrift[1];
 					if( fabs(zdrift[1]) >1.e-10) {
-					 ErrorDriftRadiusbis[kall][1]=ErrorDriftRadius[i]=zdrift[1];
+					 ErrorDriftRadiusbis[kall][1]=ErrorDriftRadius[i]=zerror[1];
 					} else {
 					 ErrorDriftRadiusbis[kall][1]=ErrorDriftRadius[i]=0.5;
 					}
@@ -1611,14 +1679,31 @@ if(istampa>2&& IVOLTE<20){
 	if(Mvdhits[ncand]){	//	in this case there is at least 1 Mvd hits associated to Stt track.
 
 
-	nSttSkewHitsinTrack[ncand]<6 ? j += nSttSkewHitsinTrack[ncand] :   j += 6; 
+		if( j ==1){
+			nSttSkewHitsinTrack[ncand]<5 ? j += nSttSkewHitsinTrack[ncand] :   j += 5; 
+		} else if (j==2){
+			// trick when 2 Mvd hit are very discordant
+			double dot = ZED[0]*ZED[1] + (s[0]-FI0[0])*(s[1]-FI0[0]);
+			double modulo0 = ZED[0]*ZED[0] + (s[0]-FI0[0])*(s[0]-FI0[0]);
+			double modulo1 = ZED[1]*ZED[1] + (s[1]-FI0[0])*(s[1]-FI0[0]);
+			if( modulo0 > 1.e-20 && modulo1 > 1.e-20 ){
+				dot /= (sqrt(modulo1*modulo0));
+				if(dot < 0.866 ) {
+					nSttSkewHitsinTrack[ncand]<5?j +=nSttSkewHitsinTrack[ncand]:j += 5;
+				}
+			}
 
+		}
+
+if(istampa>=2) cout<<"cazzissimo, evt n. "<<IVOLTE<<", ncand = "
+<<ncand<<", npix = "<<nMvdPixelHitsAssociatedToSttTrack[ncand]
+<<", nstrip = "<<nMvdStripHitsAssociatedToSttTrack[ncand]<<", j = "<<j<<endl;
 
 
 		FixDiscontinuitiesFiangleinSZplane(
 			j,
-			S,
-			&FI0[ncand],
+			S,	// S can be modified by +-2*PI if necessary.
+			&FI0[ncand],	// this remains unchanged.
 			CHARGE[ncand]
 					);
 
@@ -1636,8 +1721,8 @@ if(istampa>2&& IVOLTE<20){
 					20,	// maximum number allowed in the fit
 					&emme
 						);
-		if( resultFitSZagain[ncand]==1) KAPPA[ncand] = emme;
 
+		if( resultFitSZagain[ncand]==1) KAPPA[ncand] = emme;
 
 
 
@@ -1648,8 +1733,6 @@ if(istampa>2&& IVOLTE<20){
 //	of the SKEW hits and the MVD hits, for a given track candidate (ie for a given Helix
 //	circle in the XY plane)
 
-// %%%%%%%%%%%%%%%
-// %%%%%%%%%%%%%%%%%%%
 	EliminateSpuriousSZ(
 				&nMvdPixelHitsAssociatedToSttTrack[ncand],	// input and output
 				&ListMvdPixelHitsAssociatedToSttTrack[ncand][0],// input and output
@@ -1673,7 +1756,6 @@ if(istampa>2&& IVOLTE<20){
 				KAPPA[ncand],
 				FI0[ncand]
 				    );
-
 
 
 	}	// end of   if(Mvdhits[ncand])
@@ -2752,7 +2834,7 @@ for(l =0;l<nMvdPixelHitsAssociatedToSttTrack[it]+nMvdStripHitsAssociatedToSttTra
 		&SchosenSkew[i][0],
 		nSkewCommon,
 		SkewCommonList,
-		nMCSkewAlone[i],
+		nMCSkewAlone,
 		MCSkewAloneList
 						);
 
@@ -3023,10 +3105,8 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 		Double_t SchosenSkew[nmaxSttHits],
 		UShort_t nSkewCommon[MAXTRACKSPEREVENT],
 		UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxSttHits],
-		UShort_t nMCSkewAlone,
+		UShort_t nMCSkewAlone[MAXTRACKSPEREVENT],
 		UShort_t MCSkewAloneList[MAXMCTRACKS][nmaxSttHits]
-//		Double_t MCSkewAloneX[nmaxSttHits],
-//		Double_t MCSkewAloneY[nmaxSttHits]
 					)
 {
 
@@ -3116,6 +3196,22 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
             if (YMvdStrip[ii] > ymax)   ymax = YMvdStrip[ii];
        }
 
+
+       for( ii=0; ii< nMCParalAlone[iTrack]; ii++) {
+            i = MCParalAloneList[iTrack][ii] ;
+	    if( info[i][0] < xmin)   xmin = info[i][0];
+	    if( info[i][0] > xmax)   xmax = info[i][0];
+	    if( info[i][1] < ymin)   ymin = info[i][1];
+	    if( info[i][1] > ymax)   ymax = info[i][1];
+       }
+
+       for( ii=0; ii< nMCSkewAlone[iTrack]; ii++) {
+            i = MCSkewAloneList[iTrack][ii] ;
+	    if( info[i][0] < xmin)   xmin = info[i][0];
+	    if( info[i][0] > xmax)   xmax = info[i][0];
+	    if( info[i][1] < ymin)   ymin = info[i][1];
+	    if( info[i][1] > ymax)   ymax = info[i][1];
+       }
 
 
        if( xmin > 0. ) xmin = 0.;
@@ -3211,7 +3307,7 @@ punco: ;
 
        }
 //------------- hits paralleli MC 'alone'
-       for( ii=0; ii< nMCSkewAlone; ii++) {
+       for( ii=0; ii< nMCSkewAlone[iTrack]; ii++) {
             i = MCSkewAloneList[iTrack][ii] ;
            fprintf(MACRO,
    "TMarker* AloneSkewHit%d = new TMarker(%f,%f,%d);\nAloneSkewHit%d->SetMarkerColor(4);\nAloneSkewHit%d->Draw();\n",
@@ -6438,7 +6534,6 @@ if(istampa>=2) cout<<"Risults : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = 
 			ave += (S[ i ] - FInot)/Z[ i ];
 			avex += Z[ i ];
 			avey += (S[ i ] - FInot);
-
 		}
 	}
 
@@ -6458,7 +6553,7 @@ if(istampa>=2) cout<<"Risults : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = 
 
 //  use the trick of increasing the rotation angle by 10 degrees in order to obtain always a positive m
 //      rotationangle -= PI/18.;
-//      rotationangle = PI/2.;
+      rotationangle = PI/2.;
 
 
       cose = cos(rotationangle);
@@ -6468,22 +6563,20 @@ if(istampa>=2) cout<<"Risults : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = 
       for(i=0;i<NpointsInFit; i++){
        Ox[i] =   Z[i]*cose +(S[i] - FInot)*sine;
        Oy[i] = -Z[i]*sine +(S[i] - FInot)*cose;
-       Delta[i] = ErrorDriftRadius[i];
-//          Delta[i] = 3.*ErrorDriftRadius[ i ];   //   3 times the Drift Radius
+//       Delta[i] = ErrorDriftRadius[i];
+          Delta[i] = 2.*DriftRadius[i];
 
 	if( DriftRadius[ i ]<0. )
 	{
 		mvdhit[i]=true;
 		nMvdHits++;
-		Delta[i] = 0.1;
+//		Delta[i] = 0.006;
+		Delta[i] = 1.;
 	} else {
 		mvdhit[i]=false;
 		nSttHits++;
-		DriftRadius[ i ] *= sine;
 	}
       }
-
-
 
 
 
@@ -8526,8 +8619,8 @@ int nevento=1;
 						Double_t *WDZ,
 						Double_t S[2],
 						Double_t Z[2], //  Zcoordinate of the central wire.
-						Double_t Zdrift[2],
-						Double_t Zerror[2]
+						Double_t Zdrift[2],// drift radius projected onto the Helix.
+						Double_t Zerror[2] //  150 micron projected onto the Helix.
 						)
 {
 
@@ -8622,7 +8715,8 @@ int nevento=1;
 
 	Z[ii] = POINTS1[j+2];
 	Zdrift[ii] =  Aellipsis1;
-	Zerror[ii] = StrawRadius*aaa/LL;
+//	Zerror[ii] = StrawRadius*aaa/LL;
+	Zerror[ii] = STRAWRESOLUTION*aaa/LL;
 
 
 
@@ -8683,6 +8777,7 @@ int nevento=1;
 		 Nround[4];
 
 	const Double_t  MvdCut=0.5,
+//	const Double_t  MvdCut=0.1,
 			minimumSttDriftError = 1.;
 
 	Double_t ddd,
@@ -8706,6 +8801,7 @@ int nevento=1;
 
 	for(i=0;i<*nMvdPixelHitsAssociatedToSttTrack;i++){
 
+
 		if( fabs(SignedDist_SZ(KAPPA,FI0,ZED[i][0],S[i][0],&nrounds0)) < MvdCut
 						&&
 					abs(nrounds0)<MAXTURNSOFTRACK){
@@ -8719,6 +8815,7 @@ int nevento=1;
 
 	for(j=0;j<*nMvdStripHitsAssociatedToSttTrack;j++){
 		i=j+(*nMvdPixelHitsAssociatedToSttTrack);
+
 
 		if( fabs(SignedDist_SZ(KAPPA,FI0,ZED[i][0],S[i][0],&nrounds0)) < MvdCut
 						&&
@@ -8734,6 +8831,7 @@ int nevento=1;
 	for(j=0;j<*nSttSkewHitsinTrack;j++){
 		i=j+(*nMvdPixelHitsAssociatedToSttTrack)+
 		    (*nMvdStripHitsAssociatedToSttTrack);
+ 
 		if( ZED[i][0]<999990. && ZED[i][1]<999990.){
 
 			Dista[0] = SignedDist_SZ(KAPPA,FI0,ZED[i][0]+DriftRadius[i][0],S[i][0],&Nround[0]);
@@ -8748,10 +8846,14 @@ int nevento=1;
 			Esse[1] = S[i][0];
 			Esse[2] = S[i][1];
 			Esse[3] = S[i][1];
-			Errore[0]= ErrorDriftRadius[i][0];
-			Errore[1]= ErrorDriftRadius[i][1];
-			Errore[2]= ErrorDriftRadius[i][2];
-			Errore[3]= ErrorDriftRadius[i][3];
+			Errore[0]= DriftRadius[i][0];
+			Errore[1]= DriftRadius[i][1];
+			Errore[2]= DriftRadius[i][2];
+			Errore[3]= DriftRadius[i][3];
+//			Errore[0]= ErrorDriftRadius[i][0];
+//			Errore[1]= ErrorDriftRadius[i][1];
+//			Errore[2]= ErrorDriftRadius[i][2];
+//			Errore[3]= ErrorDriftRadius[i][3];
 			d_min=999999999.;
 			for(k=0;k<4;k++){
 				if( Nround[k]<MAXTURNSOFTRACK )
@@ -8773,7 +8875,7 @@ int nevento=1;
 
 			dista = SignedDist_SZ(KAPPA,FI0,ZED[i][0]+DriftRadius[i][0],S[i][0],&nrounds0);
 			ddd = SignedDist_SZ(KAPPA,FI0,ZED[i][0]-DriftRadius[i][0],S[i][0],&nr2);
-			if( abs(nrounds0) >= MAXTURNSOFTRACK &&
+		if( abs(nrounds0) >= MAXTURNSOFTRACK &&
 				 abs(nr2)>=MAXTURNSOFTRACK)
 			{
 				continue;
@@ -8793,7 +8895,8 @@ int nevento=1;
 				 zeta0 = ZED[i][0]+DriftRadius[i][0];
 				}
 			}
-			error = ErrorDriftRadius[i][0];
+			error = DriftRadius[i][0];
+//			error = ErrorDriftRadius[i][0];
 			SchosenSkew[ListSttSkewHitsinTrack[j]]=S[i][0];
 			ZchosenSkew[ListSttSkewHitsinTrack[j]]=zeta0;
 
@@ -8801,6 +8904,7 @@ int nevento=1;
 
 			dista = SignedDist_SZ(KAPPA,FI0,ZED[i][1]+DriftRadius[i][1],S[i][1],&nrounds1);
 			ddd = SignedDist_SZ(KAPPA,FI0,ZED[i][1]-DriftRadius[i][1],S[i][1],&nr2);
+
 
 			if( abs(nrounds1) >= MAXTURNSOFTRACK &&
 				 abs(nr2)>=MAXTURNSOFTRACK)
@@ -8822,7 +8926,8 @@ int nevento=1;
 				 zeta1 = ZED[i][0]+DriftRadius[i][0];
 				}
 			}
-			error = ErrorDriftRadius[i][1];
+			error = DriftRadius[i][1];
+//			error = ErrorDriftRadius[i][1];
 			SchosenSkew[ListSttSkewHitsinTrack[j]]=S[i][1];
 			ZchosenSkew[ListSttSkewHitsinTrack[j]]=zeta1;
 
@@ -9012,26 +9117,15 @@ int nevento=1;
      UShort_t i;
      Double_t max, min;
 
-     for(i=0, min = 9999., max = -9999.; i<TemporarynSkewHitsinTrack; i++){
-        if( S[i] > max ) max = S[i];
-        if( S[i] < min ) min = S[i];
-     }
-
-
-     if( max-min> PI) {
-       for(i=0, min = 9999., max = -9999.; i<TemporarynSkewHitsinTrack; i++){
-        if( S[i] < PI ) S[i] += 2.*PI;
-        if( S[i] > max ) max = S[i];
-        if( S[i] < min ) min = S[i];
-       }
-        
-     }
-
-
-     if( Charge >0 ){
-       if( *Fi_initial_helix_referenceframe < max ) *Fi_initial_helix_referenceframe  += 2.*PI;
+     if( Charge >0 )
+     {
+	for(i=0 ; i<TemporarynSkewHitsinTrack; i++){
+		if( S[i] > *Fi_initial_helix_referenceframe )  S[i]-= 2.*PI;
+	}
      } else {
-       if( *Fi_initial_helix_referenceframe > min ) *Fi_initial_helix_referenceframe  -= 2.*PI;
+	for(i=0 ; i<TemporarynSkewHitsinTrack; i++){
+		if( S[i] < *Fi_initial_helix_referenceframe )  S[i]+= 2.*PI;
+	}
      }
 
      return;
@@ -9053,89 +9147,131 @@ int nevento=1;
 									)
 {
 // -------------- calculate the maximum fi and minimum fi spanned by this track,
-// see logbook pag.242; by using the Rmin and Rmax of the straw detector.
+
+// see logbook pag.270; by using the Rmin and Rmax of the straw detector.
 
 //  working in the hypothesis that the starting point of the track is near (0,0) so that
 //  R_vertex < RStrawDetectorMin
 
-
-         Double_t  teta1, teta2, tetavertex, tmp1;
-
-
-         tmp1 = sqrt(oX*oX+oY*oY);
-
-         if(R + tmp1 - RStrawDetectorMax >= 0. ){     //     this is the most common case
-
-            if( Charge < 0.){
-               teta1=asin(0.5*RStrawDetectorMin/R);
-               teta2=asin(0.5*RStrawDetectorMax/R);
-               tetavertex=atan2( -oX, oY);
-               teta1 +=tetavertex;
-               teta2 +=tetavertex;
-            } else {
-               teta2=asin(0.5*RStrawDetectorMin/R);
-               teta1=asin(0.5*RStrawDetectorMax/R);
-               tetavertex=atan2( oX, -oY);
-               teta1 = tetavertex - teta1;
-               teta2 = tetavertex - teta2;
-            }
+	bool	intersection_inner,
+		intersection_outer;
+	Double_t	teta1,
+			teta2,
+			tetavertex,
+			a,
+			cosT,
+			cost,
+			cosFi,
+			cosfi,
+			Fi,
+			fi,
+			FI0,
+			Px,
+			Py,
+			Rmax,
+			Rmin,
+			tmp;
 
 
-
-
-         } else if ( R + tmp1 > RStrawDetectorMin  ){
-
-
-            if( Charge < 0.){
-               teta1=asin(0.5*RStrawDetectorMin/R);
-               teta2= PI - teta1;
-               tetavertex=atan2( -oX, oY);
-               teta1 +=tetavertex;
-               teta2 +=tetavertex;
-            } else {
-               teta2=asin(0.5*RStrawDetectorMin/R);
-               teta1= PI - teta2;
-               tetavertex=atan2( oX, -oY);
-               teta1 = tetavertex - teta1;
-               teta2 = tetavertex - teta2;
-            }
-
-
-         } else {            //  case when the trajectory is too small
-               teta1=-99999.;
-            
-         }   //  end of          if(R + tmp1 - RStrawDetectorMax >= 0. )
+	Rmax = RStrawDetectorMax+1. ; // add a safety margin.
+	Rmin = RStrawDetectorMin-1. ; // add a safety margin.
 
 
 
-         if(teta1>-99998) {
 
-//  add safety margin
-           teta1 -= 2.*StrawRadius/RStrawDetectorMin;
-           teta2 += 2.*StrawRadius/RStrawDetectorMin;
-           if(teta1<0.) {
-             teta1 += 2.*PI;
-             teta2 += 2.*PI;
-           }
-//-------
+	a = sqrt(oX*oX+oY*oY);
 
-           if(teta1 > 2.*PI) {
-             teta1=fmod(teta1,2.*PI);
-             teta2=fmod(teta2,2.*PI);
-           }
-           *Fi_low_limit=teta1;
-           *Fi_up_limit=teta2;
-
-         }  //  end of  if(teta1>-99998)
+	//  preliminary condition
+	if(a + R <= Rmin  || a-R>= Rmax) { *Fi_low_limit=-99999.;return;}
 
 
-//------------  end calculation the maximum fi and minimum fi spanned by this track
+
+	if( a - R >= Rmin ) intersection_inner = false; else intersection_inner = true;
+
+	if( a + R <= Rmax || a - R >= Rmax  ) intersection_outer = false; else intersection_outer = true;
+
+	if( (! intersection_inner) && (! intersection_outer) ){
+		*Fi_low_limit = 0.;
+		*Fi_up_limit = 2.*PI;
+		return;
+	}
+
+//	now the calculation
+
+	FI0 = atan2(-oY,-oX);
+
+	if( intersection_outer ){
+		cosFi = (a*a + R*R - Rmax*Rmax)/(2.*R*a);
+		if(cosFi<-1.) cosFi=-1.; else if(cosFi>1.) cosFi=1.;
+		Fi = acos(cosFi);
+	}
+
+	if( intersection_inner ){
+		cosfi = (a*a + R*R - Rmin*Rmin)/(2.*R*a);
+		if(cosfi<-1.) cosfi=-1.; else if(cosfi>1.) cosfi=1.;
+		fi = acos(cosfi);
+	}
+
+
+	if( Charge < 0.){ // this particle rotates counterclockwise when looking into the beam
+		if( intersection_outer && intersection_inner){
+			*Fi_low_limit=FI0 + fi;
+			*Fi_up_limit= FI0 +Fi;
+
+		} else if (intersection_inner) {
+			*Fi_low_limit=FI0 + fi;
+			*Fi_up_limit= FI0 - fi;
+		} else {
+			*Fi_low_limit=FI0 - Fi;
+			*Fi_up_limit= FI0 + Fi;
+		}	// end of    if( intersection_outer && intersection_inner
+
+
+
+	} else {	// continuation of   if( Charge < 0.)
+
+		if( intersection_outer && intersection_inner){
+			*Fi_low_limit=FI0 - Fi;
+			*Fi_up_limit= FI0 - fi;
+
+		} else if (intersection_inner) {
+			*Fi_low_limit=FI0 + fi;	// must invert because low limit must be < up limit
+			*Fi_up_limit= FI0 - fi;
+		} else {
+			*Fi_low_limit=FI0 - Fi;
+			*Fi_up_limit= FI0 + Fi;
+		}	// end of    if( intersection_outer && intersection_inner
+
+
+	}	// end of  if( Charge < 0.)
+
+
+
+
+	if(*Fi_low_limit<0.) {
+		*Fi_low_limit=fmod(*Fi_low_limit,2.*PI);
+		*Fi_low_limit += 2.*PI;
+	} else if (*Fi_low_limit>=2.*PI){
+		*Fi_low_limit=fmod(*Fi_low_limit,2.*PI);
+	}
+	if(*Fi_up_limit<0.) {
+		*Fi_up_limit=fmod(*Fi_up_limit,2.*PI);
+		*Fi_up_limit += 2.*PI;
+	} else if (*Fi_up_limit>=2.*PI){
+		*Fi_up_limit=fmod(*Fi_up_limit,2.*PI);
+	}
+
+	//	Modify *Fi_up_limit by adding
+	//	2PI if it is the case, in order to make *Fi_up_limit > *Fi_low_limit.
+	if( *Fi_up_limit < *Fi_low_limit ) *Fi_up_limit += 2.*PI;
+	if( *Fi_up_limit < *Fi_low_limit ) *Fi_up_limit = *Fi_low_limit;
+
+
 
 
 
       return;
 }
-
 
 //---------- end of  function PndSttMvdTracking::PndSttFindingParallelTrackAngularRange
 
@@ -9269,12 +9405,12 @@ int nevento=1;
         if( S[NAssociated] < 0.) S[NAssociated] += 2.*PI;
 
 //  check if the S of this intersection is compatible with information coming from the parallel fit of this track
-        Double_t Sprime = atan2(POINTS1[j+1], POINTS1[j]) ;
-        if( Sprime < 0.) Sprime += 2.*PI;
-        if(  Sprime < Fi_low_limit) {
-           if(  Sprime+2.*PI > Fi_up_limit)  continue;
-        }  else {
-           if(  Sprime > Fi_up_limit)  continue;
+//        Double_t Sprime = atan2(POINTS1[j+1], POINTS1[j]) ;
+//        if( Sprime < 0.) Sprime += 2.*PI;
+        if(  S[NAssociated] < Fi_low_limit) {
+           if(  S[NAssociated]+2.*PI > Fi_up_limit)  continue;
+        }  else if(  S[NAssociated] > Fi_up_limit) {
+	   if(  S[NAssociated]- 2.*PI < Fi_low_limit)  continue;
         }
 
 
