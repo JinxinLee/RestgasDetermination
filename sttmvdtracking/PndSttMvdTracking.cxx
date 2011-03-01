@@ -333,9 +333,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 	 tubeID
          ;
 
-  Short_t  nrounds0,
-	   nrounds1,
-	   daTrackFoundaTrackMC[MAXTRACKSPEREVENT],
+  Short_t  daTrackFoundaTrackMC[MAXTRACKSPEREVENT],
 	   CHARGE[MAXTRACKSPEREVENT];
 
   UShort_t l,
@@ -398,6 +396,9 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 		ncand,
 		n;
 
+
+  Int_t	nrounds0,
+	nrounds1;
 
   Double_t Dist,
 	   Distance,
@@ -1408,10 +1409,12 @@ for(int icaz=0;icaz<nMvdStripHitsAssociatedToSttTrack[ncand];icaz++)
 		Oy[ncand],
 		R[ncand],
 		CHARGE[ncand],
-		&Fi_low_limit[ncand],	// Fi (in XY laboratory frame) lower limit using the Stt detector minimum/maximum radius
-		&Fi_up_limit[ncand]	// Fi (in XY laboratory frame) upper limit using the Stt detector maximum/minimum radius
+		&Fi_low_limit[ncand],	// Fi (in XY Helix frame) lower limit using the Stt detector minimum/maximum radius
+		&Fi_up_limit[ncand]	// Fi (in XY Helix frame) upper limit using the Stt detector maximum/minimum radius
 						);
-
+	if( Fi_low_limit[ncand] < -99998. ) continue; // this is when the XY circle dos not cross
+							// the STT region (it should never happen in
+							// principle at this point of the code).
 
 	Fi_final_helix_referenceframe = atan2(
 		info[ ListSttParHitsinTrack[ncand][ nSttParHitsinTrack[ncand]-1 ]-1 ][1]-Oy[ncand],
@@ -1565,9 +1568,9 @@ for(int icaz=0;icaz<nSttSkewHitsinTrack[ncand];icaz++)
 					if(!Mvdhits[ncand])
 					// in this case calculate also ZchosenSkew and SchosenSkew
 					{
-					  dista0 = SignedDist_SZ(KAPPA[ncand],FI0[ncand],
+					  dista0 = Dist_SZ(R[ncand],KAPPA[ncand],FI0[ncand],
 							z[0]+zdrift[0],s[0],&nrounds0);
-					  ddd = SignedDist_SZ(KAPPA[ncand],FI0[ncand],
+					  ddd = Dist_SZ(R[ncand],KAPPA[ncand],FI0[ncand],
 							z[0]-zdrift[0],s[0],&nrounds0);
 					  if( fabs(dista0)> fabs(ddd) ){
 					   dista0=ddd;
@@ -1576,9 +1579,9 @@ for(int icaz=0;icaz<nSttSkewHitsinTrack[ncand];icaz++)
 					   zeta0 = z[0]+zdrift[0];
 					  }
 
-					  dista1 = SignedDist_SZ(KAPPA[ncand],FI0[ncand],
+					  dista1 = Dist_SZ(R[ncand],KAPPA[ncand],FI0[ncand],
 							z[1]+zdrift[1],s[1],&nrounds1);
-					  ddd = SignedDist_SZ(KAPPA[ncand],FI0[ncand],
+					  ddd = Dist_SZ(R[ncand],KAPPA[ncand],FI0[ncand],
 							z[1]-zdrift[1],s[1],&nrounds1);
 					  if( fabs(dista1)> fabs(ddd) ){
 					   dista1=ddd;
@@ -1613,9 +1616,9 @@ for(int icaz=0;icaz<nSttSkewHitsinTrack[ncand];icaz++)
 					if(!Mvdhits[ncand])
 					// in this case calculate also ZchosenSkew and SchosenSkew
 					{
-					  dista = SignedDist_SZ(KAPPA[ncand],FI0[ncand],
+					  dista = Dist_SZ(R[ncand],KAPPA[ncand],FI0[ncand],
 							z[0]+zdrift[0],s[0],&nrounds0);
-					  ddd = SignedDist_SZ(KAPPA[ncand],FI0[ncand],
+					  ddd = Dist_SZ(R[ncand],KAPPA[ncand],FI0[ncand],
 							z[0]-zdrift[0],s[0],&nrounds0);
 					  SchosenSkew[ncand][k]=s[0];
 					  if( fabs(dista)> fabs(ddd) ){
@@ -1640,9 +1643,9 @@ for(int icaz=0;icaz<nSttSkewHitsinTrack[ncand];icaz++)
 					if(!Mvdhits[ncand])
 					{
 					// in this case calculate also ZchosenSkew and SchosenSkew
-					  dista = SignedDist_SZ(KAPPA[ncand],FI0[ncand]
+					  dista = Dist_SZ(R[ncand],KAPPA[ncand],FI0[ncand]
 							,z[1]+zdrift[1],s[1],&nrounds0);
-					  ddd = SignedDist_SZ(KAPPA[ncand],FI0[ncand],
+					  ddd = Dist_SZ(R[ncand],KAPPA[ncand],FI0[ncand],
 							z[1]-zdrift[1],s[1],&nrounds1);
 					  SchosenSkew[ncand][k]=s[1];
 
@@ -1695,9 +1698,6 @@ for(int icaz=0;icaz<nSttSkewHitsinTrack[ncand];icaz++)
 
 		}
 
-if(istampa>=2) cout<<"cazzissimo, evt n. "<<IVOLTE<<", ncand = "
-<<ncand<<", npix = "<<nMvdPixelHitsAssociatedToSttTrack[ncand]
-<<", nstrip = "<<nMvdStripHitsAssociatedToSttTrack[ncand]<<", j = "<<j<<endl;
 
 
 		FixDiscontinuitiesFiangleinSZplane(
@@ -1754,7 +1754,8 @@ if(istampa>=2) cout<<"cazzissimo, evt n. "<<IVOLTE<<", ncand = "
 				&ErrorchosenStrip[ncand][0],
 				&ErrorchosenSkew[ncand][0],
 				KAPPA[ncand],
-				FI0[ncand]
+				FI0[ncand],
+				R[ncand]
 				    );
 
 
@@ -8756,7 +8757,8 @@ int nevento=1;
 			Double_t ErrorchosenStrip[nmaxMvdStripHits],
 			Double_t ErrorchosenSkew[nmaxSttHits],
 			Double_t KAPPA,
-			Double_t FI0
+			Double_t FI0,
+			Double_t R
 				    )
 {
 
@@ -8771,7 +8773,7 @@ int nevento=1;
 		 auxnSttSkew,
 		 auxListSttSkew[(*nSttSkewHitsinTrack)];
 
-	Short_t  nr2,
+	Int_t  nr2,
 		 nrounds0,
 		 nrounds1,
 		 Nround[4];
@@ -8802,7 +8804,7 @@ int nevento=1;
 	for(i=0;i<*nMvdPixelHitsAssociatedToSttTrack;i++){
 
 
-		if( fabs(SignedDist_SZ(KAPPA,FI0,ZED[i][0],S[i][0],&nrounds0)) < MvdCut
+		if( Dist_SZ(R,KAPPA,FI0,ZED[i][0],S[i][0],&nrounds0) < MvdCut
 						&&
 					abs(nrounds0)<MAXTURNSOFTRACK){
 			auxListMvdPixel[auxnMvdPixel]=ListMvdPixelHitsAssociatedToSttTrack[i];
@@ -8817,7 +8819,7 @@ int nevento=1;
 		i=j+(*nMvdPixelHitsAssociatedToSttTrack);
 
 
-		if( fabs(SignedDist_SZ(KAPPA,FI0,ZED[i][0],S[i][0],&nrounds0)) < MvdCut
+		if( Dist_SZ(R,KAPPA,FI0,ZED[i][0],S[i][0],&nrounds0) < MvdCut
 						&&
 					abs(nrounds0)<MAXTURNSOFTRACK){
 			auxListMvdStrip[auxnMvdStrip]=ListMvdStripHitsAssociatedToSttTrack[j];
@@ -8834,10 +8836,10 @@ int nevento=1;
  
 		if( ZED[i][0]<999990. && ZED[i][1]<999990.){
 
-			Dista[0] = SignedDist_SZ(KAPPA,FI0,ZED[i][0]+DriftRadius[i][0],S[i][0],&Nround[0]);
-			Dista[1] = SignedDist_SZ(KAPPA,FI0,ZED[i][0]-DriftRadius[i][0],S[i][0],&Nround[1]);
-			Dista[2] = SignedDist_SZ(KAPPA,FI0,ZED[i][1]+DriftRadius[i][1],S[i][1],&Nround[2]);
-			Dista[3] = SignedDist_SZ(KAPPA,FI0,ZED[i][1]-DriftRadius[i][1],S[i][1],&Nround[3]);
+			Dista[0] = Dist_SZ(R,KAPPA,FI0,ZED[i][0]+DriftRadius[i][0],S[i][0],&Nround[0]);
+			Dista[1] = Dist_SZ(R,KAPPA,FI0,ZED[i][0]-DriftRadius[i][0],S[i][0],&Nround[1]);
+			Dista[2] = Dist_SZ(R,KAPPA,FI0,ZED[i][1]+DriftRadius[i][1],S[i][1],&Nround[2]);
+			Dista[3] = Dist_SZ(R,KAPPA,FI0,ZED[i][1]-DriftRadius[i][1],S[i][1],&Nround[3]);
 			Zeta[0] = ZED[i][0]-DriftRadius[i][0];
 			Zeta[1] = ZED[i][0]+DriftRadius[i][0];
 			Zeta[2] = ZED[i][1]-DriftRadius[i][1];
@@ -8873,8 +8875,8 @@ int nevento=1;
 
 		} else if (ZED[i][0]<999990.){
 
-			dista = SignedDist_SZ(KAPPA,FI0,ZED[i][0]+DriftRadius[i][0],S[i][0],&nrounds0);
-			ddd = SignedDist_SZ(KAPPA,FI0,ZED[i][0]-DriftRadius[i][0],S[i][0],&nr2);
+			dista = Dist_SZ(R,KAPPA,FI0,ZED[i][0]+DriftRadius[i][0],S[i][0],&nrounds0);
+			ddd = Dist_SZ(R,KAPPA,FI0,ZED[i][0]-DriftRadius[i][0],S[i][0],&nr2);
 		if( abs(nrounds0) >= MAXTURNSOFTRACK &&
 				 abs(nr2)>=MAXTURNSOFTRACK)
 			{
@@ -8902,8 +8904,8 @@ int nevento=1;
 
 		} else if (ZED[i][1]<999990.){
 
-			dista = SignedDist_SZ(KAPPA,FI0,ZED[i][1]+DriftRadius[i][1],S[i][1],&nrounds1);
-			ddd = SignedDist_SZ(KAPPA,FI0,ZED[i][1]-DriftRadius[i][1],S[i][1],&nr2);
+			dista = Dist_SZ(R,KAPPA,FI0,ZED[i][1]+DriftRadius[i][1],S[i][1],&nrounds1);
+			ddd = Dist_SZ(R,KAPPA,FI0,ZED[i][1]-DriftRadius[i][1],S[i][1],&nr2);
 
 
 			if( abs(nrounds1) >= MAXTURNSOFTRACK &&
@@ -8919,7 +8921,7 @@ int nevento=1;
 				 zeta1 = ZED[i][0]-DriftRadius[i][0];
 			} else
 			{
-				if( fabs(dista)>fabs(ddd) ) {
+				if( dista>ddd ) {
 				 dista = ddd;
 				 zeta1 = ZED[i][0]-DriftRadius[i][0];
 				} else {
@@ -8935,9 +8937,9 @@ int nevento=1;
 			continue;
 		}
 		if(
-			fabs(dista) < 2.*error
+			dista < 2.*error
 				||
-			fabs(dista) < 2.*minimumSttDriftError
+			dista < 2.*minimumSttDriftError
 			){
 			auxListSttSkew[auxnSttSkew]=ListSttSkewHitsinTrack[j];
 			ErrorchosenSkew[ListSttSkewHitsinTrack[j]]=error;
@@ -8971,9 +8973,76 @@ int nevento=1;
 
 
 
-//-------------------------  begin of function  PndSttMvdTracking::SignedDist_SZ
+//-------------------------  begin of function  PndSttMvdTracking::Dist_SZ
 
-  Double_t PndSttMvdTracking::SignedDist_SZ(
+  Double_t PndSttMvdTracking::Dist_SZ(
+					Double_t R,
+					Double_t KAPPA,
+					Double_t FI0,
+					Double_t ZED,
+					Double_t S,
+					Int_t *nrounds
+					)
+{
+
+//	Defining :	ZZ = (S-FI0)/KAPPA
+//	this method returns the distance (WITH ITS SIGN ) :  ZZ - ZED.  Therefore this number
+//	can be negative.
+//	Care is taken to calculate this distance properly taking into
+//	account that we are dealing with the function  FI = mod(KAPPA*Z + FI0, 2*3.14). 
+
+// the limits of an Int_t are : -2147483648 <= n <= 2147483647
+
+	Double_t aaa,
+		ABSdis1,
+		dis1,
+		dis2,
+		dis_segments,
+		gap;
+
+	if(fabs(KAPPA) < 1.e-10){
+		return -999999999.;
+	} else if (fabs(KAPPA)>1.e10) {
+		return -ZED;
+	}
+
+//	gap = fabs(2.*PI/KAPPA);
+	
+	aaa = (KAPPA*ZED)/(2.*PI);
+	if( aaa<-2147483648.) {
+		*nrounds = -2147483647;
+	} else if (aaa > 2147483647.) {
+		*nrounds = 2147483647;
+	} else {
+		*nrounds = (Int_t) aaa;
+	}
+
+	dis_segments = 2.*PI*R/sqrt(1.+KAPPA*KAPPA*R*R); // distance between two consecutive segments
+						   //  of trajectory.
+
+	dis1 = fabs( R*S -R*KAPPA*ZED - R*FI0)/sqrt( 1.+KAPPA*KAPPA*R*R);
+	dis1 = fmod(dis1,dis_segments);
+	dis2 = dis_segments-dis1; if(dis2<0.)dis2==0.;
+
+
+	if( dis1 < dis2 )
+	{
+		return dis1;
+	} else {
+		return dis2;
+	}
+
+}
+
+//-------------------------  end of function  PndSttMvdTracking::Dist_SZ
+
+
+
+
+//-------------------------  begin of function  PndSttMvdTracking::SignedDist_SZbis
+
+//obsolete
+  Double_t PndSttMvdTracking::SignedDist_SZbis(
   					Double_t KAPPA,
 					Double_t FI0,
 					Double_t ZED,
@@ -9020,9 +9089,7 @@ int nevento=1;
 
 }
 
-//-------------------------  end of function  PndSttMvdTracking::SignedDist_SZ
-
-
+//-------------------------  end of function  PndSttMvdTracking::SignedDist_SZbis
 
 
 
@@ -9182,13 +9249,14 @@ int nevento=1;
 	a = sqrt(oX*oX+oY*oY);
 
 	//  preliminary condition
-	if(a + R <= Rmin  || a-R>= Rmax) { *Fi_low_limit=-99999.;return;}
+	if(a + R <= Rmin  || a >= R + Rmax || R >= a + Rmax) { *Fi_low_limit=-99999.;return;}
 
 
 
 	if( a - R >= Rmin ) intersection_inner = false; else intersection_inner = true;
 
-	if( a + R <= Rmax || a - R >= Rmax  ) intersection_outer = false; else intersection_outer = true;
+	if( a + R <= Rmax || a - R >= Rmax  )
+		 intersection_outer = false; else intersection_outer = true;
 
 	if( (! intersection_inner) && (! intersection_outer) ){
 		*Fi_low_limit = 0.;
