@@ -116,8 +116,8 @@ Int_t PndAnalysis::GetEvent(Int_t n)
 	chargedCands.Cleanup();
 	neutralCands.Cleanup();
 	mcCands.Cleanup();
-    TFactory::Instance()->Reset();
-
+  TFactory::Instance()->Reset();
+  
 	fEventRead=false;
 	
 	if (n>=0) fEvtCount=n+1;
@@ -163,7 +163,7 @@ Bool_t PndAnalysis::FillList(TCandList &l, std::string listkey)
         VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fNeutralCands->At(i1);		
         TCandidate buffcand(*mic,i1+1);
         TCandidate *tc = TFactory::Instance()->NewCandidate(buffcand);
-
+        
         // TODO: Do we want to set something here? It is neutrals anyway.
         if(i1<fNeutralProbability->GetEntriesFast())
         {
@@ -305,28 +305,50 @@ Bool_t PndAnalysis::PropagateToIp(TCandidate* cand)
   return PropagateToPoint(cand, new TVector3(0.,0.,0.) );
 }  
 
+Bool_t PndAnalysis::PropagateToZAxis(TCandidate* cand)
+{
+  return Propagator(2,cand,NULL);
+}
+
+
 Bool_t PndAnalysis::PropagateToPoint(TCandidate* cand, TVector3* mypoint)
 { //Propagate from the tracks first parameter set to the POCA from mypoint
+  //The candidate is updated but the track not touched 
+  //Only the uncorrelated errors are propagated, 
+  //TODO: implement a real cov matrix
+  return Propagator(1,cand,mypoint);
+}
+
+Bool_t PndAnalysis::Propagator(int mode, TCandidate* cand, TVector3* mypoint)
+{
+  //Propagate from the tracks first parameter set to the POCA from mypoint
   //The candidate is updated but the track not touched 
   //Only the uncorrelated errors are propagated, 
   //TODO: implement a real cov matrix
   
   Bool_t rc = kFALSE;
   if(!cand) {
-    Error("PropagateToPoint","Candidate not found: %p",cand);
+    Error("Propagator","Candidate not found: %p",cand);
     return kFALSE;
   }
   PndPidCandidate* pidCand = static_cast<PndPidCandidate*>(&cand->GetMicroCandidate());
   PndTrack* track = (PndTrack*)fTracks->At(pidCand->GetTrackIndex());
-  if (!track) {Warning("PropagateToPoint","Could not find track object of index %d",pidCand->GetTrackIndex()); return kFALSE;}
+  if (!track) {Warning("Propagator","Could not find track object of index %d",pidCand->GetTrackIndex()); return kFALSE;}
   FairGeanePro* geaneProp = new FairGeanePro();
-  geaneProp->BackTrackToVertex(); //set where to propagate
-  geaneProp->SetPoint(*mypoint);
   FairTrackParP tStart = track->GetParamFirst();
   FairTrackParH* myStart = new FairTrackParH(tStart);
   FairTrackParH* myResult = new FairTrackParH();
   Int_t pdgcode = cand->PdgCode();
-  cout<<"Try pdgCode "<<pdgcode<<endl;
+  if(fVerbose>0)cout<<"Try mode "<<mode<<" with pdgCode "<<pdgcode<<endl;
+  if(1==mode && NULL!=mypoint){
+    geaneProp->BackTrackToVertex(); //set where to propagate
+    geaneProp->SetPoint(*mypoint);
+  } else if(2==mode){
+    geaneProp->PropagateToPCA(2, -1);// track back to z axis
+    TVector3 ex1(0.,0.,-10.);
+    TVector3 ex2(0.,0.,10.);
+    geaneProp->SetWire(ex1,ex2);
+  } else return kFALSE;
   
   // now we propagate
   rc = geaneProp->Propagate(myStart, myResult,pdgcode);
@@ -335,14 +357,15 @@ Bool_t PndAnalysis::PropagateToPoint(TCandidate* cand, TVector3* mypoint)
   TVector3 pos(myResult->GetX(),myResult->GetY(),myResult->GetZ()); // I want to be sure... 
   //printout for checks
   TVector3 vecdiff=myStart->GetPosition() - myResult->GetPosition();
-  std::cout<<"position start     :";  myStart->GetPosition().Print();
-  std::cout<<"position ip        :";  myResult->GetPosition().Print();
-  std::cout<<"position difference:";  vecdiff.Print();
-  vecdiff=myStart->GetMomentum()-myResult->GetMomentum();
-  std::cout<<"momentum start     :";  myStart->GetMomentum().Print();
-  std::cout<<"momentum ip        :";  myResult->GetMomentum().Print();
-  std::cout<<"momentum difference:";  vecdiff.Print();
-  
+  if(fVerbose>1){
+    std::cout<<"position start     :";  myStart->GetPosition().Print();
+    std::cout<<"position ip        :";  myResult->GetPosition().Print();
+    std::cout<<"position difference:";  vecdiff.Print();
+    vecdiff=myStart->GetMomentum()-myResult->GetMomentum();
+    std::cout<<"momentum start     :";  myStart->GetMomentum().Print();
+    std::cout<<"momentum ip        :";  myResult->GetMomentum().Print();
+    std::cout<<"momentum difference:";  vecdiff.Print();
+  }
   cand->SetPosition(pos);
   cand->SetP3(myResult->GetMomentum()); // implicitly uses the candidates mass to set P4
   
@@ -374,7 +397,7 @@ Bool_t PndAnalysis::PropagateToPoint(TCandidate* cand, TVector3* mypoint)
   
   cand->SetCov7(covPosMom);
   
-  Info("PropagateToPoint","Succsess=%b",rc);
+  if(fVerbose>1)Info("Propagator  ","Succsess=%b",rc);
   return kTRUE;
 }
 

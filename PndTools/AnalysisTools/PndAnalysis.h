@@ -34,6 +34,7 @@ public:
   void SetPidChargedName(TString s) {fChargedPidName = s;}
   void SetPidNeutralName(TString s) {fNeutralPidName = s;}  
   Bool_t PropagateToIp(TCandidate* cand);
+  Bool_t PropagateToZAxis(TCandidate* cand);
   Bool_t PropagateToPoint(TCandidate* cand, TVector3* mypoint);
   
 private:
@@ -41,6 +42,8 @@ private:
   void Init();
   void BuildMcCands();
   TClonesArray* ReadTCA(TString tcaname);
+  Bool_t Propagator(int mode, TCandidate* cand, TVector3* point);
+  
   
   // Private Member Variables
   
