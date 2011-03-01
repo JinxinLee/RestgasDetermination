@@ -111,6 +111,7 @@ set(LMDTRK_SRCS
 
 LmdTrack/PndLmdTrackFinderTask.cxx
 LmdTrack/PndLmdLinFitTask.cxx
+LmdTrack/PndLmdIdealFitTask.cxx
 LmdTrack/PndLinTrack.cxx
 LmdTrack/PndLmdGeaneTask.cxx
 )
