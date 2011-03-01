@@ -65,7 +65,7 @@ class PndSttMvdTracking : public FairTask
 
   int istampa ;
   int IVOLTE ;
-  static const bool  iplotta = false , ianalizza = true ;
+  static const bool  iplotta = falsee , ianalizza = true ;
   static const UShort_t   nmaxSttHits = maxTracks*26,
 			  nmaxMvdPixelHits=500,
 			  nmaxMvdStripHits=500,
@@ -586,22 +586,32 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 			Double_t ErrorchosenStrip[nmaxMvdStripHits],
 			Double_t ErrorchosenSkew[nmaxSttHits],
 			Double_t KAPPA,
-			Double_t FI0
+			Double_t FI0,
+			Double_t R
 				    );
 
 
 
 
-  Double_t SignedDist_SZ(
+  Double_t Dist_SZ(
+				Double_t R,
+				Double_t KAPPA,
+				Double_t FI0,
+				Double_t ZED,
+				Double_t S,
+				Int_t *nrounds
+			);
+
+
+
+
+  Double_t SignedDist_SZbis(
 				Double_t KAPPA,
 				Double_t FI0,
 				Double_t ZED,
 				Double_t S,
 				Short_t *nrounds
 			);
-
-
-
 
 
     void PndSttInfoXYZParal (
