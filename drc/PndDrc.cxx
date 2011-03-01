@@ -157,9 +157,9 @@ void PndDrc::Initialize() {
   if(fFocusingSystem == 1){
     TGeoNode *n5 = v2->FindNode("DrcLENS3Sensor_1");
     flensID = n5->GetVolume()->GetNumber();
-    cout<<"lens1 = "<<v2->FindNode("DrcLENS1_1")->GetVolume()->GetNumber()<<
-        ", lens2 = "<<v2->FindNode("DrcLENS2_1")->GetVolume()->GetNumber()<<
-	", lens3 = "<<v2->FindNode("DrcLENS3Sensor_1")->GetVolume()->GetNumber()<<endl;
+    //cout<<"lens1 = "<<v2->FindNode("DrcLENS1_1")->GetVolume()->GetNumber()<<
+    //    ", lens2 = "<<v2->FindNode("DrcLENS2_1")->GetVolume()->GetNumber()<<
+    //	", lens3 = "<<v2->FindNode("DrcLENS3Sensor_1")->GetVolume()->GetNumber()<<endl;
   }
   cout<<"lens id = "<<flensID<<endl;
     
@@ -168,13 +168,13 @@ void PndDrc::Initialize() {
   //v3->PrintNodes();
   TGeoNode *n3 = v3->FindNode("DrcPDSensor_1");
   fpdID = n3->GetVolume()->GetNumber();
-  cout<<"pd id = "<<fpdID<<", node id = "<<n3->GetNumber()<<endl;
-  
+  //cout<<"pd id = "<<fpdID<<", node id = "<<n3->GetNumber()<<endl;
+    
   // to find out which barbox charged particle hit:
   TGeoNode *n4 = v3->FindNode("DrcBarBox_1");
   fbboxID = n4->GetVolume()->GetNumber();
-  cout<<"bbox id = "<<n4->GetVolume()->GetNumber()<<", node id = "<<n4->GetNumber()<<endl;
-  cout<<"abox id = "<<v2->GetNumber()<<endl;
+  //cout<<"bbox id = "<<n4->GetVolume()->GetNumber()<<", node id = "<<n4->GetNumber()<<endl;
+  //cout<<"abox id = "<<v2->GetNumber()<<endl;
   
   // create a detector efficiency function:
   if(fDetEffAtProduction == kTRUE){
@@ -774,15 +774,17 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
    // take only direct photons:
    if(fTakeDirect){      
      if (gMC->IsTrackExiting()==1 ){       
-        //if(nam.BeginsWith(fAtBarEnd)){                      
-	if(num == flensID && fPos.Z() < fSlabEnd + 0.001){
-	  //std::cout<<"!!! Track is exiting volume "<<nam<<", "<<num<<" at "<<fPos.Z()<<std::endl;
+        if(nam.BeginsWith(fAtBarEnd)){                      
+	//if(num == flensID && fPos.Z() < fSlabEnd + 0.001){
+	//if(fPos.Z() < fSlabEnd + 0.0001){
+	  //std::cout<<"!!! Track is exiting volume "<<nam<<", "<<num<<" at "<<fPos.Z()<<", fSlabEnd = "<<fSlabEnd<<std::endl;
 	  gMC->TrackMomentum(fMom);	    
-          if ((fPos.X()*fMom.X() + fPos.Y()*fMom.Y()) < 0.){	              
+          if ((fPos.X()*fMom.X() + fPos.Y()*fMom.Y()) < 0.){
+	     //cout<<"track is stopped!"<<endl;	              
              gMC->StopTrack();	   
 	  }
        }
-     }    
+     }      
    }
    
    // kill photons older than fPhoMaxTime:  
@@ -1060,6 +1062,7 @@ void PndDrc::ConstructGeometry()
   TGeoVolume *lens1, *lens2, *lens3;
   // 0. NO FOCUSING:
   if(fFocusingSystem == 0){
+    cout<<"NO FOCUSING!!!"<<endl;
     Double_t flen = 0.;
     fSlabEnd = -bbox_hlen + bbox_shift + flen;  
     cout<<"bar ends at = "<<fSlabEnd<<endl;
@@ -1077,7 +1080,7 @@ void PndDrc::ConstructGeometry()
     Double_t a = r - r*TMath::Cos(alpha);
     Double_t b = a + 0.5; // box dimension  .6 instead of .5 due to strong curvature
 
-    cout<<" DIRC a,b = "<<a<<" "<<b<<endl;
+    //cout<<" DIRC a,b = "<<a<<" "<<b<<endl;
   
 
     Double_t r2 = 75.18; // radius second lens (cm)
@@ -1092,9 +1095,9 @@ void PndDrc::ConstructGeometry()
    
     len = b + 0.2 + b3 + 0.5;//+ a2; // dimension of the box containing both lenses
     
-    cout<<"DIRC len= "<<len<<endl;
+    //cout<<"DIRC len= "<<len<<endl;
   
-    fSlabEnd = -bbox_hlen + bbox_shift + len; // used in processHits
+    fSlabEnd = -bbox_hlen + bbox_shift + len - 0.5; // used in processHits
 
     // Lenses
  
@@ -1335,6 +1338,7 @@ void PndDrc::ConstructGeometry()
     TGeoCompositeShape *csbp = new TGeoCompositeShape("csbp","logicBar + logicPrizm:trpr");
     bar = new TGeoVolume("DrcBarSensor",csbp, gGeoManager->GetMedium("FusedSil"));
     fAtBarEnd = "DrcBarSensor";
+    fSlabEnd = -bbox_hlen + bbox_shift + 2.*phlength;
   }
   bar->SetLineColor(kCyan-9);
   bar->SetTransparency(50);    
@@ -1402,12 +1406,12 @@ void PndDrc::ConstructGeometry()
   pd->SetLineColor(kGreen-6);
   vLocalMother->AddNode(pd, 1,new TGeoCombiTrans(0., 0., EVshift-0.1, new TGeoRotation (rot1)));  
   AddSensitiveVolume(pd);
-  
+    
   cout<<"bars ends at = "<<fSlabEnd<<endl;    
  // gGeoManager->CloseGeometry();
 
 }
-/*
+
 // -----   Public Method Construct Optical Geometry ---------------------------
 void PndDrc::ConstructOpGeometry()
 {
@@ -1417,8 +1421,8 @@ void PndDrc::ConstructOpGeometry()
   Int_t npoints = 2;
   
   Double_t ephoton[npoints];
-  ephoton[0] = 1.0e-09;
-  ephoton[1] = 10.0e-09;
+  ephoton[0] = 1.0e-09;  // 1 eV
+  ephoton[1] = 10.0e-09; // 10 eV
   Double_t reflectivity[npoints];
   reflectivity[0] = 1.;
   reflectivity[1] = 1.;
@@ -1426,32 +1430,21 @@ void PndDrc::ConstructOpGeometry()
   efficiency[0] = 0.5;
   efficiency[1] = 0.5;
     
-  gMC->DefineOpSurface("BarSurface",kGlisur, kDielectric_dielectric, kPolished, 0.1);  
-  gMC->SetBorderSurface("BarSurface", "DrcBarSensor", 1, "DrcAirBox", 0, "BarSurface");  
-    
+  gMC->DefineOpSurface("BarMirSurface",kUnified, kDielectric_dielectric, kPolished, 0.1);
+  for(Int_t i=0; i<fGeo->barNum(); i++){  
+    gMC->SetBorderSurface("BarMirSurface", "DrcBarSensor", i+1, "DrcMirr", i+1, "BarSurface");  
+  } 
+/*    
   gMC->DefineOpSurface("EVSurface", kGlisur, kDielectric_dielectric, kPolished, 0.1);
   gMC->SetBorderSurface("EVSurface", "DrcEV",1, "BarrelDIRC",0,"EVSurface");
-   
+*/   
   gMC->SetMaterialProperty("BarSurface", "REFLECTIVITY", npoints, ephoton, reflectivity);
   gMC->SetMaterialProperty("BarSurface", "EFFICIENCY",   npoints, ephoton, efficiency);
-  
+/*  
   gMC->SetMaterialProperty("EVSurface", "REFLECTIVITY", npoints, ephoton, reflectivity);
   gMC->SetMaterialProperty("EVSurface", "EFFICIENCY",   npoints, ephoton, efficiency);
-  
-  // create a PhotoDetector surface with PDefficiency:
-  Double_t PDefficiency[npoints];
-  PDefficiency[0] = 0.01;
-  PDefficiency[1] = 0.01;
-  Double_t PDrefraction[npoints];
-  PDrefraction[0] = 0.01;
-  PDrefraction[1] = 0.01;
-  
-  gMC->DefineOpSurface("PDSurface",kUnified, kDielectric_dielectric, kPolished, 0.1);  
-  gMC->SetBorderSurface("PDSurface", "DrcEV", 1, "DrcPDSensor", 1, "PDSurface");  
-  gMC->SetMaterialProperty("PDSurface", "EFFICIENCY",   npoints, ephoton, PDefficiency);   
+*/       
 }  
-*/
-
 
 // -----   Public method CheckIfSensitive   --------------------------------------
  bool PndDrc::CheckIfSensitive(std::string name)

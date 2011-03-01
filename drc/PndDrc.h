@@ -154,7 +154,7 @@ class PndDrc : public FairDetector
    **
    **/
   virtual void ConstructGeometry();
-  //  virtual void ConstructOpGeometry();
+  virtual void ConstructOpGeometry();
   //  void ConstructASCIIGeometry();
   //  virtual void ConstructRootGeometry();
     std::vector<std::string> fListOfSensitives;  
