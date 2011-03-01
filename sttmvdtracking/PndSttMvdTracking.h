@@ -65,7 +65,7 @@ class PndSttMvdTracking : public FairTask
 
   int istampa ;
   int IVOLTE ;
-  static const bool  iplotta = falsee , ianalizza = true ;
+  static const bool  iplotta = false , ianalizza = true ;
   static const UShort_t   nmaxSttHits = maxTracks*26,
 			  nmaxMvdPixelHits=500,
 			  nmaxMvdStripHits=500,
