@@ -1218,11 +1218,12 @@ STTsupport          2  26.9815  9.0122  13  4  2.061  0.25  0.75
 
 // ----- Caution with putting materials below that line -----
 // The next materials must specify additional parameters!
+
 // Neon CO2 (90/10)
 
 AUTONULL
 
-TPCmixture	3  20.1797 12.01 15.9994 10. 6. 8. 0.001 0.9 0.033 0.067 
+TPCmixture	3  20.1797 12.01 15.9994  10. 6. 8.  0.0009222  0.804948098 0.053229657 0.141822245 
 		1 1   20. 0.001 
 		99. 0.5 0.0001 0.00001 
 		0
