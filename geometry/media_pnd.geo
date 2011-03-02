@@ -1218,7 +1218,7 @@ STTsupport          2  26.9815  9.0122  13  4  2.061  0.25  0.75
 
 // ----- Caution with putting materials below that line -----
 // The next materials must specify additional parameters!
-// Neon CO (90/10)
+// Neon CO2 (90/10)
 
 AUTONULL
 
@@ -1234,6 +1234,12 @@ vacuum2 1 1.e-16 1.e-16 1.e-16
 
 // Argon CO2 (70/30)
 TPCtestchamber_mix 3  39.948 12.01 15.9994 18. 6. 8. 0.001843 0.7 0.1 0.2
+		1 1   20. 0.001 
+		99. 0.5 0.0001 0.00001 
+		0
+
+// Argon CO2 (90/10) 
+TPCFOPI_mix 3  39.948 12.01 15.9994  18. 6. 8.  0.001649432  0.890943369 0.029761551 0.07929508
 		1 1   20. 0.001 
 		99. 0.5 0.0001 0.00001 
 		0
