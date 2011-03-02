@@ -21,20 +21,25 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   // -------------------------------------------------------------------
 
   TString jobdir = outpath; 
-  jobdir+="/reconstructed/";
-  TString jobname=filename;
-  jobname.ReplaceAll(".lmd_decoded_repaired.root","");
+  //Fuck TString.
+  std::string jobname(filename.Data());
+  int last = jobname.rfind("/");
+  if(last>0)
+    jobname = jobname.substr(last+1,jobname.size()+1);  
+    
+  TString outName(jobname);
+  outName.ReplaceAll(".lmd_decoded_repaired.root",".reco.root");
+  TString outFile = outpath+"/";
+  outFile += outName; 
   
   TString inFile=jobdir;
-  inFile+="dummy/dummy.raw.root";
+  inFile+="/dummy/dummy.raw.root";
+  //TString inFile="/nfs/hicran/data/tpc/fopi/2010/reconstructed/dummy/dummy.raw.root";
   
   TString mcFile=inFile;
-  mcFile.ReplaceAll("raw","mc");
-
-  TString outFile = jobname;
-  outFile+=".reco.root";
+  mcFile.ReplaceAll(".raw",".mc");
   
-  TString PROutFile = outFile;;
+  TString PROutFile = outFile;
   PROutFile.ReplaceAll(".reco.root",".patternReco.root");
   TFile test(PROutFile, "recreate");
   if(!test.IsZombie()) { //delete file
@@ -50,11 +55,13 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   paramOut.ReplaceAll(".reco.root",".param.root");
   
   std::cout<<"Input: "<<inFile<<std::endl;
-  std::cout<<"Output: "<<outFile<<std::endl;  
   std::cout<<"MCFile: "<<mcFile<<std::endl;
-
   std::cout<<"ParamIn: "<<paramIn<<std::endl;
   std::cout<<"ParamOut: "<<paramOut<<std::endl;
+
+  std::cout<<"Output: "<<outFile<<std::endl;  
+  std::cout<<"PROutput: "<<PROutFile<<std::endl;
+
 
   
   // -----   Timer   --------------------------------------------------------
@@ -123,7 +130,7 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   tpcCF->SetDataMode(true);
   tpcCF->SetPersistence();
   tpcCF->SetDigiBranchName("PndTpcDigi");
-  tpcCF->timeslice(5); //in samples
+  tpcCF->timeslice(10); //in samples
   tpcCF->SetDiffFactor(1.3);
   tpcCF->SetSingleDigiClusterAmpCut(15);
   tpcCF->SetErrorPars(600,300);
@@ -134,18 +141,19 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   //PndTpcCTapplyTask* CTapply = new PndTpcCTapplyTask();
   //CTapply->SetPersistence();
   //fRun->AddTask(CTapply);
-    
+
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
-  tpcSPR->SetTrkFinderParameters(1.,// proxcut
-                                 0.05, // proxcut on rieman sphere
-                                 5.E-3, // planecut
+  tpcSPR->SetTrkFinderParameters(1.1,// proxcut
+                                 0.075, // proxcut on rieman sphere
+                                 7.E-3, // planecut
                                  4.0, // szcut
-                                 4); // minnumhits for fit
+                                 5); // minnumhits for fit
   tpcSPR->SetPersistence();
-  //fRun->AddTask(tpcSPR);
+  tpcSPR->SetStoreHistograms(PROutFile);
+  //tpcSPR->WriteHistograms(PROutFile);
+  fRun->AddTask(tpcSPR);
 
-  
-
+/*
   PndTpcSLPatternRecoTask* tpcSLPR = new PndTpcSLPatternRecoTask();
   tpcSLPR->SetPersistence(true);
   tpcSLPR->SetStoreHistograms(PROutFile);
@@ -161,10 +169,10 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   //tpcSLPR->SetClusterBranchName("PndTpcCluster_cut");
   tpcSLPR->SetAbsMomentum(1000);
   fRun->AddTask(tpcSLPR);
+*/
 
-
-//  PndTpcTCtrackFit* tf = new PndTpcTCtrackFit();
-//  tf->SetPersistence();
+  //PndTpcTCtrackFit* tf = new PndTpcTCtrackFit();
+  //tf->SetPersistence();
   //tf->SetDraw();
   //fRun->AddTask(tf);
 
@@ -173,12 +181,12 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   kalman->SetPersistence();
   //kalman->SetClusterBranchName("PndTpcCluster_cut");
   kalman->SetNumIterations(3); // number of fitting iterations (back and forth)
-  fRun->AddTask(kalman);
+  //fRun->AddTask(kalman);
 
 
   TrackFitStatTask* fitstat=new TrackFitStatTask();
   fitstat->SetPersistence();
-//  fitstat->SetMCPCut(0); // in sigma dp/p
+  //  fitstat->SetMCPCut(0); // in sigma dp/p
   fitstat->SetMCCuts(0.005, // pmin
 	             10., // pmax
 		     -TMath::Pi(),   // thetamin 5deg
@@ -192,7 +200,7 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   SLres->SetPersistence();
   //SLres->SetClusterBranchName("PndTpcCluster_cut");
   SLres->SetSecondarySuppression(false);
-  fRun->AddTask(SLres);
+  //fRun->AddTask(SLres);
   
   
 
