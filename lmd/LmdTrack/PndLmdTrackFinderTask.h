@@ -17,6 +17,7 @@
 
 #include <string>
 #include <vector>
+#include <utility>
 
 class TClonesArray;
 
@@ -25,7 +26,7 @@ class PndLmdTrackFinderTask : public FairTask
  public:
 
     /** Default constructor **/
-    PndLmdTrackFinderTask();
+    PndLmdTrackFinderTask(Int_t inFinderMode);
     /** Destructor **/
     virtual ~PndLmdTrackFinderTask();
 
@@ -44,6 +45,7 @@ class PndLmdTrackFinderTask : public FairTask
 
  private:
    Double_t dXY;
+   Int_t fFinderMode;
 
 //    std::vector<Int_t> GetHitPerCluster(PndSdsClusterStrip* clusterCand);
    Double_t GetTrackDip(PndMCTrack* myTrack);
@@ -65,7 +67,11 @@ class PndLmdTrackFinderTask : public FairTask
   void Register();
   void Reset();
   void ProduceHits();
-
+  bool SortHitsByZ(std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t nStripHits);
+  bool SortHitsByDet(std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t nStripHits);
+  void FindHitsI(std::vector<PndTrackCand> &tofill, std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t nStripHits);
+  void FindHitsII(std::vector<PndTrackCand> &tofill, std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t nStripHits);
+  void FindHitsIII(std::vector<PndTrackCand> &tofill, std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t nStripHits);
 
   ClassDef(PndLmdTrackFinderTask,2);
 
