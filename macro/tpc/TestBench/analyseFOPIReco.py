@@ -27,6 +27,15 @@ sampTimes = ROOT.TH1D("SamT", "Drift Time Distribution (samples)",511,0,511)
 
 occXY = ROOT.TH2D("OccXY", "Cluster XY occupancy created from cosmic tracks",
                   200,-15,15,200,-15,15)
+occXY_end = ROOT.TH2D("OccXY_end", 
+                      "Cluster XY (z>45cm) occupancy created from cosmic tracks",
+                  200,-15,15,200,-15,15)
+occXY_amp = ROOT.TH2D("OccXY_amp", 
+                      "Cluster XY occupancy weighted with Amp",
+                      200,-15,15,200,-15,15)
+occXY_end_amp = ROOT.TH2D("OccXY_end_amp", 
+                 "Cluster XY (z>45cm) occupancy weighted with Amp",
+                          200,-15,15,200,-15,15)
 occZ = ROOT.TH1D("OccZ", "Cluster Z occupancy created from cosmic tracks",
                  200,0,75)
 
@@ -105,6 +114,11 @@ clOccZmax = 75
 clOcc = ROOT.TH2D("clOcc", "Cluster Chamber Occupancy Z-R",
                   clOccZbins, clOccZmin, clOccZmax,
                   clOccRbins, clOccRmin, clOccRmax)
+clOccAmp = ROOT.TH2D("clOccAmp",
+                     "Cluster Chamber Occupancy Z-R (weighted with amp)",
+                  clOccZbins, clOccZmin, clOccZmax,
+                  clOccRbins, clOccRmin, clOccRmax)
+
 clOccPR = ROOT.TH2D("clOccPR", "Track Cluster Chamber Occupancy Z-R",
                     clOccZbins, clOccZmin, clOccZmax,
                     clOccRbins, clOccRmin, clOccRmax)
@@ -192,8 +206,8 @@ for file in files :
             sigXvsDrift.Fill(pos.Z(), sig.X()*10000)
             clSizevsDrift.Fill(pos.Z(),size)
             clOcc.Fill(pos.Z(), rad)
-            
-            
+            clOccAmp.Fill(pos.Z(), rad, amp)
+                       
         nTracks = e.TrackFitStat.GetEntriesFast()  
         if nTracks > 0 :
             nTracksDist.Fill(nTracks)
@@ -300,6 +314,10 @@ for file in files :
                 x = tfs.GetHitPositionsX().at(p)
                 y = tfs.GetHitPositionsY().at(p)
                 occXY.Fill(x,y)
+                occXY_amp.Fill(x,y,clAmp)
+                if z > 45 :
+                    occXY_end.Fill(x,y)
+                    occXY_end_amp.Fill(x,y,clAmp)
                 occZ.Fill(z)
                 recoMom.Fill(tfs.GetP())
                
@@ -321,8 +339,31 @@ for i in range(6) :
         drawPrelim()
     resVsUs[i].Write()
 c2 = ROOT.TCanvas()
+c2.Divide(2,2)
+c2.cd(1).SetLogz(1)
 occXY.Draw("COLZ")
+if preliminary:
+    drawPrelim()
 occXY.Write()
+c2.cd(2).SetLogz(1)
+occXY_end.Draw("COLZ")
+if preliminary:
+    drawPrelim()
+occXY_end.Write()
+c2.cd(3).SetLogz(1)
+occXY_amp.Draw("COLZ")
+if preliminary:
+    drawPrelim()
+occXY_amp.Write()
+c2.cd(4).SetLogz(1)
+occXY_end_amp.Draw("COLZ")
+if preliminary:
+    drawPrelim()
+occXY_end_amp.Write()
+
+
+occXY_end.Write()
+
 c3 = ROOT.TCanvas()
 occZ.Draw()
 occZ.Write()
@@ -617,18 +658,31 @@ for z in range(clOccZbins):
         R1 = rad - 0.5*rBinWidth
         R2 = rad + 0.5*rBinWidth
         clOcc.SetBinContent(z+1,r+1,cont/(R2**2 - R1**2))
+        cont = clOccAmp.GetBinContent(z+1,r+1)
+        clOccAmp.SetBinContent(z+1,r+1,cont/(R2**2 - R1**2))
         cont = clOccPR.GetBinContent(z+1,r+1)
         clOccPR.SetBinContent(z+1,r+1,cont/(R2**2 - R1**2))
         cont = clOccPRAmp.GetBinContent(z+1,r+1)
         clOccPRAmp.SetBinContent(z+1,r+1,cont/(R2**2 - R1**2))
 c19.cd(1)
 clOcc.Draw("colz")
+if preliminary:
+    drawPrelim()
 clOcc.Write()
+c19.cd(2)
+clOccAmp.Draw("colz")
+if preliminary:
+    drawPrelim()
+clOccAmp.Write()
 c19.cd(3)
 clOccPR.Draw("colz")
+if preliminary:
+    drawPrelim()
 clOccPR.Write()
 c19.cd(4)
 clOccPRAmp.Draw("colz")
+if preliminary:
+    drawPrelim()
 clOccPRAmp.Write()
 
 
@@ -637,6 +691,8 @@ c20.Divide(len(sCuts),1)
 for i in range(len(sCuts)) :
     c20.cd(i+1)
     clSvA[i].Draw()
+    if preliminary:
+        drawPrelim()
     clSvA[i].Write()
 
 input()
