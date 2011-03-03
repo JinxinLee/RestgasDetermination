@@ -65,7 +65,7 @@ class PndSttMvdTracking : public FairTask
 
   int istampa ;
   int IVOLTE ;
-  static const bool  iplotta = false , ianalizza = true ;
+  static const bool  iplotta = true , ianalizza = true ;
   static const UShort_t   nmaxSttHits = maxTracks*26,
 			  nmaxMvdPixelHits=500,
 			  nmaxMvdStripHits=500,
@@ -75,13 +75,13 @@ class PndSttMvdTracking : public FairTask
 //			  MAXMVDTRACKSPEREVENT=50,
 			  MAXMVDTRACKSPEREVENT=200,
 			  MAXMCTRACKS=30,
-			  MAXTURNSOFTRACK=3;
+			  MAXTURNSOFTRACK=0;
   static const Double_t   BFIELD=2.,  // in Tesla
 			  PI = 3.141592654,
 			  CVEL = 2.99792,  //  velocity of light
 			  RStrawDetectorMin = 16., // minimum radius of the Stt detector in  cm
 			  RStrawDetectorMax = 42.2, // maximum radius of the Stt detector in  cm
-			  StrawRadius = 0.5,
+			  STRAWRADIUS = 0.5,
 			  STRAWRESOLUTION= 0.015;
   bool    ExclusionListStt[nmaxSttHits];
 
@@ -431,6 +431,23 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 
 
 
+  void CollectParSttHitsagain(
+			bool *Mvdhits,
+			Double_t delta,
+			Double_t highqualitycut,
+			Double_t info[][7],
+			UShort_t nSttParHit,
+			UShort_t ListAllParHits[nmaxSttHits],
+
+			UShort_t nSttTrackCand,
+			Double_t Ox[MAXTRACKSPEREVENT],
+			Double_t Oy[MAXTRACKSPEREVENT],
+			Double_t R[MAXTRACKSPEREVENT],
+			Double_t Fi_low_limit[MAXTRACKSPEREVENT],
+			Double_t Fi_up_limit[MAXTRACKSPEREVENT],
+			UShort_t nSttParHitsinTrack[MAXTRACKSPEREVENT], // input/output
+			UShort_t ListSttParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits] // input/output
+                    );
 
 
   Short_t FitHelixCylinder( UShort_t nHitsinTrack,
