@@ -130,7 +130,7 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   tpcCF->SetDataMode(true);
   tpcCF->SetPersistence();
   tpcCF->SetDigiBranchName("PndTpcDigi");
-  tpcCF->timeslice(10); //in samples
+  tpcCF->timeslice(5); //in samples
   tpcCF->SetDiffFactor(1.3);
   tpcCF->SetSingleDigiClusterAmpCut(15);
   tpcCF->SetErrorPars(600,300);
@@ -143,11 +143,12 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   //fRun->AddTask(CTapply);
 
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
-  tpcSPR->SetTrkFinderParameters(1.1,// proxcut
-                                 0.075, // proxcut on rieman sphere
-                                 7.E-3, // planecut
+  tpcSPR->SetTrkFinderParameters(1.,// proxcut
+                                 0.05, // proxcut on rieman sphere
+                                 5.E-3, // planecut
                                  4.0, // szcut
-                                 5); // minnumhits for fit
+                                 4, // minnumhits for fit
+                                 1); // Cluster sorting; -1: no sorting, 0: by X, 1: Y, 2: Z, 3: R (default)
   tpcSPR->SetPersistence();
   tpcSPR->SetStoreHistograms(PROutFile);
   //tpcSPR->WriteHistograms(PROutFile);
