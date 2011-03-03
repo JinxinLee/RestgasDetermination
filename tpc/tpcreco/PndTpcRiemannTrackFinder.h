@@ -57,9 +57,14 @@ public:
   // Modifiers -----------------------
   void setMinHitsForFit(unsigned int n){_minHitsForFit=n;}
 
+  void setSorting(int s){_sorting=s;} // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R
+
+
   // Operations ----------------------
   unsigned int buildTracks(std::vector<PndTpcCluster*>& clusters,
 			   std::vector<PndTpcRiemannTrack*>& candlist);
+
+  void mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist);
 
   void addCorrelator(PndTpcAbsHitTrackCorrelator* c);
 private:
@@ -70,11 +75,19 @@ private:
   std::vector<double> _bestMatchQuality;
   std::vector<unsigned int> _bestMatchIndex;
 
+  int _sorting;
+
   unsigned int _minHitsForFit;
   // Private Methods -----------------
   void resetFlags();
-  
+
 };
+
+bool sortClusterX(PndTpcCluster* s1, PndTpcCluster* s2);
+bool sortClusterY(PndTpcCluster* s1, PndTpcCluster* s2);
+bool sortClusterZ(PndTpcCluster* s1, PndTpcCluster* s2);
+bool sortClusterR(PndTpcCluster* s1, PndTpcCluster* s2);
+
 
 #endif
 

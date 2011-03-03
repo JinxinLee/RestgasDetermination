@@ -26,7 +26,7 @@
 
 // Collaborating Class Headers --------
 #include "DebugLogger.h"
-#include "PndTpcClusterRadius.h"
+//#include "PndTpcClusterRadius.h"
 #include "PndTpcClusterZ.h"
 #include "GFTrackCand.h"
 #include "PndTpcCluster.h"
@@ -75,7 +75,23 @@ unsigned int
 PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
 				   std::vector<PndTpcRiemannTrack*>& candlist)
 {
-  std::sort(cll.begin(),cll.end(),PndTpcClusterRadius());
+  // sort Clusters
+  // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R (default)
+  switch (_sorting){
+    case -1: //no sorting
+      break;
+    case 0:
+      std::sort(cll.begin(),cll.end(),sortClusterX);
+      break;
+    case 1:
+      std::sort(cll.begin(),cll.end(),sortClusterY);
+      break;
+    case 2:
+      std::sort(cll.begin(),cll.end(),sortClusterZ);
+      break;
+    default:
+      std::sort(cll.begin(),cll.end(),sortClusterR);
+  }
   unsigned int ncl=cll.size();
 
   for(unsigned int icl=0;icl<ncl;++icl){ // loop over clusters
@@ -83,8 +99,8 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
       std::cout<<"Perp: "<<cll[icl]->pos().Perp()
 	       <<"   Mag: "<<cll[icl]->pos().Mag()	
 	       <<"   Z: "<<cll[icl]->pos().Z()<<std::endl;
-
     }
+
     PndTpcRiemannHit* rhit=new PndTpcRiemannHit(cll[icl]);
     unsigned int ntrks=candlist.size();
     unsigned int maxlevel=0; // index of deepest correlator reached
@@ -98,32 +114,39 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
       // THE HIT IS ASSIGNED TO THE BEST (smallest!) MATCH 
       bool trksurvive=false;
       for(int icor=0;icor<_correlators.size();++icor){ // loop through correlators
-	// CORRELATE HIT WITH TRACK
-	double matchQuality=99999;
-	bool survive=false;
-	bool applicable=_correlators[icor]->corr(trk,rhit,survive,matchQuality);
-	if(!applicable)continue; // try the next correlator
-	if(!survive){
-	  trksurvive=false;
-	  break; // track has failed this level --> can be excluded
-	}
-	if(icor<maxlevel)continue; // there are cands that reached deeper level
-	maxlevel=icor;
-	if(_bestMatchQuality[icor]>matchQuality){
-	  _bestMatchQuality[icor]=matchQuality;
-	  _bestMatchIndex[icor]=itrk;
-	  trksurvive=true;
-	}
+        // CORRELATE HIT WITH TRACK
+        double matchQuality=99999;
+        bool survive=false;
+        bool applicable=_correlators[icor]->corr(trk,rhit,survive,matchQuality);
+
+        std::cout<<"PndTpcRiemannTrackFinder::buildTracks" <<std::endl;
+        std::cout<<"icor " << icor <<std::endl;
+        std::cout<<"applicable " <<applicable<<std::endl;
+        std::cout<<"survive " <<survive<<std::endl;
+        std::cout<<"matchQuality " <<matchQuality<<std::endl;
+
+        if(!applicable)continue; // try the next correlator
+        if(!survive){
+          trksurvive=false;
+          break; // track has failed this level --> can be excluded
+        }
+        if(icor<maxlevel)continue; // there are cands that reached deeper level
+        maxlevel=icor;
+        if(_bestMatchQuality[icor]>matchQuality){
+          _bestMatchQuality[icor]=matchQuality;
+          _bestMatchIndex[icor]=itrk;
+          trksurvive=true;
+        }
       } // end loop over correlator
       foundAtAll|=trksurvive;
     } // end loop over tracks
 
     if(!foundAtAll)// new track
       {
-	PndTpcRiemannTrack* trk=new PndTpcRiemannTrack();
-	candlist.push_back(trk);
-	//std::cout<<"Creating new track"<<std::endl;
-	trk->addHit(rhit);
+        PndTpcRiemannTrack* trk=new PndTpcRiemannTrack();
+        candlist.push_back(trk);
+        //std::cout<<"Creating new track"<<std::endl;
+        trk->addHit(rhit);
       }
     else {
       // add hit to best match
@@ -134,8 +157,8 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
       PndTpcRiemannTrack* theTrk=candlist[_bestMatchIndex[maxlevel]];
       theTrk->addHit(rhit);
       if(theTrk->getNumHits()>=_minHitsForFit){
-	theTrk->refit();
-	theTrk->szFit();
+        theTrk->refit();
+        theTrk->szFit();
       }
     }
     resetFlags();
@@ -153,6 +176,50 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
   
  return candlist.size();
 }
+
+void
+PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist)
+{
+
+
+}
+
+
+bool
+sortClusterX(PndTpcCluster* s1, PndTpcCluster* s2)
+{
+  double a1=s1->pos().x();
+  double a2=s2->pos().x();
+  return a1>a2;
+}
+
+bool
+sortClusterY(PndTpcCluster* s1, PndTpcCluster* s2)
+{
+  double a1=s1->pos().y();
+  double a2=s2->pos().y();
+  return a1>a2;
+}
+
+bool
+sortClusterZ(PndTpcCluster* s1, PndTpcCluster* s2)
+{
+  double a1=s1->pos().z();
+  double a2=s2->pos().z();
+  return a1>a2;
+}
+
+bool
+sortClusterR(PndTpcCluster* s1, PndTpcCluster* s2)
+{
+  double a1=s1->pos().Perp();
+  double a2=s2->pos().Perp();
+  return a1>a2;
+}
+
+
+
+
 
 void
 PndTpcRiemannTrackFinder::resetFlags(){

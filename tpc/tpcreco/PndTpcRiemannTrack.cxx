@@ -221,8 +221,8 @@ PndTpcRiemannTrack::addHit(PndTpcRiemannHit* hit){
 #include "TSystem.h"
 
 // returns iterator BEFORE which to insert hitX!!!
-// dir = 1 means start from beginning
-// dir = -1 mean strart from end
+// dir =  1 means start from beginning
+// dir = -1 means start from end
 hitIt
 PndTpcRiemannTrack::sortHit(PndTpcRiemannHit* hitX, 
 			    hitList& hL, int dir){
@@ -440,6 +440,7 @@ PndTpcRiemannTrack::dist(PndTpcRiemannHit* hit){
   d2+=hit->x().X()*_n[0];
   d2+=hit->x().Y()*_n[1];
   d2+=hit->x().Z()*_n[2];
+
   return d2;
 }
 
