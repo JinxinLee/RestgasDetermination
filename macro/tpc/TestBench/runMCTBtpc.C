@@ -25,7 +25,7 @@
 
   //Set JOBNAME + JOBDIR (will not be created!)
   // --------------------------------------------------
-  TString jobname="dummy";
+  TString jobname="dummy2";
   TString jobdir="TEST";
   
 
@@ -69,9 +69,9 @@
   fRun->AddModule(Cave);
 
   PndTpcDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
-  PndTpc->SetGeometryFileName("tpcTestBench.geo");
+  PndTpc->SetGeometryFileName("tpcFOPI.geo");
 // PndTpc->SetGeometryFileName("tpc.geo");
-  PndTpc->SetMixture("TPCtestchamber_mix");
+  PndTpc->SetMixture("TPCFOPI_mix");
   //ALICE Style MC (only for G3): =========================
   if(GEANT=="TGeant3") 
     PndTpc->SetAliMC();

@@ -25,7 +25,7 @@
   // Set INPUT DIRECTORY (MC files) and JOBNAME
   // ------------------------------------------------------------------------
   TString inDir="dummy";
-  TString jobname="dummy";
+  TString jobname="dummy5";
 
   inDir=(basedir+"/")+inDir;
   TString inFile=(inDir+"/")+jobname;

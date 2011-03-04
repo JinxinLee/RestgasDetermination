@@ -25,7 +25,7 @@
 
   //Set JOBNAME + JOBDIR (will not be created!)
   // --------------------------------------------------
-  TString jobname="dummy";
+  TString jobname="dummy5";
   TString jobdir="dummy";
   
 
@@ -70,8 +70,8 @@
 
   PndTpcDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
   PndTpc->SetGeometryFileName("tpcFOPI.geo");
-// PndTpc->SetGeometryFileName("tpc.geo");
-  PndTpc->SetMixture("DCHmixture");
+  // PndTpc->SetGeometryFileName("tpc.geo");
+  PndTpc->SetMixture("TPCFOPI_mix");
   //ALICE Style MC (only for G3): =========================
   if(GEANT=="TGeant3") 
     PndTpc->SetAliMC();

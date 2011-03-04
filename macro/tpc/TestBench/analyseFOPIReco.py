@@ -1,4 +1,4 @@
-import ROOT, glob, math
+import ROOT, glob, math, sys
 from ROOT import std
 
 def drawPrelim() :
@@ -12,8 +12,22 @@ def drawPrelim() :
 
 dir = "/nfs/hicran/data/tpc/fopi/2010/productions/reconstructed4"
 
-#Draw the "preliminary labels?
-preliminary = 1
+preliminary = 0
+chi2ProbCut = 1.
+numFiles = 10000000
+
+#argument parsing:
+for iarg in range(len(sys.argv)) :
+    arg = sys.argv[iarg]
+    if arg == "--prelim" :
+        preliminary = 1
+    if arg == "-chi2ProbCut" :
+        chi2ProbCut = float(sys.argv[iarg+1])
+        print "chi2ProbCut = %f" % chi2ProbCut
+    if arg == "-path" :
+        dir = sys.argv[iarg+1];
+    if arg == "-n" :
+        numFiles = int(sys.argv[iarg+1])
 
 outfile = ROOT.TFile("anaOut.root", "recreate")
 
@@ -28,13 +42,13 @@ sampTimes = ROOT.TH1D("SamT", "Drift Time Distribution (samples)",511,0,511)
 occXY = ROOT.TH2D("OccXY", "Cluster XY occupancy created from cosmic tracks",
                   200,-15,15,200,-15,15)
 occXY_end = ROOT.TH2D("OccXY_end", 
-                      "Cluster XY (z>45cm) occupancy created from cosmic tracks",
-                  200,-15,15,200,-15,15)
+                      "Cluster XY (z>50cm) occupancy created from cosmic tracks",
+                      200,-15,15,200,-15,15)
 occXY_amp = ROOT.TH2D("OccXY_amp", 
                       "Cluster XY occupancy weighted with Amp",
                       200,-15,15,200,-15,15)
 occXY_end_amp = ROOT.TH2D("OccXY_end_amp", 
-                 "Cluster XY (z>45cm) occupancy weighted with Amp",
+                          "Cluster XY (z>50cm) occupancy weighted with Amp",
                           200,-15,15,200,-15,15)
 occZ = ROOT.TH1D("OccZ", "Cluster Z occupancy created from cosmic tracks",
                  200,0,75)
@@ -165,18 +179,27 @@ chi2func = ROOT.TF1("meh", "[0]*x*TMath::Exp(-2*x)",0,10)
 chi2func.SetParameter(0,2500)
 
 
+probVsZ = ROOT.TH2D("probVsZ", "#xi^2 Probability vs Z (rough)",
+                    200,0,75,200,0,1)
+probVsNHits = ROOT.TH2D("probVNHits", "#xi^2 Probability vs number of track hits",
+                        200,0,100,200,0,1)
+
 #  ---------------------------------------- ANA LOOP --------------------------------------
 
+fcounter = 0
 for file in files :
-#or f in range(50) :
+    if fcounter > numFiles :
+        continue
     
-    #file = files[f]
+    if file.find("runC") < 0 :
+        continue
+    
+    fcounter+=1
     print(file)
     Rfile = ROOT.TFile.Open(file, "read")
     #print(Rfile.GetOpenTimeout())
     tree = Rfile.Get("cbmsim")
     tree.SetBranchStatus("*", 0)
-    #tree.SetBranchStatus("PndTpcSLResiduals.*", 1)
     tree.SetBranchStatus("TrackFitStat.*", 1)
     tree.SetBranchStatus("PndTpcCluster.*", 1)
     #tree.SetBranchStatus("TrackPostFit.*", 1)
@@ -220,8 +243,16 @@ for file in files :
             
             numHits = tfs.GetHitPositionsZ().size()
             chi2Prob = ROOT.TMath.Prob(chi2, NDF)
+
+            if chi2Prob > chi2ProbCut :
+                continue
+            
             chi2prob.Fill(chi2Prob)
             chi2raw.Fill(chi2/(NDF))
+
+            probVsZ.Fill(tfs.GetHitPositionsZ().at(0),chi2Prob)
+            probVsNHits.Fill(numHits,chi2Prob)
+            
             if nTracks == 1:
                 chi2probID.Fill(chi2Prob)
                 
@@ -315,7 +346,7 @@ for file in files :
                 y = tfs.GetHitPositionsY().at(p)
                 occXY.Fill(x,y)
                 occXY_amp.Fill(x,y,clAmp)
-                if z > 45 :
+                if z > 50 :
                     occXY_end.Fill(x,y)
                     occXY_end_amp.Fill(x,y,clAmp)
                 occZ.Fill(z)
@@ -376,6 +407,9 @@ diffVID.SetMarkerColor(ROOT.kRed+2)
 bckgrShare = ROOT.TGraph(6)
 bckgrShare.SetName("bckgShare")
 bckgrShare.SetTitle("Share of background (from fits)")
+bckgrShareID = ROOT.TGraph(6)
+bckgrShareID.SetName("bckgShare")
+bckgrShareID.SetTitle("Share of background (one track events)")
 
                             
 
@@ -487,13 +521,17 @@ for i in range(6) :
     fit.SetParLimits(5, testfit.GetParameter(2)*2, testfit.GetParameter(2)*30)
 
     resVIDs[i].Fit(fit, "+", "", -1,1)
-
+    
     # preliminary
     if preliminary :
         drawPrelim()
     # end preliminray
 
     diffVID.SetPoint(i,zCuts[i]+5,fit.GetParameter(2)*10000)
+    #calculate ratio of central and background integrals
+    ratio = fit.GetParameter(3)*fit.GetParameter(5)/(fit.GetParameter(0)*fit.GetParameter(2))
+    bckgrShareID.SetPoint(i,zCuts[i]+5,ratio)
+    
     resVIDs[i].Write()
 
 c8 = ROOT.TCanvas()
@@ -502,6 +540,11 @@ bckgrShare.GetYaxis().SetRangeUser(0,1)
 bckgrShare.GetXaxis().SetTitle("Drift Length Z (cm)")
 bckgrShare.Draw("ALP")
 bckgrShare.Write()
+bckgrShareID.SetMarkerStyle(21)
+bckgrShareID.SetMarkerColor(ROOT.kRed+2)
+bckgrShareID.GetYaxis().SetRangeUser(0,1)
+bckgrShareID.Draw("LP")
+bckgrShareID.Write()
 
 c9 = ROOT.TCanvas()
 diffV.SetMarkerStyle(21)
@@ -637,8 +680,8 @@ for i in range(6) :
 
 c18 = ROOT.TCanvas()
 c18.Divide(len(sCuts)-1, len(zCuts)-1)
-for i in range(len(zCuts)) :
-    for j in range(len(sCuts)) :
+for i in range(len(zCuts)-1) :
+    for j in range(len(sCuts)-1) :
         c18.cd(i*(len(zCuts)-1)+j+1)
         resVvsZvsS[i][j].SetFillColor(ROOT.kSpring+5)
         resVvsZvsS[i][j].Draw()
@@ -694,6 +737,15 @@ for i in range(len(sCuts)) :
     if preliminary:
         drawPrelim()
     clSvA[i].Write()
+
+c21 = ROOT.TCanvas()
+c21.Divide(2,1)
+c21.cd(1)
+probVsZ.Draw()
+probVsZ.Write()
+c21.cd(2)
+probVsNHits.Draw()
+probVsNHits.Write()
 
 input()
 
