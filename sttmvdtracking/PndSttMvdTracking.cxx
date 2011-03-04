@@ -1097,14 +1097,37 @@ if(istampa>2  && IVOLTE<20){
 
 
 
-
-
+//-------------------
+//-------------------
+//-------------------
+//-------------------
+//-------------------
+//-------------------
 //-------------------  start the combined Mvd-Stt  PR
+//-------------------
+//-------------------
+//-------------------
+//-------------------
+//-------------------
 
+//----   find the angular range (in Fi) allowed for the STT hits, with the present Ox,Oy and R
+//	of the track candidates, and for the Mvd hits (FI0 and Fi_low_limit ).
 
-
-
-
+ for(  ncand= 0; ncand< nSttTrackCand; ncand++){
+	PndSttFindingParallelTrackAngularRange(
+		Ox[ncand],
+		Oy[ncand],
+		R[ncand],
+		CHARGE[ncand],
+		&Fi_low_limit[ncand],	// Fi (in XY Helix frame) lower limit using
+					// the Stt detector minimum/maximum radius
+					// Fi_low_limit is ALWAYS between 0. and 2PI
+		&Fi_up_limit[ncand]	// Fi (in XY Helix frame) upper limit using
+					// the Stt detector maximum/minimum radius
+					// Fi_up_limit is ALWAYS > Fi_low_limit and
+					// possibly > 2PI.
+						);
+ }
 
 //---------------------   here call to the function that matches Mvd hits with Stt tracks
    delta=0.5; //  parameter of proximity for associating Mvd hits to Stt tracks
@@ -1117,7 +1140,8 @@ if(istampa>2  && IVOLTE<20){
 			Oy,
 			R,
 			FI0,
-			Fifirst,
+			Fi_low_limit,
+//			Fifirst,
 			CHARGE,
 			nMvdPixelHitsAssociatedToSttTrack, // output
 			ListMvdPixelHitsAssociatedToSttTrack, // output
@@ -1127,7 +1151,7 @@ if(istampa>2  && IVOLTE<20){
 
 
 
-if(istampa>2&& IVOLTE<20){
+if(istampa>=2&& IVOLTE<20){
            cout<<"da PndSttMvdTracking ;  n. SttTrackCand totali = "<<nSttTrackCand
 	       <<"--------------------------------------\n";
       for(  i= 0; i< nSttTrackCand; i++){
@@ -1388,7 +1412,7 @@ for(int icaz=0;icaz<nMvdStripHitsAssociatedToSttTrack[ncand];icaz++)
 			Oy,
 			R,
 			FI0,
-			Fifirst,
+			Fi_low_limit, // because here we deal with hits in Mvd region
 			CHARGE,
 			nMvdPixelHitsAssociatedToSttTrack, // input and output
 			ListMvdPixelHitsAssociatedToSttTrack, // input and output
@@ -1397,27 +1421,6 @@ for(int icaz=0;icaz<nMvdStripHitsAssociatedToSttTrack[ncand];icaz++)
 			);
 
 
-//---  redo association of parallel Stt  straw  hits to this track, after better refit.
-   CollectParSttHitsagain(
-			Mvdhits,
-			delta,
-			highqualitycut,
-			info,
-			nSttParHit,
-			ListAllParHits,
-
-			nSttTrackCand,
-			Ox,
-			Oy,
-			R,
-			Fi_low_limit,
-			Fi_up_limit,
-			nSttParHitsinTrack, // input and output
-			ListSttParHitsinTrack // input and output
-			);
-
-
-//------------------------
 //---------------------   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 // use the risult just obtained from the fit in XY to redo the association of the Skew Straw hits
@@ -1796,14 +1799,7 @@ for(int icaz=0;icaz<nSttSkewHitsinTrack[ncand];icaz++)
 				    );
 
 
-
-
-
-
-
-
-
-
+//------------------------
 	}	// end of   if(Mvdhits[ncand])
 
 
@@ -1812,6 +1808,26 @@ for(int icaz=0;icaz<nSttSkewHitsinTrack[ncand];icaz++)
     }	//  end of for(ncand=0; ncand< nTotalCandidates; ncand++)
 
 
+
+//---  redo association of parallel Stt  straw  hits to this track, after better refit.
+   CollectParSttHitsagain(
+			Mvdhits,
+			delta,
+			highqualitycut,
+			info,
+			nSttParHit,
+			ListAllParHits,
+			nSttTrackCand,
+			Ox,
+			Oy,
+			R,
+			KAPPA,
+			FI0,
+			Fi_low_limit,
+			Fi_up_limit,
+			nSttParHitsinTrack, // input and output
+			ListSttParHitsinTrack // input and output
+			);
 
 
 
@@ -7916,7 +7932,7 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 
 
 
-int temporaneo=4;
+//int temporaneo=4;
 
 	for(i=0; i<nSttTrackCand; i++){
 
@@ -7928,14 +7944,12 @@ int temporaneo=4;
 		anglemin = FI0[i];
 		anglemax = Fifirst[i];
 	}
-		if(anglemax < anglemin) anglemin -= 2.*PI;
+		if(anglemax < anglemin) anglemax += 2.*PI;
 		if(anglemax < anglemin) anglemax==anglemin; // this is just to be super-sure.
 
 
-
-
-
 //--------------------
+
 		nMvdPixelHitsAssociatedToSttTrack[i]=0;
 		nMvdStripHitsAssociatedToSttTrack[i]=0;
 		ngoodmix=0;
@@ -7948,17 +7962,23 @@ int temporaneo=4;
 			nHighQuality[ngoodmix]=0;
 			for( jmvdhit=0; jmvdhit<nHitMvdTrackCand[imvdcand]; jmvdhit++){
 
-				if(ListHitTypeMvdTrackCand[imvdcand][jmvdhit]==FairRootManager::Instance()->GetBranchId("MVDHitsPixel")){
+				if(ListHitTypeMvdTrackCand[imvdcand][jmvdhit]==
+				    FairRootManager::Instance()->GetBranchId("MVDHitsPixel")){
 					ncont++;
 					angle = atan2(
 					YMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]]-Oy[i],
 					XMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]]-Ox[i]
 							);
 					if(angle<0.) angle += 2.*PI;
-					if( angle>anglemax) angle -= 2.*PI;
 
-
-					if(angle > anglemin)
+					if( angle>anglemax){
+						angle -= 2.*PI;
+						if( angle>anglemax) angle = anglemax;
+					} else if (angle<anglemin){
+						angle += 2.*PI;
+						if (angle<anglemin) angle = anglemin;
+					}
+					if(angle > anglemin && angle < anglemax)
 					{
 						dist=fabs( sqrt(
 					 (Ox[i]-XMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]])*
@@ -7977,7 +7997,8 @@ int temporaneo=4;
 						}
 					}	// end of  if(angle > anglemin)
 
-				} else if (ListHitTypeMvdTrackCand[imvdcand][jmvdhit]==FairRootManager::Instance()->GetBranchId("MVDHitsStrip")){
+				} else if (ListHitTypeMvdTrackCand[imvdcand][jmvdhit]==
+				FairRootManager::Instance()->GetBranchId("MVDHitsStrip")){
 
 					ncont++;
 					angle = atan2(
@@ -7985,10 +8006,15 @@ int temporaneo=4;
 					XMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]]-Ox[i]
 							);
 					if(angle<0.) angle += 2.*PI;
-					if( angle>anglemax) angle -= 2.*PI;
 
-					if(angle > anglemin)
-					{
+					if( angle>anglemax){
+						angle -= 2.*PI;
+						if( angle>anglemax) angle = anglemax;
+					} else if (angle<anglemin){
+						angle += 2.*PI;
+						if (angle<anglemin) angle = anglemin;
+					}
+					if(angle > anglemin && angle < anglemax){
 						dist=fabs( sqrt(
 					 (Ox[i]-XMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]])*
 					 (Ox[i]-XMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]])
@@ -8053,8 +8079,14 @@ if(istampa>=3 && IVOLTE<20 ){cout<<"\tquesto Mvd candidato (n. ngoodmix = "<<ngo
 				XMvdPixel[ListMvdDSPixelHitNotTrackCand[jmvdhit]]-Ox[i]
 					);
 			if(angle<0.) angle += 2.*PI;
-			if(angle > anglemax ){ angle -= 2.*PI; }
-			if(angle > anglemin ){
+			if( angle>anglemax){
+				angle -= 2.*PI;
+				if( angle>anglemax) angle = anglemax;
+			} else if (angle<anglemin){
+				angle += 2.*PI;
+				if (angle<anglemin) angle = anglemin;
+			}
+			if(angle > anglemin && angle < anglemax){
 				dist=fabs( sqrt(
 				 (Ox[i]-XMvdPixel[ListMvdDSPixelHitNotTrackCand[jmvdhit]])*
 				 (Ox[i]-XMvdPixel[ListMvdDSPixelHitNotTrackCand[jmvdhit]])
@@ -8081,8 +8113,14 @@ if(istampa>=3 && IVOLTE<20 ){cout<<"\tquesto Mvd candidato (n. ngoodmix = "<<ngo
 				XMvdStrip[ListMvdDSStripHitNotTrackCand[jmvdhit]]-Ox[i]
 				      );
 			if(angle<0.) angle += 2.*PI;
-			if(angle > anglemax ){ angle -= 2.*PI; }
-			if(angle > anglemin ){
+			if( angle>anglemax){
+				angle -= 2.*PI;
+				if( angle>anglemax) angle = anglemax;
+			} else if (angle<anglemin){
+				angle += 2.*PI;
+				if (angle<anglemin) angle = anglemin;
+			}
+			if(angle > anglemin && angle < anglemax){
 
 				dist=fabs( sqrt(
 				 (Ox[i]-XMvdStrip[ListMvdDSStripHitNotTrackCand[jmvdhit]])*
@@ -8143,8 +8181,14 @@ if(istampa>2 && IVOLTE<20 ){cout<<"\tevento n. "<<IVOLTE<<" questi Mvd ALONE DS 
 					XMvdPixel[ListMvdUSPixelHitNotTrackCand[jmvdhit]]-Ox[i]
 							);
 			if(angle<0.) angle += 2.*PI;
-			if(angle > anglemax ){ angle -= 2.*PI; }
-			if(angle > anglemin ){
+			if( angle>anglemax){
+				angle -= 2.*PI;
+				if( angle>anglemax) angle = anglemax;
+			} else if (angle<anglemin){
+				angle += 2.*PI;
+				if (angle<anglemin) angle = anglemin;
+			}
+			if(angle > anglemin && angle < anglemax){
 				dist=fabs( sqrt(
 				 (Ox[i]-XMvdPixel[ListMvdUSPixelHitNotTrackCand[jmvdhit]])*
 				 (Ox[i]-XMvdPixel[ListMvdUSPixelHitNotTrackCand[jmvdhit]])
@@ -8172,8 +8216,14 @@ if(istampa>2 && IVOLTE<20 ){cout<<"\tevento n. "<<IVOLTE<<" questi Mvd ALONE DS 
 				XMvdStrip[ListMvdUSStripHitNotTrackCand[jmvdhit]]-Ox[i]
 				      );
 			if(angle<0.) angle += 2.*PI;
-			if(angle > anglemax ){ angle -= 2.*PI; }
-			if(angle > anglemin ){
+			if( angle>anglemax){
+				angle -= 2.*PI;
+				if( angle>anglemax) angle = anglemax;
+			} else if (angle<anglemin){
+				angle += 2.*PI;
+				if (angle<anglemin) angle = anglemin;
+			}
+			if(angle > anglemin && angle < anglemax){
 
 				dist=fabs( sqrt(
 				 (Ox[i]-XMvdStrip[ListMvdUSStripHitNotTrackCand[jmvdhit]])*
@@ -8183,7 +8233,7 @@ if(istampa>2 && IVOLTE<20 ){cout<<"\tevento n. "<<IVOLTE<<" questi Mvd ALONE DS 
 					) -R[i]);
 
 
-				if(dist<delta &&angle > anglemin && angle < anglemax)
+				if(dist<delta)
 				{
 					List[ngoodmix][nn[ngoodmix]]=
 					ListMvdUSStripHitNotTrackCand[jmvdhit];
@@ -8371,7 +8421,7 @@ IVOLTE<<", Stt track cand = "<<i<<endl;}
 		anglemin = FI0[itrack];
 		anglemax = Fifirst[itrack];
 	}
-		if(anglemax < anglemin) anglemin -= 2.*PI;
+		if(anglemax < anglemin) anglemax += 2.*PI;
 		if(anglemax < anglemin) anglemax==anglemin; // this is just to be super-sure.
 
 
@@ -8410,10 +8460,15 @@ IVOLTE<<", Stt track cand = "<<i<<endl;}
 					angle = atan2(YMvdPixel[ipix]-Oy[itrack],
 							XMvdPixel[ipix]-Ox[itrack]);
 					if(angle<0.) angle += 2.*PI;
-					if( angle>anglemax) angle -= 2.*PI;
-					if(angle > anglemin)
+					if( angle>anglemax){
+						angle -= 2.*PI;
+						if( angle>anglemax) angle = anglemax;
+					} else if (angle<anglemin){
+						angle += 2.*PI;
+						if (angle<anglemin) angle = anglemin;
+					}
+					if(angle > anglemin && angle < anglemax)
 					{
-//					if(specialcase){ if (angle<PI) angle += 2.*PI; }
 						dist=fabs( sqrt(
 						(Ox[itrack]-XMvdPixel[ipix])*(Ox[itrack]-XMvdPixel[ipix])
 						  +(Oy[itrack]-YMvdPixel[ipix])*(Oy[itrack]-YMvdPixel[ipix])
@@ -8451,14 +8506,24 @@ IVOLTE<<", Stt track cand = "<<i<<endl;}
 //				   ){
 					angle = atan2(YMvdStrip[istr]-Oy[itrack],
 							XMvdStrip[istr]-Ox[itrack]);
+
+
+
 					if(angle<0.) angle += 2.*PI;
-					if( angle>anglemax) angle -= 2.*PI;
-					if(angle > anglemin)
+					if( angle>anglemax){
+						angle -= 2.*PI;
+						if( angle>anglemax) angle = anglemax;
+					} else if (angle<anglemin){
+						angle += 2.*PI;
+						if (angle<anglemin) angle = anglemin;
+					}
+					if(angle > anglemin && angle < anglemax)
 					{
 						dist=fabs( sqrt(
 						  (Ox[itrack]-XMvdStrip[istr])*(Ox[itrack]-XMvdStrip[istr])
 						  +(Oy[itrack]-YMvdStrip[istr])*(Oy[itrack]-YMvdStrip[istr])
 							) -R[itrack]);
+
 						if(dist<highqualitycut)
 						{
 						List[naddstr]=istr;
@@ -8522,6 +8587,8 @@ IVOLTE<<", Stt track cand = "<<i<<endl;}
 			Double_t Ox[MAXTRACKSPEREVENT],
 			Double_t Oy[MAXTRACKSPEREVENT],
 			Double_t R[MAXTRACKSPEREVENT],
+			Double_t KAPPA[MAXTRACKSPEREVENT],
+			Double_t FI0[MAXTRACKSPEREVENT],
 			Double_t Fi_low_limit[MAXTRACKSPEREVENT],
 			Double_t Fi_up_limit[MAXTRACKSPEREVENT],
 //			Short_t CHARGE[MAXTRACKSPEREVENT],
@@ -8539,8 +8606,10 @@ IVOLTE<<", Stt track cand = "<<i<<endl;}
 		nadd;
 
 	Double_t angle,
+		deltaZ,
 		dist,
-		dist1;
+		dist1,
+		Zpos;
 
 	const Double_t NTIMES=0.4;
 
@@ -8560,9 +8629,21 @@ IVOLTE<<", Stt track cand = "<<i<<endl;}
 
 			if( !ExclusionListStt[ihit] ) continue;
 			angle = atan2(info[ihit][1]-Oy[itrack],info[ihit][0]-Ox[itrack]);
-
-
 			if(angle<0.) angle += 2.*PI;
+
+
+			// selection on Zpos under assumption that for parallel STT
+			// makes 1 turn
+			if( fabs(KAPPA[itrack]) > 1.e-20){
+				deltaZ = 2.*PI/KAPPA[itrack];
+				Zpos = (angle - FI0[itrack])/KAPPA[itrack];
+				if(
+				    fabs(Zpos-info[ihit][2])>1.5*info[ihit][4] &&
+				    fabs(Zpos+deltaZ-info[ihit][2])>1.5*info[ihit][4] &&
+				    fabs(Zpos-deltaZ-info[ihit][2])>1.5*info[ihit][4]
+				  ) continue;
+			}
+
 			if( angle>Fi_up_limit[itrack]){
 				angle -= 2.*PI;
 				if(angle < Fi_low_limit[itrack]) continue;
@@ -8585,6 +8666,8 @@ IVOLTE<<", Stt track cand = "<<i<<endl;}
 					=ihit;
 				nSttParHitsinTrack[itrack]++;
 			}
+
+
 		}	// end of     for(i=0; i<nSttParHit; i++)
 
 
