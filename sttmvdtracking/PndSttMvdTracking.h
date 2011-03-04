@@ -65,7 +65,7 @@ class PndSttMvdTracking : public FairTask
 
   int istampa ;
   int IVOLTE ;
-  static const bool  iplotta = true , ianalizza = true ;
+  static const bool  iplotta = false , ianalizza = true ;
   static const UShort_t   nmaxSttHits = maxTracks*26,
 			  nmaxMvdPixelHits=500,
 			  nmaxMvdStripHits=500,
@@ -443,6 +443,8 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 			Double_t Ox[MAXTRACKSPEREVENT],
 			Double_t Oy[MAXTRACKSPEREVENT],
 			Double_t R[MAXTRACKSPEREVENT],
+			Double_t KAPPA[MAXTRACKSPEREVENT],
+			Double_t FI0[MAXTRACKSPEREVENT],
 			Double_t Fi_low_limit[MAXTRACKSPEREVENT],
 			Double_t Fi_up_limit[MAXTRACKSPEREVENT],
 			UShort_t nSttParHitsinTrack[MAXTRACKSPEREVENT], // input/output
