@@ -11,6 +11,20 @@ void Config()
   PndStack *st = new PndStack(10);
   gMC3->SetStack( st ) ;
 
+  // only from geant3 rev. 252 on --------
+  // NOPRNT = 1 means no IERR printout
+  // NOPRNT = 0 means IERR are printed
+  if(gROOT->GetVersionCode() >= 334848) 
+    {
+      Ertrio1_t *fErtrio1 = gMC3->fErtrio1;
+      fErtrio1->noprnt = 1;
+      cout << "-I- Geane.C: NOPRNT flag set to " << fErtrio1->noprnt  << endl;
+      if(fErtrio1->noprnt == 1) {
+	cout << "-I- Geane.C: IERR flags are not printed. If you want to switch them on, please set fErtrio1->noprnt = 0 in Geane.C" << endl;
+      }
+    }
+  // -------------------------------------
+
   // ******* GEANEconfiguration for simulated Runs  *******
   gMC3->SetDEBU(0, 0, 1);
   gMC3->SetSWIT(4, 10);
