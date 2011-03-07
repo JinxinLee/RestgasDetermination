@@ -515,7 +515,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 
 //----------   fetching the MC truth tracks
 	nMCTracks = fMCTrackArray->GetEntriesFast(); // num. tracce/evento
-	if (istampa >= 3  && IVOLTE<20) {
+	if (istampa >= 1  && IVOLTE<20) {
 	     cout<<"da PndSttMvdTracking  : evento (partendo da 0)  N. "<<
 	       IVOLTE<< "\n       N. di MC truth tracks  : "<<nMCTracks<<endl;
 	}
@@ -532,7 +532,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 //	return;
  }
 
- if(istampa>3&& IVOLTE<20) cout<<"da PndSttMvdTracking  : n. punti MC = "<<nSttMCPoint<<endl;
+ if(istampa>=1&& IVOLTE<20) cout<<"da PndSttMvdTracking  : n. punti MC = "<<nSttMCPoint<<endl;
  	for( i= 0; i< nSttMCPoint; i++){
 	pSttMCPoint[i] = (FairMCPoint*) fSttPointArray->At(i);
  }
@@ -554,7 +554,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 	return;
  }
 
- if (istampa >= 3  && IVOLTE<20) {
+ if (istampa >= 1  && IVOLTE<20) {
      cout<<"da PndSttMvdTracking  : evento (partendo da 0)  N. "<<
        IVOLTE<< "\n       N. totale Hits in STT  : "<<nSttHit<<endl;
  }
@@ -603,7 +603,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
  }
 
 
-  if(istampa>=3  && IVOLTE<20)cout<<"da PndSttMvdTracking  :  n. totale di Mvd track cand =    "
+  if(istampa>=1  && IVOLTE<20)cout<<"da PndSttMvdTracking  :  n. totale di Mvd track cand =    "
                      <<nMvdTrackCand<<"  --------------\n";
 //---------------  fetch the Stt PndTrackCand from PR of the STT
 
@@ -669,8 +669,8 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 
 
 //--------------- inizio stampaggi,  stampe di controllo
-  if (istampa >= 3) {
-      cout <<"da PndSttMvdTracking, iHit "<< i << endl;
+  if (istampa >= 1) {
+      cout <<"da PndSttMvdTracking, Stt iHit "<< i << endl;
       cout <<"             hit X, Y, Z space position "   << pSttMCPoint[i]->GetX() << " " <<
                        pSttMCPoint[i]->GetY() << " " << pSttMCPoint[i]->GetZ()<<endl; 
       cout <<"             hit wire pos. in middle "   << pSttTube->GetPosition().X() << " " <<
@@ -749,11 +749,11 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 // ------------------------------------ fine di estraggo gli HITS Strip MVD
 
 //------------------------------------------ stampaggi  hits MVD
-if(istampa>=3  && IVOLTE<20){
+if(istampa>=1  && IVOLTE<20){
   cout<<"da PndSttMvdTracking  :  n. Mvd Pixel Hits = "<<nMvdPixelHit<<endl;
   cout<<"da PndSttMvdTracking  :  n. Mvd Strip Hits = "<<nMvdStripHit<<endl;
 }
-if(istampa>=3  && IVOLTE<20){
+if(istampa>=1  && IVOLTE<20){
   cout<<"da PndSttMvdTracking  :  info hits di Mvd pixels ------------------\n";
   for(i= 0; i< nMvdPixelHit; i++){
       cout<<"      Pixel hit n. "<<i<<" Info : X  = "<<XMvdPixel[i]<<";  Y  = "<<YMvdPixel[i]<<
@@ -1358,15 +1358,15 @@ if(istampa>=2&& IVOLTE<20){
 if(istampa>=2) {
 cout<<"PndSttMvdTracking, prima di MatchMvdHitsToSttTracksagain, IVOLTE = "<<
 IVOLTE<<", ncand "<<ncand<<endl;
-for(int icaz=0;icaz<nMvdPixelHitsAssociatedToSttTrack[ncand];icaz++)
+for(int iiii=0;iiii<nMvdPixelHitsAssociatedToSttTrack[ncand];iiii++)
 {
 	cout<<"\tpixel hit n. "<<
-	ListMvdPixelHitsAssociatedToSttTrack[ncand][icaz]<<endl;
+	ListMvdPixelHitsAssociatedToSttTrack[ncand][iiii]<<endl;
 }
-for(int icaz=0;icaz<nMvdStripHitsAssociatedToSttTrack[ncand];icaz++)
+for(int iiii=0;iiii<nMvdStripHitsAssociatedToSttTrack[ncand];iiii++)
 {
 	cout<<"\tStrip hit n. "<<
-	ListMvdStripHitsAssociatedToSttTrack[ncand][icaz]<<endl;
+	ListMvdStripHitsAssociatedToSttTrack[ncand][iiii]<<endl;
 }
 }
 
@@ -1513,20 +1513,20 @@ for(int ic=0;ic<nSttSkewHitsinTrack[ncand];ic++)
 if(istampa>=2) {
 cout<<"PndSttMvdTracking, dopo di AssociateSkewHitsToXYTrack, IVOLTE = "<<
 IVOLTE<<", ncand "<<ncand<<", FI0 = "<< FI0[ncand] <<"FI finale = "<<Fi_final_helix_referenceframe<<endl;
-for(int icaz=0;icaz<nMvdPixelHitsAssociatedToSttTrack[ncand];icaz++)
+for(int iiii=0;iiii<nMvdPixelHitsAssociatedToSttTrack[ncand];iiii++)
 {
 	cout<<"\tpixel hit n. "<<
-	ListMvdPixelHitsAssociatedToSttTrack[ncand][icaz]<<endl;
+	ListMvdPixelHitsAssociatedToSttTrack[ncand][iiii]<<endl;
 }
-for(int icaz=0;icaz<nMvdStripHitsAssociatedToSttTrack[ncand];icaz++)
+for(int iiii=0;iiii<nMvdStripHitsAssociatedToSttTrack[ncand];iiii++)
 {
 	cout<<"\tStrip hit n. "<<
-	ListMvdStripHitsAssociatedToSttTrack[ncand][icaz]<<endl;
+	ListMvdStripHitsAssociatedToSttTrack[ncand][iiii]<<endl;
 }
-for(int icaz=0;icaz<nSttSkewHitsinTrack[ncand];icaz++)
+for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 {
 	cout<<"\tSkew straw hit n. "<<
-	ListSttSkewHitsinTrack[ncand][icaz]<<endl;
+	ListSttSkewHitsinTrack[ncand][iiii]<<endl;
 }
 }
   }	// end of for(ncand=0; ncand< nTotalCandidates; ncand++)
