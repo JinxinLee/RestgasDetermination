@@ -166,3 +166,4 @@ PndTpcPad::removeNeighbour(unsigned int n) {
     }
   return true; //not found
 }
+ClassImp(PndTpcPad)

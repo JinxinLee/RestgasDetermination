@@ -23,6 +23,7 @@
 // Collaborating Class Headers -------
 #include <vector>
 #include <ostream>
+#include <Rtypes.h>
 // Collaborating Class Declarations --
 class PndTpcAbsPadShape;
 class PndTpcGem;
@@ -69,6 +70,11 @@ private:
   bool ReadLine(std::ifstream& infile);
   PndTpcAbsPadShape* ReadShape(const char* const line);
   PndTpcAbsPadShape* ReadPolygon(const char* const line);
+
+public:
+
+  ClassDef(PndTpcPadShapePool,1)
+
 };
 
 #endif

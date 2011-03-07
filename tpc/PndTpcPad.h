@@ -26,7 +26,7 @@
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
 #include <vector>
-
+#include <Rtypes.h>
 // Collaborating Class Declarations --
 class PndTpcAbsPadShape;
 
@@ -110,6 +110,8 @@ private:
   void ToShapeCoord(double& xP, double& yP) const;
   void ToPlaneCoord(double& xP, double& yP) const;
   void EvalBoundingRect();
+ public:
+    ClassDef(PndTpcPad,1)
 };
 
 #endif

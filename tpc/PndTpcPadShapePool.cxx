@@ -225,3 +225,5 @@ std::ostream& operator<< (std::ostream& s, const PndTpcPadShapePool& me)
   return s <<"PndTpcPadShapePool:\n"
            <<"max. ID of a PadShape="<<me.references.size()-1<<"\n";
 }
+
+ClassImp(PndTpcPadShapePool)

@@ -361,3 +361,5 @@ PndTpcPadPlane::WriteToStream(std::ostream& stream) const {
   
   stream.flush();
 }
+
+ClassImp(PndTpcPadPlane)

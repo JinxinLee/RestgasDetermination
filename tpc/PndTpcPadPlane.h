@@ -21,6 +21,7 @@
 // Base Class Headers ----------------
 
 
+
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
 #include "PndTpcPad.h"
@@ -28,6 +29,7 @@
 #include <map>
 #include "math.h"
 #include <stdio.h>
+#include <Rtypes.h>
 
 // Collaborating Class Declarations --
 class PndTpcPadShapePool;
@@ -123,8 +125,7 @@ public:
   void WriteToStream(std::ostream& stream) const;
 
 private:
-
-  // Private Data Members ------------
+   // Private Data Members ------------
   int nx;      // Number of Regions in x direction
   int ny;      // Number of Regions in y direction
   double xbin; // bin width in x
@@ -152,6 +153,10 @@ private:
   // Private Methods -----------------
   bool ReadLine(char* const line,
 		const PndTpcPadShapePool* const pspool);
+public:
+
+  ClassDef(PndTpcPadPlane,1)
+
 };
 
 // exceptions thrown by this class

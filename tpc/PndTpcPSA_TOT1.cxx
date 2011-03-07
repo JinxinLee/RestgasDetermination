@@ -4,13 +4,15 @@
 //
 // Description:
 //      Implementation of class PndTpcPSA_TOT1
-//      see PndTpcPSA_TOT1.hh for details
+//      see PndTpcPSA_TOT1.h for details
 //
 // Environment:
 //      Software developed for the PANDA Detector at FAIR.
 //
 // Author List:
 //      Sebastian Neubert    TUM            (original author)
+//      Christian Hoeppner   TUM            (original author)
+//      Sverre Doerheim    TUM            
 //
 //
 //-----------------------------------------------------------
@@ -20,29 +22,21 @@
 #include "McIdCollection.h"
 
 // C/C++ Headers ----------------------
-#include "assert.h"
-#include <algorithm>
 #include <iostream>
 #include <vector>
-
-#define fC1 0
-#define fC2 0
-#define fC3 0
-#define fC4 0
-#define fPULSEDELAYFACTOR 0.3
-
-using std::max;
 
 // Collaborating Class Headers --------
 #include "PndTpcSample.h"
 #include "PndTpcDigi.h"
 
-// Class Member definitions -----------
+#define DEBUG 0
+
+using std::cout; using std::endl;
+
 PndTpcPSA_TOT1::PndTpcPSA_TOT1()
   : PndTpcAbsPSAStrategy(), fcurrentPadID(0), finprogress(false),
     famp(0),ft(0),fthreshold(10), fNbEmptySampleAllowed(1)
 {}
-
 
 PndTpcDigi*
 PndTpcPSA_TOT1::ProcessNext(const PndTpcSample* sample)
@@ -53,12 +47,7 @@ PndTpcPSA_TOT1::ProcessNext(const PndTpcSample* sample)
 void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples, 
 						  std::vector<PndTpcDigi*>& digis,
 						  double padThreshold) {
-  /*
-  for(int i=0;i<samples.size();i++) {
-	std::cout << samples[i]->padId() << " " << samples[i]->amp() << std::endl;
-  }
-  */
-	//std::cout << "Using PSA_TOT strategy!!!!" << std::endl;
+
   McIdCollection mcid;
   mcid.ClearData();
 
@@ -68,135 +57,113 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
   int time=0;
   int prevtime=0;
 
+  bool inpulse=false;
+
   int deriv_0=0;  
   int deriv_1=0;  
   int deriv_2=0;  
 
-  bool inpulse=false;
   std::vector<PndTpcSample*> samplesInPulse;
-
-  //  std::cout << _FILE__ << " " << f_LINE__ << std::endl;
-
-  for(int i=0;i<samples.size();i++) {
-	//	std::cout << _FILE__ << " " << f_LINE__ << std::endl;
-
-    //std::cout << "samplt="<<samples[i]->t()<< std::endl;
-    //std::cout << "padid="<<samples[i]->padId()<< std::endl;
-
-	amp=samples[i]->amp();
-	time=samples[i]->t();
-	if(i>2) {
-	  deriv_2=deriv_1;
-	}
-	if(i>1) {
-	  deriv_1=deriv_0;
-	}
-	if(i>0) {	//true for second sample
-	  //	  std::cout << _FILE__ << " " << _LINE__ << std::endl;
-	  prevamp=samples[i-1]->amp();
-	  prevtime=samples[i-1]->t();
-	  deriv_0=amp-prevamp;
-	}
-
-	
-
-	//	std::cout << amp << " " << prevamp << " " << deriv_0 << " " << deriv_1 << std::endl;
-	
-	///////////////////////////
-	if(!inpulse) {
-	  if(deriv_0>fC1 && deriv_1>=fC2 && amp>padThreshold && 
-	     time-prevtime<=fNbEmptySampleAllowed && time-prevtime>0) {//start new pulse	//false for first sample (deriv_0>fC1)
-		inpulse = true;											//true for second sample, if first sample amp
-		mcid.ClearData();											//smaler second signal amp
-		//mcid.AddID(samples[i-2]->mcId());
-		//samplesInPulse.push_back(samples[i-2]);
-		mcid.AddIDCollection(samples[i-1]->mcId(),1);
-		samplesInPulse.push_back(samples[i-1]);
-		mcid.AddIDCollection(samples[i]->mcId(),1);
-		samplesInPulse.push_back(samples[i]);
-	  }
-	}
-	else {// in active pulse
-	  if((deriv_0>=fC3 && deriv_1<fC4) || amp<padThreshold || time-prevtime>1 || i==samples.size()-1) {//done with pulse
-		inpulse=false;
-		double t0,A,length;
-		processPulse(samplesInPulse,t0,A,length);
-		mcid.Renormalize();
-		PndTpcDigi* digi=new PndTpcDigi(A,t0,samples[i]->padId(),mcid);
-		digi->tlength(length);
-		//for (int yi=0;yi<samplesInPulse.size();++yi)
-		//  digi->addSample(samplesInPulse[yi]);
-		digis.push_back(digi);
-		samplesInPulse.clear();
-
-		if(deriv_0>fC1 && amp>padThreshold) {//start new pulse
-		  inpulse = true;
-		  mcid.ClearData();
-		  //mcid.AddID(samples[i-2]->mcId());
-		  //samplesInPulse.push_back(samples[i-2]);
-		  mcid.AddIDCollection(samples[i-1]->mcId(),1);
-		  samplesInPulse.push_back(samples[i-1]);
-		  mcid.AddIDCollection(samples[i]->mcId(),1);
-		  samplesInPulse.push_back(samples[i]);
-		}
-
-		
-	  }
-	  else {
-		mcid.AddIDCollection(samples[i]->mcId(),1);
-		samplesInPulse.push_back(samples[i]);
-	  }
-	}
-	///////////////////////////
-
-  }
-
-  /*
-  int startIndex;
   
-  for(int i=0;i<samples.size();i++) {
-	unsigned int newPadID=samples[i]->padId();
-	unsigned int newamp=samples[i]->amp();
-
-	if(finprogress){
-	  if(newPadID==fcurrentPadID && newamp>=fthreshold){
-		if(newamp>famp){
-		  famp=newamp;
-		}
-		fmcid.AddID(samples[i]->mcId());
-	  }
-	  else{
-		PndTpcDigi* digi=new PndTpcDigi(famp,ft,fcurrentPadID,fmcid);
-		finprogress=false;
-
-		digis.push_back(digi);
-	  }
-	}
-	else if(newamp>fthreshold){ // start new pulse!
-	  fcurrentPadID=newPadID;
-	  famp=newamp;
-	  ft=samples[i]->t();
-	  fmcid.ClearData();
-	  fmcid.AddID(samples[i]->mcId());
-	  startIndex = i;
-	  finprogress=true;
-	}
-	
-	
+  for(unsigned int i=0;i<samples.size();++i){
+    amp=samples.at(i)->amp();
+    time=samples.at(i)->t();
+    if(i>2){
+      deriv_2=deriv_1;
+    }
+    if(i>1){
+      deriv_1=deriv_0;
+    }
+    if(i>0){
+      prevamp=samples.at(i-1)->amp();
+      prevtime=samples.at(i-1)->t();
+      if(time-prevtime!=1){
+        deriv_0=amp; //if there were empty samples between
+      }else{
+        deriv_0=amp-prevamp;
+      }
+    }
+    if(i==0){ 
+      deriv_0=amp; //setting the derivative for the first sample
+    }
+    if(DEBUG){
+      cout<<"Processing sample: "<<i<<", a:"<<amp<<", t:"<<time<<" der0,1,2: "<<deriv_0<<", "<<deriv_1<<", "<<deriv_2<<endl;
+    }
+    if(!inpulse){
+      if(deriv_0>0 && 
+         deriv_1>=0 && 
+         time-prevtime==1){
+        if(DEBUG){
+          cout<<" starting new pulse"<<endl;
+        }
+        inpulse=true;
+        mcid.ClearData();
+        if(time-prevtime==1){
+          mcid.AddIDCollection(samples[i-1]->mcId(),1);
+          samplesInPulse.push_back(samples[i-1]);
+        }
+        mcid.AddIDCollection(samples[i]->mcId(),1);
+        samplesInPulse.push_back(samples[i]);
+      }
+    }else{
+      if((deriv_0>0 && deriv_1<0)||
+         time-prevtime>1||
+         i==samples.size()-1){
+        if(time==510){  //TODO get from config-file
+          mcid.AddIDCollection(samples[i]->mcId(),1);
+          samplesInPulse.push_back(samples[i]);
+        }
+        inpulse=false;
+        double t0,A,length;
+        processPulse(samplesInPulse,t0,A,length);
+       
+        mcid.Renormalize();
+        PndTpcDigi* digi=new PndTpcDigi(A,t0,samples[i]->padId(),mcid);
+        digi->tlength(length);
+        digis.push_back(digi);
+        samplesInPulse.clear();
+      
+        if(deriv_0>0){
+          if(DEBUG){
+            cout<<"starting new pulse"<<endl;
+          }
+          inpulse = true;
+          mcid.ClearData();
+          if(time-prevtime==1){
+            mcid.AddIDCollection(samples[i-1]->mcId(),1);
+            samplesInPulse.push_back(samples[i-1]);
+          }
+          mcid.AddIDCollection(samples[i]->mcId(),1);
+          samplesInPulse.push_back(samples[i]);
+        }
+      }else{
+        mcid.AddIDCollection(samples[i]->mcId(),1);
+        samplesInPulse.push_back(samples[i]);
+      }
+    }
   }
-  */
+  if(DEBUG){
+    cout<<endl;
+  }
 }
-
 void PndTpcPSA_TOT1::processPulse(std::vector<PndTpcSample*> samples,
-							   double& t0,double& A, double& length){
+                                  double& t0,double& A, double& length){
   A=0.;
   t0=0.;
   // find maximum
+  if(DEBUG){
+    cout<<"Pulse created from samples: ";
+  }
   for(unsigned int i=0;i<samples.size();i++) {
     if(A<samples[i]->amp())A=samples[i]->amp();
+    if(DEBUG){
+      cout<<samples[i]->t()<<", ";
+    }
   }
-  length=samples[samples.size()-1]->t()-samples[0]->t();
-  t0=samples[0]->t() + fPULSEDELAYFACTOR*length;
+  length=samples.back()->t()-samples[0]->t();
+  t0=samples[0]->t() + 0.3*length;
+  if(DEBUG){
+    cout<<"with t:"<<t0<<", a:"<<A<<endl;
+  }
 
 }
-

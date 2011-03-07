@@ -12,6 +12,7 @@
 // Author List:
 //      Sebastian Neubert    TUM            (original author)
 //      Christian Hoeppner   TUM            (original author)
+//      Sverre Doerheim    TUM            (original author)
 //
 //
 //-----------------------------------------------------------
@@ -22,21 +23,20 @@
 // Base Class Headers ----------------
 #include "PndTpcAbsPSAStrategy.h"
 
+
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
 #include <vector>
 #include "McIdCollection.h"
-// Collaborating Class Declarations --
-
-
+// Collaborating Class Declarations --i
 
 class PndTpcPSA_TOT1 : public PndTpcAbsPSAStrategy {
-public:
-
+ public:
   // Constructors/Destructors ---------
   PndTpcPSA_TOT1();
   virtual ~PndTpcPSA_TOT1(){;}
 
+  
   // Accessors -----------------------
 
 
@@ -49,10 +49,9 @@ public:
   virtual void Process(const std::vector<PndTpcSample*> & samples, 
 					   std::vector<PndTpcDigi*>& digis,
 					   double padThreshold);
-  void setOpt(unsigned int f){fNbEmptySampleAllowed=f;} //nb of empty samples tolarate insigned a pulse
+  void setOpt(unsigned int f){fNbEmptySampleAllowed=f;} //nb of empty samples tolarate inside a pulse
 
-
-private:
+ private:
 
   // Private Data Members ------------
   unsigned int fcurrentPadID;
@@ -61,15 +60,9 @@ private:
   unsigned int ft;
   unsigned int fthreshold;
   unsigned int fNbEmptySampleAllowed;
-  
   McIdCollection fmcid;
   // Private Methods -----------------
   void processPulse(std::vector<PndTpcSample*>,double& t0,double& A,double& length);
 
 };
-
 #endif
-
-//--------------------------------------------------------------
-// $Log$
-//--------------------------------------------------------------
