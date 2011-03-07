@@ -59,7 +59,8 @@ protected:
   TClonesArray* fDrcPoint;          //! PndDrcBarPoint TCA
   TClonesArray* fDrcHit;            //! PndDrcHit TCA
   TClonesArray* fDskParticle;       //! PndDskParticle TCA  //need to change to PndDskHit in future
-  TClonesArray* fSttHit;            //! PndSttHit/PndSttHelixHit TCA
+  TClonesArray* fSttHit;            //! PndSttHit/PndSttHelixHit TCA 
+  TClonesArray* fTpcCluster;        //! PndTpcCluster TCA
  
   PndPidCorrPar* fCorrPar;          //! Correlation parameters
   PndEmcGeoPar* fEmcGeoPar;         //! EMC geometry parameters
@@ -69,6 +70,7 @@ protected:
   Short_t fDebugMode;               // Fill ntuples for debug
   Short_t fMvdMode;                 // MVD Mode: 0 no MVD, 1 MvdPoint, (2) MvdHit
   Short_t fSttMode;                 // STT Mode: 0 no STT, 1 SttPoint,  2  SttHit, (3) SttHelixHit
+  Short_t fTpcMode;                 // TPC Mode: 0 no TPC, (2) PndTpcCluster
   Short_t fTofMode;                 // TOF Mode: 0 no TOF, 1 -empty-,  (2) TofHit
   Short_t fEmcMode;                 // EMC Mode: 0 no EMC, 1 -empty-,  (2) EmcCluster, 3 EmcBumps
   Short_t fMdtMode;                 // MDT Mode: 0 no MDT, 1 -empty-,  (2) MdtHit 

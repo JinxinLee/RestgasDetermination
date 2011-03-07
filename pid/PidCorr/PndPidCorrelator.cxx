@@ -57,6 +57,7 @@ PndPidCorrelator::PndPidCorrelator() {
   fMdtRefit = kFALSE;
   fMvdMode = 0;
   fSttMode = 0;
+  fTpcMode = 0;
   fTofMode = 0;
   fEmcMode = 0;
   fMdtMode = 0; 
@@ -97,7 +98,8 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title)
   fGeanePro = kTRUE;
   fMdtRefit = kFALSE;
   fMvdMode = 0;  
-  fSttMode = 0;
+  fSttMode = 0; 
+  fTpcMode = 0;
   fTofMode = 0;
   fEmcMode = 0;
   fMdtMode = 0;
@@ -181,7 +183,20 @@ InitStatus PndPidCorrelator::Init() {
   if (fSttMode ==0)
   {
     cout << "-W- PndPidCorrelator::Init: No STT hits array! Switching STT OFF" << endl;
+  } 
+
+  // *** TPC ***
+  fTpcCluster = (TClonesArray*) fManager->GetObject("PndTpcCluster");
+  if ( fTpcCluster ) 
+  {
+    cout << "-I- PndPidCorrelator::Init: Using PndTpcCluster" << endl;
+    fTpcMode = 2;
   }
+  else
+    {
+      cout << "-W- PndPidCorrelator::Init: No TPC Cluster array! Switching TPC OFF" << endl;
+      fTpcMode = 0;
+    }
   
   // *** MVD ***
   fMvdHitsStrip = (TClonesArray*) fManager->GetObject("MVDHitsStrip");
@@ -485,14 +500,14 @@ void PndPidCorrelator::ConstructChargedCandidate() {
     pidCand->SetTrackIndex(i);
     pidCand->AddLink(FairLink(fTrackBranch, i));
     if (!GetTrackInfo(track, pidCand)) continue;
-    GetMvdInfo(track, pidCand); 
-    //GetTpcInfo(track, pidCand); 
+    if ( (fMvdMode==2) && ((fMvdHitsStrip->GetEntriesFast()+fMvdHitsPixel->GetEntriesFast())>0) ) GetMvdInfo(track, pidCand); 
+    if ( (fTpcMode==2) && (fTpcCluster->GetEntriesFast()>0) ) GetTpcInfo(track, pidCand); 
     if ( (fSttMode==3) && (fSttHit    ->GetEntriesFast()>0) ) GetSttInfo(track, pidCand);
     if ( (fTofMode==2) && (fTofHit    ->GetEntriesFast()>0) ) GetTofInfo(helix, pidCand);
     if ( (fEmcMode>0)  && (fEmcCluster->GetEntriesFast()>0) ) GetEmcInfo(helix, pidCand);
     if ( (fMdtMode>0)  && (fMdtHit    ->GetEntriesFast()>0) ) GetMdtInfo(track, pidCand);  
     if ( (fDrcMode>0)  && (fDrcHit    ->GetEntriesFast()>0) ) GetDrcInfo(helix, pidCand);
-    if ( (fDskMode>0)  && (fDskParticle->GetEntriesFast()>0) ) GetDskInfo(helix, pidCand); 
+    if ( (fDskMode>0)  && (fDskParticle->GetEntriesFast()>0)) GetDskInfo(helix, pidCand); 
     AddChargedCandidate(pidCand);
   } 
   
