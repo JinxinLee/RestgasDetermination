@@ -102,12 +102,12 @@ run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t s
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
-  PndDpmDirect *dpmGen = new PndDpmDirect(mom,mode,seed, 2.);
+  PndDpmDirect *dpmGen = new PndDpmDirect(mom, mode, gRandom->GetSeed(), 2.);
   primGen->AddGenerator(dpmGen);
 
   // Create and Set Magnetic Field
   //-------------------------------
-  fRun->SetBeamMom(15);
+  fRun->SetBeamMom(mom);
   PndMultiField *fField= new PndMultiField("FULL");
   fRun->SetField(fField);
 
