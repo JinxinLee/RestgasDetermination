@@ -7,6 +7,7 @@ set(GLPK_INCLUDE_DIR ${SIMPATH}/basics/glpk/include)
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
 ${GLPK_INCLUDE_DIR}
+#${GEANT3_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/geobase 
 ${CMAKE_SOURCE_DIR}/parbase 
 ${CMAKE_SOURCE_DIR}/base 
@@ -19,6 +20,9 @@ ${CMAKE_SOURCE_DIR}/stt
 ${CMAKE_SOURCE_DIR}/sttmvdtracking
 ${CMAKE_SOURCE_DIR}/mvd/MvdTracking
 ${CMAKE_SOURCE_DIR}/pnddata/SdsData
+#${CMAKE_SOURCE_DIR}/gem
+#${CMAKE_SOURCE_DIR}/pnddata/GemData
+#${CMAKE_SOURCE_DIR}/geane
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -33,6 +37,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(STTMVDTRACKING_SRCS
 PndSttMvdTracking.cxx 		
+#PndSttMvdGemTracking.cxx 		
 )
 
 if(RULE_CHECKER_FOUND)

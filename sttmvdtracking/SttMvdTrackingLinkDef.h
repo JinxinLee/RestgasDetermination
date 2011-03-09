@@ -4,6 +4,7 @@
 #pragma link off all classes;
 #pragma link off all functions;
 #pragma link C++ class PndSttMvdTracking+;           
+// #pragma link C++ class PndSttMvdGemTracking+;           
 
 
 #endif
