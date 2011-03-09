@@ -399,7 +399,8 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 
 
   Int_t	nrounds0,
-	nrounds1;
+	nrounds1,
+	ipunto;
 
   Double_t Dist,
 	   Distance,
@@ -631,6 +632,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 
 
   pSttHit = (PndSttHit *) fSttHitArray->At(i);
+  ipunto= pSttHit->GetRefIndex();// modo giusto di estrarre il punto MC corrispondente.
   tubeID = pSttHit->GetTubeID();
   pSttTube = (PndSttTube *) fSttTubeArray->At(tubeID);
       TVector3 center = pSttTube->GetPosition();
@@ -652,7 +654,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
       info[i][2]= pSttTube->GetPosition().Z();
       info[i][3]= dradius;
       info[i][4]= pSttTube->GetHalfLength();
-      info[i][6]= pSttMCPoint[i]->GetTrackID();
+      info[i][6]= pSttMCPoint[ipunto]->GetTrackID();
 
       if( fabs( WDX[i] )< 0.00001 && fabs( WDY[i] )< 0.00001 ){
           info[i][5]= 1.;
@@ -669,15 +671,19 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 
 
 //--------------- inizio stampaggi,  stampe di controllo
-  if (istampa >= 1) {
-      cout <<"da PndSttMvdTracking, Stt iHit "<< i << endl;
-      cout <<"             hit X, Y, Z space position "   << pSttMCPoint[i]->GetX() << " " <<
-                       pSttMCPoint[i]->GetY() << " " << pSttMCPoint[i]->GetZ()<<endl; 
+  if (istampa >= 2) {
+      cout <<"da PndSttMvdTracking, Stt iHit "<< i << " e n. punto MC ottenuto con RefIndex = "
+      	<<ipunto<<endl;
+      cout <<"             hit X, Y, Z space position "   << pSttMCPoint[ipunto]->GetX() << " " <<
+                       pSttMCPoint[ipunto]->GetY() << " " << pSttMCPoint[ipunto]->GetZ()<<endl; 
       cout <<"             hit wire pos. in middle "   << pSttTube->GetPosition().X() << " " <<
              pSttTube->GetPosition().Y() << " " << pSttTube->GetPosition().Z() 
-           << "; R = "<<sqrt(pSttTube->GetPosition().X()*pSttTube->GetPosition().X()+pSttTube->GetPosition().Y()*pSttTube->GetPosition().Y())<< endl;
-      cout <<"             wire direction, X, Y, Z (Z direction set always positive)"<< WDX[i]<<"  "<<WDY[i]<<"  "<<WDZ[i] <<endl
-           <<"             this hit belongs to MC track n. "<<pSttMCPoint[i]->GetTrackID()<<endl;
+           << "; R = "<<sqrt(pSttTube->GetPosition().X()*pSttTube->GetPosition().X()+
+	   pSttTube->GetPosition().Y()*pSttTube->GetPosition().Y())<<
+	   ", suo drift radius = "<<dradius <<endl;
+      cout <<"             wire direction, X, Y, Z (Z direction set always positive)"
+      << WDX[i]<<"  "<<WDY[i]<<"  "<<WDZ[i] <<endl
+           <<"             this hit belongs to MC track n. "<<pSttMCPoint[ipunto]->GetTrackID()<<endl;
 
   }  //  end of   if(istampa >= 
 
@@ -722,6 +728,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 // ---------------------------------------------  estraggo gli HITS Pixel MVD
  for( i= 0; i< nMvdPixelHit; i++){
     pMvdPixelHit = (PndSdsHit *) fMvdPixelHitArray->At(i);
+    ipunto = pMvdPixelHit->GetRefIndex();
     TVector3 temp = pMvdPixelHit->GetPosition();
     XMvdPixel[i] = temp.X();
     YMvdPixel[i] = temp.Y();
@@ -729,6 +736,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
     sigmaXMvdPixel[i] = pMvdPixelHit->GetDx();
     sigmaYMvdPixel[i] = pMvdPixelHit->GetDy();
     sigmaZMvdPixel[i] = pMvdPixelHit->GetDz();
+//	cout<<"\tPixel n. "<<i<<" and n. MC point obtained with RefIndex = "<<ipunto<<endl;
  }
 
 // ------------------------------------- fine di estraggo gli HITS Pixel MVD
@@ -738,6 +746,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 
   for( i= 0; i< nMvdStripHit; i++){
     pMvdStripHit = (PndSdsHit *) fMvdStripHitArray->At(i);
+    ipunto = pMvdStripHit->GetRefIndex();
     TVector3 temp = pMvdStripHit->GetPosition();
     XMvdStrip[i] = temp.X();
     YMvdStrip[i] = temp.Y();
@@ -745,6 +754,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
     sigmaXMvdStrip[i] = pMvdStripHit->GetDx();
     sigmaYMvdStrip[i] = pMvdStripHit->GetDy();
     sigmaZMvdStrip[i] = pMvdStripHit->GetDz();
+//	cout<<"\tStrip n. "<<i<<" and n. MC point obtained with RefIndex = "<<ipunto<<endl;
   }
 // ------------------------------------ fine di estraggo gli HITS Strip MVD
 
@@ -1773,6 +1783,7 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 
 
 
+
 	EliminateSpuriousSZ(
 				&nMvdPixelHitsAssociatedToSttTrack[ncand],	// input and output
 				&ListMvdPixelHitsAssociatedToSttTrack[ncand][0],// input and output
@@ -1797,7 +1808,6 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 				FI0[ncand],
 				R[ncand]
 				    );
-
 
 //------------------------
 	}	// end of   if(Mvdhits[ncand])
@@ -1997,7 +2007,7 @@ for(l =0;l<nSttSkewHitsinTrack[it];l++){
 
 
 
-         AssociateFoundTrackstoMCtris(
+	AssociateFoundTrackstoMCtris(
 		  info,
 		  Ox,
 		  Oy,
@@ -2606,10 +2616,10 @@ if( istampa>=3){
 		//  the momentum direction
 		ddd = Ptras*sqrt(Ptras*Ptras+Pzini*Pzini);
 
-if(istampa>2) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
+if(istampa>=1) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
 	"\tfirst hit, tipo hit = "<<ListTrackCandHitType[ncand][0]<<", X = "<<Posiz1[0]
 	<<", Y = "<<Posiz1[1]<<", Z = "<<Posiz1[2]<<
-	"\tPx = "<<px<<", Py = "<<py<<", Pz = "<<Pzini<<", Ptras "<<Ptras<<endl
+	"\n\tPx = "<<px<<", Py = "<<py<<", Pz = "<<Pzini<<", Ptras "<<Ptras<<endl
 	<<"\t ErrX = "<<ErrPosition[0]
 	<<", ErrY = "<<ErrPosition[1]<<", ErrZ = "<<ErrPosition[2]<<endl<<
 	"\tErrPx = "<<ErrMomentum.X()<<", ErrPy = "<<ErrMomentum.Y()<<", ErrPz = "<<ErrMomentum.Z()<<endl;
@@ -2685,14 +2695,17 @@ if(istampa>2) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
 		//  the momentum direction
 		ddd = Ptras*sqrt(Ptras*Ptras+Pzini*Pzini);
 
-if(istampa>2) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
+if(istampa>=1) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
 	"\tlast hit, tipo hit = "<<ListTrackCandHitType[ncand][k]
 	<<", X = "<<Posiz1[0]
 	<<", Y = "<<Posiz1[1]<<", Z = "<<Posiz1[2]<<
-	"\tPx = "<<px<<", Py = "<<py<<", Pz = "<<Pzini<<", Ptras "<<Ptras<<endl
+	"\n\tPx = "<<px<<", Py = "<<py<<", Pz = "<<Pzini<<", Ptras "<<Ptras<<endl
 	<<"\t ErrX = "<<ErrPosition[0]
 	<<", ErrY = "<<ErrPosition[1]<<", ErrZ = "<<ErrPosition[2]<<endl<<
-	"\tErrPx = "<<ErrMomentum.X()<<", ErrPy = "<<ErrMomentum.Y()<<", ErrPz = "<<ErrMomentum.Z()<<endl;
+	"\tErrPx = "<<ErrMomentum.X()<<", ErrPy = "<<ErrMomentum.Y()<<", ErrPz = "<<ErrMomentum.Z()
+	<<endl<<"\tKAPPA = "<<KAPPA[ncand]<<", FI0 = "<<FI0[ncand]<<", n. hit (original) = "<<
+	ListTrackCandHitType[ncand][k]<<", Schosen = "<<
+	SchosenSkew[ncand][ ListTrackCandHit[ncand][k] ]<<endl;
 
 		FairTrackParP last( Position,  Momentum,
 		   ErrPosition, ErrMomentum, CHARGE[ncand],
@@ -9078,7 +9091,7 @@ int nevento=1;
 	for(j=0;j<*nSttSkewHitsinTrack;j++){
 		i=j+(*nMvdPixelHitsAssociatedToSttTrack)+
 		    (*nMvdStripHitsAssociatedToSttTrack);
- 
+
 		if( ZED[i][0]<999990. && ZED[i][1]<999990.){
 
 			Dista[0] = Dist_SZ(R,KAPPA,FI0,ZED[i][0]+DriftRadius[i][0],S[i][0],&Nround[0]);
@@ -9101,8 +9114,9 @@ int nevento=1;
 //			Errore[1]= ErrorDriftRadius[i][1];
 //			Errore[2]= ErrorDriftRadius[i][2];
 //			Errore[3]= ErrorDriftRadius[i][3];
+
 			d_min=999999999.;
-			for(k=0;k<4;k++){
+			for(k=1;k<4;k++){
 				if( Nround[k]<=MAXTURNSOFTRACK )
 				{
 					if( fabs(Dista[k]) < d_min ){
@@ -9159,18 +9173,18 @@ int nevento=1;
 				continue;
 			} else if ( abs(nr2)>MAXTURNSOFTRACK)
 			{
-				 zeta1 = ZED[i][0]+DriftRadius[i][0];
+				 zeta1 = ZED[i][1]+DriftRadius[i][1];
 			} else if ( abs(nrounds1) > MAXTURNSOFTRACK )
 			{
 				 dista = ddd;
-				 zeta1 = ZED[i][0]-DriftRadius[i][0];
+				 zeta1 = ZED[i][1]-DriftRadius[i][1];
 			} else
 			{
 				if( dista>ddd ) {
 				 dista = ddd;
-				 zeta1 = ZED[i][0]-DriftRadius[i][0];
+				 zeta1 = ZED[i][1]-DriftRadius[i][1];
 				} else {
-				 zeta1 = ZED[i][0]+DriftRadius[i][0];
+				 zeta1 = ZED[i][1]+DriftRadius[i][1];
 				}
 			}
 			error = DriftRadius[i][1];
