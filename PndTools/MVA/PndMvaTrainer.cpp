@@ -379,6 +379,7 @@ void PndMvaTrainer::WriteToWeightFile(std::vector<TMVA::PDEFoam*> const& foamLis
 void PndMvaTrainer::NormalizeData(NormType t)
 {
   m_normType = t;
+  //m_dataSets.SetNormType(t);
   m_dataSets.NormalizeDataSet(t);
 }
 
@@ -389,5 +390,6 @@ void PndMvaTrainer::NormalizeData(NormType t)
  */
 void PndMvaTrainer::PCATransForm()
 { 
+  m_dataSets.Use_PCA(true);
   m_dataSets.PCATransForm();
 }

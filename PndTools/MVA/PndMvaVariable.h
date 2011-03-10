@@ -2,7 +2,7 @@
  * MVA variable class definition.             *
  * Author: M.Babai@rug.nl                     *
  * LICENSE:                                   *
- * Version: 0.1 beta1.                        *
+ * Version:                                   *
  * License:                                   *
  * *******************************************
  */
@@ -10,8 +10,8 @@
 #define PND_MVA_VARIABLE_H
 
 /**
- * Struct to describe a single variable of the feature vector, storing its name
- * and normalization factor.
+ * Struct to describe a single variable of the feature vector, storing
+ * its name and normalization factor.
  */
 struct PndMvaVariable
 {
@@ -21,33 +21,45 @@ struct PndMvaVariable
    *@param normFactor normalization factor for this variable.
    *@param mean Current variable sample mean value.
    */
-  PndMvaVariable(const std::string& name = "UNKNOWN_VAR", 
-		 float normFactor = 1.0, float mean = 0.0);
+  PndMvaVariable(std::string const& name = "UNKNOWN_VAR", 
+		 float normFactor = 1.0, float mean = 0.0,
+		 float min = 0.0, float max = 0.0);
 
   //! Destructor.
   virtual ~PndMvaVariable();
+
   // Copy Const.
-  PndMvaVariable(const PndMvaVariable& oth);
+  PndMvaVariable(PndMvaVariable const& oth);
 
   // Assign.
-  PndMvaVariable& operator=(const PndMvaVariable& oth);
+  PndMvaVariable& operator=(PndMvaVariable const& oth);
 
   std::string Name;   /**< Name of the variable. */
   /**
    * Normalization factor of the variable.
    * Sample Variance IQR.
   */
-  float   NormFactor;// Sigma 
-  float   Mean;// Mean value
-};
+  float NormFactor;// Sigma
+  float Mean;     // Mean value
+  float Min;     // Minimum value
+  float Max;    // Maximum value
 
+private:
+  bool operator== (PndMvaVariable const& oth) const;
+  bool operator>  (PndMvaVariable const& oth) const;
+  bool operator<  (PndMvaVariable const& oth) const;
+};// End of interface.
+
+//_________________________ Implement. ___________________
 //! Constructor implementation.
-inline PndMvaVariable::PndMvaVariable(std::string const &name,
-				      float normFactor,
-				      float mean)
+inline PndMvaVariable::PndMvaVariable(std::string const& name,
+				      float normFactor, float mean,
+				      float min, float max)
 		      : Name(name),
 		      NormFactor(normFactor),
-		      Mean(mean)
+		      Mean(mean),
+		      Min(min),
+		      Max(max)
 {};
 
 //! Destructor
@@ -55,18 +67,22 @@ inline PndMvaVariable::~PndMvaVariable()
 {};
 
 //! Copy constructor
-inline PndMvaVariable::PndMvaVariable(PndMvaVariable const &oth)
+inline PndMvaVariable::PndMvaVariable(PndMvaVariable const& oth)
 		      : Name(oth.Name),
 		      NormFactor(oth.NormFactor),
-		      Mean(oth.Mean)
+		      Mean(oth.Mean),
+		      Min(oth.Min),
+		      Max(oth.Max)
 {};
 
 //! Assignment operator
-inline PndMvaVariable &PndMvaVariable::operator=(PndMvaVariable const &oth)
+inline PndMvaVariable& PndMvaVariable::operator=(PndMvaVariable const &oth)
 {
-  Name = oth.Name;
-  NormFactor = oth.NormFactor;
-  Mean = oth.Mean;
+  this->Name = oth.Name;
+  this->NormFactor = oth.NormFactor;
+  this->Mean = oth.Mean;
+  this->Min  = oth.Min;
+  this->Max  = oth.Max;
   return (*this);
 }
 // End of interface definition.

@@ -26,30 +26,36 @@ struct PndMvaClass
   size_t NExamples;  /**< Number of examples available of the class. */
   size_t StartIdx;   /**< Start index of events of this class. */
   size_t EndIdx;     /**< End index of events of this class. */
-};
 
+private:
+  bool operator== (PndMvaClass const& oth) const;
+  bool operator>  (PndMvaClass const& oth) const;
+  bool operator<  (PndMvaClass const& oth) const;
+};// End of interface.
+
+//_________________________ Implement. _____ _____________
 /**
  * Constructor implementation.
  *@Param name Class name.
 */
-inline PndMvaClass::PndMvaClass(const std::string& name)
+inline PndMvaClass::PndMvaClass(std::string const& name)
 		   : Name(name), NExamples(0),
 		   StartIdx(0), EndIdx(0)
 {};
 
 //! Copy Constructor.
-inline PndMvaClass::PndMvaClass(const PndMvaClass& oth)
+inline PndMvaClass::PndMvaClass(PndMvaClass const& oth)
 		   : Name(oth.Name), NExamples(oth.NExamples),
 		   StartIdx(oth.StartIdx), EndIdx(oth.EndIdx)
 {};
 
 //! = operator.
-inline PndMvaClass& PndMvaClass::operator=(const PndMvaClass& oth)
+inline PndMvaClass& PndMvaClass::operator=(PndMvaClass const& oth)
 {
-  Name = oth.Name;
-  NExamples = oth.NExamples;
-  StartIdx = oth.StartIdx;
-  EndIdx = oth.EndIdx;
+  this->Name = oth.Name;
+  this->NExamples = oth.NExamples;
+  this->StartIdx = oth.StartIdx;
+  this->EndIdx = oth.EndIdx;
   return (*this);
 };
 

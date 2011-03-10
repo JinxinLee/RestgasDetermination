@@ -15,6 +15,26 @@ using namespace std;
 /**
  * Constructor.
  *@param inputFilename  Input File name.
+ *@param varNames       Available variable names.
+ */
+PndMvaDataSet::PndMvaDataSet( std::string const& WeightFile,
+			      std::vector<std::string> const& varNames)
+  : m_input(WeightFile),
+    m_UsePCA(false),
+    m_NormType(NONORM),
+    m_AppType(CLASSIFY)
+{
+  // FIXME (IMPLEMENT ME)
+  std::cerr <<"<ERROR> Yet to be done.\nFetching data directly from the"
+	    <<" weightfile."
+	    << std::endl;
+  varNames.size();
+  exit(10);
+}
+
+/**
+ * Constructor.
+ *@param inputFilename  Input File name.
  *@param classNames     Names of available Labels (classes).
  *@param varNames       Available variabl names.
  *@param type           Application Type.
@@ -79,6 +99,7 @@ void PndMvaDataSet::Initialize()
       // ReadWeightsFromFile();      
       // Read input file
       ReadInput();
+      //NormalizeDataSet(m_NormType);
     }    
     catch (PndMvaDataSetException &e)
     {
@@ -90,6 +111,7 @@ void PndMvaDataSet::Initialize()
   case TRAIN:
     // Read input file
     ReadInput();
+    //NormalizeDataSet(m_NormType);
     break;
   case UNKAPP:
   default:
@@ -711,6 +733,8 @@ void PndMvaDataSet::DetermineMedian()
  */
 void PndMvaDataSet::MinMaxDiff()
 {
+  std::cout << '\n';
+
   vector<float> vec(m_events.size(), 0.0);
 
   // Variables Loop
@@ -724,8 +748,8 @@ void PndMvaDataSet::MinMaxDiff()
     // Sort variables
     sort( vec.begin(), vec.end() );
     
-    cout << m_vars[i].Name << "\tmin = " << vec[0] 
-	      << "\t\t max = " << vec[vec.size() - 1 ];
+    //cout << m_vars[i].Name << "\tmin = " << vec[0] 
+    //<< "\t\t max = " << vec[vec.size() - 1 ];
     
     float diff   = vec[ vec.size() - 1 ] - vec[0];
     float middle = vec[ static_cast<unsigned int>(vec.size()/2)];
@@ -733,9 +757,17 @@ void PndMvaDataSet::MinMaxDiff()
     // Store values
     m_vars[i].NormFactor = diff;
     m_vars[i].Mean = middle;
-    cout << "\t\t diff  = " << diff  << '\n'
-	 << "\t\t midle = " << middle << '\n';
+    m_vars[i].Min  = vec[0];
+    m_vars[i].Max  = vec[vec.size() - 1 ];
+
+    cout << m_vars[i].Name 
+	 << ": min = " << m_vars[i].Min
+	 << ", max = " << m_vars[i].Max
+	 << ", diff  = " << diff
+	 << ", midle = " << middle
+	 << '\n';
   }
+  std::cout << '\n';
 }
 
 /**

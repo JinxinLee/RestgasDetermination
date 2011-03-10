@@ -17,9 +17,9 @@ using namespace std;
  * @param varNames: Variable names from which the feature vector is
  * built.
  */
-PndKnnClassify::PndKnnClassify(const string& inputFile,
-			       const vector<string>& classNames, 
-			       const vector<string>& varNames)
+PndKnnClassify::PndKnnClassify(string const& inputFile,
+			       vector<string> const& classNames, 
+			       vector<string> const& varNames)
   : PndMvaClassifier(inputFile, classNames, varNames)
 {
   // Initialize the class indices map.
@@ -56,10 +56,10 @@ void PndKnnClassify::InitKNN()
   std::cout << "<INFO> Initializing KNN classifier.\n";
 
   // Get variables.
-  const vector<PndMvaVariable>& vars = m_dataSets.GetVars();
+  vector<PndMvaVariable> const& vars = m_dataSets.GetVars();
 
   // Get examples.
-  const vector<pair<string, vector<float>*> >& events = m_dataSets.GetData();
+  vector<pair<string, vector<float>*> > const& events = m_dataSets.GetData();
   
   // Read the events and insert into the module
   for(size_t j = 0; j < events.size(); j++)
@@ -101,7 +101,7 @@ std::string* PndKnnClassify::Classify(std::vector<float> EvtData)
   
   // Densities are estimated. Report the winner.
   // Get labels.
-  const vector<PndMvaClass> &classes = m_dataSets.GetClasses();
+  vector<PndMvaClass> const& classes = m_dataSets.GetClasses();
   
   // Temporary variables for the winning class name and density.
   std::string CurWin;
@@ -139,13 +139,13 @@ void PndKnnClassify::GetMvaValues(std::vector<float> eventData,
   }
 
   // Get Variables.
-  const vector <PndMvaVariable>& vars = m_dataSets.GetVars();
+  vector <PndMvaVariable> const& vars = m_dataSets.GetVars();
   
   // Get labels.
-  const vector <PndMvaClass>& classes = m_dataSets.GetClasses();
+  vector <PndMvaClass> const& classes = m_dataSets.GetClasses();
   
   // Get examples.
-  const vector<pair<string, vector<float>*> >& events = m_dataSets.GetData();
+  vector<pair<string, vector<float>*> > const& events = m_dataSets.GetData();
   
   if( m_knn > events.size() )
   {
@@ -187,10 +187,10 @@ void PndKnnClassify::GetMvaValues(std::vector<float> eventData,
   for(iter = lst.begin(); iter != lst.end(); ++iter)
   {
     // Fetch the node
-    const TMVA::kNN::Node<TMVA::kNN::Event> *node = (*iter).first;
+    TMVA::kNN::Node<TMVA::kNN::Event> const* node = (*iter).first;
     
     // Fetch the event from the Node
-    const TMVA::kNN::Event& event = node->GetEvent();
+    TMVA::kNN::Event const& event = node->GetEvent();
     
     // Type corresponds with the class name
     int type = event.GetType();
@@ -217,7 +217,7 @@ void PndKnnClassify::GetMvaValues(std::vector<float> eventData,
   
   for(size_t cls = 0; cls < classes.size(); cls++)
   {
-    const string& clName = classes[cls].Name;
+    string const& clName = classes[cls].Name;
     result[clName] /= probSum;
   }
 }

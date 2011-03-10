@@ -1,7 +1,7 @@
 /* ************************************
  *  Author: M. Babai (M.Babai@rug.nl) *
  *                                    *
- *  pid classifier                    *
+ *  KNN based pid classifier          *
  *                                    *
  * Modified:                          *
  *                                    *
@@ -17,8 +17,8 @@
 #include "TMVA/ModulekNN.h"
 
 //____________________________________________
-//!< Type definition of the neighbour list.
-typedef std::list < std::pair<const TMVA::kNN::Node<TMVA::kNN::Event>*, float> > ResList;
+/// !< Type definition of the neighbour list.
+// typedef std::list < std::pair<const TMVA::kNN::Node<TMVA::kNN::Event>*, float> > ResList;
 //____________________________________________
 
 /**
@@ -84,29 +84,31 @@ class PndKnnClassify: public PndMvaClassifier
    */
   void InitKNN();
   
-  //!< Type definition of the neighbour list.
-  //typedef std::list < std::pair<const TMVA::kNN::Node<TMVA::kNN::Event>*, float> > ResList;
+  //!< Type definition for the neighbours list.
+  typedef std::list < std::pair<const TMVA::kNN::Node<TMVA::kNN::Event>*, float> > ResList;
   
   //!< Number of required neighbours.
   unsigned int m_knn;
-  float m_ScaleFact;//!< Scalefactor Default =  0.8
-  double m_weight;//!< Event weight
+  //!< Scalefactor Default =  0.8
+  float m_ScaleFact;
+  //!< Event weight
+  double m_weight;
+  // TMVA Knn module.
   TMVA::kNN::ModulekNN* m_module;
 
   /**
    * Mapping between class names and their indices in the class vector.
    */
   std::map<std::string, size_t> m_classIndices;
-};
-//End of classifier interface definition
-
-inline void PndKnnClassify::SetEvtParam(const float scFact, const double weight)
+};//End of classifier interface definition
+//___________________ Inline implementation. __________________________________
+inline void PndKnnClassify::SetEvtParam(float const scFact, double const weight)
 {
   m_ScaleFact = scFact;
   m_weight = weight;
 };
 
-inline void PndKnnClassify::SetKnn(const int N)
+inline void PndKnnClassify::SetKnn(int const N)
 {
   m_knn = N;
 };

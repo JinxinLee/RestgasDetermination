@@ -70,7 +70,7 @@ class PndMvaDataSetException: public std::exception
     return m_message.c_str();
   };
   
-  virtual std::string const& describe()
+  virtual std::string const& what()
   {
     return m_message;
   };
@@ -84,17 +84,25 @@ class PndMvaDataSetException: public std::exception
 class PndMvaDataSet
 {
  public:
+
+  /**
+   * Constructor.
+   *@param inputFilename  Input File name.
+   *@param varNames       Available variable names.
+   */
+  PndMvaDataSet( std::string const& WeightFile,
+		 std::vector<std::string> const& varNames);
   /**
    * Constructor.
    *@param inputFilename  Input File name.
    *@param classNames     Names of available Labels (classes).
-   *@param varNames       Available variabl names.
+   *@param varNames       Available variable names.
    *@param type           Application Type.
    */
-  PndMvaDataSet(std::string const& WeightFile,
-		std::vector<std::string> const& classNames,
-		std::vector<std::string> const& varNames,
-		AppType type);
+  PndMvaDataSet( std::string const& WeightFile,
+		 std::vector<std::string> const& classNames,
+		 std::vector<std::string> const& varNames,
+		 AppType type);
   
   //! Destructor
   virtual ~PndMvaDataSet();
@@ -147,6 +155,7 @@ class PndMvaDataSet
 
   //! If PCA was applied.
   inline bool Used_PCA() const;
+  inline void Use_PCA(bool t);
   
   //! Get PCA object
   inline PndMvaVarPCATransform const& Get_PCA() const;
@@ -155,6 +164,7 @@ class PndMvaDataSet
 
   // Get normalization type.
   inline NormType GetNormType() const;
+  inline void SetNormType(NormType t);
 
   // Get & set Application type.
   inline AppType GetAppType () const;
@@ -278,7 +288,10 @@ inline bool PndMvaDataSet::Used_PCA() const
 {
   return m_UsePCA;
 };
-
+inline void PndMvaDataSet::Use_PCA(bool t)
+{
+  m_UsePCA = t;
+};
 inline PndMvaVarPCATransform const& PndMvaDataSet::Get_PCA() const
 {
   return m_PCA;
@@ -286,6 +299,10 @@ inline PndMvaVarPCATransform const& PndMvaDataSet::Get_PCA() const
 inline NormType PndMvaDataSet::GetNormType() const
 {
   return m_NormType;
+};
+inline void PndMvaDataSet::SetNormType(NormType t)
+{
+  m_NormType = t;
 };
 inline AppType PndMvaDataSet::GetAppType() const
 {

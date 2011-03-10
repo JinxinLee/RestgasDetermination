@@ -3,24 +3,29 @@
  * M.Babai@rug.nl                        *
  * ***************************************
  */
+
 /*
  * Example program. This code shows how to use the classify
  * procedure. This classifier is implemented based on the LVQ
  * algorithm.
  */
-// FIXME Create Dist histograms.
 
+// FIXME Create Dist histograms.
 #include "PndLVQClassify.h"
+
 // C++
 #include <fstream>
+
 // ROOT
+#include "TFile.h"
+#include "TH1.h"
 #include "TStopwatch.h"
 
 // Print the results map.
-void printResult(std::map<std::string,float>& res)
+void printResult(std::map<std::string, float> const& res)
 {
   std::cout << "\n================================== \n";
-  for( std::map<std::string,float>::iterator ii=res.begin();
+  for( std::map<std::string,float>::const_iterator ii=res.begin();
        ii != res.end(); ++ii)
   {
     std::cout << (*ii).first << " => " << (*ii).second << '\n';
@@ -29,8 +34,8 @@ void printResult(std::map<std::string,float>& res)
 }
 
 // Read the events features from a given file
-void readEvents(const char* infile, const std::vector<std::string>& varNames,
-		const std::vector<std::string>& classNames, 
+void readEvents(const char* infile, std::vector<std::string> const& varNames,
+		std::vector<std::string> const& classNames, 
 		std::vector<std::pair<std::string, std::vector<float>*> >& coNt)
 {
   coNt.clear();
@@ -40,7 +45,7 @@ void readEvents(const char* infile, const std::vector<std::string>& varNames,
   for(size_t cls = 0; cls < classNames.size(); cls++)
   {
     // Tree name
-    const char *name = classNames[cls].c_str();
+    char const* name = classNames[cls].c_str();
     
     // Get the tree object
     TTree *t = (TTree*) inf.Get(name);
@@ -55,7 +60,7 @@ void readEvents(const char* infile, const std::vector<std::string>& varNames,
     // Bind the parameters to the tree branches
     for(size_t j = 0; j < varNames.size(); j++)
     {
-      const char* branchName = varNames[j].c_str();
+      char const* branchName = varNames[j].c_str();
       //Binding the branches
       t->SetBranchAddress(branchName, &(ev[j]));
     }// Tree parameters are bounded
@@ -99,6 +104,7 @@ int main(int argc, char** argv)
   std::string inF  = argv[1];
   std::string evtF = argv[2];
   std::string outF = argv[3];
+  std::string outHistFile = "Hists_" + outF;
 
   std::cout << "\tClassifying events from " << evtF << '\n'
 	    << "\tUsing prototypes from " << inF << '\n'
@@ -110,12 +116,16 @@ int main(int argc, char** argv)
   std::vector<std::string> nam;
   std::map<std::string, float> res;
   std::vector<std::pair<std::string, std::vector<float>* > > events;
+  std::map<std::string, TH1F*> histograms;
   
-  // Classes
+  // Classes (labels)
   clas.push_back("electron");
   clas.push_back("pion");
-  
-  // Variables
+  //clas.push_back("kaon");
+  //clas.push_back("muon");
+  //clas.push_back("proton");
+
+  // Variables names
   //nam.push_back("p");
   nam.push_back("emc");
   nam.push_back("lat");
@@ -127,6 +137,14 @@ int main(int argc, char** argv)
   //nam.push_back("stt");
   //nam.push_back("mvd"); 
   
+  // Init histograms.
+  for(size_t i = 0; i < clas.size(); ++i)
+  {
+    std::string des = "DescriptionOf" + clas[i];
+    TH1F* h1 = new TH1F(clas[i].c_str(), des.c_str(), 100, 0.0, 1.0);
+    histograms.insert(std::make_pair(clas[i], h1));
+  }
+
   // Create classifier.
   PndLVQClassify cls (inF, clas, nam);
 
@@ -180,6 +198,8 @@ int main(int argc, char** argv)
 	{
 	  OutPut << (*it).first << " => " << (*it).second
 		 << " ";
+	  std::string nn = (*it).first;
+	  (histograms[nn])->Fill((*it).second);
 	}
 	OutPut<< "\n======================================= \n";
 
@@ -223,5 +243,22 @@ int main(int argc, char** argv)
   }
   events.clear();
   res.clear();
+
+  TFile routf(outHistFile.c_str(), "RECREATE");
+  
+  for(size_t h = 0; h < clas.size(); ++h)
+  {
+    std::string nn = clas[h];
+    (histograms[nn])->Write();
+  }
+  routf.Close();
+
+  for(size_t h = 0; h < clas.size(); ++h)
+  {
+    std::string nn = clas[h];
+    delete (histograms[nn]);
+  }
+  histograms.clear();
+
   return 0;
 }

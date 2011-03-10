@@ -47,9 +47,9 @@ int main(int argc, char** argv)
   // Class Names  
   clas.push_back("electron");
   clas.push_back("pion"); 
-  clas.push_back("kaon");
-  clas.push_back("muon");
-  clas.push_back("proton");
+  //clas.push_back("kaon");
+  //clas.push_back("muon");
+  //clas.push_back("proton");
   
   // Parameter Names
   nam.push_back("emc");
@@ -61,18 +61,21 @@ int main(int argc, char** argv)
   
   // Create classifier object.
   PndKnnTrain kNNtr (file, clas, nam, true);
-
-  kNNtr.Initialize();
-
-  //NormType tt = VARX;
-  //kNNtr.NormalizeData(NONORM);
-  kNNtr.NormalizeData(VARX);
   
+  //Init and set data structures
+  kNNtr.Initialize();
+  
+  //NormType tt = VARX;
+  kNNtr.NormalizeData(NONORM);
+  //kNNtr.NormalizeData(VARX);
+  //kNNtr.NormalizeData(MINMAX);
+
   // Transform using PCA
   //kNNtr.PCATransForm();
   
   //Set output file name
   kNNtr.SetOutPutFile(oupt);
+
   // Perform training
   kNNtr.Train();
 
