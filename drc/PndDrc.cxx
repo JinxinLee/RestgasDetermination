@@ -32,6 +32,7 @@ using std::cout;
 #include "TGeoSphere.h"
 #include "TGeoBBox.h"
 #include "TGeoArb8.h"
+#include "TGeoCone.h"
 #include "TGeoTrd2.h"
 #include "TGeoCompositeShape.h"
 #include "TGeoMatrix.h"
@@ -1038,6 +1039,7 @@ void PndDrc::ConstructGeometry()
   Double_t EVdrop	 =  fGeo->EVdrop();//0.5;  		   // [cm] drop of the EV - inner radius
   Double_t EVoffset	 =  fGeo->EVoffset();//1.;    		   // [cm] offset of the EV - outer radius
   Double_t EVangle	 =  fGeo->EVangle();//60.;
+  Double_t EVbackAngle   =  fGeo->EVbackAngle(); // 90. by default
   Double_t EVshift       =  -bbox_hlen + bbox_shift - EVlen;  
   Double_t EVRout        =  radius + hthick + EVlen*tan(EVangle/180.*pi)/cos(pi/bbnum/2.);
   
@@ -1378,33 +1380,71 @@ void PndDrc::ConstructGeometry()
   }
 
   // Expansion volume:
-  TGeoPcon* logicEV = new TGeoPcon("logicEV", 0., 360., 2);
+  Double_t dR;
+  Double_t xEV;
+  
+  TGeoPcon* logicEV;// = new TGeoPcon("logicEV", 0., 360., 2);
   if(fprizm == kFALSE){
-    logicEV->DefineSection(0, 0.,      radius-hthick,  EVRout);
-    logicEV->DefineSection(1, EVlen, radius-hthick,  (radius+hthick+boxgap+boxthick)/cos(dphi/2./180.*pi));
+    dR = (radius+hthick+boxgap+boxthick)/cos(dphi/2./180.*pi) - (radius-hthick);
+    xEV = (dR + EVlen*tan(EVangle/180.*pi))/ (tan(EVangle/180.*pi) + tan(EVbackAngle/180.*pi));
+    if(EVbackAngle == 90.){
+      logicEV = new TGeoPcon("logicEV", 0., 360., 2);
+      logicEV->DefineSection(0, 0.,      radius-hthick,  EVRout);
+      logicEV->DefineSection(1, EVlen, radius-hthick,  (radius+hthick+boxgap+boxthick)/cos(dphi/2./180.*pi));
+    }
+    if(EVbackAngle != 90.){
+      logicEV = new TGeoPcon("logicEV", 0., 360., 3);
+      logicEV->DefineSection(0, 0.,      radius-hthick,  radius-hthick+eps);
+      logicEV->DefineSection(1, xEV,     radius-hthick,  EVRout - xEV*tan(EVangle/180.*pi));
+      logicEV->DefineSection(2, EVlen,   radius-hthick,  (radius+hthick+boxgap+boxthick)/cos(dphi/2./180.*pi));
+    } 
   }
   if(fprizm == kTRUE){
-    logicEV->DefineSection(0, 0.,      radius-hthick-pdrop-EVdrop,  EVRprizm);
-    logicEV->DefineSection(1, EVlen-2.*phlength, radius-hthick-pdrop-EVdrop,  radius+hthick+poffset+pheight+EVoffset);
+    dR = (radius+hthick+poffset+pheight+EVoffset)/cos(dphi/2./180.*pi) - (radius-hthick-pdrop-EVdrop);
+    xEV = (dR + (EVlen-2.*phlength)*tan(EVangle/180.*pi))/ (tan(EVangle/180.*pi) + tan(EVbackAngle/180.*pi));
+    if(EVbackAngle == 90.){
+      logicEV = new TGeoPcon("logicEV", 0., 360., 2);
+      logicEV->DefineSection(0, 0.,                radius-hthick-pdrop-EVdrop,  EVRprizm);
+      logicEV->DefineSection(1, EVlen-2.*phlength, radius-hthick-pdrop-EVdrop,  radius+hthick+poffset+pheight+EVoffset);
+    }
+    if(EVbackAngle != 90.){
+      logicEV = new TGeoPcon("logicEV", 0., 360., 3);
+      logicEV->DefineSection(0, 0.,                radius-hthick-pdrop-EVdrop,  radius-hthick-pdrop-EVdrop+eps);
+      logicEV->DefineSection(1, xEV,               radius-hthick-pdrop-EVdrop,  EVRprizm - xEV*tan(EVangle/180.*pi));
+      logicEV->DefineSection(2, EVlen-2.*phlength, radius-hthick-pdrop-EVdrop,  (radius+hthick+poffset+pheight+EVoffset)/cos(dphi/2./180.*pi));      
+    }
   }
   TGeoVolume* baseEV = new TGeoVolume("DrcEV", logicEV, gGeoManager->GetMedium("Marcol82"));
   baseEV->SetLineColor(kMagenta+2);
   baseEV->SetTransparency(50);
   vLocalMother->AddNode(baseEV, 1, new TGeoCombiTrans(0.,0.,EVshift, new TGeoRotation(0)));
   
-  // PhotoDetector:
-  TGeoPcon *logicPD = new TGeoPcon("logicPD", 0., 360., 2);
+  // PhotoDetector: 
+  TGeoCone *logicPD; 
   if(fprizm == kFALSE){
-    logicPD->DefineSection(0, 0.0, radius-hthick, EVRout);
-    logicPD->DefineSection(1, 0.1, radius-hthick, EVRout);  
+    if(EVbackAngle == 90.){
+      logicPD = new TGeoCone("logicPD", 0.1/2., radius-hthick, EVRout, radius-hthick, EVRout);     
+    }
+    if(EVbackAngle != 90.){      
+      logicPD = new TGeoCone("logicPD", xEV/2., radius-hthick+eps, radius-hthick+eps+0.1, EVRout-xEV*tan(EVangle/180.*pi), EVRout-xEV*tan(EVangle/180.*pi)+0.1);
+    }
   }
   if(fprizm == kTRUE){
-    logicPD->DefineSection(0, 0.0, radius-hthick, EVRprizm);
-    logicPD->DefineSection(1, 0.1, radius-hthick, EVRprizm);  
+    if(EVbackAngle == 90.){
+      logicPD = new TGeoCone("logicPD", 0.1/2., radius-hthick, EVRprizm, radius-hthick, EVRprizm);      
+    }
+    if(EVbackAngle != 90.){      
+      logicPD = new TGeoCone("logicPD", xEV/2., radius-hthick-pdrop-EVdrop+eps, radius-hthick-pdrop-EVdrop+eps+0.1, EVRprizm-xEV*tan(EVangle/180.*pi), EVRprizm-xEV*tan(EVangle/180.*pi)+0.1);
+    }
   }
   TGeoVolume *pd = new TGeoVolume("DrcPDSensor", logicPD, gGeoManager->GetMedium("FusedSil"));
   pd->SetLineColor(kGreen-6);
-  vLocalMother->AddNode(pd, 1,new TGeoCombiTrans(0., 0., EVshift-0.1, new TGeoRotation (rot1)));  
+  if(EVbackAngle == 90.){
+    vLocalMother->AddNode(pd, 1,new TGeoCombiTrans(0., 0., EVshift-0.1/2., new TGeoRotation (rot1)));  
+  }
+  if(EVbackAngle != 90.){
+    vLocalMother->AddNode(pd, 1,new TGeoCombiTrans(0., 0., EVshift+0.5*xEV, new TGeoRotation (rot1)));  
+  }
   AddSensitiveVolume(pd);
     
   cout<<"bars ends at = "<<fSlabEnd<<endl;    
