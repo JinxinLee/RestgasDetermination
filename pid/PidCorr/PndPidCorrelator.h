@@ -117,7 +117,8 @@ protected:
   Bool_t GetTrackInfo(PndTrack* track, PndPidCandidate* pid); 
   Bool_t GetMvdInfo  (PndTrack* track, PndPidCandidate* pid); 
   Bool_t GetSttInfo  (PndTrack* track, PndPidCandidate* pid);  
-  Bool_t GetTpcInfo  (PndTrack* track, PndPidCandidate* pid); 
+  Bool_t GetTpcInfo  (PndTrack* track, PndPidCandidate* pid);  
+  Bool_t GetTpcInfoGeane(PndTrack* track, PndPidCandidate* pid); 
   Bool_t GetTofInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
   Bool_t GetEmcInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
   Bool_t GetMdtInfo  (PndTrack* track, PndPidCandidate* pid);   
