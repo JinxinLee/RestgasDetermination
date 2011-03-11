@@ -92,6 +92,7 @@ protected:
   Bool_t fGeanePro;                 // Use GEANE propagation 
   Bool_t fMdtRefit;                 // Use MDT Kalman refit propagation
   Bool_t fIdeal;                    // Ideal Correlation
+  Bool_t fCorrErrorProp;            // Error propagation in correlation
   Int_t  fEventCounter;             // Event number
   Int_t fPidHyp;                    // particle hypothesis for propagation
   PndGeoHandling* fGeoH;             // Object to retrieve MVD geometry
@@ -147,6 +148,7 @@ public:
   void SetVerbose(Bool_t verb)            { fVerbose = verb  ;};
   void SetSimulation(Bool_t sim)          { fSimulation = sim; };
   void SetIdeal(Bool_t id)                { fIdeal = id; };
+  void SetCorrErrProp(Bool_t err)         { fCorrErrorProp = err; };
   void SetGeanePro(Bool_t gea = kTRUE)    { fGeanePro = gea; };
   void SetPidHyp(Int_t pid)               { fPidHyp = pid; };
   

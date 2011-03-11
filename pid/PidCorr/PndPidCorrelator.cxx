@@ -66,7 +66,8 @@ PndPidCorrelator::PndPidCorrelator() {
   fPidHyp = 0;
   fVerbose = kFALSE;
   fSimulation = kFALSE;
-  fIdeal = kFALSE;
+  fIdeal = kFALSE; 
+  fCorrErrorProp = kTRUE;
   tofCorr = 0;
   emcCorr = 0; 
   drcCorr = 0;
@@ -108,7 +109,8 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title)
   fPidHyp = 0;
   fVerbose = kFALSE;
   fSimulation = kFALSE;
-  fIdeal = kFALSE;
+  fIdeal = kFALSE; 
+  fCorrErrorProp = kTRUE;
   tofCorr = 0;
   emcCorr = 0;
   drcCorr = 0;
@@ -348,6 +350,10 @@ InitStatus PndPidCorrelator::Init() {
   if (fGeanePro)
   { 
     cout << "-I- PndPidCorrelator::Init: Using Geane for Track propagation" << endl;
+    if (!fCorrErrorProp)
+      {
+	cout << "-I- PndPidCorrelator::Init: Switching OFF Geane error propagation" << endl;
+      }
     
     switch (abs(fPidHyp))
     {
@@ -620,6 +626,10 @@ Bool_t PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCa
     if ((helix->GetMomentum().Theta()*TMath::RadToDeg())<20.) return kFALSE; 
     if ((helix->GetMomentum().Theta()*TMath::RadToDeg())>150.) return kFALSE;
   }
+  FairGeanePro *fProTof = new FairGeanePro();
+  if (!fCorrErrorProp) fProTof->PropagateOnlyParameters(); 
+  FairGeanePro *fProVertex = new FairGeanePro();
+  if (!fCorrErrorProp) fProVertex->PropagateOnlyParameters();
   //---
   PndTofHit *tofHit = NULL; 
   Int_t tofEntries = fTofHit->GetEntriesFast();
@@ -639,7 +649,7 @@ Bool_t PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCa
     
     if (fGeanePro) // Overwrites vertex if Geane is used
     { 
-      FairGeanePro *fProTof = new FairGeanePro();
+     
       fProTof->SetPoint(tofPos);
       fProTof->PropagateToPCA(1, 1);
       FairTrackParH *fRes= new FairTrackParH();
@@ -647,7 +657,7 @@ Bool_t PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCa
       if (!rc) continue;
       
       vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
-      FairGeanePro *fProVertex = new FairGeanePro();
+     
       fProVertex->SetPoint(TVector3(0,0,0));
       fProVertex->PropagateToPCA(1, -1);
       FairTrackParH *fRes2= new FairTrackParH();
@@ -697,6 +707,8 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
     <<std::endl;
     return kFALSE;
   }
+  FairGeanePro *fProEmc = new FairGeanePro(); 
+  if (!fCorrErrorProp) fProEmc->PropagateOnlyParameters();
   //---
   Float_t trackTheta = helix->GetMomentum().Theta()*TMath::RadToDeg();
   // PndEmcCluster *emcHit = NULL;
@@ -726,7 +738,7 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
     
     emcPos = emcHit->where();
     if (fGeanePro){ // Overwrites vertex if Geane is used
-      FairGeanePro *fProEmc = new FairGeanePro();
+     
       fProEmc->SetPoint(emcPos);
       fProEmc->PropagateToPCA(1, 1);
       vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
@@ -790,7 +802,9 @@ Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
   FairTrackParH *helix = new FairTrackParH(&par, ierr);
   
   map<Int_t, Int_t>mapMdtTrk;
-  
+  FairGeanePro *fProMdt = new FairGeanePro();
+  if (!fCorrErrorProp) fProMdt->PropagateOnlyParameters();
+
   if (fMdtMode == 3)
   { 
     for (Int_t tt = 0; tt<fMdtTrk->GetEntriesFast(); tt++)
@@ -819,7 +833,7 @@ Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
     mdtHit->Position(mdtPos);
     if (fGeanePro) // Overwrites vertex if Geane is used
     { 
-      FairGeanePro *fProMdt = new FairGeanePro();
+     
       fProMdt->SetPoint(mdtPos);
       fProMdt->PropagateToPCA(1, 1);
       vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
@@ -899,7 +913,8 @@ Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
 //_________________________________________________________________
 Bool_t PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCand) {
   if ((helix->GetMomentum().Theta()*TMath::RadToDeg())<20.) return kFALSE;
-  
+  FairGeanePro *fProDrc = new FairGeanePro();
+  if (!fCorrErrorProp) fProDrc->PropagateOnlyParameters();
   //---
   PndDrcHit *drcHit = NULL;
   Int_t drcEntries = fDrcHit->GetEntriesFast();
@@ -918,7 +933,7 @@ Bool_t PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
     
     if (fGeanePro) // Overwrites vertex if Geane is used
     {
-      FairGeanePro *fProDrc = new FairGeanePro();
+     
       fProDrc->PropagateToVolume("DrcBase",0,1);
       vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
       FairTrackParH *fRes= new FairTrackParH();
@@ -962,7 +977,8 @@ Bool_t PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 //_________________________________________________________________
 Bool_t PndPidCorrelator::GetDskInfo(FairTrackParH* helix, PndPidCandidate* pidCand) {
   if ((helix->GetMomentum().Theta()*TMath::RadToDeg())<1.) return kFALSE;
-  
+  FairGeanePro *fProDsk = new FairGeanePro(); 
+  if (!fCorrErrorProp) fProDsk->PropagateOnlyParameters();
   //---
   PndDskParticle *dskParticle = NULL;
   Int_t dskEntries = fDskParticle->GetEntriesFast();
@@ -982,7 +998,7 @@ Bool_t PndPidCorrelator::GetDskInfo(FairTrackParH* helix, PndPidCandidate* pidCa
     
     if (fGeanePro) // Overwrites vertex if Geane is used
     {
-      FairGeanePro *fProDsk = new FairGeanePro();
+      
       fProDsk->PropagateToVolume("DskBase",0,1);
       vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
       FairTrackParH *fRes= new FairTrackParH();

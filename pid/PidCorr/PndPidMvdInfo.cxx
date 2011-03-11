@@ -27,6 +27,8 @@ Bool_t PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
   Float_t mvdPath = 0.;  // total thickness crossed in MVD
   Int_t mvdCounts = 0;
   Float_t SensorThickness=0;
+  FairGeanePro *fProMvd = new FairGeanePro();
+  if (!fCorrErrorProp) fProMvd->PropagateOnlyParameters();
   
   PndTrackCand trackCand = track->GetTrackCand();
   for (Int_t ii=0; ii<trackCand.GetNHits(); ii++)
@@ -55,7 +57,7 @@ Bool_t PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
       Double_t cos = 0.;
       if (fGeanePro) 
     	{
-	  FairGeanePro *fProMvd = new FairGeanePro();
+	 
 	  fProMvd->SetPoint(mvdPos);
 	  fProMvd->PropagateToPCA(1, -1);
 	  FairTrackParH *fRes= new FairTrackParH();
@@ -87,6 +89,7 @@ Bool_t PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
   
   if (mvdPath>0.) pidCand->SetMvdDEDX(mvdELoss/mvdPath);
   pidCand->SetMvdHits(mvdCounts);
+ 
   return kTRUE;
 }
 
