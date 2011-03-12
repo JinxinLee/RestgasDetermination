@@ -343,6 +343,7 @@ void PndSttMvdGemTracking::Reset(Int_t nhits, Int_t ntracks) {
   if(fVerbose > 0) cout << "npositions/nhits " << fNPositions << " " << nhits << endl;
   trackvector.clear();
   usabletracks.clear(); // CHECK 4 PERFORMANCE delete this!
+  trackindexes.clear();
 }
 
 void PndSttMvdGemTracking::OrderGemHits(Int_t nhits) {
@@ -429,11 +430,12 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 
   // Order GEM hits
   OrderGemHits(nhits);
-
+  Int_t flag[ntracks];
 
   // loop on the tracks found in mvd + stt ************
   for (Int_t itrk = 0; itrk < ntracks; itrk++) 
     {
+      flag[itrk] = 0; 
       sttmvd = (PndTrack*) fTrackArray->At(itrk);
       if (!sttmvd) 
 	{
@@ -456,23 +458,26 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 
       // -------------------------------------------------  CHECK this has to be changed
       Copy(completeCand, completeTrack, sttmvdCand, sttmvd);
+      trackindexes.push_back(itrk);
       // -------------------------------------------------
 
-      if(nhits == 0) continue; // CHECK 
+      if(nhits == 0)  { flag[itrk] = -1;  continue; } // CHECK 
 
 
       // cout << "copied completeCand from sttmvdCand @ " << itrk << " has hits " << completeCand->GetNHits() << endl;
       //       
       FairTrackParP lastpar = sttmvd->GetParamLast();
-      if(lastpar.GetMomentum().Z() > 999990.) continue; // CHECK
+      if(lastpar.GetMomentum().Z() > 999990.)  { flag[itrk] = -2;  continue; } // CHECK
       FairTrackParP *gempar = new FairTrackParP();
 
-      if(fabs(lastpar.GetPosition().X()) > 42. || fabs(lastpar.GetPosition().Y()) > 42.) continue; // CHECK 4 PERFORMANCE delete this!!!!
+      if(fabs(lastpar.GetPosition().X()) > 42. || fabs(lastpar.GetPosition().Y()) > 42.)  { flag[itrk] = -3;  continue; } // CHECK 4 PERFORMANCE delete this!!!!
       if(lastpar.GetMomentum().Mag() < 0.15) {
 	cout << "TOO LOW MOMENTUM " << itrk << endl;
 	lastpar.GetPosition().Print();
 	lastpar.GetMomentum().Print();
-	//	continue; // CHECK 4 PERFORMANCE delete this!!!!
+	flag[itrk] = 1;
+
+ 	//	continue; // CHECK 4 PERFORMANCE delete this!!!!
       }
 
       // last z position
@@ -483,7 +488,9 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 	cout << "Z OUT OF BOUNDS" << endl;
 	lastpar.GetPosition().Print();
 	lastpar.GetMomentum().Print();
-	// continue; // CHECK 4 PERFORMANCE delete this!!!!
+	flag[itrk] = 2;
+
+ 	// continue; // CHECK 4 PERFORMANCE delete this!!!!
 
       }
 
@@ -495,7 +502,7 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 
       // **************
       int mcIndex = sttmvdCand->getMcTrackId();
-      if(mcIndex == -1) continue; // CHECK 4 PERFORMANCE delete this!!!!
+      if(mcIndex == -1)  { flag[itrk] = -4;  continue; } // CHECK 4 PERFORMANCE delete this!!!!
      //  cout << "FROM MC " << mcIndex << endl;
       PndMCTrack *mctrk = (PndMCTrack*) fMCTrackArray->At(mcIndex);
       if(mctrk) {
@@ -504,11 +511,11 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 	if(mccharge != charge) cout << "WRONG CHARGE " << charge << " " << mccharge << " " << mctrk->GetPdgCode() << endl;
 
 
-	if(mctrk->GetMotherID() != -1) continue; // CHECK 4 PERFORMANCE delete this!!!!
+	if(mctrk->GetMotherID() != -1)  { flag[itrk] = -5;  continue; } // CHECK 4 PERFORMANCE delete this!!!!
       }
       // **************
 
-    
+  
       countsttmvdusable++;
       usabletracks.push_back(mcIndex); // CHECK 4 PERFORMANCE delete this!!!!
 
@@ -568,6 +575,7 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
   fTurn = 2;
   Retrack();
 
+
   // CHECK to test
   if(fVerbose > 0) {
     cout << "N OF TRACKS " << CountTracks() << endl;
@@ -603,7 +611,8 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
     completeTrack = (PndTrack*) fCompleteTrackArray->At(itrk);
     if(fVerbose > 0 && completeTrack->GetRefIndex() != itrk) cout << "************** ERROR ****************" << endl;
     completeTrack->SetTrackCand(*completeCand);
-
+    completeTrack->SetFlag(flag[itrk]);
+    //    cout << "track " << itrk << " has flag " << flag[itrk] << endl;
   }
 
 
@@ -988,18 +997,22 @@ void PndSttMvdGemTracking::OnlyOneHitToEachTrack(Int_t nhits, Int_t ntracks)
 }
 
 Int_t PndSttMvdGemTracking::GetTrackIndex(int i) {
-  int counter = -1;
-  int tmptrack = -1;
-  std::vector< std::pair<int, int> >::iterator iter;
-  for(iter = trackvector.begin(); iter != trackvector.end(); iter++) {
-    std::pair<int, int> thispair = *iter;
-    if(thispair.first != tmptrack) {
-      tmptrack = thispair.first;
-      counter++;
-      //   cout << i << " " << counter << " " << tmptrack << " " << trackvector[i].first << endl;
-      if(counter == i)  return tmptrack;
-    }
-  }
+
+  // probably this was wrong
+//   int counter = -1;
+//   int tmptrack = -1;
+//   std::vector< std::pair<int, int> >::iterator iter;
+//   for(iter = trackvector.begin(); iter != trackvector.end(); iter++) {
+//     std::pair<int, int> thispair = *iter;
+//     if(thispair.first != tmptrack) {
+//       tmptrack = thispair.first;
+//       counter++;
+//       cout << i << " " << counter << " " << tmptrack << " " << trackvector[i].first << endl;
+//       if(counter == i) { cout << "TRACK INDEX " << tmptrack << endl; return tmptrack; }
+//     }
+//   }
+
+  if(i < trackindexes.size()) return trackindexes[i];
   cout << "PndSttMvdGemTracking::GetTrackIndex " << i << " Out Of Bounds" << endl;
   return -1;
 }
@@ -1023,20 +1036,23 @@ Int_t PndSttMvdGemTracking::GetHitIndex(int i) {  // CHECK THIS HAS TO BE TESTED
 }
 
 Int_t PndSttMvdGemTracking::CountTracks() {
- int counter = 0;
- std::vector< std::pair<int, int> >::iterator iter;
- std::vector<int> counttracks;
- std::vector<int>::iterator iter2;
- for(iter = trackvector.begin(); iter != trackvector.end(); iter++) {
-   std::pair<int, int> thispair = *iter;
-   iter2 = find(counttracks.begin(), counttracks.end(), thispair.first);
-   Int_t where = iter2 - counttracks.begin();
-   if(where == counttracks.size()) {
-     counter++;
-     counttracks.push_back(thispair.first);
-   }
- }
- return counter;
+  // probably this was wrong
+  //  int counter = 0;
+//  std::vector< std::pair<int, int> >::iterator iter;
+//  std::vector<int> counttracks;
+//  std::vector<int>::iterator iter2;
+//  for(iter = trackvector.begin(); iter != trackvector.end(); iter++) {
+//    std::pair<int, int> thispair = *iter;
+//    iter2 = find(counttracks.begin(), counttracks.end(), thispair.first);
+//    Int_t where = iter2 - counttracks.begin();
+//    if(where == counttracks.size()) {
+//      counter++;
+//      counttracks.push_back(thispair.first);
+//    }
+//  }
+// return counter;
+
+  return trackindexes.size();
 }
 
 Int_t PndSttMvdGemTracking::CountHitsInTrack(Int_t itrk) {
