@@ -169,6 +169,7 @@ class PndSttMvdGemTracking : public FairTask {
 
   // CHECK added -------------------------
   std::vector<std::pair<int, int> > trackvector;
+  std::vector<int> trackindexes;
   std::vector<int> notassignedhits;
   std::vector<int> notassignedtracks;
 
