@@ -42,7 +42,7 @@ ppstate_compare::heartbeat()
   fparent->fiscenter=true;
   for(int i=0;i<n;++i){
     if(fparent->fneighbours[i]->amp()!=0)lonely=false;
-    if(largestamp<fparent->fneighbours[i]->amp()){
+    if(largestamp<=fparent->fneighbours[i]->amp()){
       // check if this neighbour is sending me data
       padprocessor* nei=fparent->fneighbours[i];
       if(nei->fdominant_neighb!=-1){
