@@ -70,9 +70,9 @@ int main(int argc, char** argv)
   // Classes (container to hold the class names)
   clasNames.push_back("electron");
   clasNames.push_back("pion");
-  clasNames.push_back("kaon");
-  clasNames.push_back("muon");
-  clasNames.push_back("proton");
+  //clasNames.push_back("kaon");
+  //clasNames.push_back("muon");
+  //clasNames.push_back("proton");
   
   // Variables (names)
   //vars.push_back("p");
@@ -93,9 +93,9 @@ int main(int argc, char** argv)
 
   // Set classifier parameters and init.
   cls.SetEvtParam(0.8,1.0);
-  cls.SetKnn(NumNei);
+  //cls.SetKnn(NumNei);
   cls.Initialize();
-
+  cls.SetKnn(NumNei);
   
   std::cout << ".......... Init is done.\n";
   

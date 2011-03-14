@@ -66,7 +66,7 @@ int main(int argc, char** argv)
   kNNtr.Initialize();
   
   //NormType tt = VARX;
-  kNNtr.NormalizeData(NONORM);
+  kNNtr.NormalizeData();
   //kNNtr.NormalizeData(VARX);
   //kNNtr.NormalizeData(MINMAX);
 

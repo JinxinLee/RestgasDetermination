@@ -10,8 +10,8 @@
 #include "PndMvaUtil.h"
 
 /**
- * Computes the Euclidean distance between two given vectors of
- * event features.
+ * Computes the Euclidean distance between two given vectors of event
+ * features.
  */
 float ComputeDist(std::vector<float> const &EvtData, 
 		  std::vector<float> const &Example)

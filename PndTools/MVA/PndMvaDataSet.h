@@ -202,7 +202,7 @@ class PndMvaDataSet
   void InitVariables(std::vector<std::string> const& variables);
   
   // Validate the input file
-  void ValidateWeightFile();/* throw (PndMvaDataSetException)*/
+  void ValidateWeightFile();
 
   /**
    * Class conditional mean for a given class. Stored in class
@@ -228,6 +228,11 @@ class PndMvaDataSet
    */
   void MinMaxDiff();
   
+  /**
+   * Find minimum and maximum per variable.
+   */
+  void FindMinMax();
+  // __________________________ Member parameters ___________
   //! Input File name
   std::string m_input;
   

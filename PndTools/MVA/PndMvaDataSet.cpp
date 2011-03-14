@@ -95,8 +95,6 @@ void PndMvaDataSet::Initialize()
     try
     {
       ValidateWeightFile();
-      // Read weight File.
-      // ReadWeightsFromFile();      
       // Read input file
       ReadInput();
       //NormalizeDataSet(m_NormType);
@@ -233,6 +231,7 @@ void PndMvaDataSet::Trim()
  */
 void PndMvaDataSet::NormalizeDataSet(NormType type)
 {
+  // Set normalization scheme.
   m_NormType = type;
 
   if( m_events.size() == 0 )
@@ -263,10 +262,10 @@ void PndMvaDataSet::NormalizeDataSet(NormType type)
 	 << "using sample Variance and mean.\n";
     ComputeVariance();
     break;
-
+    
   case NONORM:
   default:
-    cout << "<INFO> No normalization scheme was selected.\n";
+    std::cout << "<INFO> No normalization scheme was selected.\n";
     break;
   }
   std::cout << "===================================================\n" ;
@@ -277,7 +276,7 @@ void PndMvaDataSet::NormalizeDataSet(NormType type)
     // Parameters Loop
     for(size_t i = 0; i < m_vars.size(); i++)
     {
-      // Avoid zero division
+      // Avoid zero division (should never happen)
       //assert(m_vars[i].NormFactor != 0);
       assert( (m_vars[i].NormFactor > 0) || (m_vars[i].NormFactor < 0) );
 
@@ -286,6 +285,8 @@ void PndMvaDataSet::NormalizeDataSet(NormType type)
       (m_events[ev].second)->at(i) = (m_events[ev].second)->at(i) / (m_vars[i].NormFactor);
     }
   }
+  // Find variable extrema.
+  FindMinMax();
 }
 
 /**
@@ -709,7 +710,8 @@ void PndMvaDataSet::DetermineMedian()
     
     if(varVect.size() % 2 == 0)
     {
-      median = ( varVect[(varVect.size() / 2) - 1] + varVect[(varVect.size() / 2)]) / static_cast<float>(2);
+      median = ( varVect[(varVect.size() / 2) - 1] + 
+		 varVect[(varVect.size() / 2)]) / static_cast<float>(2);
       Fquartil = varVect[( (varVect.size() + 2)/4) - 1 ];
     }
     else
@@ -747,24 +749,55 @@ void PndMvaDataSet::MinMaxDiff()
     }
     // Sort variables
     sort( vec.begin(), vec.end() );
-    
-    //cout << m_vars[i].Name << "\tmin = " << vec[0] 
-    //<< "\t\t max = " << vec[vec.size() - 1 ];
-    
-    float diff   = vec[ vec.size() - 1 ] - vec[0];
-    float middle = vec[ static_cast<unsigned int>(vec.size()/2)];
+        
+    //float diff   = vec[ vec.size() - 1 ] - vec[0];
+    //m_vars[i].NormFactor = diff;
 
-    // Store values
-    m_vars[i].NormFactor = diff;
-    m_vars[i].Mean = middle;
+    //float middle = vec[ static_cast<unsigned int>(vec.size()/2)];
+    //m_vars[i].Mean = middle;
+
+    // Store values for each variable.
+    m_vars[i].Min  = vec[0];// Minimum
+    m_vars[i].Max  = vec[vec.size() - 1 ];//Maximum
+    m_vars[i].NormFactor = m_vars[i].Max - m_vars[i].Min;
+    m_vars[i].Mean = vec[ static_cast<size_t>(vec.size()/2)];
+
+    cout << m_vars[i].Name 
+	 << ": min = "   << m_vars[i].Min
+	 << ", max = "   << m_vars[i].Max
+	 << ", diff  = " << m_vars[i].NormFactor
+	 << ", midle = " << m_vars[i].Mean
+	 << '\n';
+  }
+  std::cout << '\n';
+}
+
+/*
+ * For each variable determine the minum and the maximum value.
+*/
+void PndMvaDataSet::FindMinMax()
+{
+  vector<float> vec(m_events.size(), 0.0);
+
+  // Variables Loop
+  for(size_t i = 0; i < m_vars.size(); i++)
+  {
+    // Event loop
+    for(size_t j = 0; j < m_events.size(); j++)
+    {
+      vec[j] = (m_events[j].second)->at(i);
+    }
+    // Sort variables
+    sort( vec.begin(), vec.end() );
+        
+    // Store values for each variable.
     m_vars[i].Min  = vec[0];
     m_vars[i].Max  = vec[vec.size() - 1 ];
 
-    cout << m_vars[i].Name 
-	 << ": min = " << m_vars[i].Min
-	 << ", max = " << m_vars[i].Max
-	 << ", diff  = " << diff
-	 << ", midle = " << middle
+    cout << "\n\t"
+	 << m_vars[i].Name
+	 << ": min = "   << m_vars[i].Min
+	 << ", max = "   << m_vars[i].Max
 	 << '\n';
   }
   std::cout << '\n';

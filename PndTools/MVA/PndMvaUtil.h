@@ -29,37 +29,37 @@ StepError()
    *@param trErr Current training error.
    *@param tsErr Current test error.
    */
-StepError(unsigned int step, float trErr, float tsErr)
+StepError(size_t step, float trErr, float tsErr)
 : m_step(step), m_trErr(trErr), m_tsErr(tsErr)
   {};
   
   //! Destructor
-  ~StepError()
+  virtual ~StepError()
   {};
   
   //! Copy!
-StepError(const StepError& ot)
+StepError(StepError const& ot)
 : m_step(ot.m_step), m_trErr(ot.m_trErr), m_tsErr(ot.m_tsErr)
   {};
   
   //! Assignment.
-  StepError& operator=(const StepError& ot)
+  StepError& operator=(StepError const& ot)
   {
-    m_step  = ot.m_step;
-    m_trErr = ot.m_trErr;
-    m_tsErr = ot.m_tsErr;
+    this->m_step  = ot.m_step;
+    this->m_trErr = ot.m_trErr;
+    this->m_tsErr = ot.m_tsErr;
     return (*this);
   };
   
-  unsigned int m_step;
-  float m_trErr;
-  float m_tsErr;
+  size_t m_step;
+  float  m_trErr;
+  float  m_tsErr;
   
 private:
   //! Operator <
-  inline bool operator<(const StepError& other)const;
+  inline bool operator< (StepError const& other) const;
   //! Operator >
-  inline bool operator>(const StepError& other)const;
+  inline bool operator> (StepError const& other) const;
 };
 // ========================================================================
 
@@ -71,10 +71,11 @@ private:
 struct PndMvaDistObj
 {
   //! Constructor
-PndMvaDistObj():m_idx(-1), m_dist(0.0), m_cls("UNKNOWN_LABEL")
+PndMvaDistObj()
+:m_idx(-1), m_dist(0.0), m_cls("UNKNOWN_LABEL")
   {};
   
-PndMvaDistObj(const int id, const float dist, const std::string& cls)
+PndMvaDistObj(int const id, float const dist, std::string const& cls)
 : m_idx(id), m_dist(dist), m_cls(cls)
   {};
   
@@ -83,15 +84,15 @@ PndMvaDistObj(const int id, const float dist, const std::string& cls)
   {};
   
   //! Operator < 
-  inline bool operator<(const PndMvaDistObj& other) const
+  inline bool operator< (PndMvaDistObj const& other) const
   {
-    return (m_dist < other.m_dist);
+    return (this->m_dist < other.m_dist);
   };
   
   //! Operator > 
-  inline bool operator>(const PndMvaDistObj& other) const
+  inline bool operator> (PndMvaDistObj const& other) const
   {
-    return (m_dist > other.m_dist);
+    return (this->m_dist > other.m_dist);
   };
   
   int m_idx;/**< Index of the prototype. */
@@ -101,8 +102,9 @@ PndMvaDistObj(const int id, const float dist, const std::string& cls)
 // End class definition PndMvaDistObj
 
 //! Less than, comparison funtion.
-inline  bool CompLess(const PndMvaDistObj* a, const PndMvaDistObj* b)
+inline  bool CompLess(PndMvaDistObj const* a, PndMvaDistObj const* b)
 {
+  assert(a && b);
   return ( (*a).m_dist < (*b).m_dist );
 };
 
@@ -113,7 +115,7 @@ inline  bool CompLess(const PndMvaDistObj* a, const PndMvaDistObj* b)
  */
 
 template <typename T>
-inline const T& minFunct ( const T& a, const T& b )
+inline T const& minFunct ( T const& a, T const& b )
 {
   // or: return comp(a,b)?a:b; for the comp version
   return (a < b) ? a : b;
@@ -121,9 +123,10 @@ inline const T& minFunct ( const T& a, const T& b )
 
 //! Less than, comparison funtion.
 template<typename T>
-inline bool compareL(const T* a, const T* b)
+inline bool compareL(T const* l, T const* r)
 {
-  return ( (*a) < (*b) );
+  assert(l && r);
+  return ( (*l) < (*r) );
 };
 
 /**

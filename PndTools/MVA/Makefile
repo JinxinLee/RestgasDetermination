@@ -99,6 +99,10 @@ examples: PndMvaUtil PndMvaDataSet PndMvaClassifier Classifiers
 	build/PndMvaClassifier.o build/PndMvaUtil.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o \
 	-o build/PrKNNclassify
 
+# Build modified version KNN Cassifier (just for evaluation).
+	$(CXX) $(CCFLAGS) $(LIBS) build/KnnClassifyModified.o build/PndKnnClassify.o build/PndMvaClassifier.o \
+	build/PndMvaUtil.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o -o build/KnnModifclassify
+
 # Build LVQ Trainer.
 	$(CXX) $(CCFLAGS) $(LIBS) build/LVQtrain.o build/PndMvaTrainer.o build/PndMvaUtil.o build/PndLVQTrain.o \
 	build/PndMvaDataSet.o build/PndMvaCluster.o build/PndMvaVarPCATransform.o -o build/LVQtrain

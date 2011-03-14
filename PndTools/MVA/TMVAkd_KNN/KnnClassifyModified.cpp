@@ -1,6 +1,6 @@
 // Define the maximum number of neighbors.
-#define MAX_NUM_NEIGH 20 //650
 #define MIN_NUM_NEIGH 10
+#define MAX_NUM_NEIGH 90 //650
 
 // C++ headers
 #include <sstream>
@@ -35,23 +35,19 @@ void printResult( std::map<std::string,float>& res, unsigned int evtId)
 
 int main(int argc, char** argv)
 {
-  if(argc < 3)
+  if(argc < 5)
   {
-    std::cerr << "\t<ERROR>" 
-	      << "./classify <treeName to be classified> <OutputFileName>"
+    std::cerr << "\t<ERROR>:\n\t"
+	      << argv[0] << " <Weights> <EventFile> <treeName to be classified> <OutputFileName>"
 	      << std::endl;
     return 1;
   }
   
-  // Init input variables.
-  std::string EvtTreeName = argv[1];
-  std::string OutFileName = argv[2];
-
-  // Weight File
-  std::string InPutFileName = "EMC_VarX_PCA_KNN_Weights.root";
-  
-  // Events file
-  std::string InputEvents   = "10_4TestSetParamsNorm.root";
+  //_____ Init input variables.
+  std::string InPutFileName = argv[1];// Weight File
+  std::string InputEvents   = argv[2];// Events file
+  std::string EvtTreeName = argv[3]; // Treename
+  std::string OutFileName = argv[4];// OutPut Name
 
   // Containers to hold labels and variable names.
   std::vector<std::string> clasNames;
@@ -64,11 +60,8 @@ int main(int argc, char** argv)
   //clasNames.push_back("kaon");
   //clasNames.push_back("muon");
   //clasNames.push_back("proton");
-  //clasNames.push_back("gamma");
   
   // Variables (names)
-  //vars.push_back("p");
-  
   vars.push_back("emc");
   vars.push_back("lat");
   vars.push_back("z20");
@@ -84,8 +77,13 @@ int main(int argc, char** argv)
   
   // Prepare events to be classified.
   TNtuple* events = (TNtuple*) inFile.Get(EvtTreeName.c_str());
-  // TObjArray* Namen = events->GetListOfBranches();
-  
+  if(!events)
+  {
+    std::cerr << "<ERROR>: Could not read events for <"
+	      << EvtTreeName << "> from the file."
+	      << std::endl;
+    exit(1);
+  }
   std::vector<float> curEvt(vars.size(), 0.0);
   
   // Bind tree branches to the container.
@@ -96,10 +94,12 @@ int main(int argc, char** argv)
   
   //Create the classifier object and specify the weight file
   PndKnnClassify cls (InPutFileName, clasNames, vars);
+  cls.Initialize();
 
   // Set classifier parameters and init.
   cls.SetEvtParam(0.8,1.0);
-  cls.InitKNN();
+
+  //cls.InitKNN();
 
   // Open OutputFile.
   std::ofstream Outfile;
@@ -136,7 +136,8 @@ int main(int argc, char** argv)
     }
     // Write to output.
     // Classifier evaluation info.
-    Outfile <<"  " << nm << "\t" << misCl << "\t"
+    Outfile <<"  " << nm
+	    << "\t" << misCl << "\t"
 	    << ( static_cast<float>(misCl) * 100.00)/ static_cast<float>(events->GetEntriesFast())
 	    << '\n';
     // Incremtn num neighbors. 

@@ -126,7 +126,6 @@ int main(int argc, char** argv)
   //clas.push_back("proton");
 
   // Variables names
-  //nam.push_back("p");
   nam.push_back("emc");
   nam.push_back("lat");
   nam.push_back("z20");
@@ -141,7 +140,7 @@ int main(int argc, char** argv)
   for(size_t i = 0; i < clas.size(); ++i)
   {
     std::string des = "DescriptionOf" + clas[i];
-    TH1F* h1 = new TH1F(clas[i].c_str(), des.c_str(), 100, 0.0, 1.0);
+    TH1F* h1 = new TH1F(clas[i].c_str(), des.c_str(), 200, 0.0, 2.0);
     histograms.insert(std::make_pair(clas[i], h1));
   }
 
@@ -157,9 +156,9 @@ int main(int argc, char** argv)
   
   std::ofstream OutPut;
   OutPut.open (outF.c_str());
-  OutPut << "# Classification results for the events from\n"
-	 << "# "<< evtF << '\n'
-	 << "# Total number of events was " << events.size() << '\n';
+  OutPut << "# Classification results for the events from\n# "
+	 << evtF << "\n# Total number of events was " << events.size()
+	 << "\n\n";
   
   TStopwatch timer;
   timer.Start();
@@ -187,21 +186,24 @@ int main(int argc, char** argv)
 	std::string* tmpClsName = cls.Classify(*evt);
 
 	// Store the results
-	OutPut<< "======================================= \n";
-	OutPut << "# Event " << k 
-	       << " Original className " << (events[k]).first
-	       << "\n Classifier output name " << *tmpClsName << '\n';
-
+	/*
+	  OutPut<< "======================================= \n";
+	  OutPut << "# Event " << k 
+	  << " Original className " << (events[k]).first
+	  << "\n Classifier output name " << *tmpClsName << '\n';
+	*/
 	
 	for( std::map<std::string,float>::iterator it = res.begin(); 
 	     it != res.end(); ++it)
 	{
-	  OutPut << (*it).first << " => " << (*it).second
-		 << " ";
+	  /*
+	    OutPut << (*it).first << " => " << (*it).second
+	    << " ";
+	  */
 	  std::string nn = (*it).first;
 	  (histograms[nn])->Fill((*it).second);
 	}
-	OutPut<< "\n======================================= \n";
+	//OutPut<< "\n======================================= \n";
 
 	if(*tmpClsName == curClsName)
 	{// Correct Label
@@ -213,14 +215,16 @@ int main(int argc, char** argv)
       delete tmpClsName;
       }// End if
     }// Events Loop
-
-    OutPut << "++++++++++++++ Results for classification of " << curClsName 
-	   << "+++++++++++++++++++++++++++++++++++++++++++++\n"
-	   << "We have seen " << totNumEvt << " Events in this class\n"
-	   << "Number of Correct classified events = " << correctCls 
-	   << "\nNumber of mis-classified events = " <<  wrongCls
-	   << "\nErro = " 
-	   << ((static_cast<float>(wrongCls) * 100.00)/static_cast<float>(totNumEvt)) << " %\n" ;
+    std::cout << "\t<-I-> Writing results for " << curClsName
+	      << '\n';
+    OutPut << "++++++++++++++ Classification Results ++++++++++++\n"
+	   << "\tCurrent class Name " << curClsName
+	   << "\n\tWe have seen " << totNumEvt << " Events in this class\n"
+	   << "\tNumber of Correct classified events = " << correctCls
+	   << "\n\tNumber of mis-classified events = " <<  wrongCls
+	   << "\n\tErro = "
+	   << ((static_cast<float>(wrongCls) * 100.00)/static_cast<float>(totNumEvt))
+	   << " %\n" ;
   }// CLass Loop
 
   timer.Stop();
@@ -233,7 +237,8 @@ int main(int argc, char** argv)
   std::cout << "Classifier timing results:\n"
 	    << "RealTime = " << rtime << " seconds, CpuTime = " 
 	    << ctime <<" Seconds\n"
-	    << "It took " << (rtime/static_cast<double>(events.size())) << " Per event.\n";
+	    << "It took " << (rtime/static_cast<double>(events.size()))
+	    << " Per event.\n";
 
   // Clean up
   std::cout << "Clean up.\n";

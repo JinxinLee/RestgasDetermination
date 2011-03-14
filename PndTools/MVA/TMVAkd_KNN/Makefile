@@ -9,7 +9,7 @@ HDR = -I../
 
 # Define targets
 TARGETS  = PndKnnTrain PndKnnClassify PndProjectedKNN 
-TARGETS += KnnClassify KnnTrain Prclassify
+TARGETS += KnnClassify KnnClassifyModified KnnTrain Prclassify
 
 # all: $(TARGETS)
 default: $(TARGETS)
@@ -27,6 +27,10 @@ KnnTrain: % : %.cpp
 	@echo "Done building:" $@
 
 KnnClassify: % : %.cpp
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
+	@echo "Done building:" $@
+
+KnnClassifyModified: % : %.cpp
 	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
 	@echo "Done building:" $@
 

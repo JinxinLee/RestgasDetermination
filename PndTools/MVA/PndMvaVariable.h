@@ -84,6 +84,5 @@ inline PndMvaVariable& PndMvaVariable::operator=(PndMvaVariable const &oth)
   this->Min  = oth.Min;
   this->Max  = oth.Max;
   return (*this);
-}
-// End of interface definition.
+}// End of interface definition.
 #endif
