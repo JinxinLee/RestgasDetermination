@@ -14,6 +14,7 @@ ${CMAKE_SOURCE_DIR}/PndTools/MVA/Clusters
 ${CMAKE_SOURCE_DIR}/PndTools/MVA/KNN
 ${CMAKE_SOURCE_DIR}/PndTools/MVA/LVQ1
 ${CMAKE_SOURCE_DIR}/PndTools/MVA/TMVAkd_KNN
+# ${CMAKE_SOURCE_DIR}/PndTools/MVA/TMVA_MLP
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -37,7 +38,7 @@ LVQ1/PndLVQClassify.cpp
 LVQ1/PndLVQTrain.cpp
 TMVAkd_KNN/PndKnnClassify.cpp
 TMVAkd_KNN/PndKnnTrain.cpp
-TMVAkd_KNN/PndProjectedKNN.cpp
+# TMVAkd_KNN/PndProjectedKNN.cpp
 )
 
 if(RULE_CHECKER_FOUND)
@@ -59,7 +60,7 @@ LVQ1/PndLVQClassify.h
 LVQ1/PndLVQTrain.h
 TMVAkd_KNN/PndKnnClassify.h
 TMVAkd_KNN/PndKnnTrain.h
-TMVAkd_KNN/PndProjectedKNN.h
+# TMVAkd_KNN/PndProjectedKNN.h
 )
 
 # fill list of header files from list of source files

@@ -80,12 +80,14 @@ int main(int argc, char** argv)
   nam.push_back("z20");
   nam.push_back("z53");
 
-  //nam.push_back("thetaC"); nam.push_back("mvd");
-  //nam.push_back("tof"); nam.push_back("stt"); 
+  //nam.push_back("thetaC");
+  //nam.push_back("mvd");
+  //nam.push_back("tof");
+  //nam.push_back("stt"); 
 
   // Create trainer object.
   PndLVQTrain tr(ip, clas, nam, true);
-
+  
   float initC  = 0.9;
   float ethaZ  = 0.1;
   float ethaF  = 0.0001;

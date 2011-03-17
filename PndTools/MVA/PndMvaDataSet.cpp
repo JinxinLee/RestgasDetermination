@@ -206,21 +206,20 @@ void PndMvaDataSet::Trim()
   for(size_t idx = 0; idx < m_events.size(); idx++)
   {
     if(idx == m_events.size() - 1 || m_events[idx].first != m_events[idx + 1].first)
+    {
+      // Find class
+      for(size_t k = 0; k < m_classes.size(); k++)
       {
-	// Find class
-	for(size_t k = 0; k < m_classes.size(); k++)
-	  {
-	    // Update class info
-	    if(m_classes[k].Name == m_events[idx].first)
-	      {
-		m_classes[k].NExamples = minEvtCnt;
-		m_classes[k].StartIdx = minIdx;
-		m_classes[k].EndIdx = idx;
-	      }
-	  }
-
-	minIdx = idx + 1;
+	// Update class info
+	if(m_classes[k].Name == m_events[idx].first)
+	{
+	  m_classes[k].NExamples = minEvtCnt;
+	  m_classes[k].StartIdx = minIdx;
+	  m_classes[k].EndIdx = idx;
+	}
       }
+      minIdx = idx + 1;
+    }
   }
   std::cout << "<INFO> Finished Trimming." << '\n';
 }
@@ -748,7 +747,7 @@ void PndMvaDataSet::MinMaxDiff()
       vec[j] = (m_events[j].second)->at(i);
     }
     // Sort variables
-    sort( vec.begin(), vec.end() );
+    std::sort( vec.begin(), vec.end() );
         
     //float diff   = vec[ vec.size() - 1 ] - vec[0];
     //m_vars[i].NormFactor = diff;
@@ -762,12 +761,12 @@ void PndMvaDataSet::MinMaxDiff()
     m_vars[i].NormFactor = m_vars[i].Max - m_vars[i].Min;
     m_vars[i].Mean = vec[ static_cast<size_t>(vec.size()/2)];
 
-    cout << m_vars[i].Name 
-	 << ": min = "   << m_vars[i].Min
-	 << ", max = "   << m_vars[i].Max
-	 << ", diff  = " << m_vars[i].NormFactor
-	 << ", midle = " << m_vars[i].Mean
-	 << '\n';
+    std::cout << m_vars[i].Name 
+	      << ": min = "   << m_vars[i].Min
+	      << ", max = "   << m_vars[i].Max
+	      << ", diff  = " << m_vars[i].NormFactor
+	      << ", midle = " << m_vars[i].Mean
+	      << '\n';
   }
   std::cout << '\n';
 }
@@ -788,7 +787,7 @@ void PndMvaDataSet::FindMinMax()
       vec[j] = (m_events[j].second)->at(i);
     }
     // Sort variables
-    sort( vec.begin(), vec.end() );
+    std::sort( vec.begin(), vec.end() );
         
     // Store values for each variable.
     m_vars[i].Min  = vec[0];
