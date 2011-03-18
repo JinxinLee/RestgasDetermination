@@ -90,6 +90,10 @@ public:
  /**  Set Photon Detector Parameter **/
   void SetPhotonDetEff(Double_t& lambda_min, Double_t& lambda_max,
                                          Double_t& lambda_step, Double_t efficiency[]);
+  void SetPhotonDetEffOld(Double_t& lambda_min, Double_t& lambda_max,
+                                         Double_t& lambda_step, Double_t efficiency[]);
+  void SetPhotonDetEffNew(Double_t& lambda_min, Double_t& lambda_max,
+                                         Double_t& lambda_step, Double_t efficiency[]);
 
   void SetIsDetEfficiency(Bool_t isDetEff){fisDetEff=isDetEff;}
   void SetIsPixelization(Bool_t isPixel){fisPixel=isPixel;}
@@ -137,6 +141,7 @@ public:
   Double_t fPixelDim; //Pixel Diemsion of photocathode
   Double_t fSigmat; //Time Resolution in ps
   Double_t fCollectionEff; //Collection Efficiency
+  Double_t fPackingFraction; //Packing Fraction or Active Area Ratio
   Int_t detection;  //flag for detection
   Int_t nevents;
   
