@@ -9,8 +9,7 @@
  * procedure. This classifier is implemented based on the LVQ
  * algorithm.
  */
-
-// FIXME Create Dist histograms.
+// Local includes
 #include "PndLVQClassify.h"
 
 // C++
@@ -56,7 +55,7 @@ void readEvents(const char* infile, std::vector<std::string> const& varNames,
     }
     // Init a container to bind to the tree branches
     std::vector<float> ev (varNames.size(), 0.0);
-
+    
     // Bind the parameters to the tree branches
     for(size_t j = 0; j < varNames.size(); j++)
     {
@@ -64,7 +63,7 @@ void readEvents(const char* infile, std::vector<std::string> const& varNames,
       //Binding the branches
       t->SetBranchAddress(branchName, &(ev[j]));
     }// Tree parameters are bounded
-
+    
     // Fetch and store the variables to per class variable container
     for(int k = 0; k < t->GetEntriesFast(); k++)
     {
@@ -72,7 +71,7 @@ void readEvents(const char* infile, std::vector<std::string> const& varNames,
 
       // Container to store the vent data read from the input tree
       std::vector<float>* EvtDat = new std::vector<float>();
-
+      
       // Var Loop
       for(size_t idx = 0; idx < varNames.size(); idx++)
       {
@@ -96,36 +95,41 @@ int main(int argc, char** argv)
   if(argc < 4)
   {
     std::cerr << "\t<Usage> ./classify <InputFile with Prototypes>"
-	      <<" <Classify EventFile> <Results OutPutFile>"
+	      << " <Classify EventFile> <Results OutPutFile>"
 	      << std::endl;
     return 1;
   }
-  
+  // Get CL values
   std::string inF  = argv[1];
   std::string evtF = argv[2];
   std::string outF = argv[3];
+  
   std::string outHistFile = "Hists_" + outF;
-
+  
   std::cout << "\tClassifying events from " << evtF << '\n'
 	    << "\tUsing prototypes from " << inF << '\n'
 	    << "\tThe outoput will be stored in txt format in "<< outF 
 	    << '\n';
-
-  // Create variables
+  
+  // Labels.
   std::vector<std::string> clas;
+  // Variables.
   std::vector<std::string> nam;
+  // Map to store results.
   std::map<std::string, float> res;
+  // To be classified events.
   std::vector<std::pair<std::string, std::vector<float>* > > events;
+  // Store distances from the winning codebooks.
   std::map<std::string, TH1F*> histograms;
   
-  // Classes (labels)
+  // Add labels
   clas.push_back("electron");
   clas.push_back("pion");
   //clas.push_back("kaon");
   //clas.push_back("muon");
   //clas.push_back("proton");
 
-  // Variables names
+  // Add Variables
   nam.push_back("emc");
   nam.push_back("lat");
   nam.push_back("z20");
@@ -140,24 +144,27 @@ int main(int argc, char** argv)
   for(size_t i = 0; i < clas.size(); ++i)
   {
     std::string des = "DescriptionOf" + clas[i];
-    TH1F* h1 = new TH1F(clas[i].c_str(), des.c_str(), 200, 0.0, 2.0);
+    TH1F* h1 = new TH1F(clas[i].c_str(), des.c_str(), 100, 0.0, 1.0);
     histograms.insert(std::make_pair(clas[i], h1));
   }
-
+  
   // Create classifier.
   PndLVQClassify cls (inF, clas, nam);
-
+  // Init
   cls.Initialize();  
   
   // Read events.
   readEvents(evtF.c_str(), nam, clas, events);
   
-  std::cout << "Total number of events is " << events.size() << '\n';
+  std::cout << "Total number of events to be classified = "
+	    << events.size()
+	    << '\n';
   
   std::ofstream OutPut;
   OutPut.open (outF.c_str());
   OutPut << "# Classification results for the events from\n# "
-	 << evtF << "\n# Total number of events was " << events.size()
+	 << evtF
+	 << "\n# Total number of events was " << events.size()
 	 << "\n\n";
   
   TStopwatch timer;
@@ -178,41 +185,26 @@ int main(int argc, char** argv)
       if( curClsName == (events[k]).first )
       {
 	std::vector<float>* evt = (events[k]).second;
+	
 	// Get Mva Value
 	cls.GetMvaValues(*evt, res);
 	totNumEvt++;
 	
 	// Perform winner takes all.
 	std::string* tmpClsName = cls.Classify(*evt);
-
-	// Store the results
-	/*
-	  OutPut<< "======================================= \n";
-	  OutPut << "# Event " << k 
-	  << " Original className " << (events[k]).first
-	  << "\n Classifier output name " << *tmpClsName << '\n';
-	*/
 	
-	for( std::map<std::string,float>::iterator it = res.begin(); 
-	     it != res.end(); ++it)
-	{
-	  /*
-	    OutPut << (*it).first << " => " << (*it).second
-	    << " ";
-	  */
-	  std::string nn = (*it).first;
-	  (histograms[nn])->Fill((*it).second);
-	}
-	//OutPut<< "\n======================================= \n";
-
-	if(*tmpClsName == curClsName)
+	if( (*tmpClsName) == curClsName)
 	{// Correct Label
 	  correctCls++;
+	  // Fill the distance to the wining class.
+	  (histograms[curClsName])->Fill(res[curClsName]);
 	}
-	else{// Wrong label classification.
+	else
+	{// Wrong label classification.
 	  wrongCls++;
 	}
-      delete tmpClsName;
+	// Delete string
+	delete tmpClsName;
       }// End if
     }// Events Loop
     std::cout << "\t<-I-> Writing results for " << curClsName
@@ -249,6 +241,7 @@ int main(int argc, char** argv)
   events.clear();
   res.clear();
 
+  // Write distances histogram.
   TFile routf(outHistFile.c_str(), "RECREATE");
   
   for(size_t h = 0; h < clas.size(); ++h)
@@ -258,6 +251,7 @@ int main(int argc, char** argv)
   }
   routf.Close();
 
+  // Clean histo list
   for(size_t h = 0; h < clas.size(); ++h)
   {
     std::string nn = clas[h];

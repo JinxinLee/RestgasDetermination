@@ -62,11 +62,7 @@ int main(int argc, char** argv)
   // Create classifier object.
   PndKnnTrain kNNtr (file, clas, nam, true);
   
-  //Init and set data structures
-  kNNtr.Initialize();
-  
   //NormType tt = VARX;
-  kNNtr.NormalizeData();
   //kNNtr.NormalizeData(VARX);
   //kNNtr.NormalizeData(MINMAX);
 
@@ -75,6 +71,9 @@ int main(int argc, char** argv)
   
   //Set output file name
   kNNtr.SetOutPutFile(oupt);
+
+  //Init and set data structures
+  kNNtr.Initialize();
 
   // Perform training
   kNNtr.Train();

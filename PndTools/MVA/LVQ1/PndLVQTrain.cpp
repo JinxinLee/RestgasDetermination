@@ -1,7 +1,7 @@
 /* ***************************************
  * LVQ  Training functions               *
  * Author: M.Babai@rug.nl                *
- * Version 0.1 beta1.                    *
+ * Version:                              *
  * LICENSE:                              *
  * ***************************************
  */
@@ -134,7 +134,9 @@ void PndLVQTrain::Train()
 
     testSetIter = m_testSet_indices.find(index);
 
-    // Selected event NOT in the test set
+    // Selected event NOT in the test set. If the iterator ==
+    // m_testSet_indices.end() the the selected index is not a member
+    // of the test set.
     while( testSetIter != m_testSet_indices.end())
     {
       index = static_cast<int>(trand.Uniform(0.0, events.size() - 1));
@@ -174,7 +176,7 @@ void PndLVQTrain::Train()
     UpdateProto( *(events[index].second), *(m_LVQProtos[protoIndex].second), delta, ethaT);
   }
 
-  // Last evaluation
+  // Last evaluation after the very last learning step.
   EvalClassifierError( (tFinal - 1) );
 
   std::cerr << '\n';
@@ -649,7 +651,7 @@ void PndLVQTrain::EvalClassifierError(unsigned int stp)
   // Test-set iterator.
   std::set <int>::const_iterator iter;
 
-  int TrError = 0;// Train error 
+  int TrError = 0;// Train error
   int TsError = 0;// Test  error
 
   //========== Classify Test Set
@@ -673,7 +675,7 @@ void PndLVQTrain::EvalClassifierError(unsigned int stp)
       }
     }
     if(WinClassName != (events.at(idx)).first)
-    {// Wrong
+    {// Wrong (Labels are not equal), misclassified
       TsError++;
     }
   }
@@ -703,7 +705,7 @@ void PndLVQTrain::EvalClassifierError(unsigned int stp)
 	}
       }
       if(WinClassName != events[evt].first)
-      {// Wrong
+      {// Wrong (misclassified, labels are nog equal).
 	TrError++;
       }
     }

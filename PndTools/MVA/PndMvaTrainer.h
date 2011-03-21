@@ -56,7 +56,7 @@ class PndMvaTrainer
    * @param percent Percent of the data set to be used for testing and
    * cross-validation
    */
-  void splitTetsSet(int percent = 10);
+  inline void SetTetsSetSize(int percent = 10);
   
   //! Select input data normalization scheme.
   void NormalizeData(NormType t = NONORM);
@@ -80,8 +80,16 @@ class PndMvaTrainer
    */
   void WriteErroVect(std::string const& FileName);
 
+  /**
+   * Initialize data structures.
+   */
   virtual void Initialize();
 
+  /**
+   * Get the indices of the events selected to be used for testing.
+   */
+  inline std::set <int> const& GetTestEvetIdx() const;
+  
   //==============================================
   //================ Protected ===================
  protected:
@@ -119,12 +127,10 @@ class PndMvaTrainer
   //! Output filename.
   std::string m_outFile;
   
-  //! Selected normalization scheme.
-  NormType m_normType;
-  
   //! Random seed
   unsigned int  m_RND_seed;
-  
+
+  void splitTetsSet();
   //==============================================
   //================ Private =====================
  private:
@@ -133,6 +139,7 @@ class PndMvaTrainer
   PndMvaTrainer& operator=(PndMvaTrainer const& other);
   // Either trim or not
   bool m_trim;
+  int  m_testSetSize;
 };// End of class definition.
 
 //========================= Inline implementations =================
@@ -144,5 +151,15 @@ inline void PndMvaTrainer::SetOutPutFile(std::string const& outFile)
 inline void PndMvaTrainer::SetAppType(AppType t)
 {
   m_dataSets.SetAppType(t);
+};
+
+inline std::set <int> const& PndMvaTrainer::GetTestEvetIdx() const
+{
+  return m_testSet_indices;
+};
+
+inline void PndMvaTrainer::SetTetsSetSize(int percent)
+{
+  m_testSetSize = percent;
 };
 #endif

@@ -17,7 +17,7 @@ PndMvaTrainer::PndMvaTrainer(std::string const& InPut,
 			     std::vector<std::string> const& VarNames,
 			     bool trim)
   : m_dataSets(InPut, ClassNames, VarNames, TRAIN),
-    m_trim(trim)
+    m_trim(trim), m_testSetSize(0)
 {}
 
 //! Destructor
@@ -29,14 +29,15 @@ PndMvaTrainer::~PndMvaTrainer()
 
 void PndMvaTrainer::Initialize()
 {
+  // Trim data set
+  m_dataSets.SetTrim(m_trim);
+
+  // Initialize data set.
   m_dataSets.Initialize();
 
-  // Trim data set
-  if(m_trim)
-  {
-    m_dataSets.Trim();
-  }
-  
+  // Split test and train set.
+  splitTetsSet();
+
   // Initialize class conditional means.
   m_dataSets.InitClsCondMeans();
   
@@ -51,24 +52,25 @@ void PndMvaTrainer::Initialize()
  * @param percent Percent of the data set to be used for testing and
  * cross-validation
  */
-void PndMvaTrainer::splitTetsSet(int percent)
+void PndMvaTrainer::splitTetsSet()
 {
   TRandom3 rndIndx(m_RND_seed);
   
   std::vector<std::pair<std::string, std::vector<float>*> > const& events = m_dataSets.GetData();
   assert( events.size() != 0);
 
-  unsigned int TestEvtCnt = (percent * events.size()) / 100 ;
+  unsigned int TestEvtCnt = (m_testSetSize * events.size()) / 100 ;
   
   std::cout << "<INFO> preparing train and test sets.\n"
 	    << "       Test set containes "<< TestEvtCnt
 	    <<" events and train set "<< (events.size() - TestEvtCnt) 
 	    << '\n';
-  
+  // Select the index of the examples that are going to be used as the
+  // test set.
   while(m_testSet_indices.size() < TestEvtCnt)
   {
-    int trindx = static_cast<int>(rndIndx.Uniform(0.0, events.size() - 1));
-    m_testSet_indices.insert(trindx);
+    int tsindx = static_cast<int>(rndIndx.Uniform(0.0, events.size() - 1));
+    m_testSet_indices.insert(tsindx);
   }
 }
 
@@ -378,9 +380,7 @@ void PndMvaTrainer::WriteToWeightFile(std::vector<TMVA::PDEFoam*> const& foamLis
 //! Select input data normalization scheme.
 void PndMvaTrainer::NormalizeData(NormType t)
 {
-  m_normType = t;
-  //m_dataSets.SetNormType(t);
-  m_dataSets.NormalizeDataSet(t);
+  m_dataSets.SetNormType(t);
 }
 
 /**
@@ -391,5 +391,4 @@ void PndMvaTrainer::NormalizeData(NormType t)
 void PndMvaTrainer::PCATransForm()
 { 
   m_dataSets.Use_PCA(true);
-  m_dataSets.PCATransForm();
 }

@@ -25,7 +25,7 @@ void printProto(const std::vector< std::pair<std::string, std::vector<float>*> >
     {
       std::cout << example->at(j) << "  ";
     }
-    std::cout<< ").\n";
+    std::cout << ").\n";
   }
   std::cout << "==========================\n";
 }
@@ -33,9 +33,11 @@ void printProto(const std::vector< std::pair<std::string, std::vector<float>*> >
 
 int main(int argc, char** argv)
 {
+  // Labels.
   std::vector<std::string> clas;
+  // Variables.
   std::vector<std::string> nam;
-
+  
   if(argc < 5)
   {
     std::cerr << "\t<ERROR> Usage\n"
@@ -53,51 +55,50 @@ int main(int argc, char** argv)
   std::istringstream buff(numstr);
   buff >> numProto;
   std::cout << " numProto = " << numProto << " ";
-
+  
   int numSweep = atoi(argv[3]);
   std::cout << " numSweep = " << numSweep << " ";
-
+  
   std::string ip = argv[4];// InputFile
   std::cout << " TrainFile = " << ip << " ";
-
+  
   std::string ot      = argv[5];// OutPutFile
   std::cout << " outPut = " << ot << " ";
-
+  
   std::string OutErr = "Err" + ot;
   std::cout << " ErrorFile = " << OutErr << '\n';
-
+  
   // Class names
   clas.push_back("electron");
   clas.push_back("pion");
   //clas.push_back("kaon");
   //clas.push_back("muon");
   //clas.push_back("proton");
-
+  
   // Variable names 
   //nam.push_back("p");
   nam.push_back("emc");
   nam.push_back("lat");
   nam.push_back("z20");
   nam.push_back("z53");
-
+  
   //nam.push_back("thetaC");
   //nam.push_back("mvd");
   //nam.push_back("tof");
   //nam.push_back("stt"); 
-
+  
   // Create trainer object.
   PndLVQTrain tr(ip, clas, nam, true);
   
-  float initC  = 0.9;
-  float ethaZ  = 0.1;
-  float ethaF  = 0.0001;
-
+  float initC  = 0.7;
+  float ethaZ  = 0.01;
+  float ethaF  = 0.00001;
+  
   tr.SetLearnPrameters(initC, ethaZ, ethaF, numSweep);
   
   // Use for symm. initialization.
   tr.SetNumberOfProto(numProto);
-  
-  tr.Initialize();
+
   // Use for asymm. init.  
   /*
     std::map <std::string, unsigned int> numProtoMap;
@@ -105,26 +106,28 @@ int main(int argc, char** argv)
     numProtoMap["pion"] = 150;
     tr.SetNumberOfProto(numProtoMap);
   */
-  tr.splitTetsSet(10);//10% (DEFAULT)
-  
-  tr.SetErrorStepSize(10000);//100 (DEFALUT)
+  tr.SetTetsSetSize(10);//10% (DEFAULT)
+
+  tr.SetErrorStepSize(1000);//100 (DEFALUT)
   
   //VARX, MINMAX, MEDIAN, NONORM(DEFAULT)
-  tr.NormalizeData(NONORM);
+  //tr.NormalizeData(NONORM);
 
   // Perform PCA on input events.
   //tr.PCATransForm();
-
+  
   // Specify the file containing pre-initialized prototypes.
-  tr.SetInitProtoFileName("InitialProto.root");
+  //tr.SetInitProtoFileName("InitialProto.root");
   
   // FILE_PR, KMEANS_PR, RANDOM_PR (DEFAULT)
   //tr.setProtoInitType(KMEANS_PR);
-  tr.setProtoInitType(RANDOM_PR);
+  //tr.setProtoInitType(RANDOM_PR);
   
   // Set outPut file name to store weights.
   tr.SetOutPutFile(ot);
 
+  tr.Initialize();
+  
   switch(algNum)
   {
   case 1:
@@ -136,11 +139,12 @@ int main(int argc, char** argv)
   case 3:
     printProto(tr.train1sec());
     break;
+  case 4:
+    printProto( tr.train2sec() );
   default:
     std::cerr << "No algorithm selected" << std::endl;
     break;
   }
-  
   // Write out the error info.
   tr.WriteErroVect(OutErr);
   return 0;

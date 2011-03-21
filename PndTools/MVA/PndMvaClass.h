@@ -17,10 +17,10 @@ struct PndMvaClass
   /**
    *@Param name Class name.
    */
-  PndMvaClass(const std::string& name);
+  PndMvaClass(std::string const& name);
   virtual ~PndMvaClass();
-  PndMvaClass(const PndMvaClass& oth);
-  PndMvaClass& operator=(const PndMvaClass& oth);
+  PndMvaClass(PndMvaClass const& oth);
+  PndMvaClass& operator=(PndMvaClass const& oth);
 
   std::string Name;  /**< Name of the class. */
   size_t NExamples;  /**< Number of examples available of the class. */

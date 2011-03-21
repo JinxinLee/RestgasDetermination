@@ -22,12 +22,18 @@ PndMvaDataSet::PndMvaDataSet( std::string const& WeightFile,
   : m_input(WeightFile),
     m_UsePCA(false),
     m_NormType(NONORM),
-    m_AppType(CLASSIFY)
+    m_AppType(CLASSIFY),
+    m_trim(true)
 {
   // FIXME (IMPLEMENT ME)
   std::cerr <<"<ERROR> Yet to be done.\nFetching data directly from the"
 	    <<" weightfile."
 	    << std::endl;
+  // Read classes from the weight_file
+  // (Get)ReadClasses();
+
+  // Init variables.
+  // InitVariables(varNames);
   varNames.size();
   exit(10);
 }
@@ -46,7 +52,8 @@ PndMvaDataSet::PndMvaDataSet(std::string const& WeightFile,
   : m_input(WeightFile),
     m_UsePCA(false),
     m_NormType(NONORM),
-    m_AppType(type)
+    m_AppType(type),
+    m_trim(true)
 {
   // Init labels.
   InitClasses(classNames);
@@ -88,16 +95,16 @@ void PndMvaDataSet::Initialize()
   case TMVATRAIN:// Train TMVA method
   case TMVACLS: // Use trained TMVA method.
     std::cout << "Yet To be done\n"
-	      << "NIet alles tegelijk,:P\n";
+	      << "Niet alles tegelijk,:P\n";
     break;
   case CLASSIFY:
     // Validate the weight File
     try
     {
+      // See if the file containes the requested properties.
       ValidateWeightFile();
       // Read input file
       ReadInput();
-      //NormalizeDataSet(m_NormType);
     }    
     catch (PndMvaDataSetException &e)
     {
@@ -109,7 +116,21 @@ void PndMvaDataSet::Initialize()
   case TRAIN:
     // Read input file
     ReadInput();
-    //NormalizeDataSet(m_NormType);
+
+    // Trim if required.
+    if(m_trim)
+    {
+      Trim();
+    }
+    
+    // Normalize input events.
+    NormalizeDataSet();
+    
+    // PCA transformation
+    if(m_UsePCA)
+    {
+      PCATransForm();
+    }
     break;
   case UNKAPP:
   default:
@@ -228,11 +249,8 @@ void PndMvaDataSet::Trim()
  * Normalize event dataset using one of available methods.
  *@param t Normalization type (VARX, MINMAX, MEDIAN).
  */
-void PndMvaDataSet::NormalizeDataSet(NormType type)
+void PndMvaDataSet::NormalizeDataSet()
 {
-  // Set normalization scheme.
-  m_NormType = type;
-
   if( m_events.size() == 0 )
   {
     std::cerr << "<ERROR> Un-Initialized data set.\n"
@@ -242,7 +260,7 @@ void PndMvaDataSet::NormalizeDataSet(NormType type)
     exit(1);
   }
 
-  switch(type)
+  switch(m_NormType)
   {
   case MINMAX:
     cout << "<INFO> Normalizing dataset using Min,"
@@ -896,7 +914,17 @@ void PndMvaDataSet::ValidateWeightFile() /* throw (PndMvaDataSetException) */
   for(size_t i = 0; i < numLabels; ++i)
   {
     TObjString* cur = (TObjString*) Labels->At(i);
-    std::cout << " " << (cur->GetString()).Data();
+    std::string CurLabel((cur->GetString()).Data());
+    std::cout << " " << CurLabel;
+    /*
+      std::vector<PndMvaClass>::iterator FindResult;
+      FindResult = std::find_if(m_classes.begin(), m_classes.end(), CurLabel);
+      if(FindResult == m_classes.end())
+      {
+      throw (PndMvaDataSetException("<ERROR> The file does not contain information for " + 
+      CurLabel + "."));
+      }
+    */
   }
   
   std::cout << "\n-I- Available variables are:\n\t";
@@ -907,7 +935,7 @@ void PndMvaDataSet::ValidateWeightFile() /* throw (PndMvaDataSetException) */
   }
   std::cout << '\n';
   
-  // Equal # of labels
+  // Equal # of labels (classes)
   if( numLabels != m_classes.size() )
   {
     throw (PndMvaDataSetException("<ERROR> The number of labels mismatch."));

@@ -108,28 +108,22 @@ class PndMvaDataSet
   virtual ~PndMvaDataSet();
   
   /**
-   * Normalize event dataset using one of available methods.
-   * @param t Normalization type (VARX, MINMAX, MEDIAN).
-   */
-  void NormalizeDataSet(NormType type = NONORM);
-
-  /**
    * Write the normalized DataSet to the out-put file.
    * @param  outFile  File name to write to
    */
   //void WriteDataSet(std::string const& outFile) __attribute__ ((deprecated));
-  void WriteDataSet(std::string const& outFile);
+  virtual void WriteDataSet(std::string const& outFile);
 
   /**
    * Initialize the class conditional means vectors.
    */
-  void InitClsCondMeans();
+  virtual void InitClsCondMeans();
 
   /**
-   * Creates a data set with equal number of events for each class.
+   * If trimming is needed.
    */
-  void Trim();
-  
+  inline void SetTrim(bool t);
+
   //! Get available data.
   inline std::vector< std::pair<std::string, std::vector<float>*> > const& GetData() const;
 
@@ -151,7 +145,7 @@ class PndMvaDataSet
    *
    * Performs PCA (Principal component analysis) on the input dataset.
    */
-  void PCATransForm();
+  virtual void PCATransForm();
 
   //! If PCA was applied.
   inline bool Used_PCA() const;
@@ -164,6 +158,10 @@ class PndMvaDataSet
 
   // Get normalization type.
   inline NormType GetNormType() const;
+  
+  /**
+   *@param t Normalization type (VARX, MINMAX, MEDIAN).
+   */
   inline void SetNormType(NormType t);
 
   // Get & set Application type.
@@ -194,6 +192,16 @@ class PndMvaDataSet
   // Copy constructor (Shallow copy).
   PndMvaDataSet(PndMvaDataSet const& other);
   PndMvaDataSet& operator=(PndMvaDataSet const& other);
+
+  /**
+   * Creates a data set with equal number of events for each class.
+   */
+  void Trim();
+
+  /**
+   * Normalize event dataset using one of available methods.
+   */
+  void NormalizeDataSet();
   
   // Init Classe.
   void InitClasses(std::vector<std::string> const& labels);
@@ -259,6 +267,7 @@ class PndMvaDataSet
 
   // Application type.
   AppType  m_AppType;
+  bool m_trim;
 };
 // End of class interface definition.
 
@@ -316,5 +325,9 @@ inline AppType PndMvaDataSet::GetAppType() const
 inline void PndMvaDataSet::SetAppType(AppType t)
 {
   m_AppType = t;
+};
+inline void PndMvaDataSet::SetTrim(bool t)
+{
+  m_trim = t;
 };
 #endif
