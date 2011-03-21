@@ -10,6 +10,8 @@
 #include "PndDchDigiPar.h"
 #include "PndDchDigiInf.h"
 
+#include <map>
+
 using std::ifstream;
 using std::cout;
 using std::endl;
