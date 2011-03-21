@@ -99,14 +99,14 @@ void getCounts(Int_t n,Double_t *masses, Double_t *counts)
 void convolutionAnalysis(Int_t nroftests=1, Char_t option[]="LQN", Double_t stat=200,Double_t peaktobackground=8, Double_t beamresolution=50.,Double_t resonancewidth=500., Double_t resonancemass=3.526, Int_t seed=0)
 {
   Double_t mass[2],width[2],chisqr;
-  Double_t xbins[13]={3.523, 3.525, 3.5252, 3.5254, 3.5256, 3.5258, 3.5260, 3.5262, 3.5264, 3.5266, 3.5268, 3.527, 3.529};
-  Double_t masses[12], counts[12];
+  Double_t xbins[15]={3.505, 3.523, 3.525, 3.5252, 3.5254, 3.5256, 3.5258, 3.5260, 3.5262, 3.5264, 3.5266, 3.5268, 3.527, 3.529, 3.545};
+  Double_t masses[14], counts[14];
 
   myran=new TRandom3(seed);
 
-  xmin=xbins[0];xmax=xbins[12];
+  xmin=xbins[0];xmax=xbins[14];
 
-  for (Int_t i=0; i<13; i++)
+  for (Int_t i=0; i<15; i++)
    {
     masses[i]=(xbins[i]+xbins[i+1])/2.;
    }
@@ -115,7 +115,7 @@ void convolutionAnalysis(Int_t nroftests=1, Char_t option[]="LQN", Double_t stat
   sprintf(command,"output_stat=%i_p2b=%i_pres=%i_width=%i.root",(int) stat, (int) peaktobackground, (int) beamresolution, (int) resonancewidth);
   TFile *f=new TFile(command,"RECREATE");
   
-  TH1D *hisData=new TH1D("hisdata","",12,xbins);
+  TH1D *hisData=new TH1D("hisdata","",14,xbins);
   TH1D *his=new TH1D("his","",20,resonancewidth-10*beamresolution,resonancewidth+10*beamresolution);
   TH1D *his2=new TH1D("his2","",20,-resonancewidth*2e-7+(xmin+xmax)/2.,resonancewidth*2e-7+(xmin+xmax)/2.);
   TH1D *hisxsq=new TH1D("hisxsq","",30,0,5);
@@ -124,13 +124,13 @@ void convolutionAnalysis(Int_t nroftests=1, Char_t option[]="LQN", Double_t stat
   Double_t sumewidth=0;
   Int_t count=0;
 
-  TGraphErrors *grData=new TGraphErrors(12);
+  TGraphErrors *grData=new TGraphErrors(14);
 
   for (Int_t i=0; i<nroftests; i++)
   {
     setShape(stat,peaktobackground,beamresolution,resonancewidth,resonancemass);
-    getCounts(12,masses,counts);
-    for (Int_t j=0; j<12; j++)
+    getCounts(14,masses,counts);
+    for (Int_t j=0; j<14; j++)
 	{
          hisData->SetBinContent(j+1,counts[j]);
 	 grData->SetPointError(j,0,TMath::Sqrt(counts[j]));
