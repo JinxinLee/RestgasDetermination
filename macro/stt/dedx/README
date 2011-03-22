@@ -1,0 +1,85 @@
+1) run simu/digi/reco with multi kalman in order to have all the pid hypo for all the particle
+
+2) run dedx_p_chain.C"(int ifile)" with ifile = 0, 1, 2, 3, 4 for e, mu, pi, k, p to fill the dedx vs p histos.
+   It takes the correct pid hypo genfitted track and fills the correct band (takes muon hypo for mu, electron for e...).
+   This creates the band you can use to parametrize them. 
+
+3) run dedx_bands.C changing the ifile: it fits the histo dedx vs p and in the end you have the parameters for the band of the given particle. STANDARD PROCEDURE:
+
+// @ fixed momentum, the de/dx_mean values distribute as a gaussian:
+// its mean and sigma is evaluated from the distribution of de/dx 
+// from truncated mean vs momentum from global tracking for the 
+// different particles.
+//
+// The candidate pid is evaluated as the probability density function 
+// value of the gaussian @ the reconstructed momentum, evaluated for 
+// the measured dedx_mean of the track.
+
+4) draw_bands.C to draw them on the histos: fill in the correct parameters coming from dedx_bands.C
+
+5) run run_pid_sttcombi.C to have the candidates 
+
+6) run run_algo_stt.C (PndPidSttAssociatorTask) to obtain pid info from STT
+
+=============
+for the last parametrization 22/03/2011
+- same function for mean and sigma
+- truncated mean @ 70%
+
+ifile 0
+ momentum sampled over 50 with step width 0.03
+
+MEAN DEDX PARAMETRIZATION
+mom limits 0.12 1.23
+mu: -0.0051344, 0.163231, 7.30319,
+
+SIGMA DEDX PARAMETRIZATION
+mom limits 0.12 1.23
+sig: 0.00428134, -0.00359152, 0.655438,
+-------------------------
+
+ifile 1
+ momentum sampled over 50 with step width 0.03
+
+MEAN DEDX PARAMETRIZATION
+mom limits 0.12 1.23
+mu: 0.0737857, 0.643465, 5.42333,
+
+SIGMA DEDX PARAMETRIZATION
+mom limits 0.12 1.23
+sig: 0.0193587, -0.0174329, 0.539616,
+-------------------------
+
+ifile 2
+ momentum sampled over 50 with step width 0.03
+
+MEAN DEDX PARAMETRIZATION
+mom limits 0.12 1.23
+mu: 0.124558, 0.585125, 5.20178,
+
+SIGMA DEDX PARAMETRIZATION
+mom limits 0.12 1.23
+sig: 0.0395417, -0.0443629, 0.502671,
+-------------------------
+
+ifile 3
+ momentum sampled over 50 with step width 0.03
+
+MEAN DEDX PARAMETRIZATION
+mom limits 0.3 1.23
+mu: 1.71069, 2.21786, 3.82597,
+
+SIGMA DEDX PARAMETRIZATION
+mom limits 0.3 1.23
+sig: 0.260654, 0.385838, 0.307763,
+-------------------------
+ifile 4
+ momentum sampled over 50 with step width 0.03
+
+MEAN DEDX PARAMETRIZATION
+mom limits 0.39 1.23
+mu: 4.26561, -0.152697, 4.03156,
+
+SIGMA DEDX PARAMETRIZATION
+mom limits 0.39 1.23
+sig: 0.338277, -0.664876, 0.656844,
