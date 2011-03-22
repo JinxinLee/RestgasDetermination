@@ -53,7 +53,7 @@ Bool_t PndPidCorrelator::GetSttInfo(PndTrack* track, PndPidCandidate* pidCand) {
   
   if( sttCounts > 0) {
     // truncated mean
-    Double_t perc = 0.60;
+    Double_t perc = 0.70;
     // sort
     std::sort(dedxvec.begin(), dedxvec.end());
     
