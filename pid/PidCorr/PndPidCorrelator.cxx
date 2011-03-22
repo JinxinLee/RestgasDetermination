@@ -167,25 +167,16 @@ InitStatus PndPidCorrelator::Init() {
   }
   
   // *** STT ***
-  fSttHit = (TClonesArray*) fManager->GetObject("SttHelixHit");
+  fSttHit = (TClonesArray*) fManager->GetObject("STTHit");
   if ( fSttHit ) 
-  {
-    cout << "-I- PndPidCorrelator::Init: Using SttHelixHit" << endl;
-    fSttMode = 3;
-  }
-  else
-  {
-    fSttHit = (TClonesArray*) fManager->GetObject("STTHit");
-    if ( fSttHit ) 
     {
-      cout << "-I- PndPidCorrelator::Init: Using SttHit" << endl;
+      cout << "-I- PndPidCorrelator::Init: Using STTHit" << endl;
       fSttMode = 2;
     }
-  }
   if (fSttMode ==0)
-  {
-    cout << "-W- PndPidCorrelator::Init: No STT hits array! Switching STT OFF" << endl;
-  } 
+    {
+      cout << "-W- PndPidCorrelator::Init: No STT hits array! Switching STT OFF" << endl;
+    } 
 
   // *** TPC ***
   fTpcCluster = (TClonesArray*) fManager->GetObject("PndTpcCluster");
@@ -461,7 +452,10 @@ void PndPidCorrelator::SetParContainers() {
   
   // Get Emc error matrix parameter container
   fEmcErrorMatrixPar = (PndEmcErrorMatrixPar*) db->getContainer("PndEmcErrorMatrixPar");
-  
+
+  // Get Stt parameter
+  fSttParameters = (PndGeoSttPar*) db->getContainer("PndGeoSttPar");
+
 }
 //______________________________________________________
 void PndPidCorrelator::Exec(Option_t * option) {
@@ -508,7 +502,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
     if (!GetTrackInfo(track, pidCand)) continue;
     if ( (fMvdMode==2) && ((fMvdHitsStrip->GetEntriesFast()+fMvdHitsPixel->GetEntriesFast())>0) ) GetMvdInfo(track, pidCand); 
     if ( (fTpcMode==2) && (fTpcCluster->GetEntriesFast()>0) ) GetTpcInfo(track, pidCand); 
-    if ( (fSttMode==3) && (fSttHit    ->GetEntriesFast()>0) ) GetSttInfo(track, pidCand);
+    if ( (fSttMode == 2) && (fSttHit    ->GetEntriesFast()>0) ) GetSttInfo(track, pidCand);
     if ( (fTofMode==2) && (fTofHit    ->GetEntriesFast()>0) ) GetTofInfo(helix, pidCand);
     if ( (fEmcMode>0)  && (fEmcCluster->GetEntriesFast()>0) ) GetEmcInfo(helix, pidCand);
     if ( (fMdtMode>0)  && (fMdtHit    ->GetEntriesFast()>0) ) GetMdtInfo(track, pidCand);  

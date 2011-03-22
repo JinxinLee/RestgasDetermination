@@ -3,7 +3,8 @@
 #include "PndPidCandidate.h"
 #include "PndTrack.h"
 #include "PndTrackID.h"
-#include "PndSttHelixHit.h"
+
+#include "PndSttHit.h"
 
 #include "FairTrackParH.h"
 #include "FairMCApplication.h"
@@ -21,25 +22,31 @@
 
 #include "PndPidCorrelator.h"
 
+#include <iostream>
+
 //_________________________________________________________________
 Bool_t PndPidCorrelator::GetSttInfo(PndTrack* track, PndPidCandidate* pidCand) {
  
   std::vector<Double_t> dedxvec;
   dedxvec.clear();
-  
+
+  Double_t tuberadius = fSttParameters->GetTubeInRad(); 
   Int_t sttCounts = 0;
   PndTrackCand trackCand = track->GetTrackCand();
   for (Int_t ii=0; ii<trackCand.GetNHits(); ii++)
     {
-      PndSttHelixHit *sttHit = NULL;
       PndTrackCandHit candHit = trackCand.GetSortedHit(ii);
-      if ( (candHit.GetDetId()!=FairRootManager::Instance()->GetBranchId("STTHelixHit")) ||
-	   (candHit.GetDetId()!=FairRootManager::Instance()->GetBranchId("STTHit")) ) continue;
-      sttHit = (PndSttHelixHit*)fSttHit->At(candHit.GetHitId());
-      if (sttHit==0) continue;
-      if (sttHit->GetdEdx() != 0.) 
+      Double_t dedx = 0.;
+
+      if ( candHit.GetDetId()!=FairRootManager::Instance()->GetBranchId("STTHit")) continue;
+      PndSttHit *sttHit = (PndSttHit*) fSttHit->At(candHit.GetHitId());
+      if(!sttHit) continue;
+      // compute dE/dx
+      dedx = sttHit->ComputedEdx(track, tuberadius);
+      
+      if(dedx != 0)
 	{
-	  dedxvec.push_back(sttHit->GetdEdx());
+	  dedxvec.push_back(dedx);
 	  sttCounts++;
 	}
     }

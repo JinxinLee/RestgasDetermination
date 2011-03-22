@@ -31,6 +31,7 @@
 #include "PndEmcGeoPar.h"
 #include "PndEmcErrorMatrix.h"
 #include "PndEmcErrorMatrixPar.h"
+#include "PndGeoSttPar.h"
 
 using std::map;
 
@@ -66,7 +67,8 @@ protected:
   PndEmcGeoPar* fEmcGeoPar;         //! EMC geometry parameters
   PndEmcErrorMatrixPar* fEmcErrorMatrixPar; //! EMC error matrix parameters
   PndEmcErrorMatrix *fEmcErrorMatrix; //! EMC error matrix 
-  
+  PndGeoSttPar* fSttParameters;     //! STT geometry parameters
+
   Short_t fDebugMode;               // Fill ntuples for debug
   Short_t fMvdMode;                 // MVD Mode: 0 no MVD, 1 MvdPoint, (2) MvdHit
   Short_t fSttMode;                 // STT Mode: 0 no STT, 1 SttPoint,  2  SttHit, (3) SttHelixHit
