@@ -11,6 +11,9 @@
 
 #include <iostream>
 #include "TMath.h"
+
+using namespace std;
+
 /** Default constructor **/
 PndSttHit::PndSttHit() 
 {
@@ -47,6 +50,28 @@ PndSttHit::~PndSttHit()
 {
 } 
 
+
+Double_t PndSttHit::ComputedEdx(PndTrack *track, Double_t tuberadius) {
+  
+  // cout << "tuberadius/isochrone " << tuberadius << " " << fIsochrone << endl; 
+
+ Double_t distance = 2 * sqrt(tuberadius * tuberadius - fIsochrone * fIsochrone); // cm
+//  cout << "tuberadius/isochrone/distance " << tuberadius << " " << fIsochrone << " " << distance << endl;
+
+  TVector3 momentum = track->GetParamFirst().GetMomentum();
+  Double_t pt = momentum.Perp();
+  Double_t pl = momentum.Z();
+
+  Double_t coslam = momentum.Perp()/momentum.Mag();
+
+  distance = distance / coslam;    
+  //   cout << "depcharge " << fDepCharge << endl;;
+   Double_t dedx = 0.;
+   if (distance != 0)  dedx = fDepCharge/(1000000 * distance);  // in arbitrary units
+//   cout << "cosla/distance2/dedx " << coslam << " " << distance/coslam << " " << dedx << endl;
+
+  return dedx;
+}
 
 
 ClassImp(PndSttHit)

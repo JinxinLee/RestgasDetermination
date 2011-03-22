@@ -18,6 +18,7 @@
 
 #include "TVector3.h"
 #include "FairHit.h"
+#include "PndTrack.h"
 
 class PndSttHit : public FairHit 
 {
@@ -72,7 +73,10 @@ class PndSttHit : public FairHit
   // tube ID // CHECK added
   void SetTubeID(Int_t tubeid) { fTubeID = tubeid; }
   Int_t GetTubeID() { return fTubeID; }
-  
+
+  // computation of dE/dx
+  Double_t ComputedEdx(PndTrack *track, Double_t tuberadius);
+
  protected:
   
   /** This variable contains the radial distance to the wire **/    
