@@ -55,7 +55,7 @@ class PndLVQTrain: public PndMvaTrainer
    */
   void Train21();
 
-  ////================= DEBUG Only
+  ////================= DEBUG Only, NOT TO BE USED
   inline std::vector< std::pair<std::string, std::vector<float>*> > const& train1sec()
   {
     InitProtoK_Means();
@@ -67,11 +67,11 @@ class PndLVQTrain: public PndMvaTrainer
     InitProtoRand();
     return m_LVQProtos;
   };
-  ////================= DEBUG Only
+  ////================= DEBUG Only, NOT TO BE USED
 
   /**
    * Set CodeBook init type.
-   *@param val Initialization type.
+   *@param iniTypeVal Initialization type.
    */
   inline void setProtoInitType(ProtoInitType iniTypeVal = RANDOM_PR);
 
@@ -148,9 +148,18 @@ class PndLVQTrain: public PndMvaTrainer
   /**
    * Updates the LVQ prototypes.
    */
-  void UpdateProto(std::vector<float> const& EvtData, 
-		   std::vector<float>& proto, 
+  void UpdateProto(std::vector<float> const& EvtData,
+		   std::vector<float>& proto,
 		   int const delta, double const ethaT);
+
+  /**
+   * Check if the current update creates an invalid codebook (If the
+   * vectore is placed outside the extrema). If after the update the 
+   * codebook is out of boundary: reinitialize. Else: do nothing.
+   *@param p The to be validated prototype.
+   */
+  void ValidateProtoUpdate(std::vector<float>& p);
+
   /**
    * Read pre-initialized code books from file and store the vectors
    * in LVQ prototype container.

@@ -40,8 +40,9 @@ int main(int argc, char** argv)
   
   if(argc < 5)
   {
-    std::cerr << "\t<ERROR> Usage\n"
-              <<"\t./train <algNum> <NumProtoTypes> <numSweep>"
+    std::cerr << "\t<ERROR> Usage:\n"
+              <<'\t' << argv[0] 
+	      << " <algNum> <NumProtoTypes> <numSweep>"
 	      <<" <InputTrainEventFeatureFile> <OutFile>"
               << std::endl;
     return 1;
@@ -121,7 +122,6 @@ int main(int argc, char** argv)
   
   // FILE_PR, KMEANS_PR, RANDOM_PR (DEFAULT)
   //tr.setProtoInitType(KMEANS_PR);
-  //tr.setProtoInitType(RANDOM_PR);
   
   // Set outPut file name to store weights.
   tr.SetOutPutFile(ot);

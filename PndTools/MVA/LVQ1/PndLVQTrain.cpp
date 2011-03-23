@@ -104,7 +104,7 @@ void PndLVQTrain::Train()
 	    <<", learn coeff. = " << a << '\n';
   
   // Start the training
-  std::cout << "Starting to train (LVQ1).....\n";
+  std::cout << "Starting to train (LVQ1) .....\n";
   
   for(unsigned int time = 0; time < tFinal; time++)
   {
@@ -251,7 +251,7 @@ void PndLVQTrain::Train21()
 	    <<", surroun. = "<< s << '\n';
   
   // Start learning
-  std::cout << "Starting to train (LVQ2.1).....\n";
+  std::cout << "Starting to train (LVQ2.1) .....\n";
   for(unsigned int time = 0; time < tFinal; time++)
   {
     // Show progress.
@@ -637,6 +637,44 @@ void PndLVQTrain::UpdateProto(std::vector<float> const& EvtData,
   for(size_t i = 0; i < proto.size(); i++)
   {
     proto[i] = proto[i] + ( ethaT * static_cast<double>(delta) * (EvtData[i] - proto[i]) );
+  }
+
+  // Validate
+  ValidateProtoUpdate(proto);
+}
+
+/**
+ * Check if the current update creates an invalid codebook (If the
+ * vectore is placed outside the extrema). If after the update the 
+ * codebook is out of boundary: reinitialize. Else: do nothing.
+ *@param p The to be validated prototype.
+ */
+void PndLVQTrain::ValidateProtoUpdate(std::vector<float>& p)
+{
+  bool reinit = false;
+  std::vector<PndMvaVariable> const& variables = m_dataSets.GetVars();
+
+  for(size_t var = 0; var < variables.size(); ++var)
+  {
+    if( p[var] < variables[var].Min )
+    {
+      reinit = true;
+    }
+    if( p[var] > variables[var].Max )
+    {
+      reinit = true;
+    }
+  }
+  // We need to reinitialize the codebook.  For now we init using
+  // random numbers in the range of var.Min and ar.Max
+  if(reinit)
+  {
+    TRandom3 rnd(m_RND_seed);
+    for(size_t idx = 0; idx < variables.size(); ++idx)
+    {
+      p[idx] = static_cast<float>(rnd.Uniform(variables[idx].Min, variables[idx].Max));
+    }
+    std::cerr << "+";
   }
 }
 

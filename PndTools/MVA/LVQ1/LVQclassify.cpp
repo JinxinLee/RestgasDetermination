@@ -94,7 +94,8 @@ int main(int argc, char** argv)
 {
   if(argc < 4)
   {
-    std::cerr << "\t<Usage> ./classify <InputFile with Prototypes>"
+    std::cerr << "\t<Usage>"<<  argv[0]
+	      << " <InputFile with Prototypes>"
 	      << " <Classify EventFile> <Results OutPutFile>"
 	      << std::endl;
     return 1;
@@ -150,10 +151,11 @@ int main(int argc, char** argv)
   
   // Create classifier.
   PndLVQClassify cls (inF, clas, nam);
+
   // Init
   cls.Initialize();  
   
-  // Read events.
+  // Read events to be classified.
   readEvents(evtF.c_str(), nam, clas, events);
   
   std::cout << "Total number of events to be classified = "
@@ -175,9 +177,9 @@ int main(int argc, char** argv)
   {
     // Current class Name
     std::string curClsName = clas[cl];
-    int correctCls = 0;
-    int wrongCls = 0;
-    int totNumEvt = 0;
+    int correctCls = 0;// Correct classified
+    int wrongCls = 0;  // Mis classified
+    int totNumEvt = 0; // Total number of events in the current class
 
     // Events Loop
     for(size_t k = 0; k < events.size(); k++)
@@ -196,7 +198,7 @@ int main(int argc, char** argv)
 	if( (*tmpClsName) == curClsName)
 	{// Correct Label
 	  correctCls++;
-	  // Fill the distance to the wining class.
+	  // Fill the distance to the wining Codebook.
 	  (histograms[curClsName])->Fill(res[curClsName]);
 	}
 	else

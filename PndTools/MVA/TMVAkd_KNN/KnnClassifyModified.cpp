@@ -38,7 +38,8 @@ int main(int argc, char** argv)
   if(argc < 5)
   {
     std::cerr << "\t<ERROR>:\n\t"
-	      << argv[0] << " <Weights> <EventFile> <treeName to be classified> <OutputFileName>"
+	      << argv[0]
+	      << " <Weights> <EventFile> <treeName to be classified> <OutputFileName>"
 	      << std::endl;
     return 1;
   }
@@ -46,8 +47,8 @@ int main(int argc, char** argv)
   //_____ Init input variables.
   std::string InPutFileName = argv[1];// Weight File
   std::string InputEvents   = argv[2];// Events file
-  std::string EvtTreeName = argv[3]; // Treename
-  std::string OutFileName = argv[4];// OutPut Name
+  std::string EvtTreeName   = argv[3]; // Treename
+  std::string OutFileName   = argv[4];// OutPut Name
 
   // Containers to hold labels and variable names.
   std::vector<std::string> clasNames;
