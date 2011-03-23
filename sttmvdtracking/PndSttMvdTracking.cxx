@@ -44,6 +44,9 @@ PndSttMvdTracking::PndSttMvdTracking() : FairTask("STT Stt-Mvd Tracking") {
   fPersistence = kTRUE;
   fVerbose = 0;
   istampa = 0;
+  sprintf(fSttBranch,"STTHit");
+  sprintf(fMvdPixelBranch,"MVDHitsPixel");
+  sprintf(fMvdStripBranch,"MVDHitsStrip");
 }
 // -------------------------------------------------------------------------
 
@@ -51,6 +54,9 @@ PndSttMvdTracking::PndSttMvdTracking(Int_t verbose) : FairTask("STT Stt-Mvd Trac
   fPersistence = kTRUE;
   fVerbose = verbose;
   istampa = verbose;
+  sprintf(fSttBranch,"STTHit");
+  sprintf(fMvdPixelBranch,"MVDHitsPixel");
+  sprintf(fMvdStripBranch,"MVDHitsStrip");
 }
 // -------------------------------------------------------------------------
 
@@ -155,14 +161,6 @@ if(istampa >=1 ){
     }
 
 
-  // Get SttTrack array // tracce che vengono dal fit di Pavia dell'elica
-//  fSttTrackArray  = (TClonesArray*) ioman->GetObject("STTTrack"); 
-//  if ( ! fSttTrackArray) 
-//    {
-//      cout << "-E- PndSttMvdTracking::Init: No SttTrack array, return!"
-//	   << endl;
-//      return kERROR;
-//    }
 
  // Get SttTrackCand array  dal pattern recognition di STT
   fSttTrackCandArray  = (TClonesArray*) ioman->GetObject("STTTrackCand"); 
@@ -181,8 +179,9 @@ if(istampa >=1 ){
     return kERROR;
   }
 
-  // Get input array   hit di STT dopo digi
-  fSttHitArray = (TClonesArray*) ioman->GetObject("STTHit");
+  // Get input array   hit di STT after digi
+  fSttHitArray = (TClonesArray*) ioman->GetObject(fSttBranch);
+//  fSttHitArray = (TClonesArray*) ioman->GetObject("STTHit");
   if ( ! fSttHitArray ) {
     cout << "-W- PndSttMvdTracking::Init: "
 	 << "No STTHit array, return!" << endl;
@@ -200,29 +199,16 @@ if(istampa >=1 ){
   ioman->Register("SttMvdTrack","SttMvd",fSttMvdPndTrackArray, kTRUE);
 
 
-  // Create and register output array
-/*
-  fHelixHitArray = new TClonesArray("PndSttHelixHit");
-  ioman->Register("SttHelixHit","STT",fHelixHitArray, fPersistence);
-*/
-    
-  // CHECK added 
-
-/*
-  PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
-  fSttTubeArray = mapper->FillTubeArray();
-*/
-
 
 //  -------------------------   get the Mvd hits
-
-  fMvdPixelHitArray = (TClonesArray*) ioman->GetObject("MVDHitsPixel");
+  fMvdPixelHitArray = (TClonesArray*) ioman->GetObject(fMvdPixelBranch);
+//  fMvdPixelHitArray = (TClonesArray*) ioman->GetObject("MVDHitsPixel");
   if ( !fMvdPixelHitArray){
     std::cout << "-W- PndSttMvdTracking::Init: " << "No MVD Pixel hitArray, return!" << std::endl;
     return kERROR;
   }
-
-  fMvdStripHitArray = (TClonesArray*) ioman->GetObject("MVDHitsStrip");
+  fMvdStripHitArray = (TClonesArray*) ioman->GetObject(fMvdStripBranch);
+//  fMvdStripHitArray = (TClonesArray*) ioman->GetObject("MVDHitsStrip");
 
   if ( !fMvdStripHitArray){
     std::cout << "-W- PndSttMvdTracking::Init: " << "No MVD Strip hitArray, return!" << std::endl;
@@ -297,8 +283,6 @@ void PndSttMvdTracking::WriteHistograms(){
   delete hdeltaRStrip2;
 
 }
-
-
 
 // -----   Public method Exec   --------------------------------------------
 // -----   Public method Exec   --------------------------------------------
@@ -648,13 +632,16 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
       }  else {
        WDX[i] = -wiredirection.X();     WDY[i] = -wiredirection.Y(); WDZ[i] = -wiredirection.Z();
       }
-
       info[i][0]= pSttTube->GetPosition().X();
       info[i][1]= pSttTube->GetPosition().Y();
       info[i][2]= pSttTube->GetPosition().Z();
       info[i][3]= dradius;
       info[i][4]= pSttTube->GetHalfLength();
-      info[i][6]= pSttMCPoint[ipunto]->GetTrackID();
+      if(ipunto>=0) {
+	info[i][6]= pSttMCPoint[ipunto]->GetTrackID();
+      } else {
+	info[i][6]= -10.;
+      }
 
       if( fabs( WDX[i] )< 0.00001 && fabs( WDY[i] )< 0.00001 ){
           info[i][5]= 1.;
@@ -663,7 +650,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
           ZCENTER_STRAIGHT = info[i][2];      //    this works because just few lines below there is the
           SEMILENGTH_STRAIGHT = info[i][4];   //    requirement that Minclinations[0] > 2 (= at least 3 parallel straws)
        } else {
-          info[i][5]= 99.;
+          info[i][5]= 99.;	// to signal that it is a skew straw.
 	  ListAllSkewHits[nSttSkewHit]=i;
 	  nSttSkewHit++;
        }
@@ -674,6 +661,16 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
   if (istampa >= 2) {
       cout <<"da PndSttMvdTracking, Stt iHit "<< i << " e n. punto MC ottenuto con RefIndex = "
       	<<ipunto<<endl;
+      if(ipunto<0) {
+      	cout<<"hit di background da mixing!\n";
+      	cout <<"             hit wire pos. in middle "   << pSttTube->GetPosition().X() << " " <<
+             pSttTube->GetPosition().Y() << " " << pSttTube->GetPosition().Z() 
+           << "; R = "<<sqrt(pSttTube->GetPosition().X()*pSttTube->GetPosition().X()+
+	   pSttTube->GetPosition().Y()*pSttTube->GetPosition().Y())<<
+	   ", suo drift radius = "<<dradius <<endl;
+      	cout <<"             wire direction, X, Y, Z (Z direction set always positive)"
+      	<< WDX[i]<<"  "<<WDY[i]<<"  "<<WDZ[i] <<endl;
+      } else{
       cout <<"             hit X, Y, Z space position "   << pSttMCPoint[ipunto]->GetX() << " " <<
                        pSttMCPoint[ipunto]->GetY() << " " << pSttMCPoint[ipunto]->GetZ()<<endl; 
       cout <<"             hit wire pos. in middle "   << pSttTube->GetPosition().X() << " " <<
@@ -684,7 +681,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
       cout <<"             wire direction, X, Y, Z (Z direction set always positive)"
       << WDX[i]<<"  "<<WDY[i]<<"  "<<WDZ[i] <<endl
            <<"             this hit belongs to MC track n. "<<pSttMCPoint[ipunto]->GetTrackID()<<endl;
-
+      }
   }  //  end of   if(istampa >= 
 
 //--------  fine stampaggi
@@ -728,7 +725,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 // ---------------------------------------------  estraggo gli HITS Pixel MVD
  for( i= 0; i< nMvdPixelHit; i++){
     pMvdPixelHit = (PndSdsHit *) fMvdPixelHitArray->At(i);
-    ipunto = pMvdPixelHit->GetRefIndex();
+//    ipunto = pMvdPixelHit->GetRefIndex();
     TVector3 temp = pMvdPixelHit->GetPosition();
     XMvdPixel[i] = temp.X();
     YMvdPixel[i] = temp.Y();
@@ -736,6 +733,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
     sigmaXMvdPixel[i] = pMvdPixelHit->GetDx();
     sigmaYMvdPixel[i] = pMvdPixelHit->GetDy();
     sigmaZMvdPixel[i] = pMvdPixelHit->GetDz();
+    refindexMvdPixel[i] = pMvdPixelHit->GetRefIndex();
 //	cout<<"\tPixel n. "<<i<<" and n. MC point obtained with RefIndex = "<<ipunto<<endl;
  }
 
@@ -746,7 +744,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 
   for( i= 0; i< nMvdStripHit; i++){
     pMvdStripHit = (PndSdsHit *) fMvdStripHitArray->At(i);
-    ipunto = pMvdStripHit->GetRefIndex();
+//    ipunto = pMvdStripHit->GetRefIndex();
     TVector3 temp = pMvdStripHit->GetPosition();
     XMvdStrip[i] = temp.X();
     YMvdStrip[i] = temp.Y();
@@ -754,13 +752,14 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
     sigmaXMvdStrip[i] = pMvdStripHit->GetDx();
     sigmaYMvdStrip[i] = pMvdStripHit->GetDy();
     sigmaZMvdStrip[i] = pMvdStripHit->GetDz();
+    refindexMvdStrip[i] = pMvdStripHit->GetRefIndex();
 //	cout<<"\tStrip n. "<<i<<" and n. MC point obtained with RefIndex = "<<ipunto<<endl;
   }
 // ------------------------------------ fine di estraggo gli HITS Strip MVD
 
 //------------------------------------------ stampaggi  hits MVD
 if(istampa>=1  && IVOLTE<20){
-  cout<<"da PndSttMvdTracking  :  n. Mvd Pixel Hits = "<<nMvdPixelHit<<endl;
+  cout<<"da PndSttMvdTraking  :  n. Mvd Pixel Hits = "<<nMvdPixelHit<<endl;
   cout<<"da PndSttMvdTracking  :  n. Mvd Strip Hits = "<<nMvdStripHit<<endl;
 }
 if(istampa>=1  && IVOLTE<20){
@@ -769,7 +768,8 @@ if(istampa>=1  && IVOLTE<20){
       cout<<"      Pixel hit n. "<<i<<" Info : X  = "<<XMvdPixel[i]<<";  Y  = "<<YMvdPixel[i]<<
             ";  Z  = "<<ZMvdPixel[i]<<endl;
       cout<<"\t\tPixel Info : sigmaX  = "<<sigmaXMvdPixel[i]<<";  sigmaY  = "<<sigmaYMvdPixel[i]<<
-            ";  sigmaZ  = "<<sigmaZMvdPixel[i]<<endl;
+            ";  sigmaZ  = "<<sigmaZMvdPixel[i]<<endl<<"\t suo RefIndex = "<<refindexMvdPixel[i]
+	    <<endl;
   }
   cout<<"        ------------------\n";
 
@@ -778,7 +778,8 @@ if(istampa>=1  && IVOLTE<20){
       cout<<"      Strip hit n. "<<i<<" Info : X  = "<<XMvdStrip[i]<<";  Y  = "<<YMvdStrip[i]<<
             ";  Z  = "<<ZMvdStrip[i]<<endl;
       cout<<"\t\tStrip Info : sigmaX  = "<<sigmaXMvdStrip[i]<<";  sigmaY  = "<<sigmaYMvdStrip[i]<<
-            ";  sigmaZ  = "<<sigmaZMvdStrip[i]<<endl;
+            ";  sigmaZ  = "<<sigmaZMvdStrip[i]<<endl<<"\t suo RefIndex = "<<refindexMvdStrip[i]
+	    <<endl;
   }
   cout<<"        ------------------\n";
 
@@ -798,7 +799,7 @@ if(istampa>=1  && IVOLTE<20){
 
    for(  i= 0; i< nMvdMCPoint; i++){
 	pMvdMCPoint = (PndSdsMCPoint*) fMvdMCPointArray->At(i);
-if(istampa>2&& IVOLTE<20) cout<<"Il punto n. "<<i<<" Mvd MC e' associato alla traccia MC n. "
+if(istampa>2&& IVOLTE<20) cout<<"Il punto MC n. "<<i<<" Mvd e' associato alla traccia MC n. "
 	   <<pMvdMCPoint->GetTrackID()<<endl;
 	TVector3 position;
 	pMvdMCPoint->Position(position);
@@ -817,31 +818,6 @@ if(istampa>2&& IVOLTE<20) cout<<"Il punto n. "<<i<<" Mvd MC e' associato alla tr
 //---------------  recupero le Helix-Lia  PndSttTrack trovate dopo il PR
 //                 delle STT + fit di Lia
 
-/*
- nSttHelixTrack = fSttTrackArray->GetEntriesFast();
- if(istampa>2  && IVOLTE<20){ cout<<"N. totale di PndSttTrack dopo PR+fit Lia = "
-                              <<nSttHelixTrack<<endl; }
-
-  for(  i= 0; i< nSttHelixTrack; i++){
-   pSttHelixTrack = (PndSttTrack *) fSttTrackArray->At(i);
-
-// ------  estraggo il PndTrackCand [che era uscito dal PR]
-//         sul quale HelixFit e' stato applicato
-
-  Candidato = pSttHelixTrack->GetTrackCandIndex();
-  // parameters of the helix: d0, phi0, Rad, tanlambda, z0
-  Dist =pSttHelixTrack->GetDist();
-  Phi  = pSttHelixTrack->GetPhi();
-  Rad=pSttHelixTrack->GetRad();
-  TanL=pSttHelixTrack->GetTanL();
-  Z=pSttHelixTrack->GetZ();
-  
-  Charge= pSttHelixTrack->GetCharge();
-  iflag = pSttHelixTrack->GetFlag();
- }
-
-
-*/
 
 //---------------  fine del recupero le Helix-Lia  PndSttTrack trovate dopo il PR delle STT + fit di Lia
 
@@ -888,7 +864,7 @@ if(istampa>2  && IVOLTE<20)
        pndtrackcandhit = pMvdTrackCand->GetSortedHit(j);
        ListHitMvdTrackCand[i][j] = pndtrackcandhit.GetHitId(); // questo e' il n. Hit nativo che posso usare
                                           // per estrarre tutte le info che voglio.
-       ListHitTypeMvdTrackCand[i][j] = pndtrackcandhit.GetDetId(); // questo e' il n. Hit nativo che posso usare
+       ListHitTypeMvdTrackCand[i][j] = pndtrackcandhit.GetDetId(); // questo e' il tipo Hit nativo che posso usare
                                           // per estrarre tutte le info che voglio.
        if( ListHitTypeMvdTrackCand[i][j]==FairRootManager::Instance()->GetBranchId("MVDHitsPixel")){
 		inMvdTrackCandPixel[ ListHitMvdTrackCand[i][j] ]= true;
@@ -1181,7 +1157,23 @@ if(istampa>=2&& IVOLTE<20){
 	        cout<<"\t\tMvd Strip Hit n. "<<
 		     ListMvdStripHitsAssociatedToSttTrack[i][j]<<endl;
 	   }
-      }
+           cout<<"da PndSttMvdTracking --------------------------------------\n"<<
+	   "	SttTrackCand n.  "<<i<<";  n. || Hits in Stt in Track = "
+	   <<nSttParHitsinTrack[i]<<"   e loro lista \n";
+	   for(j=0; j<nSttParHitsinTrack[i];j++){
+	        cout<<"\t\t|| Stt Hit n. "<<
+		     ListSttParHitsinTrack[i][j]<<endl;
+	   }
+           cout<<"da PndSttMvdTracking --------------------------------------\n"<<
+	   "	SttTrackCand n.  "<<i<<";  n. skew Hits in Stt Track = "
+	   <<nSttSkewHitsinTrack[i]<<"   e loro lista \n";
+	   for(j=0; j<nSttSkewHitsinTrack[i];j++){
+	        cout<<"\t\tskew Stt Hit n. "<<
+		     ListSttSkewHitsinTrack[i][j]<<endl;
+	   }
+      }// end of   for(  i= 0; i< nSttTrackCand; i++)
+
+
 }   //end of if(istampa>=0)
 
 //-----------------  end of section with match Mvd hits with Stt hits
@@ -2616,7 +2608,7 @@ if( istampa>=3){
 		//  the momentum direction
 		ddd = Ptras*sqrt(Ptras*Ptras+Pzini*Pzini);
 
-if(istampa>=1) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
+if(istampa>=2) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
 	"\tfirst hit, tipo hit = "<<ListTrackCandHitType[ncand][0]<<", X = "<<Posiz1[0]
 	<<", Y = "<<Posiz1[1]<<", Z = "<<Posiz1[2]<<
 	"\n\tPx = "<<px<<", Py = "<<py<<", Pz = "<<Pzini<<", Ptras "<<Ptras<<endl
@@ -2695,7 +2687,7 @@ if(istampa>=1) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
 		//  the momentum direction
 		ddd = Ptras*sqrt(Ptras*Ptras+Pzini*Pzini);
 
-if(istampa>=1) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
+if(istampa>=2) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
 	"\tlast hit, tipo hit = "<<ListTrackCandHitType[ncand][k]
 	<<", X = "<<Posiz1[0]
 	<<", Y = "<<Posiz1[1]<<", Z = "<<Posiz1[2]<<
@@ -2968,7 +2960,17 @@ i=0;
 					);
 
 
-
+	for(int kk=-200; kk<= 150; kk += 50){
+		float  time = (float) kk;
+		WriteMacroParallelHitsGeneralspecial(
+		   time,	// backgound time
+                   nSttHit, info,
+		   nSttTrackCand,Ox,Oy,R,
+		   FI0,
+		   ultimoangolo,
+		   primoangolo
+					);
+	}
 
 
         WriteMacroAllHitsRestanti(
@@ -3490,6 +3492,7 @@ panco: ;
          	TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
        		if (icode>1000000000) carica = 1.;
        		else  carica = fParticle->Charge()/3. ;    //   charge of track
+       if (fabs(carica)<0.1 ) goto fuori ;
            	Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
            	Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
             	fprintf(MACRO,
@@ -3498,12 +3501,12 @@ panco: ;
 "TEllipse* MC%d = new TEllipse(%f,%f,%f,%f,%f,%f);\nMC%d->SetFillStyle(0);\nMC%d->SetLineColor(3);\nMC%d->Draw(\"only\");\n",
                      im,Cx,Cy,Rr,Rr,0.,360.,im,im,im);
 	}
-       }
+       };
 //----------- fine parte del MC
-
+fuori: ;
       fprintf(MACRO,"}\n");
       fclose(MACRO);
-       
+
 
     return ;
 
@@ -3536,22 +3539,6 @@ panco: ;
 		   Double_t *primoangolo
 
 
-/*
-		   UShort_t nMvdPixelHit
-		   Double_t* XMvdPixel,
-		   Double_t* sigmaXMvdPixel,
-		   Double_t* YMvdPixel,
-		   Double_t* sigmaYMvdPixel,
-		   Double_t* ZMvdPixel,
-		   Double_t* sigmaZMvdPixel,
-		   UShort_t nMvdStripHit,
-		   Double_t* XMvdStrip,
-		   Double_t* sigmaXMvdStrip,
-		   Double_t* YMvdStrip,
-		   Double_t* sigmaYMvdStrip,
-		   Double_t* ZMvdStrip,
-		   Double_t* sigmaZMvdStrip
-*/
 
                                                       )
 {
@@ -3848,6 +3835,176 @@ pippo:	;
 
 
 
+
+
+
+//----------start of function PndSttMvdTracking::WriteMacroParallelHitsGeneralspecial
+
+  void PndSttMvdTracking::WriteMacroParallelHitsGeneralspecial(
+		   Double_t time,
+                   Int_t Nhits, Double_t info[][7],
+                   UShort_t nTracksFoundSoFar,
+                   Double_t *Ox, Double_t *Oy, Double_t *Radius,
+		   Double_t *FI0,
+		   Double_t *ultimoangolo,
+		   Double_t *primoangolo
+
+
+
+                                                      )
+{
+
+    Int_t i, j, i1, ii, index, Kincl, nlow, nup, STATUS;
+
+    Double_t xmin , xmax, ymin, ymax, xl, xu, yl, yu,
+           gamma,
+           dx, dy, diff, d1, d2,
+           delta, deltax, deltay, deltaz, deltaS,
+           factor,ff,
+           zmin, zmax, Smin, Smax, S1, S2,
+           z1, z2, y1, y2,x1,x2,
+           vx1, vy1, vz1, C0x1, C0y1, C0z1,
+           aaa, bbb, ccc, rrr, angle, minor, major,
+           distance, Rx, Ry, LL, dR,
+           Aellipsis1, Bellipsis1,fi1,
+           fmin, fmax, offset, step,
+           SkewInclWithRespectToS, zpos, zpos1, zpos2,
+           Tiltdirection1[2],
+           zl[200],zu[200],
+           POINTS1[6];
+
+      char nome[300], nome2[300];
+
+
+
+	dR = time*STTdriftVEL; // in cm.
+
+//---------- parallel straws Macro now
+	if( time>=0.){
+		i = (Int_t) time;
+		sprintf(nome,"MacroAllHitsTime%dEvent%d",i, IVOLTE);
+	} else {
+		i = (Int_t) -time;
+		sprintf(nome,"MacroAllHitsTime-%dEvent%d",i, IVOLTE);
+	}
+      sprintf(nome2,"%s.C",nome);
+      FILE * MACRO = fopen(nome2,"w");
+//      fprintf(MACRO,"void %s()\n{\n",nome);
+      fprintf(MACRO,"{\n");
+      xmin=1.e20;
+      xmax=-1.e20;
+      ymin=1.e20;
+      ymax=-1.e20;
+       for( i=0; i< Nhits; i++) {	// all straws, anche le skew
+            if (info[i][0]-info[i][3] < xmin)   xmin = info[i][0]-info[i][3];
+            if (info[i][0]+info[i][3] > xmax)   xmax = info[i][0]+info[i][3];
+            if (info[i][1]-info[i][3] < ymin)   ymin = info[i][1]-info[i][3];
+            if (info[i][1]+info[i][3] > ymax)   ymax = info[i][1]+info[i][3];
+       }
+       for( ii=0; ii< nMvdPixelHit; ii++) {
+            if (XMvdPixel[ii] < xmin)   xmin = XMvdPixel[ii];
+            if (XMvdPixel[ii] > xmax)   xmax = XMvdPixel[ii] ;
+            if (YMvdPixel[ii] < ymin)   ymin = YMvdPixel[ii];
+            if (YMvdPixel[ii] > ymax)   ymax = YMvdPixel[ii];
+       }
+
+       for( ii=0; ii< nMvdStripHit; ii++) {
+            if (XMvdStrip[ii] < xmin)   xmin = XMvdStrip[ii];
+            if (XMvdStrip[ii] > xmax)   xmax = XMvdStrip[ii] ;
+            if (YMvdStrip[ii] < ymin)   ymin = YMvdStrip[ii];
+            if (YMvdStrip[ii] > ymax)   ymax = YMvdStrip[ii];
+       }
+
+       if( xmin > 0. ) xmin = 0.;
+       if( xmax < 0.)  xmax = 0.;
+       if( ymin > 0. ) ymin = 0.;
+       if( ymax < 0.)  ymax = 0.;
+
+       deltax = xmax-xmin;
+       deltay = ymax - ymin;
+
+       if( deltax > deltay) {
+         ymin -=  0.5*(deltax-deltay);
+         ymax = ymin+ deltax;
+         delta = deltax;
+       }  else  {
+         xmin -=  0.5*(deltay-deltax);
+         xmax = xmin+ deltay;
+         delta= deltay;
+       }
+
+       xmax = xmax + delta*0.05;
+       xmin = xmin - delta*0.05;
+
+       ymax = ymax + delta*0.05;
+       ymin = ymin - delta*0.05;
+
+
+       fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
+	if( time>=0.){
+		i = (Int_t) time;
+		fprintf(MACRO,"TPaveLabel* pt= new TPaveLabel(%f,%f,%f,%f,\"Bkg; Time shift = %d nsec\");\n",
+		xmin+delta*0.05,ymax-delta*0.15,xmin+delta*0.35,ymax- delta*0.05,i);
+	} else {
+		i = (Int_t) -time;
+		fprintf(MACRO,"TPaveLabel* pt= new TPaveLabel(%f,%f,%f,%f,\"Bkg; Time shift = -%d nsec\");\n",
+		xmin+delta*0.05,ymax-delta*0.15,xmin+delta*0.35,ymax- delta*0.05,i);
+	}
+       fprintf(MACRO,"pt->Draw();\n");
+
+       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
+       fprintf(MACRO,"Assex->Draw();\n");
+       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
+       fprintf(MACRO,"Assey->Draw();\n");
+
+
+       for( i=0; i< Nhits; i++) {
+	 if( info[i][3]+dR >STRAWRADIUS || info[i][3]+dR <0.) continue;
+         if( info[i][5] == 1 ) {     // parallel straws
+            fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetFillStyle(0);\nE%d->Draw();\n",
+                     i,info[i][0],info[i][1],info[i][3]+dR,info[i][3]+dR,i,i);
+          }
+       }
+
+      if(fabs(time)<5.){
+       for( ii=0; ii< nMvdStripHit; ii++) {
+            x1= XMvdStrip[ii]-sigmaXMvdStrip[ii];
+            x2= XMvdStrip[ii]+sigmaXMvdStrip[ii];
+            y1= YMvdStrip[ii]-sigmaYMvdStrip[ii];
+            y2= YMvdStrip[ii]+sigmaYMvdStrip[ii];
+            fprintf(MACRO,"TMarker* BS%d = new TMarker(%f,%f,%d);\nBS%d->SetMarkerColor(1);\nBS%d->Draw();\n",
+                    ii,XMvdStrip[ii],YMvdStrip[ii],25,ii,ii,ii);
+
+
+       }
+       for( ii=0; ii< nMvdPixelHit; ii++) {
+            x1= XMvdPixel[ii]-sigmaXMvdPixel[ii];
+            x2= XMvdPixel[ii]+sigmaXMvdPixel[ii];
+            y1= YMvdPixel[ii]-sigmaYMvdPixel[ii];
+            y2= YMvdPixel[ii]+sigmaYMvdPixel[ii];
+            fprintf(MACRO,"TMarker* BP%d = new TMarker(%f,%f,%d);\nBP%d->SetMarkerColor(1);\nBP%d->Draw();\n",
+                    ii,XMvdPixel[ii],YMvdPixel[ii],26,ii,ii);
+       }
+
+      } // end of if(fabs(time)>5.)
+
+
+
+      fprintf(MACRO,"}\n");
+      fclose(MACRO);
+       
+//------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+    return ;
+
+}
+
+
+//----------end of function PndSttMvdTracking::WriteMacroParallelHitsGeneralspecial
 
 
 
@@ -4553,6 +4710,7 @@ ponco: ;
          	TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
        		if (icode>1000000000) carica = 1.;
        		else  carica = fParticle->Charge()/3. ;    //   charge of track
+       if (fabs(carica)<0.1 ) goto pinco ;
            	Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
            	Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
 		Fifi = atan2(Cy, Cx);       // MC truth Fifi angle of circle of Helix trajectory
@@ -4597,7 +4755,7 @@ ponco: ;
 
 
 
-
+pinco: ;
 nohits: ;
 
       fprintf(MACRO,"}\n");
@@ -5302,8 +5460,8 @@ void PndSttMvdTracking::SttMatchedSpurious(
 {
 
     UShort_t	i, jexp, exphit, iHit,
-    		emme,
 		enne[MAXTRACKSPEREVENT][nmaxSttHits];
+  Short_t	emme;
 
 
   for(jexp=0; jexp<nTracksFoundSoFar;jexp++){
@@ -5359,11 +5517,10 @@ void PndSttMvdTracking::SttMatchedSpurious(
 	}
 //--- ricerca degli hits non mecciati, della traccia MC associata a questa traccia trovata.
 	for(i=0; i<ntotalHits; i++){
-		emme = (UShort_t) ( info[ i ][6] + 0.01);
+		emme = (Short_t) ( info[ i ][6] + 0.01);
 
-
-		// escludo gli hits paralleli oppure che non appartengono alla giusta
-		// traccia MC
+		// considero solo le skew ( info[i][5]=99.) ed escludo quelle che
+		//  non appartengono alla giusta traccia MC
 		if( info[i][5] < 98. || (emme != daTrackFoundaTrackMC[jexp]) ) continue;
 		if( !ExclusionListStt[i]) continue; // escludo gli hits con multiple hits
 			for(exphit=0; exphit<nSkewHitsinTrack[jexp]; exphit++){
@@ -7671,6 +7828,7 @@ if(istampa>2){
 //----------
 
 	for(i=0; i<nMvdPixelHit;i++){
+		if (refindexMvdPixel[i]<0.) continue;
 		dist=errorsqPixel;
 		for(j=0;j<nMvdMCPoint;j++){
 
@@ -7709,6 +7867,7 @@ cout<<"il pixel hit n. "<<i<<" non e' associato ad alcun Mvd Point (FromPixeltoM
 
 
 	for(i=0; i<nMvdStripHit;i++){
+		if (refindexMvdStrip[i]<0.) continue;
 		dist=errorsqStrip;
 		for(j=0;j<nMvdMCPoint;j++){
 
