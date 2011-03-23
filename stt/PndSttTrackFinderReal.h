@@ -87,16 +87,26 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
   TClonesArray *fTubeArray;
   void SetTubeArray(TClonesArray *tubeArray) { fTubeArray = tubeArray; };
 
+/*
+  void SetInputBranchName( char* string1 )
+  {
+	sprintf(fSttBranch,"%s", string1);
+	return;
+  };
+
+*/
+
+
  private:
 
 
-#define maxTracks 20
+#define maximumTracks 25
 
 
       static const UShort_t
-            nmaxHits = maxTracks*50, // max 20  tracks in Stt, with average 50 hits per track
-            MAXMCTRACKS=30,
-            MAXTRACKSPEREVENT=maxTracks,
+            nmaxHits = maximumTracks*26, // max hits total
+            MAXMCTRACKS=maximumTracks,
+            MAXTRACKSPEREVENT=maximumTracks,
             nmaxinclinationversors=20,
             nAdmittedRadia = 3,
             nbinCX=100,
@@ -220,8 +230,8 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
   TClonesArray* fSttHitArray;
 
 
-
-
+  /**  Branch name to be used to fetch the hits of the backgound mixed events  **/
+  char	fSttBranch[100];
 
 
   void PndSttFromXYtoConformal(Double_t trajectory_vertex[3],
