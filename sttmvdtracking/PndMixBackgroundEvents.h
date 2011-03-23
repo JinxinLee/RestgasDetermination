@@ -51,34 +51,57 @@ class PndMixBackgroundEvents : public FairTask
 
   void SetParContainers();
 
+
+  void SetInputBkgFilesName(	char* string1,char* string2 )
+  {
+	sprintf(fSttBkgFilename,"%s", string1);
+	sprintf(fMvdBkgFilename,"%s", string2);
+	return;
+  };
+
+
+
  private:
+
+//  Int_t IVOLTE,
+//        istampa;
+
+
+  char	fSttBkgFilename[1000],
+	fMvdBkgFilename[1000];
+
 
   static const UShort_t   NMAXBCKGRND = 1000;
 
+  static const Double_t MVDTYPICALTIME=10., // in nsec; time after which the Mvd hit disappears.
+			RATE=20., //  in MHz, average interaction rate in PANDA.
+			STRAWRADIUS = 0.5, // in cm.
+			STTdriftVEL = 0.0025,	//   in cm/nsec
+			MAXSTTdriftTIME = 200.;	//   in nsec
+
+
   Int_t	nTotalBkgEvents;
 
-  TFile *filerun;
+  TFile *filedigirun;
 
-  TTree *treebkg ;	// pointer to root Tree of background file.
+  TFile *filerecorun;
 
-  TRandom3 rannn;
+  TTree *treedigibkg ;	// pointer to root Tree of digi background file.
+
+  TTree *treerecobkg ;	// pointer to root Tree of reco background file, only for Mvd hits.
+
+  TRandom3 rannn,
+  	   rran;
 
 
   /** Input array of PndSttTube (map of STT tubes) **/
   TClonesArray* fMCTrackArray;
   TClonesArray* fSttTubeArray;
 
-   /** Input array of PndSttPoints **/
-  TClonesArray* fSttPointArray;
 
   /** Input array of PndSttHit **/
   TClonesArray* fSttHitArray;
 
-  /** Input array of PndSttTracks **/
-  TClonesArray* fSttTrackArray;
-
- /** Input array of PndTracksCand of Stt **/
-  TClonesArray* fSttTrackCandArray;
 
  /** Input array of MvdPixelHitArray **/
   TClonesArray* fMvdPixelHitArray;
@@ -86,8 +109,6 @@ class PndMixBackgroundEvents : public FairTask
  /** Input array of MvdStripHitArray **/
   TClonesArray* fMvdStripHitArray;
 
- /** Input array of MC points  of Mvd**/
-  TClonesArray* fMvdMCPointArray;
 
 
 //---------------------  input Arrays for the Background hits  -------------
@@ -118,86 +139,6 @@ class PndMixBackgroundEvents : public FairTask
 //---------------------------------------------------------
 
 
-
-  UShort_t nMCTracks;
-#define maxTracks 20
-#define dXPixel 0.03
-#define dYPixel 0.03
-#define dZPixel 0.03
-#define dXStrip 0.03
-#define dYStrip 0.03
-#define dZStrip 0.03
-#define errorsqPixel 1.01*(dXPixel*dXPixel/4.+dYPixel*dYPixel/4.+dZPixel*dZPixel/4.)
-#define errorsqStrip 1.01*(dXStrip*dXStrip/4.+dYStrip*dYStrip/4.+dZStrip*dZStrip/4.)
-#define errorPixel sqrt(errorsqPixel)
-#define errorStrip sqrt(errorsqStrip)
-
-  int istampa ;
-  int IVOLTE ;
-  static const bool  iplotta = true , ianalizza = true ;
-  static const UShort_t   nmaxSttHits = maxTracks*26,
-			  nmaxMvdPixelHits=500,
-			  nmaxMvdStripHits=500,
-			  nmaxMvdPixelHitsInTrack=30,
-			  nmaxMvdStripHitsInTrack=30,
-			  MAXTRACKSPEREVENT=maxTracks,
-//			  MAXMVDTRACKSPEREVENT=50,
-			  MAXMVDTRACKSPEREVENT=200,
-			  MAXMCTRACKS=30,
-			  MAXTURNSOFTRACK=0;
-  static const Double_t   BFIELD=2.,  // in Tesla
-			  PI = 3.141592654,
-			  CVEL = 2.99792,  //  velocity of light
-			  RStrawDetectorMin = 16., // minimum radius of the Stt detector in  cm
-			  RStrawDetectorMax = 42.2, // maximum radius of the Stt detector in  cm
-			  STRAWRADIUS = 0.5,
-			  STRAWRESOLUTION= 0.015;
-  bool    ExclusionListStt[nmaxSttHits];
-
-	UShort_t	nMvdPixelHit,
-			nMvdStripHit,
-			nMvdTrackCand,
-			nHitMvdTrackCand[MAXMVDTRACKSPEREVENT],
-			ListHitMvdTrackCand[MAXMVDTRACKSPEREVENT]
-			   [nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack],
-			ListHitTypeMvdTrackCand[MAXMVDTRACKSPEREVENT]
-			   [nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack],
-			nMvdDSPixelHitNotTrackCand,
-			nMvdUSPixelHitNotTrackCand,
-			ListMvdDSPixelHitNotTrackCand[nmaxMvdPixelHitsInTrack],
-			ListMvdUSPixelHitNotTrackCand[nmaxMvdPixelHitsInTrack],
-			nMvdDSStripHitNotTrackCand,
-			nMvdUSStripHitNotTrackCand,
-			ListMvdDSStripHitNotTrackCand[nmaxMvdStripHitsInTrack],
-			ListMvdUSStripHitNotTrackCand[nmaxMvdStripHitsInTrack];
-
-  Double_t	SEMILENGTH_STRAIGHT,
-		ZCENTER_STRAIGHT,
-		CxMC[MAXMCTRACKS],
-             CyMC[MAXMCTRACKS],
-             R_MC[MAXMCTRACKS],
-             MCtruthTrkInfo[15][MAXMCTRACKS],
-	     MCSkewAloneX[nmaxSttHits],
-	     MCSkewAloneY[nmaxSttHits];
-  Double_t
-           XMvdPixel[nmaxMvdPixelHits],
-           YMvdPixel[nmaxMvdPixelHits],
-           ZMvdPixel[nmaxMvdPixelHits],
-           sigmaXMvdPixel[nmaxMvdPixelHits],
-           sigmaYMvdPixel[nmaxMvdPixelHits],
-           sigmaZMvdPixel[nmaxMvdPixelHits],
-           XMvdStrip[nmaxMvdStripHits],
-           YMvdStrip[nmaxMvdStripHits],
-           ZMvdStrip[nmaxMvdStripHits],
-           sigmaXMvdStrip[nmaxMvdStripHits],
-           sigmaYMvdStrip[nmaxMvdStripHits],
-           sigmaZMvdStrip[nmaxMvdStripHits];
-
-
-
-
-
-
   /** object persistence **/
   Bool_t  fPersistence; //!
 
@@ -210,6 +151,11 @@ class PndMixBackgroundEvents : public FairTask
 			Double_t *times
 			);
 
+  bool ModifyIsochrone(
+			Double_t isochrone,
+			Double_t time,	// nanosec
+			Double_t *modified
+			);
 
 
   ClassDef(PndMixBackgroundEvents,1);
