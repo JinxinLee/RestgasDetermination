@@ -53,6 +53,7 @@ PndSttTrackFinderReal::PndSttTrackFinderReal()
                stepfineFI0=2.*DELTA_FI0/nbinFI0;
                RminStrawSkewArea = RStrawDetectorMin*2./1.732051 + 18.*StrawRadius ; // delimitation of the skew area
                RmaxStrawSkewArea = RminStrawSkewArea + 8.*1.732051 *StrawRadius ;
+//	sprintf(fSttBranch,"STTHit");
 
 }
 // -------------------------------------------------------------------------
@@ -76,6 +77,7 @@ PndSttTrackFinderReal::PndSttTrackFinderReal(int verbose)
                stepfineFI0=2.*DELTA_FI0/nbinFI0;
                RminStrawSkewArea = RStrawDetectorMin*2./1.732051 + 18.*StrawRadius ; // delimitation of the skew area
                RmaxStrawSkewArea = RminStrawSkewArea + 8.*1.732051 *StrawRadius ;
+//	sprintf(fSttBranch,"STTHit");
 
 }
 // -------------------------------------------------------------------------
@@ -575,16 +577,16 @@ jumpout: ;
   if (istampa >= 2  && IVOLTE<= nmassimo) {
      cout <<"iHit "<< iHit << endl;
       	if (ptIndex < 0) {
-		cout<<"...this hit must be noise (not associate to any MC Track)\n";
-		continue;
-	}
-
-      cout <<"             hit X, Y, Z space position "   << veritaMC[iHit][0] << " " <<
+cout<<"from PndSttTrackFinderReal...this hit must be noise (not associate to any MC Track)\n";
+         cout<<"             this hit belongs to MC track n. "<<pMCpt->GetTrackID()<<endl;
+	}else{
+      cout <<"             MC point X, Y, Z space position "   << veritaMC[iHit][0] << " " <<
                        veritaMC[iHit][1] << " " << veritaMC[iHit][2]<<endl; 
+	}
       cout <<"             hit wire pos. in middle "   << tube->GetPosition().X() << " " << tube->GetPosition().Y() << " " << tube->GetPosition().Z() 
            << "; R = "<<sqrt(tube->GetPosition().X()*tube->GetPosition().X()+tube->GetPosition().Y()*tube->GetPosition().Y())<< endl;
-      cout <<"             wire direction, X, Y, Z (Z direction set always positive)"<< WDX<<"  "<<WDY<<"  "<<WDZ <<endl
-           <<"             this hit belongs to MC track n. "<<pMCpt->GetTrackID()<<endl;
+      cout <<"             wire direction, X, Y, Z (Z direction set always positive)"
+      	<< WDX<<"  "<<WDY<<"  "<<WDZ <<endl;
   }  //  end of   if(istampa >= 
 
 //--------  fine stampaggi
@@ -870,7 +872,7 @@ jumpout: ;
       PndSttBoxConformalFilling(
 				ExclusionList,
 				infoparalConformal, Minclinations[0], nBoxConformal, HitsinBoxConformal,
-                                RConformalIndex, FiConformalIndex);
+				RConformalIndex, FiConformalIndex);
 
 
 
@@ -902,10 +904,15 @@ jumpout: ;
 
 
  if(istampa>=2){
-        cout<<"      nHitsinTrack = "<<nHitsinTrack[nTracksFoundSoFar]<<
+        cout<<" \tSttTrackFinderReal : track found n. "<<nTracksFoundSoFar <<
+	" and nHitsinTrack = "<<nHitsinTrack[nTracksFoundSoFar]<<
   " and if it is < the MINIMUMHIITSPERTRACK ("<< MINIMUMHITSPERTRACK<<
   ") this candidate track is skipped\n";
-
+  cout<<"\tList of || stt hits in this candidate (earlier stage) :\n";
+  for(int iq=0;iq<nHitsinTrack[nTracksFoundSoFar];iq++){
+  	cout<<"\tStt || hit n. (original notation) : "<<
+	infoparal[ ListHitsinTrack[nTracksFoundSoFar][iq] ]<<endl; 
+  }
  }
 
       if( nHitsinTrack[nTracksFoundSoFar] < MINIMUMHITSPERTRACK) {
@@ -1059,13 +1066,24 @@ jumpout: ;
 
 
 
-
 //  this trasformation is valid even if the equation is a straight line from the fit
 
       Ox[nTracksFoundSoFar]= -0.5*ALFA[nTracksFoundSoFar];
       Oy[nTracksFoundSoFar]= -0.5*BETA[nTracksFoundSoFar];
       R[nTracksFoundSoFar]= Ox[nTracksFoundSoFar]*Ox[nTracksFoundSoFar]+Oy[nTracksFoundSoFar]*Oy[nTracksFoundSoFar]-
                             GAMMA[nTracksFoundSoFar];
+ if(istampa>=2){
+        cout<<" \tSttTrackFinderReal : track n. "<<nTracksFoundSoFar<<
+	" and nHitsinTrack = "<<nHitsinTrack[nTracksFoundSoFar]<<endl;
+  cout<<"\tList of || stt hits in this candidate (intermediate stage) :\n";
+  for(int iq=0;iq<nHitsinTrack[nTracksFoundSoFar];iq++){
+  	cout<<"\tStt || hit n. (original notation) : "<<
+	infoparal[ ListHitsinTrack[nTracksFoundSoFar][iq] ]<<endl; 
+  }
+  cout<<"\tOx = "<<Ox[nTracksFoundSoFar]<<",  Oy = "<<Oy[nTracksFoundSoFar]<<
+  ",  R**2 = "<<R[nTracksFoundSoFar]<<", and Status = "<<Status[nTracksFoundSoFar]<<endl;
+ }
+
       if( R[nTracksFoundSoFar] < 0. )   continue;
       R[nTracksFoundSoFar]= sqrt( R[nTracksFoundSoFar] );
 
@@ -1121,6 +1139,7 @@ jumpout: ;
 
 
 //--------------------------------------------------    macro for display
+
 if(iplotta && IVOLTE <= nmassimo){
         WriteMacroParallelHitsConformalwithMCspecial(
                    nHitsinTrack[nTracksFoundSoFar],
@@ -1132,6 +1151,8 @@ if(iplotta && IVOLTE <= nmassimo){
                    Status[nTracksFoundSoFar], trajectory_vertex
                                                      );
 }
+
+
 //----------------------------------- end macro for display
 
 
@@ -1245,10 +1266,14 @@ if(iplotta && IVOLTE <= nmassimo){
 //-----------------------  doing the fit with the skew hits for each XY plane track found
   for(i=0; i<nTracksFoundSoFar;i++){
 
+
     GoodSkewFit[i]=false;  //  flag indicating if the skew sector info has completed the parameter info;
 			   //  a priori this is set false.
 
     nSkewHitsinTrack[i]=0;
+
+    if( Fi_low_limit[i] <-99998.) goto fine ;  // this is when in XY the Helix circle is not in the
+						// STT region; this in principle should never happen.
 
 //-----  finding the skew hits intersecting this XY trajectory circle
 
@@ -1260,8 +1285,8 @@ if(iplotta && IVOLTE <= nmassimo){
                    R[i],   //  input : Radius of XY plane circle
                    info,
                    inclination,
-                   Fi_low_limit[i],
-                   Fi_up_limit[i],
+                   Fi_low_limit[i],// in the Helix XY frame, taking into account the minimum/maximum
+                   Fi_up_limit[i], // radius of the STT  detector.
                    Fi_allowedforskew_low[i],
                    Fi_allowedforskew_up[i],
                    Charge[i],
@@ -4700,6 +4725,7 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
          TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
        if (icode>1000000000) carica = 1.;
        else  carica = fParticle->Charge()/3. ;    //   charge of track
+	if( fabs(carica)<0.1) continue;
            Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
            Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
             fprintf(MACRO,"TEllipse* MC%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nMC%d->SetFillStyle(0);\nMC%d->SetLineColor(3);\nMC%d->Draw();\n",
@@ -5173,17 +5199,11 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
          TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
        if (icode>1000000000) carica = 1.;
        else  carica = fParticle->Charge()/3. ;    //   charge of track
+       if (fabs(carica)<0.1 ) continue;
            Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
            Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
-
-
     gamma = -Rr*Rr + Cx*Cx+Cy*Cy;
-
-
-
-
     if(fabs(gamma)< 0.001) {
-
      if(Cy != 0.) {
        yl = xmin*(-Cx/Cy) + 0.5/Cy;
        yu = xmax*(-Cx/Cy) + 0.5/Cy;
@@ -5201,7 +5221,6 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
        fprintf(MACRO,"MCris%d->Draw();\n",i);
 
     }  else {
-
        if(fabs(Rr/gamma) > 1.) {
          if(fabs(Cy)>0.001 ) {
            yl = -xmin*Cx/Cy+0.5/Cy;
@@ -5222,9 +5241,7 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
                      i,i,i,i);
         }
     }
-
-
-   }
+   }	// end of for(i=0;i<nMCTracks; i++)
 
 
 
@@ -5446,6 +5463,7 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
          TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
        if (icode>1000000000) carica = 1.;
        else  carica = fParticle->Charge()/3. ;    //   charge of track
+       if(fabs(carica)<0.1)  continue;
            Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
            Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
 
@@ -5812,6 +5830,7 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
          TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
        if (icode>1000000000) carica = 1.;
        else  carica = fParticle->Charge()/3. ;    //   charge of track
+	if( fabs(carica)<0.1) goto carica0 ;
            Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
            Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
             fprintf(MACRO,"TEllipse* MC%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nMC%d->SetFillStyle(0);\nMC%d->SetLineColor(3);\nMC%d->Draw();\n",
@@ -5822,7 +5841,7 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
 
 //----------- fine parte del MC
 
-
+carica0: ;
 
 
       fprintf(MACRO,"}\n");
@@ -6538,6 +6557,8 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
 		fParticle= fdbPDG->GetParticle(icode);
        		if (icode>1000000000) carica = 1.;
        		else  carica = fParticle->Charge()/3. ;    //   charge of track
+		if( fabs(carica)<0.1) goto carica0 ;
+
            	Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
            	Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
     		if( fabs( pMC->GetMomentum().Z() )< 1.e-20) KAPPA = 99999999.;
@@ -6580,7 +6601,7 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
 
 
 
-
+carica0: ;
 nohits: ;
 
       fprintf(MACRO,"}\n");
@@ -9198,7 +9219,7 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
            dx,
            dy,
            distance,
-           NTIMES=1.5;   //   number of Straw radia allowed in asociation
+           NTIMES=1.5;   //   number of Straw radia allowed in association
 
   nAssociatedHits=0;
   for(i=0; i<NhitsParallel;i++){
@@ -9211,6 +9232,8 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
   FFimax = 0;
   for(j=0; j<nHitsinTrack; j++){
     i = (UShort_t)  infoparalConformal[ ListHitsinTrack[j] ][3];
+
+
     if( FiConformalIndex[i] <  FFimin ) FFimin = FiConformalIndex[i];
     if( FiConformalIndex[i] >  FFimax ) FFimax = FiConformalIndex[i];
   }
@@ -9245,8 +9268,6 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
 //   use the equation of a line in polar coordinates
  
   if( Status ==99) {   //  case in which   0 = x + q
-
-
 
     if(fabs(q) > 1.e-10 ) {
       passamax=false;
@@ -9429,10 +9450,15 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
   }  else if( fabs(q)> 1.e-10) {   //   second part of    if( Status ==99),  in this case y = m*x +q
 
 
-        Fi0 = atan2(q, -m*q);
-        if(Fi0<0.)  { Fi0 += PI; if (Fi0 <0. ) Fi0 =0.; };
+	Fi0 = atan(m);	// Fi0 belongs to (-PI/2, PI/2] .
+	aaa = atan2(q, -m*q);
+	if(Fi0<0.)  {
+	 Fi0 += PI;
+	 if (Fi0 <0. ) Fi0 =0.;// this is between 0. and PI.
+	 if (Fi0 >PI ) Fi0 =PI;// this is between 0. and PI.
+	};
+	ddd= fabs(q)/sqrt(1.+m*m);
 
-        ddd= fabs(q)/sqrt(1.+m*m);
 
         for(itemp=FFimin; itemp<=FFimax;itemp++){
          i=itemp;
@@ -9442,22 +9468,25 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
             i -=  nFidivConformal*( i/nFidivConformal );
          }
 
+	// erre1 is the distance from origin of point of intersection of the straight
+	// line of equation  y= m*x+q  with  line of equation  y = x*tan(fi1);
+	// when erre1 is < 0 it means the intersection is on the opposite side of the
+	// versor defined by  [cos(fi1); sin(fi1)].
+	// Here we are working in the conformal plane U,V.
 
          fi1 = i*2.*(PI/nFidivConformal);
          if( fabs(sin(fi1)-m*cos(fi1))>1.e-10) {
                  erre1 = q/(sin(fi1)-m*cos(fi1));
-         }  else {
+         } else {
                  erre1 = 99999999999.;
          }
 
          fi2 = (i+1)*2.*(PI/nFidivConformal);
          if( fabs(sin(fi2)-m*cos(fi2))>1.e-10) {
                  erre2 = q/(sin(fi2)-m*cos(fi2));
-         }  else {
+         } else {
                  erre2 = 99999999999.;
          }
-
-
 
 
          for(j=0; j<nRdivConformal; j++){
@@ -9474,12 +9503,16 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
               if(erre1<-1.e-10 ){
                 if(erre2< 0. || erre2 > Rout ){
                      continue;
-                } 
+                }
               } else if(fabs(erre1) < 1.e-10){
-                if( Fi0 > fi2 || Fi0 < fi1)  continue;
+                if( Fi0 > fi2 || Fi0 < fi1){
+		  continue;
+		}
               } else if ( erre1<Rin) {
-                if( erre2< Rin )  continue;
-              }   else if (erre1> Rout  &&  erre2 > Rout && !( fi1<=Fi0 && Fi0<=fi2 && ddd<=Rout )
+                if( erre2< Rin &&  erre2> 0. ) {
+		 continue;
+		}
+              }   else if (erre1> Rout  &&  erre2 > Rout && !( fi1<= aaa && aaa<=fi2 && ddd<=Rout )
                 ) {
                    continue;
              }
@@ -9492,7 +9525,7 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
                } else {
                  l2 = l;
                }
-                if( j-1<0) { 
+                if( j-1<0) {
                   kstart=0;
                 }  else {
                   kstart = j-1;
@@ -9536,7 +9569,6 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
          }   //  end of for(j=0; j<nRdivConformal; j++)
 
         }   //   end of    for(itemp=FFimin; itemp<=FFimax;itemp++)
-
 
 
 
@@ -9788,15 +9820,21 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
         if( S[NAssociated] < 0.) S[NAssociated] += 2.*PI;
 
 //  check if the S of this intersection is compatible with information coming from the parallel fit of this track
-        Double_t Sprime = atan2(POINTS1[j+1], POINTS1[j]) ;
-        if( Sprime < 0.) Sprime += 2.*PI;
-        if(  Sprime < Fi_low_limit) {
-           if(  Sprime+2.*PI > Fi_up_limit)  continue;
-        }  else {
-           if(  Sprime > Fi_up_limit)  continue;
+//        Double_t Sprime = atan2(POINTS1[j+1], POINTS1[j]) ;
+//        if( Sprime < 0.) Sprime += 2.*PI;
+
+//        if(  Sprime < Fi_low_limit) {
+//           if(  Sprime+2.*PI > Fi_up_limit)  continue;
+//        }  else {
+//           if(  Sprime > Fi_up_limit)  continue;
+//        }
+
+
+        if(  S[NAssociated] < Fi_low_limit) {
+           if(  S[NAssociated]+2.*PI > Fi_up_limit)  continue;
+        }  else if(  S[NAssociated] > Fi_up_limit) {
+	   if(  S[NAssociated]- 2.*PI < Fi_low_limit)  continue;
         }
-
-
 
 
 
@@ -11438,96 +11476,148 @@ cout<<"    j= "<<j<<", n. Hit in original numbering = "<<BigList[j]<<" e suo FI 
 
 //----------start  function PndSttTrackFinderReal::PndSttFindingParallelTrackAngularRange
 
+
+
+
       void   PndSttTrackFinderReal::PndSttFindingParallelTrackAngularRange(
                                                      Double_t oX,
                                                      Double_t oY,
                                                      Double_t R,
                                                      Short_t  Charge,
                                                      Double_t *Fi_low_limit,
-                                                     Double_t *Fi_up_limit                                                      )
+                                                     Double_t *Fi_up_limit 
+									)
 {
-// -------------- calculate the maximum fi and minimum fi spanned by this track, vedere logbook pag.243.
+// -------------- calculate the maximum fi and minimum fi spanned by this track,
+
+// see logbook pag.270; by using the Rmin and Rmax of the straw detector.
 
 //  working in the hypothesis that the starting point of the track is near (0,0) so that
 //  R_vertex < RStrawDetectorMin
 
-
-         Double_t  teta1, teta2, tetavertex, tmp1;
-
-
-         tmp1 = sqrt(oX*oX+oY*oY);
-
-         if(R + tmp1 - RStrawDetectorMax >= 0. ){     //     this is the most common case
-
-            if( Charge < 0.){
-               teta1=asin(0.5*RStrawDetectorMin/R);
-               teta2=asin(0.5*RStrawDetectorMax/R);
-               tetavertex=atan2( -oX, oY);
-               teta1 +=tetavertex;
-               teta2 +=tetavertex;
-            } else {
-               teta2=asin(0.5*RStrawDetectorMin/R);
-               teta1=asin(0.5*RStrawDetectorMax/R);
-               tetavertex=atan2( oX, -oY);
-               teta1 = tetavertex - teta1;
-               teta2 = tetavertex - teta2;
-            }
+	bool	intersection_inner,
+		intersection_outer;
+	Double_t	teta1,
+			teta2,
+			tetavertex,
+			a,
+			cosT,
+			cost,
+			cosFi,
+			cosfi,
+			Fi,
+			fi,
+			FI0,
+			Px,
+			Py,
+			R_max,
+			R_min,
+			tmp;
 
 
-
-
-         } else if ( R + tmp1 > RStrawDetectorMin  ){
-
-
-            if( Charge < 0.){
-               teta1=asin(0.5*RStrawDetectorMin/R);
-               teta2= PI - teta1;
-               tetavertex=atan2( -oX, oY);
-               teta1 +=tetavertex;
-               teta2 +=tetavertex;
-            } else {
-               teta2=asin(0.5*RStrawDetectorMin/R);
-               teta1= PI - teta2;
-               tetavertex=atan2( oX, -oY);
-               teta1 = tetavertex - teta1;
-               teta2 = tetavertex - teta2;
-            }
-
-
-         } else {            //  case when the trajectory is too small
-               teta1=-99999.;
-            
-         }   //  end of          if(R + tmp1 - RStrawDetectorMax >= 0. )
+	R_max = RStrawDetectorMax+1. ; // add a safety margin.
+	R_min = RStrawDetectorMin-1. ; // add a safety margin.
 
 
 
-         if(teta1>-99998) {
 
-//  add safety margin
-           teta1 -= 2.*StrawRadius/RStrawDetectorMin;
-           teta2 += 2.*StrawRadius/RStrawDetectorMin;
-           if(teta1<0.) {
-             teta1 += 2.*PI;
-             teta2 += 2.*PI;
-           }
-//-------
+	a = sqrt(oX*oX+oY*oY);
 
-           if(teta1 > 2.*PI) {
-             teta1=fmod(teta1,2.*PI);
-             teta2=fmod(teta2,2.*PI);
-           }
-           *Fi_low_limit=teta1;
-           *Fi_up_limit=teta2;
-
-         }  //  end of  if(teta1>-99998)
+	//  preliminary condition
+	if(a + R <= R_min  || a >= R + R_max || R >= a + R_max) { *Fi_low_limit=-99999.;return;}
 
 
-//------------  end calculation the maximum fi and minimum fi spanned by this track
+
+	if( a - R >= R_min ) intersection_inner = false; else intersection_inner = true;
+
+	if( a + R <= R_max || a - R >= R_max  )
+		 intersection_outer = false; else intersection_outer = true;
+
+	if( (! intersection_inner) && (! intersection_outer) ){
+		*Fi_low_limit = 0.;
+		*Fi_up_limit = 2.*PI;
+		return;
+	}
+
+//	now the calculation
+
+	FI0 = atan2(-oY,-oX);
+
+	if( intersection_outer ){
+		cosFi = (a*a + R*R - R_max*R_max)/(2.*R*a);
+		if(cosFi<-1.) cosFi=-1.; else if(cosFi>1.) cosFi=1.;
+		Fi = acos(cosFi);
+	}
+
+	if( intersection_inner ){
+		cosfi = (a*a + R*R - R_min*R_min)/(2.*R*a);
+		if(cosfi<-1.) cosfi=-1.; else if(cosfi>1.) cosfi=1.;
+		fi = acos(cosfi);
+	}
+
+
+	if( Charge < 0.){ // this particle rotates counterclockwise when looking into the beam
+		if( intersection_outer && intersection_inner){
+			*Fi_low_limit=FI0 + fi;
+			*Fi_up_limit= FI0 +Fi;
+
+		} else if (intersection_inner) {
+			*Fi_low_limit=FI0 + fi;
+			*Fi_up_limit= FI0 - fi;
+		} else {
+			*Fi_low_limit=FI0 - Fi;
+			*Fi_up_limit= FI0 + Fi;
+		}	// end of    if( intersection_outer && intersection_inner
+
+
+
+	} else {	// continuation of   if( Charge < 0.)
+
+		if( intersection_outer && intersection_inner){
+			*Fi_low_limit=FI0 - Fi;
+			*Fi_up_limit= FI0 - fi;
+
+		} else if (intersection_inner) {
+			*Fi_low_limit=FI0 + fi;	// must invert because low limit must be < up limit
+			*Fi_up_limit= FI0 - fi;
+		} else {
+			*Fi_low_limit=FI0 - Fi;
+			*Fi_up_limit= FI0 + Fi;
+		}	// end of    if( intersection_outer && intersection_inner
+
+
+	}	// end of  if( Charge < 0.)
+
+
+
+
+	if(*Fi_low_limit<0.) {
+		*Fi_low_limit=fmod(*Fi_low_limit,2.*PI);
+		*Fi_low_limit += 2.*PI;
+	} else if (*Fi_low_limit>=2.*PI){
+		*Fi_low_limit=fmod(*Fi_low_limit,2.*PI);
+	}
+	if(*Fi_up_limit<0.) {
+		*Fi_up_limit=fmod(*Fi_up_limit,2.*PI);
+		*Fi_up_limit += 2.*PI;
+	} else if (*Fi_up_limit>=2.*PI){
+		*Fi_up_limit=fmod(*Fi_up_limit,2.*PI);
+	}
+
+	//	Modify *Fi_up_limit by adding
+	//	2PI if it is the case, in order to make *Fi_up_limit > *Fi_low_limit.
+	if( *Fi_up_limit < *Fi_low_limit ) *Fi_up_limit += 2.*PI;
+	if( *Fi_up_limit < *Fi_low_limit ) *Fi_up_limit = *Fi_low_limit;
+
+
 
 
 
       return;
 }
+
+
+
 
 
 //---------- end of  function PndSttTrackFinderReal::PndSttFindingParallelTrackAngularRange
@@ -11840,6 +11930,7 @@ cout<<"    j= "<<j<<", n. Hit in original numbering = "<<BigList[j]<<" e suo FI 
          	TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
        		if (icode>1000000000) carica = 1.;
        		else  carica = fParticle->Charge()/3. ;    //   charge of track
+		if( fabs(carica)<0.1) continue;
            	Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
            	Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
     		if( fabs( pMC->GetMomentum().Z() )< 1.e-20) KAPPA = 99999999.;
@@ -11877,6 +11968,7 @@ cout<<"    j= "<<j<<", n. Hit in original numbering = "<<BigList[j]<<" e suo FI 
          	TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
        		if (icode>1000000000) carica = 1.;
        		else  carica = fParticle->Charge()/3. ;    //   charge of track
+	if( fabs(carica)<0.1) continue;
            	Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
            	Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
     		if( fabs( pMC->GetMomentum().Z() )< 1.e-20) KAPPA = 99999999.;
@@ -12150,6 +12242,7 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
          	TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
        		if (icode>1000000000) carica = 1.;
        		else  carica = fParticle->Charge()/3. ;    //   charge of track
+	if( fabs(carica)<0.1) continue;
            	Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
            	Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
     		if( fabs( pMC->GetMomentum().Z() )< 1.e-20) KAPPA = 99999999.;
@@ -12713,19 +12806,7 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 //----------end of function PndSttTrackFinderReal::FixDiscontinuitiesFiangleinSZplane
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 ClassImp(PndSttTrackFinderReal)
 
-    
+
 
