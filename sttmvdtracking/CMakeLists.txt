@@ -20,7 +20,7 @@ ${CMAKE_SOURCE_DIR}/stt
 ${CMAKE_SOURCE_DIR}/sttmvdtracking
 ${CMAKE_SOURCE_DIR}/mvd/MvdTracking
 ${CMAKE_SOURCE_DIR}/pnddata/SdsData
-#{CMAKE_SOURCE_DIR}/gem 
+#${CMAKE_SOURCE_DIR}/gem 
 #${CMAKE_SOURCE_DIR}/pnddata/GemData 
 #${CMAKE_SOURCE_DIR}/geane 
 )
