@@ -24,9 +24,10 @@ beamtest0809_sim.cc         beamtest simulation (first attempt for beamtest 09/2
 mppc.cc                     light catcher for a MPPC
 
 beamtest0909_sim.cc         improved beamtest simulation (for beamtest 09/2009) includes also a photon cannon
-photTrajectory.cc           debug tool for beamtest0909_sim.cc (visualization of the photon trajectory)
-parTrajectory.cc            debug tool for beamtest0909_sim.cc (visualization of the particle trajectory)
-parameter.cc                debug tool for beamtest0909_sim.cc (show all used parameters in a ROOT-file)
+prototype.cc                beamtest simulation with prism and backward lens options
+photTrajectory.cc           debug tool for beamtest0909_sim.cc & prototype.cc (visualization of the photon trajectory)
+parTrajectory.cc            debug tool for beamtest0909_sim.cc & prototype.cc (visualization of the particle trajectory)
+parameter.cc                debug tool for beamtest0909_sim.cc & prototype.cc (show all used parameters in a ROOT-file)
 KBarAnalysis.cc/hh          analysis tool for beamtest0909_sim.cc (kBar vectors)
 run_KBarAnalysis.cc         macro to start the kBar analysis
 mcpPos.cc                   display a single MCP on screen (adjustable) and show the hit pixels
