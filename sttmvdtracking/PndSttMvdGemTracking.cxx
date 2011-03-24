@@ -29,7 +29,7 @@
 #include <iostream>
 #include <cmath>
 
-#define IDEAL false // CHECKING
+#define IDEAL true // CHECKING
 int countperformance[7];
 using namespace std;
 
@@ -2536,12 +2536,13 @@ Bool_t PndSttMvdGemTracking::GetInitialParams(PndTrack * sttmvd, Double_t &xc, D
   TVector3 recoposlast = recoparlast.GetPosition();
 
 
-//   cout << "GETINITPARAM " << " " << charge << " " << xc << " " << yc << " " << radius << endl;
-//   recopos.Print(); 
-//   recomom.Print();
+  //   cout << "GETINITPARAM " << " " << charge << " " << xc << " " << yc << " " << radius << endl;
+  //   recopos.Print(); 
+  //   recoposlast.Print();
+
 
   fitm = recomom.Z() / recomom.Perp(); // CHECK fitm = pz / pt
-
+  //  cout << "fitm " << fitm << " " << endl;
   // x0 y0
   Double_t d = TMath::Sqrt(xc * xc + yc * yc) - radius;
   Double_t phi =  TMath::ATan2(yc, xc);
@@ -2552,14 +2553,73 @@ Bool_t PndSttMvdGemTracking::GetInitialParams(PndTrack * sttmvd, Double_t &xc, D
   Double_t Phi0 = TMath::ATan2((y0 - yc),(x0 - xc));
   Double_t scosfirst = 0, scoslast = 0.;
   // track length?
-  scosfirst = charge * radius * TMath::ATan2((recopos.Y() - y0) * TMath::Cos(Phi0) - (recopos.X() - x0) * TMath::Sin(Phi0) ,
+  scosfirst = - charge * radius * TMath::ATan2((recopos.Y() - y0) * TMath::Cos(Phi0) - (recopos.X() - x0) * TMath::Sin(Phi0) ,
 					     radius + (recopos.X() - x0) * TMath::Cos(Phi0) + (recopos.Y() - y0) * TMath::Sin(Phi0));
-  scoslast = charge * radius * TMath::ATan2((recoposlast.Y() - y0) * TMath::Cos(Phi0) - (recoposlast.X() - x0) * TMath::Sin(Phi0) ,
+  scoslast = - charge * radius * TMath::ATan2((recoposlast.Y() - y0) * TMath::Cos(Phi0) - (recoposlast.X() - x0) * TMath::Sin(Phi0) ,
 					     radius + (recoposlast.X() - x0) * TMath::Cos(Phi0) + (recoposlast.Y() - y0) * TMath::Sin(Phi0));
   
-  fitp = (recopos.Z() + recoposlast.Z() - charge * fitm * (scoslast + scosfirst)) / 2.; // CHECK fitm (z = fitp + fitm * charge * scos)
+  fitp = (recopos.Z() + recoposlast.Z() - fitm * (scoslast + scosfirst)) / 2.; // CHECK fitm (z = fitp + fitm * scos)
   
-  //  cout << "fitm/fitp " << fitm << " " << fitp << endl;
+  // .............
+  TVector2 v(x0 - xc, y0 - yc);
+  v.Print();
+  double alpha1 = TMath::ATan2(recopos.Y() - y0 + radius * TMath::Sin(Phi0), recopos.X() - x0 + radius * TMath::Cos(Phi0));
+  TVector2 p1(recopos.X() - xc, recopos.Y() - yc);
+  Double_t Fi1 = CalculatePhi(v, p1, alpha1, Phi0, charge);
+  p1.Print();
+  cout << "1 Phi0 " << Phi0 * TMath::RadToDeg() << " alpha1 " << alpha1 * TMath::RadToDeg() << " Fi1 " << Fi1 * TMath::RadToDeg() << endl;
+
+  double alpha2 = TMath::ATan2(recoposlast.Y() - y0 + radius * TMath::Sin(Phi0), recoposlast.X() - x0 + radius * TMath::Cos(Phi0));
+  TVector2 p2(recoposlast.X() - xc, recoposlast.Y() - yc);
+  Double_t Fi2 = CalculatePhi(v, p2, alpha2, Phi0, charge);
+  p2.Print();
+  cout << "2 Phi0 " << Phi0 * TMath::RadToDeg() << " alpha2 " << alpha2 * TMath::RadToDeg() << " Fi2 " << Fi2 * TMath::RadToDeg() << endl;
+
+
+  double scos1, scos2;
+  scos1 = radius * Fi1;
+  scos2 = radius * Fi2;
+
+  // .............
+
+  cout << "scosfirst/scoslast " << scosfirst << " " << scoslast << endl;
+  cout << "fitm/fitp " << fitm << " " << fitp << endl;
+  cout << "z1/z2 " << fitp + fitm * scosfirst << " " << fitp + fitm * scoslast << endl;
+
+ cout << "scos1/scos2 " << scos1 << " " << scos2 << endl;
+ fitp = (recopos.Z() + recoposlast.Z() - fitm * (scos2 + scos1)) / 2.;
+
+ cout << "fitm/fitp " << fitm << " " << fitp << endl;
+  cout << "z1/z2 " << fitp + fitm * scos1 << " " << fitp + fitm * scos2 << endl;
+
+ double K =  - charge *  0.006 / recomom.Z();
+
+ double zeta1 = (Fi1 - Phi0) / K;
+ double zeta2 = (Fi2 - Phi0) / K;
+ cout << "K/zeta1/zeta2 " << K << " " << zeta1 << " " << zeta2 << endl;
 
   return true;
+}
+
+
+Double_t PndSttMvdGemTracking::CalculatePhi(TVector2 v, TVector2 p, double alpha, double Phi0, int charge)
+{
+  Double_t Fi = TMath::ACos(v * p / (v.Mod() * p.Mod()));
+  double pi = TMath::Pi();
+  double pi2 = 2 * pi;
+
+
+  if((charge > 0 && (Phi0 > 0 && ((alpha > 0 && alpha > Phi0) ||
+				 (alpha < 0 && alpha < Phi0 - pi))
+		    ||
+		    (Phi0 < 0 && ((alpha > 0 && alpha < pi + Phi0) ||
+				  (alpha < 0 && alpha > Phi0))) )) 
+     ||
+     (charge < 0 && (Phi0 > 0 && ((alpha > 0 && alpha < Phi0) ||
+				  (alpha < 0 && alpha > Phi0 - pi))
+		     ||
+		     (Phi0 < 0 && ((alpha > 0 && alpha > pi + Phi0) ||
+				   (alpha < 0 && alpha < Phi0))) ))) Fi = pi2 - Fi;
+     
+  return Fi;
 }
