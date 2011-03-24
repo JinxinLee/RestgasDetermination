@@ -48,10 +48,23 @@ class PndSttMvdTracking : public FairTask
 
   void SetParContainers();
 
+
+  void SetInputBranchName(	char* string1,
+			char* string2,
+			char* string3
+		    )
+  {
+	sprintf(fSttBranch,"%s", string1);
+	sprintf(fMvdPixelBranch,"%s", string2);
+	sprintf(fMvdStripBranch,"%s", string3);
+	return;
+  };
+
+
  private:
 
   UShort_t nMCTracks;
-#define maxTracks 20
+#define maxTracks 25
 #define dXPixel 0.03
 #define dYPixel 0.03
 #define dZPixel 0.03
@@ -67,20 +80,20 @@ class PndSttMvdTracking : public FairTask
   int IVOLTE ;
   static const bool  iplotta = false , ianalizza = true ;
   static const UShort_t   nmaxSttHits = maxTracks*26,
+			  MAXMCTRACKS=maxTracks,
+			  MAXTRACKSPEREVENT=maxTracks,
 			  nmaxMvdPixelHits=500,
 			  nmaxMvdStripHits=500,
 			  nmaxMvdPixelHitsInTrack=30,
 			  nmaxMvdStripHitsInTrack=30,
-			  MAXTRACKSPEREVENT=maxTracks,
-//			  MAXMVDTRACKSPEREVENT=50,
 			  MAXMVDTRACKSPEREVENT=200,
-			  MAXMCTRACKS=30,
 			  MAXTURNSOFTRACK=0;
   static const Double_t   BFIELD=2.,  // in Tesla
 			  PI = 3.141592654,
 			  CVEL = 2.99792,  //  velocity of light
 			  RStrawDetectorMin = 16., // minimum radius of the Stt detector in  cm
 			  RStrawDetectorMax = 42.2, // maximum radius of the Stt detector in  cm
+			  STTdriftVEL = 0.0025,	//   in cm/nsec
 			  STRAWRADIUS = 0.5,
 			  STRAWRESOLUTION= 0.015;
   bool    ExclusionListStt[nmaxSttHits];
@@ -117,12 +130,14 @@ class PndSttMvdTracking : public FairTask
            sigmaXMvdPixel[nmaxMvdPixelHits],
            sigmaYMvdPixel[nmaxMvdPixelHits],
            sigmaZMvdPixel[nmaxMvdPixelHits],
+           refindexMvdPixel[nmaxMvdPixelHits],
            XMvdStrip[nmaxMvdStripHits],
            YMvdStrip[nmaxMvdStripHits],
            ZMvdStrip[nmaxMvdStripHits],
            sigmaXMvdStrip[nmaxMvdStripHits],
            sigmaYMvdStrip[nmaxMvdStripHits],
-           sigmaZMvdStrip[nmaxMvdStripHits];
+           sigmaZMvdStrip[nmaxMvdStripHits],
+           refindexMvdStrip[nmaxMvdPixelHits];
 
       FILE * HANDLE ;
       FILE * HANDLE2 ;
@@ -177,10 +192,13 @@ class PndSttMvdTracking : public FairTask
   Bool_t  fPersistence; //!
 
   PndGeoSttPar *fSttParameters;  //  CHECK added
- 
 
 
+  /**  Branch names to be used to fetch the hits of the backgound mixed events  **/
 
+  char	fSttBranch[1000],
+		fMvdPixelBranch[1000],
+		fMvdStripBranch[1000];
 
 
   void WriteMacroSttParallelAssociatedHitsandMvdwithMC(
@@ -239,9 +257,21 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 		   Double_t *FI0,
 		   Double_t *ultimoangolo,
 		   Double_t *primoangolo
-
-
                                                      );      
+
+  void WriteMacroParallelHitsGeneralspecial(
+		   Double_t time,
+                   Int_t Nhits,
+		   Double_t info[][7],
+                   UShort_t nTracksFoundSoFar,
+                   Double_t *Ox,
+		   Double_t *Oy,
+		   Double_t *R,
+		   Double_t *FI0,
+		   Double_t *ultimoangolo,
+		   Double_t *primoangolo
+                                                     );      
+
   void WriteMacroSkewAssociatedHitswithMC(
                    Double_t KAPPA,
                    Double_t FI0,
