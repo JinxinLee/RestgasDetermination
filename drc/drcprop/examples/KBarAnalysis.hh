@@ -49,7 +49,8 @@ public :
    // List of branches
    TBranch        *b_wavelength;   //!
    TBranch        *b_kBarX;   //!
-   TBranch        *b_kBarY;   //!
+   //TBranch        *b_kBarY;   //!
+   TBranch        *b_time;   //!
    TBranch        *b_kBarZ;   //!
    TBranch        *b_hitPosX;   //!
    TBranch        *b_hitPosY;   //!
@@ -208,6 +209,7 @@ void KBarAnalysis::Init(TTree *tree)
 
    fChain->SetBranchAddress("wavelength", &wavelength, &b_wavelength);
    fChain->SetBranchAddress("kBarX", &kBarX, &b_kBarX);
+//    fChain->SetBranchAddress("time", &kBarY, &b_time); // kBarY is now time
    fChain->SetBranchAddress("kBarY", &kBarY, &b_kBarY);
    fChain->SetBranchAddress("kBarZ", &kBarZ, &b_kBarZ);
    fChain->SetBranchAddress("hitPosX", &hitPosX, &b_hitPosX);

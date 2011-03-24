@@ -96,15 +96,15 @@ int main(int argc, char *argv[])
   //==============================================================================
 
   // main options
-  bool opt_beamtest        = true; // beamtest simulation 2009
+  bool opt_default         = true;  // default simulation
   bool opt_angleAcceptance = false; // beamtest simulation with diff. theta and phi
   bool opt_photonCannon    = false; // photon cannon at bar end
   bool opt_singlePhoton    = false; // single photon for debugging
 
   cout << "simulation options:" << endl;
 
-  if( opt_beamtest )
-    cout << "  main: \"beamtest\"" << endl;
+  if( opt_default )
+    cout << "  main: \"default\"" << endl;
   if( opt_photonCannon )
     cout << "  main: \"photon cannon\"" << endl;
   if( opt_singlePhoton )
@@ -114,55 +114,72 @@ int main(int argc, char *argv[])
 
 
   // sub options
-  bool opt_mirror               = false; // default: false ; mirror at slab front end
-  bool opt_fishtankBlack_bottom = true; // default: true ; absorbed fishtank side
-  bool opt_fishtankBlack_sides  = false; // default: false
-  bool opt_fishtankBlack_top    = true; // default: true
+  bool opt_fishtankBlack_bottom = false; // absorbed fishtank side
+  bool opt_fishtankBlack_sides  = false; //
+  bool opt_fishtankBlack_top    = false; //
+  bool opt_frontLens            = false; // forward lens
+  bool opt_prism                = true; // prism (forward)
+  bool opt_backLens             = false; // backward lens
+  bool opt_mirror               = false; // mirror (backward)
+  bool opt_noFresnel_backLens   = false; // disable Fresnel reflections
+  bool opt_noFresnel_slab       = false; //
+  bool opt_noFresnel_frontLens  = false; //
+  bool opt_noFresnel_airBox     = false; //
+  bool opt_noFresnel_prism      = false; //
+  bool opt_noFresnel_fishtank   = false; //
   bool opt_Cherenkov_onlyInBar  = false; // Cherenkov photons are only generated in bar (slab)
   bool opt_alongBar             = false; // particles hits the bar at slab front end
-  bool opt_woLens               = false; // default: false ; without lens
   bool opt_photonPosList        = false; // write out photon position list ; true takes much longer
   bool opt_fullCanonList        = false; // default: false, with true also not measured photons are tagged
-  bool opt_noFresnel_slab       = false; // disable Fresnel reflections
-  bool opt_noFresnel_lens       = false; //
-  bool opt_noFresnel_airBox     = false; //
-  bool opt_noFresnel_fishtank   = false; //
-  bool opt_debug	              = false; // debug information ; please pipe stdout > log file
+  bool opt_debug                = false; // debug information ; please pipe stdout > log file
 
   if( opt_photonCannon && !opt_photonPosList )
   {
     opt_photonPosList = true;
     cout << "*** WARNING: \"Photon position list\" is now enable because \"photon cannon\" needs it" << endl;
   }
+  if( opt_backLens && !opt_mirror )
+  {
+    opt_mirror = true;
+    cout << "*** WARN: Lens in backward direction w/o mirrored end is useless " << endl;
+  }
 
   cout << "  sub:  ";
-  if( opt_mirror )
-    cout << "\"mirror\" ";
   if( opt_fishtankBlack_bottom )
     cout << "\"black fishtank bottom\" ";
   if( opt_fishtankBlack_sides )
     cout << "\"black fishtank sides\" ";
   if( opt_fishtankBlack_top )
     cout << "\"black fishtank top\" ";
+  if( opt_frontLens )
+    cout << "\"front lens\" ";
+  if( opt_prism )
+    cout << "\"prism\" ";
+  if( opt_backLens )
+    cout << "\"back lens\" ";
+  if( opt_mirror )
+    cout << "\"mirror\" ";
   if( opt_Cherenkov_onlyInBar )
     cout << "\"photon production only in bar\" ";
   if( opt_alongBar )
     cout << "\"along Bar\" ";
-  if( opt_woLens )
-    cout << "\"w/o lens\" ";
   if( opt_photonPosList )
     cout << "\"photon position list\" ";
   if( opt_photonCannon && opt_photonPosList && opt_fullCanonList  )
     cout << "\"full list\" ";
-  if( opt_noFresnel_slab || opt_noFresnel_lens || opt_noFresnel_airBox || opt_noFresnel_fishtank )
+  if( opt_noFresnel_backLens || opt_noFresnel_slab || opt_noFresnel_frontLens || opt_noFresnel_airBox || opt_noFresnel_fishtank )
   {
     cout << "\"No Fresnel reflection for";
+    if( opt_noFresnel_backLens )
+      cout << " lens (backward)";
     if( opt_noFresnel_slab )
       cout << " slab";
-    if( opt_noFresnel_lens )
-      cout << " lens";
+    if( opt_noFresnel_frontLens )
+      cout << " lens (forward)";
     if( opt_noFresnel_airBox )
       cout << " airBox";
+    if( opt_noFresnel_prism )
+      cout << " prism";
     if( opt_noFresnel_fishtank )
       cout << " fishtank";
     cout << "\"";
@@ -170,32 +187,29 @@ int main(int argc, char *argv[])
   cout << endl;
 
 
-  int check_opt = opt_beamtest + opt_photonCannon + opt_singlePhoton + opt_angleAcceptance;
+  int check_opt = opt_default + opt_photonCannon + opt_singlePhoton + opt_angleAcceptance;
 
   if( check_opt > 1 || check_opt == 0 )
   {
     cout << "*** ERROR: Select only one main simulation option !" << endl;
     cout << "available main simulation options:" << endl;
-    cout << "  beamtest" << endl;
-    cout << "  photon cannon" << endl;
+    cout << "  default" << endl;
     cout << "  own photons" << endl;
-    cout << "    add. options:" << endl;
-    cout << "      mirror" << endl;
-    cout << "      fishtank black (bottom)" << endl;
-    cout << "      fishtank black (sides)" << endl;
-    cout << "      fishtank black (top)" << endl;
-    cout << "      Photon production only in bar" << endl;
-    cout << "      along Bar" << endl;
-    cout << "      w/o lens" << endl;
-    cout << "      photon position list" << endl;
+    cout << "  photon cannon" << endl;
+    cout << "  single photon" << endl;
 
     abort();
   }
 
 
+
   //==============================================================================
   // Changable parameters & constants
   //==============================================================================
+  //
+  // dimensions in mm
+  // angle in degree
+  //
 
   // math constants
   const double pi = Pi();
@@ -206,34 +220,77 @@ int main(int argc, char *argv[])
   PndDrcOptMatVacuum      *vacuum = new PndDrcOptMatVacuum();
   PndDrcOptMatBK7         *bk7    = new PndDrcOptMatBK7();
 
-  PndDrcOptMatAbs *mat_slab     = quartz; // default: quartz
-  PndDrcOptMatAbs *mat_lens     = bk7; // default: bk7
-  PndDrcOptMatAbs *mat_airBox   = vacuum; // default: vacuum
-  PndDrcOptMatAbs *mat_fishtank = quartz; // default: quartz
+  PndDrcOptMatAbs *mat_backLens  = quartz;
+  PndDrcOptMatAbs *mat_slab      = quartz;
+  PndDrcOptMatAbs *mat_frontLens = bk7;
+  PndDrcOptMatAbs *mat_airBox    = vacuum;
+  PndDrcOptMatAbs *mat_prism     = quartz;
+  PndDrcOptMatAbs *mat_fishtank  = quartz;
 
 
   // dimensions
-  double slab_width  = 17; // default: 17 mm
-  double slab_height = 35; // default: 35 mm
-  double slab_length = 800; // default: 800 mm
+  double slab_width  = 17.; // default: 17 mm
+  double slab_height = 35.; // default: 35 mm
+  double slab_length = 800.; // default: 800 mm
 
-  double lens_radius    = 77.52; // f = R/(n-1) ; BK7 Newport f = 150 mm at 589 nm => R = 77.52 mm
-  double lens_thickness = 7.5; // measured lens thickness: 7.5 mm ; old: 5 mm
-  double lens_diameter  = 40; // default: 40mm ; actually 50.8 mm but currently lens base is not cylindrical
-  double lens_conical   = 0; // default: 0 (spherical)
+  double backLens_radius    = 816.; // f = R/(n-1) (from manufacturer in general at 589 nm)
+  double backLens_thickness = 10.;
+  double backLens_diameter  = 40.; // rectangular lens base shape (NOT cylindrical)
+  double backLens_conical   = 0.; // default: 0 (spherical)
 
-  double airgap = 16; // default: 10 mm ; distance between slab and fishtank ; 0 means no air box ; in beamtest air gap was 8.5mm + lens_thickness
+  double frontLens_radius    = 77.52;
+  double frontLens_thickness = 7.5;
+  double frontLens_diameter  = 40.;
+  double frontLens_conical   = 0.;
 
-  double fishtank_width  = 300; // default: 300 mm ; old: 400 mm
-  double fishtank_height = 200; // default: 200 mm ; old: 400 mm
-  double fishtank_length = 200; // default: 200 mm ; old: 220 mm
 
-  double fishtank_width_offset = 0; // default: 0 mm ; 0 means bar is centered
-  double fishtank_height_offset = 0; // default: 0 mm
+//                      /|
+//                     / |
+//                    /  |
+//                   /   |<-heightUp2
+//             ____ /____|____
+//      heightUp1->|     |
+//   ______________|     |____
+//                 |     |
+//        slab     |prism|<-height
+//   ______________|     |____
+//    heightDown1->|     |
+//             ____|_____|____
+//                  \    |
+//                   \   |<-heightDown2
+//                    \  |
+//                     \ |
+//                      \|
+  //
+//                 |--L--|
+  //
+// same for the width
 
-  double fishtank_thetaX = 45; // default: 0 degree (rotation axis X in fishtank)
-  double fishtank_thetaY = 0; // default: 0 degree (rotation axis Y in fishtank)
-  double fishtank_phi = 0; // default: 0 degree (rotation axis Z in fishtank)
+  double prism_length      = 91.;
+  double prism_height      = slab_height;
+  double prism_heightUp1   = 10.;
+  double prism_heightUp2   = Sin(30.*degree)*prism_length; // or Sin(x*degree)*prism_length
+  double prism_heightDown1 = 0.;
+  double prism_heightDown2 = 0.; // or Sin(x*degree)*prism_length
+  double prism_width       = slab_width;
+  double prism_widthUp1    = 0.;
+  double prism_widthUp2    = 0.; // or Sin(x*degree)*prism_length
+  double prism_widthDown1  = 0.;
+  double prism_widthDown2  = 0.; // or Sin(x*degree)*prism_length
+
+
+  double airgap = 16.; // distance between slab or prism and fishtank ; 0 means no air box
+
+  double fishtank_width  = 300.;
+  double fishtank_height = 200.;
+  double fishtank_length = 200.;
+
+  double fishtank_width_offset  = 0.; // default: 0 mm ; 0 means bar is centered
+  double fishtank_height_offset = 0.; // default: 0 mm
+
+  double fishtank_thetaX = 10.; // default: 0 degree (rotation axis X in fishtank)
+  double fishtank_thetaY = 0.;  // default: 0 degree (rotation axis Y in fishtank)
+  double fishtank_phi    = 0.;  // default: 0 degree (rotation axis Z in fishtank)
 
 
   // particle properties
@@ -244,27 +301,27 @@ int main(int argc, char *argv[])
   const double mass_mu = 0.1057; // muon mass
 
   double mass = mass_p; // default: proton mass
-  double kinE = 2.0; // default: 2.0 GeV kinetic energy ; 2.3 GeV
+  double kinE = 2.0;    // default: 2.0 GeV kinetic energy ; 2.3 GeV
   double beta = Sqrt( 1 - Power( mass / (kinE + mass), 2 ) ); // E = T + E0 = gamma * E0
 
-  double spot_radius = 20; // default: 20 mm 1-sigma beam spot radius (gaus smeared)
-  double spot_limit = 50; // default: 50 mm beam spot radius limit
+  double spot_radius = 20.; // default: 20 mm 1-sigma beam spot radius (gaus smeared)
+  double spot_limit  = 50.; // default: 50 mm beam spot radius limit
 
   int particle_number = 1; // default: 300
 
-  double inci_theta = 30.; // default: 30 degree ; old: 57 degree
-  double inci_phi   = 0; // default: 0 degree
+  double inci_theta = 30.; // default: 30 degree
+  double inci_phi   = 0.;  // default: 0 degree
 
-  double hitBarX = slab_width/2; // default: slab_width/2
-  double hitBarY = 0; // default: 0 mm
-  double hitBarZ = -770; // default: -500 mm
+  double hitBarX = slab_width/2.; // default: slab_width/2
+  double hitBarY = 0.;            // default: 0 mm
+  double hitBarZ = -770.;         // default: -500 mm
 
 
   // photon properties
   int photon_number = 0; // default: 100 (per particle); 0 means realistic number of Cherenkov photons
 
-  double lambda_min = 250; // default: 300 nm ; lowest Cherenkov wavelength
-  double lambda_max = 650; // default: 700 nm ; highest Cherenkov wavelength
+  double lambda_min = 250.; // default: 300 nm ; lowest Cherenkov wavelength
+  double lambda_max = 650.; // default: 700 nm ; highest Cherenkov wavelength
 
   int refl_limit = 1000; // default: 1000 reflections
 
@@ -272,11 +329,11 @@ int main(int argc, char *argv[])
   // photon cannon
   int shoots = 2000000; // default: 20000000 (for center) ; for grid this number is per gridpoint
 
-  double gridXstep = 0; // default: 0 mm ; grid constant in X ; 0 means cannon is always in the center
-  double gridYstep = 0; // default: 0 mm
+  double gridXstep = 0.; // default: 0 mm ; grid constant in X ; 0 means cannon is always in the center
+  double gridYstep = 0.; // default: 0 mm
 
-  double cannon_theta = 90; // default: 90 degree ; 90 degree means flat cos(angle) distribution otherwise fixed angle
-  double cannon_phi   = 0; // default: 90 degree ; if cannon_theta = 90 then the phi distribution is flat
+  double cannon_theta = 90.; // default: 90 degree ; 90 degree means flat cos(angle) distribution otherwise fixed angle
+  double cannon_phi   = 0.;  // default: 90 degree ; if cannon_theta = 90 then the phi distribution is flat
 
   int refl_limit_2 = 5; // default: 5 ; low limit increases speed
 
@@ -284,20 +341,20 @@ int main(int argc, char *argv[])
 
 
   // single photon
-  double singlePosX = 0;
-  double singlePosY = 0;
-  double singlePosZ = -10;
+  double singlePosX = 0.;
+  double singlePosY = 0.;
+  double singlePosZ = -10.;
 
-  double singleDirX = 1;
-  double singleDirY = 1;
-  double singleDirZ = 1;
+  double singleDirX = 1.;
+  double singleDirY = 1.;
+  double singleDirZ = 1.;
 
-  double single_lambda = 500;
+  double single_lambda = 500.;
 
 
   // output filename (w/o file extension)
-  TString defaultFilename = "beamtest0909_test"; // default: beamtest0909_sim
-  TString outFilename = defaultFilename; // default: defaultFilename
+  TString defaultFilename = "prototype_test"; // default: prototype_test
+  TString outFilename     = defaultFilename;  // default: defaultFilename
 
 
 
@@ -428,7 +485,7 @@ int main(int argc, char *argv[])
   //      s3----------s2
 
 
-  if( opt_beamtest || opt_angleAcceptance )
+  if( opt_default || opt_angleAcceptance )
   {
     if( opt_alongBar )
     {
@@ -478,17 +535,23 @@ int main(int argc, char *argv[])
   //==============================================================================
   cout << "material:" << endl;
 
-  string mat_slab_str     = mat_slab->Name();
-  string mat_lens_str     = mat_lens->Name();
-  string mat_airBox_str   = mat_airBox->Name();
-  string mat_fishtank_str = mat_fishtank->Name();
+  string mat_backLens_str  = mat_backLens->Name();
+  string mat_slab_str      = mat_slab->Name();
+  string mat_frontLens_str = mat_frontLens->Name();
+  string mat_airBox_str    = mat_airBox->Name();
+  string mat_prism_str     = mat_prism->Name();
+  string mat_fishtank_str  = mat_fishtank->Name();
 
-  cout <<     "  slab:     " << mat_slab_str << endl;
-  if( !opt_woLens )
-    cout << "  lens:     " << mat_lens_str << endl;
+  cout   << "  slab:            " << mat_slab_str << endl;
+  if( opt_backLens )
+    cout << "  lens (backward): " << mat_backLens_str << endl;
+  if( opt_frontLens )
+    cout << "  lens (forward):  " << mat_frontLens_str << endl;
+  if( opt_prism )
+    cout << "  prism:           " << mat_prism_str << endl;
   if( airgap > 0 )
-    cout << "  airBox:   " << mat_airBox_str << endl;
-  cout <<     "  fishtank: " << mat_fishtank_str << endl;
+    cout << "  airBox:          " << mat_airBox_str << endl;
+  cout <<   "  fishtank:        " << mat_fishtank_str << endl;
 
 
   // refractive index check
@@ -496,68 +559,91 @@ int main(int argc, char *argv[])
   {
     cout << "+++++ DEBUG INFO: refractive index check" << endl;
     double waveLength[4];
-    waveLength[0] = 300;
-    waveLength[1] = 405;
-    waveLength[2] = 532;
-    waveLength[3] = 589;
-    for( int i=0; i < 4; i++ )
+    waveLength[0] = 300.;
+    waveLength[1] = 405.;
+    waveLength[2] = 532.;
+    waveLength[3] = 589.;
+    for( int i = 0; i < 4; i++ )
     {
-      cout << "     " << mat_slab_str     << " (" << waveLength[i] << " nm) = " << mat_slab->RefIndex(waveLength[i]) << endl;
-      cout << "     " << mat_lens_str     << " (" << waveLength[i] << " nm) = " << mat_lens->RefIndex(waveLength[i]) << endl;
-      cout << "     " << mat_airBox_str   << " (" << waveLength[i] << " nm) = " << mat_airBox->RefIndex(waveLength[i]) << endl;
-      cout << "     " << mat_fishtank_str << " (" << waveLength[i] << " nm) = " << mat_fishtank->RefIndex(waveLength[i]) << endl;
+      cout << "     " << mat_slab_str      << " (" << waveLength[i] << " nm) = " << mat_slab->RefIndex(waveLength[i]) << endl;
+      cout << "     " << mat_backLens_str  << " (" << waveLength[i] << " nm) = " << mat_backLens->RefIndex(waveLength[i]) << endl;
+      cout << "     " << mat_frontLens_str << " (" << waveLength[i] << " nm) = " << mat_frontLens->RefIndex(waveLength[i]) << endl;
+      cout << "     " << mat_airBox_str    << " (" << waveLength[i] << " nm) = " << mat_airBox->RefIndex(waveLength[i]) << endl;
+      cout << "     " << mat_prism_str     << " (" << waveLength[i] << " nm) = " << mat_prism->RefIndex(waveLength[i]) << endl;
+      cout << "     " << mat_fishtank_str  << " (" << waveLength[i] << " nm) = " << mat_fishtank->RefIndex(waveLength[i]) << endl;
     }
   }
 
 
   cout << "dimensions [mm]:" << endl;
 
-  cout << "  slab width:  " << slab_width << endl;
+  cout << "  slab width:  " << slab_width  << endl;
   cout << "  slab heigth: " << slab_height << endl;
   cout << "  slab length: " << slab_length << endl;
 
-  if( !opt_woLens )
+  if( opt_backLens )
   {
-    cout << "  lens radius:         " << lens_radius << endl;
-    cout << "  lens thickness:      " << lens_thickness << endl;
-    cout << "  lens diameter:       " << lens_diameter << endl;
-    cout << "  lens conical const.: " << lens_conical << endl;
+    cout << "  lens (backward) radius:         " << backLens_radius << endl;
+    cout << "  lens (backward) thickness:      " << backLens_thickness << endl;
+    cout << "  lens (backward) diameter:       " << backLens_diameter << endl;
+    cout << "  lens (backward) conical const.: " << backLens_conical << endl;
   }
 
-  if( lens_thickness > airgap && !opt_woLens )
+  if( opt_frontLens )
+  {
+    cout << "  lens (forward) radius:         " << frontLens_radius << endl;
+    cout << "  lens (forward) thickness:      " << frontLens_thickness << endl;
+    cout << "  lens (forward) diameter:       " << frontLens_diameter << endl;
+    cout << "  lens (forward) conical const.: " << frontLens_conical << endl;
+  }
+
+  if( frontLens_thickness > airgap && opt_frontLens )
   {
     cout << "*** ERROR: no air gap possible" << endl;
     abort();
   }
 
+  if( opt_prism )
+  {
+    cout << "  prism length: "            << prism_length      << endl;
+    cout << "  prism height (top 1): "    << prism_heightUp1   << endl;
+    cout << "  prism height (top 2): "    << prism_heightUp2   << endl;
+    cout << "  prism height (bottom 1): " << prism_heightDown1 << endl;
+    cout << "  prism height (bottom 2): " << prism_heightDown2 << endl;
+    cout << "  prism width (top 1): "     << prism_widthUp1    << endl;
+    cout << "  prism width (top 2): "     << prism_widthUp2    << endl;
+    cout << "  prism width (bottom 1): "  << prism_widthDown1  << endl;
+    cout << "  prism width (bottom 2): "  << prism_widthDown2  << endl;
+  }
+
   cout << "  air gap: " << airgap << endl;
 
-  cout << "  fishtank width:  " << fishtank_width << endl;
+  cout << "  fishtank width:  " << fishtank_width  << endl;
   cout << "  fishtank heigth: " << fishtank_height << endl;
   cout << "  fishtank length: " << fishtank_length << endl;
 
-  cout << "  fishtank width offset : " << fishtank_width_offset << endl;
+  cout << "  fishtank width offset : " << fishtank_width_offset  << endl;
   cout << "  fishtank height offset: " << fishtank_height_offset << endl;
 
   cout << "  fishtank thetaX: " << fishtank_thetaX << endl;
   cout << "  fishtank thetaY: " << fishtank_thetaY << endl;
-  cout << "  fishtank phi:    " << fishtank_phi << endl;
+  cout << "  fishtank phi:    " << fishtank_phi    << endl;
 
 
-  if( opt_beamtest || opt_angleAcceptance )
+  if( opt_default || opt_angleAcceptance )
   {
     cout << "particle properties:" << endl;
 
     if( mass == mass_p)
-      cout << "  sort:    proton" << endl;
+      cout << "  sort:    proton"   << endl;
     else if( mass == mass_K )
-      cout << "  sort:    kaon" << endl;
+      cout << "  sort:    kaon"     << endl;
     else if( mass == mass_pi )
-      cout << "  sort:    pion" << endl;
+      cout << "  sort:    pion"     << endl;
     else if( mass == mass_e )
       cout << "  sort:    electron" << endl;
     else if( mass == mass_mu )
-      cout << "  sort:    muon" << endl;
+      cout << "  sort:    muon"     << endl;
     else
       cout << "*** WARNING: undefined particle sort" << endl;
 
@@ -565,12 +651,12 @@ int main(int argc, char *argv[])
     cout <<     "  beta:    " << beta << endl;
 
     cout <<     "  incidence angle (theta): " << inci_theta << " deg" << endl;
-    cout <<     "  incidence angle (phi):   " << inci_phi << " deg" << endl;
+    cout <<     "  incidence angle (phi):   " << inci_phi   << " deg" << endl;
     cout <<     "  flight direction:        (" << parDirX << ", " << parDirY << ", " << parDirZ << ")" << endl;
     cout <<     "  centered hit pos on bar: (" << hitBarX << ", " << hitBarY << ", " << hitBarZ << ")" << endl;
 
     cout <<     "  beam spot radius: " << spot_radius << " mm" << endl;
-    cout <<     "  radius limit:     " << spot_limit << " mm" << endl;
+    cout <<     "  radius limit:     " << spot_limit  << " mm" << endl;
     cout <<     "  particle number:  " << particle_number << endl;
 
 
@@ -581,7 +667,7 @@ int main(int argc, char *argv[])
     else
       cout << "  photon number:      " << photon_number << endl;
 
-    cout <<     "  Cherenkov spectrum: [" << lambda_min <<", " << lambda_max << "] nm" << endl;
+    cout <<     "  Cherenkov spectrum: [" << lambda_min << ", " << lambda_max << "] nm" << endl;
     cout <<     "  reflection limit:   " << refl_limit << endl;
   }
 
@@ -597,6 +683,7 @@ int main(int argc, char *argv[])
       cout << "  grid const. X: " << gridXstep << " mm" << endl;
       cout << "  grid const. Y: " << gridYstep << " mm" << endl;
     }
+
     if( cannon_theta == 90 )
     {
       cout << "  theta: flat cos(theta)" << endl;
@@ -615,7 +702,7 @@ int main(int argc, char *argv[])
     cout << "single photon:" << endl;
     cout << "  creation pos.: (" << singlePosX << ", " << singlePosY << ", " << singlePosZ << ")" << endl;
     cout << "  creation dir.: (" << singleDirX << ", " << singleDirY << ", " << singleDirZ << ")" << endl;
-    cout << "  lambda:        " << single_lambda << " nm" << endl;
+    cout << "  lambda:        "  << single_lambda << " nm" << endl;
   }
 
 
@@ -628,7 +715,7 @@ int main(int argc, char *argv[])
   //  photon (TTree)
   //  particle (TTree)
   //  info (TTree) for global parameter like e.g. lens thickness
-  //  default plots: Screen, beamspot, Setup geometry
+  //  default plots: screen, beamspot, setup geometry
   //
   // debug tools
   // 1. paramater.cc to check the used paramters for a certain ROOT-file
@@ -648,7 +735,7 @@ int main(int argc, char *argv[])
   if( outFilename == defaultFilename )
     defaultFilenameFlag = true;
 
-  if( defaultFilenameFlag && !(opt_beamtest || opt_angleAcceptance) )
+  if( defaultFilenameFlag && !(opt_default || opt_angleAcceptance) )
   {
     if( opt_photonCannon )
       outFilename = "kBarList_test";
@@ -702,7 +789,7 @@ int main(int argc, char *argv[])
   //==============================================================================
   TTree *photonTree  	= new TTree( "photon", outFilename );
   TTree *particleTree = new TTree( "particle", outFilename );
-  TTree *infoTree  	= new TTree( "info", outFilename );
+  TTree *infoTree  	  = new TTree( "info", outFilename );
 
 
   // infoTree (parameter list)
@@ -712,27 +799,37 @@ int main(int argc, char *argv[])
   // Unfortunetly TTree allows only basic c-types (no strings) and no-const types
   //******************************************************************************
 
-  const char *slab_mat_helper = mat_slab_str.c_str(); // includes \0 (escape sequence)
-  const char *lens_mat_helper = mat_lens_str.c_str();
-  const char *airBox_mat_helper = mat_airBox_str.c_str();
-  const char *fishtank_mat_helper = mat_fishtank_str.c_str();
+  const char *slab_mat_helper      = mat_slab_str.c_str(); // includes \0 (escape sequence)
+  const char *backLens_mat_helper  = mat_backLens_str.c_str();
+  const char *frontLens_mat_helper = mat_frontLens_str.c_str();
+  const char *airBox_mat_helper    = mat_airBox_str.c_str();
+  const char *prism_mat_helper     = mat_prism_str.c_str();
+  const char *fishtank_mat_helper  = mat_fishtank_str.c_str();
 
-  char slab_material[64]     = "";
-  char lens_material[64]     = "";
-  char airBox_material[64]   = "";
-  char fishtank_material[64] = "";
+  char slab_material[64]      = "";
+  char backLens_material[64]  = "";
+  char frontLens_material[64] = "";
+  char airBox_material[64]    = "";
+  char prism_material[64]     = "";
+  char fishtank_material[64]  = "";
 
   strcpy(slab_material, slab_mat_helper);
-  if( !opt_woLens )
-    strcpy(lens_material, lens_mat_helper);
+  if( opt_backLens )
+    strcpy(backLens_material, backLens_mat_helper);
+  if( opt_frontLens )
+    strcpy(frontLens_material, frontLens_mat_helper);
   if( airgap > 0 )
     strcpy(airBox_material, airBox_mat_helper);
+  if( opt_prism )
+    strcpy(prism_material, prism_mat_helper);
   strcpy(fishtank_material, fishtank_mat_helper);
 
-  bool slab_fresnel = !opt_noFresnel_slab;
-  bool lens_fresnel = !opt_noFresnel_lens;
-  bool airBox_fresnel = !opt_noFresnel_airBox;
-  bool fishtank_fresnel = !opt_noFresnel_fishtank;
+  bool slab_fresnel      = !opt_noFresnel_slab;
+  bool backLens_fresnel  = !opt_noFresnel_backLens;
+  bool frontLens_fresnel = !opt_noFresnel_frontLens;
+  bool airBox_fresnel    = !opt_noFresnel_airBox;
+  bool prism_fresnel     = !opt_noFresnel_prism;
+  bool fishtank_fresnel  = !opt_noFresnel_fishtank;
 
   bool fishtankBlack_bottom = opt_fishtankBlack_bottom;
   bool fishtankBlack_sides  = opt_fishtankBlack_sides;
@@ -740,12 +837,33 @@ int main(int argc, char *argv[])
 
   bool mirror = opt_mirror;
 
-  if( opt_woLens )
+  if( !opt_backLens )
   {
-    lens_radius    = -666;
-    lens_thickness = -666;
-    lens_diameter  = -666;
-    lens_conical   = -666;
+    backLens_radius    = -666;
+    backLens_thickness = -666;
+    backLens_diameter  = -666;
+    backLens_conical   = -666;
+  }
+
+  if( !opt_frontLens )
+  {
+    frontLens_radius    = -666;
+    frontLens_thickness = -666;
+    frontLens_diameter  = -666;
+    frontLens_conical   = -666;
+  }
+
+  if( !opt_prism )
+  {
+    prism_length      = -666;
+    prism_heightUp1   = -666;
+    prism_heightUp2   = -666;
+    prism_heightDown1 = -666;
+    prism_heightDown2 = -666;
+    prism_widthUp1    = -666;
+    prism_widthUp2    = -666;
+    prism_widthDown1  = -666;
+    prism_widthDown2  = -666;;
   }
 
   if( opt_photonCannon || opt_angleAcceptance )
@@ -789,14 +907,31 @@ int main(int argc, char *argv[])
   infoTree->Branch( "slab_height"           , &slab_height           , "slab_height/D" );
   infoTree->Branch( "slab_length"           , &slab_length           , "slab_length/D" );
   infoTree->Branch( "slab_fresnel"          , &slab_fresnel          , "slab_fresnel/O" );
-  infoTree->Branch( "lens_material"         , &lens_material         , "lens_material/C" );
-  infoTree->Branch( "lens_radius"           , &lens_radius           , "lens_radius/D" );
-  infoTree->Branch( "lens_thickness"        , &lens_thickness        , "lens_thickness/D" );
-  infoTree->Branch( "lens_diameter"         , &lens_diameter         , "lens_diameter/D" );
-  infoTree->Branch( "lens_conical"          , &lens_conical          , "lens_conical/D" );
-  infoTree->Branch( "lens_fresnel"          , &lens_fresnel          , "lens_fresnel/O" );
-  infoTree->Branch( "airgap"                , &airgap                , "airgap/D" );
+  infoTree->Branch( "backLens_material"     , &backLens_material     , "backLens_material/C" );
+  infoTree->Branch( "backLens_radius"       , &backLens_radius       , "backLens_radius/D" );
+  infoTree->Branch( "backLens_thickness"    , &backLens_thickness    , "backLens_thickness/D" );
+  infoTree->Branch( "backLens_diameter"     , &backLens_diameter     , "backLens_diameter/D" );
+  infoTree->Branch( "backLens_conical"      , &backLens_conical      , "backLens_conical/D" );
+  infoTree->Branch( "backLens_fresnel"      , &backLens_fresnel      , "backLens_fresnel/O" );
+  infoTree->Branch( "frontLens_material"    , &frontLens_material    , "frontLens_material/C" );
+  infoTree->Branch( "frontLens_radius"      , &frontLens_radius      , "frontLens_radius/D" );
+  infoTree->Branch( "frontLens_thickness"   , &frontLens_thickness   , "frontLens_thickness/D" );
+  infoTree->Branch( "frontLens_diameter"    , &frontLens_diameter    , "frontLens_diameter/D" );
+  infoTree->Branch( "frontLens_conical"     , &frontLens_conical     , "frontLens_conical/D" );
+  infoTree->Branch( "frontLens_fresnel"     , &frontLens_fresnel     , "frontLens_fresnel/O" );
+  infoTree->Branch( "prism_material"        , &prism_material        , "prism_material/C" );
+  infoTree->Branch( "prism_fresnel"         , &prism_fresnel         , "prism_fresnel/O" );
+  infoTree->Branch( "prism_length"          , &prism_length          , "prism_length/D" );
+  infoTree->Branch( "prism_heightUp1"       , &prism_heightUp1       , "prism_heightUp1/D" );
+  infoTree->Branch( "prism_heightUp2"       , &prism_heightUp2       , "prism_heightUp2/D" );
+  infoTree->Branch( "prism_heightDown1"     , &prism_heightDown1     , "prism_heightDown1/D" );
+  infoTree->Branch( "prism_heightDown2"     , &prism_heightDown2     , "prism_heightDown2/D" );
+  infoTree->Branch( "prism_widthUp1"        , &prism_widthUp1        , "prism_widthUp1/D" );
+  infoTree->Branch( "prism_widthUp2"        , &prism_widthUp2        , "prism_widthUp2/D" );
+  infoTree->Branch( "prism_widthDown1"      , &prism_widthDown1      , "prism_widthDown1/D" );
+  infoTree->Branch( "prism_widthDown2"      , &prism_widthDown2      , "prism_widthDown2/D" );
   infoTree->Branch( "airBox_material"       , &airBox_material       , "airBox_material/C" );
+  infoTree->Branch( "airgap"                , &airgap                , "airgap/D" );
   infoTree->Branch( "airBox_fresnel"        , &airBox_fresnel        , "airBox_fresnel/O" );
   infoTree->Branch( "fishtank_material"     , &fishtank_material     , "fishtank_material/C" );
   infoTree->Branch( "fishtank_width"        , &fishtank_width        , "fishtank_width/D" );
@@ -1160,9 +1295,9 @@ int main(int argc, char *argv[])
 
   //******************************************************************************
   // Note:
-  // Unfortunately Fresnel reflection is hard-coded in PndDrcPhoton.h
-  // to disable these kind of reflection set in the method "Refract" the fresnelFlag to false
-  // currently a fresnelFlag for a certain surface is not implemented yet
+  // Fresnel reflection is enable by default (hard-coded)
+  // currently a fresnelFlag for a certain surface is not implemented yet (only for volumes)
+  // for non-specular reflection (diffuse) change "diffuseProb" in the method "Refract" (PndDerPhoton.h)
   //******************************************************************************
 
   PndDrcOptReflPerfect refl_perfect;  // reflected (mirror)
@@ -1259,7 +1394,7 @@ int main(int argc, char *argv[])
   slab_front.SetName("slab_front");
 
 
-  if( opt_mirror )
+  if( opt_mirror && !opt_backLens )
     slab_front.SetReflectivity(refl_perfect);
 
 
@@ -1292,129 +1427,282 @@ int main(int argc, char *argv[])
 
 
 
-  // lens
+   // lens (forward)
   //==============================================================================
-  XYZPoint l1(-lens_diameter/2, +lens_diameter/2, 0);
-  XYZPoint l2(-lens_diameter/2, -lens_diameter/2, 0);
-  XYZPoint l3(+lens_diameter/2, -lens_diameter/2, 0);
-  XYZPoint l4(+lens_diameter/2, +lens_diameter/2, 0);
+  XYZPoint l0(-frontLens_diameter/2, +frontLens_diameter/2, 0);
+  XYZPoint l1(-frontLens_diameter/2, -frontLens_diameter/2, 0);
+  XYZPoint l2(+frontLens_diameter/2, -frontLens_diameter/2, 0);
+  XYZPoint l3(+frontLens_diameter/2, +frontLens_diameter/2, 0);
 
 
-  PndDrcSurfPolyAsphere lens_sphere;
-  lens_sphere.AddPoint(l1);
-  lens_sphere.AddPoint(l2);
-  lens_sphere.AddPoint(l3);
-  lens_sphere.AddPoint(l4);
-  lens_sphere.SetRadius(lens_radius);
-  lens_sphere.SetPrintColor(2);
-  lens_sphere.SetConicalConstant(lens_conical);
-  lens_sphere.SetName("lens_sphere");
+  PndDrcSurfPolyAsphere frontLens_sphere;
+  frontLens_sphere.AddPoint(l0);
+  frontLens_sphere.AddPoint(l1);
+  frontLens_sphere.AddPoint(l2);
+  frontLens_sphere.AddPoint(l3);
+  frontLens_sphere.SetRadius(frontLens_radius);
+  frontLens_sphere.SetPrintColor(2);
+  frontLens_sphere.SetConicalConstant(frontLens_conical);
+  frontLens_sphere.SetName("frontLens_sphere");
 
-  double dist = lens_sphere.CenterPoint().Z(); // in general the lens radius
-  lens_sphere.AddTransform( Transform3D( XYZVector(0,0,-(dist)) ) ); // ( dist |  =>  |(
+  double frontLens_dist = frontLens_sphere.CenterPoint().Z(); // in general the frontLens radius
+  frontLens_sphere.AddTransform( Transform3D( XYZVector(0,0,-(frontLens_dist)) ) ); // ( dist |  =>  |(
 
 
-  double lensMinThickness = Abs( lens_sphere.LimitingPoint(0).Z() );
+  double frontLensMinThickness = Abs( frontLens_sphere.LimitingPoint(0).Z() );
 
-  if( lensMinThickness > lens_thickness && !opt_woLens)
+  if( frontLensMinThickness > frontLens_thickness && opt_frontLens )
   {
-    cout << "*** ERROR: lens thickness have to be greater than: " << lensMinThickness
-        << " (currently " << lens_thickness << " mm)" << endl;
+    cout << "*** ERROR: frontLens thickness have to be greater than: " << frontLensMinThickness
+        << " (currently " << frontLens_thickness << " mm)" << endl;
     abort();
   }
 
 
-  XYZPoint q1 = l1 + XYZVector(0, 0, -lens_thickness);
-  XYZPoint q2 = l2 + XYZVector(0, 0, -lens_thickness);
-  XYZPoint q3 = l3 + XYZVector(0, 0, -lens_thickness);
-  XYZPoint q4 = l4 + XYZVector(0, 0, -lens_thickness);
+  XYZPoint q0 = l0 + XYZVector(0, 0, -frontLens_thickness);
+  XYZPoint q1 = l1 + XYZVector(0, 0, -frontLens_thickness);
+  XYZPoint q2 = l2 + XYZVector(0, 0, -frontLens_thickness);
+  XYZPoint q3 = l3 + XYZVector(0, 0, -frontLens_thickness);
 
 
-  PndDrcSurfPolyFlat lens_base;
-  lens_base.AddPoint(q1);
-  lens_base.AddPoint(q2);
-  lens_base.AddPoint(q3);
-  lens_base.AddPoint(q4);
-  lens_base.SetPrintColor(2);
-  lens_base.SetName("lens_base");
+  PndDrcSurfPolyFlat frontLens_base;
+  frontLens_base.AddPoint(q0);
+  frontLens_base.AddPoint(q1);
+  frontLens_base.AddPoint(q2);
+  frontLens_base.AddPoint(q3);
+  frontLens_base.SetPrintColor(2);
+  frontLens_base.SetName("frontLens_base");
 
-  PndDrcSurfQuadFlatDiff lens_right;
-  lens_right.AddSurface(lens_base, q1,q2);
-  lens_right.AddSurface(lens_sphere, lens_sphere.LimitingPoint(0),lens_sphere.LimitingPoint(1));
-  lens_right.SetPrintColor(2);
-  lens_right.SetName("lens_right");
+  PndDrcSurfQuadFlatDiff frontLens_right;
+  frontLens_right.AddSurface(frontLens_base, q0,q1);
+  frontLens_right.AddSurface(frontLens_sphere, frontLens_sphere.LimitingPoint(0),frontLens_sphere.LimitingPoint(1));
+  frontLens_right.SetPrintColor(2);
+  frontLens_right.SetName("frontLens_right");
 
-  PndDrcSurfQuadFlatDiff lens_bottom;
-  lens_bottom.AddSurface(lens_base, q2,q3);
-  lens_bottom.AddSurface(lens_sphere, lens_sphere.LimitingPoint(1),lens_sphere.LimitingPoint(2));
-  lens_bottom.SetPrintColor(2);
-  lens_bottom.SetName("lens_bottom");
+  PndDrcSurfQuadFlatDiff frontLens_bottom;
+  frontLens_bottom.AddSurface(frontLens_base, q1,q2);
+  frontLens_bottom.AddSurface(frontLens_sphere, frontLens_sphere.LimitingPoint(1),frontLens_sphere.LimitingPoint(2));
+  frontLens_bottom.SetPrintColor(2);
+  frontLens_bottom.SetName("frontLens_bottom");
 
-  PndDrcSurfQuadFlatDiff lens_left;
-  lens_left.AddSurface(lens_base, q3,q4);
-  lens_left.AddSurface(lens_sphere, lens_sphere.LimitingPoint(2),lens_sphere.LimitingPoint(3));
-  lens_left.SetPrintColor(2);
-  lens_left.SetName("lens_left");
+  PndDrcSurfQuadFlatDiff frontLens_left;
+  frontLens_left.AddSurface(frontLens_base, q2,q3);
+  frontLens_left.AddSurface(frontLens_sphere, frontLens_sphere.LimitingPoint(2),frontLens_sphere.LimitingPoint(3));
+  frontLens_left.SetPrintColor(2);
+  frontLens_left.SetName("frontLens_left");
 
-  PndDrcSurfQuadFlatDiff lens_top;
-  lens_top.AddSurface(lens_base, q4,q1);
-  lens_top.AddSurface(lens_sphere, lens_sphere.LimitingPoint(3),lens_sphere.LimitingPoint(0));
-  lens_top.SetPrintColor(2);
-  lens_top.SetName("lens_top");
+  PndDrcSurfQuadFlatDiff frontLens_top;
+  frontLens_top.AddSurface(frontLens_base, q3,q0);
+  frontLens_top.AddSurface(frontLens_sphere, frontLens_sphere.LimitingPoint(3),frontLens_sphere.LimitingPoint(0));
+  frontLens_top.SetPrintColor(2);
+  frontLens_top.SetName("frontLens_top");
 
 
-  PndDrcOptVol lens;
-  lens.SetVerbosity(0);
-  lens.AddSurface(lens_base);
-  lens.AddSurface(lens_sphere);
-  lens.AddSurface(lens_left);
-  lens.AddSurface(lens_right);
-  lens.AddSurface(lens_bottom);
-  lens.AddSurface(lens_top);
-  lens.SetOptMaterial( (*mat_lens) );
-  lens.SetName("lens");
+  PndDrcOptVol frontLens;
+  frontLens.SetVerbosity(0);
+  frontLens.AddSurface(frontLens_base);
+  frontLens.AddSurface(frontLens_sphere);
+  frontLens.AddSurface(frontLens_left);
+  frontLens.AddSurface(frontLens_right);
+  frontLens.AddSurface(frontLens_bottom);
+  frontLens.AddSurface(frontLens_top);
+  frontLens.SetOptMaterial( (*mat_frontLens) );
+  frontLens.SetName("frontLens");
 
   if( opt_Cherenkov_onlyInBar )
-    lens.SetRadiator(false);
+    frontLens.SetRadiator(false);
 
-  double lens_shift = lens_thickness;
-  lens.AddTransform( Transform3D( XYZVector(0,0,lens_shift) ) ); // |(  =>  (|
+  double frontLens_shift = frontLens_thickness;
+  if( opt_prism )
+    frontLens_shift = frontLens_thickness + prism_length;
+
+  frontLens.AddTransform( Transform3D( XYZVector(0,0,frontLens_shift) ) ); // |(  =>  (|
 
 
-  double min_lens_diameter = Sqrt( Power(slab_width,2)+Power(slab_height,2) );
+  double prism_height1_max = prism_heightUp1;
+  double prism_height2_max = prism_heightDown1;
+  double prism_width1_max  = prism_widthUp1;
+  double prism_width2_max  = prism_widthDown1;
 
-  if( lens_diameter < min_lens_diameter && !opt_woLens )
+  if( prism_height1_max < prism_heightUp2 )
+    prism_height1_max = prism_heightUp2;
+  if( prism_height2_max < prism_heightDown2 )
+    prism_height2_max = prism_heightDown2;
+  if( prism_width1_max < prism_widthUp2 )
+    prism_width1_max = prism_widthUp2;
+  if( prism_width2_max < prism_widthDown2 )
+    prism_width2_max = prism_widthDown2;
+
+  double prism_height_max = prism_height + prism_height1_max*2 + prism_height2_max*2;
+  double prism_width_max  = prism_width  + prism_width1_max*2  + prism_width2_max*2;
+
+  double min_frontLens_diameter = Sqrt( Power(slab_width,2)+Power(slab_height,2) );
+
+  if( opt_prism )
+    min_frontLens_diameter = Sqrt( Power(prism_width_max,2)+Power(prism_height_max,2) ) * Sqrt(2);
+
+  if( frontLens_diameter < min_frontLens_diameter && opt_frontLens )
   {
-    cout << "*** ERROR: please increase the lens diameter at least to: " << min_lens_diameter
-        << " (currently " << lens_diameter << " mm)" << endl;
+    cout << "*** ERROR: please increase the lens diameter (forward) at least to: " << min_frontLens_diameter
+        << " (currently " << frontLens_diameter << " mm)" << endl;
     abort();
   }
 
 
-  if( opt_noFresnel_lens )
-    lens.SetFresnel(false);
+  if( opt_noFresnel_frontLens )
+    frontLens.SetFresnel(false);
 
 
   if( opt_debug )
   {
-    cout << "+++++ DEBUG INFO: lens check" << endl;
-    lens.SetVerbosity(4);
-    lens_base.SetVerbosity(4);
-    lens_left.SetVerbosity(4);
-    lens_right.SetVerbosity(4);
-    lens_bottom.SetVerbosity(4);
-    lens_top.SetVerbosity(4);
-    lens_sphere.SetVerbosity(4);
-    // 		lens_left.SetReflectivity(refl_none);
-    // 		lens_right.SetReflectivity(refl_none);
-    // 		lens_bottom.SetReflectivity(refl_none);
-    // 		lens_top.SetReflectivity(refl_none);
-    // 		lens_sphere.SetReflectivity(refl_none);
-    // 		lens_left.SetPixel();
-    // 		lens_right.SetPixel();
-    // 		lens_bottom.SetPixel();
-    // 		lens_top.SetPixel();
-    // 		lens_sphere.SetPixel();
+    cout << "+++++ DEBUG INFO: frontLens check" << endl;
+    frontLens.SetVerbosity(4);
+    frontLens_base.SetVerbosity(4);
+    frontLens_left.SetVerbosity(4);
+    frontLens_right.SetVerbosity(4);
+    frontLens_bottom.SetVerbosity(4);
+    frontLens_top.SetVerbosity(4);
+    frontLens_sphere.SetVerbosity(4);
+    //    frontLens_left.SetReflectivity(refl_none);
+    //    frontLens_right.SetReflectivity(refl_none);
+    //    frontLens_bottom.SetReflectivity(refl_none);
+    //    frontLens_top.SetReflectivity(refl_none);
+    //    frontLens_sphere.SetReflectivity(refl_none);
+    //    frontLens_left.SetPixel();
+    //    frontLens_right.SetPixel();
+    //    frontLens_bottom.SetPixel();
+    //    frontLens_top.SetPixel();
+    //    frontLens_sphere.SetPixel();
+  }
+
+
+
+  // lens (backward)
+  //==============================================================================
+  XYZPoint l4(-backLens_diameter/2, +backLens_diameter/2, 0);
+  XYZPoint l5(-backLens_diameter/2, -backLens_diameter/2, 0);
+  XYZPoint l6(+backLens_diameter/2, -backLens_diameter/2, 0);
+  XYZPoint l7(+backLens_diameter/2, +backLens_diameter/2, 0);
+
+
+  PndDrcSurfPolyAsphere backLens_sphere;
+  backLens_sphere.AddPoint(l4);
+  backLens_sphere.AddPoint(l5);
+  backLens_sphere.AddPoint(l6);
+  backLens_sphere.AddPoint(l7);
+  backLens_sphere.SetRadius(backLens_radius);
+  backLens_sphere.SetPrintColor(2);
+  backLens_sphere.SetConicalConstant(backLens_conical);
+  backLens_sphere.SetName("backLens_sphere");
+
+  double backLens_dist = backLens_sphere.CenterPoint().Z(); // in general the backLens radius
+  backLens_sphere.AddTransform( Transform3D( XYZVector(0,0,-(backLens_dist)) ) ); // ( dist |  =>  |(
+
+
+  double backLensMinThickness = Abs( backLens_sphere.LimitingPoint(0).Z() );
+
+  if( backLensMinThickness > backLens_thickness && opt_backLens)
+  {
+    cout << "*** ERROR: backLens thickness have to be greater than: " << backLensMinThickness
+        << " (currently " << backLens_thickness << " mm)" << endl;
+    abort();
+  }
+
+
+  XYZPoint q4 = l4 + XYZVector(0, 0, -backLens_thickness);
+  XYZPoint q5 = l5 + XYZVector(0, 0, -backLens_thickness);
+  XYZPoint q6 = l6 + XYZVector(0, 0, -backLens_thickness);
+  XYZPoint q7 = l7 + XYZVector(0, 0, -backLens_thickness);
+
+
+  PndDrcSurfPolyFlat backLens_base;
+  backLens_base.AddPoint(q4);
+  backLens_base.AddPoint(q5);
+  backLens_base.AddPoint(q6);
+  backLens_base.AddPoint(q7);
+  backLens_base.SetPrintColor(2);
+  backLens_base.SetName("backLens_base");
+
+  PndDrcSurfQuadFlatDiff backLens_right;
+  backLens_right.AddSurface(backLens_base, q4,q5);
+  backLens_right.AddSurface(backLens_sphere, backLens_sphere.LimitingPoint(0),backLens_sphere.LimitingPoint(1));
+  backLens_right.SetPrintColor(2);
+  backLens_right.SetName("backLens_right");
+
+  PndDrcSurfQuadFlatDiff backLens_bottom;
+  backLens_bottom.AddSurface(backLens_base, q5,q6);
+  backLens_bottom.AddSurface(backLens_sphere, backLens_sphere.LimitingPoint(1),backLens_sphere.LimitingPoint(2));
+  backLens_bottom.SetPrintColor(2);
+  backLens_bottom.SetName("backLens_bottom");
+
+  PndDrcSurfQuadFlatDiff backLens_left;
+  backLens_left.AddSurface(backLens_base, q6,q7);
+  backLens_left.AddSurface(backLens_sphere, backLens_sphere.LimitingPoint(2),backLens_sphere.LimitingPoint(3));
+  backLens_left.SetPrintColor(2);
+  backLens_left.SetName("backLens_left");
+
+  PndDrcSurfQuadFlatDiff backLens_top;
+  backLens_top.AddSurface(backLens_base, q7,q4);
+  backLens_top.AddSurface(backLens_sphere, backLens_sphere.LimitingPoint(3),backLens_sphere.LimitingPoint(0));
+  backLens_top.SetPrintColor(2);
+  backLens_top.SetName("backLens_top");
+
+
+  PndDrcOptVol backLens;
+  backLens.SetVerbosity(0);
+  backLens.AddSurface(backLens_base);
+  backLens.AddSurface(backLens_sphere);
+  backLens.AddSurface(backLens_left);
+  backLens.AddSurface(backLens_right);
+  backLens.AddSurface(backLens_bottom);
+  backLens.AddSurface(backLens_top);
+  backLens.SetOptMaterial( (*mat_backLens) );
+  backLens.SetName("backLens");
+
+  if( opt_Cherenkov_onlyInBar )
+    backLens.SetRadiator(false);
+
+
+  backLens.AddTransform( Transform3D( RotationY(180.*degree) ) ); // |(  =>  )|
+
+  double backLens_shift = backLens_thickness + slab_length;
+  backLens.AddTransform( Transform3D( XYZVector(0,0,-backLens_shift) ) ); // )|   |  =>  |   |)
+
+
+  double min_backLens_diameter = Sqrt( Power(slab_width,2)+Power(slab_height,2) );
+
+  if( backLens_diameter < min_backLens_diameter && opt_backLens )
+  {
+    cout << "*** ERROR: please increase the lens diameter (backward) at least to: " << min_backLens_diameter
+        << " (currently " << backLens_diameter << " mm)" << endl;
+    abort();
+  }
+
+
+  if( opt_noFresnel_backLens )
+    backLens.SetFresnel(false);
+
+
+  if( opt_debug )
+  {
+    cout << "+++++ DEBUG INFO: backLens check" << endl;
+    backLens.SetVerbosity(4);
+    backLens_base.SetVerbosity(4);
+    backLens_left.SetVerbosity(4);
+    backLens_right.SetVerbosity(4);
+    backLens_bottom.SetVerbosity(4);
+    backLens_top.SetVerbosity(4);
+    backLens_sphere.SetVerbosity(4);
+    //    backLens_left.SetReflectivity(refl_none);
+    //    backLens_right.SetReflectivity(refl_none);
+    //    backLens_bottom.SetReflectivity(refl_none);
+    //    backLens_top.SetReflectivity(refl_none);
+    //    backLens_sphere.SetReflectivity(refl_none);
+    //    backLens_left.SetPixel();
+    //    backLens_right.SetPixel();
+    //    backLens_bottom.SetPixel();
+    //    backLens_top.SetPixel();
+    //    backLens_sphere.SetPixel();
   }
 
 
@@ -1446,18 +1734,25 @@ int main(int argc, char *argv[])
   //  negative angle: rotation axis b1-b2
 
 
-  double fishtank_posZ = fishtank_length + airgap; // default: 210 mm
+  double fishtank_posZ_front = airgap;
+  double fishtank_posZ_exit  = fishtank_length + airgap;
+
+  if( opt_prism )
+  {
+    fishtank_posZ_front = airgap + prism_length;
+    fishtank_posZ_exit  = fishtank_length + airgap + prism_length;
+  }
 
 
-  XYZPoint b1(-fishtank_width/2 + fishtank_width_offset, +fishtank_height/2 + fishtank_height_offset, airgap);
-  XYZPoint b2(-fishtank_width/2 + fishtank_width_offset, -fishtank_height/2 + fishtank_height_offset, airgap);
-  XYZPoint b3(+fishtank_width/2 + fishtank_width_offset, -fishtank_height/2 + fishtank_height_offset, airgap);
-  XYZPoint b4(+fishtank_width/2 + fishtank_width_offset, +fishtank_height/2 + fishtank_height_offset, airgap);
+  XYZPoint b1(-fishtank_width/2 + fishtank_width_offset, +fishtank_height/2 + fishtank_height_offset, fishtank_posZ_front);
+  XYZPoint b2(-fishtank_width/2 + fishtank_width_offset, -fishtank_height/2 + fishtank_height_offset, fishtank_posZ_front);
+  XYZPoint b3(+fishtank_width/2 + fishtank_width_offset, -fishtank_height/2 + fishtank_height_offset, fishtank_posZ_front);
+  XYZPoint b4(+fishtank_width/2 + fishtank_width_offset, +fishtank_height/2 + fishtank_height_offset, fishtank_posZ_front);
 
-  XYZPoint b5(-fishtank_width/2 + fishtank_width_offset, +fishtank_height/2 + fishtank_height_offset, +fishtank_posZ);
-  XYZPoint b6(-fishtank_width/2 + fishtank_width_offset, -fishtank_height/2 + fishtank_height_offset, +fishtank_posZ);
-  XYZPoint b7(+fishtank_width/2 + fishtank_width_offset, -fishtank_height/2 + fishtank_height_offset, +fishtank_posZ);
-  XYZPoint b8(+fishtank_width/2 + fishtank_width_offset, +fishtank_height/2 + fishtank_height_offset, +fishtank_posZ);
+  XYZPoint b5(-fishtank_width/2 + fishtank_width_offset, +fishtank_height/2 + fishtank_height_offset, fishtank_posZ_exit);
+  XYZPoint b6(-fishtank_width/2 + fishtank_width_offset, -fishtank_height/2 + fishtank_height_offset, fishtank_posZ_exit);
+  XYZPoint b7(+fishtank_width/2 + fishtank_width_offset, -fishtank_height/2 + fishtank_height_offset, fishtank_posZ_exit);
+  XYZPoint b8(+fishtank_width/2 + fishtank_width_offset, +fishtank_height/2 + fishtank_height_offset, fishtank_posZ_exit);
 
 
   PndDrcSurfPolyFlat fishtank_front;
@@ -1547,8 +1842,8 @@ int main(int argc, char *argv[])
   // 7. back translation (new) origin_fishtank_front
 
 
-  XYZPoint origin_fishtank_front(0,0, airgap);
-  XYZPoint origin_fishtank_back(0,0, fishtank_posZ);
+  XYZPoint origin_fishtank_front(0,0, fishtank_posZ_front);
+  XYZPoint origin_fishtank_back(0,0, fishtank_posZ_exit);
 
 
   Transform3D transToRotAxisY_fishtank;
@@ -1613,8 +1908,8 @@ int main(int argc, char *argv[])
 
   Transform3D rotThetaX_fishtank = Transform3D(
       r_thetaX.XX(), r_thetaX.XY(), r_thetaX.XZ(), 0,
-      r_thetaX.YX(), r_thetaX.YY(), r_thetaX.YZ(), 0,
-      r_thetaX.ZX(), r_thetaX.ZY(), r_thetaX.ZZ(), 0 );
+  r_thetaX.YX(), r_thetaX.YY(), r_thetaX.YZ(), 0,
+  r_thetaX.ZX(), r_thetaX.ZY(), r_thetaX.ZZ(), 0 );
 
   fishtank.AddTransform( rotThetaX_fishtank );
   fishtank.AddTransform( transToRotAxisY_fishtank.Inverse() );
@@ -1660,8 +1955,8 @@ int main(int argc, char *argv[])
 
   Transform3D rotPhi_fishtank = Transform3D(
       r_phi.XX(), r_phi.XY(), r_phi.XZ(), 0,
-      r_phi.YX(), r_phi.YY(), r_phi.YZ(), 0,
-      r_phi.ZX(), r_phi.ZY(), r_phi.ZZ(), 0 );
+  r_phi.YX(), r_phi.YY(), r_phi.YZ(), 0,
+  r_phi.ZX(), r_phi.ZY(), r_phi.ZZ(), 0 );
 
   fishtank.AddTransform( rotPhi_fishtank );
   fishtank.AddTransform( transTo_origin_fishtank_front.Inverse() );
@@ -1716,18 +2011,22 @@ int main(int argc, char *argv[])
   //         /  /        /  /
   //        /  /        /  /
   //      a4----------a1  /
-  //      |  /  _     |  /      _ (0,0,0) origin
+  //      |  /  _     |  /      _ (0,0,0) origin (w/o prism)
   //      | /         | /
   //      a3----------a2
 
 
-  XYZPoint a1(b1.X(), b1.Y(), 0);
-  XYZPoint a2(b2.X(), b2.Y(), 0);
-  XYZPoint a3(b3.X(), b3.Y(), 0);
-  XYZPoint a4(b4.X(), b4.Y(), 0);
+  double aZ = 0;
+  if( opt_prism )
+    aZ = prism_length;
+
+  XYZPoint a1(b1.X(), b1.Y(), aZ);
+  XYZPoint a2(b2.X(), b2.Y(), aZ);
+  XYZPoint a3(b3.X(), b3.Y(), aZ);
+  XYZPoint a4(b4.X(), b4.Y(), aZ);
 
 
-  if( ( fishtank_thetaX != 0 || fishtank_thetaY != 0 ) && opt_woLens && airgap == 0  )
+  if( ( fishtank_thetaX != 0 || fishtank_thetaY != 0 ) && !opt_frontLens && airgap == 0  )
   {
     cout << "*** ERROR: w/o forward lens only fishtank rotation in z-direction is allowed" << endl;
     abort();
@@ -1834,28 +2133,36 @@ int main(int argc, char *argv[])
   //      a4----------a1      /
   //      | \        /|      /
   //      |  \      / |     /
-  //      |   l4--l1  |    /
+  //      |   l3--l0  |    /
   //      |   | H |   |   /       H: lens-hole
-  //      |   l3--l2  |  /
+  //      |   l2--l1  |  /
   //      |  /      \ | /
   //      | /        \|/
   //      a3----------a2
 
 
-  double maxXY = lens_diameter/2;
+  double maxXY = frontLens_diameter/2;
 
   if( (maxXY > Abs(b1.X()) || maxXY > Abs(b1.Y()) || b1.Z() < 0 || maxXY > Abs(b2.X()) || maxXY > Abs(b2.Y()) || b2.Z() < 0 ||
        maxXY > Abs(b3.X()) || maxXY > Abs(b3.Y()) || b3.Z() < 0 || maxXY > Abs(b4.X()) || maxXY > Abs(b2.Y()) || b4.Z() < 0 )
-       && !opt_woLens  )
+       && opt_frontLens  )
   {
-    cout << "*** ERROR: fishtank rotation angle is too big (due to air box construction)" << endl;
+    cout << "*** ERROR: fishtank rotation angle is too big (due to air box/lens construction)" << endl;
     abort();
+  }
+
+  if( opt_prism )
+  {
+    l0 = l0 + XYZVector(0, 0, prism_length);
+    l1 = l1 + XYZVector(0, 0, prism_length);
+    l2 = l2 + XYZVector(0, 0, prism_length);
+    l3 = l3 + XYZVector(0, 0, prism_length);
   }
 
 
   PndDrcSurfPolyFlat airLens_frontLeft;
-  airLens_frontLeft.AddPoint(l4);
   airLens_frontLeft.AddPoint(l3);
+  airLens_frontLeft.AddPoint(l2);
   airLens_frontLeft.AddPoint(a3);
   airLens_frontLeft.AddPoint(a4);
   //     airLens_frontLeft.SetReflectivity(refl_none);
@@ -1865,49 +2172,49 @@ int main(int argc, char *argv[])
   PndDrcSurfPolyFlat airLens_frontRight;
   airLens_frontRight.AddPoint(a1);
   airLens_frontRight.AddPoint(a2);
-  airLens_frontRight.AddPoint(l2);
   airLens_frontRight.AddPoint(l1);
+  airLens_frontRight.AddPoint(l0);
   //     airLens_frontRight.SetReflectivity(refl_none);
   airLens_frontRight.SetName("airLens_frontRight");
   airLens_frontRight.SetPrintColor(0);
 
   PndDrcSurfPolyFlat airLens_frontBottom;
   airLens_frontBottom.AddPoint(l2);
+  airLens_frontBottom.AddPoint(l1);
   airLens_frontBottom.AddPoint(a2);
   airLens_frontBottom.AddPoint(a3);
-  airLens_frontBottom.AddPoint(l3);
   //     airLens_frontBottom.SetReflectivity(refl_none);
   airLens_frontBottom.SetName("airLens_frontBottom");
   airLens_frontBottom.SetPrintColor(0);
 
   PndDrcSurfPolyFlat airLens_frontTop;
-  airLens_frontTop.AddPoint(l4);
-  airLens_frontTop.AddPoint(l1);
-  airLens_frontTop.AddPoint(a1);
+  airLens_frontTop.AddPoint(l0);
+  airLens_frontTop.AddPoint(l3);
   airLens_frontTop.AddPoint(a4);
+  airLens_frontTop.AddPoint(a1);
   //     airLens_frontTop.SetReflectivity(refl_none);
   airLens_frontTop.SetName("airLens_frontTop");
   airLens_frontTop.SetPrintColor(0);
 
 
-  lens_sphere.AddTransform( Transform3D(XYZVector(0, 0, lens_shift)) );
-  lens_left.AddTransform( Transform3D(XYZVector(0, 0, lens_shift)) );
-  lens_right.AddTransform( Transform3D(XYZVector(0, 0, lens_shift)) );
-  lens_bottom.AddTransform( Transform3D(XYZVector(0, 0, lens_shift)) );
-  lens_top.AddTransform( Transform3D(XYZVector(0, 0, lens_shift)) );
+  frontLens_sphere.AddTransform( Transform3D(XYZVector(0, 0, frontLens_shift)) );
+  frontLens_left.AddTransform(   Transform3D(XYZVector(0, 0, frontLens_shift)) );
+  frontLens_right.AddTransform(  Transform3D(XYZVector(0, 0, frontLens_shift)) );
+  frontLens_bottom.AddTransform( Transform3D(XYZVector(0, 0, frontLens_shift)) );
+  frontLens_top.AddTransform(    Transform3D(XYZVector(0, 0, frontLens_shift)) );
 
 
-  PndDrcSurfPolyAsphere  airLens_lens_sphere 	= lens_sphere;
-  PndDrcSurfQuadFlatDiff airLens_lens_left 	= lens_left;
-  PndDrcSurfQuadFlatDiff airLens_lens_right 	= lens_right;
-  PndDrcSurfQuadFlatDiff airLens_lens_bottom 	= lens_bottom;
-  PndDrcSurfQuadFlatDiff airLens_lens_top 	= lens_top;
+  PndDrcSurfPolyAsphere  airLens_lens_sphere 	= frontLens_sphere;
+  PndDrcSurfQuadFlatDiff airLens_lens_left 	  = frontLens_left;
+  PndDrcSurfQuadFlatDiff airLens_lens_right 	= frontLens_right;
+  PndDrcSurfQuadFlatDiff airLens_lens_bottom 	= frontLens_bottom;
+  PndDrcSurfQuadFlatDiff airLens_lens_top 	  = frontLens_top;
 
   airLens_lens_sphere.SetName("airLens_lens_sphere");
-  airLens_lens_left.SetName("airLens_lens_left");
-  airLens_lens_right.SetName("airLens_lens_right");
+  airLens_lens_left.SetName(  "airLens_lens_left"  );
+  airLens_lens_right.SetName( "airLens_lens_right" );
   airLens_lens_bottom.SetName("airLens_lens_bottom");
-  airLens_lens_top.SetName("airLens_lens_top");
+  airLens_lens_top.SetName(   "airLens_lens_top"   );
 
 
   PndDrcSurfPolyFlat airLens_left;
@@ -2004,42 +2311,195 @@ int main(int argc, char *argv[])
 
 
 
+  // prism
+  //==============================================================================
+
+//                      /|
+//                     / |
+//                    /  |
+//                   /   |<-heightUp2
+//             ____ /____|____
+//      heightUp1->|     |
+//   ______________|     |____
+//                 |     |
+//        slab     |prism|<-height
+//   ______________|     |____
+//    heightDown1->|     |
+//             ____|_____|____
+//                  \    |
+//                   \   |<-heightDown2
+//                    \  |
+//                     \ |
+//                      \|
+  //
+//                 |--L--|
+  //
+// same for the width
+  //
+  //
+//               p8----------p5
+//              /|          /|
+//             / |         / |
+//            /  p7-------/--p6
+  //           /  /        /  /
+  //          /  /        /  /
+  //         /  /        /  /
+  //        /  /        /  /
+  //      p4----------p1  /
+//      |  /  _     |  /    _ (0,0,0) origin
+  //      | /         | /
+//      p3----------p2
+
+
+  XYZPoint p1(-prism_width/2 - prism_widthDown1, +prism_height/2 + prism_heightUp1,   0);
+  XYZPoint p2(-prism_width/2 - prism_widthDown1, -prism_height/2 - prism_heightDown1, 0);
+  XYZPoint p3(+prism_width/2 + prism_widthUp1  , -prism_height/2 - prism_heightDown1, 0);
+  XYZPoint p4(+prism_width/2 + prism_widthUp1  , +prism_height/2 + prism_heightUp1,   0);
+
+  double prism_end_heightUp   = prism_height/2 + prism_heightUp1   + prism_heightUp2;
+  double prism_end_heightDown = prism_height/2 + prism_heightDown1 + prism_heightDown2;
+  double prism_end_widthUp    = prism_width/2  + prism_widthUp1    + prism_widthUp2;
+  double prism_end_widthDown  = prism_width/2  + prism_widthDown1  + prism_widthDown2;
+
+  XYZPoint p5(-prism_end_widthDown, +prism_end_heightUp  , prism_length);
+  XYZPoint p6(-prism_end_widthDown, -prism_end_heightDown, prism_length);
+  XYZPoint p7(+prism_end_widthUp  , -prism_end_heightDown, prism_length);
+  XYZPoint p8(+prism_end_widthUp  , +prism_end_heightUp  , prism_length);
+
+
+  PndDrcSurfPolyFlat prism_exit; // prism end
+  prism_exit.AddPoint(p5);
+  prism_exit.AddPoint(p6);
+  prism_exit.AddPoint(p7);
+  prism_exit.AddPoint(p8);
+  prism_exit.SetName("prism_exit");
+
+  PndDrcSurfPolyFlat prism_left;
+  prism_left.AddPoint(p8);
+  prism_left.AddPoint(p7);
+  prism_left.AddPoint(p3);
+  prism_left.AddPoint(p4);
+  prism_left.SetName("prism_left");
+
+  PndDrcSurfPolyFlat prism_right;
+  prism_right.AddPoint(p5);
+  prism_right.AddPoint(p6);
+  prism_right.AddPoint(p2);
+  prism_right.AddPoint(p1);
+  prism_right.SetName("prism_right");
+
+  PndDrcSurfPolyFlat prism_bottom;
+  prism_bottom.AddPoint(p6);
+  prism_bottom.AddPoint(p2);
+  prism_bottom.AddPoint(p3);
+  prism_bottom.AddPoint(p7);
+  prism_bottom.SetName("prism_bottom");
+
+  PndDrcSurfPolyFlat prism_top;
+  prism_top.AddPoint(p5);
+  prism_top.AddPoint(p1);
+  prism_top.AddPoint(p4);
+  prism_top.AddPoint(p8);
+  prism_top.SetName("prism_top");
+
+  PndDrcSurfPolyFlat prism_front;
+  prism_front.AddPoint(p1);
+  prism_front.AddPoint(p2);
+  prism_front.AddPoint(p3);
+  prism_front.AddPoint(p4);
+  prism_front.SetName("prism_front");
+
+
+  PndDrcOptVol prism;
+  prism.AddSurface(prism_exit);
+  prism.AddSurface(prism_left);
+  prism.AddSurface(prism_right);
+  prism.AddSurface(prism_bottom);
+  prism.AddSurface(prism_top);
+  prism.AddSurface(prism_front);
+  prism.SetOptMaterial( (*mat_prism) );
+  prism.SetName("prism");
+
+  if( opt_noFresnel_prism )
+    prism.SetFresnel(false);
+
+
+  if( opt_debug )
+  {
+    cout << "+++++ DEBUG INFO: prism check" << endl;
+    prism.SetVerbosity(4);
+    prism_front.SetVerbosity(4);
+    prism_left.SetVerbosity(4);
+    prism_right.SetVerbosity(4);
+    prism_bottom.SetVerbosity(4);
+    prism_top.SetVerbosity(4);
+    prism_exit.SetVerbosity(4);
+    //  prism_exit.SetPixel();
+  }
+
+
+
   // connect optical devices
   //==============================================================================
   PndDrcOptDevSys opt_system;
   opt_system.SetNameCopyNumber("opt_system");
   opt_system.SetVerbosity(0);
 
-  if( opt_woLens )
-  {
-    opt_system.AddDevice(slab);
-    if( airgap > 0 )
-      opt_system.AddDevice(airBox);
-    opt_system.AddDevice(fishtank);
 
-    if( airgap > 0 )
+  opt_system.AddDevice(slab);
+  opt_system.AddDevice(fishtank);
+
+  if( opt_backLens )
+  {
+    opt_system.AddDevice(backLens);
+    opt_system.CoupleDevice("backLens","slab","backLens_base","slab_front");
+  }
+
+  if( opt_prism )
+  {
+    opt_system.AddDevice(prism);
+    opt_system.CoupleDevice("slab","prism","slab_exit","prism_front");
+  }
+
+  if( opt_frontLens )
+  {
+    opt_system.AddDevice(frontLens);
+
+    if( opt_prism )
+      opt_system.CoupleDevice("prism","frontLens","prism_exit","frontLens_base");
+    else
+      opt_system.CoupleDevice("slab","frontLens","slab_exit","frontLens_base");
+  }
+
+  if( airgap > 0 )
+  {
+    if( opt_frontLens )
     {
-      opt_system.CoupleDevice("slab","airBox","slab_exit","airBox_front");
-      opt_system.CoupleDevice("airBox","fishtank","airBox_exit","fishtank_front");
+      opt_system.AddDevice(airLens);
+      opt_system.CoupleDevice("frontLens","airLens","frontLens_left"  ,"airLens_lens_left");
+      opt_system.CoupleDevice("frontLens","airLens","frontLens_right" ,"airLens_lens_right");
+      opt_system.CoupleDevice("frontLens","airLens","frontLens_bottom","airLens_lens_bottom");
+      opt_system.CoupleDevice("frontLens","airLens","frontLens_top"   ,"airLens_lens_top");
+      opt_system.CoupleDevice("frontLens","airLens","frontLens_sphere","airLens_lens_sphere");
+      opt_system.CoupleDevice("airLens","fishtank","airLens_exit","fishtank_front");
     }
     else
-      opt_system.CoupleDevice("slab","fishtank","slab_exit","fishtank_front");
+    {
+      opt_system.AddDevice(airBox);
+      if( opt_prism )
+        opt_system.CoupleDevice("prism","airBox","prism_exit","airBox_front");
+      else
+        opt_system.CoupleDevice("slab","airBox","slab_exit","airBox_front");
 
+      opt_system.CoupleDevice("airBox","fishtank","airBox_exit","fishtank_front");
+    }
   }
   else
   {
-    opt_system.AddDevice(slab);
-    opt_system.AddDevice(lens);
-    opt_system.AddDevice(airLens);
-    opt_system.AddDevice(fishtank);
-
-    opt_system.CoupleDevice("slab","lens","slab_exit","lens_base");
-    opt_system.CoupleDevice("lens","airLens","lens_left","airLens_lens_left");
-    opt_system.CoupleDevice("lens","airLens","lens_right","airLens_lens_right");
-    opt_system.CoupleDevice("lens","airLens","lens_bottom","airLens_lens_bottom");
-    opt_system.CoupleDevice("lens","airLens","lens_top","airLens_lens_top");
-    opt_system.CoupleDevice("lens","airLens","lens_sphere","airLens_lens_sphere");
-    opt_system.CoupleDevice("airLens","fishtank","airLens_exit","fishtank_front");
+    if( opt_prism )
+      opt_system.CoupleDevice("prism","fishtank","prism_exit","fishtank_front");
+    else
+      opt_system.CoupleDevice("slab","fishtank","slab_exit","fishtank_front");
   }
 
 
@@ -2082,7 +2542,7 @@ int main(int argc, char *argv[])
 
   // beamtest simulation
   //==============================================================================
-  if( opt_beamtest || opt_angleAcceptance )
+  if( opt_default || opt_angleAcceptance )
   {
     TRandom3 randAngles;
     double numberAngles = 1;

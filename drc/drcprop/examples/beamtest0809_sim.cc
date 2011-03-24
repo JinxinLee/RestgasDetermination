@@ -81,6 +81,8 @@ using ROOT::Math::Rotation3D;
 #include "PndDrcUtil.h"
 
 
+#include "PndDrcOptMatMarcol7.h"
+
 int main(int argc, char *argv[])
 {
     double conical_const =  0; //sphere
@@ -113,25 +115,28 @@ int main(int argc, char *argv[])
     PndDrcOptMatConstIndex  lensIndex(curLensIndex);
     PndDrcOptMatConstIndex  oilIndex(curOilIndex);
 
+    PndDrcOptMatMarcol7  marcol;
+
     double lambda = 435;
 
 
-//     double wavelength[4];
-// //   wavelength[0]=200;
-//     wavelength[0]=300;
-//     wavelength[1]=435;
-//     wavelength[2]=535;
-//     wavelength[3]=589;
-//     for( int i=0; i < 4; i++ )
-//     {
-//         cout << "n_quartz    (" << wavelength[i] << " nm) = " << quartz.RefIndex(wavelength[i])     << endl;
-//         cout << "n_vacuum    (" << wavelength[i] << " nm) = " << vacuum.RefIndex(wavelength[i])     << endl;
-//         cout << "n_nlak33a   (" << wavelength[i] << " nm) = " << nlak33a.RefIndex(wavelength[i])    << endl;
-//         cout << "n_llf1      (" << wavelength[i] << " nm) = " << llf1.RefIndex(wavelength[i])       << endl;
-//         cout << "n_bk7       (" << wavelength[i] << " nm) = " << bk7.RefIndex(wavelength[i])        << endl;
-//         cout << "n_lensIndex (" << wavelength[i] << " nm) = " << lensIndex.RefIndex(wavelength[i])  << endl;
-//         cout << "n_oilIndex  (" << wavelength[i] << " nm) = " << oilIndex.RefIndex(wavelength[i])   << endl << endl;
-//     }
+    double wavelength[4];
+//   wavelength[0]=200;
+    wavelength[0]=300;
+    wavelength[1]=435;
+    wavelength[2]=535;
+    wavelength[3]=589;
+    for( int i=0; i < 4; i++ )
+    {
+        cout << "n_quartz    (" << wavelength[i] << " nm) = " << quartz.RefIndex(wavelength[i])     << endl;
+        cout << "n_vacuum    (" << wavelength[i] << " nm) = " << vacuum.RefIndex(wavelength[i])     << endl;
+        cout << "n_nlak33a   (" << wavelength[i] << " nm) = " << nlak33a.RefIndex(wavelength[i])    << endl;
+        cout << "n_llf1      (" << wavelength[i] << " nm) = " << llf1.RefIndex(wavelength[i])       << endl;
+        cout << "n_bk7       (" << wavelength[i] << " nm) = " << bk7.RefIndex(wavelength[i])        << endl;
+        cout << "n_lensIndex (" << wavelength[i] << " nm) = " << lensIndex.RefIndex(wavelength[i])  << endl;
+        cout << "n_marcol (" << wavelength[i] << " nm) = " << marcol.RefIndex(wavelength[i])  << endl;
+        cout << "n_oilIndex  (" << wavelength[i] << " nm) = " << oilIndex.RefIndex(wavelength[i])   << endl << endl;
+    }
     //
 
 

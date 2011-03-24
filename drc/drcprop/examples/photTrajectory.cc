@@ -19,7 +19,7 @@ using namespace std;
 
 
 
-void photTrajectory( TString inFilename = "", Double_t photonID = 1 ) // ID 0 means all
+void photTrajectory( TString inFilename = "", Double_t photonID = 0 ) // ID 0 means all
 {
 
   if( inFilename == "" )
@@ -32,8 +32,10 @@ void photTrajectory( TString inFilename = "", Double_t photonID = 1 ) // ID 0 me
   //==============================================================================
   // Access to the input ROOT-file & canvas settings
   //==============================================================================
+  TFile *inFile_wo = new TFile( "forSetup.root" ); // w/o air box
+  TCanvas *setup = (TCanvas*) inFile_wo->Get("Setup");
+
   TFile *inFile = new TFile( inFilename );
-  TCanvas *setup = (TCanvas*) inFile->Get("Setup");
 
   TTree *infoTree   = (TTree*) inFile->Get("info");
   TTree *photonTree = (TTree*) inFile->Get("photon");
@@ -84,6 +86,7 @@ void photTrajectory( TString inFilename = "", Double_t photonID = 1 ) // ID 0 me
   Int_t n_absorbed = 0;
   Int_t n_lost = 0;
 
+
   for( int i = 0; i < nEntries; i++ )
   {
     photonTree->GetEntry( i );
@@ -111,26 +114,31 @@ void photTrajectory( TString inFilename = "", Double_t photonID = 1 ) // ID 0 me
       }
 
       if( lost == true )
-        cout << n_ph << endl;
-
-
-
-
-      if( measured == true )
       {
-        for( int j = 0; j < index_pos; j++ )
+//         if( n_ph < 100 )
+//           cout << n_ph << endl;
+      }
+
+
+
+      if( n_measured < 200 )
+      {
+        if( measured == true )//n_lost%100 == 0 )
         {
-          if( j > 0 )
+          for( int j = 0; j < index_pos; j++ )
           {
-            TPolyLine3D *l = new TPolyLine3D(2);
+            if( j > 0 )
+            {
+              TPolyLine3D *l = new TPolyLine3D(2);
 
-            l->SetPoint(0, posX[j-1], posY[j-1], posZ[j-1]);
-            l->SetPoint(1, posX[j], posY[j], posZ[j]);
-            l->SetLineColor(3);
-            l->Draw();
+              l->SetPoint(0, posX[j-1], posY[j-1], posZ[j-1]);
+              l->SetPoint(1, posX[j], posY[j], posZ[j]);
+              l->SetLineColor(3);
+              l->Draw();
+            }
+
+//             cout << "pos.: (" << posX[j]<< "," << posY[j] << "," << posZ[j] << ")" << endl;
           }
-
-          cout << "pos.: (" << posX[j]<< "," << posY[j] << "," << posZ[j] << ")" << endl;
         }
       }
     }
@@ -139,4 +147,6 @@ void photTrajectory( TString inFilename = "", Double_t photonID = 1 ) // ID 0 me
   cout << "measured  photons: " << n_measured << endl;
   cout << "absorbed  photons: " << n_absorbed << endl;
   cout << "lost      photons: " << n_lost     << endl;
+
+  setup->Close(); // w/o -> Error in <RootX11ErrorHandler>
 }

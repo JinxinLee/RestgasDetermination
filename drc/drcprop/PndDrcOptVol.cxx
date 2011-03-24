@@ -137,7 +137,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
     if (ph.Reflections() > ph.ReflectionLimit())
     {
       ph.SetFate(Drc::kPhotAbsorbed);
-	  if (Verbosity()>=4) cout<<"     reflection limit was reached (absorbed)" << endl;
+      if (Verbosity()>=4) cout<<"     reflection limit was reached (absorbed)" << endl;
       break; // leave while loop
     }
 
@@ -222,7 +222,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 	      //ph.setPosition(ph.position()+path_length*ph.direction());
         if (fPhotonTrace) ph.Print(*fPhotonTraceStream);
         ph.SetFate(Drc::kPhotAbsorbed);
-		if (Verbosity()>=4) cout<<"     absorption by material" << endl;
+        if (Verbosity()>=4) cout<<"     absorption by material" << endl;
         break; // leave while loop
       }
       else
@@ -247,33 +247,33 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
         refl = surf_closest->Reflectivity().Reflectivity(ph,norm);
 
         if (refl == Drc::ReflAbsorbed)
-	  {
+        {
 
-	    if (Verbosity()>=4)
-	      cout<<"     PndDrcOptVol::propagate: absorbed"<<endl;
-	    ph.SetFate(Drc::kPhotAbsorbed);
-	    return;
-	  }
+          if (Verbosity()>=4)
+            cout<<"     PndDrcOptVol::propagate: absorbed"<<endl;
+          ph.SetFate(Drc::kPhotAbsorbed);
+          return;
+        }
         if (refl == Drc::ReflTransmitted)
-	  {
+        {
 	    // do nothing
-	  }
+        }
         if (refl == Drc::ReflReflected)
-	  {
-	    ph.Reflect(norm);
-	    continue; // while loop
-	  }
+        {
+          ph.Reflect(norm);
+          continue; // while loop
+        }
         if (refl == Drc::ReflRefracted)
-	  {
-	    bool refr = ph.Refract(norm,
-				   OptMaterial().RefIndex(ph.Wavelength()),
-				   OptMaterial().Extinction(ph.Wavelength()),
-				   surf_closest->Fresnel());
-	    if (refr)
-	      {
-		ph.SetFate(Drc::kPhotLost); // Photon refracted in nirvana.
-		if (Verbosity()>=4) cout<<"     Photon lost"<<endl;
-		break; // while loop
+        {
+          bool refr = ph.Refract(norm,
+                                 OptMaterial().RefIndex(ph.Wavelength()),
+                                 OptMaterial().Extinction(ph.Wavelength()),
+                                 surf_closest->Fresnel());
+          if (refr)
+          {
+            ph.SetFate(Drc::kPhotLost); // Photon refracted in nirvana.
+            if (Verbosity()>=4) cout<<"     Photon lost"<<endl;
+            break; // while loop
           }
         }
       }
@@ -283,9 +283,9 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
         if (Verbosity()>=4) cout<<"     PndDrcOptVol::reflectivity1b clause"<<endl;
 
         bool refr = ph.Refract(norm,
-			       OptMaterial().RefIndex(ph.Wavelength()),
-			       OptMaterial().Extinction(ph.Wavelength()),
-			       surf_closest->Fresnel());
+                               OptMaterial().RefIndex(ph.Wavelength()),
+                               OptMaterial().Extinction(ph.Wavelength()),
+                               surf_closest->Fresnel());
 
 //         if( surf_closest->Name() == "box_side2" || surf_closest->Name() == "box_side3" || surf_closest->Name() == "box_side4"
 //             || surf_closest->Name() == "box_side6")
@@ -400,7 +400,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 		      // surfaceHit.
 
             PndDrcOptMatAbs* opt_mat = &((*kDev_coupled)->OptMaterial());
-            if (Verbosity()>=4) cout<<"     opt_mat="<<opt_mat<<endl;
+            if (Verbosity()>=4) cout<<"     opt_mat="<<opt_mat->Name()<<endl;
             if (opt_mat)
             {
               double n1 = OptMaterial().RefIndex(ph.Wavelength());
@@ -410,9 +410,9 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 //               cout << "VOLCHECK: " << n1 << " " << ex1 << " " << n2 << " " << ex2 << endl;
 
               bool iref = ph.Refract(surf_closest->Normal(ph.Position()),
-				     n1, ex1,
-				     surf_closest->Fresnel(),
-				     n2, ex2);
+                                     n1, ex1,
+                                     surf_closest->Fresnel(),
+                                     n2, ex2);
 
 //               if( surf_closest->Name() == "slab_side1" && !iref )
 //                 cout << "wrong" << endl;

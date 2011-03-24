@@ -26,7 +26,7 @@ using namespace std;
 
 
 
-void screenPix( TString inFilename = "", Double_t resolution = 6.375, Bool_t effiMode = false ) // resolution in mm
+void screenPix( TString inFilename = "", Double_t resolution = 100, Bool_t effiMode = true, Bool_t poskBarZ = false ) // resolution in mm (default: 6.375)
 {
 
     if( inFilename == "" )
@@ -57,12 +57,14 @@ void screenPix( TString inFilename = "", Double_t resolution = 6.375, Bool_t eff
 
 
     Double_t hitPosX, hitPosY;
+    Double_t kBarZ;
     Bool_t measured;
     Double_t thetaC, wavelength;
     Double_t phot_parDirX, phot_parDirY, phot_parDirZ;
 
     photon->SetBranchAddress( "hitPosX"   , &hitPosX );
     photon->SetBranchAddress( "hitPosY"   , &hitPosY );
+    photon->SetBranchAddress( "kBarZ"     , &kBarZ );
     photon->SetBranchAddress( "measured"  , &measured );
     photon->SetBranchAddress( "wavelength", &wavelength );
     photon->SetBranchAddress( "thetaC"    , &thetaC );
@@ -86,9 +88,13 @@ void screenPix( TString inFilename = "", Double_t resolution = 6.375, Bool_t eff
     if( effiMode )
         effiMode_str = "effi_";
 
+    TString poskBarZ_str = "";
+    if( poskBarZ )
+      poskBarZ_str = "poskBarZ_";
+
     TString outFilename = inFilename;
     outFilename.Resize( inFilename.Length() - 5 ); // remove file extension .root
-    outFilename = outFilename + "_" + res_str + "mm_" + effiMode_str + "screenPix.root";
+    outFilename = outFilename + "_" + res_str + "mm_" + effiMode_str + poskBarZ_str + "screenPix.root";
 
     TFile *outFile = new TFile( outFilename, "RECREATE" );
     TTree *pixelTree = new TTree( "pixel", outFilename ); // starts at (0,0), (0,1) ...
@@ -115,7 +121,7 @@ void screenPix( TString inFilename = "", Double_t resolution = 6.375, Bool_t eff
     Int_t freq[x_bins][y_bins] = { 0 };
     Int_t px_freq  = 0;
 
-    const Int_t hitsPerPixel = 124; // default: 50 hits per pixel
+    const Int_t hitsPerPixel = 150; // default: 50 hits per pixel
     Int_t parDir_size = -666;
     if( parDirX == -666 )
         parDir_size = hitsPerPixel;
@@ -157,17 +163,17 @@ void screenPix( TString inFilename = "", Double_t resolution = 6.375, Bool_t eff
 // Canvas settings
 //==============================================================================
      // set some global options
-    gStyle->SetCanvasColor( 0 );        // white
-    gStyle->SetCanvasBorderMode( 0 );   // no yellow frame
-    gStyle->SetFrameFillColor( 0 );
-    gStyle->SetFrameBorderMode( 0 );    // no red frame
-    gStyle->SetHistFillColor( 0 );
-    gStyle->SetPadColor( 0 );
-    gStyle->SetPadBorderMode( 0 );      // no yellow frame
-    gStyle->SetTitleFillColor( 0 );     // white; not saved in the root file
-    gStyle->SetTitleFontSize( 0.05 );
-    gStyle->SetPalette( 1 );            // better color palette
-    gStyle->SetStatColor( 0 );          // stat. box color
+//     gStyle->SetCanvasColor( 0 );        // white
+//     gStyle->SetCanvasBorderMode( 0 );   // no yellow frame
+//     gStyle->SetFrameFillColor( 0 );
+//     gStyle->SetFrameBorderMode( 0 );    // no red frame
+//     gStyle->SetHistFillColor( 0 );
+//     gStyle->SetPadColor( 0 );
+//     gStyle->SetPadBorderMode( 0 );      // no yellow frame
+//     gStyle->SetTitleFillColor( 0 );     // white; not saved in the root file
+//     gStyle->SetTitleFontSize( 0.05 );
+//     gStyle->SetPalette( 1 );            // better color palette
+//     gStyle->SetStatColor( 0 );          // stat. box color
 
 
     TCanvas *canvas = new TCanvas( "canvas", "" ,200, 10, 700, 510 );
@@ -216,9 +222,9 @@ void screenPix( TString inFilename = "", Double_t resolution = 6.375, Bool_t eff
     fEffiArray[58] = 0.03;
     fEffiArray[59] = 0.02;
     fEffiArray[60] = 0.01;
-    fEffiArray[61] = 0.075;
-    fEffiArray[62] = 0.05;
-    fEffiArray[63] = 0.025;
+    fEffiArray[61] = 0.0075;
+    fEffiArray[62] = 0.005;
+    fEffiArray[63] = 0.0025;
 
     for (int i=0; i<70; i++) fEffiArray[i]=fEffiArray[i]*3; // to avoid the removing of too much photons
 
@@ -243,6 +249,8 @@ void screenPix( TString inFilename = "", Double_t resolution = 6.375, Bool_t eff
 //             {
             if( !effiMode || ( wavelength < 700 && (rand.Uniform() < fEffiArray[(int)(wavelength/10+0.5)]) ) )
             {
+              if( (poskBarZ && kBarZ > 0) || !poskBarZ )
+              {
                 screen->Fill( hitPosX, hitPosY );
 
                 pxX = TMath::FloorNint( (hitPosX + fishtank_width/2) / resolution );
@@ -267,6 +275,7 @@ void screenPix( TString inFilename = "", Double_t resolution = 6.375, Bool_t eff
                     parDirY_px[pxX][pxY][k] = phot_parDirY;
                     parDirZ_px[pxX][pxY][k] = phot_parDirZ;
                 }
+              }
             }
 //             }
         }
@@ -276,12 +285,13 @@ void screenPix( TString inFilename = "", Double_t resolution = 6.375, Bool_t eff
 //==============================================================================
 // Plot histograms
 //==============================================================================
-    screen->SetStats(false);
+//     screen->SetStats(false);
     screen->Draw("colz");
     canvas->Write( "screen");
     canvas->Close();
 
 
+//     cout << parDir_size << endl;
     infoTree->Fill();
 
     for( int i = 0; i < x_bins; i++ )

@@ -247,16 +247,14 @@ void PndDrcPhoton::Diffuse(const XYZVector& normal)
 
     if (fDirection.Dot(normal) < 0) normal1 *= -1;
 
+
     // 1. generate any vector (uniformly distributed) around the z-Axis (hemisphere)
     // 2. rotate this vector back in the angle (normal,z-Axis)
-//     fDirection.SetXYZ(0,-1,-1.1);
+
     XYZVector zUnit(0,0,1);
 
-    // safety first
-//         cout << "PndDrcPhoton::Diffuse :  fDirection or normal is not an unit vector (should not happen) !!!" << endl;
     normal1 = normal1.Unit();
     fDirection = fDirection.Unit();
-
 
     double angle = ACos( normal1.Dot(zUnit) / ( Sqrt(normal1.Mag2()) * Sqrt(zUnit.Mag2()) ) );
     XYZVector rotAxis = zUnit.Cross(normal1).Unit(); // usually Unit() is not necessary
@@ -265,27 +263,25 @@ void PndDrcPhoton::Diffuse(const XYZVector& normal)
     double phi = fRan.Uniform(0.0,2*Pi());
 
     XYZVector newf( Cos(phi) * Sqrt(1 - costheta*costheta), Sin(phi) * Sqrt(1 - costheta*costheta), costheta);
-//     newf *= Sqrt(fDirection.Mag2());
+
 
     // rotation matrix
     double xx = Cos(angle) + rotAxis.X()*rotAxis.X() * (1-Cos(angle));
-    double xy = rotAxis.X()*rotAxis.Y() * (1-Cos(angle)) - rotAxis.Z() * Sin(angle);
-    double xz = rotAxis.X()*rotAxis.Z() * (1-Cos(angle)) + rotAxis.Y() * Sin(angle);
-    double yx = rotAxis.Y()*rotAxis.X() * (1-Cos(angle)) + rotAxis.Z() * Sin(angle);
+    double yx = rotAxis.X()*rotAxis.Y() * (1-Cos(angle)) + rotAxis.Z() * Sin(angle);
+    double zx = rotAxis.X()*rotAxis.Z() * (1-Cos(angle)) - rotAxis.Y() * Sin(angle);
+    double xy = rotAxis.Y()*rotAxis.X() * (1-Cos(angle)) - rotAxis.Z() * Sin(angle);
     double yy = Cos(angle) + rotAxis.Y()*rotAxis.Y() * (1-Cos(angle));
-    double yz = rotAxis.Y()*rotAxis.Z() * (1-Cos(angle)) - rotAxis.X() * Sin(angle);
-    double zx = rotAxis.Z()*rotAxis.X() * (1-Cos(angle)) - rotAxis.Y() * Sin(angle);
-    double zy = rotAxis.Z()*rotAxis.Y() * (1-Cos(angle)) + rotAxis.X() * Sin(angle);
+    double zy = rotAxis.Y()*rotAxis.Z() * (1-Cos(angle)) + rotAxis.X() * Sin(angle);
+    double xz = rotAxis.Z()*rotAxis.X() * (1-Cos(angle)) + rotAxis.Y() * Sin(angle);
+    double yz = rotAxis.Z()*rotAxis.Y() * (1-Cos(angle)) - rotAxis.X() * Sin(angle);
     double zz = Cos(angle) + rotAxis.Z()*rotAxis.Z() * (1-Cos(angle));
 
     double newfX = xx * newf.X() + xy * newf.Y() +xz * newf.Z();
     double newfY = yx * newf.X() + yy * newf.Y() +yz * newf.Z();
     double newfZ = zx * newf.X() + zy * newf.Y() +zz * newf.Z();
 
-    fDirection.SetXYZ( newfX, newfY, newfZ );
+    fDirection.SetXYZ( -newfX, -newfY, -newfZ ); // negative for reflection direction
 
-    //safety first
-//     cout << "PndDrcPhoton::Diffuse :  fDirection is not an unit vector (should not happen) !!!" << endl;
     fDirection = fDirection.Unit();
 
     fReflections++;

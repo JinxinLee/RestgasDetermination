@@ -9,12 +9,14 @@
 #include <TChain.h>
 
 
-void run_KBarAnalysis(TString inFileCore = "", TString outFileCore = "", Double_t resolution = 6.375, Double_t gap = 80,
-                      Bool_t mcpMode = false, Bool_t effiMode = false )
+void run_KBarAnalysis(TString inFileCore  = "kBarList_center_400nm_2000000",
+                      TString outFileCore = "kBarList_center_400nm_2000000_res1",
+                      Double_t resolution = 1, Double_t gap1 = 58, Double_t gap2 = 54,
+                      Bool_t mcpMode = false, Bool_t effiMode = false ) // resolution default: 6.375
 {
     if( inFileCore == "" || outFileCore == "" )
     {
-        cout << "Usage: run_KBarAnalysis( input-core, output-core, resolution, gap, effiMode, mcpMode )" << endl;
+      cout << "Usage: run_KBarAnalysis( input-core, output-core, resolution, gap1, gap2, mcpMode, effiMode )" << endl;
         return;
     }
 
@@ -24,17 +26,17 @@ void run_KBarAnalysis(TString inFileCore = "", TString outFileCore = "", Double_
 
 
      // set some global options
-    gStyle->SetCanvasColor( 0 );        // white
-    gStyle->SetCanvasBorderMode( 0 );   // no yellow frame
-    gStyle->SetFrameFillColor( 0 );
-    gStyle->SetFrameBorderMode( 0 );    // no red frame
-    gStyle->SetHistFillColor( 0 );
-    gStyle->SetPadColor( 0 );
-    gStyle->SetPadBorderMode( 0 );      // no yellow frame
-    gStyle->SetTitleFillColor( 0 );     // white; not saved in the root file
-    gStyle->SetTitleFontSize( 0.05 );
-    gStyle->SetPalette( 1 );            // better color palette
-    gStyle->SetStatColor( 0 );          // stat. box color
+//     gStyle->SetCanvasColor( 0 );        // white
+//     gStyle->SetCanvasBorderMode( 0 );   // no yellow frame
+//     gStyle->SetFrameFillColor( 0 );
+//     gStyle->SetFrameBorderMode( 0 );    // no red frame
+//     gStyle->SetHistFillColor( 0 );
+//     gStyle->SetPadColor( 0 );
+//     gStyle->SetPadBorderMode( 0 );      // no yellow frame
+//     gStyle->SetTitleFillColor( 0 );     // white; not saved in the root file
+//     gStyle->SetTitleFontSize( 0.05 );
+//     gStyle->SetPalette( 1 );            // better color palette
+//     gStyle->SetStatColor( 0 );          // stat. box color
 
 
     KBarAnalysis *kBarAnalysis = new KBarAnalysis();
@@ -58,7 +60,7 @@ void run_KBarAnalysis(TString inFileCore = "", TString outFileCore = "", Double_
     inFile->Close();
 
 
-    kBarAnalysis->_outDirectory    = "/s/rhohler/sim/"; // inDirectory (d is full)
+    kBarAnalysis->_outDirectory    = "/d/panda02/rhohler/sim/"; // inDirectory (d is full)
 //     kBarAnalysis->_outFileCore     = "kBarList_center_2000000_6.375mm"; //inFileCore
     kBarAnalysis->_outFileCore     = outFileCore;
     kBarAnalysis->_fishtank_width  = fishtank_width;
@@ -74,21 +76,31 @@ void run_KBarAnalysis(TString inFileCore = "", TString outFileCore = "", Double_
 
         Double_t minX_dim[4];
         Double_t minY_dim[4];
-        minX_dim[1] = -mcp_dim - gap/2; // MCP gap: 80 => -115; gap: 110 => -130
+        minX_dim[1] = -mcp_dim - gap1; // MCP gap: 80 => -115; gap: 110 => -130; old gap/2
         minY_dim[1] = -100; // fishtank bottom (-fishtank_height/2)
         minX_dim[2] = minX_dim[1];
         minY_dim[2] = minY_dim[1] + mcp_dim;
         minX_dim[3] = minX_dim[2];
         minY_dim[3] = minY_dim[2] + mcp_dim;
-        minX_dim[0] = gap/2;
+        minX_dim[0] = gap2; // old gap/2
         minY_dim[0] = minY_dim[2];
 
-        cout << "MCP gap is : " << gap << "mm" << endl;
+//         cout << "MCP gap is : " << gap << "mm" << endl;
+        cout << "MCP gap is : " << gap1 << " \& " << gap2 << "mm" << endl;
 
-        TString gap_str;
-        gap_str += gap;
-        gap_str.Remove( TString::kLeading, ' ' );
+//         TString gap_str;
+//         gap_str += gap;
+//         gap_str.Remove( TString::kLeading, ' ' );
+//         kBarAnalysis->_gap_str = gap_str;
+        TString gap1_str;
+        gap1_str += gap1;
+        TString gap2_str;
+        gap2_str += gap2;
+        gap1_str.Remove( TString::kLeading, ' ' );
+        gap2_str.Remove( TString::kLeading, ' ' );
+        TString gap_str = gap1_str + "_" + gap2_str;
         kBarAnalysis->_gap_str = gap_str;
+
 
         kBarAnalysis->_mcp_dim = mcp_dim;
         kBarAnalysis->_mcp_active = mcp_active;

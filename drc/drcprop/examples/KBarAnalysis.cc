@@ -77,9 +77,9 @@ KBarAnalysis::KBarAnalysis(TTree * /*tree*/)
     _effi[58] = 0.03;
     _effi[59] = 0.02;
     _effi[60] = 0.01;
-    _effi[61] = 0.075;
-    _effi[62] = 0.05;
-    _effi[63] = 0.025;
+    _effi[61] = 0.0075;
+    _effi[62] = 0.005;
+    _effi[63] = 0.0025;
 
     for (int i=0; i<70; i++) _effi[i]=_effi[i]*3; // to avoid the removing of too much photons
 
@@ -442,7 +442,8 @@ Bool_t KBarAnalysis::Process(Long64_t entry)
 //     if( entry%100000 == 0 )
 //         cout << entry << " / " << fChain->GetTree()->GetEntries() << endl;
 
-//     kBarY = kBarY + 500/kBarZ * 1.47/300; for time difference (here: kBarY = time)
+//     kBarY = kBarY + 500/kBarZ * 1.47/300; // for time difference (here: kBarY = time), start position z=-500
+//     kBarY = kBarY + 500/kBarZ * 1.58/300; // with group refractive index
 
     Int_t pxX = -666;
     Int_t pxY = -666;
@@ -748,7 +749,7 @@ void KBarAnalysis::Terminate()
         _screen->GetXaxis()->CenterTitle();
         _screen->GetYaxis()->SetTitle( "y [mm]" );
         _screen->GetYaxis()->CenterTitle();
-        _screen->GetYaxis()->SetTitleOffset( 1.3 );
+//         _screen->GetYaxis()->SetTitleOffset( 1.3 );
         _screen->SetStats( false );
         _screen->Draw("colz");
         canvas->Write("screen");
@@ -801,7 +802,7 @@ void KBarAnalysis::Terminate()
             _kBarX[i][j].GetXaxis()->CenterTitle();
             _kBarX[i][j].GetYaxis()->SetTitle( "y [mm]" );
             _kBarX[i][j].GetYaxis()->CenterTitle();
-            _kBarX[i][j].GetYaxis()->SetTitleOffset( 1.3 );
+//             _kBarX[i][j].GetYaxis()->SetTitleOffset( 1.3 );
             _kBarX[i][j].SetStats( false );
             _kBarX[i][j].Draw("colz");
             canvas->Write( _kBarX_str[i][j] );
@@ -813,7 +814,7 @@ void KBarAnalysis::Terminate()
             _kBarY[i][j].GetXaxis()->CenterTitle();
             _kBarY[i][j].GetYaxis()->SetTitle( "y [mm]" );
             _kBarY[i][j].GetYaxis()->CenterTitle();
-            _kBarY[i][j].GetYaxis()->SetTitleOffset( 1.3 );
+//             _kBarY[i][j].GetYaxis()->SetTitleOffset( 1.3 );
             _kBarY[i][j].SetStats( false );
             _kBarY[i][j].Draw("colz");
             canvas->Write( _kBarY_str[i][j] );
@@ -825,7 +826,7 @@ void KBarAnalysis::Terminate()
             _kBarZ[i][j].GetXaxis()->CenterTitle();
             _kBarZ[i][j].GetYaxis()->SetTitle( "y [mm]" );
             _kBarZ[i][j].GetYaxis()->CenterTitle();
-            _kBarZ[i][j].GetYaxis()->SetTitleOffset( 1.3 );
+//             _kBarZ[i][j].GetYaxis()->SetTitleOffset( 1.3 );
             _kBarZ[i][j].SetStats( false );
             _kBarZ[i][j].Draw("colz");
             canvas->Write( _kBarZ_str[i][j] );
@@ -892,7 +893,7 @@ void KBarAnalysis::Terminate()
             _screen->GetXaxis()->CenterTitle();
             _screen->GetYaxis()->SetTitle( "y [mm]" );
             _screen->GetYaxis()->CenterTitle();
-            _screen->GetYaxis()->SetTitleOffset( 1.3 );
+//             _screen->GetYaxis()->SetTitleOffset( 1.3 );
 
             canvasX->cd();
             _screen->SetTitle( kBarX_screenTitle );
