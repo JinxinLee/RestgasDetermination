@@ -216,7 +216,7 @@ PndTpcClusterFinder::process(std::vector<PndTpcDigi*>& digis)
 	unusedDigis.push_back((*digiList)[id]);
       }
       
-      while(!unusedDigis.size()==0){ // there are still digis
+      while(unusedDigis.size()>0){ // there are still digis
 	// keep track of hit pads (with last timestamp)
 	std::map<unsigned int, double> padmap;
 	std::list<PndTpcDigi*>::iterator digiIt=unusedDigis.begin();
@@ -232,10 +232,13 @@ PndTpcClusterFinder::process(std::vector<PndTpcDigi*>& digis)
 	      continue;
 	    } // end found gap
 	  }// end pad has been used before
-	  padIt->second=adigi->t();
+	  padmap[adigi->padId()]=adigi->t();
 	  fsproc[secIt->first]->putDigi(adigi);
 	  // remove digi from unusedDigis
-	  digiIt=unusedDigis.erase(digiIt); // this sets digiIt to next position
+	  std::list<PndTpcDigi*>::iterator digiIt2=digiIt;
+	  ++digiIt2;
+	  unusedDigis.erase(digiIt); // this sets digiIt to next position
+	  digiIt=digiIt2;
 	} //  end loop over unused digis;
 	// now process digis submitted so far:
 	// process
