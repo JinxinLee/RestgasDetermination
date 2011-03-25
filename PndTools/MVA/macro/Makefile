@@ -4,5 +4,5 @@ all: clean
 clean:
 	rm -f *~ *.o *.so *.d
 
-cleanall:
-	rm -f *~ *.o *.so *.d *.root gphysi.dat
+cleanall: clean
+	rm -f *.root gphysi.dat

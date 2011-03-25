@@ -1,6 +1,4 @@
 # Setting the linker and compiler flags and options
-# points in k-dimensional Euclidean space.
-
 #INCLUDE  += $(shell root-config --cflags) -I./
 #LIBS     = -lTMVA -lMLP -lTreePlayer -lMinuit
 #LIBS    += $(shell root-config --libs) 

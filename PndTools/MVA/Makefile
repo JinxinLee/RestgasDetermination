@@ -153,3 +153,6 @@ clean:
 	cd TMVAkd_KNN; $(MAKE) clean
 	cd TMVA_PDE_FOAM; $(MAKE) clean
 	cd TMVA_MLP; $(MAKE) clean
+
+distclean: clean
+	rm -f PndMVAWeights/*

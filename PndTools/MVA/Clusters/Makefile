@@ -1,6 +1,3 @@
-# HOW TO RUN
-#  OMP_NUM_THREADS=4 ./PlotEventData Events03.root
-#
 # Setting the linker and compiler flags and options
 
 #INCLUDE   = $(shell root-config --cflags) -I./ -I../

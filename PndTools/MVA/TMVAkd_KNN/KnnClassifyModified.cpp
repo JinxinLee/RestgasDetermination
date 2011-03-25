@@ -39,7 +39,7 @@ int main(int argc, char** argv)
   {
     std::cerr << "\t<ERROR>:\n\t"
 	      << argv[0]
-	      << " <Weights> <EventFile> <treeName to be classified> <OutputFileName>"
+	      << " <Weights> <EventFile> <treeName> <OutputFileName>"
 	      << std::endl;
     return 1;
   }
