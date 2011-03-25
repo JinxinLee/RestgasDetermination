@@ -14,7 +14,7 @@ ${CMAKE_SOURCE_DIR}/PndTools/MVA/Clusters
 ${CMAKE_SOURCE_DIR}/PndTools/MVA/KNN
 ${CMAKE_SOURCE_DIR}/PndTools/MVA/LVQ1
 ${CMAKE_SOURCE_DIR}/PndTools/MVA/TMVAkd_KNN
-# ${CMAKE_SOURCE_DIR}/PndTools/MVA/TMVA_MLP
+${CMAKE_SOURCE_DIR}/PndTools/MVA/TMVA_MLP
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -38,6 +38,7 @@ LVQ1/PndLVQClassify.cpp
 LVQ1/PndLVQTrain.cpp
 TMVAkd_KNN/PndKnnClassify.cpp
 TMVAkd_KNN/PndKnnTrain.cpp
+TMVA_MLP/PndMultiClassMlpTrain.cpp
 # TMVAkd_KNN/PndProjectedKNN.cpp
 )
 
@@ -60,6 +61,7 @@ LVQ1/PndLVQClassify.h
 LVQ1/PndLVQTrain.h
 TMVAkd_KNN/PndKnnClassify.h
 TMVAkd_KNN/PndKnnTrain.h
+TMVA_MLP/PndMultiClassMlpTrain.h
 # TMVAkd_KNN/PndProjectedKNN.h
 )
 
