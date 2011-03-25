@@ -24,6 +24,7 @@
 #include <iostream>
 #include "assert.h"
 #include <algorithm>
+#include <list>
 // Collaborating Class Headers --------
 #include "PndTpcPadPlane.h"
 #include "PndTpcSectorProcessor.h"
@@ -187,7 +188,66 @@ PndTpcClusterFinder::process(std::vector<PndTpcDigi*>& digis)
     ++secIt;
   }// end loop over sectors
   
-  }
+  }// end mode 1
+
+  // ---------------------- MODE 2 - each pad gets its time window - actually we search for gaps on a pad----
+  else if(fmode==2){
+    // make the time binning in each sector separately:
+    // build sectormap
+    for(int idi=0;idi<ndigis;++idi){//loop over
+      unsigned int sectorId=fpadplane->GetPad(digis[idi]->padId())->sectorId();
+      fsectormap[sectorId]->push_back(digis[idi]);
+    }
+    
+    
+    // now process each sectorprocessor independently
+    std::map<unsigned int,std::vector<PndTpcDigi*>* >::iterator secIt=fsectormap.begin();
+    while(secIt!=fsectormap.end()){ // loop over sectors
+      std::vector<PndTpcDigi*>* digiList=secIt->second;
+      unsigned int ndinsec=digiList->size();
+      if(ndinsec==0){ 
+    	++secIt;
+    	continue;
+      }
+      
+      std::list<PndTpcDigi*> unusedDigis;
+      // copy digi pointers into list
+      for(unsigned int id=0;id<ndinsec;++id){
+	unusedDigis.push_back((*digiList)[id]);
+      }
+      
+      while(!unusedDigis.size()==0){ // there are still digis
+	// keep track of hit pads (with last timestamp)
+	std::map<unsigned int, double> padmap;
+	std::list<PndTpcDigi*>::iterator digiIt=unusedDigis.begin();
+	while(digiIt!=unusedDigis.end()){ // loop over unused digis
+	  PndTpcDigi* adigi=*digiIt;
+	  // check if pad was hit already or timeslice filled 
+	  // if so process sector before going on
+	  std::map<unsigned int, double>::iterator padIt=padmap.find(adigi->padId());
+	  if(padIt!=padmap.end()){
+	    // check time
+	    if(adigi->t()>padIt->second+fdt){ // found gap -> resume without adding digi to sectorprocessor
+	      ++digiIt;
+	      continue;
+	    } // end found gap
+	  }// end pad has been used before
+	  padIt->second=adigi->t();
+	  fsproc[secIt->first]->putDigi(adigi);
+	  // remove digi from unusedDigis
+	  digiIt=unusedDigis.erase(digiIt); // this sets digiIt to next position
+	} //  end loop over unused digis;
+	// now process digis submitted so far:
+	// process
+	fsproc[secIt->first]->process();
+	// reset
+	fsproc[secIt->first]->reset();
+	padmap.clear();
+      } // end loop there are still digits
+      secIt->second->clear();
+      ++secIt;
+    }// end loop over sectors
+  }// end mode 2
 }
 
 
