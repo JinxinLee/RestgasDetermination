@@ -7,8 +7,7 @@ PndMultiClassMlpClassify::PndMultiClassMlpClassify(std::string const& inputFile,
   : PndMvaClassifier(inputFile, classNames, varNames),
     m_reader(0),
     m_weightsFile(inputFile),
-    m_readerOptions("!Color:!Silent"),
-    m_methodName("MLP method")
+    m_readerOptions("!Color:!Silent")
 {}
 
 PndMultiClassMlpClassify::~PndMultiClassMlpClassify()
@@ -53,7 +52,7 @@ void PndMultiClassMlpClassify::Initialize()
     m_reader->AddVariable( (variables[i].Name).c_str(), &m_EventContainer[i] );
   }
 
-  m_reader->BookMVA(m_methodName.c_str(), m_weightsFile.c_str());
+  m_reader->BookMVA("MLP method", m_weightsFile.c_str());
 }
 void PndMultiClassMlpClassify::SetOptions()
 {

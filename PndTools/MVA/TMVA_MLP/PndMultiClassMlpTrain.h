@@ -5,6 +5,15 @@
  * LICENSE:                              *
  * ***************************************
  */
+/*
+ * Note: This is just an interface to the original TMVA
+ * implementation. To find out the available options, please read TMVA
+ * manuals. In case of errors or wrong outputs produced by TMVA
+ * classifiers, try to read their mailing list and send your questions
+ * to the same list.
+ ******* VERY IMORTANT ****
+ * You NEED TMVA version > 4.1.X before this works.
+ */
 #ifndef PND_MULTI_CLASS_MLP_TRAIN_H
 #define PND_MULTI_CLASS_MLP_TRAIN_H
 
@@ -21,27 +30,53 @@ class PndMultiClassMlpTrain : public PndMvaTrainer
   //----------------------------------------
   //================== public ==============
  public:
+  /**
+   * Constructor.
+   *@param InPut The file containig the event data.
+   *@param ClassNames Labels of the classes to be used.
+   *@param VarNames  The name of the involved variables(features).
+   *@param trim If the data set needs to be trimmed.
+   */
   PndMultiClassMlpTrain(std::string const& InPut,
 			std::vector<std::string> const& ClassNames, 
 			std::vector<std::string> const& VarNames,
 			bool trim = true);
-  
+  /**
+   * Destructor.
+   */
   ~PndMultiClassMlpTrain();
   
+  /**
+   * Train the classifier.
+   */
   void Train();
+  /**
+   *Initialize Classifier and data structures.
+   */
   void Initialize();
   
+  // Set the name of the current job
   inline void SetJobName       (std::string const& name);
+  // Set data Transformation scheme
   inline void SetTransformation(std::string const& tran);
+  // Set the options for the MLP alg. See TMVA manuals.
   inline void SetMlpOptions    (std::string const& opts);
+  // Set the file name to store evaluation outputs.
   inline void SetEvalFileName  (std::string const& fname);
+  // Set the directory where weights are stored.
   inline void SetWeightsOutDir (std::string const& dirName);
+  // Evaluate the classifier?
   inline void SetEvaluation(bool evaluate);
   
+  // Get the current job name.
   inline std::string const& GetJobName()const;
+  // Get the current transformation info.
   inline std::string const& GetTransformation()const;
+  // Get the classifier options.
   inline std::string const& GetMlpOptions()const;
+  // Get the name of the weight file.
   inline std::string const& GetEvalFileName()const;
+  // Get the directory where the weights are stored.
   inline std::string const& GetWeightsOutDir()const;
   //----------------------------------------
   
@@ -59,16 +94,16 @@ class PndMultiClassMlpTrain : public PndMvaTrainer
   void AddVariables();
   
   //==============================
-  TMVA::Factory* m_factory;
-  TFile* EvalFile;
-  std::string m_JName;
-  std::string m_transform;
-  std::string m_MlpOptions;
-  std::string m_evalFileName;
-  std::string m_weightDirName;
+  TMVA::Factory* m_factory;// TMVA factory
+  TFile* EvalFile; // To store evaluation file
+  std::string m_JName; //Job name
+  std::string m_transform;// Transformation opt.
+  std::string m_MlpOptions; // mlp options.
+  std::string m_evalFileName; //evaluation file name.
+  std::string m_weightDirName;// Directory name to store weights.
   bool m_Evaluate;
-};
-//=============== inline functions ========
+};// End of interface definition.
+//=============== inline functions implementation. ========
 //__________________________________________
 inline void PndMultiClassMlpTrain::SetJobName(std::string const& name)
 {
