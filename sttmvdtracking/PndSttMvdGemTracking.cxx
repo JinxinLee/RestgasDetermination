@@ -1724,7 +1724,7 @@ FairTrackParP PndSttMvdGemTracking::SetStartParameters(PndTrack *sttmvd, PndTrac
       {
       startpoint = Prefit(sttmvd, sttmvdCand, position, momentum);
       }
-
+      
       if(startpoint == true) {
       // find plane orthogonal to mom
       TVector3 iver = momentum; iver.SetMag(1.);
@@ -2017,7 +2017,7 @@ Bool_t PndSttMvdGemTracking::Prefit(PndTrack *sttmvdTrack, PndTrackCand *sttmvdC
   //  cout << " PR " << xc << " " << yc << " " << radius <<  " " << fitm <<  " " << fitp << endl;
 
   Int_t charge = sttmvdTrack->GetParamFirst().GetQ();
-  Int_t lasthitid = -1;
+  Int_t firsthitid = -1, lasthitid = -1;
   for(int ihit = 0; ihit < nhits; ihit++)
     {
       // get hit
@@ -2050,6 +2050,7 @@ Bool_t PndSttMvdGemTracking::Prefit(PndTrack *sttmvdTrack, PndTrackCand *sttmvdC
 	points[ihit][6] = TMath::Sqrt(mvdhit->GetCov()[1][1]);
 	points[ihit][7] = TMath::Sqrt(mvdhit->GetCov()[2][2]);
 	lasthitid = ihit;
+	if(firsthitid == -1) firsthitid = ihit;
 	//	cout << "MVD " << ihit << " " << hitId << " " << points[ihit][2] << " " << points[ihit][3] << " " << points[ihit][4] << endl;
 
       }
@@ -2075,6 +2076,7 @@ Bool_t PndSttMvdGemTracking::Prefit(PndTrack *sttmvdTrack, PndTrackCand *sttmvdC
 
 	// CHECK get only parallel tubes?
 	lasthitid = ihit;
+	if(firsthitid == -1) firsthitid = ihit;
 	//	cout << "STT " << ihit << " " << hitId << " " << points[ihit][2] << " " << points[ihit][3] << " " << points[ihit][4] << "iso "  << points[ihit][8] << endl;
       }
     }
@@ -2114,7 +2116,8 @@ Bool_t PndSttMvdGemTracking::Prefit(PndTrack *sttmvdTrack, PndTrackCand *sttmvdC
       points[ihit][8] = stthit->GetIsochrone();
       points[ihit][9] = stthit->GetIsochroneError();
       lasthitid = ihit;
-    
+      if(firsthitid == -1) firsthitid = ihit;
+
   
     }
   }
@@ -2139,11 +2142,20 @@ Bool_t PndSttMvdGemTracking::Prefit(PndTrack *sttmvdTrack, PndTrackCand *sttmvdC
   // z
   Double_t Phi0 = TMath::ATan2((y0 - yc),(x0 - xc));
   
-  Double_t scos = charge * radius * TMath::ATan2((points[lasthitid][3] - y0) * TMath::Cos(Phi0) - (points[lasthitid][2] - x0) * TMath::Sin(Phi0) ,
-						 radius + (points[lasthitid][2] - x0) * TMath::Cos(Phi0) + (points[lasthitid][3] - y0) * TMath::Sin(Phi0));
+  TVector2 v(x0 - xc, y0 - yc); 
+  Double_t alpha1 = TMath::ATan2(points[firsthitid][3] - y0 + radius * TMath::Sin(Phi0), points[firsthitid][2] - x0 + radius * TMath::Cos(Phi0));
+  TVector2 p1(points[firsthitid][2] - xc, points[firsthitid][3] - yc);
+  Double_t Fi1 = CalculatePhi(v, p1, alpha1, Phi0, charge);
 
+  Double_t alpha2 = TMath::ATan2(points[lasthitid][3] - y0 + radius * TMath::Sin(Phi0), points[lasthitid][2] - x0 + radius * TMath::Cos(Phi0));
+  TVector2 p2(points[lasthitid][2] - xc, points[lasthitid][3] - yc);
+  Double_t Fi2 = CalculatePhi(v, p2, alpha2, Phi0, charge);
+  Fi2 = CompareToPreviousPhi(Fi2, Fi1, charge); 
+
+  Double_t scos = - charge * radius * Fi2; // scos = -q * R * phi CHECK :-)GOOD!
+  
   double z = (fitm * scos + fitp);
- 
+
   double versor[2];
   versor[0] = xc - points[lasthitid][2];
   versor[1] = yc - points[lasthitid][3];
