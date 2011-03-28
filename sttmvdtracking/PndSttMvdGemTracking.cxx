@@ -880,7 +880,7 @@ Bool_t PndSttMvdGemTracking::PropagateToGemPlaneAsHelix(PndTrack *sttmvd, FairTr
   
   double px = - charge * radius * 0.006 * versor[1];
   double py =   charge * radius * 0.006 * versor[0];
-  double pz = charge * TMath::Sqrt(px * px + py * py) * fitm; // CHECK ?
+  double pz = TMath::Sqrt(px * px + py * py) * fitm; // CHECK ?
 
   // error approx  
   Double_t covMat[15];
@@ -1710,103 +1710,108 @@ FairTrackParP PndSttMvdGemTracking::SetStartParameters(PndTrack *sttmvd, PndTrac
 			     TVector3(1., 0., 0.), TVector3(0., 1., 0.));
   }
   else {
-    startpar = lastpar;
-
-    /*
-      bool startpoint = false;
-      PndGemStation *station = fGemParameters->GetStation(0);
-      PndGemSensor *sensor = station->GetSensor(0); 
-      TVector3 position;
-      TVector3 momentum;
-      //     if(fabs(lastpar.GetPosition().X()) > 42. || fabs(lastpar.GetPosition().Y()) > 42. || 
-      //        lastpar.GetMomentum().Mag() < 0.15 ||
-      //        lastpar.GetPosition().Z() > sensor->GetZ0())
-      {
+    //    startpar = lastpar;
+    cout << "from PR " << endl;
+    lastpar.GetPosition().Print();
+    lastpar.GetMomentum().Print();
+    
+    bool startpoint = false;
+    PndGemStation *station = fGemParameters->GetStation(0);
+    PndGemSensor *sensor = station->GetSensor(0); 
+    TVector3 position;
+    TVector3 momentum;
+    //     if(fabs(lastpar.GetPosition().X()) > 42. || fabs(lastpar.GetPosition().Y()) > 42. || 
+    //        lastpar.GetMomentum().Mag() < 0.15 ||
+    //        lastpar.GetPosition().Z() > sensor->GetZ0())
+    {
       startpoint = Prefit(sttmvd, sttmvdCand, position, momentum);
-      }
+    }
       
-      if(startpoint == true) {
+    if(startpoint == true) {
       // find plane orthogonal to mom
       TVector3 iver = momentum; iver.SetMag(1.);
       TVector3 jver = momentum.Orthogonal(); jver.SetMag(1.);
       TVector3 kver = iver.Cross(jver); kver.SetMag(1.);
       // by hand
       startpar = FairTrackParP(position,
-      momentum,
-      TVector3(lastpar.GetDX(), lastpar.GetDY(), 3.), 
-      TVector3(lastpar.GetDPx(), lastpar.GetDPy(), lastpar.GetDPz()),
-      lastpar.GetQ(),
-      position, jver, kver);
-      }
-      else {
+			       momentum,
+			       TVector3(lastpar.GetDX(), lastpar.GetDY(), 3.), 
+			       TVector3(lastpar.GetDPx(), lastpar.GetDPy(), lastpar.GetDPz()),
+			       lastpar.GetQ(),
+			       position, jver, kver);
+    }
+    else {
       // by hand
       startpar = FairTrackParP(lastpar.GetPosition(),
-      lastpar.GetMomentum(),
-      TVector3(lastpar.GetDX(), lastpar.GetDY(), 3.), 
-      TVector3(lastpar.GetDPx(), lastpar.GetDPy(), lastpar.GetDPz()),
-      lastpar.GetQ(),
-      lastpar.GetOrigin(), lastpar.GetJVer(), lastpar.GetKVer());
-      }
+			       lastpar.GetMomentum(),
+			       TVector3(lastpar.GetDX(), lastpar.GetDY(), 3.), 
+			       TVector3(lastpar.GetDPx(), lastpar.GetDPy(), lastpar.GetDPz()),
+			       lastpar.GetQ(),
+			       lastpar.GetOrigin(), lastpar.GetJVer(), lastpar.GetKVer());
+    }
       
-      // kalman filter between the lastpar and the last hit
+    // kalman filter between the lastpar and the last hit
       
-      // Int_t nsttmvdhits = sttmvdCand->GetNHits(); 
-      //     PndTrackCandHit candhit = sttmvdCand->GetSortedHit(nsttmvdhits - 1);
-      //     Int_t iHit = candhit.GetHitId();
-      //     Int_t detId = candhit.GetDetId();
+    // Int_t nsttmvdhits = sttmvdCand->GetNHits(); 
+    //     PndTrackCandHit candhit = sttmvdCand->GetSortedHit(nsttmvdhits - 1);
+    //     Int_t iHit = candhit.GetHitId();
+    //     Int_t detId = candhit.GetDetId();
       
-      //     // CHECK    
-      //     if(detId != FairRootManager::Instance()->GetBranchId("STTHit")) return lastpar;
+    //     // CHECK    
+    //     if(detId != FairRootManager::Instance()->GetBranchId("STTHit")) return lastpar;
     
-      //     PndSttHit *stthit = (PndSttHit*) fSttHitArray->At(iHit);
-      //     if(!stthit) return lastpar;
+    //     PndSttHit *stthit = (PndSttHit*) fSttHitArray->At(iHit);
+    //     if(!stthit) return lastpar;
       
-      //     // extrapolated point
-      //     TMatrixT<double> extrap(5, 1);
-      //     extrap[0][0] = lastpar.GetQp();
-      //     extrap[1][0] = lastpar.GetTV();
-      //     extrap[2][0] = lastpar.GetTW();
-      //     extrap[3][0] = lastpar.GetV();
-      //     extrap[4][0] = lastpar.GetW();
+    //     // extrapolated point
+    //     TMatrixT<double> extrap(5, 1);
+    //     extrap[0][0] = lastpar.GetQp();
+    //     extrap[1][0] = lastpar.GetTV();
+    //     extrap[2][0] = lastpar.GetTW();
+    //     extrap[3][0] = lastpar.GetV();
+    //     extrap[4][0] = lastpar.GetW();
     
-      //     TMatrixT<double> extrap_cov(5, 5);
-      //     Double_t covMat[15], covMat55[5][5]; 
-      //     lastpar.GetCov(covMat); // CHECK
-      //     FairGeaneUtil util;
-      //     util.FromVec15ToMat25(covMat, covMat55);
-      //     for(int icov = 0; icov < 5; icov++) for(int jcov = 0; jcov < 5; jcov++) extrap_cov(icov, jcov) = covMat55[icov][jcov];
+    //     TMatrixT<double> extrap_cov(5, 5);
+    //     Double_t covMat[15], covMat55[5][5]; 
+    //     lastpar.GetCov(covMat); // CHECK
+    //     FairGeaneUtil util;
+    //     util.FromVec15ToMat25(covMat, covMat55);
+    //     for(int icov = 0; icov < 5; icov++) for(int jcov = 0; jcov < 5; jcov++) extrap_cov(icov, jcov) = covMat55[icov][jcov];
 
-      //     // measurement matrix
-      //     TMatrixT<double> H(1, 5);
-      //     H[0][0] = 0.;
-      //     H[0][1] = 0.;
-      //     H[0][2] = 0.;
-      //     H[0][3] = 1.;
-      //     H[0][4] = 0.;
+    //     // measurement matrix
+    //     TMatrixT<double> H(1, 5);
+    //     H[0][0] = 0.;
+    //     H[0][1] = 0.;
+    //     H[0][2] = 0.;
+    //     H[0][3] = 1.;
+    //     H[0][4] = 0.;
     
-      //     TMatrixT<double> measurement(1, 1);
-      //     measurement[0][0] = stthit->GetIsochrone();
+    //     TMatrixT<double> measurement(1, 1);
+    //     measurement[0][0] = stthit->GetIsochrone();
 
-      //     TMatrixT<double> measurement_cov(1, 1);
-      //     measurement_cov[0][0] = stthit->GetIsochroneError() * stthit->GetIsochroneError();
+    //     TMatrixT<double> measurement_cov(1, 1);
+    //     measurement_cov[0][0] = stthit->GetIsochroneError() * stthit->GetIsochroneError();
     
-      //     TMatrixT<double> kalman(5, 1);
-      //     TMatrixT<double> kalman_cov(5, 5);
+    //     TMatrixT<double> kalman(5, 1);
+    //     TMatrixT<double> kalman_cov(5, 5);
     
-      //     // kalman 
-      //     Kalman(extrap, measurement, H, extrap_cov, measurement_cov, kalman, kalman_cov);
+    //     // kalman 
+    //     Kalman(extrap, measurement, H, extrap_cov, measurement_cov, kalman, kalman_cov);
     
-      //     Double_t kalmanCov15[15], kalmanCov55[5][5];
-      //     for(int icov = 0; icov < 5; icov++) for(int jcov = 0; jcov < 5; jcov++) kalmanCov55[icov][jcov] = kalman_cov(icov, jcov);
-      //     util.FromMat25ToVec15(kalmanCov55, kalmanCov15);
+    //     Double_t kalmanCov15[15], kalmanCov55[5][5];
+    //     for(int icov = 0; icov < 5; icov++) for(int jcov = 0; jcov < 5; jcov++) kalmanCov55[icov][jcov] = kalman_cov(icov, jcov);
+    //     util.FromMat25ToVec15(kalmanCov55, kalmanCov15);
     
    
-      //     startpar.SetTrackPar(kalman[3][0], kalman[4][0], 
-      // 			  kalman[1][0], kalman[2][0], kalman[0][0], 
-      // 			  kalmanCov15, // CHECK!!
-      // 			  lastpar.GetOrigin(), lastpar.GetIVer(), lastpar.GetJVer(), lastpar.GetKVer(), 
-      // 			  lastpar.GetSPU()); // CHECK recalculate spu
-      */
+    //     startpar.SetTrackPar(kalman[3][0], kalman[4][0], 
+    // 			  kalman[1][0], kalman[2][0], kalman[0][0], 
+    // 			  kalmanCov15, // CHECK!!
+    // 			  lastpar.GetOrigin(), lastpar.GetIVer(), lastpar.GetJVer(), lastpar.GetKVer(), 
+    // 			  lastpar.GetSPU()); // CHECK recalculate spu
+    cout << "from prefit " << endl;
+    startpar.GetPosition().Print();
+    startpar.GetMomentum().Print();
+       
   }
 
   return startpar;
@@ -2002,7 +2007,7 @@ Int_t PndSttMvdGemTracking::GetClosestOnFirst(FairTrackParP* gempar, Int_t ipos,
 
 
 
-
+// CHECK :-)GOOD!
 // -------------- IntersectionFinder  --------------------------------------
 Bool_t PndSttMvdGemTracking::Prefit(PndTrack *sttmvdTrack, PndTrackCand *sttmvdCand, TVector3 &lastpos, TVector3 &lastmom)
 {
@@ -2166,7 +2171,7 @@ Bool_t PndSttMvdGemTracking::Prefit(PndTrack *sttmvdTrack, PndTrackCand *sttmvdC
   
   double px = - charge * radius * 0.006 * versor[1];
   double py =   charge * radius * 0.006 * versor[0];
-  double pz = charge * TMath::Sqrt(px * px + py * py) * fitm; // CHECK ?
+  double pz = TMath::Sqrt(px * px + py * py) * fitm; // CHECK :-)GOOD!
 
   lastpos.SetXYZ(points[lasthitid][2], points[lasthitid][3], z);
   lastmom.SetXYZ(px, py, pz);
