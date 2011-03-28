@@ -90,7 +90,9 @@ class PndMultiClassMlpTrain : public PndMvaTrainer
   PndMultiClassMlpTrain(PndMultiClassMlpTrain const& oth);
   PndMultiClassMlpTrain& operator=(PndMultiClassMlpTrain const& oth);
   
+  // Initialize mlp object and set the options.
   void InitMlp();
+  // Add the variables to the TMVA factory object.
   void AddVariables();
   
   //==============================
