@@ -836,6 +836,7 @@ Bool_t PndSttMvdGemTracking::PropagateToGemPlane(FairTrackParP *tmppar, FairTrac
   return prop;
 }
 
+// CHECK :-)GOOD!
 Bool_t PndSttMvdGemTracking::PropagateToGemPlaneAsHelix(PndTrack *sttmvd, FairTrackParP *gempar, Int_t ipos) {
   
   TVector3 *sensorpos = (TVector3*) fSensPositions->At(ipos);
