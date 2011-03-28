@@ -11,6 +11,8 @@
 //Local includes
 #include "PndMvaClassifier.h"
 
+// Root && TMVA
+#include "TMVA/Reader.h"
 
 class PndMultiClassMlpClassify : public PndMvaClassifier
 {
@@ -21,16 +23,28 @@ class PndMultiClassMlpClassify : public PndMvaClassifier
 			   std::vector<std::string> const& varNames);
   
   ~PndMultiClassMlpClassify();
-
+  
   void GetMvaValues( std::vector<float> EvtData,
 		     std::map<std::string, float>& result );
+  
   std::string *Classify( std::vector<float> EvtData );
-
+  
+  void Initialize();
   //______________ Protected__________________
- protected:
+  //protected:
   //______________ Private ____________________
  private:
   PndMultiClassMlpClassify(PndMultiClassMlpClassify const& oth);
   PndMultiClassMlpClassify& operator=(PndMultiClassMlpClassify const& oth);
+  
+  void SetOptions();
+
+  //======================
+  TMVA::Reader* m_reader;
+
+  std::string m_weightsFile;
+  std::string m_readerOptions;
+  std::string m_methodName;
+  std::vector<float> m_EventContainer;
 };
 #endif

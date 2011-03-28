@@ -1,5 +1,4 @@
-# Create a library called "libMva" which includes the source files given in
-# the array .
+# Create a library called "libMva".
 
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR}
@@ -24,28 +23,8 @@ ${ROOT_LIBRARY_DIR}
 )
  
 link_directories( ${LINK_DIRECTORIES})
-
-set(MVA_SRCS
-PndMvaClassifier.cpp
-PndMvaDataSet.cpp
-PndMvaTrainer.cpp
-PndMvaUtil.cpp
-PndMvaVarPCATransform.cpp
-Clusters/PndMvaCluster.cpp
-KNN/PndStdKnnClassify.cpp
-KNN/PndPrzWindowClassify.cpp
-LVQ1/PndLVQClassify.cpp
-LVQ1/PndLVQTrain.cpp
-TMVAkd_KNN/PndKnnClassify.cpp
-TMVAkd_KNN/PndKnnTrain.cpp
-TMVA_MLP/PndMultiClassMlpTrain.cpp
-# TMVAkd_KNN/PndProjectedKNN.cpp
-)
-
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${MVA_SRCS}" "${INCLUDE_DIRECTORIES}" MVA_RULES)
-endif(RULE_CHECKER_FOUND)
-
+# ###################################
+# Set HEADER files
 set(MVA_HEADERS
 PndMvaClassifier.h
 PndMvaDataSet.h
@@ -61,9 +40,33 @@ LVQ1/PndLVQClassify.h
 LVQ1/PndLVQTrain.h
 TMVAkd_KNN/PndKnnClassify.h
 TMVAkd_KNN/PndKnnTrain.h
-TMVA_MLP/PndMultiClassMlpTrain.h
 # TMVAkd_KNN/PndProjectedKNN.h
+# TMVA_MLP/PndMultiClassMlpTrain.h
+# TMVA_MLP/PndMultiClassMlpClassify.h
 )
+
+# Set SOURCE files
+set(MVA_SRCS
+PndMvaClassifier.cpp
+PndMvaDataSet.cpp
+PndMvaTrainer.cpp
+PndMvaUtil.cpp
+PndMvaVarPCATransform.cpp
+Clusters/PndMvaCluster.cpp
+KNN/PndStdKnnClassify.cpp
+KNN/PndPrzWindowClassify.cpp
+LVQ1/PndLVQClassify.cpp
+LVQ1/PndLVQTrain.cpp
+TMVAkd_KNN/PndKnnClassify.cpp
+TMVAkd_KNN/PndKnnTrain.cpp
+# TMVAkd_KNN/PndProjectedKNN.cpp
+# TMVA_MLP/PndMultiClassMlpTrain.cpp
+# TMVA_MLP/PndMultiClassMlpClassify.cpp
+)
+# ###################################
+if(RULE_CHECKER_FOUND)
+  CHECK_RULES("${MVA_SRCS}" "${INCLUDE_DIRECTORIES}" MVA_RULES)
+endif(RULE_CHECKER_FOUND)
 
 # fill list of header files from list of source files
 # by exchanging the file extension

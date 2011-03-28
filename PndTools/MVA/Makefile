@@ -156,3 +156,4 @@ clean:
 
 distclean: clean
 	rm -f PndMVAWeights/*
+	cd macro; $(MAKE) cleanall

@@ -14,10 +14,8 @@
 // TMVA && ROOT
 #include "TMVA/Factory.h"
 #include "TMVA/Config.h"
-//#include "TMVA/MethodMLP.h"
-//#include "TMVA/Tools.h"
 
-//! Interface definition for Multiclass MLP trainers.
+// Interface definition for Multiclass MLP trainers.
 class PndMultiClassMlpTrain : public PndMvaTrainer
 {
   //----------------------------------------
@@ -27,19 +25,19 @@ class PndMultiClassMlpTrain : public PndMvaTrainer
 			std::vector<std::string> const& ClassNames, 
 			std::vector<std::string> const& VarNames,
 			bool trim = true);
-
+  
   ~PndMultiClassMlpTrain();
   
   void Train();
   void Initialize();
-
+  
   inline void SetJobName       (std::string const& name);
   inline void SetTransformation(std::string const& tran);
   inline void SetMlpOptions    (std::string const& opts);
   inline void SetEvalFileName  (std::string const& fname);
   inline void SetWeightsOutDir (std::string const& dirName);
   inline void SetEvaluation(bool evaluate);
-
+  
   inline std::string const& GetJobName()const;
   inline std::string const& GetTransformation()const;
   inline std::string const& GetMlpOptions()const;
@@ -56,10 +54,10 @@ class PndMultiClassMlpTrain : public PndMvaTrainer
   // To avoid mistakes.
   PndMultiClassMlpTrain(PndMultiClassMlpTrain const& oth);
   PndMultiClassMlpTrain& operator=(PndMultiClassMlpTrain const& oth);
-
+  
   void InitMlp();
   void AddVariables();
-
+  
   //==============================
   TMVA::Factory* m_factory;
   TFile* EvalFile;

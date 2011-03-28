@@ -21,7 +21,7 @@ int main(int argc, char** argv)
   // Class names
   labels.push_back("electron");
   labels.push_back("pion");
-  labels.push_back("kaon");
+  //labels.push_back("kaon");
   //labels.push_back("muon");
   //labels.push_back("proton");
   
