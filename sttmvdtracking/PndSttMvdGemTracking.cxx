@@ -1724,7 +1724,7 @@ FairTrackParP PndSttMvdGemTracking::SetStartParameters(PndTrack *sttmvd, PndTrac
       {
       startpoint = Prefit(sttmvd, sttmvdCand, position, momentum);
       }
-      
+
       if(startpoint == true) {
       // find plane orthogonal to mom
       TVector3 iver = momentum; iver.SetMag(1.);
@@ -2432,14 +2432,13 @@ Bool_t PndSttMvdGemTracking::IntersectionFinder(Double_t xc, Double_t yc, Double
   return true;
 }
 
-
+// CHECK :-)GOOD!
 Bool_t PndSttMvdGemTracking::ZFit(TMatrixT<double> points, Int_t charge, Double_t xc, Double_t yc, Double_t radius, Double_t &fitm, Double_t &fitp)
 {
 
   // recalculate z - s fit only from MVD
   Double_t Sxx, Sx, Sz, Sxz, S1z;
   Double_t Detz = 0.;
-
   
   Sx = 0.;
   Sz = 0.;
@@ -2456,9 +2455,10 @@ Bool_t PndSttMvdGemTracking::ZFit(TMatrixT<double> points, Int_t charge, Double_
 
   Double_t Phi0 = TMath::ATan2((y0 - yc),(x0 - xc));
   Double_t scos = 0;
-  
 
   Int_t nhits = points.GetRowUpb() + 1;
+
+  Double_t Fi_pre = 0.; 
   for(int ihit = 0; ihit < nhits; ihit++)
     {
       Int_t detId = (Int_t) points[ihit][1];
@@ -2467,13 +2467,17 @@ Bool_t PndSttMvdGemTracking::ZFit(TMatrixT<double> points, Int_t charge, Double_
       if(detId == FairRootManager::Instance()->GetBranchId("STTHit") ||
 	 detId == FairRootManager::Instance()->GetBranchId("GEMHit")) continue;
 
-      // track length?
-      scos = charge * radius * TMath::ATan2((points[ihit][3] - y0) * TMath::Cos(Phi0) - (points[ihit][2] - x0) * TMath::Sin(Phi0) ,
-					   radius + (points[ihit][2] - x0) * TMath::Cos(Phi0) + (points[ihit][3] - y0) * TMath::Sin(Phi0));
-      //  cout << charge << " zfit " << scos << endl;
+      TVector2 v(x0 - xc, y0 - yc); 
+      Double_t alpha = TMath::ATan2(points[ihit][3] - y0 + radius * TMath::Sin(Phi0), points[ihit][2] - x0 + radius * TMath::Cos(Phi0));
+      TVector2 p(points[ihit][2] - xc, points[ihit][3] - yc);
+      Double_t Fi = CalculatePhi(v, p, alpha, Phi0, charge);
+      if(ihit > 0) Fi = CompareToPreviousPhi(Fi, Fi_pre, charge); 
+      Fi_pre = Fi;
+      scos = - charge * radius * Fi; // scos = -q * R * phi CHECK :-)GOOD!
+      //    cout << charge << " zfit " << scos << endl;
       
       Double_t sigz2 = points[ihit][7] * points[ihit][7];  // CHECK
- //      cout << "scosl " << scos << " " << points[ihit][4] << " " << sigz2 <<  " " <<  points[ihit][7] << endl;
+      //      cout << "scosl " << scos << " " << points[ihit][4] << " " << sigz2 <<  " " <<  points[ihit][7] << endl;
       Sx = Sx + (scos /(sigz2));
       Sz = Sz + (points[ihit][4]/(sigz2));
       Sxz = Sxz + ((scos * points[ihit][4])/(sigz2));
@@ -2490,10 +2494,11 @@ Bool_t PndSttMvdGemTracking::ZFit(TMatrixT<double> points, Int_t charge, Double_
   fitm = (1/Detz)*(S1z*Sxz - Sx*Sz);
   //  cout << "z fit " << fitm << " " << fitp << endl;
 
+
   return true;
 }
 
-
+// CHECK :-)GOOD!
 Bool_t PndSttMvdGemTracking::GetInitialParams(PndTrack * sttmvd, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &fitm, Double_t &fitp)
 {
   FairTrackParP recopar = sttmvd->GetParamFirst();
