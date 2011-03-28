@@ -529,9 +529,6 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 	if(towhichplane[ipos] == false) { countnohitonplane[ipos]++; continue; }
 
 	// ...else propagate here
-
-
-	PropagateToGemPlaneAsHelix(sttmvd, gempar, ipos);
 	Bool_t prop = PropagateToGemPlane(&tmppar, gempar, ipos);
 
 	if (prop == kFALSE) {
@@ -849,7 +846,8 @@ Bool_t PndSttMvdGemTracking::PropagateToGemPlaneAsHelix(PndTrack *sttmvd, FairTr
   Int_t charge = sttmvd->GetParamFirst().GetQ();
 
   // z = fitp + scos * fitm  
-  Double_t scos = charge * (z - fitp) / fitm;  // CHECK fitm (z = fitp + charge * fitm * scos)
+  Double_t scos = (z - fitp) / fitm;  // CHECK :-)GOOD!
+  double Fi = - charge * scos / radius;   // CHECK :-)GOOD!
   //  cout << "z1 " << z << " " << scos << " " << fitm << " " << fitp << endl;
 
   // x0 y0
@@ -860,13 +858,15 @@ Bool_t PndSttMvdGemTracking::PropagateToGemPlaneAsHelix(PndTrack *sttmvd, FairTr
   Double_t y0 = d * TMath::Sin(phi);
   Double_t Phi0 = TMath::ATan2((y0 - yc),(x0 - xc));
   
-  Double_t x = x0 + radius * (TMath::Cos(Phi0 - charge * scos / radius) - TMath::Cos(Phi0));
-  Double_t y = y0 + radius * (TMath::Sin(Phi0 - charge * scos / radius) - TMath::Sin(Phi0));
-
-  scos = charge * radius * TMath::ATan2((y - y0) * TMath::Cos(Phi0) - (x - x0) * TMath::Sin(Phi0) ,
-						 radius + (x - x0) * TMath::Cos(Phi0) + (y - y0) * TMath::Sin(Phi0));
-
-  z = (charge * fitm * scos + fitp);  // CHECK 
+  Double_t x = x0 + radius * (TMath::Cos(Phi0 + Fi) - TMath::Cos(Phi0));
+  Double_t y = y0 + radius * (TMath::Sin(Phi0 + Fi) - TMath::Sin(Phi0));
+  
+  TVector2 v(x0 - xc, y0 - yc); 
+  Double_t alpha = TMath::ATan2(y - y0 + radius * TMath::Sin(Phi0), x - x0 + radius * TMath::Cos(Phi0));
+  TVector2 p(x - xc, y - yc);
+  Fi = CalculatePhi(v, p, alpha, Phi0, charge);
+  scos = - charge * Fi * radius; // CHECK :-)GOOD!
+  z = fitm * scos + fitp;  // CHECK 
 
   //  cout << "z2 " <<  z << " " << scos << " " << fitm << " " << fitp <<  endl;
 
