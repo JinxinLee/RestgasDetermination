@@ -5,6 +5,7 @@ rootlogon()
   
   // Load Panda libraries
   if(isLibrary("libDpmEvtGen"))gSystem->Load("libDpmEvtGen");
+  if(isLibrary("libpythia8"))gSystem->Load("libpythia8");
   if(isLibrary("libFlukaResults"))gSystem->Load("libFlukaResults");
   if(isLibrary("libGeoBase"))gSystem->Load("libGeoBase");
   if(isLibrary("libParBase"))gSystem->Load("libParBase");
@@ -21,6 +22,7 @@ rootlogon()
   if(isLibrary("libTrkBase"))gSystem->Load("libTrkBase");
   if(isLibrary("libgeneralTools"))gSystem->Load("libgeneralTools");
   if(isLibrary("libPndData"))gSystem->Load("libPndData");
+  if(isLibrary("libbuffers"))gSystem->Load("libbuffers");
   if(isLibrary("libField"))gSystem->Load("libField");
   if(isLibrary("libPassive"))gSystem->Load("libPassive");
   if(isLibrary("libGen"))gSystem->Load("libGen");
@@ -30,8 +32,9 @@ rootlogon()
   if(isLibrary("libtrackrep"))gSystem->Load("libtrackrep");
   if(isLibrary("libgenfitAdapters"))gSystem->Load("libgenfitAdapters");
   if(isLibrary("libriemann"))gSystem->Load("libriemann");
-  if(isLibrary("libtpc"))gSystem->Load("libtpc"); 
-  if(isLibrary("libtpcreco"))gSystem->Load("libtpcreco");
+  if(isLibrary("libTpcBase"))gSystem->Load("libTpcBase"); 
+  if(isLibrary("libTpc"))gSystem->Load("libTpc"); 
+  if(isLibrary("libTpcReco"))gSystem->Load("libTpcReco");
   if(isLibrary("libStt"))gSystem->Load("libStt");
   if(isLibrary("libSttReco"))gSystem->Load("libSttReco");
   if(isLibrary("libSds"))gSystem->Load("libSds");
@@ -39,6 +42,7 @@ rootlogon()
   if(isLibrary("libMvd"))gSystem->Load("libMvd");
   if(isLibrary("libMvdReco"))gSystem->Load("libMvdReco");
   if(isLibrary("libMvdTrk"))gSystem->Load("libMvdTrk");
+  if(isLibrary("libSttMvdTracking"))gSystem->Load("libSttMvdTracking");
   if(isLibrary("libGem"))gSystem->Load("libGem");
   if(isLibrary("libTof"))gSystem->Load("libTof");
   if(isLibrary("libDrcProp"))gSystem->Load("libDrcProp");
@@ -61,7 +65,8 @@ rootlogon()
   if(isLibrary("libGlobal"))gSystem->Load("libGlobal");
   if(isLibrary("libMCMatch"))gSystem->Load("libMCMatch");
   if(isLibrary("libMva"))gSystem->Load("libMva");
-	
+
+  //gSystem->Load("libMemStat");
 }
 
 Bool_t isLibrary(const char* libName)
