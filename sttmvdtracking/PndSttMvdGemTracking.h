@@ -97,6 +97,8 @@ class PndSttMvdGemTracking : public FairTask {
   Bool_t ZFit(TMatrixT<double> points, Int_t charge, Double_t xc, Double_t yc, Double_t radius, Double_t &fitm, Double_t &fip);
   Bool_t GetInitialParams(PndTrack * sttmvd, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &fitm, Double_t &fitp);
   Double_t CalculatePhi(TVector2 v, TVector2 p, double alpha, double Phi0, int charge);
+  Double_t CompareToPreviousPhi(Double_t Fi, Double_t Fi_pre, int charge);
+
 
   // CHECK delete this when everything is ok
   void UseMonteCarlo() {  fUseMC = kTRUE; }
