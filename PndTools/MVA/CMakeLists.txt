@@ -41,7 +41,7 @@ LVQ1/PndLVQTrain.h
 TMVAkd_KNN/PndKnnClassify.h
 TMVAkd_KNN/PndKnnTrain.h
 TMVA_MLP/PndMultiClassMlpTrain.h
-TMVA_MLP/PndMultiClassMlpClassify.h
+# TMVA_MLP/PndMultiClassMlpClassify.h
 
 # TMVAkd_KNN/PndProjectedKNN.h
 )
@@ -61,7 +61,7 @@ LVQ1/PndLVQTrain.cpp
 TMVAkd_KNN/PndKnnClassify.cpp
 TMVAkd_KNN/PndKnnTrain.cpp
 TMVA_MLP/PndMultiClassMlpTrain.cpp
-TMVA_MLP/PndMultiClassMlpClassify.cpp
+# TMVA_MLP/PndMultiClassMlpClassify.cpp
 
 # TMVAkd_KNN/PndProjectedKNN.cpp
 )
