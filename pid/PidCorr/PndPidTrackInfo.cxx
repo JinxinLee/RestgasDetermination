@@ -33,8 +33,17 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
     TVector3 momentum, pocaz;
     FairGeanePro *fPro0 = new FairGeanePro();
     FairTrackParH *fRes= new FairTrackParH();
-    fPro0->SetPoint(TVector3(0,0,0));
-    fPro0->PropagateToPCA(1, -1);
+    
+    // track back to Origin
+    // [ralfk: changed to propagate to z axis - 03/2011]
+    //fPro0->SetPoint(TVector3(0,0,0));
+    //fPro0->PropagateToPCA(1, -1);
+    // Propagatetrack back to z Axis
+    fPro0->PropagateToPCA(2, -1);// track back to z axis
+    TVector3 ex1(0.,0.,-50.); // virtual wire, dimensions chosen arbitrarily
+    TVector3 ex2(0.,0.,100.); // we expect fast decaying tracks to be close to that
+    fPro0->SetWire(ex1,ex2);
+    
     Bool_t rc =  fPro0->Propagate(helix, fRes, fPidHyp*charge);	
     if (!rc)
     {
@@ -83,19 +92,51 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
     
     // Adding the helix parameters to the candidate (TFitParams)
     // It is nice to know at analysis stage
+    //rho helix: (D0,Phi0,rho(omega),Z0,tan(dip))
+    //fair helix: (q/p,lambda, phi, y_perp, z_perp)
+    Double_t Q=fRes->GetQ();
+    //if(0==Q) ??? break/return?;
     Double_t pnt[3], Bf[3];
     pnt[0]=pocaz.X();
     pnt[1]=pocaz.Y();
     pnt[2]=pocaz.Z(); 
     FairRunAna::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
     Double_t B = Bf[0]*Bf[0]+Bf[1]*Bf[1]+Bf[2]*Bf[2];
+    Double_t qBc = -0.299792458*B*Q;
+    Double_t icL = 1 / cos(fRes->GetLambda()); // inverted for practical reasons (better to multiply than to divide)
+    Double_t icLs = icL*icL;
     Double_t helixparams[5];
-    helixparams[0]=pocaz.Perp(); //D0
+    helixparams[0]=fRes->GetY_sc() ; //D0
     helixparams[1]=fRes->GetPhi(); //phi0
-    helixparams[2]=-0.299792458*B*charge/momentum.Perp(); //omega=rho=1/R[cm]=-2.998*B[kGs]*Q[e]/p_perp[GeV/c] 
-    helixparams[3]=pocaz.Z(); //z0
-    helixparams[4]=1/tan(fRes->GetLambda()); //lambda(fair)=theta; lambda(averey)=cot(theta)
+    helixparams[2]=qBc/(fRes->GetMomentum().Perp()); //omega=rho=1/R[cm]=-2.998*B[kGs]*Q[e]/p_perp[GeV/c] 
+    helixparams[3]=fRes->GetZ_sc()*icL; //z0
+    helixparams[4]=tan(fRes->GetLambda()); //lambda(averey)=cot(theta)=tan(lambda(geane))
+    //helixparams[0]=pocaz.Perp(); //D0
+    //helixparams[1]=fRes->GetPhi(); //phi0
+    //helixparams[2]=-0.299792458*B*charge/momentum.Perp(); //omega=rho=1/R[cm]=-2.998*B[kGs]*Q[e]/p_perp[GeV/c] 
+    //helixparams[3]=pocaz.Z(); //z0
+    //helixparams[4]=1/tan(fRes->GetLambda()); //lambda(fair)=theta; lambda(averey)=cot(theta)
     pidCand->SetHelixParams(helixparams);    
+    Double_t fairhelixcov[15];
+    fRes->GetCov(fairhelixcov);    
+    Double_t rhohelixcov[15];
+    // in the poca to z axis yperp=D0, x_perp^2+z_perp^2 = z_perp/cos(Lambda)= Z0 
+    rhohelixcov[0]  = fairhelixcov[12];                    // sigma^2 D0
+    rhohelixcov[1]  = fairhelixcov[10];                    // cov D0 - Phi0
+    rhohelixcov[2]  = fairhelixcov[3]  * qBc * icL;        // cov D0 - rho
+    rhohelixcov[3]  = fairhelixcov[13] * icL;              // cov D0 - Z0
+    rhohelixcov[4]  = fairhelixcov[7]  * icLs;             // cov D0 - tan(dip)
+    rhohelixcov[5]  = fairhelixcov[9];                     // sigma^2 Phi0 
+    rhohelixcov[6]  = fairhelixcov[2]  * qBc * icL;        // cov Phi0 - rho
+    rhohelixcov[7]  = fairhelixcov[11] * icL;              // cov Phi0 - Z0
+    rhohelixcov[8]  = fairhelixcov[6]  * icLs;             // cov Phi0 - tan(dip)
+    rhohelixcov[9]  = fairhelixcov[0]  * qBc * qBc * icLs; // sigma^2 rho
+    rhohelixcov[10] = fairhelixcov[4]  * qBc * icLs;       // cov rho - Z0
+    rhohelixcov[11] = fairhelixcov[1]  * qBc * icL * icLs; // cov rho - tan(dip)
+    rhohelixcov[12] = fairhelixcov[14] * icLs;             // sigma^2 Z0
+    rhohelixcov[13] = fairhelixcov[8]  * icL * icLs;       //cov Z0 - tan(dip)
+    rhohelixcov[14] = fairhelixcov[5]  * icLs * icLs;      // sigma^2 tan(dip) - from 
+    pidCand->SetHelixCov(rhohelixcov);
   }
   else
   {

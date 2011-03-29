@@ -345,8 +345,8 @@ Bool_t PndAnalysis::Propagator(int mode, TCandidate* cand, TVector3* mypoint)
     geaneProp->SetPoint(*mypoint);
   } else if(2==mode){
     geaneProp->PropagateToPCA(2, -1);// track back to z axis
-    TVector3 ex1(0.,0.,-10.);
-    TVector3 ex2(0.,0.,10.);
+    TVector3 ex1(0.,0.,-50.); // virtual wire of arbitrarily chosen size
+    TVector3 ex2(0.,0.,100.);
     geaneProp->SetWire(ex1,ex2);
   } else return kFALSE;
   
@@ -387,7 +387,7 @@ Bool_t PndAnalysis::Propagator(int mode, TCandidate* cand, TVector3* mypoint)
   
   Double_t M=cand->M();
   Double_t Q=myResult->GetQ();
-  if(0==Q)return kFALSE;
+  if(0==Q) return kFALSE;
   A=myResult->GetQp()/Q;
   A=A*A;
   A=A*A*(1+M*M*A);
@@ -397,7 +397,84 @@ Bool_t PndAnalysis::Propagator(int mode, TCandidate* cand, TVector3* mypoint)
   
   cand->SetCov7(covPosMom);
   
-  if(fVerbose>1)Info("Propagator  ","Succsess=%b",rc);
+  // write helix parameters & helix cov to TCandidate/TFitParams
+  Double_t pnt[3], Bf[3];
+  pnt[0]=pos.X();
+  pnt[1]=pos.Y();
+  pnt[2]=pos.Z(); 
+  FairRunAna::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
+  Double_t B = Bf[0]*Bf[0]+Bf[1]*Bf[1]+Bf[2]*Bf[2];
+  Double_t qBc = -0.299792458*B*Q;
+  Double_t icL = 1 / cos(myResult->GetLambda()); // inverted for practical reasons (better to multiply than to divide)
+  Double_t icLs = icL*icL;
+  Float_t helixparams[5];
+  helixparams[0]=myResult->GetY_sc() ; //D0
+  helixparams[1]=myResult->GetPhi(); //phi0
+  helixparams[2]=qBc/(myResult->GetMomentum().Perp()); //omega=rho=1/R[cm]=-2.998*B[kGs]*Q[e]/p_perp[GeV/c] 
+  helixparams[3]=myResult->GetZ_sc()*icL; //z0
+  helixparams[4]=tan(myResult->GetLambda()); //lambda(averey)=cot(theta)=tan(lambda(geane))
+  cand->SetHelixParms(helixparams);    
+  Double_t fairppcov[6][6];
+  myResult->GetMARSCov(fairppcov);
+  Double_t fairhelixcov[15];
+  myResult->GetCov(fairhelixcov);
+  
+  //rho helix: (D0,Phi0,rho(omega),Z0,tan(dip))
+  //fair helix: (q/p,lambda, phi, y_perp, z_perp)
+  
+  Float_t rhohelixcov[15];
+  if(mode==2){
+    // in the poca to z axis yperp=D0, x_perp^2+z_perp^2 = z_perp/cos(Lambda)= Z0 
+    rhohelixcov[0]  = fairhelixcov[12];                    // sigma^2 D0
+    rhohelixcov[1]  = fairhelixcov[10];                    // cov D0 - Phi0
+    rhohelixcov[2]  = fairhelixcov[3]  * qBc * icL;        // cov D0 - rho
+    rhohelixcov[3]  = fairhelixcov[13] * icL;              // cov D0 - Z0
+    rhohelixcov[4]  = fairhelixcov[7]  * icLs;             // cov D0 - tan(dip)
+    rhohelixcov[5]  = fairhelixcov[9];                     // sigma^2 Phi0 
+    rhohelixcov[6]  = fairhelixcov[2]  * qBc * icL;        // cov Phi0 - rho
+    rhohelixcov[7]  = fairhelixcov[11] * icL;              // cov Phi0 - Z0
+    rhohelixcov[8]  = fairhelixcov[6]  * icLs;             // cov Phi0 - tan(dip)
+    rhohelixcov[9]  = fairhelixcov[0]  * qBc * qBc * icLs; // sigma^2 rho
+    rhohelixcov[10] = fairhelixcov[4]  * qBc * icLs;       // cov rho - Z0
+    rhohelixcov[11] = fairhelixcov[1]  * qBc * icL * icLs; // cov rho - tan(dip)
+    rhohelixcov[12] = fairhelixcov[14] * icLs;             // sigma^2 Z0
+    rhohelixcov[13] = fairhelixcov[8]  * icL * icLs;       //cov Z0 - tan(dip)
+    rhohelixcov[14] = fairhelixcov[5]  * icLs * icLs;      // sigma^2 tan(dip) - from 
+  }
+  cand->SetHelixCov(rhohelixcov);    
+
+  //if(fVerbose>2) {
+  std::cout<<" :::::::::::  Printout in PndAnalysis::Propagator() :::::::::::  "<<std::endl;
+  
+  //std::cout<<"Start Params:"<<std::endl;
+  //myStart->Print();
+  std::cout<<"calculated helix Params:"
+  <<"\nD0    ="<<helixparams[0]
+  <<"\nPhi0  ="<<helixparams[1]
+  <<"\nRho   ="<<helixparams[2]
+  <<"\nZ0    ="<<helixparams[3]
+  <<"\ncotTh ="<<helixparams[4]
+  <<std::endl;
+  
+  std::cout<<"SC system params:"
+  <<"\nq/p    = "<<myResult->GetQp()
+  <<"\nLambda = "<<myResult->GetLambda()
+  <<"\nPhi    = "<<myResult->GetPhi()
+  <<"\nX_sc   = "<<myResult->GetX_sc()
+  <<"\nY_sc   = "<<myResult->GetY_sc()
+  <<"\nZ_sc   = "<<myResult->GetZ_sc()
+  <<std::endl;  
+ 
+  std::cout<<"some values:"
+  <<"\n Z0 ?= z_sc / cos(lambda)  = "<< myResult->GetZ_sc() / cos(myResult->GetLambda())
+  <<"\n Z0 ?= sqrt(x_sc^2+z_sc^2) = "<<sqrt(myResult->GetX_sc()*myResult->GetX_sc()+myResult->GetZ_sc()*myResult->GetZ_sc())
+  <<std::endl;
+      
+  // COMMENT: 
+  // When taking the Trackparams in the POCA to the z-axis, the SC system from GEANE matches the common helix params easier, i.e:
+  // D0 = y_sc and Z0 = sqrt(x_sc^2 + z_sc^2) = z_sc*tan(Lambda)
+  
+  if(fVerbose>1)Info("Propagator  ","Succsess=%i",rc);
   return kTRUE;
 }
 

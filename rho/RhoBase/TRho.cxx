@@ -41,7 +41,7 @@ using namespace std;
 
 TRho::TRho(const char* t) : 
 fVersion(RHOVERSION), fVersionDate(RHODATE),fEventStore(TString("")),fParamStore(TString("")), 
-fField(1.51007),
+fField(2.),//TODO: Put PANDA Field here... old:fField(1.51007),
 fEventManager(0),fEventReader(0),fEventWriter(0),
 fDirectoryManager(0),fPersistenceManager(0),
 fParameterManager(0),fCandListManager(0),

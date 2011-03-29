@@ -56,7 +56,7 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   TVector3  GetLastHit() const{return TVector3(fLastHitX,fLastHitY,fLastHitZ);}
 	
   const Float_t* GetErrorP7() const{return fErrP7;}
-  const Float_t*  GetParams() const{return fParams;}
+  const Float_t* GetParams() const{return fParams;}
   const Float_t* GetCov() const{return fCov;}
   TMatrixD& Cov7() const;
   TMatrixD& P4Cov() const ;
@@ -173,7 +173,8 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   void	SetMcIndex(int idx) {fMcIndex=idx; }
   void  SetTrackIndex(int idx) {fTrackIndex=idx; }	
 
-  void SetHelixParams(Double_t *par) {if (par!=0) for (int i=0; i<5;i++) fParams[i] = par[i];}
+  void  SetHelixParams(Double_t *par) {if (par!=0) for (int i=0; i<5;i++) fParams[i] = (Float_t)par[i];}
+  void  SetHelixCov(Double_t* cov){if (cov!=0) for (int i=0; i<15;i++) fCov[i] = (Float_t)cov[i];}
 
   
   // ************************

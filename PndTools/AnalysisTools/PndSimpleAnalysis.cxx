@@ -195,7 +195,7 @@ void PndSimpleAnalysis::InitGenericLists()
   fGenericListNames.push_back("Neutral"); 
   fGenericListNames.push_back("McTruth");
 
-  int i=0;
+  unsigned int i=0;
   
   for (i=0;i<fGenericListNames.size();i++)
     fListMap[fGenericListNames[i]]=i;

@@ -215,13 +215,13 @@ nCons(0)
   SetCharge(a.GetCharge());
   
   if (!fFastMode) {
-    const Float_t *err = a.GetErrorP7();
-    //const Float_t *cov = a.GetCov();
-    const Float_t *par = a.GetParams();
+    const Float_t *err = a.GetErrorP7(); // 4 momentum & point
+    const Float_t *cov = a.GetCov(); // helix cov
+    const Float_t *par = a.GetParams(); // helix params
     int i;
     if (err!=0) for (i=0; i<MATRIXSIZE;i++) fErrP7[i] = err[i];
     if (par!=0) for (i=0; i<5;i++) fParams[i] = par[i];
-    //if (cov!=0) for (i=0; i<15;i++) fCov[i] = cov[i];
+    if (cov!=0) for (i=0; i<15;i++) fCov[i] = cov[i];
   }
   
   SetMarker(n);

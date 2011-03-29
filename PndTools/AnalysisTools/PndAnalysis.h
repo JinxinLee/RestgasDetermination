@@ -37,6 +37,10 @@ public:
   Bool_t PropagateToZAxis(TCandidate* cand);
   Bool_t PropagateToPoint(TCandidate* cand, TVector3* mypoint);
   
+  //FIXME: This is an aweful solution to access the correct
+  //track array from a fitter object. [R.K.03'11]
+  TClonesArray* GetTrackArrayPointer() const {return fTracks;};
+  
 private:
   
   void Init();
