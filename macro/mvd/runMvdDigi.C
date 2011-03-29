@@ -39,17 +39,17 @@
   //    Set parameters in pandroot/macro/params/mvd.digi.par  
 
   // -----   Default Digitization   ---------------------------------------
-//  PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
-//  mvddigi->SetVerbose(2);
-//  fRun->AddTask(mvddigi);
+  PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
+  mvddigi->SetVerbose(2);
+  fRun->AddTask(mvddigi);
   
   // -----   OR custom settings to switch off something   -----------------
 //  PndMvdStripHitProducer* mvdStripProd = new PndMvdStripHitProducer();
 //  mvdStripProd->SetVerbose(iVerbose);
 //  fRun->AddTask(mvdStripProd);
-  PndMvdHybridHitProducer* mvdPixProd = new PndMvdHybridHitProducer();
-  mvdPixProd->SetVerbose(2);
-  fRun->AddTask(mvdPixProd);
+//  PndMvdHybridHitProducer* mvdPixProd = new PndMvdHybridHitProducer();
+//  mvdPixProd->SetVerbose(2);
+//  fRun->AddTask(mvdPixProd);
 //  PndMvdNoiseProducer* mvdNoiseMaker = new PndMvdNoiseProducer();
 //  mvdNoiseMaker->SetVerbose(iVerbose);
 //  fRun->AddTask(mvdNoiseMaker);
