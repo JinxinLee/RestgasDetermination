@@ -43,7 +43,7 @@ TMVAkd_KNN/PndKnnTrain.h
 # TMVAkd_KNN/PndProjectedKNN.h
 )
 # MLP Headers.
-SET (MLP_HEADR
+SET (TMVA_ALG_HEADR
 TMVA_MLP/PndMultiClassMlpTrain.h
 TMVA_MLP/PndMultiClassMlpClassify.h
 )
@@ -65,19 +65,19 @@ TMVAkd_KNN/PndKnnTrain.cpp
 # TMVAkd_KNN/PndProjectedKNN.cpp
 )
 # MLP Sources.
-SET (MLP_SOURCE
+SET (TMVA_ALG_SOURCE
 TMVA_MLP/PndMultiClassMlpTrain.cpp
 TMVA_MLP/PndMultiClassMlpClassify.cpp
 )
 # If we can build mlp into the lib
 SET(ROOT_MIN_VERSION "5.28/00")
-# find_package(ROOT REQUIRED)
+find_package(ROOT REQUIRED)
 IF( NOT ROOT_INSTALLED_VERSION_TOO_OLD )
    MESSAGE("-- <MVA_INFO> Your ROOT version can handle multiClass MLP.")
-   SET(MVA_HEADERS ${MVA_HEADERS} ${MLP_HEADR})
-   SET(MVA_SRCS ${MVA_SRCS} ${MLP_SOURCE})
+   SET(MVA_HEADERS ${MVA_HEADERS} ${TMVA_ALG_HEADR})
+   SET(MVA_SRCS ${MVA_SRCS} ${TMVA_ALG_SOURCE})
 ELSE ()
-   MESSAGE("-- <MVA_INFO> Your ROOT version is too old for MLP.")
+   MESSAGE("-- <MVA_WARN> Your ROOT version is too old for MLP.")
 ENDIF ( NOT ROOT_INSTALLED_VERSION_TOO_OLD )
 
 # ###################################
