@@ -7,7 +7,7 @@
 #include "PndMvdClusterTask.h"
 #include "PndMvdPixelClusterTask.h"
 #include "PndMvdStripClusterTask.h"
-
+// #include "PndMvdTimeWalkCorrTask.h"
 
 PndMvdClusterTask::PndMvdClusterTask() :
 PndBlackBoxTask("Mvd Hit Reconstruction BlackBox Task")
@@ -15,6 +15,7 @@ PndBlackBoxTask("Mvd Hit Reconstruction BlackBox Task")
   fPersistance = kTRUE;
   this->Add(new PndMvdPixelClusterTask());
   this->Add(new PndMvdStripClusterTask());
+  // this->Add(new PndMvdTimeWalkCorrTask());   // Task to correct Digi-TimeStamp from TimeWalk-Effect. Corrected digis will be saved in output-file
   SetPersistance(fPersistance);
 }
 // -------------------------------------------------------------------------
