@@ -30,6 +30,7 @@ class PndSdsPixel
 		  void SetCharge(Double_t charge) {fCharge = charge;};
 		  void SetSensorID(Int_t sensorID) {fSensorID = sensorID;};
 		  void SetFE (Int_t fe) {fFe = fe;};
+		  void SetAddNoise (Double_t addnoise) {fAddNoise=addnoise;};
 		  
 		  Int_t GetCol() const {return fCol;};
 		  Int_t GetRow() const {return fRow;};
@@ -42,6 +43,7 @@ class PndSdsPixel
 		                          return fMCIndex[0]; 
 		                        return -2; 
 		                  }; 
+          Double_t GetAddNoise() {return fAddNoise;};
 			  
 		  void AddCharge(Double_t charge){fCharge+= charge;};
 		  void AddMCIndex(int i){fMCIndex.push_back(i);};
@@ -61,6 +63,7 @@ class PndSdsPixel
 		  Double_t fCharge;
 		  Int_t fSensorID;
 		  std::vector<int> fMCIndex;		///< List of indices of the corresponding MC hits
+		  Double_t fAddNoise;               //  Variable for testing
 };
 
 
