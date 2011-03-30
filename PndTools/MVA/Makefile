@@ -74,7 +74,7 @@ Classifiers:
 	$(MAKE) -C LVQ1;
 	$(MAKE) -C TMVAkd_KNN;
 	$(MAKE) -C Clusters;
-	$(MAKE) -C TMVA_MLP;
+	$(MAKE) -C TMVA_MCL;
 #	$(MAKE) -C TMVA_PDE_FOAM;
 
 examples: PndMvaUtil PndMvaDataSet PndMvaClassifier Classifiers
@@ -152,7 +152,7 @@ clean:
 	cd LVQ1; $(MAKE) clean
 	cd TMVAkd_KNN; $(MAKE) clean
 	cd TMVA_PDE_FOAM; $(MAKE) clean
-	cd TMVA_MLP; $(MAKE) clean
+	cd TMVA_MCL; $(MAKE) clean
 
 distclean: clean
 	rm -f PndMVAWeights/*

@@ -13,7 +13,7 @@ ${CMAKE_SOURCE_DIR}/PndTools/MVA/Clusters
 ${CMAKE_SOURCE_DIR}/PndTools/MVA/KNN
 ${CMAKE_SOURCE_DIR}/PndTools/MVA/LVQ1
 ${CMAKE_SOURCE_DIR}/PndTools/MVA/TMVAkd_KNN
-${CMAKE_SOURCE_DIR}/PndTools/MVA/TMVA_MLP
+${CMAKE_SOURCE_DIR}/PndTools/MVA/TMVA_MCL
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -42,10 +42,10 @@ TMVAkd_KNN/PndKnnClassify.h
 TMVAkd_KNN/PndKnnTrain.h
 # TMVAkd_KNN/PndProjectedKNN.h
 )
-# MLP Headers.
+# MCL Headers.
 SET (TMVA_ALG_HEADR
-TMVA_MLP/PndMultiClassMlpTrain.h
-TMVA_MLP/PndMultiClassMlpClassify.h
+TMVA_MCL/PndMultiClassMlpTrain.h
+TMVA_MCL/PndMultiClassMlpClassify.h
 )
 
 # Set SOURCE files
@@ -64,20 +64,20 @@ TMVAkd_KNN/PndKnnClassify.cpp
 TMVAkd_KNN/PndKnnTrain.cpp
 # TMVAkd_KNN/PndProjectedKNN.cpp
 )
-# MLP Sources.
+# MCL Sources.
 SET (TMVA_ALG_SOURCE
-TMVA_MLP/PndMultiClassMlpTrain.cpp
-TMVA_MLP/PndMultiClassMlpClassify.cpp
+TMVA_MCL/PndMultiClassMlpTrain.cpp
+TMVA_MCL/PndMultiClassMlpClassify.cpp
 )
 # If we can build mlp into the lib
 SET(ROOT_MIN_VERSION "5.28/00")
 find_package(ROOT REQUIRED)
 IF( NOT ROOT_INSTALLED_VERSION_TOO_OLD )
-   MESSAGE("-- <MVA_INFO> Your ROOT version can handle multiClass MLP.")
+   MESSAGE("-- <MVA_INFO> Your ROOT version can handle TMVA multiClass.")
    SET(MVA_HEADERS ${MVA_HEADERS} ${TMVA_ALG_HEADR})
    SET(MVA_SRCS ${MVA_SRCS} ${TMVA_ALG_SOURCE})
 ELSE ()
-   MESSAGE("-- <MVA_WARN> Your ROOT version is too old for MLP.")
+   MESSAGE("-- <MVA_WARN> Your ROOT version is too old for Muliclass.")
 ENDIF ( NOT ROOT_INSTALLED_VERSION_TOO_OLD )
 
 # ###################################
