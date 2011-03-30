@@ -13,8 +13,10 @@
 #include "PndSdsPixelDigiPar.h"
 #include <vector>
 #include "PndSdsDigiPixel.h"
+#include "PndSdsDigiPixelMCInfo.h"
 #include "PndSdsTotDigiPar.h"
 #include "PndSdsTimeWalkCorrSimple.h"
+
 
 class PndSdsTimeWalkCorrTask : public PndSdsTask {
 public:
@@ -29,12 +31,16 @@ protected:
 	Bool_t fPersistance;
 	TClonesArray* fDigiArray;
 	TClonesArray* fDigiCorrArray;
+	TClonesArray* fDigiMCArray;
     PndSdsPixelDigiPar* fDigiPar;
     PndSdsTotDigiPar* fDigiTotPar;
     PndSdsTimeWalkCorr* fTimeWalkCorr;
     Double_t fTimeCorrection;
     Int_t fVerbose;
+    std::vector<Int_t> fIndex;
 
+    Bool_t fAdditionalInfo;
+    TClonesArray* fDigiAdditionalInfoArray;
 
     ClassDef(PndSdsTimeWalkCorrTask, 1);
 };
