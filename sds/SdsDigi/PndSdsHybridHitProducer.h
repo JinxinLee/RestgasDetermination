@@ -13,6 +13,7 @@
 #include "PndSdsDigiPixel.h"
 #include "FairGeoVector.h"
 #include "FairGeoTransform.h"
+#include "FairMCEventHeader.h"
 #include "TVector3.h"
 #include "TRandom.h"
 #include "TGeoMatrix.h"
@@ -58,6 +59,7 @@ class PndSdsHybridHitProducer : public PndSdsTask
 protected:
   
   Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
+  Bool_t fDigiPixelMCInfo; // switch to turn on/off storing additional MC Info of Digis
   
 
   /** Input array of PndSdsMCPoints **/
@@ -66,9 +68,14 @@ protected:
   /** Output array of PndSdsDigis **/
   TClonesArray* fPixelArray;
 
+  /** Output array of PndSdsDigiPixelMCInfo **/
+  TClonesArray* fPixelMCArray;
+
+
   PndSdsPixelDigiPar* fDigiPar;
   PndSdsTotDigiPar* fTotDigiPar;
   PndSdsChargeConversion* fChargeConverter;
+  FairMCEventHeader* fMCEventHeader;
  // fDetectorType fMCPointType;
 
   void Register();

@@ -20,6 +20,7 @@
 #include "PndSdsCalcPixel.h"
 #include "PndSdsCalcFePixel.h"
 #include "PndSdsDigiPixel.h"
+#include "PndSdsDigiPixelMCInfo.h"
 
 #include "PndDetectorList.h"
 
@@ -36,6 +37,7 @@ PndSdsTask("SDS Hybrid Hit Producer")
   if(fVerbose>0) Info("PndSdsHybridHitProducer","SDS Hybrid Digi Producer created, Parameters will be taken from RTDB");
   fPersistance = kTRUE;
   fGeoH=NULL;
+  fDigiPixelMCInfo = kFALSE;
 }
 // -------------------------------------------------------------------------
 
@@ -47,6 +49,7 @@ PndSdsTask(name)
   fOverwriteParams = kFALSE;
   fPersistance = kTRUE;
   fGeoH = PndGeoHandling::Instance();
+  fDigiPixelMCInfo = kFALSE;
   if(fVerbose>0) Info("PndSdsHybridHitProducer","%s created, Parameters will be taken from RTDB",name);
 }
 // -------------------------------------------------------------------------
@@ -67,6 +70,7 @@ PndSdsTask("SDS Hybrid Digi Producer (PndSdsHybridHitProducer)")
   frows = 104;
   fOverwriteParams = kTRUE;
   fPersistance = kTRUE;
+  fDigiPixelMCInfo = kFALSE;
   fGeoH = PndGeoHandling::Instance();
   if(fVerbose>0) Info("PndSdsHybridHitProducer","SDS Hybrid Digi Producer created, Parameters will be overwritten in RTDB");
 }
@@ -115,7 +119,14 @@ InitStatus PndSdsHybridHitProducer::Init()
     << "No SDSPoint array!" << std::endl;
     return kERROR;
   }
-  
+
+  fMCEventHeader= (FairMCEventHeader*)ioman->GetObject("MCEventHeader.");
+  if ( ! fMCEventHeader )
+  {
+	    std::cout << "-W- PndSdsHybridHitProducer::Init: "
+	    << "No MCEventHeader!" << std::endl;
+  }
+
   // Create and register output array
   //  fHitArray = new TClonesArray("PndSdsHit");
   //  ioman->Register("MVDHit", "MVD", fHitArray, kTRUE);
@@ -125,6 +136,18 @@ InitStatus PndSdsHybridHitProducer::Init()
   if(fVerbose>1) Info("Init","Registering this branch: %s/%s",fFolderName.Data(),fOutBranchName.Data());
   ioman->Register(fOutBranchName, fFolderName, fPixelArray, fPersistance);
   
+  if(fDigiPixelMCInfo==kTRUE)
+  {
+
+
+  if(fVerbose>1) Info("Init","Registering this branch: %s/%s","PndMVD","MVDPixelDigisMCInfo");
+  fPixelMCArray = new TClonesArray("PndSdsDigiPixelMCInfo");
+
+  ioman->Register("MVDPixelDigisMCInfo", "PndMVD", fPixelMCArray, fPersistance);
+
+  std::cout << "fPixelMCArray definiert " << std::endl;
+  }
+
   if(fOverwriteParams==kTRUE){
     fDigiPar->SetXPitch(flx);
     fDigiPar->SetYPitch(fly);
@@ -155,8 +178,15 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
 {
   if(fVerbose>3) Info("Exec","Start");
   // Reset output array
+
   if ( ! fPixelArray )
     Fatal("Exec", "No PixelArray");
+
+	if(fDigiPixelMCInfo==kTRUE)
+	{
+			if ( ! fPixelMCArray )
+			Fatal("Exec", "No PixelMCArray");
+	}
   fPixelList.clear();
   fGeoH->SetVerbose(fVerbose);  
   // Declare some variables
@@ -199,6 +229,7 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
       std::cout << "Energy: " << point->GetEnergyLoss() << std::endl;
       std::cout << point->GetSensorID() << std::endl;
       std::cout << fGeoH->GetPath(point->GetSensorID()) << std::endl;
+      std::cout << "Time since Event started: " << point->GetTime() << std::endl;
     }
     std::vector<PndSdsPixel> myFePixels;
     if (   fGeoH->GetPath(point->GetSensorID()).Contains("Pixel")
@@ -237,15 +268,31 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
       
     }//endif pixel
   }   // Loop over MCPoints
+  int test=0;
   for (unsigned int iPix = 0; iPix < fPixelList.size(); iPix++){
-    if (fPixelList[iPix].GetCharge()<=fthreshold) continue;
+
+	  std::cout << "fPixelList.size()" <<  fPixelList.size() << std::endl;
+  if (fPixelList[iPix].GetCharge()<=fthreshold) continue;
+  	  point = (PndSdsMCPoint*) fPointArray->At(fPixelList[iPix].GetMCIndex()[0]);
+	if(fDigiPixelMCInfo==kTRUE)
+    {
+		new ((*fPixelMCArray)[iFePixel]) PndSdsDigiPixelMCInfo(fPixelList[iPix].GetMCIndex(), kMVDHitsPixel, fPixelList[iPix].GetSensorID() ,fPixelList[iPix].GetFE(),
+				fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
+				fChargeConverter->ChargeToDigiValue(fPixelList[iPix].GetCharge()), fInBranchId, fChargeConverter->GetTimeStamp(point->GetTime(), fPixelList[iPix].GetCharge(),fMCEventHeader->GetT()),fPixelList[iPix].GetCharge()-fPixelList[iPix].GetAddNoise(),fPixelList[iPix].GetAddNoise(), fChargeConverter->GetTimeWalk(fPixelList[iPix].GetCharge()),0,point->GetTime(),fPixelList[iPix].GetCharge()  );
+		std::cout << "-I- PndSdsHybridHitProducer::Exec: TimeStamp: " << fChargeConverter->GetTimeStamp(point->GetTime(), fPixelList[iPix].GetCharge(),fMCEventHeader->GetT()) << " point->GetTime: " <<  point->GetTime() << " EventHeader->GetT() " << fMCEventHeader->GetT() << std::endl;
+		test++;
+		std::cout <<"fPixelList.AddNosie"<< fPixelList[iPix].GetAddNoise() << std::endl;
+    }
 	  if (fVerbose > 1)  std::cout << fPixelList[iPix] << std::endl;
     new ((*fPixelArray)[iFePixel++])
     PndSdsDigiPixel( fPixelList[iPix].GetMCIndex(), kMVDHitsPixel, fPixelList[iPix].GetSensorID() ,fPixelList[iPix].GetFE(),
-                    fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
-                    fChargeConverter->ChargeToDigiValue( fPixelList[iPix].GetCharge()), fInBranchId);
+    				fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
+    				fChargeConverter->ChargeToDigiValue(fPixelList[iPix].GetCharge()), fInBranchId, fChargeConverter->GetTimeStamp(point->GetTime(), fPixelList[iPix].GetCharge(),fMCEventHeader->GetT()));
   }
   
+
+
+
   fChargeConverter->EndExecute();
   // Event summary
   
@@ -253,6 +300,8 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
     std::cout << "-I- PndSdsHybridHitProducer: " << nPoints << " PndSdsMCPoints, "
     << fPixelHits << " Digi created." << " " << iFePixel
     << "  (event "<<fEventNr++ <<")"<< std::endl;
+
+
   }
   if(fVerbose>3) Info("Exec","Loop MC points");
 }
@@ -384,6 +433,10 @@ void PndSdsHybridHitProducer::FinishEvent()
 {
   // called after all Tasks did their Exex() and the data is copied to the file
   fPixelArray->Delete();
+	if(fDigiPixelMCInfo==kTRUE)
+		{
+		fPixelMCArray->Delete();
+		}
   FinishEvents();
 }
 // -------------------------------------------------------------------------
