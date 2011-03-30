@@ -18,6 +18,7 @@ PndMvdHybridHitProducer::PndMvdHybridHitProducer() :
   fEventNr = 0;
   fOverwriteParams = kFALSE;
   fPersistance = kTRUE;
+  fDigiPixelMCInfo = kFALSE;
   if(fVerbose>2) std::cout << "MVD Hybrid Digi Producer created, Parameters will be taken from RTDB" << std::endl;
 
 }
