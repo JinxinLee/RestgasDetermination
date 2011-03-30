@@ -1,4 +1,4 @@
-void reco_complete_stt()
+void reco_mvd()
 {
   // Macro created 20/09/2006 by S.Spataro
   // It loads a simulation file and digitize hits for EMC
