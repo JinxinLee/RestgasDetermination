@@ -16,6 +16,7 @@ std::vector<PndSdsPixel> PndSdsCalcFePixel::CalcFEHits()
 		row -= dummy * fNrows;
 		PndSdsPixel myPixel(fSensorHits[i].GetSensorID(), fe, col, row,
 									  fSensorHits[i].GetCharge());
+		myPixel.SetAddNoise(fSensorHits[i].GetAddNoise());
 		fFeHits.push_back(myPixel);
 	}
 	return fFeHits;

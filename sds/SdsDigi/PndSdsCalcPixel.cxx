@@ -7,7 +7,7 @@ PndSdsCalcPixel::PndSdsCalcPixel()
   fCperL = -1;
   fQuad = kQuadUNDEF;
   fNextPixel = kPixelUNDEF;
-  fVerboseLevel = 1;
+  fVerboseLevel = 2;
 }
 
 PndSdsCalcPixel::PndSdsCalcPixel(Double_t w, Double_t l, Double_t threshold, Double_t noise)
@@ -16,7 +16,7 @@ PndSdsCalcPixel::PndSdsCalcPixel(Double_t w, Double_t l, Double_t threshold, Dou
   fPixelLength= l;
   fThreshold = threshold;
   fNoise = noise;
-  fVerboseLevel = 1;
+  fVerboseLevel = 2;
 }
 
 
@@ -208,6 +208,8 @@ switch (fQuad){
 
   fPos = OutPoint;
   
+  fActivePixel.SetAddNoise(addNoise);
+
   if (depCharge > fThreshold){
     fActivePixel.SetCharge(depCharge);
   }
@@ -218,6 +220,7 @@ switch (fQuad){
   
   if (fVerboseLevel > 1){
     std::cout << fActivePixel << std::endl;
+   // std::cout << fActivePixel.GetAddNoise() << std::endl;
   }
       
 }
