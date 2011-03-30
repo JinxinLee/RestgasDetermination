@@ -43,26 +43,25 @@ Double_t PndSdsTotChargeConversion::ChargeToDigiValue(Double_t charge){ //return
 		Error("ConvertChargeToDigiValue(Double_t charge)","const. current is less or equal zero -> now set to 60 e/ns");
 		SetParameter("fa",60.);
 	}
-  
+
 	Q = charge;
 	Qt = GetParameter("fth");
-  
   //Error handling: if there is a parameter leading to a division by zero Q=Qt=1 is set to prevent this
-  
+
 	if (Qt < 0){
 		Error("ConvertChargeToDigiValue(Double_t charge)","threshold is less than zero -> now set to 0 eV");
 		Qt = 0.;
 	}
-  
+
 	if ((Q <= Qt) or (Q <= 0)){
 		Warning("ConvertChargeToDigiValue(Double_t charge)","charge is equal or less than threshold -> zero TOT");
 		Q = 1.;
 		Qt = 1.;
 	}
-	
+
 	t1e = (GetParameter("ftr")*Qt/Q+ftimeoffset);							//exact time when signal is over threshold
 	t2e = (Q-Qt)/GetParameter("fa")+ftimeoffset+GetParameter("ftr");		//exact time when signal is again below threshold
-  
+
 	//return (t2e-t1e);						//turn off clock
 	return GetTotWC();
 }
@@ -70,13 +69,13 @@ Double_t PndSdsTotChargeConversion::ChargeToDigiValue(Double_t charge){ //return
 Double_t PndSdsTotChargeConversion::GetRelativeError(Double_t Charge)
 {
   // formula from D.Pohl/FZJ his sources?
-  // dQ_rec     a             /               (Q_t - a*t_c)/2  +  (Q - Q_t)(t_c/Q - 1/a)*a/2              \. 
+  // dQ_rec     a             /               (Q_t - a*t_c)/2  +  (Q - Q_t)(t_c/Q - 1/a)*a/2              \.
   // ------  =  - * dt_max * | 1 + ----------------------------------------------------------------------  |
   //  Q_rec     2             \    sqrt{ [ (Q_t - a*t_c)/2 + (Q - Q_t)(t_c/Q - 1/a)*a/2 ]^2 + a*Q_t*t_c } /
   //
-  //            a     1      /           2Qt - Qt*Qc/Q - Q                \. 
+  //            a     1      /           2Qt - Qt*Qc/Q - Q                \.
   //         =  - * ----- * | 1 + ---------------------------------------  |
-  //            2   f_clk    \    sqrt{ [2Qt - Qt*Qc/Q - Q]^2 + 4*Qc*Qt } / 
+  //            2   f_clk    \    sqrt{ [2Qt - Qt*Qc/Q - Q]^2 + 4*Qc*Qt } /
   //
 
 	Q = Charge;
@@ -95,6 +94,64 @@ Int_t PndSdsTotChargeConversion::GetTimeStamp(Double_t time)
   Int_t temp = (Int_t)(time / ftimestep); // [clockcycles]
   time = temp*ftimestep + ftimestep; //[ns] to the following clock tick
   return (Int_t)TMath::Ceil(time); // [ns] with 1 ns number precision, casting cuts trailing digits, like floor()
+}
+
+Double_t PndSdsTotChargeConversion::GetTimeStamp(Double_t time, Double_t Charge,Double_t MCEventTime)
+{
+	ftimewalk=GetTimeWalk(Charge);
+
+	Double_t totaltime = ftimewalk;
+	Double_t eventtime =  MCEventTime;
+	Double_t flighttime = time;
+
+	totaltime += flighttime; // [ns]
+	totaltime += eventtime;  // [ns]
+
+	Double_t digitizedtime = DigitizeTime(totaltime);
+
+	  if (fVerboseLevel>-1){
+	   std::cout<<"  +++charge: "<< Q <<" "<<std::endl;
+	   std::cout<<"  time since event: "<< time <<" "<<std::endl;
+	   std::cout<<"  timewalk: "<< ftimewalk <<std::endl;
+	   std::cout<<"  total time: "<< totaltime <<std::endl;
+	   std::cout<<"  digitized total time:"<< digitizedtime << "+++"<<std::endl;
+	  }
+	 return digitizedtime ; //digitalisiert
+//	 return totaltime; // nicht digitalisiert
+}
+
+
+Double_t PndSdsTotChargeConversion::DigitizeTime(Double_t time)
+{
+	Int_t temp = (time) / ftimestep;
+	time =  temp *ftimestep + ftimestep;
+
+	std::cout << "temp " << temp << " time " << time << std::endl;
+
+	return time;
+}
+
+Double_t PndSdsTotChargeConversion::GetTimeWalk(Double_t Charge) { // [ns]
+	if (GetParameter("fa") <= 0){
+			Error("GetTimeWalk(Double_t charge)","const. current is less or equal zero -> now set to 60 e/ns");
+			SetParameter("fa",60.);
+		}
+
+	if (Qt < 0){
+		Error("GetTimeWalk(Double_t charge)","threshold is less than zero -> now set to 0 eV");
+		Qt = 0.;
+	}
+
+	if ((Q <= Qt) or (Q <= 0)){
+		Warning("GetTimeWalk(Double_t charge)","charge is equal or less than threshold -> zero TOT -> infinity TimeWalk");
+		Q = 1.;
+		Qt = 100000.;
+	}
+
+	Q = Charge;
+	Qt = GetParameter("fth");
+	ftimewalk = (GetParameter("ftr")*Qt/Q);
+	return ftimewalk;
 }
 
 Double_t PndSdsTotChargeConversion::GetTotWC(){ //calculates start time, stop time with a clock
@@ -127,3 +184,5 @@ Double_t PndSdsTotChargeConversion::DigiValueToCharge(Double_t digivalue){ //ret
 	}
 	return (-GetParameter("fa")*GetParameter("ftr")+GetParameter("fth")+digivalue*GetParameter("fa"))/2.+sqrt( pow( (GetParameter("fa")*GetParameter("ftr")-GetParameter("fth")-digivalue*GetParameter("fa")),2) / 4. + GetParameter("fa")* GetParameter("fth") * GetParameter("ftr"));
 }
+
+

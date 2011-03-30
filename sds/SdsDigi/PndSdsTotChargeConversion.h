@@ -45,9 +45,12 @@ class PndSdsTotChargeConversion : public PndSdsChargeConversion{
   
 	virtual Double_t ChargeToDigiValue(Double_t charge);
 	virtual Double_t DigiValueToCharge(Double_t digivalue);
-	Double_t GetPileUpTime(Double_t charge);		//returns the time the capacitor is loaded and therefore the time the hit MVD is blind for other events
-  virtual Double_t GetRelativeError(Double_t Charge);
-  virtual Int_t GetTimeStamp(Double_t time);
+	virtual Double_t GetPileUpTime(Double_t charge);		//returns the time the capacitor is loaded and therefore the time the hit MVD is blind for other events
+	virtual Double_t GetRelativeError(Double_t Charge);
+  	virtual Int_t GetTimeStamp(Double_t time);
+  	virtual Double_t GetTimeStamp(Double_t tof, Double_t charge, Double_t MCEventTime);
+  	virtual Double_t GetTimeWalk(Double_t Charge);
+
   
   private :
   Double_t fthreshold;		//[e]
@@ -57,9 +60,10 @@ class PndSdsTotChargeConversion : public PndSdsChargeConversion{
   Double_t fstarttime;		//absolute point when TOT begins [ns]
   Double_t fstoptime;			//absolute point when TOT ends [ns]
   Double_t ftimeoffset;		//difference between rising clock edge and when detector gets hit [ns]
+  Double_t ftimewalk;        //exact time point when signal is over threshold
   Int_t fVerboseLevel;
   Double_t GetTotWC();		//assumes a clock which results in a quantized TOT
-  
+  Double_t DigitizeTime(Double_t time);
   TRandom2 fRand;
   
   ClassDef(PndSdsTotChargeConversion, 1);

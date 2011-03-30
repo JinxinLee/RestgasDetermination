@@ -23,7 +23,8 @@ class PndSdsChargeConversion : public TObject
     virtual Double_t DigiValueToCharge(Double_t digi) = 0;
     virtual Double_t DigiValueToCharge(PndSdsDigi &digi);
     virtual Double_t GetRelativeError(Double_t Charge) = 0;
-    virtual Int_t GetTimeStamp(Double_t time) = 0;
+    virtual Double_t GetTimeStamp(Double_t tof, Double_t charge, Double_t MCEventTime) = 0;
+    virtual Double_t GetTimeWalk(Double_t charge){};
     
     Double_t GetParameter(TString param){
       it=fParams.find(param);
@@ -44,6 +45,6 @@ class PndSdsChargeConversion : public TObject
     ConvType fConvType;
     
     
-    ClassDef(PndSdsChargeConversion,1);
+    ClassDef(PndSdsChargeConversion,2);
   };
 #endif /* PNDSDSCHARGECONVERSION_H */
