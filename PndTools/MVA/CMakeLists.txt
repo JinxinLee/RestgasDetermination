@@ -46,6 +46,8 @@ TMVAkd_KNN/PndKnnTrain.h
 SET (TMVA_ALG_HEADR
 TMVA_MCL/PndMultiClassMlpTrain.h
 TMVA_MCL/PndMultiClassMlpClassify.h
+TMVA_MCL/PndMultiClassBdtTrain.h
+TMVA_MCL/PndMultiClassBdtClassify.h
 )
 
 # Set SOURCE files
@@ -68,6 +70,8 @@ TMVAkd_KNN/PndKnnTrain.cpp
 SET (TMVA_ALG_SOURCE
 TMVA_MCL/PndMultiClassMlpTrain.cpp
 TMVA_MCL/PndMultiClassMlpClassify.cpp
+TMVA_MCL/PndMultiClassBdtTrain.cpp
+TMVA_MCL/PndMultiClassBdtClassify.h
 )
 # If we can build mlp into the lib
 SET(ROOT_MIN_VERSION "5.28/00")
