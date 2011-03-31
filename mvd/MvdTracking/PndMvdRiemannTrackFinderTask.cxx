@@ -63,8 +63,8 @@ InitStatus PndMvdRiemannTrackFinderTask::Init()
   }
   else {
 	  std::cout << "-W- PndMvdRiemannTrackFinderTask::Init: " << "No Branch Names given with AddHitBranch(TString branchName)! Standard BranchNames taken!" << std::endl;
-	  AddBranch("MVDHitsPixel");
-	  AddBranch("MVDHitsStrip");
+	  AddHitBranch("MVDHitsPixel");
+	  AddHitBranch("MVDHitsStrip");
   }
 
 
