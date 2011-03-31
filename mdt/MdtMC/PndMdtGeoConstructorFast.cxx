@@ -24,14 +24,14 @@
 #include "PndDetectorList.h"
 #include "PndStack.h"
 #include "PndMdt.h"
-#include "PndMdtGeoConstructorTo.h"
+#include "PndMdtGeoConstructorFast.h"
 
 
 using namespace std;
 
 
-// -----   Public method ConstructGeometryTo   -----------------------------
-void PndMdt::ConstructGeometryTo() 
+// -----   Public method ConstructGeometryFast   -----------------------------
+void PndMdt::ConstructGeometryFast() 
 {
   TString vname = "cave";
   vname = vname.Strip();
@@ -278,7 +278,7 @@ void PndMdt::ConstructGeometryTo()
   mdt->AddNode(mdtBarrel,1);
     
   //MdtEndcap
-  if (fEndcap=="Torino" || fEndcap=="torino")
+  if (fEndcap=="Fast" || fEndcap=="fast")
     {
       TGeoRotation tgrl;
       tgrl.RotateY(0.0);

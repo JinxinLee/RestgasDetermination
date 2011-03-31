@@ -1,6 +1,6 @@
 
-#ifndef PndMdtGeoConstructorTo_H
-    #define PndMdtGeoConstructorTo_H 1
+#ifndef PndMdtGeoConstructorFast_H
+    #define PndMdtGeoConstructorFast_H 1
 #endif
 
 //all units in mm

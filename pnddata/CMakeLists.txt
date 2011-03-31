@@ -42,6 +42,7 @@ GemData/PndGemDigi.cxx
 GemData/PndGemHit.cxx
 
 MdtData/PndMdtPoint.cxx
+MdtData/PndMdtDigi.cxx
 MdtData/PndMdtHit.cxx
 MdtData/PndMdtTrk.cxx
 

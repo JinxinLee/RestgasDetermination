@@ -38,8 +38,9 @@ MdtMC/PndMdt.cxx
 MdtMC/PndMdtMagnet.cxx
 MdtMC/PndMdtMuonFilter.cxx
 MdtMC/PndMdtMFIron.cxx
-MdtMC/PndMdtGeoConstructorTo.cxx
+MdtMC/PndMdtGeoConstructorFast.cxx
 MdtDigi/PndMdtHitProducerIdeal.cxx
+MdtDigi/PndMdtDigiProducer.cxx
 MdtReco/PndMdtTrkProducerIdeal.cxx
 MdtReco/PndMdtTrkProducer.cxx
 MdtReco/PndMdtRecoPar.cxx

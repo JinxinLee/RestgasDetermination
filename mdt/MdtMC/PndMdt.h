@@ -60,6 +60,9 @@ public:
     void Initialize();
     void BeginEvent();
     Bool_t ProcessHits(FairVolume* vol);
+    Bool_t ProcessHitsFast(FairVolume* vol);
+    Bool_t ProcessHitsRoot(FairVolume* vol);
+    
     void EndOfEvent();
 
     static Int_t fTrkIn; 
@@ -75,8 +78,8 @@ private:
     void PndMdtMagnet(); //!
     void PndMdtMuonFilter(); //!
     void PndMdtMFIron(); //!
-    void ConstructGeometryTo(); //!
-    void ConstructGeometryDu(); //!
+    void ConstructGeometryFast(); //!
+    void ConstructGeometryRoot(); //!
       
 // hit
     TClonesArray* fMdtCollection; //!

@@ -5,7 +5,7 @@
 
 #include "PndMdtTrkProducer.h"
 #include "PndMdtMuonFilter.h"
-#include "PndMdtGeoConstructorTo.h"
+#include "PndMdtGeoConstructorFast.h"
 #include "PndMdtTrk.h"
 #include "PndMdtHit.h"
 #include "PndTrack.h"
