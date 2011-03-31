@@ -39,7 +39,7 @@ PndDrcOptMatMarcol7::PndDrcOptMatMarcol7()
   fNd      = 1.4684;
   fB       = 4240;   // nm2
   fLambdaD = 589.3;  // nm
-  
+
 }
 //----------------------------------------------------------------------
 PndDrcOptMatMarcol7* PndDrcOptMatMarcol7::Clone() const
@@ -83,7 +83,7 @@ double PndDrcOptMatMarcol7::RefIndex(const double lambda) const
   if (lambda<0) return fNd; // average value.
 
   return fNd + fB*(1.0L/(lambda*lambda) - 1.0L/(fLambdaD*fLambdaD));
-  
+
 }
 //----------------------------------------------------------------------
 double PndDrcOptMatMarcol7::RefIndexDeriv(const double lambda) const
@@ -97,16 +97,17 @@ bool PndDrcOptMatMarcol7::AbsorptionFlag(double lambda, double length) const
   // length mm
 
   double att;
-  
-  if      (lambda<320) att = 0.01;   // see thesis Michel Sorel (MiniBooNE) page 156
-  if      (lambda<400) att = 0.001;
-  else if (lambda<600) att = 0.0002;
-  else                 att = 0.0001;
 
-  if (fRan.Uniform(1.0) < att*length) 
+  if      (lambda<300) att = 0.01;   // see thesis Michel Sorel (MiniBooNE) page 156
+  else if (lambda<325) att = 0.001;
+  else if (lambda<400) att = 0.0002;
+  else if (lambda<600) att = 0.00002;
+  else                 att = 0.00001;
+
+  if (fRan.Uniform(1.0) < att*length)
     {
       return true; //absorbed
     }
-  
+
   return false; // no absorption.
 }
