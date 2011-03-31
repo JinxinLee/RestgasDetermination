@@ -79,6 +79,7 @@ SdsData/PndSdsHit.cxx
 #SdsData/PndSdsHitInfo.cxx
 SdsData/PndSdsPidCand.cxx
 SdsData/PndSdsRadDamHit.cxx
+SdsData/PndSdsDigiPixelMCInfo.cxx
  
 
 #MvdData/PndMvdCluster.cxx

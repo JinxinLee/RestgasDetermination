@@ -67,6 +67,7 @@
 //#pragma link C++ class  PndSdsPixel+;
 #pragma link C++ class  PndSdsRadDamHit+;
 //#pragma link C++ class  PndSdsStrip+;
+#pragma link C++ class  PndSdsDigiPixelMCInfo+;
 
 #pragma link C++ class  PndMvdApvHit+;
 //#pragma link C++ class  PndMvdCluster+;
