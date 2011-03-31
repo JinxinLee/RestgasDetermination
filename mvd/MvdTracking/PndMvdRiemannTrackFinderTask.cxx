@@ -19,7 +19,7 @@
 
 
 PndMvdRiemannTrackFinderTask::PndMvdRiemannTrackFinderTask() :
-	FairTask("MVD Riemann Track Finder"), fMaxSZChi2(1), fMaxSZDist(10), fMinPointDist(1), fMaxDist(1), fEventNr(0), fB(2.0)
+	FairTask("MVD Riemann Track Finder"), fMaxSZChi2(1), fMaxSZDist(10), fMinPointDist(1), fMaxDist(1), fEventNr(0), fB(2.0), fInitDone(kFALSE)
 {
   PndGeoHandling::Instance();
 }
@@ -79,12 +79,16 @@ InitStatus PndMvdRiemannTrackFinderTask::Init()
 
 
   std::cout << "-I- PndMvdRiemannTrackFinderTask: Initialisation successfull" << std::endl;
+  fInitDone = kTRUE;
   return kSUCCESS;
 }
 
 void PndMvdRiemannTrackFinderTask::AddHitBranch(TString branchName)
 {
-	fHitBranch.push_back(branchName);
+	if (fInitDone == kFALSE)
+		fHitBranch.push_back(branchName);
+	else
+		std::cout << "-W- AddHitBranch has to be called before the Init() of the task!" << std::endl;
 }
 
 // -----   Public method Exec   --------------------------------------------

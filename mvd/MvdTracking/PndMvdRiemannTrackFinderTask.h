@@ -62,6 +62,8 @@ private:
 	TH2F *fCutDistH;
 	TH2F *fCutChi2H;
 
+	Bool_t fInitDone;
+
 	//PndGeoHandling* fGeoH;
 
 
