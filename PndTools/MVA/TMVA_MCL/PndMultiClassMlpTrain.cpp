@@ -76,7 +76,7 @@ void PndMultiClassMlpTrain::InitMlp()
 
   if(m_JName == "")
   {
-    m_JName = "PAND_MLP";
+    m_JName = "PANDMLP";
     std::cerr << "<WARNING> No job name was specified. We will set this to:\n\t"
 	      << m_JName << '\n';
   }

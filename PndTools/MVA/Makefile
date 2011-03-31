@@ -145,6 +145,16 @@ examples: PndMvaUtil PndMvaDataSet PndMvaClassifier Classifiers
 	build/PndMultiClassMlpClassify.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o \
 	-o build/mlpClassify
 
+# Build BDT Trainer
+	$(CXX) $(CCFLAGS) $(LIBS) build/bdtTrain.o build/PndMvaTrainer.o build/PndMvaUtil.o \
+	build/PndMultiClassBdtTrain.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o \
+	-o build/bdtTrain
+
+# Build BDT Classifier
+	$(CXX) $(CCFLAGS) $(LIBS) build/bdtClassify.o build/PndMvaClassifier.o build/PndMvaUtil.o \
+	build/PndMultiClassBdtClassify.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o \
+	-o build/bdtClassify
+
 clean:
 	rm -f *~ *.o *.root build/*
 	cd Clusters; $(MAKE) clean

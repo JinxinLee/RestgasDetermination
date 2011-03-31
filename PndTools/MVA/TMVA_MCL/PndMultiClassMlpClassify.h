@@ -14,8 +14,9 @@
  ******* VERY IMORTANT ****
  * You NEED TMVA version > 4.1.X before this works.
  */
-#ifndef PND_MULTI_CLASS_MLP_CLASSIFY_H
-#define PND_MULTI_CLASS_MLP_CLASSIFY_H
+
+#ifndef PND_MULTICLASS_MLP_CLASSIFY_H
+#define PND_MULTICLASS_MLP_CLASSIFY_H
 
 //Local includes
 #include "PndMvaClassifier.h"
@@ -59,6 +60,8 @@ class PndMultiClassMlpClassify : public PndMvaClassifier
    */
   void Initialize();
   
+  //______________________________________________
+  //====== Getters and setters.
   inline void SetReaderOptions(std::string const& opt);
   inline void SetWeightsFileName(std::string const& name);
 

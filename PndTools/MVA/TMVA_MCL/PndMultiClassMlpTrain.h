@@ -14,8 +14,8 @@
  ******* VERY IMORTANT ****
  * You NEED TMVA version > 4.1.X before this works.
  */
-#ifndef PND_MULTI_CLASS_MLP_TRAIN_H
-#define PND_MULTI_CLASS_MLP_TRAIN_H
+#ifndef PND_MULTICLASS_MLP_TRAIN_H
+#define PND_MULTICLASS_MLP_TRAIN_H
 
 //Local includes
 #include "PndMvaTrainer.h"
@@ -54,7 +54,9 @@ class PndMultiClassMlpTrain : public PndMvaTrainer
    *Initialize Classifier and data structures.
    */
   void Initialize();
-  
+
+  //______________________________________________
+  //====== Getters and setters.
   // Set the name of the current job
   inline void SetJobName       (std::string const& name);
   // Set data Transformation scheme
