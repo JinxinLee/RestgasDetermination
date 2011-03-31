@@ -32,6 +32,7 @@
 #pragma link C++ class PndTpcEvtTimeGenTask+;
 #pragma link C++ class PndTpcElectronicsTask+;
 #pragma link C++ class PndTpcClusterFinderTask+;
+#pragma link C++ class PndTpcClusterCorrectionTask+;
 #pragma link C++ class PndTpcCluster+;
 #pragma link C++ class PndTpcInhFieldDrifter+;
 //#pragma link C++ class testfieldclass+;
