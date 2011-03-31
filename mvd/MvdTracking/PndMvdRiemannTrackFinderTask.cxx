@@ -18,17 +18,10 @@
 #include "PndMvdRiemannTrackFinder.h"
 
 
-PndMvdRiemannTrackFinderTask::PndMvdRiemannTrackFinderTask() : FairTask("MVD Riemann Track Finder")
+PndMvdRiemannTrackFinderTask::PndMvdRiemannTrackFinderTask() :
+	FairTask("MVD Riemann Track Finder"), fMaxSZChi2(1), fMaxSZDist(10), fMinPointDist(1), fMaxDist(1), fEventNr(0), fB(2.0)
 {
-	fHitBranch = "MVDHitsPixel";
-	fHitBranch2 = "MVDHitsStrip";
-	fMaxSZChi2 = 1;
-	fMaxSZDist = 10;
-	fMinPointDist = 1;
-	fMaxDist = 1;
-	fEventNr = 0;	
   PndGeoHandling::Instance();
-	fB = 2.0;
 }
 
 PndMvdRiemannTrackFinderTask::~PndMvdRiemannTrackFinderTask()
@@ -58,17 +51,22 @@ InitStatus PndMvdRiemannTrackFinderTask::Init()
     }
 
   // Get input array
-  fHitArray = (TClonesArray*) ioman->GetObject(fHitBranch);
-  if ( !fHitArray){
-    std::cout << "-W- PndMvdRiemannTrackFinderTask::Init: " << "No hitArray!" << std::endl;
-    return kERROR;
+  if (fHitBranch.size() > 0){
+	  for (int i = 0; i < fHitBranch.size(); i++){
+		  TClonesArray* tempArray = (TClonesArray*) ioman->GetObject(fHitBranch[i]);
+		  if (tempArray == 0){
+			  std::cout << "-W- PndMvdRiemannTrackFinderTask::Init: " << "No hitArray for BranchName " << fHitBranch[i].Data() << std::endl;
+			  return kERROR;
+		  }
+		  fHitArray.push_back(tempArray);
+	  }
+  }
+  else {
+	  std::cout << "-W- PndMvdRiemannTrackFinderTask::Init: " << "No Branch Names given with AddHitBranch(TString branchName)! Standard BranchNames taken!" << std::endl;
+	  AddBranch("MVDHitsPixel");
+	  AddBranch("MVDHitsStrip");
   }
 
-  fHitArray2 = (TClonesArray*) ioman->GetObject(fHitBranch2);
-   if ( !fHitArray2){
-     std::cout << "-W- PndMvdRiemannTrackFinderTask::Init: " << "No hitArray2!" << std::endl;
-     return kERROR;
-   }
 
   fTrackCandArray = new TClonesArray("PndTrackCand");
   ioman->Register("MVDRiemannTrackCand", "MVD", fTrackCandArray, kTRUE);
@@ -82,6 +80,11 @@ InitStatus PndMvdRiemannTrackFinderTask::Init()
 
   std::cout << "-I- PndMvdRiemannTrackFinderTask: Initialisation successfull" << std::endl;
   return kSUCCESS;
+}
+
+void PndMvdRiemannTrackFinderTask::AddHitBranch(TString branchName)
+{
+	fHitBranch.push_back(branchName);
 }
 
 // -----   Public method Exec   --------------------------------------------
@@ -104,8 +107,8 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
  // std::cout << std::endl;
 //  std::cout << "------------- event " << fEventNr << "----------------" << std::endl;
 
-  trackFinder.AddHits(fHitArray, ioman->GetBranchId(fHitBranch));
-  trackFinder.AddHits(fHitArray2, ioman->GetBranchId(fHitBranch2));
+  for (int i = 0; i < fHitBranch.size(); i++)
+	  trackFinder.AddHits(fHitArray[i], ioman->GetBranchId(fHitBranch[i]));
   trackFinder.SetMaxSZChi2(fMaxSZChi2);
   trackFinder.SetMinPointDist(fMinPointDist);
   trackFinder.SetMaxPlaneDistance(fMaxDist);

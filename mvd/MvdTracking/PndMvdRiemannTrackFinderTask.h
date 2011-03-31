@@ -6,6 +6,8 @@
 #include "TH2F.h"
 #include "PndGeoHandling.h"
 
+#include <vector>
+
 class PndMvdRiemannTrackFinderTask : public FairTask
 {
 public:
@@ -20,6 +22,8 @@ public:
     /** Virtual method Exec **/
     virtual void Exec(Option_t* opt);
     virtual void FinishEvent();
+
+    void AddHitBranch(TString branchName);					//Has to be called before Init() is used otherwise the default names are taken!
 
 	void SetMaxSZChi2(double val)	{fMaxSZChi2 = val;}
 	void SetMaxSZDist(double val)	{fMaxSZDist = val;}
@@ -36,8 +40,7 @@ public:
   //  void SetGeoH(PndGeoHandling geoH){ fGeoH=geoH;};
 
 private:
-	TString fHitBranch;
-	TString fHitBranch2;
+	std::vector<TString> fHitBranch;
     TString fTrackBranch;
 
     int fEventNr;
@@ -51,8 +54,7 @@ private:
 
 
 
-	TClonesArray* fHitArray;
-	TClonesArray* fHitArray2;
+	std::vector<TClonesArray*> fHitArray;
 	TClonesArray* fTrackCandArray;
 	TClonesArray* fRiemannTrackArray;
 	TClonesArray* fTrackArray;
