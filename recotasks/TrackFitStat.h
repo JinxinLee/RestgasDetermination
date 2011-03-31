@@ -63,6 +63,7 @@ public:
   const std::vector<double>* GetHitPositionsX() {return &_PndTpcPosX;}
   const std::vector<double>* GetHitPositionsY() {return &_PndTpcPosY;}
   const std::vector<double>* GetHitPositionsZ() {return &_PndTpcPosZ;}
+  const std::vector<unsigned int>* GetHitIDs() {return &_PndTpcHitID;}
 
 
   // Modifiers -----------------------
@@ -83,6 +84,7 @@ public:
   void fillPndTpcHitPositionsX(const std::vector<double>& s){_PndTpcPosX=s;}
   void fillPndTpcHitPositionsY(const std::vector<double>& s){_PndTpcPosY=s;}
   void fillPndTpcHitPositionsZ(const std::vector<double>& s){_PndTpcPosZ=s;}
+  void fillPndTpcHitIDs(const std::vector<unsigned int>& s){_PndTpcHitID=s;}
   
   void addFailedHits(int NFH) {_failedHits+=NFH;}
   void setNDF(unsigned int ndf) {_NDF=ndf;}
@@ -126,6 +128,7 @@ private:
   std::vector<double> _PndTpcPosX;
   std::vector<double> _PndTpcPosY;
   std::vector<double> _PndTpcPosZ;
+  std::vector<unsigned int> _PndTpcHitID;
 
   double _p;
   double _pmc;
@@ -146,7 +149,7 @@ private:
   // Private Methods -----------------
 
 public:
-  ClassDef(TrackFitStat,11)
+  ClassDef(TrackFitStat,12)
 
 };
 
