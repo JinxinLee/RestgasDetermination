@@ -24,18 +24,18 @@ class PndSdsChargeConversion : public TObject
     virtual Double_t DigiValueToCharge(PndSdsDigi &digi);
     virtual Double_t GetRelativeError(Double_t Charge) = 0;
     virtual Double_t GetTimeStamp(Double_t tof, Double_t charge, Double_t MCEventTime) = 0;
-    virtual Double_t GetTimeWalk(Double_t charge){};
+    virtual Double_t GetTimeWalk(Double_t charge){return 0;};
     
     Double_t GetParameter(TString param){
       it=fParams.find(param);
       if (it == fParams.end()){
-        Error("GetParameter(TString param)","No parameter named: "+param);
+        Error("GetParameter(TString param)","No parameter named: %s",param.Data());
         return -1;
       }
       return it->second;
     };
     void SetParameter(TString param, Double_t value){
-      if (value < 0 ) Error("SetParameter(TString param, Double_t value)","invalid value for param "+ param);
+      if (value < 0 ) Error("SetParameter(TString param, Double_t value)","invalid value for param: %s", param.Data());
       fParams.insert(std::pair<TString, Double_t>(param, value));
     };
     

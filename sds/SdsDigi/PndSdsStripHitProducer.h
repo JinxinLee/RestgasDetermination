@@ -133,7 +133,7 @@ class PndSdsStripHitProducer : public PndSdsTask
   virtual void SetCalculators();
   Bool_t SelectSensorParams(Int_t sensorID);
   
-  Int_t DigitizeTime(Double_t time);
+  Int_t DigitizeTime(Double_t time,Double_t charge);
 
   FairMCEventHeader* fMcEventHeader;
   PndGeoHandling* fGeoH; // converter for detector names

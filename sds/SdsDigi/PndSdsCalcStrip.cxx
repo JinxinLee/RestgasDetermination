@@ -1,3 +1,4 @@
+//______________________________________________________________________________
 //
 // C++ Implementation: PndSdsCalcStrip
 //
@@ -10,10 +11,12 @@
 //
 //
 #include <cmath>
+#include <exception>
 
 #include "PndSdsCalcStrip.h"
-#include "TRandom3.h"
+#include "TRandom.h"
 
+//______________________________________________________________________________
 PndSdsCalcStrip::PndSdsCalcStrip(){
   fPitch = 0.;
   fOrient = 0.;
@@ -21,25 +24,28 @@ PndSdsCalcStrip::PndSdsCalcStrip(){
   fNrStrips = 0;
   fThreshold = 0.;
   fNoise = 0.;
+  fCSigma = 0.;
   fVerboseLevel = 0;
-  fRNG = new TRandom3();
+  //  fRNG = new TRandom3();
 }
 
+//______________________________________________________________________________
 PndSdsCalcStrip::PndSdsCalcStrip(Double_t pitch, Double_t orient,
                                  Int_t nrStrips, Int_t nrFeChannels,
                                  const TVector2& firstStripAnchor,
-                                 Double_t threshold, Double_t noise)
+                                 Double_t threshold, Double_t noise, Double_t csigma=0)
 : fPitch(pitch), fOrient(orient),
 fNrStrips(nrStrips), fNrFeChannels(nrFeChannels),
 fAnchor(firstStripAnchor),
-fThreshold(threshold), fNoise(noise)
+fThreshold(threshold), fNoise(noise), fCSigma(csigma)
 {
   fStripDir.Set(cos(fOrient),sin(fOrient));
   fOrthoDir.Set(sin(fOrient),-cos(fOrient));
   fVerboseLevel = 0;
-  fRNG = new TRandom3();
   //Print();
 }
+
+//______________________________________________________________________________
 PndSdsCalcStrip::PndSdsCalcStrip(const PndSdsStripDigiPar* digipar, SensorSide side)
 {
   if(side == kTOP)
@@ -59,15 +65,16 @@ PndSdsCalcStrip::PndSdsCalcStrip(const PndSdsStripDigiPar* digipar, SensorSide s
   fNrFeChannels = digipar->GetNrFECh();
   fThreshold = digipar->GetThreshold();
   fNoise = digipar->GetNoise();
+  fCSigma = digipar->GetQCloudSigma();
   
   fStripDir.Set(cos(fOrient),sin(fOrient));
   fOrthoDir.Set(sin(fOrient),-cos(fOrient));
   fVerboseLevel = 0;
-  fRNG = new TRandom3();
   if (fVerboseLevel > 0) Print();
 }
 
 
+//______________________________________________________________________________
 std::vector<PndSdsStrip>
 PndSdsCalcStrip::GetStrips(Double_t inx, Double_t iny, Double_t inz,
                            Double_t outx, Double_t outy, Double_t outz,
@@ -85,11 +92,9 @@ PndSdsCalcStrip::GetStrips(Double_t inx, Double_t iny, Double_t inz,
     std::cout<<" OutPoint: ("<<out.X()<<","<<out.Y()<<")"<<std::endl;
   }
   
-  std::vector<PndSdsStrip> strips;
-  Double_t smearedQ;
-  
   if (path.Mod()<1E-18) {
     std::cout<<"-W- PndSdsCalcStrip::GetStrips : No Trajectory inside Sensor! (out-in).Mod() = "<<path.Mod()<<std::endl;
+    std::vector<PndSdsStrip> strips;
     return strips;
   }    
   
@@ -100,15 +105,32 @@ PndSdsCalcStrip::GetStrips(Double_t inx, Double_t iny, Double_t inz,
   
   if (fVerboseLevel > 2) std::cout<<" nuIn = "<<nuIn<<" ; nuOut = "<<nuOut<<std::endl;
   
-  
   Double_t Q = ChargeFromEloss(eLoss);//*1E9/3.61; // 3.6 eV/Electron in Silicon
+  if (fVerboseLevel > 1) std::cout<<" integral charge = "<<Q<<std::endl;
+
+  // Do charge distribution
+  if(fCSigma>0) return GetStripsNoDif(nuIn,nuOut,Q);
+  else          return GetStripsDif(nuIn,nuOut,Q);
+  
+}
+
+
+//______________________________________________________________________________
+std::vector<PndSdsStrip> PndSdsCalcStrip::GetStripsNoDif(Double_t nuIn, Double_t nuOut, Double_t Q)
+{
+  // Charge distributed equally along a path.
+  
+  if (fVerboseLevel > 2) std::cout<<"-I- PndSdsCalcStrip::GetStripsNoDif "<<std::endl;
+  std::vector<PndSdsStrip> strips;
+  
+  if (fVerboseLevel > 2) std::cout<<" nuIn = "<<nuIn<<" ; nuOut = "<<nuOut<<std::endl;
   if (fVerboseLevel > 1) std::cout<<" integral charge = "<<Q<<std::endl;
   
   // did we hit the active area ?
   //     if ( (nuIn<0.5 && nuOut<0.5) || (((nuIn+0.5) > Double_t(fNrStrips-1)) && ((nuOut+0.5) > Double_t(fNrStrips-1)))){
   if ( (nuIn<0. && nuOut<0.) || ((nuIn > Double_t(fNrStrips)) && (nuOut > Double_t(fNrStrips))) )
   {
-    if (fVerboseLevel > 1) std::cout<<"-W- PndSdsCalcStrip::GetStrips: Hit outside active area."<<std::endl;
+    if (fVerboseLevel > 1) std::cout<<"-W- PndSdsCalcStrip::GetStripsNoDif: Hit outside active area."<<std::endl;
     return strips;
   }
   
@@ -134,14 +156,15 @@ PndSdsCalcStrip::GetStrips(Double_t inx, Double_t iny, Double_t inz,
   // only one strip hit ?
   if (Int_t(nuIn) == Int_t(nuOut)){
     // this strip collected the entire charge
-    smearedQ = SmearCharge(Q);
-    if (smearedQ >= fThreshold)
-      strips.push_back(PndSdsStrip(Int_t(nuOut),smearedQ));
-    if (fVerboseLevel > 1) std::cout<<" -> 1 strip hit."<<std::endl;
-  } else {
+    InjectStripCharge(strips,(Int_t)nuOut,Q);
+    return strips;
+    
+  } else 
+  { // more than one strip is hit
     Double_t dQ=Q/std::fabs(nuOut-nuIn);
     Double_t dir = (nuOut>nuIn) ? 1. : -1.;
     Int_t nrHits = 0;
+    
     // calculate portion of track in first strip
     Int_t nextIn = Int_t(nuIn + 0.5+0.5*dir);
     Double_t Q1 = dQ*std::fabs(nextIn-nuIn);
@@ -150,8 +173,7 @@ PndSdsCalcStrip::GetStrips(Double_t inx, Double_t iny, Double_t inz,
       std::cout<<" charge : "<<Q1<<std::endl ;
       std::cout<<" next strip : "<<nextIn<<std::endl ;
     }              
-    smearedQ = SmearCharge(Q1);
-    if (smearedQ >= fThreshold) strips.push_back(PndSdsStrip(Int_t(nuIn),smearedQ));
+    InjectStripCharge(strips,(Int_t)nuIn,Q1);
     nrHits++;
     Q -= Q1;
     
@@ -163,13 +185,11 @@ PndSdsCalcStrip::GetStrips(Double_t inx, Double_t iny, Double_t inz,
       std::cout<<" charge : "<<Q2<<std::endl ;
       std::cout<<" end of previous strip : "<<prevOut<<std::endl ;
     }  
-    smearedQ = SmearCharge(Q2);
-    if (smearedQ >= fThreshold) strips.push_back(PndSdsStrip(Int_t(nuOut),smearedQ));
+    InjectStripCharge(strips,(Int_t)nuOut,Q2);
     nrHits++;
     Q -= Q2;
     
-    
-    // Distribute the charge among the intermediate strips
+    // Distribute the charge amongst the intermediate strips
     nextIn = Int_t(nextIn - 0.5 + 0.5*dir);
     prevOut = Int_t(prevOut - 0.5 + 0.5*dir);
     if (fVerboseLevel > 2) {
@@ -180,8 +200,7 @@ PndSdsCalcStrip::GetStrips(Double_t inx, Double_t iny, Double_t inz,
     for (Int_t n = nextIn ; n != prevOut; n += Int_t(dir) )
     {
       if (fVerboseLevel > 2) std::cout<<" n = "<<n<<std::endl;
-      smearedQ = SmearCharge(dQ);
-      if (smearedQ >= fThreshold) strips.push_back(PndSdsStrip(n,smearedQ));
+      InjectStripCharge(strips,n,dQ);
       nrHits++;
       Q -= dQ;
     }
@@ -192,28 +211,104 @@ PndSdsCalcStrip::GetStrips(Double_t inx, Double_t iny, Double_t inz,
   return strips;
 }
 
+//______________________________________________________________________________
+std::vector<PndSdsStrip> PndSdsCalcStrip::GetStripsDif(Double_t pathstart, Double_t pathend, Double_t Q)
+{
+  // Do charge diffusion integrated analytically over a path length
+  // 0.5*(1+erf(x)) is the integral over a gauss from -inf to x
+  // factor 0.5 is applied last, the +1 terms cancel in the difference
+  
+  if(pathend<pathstart){ // sort for direction
+    Double_t tmp=pathstart;
+    pathstart=pathend;
+    pathend=tmp;
+  }  
+  std::vector<PndSdsStrip> array;
+	Double_t DQ = 0.;
+  // sigma_str = sigma_um/pitch_str-per-um
+  Double_t sigma_str=fCSigma/fPitch;
+  // TODO how much extra bins to fill?, minimum 1...
+  // how about 2sigma? shall be collected
+  Int_t xtra = ceil(2.*sigma_str);
+  if(fabs(pathstart-pathend) < 1e-10) { // too small path, don't integrate over path
+    //std::cout<<"DfRalf - 0"<<std::endl;
+    pathstart=0.5*(pathstart+pathend);
+    for(Int_t i=(Int_t)pathstart-xtra;i<(Int_t)pathstart+1+xtra;i++)
+    {
+      DQ=0;
+      DQ+=TMath::Erf( (i+1-pathstart)/(sqrt(2)*sigma_str) );
+      DQ-=TMath::Erf( (i-pathstart)/(sqrt(2)*sigma_str) );
+      DQ*=0.5*Q;
+      InjectStripCharge(array,i,DQ);
+    }
+  } else {
+    for(Int_t i=(Int_t)pathstart-xtra;i<(Int_t)pathend+1+xtra;i++)
+    {
+      DQ=0;
+      DQ+=CalcFk(i,pathend,sigma_str);
+      DQ-=CalcFk(i,pathstart,sigma_str);
+      DQ-=CalcFk(i+1,pathend,sigma_str);
+      DQ+=CalcFk(i+1,pathstart,sigma_str);
+      DQ*=0.5*Q/(pathend-pathstart);
+      InjectStripCharge(array,i,DQ);
+    }
+  }
+  return array;
+}
+
+//______________________________________________________________________________
+Double_t PndSdsCalcStrip::CalcFk(Double_t strip, Double_t x, Double_t sig)
+{
+  const Double_t t=(strip-x)/(sqrt(2)*sig);
+  return ( (strip-x)*TMath::Erf(t) + sqrt(2/TMath::Pi())*sig*exp(-t*t) );
+}
+
+//______________________________________________________________________________
+Int_t PndSdsCalcStrip::GetStripsAlternative(Double_t nuIn, Double_t nuOut, Double_t Q, Int_t mode, std::vector<Int_t>& indice, std::vector<Double_t>& charges)
+{
+  if(fVerboseLevel>2)Info("GetStripsAlternative()","begin with in=%f, out=%f, Q=%f",nuIn,nuOut,Q);
+  std::vector<PndSdsStrip> strips;
+  if(mode == 0) strips = GetStripsNoDif(nuIn,nuOut,Q);
+  if(mode == 1) strips = GetStripsDif(nuIn,nuOut,Q);  
+  Int_t nstr=strips.size();
+  for(Int_t i=0;i<nstr;i++)
+  { 
+    if(fVerboseLevel>2) Info("GetStripsAlternative()","pass this strip: i=%i, s=%i, q=%f",i,strips[i].GetIndex(),strips[i].GetCharge());
+    indice.push_back(strips[i].GetIndex());
+    charges.push_back(strips[i].GetCharge());
+  }
+  return nstr;
+}
+
+//______________________________________________________________________________
 Double_t PndSdsCalcStrip::SmearCharge(Double_t charge)
 {
-  Double_t smeared = fRNG->Gaus(charge,fNoise);
+  //  Double_t smeared = fRNG->Gaus(charge,fNoise);
+  Double_t smeared = gRandom->Gaus(charge,fNoise);
   if (fVerboseLevel > 3) std::cout<<" charge = "<<charge<<", smeared = "<<smeared<<std::endl;
   return smeared;
 }
 
+//______________________________________________________________________________
 Double_t PndSdsCalcStrip::CalcStripFromPoint(Double_t x, Double_t y)
 {
   // fOrthoDir is already set to magnitude == 1., makes it cheaper here.
   return ((x-fAnchor.X())*fOrthoDir.X() + (y-fAnchor.Y())*fOrthoDir.Y())/fPitch;
 }
 
+//______________________________________________________________________________
 void PndSdsCalcStrip::CalcStripPointOnLine(Double_t strip,TVector2& point) const
 {
   point = fPitch*(strip+0.5)*fOrthoDir + fAnchor;
 }
 
+//______________________________________________________________________________
 Int_t PndSdsCalcStrip::CalcFEfromStrip(Int_t stripNr) const { return (stripNr/fNrFeChannels); }
 
+//______________________________________________________________________________
 Int_t PndSdsCalcStrip::CalcChannelfromStrip(Int_t stripNr) const { return (stripNr%fNrFeChannels); }
 
+//______________________________________________________________________________
 void PndSdsCalcStrip::CalcFeChToStrip(Int_t fe, Int_t channel, Int_t& strip, enum SensorSide& side) const
 {
   //Caution! The top side s always the reference side!
@@ -227,9 +322,20 @@ void PndSdsCalcStrip::CalcFeChToStrip(Int_t fe, Int_t channel, Int_t& strip, enu
   strip = nr;
 }
 
+//______________________________________________________________________________
+void PndSdsCalcStrip::InjectStripCharge(std::vector<PndSdsStrip>& array, Int_t istrip, Double_t charge)
+{
+  if(istrip<0) return;
+  if(istrip>fNrStrips) return;
+  Double_t smearedQ = SmearCharge(charge);
+  if(smearedQ < fThreshold) return;
+  if(fVerboseLevel>3) Info("InjectStripCharge","istrip=%i,charge=%f",istrip,charge);
+  array.push_back(PndSdsStrip(Int_t(istrip),smearedQ));
+  return;
+}
 
 
-
+//______________________________________________________________________________
 void PndSdsCalcStrip::Print() const
 {
   std::cout<<"-I- PndSdsCalcStrip Info :"<<std::endl;

@@ -131,7 +131,7 @@ void PndMvdConvertApvTask::Exec(Option_t* opt)
 	  stripnum = fStripArray->GetEntriesFast();
 	  //cout << "stripnum: " << stripnum << endl;
 	  new ((*fStripArray)[stripnum]) PndSdsDigiStrip(strip->GetIndices(), strip->GetDetID(),
-							 detnameid, sw, strip->GetChannel(), strip->GetCharge(),kUnknown ,strip->GetTimestamp());
+							 detnameid, sw, strip->GetChannel(), strip->GetCharge(),kUnknown ,strip->GetTimeStamp());
 	  // collect information of fake bottom sides if singlesided
 	  if (IsSingleSided(detpath))
 	    {    // collect information of fake bottom sides if singlesided
@@ -177,7 +177,8 @@ Int_t PndMvdConvertApvTask::CalcBotFakeFE(TString detpath)
       return it->second;
     }
   }
-  //  return -1;
+  // -1 shall be no realistic FE number
+  return -1; 
 }
 
 void PndMvdConvertApvTask::Finish()

@@ -39,7 +39,7 @@ class PndSdsDigiStrip : public PndSdsDigi
       out << "PndSds DigiStrip in sensor: " << digi.GetSensorID() << " FE: "
       << digi.GetFE() << " Channel: " << digi.GetChannel()
       << " charge: " << digi.GetCharge() << " (e or tot)"
-      << " timestamp: "<< digi.GetTimestamp()
+      << " timestamp: "<< digi.GetTimeStamp()
       << ", from Point(s): ";
       std::vector<Int_t>indices = digi.GetIndices();
       for (unsigned int i = 0; i < indices.size(); i++){

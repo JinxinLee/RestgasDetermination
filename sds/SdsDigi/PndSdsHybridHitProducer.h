@@ -94,9 +94,11 @@ protected:
   Double_t fly;	//pixel width in y;
   Double_t fthreshold; //pixel threshold in electrons
   Double_t fnoise; //pixel noise in electrons
+  Double_t fqsigma; //gaussian charge cloud spread
   Int_t    fcols; //pixel columns in one FE
   Int_t    frows; //pixel rows in one FE
   Int_t fPixelHits;
+  FairMCEventHeader* fMcEventHeader;
   PndGeoHandling* fGeoH;
   Int_t fEventNr;
   Bool_t fOverwriteParams;

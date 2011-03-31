@@ -46,7 +46,7 @@ class PndMvdConvertApv
 	PndMvdConvertApv(const TString& CalibFileName, const TString& HitFileName);
 
 	/** Destructor **/
-	~PndMvdConvertApv()
+	virtual ~PndMvdConvertApv()
 	{ fDataFile.close(); }
 
 	/**

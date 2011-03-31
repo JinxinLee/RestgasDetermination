@@ -47,6 +47,7 @@ PndSdsTask.cxx
 
 SdsDigi/PndSdsCalcFePixel.cxx
 SdsDigi/PndSdsCalcPixel.cxx
+SdsDigi/PndSdsCalcPixelDif.cxx
 SdsDigi/PndSdsCalcStrip.cxx
 #SdsDigi/PndSdsCalcStripDif.cxx
 #MvdDigi/PndMvdDigiAna.cxx

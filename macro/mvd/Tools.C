@@ -223,7 +223,7 @@ void LoadPandaStyle(void)
   // do not display any of the standard histogram decorations
   pandaStyle->SetOptTitle(1);
   pandaStyle->SetOptStat(1);
-  pandaStyle->SetOptFit(0);
+  pandaStyle->SetOptFit(1);
   
   // put tick marks on top and RHS of plots
   pandaStyle->SetPadTickX(1);
@@ -270,7 +270,7 @@ plothistosfromfile(TString filename = "histos.root")
   if (!file) {cout<<"File \""<<filename.Data()<<"\" is not there..."<<endl;return;}
   TCanvas* can = new TCanvas();
   TString picname = filename;
-  picname.ReplaceAll(".root",".ps");
+  picname.ReplaceAll(".root",".ps"); // ps, png, pdf ...
   TString pic = picname + "["; // open empty ps
   cout << "opening: " << pic.Data()<<endl;
   can->Print(pic);
@@ -320,6 +320,23 @@ plothistosfromfile(TString filename = "histos.root")
   pic = picname + "]"; // close ps
   can->Print(pic.Data());
   cout << "closed: " << pic.Data()<<endl;
+  TString convertcmd = "test -r ps2pdf && ps2pdf ";
+  convertcmd += pic.Data();
+  gSystem->Exec(convertcmd.Data());
   return;
 }
+
+void LoadManySimFiles(TString treename="cbmsim")
+{ // to use that method you should have opened some files
+  // containing the same tree structure, like splitted files of 
+  // mass production simulations. (like "root -f data/sim01*.root" 
+  // tree examination is available via TTree::Draw(...)
+  
+  TIter next(gROOT->GetListOfFiles());
+  TFile *fi=0;
+  TChain *R=new TChain(treename.Data());
+  while (fi=(TFile*)next()) R->Add(fi->GetName());
+  cout<<(Int_t)R->GetEntries()<<endl;
+}
+
 

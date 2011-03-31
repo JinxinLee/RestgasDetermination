@@ -38,7 +38,8 @@ class PndSdsDigi : public FairTimeStamp
       return out;
     }
     
-    public : PndSdsDigi();
+  public: 
+    PndSdsDigi();
     PndSdsDigi(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Double_t charge, Int_t type, Double_t timestamp = -1);
     PndSdsDigi(Int_t index, Int_t detID, Int_t fSensorID, Int_t fe, Double_t charge, Int_t type, Double_t timestamp = -1);
 		/**<constructor
@@ -59,10 +60,10 @@ class PndSdsDigi : public FairTimeStamp
 		int GetNIndices() {return fIndex.size();}
 		Int_t GetIndex(int i = 0) const{ return fIndex[i];}
 		Int_t GetNIndices() const { return fIndex.size();}
-	    Double_t GetTimestamp() const { return fTimeStamp;}
+	    Double_t GetTimeStamp() const { return fTimeStamp;}
     
-	    Int_t GetMCPointType() const {return fMCPointType;}
-
+    Int_t GetMCPointType() const {return fMCPointType;}
+    
 		virtual void SetMCPointType(Int_t type){fMCPointType = type;}
     
 		virtual void AddIndex(int index)
@@ -78,11 +79,13 @@ class PndSdsDigi : public FairTimeStamp
 		}
 		void SetCharge(double charge){fCharge = charge;}
     void AddCharge(double charge){fCharge += charge;}
-    
+    void SetTimeStamp(Double_t t) { fTimeStamp = t; }
+
 		virtual void Print() {
 			std::cout << *this;
 		}
-    protected :
+    
+  protected:
 		std::vector<Int_t> fIndex;
 		Int_t fDetID;
 		//TString fDetName;

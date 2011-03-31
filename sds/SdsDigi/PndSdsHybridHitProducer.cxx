@@ -18,6 +18,7 @@
 
 #include "PndStringSeparator.h"
 #include "PndSdsCalcPixel.h"
+#include "PndSdsCalcPixelDif.h"
 #include "PndSdsCalcFePixel.h"
 #include "PndSdsDigiPixel.h"
 #include "PndSdsDigiPixelMCInfo.h"
@@ -111,8 +112,7 @@ InitStatus PndSdsHybridHitProducer::Init()
     << "RootManager not instantiated!" << std::endl;
     return kFATAL;
   }
-  fPointArray = (TClonesArray*) ioman->GetObject(fInBranchName);
-  
+  fPointArray = (TClonesArray*) ioman->GetObject(fInBranchName);  
   if ( ! fPointArray )
   {
     std::cout << "-W- PndSdsHybridHitProducer::Init: "
@@ -168,6 +168,7 @@ InitStatus PndSdsHybridHitProducer::Init()
   fnoise = fDigiPar->GetNoise();
   fcols = fDigiPar->GetFECols();
   frows = fDigiPar->GetFERows();
+  fqsigma = fDigiPar->GetQCloudSigma();
   
   return kSUCCESS;
 }
@@ -198,7 +199,6 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
   
   // Loop over PndSdsMCPoints
   Int_t nPoints = fPointArray->GetEntriesFast();
-  // Int_t iPixel = 0;
   Int_t iFePixel = 0;
   fPixelHits = 0;
   
@@ -238,12 +238,22 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
          !fGeoH->GetPath(point->GetSensorID()).Contains("Strip")     )
         )
     {
+      std::vector<PndSdsPixel> myPixels;
+      if(fqsigma>0){
       // Define sensor by pixelsizes threshold and noise from macro outside
       PndSdsCalcPixel PixelCalc(flx, fly, fthreshold, fnoise);
       // Calculate a cluster of Pixels fired (in sensor system)
-      std::vector<PndSdsPixel> myPixels = PixelCalc.GetPixels (posInL.getX(), posInL.getY(), posInL.getZ(),
-                                                               posOutL.getX(), posOutL.getY(), posOutL.getZ(),
-                                                               point->GetEnergyLoss());
+      myPixels = PixelCalc.GetPixels (posInL.getX(), posInL.getY(), posInL.getZ(),
+                                      posOutL.getX(), posOutL.getY(), posOutL.getZ(),
+                                      point->GetEnergyLoss());
+      } else {
+        // Define sensor by pixelsizes threshold and noise from macro outside
+        PndSdsCalcPixelDif PixelCalc(flx, fly, fthreshold, fnoise, fqsigma);
+        // Calculate a cluster of Pixels fired (in sensor system)
+        myPixels = PixelCalc.GetPixels (posInL.getX(), posInL.getY(),
+                                        posOutL.getX(), posOutL.getY(), 
+                                        point->GetEnergyLoss());
+      }
       if (myPixels.size() == 0){
         if (fVerbose > 1) std::cout << "Deposited charge below threshold" << std::endl;
       } else {
@@ -268,8 +278,11 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
       
     }//endif pixel
   }   // Loop over MCPoints
+ 
+  // convert to digi data type after all charge is collected
   int test=0;
-  for (unsigned int iPix = 0; iPix < fPixelList.size(); iPix++){
+  for (unsigned int iPix = 0; iPix < fPixelList.size(); iPix++)
+  {
 
 	  std::cout << "fPixelList.size()" <<  fPixelList.size() << std::endl;
   if (fPixelList[iPix].GetCharge()<=fthreshold) continue;
@@ -414,9 +427,9 @@ void PndSdsHybridHitProducer::AddHit(PndSdsPixel& hit, int mcIndex)
 		{
 			if (fVerbose > 1)
 				std::cout << "Pixel " << hit.GetSensorID()
-					<< " FE/col/row " << hit.GetFE()
-					<< "/" << hit.GetCol()
-					<< "/" << hit.GetRow() << " already hit!"<< std::endl;
+        << " FE/col/row " << hit.GetFE()
+        << "/" << hit.GetCol()
+        << "/" << hit.GetRow() << " already hit!"<< std::endl;
 			fPixelList[i].AddCharge(hit.GetCharge());
 			fPixelList[i].AddMCIndex(mcIndex);
 			found = true;
@@ -427,6 +440,7 @@ void PndSdsHybridHitProducer::AddHit(PndSdsPixel& hit, int mcIndex)
 		fPixelList.push_back(hit);
 	}
 }
+
 // -------------------------------------------------------------------------
 
 void PndSdsHybridHitProducer::FinishEvent()

@@ -465,7 +465,7 @@ void PndSdsStripClusterTask::FillClusterFinders()
     if (kFALSE==tester) continue; // Invalid parameters, skip here.
     //we use the top side as "first" side
     fCurrentStripCalcTop->CalcFeChToStrip(myDigi->GetFE(), myDigi->GetChannel(), strip, side); 
-    fCurrentClusterfinder->AddDigi(sensorID,side,myDigi->GetTimestamp(),strip,iDigi);
+    fCurrentClusterfinder->AddDigi(sensorID,side,myDigi->GetTimeStamp(),strip,iDigi);
   } 
   // make sure the digi array is distributed well
   fChargeAlgos->SetDigiArray(fDigiArray);

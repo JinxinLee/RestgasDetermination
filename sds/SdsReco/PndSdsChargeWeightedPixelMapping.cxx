@@ -18,6 +18,7 @@ fDigiArray = pixelArray;
 	Double_t tempCol = 0, tempRow = 0;
 	Int_t count = 0, mcindex=-1;
 	//Double_t local[2], master[2];
+  //TODO: Get away from default 10 Frontends per column?
 
 	if (fDigiArray.size() == 1){
 		if (fChargeConverter->DigiValueToCharge(fDigiArray[0]) > 0){

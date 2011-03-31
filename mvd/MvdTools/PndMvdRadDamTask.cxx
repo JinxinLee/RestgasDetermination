@@ -136,7 +136,7 @@ void PndMvdRadDamTask::Exec(Option_t* opt)
                                                              (Int_t)(2*sensDim.Y()*10),-sensDim.Y(),sensDim.Y());
 	  }
 	  TVector3 localHit = fGeoH->MasterToLocalShortId(mcPoint->GetPosition(), mcPoint->GetSensorID());
-	  (TH2D*)(fMapDetHistos[detname.Data()])->Fill(localHit.X(), localHit.Y(), weight);
+	  ((TH2D*)(fMapDetHistos[detname.Data()]))->Fill(localHit.X(), localHit.Y(), weight);
 	  fRadDamHisto->Fill(weight);
   }
 }

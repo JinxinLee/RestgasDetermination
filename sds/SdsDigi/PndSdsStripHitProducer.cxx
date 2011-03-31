@@ -199,7 +199,7 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
   for (Int_t iPoint = 0; iPoint < nPoints; iPoint++)
   {
     point = (PndSdsMCPoint*) fPointArray->At(iPoint);
-    selected = SelectSensorParams(point->GetSensorID()) ;
+    selected = SelectSensorParams(point->GetSensorID());
     if( !selected ) { continue; }
     
     if (fVerbose > 2){
@@ -218,7 +218,6 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
     // transform to local sensor system... (mc point has the ID not the path to the volume)
     TVector3 posInL = fGeoH->MasterToLocalShortId(point->GetPosition(),point->GetSensorID());
     TVector3 posOutL = fGeoH->MasterToLocalShortId(point->GetPositionOut(),point->GetSensorID());
-    timestamp = DigitizeTime(eventTime+point->GetTime());
     if (fVerbose > 2){
       posInL.Print();posOutL.Print();
       std::cout << "Energy: " << point->GetEnergyLoss() << std::endl;
@@ -239,6 +238,7 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
       for(std::vector<PndSdsStrip>::const_iterator kit=topStrips.begin();
           kit!= topStrips.end(); ++kit)
       {   //TODO: What to do with the kMVD* enmums in sds?
+        timestamp = DigitizeTime(point->GetTime(),kit->GetCharge());
         AddDigi(iStrip,iPoint,kMVDHitsStrip,point->GetSensorID(),
             		fCurrentStripCalcTop->CalcFEfromStrip(kit->GetIndex()),
             		fCurrentStripCalcTop->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge(),timestamp);
@@ -259,6 +259,7 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
           kit!= botStrips.end();
           ++kit)
       {
+        timestamp = DigitizeTime(point->GetTime(),kit->GetCharge());
         AddDigi(iStrip,iPoint,kMVDHitsStrip,point->GetSensorID(),
                 fCurrentStripCalcBot->CalcFEfromStrip(kit->GetIndex()) + fCurrentDigiPar->GetNrTopFE(),
                 fCurrentStripCalcBot->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge(),timestamp);
@@ -272,7 +273,7 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
   for (Int_t i = 0; i<iStrip; i++){
 	  PndSdsDigiStrip* gDigi = (PndSdsDigiStrip*) fStripArray->At(i);
 	  SelectSensorParams(gDigi->GetSensorID());
-    //FIXME: This is not elegant and error prone!
+    //FIXME: This is not elegant and error prone, for Tasks afterwards will not know how we digitized!
 	  gDigi->SetCharge(fCurrentChargeConverter->ChargeToDigiValue(gDigi->GetCharge()));
   }
   
@@ -306,7 +307,7 @@ void PndSdsStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, I
       //		return;
     }
   }
-  if(found == kFALSE){//TODO: Simulate a timestamp
+  if(found == kFALSE){
 	  std::vector<Int_t>indices;
 	  indices.push_back(iPoint);
     new ((*fStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,sensorID,fe,chan,charge, fInBranchId, timestamp) ;
@@ -350,10 +351,10 @@ Bool_t PndSdsStripHitProducer::SelectSensorParams(Int_t sensorID)
   return kFALSE;
 }
 
-Int_t PndSdsStripHitProducer::DigitizeTime(Double_t time)
+Int_t PndSdsStripHitProducer::DigitizeTime(Double_t time, Double_t charge)
 { // time [ns]
-  if(fVerbose) Warning("DigitizeTime","No decent Time Digitization invented, yet.");
-  return (Int_t)(time*1000);
+  Double_t eventTime = fMcEventHeader->GetT();
+  return fCurrentChargeConverter->GetTimeStamp(time,charge,eventTime);
 }
 
 // -------------------------------------------------------------------------

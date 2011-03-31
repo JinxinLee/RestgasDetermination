@@ -17,7 +17,6 @@
 #include "PndSdsStripDigiPar.h"
 
 #include <TVector2.h>
-#include <TRandom3.h>
 
 #include <iostream>
 #include <vector>
@@ -53,7 +52,7 @@ class PndSdsCalcStrip
     PndSdsCalcStrip(Double_t pitch, Double_t orient,
                     Int_t nrStrips, Int_t nrFeChannels,
                     const TVector2& firstStripAnchor,
-                    Double_t threshold, Double_t noise);
+                    Double_t threshold, Double_t noise, Double_t csigma);
     
     PndSdsCalcStrip(const PndSdsStripDigiPar* digipar, SensorSide side = kTOP);
     
@@ -72,7 +71,16 @@ class PndSdsCalcStrip
                                         Double_t outx, Double_t outy, Double_t outz,
                                         Double_t eLoss);
     
+    // Calculate without diffusion
+    std::vector<PndSdsStrip> GetStripsNoDif(Double_t nuIn, Double_t nuOut, Double_t Q);
+
+    // Calculate with diffusion
+    std::vector<PndSdsStrip> GetStripsDif(Double_t nuIn, Double_t nuOut, Double_t Q);
+    Double_t CalcFk(Double_t strip, Double_t x, Double_t sig);
     
+    // for debugging; call one of the GetStrips* but returns the number of strips and int arrays to their channel/charge
+    Int_t GetStripsAlternative(Double_t nuIn, Double_t nuOut, Double_t Q, Int_t mode, std::vector<Int_t>& indice, std::vector<Double_t>& charges);
+
     /**
      * Calculate Frontend number from strip-index
      * @param stripNr strip index
@@ -117,9 +125,9 @@ class PndSdsCalcStrip
     TVector2 fAnchor;   /// anchor point on first strip
     Double_t fThreshold;  /// charge threshold
     Double_t fNoise;      /// ENC
+    Double_t fCSigma;    /// Charge diffusion
     TVector2 fStripDir; /// vector perpendicular to strip direction
     TVector2 fOrthoDir; /// vector orthogonal to strip direction
-    TRandom3* fRNG;     /// Random Number Generator
     Int_t fVerboseLevel;
     
     /**
@@ -137,6 +145,7 @@ class PndSdsCalcStrip
      */
     Double_t SmearCharge(Double_t charge);
     const Double_t ChargeFromEloss(Double_t eloss) const {return eloss/(3.61e-9);}
+    void InjectStripCharge(std::vector<PndSdsStrip>& array, Int_t istrip, Double_t charge);
   };
 
 #endif /* PNDSDSCALCSTRIP_H */

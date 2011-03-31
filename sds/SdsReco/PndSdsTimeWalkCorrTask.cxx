@@ -139,7 +139,7 @@ void PndSdsTimeWalkCorrTask::Exec(Option_t* opt)
 		  if(fAdditionalInfo==kTRUE){
 		  digiaddinfo = (PndSdsDigiPixelMCInfo*) fDigiMCArray->At(ii);
 		  digiaddinfo->SetTimeWalkCorrection(fTimeCorrection);
-		  new((*fDigiAdditionalInfoArray)[ii]) PndSdsDigiPixelMCInfo(digiaddinfo->GetIndices(),digiaddinfo->GetDetID(),digiaddinfo->GetSensorID(), digiaddinfo->GetFE(), digiaddinfo->GetPixelColumn(), digiaddinfo->GetPixelRow(), digiaddinfo->GetCharge(), digiaddinfo->GetMCPointType(), digiaddinfo->GetTimestamp(), digiaddinfo->GetMCCharge(), digiaddinfo->GetAddNoise(),digiaddinfo->GetTimeWalk(), digiaddinfo->GetTimeWalkCorrection(), digiaddinfo->GetTof(), digiaddinfo->GetDigiCharge() );
+		  new((*fDigiAdditionalInfoArray)[ii]) PndSdsDigiPixelMCInfo(digiaddinfo->GetIndices(),digiaddinfo->GetDetID(),digiaddinfo->GetSensorID(), digiaddinfo->GetFE(), digiaddinfo->GetPixelColumn(), digiaddinfo->GetPixelRow(), digiaddinfo->GetCharge(), digiaddinfo->GetMCPointType(), digiaddinfo->GetTimeStamp(), digiaddinfo->GetMCCharge(), digiaddinfo->GetAddNoise(),digiaddinfo->GetTimeWalk(), digiaddinfo->GetTimeWalkCorrection(), digiaddinfo->GetTof(), digiaddinfo->GetDigiCharge() );
 
 		  FairLink linkMVDDigisCorr = FairLink("MVDDigisCorr",ii);
 

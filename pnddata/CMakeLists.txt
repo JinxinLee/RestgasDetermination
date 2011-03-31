@@ -70,7 +70,9 @@ HypData/PndHypPoint.cxx
 
 SdsData/PndSdsMCPoint.cxx
 SdsData/PndSdsDigi.cxx
+SdsData/PndSdsPixel.cxx
 SdsData/PndSdsDigiPixel.cxx
+SdsData/PndSdsStrip.cxx
 SdsData/PndSdsDigiStrip.cxx
 SdsData/PndSdsCluster.cxx
 SdsData/PndSdsClusterPixel.cxx

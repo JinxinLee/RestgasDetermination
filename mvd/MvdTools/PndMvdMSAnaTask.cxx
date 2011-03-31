@@ -152,7 +152,8 @@ void PndMvdMSAnaTask::Exec(Option_t* opt)
         
 				TClonesArray& clref2 = *fTrackParFinal;
 				Int_t size2 = clref2.GetEntriesFast();
-				FairTrackParP *fStop= new (clref2[size2]) FairTrackParP(StopPos, StopMom, StopPosErr, StopMomErr, fCharge, o, u, v);
+				//FairTrackParP *fStop= 
+        new (clref2[size2]) FairTrackParP(StopPos, StopMom, StopPosErr, StopMomErr, fCharge, o, u, v);
         
 				TClonesArray& clref = *fTrackParGeane;
 				Int_t size = clref.GetEntriesFast();
