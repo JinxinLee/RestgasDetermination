@@ -16,8 +16,8 @@ PndMvdDetector::PndMvdDetector (const char* name, Bool_t active)
 void PndMvdDetector::SetDefaultSensorNames(){
   fListOfSensitives.push_back("Disk-Sensor");//Root_Test.root
   fListOfSensitives.push_back("Barrel-Sensor");//Root_Test.root
-  fListOfSensitives.push_back("PixelActive");
-  fListOfSensitives.push_back("StripActive");
+  fListOfSensitives.push_back("PixelSensorActive");
+  fListOfSensitives.push_back("StripSensorActive");
   fListOfSensitives.push_back("StripSensor");//MVD14.root
   fListOfSensitives.push_back("SensorActiveArea");//MVD14.root
   fListOfSensitives.push_back("StripActive");//MVD_v1.0.root
