@@ -98,7 +98,7 @@ class PndSdsStripHitProducer : public PndSdsTask
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
   virtual void FinishEvent();
-  void AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge, Int_t timestamp);
+  void AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge);
 
   void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
   Bool_t GetPersistance() {return fPersistance;};
@@ -134,6 +134,7 @@ class PndSdsStripHitProducer : public PndSdsTask
   Bool_t SelectSensorParams(Int_t sensorID);
   
   Int_t DigitizeTime(Double_t time,Double_t charge);
+  Double_t SmearCharge(Double_t charge);
 
   FairMCEventHeader* fMcEventHeader;
   PndGeoHandling* fGeoH; // converter for detector names

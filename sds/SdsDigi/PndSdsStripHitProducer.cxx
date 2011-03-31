@@ -27,6 +27,7 @@
 #include "TObjString.h"
 #include "TGeoManager.h"
 #include "TList.h"
+#include "TRandom.h"
 
 // -----   Default constructor   -------------------------------------------
 PndSdsStripHitProducer::PndSdsStripHitProducer() :
@@ -191,8 +192,8 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
     std::cout<<" Nr of Points: "<<nPoints<<std::endl;
   }
   if(!fMcEventHeader) Error("Exec", "No Fair MC event header found. Why?? %p",fMcEventHeader);
-  Double_t eventTime = fMcEventHeader->GetT(); // in ns
-  Int_t timestamp;
+  Int_t timestamp = 0;
+  Double_t smearedCharge = 0;
   Int_t iStrip = 0;
   Bool_t selected = kFALSE;
   
@@ -238,10 +239,9 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
       for(std::vector<PndSdsStrip>::const_iterator kit=topStrips.begin();
           kit!= topStrips.end(); ++kit)
       {   //TODO: What to do with the kMVD* enmums in sds?
-        timestamp = DigitizeTime(point->GetTime(),kit->GetCharge());
         AddDigi(iStrip,iPoint,kMVDHitsStrip,point->GetSensorID(),
             		fCurrentStripCalcTop->CalcFEfromStrip(kit->GetIndex()),
-            		fCurrentStripCalcTop->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge(),timestamp);
+            		fCurrentStripCalcTop->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
         if (fVerbose > 1) std::cout << *kit << std::endl;
       }
     }else if(fVerbose>2) std::cout<<"Top side empty"<<std::endl;
@@ -259,22 +259,32 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
           kit!= botStrips.end();
           ++kit)
       {
-        timestamp = DigitizeTime(point->GetTime(),kit->GetCharge());
         AddDigi(iStrip,iPoint,kMVDHitsStrip,point->GetSensorID(),
                 fCurrentStripCalcBot->CalcFEfromStrip(kit->GetIndex()) + fCurrentDigiPar->GetNrTopFE(),
-                fCurrentStripCalcBot->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge(),timestamp);
+                fCurrentStripCalcBot->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
         if (fVerbose > 2) std::cout << *kit << std::endl;
       }
     } else if(fVerbose>2) std::cout<<"Bottom side empty"<<std::endl;
     
   } // Loop over MCPoints
   
+  Int_t indexnum=0;
+  Double_t tempstamp=0;
   // Loop over PndSdsDigis and convert charge to digi value
   for (Int_t i = 0; i<iStrip; i++){
-	  PndSdsDigiStrip* gDigi = (PndSdsDigiStrip*) fStripArray->At(i);
-	  SelectSensorParams(gDigi->GetSensorID());
+	  PndSdsDigiStrip* finDigi = (PndSdsDigiStrip*) fStripArray->At(i);
+	  SelectSensorParams(finDigi->GetSensorID());
+    smearedCharge = SmearCharge(finDigi->GetCharge());
     //FIXME: This is not elegant and error prone, for Tasks afterwards will not know how we digitized!
-	  gDigi->SetCharge(fCurrentChargeConverter->ChargeToDigiValue(gDigi->GetCharge()));
+	  finDigi->SetCharge(fCurrentChargeConverter->ChargeToDigiValue(smearedCharge));
+    indexnum = finDigi->GetNIndices();
+    for(Int_t ind=0;ind<indexnum;ind++)
+    {
+      point = (PndSdsMCPoint*) fPointArray->At(ind);
+      tempstamp = DigitizeTime(point->GetTime(),smearedCharge);
+      if(tempstamp < timestamp) timestamp = tempstamp;
+    }
+    finDigi->SetTimeStamp(timestamp);
   }
   
   for (std::map<const char*,PndSdsChargeConversion*>::iterator it = fChargeConverter.begin(); it != fChargeConverter.end(); it++){
@@ -287,12 +297,13 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
 }
 // -------------------------------------------------------------------------
 
-void PndSdsStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge, Int_t timestamp)
+void PndSdsStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge)
 {
   Bool_t found = kFALSE;
   PndSdsDigiStrip* aDigi = 0;
-  for(Int_t kstr = 0; kstr < iStrip && found==kFALSE ; kstr++)
+  for(Int_t kstr = 0; kstr < iStrip ; kstr++)
   {
+    // search if that channel fired already
     aDigi = (PndSdsDigiStrip*)fStripArray->At(kstr);
     if ( aDigi->GetDetID() == detID &&
         aDigi->GetSensorID() == sensorID &&
@@ -301,18 +312,15 @@ void PndSdsStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, I
     {
       aDigi->AddCharge(charge);
       aDigi->AddIndex(iPoint);
-      found = kTRUE;
-      //		((PndSdsDigiStrip*)(*fStripArray)[kstr])->AddCarge(charge);
-      //		((PndSdsDigiStrip*)(*fStripArray)[kstr])->AddIndex(iPoint);
-      //		return;
+      return;
     }
   }
-  if(found == kFALSE){
-	  std::vector<Int_t>indices;
-	  indices.push_back(iPoint);
-    new ((*fStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,sensorID,fe,chan,charge, fInBranchId, timestamp) ;
-    iStrip++;
-  }
+  // we're here when this channel didn't fire
+  std::vector<Int_t>indices;
+	indices.push_back(iPoint);
+  new ((*fStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,sensorID,fe,chan,charge, fInBranchId, 0) ;
+  iStrip++;
+  return;
 }
 // -------------------------------------------------------------------------
 
@@ -355,6 +363,14 @@ Int_t PndSdsStripHitProducer::DigitizeTime(Double_t time, Double_t charge)
 { // time [ns]
   Double_t eventTime = fMcEventHeader->GetT();
   return fCurrentChargeConverter->GetTimeStamp(time,charge,eventTime);
+}
+
+//______________________________________________________________________________
+Double_t PndSdsStripHitProducer::SmearCharge(Double_t charge)
+{
+  Double_t smeared = gRandom->Gaus(charge,fCurrentDigiPar->GetNoise());
+  if (fVerbose > 3) std::cout<<" charge = "<<charge<<", smeared = "<<smeared<<std::endl;
+  return smeared;
 }
 
 // -------------------------------------------------------------------------

@@ -138,12 +138,6 @@ class PndSdsCalcStrip
      */
     Double_t CalcStripFromPoint(Double_t x, Double_t y);
     
-    /**
-     * Apply gaussian distributed noise to given charge
-     * @param charge Equivalent Noise Charge
-     * @return Smeared Charge
-     */
-    Double_t SmearCharge(Double_t charge);
     const Double_t ChargeFromEloss(Double_t eloss) const {return eloss/(3.61e-9);}
     void InjectStripCharge(std::vector<PndSdsStrip>& array, Int_t istrip, Double_t charge);
   };

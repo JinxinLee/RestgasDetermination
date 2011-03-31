@@ -89,6 +89,7 @@ protected:
 
   void AddHit(PndSdsPixel& hit, int mcIndex);
   void AddHits(std::vector<PndSdsPixel>* hitList, int mcIndex);
+  Double_t SmearCharge(Double_t charge);
 
   Double_t flx;	//pixel widh in x;
   Double_t fly;	//pixel width in y;

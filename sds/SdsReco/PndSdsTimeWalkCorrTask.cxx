@@ -130,7 +130,7 @@ void PndSdsTimeWalkCorrTask::Exec(Option_t* opt)
 		 // std::cout << "DigiPixelArray[ii].GetNIndices()  " << DigiPixelArray[ii].GetNIndices() << std::endl;
 		 // std::cout << "DigiPixelArray[ii].GetIndex(0)  " << DigiPixelArray[ii].GetIndex(0) << std::endl;
 		  fTimeCorrection = fTimeWalkCorr->CorrectionTimeWalk(DigiPixelArray[ii].GetCharge());
-		  new((*fDigiCorrArray)[ii]) PndSdsDigiPixel(fIndex,DigiPixelArray[ii].GetDetID(),DigiPixelArray[ii].GetSensorID(),DigiPixelArray[ii].GetFE(),DigiPixelArray[ii].GetPixelColumn(),DigiPixelArray[ii].GetPixelRow(),fTimeWalkCorr->GetCharge(),DigiPixelArray[ii].GetMCPointType(),DigiPixelArray[ii].GetTime()-fTimeCorrection);
+		  new((*fDigiCorrArray)[ii]) PndSdsDigiPixel(fIndex,DigiPixelArray[ii].GetDetID(),DigiPixelArray[ii].GetSensorID(),DigiPixelArray[ii].GetFE(),DigiPixelArray[ii].GetPixelColumn(),DigiPixelArray[ii].GetPixelRow(),fTimeWalkCorr->GetCharge(),DigiPixelArray[ii].GetMCPointType(),DigiPixelArray[ii].GetTimeStamp()-fTimeCorrection);
 
 		  digi = (PndSdsDigiPixel*) (fDigiCorrArray->At(ii));
 		  digi->SetLink(linkMVDPixelDigis);

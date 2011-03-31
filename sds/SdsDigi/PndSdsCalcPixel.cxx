@@ -1,5 +1,4 @@
 #include "PndSdsCalcPixel.h"
-#include "TRandom3.h"
 #include <cmath>
 
 PndSdsCalcPixel::PndSdsCalcPixel()
@@ -195,26 +194,26 @@ switch (fQuad){
     
 
   Double_t depCharge = (OutPoint - fPos).length() * fCperL;
-  if (fVerboseLevel > 1){
-    std::cout << "depCharge w/o noise: " << depCharge << std::endl;
-  }
-  TRandom* rgen = gRandom;//new TRandom3();
-  Double_t addNoise = rgen->Gaus(0,fNoise);
-  depCharge += addNoise;
+  //if (fVerboseLevel > 1){
+    //std::cout << "depCharge w/o noise: " << depCharge << std::endl;
+  //}
+  //TRandom* rgen = gRandom;//new TRandom3();
+  //Double_t addNoise = rgen->Gaus(0,fNoise);
+  //depCharge += addNoise;
   
-  if (fVerboseLevel > 1){
-    std::cout << "depCharge w noise " << fNoise << ": " << depCharge << " " << addNoise << std::endl;
-  }
+//  //if (fVerboseLevel > 1){
+    //std::cout << "depCharge w noise " << fNoise << ": " << depCharge << " " << addNoise << std::endl;
+  //}
 
   fPos = OutPoint;
   
-  fActivePixel.SetAddNoise(addNoise);
+  //fActivePixel.SetAddNoise(addNoise);
 
-  if (depCharge > fThreshold){
+  //if (depCharge > fThreshold){
     fActivePixel.SetCharge(depCharge);
-  }
-  else
-    fActivePixel.SetCharge(0);
+  //}
+  //else
+  //  fActivePixel.SetCharge(0);
 
   fPixels.push_back(fActivePixel);
   

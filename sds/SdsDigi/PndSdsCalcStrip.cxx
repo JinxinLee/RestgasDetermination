@@ -14,7 +14,6 @@
 #include <exception>
 
 #include "PndSdsCalcStrip.h"
-#include "TRandom.h"
 
 //______________________________________________________________________________
 PndSdsCalcStrip::PndSdsCalcStrip(){
@@ -26,7 +25,6 @@ PndSdsCalcStrip::PndSdsCalcStrip(){
   fNoise = 0.;
   fCSigma = 0.;
   fVerboseLevel = 0;
-  //  fRNG = new TRandom3();
 }
 
 //______________________________________________________________________________
@@ -281,15 +279,6 @@ Int_t PndSdsCalcStrip::GetStripsAlternative(Double_t nuIn, Double_t nuOut, Doubl
 }
 
 //______________________________________________________________________________
-Double_t PndSdsCalcStrip::SmearCharge(Double_t charge)
-{
-  //  Double_t smeared = fRNG->Gaus(charge,fNoise);
-  Double_t smeared = gRandom->Gaus(charge,fNoise);
-  if (fVerboseLevel > 3) std::cout<<" charge = "<<charge<<", smeared = "<<smeared<<std::endl;
-  return smeared;
-}
-
-//______________________________________________________________________________
 Double_t PndSdsCalcStrip::CalcStripFromPoint(Double_t x, Double_t y)
 {
   // fOrthoDir is already set to magnitude == 1., makes it cheaper here.
@@ -327,10 +316,10 @@ void PndSdsCalcStrip::InjectStripCharge(std::vector<PndSdsStrip>& array, Int_t i
 {
   if(istrip<0) return;
   if(istrip>fNrStrips) return;
-  Double_t smearedQ = SmearCharge(charge);
-  if(smearedQ < fThreshold) return;
+  //Double_t smearedQ = SmearCharge(charge);
+  //if(smearedQ < fThreshold) return;
   if(fVerboseLevel>3) Info("InjectStripCharge","istrip=%i,charge=%f",istrip,charge);
-  array.push_back(PndSdsStrip(Int_t(istrip),smearedQ));
+  array.push_back( PndSdsStrip(Int_t(istrip),charge) );
   return;
 }
 

@@ -6,6 +6,7 @@
 #include "TClonesArray.h"
 #include "TArrayD.h"
 #include "TGeoManager.h"
+#include "TRandom.h"
 
 #include "FairRootManager.h"
 #include "PndSdsHybridHitProducer.h"
@@ -119,14 +120,14 @@ InitStatus PndSdsHybridHitProducer::Init()
     << "No SDSPoint array!" << std::endl;
     return kERROR;
   }
-
+  
   fMCEventHeader= (FairMCEventHeader*)ioman->GetObject("MCEventHeader.");
   if ( ! fMCEventHeader )
   {
-	    std::cout << "-W- PndSdsHybridHitProducer::Init: "
-	    << "No MCEventHeader!" << std::endl;
+    std::cout << "-W- PndSdsHybridHitProducer::Init: "
+    << "No MCEventHeader!" << std::endl;
   }
-
+  
   // Create and register output array
   //  fHitArray = new TClonesArray("PndSdsHit");
   //  ioman->Register("MVDHit", "MVD", fHitArray, kTRUE);
@@ -138,16 +139,16 @@ InitStatus PndSdsHybridHitProducer::Init()
   
   if(fDigiPixelMCInfo==kTRUE)
   {
-
-
-  if(fVerbose>1) Info("Init","Registering this branch: %s/%s","PndMVD","MVDPixelDigisMCInfo");
-  fPixelMCArray = new TClonesArray("PndSdsDigiPixelMCInfo");
-
-  ioman->Register("MVDPixelDigisMCInfo", "PndMVD", fPixelMCArray, fPersistance);
-
-  std::cout << "fPixelMCArray definiert " << std::endl;
+    
+    
+    if(fVerbose>1) Info("Init","Registering this branch: %s/%s","PndMVD","MVDPixelDigisMCInfo");
+    fPixelMCArray = new TClonesArray("PndSdsDigiPixelMCInfo");
+    
+    ioman->Register("MVDPixelDigisMCInfo", "PndMVD", fPixelMCArray, fPersistance);
+    
+    std::cout << "fPixelMCArray definiert " << std::endl;
   }
-
+  
   if(fOverwriteParams==kTRUE){
     fDigiPar->SetXPitch(flx);
     fDigiPar->SetYPitch(fly);
@@ -179,13 +180,13 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
 {
   if(fVerbose>3) Info("Exec","Start");
   // Reset output array
-
+  
   if ( ! fPixelArray )
     Fatal("Exec", "No PixelArray");
-
+  
 	if(fDigiPixelMCInfo==kTRUE)
 	{
-			if ( ! fPixelMCArray )
+    if ( ! fPixelMCArray )
 			Fatal("Exec", "No PixelMCArray");
 	}
   fPixelList.clear();
@@ -240,12 +241,12 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
     {
       std::vector<PndSdsPixel> myPixels;
       if(fqsigma>0){
-      // Define sensor by pixelsizes threshold and noise from macro outside
-      PndSdsCalcPixel PixelCalc(flx, fly, fthreshold, fnoise);
-      // Calculate a cluster of Pixels fired (in sensor system)
-      myPixels = PixelCalc.GetPixels (posInL.getX(), posInL.getY(), posInL.getZ(),
-                                      posOutL.getX(), posOutL.getY(), posOutL.getZ(),
-                                      point->GetEnergyLoss());
+        // Define sensor by pixelsizes threshold and noise from macro outside
+        PndSdsCalcPixel PixelCalc(flx, fly, fthreshold, fnoise);
+        // Calculate a cluster of Pixels fired (in sensor system)
+        myPixels = PixelCalc.GetPixels (posInL.getX(), posInL.getY(), posInL.getZ(),
+                                        posOutL.getX(), posOutL.getY(), posOutL.getZ(),
+                                        point->GetEnergyLoss());
       } else {
         // Define sensor by pixelsizes threshold and noise from macro outside
         PndSdsCalcPixelDif PixelCalc(flx, fly, fthreshold, fnoise, fqsigma);
@@ -278,34 +279,37 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
       
     }//endif pixel
   }   // Loop over MCPoints
- 
+  
   // convert to digi data type after all charge is collected
-  int test=0;
+  // and apply gaussian noise
+  Int_t test=0;
+  Double_t smearedCharge=0;
   for (unsigned int iPix = 0; iPix < fPixelList.size(); iPix++)
   {
-
+    
 	  std::cout << "fPixelList.size()" <<  fPixelList.size() << std::endl;
-  if (fPixelList[iPix].GetCharge()<=fthreshold) continue;
-  	  point = (PndSdsMCPoint*) fPointArray->At(fPixelList[iPix].GetMCIndex()[0]);
-	if(fDigiPixelMCInfo==kTRUE)
+    smearedCharge = SmearCharge(fPixelList[iPix].GetCharge());
+    if (smearedCharge<=fthreshold) continue;
+    point = (PndSdsMCPoint*) fPointArray->At(fPixelList[iPix].GetMCIndex()[0]);
+    if(fDigiPixelMCInfo==kTRUE)
     {
-		new ((*fPixelMCArray)[iFePixel]) PndSdsDigiPixelMCInfo(fPixelList[iPix].GetMCIndex(), kMVDHitsPixel, fPixelList[iPix].GetSensorID() ,fPixelList[iPix].GetFE(),
-				fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
-				fChargeConverter->ChargeToDigiValue(fPixelList[iPix].GetCharge()), fInBranchId, fChargeConverter->GetTimeStamp(point->GetTime(), fPixelList[iPix].GetCharge(),fMCEventHeader->GetT()),fPixelList[iPix].GetCharge()-fPixelList[iPix].GetAddNoise(),fPixelList[iPix].GetAddNoise(), fChargeConverter->GetTimeWalk(fPixelList[iPix].GetCharge()),0,point->GetTime(),fPixelList[iPix].GetCharge()  );
-		std::cout << "-I- PndSdsHybridHitProducer::Exec: TimeStamp: " << fChargeConverter->GetTimeStamp(point->GetTime(), fPixelList[iPix].GetCharge(),fMCEventHeader->GetT()) << " point->GetTime: " <<  point->GetTime() << " EventHeader->GetT() " << fMCEventHeader->GetT() << std::endl;
-		test++;
-		std::cout <<"fPixelList.AddNosie"<< fPixelList[iPix].GetAddNoise() << std::endl;
+      new ((*fPixelMCArray)[iFePixel]) PndSdsDigiPixelMCInfo(fPixelList[iPix].GetMCIndex(), kMVDHitsPixel, fPixelList[iPix].GetSensorID() ,fPixelList[iPix].GetFE(),
+                                                             fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
+                                                             fChargeConverter->ChargeToDigiValue(smearedCharge), fInBranchId, fChargeConverter->GetTimeStamp(point->GetTime(), smearedCharge,fMCEventHeader->GetT()),smearedCharge-fPixelList[iPix].GetAddNoise(),fPixelList[iPix].GetAddNoise(), fChargeConverter->GetTimeWalk(smearedCharge),0,point->GetTime(),smearedCharge  );
+      std::cout << "-I- PndSdsHybridHitProducer::Exec: TimeStamp: " << fChargeConverter->GetTimeStamp(point->GetTime(), smearedCharge,fMCEventHeader->GetT()) << " point->GetTime: " <<  point->GetTime() << " EventHeader->GetT() " << fMCEventHeader->GetT() << std::endl;
+      test++;
+      std::cout <<"fPixelList.AddNosie"<< fPixelList[iPix].GetAddNoise() << std::endl;
     }
 	  if (fVerbose > 1)  std::cout << fPixelList[iPix] << std::endl;
     new ((*fPixelArray)[iFePixel++])
     PndSdsDigiPixel( fPixelList[iPix].GetMCIndex(), kMVDHitsPixel, fPixelList[iPix].GetSensorID() ,fPixelList[iPix].GetFE(),
-    				fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
-    				fChargeConverter->ChargeToDigiValue(fPixelList[iPix].GetCharge()), fInBranchId, fChargeConverter->GetTimeStamp(point->GetTime(), fPixelList[iPix].GetCharge(),fMCEventHeader->GetT()));
+                    fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
+                    fChargeConverter->ChargeToDigiValue(smearedCharge), fInBranchId, fChargeConverter->GetTimeStamp(point->GetTime(), smearedCharge,fMCEventHeader->GetT()) );
   }
   
-
-
-
+  
+  
+  
   fChargeConverter->EndExecute();
   // Event summary
   
@@ -313,8 +317,8 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
     std::cout << "-I- PndSdsHybridHitProducer: " << nPoints << " PndSdsMCPoints, "
     << fPixelHits << " Digi created." << " " << iFePixel
     << "  (event "<<fEventNr++ <<")"<< std::endl;
-
-
+    
+    
   }
   if(fVerbose>3) Info("Exec","Loop MC points");
 }
@@ -419,7 +423,8 @@ void PndSdsHybridHitProducer::AddHit(PndSdsPixel& hit, int mcIndex)
 {
 	bool found = false;
 	if(fVerbose > 1) std::cout << "Adding Hits to PixelList with mcIndex: " << mcIndex << std::endl;
-	for (UInt_t i = 0; i < fPixelList.size() && found == false; i++){
+  // check isf the channel fired already
+	for (UInt_t i = 0; i < fPixelList.size(); i++){
 		if ( fPixelList[i].GetSensorID() == hit.GetSensorID() &&
         fPixelList[i].GetFE() == hit.GetFE() &&
         fPixelList[i].GetCol() == hit.GetCol() &&
@@ -432,13 +437,22 @@ void PndSdsHybridHitProducer::AddHit(PndSdsPixel& hit, int mcIndex)
         << "/" << hit.GetRow() << " already hit!"<< std::endl;
 			fPixelList[i].AddCharge(hit.GetCharge());
 			fPixelList[i].AddMCIndex(mcIndex);
-			found = true;
+			return;
 		}
 	}
 	if (found == false){
 		hit.AddMCIndex(mcIndex);
 		fPixelList.push_back(hit);
 	}
+}
+
+//______________________________________________________________________________
+Double_t PndSdsHybridHitProducer::SmearCharge(Double_t charge)
+{
+  //  Double_t smeared = fRNG->Gaus(charge,fNoise);
+  Double_t smeared = gRandom->Gaus(charge,fnoise);
+  if (fVerbose > 3) std::cout<<" charge = "<<charge<<", smeared = "<<smeared<<std::endl;
+  return smeared;
 }
 
 // -------------------------------------------------------------------------
@@ -448,9 +462,9 @@ void PndSdsHybridHitProducer::FinishEvent()
   // called after all Tasks did their Exex() and the data is copied to the file
   fPixelArray->Delete();
 	if(fDigiPixelMCInfo==kTRUE)
-		{
+  {
 		fPixelMCArray->Delete();
-		}
+  }
   FinishEvents();
 }
 // -------------------------------------------------------------------------
