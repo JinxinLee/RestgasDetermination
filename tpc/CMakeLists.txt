@@ -130,6 +130,7 @@ TestBench/Hough4DNode.cxx
 TestBench/PndTpcEvent.cxx
 TestBench/PndTpcEventIdentifier.cxx
 TestBench/PndTpcDataReaderTask.cxx
+TestBench/PndTpcClusterCorrectionTask.cxx
 #TestBench/PndTpcTCcrossTalk.cxx
 #TestBench/PndTpcTCcrossTalkTask.cxx
 #TestBench/PndTpcCTapplyTask.cxx

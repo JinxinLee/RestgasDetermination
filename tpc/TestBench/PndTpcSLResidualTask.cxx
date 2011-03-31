@@ -34,7 +34,7 @@
 #include "PndTpcCluster.h"
 #include "TrackFitStat.h"
 
-#define DEBUG 1
+#define DEBUG 0
 
 
 PndTpcSLResidualTask::PndTpcSLResidualTask()
@@ -151,8 +151,6 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
       fitstat->setmom(mom);
       fitstat->addFailedHits(failedHits);
       
-      unsigned int nCl = fClusterArray->GetEntriesFast();
-
       std::vector<double> resX;
       std::vector<double> resY;
       std::vector<double> resZ;
@@ -237,6 +235,7 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
       fitstat->fillPndTpcHitPositionsX(posX);
       fitstat->fillPndTpcHitPositionsY(posY);
       fitstat->fillPndTpcHitPositionsZ(posZ);
+      fitstat->fillPndTpcHitIDs(candIDs);
       fitstat->setChi2(Chi2);
       fitstat->setNDF(NDF);
       

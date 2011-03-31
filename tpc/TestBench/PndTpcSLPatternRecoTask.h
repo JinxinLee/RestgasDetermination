@@ -69,8 +69,7 @@ class PndTpcSLPatternRecoTask : public FairTask {
   void SetNClusterLimit(unsigned int ncl) {fClLimit=ncl;}
   void SetAbsMomentum(unsigned int s) {fMomScale=s;}  //set absolute momentum
   
-  void SetDistSorting(bool opt) {fDistSorting=opt;}
-  void SetXSorting(bool opt) {fXSorting=opt;}
+  void SetSortMode(int opt) {fSortMode=opt;}
 
   //void SetProjectionXZ() {fXZ=true;fZY=false;fXY=false;} //find lines in X-Z
   //void SetProjectionZY() {fZY=true;fXZ=false;fXY=false;} //find lines in Z-Y (cosmics)
@@ -95,9 +94,11 @@ class PndTpcSLPatternRecoTask : public FairTask {
   unsigned int fThresh;   //STATIC threshold of the FTH search 
   unsigned int fMin;      //minimum track candidate size
   
+  int fSortMode;   //0: distance   1: X   2: Y
+  
   Bool_t fPersistence;
-  Bool_t fDistSorting;
-  Bool_t fXSorting;
+ 
+  
   Bool_t fXZ;
   Bool_t fZY;
   Bool_t fXY;

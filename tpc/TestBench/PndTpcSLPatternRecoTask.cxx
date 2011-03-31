@@ -64,10 +64,15 @@ clusterSortX(PndTpcCluster* cl1, PndTpcCluster* cl2) {
   return cl1->pos().X()<cl2->pos().X();
 }
 
+bool
+clusterSortY(PndTpcCluster* cl1, PndTpcCluster* cl2) {
+  return cl1->pos().Y()<cl2->pos().Y();
+}
+
 
 PndTpcSLPatternRecoTask::PndTpcSLPatternRecoTask()
 :  FairTask("PndTpc SL Hough Pattern Reco"),
-   fPersistence(kFALSE),fDistSorting(kFALSE),
+   fPersistence(kFALSE),fSortMode(0),
    fDepth(6), fThresh(6), fMin(5), counter(-1),
    fXZ(true), fZY(false), _cutbigpad(kFALSE), _cutsmallpad(kFALSE),
    fStore(false), fAmpCut(0.), fZStackLimit(0), fClLimit(500), fDebug(false),
@@ -275,13 +280,15 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
 	  
       
   // ------- CLUSTER SORTING ----------------------
-  if(fDistSorting) {
+  if(fSortMode==0) {
     std::sort(cll.begin(),cll.end(),PndTpcClusterDist(false)); 
     std::cout<<"\n **** using DISTANCE presorting of PndTpcClusters ****"
 	     <<std::endl;
   }
-  if(fXSorting)
+  if(fSortMode==1)
     std::sort(cll.begin(),cll.end(),clusterSortX); 
+  if(fSortMode==2)
+    std::sort(cll.begin(),cll.end(),clusterSortY); 
   
 
   for(unsigned int i=0;i<cll.size();++i){    //second loop: create Hough reps
