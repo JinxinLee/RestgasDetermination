@@ -72,13 +72,14 @@ PndTpcCluster::PndTpcCluster(const TVector3& Pos, const TVector3& Sig, double Am
 
 
 TVector3
-PndTpcCluster::calcAxis() const {
+PndTpcCluster::calcAxis(unsigned int i) const {
+  assert(i<3);
   TVectorD eigenValues(3);
   TMatrixD eigenVec=fcov.EigenVectors(eigenValues);
 
   // eigenvalues are sorted according to their value
   // in descendign order -> first one is largest
-  TVectorD a=TMatrixDColumn(eigenVec,0);
+  TVectorD a=TMatrixDColumn(eigenVec,i);
   TVector3 Axis(a[0],a[1],a[2]);
   Axis.SetMag(1);
   return Axis;

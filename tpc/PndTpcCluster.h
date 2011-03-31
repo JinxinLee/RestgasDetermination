@@ -54,7 +54,7 @@ public:
   const TVector3& pos() const {return fpos;}
   const TVector3& sig() const {return fsig;}
   const TMatrixD& cov() const {return fcov;}
-  TVector3 axis() const {return calcAxis();}
+  TVector3 axis(unsigned int i=0) const {return calcAxis(i);}
   double amp() const {return famp;}
   unsigned int size() const {return fsize;}
   unsigned int nPad() const {return fnPad;}
@@ -70,6 +70,7 @@ public:
   void SetMcId(const McIdCollection& m){fmcid=m;}
   void SetIndex(unsigned int id){findex=id;}
   void SetCov(const TMatrixD& Cov){fcov=Cov;fhasaxis=false;}
+  void SetPos(const TVector3& p) {fpos = p;} //allows for position correction. TODO: what happens to error?
   
   void SetIndexInTrack(int indexInTrack ) {findexInTrack=indexInTrack; }//for spatial sorting
   int GetIndexInTrack() const {return findexInTrack; }	//for spatial sorting
@@ -99,7 +100,7 @@ public:
   
   
   
-  TVector3 calcAxis() const; // calculate major axis from cluster shape
+  TVector3 calcAxis(unsigned int i=0) const; // calculate major axis from cluster shape
 
 private:
 

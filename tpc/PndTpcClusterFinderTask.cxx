@@ -49,6 +49,7 @@ PndTpcClusterFinderTask::PndTpcClusterFinderTask()
     fAdcSens(600.), fC(300.)
 {
   fdigiBranchName = "PndTpcDigi";
+  fClusterOutName = "PndTpcCluster";
 }
  
 
@@ -98,7 +99,7 @@ PndTpcClusterFinderTask::Init()
   
   // create and register output array
   fclusterArray = new TClonesArray("PndTpcCluster"); 
-  ioman->Register("PndTpcCluster","PndTpc",fclusterArray,fpersistence);
+  ioman->Register(fClusterOutName,"PndTpc",fclusterArray,fpersistence);
 
   
   fpar->printParams();

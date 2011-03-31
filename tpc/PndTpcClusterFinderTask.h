@@ -49,6 +49,7 @@ public:
 
   // Modifiers -----------------------
   void SetDigiBranchName(const TString& name) {fdigiBranchName=name;}
+  void SetClusterBranchName(const TString& name) {fClusterOutName=name;}
   void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
   void SetTrivialClustering(Bool_t opt=kTRUE) {ftrivial=opt;}
   void SetMode(int mode){fmode=mode;}
@@ -73,6 +74,7 @@ private:
 
   // Private Data Members ------------
   TString fdigiBranchName;
+  TString fClusterOutName;
   TClonesArray* fclusterArray;
   TClonesArray* fdigiArray;
   
