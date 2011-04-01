@@ -51,21 +51,21 @@ InitStatus PndMvdRiemannTrackFinderTask::Init()
     }
 
   // Get input array
-  if (fHitBranch.size() > 0){
-	  for (int i = 0; i < fHitBranch.size(); i++){
-		  TClonesArray* tempArray = (TClonesArray*) ioman->GetObject(fHitBranch[i]);
-		  if (tempArray == 0){
-			  std::cout << "-W- PndMvdRiemannTrackFinderTask::Init: " << "No hitArray for BranchName " << fHitBranch[i].Data() << std::endl;
-			  return kERROR;
-		  }
-		  fHitArray.push_back(tempArray);
-	  }
-  }
-  else {
+  if (fHitBranch.size() == 0){
 	  std::cout << "-W- PndMvdRiemannTrackFinderTask::Init: " << "No Branch Names given with AddHitBranch(TString branchName)! Standard BranchNames taken!" << std::endl;
-	  AddHitBranch("MVDHitsPixel");
-	  AddHitBranch("MVDHitsStrip");
+	  fHitBranch.push_back("MVDHitsPixel");
+	  fHitBranch.push_back("MVDHitsStrip");
   }
+
+  for (int i = 0; i < fHitBranch.size(); i++){
+	  TClonesArray* tempArray = (TClonesArray*) ioman->GetObject(fHitBranch[i]);
+	  if (tempArray == 0){
+		  std::cout << "-W- PndMvdRiemannTrackFinderTask::Init: " << "No hitArray for BranchName " << fHitBranch[i].Data() << std::endl;
+		  return kERROR;
+	  }
+	  fHitArray.push_back(tempArray);
+  }
+
 
 
   fTrackCandArray = new TClonesArray("PndTrackCand");
