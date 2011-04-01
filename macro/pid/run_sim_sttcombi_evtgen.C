@@ -75,9 +75,9 @@ run_sim_sttcombi_evtgen(Int_t nEvents=10, UInt_t seed=0){
   fRun->AddModule(Emc);
 
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
-  Muo->SetBarrel("torino");
-  Muo->SetEndcap("torino");
-  Muo->SetMuonFilter("torino");
+  Muo->SetBarrel("fast");
+  Muo->SetEndcap("fast");
+  Muo->SetMuonFilter("fast");
   Muo->SetMdtMagnet(kTRUE);
   Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
