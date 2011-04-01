@@ -176,11 +176,11 @@ gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   TrackFitStatTask* fitstat=new TrackFitStatTask();
   fitstat->SetPersistence();
 //  fitstat->SetMCPCut(0); // in sigma dp/p
-  fitstat->SetMCCuts(0.005, // pmin
-	             10., // pmax
-		     -TMath::Pi(),   // thetamin 5deg
-		     TMath::Pi(),  // thetamax
-		     5); // nPndTpcPoints
+//  fitstat->SetMCCuts(0.005, // pmin
+//	             10., // pmax
+//		     -TMath::Pi(),   // thetamin 5deg
+//		     TMath::Pi(),  // thetamax
+//		     5); // nPndTpcPoints
   fitstat->SetPdgSelection(11);//321
 //fitstat->DoResiduals();
 //  fRun->AddTask(fitstat);

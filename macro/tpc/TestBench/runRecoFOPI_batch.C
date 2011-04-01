@@ -1,7 +1,5 @@
 void runRecoFOPI_batch(TString filename, TString outpath) 
 {
-//Data analysis framework for the test bench tpc data.
-//Maxence Vandenbroucke 11/01/2010
   
 // ========================================================================
 // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
@@ -34,8 +32,7 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   
   TString inFile=jobdir;
   inFile+="/dummy/dummy5.raw.root";
-  //TString inFile="/nfs/hicran/data/tpc/fopi/2010/reconstructed/dummy/dummy.raw.root";
-  
+   
   TString mcFile=inFile;
   mcFile.ReplaceAll(".raw",".mc");
   
@@ -126,16 +123,25 @@ void runRecoFOPI_batch(TString filename, TString outpath)
 
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
   //tpcCF->SetDataMode(true); //prevents usage of FairLinks
-  tpcCF->SetMode(1); // individual timeslice
+  tpcCF->SetMode(2); 
   tpcCF->SetDataMode(true);
   tpcCF->SetPersistence();
   tpcCF->SetDigiBranchName("PndTpcDigi");
-  tpcCF->timeslice(10); //in samples
-  tpcCF->SetDiffFactor(1.3);
+  //tpcCF->SetClusterBranchName("PndTpcCluster_raw");
+  tpcCF->timeslice(5); //in samples
+  tpcCF->SetDiffFactor(1.);
   tpcCF->SetSingleDigiClusterAmpCut(15);
   tpcCF->SetErrorPars(600,300);
   //tpcCF->SetTrivialClustering();
   fRun->AddTask(tpcCF);
+
+  //actually MODIFIES existing clusters, does NOT create a new branch
+  PndTpcClusterCorrectionTask* tpcCC = new PndTpcClusterCorrectionTask();
+  double pars[6] = {-1.03313e-01,-2.17371e+00,1.30198e+01,
+		    -2.82209e+01,2.93526e+01,-1.17837e+01};
+  tpcCC->SetPersistence();
+  tpcCC->SetParameters(pars);
+  //fRun->AddTask(tpcCC);
 
 
   //PndTpcCTapplyTask* CTapply = new PndTpcCTapplyTask();
@@ -160,14 +166,14 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   tpcSLPR->SetPersistence(true);
   tpcSLPR->SetStoreHistograms(PROutFile);
   tpcSLPR->SetClusterAmpCut(30.);
-  tpcSLPR->SetCutTracksParallelZ(5);
-  tpcSLPR->SetXSorting(true);
+  //tpcSLPR->SetCutTracksParallelZ(5);
+  tpcSLPR->SetSortMode(2); //Y-sorting
   double parMins[4] = {-TMath::Pi(),0.,-TMath::Pi(),0.};
   double parMaxs[4] = {TMath::Pi(),10.,TMath::Pi(),20.};
   tpcSLPR->SetParameterSpace(parMins, parMaxs);
-  tpcSLPR->SetDepth(8);
-  tpcSLPR->SetThresh(22);
-  tpcSLPR->SetMinCandHits(22);
+  tpcSLPR->SetDepth(7);
+  tpcSLPR->SetThresh(20);
+  tpcSLPR->SetMinCandHits(20);
   //tpcSLPR->SetClusterBranchName("PndTpcCluster_cut");
   tpcSLPR->SetAbsMomentum(1000);
   fRun->AddTask(tpcSLPR);
