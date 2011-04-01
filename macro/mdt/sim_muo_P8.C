@@ -80,9 +80,9 @@ sim_muo_P8(Int_t rng=0, Int_t nEvents=20, Float_t momentum = 15.){
 //   fRun->AddModule(Support);
   
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
-  Muo->SetBarrel("torino");
-  Muo->SetEndcap("torino");
-  Muo->SetMuonFilter("torino");
+  Muo->SetBarrel("fast");
+  Muo->SetEndcap("fast");
+  Muo->SetMuonFilter("fast");
   Muo->SetMdtMagnet(kTRUE);
   Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);

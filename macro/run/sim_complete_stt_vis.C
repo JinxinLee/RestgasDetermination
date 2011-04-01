@@ -97,9 +97,9 @@ sim_complete_stt_vis(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t 
   fRun->AddModule(Drc); 
  /* //-------------------------  MDT       -----------------
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
-  Muo->SetBarrel("torino");
-  Muo->SetEndcap("torino");
-  Muo->SetMuonFilter("torino");
+  Muo->SetBarrel("fast");
+  Muo->SetEndcap("fast");
+  Muo->SetMuonFilter("fast");
   Muo->SetMdtMagnet(kFALSE);
   Muo->SetMdtMFIron(kFALSE);
   fRun->AddModule(Muo);

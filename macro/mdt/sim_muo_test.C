@@ -57,7 +57,7 @@ void sim_muo_test(Int_t nEvents=100, Int_t pid=13, Float_t p1=1.0, Float_t p2=-1
   fRun->AddModule(Tof);
  */
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
-  Muo->SetMdtVersion("torino");
+  Muo->SetMdtVersion("fast");
   Muo->SetMdtMagnet(kFALSE);
   //Muo->SetMdtMF(kTRUE);
   //Muo->SetMdtMFIron(kTRUE);

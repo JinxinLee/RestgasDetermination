@@ -89,9 +89,9 @@ rad_complete_stt(Int_t nEvents = 1, TString  SimEngine ="TGeant4", Float_t mom =
   fRun->AddModule(Drc); 
   //-------------------------  MDT       -----------------
   PndMdt *Muo = new PndMdt("MDT",kFALSE);
-  Muo->SetBarrel("torino");
-  Muo->SetEndcap("torino");
-  Muo->SetMuonFilter("torino");
+  Muo->SetBarrel("fast");
+  Muo->SetEndcap("fast");
+  Muo->SetMuonFilter("fast");
   Muo->SetMdtMagnet(kTRUE);
   Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);

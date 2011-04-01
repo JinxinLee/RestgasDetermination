@@ -57,9 +57,9 @@ void sim_muo(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2=-1){
   fRun->AddModule(Tof);
  */
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
-  Muo->SetBarrel("torino");
-  Muo->SetEndcap("torino");
-  Muo->SetMuonFilter("torino");
+  Muo->SetBarrel("fast");
+  Muo->SetEndcap("fast");
+  Muo->SetMuonFilter("fast");
   //Muo->SetMdtMagnet(kTRUE);
   Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
