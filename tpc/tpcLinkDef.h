@@ -13,6 +13,7 @@
 #pragma link C++ class PndTpcDigiPar+;
 #pragma link C++ class PndTpcContFact+;
 #pragma link C++ class PndTpcClusterizerTask+;
+#pragma link C++ class PndTpcClustVis+;
 #pragma link C++ class PndTpcDriftTask+;
 //#pragma link C++ class PndTpcRadialDriftTask+;
 #pragma link C++ class PndTpcGemTask+;

@@ -137,6 +137,7 @@ TestBench/PndTpcClusterCorrectionTask.cxx
 #TestBench/TCmappingManager.cxx
 #TestBench/mappingData.cxx
 #TestBench/TCconfigManager.cxx
+TestBench/PndTpcClustVis.cxx	    
 PndTpcT2KPulseshape.cxx
 )
 
@@ -182,7 +183,7 @@ SET(TPC_SRCS ${TPC_SRCS} ${TPC_DICTIONARY} dbgstream.cxx)
 SET(TPC_BASE_SOURCES ${TPC_BASE_SOURCES} ${TPC_BASE_DICTIONARY} dbgstream.cxx) 
 
 add_library(Tpc SHARED ${TPC_SRCS})
-target_link_libraries(Tpc ${ROOT_LIBRARIES})
+target_link_libraries(Tpc ${ROOT_LIBRARIES} -lEG -lTreePlayer -lGeom -lGed -lRGL -lEve)
 set_target_properties(Tpc PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 add_library(TpcBase SHARED ${TPC_BASE_SOURCES})
 target_link_libraries(TpcBase ${ROOT_LIBRARIES})
