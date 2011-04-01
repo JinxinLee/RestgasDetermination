@@ -29,7 +29,7 @@ class PndSdsDigi : public FairTimeStamp
       out << "PndSds Digi in sensor: " << digi.GetSensorID() << " FE: "
       << digi.GetFE() << " "
       << " charge: " << digi.GetCharge() << " e"
-      << " timestamp: "<<digi.GetTime()
+      << " timestamp: "<<digi.GetTimeStamp()
       << ", from Point(s): ";
       std::vector<Int_t> indices = digi.GetIndices();
       for (unsigned int i = 0; i < indices.size(); i++){
@@ -57,10 +57,9 @@ class PndSdsDigi : public FairTimeStamp
 		Double_t GetCharge()	 const { return fCharge; }
 		Int_t GetDetID() const { return fDetID;}
 		std::vector<Int_t> GetIndices() const { return fIndex;}
-		int GetNIndices() {return fIndex.size();}
 		Int_t GetIndex(int i = 0) const{ return fIndex[i];}
 		Int_t GetNIndices() const { return fIndex.size();}
-	    Double_t GetTimeStamp() const { return fTimeStamp;}
+    Double_t GetTimeStamp() const { return fTimeStamp;}
     
     Int_t GetMCPointType() const {return fMCPointType;}
     

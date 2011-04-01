@@ -20,7 +20,7 @@ class PndSdsDigiPixelMCInfo: public PndSdsDigiPixel {
       out << "PndSdsDigiPixelMCInfo in: " << digi.GetSensorID() << " FE: "
       << digi.GetFE() << " Col/Row " << digi.GetPixelColumn() << "/" << digi.GetPixelRow()
       << " charge " << digi.GetCharge() << " e"
-      << " timestamp "<< digi.GetTime()
+      << " timestamp "<< digi.GetTimeStamp()
       << ", from Point(s) ";
       std::vector<Int_t>indices = digi.GetIndices();
       for (unsigned int i = 0; i < indices.size(); i++){
