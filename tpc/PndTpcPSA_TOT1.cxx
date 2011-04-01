@@ -91,19 +91,15 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
       deriv_0=amp; //setting the derivative for the first sample
       fallingEdge=false;
     }
-    if(DEBUG){
-      cout<<"Processing sample: "<<i<<", a:"<<amp<<", t:"<<time<<" der0,1,2: "<<deriv_0<<", "<<deriv_1<<", "<<deriv_2<<endl;
-    }
+    if(DEBUG) cout<<"Processing sample: "<<i<<", a:"<<amp<<", t:"<<time<<" der0,1,2: "<<deriv_0<<", "<<deriv_1<<", "<<deriv_2<<endl;
     if(!inpulse){
       if(deriv_0>0 && 
          deriv_1>=0 && 
          time-prevtime==1){
-        if(DEBUG){
-          cout<<" starting new pulse"<<endl;
-        }
+        if(DEBUG) cout<<" starting new pulse"<<endl;
         inpulse=true;
         mcid.ClearData();
-        if(time-prevtime==1){
+        if(time-prevtime==1&&time>1){ //TODO get from config-file
           mcid.AddIDCollection(samples[i-1]->mcId(),1);
           samplesInPulse.push_back(samples[i-1]);
         }
@@ -111,10 +107,10 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
         samplesInPulse.push_back(samples[i]);
       }
     }else{
-      if((deriv_0>0 && deriv_1<0)||
-         (fallingEdge && deriv_0==0 )||
-          time-prevtime>1||
-         i==samples.size()-1){
+      if((deriv_0>0 && deriv_1<0) ||
+         (fallingEdge && deriv_0==0 ) ||
+          time-prevtime>1 ||
+          i==samples.size()-1){
         if(time==510){  //TODO get from config-file
           mcid.AddIDCollection(samples[i]->mcId(),1);
           samplesInPulse.push_back(samples[i]);
@@ -125,15 +121,18 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
         processPulse(samplesInPulse,t0,A,length);
        
         mcid.Renormalize();
-        PndTpcDigi* digi=new PndTpcDigi(A,t0,samples[i]->padId(),mcid);
-        digi->tlength(length);
-        digis.push_back(digi);
+        if(A>padThreshold){ // create Digi only when over threshold!
+          PndTpcDigi* digi=new PndTpcDigi(A,t0,samples[i]->padId(),mcid);
+          digi->tlength(length);
+          digis.push_back(digi);
+          if(DEBUG) cout<<"Digi Amp over threshold ("<<padThreshold<<")! Push back Digi"<<endl;
+        }
+        else if(DEBUG) cout<<"Digi Amp below threshold!"<<endl;
+
         samplesInPulse.clear();
       
         if(deriv_0>0){
-          if(DEBUG){
-            cout<<"starting new pulse"<<endl;
-          }
+          if(DEBUG) cout<<"starting new pulse"<<endl;
           inpulse = true;
           mcid.ClearData();
           if(time-prevtime==1){
@@ -149,10 +148,10 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
       }
     }
   }
-  if(DEBUG){
-    cout<<endl;
-  }
+  if(DEBUG) cout<<endl;
 }
+
+
 void PndTpcPSA_TOT1::processPulse(std::vector<PndTpcSample*> samples,
                                   double& t0,double& A, double& length){
   A=0.;
@@ -168,7 +167,7 @@ void PndTpcPSA_TOT1::processPulse(std::vector<PndTpcSample*> samples,
     }
   }
   length=samples.back()->t()-samples[0]->t();
-  t0=samples[0]->t() + 0.3*length;
+  t0=samples[0]->t() + 0.5*length;
   if(DEBUG){
     cout<<"with t:"<<t0<<", a:"<<A<<endl;
   }
