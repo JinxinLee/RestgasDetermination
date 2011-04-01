@@ -52,6 +52,7 @@ public:
   void SetClusterBranchName(const TString& name) {fClusterOutName=name;}
   void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
   void SetTrivialClustering(Bool_t opt=kTRUE) {ftrivial=opt;}
+  void SetSimpleClustering(Bool_t opt=kTRUE) {fsimple=opt;}
   void SetMode(int mode){fmode=mode;}
   
   void timeslice(unsigned int t){ftimeslice=t;}
@@ -80,6 +81,7 @@ private:
   
   Bool_t fpersistence;
   Bool_t ftrivial;
+  Bool_t fsimple;
   Bool_t fDataMode;   
  
   int fmode;

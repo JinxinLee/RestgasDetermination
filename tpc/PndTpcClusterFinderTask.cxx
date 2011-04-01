@@ -39,12 +39,12 @@
 #include "PndTpcDigiMapper.h"
 #include "GFRecoHitFactory.h"
 #include "PndTpcClusterFinder.h"
+#include "PndTpcClusterFinderSimple.h"
 
 // Class Member definitions -----------
 
-
 PndTpcClusterFinderTask::PndTpcClusterFinderTask()
-  : FairTask("TPC Cluster Finder"), fpersistence(kFALSE),ftrivial(kFALSE),
+  : FairTask("TPC Cluster Finder"), fpersistence(kFALSE),ftrivial(kFALSE),fsimple(kFALSE),
     ftimeslice(2), fmode(0),fthres(1), fSDiClAmpCut(0), fDataMode(kFALSE), fDiffFactor(1.),
     fAdcSens(600.), fC(300.)
 {
@@ -116,9 +116,18 @@ PndTpcClusterFinderTask::Init()
   PndTpcDigiMapper::getInstance(false)->init(fpadplane,fgem,fgas,fzGem,t0,sf);
  
   fcluster_buffer=new std::vector<PndTpcCluster*>;
-  ffinder=new PndTpcClusterFinder(PndTpcDigiMapper::getInstance()->getPadPlane(),
-				  fcluster_buffer,
-				  ftimeslice, fmode, -1,fDataMode,fDiffFactor,gain/fAdcSens,fC);
+
+  if(!fsimple){
+    ffinder=new PndTpcClusterFinder(PndTpcDigiMapper::getInstance()->getPadPlane(),
+            fcluster_buffer,
+            ftimeslice, fmode, -1,fDataMode,fDiffFactor,gain/fAdcSens,fC);
+  }
+  else{
+    ffinder=new PndTpcClusterFinderSimple(PndTpcDigiMapper::getInstance()->getPadPlane(),
+            fcluster_buffer,
+            ftimeslice);
+    ((PndTpcClusterFinderSimple*)(ffinder))->setNoXclust(false);
+  }
   
   ffinder->checkConsistency();
   ffinder->setTrivialClustering(ftrivial);
