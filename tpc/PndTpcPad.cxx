@@ -134,7 +134,7 @@ void
 PndTpcPad::ToPlaneCoord(double& xP, double& yP) const
 {
   double xori = xP*std::cos(-fangle) + yP*std::sin(-fangle);
-  yP = -xori*std::sin(-fangle) + yP*std::cos(-fangle)+fy;
+  yP = -xP*std::sin(-fangle) + yP*std::cos(-fangle)+fy;
   xP = xori+fx;
 }
 
