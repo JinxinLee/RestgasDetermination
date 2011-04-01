@@ -78,7 +78,6 @@ class PndSdsDigi : public FairTimeStamp
 		}
 		void SetCharge(double charge){fCharge = charge;}
     void AddCharge(double charge){fCharge += charge;}
-    void SetTimeStamp(Double_t t) { fTimeStamp = t; }
 
 		virtual void Print() {
 			std::cout << *this;
