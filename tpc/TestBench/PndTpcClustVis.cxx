@@ -17,7 +17,7 @@ PndTpcClustVis* PndTpcClustVis::eventDisplay = NULL;
 
 PndTpcClustVis::PndTpcClustVis():
   digisBranch(0),clustersBranch(0), guiEvent(0),
-  ClMode(2), ClTimeslice(10), ClSingeDigiClAmpCut(15), ClSimpleCl(false),
+  ClMode(2), ClTimeslice(10),ClTimecut(10), ClSingeDigiClAmpCut(15), ClSimpleCl(false),
   drawDigis(true), drawClusters(true), drawClusterErrors(false){
   if(!gApplication) {
     std::cout << "In PndTpcClustVis ctor: gApplication not found, creating..." << std::flush;
@@ -201,7 +201,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     if(!ClSimpleCl){
       ffinder=new PndTpcClusterFinder(PndTpcDigiMapper::getInstance()->getPadPlane(),
               fcluster_buffer,
-              ClTimeslice, ClMode, -1,true,1.,4000./600.,300.);
+              ClTimeslice, ClMode, -1,true,1.,ClTimecut,4000./600.,300.);
       ffinder->checkConsistency();
     }
     else{
@@ -735,6 +735,20 @@ void PndTpcClustVis::makeGui() {
   }
   frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
+    giuTimecut = new TGNumberEntry(hf, 10, 3,999, TGNumberFormat::kNESInteger,
+                          TGNumberFormat::kNEANonNegative,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 100);
+    hf->AddFrame(giuTimecut);
+    giuTimecut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
+    lbl = new TGLabel(hf, "Timecut");
+        hf->AddFrame(lbl);
+  }
+
+
+
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
     guiSingeDigiClAmpCut = new TGNumberEntry(hf, 15, 4,999, TGNumberFormat::kNESInteger,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
@@ -792,6 +806,7 @@ void PndTpcClustVis::guiGoto(){
 void PndTpcClustVis::guiSetClusterfinderParams(){
   ClMode = guiMode->GetNumberEntry()->GetIntNumber();
   ClTimeslice = giuTimeslice->GetNumberEntry()->GetIntNumber();
+  ClTimecut = giuTimecut->GetNumberEntry()->GetIntNumber();
   ClSingeDigiClAmpCut = guiSingeDigiClAmpCut->GetNumberEntry()->GetIntNumber();
   if (guiSimpleCl->IsOn())
     ClSimpleCl=true;

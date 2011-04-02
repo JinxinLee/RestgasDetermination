@@ -45,7 +45,7 @@
 
 PndTpcClusterFinderTask::PndTpcClusterFinderTask()
   : FairTask("TPC Cluster Finder"), fpersistence(kFALSE),ftrivial(kFALSE),fsimple(kFALSE),
-    ftimeslice(2), fmode(0),fthres(1), fSDiClAmpCut(0), fDataMode(kFALSE), fDiffFactor(1.),
+    ftimeslice(2), fmode(0),fthres(1), fSDiClAmpCut(0), fDataMode(kFALSE), fDiffFactor(1.), fClusterTimeCut(5),
     fAdcSens(600.), fC(300.)
 {
   fdigiBranchName = "PndTpcDigi";
@@ -120,7 +120,7 @@ PndTpcClusterFinderTask::Init()
   if(!fsimple){
     ffinder=new PndTpcClusterFinder(PndTpcDigiMapper::getInstance()->getPadPlane(),
             fcluster_buffer,
-            ftimeslice, fmode, -1,fDataMode,fDiffFactor,gain/fAdcSens,fC);
+            ftimeslice, fmode, -1,fDataMode,fDiffFactor,fClusterTimeCut,gain/fAdcSens,fC);
   }
   else{
     ffinder=new PndTpcClusterFinderSimple(PndTpcDigiMapper::getInstance()->getPadPlane(),

@@ -53,7 +53,8 @@ public:
   void Init(PndTpcPadPlane* p,
 	    unsigned int id,
 	    std::vector<PndTpcCluster*>* ob,
-	    double diffFactor=1., // minimal relative difference for maximum
+	    double diffFactor, // minimal relative difference for maximum
+	    double timeCut, // time gap for cluster splitting 
 	    double G=1, double C=1);
   void putDigi(PndTpcDigi* d){fdigi_buffer.push_back(d);}
 

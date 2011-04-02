@@ -58,6 +58,7 @@ public:
   void timeslice(unsigned int t){ftimeslice=t;}
   void SetThreshold(unsigned int t){fthres=t;}
   void SetDiffFactor(double d){fDiffFactor=d;} // for Cluster splitting
+  void SetClusterTimeCut(double d){fClusterTimeCut=d;} // for Cluster splitting
   void SetErrorPars(double ADCsens,double C){fAdcSens=ADCsens;fC=C;} 
   void SetDataMode(Bool_t opt) {fDataMode=opt;}
   void SetSingleDigiClusterAmpCut(unsigned int cut){fSDiClAmpCut=cut;}
@@ -84,11 +85,13 @@ private:
   Bool_t fsimple;
   Bool_t fDataMode;   
  
-  int fmode;
-  unsigned int ftimeslice;
-  unsigned int fthres;
-  unsigned int fSDiClAmpCut;
-  double fDiffFactor;
+  int fmode;                 /// controls method of sorting into time bins 
+  unsigned int ftimeslice;   /// defines time bucket / gap
+  unsigned int fthres;       /// hardthreshold on Digis
+  unsigned int fSDiClAmpCut; /// amplitude cut on Single Digi Clusters
+  double fDiffFactor;        /// defines maximum slope for luster splitting in XY
+  double fClusterTimeCut;    /// defines time cut for cluster splitting
+
   double fAdcSens;     // electrons per adc channel
   double fC;           // scale for error calculation 
 

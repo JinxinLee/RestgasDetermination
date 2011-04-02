@@ -44,8 +44,9 @@ public:
   // Accessors -----------------------
   unsigned int id() const {return fmyid;}
   bool isCenter() const {return fiscenter;}
-  double amp() const {if(fmydata==0) return 0;
+  double amp() const {if(fmydata==NULL) return 0;
                             else return fmydata->amp();}
+  double t() const {if(fmydata==NULL) return 0; else return fmydata->t();}
   PndTpcDigi* mydata() const {return fmydata;}
   unsigned int ndata() const {return fdata.size();}
   unsigned int domNeighbour() const {if(fdominant_neighb!=-1)return fneighbours[fdominant_neighb]->id();

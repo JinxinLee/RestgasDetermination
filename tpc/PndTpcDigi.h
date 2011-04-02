@@ -51,7 +51,7 @@ public:
 
   // Accessors -----------------------
   double amp() const {return famp;}
-  double t() const {return ft;}
+  double t() const {return ft;} 
   unsigned int padId() const {return fpadID;}
   const McIdCollection& mcId() const {return fmcid;}
   double tlength() const {return ftlength;}
@@ -93,14 +93,14 @@ public:
  private:
 
   // Private Data Members ------------
-  double famp;
-  double ft;
+  double famp;         /// Amplitude in ADC channels, can be fractional from PSA
+  double ft;           /// Time in clock ticks ("samples"), can be fractional from PSA
   unsigned int fpadID;
-  unsigned int findex; //Position of Digi in TClonesArray (needed for FairLinks to work with PndTpcCluster)
+  unsigned int findex; /// Position of Digi in TClonesArray (needed for FairLinks to work with PndTpcCluster)
 
-  double ftlength; // optional: range in t from which digi was constructed //TODO: Initalize correctly?
+  double ftlength; /// optional: range in t from which digi was constructed //TODO: Initalize correctly?
 
-  McIdCollection fmcid;
+  McIdCollection fmcid;  /// AWESOME neubert invention needed for Event Mixing and not understood by collaboration for past 5 years (as of date spring 2011, lets see how long they take)
   // Private Methods -----------------
 
   //for optional saving of raw info that went into the cluster

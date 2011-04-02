@@ -56,7 +56,7 @@ void
 PndTpcSectorProcessor::Init(PndTpcPadPlane* p,
 			 unsigned int id,
 			 std::vector<PndTpcCluster*>* ob,
-			    double diffFactor,
+			    double diffFactor, double timeCut,
 			    double G, double C)
 {
   fpadplane=p;
@@ -72,6 +72,7 @@ PndTpcSectorProcessor::Init(PndTpcPadPlane* p,
     fpproc[ipad->second->id()]=new padprocessor(ipad->second->id());
     fpproc[ipad->second->id()]->setClusterBuffer(&fcluster_buffer);
     dynamic_cast<ppstate_compare*>(fpproc[ipad->second->id()]->getState("compare"))->setDiffFactor(diffFactor);
+    dynamic_cast<ppstate_compare*>(fpproc[ipad->second->id()]->getState("compare"))->setTimeCut(timeCut);
     ++ipad;
   }
   // Connect PadProcessor neighbours

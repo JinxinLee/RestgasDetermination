@@ -46,12 +46,15 @@ public:
 
   // Modifiers -----------------------
   void setDiffFactor(double d){fDiffFactor=d;}
+  void setTimeCut(double t){fTimeCut=t;} 
 
   // Operations ----------------------
   virtual std::string heartbeat();
 
 private:
   double fDiffFactor;
+  double fTimeCut;
+
   // Private Data Members ------------
 
 

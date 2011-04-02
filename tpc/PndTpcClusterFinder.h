@@ -44,7 +44,7 @@ public:
 		      std::vector<PndTpcCluster*>* output_buffer,
 		      unsigned int timeslice, int mode=0, int sectorid=-1,
 		      bool datamode=false,
-		      double diffFactor=1.,
+		      double diffFactor=1., double timeCut=5.,
 		      double G=1, double C=1); // G=Gain/(electrons per adc count)
   // C = constant scale for errors
   ~PndTpcClusterFinder();

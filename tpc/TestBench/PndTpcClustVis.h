@@ -177,6 +177,7 @@ private:
   TGNumberEntry* guiEvent;
   TGNumberEntry* guiMode;
   TGNumberEntry* giuTimeslice;
+  TGNumberEntry* giuTimecut;
   TGNumberEntry* guiSingeDigiClAmpCut;
   TGCheckButton* guiSimpleCl;
 
@@ -186,6 +187,7 @@ private:
 
   int ClMode;
   int ClTimeslice;
+  int ClTimecut;
   int ClSingeDigiClAmpCut;
   bool ClSimpleCl;
 

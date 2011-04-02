@@ -22,6 +22,7 @@
 
 // C/C++ Headers ----------------------
 #include "assert.h"
+#include <cmath>
 #include <iostream>
 
 // Collaborating Class Headers --------
@@ -29,8 +30,10 @@
 
 // Class Member definitions -----------
 
+//#define DEBUG 1 
+
 ppstate_compare::ppstate_compare(padprocessor* pp)
-  : ppstate(pp), fDiffFactor(1.)
+  : ppstate(pp), fDiffFactor(1.), fTimeCut(0)
 {}
 
 std::string
@@ -52,7 +55,17 @@ ppstate_compare::heartbeat()
 	  continue;
 	}
       }
-      largestamp=fparent->fneighbours[i]->amp();
+      // check if neighbouring time is far away
+      if(fabs(nei->t()-fparent->t())>fTimeCut){
+#ifdef DEBUG
+	  std::cout<<"TORPPState_Compare :: applying time cut" << std::endl;
+	  std::cout<< nei->t() << "  " 
+		   << fparent->t() << "    cut=" 
+		     << fTimeCut << std::endl;
+#endif
+	continue;
+      }
+      largestamp=nei->amp();
       fparent->fiscenter=false;
       fparent->fdominant_neighb=i;
     }

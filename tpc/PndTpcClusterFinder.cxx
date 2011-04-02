@@ -45,7 +45,7 @@ PndTpcClusterFinder::PndTpcClusterFinder(PndTpcPadPlane* p,
 					 unsigned int timeslice, 
 					 int mode, int sectorid,
 					 bool datamode,
-					 double diffFactor,
+					 double diffFactor, double timeCut,
 					 double G, double C)
   : fpadplane(p), foutput_buffer(ob), fdt(timeslice), fmode(mode),
     fDataMode(datamode)
@@ -68,7 +68,7 @@ PndTpcClusterFinder::PndTpcClusterFinder(PndTpcPadPlane* p,
   for(unsigned int is=0;is<nsec;++is){
     unsigned int Sectorid=ids[is];
     fsproc[Sectorid]=new PndTpcSectorProcessor(fsaveRaw, fDataMode);
-    fsproc[Sectorid]->Init(fpadplane,Sectorid,ob,diffFactor,G,C);
+    fsproc[Sectorid]->Init(fpadplane,Sectorid,ob,diffFactor,timeCut,G,C);
     fsectormap[Sectorid]=new std::vector<PndTpcDigi*>();
   }
   std::cout<<"PndTpcClusterFinder: "
@@ -139,6 +139,7 @@ PndTpcClusterFinder::process(std::vector<PndTpcDigi*>& digis)
     }
   }
   // ---------------------- MODE 1 - individual time bins ------------------
+  // only one digi in time per pad
   else if(fmode==1){
     // make the time binning in each sector separately:
     // build sectormap
