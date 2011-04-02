@@ -56,6 +56,8 @@ public:
 	    double diffFactor, // minimal relative difference for maximum
 	    double timeCut, // time gap for cluster splitting 
 	    double G=1, double C=1);
+  void MaskChannels(const std::vector<unsigned int>& refs);
+
   void putDigi(PndTpcDigi* d){fdigi_buffer.push_back(d);}
 
   // Operations ----------------------

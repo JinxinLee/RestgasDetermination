@@ -92,6 +92,20 @@ PndTpcSectorProcessor::Init(PndTpcPadPlane* p,
   }
 }
 
+
+void
+PndTpcSectorProcessor::MaskChannels(const std::vector<unsigned int>& refs){
+  unsigned int n=refs.size();
+  for(unsigned int i=0;i<n;++i){
+    // look if we have this pad in the sector
+    if(fpproc.find(refs[i])!=fpproc.end()){
+      fpproc[i]->setMasked();
+    }
+  }
+}
+
+
+
 void
 PndTpcSectorProcessor::process(){
   

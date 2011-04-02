@@ -39,7 +39,7 @@
 
 
 padprocessor::padprocessor(unsigned int Id)
-  : fiscenter(true), factive_state(0), fdominant_neighb(-1), 
+  : fiscenter(true), fmasked(false), factive_state(0), fdominant_neighb(-1), 
     fmyid(Id), fcluster_buffer(0), fmydata(NULL)
 {
   ppstate* init=new ppstate_initial(this);
@@ -84,6 +84,24 @@ padprocessor::setData(PndTpcDigi* data) // resets data buffer NOT anymore !
   if(fmydata==NULL) fmydata=data;
   else if(data->amp()>fmydata->amp())fmydata=data;
   put(data);
+}
+
+double
+padprocessor::amp() const {
+  if(fmasked){
+    // return largest neighbour
+    unsigned int n=fneighbours.size();
+    double largest=0;
+    for(unsigned int i=0;i<n;++i){
+      double a=fneighbours[i]->amp();
+      if(largest<a)largest=a;
+    }
+    return largest;
+  }
+  else {
+    if(fmydata==0) return 0;
+    else return fmydata->amp();
+  }
 }
 
 void

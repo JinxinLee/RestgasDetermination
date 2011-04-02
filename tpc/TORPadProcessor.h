@@ -44,8 +44,8 @@ public:
   // Accessors -----------------------
   unsigned int id() const {return fmyid;}
   bool isCenter() const {return fiscenter;}
-  double amp() const {if(fmydata==NULL) return 0;
-                            else return fmydata->amp();}
+  bool isMasked() const {return fmasked;}
+  double amp() const ;
   double t() const {if(fmydata==NULL) return 0; else return fmydata->t();}
   PndTpcDigi* mydata() const {return fmydata;}
   unsigned int ndata() const {return fdata.size();}
@@ -54,7 +54,7 @@ public:
   // Modifiers -----------------------
   void setData(PndTpcDigi* mydata); // resets data buffer!
   void addNeighbour(padprocessor* pp);
-  //void SetOutBuffer();
+  void setMasked(bool m=true){fmasked=m;}
   void addState(ppstate* state, std::string name);
   ppstate* getState(std::string name){return fstates[name];}
   void put(PndTpcDigi* data); // transport data into this pad
@@ -83,6 +83,7 @@ private:
   std::vector<PndTpcDigi*> fdata;   // fdata[0]=mydata
   std::vector<padprocessor*> fneighbours;
   bool fiscenter;
+  bool fmasked;
   int fdominant_neighb;
 
   std::map<std::string,ppstate*> fstates;

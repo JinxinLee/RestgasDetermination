@@ -37,7 +37,7 @@ ppstate_initial::heartbeat()
 {
   //std::cout<<"Pad("<<fparent->id()<<").famps.size()="
   //   <<fparent->famps.size()<<std::endl;
-  if(fparent->mydata()!=0){
+  if(fparent->mydata()!=0 || fparent->isMasked()){
     fparent->setState("compare");
     return "compare";
   }
