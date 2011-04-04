@@ -22,9 +22,9 @@
 
   //Set JOBNAME + JOBDIR (will not be created!)
   // --------------------------------------------------
+  TString jobdir="TEST";
   TString jobname="Test";
-  TString jobdir="Test";
-  
+ 
 
   TString basejobdir=gSystem->Getenv("VMCWORKDIR");
   jobdir=(basejobdir+"/")+jobdir+"/";
@@ -59,6 +59,23 @@
   //-----------------------
   fRun->SetMaterials("media_pnd.geo");
   
+
+ // Fill the Parameter containers for this run
+  //-------------------------------------------
+  TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
+  allDigiFile += "/macro/params/all.par";
+
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
+  parIo1->open(allDigiFile.Data(),"in");
+  rtdb->setFirstInput(parIo1);       
+  Bool_t kParameterMerged=kTRUE;
+  
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
+  output->open(dbfile.Data());
+  rtdb->setOutput(output);
+
+
   // Create and add detectors
   //-------------------------
   FairModule *Cave= new PndCave("CAVE");
@@ -68,10 +85,20 @@
   FairModule *Pipe= new PndPipe("PIPE");
   Pipe->SetGeometryFileName("pipe.geo");
   fRun->AddModule(Pipe);
+
+  // FairModule *Target= new CbmTarget("Target");
+  // Target->SetGeometryFileName("target_vacuum.geo");
+  // fRun->AddModule(Target);
   
-  //FairModule *Magnet= new PndMagnet("MAGNET");
-  //Magnet->SetGeometryFileName("magnet.geo");
-  //fRun->AddModule(Magnet);
+ FairModule *Magnet= new PndMagnet("MAGNET");
+  //Magnet->SetGeometryFileName("FullSolenoid_V842.root");
+  Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
+  fRun->AddModule(Magnet);
+
+
+  FairModule *Dipole= new PndMagnet("MAGNET");
+  Dipole->SetGeometryFileName("dipole.geo");
+  fRun->AddModule(Dipole);
   
   PndTpcDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
   PndTpc->SetGeometryFileName("tpc.geo");
@@ -84,41 +111,14 @@
   
   //OTHER SUBDETECTORS; Uncomment if you want to use
 
-  //FairDetector *Sts= new CbmTst("TST", kTRUE);
-  //Sts->SetGeometryFileName("tst_mvd.geo");
-  //fRun->AddModule(Sts);
-
-  //FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
-  //Mvd->SetGeometryFileName("MVD14.root");
-  //fRun->AddModule(Mvd);
+  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
+  fRun->AddModule(Mvd);
   
-  //FairDetector *Emc = new CbmEmc("EMC",kTRUE);
-  //Emc->SetGeometryFileName("emc_module1234.dat");
-  //fRun->AddModule(Emc);
-
-  //FairDetector *Drc = new CbmDrc("DIRC", kTRUE);
-  //Drc->SetGeometryFileName("dirc.geo");
-  //fRun->AddModule(Drc);
-
-  //FairModule *Target= new CbmTarget("Target");
-  //Target->SetGeometryFileName("target_vacuum.geo");
-  //fRun->AddModule(Target);		
-  
-  //FairDetector *Tof= new CbmTof("TOF", kTRUE );
-  //Tof->SetGeometryFileName("tof.geo");
-  //fRun->AddModule(Tof);
-  
-  //FairDetector *Trd= new CbmTrd("TRD",kTRUE );
-  //Trd->SetGeometryFileName("trd_9.geo");
-  //fRun->AddModule(Trd);
-  
-  // FairDetector *Rich= new CbmRich("RICH", kTRUE);
-  // Rich->SetGeometryFileName("rich.geo");
-  // fRun->AddModule(Rich);
-  
-  //FairDetector *Ecal= new CbmEcal("ECAL", kTRUE);
-  //Ecal->SetGeometryFileName("ecal.geo");
-  //fRun->AddModule(Ecal);
+   //-------------------------  GEM      -----------------
+  FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+  Gem->SetGeometryFileName("gem_3Stations.root");
+  fRun->AddModule(Gem);
 
   
   // Create and Set Event Generator
@@ -157,19 +157,14 @@
   // Field Map Definition
   // --------------------
   // 1- Reading the new field map in the old format
+  //---------------------Create and Set the Field(s)---------- 
+
   
-  // FairFieldMap *fMagField= new FairFieldMap("FIELD.v04_pavel.map");
-  // Constant Field
-  PndConstField *fMagField=new PndConstField();
-  fMagField->SetField(0, 0 ,20. ); // values are in kG
-  // MinX=-75, MinY=-40,MinZ=-12 ,MaxX=75, MaxY=40 ,MaxZ=124 ); //
-  // values are in cm
-  fMagField->SetFieldRegion(-50, 50,-50, 50, -2000, 2000);
-      
-  fRun->SetField(fMagField);
-   
-  fRun->SetStoreTraj(kTRUE);
-  //fRun->SetStoreTraj(kFALSE);
+  fRun->SetBeamMom(15);
+  PndMultiField *fField= new PndMultiField("FULL");
+  fRun->SetField(fField);
+  //fRun->SetStoreTraj(kTRUE);
+  fRun->SetStoreTraj(kFALSE);
   
   std::cout<<"Starting INIT"<<std::endl;
   fRun->Init();
@@ -189,19 +184,12 @@
   //   trajFilter->SetStoreSecondaries(kTRUE);
   
 
-  // Fill the Parameter containers for this run
-  //-------------------------------------------
+ 
 
-  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
-  Bool_t kParameterMerged=kTRUE;
-  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  output->open(dbfile.Data());
-  rtdb->setOutput(output);
-
-  PndConstPar* fieldPar = (PndConstPar*) rtdb->getContainer("PndConstPar");
-  if ( fMagField ) {  fieldPar->SetParameters(fMagField); }
-  fieldPar->setInputVersion(fRun->GetRunId(),1);
-  fieldPar->setChanged(kTRUE);
+  //PndConstPar* fieldPar = (PndConstPar*) rtdb->getContainer("PndConstPar");
+  //if ( fMagField ) {  fieldPar->SetParameters(fMagField); }
+  //fieldPar->setInputVersion(fRun->GetRunId(),1);
+  //fieldPar->setChanged(kTRUE);
 
   rtdb->saveOutput();
   rtdb->print();
