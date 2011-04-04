@@ -3,14 +3,15 @@
 // $Id$
 //
 // Description:
-//      Implementation of class PndTpcProximityHTCorrelator
-//      see PndTpcProximityHTCorrelator.hh for details
+//      Implementation of class PndTpcRiemannHTCorrelator
+//      see PndTpcRiemannHTCorrelator.hh for details
 //
 // Environment:
 //      Software developed for the PANDA Detector at FAIR.
 //
 // Author List:
 //      Sebastian Neubert    TUM            (original author)
+//      Johannes Rauch       TUM
 //
 //
 //-----------------------------------------------------------
@@ -18,10 +19,11 @@
 // Panda Headers ----------------------
 
 // This Class' Header ------------------
-#include "PndTpcProximityHTCorrelator.h"
+#include "PndTpcSzHTCorrelator.h"
 
 // C/C++ Headers ----------------------
 #include "TVector3.h"
+#include "TH1D.h"
 
 // Collaborating Class Headers --------
 #include "PndTpcRiemannTrack.h"
@@ -31,30 +33,30 @@
 
 // Class Member definitions -----------
 
-PndTpcProximityHTCorrelator::PndTpcProximityHTCorrelator(double cut)
-  : _proxcut(cut)
+PndTpcSzHTCorrelator::PndTpcSzHTCorrelator(double szcut)
+  : _szcut(szcut)
 {}
 
 
 bool
-PndTpcProximityHTCorrelator::corr(PndTpcRiemannTrack* trk,
-				  PndTpcRiemannHit* rhit,
-				  bool& survive,
-				  double& matchQuality)
+PndTpcSzHTCorrelator::corr(PndTpcRiemannTrack* trk,
+				PndTpcRiemannHit* rhit,
+				bool& survive,
+				double& matchQuality)
 {
-  const PndTpcCluster* cl=rhit->cluster();
-  if(cl==NULL)return false; // not applicable
-  // get closest hit from track
-  double l=1000;
-  trk->getClosestHit(rhit,l);
-  DebugLogger::Instance()->Histo("HT_prox_l",l,0,5,100);
-  // TODO: look at errors properly!
-  if(l>_proxcut){
-    DebugLogger::Instance()->Histo("HT_riemanncuts",1,0,20,20);
+  // check if we have a fit:
+  if(!trk->isFitted())return false;
+
+  double l2=trk->szDist(rhit,true);
+  DebugLogger::Instance()->Histo("HT_sz_szDist",l2,-4,4,100);
+
+  if(TMath::Abs(l2)>_szcut){  
+    DebugLogger::Instance()->Histo("HT_riemanncuts",3,0,20,20);
     survive=false;
     return true;
   }
-  matchQuality=l;
+  matchQuality=TMath::Abs(l2);
+
   survive=true;
   return true;
 }

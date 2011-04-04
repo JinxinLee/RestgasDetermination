@@ -56,6 +56,7 @@ public:
   int winding() ;
   unsigned int getNumHits() const {return _hits.size();}
   bool isFitted()const {return _isFitted;}
+  bool isFittedPlane()const {return _isFittedPlane;}
   PndTpcRiemannHit* getHit(unsigned int i) const;
   PndTpcRiemannHit* getLastHit() const;
   PndTpcRiemannHit* getFirstHit() const {return _hits.front();}
@@ -87,6 +88,7 @@ public:
 
   // Operations ----------------------
   void refit();
+  double planeRMS(); // calculate RMS of distances of hits to plane
   double dist(PndTpcRiemannHit* hit);
   void szFit(bool print=false);
   double szDist(PndTpcRiemannHit* hit, bool calcPos=true);
@@ -102,10 +104,12 @@ private:
   double _m; //parameters of sz-fit
   double _t;
 
-  bool _isFitted;
+  bool _isFitted; // szFit
+  bool _isFittedPlane; // fit _n and _c
 
   std::list<PndTpcRiemannHit*> _hits; //!
   TVectorD _av;  // average over all hits
+  double _sumOfWeights; // for weighing the average with cluster error
 
   int _nit; //iteration counter for sorting
   bool _doSort; // flag for switching on and off sorting

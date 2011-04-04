@@ -34,7 +34,8 @@
 
 // scale factor! r=1 => z'=0.5 !!!
 // to normalize cm-range 
-#define RIEMANNSCALE 100.
+#define RIEMANNSCALE 8.66025 // divide reduced radius by RIEMANNSCALE
+// 8.66025 is optimal for R=5..15cm
 
 ClassImp(PndTpcRiemannHit)
 
@@ -53,7 +54,7 @@ PndTpcRiemannHit::PndTpcRiemannHit(PndTpcCluster* cl)
   : _cluster(cl),_s(0.),_alpha(0.)
 {
   TVector2 a(cl->pos().X(),cl->pos().Y());
-  double r=a.Mod()/RIEMANNSCALE; 
+  double r = a.Mod()/RIEMANNSCALE;
   double phi=a.Phi();
   double r2=r*r;
   double d=1+r2;

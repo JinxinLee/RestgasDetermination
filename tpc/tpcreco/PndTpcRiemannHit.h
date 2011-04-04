@@ -58,7 +58,7 @@ public:
 private:
 
   // Private Data Members ------------
-  TVector3 _x;
+  TVector3 _x; // Position on Riemann sphere in cartesian coordinates
   PndTpcCluster* _cluster; //->  //no ownership over this pointer!
   double _s;     // pathlength along track
   double _alpha; // angle along track

@@ -38,13 +38,19 @@
 #include "TF1.h"
 #include "TMath.h"
 #include "TPolyMarker3D.h"
+
+#include "TCanvas.h"
+#include "TApplication.h"
+#include "TPolyLine3D.h"
+#include "TSystem.h"
+
 // Class Member definitions -----------
 
 
 ClassImp(PndTpcRiemannTrack)
 
 PndTpcRiemannTrack::PndTpcRiemannTrack()
-  : _n(3),_av(3), _c(0),_m(0), _t(0), _isFitted(false), _nit(0), _doSort(true)
+  : _n(3),_av(3), _sumOfWeights(0), _c(0),_m(0), _t(0), _isFitted(false), _isFittedPlane(false), _nit(0), _doSort(true)
 {}
 
 
@@ -86,6 +92,7 @@ PndTpcRiemannTrack::getLastHit() const {
 
 //##########################################################################
 
+// Todo: can this be optimized?
 hitIt
 PndTpcRiemannTrack::getClosestHit(PndTpcRiemannHit* hit, 
 				  double& Dist) {
@@ -183,6 +190,17 @@ void
 PndTpcRiemannTrack::addHit(PndTpcRiemannHit* hit){
   int nbefore=_hits.size();
   _mcid.AddIDCollection(hit->cluster()->mcId(),1.);
+
+  // update average
+  double weightFactor = 1./(hit->cluster()->sig().Perp());
+
+  _av*=_sumOfWeights;
+  _av[0]+=hit->x().X() * weightFactor;
+  _av[1]+=hit->x().Y() * weightFactor;
+  _av[2]+=hit->x().Z() * weightFactor;
+  _sumOfWeights += weightFactor;
+  _av*=1./_sumOfWeights;
+
   if(nbefore<2 || !_doSort){// first two hits hit
     _hits.push_back(hit);
     return;
@@ -203,22 +221,8 @@ PndTpcRiemannTrack::addHit(PndTpcRiemannHit* hit){
   else { // hit closer to start of list
     _hits.insert(this->sortHit(hit,_hits,1),hit); // direction 1 --> search from front to end
   }
-  
-  // update average
-  _av*=(double)nbefore;
-  _av[0]+=hit->x().X();
-  _av[1]+=hit->x().Y();
-  _av[2]+=hit->x().Z();
-  _av*=1./(double)(nbefore+1);
-  
 }
 
-
-#include "TCanvas.h"
-#include "TApplication.h"
-#include "TPolyLine3D.h"
-#include "TPolyMarker3D.h"
-#include "TSystem.h"
 
 // returns iterator BEFORE which to insert hitX!!!
 // dir =  1 means start from beginning
@@ -282,9 +286,28 @@ PndTpcRiemannTrack::sortHit(PndTpcRiemannHit* hitX,
   //else std::cout<<"at end"<<std::endl;
 
   
-  TVector3 pos1=(*it1)->cluster()->pos(); //next point
-  TVector3 pos3=(*it3)->cluster()->pos();
-// construct general direction of track from these three
+  TVector3 pos1=(*it1)->cluster()->pos(); //previous point (same if @ begin)
+  TVector3 pos3=(*it3)->cluster()->pos(); //next point     (same if @ end)
+
+
+
+  // new simple approach by Johannes
+  TVector3 d1 = posX-pos1;
+  TVector3 d3 = posX-pos3;
+
+  if(d1.Mag()>d3.Mag()){ // hit is nearer to next hit
+    if(it3==it2) // we are at the end
+      return ++it3;
+    else
+      return it3;
+  }
+  else // hit is nearer to previous hit
+      return it2;
+
+
+
+  /*
+  // construct general direction of track from these three
   TVector3 d1=(pos3-pos1);
   TVector3 d2=(pos2-pos1);
   TVector3 dx=(posX-pos1);
@@ -301,68 +324,11 @@ PndTpcRiemannTrack::sortHit(PndTpcRiemannHit* hitX,
   }
   else d.SetMag(1);
 
-  double dx1=(posX-pos1)*d;//.Mag();
-  double dx2=(posX-pos2)*d;//.Mag();
-  double dx3=(posX-pos3)*d;//.Mag();
-  double d31=(pos3-pos1)*d;//.Mag();
+  double dx1=(posX-pos1)*d;
+  double dx2=(posX-pos2)*d;
+  double dx3=(posX-pos3)*d;
+  double d31=(pos3-pos1)*d;
   double d21=(pos2-pos1)*d;
- 
-  //-------------------------------------------------------------------
-  /*
-  TPolyMarker3D* hit1=new TPolyMarker3D(1);
-  hit1->SetPoint(0,pos1.X(),pos1.Y(),pos1.Z());
-  TPolyMarker3D* hit2=new TPolyMarker3D(1);
-  hit2->SetPoint(0,pos2.X(),pos2.Y(),pos2.Z());
-  TPolyMarker3D* hit3=new TPolyMarker3D(1);
-  hit3->SetPoint(0,pos3.X(),pos3.Y(),pos3.Z());
-  TCanvas* c=new TCanvas("c");
-  TPolyMarker3D* maker=new TPolyMarker3D(hL.size());
-  TPolyLine3D* line=new TPolyLine3D(hL.size());
-  TPolyMarker3D* point=new TPolyMarker3D(1);
-  point->SetPoint(0,posX.X(),posX.Y(),posX.Z());
-  point->SetMarkerColor(kRed);
-  point->SetMarkerStyle(23);
-  TPolyLine3D* arrow=new TPolyLine3D(2);
-  arrow->SetLineColor(kBlue);
-  arrow->SetPoint(0,pos1.X(),pos1.Y(),pos1.Z());
-  arrow->SetPoint(1,pos1.X()+d.X(),pos1.Y()+d.Y(),pos1.Z()+d.Z());
-  
-  std::list<PndTpcRiemannHit*>::iterator ait=hL.begin();
-  int count=0;
-  while(ait!=hL.end()){
-    TVector3 pos=(*ait)->cluster()->pos();
-    //pos.Print();
-    maker->SetPoint(count,pos.X(),pos.Y(),pos.Z());
-    line->SetPoint(count,pos.X(),pos.Y(),pos.Z());
-    ++ait;
-    ++count;
-  }
-  maker->SetMarkerStyle(23);
-  maker->Draw();
-  line->Draw();
-  point->Draw();
-  hit1->SetMarkerStyle(23);
-  hit1->SetMarkerColor(kBlue);
-  hit1->Draw();
-  hit2->SetMarkerStyle(23);
-  hit2->SetMarkerColor(kGreen);
-  hit2->Draw();
-  hit3->SetMarkerStyle(23);
-  hit3->SetMarkerColor(kMagenta);
-  hit3->Draw();
-  arrow->Draw();
-  gApplication->SetReturnFromRun(kTRUE);
-  gSystem->Run();
-  delete maker;
-  delete line;
-  delete point;
-  delete hit1;
-  delete arrow;
-  delete c;
-
-  //------------------------------------------------------
-  */
-
 
   //check if inside 13
   if(dx1>0 && d31>dx1){ // different signs -> inside!
@@ -381,7 +347,7 @@ PndTpcRiemannTrack::sortHit(PndTpcRiemannHit* hitX,
     else {
       //std::cout<<"x after x3"<<std::endl;
       return ++it3; // insert before
-    }
+    }*/
 }
 
 //double
@@ -448,7 +414,6 @@ PndTpcRiemannTrack::dist(PndTpcRiemannHit* hit){
 void
 PndTpcRiemannTrack::refit()
 {
-  
   TMatrixT<double> Av(3,1);
   Av[0][0]=_av[0];
   Av[1][0]=_av[1];
@@ -457,8 +422,12 @@ PndTpcRiemannTrack::refit()
   TMatrixD sampleCov(3,3);
   
   std::list<PndTpcRiemannHit*>::iterator it=_hits.begin();
+  double nh=0;
   while(it!=_hits.end()){
     TMatrixD h(3,1);
+    // weigh hits with 1/cluster error
+    double weightFactor = 1./((*it)->cluster()->sig().Perp());
+    nh += weightFactor;
     h[0][0]=(*it)->x().X();
     h[1][0]=(*it)->x().Y();
     h[2][0]=(*it)->x().Z();
@@ -466,23 +435,56 @@ PndTpcRiemannTrack::refit()
     d=h-Av;
     TMatrixD dt(TMatrixD::kTransposed,d);
     TMatrixD ddt(d,TMatrixD::kMult,dt);
+    ddt *= weightFactor;
     sampleCov+=ddt;  
     ++it;
   }
-  double nh=_hits.size();
+  if(sampleCov==0) {
+    // can happen if a pad fires continuously and the resulting clusters have the same xy coords
+    // -> they are mapped to one single point on the riemann sphere
+    std::cerr<<"PndTpcRiemannTrack::refit() - can't fit plane, covariance matrix is zero"<<std::endl;
+    return;
+  }
+
   sampleCov*=1./nh;
   
   TVectorD eigenValues(3);
   TMatrixD eigenVec=sampleCov.EigenVectors(eigenValues);
     
   // eigenvalues are sorted according to their value
-  // in descendign order -> last one is smallest
+  // in descending order -> last one is smallest
   _n=TMatrixDColumn(eigenVec,2);
- 
+
   double norm=1./TMath::Sqrt(_n.Norm2Sqr());
   _n*=norm;
   _c=-1.*_n*_av;
 
+  _isFittedPlane = true;
+}
+
+
+double
+PndTpcRiemannTrack::planeRMS(){
+  if(!_isFittedPlane) return 0.;
+
+  // get plane parameters
+  TVector3 n3;
+  n3.SetXYZ(_n[0], _n[1], _n[2]);
+
+  // loop over hits and calculate RMS
+  double rms = 0.;
+
+  std::list<PndTpcRiemannHit*>::iterator it=_hits.begin();
+  while(it!=_hits.end()){
+    TVector3 pos = (*it)->x();
+    double distance = pos*n3 + _c;
+    rms += distance*distance;
+    ++it;
+  }
+
+  rms /= _hits.size();
+  rms = TMath::Sqrt(rms);
+  return rms;
 }
 
 
@@ -523,10 +525,10 @@ PndTpcRiemannTrack::szFit(bool print){
     TGraph g(4);
     for(unsigned int i=0;i<4;++i){
       //(*it)->calcPosOnTrk((*lastit),false);
-    g.SetPoint(i,(*it)->s(),(*it)->z());
-    //std::cout<<_hits[i]->z()<<"|"<<_hits[i]->s()<<std::endl;
-    lastit=it;
-    ++it;
+      g.SetPoint(i,(*it)->s(),(*it)->z());
+      //std::cout<<_hits[i]->z()<<"|"<<_hits[i]->s()<<std::endl;
+      lastit=it;
+      ++it;
     }
     int errorcode;
     g.LeastSquareLinearFit(4,_t,_m,errorcode,-999,999);

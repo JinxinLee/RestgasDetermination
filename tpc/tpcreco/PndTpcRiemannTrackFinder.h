@@ -22,6 +22,7 @@
 //
 // Author List:
 //      Sebastian Neubert    TUM            (original author)
+//      Johannes Rauch       TUM
 //
 //
 //-----------------------------------------------------------
@@ -40,6 +41,7 @@
 class PndTpcCluster;
 class GFTrackCand;
 class PndTpcAbsHitTrackCorrelator;
+class PndTpcAbsTrackTrackCorrelator;
 class PndTpcRiemannTrack;
 
 class PndTpcRiemannTrackFinder {
@@ -53,11 +55,18 @@ public:
   // Accessors -----------------------
   const PndTpcAbsHitTrackCorrelator* getCorrelator(unsigned int i) const
   {return _correlators.at(i);}
+  const PndTpcAbsTrackTrackCorrelator* getTTCorrelator(unsigned int i) const
+  {return _TTcorrelators.at(i);}
+
+  static int getSorting(){return _sorting;}
+  static double getInteractionZ(){return _interactionZ;}
 
   // Modifiers -----------------------
   void setMinHitsForFit(unsigned int n){_minHitsForFit=n;}
 
-  void setSorting(int s){_sorting=s;} // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R
+  static void setSorting(int s){_sorting=s;} // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R
+  void setSortingMode(bool sortingMode){_sortingMode=sortingMode;} // false: sort only according to _sorting; true: use internal sorting when adding hits to trackcands
+  static void setInteractionZ(double z){_interactionZ=z;}
 
 
   // Operations ----------------------
@@ -67,6 +76,10 @@ public:
   void mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist);
 
   void addCorrelator(PndTpcAbsHitTrackCorrelator* c);
+  void addTTCorrelator(PndTpcAbsTrackTrackCorrelator* c);
+
+  void sortClusters(std::vector<PndTpcCluster*>& cll);
+
 private:
 
   // Private Data Members ------------
@@ -75,19 +88,24 @@ private:
   std::vector<double> _bestMatchQuality;
   std::vector<unsigned int> _bestMatchIndex;
 
-  int _sorting;
+  std::vector<PndTpcAbsTrackTrackCorrelator*> _TTcorrelators;
+
+  static int _sorting;
+  bool _sortingMode;
+  static double _interactionZ;
 
   unsigned int _minHitsForFit;
+
   // Private Methods -----------------
   void resetFlags();
 
 };
 
-bool sortClusterX(PndTpcCluster* s1, PndTpcCluster* s2);
-bool sortClusterY(PndTpcCluster* s1, PndTpcCluster* s2);
-bool sortClusterZ(PndTpcCluster* s1, PndTpcCluster* s2);
-bool sortClusterR(PndTpcCluster* s1, PndTpcCluster* s2);
+// sorting algorithm
+bool sortCluster(PndTpcCluster* s1, PndTpcCluster* s2);
 
+bool sortTracksN(PndTpcRiemannTrack* t1, PndTpcRiemannTrack* t2);
+bool sortTracksFirstClusterPos(PndTpcRiemannTrack* t1, PndTpcRiemannTrack* t2);
 
 #endif
 

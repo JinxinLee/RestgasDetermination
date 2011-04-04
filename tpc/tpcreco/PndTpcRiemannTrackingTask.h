@@ -51,12 +51,25 @@ public:
   // Modifiers -----------------------
   void SetClusterBranchName(const TString& name) {_clusterBranchName=name;}
   void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
-  void SetTrkFinderParameters(double proxcut,
-			      double riproxcut,
-			      double planecut,
-			      double szcut,
-			      unsigned int minpointsforfit,
-			      int sorting = 3); // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R
+
+  void SetSortingParameters(
+                   bool sortingMode=false, // false: sort only according to _sorting; true: use internal sorting when adding hits to trackcands
+                   int sorting=3,  // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to interaction point
+                   double interactionZ=0); // set if you use sorting = 4
+
+  void SetTrkFinderParameters(
+                   double proxcut,
+                   double riproxcut,
+                   double planecut,
+                   double szcut,
+                   unsigned int minpointsforfit);
+
+  void SetMergeTracks(bool mergeTracks=true){_mergeTracks = mergeTracks;}
+
+  void SetTrkMergerParameters(
+                   double TTproxcut,
+                   double TTszcut,
+                   double TTplanecut);
 
 
   // Operations ----------------------
@@ -84,13 +97,6 @@ private:
 
 
   Bool_t fPersistence;
-  Bool_t fDistSorting;
-  //Bool_t fXSorting;
-  Bool_t fXZ;
-  Bool_t fZY;
-  Bool_t fXY;
-  Bool_t _cutbigpad;
-  Bool_t _cutsmallpad ;
   Bool_t fStore;
   Bool_t fDebug;
 
@@ -126,12 +132,22 @@ private:
 
 
   // tuning parameters for Conformal Map TrackFinder
+  bool _sortingMode;
+
+  int _sorting;
   double _proxcut;
   double _riproxcut;
   double _planecut;      
-  unsigned int _minpoints;
   double _szcut;
-  int _sorting;
+  unsigned int _minpoints;
+
+  bool _mergeTracks;
+
+  double _TTproxcut;
+  double _TTszcut;
+  double _TTplanecut;
+  double _interactionZ;
+
 
   TH1I* _multiplicityHisto;
   TH1I* _trackSizeH;
