@@ -31,8 +31,9 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   outFile += outName; 
   
   TString inFile=jobdir;
-  inFile+="/dummy/dummy5.raw.root";
-   
+  inFile+="/dummy/dummy.raw.root";
+  //TString inFile="/nfs/hicran/data/tpc/fopi/2010/reconstructed/dummy/dummy.raw.root";
+  
   TString mcFile=inFile;
   mcFile.ReplaceAll(".raw",".mc");
   
@@ -123,60 +124,69 @@ void runRecoFOPI_batch(TString filename, TString outpath)
 
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
   //tpcCF->SetDataMode(true); //prevents usage of FairLinks
-  tpcCF->SetMode(2); 
+  tpcCF->SetMode(2); // 0 - global time bins;  1 - individual time bins for each sector;  2 - each pad gets its time window - actually we search for gaps on a pad;
   tpcCF->SetDataMode(true);
   tpcCF->SetPersistence();
   tpcCF->SetDigiBranchName("PndTpcDigi");
-  //tpcCF->SetClusterBranchName("PndTpcCluster_raw");
-  tpcCF->timeslice(5); //in samples
+  tpcCF->timeslice(20); //in samples
   tpcCF->SetDiffFactor(1.);
   tpcCF->SetSingleDigiClusterAmpCut(15);
   tpcCF->SetErrorPars(600,300);
   //tpcCF->SetTrivialClustering();
+  //tpcCF->SetSimpleClustering(); // use PndTpcClusterFinderSimple
   fRun->AddTask(tpcCF);
 
   //actually MODIFIES existing clusters, does NOT create a new branch
   PndTpcClusterCorrectionTask* tpcCC = new PndTpcClusterCorrectionTask();
-  double pars[6] = {-1.03313e-01,-2.17371e+00,1.30198e+01,
-		    -2.82209e+01,2.93526e+01,-1.17837e+01};
-  tpcCC->SetPersistence();
+  double pars[6] = {-0.115634, -1.85970, 11.5997,
+        	    -24.8201, 24.9152,-9.56801};
   tpcCC->SetParameters(pars);
-  //fRun->AddTask(tpcCC);
+  // fRun->AddTask(tpcCC);
 
 
   //PndTpcCTapplyTask* CTapply = new PndTpcCTapplyTask();
   //CTapply->SetPersistence();
   //fRun->AddTask(CTapply);
 
-  /*
+
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
-  tpcSPR->SetTrkFinderParameters(1.1,// proxcut
-                                 0.075, // proxcut on rieman sphere
-                                 7.E-3, // planecut
-                                 4.0, // szcut
-                                 5); // minnumhits for fit
+  tpcSPR->SetSortingParameters(
+                   true, // false: sort only according to _sorting (see next argument); true: use internal sorting when adding hits to trackcands
+                   3,    // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
+                   30.); // z-position of interaction point (for sorting 4)
+  tpcSPR->SetTrkFinderParameters(
+                   1.5,  // proximity cut in 3D
+                   0.025, // proximity cut on rieman sphere
+                   0.02, // distance to plane cut
+                   2.5,  // szcut
+                   8);   // minimum hits for plane & sz-fit
+  tpcSPR->SetMergeTracks();
+  tpcSPR->SetTrkMergerParameters(
+                   2.5,  // proximity cut
+                   2.5,  // sz cut
+                   8E-3);// plane cut (RMS)
   tpcSPR->SetPersistence();
   tpcSPR->SetStoreHistograms(PROutFile);
   //tpcSPR->WriteHistograms(PROutFile);
-  //fRun->AddTask(tpcSPR);
-  */
+  fRun->AddTask(tpcSPR);
+
 
 
   PndTpcSLPatternRecoTask* tpcSLPR = new PndTpcSLPatternRecoTask();
   tpcSLPR->SetPersistence(true);
   tpcSLPR->SetStoreHistograms(PROutFile);
   tpcSLPR->SetClusterAmpCut(30.);
-  //tpcSLPR->SetCutTracksParallelZ(5);
-  tpcSLPR->SetSortMode(2); //Y-sorting
+  tpcSLPR->SetCutTracksParallelZ(5);
+  tpcSLPR->SetXSorting(true);
   double parMins[4] = {-TMath::Pi(),0.,-TMath::Pi(),0.};
   double parMaxs[4] = {TMath::Pi(),10.,TMath::Pi(),20.};
   tpcSLPR->SetParameterSpace(parMins, parMaxs);
-  tpcSLPR->SetDepth(7);
-  tpcSLPR->SetThresh(20);
-  tpcSLPR->SetMinCandHits(20);
+  tpcSLPR->SetDepth(8);
+  tpcSLPR->SetThresh(22);
+  tpcSLPR->SetMinCandHits(22);
   //tpcSLPR->SetClusterBranchName("PndTpcCluster_cut");
   tpcSLPR->SetAbsMomentum(1000);
-  fRun->AddTask(tpcSLPR);
+  //fRun->AddTask(tpcSLPR);
 
 
   //PndTpcTCtrackFit* tf = new PndTpcTCtrackFit();
@@ -189,7 +199,7 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   kalman->SetPersistence();
   //kalman->SetClusterBranchName("PndTpcCluster_cut");
   kalman->SetNumIterations(3); // number of fitting iterations (back and forth)
-  fRun->AddTask(kalman);
+  //fRun->AddTask(kalman);
 
 
   TrackFitStatTask* fitstat=new TrackFitStatTask();
@@ -201,7 +211,7 @@ void runRecoFOPI_batch(TString filename, TString outpath)
 		     TMath::Pi(),  // thetamax
 		     5); // nPndTpcPoints
   fitstat->SetPdgSelection(11);//321
-//fitstat->DoResiduals();
+  //fitstat->DoResiduals();
   //fRun->AddTask(fitstat);
 
   PndTpcSLResidualTask* SLres = new PndTpcSLResidualTask();
