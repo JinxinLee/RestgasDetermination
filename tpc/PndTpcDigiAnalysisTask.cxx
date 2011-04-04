@@ -91,6 +91,7 @@ PndTpcDigiAnalysisTask::Init()
    fmapper->init(fpar->getPadPlane(),
             fpar->getGem(),
             fpar->getGas(),
+		 fpar->getPadShapes(),
             fpar->getZGem(),
             ffrontend->t0(),
             ffrontend->samplingFrequency());
