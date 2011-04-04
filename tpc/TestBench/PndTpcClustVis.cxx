@@ -40,10 +40,12 @@ PndTpcClustVis::PndTpcClustVis():
                                       0.02, // Lookup Step
                                       0.01); // LookupIntegrationStep
   fpadplane = new PndTpcPadPlane("tpc/TestBench/padPlane_FOPI.dat", fpadShapes);
+  
+
   fzGem = 0.2;
   double sf = 20;
   double t0 = 1000;
-  PndTpcDigiMapper::getInstance(false)->init(fpadplane,fgem,fgas,fzGem,t0,sf);
+  PndTpcDigiMapper::getInstance(false)->init(fpadplane,fgem,fgas,fpadShapes,fzGem,t0,sf);
 
   //init colors
   colors.push_back(kRed);

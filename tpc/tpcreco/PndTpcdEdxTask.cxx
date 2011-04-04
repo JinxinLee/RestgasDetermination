@@ -128,6 +128,7 @@ PndTpcdEdxTask::Init()
   PndTpcDigiMapper::getInstance(false)->init(_par->getPadPlane(),
 					     NULL,
 					     _par->getGas(),
+					     _par->getPadShapes(),
 					     _par->getZGem(),
 					     _par->getFrontend()->t0(),
 					     _par->getFrontend()->samplingFrequency());
