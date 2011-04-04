@@ -67,14 +67,16 @@ PndTpcDigiMapper::getPad(unsigned int id){return fpadPlane->GetPad(id);}
 
 void 
 PndTpcDigiMapper::init(PndTpcPadPlane* plane,
-		    const PndTpcGem* gem,
-		    const PndTpcGas* gas,
-		    double zgem,
-		    double  t0,
-		    double sampleFreq) {
+		       const PndTpcGem* gem,
+		       const PndTpcGas* gas,
+		       const PndTpcPadShapePool*padShapes,
+		       double zgem,
+		       double  t0,
+		       double sampleFreq) {
   fzGem=zgem;
   fgas=gas;
   fpadPlane=plane;
+  fpadShapes=padShapes;
   fgem=gem;
   ft0=t0;
   ftbin=1./sampleFreq*1000; // 1/MHz -> ns

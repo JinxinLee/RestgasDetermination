@@ -44,6 +44,7 @@ public :
   const PndTpcGas* getGas();
   const PndTpcGem* getGem();
   PndTpcPadPlane* getPadPlane();
+  const PndTpcPadShapePool* getPadShapes();
   const PndTpcFrontend* getFrontend();
 
   bool getGaussianNoise() const {return fgaussianNoise != 0;}
@@ -98,7 +99,7 @@ private :
   PndTpcFrontend* ffrontend; //!
   PndTpcPadShapePool* fpadshapepool; //!
 
-  const PndTpcPadShapePool* getPadShapes();
+ 
   TString readString(int i);
 
   ClassDef(PndTpcDigiPar,1);

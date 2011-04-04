@@ -35,6 +35,7 @@ class PndTpcDigiMapper {
   void init(PndTpcPadPlane* plane,
 	    const PndTpcGem* gem,
 	    const PndTpcGas* gas,
+	    const PndTpcPadShapePool* padShapes,
 	    double zgem,
 	    double t0,
 	    double samplFreqMhz); // does NOT take over Ownership!
@@ -47,8 +48,10 @@ class PndTpcDigiMapper {
   double z_from_tick(double t,double vdr=-1.);
 
   PndTpcPadPlane* getPadPlane() {return fpadPlane;}
+  const PndTpcPadShapePool * getPadShapePool() {return fpadShapes;}
 
   const PndTpcGas* const getGas() {return fgas;}
+  const PndTpcGem* const getGem() {return fgem;}
 
   double zGem() const {return fzGem;}
 
