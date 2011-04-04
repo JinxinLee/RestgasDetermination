@@ -47,7 +47,7 @@ public:
 
   // Accessors -----------------------
   PndTpcAbsPadShape* GetPadShape(const unsigned int fID) const;
-
+  unsigned int numPadShapes() const {return references.size();}
   // Modifiers -----------------------
   //PadShapePool will take ownership
   // The user is responsible for Building the PRLookupTable
