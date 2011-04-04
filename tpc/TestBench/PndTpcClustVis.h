@@ -69,6 +69,17 @@
 #include "PndTpcPad.h"
 #include "PndTpcGem.h"
 
+#include "PndTpcRiemannTrack.h"
+#include "PndTpcRiemannHit.h"
+#include "PndTpcRiemannTrackFinder.h"
+#include "PndTpcRiemannHTCorrelator.h"
+#include "PndTpcProximityHTCorrelator.h"
+#include "PndTpcProximityHTCorrelator.h"
+#include "PndTpcProximityTTCorrelator.h"
+#include "PndTpcRiemannTTCorrelator.h"
+#include "PndTpcSzHTCorrelator.h"
+#include "PndTpcSzTTCorrelator.h"
+
 #include "PndTpcCluster.h"
 #include "McId.h"
 #include "McIdCollection.h"
@@ -153,6 +164,7 @@ public:
   void guiGoto();
   void guiSetClusterfinderParams();
   void guiSetDrawParams();
+  void guiSetTrackingParams();	
 
 private:
   static PndTpcClustVis* eventDisplay;
@@ -184,6 +196,21 @@ private:
   TGCheckButton* guiDrawDigis;
   TGCheckButton* guiDrawClusters;
   TGCheckButton* guiDrawClustersErrors;
+  TGCheckButton* guiDoPR;
+  TGCheckButton* guiDoMerge;
+
+  TGNumberEntry* guisorting;
+  TGNumberEntry* guiinteractionZ;
+  TGCheckButton* guisortingMode;
+  TGNumberEntry* guiminpoints;
+  TGNumberEntry* guiplanecut;
+  TGNumberEntry* guiriproxcut;
+  TGNumberEntry* guiszcut;
+  TGNumberEntry* guiproxcut;
+  TGNumberEntry* guiTTproxcut;
+  TGNumberEntry* guiTTplanecut;
+  TGNumberEntry* guiTTszcut;
+
 
   int ClMode;
   int ClTimeslice;
@@ -194,6 +221,20 @@ private:
   bool drawDigis;
   bool drawClusters;
   bool drawClusterErrors;
+  bool doPR;
+  bool doMerge;
+
+  int _sorting;
+  double _interactionZ;
+  bool _sortingMode;
+  int _minpoints;
+  double _planecut;
+  double _riproxcut;
+  double _szcut;
+  double _proxcut;
+  double _TTproxcut;
+  double _TTplanecut;
+  double _TTszcut;
 
 
   /** @brief Build the buttons for event navigation.*/

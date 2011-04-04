@@ -16,6 +16,7 @@ ${CMAKE_SOURCE_DIR}/tpc
 ${CMAKE_SOURCE_DIR}/tpc/test
 ${CMAKE_SOURCE_DIR}/tpc/spacecharge
 ${CMAKE_SOURCE_DIR}/tpc/TestBench
+${CMAKE_SOURCE_DIR}/tpc/tpcreco
 ${CMAKE_SOURCE_DIR}/recotasks
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/RKTrackRep
 )
