@@ -29,8 +29,10 @@
 #include"TRandom3.h"
 
 // Collaborating Class Declarations --
+#ifndef STANDALONE
 class FairMCPoint;
 class PndTpcCluster;
+#endif
 
 typedef GFRecoHitIfc<GFSpacepointHitPolicy> SpacepointRecoHit;
 
@@ -45,8 +47,10 @@ public:
   PndTpcSPHit(const TVector3& pos,
 	      const TVector3& sig,
 	      bool smear=false);
+ #ifndef STANDALONE
   PndTpcSPHit(FairMCPoint* point);
   PndTpcSPHit(PndTpcCluster* cluster);
+#endif
 
   virtual ~PndTpcSPHit();
 
@@ -56,15 +60,19 @@ public:
   virtual TMatrixT<double> getHMatrix(const GFAbsTrackRep* stateVector);
 
   double amp() {return _amp;}
-
+#ifndef STANDALONE
   PndTpcCluster* getCluster(){return _cluster;}
-  
+  #endif
 private:
 
   // Private Data Members ------------
   static const int NparHitRep = 3;
   double _amp;
-  PndTpcCluster* _cluster;
+#ifndef STANDALONE
+  PndTpcCluster* _cluster;//!
+#else
+  void* _cluster;
+#endif
   static TRandom3 rand;
   // Private Methods -----------------
 

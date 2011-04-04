@@ -24,11 +24,14 @@
 #include <assert.h>
 
 // Collaborating Class Headers --------
+#ifndef STANDALONE
 #include "FairMCPoint.h"
 #include "PndTpcCluster.h"
+#include "GeaneTrackRep.h"
+#endif
+
 #include "LSLTrackRep.h"
 #include "RKTrackRep.h"
-#include "GeaneTrackRep.h"
 #include "GFDetPlane.h"
 #include"RKTrackRep.h"
 // Class Member definitions -----------
@@ -78,6 +81,7 @@ PndTpcSPHit::PndTpcSPHit(const TVector3& pos,
   
 }
 
+#ifndef STANDALONE
 PndTpcSPHit::PndTpcSPHit(FairMCPoint* point)
   : SpacepointRecoHit(NparHitRep), _amp(0.), _cluster(NULL)
 {
@@ -107,7 +111,7 @@ PndTpcSPHit::PndTpcSPHit(PndTpcCluster* cluster)
 
   _cluster = cluster;
 }
-
+#endif
 
 GFAbsRecoHit* 
 PndTpcSPHit::clone(){
@@ -119,7 +123,8 @@ TMatrixT<double>
 PndTpcSPHit::getHMatrix(const GFAbsTrackRep* stateVector)
 {
   assert(stateVector!=NULL);
-  if (dynamic_cast<const GeaneTrackRep*>(stateVector) != NULL) {
+
+  if (dynamic_cast<const RKTrackRep*>(stateVector) != NULL) {
     // Uses TrackParP (q/p,v',w',v,w)
     // coordinates are defined by detplane!
     TMatrixT<double> HMatrix(2,5);
@@ -135,9 +140,11 @@ PndTpcSPHit::getHMatrix(const GFAbsTrackRep* stateVector)
     HMatrix[1][2] = 0.;
     HMatrix[1][3] = 0.;
     HMatrix[1][4] = 1.;
+
     return HMatrix;
   }
-  else   if (dynamic_cast<const RKTrackRep*>(stateVector) != NULL) {
+#ifndef STANDALONE
+  else if (dynamic_cast<const GeaneTrackRep*>(stateVector) != NULL) {
     // Uses TrackParP (q/p,v',w',v,w)
     // coordinates are defined by detplane!
     TMatrixT<double> HMatrix(2,5);
@@ -154,10 +161,9 @@ PndTpcSPHit::getHMatrix(const GFAbsTrackRep* stateVector)
     HMatrix[1][2] = 0.;
     HMatrix[1][3] = 0.;
     HMatrix[1][4] = 1.;
-
     return HMatrix;
   }
-
+#endif
   else if (dynamic_cast<const LSLTrackRep*>(stateVector) != NULL) {
     // Uses TrackParP (u,v,u',v',q/p)
     // coordinates are defined by detplane!
@@ -173,25 +179,6 @@ PndTpcSPHit::getHMatrix(const GFAbsTrackRep* stateVector)
     HMatrix[1][2] = 0.;
     HMatrix[1][3] = 0.;
     HMatrix[1][4] = 0.;
-    return HMatrix;
-  }
-  else if (dynamic_cast<const RKTrackRep*>(stateVector) != NULL) {
-    // Uses TrackParP (u,v,u',v',q/p)
-    // coordinates are defined by detplane!
-    TMatrixT<double> HMatrix(2,6);
-    HMatrix[0][0] = 0.;
-    HMatrix[0][1] = 0.;
-    HMatrix[0][2] = 0.;
-    HMatrix[0][3] = 1.;
-    HMatrix[0][4] = 0.;
-    HMatrix[0][5] = 0.;
-
-    HMatrix[1][0] = 0.;
-    HMatrix[1][1] = 0.;
-    HMatrix[1][2] = 0.;
-    HMatrix[1][3] = 0.;
-    HMatrix[1][4] = 1.;
-    HMatrix[1][5] = 0.;
     return HMatrix;
   }
   else {
