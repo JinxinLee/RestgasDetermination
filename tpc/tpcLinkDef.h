@@ -35,6 +35,8 @@
 #pragma link C++ class PndTpcClusterFinderTask+;
 #pragma link C++ class PndTpcClusterCorrectionTask+;
 #pragma link C++ class PndTpcCluster+;
+#pragma link C++ class PndTpcClusterFitLikeli+;
+#pragma link C++ class PndTpcClusterFitter+;
 #pragma link C++ class PndTpcInhFieldDrifter+;
 //#pragma link C++ class testfieldclass+;
 #pragma link C++ class DebugLogger+;
