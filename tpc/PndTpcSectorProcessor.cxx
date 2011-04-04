@@ -36,6 +36,7 @@ using std::map;
 #include "FairMultiLinkedData.h"
 #include "PndDetectorList.h"
 #include "TORPPState_Compare.h"
+#include "PndTpcClusterFitter.h"
 
 // Class Member definitions -----------
 
@@ -90,6 +91,9 @@ PndTpcSectorProcessor::Init(PndTpcPadPlane* p,
     }
     ++ipad;
   }
+
+  //fFitter= new PndTpcClusterFitter();
+
 }
 
 
@@ -230,7 +234,7 @@ PndTpcSectorProcessor::cog(){
   PndTpcDigiMapper::getInstance()->map(&zDiffDigi2,zDiff2);
   double zDiff = zDiff2.z() - zDiff1.z();
   //end of z jitter
-  // Calculate COG
+  // Calculate COG --------------------------------------------
   for(unsigned int ic=0;ic<fcluster_buffer.size();++ic){
     std::vector<PndTpcDigi*>* digis=fcluster_buffer[ic];
     TVector3 pos(0,0,0);

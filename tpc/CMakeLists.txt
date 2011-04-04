@@ -78,6 +78,8 @@ PndTpcClusterFinder.cxx
 PndTpcClusterFinderSimple.cxx   
 PndTpcClusterFinderTask.cxx 	    
 PndTpcClusterCOG.cxx
+PndTpcClusterFitLikeli.cxx
+PndTpcClusterFitter.cxx
 PndTpcClusterRadius.cxx 
 PndTpcClusterZ.cxx
 PndTpcClusterDist.cxx	    
@@ -139,6 +141,7 @@ TestBench/PndTpcClusterCorrectionTask.cxx
 #TestBench/TCconfigManager.cxx
 TestBench/PndTpcClustVis.cxx	    
 PndTpcT2KPulseshape.cxx
+TestBench/PndTpcEventIdentifier.cxx
 )
 
 SET(TPC_SRCS ${TPC_SRCS_RULECHECKER} PndTpcAbsField.cxx PndTpcFieldCylGrid.cxx 		    

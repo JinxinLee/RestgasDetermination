@@ -105,6 +105,7 @@ PndTpcClusterFinderTask::Init()
   fpar->printParams();
   ffrontend= fpar->getFrontend();
   fpadplane= fpar->getPadPlane();
+  fgem=      fpar->getGem();
   fgas=      fpar->getGas();
   fzGem=     fpar->getZGem();
   double sf= fpar->getFrontend()->samplingFrequency();
@@ -113,7 +114,7 @@ PndTpcClusterFinderTask::Init()
 
   std::cout << "T0 " << t0 << "sF " << sf << std::endl;
 
-  PndTpcDigiMapper::getInstance(false)->init(fpadplane,fgem,fgas,fzGem,t0,sf);
+  PndTpcDigiMapper::getInstance(false)->init(fpadplane,fgem,fgas,fpar->getPadShapes(),fzGem,t0,sf);
  
   fcluster_buffer=new std::vector<PndTpcCluster*>;
 

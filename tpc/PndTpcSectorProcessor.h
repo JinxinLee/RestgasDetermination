@@ -31,7 +31,7 @@
 // Collaborating Class Declarations --
 class PndTpcPadPlane;
 class padprocessor;
-
+class PndTpcClusterFitter;
 
 class PndTpcSectorProcessor {
 public:
@@ -76,7 +76,8 @@ private:
   
   PndTpcPadPlane* fpadplane;
   unsigned int fSectorId;
-
+  PndTpcClusterFitter* fFitter;
+  
   std::vector<PndTpcDigi*> fdigi_buffer;
 
   bool fsaveRaw;
