@@ -177,7 +177,7 @@ void PndTpcPrelimCluster::cog(){
   ferr.SetZ(sqrt(ferr.Z())/famp);
   
   //  PndTpcCluster* cl=new PndTpcCluster(fpos,ferr,(unsigned int)famp,id,ndigis);
-  fdominant_mcid = mcid.DominantID();
+  //  fdominant_mcid = mcid.DominantID();
   
 }
 
