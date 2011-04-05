@@ -933,7 +933,7 @@ void PndTpcClustVis::makeGui() {
     guiminpoints = new TGNumberEntry(hf, _minpoints, 6,999, TGNumberFormat::kNESInteger,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
-                          0, 50);
+                          0, 200);
     hf->AddFrame(guiminpoints);
     guiminpoints->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
     lbl = new TGLabel(hf, "min points for sz-/plane-fit");
@@ -941,10 +941,10 @@ void PndTpcClustVis::makeGui() {
   }
   frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
-    guiplanecut = new TGNumberEntry(hf, _planecut, 6,999, TGNumberFormat::kNESRealThree,
+    guiplanecut = new TGNumberEntry(hf, _planecut, 6,999, TGNumberFormat::kNESRealFour,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
-                          0, 5);
+                          0, 2);
     hf->AddFrame(guiplanecut);
     guiplanecut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
     lbl = new TGLabel(hf, "Planecut");
@@ -953,7 +953,7 @@ void PndTpcClustVis::makeGui() {
   frmMain->AddFrame(hf);
 
   hf = new TGHorizontalFrame(frmMain); {
-    guiriproxcut = new TGNumberEntry(hf, _riproxcut, 6, 999, TGNumberFormat::kNESRealThree,
+    guiriproxcut = new TGNumberEntry(hf, _riproxcut, 6, 999, TGNumberFormat::kNESRealFour,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
                           0, 2);
@@ -967,7 +967,7 @@ void PndTpcClustVis::makeGui() {
     guiszcut = new TGNumberEntry(hf, _szcut, 6,999, TGNumberFormat::kNESRealThree,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
-                          0, 10);
+                          0, 99);
     hf->AddFrame(guiszcut);
     guiszcut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
     lbl = new TGLabel(hf, "sz cut");
@@ -978,7 +978,7 @@ void PndTpcClustVis::makeGui() {
     guiproxcut = new TGNumberEntry(hf, _proxcut, 6,999, TGNumberFormat::kNESRealThree,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
-                          0, 10);
+                          0, 99);
     hf->AddFrame(guiproxcut);
     guiproxcut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
     lbl = new TGLabel(hf, "Proximity cut");
@@ -998,7 +998,7 @@ void PndTpcClustVis::makeGui() {
     guiTTproxcut = new TGNumberEntry(hf, _TTproxcut, 6,999, TGNumberFormat::kNESRealThree,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
-                          0, 10);
+                          0, 99);
     hf->AddFrame(guiTTproxcut);
     guiTTproxcut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
     lbl = new TGLabel(hf, "TT Proximity cut");
@@ -1006,10 +1006,10 @@ void PndTpcClustVis::makeGui() {
   }
   frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
-    guiTTplanecut = new TGNumberEntry(hf, _TTplanecut, 6,999, TGNumberFormat::kNESReal,
+    guiTTplanecut = new TGNumberEntry(hf, _TTplanecut, 6,999, TGNumberFormat::kNESRealFour,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
-                          0, 1);
+                          0, 0.99);
     hf->AddFrame(guiTTplanecut);
     guiTTplanecut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
     lbl = new TGLabel(hf, "TT plane cut");
@@ -1020,7 +1020,7 @@ void PndTpcClustVis::makeGui() {
     guiTTszcut = new TGNumberEntry(hf, _TTszcut, 6,999, TGNumberFormat::kNESRealThree,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
-                          0, 10);
+                          0, 99);
     hf->AddFrame(guiTTszcut);
     guiTTszcut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
     lbl = new TGLabel(hf, "TT sz cut");
