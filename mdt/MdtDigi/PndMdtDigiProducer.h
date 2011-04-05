@@ -38,7 +38,9 @@ class PndMdtDigiProducer : public FairTask
  private: 
   
   Bool_t fStripMode;              //! Strip Mode  
-  Float_t fBarrelStartZ;          //! 
+  Float_t fBarrelStart;           //! 
+  Float_t fEndcapStart;           //! 
+  Float_t fMFStart;               //! 
 
   /** Input array of PndMdtPoint **/
   TClonesArray* fPointArray;

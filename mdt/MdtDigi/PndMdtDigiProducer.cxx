@@ -31,7 +31,7 @@ using std::endl;
 // -----   Default constructor   -------------------------------------------
 PndMdtDigiProducer::PndMdtDigiProducer() :
   FairTask(" MDT Digi Producer") { 
-  fStripMode = kFALSE;
+  fStripMode = kTRUE;
 }
 // -------------------------------------------------------------------------
 
@@ -76,12 +76,18 @@ InitStatus PndMdtDigiProducer::Init() {
       ioman->Register("MdtDigiStrip","Mdt",fDigiStripArray,kTRUE);
     }
  
-  TGeoVolume *volume = (TGeoVolume*)gGeoManager->FindVolumeFast("MdtBarrel");
-  TGeoBBox *box = (TGeoBBox*)volume->GetShape();
-  const Double_t *origin = box->GetOrigin();
-  
-  fBarrelStartZ = origin[2]+box->GetDZ();
-  cout <<  fBarrelStartZ << endl;
+  TGeoVolume *volBarrel = (TGeoVolume*)gGeoManager->FindVolumeFast("MdtBarrel");
+  TGeoBBox *boxBarrel = (TGeoBBox*)volBarrel->GetShape();
+  const Double_t *orBarrel = boxBarrel->GetOrigin();
+  fBarrelStart = orBarrel[2]+boxBarrel->GetDZ();
+  TGeoVolume *volEndcap = (TGeoVolume*)gGeoManager->FindVolumeFast("MdtEndcap");
+  TGeoBBox *boxEndcap = (TGeoBBox*)volEndcap->GetShape();
+  const Double_t *orEndcap = boxEndcap->GetOrigin();
+  fEndcapStart = orEndcap[0]+boxEndcap->GetDX();
+  TGeoVolume *volMF = (TGeoVolume*)gGeoManager->FindVolumeFast("MdtMF");
+  TGeoBBox *boxMF = (TGeoBBox*)volMF->GetShape();
+  const Double_t *orMF = boxMF->GetOrigin();
+  fMFStart = orMF[0]+boxMF->GetDX();
   
   cout << "-I- PndMdtDigiProducer: Intialization successfull" << endl;
   
@@ -130,26 +136,55 @@ void PndMdtDigiProducer::Exec(Option_t* opt)
     TGeoMatrix *mdtMat = (TGeoMatrix*)gGeoManager->GetCurrentMatrix();
     const Double_t *matM = mdtMat->GetTranslation();
     TVector3 tubePos(matM[0], matM[1], matM[2]);
-    TVector3 stripPos;
-    Int_t stripNum = -10, stripId = -10;
+    TVector3 stripPos1, stripPos2;
+    Int_t stripNum1 = -10, stripNum2 = -10, stripId1 = -10, stripId2 = -10;
     if (point->GetModule()==1)
       {
-	stripNum = (Int_t)(fBarrelStartZ - point->GetZ());
-	stripPos.SetXYZ(matM[0], matM[1], fBarrelStartZ - stripNum - 0.5);
-	stripId = stripNum + 1000*point->GetLayerID() + 100000*point->GetSector() + 1000000*point->GetModule();
+	stripNum1 = (Int_t)(fBarrelStart - point->GetZ()-0.25);
+	stripNum2 = (Int_t)(fBarrelStart - point->GetZ()+0.25);
+	if (stripNum1<0) stripNum1 = 0;
+	if (stripNum2<0) stripNum2 = 0;
+	stripPos1.SetXYZ(matM[0], matM[1], fBarrelStart - stripNum1 - 0.5);
+	stripPos2.SetXYZ(matM[0], matM[1], fBarrelStart - stripNum2 - 0.5);
       }
+    if (point->GetModule()==2)
+      {
+	stripNum1 = (Int_t)(fEndcapStart - point->GetX()-0.25);
+	stripNum2 = (Int_t)(fEndcapStart - point->GetX()+0.25);
+	if (stripNum1<0) stripNum1 = 0;
+	if (stripNum2<0) stripNum2 = 0;
+	stripPos1.SetXYZ(fEndcapStart - stripNum1 - 0.5, matM[1], matM[2]);
+	stripPos2.SetXYZ(fEndcapStart - stripNum2 - 0.5, matM[1], matM[2]);
+      }
+    if (point->GetModule()==3)
+      {
+	stripNum1 = (Int_t)(fMFStart - point->GetX()-0.25);
+	stripNum2 = (Int_t)(fMFStart - point->GetX()+0.25);
+	if (stripNum1<0) stripNum1 = 0;
+	if (stripNum2<0) stripNum2 = 0;
+	stripPos1.SetXYZ(fMFStart - stripNum1 - 0.5, matM[1], matM[2]);
+	stripPos2.SetXYZ(fMFStart - stripNum2 - 0.5, matM[1], matM[2]);
+      }
+    
+    stripId1 = stripNum1 + 1000*point->GetLayerID() + 100000*point->GetSector() + 1000000*point->GetModule();
+    stripId2 = stripNum2 + 1000*point->GetLayerID() + 100000*point->GetSector() + 1000000*point->GetModule();
     
     if (fStripMode)
       {
 	mapBoxPoint[point->GetDetectorID()].push_back(iPoint);
 	mapBoxPos[point->GetDetectorID()] = tubePos;
-	mapStripPoint[stripId].push_back(iPoint);
-	mapStripPos[stripId] = stripPos;
+	mapStripPoint[stripId1].push_back(iPoint);
+	mapStripPos[stripId1] = stripPos1;
+	if (stripNum1!=stripNum2)
+	  {
+	    mapStripPoint[stripId2].push_back(iPoint);
+	    mapStripPos[stripId2] = stripPos2;
+	  }
       }
     else
       {
 	mapBoxPoint[point->GetDetectorID()].push_back(iPoint);
-	mapBoxPos[point->GetDetectorID()] = stripPos;
+	mapBoxPos[point->GetDetectorID()] = stripPos1;
       }
     
   } // Loop over MdtPoints

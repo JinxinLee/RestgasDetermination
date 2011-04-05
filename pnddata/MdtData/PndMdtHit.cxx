@@ -4,6 +4,8 @@
 // -----   Default constructor   -------------------------------------------
 PndMdtHit::PndMdtHit() : FairHit()
 {
+        fStripID = -1;
+        fStripIndex = -1;
 }
 
 
@@ -12,6 +14,16 @@ PndMdtHit::PndMdtHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index)
 {
 	SetLink(FairLink("MdtPoint", index));
 }
+
+PndMdtHit::PndMdtHit(Int_t detID, Int_t stripID, TVector3& pos, TVector3& dpos, Int_t bIndex, Int_t sIndex)
+  : FairHit(detID, pos, dpos, bIndex)
+{
+        fStripID = stripID;
+        fStripIndex = sIndex;
+        SetLink(FairLink("MdtDigiBox", bIndex));
+        SetLink(FairLink("MdtDigiStrip", sIndex));
+}
+
 
 /** Destructor **/
 PndMdtHit::~PndMdtHit() 

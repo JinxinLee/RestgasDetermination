@@ -12,6 +12,7 @@ class PndMdtHit : public FairHit {
   PndMdtHit();
   
   PndMdtHit (Int_t detID, TVector3& pos, TVector3& dpos, Int_t index);
+  PndMdtHit (Int_t detID, Int_t stripID, TVector3& pos, TVector3& dpos, Int_t bIndex, Int_t sIndex);
   
   virtual ~PndMdtHit();
   
@@ -30,10 +31,15 @@ class PndMdtHit : public FairHit {
   Short_t GetLayerID()     const { return ((fDetectorID/1000)%100);};
   Short_t GetBox()         const { return ((fDetectorID/10)%100);};
   Short_t GetWire()        const { return (fDetectorID%10);};
+  Short_t GetStrip()       const { return fStripID; };
+  Int_t GetStripIndex()    const { return fStripIndex; };
 
  private:
   
-  ClassDef(PndMdtHit,1);
+  Short_t fStripID;
+  Int_t fStripIndex;
+
+  ClassDef(PndMdtHit,2);
 };
 
 

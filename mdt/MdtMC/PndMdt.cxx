@@ -44,6 +44,8 @@ PndMdt::PndMdt()
     fEndcap = "";
     fMuonFilter = "";
     fForward = "";
+    mdtMagnet = kFALSE;
+    mdtMFI = kFALSE;
 }
 // -------------------------------------------------------------------------
 
@@ -59,7 +61,9 @@ PndMdt::PndMdt(const char* name, Bool_t active) : FairDetector(name,active)
     fBarrel = "";
     fEndcap = "";
     fMuonFilter = "";
-    fForward = "";
+    fForward = ""; 
+    mdtMagnet = kFALSE;
+    mdtMFI = kFALSE;
 }
 // -------------------------------------------------------------------------
 
@@ -304,7 +308,8 @@ Bool_t PndMdt::ProcessHitsFast(FairVolume* vol)
 Bool_t PndMdt::ProcessHitsRoot(FairVolume* vol) 
 {
   TString name = gMC->CurrentVolName();
-  //cout << name << "\t" << gMC->CurrentVolPath() << endl;
+  TString path = gMC->CurrentVolPath();
+  
   if (gMC->IsTrackEntering() || gMC->IsNewTrack() )
     {
       fPos_In.SetXYZM(0.,0.,0.,0.);
@@ -323,18 +328,22 @@ Bool_t PndMdt::ProcessHitsRoot(FairVolume* vol)
       if ( (TrNo == fTrkIn) && (fELoss >0.) )
 	{
 	  TLorentzVector lPos, lMom;
-	  Int_t iMod;
+	  Int_t iMod = -1;
 	  Int_t iOct;
 	  Int_t iLayer;
 	  Int_t iBox;
 	  Int_t iWire;
-	  sscanf(name,"MDT%is0l0b0w0", &iMod);
 	  gMC->CurrentVolID(iWire);
 	  gMC->CurrentVolOffID(2,iBox);
 	  gMC->CurrentVolOffID(3,iLayer);
 	  gMC->CurrentVolOffID(4,iOct);
+	  if (path.Contains("Barrel")) iMod = 1;
+	  if (path.Contains("Endcap")) iMod = 2;
+	  if (path.Contains("MF"))     iMod = 3;
+	  
 	  //cout << iMod << "\t" <<  iOct << "\t" << iLayer << "\t" << iBox << "\t" << iWire << endl;
-	  Int_t detectorId = iWire + 10*iBox + 1000*iLayer + 100000*iOct + 1000000*iMod; 
+	  Int_t detectorId = iWire + 10*iBox + 1000*iLayer + 100000*iOct + 1000000*iMod;
+	  
 	  gMC->TrackPosition(lPos); // cm
 	  gMC->TrackMomentum(lMom); // GeV
 	  TClonesArray& clref = *fMdtCollection;

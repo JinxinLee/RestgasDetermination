@@ -28,7 +28,7 @@ class PndMdtDigi : public FairMultiLinkedData {
   void SetPosition(const TVector3& pos) { fLabPos = pos; };
 
   TVector3 GetLabPosition() const { return fLabPos; };
-  
+  Int_t GetDetectorID()     const { return fDetectorID; };  
   Short_t GetModule()       const { return (fDetectorID/1000000);};
   Short_t GetSector()       const { return ((fDetectorID/100000)%10);};
   Short_t GetLayerID()      const { return ((fDetectorID/1000)%100);};
