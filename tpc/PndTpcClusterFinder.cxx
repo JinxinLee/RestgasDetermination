@@ -218,22 +218,25 @@ PndTpcClusterFinder::process(std::vector<PndTpcDigi*>& digis)
       }
       
       while(unusedDigis.size()>0){ // there are still digis
-	// keep track of hit pads (with last timestamp)
-	std::map<unsigned int, double> padmap;
+	// keep track of hit pads (with mean time)
+	std::map<unsigned int, std::pair<double,unsigned int> > padmap;
 	std::list<PndTpcDigi*>::iterator digiIt=unusedDigis.begin();
 	while(digiIt!=unusedDigis.end()){ // loop over unused digis
 	  PndTpcDigi* adigi=*digiIt;
 	  // check if pad was hit already or timeslice filled 
 	  // if so process sector before going on
-	  std::map<unsigned int, double>::iterator padIt=padmap.find(adigi->padId());
+	  std::map<unsigned int, std::pair<double,unsigned int> >::iterator padIt=padmap.find(adigi->padId());
 	  if(padIt!=padmap.end()){
 	    // check time
-	    if(adigi->t()>padIt->second+fdt){ // found gap -> resume without adding digi to sectorprocessor
+	    if(adigi->t()>padIt->second.first+fdt){ // found gap -> resume without adding digi to sectorprocessor
 	      ++digiIt;
 	      continue;
 	    } // end found gap
 	  }// end pad has been used before
-	  padmap[adigi->padId()]=adigi->t();
+	  // calculate mean time of digis on this pad sofar
+	  double oldtime=padmap[adigi->padId()].first;
+	  unsigned int nsofar=padmap[adigi->padId()].second;
+	  padmap[adigi->padId()]=std::pair<double,unsigned int>((adigi->t()+oldtime*(double)nsofar)/((double)nsofar+1.),nsofar+1);
 	  fsproc[secIt->first]->putDigi(adigi);
 	  // remove digi from unusedDigis
 	  std::list<PndTpcDigi*>::iterator digiIt2=digiIt;
