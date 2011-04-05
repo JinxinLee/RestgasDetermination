@@ -1,4 +1,4 @@
-void runClusterVisualisation(TString filename)
+void runClusterVisualisation(TString filename, TString digifile="") 
 {
   // ----  Load libraries   -------------------------------------------------
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -7,6 +7,10 @@ void runClusterVisualisation(TString filename)
   TFile* file = new TFile(filename);
   TTree* tree = (TTree*)file->Get("cbmsim");
   
+  if(digifile.Length()>1){
+    tree->AddFriend("cbmsim",digifile);
+  }
+
   TEveManager::Create();
 
   PndTpcClustVis* clustVis = PndTpcClustVis::getInstance();
