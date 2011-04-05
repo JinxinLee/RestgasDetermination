@@ -21,7 +21,7 @@ PndTpcClustVis* PndTpcClustVis::eventDisplay = NULL;
 PndTpcClustVis::PndTpcClustVis():
   digisBranch(0),clustersBranch(0), guiEvent(0),
   ClMode(2), ClTimeslice(10),ClTimecut(10), ClSingeDigiClAmpCut(15), ClSimpleCl(false),
-  drawDigis(true), drawClusters(true), drawClusterErrors(false),
+  drawDigis(false), drawClusters(true), drawClusterErrors(false),
   doPR(false), doMerge(false), _sorting(3), _interactionZ(0), _sortingMode(true),
   _minpoints(10), _planecut(0.02), _riproxcut(0.02), _szcut(2), _proxcut(2),
   _TTproxcut(2), _TTplanecut(2E-3), _TTszcut(2)
@@ -379,41 +379,62 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       _trackfinder->mergeTracks(riemannlist);
 
     // draw	
-    for(unsigned int ir=0;ir<riemannlist.size();++ir){
+    for(unsigned int ir=0;ir<riemannlist.size();++ir){ // loop over trackcands
       PndTpcRiemannTrack* trkcand = riemannlist[ir];
       unsigned int nhits=trkcand->getNumHits();
 
       int colour = ir%colors.size();
 
-      // loop over clusters
-      for(unsigned int ih=0;ih<nhits;++ih){
+      TVector3 old_track_pos;
+      TEveStraightLineSet* track_lines = NULL;
+
+      for(unsigned int ih=0;ih<nhits;++ih){ // loop over clusters
         PndTpcCluster* cluster = trkcand->getHit(ih)->cluster();
         TVector3 pos;
         TVector3 err;
 
         pos = cluster->pos();
-        // rotate and translate -------------------------------------------------------
-        TGeoMatrix* det_trans = new TGeoGenTrans(pos.X(), pos.Y(), pos.Z(),
+
+
+        if(drawClusters){
+          // rotate and translate -------------------------------------------------------
+          TGeoMatrix* det_trans = new TGeoGenTrans(pos.X(), pos.Y(), pos.Z(),
                                                  1., 1., 1., 0);
 
-        TEveGeoShape* cluster_shape = new TEveGeoShape("cluster_shape");
+          TEveGeoShape* cluster_shape = new TEveGeoShape("cluster_shape");
 
-        if(drawClusterErrors){
-          err = cluster->sig();
-          cluster_shape->SetShape(new TGeoBBox(err.X(), err.Y(), err.Z()) );
+          if(drawClusterErrors){
+            err = cluster->sig();
+            cluster_shape->SetShape(new TGeoBBox(err.X(), err.Y(), err.Z()) );
+          }
+          else
+            cluster_shape->SetShape(new TGeoSphere(0., 0.25) );
+
+          cluster_shape->SetTransMatrix(*det_trans);
+          // finished rotating and translating ------------------------------------------
+
+          cluster_shape->SetMainColor(colors[colour]);
+          cluster_shape->SetMainTransparency(40);
+          gEve->AddElement(cluster_shape);
         }
-        else
-          cluster_shape->SetShape(new TGeoSphere(0., 0.25) );
 
-        cluster_shape->SetTransMatrix(*det_trans);
-        // finished rotating and translating ------------------------------------------
 
-        cluster_shape->SetMainColor(colors[colour]);
-        cluster_shape->SetMainTransparency(40);
-        gEve->AddElement(cluster_shape);
- 
-      }
-    }
+        // connect clusters
+        if(true) {
+          if(track_lines==NULL) track_lines = new TEveStraightLineSet;
+          if(ih > 0) {
+            track_lines->AddLine(old_track_pos(0), old_track_pos(1), old_track_pos(2), pos(0), pos(1), pos(2));
+            track_lines->SetMainColor(colors[colour]);
+            track_lines->SetLineWidth(1);
+          }
+          old_track_pos = pos;
+        }
+
+      } // end loop over clusters
+
+      if(track_lines != NULL) gEve->AddElement(track_lines);
+
+    } // end loop over trackcands
   }
 
   fcluster_buffer->clear();
@@ -844,7 +865,7 @@ void PndTpcClustVis::makeGui() {
   // draw options
   hf = new TGHorizontalFrame(frmMain); {
     guiDrawDigis =  new TGCheckButton(hf, "Draw Digis");
-    guiDrawDigis->Toggle();
+    //guiDrawDigis->Toggle();
     hf->AddFrame(guiDrawDigis);
     guiDrawDigis->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
   }
