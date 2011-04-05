@@ -308,6 +308,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
         // calculate and norm amp
         double amp = digi->amp(); // should be ~ 6 .. 2000
+        if(amp > 3000) continue; // TODO: when using SimpleCl, strange things happen and HUGE digis are drawn
         amp = TMath::Log(amp); // ~ 0.8 .. 3.3
         amp *= 0.02;
 
@@ -353,8 +354,8 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
   if(doPR){
     // init TrackFinder
     PndTpcRiemannTrackFinder* _trackfinder= new PndTpcRiemannTrackFinder();
-    //PndTpcRiemannTrackFinder::setSorting(_sorting);
-    //PndTpcRiemannTrackFinder::setInteractionZ(_interactionZ);
+    PndTpcRiemannTrackFinder::setSorting(_sorting);
+    PndTpcRiemannTrackFinder::setInteractionZ(_interactionZ);
     _trackfinder->setSortingMode(_sortingMode);
     _trackfinder->setMinHitsForFit(_minpoints);
 
@@ -887,7 +888,7 @@ void PndTpcClustVis::makeGui() {
   frmMain->AddFrame(hf);
 
 
-  // Trackfinder Parameters
+  
   hf = new TGHorizontalFrame(frmMain); {
     guiDoPR =  new TGCheckButton(hf, "Do Pattern Recognition");
     if(doPR) guiDoPR->Toggle();
@@ -907,7 +908,7 @@ void PndTpcClustVis::makeGui() {
     lbl = new TGLabel(hf, "Sorting Mode");
         hf->AddFrame(lbl);
   }
-  //frmMain->AddFrame(hf);
+  frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
     guiinteractionZ = new TGNumberEntry(hf, _interactionZ, 6,999, TGNumberFormat::kNESRealThree,
                           TGNumberFormat::kNEANonNegative,
@@ -918,7 +919,7 @@ void PndTpcClustVis::makeGui() {
     lbl = new TGLabel(hf, "Z-position of interaction point (for sorting Mode 4)");
         hf->AddFrame(lbl);
   }
-  //frmMain->AddFrame(hf);
+  frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
     guisortingMode =  new TGCheckButton(hf, "Use sorting of riemann tracker");
     if(_sortingMode) guisortingMode->Toggle();
@@ -926,6 +927,8 @@ void PndTpcClustVis::makeGui() {
     guisortingMode->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
   }
   frmMain->AddFrame(hf);
+
+  // Trackfinder Parameters
   hf = new TGHorizontalFrame(frmMain); {
     guiminpoints = new TGNumberEntry(hf, _minpoints, 6,999, TGNumberFormat::kNESInteger,
                           TGNumberFormat::kNEANonNegative,
