@@ -60,6 +60,7 @@
 #include "PndTpcRiemannTrack.h"
 #include "PndTpcRiemannTrackFinder.h"
 #include "PndTpcRiemannHTCorrelator.h"
+#include "PndTpcRiProxHTCorrelator.h"
 #include "PndTpcSzHTCorrelator.h"
 #include "PndTpcProximityHTCorrelator.h"
 #include "TMath.h"
@@ -569,8 +570,9 @@ PndTpcRecoTester::testRiemannFit(unsigned int ntrk, double r){
 
   PndTpcRiemannTrackFinder finder;
   finder.setMinHitsForFit(4);
-  finder.addCorrelator(new PndTpcRiemannHTCorrelator(1E-3,0.01));
+  finder.addCorrelator(new PndTpcRiemannHTCorrelator(1E-3));
   finder.addCorrelator(new PndTpcSzHTCorrelator(1.0));
+  finder.addCorrelator(new PndTpcRiProxHTCorrelator(0.01));
   finder.addCorrelator(new PndTpcProximityHTCorrelator(2.));
   
 
@@ -620,8 +622,9 @@ PndTpcRecoTester::testRiemannFinder(unsigned int ntrk){
 
   PndTpcRiemannTrackFinder finder;
   finder.setMinHitsForFit(4);
-  finder.addCorrelator(new PndTpcRiemannHTCorrelator(1E-2,0.5));
+  finder.addCorrelator(new PndTpcRiemannHTCorrelator(1E-2));
   finder.addCorrelator(new PndTpcSzHTCorrelator(1.0));
+  finder.addCorrelator(new PndTpcRiProxHTCorrelator(0.5));
   finder.addCorrelator(new PndTpcProximityHTCorrelator(2.));
   finder.buildTracks(cll,cands);
   

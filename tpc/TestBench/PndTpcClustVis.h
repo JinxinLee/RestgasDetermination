@@ -73,6 +73,7 @@
 #include "PndTpcRiemannHit.h"
 #include "PndTpcRiemannTrackFinder.h"
 #include "PndTpcRiemannHTCorrelator.h"
+#include "PndTpcRiProxHTCorrelator.h"
 #include "PndTpcProximityHTCorrelator.h"
 #include "PndTpcProximityHTCorrelator.h"
 #include "PndTpcProximityTTCorrelator.h"

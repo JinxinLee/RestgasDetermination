@@ -15,8 +15,8 @@
 //
 //-----------------------------------------------------------
 
-#ifndef TPCRIEMANNHTCORRELATOR_HH
-#define TPCRIEMANNHTCORRELATOR_HH
+#ifndef TPCRIPROXHTCORRELATOR_HH
+#define TPCRIPROXHTCORRELATOR_HH
 
 // Base Class Headers ----------------
 #include "PndTpcAbsHitTrackCorrelator.h"
@@ -28,15 +28,15 @@
 class TH1D;
 
 
-class PndTpcRiemannHTCorrelator : public PndTpcAbsHitTrackCorrelator {
+class PndTpcRiProxHTCorrelator : public PndTpcAbsHitTrackCorrelator {
 public:
 
   // Constructors/Destructors ---------
-  PndTpcRiemannHTCorrelator(double planecut);
-  ~PndTpcRiemannHTCorrelator(){;}
+  PndTpcRiProxHTCorrelator(double proxcut);
+  ~PndTpcRiProxHTCorrelator(){;}
 
   // Accessors -----------------------
-  TH1D* getPlaneHisto() {return _hplane;}
+  TH1D* getProxHisto() {return _hprox;}
   
 
   // Modifiers -----------------------
@@ -51,10 +51,10 @@ public:
 private:
 
   // Private Data Members ------------
-  double _planecut;
+  double _proxcut; 
 
   // histograms for logging
-  TH1D* _hplane;
+  TH1D* _hprox;
 
   // Private Methods -----------------
 

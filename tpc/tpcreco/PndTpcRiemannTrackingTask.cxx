@@ -35,6 +35,7 @@
 #include "PndTpcRiemannHough.h"
 #include "PndTpcRiemannHit.h"
 #include "PndTpcRiemannHTCorrelator.h"
+#include "PndTpcRiProxHTCorrelator.h"
 #include "PndTpcSzHTCorrelator.h"
 #include "PndTpcProximityHTCorrelator.h"
 #include "PndTpcProximityTTCorrelator.h"
@@ -197,8 +198,9 @@ PndTpcRiemannTrackingTask::Init()
   _trackfinder->setMinHitsForFit(_minpoints);
 
   // Hit-Track Correlators
-  _trackfinder->addCorrelator(new PndTpcRiemannHTCorrelator(_planecut,_riproxcut));
+  _trackfinder->addCorrelator(new PndTpcRiemannHTCorrelator(_planecut));
   _trackfinder->addCorrelator(new PndTpcSzHTCorrelator(_szcut));
+  _trackfinder->addCorrelator(new PndTpcRiProxHTCorrelator(_riproxcut));
   _trackfinder->addCorrelator(new PndTpcProximityHTCorrelator(_proxcut));
 
   // Track-Track Correlators

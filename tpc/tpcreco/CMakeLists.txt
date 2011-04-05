@@ -50,6 +50,7 @@ PndTpcRiemannTrackFinder.cxx
 PndTpcRiemannHough.cxx
 PndTpcProximityHTCorrelator.cxx
 PndTpcRiemannHTCorrelator.cxx
+PndTpcRiProxHTCorrelator.cxx
 PndTpcSzHTCorrelator.cxx
 PndTpcRiemannTTCorrelator.cxx
 PndTpcProximityTTCorrelator.cxx
