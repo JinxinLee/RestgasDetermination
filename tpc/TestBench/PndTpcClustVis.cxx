@@ -14,8 +14,6 @@
 #include "PndTpcClusterFinderSimple.h"
 
 
-
-
 PndTpcClustVis* PndTpcClustVis::eventDisplay = NULL;
 
 PndTpcClustVis::PndTpcClustVis():
@@ -298,6 +296,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
         // map digi
         TVector3 pos;
+        if(digi->padId()<0 || digi->padId()>10300) continue;
         PndTpcDigiMapper::getInstance()->map(digi,pos);
 
         // rotate and translate -------------------------------------------------------
