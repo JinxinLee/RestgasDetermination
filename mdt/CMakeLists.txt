@@ -42,6 +42,7 @@ MdtMC/PndMdtGeoConstructorFast.cxx
 MdtDigi/PndMdtHitProducerIdeal.cxx
 MdtDigi/PndMdtHitProducer.cxx
 MdtDigi/PndMdtDigiProducer.cxx
+MdtDigi/PndMdtClusterTask.cxx
 MdtReco/PndMdtTrkProducerIdeal.cxx
 MdtReco/PndMdtTrkProducer.cxx
 MdtReco/PndMdtRecoPar.cxx

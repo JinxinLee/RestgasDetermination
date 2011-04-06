@@ -13,7 +13,7 @@ class PndMdtCluster : public FairMultiLinkedData {
   
   virtual ~PndMdtCluster();
  
-  virtual void SetClusterList(std::vector<Int_t> list) = 0;
+  void SetClusterList(std::vector<Int_t> list) { fDigiList = list; };
   std::vector<Int_t> GetDigiList() const {return fDigiList;}
   Int_t GetClusterSize()           const {return fDigiList.size();}
   Int_t GetDigiIndex(Int_t i)      const {return fDigiList[i];}
