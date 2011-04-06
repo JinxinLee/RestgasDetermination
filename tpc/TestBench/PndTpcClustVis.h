@@ -188,11 +188,13 @@ private:
 
 
   TGNumberEntry* guiEvent;
+  TGCheckButton* guiDrawTpc;
   TGNumberEntry* guiMode;
   TGNumberEntry* giuTimeslice;
   TGNumberEntry* giuTimecut;
   TGNumberEntry* guiSingeDigiClAmpCut;
   TGCheckButton* guiSimpleCl;
+  TGNumberEntry* giuSimpleTimeslice;
 
   TGCheckButton* guiDrawDigis;
   TGCheckButton* guiDrawClusters;
@@ -212,12 +214,13 @@ private:
   TGNumberEntry* guiTTplanecut;
   TGNumberEntry* guiTTszcut;
 
-
+  bool drawTpc;
   int ClMode;
   int ClTimeslice;
   int ClTimecut;
   int ClSingeDigiClAmpCut;
   bool ClSimpleCl;
+  int ClSimpleTimeslice;
 
   bool drawDigis;
   bool drawClusters;
