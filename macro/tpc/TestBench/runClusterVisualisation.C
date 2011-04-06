@@ -1,4 +1,4 @@
-void runClusterVisualisation(TString filename, TString digifile="") 
+void runClusterVisualisation(TString filename, double DriftField, TString digifile="") 
 {
   // ----  Load libraries   -------------------------------------------------
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -24,6 +24,7 @@ void runClusterVisualisation(TString filename, TString digifile="")
   PndTpcClustVis* clustVis = PndTpcClustVis::getInstance();
   clustVis->reset();
   clustVis->setTree(tree);
+  clustVis->initDigimapper(DriftField);
   clustVis->setOptions("DCR");
   clustVis->gotoEvent(1);
   clustVis->open();
