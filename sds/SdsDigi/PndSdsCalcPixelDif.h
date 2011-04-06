@@ -45,7 +45,6 @@ class PndSdsCalcPixelDif
     
   private:
     Double_t CalcFk(Double_t k, Double_t x, Double_t sig);
-    Double_t SmearCharge(Double_t charge);
     const Double_t ChargeFromEloss(Double_t eloss) const {return eloss/(3.61e-9);}
     void InjectPixelCharge(std::vector<PndSdsPixel>& array, Int_t i, Int_t j, Double_t charge);
     

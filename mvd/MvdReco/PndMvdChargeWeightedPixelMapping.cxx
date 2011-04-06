@@ -13,7 +13,7 @@ PndMvdChargeWeightedPixelMapping::PndMvdChargeWeightedPixelMapping(Int_t verbose
 	PndSdsTotDigiPar* fTotDigiPar = (PndSdsTotDigiPar*)(rtdb->getContainer("MVDPixelTotDigiPar"));
 	if (fDigiPar->GetChargeConvMethod() == 0){
 			if(fVerbose>0) Info("PndMvdChargeWeightedPixelMapping","ideal charge conversion");
-			fChargeConverter = new PndSdsIdealChargeConversion();
+			fChargeConverter = new PndSdsIdealChargeConversion(fDigiPar->GetNoise());
 	}
 	else if (fDigiPar->GetChargeConvMethod() == 1){
 		if(fVerbose>0) Info("PndMvdChargeWeightedPixelMapping","use TOT charge conversion");
@@ -43,7 +43,7 @@ PndMvdChargeWeightedPixelMapping::PndMvdChargeWeightedPixelMapping(PndGeoHandlin
 	PndSdsTotDigiPar* fTotDigiPar = (PndSdsTotDigiPar*)(rtdb->getContainer("MVDPixelTotDigiPar"));
 	if (fDigiPar->GetChargeConvMethod() == 0){
 			if(fVerbose>0) Info("PndMvdChargeWeightedPixelMapping","ideal charge conversion");
-			fChargeConverter = new PndSdsIdealChargeConversion();
+			fChargeConverter = new PndSdsIdealChargeConversion(fDigiPar->GetNoise());
 	}
 	else if (fDigiPar->GetChargeConvMethod() == 1){
 		if(fVerbose>0) Info("PndMvdChargeWeightedPixelMapping","use TOT charge conversion");

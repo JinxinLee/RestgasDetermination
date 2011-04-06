@@ -1,5 +1,4 @@
 #include "PndSdsCalcPixelDif.h"
-#include "TRandom3.h"
 #include <cmath>
 
 PndSdsCalcPixelDif::PndSdsCalcPixelDif()
@@ -102,23 +101,14 @@ void PndSdsCalcPixelDif::InjectPixelCharge(std::vector<PndSdsPixel>& array, Int_
   // cut if out of range
   if(i<0 || j<0) return;
   //if(i>fNrx || j>fNry) return; // TODO put max. pixel number here?
-  Double_t smearedQ = SmearCharge(charge);
-  if(smearedQ < fThreshold) return;
+  //Double_t smearedQ = SmearCharge(charge);
+  //if(smearedQ < fThreshold) return;
   if(fVerboseLevel>3) Info("InjectPixelCharge","i=%i, j=%i,charge=%f",i,j,charge);
   fActivePixel.SetCol(i); // x axis
   fActivePixel.SetRow(j); // y axis
   fActivePixel.SetCharge(charge);
   array.push_back(fActivePixel); // fActivePixel content will be copied
   return;
-}
-
-//______________________________________________________________________________
-Double_t PndSdsCalcPixelDif::SmearCharge(Double_t charge)
-{
-  //  Double_t smeared = fRNG->Gaus(charge,fNoise);
-  Double_t smeared = gRandom->Gaus(charge,fNoise);
-  if (fVerboseLevel > 3) std::cout<<" charge = "<<charge<<", smeared = "<<smeared<<std::endl;
-  return smeared;
 }
 
 

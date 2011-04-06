@@ -51,7 +51,7 @@ void PndMvdStripHitProducer::SetCalculators()
 		const char* senstype = digipar->GetSensType();
 		if ( digipar->GetChargeConvMethod() == 0 ){
 			if(fVerbose>0)	Info("SetCalculators()","Use Ideal charge conversion for %s sensors",senstype);
-			fChargeConverter[senstype] = new PndSdsIdealChargeConversion();
+			fChargeConverter[senstype] = new PndSdsIdealChargeConversion(digipar->GetNoise());
 		}
 		else if (digipar->GetChargeConvMethod() == 1){
 			if(fVerbose>0)	Info("SetCalculators()","Use Tot charge conversion for %s sensors",senstype);

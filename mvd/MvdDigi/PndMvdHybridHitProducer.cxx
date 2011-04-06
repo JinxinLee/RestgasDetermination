@@ -35,7 +35,7 @@ InitStatus PndMvdHybridHitProducer::Init()
 	InitStatus status = PndSdsHybridHitProducer::Init();
 	if (fDigiPar->GetChargeConvMethod() == 0){
 		if(fVerbose>0) Info("Init()","ideal charge conversion");
-		fChargeConverter = new PndSdsIdealChargeConversion();
+		fChargeConverter = new PndSdsIdealChargeConversion(fDigiPar->GetNoise());
 	}
 	else if (fDigiPar->GetChargeConvMethod() == 1){
 		if(fVerbose>0) Info("Init()","use TOT charge conversion");

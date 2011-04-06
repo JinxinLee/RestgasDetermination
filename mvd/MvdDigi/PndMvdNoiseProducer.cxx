@@ -94,7 +94,7 @@ InitStatus PndMvdNoiseProducer::Init()
   
   if (fDigiParRect->GetChargeConvMethod() == 0){
     if(fVerbose>0) Info("Init()","ideal charge conversion for rect. strips");
-    fStripRectChargeConv = new PndSdsIdealChargeConversion();
+    fStripRectChargeConv = new PndSdsIdealChargeConversion(fDigiParRect->GetNoise());
   }
   else if (fDigiParRect->GetChargeConvMethod() == 1){
     if(fVerbose>0) Info("Init()","use TOT charge conversion for rect. strips");
@@ -109,7 +109,7 @@ InitStatus PndMvdNoiseProducer::Init()
   
   if (fDigiParTrap->GetChargeConvMethod() == 0){
     if(fVerbose>0) Info("Init()","ideal charge conversion for trap. strips");
-    fStripTrapChargeConv = new PndSdsIdealChargeConversion();
+    fStripTrapChargeConv = new PndSdsIdealChargeConversion(fDigiParTrap->GetNoise());
   }
   else if (fDigiParTrap->GetChargeConvMethod() == 1){
     if(fVerbose>0) Info("Init()","use TOT charge conversion for trap. strips");
@@ -124,7 +124,7 @@ InitStatus PndMvdNoiseProducer::Init()
   
   if (fDigiParPix->GetChargeConvMethod() == 0){
     if(fVerbose>0) Info("Init()","ideal charge conversion for pixel part");
-    fPixChargeConv = new PndSdsIdealChargeConversion();
+    fPixChargeConv = new PndSdsIdealChargeConversion(fDigiParPix->GetNoise());
   }
   else if (fDigiParPix->GetChargeConvMethod() == 1){
     if(fVerbose>0) Info("Init()","use TOT charge conversion for pixel part");

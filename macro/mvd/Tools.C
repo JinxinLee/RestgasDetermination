@@ -262,7 +262,7 @@ TH1D TransformHisto(TH2* h2, double min, double max)
 }
 
 
-plothistosfromfile(TString filename = "histos.root")
+plothistosfromfile(TString filename = "histos.root", TString ext=".ps")
 { // Plot all histograms into a ps file
   // works with TH1, TH2, & TProfile
   LoadPandaStyle();
@@ -270,7 +270,9 @@ plothistosfromfile(TString filename = "histos.root")
   if (!file) {cout<<"File \""<<filename.Data()<<"\" is not there..."<<endl;return;}
   TCanvas* can = new TCanvas();
   TString picname = filename;
-  picname.ReplaceAll(".root",".ps"); // ps, png, pdf ...
+  ext="."+ext;
+  ext.ReplaceAll("..",".");
+  picname.ReplaceAll(".root",ext); // ps, png, pdf ...
   TString pic = picname + "["; // open empty ps
   cout << "opening: " << pic.Data()<<endl;
   can->Print(pic);

@@ -92,7 +92,7 @@ void PndMvdStripClusterTask::SetCalculators()
 		}
 		else{
 			if(fVerbose>0)	Info("SetCalculators()","Use Ideal charge conversion for %s sensors",senstype);
-			fChargeConverter[senstype] = new PndSdsIdealChargeConversion();
+			fChargeConverter[senstype] = new PndSdsIdealChargeConversion(digipar->GetNoise());
     }
     //fChargeAlgos[senstype] = new PndSdsChargeWeightingAlgorithms(fDigiArray, digipar->GetRaisingTime(),digipar->GetFallingRatio(),digipar->GetThreshold());
     Int_t ClusterMod = digipar->GetClusterMod(); 
