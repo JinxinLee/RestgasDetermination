@@ -17,8 +17,8 @@
 PndTpcClustVis* PndTpcClustVis::eventDisplay = NULL;
 
 PndTpcClustVis::PndTpcClustVis():
-  digisBranch(0),clustersBranch(0), guiEvent(0),
-  ClMode(2), ClTimeslice(3),ClTimecut(2), ClSingeDigiClAmpCut(15), ClSimpleCl(false),
+  digisBranch(0),clustersBranch(0), guiEvent(0), drawTpc(true),
+  ClMode(2), ClTimeslice(3),ClTimecut(2), ClSingeDigiClAmpCut(15), ClSimpleCl(false), ClSimpleTimeslice(7),
   drawDigis(false), drawClusters(true), drawClusterErrors(false),
   doPR(false), doMerge(false), _sorting(3), _interactionZ(0), _sortingMode(false),
   _minpoints(5), _planecut(0.02), _riproxcut(0.02), _szcut(2), _proxcut(2),
@@ -36,7 +36,8 @@ PndTpcClustVis::PndTpcClustVis():
   }
 
   // init Digimapper // TODO: get from file!!
-  fgas = new PndTpcGas("tpc/TestBench/ARGON-89.635_CO2-10.365_B0.3_PRES1013.asc",200);
+  fgas = new PndTpcGas("tpc/TestBench/ARGON-89.635_CO2-10.365_B0.3_PRES1013.asc",
+                       200);  // Drift Field
   fgem = new PndTpcGem(4000,  // Gain
                        0.02); // Spread
   fpadShapes = new PndTpcPadShapePool("tpc/TestBench/TBhexa_pads.dat",
@@ -197,6 +198,26 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
   }
   // finished parsing the option string -------------------------------------------------------------
 
+       
+  // Draw tpc -------------------------------------------------------
+  if(drawTpc){
+    double tpcLength = 72.5;
+    tpcLength*=0.5;
+    TGeoMatrix* tpc_trans = new TGeoGenTrans(0,0,tpcLength,
+                                             1,1,1, 0);
+
+    TEveGeoShape* tpc_shape = new TEveGeoShape("tpc_shape");
+
+    tpc_shape->SetShape(new TGeoTube(5.,15., tpcLength));
+    tpc_shape->SetTransMatrix(*tpc_trans);
+    // finished rotating and translating ------------------------------------------
+
+    tpc_shape->SetMainColor(kBlue);
+    tpc_shape->SetMainTransparency(80);
+    gEve->AddElement(tpc_shape);
+  }
+
+
   tree->GetEntry(id);
 
   std::vector<PndTpcCluster*>* fcluster_buffer=new std::vector<PndTpcCluster*>;
@@ -214,7 +235,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     else{
       ffinder=new PndTpcClusterFinderSimple(PndTpcDigiMapper::getInstance()->getPadPlane(),
               fcluster_buffer,
-              ClTimeslice);
+              ClSimpleTimeslice);
       ((PndTpcClusterFinderSimple*)(ffinder))->setNoXclust(false);
     }
 
@@ -806,9 +827,22 @@ void PndTpcClustVis::makeGui() {
 
   }
   frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    guiDrawTpc =  new TGCheckButton(hf, "Draw TPC");
+    if(guiDrawTpc) guiDrawTpc->Toggle();
+    hf->AddFrame(guiDrawTpc);
+    guiDrawTpc->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
+  }
+  frmMain->AddFrame(hf);
+
 
 
   // Clusterfinder Params
+  hf = new TGHorizontalFrame(frmMain); {
+    lbl = new TGLabel(hf, "\n Clusterfinder Parameters");
+        hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
     guiMode = new TGNumberEntry(hf, ClMode, 6,999, TGNumberFormat::kNESInteger,
                           TGNumberFormat::kNEANonNegative,
@@ -863,8 +897,24 @@ void PndTpcClustVis::makeGui() {
     guiSimpleCl->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
   }
   frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    giuSimpleTimeslice = new TGNumberEntry(hf, ClSimpleTimeslice, 6,999, TGNumberFormat::kNESInteger,
+                          TGNumberFormat::kNEANonNegative,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 100);
+    hf->AddFrame(giuSimpleTimeslice);
+    giuSimpleTimeslice->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
+    lbl = new TGLabel(hf, "Timeslice for Simple Clustering");
+        hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
 
   // draw options
+  hf = new TGHorizontalFrame(frmMain); {
+    lbl = new TGLabel(hf, "\n Draw Options");
+        hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
     guiDrawDigis =  new TGCheckButton(hf, "Draw Digis");
     if(drawDigis) guiDrawDigis->Toggle();
@@ -888,7 +938,11 @@ void PndTpcClustVis::makeGui() {
   frmMain->AddFrame(hf);
 
 
-  
+  hf = new TGHorizontalFrame(frmMain); {
+    lbl = new TGLabel(hf, "\n Pattern Recognition");
+      hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
     guiDoPR =  new TGCheckButton(hf, "Do Pattern Recognition");
     if(doPR) guiDoPR->Toggle();
@@ -1052,6 +1106,7 @@ void PndTpcClustVis::guiSetClusterfinderParams(){
     ClSimpleCl=true;
   else
     ClSimpleCl=false;
+  ClSimpleTimeslice = giuSimpleTimeslice->GetNumberEntry()->GetIntNumber();
 }
 
 void PndTpcClustVis::guiSetTrackingParams(){
@@ -1079,6 +1134,11 @@ void PndTpcClustVis::guiSetTrackingParams(){
 }
 
 void PndTpcClustVis::guiSetDrawParams(){
+  if (guiDrawTpc->IsOn())
+    drawTpc=true;
+  else
+    drawTpc=false;
+
   if (guiDrawDigis->IsOn())
     drawDigis=true;
   else

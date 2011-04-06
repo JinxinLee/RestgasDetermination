@@ -252,25 +252,21 @@ PndTpcRiemannTrack::sortHit(PndTpcRiemannHit* hitX,
     ++it;
     pos2=(*it2)->cluster()->pos(); //next point
     dis=(pos2-posX).Mag();
-    //std::cout << dis << "   ";
     if(dis<mindis){
       found=1;
       mindis=dis;
     }
     else ++found; // record how far the last minimum is away
     if(it2==hL.begin()&& dir<0) {
-      //std::cout<< "dropping out at begin";
       found-=1;
-      
       break;
     }
     dir>0 ? ++it2 : --it2;
   }
-  //if(it2==hL.end()&& dir>0){std::cout<< "dropping out at end";}
-  //std::cout << std::endl << "mindis="<<mindis<< "   found="<<found<<std::endl;
+
   // step back to the minimum
   for(int step=0;step<found;++step) dir>0 ? --it2 : ++it2;
-  pos2=(*it2)->cluster()->pos(); //next point
+  pos2=(*it2)->cluster()->pos(); //nearest point
   dis=(pos2-posX).Mag();
   //std::cout << "   mini="<<dis<<std::endl;
   
@@ -280,33 +276,51 @@ PndTpcRiemannTrack::sortHit(PndTpcRiemannHit* hitX,
   // catch the case where we are at boundary
   hitIt it1=it2;
   if(it2!=hL.begin())--it1;
-  //else std::cout<<"at beginning"<<std::endl;
   hitIt it3=it2;
   if(it2!=--hL.end())++it3;
-  //else std::cout<<"at end"<<std::endl;
-
   
   TVector3 pos1=(*it1)->cluster()->pos(); //previous point (same if @ begin)
   TVector3 pos3=(*it3)->cluster()->pos(); //next point     (same if @ end)
 
-
-
-  // new simple approach by Johannes
-  TVector3 d1 = posX-pos1;
-  TVector3 d3 = posX-pos3;
-
-  if(d1.Mag()>d3.Mag()){ // hit is nearer to next hit
-    if(it3==it2) // we are at the end
-      return ++it3;
-    else
-      return it3;
+/*
+  // minimize tracklength
+  if(it1==it2){ //at beginning
+    // X-2-3-...
+    double dx23 = (posX-pos2).Mag() + (pos2-pos3).Mag();
+    // 2-X-3-...
+    double d2x3 = (pos2-posX).Mag() + (posX-pos3).Mag();
+    if(dx23 < d2x3) return it2;
+    return it3;
   }
-  else // hit is nearer to previous hit
-      return it2;
+  else if(it2==it3){ //at end
+    // ...-1-2-X
+    double d12x = (pos1-pos2).Mag() + (pos2-posX).Mag();
+    // ...-1-X-2
+    double d1x2 = (pos1-posX).Mag() + (posX-pos2).Mag();
+    if(d12x < d1x2) return ++it2;
+    return it2;
+  }
+  else{
+    // ...-1-2-X-3-...
+    double d12x3 = (pos1-pos2).Mag() + (pos2-posX).Mag() + (posX-pos3).Mag();
+    // ...-1-X-2-3-...
+    double d1x23 = (pos1-posX).Mag() + (posX-pos2).Mag() + (pos2-pos3).Mag();
+    if(d12x3 < d1x23) return it3;
+    return it2;
+  }
 
+*/
 
-
-  /*
+  // to be more fault tolerant, take mean values from two hits
+  if(it1!=hL.begin()){
+    pos1 = 0.5*(pos1+(*(--it1))->cluster()->pos());
+    ++it1;
+  }
+  if(it3!=--hL.end()){
+    pos3 = 0.5*(pos3+(*(++it3))->cluster()->pos());
+    --it3;
+  }
+  
   // construct general direction of track from these three
   TVector3 d1=(pos3-pos1);
   TVector3 d2=(pos2-pos1);
@@ -347,7 +361,11 @@ PndTpcRiemannTrack::sortHit(PndTpcRiemannHit* hitX,
     else {
       //std::cout<<"x after x3"<<std::endl;
       return ++it3; // insert before
-    }*/
+    }
+
+
+
+
 }
 
 //double
