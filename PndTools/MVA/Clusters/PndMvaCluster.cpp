@@ -154,7 +154,7 @@ ClDataSample* PndMvaCluster::K_Means()
     //std::cout << "Iter num " << num_iter << " Tot Sum " << distSum << std::endl;
   }//END OF while (some_point_is_moving)
   
-  std::cout << "<-I-> Num Iterations " << num_iter 
+  std::cout << "\t<-I-> Num Iterations " << num_iter 
 	    << '\n';  
   
   //======================================

@@ -116,8 +116,8 @@ int main(int argc, char**argv)
       //Variable loop
       for(size_t var = 0; var < vars.size(); var++)
       {
-	//(varContainer[cls])->at(var) = static_cast<float>(rand.Gaus(mean, sigma));
-	(varContainer[cls])->at(var) = static_cast<float>(rand.Uniform(cls, (cls + 1)));
+	(varContainer[cls])->at(var) = static_cast<float>(rand.Gaus(mean, sigma));
+	//(varContainer[cls])->at(var) = static_cast<float>(rand.Uniform(cls, (cls + 1)));
       }
       trees[cls]->Fill();
     }

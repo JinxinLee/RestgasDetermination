@@ -51,7 +51,7 @@ StepError(StepError const& ot)
     return (*this);
   };
   
-  size_t m_step; //Step number
+  size_t m_step; // Step number
   float  m_trErr;// Train Error
   float  m_tsErr;// Test Error
   

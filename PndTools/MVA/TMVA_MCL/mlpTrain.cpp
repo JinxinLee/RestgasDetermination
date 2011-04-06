@@ -32,6 +32,8 @@ int main(int argc, char** argv)
   variables.push_back("z53");
 
   PndMultiClassMlpTrain mltr(inFile, labels, variables);
+  mltr.SetEvaluation(true);
+  mltr.Initialize();
   mltr.Train();
 
   return 0;

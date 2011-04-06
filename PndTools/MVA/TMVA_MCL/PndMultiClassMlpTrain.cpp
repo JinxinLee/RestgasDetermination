@@ -25,13 +25,15 @@ PndMultiClassMlpTrain::PndMultiClassMlpTrain(std::string const& InPut,
 
 PndMultiClassMlpTrain::~PndMultiClassMlpTrain()
 {
+  if (EvalFile)
+  {
+    EvalFile->Close();
+    delete EvalFile;
+  }
+
   if(m_factory)
   {
     delete m_factory;
-  }
-  if (EvalFile)
-  {
-    delete EvalFile;
   }
 }
 
@@ -76,7 +78,7 @@ void PndMultiClassMlpTrain::InitMlp()
 
   if(m_JName == "")
   {
-    m_JName = "PANDMLP";
+    m_JName = "PANDA";
     std::cerr << "<WARNING> No job name was specified. We will set this to:\n\t"
 	      << m_JName << '\n';
   }
@@ -88,7 +90,7 @@ void PndMultiClassMlpTrain::InitMlp()
   }
   if (m_MlpOptions == "")
   {
-    m_MlpOptions = "!H:!V:NeuronType=tanh:NCycles=10:HiddenLayers=N+5:TestRate=5:EstimatorType=MSE";
+    m_MlpOptions = "!H:!V:NeuronType=tanh:NCycles=100:HiddenLayers=N+5:TestRate=5:EstimatorType=MSE";
     std::cerr << "<WARNING> No train options were specified. We will set this to:\n\t"
 	      << m_MlpOptions <<'\n';
   }

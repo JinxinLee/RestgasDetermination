@@ -74,7 +74,7 @@ void PndLVQTrain::Train()
   m_ProgStep = (tFinal / 100);
   
   std::cout << "<INFO> Each . equals " << m_ProgStep 
-	    << " learning steps.\n";
+	    << " learning steps and\n\teach + means one re-initialization.\n";
 
   // We need to fix this___ FIXME
   if( a <= 0.00 )
@@ -130,7 +130,7 @@ void PndLVQTrain::Train()
     }
   
     // select a random example
-    int index = static_cast<int>(trand.Uniform(0.0, events.size() - 1));
+    int index = static_cast<int>( trand.Uniform(0.0, (events.size() - 1) ));
 
     testSetIter = m_testSet_indices.find(index);
 
@@ -139,7 +139,7 @@ void PndLVQTrain::Train()
     // of the test set.
     while( testSetIter != m_testSet_indices.end())
     {
-      index = static_cast<int>(trand.Uniform(0.0, events.size() - 1));
+      index = static_cast<int>( trand.Uniform(0.0, (events.size() - 1) ));
       testSetIter = m_testSet_indices.find(index);
     }
     
@@ -674,6 +674,7 @@ void PndLVQTrain::ValidateProtoUpdate(std::vector<float>& p)
     {
       p[idx] = static_cast<float>(rnd.Uniform(variables[idx].Min, variables[idx].Max));
     }
+    // Indicate a re-init
     std::cerr << "+";
   }
 }
@@ -720,7 +721,7 @@ void PndLVQTrain::EvalClassifierError(unsigned int stp)
 
   //========== Classify train set
   // Event loop
-  for(unsigned int evt = 0; evt < events.size(); evt++)
+  for(size_t evt = 0; evt < events.size(); evt++)
   {
     std::string WinClassName;
     float dist    = 0.0; // Current distance
@@ -743,14 +744,15 @@ void PndLVQTrain::EvalClassifierError(unsigned int stp)
 	}
       }
       if(WinClassName != events[evt].first)
-      {// Wrong (misclassified, labels are nog equal).
+      {// Wrong (misclassified, labels are not equal).
 	TrError++;
       }
     }
   }
   float tsEr, trEr;
   tsEr = (TsError * 100.00) / static_cast<float>(m_testSet_indices.size());
-  trEr = (TrError * 100.00) / static_cast<float>(events.size() - m_testSet_indices.size());
+  size_t numTrEvt = events.size() - m_testSet_indices.size() - 1 ;
+  trEr = (TrError * 100.00) / static_cast<float>(numTrEvt);
 
   // Create object and Add to the container.
   StepError StpEr (stp, trEr, tsEr);

@@ -91,9 +91,9 @@ int main(int argc, char** argv)
   // Create trainer object.
   PndLVQTrain tr(ip, clas, nam, true);
   
-  float initC  = 0.7;
-  float ethaZ  = 0.01;
-  float ethaF  = 0.00001;
+  float initC  = 0.9;
+  float ethaZ  = 0.1;
+  float ethaF  = 0.001;
   
   tr.SetLearnPrameters(initC, ethaZ, ethaF, numSweep);
   
@@ -107,12 +107,12 @@ int main(int argc, char** argv)
     numProtoMap["pion"] = 150;
     tr.SetNumberOfProto(numProtoMap);
   */
-  tr.SetTetsSetSize(10);//10% (DEFAULT)
+  tr.SetTetsSetSize(50);//10% (DEFAULT)
 
-  tr.SetErrorStepSize(1000);//100 (DEFALUT)
+  tr.SetErrorStepSize(100);//100 (DEFALUT)
   
   //VARX, MINMAX, MEDIAN, NONORM(DEFAULT)
-  //tr.NormalizeData(NONORM);
+  //tr.NormalizeData(VARX);
 
   // Perform PCA on input events.
   //tr.PCATransForm();
@@ -137,12 +137,13 @@ int main(int argc, char** argv)
     tr.Train21();
     break;
   case 3:
-    printProto(tr.train1sec());
+    printProto( tr.train1sec() );
     break;
   case 4:
     printProto( tr.train2sec() );
   default:
-    std::cerr << "No algorithm selected" << std::endl;
+    std::cerr << "No algorithm selected"
+	      << std::endl;
     break;
   }
   // Write out the error info.

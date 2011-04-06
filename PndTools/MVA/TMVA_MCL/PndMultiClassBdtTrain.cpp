@@ -31,6 +31,7 @@ PndMultiClassBdtTrain::~PndMultiClassBdtTrain()
   }
   if (EvalFile)
   {
+    EvalFile->Close();
     delete EvalFile;
   }
 }
@@ -76,7 +77,7 @@ void PndMultiClassBdtTrain::InitBdt()
 
   if(m_JName == "")
   {
-    m_JName = "PANDBDT";
+    m_JName = "PANDA";
     std::cerr << "<WARNING> No job name was specified. We will set this to:\n\t"
 	      << m_JName << '\n';
   }

@@ -165,5 +165,5 @@ clean:
 	cd TMVA_MCL; $(MAKE) clean
 
 distclean: clean
-	rm -f PndMVAWeights/*
+	rm -fr PndMVAWeights/* plots
 	cd macro; $(MAKE) cleanall

@@ -42,9 +42,10 @@ void PndMvaTrainer::Initialize()
   m_dataSets.InitClsCondMeans();
   
   // Init random seed for this run.
-  time_t seconds;
-  seconds = time (NULL);
-  m_RND_seed = seconds; 
+  srand ( time(NULL) );
+  m_RND_seed = (rand() % 1000000) + 1;
+  std::cout << "<INFO> Seed for current run is "
+	    << m_RND_seed << '\n';
 }
 
 /**
@@ -59,7 +60,7 @@ void PndMvaTrainer::splitTetsSet()
   std::vector<std::pair<std::string, std::vector<float>*> > const& events = m_dataSets.GetData();
   assert( events.size() != 0);
 
-  unsigned int TestEvtCnt = (m_testSetSize * events.size()) / 100 ;
+  size_t TestEvtCnt = (m_testSetSize * events.size()) / 100 ;
   
   std::cout << "<INFO> preparing train and test sets.\n"
 	    << "       Test set containes "<< TestEvtCnt

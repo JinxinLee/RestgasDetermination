@@ -56,7 +56,7 @@ class PndMvaTrainer
    * @param percent Percent of the data set to be used for testing and
    * cross-validation
    */
-  inline void SetTetsSetSize(int percent = 10);
+  inline void SetTetsSetSize(int percent = 50);
   
   //! Select input data normalization scheme.
   void NormalizeData(NormType t = NONORM);

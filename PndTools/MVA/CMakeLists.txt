@@ -71,7 +71,7 @@ SET (TMVA_ALG_SOURCE
 TMVA_MCL/PndMultiClassMlpTrain.cpp
 TMVA_MCL/PndMultiClassMlpClassify.cpp
 TMVA_MCL/PndMultiClassBdtTrain.cpp
-TMVA_MCL/PndMultiClassBdtClassify.h
+TMVA_MCL/PndMultiClassBdtClassify.cpp
 )
 # If we can build mlp into the lib
 SET(ROOT_MIN_VERSION "5.28/00")
