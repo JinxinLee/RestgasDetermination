@@ -310,7 +310,7 @@ PndTpcRiemannTrack::sortHit(PndTpcRiemannHit* hitX,
   }
 
 */
-
+/*
   // to be more fault tolerant, take mean values from two hits
   if(it1!=hL.begin()){
     pos1 = 0.5*(pos1+(*(--it1))->cluster()->pos());
@@ -319,7 +319,7 @@ PndTpcRiemannTrack::sortHit(PndTpcRiemannHit* hitX,
   if(it3!=--hL.end()){
     pos3 = 0.5*(pos3+(*(++it3))->cluster()->pos());
     --it3;
-  }
+  }*/
   
   // construct general direction of track from these three
   TVector3 d1=(pos3-pos1);

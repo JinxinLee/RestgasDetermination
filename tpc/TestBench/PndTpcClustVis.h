@@ -102,6 +102,8 @@ public:
 
   void setTree(TTree* treeIn);
 
+  void initDigimapper(double drifField);
+
   /** @brief Go to the next event or step a certain number of events ahead.*/
   void next(unsigned int stp = 1);
 

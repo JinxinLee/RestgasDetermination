@@ -35,24 +35,6 @@ PndTpcClustVis::PndTpcClustVis():
     std::cout << "done!" << std::endl;
   }
 
-  // init Digimapper // TODO: get from file!!
-  fgas = new PndTpcGas("tpc/TestBench/ARGON-89.635_CO2-10.365_B0.3_PRES1013.asc",
-                       200);  // Drift Field
-  fgem = new PndTpcGem(4000,  // Gain
-                       0.02); // Spread
-  fpadShapes = new PndTpcPadShapePool("tpc/TestBench/TBhexa_pads.dat",
-                                      *fgem,
-                                      0.5, // lookup range
-                                      0.02, // Lookup Step
-                                      0.01); // LookupIntegrationStep
-  fpadplane = new PndTpcPadPlane("tpc/TestBench/padPlane_FOPI.dat", fpadShapes);
-  
-
-  fzGem = 0.2;
-  double sf = 20;
-  double t0 = 1000;
-  PndTpcDigiMapper::getInstance(false)->init(fpadplane,fgem,fgas,fpadShapes,fzGem,t0,sf);
-
   //init colors
   colors.push_back(kRed);
   colors.push_back(kGreen);
@@ -69,6 +51,27 @@ PndTpcClustVis::PndTpcClustVis():
   fEventId = 0;
   setOptions();
   setErrScale();
+}
+
+void PndTpcClustVis::initDigimapper(double drifField){
+  // init Digimapper // TODO: get from file!!
+  std::cout<<"init DigiMapper with Drift Field "<<drifField<<std::endl;
+  fgas = new PndTpcGas("tpc/TestBench/ARGON-89.635_CO2-10.365_B0.3_PRES1013.asc",
+                       drifField);  // Drift Field
+  fgem = new PndTpcGem(4000,  // Gain
+                       0.02); // Spread
+  fpadShapes = new PndTpcPadShapePool("tpc/TestBench/TBhexa_pads.dat",
+                                      *fgem,
+                                      0.5, // lookup range
+                                      0.02, // Lookup Step
+                                      0.01); // LookupIntegrationStep
+  fpadplane = new PndTpcPadPlane("tpc/TestBench/padPlane_FOPI.dat", fpadShapes);
+  
+
+  fzGem = 0.2;
+  double sf = 20;
+  double t0 = 1000; // time offset in ns
+  PndTpcDigiMapper::getInstance(false)->init(fpadplane,fgem,fgas,fpadShapes,fzGem,t0,sf);
 }
 
 
@@ -827,14 +830,6 @@ void PndTpcClustVis::makeGui() {
 
   }
   frmMain->AddFrame(hf);
-  hf = new TGHorizontalFrame(frmMain); {
-    guiDrawTpc =  new TGCheckButton(hf, "Draw TPC");
-    if(guiDrawTpc) guiDrawTpc->Toggle();
-    hf->AddFrame(guiDrawTpc);
-    guiDrawTpc->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
-  }
-  frmMain->AddFrame(hf);
-
 
 
   // Clusterfinder Params
@@ -913,6 +908,13 @@ void PndTpcClustVis::makeGui() {
   hf = new TGHorizontalFrame(frmMain); {
     lbl = new TGLabel(hf, "\n Draw Options");
         hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    guiDrawTpc =  new TGCheckButton(hf, "Draw TPC");
+    if(guiDrawTpc) guiDrawTpc->Toggle();
+    hf->AddFrame(guiDrawTpc);
+    guiDrawTpc->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
   }
   frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
