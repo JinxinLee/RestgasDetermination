@@ -674,10 +674,10 @@ TCandidate::AddDaughterLinkSimple( const TCandidate* cand )
   // ******** modified K Goetzen
   //d->SetMotherLink(this);
   
-  fMarker[0] |= d->GetMarker(0);
-  fMarker[1] |= d->GetMarker(1);
-  fMarker[2] |= d->GetMarker(2);
-  fMarker[3] |= d->GetMarker(3);
+  //fMarker[0] |= d->GetMarker(0);
+  //fMarker[1] |= d->GetMarker(1);
+  //fMarker[2] |= d->GetMarker(2);
+  //fMarker[3] |= d->GetMarker(3);
 }
 
 void 
