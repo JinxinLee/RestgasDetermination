@@ -43,6 +43,7 @@ PndSttMvdGemTracking::PndSttMvdGemTracking() :
   fTurn = 1;
   fMaxDistance = -1;
   fUseMC = kFALSE;
+  fCombiDistance = 1.;
 }
 // -------------------------------------------------------------------------
 
@@ -55,6 +56,7 @@ PndSttMvdGemTracking::PndSttMvdGemTracking(Int_t verbose) :
   fTurn = 1;
   fMaxDistance = -1;
   fUseMC = kFALSE;
+  fCombiDistance = 1.;
 }
 // -------------------------------------------------------------------------
 
@@ -344,10 +346,15 @@ void PndSttMvdGemTracking::Reset(Int_t nhits, Int_t ntracks) {
   trackvector.clear();
   usabletracks.clear(); // CHECK 4 PERFORMANCE delete this!
   trackindexes.clear();
+
+  // initialize the combimap to all combinatorials
+  fCombiMap.clear();
+  for(int ihit = 0; ihit < nhits; ihit++) fCombiMap[ihit] = 1;
 }
 
 void PndSttMvdGemTracking::OrderGemHits(Int_t nhits) {
-  
+  if(nhits == 0) return;
+
   // loop on GEM hits to fill hitcounter
   // and hitmap and be able to order them
   for(int ihit = 0; ihit < nhits; ihit++) {
@@ -431,6 +438,8 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
   // Order GEM hits
   OrderGemHits(nhits);
   Int_t flag[ntracks];
+
+  ConsiderCombinatorialEffect(nhits);
 
   // loop on the tracks found in mvd + stt ************
   for (Int_t itrk = 0; itrk < ntracks; itrk++) 
@@ -537,7 +546,6 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 	}
 	countplane[ipos]++;
 
- 
 	// if the propagation was successful ... 
 	// assign the hits to track itrk, extrapolated to gempar on ipos
 	std::vector<int> assignedhits = AssignHits(itrk, gempar, ipos); 
@@ -566,6 +574,7 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
   
 
   // CLEANUP =================================
+  CheckCombinatorial(nhits, ntracks); 
   ForbidMultiAssignedHits(nhits, ntracks);
   OnlyOneHitToEachTrack(nhits, ntracks);
   AddRemainingHits(ntracks);
@@ -675,25 +684,43 @@ void PndSttMvdGemTracking::EvaluatePerformances(Int_t nhits, Int_t ntracks) {
 
       // only for test.. will be deleted for real events ........CHECK
       Int_t refIndex = gemhit->GetRefIndex();
-      if(refIndex == -1) { countbad++; continue; } // background hit
+      if(refIndex == -1) { 
+	countbad++;  // background hit
+	if(fDisplayOn) {
+	  TMarker *g2mrkb = new TMarker(gemhit->GetX(), gemhit->GetY(), 30);
+	  int posindex = GetPosIndex(gemhit);
+	  fOrderingIterator = find(fOrdering.begin(), fOrdering.end(), posindex);
+	  int index = fOrderingIterator - fOrdering.begin();
+	  display->cd(index + 1);
+	  g2mrkb->SetMarkerSize(2);
+	  g2mrkb->SetMarkerColor(1); 
+	  g2mrkb->Draw("SAME");
+	  display->Update();
+	  display->Modified();
+	}
+	continue;
+      }
+
+
       PndGemMCPoint *gempnt = (PndGemMCPoint*) fGemPointArray->At(refIndex);
 
       Int_t mcIndex = gempnt->GetTrackID();
       
-      if(mcIndex == -1 || completeCand->getMcTrackId() == -1) countdoubt++;
-      else if(mcIndex == completeCand->getMcTrackId()) countgood++;
-      else if (mcIndex != completeCand->getMcTrackId()) countbad++;
+      if(mcIndex == -1 || completeCand->getMcTrackId() == -1) countdoubt++; 
+      else if(mcIndex == completeCand->getMcTrackId()) countgood++; 
+      else if (mcIndex != completeCand->getMcTrackId()) countbad++; 
       
       if(fDisplayOn) {
-	TMarker *g2mrk = new TMarker(gemhit->GetX(), gemhit->GetY(), 7);
+	TMarker *g2mrk = new TMarker(gemhit->GetX(), gemhit->GetY(), 30);
 
 	int posindex = GetPosIndex(gemhit);
 	
 	fOrderingIterator = find(fOrdering.begin(), fOrdering.end(), posindex);
 	int index = fOrderingIterator - fOrdering.begin();
 	display->cd(index + 1);
-	if(mcIndex == completeCand->getMcTrackId()) g2mrk->SetMarkerColor(2); // red
-	else if (mcIndex != completeCand->getMcTrackId()) g2mrk->SetMarkerColor(kGray); // 
+	g2mrk->SetMarkerSize(2);
+	if(mcIndex == completeCand->getMcTrackId()) g2mrk->SetMarkerColor(2);  // red
+	else if (mcIndex != completeCand->getMcTrackId())  g2mrk->SetMarkerColor(1);  // black
 	g2mrk->Draw("SAME");
 	display->Update();
 	display->Modified();
@@ -709,7 +736,6 @@ void PndSttMvdGemTracking::EvaluatePerformances(Int_t nhits, Int_t ntracks) {
     if(!completeCand) continue;
     recoTrack.push_back(completeCand->getMcTrackId());
   }
-
 
   for(int ihit = 0; ihit < nhits; ihit++) {
     PndGemHit *gemhit = (PndGemHit*) fGemHitArray->At(ihit);
@@ -777,6 +803,34 @@ void PndSttMvdGemTracking::EvaluatePerformances(Int_t nhits, Int_t ntracks) {
   FillTrueDistances();
 
 
+  // draw ALL the MC points
+  for(int ipnt = 0; ipnt < fGemPointArray->GetEntriesFast(); ipnt++) {
+   PndGemMCPoint *pnt = (PndGemMCPoint*) fGemPointArray->At(ipnt);
+   if(!pnt) continue;
+   double x0 = pnt->GetX();
+   double y0 = pnt->GetY();
+   double z0 = pnt->GetZ();
+   int ipos = -1;
+   if(fDisplayOn) { // CHECK
+     if(z0 < 116.5)      ipos = 0;
+     else if(z0 < 118.)  ipos = 1;
+     else if(z0 < 152.4) ipos = 2;
+     else if(z0 < 154)   ipos = 3;
+     else if(z0 < 188.4) ipos = 4;
+     else if(z0 < 190)   ipos = 5;
+ 	  
+     cout << "MC POINT " << x0 << " " << y0 << " " << z0 << " " << pnt->GetTrackID() << endl;
+
+     TMarker *gpntmrk = new TMarker(x0, y0, 3);
+     gpntmrk->SetMarkerColor(7); // 
+     display->cd(1 + ipos);
+     //  cout << "DRAWING" << endl;
+     gpntmrk->Draw("SAME");
+     display->Update();
+     display->Modified();
+   }
+ }
+ 
   if(fVerbose > 0) {
     cout << "SUMMARY OF EVENT" << endl;
     cout << "mvd + stt tracks     " << fTrackArray->GetEntriesFast() << endl;
@@ -1230,6 +1284,7 @@ void PndSttMvdGemTracking::AddRemainingHits(Int_t ntracks) {
 	if(GetTracksAssociatedToHit(hitindex).size() != 0) continue;
 	PndGemHit *gemhit = (PndGemHit*) fGemHitArray->At(hitindex);
 	if(!gemhit) continue;
+	if(fCombiMap[hitindex] != 0) continue;
 	if(fVerbose > 0) cout << "distance " << distancemap[itrk][hitindex] << endl;
 	if(distancemap[itrk][hitindex] == -1) continue;
 	if(distancemap[itrk][hitindex] < tmpdist)  {
@@ -1319,7 +1374,7 @@ void PndSttMvdGemTracking::Retrack() {
 	 for(iter = assignedhits.begin(); iter != assignedhits.end(); iter++) {
 	   std::vector<int>::iterator iter2;
 	   Int_t ihit =  *iter;
-
+	   if(fCombiMap[ihit] != 0) { assignedhits.erase(iter); iter--; continue; }
 	   if(distancemap[itrk][ihit] < tmpdistance) { 
 	     iter2 = std::find(assignedhits.begin(), assignedhits.end(), tmphit);
 	     int where = iter2 - assignedhits.begin();
@@ -1555,6 +1610,7 @@ std::vector<int> PndSttMvdGemTracking::AssignHits(Int_t itrk, FairTrackParP *gem
     int hitindex = (int) hitmap(ipos, ihit);
     PndGemHit *gemhit = (PndGemHit*) fGemHitArray->At(hitindex);
     if(!gemhit) continue;
+ 
     Double_t distance = IsAssignable(gempar, gemhit);
     // if the track to hit distance is below threshold
     // "distance" is filled (-1 otherwise)
@@ -1712,9 +1768,9 @@ FairTrackParP PndSttMvdGemTracking::SetStartParameters(PndTrack *sttmvd, PndTrac
   }
   else {
     //    startpar = lastpar;
-    cout << "from PR " << endl;
-    lastpar.GetPosition().Print();
-    lastpar.GetMomentum().Print();
+    //     cout << "from PR " << endl;
+    //      lastpar.GetPosition().Print();
+    //      lastpar.GetMomentum().Print();
     
     bool startpoint = false;
     PndGemStation *station = fGemParameters->GetStation(0);
@@ -1809,9 +1865,9 @@ FairTrackParP PndSttMvdGemTracking::SetStartParameters(PndTrack *sttmvd, PndTrac
     // 			  kalmanCov15, // CHECK!!
     // 			  lastpar.GetOrigin(), lastpar.GetIVer(), lastpar.GetJVer(), lastpar.GetKVer(), 
     // 			  lastpar.GetSPU()); // CHECK recalculate spu
-    cout << "from prefit " << endl;
-    startpar.GetPosition().Print();
-    startpar.GetMomentum().Print();
+    //    cout << "from prefit " << endl;
+    //      startpar.GetPosition().Print();
+    //      startpar.GetMomentum().Print();
        
   }
 
@@ -1991,7 +2047,7 @@ Int_t PndSttMvdGemTracking::GetClosestOnFirst(FairTrackParP* gempar, Int_t ipos,
     int hitindex = (int) hitmap(ipos, ihit);
     PndGemHit *gemhit = (PndGemHit*) fGemHitArray->At(hitindex);
     if(!gemhit) continue;
-    
+ 
     TVector3 gemhitpos = gemhit->GetPosition();   
     TVector3 extrapos = gempar->GetPosition();
     
@@ -2070,6 +2126,7 @@ Bool_t PndSttMvdGemTracking::Prefit(PndTrack *sttmvdTrack, PndTrackCand *sttmvdC
 	  //  cout << "intfin false" << endl; 
 	  continue; 
 	}
+
 	points[ihit][0] = hitId;
 	points[ihit][2] = xyz.X();
 	points[ihit][3] = xyz.Y();
@@ -2129,6 +2186,9 @@ Bool_t PndSttMvdGemTracking::Prefit(PndTrack *sttmvdTrack, PndTrackCand *sttmvdC
   }
 
   // z ---------------
+  //  ZFind(nhits, points, xc, yc, radius); // CHECK
+
+
   Bool_t zfitting = ZFit(points, charge, xc, yc, radius, fitm, fitp);
   if(zfitting == false) { 
     // cout << "zfit false " << endl; 
@@ -2483,6 +2543,7 @@ Bool_t PndSttMvdGemTracking::ZFit(TMatrixT<double> points, Int_t charge, Double_
     {
       Int_t detId = (Int_t) points[ihit][1];
       Int_t hitId = (Int_t) points[ihit][0];
+      //   cout << "hitId " << hitId << " detId " << detId << endl;
       if(hitId == -1) continue;
       if(detId == FairRootManager::Instance()->GetBranchId("STTHit") ||
 	 detId == FairRootManager::Instance()->GetBranchId("GEMHit")) continue;
@@ -2498,9 +2559,10 @@ Bool_t PndSttMvdGemTracking::ZFit(TMatrixT<double> points, Int_t charge, Double_
       
 
       Double_t sigz2 = points[ihit][7] * points[ihit][7];  // CHECK
+
       if(sigz2 == 0) sigz2 = 1e-5; // CHECK MVD covariance
-      
       //      cout << "scosl " << scos << " " << points[ihit][4] << " " << sigz2 <<  " " <<  points[ihit][7] << endl;
+
       Sx = Sx + (scos /(sigz2));
       Sz = Sz + (points[ihit][4]/(sigz2));
       Sxz = Sxz + ((scos * points[ihit][4])/(sigz2));
@@ -2511,7 +2573,7 @@ Bool_t PndSttMvdGemTracking::ZFit(TMatrixT<double> points, Int_t charge, Double_
 
   Detz = S1z*Sxx - Sx*Sx;
   if(Detz == 0) { 
-    // cout << "DET Z = 0" << endl; 
+    cout << "DET Z = 0" << endl; 
     return kFALSE; } // CHECK
   fitp = (1/Detz)*(Sxx*Sz - Sx*Sxz);
   fitm = (1/Detz)*(S1z*Sxz - Sx*Sz);
@@ -2650,4 +2712,324 @@ Double_t PndSttMvdGemTracking::CompareToPreviousPhi(Double_t Fi, Double_t Fi_pre
   else if(charge > 0 && Fi > Fi_pre) Fi -= pi2;
   Fi_pre = Fi;
   return Fi;
+}
+
+
+void PndSttMvdGemTracking::ConsiderCombinatorialEffect(Int_t nhits) {
+
+  if(nhits == 0) return;
+
+  // matrix hitid x y posindex = istat * 10 + isens 
+  TMatrixT<double> sensor(nhits, 4);
+  TMatrixT<double> nhitsonsensor(fNPositions, 1); 
+  TMatrixT<double> nhitsonsensor2(fNPositions, nhits); 
+    
+//   cout << "gem n hits " << nhits << endl;
+  std::vector<int> mcpoints[fNPositions]; // CHECK
+  for (Int_t ihit = 0; ihit < nhits; ihit++) {
+    PndGemHit *hit = (PndGemHit*) fGemHitArray->At(ihit);
+    if(!hit) continue;   
+    //  cout << "ihit " << ihit << endl;  
+    sensor[ihit][0] = ihit;
+    sensor[ihit][1] = hit->GetX();
+    sensor[ihit][2] = hit->GetY();
+    int istat = hit->GetStationNr();
+    int isens = hit->GetSensorNr();
+    int posindex =  GetPosIndex(hit);
+    fOrderingIterator = find(fOrdering.begin(), fOrdering.end(), posindex);
+    int ipos = fOrderingIterator - fOrdering.begin();
+    sensor[ihit][3] = ipos;
+
+    /**
+       sensor[ihit][3] = posindex;
+       switch(posindex) {
+       case 11: 
+       sensor[ihit][3] = 0; break;
+       case 12: 
+       sensor[ihit][3] = 1; break;
+       case 21: 
+       sensor[ihit][3] = 2; break;
+       case 22: 
+       sensor[ihit][3] = 3; break;
+       case 31: 
+       sensor[ihit][3] = 4; break;
+       case 32: 
+       sensor[ihit][3] = 5; break;
+       }
+    **/
+
+    nhitsonsensor2[ipos][(int) nhitsonsensor[ipos][0]] = ihit;
+    nhitsonsensor[ipos][0]++;
+  }
+
+     
+  std::vector<int> accepted[fNPositions];
+
+  //  nhitsonsensor2.Print();
+
+//   cout << "SENS I, STAT I   " << nhitsonsensor[0][0] << endl;
+//   cout << "SENS 2, STAT I   " << nhitsonsensor[1][0] << endl;
+//   cout << "SENS I, STAT II  " << nhitsonsensor[2][0] << endl;
+//   cout << "SENS 2, STAT II  " << nhitsonsensor[3][0] << endl;
+//   cout << "SENS I, STAT III " << nhitsonsensor[4][0] << endl;
+//   cout << "SENS 2, STAT III " << nhitsonsensor[5][0] << endl;
+   
+	
+  int counter1 = 0;
+//   cout << "nhits " << nhits << endl;
+  for(int ihit = 0; ihit < nhits; ihit++) {
+      
+    if(sensor[ihit][3] != 0 &&
+       sensor[ihit][3] != 2 &&
+       sensor[ihit][3] != 4) continue;
+    int first = (int) sensor[ihit][3];
+    // cout << "FIRST " << first << endl;
+    double x1 = sensor[ihit][1];
+    double y1 = sensor[ihit][2];
+    counter1++;
+
+    int counter2 = 0;
+    for(int jhit = 0; jhit < nhits; jhit++) {
+
+      if(sensor[jhit][3] != first + 1) continue;
+      int second = (int) sensor[jhit][3];
+      // cout << "SECOND " << second << endl;
+	
+      double x2 = sensor[jhit][1];
+      double y2 = sensor[jhit][2];
+      counter2++;
+      double distance = TMath::Sqrt((x1 - x2) * (x1 - x2) + 
+				    (y1 - y2) * (y1 - y2));
+      
+      if(distance < fCombiDistance) {
+	bool alreadythere1 = false, alreadythere2 = false;
+	for(int j = 0; j < accepted[first].size(); j++) {
+	  if(sensor[ihit][0] == accepted[first][j]) {
+	    alreadythere1 = true;
+	    break;
+	  }
+	}
+	for(int j = 0; j < accepted[second].size(); j++) {
+	  if(sensor[jhit][0] == accepted[second][j]) {
+	    alreadythere2 = true;
+	    break;
+	  }
+	}
+	
+	if(alreadythere1 == false) {
+	  accepted[first].push_back((int) sensor[ihit][0]);
+	  fCombiMap[ihit] = 0;
+	  if(fDisplayOn == kTRUE) {
+	    TMarker *amrk = new TMarker(x1, y1, 21);
+	    amrk->SetMarkerColor(5); 
+	    display->cd(first + 1);
+	    amrk->Draw("SAME");
+	    display->Update();
+	    display->Modified();
+	  }
+	}
+
+	if(alreadythere2 == false) {
+	  accepted[second].push_back((int) sensor[jhit][0]);
+  	  fCombiMap[jhit] = 0;
+	  if(fDisplayOn == kTRUE) { 
+	    TMarker *amrk2 = new TMarker(x2, y2, 21);
+	    amrk2->SetMarkerColor(5); 
+	    display->cd(second + 1);
+	    amrk2->Draw("SAME");
+	    display->Update();
+	    display->Modified();	
+	  }
+	}
+      }
+      if(counter2 == nhitsonsensor[first + 1][0]) break;
+    }
+    if(counter1 == (nhitsonsensor[0][0] + nhitsonsensor[2][0] + nhitsonsensor[4][0])) break;
+  }
+ 
+ //  cout << "MCPOINTS: " << endl;
+//   for(int istat = 0; istat < fNPositions; istat++) {
+//     cout << "istat " << istat << " " ;
+//     for(int j = 0; j < mcpoints[istat].size(); j++) cout << " " << mcpoints[istat][j];
+//     cout << endl;
+//   }
+//   cout << "ACCEPTED " << endl;
+//   for(int istat = 0; istat < fNPositions; istat++) {
+//     cout << "istat " << istat << " ";
+//     for(int i = 0; i < accepted[istat].size(); i++)  cout << " " << accepted[istat][i];
+//     cout << endl;
+//   }
+
+}
+
+
+
+void PndSttMvdGemTracking::CheckCombinatorial(Int_t nhits, Int_t ntracks)
+{
+
+  if(nhits == 0) return;
+
+  if(fVerbose > 0) cout << "CHECK COMBINATORIAL: DELETE FAKE HITS" << endl;
+  
+  // loop over the tracks 
+  for(Int_t it = 0; it < ntracks; it++) {
+    int itrk = GetTrackIndex(it);
+    std::vector<int> thistrackhits = GetHitsAssociatedToTrack(itrk);
+    if(thistrackhits.size() == 0) continue;
+    // fill table:
+    // each row is a sensor plane and contains 
+    // the hits associtaed to this track on it
+    TMatrixT<double> combi(fNPositions, thistrackhits.size());
+    TMatrixT<double> addhit(fNPositions, 1);
+
+    // init
+    for(Int_t ipos = 0; ipos < fNPositions; ipos++) {
+      addhit[ipos] = 0;
+      for(Int_t j = 0; j < thistrackhits.size(); j++) combi[ipos][j] = -1;
+    }
+
+    for(Int_t j = 0; j < thistrackhits.size(); j++) {
+      int ihit = thistrackhits[j];
+      
+      PndGemHit *gemhit = (PndGemHit*) fGemHitArray->At(ihit);
+      if(!gemhit) continue;
+      
+      int posindex = GetPosIndex(gemhit);
+      fOrderingIterator = find(fOrdering.begin(), fOrdering.end(), posindex);
+      int index = fOrderingIterator - fOrdering.begin();
+
+      int hitpos = (int) addhit[index][0];
+      combi[index][hitpos] = ihit;
+      addhit[index][0]++;
+    }
+  
+    if(fVerbose > 0) {
+      cout << "itrk " << itrk << " " << nhits << " " << thistrackhits.size() << endl;
+     combi.Print();
+    }
+
+
+    // loop on sensor planes for this track
+    for(Int_t ipos = 0; ipos < fNPositions; ipos++) {
+
+      int count = 0;
+      // count hits associated on this sensor plane
+      for(Int_t i = 0; i < thistrackhits.size(); i++) {
+	if(combi[ipos][i] != -1) count++;
+      }
+
+    if(fVerbose > 0)   cout << count << " hits on pos " << ipos << endl;
+
+      // if there is no hit or only one, continue ...
+      if(count <= 1) continue;
+      // ... else
+      int count2 = 0;
+      // count how many true (non combi) hits are there
+      for(Int_t i = 0; i < thistrackhits.size(); i++) {
+	int ihit = (int) combi[ipos][i];
+	if(ihit == -1) continue;
+	if(fCombiMap[ihit] == 0) count2++;
+      }
+
+      if(fVerbose > 0) cout << count2 << " true hits on pos " << ipos << endl;
+
+      // if there is no true hit, continue ...
+      if(count2 == 0) continue;
+      // ... else, clean up from combinatorial hits
+      for(Int_t i = 0; i <  thistrackhits.size(); i++) {
+	int ihit = (int) combi[ipos][i];
+	if(fCombiMap[ihit] != 0) {
+	  if(fVerbose > 0) cout << "delete " << ihit << " from track " << itrk << endl;
+	  DeleteHitFromTrack(ihit, itrk);
+	}
+      }
+    }
+  }
+}
+
+
+
+Bool_t PndSttMvdGemTracking::ZFind(Int_t nhits, TMatrixT<double> points, Double_t xc, Double_t yc, Double_t radius)
+{
+  cout << "Z FINDER" << endl;
+  if(nhits == 0) return kFALSE;
+
+  for(int ihit = 0; ihit < nhits; ihit++)
+    {
+      Int_t detId = (Int_t) points[ihit][1];
+      Int_t hitId = (Int_t) points[ihit][0];
+      cout << "hitId " << hitId << " detId " << detId << endl;
+      if(hitId == -1) continue;
+      if(detId != FairRootManager::Instance()->GetBranchId("STTHit")) continue;
+
+      // intersection: tube line with circle trajectory in xy
+
+      // find the tube line
+      // y = mx + q
+      PndSttHit *hit = (PndSttHit* ) fSttHitArray->At(hitId);
+      if(!hit) continue;
+
+      Int_t tubeID = hit->GetTubeID();
+     
+      PndSttTube *tube = (PndSttTube* ) fTubeArray->At(tubeID);
+      TVector3 pos = tube->GetPosition();
+      TVector3 wireDirection = tube->GetWireDirection();
+      Double_t halflength = tube->GetHalfLength();
+      if(wireDirection == TVector3(0., 0., 1.)) continue;
+
+      pos.Print();
+      wireDirection.Print();
+      cout << "hl " << halflength << endl;
+      TVector3 first  = pos + wireDirection * halflength; // CHECK
+      TVector3 second = pos - wireDirection * halflength; // CHECK
+       first.Print();
+      second.Print();
+
+
+      Double_t m = (second.Y() - first.Y())/(second.X() - first.X());
+      Double_t q = first.Y() - m * first.X();
+
+      // CHECK when tube is vertical
+    
+      // center of trajectory xc, yc, radius
+
+      Double_t delta = (m * (q - yc) - xc) - (m * m + 1) * ((q - yc) * (q - yc) + xc * xc - radius * radius);
+      if(delta < 0) continue;
+
+      double xint, yint, x1, y1, x2, y2;
+      x1 = (- (m * (q - yc) - xc) + delta) / (m * m + 1);
+      y1 = m * x1 + q;
+      x2 = (- (m * (q - yc) - xc) - delta) / (m * m + 1);
+      y2 = m * x2 + q;
+
+
+      double d1 = 0, d2 = 0;
+      d1 = TMath::Sqrt((y1 - first.Y()) * (y1 - first.Y()) + (x1 - first.X()) * (x1 - first.X()));
+      d2 = TMath::Sqrt((y2 - first.Y()) * (y2 - first.Y()) + (x2 - first.X()) * (x2 - first.X()));
+
+      if(d1 < d2) {
+	xint = x1;
+	  yint = y1;
+      }
+      else {
+	xint = x2;
+	yint = y2;
+      }
+
+      // APPROXIMATION: take the z of this intersection point // CHECK
+      Double_t ll = ((xint - first.X()) + (yint - first.Y())) / (wireDirection.X() + wireDirection.Y());
+      double zint =  first.Z() + wireDirection.Z() * ll;
+
+      points[ihit][2] = xint;
+      points[ihit][3] = yint;
+      points[ihit][4] = zint;
+      points[ihit][5] = 1.; // CHECK
+      points[ihit][6] = 1.; // CHECK
+      points[ihit][7] = 1.;  // CHECK
+
+      cout << "inters " << xint << " " << yint << " " << zint << endl;
+
+    }
+
+     
 }

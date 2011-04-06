@@ -67,6 +67,7 @@ class PndSttMvdGemTracking : public FairTask {
   std::vector<int> GetHitsAssociatedToTrackOnPlane(Int_t itrk, Int_t ipos);
   void AddRemainingHits(Int_t ntracks);
 
+  void CheckCombinatorial(Int_t nhits, Int_t ntracks);
   void ForbidMultiAssignedHits(Int_t nhits, Int_t ntracks);
   void OnlyOneHitToEachTrack(Int_t nhits, Int_t ntracks);
   void Retrack();
@@ -90,7 +91,7 @@ class PndSttMvdGemTracking : public FairTask {
   Int_t GetClosestOnFirst(FairTrackParP* gempar, Int_t ipos, Double_t closestdistance);
 
 
-  // PREIFT -----------------------------
+  // PREFIT -----------------------------
   Bool_t Prefit(PndTrack *sttmvdTrack, PndTrackCand *sttmvdCand, TVector3 &lastpos, TVector3 &lastmom);
   Bool_t IntersectionFinder(Double_t xc, Double_t yc, Double_t radius, PndSttHit* stthit, TVector3 &xyz, TVector3 &dxyz);
   Bool_t Fit(TMatrixT<double> points, Double_t &outxc, Double_t &outyc, Double_t &outradius);
@@ -98,6 +99,13 @@ class PndSttMvdGemTracking : public FairTask {
   Bool_t GetInitialParams(PndTrack * sttmvd, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &fitm, Double_t &fitp);
   Double_t CalculatePhi(TVector2 v, TVector2 p, double alpha, double Phi0, int charge);
   Double_t CompareToPreviousPhi(Double_t Fi, Double_t Fi_pre, int charge);
+  Bool_t ZFind(Int_t nhits, TMatrixT<double> points, Double_t xc, Double_t yc, Double_t radius);
+
+
+  // COMBINATORIAL EFFECS ----------------
+  void ConsiderCombinatorialEffect(Int_t nhits);
+  void SetCombinatorialDistance(Double_t combidistance) { fCombiDistance = combidistance; }
+ 
 
 
   // CHECK delete this when everything is ok
@@ -207,6 +215,10 @@ class PndSttMvdGemTracking : public FairTask {
   // MonteCarlo
   // CHECK delete this when everything is ok
   Bool_t fUseMC;
+
+  /** combimap: hitID <-> 1/0 whether it is combinatorial or not **/
+  std::map<int, int> fCombiMap;
+  Double_t fCombiDistance;
 
   ClassDef(PndSttMvdGemTracking,1);
 
