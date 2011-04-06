@@ -2363,6 +2363,8 @@ Bool_t PndSttMvdGemTracking::IntersectionFinder(Double_t xc, Double_t yc, Double
       sigu2 = dudx * dudx * sigx * sigx + dudy * dudy * sigy * sigy + 2 * dudx * dudy * sigx * sigy; 
       sigv2 = dvdx * dvdx * sigx * sigx + dvdy * dvdy * sigy * sigy + 2 * dvdx * dvdy * sigx * sigy; 
 
+      if(sigv2 == 0) sigv2 = 1e-5; // CHECK MVD covariance
+
       Su = Su + (u/sigv2);
       Sv = Sv + (v/sigv2);
     
@@ -2494,7 +2496,10 @@ Bool_t PndSttMvdGemTracking::ZFit(TMatrixT<double> points, Int_t charge, Double_
       scos = - charge * radius * Fi; // scos = -q * R * phi CHECK :-)GOOD!
       //    cout << charge << " zfit " << scos << endl;
       
+
       Double_t sigz2 = points[ihit][7] * points[ihit][7];  // CHECK
+      if(sigz2 == 0) sigz2 = 1e-5; // CHECK MVD covariance
+      
       //      cout << "scosl " << scos << " " << points[ihit][4] << " " << sigz2 <<  " " <<  points[ihit][7] << endl;
       Sx = Sx + (scos /(sigz2));
       Sz = Sz + (points[ihit][4]/(sigz2));
