@@ -391,8 +391,14 @@ double PndMvdRiemannTrackFinder::GetMaxPlaneDist(double radius, double dip , boo
 {
 	double Pt=((radius/100)*2*3*1E8)/1E9;
 	double Theta;
+	if (TMath::ACos(dip) == 0){
+		Theta = 0;
+	}
+	else {
 	  if (sign) Theta=(TMath::ATan(TMath::Power(TMath::Tan(TMath::ACos(dip)),-1)))*180/TMath::Pi(); ///calc Theta from dip
 	  else Theta=(TMath::Pi()-TMath::ATan(TMath::Power(TMath::Tan(TMath::ACos(dip)),-1)))*180/TMath::Pi();
+	}
+
     if(fCutDistH!=NULL){
     	double minPt=fCutDistH->GetXaxis()->GetXmin();
     	double maxPt=fCutDistH->GetXaxis()->GetXmax();
@@ -417,9 +423,14 @@ double PndMvdRiemannTrackFinder::GetMaxSZChi2(double radius, double dip , bool s
 {
 	double Pt=((radius/100)*2*3*1E8)/1E9;
 	double Theta;
+	if (TMath::ACos(dip) == 0){
+		Theta = 0;
+	}
+	else {
 	  if (sign) Theta=(TMath::ATan(TMath::Power(TMath::Tan(TMath::ACos(dip)),-1)))*180/TMath::Pi();   ///calc Theta from dip
 	  else Theta=(TMath::Pi()-TMath::ATan(TMath::Power(TMath::Tan(TMath::ACos(dip)),-1)))*180/TMath::Pi();
-    if(fCutChi2H!=NULL){
+	}
+	if(fCutChi2H!=NULL){
     	double minPt=fCutChi2H->GetXaxis()->GetXmin();
     	double maxPt=fCutChi2H->GetXaxis()->GetXmax();
     	double minTh=fCutChi2H->GetYaxis()->GetXmin();
