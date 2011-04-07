@@ -14,15 +14,16 @@
 
   //SET NUMBER OF EVENTS
   // ------------------------------------------------------------------------
-  Int_t nEvents=0;
+
+  Int_t nEvents=1000;
 
 
   TString basedir = gSystem->Getenv("VMCWORKDIR");
   
   // Set INPUT DIRECTORY (MC files) and JOBNAME
   // ------------------------------------------------------------------------
-  TString inDir="Test";
-  TString jobname="Test";
+  TString inDir="TEST";
+  TString jobname="Test15deg";
 
   inDir=(basedir+"/")+inDir;
   TString inFile=(inDir+"/")+jobname;
@@ -45,7 +46,7 @@
   TString paramIn = inFile;
   paramIn.ReplaceAll(".mc.root",".param.root");
   TString paramOut = outFile;
-  paramOut.ReplaceAll(".raw.root",".param.root");
+  paramOut.ReplaceAll(".raw.root",".raw.param.root");
   
 
   std::cout<<"Input: "<<inFile<<std::endl;
@@ -102,7 +103,7 @@
     
     // -----    Digi Sequence  --------------------------------------------
   PndTpcClusterizerTask* tpcClusterizer = new PndTpcClusterizerTask();
-  tpcClusterizer->SetPersistence();
+  //tpcClusterizer->SetPersistence();
   //ONLY USE THIS WHEN USING ALICE SETTINGS WITH GEANT3
   tpcClusterizer->SetMereChargeConversion();  
   
@@ -123,7 +124,7 @@
    */ 
  
   PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
-  tpcDrifter->SetPersistence();
+  //tpcDrifter->SetPersistence();
   tpcDrifter->SetDistort(false);
   tpcDrifter->SetQAPlotCol(qa);
   fRun->AddTask(tpcDrifter);
@@ -172,9 +173,9 @@
   //tpcPadResponse->WriteHistograms();
   //tpcElec->WriteHistograms();
 
-  FairRootManager::Instance()->GetOutFile()->mkdir("QAPlots");
-  FairRootManager::Instance()->GetOutFile()->cd("QAPlots");
-  qa->Write();
+  //FairRootManager::Instance()->GetOutFile()->mkdir("QAPlots");
+  //FairRootManager::Instance()->GetOutFile()->cd("QAPlots");
+  //qa->Write();
 
   // -----   Finish   -------------------------------------------------------
 

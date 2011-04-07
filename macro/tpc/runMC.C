@@ -18,12 +18,12 @@
 
   // SET NUMBER OF EVENTS
   // --------------------------------------------------
-  Int_t nEvents = 10000;
+  Int_t nEvents = 1000;
 
   //Set JOBNAME + JOBDIR (will not be created!)
   // --------------------------------------------------
   TString jobdir="TEST";
-  TString jobname="Test";
+  TString jobname="Test15deg";
  
 
   TString basejobdir=gSystem->Getenv("VMCWORKDIR");
@@ -132,11 +132,11 @@
   
   //pdgs 211=pion 13=muon 11=electron, ...
   //(PDG ID, MULTIPLICITY)
-  FairBoxGenerator* boxGen = new FairBoxGenerator(211, 1); 
+  FairBoxGenerator* boxGen = new FairBoxGenerator(211, 5); 
   
-  boxGen->SetPRange(0.5,2.5); // GeV/c 
+  boxGen->SetPRange(0.5,0.5); // GeV/c 
   boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(30, 140); // Polar angle in lab system range [degree]
+  boxGen->SetThetaRange(15, 15); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
   primGen->AddGenerator(boxGen);
 
@@ -191,6 +191,7 @@
   //fieldPar->setInputVersion(fRun->GetRunId(),1);
   //fieldPar->setChanged(kTRUE);
 
+  rtdb->setOutput(output);
   rtdb->saveOutput();
   rtdb->print();
 

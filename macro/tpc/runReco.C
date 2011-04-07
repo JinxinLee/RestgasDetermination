@@ -15,10 +15,12 @@
   //Set JOBNAME and JOBDIR
   // -------------------------------------------------------------------
 
-  TString jobdir = "Test";
-  TString jobname="Test";
+
+  TString jobdir = "TEST";
+  TString jobname="Test15deg";
+
  
-  TString digiDir=(basedir+"/")+jobdir;
+  TString digiDir=jobdir;
   TString inFile=(digiDir+"/")+jobname;
   inFile+=".raw.root";
   
@@ -42,9 +44,9 @@
 
 
   TString paramIn = inFile;
-  paramIn.ReplaceAll(".raw.root",".param.root");
+  paramIn.ReplaceAll(".raw.root",".raw.param.root");
   TString paramOut = outFile;
-  paramOut.ReplaceAll(".reco.root",".param.root");
+  paramOut.ReplaceAll(".reco.root","reco.param.root");
 
 
   /*TString mcDir = inDir;
@@ -68,6 +70,7 @@
   timer.Start();
   // ------------------------------------------------------------------------
 
+gStyle->SetPalette(1);
   
   // -----   Digitization run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
@@ -86,16 +89,23 @@
   // -----  Parameter database   --------------------------------------------
   
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
-  parInput1->open(paramIn.Data());
-  
+  //FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
+  //parInput1->open(paramIn.Data());
+  //  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
+  //TString tpcDigiFile = gSystem->Getenv("VMCWORKDIR");
+  //tpcDigiFile += "/tpc/tpc.fullplane.par";
+  //parInput2->open(tpcDigiFile.Data(),"in");
+  //rtdb->setFirstInput(parInput2);
+  //rtdb->Print();
+
   FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
   TString tpcDigiFile = gSystem->Getenv("VMCWORKDIR");
   tpcDigiFile += "/tpc/tpc.par";
   parInput2->open(tpcDigiFile.Data(),"in");
 
+
   rtdb->setFirstInput(parInput2); //root file IO tends to fail, use ASCII first
-  rtdb->setSecondInput(parInput1);
+  //rtdb->setSecondInput(parInput1);
 
   rtdb->Print();
 
@@ -106,15 +116,18 @@
 
     // -----    Reco Sequence  --------------------------------------------
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
-  tpcCF->SetMode(1); // individual timeslice
+  tpcCF->SetMode(2); // individual timeslice
   tpcCF->SetPersistence();
-  tpcCF->timeslice(20); // = 4 sample times = 100ns @ 40MHz
-  //tpcCF->SetTrivialClustering();
+  tpcCF->timeslice(6); //  sample times 
+  tpcCF->SetClusterTimeCut(4);
+  tpcCF->SetErrorPars(600,300);
+  tpcCF->SetSingleDigiClusterAmpCut(15);
   fRun->AddTask(tpcCF);
 
   //PndTpcRiemannMCTask* tpcRMC = new PndTpcRiemannMCTask();
   //tpcRMC->SetBkgFileName("../data/DPM/test1.mc.root");
   //fRun->AddTask(tpcRMC);
+
 
   //PndTpcLaserCorrectionTask* laser = new PndTpcLaserCorrectionTask();
   //TString laserfile=basedir+"tpc/laser.new.reco.root";
@@ -122,27 +135,27 @@
   //laser->SetPersistence(true);
   //fRun->AddTask(laser);
   
-  PndTpcIdealTrackingTask* tpcIPR = new PndTpcIdealTrackingTask();
-  tpcIPR->useGeane(true);
-  tpcIPR->useDistSorting(true);
-  fRun->AddTask(tpcIPR);
-  tpcIPR->SetPersistence();
+//  PndTpcIdealTrackingTask* tpcIPR = new PndTpcIdealTrackingTask();
+//  tpcIPR->useGeane(true);
+//  tpcIPR->useDistSorting(true);
+//  fRun->AddTask(tpcIPR);
+//  tpcIPR->SetPersistence();
 
 
-//   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
-//   tpcSPR->SetTrkFinderParameters(2.,// proxcut
-// 				 0.02, // proxcut on rieman sphere
-// 				 2.E-3, // planecut
-// 				 4.0, // szcut
-// 				 4); // minnumhits for fit
-//   tpcSPR->SetPersistence();
-//   tpcSPR->useGeane();
-//   fRun->AddTask(tpcSPR);
+//    PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
+//    tpcSPR->SetTrkFinderParameters(2.,// proxcut
+//  				 0.02, // proxcut on rieman sphere
+//  				 2.E-3, // planecut
+//  				 4.0, // szcut
+//  				 4); // minnumhits for fit
+//    tpcSPR->SetPersistence();
+//    tpcSPR->useGeane();
+//    fRun->AddTask(tpcSPR);
   
-  KalmanTask* kalman =new KalmanTask();
-  kalman->SetPersistence();
-  kalman->SetNumIterations(3); // number of fitting iterations (back and forth)
-  fRun->AddTask(kalman);
+ KalmanTask* kalman =new KalmanTask();
+kalman->SetPersistence();
+kalman->SetNumIterations(3); // number of fitting iterations (back and forth)
+//fRun->AddTask(kalman);
 
 
   TrackFitStatTask* fitstat=new TrackFitStatTask();
@@ -155,7 +168,7 @@
 		     5); // nPndTpcPoints
   //fitstat->SetPdgSelection(321);
   //fitstat->DoResiduals();
-  fRun->AddTask(fitstat);
+  //fRun->AddTask(fitstat);
   
   // PndTpcTrackVisTask* trkVis = new PndTpcTrackVisTask();
   // trkVis->SetTrackBranchName("TrackPreFit");
