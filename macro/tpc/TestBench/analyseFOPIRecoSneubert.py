@@ -35,6 +35,8 @@ files.sort()
 # define cuts in Z
 cuts = (0,10,20,30,40,50,60)
 ampcuts = (0,400,800,1200,1600,2000,4000)
+ncuts = (0,1,2,3,5,7,10,15,20,30,40)
+
 
 # define offset in Z 1 mu s * 2.8
 OFFSET = -2.8
@@ -58,6 +60,13 @@ resVza = dict([(j,dict([(i,ROOT.TH1D("StatsResV"+str(cuts[i])+str(ampcuts[j]),
                             "Cosmic Residuals V (X') z="+str(cuts[i])+"  amp="+str(ampcuts[j]), 500,-1,1)) 
                         for i in range(len(cuts))])) for j in range(len(ampcuts))])
 
+resVzn = dict([(j,dict([(i,ROOT.TH1D("StatsResVzn"+str(cuts[i])+str(ncuts[j]), 
+                            "Cosmic Residuals V (X') z="+str(cuts[i])+"  n="+str(ncuts[j]), 500,-1,1)) 
+                        for i in range(len(cuts))])) for j in range(len(ncuts))])
+
+resUzn = dict([(j,dict([(i,ROOT.TH1D("StatsResUzn"+str(cuts[i])+str(ncuts[j]), 
+                            "Cosmic Residuals U (Z') z="+str(cuts[i])+"  n="+str(ncuts[j]), 500,-1,1)) 
+                        for i in range(len(cuts))])) for j in range(len(ncuts))])
 gresVa = dict([(i, ROOT.TGraph(len(ampcuts)-1)) 
               for i in range(len(cuts))])
 
@@ -139,6 +148,8 @@ for f in range(numfiles) :
     #file = "/nfs/hicran/data/tpc/fopi/2010/decoded/runC_1735.reco.root"
     print(file)
     Rfile = ROOT.TFile(file, "read")
+    if (not Rfile.IsOpen()) or Rfile.IsZombie() :
+        continue
     tree = Rfile.Get("cbmsim")
     tree.SetBranchStatus("*", 0)
    #tree.SetBranchStatus("PndTpcSLResiduals.*", 1)
@@ -256,10 +267,16 @@ for f in range(numfiles) :
                             #if xyRad > 8 and xyRad < 12:
                             #if numHits > 20 :
                         
-                        for j in range(len(ampcuts)) :
-                             if (amp < ampcuts[j]) and (cl2Dsize > 1) :
-                                 resVza[j-1][i-1].Fill(resV)
+                        for j in range(len(ncuts)) :
+                             if (cl2Dsize < ncuts[j]) :
+                                 resVzn[j-1][i-1].Fill(resV)
+                                 resUzn[j-1][i-1].Fill(resU)
                                  break
+                                                          
+                        for j in range(len(ampcuts)) :
+                            if ( amp < ampcuts[j]) and (cl2Dsize > 1) :
+                                resVza[j-1][i-1].Fill(resV)
+                                break
                           
                         break
                     
@@ -833,6 +850,66 @@ c20.cd(1)
 mgresVz.Draw("ALP")
 c20.cd(2)
 mgresVa.Draw("ALP")
+
+
+
+
+c21 = ROOT.TCanvas()
+ROOT.gStyle.SetOptFit(1111)
+c21.Divide(len(ncuts),6)
+ 
+# loop over z-bins : i
+# loop over amp-bins : j
+
+for i in range(6) :
+    for j in range(len(ncuts)) : 
+        c21.cd((i)*len(ncuts)+j+1)
+        print i
+        print j
+        print resVzn[j][i].GetTitle()
+        resVzn[j][i].SetFillColor(ROOT.kAzure-8)
+        resVzn[j][i].GetXaxis().SetTitle("Residiual V")
+        resVzn[j][i].Draw()
+               
+       # testfit = ROOT.TF1("testfitX"+str(1),"gaus",-0.5,0.5)
+        #resVzn[j][i].Fit(testfit, "N+", "", -0.5,0.5)
+      #  
+      #  fit = ROOT.TF1("fitfuncX"+str(1),"gaus + gaus(3)",-0.5,0.5)
+      #  fit.SetNpx(1000)
+      #  fit.SetParameter(0,testfit.GetParameter(0))
+      #  fit.SetParLimits(0,testfit.GetParameter(0)*0.2, testfit.GetParameter(0)*5)
+  #      fit.SetParameter(1,testfit.GetParameter(1))
+  #      fit.SetParLimits(1,testfit.GetParameter(1)-0.08, testfit.GetParameter(1)+0.08)
+  #      fit.SetParameter(2,testfit.GetParameter(2))
+  #      fit.SetParLimits(2,testfit.GetParameter(2)*0.1, testfit.GetParameter(2)*20)
+        
+  #      fit.SetParameter(3, 100)
+  #      fit.SetParLimits(3, 0, testfit.GetParameter(0)/4.)
+  #      fit.SetParameter(4, 0)
+  #      fit.SetParLimits(4, testfit.GetParameter(1)-0.08, testfit.GetParameter(1)+0.08)
+  #      fit.SetParameter(5, testfit.GetParameter(2))
+  #      fit.SetParLimits(5, testfit.GetParameter(2), testfit.GetParameter(2)*30)
+  #      resVzn[j][i].Fit(fit, "+", "", -0.5,0.5)
+
+#        gresVz[j].SetPoint(i,cuts[i]+5,fit.GetParameter(2));
+#        gresVa[i].SetPoint(j,ampcuts[j],fit.GetParameter(2));
+
+
+c22 = ROOT.TCanvas()
+ROOT.gStyle.SetOptFit(1111)
+c22.Divide(len(ncuts),6)
+ 
+# loop over z-bins : i
+# loop over amp-bins : j
+
+for i in range(6) :
+    for j in range(len(ncuts)) : 
+        c22.cd((i)*len(ncuts)+j+1)
+        resUzn[j][i].SetFillColor(ROOT.kAzure-8)
+        resUzn[j][i].GetXaxis().SetTitle("Residiual U")
+        resUzn[j][i].Draw()
+
+
 
 input()
 
