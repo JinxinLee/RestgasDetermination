@@ -43,10 +43,13 @@
   outFile.ReplaceAll(".raw.root",".reco.root");
 
 
-  TString paramIn = inFile;
-  paramIn.ReplaceAll(".raw.root",".raw.param.root");
+  TString paramIn1 = inFile;
+  TString paramIn2 = inFile;
+  paramIn1.ReplaceAll(".raw.root",".raw.param.root");
+  paramIn2.ReplaceAll(".raw.root",".mc.param.root");
+
   TString paramOut = outFile;
-  paramOut.ReplaceAll(".reco.root","reco.param.root");
+  paramOut.ReplaceAll(".reco.root",".reco.param.root");
 
 
   /*TString mcDir = inDir;
@@ -60,7 +63,8 @@
   std::cout<<"Input: "<<inFile<<std::endl;
   std::cout<<"Output: "<<outFile<<std::endl;
   std::cout<<"MCFile: "<<mcFile<<std::endl;
-  std::cout<<"ParamIn: "<<paramIn<<std::endl;
+  std::cout<<"ParamIn1: "<<paramIn1<<std::endl;
+  std::cout<<"ParamIn2: "<<paramIn2<<std::endl;
   std::cout<<"ParamOut: "<<paramOut<<std::endl;
 
 
@@ -79,9 +83,6 @@ gStyle->SetPalette(1);
   fRun->AddFriend(mcFile);
   fRun->SetOutputFile(outFile);
   
-  FairGeane *Geane = new FairGeane();
-  fRun->AddTask(Geane);
-  std::cout<<"\nGEANE initialised"<<std::endl;
   // ------------------------------------------------------------------------
 
    
@@ -89,30 +90,28 @@ gStyle->SetPalette(1);
   // -----  Parameter database   --------------------------------------------
   
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  //FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
-  //parInput1->open(paramIn.Data());
-  //  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
-  //TString tpcDigiFile = gSystem->Getenv("VMCWORKDIR");
-  //tpcDigiFile += "/tpc/tpc.fullplane.par";
-  //parInput2->open(tpcDigiFile.Data(),"in");
-  //rtdb->setFirstInput(parInput2);
-  //rtdb->Print();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
+  parInput1->open(paramIn1.Data());
+ FairParRootFileIo* parInput2 = new FairParRootFileIo(kTRUE);
+  parInput2->open(paramIn2.Data());
 
-  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
+  FairParAsciiFileIo* parInput3 = new FairParAsciiFileIo();
   TString tpcDigiFile = gSystem->Getenv("VMCWORKDIR");
   tpcDigiFile += "/tpc/tpc.par";
-  parInput2->open(tpcDigiFile.Data(),"in");
+  parInput3->open(tpcDigiFile.Data(),"in");
 
 
-  rtdb->setFirstInput(parInput2); //root file IO tends to fail, use ASCII first
-  //rtdb->setSecondInput(parInput1);
+  rtdb->setFirstInput(parInput1); //root file IO tends to fail, use ASCII first
+  rtdb->setSecondInput(parInput2);
 
   rtdb->Print();
 
   
   // ------------------------------------------------------------------------
   
-
+  FairGeane *Geane = new FairGeane();
+  fRun->AddTask(Geane);
+  std::cout<<"\nGEANE initialised"<<std::endl;
 
     // -----    Reco Sequence  --------------------------------------------
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
