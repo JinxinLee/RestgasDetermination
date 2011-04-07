@@ -391,7 +391,7 @@ double PndMvdRiemannTrackFinder::GetMaxPlaneDist(double radius, double dip , boo
 {
 	double Pt=((radius/100)*2*3*1E8)/1E9;
 	double Theta;
-	if (TMath::ACos(dip) == 0){
+	if (fabs(TMath::ACos(dip)) < 1E-100){
 		Theta = 0;
 	}
 	else {
@@ -423,7 +423,7 @@ double PndMvdRiemannTrackFinder::GetMaxSZChi2(double radius, double dip , bool s
 {
 	double Pt=((radius/100)*2*3*1E8)/1E9;
 	double Theta;
-	if (TMath::ACos(dip) == 0){
+	if (fabs(TMath::ACos(dip)) < 1E-100){
 		Theta = 0;
 	}
 	else {
