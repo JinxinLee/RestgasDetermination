@@ -102,7 +102,14 @@ public:
 
   void setTree(TTree* treeIn);
 
-  void initDigimapper(double drifField);
+  void initDigimapper(double drifField,
+		      double gain, double spread,
+		      double zGem, 
+		      double samplingFreq,
+		      double wallclock,
+		      std::string gasfile,
+		      std::string padplanefile,
+		      std::string padshapefile);
 
   /** @brief Go to the next event or step a certain number of events ahead.*/
   void next(unsigned int stp = 1);

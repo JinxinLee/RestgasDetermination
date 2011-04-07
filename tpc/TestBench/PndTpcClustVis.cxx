@@ -53,24 +53,41 @@ PndTpcClustVis::PndTpcClustVis():
   setErrScale();
 }
 
-void PndTpcClustVis::initDigimapper(double drifField){
+void PndTpcClustVis::initDigimapper(double drifField, 
+				    double gain, double spread, 
+				    double zGem,
+				    double samplingFreq,
+				    double wallclock,
+				    std::string gasfile,
+				    std::string padplanefile,
+				    std::string padshapefile){
   // init Digimapper // TODO: get from file!!
-  std::cout<<"init DigiMapper with Drift Field "<<drifField<<std::endl;
-  fgas = new PndTpcGas("tpc/TestBench/ARGON-89.635_CO2-10.365_B0.3_PRES1013.asc",
+  std::cout<<"init DigiMapper with \n"
+	   <<" Drift Field   : "<<drifField<<std::endl
+	   <<" Gain          : "<<gain<<std::endl
+	   <<" Spread        : "<<spread<<std::endl
+	   <<" zGem          : "<<zGem<<std::endl
+	   <<" Sampling Freq : "<<samplingFreq<<std::endl
+	   <<" t0            : "<<wallclock<<std::endl
+	   <<" Gas           : "<<gasfile<<std::endl
+	   <<" PadPlane      : "<<padplanefile<<std::endl
+	   <<" PadShapes     : "<<padshapefile<<std::endl;
+
+  fgas = new PndTpcGas(gasfile.c_str(),
                        drifField);  // Drift Field
-  fgem = new PndTpcGem(4000,  // Gain
-                       0.02); // Spread
-  fpadShapes = new PndTpcPadShapePool("tpc/TestBench/TBhexa_pads.dat",
+  fgem = new PndTpcGem(gain,  // Gain
+                       spread); // Spread
+  fpadShapes = new PndTpcPadShapePool(padshapefile.c_str(),
                                       *fgem,
                                       0.5, // lookup range
                                       0.02, // Lookup Step
                                       0.01); // LookupIntegrationStep
-  fpadplane = new PndTpcPadPlane("tpc/TestBench/padPlane_FOPI.dat", fpadShapes);
+  fpadplane = new PndTpcPadPlane(padplanefile.c_str(), fpadShapes);
   
 
-  fzGem = 0.2;
-  double sf = 20;
-  double t0 = 1000; // time offset in ns
+  fzGem = zGem;
+  double sf = samplingFreq;
+  double t0 = wallclock; // time offset in ns
   PndTpcDigiMapper::getInstance(false)->init(fpadplane,fgem,fgas,fpadShapes,fzGem,t0,sf);
 }
 
