@@ -35,7 +35,7 @@ class PndRiemannHit : public TObject{
 public:
 
   // Constructors/Destructors ---------
-  PndRiemannHit() : fCovX(3,3){};
+  PndRiemannHit() : fCovX(3,3), fS(-1.), fZ(-1.), fDeltaZ(-1.), fAlpha(-1.){};
   PndRiemannHit(double x,double y, double z, double dx, double dy, double dz);
   PndRiemannHit(FairHit* cl, int hitID = -1);
   ~PndRiemannHit();
