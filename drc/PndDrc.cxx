@@ -759,19 +759,18 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
       }
     }
     
-  /*
+/*  
   // check whether function 'ConstructOpGeometry' works:
   if(gMC->IsTrackExiting()==1){
     //if(nam.BeginsWith("DrcBar")){
     if(num == fbarID){  
-      if(fPos.Z() > -110. && fPos.Z() < -109. && aaa < 11){
-        cout<<"track is exiting the bar at z = "<<fPos.Z()<<endl;
-	aaa = aaa+1;
-      }
+//      if(fPos.Z() > -110. && fPos.Z() < -109. && aaa < 11){
+        cout<<"track is exiting the bar at z = "<<fPos.Z()<<endl;	
+//      }
     }  
   }
   //----------------------------   
-  */  
+*/    
    // take only direct photons:
    if(fTakeDirect){      
      if (gMC->IsTrackExiting()==1 ){       
@@ -995,6 +994,8 @@ void PndDrc::ConstructGeometry()
   Int_t nFusedSil = geobuild->createMedium(fusedSil);
   FairGeoMedium *nlak33a  = Media->getMedium("NLAK33A");
   Int_t nNlak33a = geobuild->createMedium(nlak33a);
+//  FairGeoMedium *air  = Media->getMedium("air");
+//  Int_t nAir = geobuild->createMedium(air);
   FairGeoMedium *air  = Media->getMedium("DIRCair");
   Int_t nAir = geobuild->createMedium(air);
   FairGeoMedium *airNoSens  = Media->getMedium("DIRCairNoSens");
@@ -1262,9 +1263,10 @@ void PndDrc::ConstructGeometry()
   TGeoPcon*   lLocalMother = new TGeoPcon("BarrelDIRC", 0, 360., 4);
   lLocalMother->DefineSection(0, bbox_zdown, 45., 55.);
   lLocalMother->DefineSection(1, bbox_zup, 45., 55.);
-  lLocalMother->DefineSection(2, bbox_zup - EVlen, 45., EVRout+poffset+pheight+EVoffset);
-  lLocalMother->DefineSection(3, bbox_zup - EVlen - 0.1, 45., EVRout+poffset+pheight+EVoffset);
+  lLocalMother->DefineSection(2, bbox_zup - EVlen, 45., EVRout+poffset+pheight+EVoffset+0.1);
+  lLocalMother->DefineSection(3, bbox_zup - EVlen - 0.1, 45., EVRout+poffset+pheight+EVoffset+0.1);
   vLocalMother = new TGeoVolume("BarrelDIRC", lLocalMother, gGeoManager->GetMedium("DIRCairNoSens"));
+//  vLocalMother = new TGeoVolume("BarrelDIRC", lLocalMother, gGeoManager->GetMedium("air"));
   cave->AddNode(vLocalMother, 0, 0);
   
    // create BarBoxes:  
@@ -1292,6 +1294,7 @@ void PndDrc::ConstructGeometry()
   if(fprizm == kFALSE){
     logicbbS = new TGeoBBox("logicbbS", bbX/2., hthick+boxgap, bbox_hlen);
     abox = new TGeoVolume("DrcAirBox", logicbbS, gGeoManager->GetMedium("DIRCairNoSens"));
+//    abox = new TGeoVolume("DrcAirBox", logicbbS, gGeoManager->GetMedium("air"));
     bbox->AddNode(abox, 0, new TGeoCombiTrans(0., 0., 0., new TGeoRotation(0)));
   }
   if(fprizm == kTRUE){
@@ -1303,6 +1306,7 @@ void PndDrc::ConstructGeometry()
     trprc->RegisterYourself();
     TGeoCompositeShape *cspc = new TGeoCompositeShape("cspc","logicbbS + logicPrizmContainer:trprc");  
     abox = new TGeoVolume("DrcAirBox", cspc, gGeoManager->GetMedium("DIRCairNoSens"));
+//    abox = new TGeoVolume("DrcAirBox", cspc, gGeoManager->GetMedium("air"));
     bbox->AddNode(abox, 0, new TGeoCombiTrans(0., 0., -0.5*boxthick, new TGeoRotation(0)));
   }
   abox->SetLineColor(19);
@@ -1466,24 +1470,27 @@ void PndDrc::ConstructOpGeometry()
   Double_t reflectivity[npoints];
   reflectivity[0] = 1.;
   reflectivity[1] = 1.;
-  Double_t efficiency[npoints];
-  efficiency[0] = 0.5;
-  efficiency[1] = 0.5;
-    
-  gMC->DefineOpSurface("BarMirSurface",kUnified, kDielectric_dielectric, kPolished, 0.1);
+/*     
+  gMC->DefineOpSurface("BarMirSurface",kUnified, kDielectric_dielectric, kPolished, 0.9);
   for(Int_t i=0; i<fGeo->barNum(); i++){  
     gMC->SetBorderSurface("BarMirSurface", "DrcBarSensor", i+1, "DrcMirr", i+1, "BarSurface");  
   } 
-/*    
-  gMC->DefineOpSurface("EVSurface", kGlisur, kDielectric_dielectric, kPolished, 0.1);
-  gMC->SetBorderSurface("EVSurface", "DrcEV",1, "BarrelDIRC",0,"EVSurface");
-*/   
+*/ 
+ 
+  gMC->DefineOpSurface("BarSurface", kGlisur, kDielectric_metal, kPolished, 0.0);
+//  gMC->DefineOpSurface("BarSurface", kUnified, kDielectric_metal, kGround, 0.1);
+  for(Int_t i=0; i<fGeo->barNum(); i++){
+//    gMC->SetSkinSurface("BarAirSurface","DrcBarSensor", "BarSurface");
+    gMC->SetBorderSurface("BarAirSurface", "DrcBarSensor", i+1, "DrcAirBox", 0, "BarSurface");
+  }  
   gMC->SetMaterialProperty("BarSurface", "REFLECTIVITY", npoints, ephoton, reflectivity);
-  gMC->SetMaterialProperty("BarSurface", "EFFICIENCY",   npoints, ephoton, efficiency);
-/*  
-  gMC->SetMaterialProperty("EVSurface", "REFLECTIVITY", npoints, ephoton, reflectivity);
-  gMC->SetMaterialProperty("EVSurface", "EFFICIENCY",   npoints, ephoton, efficiency);
-*/       
+//  gMC->SetMaterialProperty("BarSurface", "EFFICIENCY",   npoints, ephoton, efficiency);
+
+  gMC->DefineOpSurface("EVSurface", kGlisur, kDielectric_metal, kPolished, 0.0);
+  gMC->SetBorderSurface("EVAirSurface", "DrcEV", 1, "BarrelDIRC", 0, "EVSurface"); 
+  gMC->SetMaterialProperty("EVSurface", "REFLECTIVITY", npoints, ephoton, reflectivity); 
+
+  cout<<" =======  DRC::ConstructOpGeometry -> Finished! ====== "<< endl;     
 }  
 
 // -----   Public method CheckIfSensitive   --------------------------------------
