@@ -4,7 +4,7 @@
 #include "RhoBase/TCandListIterator.h"
 #include "RhoBase/TRho.h"
 #include "RhoBase/TFactory.h"
-#include "TmatrixT.h"
+#include "TMatrixT.h"
 
 using namespace std;
 
