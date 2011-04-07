@@ -146,7 +146,7 @@ TParticle* PndStack::PopPrimaryForTracking(Int_t iPrim) {
 
   // Test for index
   if (iPrim < 0 || iPrim >= fNPrimaries) {
-    cout << "-E- PndStack: Primary index out of range! " << iPrim << endl;
+    fLogger->Error(MESSAGE_ORIGIN, "PndStack: Primary index out of range! $i" , iPrim );
     Fatal("PndStack::PopPrimaryForTracking", "Index out of range");
   }
 
@@ -154,7 +154,7 @@ TParticle* PndStack::PopPrimaryForTracking(Int_t iPrim) {
   // a primary.
   TParticle* part = (TParticle*)fParticles->At(iPrim);
   if ( ! (part->GetMother(0) < 0) ) {
-    cout << "-E- PndStack:: Not a primary track! " << iPrim << endl;
+    fLogger->Error(MESSAGE_ORIGIN, "PndStack:: Not a primary track! , $i " ,iPrim);
     Fatal("PndStack::PopPrimaryForTracking", "Not a primary track");
   }
 
@@ -169,7 +169,7 @@ TParticle* PndStack::PopPrimaryForTracking(Int_t iPrim) {
 TParticle* PndStack::GetCurrentTrack() const {
   TParticle* currentPart = GetParticle(fCurrentTrack);
   if ( ! currentPart) {
-    cout << "-W- PndStack: Current track not found in stack!" << endl;
+    fLogger->Warning(MESSAGE_ORIGIN, "PndStack: Current track not found in stack!");
     Warning("PndStack::GetCurrentTrack", "Track not found in stack");
   }
   return currentPart;
@@ -193,7 +193,7 @@ void PndStack::AddParticle(TParticle* oldPart) {
 // -----   Public method FillTrackArray   ----------------------------------
 void PndStack::FillTrackArray() {
 
-  cout << "-I- PndStack: Filling MCTrack array..." << endl;
+  fLogger->Debug(MESSAGE_ORIGIN,"PndStack: Filling MCTrack array...");
 
   // --> Reset index map and number of output tracks
   fIndexMap.clear();
@@ -207,10 +207,8 @@ void PndStack::FillTrackArray() {
 
     fStoreIter = fStoreMap.find(iPart);
     if (fStoreIter == fStoreMap.end() ) {
-      cout << "-E- PndStack: Particle " << iPart 
-	   << " not found in storage map!" << endl;
-      Fatal("PndStack::FillTrackArray",
-	    "Particle not found in storage map.");
+      fLogger->Error(MESSAGE_ORIGIN,"PndStack: Particle  %i  not found in storage map!" ,iPart);
+      Fatal("PndStack::FillTrackArray","Particle not found in storage map.");
     }
     Bool_t store = (*fStoreIter).second;
 
@@ -251,7 +249,7 @@ void PndStack::SetGeneratorFlags(Int_t myid)
 	{
 		Int_t myid2=fIndexMap[myid];
 		if(myid2<0){
-			cout << "=== This should not happen!!"<<endl;
+			fLogger->Error(MESSAGE_ORIGIN,"=== This should not happen negative index in MAP!!");
 			return;
 		}
 
@@ -276,18 +274,18 @@ void PndStack::SetGeneratorFlags(Int_t myid)
 		}else if(m==-2){
 			// removed should not happen before this is called
 			// and anyway not on the TParticle Level
-			cout << "=== Problem!!! part mother -2"<<endl;
+			fLogger->Error(MESSAGE_ORIGIN,"=== Problem!!! part mother -2" );
 		}
 	}
 
 	Int_t mymo1=mytrack->GetMotherID();
 
 	if( ((TParticle*)fParticles->At(myid))->GetMother(0)!=mymo1){
-		cout << "=== Problem: Mothers != "<<myid<<endl;
+		fLogger->Error(MESSAGE_ORIGIN,"=== Problem: Mothers != %i ", myid);
 	}
 	if(mymo1==-1){
 		if(daughters!=0 && daughtersp!=0){
-			cout << "=== Problem: daughters!=0 && daughtersp!=0 "<<myid<<" " << daughters <<" " << daughtersp<<endl;
+			fLogger->Error(MESSAGE_ORIGIN,"=== Problem: particle with index %i has  daughters= %i  && daughtersp= %i ",myid,daughters,daughtersp);
 		}
 
 		mytrack->SetGeneratorCreated();
@@ -300,7 +298,7 @@ void PndStack::SetGeneratorFlags(Int_t myid)
 // -----   Public method UpdateTrackIndex   --------------------------------
 void PndStack::UpdateTrackIndex(TRefArray* detList) {
 
-  cout << "-I- PndStack: Updating track indizes...";
+  fLogger->Debug(MESSAGE_ORIGIN, "PndStack: Updating track indizes...");
   Int_t nColl = 0;
 
   // First update mother ID in MCTracks
@@ -309,20 +307,16 @@ void PndStack::UpdateTrackIndex(TRefArray* detList) {
     Int_t iMotherOld = track->GetMotherID();
     fIndexIter = fIndexMap.find(iMotherOld);
     if (fIndexIter == fIndexMap.end()) {
-      cout << "-E- PndStack: Particle index " << iMotherOld 
-	   << " not found in dex map! " << endl;
-      Fatal("PndStack::UpdateTrackIndex",
-		"Particle index not found in map");
+      fLogger->Error(MESSAGE_ORIGIN,"PndStack: Particle index  %i  not found in dex map! ", iMotherOld);
+      Fatal("PndStack::UpdateTrackIndex","Particle index not found in map");
     }
     track->SetMotherID( (*fIndexIter).second );
     if(iMotherOld==-1){
         iMotherOld = track->GetSecondMotherID();
         fIndexIter = fIndexMap.find(iMotherOld);
         if (fIndexIter == fIndexMap.end()) {
-          cout << "-E- PndStack: Particle index " << iMotherOld
-    	   << " not found in dex map! (second mother id)" << endl;
-          Fatal("PndStack::UpdateTrackIndex",
-    		"Particle index not found in map");
+           fLogger->Error(MESSAGE_ORIGIN,"PndStack: Particle index  %i  not found in dex map! (second mother id)", iMotherOld);
+           Fatal("PndStack::UpdateTrackIndex","Particle index not found in map");
         }
         track->SetSecondMotherID( (*fIndexIter).second );
     }
@@ -349,10 +343,8 @@ void PndStack::UpdateTrackIndex(TRefArray* detList) {
 
 	fIndexIter = fIndexMap.find(iTrack);
 	if (fIndexIter == fIndexMap.end()) {
-	  cout << "-E- PndStack: Particle index " << iTrack 
-	       << " not found in index map! " << endl;
-	  Fatal("PndStack::UpdateTrackIndex",
-		"Particle index not found in map");
+	  fLogger->Error(MESSAGE_ORIGIN,"PndStack: Particle index %i not found in index map! " ,iTrack);
+	  Fatal("PndStack::UpdateTrackIndex","Particle index not found in map");
 	}
 	point->SetTrackID((*fIndexIter).second);
       }
@@ -360,7 +352,7 @@ void PndStack::UpdateTrackIndex(TRefArray* detList) {
     }   // Collections of this detector
   }     // List of active detectors
 
-  cout << "...stack and " << nColl << " collections updated." << endl;
+  fLogger->Debug(MESSAGE_ORIGIN,"...stack and %i collections updated.", nColl);
   delete detIter;
 }
 // -------------------------------------------------------------------------
@@ -391,12 +383,10 @@ void PndStack::Register() {
 
 // -----   Public method Print  --------------------------------------------
 void PndStack::Print(Int_t iVerbose) const {
-  cout << "-I- PndStack: Number of primaries        = " 
-       << fNPrimaries << endl;
-  cout << "              Total number of particles  = " 
-       << fNParticles << endl;
-  cout << "              Number of tracks in output = "
-       << fNTracks << endl;
+  fLogger->Debug(MESSAGE_ORIGIN,"  PndStack: Number of primaries  = ",fNPrimaries);
+  fLogger->Debug(MESSAGE_ORIGIN,"  Total number of particles  = ", fNParticles);
+  fLogger->Debug(MESSAGE_ORIGIN,"  Number of tracks in output = ", fNTracks);
+ 
   if (iVerbose) {
     for (Int_t iTrack=0; iTrack<fNTracks; iTrack++) 
       ((PndMCTrack*) fTracks->At(iTrack))->Print(iTrack);
@@ -443,8 +433,7 @@ Int_t PndStack::GetCurrentParentTrackNumber() const {
 // -----   Public method GetParticle   -------------------------------------
 TParticle* PndStack::GetParticle(Int_t trackID) const {
   if (trackID < 0 || trackID >= fNParticles) {
-    cout << "-E- PndStack: Particle index " << trackID 
-	 << " out of range." << endl;
+    fLogger->Error(MESSAGE_ORIGIN,"PndStack: Particle index out of range.", trackID);
     Fatal("PndStack::GetParticle", "Index out of range");
   }
   return (TParticle*)fParticles->At(trackID);

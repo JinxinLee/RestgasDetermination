@@ -41,7 +41,7 @@ FairParSet* PndFieldContFact::createContainer(FairContainer* container) {
 
 
   const char* name = container->GetName();
-  cout << "create PndFieldPar container " << name << endl;
+ // cout << "create PndFieldPar container " << name << endl;
   FairParSet* set = NULL;
   if ( strcmp(name, "PndFieldPar") == 0 ) {
     set = new PndFieldPar( container->getConcatName().Data(),

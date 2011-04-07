@@ -7,6 +7,7 @@ rootlogon()
   if(isLibrary("libDpmEvtGen"))gSystem->Load("libDpmEvtGen");
   if(isLibrary("libpythia8"))gSystem->Load("libpythia8");
   if(isLibrary("libFlukaResults"))gSystem->Load("libFlukaResults");
+  if(isLibrary("libFairTools"))gSystem->Load("libFairTools");
   if(isLibrary("libGeoBase"))gSystem->Load("libGeoBase");
   if(isLibrary("libParBase"))gSystem->Load("libParBase");
   if(isLibrary("libBase"))gSystem->Load("libBase");
