@@ -37,13 +37,10 @@
 #include "PndTpcRiemannHTCorrelator.h"
 #include "PndTpcRiemannTTCorrelator.h"
 
-// initialisation of static member variables
-double PndTpcRiemannTrackFinder::_interactionZ = 0.;
-int PndTpcRiemannTrackFinder::_sorting = 3;
-
 // Class Member definitions -----------
 PndTpcRiemannTrackFinder::PndTpcRiemannTrackFinder()
-  : _minHitsForFit(5), _sortingMode(false)
+  : _minHitsForFit(5), _sortingMode(false), 
+  _sorting(3), _interactionZ(0.)
 {
   // correlators in decreasing priority!
   
@@ -284,15 +281,26 @@ PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist
 void
 PndTpcRiemannTrackFinder::sortClusters(std::vector<PndTpcCluster*>& cll){
   if(_sorting==-1) return;
+  sortClusterClass sortCluster;
+  sortCluster.setSorting(_sorting);
+  sortCluster.setInteractionZ(_interactionZ);
   std::sort(cll.begin(),cll.end(),sortCluster);
 }
 
 
+void
+PndTpcRiemannTrackFinder::resetFlags(){
+// reset all flags
+  for(int k=0;k<_correlators.size();++k){
+    _found[k]=false;
+    _bestMatchQuality[k]=99999;
+    _bestMatchIndex[k]=0;
+  }
+}
+
+
 bool
-sortCluster(PndTpcCluster* s1, PndTpcCluster* s2)
-{
-  // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
-  int sorting = PndTpcRiemannTrackFinder::getSorting();
+sortClusterClass::operator() (PndTpcCluster* s1, PndTpcCluster* s2){
   double a1;
   double a2;
   TVector3 d1;
@@ -318,9 +326,9 @@ sortCluster(PndTpcCluster* s1, PndTpcCluster* s2)
       break;
     case 4:
       d1 = s1->pos();
-      d1(2) -= PndTpcRiemannTrackFinder::getInteractionZ();
+      d1(2) -= interactionZ;
       d2 = s2->pos();
-      d2(2) -= PndTpcRiemannTrackFinder::getInteractionZ();
+      d2(2) -= interactionZ;
       a1=d1.Mag();
       a2=d2.Mag();
       return a1>a2;
@@ -333,29 +341,4 @@ sortCluster(PndTpcCluster* s1, PndTpcCluster* s2)
 }
 
 
-bool
-sortTracksN(PndTpcRiemannTrack* t1, PndTpcRiemannTrack* t2)
-{
-  int a1=t1->getNumHits();
-  int a2=t2->getNumHits();
-  return a1>a2;
-}
-
-bool
-sortTracksFirstClusterPos(PndTpcRiemannTrack* t1, PndTpcRiemannTrack* t2)
-{
-  return sortCluster(t1->getFirstHit()->cluster(), t2->getFirstHit()->cluster());
-}
-
-
-
-void
-PndTpcRiemannTrackFinder::resetFlags(){
-// reset all flags
-  for(int k=0;k<_correlators.size();++k){
-    _found[k]=false;
-    _bestMatchQuality[k]=99999;
-    _bestMatchIndex[k]=0;
-  }
-}
 

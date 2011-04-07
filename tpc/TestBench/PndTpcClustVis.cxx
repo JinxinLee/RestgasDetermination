@@ -17,11 +17,11 @@
 PndTpcClustVis* PndTpcClustVis::eventDisplay = NULL;
 
 PndTpcClustVis::PndTpcClustVis():
-  digisBranch(0),clustersBranch(0), guiEvent(0), drawTpc(true),
-  ClMode(2), ClTimeslice(3),ClTimecut(2), ClSingeDigiClAmpCut(15), ClSimpleCl(false), ClSimpleTimeslice(7),
-  drawDigis(false), drawClusters(true), drawClusterErrors(false),
-  doPR(false), doMerge(false), _sorting(3), _interactionZ(0), _sortingMode(false),
-  _minpoints(5), _planecut(0.02), _riproxcut(0.02), _szcut(2), _proxcut(2),
+  digisBranch(0),clustersBranch(0), guiEvent(0),
+  ClMode(2), ClTimeslice(3),ClTimecut(2), ClSingeDigiClAmpCut(20), ClSimpleCl(true), ClSimpleTimeslice(7),
+  drawTpc(false), drawDigis(false), drawClusters(true), drawClusterErrors(false),
+  doPR(true), doMerge(false), _sorting(3), _interactionZ(0), _sortingMode(true),
+  _minpoints(5), _planecut(0.05), _riproxcut(0.05), _szcut(2), _proxcut(2),
   _TTproxcut(2), _TTplanecut(2E-3), _TTszcut(2)
 {
   if(!gApplication) {
@@ -332,10 +332,10 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
         // calculate and norm amp
         double amp = digi->amp(); // should be ~ 6 .. 2000
-        if(amp > 3000) continue; // TODO: when using SimpleCl, strange things happen and HUGE digis are drawn
+        if(amp > 3000 || amp<1) continue; // TODO: when using SimpleCl, strange things happen and HUGE digis are drawn
         amp = TMath::Log(amp); // ~ 0.8 .. 3.3
         amp *= 0.02;
-
+	
         digi_shape->SetShape(new TGeoTube(0.,amp, 0.05 ) );
         digi_shape->SetTransMatrix(*det_trans);
         // finished rotating and translating ------------------------------------------
@@ -378,8 +378,8 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
   if(doPR){
     // init TrackFinder
     PndTpcRiemannTrackFinder* _trackfinder= new PndTpcRiemannTrackFinder();
-    PndTpcRiemannTrackFinder::setSorting(_sorting);
-    PndTpcRiemannTrackFinder::setInteractionZ(_interactionZ);
+    _trackfinder->setSorting(_sorting);
+    _trackfinder->setInteractionZ(_interactionZ);
     _trackfinder->setSortingMode(_sortingMode);
     _trackfinder->setMinHitsForFit(_minpoints);
 

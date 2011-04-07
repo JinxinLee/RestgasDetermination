@@ -58,15 +58,15 @@ public:
   const PndTpcAbsTrackTrackCorrelator* getTTCorrelator(unsigned int i) const
   {return _TTcorrelators.at(i);}
 
-  static int getSorting(){return _sorting;}
-  static double getInteractionZ(){return _interactionZ;}
+  int getSorting(){return _sorting;}
+  double getInteractionZ(){return _interactionZ;}
 
   // Modifiers -----------------------
   void setMinHitsForFit(unsigned int n){_minHitsForFit=n;}
 
-  static void setSorting(int s){_sorting=s;} // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R
+  void setSorting(int s){_sorting=s;} // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R
   void setSortingMode(bool sortingMode){_sortingMode=sortingMode;} // false: sort only according to _sorting; true: use internal sorting when adding hits to trackcands
-  static void setInteractionZ(double z){_interactionZ=z;}
+  void setInteractionZ(double z){_interactionZ=z;}
 
 
   // Operations ----------------------
@@ -90,9 +90,9 @@ private:
 
   std::vector<PndTpcAbsTrackTrackCorrelator*> _TTcorrelators;
 
-  static int _sorting;
+  int _sorting;
   bool _sortingMode;
-  static double _interactionZ;
+  double _interactionZ;
 
   unsigned int _minHitsForFit;
 
@@ -102,10 +102,15 @@ private:
 };
 
 // sorting algorithm
-bool sortCluster(PndTpcCluster* s1, PndTpcCluster* s2);
-
-bool sortTracksN(PndTpcRiemannTrack* t1, PndTpcRiemannTrack* t2);
-bool sortTracksFirstClusterPos(PndTpcRiemannTrack* t1, PndTpcRiemannTrack* t2);
+class sortClusterClass{
+ public:
+  bool operator() (PndTpcCluster* s1, PndTpcCluster* s2);
+  void setSorting(int s){sorting=s;}
+  void setInteractionZ(double z){interactionZ=z;}
+ private:
+  int sorting;
+  double interactionZ;
+};
 
 #endif
 

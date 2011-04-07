@@ -6,7 +6,7 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-#pragma link C++ class PndTpcRecoTester++;
+//#pragma link C++ class PndTpcRecoTester++;
 #pragma link C++ class PndTpcPatternRecoTask++;
 #pragma link C++ class PndTpcPlanarRecoHit++;
 #pragma link C++ class PndTpcTrackVisTask++;

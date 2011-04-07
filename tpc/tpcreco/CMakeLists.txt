@@ -40,7 +40,7 @@ PndTpcConfMapFit.cxx
 PndTpcZSFit.cxx 
 PndTpcPatternRecoTask.cxx 
 PndTpcConfTrackFinder.cxx 
-test/PndTpcRecoTester.cxx 
+#test/PndTpcRecoTester.cxx 
 PndTpcPlanarRecoHit.cxx 
 PndTpcTrackVisTask.cxx
 StdDiscriminantFcn.cxx

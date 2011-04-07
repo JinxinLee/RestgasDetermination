@@ -192,8 +192,8 @@ PndTpcRiemannTrackingTask::Init()
   //_fieldIfc=new FairFieldAdaptor(_field);
 
   _trackfinder= new PndTpcRiemannTrackFinder();
-  PndTpcRiemannTrackFinder::setSorting(_sorting);
-  PndTpcRiemannTrackFinder::setInteractionZ(_interactionZ);
+  _trackfinder->setSorting(_sorting);
+  _trackfinder->setInteractionZ(_interactionZ);
   _trackfinder->setSortingMode(_sortingMode);
   _trackfinder->setMinHitsForFit(_minpoints);
 
