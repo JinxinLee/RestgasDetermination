@@ -96,7 +96,7 @@ PndTpcRungeKutta.cxx
 PndTpcInhFieldDrifter.cxx 	    
 #test/PndTpcTester.cxx 		    
 PndTpcPSAplot.cxx  
-DebugLogger.cxx       
+#DebugLogger.cxx       
 TCovEllipse.cxx
 PndTpcPSA_TOT1.cxx
 PndTpcSignalSplitterTask.cxx
@@ -182,8 +182,8 @@ set(TPC_BASE_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/tpcBaseDict.cxx)
 ROOT_GENERATE_DICTIONARY("${TPC_HEADERS}" "${TPC_LINKDEF}" "${TPC_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
 ROOT_GENERATE_DICTIONARY("${TPC_BASE_HEADERS}" "${TPC_BASE_LINKDEF}" "${TPC_BASE_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
 
-SET(TPC_SRCS ${TPC_SRCS} ${TPC_DICTIONARY} dbgstream.cxx)
-SET(TPC_BASE_SOURCES ${TPC_BASE_SOURCES} ${TPC_BASE_DICTIONARY} dbgstream.cxx) 
+SET(TPC_SRCS ${TPC_SRCS} ${TPC_DICTIONARY})
+SET(TPC_BASE_SOURCES ${TPC_BASE_SOURCES} ${TPC_BASE_DICTIONARY}) 
 
 add_library(Tpc SHARED ${TPC_SRCS})
 target_link_libraries(Tpc ${ROOT_LIBRARIES} -lEG -lTreePlayer -lGeom -lGed -lRGL -lEve)
@@ -212,7 +212,7 @@ If(TEvePath)
 
   ROOT_GENERATE_DICTIONARY("${TPC_EVE_HEADERS}" "${TPC_EVE_LINKDEF}" "${TPC_EVE_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
 
-  SET(TPC_EVE_SOURCES ${TPC_EVE_SOURCES} ${TPC_EVE_DICTIONARY} dbgstream.cxx) 
+  SET(TPC_EVE_SOURCES ${TPC_EVE_SOURCES} ${TPC_EVE_DICTIONARY}) 
 
   add_library(TpcEve SHARED ${TPC_EVE_SOURCES})
   target_link_libraries(TpcEve ${ROOT_LIBRARIES})
