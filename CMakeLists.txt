@@ -11,7 +11,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0 FATAL_ERROR)
 # Set name of our project to "PANDAROOT". Has to be done
 # after check of cmake version since this is a new feature                  
 project(PANDAROOT)
-#ENABLE_LANGUAGE(Fortran)
+ENABLE_LANGUAGE(Fortran)
 
 # where to look first for cmake modules, before ${CMAKE_ROOT}/Modules/ 
 # is checked
@@ -105,9 +105,9 @@ add_subdirectory (passive)
 add_subdirectory (field)  
 add_subdirectory (generators)
 add_subdirectory (pgenerators)
-#add_subdirectory (pgenerators/DpmEvtGen)
-#add_subdirectory (pgenerators/EvtGen)
-#add_subdirectory (pgenerators/EvtGenDirect)
+add_subdirectory (pgenerators/DpmEvtGen)
+add_subdirectory (pgenerators/EvtGen)
+add_subdirectory (pgenerators/EvtGenDirect)
 add_subdirectory (pgenerators/PndFlukaGen)
 add_subdirectory (stt)
 add_subdirectory (stt/sttreco)
