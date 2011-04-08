@@ -30,6 +30,7 @@
 	fRun->Init();
 	
 	geoPar->InitEmcMapper();
+	std::cout<<""<<std::endl;
 	/////////////////////////////////////////////////////////////////////////////////
 	
 	TFile* f = new TFile("full_emc.root"); //file you want to analyse
@@ -55,7 +56,7 @@
 	int ndigi, npoint;
 	double max_energy=0;
 	
-        TH1F *ht=new TH1F("ht","Theta distribution",200,0.,180);
+    TH1F *ht=new TH1F("ht","Theta distribution",200,0.,180);
 	TH1F *h1= new TH1F("h1","Theta difference",200,-5.,5.);
 	TH1F *h2= new TH1F("h2","Phi difference",200,-5.,5.);
 	TH1F *h3= new TH1F("h3","Cluster energy",100,0.85,1.05);
@@ -190,6 +191,6 @@ if (fTest){
     cout << " Test Failed" << endl;
     cout << " Not Ok " << endl;         
 }
-exit(0); 
+exit(0);
 }
 

@@ -77,9 +77,10 @@ private:
 	Int_t fNumber_of_samples_in_waveform_pmt;
 	
   	//std::string fDigiPosMethod;// "surface" or "depth"
-        TString fDigiPosMethod;
+	TString fDigiPosMethod;
 	Double_t fEmcDigiRescaleFactor;
-	Double_t fEmcDigiPositionDepth;
+	Double_t fEmcDigiPositionDepthPWO;
+	Double_t fEmcDigiPositionDepthShashlyk;
 	
 	PndEmcAbsPulseshape* fPulseshape;
 	PndEmcAbsPulseshape* fPulseshape_pmt;

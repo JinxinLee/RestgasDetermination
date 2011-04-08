@@ -90,7 +90,8 @@ class PndEmcDigi : public FairMultiLinkedData
 	virtual const PndEmcSharedDigi* dynamic_cast_PndEmcSharedDigi() const;
 	
 	static Double_t getRescaleFactor(){ return fRescaleFactor; };
-	static Double_t getPositionDepth(){ return fPositionDepth; };
+	static Double_t getPositionDepthPWO(){ return fPositionDepthPWO; };
+	static Double_t getPositionDepthShashlyk(){ return fPositionDepthShashlyk; };
 
 
 
@@ -114,8 +115,9 @@ private:
 	friend class PndEmcMakeDigi;
 
   static void selectDigiPositionMethod( PositionMethod , 
-					double rescaleFactor = 1., 
-					double positionDepth = 0. );
+					double positionDepthPWO = 0., 
+					double positionDepthShahslyk = 0.,
+					double rescaleFactor = 1.);
 
   static TVector3 surfacePosition( const PndEmcXtal* xtal );
   static TVector3 depthPosition( const PndEmcXtal* xtal );
@@ -123,10 +125,11 @@ private:
   static TVector3 ( *&algPointer() ) ( const PndEmcXtal* );
 
   static double fRescaleFactor;
-  static double fPositionDepth;
+  static double fPositionDepthPWO;
+  static double fPositionDepthShashlyk;
 
   
-  ClassDef(PndEmcDigi,4);
+  ClassDef(PndEmcDigi,5);
 };
 
 #endif //PndEmcDigi_H

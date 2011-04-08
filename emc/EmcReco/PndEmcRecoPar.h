@@ -16,7 +16,8 @@ class PndEmcRecoPar : public FairParGenericSet
 		Double_t GetOffsetParmA() {return fOffsetParmA;};
 		Double_t GetOffsetParmB() {return fOffsetParmB;};
 		Double_t GetOffsetParmC() {return fOffsetParmC;};
-		Double_t GetEmcDigiPositionDepth() {return fEmcDigiPositionDepth;};
+		Double_t GetEmcDigiPositionDepthPWO() {return fEmcDigiPositionDepthPWO;};
+		Double_t GetEmcDigiPositionDepthShashlyk() {return fEmcDigiPositionDepthShashlyk;};
 		Double_t GetMaxECut() {return fMaxECut;};
 		Double_t GetNeighbourECut() {return fNeighbourECut;};
 		Double_t GetCutSlope() {return fCutSlope;};
@@ -53,7 +54,8 @@ class PndEmcRecoPar : public FairParGenericSet
 		Double_t fOffsetParmB;
 		Double_t fOffsetParmC;
 
-		Double_t fEmcDigiPositionDepth;
+		Double_t fEmcDigiPositionDepthPWO;
+		Double_t fEmcDigiPositionDepthShashlyk;
 		
 		// the following parameters are connected with bump splitting
 		// parameters for PndEmc2DLocMaxFinder:

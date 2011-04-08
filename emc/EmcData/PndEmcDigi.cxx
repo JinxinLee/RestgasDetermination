@@ -120,7 +120,13 @@ PndEmcDigi::depthPosition( const PndEmcXtal* xtal )
 	
 	TVector3 pos = xtal->frontCentre();
 	TVector3 norm = xtal->axisVector();
-	norm*=fPositionDepth;
+	int module=xtal->myIndex()->Index()/100000000;
+	
+	if (module==5) //shahslyk
+		norm*=fPositionDepthPWO;
+	else
+		norm*=fPositionDepthShashlyk;
+	
 	pos += norm;
 	
 	return pos;
@@ -128,8 +134,9 @@ PndEmcDigi::depthPosition( const PndEmcXtal* xtal )
 
 void
 PndEmcDigi::selectDigiPositionMethod( PositionMethod alg, 
-				   double rescaleFactor,
-				   double positionDepth )
+				double positionDepthPWO,
+				double positionDepthShashlyk,
+				double rescaleFactor)
 {
 
 	TVector3 (*algorithm)( const PndEmcXtal* ) = 0;
@@ -139,13 +146,15 @@ PndEmcDigi::selectDigiPositionMethod( PositionMethod alg,
 		case surface:
 			algorithm = PndEmcDigi::surfacePosition;
 			fRescaleFactor = rescaleFactor;
-			fPositionDepth = positionDepth;
+			fPositionDepthPWO = positionDepthPWO;
+			fPositionDepthShashlyk = positionDepthShashlyk;
 			break;
 	
 		case depth:
 			algorithm = PndEmcDigi::depthPosition;
 			fRescaleFactor = rescaleFactor;
-			fPositionDepth = positionDepth;
+			fPositionDepthPWO = positionDepthPWO;
+			fPositionDepthShashlyk = positionDepthShashlyk;
 			break;
 	
 		default:
@@ -168,7 +177,8 @@ TVector3 ( *&PndEmcDigi::algPointer() ) ( const PndEmcXtal* )
 }
 
 double PndEmcDigi::fRescaleFactor = 1.0;
-double PndEmcDigi::fPositionDepth = 6.2;
+double PndEmcDigi::fPositionDepthPWO = 6.2;
+double PndEmcDigi::fPositionDepthShashlyk = 6.2;
 
 
 const bool 

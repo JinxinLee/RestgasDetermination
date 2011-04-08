@@ -29,7 +29,8 @@ void PndEmcRecoPar::putParams(FairParamList* list)
         list->add("OffsetParmA",fOffsetParmA);
 	list->add("OffsetParmB",fOffsetParmB);
 	list->add("OffsetParmC",fOffsetParmC);
-	list->add("EmcDigiPositionDepth",fEmcDigiPositionDepth);
+	list->add("EmcDigiPositionDepthPWO",fEmcDigiPositionDepthPWO);
+	list->add("EmcDigiPositionDepthShashlyk",fEmcDigiPositionDepthShashlyk);
 	
 	// parameters related to bump splitting
 	list->add("MaxECut",fMaxECut);
@@ -57,7 +58,8 @@ Bool_t PndEmcRecoPar::getParams(FairParamList* list)
 	if (!list->fill("OffsetParmA",&fOffsetParmA)) return kFALSE;
 	if (!list->fill("OffsetParmB",&fOffsetParmB)) return kFALSE;
 	if (!list->fill("OffsetParmC",&fOffsetParmC)) return kFALSE;
-	if (!list->fill("EmcDigiPositionDepth",&fEmcDigiPositionDepth)) return kFALSE;
+	if (!list->fill("EmcDigiPositionDepthPWO",&fEmcDigiPositionDepthPWO)) return kFALSE;
+	if (!list->fill("EmcDigiPositionDepthShashlyk",&fEmcDigiPositionDepthShashlyk)) return kFALSE;
 	
 	// parameters related to bump splitting
 	if (!list->fill("MaxECut",&fMaxECut)) return kFALSE;

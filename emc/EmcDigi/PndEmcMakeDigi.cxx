@@ -72,7 +72,8 @@ InitStatus PndEmcMakeDigi::Init()
 
 	ioman->Register("EmcDigi","Emc",fDigiArray,fStoreDigis);
 	
-	fEmcDigiPositionDepth=fRecoPar->GetEmcDigiPositionDepth();
+	fEmcDigiPositionDepthPWO=fRecoPar->GetEmcDigiPositionDepthPWO();
+	fEmcDigiPositionDepthShashlyk=fRecoPar->GetEmcDigiPositionDepthShashlyk();
 	if (!fDigiPosMethod.compare("surface"))
 	{
 		PndEmcDigi::selectDigiPositionMethod( PndEmcDigi::surface, 1., 0. );
@@ -80,7 +81,7 @@ InitStatus PndEmcMakeDigi::Init()
 	else if (!fDigiPosMethod.compare("depth"))
 	{
 	   PndEmcDigi::selectDigiPositionMethod( PndEmcDigi::depth, 
-			 fEmcDigiRescaleFactor, fEmcDigiPositionDepth);
+			 fEmcDigiPositionDepthPWO, fEmcDigiPositionDepthShashlyk, fEmcDigiRescaleFactor);
 	}
 	else 
 	{

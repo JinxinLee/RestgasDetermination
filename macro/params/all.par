@@ -278,7 +278,8 @@ EmcClusterPosMethod:Text_t lilo
 OffsetParmA:Double_t 3.6
 OffsetParmB:Double_t 1.594
 OffsetParmC:Double_t 2.543
-EmcDigiPositionDepth:Double_t 6.2
+EmcDigiPositionDepthPWO:Double_t 6.2
+EmcDigiPositionDepthShashlyk:Double_t 6.2
 MaxECut:Double_t 0.02
 NeighbourECut:Double_t 0.002
 CutSlope:Double_t 0.5

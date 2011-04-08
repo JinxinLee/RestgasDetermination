@@ -63,7 +63,8 @@ private:
 	
   	std::string fDigiPosMethod;// "surface" or "depth"
 	Double_t fEmcDigiRescaleFactor;
-	Double_t fEmcDigiPositionDepth;
+	Double_t fEmcDigiPositionDepthPWO;
+	Double_t fEmcDigiPositionDepthShashlyk;
 	
 	Int_t fUseDigiEffectiveSmearing;
 	Double_t fDetectedPhotonsPerMeV;

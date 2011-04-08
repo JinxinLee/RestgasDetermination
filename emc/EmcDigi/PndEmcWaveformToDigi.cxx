@@ -90,18 +90,20 @@ InitStatus PndEmcWaveformToDigi::Init()
 	fNumber_of_samples_in_waveform=fDigiPar->GetNumber_of_samples_in_waveform();
 	fNumber_of_samples_in_waveform_pmt=fDigiPar->GetNumber_of_samples_in_waveform_pmt();
 	fEnergyDigiThreshold=fDigiPar->GetEnergyDigiThreshold();
-	fEmcDigiPositionDepth=fRecoPar->GetEmcDigiPositionDepth();
+	fEmcDigiPositionDepthPWO=fRecoPar->GetEmcDigiPositionDepthPWO();
+	fEmcDigiPositionDepthShashlyk=fRecoPar->GetEmcDigiPositionDepthShashlyk();
 	
-	cout<<"fEmcDigiPositionDepth: "<<fEmcDigiPositionDepth<<endl;
+	cout<<"fEmcDigiPositionDepthPWO: "<<fEmcDigiPositionDepthPWO<<endl;
+	cout<<"fEmcDigiPositionDepthShashlyk: "<<fEmcDigiPositionDepthShashlyk<<endl;
 				
 	if (!fDigiPosMethod.CompareTo("surface"))
 	{
-		PndEmcDigi::selectDigiPositionMethod( PndEmcDigi::surface, 1., 0. );
+		PndEmcDigi::selectDigiPositionMethod( PndEmcDigi::surface, 0., 0., 1.0 );
 	}
 	else if (!fDigiPosMethod.CompareTo("depth"))
 	{
 	   PndEmcDigi::selectDigiPositionMethod( PndEmcDigi::depth, 
-			 fEmcDigiRescaleFactor, fEmcDigiPositionDepth);
+			 fEmcDigiPositionDepthPWO, fEmcDigiPositionDepthShashlyk, fEmcDigiRescaleFactor);
 	}
 	else 
 	{
