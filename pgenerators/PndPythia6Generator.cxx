@@ -1,8 +1,8 @@
 // -------------------------------------------------------------------------
-// -----             PndPythiaGenerator source file                      -----
+// -----             PndPythia6Generator source file                      -----
 // -----          Created 08/08/08  by S. Spataro                      -----
 // -------------------------------------------------------------------------
-#include "PndPythiaGenerator.h"
+#include "PndPythia6Generator.h"
 
 #include "FairPrimaryGenerator.h"
 
@@ -14,20 +14,20 @@ using std::endl;
 using std::max;
 
 // -----   Default constructor   ------------------------------------------
-PndPythiaGenerator::PndPythiaGenerator() {}
+PndPythia6Generator::PndPythia6Generator() {}
 // ------------------------------------------------------------------------
 
 
 
 // -----   Standard constructor   -----------------------------------------
-PndPythiaGenerator::PndPythiaGenerator(const char* fileName) {
+PndPythia6Generator::PndPythia6Generator(const char* fileName) {
   fFileName  = fileName;
   fVerbose = 0;
-  cout << "-I PndPythiaGenerator: Opening input file " << fileName << endl;
+  cout << "-I PndPythia6Generator: Opening input file " << fileName << endl;
   if ((fInputFile = fopen(fFileName,"r"))==NULL)
     //  fInputFile = new ifstream(fFileName);
     //  if ( ! fInputFile->is_open() ) 
-    Fatal("PndPythiaGenerator","Cannot open input file.");
+    Fatal("PndPythia6Generator","Cannot open input file.");
   
   // fPDG=TDatabasePDG::Instance();
 }
@@ -36,7 +36,7 @@ PndPythiaGenerator::PndPythiaGenerator(const char* fileName) {
 
 
 // -----   Destructor   ---------------------------------------------------
-PndPythiaGenerator::~PndPythiaGenerator() {
+PndPythia6Generator::~PndPythia6Generator() {
   CloseInput();
 }
 // ------------------------------------------------------------------------
@@ -44,12 +44,12 @@ PndPythiaGenerator::~PndPythiaGenerator() {
 
 
 // -----   Public method ReadEvent   --------------------------------------
-Bool_t PndPythiaGenerator::ReadEvent(FairPrimaryGenerator* primGen) {
+Bool_t PndPythia6Generator::ReadEvent(FairPrimaryGenerator* primGen) {
 
   // Check for input file
   if (!fInputFile) {
     // if ( ! fInputFile->is_open() ) {
-    cout << "-E PndPythiaGenerator: Input file not open!" << endl;
+    cout << "-E PndPythia6Generator: Input file not open!" << endl;
     return kFALSE;
   }
   
@@ -82,7 +82,7 @@ Bool_t PndPythiaGenerator::ReadEvent(FairPrimaryGenerator* primGen) {
       }
   }
   else {
-    cout << "-I PndPythiaGenerator: End of input file reached " << endl;
+    cout << "-I PndPythia6Generator: End of input file reached " << endl;
     CloseInput();
     return kFALSE;
   }
@@ -90,13 +90,13 @@ Bool_t PndPythiaGenerator::ReadEvent(FairPrimaryGenerator* primGen) {
   
   // If end of input file is reached : close it and abort run
   if ( feof(fInputFile) ) {
-    cout << "-I PndPythiaGenerator: End of input file reached " << endl;
+    cout << "-I PndPythia6Generator: End of input file reached " << endl;
     CloseInput();
     return kFALSE;
   }
   
   /*
-    cout << "-I PndPythiaGenerator: Event " << eventID << ",  vertex = ("
+    cout << "-I PndPythia6Generator: Event " << eventID << ",  vertex = ("
     << vx << "," << vy << "," << vz << ") cm,  multiplicity "
     << ntracks << endl;
   */
@@ -108,11 +108,11 @@ Bool_t PndPythiaGenerator::ReadEvent(FairPrimaryGenerator* primGen) {
 
 
 // -----   Private method CloseInput   ------------------------------------
-void PndPythiaGenerator::CloseInput() {
+void PndPythia6Generator::CloseInput() {
   if ( fInputFile ) {
     //if ( fInputFile->is_open() ) {
     {
-      cout << "-I PndPythiaGenerator: Closing input file " 
+      cout << "-I PndPythia6Generator: Closing input file " 
 	   << fFileName << endl;
       //  fInputFile->close();
       
@@ -125,5 +125,5 @@ void PndPythiaGenerator::CloseInput() {
 // ------------------------------------------------------------------------
 
 
-ClassImp(PndPythiaGenerator)
+ClassImp(PndPythia6Generator)
 

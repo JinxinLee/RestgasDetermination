@@ -1,12 +1,12 @@
 // -------------------------------------------------------------------------
-// -----                PndPythiaGenerator header file                 -----
+// -----                PndPythia6Generator header file                 -----
 // -----          Created 08/08/08  by S. Spataro                      -----
 // -------------------------------------------------------------------------
 
-/**  PndPythiaGenerator.h 
- *@author S.Spataro  <stefano.spataro@exp2.physik.uni-giessen.de>
+/**  PndPythia6Generator.h 
+ *@author S.Spataro  <spataro@to.infn.it>
  *
- The PndPythiaGenerator reads a Pythia input file. The file must contain
+ The PndPythia6Generator reads a Pythia6 input file. The file must contain
  for each event a header line of the format:
 
  [start]
@@ -57,23 +57,23 @@ class FairPrimaryGenerator;
 
 
 
-class PndPythiaGenerator : public FairGenerator  
+class PndPythia6Generator : public FairGenerator  
 {
 
  public: 
 
   /** Default constructor without arguments should not be used. **/
-  PndPythiaGenerator();
+  PndPythia6Generator();
 
 
   /** Standard constructor. 
    ** @param fileName The input file name
    **/
-  PndPythiaGenerator(const char* fileName);
+  PndPythia6Generator(const char* fileName);
 
 
   /** Destructor. **/
-  virtual ~PndPythiaGenerator();
+  virtual ~PndPythia6Generator();
 
 	
   /** Reads on event from the input file and pushes the tracks onto
@@ -100,7 +100,7 @@ class PndPythiaGenerator : public FairGenerator
   
 //  TDatabasePDG *fPDG; //!
 
-  ClassDef(PndPythiaGenerator,1);
+  ClassDef(PndPythia6Generator,1);
 
 };
 

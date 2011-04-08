@@ -28,7 +28,7 @@ PndDpmDirect.cxx
 PndBoxGenerator.cxx
 PndUrqmdSmmGenerator.cxx
 PndJRGenerator.cxx
-PndPythiaGenerator.cxx
+PndPythia6Generator.cxx
 PndPythia8Generator.cxx
 PndFlatParticleGenerator.cxx
 PndFlukaGenerator.cxx
