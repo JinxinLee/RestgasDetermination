@@ -75,7 +75,6 @@ KalmanTask::KalmanTask()
   : FairTask("Kalman Filter"), _persistence(kFALSE),_lazy(0),_numIt(1)
 {
   _trackBranchName = "TrackPreFit";
-  PndGeoHandling::Instance();
 }
 
 
@@ -88,6 +87,9 @@ KalmanTask::~KalmanTask()
 InitStatus
 KalmanTask::Init()
 {
+  
+  PndGeoHandling::Instance();
+  
   //book fpe handler
   signal(8,sighandler);
   signal(10,sighandler);
