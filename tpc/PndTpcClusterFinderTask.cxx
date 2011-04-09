@@ -44,11 +44,12 @@
 // Class Member definitions -----------
 
 PndTpcClusterFinderTask::PndTpcClusterFinderTask()
-  : FairTask("TPC Cluster Finder"), fpersistence(kFALSE),ftrivial(kFALSE),fsimple(kFALSE),
+  : FairTask("TPC Cluster Finder"), fpersistence(kFALSE), fDigiPersistence(kFALSE),ftrivial(kFALSE),fsimple(kFALSE),
     ftimeslice(2), fmode(0),fthres(1), fSDiClAmpCut(0), fDataMode(kFALSE), fDiffFactor(1.), fClusterTimeCut(5),
     fAdcSens(600.), fC(300.)
 {
   fdigiBranchName = "PndTpcDigi";
+  fdigiOutName = "PndTpcClusterDigi";
   fClusterOutName = "PndTpcCluster";
 }
  
@@ -77,15 +78,14 @@ PndTpcClusterFinderTask::SetParContainers() {
 
 void PndTpcClusterFinderTask::SetSimpleClustering(Bool_t opt){
   fsimple=opt;
-  if(fdigiBranchName=="PndTpcDigi" && opt)
+  if( fdigiBranchName=="PndTpcDigi" && fsimple)
     std::cerr<<"\n PndTpcClusterFinderTask::SetSimpleClustering  \n \
     WARNING: You want to use SimpleClustering. \n \
-    This modifies the Digis. Please set the DigiBranch Name of the PSATask and the ClusterFinderTask to something else than \"PndTpcDigi\". \n \
+    This modifies the Digis. If you want to access the modified digis, set the DigiBranch Name of the PSATask and the ClusterFinderTask to something else than \"PndTpcDigi\" and turn DigiPersistence of the ClusterFinder on. \n \
     For example, do: \n \
     tpsa->SetDigiBranchName(\"PndTpcRawDigi\");  // Output of PSA \n \
     tpcCF->SetDigiBranchName(\"PndTpcRawDigi\"); // Input of clustering \n \
     tpcCF->SetDigiOutBranchName(\"PndTpcDigi\"); // Digi output of clustering\n \
-    If you want to keep the modified digis, do:  \n \
     tpcCF->SetDigiPersistence(); \n"<<std::endl;
 }
 
@@ -161,76 +161,78 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
   std::cout<<"PndTpcClusterFinderTask::Exec"<<std::endl;
   // Reset output Array
   if(fclusterArray==0) Fatal("PndTpcClusterFinder::Exec)","No ClusterArray");
-   fclusterArray->Delete();
+  fclusterArray->Delete();
 
   if(fdigiOutArray==0) Fatal("PndTpcClusterFinder::Exec)","No DigiOutArray");
-   fdigiOutArray->Delete();
+  fdigiOutArray->Delete();
 
-   ffinder->reset();
+  ffinder->reset();
 
-   //for sorting
-   std::vector<PndTpcDigi*> digis;
-   
-   // For now: trivial clustering;
-   Int_t ndigis=fdigiArray->GetEntries();
-   //   std::cout << "FINDER"<< ndigis << std::endl;
-   for(Int_t i=0;i<ndigis;++i){
-     PndTpcDigi* digi=(PndTpcDigi*)fdigiArray->At(i);
-     //     digi->Print();
-     digis.push_back(digi);
-   }
-   std::cout<<"number of digis: "<<digis.size()<<std::endl;
-   try{
-     ffinder->process(digis);
-     
-   } catch (std::exception& e) {
-     std::cout << e.what() << std::endl;
-   } catch (...) {
-     std::cout << "unknown exception..." << std::endl;
-   }
-   
-   sort(digis.begin(),digis.end(),PndTpcDigiAge());
+  std::vector<PndTpcDigi*> digis;
 
-   /*
-   for(Int_t i=0;i<ndigis;++i){
-     PndTpcDigi* digi=digis[i];
-     TVector3 pos;
-     PndTpcDigiMapper::getInstance()->map(digi,pos);
-     PndTpcCluster* c=new((*fclusterArray)[i]) PndTpcCluster(pos,digi->amp());
-     c->SetMcId(digi->mcId().DominantID());
-   }
-   */
-   
-   // put clusters into array and clean up buffer
-   unsigned int ncl=fcluster_buffer->size();
-   unsigned int ndig=0;
-   unsigned int ncl_rec=0;
-   for(unsigned int icl=0;icl<ncl;++icl){
-     if((*fcluster_buffer)[icl]->amp()>fthres)
-       if((*fcluster_buffer)[icl]->size()>1 || (*fcluster_buffer)[icl]->amp()>fSDiClAmpCut){
-         PndTpcCluster* cl=new((*fclusterArray)[ncl_rec]) PndTpcCluster(*(*fcluster_buffer)[icl]);
-         cl->SetIndex(ncl_rec);
+  Int_t ndigis=fdigiArray->GetEntries();
+  //   std::cout << "FINDER"<< ndigis << std::endl;
+  for(Int_t i=0;i<ndigis;++i){ // get digis
+    PndTpcDigi* digiRaw=(PndTpcDigi*)fdigiArray->At(i);
+    // copy digi
+    PndTpcDigi* digiCopy = new PndTpcDigi(*digiRaw);
+    digis.push_back(digiCopy);
+  }
 
-         int ncldigis = (*fcluster_buffer)[icl]->size();
+  try{
+    ffinder->process(digis);   
+  } catch (std::exception& e) {
+    std::cout << e.what() << std::endl;
+  } catch (...) {
+    std::cout << "unknown exception..." << std::endl;
+  }
    
-         // add digis to digi output array
-         for(unsigned int idigi=0; idigi<ncldigis; ++idigi){
-           PndTpcDigi* digi=new((*fdigiOutArray)[ndig+idigi]) PndTpcDigi(*(*fcluster_buffer)[icl]->getDigi(idigi));
-         }
-         ndig+=ncldigis;
-         ncl_rec++;
-       }
-       delete (*fcluster_buffer)[icl];
-   }
+  sort(digis.begin(),digis.end(),PndTpcDigiIndex);
+
+  /*
+
+  for(Int_t i=0;i<ndigis;++i){
+    PndTpcDigi* digi=digis[i];
+    TVector3 pos;
+    PndTpcDigiMapper::getInstance()->map(digi,pos);
+    PndTpcCluster* c=new((*fclusterArray)[i]) PndTpcCluster(pos,digi->amp());
+    c->SetMcId(digi->mcId().DominantID());
+  }
+  */
    
-   std::cout<<fclusterArray->GetEntriesFast()<<" cluster created "
-	    <<" containing "<<ndig<<" digis"
-      <<" from "<<ndigis<<std::endl;
+  // put clusters into array and clean up buffer
+  unsigned int ncl=fcluster_buffer->size();
+  unsigned int ncl_rec=0;
+  unsigned int ndig_rec=0;
+  for(unsigned int icl=0;icl<ncl;++icl){ // loop over clusters
+    if((*fcluster_buffer)[icl]->amp()>fthres)
+      if((*fcluster_buffer)[icl]->size()>1 || (*fcluster_buffer)[icl]->amp()>fSDiClAmpCut){
+        PndTpcCluster* cl = new((*fclusterArray)[ncl_rec]) PndTpcCluster(*(*fcluster_buffer)[icl]);
+        cl->SetIndex(ncl_rec);
+        ncl_rec++;
+        ndig_rec+=cl->size();
+      }
+    delete (*fcluster_buffer)[icl];
+  } // end loop over clusters
+
+  for(unsigned int idigi=0; idigi<digis.size(); ++idigi){ // loop over digis
+    PndTpcDigi* digi = new((*fdigiOutArray)[idigi]) PndTpcDigi(*(digis[idigi]));
+    //digi->index(idigi);
+  }
+
+  std::cout<<fclusterArray->GetEntriesFast()<<" cluster created "
+	<<" containing "<<ndig_rec<<" digis"
+  <<" from "<<ndigis<<std::endl;
+  if(fsimple){std::cout<<" (SimpleClustering split "<< "xxx" <<" Digis!)"<<std::endl;}   
    
-   fcluster_buffer->clear();
-   digis.clear();
+  fcluster_buffer->clear();
+  digis.clear();
    
   return;
+}
+
+bool PndTpcDigiIndex(PndTpcDigi* digi1, PndTpcDigi* digi2){
+  return(digi1->index() < digi2->index());
 }
 
 ClassImp(PndTpcClusterFinderTask)

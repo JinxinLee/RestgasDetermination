@@ -208,10 +208,9 @@ PndTpcPSATask::Exec(Option_t* opt)
   
   //copy data into digi_array (TClonesvector)
   int ndigi=digis.size();
-
   for(int idigi=0;idigi<ndigi;++idigi) {
-    new((*fdigiArray)[idigi]) PndTpcDigi(*(digis[idigi]));
-
+    PndTpcDigi* newdigi = new((*fdigiArray)[idigi]) PndTpcDigi(*(digis[idigi]));
+    newdigi->index(idigi);
     delete digis[idigi]; // clean up temporay store
   }
 

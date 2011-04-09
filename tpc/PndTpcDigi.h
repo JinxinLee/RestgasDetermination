@@ -37,7 +37,6 @@ public:
 
   // Constructors/Destructors ---------
   PndTpcDigi();
-  PndTpcDigi(const PndTpcDigi&);
   PndTpcDigi(const double Amp,
 		  const double T,
 		  const unsigned int PadID,

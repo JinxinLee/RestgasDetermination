@@ -31,15 +31,6 @@ PndTpcDigi::PndTpcDigi()
   : famp(0), ft(0), fpadID(0), ftlength(0), findex(0)
 {}
 
-PndTpcDigi::PndTpcDigi(const PndTpcDigi& d)
-  : famp(d.famp), ft(d.ft), fpadID(d.fpadID), ftlength(d.ftlength),
-    fmcid(d.fmcid), findex(d.findex)
-{
-  ; //  for(unsigned int i=0; i<(d.samples).size(); ++i) 
-}  //  samples.push_back((d.samples).at(i));
-
-
-
 
 PndTpcDigi::PndTpcDigi(const double Amp,
 				 const double T,

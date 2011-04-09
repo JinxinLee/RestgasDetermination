@@ -117,6 +117,8 @@ public:
 
 };
 
+bool PndTpcDigiIndex(PndTpcDigi* digi1, PndTpcDigi* digi2);
+
 #endif
 
 //--------------------------------------------------------------
