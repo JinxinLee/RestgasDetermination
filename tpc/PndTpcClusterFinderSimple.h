@@ -22,7 +22,7 @@ class PndTpcPrelimCluster{
   double fcogT;
   int fid;
 
-  std::vector<PndTpcDigi> fdigis;
+  std::vector<PndTpcDigi*> fdigis;
   std::set<unsigned int> fpossiblePads;
 
 
@@ -36,7 +36,7 @@ class PndTpcPrelimCluster{
   PndTpcPrelimCluster(PndTpcPadPlane*, double, int);
   virtual ~PndTpcPrelimCluster();
 
-  void addHit(const PndTpcDigi&,bool noXclust=false);
+  void addHit(PndTpcDigi*, bool noXclust=false);
 
   bool isInCluster(const PndTpcDigi* const);
 

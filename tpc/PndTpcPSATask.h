@@ -51,6 +51,7 @@ public:
 
   // Modifiers -----------------------
   void SetSampleBranchName(const TString& name) {fsampleBranchName=name;}
+  void SetDigiBranchName(const TString& name) {fDigiOutName=name;}
   void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
   void SetPeakingtime(int pik) {fpeak=pik;}
   void SetTail(bool b){fTail=b;}
@@ -70,6 +71,7 @@ private:
 
   // Private Data Members ------------
   TString fsampleBranchName;
+  TString fDigiOutName;
   TClonesArray* fsampleArray;
   TClonesArray* fdigiArray;
   

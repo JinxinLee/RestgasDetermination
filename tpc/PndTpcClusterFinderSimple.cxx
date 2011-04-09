@@ -25,19 +25,19 @@ PndTpcPrelimCluster::~PndTpcPrelimCluster()
 {
 }
 
-void PndTpcPrelimCluster::addHit(const PndTpcDigi& digi,bool noXclust) {
+void PndTpcPrelimCluster::addHit(PndTpcDigi* digi, bool noXclust) {
   fdigis.push_back(digi);
   //  cog();
   fcogT=0.;
   famp=0;
   for(unsigned int i=0;i<fdigis.size();++i) {
-	fcogT+=fdigis.at(i).amp()*fdigis.at(i).t();
-	famp+=fdigis.at(i).amp();
+	fcogT+=fdigis.at(i)->amp()*fdigis.at(i)->t();
+	famp+=fdigis.at(i)->amp();
   }
   fcogT*=1./famp;
 
-  fpossiblePads.insert(digi.padId());	
-  PndTpcPad* pad = fpadplane->GetPad(digi.padId());
+  fpossiblePads.insert(digi->padId());	
+  PndTpcPad* pad = fpadplane->GetPad(digi->padId());
 
     for(unsigned int ineigh=0;ineigh<pad->nNeighbours();++ineigh){
     PndTpcPad* neigh = fpadplane->GetPad( pad->getNeighbour(ineigh) );
@@ -52,24 +52,17 @@ void PndTpcPrelimCluster::addHit(const PndTpcDigi& digi,bool noXclust) {
 }
 
 bool PndTpcPrelimCluster::isInTimeWindow(const PndTpcDigi* const digi){
-  if( fabs(digi->t() - fcogT) <= ftimeslice ) {
-	return true;
-  }
-  else {
-	return false;
-  }
+  if( fabs(digi->t() - fcogT) <= ftimeslice ) 
+    return true;
+  return false;
 }
 
 bool PndTpcPrelimCluster::isInCluster(const PndTpcDigi* const digi) {
   int padID = digi->padId();
 
-  if(fpossiblePads.count(padID) == 0) {
-	return false;
-  }
-  else {
-	return isInTimeWindow(digi);
-  }
-
+  if(fpossiblePads.count(padID) == 0) 
+    return false;
+  return isInTimeWindow(digi);
 }
 
 
@@ -81,10 +74,10 @@ PndTpcCluster* PndTpcPrelimCluster::convPndTpcCluster(bool saveRaw) {
   std::set<int> nPadY;
 
   for(unsigned int i=0;i<fdigis.size();++i){
-	nPad.insert(fdigis.at(i).padId());
+	nPad.insert(fdigis.at(i)->padId());
 
 	TVector3 tempPos;
-	PndTpcDigiMapper::getInstance()->map(&(fdigis.at(i)),tempPos);
+	PndTpcDigiMapper::getInstance()->map(fdigis.at(i), tempPos);
 	double tempD = tempPos.x() * 1000.;
 	int tempI = (int)tempD;
 	nPadX.insert(tempI);
@@ -100,7 +93,7 @@ PndTpcCluster* PndTpcPrelimCluster::convPndTpcCluster(bool saveRaw) {
 
   if(saveRaw){//defined in PndTpcAbsClusterFinder.h and default false
     for(unsigned int i=0;i<fdigis.size();++i){
-      c->addDigi(&fdigis.at(i));
+      c->addDigi(fdigis.at(i));
     }
   }
 
@@ -116,14 +109,14 @@ void PndTpcPrelimCluster::cog(){
   McIdCollection mcid;
   unsigned int ndigis=fdigis.size();
   for(unsigned int id=0;id<ndigis;++id){
-	PndTpcDigi adigi=fdigis[id];
-	mcid.AddIDCollection(adigi.mcId());
-	double a=(double)adigi.amp();
+	PndTpcDigi* adigi=fdigis[id];
+	mcid.AddIDCollection(adigi->mcId());
+	double a=(double)adigi->amp();
 	TVector3 thispos;
-	PndTpcDigiMapper::getInstance()->map(&adigi,thispos);
+	PndTpcDigiMapper::getInstance()->map(adigi,thispos);
 	double dx;
 	double dy;
-	PndTpcDigiMapper::getInstance()->padsize(adigi.padId(),dx,dy);
+	PndTpcDigiMapper::getInstance()->padsize(adigi->padId(),dx,dy);
 	
 	McId dummyID(1,1);
 	McIdCollection dummyColl;
@@ -149,19 +142,20 @@ void PndTpcPrelimCluster::cog(){
 	TVector3 thissig(sigmaX_sq,sigmaY_sq,sigmaZ_sq);
 	ferr+=a*a*thissig;
 	
-	fcogT+=a*adigi.t();
+	fcogT+=a*adigi->t();
 	fpos+=a*thispos;
 	famp+=a;
   }
   fpos*=1./famp;
 
 #ifdef TESTCHAMBER
+  std::cout<<"TESTCHAMBER is defined!"<<std::endl;
   for(unsigned int id=0;id<ndigis;++id){
-	PndTpcDigi adigi=fdigis[id];
+	PndTpcDigi* adigi=fdigis[id];
 	TVector3 thispos;
-	PndTpcDigiMapper::getInstance()->map(&adigi,thispos);
+	PndTpcDigiMapper::getInstance()->map(adigi, thispos);
 	double fm,fs;
-	Pedestals::getPedestal(adigi.padId(),fm,fs);
+	Pedestals::getPedestal(adigi->padId(),fm,fs);
 	double sigmaAi = fs;
 	TVector3 temp(pow(thispos.X()-fpos.X(),2.),
 				  pow(thispos.Y()-fpos.Y(),2.),
@@ -209,10 +203,10 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
   int prelimClusterCounter=0;
 
   prelimClusters.push_back(new PndTpcPrelimCluster(fpadplane,fdt,prelimClusterCounter++));
-  prelimClusters.at(0)->addHit(*(digis.at(ndigi-1)),noXclust);
-  for(unsigned int fidigi=0;fidigi<ndigi-1;++fidigi) {
-    int idigi = ndigi - 2 - fidigi;
-    std::vector<unsigned int> selClusters;
+  prelimClusters.at(0)->addHit(digis.at(ndigi-1),noXclust);
+
+  for(int idigi = ndigi-2; idigi > -1; --idigi) { // loop over digis from back to front, last digi was already processed
+    std::vector<unsigned int> selClusters; // contains indices of clusters that the digi might belong to
     for(unsigned int iclust=0;iclust<prelimClusters.size();++iclust) {
       if(prelimClusters.at(iclust)->isInCluster(digis.at(idigi)) ) {
 	selClusters.push_back(iclust);
@@ -220,25 +214,27 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
     }
     unsigned int nselclust = selClusters.size();
     
-    if(nselclust == 0){
+    if(nselclust == 0){ // digi cannot be added to existing cluster -> create a new cluster
       PndTpcPrelimCluster* fc = new PndTpcPrelimCluster(fpadplane,fdt,prelimClusterCounter++);
-      fc->addHit(*(digis.at(idigi)),noXclust);
+      fc->addHit(digis.at(idigi),noXclust);
       prelimClusters.push_back(fc);
     }
     else {
-      if(nselclust == 1) {
-	prelimClusters.at(selClusters.at(0))->addHit(*(digis.at(idigi)),noXclust);
+      if(nselclust == 1) { // digi can only belong to one cluster -> add to this cluster
+	prelimClusters.at(selClusters.at(0))->addHit(digis.at(idigi),noXclust);
       }
-      else{
+      else{ // digi can belong to more than one cluster -> split digi (divide amplitude) and add to the clusters 
 	double fa = (double)digis.at(idigi)->amp();
-	PndTpcDigi fd = *(digis.at(idigi));
-	fd.amp(fa/nselclust);
+	PndTpcDigi* fd = digis.at(idigi);
+	fd->amp(fa/nselclust); // TODO: is this not yet written to the digi branch!!!
 	for(int i=0;i<nselclust;++i) {
 	  prelimClusters.at(selClusters.at(i))->addHit(fd,noXclust);
 	}
       }
     }
-  }
+  } // end loop over digis
+
+  // onvert prelimClusters to PndTpcClusters
   for(unsigned int i=0;i<prelimClusters.size();++i){
     foutput_buffer->push_back(prelimClusters.at(i)->convPndTpcCluster(fsaveRaw));
     delete prelimClusters.at(i);
@@ -250,7 +246,7 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
 void 
 PndTpcClusterFinderSimple::reset()
 {
-  
+  std::cout << "PndTpcClusterFinderSimple::reset() empty implementation" << std::endl;  
 }
 
 

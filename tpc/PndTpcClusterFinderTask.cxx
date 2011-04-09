@@ -75,6 +75,19 @@ PndTpcClusterFinderTask::SetParContainers() {
   if (! fpar ) Fatal("SetParContainers", "PndTpcDigiPar not found");
 }
 
+void PndTpcClusterFinderTask::SetSimpleClustering(Bool_t opt){
+  fsimple=opt;
+  if(fdigiBranchName=="PndTpcDigi" && opt)
+    std::cerr<<"\n PndTpcClusterFinderTask::SetSimpleClustering  \n \
+    WARNING: You want to use SimpleClustering. \n \
+    This modifies the Digis. Please set the DigiBranch Name of the PSATask and the ClusterFinderTask to something else than \"PndTpcDigi\". \n \
+    For example, do: \n \
+    tpsa->SetDigiBranchName(\"PndTpcRawDigi\");  // Output of PSA \n \
+    tpcCF->SetDigiBranchName(\"PndTpcRawDigi\"); // Input of clustering \n \
+    tpcCF->SetDigiOutBranchName(\"PndTpcDigi\"); // Digi output of clustering\n \
+    If you want to keep the modified digis, do:  \n \
+    tpcCF->SetDigiPersistence(); \n"<<std::endl;
+}
 
 InitStatus
 PndTpcClusterFinderTask::Init()
@@ -101,7 +114,11 @@ PndTpcClusterFinderTask::Init()
   fclusterArray = new TClonesArray("PndTpcCluster"); 
   ioman->Register(fClusterOutName,"PndTpc",fclusterArray,fpersistence);
 
+  // create and register output array for Digis
+  fdigiOutArray = new TClonesArray("PndTpcDigi"); 
+  ioman->Register(fdigiOutName,"PndTpc",fdigiOutArray,fDigiPersistence);
   
+
   fpar->printParams();
   ffrontend= fpar->getFrontend();
   fpadplane= fpar->getPadPlane();
@@ -132,7 +149,7 @@ PndTpcClusterFinderTask::Init()
   
   ffinder->checkConsistency();
   ffinder->setTrivialClustering(ftrivial);
-  ffinder->saveRaw(fpersistence);
+  ffinder->saveRaw(fDigiPersistence);
 
   return kSUCCESS;
 }
@@ -145,6 +162,9 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
   // Reset output Array
   if(fclusterArray==0) Fatal("PndTpcClusterFinder::Exec)","No ClusterArray");
    fclusterArray->Delete();
+
+  if(fdigiOutArray==0) Fatal("PndTpcClusterFinder::Exec)","No DigiOutArray");
+   fdigiOutArray->Delete();
 
    ffinder->reset();
 
@@ -185,22 +205,27 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
    unsigned int ncl=fcluster_buffer->size();
    unsigned int ndig=0;
    unsigned int ncl_rec=0;
-   for(unsigned int icl=0;icl<ncl;++icl)
-     {
-       if((*fcluster_buffer)[icl]->amp()>fthres)
-	 if((*fcluster_buffer)[icl]->size()>1 || (*fcluster_buffer)[icl]->amp()>fSDiClAmpCut)
-	   {
-	   PndTpcCluster* cl=new((*fclusterArray)[ncl_rec]) PndTpcCluster(*(*fcluster_buffer)[icl]);
-	   cl->SetIndex(ncl_rec);
-	   ndig+=(*fcluster_buffer)[icl]->size();
-	   ncl_rec++;
-	 }
+   for(unsigned int icl=0;icl<ncl;++icl){
+     if((*fcluster_buffer)[icl]->amp()>fthres)
+       if((*fcluster_buffer)[icl]->size()>1 || (*fcluster_buffer)[icl]->amp()>fSDiClAmpCut){
+         PndTpcCluster* cl=new((*fclusterArray)[ncl_rec]) PndTpcCluster(*(*fcluster_buffer)[icl]);
+         cl->SetIndex(ncl_rec);
+
+         int ncldigis = (*fcluster_buffer)[icl]->size();
+   
+         // add digis to digi output array
+         for(unsigned int idigi=0; idigi<ncldigis; ++idigi){
+           PndTpcDigi* digi=new((*fdigiOutArray)[ndig+idigi]) PndTpcDigi(*(*fcluster_buffer)[icl]->getDigi(idigi));
+         }
+         ndig+=ncldigis;
+         ncl_rec++;
+       }
        delete (*fcluster_buffer)[icl];
-     }
+   }
    
    std::cout<<fclusterArray->GetEntriesFast()<<" cluster created "
 	    <<" containing "<<ndig<<" digis"
-	    <<" from "<<ndigis<<std::endl;
+      <<" from "<<ndigis<<std::endl;
    
    fcluster_buffer->clear();
    digis.clear();

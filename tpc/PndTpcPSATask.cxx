@@ -68,6 +68,7 @@ PndTpcPSATask::PndTpcPSATask()
     fPads(0)
 {
   fsampleBranchName = "PndTpcSample";
+  fDigiOutName = "PndTpcDigi";
 }
 
 
@@ -104,7 +105,7 @@ PndTpcPSATask::Init()
   
   // create and register output array
   fdigiArray = new TClonesArray("PndTpcDigi"); 
-  ioman->Register("PndTpcDigi","PndTpc",fdigiArray,fpersistence);
+  ioman->Register(fDigiOutName,"PndTpc",fdigiArray,fpersistence);
 
   
   //TODO: Get this from Database
