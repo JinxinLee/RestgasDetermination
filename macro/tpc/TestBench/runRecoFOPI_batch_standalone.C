@@ -9,7 +9,7 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath)
   timer.Start();
   
   // Load basic libraries in rootlogon
-  //gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
   
   TString basedir = gSystem->Getenv("VMCWORKDIR");
@@ -67,23 +67,28 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath)
   
   
   PndTpcPSATask* tpsa = new  PndTpcPSATask();
-  tpsa->SetPersistence();
-  tpsa->SetSampleBranchName("PndTpcSample");
+  //tpsa->SetPersistence();
+  tpsa->SetSampleBranchName("PndTpcSample"); // Input of PSA
+  tpsa->SetDigiBranchName("PndTpcRawDigi");  // Output of PSA
   fRun->AddTask(tpsa);
 
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
   //tpcCF->SetDataMode(true); //prevents usage of FairLinks
-  tpcCF->SetMode(2); // 0 - global time bins;  1 - individual time bins for each sector;  2 - each pad gets its time window - actually we search for gaps on a pad;
+  tpcCF->SetMode(2); // 0 - global time bins;  
+                     // 1 - individual time bins for each sector;  
+                     // 2 - each pad gets its time window - actually we search for gaps on a pad;
   tpcCF->SetDataMode(true);
-  tpcCF->SetPersistence();
-  tpcCF->SetDigiBranchName("PndTpcDigi");
-  tpcCF->timeslice(20); //in samples
+  tpcCF->SetPersistence(); // keep Clusters
+  tpcCF->SetDigiPersistence(); // keep Digis (contains then only digis of clusters. they are modified if you use SimpleClustering)
+  tpcCF->SetDigiBranchName("PndTpcRawDigi"); // Input of clustering
+  tpcCF->SetDigiOutBranchName("PndTpcDigi"); // Digi output of clustering
+  tpcCF->timeslice(6); //in samples
   tpcCF->SetDiffFactor(1.);
   tpcCF->SetClusterTimeCut(5.);
-  tpcCF->SetSingleDigiClusterAmpCut(15);
+  tpcCF->SetSingleDigiClusterAmpCut(20);
   tpcCF->SetErrorPars(600,300);
   //tpcCF->SetTrivialClustering();
-  //tpcCF->SetSimpleClustering(); // use PndTpcClusterFinderSimple
+  tpcCF->SetSimpleClustering(); // use PndTpcClusterFinderSimple
   fRun->AddTask(tpcCF);
 
   //actually MODIFIES existing clusters, does NOT create a new branch
