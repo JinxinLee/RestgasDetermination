@@ -47,8 +47,10 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath)
   rtdb->setFirstInput(parInput1);
   
   rtdb->Print();
-
-  fRun->SetGeomFile("FOPIGeo.root");
+  
+  TString geoFile = basedir;
+  geoFile+="/tpc/TestBench/FOPIGeo.root";
+  fRun->SetGeomFile(geoFile);
   
   //--------------------SET UP TASKS ------------------------------
 
@@ -142,12 +144,6 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath)
   //fRun->AddTask(tpcSLPR);
 
 
-  //PndTpcTCtrackFit* tf = new PndTpcTCtrackFit();
-  //tf->SetPersistence();
-  //tf->SetDraw();
-  //fRun->AddTask(tf);
-
-
   KalmanTask* kalman =new KalmanTask();
   kalman->SetPersistence();
   //kalman->SetClusterBranchName("PndTpcCluster_cut");
@@ -185,7 +181,7 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath)
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
-
+  
   std::cout<<"OutputFile: "<<outFile<<std::endl;
 
 }
