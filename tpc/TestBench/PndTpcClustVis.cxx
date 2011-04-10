@@ -18,7 +18,7 @@ PndTpcClustVis* PndTpcClustVis::eventDisplay = NULL;
 
 PndTpcClustVis::PndTpcClustVis():
   digisBranch(0),clustersBranch(0), guiEvent(0),
-  ClMode(2), ClTimeslice(3),ClTimecut(2), ClSingeDigiClAmpCut(20), ClSimpleCl(true), ClSimpleTimeslice(7),
+  doClustering(false), ClMode(2), ClTimeslice(3),ClTimecut(2), ClSingeDigiClAmpCut(20), ClSimpleCl(true), ClSimpleTimeslice(7),
   drawTpc(false), drawDigis(false), drawClusters(true), drawClusterErrors(false),
   doPR(true), doMerge(false), _sorting(3), _interactionZ(0), _sortingMode(true),
   _minpoints(5), _planecut(0.05), _riproxcut(0.05), _szcut(2), _proxcut(2),
@@ -203,11 +203,9 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
   bool drawTrackMarkers = false;
   bool drawPlanes = false;
   bool drawTrack = false;
-  bool runClustering = false;
 
   if(fOption != "") {
     for(size_t i = 0; i < fOption.length(); i++) {
-      if(fOption.at(i) == 'R') runClustering = true;
       if(fOption.at(i) == 'A') drawAutoScale = true;
       if(fOption.at(i) == 'D') drawDetectors = true;
       if(fOption.at(i) == 'H') drawHits = true;
@@ -243,7 +241,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
   std::vector<PndTpcCluster*>* fcluster_buffer=new std::vector<PndTpcCluster*>;
     
-  if(runClustering){ // run ClusterFinder and fill fcluster_buffer
+  if(doClustering){ // run ClusterFinder and fill fcluster_buffer
     PndTpcAbsClusterFinder* ffinder = 0;
 
     // TODO: get from file!!
@@ -256,7 +254,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     else{
       ffinder=new PndTpcClusterFinderSimple(PndTpcDigiMapper::getInstance()->getPadPlane(),
               fcluster_buffer,
-              ClSimpleTimeslice);
+              ClSimpleTimeslice,4000./600.,300.);
       ((PndTpcClusterFinderSimple*)(ffinder))->setNoXclust(false);
     }
 
@@ -282,28 +280,6 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     }
 
     //delete ffinder;
-
-    /*
-    // put clusters into array and clean up buffer
-     unsigned int ncl=fcluster_buffer->size();
-     unsigned int ndig=0;
-     unsigned int ncl_rec=0;
-     for(unsigned int icl=0;icl<ncl;++icl)
-       {
-         if((*fcluster_buffer)[icl]->amp()>1)
-           if((*fcluster_buffer)[icl]->size()>1 || (*fcluster_buffer)[icl]->amp()>ClSingeDigiClAmpCut){
-             clustersBranch=new((*clustersBranch)[ncl_rec]) PndTpcCluster(*(*fcluster_buffer)[icl]);
-             clustersBranch->SetIndex(ncl_rec);
-             ndig+=(*fcluster_buffer)[icl]->size();
-             ncl_rec++;
-           }
-         delete (*fcluster_buffer)[icl];
-       }
-
-     std::cout<<fclusterArray->GetEntriesFast()<<" cluster created "
-        <<" containing "<<ndig<<" digis"
-        <<" from "<<ndigis<<std::endl;
-     */
 
      int i=0;
      while(i<fcluster_buffer->size()){
@@ -855,8 +831,15 @@ void PndTpcClustVis::makeGui() {
 
   // Clusterfinder Params
   hf = new TGHorizontalFrame(frmMain); {
-    lbl = new TGLabel(hf, "\n Clusterfinder Parameters");
+    lbl = new TGLabel(hf, "\n Clustering");
         hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    guiDoClustering =  new TGCheckButton(hf, "Run Clustering");
+    if(doClustering) guiDoClustering->Toggle();
+    hf->AddFrame(guiDoClustering);
+    guiDoClustering->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
   }
   frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
@@ -1125,10 +1108,8 @@ void PndTpcClustVis::guiSetClusterfinderParams(){
   ClTimeslice = giuTimeslice->GetNumberEntry()->GetIntNumber();
   ClTimecut = giuTimecut->GetNumberEntry()->GetIntNumber();
   ClSingeDigiClAmpCut = guiSingeDigiClAmpCut->GetNumberEntry()->GetIntNumber();
-  if (guiSimpleCl->IsOn())
-    ClSimpleCl=true;
-  else
-    ClSimpleCl=false;
+  if (guiSimpleCl->IsOn()) ClSimpleCl=true;
+  else ClSimpleCl=false;
   ClSimpleTimeslice = giuSimpleTimeslice->GetNumberEntry()->GetIntNumber();
 }
 
@@ -1136,10 +1117,8 @@ void PndTpcClustVis::guiSetTrackingParams(){
   _sorting = guisorting->GetNumberEntry()->GetIntNumber();
   _interactionZ = guiinteractionZ->GetNumberEntry()->GetNumber();
 
-  if (guisortingMode->IsOn())
-    _sortingMode=true;
-  else
-    _sortingMode=false;
+  if (guisortingMode->IsOn()) _sortingMode=true;
+  else _sortingMode=false;
 
   _minpoints = guiminpoints->GetNumberEntry()->GetIntNumber();
   _planecut = guiplanecut->GetNumberEntry()->GetNumber();
@@ -1150,37 +1129,28 @@ void PndTpcClustVis::guiSetTrackingParams(){
   _TTplanecut = guiTTplanecut->GetNumberEntry()->GetNumber();
   _TTszcut = guiTTszcut->GetNumberEntry()->GetNumber();
 
-  if (guiDoMerge->IsOn())
-    doMerge=true;
-  else
-    doMerge=false;
+  if (guiDoMerge->IsOn()) doMerge=true;
+  else doMerge=false;
 }
 
 void PndTpcClustVis::guiSetDrawParams(){
-  if (guiDrawTpc->IsOn())
-    drawTpc=true;
-  else
-    drawTpc=false;
+  if (guiDoClustering->IsOn()) doClustering=true;
+  else doClustering=false;
 
-  if (guiDrawDigis->IsOn())
-    drawDigis=true;
-  else
-    drawDigis=false;
+  if (guiDrawTpc->IsOn()) drawTpc=true;
+  else drawTpc=false;
 
-  if (guiDrawClusters->IsOn())
-    drawClusters=true;
-  else
-    drawClusters=false;
+  if (guiDrawDigis->IsOn()) drawDigis=true;
+  else drawDigis=false;
 
-  if (guiDrawClustersErrors->IsOn())
-    drawClusterErrors=true;
-  else
-    drawClusterErrors=false;
+  if (guiDrawClusters->IsOn()) drawClusters=true;
+  else drawClusters=false;
 
-  if (guiDoPR->IsOn())
-    doPR=true;
-  else
-    doPR=false;
+  if (guiDrawClustersErrors->IsOn()) drawClusterErrors=true;
+  else drawClusterErrors=false;
+
+  if (guiDoPR->IsOn()) doPR=true;
+  else doPR=false;
 }
 
 

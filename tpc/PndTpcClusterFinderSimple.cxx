@@ -16,18 +16,20 @@
 #endif
 
 
-PndTpcPrelimCluster::PndTpcPrelimCluster(PndTpcPadPlane* p, double t, int id) :
-  famp(0.), fcogT(-1.), fpadplane(p), ftimeslice(t), fid(id)
+PndTpcPrelimCluster::PndTpcPrelimCluster(PndTpcPadPlane* p, double t, int id, double G, double C) :
+  famp(0.), fcogT(-1.), fpadplane(p), ftimeslice(t), fid(id), fG(G), fC(C)
 {
 }
+
 
 PndTpcPrelimCluster::~PndTpcPrelimCluster()
 {
 }
 
+
 void PndTpcPrelimCluster::addHit(PndTpcDigi* digi, bool noXclust) {
   fdigis.push_back(digi);
-  //  cog();
+
   fcogT=0.;
   famp=0;
   for(unsigned int i=0;i<fdigis.size();++i) {
@@ -51,11 +53,13 @@ void PndTpcPrelimCluster::addHit(PndTpcDigi* digi, bool noXclust) {
 
 }
 
+
 bool PndTpcPrelimCluster::isInTimeWindow(const PndTpcDigi* const digi){
   if( fabs(digi->t() - fcogT) <= ftimeslice ) 
     return true;
   return false;
 }
+
 
 bool PndTpcPrelimCluster::isInCluster(const PndTpcDigi* const digi) {
   int padID = digi->padId();
@@ -67,29 +71,8 @@ bool PndTpcPrelimCluster::isInCluster(const PndTpcDigi* const digi) {
 
 
 PndTpcCluster* PndTpcPrelimCluster::convPndTpcCluster(bool saveRaw) {
-  cog();
-
-  std::set<int> nPad;
-  std::set<int> nPadX;
-  std::set<int> nPadY;
-
-  for(unsigned int i=0;i<fdigis.size();++i){
-	  nPad.insert(fdigis[i]->padId());
-
-	  TVector3 tempPos;
-	  PndTpcDigiMapper::getInstance()->map(fdigis[i], tempPos);
-	  double tempD = tempPos.x() * 1000.;
-	  int tempI = (int)tempD;
-	  nPadX.insert(tempI);
-	  tempD = tempPos.y() * 1000.;
-	  tempI = (int)tempD;
-	  nPadY.insert(tempI);
-  }
-
+  cog(); // also error is calculated here
   PndTpcCluster* c = new PndTpcCluster(fpos,ferr,famp,fid,fdigis.size());
-  c->nPad(nPad.size());
-  c->nPadX(nPadX.size());
-  c->nPadY(nPadY.size());
 
   if(saveRaw){//defined in PndTpcAbsClusterFinder.h and default false
     for(unsigned int i=0;i<fdigis.size();++i){
@@ -98,96 +81,102 @@ PndTpcCluster* PndTpcPrelimCluster::convPndTpcCluster(bool saveRaw) {
   }
   
   return c;
-
 }
 
+
 void PndTpcPrelimCluster::cog(){
+  bool DEBUG=false;
+
   fpos.SetXYZ(0,0,0);
   famp=0;
-  fcogT=0.;
-  ferr.SetXYZ(0,0,0);
   McIdCollection mcid;
   unsigned int ndigis=fdigis.size();
+
+  McId dummyID(1,1);
+  McIdCollection dummyColl;
+  dummyColl.AddID(dummyID);
+
+  // loop over digis to calculate cog
   for(unsigned int id=0;id<ndigis;++id){
 	  PndTpcDigi* adigi=fdigis[id];
 	  mcid.AddIDCollection(adigi->mcId());
 	  double a=(double)adigi->amp();
 	  TVector3 thispos;
 	  PndTpcDigiMapper::getInstance()->map(adigi,thispos);
-	  double dx;
-	  double dy;
-	  PndTpcDigiMapper::getInstance()->padsize(adigi->padId(),dx,dy);
-	
-	  McId dummyID(1,1);
-	  McIdCollection dummyColl;
-	  dummyColl.AddID(dummyID);
-	
-	  //this block is to define the z jitter
-	  TVector3 zDiff1,zDiff2;
-	  PndTpcDigi zDiffDigi1(1,1,1,dummyColl),zDiffDigi2(1,2,1,dummyColl);
-	  PndTpcDigiMapper::getInstance()->map(&zDiffDigi1,zDiff1);
-	  PndTpcDigiMapper::getInstance()->map(&zDiffDigi2,zDiff2);
-	  double zDiff = zDiff2.z() - zDiff1.z();
-	  //end of z jitter
-	
-	  double Dl = PndTpcDigiMapper::getInstance()->getGas()->Dl();
-	  double Dt = PndTpcDigiMapper::getInstance()->getGas()->Dt();
-	
-	  double diffSigmaL = Dl * sqrt(thispos.z());
-	  double diffSigmaT = Dt * sqrt(thispos.z());
-	  double sigmaX_sq = dx*dx/12. + diffSigmaT*diffSigmaT;
-	  double sigmaY_sq = dy*dy/12. + diffSigmaT*diffSigmaT;
-	  double sigmaZ_sq = zDiff*zDiff/12. + diffSigmaL*diffSigmaL;
-	
-	  TVector3 thissig(sigmaX_sq,sigmaY_sq,sigmaZ_sq);
-	  ferr+=a*a*thissig;
-	
-	  fcogT+=a*adigi->t();
 	  fpos+=a*thispos;
 	  famp+=a;
   }
   fpos*=1./famp;
 
-#ifdef TESTCHAMBER
-  std::cout<<"TESTCHAMBER is defined!"<<std::endl;
-  for(unsigned int id=0;id<ndigis;++id){
-	PndTpcDigi* adigi=fdigis[id];
-	TVector3 thispos;
-	PndTpcDigiMapper::getInstance()->map(adigi, thispos);
-	double fm,fs;
-	Pedestals::getPedestal(adigi->padId(),fm,fs);
-	double sigmaAi = fs;
-	TVector3 temp(pow(thispos.X()-fpos.X(),2.),
-				  pow(thispos.Y()-fpos.Y(),2.),
-				  pow(thispos.Z()-fpos.Z(),2.));
-	temp *= sigmaAi*sigmaAi;
-	ferr += temp;
-  }
-#endif
+  //this block is to define the z jitter
+  TVector3 zDiff1,zDiff2;
+  PndTpcDigi zDiffDigi1(1,1,1,dummyColl),zDiffDigi2(1,2,1,dummyColl);
+  PndTpcDigiMapper::getInstance()->map(&zDiffDigi1,zDiff1);
+  PndTpcDigiMapper::getInstance()->map(&zDiffDigi2,zDiff2);
+  double zDiff = zDiff2.z() - zDiff1.z();
+  //end of z jitter
 
-  fcogT*=1./famp;
-  ferr.SetX(sqrt(ferr.X())/famp);
-  ferr.SetY(sqrt(ferr.Y())/famp);
-  ferr.SetZ(sqrt(ferr.Z())/famp);
+  // calculate errors: ------------------------------------------
+	double dx, dy;
+	PndTpcDigiMapper::getInstance()->padsize(fdigis[0]->padId(),dx,dy);
+  double Dl = PndTpcDigiMapper::getInstance()->getGas()->Dl();
+  double Dt = PndTpcDigiMapper::getInstance()->getGas()->Dt();
+  double driftl=fpos.z()-PndTpcDigiMapper::getInstance()->zGem();
+
+  ferr=(0.,0.,0.);
+     
+  if(DEBUG) {
+    std::cout<<"PndTpcSectorProcessor: Gas DiffL: "<<Dl 
+	     <<", Gas DiffT: "<<Dt<<std::endl;
+    std::cout<<"PndTpcSectorProcessor: zGem is "
+	     <<PndTpcDigiMapper::getInstance()->zGem()<<std::endl
+	     <<", drift length: "<<driftl<<std::endl;
+  }
+    
+  double absdriftl=fabs(driftl);
+  double diffSigmaL = Dl * Dl * absdriftl;
+  double diffSigmaT = Dt * Dt * absdriftl;
+    
+  for(unsigned int id=0;id<ndigis;++id){
+    PndTpcDigi* adigi=fdigis[id];
+    double a=(double)adigi->amp();
+    TVector3 thispos;
+    PndTpcDigiMapper::getInstance()->map(adigi,thispos);
+    TVector3 df=thispos-fpos;
+    double sigmaX_sq = a*df.X()*df.X();
+    double sigmaY_sq = a*df.Y()*df.Y();
+    double sigmaZ_sq = a*df.Z()*df.Z();
+    
+    TVector3 thissig(sigmaX_sq,sigmaY_sq,sigmaZ_sq);
+    ferr+=thissig;  
+  } // end second loop over digis
+
+  if(ferr.X()<1E-5) ferr.SetX(sqrt(dx*dx/12+diffSigmaT));
+  else ferr.SetX(sqrt((ferr.X()+fG*diffSigmaT)/famp)*fC/famp);
+  if(ferr.Y()<1E-5) ferr.SetY(sqrt(dy*dy/12+diffSigmaT));
+  else ferr.SetY(sqrt((ferr.Y()+fG*diffSigmaT)/famp)*fC/famp);
+  if(ferr.Z()<1E-5) ferr.SetZ(sqrt(zDiff*zDiff/12+diffSigmaL));
+  else ferr.SetZ(sqrt((ferr.Z()+fG*diffSigmaL)/famp)*fC/famp);
   
-  //  PndTpcCluster* cl=new PndTpcCluster(fpos,ferr,(unsigned int)famp,id,ndigis);
+  if(DEBUG) ferr.Print();
+
   //  fdominant_mcid = mcid.DominantID();
-  
 }
+
 
 
 PndTpcClusterFinderSimple::PndTpcClusterFinderSimple(PndTpcPadPlane* p,
 						     std::vector<PndTpcCluster*>* ob,
-						     unsigned int timeslice)
-  : fpadplane(p), foutput_buffer(ob), fdt(timeslice), noXclust(false), splitDigis(0)
+						     unsigned int timeslice, double G, double C)
+  : fpadplane(p), foutput_buffer(ob), fdt(timeslice), noXclust(false), splitDigis(0), fG(G), fC(C)
 {
 
 }
 
+
 PndTpcClusterFinderSimple::~PndTpcClusterFinderSimple(){
 
 }
-
 
 
 void 
@@ -202,7 +191,7 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
   
   int prelimClusterCounter=0;
 
-  prelimClusters.push_back(new PndTpcPrelimCluster(fpadplane,fdt,prelimClusterCounter++));
+  prelimClusters.push_back(new PndTpcPrelimCluster(fpadplane,fdt,prelimClusterCounter++, fG,fC));
   prelimClusters[0]->addHit(digis[ndigi-1],noXclust);
 
   for(int idigi = ndigi-2; idigi > -1; --idigi) { // loop over digis from back to front, last digi was already processed
@@ -215,7 +204,7 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
     unsigned int nselclust = selClusters.size();
     
     if(nselclust == 0){ // digi cannot be added to existing cluster -> create a new cluster
-      PndTpcPrelimCluster* fc = new PndTpcPrelimCluster(fpadplane,fdt,prelimClusterCounter++);
+      PndTpcPrelimCluster* fc = new PndTpcPrelimCluster(fpadplane,fdt,prelimClusterCounter++, fG,fC);
       fc->addHit(digis[idigi],noXclust);
       prelimClusters.push_back(fc);
     }
@@ -246,7 +235,6 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
     delete prelimClusters[i];
   }
 }
-
 
 
 void 

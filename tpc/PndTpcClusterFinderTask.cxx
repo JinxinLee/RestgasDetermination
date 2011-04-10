@@ -143,7 +143,7 @@ PndTpcClusterFinderTask::Init()
   else{
     ffinder=new PndTpcClusterFinderSimple(PndTpcDigiMapper::getInstance()->getPadPlane(),
             fcluster_buffer,
-            ftimeslice);
+            ftimeslice, gain/fAdcSens, fC);
     ((PndTpcClusterFinderSimple*)(ffinder))->setNoXclust(false);
   }
   

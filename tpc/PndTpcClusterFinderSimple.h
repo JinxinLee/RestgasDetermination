@@ -21,6 +21,8 @@ class PndTpcPrelimCluster{
   double famp;
   double fcogT;
   int fid;
+  double fG;
+  double fC;
 
   std::vector<PndTpcDigi*> fdigis;
   std::set<unsigned int> fpossiblePads;
@@ -33,7 +35,7 @@ class PndTpcPrelimCluster{
   bool isInTimeWindow(const PndTpcDigi* const);
 
  public:
-  PndTpcPrelimCluster(PndTpcPadPlane*, double, int);
+  PndTpcPrelimCluster(PndTpcPadPlane*, double, int, double G, double C);
   virtual ~PndTpcPrelimCluster();
 
   void addHit(PndTpcDigi*, bool noXclust=false);
@@ -50,7 +52,7 @@ public:
   // Constructors/Destructors ---------
   PndTpcClusterFinderSimple(PndTpcPadPlane*,
 						 std::vector<PndTpcCluster*>*,
-						 unsigned int);
+						 unsigned int, double G=1, double C=1);
   ~PndTpcClusterFinderSimple();
 
   virtual void process(std::vector<PndTpcDigi*>&);
@@ -66,7 +68,8 @@ private:
   bool noXclust;
   unsigned int fdt; // time slice in units of sample time
   unsigned int splitDigis;
-
+  double fG;
+  double fC;
 
 };
 

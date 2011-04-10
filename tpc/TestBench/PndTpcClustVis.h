@@ -195,7 +195,7 @@ private:
   const PndTpcGas* fgas;
   double fzGem;
 
-
+  TGCheckButton* guiDoClustering;
   TGNumberEntry* guiEvent;
   TGCheckButton* guiDrawTpc;
   TGNumberEntry* guiMode;
@@ -222,6 +222,8 @@ private:
   TGNumberEntry* guiTTproxcut;
   TGNumberEntry* guiTTplanecut;
   TGNumberEntry* guiTTszcut;
+
+  bool doClustering;
 
   bool drawTpc;
   int ClMode;
