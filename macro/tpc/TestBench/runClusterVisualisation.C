@@ -34,9 +34,9 @@ void runClusterVisualisation(TString filename, double DriftField, int paramSet=0
     padshapefile=basedir+"/tpc/TestBench/TBhexa_pads.dat";
     gain=4000;
     spread=0.02;
-    zGem=-0.2.;
+    zGem=-0.2;
     samplingFreq=20;
-    wallclock=-6000;
+    wallclock=2000;
   }
    if(paramSet==1){ // standard PANDA SIM Settings
     gasfile=basedir+"/tpc/NEON-90_CO2-10_B2_PRES1013.asc";
@@ -53,7 +53,7 @@ void runClusterVisualisation(TString filename, double DriftField, int paramSet=0
 
   clustVis->initDigimapper(DriftField,gain,spread,zGem,samplingFreq,wallclock,
                            gasfile.Data(),padplanefile.Data(),padshapefile.Data());
-  clustVis->setOptions("DCR");
-  clustVis->gotoEvent(1);
+  clustVis->setOptions("DC");
+  clustVis->gotoEvent(0);
   clustVis->open();
 }
