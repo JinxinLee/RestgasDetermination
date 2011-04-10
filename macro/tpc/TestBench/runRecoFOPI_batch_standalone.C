@@ -23,7 +23,10 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath)
     jobname = jobname.substr(last+1,jobname.size()+1);  
   
   TString outName(jobname);
-  outName.ReplaceAll(".lmd_decoded_repaired.root",".reco.root");
+  if(outName.Contains("repaired"))
+    outName.ReplaceAll(".lmd_decoded_repaired.root",".reco.root");
+  if(outName.Contains("decoded"))
+    outName.ReplaceAll(".lmd_decoded.root",".reco.root");
   TString outFile = outpath+"/";
   outFile += outName; 
     
@@ -51,6 +54,14 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath)
   TString geoFile = basedir;
   geoFile+="/tpc/TestBench/FOPIGeo.root";
   fRun->SetGeomFile(geoFile);
+  
+  PndConstField *fMagField=new PndConstField();
+  fMagField->SetField(0., 0. , 0. ); // values are in kG
+  // values are in cm
+  fMagField->SetFieldRegion(-50, 50,-50, 50, -2000, 2000);
+      
+  fRun->SetField(fMagField);
+  
   
   //--------------------SET UP TASKS ------------------------------
 
@@ -89,8 +100,8 @@ bool SimpleClustering = true;
                        // 2 - each pad gets its time window - actually we search for gaps on a pad;
     tpcCF->SetDiffFactor(1.);
     tpcCF->SetClusterTimeCut(5.);
-    tpcCF->SetErrorPars(600,300);
   }
+  tpcCF->SetErrorPars(600,300);
   //tpcCF->SetTrivialClustering();
   if(SimpleClustering) tpcCF->SetSimpleClustering(); // use PndTpcClusterFinderSimple
   fRun->AddTask(tpcCF);
@@ -133,25 +144,25 @@ bool SimpleClustering = true;
   PndTpcSLPatternRecoTask* tpcSLPR = new PndTpcSLPatternRecoTask();
   tpcSLPR->SetPersistence(true);
   tpcSLPR->SetStoreHistograms(PROutFile);
-  tpcSLPR->SetClusterAmpCut(30.);
+  tpcSLPR->SetClusterAmpCut(20.);
   tpcSLPR->SetCutTracksParallelZ(5);
   //tpcSLPR->SetXSorting(true);
   double parMins[4] = {-TMath::Pi(),0.,-TMath::Pi(),0.};
   double parMaxs[4] = {TMath::Pi(),10.,TMath::Pi(),20.};
   tpcSLPR->SetParameterSpace(parMins, parMaxs);
   tpcSLPR->SetDepth(8);
-  tpcSLPR->SetThresh(22);
-  tpcSLPR->SetMinCandHits(22);
+  tpcSLPR->SetThresh(15);
+  tpcSLPR->SetMinCandHits(15);
   //tpcSLPR->SetClusterBranchName("PndTpcCluster_cut");
   tpcSLPR->SetAbsMomentum(1000);
-  //fRun->AddTask(tpcSLPR);
+  fRun->AddTask(tpcSLPR);
 
 
   KalmanTask* kalman =new KalmanTask();
   kalman->SetPersistence();
   //kalman->SetClusterBranchName("PndTpcCluster_cut");
   kalman->SetNumIterations(3); // number of fitting iterations (back and forth)
-  //fRun->AddTask(kalman);
+  fRun->AddTask(kalman);
 
 
   TrackFitStatTask* fitstat=new TrackFitStatTask();
@@ -170,15 +181,16 @@ bool SimpleClustering = true;
   SLres->SetPersistence();
   //SLres->SetClusterBranchName("PndTpcCluster_cut");
   SLres->SetSecondarySuppression(false);
-  //fRun->AddTask(SLres);
+  fRun->AddTask(SLres);
   
   
 
   // -----   Intialise and run   --------------------------------------------
  
- 
+  std::cout<<"*()@*)(*()&*) "<<gGeoManager<<std::endl;
   fRun->Init();
-  fRun->Run(0,30);
+  std::cout<<"*()@*)(*()&*) "<<gGeoManager<<std::endl;
+  fRun->Run(0,22000);
 
   timer.Stop();
   Double_t rtime = timer.RealTime();
