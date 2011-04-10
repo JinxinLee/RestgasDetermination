@@ -26,6 +26,7 @@
 // Collaborating Class Headers -------
 #include <list>
 #include "TVectorD.h"
+
 #include "McIdCollection.h"
 
 // Collaborating Class Declarations --
@@ -33,11 +34,8 @@ class TVector3;
 class PndTpcRiemannHit;
 
 
-typedef std::list<PndTpcRiemannHit*> hitList;
-typedef hitList::iterator hitIt;
-
 class PndTpcRiemannTrack : public TObject{
-public:
+ public:
 
   // Constructors/Destructors ---------
   PndTpcRiemannTrack();
@@ -69,15 +67,13 @@ public:
   // Modifiers -----------------------
   void addHit(PndTpcRiemannHit* hit);
 
+  int sortHit(PndTpcRiemannHit* hitX);
 
-  hitIt sortHit(PndTpcRiemannHit* hitX, 
-	       hitList& hL, int dir);
-
-  void insertHit(hitList& hL,PndTpcRiemannHit* hitX,const hitIt& it){hL.insert(it,hitX);} // manually insert hit
+  //void insertHit(PndTpcRiemannHit* hitX,const int it){hL.insert(it,hitX);} // manually insert hit
 
   // get closest hit in track fill distance and direction of track there
-  hitIt getClosestHit(PndTpcRiemannHit* hit, double& Dist, TVector3& dir);
-  hitIt getClosestHit(PndTpcRiemannHit* hit, double& Dist);
+  int getClosestHit(PndTpcRiemannHit* hit, double& Dist, TVector3& dir);
+  int getClosestHit(PndTpcRiemannHit* hit, double& Dist);
 
   void setSort(bool k=true){_doSort=k;}
   void resetNit(){_nit=0;}
@@ -95,7 +91,7 @@ public:
   void trackpos(); // calculate positions along track
   void Plot(bool standalone=true);
 
-private:
+ private:
 
   // Private Data Members ------------
   TVectorD _n;  // normal vector to plane;
@@ -107,7 +103,7 @@ private:
   bool _isFitted; // szFit
   bool _isFittedPlane; // fit _n and _c
 
-  std::list<PndTpcRiemannHit*> _hits; //!
+  std::vector<PndTpcRiemannHit*> _hits; //
   TVectorD _av;  // average over all hits
   double _sumOfWeights; // for weighing the average with cluster error
 
@@ -119,7 +115,7 @@ private:
   // Private Methods -----------------
  
 
-public:
+ public:
   ClassDef(PndTpcRiemannTrack,1)
 
 };

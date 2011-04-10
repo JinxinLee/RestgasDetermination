@@ -28,7 +28,6 @@
 
 
 // Collaborating Class Headers --------
-#include "PndTpcRiemannHit.h"
 #include "PndTpcCluster.h"
 
 #include "TMatrixD.h"
@@ -38,13 +37,20 @@
 #include "TF1.h"
 #include "TMath.h"
 #include "TPolyMarker3D.h"
-
+#include "PndTpcRiemannHit.h"
 #include "TCanvas.h"
 #include "TApplication.h"
 #include "TPolyLine3D.h"
 #include "TSystem.h"
 
 // Class Member definitions -----------
+
+bool sortByTempPosOnTrack(PndTpcRiemannHit* hit1, PndTpcRiemannHit* hit2){
+  return (hit1->tempPosOnTrack()   < hit2->tempPosOnTrack());
+}
+bool sortByPosOnTrack(PndTpcRiemannHit* hit1, PndTpcRiemannHit* hit2){
+  return (hit1->s()   < hit2->s());
+}
 
 
 ClassImp(PndTpcRiemannTrack)
@@ -78,113 +84,72 @@ PndTpcRiemannTrack::init(double x0_, double y0_, double R_,
   _t=z0;
 }
 
+
 PndTpcRiemannHit*
 PndTpcRiemannTrack::getHit(unsigned int i) const {
-  std::list<PndTpcRiemannHit*>::const_iterator it=_hits.begin();
-  std::advance(it, i);
-  return *it;
+  return _hits[i];
 }
+
 
 PndTpcRiemannHit*
 PndTpcRiemannTrack::getLastHit() const {
   return _hits.back();
 }
 
-//##########################################################################
 
-// Todo: can this be optimized?
-hitIt
+int
 PndTpcRiemannTrack::getClosestHit(PndTpcRiemannHit* hit, 
-				  double& Dist) {
-  // check if we start at end or at beginning:
+				                          double& Dist) {
+
   TVector3 posX=hit->cluster()->pos();
-  TVector3 posend=_hits.back()->cluster()->pos();
-  TVector3 posstart=_hits.front()->cluster()->pos();
-  double s1x=(posX-posstart).Mag();
-  double s2x=(posX-posend).Mag();
-  int dir=0;
-  if(s1x>=s2x){// hit closer to end of list
-     dir=-1;// direction -1 --> start backwards search
-  }
-  else { // hit closer to start of list
-    dir=+1; // direction 1 --> search from front to end
-  }
+  TVector3 pos2;
 
-  // prepare iterators through list
-  hitIt it2;
-  if(dir>0){
-    it2=_hits.begin();
-  }
-  else {
-    it2=_hits.end(); 
-    --it2;
-  }
+  int found;
+  double mindis=9.E99;
+  double dis;
 
-  TVector3 pos2=(*it2)->cluster()->pos(); //next point
-  // find closest point to my hit
-  int found=0;
-  double dis=(pos2-posX).Mag();
-  double mindis=dis;
-  //std::cout<<"dir="<<dir<<std::endl;
-  int it=0; // count iterations
-  while(it<_hits.size() && it2!=_hits.end()){ // allow for some overstepping
-    ++it;
-    pos2=(*it2)->cluster()->pos(); //next point
+  for(int it=0; it<_hits.size(); ++it){
+    pos2=_hits[it]->cluster()->pos(); 
     dis=(pos2-posX).Mag();
-    //std::cout << dis << "   ";
     if(dis<mindis){
-      found=1;
+      found=it;
       mindis=dis;
     }
-    else ++found; // record how far the last minimum is away
-    if(it2==_hits.begin()&& dir<0) {
-      //std::cout<< "dropping out at begin";
-      found-=1;
-      
-      break;
-    }
-    dir>0 ? ++it2 : --it2;
   }
-  //if(it2==_hits.end()&& dir>0){std::cout<< "dropping out at end";}
-  //std::cout << std::endl << "mindis="<<mindis<< "   found="<<found<<std::endl;
-  // step back to the minimum
-  for(int step=0;step<found;++step) dir>0 ? --it2 : ++it2;
-  pos2=(*it2)->cluster()->pos(); //next point
-  Dist=(pos2-posX).Mag();
-  return it2;
+  Dist = mindis;
+  return found;
 }
 
-hitIt
+
+int
 PndTpcRiemannTrack::getClosestHit(PndTpcRiemannHit* hit, 
-				  double& Dist, 
-				  TVector3& outdir){
-  hitIt it2=getClosestHit(hit,Dist);
+				                          double& Dist, 
+				                          TVector3& outdir){
+  int it2=getClosestHit(hit,Dist);
   if(_hits.size()>1){
     // catch the case where we are at boundary
-    hitIt it1=it2;
-    if(it2!=_hits.begin())--it1;
-    //else std::cout<<"at beginning"<<std::endl;
-    hitIt it3=it2;
-    if(it2!=--_hits.end())++it3;
-    //else std::cout<<"at end"<<std::endl;
+    int it1=it2;
+    if(it1>0) --it1;
+
+    int it3=it2;
+    if(it3 < _hits.size()-1) ++it3;
     
-    TVector3 pos1=(*it1)->cluster()->pos(); //next point
-    TVector3 pos3=(*it3)->cluster()->pos();
+    TVector3 pos1=_hits[it1]->cluster()->pos(); //next point
+    TVector3 pos3=_hits[it3]->cluster()->pos();
+
     // construct general direction of track from these three
-    
     outdir=(pos3-pos1);
     outdir.SetMag(1);
   }
   else {
     TVector3 pos=hit->cluster()->pos(); //next point
-    TVector3 pos2=(*it2)->cluster()->pos();
+    TVector3 pos2=_hits[it2]->cluster()->pos();
     outdir=(pos2-pos);
     outdir.SetMag(1);
   }
   return it2;
 }
 
-//##########################################################################
 
 void
 PndTpcRiemannTrack::addHit(PndTpcRiemannHit* hit){
@@ -205,205 +170,191 @@ PndTpcRiemannTrack::addHit(PndTpcRiemannHit* hit){
     _hits.push_back(hit);
     return;
   }
-  // check if we start at end or at beginning:
-  TVector3 posX=hit->cluster()->pos();
-  std::list<PndTpcRiemannHit*>::iterator it2=_hits.end();
-  --it2;
-  TVector3 posend=(*it2)->cluster()->pos();
-  std::list<PndTpcRiemannHit*>::iterator it1=_hits.begin();
-  TVector3 posstart=(*it1)->cluster()->pos();
-  double s1x=(posX-posstart).Mag();
-  double s2x=(posX-posend).Mag();
-  _nit=0; // reset iteration counter
-  if(s1x>=s2x){// hit closer to end of list
-    _hits.insert(this->sortHit(hit,_hits,-1),hit); // direction -1 --> start backwards search
-  }
-  else { // hit closer to start of list
-    _hits.insert(this->sortHit(hit,_hits,1),hit); // direction 1 --> search from front to end
-  }
+
+  _hits.insert(_hits.begin()+this->sortHit(hit), hit);
 }
 
 
-// returns iterator BEFORE which to insert hitX!!!
-// dir =  1 means start from beginning
-// dir = -1 means start from end
-hitIt
-PndTpcRiemannTrack::sortHit(PndTpcRiemannHit* hitX, 
-			    hitList& hL, int dir){
-  // prepare iterators through list
-  hitIt it2;
-  if(dir>0){
-    it2=hL.begin();
-  }
-  else {
-    it2=hL.end(); 
-    --it2;
+int
+PndTpcRiemannTrack::sortHit(PndTpcRiemannHit* hitX){ // returns index BEFORE which to insert hitX!!!
+  
+  bool debug = false;
+  int nhits = _hits.size();
+
+  if(nhits<2){
+    return _hits.size();
   }
 
   TVector3 posX=hitX->cluster()->pos();
-  TVector3 pos2=(*it2)->cluster()->pos(); //next point
-  // find closest point to my hit
-  int found=0;
-  double dis=(pos2-posX).Mag();
-  double mindis=dis;
-  //std::cout<<"dir="<<dir<<std::endl;
-  int it=0; // count iterations
-  while(it<hL.size() && it2!=hL.end()){ // allow for some overstepping
-    ++it;
-    pos2=(*it2)->cluster()->pos(); //next point
-    dis=(pos2-posX).Mag();
-    if(dis<mindis){
-      found=1;
-      mindis=dis;
-    }
-    else ++found; // record how far the last minimum is away
-    if(it2==hL.begin()&& dir<0) {
-      found-=1;
-      break;
-    }
-    dir>0 ? ++it2 : --it2;
-  }
 
-  // step back to the minimum
-  for(int step=0;step<found;++step) dir>0 ? --it2 : ++it2;
-  pos2=(*it2)->cluster()->pos(); //nearest point
-  dis=(pos2-posX).Mag();
-  //std::cout << "   mini="<<dis<<std::endl;
-  
-  // now it2 is the hit with minimum distance
-  // decide if to insert in front or behind:
-
-  // catch the case where we are at boundary
-  hitIt it1=it2;
-  if(it2!=hL.begin())--it1;
-  hitIt it3=it2;
-  if(it2!=--hL.end())++it3;
-  
-  TVector3 pos1=(*it1)->cluster()->pos(); //previous point (same if @ begin)
-  TVector3 pos3=(*it3)->cluster()->pos(); //next point     (same if @ end)
-
-/*
-  // minimize tracklength
-  if(it1==it2){ //at beginning
-    // X-2-3-...
-    double dx23 = (posX-pos2).Mag() + (pos2-pos3).Mag();
-    // 2-X-3-...
-    double d2x3 = (pos2-posX).Mag() + (posX-pos3).Mag();
-    if(dx23 < d2x3) return it2;
-    return it3;
-  }
-  else if(it2==it3){ //at end
-    // ...-1-2-X
-    double d12x = (pos1-pos2).Mag() + (pos2-posX).Mag();
-    // ...-1-X-2
-    double d1x2 = (pos1-posX).Mag() + (posX-pos2).Mag();
-    if(d12x < d1x2) return ++it2;
-    return it2;
-  }
-  else{
-    // ...-1-2-X-3-...
-    double d12x3 = (pos1-pos2).Mag() + (pos2-posX).Mag() + (posX-pos3).Mag();
-    // ...-1-X-2-3-...
-    double d1x23 = (pos1-posX).Mag() + (posX-pos2).Mag() + (pos2-pos3).Mag();
-    if(d12x3 < d1x23) return it3;
-    return it2;
-  }
-
-*/
-/*
-  // to be more fault tolerant, take mean values from two hits
-  if(it1!=hL.begin()){
-    pos1 = 0.5*(pos1+(*(--it1))->cluster()->pos());
-    ++it1;
-  }
-  if(it3!=--hL.end()){
-    pos3 = 0.5*(pos3+(*(++it3))->cluster()->pos());
-    --it3;
-  }*/
-  
-  // construct general direction of track from these three
-  TVector3 d1=(pos3-pos1);
-  TVector3 d2=(pos2-pos1);
-  TVector3 dx=(posX-pos1);
-  //d1.SetMag(1);
-  //d2.SetMag(1);
-  //dx.SetMag(1);
-  TVector3 d=d1+d2+dx;
-  if(d.Mag()==0){
-    std::cout<<"d=0"<<std::endl;
-    pos1.Print();
-    pos2.Print();
-    pos3.Print();
+  if(debug){
+    std::cout<<"\n\n\n PndTpcRiemannTrack::sortHit   -   positions of hitX: "<<std::endl;
     posX.Print();
   }
-  else d.SetMag(1);
 
-  double dx1=(posX-pos1)*d;
-  double dx2=(posX-pos2)*d;
-  double dx3=(posX-pos3)*d;
-  double d31=(pos3-pos1)*d;
-  double d21=(pos2-pos1)*d;
+  if(nhits==2){ // minimize tracklength
+    TVector3 pos1=_hits[0]->cluster()->pos();
+    TVector3 pos2=_hits[1]->cluster()->pos();
 
-  //check if inside 13
-  if(dx1>0 && d31>dx1){ // different signs -> inside!
-    //std::cout<<"X is inside 13!"<<std::endl;
-    if(dx1*dx2<0){ // inside 12
-      return it2;
-    }
-    else if(dx2*dx3<0){
-      return it3; // inside 23
-    }
+    // X-1-2
+    double dx12 = (posX-pos1).Mag() + (pos1-pos2).Mag();
+    // 1-X-2
+    double d1x2 = (pos1-posX).Mag() + (posX-pos2).Mag();
+    // 1-2-X
+    double d12x = (pos1-pos2).Mag() + (pos2-posX).Mag();
+    if(dx12 < d1x2 && dx12 < d12x) return 0;
+    if(d1x2 < d12x) return 1;
+    return 2;
   }
-    if(dx1<0){// it is before 1
-      //std::cout<<"x before x1"<<std::endl;
-      return it1;
+
+  if(nhits==3){ // minimize tracklength
+    TVector3 pos1=_hits[0]->cluster()->pos();
+    TVector3 pos2=_hits[1]->cluster()->pos();
+    TVector3 pos3=_hits[2]->cluster()->pos();
+
+    // X-1-2-3
+    double dx123 = (posX-pos1).Mag() + (pos1-pos2).Mag() + (pos2-pos3).Mag();
+    // 1-X-2-3
+    double d1x23 = (pos1-posX).Mag() + (posX-pos2).Mag() + (pos2-pos3).Mag();
+    // 1-2-X-3
+    double d12x3 = (pos1-pos2).Mag() + (pos2-posX).Mag() + (posX-pos3).Mag();
+    // 1-2-3-X
+    double d123x = (pos1-pos2).Mag() + (pos2-pos3).Mag() + (pos3-posX).Mag();
+    if(dx123 < d1x23 && dx123 < d12x3 && dx123 < d123x) return 0;
+    if(d1x23 < d12x3 && d1x23 < d123x) return 1;
+    if(d12x3 < d123x) return 2;
+    return 3;
+  }
+  
+  // now we have a track with 4 or more hits
+  // get hit with minimum distance
+  double Dist;
+  int itCl = this->getClosestHit(hitX, Dist);
+
+  if(debug){
+    std::cout<<"closest Hit:"<<std::endl;
+    _hits[itCl]->cluster()->pos().Print();
+  }
+
+  // build average track direction with sliding average of 4 to 5 hits
+  // get up to 5 points, from it1 to it2
+  int it1=itCl-2;
+  if (it1 < 0) it1 = 0; 
+  int it2=itCl+2;
+  if (it2 > _hits.size()-1) it2 = _hits.size()-1;
+
+  // hitIts now contains 4 to 7 hits -> reduce
+  int nHits=it2-it1+1;
+  if(nHits==7){
+    ++it1;
+    --it2;
+  }
+  else if(nHits==6){
+    if(itCl==it1+2) --it2;
+    else ++it1;
+  }
+  /*else if(nHits==5){
+    if(itCl==it1+1) --it2;
+    else if(itCl==it1+3) ++it1;
+  }*/
+  ++it2; // 
+ 
+  if(debug) std::cout<<"positions of hits: "<<std::endl;
+
+  // get positions
+  std::vector<TVector3> slidingAvrg;
+  for(int i=it1; i<it2; ++i) {
+    slidingAvrg.push_back( _hits[i]->cluster()->pos() );
+    if(debug) _hits[i]->cluster()->pos().Print();
+  }  
+  // calculate sliding average until 2 points left
+  while(slidingAvrg.size()>2){      
+    for(int i=0; i<slidingAvrg.size()-1; ++i) {
+      slidingAvrg[i] = 0.5*(slidingAvrg[i]) + 0.5*(slidingAvrg[i+1]);
+    } 
+    slidingAvrg.pop_back();
+  }
+  // construct direction of track
+  TVector3 direction=(slidingAvrg[1]-slidingAvrg[0]);
+  direction.SetMag(1.);
+
+  if(debug){
+    std::cout<<"direction: "<<std::endl;
+    direction.Print();
+    std::cout<<"\n positions on track: "<<std::endl;
+  }
+
+  // calculate positions on the track
+  hitX->tempPosOnTrack( direction * (posX-slidingAvrg[0]) );
+  if(debug) std::cout<<"xPosOnTrack "<<hitX->tempPosOnTrack()<<std::endl;
+  for(int i=it1; i<it2; ++i) {
+    _hits[i]->tempPosOnTrack( direction * (_hits[i]->cluster()->pos() - slidingAvrg[0]) );
+    if(debug) std::cout<<"  "<<_hits[i]->tempPosOnTrack()<<std::endl;
+  }
+  if(debug) std::cout<<std::endl;
+
+  // sort by positions on track
+  if(_doSort) sort(_hits.begin()+it1, _hits.begin()+it2, sortByTempPosOnTrack);
+
+  for(int i=it1; i<it2; ++i) {
+    if(hitX->tempPosOnTrack() < _hits[i]->tempPosOnTrack()) {
+      if(debug) std::cout<<"inserting before "<<i<<std::endl;      
+      return i; 
     }
-    else {
-      //std::cout<<"x after x3"<<std::endl;
-      return ++it3; // insert before
-    }
-
-
-
+    ++i;
+  }
+  if(debug) std::cout<<"inserting before "<<it2<<std::endl;  
+  return it2;
 
 }
-
-//double
-//PndTpcRiemannTrack::s_hit(PndTpcRiemannHit* hit){
-//  hitIt it=_hits.begin();
-//  double s=0;
-//  while()
-//
-//
-//}
 
 
 void
 PndTpcRiemannTrack::trackpos(){
   // loop over hits in track and calculate their position
-  hitIt it=_hits.begin();
-  (*it)->setPosOnTrk(0);
-  hitIt itlast=--_hits.end();
-  while(it!=itlast){
-    double s1=(*it)->s();
-    TVector3 pos1=(*it)->cluster()->pos();
-    ++it; // next hit
-    TVector3 pos2=(*it)->cluster()->pos();
-    (*it)->setPosOnTrk(s1+(pos2-pos1).Mag());
+  _hits[0]->setPosOnTrk(0);
+  TVector3 posX;
+  TVector3 avrg0; // average position of (hit-1) and hit
+  TVector3 avrg1; // average position of hit and (hit+1)
+  TVector3 dir;   // direction, vector from avrg0 to avrg1
+  double s=0.;     // tracklength
+  double sDir; // length of dir
+  double sOnDir;  
+  
+  // calculate sliding average to be more outlier tolerant
+  posX = _hits[0]->cluster()->pos();
+  avrg0 = 0.5*posX + 0.5*_hits[1]->cluster()->pos();
+  s += (avrg0 - posX).Mag();
+
+  for(int it=1; it<_hits.size()-1; ++it){
+    posX = _hits[it]->cluster()->pos();
+    avrg1 = 0.5*posX + 0.5*_hits[it+1]->cluster()->pos();
+    dir =avrg1-avrg0;
+    sDir = dir.Mag();
+    dir.SetMag(1.);
+    sOnDir = dir * (posX-avrg0);
+    _hits[it]->setPosOnTrk(s+sOnDir);
+    // update values for next iteration
+    s += sDir;
+    avrg0 = avrg1;
   }
+
+  // last hit
+  posX = _hits[_hits.size()-1]->cluster()->pos(); 
+  sOnDir = (posX-avrg0).Mag();
+  _hits[_hits.size()-1]->setPosOnTrk(s+sOnDir);
+
+  if(_doSort) sort(_hits.begin(), _hits.begin()+_hits.size(), sortByPosOnTrack);
 }
 
 
-
-// returns winding sense along z-axis
 int
-PndTpcRiemannTrack::winding(){
-  hitIt it=_hits.begin();
-  TVector3 pos1=(*it)->cluster()->pos();
-  ++it;++it;
-  TVector3 pos2=(*it)->cluster()->pos();
-  it=--_hits.end();
-  TVector3 pos3=(*it)->cluster()->pos();
+PndTpcRiemannTrack::winding(){ // returns winding sense along z-axis
+  int it=0;
+  TVector3 pos1=_hits[0]->cluster()->pos();
+  TVector3 pos2=_hits[2]->cluster()->pos();
+  it=_hits.size()-1;
+  TVector3 pos3=_hits[it]->cluster()->pos();
   int dir= pos1.Mag()<pos3.Mag() ? 1 : -1; // correct for forward and backward going tracks pos=(0,0,0) corresponds to IP
   pos1.SetZ(0);
   pos2.SetZ(0);
@@ -415,7 +366,6 @@ PndTpcRiemannTrack::winding(){
   std::cout << "dPhi="<<a<<std::endl;
   return a>0 ? dir : -dir;
 }
-
 
 
 double
@@ -439,16 +389,15 @@ PndTpcRiemannTrack::refit()
 
   TMatrixD sampleCov(3,3);
   
-  std::list<PndTpcRiemannHit*>::iterator it=_hits.begin();
   double nh=0;
-  while(it!=_hits.end()){
+  for(int it=0; it<_hits.size(); ++it){
     TMatrixD h(3,1);
     // weigh hits with 1/cluster error
-    double weightFactor = 1./((*it)->cluster()->sig().Perp());
+    double weightFactor = 1./(_hits[it]->cluster()->sig().Perp());
     nh += weightFactor;
-    h[0][0]=(*it)->x().X();
-    h[1][0]=(*it)->x().Y();
-    h[2][0]=(*it)->x().Z();
+    h[0][0]=_hits[it]->x().X();
+    h[1][0]=_hits[it]->x().Y();
+    h[2][0]=_hits[it]->x().Z();
     TMatrixD d(3,1);
     d=h-Av;
     TMatrixD dt(TMatrixD::kTransposed,d);
@@ -492,9 +441,8 @@ PndTpcRiemannTrack::planeRMS(){
   // loop over hits and calculate RMS
   double rms = 0.;
 
-  std::list<PndTpcRiemannHit*>::iterator it=_hits.begin();
-  while(it!=_hits.end()){
-    TVector3 pos = (*it)->x();
+  for(int it=0; it<_hits.size(); ++it){
+    TVector3 pos = _hits[it]->x();
     double distance = pos*n3 + _c;
     rms += distance*distance;
     ++it;
@@ -534,35 +482,16 @@ PndTpcRiemannTrack::r() const {
   return sqrt(nom)/TMath::Abs(a);
 }
 
+
 void
 PndTpcRiemannTrack::szFit(bool print){
   trackpos(); // calculate positions on track
-  std::list<PndTpcRiemannHit*>::iterator it=_hits.begin();
-  std::list<PndTpcRiemannHit*>::iterator lastit=it;
-  if(!_isFitted){
-    TGraph g(4);
-    for(unsigned int i=0;i<4;++i){
-      //(*it)->calcPosOnTrk((*lastit),false);
-      g.SetPoint(i,(*it)->s(),(*it)->z());
-      //std::cout<<_hits[i]->z()<<"|"<<_hits[i]->s()<<std::endl;
-      lastit=it;
-      ++it;
-    }
-    int errorcode;
-    g.LeastSquareLinearFit(4,_t,_m,errorcode,-999,999);
-    _isFitted=true;
-  }
-  
-  TGraph g(getNumHits());
+
   // get s'es and zs
-  it=_hits.begin();
-  lastit=it;
+  TGraph g(getNumHits());
   unsigned int nn=getNumHits();
-  for(unsigned int i=0;i<nn;++i){
-    //(*it)->calcPosOnTrk((*lastit),false);
-    g.SetPoint(i,(*it)->s(),(*it)->z());
-    lastit=it;
-    ++it;
+  for(unsigned int it=0; it<nn; ++it){
+    g.SetPoint(it,_hits[it]->s(),_hits[it]->z());
   }
   int errorcode;
   g.LeastSquareLinearFit(nn,_t,_m,errorcode,-999,999);
@@ -582,50 +511,39 @@ PndTpcRiemannTrack::szFit(bool print){
   return;
 }
 
+
 double
 PndTpcRiemannTrack::szDist(PndTpcRiemannHit* hit, bool calcPos){
- if(!_isFitted)szFit();
- double hits=hit->s();
- //std::cout<<"raw s="<<hits<<std::endl;
- if(calcPos){
-   // where does this hit belong?:
-   // check if we start at end or at beginning:
-   TVector3 posX=hit->cluster()->pos();
-   std::list<PndTpcRiemannHit*>::iterator it2=_hits.end();
-   --it2;
-   TVector3 posend=(*it2)->cluster()->pos();
-   std::list<PndTpcRiemannHit*>::iterator it1=_hits.begin();
-   TVector3 posstart=(*it1)->cluster()->pos();
-   double s1x=(posX-posstart).Mag();
-   double s2x=(posX-posend).Mag();
-   _nit=0; // reset iteration counter
-   hitIt ahit;
-   if(s1x>=s2x){// hit closer to end of list
-     ahit=this->sortHit(hit,_hits,-1); // direction -1 --> start backwards search
-   }
-   else { // hit closer to start of list
-     ahit=this->sortHit(hit,_hits,1); // direction 1 --> search from front to end
-   }
-   // ahit is the hit AFTER our hit ...
-   bool first=(ahit==_hits.begin());
-   for(int i=0;i<2;++i){ // TODO: Why do I have to increment twice????
-     if(!first)--ahit;
-     first=(ahit==_hits.begin());
-   }
+  if(!_isFitted) szFit();
+  double hit_s=hit->s();
 
-   TVector3 pos1=(*ahit)->cluster()->pos();
-   if(first){
-     hits=-((posX-pos1).Mag());  
-   }
-   else {
-     double s1=(*ahit)->s();
-     hits=s1+(posX-pos1).Mag();  
-   }
-   //std::cout<<"recalc s="<<hits<<std::endl;
- } // end recalcPos
- double predz=hits*_m+_t;
- return predz-hit->z();
+  if(calcPos){
+    TVector3 posX=hit->cluster()->pos();
+
+    // ahit is the hit AFTER our hit ...
+    int ahit = this->sortHit(hit); 
+    TVector3 pos1;
+
+    if(ahit==0){ // @ begining
+      pos1 = _hits[ahit]->cluster()->pos();
+      hit_s=-((posX-pos1).Mag());  
+    }
+    else {
+      --ahit; // hit before our hit
+      pos1 = _hits[ahit]->cluster()->pos();
+      double s1=_hits[ahit]->s();
+      hit_s=s1+(posX-pos1).Mag();  
+    }
+  } // end recalcPos
+
+  // calc distance to line
+  TVector3 line = (1, _m, 0.);
+  line.SetMag(1.); // unit vector of fitted s-z-line
+  TVector3 X = (hit_s, hit->z(), 0.);
+
+  return ( line*(line*X) - X ).Mag();
 }
+
 
 // only after szFit!
 double
@@ -650,15 +568,12 @@ PndTpcRiemannTrack::Plot(bool standalone){
   if(standalone)cc=new TCanvas("c");
   TPolyMarker3D* maker=new TPolyMarker3D(_hits.size());
   TPolyLine3D* line=new TPolyLine3D(_hits.size());
-  std::list<PndTpcRiemannHit*>::iterator it=_hits.begin();
-  int count=0;
-  while(it!=_hits.end()){
-    TVector3 pos=(*it)->cluster()->pos();
+
+  for(int it=0; it<_hits.size(); ++it){
+    TVector3 pos=_hits[it]->cluster()->pos();
     //pos.Print();
-    maker->SetPoint(count,pos.X(),pos.Y(),pos.Z());
-    line->SetPoint(count,pos.X(),pos.Y(),pos.Z());
-    ++it;
-    ++count;
+    maker->SetPoint(it,pos.X(),pos.Y(),pos.Z());
+    line->SetPoint(it,pos.X(),pos.Y(),pos.Z());
   }
   maker->SetMarkerStyle(23);
   maker->Draw();
@@ -671,3 +586,5 @@ PndTpcRiemannTrack::Plot(bool standalone){
     delete cc;
   }
 }
+
+

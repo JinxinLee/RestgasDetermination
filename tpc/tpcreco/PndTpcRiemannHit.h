@@ -43,12 +43,13 @@ public:
   const TVector3& x() const {return _x;}
   PndTpcCluster* cluster() const {return _cluster;}
   double s() const {return _s;}
+  double tempPosOnTrack() const {return _tempPosOnTrack;}
   double z() const;
   double alpha() const {return _alpha;}
   
 
   // Modifiers -----------------------
-
+  double tempPosOnTrack(double tempPos){_tempPosOnTrack=tempPos;}
 
   // Operations ----------------------
   // recursively calculate s:
@@ -61,6 +62,7 @@ private:
   TVector3 _x; // Position on Riemann sphere in cartesian coordinates
   PndTpcCluster* _cluster; //->  //no ownership over this pointer!
   double _s;     // pathlength along track
+  double _tempPosOnTrack; // this is not valid for the whole track and used in the sorting of addHit
   double _alpha; // angle along track
 
   // Private Methods -----------------

@@ -44,10 +44,8 @@ PndTpcRiProxHTCorrelator::corr(PndTpcRiemannTrack* trk,
 				double& matchQuality)
 {
   // check distance on the riemann sphere
-  double ld=999; // distance in 3D
-  const PndTpcRiemannHit* trkHit=*(trk->getClosestHit(rhit,ld));
-  TVector3 dis=rhit->x()-trkHit->x();
-  double l=dis.Mag();
+  double dist; // distance in 3D
+  double l = (trk->getHit(trk->getClosestHit(rhit,dist))->x() - rhit->x()).Mag();
   //std::cout<<"distance on Riemann Sphere "<< l<<std::endl;
   DebugLogger::Instance()->Histo("HT_riem_prox",l,0,0.2,100);
   if(l>_proxcut){
