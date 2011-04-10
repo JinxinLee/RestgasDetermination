@@ -51,8 +51,8 @@ void runClusterVisualisation(TString filename, double DriftField, int paramSet=0
   }
 
 
-   clustVis->initDigimapper(DriftField,gain,spread,zGem,samplingFreq,wallclock,
-			    gasfile.Data(),padplanefile.Data(),padshapefile.Data());
+  clustVis->initDigimapper(DriftField,gain,spread,zGem,samplingFreq,wallclock,
+                           gasfile.Data(),padplanefile.Data(),padshapefile.Data());
   clustVis->setOptions("DCR");
   clustVis->gotoEvent(1);
   clustVis->open();

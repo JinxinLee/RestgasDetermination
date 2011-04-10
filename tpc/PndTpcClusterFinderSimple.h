@@ -58,13 +58,14 @@ public:
   virtual void checkConsistency();
 
   void setNoXclust(bool b=true){noXclust=b;}
+  unsigned int NsplitDigis(){return splitDigis;}
 
 private:
   PndTpcPadPlane* fpadplane;
   std::vector<PndTpcCluster*>* foutput_buffer;
   bool noXclust;
   unsigned int fdt; // time slice in units of sample time
-
+  unsigned int splitDigis;
 
 
 };

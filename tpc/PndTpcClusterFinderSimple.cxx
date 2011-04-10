@@ -109,42 +109,42 @@ void PndTpcPrelimCluster::cog(){
   McIdCollection mcid;
   unsigned int ndigis=fdigis.size();
   for(unsigned int id=0;id<ndigis;++id){
-	PndTpcDigi* adigi=fdigis[id];
-	mcid.AddIDCollection(adigi->mcId());
-	double a=(double)adigi->amp();
-	TVector3 thispos;
-	PndTpcDigiMapper::getInstance()->map(adigi,thispos);
-	double dx;
-	double dy;
-	PndTpcDigiMapper::getInstance()->padsize(adigi->padId(),dx,dy);
+	  PndTpcDigi* adigi=fdigis[id];
+	  mcid.AddIDCollection(adigi->mcId());
+	  double a=(double)adigi->amp();
+	  TVector3 thispos;
+	  PndTpcDigiMapper::getInstance()->map(adigi,thispos);
+	  double dx;
+	  double dy;
+	  PndTpcDigiMapper::getInstance()->padsize(adigi->padId(),dx,dy);
 	
-	McId dummyID(1,1);
-	McIdCollection dummyColl;
-	dummyColl.AddID(dummyID);
+	  McId dummyID(1,1);
+	  McIdCollection dummyColl;
+	  dummyColl.AddID(dummyID);
 	
-	//this block is to define the z jitter
-	TVector3 zDiff1,zDiff2;
-	PndTpcDigi zDiffDigi1(1,1,1,dummyColl),zDiffDigi2(1,2,1,dummyColl);
-	PndTpcDigiMapper::getInstance()->map(&zDiffDigi1,zDiff1);
-	PndTpcDigiMapper::getInstance()->map(&zDiffDigi2,zDiff2);
-	double zDiff = zDiff2.z() - zDiff1.z();
-	//end of z jitter
+	  //this block is to define the z jitter
+	  TVector3 zDiff1,zDiff2;
+	  PndTpcDigi zDiffDigi1(1,1,1,dummyColl),zDiffDigi2(1,2,1,dummyColl);
+	  PndTpcDigiMapper::getInstance()->map(&zDiffDigi1,zDiff1);
+	  PndTpcDigiMapper::getInstance()->map(&zDiffDigi2,zDiff2);
+	  double zDiff = zDiff2.z() - zDiff1.z();
+	  //end of z jitter
 	
-	double Dl = PndTpcDigiMapper::getInstance()->getGas()->Dl();
-	double Dt = PndTpcDigiMapper::getInstance()->getGas()->Dt();
+	  double Dl = PndTpcDigiMapper::getInstance()->getGas()->Dl();
+	  double Dt = PndTpcDigiMapper::getInstance()->getGas()->Dt();
 	
-	double diffSigmaL = Dl * sqrt(thispos.z());
-	double diffSigmaT = Dt * sqrt(thispos.z());
-	double sigmaX_sq = dx*dx/12. + diffSigmaT*diffSigmaT;
-	double sigmaY_sq = dy*dy/12. + diffSigmaT*diffSigmaT;
-	double sigmaZ_sq = zDiff*zDiff/12. + diffSigmaL*diffSigmaL;
+	  double diffSigmaL = Dl * sqrt(thispos.z());
+	  double diffSigmaT = Dt * sqrt(thispos.z());
+	  double sigmaX_sq = dx*dx/12. + diffSigmaT*diffSigmaT;
+	  double sigmaY_sq = dy*dy/12. + diffSigmaT*diffSigmaT;
+	  double sigmaZ_sq = zDiff*zDiff/12. + diffSigmaL*diffSigmaL;
 	
-	TVector3 thissig(sigmaX_sq,sigmaY_sq,sigmaZ_sq);
-	ferr+=a*a*thissig;
+	  TVector3 thissig(sigmaX_sq,sigmaY_sq,sigmaZ_sq);
+	  ferr+=a*a*thissig;
 	
-	fcogT+=a*adigi->t();
-	fpos+=a*thispos;
-	famp+=a;
+	  fcogT+=a*adigi->t();
+	  fpos+=a*thispos;
+	  famp+=a;
   }
   fpos*=1./famp;
 
@@ -179,7 +179,7 @@ void PndTpcPrelimCluster::cog(){
 PndTpcClusterFinderSimple::PndTpcClusterFinderSimple(PndTpcPadPlane* p,
 						     std::vector<PndTpcCluster*>* ob,
 						     unsigned int timeslice)
-  : fpadplane(p), foutput_buffer(ob), fdt(timeslice), noXclust(false)
+  : fpadplane(p), foutput_buffer(ob), fdt(timeslice), noXclust(false), splitDigis(0)
 {
 
 }
@@ -223,12 +223,18 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
       if(nselclust == 1) { // digi can only belong to one cluster -> add to this cluster
 	      prelimClusters[selClusters[0]]->addHit(digis[idigi],noXclust);
       }
-      else{ // digi can belong to more than one cluster -> split digi (divide amplitude) and add to the clusters 
+      else{ // digi can belong to more than one cluster -> split digi (divide amplitude & copy) and add to the clusters 
 	      PndTpcDigi* fd = digis[idigi];
 	      double fa = (double)fd->amp();
 	      digis[idigi]->amp(fa/(double)nselclust); 
-	      for(int i=0;i<nselclust;++i) {
-	        prelimClusters[selClusters[i]]->addHit(fd,noXclust);
+        prelimClusters[selClusters[0]]->addHit(fd,noXclust);
+	      for(int i=1;i<nselclust;++i) {
+          // I have to copy the digi so that one digi is only assigned to one cluster
+          // otherwise there are problems with the TClonesArray
+          PndTpcDigi* digiCopy = new PndTpcDigi(*fd);
+          digis.push_back(digiCopy);
+	        prelimClusters[selClusters[i]]->addHit(digiCopy,noXclust);
+          ++splitDigis;
 	      }
       }
     }
@@ -246,6 +252,7 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
 void 
 PndTpcClusterFinderSimple::reset()
 { 
+  splitDigis = 0;
 }
 
 

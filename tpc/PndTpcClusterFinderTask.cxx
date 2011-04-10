@@ -172,12 +172,14 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
 
   Int_t ndigis=fdigiArray->GetEntries();
   //   std::cout << "FINDER"<< ndigis << std::endl;
-  for(Int_t i=0;i<ndigis;++i){ // get digis
-    PndTpcDigi* digiRaw=(PndTpcDigi*)fdigiArray->At(i);
-    // copy digi
+
+  // copy digis 
+  for(unsigned int idigi=0; idigi<ndigis; ++idigi){ 
+    PndTpcDigi* digiRaw=(PndTpcDigi*)fdigiArray->At(idigi);
     PndTpcDigi* digiCopy = new PndTpcDigi(*digiRaw);
     digis.push_back(digiCopy);
   }
+
 
   try{
     ffinder->process(digis);   
@@ -187,7 +189,7 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
     std::cout << "unknown exception..." << std::endl;
   }
    
-  sort(digis.begin(),digis.end(),PndTpcDigiIndex);
+  //sort(digis.begin(),digis.end(),PndTpcDigiIndex);
 
   /*
 
@@ -210,21 +212,27 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
         PndTpcCluster* cl = new((*fclusterArray)[ncl_rec]) PndTpcCluster(*(*fcluster_buffer)[icl]);
         cl->SetIndex(ncl_rec);
         ncl_rec++;
-        ndig_rec+=cl->size();
+        for(Int_t i=0;i<cl->nDigi();++i){ // get digis
+          PndTpcDigi* digi = new((*fdigiOutArray)[ndig_rec]) PndTpcDigi(*(cl->getDigi(i)));
+          ++ndig_rec;
+        }
       }
-    delete (*fcluster_buffer)[icl];
   } // end loop over clusters
-
-  for(unsigned int idigi=0; idigi<digis.size(); ++idigi){ // loop over digis
-    PndTpcDigi* digi = new((*fdigiOutArray)[idigi]) PndTpcDigi(*(digis[idigi]));
-    //digi->index(idigi);
-  }
-
+  
+  unsigned int splitDigis;
+  if(fsimple){
+    splitDigis = ((PndTpcClusterFinderSimple*)(ffinder))->NsplitDigis();
+    ndig_rec -= splitDigis;
+  } 
   std::cout<<fclusterArray->GetEntriesFast()<<" cluster created "
 	<<" containing "<<ndig_rec<<" digis"
   <<" from "<<ndigis<<std::endl;
-  if(fsimple){std::cout<<" (SimpleClustering split "<< "xxx" <<" Digis!)"<<std::endl;}   
+  if(fsimple){std::cout<<" (SimpleClustering split "<< splitDigis <<" Digis!)"<<std::endl;}   
    
+
+  for(unsigned int icl=0;icl<ncl;++icl){
+    delete (*fcluster_buffer)[icl];
+  }
   fcluster_buffer->clear();
   digis.clear();
    
@@ -236,3 +244,4 @@ bool PndTpcDigiIndex(PndTpcDigi* digi1, PndTpcDigi* digi2){
 }
 
 ClassImp(PndTpcClusterFinderTask)
+

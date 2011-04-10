@@ -119,7 +119,8 @@ void PndTpcClustVis::reset() {
 
 void PndTpcClustVis::setTree(TTree* treeIn) {
   tree = treeIn;
-  tree->SetBranchAddress("PndTpcDigi", &digisBranch);
+  tree->SetBranchAddress("PndTpcRawDigi", &digisBranch);
+  if(digisBranch==NULL) tree->SetBranchAddress("PndTpcDigi", &digisBranch);
   tree->SetBranchAddress("PndTpcCluster", &clustersBranch);
   //tree->SetBranchAddress("TrackPreFit", &preFitBranch);
 }
@@ -263,6 +264,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     ffinder->saveRaw();
     ffinder->reset();
     
+    if(digisBranch==NULL) std::cerr<<"PndTpcClustVis::drawEvent - Error: No Digi Array Found!"<<std::endl;
     //for sorting
     std::vector<PndTpcDigi*> digis;
 
@@ -315,11 +317,13 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
      digis.clear();
   }
   else{ // fill clusters in cluster_buffer
+    if(clustersBranch==NULL) std::cerr<<"PndTpcClustVis::drawEvent - Error: No Cluster Array Found!"<<std::endl;
     for(unsigned int i=0; i<clustersBranch->GetEntries(); ++i){
       PndTpcCluster *cluster = (PndTpcCluster*)clustersBranch->At(i);
       fcluster_buffer->push_back(cluster);
     }
   }
+  std::cout << "number of clusters: " << fcluster_buffer->size() << std::endl;
 
   // loop over clusters
   for(unsigned int i=0; i<fcluster_buffer->size(); ++i){
@@ -929,7 +933,7 @@ void PndTpcClustVis::makeGui() {
   frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
     guiDrawTpc =  new TGCheckButton(hf, "Draw TPC");
-    if(guiDrawTpc) guiDrawTpc->Toggle();
+    if(drawTpc) guiDrawTpc->Toggle();
     hf->AddFrame(guiDrawTpc);
     guiDrawTpc->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
   }

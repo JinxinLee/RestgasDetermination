@@ -67,31 +67,34 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath)
   //CT->SetPersistence();
   //fRun->AddTask(CT);
   
+bool SimpleClustering = true;
   
   PndTpcPSATask* tpsa = new  PndTpcPSATask();
-  //tpsa->SetPersistence();
+  tpsa->SetPersistence();
   tpsa->SetSampleBranchName("PndTpcSample"); // Input of PSA
   tpsa->SetDigiBranchName("PndTpcRawDigi");  // Output of PSA
   fRun->AddTask(tpsa);
 
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
   //tpcCF->SetDataMode(true); //prevents usage of FairLinks
-  tpcCF->SetMode(2); // 0 - global time bins;  
-                     // 1 - individual time bins for each sector;  
-                     // 2 - each pad gets its time window - actually we search for gaps on a pad;
-  tpcCF->SetDataMode(true);
+  tpcCF->SetDigiPersistence(); // keep Digis (contains then modified digis if you use SimpleClustering)
   tpcCF->SetPersistence(); // keep Clusters
-  tpcCF->SetDigiPersistence(); // keep Digis (contains then only digis of clusters. they are modified if you use SimpleClustering)
   tpcCF->SetDigiBranchName("PndTpcRawDigi"); // Input of clustering
   tpcCF->SetDigiOutBranchName("PndTpcDigi"); // Digi output of clustering
   tpcCF->timeslice(6); //in samples
-  tpcCF->SetDiffFactor(1.);
-  tpcCF->SetClusterTimeCut(5.);
   tpcCF->SetSingleDigiClusterAmpCut(20);
-  tpcCF->SetErrorPars(600,300);
+  if(!SimpleClustering) {
+    tpcCF->SetMode(2); // 0 - global time bins;  
+                       // 1 - individual time bins for each sector;  
+                       // 2 - each pad gets its time window - actually we search for gaps on a pad;
+    tpcCF->SetDiffFactor(1.);
+    tpcCF->SetClusterTimeCut(5.);
+    tpcCF->SetErrorPars(600,300);
+  }
   //tpcCF->SetTrivialClustering();
-  tpcCF->SetSimpleClustering(); // use PndTpcClusterFinderSimple
+  if(SimpleClustering) tpcCF->SetSimpleClustering(); // use PndTpcClusterFinderSimple
   fRun->AddTask(tpcCF);
+
 
   //actually MODIFIES existing clusters, does NOT create a new branch
   PndTpcClusterCorrectionTask* tpcCC = new PndTpcClusterCorrectionTask();
@@ -175,7 +178,7 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath)
  
  
   fRun->Init();
-  fRun->Run(0,10);
+  fRun->Run(0,30);
 
   timer.Stop();
   Double_t rtime = timer.RealTime();
