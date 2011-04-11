@@ -209,6 +209,7 @@ private:
   TGCheckButton* guiDrawClusters;
   TGCheckButton* guiDrawClustersErrors;
   TGCheckButton* guiDoPR;
+  TGNumberEntry* guiPRNHits;
   TGCheckButton* guiDoMerge;
 
   TGNumberEntry* guisorting;
@@ -237,6 +238,7 @@ private:
   bool drawClusters;
   bool drawClusterErrors;
   bool doPR;
+  int PRNHits;
   bool doMerge;
 
   int _sorting;

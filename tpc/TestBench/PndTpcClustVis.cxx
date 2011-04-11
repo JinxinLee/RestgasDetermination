@@ -20,8 +20,8 @@ PndTpcClustVis::PndTpcClustVis():
   digisBranch(0),clustersBranch(0), guiEvent(0),
   doClustering(false), ClMode(2), ClTimeslice(3),ClTimecut(2), ClSingeDigiClAmpCut(20), ClSimpleCl(true), ClSimpleTimeslice(7),
   drawTpc(false), drawDigis(false), drawClusters(true), drawClusterErrors(false),
-  doPR(true), doMerge(false), _sorting(3), _interactionZ(0), _sortingMode(true),
-  _minpoints(5), _planecut(0.05), _riproxcut(0.05), _szcut(2), _proxcut(2),
+  doPR(true), doMerge(false), _sorting(3), _interactionZ(0), _sortingMode(true), PRNHits(100000),
+  _minpoints(5), _planecut(0.05), _riproxcut(0.05), _szcut(0.25), _proxcut(2),
   _TTproxcut(2), _TTplanecut(2E-3), _TTszcut(2)
 {
   if(!gApplication) {
@@ -317,7 +317,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
         // map digi
         TVector3 pos;
-        if(digi->padId()<0 || digi->padId()>10300) continue;
+        if(digi->padId()<0) continue;
         PndTpcDigiMapper::getInstance()->map(digi,pos);
 
         // rotate and translate -------------------------------------------------------
@@ -329,7 +329,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
         // calculate and norm amp
         double amp = digi->amp(); // should be ~ 6 .. 2000
-        if(amp > 3000 || amp<1) continue; // TODO: when using SimpleCl, strange things happen and HUGE digis are drawn
+        if(amp<1) continue; 
         amp = TMath::Log(amp); // ~ 0.8 .. 3.3
         amp *= 0.02;
 	
@@ -380,11 +380,13 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     _trackfinder->setSortingMode(_sortingMode);
     _trackfinder->setMinHitsForFit(_minpoints);
 
+    _trackfinder->setMaxNumHitsForPR(PRNHits);
+
     // Hit-Track Correlators
-    _trackfinder->addCorrelator(new PndTpcRiemannHTCorrelator(_planecut));
-    _trackfinder->addCorrelator(new PndTpcSzHTCorrelator(_szcut));
-    _trackfinder->addCorrelator(new PndTpcRiProxHTCorrelator(_riproxcut));
     _trackfinder->addCorrelator(new PndTpcProximityHTCorrelator(_proxcut));
+    _trackfinder->addCorrelator(new PndTpcRiProxHTCorrelator(_riproxcut));
+    _trackfinder->addCorrelator(new PndTpcSzHTCorrelator(_szcut));
+    _trackfinder->addCorrelator(new PndTpcRiemannHTCorrelator(_planecut));
 
     // Track-Track Correlators
     _trackfinder->addTTCorrelator(new PndTpcProximityTTCorrelator(_TTproxcut));
@@ -793,22 +795,7 @@ void PndTpcClustVis::makeGui() {
   TGLabel* lbl = 0;
   PndTpcClustVis*  fh = PndTpcClustVis::getInstance();
 
-  TGHorizontalFrame* hf = new TGHorizontalFrame(frmMain); {/*
-    TString icondir( Form("%s/icons/", gSystem->Getenv("ROOTSYS")) );
-
-    // prev button
-    b = new TGPictureButton(hf, gClient->GetPicture(icondir+"GoBack.gif"));
-    hf->AddFrame(b);
-    b->Connect("Clicked()", "PndTpcClustVis", fh, "prev()");
-
-    // next button
-    b = new TGPictureButton(hf, gClient->GetPicture(icondir+"GoForward.gif"));
-    hf->AddFrame(b);
-    b->Connect("Clicked()", "PndTpcClustVis", fh, "next()");*/
-  }
-  frmMain->AddFrame(hf);
-
-  hf = new TGHorizontalFrame(frmMain); {
+  TGHorizontalFrame* hf = new TGHorizontalFrame(frmMain); {
     // evt number entry
     lbl = new TGLabel(hf, "Go to event: ");
     hf->AddFrame(lbl);
@@ -824,7 +811,6 @@ void PndTpcClustVis::makeGui() {
     tb = new TGTextButton(hf, "Redraw Event");
     hf->AddFrame(tb);
     tb->Connect("Clicked()", "PndTpcClustVis", fh, "guiGoto()");
-
   }
   frmMain->AddFrame(hf);
 
@@ -954,6 +940,25 @@ void PndTpcClustVis::makeGui() {
     if(doPR) guiDoPR->Toggle();
     hf->AddFrame(guiDoPR);
     guiDoPR->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
+  }
+  frmMain->AddFrame(hf);
+
+  hf = new TGHorizontalFrame(frmMain); {
+    // evt number entry
+    lbl = new TGLabel(hf, "Do PR up to Hit: ");
+    hf->AddFrame(lbl);
+    guiPRNHits = new TGNumberEntry(hf, PRNHits, 9,999, TGNumberFormat::kNESInteger,
+                          TGNumberFormat::kNEANonNegative,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 99999);
+    hf->AddFrame(guiPRNHits);
+    guiPRNHits->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
+
+
+    // redraw button
+    tb = new TGTextButton(hf, "Redraw Event");
+    hf->AddFrame(tb);
+    tb->Connect("Clicked()", "PndTpcClustVis", fh, "guiGoto()");
   }
   frmMain->AddFrame(hf);
 
@@ -1114,6 +1119,7 @@ void PndTpcClustVis::guiSetClusterfinderParams(){
 }
 
 void PndTpcClustVis::guiSetTrackingParams(){
+  PRNHits = guiPRNHits->GetNumberEntry()->GetIntNumber();
   _sorting = guisorting->GetNumberEntry()->GetIntNumber();
   _interactionZ = guiinteractionZ->GetNumberEntry()->GetNumber();
 
