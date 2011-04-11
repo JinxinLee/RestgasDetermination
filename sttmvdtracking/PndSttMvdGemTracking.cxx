@@ -2197,6 +2197,7 @@ Bool_t PndSttMvdGemTracking::Prefit(PndTrack *sttmvdTrack, PndTrackCand *sttmvdC
   
 
   //  cout << "ZFIT " << fitm << " " << fitp << endl;
+  if(firsthitid == -1 || lasthitid == -1) return kFALSE; // CHECK
 
   // x0 y0
   Double_t d = TMath::Sqrt(xc * xc + yc * yc) - radius;
@@ -2364,6 +2365,9 @@ Bool_t PndSttMvdGemTracking::IntersectionFinder(Double_t xc, Double_t yc, Double
       lasthitid = ihit;
     }
   }
+
+  if(firsthitid == -1 || lasthitid == -1) return kFALSE; // CHECK
+
   Double_t trasl[2] = {points[firsthitid][2], points[firsthitid][3]};
 
   //  cout << "first/last " << firsthitid << " " << lasthitid << endl;
