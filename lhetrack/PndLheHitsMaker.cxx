@@ -980,7 +980,7 @@ void PndLheHitsMaker::GetGemPoints() {
 	hit->SetDz(fGemResolution);
       }
     
-    hit->SetDetectorID(FairRootManager::Instance()->GetBranchId("GemPoint"));
+    hit->SetDetectorID(FairRootManager::Instance()->GetBranchId("GEMPoint"));
     hit->SetTrackID(point->GetTrackID());
     hit->SetRefIndex(j);
 
@@ -1016,7 +1016,7 @@ void PndLheHitsMaker::GetGemHits() {
     hit->SetDy(point->GetDy());
     hit->SetDz(point->GetDz());
     
-    hit->SetDetectorID(FairRootManager::Instance()->GetBranchId("GemHit"));
+    hit->SetDetectorID(FairRootManager::Instance()->GetBranchId("GEMHit"));
     hit->SetTrackID(-1);
     if ( (fGemSimMode) && (point->GetRefIndex()!=-1) )
     {
