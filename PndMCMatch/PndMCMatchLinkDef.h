@@ -13,7 +13,7 @@
 #pragma link C++ class PndMCObject+;
 #pragma link C++ class PndMCStage+;
 #pragma link C++ class PndMCResult+;
-
+#pragma link C++ class PndMCTrackAssociator+;
 
 #endif
 

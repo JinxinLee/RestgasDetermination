@@ -10,6 +10,8 @@ ${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/pndbase 
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/SdsData
+${CMAKE_SOURCE_DIR}/pnddata/SttData
+${CMAKE_SOURCE_DIR}/pnddata/GemData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/pndbase/PndStdUtils
 ${CMAKE_SOURCE_DIR}/field 
@@ -20,6 +22,7 @@ ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
 ${CMAKE_SOURCE_DIR}/emc/EmcData
 ${CMAKE_SOURCE_DIR}/emc/EmcReco
+${CMAKE_SOURCE_DIR}/tpc
 ${CMAKE_SOURCE_DIR}/PndMCMatch
 )
 
@@ -41,6 +44,7 @@ PndMCStage.cxx
 PndMCResult.cxx
 PndMCEntry.cxx
 PndMCList.cxx
+PndMCTrackAssociator.cxx
 )
 
 # fill list of header files from list of source files
