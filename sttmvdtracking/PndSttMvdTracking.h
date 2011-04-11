@@ -86,7 +86,7 @@ class PndSttMvdTracking : public FairTask
 			  nmaxMvdStripHits=500,
 			  nmaxMvdPixelHitsInTrack=30,
 			  nmaxMvdStripHitsInTrack=30,
-			  MAXMVDTRACKSPEREVENT=200,
+			  MAXMVDTRACKSPEREVENT=400,
 			  MAXTURNSOFTRACK=0;
   static const Double_t   BFIELD=2.,  // in Tesla
 			  PI = 3.141592654,
@@ -98,7 +98,21 @@ class PndSttMvdTracking : public FairTask
 			  STRAWRESOLUTION= 0.015;
   bool    ExclusionListStt[nmaxSttHits];
 
-	UShort_t	nMvdPixelHit,
+  UShort_t	nTrackCandHit[MAXTRACKSPEREVENT],
+		nSttParHitsinTrack[MAXTRACKSPEREVENT],
+		nSttSkewHitsinTrack[MAXTRACKSPEREVENT],
+		nMvdPixelHitsinTrack[MAXTRACKSPEREVENT],
+		nMvdStripHitsinTrack[MAXTRACKSPEREVENT],
+		ListMvdPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHits],
+		ListMvdStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHits],
+		ListTrackCandHit[MAXTRACKSPEREVENT][nmaxSttHits+
+				nmaxMvdPixelHitsInTrack+
+				nmaxMvdStripHitsInTrack],
+		ListSttParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
+		ListSttSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits]
+		;
+
+	Short_t	nMvdPixelHit,
 			nMvdStripHit,
 			nMvdTrackCand,
 			nHitMvdTrackCand[MAXMVDTRACKSPEREVENT],
@@ -113,7 +127,12 @@ class PndSttMvdTracking : public FairTask
 			nMvdDSStripHitNotTrackCand,
 			nMvdUSStripHitNotTrackCand,
 			ListMvdDSStripHitNotTrackCand[nmaxMvdStripHitsInTrack],
-			ListMvdUSStripHitNotTrackCand[nmaxMvdStripHitsInTrack];
+			ListMvdUSStripHitNotTrackCand[nmaxMvdStripHitsInTrack],
+	ListTrackCandHitType[MAXTRACKSPEREVENT][nmaxSttHits+  //  type = 0 --> Mvd Pixel
+				nmaxMvdPixelHitsInTrack+   //  type = 1 --> Mvd Strip
+				nmaxMvdStripHitsInTrack];  //  type = 2 --> Stt Parallel
+							      //  type = 3 --> Stt Straw
+							      //  type -1 -->  noise
 
   Double_t	SEMILENGTH_STRAIGHT,
 		ZCENTER_STRAIGHT,
@@ -239,7 +258,7 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 
 		UShort_t nSkewHitsinTrack,
 		UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
-		Double_t SchosenSkew[nmaxSttHits],
+		Double_t *SchosenSkew,
 		UShort_t nSkewCommon[MAXTRACKSPEREVENT],
 		UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxSttHits],
 		UShort_t nMCSkewAlone[MAXMCTRACKS],
@@ -323,7 +342,7 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 		UShort_t ListTrackCandHit[MAXTRACKSPEREVENT][nmaxSttHits+
 	                           nmaxMvdPixelHitsInTrack+
 				   nmaxMvdStripHitsInTrack],
-		UShort_t ListTrackCandHitType[MAXTRACKSPEREVENT][nmaxSttHits+
+		Short_t ListTrackCandHitType[MAXTRACKSPEREVENT][nmaxSttHits+
 	                           nmaxMvdPixelHitsInTrack+
 				   nmaxMvdStripHitsInTrack]
 					);
@@ -366,6 +385,32 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
                   Short_t daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
 					);
 
+    void AssociateFoundTrackstoMCquater(
+		  Double_t info[][7],
+		Double_t Ox[MAXTRACKSPEREVENT],
+		Double_t Oy[MAXTRACKSPEREVENT],
+		Double_t R[MAXTRACKSPEREVENT],
+		Double_t X1[MAXTRACKSPEREVENT],
+		Double_t Y1[MAXTRACKSPEREVENT],
+		Double_t X2[MAXTRACKSPEREVENT],
+		Double_t Y2[MAXTRACKSPEREVENT],
+		Double_t X3[MAXTRACKSPEREVENT],
+		Double_t Y3[MAXTRACKSPEREVENT],
+                  UShort_t nTracksFoundSoFar,
+                  UShort_t nHitsinTrack[MAXTRACKSPEREVENT],
+                  UShort_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
+                  UShort_t nSkewHitsinTrack[MAXTRACKSPEREVENT],
+                  UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
+
+		UShort_t nMvdPixelHitsinTrack[MAXTRACKSPEREVENT],
+		UShort_t ListMvdPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHits],
+		Short_t *FromPixeltoMCTrack,
+		UShort_t nMvdStripHitsinTrack[MAXTRACKSPEREVENT],
+		UShort_t ListMvdStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHits],
+		Short_t *FromStriptoMCTrack,
+
+                  Short_t daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
+					);
 
   void calculateintersections(Double_t Ox,Double_t Oy,Double_t R,Double_t C0x,Double_t C0y,
                    Double_t C0z,Double_t r,Double_t vx,Double_t vy,Double_t vz,
@@ -463,13 +508,11 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 
   void CollectParSttHitsagain(
 			bool *Mvdhits,
-			Double_t delta,
-			Double_t highqualitycut,
 			Double_t info[][7],
 			UShort_t nSttParHit,
 			UShort_t ListAllParHits[nmaxSttHits],
-
-			UShort_t nSttTrackCand,
+			UShort_t StartTrackCand,
+			UShort_t EndTrackCand,
 			Double_t Ox[MAXTRACKSPEREVENT],
 			Double_t Oy[MAXTRACKSPEREVENT],
 			Double_t R[MAXTRACKSPEREVENT],
@@ -512,9 +555,9 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 			);
 
   void RefitMvdStt(
-			UShort_t *nTrackCandHit,
+			UShort_t nCandHit,
 			UShort_t *ListTrackCandHit,
-			UShort_t *ListTrackCandHitType,
+			Short_t *ListTrackCandHitType,
 			Double_t info[][7],
 			Double_t rotationangle,
 			Double_t trajectory_vertex[2],
@@ -716,6 +759,24 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 			Double_t *Fi_up_limit 
 						);
 
+   bool CalculateCircleThru3Points(
+			Double_t x1,
+			Double_t y1,
+			Double_t x2,
+			Double_t y2,
+			Double_t x3,
+			Double_t y3,
+			Double_t *Ox,
+			Double_t *Oy,
+			Double_t *R
+				);
+
+
+   void   Ordering_Loading_ListTrackCandHit(
+			UShort_t FirstCandidate,
+			UShort_t LastCandidate,
+			Double_t info[][7]
+		  );
 
   ClassDef(PndSttMvdTracking,1);
 
