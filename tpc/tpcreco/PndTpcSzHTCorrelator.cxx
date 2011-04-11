@@ -47,15 +47,16 @@ PndTpcSzHTCorrelator::corr(PndTpcRiemannTrack* trk,
   // check if we have a fit:
   if(!trk->isFitted())return false;
 
-  double l2=trk->szDist(rhit,true);
-  DebugLogger::Instance()->Histo("HT_sz_szDist",l2,-4,4,100);
-
-  if(TMath::Abs(l2)>_szcut){  
+  double l=trk->szDist(rhit,true);
+  //std::cout<<"sz distance: "<< l<<std::endl;
+  DebugLogger::Instance()->Histo("HT_sz_szDist",l,-4,4,100);
+  l=TMath::Abs(l);
+  matchQuality=l;
+  if(l>_szcut){  
     DebugLogger::Instance()->Histo("HT_riemanncuts",3,0,20,20);
     survive=false;
     return true;
   }
-  matchQuality=TMath::Abs(l2);
 
   survive=true;
   return true;

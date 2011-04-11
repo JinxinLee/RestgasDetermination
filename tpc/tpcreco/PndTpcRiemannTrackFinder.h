@@ -67,7 +67,7 @@ public:
   void setSorting(int s){_sorting=s;} // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R
   void setSortingMode(bool sortingMode){_sortingMode=sortingMode;} // false: sort only according to _sorting; true: use internal sorting when adding hits to trackcands
   void setInteractionZ(double z){_interactionZ=z;}
-
+  void setMaxNumHitsForPR(double MaxNumHitsForPR){_MaxNumHitsForPR=MaxNumHitsForPR;}
 
   // Operations ----------------------
   unsigned int buildTracks(std::vector<PndTpcCluster*>& clusters,
@@ -93,6 +93,7 @@ private:
   int _sorting;
   bool _sortingMode;
   double _interactionZ;
+  int _MaxNumHitsForPR; // for debugging
 
   unsigned int _minHitsForFit;
 

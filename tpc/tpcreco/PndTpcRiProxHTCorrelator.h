@@ -32,7 +32,7 @@ class PndTpcRiProxHTCorrelator : public PndTpcAbsHitTrackCorrelator {
 public:
 
   // Constructors/Destructors ---------
-  PndTpcRiProxHTCorrelator(double proxcut);
+  PndTpcRiProxHTCorrelator(double riproxcut);
   ~PndTpcRiProxHTCorrelator(){;}
 
   // Accessors -----------------------
@@ -51,7 +51,7 @@ public:
 private:
 
   // Private Data Members ------------
-  double _proxcut; 
+  double _riproxcut; 
 
   // histograms for logging
   TH1D* _hprox;

@@ -37,15 +37,13 @@
 #include "PndTpcRiemannHTCorrelator.h"
 #include "PndTpcRiemannTTCorrelator.h"
 
+#define DEBUG
+
 // Class Member definitions -----------
 PndTpcRiemannTrackFinder::PndTpcRiemannTrackFinder()
   : _minHitsForFit(5), _sortingMode(false), 
   _sorting(3), _interactionZ(0.)
-{
-  // correlators in decreasing priority!
-  
-  //addCorrelator(new PndTpcProximityHTCorrelator(1.));
-  //addCorrelator(new PndTpcRiemannHTCorrelator(5.E-4));
+{   
 }
 
 
@@ -90,55 +88,96 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
 {
   sortClusters(cll);
   unsigned int ncl=cll.size();
+  int ncor = _correlators.size();
 
-  for(unsigned int icl=0;icl<ncl;++icl){ // loop over clusters
-    /*if(icl<30){
-      std::cout<<"Perp: "<<cll[icl]->pos().Perp()
-	       <<"   Mag: "<<cll[icl]->pos().Mag()	
-	       <<"   Z: "<<cll[icl]->pos().Z()<<std::endl;
-    }*/
+#ifdef DEBUG
+  if(_MaxNumHitsForPR<ncl) ncl=_MaxNumHitsForPR;
+#endif
+
+  for(unsigned int icl=0;icl<ncl;++icl){ // loop over hits
 
     PndTpcRiemannHit* rhit=new PndTpcRiemannHit(cll[icl]);
     unsigned int ntrks=candlist.size();
-    unsigned int maxlevel=0; // index of deepest correlator reached
-    bool foundAtAll=false;
-    //std::cout<<"hit"<<icl<<" testing "<<ntrks<<" tracks"<<std::endl;
+    unsigned int maxlevel=0; // index of track with highest number of applicable correlators
+    bool foundAtAll=false; 
+    for(int i=0;i<ncor;++i) _bestMatchQuality[i] = 99999.;// reset 
+
     for(unsigned int itrk=0;itrk<ntrks;++itrk){ // loop over tracks
       PndTpcRiemannTrack* trk=candlist[itrk];
       if(trk==NULL)continue;
+
       // WE STEP THROUGH THE INDIVIDUAL CORRELATORS
       // IF A TRACK SURVIVES EACH CORRELATOR
       // THE HIT IS ASSIGNED TO THE BEST (smallest!) MATCH 
-      bool trksurvive=false;
-      for(int icor=0;icor<_correlators.size();++icor){ // loop through correlators
+      
+      bool trksurvive = false;
+      std::vector<double> matchQualities(ncor, 99999.); // for saving the match qualities for each correlator
+      int level = 0; // number of survived correlators
+      #ifdef DEBUG
+        if(icl==_MaxNumHitsForPR-1) std::cout<<"Testing hit "<<icl<<" with track "<<itrk<<std::endl;
+      #endif
+
+      for(int icor=0;icor<ncor;++icor){ // loop through correlators
         // CORRELATE HIT WITH TRACK
-        double matchQuality=99999;
+	double matchQuality = 99999;
         bool survive=false;
         bool applicable=_correlators[icor]->corr(trk,rhit,survive,matchQuality);
+        #ifdef DEBUG
+          if(icl==_MaxNumHitsForPR-1){
+            if(!applicable){std::cout<<"  correlator "<<icor<<" NOT applicable"<<std::endl;}
+            else{std::cout<<"  correlator "<<icor<<"  IS applicable; survived "<<survive<<" with MatchQuality "<<matchQuality<<std::endl;}
+          }
+        #endif
         if(!applicable)continue; // try the next correlator
         if(!survive){
           trksurvive=false;
           break; // track has failed this level --> can be excluded
         }
-        if(icor<maxlevel)continue; // there are cands that reached deeper level
-        maxlevel=icor;
-        if(_bestMatchQuality[icor]>matchQuality){
-          _bestMatchQuality[icor]=matchQuality;
-          _bestMatchIndex[icor]=itrk;
-          trksurvive=true;
-        }
+	// track survived this correlator
+        level = icor;
+	trksurvive = true;
+	matchQualities[icor] = matchQuality;
       } // end loop over correlator
-      foundAtAll|=trksurvive;
+
+
+      if(trksurvive){ // update best values
+        if(level>maxlevel) maxlevel=level;
+	for(unsigned int i=0; i<=level; ++i){
+	  if(matchQualities[i]<_bestMatchQuality[i]){
+	    _bestMatchQuality[i]=matchQualities[i];
+	    _bestMatchIndex[i]=itrk;
+	  }
+	}
+      }
+
+      #ifdef DEBUG
+      if(icl==_MaxNumHitsForPR-1 && trksurvive) std::cout<<" Track "<<itrk<<" survived with level "<<level<<std::endl;
+        if(icl==_MaxNumHitsForPR-1) std::cout<<std::endl;
+      #endif
+
+      foundAtAll|=trksurvive; // foundAtAll will be true if at least one track survived
     } // end loop over tracks
 
-    if(!foundAtAll)// new track
-      {
-        PndTpcRiemannTrack* trk=new PndTpcRiemannTrack();
-        trk->setSort(_sortingMode);
-        candlist.push_back(trk);
-        //std::cout<<"Creating new track"<<std::endl;
-        trk->addHit(rhit);
+
+    #ifdef DEBUG
+      if(icl==_MaxNumHitsForPR-1){
+        std::cout<<"maxlevel "<< maxlevel <<std::endl;
+        std::cout<<"_bestMatchIndex[maxlevel] "<<_bestMatchIndex[maxlevel] <<std::endl;
+        std::cout<<"_bestMatchQuality[maxlevel] "<<_bestMatchQuality[maxlevel] <<std::endl;
       }
+    #endif
+
+
+    if(!foundAtAll){ // new track if no track survived
+      PndTpcRiemannTrack* trk=new PndTpcRiemannTrack();
+      trk->setSort(_sortingMode);
+      candlist.push_back(trk);
+      //std::cout<<"Creating new track"<<std::endl;
+      trk->addHit(rhit);
+      #ifdef DEBUG
+        if(icl==_MaxNumHitsForPR-1) std::cout<<"-> creating new track Nr "<<candlist.size()-1<<std::endl;
+      #endif
+    }
     else {
       // add hit to best match
       // use the bestMatch from deepest level
@@ -146,6 +185,9 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
 // 	       <<"   bestMatch[1]="<<_bestMatchIndex[1]<<std::endl;
 //       std::cout<<"choosing "<<_bestMatchIndex[maxlevel]<<std::endl;
       PndTpcRiemannTrack* theTrk=candlist[_bestMatchIndex[maxlevel]];
+      #ifdef DEBUG
+        if(icl==_MaxNumHitsForPR-1) std::cout<<"-> adding hit to track"<<_bestMatchIndex[maxlevel]<<std::endl;
+      #endif
       theTrk->addHit(rhit);
       if(theTrk->getNumHits()>=_minHitsForFit){
         theTrk->refit();
@@ -153,9 +195,9 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
       }
     }
     resetFlags();
-  } // end loop over cluster
+  } // end loop over hits
   
-
+#ifndef DEBUG
   std::cout<<candlist.size()<<" Riemann Tracks found."<<std::endl;
   for(int i=0;i<candlist.size();++i){
     std::cout<<"Track"<<i<<": "
@@ -164,7 +206,7 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
     std::cout<<std::endl;
     //candlist[i]->Plot(1);
   }
-  
+#endif  
  return candlist.size();
 }
 

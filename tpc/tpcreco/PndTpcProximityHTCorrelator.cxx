@@ -45,16 +45,16 @@ PndTpcProximityHTCorrelator::corr(PndTpcRiemannTrack* trk,
   const PndTpcCluster* cl=rhit->cluster();
   if(cl==NULL)return false; // not applicable
   // get closest hit from track
-  double l=1000;
+  double l;
   trk->getClosestHit(rhit,l);
+  //std::cout<<"distance in 3D: "<<l<<std::endl;
   DebugLogger::Instance()->Histo("HT_prox_l",l,0,5,100);
-  // TODO: look at errors properly!
+  matchQuality=l;
   if(l>_proxcut){
     DebugLogger::Instance()->Histo("HT_riemanncuts",1,0,20,20);
     survive=false;
     return true;
   }
-  matchQuality=l;
   survive=true;
   return true;
 }

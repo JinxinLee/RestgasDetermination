@@ -99,30 +99,6 @@ PndTpcRiemannTrack::getLastHit() const {
 
 int
 PndTpcRiemannTrack::getClosestHit(PndTpcRiemannHit* hit, 
-				                          double& Dist) {
-
-  TVector3 posX=hit->cluster()->pos();
-  TVector3 pos2;
-
-  int found;
-  double mindis=9.E99;
-  double dis;
-
-  for(int it=0; it<_hits.size(); ++it){
-    pos2=_hits[it]->cluster()->pos(); 
-    dis=(pos2-posX).Mag();
-    if(dis<mindis){
-      found=it;
-      mindis=dis;
-    }
-  }
-  Dist = mindis;
-  return found;
-}
-
-
-int
-PndTpcRiemannTrack::getClosestHit(PndTpcRiemannHit* hit, 
 				                          double& Dist, 
 				                          TVector3& outdir){
   int it2=getClosestHit(hit,Dist);
@@ -148,6 +124,50 @@ PndTpcRiemannTrack::getClosestHit(PndTpcRiemannHit* hit,
     outdir.SetMag(1);
   }
   return it2;
+}
+
+
+int
+PndTpcRiemannTrack::getClosestHit(PndTpcRiemannHit* hit, double& Dist) {
+  TVector3 posX=hit->cluster()->pos();
+  TVector3 pos2;
+
+  int found;
+  double mindis=9.E99;
+  double dis;
+
+  for(int it=0; it<_hits.size(); ++it){
+    pos2=_hits[it]->cluster()->pos(); 
+    dis=(pos2-posX).Mag();
+    if(dis<mindis){
+      found=it;
+      mindis=dis;
+    }
+  }
+  Dist = mindis;
+  return found;
+}
+
+
+int
+PndTpcRiemannTrack::getClosestRiemannHit(PndTpcRiemannHit* hit, double& Dist) {
+  TVector3 posX=hit->x();
+  TVector3 pos2;
+
+  int found;
+  double mindis=9.E99;
+  double dis;
+
+  for(int it=0; it<_hits.size(); ++it){
+    pos2=_hits[it]->x(); 
+    dis=(pos2-posX).Mag();
+    if(dis<mindis){
+      found=it;
+      mindis=dis;
+    }
+  }
+  Dist = mindis;
+  return found;
 }
 
 
@@ -380,8 +400,8 @@ PndTpcRiemannTrack::dist(PndTpcRiemannHit* hit){
 
 
 void
-PndTpcRiemannTrack::refit()
-{
+PndTpcRiemannTrack::refit(){
+  _isFittedPlane = false;
   TMatrixT<double> Av(3,1);
   Av[0][0]=_av[0];
   Av[1][0]=_av[1];
@@ -485,6 +505,7 @@ PndTpcRiemannTrack::r() const {
 
 void
 PndTpcRiemannTrack::szFit(bool print){
+  _isFitted=false;
   trackpos(); // calculate positions on track
 
   // get s'es and zs
@@ -508,6 +529,7 @@ PndTpcRiemannTrack::szFit(bool print){
     gApplication->SetReturnFromRun(kTRUE);
     gSystem->Run();
   }
+  if(errorcode==0) _isFitted=true;
   return;
 }
 
@@ -537,10 +559,10 @@ PndTpcRiemannTrack::szDist(PndTpcRiemannHit* hit, bool calcPos){
   } // end recalcPos
 
   // calc distance to line
-  TVector3 line = (1, _m, 0.);
+  TVector3 line, X;
+  line.SetXYZ(1., _m, 0.);
   line.SetMag(1.); // unit vector of fitted s-z-line
-  TVector3 X = (hit_s, hit->z(), 0.);
-
+  X.SetXYZ(hit_s, hit->z()-_t, 0.);
   return ( line*(line*X) - X ).Mag();
 }
 

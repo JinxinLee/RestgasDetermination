@@ -157,7 +157,8 @@ PndTpcRiemannTrackingTask::Init()
       Error("PndTpcRiemannTrackingTask::Init","Cluster-array not found!");
       return kERROR;
     }
-// Get input collection
+  // Get input collection
+/*
   _mvdArray=(TClonesArray*) ioman->GetObject("MVDPoint");
 
   if(_mvdArray==0)
@@ -165,7 +166,7 @@ PndTpcRiemannTrackingTask::Init()
       Error("PndTpcRiemannTrackingTask::Init","mvd-array not found!");
     }
 
-
+*/
 
   // create and register output array
   _trackArray = new TClonesArray("GFTrack");
@@ -198,10 +199,10 @@ PndTpcRiemannTrackingTask::Init()
   _trackfinder->setMinHitsForFit(_minpoints);
 
   // Hit-Track Correlators
-  _trackfinder->addCorrelator(new PndTpcRiemannHTCorrelator(_planecut));
-  _trackfinder->addCorrelator(new PndTpcSzHTCorrelator(_szcut));
-  _trackfinder->addCorrelator(new PndTpcRiProxHTCorrelator(_riproxcut));
   _trackfinder->addCorrelator(new PndTpcProximityHTCorrelator(_proxcut));
+  _trackfinder->addCorrelator(new PndTpcRiProxHTCorrelator(_riproxcut));
+  _trackfinder->addCorrelator(new PndTpcSzHTCorrelator(_szcut));
+  _trackfinder->addCorrelator(new PndTpcRiemannHTCorrelator(_planecut));
 
   // Track-Track Correlators
   _trackfinder->addTTCorrelator(new PndTpcProximityTTCorrelator(_TTproxcut));

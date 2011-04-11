@@ -33,7 +33,7 @@
 // Class Member definitions -----------
 
 PndTpcRiProxHTCorrelator::PndTpcRiProxHTCorrelator(double proxcut)
-  : _proxcut(proxcut)
+  : _riproxcut(proxcut)
 {}
 
 
@@ -44,15 +44,17 @@ PndTpcRiProxHTCorrelator::corr(PndTpcRiemannTrack* trk,
 				double& matchQuality)
 {
   // check distance on the riemann sphere
-  double dist; // distance in 3D
-  double l = (trk->getHit(trk->getClosestHit(rhit,dist))->x() - rhit->x()).Mag();
-  //std::cout<<"distance on Riemann Sphere "<< l<<std::endl;
+  double l;
+  trk->getClosestRiemannHit(rhit,l);
+  //std::cout<<"distance on Riemann Sphere: "<< l<<std::endl;
   DebugLogger::Instance()->Histo("HT_riem_prox",l,0,0.2,100);
-  if(l>_proxcut){
+  matchQuality=l;
+  if(l>_riproxcut){
     DebugLogger::Instance()->Histo("HT_riemanncuts",6,0,20,20);
     survive=false;
     return true;
   }
-
+  survive=true;
+  return true;
 }
 
