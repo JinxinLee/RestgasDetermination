@@ -20,7 +20,7 @@ PndTpcClustVis::PndTpcClustVis():
   digisBranch(0),clustersBranch(0), guiEvent(0),
   doClustering(false), ClMode(2), ClTimeslice(3),ClTimecut(2), ClSingeDigiClAmpCut(20), ClSimpleCl(true), ClSimpleTimeslice(7),
   drawTpc(false), drawDigis(false), drawClusters(true), drawClusterErrors(false),
-  doPR(true), doMerge(false), _sorting(3), _interactionZ(0), _sortingMode(true), PRNHits(100000),
+  doPR(false), doMerge(false), _sorting(3), _interactionZ(0), _sortingMode(true), PRNHits(1000000),
   _minpoints(5), _planecut(0.05), _riproxcut(0.05), _szcut(0.25), _proxcut(2),
   _TTproxcut(2), _TTplanecut(2E-3), _TTszcut(2)
 {
@@ -282,6 +282,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     //delete ffinder;
 
      int i=0;
+     
      while(i<fcluster_buffer->size()){
        if( ((*fcluster_buffer)[i])->amp()<1 ||
            (((*fcluster_buffer)[i])->size()==1 && ((*fcluster_buffer)[i])->amp()<ClSingeDigiClAmpCut)){
@@ -294,15 +295,27 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
   }
   else{ // fill clusters in cluster_buffer
     if(clustersBranch==NULL) std::cerr<<"PndTpcClustVis::drawEvent - Error: No Cluster Array Found!"<<std::endl;
-    for(unsigned int i=0; i<clustersBranch->GetEntries(); ++i){
+    unsigned int ncl=clustersBranch->GetEntries();
+      fcluster_buffer->reserve(ncl);
+    for(unsigned int i=0; i<ncl; ++i){
       PndTpcCluster *cluster = (PndTpcCluster*)clustersBranch->At(i);
       fcluster_buffer->push_back(cluster);
     }
   }
-  std::cout << "number of clusters: " << fcluster_buffer->size() << std::endl;
-
+  unsigned int ncl=fcluster_buffer->size();
+  std::cout << "number of clusters: " << ncl << std::endl;
   // loop over clusters
+  int tenpercent=(int)ncl*0.1;
   for(unsigned int i=0; i<fcluster_buffer->size(); ++i){
+    //************ Progress messages ************************
+    if(i%10000==0){std::cout<<".";std::cout.flush();}
+    if(i%tenpercent==0){
+      std::cout<<"["
+               <<ceil((double)i*100/(double)ncl)<<"%"
+               <<"]";
+      std::cout.flush();
+    }
+    // ******************************************************
 
     int colour = i%colors.size();
 
@@ -370,9 +383,10 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     }
 
   }// end loop over clusters
-
+  std::cout << std::endl;
   // Pattern Reco
   if(doPR){
+    std::cerr << "Starting Pattern Reco..." << std::endl;
     // init TrackFinder
     PndTpcRiemannTrackFinder* _trackfinder= new PndTpcRiemannTrackFinder();
     _trackfinder->setSorting(_sorting);
@@ -396,10 +410,11 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
 
     std::vector<PndTpcRiemannTrack*> riemannlist;
-
+    std::cerr << "... building tracks ..." << std::endl;
     _trackfinder->buildTracks(*	fcluster_buffer,riemannlist);
 
     if(doMerge)
+      std::cerr << "... merging tracks ..." << std::endl;
       _trackfinder->mergeTracks(riemannlist);
 
     // draw	
@@ -459,6 +474,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       if(track_lines != NULL) gEve->AddElement(track_lines);
 
     } // end loop over trackcands
+    std::cerr << "Pattern Reco finished" << std::endl;
   }
 
   fcluster_buffer->clear();
