@@ -1116,6 +1116,8 @@ void PndTpcClustVis::guiSetClusterfinderParams(){
   if (guiSimpleCl->IsOn()) ClSimpleCl=true;
   else ClSimpleCl=false;
   ClSimpleTimeslice = giuSimpleTimeslice->GetNumberEntry()->GetIntNumber();
+  PndTpcClustVis*  fh = PndTpcClustVis::getInstance();
+  fh->gotoEvent(fEventId);
 }
 
 void PndTpcClustVis::guiSetTrackingParams(){
@@ -1137,6 +1139,8 @@ void PndTpcClustVis::guiSetTrackingParams(){
 
   if (guiDoMerge->IsOn()) doMerge=true;
   else doMerge=false;
+  PndTpcClustVis*  fh = PndTpcClustVis::getInstance();
+  fh->gotoEvent(fEventId);
 }
 
 void PndTpcClustVis::guiSetDrawParams(){
@@ -1157,6 +1161,9 @@ void PndTpcClustVis::guiSetDrawParams(){
 
   if (guiDoPR->IsOn()) doPR=true;
   else doPR=false;
+
+  PndTpcClustVis*  fh = PndTpcClustVis::getInstance();
+  fh->gotoEvent(fEventId);
 }
 
 
