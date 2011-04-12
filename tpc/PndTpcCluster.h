@@ -65,13 +65,15 @@ public:
   const McIdCollection& mcId() const {return fmcid;}
   unsigned int nMcIds() const {return fmcid.nIDs();}
   double maxMcWeight() const {return fmcid.MaxRelWeight();}
+  unsigned int sector() const {return fsector;}
+
 
   // Modifiers -----------------------
   void SetMcId(const McIdCollection& m){fmcid=m;}
   void SetIndex(unsigned int id){findex=id;}
   void SetCov(const TMatrixD& Cov){fcov=Cov;fhasaxis=false;}
   void SetPos(const TVector3& p) {fpos = p;} //allows for position correction. TODO: what happens to error?
-  
+  void SetSector(unsigned int id){fsector=id;}
   void SetIndexInTrack(int indexInTrack ) {findexInTrack=indexInTrack; }//for spatial sorting
   int GetIndexInTrack() const {return findexInTrack; }	//for spatial sorting
   
@@ -81,7 +83,7 @@ public:
 
 
   // Operations ----------------------
- 
+  void ClearDigis(){digis.clear();}
   
   //TRANSIENT FUNCTIONALITY: ------------------------------------------------------
   unsigned int nDigi() const {
@@ -117,6 +119,7 @@ private:
   unsigned int fnPadY;
   unsigned int findex;
   McIdCollection fmcid;
+  unsigned int fsector; // sector on tpc where cluster was produced
   
   int findexInTrack;	//index in track for spatial sorting
 
@@ -130,7 +133,7 @@ private:
   
 
 public:
-  ClassDef(PndTpcCluster,4)
+  ClassDef(PndTpcCluster,5)
 
 };
 

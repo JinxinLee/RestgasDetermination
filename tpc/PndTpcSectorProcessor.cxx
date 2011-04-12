@@ -338,6 +338,7 @@ PndTpcSectorProcessor::cog(){
     }
     cov*=1./(double)ndigis;
     cl->SetCov(cov);
+    cl->SetSector(fSectorId);
 
     foutput_buffer->push_back(cl);
   }
