@@ -34,4 +34,4 @@ mcpPos.cc                   display a single MCP on screen (adjustable) and show
 mcp4Pos.cc                  advanced mcpPos.cc with pixel-tree
 screenPix.cc                pixelization with pixel-tree
 recoCherenkovAngle.cc       Cherenkov angle reconstruction from a pixel-tree & kBar-tree
-recoCherenkovAngleTrue.cc   Cherenkov angle reconstruction from a beamtest0909 simulation
+recoCherenkovAngleTrue.cc   Cherenkov angle reconstruction from a beamtest simulation

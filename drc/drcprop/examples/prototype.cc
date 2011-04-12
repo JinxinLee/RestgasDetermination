@@ -75,6 +75,7 @@ using ROOT::Math::RotationZ;
 #include "PndDrcOptMatAbs.h"
 #include "PndDrcOptMatLithotecQ0.h"
 #include "PndDrcOptMatBK7.h"
+#include "PndDrcOptMatMarcol7.h"
 #include "PndDrcOptMatVacuum.h"
 #include "PndDrcOptDevSys.h"
 #include "PndDrcOptVol.h"
@@ -117,8 +118,8 @@ int main(int argc, char *argv[])
   bool opt_fishtankBlack_bottom = false; // absorbed fishtank side
   bool opt_fishtankBlack_sides  = false; //
   bool opt_fishtankBlack_top    = false; //
-  bool opt_frontLens            = false; // forward lens
-  bool opt_prism                = true; // prism (forward)
+  bool opt_frontLens            = true; // forward lens
+  bool opt_prism                = false; // prism (forward)
   bool opt_backLens             = false; // backward lens
   bool opt_mirror               = false; // mirror (backward)
   bool opt_noFresnel_backLens   = false; // disable Fresnel reflections
@@ -216,16 +217,17 @@ int main(int argc, char *argv[])
   const double degree = pi/180.;
 
   // material
-  PndDrcOptMatLithotecQ0  *quartz = new PndDrcOptMatLithotecQ0();
-  PndDrcOptMatVacuum      *vacuum = new PndDrcOptMatVacuum();
-  PndDrcOptMatBK7         *bk7    = new PndDrcOptMatBK7();
+  PndDrcOptMatLithotecQ0  *quartz  = new PndDrcOptMatLithotecQ0();
+  PndDrcOptMatVacuum      *vacuum  = new PndDrcOptMatVacuum();
+//   PndDrcOptMatBK7         *bk7     = new PndDrcOptMatBK7();
+  PndDrcOptMatMarcol7     *marcol7 = new PndDrcOptMatMarcol7();
 
   PndDrcOptMatAbs *mat_backLens  = quartz;
   PndDrcOptMatAbs *mat_slab      = quartz;
-  PndDrcOptMatAbs *mat_frontLens = bk7;
+  PndDrcOptMatAbs *mat_frontLens = quartz;
   PndDrcOptMatAbs *mat_airBox    = vacuum;
   PndDrcOptMatAbs *mat_prism     = quartz;
-  PndDrcOptMatAbs *mat_fishtank  = quartz;
+  PndDrcOptMatAbs *mat_fishtank  = marcol7;
 
 
   // dimensions
@@ -238,8 +240,8 @@ int main(int argc, char *argv[])
   double backLens_diameter  = 40.; // rectangular lens base shape (NOT cylindrical)
   double backLens_conical   = 0.; // default: 0 (spherical)
 
-  double frontLens_radius    = 77.52;
-  double frontLens_thickness = 7.5;
+  double frontLens_radius    = 100.;
+  double frontLens_thickness = 5.;
   double frontLens_diameter  = 40.;
   double frontLens_conical   = 0.;
 
@@ -279,16 +281,16 @@ int main(int argc, char *argv[])
   double prism_widthDown2  = 0.; // or Sin(x*degree)*prism_length
 
 
-  double airgap = 16.; // distance between slab or prism and fishtank ; 0 means no air box
+  double airgap = 15.; // distance between slab or prism and fishtank ; 0 means no air box
 
-  double fishtank_width  = 300.;
-  double fishtank_height = 200.;
-  double fishtank_length = 200.;
+  double fishtank_width  = 700.;
+  double fishtank_height = 700.;
+  double fishtank_length = 300.;
 
   double fishtank_width_offset  = 0.; // default: 0 mm ; 0 means bar is centered
   double fishtank_height_offset = 0.; // default: 0 mm
 
-  double fishtank_thetaX = 10.; // default: 0 degree (rotation axis X in fishtank)
+  double fishtank_thetaX = 0.; // default: 0 degree (rotation axis X in fishtank)
   double fishtank_thetaY = 0.;  // default: 0 degree (rotation axis Y in fishtank)
   double fishtank_phi    = 0.;  // default: 0 degree (rotation axis Z in fishtank)
 
@@ -307,14 +309,14 @@ int main(int argc, char *argv[])
   double spot_radius = 20.; // default: 20 mm 1-sigma beam spot radius (gaus smeared)
   double spot_limit  = 50.; // default: 50 mm beam spot radius limit
 
-  int particle_number = 1; // default: 300
+  int particle_number = 20; // default: 300
 
   double inci_theta = 30.; // default: 30 degree
   double inci_phi   = 0.;  // default: 0 degree
 
   double hitBarX = slab_width/2.; // default: slab_width/2
   double hitBarY = 0.;            // default: 0 mm
-  double hitBarZ = -770.;         // default: -500 mm
+  double hitBarZ = -500.;         // default: -500 mm
 
 
   // photon properties
@@ -1006,12 +1008,11 @@ int main(int argc, char *argv[])
   double phot_inci_phi   = -666;
 
   //  vector<double> posX; // needed ROOT >= 5.2
-  int add_pos = 1 + 3*2 + 1; // 1 start + 3 volume transition (+ tiny shifts) + detector
-  const int pos_size = refl_limit + 1 + add_pos; // reflection limit + 1 exceed + additional positions
+  const int pos_size = refl_limit + 100; // due to tiny shifts at volume transitions, start and detection position)
   double posX[ pos_size ];
   double posY[ pos_size ];
   double posZ[ pos_size ];
-  for( int i=0; i < pos_size; i++)
+  for( int i = 0; i < pos_size; i++)
   {
     posX[i] = -666;
     posY[i] = -666;
@@ -2805,6 +2806,25 @@ int main(int argc, char *argv[])
           hitPosDetZ = floor(hitPosDetZ * Power( 10, 10) + 0.5) * Power(10, -10);
 
 
+          int posX_size = (*iph).PositionXlist().size();
+          int posY_size = (*iph).PositionYlist().size();
+          int posZ_size = (*iph).PositionZlist().size();
+
+          if( posX_size != posY_size || posY_size != posZ_size ) // should not happen
+          {
+            cout << "*** ERROR: photon position list for X,Y and Z has not the same length" << endl;
+            abort();
+          }
+          else
+            index_pos = posX_size;
+
+          if( posX_size > pos_size )
+          {
+            cout << "*** ERROR: increase position list size \"pos_size\" to" << posX_size << endl;
+            abort();
+          }
+
+
           int n_posX = 0;
           int n_posY = 0;
           int n_posZ = 0;
@@ -2830,14 +2850,6 @@ int main(int argc, char *argv[])
             posZ[n_posZ] = (*ipos);
             n_posZ++;
           }
-
-          if( n_posX != n_posY || n_posY != n_posZ )
-          {
-            cout << "*** ERROR: photon position list for X,Y and Z has not the same length" << endl;
-            abort();
-          }
-          else
-            index_pos = n_posX;
 
 
           thetaC = (*iph).ThetaC();
@@ -3051,6 +3063,25 @@ int main(int argc, char *argv[])
               hitPosDetZ = floor(hitPosDetZ * Power( 10, 10) + 0.5) * Power(10, -10);
 
 
+              int posX_size = (*iph).PositionXlist().size();
+              int posY_size = (*iph).PositionYlist().size();
+              int posZ_size = (*iph).PositionZlist().size();
+
+              if( posX_size != posY_size || posY_size != posZ_size ) // should not happen
+              {
+                cout << "*** ERROR: photon position list for X,Y and Z has not the same length" << endl;
+                abort();
+              }
+              else
+                index_pos = posX_size;
+
+              if( posX_size > pos_size )
+              {
+                cout << "*** ERROR: increase position list size \"pos_size\" to" << posX_size << endl;
+                abort();
+              }
+
+
               int n_posX = 0;
               int n_posY = 0;
               int n_posZ = 0;
@@ -3076,14 +3107,6 @@ int main(int argc, char *argv[])
                 posZ[n_posZ] = (*ipos);
                 n_posZ++;
               }
-
-              if( n_posX != n_posY || n_posY != n_posZ )
-              {
-                cout << "*** ERROR: photon position list for X,Y and Z has not the same length" << endl;
-                abort();
-              }
-              else
-                index_pos = n_posX;
 
 
               TMarker* t = new TMarker( hitPosDetX, hitPosDetY, 7);
