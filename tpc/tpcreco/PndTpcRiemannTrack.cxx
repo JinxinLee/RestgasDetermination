@@ -368,21 +368,23 @@ PndTpcRiemannTrack::trackpos(){
 }
 
 
+// TODO: improve this!!!
 int
 PndTpcRiemannTrack::winding(){ // returns winding sense along z-axis
-  int it=0;
+  int end=_hits.size()-1;
+  if(end<2) return 0;
+  int halfway = 0.5*end;
   TVector3 pos1=_hits[0]->cluster()->pos();
-  TVector3 pos2=_hits[2]->cluster()->pos();
-  it=_hits.size()-1;
-  TVector3 pos3=_hits[it]->cluster()->pos();
-  int dir= pos1.Mag()<pos3.Mag() ? 1 : -1; // correct for forward and backward going tracks pos=(0,0,0) corresponds to IP
+  TVector3 pos2=_hits[halfway]->cluster()->pos();
+  TVector3 pos3=_hits[end]->cluster()->pos();
+  int dir= pos1.Perp()<pos3.Perp() ? 1 : -1; // correct for forward and backward going tracks pos=(0,0,0) corresponds to IP
   pos1.SetZ(0);
   pos2.SetZ(0);
   pos3.SetZ(0);
 
   TVector3 d12=pos2-pos1;
-  TVector3 d21=pos3-pos1;
-  double a=d12.DeltaPhi(d21);
+  TVector3 d13=pos3-pos1;
+  double a=d12.DeltaPhi(d13);
   std::cout << "dPhi="<<a<<std::endl;
   return a>0 ? dir : -dir;
 }
@@ -486,20 +488,53 @@ PndTpcRiemannTrack::orig() const {
 
 double 
 PndTpcRiemannTrack::r() const {
-  if(_c==0)return 0;
-  if(fabs(_c)>1000)return 0;
-  double a=2.*(_c+_n[2]);
-  //if(a==0){
-  //  std::cout<<"PndTpcRiemannTrack:: a==0 cannot calc r! set r=1E4"<<std::endl;
-  //  return 1.E-4;
-  //}
-  //std::cout<<_n[0]<<"   "<<_n[1]<<"   "<<_c<<"   "<<a<<std::endl;
-  double nom=_n[0]*_n[0]+_n[1]*_n[1]-2.0*_c*a;
-  if(nom<0.0){
-    nom=1.E-4;
-    std::cout<<"PndTpcRiemannTrack::nom<0! set r=1E-4!"<<std::endl;
-  }
-  return sqrt(nom)/TMath::Abs(a);
+  if(!_isFittedPlane) return 0.;
+  if(_c>=0.999) return 0.01;
+
+  // look at sphere from side, perpendicular to plane, so that plane becomes a line
+  // line:   x=_c*nx - a*nz;  z=_c*nz + a*nx
+  // circle: x^2 + (z-0.5)^2 + 0.5^2
+  // then intersect line with circle -> solutions a1, a2;
+  double nx = -1.*TMath::Sqrt(_n[0]*_n[0] + _n[1]*_n[1]); // radial direction -> x direction in 3D projection
+  double nz = -1.*_n[2];    // z direction
+  double c2 = _c*_c;
+  double root = TMath::Sqrt(nx*nx - 8.*c2*nx*nx*nz*nz - 4.*c2*pow(nz, 4.) + 4.*_c*pow(nz, 3.) - 4.*c2*pow(nx, 4.) + 4*_c*nx*nx*nz);
+  double denom = nx*nx + nz*nz;
+  double a1 =  0.5*(nx+root)/denom;
+  double a2 = -0.5*(-1.*nx+root)/denom;
+
+  // now we get two points on the sphere (x1,z1), (x2,z2)
+  double x1 = _c*nx - a1*nz;
+  double z1 = _c*nz + a1*nx;
+  double x2 = _c*nx - a2*nz;
+  double z2 = _c*nz + a2*nx; 
+
+  /*std::cout<<"PndTpcRiemannTrack::r() "<<std::endl;
+  std::cout<<"_n"<<std::endl;
+  _n.Print();
+  std::cout<<"nx "<<nx<<"  nz "<<nz<<std::endl;
+  std::cout<<"_c "<<_c<<std::endl;
+  std::cout<<"root "<<root<<std::endl;
+  std::cout<<"a1 "<<a1<<"  a2 "<<a2<<std::endl;
+  std::cout<<"x1 "<<x1<<"  z1 "<<z1<<std::endl;
+  std::cout<<"x2 "<<x2<<"  z2 "<<z2<<std::endl;
+*/
+
+  // project them back onto the plane
+  // we get two radii
+  double r1, r2;
+
+  if(z1>0.9999) r1=1.E4;
+  else r1 = TMath::Sqrt(z1/(1.-z1));
+  if(x1<0) r1 *= -1.;
+
+  if(z2>0.9999) r2=1.E4;
+  else r2 = TMath::Sqrt(z2/(1.-z2));
+  if(x2<0) r2 *= -1.;
+  
+  //std::cout<<"r1 "<<r1<<"  r2 "<<r2<<std::endl;
+
+  return TMath::Abs(r2-r1) * 8.66025; // RIEMANNSCALE TODO still hardcoded*/
 }
 
 
@@ -572,7 +607,7 @@ double
 PndTpcRiemannTrack::dip() const {
   std::cout << _m << std::endl;
   if(_m>=1. || _m<=-1.)return 0;
-  return TMath::PiOver2()-(asin(_m));
+  return TMath::PiOver2()-(asin(_m)); // 0 .. Pi for m = -1 .. 1
 }
 
 

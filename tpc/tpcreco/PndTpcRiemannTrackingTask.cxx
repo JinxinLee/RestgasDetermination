@@ -349,15 +349,14 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
      Bz=field->GetBz(0.,0.,0.);
 
 
-  std::vector<PndTpcCluster*> clusterlist;
-  
   unsigned int ncl=_clusterArray->GetEntriesFast();
+  std::vector<PndTpcCluster*> clusterlist(ncl);
+  
   for(unsigned int icl=0; icl<ncl; ++icl){
-    clusterlist.push_back((PndTpcCluster*)_clusterArray->At(icl));
+    clusterlist[icl] = (PndTpcCluster*)_clusterArray->At(icl);
   }
-  std::cout<<"RiemannTrackingTask ncl="<<clusterlist.size()<<std::endl;
+  std::cout<<"RiemannTrackingTask number of clusters: "<<ncl<<std::endl;
 
- 
   std::vector<PndTpcRiemannTrack*> riemannlist;
 
   _trackfinder->buildTracks(clusterlist,riemannlist);
@@ -477,28 +476,29 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
         RiemannMarkerlistLines2[ir]->SetNextPoint(clpos.X(), clpos.Y(), clpos.Z());
       }
 
-      if(!trkcand->isFittedPlane()) RiemannLines2[ir]->SetLineStyle(2);
-      TVectorD nd = trkcand->n();
-      TVector3 n;
-      n.SetXYZ(nd(0), nd(1), nd(2));
-      TVector3 nz;
-      nz.SetXYZ(0.,0.,1.);
+      if(!trkcand->isFittedPlane()){
+        TVectorD nd = trkcand->n();
+        TVector3 n;
+        n.SetXYZ(nd(0), nd(1), nd(2));
+        TVector3 nz;
+        nz.SetXYZ(0.,0.,1.);
 
-      //vector perp to n in x y plane
-      TVector3 perpXY = n.Cross(nz);
-      TVector3 perp   = n.Cross(perpXY);
-      perpXY.SetMag(0.15);
-      perp.SetMag(0.15);
+        //vector perp to n in x y plane
+        TVector3 perpXY = n.Cross(nz);
+        TVector3 perp   = n.Cross(perpXY);
+        perpXY.SetMag(0.15);
+        perp.SetMag(0.15);
 
-      double c = -1*trkcand->c();
-      RiemannLines2[ir]->SetNextPoint(nd[0]*c,nd[1]*c,nd[2]*c); //
-      RiemannLines2[ir]->SetNextPoint(nd[0]*c+perpXY[0],nd[1]*c+perpXY[1],nd[2]*c+perpXY[2]); //
-      RiemannLines2[ir]->SetNextPoint(nd[0]*c-perpXY[0],nd[1]*c-perpXY[1],nd[2]*c-perpXY[2]); //
-      RiemannLines2[ir]->SetNextPoint(nd[0]*c,nd[1]*c,nd[2]*c); //
-      RiemannLines2[ir]->SetNextPoint(nd[0]*c+perp[0],nd[1]*c+perp[1],nd[2]*c+perp[2]); //
-      RiemannLines2[ir]->SetNextPoint(nd[0]*c-perp[0],nd[1]*c-perp[1],nd[2]*c-perp[2]); //
-      RiemannLines2[ir]->SetNextPoint(nd[0]*c,nd[1]*c,nd[2]*c); //
-      RiemannLines2[ir]->SetNextPoint(nd[0]*(c+0.5),nd[1]*(c+0.5),nd[2]*(c+0.5));
+        double c = -1*trkcand->c();
+        RiemannLines2[ir]->SetNextPoint(nd[0]*c,nd[1]*c,nd[2]*c); //
+        RiemannLines2[ir]->SetNextPoint(nd[0]*c+perpXY[0],nd[1]*c+perpXY[1],nd[2]*c+perpXY[2]); //
+        RiemannLines2[ir]->SetNextPoint(nd[0]*c-perpXY[0],nd[1]*c-perpXY[1],nd[2]*c-perpXY[2]); //
+        RiemannLines2[ir]->SetNextPoint(nd[0]*c,nd[1]*c,nd[2]*c); //
+        RiemannLines2[ir]->SetNextPoint(nd[0]*c+perp[0],nd[1]*c+perp[1],nd[2]*c+perp[2]); //
+        RiemannLines2[ir]->SetNextPoint(nd[0]*c-perp[0],nd[1]*c-perp[1],nd[2]*c-perp[2]); //
+        RiemannLines2[ir]->SetNextPoint(nd[0]*c,nd[1]*c,nd[2]*c); //
+        RiemannLines2[ir]->SetNextPoint(nd[0]*(c+0.5),nd[1]*(c+0.5),nd[2]*(c+0.5));
+      }
     }
   }
 
@@ -507,48 +507,41 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
   std::vector<TPolyLine3D*> lines;
 
   unsigned int nr=riemannlist.size();
-  for(unsigned int ir=0;ir<nr;++ir){
-    // store pattern reco information in output array
+  for(unsigned int ir=0; ir<nr; ++ir){ // loop over Riemann tracks
+
+    int minhits = 4; // minimum hits needed to build pndtrackcands and GFTrackCands
+    double pbackup = 2.;  // momentum value that is set when other initialisations fail
+
+    // store PndTpcRiemannTracks in output array
     PndTpcRiemannTrack* trk=riemannlist[ir];
     new((*_riemannTrackArray)[_riemannTrackArray->GetEntriesFast()]) PndTpcRiemannTrack(*trk);
     unsigned int nhits=trk->getNumHits();
-
     for(unsigned int ih=0;ih<nhits;++ih){
       PndTpcRiemannHit* hit=trk->getHit(ih);
       new ((*_riemannHitArray)[_riemannHitArray->GetEntriesFast()]) PndTpcRiemannHit(*hit);
     }
 
-    std::cout<<"Tracklet "<<ir<<"   nhits="<<nhits<<"   R="<<trk->r();
-    // build tracks
-    if(nhits<_minpoints){
-      std::cout<<" ... skipping" << std::endl;
+    std::cout<<"Tracklet "<<ir<<"   nhits="<<nhits;
+
+    // check if enough points
+    if(nhits<_minpoints || nhits<minhits){
+      std::cout<<" - skipping, not enough hits"<<std::endl;
       continue;
-    } 
+    }
     std::cout<<std::endl;
-    trk->szFit(false);
+
+    // store pndtracks and pndcands in output array
     PndTrackCand* pndcand=new((*_trackCandArray)[_trackCandArray->GetEntriesFast()]) PndTrackCand();
     PndTrack* pndtrack=new((*_pndTrackArray)[_pndTrackArray->GetEntriesFast()]) PndTrack();
     pndtrack->SetTrackCand(*pndcand);
 
+    // create GFTrackCands
     GFTrackCand* cand=new GFTrackCand();
-    // reverse order!
-    std::cout<<"nhits="<<nhits<<std::endl;
-    
-    // at this point hits should be sorted by what you have chosen
-    // look at radius to decide how to go on
-    /*double r1=trk->getHit(0)->cluster()->pos().Perp(); // biggest z
-    std::cout << "Hit(0): z="<<trk->getHit(0)->cluster()->pos().Z()
-	      << "   r="<<r1
-	      << "   dist="<<trk->getHit(0)->cluster()->pos().Mag()<<std::endl;
 
-    double r2=trk->getHit(nhits-1)->cluster()->pos().Perp(); // smallest z
-    std::cout << "Hit(end): z="<<trk->getHit(nhits-1)->cluster()->pos().Z()
-	      << "   r="<<r2
-	      << "   dist="<<trk->getHit(nhits-1)->cluster()->pos().Mag()<<std::endl;
-
-    // this will probably go wrong for some secondaries
-    // decide how to sort
-    std::cout << "ADDING HITS TO CANDS" << std::endl;
+    // fill hits into GFTrackCands and pndcands from small to big Radius
+    bool invertedTrack = false;
+    double r1=trk->getHit(0)->cluster()->pos().Perp();
+    double r2=trk->getHit(nhits-1)->cluster()->pos().Perp();
     if(r1<=r2){
       for(unsigned int ih=0;ih<nhits;++ih){
         cand->addHit(2,trk->getHit(ih)->cluster()->index());
@@ -561,77 +554,73 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
         pndcand->AddHit(2,trk->getHit(ih)->cluster()->index(),trk->getHit(ih)->cluster()->pos().Mag());
       }
       cand->addHit(2,trk->getHit(0)->cluster()->index());  
-      pndcand->AddHit(2,trk->getHit(0)->cluster()->index(),trk->getHit(0)->cluster()->pos().Mag());
-      
-    }*/
+      pndcand->AddHit(2,trk->getHit(0)->cluster()->index(),trk->getHit(0)->cluster()->pos().Mag()); 
+      invertedTrack = true;
+    }// finished filling hits
 
-    // no resorting, fill in opposite order
-    for(unsigned int ih=nhits-1;ih>0;--ih){
-      cand->addHit(2,trk->getHit(ih)->cluster()->index());
-      pndcand->AddHit(2,trk->getHit(ih)->cluster()->index(),trk->getHit(ih)->cluster()->pos().Mag());
-    }
 
-    std::cout << "DONE ... building initializing vectors" << std::endl;
-    // build approximate momentum vector
-    unsigned int detId;
-    unsigned int hitId;
-    cand->getHit(0,detId,hitId);
-    std::cout << detId << "," << hitId << std::endl;
-    TVector3 pos1=((PndTpcCluster*)_clusterArray->At(hitId))->pos();
-    TVector3 pos2;
-    TVector3 delta;
-    bool ok=false;
-    unsigned int index=1;
-    while(!ok && index<cand->getNHits()){
-    cand->getHit(index,detId,hitId);
-    //std::cout << detId << "," << hitId << std::endl;
-      ++index;
-      PndTpcCluster* cl2=(PndTpcCluster*)_clusterArray->At(hitId);
-      pos2=cl2->pos();
-      delta=pos2-pos1;
-      if(fabs(delta.Z())>1. && delta.X()!=0 && delta.Y()!=0)ok=true;
-    }
-    delta.SetMag(1);
-    
-    cand->setCurv(fabs(trk->r()*100.)); //
-    cand->setDip(trk->dip());
-    if(trk->dip()<1E-5)continue;
-    // p=0.3BR/dip -- assuming 2T BField R in meters -> convert to cm!
-    double p=trk->r()/sin(trk->dip())*0.3*Bz; 
-    if (Bz==0) p=2.;
-    //std::cout << "Setting initial p=" << p << std::endl;
-    //std::cout << "Initial p_perp=" << trk->r()*0.3*Bz <<std::endl;
-    //std::cout.flush();
+    //
+    // calculate seed values
+    //
+    double trackR = trk->r();
+
+    // calculate momentum
+    // p = 0.3*BR/dip (R in meters, B in T; we have R in cm, B in kG)
+    double p;
+    if (TMath::Abs(sin(trk->dip()))<0.05) p=pbackup;
+    else p=trackR/sin(trk->dip())*0.0003*Bz; 
+    if (Bz==0) p=pbackup;
     if(p<1E-5)continue;
-    if(p!=0)pndcand->setTrackSeed(pos1,delta,1./p);
-   
 
-    std::cout<<"R = "<<trk->r()<<std::endl;
-    std::cout<<"Curv = "<<cand->getCurv()<<std::endl;
-    std::cout<<"Dip = "<<cand->getDip()<<std::endl;
-    
-    std::cout<<"Winding = "<<trk->winding()<<std::endl;
+    // build approximate momentum vector
+    std::vector<TVector3> slidingAvrg;
+    for(int i=0; i<minhits; ++i) {
+      slidingAvrg.push_back( trk->getHit(i)->cluster()->pos() );
+    }
+    while(slidingAvrg.size()>2){      
+      for(int i=0; i<slidingAvrg.size()-1; ++i) {
+        slidingAvrg[i] = 0.5*(slidingAvrg[i]) + 0.5*(slidingAvrg[i+1]);
+      } 
+      slidingAvrg.pop_back();
+    }
+    TVector3 direction=(slidingAvrg[1]-slidingAvrg[0]);
+    direction.SetMag(1.);
+
+    TVector3 mom = p * direction;
+    TVector3 momerr(0.1*fabs(mom.X()),0.1*fabs(mom.Y()),0.1*fabs(mom.Z()));
+
+    // start position
+    TVector3 pos1 = trk->getHit(0)->cluster()->pos();
+    TVector3 poserr(0.3,0.3,0.3);
+
+    // pdg
+    int pdg = trk->winding()>0 ? 211 : -211; // Todo: pions hardcoded atm
+    //if(invertedTrack) pdg *= -1.;
+    if(Bz<0) pdg *= -1.;
+
+    std::cout<<" Radius of track: " << trackR << std::endl;
+    std::cout<<" seed values: "<<std::endl;
+    std::cout<<"  start position: ";
+    pos1.Print();
+    std::cout<<"  momentum [GeV]: "<<p<<std::endl;
+    std::cout<<"  p_perp=" << trackR*0.0003*Bz <<std::endl;
+    std::cout<<"  direction: ";    
+    direction.Print();
+    std::cout<<"  winding: "<<trk->winding()<<std::endl;
+    std::cout<<"  invertedTrack: "<<invertedTrack<<std::endl;
+    std::cout<<"  pdg id: "<<pdg<<std::endl;
+
+
+    // set seed values to cands
+    pndcand->setTrackSeed(pos1,direction,1./p);
+
+    cand->setCurv(fabs(trackR)); //  actually this is never used
+    cand->setDip(trk->dip());
+
+    RKTrackRep* rep = new RKTrackRep(pos1, mom, poserr, momerr,pdg);
 
     candlist.push_back(cand);
-  }
 
-
-  std::cout<<"PndTpcRiemannTrackingTask::Exec:: "
-	   <<candlist.size()<<" track candidates found."<<std::endl;
-  _multiplicityHisto->Fill(candlist.size());
-
-  
-
-  
-  // -----------------------------------------------
-  // build tracks
-  unsigned int ncand=candlist.size();
-  for(unsigned int ic=0; ic<ncand; ++ic){
-    GFTrackCand* cand=candlist[ic];
-    if(cand->getNHits()<6){
-      std::cout<<"Track initialization went wrong not enough hits in track"<<std::endl;
-      continue;
-    }
 
     // check Monte Carlo Truth
     McIdCollection mcid;
@@ -644,123 +633,60 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     }
     _trackPurityH->Fill(mcid.MaxRelWeight());
     _trackMcIdsH->Fill(mcid.nIDs());
-    
     _trackSizeH->Fill(cand->getNHits());
 
-    // Todo: Use R from pattern reco to initialize track rep!
-    // create track object
 
-    // calculate start values
-    unsigned int detID;
-    unsigned int hitID;
-    cand->getHit(0,detID,hitID);
-    PndTpcCluster* cl1=(PndTpcCluster*)_clusterArray->At(hitID);
-    TVector3 pos1=cl1->pos();
-    TVector3 pos2;
-    TVector3 delta;
-    bool ok=false;
-    unsigned int index=1;
-    while(!ok && index<cand->getNHits()){
-    cand->getHit(index,detID,hitID);
-      ++index;
-      PndTpcCluster* cl2=(PndTpcCluster*)_clusterArray->At(hitID);
-      pos2=cl2->pos();
-      delta=pos2-pos1;
-      //if(fabs(delta.Z())>1. && delta.X()!=0 && delta.Y()!=0) ok=true; // Todo: does this make sense?
-      if(delta.Mag()>4.) ok=true; // Todo: does this make sense?
-    }
-    // if(!ok){
-//       std::cout<<"Track initialization went wrong dz<1mm"<<std::endl;
-//       trk->getTrackRep(0)->setStatusFlag(2);
-//       continue;
-//    }
-    delta.SetMag(1);
-    
-    // p=0.3BR/dip -- assuming 2T BField R in meters -> convert to cm!
-    double p=cand->getCurv()/sin(cand->getDip())*0.006; 
-    if (p<500) p=500.; // Todo: this is just a workaround because the plane fit goes wrong
-    std::cout << "Setting initial p=" << p << std::endl;
-    //std::cout << "Initial p_perp=" << cand->getCurv()*0.006 <<std::endl;
-
-    GFAbsTrackRep* rep=0;
-    if(1) {
-      //GFDetPlane pl(pos1, pos1.Orthogonal(), pos1.Cross(pos1.Orthogonal()));
-      TVector3 poserr(0.3,0.3,0.3);
-      TVector3 mom = p * delta;
-      TVector3 momerr(0.5*fabs(mom.X()),0.5*fabs(mom.Y()),0.5*fabs(mom.Z()));
-      /*std::cout<<"Setting initial values:"<<std::endl;
-      pos1.Print();
-      poserr.Print();
-      mom.Print();
-      momerr.Print();*/
-      int pdg = cand->getCurv()>0 ? 211 : -211; // Todo: pions hardcoded atm
-      pdg = 2212;// protons
-      pdg = 211;// pions
-
-      //double q=TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.;
-      RKTrackRep* grep = new RKTrackRep(pos1, mom, poserr, momerr,pdg);
-      //grep->setPropDir(1);
-      rep=grep;
-
-      // visualisation of seed values
-      if(fStore){
-        seeds.push_back(new TPolyLine3D(2));
-        seeds.back()->SetLineStyle(2);
-        seeds.back()->SetLineColor(kGray);
-        seeds.back()->SetNextPoint(pos1.X(), pos1.Y(), pos1.Z());
-        seeds.back()->SetNextPoint(pos1.X()+mom.X(), pos1.Y()+mom.Y(), pos1.Z()+mom.Z());
-      }
-
-    }
-    else {	
-      LSLTrackRep* lrep=new LSLTrackRep();
-    
-      lrep->setInverted(cand->inverted());
-      rep=lrep;
-    }
-    
-    //lrep->SetBField(_fieldIfc);
-    GFTrack* trk=new((*_trackArray)[_trackArray->GetEntriesFast()]) GFTrack(rep);
-    trk->setCandidate(*cand); // here the candidate is copied!
+    // store GFTracks in output array
+    GFTrack* gftrk=new((*_trackArray)[_trackArray->GetEntriesFast()]) GFTrack(rep);
+    gftrk->setCandidate(*cand); // here the candidate is copied!
     //Is this what we want?
     
 
+    // visualisation of seed values
+    if(fStore){
+      seeds.push_back(new TPolyLine3D(2));
+      seeds.back()->SetLineStyle(2);
+      seeds.back()->SetLineColor(kGray);
+      seeds.back()->SetNextPoint(pos1.X(), pos1.Y(), pos1.Z());
+      mom *= 100;
+      seeds.back()->SetNextPoint(pos1.X()+mom.X(), pos1.Y()+mom.Y(), pos1.Z()+mom.Z());
+    }
 
   }// end loop over tracks
   
-  std::cout<<_trackArray->GetEntriesFast()<<" tracks created"<<std::endl;
-  
 
+  std::cout<<"PndTpcRiemannTrackingTask::Exec:: "
+	   <<candlist.size()<<" track candidates found."<<std::endl;
+  _multiplicityHisto->Fill(candlist.size());
 
 
   if(fStore) {
-
     // visualisation of final GFTrackCands
     std::vector<TPolyMarker3D*> markerlist3;
     std::vector<TPolyLine3D*>   markerlistLines3;
 
     // loop over candidates
-    for(unsigned int ir=0;ir<candlist.size();++ir){
-      GFTrackCand* trkcand = candlist[ir];
-      unsigned int nhits=trkcand->getNHits();
-      markerlist3.push_back(new TPolyMarker3D(nhits));
+    for(unsigned int ic=0;ic<candlist.size();++ic){
+      GFTrackCand* trkcand = candlist[ic];
+      unsigned int numhits=trkcand->getNHits();
+      markerlist3.push_back(new TPolyMarker3D(numhits));
       markerlist3.back()->SetMarkerStyle(20);
       markerlist3.back()->SetMarkerSize(0.5);
-      markerlistLines3.push_back(new TPolyLine3D(nhits));
+      markerlistLines3.push_back(new TPolyLine3D(numhits));
 
-      int colour = ir%colors.size();
+      int colour = ic%colors.size();
       markerlist3.back()->SetMarkerColor(colors[colour]);
       markerlistLines3.back()->SetLineColor(colors[colour]);
 
       // loop over clusters
-      for(unsigned int ih=0;ih<nhits;++ih){
+      for(unsigned int ih=0;ih<numhits;++ih){
         unsigned int detId;
         unsigned int hitId;
         trkcand->getHit(ih,detId,hitId);
         PndTpcCluster* cl=(PndTpcCluster*)_clusterArray->At(hitId);
         TVector3 clpos = cl->pos();
-        markerlist3[ir]->SetNextPoint(clpos.X(), clpos.Y(), clpos.Z());
-        markerlistLines3[ir]->SetNextPoint(clpos.X(), clpos.Y(), clpos.Z());
+        markerlist3[ic]->SetNextPoint(clpos.X(), clpos.Y(), clpos.Z());
+        markerlistLines3[ic]->SetNextPoint(clpos.X(), clpos.Y(), clpos.Z());
       }
     }
 

@@ -34,7 +34,7 @@
 
 // scale factor! r=1 => z'=0.5 !!!
 // to normalize cm-range 
-#define RIEMANNSCALE 8.66025 // divide reduced radius by RIEMANNSCALE
+#define RIEMANNSCALE 8.66025 // divide radius by RIEMANNSCALE // also needed in RiemannTrack->r()
 // 8.66025 is optimal for R=5..15cm
 
 ClassImp(PndTpcRiemannHit)

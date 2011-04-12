@@ -42,8 +42,35 @@ PndTpcProximityHTCorrelator::corr(PndTpcRiemannTrack* trk,
 				  bool& survive,
 				  double& matchQuality)
 {
-  const PndTpcCluster* cl=rhit->cluster();
-  if(cl==NULL)return false; // not applicable
+  int trksize = trk->getNumHits();
+  // do some fast approximation to speed things up
+  if(trksize > 3){
+    TVector3 posX = rhit->cluster()->pos();
+    TVector3 pos;
+    double dis;
+    double largecut = 5*_proxcut;
+    bool faraway = true;
+    unsigned int i=0;
+
+    while(i<trksize){
+      pos = trk->getHit(0)->cluster()->pos();
+      dis = (posX-pos).Mag();
+      if(dis<largecut) {
+        faraway=false;
+        break;
+      }
+      i+=(int)(dis/_proxcut);// step at least 5 hits 
+    }
+    pos = trk->getHit(trksize-1)->cluster()->pos();  // check last hit
+    dis = (posX-pos).Mag();
+    if(dis<largecut) faraway=false;
+    if(faraway){
+      matchQuality=largecut;
+      survive=false;
+      return true;
+    }
+  }
+  
   // get closest hit from track
   double l;
   trk->getClosestHit(rhit,l);

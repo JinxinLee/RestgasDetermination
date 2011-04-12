@@ -42,7 +42,7 @@
 // Class Member definitions -----------
 PndTpcRiemannTrackFinder::PndTpcRiemannTrackFinder()
   : _minHitsForFit(5), _sortingMode(false), 
-  _sorting(3), _interactionZ(0.)
+    _sorting(3), _interactionZ(0.), _MaxNumHitsForPR(2147483646)
 {   
 }
 
