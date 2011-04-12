@@ -47,14 +47,19 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   }
   
   
-  TString paramIn = inFile;
-  paramIn.ReplaceAll(".raw.root",".param.root");
+  TString paramIn1 = inFile;
+  TString paramIn2 = inFile;
+
+  paramIn1.ReplaceAll(".raw.root",".mc.param.root");
+  paramIn2.ReplaceAll(".raw.root",".digi.param.root");
+  
   TString paramOut = outFile;
-  paramOut.ReplaceAll(".reco.root",".param.root");
+  paramOut.ReplaceAll(".reco.root",".reco.param.root");
   
   std::cout<<"Input: "<<inFile<<std::endl;
   std::cout<<"MCFile: "<<mcFile<<std::endl;
-  std::cout<<"ParamIn: "<<paramIn<<std::endl;
+  std::cout<<"ParamIn1: "<<paramIn1<<std::endl;
+  std::cout<<"ParamIn2: "<<paramIn2<<std::endl;
   std::cout<<"ParamOut: "<<paramOut<<std::endl;
 
   std::cout<<"Output: "<<outFile<<std::endl;  
@@ -70,36 +75,40 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   
   // -----   Digitization run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(inFile);
+  fRun->SetInputFile(mcFile);
 
-  fRun->AddFriend(mcFile);
+  fRun->AddFriend(inFile);
+    
   fRun->SetOutputFile(outFile);
   
-  FairGeane *Geane = new FairGeane();
-  fRun->AddTask(Geane);
-  std::cout<<"\nGEANE initialised"<<std::endl;
   // ------------------------------------------------------------------------
  
-
+ 
   // -----  Parameter database   --------------------------------------------
   
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
-  parInput1->open(paramIn.Data());
+  parInput1->open(paramIn1.Data());
+  FairParRootFileIo* parInput2 = new FairParRootFileIo(kTRUE);
+  parInput2->open(paramIn2.Data());
   
-  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
+  FairParAsciiFileIo* parInput3 = new FairParAsciiFileIo();
   TString tpcDigiFile = gSystem->Getenv("VMCWORKDIR");
   tpcDigiFile += "/tpc/TestBench/tpc.TBtestChamber.par";
-  parInput2->open(tpcDigiFile.Data(),"in");
+  parInput3->open(tpcDigiFile.Data(),"in");
   
-  rtdb->setFirstInput(parInput2); //root file IO tends to fail, use ASCII first
-  rtdb->setSecondInput(parInput1);
+  rtdb->setFirstInput(parInput1); //root file IO tends to fail, use ASCII first
+  rtdb->setSecondInput(parInput2);
 
   rtdb->Print();
 
+  //FairGeane *Geane = new FairGeane();
+  //fRun->AddTask(Geane);
+  //std::cout<<"\nGEANE initialised"<<std::endl;
+  
   
   // ------------------------------------------------------------------------
-  QAPlotCollection* qa=new QAPlotCollection("TpcDigiQAPlots");  
+  //QAPlotCollection* qa=new QAPlotCollection("TpcDigiQAPlots");  
 
 
   // -----    Reco Sequence  --------------------------------------------
@@ -118,7 +127,7 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   
   
   PndTpcPSATask* tpsa = new  PndTpcPSATask();
-  //tpsa->SetPersistence();
+  tpsa->SetPersistence();
   tpsa->SetSampleBranchName("PndTpcSample");
   fRun->AddTask(tpsa);
 
@@ -130,6 +139,7 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   tpcCF->SetDigiBranchName("PndTpcDigi");
   tpcCF->timeslice(20); //in samples
   tpcCF->SetDiffFactor(1.);
+  tpcCF->SetClusterTimeCut(5.);
   tpcCF->SetSingleDigiClusterAmpCut(15);
   tpcCF->SetErrorPars(600,300);
   //tpcCF->SetTrivialClustering();
@@ -168,7 +178,7 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   tpcSPR->SetPersistence();
   tpcSPR->SetStoreHistograms(PROutFile);
   //tpcSPR->WriteHistograms(PROutFile);
-  fRun->AddTask(tpcSPR);
+  //fRun->AddTask(tpcSPR);
 
 
 
@@ -177,7 +187,7 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   tpcSLPR->SetStoreHistograms(PROutFile);
   tpcSLPR->SetClusterAmpCut(30.);
   tpcSLPR->SetCutTracksParallelZ(5);
-  tpcSLPR->SetXSorting(true);
+  //tpcSLPR->SetXSorting(true);
   double parMins[4] = {-TMath::Pi(),0.,-TMath::Pi(),0.};
   double parMaxs[4] = {TMath::Pi(),10.,TMath::Pi(),20.};
   tpcSLPR->SetParameterSpace(parMins, parMaxs);
@@ -218,7 +228,7 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   SLres->SetPersistence();
   //SLres->SetClusterBranchName("PndTpcCluster_cut");
   SLres->SetSecondarySuppression(false);
-  fRun->AddTask(SLres);
+  //fRun->AddTask(SLres);
   
   
 
@@ -228,9 +238,9 @@ void runRecoFOPI_batch(TString filename, TString outpath)
   fRun->Run(0,0);
   // ------------------------------------------------------------------------
 
-  FairRootManager::Instance()->GetOutFile()->mkdir("QAPlots");
-  FairRootManager::Instance()->GetOutFile()->cd("QAPlots");
-  qa->Write();
+  //FairRootManager::Instance()->GetOutFile()->mkdir("QAPlots");
+  //FairRootManager::Instance()->GetOutFile()->cd("QAPlots");
+  //qa->Write();
 
 
   // -----   Finish   -------------------------------------------------------

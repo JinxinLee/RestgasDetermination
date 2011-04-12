@@ -61,6 +61,13 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath)
   fMagField->SetFieldRegion(-50, 50,-50, 50, -2000, 2000);
       
   fRun->SetField(fMagField);
+
+
+  //extract number of entries in external data tree
+  TFile testFile(filename);
+  unsigned int nEvents = ((TTree*)testFile.Get("tpcEvent"))->GetEntries();
+  std::cout<<"Found "<<nEvents<<" events in input data file"<<std::endl;
+
   
   
   //--------------------SET UP TASKS ------------------------------
@@ -114,12 +121,7 @@ bool SimpleClustering = true;
   tpcCC->SetParameters(pars);
   // fRun->AddTask(tpcCC);
 
-
-  //PndTpcCTapplyTask* CTapply = new PndTpcCTapplyTask();
-  //CTapply->SetPersistence();
-  //fRun->AddTask(CTapply);
-
-
+  
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
   tpcSPR->SetSortingParameters(
                    true, // false: sort only according to _sorting (see next argument); true: use internal sorting when adding hits to trackcands
@@ -187,10 +189,8 @@ bool SimpleClustering = true;
 
   // -----   Intialise and run   --------------------------------------------
  
-  std::cout<<"*()@*)(*()&*) "<<gGeoManager<<std::endl;
   fRun->Init();
-  std::cout<<"*()@*)(*()&*) "<<gGeoManager<<std::endl;
-  fRun->Run(0,22000);
+  fRun->Run(0,nEvents);
 
   timer.Stop();
   Double_t rtime = timer.RealTime();

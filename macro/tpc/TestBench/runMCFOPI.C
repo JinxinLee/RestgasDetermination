@@ -1,5 +1,5 @@
 { 
-//MC for the small test chamber 
+//MC for the FOPI setup
 //Maxence Vandenbroucke 11/01/2010 from runMC.C
 
   TStopwatch timer;
@@ -21,11 +21,11 @@
 
   // SET NUMBER OF EVENTS
   // --------------------------------------------------
-  Int_t nEvents = 10000;
+  Int_t nEvents = 100;
 
   //Set JOBNAME + JOBDIR (will not be created!)
   // --------------------------------------------------
-  TString jobname="dummy5";
+  TString jobname="dummy";
   TString jobdir="dummy";
   
 
@@ -40,9 +40,7 @@
   
   TString base=jobdir;
   TString outfile=base+".mc.root";
-  TString dbfile=base+".param.root";
-
-  std::cout<<outfile;
+  TString dbfile=base+".mc.param.root";
 
   fRun->SetOutputFile(outfile);
 
@@ -57,6 +55,19 @@
   //if(GEANT=="TGeant4")
   //  fRun->SetUserConfig(copy+"g4Config.C");  
   
+   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  Bool_t kParameterMerged=kTRUE;
+
+  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
+  TString tpcPar = gSystem->Getenv("VMCWORKDIR");
+  tpcPar += "/tpc/TestBench/tpc.TBtestChamber.par";
+  parInput2->open(tpcPar.Data(),"in");
+  rtdb->setFirstInput(parInput2);
+
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
+  output->open(dbfile.Data());
+  rtdb->setOutput(output);
+
 
   // Set Material file Name
   //-----------------------
@@ -165,7 +176,7 @@
       
   fRun->SetField(fMagField);
    
-  fRun->SetStoreTraj(kTRUE);
+//fRun->SetStoreTraj(kTRUE);
   //fRun->SetStoreTraj(kFALSE);
   
   std::cout<<"Starting INIT"<<std::endl;
@@ -189,16 +200,12 @@
   // Fill the Parameter containers for this run
   //-------------------------------------------
 
-  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
-  Bool_t kParameterMerged=kTRUE;
-  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  output->open(dbfile.Data());
-  rtdb->setOutput(output);
-
-  PndConstPar* fieldPar = (PndConstPar*) rtdb->getContainer("PndConstPar");
-  if ( fMagField ) {  fieldPar->SetParameters(fMagField); }
-  fieldPar->setInputVersion(fRun->GetRunId(),1);
-  fieldPar->setChanged(kTRUE);
+   
+//PndConstPar* fieldPar = (PndConstPar*) rtdb->getContainer("PndConstPar");
+// if ( fMagField ) {  fieldPar->SetParameters(fMagField); }
+//  fieldPar->setInputVersion(fRun->GetRunId(),1);
+//  fieldPar->setChanged(kTRUE);
+  
 
   rtdb->saveOutput();
   rtdb->print();

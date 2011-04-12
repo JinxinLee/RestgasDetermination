@@ -25,7 +25,7 @@
   // Set INPUT DIRECTORY (MC files) and JOBNAME
   // ------------------------------------------------------------------------
   TString inDir="dummy";
-  TString jobname="dummy5";
+  TString jobname="dummy";
 
   inDir=(basedir+"/")+inDir;
   TString inFile=(inDir+"/")+jobname;
@@ -46,9 +46,9 @@
   TString outFile = inFile;
   outFile.ReplaceAll(".mc.root", ".raw.root");
   TString paramIn = inFile;
-  paramIn.ReplaceAll(".mc.root",".param.root");
+  paramIn.ReplaceAll(".mc.root",".mc.param.root");
   TString paramOut = outFile;
-  paramOut.ReplaceAll(".raw.root",".param.root");
+  paramOut.ReplaceAll(".raw.root",".digi.param.root");
   
 
   std::cout<<"Input: "<<inFile<<std::endl;
@@ -72,6 +72,9 @@
   // -----   Digitization run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
+
+//fRun->AddFriend(inFile);
+  
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
 
@@ -79,16 +82,16 @@
   QAPlotCollection* qa=new QAPlotCollection("TpcDigiQAPlots");
 
   // -----  Parameter database   --------------------------------------------
+  
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
   parInput1->open(paramIn.Data());
-  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
-  TString tpcDigiFile = gSystem->Getenv("VMCWORKDIR");
-  tpcDigiFile += "/tpc/TestBench/tpc.TBtestChamber.par";
-  parInput2->open(tpcDigiFile.Data(),"in");
-
-  rtdb->setFirstInput(parInput2);
-  rtdb->setSecondInput(parInput1);
+//FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
+//TString tpcDigiFile = gSystem->Getenv("VMCWORKDIR");
+// tpcDigiFile += "/tpc/tpc.par";
+// parInput2->open(tpcDigiFile.Data(),"in");
+  rtdb->setFirstInput(parInput1);
+// rtdb->setSecondInput(parInput1);
 
   PndTpcDigiPar* par = (PndTpcDigiPar*) rtdb->getContainer("PndTpcDigiPar");
   par->setInputVersion(fRun->GetRunId(),1);
@@ -102,16 +105,16 @@
   fRun->LoadGeometry();
   // ------------------------------------------------------------------------
   
- /*
-    // -----    Digi Sequence  --------------------------------------------
+ 
+  // -----    Digi Sequence  --------------------------------------------
   PndTpcClusterizerTask* tpcClusterizer = new PndTpcClusterizerTask();
   tpcClusterizer->SetPersistence();
   //ONLY USE THIS WHEN USING ALICE SETTINGS WITH GEANT3
   tpcClusterizer->SetMereChargeConversion();  
   tpcClusterizer->SetFirstPoti(15.13); //ArgonCO2 mixture in eV
-  //fRun->AddTask(tpcClusterizer);
+  fRun->AddTask(tpcClusterizer);
   
-  /**   use Alice Style MC    
+  /*   use Alice Style MC    
    				make one hit per collision with atom
 				use other straggling
 		WARNING:	
@@ -124,23 +127,23 @@
 		:-(	
 	    6. SetMaxNStep should be set to a high value
    */ 
- /*
+/*
   PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
   tpcDrifter->SetPersistence();
   tpcDrifter->SetDistort(false);
   tpcDrifter->SetQAPlotCol(qa);
   //fRun->AddTask(tpcDrifter);
-/*
+
   PndTpcGemTask* tpcGem = new PndTpcGemTask();
   tpcGem->SetPersistence();
   //fRun->AddTask(tpcGem);
-/*
+
   PndTpcPadResponseTask* tpcPadResponse = new PndTpcPadResponseTask();
   tpcPadResponse->SetPersistence();
   //tpcPadResponse->SetQAPlotCol(qa);
   //fRun->AddTask(tpcPadResponse);
 
-*/ //PndTpcEvtMixTask* evtmixer = new PndTpcEvtMixTask();
+  //PndTpcEvtMixTask* evtmixer = new PndTpcEvtMixTask();
   //  evtmixer->SetBkgFileName("bkg2.raw.root");
   //  evtmixer->SetNBkgEvts(500);
   //  evtmixer->SetEvtRate(1E7);
@@ -150,7 +153,7 @@
 //  ct->SetPersistence();
 //  fRun->AddTask(ct);
 
-/*
+
   PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
   tpcElec->SetPersistence();
   //tpcElec->SetQAPlotCol(qa);
