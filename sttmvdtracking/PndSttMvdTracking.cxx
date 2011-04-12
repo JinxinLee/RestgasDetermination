@@ -2501,7 +2501,7 @@ if(istampa>=2){
 		PndMCTrack* pMC;
 		im=daTrackFoundaTrackMC[ncand];
 		pMC = (PndMCTrack*) fMCTrackArray->At(im);
-	if ( pMC ) {
+	   if ( pMC ) {
          	icode  = pMC->GetPdgCode() ;    //   PDG code of track
          	Oxx = pMC->GetStartVertex().X();    //   X of starting point track
          	Oyy = pMC->GetStartVertex().Y();    //   Y of starting point track
@@ -2513,16 +2513,19 @@ if(istampa>=2){
          	TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
        		if (icode>1000000000) carica = 1.;
        		else  carica = fParticle->Charge()/3. ;    //   charge of track
+		if(fabs(carica)<1.e-5) {
+			cout<<"...associata ad una traccia neutra, assurdo!\n";
+			continue ;}
            	Cx = Oxx + Pyy*1000./(BFIELD*CVEL*carica);
            	Cy = Oyy - Pxx*1000./(BFIELD*CVEL*carica);
 		cout<<"  e' associata alla traccia MC n. "<<im<<" che ha :\n"
 		<<"\tR = "<<Rr<<" ed ha centro in Cx = "<<Cx<<" e Cy = "<<Cy<<endl;
-	} else {
+	  } else {
 		cout<<"  ha daTrackFoundaTrackMC[ncand] = "<<daTrackFoundaTrackMC[ncand]
 		<<"   pero' non ha puntatore alla sua classe PndMCTrack\n";
-	}
-       }  else {
-       		cout<<"  ha daTrackFoundaTrackMC[ncand] = "<<daTrackFoundaTrackMC[ncand]<<endl;
+	  }
+	}  else {
+		cout<<"  ha daTrackFoundaTrackMC[ncand] = "<<daTrackFoundaTrackMC[ncand]<<endl;
 	}
 		cout<<"Track Cand n. "<<ncand<<", associato a Traccia MC n. "<<
 		daTrackFoundaTrackMC[ncand]<<", ha "<<
@@ -2660,6 +2663,7 @@ for (i=0;i<nMCTracks;i++){
 		TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
 		if (icode>1000000000) carica = 1.;
 		else  carica = fParticle->Charge()/3. ;    //   charge of track
+		if(fabs(carica)<1.e-5) continue;
 		Cx = Oxx + Pyy*1000./(BFIELD*CVEL*carica);
 		Cy = Oyy - Pxx*1000./(BFIELD*CVEL*carica);
 		cout<<"da PndSttMvdTracking, evento (cominciando da 0) n. "<<IVOLTE<<
@@ -2768,6 +2772,7 @@ for (ii=0; ii<nSttTrackCand && istampa>=3 ;ii++){
          TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
          if (icode>1000000000) carica = 1.;
          else  carica = fParticle->Charge()/3. ;    //   charge of track
+	 if(fabs(carica)<1.e-5) fprintf(HANDLE,"       MC track n. %d e' neutra, assurdo!\n",i);
          Cx = Oxx + Pyy*1000./(BFIELD*CVEL*carica);
          Cy = Oyy - Pxx*1000./(BFIELD*CVEL*carica);
          Fifi = atan2(Cy, Cx);       // MC truth Fifi angle of circle of Helix trajectory
@@ -4122,7 +4127,8 @@ fprintf(MACRO,
          		Px = pMC->GetMomentum().X();
          		Py = pMC->GetMomentum().Y();
          		aaa = sqrt( Px*Px + Py*Py);
-         		Rr =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
+         		Rr =   aaa*1000./(BFIELD*CVEL); //R(cm) of Helix of track projected in XY plane;
+							// B = 2 Tesla
            		Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
            		Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
 
@@ -9580,6 +9586,7 @@ IVOLTE<<", Stt track cand = "<<i<<endl;}
 			TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
 			if (icode>1000000000) carica = 1.;
 			else  carica = fParticle->Charge()/3. ;    //   charge of track
+			if(fabs(carica)<1.e-5) { *Rr = -3.; return;}
 			*Cx = Oxx + Pyy*1000./(BFIELD*CVEL*carica);
 			*Cy = Oyy - Pxx*1000./(BFIELD*CVEL*carica);
 		} else {
