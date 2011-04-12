@@ -166,13 +166,13 @@ void PndTpcClustVis::open() {
   bool drawSilent = false;
   bool drawGeometry = false;
 
-// parse the global options
+  // parse the global options
   for(size_t i = 0; i < fOption.length(); i++) {
     if(fOption.at(i) == 'X') drawSilent = true;
     if(fOption.at(i) == 'G') drawGeometry = true;
   }
 
-// draw the geometry, does not really work yet. If it's fixed, the docu in the header file should be changed.
+  // draw the geometry, does not really work yet. If it's fixed, the docu in the header file should be changed.
   if(drawGeometry) {
     TGeoNode* top_node = gGeoManager->GetTopNode();
     assert(top_node != NULL);
@@ -281,17 +281,17 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
     //delete ffinder;
 
-     int i=0;
+    int i=0;
      
-     while(i<fcluster_buffer->size()){
-       if( ((*fcluster_buffer)[i])->amp()<1 ||
-           (((*fcluster_buffer)[i])->size()==1 && ((*fcluster_buffer)[i])->amp()<ClSingeDigiClAmpCut)){
-         delete (*fcluster_buffer)[i];
-         (*fcluster_buffer).erase( (*fcluster_buffer).begin()+i );
-       }
-       else ++i;
-     }
-     digis.clear();
+    while(i<fcluster_buffer->size()){
+      if( ((*fcluster_buffer)[i])->amp()<1 ||
+          (((*fcluster_buffer)[i])->size()==1 && ((*fcluster_buffer)[i])->amp()<ClSingeDigiClAmpCut)){
+        delete (*fcluster_buffer)[i];
+        (*fcluster_buffer).erase( (*fcluster_buffer).begin()+i );
+      }
+      else ++i;
+    }
+    digis.clear();
   }
   else{ // fill clusters in cluster_buffer
     if(clustersBranch==NULL) std::cerr<<"PndTpcClustVis::drawEvent - Error: No Cluster Array Found!"<<std::endl;
@@ -306,6 +306,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
   std::cout << "number of clusters: " << ncl << std::endl;
   // loop over clusters
   int tenpercent=(int)ncl*0.1;
+  if(tenpercent==0) tenpercent=1;
   for(unsigned int i=0; i<fcluster_buffer->size(); ++i){
     //************ Progress messages ************************
     if(i%10000==0){std::cout<<".";std::cout.flush();}
@@ -384,6 +385,8 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
   }// end loop over clusters
   std::cout << std::endl;
+
+
   // Pattern Reco
   if(doPR){
     std::cerr << "Starting Pattern Reco..." << std::endl;
@@ -413,9 +416,10 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     std::cerr << "... building tracks ..." << std::endl;
     _trackfinder->buildTracks(*	fcluster_buffer,riemannlist);
 
-    if(doMerge)
+    if(doMerge){
       std::cerr << "... merging tracks ..." << std::endl;
       _trackfinder->mergeTracks(riemannlist);
+    }
 
     // draw	
     for(unsigned int ir=0;ir<riemannlist.size();++ir){ // loop over trackcands
