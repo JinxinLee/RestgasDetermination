@@ -23,7 +23,7 @@ VAbsFitter( b )
   // Assume Zero origin as default
   fPerigee.SetXYZ(0.,0.,0.);
   fTrackArray=0;
-  std::cout<<" PndVtxPRG created."<<std::endl;
+  //std::cout<<" PndVtxPRG created."<<std::endl;
 }
 
 PndVtxPRG::~PndVtxPRG()
@@ -65,6 +65,9 @@ void PndVtxPRG::Fit()
 
 double PndVtxPRG::CalculateVertexFast(TVector3 &vtx, TMatrixD &cov)
 {
+  // Calculate a vertex of n tracks without considering the changes in momentum vector
+  // the variables vtx & cov (3x3) are written and the Chi^2 is returned.
+  
   int nTrk = fHeadOfTree->NDaughters();
   
   std::vector<TMatrixD> w;
@@ -80,15 +83,16 @@ double PndVtxPRG::CalculateVertexFast(TVector3 &vtx, TMatrixD &cov)
     
     TVector3 pocai = tcand->GetPosition();
     TVector3 momi = tcand->GetMomentum();
-    double phi_v = tcand->GetHelixPhi0(); // or momi.Phi();
-    double tTheta = tcand->GetHelixTanDip(); // this is ok and will not change
+//    double phi_v = tcand->GetHelixPhi0(); // or momi.Phi();
+    double phi_v = (pocai-vtx).Phi();
+    double tTheta = tcand->GetHelixTanDip();
     
     TMatrixD xpi(1,3);
-    xpi[0][0]=pocai.X();
-    xpi[0][1]=pocai.Y();
-    xpi[0][2]=pocai.Z();
+    xpi[0][0]=(pocai-vtx).X();
+    xpi[0][1]=(pocai-vtx).Y();
+    xpi[0][2]=(pocai-vtx).Z();
     xp.push_back(xpi); // save for later use
-    if(fVerbose) std::cout<<" #$#$#$# xpi "; xpi.Print();
+    if(fVerbose) {std::cout<<" #$#$#$# xpi "; xpi.Print();}
     
     Float_t* helixCOV = tcand->GetHelixCov();
     TMatrixD COVi(2,2); // track parameter cov for (epsilon,z_p)
@@ -97,7 +101,7 @@ double PndVtxPRG::CalculateVertexFast(TVector3 &vtx, TMatrixD &cov)
     COVi[0][1]=helixCOV[3];// D0-z0
     COVi[1][0]=helixCOV[3];// D0-z0
     COVi[1][1]=helixCOV[12];// z0-z0 
-    if(fVerbose) std::cout<<" #$#$#$# COVi  "; COVi.Print();
+    if(fVerbose) {std::cout<<" #$#$#$# COVi  "; COVi.Print();}
     
     TMatrixD Wi(TMatrixD::kInverted,COVi);
     if(fVerbose) {std::cout<<" #$#$#$# Wi"<<std::endl; Wi.Print();}
@@ -129,15 +133,15 @@ double PndVtxPRG::CalculateVertexFast(TVector3 &vtx, TMatrixD &cov)
   }
   
   TMatrixD cV(TMatrixD::kInverted,sumw);
-  if(fVerbose) std::cout<<" #$#$#$# cV  "; cV.Print();
+  if(fVerbose) {std::cout<<" #$#$#$# cV  "; cV.Print();}
   TMatrixD V(cV,TMatrixD::kMult,sumwx);// result vertex
   V.T(); // make it a row vector
-  if(fVerbose) std::cout<<" #$#$#$# V  "; V.Print();
+  if(fVerbose) {std::cout<<" #$#$#$# V  "; V.Print();}
   
   double chisq=0; // calculate chisquare
   for(int i=0;i<nTrk;i++)
   {
-    if(fVerbose) std::cout<<" #$#$#$# V  "; V.Print();
+    if(fVerbose) {std::cout<<" #$#$#$# V  "; V.Print();}
     TMatrixD resid(xp[i],TMatrixD::kMinus,V);
     if(fVerbose) {std::cout<<" #$#$#$# resid  "; resid.Print();}
     if(fVerbose) {std::cout<<" #$#$#$# w["<<i<<"]  "; w[i].Print();}
@@ -148,7 +152,7 @@ double PndVtxPRG::CalculateVertexFast(TVector3 &vtx, TMatrixD &cov)
   }
   
   // set output. TODO: do that more intelligently?
-  vtx.SetXYZ(V[0][0],V[0][1],V[0][2]); // right order of indice?
+  vtx.SetXYZ(vtx.X()+V[0][0],vtx.Y()+V[0][1],vtx.Z()+V[0][2]);
   cov=cV;
   return chisq;
   
@@ -156,68 +160,98 @@ double PndVtxPRG::CalculateVertexFast(TVector3 &vtx, TMatrixD &cov)
 
 double PndVtxPRG::CalculateVertexFull(TVector3 &vtx, TMatrixD &cov)
 {
-  return -1;
-  /*
-   
-   TMatrixD A += DiT*Wi*Di;
-   
-   // loop tracks: i
-   for(int i=0;i<nTrk;i++){ //TODO
-   double rho;
-   double theta;
-   double epsilon;
-   double phi_p;
-   double z_p;
-   
-   // do all the matrix preparations
-   TMatrixD COVi(3,3); // track parameter cov for (epsilon,z_p,fi_p)
-   TMatrixD Wi=COVi; Wi.T(); // Weight Matrix
-   
-   TMatrixD Di(3,3); // Derivative in V
-   double s = sin(phi_v);
-   double c = cos(phi_v);
-   double t = cot(theta);
-   
-   Di[0][0]=s;
-   Di[0][1]=-c;
-   Di[0][2]=0;
-   Di[1][0]=-t*c;
-   Di[1][1]=-t*s;
-   Di[1][2]=1;
-   Di[2][0]=-rho*c;
-   Di[2][1]=-rho*s;
-   Di[2][2]=0;
-   
-   TMatrixD DiT=Di; DiT.T();
-   
-   TMatrixD Ei(3,3); // Derivative in p
-   double x_v, y_v;
-   double R=y_v*c-x_v*s;
-   double Q=(x_v*c+y_v*s);
-   Ei[0][0]=0;
-   Ei[0][1]=Q;
-   Ei[0][2]=-0.5*Q*Q;
-   Ei[1][0]=-Q*(1+t*t);
-   Ei[1][1]=-R*t;
-   Ei[1][2]=Q*R*t;
-   Ei[2][0]=0;
-   Ei[2][1]=1;
-   Ei[2][2]=-Q;
-   
-   TMatrixD EiT=Ei; EiT.T();
-   
-   A += DiT*Wi*Di;
-   
-   TMatrixD Bi = DiT*Wi*Ei;
-   
-   TMatrixD Ci = EiT*Wi*Ei;
-   
-   
-   
-   
-   
-   }
-   */
+  // Calculate the Vertex in the full scheme
+  // TODO: Momentum is fitted, too
+  // TODO: The candidates have to be updated
+  
+  return -1; 
+  
+  int nTrk = fHeadOfTree->NDaughters();
+  
+  std::vector<TMatrixD> w;
+  std::vector<TMatrixD> xp;
+  TMatrixD sumw(3,3);
+  TMatrixD sumwx(3,1);
+  
+  for(int i=0;i<nTrk;i++)
+  { 
+    TCandidate* tcand = fHeadOfTree->Daughter(i);
+    
+    TVector3 pocai = tcand->GetPosition();
+    TVector3 momi = tcand->GetMomentum();
+    double phi_v = (pocai-vtx).Phi();
+    double tTheta = tcand->GetHelixTanDip(); // this is ok and will not change
+    
+    TMatrixD xpi(1,3);
+    xpi[0][0]=(pocai-vtx).X();
+    xpi[0][1]=(pocai-vtx).Y();
+    xpi[0][2]=(pocai-vtx).Z();
+    xp.push_back(xpi); // save for later use
+    if(fVerbose) {std::cout<<" #$#$#$# xpi "; xpi.Print();}
+    
+    Float_t* helixCOV = tcand->GetHelixCov();
+    TMatrixD COVi(2,2); // track parameter cov for (epsilon,z_p)
+    // TCandidate/TFitParams Helixparams: (D0,Phi0,Omega,Z0,TanDip)
+    COVi[0][0]=helixCOV[0];// D0-D0
+    COVi[0][1]=helixCOV[3];// D0-z0
+    COVi[1][0]=helixCOV[3];// D0-z0
+    COVi[1][1]=helixCOV[12];// z0-z0 
+    if(fVerbose) {std::cout<<" #$#$#$# COVi  "; COVi.Print();}
+    
+    TMatrixD Wi(TMatrixD::kInverted,COVi);
+    if(fVerbose) {std::cout<<" #$#$#$# Wi"<<std::endl; Wi.Print();}
+    TMatrixD Di(2,3); // Derivative in V, 2x3
+    // variables for D Matrix
+    double s = sin(phi_v);
+    double c = cos(phi_v);
+    double t = tTheta;  //tan(theta);
+    if(t!=0) t = 1/t; else return -333;
+    
+    Di[0][0]=s;
+    Di[0][1]=-c;
+    Di[0][2]=0;
+    Di[1][0]=-t*c;
+    Di[1][1]=-t*s;
+    Di[1][2]=1;
+    if(fVerbose) {std::cout<<" #$#$#$# Di  "; Di.Print();}
+    
+    TMatrixD wi(TMatrixD(Di,TMatrixD::kTransposeMult,Wi),TMatrixD::kMult,Di);
+    w.push_back(wi); // save for later use
+    if(fVerbose) {std::cout<<" #$#$#$# wi  "; wi.Print();}
+    TMatrixD wixpi(wi,TMatrixD::kMultTranspose,xpi);
+    if(fVerbose) {std::cout<<" #$#$#$# wixpi  "; wixpi.Print();}
+    
+    sumw+=wi; // sum up weights
+    if(fVerbose) {std::cout<<" #$#$#$# sumw  "; sumw.Print();}
+    sumwx+=wixpi; // sum up weighted positions
+    if(fVerbose) {std::cout<<" #$#$#$# sumwx  "; sumwx.Print();}
+  }
+  
+  TMatrixD cV(TMatrixD::kInverted,sumw);
+  if(fVerbose) {std::cout<<" #$#$#$# cV  "; cV.Print();}
+  TMatrixD V(cV,TMatrixD::kMult,sumwx);// result vertex
+  V.T(); // make it a row vector
+  if(fVerbose) {std::cout<<" #$#$#$# V  "; V.Print();}
+  
+  double chisq=0; // calculate chisquare
+  for(int i=0;i<nTrk;i++)
+  {
+    if(fVerbose) {std::cout<<" #$#$#$# V  "; V.Print();}
+    TMatrixD resid(xp[i],TMatrixD::kMinus,V);
+    if(fVerbose) {std::cout<<" #$#$#$# resid  "; resid.Print();}
+    if(fVerbose) {std::cout<<" #$#$#$# w["<<i<<"]  "; w[i].Print();}
+    TMatrixD chisqi(TMatrixD(resid,TMatrixD::kMult,w[i]),TMatrixD::kMultTranspose,resid);
+    if(fVerbose) {std::cout<<" #$#$#$# chisqi  "; chisqi.Print();}
+    chisq+=chisqi[0][0];
+    if(fVerbose) {std::cout<<" #$#$#$# chisq = "<<chisq<<std::endl;}
+  }
+  
+  // set output. TODO: do that more intelligently?
+  vtx.SetXYZ(vtx.X()+V[0][0],vtx.Y()+V[0][1],vtx.Z()+V[0][2]);
+  cov=cV;
+  return chisq;
+  
+  
 }
 
 

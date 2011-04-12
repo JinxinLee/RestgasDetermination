@@ -89,7 +89,7 @@ void PndAnalysis::Init()
   fMcCands = ReadTCA("PndMcTracks");
   if ( ! fMcCands )
   {
-    if( fVerbose ) std::cout << "-I- PndAnalysis::Init(): Trying mc stack now." << std::endl;
+    std::cout << "-I- PndAnalysis::Init(): Trying mc stack now." << std::endl;
     fMcTracks = (TClonesArray*) fRootManager->GetObject("MCTrack");
     if ( ! fMcTracks && fVerbose ) std::cout << "-W- PndAnalysis::Init(): No \"MCTrack\" array found. No MC info available." << std::endl;
     fMcCands =new TClonesArray("TCandidate");
@@ -250,7 +250,7 @@ void PndAnalysis::BuildMcCands()
   for(Int_t i=0; i<fMcTracks->GetEntriesFast(); i++)
   {
   	PndMCTrack *part = (PndMCTrack*)fMcTracks->At(i);
-  	if (part->GetMotherID()!=-1) continue;
+  	//if (part->GetMotherID()!=-1) continue;
   	
     TLorentzVector p4 = part->Get4Momentum();
     TVector3    stvtx = part->GetStartVertex();
@@ -296,7 +296,7 @@ void PndAnalysis::BuildMcCands()
     
   }
   
-  if(fVerbose) cout <<"-I- PndMcListConverter: found primaries="<<fMcCands->GetEntriesFast()<<endl;
+  if(fVerbose) cout <<"-I- PndMcListConverter: found ="<<fMcCands->GetEntriesFast()<<endl;
   
 }
 
