@@ -51,6 +51,7 @@ PndFsmMvd2.cxx
 PndFsmTof.cxx
 PndFsmSimpleTracker.cxx
 PndFsmCmpDet.cxx
+PndFsmCombiDet.cxx
 PndFsmRandom.cxx
 #PndSimpleAnalysis.cxx
 #PndAnalysis.cxx
@@ -85,6 +86,7 @@ PndFsmMvd2.h
 PndFsmTof.h
 PndFsmSimpleTracker.h
 PndFsmCmpDet.h
+PndFsmCombiDet.h
 PndFsmRandom.h
 #PndSimpleAnalysis.h
 #PndAnalysis.h
