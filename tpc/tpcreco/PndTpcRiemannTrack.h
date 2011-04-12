@@ -73,7 +73,7 @@ class PndTpcRiemannTrack : public TObject{
 
   // get closest hit in track fill distance and direction of track there
   int getClosestHit(PndTpcRiemannHit* hit, double& Dist, TVector3& dir);
-  int getClosestHit(PndTpcRiemannHit* hit, double& Dist);
+  int getClosestHit(PndTpcRiemannHit* hit, double& Dist, int from=0,  int to=10000000); // optional: range where to search for closest hit
   int getClosestRiemannHit(PndTpcRiemannHit* hit, double& Dist);
 
   void setSort(bool k=true){_doSort=k;}

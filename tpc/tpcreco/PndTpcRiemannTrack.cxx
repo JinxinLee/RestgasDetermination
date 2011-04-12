@@ -128,7 +128,7 @@ PndTpcRiemannTrack::getClosestHit(PndTpcRiemannHit* hit,
 
 
 int
-PndTpcRiemannTrack::getClosestHit(PndTpcRiemannHit* hit, double& Dist) {
+PndTpcRiemannTrack::getClosestHit(PndTpcRiemannHit* hit, double& Dist, int from, int to) {
   TVector3 posX=hit->cluster()->pos();
   TVector3 pos2;
 
@@ -136,7 +136,10 @@ PndTpcRiemannTrack::getClosestHit(PndTpcRiemannHit* hit, double& Dist) {
   double mindis=9.E99;
   double dis;
 
-  for(int it=0; it<_hits.size(); ++it){
+  if(from<0) from = 0;
+  if(to>_hits.size()) to = _hits.size();
+
+  for(int it=from; it<to; ++it){
     pos2=_hits[it]->cluster()->pos(); 
     dis=(pos2-posX).Mag();
     if(dis<mindis){
