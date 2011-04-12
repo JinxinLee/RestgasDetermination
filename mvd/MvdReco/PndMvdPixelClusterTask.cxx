@@ -48,7 +48,7 @@ void PndMvdPixelClusterTask::SetBranchNames(TString inBranchname, TString outHit
 {
   fInBranchName = inBranchname;
   fOutBranchName = outHitBranchname;
-  fClustBranchName = outClustBranchname;
+  fClusterBranchName = outClustBranchname;
   fFolderName = folderName;
 }
 
@@ -57,7 +57,7 @@ void PndMvdPixelClusterTask::SetBranchNames()
 {
   fInBranchName = "MVDPixelDigis";
   fOutBranchName = "MVDHitsPixel";
-  fClustBranchName = "MVDPixelClusterCand";
+  fClusterBranchName = "MVDPixelClusterCand";
   fFolderName = "PndMvd";
 }
 
