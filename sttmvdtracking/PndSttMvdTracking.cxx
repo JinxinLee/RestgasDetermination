@@ -4121,12 +4121,12 @@ fprintf(MACRO,
          	TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
        		if (icode>1000000000) carica = 1.;
        		else  carica = fParticle->Charge()/3. ;    //   charge of track
-		if( fabs(carica) > 0.1 ){
          		Oxx = pMC->GetStartVertex().X();    //   X of starting point track
          		Oyy = pMC->GetStartVertex().Y();    //   Y of starting point track
          		Px = pMC->GetMomentum().X();
          		Py = pMC->GetMomentum().Y();
          		aaa = sqrt( Px*Px + Py*Py);
+		if( fabs(carica) > 0.1 ){
          		Rr =   aaa*1000./(BFIELD*CVEL); //R(cm) of Helix of track projected in XY plane;
 							// B = 2 Tesla
            		Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
@@ -4149,12 +4149,67 @@ fprintf(MACRO,
 pippo:	;
 
 			fprintf(MACRO,
-//"TEllipse* MC%d = new TEllipse(%f,%f,%f,%f,%f,%f);\nMC%d->SetFillStyle(0);\nMC%d->SetLineColor(3);\nMC%d->Draw(\"only\");\n",
-//			i,Cx,Cy,Rr,Rr,primoangolo[i],ultimoangolo[i],i,i,i);
 "TEllipse* MC%d = new TEllipse(%f,%f,%f,%f,%f,%f);\nMC%d->SetFillStyle(0);\nMC%d->SetLineColor(3);\nMC%d->Draw(\"only\");\n",
 			i,Cx,Cy,Rr,Rr,primo*180./PI,ultimo*180./PI,i,i,i);
-		}
-	}
+
+
+		} else { // continuation of  if( fabs(carica) > 0.1 )
+			// this is a neutral particle (blue straight trajectory).
+
+			double time, time1, time2;
+			if(fabs(Px) >1.e-10 ){
+				time2 = (xmax-Oxx)/Px;
+				time1 = (xmin-Oxx)/Px;
+				if(time1<0. && time2<0.) {
+					continue;
+				}else if(time2>0.&&time1<0.){
+					time = time2;
+					x2 = xmax;
+				}else if (time1>0. && time2<0.) {
+					time = time1;
+					x2 = xmin;
+				} else{
+					if( time2>time1 ) {
+						time=time2;
+						x2 = xmax;
+					} else {
+						time=time1;
+						x2 = xmin;
+					}
+				}
+				y2 = time*Py + Oyy;
+				fprintf(MACRO,"TLine* MCneut%d = new TLine(%f,%f,%f,%f);\n",
+					i,Oxx,Oyy,x2,y2);
+				fprintf(MACRO,"MCneut%d->SetLineStyle(2);\n",i);
+				fprintf(MACRO,"MCneut%d->SetLineColor(3);\nMCneut%d->Draw(\"only\");\n"
+						,i,i);
+			} else if( fabs(Px) >1.e-10 ) {
+				if( fabs(Py) >1.e-10 ) continue;
+				time2 = (ymax-Oyy)/Py;
+				time1 = (ymin-Oyy)/Py;
+				if(time1<0. && time2<0.) {
+					continue;
+				}else if(time2>0.&&time1<0.){
+					y2 = ymax;
+				}else if (time1>0. && time2<0.) {
+					y2 = ymin;
+				} else{
+					y2= time2>time1 ? ymax : ymin ;
+				}
+				fprintf(MACRO,"TLine* MCneut%d = new TLine(%f,%f,%f,%f);\n",
+					i,Oxx,Oyy,Oxx,y2);
+				fprintf(MACRO,"MCneut%d->SetLineStyle(2);\n",i);
+				fprintf(MACRO,"MCneut%d->SetLineColor(3);\nMCneut%d->Draw(\"only\");\n"
+						,i,i);
+			}
+
+
+		}  // end of  if( fabs(carica) > 0.1 )
+
+
+
+
+	}	// end of  if ( pMC )
 
 
 
