@@ -6,7 +6,7 @@ PndSdsCalcPixel::PndSdsCalcPixel()
   fCperL = -1;
   fQuad = kQuadUNDEF;
   fNextPixel = kPixelUNDEF;
-  fVerboseLevel = 2;
+  fVerboseLevel = 0;
 }
 
 PndSdsCalcPixel::PndSdsCalcPixel(Double_t w, Double_t l, Double_t threshold, Double_t noise)
@@ -15,7 +15,7 @@ PndSdsCalcPixel::PndSdsCalcPixel(Double_t w, Double_t l, Double_t threshold, Dou
   fPixelLength= l;
   fThreshold = threshold;
   fNoise = noise;
-  fVerboseLevel = 2;
+  fVerboseLevel = 0;
 }
 
 

@@ -40,7 +40,8 @@ PndSdsTotChargeConversion::PndSdsTotChargeConversion(Double_t tr, Double_t a, Do
 
 Double_t PndSdsTotChargeConversion::ChargeToDigiValue(Double_t charge){ //returns the TOT in ns
 	if (GetParameter("fa") <= 0){
-		Error("ConvertChargeToDigiValue(Double_t charge)","const. current is less or equal zero -> now set to 60 e/ns");
+		if (fVerboseLevel>0) 
+      Error("ConvertChargeToDigiValue(Double_t charge)","const. current is less or equal zero -> now set to 60 e/ns");
 		SetParameter("fa",60.);
 	}
 
@@ -49,12 +50,14 @@ Double_t PndSdsTotChargeConversion::ChargeToDigiValue(Double_t charge){ //return
   //Error handling: if there is a parameter leading to a division by zero Q=Qt=1 is set to prevent this
 
 	if (Qt < 0){
-		Error("ConvertChargeToDigiValue(Double_t charge)","threshold is less than zero -> now set to 0 eV");
+		if (fVerboseLevel>0)
+      Error("ConvertChargeToDigiValue(Double_t charge)","threshold is less than zero -> now set to 0 eV");
 		Qt = 0.;
 	}
 
 	if ((Q <= Qt) or (Q <= 0)){
-		Warning("ConvertChargeToDigiValue(Double_t charge)","charge is equal or less than threshold -> zero TOT");
+		if (fVerboseLevel>0)
+      Warning("ConvertChargeToDigiValue(Double_t charge)","charge is equal or less than threshold -> zero TOT");
 		Q = 1.;
 		Qt = 1.;
 	}
@@ -133,17 +136,20 @@ Double_t PndSdsTotChargeConversion::DigitizeTime(Double_t time)
 
 Double_t PndSdsTotChargeConversion::GetTimeWalk(Double_t Charge) { // [ns]
 	if (GetParameter("fa") <= 0){
-			Error("GetTimeWalk(Double_t charge)","const. current is less or equal zero -> now set to 60 e/ns");
+			if (fVerboseLevel>0)
+        Error("GetTimeWalk(Double_t charge)","const. current is less or equal zero -> now set to 60 e/ns");
 			SetParameter("fa",60.);
 		}
 
 	if (Qt < 0){
-		Error("GetTimeWalk(Double_t charge)","threshold is less than zero -> now set to 0 eV");
+		if (fVerboseLevel>0)
+      Error("GetTimeWalk(Double_t charge)","threshold is less than zero -> now set to 0 eV");
 		Qt = 0.;
 	}
 
 	if ((Q <= Qt) or (Q <= 0)){
-		Warning("GetTimeWalk(Double_t charge)","charge is equal or less than threshold -> zero TOT -> infinity TimeWalk");
+		if (fVerboseLevel>0)
+      Warning("GetTimeWalk(Double_t charge)","charge is equal or less than threshold -> zero TOT -> infinity TimeWalk");
 		Q = 1.;
 		Qt = 100000.;
 	}
@@ -179,7 +185,8 @@ Double_t PndSdsTotChargeConversion::GetPileUpTime(Double_t fcharge){	//returns t
 
 Double_t PndSdsTotChargeConversion::DigiValueToCharge(Double_t digivalue){ //returns the charge for the given tot value
 	if (digivalue<0){
-		Error("ConvertDigiValueToELoss(Double_t digi)","charge digitization value not calculated properly");
+		if (fVerboseLevel>0)
+      Error("ConvertDigiValueToELoss(Double_t digi)","charge digitization value not calculated properly");
 		return -1;
 	}
 	return (-GetParameter("fa")*GetParameter("ftr")+GetParameter("fth")+digivalue*GetParameter("fa"))/2.+sqrt( pow( (GetParameter("fa")*GetParameter("ftr")-GetParameter("fth")-digivalue*GetParameter("fa")),2) / 4. + GetParameter("fa")* GetParameter("fth") * GetParameter("ftr"));
