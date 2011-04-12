@@ -4154,8 +4154,9 @@ pippo:	;
 
 
 		} else { // continuation of  if( fabs(carica) > 0.1 )
-			// this is a neutral particle (blue straight trajectory).
-
+			continue;   //  per ora non plotto le neutre.
+			// this is a neutral particle (green dashed straight line).
+			if( Oxx < xmin || Oxx > xmax || Oyy < ymin || Oyy > ymax) continue;
 			double time, time1, time2;
 			if(fabs(Px) >1.e-10 ){
 				time2 = (xmax-Oxx)/Px;
