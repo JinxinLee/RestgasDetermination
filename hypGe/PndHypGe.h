@@ -122,11 +122,18 @@ class PndHypGe : public FairDetector
 			     Double_t tof, Double_t length, Double_t eLoss,
 			     Short_t copy);
    
-  /*  PndHypGePoint* AddcapGeHit(Int_t trackID, Int_t evtID,  Int_t pdgCode,	
-			     Double_t charge,TVector3 pos, TVector3 mom,
-			     Double_t tof, Double_t length, Double_t eLoss,
-			     Short_t copy);
-  */
+  /** Setting distance to interaction point **/
+
+  void SetDisIP(Double_t dist)
+  {
+    fdist = dist; // cm
+  }
+
+  void SetPathGeo(TString pgeo)
+  {
+    fPathGeo = pgeo.Data();
+  }
+
  private:
   
    
@@ -145,7 +152,9 @@ class PndHypGe : public FairDetector
   Double32_t     fELoss;             //  energy loss
   Int_t fPosIndex;      // 
   Short_t fnCopy;
-  
+  Double_t fdist;
+  TString fPathGeo;
+
   //Int_t volDetector;     //  MC volume ID of MUO
   
   TClonesArray* fHypGeCollection;        // Hit collection
@@ -154,7 +163,7 @@ class PndHypGe : public FairDetector
   // reset all parameters   
   void ResetParameters();
 
-  ClassDef(PndHypGe,1)
+  ClassDef(PndHypGe,2)
 
 }; 
 

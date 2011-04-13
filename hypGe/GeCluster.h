@@ -32,6 +32,10 @@ class GeCluster : public TObject
  int Id_Cluster[105];
  int Id_Crystal_In_Cluster[105];
 
+ void SetPathGeo(TString path){
+   fpath = path;
+ };
+
  TList  *CreateCluster(TGeoPgon* logicCrystal_test,
 		       TGeoPgon* lay_sci,
 		       TGeoCompositeShape* lay_cap, 
@@ -58,13 +62,13 @@ class GeCluster : public TObject
 /* 		    double depth_first_interaction,  */
 /* 		    int id_start);  */
  
- ClassDef(GeCluster,1);
+ ClassDef(GeCluster,2);
  
  private:
 
  int fnum_crystal;
  int fnum_cluster;
-
+ TString fpath;
  
  //TGeoVolume*   sphere;    // pointer to the logical envelope
  
