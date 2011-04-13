@@ -57,6 +57,8 @@ public:
   // Operations ----------------------
 
   void ClearData(){fMCIDs.clear();}
+  void ShiftEventIds(int shift); // used for eventmixing
+
   double Renormalize(); // renormalize weights
   double TotalWeight() const;
   double MaxRelWeight() const;

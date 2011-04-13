@@ -29,6 +29,8 @@
 #include "FairRuntimeDb.h"
 #include "TClonesArray.h"
 #include "PndTpcSignal.h"
+#include "PndTpcDigi.h"
+#include "PndTpcDigiMapper.h"
 #include "PndTpcEvtTime.h"
 #include "PndTpcDigiPar.h"
 #include "PndTpcPad.h"
@@ -95,6 +97,26 @@ PndTpcEvtMixTask::Init()
 {
 
   std::cout<< "PndTpcEvtMixTask::Init()" <<std::endl;
+
+  // check consistency
+  if(finBranchName.Contains("Signal"))
+    {
+      if(!fbkgBranchName.Contains("Signal")){
+	Error("Init","Trying to merge Background and Physics on different Levels!");
+	return kERROR;
+      }
+      fdoSignals=true;
+    }
+  else {
+     if(!fbkgBranchName.Contains("Digi")){
+	Error("Init","Trying to merge Background and Physics on different Levels!");
+	return kERROR;
+      }
+    fdoSignals=false;
+  }
+
+  // check consistency
+ 
 
   //Get ROOT Manager
   FairRootManager* ioman= FairRootManager::Instance();
@@ -170,25 +192,44 @@ PndTpcEvtMixTask::Exec(Option_t* opt)
   for(Int_t i=0;i<fnbkgEvts;++i){
     fbkgTree->GetEntry(i);
     double tevent=((PndTpcEvtTime*)ftimeArray->At(0))->t0();
+    double teventClock=PndTpcDigiMapper::getInstance()->t_to_ticks(tevent);
     //std::cout<<"tevent="<<tevent<<std::endl;
     // Load bkg array
     if(fbkgArray==NULL) Fatal("PndTpcEvtMixTask::Exec","bkgArray not loadable");
     // copy bkg array into output array
+    // distinguish between signal and digi mixing!
     Int_t nsig=fbkgArray->GetEntriesFast();
     for(Int_t ip=0;ip<nsig;++ip){
-      PndTpcSignal* sig=(PndTpcSignal*)fbkgArray->At(ip);
-      // check if signal lies in region of interest
-      unsigned int sec=fpadPlane->GetPad(sig->padId())->sectorId();
-      if(fsectors.size()>0 && fsectors.find(sec)==fsectors.end()){
-	// std::cout << "Skipping sig. Sector" 
-// 		  << sec << " not in list." << std::endl;
-	continue;
-      }
-      // TODO: modify time of point according to event time
-      sig->sett(sig->t()+tevent);
-      sig->setmcEventId(i+1);
-      // Add background to point-array of this event
-      new((*fsignalArray)[iout++]) PndTpcSignal(*sig);
+      if(fdoSignals){
+	PndTpcSignal* sig=(PndTpcSignal*)fbkgArray->At(ip);
+	// check if signal lies in region of interest
+	unsigned int sec=fpadPlane->GetPad(sig->padId())->sectorId();
+	if(fsectors.size()>0 && fsectors.find(sec)==fsectors.end()){
+	  // std::cout << "Skipping sig. Sector" 
+	  // 		  << sec << " not in list." << std::endl;
+	  continue;
+	}
+	// TODO: modify time of point according to event time
+	sig->sett(sig->t()+tevent);
+	sig->setmcEventId(i+1);
+	// Add background to point-array of this event
+	new((*fsignalArray)[iout++]) PndTpcSignal(*sig);
+      } // if doSignals
+      else {
+	PndTpcDigi* digi=(PndTpcDigi*)fbkgArray->At(ip);
+	// check if signal lies in region of interest
+	unsigned int sec=fpadPlane->GetPad(digi->padId())->sectorId();
+	if(fsectors.size()>0 && fsectors.find(sec)==fsectors.end()){
+	  // std::cout << "Skipping sig. Sector" 
+	  // 		  << sec << " not in list." << std::endl;
+	  continue;
+	}
+	// TODO: modify time of point according to event time
+	digi->t(digi->t()+teventClock);
+	digi->shiftEventIds(i+1);
+	// Add background to point-array of this event
+	new((*fsignalArray)[iout++]) PndTpcDigi(*digi);
+      } // end digis
     }
   }
     //fbkgArray->Print();

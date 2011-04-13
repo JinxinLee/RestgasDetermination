@@ -43,7 +43,9 @@ double PndTpcDigiMapper::z_from_tick(double t,double vdr){
   return (t*ftbin+ft0)*v+fzGem;
 }
 
-
+double PndTpcDigiMapper::t_to_ticks(double t) const {
+  return (t-ft0)/ftbin;
+}
 
 void PndTpcDigiMapper::map(const PndTpcDigi* const fdig, TVector3& fvec) {
   double x,y,z;

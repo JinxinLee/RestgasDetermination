@@ -75,6 +75,7 @@ private:
   TBranch* fbkgBranch;
 
   Bool_t fpersistence;
+  Bool_t fdoSignals;
   Int_t fnbkgEvts;
 
   std::set<unsigned int> fsectors;

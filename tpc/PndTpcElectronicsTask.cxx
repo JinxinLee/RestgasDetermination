@@ -161,7 +161,7 @@ PndTpcElectronicsTask::Exec(Option_t* opt)
   fdigiArray->Delete();
   if(fsamplePersistence)	{
 	if(fsampleArray==0) Fatal("PndTpcElectronics::Exec)","No SampleArray");
-		fsampleArray->Delete();
+	fsampleArray->Delete();
    }
 	
   //partition data according to pads

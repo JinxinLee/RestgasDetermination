@@ -16,6 +16,7 @@
 #pragma link C++ class PndTpcRiemannMCTask++;
 #pragma link C++ class PndTpcRiemannHit++;
 #pragma link C++ class PndTpcRiemannTrack++;
+#pragma link C++ class DebugLogger+;
 
 //#pragma link C++ class PndTpcRecoDEdxTask++;
 //#pragma link C++ class PndTpcDEDXDiagnosticPoint++;

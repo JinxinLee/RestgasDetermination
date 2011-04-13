@@ -53,6 +53,7 @@ public:
   double t() const {return ft;} 
   unsigned int padId() const {return fpadID;}
   const McIdCollection& mcId() const {return fmcid;}
+  void shiftEventIds(int shift){fmcid.ShiftEventIds(shift);}
   double tlength() const {return ftlength;}
   unsigned int index() const {return findex;}
   // Modifiers -----------------------

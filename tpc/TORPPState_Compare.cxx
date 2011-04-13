@@ -51,7 +51,9 @@ ppstate_compare::heartbeat()
       if(nei->fdominant_neighb!=-1){
 	if(nei->fneighbours[nei->fdominant_neighb]==fparent){
 	  //assert(nei->amp()==fparent->amp());
+#ifdef DEBUG	  
 	  std::cout<<"already getting data"<<std::endl;
+#endif
 	  continue;
 	}
       }

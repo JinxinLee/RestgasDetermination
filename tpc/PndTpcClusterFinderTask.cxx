@@ -211,6 +211,8 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
       if((*fcluster_buffer)[icl]->size()>1 || (*fcluster_buffer)[icl]->amp()>fSDiClAmpCut){
         PndTpcCluster* cl = new((*fclusterArray)[ncl_rec]) PndTpcCluster(*(*fcluster_buffer)[icl]);
         cl->SetIndex(ncl_rec);
+	cl->ClearDigis();
+	delete  (*fcluster_buffer)[icl];
         ncl_rec++;
         for(Int_t i=0;i<cl->nDigi();++i){ // get digis
           PndTpcDigi* digi = new((*fdigiOutArray)[ndig_rec]) PndTpcDigi(*(cl->getDigi(i)));
@@ -230,12 +232,17 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
   if(fsimple){std::cout<<" (SimpleClustering split "<< splitDigis <<" Digis!)"<<std::endl;}   
    
 
-  for(unsigned int icl=0;icl<ncl;++icl){
-    delete (*fcluster_buffer)[icl];
-  }
+  // for(unsigned int icl=0;icl<ncl;++icl){
+  //   delete (*fcluster_buffer)[icl];
+  // }
   fcluster_buffer->clear();
+  for(unsigned int id=0;id<digis.size();++id){
+    delete digis[id];
+  }
   digis.clear();
    
+  std::cerr<<" End ClusterFinderTask " <<std::endl;
+
   return;
 }
 

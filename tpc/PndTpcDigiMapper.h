@@ -46,6 +46,7 @@ class PndTpcDigiMapper {
   
   double t_from_z(double z);
   double z_from_tick(double t,double vdr=-1.);
+  double t_to_ticks(double t) const;
 
   PndTpcPadPlane* getPadPlane() {return fpadPlane;}
   const PndTpcPadShapePool * getPadShapePool() {return fpadShapes;}

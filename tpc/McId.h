@@ -51,6 +51,8 @@ public:
 
   // Modifiers -----------------------
   void setweight(double w) {fweight=w;}
+  void setEventID(unsigned int id){fmceventID=id;}
+  void setTrackID(unsigned int id){fmctrackID=id;}
 
   // Operations ----------------------
   double IncWeight(double w=1) {return fweight+=w;}

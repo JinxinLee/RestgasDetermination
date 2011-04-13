@@ -37,7 +37,9 @@
 #include "PndTpcRiemannHTCorrelator.h"
 #include "PndTpcRiemannTTCorrelator.h"
 
-#define DEBUG
+using namespace std;
+
+//#define DEBUG
 
 // Class Member definitions -----------
 PndTpcRiemannTrackFinder::PndTpcRiemannTrackFinder()
@@ -95,6 +97,13 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
 #endif
 
   for(unsigned int icl=0;icl<ncl;++icl){ // loop over hits
+#ifdef DEBUG
+    if(icl%1000==0){
+      cout << "At cluster " << icl << endl;
+      cout << "Active Tracklets: "<< candlist.size() << endl;
+      cout << "Mean number of hits/track: "<< (double)icl/(double)candlist.size() << endl;
+    }
+#endif
 
     PndTpcRiemannHit* rhit=new PndTpcRiemannHit(cll[icl]);
     unsigned int ntrks=candlist.size();

@@ -77,6 +77,8 @@ PndTpcdEdxTask.cxx
 PndTpcdEdx.cxx
 PndTpcGenfitTestTask.cxx
 PndTpcTestPlanarHit.cxx
+../DebugLogger.cxx
+../dbgstream.cxx
 )
 
 if(RULE_CHECKER_FOUND)

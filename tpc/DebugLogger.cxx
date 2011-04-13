@@ -56,7 +56,7 @@ DebugLogger::DebugLogger() : TNamed()
 
 DebugLogger::~DebugLogger()
 {
-  std::cout<<"Destructing DebugLogger"<<std::endl;
+  std::cerr<<"Destructing DebugLogger"<<std::endl;
   if(foutfile!=NULL){
     foutfile->Close();
     delete foutfile;

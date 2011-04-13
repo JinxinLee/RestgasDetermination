@@ -86,6 +86,14 @@ McIdCollection::Renormalize(){
   }
 }
 
+void
+McIdCollection::ShiftEventIds(int shift){
+  unsigned int n=nIDs();
+  for(unsigned int i=0; i<n;++i){
+    fMCIDs[i].setEventID(fMCIDs[i].mceventID()+shift);
+  }
+}
+
 double
 McIdCollection::MaxRelWeight() const {
   double result=0;
