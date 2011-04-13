@@ -7,6 +7,7 @@ set(GLPK_INCLUDE_DIR ${SIMPATH}/basics/glpk/include)
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
 ${GLPK_INCLUDE_DIR}
+${CMAKE_SOURCE_DIR}/fairtools
 ${CMAKE_SOURCE_DIR}/geobase 
 ${CMAKE_SOURCE_DIR}/parbase 
 ${CMAKE_SOURCE_DIR}/base 

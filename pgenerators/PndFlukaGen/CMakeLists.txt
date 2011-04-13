@@ -8,6 +8,7 @@ ${CLHEP_BASE_DIR}/include
 ${CLHEP_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/base 
 ${CMAKE_SOURCE_DIR}/pgenerators/PndFlukaGen
+${CMAKE_SOURCE_DIR}/fairtools
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})

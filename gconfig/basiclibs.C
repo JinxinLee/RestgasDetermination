@@ -25,7 +25,6 @@ void basiclibs()
   gSystem->Load("libEGPythia6");
   gSystem->Load("libPythia6");  
   gSystem->Load("libPhysics");
-  if (isLibrary("libSQL")) gSystem->Load("libSQL");  
   gSystem->Load("libNet");  
   gSystem->Load("libTree"); 
   gSystem->Load("libMinuit");

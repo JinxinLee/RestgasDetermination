@@ -7,11 +7,11 @@
 # LINUX_FLAVOUR should be set to the distribution you are using
 # eg Debian, SuSe etc.
 # For example
-#export SIMPATH=/misc/cbmsoft/Etch64/jan10/fairsoft
-#export BUILDDIR=/misc/uhlig/SVN//dev/build_test
-#export SOURCEDIR=/misc/uhlig/SVN/dev/cbmroot
-#export LINUX_FLAVOUR=Etch64
-#export FAIRSOFT_VERSION=jan10
+export SIMPATH=/home/turany/fairsoft_jan11/fairsoft
+export BUILDDIR=/home/turany/fairsoft_jan11/build_panda
+export SOURCEDIR=/home/turany/fairsoft_jan11/pandaroot
+export LINUX_FLAVOUR=Suse_Enterprise_10.3
+export FAIRSOFT_VERSION=Feb11
 ##################################################################
 
 if test  "x$SIMPATH" = "x" ; then
@@ -62,6 +62,10 @@ if [ $WHATSYSTEM = "Darwin" ]; then
 else
   export number_of_processors=$(cat /proc/cpuinfo | grep processor | wc -l)
 fi
+
+
+export number_of_processors=100
+
 
 echo "************************"
 date

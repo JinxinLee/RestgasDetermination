@@ -9,6 +9,7 @@ ${CLHEP_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/base 
 ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen
 ${CMAKE_SOURCE_DIR}/pgenerators/EvtGenDirect
+${CMAKE_SOURCE_DIR}/fairtools
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
