@@ -476,7 +476,7 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
         RiemannMarkerlistLines2[ir]->SetNextPoint(clpos.X(), clpos.Y(), clpos.Z());
       }
 
-      if(!trkcand->isFittedPlane()){
+      if(trkcand->isFittedPlane()){
         TVectorD nd = trkcand->n();
         TVector3 n;
         n.SetXYZ(nd(0), nd(1), nd(2));
