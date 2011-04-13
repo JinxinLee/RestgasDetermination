@@ -125,7 +125,7 @@ odbgstream::odbgstream(streambuf* sb)
 
 idbgstream::~idbgstream()
 {
-  delete rdbuf();
+  if(rdbuf()!=NULL) delete rdbuf();
 }
 
 
