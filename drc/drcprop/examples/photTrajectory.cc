@@ -32,22 +32,24 @@ void photTrajectory( TString inFilename = "", Double_t photonID = 0 ) // ID 0 me
   //==============================================================================
   // Access to the input ROOT-file & canvas settings
   //==============================================================================
-  TFile *inFile_wo = new TFile( "forSetup.root" ); // w/o air box
-  TCanvas *setup = (TCanvas*) inFile_wo->Get("Setup");
-
   TFile *inFile = new TFile( inFilename );
+  TCanvas *setup = (TCanvas*) inFile->Get("Setup");
 
   TTree *infoTree   = (TTree*) inFile->Get("info");
   TTree *photonTree = (TTree*) inFile->Get("photon");
 
 
-  Int_t refl_limit;
-  infoTree->SetBranchAddress( "refl_limit", &refl_limit );
+  const int pos_size;
+  infoTree->SetBranchAddress( "pos_size", &pos_size );
   infoTree->GetEntry( 0 );
 
+  if( pos_size == -666 )
+  {
+    cout << "No photon position list included!" << endl;
+    return;
+  }
 
-  int add_pos = 1 + 3*2 + 1; // 1 start + 3 volume transition (+ tiny shifts) + detector
-  const int pos_size = refl_limit + 1 + add_pos; // reflection limit + 1 exceed + additional positions
+
   Double_t posX[ pos_size ], posY[ pos_size ], posZ[ pos_size ];
 
   TString pos_size_str;

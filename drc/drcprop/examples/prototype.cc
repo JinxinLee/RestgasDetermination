@@ -302,9 +302,11 @@ int main(int argc, char *argv[])
   const double mass_e  = 0.0005; // electron mass
   const double mass_mu = 0.1057; // muon mass
 
-  double mass = mass_p; // default: proton mass
-  double kinE = 2.0;    // default: 2.0 GeV kinetic energy ; 2.3 GeV
-  double beta = Sqrt( 1 - Power( mass / (kinE + mass), 2 ) ); // E = T + E0 = gamma * E0
+  double mass = mass_pi;
+
+  double kinE = -666; // in GeV; T = sqrt( m^2 + p^2 ) - m; -666 means unset, then mom has to be set
+  double mom  = 1.5;  // in GeV; p = sqrt( (T + m)^2 - m^2 ); -666 means unset, then kinE has to be set
+  double beta = -666; // just for initialization; will be overwritten later
 
   double spot_radius = 20.; // default: 20 mm 1-sigma beam spot radius (gaus smeared)
   double spot_limit  = 50.; // default: 50 mm beam spot radius limit
@@ -649,7 +651,29 @@ int main(int argc, char *argv[])
     else
       cout << "*** WARNING: undefined particle sort" << endl;
 
+    if( mom == -666 )
+    {
+      mom  = Sqrt( Power( kinE + mass, 2 ) - mass*mass );
+      beta = Sqrt( 1 - Power( mass / (kinE + mass), 2 ) ); // E = T + m = gamma * m; gamma^2 = 1 / (1 - beta^2)
+    }
+    else if ( kinE == -666 )
+    {
+      kinE = Sqrt( mass*mass + mom*mom ) - mass;
+      beta = mom / Sqrt( mass*mass + mom*mom ); // E^2 = m^2 + p^2
+    }
+    else
+    {
+      if( mom != Sqrt( Power( kinE + mass, 2 ) - mass*mass ) )
+      {
+        cout << "*** ERROR: particle momentum and kinetic energy are not consistent; use -666 to unset one" << endl;
+        abort();
+      }
+
+      beta = mom / Sqrt( mass*mass + mom*mom );
+    }
+
     cout <<     "  T [GeV]: " << kinE << endl;
+    cout <<     "  p [GeV]: " << mom  << endl;
     cout <<     "  beta:    " << beta << endl;
 
     cout <<     "  incidence angle (theta): " << inci_theta << " deg" << endl;
@@ -902,6 +926,12 @@ int main(int argc, char *argv[])
     cannon_phi   = -666;
   }
 
+  const int pos_size = refl_limit + 100; // due to tiny shifts at volume transitions, start and detection position)
+  int pos_size_info = pos_size;
+
+  if( !opt_photonPosList )
+    pos_size_info = -666;
+
 
   infoTree->Branch( "root_version"          , &rootVer               , "root_version/I" );
   infoTree->Branch( "slab_material"         , &slab_material         , "slab_material/C" );
@@ -972,6 +1002,7 @@ int main(int argc, char *argv[])
   infoTree->Branch( "gridYstep"             , &gridYstep             , "gridYstep/D");
   infoTree->Branch( "cannon_theta"          , &cannon_theta          , "cannon_theta/D");
   infoTree->Branch( "cannon_phi"            , &cannon_phi            , "cannon_phi/D");
+  infoTree->Branch( "pos_size"              , &pos_size_info         , "pos_size/I");
 
   infoTree->Fill();
 
@@ -1008,7 +1039,6 @@ int main(int argc, char *argv[])
   double phot_inci_phi   = -666;
 
   //  vector<double> posX; // needed ROOT >= 5.2
-  const int pos_size = refl_limit + 100; // due to tiny shifts at volume transitions, start and detection position)
   double posX[ pos_size ];
   double posY[ pos_size ];
   double posZ[ pos_size ];
