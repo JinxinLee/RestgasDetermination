@@ -52,7 +52,7 @@ PndHypGe::PndHypGe() {
   fHypGeCollection        = new TClonesArray("PndHypGePoint");
    fHypGesciCollection        = new TClonesArray("PndHypGePoint");
   fPosIndex   = 0;
-  fEventID=-1; 
+  fEventID=-1; fdist=-78.;
 
 }
 // -------------------------------------------------------------------------
@@ -64,7 +64,7 @@ PndHypGe::PndHypGe(const char* name, Bool_t active)
     fHypGesciCollection        = new TClonesArray("PndHypGePoint");
     //fHypGecapCollection        = new TClonesArray("PndHypGePoint");
     fPosIndex   = 0;
-    fEventID=-1;
+    fEventID=-1;fdist=-78.;
 }
 // -------------------------------------------------------------------------
 
@@ -240,64 +240,7 @@ Bool_t PndHypGe::ProcessHits(FairVolume* vol)
 	//return kTRUE;
       }
 
-    /* if ((nam.BeginsWith("Cap"))) 
-       //cout << "Error <CbmEmc::ProcessHits> : " << nam << " not EMC volume" << endl;
-       //else 
-      {//  if ( gMC->IsTrackEntering() ) 
-      if ( gMC->IsTrackEntering() ) 
-	{
-      fTrackID = gMC->GetStack()->GetCurrentTrackNumber(); // trk ID
-      fEventID = gMC->CurrentEvent();
-       
-      fpdgCode = gMC->TrackPid(); 
-    
-      fELoss = gMC->Edep();
-      fLength =  gMC->TrackLength();
-      fTime =  gMC->TrackTime()* 1.0e09;
-      gMC->TrackPosition(fPos); // cm
-      gMC->TrackMomentum(fMom); // GeV
-	}
-      
-
-      // Sum energy loss for all steps in the active volume
-      fELoss += gMC->Edep();  
-      //cout <<"enrgy loss"<<fELoss<<endl; 
-     
    
-      // Set additional parameters at exit of active volume. Create CbmDrcPoint.
-        if ( gMC->IsTrackExiting()    ||
-       	   gMC->IsTrackStop()       ||
-       	   gMC->IsTrackDisappeared()) 
-       	{
-	  if ((fELoss == 0.)&&(fpdgCode!=2112 ) ) {
-	    //ResetParameters();
-	    return kFALSE;
-	  }		
-	  
-	  //id = gMC->CurrentVolOffID(1,copyNo);
-	  //gMC->TrackPosition(fPos); // cm
-	  //gMC->TrackMomentum(fMom); // GeV
-
-	  //cout <<"energy loss"<<fMom.Px()<<endl;
-	  sscanf(nam,"Cap%04d", &copyNo);
-	  fnCopy = copyNo; 
-
-	  cout<<" cap"<<endl;
-	  
-	  TVector3 pos(fPos.X(),   fPos.Y(),   fPos.Z());
-	  //if ( pdgCode )  {
-	  
-	  AddcapGeHit(fTrackID, fEventID,fpdgCode,fcharge,
-		      TVector3(fPos.X(),   fPos.Y(),   fPos.Z()),
-		      TVector3(fMom.Px(),  fMom.Py(),  fMom.Pz()),
-		      fTime, fLength, fELoss, fnCopy);
-	  //}
-	
-	  ResetParameters();
-	}
-	//return kTRUE;
-      }
-    */ 
      return kTRUE;
   
 }
@@ -314,7 +257,7 @@ void PndHypGe::EndOfEvent() {
 void PndHypGe::Register() {
   FairRootManager::Instance()->Register("HypGePoint","HypGe", fHypGeCollection, kTRUE);
   FairRootManager::Instance()->Register("HypGesciPoint","HypGesci", fHypGesciCollection, kTRUE);
-  //FairRootManager::Instance()->Register("HypGecapPoint","HypGecap", fHypGecapCollection, kTRUE);
+  
 }
 // ----------------------------------------------------------------------------
 
@@ -322,7 +265,7 @@ void PndHypGe::Register() {
 TClonesArray* PndHypGe::GetCollection(Int_t iColl) const {
    if (iColl == 0) return fHypGeCollection;
    if (iColl == 1) return fHypGesciCollection;
-   //if (iColl == 2) return fHypGecapCollection;
+   
   return NULL;
 }
 // ----------------------------------------------------------------------------
@@ -464,6 +407,8 @@ void PndHypGe::ConstructGeometry() {
   //TList *ClusterList15=0;
 
    GeCluster* HypGe= new GeCluster();
+
+   HypGe->SetPathGeo(fPathGeo.Data());
    
    
    ClusterList=HypGe->CreateCluster(logicCrystal_test,lay_sci,lay_cap,*sphere,
@@ -581,7 +526,7 @@ void PndHypGe::ConstructGeometry() {
   
   TGeoVolume* vcave = gGeoManager->FindVolumeFast(vname);
 
-  vcave->AddNode(sphere, 1,new TGeoCombiTrans(0., 0., -78., new TGeoRotation (0)));
+  vcave->AddNode(sphere, 1,new TGeoCombiTrans(0., 0., fdist, new TGeoRotation (0)));
   
  
    
@@ -616,22 +561,7 @@ PndHypGePoint* PndHypGe::AddsciGeHit(Int_t trackID, Int_t evtID, Int_t pdgCode,I
 					time, length, eLoss,copy);
 }
 
-/*
-PndHypGePoint* PndHypGe::AddcapGeHit(Int_t trackID, Int_t evtID, Int_t pdgCode,Double_t charge,
-				     TVector3 pos, TVector3 mom, Double_t time, 
-				     Double_t length, Double_t eLoss, 
-				     Short_t copy) {
-  TClonesArray& clref = *fHypGecapCollection;
-  Int_t size = clref.GetEntriesFast();
-  if (fVerboseLevel>1) 
-    cout << "-I- PndHypGe: Adding Point at IN (" << pos.X() << ", " << pos.Y() 
-	 << ", " << pos.Z() << ") cm,  evt " << evtID << ", track "
-	 << trackID <<", energy loss " << eLoss*1e06 << " keV " << " copy " << copy << endl;
-  
-  return new(clref[size]) PndHypGePoint(trackID, evtID, pdgCode,charge,pos, mom, 
-					time, length, eLoss,copy);
-}
-*/
+
 inline void PndHypGe::ResetParameters() {
   fTrackID = 0;
   fVolumeID = 0;

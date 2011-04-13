@@ -8,7 +8,7 @@
 //
 ///////////////////////////////////////////////////////////////
 
-#include "iostream.h"
+#include <iostream>
 #include "PndHypGePoint.h"
 
 // -----   Default constructor   -------------------------------------------

@@ -13,7 +13,7 @@
 #include <fstream>
 #include <string>
 #include "TString.h"
-
+#include <algorithm>
 
 #include "PndHypGeReader.h"
 
@@ -26,7 +26,7 @@ PndHypGeReader::PndHypGeReader(TString name)
 }
 
 PndHypGeReader::~PndHypGeReader()
-{
+{g4data.clear();
 }
 
 void PndHypGeReader::fill_vector()

@@ -122,8 +122,17 @@ TList *GeCluster::CreateCluster(TGeoPgon* logicCrystal_test,
   if(phi>180.0 && phi <360.0) phi = 540.0 - phi;
   phi = phi+90.0;
 
-  PndHypGeReader read("/d/panda02/asanchez/fairroot_newPack/pandaroot/hypGe/GeGlusterPos3Clus.dat");
-  PndHypGeReader readsci("/d/panda02/asanchez/fairroot_newPack/pandaroot/hypGe/GeClusterPosSci31.dat");
+
+  TString pclus,psci;
+  pclus = fpath;
+  psci = fpath;
+  pclus += "/hypGe/GeGlusterPos3Clus.dat";
+  psci += "/hypGe/GeClusterPosSci31.dat";
+
+  PndHypGeReader *read;
+  read = new PndHypGeReader(pclus.Data());
+  PndHypGeReader *readsci;
+  readsci = new PndHypGeReader(psci.Data());
   
   TGeoRotation rot3D;
   TRotation rho;
@@ -200,8 +209,8 @@ TList *GeCluster::CreateCluster(TGeoPgon* logicCrystal_test,
    Cap[fnum_crystal] = new TGeoVolume(name_cap,(const TGeoShape *)lay_cap,
   						(const TGeoMedium *)cap );
 
-   DataG4 data = read.GetData(id_start+6);
-  
+   DataG4 data;
+   data = read->GetData(id_start+6);
 
    //  sphere.AddNode(crystal_centre[fnum_crystal],id_start+6, 
    // 		  new TGeoCombiTrans(rotatedPos.X(),
@@ -222,7 +231,8 @@ TList *GeCluster::CreateCluster(TGeoPgon* logicCrystal_test,
 				     new TGeoRotation (rot3D)));
   
    //scint
-   DataG4 data2 = readsci.GetData(id_start+6);
+   DataG4 data2; 
+   data2 = readsci->GetData(id_start+6);
    ////cout<<id_start+6<<" x "<<data2.posX<<" y "<<data2.posY<<" z "<<data2.posZ<<endl;
    
    
@@ -319,32 +329,33 @@ TList *GeCluster::CreateCluster(TGeoPgon* logicCrystal_test,
 					     (const TGeoMedium *)cap);
       
 
-	
-       	DataG4 data = read.GetData(id_start+iii);
+      DataG4 data3;
+      data3 = read->GetData(id_start+iii);
      
 	// sphere.AddNode(crystal[fnum_crystal],id_start+iii, 
 	// 		       new TGeoCombiTrans(PosOrb.X(),PosOrb.Y(),
 	// 					  PosOrb.Z(), new TGeoRotation (rot3D)));
 
 	sphere.AddNode(crystal[fnum_crystal],id_start+iii, 
-		       new TGeoCombiTrans(data.posX/10.,data.posY/10.,
-					  data.posZ/10., new TGeoRotation (rot3D)));
+		       new TGeoCombiTrans(data3.posX/10.,data3.posY/10.,
+					  data3.posZ/10., new TGeoRotation (rot3D)));
 
 	//capsula
 	 sphere.AddNode(Cap_peri[fnum_crystal],id_start+iii, 
-			new TGeoCombiTrans(data.posX/10.,
-					   data.posY/10.,
-					   (data.posZ/10.), 
+			new TGeoCombiTrans(data3.posX/10.,
+					   data3.posY/10.,
+					   (data3.posZ/10.), 
 					   new TGeoRotation (rot3D)));
 	
-	 DataG4 data2 = readsci.GetData(id_start+iii);
+	 DataG4 data4;
+	 data4 = readsci->GetData(id_start+iii);
 	
    
    
 	sphere.AddNode(laySci_peri[fnum_crystal],id_start+iii, 
-		       new TGeoCombiTrans(data2.posX/10.,
-				  data2.posY/10.,
-				  (data2.posZ/10.), 
+		       new TGeoCombiTrans(data4.posX/10.,
+				  data4.posY/10.,
+				  (data4.posZ/10.), 
 				  new TGeoRotation (rot3D)));
 	
 	
