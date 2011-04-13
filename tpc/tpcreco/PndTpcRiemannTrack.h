@@ -39,6 +39,7 @@ class PndTpcRiemannTrack : public TObject{
 
   // Constructors/Destructors ---------
   PndTpcRiemannTrack();
+  PndTpcRiemannTrack(double scale);
   ~PndTpcRiemannTrack(){;}
 
   
@@ -46,6 +47,7 @@ class PndTpcRiemannTrack : public TObject{
   const TVectorD& n() const {return _n;}
   double c() const {return _c;}
   const TVectorD& av() const {return _av;}
+  double getScale() const {return fRiemannScale;}
 
   TVectorD orig() const;
   double r() const;
@@ -104,6 +106,8 @@ class PndTpcRiemannTrack : public TObject{
   bool _isFitted; // szFit
   bool _isFittedPlane; // fit _n and _c
 
+  double fRiemannScale;
+
   std::vector<PndTpcRiemannHit*> _hits; //
   TVectorD _av;  // average over all hits
   double _sumOfWeights; // for weighing the average with cluster error
@@ -115,9 +119,11 @@ class PndTpcRiemannTrack : public TObject{
 
   // Private Methods -----------------
  
+  bool checkScale(PndTpcRiemannHit*);
+
 
  public:
-  ClassDef(PndTpcRiemannTrack,1)
+  ClassDef(PndTpcRiemannTrack,2)
 
 };
 

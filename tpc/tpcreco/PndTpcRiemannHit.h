@@ -33,9 +33,10 @@ class PndTpcRiemannHit : public TObject{
 public:
 
   // Constructors/Destructors ---------
-  PndTpcRiemannHit():_cluster(NULL),_s(0.),_alpha(0.){}
-  PndTpcRiemannHit(double r,double phi);
-  PndTpcRiemannHit(PndTpcCluster* cl);
+ PndTpcRiemannHit():_cluster(NULL),_s(0.),_alpha(0.),fRiemannScale(24.6){}
+ PndTpcRiemannHit(double scale):_cluster(NULL),_s(0.),_alpha(0.),fRiemannScale(scale){}
+  PndTpcRiemannHit(double r,double phi, double scale=24.6);
+  PndTpcRiemannHit(PndTpcCluster* cl, double scale=24.6);
   ~PndTpcRiemannHit();
 
   
@@ -46,7 +47,7 @@ public:
   double tempPosOnTrack() const {return _tempPosOnTrack;}
   double z() const;
   double alpha() const {return _alpha;}
-  
+  double getScale() const {return fRiemannScale;}
 
   // Modifiers -----------------------
   double tempPosOnTrack(double tempPos){_tempPosOnTrack=tempPos;}
@@ -64,11 +65,11 @@ private:
   double _s;     // pathlength along track
   double _tempPosOnTrack; // this is not valid for the whole track and used in the sorting of addHit
   double _alpha; // angle along track
-
+  double fRiemannScale; //scaling in xy plane: 8.5 for prototype, 24.6 for panda
   // Private Methods -----------------
 
 public:
-  ClassDef(PndTpcRiemannHit,1)
+  ClassDef(PndTpcRiemannHit,2)
 
 };
 

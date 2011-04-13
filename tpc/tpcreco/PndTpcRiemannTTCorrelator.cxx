@@ -47,6 +47,12 @@ PndTpcRiemannTTCorrelator::corr(PndTpcRiemannTrack* trk1,
 {
   //std::cout<<" PndTpcRiemannTTCorrelator::corr"<<std::endl;
 
+  // check scale
+  if(trk1->getScale()!=trk2->getScale()){
+    survive=false;
+    return false;
+  }
+
   unsigned int nhits1 = trk1->getNumHits();
   unsigned int nhits2 = trk2->getNumHits();
   unsigned int nhits = nhits1+nhits2;
@@ -55,7 +61,7 @@ PndTpcRiemannTTCorrelator::corr(PndTpcRiemannTrack* trk1,
     return false;
 
   // fill hits into new RiemannTrack and refit
-  PndTpcRiemannTrack* mergedTrack = new PndTpcRiemannTrack();
+  PndTpcRiemannTrack* mergedTrack = new PndTpcRiemannTrack(trk1->getScale());
   mergedTrack->setSort(false); // it's faster and we don't need it anyway
   for(unsigned int i=0; i<nhits1; ++i){
     mergedTrack->addHit(trk1->getHit(i));
@@ -77,6 +83,9 @@ PndTpcRiemannTTCorrelator::corr(PndTpcRiemannTrack* trk1,
 
   matchQuality=rms;
   survive=true;
+
+  delete mergedTrack;
+
   return true;
 }
 

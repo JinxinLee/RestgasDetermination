@@ -223,6 +223,7 @@ private:
   TGNumberEntry* guiTTproxcut;
   TGNumberEntry* guiTTplanecut;
   TGNumberEntry* guiTTszcut;
+  TGNumberEntry* guiTTscale;
 
   bool doClustering;
 
@@ -252,7 +253,7 @@ private:
   double _TTproxcut;
   double _TTplanecut;
   double _TTszcut;
-
+  double fRiemannScale;
 
   /** @brief Build the buttons for event navigation.*/
   void makeGui();

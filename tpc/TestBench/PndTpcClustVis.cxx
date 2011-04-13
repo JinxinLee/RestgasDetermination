@@ -20,9 +20,9 @@ PndTpcClustVis::PndTpcClustVis():
   digisBranch(0),clustersBranch(0), guiEvent(0),
   doClustering(false), ClMode(2), ClTimeslice(3),ClTimecut(2), ClSingeDigiClAmpCut(20), ClSimpleCl(true), ClSimpleTimeslice(7),
   drawTpc(false), drawDigis(false), drawClusters(false), drawClusterErrors(false),
-  doPR(true), doMerge(false), _sorting(3), _interactionZ(0), _sortingMode(true), PRNHits(1000000),
+  doPR(true), doMerge(true), _sorting(3), _interactionZ(0), _sortingMode(true), PRNHits(1000000),
   _minpoints(5), _planecut(0.05), _riproxcut(0.05), _szcut(0.25), _proxcut(2),
-  _TTproxcut(2), _TTplanecut(2E-3), _TTszcut(2)
+  _TTproxcut(2), _TTplanecut(2E-3), _TTszcut(2), fRiemannScale(24.6)
 {
   if(!gApplication) {
     std::cout << "In PndTpcClustVis ctor: gApplication not found, creating..." << std::flush;
@@ -409,7 +409,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     _trackfinder->setInteractionZ(_interactionZ);
     _trackfinder->setSortingMode(_sortingMode);
     _trackfinder->setMinHitsForFit(_minpoints);
-
+    _trackfinder->setScale(fRiemannScale);
     _trackfinder->setMaxNumHitsForPR(PRNHits);
 
     // Hit-Track Correlators
@@ -446,9 +446,10 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       }
       riemannTemp.clear();
     } // end loop over sectors
-    if(doMerge)
+    if(doMerge){
       std::cerr << "... merging tracks ..." << std::endl;
-    _trackfinder->mergeTracks(riemannlist);
+      _trackfinder->mergeTracks(riemannlist);
+    }
     // draw	
     for(unsigned int ir=0;ir<riemannlist.size();ir+=1){ // loop over trackcands
       PndTpcRiemannTrack* trkcand = riemannlist[ir];
@@ -1137,6 +1138,7 @@ void PndTpcClustVis::makeGui() {
         hf->AddFrame(lbl);
   }
   frmMain->AddFrame(hf);
+
   hf = new TGHorizontalFrame(frmMain); {
     guiTTszcut = new TGNumberEntry(hf, _TTszcut, 6,999, TGNumberFormat::kNESRealThree,
                           TGNumberFormat::kNEANonNegative,
@@ -1149,7 +1151,17 @@ void PndTpcClustVis::makeGui() {
   }
   frmMain->AddFrame(hf);
 
-
+ hf = new TGHorizontalFrame(frmMain); {
+    guiTTscale = new TGNumberEntry(hf, fRiemannScale, 6,999, TGNumberFormat::kNESRealThree,
+                          TGNumberFormat::kNEANonNegative,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 99);
+    hf->AddFrame(guiTTscale);
+    guiTTscale->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
+    lbl = new TGLabel(hf, "RiemannScale");
+        hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
   frmMain->MapSubwindows();
   frmMain->Resize();
   frmMain->MapWindow();
@@ -1192,6 +1204,7 @@ void PndTpcClustVis::guiSetTrackingParams(){
   _TTproxcut = guiTTproxcut->GetNumberEntry()->GetNumber();
   _TTplanecut = guiTTplanecut->GetNumberEntry()->GetNumber();
   _TTszcut = guiTTszcut->GetNumberEntry()->GetNumber();
+  fRiemannScale=guiTTscale->GetNumberEntry()->GetNumber();
 
   if (guiDoMerge->IsOn()) doMerge=true;
   else doMerge=false;

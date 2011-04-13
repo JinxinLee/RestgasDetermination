@@ -34,14 +34,15 @@
 
 // scale factor! r=1 => z'=0.5 !!!
 // to normalize cm-range 
-#define RIEMANNSCALE 8.66025 // divide radius by RIEMANNSCALE // also needed in RiemannTrack->r()
+// divide radius by RIEMANNSCALE // also needed in RiemannTrack->r()
 // 8.66025 is optimal for R=5..15cm
+// 24.6 for R=15..42cm
 
 ClassImp(PndTpcRiemannHit)
 
 
-PndTpcRiemannHit::PndTpcRiemannHit(double r, double phi)
-  : _cluster(NULL),_s(0.),_alpha(0.)
+PndTpcRiemannHit::PndTpcRiemannHit(double r, double phi, double scale)
+: _cluster(NULL),_s(0.),_alpha(0.),fRiemannScale(scale)
 {
   double r2=r*r;
   double d=1+r2;
@@ -50,11 +51,11 @@ PndTpcRiemannHit::PndTpcRiemannHit(double r, double phi)
   _x.SetZ(r2/d);
 }
 
-PndTpcRiemannHit::PndTpcRiemannHit(PndTpcCluster* cl)
-  : _cluster(cl),_s(0.),_alpha(0.)
+PndTpcRiemannHit::PndTpcRiemannHit(PndTpcCluster* cl,double scale)
+  : _cluster(cl),_s(0.),_alpha(0.),fRiemannScale(scale)
 {
   TVector2 a(cl->pos().X(),cl->pos().Y());
-  double r = a.Mod()/RIEMANNSCALE;
+  double r = a.Mod()/fRiemannScale;
   double phi=a.Phi();
   double r2=r*r;
   double d=1+r2;
@@ -82,9 +83,9 @@ PndTpcRiemannHit::calcPosOnTrk(PndTpcRiemannHit* hit, bool refine){
   _s=hit->s()+(hit->cluster()->pos()-this->cluster()->pos()).Mag();
   /*
   TVectorD o=trk->orig(); 
-  o*=RIEMANNSCALE;// convert back to cm;
+  o*=fRiemannScale;// convert back to cm;
   double r=trk->r();
-  r*=RIEMANNSCALE;
+  r*=fRiemannScale;
   const PndTpcCluster* firstCl=trk->getHit(0)->cluster();
   assert(firstCl!=NULL);
   TVector2 k(firstCl->pos().X()-o[0],firstCl->pos().Y()-o[1]);

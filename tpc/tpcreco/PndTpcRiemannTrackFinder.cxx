@@ -44,10 +44,15 @@ using namespace std;
 // Class Member definitions -----------
 PndTpcRiemannTrackFinder::PndTpcRiemannTrackFinder()
   : _minHitsForFit(5), _sortingMode(false), 
-    _sorting(3), _interactionZ(0.), _MaxNumHitsForPR(2147483646)
+    _sorting(3), _interactionZ(0.), _MaxNumHitsForPR(2147483646), fRiemannScale(24.6)
 {   
 }
 
+PndTpcRiemannTrackFinder::PndTpcRiemannTrackFinder(double scale)
+  : _minHitsForFit(5), _sortingMode(false), 
+    _sorting(3), _interactionZ(0.), _MaxNumHitsForPR(2147483646), fRiemannScale(scale)
+{   
+}
 
 PndTpcRiemannTrackFinder::~PndTpcRiemannTrackFinder()
 {
@@ -105,7 +110,7 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
     }
 #endif
 
-    PndTpcRiemannHit* rhit=new PndTpcRiemannHit(cll[icl]);
+    PndTpcRiemannHit* rhit=new PndTpcRiemannHit(cll[icl],fRiemannScale);
     unsigned int ntrks=candlist.size();
     unsigned int maxlevel=0; // index of track with highest number of applicable correlators
     bool foundAtAll=false; 
@@ -178,7 +183,7 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
 
 
     if(!foundAtAll){ // new track if no track survived
-      PndTpcRiemannTrack* trk=new PndTpcRiemannTrack();
+      PndTpcRiemannTrack* trk=new PndTpcRiemannTrack(fRiemannScale);
       trk->setSort(_sortingMode);
       candlist.push_back(trk);
       //std::cout<<"Creating new track"<<std::endl;
@@ -276,10 +281,11 @@ PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist
         sortClusters(clusters);
 
         // fill clusters into new RiemannTrack and refit
-        PndTpcRiemannTrack* mergedTrack = new PndTpcRiemannTrack();
+        PndTpcRiemannTrack* mergedTrack = new PndTpcRiemannTrack(fRiemannScale);
         mergedTrack->setSort(false);
         for(unsigned int i=0; i<clusters.size(); ++i){
-          PndTpcRiemannHit* rhit = new PndTpcRiemannHit(clusters[i]);
+          PndTpcRiemannHit* rhit = new PndTpcRiemannHit(clusters[i],
+							fRiemannScale);
           mergedTrack->addHit(rhit);
         }
         if(mergedTrack->getNumHits()>=_minHitsForFit){

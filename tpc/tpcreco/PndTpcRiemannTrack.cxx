@@ -56,9 +56,12 @@ bool sortByPosOnTrack(PndTpcRiemannHit* hit1, PndTpcRiemannHit* hit2){
 ClassImp(PndTpcRiemannTrack)
 
 PndTpcRiemannTrack::PndTpcRiemannTrack()
-  : _n(3),_av(3), _sumOfWeights(0), _c(0),_m(0), _t(0), _isFitted(false), _isFittedPlane(false), _nit(0), _doSort(true)
+: _n(3),_av(3), _sumOfWeights(0), _c(0),_m(0), _t(0), fRiemannScale(24.6), _isFitted(false), _isFittedPlane(false), _nit(0), _doSort(true)
 {}
 
+PndTpcRiemannTrack::PndTpcRiemannTrack(double scale)
+: _n(3),_av(3), _sumOfWeights(0), _c(0),_m(0), _t(0), fRiemannScale(scale), _isFitted(false), _isFittedPlane(false), _nit(0), _doSort(true)
+{}
 
 void
 PndTpcRiemannTrack::init(double x0_, double y0_, double R_, 
@@ -96,11 +99,23 @@ PndTpcRiemannTrack::getLastHit() const {
   return _hits.back();
 }
 
+bool 
+PndTpcRiemannTrack::checkScale(PndTpcRiemannHit* hit){
+  bool result= hit->getScale()==this->getScale();
+  if(!result){
+    std::cerr << "RiemannScale not matching!" << std::endl;
+    std::cerr << "Hit   : "<< hit->getScale() << std::endl
+	      << "Track : "<< this->getScale() << std::endl;
+  }
+  return result;
+}
 
 int
 PndTpcRiemannTrack::getClosestHit(PndTpcRiemannHit* hit, 
 				                          double& Dist, 
 				                          TVector3& outdir){
+  if(!checkScale(hit))throw;
+
   int it2=getClosestHit(hit,Dist);
   if(_hits.size()>1){
     // catch the case where we are at boundary
@@ -129,6 +144,7 @@ PndTpcRiemannTrack::getClosestHit(PndTpcRiemannHit* hit,
 
 int
 PndTpcRiemannTrack::getClosestHit(PndTpcRiemannHit* hit, double& Dist, int from, int to) {
+ if(!checkScale(hit))throw;
   TVector3 posX=hit->cluster()->pos();
   TVector3 pos2;
 
@@ -154,6 +170,7 @@ PndTpcRiemannTrack::getClosestHit(PndTpcRiemannHit* hit, double& Dist, int from,
 
 int
 PndTpcRiemannTrack::getClosestRiemannHit(PndTpcRiemannHit* hit, double& Dist) {
+ if(!checkScale(hit))throw;
   TVector3 posX=hit->x();
   TVector3 pos2;
 
@@ -176,6 +193,7 @@ PndTpcRiemannTrack::getClosestRiemannHit(PndTpcRiemannHit* hit, double& Dist) {
 
 void
 PndTpcRiemannTrack::addHit(PndTpcRiemannHit* hit){
+ if(!checkScale(hit))throw;
   int nbefore=_hits.size();
   _mcid.AddIDCollection(hit->cluster()->mcId(),1.);
 
@@ -200,7 +218,7 @@ PndTpcRiemannTrack::addHit(PndTpcRiemannHit* hit){
 
 int
 PndTpcRiemannTrack::sortHit(PndTpcRiemannHit* hitX){ // returns index BEFORE which to insert hitX!!!
-  
+   if(!checkScale(hitX))throw;
   bool debug = false;
   int nhits = _hits.size();
 
@@ -395,6 +413,7 @@ PndTpcRiemannTrack::winding(){ // returns winding sense along z-axis
 
 double
 PndTpcRiemannTrack::dist(PndTpcRiemannHit* hit){
+  if(!checkScale(hit))throw;
   double d2=_c;
   d2+=hit->x().X()*_n[0];
   d2+=hit->x().Y()*_n[1];
@@ -537,7 +556,8 @@ PndTpcRiemannTrack::r() const {
   
   //std::cout<<"r1 "<<r1<<"  r2 "<<r2<<std::endl;
 
-  return TMath::Abs(r2-r1) * 8.66025; // RIEMANNSCALE TODO still hardcoded*/
+  return TMath::Abs(r2-r1) * fRiemannScale; // 8.66025 for protoype
+                                            // 24.6 for panda
 }
 
 
@@ -574,6 +594,7 @@ PndTpcRiemannTrack::szFit(bool print){
 
 double
 PndTpcRiemannTrack::szDist(PndTpcRiemannHit* hit, bool calcPos){
+  if(!checkScale(hit))throw;
   if(!_isFitted) szFit();
   double hit_s=hit->s();
 

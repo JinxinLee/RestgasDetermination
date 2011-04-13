@@ -49,6 +49,7 @@ public:
 
   // Constructors/Destructors ---------
   PndTpcRiemannTrackFinder();
+  PndTpcRiemannTrackFinder(double scale);
   ~PndTpcRiemannTrackFinder();
 
   
@@ -68,6 +69,9 @@ public:
   void setSortingMode(bool sortingMode){_sortingMode=sortingMode;} // false: sort only according to _sorting; true: use internal sorting when adding hits to trackcands
   void setInteractionZ(double z){_interactionZ=z;}
   void setMaxNumHitsForPR(double MaxNumHitsForPR){_MaxNumHitsForPR=MaxNumHitsForPR;}
+
+ void setScale(double scale){fRiemannScale=scale;}
+ double getScale()const {return fRiemannScale;}
 
   // Operations ----------------------
   unsigned int buildTracks(std::vector<PndTpcCluster*>& clusters,
@@ -96,6 +100,7 @@ private:
   int _MaxNumHitsForPR; // for debugging
 
   unsigned int _minHitsForFit;
+  double fRiemannScale;
 
   // Private Methods -----------------
   void resetFlags();
