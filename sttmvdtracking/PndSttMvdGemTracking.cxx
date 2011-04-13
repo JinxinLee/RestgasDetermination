@@ -539,7 +539,8 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 
 	// ...else propagate here
 	Bool_t prop = PropagateToGemPlane(&tmppar, gempar, ipos);
-
+	if(prop == kFALSE) prop = PropagateToGemPlaneAsHelix(sttmvd, gempar, ipos);
+  
 	if (prop == kFALSE) {
 	  countprop[fTurn-1][ipos]++; 
 	  continue; // CHECK (continue or break?) 
@@ -1339,6 +1340,7 @@ void PndSttMvdGemTracking::Retrack() {
 
 	// ...else propagate here
        Bool_t prop = PropagateToGemPlane(&tmppar, gempar, ipos);
+
        if (prop == kFALSE) {
 	 countprop[fTurn-1][ipos]++;
 	 continue; // CHECK (continue or break?)
@@ -2018,6 +2020,7 @@ void PndSttMvdGemTracking::FillTrueDistances() {
     for(int ipos = 0; ipos < fNPositions; ipos++) {
       
       Bool_t prop = PropagateToGemPlane(&tmppar, gempar, ipos);
+      if(prop == kFALSE) prop = PropagateToGemPlaneAsHelix(sttmvdTrack, gempar, ipos);
       if (prop == kFALSE) continue; // CHECK (continue or break?)
       TVector3 extrappos = gempar->GetPosition();
       
