@@ -570,6 +570,9 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 
 
     }
+
+  if(nhits == 0) return;
+
   if(fVerbose > 0 && CountTracks() != fCompleteTrackCandArray->GetEntriesFast()) cout << "ERROR!!! " << CountTracks() << " " << fCompleteTrackCandArray->GetEntriesFast() << endl;
   
 
