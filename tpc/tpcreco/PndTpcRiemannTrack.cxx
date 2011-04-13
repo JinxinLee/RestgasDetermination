@@ -456,22 +456,71 @@ PndTpcRiemannTrack::refit(){
     std::cerr<<"PndTpcRiemannTrack::refit() - can't fit plane, covariance matrix is zero"<<std::endl;
     return;
   }
-
+  
   sampleCov*=1./nh;
   
   TVectorD eigenValues(3);
   TMatrixD eigenVec=sampleCov.EigenVectors(eigenValues);
-    
+  
   // eigenvalues are sorted according to their value
   // in descending order -> last one is smallest
-  _n=TMatrixDColumn(eigenVec,2);
+  
+  // check smallest and second smallest eigenvector
+  // for this we use the distance of hits to section of plane with sphere on the speher
+  
+  
 
-  double norm=1./TMath::Sqrt(_n.Norm2Sqr());
-  _n*=norm;
-  _c=-1.*_n*_av;
+  double minres=10000;
+  unsigned int imin=2;
 
-  _isFittedPlane = true;
-}
+  for(unsigned int i=1;i<3;++i){
+      std::cerr<< "Checking eigenvalue number " << i << std::endl;
+      std::cerr<< "... eigenvalue =" << eigenValues[i] << std::endl;
+      TVectorD planeN=TMatrixDColumn(eigenVec,i);
+      double norm=1./TMath::Sqrt(planeN.Norm2Sqr());
+      planeN*=norm;
+      double c1=-1.*planeN*_av;
+      std::cerr<< "... c =" << c1 << std::endl;
+      // distance plane - center of sphere
+      TVector3 plane3(planeN[0],planeN[1],planeN[2]);
+      TVector3 av3(_av[0],_av[1],_av[2]);
+      TVector3 cent3(0,0,0.5);
+      double l=c1 + plane3*cent3;
+      double distAv = (av3-cent3).Mag();
+      double thetaPlane=TMath::ACos(l)*2.; // divided by R=0.5
+      
+      std::cerr<< "... l =" << l << std::endl;
+      std::cerr<< "... distAv =" << distAv << std::endl;
+      
+      // loop over hits
+      double res=0;
+      //std::cerr << " ... number of hits: " << _hits.size() << std::endl;
+      for(int it=0; it<_hits.size(); ++it){
+	// construct vector of hits relative to center of sphere
+	TVector3 vh=_hits[it]->x()-cent3;
+	vh.SetMag(1);
+	double cos1=(-plane3)*vh;
+	double thetaHit=TMath::ACos(cos1);
+	res+=fabs(thetaHit-thetaPlane);
+      }
+      
+      std::cerr << " Cumulativ distance on sphere : " << res << std::endl;
+      if(minres>res){
+	minres=res;
+	imin=i;
+      }
+    }
+
+	std::cerr<< "Choosing plane " << imin << std::endl;
+
+	_n=TMatrixDColumn(eigenVec,imin);
+      
+      double norm=1./TMath::Sqrt(_n.Norm2Sqr());
+      _n*=norm;
+      _c=-1.*_n*_av;
+      
+      _isFittedPlane = true;
+      }
 
 
 double

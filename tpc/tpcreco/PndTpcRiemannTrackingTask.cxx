@@ -478,6 +478,7 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
 
       if(trkcand->isFittedPlane()){
         TVectorD nd = trkcand->n();
+        TVectorD av = trkcand->av();
         TVector3 n;
         n.SetXYZ(nd(0), nd(1), nd(2));
         TVector3 nz;
@@ -490,14 +491,14 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
         perp.SetMag(0.15);
 
         double c = -1*trkcand->c();
-        RiemannLines2[ir]->SetNextPoint(nd[0]*c,nd[1]*c,nd[2]*c); //
-        RiemannLines2[ir]->SetNextPoint(nd[0]*c+perpXY[0],nd[1]*c+perpXY[1],nd[2]*c+perpXY[2]); //
-        RiemannLines2[ir]->SetNextPoint(nd[0]*c-perpXY[0],nd[1]*c-perpXY[1],nd[2]*c-perpXY[2]); //
-        RiemannLines2[ir]->SetNextPoint(nd[0]*c,nd[1]*c,nd[2]*c); //
-        RiemannLines2[ir]->SetNextPoint(nd[0]*c+perp[0],nd[1]*c+perp[1],nd[2]*c+perp[2]); //
-        RiemannLines2[ir]->SetNextPoint(nd[0]*c-perp[0],nd[1]*c-perp[1],nd[2]*c-perp[2]); //
-        RiemannLines2[ir]->SetNextPoint(nd[0]*c,nd[1]*c,nd[2]*c); //
-        RiemannLines2[ir]->SetNextPoint(nd[0]*(c+0.5),nd[1]*(c+0.5),nd[2]*(c+0.5));
+        RiemannLines2[ir]->SetNextPoint(av[0],av[1], av[2]); //
+        RiemannLines2[ir]->SetNextPoint(av[0]+perpXY[0],av[1]+perpXY[1],av[2]+perpXY[2]); //
+        RiemannLines2[ir]->SetNextPoint(av[0]-perpXY[0],av[1]-perpXY[1],av[2]-perpXY[2]); //
+        RiemannLines2[ir]->SetNextPoint(av[0],av[1],av[2]); //
+        RiemannLines2[ir]->SetNextPoint(av[0]+perp[0],av[1]+perp[1],av[2]+perp[2]); //
+        RiemannLines2[ir]->SetNextPoint(av[0]-perp[0],av[1]-perp[1],av[2]-perp[2]); //
+        RiemannLines2[ir]->SetNextPoint(av[0],av[1],av[2]); //
+        RiemannLines2[ir]->SetNextPoint(av[0]+nd[0]*(c),av[1]+nd[1]*(c),av[2]+nd[2]*(c));
       }
     }
   }
