@@ -16,6 +16,8 @@ of J/Psi: Dipak
 #include "TCandList.h"
 #include "VAbsMicroCandidate.h"
 
+#include "Fitter/Pnd4CFitter.h"
+
 // Root
 #include "TH1F.h"
 
@@ -31,6 +33,7 @@ using std::endl;
 // -----   Default constructor   -------------------------------------------
 PndJpsi2PiAna::PndJpsi2PiAna() : PndAnaTask() 
 { 
+
 }
 // -------------------------------------------------------------------------
 
@@ -49,6 +52,7 @@ InitStatus PndJpsi2PiAna::Init()
   
   
 	jpsimass=new TH1F("mjpsi","jpsi",200,0,3.5);
+	jpsimass2=new TH1F("mjpsi2","jpsi fit",200,0,3.5);
 	ppmass=new TH1F("mpp","mpp",200,0,4.5);
 	mcmass=new TH1F("mmc","mmc",200,0,4.0);
 	
@@ -78,6 +82,8 @@ void PndJpsi2PiAna::Exec(Option_t* opt)
 	
 	FillList(mc,"McTruth");
 	
+	TLorentzVector ini(0, 0, 6.231711, 7.240222);
+	
 /*	cout<<" e+:" <<ep.GetLength();
 	cout<<" e-:" <<em.GetLength();
 	cout<<" pi+:" <<pip.GetLength();
@@ -85,6 +91,8 @@ void PndJpsi2PiAna::Exec(Option_t* opt)
 	cout <<endl;*/
 	
 	jpsi.Combine(ep,em);
+	
+/*	cout <<jpsi.GetLength();*/
 	
 	for (j=0;j<jpsi.GetLength();++j) jpsimass->Fill(jpsi[j].M());
 	//jpsi.Select(jpsiMSel);
@@ -94,6 +102,28 @@ void PndJpsi2PiAna::Exec(Option_t* opt)
 	
 	for (j=0;j<mc.GetLength();++j) mcmass->Fill(mc[j].M());
 	
+	for (j=0;j<pp.GetLength();++j)
+	{
+			ppmass->Fill(pp[j].M());
+			
+			//do the 4C fit on the pbar p System
+			Pnd4CFitter fitter(pp[j],ini);
+			
+			fitter.FitConserveMasses();
+			
+			TCandidate *ppfit=const_cast<TCandidate*>(fitter.FittedCand(pp[j]));
+			//pp2mass->Fill(ppfit->M());
+			
+			TCandidate *epfit=const_cast<TCandidate*>(fitter.FittedCand(*(pp[j].Daughter(0)->Daughter(0))) );
+			TCandidate *emfit=const_cast<TCandidate*>(fitter.FittedCand(*(pp[j].Daughter(0)->Daughter(1))) );
+			
+			TLorentzVector sum=epfit->P4()+emfit->P4();
+			
+			jpsimass2->Fill(sum.Mag());
+			
+	}
+
+	
 }
 
 // -------------------------------------------------------------------------
@@ -101,6 +131,7 @@ void PndJpsi2PiAna::Exec(Option_t* opt)
 void PndJpsi2PiAna::Finish()
 {
   jpsimass->Write();
+  jpsimass2->Write();
   ppmass->Write();
 }
 
