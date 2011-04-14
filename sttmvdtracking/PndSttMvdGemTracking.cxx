@@ -472,7 +472,6 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 
       if(nhits == 0)  { flag[itrk] = -1;  continue; } // CHECK 
 
-
       // cout << "copied completeCand from sttmvdCand @ " << itrk << " has hits " << completeCand->GetNHits() << endl;
       //       
       FairTrackParP lastpar = sttmvd->GetParamLast();
@@ -504,6 +503,18 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
       }
 
 	FairTrackParP tmppar = SetStartParameters(sttmvd, sttmvdCand);
+
+	// =========== test of prop on 1st plane
+	FairTrackParP *gempartest = new FairTrackParP();
+	if(PropagateToGemPlaneAsHelix(sttmvd, gempartest, 0) == kFALSE) {
+	  cout  << " CANNOT PROPAGATE " << endl; 
+	  delete gempartest;
+	  flag[itrk] = -6;
+	  continue;
+	}
+
+	// ===========
+
 	int charge = tmppar.GetQ();
 	fPdgCode = -13  * charge;
 	
@@ -920,6 +931,33 @@ Bool_t PndSttMvdGemTracking::PropagateToGemPlaneAsHelix(PndTrack *sttmvd, FairTr
   Double_t x = x0 + radius * (TMath::Cos(Phi0 + Fi) - TMath::Cos(Phi0));
   Double_t y = y0 + radius * (TMath::Sin(Phi0 + Fi) - TMath::Sin(Phi0));
   
+   // ---
+  // count sensors and stations and fill the sensor positions
+  Int_t nstations = fGemParameters->GetNStations();
+  Int_t nsensors = 0;  
+  double sens_rad = -1;
+  Int_t posindex = 0;
+  for(int istat = 0; istat < nstations; istat++) {
+    PndGemStation *station = fGemParameters->GetStation(istat);
+    for(int isens = 0; isens < station->GetNSensors(); isens++) {
+      PndGemSensor *sensor = station->GetSensor(isens); 
+      nsensors++;
+      posindex = (istat + 1) * 10 + (isens + 1);
+      fOrderingIterator = find(fOrdering.begin(), fOrdering.end(), posindex);
+      int jpos = fOrderingIterator - fOrdering.begin();
+      if(ipos == jpos) {
+	sens_rad = sensor->GetOuterRadius();
+	break;
+      }
+    }
+  }
+  if(fabs(x) > sens_rad || fabs(y) > sens_rad) {
+    if(fVerbose > 0) cout << "OUT OF SENSOR " << x << " " << y << " " << sens_rad << endl;
+    return kFALSE;
+  }
+
+  // --- 
+
   TVector2 v(x0 - xc, y0 - yc); 
   Double_t alpha = TMath::ATan2(y - y0 + radius * TMath::Sin(Phi0), x - x0 + radius * TMath::Cos(Phi0));
   TVector2 p(x - xc, y - yc);
@@ -2549,6 +2587,7 @@ Bool_t PndSttMvdGemTracking::ZFit(TMatrixT<double> points, Int_t charge, Double_
   Int_t nhits = points.GetRowUpb() + 1;
 
   Double_t Fi_pre = 0.; 
+  int zcounter = 0;
   for(int ihit = 0; ihit < nhits; ihit++)
     {
       Int_t detId = (Int_t) points[ihit][1];
@@ -2572,7 +2611,7 @@ Bool_t PndSttMvdGemTracking::ZFit(TMatrixT<double> points, Int_t charge, Double_
 
       if(sigz2 == 0) sigz2 = 1e-5; // CHECK MVD covariance
       //      cout << "scosl " << scos << " " << points[ihit][4] << " " << sigz2 <<  " " <<  points[ihit][7] << endl;
-
+      zcounter++;
       Sx = Sx + (scos /(sigz2));
       Sz = Sz + (points[ihit][4]/(sigz2));
       Sxz = Sxz + ((scos * points[ihit][4])/(sigz2));
@@ -2581,6 +2620,7 @@ Bool_t PndSttMvdGemTracking::ZFit(TMatrixT<double> points, Int_t charge, Double_
 
     }
 
+  if(zcounter <= 1) return kFALSE;  //  CHECK 
   Detz = S1z*Sxx - Sx*Sx;
   if(Detz == 0) { 
     cout << "DET Z = 0" << endl; 
@@ -2829,6 +2869,7 @@ void PndSttMvdGemTracking::ConsiderCombinatorialEffect(Int_t nhits) {
 	if(alreadythere1 == false) {
 	  accepted[first].push_back((int) sensor[ihit][0]);
 	  fCombiMap[ihit] = 0;
+	  
 	  if(fDisplayOn == kTRUE) {
 	    TMarker *amrk = new TMarker(x1, y1, 21);
 	    amrk->SetMarkerColor(5); 
@@ -2842,6 +2883,7 @@ void PndSttMvdGemTracking::ConsiderCombinatorialEffect(Int_t nhits) {
 	if(alreadythere2 == false) {
 	  accepted[second].push_back((int) sensor[jhit][0]);
   	  fCombiMap[jhit] = 0;
+
 	  if(fDisplayOn == kTRUE) { 
 	    TMarker *amrk2 = new TMarker(x2, y2, 21);
 	    amrk2->SetMarkerColor(5); 
