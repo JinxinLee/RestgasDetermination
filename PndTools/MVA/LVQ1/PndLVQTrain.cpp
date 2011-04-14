@@ -21,9 +21,9 @@ PndLVQTrain::PndLVQTrain(std::string const& inputFile,
   : PndMvaTrainer(inputFile, ClassNames, VarNames, trim),
     m_initConst(0.8),
     m_ethaZero(0.1),
-    m_ethaFinal(0.0001),
-    m_NumSweep(900),
-    m_proto_init(RANDOM_PR),
+    m_ethaFinal(0.01),
+    m_NumSweep(10),
+    m_proto_init(RAND_FROM_DATA),
     m_initProtoFile(""),
     m_ErrorStep(100),
     m_ProgStep(1000)
@@ -62,7 +62,7 @@ void PndLVQTrain::Train()
   // Fetch available event examples
   std::vector<std::pair<std::string, std::vector<float>*> > const& events = m_dataSets.GetData();
   
-  std::set <int>::const_iterator testSetIter;
+  std::set <size_t>::const_iterator testSetIter;
   
   // Compute learning rate constant "a"
   double ethaZero     = m_ethaZero;//0.1;
@@ -130,7 +130,8 @@ void PndLVQTrain::Train()
     }
   
     // select a random example
-    int index = static_cast<int>( trand.Uniform(0.0, (events.size() - 1) ));
+    // int index = static_cast<int>(trand.Uniform(0.0, (events.size() - 1) ) );
+    int index = static_cast<int>( (trand.Uniform(0.0, (events.size() - 1)) ) + 0.5);
 
     testSetIter = m_testSet_indices.find(index);
 
@@ -139,7 +140,8 @@ void PndLVQTrain::Train()
     // of the test set.
     while( testSetIter != m_testSet_indices.end())
     {
-      index = static_cast<int>( trand.Uniform(0.0, (events.size() - 1) ));
+      // index = static_cast<int>( trand.Uniform(0.0, (events.size() - 1) ));
+      index = static_cast<int>( (trand.Uniform(0.0, (events.size() - 1) ) ) + 0.5);
       testSetIter = m_testSet_indices.find(index);
     }
     
@@ -208,7 +210,7 @@ void PndLVQTrain::Train21()
   // Fetch available event examples.
   std::vector<std::pair<std::string, std::vector<float>*> > const& events = m_dataSets.GetData();
 
-  std::set <int>::const_iterator testSetIter;
+  std::set <size_t>::const_iterator testSetIter;
 
   // Compute learning rate constant "a"
   float windowSize = 0.3;// A value between 0.2 & 0.3 is recommended.
@@ -416,8 +418,14 @@ void PndLVQTrain::InitProtoTypes()
     break;
     
   case RANDOM_PR:
-  default:// Random init proto
+    //Initialize using CLM.
     InitProtoRand();
+    break;
+    
+  case RAND_FROM_DATA:
+  default:
+    //Select random examples from data.
+    InitRandProtoFromData();
     break;
   }
 }
@@ -613,6 +621,64 @@ void PndLVQTrain::InitProtoRand()
 }
 
 /**
+ * Initialize LVQ prototypes (Code books) using Randomly selected
+ * vectors from the original data set.
+ */
+void PndLVQTrain::InitRandProtoFromData()
+{
+  std::cout << "<INFO> Initializing LVQ prototypes"
+	    << " using random data vectors.\n";
+
+  TRandom3 trand(m_RND_seed);
+
+  // Fetch labels.
+  std::vector<PndMvaClass> const& classes = m_dataSets.GetClasses();
+  
+  // Fetch variables.
+  std::vector<PndMvaVariable> const& variables = m_dataSets.GetVars();
+  
+  // Fetch examples.
+  std::vector<std::pair<std::string, std::vector<float>*> > const& events = m_dataSets.GetData();
+
+  // Print number of proto for each class.
+  std::cout << "<INFO> Number of protoTypes per class:\n\t";
+  for(size_t i = 0; i < classes.size(); i++)
+  {
+    std::cout << classes[i].Name << " = "
+	      << m_numProtoPerClass[classes[i].Name]
+	      << ", ";
+  }
+  std::cout << '\n';
+  // Loop (labels)
+  for(size_t cl = 0; cl < classes.size(); cl++)
+  {
+    int minIdx = classes[cl].StartIdx;
+    int maxIdx = classes[cl].EndIdx;
+    std::string curClsName = classes[cl].Name;
+    unsigned int numProto = m_numProtoPerClass[curClsName];
+    
+    for(unsigned int i = 0; i < numProto; ++i)
+    {
+      // Select a random example.
+      int index = static_cast<int>(trand.Uniform(minIdx, maxIdx));
+
+      // Init protoType vector
+      std::vector<float>* proto   = new std::vector<float>(variables.size(), 0.0);
+      std::vector<float>* evtData = events[index].second;
+
+      // Copy values and add to the container.
+      for(size_t k = 0; k < evtData->size(); k++)
+      {
+	proto->at(k) = evtData->at(k);
+      }
+      
+      // Add ProtoType to the container
+      m_LVQProtos.push_back(std::make_pair(events[index].first, proto));
+    }// Num proto
+  }//Labels
+}
+
+/**
  * Clean prototype container.
  */
 void PndLVQTrain::cleanProtoList()
@@ -688,7 +754,7 @@ void PndLVQTrain::EvalClassifierError(unsigned int stp)
   std::vector<std::pair<std::string, std::vector<float>*> > const& events = m_dataSets.GetData();
   
   // Test-set iterator.
-  std::set <int>::const_iterator iter;
+  std::set <size_t>::const_iterator iter;
 
   int TrError = 0;// Train error
   int TsError = 0;// Test  error

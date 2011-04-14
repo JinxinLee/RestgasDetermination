@@ -65,6 +65,7 @@ int main(int argc, char** argv)
   //NormType tt = VARX;
   //kNNtr.NormalizeData(VARX);
   //kNNtr.NormalizeData(MINMAX);
+  //kNNtr.NormalizeData(MEDIAN);
 
   // Transform using PCA
   //kNNtr.PCATransForm();

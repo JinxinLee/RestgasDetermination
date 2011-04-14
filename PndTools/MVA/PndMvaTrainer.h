@@ -88,7 +88,7 @@ class PndMvaTrainer
   /**
    * Get the indices of the events selected to be used for testing.
    */
-  inline std::set <int> const& GetTestEvetIdx() const;
+  inline std::set <size_t> const& GetTestEvetIdx() const;
   
   //==============================================
   //================ Protected ===================
@@ -116,7 +116,7 @@ class PndMvaTrainer
   {};
   
   //! Indices of the test set.
-  std::set <int> m_testSet_indices;
+  std::set <size_t> m_testSet_indices;
   
   //! Data set. Holds event values
   PndMvaDataSet m_dataSets;
@@ -153,7 +153,7 @@ inline void PndMvaTrainer::SetAppType(AppType t)
   m_dataSets.SetAppType(t);
 };
 
-inline std::set <int> const& PndMvaTrainer::GetTestEvetIdx() const
+inline std::set <size_t> const& PndMvaTrainer::GetTestEvetIdx() const
 {
   return m_testSet_indices;
 };

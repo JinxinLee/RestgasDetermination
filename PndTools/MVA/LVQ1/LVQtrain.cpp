@@ -72,6 +72,7 @@ int main(int argc, char** argv)
   // Class names
   clas.push_back("electron");
   clas.push_back("pion");
+  
   //clas.push_back("kaon");
   //clas.push_back("muon");
   //clas.push_back("proton");
@@ -91,7 +92,7 @@ int main(int argc, char** argv)
   // Create trainer object.
   PndLVQTrain tr(ip, clas, nam, true);
   
-  float initC  = 0.9;
+  float initC  = 0.8;
   float ethaZ  = 0.1;
   float ethaF  = 0.001;
   
@@ -107,7 +108,7 @@ int main(int argc, char** argv)
     numProtoMap["pion"] = 150;
     tr.SetNumberOfProto(numProtoMap);
   */
-  tr.SetTetsSetSize(50);//10% (DEFAULT)
+  tr.SetTetsSetSize(10);//10% (DEFAULT)
 
   tr.SetErrorStepSize(100);//100 (DEFALUT)
   
@@ -120,8 +121,8 @@ int main(int argc, char** argv)
   // Specify the file containing pre-initialized prototypes.
   //tr.SetInitProtoFileName("InitialProto.root");
   
-  // FILE_PR, KMEANS_PR, RANDOM_PR (DEFAULT)
-  //tr.setProtoInitType(KMEANS_PR);
+  // FILE_PR, KMEANS_PR, RANDOM_PR, RAND_FROM_DATA (DEFAULT)
+  tr.setProtoInitType(RAND_FROM_DATA);
   
   // Set outPut file name to store weights.
   tr.SetOutPutFile(ot);

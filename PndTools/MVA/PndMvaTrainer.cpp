@@ -17,7 +17,7 @@ PndMvaTrainer::PndMvaTrainer(std::string const& InPut,
 			     std::vector<std::string> const& VarNames,
 			     bool trim)
   : m_dataSets(InPut, ClassNames, VarNames, TRAIN),
-    m_trim(trim), m_testSetSize(0)
+    m_trim(trim), m_testSetSize(50)
 {}
 
 //! Destructor
@@ -50,29 +50,52 @@ void PndMvaTrainer::Initialize()
 
 /**
  * Creates test and train data sets.
- * @param percent Percent of the data set to be used for testing and
- * cross-validation
  */
 void PndMvaTrainer::splitTetsSet()
 {
   TRandom3 rndIndx(m_RND_seed);
-  
+  double tempIndex = 0.0;
+  size_t tsindx = 0;
+
+  // Get all available examples.
   std::vector<std::pair<std::string, std::vector<float>*> > const& events = m_dataSets.GetData();
   assert( events.size() != 0);
 
+  // Number of examples in the test set.
   size_t TestEvtCnt = (m_testSetSize * events.size()) / 100 ;
   
   std::cout << "<INFO> preparing train and test sets.\n"
 	    << "       Test set containes "<< TestEvtCnt
-	    <<" events and train set "<< (events.size() - TestEvtCnt) 
+	    <<" examples and train set "<< (events.size() - TestEvtCnt) 
 	    << '\n';
   // Select the index of the examples that are going to be used as the
   // test set.
   while(m_testSet_indices.size() < TestEvtCnt)
   {
-    int tsindx = static_cast<int>(rndIndx.Uniform(0.0, events.size() - 1));
+    tempIndex = rndIndx.Uniform( 0.0, events.size() ) * events.size();
+    tsindx = static_cast<size_t>(tempIndex);
+    // Make sure ( 0 <= index <= (size - 1) )
+    tsindx = tsindx % events.size();
     m_testSet_indices.insert(tsindx);
   }
+  //================= Delete me
+  /*
+    std::set<size_t>::iterator it;
+    std::map <std::string, int> tsMap;
+    for(it = m_testSet_indices.begin(); it != m_testSet_indices.end(); ++it)
+    {
+    size_t id = *it;
+    const std::string name = (events[id]).first;
+    tsMap[name] += 1;
+    }
+    std::map <std::string, int>::iterator mit;
+    for( mit = tsMap.begin(); mit != tsMap.end(); ++mit)
+    {
+    std::cout << "tsMap [ " << (*mit).first << " ] = " << (*mit).second
+    << std::endl;
+    }
+  */
+  //=================== DELETE ME
 }
 
 void PndMvaTrainer::WriteErroVect(std::string const& FileName)

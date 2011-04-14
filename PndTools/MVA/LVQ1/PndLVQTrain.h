@@ -19,9 +19,10 @@
 //! How to initialize LVQ code books.
 typedef enum
 {
-  RANDOM_PR = 0,// Random initialization.
-  KMEANS_PR = 1,// Init using K-Means clustering.
-  FILE_PR = 2   // Read pre-init from file.
+  RAND_FROM_DATA = 0,
+  RANDOM_PR = 1,// Random initialization.
+  KMEANS_PR = 10,// Init using K-Means clustering.
+  FILE_PR = 20   // Read pre-init from file.
 } ProtoInitType;
 
 //! Interface definition for LVQ trainers.
@@ -73,7 +74,7 @@ class PndLVQTrain: public PndMvaTrainer
    * Set CodeBook init type.
    *@param iniTypeVal Initialization type.
    */
-  inline void setProtoInitType(ProtoInitType iniTypeVal = RANDOM_PR);
+  inline void setProtoInitType(ProtoInitType iniTypeVal = RAND_FROM_DATA);
 
   /**
    * Set the file name which holds the pre-initialized code books.
@@ -129,7 +130,13 @@ class PndLVQTrain: public PndMvaTrainer
    * means vectors.
    */
   void InitProtoRand();
-    
+
+  /**
+   * Initialize LVQ prototypes (Code books) using Randomly selected
+   * vectors from the original data set.
+   */
+  void InitRandProtoFromData();
+
   /**
    * Initialize LVQ prototypes (Code books) using K-Means clustering.
    */
