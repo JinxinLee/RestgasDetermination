@@ -2769,8 +2769,8 @@ void PndSttMvdGemTracking::ConsiderCombinatorialEffect(Int_t nhits) {
 
   if(nhits == 0) return;
 
-  // matrix hitid x y posindex = istat * 10 + isens 
-  TMatrixT<double> sensor(nhits, 4);
+  // matrix hitid x y posindex = istat * 10 + isens iflag
+  TMatrixT<double> sensor(nhits, 5);
   TMatrixT<double> nhitsonsensor(fNPositions, 1); 
   TMatrixT<double> nhitsonsensor2(fNPositions, nhits); 
     
@@ -2789,7 +2789,7 @@ void PndSttMvdGemTracking::ConsiderCombinatorialEffect(Int_t nhits) {
     fOrderingIterator = find(fOrdering.begin(), fOrdering.end(), posindex);
     int ipos = fOrderingIterator - fOrdering.begin();
     sensor[ihit][3] = ipos;
-
+    sensor[ihit][4] = true;
     /**
        sensor[ihit][3] = posindex;
        switch(posindex) {
@@ -2833,6 +2833,7 @@ void PndSttMvdGemTracking::ConsiderCombinatorialEffect(Int_t nhits) {
        sensor[ihit][3] != 2 &&
        sensor[ihit][3] != 4) continue;
     int first = (int) sensor[ihit][3];
+    if(sensor[ihit][4] == false) continue;
     // cout << "FIRST " << first << endl;
     double x1 = sensor[ihit][1];
     double y1 = sensor[ihit][2];
@@ -2843,6 +2844,7 @@ void PndSttMvdGemTracking::ConsiderCombinatorialEffect(Int_t nhits) {
 
       if(sensor[jhit][3] != first + 1) continue;
       int second = (int) sensor[jhit][3];
+      if(sensor[jhit][4] == false) continue;
       // cout << "SECOND " << second << endl;
 	
       double x2 = sensor[jhit][1];
@@ -2870,6 +2872,54 @@ void PndSttMvdGemTracking::ConsiderCombinatorialEffect(Int_t nhits) {
 	  accepted[first].push_back((int) sensor[ihit][0]);
 	  fCombiMap[ihit] = 0;
 	  
+	  // ^^^^^^^
+	  PndGemHit *hit = (PndGemHit*) fGemHitArray->At(ihit);
+	  if(!hit) continue;    
+	  double digis[2];
+	  digis[0] =  hit->GetDigiNr(0);
+	  digis[1] =  hit->GetDigiNr(1);
+	  int stat = hit->GetStationNr();
+	  int sens = hit->GetSensorNr();
+	  int posindex = stat * 10 + sens;
+	  switch(posindex) {
+	  case 11: 
+	    posindex = 0; break;
+	  case 12: 
+	    posindex = 1; break;
+	  case 21: 
+	    posindex = 2; break;
+	  case 22: 
+	    posindex = 3; break;
+	  case 31: 
+	    posindex = 4; break;
+	  case 32: 
+	    posindex = 5; break;
+	  }
+
+	  
+	  // cout << "SETTING " << ihit << " to false with ";
+	  for(int khit = 0; khit < nhits; khit++) {
+		
+	    if(ihit == khit) continue;
+	    if(sensor[khit][3] != posindex) continue;
+	    //		if(posindex == 1) cout << "? " << khit << endl;
+	    PndGemHit *ghit = (PndGemHit*) fGemHitArray->At(khit);
+	    if(!ghit) continue;  
+		
+	    if(ghit->GetDigiNr(0) == digis[0] || ghit->GetDigiNr(0) == digis[1]) { 
+	      // cout << khit << " ";
+	      sensor[khit][4] = false;
+	    }
+	    if(ghit->GetDigiNr(1) == digis[0] || ghit->GetDigiNr(1) == digis[1]) {
+	      //   cout << khit << " ";
+	      sensor[khit][4] = false;
+	    }
+	  }
+	  sensor[ihit][4] = false;
+
+	  //   cout << endl;
+	  // ^^^^^^^
+
 	  if(fDisplayOn == kTRUE) {
 	    TMarker *amrk = new TMarker(x1, y1, 21);
 	    amrk->SetMarkerColor(5); 
@@ -2883,6 +2933,50 @@ void PndSttMvdGemTracking::ConsiderCombinatorialEffect(Int_t nhits) {
 	if(alreadythere2 == false) {
 	  accepted[second].push_back((int) sensor[jhit][0]);
   	  fCombiMap[jhit] = 0;
+
+	  // ^^^^^^^
+	  PndGemHit *hit = (PndGemHit*) fGemHitArray->At(jhit);
+	  if(!hit) continue;    
+	  double digis[2];
+	  digis[0] =  hit->GetDigiNr(0);
+	  digis[1] =  hit->GetDigiNr(1);
+	  int stat = hit->GetStationNr();
+	  int sens = hit->GetSensorNr();
+	  int posindex = stat * 10 + sens;
+	  switch(posindex) {
+	  case 11: 
+	    posindex = 0; break;
+	  case 12: 
+	    posindex = 1; break;
+	  case 21: 
+	    posindex = 2; break;
+	  case 22: 
+	    posindex = 3; break;
+	  case 31: 
+	    posindex = 4; break;
+	  case 32: 
+	    posindex = 5; break;
+	  }
+
+	  //	      cout << "SETTING " << jhit << " to false with ";
+	  for(int khit = 0; khit < nhits; khit++) {
+	    if(jhit == khit) continue;
+	    if(sensor[khit][3] != posindex) continue;
+	
+	    PndGemHit *ghit = (PndGemHit*) fGemHitArray->At(khit);
+	    if(!ghit) continue;  
+	    if(ghit->GetDigiNr(0) == digis[0] || ghit->GetDigiNr(0) == digis[1]) { 
+	      // cout << khit << " ";
+	      sensor[khit][4] = false;
+	    }
+	    if(ghit->GetDigiNr(1) == digis[0] || ghit->GetDigiNr(1) == digis[1]) { 
+	      //	  cout << khit << " ";
+	      sensor[khit][4] = false;
+	    }
+	  }
+	  sensor[jhit][4] = false;
+	  //   cout << endl;
+	  // ^^^^^^^
 
 	  if(fDisplayOn == kTRUE) { 
 	    TMarker *amrk2 = new TMarker(x2, y2, 21);
