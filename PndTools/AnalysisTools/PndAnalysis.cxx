@@ -128,7 +128,7 @@ Int_t PndAnalysis::GetEvent(Int_t n)
 	
 	return 0;
 }
-
+ 
 Bool_t PndAnalysis::FillList(TCandList &l, std::string listkey)
 {
   // Reads the specified List for the current event
@@ -165,7 +165,7 @@ Bool_t PndAnalysis::FillList(TCandList &l, std::string listkey)
         TCandidate *tc = TFactory::Instance()->NewCandidate(buffcand);
         
         // TODO: Do we want to set something here? It is neutrals anyway.
-        if(i1<fNeutralProbability->GetEntriesFast())
+        if(0!=fNeutralProbability && i1<fNeutralProbability->GetEntriesFast())
         {
           PndPidProbability *neuProb = (PndPidProbability*)fNeutralProbability->At(i1);
           if(neuProb == 0) {
@@ -190,7 +190,7 @@ Bool_t PndAnalysis::FillList(TCandList &l, std::string listkey)
         VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fChargedCands->At(i2);
         TCandidate buffcand(*mic,i2+1);
         TCandidate *tc = TFactory::Instance()->NewCandidate(buffcand);
-        if(i2<fChargedProbability->GetEntriesFast())
+        if(0!=fChargedProbability && i2<fChargedProbability->GetEntriesFast())
         {
           PndPidProbability *chProb = (PndPidProbability*)fChargedProbability->At(i2);
           if(chProb == 0) {
