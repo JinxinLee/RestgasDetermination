@@ -130,23 +130,23 @@ InitStatus PndMixBackgroundEvents::Init() {
     return kERROR;
   }
 
-  //   opend Mvd hits background reco file
-  filerecorun = new TFile(fMvdBkgFilename);
-  treerecobkg = (TTree*) filerecorun->Get("cbmsim");
-  treerecobkg->SetBranchAddress("MVDHitsPixel",&fMvdPixelHitBkgArray);
+  treedigibkg->SetBranchAddress("MVDHitsPixel",&fMvdPixelHitBkgArray);
+
   if ( !fMvdPixelHitBkgArray){
     std::cout << "-W- PndMixBackgroundEvents::Init: " << "No MVD Pixel Background hitArray, return!"
     	 << std::endl;
     return kERROR;
   }
 
-  treerecobkg->SetBranchAddress("MVDHitsStrip",&fMvdStripHitBkgArray);
+  treedigibkg->SetBranchAddress("MVDHitsStrip",&fMvdStripHitBkgArray);
+
+
   if ( !fMvdStripHitBkgArray){
     std::cout << "-W- PndMixBackgroundEvents::Init: " << "No MVD Strip Background hitArray, return!"
     	 << std::endl;
     return kERROR;
   }
-  int nnn =  treerecobkg->GetEntriesFast();
+  int nnn =  treedigibkg->GetEntriesFast();
 
   if( nnn != nTotalBkgEvents) {
    cout<<"from PndMixBackgroundEvents : total evts in digi file != total evets in reco file, return!"
@@ -247,7 +247,6 @@ void PndMixBackgroundEvents::Exec(Option_t* opt) {
 
 	BackgroundNandT(&nBkgEventsToAdd,times);
 
-
 //----------- end background info -----------------
 
 
@@ -262,26 +261,6 @@ void PndMixBackgroundEvents::Exec(Option_t* opt) {
 	pSttHit = (PndSttHit *) fSttHitArray->At(iStt);
 	PndSttHit * temp = new ((*fSttHitandBckgrndArray)[iStt]) PndSttHit;
 	*temp = *pSttHit;
-
-
-/*
-	TVector3 pos;
-	pSttHit->Position(pos);
-	TVector3  epos;
-	pSttHit->PositionError(epos);
-	new ((*fSttHitandBckgrndArray)[i])
-		PndSttHit(
-			FairRootManager::Instance()->GetBranchId("STTHit"),
-			pSttHit->GetTubeID(),
-			pSttHit->GetRefIndex(),
-			pos,
-			epos,
-			pSttHit->GetPulse(),
-			pSttHit->GetIsochrone(),
-			pSttHit->GetIsochroneError(),
-			pSttHit->GetDepCharge()
-		);
-*/
 
 
    }	// end of for(  iStt= 0; iStt< fSttHitArray
@@ -340,12 +319,18 @@ void PndMixBackgroundEvents::Exec(Option_t* opt) {
    k2 = fMvdPixelHitArray->GetEntriesFast();
    k3 = fMvdStripHitArray->GetEntriesFast();
 
+//nBkgEventsToAdd=1;
+cout<<"from PndMixBackgroundEvents : in this evt "<<nBkgEventsToAdd<<" evts of bkg are added, with the following times :\n";
+for(int ipro=0;ipro<nBkgEventsToAdd;ipro++){
+	cout<<"\tt = "<<times[ipro]<<endl;
+}
+
    for(j=0;j<nBkgEventsToAdd;j++){
 
 	ichosen = (Int_t) (nTotalBkgEvents * rannn.Rndm());
 	if(ichosen==nTotalBkgEvents) ichosen --;
+//ichosen=0;
 	treedigibkg->GetEntry(ichosen);
-	treerecobkg->GetEntry(ichosen);
 
 	//	background Stt hits --
 	for( i= 0; i<fSttHitBkgArray->GetEntriesFast() ; i++){
@@ -361,7 +346,7 @@ void PndMixBackgroundEvents::Exec(Option_t* opt) {
 		}
 	}	// end of  for( i= 0;
 
-
+//times[j]=0;
 	if( fabs(times[j])<MVDTYPICALTIME) {	// Mvd hits live only 10 nsec.
 		//	background Pixel hits --
 		for( i= 0; i<fMvdPixelHitBkgArray->GetEntriesFast() ; i++){
