@@ -52,10 +52,9 @@ class PndMixBackgroundEvents : public FairTask
   void SetParContainers();
 
 
-  void SetInputBkgFilesName(	char* string1,char* string2 )
+  void SetInputBkgFilesName(	char* string1 )
   {
 	sprintf(fSttBkgFilename,"%s", string1);
-	sprintf(fMvdBkgFilename,"%s", string2);
 	return;
   };
 
