@@ -37,8 +37,9 @@ class PndJpsi2PiAna : public PndAnaTask
 
   /**book all the histograms**/
   TH1F *jpsimass;
-  TH1F *jpsimass2;
+  TH1F *jpsimassf;
   TH1F *ppmass;
+  TH1F *ppmassf;
   TH1F *mcmass;
   
  private:

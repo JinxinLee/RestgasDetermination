@@ -52,11 +52,14 @@ InitStatus PndJpsi2PiAna::Init()
   
   
 	jpsimass=new TH1F("mjpsi","jpsi",200,0,3.5);
-	jpsimass2=new TH1F("mjpsi2","jpsi fit",200,0,3.5);
+	jpsimassf=new TH1F("mjpsif","jpsi fit",200,0,3.5);
+	
 	ppmass=new TH1F("mpp","mpp",200,0,4.5);
+	ppmassf=new TH1F("mppf","mpp",200,0,4.5);
+	
 	mcmass=new TH1F("mmc","mmc",200,0,4.0);
 	
-	jpsiMSel=new TPidMassSelector("jpsi",3.1,0.1);
+	jpsiMSel=new TPidMassSelector("jpsi",3.1,0.2);
     
     fEvtCount=0;
     
@@ -97,11 +100,10 @@ void PndJpsi2PiAna::Exec(Option_t* opt)
 	for (j=0;j<jpsi.GetLength();++j) jpsimass->Fill(jpsi[j].M());
 	//jpsi.Select(jpsiMSel);
 	
-	pp.Combine(jpsi,pip,pim);
-	for (j=0;j<pp.GetLength();++j) ppmass->Fill(pp[j].M());
-	
 	for (j=0;j<mc.GetLength();++j) mcmass->Fill(mc[j].M());
 	
+	pp.Combine(jpsi,pip,pim);
+		
 	for (j=0;j<pp.GetLength();++j)
 	{
 			ppmass->Fill(pp[j].M());
@@ -112,14 +114,14 @@ void PndJpsi2PiAna::Exec(Option_t* opt)
 			fitter.FitConserveMasses();
 			
 			TCandidate *ppfit=const_cast<TCandidate*>(fitter.FittedCand(pp[j]));
-			//pp2mass->Fill(ppfit->M());
+			ppmassf->Fill(ppfit->M());
 			
 			TCandidate *epfit=const_cast<TCandidate*>(fitter.FittedCand(*(pp[j].Daughter(0)->Daughter(0))) );
 			TCandidate *emfit=const_cast<TCandidate*>(fitter.FittedCand(*(pp[j].Daughter(0)->Daughter(1))) );
 			
 			TLorentzVector sum=epfit->P4()+emfit->P4();
 			
-			jpsimass2->Fill(sum.Mag());
+			jpsimassf->Fill(sum.Mag());
 			
 	}
 
@@ -131,7 +133,9 @@ void PndJpsi2PiAna::Exec(Option_t* opt)
 void PndJpsi2PiAna::Finish()
 {
   jpsimass->Write();
-  jpsimass2->Write();
+  jpsimassf->Write();
   ppmass->Write();
+  ppmassf->Write();
+  mcmass->Write();
 }
 
