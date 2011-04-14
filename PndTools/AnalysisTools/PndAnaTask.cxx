@@ -115,7 +115,7 @@ bool PndAnaTask::FillList(TCandList &l, std::string listkey)
 	{
 		if (fMcCands) 
 		{
-			cout <<"PndAnaTask::FillList: "<<fMcCands->GetEntriesFast()<<" mc cands"<<endl;
+			//cout <<"PndAnaTask::FillList: "<<fMcCands->GetEntriesFast()<<" mc cands"<<endl;
       		for (int i1=0; i1<fMcCands->GetEntriesFast(); i1++)
       		{
         		TCandidate* tc = (TCandidate *)fMcCands->At(i1);
@@ -150,17 +150,17 @@ bool PndAnaTask::FillList(TCandList &l, std::string listkey)
 			VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fNeutralCands->At(i1);		
 			TCandidate tc(*mic,uid++);
 			
-      // TODO: Do we want to set something here? It is neutrals anyway.
-      if(i1<fNeutralProbability->GetEntriesFast())
-      {
-        PndPidProbability *neuProb = (PndPidProbability*)fNeutralProbability->At(i1);
-        // numbering see PndPidListMaker
-        tc.SetPidInfo(0,neuProb->GetElectronPidProb());
-        tc.SetPidInfo(1,neuProb->GetMuonPidProb());
-        tc.SetPidInfo(2,neuProb->GetPionPidProb());
-        tc.SetPidInfo(3,neuProb->GetKaonPidProb());
-        tc.SetPidInfo(4,neuProb->GetProtonPidProb());
-      }        
+			// TODO: Do we want to set something here? It is neutrals anyway.
+			if(0!=fNeutralProbability && i1<fNeutralProbability->GetEntriesFast())
+			{
+				PndPidProbability *neuProb = (PndPidProbability*)fNeutralProbability->At(i1);
+				// numbering see PndPidListMaker
+				tc.SetPidInfo(0,neuProb->GetElectronPidProb());
+				tc.SetPidInfo(1,neuProb->GetMuonPidProb());
+				tc.SetPidInfo(2,neuProb->GetPionPidProb());
+				tc.SetPidInfo(3,neuProb->GetKaonPidProb());
+				tc.SetPidInfo(4,neuProb->GetProtonPidProb());
+			}        
 			fLNeutralCands.Add(tc);
 			fLAllCands.Add(tc);
 		}
@@ -172,7 +172,7 @@ bool PndAnaTask::FillList(TCandList &l, std::string listkey)
         VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fChargedCands->At(i1);
         TCandidate tc(*mic,uid++);
         
-        if(i1<fChargedProbability->GetEntriesFast())
+        if(0!=fChargedProbability && i1<fChargedProbability->GetEntriesFast())
         {
           PndPidProbability *chProb = (PndPidProbability*)fChargedProbability->At(i1);
           // numbering see PndPidListMaker
