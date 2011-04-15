@@ -56,6 +56,7 @@
 #include "PndFsmRich.h"
 #include "PndFsmSimpleTracker.h"
 #include "PndFsmCmpDet.h"
+#include "PndFsmCombiDet.h"
 
 //-----------------------------------------------------------------------
 // Local Macros, Typedefs, Structures, Unions and Forward Declarations --
@@ -134,6 +135,9 @@ PndFsmDetFactory::create(std::string &name,ArgList &par)
   else 
   if (name=="CmpDet")
     return (PndFsmAbsDet*)( new PndFsmCmpDet(par) ) ;
+  else 
+  if (name=="CombiDet")
+    return (PndFsmAbsDet*)( new PndFsmCombiDet(par) ) ;
   else {
     std::cout  <<" -W- (PndFsmDetFactory::create) Unknown detector: <"<<name<<">"<< std::endl;  
     return 0;
