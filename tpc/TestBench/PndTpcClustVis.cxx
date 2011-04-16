@@ -437,12 +437,12 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       std::cerr << "... building tracks in sector " << isect << std::endl;
       fcluster_buffer=buffermap[isect];
       _trackfinder->buildTracks(*fcluster_buffer,riemannTemp);
-      _trackfinder->mergeTracks(riemannTemp);
+      if(doMerge) _trackfinder->mergeTracks(riemannTemp);
       // copy tracklets of this sector to global list
       unsigned int ntrklts=riemannTemp.size();
       riemannlist.reserve(riemannlist.size()+ntrklts);
       for(unsigned int it=0;it<ntrklts;++it){
-	riemannlist.push_back(riemannTemp[it]);
+	      riemannlist.push_back(riemannTemp[it]);
       }
       riemannTemp.clear();
     } // end loop over sectors
