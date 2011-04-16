@@ -202,26 +202,30 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
   }
   */
    
-  // put clusters into array and clean up buffer
+  // put clusters & modified digis into array and clean up buffer
   unsigned int ncl=fcluster_buffer->size();
   unsigned int ncl_rec=0;
   unsigned int ndig_rec=0;
+  
   for(unsigned int icl=0;icl<ncl;++icl){ // loop over clusters
-    if((*fcluster_buffer)[icl]->amp()>fthres)
+    if((*fcluster_buffer)[icl]->amp()>fthres){
       if((*fcluster_buffer)[icl]->size()>1 || (*fcluster_buffer)[icl]->amp()>fSDiClAmpCut){
         PndTpcCluster* cl = new((*fclusterArray)[ncl_rec]) PndTpcCluster(*(*fcluster_buffer)[icl]);
         cl->SetIndex(ncl_rec);
-	cl->ClearDigis();
-	delete  (*fcluster_buffer)[icl];
         ncl_rec++;
+        
         for(Int_t i=0;i<cl->nDigi();++i){ // get digis
           PndTpcDigi* digi = new((*fdigiOutArray)[ndig_rec]) PndTpcDigi(*(cl->getDigi(i)));
           ++ndig_rec;
         }
+        
+	      cl->ClearDigis();
+	      delete  (*fcluster_buffer)[icl];
       }
+    }
   } // end loop over clusters
   
-  unsigned int splitDigis;
+  int splitDigis;
   if(fsimple){
     splitDigis = ((PndTpcClusterFinderSimple*)(ffinder))->NsplitDigis();
     ndig_rec -= splitDigis;
