@@ -211,6 +211,8 @@ PndTpcRiemannTrackingTask::Init()
   _trackfinder->addTTCorrelator(new PndTpcRiemannTTCorrelator(_TTplanecut, _minpoints));
   _trackfinder->addTTCorrelator(new PndTpcSzTTCorrelator(_TTszcut));
  
+  _trackfinder->setCoolingCuts(_planecut, _szcut);
+  
   // init histos
   _multiplicityHisto=new TH1I("multipl","# track candidates",100,0,100);
   _trackSizeH=new TH1I("trksize","# hits in track",100,0,100);
@@ -248,17 +250,17 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
   std::cout<<"PndTpcRiemannTrackingTask::Exec; Event Number: "<<counter<<std::endl;
   // Reset output Arrays
   if(_trackArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No TrackArray");
-   _trackArray->Delete();
+   _trackArray->Clear("C");
   
   if(_pndTrackArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No PndTrackArray");
-     _pndTrackArray->Delete();
+     _pndTrackArray->Clear("C");
   if(_trackCandArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No TrackCandArray");
-     _trackCandArray->Delete();
+     _trackCandArray->Clear("C");
 
   if(_riemannTrackArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannTrackArray");
-     _riemannTrackArray->Delete();
+     _riemannTrackArray->Clear("C");
   if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHitArray");
-     _riemannHitArray->Delete();
+     _riemannHitArray->Clear("C");
 
      
   // build histograms & visualisation of clusters
