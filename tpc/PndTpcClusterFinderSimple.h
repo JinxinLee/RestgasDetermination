@@ -54,13 +54,15 @@ public:
 						 std::vector<PndTpcCluster*>*,
 						 unsigned int, double G=1, double C=1);
   ~PndTpcClusterFinderSimple();
-
+  
   virtual void process(std::vector<PndTpcDigi*>&);
   virtual void reset();
   virtual void checkConsistency();
 
   void setNoXclust(bool b=true){noXclust=b;}
   unsigned int NsplitDigis(){return splitDigis;}
+  
+  void setDigiArray(TClonesArray* digiArray) {_digiArray = digiArray;}
 
 private:
   PndTpcPadPlane* fpadplane;
@@ -71,6 +73,7 @@ private:
   double fG;
   double fC;
 
+  TClonesArray* _digiArray;
 };
 
 

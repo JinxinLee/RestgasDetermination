@@ -168,7 +168,7 @@ void PndTpcPrelimCluster::cog(){
 PndTpcClusterFinderSimple::PndTpcClusterFinderSimple(PndTpcPadPlane* p,
 						     std::vector<PndTpcCluster*>* ob,
 						     unsigned int timeslice, double G, double C)
-  : fpadplane(p), foutput_buffer(ob), fdt(timeslice), noXclust(false), splitDigis(0), fG(G), fC(C)
+  : fpadplane(p), foutput_buffer(ob), fdt(timeslice), noXclust(false), splitDigis(0), fG(G), fC(C), _digiArray(NULL)
 {
 
 }
@@ -220,9 +220,13 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
 	      for(int i=1;i<nselclust;++i) {
           // I have to copy the digi so that one digi is only assigned to one cluster
           // otherwise there are problems with the TClonesArray
-          PndTpcDigi* digiCopy = new PndTpcDigi(*fd);
-          digis.push_back(digiCopy);
+          PndTpcDigi* digiCopy;
+	        if(_digiArray==NULL) digiCopy = new PndTpcDigi(*fd);
+	        else digiCopy = new((*_digiArray)[ndigi+splitDigis]) PndTpcDigi(*fd);
+
+          digis.push_back(digiCopy);	        
 	        prelimClusters[selClusters[i]]->addHit(digiCopy,noXclust);
+	        
           ++splitDigis;
 	      }
       }
