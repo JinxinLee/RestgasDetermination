@@ -95,20 +95,18 @@ PndTpcClusterFinderTask::Init()
   //Get ROOT Manager
   FairRootManager* ioman= FairRootManager::Instance();
 
-  if(ioman==0)
-    {
-      Error("PndTpcClusterFinderTask::Init","RootManager not instantiated!");
-      return kERROR;
-    }
+  if(ioman==0) {
+    Error("PndTpcClusterFinderTask::Init","RootManager not instantiated!");
+    return kERROR;
+  }
   
   // Get input collection
   fdigiArray=(TClonesArray*) ioman->GetObject(fdigiBranchName);
   
-  if(fdigiArray==0)
-    {
-      Error("PndTpcClusterFinderTask::Init","Digi-array not found!");
-      return kERROR;
-    }
+  if(fdigiArray==0){
+    Error("PndTpcClusterFinderTask::Init","Digi-array not found!");
+    return kERROR;
+  }
   
   // create and register output array
   fclusterArray = new TClonesArray("PndTpcCluster"); 
@@ -133,7 +131,7 @@ PndTpcClusterFinderTask::Init()
 
   PndTpcDigiMapper::getInstance(false)->init(fpadplane,fgem,fgas,fpar->getPadShapes(),fzGem,t0,sf);
  
-  fcluster_buffer=new std::vector<PndTpcCluster*>;
+  fcluster_buffer = new std::vector<PndTpcCluster*>;
 
   if(!fsimple){
     ffinder=new PndTpcClusterFinder(PndTpcDigiMapper::getInstance()->getPadPlane(),
@@ -173,13 +171,13 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
   Int_t ndigis=fdigiArray->GetEntries();
   //   std::cout << "FINDER"<< ndigis << std::endl;
 
-  // copy digis 
+  // copy digis into output array
   for(unsigned int idigi=0; idigi<ndigis; ++idigi){ 
     PndTpcDigi* digiRaw=(PndTpcDigi*)fdigiArray->At(idigi);
-    PndTpcDigi* digiCopy = new PndTpcDigi(*digiRaw);
+    PndTpcDigi* digiCopy = new((*fdigiOutArray)[idigi]) PndTpcDigi(*digiRaw);
     digis.push_back(digiCopy);
   }
-
+  if(fsimple) ((PndTpcClusterFinderSimple*)(ffinder))->setDigiArray(fdigiOutArray); // for saving split digis correctly
 
   try{
     ffinder->process(digis);   
@@ -208,22 +206,19 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
   unsigned int ndig_rec=0;
   
   for(unsigned int icl=0;icl<ncl;++icl){ // loop over clusters
-    if((*fcluster_buffer)[icl]->amp()>fthres){
-      if((*fcluster_buffer)[icl]->size()>1 || (*fcluster_buffer)[icl]->amp()>fSDiClAmpCut){
-        PndTpcCluster* cl = new((*fclusterArray)[ncl_rec]) PndTpcCluster(*(*fcluster_buffer)[icl]);
-        cl->SetIndex(ncl_rec);
-        ncl_rec++;
-        
-        for(Int_t i=0;i<cl->nDigi();++i){ // get digis
-          PndTpcDigi* digi = new((*fdigiOutArray)[ndig_rec]) PndTpcDigi(*(cl->getDigi(i)));
-          ++ndig_rec;
-        }
-        
-	      cl->ClearDigis();
-	      delete  (*fcluster_buffer)[icl];
-      }
+    if((*fcluster_buffer)[icl]->amp()>fthres &&
+       ((*fcluster_buffer)[icl]->size()>1 || (*fcluster_buffer)[icl]->amp()>fSDiClAmpCut)){
+      
+      PndTpcCluster* cl = new((*fclusterArray)[ncl_rec]) PndTpcCluster(*((*fcluster_buffer)[icl]));
+      cl->SetIndex(ncl_rec); 
+      ncl_rec++;
+      ndig_rec+=cl->size();
     }
+    // delete cluster
+    delete  (*fcluster_buffer)[icl];
+    
   } // end loop over clusters
+  
   
   int splitDigis;
   if(fsimple){
@@ -236,23 +231,20 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
   if(fsimple){std::cout<<" (SimpleClustering split "<< splitDigis <<" Digis!)"<<std::endl;}   
    
 
-  // for(unsigned int icl=0;icl<ncl;++icl){
-  //   delete (*fcluster_buffer)[icl];
-  // }
   fcluster_buffer->clear();
-  for(unsigned int id=0;id<digis.size();++id){
-    delete digis[id];
-  }
-  digis.clear();
+  //digis.clear();
+   
    
   std::cerr<<" End ClusterFinderTask " <<std::endl;
 
   return;
 }
 
+
 bool PndTpcDigiIndex(PndTpcDigi* digi1, PndTpcDigi* digi2){
   return(digi1->index() < digi2->index());
 }
+
 
 ClassImp(PndTpcClusterFinderTask)
 
