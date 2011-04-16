@@ -1,4 +1,4 @@
-void runRecoFOPI_batch_standalone(TString filename, TString outpath) 
+void runRecoFOPI_batch_jrauch(TString filename, TString outpath) 
 {
   
 // ========================================================================
@@ -80,7 +80,7 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath)
 bool SimpleClustering = true;
   
   PndTpcPSATask* tpsa = new  PndTpcPSATask();
-  //tpsa->SetPersistence();
+  tpsa->SetPersistence();
   tpsa->SetSampleBranchName("PndTpcSample"); // Input of PSA
   tpsa->SetDigiBranchName("PndTpcRawDigi");  // Output of PSA
   fRun->AddTask(tpsa);
@@ -91,7 +91,7 @@ bool SimpleClustering = true;
   tpcCF->SetPersistence(); // keep Clusters
   tpcCF->SetDigiBranchName("PndTpcRawDigi"); // Input of clustering
   tpcCF->SetDigiOutBranchName("PndTpcDigi"); // Digi output of clustering
-  tpcCF->timeslice(6); //in samples
+  tpcCF->timeslice(8); //in samples
   tpcCF->SetSingleDigiClusterAmpCut(20);
   if(!SimpleClustering) {
     tpcCF->SetMode(2); // 0 - global time bins;  
@@ -122,23 +122,24 @@ bool SimpleClustering = true;
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
   tpcSPR->SetSortingParameters(
                    true, // false: sort only according to _sorting (see next argument); true: use internal sorting when adding hits to trackcands
-                   3,    // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
+                   1,    // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
                    0.); // z-position of interaction point (for sorting 4)
   tpcSPR->SetTrkFinderParameters(
-                   2.,  // proximity cut in 3D
-                   0.08, // proximity cut on rieman sphere
-                   0.035, // distance to plane cut
-                   0.35,  // szcut
-                   2);   // minimum hits for plane & sz-fit
+                   3.,  // proximity cut in 3D
+                   0.108, // proximity cut on rieman sphere
+                   0.108, // distance to plane cut
+                   1.35,  // szcut
+                   8);   // minimum hits for plane & sz-fit
   //tpcSPR->SetMergeTracks();
   tpcSPR->SetTrkMergerParameters(
                    2.5,  // proximity cut
                    2.5,  // sz cut
                    8E-3);// plane cut (RMS)
+  tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
   tpcSPR->SetPersistence();
-  tpcSPR->SetStoreHistograms(PROutFile);
+  //tpcSPR->SetStoreHistograms(PROutFile); // 
   //tpcSPR->WriteHistograms(PROutFile);
-  fRun->AddTask(tpcSPR);
+  //fRun->AddTask(tpcSPR);
 
   PndTpcSLPatternRecoTask* tpcSLPR = new PndTpcSLPatternRecoTask();
   tpcSLPR->SetPersistence(true);
@@ -161,7 +162,7 @@ bool SimpleClustering = true;
   kalman->SetPersistence();
   //kalman->SetClusterBranchName("PndTpcCluster_cut");
   kalman->SetNumIterations(3); // number of fitting iterations (back and forth)
-  fRun->AddTask(kalman);
+  //fRun->AddTask(kalman);
 
 
   TrackFitStatTask* fitstat=new TrackFitStatTask();
@@ -188,7 +189,7 @@ bool SimpleClustering = true;
  
  
   fRun->Init();
-  fRun->Run(0,1000);
+  fRun->Run(0,500);
 
   timer.Stop();
   Double_t rtime = timer.RealTime();
