@@ -90,6 +90,7 @@ PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
     _TTproxcut(2.),
     _TTszcut(2.),
     _TTplanecut(0.001),
+    _riemannscale(24.6),
     _clusterBranchName("PndTpcCluster")
   {;}
 
@@ -197,6 +198,7 @@ PndTpcRiemannTrackingTask::Init()
   _trackfinder->setInteractionZ(_interactionZ);
   _trackfinder->setSortingMode(_sortingMode);
   _trackfinder->setMinHitsForFit(_minpoints);
+  _trackfinder->setScale(_riemannscale);
 
   // Hit-Track Correlators
   _trackfinder->addCorrelator(new PndTpcProximityHTCorrelator(_proxcut));
@@ -210,7 +212,7 @@ PndTpcRiemannTrackingTask::Init()
   _trackfinder->addTTCorrelator(new PndTpcSzTTCorrelator(_TTszcut));
  
   // init histos
-  _multiplicityHisto=new TH1I("multipl","# track candidates",20,0,20);
+  _multiplicityHisto=new TH1I("multipl","# track candidates",100,0,100);
   _trackSizeH=new TH1I("trksize","# hits in track",100,0,100);
   _trackPurityH=new TH1D("trkpurity","trackPurity",25,0,1.01);
   _trackMcIdsH=new TH1D("trkmcids","# mcids in track",25,0,25);
@@ -405,11 +407,9 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
 
       // visualisation of the plane
       if(trkcand->isFittedPlane()){
-        TVectorD nd = trkcand->n();
-        TVector3 n;
-        n.SetXYZ(nd(0), nd(1), nd(2));
-        TVector3 nz;
-        nz.SetXYZ(0.,0.,1.);
+        TVector3 n = trkcand->n();
+        TVector3 av = trkcand->av();
+        TVector3 nz(0.,0.,1.);
 
         //vector perp to n in x y plane
         TVector3 perpXY = n.Cross(nz);
@@ -418,17 +418,14 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
         perp.SetMag(0.15);
 
         double c = -1*trkcand->c();
-        RiemannLines[ir]->SetNextPoint(nd[0]*c,nd[1]*c,nd[2]*c); //
-        RiemannLines[ir]->SetNextPoint(nd[0]*c+perpXY[0],nd[1]*c+perpXY[1],nd[2]*c+perpXY[2]); //
-        RiemannLines[ir]->SetNextPoint(nd[0]*c-perpXY[0],nd[1]*c-perpXY[1],nd[2]*c-perpXY[2]); //
-        RiemannLines[ir]->SetNextPoint(nd[0]*c,nd[1]*c,nd[2]*c); //
-        RiemannLines[ir]->SetNextPoint(nd[0]*c+perp[0],nd[1]*c+perp[1],nd[2]*c+perp[2]); //
-        RiemannLines[ir]->SetNextPoint(nd[0]*c-perp[0],nd[1]*c-perp[1],nd[2]*c-perp[2]); //
-        RiemannLines[ir]->SetNextPoint(nd[0]*c,nd[1]*c,nd[2]*c); //
-        RiemannLines[ir]->SetNextPoint(nd[0]*(c+0.5),nd[1]*(c+0.5),nd[2]*(c+0.5));
+        RiemannLines[ir]->SetNextPoint(av[0]+perpXY[0], av[1]+perpXY[1], av[2]+perpXY[2]); //
+        RiemannLines[ir]->SetNextPoint(av[0]-perpXY[0], av[1]-perpXY[1], av[2]-perpXY[2]); //
+        RiemannLines[ir]->SetNextPoint(av[0],           av[1],           av[2]); //
+        RiemannLines[ir]->SetNextPoint(av[0]+perp[0],   av[1]+perp[1],   av[2]+perp[2]); //
+        RiemannLines[ir]->SetNextPoint(av[0]-perp[0],   av[1]-perp[1],   av[2]-perp[2]); //
       }
     }
-  }
+  } // end visualisation of TrackCands
 
   if(_mergeTracks)
     _trackfinder->mergeTracks(riemannlist);
@@ -477,12 +474,9 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       }
 
       if(trkcand->isFittedPlane()){
-        TVectorD nd = trkcand->n();
-        TVectorD av = trkcand->av();
-        TVector3 n;
-        n.SetXYZ(nd(0), nd(1), nd(2));
-        TVector3 nz;
-        nz.SetXYZ(0.,0.,1.);
+        TVector3 n = trkcand->n();
+        TVector3 av = trkcand->av();
+        TVector3 nz(0.,0.,1.);
 
         //vector perp to n in x y plane
         TVector3 perpXY = n.Cross(nz);
@@ -491,17 +485,15 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
         perp.SetMag(0.15);
 
         double c = -1*trkcand->c();
-        RiemannLines2[ir]->SetNextPoint(av[0],av[1], av[2]); //
-        RiemannLines2[ir]->SetNextPoint(av[0]+perpXY[0],av[1]+perpXY[1],av[2]+perpXY[2]); //
-        RiemannLines2[ir]->SetNextPoint(av[0]-perpXY[0],av[1]-perpXY[1],av[2]-perpXY[2]); //
-        RiemannLines2[ir]->SetNextPoint(av[0],av[1],av[2]); //
-        RiemannLines2[ir]->SetNextPoint(av[0]+perp[0],av[1]+perp[1],av[2]+perp[2]); //
-        RiemannLines2[ir]->SetNextPoint(av[0]-perp[0],av[1]-perp[1],av[2]-perp[2]); //
-        RiemannLines2[ir]->SetNextPoint(av[0],av[1],av[2]); //
-        RiemannLines2[ir]->SetNextPoint(av[0]+nd[0]*(c),av[1]+nd[1]*(c),av[2]+nd[2]*(c));
+        RiemannLines2[ir]->SetNextPoint(av[0]+perpXY[0], av[1]+perpXY[1], av[2]+perpXY[2]); //
+        RiemannLines2[ir]->SetNextPoint(av[0]-perpXY[0], av[1]-perpXY[1], av[2]-perpXY[2]); //
+        RiemannLines2[ir]->SetNextPoint(av[0],           av[1],           av[2]); //
+        RiemannLines2[ir]->SetNextPoint(av[0]+perp[0],   av[1]+perp[1],   av[2]+perp[2]); //
+        RiemannLines2[ir]->SetNextPoint(av[0]-perp[0],   av[1]-perp[1],   av[2]-perp[2]); //
       }
     }
-  }
+  } // end visualisation of TrackCands
+
 
   // build GFTrackCands
   std::vector<GFTrackCand*> candlist;
@@ -511,12 +503,14 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
   for(unsigned int ir=0; ir<nr; ++ir){ // loop over Riemann tracks
 
     int minhits = 4; // minimum hits needed to build pndtrackcands and GFTrackCands
+    if(minhits<_minpoints) minhits=_minpoints;
     double pbackup = 2.;  // momentum value that is set when other initialisations fail
 
-    // store PndTpcRiemannTracks in output array
     PndTpcRiemannTrack* trk=riemannlist[ir];
+    int nhits=trk->getNumHits();
+    
+    // store PndTpcRiemannTracks in output array
     new((*_riemannTrackArray)[_riemannTrackArray->GetEntriesFast()]) PndTpcRiemannTrack(*trk);
-    unsigned int nhits=trk->getNumHits();
     for(unsigned int ih=0;ih<nhits;++ih){
       PndTpcRiemannHit* hit=trk->getHit(ih);
       new ((*_riemannHitArray)[_riemannHitArray->GetEntriesFast()]) PndTpcRiemannHit(*hit);
@@ -526,8 +520,22 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
 
     // check if enough points
     if(nhits<_minpoints || nhits<minhits){
-      std::cout<<" - skipping, not enough hits"<<std::endl;
+      std::cout<<" - skipping, not enough hits: "<<nhits<<std::endl;
       continue;
+    }
+    
+    // check if momentum not high enough
+    // calculate momentum
+    // p = 0.3*BR/dip (R in meters, B in T; we have R in cm, B in kG)
+    double p;
+    double trackR = trk->r();
+    double trackDip = trk->dip();
+    if (TMath::Abs(sin(trackDip))<0.1) p=pbackup;
+    else p=trackR/sin(trackDip)*0.0003*Bz; 
+    if (Bz==0) p=pbackup;
+    if(p<4E-3) {
+      std::cout<<" - skipping, momentum too small: "<<p*1E3<<" MeV"<<std::endl;
+      //continue;
     }
     std::cout<<std::endl;
 
@@ -563,27 +571,22 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     //
     // calculate seed values
     //
-    double trackR = trk->r();
-
-    // calculate momentum
-    // p = 0.3*BR/dip (R in meters, B in T; we have R in cm, B in kG)
-    double p;
-    if (TMath::Abs(sin(trk->dip()))<0.05) p=pbackup;
-    else p=trackR/sin(trk->dip())*0.0003*Bz; 
-    if (Bz==0) p=pbackup;
-    if(p<1E-5)continue;
 
     // build approximate momentum vector
     std::vector<TVector3> slidingAvrg;
-    for(int i=0; i<minhits; ++i) {
-      slidingAvrg.push_back( trk->getHit(i)->cluster()->pos() );
-    }
+    if(!invertedTrack)
+      for(int i=0; i<minhits; ++i) 
+        slidingAvrg.push_back( trk->getHit(i)->cluster()->pos() );
+    else
+      for(int i=nhits-1; i>nhits-1-minhits; --i) 
+        slidingAvrg.push_back( trk->getHit(i)->cluster()->pos() );
+    
     while(slidingAvrg.size()>2){      
-      for(int i=0; i<slidingAvrg.size()-1; ++i) {
+      for(int i=0; i<slidingAvrg.size()-1; ++i) 
         slidingAvrg[i] = 0.5*(slidingAvrg[i]) + 0.5*(slidingAvrg[i+1]);
-      } 
       slidingAvrg.pop_back();
     }
+
     TVector3 direction=(slidingAvrg[1]-slidingAvrg[0]);
     direction.SetMag(1.);
 
@@ -591,20 +594,22 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     TVector3 momerr(0.1*fabs(mom.X()),0.1*fabs(mom.Y()),0.1*fabs(mom.Z()));
 
     // start position
-    TVector3 pos1 = trk->getHit(0)->cluster()->pos();
+    TVector3 pos1;
+    if(!invertedTrack) pos1 = trk->getHit(0)->cluster()->pos();
+    else pos1 = trk->getLastHit()->cluster()->pos();
     TVector3 poserr(0.3,0.3,0.3);
 
     // pdg
     int pdg = trk->winding()>0 ? 211 : -211; // Todo: pions hardcoded atm
-    //if(invertedTrack) pdg *= -1.;
     if(Bz<0) pdg *= -1.;
 
-    std::cout<<" Radius of track: " << trackR << std::endl;
+    std::cout<<" Radius of track [cm]: " << trackR << std::endl;
+    std::cout<<" Dip of track [deg]:   " << trackDip/TMath::Pi()*180 << std::endl;
     std::cout<<" seed values: "<<std::endl;
     std::cout<<"  start position: ";
     pos1.Print();
     std::cout<<"  momentum [GeV]: "<<p<<std::endl;
-    std::cout<<"  p_perp=" << trackR*0.0003*Bz <<std::endl;
+    std::cout<<"  p_perp [GeV]:   " << trackR*0.0003*Bz <<std::endl;
     std::cout<<"  direction: ";    
     direction.Print();
     std::cout<<"  winding: "<<trk->winding()<<std::endl;
@@ -615,7 +620,7 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     // set seed values to cands
     pndcand->setTrackSeed(pos1,direction,1./p);
 
-    cand->setCurv(fabs(trackR)); //  actually this is never used
+    cand->setCurv(trackR); //  actually this is never used
     cand->setDip(trk->dip());
 
     RKTrackRep* rep = new RKTrackRep(pos1, mom, poserr, momerr,pdg);

@@ -71,6 +71,7 @@ public:
                    double TTszcut,
                    double TTplanecut);
 
+  void SetRiemannScale(double riemannscale=8.7) {_riemannscale = riemannscale;}
 
   // Operations ----------------------
   virtual InitStatus Init();
@@ -133,6 +134,8 @@ private:
 
   // tuning parameters for Conformal Map TrackFinder
   bool _sortingMode;
+  
+  double _riemannscale;
 
   int _sorting;
   double _proxcut;
