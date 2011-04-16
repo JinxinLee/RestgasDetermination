@@ -56,11 +56,11 @@ bool sortByPosOnTrack(PndTpcRiemannHit* hit1, PndTpcRiemannHit* hit2){
 ClassImp(PndTpcRiemannTrack)
 
 PndTpcRiemannTrack::PndTpcRiemannTrack()
-: _n(3),_av(3), _sumOfWeights(0), _c(0),_m(0), _t(0), fRiemannScale(24.6), _isFitted(false), _isFittedPlane(false), _nit(0), _doSort(true)
+: _n(0.,0.,0.),_av(0.,0.,0.), _sumOfWeights(0), _c(0),_m(0), _t(0), fRiemannScale(24.6), _isFitted(false), _isFittedPlane(false), _nit(0), _doSort(true)
 {}
 
 PndTpcRiemannTrack::PndTpcRiemannTrack(double scale)
-: _n(3),_av(3), _sumOfWeights(0), _c(0),_m(0), _t(0), fRiemannScale(scale), _isFitted(false), _isFittedPlane(false), _nit(0), _doSort(true)
+: _n(0.,0.,0.),_av(0.,0.,0.), _sumOfWeights(0), _c(0),_m(0), _t(0), fRiemannScale(scale), _isFitted(false), _isFittedPlane(false), _nit(0), _doSort(true)
 {}
 
 void
@@ -79,25 +79,12 @@ PndTpcRiemannTrack::init(double x0_, double y0_, double R_,
   double A=-2*x0*DC;
   double B=-2*y0*DC;
   
-  _n[0]=A;
-  _n[1]=B;
-  _n[2]=C;
+  _n.SetXYZ(A, B, C);
   _c=D;
   _m=Dip;
   _t=z0;
 }
 
-
-PndTpcRiemannHit*
-PndTpcRiemannTrack::getHit(unsigned int i) const {
-  return _hits[i];
-}
-
-
-PndTpcRiemannHit*
-PndTpcRiemannTrack::getLastHit() const {
-  return _hits.back();
-}
 
 bool 
 PndTpcRiemannTrack::checkScale(PndTpcRiemannHit* hit){
@@ -114,8 +101,6 @@ int
 PndTpcRiemannTrack::getClosestHit(PndTpcRiemannHit* hit, 
 				                          double& Dist, 
 				                          TVector3& outdir){
-  if(!checkScale(hit))throw;
-
   int it2=getClosestHit(hit,Dist);
   if(_hits.size()>1){
     // catch the case where we are at boundary
@@ -144,7 +129,6 @@ PndTpcRiemannTrack::getClosestHit(PndTpcRiemannHit* hit,
 
 int
 PndTpcRiemannTrack::getClosestHit(PndTpcRiemannHit* hit, double& Dist, int from, int to) {
- if(!checkScale(hit))throw;
   TVector3 posX=hit->cluster()->pos();
   TVector3 pos2;
 
@@ -170,7 +154,6 @@ PndTpcRiemannTrack::getClosestHit(PndTpcRiemannHit* hit, double& Dist, int from,
 
 int
 PndTpcRiemannTrack::getClosestRiemannHit(PndTpcRiemannHit* hit, double& Dist) {
- if(!checkScale(hit))throw;
   TVector3 posX=hit->x();
   TVector3 pos2;
 
@@ -193,19 +176,18 @@ PndTpcRiemannTrack::getClosestRiemannHit(PndTpcRiemannHit* hit, double& Dist) {
 
 void
 PndTpcRiemannTrack::addHit(PndTpcRiemannHit* hit){
- if(!checkScale(hit))throw;
+  if(!checkScale(hit))throw; // check if Riemannscale of hits matches that of the track!
   int nbefore=_hits.size();
   _mcid.AddIDCollection(hit->cluster()->mcId(),1.);
 
   // update average
-  double weightFactor = 1./(hit->cluster()->sig().Perp());
-
-  _av*=_sumOfWeights;
-  _av[0]+=hit->x().X() * weightFactor;
-  _av[1]+=hit->x().Y() * weightFactor;
-  _av[2]+=hit->x().Z() * weightFactor;
+  double weightFactor = hit->cluster()->amp()/(hit->cluster()->sig().Perp());
+  //double weightFactor = 1.;
+  
+  _av *= _sumOfWeights;
+  _av += hit->x() * weightFactor;
   _sumOfWeights += weightFactor;
-  _av*=1./_sumOfWeights;
+  _av *= 1./_sumOfWeights;
 
   if(nbefore<2 || !_doSort){// first two hits hit
     _hits.push_back(hit);
@@ -218,7 +200,6 @@ PndTpcRiemannTrack::addHit(PndTpcRiemannHit* hit){
 
 int
 PndTpcRiemannTrack::sortHit(PndTpcRiemannHit* hitX){ // returns index BEFORE which to insert hitX!!!
-   if(!checkScale(hitX))throw;
   bool debug = false;
   int nhits = _hits.size();
 
@@ -342,7 +323,6 @@ PndTpcRiemannTrack::sortHit(PndTpcRiemannHit* hitX){ // returns index BEFORE whi
       if(debug) std::cout<<"inserting before "<<i<<std::endl;      
       return i; 
     }
-    ++i;
   }
   if(debug) std::cout<<"inserting before "<<it2<<std::endl;  
   return it2;
@@ -352,9 +332,19 @@ PndTpcRiemannTrack::sortHit(PndTpcRiemannHit* hitX){ // returns index BEFORE whi
 
 void
 PndTpcRiemannTrack::trackpos(){
-  // loop over hits in track and calculate their position
-  _hits[0]->setPosOnTrk(0);
+  //std::cout<<"PndTpcRiemannTrack::trackpos()"<<std::endl;
+  
+  int nhits=_hits.size();
   TVector3 posX;
+  posX = _hits[0]->cluster()->pos();
+  
+  _hits[0]->setPosOnTrk(0);
+  
+  if(nhits<3){
+    _hits[nhits-1]->setPosOnTrk((posX-_hits[0]->cluster()->pos()).Mag());
+    return;
+  }
+  
   TVector3 avrg0; // average position of (hit-1) and hit
   TVector3 avrg1; // average position of hit and (hit+1)
   TVector3 dir;   // direction, vector from avrg0 to avrg1
@@ -363,29 +353,32 @@ PndTpcRiemannTrack::trackpos(){
   double sOnDir;  
   
   // calculate sliding average to be more outlier tolerant
-  posX = _hits[0]->cluster()->pos();
   avrg0 = 0.5*posX + 0.5*_hits[1]->cluster()->pos();
   s += (avrg0 - posX).Mag();
 
-  for(int it=1; it<_hits.size()-1; ++it){
+  for(int it=1; it<nhits-1; ++it){
+    //std::cout<<" hit "<<it<<std::endl;
     posX = _hits[it]->cluster()->pos();
     avrg1 = 0.5*posX + 0.5*_hits[it+1]->cluster()->pos();
     dir =avrg1-avrg0;
     sDir = dir.Mag();
     dir.SetMag(1.);
     sOnDir = dir * (posX-avrg0);
+    //std::cout<<"  sOnDir: "<<sOnDir<<std::endl;
     _hits[it]->setPosOnTrk(s+sOnDir);
+    //std::cout<<"  setPosOnTrk: "<<s+sOnDir<<std::endl;
     // update values for next iteration
     s += sDir;
+    //std::cout<<"  s: "<<s<<std::endl;
     avrg0 = avrg1;
   }
 
   // last hit
-  posX = _hits[_hits.size()-1]->cluster()->pos(); 
+  posX = _hits[nhits-1]->cluster()->pos(); 
   sOnDir = (posX-avrg0).Mag();
-  _hits[_hits.size()-1]->setPosOnTrk(s+sOnDir);
+  _hits[nhits-1]->setPosOnTrk(s+sOnDir);
 
-  if(_doSort) sort(_hits.begin(), _hits.begin()+_hits.size(), sortByPosOnTrack);
+  if(_doSort) sort(_hits.begin(), _hits.begin()+nhits, sortByPosOnTrack);
 }
 
 
@@ -412,20 +405,36 @@ PndTpcRiemannTrack::winding(){ // returns winding sense along z-axis
 
 
 double
-PndTpcRiemannTrack::dist(PndTpcRiemannHit* hit){
-  if(!checkScale(hit))throw;
-  double d2=_c;
-  d2+=hit->x().X()*_n[0];
-  d2+=hit->x().Y()*_n[1];
-  d2+=hit->x().Z()*_n[2];
-
-  return d2;
+PndTpcRiemannTrack::dist(PndTpcRiemannHit* hit, TVector3 n2, double c2, bool useArguments){
+  if(!useArguments){
+    if(!_isFittedPlane) this->refit();
+    if(!_isFittedPlane) return 0.;
+    n2 = _n;
+    c2 = _c; 
+  }
+  // distance plane - center of sphere
+  TVector3 cent3(0,0,0.5); // center of sphere
+  double l = c2 + n2*cent3; // distance plane to center
+  double thetaPlane=TMath::ACos(2.*l); // angle 
+      
+  //std::cerr<< "... l =" << l << std::endl;
+  //std::cerr<< "... thetaPlane =" << thetaPlane << std::endl;
+      
+  // construct vector of hit relative to center of sphere
+	TVector3 vh=hit->x()-cent3;
+	vh.SetMag(1);
+	double cos1=(-1.*n2)*vh;
+	//std::cerr<< "... cos Hit =" << cos1 << std::endl;
+	double thetaHit=TMath::ACos(cos1);
+	//std::cerr<< "... thetaHit =" << thetaHit << std::endl;
+	return fabs(thetaHit-thetaPlane);
 }
 
 
 void
 PndTpcRiemannTrack::refit(){
   _isFittedPlane = false;
+  if(_hits.size()<4) return; // need at least 3 points to make a planefit
   TMatrixT<double> Av(3,1);
   Av[0][0]=_av[0];
   Av[1][0]=_av[1];
@@ -437,7 +446,7 @@ PndTpcRiemannTrack::refit(){
   for(int it=0; it<_hits.size(); ++it){
     TMatrixD h(3,1);
     // weigh hits with 1/cluster error
-    double weightFactor = 1./(_hits[it]->cluster()->sig().Perp());
+    double weightFactor = _hits[it]->cluster()->amp()/(_hits[it]->cluster()->sig().Perp());
     nh += weightFactor;
     h[0][0]=_hits[it]->x().X();
     h[1][0]=_hits[it]->x().Y();
@@ -448,8 +457,8 @@ PndTpcRiemannTrack::refit(){
     TMatrixD ddt(d,TMatrixD::kMult,dt);
     ddt *= weightFactor;
     sampleCov+=ddt;  
-    ++it;
   }
+
   if(sampleCov==0) {
     // can happen if a pad fires continuously and the resulting clusters have the same xy coords
     // -> they are mapped to one single point on the riemann sphere
@@ -457,91 +466,88 @@ PndTpcRiemannTrack::refit(){
     return;
   }
   
+  // force through origin
+  if(0){
+    double weightFactor = 10*nh;
+    nh += weightFactor;
+    TMatrixD d(3,1);
+    d=-1.*Av;
+    TMatrixD dt(TMatrixD::kTransposed,d);
+    TMatrixD ddt(d,TMatrixD::kMult,dt);
+    ddt *= weightFactor;
+    sampleCov+=ddt;  
+  }
+
   sampleCov*=1./nh;
   
   TVectorD eigenValues(3);
   TMatrixD eigenVec=sampleCov.EigenVectors(eigenValues);
   
+  /*for(unsigned int i=0;i<3;++i){
+    std::cerr<< "... Eigenvalue "  << i<< "="<<eigenValues[i] << std::endl;
+    if(eigenValues[1]>0.001) std::cerr<< " !!!!!!!!!!!!!!"<<std::endl;
+  }*/
+  
   // eigenvalues are sorted according to their value
   // in descending order -> last one is smallest
   
+   
   // check smallest and second smallest eigenvector
-  // for this we use the distance of hits to section of plane with sphere on the speher
-  
-  
+  // for this we use the rms distance of hits to section of plane with sphere on the sphere
 
-  double minres=10000;
+  double minrms=10000;
   unsigned int imin=2;
 
   for(unsigned int i=1;i<3;++i){
-      std::cerr<< "Checking eigenvalue number " << i << std::endl;
-      std::cerr<< "... eigenvalue =" << eigenValues[i] << std::endl;
-      TVectorD planeN=TMatrixDColumn(eigenVec,i);
-      double norm=1./TMath::Sqrt(planeN.Norm2Sqr());
-      planeN*=norm;
-      double c1=-1.*planeN*_av;
-      std::cerr<< "... c =" << c1 << std::endl;
-      // distance plane - center of sphere
-      TVector3 plane3(planeN[0],planeN[1],planeN[2]);
-      TVector3 av3(_av[0],_av[1],_av[2]);
-      TVector3 cent3(0,0,0.5);
-      double l=c1 + plane3*cent3;
-      double distAv = (av3-cent3).Mag();
-      double thetaPlane=TMath::ACos(l)*2.; // divided by R=0.5
-      
-      std::cerr<< "... l =" << l << std::endl;
-      std::cerr<< "... distAv =" << distAv << std::endl;
-      
-      // loop over hits
-      double res=0;
-      //std::cerr << " ... number of hits: " << _hits.size() << std::endl;
-      for(int it=0; it<_hits.size(); ++it){
-	// construct vector of hits relative to center of sphere
-	TVector3 vh=_hits[it]->x()-cent3;
-	vh.SetMag(1);
-	double cos1=(-plane3)*vh;
-	double thetaHit=TMath::ACos(cos1);
-	res+=fabs(thetaHit-thetaPlane);
-      }
-      
-      std::cerr << " Cumulativ distance on sphere : " << res << std::endl;
-      if(minres>res){
-	minres=res;
-	imin=i;
-      }
+    //std::cerr<< "Checking eigenvalue number " << i << std::endl;
+    //std::cerr<< "... eigenvalue =" << eigenValues[i] << std::endl;
+    TVectorD planeN=TMatrixDColumn(eigenVec,i);
+    double norm=1./TMath::Sqrt(planeN.Norm2Sqr());
+    planeN*=norm;
+    TVector3 plane3(planeN[0],planeN[1],planeN[2]);
+    double c1=-1.*plane3*_av; // distance plane to origin
+    double rms=planeRMS(plane3, c1, true); 
+    //std::cerr << " RMS distance on sphere : " << rms << std::endl;
+    if(rms<minrms){
+	    minrms=rms;
+	    imin=i;
     }
+  }
 
-	std::cerr<< "Choosing plane " << imin << std::endl;
+	//std::cerr<< "Choosing plane " << imin << std::endl;
+	
+	TVectorD planeN=TMatrixDColumn(eigenVec,imin);
+	//TVectorD planeN=TMatrixDColumn(eigenVec,2);
+  double norm=1./TMath::Sqrt(planeN.Norm2Sqr());
+  planeN*=norm;
+  _n.SetXYZ(planeN[0],planeN[1],planeN[2]);
+  _c=-1.*_n*_av; 
 
-	_n=TMatrixDColumn(eigenVec,imin);
-      
-      double norm=1./TMath::Sqrt(_n.Norm2Sqr());
-      _n*=norm;
-      _c=-1.*_n*_av;
-      
-      _isFittedPlane = true;
-      }
+  _isFittedPlane = true;
+}
 
 
 double
-PndTpcRiemannTrack::planeRMS(){
-  if(!_isFittedPlane) return 0.;
-
-  // get plane parameters
-  TVector3 n3;
-  n3.SetXYZ(_n[0], _n[1], _n[2]);
-
+PndTpcRiemannTrack::planeRMS(TVector3 n1, double c1, bool useArguments){
+  if(!useArguments){
+    if(!_isFittedPlane) this->refit();
+    if(!_isFittedPlane) return 0.;
+    n1 = _n;
+    c1 = _c;
+  }
   // loop over hits and calculate RMS
   double rms = 0.;
-
+  double norm = 0.;
+  
   for(int it=0; it<_hits.size(); ++it){
-    TVector3 pos = _hits[it]->x();
-    double distance = pos*n3 + _c;
-    rms += distance*distance;
-    ++it;
+    double weightFactor = _hits[it]->cluster()->amp();
+    norm += weightFactor;
+    double distance = dist(_hits[it], n1, c1, true); // weigh with amplitude
+    //std::cerr<<" hit "<<it<<" distance: "<<distance<<std::endl;
+    rms += weightFactor * distance*distance;
   }
 
-  rms /= _hits.size();
+  rms /= norm;
   rms = TMath::Sqrt(rms);
   return rms;
 }
@@ -550,6 +556,7 @@ PndTpcRiemannTrack::planeRMS(){
 TVectorD
 PndTpcRiemannTrack::orig() const {
   TVectorD o(2);
+  if(!_isFittedPlane) return o;
   double den=0.5/(_c+_n[2]);
   o[0]=-_n[0]*den;
   o[1]=-_n[1]*den;
@@ -560,59 +567,56 @@ PndTpcRiemannTrack::orig() const {
 double 
 PndTpcRiemannTrack::r() const {
   if(!_isFittedPlane) return 0.;
-  if(_c>=0.999) return 0.01;
+  //if(_c>=0.999) return 0.01;
 
   // look at sphere from side, perpendicular to plane, so that plane becomes a line
-  // line:   x=_c*nx - a*nz;  z=_c*nz + a*nx
+  // line:   x=-_c*nx + a*nz;  z=-_c*nz - a*nx
+  // nx = sqrt(1-nz^2)
   // circle: x^2 + (z-0.5)^2 + 0.5^2
   // then intersect line with circle -> solutions a1, a2;
-  double nx = -1.*TMath::Sqrt(_n[0]*_n[0] + _n[1]*_n[1]); // radial direction -> x direction in 3D projection
-  double nz = -1.*_n[2];    // z direction
+  double nz = _n[2];    // z component 
   double c2 = _c*_c;
-  double root = TMath::Sqrt(nx*nx - 8.*c2*nx*nx*nz*nz - 4.*c2*pow(nz, 4.) + 4.*_c*pow(nz, 3.) - 4.*c2*pow(nx, 4.) + 4*_c*nx*nx*nz);
-  double denom = nx*nx + nz*nz;
-  double a1 =  0.5*(nx+root)/denom;
-  double a2 = -0.5*(-1.*nx+root)/denom;
+  double root1 = TMath::Sqrt(-1.*(nz-1)*(nz+1));
+  double root2 = TMath::Sqrt(1.-nz*nz-4.*c2-4.*_c*nz);
+  double a1 = -0.5*root1 + 0.5*root2;
+  double a2 = -0.5*root1 - 0.5*root2;
 
   // now we get two points on the sphere (x1,z1), (x2,z2)
-  double x1 = _c*nx - a1*nz;
-  double z1 = _c*nz + a1*nx;
-  double x2 = _c*nx - a2*nz;
-  double z2 = _c*nz + a2*nx; 
-
-  /*std::cout<<"PndTpcRiemannTrack::r() "<<std::endl;
-  std::cout<<"_n"<<std::endl;
-  _n.Print();
-  std::cout<<"nx "<<nx<<"  nz "<<nz<<std::endl;
-  std::cout<<"_c "<<_c<<std::endl;
-  std::cout<<"root "<<root<<std::endl;
-  std::cout<<"a1 "<<a1<<"  a2 "<<a2<<std::endl;
-  std::cout<<"x1 "<<x1<<"  z1 "<<z1<<std::endl;
-  std::cout<<"x2 "<<x2<<"  z2 "<<z2<<std::endl;
-*/
+  double nx = TMath::Sqrt(1.-nz*nz);
+  double x1 = -1.*_c*nx + a1*nz;
+  double z1 = -1.*_c*nz - a1*nx;
+  double x2 = -1.*_c*nx + a2*nz;
+  double z2 = -1.*_c*nz - a2*nx; 
 
   // project them back onto the plane
   // we get two radii
   double r1, r2;
 
-  if(z1>0.9999) r1=1.E4;
+  if(z1>0.999999) r1=1.E3;
+  else if(z1<0.000001) r1=1.E-3;
   else r1 = TMath::Sqrt(z1/(1.-z1));
   if(x1<0) r1 *= -1.;
 
-  if(z2>0.9999) r2=1.E4;
+  if(z2>0.999999) r2=1.E3;
+  else if(z2<0.000001) r2=1.E-3;
   else r2 = TMath::Sqrt(z2/(1.-z2));
   if(x2<0) r2 *= -1.;
   
-  //std::cout<<"r1 "<<r1<<"  r2 "<<r2<<std::endl;
-
-  return TMath::Abs(r2-r1) * fRiemannScale; // 8.66025 for protoype
-                                            // 24.6 for panda
+  /*std::cout<<std::endl;
+  std::cout<<"c "<<_c<<"  nz "<<nz<<std::endl;
+  std::cout<<"r1 "<<r1<<"  r2 "<<r2<<std::endl;*/
+  
+  double radius = 0.5*TMath::Abs(r2-r1) * fRiemannScale;
+  //assert(radius>0);
+  return radius; 
 }
 
 
 void
 PndTpcRiemannTrack::szFit(bool print){
   _isFitted=false;
+  if(_hits.size()<2) return; // can't fit one hit
+  
   trackpos(); // calculate positions on track
 
   // get s'es and zs
@@ -643,8 +647,8 @@ PndTpcRiemannTrack::szFit(bool print){
 
 double
 PndTpcRiemannTrack::szDist(PndTpcRiemannHit* hit, bool calcPos){
-  if(!checkScale(hit))throw;
-  if(!_isFitted) szFit();
+  if(!_isFitted) this->szFit();
+  if(!_isFitted) return 0.; // sz distance not defined
   double hit_s=hit->s();
 
   if(calcPos){
@@ -666,19 +670,15 @@ PndTpcRiemannTrack::szDist(PndTpcRiemannHit* hit, bool calcPos){
     }
   } // end recalcPos
 
-  // calc distance to line
-  TVector3 line, X;
-  line.SetXYZ(1., _m, 0.);
-  line.SetMag(1.); // unit vector of fitted s-z-line
-  X.SetXYZ(hit_s, hit->z()-_t, 0.);
-  return ( line*(line*X) - X ).Mag();
+  double z = _m * hit_s + _t;
+  return TMath::Abs(z-hit->z());
 }
 
 
-// only after szFit!
 double
 PndTpcRiemannTrack::dip() const {
-  std::cout << _m << std::endl;
+  if(!_isFitted) return 0.;
+  //std::cout << _m << std::endl;
   if(_m>=1. || _m<=-1.)return 0;
   return TMath::PiOver2()-(asin(_m)); // 0 .. Pi for m = -1 .. 1
 }
@@ -716,5 +716,25 @@ PndTpcRiemannTrack::Plot(bool standalone){
     delete cc;
   }
 }
+
+
+void 
+PndTpcRiemannTrack::coolDown(double planecut, double szcut){
+  for(int i=0; i<_hits.size(); ++i){
+    if (this->dist(_hits[i]) > planecut){
+      delete _hits[i];
+      _hits.erase(_hits.begin()+i);
+      this->refit();
+      --i;
+    }
+    else if (this->szDist(_hits[i]) > szcut){
+      delete _hits[i];
+      _hits.erase(_hits.begin()+i);
+      this->szFit();
+      --i;
+    }
+  }
+}
+
 
 

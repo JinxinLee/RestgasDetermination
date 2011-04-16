@@ -25,7 +25,7 @@
 
 // Collaborating Class Headers -------
 #include <list>
-#include "TVectorD.h"
+#include "TVector3.h"
 
 #include "McIdCollection.h"
 
@@ -44,9 +44,9 @@ class PndTpcRiemannTrack : public TObject{
 
   
   // Accessors -----------------------
-  const TVectorD& n() const {return _n;}
+  const TVector3& n() const {return _n;}
   double c() const {return _c;}
-  const TVectorD& av() const {return _av;}
+  const TVector3& av() const {return _av;}
   double getScale() const {return fRiemannScale;}
 
   TVectorD orig() const;
@@ -57,8 +57,8 @@ class PndTpcRiemannTrack : public TObject{
   unsigned int getNumHits() const {return _hits.size();}
   bool isFitted()const {return _isFitted;}
   bool isFittedPlane()const {return _isFittedPlane;}
-  PndTpcRiemannHit* getHit(unsigned int i) const;
-  PndTpcRiemannHit* getLastHit() const;
+  PndTpcRiemannHit* getHit(unsigned int i) const {return _hits[i];}
+  PndTpcRiemannHit* getLastHit() const {return _hits.back();}
   PndTpcRiemannHit* getFirstHit() const {return _hits.front();}
 
   double m() const {return _m;}
@@ -77,6 +77,9 @@ class PndTpcRiemannTrack : public TObject{
   int getClosestHit(PndTpcRiemannHit* hit, double& Dist, TVector3& dir);
   int getClosestHit(PndTpcRiemannHit* hit, double& Dist, int from=0,  int to=10000000); // optional: range where to search for closest hit
   int getClosestRiemannHit(PndTpcRiemannHit* hit, double& Dist);
+  
+  // remove hits from track
+  void coolDown(double planecut, double szcut);
 
   void setSort(bool k=true){_doSort=k;}
   void resetNit(){_nit=0;}
@@ -86,9 +89,16 @@ class PndTpcRiemannTrack : public TObject{
   void setZ0(double z){_t=z;}
 
   // Operations ----------------------
-  void refit();
-  double planeRMS(); // calculate RMS of distances of hits to plane
-  double dist(PndTpcRiemannHit* hit);
+  void refit(); // refit the plane
+  
+  // calculate RMS of distances of hits to intersection of plane with riemann sphere
+  // if use Arguments == false, the members _n and _c will be used for calculation
+  double planeRMS(TVector3 n1=(0.,0.,0.), double c1=0, bool useArguments=false);
+                                                                    
+  // calculate distance of hit to intersection of plane with riemann sphere
+  // if use Arguments == false, the members _n and _c will be used for calculation
+  double dist(PndTpcRiemannHit* hit, TVector3 n2=(0.,0.,0.), double c2=0, bool useArguments=false);
+   
   void szFit(bool print=false);
   double szDist(PndTpcRiemannHit* hit, bool calcPos=true);
   void trackpos(); // calculate positions along track
@@ -97,7 +107,7 @@ class PndTpcRiemannTrack : public TObject{
  private:
 
   // Private Data Members ------------
-  TVectorD _n;  // normal vector to plane;
+  TVector3 _n;  // normal vector of plane (pointing towards origin!)
   double _c;     // distance of plane to origin
 
   double _m; //parameters of sz-fit
@@ -109,7 +119,7 @@ class PndTpcRiemannTrack : public TObject{
   double fRiemannScale;
 
   std::vector<PndTpcRiemannHit*> _hits; //
-  TVectorD _av;  // average over all hits
+  TVector3 _av;  // average over all hits
   double _sumOfWeights; // for weighing the average with cluster error
 
   int _nit; //iteration counter for sorting
