@@ -9,7 +9,7 @@
 #include "TString.h"
 #include "PndSdsDigi.h"
 
-enum ConvType{kUndefined,kIdeal,kToT};
+enum ConvType{kUndefined,kIdeal,kToT,kADC};
 
 class PndSdsChargeConversion : public TObject
   {

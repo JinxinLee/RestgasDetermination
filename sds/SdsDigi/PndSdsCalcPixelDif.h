@@ -33,12 +33,17 @@ class PndSdsCalcPixelDif
 	  ///@param l length of sensor pixel [cm]
 	  ///@param threshold discriminator threshold of pixel [e]
 	  ///@param noise total noise of pixel [e]
-	  PndSdsCalcPixelDif(Double_t w, Double_t l, Double_t threshold = 0, Double_t noise = 0, Double_t qspread = 0);
+	  PndSdsCalcPixelDif(Double_t w, Double_t l, Double_t qspread = 0);
     
 	  ///Main function to calculate the vector<PndSdsPixel> of fired pixel
 	  std::vector<PndSdsPixel> GetPixels (Double_t inx, Double_t iny,
                                         Double_t outx, Double_t outy,
                                         Double_t energy);
+
+    Int_t GetPixelsAlternative(Double_t inx, Double_t iny,
+                               Double_t outx, Double_t outy,
+                               Double_t energy, std::vector<Int_t>& cols, std::vector<Int_t>& rows,
+                               std::vector<Double_t>& charges);			   
     
 	  void SetVerboseLevel(Int_t level){ fVerboseLevel = level;};
 	  std::ostream& operator<<(std::ostream& out);
@@ -46,7 +51,7 @@ class PndSdsCalcPixelDif
   private:
     Double_t CalcFk(Double_t k, Double_t x, Double_t sig);
     const Double_t ChargeFromEloss(Double_t eloss) const {return eloss/(3.61e-9);}
-    void InjectPixelCharge(std::vector<PndSdsPixel>& array, Int_t i, Int_t j, Double_t charge);
+    void InjectPixelCharge(Int_t i, Int_t j, Double_t charge);
     
 		std::vector<PndSdsPixel> fPixels;
     PndSdsPixel fActivePixel;

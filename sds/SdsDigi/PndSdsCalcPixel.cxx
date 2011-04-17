@@ -9,20 +9,37 @@ PndSdsCalcPixel::PndSdsCalcPixel()
   fVerboseLevel = 0;
 }
 
-PndSdsCalcPixel::PndSdsCalcPixel(Double_t w, Double_t l, Double_t threshold, Double_t noise)
+PndSdsCalcPixel::PndSdsCalcPixel(Double_t w, Double_t l)
 {
   fPixelWidth = w;
   fPixelLength= l;
-  fThreshold = threshold;
-  fNoise = noise;
   fVerboseLevel = 0;
 }
 
+Int_t PndSdsCalcPixel::GetPixelsAlternative(Double_t inx, Double_t iny,
+                                            Double_t outx, Double_t outy,
+                                            Double_t energy, 
+                                            std::vector<Int_t>& cols, std::vector<Int_t>& rows,
+                                            std::vector<Double_t>& charges)
+{
+  std::vector<PndSdsPixel> pixels = GetPixels(inx,iny,outx,outy,energy);
+  Int_t npix=pixels.size();
+  for(Int_t i=0;i<npix;i++)
+  { 
+    if(fVerboseLevel>2) Info("PndSdsCalcPixel::GetPixelsAlternative()","pass this pixel: i=%i, c=%i, r=%i, q=%f",i,pixels[i].GetCol(),pixels[i].GetRow(),pixels[i].GetCharge());
+    cols.push_back(pixels[i].GetCol());
+    rows.push_back(pixels[i].GetRow());
+    charges.push_back(pixels[i].GetCharge());
+  }
+  return npix;
+}
 
-std::vector<PndSdsPixel> PndSdsCalcPixel::GetPixels(Double_t inx, Double_t iny, Double_t inz,
-                Double_t outx, Double_t outy, Double_t outz,
+
+std::vector<PndSdsPixel> PndSdsCalcPixel::GetPixels(Double_t inx, Double_t iny,
+                Double_t outx, Double_t outy,
                 Double_t energy)
 {
+  fPixels.clear();
   fIn.setXYZ(inx, iny, 0);
   fOut.setXYZ(outx, outy, 0);
 
@@ -194,32 +211,20 @@ switch (fQuad){
     
 
   Double_t depCharge = (OutPoint - fPos).length() * fCperL;
-  //if (fVerboseLevel > 1){
-    //std::cout << "depCharge w/o noise: " << depCharge << std::endl;
-  //}
-  //TRandom* rgen = gRandom;//new TRandom3();
-  //Double_t addNoise = rgen->Gaus(0,fNoise);
-  //depCharge += addNoise;
-  
-//  //if (fVerboseLevel > 1){
-    //std::cout << "depCharge w noise " << fNoise << ": " << depCharge << " " << addNoise << std::endl;
-  //}
+  if (fVerboseLevel > 1){
+    printf("len: %g, cperL: %g, depCharge w/o noise: %g\n",(OutPoint - fPos).length(),fCperL,depCharge);
+  }
 
   fPos = OutPoint;
+  fActivePixel.SetCharge(depCharge);
   
-  //fActivePixel.SetAddNoise(addNoise);
-
-  //if (depCharge > fThreshold){
-    fActivePixel.SetCharge(depCharge);
-  //}
-  //else
-  //  fActivePixel.SetCharge(0);
+  // cut zero electron charge now, real threshold later
+  if(depCharge==0) return; 
 
   fPixels.push_back(fActivePixel);
   
   if (fVerboseLevel > 1){
     std::cout << fActivePixel << std::endl;
-   // std::cout << fActivePixel.GetAddNoise() << std::endl;
   }
       
 }
@@ -233,13 +238,12 @@ void PndSdsCalcPixel::ConvertPixels()
     fPixels[i].SetCol(Int_t(col * fCon.getX()));
     fPixels[i].SetRow(Int_t(row * fCon.getY()));
   }
-    
 }
 
 std::ostream& PndSdsCalcPixel::operator<<(std::ostream& out)
 {
   out << "PixelWidth: " << fPixelWidth << " PixelLength: " <<
-    fPixelLength << " Threshold: " << fThreshold << std::endl;
+    fPixelLength << std::endl;
   
   return out;
 }

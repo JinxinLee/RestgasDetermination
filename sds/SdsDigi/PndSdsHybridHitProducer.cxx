@@ -242,17 +242,17 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
       std::vector<PndSdsPixel> myPixels;
       if(fqsigma>0){
         // Define sensor by pixelsizes threshold and noise from macro outside
-        PndSdsCalcPixel PixelCalc(flx, fly, fthreshold, fnoise);
-        // Calculate a cluster of Pixels fired (in sensor system)
-        myPixels = PixelCalc.GetPixels (posInL.getX(), posInL.getY(), posInL.getZ(),
-                                        posOutL.getX(), posOutL.getY(), posOutL.getZ(),
-                                        point->GetEnergyLoss());
-      } else {
-        // Define sensor by pixelsizes threshold and noise from macro outside
-        PndSdsCalcPixelDif PixelCalc(flx, fly, fthreshold, fnoise, fqsigma);
+        PndSdsCalcPixelDif PixelCalc(flx, fly, fqsigma);
         // Calculate a cluster of Pixels fired (in sensor system)
         myPixels = PixelCalc.GetPixels (posInL.getX(), posInL.getY(),
                                         posOutL.getX(), posOutL.getY(), 
+                                        point->GetEnergyLoss());
+      } else {
+        // Define sensor by pixelsizes threshold and noise from macro outside
+        PndSdsCalcPixel PixelCalc(flx, fly);
+        // Calculate a cluster of Pixels fired (in sensor system)
+        myPixels = PixelCalc.GetPixels (posInL.getX(), posInL.getY(),
+                                        posOutL.getX(), posOutL.getY(),
                                         point->GetEnergyLoss());
       }
       if (myPixels.size() == 0){
@@ -286,8 +286,7 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
   Double_t smearedCharge=0;
   for (unsigned int iPix = 0; iPix < fPixelList.size(); iPix++)
   {
-    
-	  std::cout << "fPixelList.size()" <<  fPixelList.size() << std::endl;
+	  if(fVerbose>1) std::cout << "fPixelList.size()" <<  fPixelList.size() << std::endl;
     smearedCharge = SmearCharge(fPixelList[iPix].GetCharge());
     if (smearedCharge<=fthreshold) continue;
     point = (PndSdsMCPoint*) fPointArray->At(fPixelList[iPix].GetMCIndex()[0]);

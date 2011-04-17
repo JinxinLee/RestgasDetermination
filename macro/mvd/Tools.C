@@ -68,13 +68,17 @@ void DrawNice2DHisto(TH2* h,const char* opt="",double range = 10.)
 {
   // Draw a 2D histo with the rainbow colors and the palette besides
   TString options = "colz"; options += opt;
-  //if(gPad->GetLogz() == 0 && h->GetMaximum()<range) h->SetAxisRange(0.,range,"Z");
-  //else {
+  if(gPad->GetLogz() == 1 && h->GetMaximum()<range) h->SetAxisRange(0.,range,"Z");
+  else {
     // we squeeze here to see better the mean value
-    range = 10*h->Integral()/(h->GetNbinsX()/h->GetNbinsY());
-    cout << "range "<<range<<"   max "<<h->GetMaximum();
-    if( range < h->GetMaximum() ) h->SetAxisRange(0.,range,"Z");
-  //}
+    //range = 10*h->Integral()/(h->GetNbinsX()/h->GetNbinsY());
+    cout << "range "<<range<<"   max "<<h->GetMaximum()<<"   min "<<h->GetMinimum()<<endl;
+    if( range < h->GetMaximum()) range = h->GetMaximum();
+    if(-range > h->GetMinimum()) range = -1*h->GetMinimum();
+    range *= 1.1; // zoom a bit out to see the max better
+    if(h->GetMinimum() < 0.) h->SetAxisRange(-range,range,"Z");
+    else h->SetAxisRange(0,range,"Z");
+  }
   h->SetStats(kFALSE);
   h->SetTitleOffset(0.8,"T");
   gPad->SetRightMargin(0.32);

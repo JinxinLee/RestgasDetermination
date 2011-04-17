@@ -62,6 +62,7 @@ SdsDigi/PndSdsNoiseProducer.cxx
 SdsDigi/PndSdsChargeConversion.cxx
 SdsDigi/PndSdsIdealChargeConversion.cxx
 SdsDigi/PndSdsTotChargeConversion.cxx
+SdsDigi/PndSdsAdcChargeConversion.cxx
 
 SdsMC/PndSdsDetector.cxx
 SdsMC/PndSdsGeo.cxx

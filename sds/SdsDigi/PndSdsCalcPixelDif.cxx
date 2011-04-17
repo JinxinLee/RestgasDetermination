@@ -5,20 +5,34 @@ PndSdsCalcPixelDif::PndSdsCalcPixelDif()
 {
   fPixelSizeX = 0;
   fPixelSizeY= 0;
-  fThreshold = 0;
-  fNoise = 0;
   fVerboseLevel = 0;
   fQspread = 0;
 }
 
-PndSdsCalcPixelDif::PndSdsCalcPixelDif(Double_t lx, Double_t ly, Double_t threshold, Double_t noise, Double_t qspread)
+PndSdsCalcPixelDif::PndSdsCalcPixelDif(Double_t lx, Double_t ly, Double_t qspread)
 {
   fPixelSizeX = lx;
   fPixelSizeY= ly;
-  fThreshold = threshold;
-  fNoise = noise;
   fVerboseLevel = 0;
   fQspread = qspread;
+}
+
+Int_t PndSdsCalcPixelDif::GetPixelsAlternative(Double_t inx, Double_t iny,
+                                               Double_t outx, Double_t outy,
+                                               Double_t energy, 
+                                               std::vector<Int_t>& cols, std::vector<Int_t>& rows,
+                                               std::vector<Double_t>& charges)
+{
+  std::vector<PndSdsPixel> pixels = GetPixels(inx,iny,outx,outy,energy);
+  Int_t npix=pixels.size();
+  for(Int_t i=0;i<npix;i++)
+  { 
+    if(fVerboseLevel>2) Info("PndSdsCalcPixelDif::GetPixelsAlternative()","pass this pixel: i=%i, c=%i, r=%i, q=%f",i,pixels[i].GetCol(),pixels[i].GetRow(),pixels[i].GetCharge());
+    cols.push_back(pixels[i].GetCol());
+    rows.push_back(pixels[i].GetRow());
+    charges.push_back(pixels[i].GetCharge());
+  }
+  return npix;
 }
 
 
@@ -26,10 +40,20 @@ std::vector<PndSdsPixel> PndSdsCalcPixelDif::GetPixels(Double_t inx, Double_t in
                                                        Double_t outx, Double_t outy,
                                                        Double_t dE)
 {
+  fPixels.clear();
+  if(0>=fPixelSizeX || 0>=fPixelSizeY){
+    Error("PndSdsCalcPixelDif::GetPixels()","Invalid Pixel sizes: fPixelSizeX=%g,fPixelSizeY=%g",fPixelSizeX,fPixelSizeY);
+    return fPixels;
+  }
   // Do charge diffusion integrated analytically over a path length
   // 0.5*(1+erf(x)) is the integral over a gauss from -inf to x
   // factor 0.5 is applied last, the +1 terms cancel in the difference
   // the 2 Dimensions are trated equally
+  
+  inx/=fPixelSizeX;
+  outx/=fPixelSizeX;
+  iny/=fPixelSizeY;
+  outy/=fPixelSizeY;
   
   Double_t Q = ChargeFromEloss(dE);
   if(outx<inx){ // sort for direction
@@ -43,49 +67,48 @@ std::vector<PndSdsPixel> PndSdsCalcPixelDif::GetPixels(Double_t inx, Double_t in
     outy=tmp;
   }
   
-  std::vector<PndSdsPixel> array;
-  
 	Double_t DQx = 0., DQy = 0.;
   // transform sigma to col/row numbers
   Double_t sigma_x=fQspread/fPixelSizeX;
   Double_t sigma_y=fQspread/fPixelSizeY;
-  // 2sigma shall be collected in extra bins minimum 1
+  // 2sigma shall be collected in extra bins minimum 1 bin
   Int_t xtrax = ceil(2.*sigma_x);
   Int_t xtray = ceil(2.*sigma_y);
-  //if(fabs(pathstart-pathend) < 1e-10) { // too small path, don't integrate over path
-  ////std::cout<<"DfRalf - 0"<<std::endl;
-  //pathstart=0.5*(pathstart+pathend);
-  //for(Int_t i=(Int_t)pathstart-xtra;i<(Int_t)pathstart+1+xtra;i++)
-  //{
-  //DQ=0;
-  //DQ+=TMath::Erf( (i+1-pathstart)/(sqrt(2)*sigma_str) );
-  //DQ-=TMath::Erf( (i-pathstart)/(sqrt(2)*sigma_str) );
-  //DQ*=0.5*Q;
-  //InjectStripCharge(array,i,DQ);
-  //}
-  //} else {
-  // now the general case with a "long" tracklet
-  Double_t DQ = 0.25*Q/((outx-inx)*(outy-iny));
+  Double_t argu=0;
   for(Int_t i=(Int_t)inx-xtrax;i<(Int_t)outx+1+xtrax;i++)
   {
-    DQx=0;
-    DQx+=CalcFk(i,outx,sigma_x);
-    DQx-=CalcFk(i,inx,sigma_x);
-    DQx-=CalcFk(i+1,outx,sigma_x);
-    DQx+=CalcFk(i+1,inx,sigma_x);
-    
+    DQx=0.;
+    if(outx-inx<1e-6){
+      argu=(i+1-0.5*(outx+inx))/(sqrt(2)*sigma_x);
+      DQx+=TMath::Erf(argu) + argu*exp(argu*argu);
+      argu=(i-0.5*(outx+inx))/(sqrt(2)*sigma_x);
+      DQx-=TMath::Erf(argu) + argu*exp(argu*argu);
+    }else{      
+      DQx+=CalcFk(i,outx,sigma_x);
+      DQx-=CalcFk(i+1,outx,sigma_x);
+      DQx-=CalcFk(i,inx,sigma_x);
+      DQx+=CalcFk(i+1,inx,sigma_x);
+      DQx/=(outx-inx);
+    }
     for(Int_t j=(Int_t)iny-xtray;j<(Int_t)outy+1+xtray;j++)
     {
-      DQy=0;
-      DQy+=CalcFk(j,outy,sigma_y);
-      DQy-=CalcFk(j,iny,sigma_y);
-      DQy-=CalcFk(j+1,outy,sigma_y);
-      DQy+=CalcFk(j+1,iny,sigma_y);
-      InjectPixelCharge(array,i,j,DQ*DQx*DQy);
+      DQy=0.;
+      if(outy-iny<1e-6){
+        argu=(j+1-0.5*(outy+iny))/(sqrt(2)*sigma_y);
+        DQy+=TMath::Erf(argu) + argu*exp(argu*argu);
+        argu=(j-0.5*(outy+iny))/(sqrt(2)*sigma_y);
+        DQy-=TMath::Erf(argu) + argu*exp(argu*argu);
+      }else{  
+        DQy+=CalcFk(j,outy,sigma_y);
+        DQy-=CalcFk(j,iny,sigma_y);
+        DQy-=CalcFk(j+1,outy,sigma_y);
+        DQy+=CalcFk(j+1,iny,sigma_y);
+        DQy/=(outy-iny);
+      }
+      InjectPixelCharge(i,j,0.25*Q*DQx*DQy);
     }      
   }
-  //  }
-  return array;  
+  return fPixels;  
 }
 
 //______________________________________________________________________________
@@ -96,18 +119,17 @@ Double_t PndSdsCalcPixelDif::CalcFk(Double_t k, Double_t x, Double_t sig)
 }
 
 //______________________________________________________________________________
-void PndSdsCalcPixelDif::InjectPixelCharge(std::vector<PndSdsPixel>& array, Int_t i, Int_t j, Double_t charge)
+void PndSdsCalcPixelDif::InjectPixelCharge(Int_t i, Int_t j, Double_t charge)
 {
   // cut if out of range
   if(i<0 || j<0) return;
   //if(i>fNrx || j>fNry) return; // TODO put max. pixel number here?
-  //Double_t smearedQ = SmearCharge(charge);
-  //if(smearedQ < fThreshold) return;
-  if(fVerboseLevel>3) Info("InjectPixelCharge","i=%i, j=%i,charge=%f",i,j,charge);
+  if(charge<1) return; // cut zero electron charge now, real threshold later
+  if(fVerboseLevel>3) Info("PndSdsCalcPixelDif::InjectPixelCharge","i=%i, j=%i,charge=%f",i,j,charge);
   fActivePixel.SetCol(i); // x axis
   fActivePixel.SetRow(j); // y axis
   fActivePixel.SetCharge(charge);
-  array.push_back(fActivePixel); // fActivePixel content will be copied
+  fPixels.push_back(fActivePixel); // fActivePixel content will be copied
   return;
 }
 

@@ -90,11 +90,11 @@ PndSdsCalcStrip::GetStrips(Double_t inx, Double_t iny, Double_t inz,
     std::cout<<" OutPoint: ("<<out.X()<<","<<out.Y()<<")"<<std::endl;
   }
   
-  if (path.Mod()<1E-18) {
-    std::cout<<"-W- PndSdsCalcStrip::GetStrips : No Trajectory inside Sensor! (out-in).Mod() = "<<path.Mod()<<std::endl;
-    std::vector<PndSdsStrip> strips;
-    return strips;
-  }    
+  //if (path.Mod()<1E-18) {
+  //std::cout<<"-W- PndSdsCalcStrip::GetStrips : No Trajectory inside Sensor! (out-in).Mod() = "<<path.Mod()<<std::endl;
+  //std::vector<PndSdsStrip> strips;
+  //return strips;
+  //}    
   
   if (fVerboseLevel > 1) std::cout<<" pathlength: "<<path.Mod()<<std::endl;
   
@@ -105,7 +105,7 @@ PndSdsCalcStrip::GetStrips(Double_t inx, Double_t iny, Double_t inz,
   
   Double_t Q = ChargeFromEloss(eLoss);//*1E9/3.61; // 3.6 eV/Electron in Silicon
   if (fVerboseLevel > 1) std::cout<<" integral charge = "<<Q<<std::endl;
-
+  
   // Do charge distribution
   if(fCSigma>0) return GetStripsNoDif(nuIn,nuOut,Q);
   else          return GetStripsDif(nuIn,nuOut,Q);
@@ -228,28 +228,24 @@ std::vector<PndSdsStrip> PndSdsCalcStrip::GetStripsDif(Double_t pathstart, Doubl
   // TODO how much extra bins to fill?, minimum 1...
   // how about 2sigma? shall be collected
   Int_t xtra = ceil(2.*sigma_str);
-  if(fabs(pathstart-pathend) < 1e-10) { // too small path, don't integrate over path
-    //std::cout<<"DfRalf - 0"<<std::endl;
-    pathstart=0.5*(pathstart+pathend);
-    for(Int_t i=(Int_t)pathstart-xtra;i<(Int_t)pathstart+1+xtra;i++)
-    {
-      DQ=0;
-      DQ+=TMath::Erf( (i+1-pathstart)/(sqrt(2)*sigma_str) );
-      DQ-=TMath::Erf( (i-pathstart)/(sqrt(2)*sigma_str) );
-      DQ*=0.5*Q;
-      InjectStripCharge(array,i,DQ);
-    }
-  } else {
-    for(Int_t i=(Int_t)pathstart-xtra;i<(Int_t)pathend+1+xtra;i++)
-    {
-      DQ=0;
+  Double_t argu=0;
+  for(Int_t i=(Int_t)pathstart-xtra;i<(Int_t)pathend+1+xtra;i++)
+  {
+    DQ=0;
+    if(fabs(pathstart-pathend) < 1e-6) { // too small path, don't integrate over path
+      argu=(i+1-0.5*(pathstart+pathend))/(sqrt(2)*sigma_str);
+      DQ+=TMath::Erf(argu) + argu*exp(-argu*argu)*(1-2/sqrt(TMath::Pi()));
+      argu=(i-0.5*(pathstart+pathend))/(sqrt(2)*sigma_str);
+      DQ-=TMath::Erf(argu) + argu*exp(-argu*argu)*(1-2/sqrt(TMath::Pi()));
+    } else {
       DQ+=CalcFk(i,pathend,sigma_str);
-      DQ-=CalcFk(i,pathstart,sigma_str);
       DQ-=CalcFk(i+1,pathend,sigma_str);
+      DQ-=CalcFk(i,pathstart,sigma_str);
       DQ+=CalcFk(i+1,pathstart,sigma_str);
-      DQ*=0.5*Q/(pathend-pathstart);
-      InjectStripCharge(array,i,DQ);
+      DQ/=(pathend-pathstart);
     }
+    DQ*=0.5*Q;
+    InjectStripCharge(array,i,DQ);
   }
   return array;
 }
@@ -316,6 +312,7 @@ void PndSdsCalcStrip::InjectStripCharge(std::vector<PndSdsStrip>& array, Int_t i
 {
   if(istrip<0) return;
   if(istrip>fNrStrips) return;
+  if(charge==0) return; // cut zero electron charge now, real threshold later
   //Double_t smearedQ = SmearCharge(charge);
   //if(smearedQ < fThreshold) return;
   if(fVerboseLevel>3) Info("InjectStripCharge","istrip=%i,charge=%f",istrip,charge);

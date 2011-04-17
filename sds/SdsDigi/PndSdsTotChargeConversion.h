@@ -29,9 +29,9 @@
  */
 
 
-class PndSdsTotChargeConversion : public PndSdsChargeConversion{
-  
-  public :
+class PndSdsTotChargeConversion : public PndSdsChargeConversion
+{
+public:
 	///Default constructor
 	PndSdsTotChargeConversion(Int_t VerboseLevel = 0);
   
@@ -47,12 +47,12 @@ class PndSdsTotChargeConversion : public PndSdsChargeConversion{
 	virtual Double_t DigiValueToCharge(Double_t digivalue);
 	virtual Double_t GetPileUpTime(Double_t charge);		//returns the time the capacitor is loaded and therefore the time the hit MVD is blind for other events
 	virtual Double_t GetRelativeError(Double_t Charge);
-  	virtual Int_t GetTimeStamp(Double_t time);
-  	virtual Double_t GetTimeStamp(Double_t tof, Double_t charge, Double_t MCEventTime);
-  	virtual Double_t GetTimeWalk(Double_t Charge);
-
+  virtual Int_t GetTimeStamp(Double_t time);
+  virtual Double_t GetTimeStamp(Double_t tof, Double_t charge, Double_t MCEventTime);
+  virtual Double_t GetTimeWalk(Double_t Charge);
   
-  private :
+  
+private:
   Double_t fthreshold;		//[e]
   Double_t Q, Qt;				//max charge, threshold charge [e]
   Double_t t1e, t2e;			//exact time point when signal is over threshold/under threshold again [ns]
