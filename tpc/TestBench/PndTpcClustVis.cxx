@@ -19,7 +19,7 @@ PndTpcClustVis* PndTpcClustVis::eventDisplay = NULL;
 PndTpcClustVis::PndTpcClustVis():
   digisBranch(0),clustersBranch(0), guiEvent(0),
   doClustering(false), ClMode(2), ClTimeslice(3),ClTimecut(2), ClSingeDigiClAmpCut(20), ClSimpleCl(true), ClSimpleTimeslice(7),
-  drawTpc(false), drawDigis(false), drawClusters(false), drawClusterErrors(false),
+  instantRedraw(false), drawTpc(false), drawDigis(false), drawClusters(false), drawClusterErrors(false),
   doPR(true), doMerge(true), _sorting(3), _interactionZ(0), _sortingMode(true), PRNHits(1000000),
   _minpoints(5), _planecut(0.05), _riproxcut(0.05), _szcut(0.25), _proxcut(2),
   _TTproxcut(2), _TTplanecut(2E-3), _TTszcut(2), fRiemannScale(24.6)
@@ -423,6 +423,8 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     _trackfinder->addTTCorrelator(new PndTpcRiemannTTCorrelator(_TTplanecut, _minpoints));
     _trackfinder->addTTCorrelator(new PndTpcSzTTCorrelator(_TTszcut));
 
+    _trackfinder->setCoolingCuts(_planecut, _szcut);
+    
     /// PLAN: 
     /// 1) build several cluster buffer, sectorwise
     /// 2) run trackfinder over each clusterbuffer independently
@@ -844,7 +846,7 @@ void PndTpcClustVis::makeGui() {
   browser->StartEmbedding(TRootBrowser::kLeft);
 
   TGMainFrame* frmMain = new TGMainFrame(gClient->GetRoot(), 1000, 600);
-  frmMain->SetWindowName("XX GUI");
+  frmMain->SetWindowName("Pandoras Playground");
   frmMain->SetCleanup(kDeepCleanup);
 
   TGPictureButton* b = 0;
@@ -955,6 +957,13 @@ void PndTpcClustVis::makeGui() {
   hf = new TGHorizontalFrame(frmMain); {
     lbl = new TGLabel(hf, "\n Draw Options");
         hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    guiInstantRedraw =  new TGCheckButton(hf, "Instant redraw after changing parameters");
+    if(instantRedraw) guiInstantRedraw->Toggle();
+    hf->AddFrame(guiInstantRedraw);
+    guiInstantRedraw->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
   }
   frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
@@ -1151,7 +1160,7 @@ void PndTpcClustVis::makeGui() {
   }
   frmMain->AddFrame(hf);
 
- hf = new TGHorizontalFrame(frmMain); {
+  hf = new TGHorizontalFrame(frmMain); {
     guiTTscale = new TGNumberEntry(hf, fRiemannScale, 6,999, TGNumberFormat::kNESRealThree,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
@@ -1181,11 +1190,14 @@ void PndTpcClustVis::guiSetClusterfinderParams(){
   ClTimeslice = giuTimeslice->GetNumberEntry()->GetIntNumber();
   ClTimecut = giuTimecut->GetNumberEntry()->GetIntNumber();
   ClSingeDigiClAmpCut = guiSingeDigiClAmpCut->GetNumberEntry()->GetIntNumber();
+  
   if (guiSimpleCl->IsOn()) ClSimpleCl=true;
   else ClSimpleCl=false;
+  
   ClSimpleTimeslice = giuSimpleTimeslice->GetNumberEntry()->GetIntNumber();
+  
   PndTpcClustVis*  fh = PndTpcClustVis::getInstance();
-  fh->gotoEvent(fEventId);
+  if(instantRedraw) fh->gotoEvent(fEventId);
 }
 
 void PndTpcClustVis::guiSetTrackingParams(){
@@ -1208,11 +1220,16 @@ void PndTpcClustVis::guiSetTrackingParams(){
 
   if (guiDoMerge->IsOn()) doMerge=true;
   else doMerge=false;
+  
   PndTpcClustVis*  fh = PndTpcClustVis::getInstance();
-  fh->gotoEvent(fEventId);
+  if(instantRedraw) fh->gotoEvent(fEventId);
 }
 
 void PndTpcClustVis::guiSetDrawParams(){
+
+  if (guiInstantRedraw->IsOn()) instantRedraw=true;
+  else instantRedraw=false;
+  
   if (guiDoClustering->IsOn()) doClustering=true;
   else doClustering=false;
 
@@ -1232,7 +1249,7 @@ void PndTpcClustVis::guiSetDrawParams(){
   else doPR=false;
 
   PndTpcClustVis*  fh = PndTpcClustVis::getInstance();
-  fh->gotoEvent(fEventId);
+  if(instantRedraw) fh->gotoEvent(fEventId);
 }
 
 

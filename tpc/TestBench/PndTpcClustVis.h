@@ -196,63 +196,61 @@ private:
   double fzGem;
 
   TGCheckButton* guiDoClustering;
+  bool doClustering;
   TGNumberEntry* guiEvent;
   TGCheckButton* guiDrawTpc;
-  TGNumberEntry* guiMode;
-  TGNumberEntry* giuTimeslice;
-  TGNumberEntry* giuTimecut;
-  TGNumberEntry* guiSingeDigiClAmpCut;
-  TGCheckButton* guiSimpleCl;
-  TGNumberEntry* giuSimpleTimeslice;
-
-  TGCheckButton* guiDrawDigis;
-  TGCheckButton* guiDrawClusters;
-  TGCheckButton* guiDrawClustersErrors;
-  TGCheckButton* guiDoPR;
-  TGNumberEntry* guiPRNHits;
-  TGCheckButton* guiDoMerge;
-
-  TGNumberEntry* guisorting;
-  TGNumberEntry* guiinteractionZ;
-  TGCheckButton* guisortingMode;
-  TGNumberEntry* guiminpoints;
-  TGNumberEntry* guiplanecut;
-  TGNumberEntry* guiriproxcut;
-  TGNumberEntry* guiszcut;
-  TGNumberEntry* guiproxcut;
-  TGNumberEntry* guiTTproxcut;
-  TGNumberEntry* guiTTplanecut;
-  TGNumberEntry* guiTTszcut;
-  TGNumberEntry* guiTTscale;
-
-  bool doClustering;
-
   bool drawTpc;
+  TGNumberEntry* guiMode;
   int ClMode;
+  TGNumberEntry* giuTimeslice;
   int ClTimeslice;
+  TGNumberEntry* giuTimecut;
   int ClTimecut;
+  TGNumberEntry* guiSingeDigiClAmpCut;
   int ClSingeDigiClAmpCut;
+  TGCheckButton* guiSimpleCl;
   bool ClSimpleCl;
+  TGNumberEntry* giuSimpleTimeslice;
   int ClSimpleTimeslice;
 
+  TGCheckButton* guiInstantRedraw;
+  bool instantRedraw;
+  TGCheckButton* guiDrawDigis;
   bool drawDigis;
+  TGCheckButton* guiDrawClusters;
   bool drawClusters;
+  TGCheckButton* guiDrawClustersErrors;
   bool drawClusterErrors;
+  TGCheckButton* guiDoPR;
   bool doPR;
+  TGNumberEntry* guiPRNHits;
   int PRNHits;
+  TGCheckButton* guiDoMerge;
   bool doMerge;
 
+  TGNumberEntry* guisorting;
   int _sorting;
+  TGNumberEntry* guiinteractionZ;
   double _interactionZ;
+  TGCheckButton* guisortingMode;
   bool _sortingMode;
+  TGNumberEntry* guiminpoints;
   int _minpoints;
+  TGNumberEntry* guiplanecut;
   double _planecut;
+  TGNumberEntry* guiriproxcut;
   double _riproxcut;
+  TGNumberEntry* guiszcut;
   double _szcut;
+  TGNumberEntry* guiproxcut;
   double _proxcut;
+  TGNumberEntry* guiTTproxcut;
   double _TTproxcut;
+  TGNumberEntry* guiTTplanecut;
   double _TTplanecut;
+  TGNumberEntry* guiTTszcut;
   double _TTszcut;
+  TGNumberEntry* guiTTscale;
   double fRiemannScale;
 
   /** @brief Build the buttons for event navigation.*/
