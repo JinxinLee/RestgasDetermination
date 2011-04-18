@@ -53,7 +53,7 @@ PndSttTrackFinderReal::PndSttTrackFinderReal()
                stepfineFI0=2.*DELTA_FI0/nbinFI0;
                RminStrawSkewArea = RStrawDetectorMin*2./1.732051 + 18.*StrawRadius ; // delimitation of the skew area
                RmaxStrawSkewArea = RminStrawSkewArea + 8.*1.732051 *StrawRadius ;
-//	sprintf(fSttBranch,"STTHit");
+	sprintf(fSttBranch,"STTHit");
 
 }
 // -------------------------------------------------------------------------
@@ -77,7 +77,7 @@ PndSttTrackFinderReal::PndSttTrackFinderReal(int verbose)
                stepfineFI0=2.*DELTA_FI0/nbinFI0;
                RminStrawSkewArea = RStrawDetectorMin*2./1.732051 + 18.*StrawRadius ; // delimitation of the skew area
                RmaxStrawSkewArea = RminStrawSkewArea + 8.*1.732051 *StrawRadius ;
-//	sprintf(fSttBranch,"STTHit");
+	sprintf(fSttBranch,"STTHit");
 
 }
 // -------------------------------------------------------------------------
@@ -1758,7 +1758,8 @@ if( istampa>=2){
 		pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[i]   );
 		for(j=0; j< nTotalHits[i]; j++){
 			pTrckCand->AddHit(
-			FairRootManager::Instance()->GetBranchId("STTHit"),
+//			FairRootManager::Instance()->GetBranchId("STTHit"),
+			FairRootManager::Instance()->GetBranchId(fSttBranch),
 			(Int_t) BigList[i][j] , j);
 		}
 
@@ -1964,7 +1965,8 @@ if( istampa>=2){
 		pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[i]   );
 		for(j=0; j< nTotalHits[i]; j++){
 			pTrckCand->AddHit(
-			FairRootManager::Instance()->GetBranchId("STTHit"),
+//			FairRootManager::Instance()->GetBranchId("STTHit"),
+			FairRootManager::Instance()->GetBranchId(fSttBranch),
 			(Int_t) BigList[i][j] , j);
 		}
 
@@ -2021,7 +2023,8 @@ if( istampa>=2){
          for(j=0; j< nTotalHits[i]; j++){
 
                pTrckCand->AddHit(
-		FairRootManager::Instance()->GetBranchId("STTHit"),
+//		FairRootManager::Instance()->GetBranchId("STTHit"),
+		FairRootManager::Instance()->GetBranchId(fSttBranch),
 		(Int_t) BigList[i][j] , j);
          }
 
