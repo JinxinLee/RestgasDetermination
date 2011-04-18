@@ -7340,11 +7340,13 @@ for(int ic =0;ic<nBounds; ic++){
 //-------fine stampaggi
 
 //-----------------------  funzioni chiamate direttamente
-cout<<"cazzo1, da sttmvdtracking : nRows = "<<nRows<<", NStructVar = "<<
+/*
+cout<<"cavolo, da sttmvdtracking : nRows = "<<nRows<<", NStructVar = "<<
 	NStructVar<<", NStructRowsMax = "<<NStructRowsMax<<
 	", NRowsInWhichStructVarArePresent = "<<
 	NRowsInWhichStructVarArePresent<<", nRanges = "<<nRanges
 	<<", nBounds = "<<nBounds<<endl;
+*/
       int status= glp_main(
             nRows,nameRows,typeRows, //  ROWS info
             NStructVar, NStructRowsMax, NRowsInWhichStructVarArePresent,  //  COLUMNS info
@@ -8336,11 +8338,13 @@ for(int ic =0;ic<nBounds; ic++){
 //-------fine stampaggi
 
 //-----------------------  funzioni chiamate direttamente
-cout<<"cazzo2, da sttmvdtracking : nRows = "<<nRows<<", NStructVar = "<<
+/*
+cout<<"cavolo2, da sttmvdtracking : nRows = "<<nRows<<", NStructVar = "<<
 	NStructVar<<", NStructRowsMax = "<<NStructRowsMax<<
 	", NRowsInWhichStructVarArePresent = "<<
 	NRowsInWhichStructVarArePresent<<", nRanges = "<<nRanges
 	<<", nBounds = "<<nBounds<<endl;
+*/
       int status= glp_main(
             nRows,nameRows,typeRows, //  ROWS info
             NStructVar, NStructRowsMax, NRowsInWhichStructVarArePresent,  //  COLUMNS info
