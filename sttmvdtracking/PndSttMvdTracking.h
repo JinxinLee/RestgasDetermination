@@ -78,6 +78,10 @@ class PndSttMvdTracking : public FairTask
 
   int istampa ;
   int IVOLTE ;
+
+
+  int static const TIMEOUT= 60;
+
   static const bool  iplotta = false , ianalizza = true ;
   static const UShort_t   nmaxSttHits = maxTracks*26,
 			  MAXMCTRACKS=maxTracks,
@@ -215,9 +219,9 @@ class PndSttMvdTracking : public FairTask
 
   /**  Branch names to be used to fetch the hits of the backgound mixed events  **/
 
-  char	fSttBranch[1000],
-		fMvdPixelBranch[1000],
-		fMvdStripBranch[1000];
+  char	fSttBranch[200],
+		fMvdPixelBranch[200],
+		fMvdStripBranch[200];
 
 
   void WriteMacroSttParallelAssociatedHitsandMvdwithMC(
