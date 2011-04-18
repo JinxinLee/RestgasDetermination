@@ -3079,7 +3079,7 @@ if(istampa>=2) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
 
 
 
-
+		// loading actually the PndTrack
 		PndTrack *pTrck = new((*fSttMvdPndTrackArray)[ipinco]) PndTrack(first,last,*pTrckCand);
 //		PndTrack *pTrck = (PndTrack*) fSttMvdPndTrackArray->At(ipinco);
 		pTrck->SetRefIndex(ipinco);
@@ -7340,6 +7340,11 @@ for(int ic =0;ic<nBounds; ic++){
 //-------fine stampaggi
 
 //-----------------------  funzioni chiamate direttamente
+cout<<"cazzo1, da sttmvdtracking : nRows = "<<nRows<<", NStructVar = "<<
+	NStructVar<<", NStructRowsMax = "<<NStructRowsMax<<
+	", NRowsInWhichStructVarArePresent = "<<
+	NRowsInWhichStructVarArePresent<<", nRanges = "<<nRanges
+	<<", nBounds = "<<nBounds<<endl;
       int status= glp_main(
             nRows,nameRows,typeRows, //  ROWS info
             NStructVar, NStructRowsMax, NRowsInWhichStructVarArePresent,  //  COLUMNS info
@@ -8331,6 +8336,11 @@ for(int ic =0;ic<nBounds; ic++){
 //-------fine stampaggi
 
 //-----------------------  funzioni chiamate direttamente
+cout<<"cazzo2, da sttmvdtracking : nRows = "<<nRows<<", NStructVar = "<<
+	NStructVar<<", NStructRowsMax = "<<NStructRowsMax<<
+	", NRowsInWhichStructVarArePresent = "<<
+	NRowsInWhichStructVarArePresent<<", nRanges = "<<nRanges
+	<<", nBounds = "<<nBounds<<endl;
       int status= glp_main(
             nRows,nameRows,typeRows, //  ROWS info
             NStructVar, NStructRowsMax, NRowsInWhichStructVarArePresent,  //  COLUMNS info
