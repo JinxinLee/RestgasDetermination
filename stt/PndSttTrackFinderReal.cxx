@@ -307,7 +307,7 @@ FairMCPoint* PndSttTrackFinderReal::GetPointFromCollections(Int_t hitCounter)
 		tmpHit = ((PndSttHit*) ((TClonesArray *)fHitCollectionList.At(collectionCounter))->At(relativeCounter))->GetRefIndex();
 	    
 	    retval = (FairMCPoint*) ((TClonesArray *)fPointCollectionList.At(collectionCounter))->At(tmpHit);
-	    
+
 	    break;
 	}
 	else
@@ -577,8 +577,9 @@ jumpout: ;
   if (istampa >= 2  && IVOLTE<= nmassimo) {
      cout <<"iHit "<< iHit << endl;
       	if (ptIndex < 0) {
-cout<<"from PndSttTrackFinderReal...this hit must be noise (not associate to any MC Track)\n";
-         cout<<"             this hit belongs to MC track n. "<<pMCpt->GetTrackID()<<endl;
+cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptIndex
+	<<" )\n\t\t\tnot associate to any MC Track\n";
+//         cout<<"             this hit belongs to MC track n. "<<pMCpt->GetTrackID()<<endl;
 	}else{
       cout <<"             MC point X, Y, Z space position "   << veritaMC[iHit][0] << " " <<
                        veritaMC[iHit][1] << " " << veritaMC[iHit][2]<<endl; 
@@ -7773,8 +7774,12 @@ for(int ic =0;ic<nBounds; ic++){
       ValueB,  // RHS  info
       nRanges, ValueRanges, NameRanges, //  RANGES  info
       nBounds, BoundValue, BoundStructVarName, TypeofBound //  BOUNDS info
+//         ,final_values, TIMEOUT  //  timeout is in seconds.
       ,final_values
        );
+
+     if (status != 0) return -100;	// fit failed
+
 /*
 printf("from main, final printout con routines chiamate direttamente -------------------------------\n");
 printf("      number of structural variables %d\n",NStructVar);
@@ -10447,8 +10452,12 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
       ValueB,  // RHS  info
       nRanges, ValueRanges, NameRanges, //  RANGES  info
       nBounds, BoundValue, BoundStructVarName, TypeofBound //  BOUNDS info
+//      ,final_values, TIMEOUT  //  timeout is in seconds.
       ,final_values
        );
+
+     if (status != 0) return -100;	// fit failed
+
 
 
 
@@ -10938,6 +10947,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
       ValueB,  // RHS  info
       nRanges, ValueRanges, NameRanges, //  RANGES  info
       nBounds, BoundValue, BoundStructVarName, TypeofBound //  BOUNDS info
+//      ,final_values, TIMEOUT  //  timeout is in seconds.
       ,final_values
        );
 
