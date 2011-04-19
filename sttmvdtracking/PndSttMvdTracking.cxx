@@ -750,7 +750,7 @@ if(istampa>=1  && IVOLTE<20){
       cout<<"\t\tPixel Info : sigmaX  = "<<sigmaXMvdPixel[i]<<";  sigmaY  = "<<sigmaYMvdPixel[i]<<
             ";  sigmaZ  = "<<sigmaZMvdPixel[i]<<endl<<"\t suo RefIndex = "<<refindexMvdPixel[i]<<
 	    ", suo FairRootManager::Instance()->GetBranchId(fMvdPixelBranch) = "<<
-	    FairRootManager::Instance()->GetBranchId("MVDHitsPixel")<<endl;
+	    FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)<<endl;
   }
   cout<<"        ------------------\n";
 
@@ -761,7 +761,7 @@ if(istampa>=1  && IVOLTE<20){
       cout<<"\t\tStrip Info : sigmaX  = "<<sigmaXMvdStrip[i]<<";  sigmaY  = "<<sigmaYMvdStrip[i]<<
             ";  sigmaZ  = "<<sigmaZMvdStrip[i]<<endl<<"\t suo RefIndex = "<<refindexMvdStrip[i]<<
 	    ", suo FairRootManager::Instance()->GetBranchId(fMvdStripBranch) = "<<
-	    FairRootManager::Instance()->GetBranchId("MVDHitsStrip")<<endl;
+	    FairRootManager::Instance()->GetBranchId(fMvdStripBranch)<<endl;
 
   }
   cout<<"        ------------------\n";
