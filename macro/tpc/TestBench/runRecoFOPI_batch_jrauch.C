@@ -40,7 +40,7 @@ void runRecoFOPI_batch_jrauch(TString filename, TString outpath)
   }
   
   fRun->SetOutputFile(outFile);
-
+  
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParAsciiFileIo* parInput1 = new FairParAsciiFileIo();
   TString tpcDigiFile = basedir;
@@ -55,7 +55,7 @@ void runRecoFOPI_batch_jrauch(TString filename, TString outpath)
   geoFile+="/tpc/TestBench/FOPIGeo.root";
   fRun->SetGeomFile(geoFile);
   PndConstField *fMagField=new PndConstField();
-  fMagField->SetField(0., 0. , 3. ); // values are in kG
+  fMagField->SetField(0., 0. , 6. ); // values are in kG
   // values are in cm
   fMagField->SetFieldRegion(-50, 50,-50, 50, -2000, 2000);
       
@@ -82,15 +82,12 @@ bool SimpleClustering = true;
   PndTpcPSATask* tpsa = new  PndTpcPSATask();
   tpsa->SetPersistence();
   tpsa->SetSampleBranchName("PndTpcSample"); // Input of PSA
-  tpsa->SetDigiBranchName("PndTpcRawDigi");  // Output of PSA
   fRun->AddTask(tpsa);
 
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
   //tpcCF->SetDataMode(true); //prevents usage of FairLinks
-  tpcCF->SetDigiPersistence(); // keep Digis (contains then modified digis if you use SimpleClustering)
+  tpcCF->SetDigiPersistence(); // keep reference to digis in clusters
   tpcCF->SetPersistence(); // keep Clusters
-  tpcCF->SetDigiBranchName("PndTpcRawDigi"); // Input of clustering
-  tpcCF->SetDigiOutBranchName("PndTpcDigi"); // Digi output of clustering
   tpcCF->timeslice(8); //in samples
   tpcCF->SetSingleDigiClusterAmpCut(20);
   if(!SimpleClustering) {
@@ -100,7 +97,7 @@ bool SimpleClustering = true;
     tpcCF->SetDiffFactor(1.);
     tpcCF->SetClusterTimeCut(5.);
   }
-  tpcCF->SetErrorPars(600,300);
+  tpcCF->SetErrorPars(600.,300.);
   //tpcCF->SetTrivialClustering();
   if(SimpleClustering) tpcCF->SetSimpleClustering(); // use PndTpcClusterFinderSimple
   fRun->AddTask(tpcCF);
@@ -189,7 +186,7 @@ bool SimpleClustering = true;
  
  
   fRun->Init();
-  fRun->Run(0,500);
+  fRun->Run(0,1000);
 
   timer.Stop();
   Double_t rtime = timer.RealTime();
