@@ -27,14 +27,15 @@ PndTpcPrelimCluster::~PndTpcPrelimCluster()
 }
 
 
-void PndTpcPrelimCluster::addHit(PndTpcDigi* digi, bool noXclust) {
+void PndTpcPrelimCluster::addHit(PndTpcDigi* digi, bool noXclust, double share) {
   fdigis.push_back(digi);
+  fdigiShares[digi] = share;
 
   fcogT=0.;
   famp=0;
   for(unsigned int i=0;i<fdigis.size();++i) {
-	  fcogT+=fdigis[i]->amp()*fdigis[i]->t();
-	  famp+=fdigis[i]->amp();
+	  fcogT+=fdigis[i]->amp()*fdigiShares[fdigis[i]] * fdigis[i]->t();
+	  famp+=fdigis[i]->amp()*fdigiShares[fdigis[i]];
   }
   fcogT*=1./famp;
 
@@ -76,7 +77,7 @@ PndTpcCluster* PndTpcPrelimCluster::convPndTpcCluster(bool saveRaw) {
 
   if(saveRaw){//defined in PndTpcAbsClusterFinder.h and default false
     for(unsigned int i=0;i<fdigis.size();++i){
-      c->addDigi(fdigis[i]);
+      c->addDigi(fdigis[i], fdigiShares[fdigis[i]]);
     }
   }
   
@@ -100,7 +101,7 @@ void PndTpcPrelimCluster::cog(){
   for(unsigned int id=0;id<ndigis;++id){
 	  PndTpcDigi* adigi=fdigis[id];
 	  mcid.AddIDCollection(adigi->mcId());
-	  double a=(double)adigi->amp();
+	  double a=(double)adigi->amp()*fdigiShares[adigi];
 	  TVector3 thispos;
 	  PndTpcDigiMapper::getInstance()->map(adigi,thispos);
 	  fpos+=a*thispos;
@@ -139,7 +140,7 @@ void PndTpcPrelimCluster::cog(){
     
   for(unsigned int id=0;id<ndigis;++id){
     PndTpcDigi* adigi=fdigis[id];
-    double a=(double)adigi->amp();
+    double a=(double)adigi->amp()*fdigiShares[adigi];
     TVector3 thispos;
     PndTpcDigiMapper::getInstance()->map(adigi,thispos);
     TVector3 df=thispos-fpos;
@@ -168,7 +169,7 @@ void PndTpcPrelimCluster::cog(){
 PndTpcClusterFinderSimple::PndTpcClusterFinderSimple(PndTpcPadPlane* p,
 						     std::vector<PndTpcCluster*>* ob,
 						     unsigned int timeslice, double G, double C)
-  : fpadplane(p), foutput_buffer(ob), fdt(timeslice), noXclust(false), splitDigis(0), fG(G), fC(C), _digiArray(NULL)
+  : fpadplane(p), foutput_buffer(ob), fdt(timeslice), noXclust(false), splitDigis(0), fG(G), fC(C)
 {
 
 }
@@ -212,27 +213,17 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
       if(nselclust == 1) { // digi can only belong to one cluster -> add to this cluster
 	      prelimClusters[selClusters[0]]->addHit(digis[idigi],noXclust);
       }
-      else{ // digi can belong to more than one cluster -> split digi (divide amplitude & copy) and add to the clusters 
+      else{ // digi can belong to more than one cluster -> assign digi to these clusters with corresponding share value
 	      PndTpcDigi* fd = digis[idigi];
-	      double fa = (double)fd->amp();
-	      digis[idigi]->amp(fa/(double)nselclust); 
-        prelimClusters[selClusters[0]]->addHit(fd,noXclust);
-	      for(int i=1;i<nselclust;++i) {
-          // I have to copy the digi so that one digi is only assigned to one cluster
-          // otherwise there are problems with the TClonesArray
-          PndTpcDigi* digiCopy;
-	        if(_digiArray==NULL) digiCopy = new PndTpcDigi(*fd);
-	        else digiCopy = new((*_digiArray)[ndigi+splitDigis]) PndTpcDigi(*fd);
-
-          digis.push_back(digiCopy);	        
-	        prelimClusters[selClusters[i]]->addHit(digiCopy,noXclust);
-	        
-          ++splitDigis;
+	      double share = fd->amp()/(double)nselclust;
+	      for(int i=0;i<nselclust;++i) {
+	        prelimClusters[selClusters[i]]->addHit(fd,noXclust, share);
 	      }
+        ++splitDigis;
       }
     }
   } // end loop over digis
-
+          
   // convert prelimClusters to PndTpcClusters
   for(unsigned int i=0;i<prelimClusters.size();++i){
     foutput_buffer->push_back(prelimClusters[i]->convPndTpcCluster(fsaveRaw));
@@ -245,6 +236,7 @@ void
 PndTpcClusterFinderSimple::reset()
 { 
   splitDigis = 0;
+
 }
 
 

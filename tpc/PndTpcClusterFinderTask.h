@@ -49,10 +49,9 @@ public:
 
   // Modifiers -----------------------
   void SetDigiBranchName(const TString& name) {fdigiBranchName=name;}
-  void SetDigiOutBranchName(const TString& name) {fdigiOutName=name;}
   void SetClusterBranchName(const TString& name) {fClusterOutName=name;}
   void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
-  void SetDigiPersistence(Bool_t opt=kTRUE) {fDigiPersistence=opt;}
+  void SetDigiPersistence(Bool_t opt=kTRUE) {fDigiPersistence=opt;} // store references to digis in clusters
   void SetTrivialClustering(Bool_t opt=kTRUE) {ftrivial=opt;}
   void SetSimpleClustering(Bool_t opt=kTRUE);
   void SetMode(int mode){fmode=mode;}
@@ -78,11 +77,9 @@ private:
 
   // Private Data Members ------------
   TString fdigiBranchName;
-  TString fdigiOutName;
   TString fClusterOutName;
   TClonesArray* fclusterArray;
   TClonesArray* fdigiArray;
-  TClonesArray* fdigiOutArray;
   
   Bool_t fpersistence;
   Bool_t fDigiPersistence;

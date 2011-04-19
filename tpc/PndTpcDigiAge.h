@@ -28,7 +28,7 @@ public:
   ~PndTpcDigiAge(){;}
 
   // Operators
-  bool operator()(PndTpcDigi* s1, PndTpcDigi* s2);
+  bool operator()(const PndTpcDigi* s1, const PndTpcDigi* s2) const;
   
 };
 

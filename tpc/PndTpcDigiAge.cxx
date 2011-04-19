@@ -20,8 +20,8 @@
 #include "PndTpcDigiAge.h"
 #include "PndTpcDigi.h"
 
-bool 
-PndTpcDigiAge::operator()(PndTpcDigi* s1, PndTpcDigi* s2)
+bool
+PndTpcDigiAge::operator()(const PndTpcDigi* s1, const PndTpcDigi* s2) const
 {
   return s1->t()<s2->t();
 }

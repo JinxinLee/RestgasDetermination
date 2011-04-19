@@ -49,7 +49,6 @@ PndTpcClusterFinderTask::PndTpcClusterFinderTask()
     fAdcSens(600.), fC(300.)
 {
   fdigiBranchName = "PndTpcDigi";
-  fdigiOutName = "PndTpcClusterDigi";
   fClusterOutName = "PndTpcCluster";
 }
  
@@ -112,10 +111,6 @@ PndTpcClusterFinderTask::Init()
   fclusterArray = new TClonesArray("PndTpcCluster"); 
   ioman->Register(fClusterOutName,"PndTpc",fclusterArray,fpersistence);
 
-  // create and register output array for Digis
-  fdigiOutArray = new TClonesArray("PndTpcDigi"); 
-  ioman->Register(fdigiOutName,"PndTpc",fdigiOutArray,fDigiPersistence);
-  
 
   fpar->printParams();
   ffrontend= fpar->getFrontend();
@@ -148,6 +143,7 @@ PndTpcClusterFinderTask::Init()
   ffinder->checkConsistency();
   ffinder->setTrivialClustering(ftrivial);
   ffinder->saveRaw(fDigiPersistence);
+  
 
   return kSUCCESS;
 }
@@ -156,29 +152,22 @@ PndTpcClusterFinderTask::Init()
 void
 PndTpcClusterFinderTask::Exec(Option_t* opt)
 {
-  std::cout<<"PndTpcClusterFinderTask::Exec"<<std::endl;
+  std::cerr<<"PndTpcClusterFinderTask::Exec"<<std::endl;
   // Reset output Array
   if(fclusterArray==0) Fatal("PndTpcClusterFinder::Exec)","No ClusterArray");
   fclusterArray->Delete();
 
-  if(fdigiOutArray==0) Fatal("PndTpcClusterFinder::Exec)","No DigiOutArray");
-  fdigiOutArray->Delete();
-
   ffinder->reset();
 
-  std::vector<PndTpcDigi*> digis;
+  Int_t ndigis=fdigiArray->GetEntriesFast();
 
-  Int_t ndigis=fdigiArray->GetEntries();
-  //   std::cout << "FINDER"<< ndigis << std::endl;
+  std::vector<PndTpcDigi*> digis(ndigis);
 
-  // copy digis into output array
-  for(unsigned int idigi=0; idigi<ndigis; ++idigi){ 
-    PndTpcDigi* digiRaw=(PndTpcDigi*)fdigiArray->At(idigi);
-    PndTpcDigi* digiCopy = new((*fdigiOutArray)[idigi]) PndTpcDigi(*digiRaw);
-    digis.push_back(digiCopy);
-  }
-  if(fsimple) ((PndTpcClusterFinderSimple*)(ffinder))->setDigiArray(fdigiOutArray); // for saving split digis correctly
-
+  // put digis into vector
+  for(unsigned int idigi=0; idigi<ndigis; ++idigi)
+    digis[idigi] = (PndTpcDigi*)fdigiArray->At(idigi);
+  
+  std::cerr<<"process digis ";
   try{
     ffinder->process(digis);   
   } catch (std::exception& e) {
@@ -186,7 +175,8 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
   } catch (...) {
     std::cout << "unknown exception..." << std::endl;
   }
-   
+  std::cerr<<"... done"<<std::endl;
+  
   //sort(digis.begin(),digis.end(),PndTpcDigiIndex);
 
   /*
@@ -205,6 +195,7 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
   unsigned int ncl_rec=0;
   unsigned int ndig_rec=0;
   
+  std::cerr<<"copying "<<ncl<<" clusters to output array ";
   for(unsigned int icl=0;icl<ncl;++icl){ // loop over clusters
     if((*fcluster_buffer)[icl]->amp()>fthres &&
        ((*fcluster_buffer)[icl]->size()>1 || (*fcluster_buffer)[icl]->amp()>fSDiClAmpCut)){
@@ -219,6 +210,8 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
     
   } // end loop over clusters
   
+  std::cerr<<"... done"<<std::endl;
+  
   
   int splitDigis;
   if(fsimple){
@@ -227,16 +220,29 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
   } 
   std::cout<<fclusterArray->GetEntriesFast()<<" cluster created "
 	<<" containing "<<ndig_rec<<" digis"
-  <<" from "<<ndigis<<std::endl;
-  if(fsimple){std::cout<<" (SimpleClustering split "<< splitDigis <<" Digis!)"<<std::endl;}   
+  <<" from "<<fdigiArray->GetEntriesFast()<<std::endl;
+  if(fsimple){
+    std::cout<<" SimpleClustering split "<< splitDigis <<" Digis"<<std::endl;
+    
+  }   
    
-
   fcluster_buffer->clear();
-  //digis.clear();
+
+   
+ /*  
+  for(unsigned int i=0; i<fclusterArray->GetEntriesFast(); ++i){
+    PndTpcCluster* cl = (PndTpcCluster*)(*fclusterArray)[i];
+    std::cout<<"Testing cluster "<<i<<" of "<<fclusterArray->GetEntriesFast()<<"  ";
+    cl->pos().Print();
+  }
+
+  for(unsigned int i=0; i<fdigiArray->GetEntriesFast(); ++i){
+    PndTpcDigi* cl = (PndTpcDigi*)(*fdigiArray)[i];
+    std::cout<<"Testing Raw Digi "<<i<<" of "<<fdigiArray->GetEntriesFast()<<"  "<<cl->amp()<<std::endl;
+  }*/
    
    
   std::cerr<<" End ClusterFinderTask " <<std::endl;
-
   return;
 }
 

@@ -24,10 +24,12 @@
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
 #include <vector>
+#include <map>
 #include "TVector3.h"
 #include "McIdCollection.h"
 #include "TMatrixD.h"
 #include "PndTpcDigiMapper.h"
+#include "PndTpcDigiAge.h"
 
 // Collaborating Class Declarations --
 
@@ -89,15 +91,30 @@ public:
   unsigned int nDigi() const {
     return digis.size();
   }
+
   void addDigi(const PndTpcDigi* d){
     digis.push_back(d);
+    digiShares[d] = 1.;
     //AddLink(FairLink("PndTpcDigi", d.index()));
   }
+  void addDigi(const PndTpcDigi* d, double share){
+    digis.push_back(d);
+    digiShares[d] = share;
+      //AddLink(FairLink("PndTpcDigi", d.index()));
+  }
+
   //BEWARE: Cannot be used after reading Cluster from file (if digi is not loaded)
   const PndTpcDigi* getDigi(int i) const{
     assert (i<digis.size());
     return digis[i];
   }
+
+  const double getDigiAmpShare(int i) const {
+    assert (i<digis.size());
+    const PndTpcDigi* d = digis[i];
+    return digiShares.find(d)->second;
+  }
+
   //--------------------------------------------------------------------------------
   
   
@@ -125,7 +142,9 @@ private:
 
   //for optional saving of raw info that went into the cluster
   //
-  std::vector<const PndTpcDigi*> digis;
+  std::vector<const PndTpcDigi*> digis; //
+  std::map<const PndTpcDigi*, double> digiShares; // Map: Digi and share of amplitude belonging to this cluster (<=1.)
+
 
 
   // Private Methods -----------------
@@ -133,7 +152,7 @@ private:
   
 
 public:
-  ClassDef(PndTpcCluster,5)
+  ClassDef(PndTpcCluster,6)
 
 };
 

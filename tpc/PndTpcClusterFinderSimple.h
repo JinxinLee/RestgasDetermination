@@ -2,8 +2,10 @@
 #define TPCCLUSTERFINDERSIMPLE_HH
 
 #include <vector>
+#include <map>
 #include <set>
 #include "PndTpcAbsClusterFinder.h"
+#include "PndTpcDigiAge.h"
 #include "McIdCollection.h"
 #include "TVector3.h"
 
@@ -25,6 +27,7 @@ class PndTpcPrelimCluster{
   double fC;
 
   std::vector<PndTpcDigi*> fdigis;
+  std::map<const PndTpcDigi*, double> fdigiShares;
   std::set<unsigned int> fpossiblePads;
 
 
@@ -38,7 +41,7 @@ class PndTpcPrelimCluster{
   PndTpcPrelimCluster(PndTpcPadPlane*, double, int, double G, double C);
   virtual ~PndTpcPrelimCluster();
 
-  void addHit(PndTpcDigi*, bool noXclust=false);
+  void addHit(PndTpcDigi*, bool noXclust=false, double share=1.);
 
   bool isInCluster(const PndTpcDigi* const);
 
@@ -62,8 +65,6 @@ public:
   void setNoXclust(bool b=true){noXclust=b;}
   unsigned int NsplitDigis(){return splitDigis;}
   
-  void setDigiArray(TClonesArray* digiArray) {_digiArray = digiArray;}
-
 private:
   PndTpcPadPlane* fpadplane;
   std::vector<PndTpcCluster*>* foutput_buffer;
@@ -73,7 +74,6 @@ private:
   double fG;
   double fC;
 
-  TClonesArray* _digiArray;
 };
 
 
