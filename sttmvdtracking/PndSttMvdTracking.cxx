@@ -846,10 +846,12 @@ if(istampa>=2  && IVOLTE<20)
 					  // un Pixel. Roba da matti.
                                           // Se e' -1 dovrebbe essere noise ma a in quale Pixel
 					  // o Strip?? Mistero.
-	if( ListHitTypeMvdTrackCand[i][j]==FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)){
+	if( ListHitTypeMvdTrackCand[i][j]==
+			FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)){
 		inMvdTrackCandPixel[ ListHitMvdTrackCand[i][j] ]= true;
 
-	} else if( ListHitTypeMvdTrackCand[i][j]==FairRootManager::Instance()->GetBranchId(fMvdStripBranch)){
+	} else if( ListHitTypeMvdTrackCand[i][j]==
+			FairRootManager::Instance()->GetBranchId(fMvdStripBranch)){
 		inMvdTrackCandStrip[ ListHitMvdTrackCand[i][j] ]= true;
 	}
 
