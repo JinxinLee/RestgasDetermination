@@ -39,7 +39,8 @@ public:
   
   void SetTrackOutput(TString name = "FTSTrkIdeal") { fTracksArrayName = name; };
   
-  void SetMomentumSmearing(Double_t sigma = -1.) { sigma=fabs(sigma); fMomSigma.SetXYZ(sigma,sigma,2*sigma); }; // in GeV
+  void SetMomentumSmearing(Double_t sigma = -1.) { sigma=fabs(sigma); fMomSigma.SetXYZ(sigma,sigma,2*sigma); fRelative=kFALSE; }; // in GeV
+  void SetRelativeMomentumSmearing(Double_t dpop = -1.) { fDPoP=fabs(dpop); fRelative=kTRUE;}; // in GeV
   void SetVertexSmearing(Double_t sigma = -1.) { sigma=fabs(sigma); fVtxSigma.SetXYZ(sigma,sigma,2*sigma); }; // in cm
   void SetTrackingEfficiency(Double_t eff = 1.) { fEfficiency=eff; };
   
@@ -58,6 +59,8 @@ protected:
 
   // Parameters for fake tracking
   TVector3 fMomSigma;          // Momentum smearing sigma [GeV]
+  Double_t fDPoP;              // Relative momentum Smearing
+  Bool_t fRelative;            // falg
   TVector3 fVtxSigma;          // Vertex smearing sigma [cm]
   Double_t fEfficiency;        // Tracking efficiency - if (0 <= e < 1), some tracks will be discarded
   

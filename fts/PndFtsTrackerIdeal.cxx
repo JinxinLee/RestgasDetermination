@@ -33,6 +33,8 @@ FairTask("FTSTrackfinderIdeal")
   fTracks = new TClonesArray("PndTrack");
   fVerbose = 0;
   fMomSigma.SetXYZ(0.,0.,0.);
+  fRelative=kFALSE;
+  fDPoP=0.0;
   fVtxSigma.SetXYZ(0.,0.,0.);
   fEfficiency=1.;
   SetTrackOutput();
@@ -175,9 +177,10 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
           if(fVerbose>5) Info("Exec","Skip Hit %i, it's not connected to a Track in FTS",ih);
           continue; // skip Tracks in MVD/GEM not going to FTS
         }
-        if(fVerbose>5) Info("Exec","Create new PndTrack object",trackID);
+        if(fVerbose>5) Info("Exec","Create new PndTrack object %i",trackID);
         cand=new PndTrackCand();
-        if(fVerbose>5) Info("Exec","Create new PndTrack object finished",trackID);
+        cand->setMcTrackId(trackID);
+        if(fVerbose>5) Info("Exec","Create new PndTrack object finished %i",trackID);
       }
       if(fVerbose>5) Info("Exec","add the hit %i to trackcand %i",ih,trackID);
       cand->AddHit(fBranchIDs[iDet],ih,ghit->GetZ());
@@ -222,6 +225,7 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
     // prepare track parameters
     firstHit->Position(svtx);
     firstPoint->Momentum(smom);
+    if (fRelative) fMomSigma=fDPoP*smom;
     SmearFWD(smom, fMomSigma);
     FairTrackParP* firstPar=new FairTrackParP(svtx, smom,
                                               fVtxSigma, fMomSigma,
