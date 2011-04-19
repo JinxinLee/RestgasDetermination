@@ -341,7 +341,7 @@ PndTpcRiemannTrack::trackpos(){
   _hits[0]->setPosOnTrk(0);
   
   if(nhits<3){
-    _hits[nhits-1]->setPosOnTrk((posX-_hits[0]->cluster()->pos()).Mag());
+    _hits.back()->setPosOnTrk((posX-_hits[0]->cluster()->pos()).Mag());
     return;
   }
   
@@ -374,9 +374,9 @@ PndTpcRiemannTrack::trackpos(){
   }
 
   // last hit
-  posX = _hits[nhits-1]->cluster()->pos(); 
+  posX = _hits.back()->cluster()->pos(); 
   sOnDir = (posX-avrg0).Mag();
-  _hits[nhits-1]->setPosOnTrk(s+sOnDir);
+  _hits.back()->setPosOnTrk(s+sOnDir);
 
   if(_doSort) sort(_hits.begin(), _hits.begin()+nhits, sortByPosOnTrack);
 }
@@ -390,7 +390,7 @@ PndTpcRiemannTrack::winding(){ // returns winding sense along z-axis
   int halfway = 0.5*end;
   TVector3 pos1=_hits[0]->cluster()->pos();
   TVector3 pos2=_hits[halfway]->cluster()->pos();
-  TVector3 pos3=_hits[end]->cluster()->pos();
+  TVector3 pos3=_hits.back()->cluster()->pos();
   int dir= pos1.Perp()<pos3.Perp() ? 1 : -1; // correct for forward and backward going tracks pos=(0,0,0) corresponds to IP
   pos1.SetZ(0);
   pos2.SetZ(0);
@@ -667,10 +667,13 @@ PndTpcRiemannTrack::szDist(PndTpcRiemannHit* hit, bool calcPos){
       pos1 = _hits[ahit]->cluster()->pos();
       double s1=_hits[ahit]->s();
       hit_s=s1+(posX-pos1).Mag();  
+       std::cerr<<"s of hit before: "<<s1<<std::endl;
     }
   } // end recalcPos
 
   double z = _m * hit_s + _t;
+      std::cerr<<"z=m*s+t: "<<z<<" = "<<_m<<" * "<<hit_s<<" + "<<_t<<std::endl;
+      std::cerr<<"hit->z(): "<<hit->z()<<std::endl;
   return TMath::Abs(z-hit->z());
 }
 

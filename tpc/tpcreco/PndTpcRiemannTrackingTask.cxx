@@ -250,17 +250,17 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
   std::cout<<"PndTpcRiemannTrackingTask::Exec; Event Number: "<<counter<<std::endl;
   // Reset output Arrays
   if(_trackArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No TrackArray");
-   _trackArray->Clear("C");
+   _trackArray->Delete();
   
   if(_pndTrackArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No PndTrackArray");
-     _pndTrackArray->Clear("C");
+     _pndTrackArray->Delete();
   if(_trackCandArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No TrackCandArray");
-     _trackCandArray->Clear("C");
+     _trackCandArray->Delete();
 
   if(_riemannTrackArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannTrackArray");
-     _riemannTrackArray->Clear("C");
+     _riemannTrackArray->Delete();
   if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHitArray");
-     _riemannHitArray->Clear("C");
+     _riemannHitArray->Delete();
 
      
   // build histograms & visualisation of clusters
