@@ -193,38 +193,41 @@ add_library(TpcBase SHARED ${TPC_BASE_SOURCES})
 target_link_libraries(TpcBase ${ROOT_LIBRARIES})
 set_target_properties(TpcBase PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
+
 FIND_PATH(TEvePath NAMES ../TEveEventManager.h PATHS
   ${SIMPATH}/tools/root/include
   NO_DEFAULT_PATH
 )
+find_package(OpenGL)
 
-If(TEvePath)
-  Message("Found TEve, so PndTpcClustVis will be compiled.")
-
+If(TEvePath AND OPENGL_FOUND AND OPENGL_GLU_FOUND)
+  Message("Found TEve, OpenGL and OpenGL GLU  so PndTpcClustVis will be compiled.")
+  
   SET(TPC_EVE_SOURCES
     TestBench/PndTpcClustVis.cxx
   )
-
+  
   CHANGE_FILE_EXTENSION(*.cxx *.h TPC_EVE_HEADERS "${TPC_EVE_SOURCES}")
-
+  
   set(TPC_EVE_LINKDEF  tpcEveLinkDef.h)
-
+  
   set(TPC_EVE_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/tpcEveDict.cxx)
-
+  
   ROOT_GENERATE_DICTIONARY("${TPC_EVE_HEADERS}" "${TPC_EVE_LINKDEF}" "${TPC_EVE_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
+  
   SET(TPC_EVE_SOURCES ${TPC_EVE_SOURCES} ${TPC_EVE_DICTIONARY}) 
-
+  
   add_library(TpcEve SHARED ${TPC_EVE_SOURCES})
   target_link_libraries(TpcEve ${ROOT_LIBRARIES})
   set_target_properties(TpcEve PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-
+  
   ################ install with TpcEve ###################
   install(TARGETS Tpc TpcBase TpcEve DESTINATION ${CMAKE_BINARY_DIR}/lib)
 
-EndIf(TEvePath)
+EndIf (TEvePath AND OPENGL_FOUND AND OPENGL_GLU_FOUND)
 
-If(NOT TEvePath)
+
+If(NOT (TEvePath AND OPENGL_FOUND AND OPENGL_GLU_FOUND))
   ############## install without TpcEve ##################
   install(TARGETS Tpc TpcBase DESTINATION ${CMAKE_BINARY_DIR}/lib)
-EndIf(NOT TEvePath)
+EndIf(NOT (TEvePath AND OPENGL_FOUND AND OPENGL_GLU_FOUND))
