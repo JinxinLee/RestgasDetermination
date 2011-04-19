@@ -247,6 +247,7 @@ void PndMixBackgroundEvents::Exec(Option_t* opt) {
 
 	BackgroundNandT(&nBkgEventsToAdd,times);
 
+times[0]=0.;
 //----------- end background info -----------------
 
 
@@ -261,7 +262,7 @@ void PndMixBackgroundEvents::Exec(Option_t* opt) {
 	pSttHit = (PndSttHit *) fSttHitArray->At(iStt);
 	PndSttHit * temp = new ((*fSttHitandBckgrndArray)[iStt]) PndSttHit;
 	*temp = *pSttHit;
-
+	temp->SetDetectorID(FairRootManager::Instance()->GetBranchId("STTHitMix"));
 
    }	// end of for(  iStt= 0; iStt< fSttHitArray
 
@@ -277,7 +278,8 @@ void PndMixBackgroundEvents::Exec(Option_t* opt) {
 	pMvdPixelHit->PositionError(dpos);
 	new ((*fMvdPixelHitandBckgrndArray)[iPix])
 		PndSdsHit(
-			FairRootManager::Instance()->GetBranchId("MVDHitsPixel"),
+			FairRootManager::Instance()->GetBranchId("MVDHitsPixelMix"),
+//			FairRootManager::Instance()->GetBranchId("MVDHitsPixel"),
 			pMvdPixelHit->GetSensorID(),
 			pos,
 			dpos,
@@ -297,7 +299,8 @@ void PndMixBackgroundEvents::Exec(Option_t* opt) {
 	pMvdStripHit->PositionError(dpos);
 	new ((*fMvdStripHitandBckgrndArray)[iStrip])
 		PndSdsHit(
-			FairRootManager::Instance()->GetBranchId("MVDHitsStrip"),
+			FairRootManager::Instance()->GetBranchId("MVDHitsStripMix"),
+//			FairRootManager::Instance()->GetBranchId("MVDHitsStrip"),
 			pMvdStripHit->GetSensorID(),
 			pos,
 			dpos,
@@ -342,6 +345,7 @@ for(int ipro=0;ipro<nBkgEventsToAdd;ipro++){
 		 pSttHit->SetIsochrone(modified);  // because this is background hit.
 		 PndSttHit * temp = new ((*fSttHitandBckgrndArray)[k1+iaddStt]) PndSttHit;
 		 *temp = *pSttHit;
+		 temp->SetDetectorID(FairRootManager::Instance()->GetBranchId("STTHitMix"));
 		 iaddStt++;
 		}
 	}	// end of  for( i= 0;
@@ -358,7 +362,8 @@ for(int ipro=0;ipro<nBkgEventsToAdd;ipro++){
 			new ((*fMvdPixelHitandBckgrndArray)[k2+iaddPix])
 				PndSdsHit(
 					FairRootManager::Instance()->GetBranchId(
-							"MVDHitsPixel"),
+							"MVDHitsPixelMix"),
+//							"MVDHitsPixel"),
 					pMvdPixelHit->GetSensorID(),
 					pos,
 					dpos,
@@ -379,7 +384,8 @@ for(int ipro=0;ipro<nBkgEventsToAdd;ipro++){
 			new ((*fMvdStripHitandBckgrndArray)[k3+iaddStrip])
 				PndSdsHit(
 					FairRootManager::Instance()->GetBranchId(
-							"MVDHitsStrip"),
+							"MVDHitsStripMix"),
+//							"MVDHitsStrip"),
 					pMvdStripHit->GetSensorID(),
 					pos,
 					dpos,
