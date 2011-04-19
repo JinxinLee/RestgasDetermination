@@ -66,6 +66,8 @@ class PndSttTrackFinder : public TObject
   /** CHECK added **/
   virtual void SetTubeArray(TClonesArray *tubeArray) = 0;
   
+  virtual void SetInputBranchName(char* string1 ){};
+
  private:
   
  protected:
