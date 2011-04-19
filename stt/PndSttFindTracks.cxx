@@ -142,17 +142,25 @@ InitStatus PndSttFindTracks::Init()
 void PndSttFindTracks::SetParContainers() {
   FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
   fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
+
+
 }
 
 // -------------------------------------------------------------------------
 void PndSttFindTracks::AddHitCollectionName(char *hitCollectionName, char *pointCollectionName)
 {
-    string
-	newPointName(pointCollectionName),
-	newHitName(hitCollectionName);
+//    string
+//	newPointName(pointCollectionName),
+//	newHitName(hitCollectionName);
 
-    fHitCollectionNames.push_back(newHitName);
-    fPointCollectionNames.push_back(newPointName);
+//    fHitCollectionNames.push_back(newHitName);
+//    fPointCollectionNames.push_back(newPointName);
+    fHitCollectionNames.push_back(hitCollectionName);
+    fPointCollectionNames.push_back(pointCollectionName);
+
+  fFinder->SetInputBranchName(hitCollectionName); // this passes the HitBranch Name to
+  						  //  PndSttTrackFinderReal.
+
 }
 
 void PndSttFindTracks::AddHitCollection(char const *hitCollectionName, char const *pointCollectionName)
