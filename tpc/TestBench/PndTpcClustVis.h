@@ -198,8 +198,6 @@ private:
   TGCheckButton* guiDoClustering;
   bool doClustering;
   TGNumberEntry* guiEvent;
-  TGCheckButton* guiDrawTpc;
-  bool drawTpc;
   TGNumberEntry* guiMode;
   int ClMode;
   TGNumberEntry* giuTimeslice;
@@ -215,6 +213,10 @@ private:
 
   TGCheckButton* guiInstantRedraw;
   bool instantRedraw;
+  TGCheckButton* guiDrawTpc;
+  bool drawTpc;
+  TGCheckButton* guiDrawRawDigis;
+  bool drawRawDigis;
   TGCheckButton* guiDrawDigis;
   bool drawDigis;
   TGCheckButton* guiDrawClusters;

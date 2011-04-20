@@ -19,7 +19,7 @@ PndTpcClustVis* PndTpcClustVis::eventDisplay = NULL;
 PndTpcClustVis::PndTpcClustVis():
   tree(NULL),digisBranch(NULL),clustersBranch(NULL), guiEvent(0),
   doClustering(false), ClMode(2), ClTimeslice(3),ClTimecut(2), ClSingeDigiClAmpCut(20), ClSimpleCl(true), ClSimpleTimeslice(7),
-  instantRedraw(false), drawTpc(false), drawDigis(false), drawClusters(false), drawClusterErrors(false),
+  instantRedraw(false), drawTpc(false), drawRawDigis(false), drawDigis(false), drawClusters(false), drawClusterErrors(false),
   doPR(true), doMerge(true), _sorting(3), _interactionZ(0), _sortingMode(true), PRNHits(1000000),
   _minpoints(5), _planecut(0.05), _riproxcut(0.05), _szcut(0.25), _proxcut(2),
   _TTproxcut(2), _TTplanecut(2E-3), _TTszcut(2), fRiemannScale(24.6)
@@ -255,7 +255,8 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     buffermap[isect]=new std::vector<PndTpcCluster*>;
   }
   std::vector<PndTpcCluster*>* fcluster_buffer=buffermap[0];
-    
+  fcluster_buffer->clear();
+
   //
   // Clustering
   //
@@ -282,13 +283,14 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     ffinder->reset();
     
     //for sorting
-    std::vector<PndTpcDigi*> digis;
+    int ndigis = digisBranch->GetEntriesFast();
+    std::vector<PndTpcDigi*> digis(ndigis);
 
-    for(int k=0; k<digisBranch->GetEntries(); ++k){
+    for(int k=0; k<ndigis; ++k){
       PndTpcDigi* digi=(PndTpcDigi*)digisBranch->At(k);
-      digis.push_back(digi);
+      digis[k]=digi;
     }
-    std::cout<<"number of digis: "<<digis.size()<<std::endl;
+    std::cout<<"number of digis: "<<ndigis<<std::endl;
     try{
       ffinder->process(digis);
     } catch (std::exception& e) {
@@ -301,6 +303,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
      int i=0;
      
+     // clean up clusters
      while(i<fcluster_buffer->size()){
        if( ((*fcluster_buffer)[i])->amp()<=1 || // TODO: get from file!!
            (((*fcluster_buffer)[i])->size()==1 && ((*fcluster_buffer)[i])->amp()<=ClSingeDigiClAmpCut)){
@@ -309,6 +312,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
        }
        else ++i;
      }
+
      digis.clear();
   }
   else if(clustersBranch!=NULL){ // fill clusters in cluster_buffer (and use buffermap)
@@ -328,13 +332,46 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
   //
   // DRAW
   //
+  if(drawRawDigis && digisBranch!=NULL){ // draw raw digis
+    unsigned int ndigis = digisBranch->GetEntriesFast();
+    std::cout<<"number of digis: "<<ndigis<<std::endl;
+    for(unsigned int j=0; j<ndigis; ++j){ // loop over digis
+      const PndTpcDigi* digi=(PndTpcDigi*)digisBranch->At(j);
+
+      // map digi
+      TVector3 pos;
+      if(digi->padId()<0) continue;
+      PndTpcDigiMapper::getInstance()->map(digi,pos);
+
+      // rotate and translate -------------------------------------------------------
+      TGeoMatrix* det_trans = new TGeoGenTrans(pos.X(), pos.Y(), pos.Z(),
+                                               1,1,1, 0);
+
+      TEveGeoShape* digi_shape = new TEveGeoShape("digi_shape");
+
+      // calculate and norm amp
+      double amp = digi->amp(); // should be ~ 6 .. 2000
+      if(amp<1) continue;
+      amp = TMath::Log(amp); // ~ 0.8 .. 3.3
+      amp *= 0.019;
+
+      digi_shape->SetShape(new TGeoTube(0.,amp, 0.05 ) );
+      digi_shape->SetTransMatrix(*det_trans);
+      // finished rotating and translating ------------------------------------------
+
+      digi_shape->SetMainColor(kGray);
+      digi_shape->SetMainTransparency(50);
+      gEve->AddElement(digi_shape);
+    } // end loop over digis
+  }// end draw raw digis
+  // draw clusters and digis
   for(unsigned int isect=0;isect<nsectors;++isect){ // loop over sectors
     fcluster_buffer=buffermap[isect];
     unsigned int ncl=fcluster_buffer->size();
     std::cerr << "number of clusters: " << ncl << " in sector " << isect << std::endl;
     unsigned int tenpercent=(unsigned int)(ncl*0.1);
 
-    for(unsigned int i=0; i<ncl; i+=2){ // loop over clusters
+    for(unsigned int i=0; i<ncl; i++){ // loop over clusters
       //************ Progress messages ************************
       // if(i%10000==0){std::cout<<".";std::cout.flush();}
       // if(i%tenpercent==0){
@@ -350,7 +387,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       PndTpcCluster *cluster = (*fcluster_buffer)[i];
 
       // get Digis from Cluster & draw
-      if(drawDigis && digisBranch!=NULL){
+      if(drawDigis){
         int ndigis = cluster->nDigi();
 
         for(unsigned int j=0; j<ndigis; ++j){ // loop over digis
@@ -379,7 +416,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
           // finished rotating and translating ------------------------------------------
 
           digi_shape->SetMainColor(colors[colour]);
-          digi_shape->SetMainTransparency(50);
+          digi_shape->SetMainTransparency(45);
           gEve->AddElement(digi_shape);
         } // end loop over digis
       } // end draw digis
@@ -412,8 +449,10 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
     }// end loop over clusters
   }// end loop over sectors;
-
   std::cout << std::endl;
+  //
+  // end DRAW
+  //
 
   //
   // Pattern Reco
@@ -991,7 +1030,14 @@ void PndTpcClustVis::makeGui() {
   }
   frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
-    guiDrawDigis =  new TGCheckButton(hf, "Draw Digis");
+    guiDrawRawDigis =  new TGCheckButton(hf, "Draw Digis from DigiBranch");
+    if(drawRawDigis) guiDrawRawDigis->Toggle();
+    hf->AddFrame(guiDrawRawDigis);
+    guiDrawRawDigis->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
+  }
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    guiDrawDigis =  new TGCheckButton(hf, "Draw Digis from Clusters");
     if(drawDigis) guiDrawDigis->Toggle();
     hf->AddFrame(guiDrawDigis);
     guiDrawDigis->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
@@ -1244,14 +1290,16 @@ void PndTpcClustVis::guiSetTrackingParams(){
 
 void PndTpcClustVis::guiSetDrawParams(){
 
-  if (guiInstantRedraw->IsOn()) instantRedraw=true;
-  else instantRedraw=false;
+  if (!guiInstantRedraw->IsOn()) instantRedraw=false;
   
   if (guiDoClustering->IsOn()) doClustering=true;
   else doClustering=false;
 
   if (guiDrawTpc->IsOn()) drawTpc=true;
   else drawTpc=false;
+
+  if (guiDrawRawDigis->IsOn()) drawRawDigis=true;
+  else drawRawDigis=false;
 
   if (guiDrawDigis->IsOn()) drawDigis=true;
   else drawDigis=false;
@@ -1267,6 +1315,9 @@ void PndTpcClustVis::guiSetDrawParams(){
 
   PndTpcClustVis*  fh = PndTpcClustVis::getInstance();
   if(instantRedraw) fh->gotoEvent(fEventId);
+
+  if (guiInstantRedraw->IsOn()) instantRedraw=true;
+
 }
 
 
