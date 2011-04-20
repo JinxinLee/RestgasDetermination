@@ -30,7 +30,7 @@
 #include <GFTrack.h>
 #include <TApplication.h>
 #include <TEveBrowser.h>
-#include <TEveBox.h>
+//#include <TEveBox.h>
 #include <TEveManager.h>
 #include <TEveEventManager.h>
 #include <TEveGeoNode.h>
