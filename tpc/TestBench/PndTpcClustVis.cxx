@@ -17,7 +17,7 @@
 PndTpcClustVis* PndTpcClustVis::eventDisplay = NULL;
 
 PndTpcClustVis::PndTpcClustVis():
-  digisBranch(0),clustersBranch(0), guiEvent(0),
+  tree(NULL),digisBranch(NULL),clustersBranch(NULL), guiEvent(0),
   doClustering(false), ClMode(2), ClTimeslice(3),ClTimecut(2), ClSingeDigiClAmpCut(20), ClSimpleCl(true), ClSimpleTimeslice(7),
   instantRedraw(false), drawTpc(false), drawDigis(false), drawClusters(false), drawClusterErrors(false),
   doPR(true), doMerge(true), _sorting(3), _interactionZ(0), _sortingMode(true), PRNHits(1000000),
@@ -119,9 +119,17 @@ void PndTpcClustVis::reset() {
 
 void PndTpcClustVis::setTree(TTree* treeIn) {
   tree = treeIn;
-  tree->SetBranchAddress("PndTpcRawDigi", &digisBranch);
-  if(digisBranch==NULL) tree->SetBranchAddress("PndTpcDigi", &digisBranch);
+  if(tree==NULL) std::cerr<<"WARNING: Tree not found!"<<std::endl;
+  else std::cerr<<"Tree found!"<<std::endl;
+
+  tree->SetBranchAddress("PndTpcDigi", &digisBranch);
+  if(digisBranch==NULL) std::cerr<<"WARNING: No Digi Branch found!"<<std::endl;
+  else std::cerr<<"Digi Branch found!"<<std::endl;
+
   tree->SetBranchAddress("PndTpcCluster", &clustersBranch);
+  if(clustersBranch==NULL) std::cerr<<"WARNING: No Cluster Branch found!"<<std::endl;
+  else std::cerr<<"Cluster Branch found!"<<std::endl;
+
   //tree->SetBranchAddress("TrackPreFit", &preFitBranch);
 }
 
@@ -236,7 +244,6 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     gEve->AddElement(tpc_shape);
   }
 
-
   tree->GetEntry(id);
 
 
@@ -249,7 +256,11 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
   }
   std::vector<PndTpcCluster*>* fcluster_buffer=buffermap[0];
     
-  if(doClustering){ // run ClusterFinder and fill fcluster_buffer
+  //
+  // Clustering
+  //
+  if(doClustering && digisBranch!=NULL){ // run ClusterFinder and fill fcluster_buffer
+    std::cerr<<"Run Cluster finder..."<<std::endl;
     PndTpcAbsClusterFinder* ffinder = 0;
 
     // TODO: get from file!!
@@ -270,7 +281,6 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     ffinder->saveRaw();
     ffinder->reset();
     
-    if(digisBranch==NULL) std::cerr<<"PndTpcClustVis::drawEvent - Error: No Digi Array Found!"<<std::endl;
     //for sorting
     std::vector<PndTpcDigi*> digis;
 
@@ -292,8 +302,8 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
      int i=0;
      
      while(i<fcluster_buffer->size()){
-       if( ((*fcluster_buffer)[i])->amp()<1 ||
-           (((*fcluster_buffer)[i])->size()==1 && ((*fcluster_buffer)[i])->amp()<ClSingeDigiClAmpCut)){
+       if( ((*fcluster_buffer)[i])->amp()<=1 || // TODO: get from file!!
+           (((*fcluster_buffer)[i])->size()==1 && ((*fcluster_buffer)[i])->amp()<=ClSingeDigiClAmpCut)){
          delete (*fcluster_buffer)[i];
          (*fcluster_buffer).erase( (*fcluster_buffer).begin()+i );
        }
@@ -301,8 +311,8 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
      }
      digis.clear();
   }
-  else{ // fill clusters in cluster_buffer (and use buffermap)
-    if(clustersBranch==NULL) std::cerr<<"PndTpcClustVis::drawEvent - Error: No Cluster Array Found!"<<std::endl;
+  else if(clustersBranch!=NULL){ // fill clusters in cluster_buffer (and use buffermap)
+    std::cerr<<"Fetching clusters from cluster branch..."<<std::endl;
     unsigned int ncl=clustersBranch->GetEntries();
     for(unsigned int isect=0;isect<nsectors;++isect)
       buffermap[isect]->reserve(ncl/nsectors+10);
@@ -312,95 +322,102 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     }
     std::cout << "number of clusters: " << ncl << std::endl;
   } //  end else (read clusters from file)
- 
-  // loop over sectors
-  for(unsigned int isect=0;isect<nsectors;++isect){
+  else std::cerr<<"WARNING: No Clusters were created"<<std::endl;
+
+
+  //
+  // DRAW
+  //
+  for(unsigned int isect=0;isect<nsectors;++isect){ // loop over sectors
     fcluster_buffer=buffermap[isect];
-     unsigned int ncl=fcluster_buffer->size();
-     std::cerr << "number of clusters: " << ncl << " in sector " << isect << std::endl;
-  // loop over clusters
-     unsigned int tenpercent=(unsigned int)(ncl*0.1);
-  for(unsigned int i=0; i<ncl; i+=2){
-    //************ Progress messages ************************
-    // if(i%10000==0){std::cout<<".";std::cout.flush();}
-    // if(i%tenpercent==0){
-    //   std::cout<<"["
-    //            <<ceil((double)i*100/(double)ncl)<<"%"
-    //            <<"]";
-    //   std::cout.flush();
-    // }
-    // ******************************************************
+    unsigned int ncl=fcluster_buffer->size();
+    std::cerr << "number of clusters: " << ncl << " in sector " << isect << std::endl;
+    unsigned int tenpercent=(unsigned int)(ncl*0.1);
 
-    int colour = i%colors.size();
+    for(unsigned int i=0; i<ncl; i+=2){ // loop over clusters
+      //************ Progress messages ************************
+      // if(i%10000==0){std::cout<<".";std::cout.flush();}
+      // if(i%tenpercent==0){
+      //   std::cout<<"["
+      //            <<ceil((double)i*100/(double)ncl)<<"%"
+      //            <<"]";
+      //   std::cout.flush();
+      // }
+      // ******************************************************
 
-    PndTpcCluster *cluster = (*fcluster_buffer)[i];
+      int colour = i%colors.size();
 
-    // get Digis from Cluster & draw
-    if(drawDigis && !doPR){
-      int ndigis = cluster->nDigi();
-      // loop over digis
-      for(unsigned int j=0; j<ndigis; ++j){
-        const PndTpcDigi* digi = cluster->getDigi(j);
+      PndTpcCluster *cluster = (*fcluster_buffer)[i];
 
-        // map digi
+      // get Digis from Cluster & draw
+      if(drawDigis && digisBranch!=NULL){
+        int ndigis = cluster->nDigi();
+
+        for(unsigned int j=0; j<ndigis; ++j){ // loop over digis
+          const PndTpcDigi* digi = cluster->getDigi(j);
+
+          // map digi
+          TVector3 pos;
+          if(digi->padId()<0) continue;
+          PndTpcDigiMapper::getInstance()->map(digi,pos);
+
+          // rotate and translate -------------------------------------------------------
+          TGeoMatrix* det_trans = new TGeoGenTrans(pos.X(), pos.Y(), pos.Z(),
+                                                   1,1,1, 0);
+
+
+          TEveGeoShape* digi_shape = new TEveGeoShape("digi_shape");
+
+          // calculate and norm amp
+          double amp = digi->amp(); // should be ~ 6 .. 2000
+          if(amp<1) continue;
+          amp = TMath::Log(amp); // ~ 0.8 .. 3.3
+          amp *= 0.02;
+
+          digi_shape->SetShape(new TGeoTube(0.,amp, 0.05 ) );
+          digi_shape->SetTransMatrix(*det_trans);
+          // finished rotating and translating ------------------------------------------
+
+          digi_shape->SetMainColor(colors[colour]);
+          digi_shape->SetMainTransparency(50);
+          gEve->AddElement(digi_shape);
+        } // end loop over digis
+      } // end draw digis
+
+      if(drawClusters && !doPR){
         TVector3 pos;
-        if(digi->padId()<0) continue;
-        PndTpcDigiMapper::getInstance()->map(digi,pos);
+        TVector3 err;
 
+        pos = cluster->pos();
         // rotate and translate -------------------------------------------------------
         TGeoMatrix* det_trans = new TGeoGenTrans(pos.X(), pos.Y(), pos.Z(),
-                                                 1,1,1, 0);
+                                                 1., 1., 1., 0);
 
+        TEveGeoShape* cluster_shape = new TEveGeoShape("cluster_shape");
 
-        TEveGeoShape* digi_shape = new TEveGeoShape("digi_shape");
+        if(drawClusterErrors){
+          err = cluster->sig();
+          cluster_shape->SetShape(new TGeoBBox(err.X(), err.Y(), err.Z()) );
+        }
+        else
+          cluster_shape->SetShape(new TGeoSphere(0., 0.25) );
 
-        // calculate and norm amp
-        double amp = digi->amp(); // should be ~ 6 .. 2000
-        if(amp<1) continue; 
-        amp = TMath::Log(amp); // ~ 0.8 .. 3.3
-        amp *= 0.02;
-	
-        digi_shape->SetShape(new TGeoTube(0.,amp, 0.05 ) );
-        digi_shape->SetTransMatrix(*det_trans);
+        cluster_shape->SetTransMatrix(*det_trans);
         // finished rotating and translating ------------------------------------------
 
-        digi_shape->SetMainColor(colors[colour]);
-        digi_shape->SetMainTransparency(50);
-        gEve->AddElement(digi_shape);
-      } // end loop over digis
-    } // end draw digis
-
-    if(drawClusters && !doPR){
-      TVector3 pos;
-      TVector3 err;
-
-      pos = cluster->pos();
-      // rotate and translate -------------------------------------------------------
-      TGeoMatrix* det_trans = new TGeoGenTrans(pos.X(), pos.Y(), pos.Z(),
-                                               1., 1., 1., 0);
-
-      TEveGeoShape* cluster_shape = new TEveGeoShape("cluster_shape");
-
-      if(drawClusterErrors){
-        err = cluster->sig();
-        cluster_shape->SetShape(new TGeoBBox(err.X(), err.Y(), err.Z()) );
+        cluster_shape->SetMainColor(colors[colour]);
+        cluster_shape->SetMainTransparency(40);
+        gEve->AddElement(cluster_shape);
       }
-      else
-        cluster_shape->SetShape(new TGeoSphere(0., 0.25) );
 
-      cluster_shape->SetTransMatrix(*det_trans);
-      // finished rotating and translating ------------------------------------------
-
-      cluster_shape->SetMainColor(colors[colour]);
-      cluster_shape->SetMainTransparency(40);
-      gEve->AddElement(cluster_shape);
-    }
-
-  }// end loop over clusters
+    }// end loop over clusters
   }// end loop over sectors;
 
   std::cout << std::endl;
+
+  //
   // Pattern Reco
+  //
   if(doPR){
     std::cerr << "Starting Pattern Reco..." << std::endl;
     // init TrackFinder

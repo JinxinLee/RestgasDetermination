@@ -77,15 +77,12 @@ PndTpcClusterFinderTask::SetParContainers() {
 
 void PndTpcClusterFinderTask::SetSimpleClustering(Bool_t opt){
   fsimple=opt;
-  if( fdigiBranchName=="PndTpcDigi" && fsimple)
+  if(fsimple)
     std::cerr<<"\n PndTpcClusterFinderTask::SetSimpleClustering  \n \
-    WARNING: You want to use SimpleClustering. \n \
-    This modifies the Digis. If you want to access the modified digis, set the DigiBranch Name of the PSATask and the ClusterFinderTask to something else than \"PndTpcDigi\" and turn DigiPersistence of the ClusterFinder on. \n \
-    For example, do: \n \
-    tpsa->SetDigiBranchName(\"PndTpcRawDigi\");  // Output of PSA \n \
-    tpcCF->SetDigiBranchName(\"PndTpcRawDigi\"); // Input of clustering \n \
-    tpcCF->SetDigiOutBranchName(\"PndTpcDigi\"); // Digi output of clustering\n \
-    tpcCF->SetDigiPersistence(); \n"<<std::endl;
+    You want to use SimpleClustering. \n \
+    This modifies the Digis (amplitude sharing between clusters). If you want to access the digis, set : \n \
+    tpcCF->SetDigiPersistence(); \n \
+    Then, references to digis and their contribution to the cluster amplitude are saved in the cluster"<<std::endl;
 }
 
 InitStatus
@@ -112,6 +109,7 @@ PndTpcClusterFinderTask::Init()
   ioman->Register(fClusterOutName,"PndTpc",fclusterArray,fpersistence);
 
 
+  // init the DigiMapper
   fpar->printParams();
   ffrontend= fpar->getFrontend();
   fpadplane= fpar->getPadPlane();
@@ -128,6 +126,7 @@ PndTpcClusterFinderTask::Init()
  
   fcluster_buffer = new std::vector<PndTpcCluster*>;
 
+  // init the ClusterFinder
   if(!fsimple){
     ffinder=new PndTpcClusterFinder(PndTpcDigiMapper::getInstance()->getPadPlane(),
             fcluster_buffer,
@@ -153,20 +152,20 @@ void
 PndTpcClusterFinderTask::Exec(Option_t* opt)
 {
   std::cerr<<"PndTpcClusterFinderTask::Exec"<<std::endl;
+
   // Reset output Array
   if(fclusterArray==0) Fatal("PndTpcClusterFinder::Exec)","No ClusterArray");
   fclusterArray->Delete();
 
   ffinder->reset();
 
-  Int_t ndigis=fdigiArray->GetEntriesFast();
-
-  std::vector<PndTpcDigi*> digis(ndigis);
-
   // put digis into vector
+  Int_t ndigis=fdigiArray->GetEntriesFast();
+  std::vector<PndTpcDigi*> digis(ndigis);
   for(unsigned int idigi=0; idigi<ndigis; ++idigi)
     digis[idigi] = (PndTpcDigi*)fdigiArray->At(idigi);
   
+
   std::cerr<<"process digis ";
   try{
     ffinder->process(digis);   
@@ -177,29 +176,26 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
   }
   std::cerr<<"... done"<<std::endl;
   
-  //sort(digis.begin(),digis.end(),PndTpcDigiIndex);
 
-  /*
-
-  for(Int_t i=0;i<ndigis;++i){
+  /*for(Int_t i=0;i<ndigis;++i){
     PndTpcDigi* digi=digis[i];
     TVector3 pos;
     PndTpcDigiMapper::getInstance()->map(digi,pos);
     PndTpcCluster* c=new((*fclusterArray)[i]) PndTpcCluster(pos,digi->amp());
     c->SetMcId(digi->mcId().DominantID());
-  }
-  */
+  }*/
    
-  // put clusters & modified digis into array and clean up buffer
+
+  // put clusters into array and clean up buffer
   unsigned int ncl=fcluster_buffer->size();
   unsigned int ncl_rec=0;
   unsigned int ndig_rec=0;
   
-  std::cerr<<"copying "<<ncl<<" clusters to output array ";
+  std::cerr<<"copying clusters to output array ";
   for(unsigned int icl=0;icl<ncl;++icl){ // loop over clusters
     if((*fcluster_buffer)[icl]->amp()>fthres &&
        ((*fcluster_buffer)[icl]->size()>1 || (*fcluster_buffer)[icl]->amp()>fSDiClAmpCut)){
-      
+      // copy cluster
       PndTpcCluster* cl = new((*fclusterArray)[ncl_rec]) PndTpcCluster(*((*fcluster_buffer)[icl]));
       cl->SetIndex(ncl_rec); 
       ncl_rec++;
@@ -213,7 +209,7 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
   std::cerr<<"... done"<<std::endl;
   
   
-  int splitDigis;
+  int splitDigis=0;
   if(fsimple){
     splitDigis = ((PndTpcClusterFinderSimple*)(ffinder))->NsplitDigis();
     ndig_rec -= splitDigis;
@@ -222,8 +218,7 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
 	<<" containing "<<ndig_rec<<" digis"
   <<" from "<<fdigiArray->GetEntriesFast()<<std::endl;
   if(fsimple){
-    std::cout<<" SimpleClustering split "<< splitDigis <<" Digis"<<std::endl;
-    
+    std::cout<<" SimpleClustering assigned "<< splitDigis <<" split digis to clusters"<<std::endl;
   }   
    
   fcluster_buffer->clear();

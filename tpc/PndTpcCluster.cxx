@@ -71,6 +71,32 @@ PndTpcCluster::PndTpcCluster(const TVector3& Pos, const TVector3& Sig, double Am
 {}
 
 
+
+void
+PndTpcCluster::addDigi(const PndTpcDigi* d){
+  PndTpcDigi digi = *d; // make a copy!
+  digis.push_back(digi);
+  //AddLink(FairLink("PndTpcDigi", d.index()));
+}
+void
+PndTpcCluster::addDigi(const PndTpcDigi* d, double share){
+  PndTpcDigi digi = *d; // make a copy!
+  digis.push_back(digi);
+  double a = digi.amp()*share;
+  digi.amp(a);
+    //AddLink(FairLink("PndTpcDigi", d.index()));
+}
+
+//BEWARE: Cannot be used after reading Cluster from file (if digi is not loaded)
+const PndTpcDigi*
+PndTpcCluster::getDigi(int i) const{
+  assert (i<digis.size());
+  return &(digis[i]);
+}
+
+
+
+
 TVector3
 PndTpcCluster::calcAxis(unsigned int i) const {
   assert(i<3);
@@ -89,7 +115,7 @@ unsigned int
 PndTpcCluster::get2DSize() { //return the 2-dimensional size of the cluster
   std::set<unsigned int> ids;
   for(int k=0; k<digis.size(); k++) {
-    unsigned int id = (digis[k])->padId();
+    unsigned int id = (digis[k]).padId();
     ids.insert(id);
   }
   return ids.size();

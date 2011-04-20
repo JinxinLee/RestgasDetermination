@@ -28,6 +28,7 @@
 #include "TVector3.h"
 #include "McIdCollection.h"
 #include "TMatrixD.h"
+#include "PndTpcDigi.h"
 #include "PndTpcDigiMapper.h"
 #include "PndTpcDigiAge.h"
 
@@ -92,28 +93,11 @@ public:
     return digis.size();
   }
 
-  void addDigi(const PndTpcDigi* d){
-    digis.push_back(d);
-    digiShares[d] = 1.;
-    //AddLink(FairLink("PndTpcDigi", d.index()));
-  }
-  void addDigi(const PndTpcDigi* d, double share){
-    digis.push_back(d);
-    digiShares[d] = share;
-      //AddLink(FairLink("PndTpcDigi", d.index()));
-  }
-
-  //BEWARE: Cannot be used after reading Cluster from file (if digi is not loaded)
-  const PndTpcDigi* getDigi(int i) const{
-    assert (i<digis.size());
-    return digis[i];
-  }
-
-  const double getDigiAmpShare(int i) const {
-    assert (i<digis.size());
-    const PndTpcDigi* d = digis[i];
-    return digiShares.find(d)->second;
-  }
+  // digis are COPIED and stored in the cluster
+  void addDigi(const PndTpcDigi* d);
+  void addDigi(const PndTpcDigi* d, double share);
+  // returns a reference to a digi belonging to the cluster (a copy!)
+  const PndTpcDigi* getDigi(int i) const;
 
   //--------------------------------------------------------------------------------
   
@@ -141,10 +125,7 @@ private:
   int findexInTrack;	//index in track for spatial sorting
 
   //for optional saving of raw info that went into the cluster
-  //
-  std::vector<const PndTpcDigi*> digis; //
-  std::map<const PndTpcDigi*, double> digiShares; // Map: Digi and share of amplitude belonging to this cluster (<=1.)
-
+  std::vector<PndTpcDigi> digis;
 
 
   // Private Methods -----------------

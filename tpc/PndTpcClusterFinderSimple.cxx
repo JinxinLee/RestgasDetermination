@@ -218,8 +218,9 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
 	      double share = fd->amp()/(double)nselclust;
 	      for(int i=0;i<nselclust;++i) {
 	        prelimClusters[selClusters[i]]->addHit(fd,noXclust, share);
+          ++splitDigis;
 	      }
-        ++splitDigis;
+        --splitDigis;
       }
     }
   } // end loop over digis
