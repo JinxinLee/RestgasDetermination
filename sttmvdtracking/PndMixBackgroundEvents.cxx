@@ -247,7 +247,6 @@ void PndMixBackgroundEvents::Exec(Option_t* opt) {
 
 	BackgroundNandT(&nBkgEventsToAdd,times);
 
-times[0]=0.;
 //----------- end background info -----------------
 
 
@@ -267,7 +266,7 @@ times[0]=0.;
    }	// end of for(  iStt= 0; iStt< fSttHitArray
 
 
-   //	physical event Mvd Pixel hits --
+   //	physics event Mvd Pixel hits --
 
    fMvdPixelHitandBckgrndArray->Delete();
 
