@@ -50,7 +50,7 @@
 
   // =========================================================================
   //-------------------------- MixBackgroundEvents  task ----------------------------------
-  PndMixBackgroundEvents *  MixBackgroundEvents = new PndMixBackgroundEvents(2);
+  PndMixBackgroundEvents *  MixBackgroundEvents = new PndMixBackgroundEvents(0);
   // set the filename (digifile) from which the background is taken.
   MixBackgroundEvents->SetInputBkgFilesName(
        "Mixed_digi.root");
