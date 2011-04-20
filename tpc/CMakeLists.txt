@@ -224,10 +224,7 @@ If(TEvePath AND OPENGL_FOUND AND OPENGL_GLU_FOUND)
   ################ install with TpcEve ###################
   install(TARGETS Tpc TpcBase TpcEve DESTINATION ${CMAKE_BINARY_DIR}/lib)
 
-EndIf (TEvePath AND OPENGL_FOUND AND OPENGL_GLU_FOUND)
-
-
-If(NOT (TEvePath AND OPENGL_FOUND AND OPENGL_GLU_FOUND))
+Else(TEvePath AND OPENGL_FOUND AND OPENGL_GLU_FOUND)
   ############## install without TpcEve ##################
   install(TARGETS Tpc TpcBase DESTINATION ${CMAKE_BINARY_DIR}/lib)
-EndIf(NOT (TEvePath AND OPENGL_FOUND AND OPENGL_GLU_FOUND))
+EndIf(TEvePath AND OPENGL_FOUND AND OPENGL_GLU_FOUND)
