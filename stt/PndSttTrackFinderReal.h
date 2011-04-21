@@ -238,7 +238,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 			bool ExclusionList[nmaxHits],
 			Double_t infoparalConformal[][5],Int_t Nparal,
 			UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
-			UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
+			UShort_t HitsinBoxConformal[][nRdivConformal][nFidivConformal],
 			UShort_t  RConformalIndex[nmaxHits],
 			UShort_t  FiConformalIndex[nmaxHits]
 			);
@@ -264,7 +264,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 			UShort_t RConformalIndex[nmaxHits],
 			UShort_t FiConformalIndex[nmaxHits],
 			UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
-			UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
+			UShort_t HitsinBoxConformal[][nRdivConformal][nFidivConformal],
 			UShort_t  *ListHitsinTrack
 						);
 
@@ -281,7 +281,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		UShort_t RConformalIndex[nmaxHits],
 		UShort_t FiConformalIndex[nmaxHits],
 		UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
-		UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
+		UShort_t HitsinBoxConformal[][nRdivConformal][nFidivConformal],
 		UShort_t  *OutputListHitsinTrack
 							);
 
@@ -374,7 +374,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                    UShort_t *RConformalIndex,
                    UShort_t *FiConformalIndex,
                    UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
-                   UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
+                   UShort_t HitsinBoxConformal[][nRdivConformal][nFidivConformal],
                    UShort_t *auxListHitsinTrack
                                                      );
 
@@ -414,11 +414,6 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                                     ) ;
 
 
-  void findmaximaDFiR( UShort_t BoxDFiR[nbinD][nbinFi][nbinR], Int_t MINIMUMCOUNTS,
-                    Int_t * NumberofMaximaDFiR, Int_t  MaximaIndexesDFiR[][3], Int_t * STATUS);
-
-  void findmaximaKFI0( UShort_t BoxKFI0[nbinKAPPA][nbinFI0], Int_t MINIMUMCOUNTS, 
-                    Int_t *NumberofMaximaKFI0, Int_t  MaximaIndexesKFI0[][2], Int_t * STATUS);
 
   bool iscontiguous( int ncomponents, UShort_t * vec1, UShort_t *vec2);
 
@@ -647,7 +642,8 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
   void WriteMacroSkewAssociatedHitswithRfromMC(
                    Double_t KAPPA,Double_t FI0,Double_t D,Double_t Fi,Double_t R,
-                   Int_t Nhits, Double_t info[][7],  Int_t Nincl, Int_t Minclinations[], Double_t inclination[][3],
+                   Int_t Nhits, Double_t info[][7],
+		     Int_t Nincl, Int_t Minclinations[], Double_t inclination[][3],
                    Int_t imaxima, Int_t nMaxima 
                                                      );
 
