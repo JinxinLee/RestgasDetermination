@@ -31,3 +31,6 @@ tpc/TestBench/TBhexa_pads.dat
 tpc/TestBench/padPlane_FOPI.dat
 tpc/TestBench/ARGON-90_CO2-10_B0_PRES1013.asc
 tpc/TestBench/PadShapePrototype.dat
+tpc/TestBench/ARGON-89.635_CO2-10.365_B0.3_PRES1013.asc
+tpc/TestBench/NEON-90_CO2-10_B0.6_PRES1013.asc
+tpc/TestBench/ARGON-90_CO2-10_B0.6_PRES1013.asc
