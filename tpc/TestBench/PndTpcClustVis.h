@@ -195,6 +195,10 @@ private:
   const PndTpcGas* fgas;
   double fzGem;
 
+  std::map<unsigned int, std::vector<PndTpcCluster*>*> buffermap;
+  std::vector<PndTpcCluster*>* fcluster_buffer;
+  unsigned int nsectors;
+
   TGCheckButton* guiDoClustering;
   bool doClustering;
   TGNumberEntry* guiEvent;
@@ -204,12 +208,16 @@ private:
   int ClTimeslice;
   TGNumberEntry* giuTimecut;
   int ClTimecut;
-  TGNumberEntry* guiSingeDigiClAmpCut;
-  int ClSingeDigiClAmpCut;
+  TGNumberEntry* guiSingleDigiClAmpCut;
+  int ClSingleDigiClAmpCut;
+  TGNumberEntry* guiClAmpCut;
+  int ClClAmpCut;
   TGCheckButton* guiSimpleCl;
   bool ClSimpleCl;
   TGNumberEntry* giuSimpleTimeslice;
   int ClSimpleTimeslice;
+
+  bool ClHasChanged;
 
   TGCheckButton* guiInstantRedraw;
   bool instantRedraw;

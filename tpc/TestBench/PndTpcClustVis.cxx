@@ -17,8 +17,8 @@
 PndTpcClustVis* PndTpcClustVis::eventDisplay = NULL;
 
 PndTpcClustVis::PndTpcClustVis():
-  tree(NULL),digisBranch(NULL),clustersBranch(NULL), guiEvent(0),
-  doClustering(false), ClMode(2), ClTimeslice(3),ClTimecut(2), ClSingeDigiClAmpCut(20), ClSimpleCl(true), ClSimpleTimeslice(7),
+  tree(NULL),digisBranch(NULL),clustersBranch(NULL), guiEvent(0), ClHasChanged(true),
+  doClustering(false), ClMode(2), ClTimeslice(3),ClTimecut(2), ClSingleDigiClAmpCut(20), ClClAmpCut(10), ClSimpleCl(true), ClSimpleTimeslice(7),
   instantRedraw(false), drawTpc(false), drawRawDigis(false), drawDigis(false), drawClusters(false), drawClusterErrors(false),
   doPR(true), doMerge(true), _sorting(3), _interactionZ(0), _sortingMode(true), PRNHits(1000000),
   _minpoints(5), _planecut(0.05), _riproxcut(0.05), _szcut(0.25), _proxcut(2),
@@ -89,6 +89,14 @@ void PndTpcClustVis::initDigimapper(double drifField,
   double sf = samplingFreq;
   double t0 = wallclock; // time offset in ns
   PndTpcDigiMapper::getInstance(false)->init(fpadplane,fgem,fgas,fpadShapes,fzGem,t0,sf);
+
+  // build a clusterbuffer for each sector;
+  nsectors=PndTpcDigiMapper::getInstance()->getPadPlane()->GetNSectors();
+  std::cerr << "Found " << nsectors << " sectors in padplane" << std::endl;
+  for(unsigned int  isect=0;isect<nsectors;++isect){
+    buffermap[isect]=new std::vector<PndTpcCluster*>;
+  }
+
 }
 
 
@@ -155,6 +163,7 @@ void PndTpcClustVis::gotoEvent(int id) {
 
   bool resetCam = kTRUE;
   if(id==fEventId) resetCam=kFALSE;
+  else ClHasChanged=true;
 
   std::cout<<"reset cam "<<resetCam<<std::endl;
 
@@ -246,22 +255,21 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
   tree->GetEntry(id);
 
-
-  // build a clusterbuffer for each sector;
-  std::map<unsigned int, std::vector<PndTpcCluster*>*> buffermap;
-  unsigned int nsectors=PndTpcDigiMapper::getInstance()->getPadPlane()->GetNSectors();
-  std::cerr << "Found " << nsectors << " sectors in padplane" << std::endl;
-  for(unsigned int  isect=0;isect<nsectors;++isect){
-    buffermap[isect]=new std::vector<PndTpcCluster*>;
-  }
-  std::vector<PndTpcCluster*>* fcluster_buffer=buffermap[0];
-  fcluster_buffer->clear();
-
   //
   // Clustering
   //
-  if(doClustering && digisBranch!=NULL){ // run ClusterFinder and fill fcluster_buffer
+  if(doClustering && digisBranch!=NULL && ClHasChanged){ // run ClusterFinder and fill fcluster_buffer (only if Clustering params have changed, else keep old clusters)
     std::cerr<<"Run Cluster finder..."<<std::endl;
+
+    ClHasChanged=false;
+
+    // clean up buffermap
+    for(unsigned int isect=0;isect<nsectors;++isect){
+      buffermap[isect]->clear();
+    }
+    fcluster_buffer=buffermap[0];
+
+
     PndTpcAbsClusterFinder* ffinder = 0;
 
     // TODO: get from file!!
@@ -305,8 +313,8 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
      
      // clean up clusters
      while(i<fcluster_buffer->size()){
-       if( ((*fcluster_buffer)[i])->amp()<=1 || // TODO: get from file!!
-           (((*fcluster_buffer)[i])->size()==1 && ((*fcluster_buffer)[i])->amp()<=ClSingeDigiClAmpCut)){
+       if( ((*fcluster_buffer)[i])->amp()<=ClClAmpCut || // TODO: get from file!!
+           (((*fcluster_buffer)[i])->size()==1 && ((*fcluster_buffer)[i])->amp()<=ClSingleDigiClAmpCut)){
          delete (*fcluster_buffer)[i];
          (*fcluster_buffer).erase( (*fcluster_buffer).begin()+i );
        }
@@ -315,7 +323,12 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
      digis.clear();
   }
-  else if(clustersBranch!=NULL){ // fill clusters in cluster_buffer (and use buffermap)
+  else if(!doClustering && clustersBranch!=NULL){ // fill clusters in cluster_buffer (and use buffermap)
+    // clean up buffermap
+    for(unsigned int isect=0;isect<nsectors;++isect){
+      buffermap[isect]->clear();
+    }
+
     std::cerr<<"Fetching clusters from cluster branch..."<<std::endl;
     unsigned int ncl=clustersBranch->GetEntries();
     for(unsigned int isect=0;isect<nsectors;++isect)
@@ -326,7 +339,6 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     }
     std::cout << "number of clusters: " << ncl << std::endl;
   } //  end else (read clusters from file)
-  else std::cerr<<"WARNING: No Clusters were created"<<std::endl;
 
 
   //
@@ -364,6 +376,8 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       gEve->AddElement(digi_shape);
     } // end loop over digis
   }// end draw raw digis
+
+
   // draw clusters and digis
   for(unsigned int isect=0;isect<nsectors;++isect){ // loop over sectors
     fcluster_buffer=buffermap[isect];
@@ -453,6 +467,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
   //
   // end DRAW
   //
+
 
   //
   // Pattern Reco
@@ -570,13 +585,6 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     riemannlist.clear();
   }
 
-  // clean up buffermap
-  for(unsigned int isect=0;isect<nsectors;++isect){
-    buffermap[isect]->clear();
-    delete buffermap[isect];
-  }
-  buffermap.clear();
-  //fcluster_buffer->clear();
 
 /*
   for(int i = 0; i < fEvents.at(id)->size(); i++) { // loop over all tracks in an event
@@ -975,18 +983,28 @@ void PndTpcClustVis::makeGui() {
     lbl = new TGLabel(hf, "Timecut");
         hf->AddFrame(lbl);
   }
-
-
-
   frmMain->AddFrame(hf);
+
+
   hf = new TGHorizontalFrame(frmMain); {
-    guiSingeDigiClAmpCut = new TGNumberEntry(hf, ClSingeDigiClAmpCut, 6,999, TGNumberFormat::kNESInteger,
+    guiSingleDigiClAmpCut = new TGNumberEntry(hf, ClSingleDigiClAmpCut, 6,999, TGNumberFormat::kNESInteger,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
                           0, 2000);
-    hf->AddFrame(guiSingeDigiClAmpCut);
-    guiSingeDigiClAmpCut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
+    hf->AddFrame(guiSingleDigiClAmpCut);
+    guiSingleDigiClAmpCut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
     lbl = new TGLabel(hf, "Single Digi-Cluster Amp cut");
+        hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    guiClAmpCut = new TGNumberEntry(hf, ClClAmpCut, 6,999, TGNumberFormat::kNESInteger,
+                          TGNumberFormat::kNEANonNegative,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 2000);
+    hf->AddFrame(guiClAmpCut);
+    guiClAmpCut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
+    lbl = new TGLabel(hf, "Cluster Amp cut");
         hf->AddFrame(lbl);
   }
   frmMain->AddFrame(hf);
@@ -1249,10 +1267,12 @@ void PndTpcClustVis::guiGoto(){
 }
 
 void PndTpcClustVis::guiSetClusterfinderParams(){
+  ClHasChanged=true;
   ClMode = guiMode->GetNumberEntry()->GetIntNumber();
   ClTimeslice = giuTimeslice->GetNumberEntry()->GetIntNumber();
   ClTimecut = giuTimecut->GetNumberEntry()->GetIntNumber();
-  ClSingeDigiClAmpCut = guiSingeDigiClAmpCut->GetNumberEntry()->GetIntNumber();
+  ClSingleDigiClAmpCut = guiSingleDigiClAmpCut->GetNumberEntry()->GetIntNumber();
+  ClClAmpCut = guiClAmpCut->GetNumberEntry()->GetIntNumber();
   
   if (guiSimpleCl->IsOn()) ClSimpleCl=true;
   else ClSimpleCl=false;
