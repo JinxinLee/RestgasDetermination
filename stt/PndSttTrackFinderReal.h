@@ -16,8 +16,6 @@
 class PndSttTrack;
 class PndSttHit;
 class FairMCPoint;
-//class CbmMCPoint;
-//class TClonesArray;
 
 
 struct CalculatedCircles {
@@ -39,18 +37,6 @@ struct CalculatedHelix {
 
 #define            nmaxAmbiguities  10
 #define            nmaxAssociatedHits  200
-struct AssociatedHitsToHelix {
-                 Int_t NAssociatedHits;
-                 Int_t NAssociatedParallelHits;
-                 Int_t NAssociatedSkewHits;
-                 Int_t mAmbiguities[nmaxAssociatedHits];
-                 Double_t AssociatedWireDirection[3][nmaxAssociatedHits];
-                 Double_t AssociatedWireCenter[3][nmaxAssociatedHits];
-                 Double_t AssociatedWireDriftRadius[nmaxAssociatedHits];
-                 Double_t AssociatedHitsCoordinates[3][nmaxAmbiguities][nmaxAssociatedHits];
-
-                 Int_t Hitnumber[nmaxAssociatedHits];//  temporaneo!
-               } ;
 
 
 class PndSttTrackFinderReal : public PndSttTrackFinder
@@ -101,10 +87,8 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
 #define maximumTracks 25
-
-
       static const UShort_t
-            nmaxHits = maximumTracks*26, // max hits total
+            nmaxHits = maximumTracks*40, // max hits total
             MAXMCTRACKS=maximumTracks,
             MAXTRACKSPEREVENT=maximumTracks,
             nmaxinclinationversors=20,
@@ -184,9 +168,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
       FILE * SHANDLEZ ;
     Double_t veritaMC[nmaxHits][3];
     UShort_t
-//              FromMCTrackToHit[MAXMCTRACKS][nmaxHits],
               nHitsInMCTrack[MAXTRACKSPEREVENT],
-//              FromMCTrackToSkewHit[MAXMCTRACKS][nmaxHits],
               nSkewHitsInMCTrack[MAXTRACKSPEREVENT];
 
 
@@ -197,7 +179,6 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
            infoparal[nmaxHits],
            infoskew[nmaxHits];
 
-//	Short_t  FromHitToMCTrack[nmaxHits];
 
   Double_t radiaConf[nRdivConformal];
 
@@ -210,7 +191,6 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
              CxMC[MAXTRACKSPEREVENT],
              CyMC[MAXTRACKSPEREVENT],
              R_MC[MAXTRACKSPEREVENT];
-//             MCtruthTrkInfo[15][MAXMCTRACKS];
 
   TClonesArray* fMCTrackArray;
 
@@ -450,11 +430,6 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                    Double_t C0z,Double_t r,Double_t vx,Double_t vy,Double_t vz,
                    Int_t *STATUS, Double_t* POINTS);
 
-  AssociatedHitsToHelix PndSttTrkAssociatedHitsToHelix(
-                   Double_t KAPPA,Double_t FI0,Double_t D,Double_t Fi,Double_t R,
-                   Int_t Nhits, Double_t info[][7], Int_t Nincl, Int_t Minclinations[], Double_t inclination[][3],
-                   Int_t imaxima, Int_t nMaxima 
-                                                     );
 
   void plottamentiParalleleGenerali(   Int_t Nremaining, Float_t * RemainingR, Float_t * RemainingD,
                       Float_t * RemainingFi, Float_t * RemainingCX, Float_t * RemainingCY,
@@ -466,11 +441,6 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                       Double_t Rup, Double_t Rlow, Double_t Dup, Double_t Dlow, Double_t Fiup, Double_t Filow
                                     ) ;
 
-  void plottamentiSkewconMassimo(   Int_t nMaxima, Int_t jmaxima,
-                      Int_t Nremaining2, Float_t * RemainingKAPPA, Float_t *RemainingFI0,
-                      Double_t KAPPAlow, Double_t KAPPAup, Double_t FI0low, Double_t FI0up,
-                      AssociatedHitsToHelix  ResultAssociatedHits,
-                      Double_t HoughR, Double_t HoughD, Double_t HoughFi) ;
 
   void findmaximaDFiR( UShort_t BoxDFiR[nbinD][nbinFi][nbinR], Int_t MINIMUMCOUNTS,
                     Int_t * NumberofMaximaDFiR, Int_t  MaximaIndexesDFiR[][3], Int_t * STATUS);
