@@ -185,6 +185,7 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
 {
   sort(digis.begin(),digis.end(),PndTpcDigiAmplitude());
   unsigned int ndigi = digis.size();
+  std::cout<<"PndTpcClusterFinderSimple: process "<<ndigi<<" digis"<<std::endl;
   
   if(ndigi<=2) return;
   
@@ -193,15 +194,15 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
   int prelimClusterCounter=0;
 
   prelimClusters.push_back(new PndTpcPrelimCluster(fpadplane,fdt,prelimClusterCounter++, fG,fC));
-  prelimClusters[0]->addHit(digis[ndigi-1],noXclust);
+  prelimClusters[0]->addHit(digis.back(),noXclust);
 
   for(int idigi = ndigi-2; idigi > -1; --idigi) { // loop over digis from back to front, last digi was already processed
     std::vector<unsigned int> selClusters; // contains indices of clusters that the digi might belong to
-    for(unsigned int iclust=0;iclust<prelimClusters.size();++iclust) {
+    for(unsigned int iclust=0;iclust<prelimClusters.size();++iclust) { // loop over prelimClusters
       if(prelimClusters[iclust]->isInCluster(digis[idigi]) ) {
 	      selClusters.push_back(iclust);
       }
-    }
+    } // end loop over prelimClusters
     unsigned int nselclust = selClusters.size();
     
     if(nselclust == 0){ // digi cannot be added to existing cluster -> create a new cluster
@@ -209,20 +210,19 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
       fc->addHit(digis[idigi],noXclust);
       prelimClusters.push_back(fc);
     }
-    else {
-      if(nselclust == 1) { // digi can only belong to one cluster -> add to this cluster
-	      prelimClusters[selClusters[0]]->addHit(digis[idigi],noXclust);
-      }
-      else{ // digi can belong to more than one cluster -> assign digi to these clusters with corresponding share value
-	      PndTpcDigi* fd = digis[idigi];
-	      double share = fd->amp()/(double)nselclust;
-	      for(int i=0;i<nselclust;++i) {
-	        prelimClusters[selClusters[i]]->addHit(fd,noXclust, share);
-          ++splitDigis;
-	      }
-        --splitDigis;
-      }
+    else if(nselclust == 1) { // digi can only belong to one cluster -> add to this cluster
+	    prelimClusters[selClusters[0]]->addHit(digis[idigi],noXclust);
     }
+    else { // digi can belong to more than one cluster -> assign digi to these clusters with corresponding share value
+      PndTpcDigi* fd = digis[idigi];
+      double share = 1./(double)nselclust;
+      for(int i=0;i<nselclust;++i) {
+        prelimClusters[selClusters[i]]->addHit(fd,noXclust, share);
+        ++splitDigis;
+      }
+      --splitDigis;
+    }
+
   } // end loop over digis
           
   // convert prelimClusters to PndTpcClusters
@@ -230,6 +230,7 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
     foutput_buffer->push_back(prelimClusters[i]->convPndTpcCluster(fsaveRaw));
     delete prelimClusters[i];
   }
+  std::cout<<"PndTpcClusterFinderSimple: "<<prelimClusters.size()<<" clusters created"<<std::endl;
 }
 
 
