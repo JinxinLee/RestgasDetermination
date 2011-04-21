@@ -710,7 +710,8 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
            nBoxConformal[nRdivConformal][nFidivConformal];  //  first index -> radial divisions, 2nd index -> azimuthal divisions; n. of
                                                             //  hits falling in this cell
 
-	UShort_t HitsinBoxConformal[Nhits][nRdivConformal][nFidivConformal];
+//	UShort_t HitsinBoxConformal[Nhits][nRdivConformal][nFidivConformal];
+	UShort_t HitsinBoxConformal[MAXHITSINCELL][nRdivConformal][nFidivConformal];
 		//  first index -> radial divisions, 2nd index -> azimuthal divisions;
 
    Int_t status;
@@ -5958,6 +5959,7 @@ nohits: ;
               break;
            }
          }
+	 if( nBoxConformal[iR][iFi] >= MAXHITSINCELL ) continue;
          HitsinBoxConformal[ nBoxConformal[iR][iFi] ][iR][iFi]=(UShort_t) i;
          nBoxConformal[iR][iFi]++;
          RConformalIndex[ infoparal[i] ]  =  iR;
@@ -7679,7 +7681,7 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
                 xx=infoparalConformal[  HitsinBoxConformal[k][l2][i]  ][0];
                 dist = fabs( xx +q );
                 if(  PndSttAcceptHitsConformal(  dist,
-                                                 infoparalConformal[  HitsinBoxConformal[k][l2][i]  ][2],
+			infoparalConformal[  HitsinBoxConformal[k][l2][i]  ][2],
                                                  infoparalConformal[  HitsinBoxConformal[k][l2][i]  ][4]
                                                       ) )  {
                     auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[k][l2][i];
