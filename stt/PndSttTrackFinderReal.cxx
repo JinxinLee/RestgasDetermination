@@ -707,10 +707,12 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
            SkewSpuriList[MAXTRACKSPEREVENT][nmaxHits],
            RConformalIndex[nmaxHits],  //  given a Hit number it gives its radial box number
            FiConformalIndex[nmaxHits],  //  given a Hit number it gives its azimuthal box number
-           nBoxConformal[nRdivConformal][nFidivConformal],  //  first index -> radial divisions, 2nd index -> azimuthal divisions; n. of
+           nBoxConformal[nRdivConformal][nFidivConformal];  //  first index -> radial divisions, 2nd index -> azimuthal divisions; n. of
                                                             //  hits falling in this cell
-           HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits];  //  first index -> radial divisions, 2nd index -> azimuthal divisions;
-  //  UShort_t (*HitsinBoxConformal)[nFidivConformal][nmaxHits]= new UShort_t[nRdivConformal][nFidivConformal][nmaxHits]; // CHECK for valgrind (nov 2010)
+
+//	UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][NhitsnmaxHits];
+	UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits];
+		//  first index -> radial divisions, 2nd index -> azimuthal divisions;
 
    Int_t status;
 
@@ -872,8 +874,12 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 
       PndSttBoxConformalFilling(
 				ExclusionList,
-				infoparalConformal, Minclinations[0], nBoxConformal, HitsinBoxConformal,
-				RConformalIndex, FiConformalIndex);
+				infoparalConformal,
+				Minclinations[0],
+				nBoxConformal,
+				HitsinBoxConformal,
+				RConformalIndex,
+				FiConformalIndex);
 
 
 
@@ -6279,12 +6285,13 @@ nohits: ;
 //----------begin of function PndSttTrackFinderReal::PndSttBoxConformalFilling
 
  void  PndSttTrackFinderReal::PndSttBoxConformalFilling(
-							bool ExclusionList[nmaxHits],
-                                                        Double_t infoparalConformal[][5],Int_t Nparal,
-                                                        UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
-                                                        UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
-                                                        UShort_t  RConformalIndex[nmaxHits],
-                                                        UShort_t  FiConformalIndex[nmaxHits]   )
+			bool ExclusionList[nmaxHits],
+			Double_t infoparalConformal[][5],Int_t Nparal,
+			UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
+			UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
+			UShort_t  RConformalIndex[nmaxHits],
+			UShort_t  FiConformalIndex[nmaxHits]
+							)
 {
 
     Short_t iR, iFi, i, j;
@@ -7898,6 +7905,7 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
 
 
 //----------begin of function PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixQuater
+
   UShort_t PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixQuater(
 		   bool ExclusionList[nmaxHits],
                    Double_t m,
