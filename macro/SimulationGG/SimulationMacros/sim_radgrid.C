@@ -1,5 +1,6 @@
-// Macro sim_radmap
-// It creates a geant simulation file with the RadMap branch
+// Macro sim_radgrid
+// It creates a geant simulation file giving RadGrid histograms according
+// to the defined mesh(s)
 void sim(TString output, TString input, Int_t nEvents,  Char_t TransportModel[] = "TGeant4", UInt_t seed=0)
 {
   //   activate TMemStat info file (ROOT >=5.28)
@@ -120,8 +121,9 @@ void sim(TString output, TString input, Int_t nEvents,  Char_t TransportModel[] 
   
   fRun->SetStoreTraj(kFALSE); // to store particle trajectories 
   
-  fRun->SetRadGridRegister(kTRUE);
+  fRun->SetRadGridRegister(kTRUE); // activate RadGridManager
 
+  // define two example meshs for dosimetry	
   FairMesh* aMesh1 = new FairMesh("test1");
   aMesh1->SetX(-200,200,200);
   aMesh1->SetY(-200,200,200);
