@@ -254,46 +254,46 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
   Short_t PndSttFindTrackPatterninBoxConformal(
-                                                  UShort_t NRCELLDISTANCE,
-                                                  UShort_t NFiCELLDISTANCE,
-                                                  UShort_t Nparal,
-                                                  UShort_t ihit,
-                                                  Double_t info[][7],
-                                                  bool Exclusion_List[nmaxHits],
-                                                  UShort_t RConformalIndex[nmaxHits],
-                                                  UShort_t FiConformalIndex[nmaxHits],
-                                                  UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
-                                                  UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
-                                                  UShort_t  *ListHitsinTrack
-                                               );
+			UShort_t NRCELLDISTANCE,
+			UShort_t NFiCELLDISTANCE,
+			UShort_t Nparal,
+			UShort_t ihit,
+			Double_t info[][7],
+			bool Exclusion_List[nmaxHits],
+			UShort_t RConformalIndex[nmaxHits],
+			UShort_t FiConformalIndex[nmaxHits],
+			UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
+			UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
+			UShort_t  *ListHitsinTrack
+						);
 
 
   Short_t PndSttFindTrackPatterninBoxConformalSpecial(
-                                                  UShort_t NRCELLDISTANCE,
-                                                  UShort_t NFiCELLDISTANCE,                                                  
-                                                  UShort_t Nparal,
-                                                  UShort_t NparallelToSearch,
-                                                  UShort_t iSeed,
-                                                  UShort_t *ListHitsinTrackinWhichToSearch,
-                                                  Double_t info[][7],
-                                                  bool ExclusionList[nmaxHits],
-                                                  UShort_t RConformalIndex[nmaxHits],
-                                                  UShort_t FiConformalIndex[nmaxHits],
-                                                  UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
-                                                  UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
-                                                  UShort_t  *OutputListHitsinTrack
-                                               );
+		UShort_t NRCELLDISTANCE,
+		UShort_t NFiCELLDISTANCE,
+		UShort_t Nparal,
+		UShort_t NparallelToSearch,
+		UShort_t iSeed,
+		UShort_t *ListHitsinTrackinWhichToSearch,
+		Double_t info[][7],
+		bool ExclusionList[nmaxHits],
+		UShort_t RConformalIndex[nmaxHits],
+		UShort_t FiConformalIndex[nmaxHits],
+		UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
+		UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
+		UShort_t  *OutputListHitsinTrack
+							);
 
 
   Short_t PndSttFindTrackStrictCollection(
-                                                  UShort_t NFiCELLDISTANCE,                                                  
-                                                  UShort_t iSeed,   //  seed track (parallel notation) as fa as the Fi angle is concerned
-                                                  UShort_t NParallelToSearch,    //  n. of hits to search in ListHitsinTrackinWhichToSearch
-                                                  UShort_t *ListHitsinTrackinWhichToSearch,
-                                                  bool ExclusionList[nmaxHits],
-                                                  UShort_t FiConformalIndex[nmaxHits],
-                                                  UShort_t  *OutputListHitsinTrack
-                                                                      );
+		UShort_t NFiCELLDISTANCE,
+		UShort_t iSeed,   //  seed track (parallel notation) as fa as the Fi angle is concerned
+		UShort_t NParallelToSearch,    //  n. of hits to search in ListHitsinTrackinWhichToSearch
+		UShort_t *ListHitsinTrackinWhichToSearch,
+		bool ExclusionList[nmaxHits],
+		UShort_t FiConformalIndex[nmaxHits],
+		UShort_t  *OutputListHitsinTrack
+					);
 
 
 
@@ -353,39 +353,10 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                    Int_t Nhits,
                    Double_t info[][7],
                    UShort_t *auxListHitsinTrack              //  this is the output
-                                                     );
+			   );
 
 
-  UShort_t PndSttTrkAssociatedParallelHitsToHelixBis(
-                   Double_t m,
-                   Double_t q,
-                   Short_t Status,
-                   UShort_t nHitsinTrack,
-                   UShort_t *ListHitsinTrack,
-                   Int_t NhitsParallel,
-                   Double_t infoparalConformal[][5],
-                   UShort_t *RConformalIndex,
-                   UShort_t *FiConformalIndex,
-                   UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
-                   UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
-                   UShort_t *auxListHitsinTrack
-                                                     );
 
-
-  UShort_t PndSttTrkAssociatedParallelHitsToHelixTris(
-                   Double_t m,
-                   Double_t q,
-                   Short_t Status,
-                   UShort_t nHitsinTrack,
-                   UShort_t *ListHitsinTrack,
-                   Int_t NhitsParallel,
-                   Double_t infoparalConformal[][5],
-                   UShort_t *RConformalIndex,
-                   UShort_t *FiConformalIndex,
-                   UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
-                   UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
-                   UShort_t *auxListHitsinTrack
-                                                     );
   UShort_t PndSttTrkAssociatedParallelHitsToHelixQuater(
 		   bool ExclusionList[nmaxHits],
                    Double_t m,
