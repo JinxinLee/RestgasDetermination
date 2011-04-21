@@ -1,7 +1,7 @@
 // Macro sim_radgrid
 // It creates a geant simulation file giving RadGrid histograms according
 // to the defined mesh(s)
-void sim(TString output, TString input, Int_t nEvents,  Char_t TransportModel[] = "TGeant4", UInt_t seed=0)
+void sim(TString output, TString input, Int_t nEvents,  Char_t TransportModel[] = "TGeant3", UInt_t seed=0)
 {
   //   activate TMemStat info file (ROOT >=5.28)
   //   TMemStat mm("gnubuiltin");
@@ -68,9 +68,9 @@ void sim(TString output, TString input, Int_t nEvents,  Char_t TransportModel[] 
   //fRun->AddModule(Tof);
   
   PndMdt *Muo = new PndMdt("MDT",kFALSE);
-  Muo->SetBarrel("torino");
-  Muo->SetEndcap("torino");
-  Muo->SetMuonFilter("torino");
+  Muo->SetBarrel("fast");
+  Muo->SetEndcap("fast");
+  Muo->SetMuonFilter("fast");
   Muo->SetMdtMagnet(kTRUE);
   Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);

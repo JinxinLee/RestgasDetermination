@@ -66,13 +66,15 @@ void sim(TString output, TString input, Int_t nEvents,  Char_t TransportModel[] 
   //Tof->SetGeometryFileName("tofbarrel.geo");
   //fRun->AddModule(Tof);
   
+ 
   PndMdt *Muo = new PndMdt("MDT",kFALSE);
-  Muo->SetBarrel("torino");
-  Muo->SetEndcap("torino");
-  Muo->SetMuonFilter("torino");
+  Muo->SetBarrel("fast");
+  Muo->SetEndcap("fast");
+  Muo->SetMuonFilter("fast");
   Muo->SetMdtMagnet(kTRUE);
   Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
+ 
 
   FairDetector *Gem = new PndGemDetector("GEM", kFALSE);
   Gem->SetGeometryFileName("gem_3Stations.root");
@@ -87,7 +89,6 @@ void sim(TString output, TString input, Int_t nEvents,  Char_t TransportModel[] 
   PndDrc *Drc = new PndDrc("DIRC", kFALSE);
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc);
-
 
   // Create and Set Event Generator
   //-------------------------------
