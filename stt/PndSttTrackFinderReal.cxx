@@ -710,8 +710,7 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
            nBoxConformal[nRdivConformal][nFidivConformal];  //  first index -> radial divisions, 2nd index -> azimuthal divisions; n. of
                                                             //  hits falling in this cell
 
-//	UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][NhitsnmaxHits];
-	UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits];
+	UShort_t HitsinBoxConformal[Nhits][nRdivConformal][nFidivConformal];
 		//  first index -> radial divisions, 2nd index -> azimuthal divisions;
 
    Int_t status;
@@ -3563,373 +3562,6 @@ cout<<"Esce da PndSttTrkFindHelix.........\n";
 
 
 
-
-
-
-
-
-  void PndSttTrackFinderReal::findmaximaDFiR( UShort_t BoxDFiR[nbinD][nbinFi][nbinR],
-                                    Int_t MINIMUMCOUNTS,
-                                    Int_t * NumberofMaximaDFiR, Int_t  MaximaIndexesDFiR[][3],
-                                    Int_t * STATUS)
-{
-
-
-     Int_t      i, j, iD, iFi, iR, icount,
-                ntotClusters,
-                NinCluster,
-                nClusterElementsFound,
-                nRemai,
-                nRemainingElements,
-                max,
-                nElementsinCluster[MAXElementsOverThresholdinHough];
-
-     UShort_t   found[MAXElementsOverThresholdinHough][MAXElementsOverThresholdinHough][3],
-                auxDFiRIndex[MAXElementsOverThresholdinHough][3],
-                Remai[MAXElementsOverThresholdinHough][3],
-                RemainingElements[MAXElementsOverThresholdinHough][3],
-                Cluster[MAXElementsOverThresholdinHough][3],
-                ClusterElementsFound[MAXElementsOverThresholdinHough][3];
-
-   if(istampa >= 3 && IVOLTE<= nmassimo) {
-cout<<"da   findmaximaDFiR  :   MINIMUMCOUNTS = "<<MINIMUMCOUNTS<<",nbinD = "<<nbinD <<
-     ",  nbinFi = "<<nbinFi <<", nbinR = "<<nbinR
-    <<endl;
-    }
-     icount=0;
-     for(iD=0; iD<nbinD; iD++){
-      for(iFi=0; iFi<nbinFi; iFi++){
-       for(iR=0; iR<nbinR; iR++){
-         if(
-              BoxDFiR[iD][iFi][iR] > MINIMUMCOUNTS
-           ) {
-             auxDFiRIndex[icount][0]=iD;
-             auxDFiRIndex[icount][1]=iFi;
-             auxDFiRIndex[icount][2]=iR;
-             icount++;
-             if(icount == MAXElementsOverThresholdinHough){
-                *STATUS=-1;
-cout<<"Temporary printout from findmaximaDFiR  : too many cells (>= "<<MAXElementsOverThresholdinHough<<")  above MINIMUMCOUNTS (= "<<
-     MINIMUMCOUNTS<<")"<<endl;
-                return ;
-             }
-         }
-
-       }
-      }
-     }
-
-
-
-     if(istampa>=3 && IVOLTE<= nmassimo) {
-       cout<<"da findmaximaDFiR : numero di celle superiori al MINIMUM CUT = "<<icount<<" e loro elenco :"<<endl;
-       for(i = 0; i<icount;i++){
-          cout<<"da findmaximaDFiR : iD = "<<auxDFiRIndex[i][0]<<";  iFi = "<<auxDFiRIndex[i][1]<<"; iR = "<<auxDFiRIndex[i][2]<<
-                ";  contenuto = "<<BoxDFiR[auxDFiRIndex[i][0]][auxDFiRIndex[i][1]][auxDFiRIndex[i][2]]<<
-        "  e corispondenti a D = "<<auxDFiRIndex[i][0]*stepD+Dmin<<", Fi = "<<auxDFiRIndex[i][1]*stepFi+Fimin
-         << ", R = "<< auxDFiRIndex[i][2]*stepR+Rmin<<endl;
-       }
-     }
-
-
-
-    if ( icount == 0) {
-       * NumberofMaximaDFiR = 0;
-       *STATUS=1;
-       return;
-    } else if (icount == 1 ) {
-       ntotClusters=1;
-       nElementsinCluster[0]=1;
-       for(i=0; i<3; i++){
-         MaximaIndexesDFiR[0][i] =auxDFiRIndex[0][i];
-       }
-       * NumberofMaximaDFiR = 1;
-       *STATUS=1;
-       return;
-    }
-
-//   case with more that 1 elements over threshold ---------------------------------------------------------------
-
-
-    ntotClusters=0;
-
-    for(i=0; i<3; i++){
-       Cluster[0][i] = auxDFiRIndex[0][i];
-    }
-
-
-    for(i=1; i<icount; i++){
-     for(j=0; j<3; j++){
-       Remai[i-1][j] = auxDFiRIndex[i][j];
-     }
-    }
-    nRemai = icount-1;
-    NinCluster=1;
-
-    while(1){
-      i=0;
-      while(i<NinCluster && nRemai >0) {
-        clustering3(
-           (UShort_t *) (&Cluster[i][0]),  //   inputs to function clustering3
-           nRemai, Remai,               //   inputs to function clustering3
-           nClusterElementsFound, ClusterElementsFound,  //   ouputs from function clustering3
-           nRemainingElements, RemainingElements       //   ouputs from function clustering3
-                   );
-        for(j=0; j<nClusterElementsFound; j++){
-           Cluster[NinCluster+j][0] = ClusterElementsFound[j][0];
-           Cluster[NinCluster+j][1] = ClusterElementsFound[j][1];
-           Cluster[NinCluster+j][2] = ClusterElementsFound[j][2];
-        }
-        NinCluster += nClusterElementsFound;
-        nRemai=nRemainingElements;
-        for(j=0; j<nRemainingElements; j++){
-           Remai[j][0] = RemainingElements[j][0];
-           Remai[j][1] = RemainingElements[j][1];
-           Remai[j][2] = RemainingElements[j][2];
-        }
-        i++;
-      }   //  end of  while(i<NinCluster && nRemai >0)
-
-      nElementsinCluster[ntotClusters]= NinCluster;
-      for( j=0; j<NinCluster; j++) {
-       for(i=0; i<3; i++){
-          found[ntotClusters][j][i] = Cluster[j][i];
-       }
-      }
-      ntotClusters ++;
-
-      if(nRemai>1){
-        NinCluster=1;
-        for(i=0; i<3; i++){
-          Cluster[0][i] = Remai[0][i];
-        }
-
-        nRemai--;
-        for(j=0;j<nRemai;j++){
-          for(i=0; i<3; i++){
-            Remai[j][i]=Remai[j+1][i];
-          }
-        }
-
-
-      } else if (nRemai==1) {
-        nElementsinCluster[ntotClusters]= 1;
-        for(i=0; i<3; i++){
-            found[ntotClusters][0][i] = Remai[0][i];
-        }
-        ntotClusters ++;
-        break;
-      } else {  // this is the case when nRemai == 0
-        break;
-      }  //  endo of  if(nRemai>1)
-
-    }   //   end   of   while(1)
-
-
-
-//  now find the indeces for the maxima
-
-    *NumberofMaximaDFiR = ntotClusters;
-
-
-    for(i=0; i<ntotClusters; i++){
-       for(j=0, max=-1;j<nElementsinCluster[i];j++){
-          if(max < BoxDFiR[found[i][j][0]][found[i][j][1]][found[i][j][2]]) {
-            max=BoxDFiR[found[i][j][0]][found[i][j][1]][found[i][j][2]];
-            MaximaIndexesDFiR[i][0]=found[i][j][0];
-            MaximaIndexesDFiR[i][1]=found[i][j][1];
-            MaximaIndexesDFiR[i][2]=found[i][j][2];
-          }
-       }
-    }
-
-
-    *STATUS=1;
-
-}
-
-
-//----------end of function PndSttTrackFinderReal::findmaximaDFiR
-
-
-
-  void PndSttTrackFinderReal::findmaximaKFI0(
-                    UShort_t BoxKFI0[nbinKAPPA][nbinFI0],
-                    Int_t MINIMUMCOUNTS,
-                    Int_t *NumberofMaximaKFI0,
-                    Int_t  MaximaIndexesKFI0[][2],
-                    Int_t * STATUS)
-{
-
-
-     Int_t      i, j, iK, iFI0, icount,
-                ntotClusters,
-                NinCluster,
-                nClusterElementsFound,
-                nRemai,
-                nRemainingElements,
-                max,
-                nElementsinCluster[MAXElementsOverThresholdinHough];
-
-     UShort_t   found[MAXElementsOverThresholdinHough][MAXElementsOverThresholdinHough][2],
-                auxKFI0Index[MAXElementsOverThresholdinHough][2],
-                Remai[MAXElementsOverThresholdinHough][2],
-                RemainingElements[MAXElementsOverThresholdinHough][2],
-                Cluster[MAXElementsOverThresholdinHough][2],
-                ClusterElementsFound[MAXElementsOverThresholdinHough][2];
-
-
-     icount=0;
-     for(iK=0; iK<nbinKAPPA; iK++){
-      for(iFI0=0; iFI0<nbinFI0; iFI0++){
-// cout<<"MINIMUMCOUNTS = "<<MINIMUMCOUNTS<<";  Box = "<<BoxKFI0[iK][iFI0]<< endl;
-         if(
-              BoxKFI0[iK][iFI0] > MINIMUMCOUNTS
-           ) {
-             auxKFI0Index[icount][0]=iK;
-             auxKFI0Index[icount][1]=iFI0;
-             icount++;
-             if(icount == MAXElementsOverThresholdinHough){
-                *STATUS=-1;
-                return ;
-             }
-         }
-
-      }
-     }
-
-
-
-     if(istampa>=3 && IVOLTE<= nmassimo) {
-       cout<<"da findmaximaKFI0 : numero di celle maggiori del MINIMUMCUT = "<<icount<<" e loro elenco :"<<endl;
-       for(i = 0; i<icount;i++){
-          cout<<"da findmaximaKFI0 : iK = "<<auxKFI0Index[i][0]<<";  iFI0 = "<<auxKFI0Index[i][1]<<
-                ";  contenuto = "<<BoxKFI0[auxKFI0Index[i][0]][auxKFI0Index[i][1]]<<endl;
-       }
-     }
-
-
-
-
-    if ( icount == 0) {
-       *NumberofMaximaKFI0 = 0;
-       *STATUS=1;
-       return;
-    } else if (icount == 1 ) {
-       ntotClusters=1;
-       nElementsinCluster[0]=1;
-       for(i=0; i<2; i++){
-         MaximaIndexesKFI0[0][i] =auxKFI0Index[0][i];
-       }
-       *STATUS=1;
-       return;
-    }
-
-//   case with more that 1 elements over threshold ---------------------------------------------------------------
-
-
-    ntotClusters=0;
-
-    for(i=0; i<2; i++){
-       Cluster[0][i] = auxKFI0Index[0][i];
-    }
-
-
-    for(i=1; i<icount; i++){
-     for(j=0; j<2; j++){
-       Remai[i-1][j] = auxKFI0Index[i][j];
-     }
-    }
-    nRemai = icount-1;
-    NinCluster=1;
-
-    while(1){
-      i=0;
-      while(i<NinCluster && nRemai >0) {
-        clustering2(
-           (UShort_t *) (&Cluster[i][0]),  //   inputs to function clustering2
-           nRemai, Remai,               //   inputs to function clustering2
-           nClusterElementsFound, ClusterElementsFound,  //   ouputs from function clustering2
-           nRemainingElements, RemainingElements       //   ouputs from function clustering2
-                   );
-        for(j=0; j<nClusterElementsFound; j++){
-           Cluster[NinCluster+j][0] = ClusterElementsFound[j][0];
-           Cluster[NinCluster+j][1] = ClusterElementsFound[j][1];
-        }
-        NinCluster += nClusterElementsFound;
-        nRemai=nRemainingElements;
-        for(j=0; j<nRemainingElements; j++){
-           Remai[j][0] = RemainingElements[j][0];
-           Remai[j][1] = RemainingElements[j][1];
-        }
-        i++;
-      }   //  end of  while(i<NinCluster && nRemai >0)
-
-      nElementsinCluster[ntotClusters]= NinCluster;
-      for( j=0; j<NinCluster; j++) {
-       for(i=0; i<2; i++){
-          found[ntotClusters][j][i] = Cluster[j][i];
-       }
-      }
-      ntotClusters ++;
-
-      if(nRemai>1){
-        NinCluster=1;
-        for(i=0; i<2; i++){
-          Cluster[0][i] = Remai[0][i];
-        }
-
-        nRemai--;
-        for(j=0;j<nRemai;j++){
-          for(i=0; i<2; i++){
-            Remai[j][i]=Remai[j+1][i];
-          }
-        }
-
-
-      } else if (nRemai==1) {
-        nElementsinCluster[ntotClusters]= 1;
-        for(i=0; i<2; i++){
-            found[ntotClusters][0][i] = Remai[0][i];
-        }
-        ntotClusters ++;
-        break;
-      } else {  // this is the case when nRemai == 0
-        break;
-      }  //  endo of  if(nRemai>1)
-
-    }   //   end   of   while(1)
-
-
-
-//  now find the indeces for the maxima
-
-if( istampa >= 3 && IVOLTE<= nmassimo) cout<<"da findmaximaKFI0, ntotClusters = "<<ntotClusters<<endl;
-    *NumberofMaximaKFI0 = ntotClusters;
-
-
-    for(i=0; i<ntotClusters; i++){
-
-if( istampa >= 3 && IVOLTE<= nmassimo) cout<<"da findmaximaKFI0, cluster n. "<<i<<" formato da "<<nElementsinCluster[i]<<"  elementi\n";
-       for(j=0, max=-1;j<nElementsinCluster[i];j++){
-          if(max < BoxKFI0[found[i][j][0]][found[i][j][1]]) {
-            max=BoxKFI0[found[i][j][0]][found[i][j][1]];
-            MaximaIndexesKFI0[i][0]=found[i][j][0];
-            MaximaIndexesKFI0[i][1]=found[i][j][1];
-          }
-       }
-    }
-
-
-    *STATUS=1;
-
-}
-
-
-//----------end of function PndSttTrackFinderReal::findmaximaKFI0
-
-
-
   bool  PndSttTrackFinderReal::iscontiguous(
                 int ncomponents, UShort_t * vec1, UShort_t *vec2)
 {
@@ -6288,7 +5920,7 @@ nohits: ;
 			bool ExclusionList[nmaxHits],
 			Double_t infoparalConformal[][5],Int_t Nparal,
 			UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
-			UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
+			UShort_t HitsinBoxConformal[][nRdivConformal][nFidivConformal],
 			UShort_t  RConformalIndex[nmaxHits],
 			UShort_t  FiConformalIndex[nmaxHits]
 							)
@@ -6326,7 +5958,7 @@ nohits: ;
               break;
            }
          }
-         HitsinBoxConformal[iR][iFi][ nBoxConformal[iR][iFi] ]=(UShort_t) i;
+         HitsinBoxConformal[ nBoxConformal[iR][iFi] ][iR][iFi]=(UShort_t) i;
          nBoxConformal[iR][iFi]++;
          RConformalIndex[ infoparal[i] ]  =  iR;
          FiConformalIndex[ infoparal[i] ]  =  iFi;
@@ -6452,7 +6084,7 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
                                                   UShort_t RConformalIndex[nmaxHits],
                                                   UShort_t FiConformalIndex[nmaxHits],
                                                   UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
-                                                  UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
+                                                  UShort_t HitsinBoxConformal[][nRdivConformal][nFidivConformal],
                                                   UShort_t *ListHitsinTrack
                                                                       )
 {
@@ -6532,14 +6164,14 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
             iFi = iFi2;
           }
          for (j = 0; j< nBoxConformal[iR][iFi]; j++){
-          if( ExclusionList[  infoparal[  HitsinBoxConformal[iR][iFi][j]  ]  ]
+          if( ExclusionList[  infoparal[  HitsinBoxConformal[j][iR][iFi]  ]  ]
                                       &&
-              TemporaryExclusionList[   infoparal[  HitsinBoxConformal[iR][iFi][j]  ]   ]) {
-            ListHitsinTrack[nHitsinTrack]=HitsinBoxConformal[iR][iFi][j] ;   //  hit number in the PARALLEL straws scheme
+              TemporaryExclusionList[   infoparal[  HitsinBoxConformal[j][iR][iFi]  ]   ]) {
+            ListHitsinTrack[nHitsinTrack]=HitsinBoxConformal[j][iR][iFi] ;   //  hit number in the PARALLEL straws scheme
 //if(IVOLTE==3)   cout<<"\tnFi cell di hit accettato "<<iFi<<" e iR di hit accettato = "<<iR<<endl;
 
             nHitsinTrack++;
-            TemporaryExclusionList[ infoparal[  HitsinBoxConformal[iR][iFi][j]  ]  ]= false;
+            TemporaryExclusionList[ infoparal[  HitsinBoxConformal[j][iR][iFi]  ]  ]= false;
             nRemainingHits--;
           }
          }
@@ -6578,7 +6210,7 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
                                                   UShort_t RConformalIndex[nmaxHits],
                                                   UShort_t FiConformalIndex[nmaxHits],
                                                   UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
-                                                  UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
+                                                  UShort_t HitsinBoxConformal[][nRdivConformal][nFidivConformal],
                                                   UShort_t  *OutputListHitsinTrack
                                                                       )
 {
@@ -6658,12 +6290,12 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
             iFi = iFi2;
           }
          for (j = 0; j< nBoxConformal[iR][iFi]; j++){
-          if( ExclusionList[  infoparal[  HitsinBoxConformal[iR][iFi][j]  ]  ]
+          if( ExclusionList[  infoparal[  HitsinBoxConformal[j][iR][iFi]  ]  ]
                                       &&
-              TemporaryExclusionList[   infoparal[  HitsinBoxConformal[iR][iFi][j]  ]   ]) {
-            OutputListHitsinTrack[nHitsinTrack]=HitsinBoxConformal[iR][iFi][j] ;   //  hit number in the PARALLEL straws scheme
+              TemporaryExclusionList[   infoparal[  HitsinBoxConformal[j][iR][iFi]  ]   ]) {
+            OutputListHitsinTrack[nHitsinTrack]=HitsinBoxConformal[j][iR][iFi] ;   //  hit number in the PARALLEL straws scheme
             nHitsinTrack++;
-            TemporaryExclusionList[ infoparal[  HitsinBoxConformal[iR][iFi][j]  ]  ]= false;
+            TemporaryExclusionList[ infoparal[  HitsinBoxConformal[j][iR][iFi]  ]  ]= false;
             nRemainingHits--;
           }
          }
@@ -7922,7 +7554,7 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
                    UShort_t *RConformalIndex,
                    UShort_t *FiConformalIndex,
                    UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
-                   UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
+                   UShort_t HitsinBoxConformal[][nRdivConformal][nFidivConformal],
                    UShort_t *auxListHitsinTrack
                                                      )
 {
@@ -8034,7 +7666,7 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
           l2 = nR+l;
           if(  l2<0 || l2 >= nRdivConformalEffective )  continue;
               for( k=0;k<nBoxConformal[l2][i];k++){
-                nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[l2][i][k]  ][3];
+                nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l2][i]  ][3];
 		if( !ExclusionList[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Ox+info[ nHit_original ][0];
@@ -8044,13 +7676,13 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
                 if ( fabs(R - distance ) > NTIMES*StrawRadius )  continue;
 
 //-------------------
-                xx=infoparalConformal[  HitsinBoxConformal[l2][i][k]  ][0];
+                xx=infoparalConformal[  HitsinBoxConformal[k][l2][i]  ][0];
                 dist = fabs( xx +q );
                 if(  PndSttAcceptHitsConformal(  dist,
-                                                 infoparalConformal[  HitsinBoxConformal[l2][i][k]  ][2],
-                                                 infoparalConformal[  HitsinBoxConformal[l2][i][k]  ][4]
+                                                 infoparalConformal[  HitsinBoxConformal[k][l2][i]  ][2],
+                                                 infoparalConformal[  HitsinBoxConformal[k][l2][i]  ][4]
                                                       ) )  {
-                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[l2][i][k];
+                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[k][l2][i];
                     nAssociatedHits++; 
                 }
               }	//  end of  for( k=0;k<nBoxConformal[l2][i];k++)
@@ -8068,7 +7700,7 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
              l3 = nR+l;
              if(  l3<0 || l3 >= nRdivConformalEffective )  continue;
               for( k=0;k<nBoxConformal[l3][i2];k++){
-                nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][3];
+                nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l3][i2]  ][3];
 		if( !ExclusionList[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Ox+info[ nHit_original ][0];
@@ -8077,14 +7709,14 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
                 if ( fabs(R - distance ) > NTIMES*StrawRadius )  continue;
 
 //-------------------
-                xx=infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][0];
+                xx=infoparalConformal[  HitsinBoxConformal[k][l3][i2]  ][0];
                 dist = fabs( xx +q );
-//                if(dist < 3.*infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][2]){
+//                if(dist < 3.*infoparalConformal[  HitsinBoxConformal[k][l3][i2]  ][2]){
                 if(  PndSttAcceptHitsConformal(  dist,
-                                                 infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][2],
-                                                 infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][4]
+                                                 infoparalConformal[  HitsinBoxConformal[k][l3][i2]  ][2],
+                                                 infoparalConformal[  HitsinBoxConformal[k][l3][i2]  ][4]
                                                       ) )  {
-                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[l3][i2][k];
+                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[k][l3][i2];
                     nAssociatedHits++; 
                 }
               }	//  end of   for( k=0;k<nBoxConformal[l3][i2];k++)
@@ -8102,7 +7734,7 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
              l3 = nR+l;
              if(  l3<0 || l3 >= nRdivConformalEffective )  continue;
               for( k=0;k<nBoxConformal[l3][i2];k++){
-                nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][3];
+                nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l3][i2]  ][3];
 		if( !ExclusionList[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Ox+info[ nHit_original ][0];
@@ -8111,14 +7743,14 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
                 if ( fabs(R - distance ) > NTIMES*StrawRadius )  continue;
 
 //-------------------
-                xx=infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][0];
+                xx=infoparalConformal[  HitsinBoxConformal[k][l3][i2]  ][0];
                 dist = fabs( xx +q );
-//                if(dist < 3.*infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][2]){
+//                if(dist < 3.*infoparalConformal[  HitsinBoxConformal[k][l3][i2]  ][2]){
                 if(  PndSttAcceptHitsConformal(  dist,
-                                                 infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][2],
-                                                 infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][4]
+                                                 infoparalConformal[  HitsinBoxConformal[k][l3][i2]  ][2],
+                                                 infoparalConformal[  HitsinBoxConformal[k][l3][i2]  ][4]
                                                       ) )  {
-                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[l3][i2][k];
+                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[k][l3][i2];
                     nAssociatedHits++; 
                 }
               }	//  end of  for( k=0;k<nBoxConformal[l3][i2];k++)
@@ -8155,7 +7787,7 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
         }
         for(l=0; l<nRdivConformalEffective;l++){
               for( k=0;k<nBoxConformal[l][i];k++){
-                nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[l][i][k]  ][3];
+                nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l][i]  ][3];
 		if( !ExclusionList[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Ox+info[ nHit_original ][0];
@@ -8164,14 +7796,14 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
                 if ( fabs(R - distance ) >NTIMES*StrawRadius )  continue;
 
 //-------------------
-                xx=infoparalConformal[  HitsinBoxConformal[l][i][k]  ][0];
+                xx=infoparalConformal[  HitsinBoxConformal[k][l][i]  ][0];
                 dist = fabs( xx  );
 
                 if(  PndSttAcceptHitsConformal(  dist,
-                                                 infoparalConformal[  HitsinBoxConformal[l][i][k]  ][2],
-                                                 infoparalConformal[  HitsinBoxConformal[l][i][k]  ][4]
+                                                 infoparalConformal[  HitsinBoxConformal[k][l][i]  ][2],
+                                                 infoparalConformal[  HitsinBoxConformal[k][l][i]  ][4]
                                                       ) )  {
-                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[l][i][k];
+                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[k][l][i];
                     nAssociatedHits++;
                 }
               }  //  end of for( k=0;k<nBoxConformal[l][i];k++)
@@ -8276,8 +7908,8 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
                 for(k=kstart;k<kend;k++){
 
                  for( l3=0;l3<nBoxConformal[k][l2];l3++){
-                  if( ! Unselected[HitsinBoxConformal[k][l2][l3] ] )  continue;
-                   nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l2][l3]  ][3];
+                  if( ! Unselected[HitsinBoxConformal[l3][k][l2] ] )  continue;
+                   nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[l3][k][l2]  ][3];
 		   if( !ExclusionList[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                    dx = -Ox+info[ nHit_original ][0];
@@ -8286,16 +7918,16 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
                    if ( fabs(R - distance ) > NTIMES*StrawRadius )  continue;
 
 //-------------------
-                   xx=infoparalConformal[  HitsinBoxConformal[k][l2][l3]  ][0];
-                   yy=infoparalConformal[  HitsinBoxConformal[k][l2][l3]  ][1];
+                   xx=infoparalConformal[  HitsinBoxConformal[l3][k][l2]  ][0];
+                   yy=infoparalConformal[  HitsinBoxConformal[l3][k][l2]  ][1];
                    dist = fabs( -yy+ m*xx +q )/sqrt(m*m+1.);
                    if(  PndSttAcceptHitsConformal(  dist,
-                                                 infoparalConformal[  HitsinBoxConformal[k][l2][l3]  ][2],
-                                                 infoparalConformal[  HitsinBoxConformal[k][l2][l3]  ][4]
+                                                 infoparalConformal[  HitsinBoxConformal[l3][k][l2]  ][2],
+                                                 infoparalConformal[  HitsinBoxConformal[l3][k][l2]  ][4]
                                                       ) )  {
 
-                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[k][l2][l3];
-                    Unselected[HitsinBoxConformal[k][l2][l3]]= false;
+                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[l3][k][l2];
+                    Unselected[HitsinBoxConformal[l3][k][l2]]= false;
                     nAssociatedHits++;
                    }
 
@@ -8323,7 +7955,7 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
          }
         for(l=0; l<nRdivConformalEffective;l++){
               for( k=0;k<nBoxConformal[l][i];k++){
-                nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[l][i][k]  ][3];
+                nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l][i]  ][3];
 		if( !ExclusionList[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Ox+info[ nHit_original ][0];
@@ -8332,15 +7964,14 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
                 if ( fabs(R - distance ) > NTIMES*StrawRadius )  continue;
 
 //-------------------
-                xx=infoparalConformal[  HitsinBoxConformal[l][i][k]  ][0];
-                yy=infoparalConformal[  HitsinBoxConformal[l][i][k]  ][1];
+                xx=infoparalConformal[  HitsinBoxConformal[k][l][i]  ][0];
+                yy=infoparalConformal[  HitsinBoxConformal[k][l][i]  ][1];
                 dist = fabs( m*xx-yy  )/sqrt( m*m+1.);
-//                if(dist < 3.*infoparalConformal[  HitsinBoxConformal[l][i][k]  ][2]){
                 if(  PndSttAcceptHitsConformal(  dist,
-                                                 infoparalConformal[  HitsinBoxConformal[l][i][k]  ][2],
-                                                 infoparalConformal[  HitsinBoxConformal[l][i][k]  ][4]
+                                                 infoparalConformal[  HitsinBoxConformal[k][l][i]  ][2],
+                                                 infoparalConformal[  HitsinBoxConformal[k][l][i]  ][4]
                                                       ) )  {
-                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[l][i][k];
+                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[k][l][i];
                     nAssociatedHits++;
                 }
               }  //  end of for( k=0;k<nBoxConformal[l][i];k++)
