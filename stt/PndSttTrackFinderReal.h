@@ -235,12 +235,13 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
   void PndSttBoxConformalFilling(
-				 bool ExclusionList[nmaxHits],
-                                 Double_t infoparalConformal[][5],Int_t Nparal,
-                                 UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
-                                 UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
-                                 UShort_t  RConformalIndex[nmaxHits],
-                                 UShort_t  FiConformalIndex[nmaxHits]);
+			bool ExclusionList[nmaxHits],
+			Double_t infoparalConformal[][5],Int_t Nparal,
+			UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
+			UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
+			UShort_t  RConformalIndex[nmaxHits],
+			UShort_t  FiConformalIndex[nmaxHits]
+			);
 
 
 
