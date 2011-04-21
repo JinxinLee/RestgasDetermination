@@ -64,7 +64,6 @@ class PndSttMvdTracking : public FairTask
  private:
 
   UShort_t nMCTracks;
-#define maxTracks 25
 #define dXPixel 0.03
 #define dYPixel 0.03
 #define dZPixel 0.03
@@ -82,8 +81,9 @@ class PndSttMvdTracking : public FairTask
 
   int static const TIMEOUT= 60;
 
-  static const bool  iplotta = false , ianalizza = true ;
-  static const UShort_t   nmaxSttHits = maxTracks*26,
+  static const bool  iplotta = true , ianalizza = true ;
+#define maxTracks 40
+  static const UShort_t   nmaxSttHits = maxTracks*30,
 			  MAXMCTRACKS=maxTracks,
 			  MAXTRACKSPEREVENT=maxTracks,
 			  nmaxMvdPixelHits=500,
