@@ -26,8 +26,11 @@ class PndSttMvdTracking : public FairTask
   /** Default constructor **/
   PndSttMvdTracking();
 
+  /** First constructor **/
   PndSttMvdTracking(Int_t verbose);
 
+  /** Second constructor **/
+  PndSttMvdTracking(int istamp, bool  iplot, bool doMcComparison);
 
   /** Destructor **/
   ~PndSttMvdTracking();
@@ -75,13 +78,12 @@ class PndSttMvdTracking : public FairTask
 #define errorPixel sqrt(errorsqPixel)
 #define errorStrip sqrt(errorsqStrip)
 
-  int istampa ;
-  int IVOLTE ;
-
-
   int static const TIMEOUT= 60;
 
-  static const bool  iplotta = true , ianalizza = true ;
+  int istampa ;
+  bool  iplotta, doMcComparison ;
+  int IVOLTE ;
+
 #define maxTracks 40
   static const UShort_t   nmaxSttHits = maxTracks*30,
 			  MAXMCTRACKS=maxTracks,
