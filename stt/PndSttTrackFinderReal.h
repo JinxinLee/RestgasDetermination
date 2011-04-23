@@ -51,6 +51,9 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
   /** Standard constructor **/
   PndSttTrackFinderReal(Int_t verbose);
 
+  /** Second constructor **/
+  PndSttTrackFinderReal( int istamp, bool  iplot, bool doMcComparison);
+
 
   /** Destructor **/
   virtual ~PndSttTrackFinderReal();
@@ -154,9 +157,10 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
       int IVOLTE, ntimes, INTERO, ITRACCIA,
           N_INTENDED;
 //  Double_t SEMILENGTH_STRAIGHT = 75.;
-      static const bool  iplotta = false , ianalizza = true ;
-      static const int  nmassimo=10;
+      bool  iplotta, doMcComparison ;
       int istampa ;
+
+      static const int  nmassimo=10;
       TH1F * hx;
       FILE * HANDLE ;
       FILE * HANDLE2 ;
@@ -497,10 +501,10 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                    Double_t inclination[][3],
                    Int_t imaxima, Int_t nMaxima, 
                    UShort_t nSkewHitsinTrack,
-                   UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
-                   UShort_t nSkewCommon,
-                   UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxHits]
- 
+                   UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits]
+//                   UShort_t nSkewCommon,
+//                   UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxHits]
+
                                                      );
 
 
