@@ -44,6 +44,8 @@ PndSttMvdTracking::PndSttMvdTracking() : FairTask("STT Stt-Mvd Tracking") {
   fPersistence = kTRUE;
   fVerbose = 0;
   istampa = 0;
+  iplotta = false;
+  doMcComparison = false;
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
@@ -54,11 +56,24 @@ PndSttMvdTracking::PndSttMvdTracking(Int_t verbose) : FairTask("STT Stt-Mvd Trac
   fPersistence = kTRUE;
   fVerbose = verbose;
   istampa = verbose;
+  iplotta = false;
+  doMcComparison = false;
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
 }
 // -------------------------------------------------------------------------
+
+PndSttMvdTracking::PndSttMvdTracking(int istamp, bool  iplot, bool imc)
+		: FairTask("STT Stt-Mvd Tracking") { 
+  fPersistence = kTRUE;
+  istampa = istamp;
+  iplotta = iplot;
+  doMcComparison = imc;
+  sprintf(fSttBranch,"STTHit");
+  sprintf(fMvdPixelBranch,"MVDHitsPixel");
+  sprintf(fMvdStripBranch,"MVDHitsStrip");
+}
 
 
 // -----   Destructor   ----------------------------------------------------
@@ -568,7 +583,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
  }
 
 
-  if(istampa>=1  && IVOLTE<20)cout<<"da PndSttMvdTracking  :  n. totale di Mvd track cand =    "
+  if(istampa>=3  && IVOLTE<20)cout<<"da PndSttMvdTracking  :  n. totale di Mvd track cand =    "
                      <<nMvdTrackCand<<"  --------------\n";
 //---------------  fetch the Stt PndTrackCand from PR of the STT
 
@@ -581,7 +596,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 	nSttTrackCand <<" and it is >= MAXTRACKSPEREVENT (="<<MAXTRACKSPEREVENT
 	<<"),  return!\n";
  }
- if(istampa>=1  && IVOLTE<20){ cout<<"N. totale di PndTrackCand del PR solo = "
+ if(istampa>=3  && IVOLTE<20){ cout<<"N. totale di PndTrackCand del PR solo = "
                               <<nSttTrackCand<<endl; }
 
 
@@ -638,7 +653,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 
 
 //--------------- inizio stampaggi,  stampe di controllo
-  if (istampa >= 2) {
+  if (istampa >= 3) {
       cout <<"da PndSttMvdTracking, Stt iHit "<< i << " e n. punto MC ottenuto con RefIndex = "
       	<<ipunto<<endl;
       if(ipunto<0) {
@@ -738,11 +753,11 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 // ------------------------------------ fine di estraggo gli HITS Strip MVD
 
 //------------------------------------------ stampaggi  hits MVD
-if(istampa>=1  && IVOLTE<20){
+if(istampa>=3  && IVOLTE<20){
   cout<<"da PndSttMvdTraking  :  n. Mvd Pixel Hits = "<<nMvdPixelHit<<endl;
   cout<<"da PndSttMvdTracking  :  n. Mvd Strip Hits = "<<nMvdStripHit<<endl;
 }
-if(istampa>=1  && IVOLTE<20){
+if(istampa>=3  && IVOLTE<20){
   cout<<"da PndSttMvdTracking  :  info hits di Mvd pixels ------------------\n";
   for(i= 0; i< nMvdPixelHit; i++){
       cout<<"      Pixel hit n. "<<i<<" Info : X  = "<<XMvdPixel[i]<<";  Y  = "<<YMvdPixel[i]<<
@@ -827,7 +842,7 @@ if(istampa>2&& IVOLTE<20) cout<<"Il punto MC n. "<<i<<" Mvd e' associato alla tr
      }
 
 
-if(istampa>=2  && IVOLTE<20) 
+if(istampa>=3  && IVOLTE<20) 
    cout<<"Evento n. "<<IVOLTE<<", info da MvdTrackCand n. "<<i<<"  ---------------------------------------\n"<<
        "\n      direzione X traccia = "<<dirSeed.X()<<
        "\n      direzione Y traccia = "<<dirSeed.Y()<<
@@ -855,7 +870,7 @@ if(istampa>=2  && IVOLTE<20)
 		inMvdTrackCandStrip[ ListHitMvdTrackCand[i][j] ]= true;
 	}
 
-if(istampa>=2  && IVOLTE<20){  cout<<"\thit n. "<<ListHitMvdTrackCand[i][j]
+if(istampa>=3  && IVOLTE<20){  cout<<"\thit n. "<<ListHitMvdTrackCand[i][j]
 	<<" e suo Detector Id "<<ListHitTypeMvdTrackCand[i][j]
 	<<" (Pixel DetId = "<<FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)<<", Strip DetId = "
 	<<FairRootManager::Instance()->GetBranchId(fMvdStripBranch)
@@ -1249,11 +1264,12 @@ if(istampa>2&& IVOLTE<20){
 			BETA[ncand]=-2.*Oy[ncand];
 			GAMMA[ncand]= Ox[ncand]*Ox[ncand]+Oy[ncand]*Oy[ncand]-R[ncand]*R[ncand];
 			Mvdhits[ncand]=false;
-			if(istampa>2) cout<<"da PndSttMvdTracking, IVOLTE = "<<
+			if(istampa>=2) cout<<"da PndSttMvdTracking, IVOLTE = "<<
 					IVOLTE<<", ncand = "
 					<<ncand<<
 					" non rifittato perche' non ha Mvd hits associati;"
 					<<endl;
+//			status[ncand]=true;	//  because it is still a good track!
 			continue;
 		}
 
@@ -1332,6 +1348,7 @@ if(istampa>2&& IVOLTE<20){
 			FI0[ncand] = atan2(-Oy[ncand], -Ox[ncand]);
 			if( FI0[ncand] < 0. )  FI0[ncand]+= 2.*PI;
 		}
+
 
 if(istampa>2) {
 cout<<"PndSttMvdTracking, prima di MatchMvdHitsToSttTracksagain, IVOLTE = "<<
@@ -2201,7 +2218,9 @@ dontdoit:  ;	//  this is the label where the computer jumps if there are already
 
 
 //----------stampaggi
-if(istampa>2){
+if(istampa>=2){
+cout<<"Evt. n. "<<IVOLTE<<", n. Track Cand totali = "<<nTotalCandidates<<endl;
+
 for(int it=0; it<nTotalCandidates;it++){
 cout<<"-------------------\n";
 cout<<"Evt. n. "<<IVOLTE<<",  Track Cand n. "<<it;
@@ -2250,7 +2269,8 @@ cout<<"-------------------\n";
    Short_t	FromPixeltoMCTrack[nMvdPixelHit],
 		FromStriptoMCTrack[nMvdStripHit];
 
-   MvdMatchtoMC(
+  if( doMcComparison){
+	MvdMatchtoMC(
 		nMvdMCPoint,
 		XMvdMCPoint,
 		YMvdMCPoint,
@@ -2259,14 +2279,30 @@ cout<<"-------------------\n";
 		FromPixeltoMCTrack,	// output
 		FromStriptoMCTrack	// output
 		);
+  }
+
 //------------------------------------------------------------------------------------
 
 
-//  this section associates the found tracks (for now : the STT found tracks) to the
+//  this section associates the found tracks  to the
 //  MC tracks, creating a bilinear correspondence between MC tracks and PR Found tracks
 
-//   if( nMCTracks >0 && nSttTrackCand > 0 ){
-   if( nMCTracks >0 && nTotalCandidates > 0 ){
+	UShort_t	nMvdPixelCommon[nTotalCandidates],
+			MvdPixelCommonList[nTotalCandidates][nMvdPixelHit],
+			nMvdPixelSpuriinTrack[nTotalCandidates],
+			MvdPixelSpuriList[nTotalCandidates][nMvdPixelHit],
+			nMCMvdPixelAlone[nTotalCandidates],
+			MCMvdPixelAloneList[nTotalCandidates][nMvdPixelHit],
+
+			nMvdStripCommon[nTotalCandidates],
+			MvdStripCommonList[nTotalCandidates][nMvdStripHit],
+			nMvdStripSpuriinTrack[nTotalCandidates],
+			MvdStripSpuriList[nTotalCandidates][nMvdStripHit],
+			nMCMvdStripAlone[nTotalCandidates],
+			MCMvdStripAloneList[nTotalCandidates][nMvdStripHit];
+
+
+   if( nMCTracks >0 && nTotalCandidates > 0 && doMcComparison ){
 
 
 	int nmid,nn;
@@ -2375,6 +2411,10 @@ cout<<"-------------------\n";
 
 	}	// end of  for(i=0; i<nTotalCandidates;i++)
 
+
+
+
+
 	AssociateFoundTrackstoMCquater(
 		  info,
 		  Ox,
@@ -2402,10 +2442,9 @@ cout<<"-------------------\n";
                   daTrackFoundaTrackMC
                                    );
 
-   }	// endo of if( nMCTracks >0 && nSttTrackCand > 0 )
 
 
-if(istampa>=2){
+if(istampa>=3){
 //	for(i=0;i<nSttTrackCand;i++){
 	for(i=0;i<nTotalCandidates;i++){
 		cout<<"da PndSttMvdTracking : Track candidate n. "<<i
@@ -2449,21 +2488,9 @@ if(istampa>=2){
 //--------------------  end comparison of the PndTrackCand from PR of the STT to the MC truth
 
 
-//	assumo che la traccia MC associata alla traccia Stt sia quella giusta e di
+//	assumo che la traccia MC associata alla traccia trovata dal Pattern Recognition
+//	sia quella giusta e di
 //	conseguenza calcolo gli hits Mvd spuri e comuni
-	UShort_t	nMvdPixelCommon[nTotalCandidates],
-			MvdPixelCommonList[nTotalCandidates][nMvdPixelHit],
-			nMvdPixelSpuriinTrack[nTotalCandidates],
-			MvdPixelSpuriList[nTotalCandidates][nMvdPixelHit],
-			nMCMvdPixelAlone[nTotalCandidates],
-			MCMvdPixelAloneList[nTotalCandidates][nMvdPixelHit],
-
-			nMvdStripCommon[nTotalCandidates],
-			MvdStripCommonList[nTotalCandidates][nMvdStripHit],
-			nMvdStripSpuriinTrack[nTotalCandidates],
-			MvdStripSpuriList[nTotalCandidates][nMvdStripHit],
-			nMCMvdStripAlone[nTotalCandidates],
-			MCMvdStripAloneList[nTotalCandidates][nMvdStripHit];
 
 
    MvdMatchedSpurioustoTrackCand(
@@ -2496,7 +2523,7 @@ if(istampa>=2){
 
 
 //---------- inizio stampaggi
-if(istampa>=2){
+if(istampa>=3){
 
 //     for(ncand=0; ncand< nSttTrackCand; ncand++){
      for(ncand=0; ncand< nTotalCandidates; ncand++){
@@ -2641,7 +2668,7 @@ if(istampa>=2){
 }	// end of if(istampa>=2)
 //-------------fine stampaggi
 
-//return;
+
 
 
 // ora il confronto per il meeting di  Groningen
@@ -2848,6 +2875,7 @@ if( istampa>=3){
 
 }  //   end of    if( istampa>=1)
 
+   }	// end of if( nMCTracks >0 && nSttTrackCand > 0  && doMcComparison )
 
 //------------------  end section with comparison MC Mvd hits - associated hits to a certain track
 
@@ -2859,10 +2887,9 @@ if( istampa>=3){
 
 //-------  load the new PndTrackCand ; each track has the STT and the Mvd hits associated
 //-------  also load the new PndTrack ; each track has the STT and the Mvd hits associated
-
 	Double_t Oxx, Oyy;
 	for(ncand=0, ipinco = 0; ncand< nTotalCandidates; ncand++){
-		if(!status[ncand]) continue;
+//		if(!status[ncand]) continue;
 		Oxx = Ox[ncand];
 		Oyy = Oy[ncand];
 		dis=sqrt( Oxx*Oxx+Oyy*Oyy );
@@ -2978,7 +3005,7 @@ if( istampa>=3){
 		//  the momentum direction
 		ddd = Ptras*sqrt(Ptras*Ptras+Pzini*Pzini);
 
-if(istampa>=2) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
+if(istampa>=3) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
 	"\tfirst hit, tipo hit = "<<ListTrackCandHitType[ncand][0]<<", X = "<<Posiz1[0]
 	<<", Y = "<<Posiz1[1]<<", Z = "<<Posiz1[2]<<
 	"\n\tPx = "<<px<<", Py = "<<py<<", Pz = "<<Pzini<<", Ptras "<<Ptras<<endl
@@ -3060,7 +3087,7 @@ if(istampa>=2) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
 		//  the momentum direction
 		ddd = Ptras*sqrt(Ptras*Ptras+Pzini*Pzini);
 
-if(istampa>=2) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
+if(istampa>=3) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
 	"\tlast hit, tipo hit = "<<ListTrackCandHitType[ncand][k]
 	<<", X = "<<Posiz1[0]
 	<<", Y = "<<Posiz1[1]<<", Z = "<<Posiz1[2]<<
@@ -3088,6 +3115,9 @@ if(istampa>=2) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
 
 		ipinco++;
 	}	// end of     for(ncand=0, ipinco = 0; ncand< nTotalCandidates; ncand++)
+
+
+
 
 //--------------------- end of load the new PndTrackCand
 
@@ -3217,7 +3247,7 @@ for(l =0;l<nMvdPixelHitsinTrack[it]+nMvdStripHitsinTrack[it]
 
 
 	if( nSttParHitsinTrack[i]+nMvdPixelHitsinTrack[i]+
-		nMvdStripHitsinTrack[i]>0) {
+		nMvdStripHitsinTrack[i]>0 &&  doMcComparison) {
 
 	   for( j=0;j<nMCSkewAlone[i];j++){
 	   	MCSkewAloneX[ MCSkewAloneList[i][j] ]=pSttMCPoint[MCSkewAloneList[i][j]]->GetX();
@@ -3225,7 +3255,7 @@ for(l =0;l<nMvdPixelHitsinTrack[it]+nMvdStripHitsinTrack[it]
 	   }
 
 
-           WriteMacroSttParallelAssociatedHitsandMvdwithMC(
+	   WriteMacroSttParallelAssociatedHitsandMvdwithMC(
                    Ox[i], Oy[i], R[i],
 			primoangolo[i],ultimoangolo[i],
                    nSttParHitsinTrack[i],
@@ -3269,10 +3299,11 @@ for(l =0;l<nMvdPixelHitsinTrack[it]+nMvdStripHitsinTrack[it]
 		MCSkewAloneList
 						);
 
-	}	// end of  if ( nSttParHitsinTrack[i]+ ...
+	}	// end of  if( nSttParHitsinTrack[i]+nMvdPixelHitsinTrack[i]+
+		//			nMvdStripHitsinTrack[i]>0 &&  doMcComparison)
 
       if(  nSttSkewHitsinTrack[i]+nMvdPixelHitsinTrack[i]+
-      	nMvdStripHitsinTrack[i]>0){
+      	nMvdStripHitsinTrack[i]>0 &&  doMcComparison){
              WriteMacroSkewAssociatedHitswithMC(
                    KAPPA[i],FI0[i], Ox[i], Oy[i], R[i],
                    info,
@@ -3306,7 +3337,8 @@ for(l =0;l<nMvdPixelHitsinTrack[it]+nMvdStripHitsinTrack[it]
 		&MCMvdStripAloneList[i][0]
 
                                                      );
-      }
+      }  //  end of	if(  nSttSkewHitsinTrack[i]+nMvdPixelHitsinTrack[i]+
+	//	nMvdStripHitsinTrack[i]>0 &&  doMcComparison)
     }            //   end of   for(  i= 0; i< nSttTrackCand; i++)
 i=0;
 
@@ -5906,7 +5938,7 @@ out1:  ;
 	tanmid[i]=0.;
 	tanup [i]=0.;
 	int nn = nHitsinTrack[i]+nPixelHitsinTrack[i]+nStripHitsinTrack[i];
-	if( nn > 2) {
+	if( nn > 2 || nn == 1) {
 		dx = X1[i] - Ox[i];
 		if(fabs(dx)> 1.e-10){
 			tanlow[i] = (Y1[i] - Oy[i] )/dx;
@@ -5928,7 +5960,7 @@ out1:  ;
 			tanup[i] = 999999.;
 		}
 
-	} else if (nn==2) {	// continuation  of  if( nn > 2)
+	} else if (nn==2) {	// continuation  of  if( nn > 2 || nn == 1)
 		dx = X1[i] - Ox[i];
 		if(fabs(dx)> 1.e-10){
 			tanlow[i] = (Y1[i] - Oy[i] )/dx;
@@ -5945,7 +5977,10 @@ out1:  ;
 
 		tanup[i] = tanmid[i];
 
-	} else{  // continuation of   if( nn > 2)
+	}
+
+/*
+	 else{  // continuation of   if( nn > 2), case in which there is only 1 hit in the Track cand.
 
 		dx = X1[i] - Ox[i];
 		if(fabs(dx)> 1.e-10){
@@ -5959,7 +5994,7 @@ out1:  ;
 		tanup[i] = tanlow[i];
 
 	}	// end of  if( nn > 2)
-
+*/
 //-----------------------------
 
    }	// end of for(i=0; i<nTracksFoundSoFar;i++)
