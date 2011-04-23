@@ -44,6 +44,12 @@ PndSttMvdGemTracking::PndSttMvdGemTracking() :
   fMaxDistance = -1;
   fUseMC = kFALSE;
   fCombiDistance = 1.;
+
+  fMvdPixelBranchName = "MVDHitsPixel";
+  fMvdStripBranchName = "MVDHitsStrip";
+  fSttBranchName = "STTHit";
+  fGemBranchName = "GEMHit";
+
 }
 // -------------------------------------------------------------------------
 
@@ -57,6 +63,12 @@ PndSttMvdGemTracking::PndSttMvdGemTracking(Int_t verbose) :
   fMaxDistance = -1;
   fUseMC = kFALSE;
   fCombiDistance = 1.;
+
+  fMvdPixelBranchName = "MVDHitsPixel";
+  fMvdStripBranchName = "MVDHitsStrip";
+  fSttBranchName = "STTHit";
+  fGemBranchName = "GEMHit";
+
 }
 // -------------------------------------------------------------------------
 
@@ -87,6 +99,16 @@ InitStatus PndSttMvdGemTracking::Init() {
   countsttmvdusable = 0;
 
   FairRootManager *ioman = FairRootManager::Instance();
+
+  cout << "-I- -------------------" << endl;
+  cout << "-I- PndSttMvdGemTracking: using branches " 
+       << fMvdPixelBranchName << " " 
+       << fMvdStripBranchName << " "
+       << fSttBranchName << " " 
+       << fGemBranchName << endl;
+  cout << "-I- to change one or more of these use PndSttMvdGemTracking:SetBranchName( TStrings ); the order of TStrings is mvd pixel name, mvd strip name, stt name, gem name" << endl;
+  cout << "-I- -------------------" << endl;
+
   
   if (!ioman) 
     {
@@ -110,7 +132,7 @@ InitStatus PndSttMvdGemTracking::Init() {
   }
 
   // open GEM hit array
-  fGemHitArray = (TClonesArray*) ioman->GetObject("GEMHit");
+  fGemHitArray = (TClonesArray*) ioman->GetObject(fGemBranchName);
   if(!fGemHitArray) {
     Error("PndSttMvdGemTracking:Init","gem hit - array not found!");
     return kERROR;
@@ -131,21 +153,21 @@ InitStatus PndSttMvdGemTracking::Init() {
   }
 
   // open MVD pixel hit array
-  fMvdPixelHitArray = (TClonesArray*) ioman->GetObject("MVDHitsPixel");
+  fMvdPixelHitArray = (TClonesArray*) ioman->GetObject(fMvdPixelBranchName);
   if(!fMvdPixelHitArray) {
     Error("PndSttMvdGemTracking:Init","mvd pixel hit - array not found!");
     return kERROR;
   }
 
   // open MVD strip hit array
-  fMvdStripHitArray = (TClonesArray*) ioman->GetObject("MVDHitsStrip");
+  fMvdStripHitArray = (TClonesArray*) ioman->GetObject(fMvdStripBranchName);
   if(!fMvdStripHitArray) {
     Error("PndSttMvdGemTracking:Init","mvd strip hit - array not found!");
     return kERROR;
   }
 
   // open STT hit array 
-  fSttHitArray = (TClonesArray*) ioman->GetObject("STTHit");
+  fSttHitArray = (TClonesArray*) ioman->GetObject(fSttBranchName);
   if(!fSttHitArray) {
     Error("PndSttMvdGemTracking:Init","stt hit - array not found!");
     return kERROR;
@@ -625,7 +647,7 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
       gemhit = (PndGemHit*) fGemHitArray->At(ihit);
       if(!gemhit) continue;
      if(fVerbose > 0) cout << "ACTUALLY add hit " << ihit << " to track " << itrk << endl;
-      completeCand->AddHit(FairRootManager::Instance()->GetBranchId("GEMHit"), ihit, gemhit->GetPosition().Mag());  // CHECK rho and kGemHit
+      completeCand->AddHit(FairRootManager::Instance()->GetBranchId(fGemBranchName), ihit, gemhit->GetPosition().Mag());  // CHECK rho and kGemHit
    
     }
 
@@ -666,7 +688,7 @@ void PndSttMvdGemTracking::Copy(PndTrackCand *completeCand, PndTrack *completeTr
     completeCand->AddHit(sttmvdCand->GetSortedHit(ihit).GetDetId(),
 			 sttmvdCand->GetSortedHit(ihit).GetHitId(),
 			 sttmvdCand->GetSortedHit(ihit).GetRho());
-    if(fVerbose > 0) cout << "PRIMA iHit " << sttmvdCand->GetSortedHit(ihit).GetHitId() << " detId " << sttmvdCand->GetSortedHit(ihit).GetDetId() << "(" << FairRootManager::Instance()->GetBranchId("GEMHit") << ")" << endl;
+    if(fVerbose > 0) cout << "PRIMA iHit " << sttmvdCand->GetSortedHit(ihit).GetHitId() << " detId " << sttmvdCand->GetSortedHit(ihit).GetDetId() << "(" << FairRootManager::Instance()->GetBranchId(fGemBranchName) << ")" << endl;
     
   }
   
@@ -691,8 +713,8 @@ void PndSttMvdGemTracking::EvaluatePerformances(Int_t nhits, Int_t ntracks) {
       Int_t iHit = candhit.GetHitId();
       Int_t detId = candhit.GetDetId();
       //      if(fVerbose != 0)       // CHECK
-      if(fVerbose > 0) cout << "iHit " << iHit << " detId " << detId << "(" << FairRootManager::Instance()->GetBranchId("GEMHit") << ")" << endl;
-      if(detId != FairRootManager::Instance()->GetBranchId("GEMHit")) continue;
+      if(fVerbose > 0) cout << "iHit " << iHit << " detId " << detId << "(" << FairRootManager::Instance()->GetBranchId(fGemBranchName) << ")" << endl;
+      if(detId != FairRootManager::Instance()->GetBranchId(fGemBranchName)) continue;
 
       PndGemHit *gemhit = (PndGemHit*) fGemHitArray->At(iHit);
       if(!gemhit) continue;
@@ -1679,7 +1701,7 @@ std::vector<int> PndSttMvdGemTracking::AssignHits(Int_t itrk, FairTrackParP *gem
       distancemap[itrk][hitindex] = distance;
       
       // assign it to all the tracks it might belong to (for now)
-      //	    completeCand->AddHit(FairRootManager::Instance()->GetBranchId("GEMHit"), hitindex, gemhit->GetPosition().Mag());  // CHECK rho and kGemHit
+      //	    completeCand->AddHit(FairRootManager::Instance()->GetBranchId(fGemBranchName), hitindex, gemhit->GetPosition().Mag());  // CHECK rho and kGemHit
       if(fVerbose != 0)	    cout << "assign " << hitindex << " to track " << itrk << endl;
       //      AddHitToTrack(hitindex, itrk);
       assignedhits.push_back(hitindex);	    
@@ -1775,27 +1797,27 @@ FairTrackParP PndSttMvdGemTracking::SetStartParameters(PndTrack *sttmvd, PndTrac
     FairMCPoint *fpnt = NULL;
     
 //     cout << "LAST HIT " << detId 
-// 	 << " " << FairRootManager::Instance()->GetBranchId("MVDHitsStrip")
-// 	 << " " << FairRootManager::Instance()->GetBranchId("MVDHitsPixel")
-// 	 << " " << FairRootManager::Instance()->GetBranchId("STTHit")
+// 	 << " " << FairRootManager::Instance()->GetBranchId(fMvdStripBranchName)
+// 	 << " " << FairRootManager::Instance()->GetBranchId(fMvdPixelBranchName)
+// 	 << " " << FairRootManager::Instance()->GetBranchId(fSttBranchName)
 // 	 << endl;
     
-    if(detId != FairRootManager::Instance()->GetBranchId("STTHit")) return lastpar;
+    if(detId != FairRootManager::Instance()->GetBranchId(fSttBranchName)) return lastpar;
     
-    if(detId == FairRootManager::Instance()->GetBranchId("MVDHitsStrip")) 
+    if(detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranchName)) 
       {
 	fhit = (FairHit*) fMvdStripHitArray->At(iHit);
 	if(!fhit) return lastpar;
 	fpnt = (FairMCPoint*) fMvdPointArray->At(fhit->GetRefIndex());
 	if(!fpnt) return lastpar;
       }
-    else if(detId == FairRootManager::Instance()->GetBranchId("MVDHitsPixel")) {
+    else if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranchName)) {
       fhit = (FairHit*) fMvdPixelHitArray->At(iHit);
       if(!fhit) return lastpar;
       fpnt = (FairMCPoint*) fMvdPointArray->At(fhit->GetRefIndex());
       if(!fpnt) return lastpar;
     }
-    else if(detId == FairRootManager::Instance()->GetBranchId("STTHit")) {
+    else if(detId == FairRootManager::Instance()->GetBranchId(fSttBranchName)) {
       fhit = (FairHit*) fSttHitArray->At(iHit);
       if(!fhit) return lastpar;
       fpnt = (FairMCPoint*) fSttPointArray->At(fhit->GetRefIndex());
@@ -1858,7 +1880,7 @@ FairTrackParP PndSttMvdGemTracking::SetStartParameters(PndTrack *sttmvd, PndTrac
     //     Int_t detId = candhit.GetDetId();
       
     //     // CHECK    
-    //     if(detId != FairRootManager::Instance()->GetBranchId("STTHit")) return lastpar;
+    //     if(detId != FairRootManager::Instance()->GetBranchId(fSttBranchName)) return lastpar;
     
     //     PndSttHit *stthit = (PndSttHit*) fSttHitArray->At(iHit);
     //     if(!stthit) return lastpar;
@@ -2023,17 +2045,17 @@ void PndSttMvdGemTracking::FillTrueDistances() {
       FairHit *fhit = NULL;
       FairMCPoint *fpnt = NULL;
       //  cout << "HIT " << iHit << " FOR " << detId << endl;
-      if(detId == FairRootManager::Instance()->GetBranchId("MVDHitsStrip")) { //  CHECK
+      if(detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranchName)) { //  CHECK
 	//      if(detId == 26) {
 	fhit = (FairHit*) fMvdStripHitArray->At(iHit);
 	if(fhit) fpnt = (FairMCPoint*) fMvdPointArray->At(fhit->GetRefIndex());
       }
-      else if(detId == FairRootManager::Instance()->GetBranchId("MVDHitsPixel")) { //  CHECK
+      else if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranchName)) { //  CHECK
 	// else if(detId == 24) {
 	fhit = (FairHit*) fMvdPixelHitArray->At(iHit);
 	if(fhit) fpnt = (FairMCPoint*) fMvdPointArray->At(fhit->GetRefIndex());
       }
-      else if(detId == FairRootManager::Instance()->GetBranchId("STTHit")) {
+      else if(detId == FairRootManager::Instance()->GetBranchId(fSttBranchName)) {
 	fhit = (FairHit*) fSttHitArray->At(iHit);
 	if(fhit) fpnt = (FairMCPoint*) fSttPointArray->At(fhit->GetRefIndex());
       }
@@ -2142,10 +2164,10 @@ Bool_t PndSttMvdGemTracking::Prefit(PndTrack *sttmvdTrack, PndTrackCand *sttmvdC
       points[ihit][8] = 0;
       points[ihit][9] = 0;
 
-      if(detId == FairRootManager::Instance()->GetBranchId("GEMHit")) continue;
-      else  if(detId == FairRootManager::Instance()->GetBranchId("MVDHitsPixel") || detId == FairRootManager::Instance()->GetBranchId("MVDHitsStrip")) {
+      if(detId == FairRootManager::Instance()->GetBranchId(fGemBranchName)) continue;
+      else  if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranchName) || detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranchName)) {
 	PndSdsHit *mvdhit;
-	if(detId == FairRootManager::Instance()->GetBranchId("MVDHitsPixel"))  mvdhit = (PndSdsHit*) fMvdPixelHitArray->At(hitId);
+	if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranchName))  mvdhit = (PndSdsHit*) fMvdPixelHitArray->At(hitId);
 	else mvdhit = (PndSdsHit*) fMvdStripHitArray->At(hitId);
 	if(!mvdhit) { cout << "mvd hit " << ihit << " " << hitId << " does not exist" << endl;  continue;}
 	points[ihit][0] = hitId;
@@ -2160,7 +2182,7 @@ Bool_t PndSttMvdGemTracking::Prefit(PndTrack *sttmvdTrack, PndTrackCand *sttmvdC
 	//	cout << "MVD " << ihit << " " << hitId << " " << points[ihit][2] << " " << points[ihit][3] << " " << points[ihit][4] << endl;
 
       }
-      else if(detId == FairRootManager::Instance()->GetBranchId("STTHit")) {
+      else if(detId == FairRootManager::Instance()->GetBranchId(fSttBranchName)) {
 	PndSttHit *stthit = (PndSttHit*) fSttHitArray->At(hitId);
 	if(!stthit) { cout << "stt hit " << ihit << " " << hitId << " does not exist" << endl; continue; }
 	TVector3 xyz(0, 0, 0);
@@ -2203,7 +2225,7 @@ Bool_t PndSttMvdGemTracking::Prefit(PndTrack *sttmvdTrack, PndTrackCand *sttmvdC
       Int_t detId = (Int_t) points[ihit][1];
 
       if(hitId == -1) continue;   
-      if(detId != FairRootManager::Instance()->GetBranchId("STTHit")) continue;
+      if(detId != FairRootManager::Instance()->GetBranchId(fSttBranchName)) continue;
       PndSttHit *stthit = (PndSttHit*) fSttHitArray->At(hitId);
       if(!stthit) continue;
       
@@ -2437,7 +2459,7 @@ Bool_t PndSttMvdGemTracking::IntersectionFinder(Double_t xc, Double_t yc, Double
       Int_t hitId = (Int_t) points[ihit][0];
       Int_t detId = (Int_t) points[ihit][1];
       if(hitId == -1) continue;
-      if(detId == FairRootManager::Instance()->GetBranchId("STTHit") && points[ihit][8] < 0.1) continue;
+      if(detId == FairRootManager::Instance()->GetBranchId(fSttBranchName) && points[ihit][8] < 0.1) continue;
       fitpoint.SetXYZ(points[ihit][2], points[ihit][3], points[ihit][4]);
       Double_t sigx = points[ihit][5];
       Double_t sigy = points[ihit][6];
@@ -2594,8 +2616,8 @@ Bool_t PndSttMvdGemTracking::ZFit(TMatrixT<double> points, Int_t charge, Double_
       Int_t hitId = (Int_t) points[ihit][0];
       //   cout << "hitId " << hitId << " detId " << detId << endl;
       if(hitId == -1) continue;
-      if(detId == FairRootManager::Instance()->GetBranchId("STTHit") ||
-	 detId == FairRootManager::Instance()->GetBranchId("GEMHit")) continue;
+      if(detId == FairRootManager::Instance()->GetBranchId(fSttBranchName) ||
+	 detId == FairRootManager::Instance()->GetBranchId(fGemBranchName)) continue;
 
       TVector2 v(x0 - xc, y0 - yc); 
       Double_t alpha = TMath::ATan2(points[ihit][3] - y0 + radius * TMath::Sin(Phi0), points[ihit][2] - x0 + radius * TMath::Cos(Phi0));
@@ -3106,7 +3128,7 @@ Bool_t PndSttMvdGemTracking::ZFind(Int_t nhits, TMatrixT<double> points, Double_
       Int_t hitId = (Int_t) points[ihit][0];
       cout << "hitId " << hitId << " detId " << detId << endl;
       if(hitId == -1) continue;
-      if(detId != FairRootManager::Instance()->GetBranchId("STTHit")) continue;
+      if(detId != FairRootManager::Instance()->GetBranchId(fSttBranchName)) continue;
 
       // intersection: tube line with circle trajectory in xy
 
@@ -3197,7 +3219,7 @@ void PndSttMvdGemTracking::UpdateMCTrackId(PndTrackCand *completeCand) {
    
       FairHit *fhit;
       FairMCPoint *fpnt;
-      if(detId == FairRootManager::Instance()->GetBranchId("MVDHitsStrip")) 
+      if(detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranchName)) 
 	{
 	fhit = (FairHit*) fMvdStripHitArray->At(iHit);
 	if(!fhit) continue;
@@ -3206,7 +3228,7 @@ void PndSttMvdGemTracking::UpdateMCTrackId(PndTrackCand *completeCand) {
 	fpnt = (FairMCPoint*) fMvdPointArray->At(refIndex);
 	if(!fpnt) continue;
 	}
-      else if(detId == FairRootManager::Instance()->GetBranchId("MVDHitsPixel")) {
+      else if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranchName)) {
    	fhit = (FairHit*) fMvdPixelHitArray->At(iHit);
 	if(!fhit) continue;
 	Int_t refIndex = fhit->GetRefIndex();
@@ -3214,7 +3236,7 @@ void PndSttMvdGemTracking::UpdateMCTrackId(PndTrackCand *completeCand) {
 	fpnt = (FairMCPoint*) fMvdPointArray->At(refIndex);
 	if(!fpnt) continue;
       }
-      else if(detId == FairRootManager::Instance()->GetBranchId("STTHit")) {
+      else if(detId == FairRootManager::Instance()->GetBranchId(fSttBranchName)) {
    	fhit = (FairHit*) fSttHitArray->At(iHit);
 	if(!fhit) continue;
 	Int_t refIndex = fhit->GetRefIndex();
@@ -3222,7 +3244,7 @@ void PndSttMvdGemTracking::UpdateMCTrackId(PndTrackCand *completeCand) {
 	fpnt = (FairMCPoint*) fSttPointArray->At(refIndex);
 	if(!fpnt) continue;
       }
-      else if (detId == FairRootManager::Instance()->GetBranchId("GEMHit")) {
+      else if (detId == FairRootManager::Instance()->GetBranchId(fGemBranchName)) {
 	fhit = (FairHit*) fGemHitArray->At(iHit);
 	if(!fhit) continue;
 	Int_t refIndex = fhit->GetRefIndex();
@@ -3254,4 +3276,12 @@ void PndSttMvdGemTracking::UpdateMCTrackId(PndTrackCand *completeCand) {
    completeCand->setMcTrackId(tmptrackID);
    cout << "NEW MC " <<  completeCand->getMcTrackId() << endl;
 
+}
+
+
+void PndSttMvdGemTracking::SetBranchNames(TString mvdpixel, TString mvdstrip, TString stt, TString gem) {
+  fMvdPixelBranchName = mvdpixel;
+  fMvdStripBranchName = mvdstrip;
+  fSttBranchName = stt;
+  fGemBranchName = gem;
 }

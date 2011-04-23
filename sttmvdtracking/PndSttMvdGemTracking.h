@@ -113,6 +113,8 @@ class PndSttMvdGemTracking : public FairTask {
   void UseMonteCarlo() {  fUseMC = kTRUE; }
   void WriteHistograms();
 
+  void SetBranchNames(TString mvdpixel, TString mvdstrip, TString stt, TString gem);
+
  private: 
 
   /** Input array of GEMHits **/
@@ -216,6 +218,9 @@ class PndSttMvdGemTracking : public FairTask {
   // MonteCarlo
   // CHECK delete this when everything is ok
   Bool_t fUseMC;
+
+  TString fMvdPixelBranchName, fMvdStripBranchName, fSttBranchName, fGemBranchName;
+
 
   /** combimap: hitID <-> 1/0 whether it is combinatorial or not **/
   std::map<int, int> fCombiMap;
