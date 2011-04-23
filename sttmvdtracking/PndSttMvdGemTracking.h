@@ -105,7 +105,8 @@ class PndSttMvdGemTracking : public FairTask {
   // COMBINATORIAL EFFECS ----------------
   void ConsiderCombinatorialEffect(Int_t nhits);
   void SetCombinatorialDistance(Double_t combidistance) { fCombiDistance = combidistance; }
- 
+  void UpdateMCTrackId(PndTrackCand *completeCand);
+
 
 
   // CHECK delete this when everything is ok

@@ -3179,3 +3179,79 @@ Bool_t PndSttMvdGemTracking::ZFind(Int_t nhits, TMatrixT<double> points, Double_
 
      
 }
+
+void PndSttMvdGemTracking::UpdateMCTrackId(PndTrackCand *completeCand) {
+
+
+  cout << "UPDATE MC TRACK ID" << endl;
+  cout << "ORIGINAL MC " <<  completeCand->getMcTrackId() << endl;
+
+  // track ID <---> counter
+  std::map<int, int> mctrackids;
+ //  std::vector<int> newtracks;
+
+   for (Int_t ihit = 0; ihit < completeCand->GetNHits(); ihit++) {
+      PndTrackCandHit candhit = completeCand->GetSortedHit(ihit);
+      Int_t iHit = candhit.GetHitId();
+      Int_t detId = candhit.GetDetId();
+   
+      FairHit *fhit;
+      FairMCPoint *fpnt;
+      if(detId == FairRootManager::Instance()->GetBranchId("MVDHitsStrip")) 
+	{
+	fhit = (FairHit*) fMvdStripHitArray->At(iHit);
+	if(!fhit) continue;
+	Int_t refIndex = fhit->GetRefIndex();
+	if(refIndex == -1) continue;
+	fpnt = (FairMCPoint*) fMvdPointArray->At(refIndex);
+	if(!fpnt) continue;
+	}
+      else if(detId == FairRootManager::Instance()->GetBranchId("MVDHitsPixel")) {
+   	fhit = (FairHit*) fMvdPixelHitArray->At(iHit);
+	if(!fhit) continue;
+	Int_t refIndex = fhit->GetRefIndex();
+	if(refIndex == -1) continue;
+	fpnt = (FairMCPoint*) fMvdPointArray->At(refIndex);
+	if(!fpnt) continue;
+      }
+      else if(detId == FairRootManager::Instance()->GetBranchId("STTHit")) {
+   	fhit = (FairHit*) fSttHitArray->At(iHit);
+	if(!fhit) continue;
+	Int_t refIndex = fhit->GetRefIndex();
+	if(refIndex == -1) continue;
+	fpnt = (FairMCPoint*) fSttPointArray->At(refIndex);
+	if(!fpnt) continue;
+      }
+      else if (detId == FairRootManager::Instance()->GetBranchId("GEMHit")) {
+	fhit = (FairHit*) fGemHitArray->At(iHit);
+	if(!fhit) continue;
+	Int_t refIndex = fhit->GetRefIndex();
+	if(refIndex == -1) continue;
+	fpnt = (FairMCPoint*) fGemPointArray->At(refIndex);
+      }
+      else continue; // CHECK
+
+      int trackID = fpnt->GetTrackID();
+      cout << "HIT ID " << iHit << " DET ID " << detId << " TRACK ID " << trackID << endl;
+      //       // is the track ID new?
+      //       std::vector<int>::iterator iter; 
+      //       iter = find(newtracks.begin(), newtracks.end(), trackID);
+      //       int index = iter - newtracks.begin();
+      //       // if no
+      //       if(index == newtracks.size()) newtracks.push_back(trackID);
+
+      mctrackids[trackID]++;
+   }
+	
+   int counter = 0;
+   int tmptrackID = -1;
+   for(int itrk = 0; itrk < mctrackids.size(); itrk++) {
+     if(counter < mctrackids[itrk]) {
+       counter =  mctrackids[itrk];
+       tmptrackID = itrk;
+     }
+   }
+   completeCand->setMcTrackId(tmptrackID);
+   cout << "NEW MC " <<  completeCand->getMcTrackId() << endl;
+
+}
