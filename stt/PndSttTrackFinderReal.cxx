@@ -41,6 +41,10 @@ using std::map;
 // -----   Default constructor   -------------------------------------------
 PndSttTrackFinderReal::PndSttTrackFinderReal()
 { 
+	iplotta = false;
+	istampa = 0;
+	doMcComparison = false;
+
 //  fVerbose      = 1;
                  Fimin=0.;     Fimax=2.*PI;
                  FI0min = 0.; FI0max = 2.*PI;
@@ -51,9 +55,10 @@ PndSttTrackFinderReal::PndSttTrackFinderReal()
                stepFI0=(FI0max-FI0min)/nbinFI0;
                stepfineKAPPA=2.*DELTA_KAPPA/nbinKAPPA;
                stepfineFI0=2.*DELTA_FI0/nbinFI0;
-               RminStrawSkewArea = RStrawDetectorMin*2./1.732051 + 18.*StrawRadius ; // delimitation of the skew area
+	RminStrawSkewArea = RStrawDetectorMin*2./1.732051 + 18.*StrawRadius ; // delimitation of the skew area
                RmaxStrawSkewArea = RminStrawSkewArea + 8.*1.732051 *StrawRadius ;
 	sprintf(fSttBranch,"STTHit");
+
 
 }
 // -------------------------------------------------------------------------
@@ -64,19 +69,46 @@ PndSttTrackFinderReal::PndSttTrackFinderReal()
 // -----   Standard constructor   ------------------------------------------
 PndSttTrackFinderReal::PndSttTrackFinderReal(int verbose) 
 { 
-  istampa      = verbose;
-  MINIMUMOUTERHITSPERTRACK=5;
-                 Fimin=0.;     Fimax=2.*PI;
-                 FI0min = 0.; FI0max = 2.*PI;
-               stepD=(Dmax-Dmin)/nbinD;
-               stepFi=(Fimax-Fimin)/nbinFi;
-               stepR=(Rmax-Rmin)/nbinR;
-               stepKAPPA=(KAPPAmax-KAPPAmin)/nbinKAPPA;
-               stepFI0=(FI0max-FI0min)/nbinFI0;
-               stepfineKAPPA=2.*DELTA_KAPPA/nbinKAPPA;
-               stepfineFI0=2.*DELTA_FI0/nbinFI0;
-               RminStrawSkewArea = RStrawDetectorMin*2./1.732051 + 18.*StrawRadius ; // delimitation of the skew area
-               RmaxStrawSkewArea = RminStrawSkewArea + 8.*1.732051 *StrawRadius ;
+	istampa      = verbose;
+	iplotta = false;
+	doMcComparison = false;
+
+	MINIMUMOUTERHITSPERTRACK=5;
+	Fimin=0.;     Fimax=2.*PI;
+	FI0min = 0.; FI0max = 2.*PI;
+	stepD=(Dmax-Dmin)/nbinD;
+	stepFi=(Fimax-Fimin)/nbinFi;
+	stepR=(Rmax-Rmin)/nbinR;
+	stepKAPPA=(KAPPAmax-KAPPAmin)/nbinKAPPA;
+	stepFI0=(FI0max-FI0min)/nbinFI0;
+	stepfineKAPPA=2.*DELTA_KAPPA/nbinKAPPA;
+	stepfineFI0=2.*DELTA_FI0/nbinFI0;
+	RminStrawSkewArea = RStrawDetectorMin*2./1.732051 + 18.*StrawRadius ; // delimitation of the skew area
+	RmaxStrawSkewArea = RminStrawSkewArea + 8.*1.732051 *StrawRadius ;
+	sprintf(fSttBranch,"STTHit");
+}
+// -------------------------------------------------------------------------
+
+
+// -----   Second constructor   ------------------------------------------
+PndSttTrackFinderReal::PndSttTrackFinderReal(int istamp, bool iplott, bool imc) 
+{ 
+	istampa= istamp;
+	iplotta = iplott;
+	doMcComparison = imc;
+
+	MINIMUMOUTERHITSPERTRACK=5;
+	Fimin=0.;     Fimax=2.*PI;
+	FI0min = 0.; FI0max = 2.*PI;
+	stepD=(Dmax-Dmin)/nbinD;
+	stepFi=(Fimax-Fimin)/nbinFi;
+	stepR=(Rmax-Rmin)/nbinR;
+	stepKAPPA=(KAPPAmax-KAPPAmin)/nbinKAPPA;
+	stepFI0=(FI0max-FI0min)/nbinFI0;
+	stepfineKAPPA=2.*DELTA_KAPPA/nbinKAPPA;
+	stepfineFI0=2.*DELTA_FI0/nbinFI0;
+	RminStrawSkewArea = RStrawDetectorMin*2./1.732051 + 18.*StrawRadius ; // delimitation of the skew area
+	RmaxStrawSkewArea = RminStrawSkewArea + 8.*1.732051 *StrawRadius ;
 	sprintf(fSttBranch,"STTHit");
 
 }
@@ -121,6 +153,7 @@ if(istampa >=1 ){
 if(istampa >=3 )   HANDLEXYZ = fopen("infoPndTrackFinderRealXYZ.txt","w");
 
 //  ---------------  open file delle info su deltaX, Y, Z  degli hits in comune tra tracce trovate e MC
+
    PHANDLEX = fopen("deltaParXmio.txt","w");
    PHANDLEY = fopen("deltaParYmio.txt","w");
    PHANDLEZ = fopen("deltaParZmio.txt","w");
@@ -647,10 +680,6 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
      cout<< "from PndSttTrackFinderReal :  # Stt || hits = "<< Minclinations[0]
          <<" and it is < MINIMUMHITSPERTRACK = "<<MINIMUMHITSPERTRACK<<", return!"<<endl;
 	  return 0;
-   }
-   if(! ianalizza ){
-    cout<< "from PndSttTrackFinderReal :  analysis flag set false, return !"<<endl;
-    return 0;
    }
 
 
@@ -1501,7 +1530,7 @@ if(istampa>=2) {
 
 //    associate the tracks found with Pattern Recognition to the MC tracks
 
-   if( nMCTracks >0 && nTracksFoundSoFar > 0 ){
+   if( nMCTracks >0 && nTracksFoundSoFar > 0  && doMcComparison ) {
 
 /*
          AssociateFoundTrackstoMC(
@@ -1525,7 +1554,7 @@ if(istampa>=2) {
                   ListSkewHitsinTrack,
                   daTrackFoundaTrackMC
                                    );
-   }
+
 
    for(jexp=0; jexp<nTracksFoundSoFar;jexp++){
 	nParalCommon[jexp]=0;
@@ -1722,6 +1751,7 @@ if( istampa>=2){
 
 
 
+	}  //  end of  if( nMCTracks >0 && nTracksFoundSoFar > 0  && doMcComparison )
 
 //--------------------  fine della sezione sul confronto tra MC truth e tracce trovate
 
@@ -2167,13 +2197,6 @@ if(istampa>=3)  cout<<"DoFind, skew, infoskew[ ListSkewHitsinTrack[i][j] ] = "<<
 
 
 
-
-
-
-
-
-
-
   // loading helix hits (e.g. for LHeTrack)
 
 
@@ -2216,7 +2239,14 @@ if(istampa>=3)  cout<<"DoFind, skew, infoskew[ ListSkewHitsinTrack[i][j] ] = "<<
 
 
 //---------------   printouts of comparison with MC for judging algorithm performance
-  if( nMCTracks >0 &&  nMCTracks<MAXMCTRACKS) {
+
+
+
+
+   if( nMCTracks >0 && nTracksFoundSoFar > 0  && doMcComparison ) {
+
+//  if( nMCTracks >0 &&  nMCTracks<MAXMCTRACKS) {
+
     for(i=0; i<nTracksFoundSoFar;i++){
        if(!GoodSkewFit[i])   continue;
 
@@ -2304,8 +2334,9 @@ if(istampa>=2){
 
 
 
-    }   //  end of     for(i=0; i<nTracksFoundSoFar;i++)
-  }  //  end of  if( nMCTracks >0 )
+	}   //  end of     for(i=0; i<nTracksFoundSoFar;i++)
+
+   }  //  end of  if( nMCTracks >0 && nTracksFoundSoFar > 0  && doMcComparison )
 
 //---------------  end of printouts of comparison with MC for judging algorithm performance
 
@@ -2321,7 +2352,8 @@ if(istampa>=2){
 if(iplotta && IVOLTE <= nmassimo){
 
 
-  for(i=0; i<nTracksFoundSoFar;i++){
+  if(doMcComparison) {
+	for(i=0; i<nTracksFoundSoFar;i++){
            WriteMacroParallelAssociatedHitswithMC(
                    Ox[i], Oy[i], R[i],
 		   daTrackFoundaTrackMC[i],
@@ -2336,11 +2368,8 @@ if(iplotta && IVOLTE <= nmassimo){
 		nMCParalAlone,
 		MCParalAloneList
                                                      );
+	}
   }
-
-
-
-
 
 for(i=0; i<nTracksFoundSoFar;i++){
    if( iplotta) {
@@ -2361,13 +2390,13 @@ for(i=0; i<nTracksFoundSoFar;i++){
                    info, Nincl,Minclinations,inclination,
                    i,0,
                    nSkewHitsinTrack[i],
-                   ListSkewHitsinTrack,
-                   nSkewCommon[i],
-                   SkewCommonList
- 
+                   ListSkewHitsinTrack
+//                   nSkewCommon[i],
+//                   SkewCommonList
+
                                                      );
 
-
+   if(doMcComparison) {
       if( daTrackFoundaTrackMC[i] >= 0){
              WriteMacroSkewAssociatedHitswithMC(
                    KAPPA[i],FI0[i], HoughD, HoughFi, HoughR,
@@ -2382,7 +2411,7 @@ for(i=0; i<nTracksFoundSoFar;i++){
 		MCSkewAloneList
                                                      );
       }
-
+   }
 
 
 
@@ -5095,9 +5124,9 @@ carica0: ;
                    Double_t inclination[][3],
                    Int_t imaxima, Int_t nMaxima, 
                    UShort_t nSkewHitsinTrack,
-                   UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
-                   UShort_t nSkewCommon,
-                   UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxHits]
+                   UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits]
+//                   UShort_t nSkewCommon,
+//                   UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxHits]
 
                                                      )
 
@@ -5235,6 +5264,7 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
 
 
 // ------ se lo hit e' spurio marcalo in rosso
+/*
         for( i1=0; i1<nSkewCommon; i1++){
           if ( SkewCommonList[   imaxima   ][i1] == i ){
 
@@ -5245,7 +5275,7 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
         fprintf(MACRO,"E%d->SetLineColor(2);\n",index);
 fuori: ;
 
-
+*/
 
 
 
@@ -5959,7 +5989,12 @@ nohits: ;
               break;
            }
          }
-	 if( nBoxConformal[iR][iFi] >= MAXHITSINCELL ) continue;
+	 if( nBoxConformal[iR][iFi] >= MAXHITSINCELL ){
+		cout<<"Warning from PndSttTrackFinderReal::PndSttBoxConformalFilling     :"
+	<<"\n\tcontent in nBoxConformal["<<iR<<"]["<<iFi<<"] has reached the Max allowed value = "
+	<<MAXHITSINCELL<<endl;
+		 continue;
+	 }
          HitsinBoxConformal[ nBoxConformal[iR][iFi] ][iR][iFi]=(UShort_t) i;
          nBoxConformal[iR][iFi]++;
          RConformalIndex[ infoparal[i] ]  =  iR;
