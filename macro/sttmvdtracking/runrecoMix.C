@@ -54,14 +54,14 @@
   // =========================================================================
   //-------------------------- MixBackgroundEvents  task ----------------------------------
 // The following is the task that mixes physics evt and bkg events.
-   PndMixBackgroundEvents *  MixBackgroundEvents = new PndMixBackgroundEvents(0);
+   PndMixBackgroundEvents *  mix = new PndMixBackgroundEvents(0);
 	//  here two Background input files are given :
 	//  1)  the DIGI file of the bkg, to extract the Stt bkg  hits;
 	//  2)  the reconstructed bkg file ( necessary for extracting the Mvd bkg hits)
 	//      previously produced by the Macro runPreliminaryMvdReco.C (Mix_Generation_reco.root)
 	//  The user must change the filenames here obviously!
-   MixBackgroundEvents->SetInputBkgFilesName("Background_digi.root");// Mvd and Sttt bkg file.
-  fRun->AddTask(MixBackgroundEvents);
+   mix->SetInputBkgFilesName("Background_digi.root");// Mvd and Sttt bkg file.
+  fRun->AddTask(mix);
   // =========================================================================
 
 
