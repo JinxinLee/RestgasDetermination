@@ -30,6 +30,13 @@
 #include <cmath>
 
 #define IDEAL true // CHECKING
+
+// CHECKCOMBI:
+//    0 no combinatorial taken into account
+//    1 combi taken into account only after whole procedure
+//    2 combi not allow during assignment
+#define CHECKCOMBI 1
+
 int countperformance[7];
 using namespace std;
 
@@ -461,7 +468,7 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
   OrderGemHits(nhits);
   Int_t flag[ntracks];
 
-  ConsiderCombinatorialEffect(nhits);
+  if(CHECKCOMBI > 0) ConsiderCombinatorialEffect(nhits);
 
   // loop on the tracks found in mvd + stt ************
   for (Int_t itrk = 0; itrk < ntracks; itrk++) 
@@ -611,7 +618,7 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
   
 
   // CLEANUP =================================
-  CheckCombinatorial(nhits, ntracks); 
+  if(CHECKCOMBI == 1) CheckCombinatorial(nhits, ntracks); 
   ForbidMultiAssignedHits(nhits, ntracks);
   OnlyOneHitToEachTrack(nhits, ntracks);
   AddRemainingHits(ntracks);
@@ -1348,7 +1355,7 @@ void PndSttMvdGemTracking::AddRemainingHits(Int_t ntracks) {
 	if(GetTracksAssociatedToHit(hitindex).size() != 0) continue;
 	PndGemHit *gemhit = (PndGemHit*) fGemHitArray->At(hitindex);
 	if(!gemhit) continue;
-	if(fCombiMap[hitindex] != 0) continue;
+	if(CHECKCOMBI > 0) if(fCombiMap[hitindex] != 0) continue;
 	if(fVerbose > 0) cout << "distance " << distancemap[itrk][hitindex] << endl;
 	if(distancemap[itrk][hitindex] == -1) continue;
 	if(distancemap[itrk][hitindex] < tmpdist)  {
@@ -1439,7 +1446,7 @@ void PndSttMvdGemTracking::Retrack() {
 	 for(iter = assignedhits.begin(); iter != assignedhits.end(); iter++) {
 	   std::vector<int>::iterator iter2;
 	   Int_t ihit =  *iter;
-	   if(fCombiMap[ihit] != 0) { assignedhits.erase(iter); iter--; continue; }
+	   if(CHECKCOMBI > 0 && fCombiMap[ihit] != 0) { assignedhits.erase(iter); iter--; continue; }
 	   if(distancemap[itrk][ihit] < tmpdistance) { 
 	     iter2 = std::find(assignedhits.begin(), assignedhits.end(), tmphit);
 	     int where = iter2 - assignedhits.begin();
@@ -1822,8 +1829,9 @@ FairTrackParP PndSttMvdGemTracking::SetStartParameters(PndTrack *sttmvd, PndTrac
       if(!fhit) return lastpar;
       fpnt = (FairMCPoint*) fSttPointArray->At(fhit->GetRefIndex());
       if(!fpnt) return lastpar;
-    }
-    
+  
+ }
+  
     startpar = FairTrackParP(TVector3(fpnt->GetX(), fpnt->GetY(), fpnt->GetZ()),
 			     TVector3(fpnt->GetPx(), fpnt->GetPy(), fpnt->GetPz()),
 			     TVector3(0.1, 0.1, 0.1), TVector3(0.1, 0.1, 0.1), 
