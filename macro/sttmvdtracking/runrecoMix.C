@@ -101,9 +101,9 @@
   //-------------------------- stt-mvd   task ----------------------------------
 //  use the constructor with input :
 //	  printout flag (int) , plotting flag (bool), MC comparison flag (bool).
-  PndSttMvdTracking*  SttMvdTracking = new PndSttMvdTracking(0,false,true);
-  SttMvdTracking->SetInputBranchName("STTHitMix","MVDHitsPixelMix","MVDHitsStripMix");
-  fRun->AddTask(SttMvdTracking);
+  PndSttMvdTracking*  sttmvd = new PndSttMvdTracking(0,false,true);
+  sttmvd->SetInputBranchName("STTHitMix","MVDHitsPixelMix","MVDHitsStripMix");
+  fRun->AddTask(sttmvd);
   // =========================================================================
 
 
