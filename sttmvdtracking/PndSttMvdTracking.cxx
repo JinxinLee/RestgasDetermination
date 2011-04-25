@@ -591,10 +591,11 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
  if (nSttTrackCand ==0){
 	cout<<"da PndSttMvdTracking  :  N. of SttTrackCand = 0, return!\n"<<endl;
 	return;
- } else if (nSttTrackCand >= MAXTRACKSPEREVENT) {
+ } else if (nSttTrackCand > MAXTRACKSPEREVENT) {
  	cout<<"da PndSttMvdTracking  :  N. of nSttTrackCand = "<<
-	nSttTrackCand <<" and it is >= MAXTRACKSPEREVENT (="<<MAXTRACKSPEREVENT
-	<<"),  return!\n";
+	nSttTrackCand <<" and it is > MAXTRACKSPEREVENT (="<<MAXTRACKSPEREVENT
+	<<"), analyzing only the first MAXTRACKSPEREVENT SttTrackCand!\n";
+	nSttTrackCand=MAXTRACKSPEREVENT;
  }
  if(istampa>=3  && IVOLTE<20){ cout<<"N. totale di PndTrackCand del PR solo = "
                               <<nSttTrackCand<<endl; }
@@ -753,15 +754,16 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 // ------------------------------------ fine di estraggo gli HITS Strip MVD
 
 //------------------------------------------ stampaggi  hits MVD
-if(istampa>=3  && IVOLTE<20){
+if(istampa>=2  && IVOLTE<20){
   cout<<"da PndSttMvdTraking  :  n. Mvd Pixel Hits = "<<nMvdPixelHit<<endl;
   cout<<"da PndSttMvdTracking  :  n. Mvd Strip Hits = "<<nMvdStripHit<<endl;
 }
-if(istampa>=3  && IVOLTE<20){
+if(istampa>=2  && IVOLTE<20){
   cout<<"da PndSttMvdTracking  :  info hits di Mvd pixels ------------------\n";
   for(i= 0; i< nMvdPixelHit; i++){
       cout<<"      Pixel hit n. "<<i<<" Info : X  = "<<XMvdPixel[i]<<";  Y  = "<<YMvdPixel[i]<<
-            ";  Z  = "<<ZMvdPixel[i]<<endl;
+            ";  Z  = "<<ZMvdPixel[i]<<", R=sqrt(X**2+Y**2) = "<<
+	    sqrt(XMvdPixel[i]*XMvdPixel[i]+YMvdPixel[i]*YMvdPixel[i])<<endl;
       cout<<"\t\tPixel Info : sigmaX  = "<<sigmaXMvdPixel[i]<<";  sigmaY  = "<<sigmaYMvdPixel[i]<<
             ";  sigmaZ  = "<<sigmaZMvdPixel[i]<<endl<<"\t suo RefIndex = "<<refindexMvdPixel[i]<<
 	    ", suo FairRootManager::Instance()->GetBranchId(fMvdPixelBranch) = "<<
@@ -772,7 +774,8 @@ if(istampa>=3  && IVOLTE<20){
   cout<<"da PndSttMvdTracking  :  info hits di Mvd strips ------------------\n";
   for(i= 0; i< nMvdStripHit; i++){
       cout<<"      Strip hit n. "<<i<<" Info : X  = "<<XMvdStrip[i]<<";  Y  = "<<YMvdStrip[i]<<
-            ";  Z  = "<<ZMvdStrip[i]<<endl;
+            ";  Z  = "<<ZMvdStrip[i]<<", R=sqrt(X**2+Y**2) = "<<
+	    sqrt(XMvdStrip[i]*XMvdStrip[i]+YMvdStrip[i]*YMvdStrip[i])<<endl;
       cout<<"\t\tStrip Info : sigmaX  = "<<sigmaXMvdStrip[i]<<";  sigmaY  = "<<sigmaYMvdStrip[i]<<
             ";  sigmaZ  = "<<sigmaZMvdStrip[i]<<endl<<"\t suo RefIndex = "<<refindexMvdStrip[i]<<
 	    ", suo FairRootManager::Instance()->GetBranchId(fMvdStripBranch) = "<<
@@ -1168,9 +1171,9 @@ if(istampa>2&& IVOLTE<20){
 //     ordering all the hits belonging to the candidate track, by increasing R;
 //     forming the new track with Mvd+Stt hits
 
-//	nTotalCandidates = nSttTrackCand;  //  this may change in the future
-	nTotalCandidates =
-		nSttTrackCand< MAXTRACKSPEREVENT ? nSttTrackCand  : MAXTRACKSPEREVENT;
+	nTotalCandidates = nSttTrackCand;  // nSttTrackCand is already <= MAXTRACKSPEREVENT.
+//	nTotalCandidates =
+//		nSttTrackCand< MAXTRACKSPEREVENT ? nSttTrackCand  : MAXTRACKSPEREVENT;
 
 	for(ncand=0; ncand< nTotalCandidates; ncand++){
 		nTrackCandHit[ncand] =nSttHitsinTrack[ncand]+
@@ -2411,10 +2414,6 @@ cout<<"-------------------\n";
 
 	}	// end of  for(i=0; i<nTotalCandidates;i++)
 
-
-
-
-
 	AssociateFoundTrackstoMCquater(
 		  info,
 		  Ox,
@@ -2444,7 +2443,7 @@ cout<<"-------------------\n";
 
 
 
-if(istampa>=3){
+if(istampa>=2){
 //	for(i=0;i<nSttTrackCand;i++){
 	for(i=0;i<nTotalCandidates;i++){
 		cout<<"da PndSttMvdTracking : Track candidate n. "<<i
@@ -2458,9 +2457,9 @@ if(istampa>=3){
 			nSttHit,
 			info,
 			nTotalCandidates,
-  			nSttParHitsinTrack, // n. hits paralleli, dal PR
+			nSttParHitsinTrack, // n. hits paralleli, dal PR
 			ListSttParHitsinTrack, // dal PR
-  			nSttSkewHitsinTrack, // n. hits skew, dal PR
+			nSttSkewHitsinTrack, // n. hits skew, dal PR
 			ListSttSkewHitsinTrack, // dal PR
 
 			nParalCommon,
@@ -2919,6 +2918,7 @@ if( istampa>=3){
 		dirSeed.SetMag(1.);
 		pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
 		pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[ncand]   );
+//		pTrckCand->sorted=true;
 
 
 		for(j=0; j< nTrackCandHit[ncand]; j++){
