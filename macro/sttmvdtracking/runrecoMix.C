@@ -67,9 +67,7 @@
 	//  2)  the reconstructed bkg file ( necessary for extracting the Mvd bkg hits)
 	//      previously produced by the Macro runPreliminaryMvdReco.C (Mix_Generation_reco.root)
 	//  The user must change the filenames here obviously!
-   MixBackgroundEvents->SetInputBkgFilesName(
-"~/panda/installazione_31jan11/pandaroot/macro/sttmvdtracking/dpm/Mix_Generation_digi.root", // Stt bkg hits file.
-"~/panda/installazione_31jan11/pandaroot/macro/sttmvdtracking/dpm/Mix_Generation_reco.root");// Mvd bkg hits file.
+   MixBackgroundEvents->SetInputBkgFilesName("Mix_Generation_digi.root");// Mvd and Sttt bkg file.
   fRun->AddTask(MixBackgroundEvents);
   // =========================================================================
 
