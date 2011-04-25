@@ -50,13 +50,6 @@
 
 
 
-  // -----    Default MVD hit producer   --------------------------------------------
-  PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
-  mvdmccls->SetVerbose(iVerbose);
-  fRun->AddTask(mvdmccls);
-  
-  // =========================================================================
-
 
   // =========================================================================
   //-------------------------- MixBackgroundEvents  task ----------------------------------
