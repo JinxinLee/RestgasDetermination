@@ -67,7 +67,7 @@
 	//  2)  the reconstructed bkg file ( necessary for extracting the Mvd bkg hits)
 	//      previously produced by the Macro runPreliminaryMvdReco.C (Mix_Generation_reco.root)
 	//  The user must change the filenames here obviously!
-   MixBackgroundEvents->SetInputBkgFilesName("Mix_Generation_digi.root");// Mvd and Sttt bkg file.
+   MixBackgroundEvents->SetInputBkgFilesName("Background_digi.root");// Mvd and Sttt bkg file.
   fRun->AddTask(MixBackgroundEvents);
   // =========================================================================
 
