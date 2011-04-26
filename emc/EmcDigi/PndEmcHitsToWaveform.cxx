@@ -95,6 +95,7 @@ InitStatus PndEmcHitsToWaveform::Init()
 	fQuantumEfficiencyPMT=fDigiPar->GetQuantumEfficiencyPMT();
 	fExcessNoiseFactorAPD=fDigiPar->GetExcessNoiseFactorAPD();
 	fExcessNoiseFactorVPT=fDigiPar->GetExcessNoiseFactorVPT();
+	fExcessNoiseFactorPMT = fDigiPar->GetExcessNoiseFactorPMT();
 	fIncoherent_elec_noise_width_GeV_APD=fDigiPar->GetIncoherent_elec_noise_width_GeV_APD(); //GeV
 	fIncoherent_elec_noise_width_GeV_VPT=fDigiPar->GetIncoherent_elec_noise_width_GeV_VPT(); //GeV
 	fEnergyRange=fDigiPar->GetEnergyRange(); //GeV
@@ -107,6 +108,7 @@ InitStatus PndEmcHitsToWaveform::Init()
 	fPMT_Shaping_diff_time=fDigiPar->GetPMT_Shaping_diff_time();      //s
 	fCrystal_time_constant=fDigiPar->GetCrystal_time_constant();  //s
 	fShashlyk_time_constant=fDigiPar->GetShashlyk_time_constant();  //s
+	fShashlykSamplingFactor=fDigiPar->GetShashlykSamplingFactor();
 	fSampleRate=fDigiPar->GetSampleRate();
 	fSampleRate_PMT=fDigiPar->GetSampleRate_PMT();
 	fUse_shaped_noise=fDigiPar->GetUse_shaped_noise();
@@ -120,6 +122,7 @@ InitStatus PndEmcHitsToWaveform::Init()
 	cout<<"  detectedPhotonsPerMeV_PMT "<<fDetectedPhotonsPerMeV_PMT<<endl;
 	cout<<"  excessNoiseFactor APD"<<fExcessNoiseFactorAPD<<endl;
 	cout<<"  excessNoiseFactor VPT"<<fExcessNoiseFactorVPT<<endl;
+	cout<<"  excessNoiseFactor PMT"<<fExcessNoiseFactorPMT<<endl;
 	cout<<"  incoherent_elec_noise_width_GeV_APD "<<fIncoherent_elec_noise_width_GeV_APD<<endl;
 	cout<<"  incoherent_elec_noise_width_GeV_VPT "<<fIncoherent_elec_noise_width_GeV_VPT<<endl;
 	cout<<"  energyRange "<<fEnergyRange<<endl;
@@ -132,6 +135,7 @@ InitStatus PndEmcHitsToWaveform::Init()
 	cout<<"  PMT_Shaping_diff_time "<<fPMT_Shaping_diff_time<<endl;
 	cout<<"  crystal_time_constant "<<fCrystal_time_constant<<endl;
 	cout<<"  shashlyk_time_constant "<<fShashlyk_time_constant<<endl;
+	cout<<"  ShashlykSamplingFactor "<<fShashlykSamplingFactor<<endl;
 	cout<<"  sampleRate "<<fSampleRate<<endl;
 	cout<<"  sampleRate_PMT "<<fSampleRate_PMT<<endl;
 	cout<<"  use_shaped_noise "<<fUse_shaped_noise<<endl;
@@ -201,6 +205,7 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 	// Variable declaration
 	PndEmcHit* theHit = NULL;
 	PndEmcWaveform* theWaveform = NULL;
+	PndEmcHit* tmpHit = NULL;
 	std::set<Int_t> waveformInd;
 	Int_t NumOfSamples;
 	
@@ -239,7 +244,9 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 				theWaveform->UpdateWaveform(theHit, fNPhotoElectronsPerMeVVPT, fUse_photon_statistic, fExcessNoiseFactorVPT, fFirstADCBinTime, fSampleRate, pulseshape);
 					break;
 			case 5: // Shashlyk calorimetr
-				theWaveform->UpdateWaveform(theHit, fNPhotoElectronsPerMeVPMT, fUse_photon_statistic, 0, fFirstADCBinTime, fSampleRate_PMT, pulseshape2);
+				tmpHit = theHit;
+				tmpHit->SetEnergy(tmpHit->GetEnergy()*fShashlykSamplingFactor);
+				theWaveform->UpdateWaveform(theHit, fNPhotoElectronsPerMeVPMT, fUse_photon_statistic,fExcessNoiseFactorPMT, fFirstADCBinTime, fSampleRate_PMT, pulseshape2);
 					break;
 			default:
 				std::cout<<" UpdateWaveform: Unknown module number "<<module<<" in EMC digitization. Detector ID = "<<detId<<std::endl;

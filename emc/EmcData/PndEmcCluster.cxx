@@ -420,7 +420,7 @@ PndEmcCluster::GetEnergyCorrected() const
   double eout2=e* exp(factor2); 
   double eout3=e* exp(factor3); 
 
-  double eout4=(3.31694-0.0183379/sqrt(e1)+0.0327113/e1+0.00040156/(e1*e1)-0.00641305/(e1*sqrt(e1)))*e;
+  double eout4=(3.31694-0.0183379/sqrt(e1)+0.0327113/e1+0.00040156/(e1*e1)-0.00641305/(e1*sqrt(e1)))*e/3.0144;
   
   
 

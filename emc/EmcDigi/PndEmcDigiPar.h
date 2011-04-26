@@ -18,6 +18,7 @@ class PndEmcDigiPar : public FairParGenericSet
 		Double_t GetQuantumEfficiencyPMT() {return fQuantumEfficiencyPMT;};
 		Double_t GetExcessNoiseFactorAPD() {return fExcessNoiseFactorAPD;};
 		Double_t GetExcessNoiseFactorVPT() {return fExcessNoiseFactorVPT;};
+		Double_t GetExcessNoiseFactorPMT() {return fExcessNoiseFactorPMT;};
 		Double_t GetIncoherent_elec_noise_width_GeV_APD() {return fIncoherent_elec_noise_width_GeV_APD;};
 		Double_t GetIncoherent_elec_noise_width_GeV_VPT() {return fIncoherent_elec_noise_width_GeV_VPT;};
 		Double_t GetEnergyRange() {return fEnergyRange;};
@@ -28,6 +29,7 @@ class PndEmcDigiPar : public FairParGenericSet
 		Double_t GetPMT_Shaping_diff_time() {return fPMT_Shaping_diff_time;};
 		Double_t GetCrystal_time_constant() {return fCrystal_time_constant;};
 		Double_t GetShashlyk_time_constant() {return fShashlyk_time_constant;};
+		Double_t GetShashlykSamplingFactor() {return fShashlykSamplingFactor;};
 		Double_t GetSampleRate() {return fSampleRate;};
 		Double_t GetSampleRate_PMT() {return fSampleRate_PMT;};
 		Double_t GetEnergyDigiThreshold() {return fEnergyDigiThreshold;};
@@ -62,6 +64,7 @@ class PndEmcDigiPar : public FairParGenericSet
 		Double_t fQuantumEfficiencyPMT;
 		Double_t fExcessNoiseFactorAPD;
 		Double_t fExcessNoiseFactorVPT;
+		Double_t fExcessNoiseFactorPMT;
 		Double_t fIncoherent_elec_noise_width_GeV_APD;
 		Double_t fIncoherent_elec_noise_width_GeV_VPT;
 		Double_t fEnergyRange;
@@ -72,6 +75,7 @@ class PndEmcDigiPar : public FairParGenericSet
 		Double_t fPMT_Shaping_diff_time;
 		Double_t fCrystal_time_constant;
 		Double_t fShashlyk_time_constant;
+		Double_t fShashlykSamplingFactor;
 		Double_t fSampleRate;
 		Double_t fSampleRate_PMT;
 		Double_t fEnergyDigiThreshold;
@@ -84,7 +88,7 @@ class PndEmcDigiPar : public FairParGenericSet
 		Int_t fNoiseAllChannels;
 		Int_t fUse_nonuniformity;
 
-		ClassDef(PndEmcDigiPar,8);
+		ClassDef(PndEmcDigiPar,9);
 };
 
 #endif

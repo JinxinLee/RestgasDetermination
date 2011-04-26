@@ -31,6 +31,7 @@ void PndEmcDigiPar::putParams(FairParamList* list)
 	list->add("QuantumEfficiencyPMT",fQuantumEfficiencyPMT);
 	list->add("ExcessNoiseFactorAPD",fExcessNoiseFactorAPD);
 	list->add("ExcessNoiseFactorVPT",fExcessNoiseFactorVPT);
+	list->add("ExcessNoiseFactorPMT",fExcessNoiseFactorPMT);
 	list->add("Incoherent_elec_noise_width_GeV_APD",fIncoherent_elec_noise_width_GeV_APD);
 	list->add("Incoherent_elec_noise_width_GeV_VPT",fIncoherent_elec_noise_width_GeV_VPT);
 	list->add("EnergyRange",fEnergyRange);
@@ -41,6 +42,7 @@ void PndEmcDigiPar::putParams(FairParamList* list)
 	list->add("PMT_Shaping_diff_time",fPMT_Shaping_diff_time);
 	list->add("Crystal_time_constant",fCrystal_time_constant);
 	list->add("Shashlyk_time_constant",fShashlyk_time_constant);
+	list->add("ShashlykSamplingFactor",fShashlykSamplingFactor);
 	list->add("SampleRate",fSampleRate);
 	list->add("SampleRate_PMT",fSampleRate_PMT);
 	list->add("EnergyDigiThreshold",fEnergyDigiThreshold);
@@ -67,6 +69,7 @@ Bool_t PndEmcDigiPar::getParams(FairParamList* list)
 	if (!list->fill("QuantumEfficiencyPMT",&fQuantumEfficiencyPMT)) return kFALSE;
 	if (!list->fill("ExcessNoiseFactorAPD",&fExcessNoiseFactorAPD)) return kFALSE;
 	if (!list->fill("ExcessNoiseFactorVPT",&fExcessNoiseFactorVPT)) return kFALSE;
+	if (!list->fill("ExcessNoiseFactorPMT",&fExcessNoiseFactorPMT)) return kFALSE;
 	if (!list->fill("Incoherent_elec_noise_width_GeV_APD",&fIncoherent_elec_noise_width_GeV_APD)) return kFALSE;
 	if (!list->fill("Incoherent_elec_noise_width_GeV_VPT",&fIncoherent_elec_noise_width_GeV_VPT)) return kFALSE;
 	if (!list->fill("EnergyRange",&fEnergyRange)) return kFALSE;
@@ -77,6 +80,7 @@ Bool_t PndEmcDigiPar::getParams(FairParamList* list)
 	if (!list->fill("PMT_Shaping_diff_time",&fPMT_Shaping_diff_time)) return kFALSE;
 	if (!list->fill("Crystal_time_constant",&fCrystal_time_constant)) return kFALSE;
 	if (!list->fill("Shashlyk_time_constant",&fShashlyk_time_constant)) return kFALSE;
+	if (!list->fill("ShashlykSamplingFactor",&fShashlykSamplingFactor)) return kFALSE;
 	if (!list->fill("SampleRate",&fSampleRate)) return kFALSE;
 	if (!list->fill("SampleRate_PMT",&fSampleRate_PMT)) return kFALSE;
 	if (!list->fill("EnergyDigiThreshold",&fEnergyDigiThreshold)) return kFALSE;

@@ -84,6 +84,7 @@ private:
 	Double_t fQuantumEfficiencyPMT;
 	Double_t fExcessNoiseFactorAPD;
 	Double_t fExcessNoiseFactorVPT;
+	Double_t fExcessNoiseFactorPMT;
 	Double_t fIncoherent_elec_noise_width_GeV_APD; //GeV
 	Double_t fIncoherent_elec_noise_width_GeV_VPT; //GeV
 	Double_t fEnergyRange; //GeV
@@ -96,6 +97,7 @@ private:
 	Double_t fPMT_Shaping_diff_time;      //s
 	Double_t fCrystal_time_constant;  //s
 	Double_t fShashlyk_time_constant;  //s
+	Double_t fShashlykSamplingFactor;
 	Double_t fSampleRate;
 	Double_t fSampleRate_PMT;
 	Int_t fUse_shaped_noise;
