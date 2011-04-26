@@ -67,8 +67,8 @@
   fRun->AddTask(SttMvdTracking);
   
   PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
-  recoKalman->SetTrackInBranchName("SttMvdTrack");
-  recoKalman->SetTrackOutBranchName("SttMvdGenTrack");
+  recoKalman->SetTrackInBranchName("SttMvdGemTrack");
+  recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
   //recoKalman->SetNumIterations(3);
   fRun->AddTask(recoKalman);
 
