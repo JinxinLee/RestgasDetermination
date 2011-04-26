@@ -59,32 +59,13 @@ PndTpcProximityTTCorrelator::corr(PndTpcRiemannTrack* trk1,
   d = (t1h1 - t2hn).Mag();
   if (d<dist) dist = d;
 
+  matchQuality=TMath::Abs(dist);
 
   if(dist<_proxcut){
     DebugLogger::Instance()->Histo("TT_prox_dist",dist,0,5,100);
-    matchQuality=TMath::Abs(dist);
     survive=true;
     return true;
   }
-
-  // hard cut if distance is too far, because looping over all hits is slow
-  if(dist>5*_proxcut){
-    DebugLogger::Instance()->Histo("TT_riemanncuts",1,0,20,20);
-    survive=false;
-    return true;
-  }
-
-  // loop over all hits
-  for(unsigned int i = 0; i < trk1->getNumHits(); ++i){
-    trk2->getClosestHit(trk1->getHit(i),dist);
-    if(dist<_proxcut){
-      DebugLogger::Instance()->Histo("TT_prox_dist",dist,0,5,100);
-      matchQuality=TMath::Abs(dist);
-      survive=true;
-      return true;
-    }
-  }
-  DebugLogger::Instance()->Histo("TT_riemanncuts",1,0,20,20);
 
   survive=false;
   return true;

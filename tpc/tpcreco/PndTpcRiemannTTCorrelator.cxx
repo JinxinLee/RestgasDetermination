@@ -72,7 +72,9 @@ PndTpcRiemannTTCorrelator::corr(PndTpcRiemannTrack* trk1,
   mergedTrack->refit();
 
   double rms = mergedTrack->planeRMS();
+  delete mergedTrack;
 
+  matchQuality=rms;
   DebugLogger::Instance()->Histo("TT_riem_rms",rms,0,0.005,100);
 
   if(rms>_planecut){
@@ -81,11 +83,7 @@ PndTpcRiemannTTCorrelator::corr(PndTpcRiemannTrack* trk1,
     return true;
   }
 
-  matchQuality=rms;
   survive=true;
-
-  delete mergedTrack;
-
   return true;
 }
 

@@ -93,22 +93,24 @@ unsigned int
 PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
 				   std::vector<PndTpcRiemannTrack*>& candlist)
 {
-  sortClusters(cll);
   unsigned int ncl=cll.size();
+  if(ncl<3) return 0;
+
+  sortClusters(cll);
   int ncor = _correlators.size();
 
-#ifdef DEBUG
-  if(_MaxNumHitsForPR<ncl) ncl=_MaxNumHitsForPR;
-#endif
+  #ifdef DEBUG
+    if(_MaxNumHitsForPR<ncl) ncl=_MaxNumHitsForPR;
+  #endif
 
   for(unsigned int icl=0;icl<ncl;++icl){ // loop over hits
-#ifdef DEBUG
-    if(icl%1000==0){
-      cout << "At cluster " << icl << endl;
-      cout << "Active Tracklets: "<< candlist.size() << endl;
-      cout << "Mean number of hits/track: "<< (double)icl/(double)candlist.size() << endl;
-    }
-#endif
+    #ifdef DEBUG
+        if(icl%1000==0){
+          cout << "At cluster " << icl << endl;
+          cout << "Active Tracklets: "<< candlist.size() << endl;
+          cout << "Mean number of hits/track: "<< (double)icl/(double)candlist.size() << endl;
+        }
+    #endif
 
     PndTpcRiemannHit* rhit=new PndTpcRiemannHit(cll[icl],fRiemannScale);
     unsigned int ntrks=candlist.size();
@@ -239,12 +241,20 @@ PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist
   unsigned int ntr=candlist.size();
   if (ntr<2) return; // need at least 2 trackcands to merge
 
+  // sort tracklets, but use different sorting than for clusters!
+  sortTracklets(candlist);
+
+
   for(unsigned int itrk1=0; itrk1<ntr-1; ++itrk1){ // loop over tracks
     if(candlist[itrk1]==NULL)continue;
     PndTpcRiemannTrack* trk1=candlist[itrk1];
 
     for(unsigned int itrk2=itrk1+1; itrk2<ntr; ++itrk2){ // loop over the other tracks to be tested
       if(candlist[itrk2]==NULL)continue;
+
+      /*#ifdef DEBUG
+        std::cout<<"Testing track "<<itrk1<<" with track "<<itrk2<<std::endl;
+      #endif*/
 
       PndTpcRiemannTrack* trk2=candlist[itrk2];
 
@@ -264,6 +274,11 @@ PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist
         else
           applicable=_TTcorrelators[icor]->corr(trk2,trk1,survive,matchQuality);
 
+        /*#ifdef DEBUG
+          if(!applicable){std::cout<<"  correlator "<<icor<<" NOT applicable"<<std::endl;}
+          else{std::cout<<"  correlator "<<icor<<"  IS applicable; survived "<<survive<<" with MatchQuality "<<matchQuality<<std::endl;}
+        #endif*/
+
         if(!applicable) {
           survive = false;
           break;
@@ -273,7 +288,9 @@ PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist
       if (!survive) continue; // test next trk2
 
       // merge tracks if survived
-      std::cout<<"merge track "<<itrk1<<" with track "<<itrk2<<std::endl;
+      #ifdef DEBUG
+        std::cout<<"merge track "<<itrk1<<" with track "<<itrk2<<std::endl;
+      #endif
       unsigned int nhits1 = trk1->getNumHits();
       unsigned int nhits2 = trk2->getNumHits();
 
@@ -307,9 +324,30 @@ PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist
         candlist[itrk1]=mergedTrack;
       }
       else{ // we can just add the hits from trk2 to trk1 and the sorting is done internally
-        for(unsigned int i=0; i<nhits2; ++i){
-          trk1->addHit(trk2->getHit(i));
+        // check if beginning or end of trk2 is closer to trk1
+        TVector3 t1h1 = trk1->getFirstHit()->cluster()->pos();
+        TVector3 t1hn = trk1->getLastHit()->cluster()->pos();
+        TVector3 t2h1 = trk2->getFirstHit()->cluster()->pos();
+        TVector3 t2hn = trk2->getLastHit()->cluster()->pos();
+
+        double dist = (t1hn - t2h1).Mag();
+        bool back=false;
+        double d = (t1hn - t2hn).Mag();
+        if (d<dist){dist = d; back=true;}
+        d = (t1h1 - t2h1).Mag();
+        if (d<dist){dist = d; back=false;}
+        d = (t1h1 - t2hn).Mag();
+        if (d<dist) back=true;
+
+        if(back){
+          for(unsigned int i=nhits2; i>0; --i)
+            trk1->addHit(trk2->getHit(i-1));
         }
+        else{
+          for(unsigned int i=0; i<nhits2; ++i)
+            trk1->addHit(trk2->getHit(i));
+        }
+
         // refit if we have enough hits
         if(trk1->getNumHits()>=_minHitsForFit){
           trk1->refit();
@@ -350,6 +388,14 @@ PndTpcRiemannTrackFinder::sortClusters(std::vector<PndTpcCluster*>& cll){
   sortCluster.setSorting(_sorting);
   sortCluster.setInteractionZ(_interactionZ);
   std::sort(cll.begin(),cll.end(),sortCluster);
+}
+
+void
+PndTpcRiemannTrackFinder::sortTracklets(std::vector<PndTpcRiemannTrack*>& tracklets){
+  if(_sorting==-1) return;
+  sortTrackletsClass sortTracklet;
+  sortTracklet.setSorting(_sorting);
+  std::sort(tracklets.begin(),tracklets.end(),sortTracklet);
 }
 
 
@@ -398,10 +444,54 @@ sortClusterClass::operator() (PndTpcCluster* s1, PndTpcCluster* s2){
       a2=d2.Mag();
       return a1>a2;
       break;
-    default: // also case 3 -> R
+    case 3:
+    default:
       a1=s1->pos().Perp();
       a2=s2->pos().Perp();
       return a1>a2;
+  }
+}
+
+
+bool
+sortTrackletsClass::operator() (PndTpcRiemannTrack* t1, PndTpcRiemannTrack* t2){
+  double a1;
+  double a12;
+  double a2;
+  double a22;
+  TVector3 d1;
+  TVector3 d2;
+  switch (sorting){
+    case -1: //no sorting
+      return false;
+
+    // if clusters are NOT sorted by R, sort tracklets by R
+    case 0:
+    case 1:
+    case 2:
+    case 4:
+      a1=t1->getFirstHit()->cluster()->pos().Perp();
+      a12=t1->getLastHit()->cluster()->pos().Perp();
+      if (a12<a1) a1=a12;
+
+      a2=t2->getFirstHit()->cluster()->pos().Perp();
+      a22=t2->getLastHit()->cluster()->pos().Perp();
+      if (a22<a2) a2=a22;
+
+      return a1<a2;
+
+    // if clusters are sorted by R, sort tracklets by Z
+    case 3:
+    default:
+      a1=t1->getFirstHit()->cluster()->pos().Z();
+      a12=t1->getLastHit()->cluster()->pos().Z();
+      if (a12<a1) a1=a12;
+
+      a2=t2->getFirstHit()->cluster()->pos().Z();
+      a22=t2->getLastHit()->cluster()->pos().Z();
+      if (a22<a2) a2=a22;
+
+      return a1<a2;
   }
 }
 

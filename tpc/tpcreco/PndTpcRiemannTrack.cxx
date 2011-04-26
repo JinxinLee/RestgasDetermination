@@ -667,14 +667,14 @@ PndTpcRiemannTrack::szDist(PndTpcRiemannHit* hit, bool calcPos){
       pos1 = _hits[ahit]->cluster()->pos();
       double s1=_hits[ahit]->s();
       hit_s=s1+(posX-pos1).Mag();  
-       std::cerr<<"s of hit before: "<<s1<<std::endl;
+       //std::cerr<<"s of hit before: "<<s1<<std::endl;
     }
   } // end recalcPos
 
   double z = _m * hit_s + _t;
-      std::cerr<<"z=m*s+t: "<<z<<" = "<<_m<<" * "<<hit_s<<" + "<<_t<<std::endl;
-      std::cerr<<"hit->z(): "<<hit->z()<<std::endl;
-  return TMath::Abs(z-hit->z());
+      //std::cerr<<"z=m*s+t: "<<z<<" = "<<_m<<" * "<<hit_s<<" + "<<_t<<std::endl;
+      //std::cerr<<"hit->z(): "<<hit->z()<<std::endl;
+  return hit->z()-z;
 }
 
 

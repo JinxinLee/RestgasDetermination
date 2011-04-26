@@ -85,6 +85,7 @@ public:
   void addTTCorrelator(PndTpcAbsTrackTrackCorrelator* c);
 
   void sortClusters(std::vector<PndTpcCluster*>& cll);
+  void sortTracklets(std::vector<PndTpcRiemannTrack*>& tracklets);
 
 private:
 
@@ -112,7 +113,7 @@ private:
 
 };
 
-// sorting algorithm
+// sorting algorithm for clusters
 class sortClusterClass{
  public:
   bool operator() (PndTpcCluster* s1, PndTpcCluster* s2);
@@ -121,6 +122,15 @@ class sortClusterClass{
  private:
   int sorting;
   double interactionZ;
+};
+
+// sorting algorithm for tracklets
+class sortTrackletsClass{
+ public:
+  bool operator() (PndTpcRiemannTrack* t1, PndTpcRiemannTrack* t2);
+  void setSorting(int s){sorting=s;}
+ private:
+  int sorting;
 };
 
 #endif

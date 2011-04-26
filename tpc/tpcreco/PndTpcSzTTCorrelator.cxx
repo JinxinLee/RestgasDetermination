@@ -48,51 +48,88 @@ PndTpcSzTTCorrelator::corr(PndTpcRiemannTrack* trk1,
   //std::cout<<" PndTpcSzTTCorrelator::corr"<<std::endl;
   if(!trk1->isFitted())return false;
 
-  if(false){
-  //if(trk2->isFitted()){
+  if(trk2->isFitted()){
+    double phi1 = trk1->dip();
+    double phi2 = trk2->dip();
 
-    double m1 = trk1->m();
-    double m2 = trk2->m();
+    // check if tracks are sorted the same way
+    TVector3 t1h1 = trk1->getFirstHit()->cluster()->pos();
+    TVector3 t1hn = trk1->getLastHit()->cluster()->pos();
+    TVector3 t2h1 = trk2->getFirstHit()->cluster()->pos();
+    TVector3 t2hn = trk2->getLastHit()->cluster()->pos();
+
+    double dist = (t1hn - t2h1).Mag();
+    bool back2back=false;
+    bool back=false;
+    double d = (t1hn - t2hn).Mag();
+    if (d<dist){dist = d; back2back=true; back=true;}
+    d = (t1h1 - t2h1).Mag();
+    if (d<dist){dist = d; back2back=true; back=false;}
+    d = (t1h1 - t2hn).Mag();
+    if (d<dist){dist = d; back2back=false; back=true;}
+
+    // if tracks are not sorted the same way, "flip" the dip
+    if(back2back){
+      if(phi1>phi2) phi1=TMath::Pi()-phi1;
+      else phi2=TMath::Pi()-phi2;
+    }
 
     // compare phi of the s-z line
-    double phi1 = TMath::ATan(m1);
-    double phi2 = TMath::ATan(m2);
     double dphi = TMath::Abs(phi2-phi1);
-    dphi*=57.295779513; // rad to °
+    //dphi*=57.295779513; // rad to °
 
+    matchQuality=TMath::Abs(dphi);
     DebugLogger::Instance()->Histo("TT_sz_dphi",dphi,-4,4,100);
 
+    // check if tracks have equal dip
     if(TMath::Abs(dphi)>_szcut){
       DebugLogger::Instance()->Histo("TT_riemanncuts",3,0,20,20);
       survive=false;
       return true;
     }
 
-    matchQuality=TMath::Abs(dphi);
-    survive=true;
-    return true;
 
-  }
-  else{ // if trk2 is not fitted yet, see if its hits are compatible
+    // now also check if sz distance matches
+    double szDist;
+    if(back)
+      szDist = TMath::Abs(trk1->szDist(trk2->getLastHit(),true));
+    else
+      szDist = TMath::Abs(trk1->szDist(trk2->getFirstHit(),true));
 
-    double maxl2 = 1.E5;
-    // loop over hits of trk2
-    for(unsigned int i=0; i<trk2->getNumHits(); ++i){
-      double l2=trk1->szDist(trk2->getHit(i) ,false);
-      if(l2<maxl2) maxl2 = l2;
-      if(TMath::Abs(l2)>_szcut){
-        DebugLogger::Instance()->Histo("TT_riemanncuts",4,0,20,20);
-        survive=false;
-        return true;
-      }
+    matchQuality=szDist;
+    DebugLogger::Instance()->Histo("TT_sz_szDist",szDist,-4,4,100);
+
+    // check if sz distace small enough
+    if(szDist>_szcut){
+      DebugLogger::Instance()->Histo("TT_riemanncuts",3,0,20,20);
+      survive=false;
+      return true;
     }
-    DebugLogger::Instance()->Histo("TT_sz_szDist",maxl2,-4,4,100);
 
-    matchQuality=TMath::Abs(maxl2);
     survive=true;
     return true;
-
   }
+
+
+  // trk2 not fitted: test hit by hit
+  double maxSzDist = 0;
+  for(unsigned int i=0; i<trk2->getNumHits(); ++i){
+    double szDist = TMath::Abs(trk1->szDist(trk2->getHit(i),true));
+    if(szDist > maxSzDist) maxSzDist=szDist;
+    if(maxSzDist>_szcut) break; // track did not survive!
+  }
+
+  matchQuality=maxSzDist;
+  DebugLogger::Instance()->Histo("TT_sz_maxSzDist",maxSzDist,-4,4,100);
+
+  if(maxSzDist>_szcut){
+    DebugLogger::Instance()->Histo("TT_riemanncuts",3,0,20,20);
+    survive=false;
+    return true;
+  }
+
+  survive=true;
+  return true;
 
 }
 
