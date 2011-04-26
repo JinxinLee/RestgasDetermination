@@ -186,19 +186,28 @@ ROOT_GENERATE_DICTIONARY("${TPC_BASE_HEADERS}" "${TPC_BASE_LINKDEF}" "${TPC_BASE
 SET(TPC_SRCS ${TPC_SRCS} ${TPC_DICTIONARY})
 SET(TPC_BASE_SOURCES ${TPC_BASE_SOURCES} ${TPC_BASE_DICTIONARY}) 
 
-add_library(Tpc SHARED ${TPC_SRCS})
-target_link_libraries(Tpc ${ROOT_LIBRARIES} -lEG -lTreePlayer -lGeom -lGed -lRGL -lEve)
-set_target_properties(Tpc PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-add_library(TpcBase SHARED ${TPC_BASE_SOURCES})
-target_link_libraries(TpcBase ${ROOT_LIBRARIES})
-set_target_properties(TpcBase PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-
 
 FIND_PATH(TEvePath NAMES ../TEveEventManager.h PATHS
   ${SIMPATH}/tools/root/include
   NO_DEFAULT_PATH
 )
 find_package(OpenGL)
+
+
+add_library(Tpc SHARED ${TPC_SRCS})
+
+If(TEvePath AND OPENGL_FOUND AND OPENGL_GLU_FOUND)
+  target_link_libraries(Tpc ${ROOT_LIBRARIES} -lEG -lTreePlayer -lGeom -lGed -lRGL -lEve)
+Else(TEvePath AND OPENGL_FOUND AND OPENGL_GLU_FOUND)
+  target_link_libraries(Tpc ${ROOT_LIBRARIES} -lEG -lTreePlayer -lGeom -lGed)
+EndIf(TEvePath AND OPENGL_FOUND AND OPENGL_GLU_FOUND)
+
+set_target_properties(Tpc PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
+add_library(TpcBase SHARED ${TPC_BASE_SOURCES})
+target_link_libraries(TpcBase ${ROOT_LIBRARIES})
+set_target_properties(TpcBase PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
+
+
 
 If(TEvePath AND OPENGL_FOUND AND OPENGL_GLU_FOUND)
   Message("Found TEve, OpenGL and OpenGL GLU  so PndTpcClustVis will be compiled.")
