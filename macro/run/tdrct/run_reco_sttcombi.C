@@ -71,7 +71,10 @@
   recoKalman->SetTrackOutBranchName("SttMvdGenTrack");
   //recoKalman->SetNumIterations(3);
   fRun->AddTask(recoKalman);
-  
+
+  PndSttMvdGemTracking * SttMvdGemTracking = new PndSttMvdGemTracking(0);
+  fRun->AddTask(SttMvdGemTracking);
+
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(6);
   fRun->Init();
