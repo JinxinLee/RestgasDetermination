@@ -63,6 +63,7 @@ public:
   void SetErrorPars(double ADCsens,double C){fAdcSens=ADCsens;fC=C;} 
   void SetDataMode(Bool_t opt) {fDataMode=opt;}
   void SetSingleDigiClusterAmpCut(unsigned int cut){fSDiClAmpCut=cut;}
+  void SetClusterAmpCut(unsigned int cut){fClAmpCut=cut;}
 
 
   // Operations ----------------------
@@ -91,6 +92,7 @@ private:
   unsigned int ftimeslice;   /// defines time bucket / gap
   unsigned int fthres;       /// hardthreshold on Digis
   unsigned int fSDiClAmpCut; /// amplitude cut on Single Digi Clusters
+  unsigned int fClAmpCut;    /// amplitude cut (will be multiplied with cluster size) on Clusters
   double fDiffFactor;        /// defines maximum slope for luster splitting in XY
   double fClusterTimeCut;    /// defines time cut for cluster splitting
 

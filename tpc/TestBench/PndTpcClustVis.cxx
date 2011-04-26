@@ -18,11 +18,11 @@ PndTpcClustVis* PndTpcClustVis::eventDisplay = NULL;
 
 PndTpcClustVis::PndTpcClustVis():
   tree(NULL),digisBranch(NULL),clustersBranch(NULL), guiEvent(0), ClHasChanged(true),
-  doClustering(false), ClMode(2), ClTimeslice(3),ClTimecut(2), ClSingleDigiClAmpCut(20), ClClAmpCut(10), ClSimpleCl(true), ClSimpleTimeslice(7),
+  doClustering(false), ClMode(2), ClTimeslice(3),ClTimecut(2), ClSingleDigiClAmpCut(20), ClClAmpCut(35), ClSimpleCl(true), ClSimpleTimeslice(4),
   instantRedraw(false), drawTpc(false), drawRawDigis(false), drawDigis(false), drawClusters(false), drawClusterErrors(false),
   doPR(true), doMerge(true), _sorting(3), _interactionZ(0), _sortingMode(true), PRNHits(1000000),
-  _minpoints(5), _planecut(0.05), _riproxcut(0.05), _szcut(0.25), _proxcut(2),
-  _TTproxcut(2), _TTplanecut(2E-3), _TTszcut(2), fRiemannScale(24.6)
+  _minpoints(4), _planecut(0.04), _riproxcut(0.1), _szcut(0.2), _proxcut(2.1),
+  _TTproxcut(3), _TTplanecut(0.025), _TTszcut(0.1), fRiemannScale(8.6)
 {
   if(!gApplication) {
     std::cout << "In PndTpcClustVis ctor: gApplication not found, creating..." << std::flush;
@@ -313,7 +313,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
      
      // clean up clusters
      while(i<fcluster_buffer->size()){
-       if( ((*fcluster_buffer)[i])->amp()<=ClClAmpCut || // TODO: get from file!!
+       if( ((*fcluster_buffer)[i])->amp() <= ClClAmpCut * ((*fcluster_buffer)[i])->size() || // TODO: get from file!!
            (((*fcluster_buffer)[i])->size()==1 && ((*fcluster_buffer)[i])->amp()<=ClSingleDigiClAmpCut)){
          delete (*fcluster_buffer)[i];
          (*fcluster_buffer).erase( (*fcluster_buffer).begin()+i );
@@ -519,10 +519,8 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       }
       riemannTemp.clear();
     } // end loop over sectors
-    if(doMerge){
-      std::cerr << "... merging tracks ..." << std::endl;
-      _trackfinder->mergeTracks(riemannlist);
-    }
+    if(doMerge && nsectors>1) _trackfinder->mergeTracks(riemannlist);
+
     // draw	
     for(unsigned int ir=0;ir<riemannlist.size();ir+=1){ // loop over trackcands
       PndTpcRiemannTrack* trkcand = riemannlist[ir];

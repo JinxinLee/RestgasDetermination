@@ -45,7 +45,7 @@
 
 PndTpcClusterFinderTask::PndTpcClusterFinderTask()
   : FairTask("TPC Cluster Finder"), fpersistence(kFALSE), fDigiPersistence(kFALSE),ftrivial(kFALSE),fsimple(kFALSE),
-    ftimeslice(2), fmode(0),fthres(1), fSDiClAmpCut(0), fDataMode(kFALSE), fDiffFactor(1.), fClusterTimeCut(5),
+    ftimeslice(2), fmode(0),fthres(1), fSDiClAmpCut(0), fClAmpCut(0), fDataMode(kFALSE), fDiffFactor(1.), fClusterTimeCut(5),
     fAdcSens(600.), fC(300.)
 {
   fdigiBranchName = "PndTpcDigi";
@@ -194,7 +194,8 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
   std::cerr<<"copying clusters to output array ";
   for(unsigned int icl=0;icl<ncl;++icl){ // loop over clusters
     if((*fcluster_buffer)[icl]->amp()>fthres &&
-       ((*fcluster_buffer)[icl]->size()>1 || (*fcluster_buffer)[icl]->amp()>fSDiClAmpCut)){
+       ((*fcluster_buffer)[icl]->size()>1 && (*fcluster_buffer)[icl]->amp()>fClAmpCut*(*fcluster_buffer)[icl]->size()
+           || (*fcluster_buffer)[icl]->amp()>fSDiClAmpCut)){
       // copy cluster
       PndTpcCluster* cl = new((*fclusterArray)[ncl_rec]) PndTpcCluster(*((*fcluster_buffer)[icl]));
       cl->SetIndex(ncl_rec); 
