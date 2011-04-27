@@ -434,7 +434,7 @@ PndTpcRiemannTrack::dist(PndTpcRiemannHit* hit, TVector3 n2, double c2, bool use
 void
 PndTpcRiemannTrack::refit(){
   _isFittedPlane = false;
-  if(_hits.size()<4) return; // need at least 3 points to make a planefit
+  if(_hits.size()<3) return; // need at least 3 points to make a planefit
   TMatrixT<double> Av(3,1);
   Av[0][0]=_av[0];
   Av[1][0]=_av[1];
