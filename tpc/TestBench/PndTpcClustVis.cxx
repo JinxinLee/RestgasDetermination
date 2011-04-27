@@ -1005,7 +1005,7 @@ void PndTpcClustVis::makeGui() {
   }
   frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
-    guiClAmpCut = new TGNumberEntry(hf, ClClAmpCut, 6,999, TGNumberFormat::kNESInteger,
+    guiClAmpCut = new TGNumberEntry(hf, ClClAmpCut, 6,999, TGNumberFormat::kNESRealThree,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
                           0, 2000);
@@ -1306,7 +1306,7 @@ void PndTpcClustVis::guiSetClusterfinderParams(){
   ClTimeslice = giuTimeslice->GetNumberEntry()->GetIntNumber();
   ClTimecut = giuTimecut->GetNumberEntry()->GetIntNumber();
   ClSingleDigiClAmpCut = guiSingleDigiClAmpCut->GetNumberEntry()->GetIntNumber();
-  ClClAmpCut = guiClAmpCut->GetNumberEntry()->GetIntNumber();
+  ClClAmpCut = guiClAmpCut->GetNumberEntry()->GetNumber();
   
   ClElPerADC = guiElPerADC->GetNumberEntry()->GetNumber();
   ClErrorNorm = guiErrorNorm->GetNumberEntry()->GetNumber();

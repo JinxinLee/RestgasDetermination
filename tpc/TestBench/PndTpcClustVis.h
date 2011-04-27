@@ -212,7 +212,7 @@ private:
   TGNumberEntry* guiSingleDigiClAmpCut;
   int ClSingleDigiClAmpCut;
   TGNumberEntry* guiClAmpCut;
-  int ClClAmpCut;
+  double ClClAmpCut;
   TGNumberEntry* guiElPerADC;
   double ClElPerADC;
   TGNumberEntry* guiErrorNorm;
