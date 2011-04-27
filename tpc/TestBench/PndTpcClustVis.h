@@ -194,6 +194,7 @@ private:
   const PndTpcGem* fgem;
   const PndTpcGas* fgas;
   double fzGem;
+  double fgain;
 
   std::map<unsigned int, std::vector<PndTpcCluster*>*> buffermap;
   std::vector<PndTpcCluster*>* fcluster_buffer;
@@ -212,6 +213,10 @@ private:
   int ClSingleDigiClAmpCut;
   TGNumberEntry* guiClAmpCut;
   int ClClAmpCut;
+  TGNumberEntry* guiElPerADC;
+  double ClElPerADC;
+  TGNumberEntry* guiErrorNorm;
+  double ClErrorNorm;
   TGCheckButton* guiSimpleCl;
   bool ClSimpleCl;
   TGNumberEntry* giuSimpleTimeslice;
