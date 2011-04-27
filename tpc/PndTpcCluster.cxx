@@ -74,13 +74,12 @@ PndTpcCluster::PndTpcCluster(const TVector3& Pos, const TVector3& Sig, double Am
 
 void
 PndTpcCluster::addDigi(const PndTpcDigi* d){
-  PndTpcDigi digi = *d; // make a copy!
-  digis.push_back(digi);
+  digis.push_back(*d); // makes a copy!
   //AddLink(FairLink("PndTpcDigi", d.index()));
 }
 void
 PndTpcCluster::addDigi(const PndTpcDigi* d, double share){
-  digis.push_back(*d); // make a copy!
+  digis.push_back(*d); // makes a copy!
   double a = digis.back().amp()*share;
   digis.back().amp(a);
     //AddLink(FairLink("PndTpcDigi", d.index()));
