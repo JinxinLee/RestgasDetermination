@@ -373,7 +373,8 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       double amp = digi->amp(); // should be ~ 6 .. 2000
       if(amp<1) continue;
       amp = TMath::Log(amp); // ~ 0.8 .. 3.3
-      amp *= 0.019;
+      amp *= 0.02;
+      amp -= 0.001;
 
       digi_shape->SetShape(new TGeoTube(0.,amp, 0.05 ) );
       digi_shape->SetTransMatrix(*det_trans);
