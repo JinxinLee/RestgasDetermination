@@ -757,12 +757,20 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 							);
 
    void   PndSttFindingParallelTrackAngularRange(
-			Double_t oX,
-			Double_t oY,
-			Double_t R,
-			Short_t  Charge,
-			Double_t *Fi_low_limit,
-			Double_t *Fi_up_limit 
+		Double_t oX,
+		Double_t oY,
+		Double_t R,
+		Short_t  Charge,
+		Double_t *Fi_low_limit,	// Fi (in XY Helix frame) lower limit using
+					// the Stt detector minimum/maximum radius
+					// Fi_low_limit is ALWAYS between 0. and 2PI
+		Double_t *Fi_up_limit,	// Fi (in XY Helix frame) upper limit using
+					// the Stt detector maximum/minimum radius
+					// Fi_up_limit is ALWAYS > Fi_low_limit and
+					// possibly > 2PI.
+		Short_t * status,
+		Double_t Rmin,	// Rmin of cylindrical volume intersected by track;
+		Double_t Rmax	// Rmax of cylindrical volume intersected by track;
 						);
 
    bool CalculateCircleThru3Points(
