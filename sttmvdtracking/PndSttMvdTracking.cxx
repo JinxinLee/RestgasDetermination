@@ -317,6 +317,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 
  Short_t Candidato,
          Charge,
+	 statusflag[MAXTRACKSPEREVENT],
          iflag,
          iHit,
 	 i,
@@ -955,7 +956,6 @@ if(istampa>=3  && IVOLTE<20){  cout<<"\thit n. "<<ListHitMvdTrackCand[i][j]
 
 //---------------  fetch the Stt PndTrackCand from PR of the STT alone
 
-
  for(  i= 0; i< nSttTrackCand; i++){
 // ----  estraggo gli hits appartenenti a questa TrackCand
   pSttTrackCand = (PndTrackCand *) fSttTrackCandArray->At(i);
@@ -1097,12 +1097,20 @@ if(istampa>=3  && IVOLTE<20){  cout<<"\thit n. "<<ListHitMvdTrackCand[i][j]
 		&Fi_low_limit[ncand],	// Fi (in XY Helix frame) lower limit using
 					// the Stt detector minimum/maximum radius
 					// Fi_low_limit is ALWAYS between 0. and 2PI
-		&Fi_up_limit[ncand]	// Fi (in XY Helix frame) upper limit using
+		&Fi_up_limit[ncand],	// Fi (in XY Helix frame) upper limit using
 					// the Stt detector maximum/minimum radius
 					// Fi_up_limit is ALWAYS > Fi_low_limit and
 					// possibly > 2PI.
-						);
- }
+		&statusflag[ncand],//it is a vector; =0, all well; =1, track contained completely between RMin
+			   // and RMax; = -1 track contained within RMin; =-2 track outside RMax.
+		RStrawDetectorMin,
+		RStrawDetectorMax
+		);
+
+	if( statusflag[ncand] == -1) { Fi_low_limit[ncand] = -99999.; }
+	else if (statusflag[ncand] == -2){ Fi_low_limit[ncand] = -100000.; };
+
+ }	// end of for(  ncand= 0; ncand< nSttTrackCand; ncand++)
 
 //---------------------   here call to the function that matches Mvd hits with Stt tracks
    delta=0.5; //  parameter of proximity for associating Mvd hits to Stt tracks
@@ -1380,15 +1388,21 @@ for(int iiii=0;iiii<nMvdStripHitsinTrack[ncand];iiii++)
 		&Fi_low_limit[ncand],	// Fi (in XY Helix frame) lower limit using
 					// the Stt detector minimum/maximum radius
 					// Fi_low_limit is ALWAYS between 0. and 2PI
-					// or it is -100000. when circle does not intersect
-					// Mvd nor Stt, -99999. when it is contained in Mvd
-					// region.
-		&Fi_up_limit[ncand]	// Fi (in XY Helix frame) upper limit using
+		&Fi_up_limit[ncand],	// Fi (in XY Helix frame) upper limit using
 					// the Stt detector maximum/minimum radius
 					// Fi_up_limit is ALWAYS > Fi_low_limit and
 					// possibly > 2PI.
+					// Fi_low_limit and Fi_up_limit are undefined
+					// when statusflag is negative.
+		&statusflag[ncand],
+		RStrawDetectorMin,
+		RStrawDetectorMax
 						);
-
+	// Fi_low_limit set to  -100000. when circle does not intersect
+	// Mvd nor Stt; it is set to  -99999. when it is contained in Mvd
+	// region completely.
+	if( statusflag[ncand] == -1) { Fi_low_limit[ncand] = -99999.; }
+	else if (statusflag[ncand] == -2){ Fi_low_limit[ncand] = -100000.; };
 
 
 	}	// end of for(ncand=0; ncand< nTotalCandidates; ncand++)
@@ -1430,9 +1444,11 @@ for(int iiii=0;iiii<nMvdStripHitsinTrack[ncand];iiii++)
   {
 	if( ! Mvdhits[ncand]) continue;
 
-	if( Fi_low_limit[ncand] < -99999.8 ) continue; // this is when the XY circle dos not cross
+	if( statusflag[ncand] == -2 ) continue; // this is when the XY circle is external to
 							// the STT region (it should never happen in
 							// principle at this point of the code).
+	if( statusflag[ncand] == -1 ) continue; // this is when the XY circle is contained in the
+							// the Mvd region completely.
 
 	Fi_final_helix_referenceframe = atan2(
 		info[ ListSttParHitsinTrack[ncand][ nSttParHitsinTrack[ncand]-1 ]-1 ][1]-Oy[ncand],
@@ -1675,7 +1691,6 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 //  In this discontinuity fixing, the value FI0 of the vertex (0,0) is also included.
 //  If there is discontinuity fixing, the values of S[i] AND POSSIBLY Fi_initial_helix_referenceframe[i]
 //  might be modified (+2.*PI) from  now on.
-
 
 	if(Mvdhits[ncand]){	//	in this case there is at least 1 Mvd hits associated to Stt track.
 
@@ -2085,10 +2100,13 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 		&Fi_low_limit[ncand],	// Fi (in XY Helix frame) lower limit using
 					// the Stt detector minimum/maximum radius
 					// Fi_low_limit is ALWAYS between 0. and 2PI
-		&Fi_up_limit[ncand]	// Fi (in XY Helix frame) upper limit using
+		&Fi_up_limit[ncand],	// Fi (in XY Helix frame) upper limit using
 					// the Stt detector maximum/minimum radius
 					// Fi_up_limit is ALWAYS > Fi_low_limit and
 					// possibly > 2PI.
+		&statusflag[ncand],
+		RStrawDetectorMin,
+		RStrawDetectorMax
 						);
 
 //  take care of possible discontinuities at 0.
@@ -2158,7 +2176,8 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 	if( Fi_final_helix_referenceframe < FI0[ncand] )  Fi_final_helix_referenceframe += 2.*PI;
 	if( Fi_final_helix_referenceframe < FI0[ncand] )  Fi_final_helix_referenceframe = FI0[ncand];
 
-	nSttSkewHitsinTrack[ncand] = AssociateSkewHitsToXYTrack(
+	if( statusflag[ncand]>=0) {// when statusflag[ncand]<0 the track does not intersect Stt region.
+	   nSttSkewHitsinTrack[ncand] = AssociateSkewHitsToXYTrack(
 		ExclusionListStt,
 		nSttSkewHit,
 		ListAllSkewHits,
@@ -2183,13 +2202,13 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 		TemporaryZErrorafterTilt   //  output,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
 								);
 
-	for(j=0;j<nSttSkewHitsinTrack[ncand];j++)
-	{
+	   for(j=0;j<nSttSkewHitsinTrack[ncand];j++)
+	   {
 		ListSttSkewHitsinTrack[ncand][j]=TemporarySkewList[j][0];
 		SchosenSkew[ncand][ListSttSkewHitsinTrack[ncand][j]] = TemporaryS[j];
-	}
+	   }
 
-
+	}  // end of if( statusflag[ncand]>=0)
 
   //  ------------------- end of attachment of skew hits to the new tracks.
 
@@ -7384,6 +7403,7 @@ cout<<"cavolo, da sttmvdtracking : nRows = "<<nRows<<", NStructVar = "<<
 	NRowsInWhichStructVarArePresent<<", nRanges = "<<nRanges
 	<<", nBounds = "<<nBounds<<endl;
 */
+if(IVOLTE>6)cout<<"pndsttmvdtracking, riga 7387 prima di fit\n";
       int status= glp_main(
             nRows,nameRows,typeRows, //  ROWS info
             NStructVar, NStructRowsMax, NRowsInWhichStructVarArePresent,  //  COLUMNS info
@@ -7395,7 +7415,7 @@ cout<<"cavolo, da sttmvdtracking : nRows = "<<nRows<<", NStructVar = "<<
 //      ,final_values,TIMEOUT
       ,final_values
        );
-
+if(IVOLTE>6)cout<<"\tdopo fit, status = "<<status<<endl;
 	if(status != 0) return -5 ;
 
 
@@ -8382,6 +8402,7 @@ cout<<"cavolo2, da sttmvdtracking : nRows = "<<nRows<<", NStructVar = "<<
 	NRowsInWhichStructVarArePresent<<", nRanges = "<<nRanges
 	<<", nBounds = "<<nBounds<<endl;
 */
+if(IVOLTE>6)cout<<"pndsttmvdtracking, riga 8386 prima di fit\n";
       int status= glp_main(
             nRows,nameRows,typeRows, //  ROWS info
             NStructVar, NStructRowsMax, NRowsInWhichStructVarArePresent,  //  COLUMNS info
@@ -8393,6 +8414,7 @@ cout<<"cavolo2, da sttmvdtracking : nRows = "<<nRows<<", NStructVar = "<<
 //      ,final_values, TIMEOUT
       ,final_values
        );
+if(IVOLTE>6)cout<<"\tdopo fit, status = "<<status<<endl;
 
 
 //--------stampaggi
@@ -8915,7 +8937,7 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHits],// input
 	if( Fifirst[i] < -99999.5 ) continue ; // case with Fifirst[i]=-100000.; in this
 						// case there can be no Mvd hits.
 	if( Fifirst[i] < -99998. ){  // case with Fifirst[i]=-99999.; in this
-					// case there can the circle is contained
+					// case there the circle is contained
 					// in the Mvd region.
 		anglemax = 2.*PI;
 		anglemin = 0.;
@@ -9396,6 +9418,13 @@ IVOLTE<<", Stt track cand = "<<i<<endl;}
 		if( ! Mvdhits[itrack] ) continue;
 		ntot=nPixelHitsinTrack[itrack]+
 			nStripHitsinTrack[itrack];
+	if( Fifirst[itrack] < -99998. ){  // case with Fifirst[i]=-99999.; in this
+					// case there the circle is contained
+					// in the Mvd region.
+		anglemax = 2.*PI;
+		anglemin = 0.;
+		goto zippo ;
+	}
 
 
 
@@ -9411,7 +9440,7 @@ IVOLTE<<", Stt track cand = "<<i<<endl;}
 		if(anglemax < anglemin) anglemax==anglemin; // this is just to be super-sure.
 
 
-
+zippo: ;
 
 
 //  find if this track goes downstream or upstream
@@ -9602,6 +9631,9 @@ IVOLTE<<", Stt track cand = "<<i<<endl;}
 
 	for(itrack=StartTrackCand; itrack<EndTrackCand; itrack++){
 		if( ! Mvdhits[itrack] ) continue;
+		if( Fi_low_limit[itrack] < -99998.) continue;  // case in which the track
+						// is completely outside the Stt region
+						// or it is completely inside the Mvd region.
 		nParHitsinTrack[itrack]=0;
 
 //	loop over the STT parallel hits and try to attach to each candidate track; in this
@@ -10441,13 +10473,17 @@ int nevento=1;
 
 //----------start  function PndSttMvdTracking::PndSttFindingParallelTrackAngularRange
 
+
       void   PndSttMvdTracking::PndSttFindingParallelTrackAngularRange(
-                                                     Double_t oX,
-                                                     Double_t oY,
-                                                     Double_t R,
-                                                     Short_t  Charge,
-                                                     Double_t *Fi_low_limit,
-                                                     Double_t *Fi_up_limit 
+				Double_t oX,
+				Double_t oY,
+				Double_t R,
+				Short_t  Charge,
+				Double_t *Fi_low_limit,
+				Double_t *Fi_up_limit,
+				Short_t * status,
+				Double_t Rmi,	// Rmin of cylindrical volume intersected by track;
+				Double_t Rma	// Rmax of cylindrical volume intersected by track;
 									)
 {
 // -------------- calculate the maximum fi and minimum fi spanned by this track,
@@ -10472,13 +10508,11 @@ int nevento=1;
 			FI0,
 			Px,
 			Py,
-			Rmax,
-			Rmin,
 			tmp;
 
 
-	Rmax = RStrawDetectorMax+1. ; // add a safety margin.
-	Rmin = RStrawDetectorMin-1. ; // add a safety margin.
+	Rma += 1. ; // add a safety margin.
+	Rmi -= 1. ; // add a safety margin.
 
 
 
@@ -10486,19 +10520,20 @@ int nevento=1;
 	a = sqrt(oX*oX+oY*oY);
 
 	//  preliminary condition
-	if(a + R <= Rmin )	// in this case there might be Mvd hits.
-		 { *Fi_low_limit=-99999.;return;}
-	if( a >= R + Rmax || R >= a + Rmax)  // in this case there can be no Mvd hits.
-		 { *Fi_low_limit=-100000.;return;}
+	if(a + R <= Rmi )	// in this case there might be hits at radius < Rmi.
+		 { *status = -1 ;return;}
+	if( a >= R + Rma || R >= a + Rma)  // in this case there can be no hits with radius < Rma.
+		 { *status = -2;return;}
 
-	if( a - R >= Rmin ) intersection_inner = false; else intersection_inner = true;
+	if( a - R >= Rmi ) intersection_inner = false; else intersection_inner = true;
 
-	if( a + R <= Rmax || a - R >= Rmax  )
+	if( a + R <= Rma || a - R >= Rma  )
 		 intersection_outer = false; else intersection_outer = true;
 
 	if( (! intersection_inner) && (! intersection_outer) ){
 		*Fi_low_limit = 0.;
 		*Fi_up_limit = 2.*PI;
+		*status = 1;
 		return;
 	}
 
@@ -10506,13 +10541,13 @@ int nevento=1;
 
 	FI0 = atan2(-oY,-oX);
 	if( intersection_outer ){
-		cosFi = (a*a + R*R - Rmax*Rmax)/(2.*R*a);
+		cosFi = (a*a + R*R - Rma*Rma)/(2.*R*a);
 		if(cosFi<-1.) cosFi=-1.; else if(cosFi>1.) cosFi=1.;
 		Fi = acos(cosFi);
 	}
 
 	if( intersection_inner ){
-		cosfi = (a*a + R*R - Rmin*Rmin)/(2.*R*a);
+		cosfi = (a*a + R*R - Rmi*Rmi)/(2.*R*a);
 		if(cosfi<-1.) cosfi=-1.; else if(cosfi>1.) cosfi=1.;
 		fi = acos(cosfi);
 	}
@@ -10571,12 +10606,13 @@ int nevento=1;
 	if( *Fi_up_limit < *Fi_low_limit ) *Fi_up_limit += 2.*PI;
 	if( *Fi_up_limit < *Fi_low_limit ) *Fi_up_limit = *Fi_low_limit;
 
-
+	*status = 0;
 
 
 
       return;
 }
+
 
 //---------- end of  function PndSttMvdTracking::PndSttFindingParallelTrackAngularRange
 
