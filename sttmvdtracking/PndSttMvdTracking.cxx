@@ -7415,7 +7415,6 @@ if(IVOLTE>6)cout<<"pndsttmvdtracking, riga 7387 prima di fit\n";
 //      ,final_values,TIMEOUT
       ,final_values
        );
-if(IVOLTE>6)cout<<"\tdopo fit, status = "<<status<<endl;
 	if(status != 0) return -5 ;
 
 
@@ -8414,7 +8413,6 @@ if(IVOLTE>6)cout<<"pndsttmvdtracking, riga 8386 prima di fit\n";
 //      ,final_values, TIMEOUT
       ,final_values
        );
-if(IVOLTE>6)cout<<"\tdopo fit, status = "<<status<<endl;
 
 
 //--------stampaggi
