@@ -7403,7 +7403,6 @@ cout<<"cavolo, da sttmvdtracking : nRows = "<<nRows<<", NStructVar = "<<
 	NRowsInWhichStructVarArePresent<<", nRanges = "<<nRanges
 	<<", nBounds = "<<nBounds<<endl;
 */
-if(IVOLTE>6)cout<<"pndsttmvdtracking, riga 7387 prima di fit\n";
       int status= glp_main(
             nRows,nameRows,typeRows, //  ROWS info
             NStructVar, NStructRowsMax, NRowsInWhichStructVarArePresent,  //  COLUMNS info
@@ -8401,7 +8400,6 @@ cout<<"cavolo2, da sttmvdtracking : nRows = "<<nRows<<", NStructVar = "<<
 	NRowsInWhichStructVarArePresent<<", nRanges = "<<nRanges
 	<<", nBounds = "<<nBounds<<endl;
 */
-if(IVOLTE>6)cout<<"pndsttmvdtracking, riga 8386 prima di fit\n";
       int status= glp_main(
             nRows,nameRows,typeRows, //  ROWS info
             NStructVar, NStructRowsMax, NRowsInWhichStructVarArePresent,  //  COLUMNS info
@@ -8414,6 +8412,7 @@ if(IVOLTE>6)cout<<"pndsttmvdtracking, riga 8386 prima di fit\n";
       ,final_values
        );
 
+     if (status != 0) return -5;	// fit failed
 
 //--------stampaggi
 /*
@@ -8432,7 +8431,6 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 
 //-----------------------  fine funzioni chiamate direttamente
 
-     if (status != 0) return -5;	// fit failed
 
      m1_result=final_values[0];
      m2_result=final_values[1];
