@@ -1043,35 +1043,6 @@ void PndSttMvdGemTracking::ForbidMultiAssignedHits(Int_t nhits, Int_t ntracks)
 
     int tracksassociated = GetTracksAssociatedToHit(ihit).size();
 
-    /**
-     // loop over the tracks 
-     for(int itrk = 0; itrk < ntracks; itrk++) {
-     cout << "track " << itrk << " distant " << distancemap[itrk][ihit] << " is " << trkcounter << endl;
-    
-     if(distancemap[itrk][ihit] == -1) continue; // not assigned to this track
-     //      if(fVerbose > 0)
-     //      cout << "track " << itrk << " distant " << distancemap[itrk][ihit] << " is " << trkcounter << endl;
-     trkcounter++;
-     if(distancemap[itrk][ihit] < tmpdistance) { // ... substitute this trk to tmp trk
-     if(tmptrack != -1) {
-     DeleteHitFromTrack(ihit, tmptrack);
-     if(fVerbose > 0) cout << "hit " << ihit << " deleted from track " << tmptrack << endl;
-     }
-     tmpdistance = distancemap[itrk][ihit];
-     tmptrack = itrk;
-     }
-     else {                                      // ... remove this hit definitively
-     if(fVerbose > 0) cout << "hit " << ihit << " deleted from track " << itrk << endl;
-     DeleteHitFromTrack(ihit, itrk);
-     }
-     if(trkcounter == tracksassociated) {
-     cout << "BREAK " << trkcounter << " " << GetTracksAssociatedToHit(ihit).size()  << endl;
-     break; // no more associated track
-     }
-     }
-    **/
-
-
     // loop over the tracks 
     for(int jtrk = 0; jtrk < tracksassociated; jtrk++) {
       Int_t itrk = GetTracksAssociatedToHit(ihit)[trkcounter];
@@ -1091,10 +1062,7 @@ void PndSttMvdGemTracking::ForbidMultiAssignedHits(Int_t nhits, Int_t ntracks)
 	DeleteHitFromTrack(ihit, itrk);
 	trkcounter--;
       }
-  
- }
-
-
+    }
   }
 }
 
