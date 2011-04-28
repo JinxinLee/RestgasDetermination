@@ -29,7 +29,11 @@
 #include <iostream>
 #include <cmath>
 
-#define IDEAL true // CHECKING
+// using GEM ideal digi?
+#define IDEAL false // CHECKING
+
+// if you want not to consider mcIndex == -1 or non primary tracks (from MC)
+#define THROWAWAY false
 
 // CHECKCOMBI:
 //    0 no combinatorial taken into account
@@ -551,17 +555,25 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 
       // **************
       int mcIndex = sttmvdCand->getMcTrackId();
-      if(mcIndex == -1)  { flag[itrk] = -4;  continue; } // CHECK 4 PERFORMANCE delete this!!!!
-     //  cout << "FROM MC " << mcIndex << endl;
-      PndMCTrack *mctrk = (PndMCTrack*) fMCTrackArray->At(mcIndex);
-      if(mctrk) {
-// 	cout << "PDG " << mctrk->GetPdgCode() << " MOTHERID " << mctrk->GetMotherID() << endl;
-	int mccharge = (int) TMath::Sign(1., TDatabasePDG::Instance()->GetParticle(mctrk->GetPdgCode())->Charge()/3.);
-	if(mccharge != charge) cout << "WRONG CHARGE " << charge << " " << mccharge << " " << mctrk->GetPdgCode() << endl;
+      if(mcIndex == -1)  { 
+	flag[itrk] = -4; 
+	if(THROWAWAY) continue;
+      } // CHECK 4 PERFORMANCE delete this!!!!
+     else {
+       //  cout << "FROM MC " << mcIndex << endl;
+       PndMCTrack *mctrk = (PndMCTrack*) fMCTrackArray->At(mcIndex);
+       if(mctrk) {
+	 // 	cout << "PDG " << mctrk->GetPdgCode() << " MOTHERID " << mctrk->GetMotherID() << endl;
+	 int mccharge = (int) TMath::Sign(1., TDatabasePDG::Instance()->GetParticle(mctrk->GetPdgCode())->Charge()/3.);
+	 if(mccharge != charge) cout << "WRONG CHARGE " << charge << " " << mccharge << " " << mctrk->GetPdgCode() << endl;
 
 
-	if(mctrk->GetMotherID() != -1)  { flag[itrk] = -5;  continue; } // CHECK 4 PERFORMANCE delete this!!!!
-      }
+	 if(mctrk->GetMotherID() != -1)  {
+	   flag[itrk] = -5; 
+	   if(THROWAWAY) continue;
+	 } // CHECK 4 PERFORMANCE delete this!!!!
+       }
+     }
       // **************
 
   
@@ -2062,16 +2074,16 @@ void PndSttMvdGemTracking::FillTrueDistances() {
       if(detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranchName)) { //  CHECK
 	//      if(detId == 26) {
 	fhit = (FairHit*) fMvdStripHitArray->At(iHit);
-	if(fhit) fpnt = (FairMCPoint*) fMvdPointArray->At(fhit->GetRefIndex());
+	if(fhit->GetRefIndex() != -1 && fhit) fpnt = (FairMCPoint*) fMvdPointArray->At(fhit->GetRefIndex());
       }
       else if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranchName)) { //  CHECK
 	// else if(detId == 24) {
 	fhit = (FairHit*) fMvdPixelHitArray->At(iHit);
-	if(fhit) fpnt = (FairMCPoint*) fMvdPointArray->At(fhit->GetRefIndex());
+	if(fhit->GetRefIndex() != -1 && fhit) fpnt = (FairMCPoint*) fMvdPointArray->At(fhit->GetRefIndex());
       }
       else if(detId == FairRootManager::Instance()->GetBranchId(fSttBranchName)) {
 	fhit = (FairHit*) fSttHitArray->At(iHit);
-	if(fhit) fpnt = (FairMCPoint*) fSttPointArray->At(fhit->GetRefIndex());
+	if(fhit->GetRefIndex() != -1 && fhit) fpnt = (FairMCPoint*) fSttPointArray->At(fhit->GetRefIndex());
       }
       if(fpnt) {
 	TVector3 position(fpnt->GetX(), fpnt->GetY(), fpnt->GetZ());
