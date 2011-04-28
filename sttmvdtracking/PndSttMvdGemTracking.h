@@ -88,7 +88,7 @@ class PndSttMvdGemTracking : public FairTask {
 	      TMatrixT<double> &kalman, TMatrixT<double> &kalman_cov);
   FairTrackParP SetStartParameters(PndTrack *sttmvd, PndTrackCand *sttmvdCand);
 
-  Int_t GetClosestOnFirst(FairTrackParP* gempar, Int_t ipos, Double_t closestdistance);
+  Int_t GetClosestOnFirst(FairTrackParP* gempar, Int_t ipos, Double_t &closestdistance);
 
 
   // PREFIT -----------------------------

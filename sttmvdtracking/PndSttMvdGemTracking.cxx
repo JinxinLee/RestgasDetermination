@@ -35,7 +35,7 @@
 //    0 no combinatorial taken into account
 //    1 combi taken into account only after whole procedure
 //    2 combi not allow during assignment
-#define CHECKCOMBI 1
+#define CHECKCOMBI 2
 
 int countperformance[7];
 using namespace std;
@@ -594,7 +594,6 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 
 	if(closestonfirst == -1) closestonfirst = GetClosestOnFirst(gempar, ipos, closestdistance);
 
-
 	Double_t covMat[15]; gempar->GetCov(covMat); // CHECK
 	tmppar.SetTrackPar(gempar->GetX(), gempar->GetY(), gempar->GetZ(),
  			   gempar->GetPx(), gempar->GetPy(), gempar->GetPz(), gempar->GetQ(),
@@ -604,7 +603,7 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 
       // use closest on first CHECK with more tracks 
       if(GetHitsAssociatedToTrack(itrk).size() == 0 && closestonfirst != -1) {
-	cout << "CLOSEST HIT " << closestonfirst << endl;
+	//	cout << "CLOSEST HIT " << closestonfirst << " " << closestdistance << endl;
 	distancemap[itrk][closestonfirst] = closestdistance;
 	AddHitToTrack(closestonfirst, itrk);
       }
@@ -615,7 +614,6 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
   if(nhits == 0) return;
 
   if(fVerbose > 0 && CountTracks() != fCompleteTrackCandArray->GetEntriesFast()) cout << "ERROR!!! " << CountTracks() << " " << fCompleteTrackCandArray->GetEntriesFast() << endl;
-  
 
   // CLEANUP =================================
   if(CHECKCOMBI == 1) CheckCombinatorial(nhits, ntracks); 
@@ -653,7 +651,7 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
       int ihit = thistrackhits[j];
       gemhit = (PndGemHit*) fGemHitArray->At(ihit);
       if(!gemhit) continue;
-     if(fVerbose > 0) cout << "ACTUALLY add hit " << ihit << " to track " << itrk << endl;
+      if(fVerbose > 0) cout << "ACTUALLY add hit " << ihit << " to track " << itrk << endl;
       completeCand->AddHit(FairRootManager::Instance()->GetBranchId(fGemBranchName), ihit, gemhit->GetPosition().Mag());  // CHECK rho and kGemHit
    
     }
@@ -1037,29 +1035,66 @@ void PndSttMvdGemTracking::ForbidMultiAssignedHits(Int_t nhits, Int_t ntracks)
     if(fVerbose > 0) cout << "hit " << ihit << " associated to " << GetTracksAssociatedToHit(ihit).size() << " tracks" << endl;
     // if it is assigned to no track (0) or one track (1) we are done
     if(GetTracksAssociatedToHit(ihit).size() <= 1) continue;
+    
     // else pick the right track
     Double_t tmpdistance = 1000; // CHECK set this to maxdistance
     Int_t trkcounter = 0;
     Int_t tmptrack = -1;
+
+    int tracksassociated = GetTracksAssociatedToHit(ihit).size();
+
+    /**
+     // loop over the tracks 
+     for(int itrk = 0; itrk < ntracks; itrk++) {
+     cout << "track " << itrk << " distant " << distancemap[itrk][ihit] << " is " << trkcounter << endl;
+    
+     if(distancemap[itrk][ihit] == -1) continue; // not assigned to this track
+     //      if(fVerbose > 0)
+     //      cout << "track " << itrk << " distant " << distancemap[itrk][ihit] << " is " << trkcounter << endl;
+     trkcounter++;
+     if(distancemap[itrk][ihit] < tmpdistance) { // ... substitute this trk to tmp trk
+     if(tmptrack != -1) {
+     DeleteHitFromTrack(ihit, tmptrack);
+     if(fVerbose > 0) cout << "hit " << ihit << " deleted from track " << tmptrack << endl;
+     }
+     tmpdistance = distancemap[itrk][ihit];
+     tmptrack = itrk;
+     }
+     else {                                      // ... remove this hit definitively
+     if(fVerbose > 0) cout << "hit " << ihit << " deleted from track " << itrk << endl;
+     DeleteHitFromTrack(ihit, itrk);
+     }
+     if(trkcounter == tracksassociated) {
+     cout << "BREAK " << trkcounter << " " << GetTracksAssociatedToHit(ihit).size()  << endl;
+     break; // no more associated track
+     }
+     }
+    **/
+
+
     // loop over the tracks 
-    for(int itrk = 0; itrk < ntracks; itrk++) {
-      if(distancemap[itrk][ihit] == -1) continue; // not assigned to this track
-      if(fVerbose > 0) cout << "track " << itrk << " distant " << distancemap[itrk][ihit] << " is " << trkcounter << endl;
+    for(int jtrk = 0; jtrk < tracksassociated; jtrk++) {
+      Int_t itrk = GetTracksAssociatedToHit(ihit)[trkcounter];
+      // cout << "track " << itrk << " distant " << distancemap[itrk][ihit] << " is " << trkcounter << endl;
       trkcounter++;
       if(distancemap[itrk][ihit] < tmpdistance) { // ... substitute this trk to tmp trk
 	if(tmptrack != -1) {
 	  DeleteHitFromTrack(ihit, tmptrack);
 	  if(fVerbose > 0) cout << "hit " << ihit << " deleted from track " << tmptrack << endl;
+	  trkcounter--;
 	}
-     	tmpdistance = distancemap[itrk][ihit];
+	tmpdistance = distancemap[itrk][ihit];
 	tmptrack = itrk;
       }
       else {                                      // ... remove this hit definitively
 	if(fVerbose > 0) cout << "hit " << ihit << " deleted from track " << itrk << endl;
 	DeleteHitFromTrack(ihit, itrk);
+	trkcounter--;
       }
-      if(trkcounter == GetTracksAssociatedToHit(ihit).size()) break; // no more associated track
-    }
+  
+ }
+
+
   }
 }
 
@@ -1200,7 +1235,7 @@ void PndSttMvdGemTracking::AddHitToTrack(Int_t ihit, Int_t itrk) {
   iter = std::find(notassignedhits.begin(), notassignedhits.end(), ihit);
   int where = iter - notassignedhits.begin();
   if(where != notassignedhits.size()) notassignedhits.erase(iter); // remove from not assigned list
- if(fVerbose > 0)  cout << "ADD HIT " << ihit << " TO TRK " << itrk << endl;
+  if(fVerbose > 0) cout << "ADD HIT " << ihit << " TO TRK " << itrk << endl;
 }
 
 
@@ -1682,7 +1717,7 @@ std::vector<int> PndSttMvdGemTracking::AssignHits(Int_t itrk, FairTrackParP *gem
     int hitindex = (int) hitmap(ipos, ihit);
     PndGemHit *gemhit = (PndGemHit*) fGemHitArray->At(hitindex);
     if(!gemhit) continue;
- 
+    if(CHECKCOMBI == 2 && fCombiMap[hitindex] != 0) continue;
     Double_t distance = IsAssignable(gempar, gemhit);
     // if the track to hit distance is below threshold
     // "distance" is filled (-1 otherwise)
@@ -1709,7 +1744,7 @@ std::vector<int> PndSttMvdGemTracking::AssignHits(Int_t itrk, FairTrackParP *gem
       
       // assign it to all the tracks it might belong to (for now)
       //	    completeCand->AddHit(FairRootManager::Instance()->GetBranchId(fGemBranchName), hitindex, gemhit->GetPosition().Mag());  // CHECK rho and kGemHit
-      if(fVerbose != 0)	    cout << "assign " << hitindex << " to track " << itrk << endl;
+      if(fVerbose != 0)	cout << "assign " << hitindex << " to track " << itrk << endl;
       //      AddHitToTrack(hitindex, itrk);
       assignedhits.push_back(hitindex);	    
 
@@ -2113,7 +2148,7 @@ void PndSttMvdGemTracking::FillTrueDistances() {
   }
 }
 
-Int_t PndSttMvdGemTracking::GetClosestOnFirst(FairTrackParP* gempar, Int_t ipos, Double_t closestdistance) {
+Int_t PndSttMvdGemTracking::GetClosestOnFirst(FairTrackParP* gempar, Int_t ipos, Double_t &closestdistance) {
   int hitonsensor = (int) hitcounter(ipos, 0);
   Int_t tmphit = -1;
   Double_t tmpdistance = 10000;
@@ -2121,7 +2156,7 @@ Int_t PndSttMvdGemTracking::GetClosestOnFirst(FairTrackParP* gempar, Int_t ipos,
     int hitindex = (int) hitmap(ipos, ihit);
     PndGemHit *gemhit = (PndGemHit*) fGemHitArray->At(hitindex);
     if(!gemhit) continue;
- 
+    if(CHECKCOMBI == 2 && fCombiMap[hitindex] != 0) continue; 
     TVector3 gemhitpos = gemhit->GetPosition();   
     TVector3 extrapos = gempar->GetPosition();
     
@@ -2132,6 +2167,8 @@ Int_t PndSttMvdGemTracking::GetClosestOnFirst(FairTrackParP* gempar, Int_t ipos,
     }
   }
   closestdistance = tmpdistance;
+
+  if(closestdistance < 0) return -1;
   return tmphit;
 }
 
