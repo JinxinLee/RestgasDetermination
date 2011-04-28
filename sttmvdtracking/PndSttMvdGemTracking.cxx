@@ -713,6 +713,9 @@ void PndSttMvdGemTracking::EvaluatePerformances(Int_t nhits, Int_t ntracks) {
     PndTrackCand *completeCand = (PndTrackCand* ) fCompleteTrackCandArray->At(itrk);
     if(!completeCand) continue;
     if(fVerbose > 0) cout << "complete cand " << itrk << " has nhits " <<  completeCand->GetNHits() << endl;
+  
+    //    UpdateMCTrackId(completeCand);
+    
     for (Int_t ihit = 0; ihit < completeCand->GetNHits(); ihit++) {
       PndTrackCandHit candhit = completeCand->GetSortedHit(ihit);
       Int_t iHit = candhit.GetHitId();
