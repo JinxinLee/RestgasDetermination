@@ -2164,9 +2164,9 @@ Bool_t PndSttMvdGemTracking::Prefit(PndTrack *sttmvdTrack, PndTrackCand *sttmvdC
 {
 
   Int_t nhits = sttmvdCand->GetNHits();
-  // 0     | 1     | 2 | 3 | 4 | 5  | 6  | 7  | 8   | 9
-  // hitId | detid | x | y | z | dx | dy | dz | iso | isoerr
-  TMatrixT<double> points(nhits, 10);
+  // 0     | 1     | 2 | 3 | 4 | 5  | 6  | 7  | 8   | 9      | 10
+  // hitId | detid | x | y | z | dx | dy | dz | iso | isoerr | useforfit (0 = only xy, 1 = only z, 2 = both)
+  TMatrixT<double> points(nhits, 11);
   Double_t xc, yc, radius, fitm, fitp;
 
   GetInitialParams(sttmvdTrack, xc, yc, radius, fitm, fitp);
@@ -2191,6 +2191,7 @@ Bool_t PndSttMvdGemTracking::Prefit(PndTrack *sttmvdTrack, PndTrackCand *sttmvdC
       points[ihit][7] = 0;
       points[ihit][8] = 0;
       points[ihit][9] = 0;
+      points[ihit][10] = -1;
 
       if(detId == FairRootManager::Instance()->GetBranchId(fGemBranchName)) continue;
       else  if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranchName) || detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranchName)) {
@@ -2205,6 +2206,8 @@ Bool_t PndSttMvdGemTracking::Prefit(PndTrack *sttmvdTrack, PndTrackCand *sttmvdC
     	points[ihit][5] = TMath::Sqrt(mvdhit->GetCov()[0][0]);
 	points[ihit][6] = TMath::Sqrt(mvdhit->GetCov()[1][1]);
 	points[ihit][7] = TMath::Sqrt(mvdhit->GetCov()[2][2]);
+	points[ihit][10] = 2;
+
 	lasthitid = ihit;
 	if(firsthitid == -1) firsthitid = ihit;
 	//	cout << "MVD " << ihit << " " << hitId << " " << points[ihit][2] << " " << points[ihit][3] << " " << points[ihit][4] << endl;
@@ -2215,10 +2218,29 @@ Bool_t PndSttMvdGemTracking::Prefit(PndTrack *sttmvdTrack, PndTrackCand *sttmvdC
 	if(!stthit) { cout << "stt hit " << ihit << " " << hitId << " does not exist" << endl; continue; }
 	TVector3 xyz(0, 0, 0);
 	TVector3 dxyz(0, 0, 0);
-	Bool_t intfin = IntersectionFinder(xc, yc, radius, stthit, xyz, dxyz);
-	if(intfin == false)  { 
-	  //  cout << "intfin false" << endl; 
-	  continue; 
+
+	Int_t tubeID = stthit->GetTubeID();
+	PndSttTube *tube = (PndSttTube* ) fTubeArray->At(tubeID);
+
+	TVector3 wireDirection = tube->GetWireDirection();
+	if(wireDirection == TVector3(0., 0., 1.)) {            // is parallel
+	  Bool_t intfin = IntersectionFinder(xc, yc, radius, stthit, xyz, dxyz);
+	  if(intfin == false)  { 
+	    //  cout << "intfin false" << endl; 
+	    continue; 
+	  }
+	  
+	  // CHECK get only parallel tubes?
+	  lasthitid = ihit;
+	  if(firsthitid == -1) firsthitid = ihit;
+	  //	cout << "STT " << ihit << " " << hitId << " " << points[ihit][2] << " " << points[ihit][3] << " " << points[ihit][4] << "iso "  << points[ihit][8] << endl;
+
+	  points[ihit][10] = 0;
+	}
+	else {                                                  // is skewed
+	  //	  continue;
+	  xyz = tube->GetPosition();
+	  points[ihit][10] = 1;
 	}
 
 	points[ihit][0] = hitId;
@@ -2230,11 +2252,7 @@ Bool_t PndSttMvdGemTracking::Prefit(PndTrack *sttmvdTrack, PndTrackCand *sttmvdC
 	points[ihit][7] = dxyz.Z();
 	points[ihit][8] = stthit->GetIsochrone();
 	points[ihit][9] = stthit->GetIsochroneError();
-
-	// CHECK get only parallel tubes?
-	lasthitid = ihit;
-	if(firsthitid == -1) firsthitid = ihit;
-	//	cout << "STT " << ihit << " " << hitId << " " << points[ihit][2] << " " << points[ihit][3] << " " << points[ihit][4] << "iso "  << points[ihit][8] << endl;
+	
       }
     }
 
@@ -2253,6 +2271,8 @@ Bool_t PndSttMvdGemTracking::Prefit(PndTrack *sttmvdTrack, PndTrackCand *sttmvdC
       Int_t detId = (Int_t) points[ihit][1];
 
       if(hitId == -1) continue;   
+      Int_t fitflag = (Int_t) points[ihit][10];
+      if(fitflag != 0) continue;
       if(detId != FairRootManager::Instance()->GetBranchId(fSttBranchName)) continue;
       PndSttHit *stthit = (PndSttHit*) fSttHitArray->At(hitId);
       if(!stthit) continue;
@@ -2454,7 +2474,7 @@ Bool_t PndSttMvdGemTracking::IntersectionFinder(Double_t xc, Double_t yc, Double
   Int_t nhits = points.GetRowUpb() + 1;
   int lasthitid = -1, firsthitid = -1;
   for(int ihit = 0; ihit < nhits; ihit++) {
-    if(points[ihit][0] != -1) {
+    if(points[ihit][0] != -1 && points[ihit][10] != -1 && points[ihit][10] != 1) {
       if(firsthitid == -1) firsthitid = ihit;
       lasthitid = ihit;
     }
@@ -2487,6 +2507,8 @@ Bool_t PndSttMvdGemTracking::IntersectionFinder(Double_t xc, Double_t yc, Double
       Int_t hitId = (Int_t) points[ihit][0];
       Int_t detId = (Int_t) points[ihit][1];
       if(hitId == -1) continue;
+      Int_t fitflag = (Int_t) points[ihit][10];
+      if(fitflag == 1 || fitflag == -1) continue;
       if(detId == FairRootManager::Instance()->GetBranchId(fSttBranchName) && points[ihit][8] < 0.1) continue;
       fitpoint.SetXYZ(points[ihit][2], points[ihit][3], points[ihit][4]);
       Double_t sigx = points[ihit][5];
@@ -2644,6 +2666,10 @@ Bool_t PndSttMvdGemTracking::ZFit(TMatrixT<double> points, Int_t charge, Double_
       Int_t hitId = (Int_t) points[ihit][0];
       //   cout << "hitId " << hitId << " detId " << detId << endl;
       if(hitId == -1) continue;
+      Int_t fitflag = (Int_t) points[ihit][10];
+      // if(fitflag == 0 || fitflag == -1) continue;
+      if(fitflag != 2) continue;
+
       if(detId == FairRootManager::Instance()->GetBranchId(fSttBranchName) ||
 	 detId == FairRootManager::Instance()->GetBranchId(fGemBranchName)) continue;
 
@@ -3156,6 +3182,8 @@ Bool_t PndSttMvdGemTracking::ZFind(Int_t nhits, TMatrixT<double> points, Double_
       Int_t hitId = (Int_t) points[ihit][0];
       cout << "hitId " << hitId << " detId " << detId << endl;
       if(hitId == -1) continue;
+      Int_t fitflag = (Int_t) points[ihit][10];
+      if(fitflag != 1) continue;
       if(detId != FairRootManager::Instance()->GetBranchId(fSttBranchName)) continue;
 
       // intersection: tube line with circle trajectory in xy
