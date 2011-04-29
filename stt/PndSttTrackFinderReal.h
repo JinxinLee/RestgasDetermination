@@ -112,12 +112,18 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
             NHITSINFIT=15,
             DELTAnR = 2;   //  defines the range of nR in PndSttTrkAssociatedParallelHitsToHelixBis
 
+#define RadiusMinStrawDetector 16.
+#define DiameterStrawTube  1.
     static const  Double_t PI = 3.141592654,
-                 RStrawDetectorMin = 16., // minimum radius of the Stt detector in  cm
+                 RStrawDetectorMin = RadiusMinStrawDetector, // minimum radius of the Stt detector in  cm
                  RStrawDetectorMax = 42.2, // maximum radius of the Stt detector in  cm
-                 Rmin=20.,  // this must be the same as RMINIMUM
+	RStrawDetectorInnerParMax = (RadiusMinStrawDetector + 0.5*DiameterStrawTube)/0.866 +
+			7.5*DiameterStrawTube, // maximum radial extension of the inner parallel
+					      //  straw section.
+	RStrawDetectorOuterParMin = RadiusMinStrawDetector+(1.+7.*0.866)*DiameterStrawTube+8.622,
+                 Rmin=20.,
                  Rmax=700.,
-                 StrawRadius = 0.5,
+                 StrawRadius = DiameterStrawTube/2. ,
                  StrawDriftError = 0.02,
 		 SKEWinclination_DEGREES = 3.,
                  CXmin=-150.,  CXmax=150.,
@@ -617,13 +623,21 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                                                        );
 
       void   PndSttFindingParallelTrackAngularRange(
-                                                     Double_t oX,
-                                                     Double_t oY,
-                                                     Double_t r,
-                                                     Short_t  Charge,
-                                                     Double_t *Fi_low_limit,
-                                                     Double_t *Fi_up_limit
-                                                       );
+		Double_t oX,
+		Double_t oY,
+		Double_t r,
+		Short_t  Charge,
+		Double_t *Fi_low_limit,	// Fi (in XY Helix frame) lower limit using
+					// the Stt detector minimum/maximum radius
+					// Fi_low_limit is ALWAYS between 0. and 2PI
+		Double_t *Fi_up_limit,	// Fi (in XY Helix frame) upper limit using
+					// the Stt detector maximum/minimum radius
+					// Fi_up_limit is ALWAYS > Fi_low_limit and
+					// possibly > 2PI.
+		Short_t * status,
+		Double_t Rmin,	// Rmin of cylindrical volume intersected by track;
+		Double_t Rmax	// Rmax of cylindrical volume intersected by track;
+						);
 
       void   PndSttFindingAllowedAngularRangeforSkew(
                                                      Double_t oX,
@@ -712,6 +726,40 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                           Double_t *Fi_initial_helix_referenceframe,
                           Short_t Charge
                           );
+
+
+
+  bool SttParalCleanup(
+			Double_t Oxx,
+			Double_t Oyy,
+			Double_t Rr,
+			Short_t Charge,
+			Double_t Start[3],
+			UShort_t nHits,
+			UShort_t *ListHits,
+			Double_t info[][7],
+			Double_t RStrawDetMin,
+			Double_t RStrawDetInnerParMax,
+			Double_t RStrawDetOuterParMin,
+			Double_t RStrawDetMax
+			);
+
+  bool BadTrack_ParStt(
+			Double_t Oxx,
+			Double_t Oyy,
+			Double_t Rr,
+			Short_t Charge,
+			Double_t Fi_inner_low,
+			Double_t Fi_inner_up,
+			Short_t  flagstt,
+			UShort_t nHits,
+			UShort_t* ListHits,
+			Double_t info[][7],
+			Double_t RStrawDetectorParMin,
+			Double_t RStrawDetectorParMax
+				);
+
+
 
 
 //----------------------------------------------
