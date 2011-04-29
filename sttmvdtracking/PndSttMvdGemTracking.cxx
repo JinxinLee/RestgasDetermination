@@ -1392,7 +1392,7 @@ void PndSttMvdGemTracking::AddRemainingHits(Int_t ntracks) {
 
 void PndSttMvdGemTracking::Retrack() {
  
- if(fVerbose > 0)  cout << "RETRACKING" << endl;
+  if(fVerbose > 0)  cout << "RETRACKING" << endl;
  
   for(Int_t k = 0; k < CountTracks(); k++) {
     int itrk = GetTrackIndex(k);
@@ -1955,10 +1955,10 @@ FairTrackParP PndSttMvdGemTracking::SetStartParameters(PndTrack *sttmvd, PndTrac
     // 			  kalman[1][0], kalman[2][0], kalman[0][0], 
     // 			  kalmanCov15, // CHECK!!
     // 			  lastpar.GetOrigin(), lastpar.GetIVer(), lastpar.GetJVer(), lastpar.GetKVer(), 
-    // 			  lastpar.GetSPU()); // CHECK recalculate spu
-    //    cout << "from prefit " << endl;
-    //      startpar.GetPosition().Print();
-    //      startpar.GetMomentum().Print();
+    // 			  lastpar.GetSPU()); // CHECK recalculate spu 
+    //      cout << "from prefit " << endl;
+    //        startpar.GetPosition().Print();
+    //        startpar.GetMomentum().Print();
        
   }
 
@@ -2045,7 +2045,6 @@ void PndSttMvdGemTracking::FillTrueDistances() {
 
   // loop on tracks
   //  cout << "FOUND TRACKS " << fTrackArray->GetEntriesFast() << endl;
-
   for(Int_t itrk = 0; itrk < fTrackArray->GetEntriesFast(); itrk++) {
     PndTrack* sttmvdTrack = (PndTrack*) fTrackArray->At(itrk);
     if(!sttmvdTrack) continue;
@@ -2300,7 +2299,7 @@ Bool_t PndSttMvdGemTracking::Prefit(PndTrack *sttmvdTrack, PndTrackCand *sttmvdC
   }
 
   // z ---------------
-  //  ZFind(nhits, points, xc, yc, radius); // CHECK
+  //  ZFind(nhits, points, xc, yc, radius); // CHECK // to use zfinder
 
 
   Bool_t zfitting = ZFit(points, charge, xc, yc, radius, fitm, fitp);
@@ -2667,9 +2666,10 @@ Bool_t PndSttMvdGemTracking::ZFit(TMatrixT<double> points, Int_t charge, Double_
       //   cout << "hitId " << hitId << " detId " << detId << endl;
       if(hitId == -1) continue;
       Int_t fitflag = (Int_t) points[ihit][10];
-      // if(fitflag == 0 || fitflag == -1) continue;
-      if(fitflag != 2) continue;
+      //  if(fitflag == 0 || fitflag == -1) continue;  // CHECK // to use zfinder
+      if(fitflag != 2) continue;  // CHECK // to use zfinder
 
+   
       if(detId == FairRootManager::Instance()->GetBranchId(fSttBranchName) ||
 	 detId == FairRootManager::Instance()->GetBranchId(fGemBranchName)) continue;
 
@@ -3173,14 +3173,14 @@ void PndSttMvdGemTracking::CheckCombinatorial(Int_t nhits, Int_t ntracks)
 
 Bool_t PndSttMvdGemTracking::ZFind(Int_t nhits, TMatrixT<double> points, Double_t xc, Double_t yc, Double_t radius)
 {
-  cout << "Z FINDER" << endl;
+  //  cout << "Z FINDER" << endl;
   if(nhits == 0) return kFALSE;
 
   for(int ihit = 0; ihit < nhits; ihit++)
     {
       Int_t detId = (Int_t) points[ihit][1];
       Int_t hitId = (Int_t) points[ihit][0];
-      cout << "hitId " << hitId << " detId " << detId << endl;
+      //      cout << "hitId " << hitId << " detId " << detId << endl;
       if(hitId == -1) continue;
       Int_t fitflag = (Int_t) points[ihit][10];
       if(fitflag != 1) continue;
@@ -3201,31 +3201,41 @@ Bool_t PndSttMvdGemTracking::ZFind(Int_t nhits, TMatrixT<double> points, Double_
       Double_t halflength = tube->GetHalfLength();
       if(wireDirection == TVector3(0., 0., 1.)) continue;
 
-      pos.Print();
-      wireDirection.Print();
-      cout << "hl " << halflength << endl;
+//       pos.Print();
+//       wireDirection.Print();
+      //      cout << "hl " << halflength << endl;
       TVector3 first  = pos + wireDirection * halflength; // CHECK
       TVector3 second = pos - wireDirection * halflength; // CHECK
-       first.Print();
-      second.Print();
+  //     first.Print();
+//       second.Print();
 
+      double xint, yint, x1, y1, x2, y2, delta;
 
-      Double_t m = (second.Y() - first.Y())/(second.X() - first.X());
-      Double_t q = first.Y() - m * first.X();
+     // when tube is vertical
+      if(fabs(second.X() - first.X()) < 1.e-5) {
+	x1 = first.X();
+	x2 = x1;
 
-      // CHECK when tube is vertical
-    
-      // center of trajectory xc, yc, radius
+	delta = radius * radius - (x1 - xc) * (x1 - xc);
+	if(delta < 0) continue;
+	y1 = yc + TMath::Sqrt(delta);
+	y2 = yc - TMath::Sqrt(delta);
 
-      Double_t delta = (m * (q - yc) - xc) - (m * m + 1) * ((q - yc) * (q - yc) + xc * xc - radius * radius);
-      if(delta < 0) continue;
+      }
+      else {
 
-      double xint, yint, x1, y1, x2, y2;
-      x1 = (- (m * (q - yc) - xc) + delta) / (m * m + 1);
-      y1 = m * x1 + q;
-      x2 = (- (m * (q - yc) - xc) - delta) / (m * m + 1);
-      y2 = m * x2 + q;
+	Double_t m = (second.Y() - first.Y())/(second.X() - first.X());
+	Double_t q = first.Y() - m * first.X();
 
+	// center of trajectory xc, yc, radius
+	delta = (m * (q - yc) - xc) - (m * m + 1) * ((q - yc) * (q - yc) + xc * xc - radius * radius);
+	if(delta < 0) continue;
+	
+	x1 = (- (m * (q - yc) - xc) + delta) / (m * m + 1);
+	y1 = m * x1 + q;
+	x2 = (- (m * (q - yc) - xc) - delta) / (m * m + 1);
+	y2 = m * x2 + q;
+      }
 
       double d1 = 0, d2 = 0;
       d1 = TMath::Sqrt((y1 - first.Y()) * (y1 - first.Y()) + (x1 - first.X()) * (x1 - first.X()));
@@ -3233,7 +3243,7 @@ Bool_t PndSttMvdGemTracking::ZFind(Int_t nhits, TMatrixT<double> points, Double_
 
       if(d1 < d2) {
 	xint = x1;
-	  yint = y1;
+	yint = y1;
       }
       else {
 	xint = x2;
@@ -3251,7 +3261,7 @@ Bool_t PndSttMvdGemTracking::ZFind(Int_t nhits, TMatrixT<double> points, Double_
       points[ihit][6] = 1.; // CHECK
       points[ihit][7] = 1.;  // CHECK
 
-      cout << "inters " << xint << " " << yint << " " << zint << endl;
+      //      cout << "inters " << xint << " " << yint << " " << zint << endl;
 
     }
 
