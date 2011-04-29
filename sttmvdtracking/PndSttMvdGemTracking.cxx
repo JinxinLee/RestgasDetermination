@@ -1646,10 +1646,13 @@ Double_t PndSttMvdGemTracking::IsAssignable(FairTrackParP *gempar, PndGemHit *ge
   if(fMaxDistance != -1) maxdistance = fMaxDistance;
   else {
     maxdistance = fTimes * distErr; // distErr; // CHECK if it has to be distErr ; // CHECK put this as a parameter and tune it
-    if(maxdistance < 3) maxdistance = 3;
+    if(maxdistance < 1) maxdistance = 1;
     if(maxdistance > 10) maxdistance = 10;	
   }
-  if(fTurn == 2) maxdistance = 5;  // CHECK NOW
+  if(fTurn == 2 && gempar->GetMomentum().Mag() >= 0.5) maxdistance = 5;  // CHECK NOW
+
+
+  //  cout << "-> " << fTimes << " " << fTurn << " " << maxdistance << endl;
 
   int posindex = GetPosIndex(gemhit);
   fOrderingIterator = find(fOrdering.begin(), fOrdering.end(), posindex);
