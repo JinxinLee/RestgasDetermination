@@ -7,6 +7,7 @@ rootlogon()
   if(isLibrary("libDpmEvtGen"))gSystem->Load("libDpmEvtGen");
   if(isLibrary("libpythia8"))gSystem->Load("libpythia8");
   if(isLibrary("libFlukaResults"))gSystem->Load("libFlukaResults");
+  if(isLibrary("libFairTools"))gSystem->Load("libFairTools");
   if(isLibrary("libGeoBase"))gSystem->Load("libGeoBase");
   if(isLibrary("libParBase"))gSystem->Load("libParBase");
   if(isLibrary("libBase"))gSystem->Load("libBase");
@@ -48,7 +49,8 @@ rootlogon()
   if(isLibrary("libDrcProp"))gSystem->Load("libDrcProp");
   if(isLibrary("libDrc"))gSystem->Load("libDrc");
   if(isLibrary("libMdt"))gSystem->Load("libMdt");
-  if(isLibrary("libDch"))gSystem->Load("libDch");
+  if(isLibrary("libFts"))gSystem->Load("libFts");
+//  if(isLibrary("libDch"))gSystem->Load("libDch");
   if(isLibrary("libLheTrack"))gSystem->Load("libLheTrack");
   if(isLibrary("libGeane"))gSystem->Load("libGeane");
   if(isLibrary("libRpc"))gSystem->Load("libRpc");

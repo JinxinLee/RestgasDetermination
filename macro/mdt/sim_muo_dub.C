@@ -28,13 +28,18 @@ void sim_muo_dub(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2=-1){
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
 
-  /*FairModule *Magnet= new PndMagnet("MAGNET");
-  Magnet->SetGeometryFileName("FullSolenoid_V842.root");
+  FairModule *Magnet= new PndMagnet("MAGNET");
+  //Magnet->SetGeometryFileName("FullSolenoid_V842.root");
+  Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
   fRun->AddModule(Magnet);
- 
+  
   //FairModule *Pipe= new PndPipe("PIPE");
   //fRun->AddModule(Pipe);
- 
+  
+  /*FairModule *Dipole= new PndMagnet("MAGNET");
+  Dipole->SetGeometryFileName("dipole.geo");
+  //fRun->AddModule(Dipole);
+  
   FairDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
   Tpc->SetGeometryFileName("tpc.geo");
   fRun->AddModule(Tpc);
@@ -46,26 +51,21 @@ void sim_muo_dub(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2=-1){
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
   Emc->SetGeometryFileNameDouble("emc_module124.dat","emc_module3new.root");
   fRun->AddModule(Emc);   
+  */
   
-  FairDetector *Tof = new PndTof("TOF",kTRUE);
-  Tof->SetGeometryFileName("tofbarrel.geo");
-  fRun->AddModule(Tof);
- */
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
-  Muo->SetBarrel("muon_TS_barrel_v3_noGeo.root");
-  Muo->SetEndcap("muon_TS_endcap_noGeo.root");
-  Muo->SetForward("muon_Forward_noGeo.root");
+  Muo->SetBarrel("muon_TS_barrel_strip_v1_noGeo.root");
+  Muo->SetEndcap("muon_TS_endcap_strip_v1_noGeo.root");
+  Muo->SetForward("muon_Forward_strip_v1_noGeo.root");
   Muo->SetMdtMagnet(kTRUE);
-  Muo->SetMuonFilter("muon_MuonFilter_noGeo.root");
+  Muo->SetMuonFilter("muon_MuonFilter_strip_v1_noGeo.root");
   fRun->AddModule(Muo);
  /*
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc); 
   */
-  //FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
-  //Dch->SetGeometryFileName("dch.root"); 
-  //fRun->AddModule(Dch);
+ 
   
   // Create and Set Event Generator
   //-------------------------------
