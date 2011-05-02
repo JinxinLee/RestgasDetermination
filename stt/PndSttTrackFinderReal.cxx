@@ -7010,7 +7010,6 @@ for(int ic =0;ic<nBounds; ic++){
 }
 
 */
-if(IVOLTE>6) cout<<"pndstttrackfinderreal : prima linea 6987, prima di fit."<<endl;
       int status= glp_main(
             nRows,nameRows,typeRows, //  ROWS info
             NStructVar, NStructRows, NRowsInWhichStructVarArePresent,  //  COLUMNS info
@@ -7022,7 +7021,6 @@ if(IVOLTE>6) cout<<"pndstttrackfinderreal : prima linea 6987, prima di fit."<<en
 //         ,final_values, TIMEOUT  //  timeout is in seconds.
       ,final_values
        );
-if(IVOLTE>6) cout<<"\tdopo fit, status = "<<status<<endl;
      if (status != 0) return -100;	// fit failed
 
 /*
@@ -8871,7 +8869,6 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 //----------------------  calling the minimizer
 
 
-if(IVOLTE>6) cout<<"pndstttrackfinderreal : prima linea 8848, prima di fit."<<endl;
       int status= glp_main(
             nRows,nameRows,typeRows, //  ROWS info
             NStructVar, NStructRows, NRowsInWhichStructVarArePresent,  //  COLUMNS info
@@ -8883,7 +8880,6 @@ if(IVOLTE>6) cout<<"pndstttrackfinderreal : prima linea 8848, prima di fit."<<en
 //      ,final_values, TIMEOUT  //  timeout is in seconds.
       ,final_values
        );
-if(IVOLTE>6) cout<<"\tdopo fit, status = "<<status<<endl;
      if (status != 0) return -100;	// fit failed
 
 
@@ -9367,7 +9363,6 @@ if(IVOLTE>6) cout<<"\tdopo fit, status = "<<status<<endl;
 
 //  WHEN THE FIT WENT WELL, STATUS = 0
 
-if(IVOLTE>6) cout<<"pndstttrackfinderreal : prima linea 9344, prima di fit."<<endl;
       int status= glp_main(
             nRows,nameRows,typeRows, //  ROWS info
             NStructVar, NStructRows, NRowsInWhichStructVarArePresent,  //  COLUMNS info
@@ -9379,7 +9374,6 @@ if(IVOLTE>6) cout<<"pndstttrackfinderreal : prima linea 9344, prima di fit."<<en
 //      ,final_values, TIMEOUT  //  timeout is in seconds.
       ,final_values
        );
-if(IVOLTE>6) cout<<"\tdopo fit, status = "<<status<<endl;
 
 	if (status != 0) return -100;
 
