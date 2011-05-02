@@ -205,4 +205,68 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 }
 
 
+//   switch()    {
+//     case FairRootManager::Instance()->GetBranchId(fMvdPixelBranch):
+//       hit = (FairHit*) fMvdPixelHitArray->At(ihit);
+//       break;
+//     case FairRootManager::Instance()->GetBranchId(fMvdStripBranch):
+//       hit = (FairHit*) fMvdStripHitArray->At(ihit);
+//       break;
+//     case FairRootManager::Instance()->GetBranchId(fSttBranch):
+//       hit = (FairHit*) fSttHitArray->At(ihit);
+//       break;
+//     case FairRootManager::Instance()->GetBranchId(fGemBranch):
+//       hit = (FairHit*) fGemHitArray->At(ihit);
+//   }
+
+
+void PndSecondaryTrackFinder::OrderHits(TClonesArray *hitarray, Int_t *sorthits)
+{
+
+  std::vector<double> distances;
+ std::multimap<double, int> mapdistances;
+
+  for(int ihit = 0; ihit < hitarray->GetEntriesFast(); ihit++) {
+    FairHit* hit = (FairHit*) hitarray->At(ihit);
+    if(!hit) continue;
+    
+    TVector3 distance3;
+    hit->Position(distance3);
+    double distance = distance3.Perp();
+
+    distances.push_back(distance);
+    mapdistances.insert(std::pair<double, int>(distance, ihit));
+ }
+
+  std::sort(distances.begin(), distances.end());
+
+  std::sort(distances.begin(), distances.end());
+
+  double tmpdistance = 0;
+  int counter = 0;
+  for(int j = 0; j < distances.size(); j++) {
+    double d = distances[j];
+
+    if(tmpdistance < d) tmpdistance = d;
+    else continue;
+
+    std::multimap<double, int>::iterator it;
+    int count = 0;
+    int n = mapdistances.count(tmpdistance);
+
+    for(it = mapdistances.begin(); it != mapdistances.end(); ++it)
+      {
+	if(count == n) break;
+	if((*it).first != tmpdistance) continue;
+
+	sorthits[counter] = (*it).second;
+	count++;
+   	counter++;
+     }
+  }
+}
+
+
+
+
 ClassImp(PndSecondaryTrackFinder)

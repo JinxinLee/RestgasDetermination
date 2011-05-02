@@ -61,6 +61,9 @@ class PndSecondaryTrackFinder : public FairTask
   };
 
 
+  void OrderHits(TClonesArray *hitarray, Int_t *sorthits);
+
+
  private:
 
   /** Input array of PndSttTube (map of STT tubes) **/
