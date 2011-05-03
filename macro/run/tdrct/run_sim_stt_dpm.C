@@ -1,7 +1,7 @@
-// Macro created 20/09/2006 by S.Spataro
-// It creates a geant simulation file for emc
-run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t seed=0){
-
+// Macro created 03/05/2011 by S.Spataro
+// It creates a DPM background simulation for the tracking TDR
+run_sim_stt_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t seed=0, Float_t thMin = 2.)
+{
   gRandom->SetSeed(seed);
 
   TStopwatch timer;
@@ -13,7 +13,7 @@ run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t s
   rootlogon();
   
   TString digiFile = "all.par";
-  TString parFile = "params_sttcombi.root";
+  TString parFile = "dpm_params_stt.root";
   
   FairRunSim *fRun = new FairRunSim();
 
@@ -23,7 +23,7 @@ run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t s
   fRun->SetName("TGeant3");
   //fRun->SetName("TGeant4");
 
-  fRun->SetOutputFile("points_sttcombi.root");
+  fRun->SetOutputFile("dpm_points_stt.root");
 
   // Set the parameters
   //-------------------------------
@@ -56,10 +56,6 @@ run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t s
   Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
   fRun->AddModule(Magnet);
 
-  //FairModule *Dipole= new PndMagnet("MAGNET");
-  //Dipole->SetGeometryFileName("dipole.geo");
-  //fRun->AddModule(Dipole);
-
   FairModule *Pipe= new PndPipe("PIPE");
   fRun->AddModule(Pipe);
 
@@ -71,12 +67,12 @@ run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t s
   Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
   fRun->AddModule(Mvd);
 
-  PndEmc *Emc = new PndEmc("EMC",kTRUE);
+  PndEmc *Emc = new PndEmc("EMC",kFALSE);
   Emc->SetGeometryVersion(19); 
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
 
-  PndMdt *Muo = new PndMdt("MDT",kTRUE);
+  PndMdt *Muo = new PndMdt("MDT",kFALSE);
   Muo->SetBarrel("fast");
   Muo->SetEndcap("fast");
   Muo->SetMuonFilter("fast");
@@ -84,17 +80,17 @@ run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t s
   Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
 
-  FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+  FairDetector *Gem = new PndGemDetector("GEM", kFALSE);
   Gem->SetGeometryFileName("gem_3Stations.root");
   fRun->AddModule(Gem);
 
-  PndDsk* Dsk = new PndDsk("DSK", kTRUE);
+  PndDsk* Dsk = new PndDsk("DSK", kFALSE);
   Dsk->SetGeometryFileName("dsk.root");
   Dsk->SetStoreCerenkovs(kFALSE);
   Dsk->SetStoreTrackPoints(kFALSE);
   fRun->AddModule(Dsk);
 
-  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+  PndDrc *Drc = new PndDrc("DIRC", kFALSE);
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc);
   
@@ -104,21 +100,28 @@ run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t s
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
-  PndDpmDirect *dpmGen = new PndDpmDirect(mom,mode, gRandom->GetSeed(), 2.);
+  PndDpmDirect *dpmGen = new PndDpmDirect(mom,mode, gRandom->GetSeed(), thMin);
   primGen->AddGenerator(dpmGen);
 
   // Create and Set Magnetic Field
   //-------------------------------
-  fRun->SetBeamMom(15);
+  fRun->SetBeamMom(mom);
   PndMultiField *fField= new PndMultiField("FULL");
   fRun->SetField(fField);
+/*
+  // -----   STT digi producers   --------------------------------- 
+  PndSttHitProducerRealFast* sttHitProducer = new PndSttHitProducerRealFast();
+  fRun->AddTask(sttHitProducer);
+ 
+  // -----   MDV digi producers   --------------------------------- 
+  PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
+  mvddigi->SetVerbose(0);
+  fRun->AddTask(mvddigi);
 
-  // EMC Hit producer
-  //-------------------------------
-  PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
-  fRun->AddTask(emcHitProd);
-  
-  
+  PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
+  mvdmccls->SetVerbose(0);
+  fRun->AddTask(mvdmccls); 
+  */  
   /**Initialize the session*/
   fRun->Init();
   
