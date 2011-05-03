@@ -196,11 +196,11 @@ find_package(OpenGL)
 
 add_library(Tpc SHARED ${TPC_SRCS})
 
-If(TEvePath AND OPENGL_FOUND AND OPENGL_GLU_FOUND)
+If(TEvePath)
   target_link_libraries(Tpc ${ROOT_LIBRARIES} -lEG -lTreePlayer -lGeom -lGed -lRGL -lEve)
-Else(TEvePath AND OPENGL_FOUND AND OPENGL_GLU_FOUND)
+Else(TEvePath)
   target_link_libraries(Tpc ${ROOT_LIBRARIES} -lEG -lTreePlayer -lGeom -lGed)
-EndIf(TEvePath AND OPENGL_FOUND AND OPENGL_GLU_FOUND)
+EndIf(TEvePath)
 
 set_target_properties(Tpc PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 add_library(TpcBase SHARED ${TPC_BASE_SOURCES})
@@ -209,8 +209,8 @@ set_target_properties(TpcBase PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 
 
-If(TEvePath AND OPENGL_FOUND AND OPENGL_GLU_FOUND)
-  Message("Found TEve, OpenGL and OpenGL GLU  so PndTpcClustVis will be compiled.")
+If(TEvePath)
+  Message("Found TEve, so libTpcEve will be built and PndTpcClustVis will be compiled.")
   
   SET(TPC_EVE_SOURCES
     TestBench/PndTpcClustVis.cxx
@@ -233,7 +233,7 @@ If(TEvePath AND OPENGL_FOUND AND OPENGL_GLU_FOUND)
   ################ install with TpcEve ###################
   install(TARGETS Tpc TpcBase TpcEve DESTINATION ${CMAKE_BINARY_DIR}/lib)
 
-Else(TEvePath AND OPENGL_FOUND AND OPENGL_GLU_FOUND)
+Else(TEvePath)
   ############## install without TpcEve ##################
   install(TARGETS Tpc TpcBase DESTINATION ${CMAKE_BINARY_DIR}/lib)
-EndIf(TEvePath AND OPENGL_FOUND AND OPENGL_GLU_FOUND)
+EndIf(TEvePath)
