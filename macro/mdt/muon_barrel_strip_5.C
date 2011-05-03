@@ -1,6 +1,7 @@
 void muon_barrel_strip_5()
 {
   TFile *out = TFile::Open("output.root","RECREATE");
+
   TGeoManager *geom = new TGeoManager("Assembly", "");
 
   Float_t MDT_barrel_long  = 390.; 
@@ -201,7 +202,7 @@ void muon_barrel_strip_5()
     CG10[i] = new TGeoCompositeShape(longb);
     CST[i]  = new TGeoCompositeShape(longb1);
     G10[i] = new TGeoVolume(Form("GP%d_%d_B",i,0), CG10[i], med7);
-    ST[i] = new TGeoVolume(Form("ST%d_%d_B",i,0), CST[i], med2);
+    ST[i] = new TGeoVolume(Form("ST%d_%d_B",i,0), CST[i], med7);
   }
 
 ///////////////////////////// Double sided strips for Layer #0 ////////////////////
@@ -255,19 +256,19 @@ void muon_barrel_strip_5()
      }
      
      if(ii >= 2) {
-      mnk[ii]->AddNode(G10[ii], i, new TGeoTranslation(ppos[ii], (pos_y+MDT_thickness/2+0.1), pos_z));
-      mnk[ii]->AddNode(ST[ii], i, new TGeoTranslation(ppos[ii], (pos_y+MDT_thickness/2+0.1+0.0930), pos_z));
+      mnk[ii]->AddNode(G10[ii], ii, new TGeoTranslation(ppos[ii], (pos_y+MDT_thickness/2+0.1), pos_z));
+      mnk[ii]->AddNode(ST[ii], ii, new TGeoTranslation(ppos[ii], (pos_y+MDT_thickness/2+0.1+0.0930), pos_z));
       MdtOct0->AddNode(mnk[ii], ii);
      } 
       
      if(ii == 1) {
-       mnk[ii]->AddNode(ST[ii], i, new TGeoTranslation(-2.5, (147.25 +0.0930), pos_z));     
+       mnk[ii]->AddNode(ST[ii], ii, new TGeoTranslation(-2.5, (147.25 +0.0930), pos_z));     
        MdtOct0->AddNode(mnk[ii], ii);
      }
 
      if(ii == 0) {
-       mnk[ii]->AddNode(ST[ii], i, new TGeoTranslation(-2.5, (147.25 -0.0930), pos_z));     
-       mnk[ii]->AddNode(G10[ii], i, new TGeoTranslation(-2.5, 147.25, pos_z));
+       mnk[ii]->AddNode(ST[ii], ii, new TGeoTranslation(-2.5, (147.25 -0.0930), pos_z));     
+       mnk[ii]->AddNode(G10[ii], ii, new TGeoTranslation(-2.5, 147.25, pos_z));
        MdtOct0->AddNode(mnk[ii], ii);
      }
     }
@@ -477,7 +478,7 @@ void muon_barrel_strip_5()
     G10_2[i] = new TGeoVolume(Form("GP%d_%d_B",i,2), CG10_2[i], med7);
     G10_2[i]->SetLineColor(kRed);
     CST_2[i] = new TGeoCompositeShape(llongb1);
-    ST_2[i] = new TGeoVolume(Form("ST%d_%d_B",i,2), CST_2[i], med2);
+    ST_2[i] = new TGeoVolume(Form("ST%d_%d_B",i,2), CST_2[i], med7);
     ST_2[i]->SetLineColor(kBlue);
     mnk1[i]->AddNode(G10_2[i], 1, new TGeoTranslation(ppos1[i-2], 156.43+6*(i-2), 52));
     mnk1[i]->AddNode(ST_2[i], 1, new TGeoTranslation(ppos1[i-2], 156.43+6*(i-2)+0.093, 52));
@@ -612,7 +613,8 @@ void muon_barrel_strip_5()
     if(i>=20)          { pos_z = -105.2; pos_x = (-56.30 + 8.5*(i-20)); name(tube[12][0],fl,6,12,i,0); mnk2[12]->AddNode(tube[12][0], i, new TGeoTranslation(pos_x,pos_y,pos_z));}   
   } 
 
-  for(int i = 0; i < 34; i++){
+//  for(int i = 0; i < 34; i++){
+  for(int i = 0; i < 32; i++){
     pos_y = 221.715;
     if(i>=0  && i<=2)  { pos_z = 45;     pos_x = (84.29  - 8.5*i);      name(tube[1][0],fl,6,13,i,0);  mnk2[13]->AddNode(tube[1][0],  i, new TGeoTranslation(pos_x,pos_y,pos_z));}   
     if(i>=3  && i<4)   { pos_z = 45;     pos_x = (58.79  - 8.5*(i-3));  name(tube[0][0],fl,6,13,i,0);  mnk2[13]->AddNode(tube[0][0],  i, new TGeoTranslation(pos_x,pos_y,pos_z));}   
@@ -675,10 +677,10 @@ void muon_barrel_strip_5()
     G10_6[i] = new TGeoVolume(Form("GP%d_%d_B",i,6), CG10_6[i], med7);
     G10_6[i]->SetLineColor(kRed);
     CST_6[i] = new TGeoCompositeShape(llongb1);
-    ST_6[i] = new TGeoVolume(Form("ST%d_%d_B",i,6), CST_6[i], med2);
+    ST_6[i] = new TGeoVolume(Form("ST%d_%d_B",i,6), CST_6[i], med7);
     ST_6[i]->SetLineColor(kBlue);
     mnk2[i]->AddNode(G10_6[i], i, new TGeoTranslation(ppos1[i-2], 156.43+6*(i-2), 45));
-    mnk2[i]->AddNode(ST_6[i], i, new TGeoTranslation(ppos1[i-2], 156.43+6*(i-2)+0.093, 52));
+    mnk2[i]->AddNode(ST_6[i], i, new TGeoTranslation(ppos1[i-2],  156.43+6*(i-2)+0.093, 45));
    }
 
 ////////////////////////////////////////////////////
@@ -715,8 +717,8 @@ void muon_barrel_strip_5()
     CST_6[0] = new TGeoCompositeShape("al_K0-K_h0:trrr");
     CST_6[1] = new TGeoCompositeShape("al_K0-al_K_h0:trrr");
     G10_6[0] = new TGeoVolume(Form("GP%d_%d_B",0,6), CG10_6[0], med7);
-    ST_6[0] = new TGeoVolume(Form("ST%d_%d_B",0,6), CST_6[0], med2);
-    ST_6[1] = new TGeoVolume(Form("ST%d_%d_B",1,6), CST_6[1], med2);
+    ST_6[0] = new TGeoVolume(Form("ST%d_%d_B",0,6), CST_6[0], med7);
+    ST_6[1] = new TGeoVolume(Form("ST%d_%d_B",1,6), CST_6[1], med7);
     G10_6[0]->SetLineColor(kRed);
     ST_6[0]->SetLineColor(kBlue);
     ST_6[1]->SetLineColor(kBlue);
@@ -1181,7 +1183,7 @@ void muon_barrel_strip_5()
     G10mf[i] = new TGeoCompositeShape(longbb);
     STmf[i] = new TGeoCompositeShape(longbb1);
     G10_mf[i] = new TGeoVolume(Form("GP%d_MF",i), G10mf[i], med7);
-    ST_mf[i] = new TGeoVolume(Form("ST%d_MF",i), STmf[i], med2);
+    ST_mf[i] = new TGeoVolume(Form("ST%d_MF",i), STmf[i], med7);
   }
 
     for(int ii = 0; ii <4; ii++){
@@ -1219,7 +1221,7 @@ void muon_barrel_strip_5()
     frot[i]->RegisterYourself();
    }
 
-   for(int i=0; i<16; i++) pCombi3->AddNode(FeForward[i], i, frot[i]);     
+   for(int i=100; i<16; i++) pCombi3->AddNode(FeForward[i], i, frot[i]);     
 //////////////////////////////////////////////////////////////////
 
   float tube_len_fw[3] = { 350.5, 135.95, 169.55 };
@@ -1254,7 +1256,7 @@ void muon_barrel_strip_5()
    }
   }
    
-   for(int i=0; i<18; i++) { 
+   for(int i=16; i<18; i++) { 
     if(i<16) { pCombi3->AddNode(mnk5[i], i+2); }
     else { pCombi3->AddNode(mnk5[i], 17-i); }     
    }
@@ -1283,32 +1285,27 @@ void muon_barrel_strip_5()
      STfs[i] = new TGeoCompositeShape(longbbs1);
 
     if(i<16) {
-     fsrot[i] = new TGeoTranslation(kk*1.45-2, 0, 877.23+0.1+9*i); 
-     fsrot1[i] = new TGeoTranslation(kk*1.45-2, 0, 877.23+0.26+9*i); 
+     fsrot[i] = new TGeoTranslation(kk*1.45-2, 0, 873+3+1.23+0.1+9*i); 
+     fsrot1[i] = new TGeoTranslation(kk*1.45-2, 0, 873+3+1.23+0.26+9*i); 
      G10_fs[i] = new TGeoVolume(Form("GP%d_FS",i+2), G10fs[i], med7);
-     ST_fs[i] = new TGeoVolume(Form("ST%d_FS",i+2), STfs[i], med2);
+     ST_fs[i] = new TGeoVolume(Form("ST%d_FS",i+2), STfs[i], med7);
      } else {
-        fsrot[i] = new TGeoTranslation(-2, 0, 868.67-0.26); 
-        fsrot1[i] = new TGeoTranslation(-2, 0, 868.67-0.16);  //0 ->17   
-        G10_fs[i] = new TGeoVolume(Form("GP%d_FS",17-i), G10fs[i], med7);
-        ST_fs[i] = new TGeoVolume(Form("ST%d_FS",17-i), STfs[i], med2);
+        fsrot[i] = new TGeoTranslation(-2, 0, 873-3-1.23-0.1-0.26); 
+        fsrot1[i] = new TGeoTranslation(-2, 0, 873-3-1.23-0.1-0.16);    
+//        fsrot1[i] = new TGeoTranslation(-2, 0, 873-3-1.23-0.1-0.360);  0 ->17   
+//        G10_fs[i] = new TGeoVolume(Form("GP%d_FS",17-i), G10fs[i], med7);
+        ST_fs[i] = new TGeoVolume(Form("ST%d_FS",17-i), STfs[i], med7);
       } 
 
     ST_fs[i]->SetLineColor(kBlue);
-    G10_fs[i]->SetLineColor(kRed);
+//    G10_fs[i]->SetLineColor(kRed);
   } 
 
-   for(int i=0; i<17; i++) { 
+   for(int i=16; i<17; i++) { 
     if(i<16) { pCombi3->AddNode(G10_fs[i], i+2, fsrot[i]); pCombi3->AddNode(ST_fs[i], i+2, fsrot1[i]); }
     else { pCombi3->AddNode(G10_fs[i], 17-i, fsrot[i]); pCombi3->AddNode(ST_fs[i], 17-i, fsrot1[i]); }
    }
 
-   fsrot1[17] = new TGeoTranslation(-2, 0, 868.316);  //0 ->17   
-   sprintf(longbbs1,"shl2 - shl3:vv1",i);
-   STfs[17] = new TGeoCompositeShape(longbbs1);
-   ST_fs[17] = new TGeoVolume(Form("ST%d_FS",0), STfs[17], med2);
-   ST_fs[17]->SetLineColor(kBlue);
-   pCombi3->AddNode(ST_fs[17], 0, fsrot1[17]);
 ////////////////////////////////////////////////////////////
 
 
@@ -1369,9 +1366,9 @@ void muon_barrel_strip_5()
 
 
   top->AddNode(pCombi, 0);
-  top->AddNode(pCombi1, 0);
-  top->AddNode(pCombi2, 0);
-  top->AddNode(pCombi3, 0);
+//  top->AddNode(pCombi1, 0);
+//  top->AddNode(pCombi2, 0);
+//  top->AddNode(pCombi3, 0);
 
   top->Write();
 
@@ -1380,7 +1377,7 @@ void muon_barrel_strip_5()
   geom->SetVisOption(1);
   top->Draw();
   
-//  gGeoManager->Export("muon_TS_barrel.root");
+  gGeoManager->Export("muon_TS_barrel.root");
 //  gGeoManager->Export("muon_TS_endcap.root");
 //  gGeoManager->Export("muon_MF.root");
 //  gGeoManager->Export("muon_FS.root");
