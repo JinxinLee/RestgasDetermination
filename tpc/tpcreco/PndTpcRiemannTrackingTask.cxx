@@ -537,7 +537,7 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     if (Bz==0) p=pbackup;
     if(p<4E-3) {
       std::cout<<" - skipping, momentum too small: "<<p*1E3<<" MeV"<<std::endl;
-      //continue;
+      continue;
     }
     std::cout<<std::endl;
 

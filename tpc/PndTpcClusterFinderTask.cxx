@@ -192,10 +192,12 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
   unsigned int ndig_rec=0;
   
   std::cerr<<"copying clusters to output array ";
+  double amp;
+  int size;
   for(unsigned int icl=0;icl<ncl;++icl){ // loop over clusters
-    if((*fcluster_buffer)[icl]->amp()>fthres &&
-       ((*fcluster_buffer)[icl]->size()>1 && (*fcluster_buffer)[icl]->amp()>fClAmpCut*(*fcluster_buffer)[icl]->size()
-           || (*fcluster_buffer)[icl]->amp()>fSDiClAmpCut)){
+    amp  = (*fcluster_buffer)[icl]->amp();
+    size = (*fcluster_buffer)[icl]->size();
+    if(amp>fthres &&  (size>1 && amp>fClAmpCut*(double)size || size==1 && amp>fSDiClAmpCut)){
       // copy cluster
       PndTpcCluster* cl = new((*fclusterArray)[ncl_rec]) PndTpcCluster(*((*fcluster_buffer)[icl]));
       cl->SetIndex(ncl_rec); 
