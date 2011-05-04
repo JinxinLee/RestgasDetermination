@@ -23,9 +23,9 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath)
     jobname = jobname.substr(last+1,jobname.size()+1);  
   
   TString outName(jobname);
-  if(outName.Contains("repaired"))
+  if(outName.Contains("repaired."))
     outName.ReplaceAll(".lmd_decoded_repaired.root",".reco.root");
-  if(outName.Contains("decoded"))
+  if(outName.Contains("decoded."))
     outName.ReplaceAll(".lmd_decoded.root",".reco.root");
   TString outFile = outpath+"/";
   outFile += outName; 
@@ -67,6 +67,7 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath)
   TFile testFile(filename);
   unsigned int nEvents = ((TTree*)testFile.Get("tpcEvent"))->GetEntries();
   std::cout<<"Found "<<nEvents<<" events in input data file"<<std::endl;
+  
 
   
   
@@ -74,7 +75,7 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath)
 
     
   PndTpcDataReaderTask* read = new PndTpcDataReaderTask();
-  read->SetPersistence();
+  //read->SetPersistence();
   read->SetDatafile(filename);
   read->SetClusterBranchName("PndTpcSample");
   //read->SetCutSmallPad();
@@ -90,15 +91,15 @@ bool SimpleClustering = true;
   PndTpcPSATask* tpsa = new  PndTpcPSATask();
   tpsa->SetPersistence();
   tpsa->SetSampleBranchName("PndTpcSample"); // Input of PSA
-  tpsa->SetDigiBranchName("PndTpcRawDigi");  // Output of PSA
+  //tpsa->SetDigiBranchName("PndTpcRawDigi");  // Output of PSA
   fRun->AddTask(tpsa);
 
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
   //tpcCF->SetDataMode(true); //prevents usage of FairLinks
-  tpcCF->SetDigiPersistence(); // keep Digis (contains then modified digis if you use SimpleClustering)
+  tpcCF->SetDigiPersistence(); // keep Digis refs in clusters
   tpcCF->SetPersistence(); // keep Clusters
-  tpcCF->SetDigiBranchName("PndTpcRawDigi"); // Input of clustering
-  tpcCF->SetDigiOutBranchName("PndTpcDigi"); // Digi output of clustering
+  //tpcCF->SetDigiBranchName("PndTpcRawDigi"); // Input of clustering
+  //tpcCF->SetDigiOutBranchName("PndTpcDigi"); // Digi output of clustering
   tpcCF->timeslice(6); //in samples
   tpcCF->SetSingleDigiClusterAmpCut(20);
   if(!SimpleClustering) {
@@ -138,6 +139,7 @@ bool SimpleClustering = true;
                    2.5,  // proximity cut
                    2.5,  // sz cut
                    8E-3);// plane cut (RMS)
+  //tpcSPR->SetRiemannScale();
   tpcSPR->SetPersistence();
   tpcSPR->SetStoreHistograms(PROutFile);
   //tpcSPR->WriteHistograms(PROutFile);
@@ -157,14 +159,14 @@ bool SimpleClustering = true;
   tpcSLPR->SetMinCandHits(15);
   //tpcSLPR->SetClusterBranchName("PndTpcCluster_cut");
   tpcSLPR->SetAbsMomentum(1000);
-  fRun->AddTask(tpcSLPR);
+  //fRun->AddTask(tpcSLPR);
 
 
   KalmanTask* kalman =new KalmanTask();
   kalman->SetPersistence();
   //kalman->SetClusterBranchName("PndTpcCluster_cut");
   kalman->SetNumIterations(3); // number of fitting iterations (back and forth)
-  fRun->AddTask(kalman);
+  //fRun->AddTask(kalman);
 
 
   TrackFitStatTask* fitstat=new TrackFitStatTask();
@@ -183,7 +185,7 @@ bool SimpleClustering = true;
   SLres->SetPersistence();
   //SLres->SetClusterBranchName("PndTpcCluster_cut");
   SLres->SetSecondarySuppression(false);
-  fRun->AddTask(SLres);
+  //fRun->AddTask(SLres);
   
   
 
@@ -198,6 +200,6 @@ bool SimpleClustering = true;
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
   
   std::cout<<"OutputFile: "<<outFile<<std::endl;
-
+  testFile.Close();
 }
   
