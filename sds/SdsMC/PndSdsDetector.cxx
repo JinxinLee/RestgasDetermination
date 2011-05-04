@@ -36,11 +36,10 @@
 class FairVolume;
 
 // -----   Default constructor   -------------------------------------------
-PndSdsDetector::PndSdsDetector() : fUseRadDamOption(false) 
+PndSdsDetector::PndSdsDetector() : fPersistance(kTRUE), fUseRadDamOption(false) 
 {
   fPndSdsCollection = new TClonesArray("PndSdsMCPoint");
   fPosIndex = 0;
-  fUseRadDamOption = false;  
 }
 // -------------------------------------------------------------------------
 
@@ -48,11 +47,10 @@ PndSdsDetector::PndSdsDetector() : fUseRadDamOption(false)
 
 // -----   Standard constructor   ------------------------------------------
 PndSdsDetector::PndSdsDetector (const char* name, Bool_t active)
-: FairDetector(name, active), fUseRadDamOption(false) 
+: FairDetector(name, active), fPersistance(kTRUE), fUseRadDamOption(false) 
 {
   fPndSdsCollection = new TClonesArray("PndSdsMCPoint");
   fPosIndex = 0;
-  fUseRadDamOption = false;    
   fGeoH = PndGeoHandling::Instance();
 }
 // -------------------------------------------------------------------------
@@ -223,7 +221,7 @@ void PndSdsDetector::FinishRun()
 // -----   Public method Register   ----------------------------------------
 void PndSdsDetector::Register()
 {
-  FairRootManager::Instance()->Register(fOutBranchName, fFolderName, fPndSdsCollection, kTRUE);
+  FairRootManager::Instance()->Register(fOutBranchName, fFolderName, fPndSdsCollection, fPersistance);
 }
 // -------------------------------------------------------------------------
 

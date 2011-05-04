@@ -57,7 +57,7 @@ InitStatus PndMvdRiemannTrackFinderTask::Init()
 	  fHitBranch.push_back("MVDHitsStrip");
   }
 
-  for (int i = 0; i < fHitBranch.size(); i++){
+  for (int i = 0; i < (int)fHitBranch.size(); i++){
 	  TClonesArray* tempArray = (TClonesArray*) ioman->GetObject(fHitBranch[i]);
 	  if (tempArray == 0){
 		  std::cout << "-W- PndMvdRiemannTrackFinderTask::Init: " << "No hitArray for BranchName " << fHitBranch[i].Data() << std::endl;
@@ -111,7 +111,7 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
  // std::cout << std::endl;
 //  std::cout << "------------- event " << fEventNr << "----------------" << std::endl;
 
-  for (int i = 0; i < fHitBranch.size(); i++)
+  for (int i = 0; i < (int)fHitBranch.size(); i++)
 	  trackFinder.AddHits(fHitArray[i], ioman->GetBranchId(fHitBranch[i]));
   trackFinder.SetMaxSZChi2(fMaxSZChi2);
   trackFinder.SetMinPointDist(fMinPointDist);
