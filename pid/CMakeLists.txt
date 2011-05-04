@@ -77,6 +77,7 @@ PidClassifier/PndPidMdtHCAssociatorTask.cxx
 PidClassifier/PndPidMvaAssociatorTask.cxx
 PidClassifier/PndPidEmcAssociatorTask.cxx
 PidClassifier/PndPidSttAssociatorTask.cxx
+PidClassifier/PndPidEmcBayesAssociatorTask.cxx
 
 ###### Parameters
 PidClassifier/PndPidMvdPar.cxx
@@ -102,6 +103,7 @@ PidClassifier/PndPidMdtHCAssociatorTask.h
 PidClassifier/PndPidMvaAssociatorTask.h
 PidClassifier/PndPidEmcAssociatorTask.h
 PidClassifier/PndPidSttAssociatorTask.h
+PidClassifier/PndPidEmcBayesAssociatorTask.h
 
 ###### Parameters
 PidClassifier/PndPidMvdPar.h
