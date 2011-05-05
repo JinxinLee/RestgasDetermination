@@ -1,3 +1,6 @@
+//Create TPC geometry
+//Author: Felix Boehmer
+
 
 // -------------------- DRIFT CATHODE SETUP ---------------------------------
 TGeoVolumeAssembly* createDriftCathode() {
@@ -8,11 +11,11 @@ TGeoVolumeAssembly* createDriftCathode() {
   TGeoVolumeAssembly* Cathode = new TGeoVolumeAssembly("Cathode");
   
   //local positioning:
-  double dz = -75.;
+  double dz = 75.;
   
   //layers:
   unsigned int nL = 3;
-  double thicks[3] = {0.5, 0.5, 0.002};
+  double thicks[3] = {0.05, 0.5, 0.002};
   TString mats[3] = {"kapton",
 		     "rohacell",
 		     "aluminium"};
@@ -34,7 +37,7 @@ TGeoVolumeAssembly* createDriftCathode() {
 			     gGeoManager->GetMedium(mats[i]));
     vols[i]->SetLineColor(cols[i]);
     Cathode->AddNode(vols[i], 1,
-    		     new TGeoTranslation(0.,0.,dz - thicks[i]/2. - totT));
+    		     new TGeoTranslation(0.,0.,dz + thicks[i]/2. + totT));
     totT+=thicks[i];
   }
   return Cathode;
@@ -50,7 +53,7 @@ TGeoVolumeAssembly* createPadPlane() {
   TGeoVolumeAssembly* PadPlane = new TGeoVolumeAssembly("PadPlane");
   
   //local positioning:
-  double dz = 75.;
+  double dz = -75.;
   
   //layers:
   unsigned int nL = 2;
@@ -79,21 +82,103 @@ TGeoVolumeAssembly* createPadPlane() {
 			     gGeoManager->GetMedium(mats[i]));
     vols[i]->SetLineColor(cols[i]);
     PadPlane->AddNode(vols[i], 1,
-		      new TGeoTranslation(0.,0.,dz + thicks[i]/2. + totT));
+		      new TGeoTranslation(0.,0.,dz - thicks[i]/2. - totT));
     totT+=thicks[i];
   }
   return PadPlane;
 }
 
+// ----------------------- FE CARDS STRUCTURE ----------------------------------
+
+TGeoVolumeAssembly* createFE() {
+  unsigned int nCards = 42;
+  double thickness = 0.2;  //real measures, not stupid half-measures
+  double length = 19.;
+  double height = 8.5;
+  double chip_thickness = 0.2;
+  double chip_side = 3.; 
+  
+  TGeoVolumeAssembly* FullFE = new TGeoVolumeAssembly("FullFE");
+
+  //build template FE card:
+  TGeoVolumeAssembly* FECard = new TGeoVolumeAssembly("FECard");
+  TGeoBBox* pcb = new TGeoBBox(thickness/2., length/2., height/2.);
+  TGeoVolume* pcbV = new TGeoVolume("pcb0", pcb,
+				    gGeoManager->GetMedium("G10"));
+  pcbV->SetLineColor(kGreen+3);
+  FECard->AddNode(pcbV,1);
+  //create chips:
+  TGeoVolumeAssembly* ChipPair = new TGeoVolumeAssembly("ChipPair");
+  TGeoBBox* chip = new TGeoBBox(chip_thickness/2., chip_side/2., chip_side/2.);
+  TGeoVolume* chipV1 = new TGeoVolume("chip0", chip,
+				     gGeoManager->GetMedium("silicon"));
+  chipV1->SetLineColor(kBlack);
+  TGeoVolume* chipV2 = chipV1->Clone();
+  //equip FE card:
+  TGeoTranslation* transCh1 = new TGeoTranslation(chip_thickness/2. + thickness/2.,0,0);
+  TGeoTranslation* transCh2 = new TGeoTranslation(-(chip_thickness/2.+ thickness/2.),0,0);
+  FECard->AddNode(chipV1,1,transCh1);
+  FECard->AddNode(chipV2,1,transCh2);
+  
+  TGeoTranslation* transC1 = new TGeoTranslation(chip_thickness/2. + thickness/2.,length/3.,0);
+  TGeoTranslation* transC2 = new TGeoTranslation(chip_thickness/2. + thickness/2.,-length/3.,0);
+  TGeoTranslation* transC3 = new TGeoTranslation(-(chip_thickness/2. + thickness/2.),length/3.,0);
+  TGeoTranslation* transC4 = new TGeoTranslation(-(chip_thickness/2. + thickness/2.),-length/3.,0);
+  //FECard->AddNode(ChipPair,0);
+  FECard->AddNode((TGeoVolume*)chipV1->Clone(),1, transC1);
+  FECard->AddNode((TGeoVolume*)chipV1->Clone(),1, transC2);
+  FECard->AddNode((TGeoVolume*)chipV1->Clone(),1, transC3);
+  FECard->AddNode((TGeoVolume*)chipV1->Clone(),1, transC4);
+    
+  //finalize:
+  for(unsigned int ife=0; ife<nCards; ife++) {
+    TVector3 shift(0,(41.5-15.0)/2.+15.,0);
+    double angle = 360./nCards;
+    shift.RotateZ(ife*angle*TMath::Pi()/180.);
+    TGeoTranslation* trans = new TGeoTranslation(shift.X(),shift.Y(),-76-height/2.);
+    TGeoRotation* rot = new TGeoRotation();
+    rot->SetAngles(angle*ife,0,0);
+    TGeoCombiTrans* com = new TGeoCombiTrans(*trans,*rot);
+    FullFE->AddNode((TGeoVolume*)FECard->Clone(),1,com);
+  }
+    
+  return FullFE;
+
+}
+
+
+
 
 // ------------------------- CREATE COOLING --------------------------------
 TGeoVolumeAssembly* createCooling() {
   TGeoVolumeAssembly* Cooling = new TGeoVolumeAssembly("Cooling");
-  double cool_pars[6] = { 42.,   //rMin
+  double cool_pars[6] = { 41.,   //rMin
 			  43.,   //rMax
-			  1./2.,   //dZ  HALF OF ACTUAL LENGTH 
+			  0.2./2.,   //dZ  HALF OF ACTUAL LENGTH 
 			  95.,
 			  265.};
+  TGeoVolumeAssembly* Half1 = new TGeoVolumeAssembly("Cooling1");
+  TGeoTubeSeg* seg1 = new TGeoTubeSeg(cool_pars);
+  TGeoVolume* ring1 = new TGeoVolume("CoolingRing1",
+				     seg1, gGeoManager->GetMedium("copper"));
+  ring1->SetLineColor(kRed+3);
+  TGeoVolume* ring2 = ring1->Clone();
+  ring2->SetName("CoolingRing2");
+  TGeoTranslation* trans1 = new TGeoTranslation(0.,0.,-86.);
+  TGeoTranslation* trans2 = new TGeoTranslation(0.,0.,-88.);
+  Half1->AddNode(ring1, 1, trans1);
+  Half1->AddNode(ring2, 1, trans2);
+  
+  //create second half
+  TGeoVolumeAssembly* Half2 = Half1->Clone();
+  Half2->SetName("Cooling1");
+  TGeoRotation* rot = new TGeoRotation();
+  rot->SetAngles(180.,0,0);
+  
+  Cooling->AddNode(Half1,1);
+  Cooling->AddNode(Half2,1,rot);
+
+  return Cooling;
   
 }
 
@@ -244,6 +329,8 @@ void addFieldCageBarrelComponent(TString name, TString matName, const double* tu
 void make_pandaTPC_geom() {
   using namespace std;
 
+  double length = 150.;
+
   //----------------------- INIT --------------------------------------
 
   //get geometry definitions:
@@ -271,15 +358,21 @@ void make_pandaTPC_geom() {
   builder->createMedium(gas);
   FairGeoMedium* kapton = media->getMedium("kapton");
   builder->createMedium(kapton);
-
+  FairGeoMedium* G10 = media->getMedium("G10");
+  builder->createMedium(G10);
+  FairGeoMedium* silicon = media->getMedium("silicon");
+  builder->createMedium(silicon);
   // ------------------ DRAW -------------------------------------------
 
   TGeoVolume* top = new TGeoVolumeAssembly("TOP");
   geoMan->SetTopVolume(top);
-  top->AddNode(createFieldCageBarrel(),0);
-  top->AddNode(createGas(),0);
-  top->AddNode(createDriftCathode(),0);
-  top->AddNode(createPadPlane(),0);
+  TGeoTranslation* glob = new TGeoTranslation(0,0,-40+length/2.);
+  top->AddNode(createFieldCageBarrel(),0,glob);
+  top->AddNode(createGas(),0,glob);
+  top->AddNode(createDriftCathode(),0,glob);
+  top->AddNode(createPadPlane(),0,glob);
+  top->AddNode(createCooling(), 0,glob);
+  top->AddNode(createFE(), 0,glob);
 
   TEveManager::Create();
   
@@ -290,7 +383,8 @@ void make_pandaTPC_geom() {
   
   TFile outfile("PANDA_TPC.root", "recreate");
   outfile.cd();
-  geoMan->Write();
+  top->Write();
+  //geoMan->Write();
 
 }
 
