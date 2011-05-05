@@ -1,9 +1,124 @@
-// ---------------------- CREATE GAS VOLUME ----------------------------------
 
-TGeoVolumeAssenbly* createGas() {
-  ;
+// -------------------- DRIFT CATHODE SETUP ---------------------------------
+TGeoVolumeAssembly* createDriftCathode() {
+  double cath_pars[3] = { 15.5,   //rMin
+			  43.,   //rMax
+			  0.05/2.};   //dZ  HALF OF ACTUAL LENGTH 
+
+  TGeoVolumeAssembly* Cathode = new TGeoVolumeAssembly("Cathode");
+  
+  //local positioning:
+  double dz = -75.;
+  
+  //layers:
+  unsigned int nL = 3;
+  double thicks[3] = {0.5, 0.5, 0.002};
+  TString mats[3] = {"kapton",
+		     "rohacell",
+		     "aluminium"};
+  Color_t cols[3] = {kYellow+8,
+		     kOrange+4,
+		     kGray};
+  
+  TGeoVolume* vols[3];
+  TGeoTube* shapes[3];
+  double totT = 0.;
+  
+  for(unsigned int i=0; i<nL; i++) {
+    cath_pars[2] = thicks[i]/2.;
+    TString name("cath_");
+    name.Append(mats[i]);
+    shapes[i] = new TGeoTube(cath_pars);
+    vols[i] = new TGeoVolume(name,
+			     shapes[i],
+			     gGeoManager->GetMedium(mats[i]));
+    vols[i]->SetLineColor(cols[i]);
+    Cathode->AddNode(vols[i], 1,
+    		     new TGeoTranslation(0.,0.,dz - thicks[i]/2. - totT));
+    totT+=thicks[i];
+  }
+  return Cathode;
 }
 
+
+// -------------------- DRIFT PADPLANE SETUP ---------------------------------
+TGeoVolumeAssembly* createPadPlane() {
+  double cath_pars[3] = { 15.5,   //rMin
+			  43.,   //rMax
+			  0.05/2.};   //dZ  HALF OF ACTUAL LENGTH 
+
+  TGeoVolumeAssembly* PadPlane = new TGeoVolumeAssembly("PadPlane");
+  
+  //local positioning:
+  double dz = 75.;
+  
+  //layers:
+  unsigned int nL = 2;
+  double thicks[2] = {0.0035, 0.3};
+  TString mats[2] = {"copper",
+		     "G10"};
+  Color_t cols[2] = {kYellow,
+		     kGreen+3};
+		     
+  TGeoVolume* vols[2];
+  TGeoTube* shapes[2];
+  double totT = 0.;
+  
+  for(unsigned int i=0; i<nL; i++) {
+    double loc_pars[3];
+    for(unsigned int l=0; l<3; l++)
+      loc_pars[l]=cath_pars[l];
+    cath_pars[2] = thicks[i]/2.;
+    if(mats[i] == "copper")
+      loc_pars[1]=41.;
+    TString name("pplane_");
+    name.Append(mats[i]);
+    shapes[i] = new TGeoTube(loc_pars);
+    vols[i] = new TGeoVolume(name,
+			     shapes[i],
+			     gGeoManager->GetMedium(mats[i]));
+    vols[i]->SetLineColor(cols[i]);
+    PadPlane->AddNode(vols[i], 1,
+		      new TGeoTranslation(0.,0.,dz + thicks[i]/2. + totT));
+    totT+=thicks[i];
+  }
+  return PadPlane;
+}
+
+
+// ------------------------- CREATE COOLING --------------------------------
+TGeoVolumeAssembly* createCooling() {
+  TGeoVolumeAssembly* Cooling = new TGeoVolumeAssembly("Cooling");
+  double cool_pars[6] = { 42.,   //rMin
+			  43.,   //rMax
+			  1./2.,   //dZ  HALF OF ACTUAL LENGTH 
+			  95.,
+			  265.};
+  
+}
+
+
+// ---------------------- CREATE GAS VOLUME ---------------------------------
+
+TGeoVolumeAssembly* createGas() {
+  double gas_pars[6] = { 15.5,   //rMin
+			 41.,   //rMax
+			 150./2.,   //dZ  HALF OF ACTUAL LENGTH 
+			 95.,
+			 265. };
+  TGeoVolumeAssembly* Gas = new TGeoVolumeAssembly("Gas");
+  TGeoTubeSeg* gs = new TGeoTubeSeg(gas_pars);
+  TGeoVolume* gas = new TGeoVolume("gas1", gs,
+				   gGeoManager->GetMedium("TPCmixture"));
+  gas->SetLineColor(kBlue+11);
+  gas->SetTransparency(50);
+  Gas->AddNode(gas,1);
+  TGeoRotation* rot = new TGeoRotation();
+  rot->SetAngles(180.,0,0);
+  TGeoVolume* gas2 = gas->Clone();
+  Gas->AddNode(gas2,1, rot);
+  return Gas;  
+}
 
 
   //---------------- CONSTRUCT FIELDCAGE BARREL ------------------------------
@@ -152,16 +267,23 @@ void make_pandaTPC_geom() {
   builder->createMedium(aluminium);
   FairGeoMedium* copper = media->getMedium("copper");
   builder->createMedium(copper);
+  FairGeoMedium* gas = media->getMedium("TPCmixture");
+  builder->createMedium(gas);
+  FairGeoMedium* kapton = media->getMedium("kapton");
+  builder->createMedium(kapton);
 
   // ------------------ DRAW -------------------------------------------
 
-
-  geoMan->SetTopVolume(createFieldCageBarrel());
+  TGeoVolume* top = new TGeoVolumeAssembly("TOP");
+  geoMan->SetTopVolume(top);
+  top->AddNode(createFieldCageBarrel(),0);
+  top->AddNode(createGas(),0);
+  top->AddNode(createDriftCathode(),0);
+  top->AddNode(createPadPlane(),0);
 
   TEveManager::Create();
-  TGeoNode* top = geoMan->GetTopNode();
-
-  TEveGeoTopNode* meh = new TEveGeoTopNode(geoMan, top);
+  
+  TEveGeoTopNode* meh = new TEveGeoTopNode(geoMan, geoMan->GetTopNode());
   gEve->AddGlobalElement(meh);
 
   gEve->Redraw3D(kTRUE);
