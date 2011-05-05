@@ -4,14 +4,14 @@
   Int_t iVerbose = 0;
 
   // Input file
-  TString inDigiFile = "digi_sttcombi.root";
-  TString inSimFile = "points_sttcombi.root";
+  TString inDigiFile = "evt_digi_stt.root";
+  TString inSimFile = "evt_points_stt.root";
 
   // Parameter file
-  TString parFile = "params_sttcombi.root";
+  TString parFile = "evt_params_stt.root";
 
   // Output file
-  TString outFile = "reco_sttcombi.root";
+  TString outFile = "evt_reco_stt.root";
 
   // Number of events to process
   Int_t nEvents = 0;

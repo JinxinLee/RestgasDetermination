@@ -12,9 +12,9 @@
   TString parFile = "evt_params_stt.root";
   TString inSimuFile = "evt_points_stt.root";
   TString inDigiFile = "evt_digi_stt.root";
-  TString inRecoFile = "mix_reco_stt.root";
+  TString inRecoFile = "evt_reco_stt.root";
 
-  TString outFile = "mix_pid_stt.root";
+  TString outFile = "evt_pid_stt.root";
    
   // In general, the following parts need not be touched
   // ========================================================================
