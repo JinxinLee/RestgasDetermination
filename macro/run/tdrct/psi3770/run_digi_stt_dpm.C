@@ -4,13 +4,13 @@
   Int_t iVerbose = 0;
 
   // Input file (MC events)
-  TString inFile = "evt_points_stt.root";
+  TString inFile = "dpm_points_stt.root";
 
   // Parameter file
-  TString parFile = "evt_params_stt.root";
+  TString parFile = "dpm_params_stt.root";
 
   // Output file
-  TString outFile = "evt_digi_stt.root";
+  TString outFile = "dpm_digi_stt.root";
 
   // Number of events to process
   Int_t nEvents = 0;
@@ -65,49 +65,6 @@
   PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls); 
-  // -----   EMC hit producers   ---------------------------------
-  PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform(iVerbose);
-  PndEmcWaveformToDigi* emcWaveformToDigi=new PndEmcWaveformToDigi(iVerbose);
-  emcHitsToWaveform->SetStorageOfData(kFALSE);
-  emcWaveformToDigi->SetStorageOfData(kFALSE);
-  fRun->AddTask(emcHitsToWaveform);  // full digitization
-  fRun->AddTask(emcWaveformToDigi);  // full digitization
-
-  PndEmcMakeCluster* emcMakeCluster= new PndEmcMakeCluster(iVerbose);
-  fRun->AddTask(emcMakeCluster);
-
-  PndEmcMakeBump* emcMakeBump= new PndEmcMakeBump();
-  fRun->AddTask(emcMakeBump);
-
-  PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
-  fRun->AddTask(emcHdrFiller); // ECM header
-  
-  // -----   MDT hit producers   ---------------------------------
-  PndMdtHitProducerIdeal* mdtHitProd = new PndMdtHitProducerIdeal();
-  mdtHitProd->SetPositionSmearing(.3); // position smearing [cm]
-  fRun->AddTask(mdtHitProd);
-  
-  PndMdtTrkProducer* mdtTrkProd = new PndMdtTrkProducer();
-  fRun->AddTask(mdtTrkProd);
-
-  // -----   DRC hit producers   ---------------------------------
-  PndDrcHitProducerIdeal* drchit = new PndDrcHitProducerIdeal();
-  drchit->SetVerbose(iVerbose);
-  fRun->AddTask(drchit);
- 
-  // -----   FTS hit producers   ---------------------------------
-  PndFtsHitProducerRealFast* ftsHitProducer = new PndFtsHitProducerRealFast();
-  //PndFtsHitProducerIdeal* ftsHitProducer = new PndFtsHitProducerIdeal();
-  //PndFtsHitProducerRealFull* ftsHitProducer = new PndFtsHitProducerRealFull();
-  fRun->AddTask(ftsHitProducer);
- 
-  // -----   GEM hit producers   ---------------------------------
-  Int_t verboseLevel = 0;
-  PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", verboseLevel);
-  fRun->AddTask(gemDigitize);
-
-  PndGemFindHits* gemFindHits = new PndGemFindHits("GEM Hit Finder", verboseLevel);
-  fRun->AddTask(gemFindHits);
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
