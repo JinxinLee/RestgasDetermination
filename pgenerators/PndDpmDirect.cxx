@@ -47,6 +47,21 @@ PndDpmDirect::PndDpmDirect() {
 // ------------------------------------------------------------------------
 
 // -----   Standard constructor   -----------------------------------------
+
+PndDpmDirect::PndDpmDirect(Double_t Mom, Int_t Mode, Long_t Seed) {
+
+//
+// Calculate ThtMin first. For this we make a cut-off on the value of -t of 1e-2 GeV^2 (~100 MeV/c momentum)
+// This estimated from a parametrization found in thesis of Thomas Wuerschig (figure 6.4, page 121): 
+// Roughly: 0.4 deg at 15 GeV/c and 4 deg at 1.5 GeV/c, lineair interpolation in double log-scale.
+//
+
+  Double_t logangle = TMath::Log(0.4)+(TMath::Log(15.)-TMath::Log(Mom))*(TMath::Log(4)-TMath::Log(0.4))/(TMath::Log(15)-TMath::Log(1.5));
+  Double_t ThtMin = TMath::Exp(logangle);
+
+  PndDpmDirect(Mom, Mode, Seed, ThtMin) ;
+}
+
 PndDpmDirect::PndDpmDirect(Double_t Mom, Int_t Mode, Long_t Seed, Double_t ThtMin) {
    fMom    = Mom;
    fMode   = Mode;
