@@ -97,7 +97,7 @@ bool SimpleClustering = true;
   tpcCF->timeslice(4); //in samples
   tpcCF->SetThreshold(1);
   tpcCF->SetSingleDigiClusterAmpCut(15);
-  tpcCF->SetClusterAmpCut(9);
+  tpcCF->SetClusterAmpCut(9.1);
   if(!SimpleClustering) {
     tpcCF->SetMode(2); // 0 - global time bins;  
                        // 1 - individual time bins for each sector;  
@@ -127,15 +127,15 @@ bool SimpleClustering = true;
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
   tpcSPR->SetSortingParameters(
                    true, // false: sort only according to _sorting (see next argument); true: use internal sorting when adding hits to trackcands
-                   1,    // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
+                   3,    // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
                    0.); // z-position of interaction point (for sorting 4)
   tpcSPR->SetTrkFinderParameters(
                    1.9,  // proximity cut in 3D
                    0.1, // proximity cut on rieman sphere
                    0.04, // distance to plane cut
-                   0.20,  // szcut
+                   0.2,  // szcut
                    4);   // minimum hits for plane & sz-fit
-  //tpcSPR->SetMergeTracks();
+  tpcSPR->SetMergeTracks();
   tpcSPR->SetTrkMergerParameters(
                    2.2,  // proximity cut
                    0.33,  // sz cut
