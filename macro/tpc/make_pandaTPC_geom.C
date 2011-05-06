@@ -14,17 +14,19 @@ TGeoVolumeAssembly* createDriftCathode() {
   double dz = 75.;
   
   //layers:
-  unsigned int nL = 3;
-  double thicks[3] = {0.05, 0.5, 0.002};
-  TString mats[3] = {"kapton",
+  unsigned int nL = 4;
+  double thicks[4] = {0.0002, .005, 0.5, 0.0002};
+  TString mats[4] = {"aluminium",
+		     "kapton",
 		     "rohacell",
 		     "aluminium"};
-  Color_t cols[3] = {kYellow+8,
+  Color_t cols[4] = {kGray,
+		     kYellow+8,
 		     kOrange+4,
 		     kGray};
   
-  TGeoVolume* vols[3];
-  TGeoTube* shapes[3];
+  TGeoVolume* vols[4];
+  TGeoTube* shapes[4];
   double totT = 0.;
   
   for(unsigned int i=0; i<nL; i++) {
@@ -95,7 +97,7 @@ TGeoVolumeAssembly* createFE() {
   double thickness = 0.2;  //real measures, not stupid half-measures
   double length = 19.;
   double height = 8.5;
-  double chip_thickness = 0.2;
+  double chip_thickness = 0.1;
   double chip_side = 3.; 
   
   TGeoVolumeAssembly* FullFE = new TGeoVolumeAssembly("FullFE");
@@ -229,7 +231,10 @@ TGeoVolumeAssembly* createFieldCageBarrel() {
 
   addFieldCageBarrelComponent("FC_ground", "aluminium", 
 			      cageIn_meas, cageOut_meas, 
-			      0.495,0.005,FieldCage1,kGray);
+			      0.4975,0.00002,FieldCage1,kGray);
+  addFieldCageBarrelComponent("FC_kapton", "kapton", 
+			      cageIn_meas, cageOut_meas, 
+			      0.495,0.0025,FieldCage1,kOrange+8);
   addFieldCageBarrelComponent("FC_roha", "rohacell", 
 			      cageIn_meas, cageOut_meas, 
 			      0.001,0.494,FieldCage1,kYellow-2);
@@ -324,6 +329,11 @@ void addFieldCageBarrelComponent(TString name, TString matName, const double* tu
   delete t1;
   delete rot2;
   delete t2;
+  
+  double relX0 = thickness/(OUT1->GetMaterial()->GetRadLen())*200; //percent, inner and outer cage 
+  std::cout<<"TOTAL RadLen percentage of Material "<<OUT1->GetName()<<": "
+	   <<relX0<<std::endl;
+  
 }
 
 void make_pandaTPC_geom() {
