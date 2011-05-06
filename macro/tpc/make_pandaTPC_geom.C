@@ -332,7 +332,7 @@ void make_pandaTPC_geom() {
   double length = 150.;
 
   //----------------------- INIT --------------------------------------
-
+  
   //get geometry definitions:
   FairGeoLoader* loader = new FairGeoLoader("TGeo", "FairGeoLoader");
   FairGeoBuilder* builder = loader->getGeoBuilder();
@@ -364,7 +364,7 @@ void make_pandaTPC_geom() {
   builder->createMedium(silicon);
   // ------------------ DRAW -------------------------------------------
 
-  TGeoVolume* top = new TGeoVolumeAssembly("TOP");
+  TGeoVolume* top = new TGeoVolumeAssembly("TopNode");
   geoMan->SetTopVolume(top);
   TGeoTranslation* glob = new TGeoTranslation(0,0,-40+length/2.);
   top->AddNode(createFieldCageBarrel(),0,glob);
