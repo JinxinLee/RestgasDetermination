@@ -39,9 +39,9 @@ public:
   
   void SetTrackOutput(TString name = "FTSTrkIdeal") { fTracksArrayName = name; };
   
-  void SetMomentumSmearing(Double_t sigma = -1.) { sigma=fabs(sigma); fMomSigma.SetXYZ(sigma,sigma,2*sigma); fRelative=kFALSE; }; // in GeV
+  void SetMomentumSmearing(Double_t sigmax = -1.,Double_t sigmay = -1.,Double_t sigmaz = -1.) { fMomSigma.SetXYZ(fabs(sigmax),fabs(sigmay),fabs(sigmaz)); fRelative=kFALSE; }; // in GeV
   void SetRelativeMomentumSmearing(Double_t dpop = -1.) { fDPoP=fabs(dpop); fRelative=kTRUE;}; // in GeV
-  void SetVertexSmearing(Double_t sigma = -1.) { sigma=fabs(sigma); fVtxSigma.SetXYZ(sigma,sigma,2*sigma); }; // in cm
+  void SetVertexSmearing(Double_t sigmax = -1.,Double_t sigmay = -1.,Double_t sigmaz = -1.) { fVtxSigma.SetXYZ(fabs(sigmax),fabs(sigmay),fabs(sigmaz)); }; // in cm
   void SetTrackingEfficiency(Double_t eff = 1.) { fEfficiency=eff; };
   
 protected:
