@@ -20,6 +20,12 @@ ${CMAKE_SOURCE_DIR}/tpc/TestBench
 ${CMAKE_SOURCE_DIR}/tpc/tpcreco
 ${CMAKE_SOURCE_DIR}/recotasks
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/RKTrackRep
+
+${GEANT3_INCLUDE_DIR}
+${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
+${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep2
+${CMAKE_SOURCE_DIR}/geane
+${CMAKE_SOURCE_DIR}/trackbase
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -187,14 +193,13 @@ SET(TPC_SRCS ${TPC_SRCS} ${TPC_DICTIONARY})
 SET(TPC_BASE_SOURCES ${TPC_BASE_SOURCES} ${TPC_BASE_DICTIONARY}) 
 
 
+add_library(Tpc SHARED ${TPC_SRCS})
+
+
 FIND_PATH(TEvePath NAMES ../TEveEventManager.h PATHS
   ${SIMPATH}/tools/root/include
   NO_DEFAULT_PATH
 )
-find_package(OpenGL)
-
-
-add_library(Tpc SHARED ${TPC_SRCS})
 
 If(TEvePath)
   target_link_libraries(Tpc ${ROOT_LIBRARIES} -lEG -lTreePlayer -lGeom -lGed -lRGL -lEve)

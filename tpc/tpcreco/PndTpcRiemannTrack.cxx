@@ -46,10 +46,10 @@
 // Class Member definitions -----------
 
 bool sortByTempPosOnTrack(PndTpcRiemannHit* hit1, PndTpcRiemannHit* hit2){
-  return (hit1->tempPosOnTrack()   < hit2->tempPosOnTrack());
+  return (hit1->tempPosOnTrack() < hit2->tempPosOnTrack());
 }
 bool sortByPosOnTrack(PndTpcRiemannHit* hit1, PndTpcRiemannHit* hit2){
-  return (hit1->s()   < hit2->s());
+  return (hit1->s() < hit2->s());
 }
 
 
@@ -195,6 +195,13 @@ PndTpcRiemannTrack::addHit(PndTpcRiemannHit* hit){
   }
 
   _hits.insert(_hits.begin()+this->sortHit(hit), hit);
+}
+
+
+void
+PndTpcRiemannTrack::removeHit(unsigned int ihit){
+  delete _hits[ihit];
+  _hits.erase(_hits.begin()+ihit);
 }
 
 
@@ -384,7 +391,7 @@ PndTpcRiemannTrack::trackpos(){
 
 // TODO: improve this!!!
 int
-PndTpcRiemannTrack::winding(){ // returns winding sense along z-axis
+PndTpcRiemannTrack::winding() const { // returns winding sense along z-axis
   int end=_hits.size()-1;
   if(end<2) return 0;
   int halfway = 0.5*end;
@@ -399,7 +406,6 @@ PndTpcRiemannTrack::winding(){ // returns winding sense along z-axis
   TVector3 d12=pos2-pos1;
   TVector3 d13=pos3-pos1;
   double a=d12.DeltaPhi(d13);
-  std::cout << "dPhi="<<a<<std::endl;
   return a>0 ? dir : -dir;
 }
 
@@ -407,7 +413,6 @@ PndTpcRiemannTrack::winding(){ // returns winding sense along z-axis
 double
 PndTpcRiemannTrack::dist(PndTpcRiemannHit* hit, TVector3 n2, double c2, bool useArguments){
   if(!useArguments){
-    if(!_isFittedPlane) this->refit();
     if(!_isFittedPlane) return 0.;
     n2 = _n;
     c2 = _c; 
@@ -530,7 +535,6 @@ PndTpcRiemannTrack::refit(){
 double
 PndTpcRiemannTrack::planeRMS(TVector3 n1, double c1, bool useArguments){
   if(!useArguments){
-    if(!_isFittedPlane) this->refit();
     if(!_isFittedPlane) return 0.;
     n1 = _n;
     c1 = _c;
@@ -566,8 +570,15 @@ PndTpcRiemannTrack::orig() const {
 
 double 
 PndTpcRiemannTrack::r() const {
-  if(!_isFittedPlane) return 0.;
-  //if(_c>=0.999) return 0.01;
+  double r1(0), r2(0);
+  this->r(r1, r2);
+  return 0.5*TMath::Abs(r2-r1);
+}
+
+
+void
+PndTpcRiemannTrack::r(double &r1, double &r2) const {
+  if(!_isFittedPlane) return;
 
   // look at sphere from side, perpendicular to plane, so that plane becomes a line
   // line:   x=-_c*nx + a*nz;  z=-_c*nz - a*nx
@@ -590,25 +601,35 @@ PndTpcRiemannTrack::r() const {
 
   // project them back onto the plane
   // we get two radii
-  double r1, r2;
 
   if(z1>0.999999) r1=1.E3;
   else if(z1<0.000001) r1=1.E-3;
   else r1 = TMath::Sqrt(z1/(1.-z1));
   if(x1<0) r1 *= -1.;
+  r1 *= fRiemannScale;
 
   if(z2>0.999999) r2=1.E3;
   else if(z2<0.000001) r2=1.E-3;
   else r2 = TMath::Sqrt(z2/(1.-z2));
   if(x2<0) r2 *= -1.;
-  
-  /*std::cout<<std::endl;
-  std::cout<<"c "<<_c<<"  nz "<<nz<<std::endl;
-  std::cout<<"r1 "<<r1<<"  r2 "<<r2<<std::endl;*/
-  
-  double radius = 0.5*TMath::Abs(r2-r1) * fRiemannScale;
-  //assert(radius>0);
-  return radius; 
+  r2 *= fRiemannScale;
+}
+
+
+TVector3 PndTpcRiemannTrack::center() const{
+  TVector3 o(0,0,0);
+  if(!_isFittedPlane) return o;
+
+  double r1(0), r2(0);
+  this->r(r1, r2);
+
+  o=_n;
+  o.SetZ(0);
+  //if (_c>0) o *= -1;
+
+  o.SetMag(0.5*(r1+r2));
+
+  return o;
 }
 
 
@@ -719,25 +740,4 @@ PndTpcRiemannTrack::Plot(bool standalone){
     delete cc;
   }
 }
-
-
-void 
-PndTpcRiemannTrack::coolDown(double planecut, double szcut){
-  for(int i=0; i<_hits.size(); ++i){
-    if (this->dist(_hits[i]) > planecut){
-      delete _hits[i];
-      _hits.erase(_hits.begin()+i);
-      this->refit();
-      --i;
-    }
-    else if (this->szDist(_hits[i]) > szcut){
-      delete _hits[i];
-      _hits.erase(_hits.begin()+i);
-      this->szFit();
-      --i;
-    }
-  }
-}
-
-
 

@@ -214,10 +214,6 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
         } 
       #endif
       }
-      // TODO: this is a test
-      /*if(theTrk->getNumHits()>=2*_minHitsForFit && 1){
-        theTrk->coolDown(_planecut, _szcut);
-      }*/
     }
     resetFlags();
   } // end loop over hits
@@ -377,6 +373,30 @@ PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist
     if(candlist[i]->getNumHits()>=_minHitsForFit)std::cout<<candlist[i]->r();
     std::cout<<std::endl;
   }*/
+
+}
+
+
+void
+PndTpcRiemannTrackFinder::cleanTracks(std::vector<PndTpcRiemannTrack*>& candlist,
+                                      double szcut, double planecut){
+  PndTpcRiemannHit* hit;
+
+  for(unsigned int i=0; i<candlist.size(); ++i){ // loop over trackcands
+    if(!candlist[i]->isFitted() || !candlist[i]->isFittedPlane()) continue; // skip track
+
+    for(unsigned int j=0; j<candlist[i]->getNumHits(); ++j){ // loop over hits
+      hit = candlist[i]->getHit(j);
+      if (TMath::Abs(candlist[i]->dist(hit)) > planecut || TMath::Abs(candlist[i]->szDist(hit)) > szcut){
+        candlist[i]->removeHit(j);
+        candlist[i]->refit();
+        candlist[i]->szFit();
+        --j;
+      }
+      if(!candlist[i]->isFitted() || !candlist[i]->isFittedPlane()) break; // skip track
+    } // end loop over hits
+
+  } // end loop over trackcands
 
 }
 

@@ -2,34 +2,56 @@
 // Event Display implementation: 3D View
 // For the GEM-TPC decoding/monitoring software
 //
+// based on the genfit Display written by Karl Bicker
+//
 // author: Johannes Rauch
 //         E18, Technische Universitaet Muenchen
 //
-//**************************************************
+//***************************************************
 
 #include "PndTpcClustVis.h"
 
 #include "PndTpcAbsClusterFinder.h"
 #include "PndTpcClusterFinder.h"
 #include "PndTpcClusterFinderSimple.h"
+#include "PndTpcSPHit.h"
+
+#include "TGeoManager.h"
+#include "FairRootManager.h"
+
+#include "GFAbsTrackRep.h"
+#include "GFAbsRecoHit.h"
+#include "GFDetPlane.h"
+#include "GFException.h"
+#include "GFKalman.h"
+#include "GFTools.h"
+#include "GFTrack.h"
+#include "GFTrackCand.h"
+
+#include "GeaneTrackRep.h"
+#include "GeaneTrackRep2.h"
+#include "RKTrackRep.h"
 
 
 PndTpcClustVis* PndTpcClustVis::eventDisplay = NULL;
 
+
 PndTpcClustVis::PndTpcClustVis():
-  tree(NULL), digisBranch(NULL), clustersBranch(NULL), guiEvent(0), ClHasChanged(true),
-  doClustering(false), ClMode(2), ClTimeslice(3),ClTimecut(2),
+  tree(NULL), digisBranch(NULL), clustersBranch(NULL), guiEvent(0), fEventId(0), ClHasChanged(true),
+  doClustering(true), ClMode(2), ClTimeslice(3),ClTimecut(2),
   ClSingleDigiClAmpCut(15), ClClAmpCut(9),
   ClElPerADC(600.), ClErrorNorm(300.),
   ClSimpleCl(true), ClSimpleTimeslice(4),
-  instantRedraw(false), drawTpc(false), drawRawDigis(false), drawDigis(false),
+  instantRedraw(true), drawTpc(false), drawRawDigis(false), drawDigis(false),
   drawClusters(false), drawClusterErrors(false),
-  doPR(true), doMerge(true),
+  drawRiemannTracks(true), drawFitMarkers(false),
+  doPR(true), doMerge(true), doClean(false),
   _sorting(3), _interactionZ(0), _sortingMode(true),
   PRNHits(1000000),
   _minpoints(4), _planecut(0.04), _riproxcut(0.1), _szcut(0.2), _proxcut(1.9),
-  _TTproxcut(2.2), _TTplanecut(0.025), _TTszcut(0.33),
-  fRiemannScale(8.6)
+  _TTproxcut(2.2), _TTplanecut(0.025), _TTszcut(0.33), PRHasChanged(true),
+  fRiemannScale(8.6),
+  doFit(true), useGeane(false), numIts(0), smooth(false), Bz(0)
 {
   if(!gApplication) {
     std::cout << "In PndTpcClustVis ctor: gApplication not found, creating..." << std::flush;
@@ -43,34 +65,35 @@ PndTpcClustVis::PndTpcClustVis():
   }
 
   //init colors
-  colors.push_back(kRed);
+  //colors.push_back(kRed);
   colors.push_back(kGreen);
   colors.push_back(kBlue);
   colors.push_back(kCyan+1);
   colors.push_back(kMagenta);
   colors.push_back(kYellow+1);
-  colors.push_back(kGray);
   colors.push_back(kRed-7);
   colors.push_back(kSpring+5);
   colors.push_back(kCyan-3);
   colors.push_back(kOrange+1);
 
-  fEventId = 0;
-  setOptions();
-  setErrScale();
+  // Build hit factory -----------------------------
+  clusterArray = new TClonesArray("PndTpcCluster");
+  _theRecoHitFactory = new GFRecoHitFactory();
+  _theRecoHitFactory->addProducer(2,new GFRecoHitProducer<PndTpcCluster,PndTpcSPHit>(clusterArray));
 }
 
+
 void PndTpcClustVis::initDigimapper(double drifField, 
-				    double gain, double spread, 
-				    double zGem,
-				    double samplingFreq,
-				    double wallclock,
-				    std::string gasfile,
-				    std::string padplanefile,
-				    std::string padshapefile){
+                                    double gain, double spread,
+                                    double zGem,
+                                    double samplingFreq,
+                                    double wallclock,
+                                    std::string gasfile,
+                                    std::string padplanefile,
+                                    std::string padshapefile){
   fgain=gain;
 
-  // init Digimapper // TODO: get from file!!
+  // init Digimapper
   std::cout<<"init DigiMapper with \n"
 	   <<" Drift Field   : "<<drifField<<std::endl
 	   <<" Gain          : "<<gain<<std::endl
@@ -82,18 +105,14 @@ void PndTpcClustVis::initDigimapper(double drifField,
 	   <<" PadPlane      : "<<padplanefile<<std::endl
 	   <<" PadShapes     : "<<padshapefile<<std::endl;
 
-  fgas = new PndTpcGas(gasfile.c_str(),
-                       drifField);  // Drift Field
-  fgem = new PndTpcGem(gain,  // Gain
-                       spread); // Spread
+  fgas = new PndTpcGas(gasfile.c_str(), drifField);
+  fgem = new PndTpcGem(gain, spread);
   fpadShapes = new PndTpcPadShapePool(padshapefile.c_str(),
                                       *fgem,
                                       0.5, // lookup range
                                       0.02, // Lookup Step
                                       0.01); // LookupIntegrationStep
   fpadplane = new PndTpcPadPlane(padplanefile.c_str(), fpadShapes);
-  
-
   fzGem = zGem;
   double sf = samplingFreq;
   double t0 = wallclock; // time offset in ns
@@ -105,17 +124,7 @@ void PndTpcClustVis::initDigimapper(double drifField,
   for(unsigned int  isect=0;isect<nsectors;++isect){
     buffermap[isect]=new std::vector<PndTpcCluster*>;
   }
-
 }
-
-
-void PndTpcClustVis::setOptions(std::string opts) { fOption = opts; }
-
-
-void PndTpcClustVis::setErrScale(double errScale) { fErrorScale = errScale; }
-
-
-double PndTpcClustVis::getErrScale() { return fErrorScale; }
 
 
 PndTpcClustVis* PndTpcClustVis::getInstance() {
@@ -129,38 +138,26 @@ PndTpcClustVis* PndTpcClustVis::getInstance() {
 PndTpcClustVis::~PndTpcClustVis() { reset(); }
 
 
-void PndTpcClustVis::reset() {
-
-}
+void PndTpcClustVis::reset() {}
 
 
 void PndTpcClustVis::setTree(TTree* treeIn) {
   tree = treeIn;
   if(tree==NULL) std::cerr<<"WARNING: Tree not found!"<<std::endl;
-  else std::cerr<<"Tree found!"<<std::endl;
 
   tree->SetBranchAddress("PndTpcDigi", &digisBranch);
   if(digisBranch==NULL) std::cerr<<"WARNING: No Digi Branch found!"<<std::endl;
-  else std::cerr<<"Digi Branch found!"<<std::endl;
 
   tree->SetBranchAddress("PndTpcCluster", &clustersBranch);
   if(clustersBranch==NULL) std::cerr<<"WARNING: No Cluster Branch found!"<<std::endl;
-  else std::cerr<<"Cluster Branch found!"<<std::endl;
 
-  //tree->SetBranchAddress("TrackPreFit", &preFitBranch);
+  tree->SetBranchAddress("TrackPreFit", &preFitBranch);
 }
 
 
-void PndTpcClustVis::next(unsigned int stp) {
-  fEventId += stp;
-  gotoEvent(fEventId);
-}
+void PndTpcClustVis::next(unsigned int stp) { gotoEvent(fEventId+stp);}
 
-
-void PndTpcClustVis::prev(unsigned int stp) {
-  fEventId -= stp;
-  gotoEvent(fEventId);
-}
+void PndTpcClustVis::prev(unsigned int stp) { gotoEvent(fEventId-stp);}
 
 
 int PndTpcClustVis::getNEvents() { return tree->GetEntries(); }
@@ -170,92 +167,39 @@ void PndTpcClustVis::gotoEvent(int id) {
   if(id < 0) id = 0;
   else if(id >= tree->GetEntries()) id = tree->GetEntries() - 1;
 
-  bool resetCam = kTRUE;
-  if(id==fEventId) resetCam=kFALSE;
-  else ClHasChanged=true;
-
-  std::cout<<"reset cam "<<resetCam<<std::endl;
+  bool resetCam = kFALSE;
+  if(id!=fEventId){
+    resetCam = kTRUE;
+    ClHasChanged=true;
+    PRHasChanged=true;
+  }
 
   fEventId = id;
 
-  std::cout << "At event " << id << std::endl;
-  if(gEve->GetCurrentEvent()!=NULL)
-    gEve->GetCurrentEvent()->DestroyElements();
-  double old_error_scale = fErrorScale;
+  std::cout << "\nAt event " << fEventId << std::endl;
+  if(gEve->GetCurrentEvent()!=NULL) gEve->GetCurrentEvent()->DestroyElements();
   drawEvent(fEventId, resetCam);
-  //if(old_error_scale != fErrorScale) drawEvent(fEventId, resetCam); // if autoscaling changed the error, draw again.
-  fErrorScale = old_error_scale;
 }
 
 
 void PndTpcClustVis::open() {
-  bool drawSilent = false;
-  bool drawGeometry = false;
-
-// parse the global options
-  for(size_t i = 0; i < fOption.length(); i++) {
-    if(fOption.at(i) == 'X') drawSilent = true;
-    if(fOption.at(i) == 'G') drawGeometry = true;
-  }
-
-// draw the geometry, does not really work yet. If it's fixed, the docu in the header file should be changed.
-  if(drawGeometry) {
-    TGeoNode* top_node = gGeoManager->GetTopNode();
-    assert(top_node != NULL);
-    TEveGeoTopNode* eve_top_node = new TEveGeoTopNode(gGeoManager, top_node);
-    gEve->AddGlobalElement(eve_top_node);
-  }
-
-  if(getNEvents() > 0) {
-    double old_error_scale = fErrorScale;
-    drawEvent(0);
-    //if(old_error_scale != fErrorScale) gotoEvent(0); // if autoscaling changed the error, draw again.
-    fErrorScale = old_error_scale;
-  }
-
-  if(!drawSilent) {
-    makeGui();
-    gApplication->Run(kTRUE);
-  }
+  if(getNEvents() > 0) drawEvent(0);
+  makeGui();
+  gApplication->Run(kTRUE);
 }
 
 
 void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
-  // parse the option string ------------------------------------------------------------------------
-  bool drawAutoScale = false;
-  bool drawDetectors = false;
-  bool drawHits = false;
-  bool drawScaleMan = false;
-  bool drawTrackMarkers = false;
-  bool drawPlanes = false;
-  bool drawTrack = false;
 
-  if(fOption != "") {
-    for(size_t i = 0; i < fOption.length(); i++) {
-      if(fOption.at(i) == 'A') drawAutoScale = true;
-      if(fOption.at(i) == 'D') drawDetectors = true;
-      if(fOption.at(i) == 'H') drawHits = true;
-      if(fOption.at(i) == 'M') drawTrackMarkers = true;
-      if(fOption.at(i) == 'P') drawPlanes = true;
-      if(fOption.at(i) == 'S') drawScaleMan = true;
-      if(fOption.at(i) == 'T') drawTrack = true;
-    }
-  }
-  // finished parsing the option string -------------------------------------------------------------
-
-       
-  // Draw tpc -------------------------------------------------------
+  // Draw tpc
   if(drawTpc){
     double tpcLength = 72.5;
+
     tpcLength*=0.5;
-    TGeoMatrix* tpc_trans = new TGeoGenTrans(0,0,tpcLength,
-                                             1,1,1, 0);
-
+    TGeoMatrix* tpc_trans = new TGeoGenTrans(0,0,tpcLength, 1,1,1, 0);
     TEveGeoShape* tpc_shape = new TEveGeoShape("tpc_shape");
-
     tpc_shape->SetShape(new TGeoTube(5.,15., tpcLength));
     tpc_shape->SetTransMatrix(*tpc_trans);
-    // finished rotating and translating ------------------------------------------
 
     tpc_shape->SetMainColor(kBlue);
     tpc_shape->SetMainTransparency(80);
@@ -270,27 +214,19 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
   if(doClustering && digisBranch!=NULL && ClHasChanged){ // run ClusterFinder and fill fcluster_buffer (only if Clustering params have changed, else keep old clusters)
     std::cerr<<"Run Cluster finder..."<<std::endl;
 
-    ClHasChanged=false;
-
-    // clean up buffermap
-    for(unsigned int isect=0;isect<nsectors;++isect){
-      buffermap[isect]->clear();
-    }
+    this->clearBufferMap();
     fcluster_buffer=buffermap[0];
-
 
     PndTpcAbsClusterFinder* ffinder = 0;
 
     if(!ClSimpleCl){
       ffinder=new PndTpcClusterFinder(PndTpcDigiMapper::getInstance()->getPadPlane(),
-              fcluster_buffer,
-              ClTimeslice, ClMode, -1,true,1.,ClTimecut,fgain/ClElPerADC,ClErrorNorm);
+              fcluster_buffer, ClTimeslice, ClMode, -1,true,1.,ClTimecut,fgain/ClElPerADC,ClErrorNorm);
       ffinder->checkConsistency();
     }
     else{
       ffinder=new PndTpcClusterFinderSimple(PndTpcDigiMapper::getInstance()->getPadPlane(),
-              fcluster_buffer,
-              ClSimpleTimeslice,fgain/ClElPerADC,ClErrorNorm);
+              fcluster_buffer, ClSimpleTimeslice,fgain/ClElPerADC,ClErrorNorm);
       ((PndTpcClusterFinderSimple*)(ffinder))->setNoXclust(false);
     }
 
@@ -298,7 +234,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     ffinder->saveRaw();
     ffinder->reset();
     
-    //for sorting
+    //process digis
     int ndigis = digisBranch->GetEntriesFast();
     std::vector<PndTpcDigi*> digis(ndigis);
 
@@ -315,27 +251,21 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       std::cout << "unknown exception..." << std::endl;
     }
 
-    //delete ffinder;
+    delete ffinder;
 
-     int i=0;
-     
-     // clean up clusters
-     while(i<fcluster_buffer->size()){
-       if( ((*fcluster_buffer)[i])->amp() <= ClClAmpCut * ((*fcluster_buffer)[i])->size() ||
-           (((*fcluster_buffer)[i])->size()==1 && ((*fcluster_buffer)[i])->amp()<=ClSingleDigiClAmpCut)){
-         delete (*fcluster_buffer)[i];
-         (*fcluster_buffer).erase( (*fcluster_buffer).begin()+i );
-       }
-       else ++i;
-     }
-
-     digis.clear();
+    // clean up clusters
+    int i=0;
+    while(i<fcluster_buffer->size()){
+      if( ((*fcluster_buffer)[i])->amp() <= ClClAmpCut * ((*fcluster_buffer)[i])->size() ||
+          (((*fcluster_buffer)[i])->size()==1 && ((*fcluster_buffer)[i])->amp()<=ClSingleDigiClAmpCut)){
+        delete (*fcluster_buffer)[i];
+        (*fcluster_buffer).erase( (*fcluster_buffer).begin()+i );
+      }
+      else ++i;
+    }
   }
   else if(!doClustering && clustersBranch!=NULL){ // fill clusters in cluster_buffer (and use buffermap)
-    // clean up buffermap
-    for(unsigned int isect=0;isect<nsectors;++isect){
-      buffermap[isect]->clear();
-    }
+    this->clearBufferMap();
 
     std::cerr<<"Fetching clusters from cluster branch..."<<std::endl;
     unsigned int ncl=clustersBranch->GetEntries();
@@ -347,7 +277,18 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     }
     std::cout << "number of clusters: " << ncl << std::endl;
   } //  end else (read clusters from file)
+  else{
+    std::cerr<<"Warning: no clusters were created"<<std::endl;
+  }
 
+  // copy clusters to TClonesArray needed for RecoHitFactory
+  if(doFit){
+    for(unsigned int i=0; i<fcluster_buffer->size(); ++i){
+      PndTpcCluster* cl = (*fcluster_buffer)[i];
+      cl->SetIndex(i);
+      new ((*clusterArray)[i]) PndTpcCluster(*cl);
+    }
+  }
 
   //
   // DRAW
@@ -357,32 +298,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     std::cout<<"number of digis: "<<ndigis<<std::endl;
     for(unsigned int j=0; j<ndigis; ++j){ // loop over digis
       const PndTpcDigi* digi=(PndTpcDigi*)digisBranch->At(j);
-
-      // map digi
-      TVector3 pos;
-      if(digi->padId()<0) continue;
-      PndTpcDigiMapper::getInstance()->map(digi,pos);
-
-      // rotate and translate -------------------------------------------------------
-      TGeoMatrix* det_trans = new TGeoGenTrans(pos.X(), pos.Y(), pos.Z(),
-                                               1,1,1, 0);
-
-      TEveGeoShape* digi_shape = new TEveGeoShape("digi_shape");
-
-      // calculate and norm amp
-      double amp = digi->amp(); // should be ~ 6 .. 2000
-      if(amp<1) continue;
-      amp = TMath::Log(amp); // ~ 0.8 .. 3.3
-      amp *= 0.02;
-      amp -= 0.001;
-
-      digi_shape->SetShape(new TGeoTube(0.,amp, 0.05 ) );
-      digi_shape->SetTransMatrix(*det_trans);
-      // finished rotating and translating ------------------------------------------
-
-      digi_shape->SetMainColor(kGray);
-      digi_shape->SetMainTransparency(50);
-      gEve->AddElement(digi_shape);
+      this->drawDigi(digi);
     } // end loop over digis
   }// end draw raw digis
 
@@ -395,7 +311,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     unsigned int tenpercent=(unsigned int)(ncl*0.1);
 
     for(unsigned int i=0; i<ncl; i++){ // loop over clusters
-      //************ Progress messages ************************
+      //************ Progress messages **********************
       // if(i%10000==0){std::cout<<".";std::cout.flush();}
       // if(i%tenpercent==0){
       //   std::cout<<"["
@@ -403,7 +319,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       //            <<"]";
       //   std::cout.flush();
       // }
-      // ******************************************************
+      // ****************************************************
 
       int colour = i%colors.size();
 
@@ -415,74 +331,31 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
         for(unsigned int j=0; j<ndigis; ++j){ // loop over digis
           const PndTpcDigi* digi = cluster->getDigi(j);
-
-          // map digi
-          TVector3 pos;
-          if(digi->padId()<0) continue;
-          PndTpcDigiMapper::getInstance()->map(digi,pos);
-
-          // rotate and translate -------------------------------------------------------
-          TGeoMatrix* det_trans = new TGeoGenTrans(pos.X(), pos.Y(), pos.Z(),
-                                                   1,1,1, 0);
-
-
-          TEveGeoShape* digi_shape = new TEveGeoShape("digi_shape");
-
-          // calculate and norm amp
-          double amp = digi->amp(); // should be ~ 6 .. 2000
-          if(amp<1) continue;
-          amp = TMath::Log(amp); // ~ 0.8 .. 3.3
-          amp *= 0.02;
-
-          digi_shape->SetShape(new TGeoTube(0.,amp, 0.05 ) );
-          digi_shape->SetTransMatrix(*det_trans);
-          // finished rotating and translating ------------------------------------------
-
-          digi_shape->SetMainColor(colors[colour]);
-          digi_shape->SetMainTransparency(45);
-          gEve->AddElement(digi_shape);
+          this->drawDigi(digi, false, colors[colour]);
         } // end loop over digis
       } // end draw digis
 
-      if(drawClusters && !doPR){
-        TVector3 pos;
-        TVector3 err;
-
-        pos = cluster->pos();
-        // rotate and translate -------------------------------------------------------
-        TGeoMatrix* det_trans = new TGeoGenTrans(pos.X(), pos.Y(), pos.Z(),
-                                                 1., 1., 1., 0);
-
-        TEveGeoShape* cluster_shape = new TEveGeoShape("cluster_shape");
-
-        if(drawClusterErrors){
-          err = cluster->sig();
-          cluster_shape->SetShape(new TGeoBBox(err.X(), err.Y(), err.Z()) );
-        }
-        else
-          cluster_shape->SetShape(new TGeoSphere(0., 0.25) );
-
-        cluster_shape->SetTransMatrix(*det_trans);
-        // finished rotating and translating ------------------------------------------
-
-        cluster_shape->SetMainColor(colors[colour]);
-        cluster_shape->SetMainTransparency(40);
-        gEve->AddElement(cluster_shape);
-      }
+      if(drawClusters && !doPR) this->drawCluster(cluster, colors[colour]);
 
     }// end loop over clusters
   }// end loop over sectors;
   std::cout << std::endl;
-  //
   // end DRAW
-  //
-
 
   //
   // Pattern Reco
   //
-  if(doPR){
+  if(doPR && (PRHasChanged || ClHasChanged)){
     std::cerr << "Starting Pattern Reco..." << std::endl;
+
+    PRHasChanged=false;
+
+    // clean up riemannlist!
+    for(int i=0; i<riemannlist.size(); ++i){
+      if(riemannlist[i]!=NULL) delete riemannlist[i];
+    }
+    riemannlist.clear();
+
     // init TrackFinder
     PndTpcRiemannTrackFinder* _trackfinder= new PndTpcRiemannTrackFinder();
     _trackfinder->setSorting(_sorting);
@@ -503,8 +376,6 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     _trackfinder->addTTCorrelator(new PndTpcRiemannTTCorrelator(_TTplanecut, _minpoints));
     _trackfinder->addTTCorrelator(new PndTpcSzTTCorrelator(_TTszcut));
 
-    _trackfinder->setCoolingCuts(_planecut, _szcut);
-    
     /// PLAN: 
     /// 1) build several cluster buffer, sectorwise
     /// 2) run trackfinder over each clusterbuffer independently
@@ -512,14 +383,15 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     /// 4) then do start merging
 
     std::vector<PndTpcRiemannTrack*> riemannTemp;
-    std::vector<PndTpcRiemannTrack*> riemannlist;
-    
+
     // loop over sectors
     for(unsigned int isect=0;isect<nsectors;++isect){
       std::cerr << "... building tracks in sector " << isect << std::endl;
       fcluster_buffer=buffermap[isect];
       _trackfinder->buildTracks(*fcluster_buffer,riemannTemp);
+      if(doClean) _trackfinder->cleanTracks(riemannlist, _szcut, _planecut);
       if(doMerge) _trackfinder->mergeTracks(riemannTemp);
+
       // copy tracklets of this sector to global list
       unsigned int ntrklts=riemannTemp.size();
       riemannlist.reserve(riemannlist.size()+ntrklts);
@@ -528,51 +400,38 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       }
       riemannTemp.clear();
     } // end loop over sectors
+
+    if(doClean) _trackfinder->cleanTracks(riemannlist, _szcut, _planecut);
+
     if(doMerge && nsectors>1) _trackfinder->mergeTracks(riemannlist);
 
-    // draw	
+    if(doClean && nsectors>1) _trackfinder->cleanTracks(riemannlist, _szcut, _planecut);
+
+    std::cerr << "Pattern Reco finished" << std::endl;
+  } // end PR
+
+  ClHasChanged=false;
+
+
+  // draw PR results
+  if(doPR && (drawClusters || drawRiemannTracks)){
     for(unsigned int ir=0;ir<riemannlist.size();ir+=1){ // loop over trackcands
       PndTpcRiemannTrack* trkcand = riemannlist[ir];
       unsigned int nhits=trkcand->getNumHits();
 
       int colour = ir%colors.size();
 
-      TVector3 old_track_pos;
+      TVector3 old_track_pos, pos;
       TEveStraightLineSet* track_lines = NULL;
 
       for(unsigned int ih=0;ih<nhits;++ih){ // loop over clusters
         PndTpcCluster* cluster = trkcand->getHit(ih)->cluster();
-        TVector3 pos;
-        TVector3 err;
 
-        pos = cluster->pos();
-
-
-        if(drawClusters){
-          // rotate and translate -------------------------------------------------------
-          TGeoMatrix* det_trans = new TGeoGenTrans(pos.X(), pos.Y(), pos.Z(),
-                                                 1., 1., 1., 0);
-
-          TEveGeoShape* cluster_shape = new TEveGeoShape("cluster_shape");
-
-          if(drawClusterErrors){
-            err = cluster->sig();
-            cluster_shape->SetShape(new TGeoBBox(err.X(), err.Y(), err.Z()) );
-          }
-          else
-            cluster_shape->SetShape(new TGeoSphere(0., 0.25) );
-
-          cluster_shape->SetTransMatrix(*det_trans);
-          // finished rotating and translating ------------------------------------------
-
-          cluster_shape->SetMainColor(colors[colour]);
-          cluster_shape->SetMainTransparency(40);
-          gEve->AddElement(cluster_shape);
-        }
-
+        if(drawClusters) this->drawCluster(cluster, colors[colour]);
 
         // connect clusters
-        if(true) {
+        if(drawRiemannTracks){
+          pos = cluster->pos();
           if(track_lines==NULL) track_lines = new TEveStraightLineSet;
           if(ih > 0) {
             track_lines->AddLine(old_track_pos(0), old_track_pos(1), old_track_pos(2), pos(0), pos(1), pos(2));
@@ -585,342 +444,388 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       } // end loop over clusters
 
       if(track_lines != NULL) gEve->AddElement(track_lines);
-      delete trkcand;trkcand=NULL;
     } // end loop over trackcands
-    std::cerr << "Pattern Reco finished" << std::endl;
-    // clean up riemannlist!
-    riemannlist.clear();
-  }
+  } // end draw PR results
 
 
-/*
-  for(int i = 0; i < fEvents.at(id)->size(); i++) { // loop over all tracks in an event
+  //
+  // Build GFTracks, run Kalman and draw track
+  //
+  if(doPR && doFit){
+    std::cerr<<"Fitting..."<<std::endl;
+    GFFieldManager::getInstance()->init(new GFConstField(0.,0.,Bz));
 
-    GFTrack *track=(GFTrack*)preFitBranch->At(j);
 
-    GFAbsTrackRep* rep;
-    rep = track->getTrackRep(0);
-    unsigned int numhits = track->getNumHits();
-    double charge = rep->getCharge();
+    int minhits = 4; // minimum hits needed to build pndtrackcands and GFTrackCands
+    if(minhits<_minpoints) minhits=_minpoints;
+    double pbackup = 2.;  // momentum value that is set when other initialisations fail
 
-    TVector3 track_pos;
-    TVector3 old_track_pos;
+    // loop over riemann tracks
+    for(unsigned int itrk=0; itrk<riemannlist.size(); ++itrk){
+      PndTpcRiemannTrack* trk=riemannlist[itrk];
+      int nhits=trk->getNumHits();
 
-    TEveStraightLineSet* track_lines = NULL;
+      std::cout<<"Tracklet "<<itrk<<"   nhits = "<<nhits;
 
-    for(int j = 0; j < numhits; j++) { // loop over all hits in the track
-
-      GFAbsRecoHit* hit = track->getHit(j);
-      GFDetPlane plane;
-
-      // get the hit infos ------------------------------------------------------------------
-      try {
-        plane = hit->getDetPlane(rep);
-        track_pos = rep->getPos(plane);
-      }
-      catch(GFException& e) {
-        std::cerr << "Exception cought (getDetPlane): Hit " << j << " in Track " << i << " skipped!" << std::endl;
-        std::cerr << e.what();
+      // check if enough points
+      if(nhits<_minpoints || nhits<minhits){
+        std::cout<<" - skipping, not enough hits"<<std::endl;
         continue;
       }
-      // finished getting the hit infos -----------------------------------------------------
 
-      // sort hit infos into variables ------------------------------------------------------
-      TVector3 o = plane.getO();
-      TVector3 u = plane.getU();
-      TVector3 v = plane.getV();
+      // check if momentum not high enough
+      // calculate momentum
+      // p = 0.3*B*R/cos(dip-Pi/2) (R in meters, B in T; we have R in cm, B in kG)
+      double p;
+      double trackR = trk->r();
+      double trackDip = trk->dip();
+      /*if (TMath::Abs(sin(trackDip))<0.01) p=pbackup;
+      else*/ p = TMath::Abs(trackR/sin(trackDip) * 0.0003 * Bz);
+      if (Bz==0) p=pbackup;
+      if(p<1E-4) {
+        std::cout<<" - skipping, momentum too small: "<<p*1E3<<" MeV"<<std::endl;
+        continue;
+      }
+      std::cout<<std::endl;
 
-      std::string hit_type = hit->getPolicyName();
+      // create GFTrackCands
+      GFTrackCand* cand=new GFTrackCand();
 
-      bool planar_hit = false;
-      bool planar_pixel_hit = false;
-      bool space_hit = false;
-      bool wire_hit = false;
-      double_t hit_u = 0;
-      double_t hit_v = 0;
-      double_t plane_size = 4;
-      double_t hit_res_u = 0.5;
-      double_t hit_res_v = 0.5;
-      double_t hit_res_z = 0.5;
-      TMatrixT<double> hit_coords = hit->getHitCoord(plane);
-      Int_t hit_coords_dim = hit_coords.GetNrows();
-      TMatrixT<double> hit_coov = hit->getHitCov(plane);
-
-      if(hit_type == "GFPlanarHitPolicy") {
-        planar_hit = true;
-        if(hit_coords_dim == 1) {
-          hit_u = hit_coords(0,0);
-          hit_res_u = hit_coov(0,0);
-        } else if(hit_coords_dim == 2) {
-          planar_pixel_hit = true;
-          hit_u = hit_coords(0,0);
-          hit_v = hit_coords(1,0);
-          hit_res_u = hit_coov(0,0);
-          hit_res_v = hit_coov(1,1);
+      // fill hits into GFTrackCands and pndcands from small to big Radius
+      bool invertedTrack = false;
+      double r1=trk->getHit(0)->cluster()->pos().Perp();
+      double r2=trk->getHit(nhits-1)->cluster()->pos().Perp();
+      if(r1<=r2){
+        for(unsigned int ih=0; ih<nhits; ++ih){
+          cand->addHit(2,trk->getHit(ih)->cluster()->index());
         }
-      } else if (hit_type == "GFSpacepointHitPolicy") {
-        space_hit = true;
-        plane_size = 4;
-      } else if (hit_type == "GFWireHitPolicy") {
-        wire_hit = true;
-        hit_u = hit_coords(0,0);
-        plane_size = 4;
-      } else {
-        std::cout << "Track " << i << ", Hit " << j << ": Unknown policy name: skipping hit!" << std::endl;
-        break;
+      }
+      else {
+        for(unsigned int ih=nhits; ih>0; --ih){
+          cand->addHit(2,trk->getHit(ih-1)->cluster()->index());
+        }
+        invertedTrack = true;
+      }// finished filling hits
+
+      //
+      // calculate seed values
+      //
+
+      // build momentum vector from prefit values
+      TVector3 center = trk->center();
+      TVector3 posProjection, posProjection2;
+
+      if(!invertedTrack) posProjection=trk->getFirstHit()->cluster()->pos();
+      else posProjection=trk->getLastHit()->cluster()->pos();
+      posProjection.SetZ(0);
+
+      int i=0;
+      while(i<nhits){
+        if(!invertedTrack) posProjection2=trk->getHit(i)->cluster()->pos();
+        else posProjection2=trk->getHit(nhits-1-i)->cluster()->pos();
+        posProjection2.SetZ(0);
+        if ((posProjection-posProjection2).Mag()>1.5) break;
+        ++i;
       }
 
-      if(plane_size < 4) plane_size = 4;
-      // finished setting variables ---------------------------------------------------------
+      TVector3 z(0.,0.,1.);
+      TVector3 direction = z.Cross(posProjection-center);
+      direction.SetMag(1.);
+      int winding = -1; // we look in z direction!
 
-      // draw track if corresponding option is set ------------------------------------------
-      if(drawTrack) {
-        if(track_lines == NULL) track_lines = new TEveStraightLineSet;
-        if(j > 0) track_lines->AddLine(old_track_pos(0), old_track_pos(1), old_track_pos(2), track_pos(0), track_pos(1), track_pos(2));
-        old_track_pos = track_pos;
-        if(charge > 0) {
-          track_lines->SetLineColor(kRed);
+      TVector3 approxDir;
+      approxDir = posProjection2-posProjection;
+
+      if(direction*approxDir < 0){
+        direction *= -1.; // make point into right direction
+        winding *= -1;
+      }
+
+      if(!invertedTrack) direction.SetTheta(trackDip);
+      else direction.SetTheta(-1.*trackDip);
+
+      if(invertedTrack) direction *= -1.; // otherwise Kalman extrapolates backwards for inverted tracks!!!
+
+      TVector3 mom = p * direction;
+      TVector3 momerr(fabs(mom.X()),fabs(mom.Y()),fabs(mom.Z()));
+      momerr *= 1./TMath::Sqrt(nhits);
+      // end build momentum vector from prefit values
+
+      // build start position
+      TVector3 pos1;
+      if(!invertedTrack) pos1 = trk->getFirstHit()->cluster()->pos();
+      else pos1 = trk->getLastHit()->cluster()->pos();
+      TVector3 poserr(0.3,0.3,0.3);
+      // end build start position
+
+      // pdg
+      int pdg = winding * 211; // Todo: pions hardcoded atm
+      if(Bz<0) pdg *= -1;
+
+      std::cout<<" center of track "; center.Print();
+      std::cout<<" Radius of track [cm]: " << trackR << std::endl;
+      std::cout<<" Dip of track [deg]:   " << trackDip/TMath::Pi()*180 << std::endl;
+      std::cout<<" seed values: "<<std::endl;
+      std::cout<<"  start position: "; pos1.Print();
+      std::cout<<"  momentum [GeV]: "<<p<<std::endl;
+      std::cout<<"  p_perp [GeV]:   " << trackR*0.0003*Bz <<std::endl;
+      std::cout<<"  direction: "; direction.Print();
+      std::cout<<"  winding: "<<winding<<std::endl;
+      std::cout<<"  invertedTrack: "<<invertedTrack<<std::endl;
+      std::cout<<"  pdg id: "<<pdg<<std::endl;
+
+
+      cand->setCurv(trackR); //  actually this is never used
+      cand->setDip(trk->dip());
+
+      GFAbsTrackRep* rep;
+
+      if(useGeane){
+        TGeant3* geant3  = new  TGeant3("C++ Interface to Geant3");
+        GeanePro = new FairGeanePro();
+        const GFDetPlane* initialPlane = new GFDetPlane(pos1, direction);
+        const TVector3 cmom(mom);
+        const TVector3 cposerr(poserr);
+        const TVector3 cmomerr(momerr);
+
+        //rep = new GeaneTrackRep(GeanePro, *initialPlane, cmom, cposerr, cmomerr, pdg/TMath::Abs(pdg)*3, pdg);
+        rep = new GeaneTrackRep2(*initialPlane, cmom, cposerr, cmomerr, pdg);
+      }
+      else{
+        rep = new RKTrackRep(pos1, mom, poserr, momerr,pdg);
+      }
+
+
+      GFTrack* track=new GFTrack(rep, smooth);
+      track->setCandidate(*cand); // here the candidate is copied!
+      delete cand;
+
+      //
+      // run Kalman
+      //
+      GFKalman fitter;
+      fitter.setNumIterations(numIts);
+
+      // Load RecoHits
+      try {
+        track->addHitVector(_theRecoHitFactory->createMany(track->getCand()));
+      }
+      catch(GFException& e) {
+        std::cout << e.what() << std::endl;
+        e.info();
+        throw e;
+      }
+
+      if(numIts>0){
+        try{
+          std::cerr << "Calling processTrack ... ";
+          fitter.processTrack(track);
+          std::cerr << "finished\n" << std::endl;
+        }
+        catch (GFException& e){
+          std::cout<<e.what()<<std::endl;
+          delete track;
+          continue;
+        }
+      }
+
+      //
+      // DRAW Fit
+      //
+      double charge = rep->getCharge();
+
+      assert(winding/charge>0);
+
+      if(rep->getStatusFlag()) {
+        std::cout << "Warning: Trying to display a track with status flag != 0...";
+        if(smooth) {
+          std::cout << "trying without smoothing!";
+          smooth = false;
+        }
+        std::cout << std::endl;
+      }
+
+      TVector3 track_pos;
+      TVector3 old_track_pos;
+
+      TEveStraightLineSet* track_lines = NULL;
+
+      for(int j = 0; j < nhits; j++) { // loop over all hits in the track
+
+        GFAbsRecoHit* hit = track->getHit(j);
+        GFDetPlane plane;
+
+        // get the hit infos ------------------------------------------------------------------
+        if(smooth && numIts>0) {
+          TMatrixT<double> state;
+          TMatrixT<double> cov;
+          TMatrixT<double> auxInfo;
+          GFTools::getSmoothedData(track, 0, j, state, cov, plane, auxInfo);
+          rep->setData(state, plane, &cov, &auxInfo);
         } else {
-          track_lines->SetLineColor(kBlue);
-        }
-        track_lines->SetLineWidth(2);
-        if(drawTrackMarkers) {
-          //track_lines->AddMarker(track_pos(0), track_pos(1), track_pos(2));
-        }
-      }
-      // finished drawing track -------------------------------------------------------------
-
-      // draw detectors if option is set, only important for wire hits ----------------------
-      if(drawDetectors) {
-
-        if(wire_hit) {
-          TEveGeoShape* det_shape = new TEveGeoShape("det_shape");
-          double pseudo_res_0 = fErrorScale*std::sqrt(hit_coov(0,0));
-          if(!drawHits) { // if the hits are also drawn, make the tube smaller to avoid intersecting volumes
-            det_shape->SetShape(new TGeoTube(0, hit_u, plane_size));
-          } else {
-            det_shape->SetShape(new TGeoTube(0, hit_u - pseudo_res_0, plane_size));
+          try{
+            plane = hit->getDetPlane(rep);
+            rep->extrapolate(plane);
           }
-          TVector3 norm = u.Cross(v);
-          TGeoRotation* det_rot = new TGeoRotation("det_rot", (u.Theta()*180)/TMath::Pi(), (u.Phi()*180)/TMath::Pi(),
-              (norm.Theta()*180)/TMath::Pi(), (norm.Phi()*180)/TMath::Pi(),
-              (v.Theta()*180)/TMath::Pi(), (v.Phi()*180)/TMath::Pi()); // move the tube to the right place and rotate it correctly
-          TGeoMatrix* det_trans = new TGeoCombiTrans(o(0),o(1),o(2),det_rot);
-          det_shape->SetTransMatrix(*det_trans);
-          det_shape->SetMainColor(kCyan);
-          det_shape->SetMainTransparency(0);
-          if((drawHits && (hit_u - pseudo_res_0 > 0)) || !drawHits) {
-            gEve->AddElement(det_shape);
-          }
-        }
-
-      }
-      // finished drawing detectors ---------------------------------------------------------
-
-      if(drawHits) {
-
-
-        // draw spacepoint hits -----------------------------------------------------------
-        if(space_hit) {
-
-          // get eigenvalues of covariance to know how to draw the ellipsoid ------------
-          TMatrixDEigen eigen_values(hit->getRawHitCov());
-          TEveGeoShape* det_shape = new TEveGeoShape("det_shape");
-          det_shape->SetShape(new TGeoSphere(0.,1.));
-          TMatrixT<double> ev = eigen_values.GetEigenValues();
-          TMatrixT<double> eVec = eigen_values.GetEigenVectors();
-          TVector3 eVec1(eVec(0,0),eVec(1,0),eVec(2,0));
-          TVector3 eVec2(eVec(0,1),eVec(1,1),eVec(2,1));
-          TVector3 eVec3(eVec(0,2),eVec(1,2),eVec(2,2));
-          TVector3 norm = u.Cross(v);
-          // got everything we need -----------------------------------------------------
-
-
-          TGeoRotation* det_rot = new TGeoRotation("det_rot", (eVec1.Theta()*180)/TMath::Pi(), (eVec1.Phi()*180)/TMath::Pi(),
-              (eVec2.Theta()*180)/TMath::Pi(), (eVec2.Phi()*180)/TMath::Pi(),
-              (eVec3.Theta()*180)/TMath::Pi(), (eVec3.Phi()*180)/TMath::Pi()); // the rotation is already clear
-
-          // set the scaled eigenvalues -------------------------------------------------
-          double pseudo_res_0 = fErrorScale*std::sqrt(ev(0,0));
-          double pseudo_res_1 = fErrorScale*std::sqrt(ev(1,1));
-          double pseudo_res_2 = fErrorScale*std::sqrt(ev(2,2));
-          if(drawScaleMan) { // override again if necessary
-            pseudo_res_0 = fErrorScale*0.5;
-            pseudo_res_1 = fErrorScale*0.5;
-            pseudo_res_2 = fErrorScale*0.5;
-          }
-          // finished scaling -----------------------------------------------------------
-
-          // autoscale if necessary -----------------------------------------------------
-          if(drawAutoScale) {
-            double min_cov = std::min(pseudo_res_0,std::min(pseudo_res_1,pseudo_res_2));
-            if(min_cov < 1e-5) {
-              std::cout << "Track " << i << ", Hit " << j << ": Invalid covariance matrix (Eigenvalue < 1e-5), autoscaling not possible!" << std::endl;
-            } else {
-              if(min_cov <= 0.149) {
-                double cor = 0.15 / min_cov;
-                std::cout << "Track " << i << ", Hit " << j << ": Space hit covariance too small, rescaling by " << cor;
-                fErrorScale *= cor;
-                pseudo_res_0 *= cor;
-                pseudo_res_1 *= cor;
-                pseudo_res_2 *= cor;
-                std::cout << " to " << fErrorScale << std::endl;
-              }
+          catch(GFException& e) {
+            std::cerr << "Error: Exception caught (getDetPlane): Hit " << j << " in Track " << itrk << " skipped!" << std::endl;
+            std::cerr << e.what();
+            if (e.isFatal()) {
+              std::cerr<<"Fatal exception, skipping track"<<std::endl;
+              break;
+            }
+            else{
+              std::cerr<<"Exception, skipping hit"<<std::endl;
+              continue;
             }
           }
-          // finished autoscaling -------------------------------------------------------
-
-          // rotate and translate -------------------------------------------------------
-          TGeoMatrix* det_trans = new TGeoGenTrans(o(0),o(1),o(2),1/(pseudo_res_0),1/(pseudo_res_1),1/(pseudo_res_2),det_rot);
-          det_shape->SetTransMatrix(*det_trans);
-          // finished rotating and translating ------------------------------------------
-
-          det_shape->SetMainColor(kYellow);
-          det_shape->SetMainTransparency(0);
-          gEve->AddElement(det_shape);
         }
-        // finished drawing spacepoint hits -----------------------------------------------
+        track_pos = rep->getPos(plane);
+        // finished getting the hit infos -----------------------------------------------------
 
-        // draw wire hits -----------------------------------------------------------------
-        if(wire_hit) {
-          TEveGeoShape* det_shape = new TEveGeoShape("det_shape");
-          double pseudo_res_0 = fErrorScale*std::sqrt(hit_coov(0,0));
+        // sort hit infos into variables ------------------------------------------------------
+        TVector3 o = plane.getO();
+        TVector3 u = plane.getU();
+        TVector3 v = plane.getV();
 
-          // autoscale if necessary -----------------------------------------------------
-          if(drawAutoScale) {
-            if(pseudo_res_0 < 1e-5) {
-              std::cout << "Track " << i << ", Hit " << j << ": Invalid wire resolution (< 1e-5), autoscaling not possible!" << std::endl;
-            } else {
-              if(pseudo_res_0 < 0.0049) {
-                double cor = 0.005 / pseudo_res_0;
-                std::cout << "Track " << i << ", Hit " << j << ": Wire covariance too small, rescaling by " << cor;
-                fErrorScale *= cor;
-                pseudo_res_0 *= cor;
-                std::cout << " to " << fErrorScale << std::endl;
-              }
-            }
+        std::string hit_type = hit->getPolicyName();
+
+        bool planar_hit = false;
+        bool planar_pixel_hit = false;
+        bool space_hit = false;
+        bool wire_hit = false;
+        double_t hit_u = 0;
+        double_t hit_v = 0;
+        double_t plane_size = 4;
+        double_t hit_res_u = 0.5;
+        double_t hit_res_v = 0.5;
+        double_t hit_res_z = 0.5;
+
+        TMatrixT<double> hit_coords(hit->getHitCoord(plane));
+        TMatrixT<double> hit_cov(hit->getHitCov(plane));
+        int hit_coords_dim = hit_coords.GetNrows();
+
+        if(hit_type == "GFPlanarHitPolicy") {
+          planar_hit = true;
+          if(hit_coords_dim == 1) {
+            hit_u = hit_coords(0,0);
+            hit_res_u = hit_cov(0,0);
+          } else if(hit_coords_dim == 2) {
+            planar_pixel_hit = true;
+            hit_u = hit_coords(0,0);
+            hit_v = hit_coords(1,0);
+            hit_res_u = hit_cov(0,0);
+            hit_res_v = hit_cov(1,1);
           }
-          // finished autoscaling -------------------------------------------------------
-
-          det_shape->SetShape(new TGeoTube(std::min(0., (double)(hit_u - pseudo_res_0)), hit_u + pseudo_res_0, plane_size));
-          TVector3 norm = u.Cross(v);
-
-          // rotate and translate -------------------------------------------------------
-          TGeoRotation* det_rot = new TGeoRotation("det_rot", (u.Theta()*180)/TMath::Pi(), (u.Phi()*180)/TMath::Pi(),
-              (norm.Theta()*180)/TMath::Pi(), (norm.Phi()*180)/TMath::Pi(),
-              (v.Theta()*180)/TMath::Pi(), (v.Phi()*180)/TMath::Pi());
-          TGeoMatrix* det_trans = new TGeoCombiTrans(o(0),o(1),o(2),det_rot);
-          det_shape->SetTransMatrix(*det_trans);
-          // finished rotating and translating ------------------------------------------
-
-          det_shape->SetMainColor(kYellow);
-          det_shape->SetMainTransparency(50);
-          gEve->AddElement(det_shape);
+        } else if (hit_type == "GFSpacepointHitPolicy") {
+          space_hit = true;
+          plane_size = 4;
+        } else if (hit_type == "GFWireHitPolicy") {
+          wire_hit = true;
+          hit_u = hit_coords(0,0);
+          plane_size = 4;
+        } else {
+          std::cout << "Track " << itrk << ", Hit " << j << ": Unknown policy name: skipping hit!" << std::endl;
+          break;
         }
-        // finished drawing wire hits -----------------------------------------------------
 
-      }
+        if(plane_size < 4) plane_size = 4;
+        // finished setting variables ---------------------------------------------------------
 
+        // draw track if corresponding option is set ------------------------------------------
+        if(true) {
+          if(track_lines == NULL) track_lines = new TEveStraightLineSet;
+          if(j > 0) track_lines->AddLine(old_track_pos(0), old_track_pos(1), old_track_pos(2), track_pos(0), track_pos(1), track_pos(2));
+          old_track_pos = track_pos;
+          if(charge > 0) track_lines->SetLineColor(kRed);
+          else track_lines->SetLineColor(kAzure);
+          track_lines->SetLineWidth(2);
+          if(drawFitMarkers) track_lines->AddMarker(track_pos(0), track_pos(1), track_pos(2));
+        }
+        // finished drawing track -------------------------------------------------------------
+
+      } // end loop over all hits in the track
+
+      if(track_lines != NULL) gEve->AddElement(track_lines);
+      delete track;
     }
 
-    if(track_lines != NULL) gEve->AddElement(track_lines);
-
-  }
-*/
-
-  if(resetCam){
-    gEve->Redraw3D(kTRUE);
-    std::cout<<"Reset Cam!"<<std::endl;
-  }
-  else{
-    gEve->Redraw3D(kFALSE);
-    std::cout<<"DON'T Reset Cam!"<<std::endl;
   }
 
+  if(resetCam) gEve->Redraw3D(kTRUE);
+  else gEve->Redraw3D(kFALSE);
 }
 
 
-
-/*
-TEveBox* PndTpcClustVis::boxCreator(TVector3 o, TVector3 u, TVector3 v, float ud, float vd, float depth) {
-
-  TEveBox* box = new TEveBox;
-  float vertices[24];
-
-  TVector3 norm = u.Cross(v);
-  u *= (0.5*ud);
-  v *= (0.5*vd);
-  norm *= (0.5*depth);
-
-  vertices[0] = o(0) - u(0) - v(0) - norm(0);
-  vertices[1] = o(1) - u(1) - v(1) - norm(1);
-  vertices[2] = o(2) - u(2) - v(2) - norm(2);
-  vertices[3] = o(0) + u(0) - v(0) - norm(0);
-  vertices[4] = o(1) + u(1) - v(1) - norm(1);
-  vertices[5] = o(2) + u(2) - v(2) - norm(2);
-  vertices[6] = o(0) + u(0) - v(0) + norm(0);
-  vertices[7] = o(1) + u(1) - v(1) + norm(1);
-  vertices[8] = o(2) + u(2) - v(2) + norm(2);
-  vertices[9] = o(0) - u(0) - v(0) + norm(0);
-  vertices[10] = o(1) - u(1) - v(1) + norm(1);
-  vertices[11] = o(2) - u(2) - v(2) + norm(2);
-  vertices[12] = o(0) - u(0) + v(0) - norm(0);
-  vertices[13] = o(1) - u(1) + v(1) - norm(1);
-  vertices[14] = o(2) - u(2) + v(2) - norm(2);
-  vertices[15] = o(0) + u(0) + v(0) - norm(0);
-  vertices[16] = o(1) + u(1) + v(1) - norm(1);
-  vertices[17] = o(2) + u(2) + v(2) - norm(2);
-  vertices[18] = o(0) + u(0) + v(0) + norm(0);
-  vertices[19] = o(1) + u(1) + v(1) + norm(1);
-  vertices[20] = o(2) + u(2) + v(2) + norm(2);
-  vertices[21] = o(0) - u(0) + v(0) + norm(0);
-  vertices[22] = o(1) - u(1) + v(1) + norm(1);
-  vertices[23] = o(2) - u(2) + v(2) + norm(2);
-
-
-  for(int k = 0; k < 24; k += 3) box->SetVertex((k/3), vertices[k], vertices[k+1], vertices[k+2]);
-
-  return box;
-
-}*/
-
-
-TVector2 PndTpcClustVis::getCoordsInPlane(TVector3 p, TVector3 o, TVector3 u, TVector3 v) {
-  TMatrixT<double> A(3, 2);
-  TVectorD b(3);
-
-  (b(0) = p(0) - o(0));
-  (b(1) = p(1) - o(1));
-  (b(2) = p(2) - o(2));
-
-  (A(0,0) = u(0));
-  (A(1,0) = u(1));
-  (A(2,0) = u(2));
-  (A(0,1) = v(0));
-  (A(1,1) = v(1));
-  (A(2,1) = v(2));
-
-  TDecompSVD svd(A, 0);
-  svd.Solve(b);
-  TVector2 coords(b(0),b(1));
-  return coords;
+void PndTpcClustVis::clearBufferMap(){
+  for(unsigned int isect=0;isect<nsectors;++isect){
+    for(unsigned icl=0; icl<buffermap[isect]->size(); ++icl){
+      delete (*(buffermap[isect]))[icl];
+    }
+    buffermap[isect]->clear();
+  }
+  clusterArray->Delete();
 }
 
 
-TVector2 PndTpcClustVis::getCoordsInPlane(TVector3 p, GFDetPlane plane) {
-  getCoordsInPlane(p, plane.getO(), plane.getU(), plane.getV());
+void PndTpcClustVis::drawDigi(const PndTpcDigi* digi, bool raw, Color_t color){
+  // map digi
+  TVector3 pos;
+  if(digi->padId()<0) return;
+  PndTpcDigiMapper::getInstance()->map(digi,pos);
+
+  TGeoMatrix* det_trans = new TGeoGenTrans(pos.X(), pos.Y(), pos.Z(), 1,1,1, 0);
+  TEveGeoShape* digi_shape = new TEveGeoShape("digi_shape");
+
+  // calculate and norm amp
+  double amp = digi->amp(); // should be ~ 6 .. 2000
+  if(amp<1) return;
+  amp = TMath::Log(amp); // ~ 0.8 .. 3.3
+  amp *= 0.02;
+  if(raw) amp -= 0.001;
+
+  digi_shape->SetShape(new TGeoTube(0.,amp, 0.05 ) );
+  digi_shape->SetTransMatrix(*det_trans);
+
+  if(!raw) digi_shape->SetMainColor(color);
+  else digi_shape->SetMainColor(kGray);
+  if(!raw) digi_shape->SetMainTransparency(45);
+  else digi_shape->SetMainTransparency(50);
+  gEve->AddElement(digi_shape);
 }
+
+
+void PndTpcClustVis::drawCluster(const PndTpcCluster* cluster, Color_t color){
+  TVector3 pos;
+  TVector3 err;
+
+  pos = cluster->pos();
+  TGeoMatrix* det_trans = new TGeoGenTrans(pos.X(), pos.Y(), pos.Z(), 1., 1., 1., 0);
+  TEveGeoShape* cluster_shape = new TEveGeoShape("cluster_shape");
+
+  if(drawClusterErrors){
+    err = cluster->sig();
+    cluster_shape->SetShape(new TGeoBBox(err.X(), err.Y(), err.Z()) );
+  }
+  else cluster_shape->SetShape(new TGeoSphere(0., 0.25) );
+
+  cluster_shape->SetTransMatrix(*det_trans);
+
+  cluster_shape->SetMainColor(color);
+  cluster_shape->SetMainTransparency(40);
+  gEve->AddElement(cluster_shape);
+}
+
 
 
 void PndTpcClustVis::makeGui() {
   TEveBrowser* browser = gEve->GetBrowser();
   browser->StartEmbedding(TRootBrowser::kLeft);
 
-  TGMainFrame* frmMain = new TGMainFrame(gClient->GetRoot(), 1000, 600);
+  TGMainFrame* frmMain = new TGMainFrame(gClient->GetRoot(), 1200, 800);
   frmMain->SetWindowName("Pandoras Playground");
   frmMain->SetCleanup(kDeepCleanup);
 
-  TGPictureButton* b = 0;
   TGTextButton* tb = 0;
   TGLabel* lbl = 0;
   PndTpcClustVis*  fh = PndTpcClustVis::getInstance();
@@ -936,7 +841,6 @@ void PndTpcClustVis::makeGui() {
     hf->AddFrame(guiEvent);
     guiEvent->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiGoto()");
 
-
     // redraw button
     tb = new TGTextButton(hf, "Redraw Event");
     hf->AddFrame(tb);
@@ -944,122 +848,6 @@ void PndTpcClustVis::makeGui() {
   }
   frmMain->AddFrame(hf);
 
-
-  // Clusterfinder Params
-  hf = new TGHorizontalFrame(frmMain); {
-    lbl = new TGLabel(hf, "\n Clustering");
-        hf->AddFrame(lbl);
-  }
-  frmMain->AddFrame(hf);
-  hf = new TGHorizontalFrame(frmMain); {
-    guiDoClustering =  new TGCheckButton(hf, "Run Clustering");
-    if(doClustering) guiDoClustering->Toggle();
-    hf->AddFrame(guiDoClustering);
-    guiDoClustering->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
-  }
-  frmMain->AddFrame(hf);
-  hf = new TGHorizontalFrame(frmMain); {
-    guiMode = new TGNumberEntry(hf, ClMode, 6,999, TGNumberFormat::kNESInteger,
-                          TGNumberFormat::kNEANonNegative,
-                          TGNumberFormat::kNELLimitMinMax,
-                          0, 2);
-    hf->AddFrame(guiMode);
-    guiMode->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
-    lbl = new TGLabel(hf, "Mode");
-        hf->AddFrame(lbl);
-  }
-  frmMain->AddFrame(hf);
-  hf = new TGHorizontalFrame(frmMain); {
-    giuTimeslice = new TGNumberEntry(hf, ClTimeslice, 6,999, TGNumberFormat::kNESInteger,
-                          TGNumberFormat::kNEANonNegative,
-                          TGNumberFormat::kNELLimitMinMax,
-                          0, 100);
-    hf->AddFrame(giuTimeslice);
-    giuTimeslice->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
-    lbl = new TGLabel(hf, "Timeslice");
-        hf->AddFrame(lbl);
-  }
-  frmMain->AddFrame(hf);
-  hf = new TGHorizontalFrame(frmMain); {
-    giuTimecut = new TGNumberEntry(hf, ClTimecut, 6,999, TGNumberFormat::kNESInteger,
-                          TGNumberFormat::kNEANonNegative,
-                          TGNumberFormat::kNELLimitMinMax,
-                          0, 100);
-    hf->AddFrame(giuTimecut);
-    giuTimecut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
-    lbl = new TGLabel(hf, "Timecut");
-        hf->AddFrame(lbl);
-  }
-  frmMain->AddFrame(hf);
-
-
-  hf = new TGHorizontalFrame(frmMain); {
-    guiSingleDigiClAmpCut = new TGNumberEntry(hf, ClSingleDigiClAmpCut, 6,999, TGNumberFormat::kNESInteger,
-                          TGNumberFormat::kNEANonNegative,
-                          TGNumberFormat::kNELLimitMinMax,
-                          0, 2000);
-    hf->AddFrame(guiSingleDigiClAmpCut);
-    guiSingleDigiClAmpCut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
-    lbl = new TGLabel(hf, "Single Digi-Cluster Amp cut");
-        hf->AddFrame(lbl);
-  }
-  frmMain->AddFrame(hf);
-  hf = new TGHorizontalFrame(frmMain); {
-    guiClAmpCut = new TGNumberEntry(hf, ClClAmpCut, 6,999, TGNumberFormat::kNESRealThree,
-                          TGNumberFormat::kNEANonNegative,
-                          TGNumberFormat::kNELLimitMinMax,
-                          0, 2000);
-    hf->AddFrame(guiClAmpCut);
-    guiClAmpCut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
-    lbl = new TGLabel(hf, "Cluster Amp cut");
-        hf->AddFrame(lbl);
-  }
-  frmMain->AddFrame(hf);
-
-  hf = new TGHorizontalFrame(frmMain); {
-    guiElPerADC = new TGNumberEntry(hf, ClElPerADC, 6,999, TGNumberFormat::kNESInteger,
-                          TGNumberFormat::kNEANonNegative,
-                          TGNumberFormat::kNELLimitMinMax,
-                          0, 2000);
-    hf->AddFrame(guiElPerADC);
-    guiElPerADC->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
-    lbl = new TGLabel(hf, "Electrons per ADC count");
-        hf->AddFrame(lbl);
-  }
-  frmMain->AddFrame(hf);
-
-  hf = new TGHorizontalFrame(frmMain); {
-    guiErrorNorm = new TGNumberEntry(hf, ClErrorNorm, 6,999, TGNumberFormat::kNESInteger,
-                          TGNumberFormat::kNEANonNegative,
-                          TGNumberFormat::kNELLimitMinMax,
-                          0, 2000);
-    hf->AddFrame(guiErrorNorm);
-    guiErrorNorm->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
-    lbl = new TGLabel(hf, "Error Normalization Constant");
-        hf->AddFrame(lbl);
-  }
-  frmMain->AddFrame(hf);
-
-
-
-  hf = new TGHorizontalFrame(frmMain); {
-    guiSimpleCl =  new TGCheckButton(hf, "Use Simple Clustering");
-    if(ClSimpleCl) guiSimpleCl->Toggle();
-    hf->AddFrame(guiSimpleCl);
-    guiSimpleCl->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
-  }
-  frmMain->AddFrame(hf);
-  hf = new TGHorizontalFrame(frmMain); {
-    giuSimpleTimeslice = new TGNumberEntry(hf, ClSimpleTimeslice, 6,999, TGNumberFormat::kNESInteger,
-                          TGNumberFormat::kNEANonNegative,
-                          TGNumberFormat::kNELLimitMinMax,
-                          0, 100);
-    hf->AddFrame(giuSimpleTimeslice);
-    giuSimpleTimeslice->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
-    lbl = new TGLabel(hf, "Timeslice for Simple Clustering");
-        hf->AddFrame(lbl);
-  }
-  frmMain->AddFrame(hf);
 
   // draw options
   hf = new TGHorizontalFrame(frmMain); {
@@ -1110,14 +898,147 @@ void PndTpcClustVis::makeGui() {
   }
   frmMain->AddFrame(hf);
 
-
   hf = new TGHorizontalFrame(frmMain); {
-    lbl = new TGLabel(hf, "\n Pattern Recognition");
-      hf->AddFrame(lbl);
+    guiDrawRiemannTracks =  new TGCheckButton(hf, "Draw Riemann Tracks");
+    if(drawRiemannTracks) guiDrawRiemannTracks->Toggle();
+    hf->AddFrame(guiDrawRiemannTracks);
+    guiDrawRiemannTracks->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
   }
   frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
-    guiDoPR =  new TGCheckButton(hf, "Do Pattern Recognition");
+    guiDrawFitMarkers =  new TGCheckButton(hf, "Draw Fit-Markers");
+    if(drawFitMarkers) guiDrawFitMarkers->Toggle();
+    hf->AddFrame(guiDrawFitMarkers);
+    guiDrawFitMarkers->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
+  }
+  frmMain->AddFrame(hf);
+
+
+  // Clusterfinder Params
+  hf = new TGHorizontalFrame(frmMain); {
+    lbl = new TGLabel(hf, "\n Clustering");
+        hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    guiDoClustering =  new TGCheckButton(hf, "Run Clustering");
+    if(doClustering) guiDoClustering->Toggle();
+    hf->AddFrame(guiDoClustering);
+    guiDoClustering->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
+  }
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    guiMode = new TGNumberEntry(hf, ClMode, 6,999, TGNumberFormat::kNESInteger,
+                          TGNumberFormat::kNEANonNegative,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 2);
+    hf->AddFrame(guiMode);
+    guiMode->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
+    lbl = new TGLabel(hf, "Mode");
+    hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    giuTimeslice = new TGNumberEntry(hf, ClTimeslice, 6,999, TGNumberFormat::kNESInteger,
+                          TGNumberFormat::kNEANonNegative,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 100);
+    hf->AddFrame(giuTimeslice);
+    giuTimeslice->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
+    lbl = new TGLabel(hf, "Timeslice");
+    hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    giuTimecut = new TGNumberEntry(hf, ClTimecut, 6,999, TGNumberFormat::kNESInteger,
+                          TGNumberFormat::kNEANonNegative,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 100);
+    hf->AddFrame(giuTimecut);
+    giuTimecut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
+    lbl = new TGLabel(hf, "Timecut");
+    hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
+
+
+  hf = new TGHorizontalFrame(frmMain); {
+    guiSingleDigiClAmpCut = new TGNumberEntry(hf, ClSingleDigiClAmpCut, 6,999, TGNumberFormat::kNESInteger,
+                          TGNumberFormat::kNEANonNegative,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 2000);
+    hf->AddFrame(guiSingleDigiClAmpCut);
+    guiSingleDigiClAmpCut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
+    lbl = new TGLabel(hf, "Single Digi-Cluster Amp cut");
+    hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    guiClAmpCut = new TGNumberEntry(hf, ClClAmpCut, 6,999, TGNumberFormat::kNESRealThree,
+                          TGNumberFormat::kNEANonNegative,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 2000);
+    hf->AddFrame(guiClAmpCut);
+    guiClAmpCut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
+    lbl = new TGLabel(hf, "Cluster Amp cut");
+    hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
+
+  hf = new TGHorizontalFrame(frmMain); {
+    guiElPerADC = new TGNumberEntry(hf, ClElPerADC, 6,999, TGNumberFormat::kNESInteger,
+                          TGNumberFormat::kNEANonNegative,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 2000);
+    hf->AddFrame(guiElPerADC);
+    guiElPerADC->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
+    lbl = new TGLabel(hf, "Electrons per ADC count");
+    hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
+
+  hf = new TGHorizontalFrame(frmMain); {
+    guiErrorNorm = new TGNumberEntry(hf, ClErrorNorm, 6,999, TGNumberFormat::kNESInteger,
+                          TGNumberFormat::kNEANonNegative,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 2000);
+    hf->AddFrame(guiErrorNorm);
+    guiErrorNorm->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
+    lbl = new TGLabel(hf, "Error Normalization Constant");
+    hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
+
+
+
+  hf = new TGHorizontalFrame(frmMain); {
+    guiSimpleCl =  new TGCheckButton(hf, "Use Simple Clustering");
+    if(ClSimpleCl) guiSimpleCl->Toggle();
+    hf->AddFrame(guiSimpleCl);
+    guiSimpleCl->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
+  }
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    giuSimpleTimeslice = new TGNumberEntry(hf, ClSimpleTimeslice, 6,999, TGNumberFormat::kNESInteger,
+                          TGNumberFormat::kNEANonNegative,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 100);
+    hf->AddFrame(giuSimpleTimeslice);
+    giuSimpleTimeslice->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
+    lbl = new TGLabel(hf, "Timeslice for Simple Clustering");
+    hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
+
+
+
+  hf = new TGHorizontalFrame(frmMain); {
+    lbl = new TGLabel(hf, "\n Pattern Recognition");
+    hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    guiDoPR =  new TGCheckButton(hf, "Run Pattern Recognition");
     if(doPR) guiDoPR->Toggle();
     hf->AddFrame(guiDoPR);
     guiDoPR->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
@@ -1152,9 +1073,9 @@ void PndTpcClustVis::makeGui() {
     hf->AddFrame(guisorting);
     guisorting->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
     lbl = new TGLabel(hf, "Sorting Mode");
-        hf->AddFrame(lbl);
+    hf->AddFrame(lbl);
   }
-  frmMain->AddFrame(hf);
+  //frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
     guiinteractionZ = new TGNumberEntry(hf, _interactionZ, 6,999, TGNumberFormat::kNESRealThree,
                           TGNumberFormat::kNEANonNegative,
@@ -1163,9 +1084,9 @@ void PndTpcClustVis::makeGui() {
     hf->AddFrame(guiinteractionZ);
     guiinteractionZ->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
     lbl = new TGLabel(hf, "Z-position of interaction point (for sorting Mode 4)");
-        hf->AddFrame(lbl);
+    hf->AddFrame(lbl);
   }
-  frmMain->AddFrame(hf);
+  //frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
     guisortingMode =  new TGCheckButton(hf, "Use sorting of riemann tracker");
     if(_sortingMode) guisortingMode->Toggle();
@@ -1183,7 +1104,7 @@ void PndTpcClustVis::makeGui() {
     hf->AddFrame(guiminpoints);
     guiminpoints->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
     lbl = new TGLabel(hf, "min points for sz-/plane-fit");
-        hf->AddFrame(lbl);
+    hf->AddFrame(lbl);
   }
   frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
@@ -1194,7 +1115,7 @@ void PndTpcClustVis::makeGui() {
     hf->AddFrame(guiplanecut);
     guiplanecut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
     lbl = new TGLabel(hf, "Planecut");
-        hf->AddFrame(lbl);
+    hf->AddFrame(lbl);
   }
   frmMain->AddFrame(hf);
 
@@ -1206,7 +1127,7 @@ void PndTpcClustVis::makeGui() {
     hf->AddFrame(guiriproxcut);
     guiriproxcut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
     lbl = new TGLabel(hf, "Riemann proximity cut");
-        hf->AddFrame(lbl);
+    hf->AddFrame(lbl);
   }
   frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
@@ -1217,7 +1138,7 @@ void PndTpcClustVis::makeGui() {
     hf->AddFrame(guiszcut);
     guiszcut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
     lbl = new TGLabel(hf, "sz cut");
-        hf->AddFrame(lbl);
+    hf->AddFrame(lbl);
   }
   frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
@@ -1228,7 +1149,7 @@ void PndTpcClustVis::makeGui() {
     hf->AddFrame(guiproxcut);
     guiproxcut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
     lbl = new TGLabel(hf, "Proximity cut");
-        hf->AddFrame(lbl);
+    hf->AddFrame(lbl);
   }
   frmMain->AddFrame(hf);
 
@@ -1248,7 +1169,7 @@ void PndTpcClustVis::makeGui() {
     hf->AddFrame(guiTTproxcut);
     guiTTproxcut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
     lbl = new TGLabel(hf, "TT Proximity cut");
-        hf->AddFrame(lbl);
+    hf->AddFrame(lbl);
   }
   frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
@@ -1259,7 +1180,7 @@ void PndTpcClustVis::makeGui() {
     hf->AddFrame(guiTTplanecut);
     guiTTplanecut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
     lbl = new TGLabel(hf, "TT plane cut");
-        hf->AddFrame(lbl);
+    hf->AddFrame(lbl);
   }
   frmMain->AddFrame(hf);
 
@@ -1271,7 +1192,15 @@ void PndTpcClustVis::makeGui() {
     hf->AddFrame(guiTTszcut);
     guiTTszcut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
     lbl = new TGLabel(hf, "TT sz cut");
-        hf->AddFrame(lbl);
+    hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
+
+  hf = new TGHorizontalFrame(frmMain); {
+    guiDoClean =  new TGCheckButton(hf, "Clean Tracks before & after merging");
+    if(doClean) guiDoClean->Toggle();
+    hf->AddFrame(guiDoClean);
+    guiDoClean->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
   }
   frmMain->AddFrame(hf);
 
@@ -1283,9 +1212,49 @@ void PndTpcClustVis::makeGui() {
     hf->AddFrame(guiTTscale);
     guiTTscale->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
     lbl = new TGLabel(hf, "RiemannScale");
-        hf->AddFrame(lbl);
+    hf->AddFrame(lbl);
   }
   frmMain->AddFrame(hf);
+
+  // Fitting Parameters
+  hf = new TGHorizontalFrame(frmMain); {
+    lbl = new TGLabel(hf, "\n Fitting");
+    hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    guiDoFit =  new TGCheckButton(hf, "Run Kalman");
+    if(doFit) guiDoFit->Toggle();
+    hf->AddFrame(guiDoFit);
+    guiDoFit->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetFittingParams()");
+  }
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    guiUseGeane =  new TGCheckButton(hf, "Use Geane");
+    if(useGeane) guiUseGeane->Toggle();
+    hf->AddFrame(guiUseGeane);
+    guiUseGeane->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetFittingParams()");
+  }
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    guiNumIts = new TGNumberEntry(hf, numIts, 6,999, TGNumberFormat::kNESInteger,
+                          TGNumberFormat::kNEANonNegative,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 20);
+    hf->AddFrame(guiNumIts);
+    guiNumIts->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetFittingParams()");
+    lbl = new TGLabel(hf, "Number of iterations for the Kalman Filter");
+    hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    guiSmooth =  new TGCheckButton(hf, "Use smoothing");
+    if(smooth) guiDoFit->Toggle();
+    hf->AddFrame(guiSmooth);
+    guiSmooth->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetFittingParams()");
+  }
+  //frmMain->AddFrame(hf);
+
   frmMain->MapSubwindows();
   frmMain->Resize();
   frmMain->MapWindow();
@@ -1294,40 +1263,60 @@ void PndTpcClustVis::makeGui() {
   browser->SetTabTitle("Event Control", 0);
 }
 
+
 void PndTpcClustVis::guiGoto(){
   PndTpcClustVis*  fh = PndTpcClustVis::getInstance();
   Long_t n = guiEvent->GetNumberEntry()->GetIntNumber();
   fh->gotoEvent(n);
 }
 
+
+void PndTpcClustVis::guiSetDrawParams(){
+  if (!guiInstantRedraw->IsOn()) instantRedraw=false;
+
+  doClustering=(guiDoClustering->IsOn());
+  drawTpc=(guiDrawTpc->IsOn());
+  drawRawDigis=(guiDrawRawDigis->IsOn());
+  drawDigis=(guiDrawDigis->IsOn());
+  drawClusters=(guiDrawClusters->IsOn());
+  drawClusterErrors=(guiDrawClustersErrors->IsOn());
+  doPR=(guiDoPR->IsOn());
+
+  drawRiemannTracks=(guiDrawRiemannTracks->IsOn());
+  drawFitMarkers=(guiDrawFitMarkers->IsOn());
+
+  PndTpcClustVis*  fh = PndTpcClustVis::getInstance();
+  if(instantRedraw) fh->gotoEvent(fEventId);
+
+  if (guiInstantRedraw->IsOn()) instantRedraw=true;
+}
+
+
 void PndTpcClustVis::guiSetClusterfinderParams(){
   ClHasChanged=true;
+
   ClMode = guiMode->GetNumberEntry()->GetIntNumber();
   ClTimeslice = giuTimeslice->GetNumberEntry()->GetIntNumber();
   ClTimecut = giuTimecut->GetNumberEntry()->GetIntNumber();
   ClSingleDigiClAmpCut = guiSingleDigiClAmpCut->GetNumberEntry()->GetIntNumber();
   ClClAmpCut = guiClAmpCut->GetNumberEntry()->GetNumber();
-  
   ClElPerADC = guiElPerADC->GetNumberEntry()->GetNumber();
   ClErrorNorm = guiErrorNorm->GetNumberEntry()->GetNumber();
-
-  if (guiSimpleCl->IsOn()) ClSimpleCl=true;
-  else ClSimpleCl=false;
-  
+  ClSimpleCl=(guiSimpleCl->IsOn());
   ClSimpleTimeslice = giuSimpleTimeslice->GetNumberEntry()->GetIntNumber();
   
   PndTpcClustVis*  fh = PndTpcClustVis::getInstance();
   if(instantRedraw) fh->gotoEvent(fEventId);
 }
 
+
 void PndTpcClustVis::guiSetTrackingParams(){
+  PRHasChanged=true;
+
   PRNHits = guiPRNHits->GetNumberEntry()->GetIntNumber();
   _sorting = guisorting->GetNumberEntry()->GetIntNumber();
   _interactionZ = guiinteractionZ->GetNumberEntry()->GetNumber();
-
-  if (guisortingMode->IsOn()) _sortingMode=true;
-  else _sortingMode=false;
-
+  _sortingMode=(guisortingMode->IsOn());
   _minpoints = guiminpoints->GetNumberEntry()->GetIntNumber();
   _planecut = guiplanecut->GetNumberEntry()->GetNumber();
   _riproxcut = guiriproxcut->GetNumberEntry()->GetNumber();
@@ -1337,44 +1326,22 @@ void PndTpcClustVis::guiSetTrackingParams(){
   _TTplanecut = guiTTplanecut->GetNumberEntry()->GetNumber();
   _TTszcut = guiTTszcut->GetNumberEntry()->GetNumber();
   fRiemannScale=guiTTscale->GetNumberEntry()->GetNumber();
-
-  if (guiDoMerge->IsOn()) doMerge=true;
-  else doMerge=false;
+  doMerge=(guiDoMerge->IsOn());
+  doClean=(guiDoClean->IsOn());
   
   PndTpcClustVis*  fh = PndTpcClustVis::getInstance();
   if(instantRedraw) fh->gotoEvent(fEventId);
 }
 
-void PndTpcClustVis::guiSetDrawParams(){
 
-  if (!guiInstantRedraw->IsOn()) instantRedraw=false;
-  
-  if (guiDoClustering->IsOn()) doClustering=true;
-  else doClustering=false;
-
-  if (guiDrawTpc->IsOn()) drawTpc=true;
-  else drawTpc=false;
-
-  if (guiDrawRawDigis->IsOn()) drawRawDigis=true;
-  else drawRawDigis=false;
-
-  if (guiDrawDigis->IsOn()) drawDigis=true;
-  else drawDigis=false;
-
-  if (guiDrawClusters->IsOn()) drawClusters=true;
-  else drawClusters=false;
-
-  if (guiDrawClustersErrors->IsOn()) drawClusterErrors=true;
-  else drawClusterErrors=false;
-
-  if (guiDoPR->IsOn()) doPR=true;
-  else doPR=false;
+void PndTpcClustVis::guiSetFittingParams(){
+  doFit=(guiDoFit->IsOn());
+  useGeane=(guiUseGeane->IsOn());
+  numIts=guiNumIts->GetNumberEntry()->GetNumber();
+  smooth=(guiSmooth->IsOn());
 
   PndTpcClustVis*  fh = PndTpcClustVis::getInstance();
   if(instantRedraw) fh->gotoEvent(fEventId);
-
-  if (guiInstantRedraw->IsOn()) instantRedraw=true;
-
 }
 
 

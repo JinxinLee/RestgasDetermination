@@ -77,12 +77,12 @@ PndTpcClusterFinderTask::SetParContainers() {
 
 void PndTpcClusterFinderTask::SetSimpleClustering(Bool_t opt){
   fsimple=opt;
-  if(fsimple)
+  if(fsimple && !fDigiPersistence)
     std::cerr<<"\n PndTpcClusterFinderTask::SetSimpleClustering  \n \
     You want to use SimpleClustering. \n \
-    This modifies the Digis (amplitude sharing between clusters). If you want to access the digis, set : \n \
+    This modifies the Digis (amplitude sharing between clusters). If you want to access these digis, set : \n \
     tpcCF->SetDigiPersistence(); \n \
-    Then, references to digis and their contribution to the cluster amplitude are saved in the cluster"<<std::endl;
+    Then, copies of digis with (modified) amplitude are saved in the cluster"<<std::endl;
 }
 
 InitStatus

@@ -211,8 +211,6 @@ PndTpcRiemannTrackingTask::Init()
   _trackfinder->addTTCorrelator(new PndTpcRiemannTTCorrelator(_TTplanecut, _minpoints));
   _trackfinder->addTTCorrelator(new PndTpcSzTTCorrelator(_TTszcut));
  
-  _trackfinder->setCoolingCuts(_planecut, _szcut);
-  
   // init histos
   _multiplicityHisto=new TH1I("multipl","# track candidates",100,0,100);
   _trackSizeH=new TH1I("trksize","# hits in track",100,0,100);
@@ -502,13 +500,14 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
   std::vector<TPolyLine3D*> lines;
 
   unsigned int nr=riemannlist.size();
-  for(unsigned int ir=0; ir<nr; ++ir){ // loop over Riemann tracks
 
-    int minhits = 4; // minimum hits needed to build pndtrackcands and GFTrackCands
-    if(minhits<_minpoints) minhits=_minpoints;
-    double pbackup = 2.;  // momentum value that is set when other initialisations fail
+  int minhits = 4; // minimum hits needed to build pndtrackcands and GFTrackCands
+  if(minhits<_minpoints) minhits=_minpoints;
+  double pbackup = 2.;  // momentum value that is set when other initialisations fail
 
-    PndTpcRiemannTrack* trk=riemannlist[ir];
+  // loop over Riemann tracks
+  for(unsigned int itrk=0; itrk<nr; ++itrk){
+    PndTpcRiemannTrack* trk=riemannlist[itrk];
     int nhits=trk->getNumHits();
     
     // store PndTpcRiemannTracks in output array
@@ -518,24 +517,24 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       new ((*_riemannHitArray)[_riemannHitArray->GetEntriesFast()]) PndTpcRiemannHit(*hit);
     }
 
-    std::cout<<"Tracklet "<<ir<<"   nhits="<<nhits;
+    std::cout<<"Tracklet "<<itrk<<"   nhits = "<<nhits;
 
     // check if enough points
     if(nhits<_minpoints || nhits<minhits){
-      std::cout<<" - skipping, not enough hits: "<<nhits<<std::endl;
+      std::cout<<" - skipping, not enough hits"<<std::endl;
       continue;
     }
     
     // check if momentum not high enough
     // calculate momentum
-    // p = 0.3*BR/dip (R in meters, B in T; we have R in cm, B in kG)
+    // p = 0.3*B*R/cos(dip-Pi/2) (R in meters, B in T; we have R in cm, B in kG)
     double p;
     double trackR = trk->r();
     double trackDip = trk->dip();
-    if (TMath::Abs(sin(trackDip))<0.1) p=pbackup;
-    else p=trackR/sin(trackDip)*0.0003*Bz; 
+    /*if (TMath::Abs(sin(trackDip))<0.01) p=pbackup;
+    else*/ p = TMath::Abs(trackR/sin(trackDip) * 0.0003 * Bz);
     if (Bz==0) p=pbackup;
-    if(p<4E-3) {
+    if(p<4E-5) {
       std::cout<<" - skipping, momentum too small: "<<p*1E3<<" MeV"<<std::endl;
       continue;
     }
@@ -554,70 +553,85 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     double r1=trk->getHit(0)->cluster()->pos().Perp();
     double r2=trk->getHit(nhits-1)->cluster()->pos().Perp();
     if(r1<=r2){
-      for(unsigned int ih=0;ih<nhits;++ih){
+      for(unsigned int ih=0; ih<nhits; ++ih){
         cand->addHit(2,trk->getHit(ih)->cluster()->index());
         pndcand->AddHit(2,trk->getHit(ih)->cluster()->index(),trk->getHit(ih)->cluster()->pos().Mag());
       }
     }
     else {
-      for(unsigned int ih=nhits-1;ih>0;--ih){
-        cand->addHit(2,trk->getHit(ih)->cluster()->index());
-        pndcand->AddHit(2,trk->getHit(ih)->cluster()->index(),trk->getHit(ih)->cluster()->pos().Mag());
+      for(unsigned int ih=nhits; ih>0; --ih){
+        cand->addHit(2,trk->getHit(ih-1)->cluster()->index());
+        pndcand->AddHit(2,trk->getHit(ih-1)->cluster()->index(),trk->getHit(ih-1)->cluster()->pos().Mag());
       }
-      cand->addHit(2,trk->getHit(0)->cluster()->index());  
-      pndcand->AddHit(2,trk->getHit(0)->cluster()->index(),trk->getHit(0)->cluster()->pos().Mag()); 
       invertedTrack = true;
     }// finished filling hits
-
 
     //
     // calculate seed values
     //
 
-    // build approximate momentum vector
-    std::vector<TVector3> slidingAvrg;
-    if(!invertedTrack)
-      for(int i=0; i<minhits; ++i) 
-        slidingAvrg.push_back( trk->getHit(i)->cluster()->pos() );
-    else
-      for(int i=nhits-1; i>nhits-1-minhits; --i) 
-        slidingAvrg.push_back( trk->getHit(i)->cluster()->pos() );
-    
-    while(slidingAvrg.size()>2){      
-      for(int i=0; i<slidingAvrg.size()-1; ++i) 
-        slidingAvrg[i] = 0.5*(slidingAvrg[i]) + 0.5*(slidingAvrg[i+1]);
-      slidingAvrg.pop_back();
+    // build momentum vector from prefit values
+    TVector3 center = trk->center();
+    TVector3 posProjection, posProjection2;
+
+    if(!invertedTrack) posProjection=trk->getFirstHit()->cluster()->pos();
+    else posProjection=trk->getLastHit()->cluster()->pos();
+    posProjection.SetZ(0);
+
+    int i=0;
+    while(i<nhits){
+      if(!invertedTrack) posProjection2=trk->getHit(i)->cluster()->pos();
+      else posProjection2=trk->getHit(nhits-1-i)->cluster()->pos();
+      posProjection2.SetZ(0);
+      if ((posProjection-posProjection2).Mag()>1.5) break;
+      ++i;
     }
 
-    TVector3 direction=(slidingAvrg[1]-slidingAvrg[0]);
+    TVector3 z(0.,0.,1.);
+    TVector3 direction = z.Cross(posProjection-center);
     direction.SetMag(1.);
+    int winding = -1; // we look in z direction!
+
+    TVector3 approxDir;
+    approxDir = posProjection2-posProjection;
+
+    if(direction*approxDir < 0){
+      direction *= -1.; // make point into right direction
+      winding *= -1;
+    }
+
+    if(!invertedTrack) direction.SetTheta(trackDip);
+    else direction.SetTheta(-1.*trackDip);
+
+    if(invertedTrack) direction *= -1.; // otherwise Kalman extrapolates backwards for inverted tracks!!!
 
     TVector3 mom = p * direction;
-    TVector3 momerr(0.1*fabs(mom.X()),0.1*fabs(mom.Y()),0.1*fabs(mom.Z()));
+    TVector3 momerr(fabs(mom.X()),fabs(mom.Y()),fabs(mom.Z()));
+    momerr *= 1./TMath::Sqrt(nhits);
+    // end build momentum vector from prefit values
 
-    // start position
+    // build start position
     TVector3 pos1;
-    if(!invertedTrack) pos1 = trk->getHit(0)->cluster()->pos();
+    if(!invertedTrack) pos1 = trk->getFirstHit()->cluster()->pos();
     else pos1 = trk->getLastHit()->cluster()->pos();
     TVector3 poserr(0.3,0.3,0.3);
+    // end build start position
 
     // pdg
-    int pdg = trk->winding()>0 ? 211 : -211; // Todo: pions hardcoded atm
-    if(Bz<0) pdg *= -1.;
+    int pdg = winding * 211; // Todo: pions hardcoded atm
+    if(Bz<0) pdg *= -1;
 
+    std::cout<<" center of track "; center.Print();
     std::cout<<" Radius of track [cm]: " << trackR << std::endl;
     std::cout<<" Dip of track [deg]:   " << trackDip/TMath::Pi()*180 << std::endl;
     std::cout<<" seed values: "<<std::endl;
-    std::cout<<"  start position: ";
-    pos1.Print();
+    std::cout<<"  start position: "; pos1.Print();
     std::cout<<"  momentum [GeV]: "<<p<<std::endl;
     std::cout<<"  p_perp [GeV]:   " << trackR*0.0003*Bz <<std::endl;
-    std::cout<<"  direction: ";    
-    direction.Print();
-    std::cout<<"  winding: "<<trk->winding()<<std::endl;
+    std::cout<<"  direction: "; direction.Print();
+    std::cout<<"  winding: "<<winding<<std::endl;
     std::cout<<"  invertedTrack: "<<invertedTrack<<std::endl;
     std::cout<<"  pdg id: "<<pdg<<std::endl;
-
 
     // set seed values to cands
     pndcand->setTrackSeed(pos1,direction,1./p);
@@ -633,10 +647,10 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     // check Monte Carlo Truth
     McIdCollection mcid;
     mcid.ClearData();
-    for(unsigned int i=0;i<cand->getNHits();++i){
+    for(unsigned int ic=0;ic<cand->getNHits();++ic){
       unsigned int detId;
       unsigned int hitId;
-      cand->getHit(i,detId,hitId);
+      cand->getHit(ic,detId,hitId);
       mcid.AddIDCollection(clusterlist[hitId]->mcId());
     }
     _trackPurityH->Fill(mcid.MaxRelWeight());

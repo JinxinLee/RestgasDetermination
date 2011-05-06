@@ -50,10 +50,12 @@ class PndTpcRiemannTrack : public TObject{
   double getScale() const {return fRiemannScale;}
 
   TVectorD orig() const;
-  double r() const;
+  double r() const; // radius of track
+  void r(double &r1, double &r2) const; // radius of track
+  TVector3 center() const; // center of helix in xz plane
   double dip() const;
   double sign() const;
-  int winding() ;
+  int winding() const;
   unsigned int getNumHits() const {return _hits.size();}
   bool isFitted()const {return _isFitted;}
   bool isFittedPlane()const {return _isFittedPlane;}
@@ -68,7 +70,7 @@ class PndTpcRiemannTrack : public TObject{
 
   // Modifiers -----------------------
   void addHit(PndTpcRiemannHit* hit);
-
+  void removeHit(unsigned int ihit);
   int sortHit(PndTpcRiemannHit* hitX);
 
   //void insertHit(PndTpcRiemannHit* hitX,const int it){hL.insert(it,hitX);} // manually insert hit
@@ -78,9 +80,6 @@ class PndTpcRiemannTrack : public TObject{
   int getClosestHit(PndTpcRiemannHit* hit, double& Dist, int from=0,  int to=10000000); // optional: range where to search for closest hit
   int getClosestRiemannHit(PndTpcRiemannHit* hit, double& Dist);
   
-  // remove hits from track
-  void coolDown(double planecut, double szcut);
-
   void setSort(bool k=true){_doSort=k;}
   void resetNit(){_nit=0;}
 

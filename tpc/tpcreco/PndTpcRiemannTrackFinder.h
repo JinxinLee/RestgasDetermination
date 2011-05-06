@@ -73,13 +73,12 @@ public:
   void setScale(double scale){fRiemannScale=scale;}
   double getScale()const {return fRiemannScale;}
 
-  void setCoolingCuts(double planecut, double szcut){_planecut=planecut; _szcut=szcut;}
-
   // Operations ----------------------
   unsigned int buildTracks(std::vector<PndTpcCluster*>& clusters,
 			   std::vector<PndTpcRiemannTrack*>& candlist);
 
   void mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist);
+  void cleanTracks(std::vector<PndTpcRiemannTrack*>& candlist, double szcut, double planecut);
 
   void addCorrelator(PndTpcAbsHitTrackCorrelator* c);
   void addTTCorrelator(PndTpcAbsTrackTrackCorrelator* c);
@@ -105,9 +104,6 @@ private:
   unsigned int _minHitsForFit;
   double fRiemannScale;
   
-  double _planecut;
-  double _szcut;
-
   // Private Methods -----------------
   void resetFlags();
 
