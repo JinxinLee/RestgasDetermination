@@ -322,10 +322,10 @@ void PndMixBackgroundEvents::Exec(Option_t* opt) {
    k3 = fMvdStripHitArray->GetEntriesFast();
 
 //nBkgEventsToAdd=1;
-cout<<"from PndMixBackgroundEvents : in this evt "<<nBkgEventsToAdd<<" evts of bkg are added, with the following times :\n";
-for(int ipro=0;ipro<nBkgEventsToAdd;ipro++){
-	cout<<"\tt = "<<times[ipro]<<endl;
-}
+// cout<<"from PndMixBackgroundEvents : in this evt "<<nBkgEventsToAdd<<" evts of bkg are added, with the following times :\n";
+//for(int ipro=0;ipro<nBkgEventsToAdd;ipro++){
+//	cout<<"\tt = "<<times[ipro]<<endl;
+//}
 
    for(j=0;j<nBkgEventsToAdd;j++){
 
