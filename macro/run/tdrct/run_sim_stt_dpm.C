@@ -100,7 +100,7 @@ run_sim_stt_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t seed=0
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
-  PndDpmDirect *dpmGen = new PndDpmDirect(mom,mode, gRandom->GetSeed());
+  PndDpmDirect *dpmGen = new PndDpmDirect(mom,mode);
   primGen->AddGenerator(dpmGen);
 
   // Create and Set Magnetic Field
