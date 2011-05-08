@@ -2,20 +2,57 @@
 //Author: Felix Boehmer
 
 
+//TODO:
+//GEMS, mind the holes -> correct material density
+
+void rename(TGeoVolume* v, TString str, TString replace) {
+  unsigned int nNodes = v->GetNodes()->GetEntries();
+  for(unsigned int n=0; n<nNodes; n++) {
+    TString name = v->GetNode(n)->GetName();
+    name.ReplaceAll(str, replace);
+    cout<<name<<endl;
+    v->GetNode(n)->SetName(name);
+  }
+}
+
+
+// ---------------------- COOLING POT --------------------------------------
+TGeoVolumeAssembly* createCoolingPot() {
+  double pot_pars[3] = { 42.5,   //rMin
+			 43.,   //rMax
+			 8./2.};
+  //local positioning:
+  double dz = -76.;
+  
+  TGeoVolumeAssembly* ass = new TGeoVolumeAssembly("CoolingPot");
+  TString mat("aluminium");
+  TGeoTube* pot = new TGeoTube(pot_pars);
+  TGeoVolume* potV = new TGeoVolume("pot_alu",
+				    pot,
+				    gGeoManager->GetMedium(mat));
+  TGeoTranslation* trans = new TGeoTranslation(0.,0.,dz-pot_pars[2]);
+  ass->AddNode(potV,0,trans);
+  return ass;
+}
+
+
 // -------------------- DRIFT CATHODE SETUP ---------------------------------
 TGeoVolumeAssembly* createDriftCathode() {
-  double cath_pars[3] = { 15.5,   //rMin
+  double cath_pars[5] = { 15.5,   //rMin
 			  43.,   //rMax
-			  0.05/2.};   //dZ  HALF OF ACTUAL LENGTH 
+			  0.05/2.,
+			  95.,
+			  265.};
 
   TGeoVolumeAssembly* Cathode = new TGeoVolumeAssembly("Cathode");
-  
+  TGeoVolumeAssembly* Cathode1 = new TGeoVolumeAssembly("Cathode1");
+    
   //local positioning:
   double dz = 75.;
   
   //layers:
   unsigned int nL = 4;
-  double thicks[4] = {0.0002, .005, 0.5, 0.0002};
+  double thicks[4] = {0.0002, .04, 0.5, 0.0002};
   TString mats[4] = {"aluminium",
 		     "kapton",
 		     "rohacell",
@@ -33,15 +70,25 @@ TGeoVolumeAssembly* createDriftCathode() {
     cath_pars[2] = thicks[i]/2.;
     TString name("cath_");
     name.Append(mats[i]);
-    shapes[i] = new TGeoTube(cath_pars);
+    char buffer[2];
+    sprintf(buffer, "%i", i);
+    name.Append(buffer);
+    shapes[i] = new TGeoTubeSeg(cath_pars);
     vols[i] = new TGeoVolume(name,
 			     shapes[i],
 			     gGeoManager->GetMedium(mats[i]));
     vols[i]->SetLineColor(cols[i]);
-    Cathode->AddNode(vols[i], 1,
+    Cathode1->AddNode(vols[i], 1,
     		     new TGeoTranslation(0.,0.,dz + thicks[i]/2. + totT));
     totT+=thicks[i];
   }
+  
+  //create second segment
+  TGeoRotation* rot = new TGeoRotation();
+  rot->SetAngles(180.,0,0);
+  Cathode->AddNode(Cathode1,0);
+  Cathode->AddNode((TGeoVolume*)Cathode1->Clone(),1,rot);
+
   return Cathode;
 }
 
@@ -59,7 +106,7 @@ TGeoVolumeAssembly* createPadPlane() {
   
   //layers:
   unsigned int nL = 2;
-  double thicks[2] = {0.0035, 0.3};
+  double thicks[2] = {0.0035, 0.4};
   TString mats[2] = {"copper",
 		     "G10"};
   Color_t cols[2] = {kYellow,
@@ -119,7 +166,7 @@ TGeoVolumeAssembly* createFE() {
   //equip FE card:
   TGeoTranslation* transCh1 = new TGeoTranslation(chip_thickness/2. + thickness/2.,0,0);
   TGeoTranslation* transCh2 = new TGeoTranslation(-(chip_thickness/2.+ thickness/2.),0,0);
-  FECard->AddNode(chipV1,1,transCh1);
+  FECard->AddNode(chipV1,0,transCh1);
   FECard->AddNode(chipV2,1,transCh2);
   
   TGeoTranslation* transC1 = new TGeoTranslation(chip_thickness/2. + thickness/2.,length/3.,0);
@@ -127,28 +174,31 @@ TGeoVolumeAssembly* createFE() {
   TGeoTranslation* transC3 = new TGeoTranslation(-(chip_thickness/2. + thickness/2.),length/3.,0);
   TGeoTranslation* transC4 = new TGeoTranslation(-(chip_thickness/2. + thickness/2.),-length/3.,0);
   //FECard->AddNode(ChipPair,0);
-  FECard->AddNode((TGeoVolume*)chipV1->Clone(),1, transC1);
-  FECard->AddNode((TGeoVolume*)chipV1->Clone(),1, transC2);
-  FECard->AddNode((TGeoVolume*)chipV1->Clone(),1, transC3);
-  FECard->AddNode((TGeoVolume*)chipV1->Clone(),1, transC4);
+  FECard->AddNode((TGeoVolume*)chipV1->Clone(),2, transC1);
+  FECard->AddNode((TGeoVolume*)chipV1->Clone(),3, transC2);
+  FECard->AddNode((TGeoVolume*)chipV1->Clone(),4, transC3);
+  FECard->AddNode((TGeoVolume*)chipV1->Clone(),5, transC4);
     
   //finalize:
   for(unsigned int ife=0; ife<nCards; ife++) {
     TVector3 shift(0,(41.5-15.0)/2.+15.,0);
     double angle = 360./nCards;
     shift.RotateZ(ife*angle*TMath::Pi()/180.);
-    TGeoTranslation* trans = new TGeoTranslation(shift.X(),shift.Y(),-76-height/2.);
+    TGeoTranslation* trans = new TGeoTranslation(shift.X(),shift.Y(),
+						 -76-height/2.);
     TGeoRotation* rot = new TGeoRotation();
     rot->SetAngles(angle*ife,0,0);
     TGeoCombiTrans* com = new TGeoCombiTrans(*trans,*rot);
-    FullFE->AddNode((TGeoVolume*)FECard->Clone(),1,com);
+    TGeoVolume* meh = FECard->Clone();
+    TString name = meh->GetName();
+    char buffer[2];
+    sprintf(buffer, "%i",ife);
+    name.Append(buffer);
+    meh->SetName(name);
+    FullFE->AddNode(meh,1,com);
   }
-    
   return FullFE;
-
 }
-
-
 
 
 // ------------------------- CREATE COOLING --------------------------------
@@ -172,16 +222,13 @@ TGeoVolumeAssembly* createCooling() {
   Half1->AddNode(ring2, 1, trans2);
   
   //create second half
-  TGeoVolumeAssembly* Half2 = Half1->Clone();
-  Half2->SetName("Cooling1");
   TGeoRotation* rot = new TGeoRotation();
   rot->SetAngles(180.,0,0);
   
-  Cooling->AddNode(Half1,1);
-  Cooling->AddNode(Half2,1,rot);
+  Cooling->AddNode(Half1,0);
+  Cooling->AddNode((TGeoVolume*)Half1->Clone(),1,rot);
 
   return Cooling;
-  
 }
 
 
@@ -203,7 +250,8 @@ TGeoVolumeAssembly* createGas() {
   TGeoRotation* rot = new TGeoRotation();
   rot->SetAngles(180.,0,0);
   TGeoVolume* gas2 = gas->Clone();
-  Gas->AddNode(gas2,1, rot);
+  gas2->SetName("gas2");
+  Gas->AddNode(gas2,2, rot);
   return Gas;  
 }
 
@@ -211,7 +259,7 @@ TGeoVolumeAssembly* createGas() {
   //---------------- CONSTRUCT FIELDCAGE BARREL ------------------------------
 TGeoVolumeAssembly* createFieldCageBarrel() {
   double cageOut_meas[6] = { 41.,   //rMin
-			     41.5,   //rMax
+			     41.64,   //rMax
 			     150./2.,   //dZ  HALF OF ACTUAL LENGTH (GEANT STYLE)
 			     95.,
 			     265. };
@@ -229,26 +277,26 @@ TGeoVolumeAssembly* createFieldCageBarrel() {
   //just one half:
   TGeoVolumeAssembly* FieldCage1 = new TGeoVolumeAssembly("FieldCage1");
 
-  addFieldCageBarrelComponent("FC_ground", "aluminium", 
+  addFieldCageBarrelComponent("FC_ground_cage1", "aluminium", 
 			      cageIn_meas, cageOut_meas, 
-			      0.4975,0.00002,FieldCage1,kGray);
-  addFieldCageBarrelComponent("FC_kapton", "kapton", 
+			      0.640,0.0002,FieldCage1,kGray);
+  addFieldCageBarrelComponent("FC_kapton_cage1", "kapton", 
 			      cageIn_meas, cageOut_meas, 
-			      0.495,0.0025,FieldCage1,kOrange+8);
-  addFieldCageBarrelComponent("FC_roha", "rohacell", 
+			      0.195,0.045,FieldCage1,kOrange+8);
+  addFieldCageBarrelComponent("FC_roha_cage1", "rohacell", 
 			      cageIn_meas, cageOut_meas, 
-			      0.001,0.494,FieldCage1,kYellow-2);
-  addFieldCageBarrelComponent("FC_copper", "copper", 
+			      0.001,0.594,FieldCage1,kYellow-2);
+  addFieldCageBarrelComponent("FC_copper_cage1", "copper", 
 			      cageIn_meas, cageOut_meas, 
 			      0.,0.001,FieldCage1, kOrange+3);
     
-  
-  
   //now clone and rotate -----------------------------------
   TGeoVolumeAssembly* FieldCage2 = FieldCage1->Clone();
+  FieldCage2->SetName("FieldCage2");
+  rename(FieldCage2, "cage1", "cage2");
   
   FieldCage->AddNode(FieldCage1,1);
-  FieldCage->AddNode(FieldCage2,1, rot);
+  FieldCage->AddNode(FieldCage2,2, rot);
   
   return FieldCage;
 }
@@ -290,7 +338,6 @@ void addFieldCageBarrelComponent(TString name, TString matName, const double* tu
 
   //now make the flat bits in the target pipe wedge
   double length = locOut[1] - locIn[0];
-  cout<<"Length: "<<length<<endl;
   TString wallName1 = "wall1_";
   TString wallName2 = "wall2_";
   wallName1.Append(name);
@@ -307,10 +354,7 @@ void addFieldCageBarrelComponent(TString name, TString matName, const double* tu
   TGeoCombiTrans* com1 = new TGeoCombiTrans(*t1,*rot1);
   TGeoVolume* vWall1 = new TGeoVolume(wallName1, wall1,
 				      gGeoManager->GetMedium(matName));
-  vWall1->SetLineColor(color);
-  ass->AddNode(vWall1,1,com1);  
-
-  
+    
   TVector3 trans2(distFromMin+thickness/2., -(length/2. + locIn[0]), 0.);
   trans2.RotateZ(-TMath::Pi()*angle/180.);
   TGeoTranslation* t2 = new TGeoTranslation(trans2.X(), trans2.Y(), trans2.Z());
@@ -333,9 +377,9 @@ void addFieldCageBarrelComponent(TString name, TString matName, const double* tu
   double relX0 = thickness/(OUT1->GetMaterial()->GetRadLen())*200; //percent, inner and outer cage 
   std::cout<<"TOTAL RadLen percentage of Material "<<OUT1->GetName()<<": "
 	   <<relX0<<std::endl;
-  
 }
 
+//main function:
 void make_pandaTPC_geom() {
   using namespace std;
 
@@ -374,15 +418,22 @@ void make_pandaTPC_geom() {
   builder->createMedium(silicon);
   // ------------------ DRAW -------------------------------------------
 
-  TGeoVolume* top = new TGeoVolumeAssembly("TopNode");
-  geoMan->SetTopVolume(top);
-  TGeoTranslation* glob = new TGeoTranslation(0,0,-40+length/2.);
-  top->AddNode(createFieldCageBarrel(),0,glob);
-  top->AddNode(createGas(),0,glob);
-  top->AddNode(createDriftCathode(),0,glob);
-  top->AddNode(createPadPlane(),0,glob);
-  top->AddNode(createCooling(), 0,glob);
-  top->AddNode(createFE(), 0,glob);
+  TGeoVolume* top = new TGeoVolumeAssembly("TPC");
+  TGeoVolumeAssembly* topAss = new TGeoVolumeAssembly("TPC");
+  
+  TGeoTranslation* glob = new TGeoTranslation(0,0,-40. + length/2.);
+  
+  topAss->AddNode(createFieldCageBarrel(),0,glob);
+  topAss->AddNode(createGas(),0,glob);
+  topAss->AddNode(createDriftCathode(),0,glob);
+  topAss->AddNode(createPadPlane(),0,glob);
+  topAss->AddNode(createCooling(),0,glob);
+  topAss->AddNode(createFE(),0,glob);
+  topAss->AddNode(createCoolingPot(),0,glob);
+  
+  geoMan->SetTopVolume(topAss);
+  
+  top->AddNode(topAss, 0);
 
   TEveManager::Create();
   
