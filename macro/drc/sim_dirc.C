@@ -17,9 +17,8 @@
 
   // set the MC version used
   // ------------------------
-
-  fRun->SetName("TGeant3");
-  //fRun->SetName("TGeant4");
+  //fRun->SetName("TGeant3");
+  fRun->SetName("TGeant4");
 
   fRun->SetOutputFile("testrun1.root");
  
@@ -92,14 +91,12 @@
 
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kTRUE); // for fast sim Cherenkov -> kFALSE
-  Drc->SetDetEffAtProduction(kFALSE);
+  Drc->SetDetEffAtProduction(kTRUE);
   //Drc->SetStopTime(200.); 
   Drc->SetVerboseLevel(0);
-  Drc->SetPrizm(kFALSE);
-  // focusing system could be set only WITHOUT the prism!!!!!
-  Drc->SetFocusingSystem(0);
-  //Drc->SetOnlyDirectPho(kTRUE); // does not work with lenses!!! 
-  //Drc->SetGeometryFileName("dirc.geo"); 
+  Drc->SetOnlyDirectPho(kFALSE);
+  // put the geometry file you want into the next line:  
+  Drc->SetGeometryFileName("dirc_l0_p0.root"); 
   fRun->AddModule(Drc);
   
   // Create and Set Event Generator
@@ -110,7 +107,7 @@
 
    // Box Generator
   FairBoxGenerator* boxGen = new FairBoxGenerator(321, 1); // 321 = kaon; 1 = multipl.
-  boxGen->SetPRange(3,3); // GeV/c
+  boxGen->SetPRange(3.,3.); // GeV/c
   boxGen->SetPhiRange(5., 5.); // Azimuth angle range [degree]
   boxGen->SetThetaRange(35., 35.); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
@@ -136,7 +133,7 @@
   rtdb->saveOutput();
   rtdb->print();
 
-  Int_t   nEvents=1; 
+  Int_t   nEvents=2; 
 
   // Transport nEvents
   // -----------------
