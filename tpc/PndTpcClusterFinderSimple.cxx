@@ -185,7 +185,6 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
 {
   sort(digis.begin(),digis.end(),PndTpcDigiAmplitude());
   unsigned int ndigi = digis.size();
-  std::cout<<"PndTpcClusterFinderSimple: process "<<ndigi<<" digis"<<std::endl;
   
   if(ndigi<=2) return;
   
@@ -216,11 +215,10 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
     else { // digi can belong to more than one cluster -> assign digi to these clusters with corresponding share value
       PndTpcDigi* fd = digis[idigi];
       double share = 1./(double)nselclust;
-      for(int i=0;i<nselclust;++i) {
+      for(unsigned int i=0; i<nselclust; ++i) {
         prelimClusters[selClusters[i]]->addHit(fd,noXclust, share);
-        ++splitDigis;
       }
-      --splitDigis;
+      splitDigis += nselclust-1;
     }
 
   } // end loop over digis
@@ -230,7 +228,6 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
     foutput_buffer->push_back(prelimClusters[i]->convPndTpcCluster(fsaveRaw));
     delete prelimClusters[i];
   }
-  std::cout<<"PndTpcClusterFinderSimple: "<<prelimClusters.size()<<" clusters created"<<std::endl;
 }
 
 
@@ -238,7 +235,6 @@ void
 PndTpcClusterFinderSimple::reset()
 { 
   splitDigis = 0;
-
 }
 
 

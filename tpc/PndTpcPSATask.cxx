@@ -197,9 +197,6 @@ PndTpcPSATask::Exec(Option_t* opt)
     ++padit; // increase iterator 
   } // end loop over pads
   
-  std::cout << "Total number of digis created: " << digis.size() << std::endl;
-  
-  //	    digi->fct(((PndTpcSample*)fsampleArray->At(is))->ct());
   
   //sort digis in time;
   std::cout<<"sort Digis in time ... ";
@@ -213,7 +210,7 @@ PndTpcPSATask::Exec(Option_t* opt)
     delete digis[idigi]; // clean up temporay store
   }
 
-  std::cout<<fdigiArray->GetEntriesFast()<<" Digis created"<<std::endl;
+  std::cout<<ndigi<<" Digis created"<<std::endl;
   return;
 }
 

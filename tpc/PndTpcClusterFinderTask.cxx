@@ -160,7 +160,7 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
   ffinder->reset();
 
   // put digis into vector
-  Int_t ndigis=fdigiArray->GetEntriesFast();
+  unsigned int ndigis=fdigiArray->GetEntriesFast();
   std::vector<PndTpcDigi*> digis(ndigis);
   for(unsigned int idigi=0; idigi<ndigis; ++idigi)
     digis[idigi] = (PndTpcDigi*)fdigiArray->At(idigi);
@@ -191,9 +191,8 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
   unsigned int ncl_rec=0;
   unsigned int ndig_rec=0;
   
-  std::cerr<<"copying clusters to output array ";
   double amp;
-  int size;
+  unsigned int size;
   for(unsigned int icl=0;icl<ncl;++icl){ // loop over clusters
     amp  = (*fcluster_buffer)[icl]->amp();
     size = (*fcluster_buffer)[icl]->size();
@@ -202,45 +201,16 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
       PndTpcCluster* cl = new((*fclusterArray)[ncl_rec]) PndTpcCluster(*((*fcluster_buffer)[icl]));
       cl->SetIndex(ncl_rec); 
       ncl_rec++;
-      ndig_rec+=cl->size();
+      ndig_rec+=size;
     }
     // delete cluster
     delete  (*fcluster_buffer)[icl];
     
   } // end loop over clusters
   
-  std::cerr<<"... done"<<std::endl;
-  
-  
-  int splitDigis=0;
-  if(fsimple){
-    splitDigis = ((PndTpcClusterFinderSimple*)(ffinder))->NsplitDigis();
-    ndig_rec -= splitDigis;
-  } 
-  std::cout<<fclusterArray->GetEntriesFast()<<" cluster created "
-	<<" containing "<<ndig_rec<<" digis"
-  <<" from "<<fdigiArray->GetEntriesFast()<<std::endl;
-  if(fsimple){
-    std::cout<<" SimpleClustering assigned "<< splitDigis <<" split digis to clusters"<<std::endl;
-  }   
-   
+  std::cout<<ncl_rec<<" cluster created containing "<<ndig_rec<<" digis"<<std::endl;
+
   fcluster_buffer->clear();
-
-   
- /*  
-  for(unsigned int i=0; i<fclusterArray->GetEntriesFast(); ++i){
-    PndTpcCluster* cl = (PndTpcCluster*)(*fclusterArray)[i];
-    std::cout<<"Testing cluster "<<i<<" of "<<fclusterArray->GetEntriesFast()<<"  ";
-    cl->pos().Print();
-  }
-
-  for(unsigned int i=0; i<fdigiArray->GetEntriesFast(); ++i){
-    PndTpcDigi* cl = (PndTpcDigi*)(*fdigiArray)[i];
-    std::cout<<"Testing Raw Digi "<<i<<" of "<<fdigiArray->GetEntriesFast()<<"  "<<cl->amp()<<std::endl;
-  }*/
-   
-   
-  std::cerr<<" End ClusterFinderTask " <<std::endl;
   return;
 }
 
