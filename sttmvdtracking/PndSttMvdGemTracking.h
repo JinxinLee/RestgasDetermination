@@ -113,6 +113,10 @@ class PndSttMvdGemTracking : public FairTask {
   void UseMonteCarlo() {  fUseMC = kTRUE; }
   void WriteHistograms();
 
+
+  void SetEvaluateFlag(Bool_t flag) { fEvaluate = flag; }
+
+
   void SetBranchNames(TString mvdpixel, TString mvdstrip, TString stt, TString gem);
 
  private: 
@@ -225,6 +229,9 @@ class PndSttMvdGemTracking : public FairTask {
   /** combimap: hitID <-> 1/0 whether it is combinatorial or not **/
   std::map<int, int> fCombiMap;
   Double_t fCombiDistance;
+
+  // evaluate performances? yes/no
+  Bool_t fEvaluate;
 
   ClassDef(PndSttMvdGemTracking,1);
 

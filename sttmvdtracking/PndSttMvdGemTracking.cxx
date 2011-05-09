@@ -49,6 +49,7 @@ PndSttMvdGemTracking::PndSttMvdGemTracking() :
   FairTask("MVD-STT-GEM tracking") { 
   fPersistence = kTRUE;
   fVerbose = 1;
+  fEvaluate = kTRUE;
   fDisplayOn = false;
   fTimes = 5;
   fTurn = 1;
@@ -68,6 +69,8 @@ PndSttMvdGemTracking::PndSttMvdGemTracking(Int_t verbose) :
   FairTask("MVD-STT-GEM tracking") { 
   fPersistence = kTRUE;
   fVerbose = verbose;
+  if(verbose > 0) fEvaluate = kTRUE;
+  else fEvaluate = kFALSE;
   fDisplayOn = false;
   fTimes = 5;
   fTurn = 1;
@@ -442,7 +445,7 @@ void PndSttMvdGemTracking::OrderGemHits(Int_t nhits) {
 
 // -----   Public method Exec   --------------------------------------------
 void PndSttMvdGemTracking::Exec(Option_t* opt) {
-  cout << "==================== EVENT " << evt << endl;
+  if(fVerbose > 0)  cout << "==================== EVENT " << evt << endl;
   evt++;
   fTurn = 1;
   fCompleteTrackCandArray->Delete();
@@ -513,9 +516,11 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 
       if(fabs(lastpar.GetPosition().X()) > 42. || fabs(lastpar.GetPosition().Y()) > 42.)  { flag[itrk] = -3;  continue; } // CHECK 4 PERFORMANCE delete this!!!!
       if(lastpar.GetMomentum().Mag() < 0.15) {
-	cout << "TOO LOW MOMENTUM " << itrk << endl;
-	lastpar.GetPosition().Print();
-	lastpar.GetMomentum().Print();
+	if(fVerbose > 0) {
+	  cout << "TOO LOW MOMENTUM " << itrk << endl;
+	  lastpar.GetPosition().Print();
+	  lastpar.GetMomentum().Print();
+	}
 	flag[itrk] = 1;
 
  	//	continue; // CHECK 4 PERFORMANCE delete this!!!!
@@ -526,9 +531,11 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
       PndGemStation *station = fGemParameters->GetStation(0);
       PndGemSensor *sensor = station->GetSensor(0); 
         if(lastpar.GetPosition().Z() > sensor->GetZ0()) {
-	cout << "Z OUT OF BOUNDS" << endl;
-	lastpar.GetPosition().Print();
-	lastpar.GetMomentum().Print();
+	  if(fVerbose > 0) {
+	    cout << "Z OUT OF BOUNDS" << endl;
+	    lastpar.GetPosition().Print();
+	    lastpar.GetMomentum().Print();
+	  }
 	flag[itrk] = 2;
 
  	// continue; // CHECK 4 PERFORMANCE delete this!!!!
@@ -540,7 +547,7 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 	// =========== test of prop on 1st plane
 	FairTrackParP *gempartest = new FairTrackParP();
 	if(PropagateToGemPlaneAsHelix(sttmvd, gempartest, 0) == kFALSE) {
-	  cout  << " CANNOT PROPAGATE " << endl; 
+	  if(fVerbose > 0) cout  << " CANNOT PROPAGATE " << endl; 
 	  delete gempartest;
 	  flag[itrk] = -6;
 	  continue;
@@ -565,7 +572,7 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
        if(mctrk) {
 	 // 	cout << "PDG " << mctrk->GetPdgCode() << " MOTHERID " << mctrk->GetMotherID() << endl;
 	 int mccharge = (int) TMath::Sign(1., TDatabasePDG::Instance()->GetParticle(mctrk->GetPdgCode())->Charge()/3.);
-	 if(mccharge != charge) cout << "WRONG CHARGE " << charge << " " << mccharge << " " << mctrk->GetPdgCode() << endl;
+	 if(mccharge != charge && fVerbose > 0) cout << "WRONG CHARGE " << charge << " " << mccharge << " " << mctrk->GetPdgCode() << endl;
 
 
 	 if(mctrk->GetMotherID() != -1)  {
@@ -676,8 +683,8 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
   }
 
 
- // performance
-  EvaluatePerformances(nhits, ntracks);
+  // performance
+  if(fEvaluate) EvaluatePerformances(nhits, ntracks);
 
 }
 
@@ -933,7 +940,7 @@ Bool_t PndSttMvdGemTracking::PropagateToGemPlane(FairTrackParP *tmppar, FairTrac
   PndGemStation *station = fGemParameters->GetStation(0);
   PndGemSensor *sensor = station->GetSensor(0); 
   if(tmppar->GetPosition().Z() > sensorpos->Z()) {
-    cout << "-> Z OUT OF BOUNDS: backpropagation" << endl;
+    if(fVerbose > 0) cout << "-> Z OUT OF BOUNDS: backpropagation" << endl;
     fPro->setBackProp();
   }
 
@@ -2161,7 +2168,7 @@ Int_t PndSttMvdGemTracking::GetClosestOnFirst(FairTrackParP* gempar, Int_t ipos,
 
 
 // CHECK :-)GOOD!
-// -------------- IntersectionFinder  --------------------------------------
+// -------------- Prefit  --------------------------------------
 Bool_t PndSttMvdGemTracking::Prefit(PndTrack *sttmvdTrack, PndTrackCand *sttmvdCand, TVector3 &lastpos, TVector3 &lastmom)
 {
 
@@ -2428,7 +2435,8 @@ Bool_t PndSttMvdGemTracking::IntersectionFinder(Double_t xc, Double_t yc, Double
 	  // + and - refer to the 2 possible intersections
 	  // +
 
-	  if(((m*(q - point.Y()) - point.X())*(m*(q - point.Y()) - point.X()) - (m*m + 1)*((q - point.Y())*(q - point.Y()) + point.X()*point.X() - isochrone*isochrone)) < 0.) { cout << "IntersectionFinder round errors: " << isochrone << endl; return false; }
+	  if(((m*(q - point.Y()) - point.X())*(m*(q - point.Y()) - point.X()) - (m*m + 1)*((q - point.Y())*(q - point.Y()) + point.X()*point.X() - isochrone*isochrone)) < 0.) {  if(fVerbose > 0) cout << "IntersectionFinder round errors: " << isochrone << endl; 
+	    return false; }
 
 	  x1 = (-(m*(q - point.Y()) - point.X()) + sqrt((m*(q - point.Y()) - point.X())*(m*(q - point.Y()) - point.X()) - (m*m + 1)*((q - point.Y())*(q - point.Y()) + point.X()*point.X() - isochrone*isochrone))) / (m*m + 1);
 	  y1 = m*x1 + q;
