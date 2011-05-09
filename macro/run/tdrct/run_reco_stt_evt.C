@@ -63,17 +63,17 @@
   sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
   fRun->AddTask(sttFindTracks);
   
-  PndSttMvdTracking *  SttMvdTracking = new PndSttMvdTracking(0);
+  PndSttMvdTracking *  SttMvdTracking = new PndSttMvdTracking(0, false, true);
   fRun->AddTask(SttMvdTracking);
   
+  PndSttMvdGemTracking * SttMvdGemTracking = new PndSttMvdGemTracking(0);
+  fRun->AddTask(SttMvdGemTracking);
+
   PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
   recoKalman->SetTrackInBranchName("SttMvdGemTrack");
   recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
   //recoKalman->SetNumIterations(3);
   fRun->AddTask(recoKalman);
-
-  PndSttMvdGemTracking * SttMvdGemTracking = new PndSttMvdGemTracking(0);
-  fRun->AddTask(SttMvdGemTracking);
 
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(6);

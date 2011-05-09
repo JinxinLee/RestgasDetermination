@@ -71,7 +71,7 @@
   //  PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
   PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(0, false, true);
   PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
-  sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
+  sttFindTracks->AddHitCollectionName("STTHitMix", "STTPoint");
   fRun->AddTask(sttFindTracks);
   
   PndSttMvdTracking *  SttMvdTracking = new PndSttMvdTracking(0,false,true);
