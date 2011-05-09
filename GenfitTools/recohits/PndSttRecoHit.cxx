@@ -37,7 +37,7 @@ using namespace std;
 ClassImp(PndSttRecoHit)
 
 
-PndSttRecoHit::~PndSttRecoHit()
+  PndSttRecoHit::~PndSttRecoHit()
 {}
 
 PndSttRecoHit::PndSttRecoHit()
@@ -62,10 +62,10 @@ PndSttRecoHit::PndSttRecoHit(PndSttHit *currenthit) : WireHitRecoHit(NparHitRep)
   TVector3 wire1, wire2;
   wire1 = cenposition - wiredirection2;
   wire2 = cenposition + wiredirection2;
-//   cout << "Wiredirection, wire1, wire2 " << endl;
-//   wiredirection.Print();
-//   wire1.Print();
-//   wire2.Print();
+  //   cout << "Wiredirection, wire1, wire2 " << endl;
+  //   wiredirection.Print();
+  //   wire1.Print();
+  //   wire2.Print();
   fHitCoord[0][0] = wire1.X();
   fHitCoord[1][0] = wire1.Y();
   fHitCoord[2][0] = wire1.Z();
@@ -76,7 +76,8 @@ PndSttRecoHit::PndSttRecoHit(PndSttHit *currenthit) : WireHitRecoHit(NparHitRep)
 
   // errors on drift radius 
   for(int i = 0; i < NparHitRep; i++) for(int j = 0; j < NparHitRep; j++) fHitCov[i][j] = 0.;
-  fHitCov[6][6] = 0.0100 * 0.0100; // currenthit->GetIsochroneError(); CHECK
+  //   fHitCov[6][6] = 0.0100 * 0.0100; 
+  fHitCov[6][6] = pow(currenthit->GetIsochroneError(), 2); 
 
   // cut on distance
   fPolicy.setMaxDistance(0.5);
@@ -97,10 +98,10 @@ PndSttRecoHit::PndSttRecoHit(PndSttHelixHit *currenthit) : WireHitRecoHit(NparHi
   TVector3 wire1, wire2;
   wire1 = cenposition - wiredirection2;
   wire2 = cenposition + wiredirection2;
-//   cout << "Wiredirection, wire1, wire2 " << endl;
-//   wiredirection.Print();
-//   wire1.Print();
-//   wire2.Print();
+  //   cout << "Wiredirection, wire1, wire2 " << endl;
+  //   wiredirection.Print();
+  //   wire1.Print();
+  //   wire2.Print();
   fHitCoord[0][0] = wire1.X();
   fHitCoord[1][0] = wire1.Y();
   fHitCoord[2][0] = wire1.Z();
@@ -111,8 +112,8 @@ PndSttRecoHit::PndSttRecoHit(PndSttHelixHit *currenthit) : WireHitRecoHit(NparHi
 
   // errors on drift radius 
   for(int i = 0; i < NparHitRep; i++) for(int j = 0; j < NparHitRep; j++) fHitCov[i][j] = 0.;
-  fHitCov[6][6] = 0.0100 * 0.0100; 
-  //  fHitCov[6][6] = pow(currenthit->GetIsochroneError(), 2); // CHECK
+  //   fHitCov[6][6] = 0.0100 * 0.0100; 
+  fHitCov[6][6] = pow(currenthit->GetIsochroneError(), 2); 
 
   // cut on distance
   fPolicy.setMaxDistance(0.5);
@@ -132,10 +133,10 @@ PndSttRecoHit::PndSttRecoHit(PndSttHit *currenthit, TClonesArray *tubeArray) : W
   TVector3 wire1, wire2;
   wire1 = cenposition - wiredirection2;
   wire2 = cenposition + wiredirection2;
-//   cout << "Wiredirection, wire1, wire2 " << endl;
-//   wiredirection.Print();
-//   wire1.Print();
-//   wire2.Print();
+  //   cout << "Wiredirection, wire1, wire2 " << endl;
+  //   wiredirection.Print();
+  //   wire1.Print();
+  //   wire2.Print();
   fHitCoord[0][0] = wire1.X();
   fHitCoord[1][0] = wire1.Y();
   fHitCoord[2][0] = wire1.Z();
@@ -146,7 +147,8 @@ PndSttRecoHit::PndSttRecoHit(PndSttHit *currenthit, TClonesArray *tubeArray) : W
 
   // errors on drift radius 
   for(int i = 0; i < NparHitRep; i++) for(int j = 0; j < NparHitRep; j++) fHitCov[i][j] = 0.;
-  fHitCov[6][6] = 0.0100 * 0.0100; // currenthit->GetIsochroneError(); CHECK
+  //   fHitCov[6][6] = 0.0100 * 0.0100; 
+  fHitCov[6][6] = pow(currenthit->GetIsochroneError(), 2);
 
   // cut on distance
   fPolicy.setMaxDistance(0.5);
@@ -164,10 +166,10 @@ PndSttRecoHit::PndSttRecoHit(PndSttHelixHit *currenthit, TClonesArray *tubeArray
   TVector3 wire1, wire2;
   wire1 = cenposition - wiredirection2;
   wire2 = cenposition + wiredirection2;
-//   cout << "Wiredirection, wire1, wire2 " << endl;
-//   wiredirection.Print();
-//   wire1.Print();
-//   wire2.Print();
+  //   cout << "Wiredirection, wire1, wire2 " << endl;
+  //   wiredirection.Print();
+  //   wire1.Print();
+  //   wire2.Print();
   fHitCoord[0][0] = wire1.X();
   fHitCoord[1][0] = wire1.Y();
   fHitCoord[2][0] = wire1.Z();
@@ -178,8 +180,8 @@ PndSttRecoHit::PndSttRecoHit(PndSttHelixHit *currenthit, TClonesArray *tubeArray
 
   // errors on drift radius 
   for(int i = 0; i < NparHitRep; i++) for(int j = 0; j < NparHitRep; j++) fHitCov[i][j] = 0.;
-  fHitCov[6][6] = 0.0100 * 0.0100; 
-  //  fHitCov[6][6] = pow(currenthit->GetIsochroneError(), 2); // CHECK
+  //   fHitCov[6][6] = 0.0100 * 0.0100; 
+  fHitCov[6][6] = pow(currenthit->GetIsochroneError(), 2); 
 
   // cut on distance
   fPolicy.setMaxDistance(0.5);
