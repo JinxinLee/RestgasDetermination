@@ -35,7 +35,7 @@ class  PndGeoDrc : public FairGeoSet {
   double fPAngle;       		    //!< [degrees] opening angle of the prism
   double fPDrop;       			    //!< [cm] drop of the prism - inner side
   double fPOffset;	      		    //!< [cm] offset of the prism - outer side   
-  
+
   protected:
   char modName[20];  // name of module
   char eleName[20];  // substring for elements in module

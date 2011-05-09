@@ -25,9 +25,10 @@ PndGeoDrc::PndGeoDrc() {
   fBarHalfThick = 1.7/2.0;    // [cm] bar half thickness
   fBarBoxZDown  = 130.0;      // [cm] Downstream coordinate of radiator barrel
   fBarBoxZUp    =-120.0;      // [cm] Upstream coordinate of radiator barrel
+  // plate!!!
   fBarNum       = 5;          // Number of bars within barbox.
-  fBoxGap	= 1.;//0.1;       // [cm] Half gap between bars, =1 to have a realistic barbox thickness
-  fBarGap	= 0.01;	      // [cm] Gap between bar and bar box
+  fBoxGap	= 1.;//0.1;   // [cm] Gap between bar and bar box
+  fBarGap	= 0.01;	      // [cm] Half gap between bars, =1 to have a realistic barbox thickness
   fBoxThick	= 0.05;	      // [cm] Thickness of bar box
     
   fBarBoxNum    = 16;
@@ -36,16 +37,16 @@ PndGeoDrc::PndGeoDrc() {
   
   // parameters of the EV:
   fEVlength     = 30.;        // [cm] Length of expansion volume
-  fEVdrop	= 0.5;	      // [cm] drop of the EV - inner radius
+  fEVdrop	= 0.5;	      // [cm] drop of the EV - inner radius (used only with prism)
   fEVoffset	= 1.;	      // [cm] offset of the EV - outer radius
   fEVangle	= 60.;	      // [degrees] opening angle of the EV
-  fEVbackAngle  = 90.;	      // [degrees] angle between the PD surface and the Z axis
+  fEVbackAngle  = 90.;	      // [degrees] angle between the PD surface and the Z axis, default = 90.
   
   // prism parameters:
   fPhLength	=  4.5;       // [cm] half length of the prism
   fPAngle	=  30.;       // [degrees] opening angle of the prism
   fPDrop	=  0.5;       // [cm] drop of the prism - inner side
-  fPOffset	=  1.;	      // [cm] offset of the prism - outer side   
+  fPOffset	=  1.;	      // [cm] offset of the prism - outer side     
  }
 // -------------------------------------------------------------------------
 

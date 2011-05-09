@@ -69,8 +69,8 @@ PndDrc::PndDrc() {
   fGeo         = new PndGeoDrc();
   fStopTime = kFALSE;
   fTakeDirect = kFALSE; 
-  fDetEffAtProduction = kFALSE;
-  fprizm = kFALSE;  
+  fDetEffAtProduction = kFALSE;  
+  ffocusing = 0; 
   fListOfSensitives.push_back("Sensor");
   if(fVerboseLevel > 0){
     std::cout<<"-I- PndBarrelDIRC: fListOfSensitives contains:";
@@ -97,8 +97,8 @@ PndDrc::PndDrc(const char* name, Bool_t active)
     fRunCherenkov = kTRUE;
     fGeo         = new PndGeoDrc();
     fStopTime = kFALSE;
-    fTakeDirect = kFALSE; 
-    fprizm = kFALSE;
+    fTakeDirect = kFALSE;     
+    ffocusing = 0; 
     fDetEffAtProduction = kFALSE;   
     fListOfSensitives.push_back("Sensor");
     if(fVerboseLevel > 0){
@@ -145,37 +145,31 @@ void PndDrc::Initialize() {
   // print out for debugging all names and pointers stored in manager
   // manager->Print();
   
-  // bar ID number:  
-  TGeoVolume *v2 = gGeoManager->GetVolume("DrcAirBox");   
-  TGeoNode *n2 = v2->FindNode("DrcBarSensor_1");
-  //v2->PrintNodes();
-
-  fbarID = n2->GetVolume()->GetNumber();
-  cout<<"bar id = "<<n2->GetVolume()->GetNumber()<<", node id = "<<n2->GetNumber()<<endl;
+  // bar ID number:    
+  fbarID =gMC->VolId("DrcBarSensor");      
+  cout<<"bar 1 id = "<<fbarID<<endl;
     
   // focusing system - for now there is no:
   flensID = fbarID;
-  if(fFocusingSystem == 1){
-    TGeoNode *n5 = v2->FindNode("DrcLENS3Sensor_1");
-    flensID = n5->GetVolume()->GetNumber();
+  if(ffocusing == 1){    
+    flensID = gMC->VolId("DrcLENS3Sensor");
     //cout<<"lens1 = "<<v2->FindNode("DrcLENS1_1")->GetVolume()->GetNumber()<<
     //    ", lens2 = "<<v2->FindNode("DrcLENS2_1")->GetVolume()->GetNumber()<<
     //	", lens3 = "<<v2->FindNode("DrcLENS3Sensor_1")->GetVolume()->GetNumber()<<endl;
   }
-  cout<<"lens id = "<<flensID<<endl;
+  //cout<<"lens id = "<<flensID<<endl;
     
-  // PD id number
-  TGeoVolume *v3 = gGeoManager->GetVolume("BarrelDIRC");
-  //v3->PrintNodes();
-  TGeoNode *n3 = v3->FindNode("DrcPDSensor_1");
-  fpdID = n3->GetVolume()->GetNumber();
-  //cout<<"pd id = "<<fpdID<<", node id = "<<n3->GetNumber()<<endl;
+  // PD id number  
+  fpdID = gMC->VolId("DrcPDSensor");
+  //cout<<"pd id = "<<fpdID<<endl;
     
-  // to find out which barbox charged particle hit:
-  TGeoNode *n4 = v3->FindNode("DrcBarBox_1");
-  fbboxID = n4->GetVolume()->GetNumber();
-  //cout<<"bbox id = "<<n4->GetVolume()->GetNumber()<<", node id = "<<n4->GetNumber()<<endl;
-  //cout<<"abox id = "<<v2->GetNumber()<<endl;
+  // to find out which barbox charged particle hit:  
+  fbboxID = gMC->VolId("DrcBarBox");
+  //cout<<"bbox id = "<<fbboxID<<endl;
+   
+  // EV id number  
+  fevID = gMC->VolId("DrcEV");
+  //cout<<"EV id = "<<fevID<<endl;
   
   // create a detector efficiency function:
   if(fDetEffAtProduction == kTRUE){
@@ -731,7 +725,10 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
   
   TString nam =vol->GetName();
   Int_t num = vol->getMCid();
-   
+  Int_t volID = vol->getVolumeId();
+  Int_t modID = vol->getModId();
+  Int_t uniID = vol->GetUniqueID();
+     
    //Register points in the barrel (PndDrcBarPoints)
   fEventID = gMC->CurrentEvent();
   fPdgCode = gMC->TrackPid();
@@ -771,21 +768,21 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
   }
   //----------------------------   
 */    
-   // take only direct photons:
-   if(fTakeDirect){      
-     if (gMC->IsTrackExiting()==1 ){       
-        if(nam.BeginsWith(fAtBarEnd)){                      
-	//if(num == flensID && fPos.Z() < fSlabEnd + 0.001){
-	//if(fPos.Z() < fSlabEnd + 0.0001){
-	  //std::cout<<"!!! Track is exiting volume "<<nam<<", "<<num<<" at "<<fPos.Z()<<", fSlabEnd = "<<fSlabEnd<<std::endl;
-	  gMC->TrackMomentum(fMom);	    
-          if ((fPos.X()*fMom.X() + fPos.Y()*fMom.Y()) < 0.){
-	     //cout<<"track is stopped!"<<endl;	              
-             gMC->StopTrack();	   
+
+    // "TakeOnlyDirectPho" option:
+    // if photon is exiting the bar - check its direction
+    if(fTakeDirect){  
+      if(gMC->IsTrackExiting()==1){        
+        if(num == fbarID && fPos.Z() < fBarEnd){
+	  //std::cout<<"Track is exiting the "<<num<<", "<<nam<<std::endl;
+	  gMC->TrackPosition(fPos);
+	  gMC->TrackMomentum(fMom);
+	  if ((fPos.X()*fMom.X() + fPos.Y()*fMom.Y()) < 0.){
+	    gMC->StopTrack();	    	   
 	  }
-       }
-     }      
-   }
+	}
+      }
+    }
    
    // kill photons older than fPhoMaxTime:  
    if (fStopTime == kTRUE && gMC->TrackTime()*1.0e09 > fPhoMaxTime){          
@@ -971,489 +968,27 @@ void PndDrc::ConstructGeometry()
   cout<< "                                               " << endl;
   cout<< " =======  DRC::  ConstructGeometry()  ======== " << endl;
   cout<< " ============================================= " << endl;
-  /*
+  
   TString fileName = GetGeometryFileName();
   if(fileName.EndsWith(".root")){
     ConstructRootGeometry();
+    if(fileName.Contains("_l0_")){ 
+      fBarEnd = -119.999;
+      ffocusing = 0;      
+    }
+    if(fileName.Contains("_l2_")){
+      fBarEnd = -119.999;
+      ffocusing = 2;      
+    }
+    if(fileName.Contains("_l1_")){
+      fBarEnd = -118.725;
+      ffocusing = 1;
+    }
+    
   } else{
     std::cout<<"Geometry format not supported!"<<std::endl;
   }   
   cout<< " ============================================= " << endl;
-  
-  */
-  const Double_t pi = 3.1415926535;
-
-  FairGeoLoader*    drcgeoLoad = FairGeoLoader::Instance();
-  FairGeoInterface* drcgeoFace = drcgeoLoad->getGeoInterface();
-
-  FairGeoMedia *Media =  drcgeoFace->getMedia();
-  FairGeoBuilder *geobuild = drcgeoLoad->getGeoBuilder();
-
-  // Call materials
-  FairGeoMedium *fusedSil  = Media->getMedium("FusedSil");
-  Int_t nFusedSil = geobuild->createMedium(fusedSil);
-  FairGeoMedium *nlak33a  = Media->getMedium("NLAK33A");
-  Int_t nNlak33a = geobuild->createMedium(nlak33a);
-//  FairGeoMedium *air  = Media->getMedium("air");
-//  Int_t nAir = geobuild->createMedium(air);
-  FairGeoMedium *air  = Media->getMedium("DIRCair");
-  Int_t nAir = geobuild->createMedium(air);
-  FairGeoMedium *airNoSens  = Media->getMedium("DIRCairNoSens");
-  Int_t nAirNoSens = geobuild->createMedium(airNoSens);
-  FairGeoMedium *mirror  = Media->getMedium("Mirror");
-  Int_t nMirror = geobuild->createMedium(mirror);
-  FairGeoMedium *marcol82  = Media->getMedium("Marcol82");
-  Int_t nMarcol82 = geobuild->createMedium(marcol82);
-  FairGeoMedium *carbonfiber = Media->getMedium("DIRCcarbonFiber");
-  Int_t nCarbonFiber = geobuild->createMedium(carbonfiber);
-
-  TGeoVolume *cave = gGeoManager->GetTopVolume();
-  
-  
-  // Rotations:
-  TGeoRotation rot1;
-  rot1.RotateZ(90.);
-  
-  // units = cm
-
-  Double_t eps           = 0.01;                                  // epsilon
-  Double_t mirr_hthick   = 0.01;
-    
-  Double_t bbnum         =  fGeo->BBoxNum();       //16.;	 // total number of sides = barboxes
-  Double_t bbGap         =  fGeo->BBoxGap();       //1.5;  // gap btw the neighboring barboxes (at the middle height)
-  Double_t pipehAngle    =  fGeo->PipehAngle();    //3.6;  // [degrees] half of the angular space needed for the target pipe
-     
-  Double_t radius        =  fGeo->radius();       // radius in middle of the barbox (x and y)
-  Double_t hthick        =  fGeo->barHalfThick(); // half thickness of the bars
-  Double_t bbox_zdown    =  fGeo->barBoxZDown();  // bar box z downstream
-  Double_t bbox_zup      =  fGeo->barBoxZUp();    // bar box z upstream
-  Double_t bbox_hlen     =  0.5*(bbox_zdown - bbox_zup);           // bar box half length
-  Double_t bbox_shift    =  bbox_zup + bbox_hlen; // bar box shift
-  Double_t bargap        =  fGeo->barGap();       // half gap between bars
-  Double_t barnum        =  fGeo->barNum();       // number of bars per barbox
-  Double_t boxgap        =  fGeo->boxGap(); 	  // gap between bars and the bar box
-  Double_t boxthick	 =  fGeo->boxThick();     // thickness of the bar box
-  Double_t len           =  0.;                   // length of the lenses block. see further
-  
-  // Expansion Volume:
-  Double_t EVlen         =  fGeo->EVlen();        // 30. in current version
-  Double_t EVdrop	 =  fGeo->EVdrop();//0.5;  		   // [cm] drop of the EV - inner radius
-  Double_t EVoffset	 =  fGeo->EVoffset();//1.;    		   // [cm] offset of the EV - outer radius
-  Double_t EVangle	 =  fGeo->EVangle();//60.;
-  Double_t EVbackAngle   =  fGeo->EVbackAngle(); // 90. by default
-  Double_t EVshift       =  -bbox_hlen + bbox_shift - EVlen;  
-  Double_t EVRout        =  radius + hthick + EVlen*tan(EVangle/180.*pi)/cos(pi/bbnum/2.);
-  
-  Double_t bbAngle       =  ( 180. - 2.*pipehAngle - bbGap/radius/pi*180.*(bbnum/2.-1.) )/(bbnum/2.);  
-  Double_t bbX           =  radius*bbAngle/180.*pi;  
-  Double_t phi0          =  (180.-2.*pipehAngle)/bbnum + pipehAngle;
-  Double_t dphi          =  (180.-2.*pipehAngle)/bbnum*2.;
-  
-  // prizm:  
-  Double_t phlength	 =  fGeo->PrismhLength();//4.5;  		   // half length of the prizm
-  Double_t pangle	 =  fGeo->PrismAngle();//30.;
-  Double_t pdrop	 =  fGeo->PrismDrop();//0.5;   		   // drop of the prizm - inner side
-  Double_t poffset	 =  fGeo->PrismOffset();//1.;     		   // prizm offset - outer side
-  Double_t pheight	 =  2.*phlength * tan(pangle/180.*pi);
-    
-  // outer radius of the EV in case of the prism:
-  Double_t EVRprizm      =  radius + hthick + poffset + pheight + EVoffset + (EVlen-2.*phlength)*tan(EVangle/180.*pi);
-    
-  //----------------------------------------------------------
-  // F O C U S S I N G      O P T I O N S:
-  TGeoVolume *block1, *block2;
-  TGeoVolume *lens1, *lens2, *lens3;
-  // 0. NO FOCUSING:
-  if(fFocusingSystem == 0){
-    cout<<"NO FOCUSING!!!"<<endl;
-    Double_t flen = 0.;
-    fSlabEnd = -bbox_hlen + bbox_shift + flen;  
-    cout<<"bar ends at = "<<fSlabEnd<<endl;
-    
-    fAtBarEnd = "DrcBarSensor";
-  }
-  //-----------------------------------------------------------
-  // 1. LENS:  
-  if (fFocusingSystem == 1){  // L E N S E S  (no airgaps, thin nlak33)
-    // some notes to lens operations (revision 9649) is in
-    // ~carsten/work/documents/software/PandaRoot/lens_definitions_2.pdf
-    
-    Double_t r = 75.18; // first lens radius (cm)    
-    Double_t alpha = TMath::ASin(bbX/12/r);  // lside -> bbX
-    Double_t a = r - r*TMath::Cos(alpha);
-    Double_t b = a + 0.5; // box dimension  .6 instead of .5 due to strong curvature
-
-    //cout<<" DIRC a,b = "<<a<<" "<<b<<endl;
-  
-
-    Double_t r2 = 75.18; // radius second lens (cm)
-    Double_t b2 = 0.2;   // + a2;
-     
-    Double_t r3 = 17.95; // third lens radius (cm)
-    Double_t alpha3 = TMath::ASin(bbX/12/r3);  // lside -> bbX
-    Double_t a3 = r3 - r3*TMath::Cos(alpha3);
-    Double_t b3 = a3 + 0.0; // box dimension  .6 instead of .5 due to strong curvature
-  
-    // lens1 (b) + lens2 (0.6) + lens3 (b3) + gap (0.5) 
-   
-    len = b + 0.2 + b3 + 0.5;//+ a2; // dimension of the box containing both lenses
-    
-    //cout<<"DIRC len= "<<len<<endl;
-  
-    fSlabEnd = -bbox_hlen + bbox_shift + len - 0.5; // used in processHits
-
-    // Lenses
- 
-    // Lens 1
-    Double_t t = -r +b/2;
-
-    TGeoSphere* logicSphere= new TGeoSphere("S",0.,r, 0. ,180.,0.,360.);
-    TGeoBBox* lBox = new TGeoBBox("B", (bbX/barnum)/2-bargap, hthick, b/2.); // lside->bbX
-    TGeoTranslation *tr1 = new TGeoTranslation("tr1", 0.,0., t);
-    tr1->RegisterYourself();
-    TGeoCompositeShape *cs = new TGeoCompositeShape("cs","S*(B:tr1)");
-    lens1 = new TGeoVolume("DrcLENS1",cs, gGeoManager->GetMedium("FusedSil"));
-    lens1->SetLineColor(kRed-8);
-    lens1->SetTransparency(40); 
-     
-    // position lens within already shifted bar container at -(bbox_hlen-eps)+len, the lens base is -r + b
-    // with -0.01 one can make a gap visible (.1mm) for orientation   
-    //barContainer->AddNode(lens1, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps)+len -(-r+b) /*-0.01*/, new TGeoRotation (0)));
-/*    barContainer->AddNode(lens1, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen)+len -(-r+b), new TGeoRotation (0)));
-*/  fdz_lens1 = -(bbox_hlen)+len -(-r+b);
-  
-    //Lens 2
-    Double_t t2 = -r2;// +b2/2 r2  is the reference point (concave lens) 
-    TGeoSphere* logicSphere2 = new TGeoSphere("S2",0 ,r2, 0. ,180.,0.,360.);
-    TGeoBBox*   lBox2        = new TGeoBBox("B2", (bbX/barnum)/2.-bargap, hthick, b2/2.); // lside -> bbX
-    TGeoTranslation *tr2     = new TGeoTranslation("tr2", 0.,0., t2);
-    tr2->RegisterYourself();
-    TGeoCompositeShape *cs2 = new TGeoCompositeShape("cs2","(B2:tr2)-S2");
-    lens2 = new TGeoVolume("DrcLENS2",cs2, gGeoManager->GetMedium("NLAK33A"));
-    lens2->SetLineColor(kRed+2);
-    lens2->SetTransparency(40); 
-
-    // place the lens exactly on lens1
-    // position lens within already shifted bar container at -(bbox_hlen-eps)+len, the lens base is -r2
-    // the tip of lens1 is at b
-    // with -0.02 one can make a gap visible (.1mm due to lens1) for orientation   
-    //barContainer->AddNode(lens2, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps)+len -(-r2) -b /*-0.02*/, new TGeoRotation (0)));
-/*    barContainer->AddNode(lens2, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen)+len -(-r2) -b, new TGeoRotation (0)));
-*/  fdz_lens2 = -(bbox_hlen)+len -(-r2) -b;
-
-    //Lens3 (like lens1, same treatment)
-    Double_t t3 = -r3+b3/2;
-    TGeoSphere* logicSphere3= new TGeoSphere("S3",0.,r3, 0. ,180.,0.,360.);
-    TGeoBBox* lBox3 = new TGeoBBox("B3", (bbX/barnum)/2-bargap, hthick, b3/2.); // lside -> bbX
-    TGeoTranslation *tr3 = new TGeoTranslation("tr3", 0.,0., t3);
-    tr3->RegisterYourself();
-    TGeoCompositeShape *cs3 = new TGeoCompositeShape("cs3","S3*(B3:tr3)");
-    lens3 = new TGeoVolume("DrcLENS3Sensor",cs3, gGeoManager->GetMedium("NLAK33A"));
-    lens3->SetLineColor(kRed-6);
-    lens3->SetTransparency(40); 
-     
-    // place the lens exactly on lens2 plane side
-    // position lens within already shifted bar container at -(bbox_hlen-eps)+len, the lens base is -r3 + b3
-    // with -0.03 one can make a gap visible (.1mm due to lens 1&2) for orientation   
-    // b2/2 is the thickness of lens2 in the middle 
-    //barContainer->AddNode(lens3, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps)+len -(-r3+b3) -b - b2/2 /*-0.03*/, new TGeoRotation (0)));
-/*    barContainer->AddNode(lens3, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen)+len -(-r3+b3) -b - b2/2 , new TGeoRotation (0)));
-    //cout<<" DIRC r,r2,r3 = "<<r<<" "<<r2<<" "<<r3<<endl;    
-*/
-    AddSensitiveVolume(lens3);
-  
-    fdz_lens3 = -(bbox_hlen)+len -(-r3+b3) -b - b2/2. ;  
-    fAtBarEnd = "DrcLENS3Sensor";
-  }   // E N D      O F      N E W      L E N S E S  
-  //--------------------------------------------------------------------------------
-  // 2. MIRROR
-  if (fFocusingSystem == 2){  // Mirrors at front
-     // Put some mirrors at the downstream end with a focal plane at the PD.
-      
-     double zpos=120;
-     
-     // The bar is produced with " bbox_hlen-fabs(len)/2.-mirr_hthick"
-     len = -130 + zpos + 1;
-     //len = -247.0; // negative to make space at downstream end of bar.
-     
-     Double_t len1 = 1.5; // 1st block
-     
-     Double_t mirror_angle  = 0.0;// 0.0 is pointing upstream, -90.0 is pointing to the beam axis
-     Double_t focal_length  = 2 * bbox_hlen + EVlen - fabs(len) + len1;
-     Double_t mirror_radius = 2 * focal_length;
- 
-     cout<<" mirror radius: "<<mirror_radius<<endl;
-     
-
-     // no angle for the moment
-     // block
-     TGeoSphere* logicSphere = new TGeoSphere("S",0.,mirror_radius, 0. ,180.,0.,360.);
-     TGeoBBox*   lBox        = new TGeoBBox("B", (bbX/barnum)/2-bargap, hthick, fabs(len1)/2.); // lside -> bbX
-      
-     Double_t t = mirror_radius - len1/2;
-
-     TGeoTranslation *tr1 = new TGeoTranslation("tr1", 0.,0., t);
-     tr1->RegisterYourself();
-     TGeoCompositeShape *cs = new TGeoCompositeShape("cs","S*(B:tr1)");
- 
-     block1 = new TGeoVolume("DrcBlock1",cs, gGeoManager->GetMedium("FusedSil"));
-     block1->SetLineColor(kRed);
-     block1->SetTransparency(40);
-      
-
-     Double_t shift1 = len1-mirror_radius; // Now the start of block1 is at zero
-     shift1         += bbox_hlen-fabs(len)-2*mirr_hthick;
-      
-/*     
-     barContainer->AddNode(block1, 1, new TGeoCombiTrans(0., 0., shift1, new TGeoRotation (0)));
-*/     AddSensitiveVolume(block1);
-     fdz_mirr1 = shift1;
-
-     Double_t gap  = 0;
-     Double_t len2 = fabs(len) - len1 - gap;
-   
-     // no angle for the moment
-     // block
-     TGeoSphere* logicSphere2 = new TGeoSphere("S2",0,mirror_radius,             0. ,180.,0.,360.);
-     TGeoBBox*   lBox2        = new TGeoBBox("B2", (bbX/barnum)/2-bargap, hthick, fabs(len2)/2.); // lside -> bbX
-
-     //  make radius part of block
-     Double_t t2 = mirror_radius + len2/2 - 1;
-
-     TGeoTranslation *tr2 = new TGeoTranslation("tr2", 0.,0., t2);
-     tr2->RegisterYourself();
-     TGeoCompositeShape *cs2 = new TGeoCompositeShape("cs2","(B2:tr2)-S2");
-
-     block2 = new TGeoVolume("DrcBlock2Sensor",cs2, gGeoManager->GetMedium("Mirror"));
-     block2->SetLineColor(kGreen);
-     block2->SetTransparency(40);
-      
-
-     Double_t shift2  = -mirror_radius; // Now the start of the block is at zero
-     shift2          += bbox_hlen-fabs(len)-2*mirr_hthick; // at end of bar
-     shift2          += len1 + gap;
-     
-     fdz_mirr2 = shift2; 
-      
-/*       
-     barContainer->AddNode(block2, 
-			    1,
-			    new TGeoCombiTrans(0., 
-					       0.,
-					       shift2,
-					       //  bbox_hlen-mirror_radius-2*mirr_hthick-len2+len1+1,
-					       //bbox_hlen-mirror_radius-len2+0.1,
-					       new TGeoRotation (0)
-					       )
-			    );
-*/			    
-     AddSensitiveVolume(block2);
-
-     Double_t flen = 0.;
-    // fSlabEnd = -bbox_hlen + bbox_shift + flen;  
-     fSlabEnd = -bbox_hlen + bbox_shift;
-     cout<<"bar ends at = "<< fSlabEnd <<endl;
-      
-     fAtBarEnd = "DrcBarSensor";    
-   }   // E N D      O F      MIRRORS
-  //----------------------------------------------------------
-  
-  // create pre-top volume:
-  TGeoVolume* vLocalMother;
-  TGeoPcon*   lLocalMother = new TGeoPcon("BarrelDIRC", 0, 360., 4);
-  lLocalMother->DefineSection(0, bbox_zdown, 45., 55.);
-  lLocalMother->DefineSection(1, bbox_zup, 45., 55.);
-  lLocalMother->DefineSection(2, bbox_zup - EVlen, 45., EVRout+poffset+pheight+EVoffset+0.1);
-  lLocalMother->DefineSection(3, bbox_zup - EVlen - 0.1, 45., EVRout+poffset+pheight+EVoffset+0.1);
-  vLocalMother = new TGeoVolume("BarrelDIRC", lLocalMother, gGeoManager->GetMedium("DIRCairNoSens"));
-//  vLocalMother = new TGeoVolume("BarrelDIRC", lLocalMother, gGeoManager->GetMedium("air"));
-  cave->AddNode(vLocalMother, 0, 0);
-  
-   // create BarBoxes:  
-  TGeoBBox* logicbbL;
-  TGeoVolume *bbox;
-  if(fprizm == kFALSE){
-    logicbbL = new TGeoBBox("logicbbL", bbX/2.+boxthick, hthick+boxgap+boxthick, bbox_hlen);
-    bbox = new TGeoVolume("DrcBarBox", logicbbL, gGeoManager->GetMedium("DIRCcarbonFiber")); 
-  }
-  if(fprizm == kTRUE){
-    logicbbL = new TGeoBBox("logicbbL", bbX/2.+boxthick, hthick+boxgap+boxthick, bbox_hlen-0.5*(boxgap+boxthick));
-    TGeoTrap* logicPrizmBox = new TGeoTrap("logicPrizmBox", phlength+0.5*(boxgap+boxthick), pangle/2., 270.,
-    hthick+boxgap+boxthick+0.5*(poffset+pdrop+pheight), bbX/2., bbX/2., 0., hthick+boxgap+boxthick+0.5*(poffset+pdrop), bbX/2., bbX/2., 0.);
-      
-    TGeoTranslation* trprb = new TGeoTranslation("trprb", 0., 0.5*(poffset-pdrop)+pheight/4., -bbox_hlen-phlength);
-    trprb->RegisterYourself();
-    TGeoCompositeShape *cspb = new TGeoCompositeShape("cspb","logicbbL + logicPrizmBox:trprb");
-    bbox = new TGeoVolume("DrcBarBox", cspb, gGeoManager->GetMedium("DIRCcarbonFiber"));
-  }
-  bbox->SetLineColor(30);
-  
-  // create air boxes:
-  TGeoBBox* logicbbS;
-  TGeoVolume *abox;
-  if(fprizm == kFALSE){
-    logicbbS = new TGeoBBox("logicbbS", bbX/2., hthick+boxgap, bbox_hlen);
-    abox = new TGeoVolume("DrcAirBox", logicbbS, gGeoManager->GetMedium("DIRCairNoSens"));
-//    abox = new TGeoVolume("DrcAirBox", logicbbS, gGeoManager->GetMedium("air"));
-    bbox->AddNode(abox, 0, new TGeoCombiTrans(0., 0., 0., new TGeoRotation(0)));
-  }
-  if(fprizm == kTRUE){
-    logicbbS = new TGeoBBox("logicbbS", bbX/2., hthick+boxgap, bbox_hlen-0.5*boxgap);
-    TGeoTrap* logicPrizmContainer = new TGeoTrap("logicPrizmContainer", phlength+0.5*boxgap, pangle/2., 270.,
-    hthick+boxgap+0.5*(poffset+pdrop+pheight), bbX/2., bbX/2., 0., hthick+boxgap+0.5*(poffset+pdrop), bbX/2., bbX/2., 0.);
-    
-    TGeoTranslation* trprc = new TGeoTranslation("trprc", 0., 0.5*(poffset-pdrop)+pheight/4., -bbox_hlen-phlength);
-    trprc->RegisterYourself();
-    TGeoCompositeShape *cspc = new TGeoCompositeShape("cspc","logicbbS + logicPrizmContainer:trprc");  
-    abox = new TGeoVolume("DrcAirBox", cspc, gGeoManager->GetMedium("DIRCairNoSens"));
-//    abox = new TGeoVolume("DrcAirBox", cspc, gGeoManager->GetMedium("air"));
-    bbox->AddNode(abox, 0, new TGeoCombiTrans(0., 0., -0.5*boxthick, new TGeoRotation(0)));
-  }
-  abox->SetLineColor(19);
-  
-  Double_t dx_bbox, dy_bbox, dz_bbox, phi_curr;    
-      
-  for(Int_t m = 0; m < bbnum; m ++){       
-    phi_curr = (90. - phi0 - dphi*m)/180.*pi;    
-    if(m > bbnum/2-1){ phi_curr = (90. - phi0 - dphi*m - 2.*pipehAngle)/180.*pi; }
-    dx_bbox = radius * cos(phi_curr);
-    dy_bbox = radius * sin(phi_curr);
-    if(fprizm == 0){
-      dz_bbox = bbox_shift;
-    } 
-    if(fprizm == 1){
-      dz_bbox = bbox_shift + 0.5*(boxgap+boxthick);
-    }  
-    TGeoRotation rot_bbox;    
-    rot_bbox.RotateZ( -phi0 - m*dphi - (TMath::Floor(2.*m/bbnum))*(2.*pipehAngle));    
-    vLocalMother->AddNode(bbox, m+1, new TGeoCombiTrans(dx_bbox, dy_bbox, dz_bbox, new TGeoRotation(rot_bbox)));    
-  }
-
-  // create logic bar:  
-  TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((bbX/barnum)/2.)-bargap, hthick, bbox_hlen-fabs(len)/2.-mirr_hthick);
-  TGeoVolume* bar;
-  if(fprizm == kFALSE){  
-    bar = new TGeoVolume("DrcBarSensor",logicBar, gGeoManager->GetMedium("FusedSil"));
-  }
-  if(fprizm == kTRUE){
-     TGeoTrap* logicPrizm = new TGeoTrap("logicPrizm", phlength, pangle/2., 270., hthick+0.5*(poffset+pdrop+pheight),
-    (bbX/barnum/2.)-bargap, (bbX/barnum/2.)-bargap, 0., hthick+0.5*(poffset+pdrop), (bbX/barnum/2.)-bargap, (bbX/barnum/2.)-bargap, 0.);
-   
-    TGeoTranslation* trpr = new TGeoTranslation("trpr", 0., 0.5*(poffset-pdrop)+pheight/4., -(bbox_hlen-fabs(len)/2.-mirr_hthick)-phlength);
-    trpr->RegisterYourself();
-    TGeoCompositeShape *csbp = new TGeoCompositeShape("csbp","logicBar + logicPrizm:trpr");
-    bar = new TGeoVolume("DrcBarSensor",csbp, gGeoManager->GetMedium("FusedSil"));
-    fAtBarEnd = "DrcBarSensor";
-    fSlabEnd = -bbox_hlen + bbox_shift + 2.*phlength;
-  }
-  bar->SetLineColor(kCyan-9);
-  bar->SetTransparency(50);    
-  AddSensitiveVolume(bar);
-  
-  // create logic mirror:
-  TGeoBBox* logicMirror  = new TGeoBBox("logicMirror", bbX/barnum/2.-bargap, hthick, mirr_hthick);
-  TGeoVolume *mirr  = new TGeoVolume("DrcMirr", logicMirror,  gGeoManager->GetMedium("Mirror"));
-  mirr->SetLineColor(5);
-    
-  Double_t dx, dy, dz_bar, dz_mirr;
-  
-  for(Int_t j=0; j<barnum; j++){
-    dx      = - (bbX/2.) + (bbX/barnum)/2. + j * (bbX/barnum); 
-    dy  = 0.;
-    if(fprizm == kFALSE){
-      dz_bar = len/2.-mirr_hthick;
-      dz_mirr = bbox_hlen - mirr_hthick;
-      if(fFocusingSystem == 1){ // lens
-        abox->AddNode(lens1, 1+j ,new TGeoCombiTrans(dx, dy, fdz_lens1, new TGeoRotation (0)));
-	abox->AddNode(lens2, 1+j ,new TGeoCombiTrans(dx, dy, fdz_lens2, new TGeoRotation (0)));
-        abox->AddNode(lens3, 1+j ,new TGeoCombiTrans(dx, dy, fdz_lens3, new TGeoRotation (0)));
-      }
-      if(fFocusingSystem == 2){ // mirror
-        abox->AddNode(block1, 1+j, new TGeoCombiTrans(dx, dy, fdz_mirr1, new TGeoRotation (0)));
-        abox->AddNode(block2, 1+j, new TGeoCombiTrans(dx, dy, fdz_mirr2, new TGeoRotation (0)));
-      }
-    }
-    if(fprizm == kTRUE){
-      dz_bar  = -mirr_hthick - 0.5*boxgap;
-      dz_mirr = bbox_hlen -0.5*boxgap - mirr_hthick;
-    }        
-    abox->AddNode(bar,  1+j, new TGeoCombiTrans(dx, dy, dz_bar, new TGeoRotation(0)));
-    if(fFocusingSystem != 2){
-     abox->AddNode(mirr, 1+j, new TGeoCombiTrans(dx, dy, dz_mirr, new TGeoRotation(0)));
-    }
-  }
-
-  // Expansion volume:
-  Double_t dR;
-  Double_t xEV;
-  
-  TGeoPcon* logicEV;// = new TGeoPcon("logicEV", 0., 360., 2);
-  if(fprizm == kFALSE){
-    dR = (radius+hthick+boxgap+boxthick)/cos(dphi/2./180.*pi) - (radius-hthick);
-    xEV = (dR + EVlen*tan(EVangle/180.*pi))/ (tan(EVangle/180.*pi) + tan(EVbackAngle/180.*pi));
-    if(EVbackAngle == 90.){
-      logicEV = new TGeoPcon("logicEV", 0., 360., 2);
-      logicEV->DefineSection(0, 0.,      radius-hthick,  EVRout);
-      logicEV->DefineSection(1, EVlen, radius-hthick,  (radius+hthick+boxgap+boxthick)/cos(dphi/2./180.*pi));
-    }
-    if(EVbackAngle != 90.){
-      logicEV = new TGeoPcon("logicEV", 0., 360., 3);
-      logicEV->DefineSection(0, 0.,      radius-hthick,  radius-hthick+eps);
-      logicEV->DefineSection(1, xEV,     radius-hthick,  EVRout - xEV*tan(EVangle/180.*pi));
-      logicEV->DefineSection(2, EVlen,   radius-hthick,  (radius+hthick+boxgap+boxthick)/cos(dphi/2./180.*pi));
-    } 
-  }
-  if(fprizm == kTRUE){
-    dR = (radius+hthick+poffset+pheight+EVoffset)/cos(dphi/2./180.*pi) - (radius-hthick-pdrop-EVdrop);
-    xEV = (dR + (EVlen-2.*phlength)*tan(EVangle/180.*pi))/ (tan(EVangle/180.*pi) + tan(EVbackAngle/180.*pi));
-    if(EVbackAngle == 90.){
-      logicEV = new TGeoPcon("logicEV", 0., 360., 2);
-      logicEV->DefineSection(0, 0.,                radius-hthick-pdrop-EVdrop,  EVRprizm);
-      logicEV->DefineSection(1, EVlen-2.*phlength, radius-hthick-pdrop-EVdrop,  radius+hthick+poffset+pheight+EVoffset);
-    }
-    if(EVbackAngle != 90.){
-      logicEV = new TGeoPcon("logicEV", 0., 360., 3);
-      logicEV->DefineSection(0, 0.,                radius-hthick-pdrop-EVdrop,  radius-hthick-pdrop-EVdrop+eps);
-      logicEV->DefineSection(1, xEV,               radius-hthick-pdrop-EVdrop,  EVRprizm - xEV*tan(EVangle/180.*pi));
-      logicEV->DefineSection(2, EVlen-2.*phlength, radius-hthick-pdrop-EVdrop,  (radius+hthick+poffset+pheight+EVoffset)/cos(dphi/2./180.*pi));      
-    }
-  }
-  TGeoVolume* baseEV = new TGeoVolume("DrcEV", logicEV, gGeoManager->GetMedium("Marcol82"));
-  baseEV->SetLineColor(kMagenta+2);
-  baseEV->SetTransparency(50);
-  vLocalMother->AddNode(baseEV, 1, new TGeoCombiTrans(0.,0.,EVshift, new TGeoRotation(0)));
-  
-  // PhotoDetector: 
-  TGeoCone *logicPD; 
-  if(fprizm == kFALSE){
-    if(EVbackAngle == 90.){
-      logicPD = new TGeoCone("logicPD", 0.1/2., radius-hthick, EVRout, radius-hthick, EVRout);     
-    }
-    if(EVbackAngle != 90.){      
-      logicPD = new TGeoCone("logicPD", xEV/2., radius-hthick+eps, radius-hthick+eps+0.1, EVRout-xEV*tan(EVangle/180.*pi), EVRout-xEV*tan(EVangle/180.*pi)+0.1);
-    }
-  }
-  if(fprizm == kTRUE){
-    if(EVbackAngle == 90.){
-      logicPD = new TGeoCone("logicPD", 0.1/2., radius-hthick, EVRprizm, radius-hthick, EVRprizm);      
-    }
-    if(EVbackAngle != 90.){      
-      logicPD = new TGeoCone("logicPD", xEV/2., radius-hthick-pdrop-EVdrop+eps, radius-hthick-pdrop-EVdrop+eps+0.1, EVRprizm-xEV*tan(EVangle/180.*pi), EVRprizm-xEV*tan(EVangle/180.*pi)+0.1);
-    }
-  }
-  TGeoVolume *pd = new TGeoVolume("DrcPDSensor", logicPD, gGeoManager->GetMedium("FusedSil"));
-  pd->SetLineColor(kGreen-6);
-  if(EVbackAngle == 90.){
-    vLocalMother->AddNode(pd, 1,new TGeoCombiTrans(0., 0., EVshift-0.1/2., new TGeoRotation (rot1)));  
-  }
-  if(EVbackAngle != 90.){
-    vLocalMother->AddNode(pd, 1,new TGeoCombiTrans(0., 0., EVshift+0.5*xEV, new TGeoRotation (rot1)));  
-  }
-  AddSensitiveVolume(pd);
-    
-  cout<<"bars ends at = "<<fSlabEnd<<endl;    
- // gGeoManager->CloseGeometry();
-
 }
 
 // -----   Public Method Construct Optical Geometry ---------------------------
@@ -1470,25 +1005,34 @@ void PndDrc::ConstructOpGeometry()
   Double_t reflectivity[npoints];
   reflectivity[0] = 1.;
   reflectivity[1] = 1.;
-/*     
-  gMC->DefineOpSurface("BarMirSurface",kUnified, kDielectric_dielectric, kPolished, 0.9);
-  for(Int_t i=0; i<fGeo->barNum(); i++){  
-    gMC->SetBorderSurface("BarMirSurface", "DrcBarSensor", i+1, "DrcMirr", i+1, "BarSurface");  
-  } 
-*/ 
- 
+  Double_t reflectivity1[npoints];
+  reflectivity1[0] = 0.;
+  reflectivity1[1] = 0.;
+
   gMC->DefineOpSurface("BarSurface", kGlisur, kDielectric_metal, kPolished, 0.0);
-//  gMC->DefineOpSurface("BarSurface", kUnified, kDielectric_metal, kGround, 0.1);
+//  gMC->DefineOpSurface("BarSurface", kUnified, kDielectric_metal, kGround, 0.1);  
+
   for(Int_t i=0; i<fGeo->barNum(); i++){
-//    gMC->SetSkinSurface("BarAirSurface","DrcBarSensor", "BarSurface");
     gMC->SetBorderSurface("BarAirSurface", "DrcBarSensor", i+1, "DrcAirBox", 0, "BarSurface");
+    if(ffocusing == 1){ // lens
+      gMC->SetBorderSurface("Lens1AirSurface", "DrcLENS1", i+1, "DrcAirBox", 0, "BarSurface");
+      gMC->SetBorderSurface("Lens2AirSurface", "DrcLENS2", i+1, "DrcAirBox", 0, "BarSurface");
+      //gMC->SetBorderSurface("Lens3AirSurface", "DrcLENS3", i+1, "DrcAirBox", 0, "BarSurface");
+    }
+    if(ffocusing == 2){ // forward mirror
+      gMC->SetBorderSurface("Block1AirSurface", "DrcBlock1", i+1, "DrcAirBox", 0, "BarSurface");
+      gMC->SetBorderSurface("Block2AirSurface", "DrcBlock2", i+1, "DrcAirBox", 0, "BarSurface");
+    }    
   }  
   gMC->SetMaterialProperty("BarSurface", "REFLECTIVITY", npoints, ephoton, reflectivity);
-//  gMC->SetMaterialProperty("BarSurface", "EFFICIENCY",   npoints, ephoton, efficiency);
-
+ 
   gMC->DefineOpSurface("EVSurface", kGlisur, kDielectric_metal, kPolished, 0.0);
   gMC->SetBorderSurface("EVAirSurface", "DrcEV", 1, "BarrelDIRC", 0, "EVSurface"); 
-  gMC->SetMaterialProperty("EVSurface", "REFLECTIVITY", npoints, ephoton, reflectivity); 
+  gMC->SetMaterialProperty("EVSurface", "REFLECTIVITY", npoints, ephoton, reflectivity);
+  
+  gMC->DefineOpSurface("PDSurface", kGlisur, kDielectric_metal, kPolished, 0.0);
+  gMC->SetBorderSurface("EVPDSurface", "DrcEV", 1, "DrcPDSensor", 1, "PDSurface");
+  gMC->SetMaterialProperty("PDSurface", "REFLECTIVITY", npoints, ephoton, reflectivity1); 
 
   cout<<" =======  DRC::ConstructOpGeometry -> Finished! ====== "<< endl;     
 }  

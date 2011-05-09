@@ -65,31 +65,7 @@ class PndDrc : public FairDetector
     kTRUE = only direct photons
   */ 
   void SetOnlyDirectPho(Bool_t db=kTRUE) {fTakeDirect = db;}
-    
-  /*!  \brief Set Prizm:
-    \param pr (
-    kTRUE = there is a prizm
-    kFALSE = there is no prizm
-    )    
-  */
-  void SetPrizm(Bool_t pr = kFALSE){fprizm = pr;}
-  
-  /*!  \brief Set Focusing System in case of no prism !!:
-    \param fo (
-    0 = no focusing
-    1 = lens
-    2 = forward mirror
-    )    
-  */ 
-  void SetFocusingSystem(Int_t fo = 0){
-    if(fprizm == kTRUE){
-      std::cout<<"SetPrism should be kFALSE!!!"<<std::cout;
-    }
-    if(fprizm == kFALSE){
-      fFocusingSystem = fo;
-    }
-  }  
-  
+
   /** Virtual method Initialize
    ** Initialises detector. Stores volume IDs for DIRC detector and mirror.
    **/
@@ -200,12 +176,14 @@ class PndDrc : public FairDetector
   Int_t          volDetector;               //!  MC volume ID of drc
   Double_t       fMass;
   TLorentzVector fMom1;
+  Double_t 	 fBarEnd;
   
   // used in ProcessHits function:
   Int_t		 fbarID;	   //!  ID number of DrcBarSensors
   Int_t          fpdID;		   //!  ID number of DrcPdSensor
   Int_t		 flensID;	   //!  ID number of outer lenses
   Int_t		 fbboxID;      	   //!  ID number of DrcBarBoxes
+  Int_t 	 fevID;		   //!  ID number of Expansion Volume
   
   TGraph*        fDetEff;          //!  Detector Efficiency as a function of photon wavelength
   Bool_t         fDetEffAtProduction;
@@ -213,15 +191,11 @@ class PndDrc : public FairDetector
   Int_t          fLastTrackID;
   Double_t       fCollectionEff;//Collection Efficiency 
   Double_t       fPackingFraction;//Packing Efficiency 
-  
-  Double_t       fSlabEnd;   //!< Slab end defined in Construction and used in ProcessHits
-  
+ 
   Bool_t         fStopTime;
   Double_t       fPhoMaxTime;
-  Bool_t         fTakeDirect;  
-  TString        fAtBarEnd;
-  Bool_t         fprizm;
-  Int_t 	 fFocusingSystem; 
+  Bool_t         fTakeDirect;     
+  Int_t 	 ffocusing; 
   
   // lens shift:
   Double_t       fdz_lens3;
@@ -240,12 +214,17 @@ class PndDrc : public FairDetector
   Int_t          fEventID;
   
   Int_t aaa;
+  
+  // js group velocity check    
+  Float_t fTime_out, fTime_in, fLength_in, fLength_out, fPEnergy, fLambda, fDeltaT;
+  Double32_t     fTrackTime;            
+  // end
 
   // reset all parameters   
   void ResetParameters();
 
   Int_t  fSenId1, fSenId2, fSenIdBar;
-  ClassDef(PndDrc,4)
+  ClassDef(PndDrc,5)
 
 }; 
 
