@@ -196,16 +196,11 @@ SET(TPC_BASE_SOURCES ${TPC_BASE_SOURCES} ${TPC_BASE_DICTIONARY})
 add_library(Tpc SHARED ${TPC_SRCS})
 
 
-FIND_PATH(TEvePath NAMES ../TEveEventManager.h PATHS
-  ${SIMPATH}/tools/root/include
-  NO_DEFAULT_PATH
-)
-
-If(TEvePath)
+If(DEFINED ENV{CLUSTVIS})
   target_link_libraries(Tpc ${ROOT_LIBRARIES} -lEG -lTreePlayer -lGeom -lGed -lRGL -lEve)
-Else(TEvePath)
+Else(DEFINED ENV{CLUSTVIS})
   target_link_libraries(Tpc ${ROOT_LIBRARIES} -lEG -lTreePlayer -lGeom -lGed)
-EndIf(TEvePath)
+EndIf(DEFINED ENV{CLUSTVIS})
 
 set_target_properties(Tpc PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 add_library(TpcBase SHARED ${TPC_BASE_SOURCES})
@@ -213,9 +208,8 @@ target_link_libraries(TpcBase ${ROOT_LIBRARIES})
 set_target_properties(TpcBase PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 
-
-If(TEvePath)
-  Message("Found TEve, so libTpcEve will be built and PndTpcClustVis will be compiled.")
+If(DEFINED ENV{CLUSTVIS})
+  Message("CLUSTVIS is set, so libTpcEve will be built and PndTpcClustVis will be compiled.")
   
   SET(TPC_EVE_SOURCES
     TestBench/PndTpcClustVis.cxx
@@ -238,7 +232,7 @@ If(TEvePath)
   ################ install with TpcEve ###################
   install(TARGETS Tpc TpcBase TpcEve DESTINATION ${CMAKE_BINARY_DIR}/lib)
 
-Else(TEvePath)
+Else(DEFINED ENV{CLUSTVIS})
   ############## install without TpcEve ##################
   install(TARGETS Tpc TpcBase DESTINATION ${CMAKE_BINARY_DIR}/lib)
-EndIf(TEvePath)
+EndIf(DEFINED ENV{CLUSTVIS})
