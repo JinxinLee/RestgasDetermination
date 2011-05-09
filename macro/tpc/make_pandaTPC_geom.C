@@ -235,9 +235,11 @@ TGeoVolumeAssembly* createCooling() {
 // ---------------------- CREATE GAS VOLUME ---------------------------------
 
 TGeoVolumeAssembly* createGas() {
+  //dead space for GEM foils:
+  double gemDz = 1.;
   double gas_pars[6] = { 15.5,   //rMin
 			 41.,   //rMax
-			 150./2.,   //dZ  HALF OF ACTUAL LENGTH 
+			 (150.-gemDz)/2.,   //dZ  HALF OF ACTUAL LENGTH 
 			 95.,
 			 265. };
   TGeoVolumeAssembly* Gas = new TGeoVolumeAssembly("Gas");
@@ -246,15 +248,76 @@ TGeoVolumeAssembly* createGas() {
 				   gGeoManager->GetMedium("TPCmixture"));
   gas->SetLineColor(kBlue+11);
   gas->SetTransparency(50);
-  Gas->AddNode(gas,1);
   TGeoRotation* rot = new TGeoRotation();
-  rot->SetAngles(180.,0,0);
+  TGeoTranslation* trans = new TGeoTranslation(0.,0.,gemDz/2.);
+  Gas->AddNode(gas,1,trans);
+  rot->SetAngles(180.,0.,0.);
   TGeoVolume* gas2 = gas->Clone();
   gas2->SetName("gas2");
-  Gas->AddNode(gas2,2, rot);
+  TGeoCombiTrans* combi = new TGeoCombiTrans(*trans, *rot);
+  Gas->AddNode(gas2,2, combi);
   return Gas;  
 }
 
+
+// --------------------- CONSTRUCT GEM-STACK ---------------------------------
+TGeoVolumeAssembly* createGEMStack() {
+  double gem_pars[3] = { 15.5,   //rMin
+			 41.,   //rMax
+			 0.};   //dZ  HALF OF ACTUAL LENGTH 
+  
+  //calculate effective thickness correction factor (due to holes)
+  double pitch = 140.;  //(mu m)
+  double diam = 65.;   //hole diameter
+  double area = (3./2.) * pitch * pitch * TMath::Sqrt(3); //hexagon
+  
+  double gemPitch = 0.2;
+
+  double eff = (area - 3 * (TMath::Pi() * diam/2. * diam/2.)) / area;
+  cout<<"Effective GEM area factor: "<<eff<<endl;
+  
+  TGeoVolumeAssembly* stack = new TGeoVolumeAssembly("GemStack");
+  TGeoVolumeAssembly* gem = new TGeoVolumeAssembly("Gem");
+  
+  int nL = 3;
+  int nGems = 3;
+  double thicks[3] = {0.0005,
+		      0.005,
+		      0.0005};
+  TString mats[3] = {"copper",
+		     "kapton",
+		     "copper"};
+  Color_t cols[3] = {kOrange+3,
+			kOrange+8,
+			kOrange+3};
+  
+  double totThick = 0.;
+  
+  for(unsigned int l=0; l<nL; l++) {
+    gem_pars[2] = thicks[l]/2. * eff;
+    TGeoTube* meh = new TGeoTube(gem_pars);
+    TString name("GEM_layer_");
+    name.Append(mats[l]);
+    TGeoVolume* layer = new TGeoVolume(name, meh,
+				       gGeoManager->GetMedium(mats[l]));
+    layer->SetLineColor(cols[l]);
+    TGeoTranslation* trans_l = new TGeoTranslation(0., 0., thicks[l]/2. * eff + totThick);
+    totThick+=thicks[l] * eff;
+    gem->AddNode(layer, l, trans_l);
+  }
+  
+  //global coordinate shift (with respect to lowest layer of lowest GEM):
+  double extractionPitch = 0.3;
+  double dz_glob = -150./2. + extractionPitch;
+  //create Stack
+  for(unsigned int g=0; g<nGems; g++) {
+    double dz = g*(totThick+gemPitch);
+    TGeoTranslation* trans_s = new TGeoTranslation(0., 0., dz+dz_glob);
+    stack->AddNode((TGeoVolume*)gem->Clone(),g,trans_s);
+  }
+  return stack;
+}
+  
 
   //---------------- CONSTRUCT FIELDCAGE BARREL ------------------------------
 TGeoVolumeAssembly* createFieldCageBarrel() {
@@ -430,6 +493,7 @@ void make_pandaTPC_geom() {
   topAss->AddNode(createCooling(),0,glob);
   topAss->AddNode(createFE(),0,glob);
   topAss->AddNode(createCoolingPot(),0,glob);
+  topAss->AddNode(createGEMStack(),0,glob);
   
   geoMan->SetTopVolume(topAss);
   
