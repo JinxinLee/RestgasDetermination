@@ -84,6 +84,7 @@
   PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
   recoKalman->SetTrackInBranchName("SttMvdGemTrack");
   recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
+  recoKalman->SetBusyCut(50); // CHECK to be tuned
   //recoKalman->SetNumIterations(3);
   fRun->AddTask(recoKalman);
 
