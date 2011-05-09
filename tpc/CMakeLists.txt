@@ -132,6 +132,7 @@ QAPlotCollection.cxx
 PndTpcTestChamberOutputTask.cxx 	    
 PndTpcLaserCorrectionTask.cxx					    
 TestBench/PndTpcSLResidualTask.cxx
+TestBench/PndTpcResidualTask.cxx
 TestBench/PndTpcSLPatternRecoTask.cxx
 TestBench/Hypersurface2D.cxx
 TestBench/Hough2DNode.cxx

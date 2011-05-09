@@ -65,6 +65,7 @@
 #pragma link C++ class PndTpcEventIdentifier+;
 #pragma link C++ class PndTpcDataReaderTask+;
 #pragma link C++ class PndTpcSLResidualTask+;
+#pragma link C++ class PndTpcResidualTask+;
 #pragma link C++ class PndTpcPadShapePool+;
 #pragma link C++ class PndTpcPadPlane+;
 #pragma link C++ class PndTpcPad+;
