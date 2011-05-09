@@ -98,9 +98,13 @@ public:
   /**      set important cuts for SpecialPhysicsCuts() */
   void SetCuts(double cut_el, double cut_had) {fCut_el=cut_el; fCut_had=cut_had;}
 
+  void SetAllSensitive(bool opt) {fAllSensitive=opt;}
+
   
   /**      Create the detector geometry        */
   void ConstructGeometry();
+
+  bool CheckIfSensitive(std::string name);
   
   void EndOfEvent();
   void BeginEvent();
@@ -133,6 +137,7 @@ private:
   TClonesArray  *fPndTpcPointCollection;
   bool fAliMC; //use Alice Monte Carlo, ELOSS=5 has to be set!
   bool fDeltaAttach; //assign delta MC points to the mother track
+  bool fAllSensitive; //make ALL root geometry volumes sensitive
   double fCut_el, fCut_had;
   std::string fMixture;  //which gas mixture to use from the geometry definitions
   // Private Methods -----------------

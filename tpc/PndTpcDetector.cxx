@@ -52,7 +52,8 @@
 
 PndTpcDetector::PndTpcDetector(const char * Name, Bool_t Active)
   : FairDetector(Name, Active),fAliMC(kFALSE), fDeltaAttach(kFALSE), 
-    fCut_el(1.0E-3), fCut_had(1.0E-3)  //standard values 1MeV
+    fCut_el(1.0E-3), fCut_had(1.0E-3),  //standard values 1MeV
+    fAllSensitive(kFALSE)
 {
   fPndTpcPointCollection= new TClonesArray("PndTpcPoint");
   fMixture="TPCmixture"; //default to PANDA TPC mixture
@@ -323,6 +324,13 @@ PndTpcDetector::ConstructGeometry() {
       copy this and use it for your detector, otherwise you can
       
   implement here you own way of constructing the geometry. */
+  TString fileName = GetGeometryFileName();
+  if(fileName.EndsWith(".root")) {
+    std::cout<<"PndTpcDetector::ConstructGeometry() "
+	     <<"  ...using ROOT geometry"<<std::endl;
+    ConstructRootGeometry();
+    return;
+  }
   
   std::cout<<" --- Building TPC Geometry ---"<<std::endl;
 
@@ -365,6 +373,19 @@ PndTpcDetector::ConstructGeometry() {
   ProcessNodes ( volList );
   //if(fAliMC)
   // AliTPCv3_InitDetector(); 
+}
+
+
+bool
+PndTpcDetector::CheckIfSensitive(std::string name) {
+  if(fAllSensitive)
+    return true;
+  TString test(name.c_str());
+  if(test.Contains("gas")) {
+    std::cout<<test<<" was set active"<<std::endl;
+    return true;
+  }
+  return false;
 }
 
 
