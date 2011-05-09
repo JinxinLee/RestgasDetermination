@@ -1,8 +1,18 @@
-void runClusterVisualisation(TString filename, double DriftField, int paramSet=0, TString digifile="") 
+void runClusterVisualisation(TString filename,
+                             double DriftField=400,
+                             int paramSet=0,
+                             TString digifile="")
 {
   // ----  Load libraries   -------------------------------------------------
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
+
+  char * clustvis;
+  clustvis = getenv ("CLUSTVIS");
+  if (clustvis==NULL){
+    std::cerr<<"WARNING: environment variable CLUSTVIS is not set, PndTpcClustVis is not built!"<<std::endl;
+    return;
+  }
 
   // load TpcEve Library
   if (TString(gSystem->DynamicPathName("libTpcEve", kTRUE)) != TString(""))
@@ -21,24 +31,29 @@ void runClusterVisualisation(TString filename, double DriftField, int paramSet=0
 
   TEveManager::Create();
 
+
   PndTpcClustVis* clustVis = PndTpcClustVis::getInstance();
   clustVis->reset();
   clustVis->setTree(tree);
 
-  TString gasfile,padplanefile,padshapefile;
-  double gain,spread,zGem,samplingFreq,wallclock;
+
+  TString gasfile,padplanefile,padshapefile,geoFile;
+  double gain,spread,zGem,samplingFreq,wallclock, MagField;
   TString basedir = gSystem->Getenv("VMCWORKDIR");
   if(paramSet==0){ // standard testBench Settings
-    gasfile=basedir+"/tpc/TestBench/ARGON-89.635_CO2-10.365_B0.3_PRES1013.asc";
+    gasfile=basedir+"/tpc/TestBench/NEON-90_CO2-10_B0.6_PRES1013.asc";
     padplanefile=basedir+"/tpc/TestBench/padPlane_FOPI.dat";
     padshapefile=basedir+"/tpc/TestBench/TBhexa_pads.dat";
     gain=4000;
     spread=0.02;
-    zGem=-0.2;
+    zGem=0.2;
     samplingFreq=20;
-    wallclock=2000;
+    wallclock=1000;
+
+    MagField=6.;
+    geoFile="tpc/TestBench/FOPIGeo.root";
   }
-   if(paramSet==1){ // standard PANDA SIM Settings
+  else if(paramSet==1){ // standard PANDA SIM Settings
     gasfile=basedir+"/tpc/NEON-90_CO2-10_B2_PRES1013.asc";
     padplanefile=basedir+"/tpc/pndhexplane0.15.dat";
     padshapefile=basedir+"/tpc/Hexagons0.15.dat";
@@ -48,12 +63,18 @@ void runClusterVisualisation(TString filename, double DriftField, int paramSet=0
     samplingFreq=40;
     wallclock=-200000;
     DriftField=400;
-  }
 
+    MagField=20.;
+    geoFile="";
+  }
 
   clustVis->initDigimapper(DriftField,gain,spread,zGem,samplingFreq,wallclock,
                            gasfile.Data(),padplanefile.Data(),padshapefile.Data());
-  clustVis->setOptions("DC");
-  //clustVis->gotoEvent(0);
+
+  clustVis->setFieldZ(MagField);
+
+  TGeoManager* geom = new TGeoManager("Geometry", "Geane geometry");
+  TGeoManager::Import(geoFile);
+
   clustVis->open();
 }
