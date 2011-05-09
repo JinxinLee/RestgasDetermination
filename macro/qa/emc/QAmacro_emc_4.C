@@ -3,6 +3,8 @@
 // The total energy per event are checked as well as the energy deposited per crystal.
 // Run QAmacro_emc_1.C and QAmacro_emc_2.C prior to this macro.
 //
+// If a shashlyk module if fired in event, this event is skipped
+//
 // JGM, April 2010
 //
 {
@@ -56,6 +58,8 @@
 	Bool_t fTest=kTRUE;
 	Double_t tolerance=1e-5; // tolerance in GeV
 
+	Short_t module=0;
+
 	for (Int_t j=0; j< t->GetEntriesFast(); j++)
 	{
 		t->GetEntry(j);
@@ -68,6 +72,11 @@
 		for (Int_t i=0; i<hit_array->GetEntriesFast(); i++)
 		  {
 		    PndEmcHit *hit=(PndEmcHit*)hit_array->At(i);
+			
+			// Skip shashlyk elements
+			module = hit->GetModule();
+			if (module==5) break;
+			
 		    total_energy_from_hits += hit->GetEnergy();
 
 		    Int_t detID = hit->GetDetectorID();
@@ -84,6 +93,7 @@
 		      }
 
 		  }
+		  if (module==5) continue;
 
 		h2->Fill(total_energy_from_hits);
 
