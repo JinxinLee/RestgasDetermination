@@ -50,6 +50,8 @@ public:
   const std::vector<double>* GetResX() {return &_PndTpcResX;}
   const std::vector<double>* GetResY() {return &_PndTpcResY;}
   const std::vector<double>* GetResZ() {return &_PndTpcResZ;}
+  const std::vector<double>* GetResU() {return &_PndTpcResU;}
+  const std::vector<double>* GetResV() {return &_PndTpcResV;}
   const std::vector<double>* GetSigX() {return &_PndTpcSigX;}
   const std::vector<double>* GetSigY() {return &_PndTpcSigY;}
   const std::vector<double>* GetSigZ() {return &_PndTpcSigZ;}
@@ -71,6 +73,8 @@ public:
   void fillPndTpcResX(const std::vector<double>& r){_PndTpcResX=r;}
   void fillPndTpcResY(const std::vector<double>& r){_PndTpcResY=r;}
   void fillPndTpcResZ(const std::vector<double>& r){_PndTpcResZ=r;}
+  void fillPndTpcResU(const std::vector<double>& r){_PndTpcResU=r;}
+  void fillPndTpcResV(const std::vector<double>& r){_PndTpcResV=r;}
   void fillPndTpcSigX(const std::vector<double>& r){_PndTpcSigX=r;}
   void fillPndTpcSigY(const std::vector<double>& r){_PndTpcSigY=r;}
   void fillPndTpcSigZ(const std::vector<double>& r){_PndTpcSigZ=r;}
@@ -114,6 +118,8 @@ private:
   std::vector<double> _PndTpcResX;
   std::vector<double> _PndTpcResY;
   std::vector<double> _PndTpcResZ;
+  std::vector<double> _PndTpcResU;
+  std::vector<double> _PndTpcResV;
   std::vector<double> _PndTpcSigX;
   std::vector<double> _PndTpcSigY;
   std::vector<double> _PndTpcSigZ;
