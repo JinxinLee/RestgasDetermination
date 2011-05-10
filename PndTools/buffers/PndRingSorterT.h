@@ -13,6 +13,7 @@
 
 #include <vector>
 #include <stack>
+#include <map>
 
 #include <iostream>
 
@@ -25,14 +26,14 @@ public:
 
 	virtual ~PndRingSorterT(){};
 
-	virtual void AddElement(T& digi, int timestamp);
+	virtual void AddElement(T& digi, double timestamp);
 	virtual void WriteOutElements(int index);				///< writes out the entries from LowerBoundPointer up to index
 	virtual void WriteOutElement(int index);					///< writes out the entry at the index and clears it
 	virtual void WriteOutAll(){
 		WriteOutElements(fLowerBoundPointer.first);
 	}
 	virtual double GetBufferSize(){return fCellWidth * fRingBuffer.size();}
-	virtual std::vector<std::stack<T> >GetOutputData(){
+	virtual std::vector<T> GetOutputData(){
 		return fOutputData;
 	}
 
@@ -50,8 +51,8 @@ public:
 
 private:
 	int CalcIndex(double val);
-	std::vector<std::stack<T> > fRingBuffer;
-	std::vector<std::stack<T> > fOutputData;
+	std::vector<std::multimap<double, T> > fRingBuffer;
+	std::vector<T> fOutputData;
 	std::pair<int, double> fLowerBoundPointer;
 	double fCellWidth;
 	int fVerbose;

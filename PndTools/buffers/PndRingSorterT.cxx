@@ -7,7 +7,7 @@
 
 #include "PndRingSorterT.h"
 
-template<class T>void PndRingSorterT<T>::AddElement(T& digi, int timestamp){
+template<class T>void PndRingSorterT<T>::AddElement(T& digi, double timestamp){
 
 	if (timestamp < fLowerBoundPointer.second){
 		std::cout << "-E- Timestamp " << timestamp << " below lower bound " << fLowerBoundPointer.second << std::endl;
@@ -19,7 +19,7 @@ template<class T>void PndRingSorterT<T>::AddElement(T& digi, int timestamp){
 		WriteOutElements(index+1);
 		SetLowerBound(index+1);
 	}
-	fRingBuffer[index].push(digi);
+	fRingBuffer[index].insert(std::pair<double, T> (timestamp, digi));
 }
 
 template<class T> void PndRingSorterT<T>::SetLowerBound(int index){
@@ -44,21 +44,20 @@ template<class T> void PndRingSorterT<T>::WriteOutElements(int index){
 	}
 	if (fVerbose > 1){
 		std::cout << "-I- PndRingSorter::WriteOutElements: Size of Output-Array: " << fOutputData.size() << std::endl;
-		for (int i = 0; i < fOutputData.size(); i++)
-			std::cout << fOutputData[i].size() << " | ";
-		std::cout << std::endl;
+//		for (int i = 0; i < fOutputData.size(); i++)
+//			std::cout << fOutputData[i].size() << " | ";
+//		std::cout << std::endl;
 	}
 }
 template<class T> void PndRingSorterT<T>::WriteOutElement(int index){
-	std::stack<T>* myStack = &fRingBuffer.at(index);
-	if (!myStack->empty()) {
-		if (fVerbose > 1)std::cout << "RingSorter: " << std::endl;
-		fOutputData.push_back(*myStack);
-		while (!myStack->empty()) {
-			if (fVerbose > 1)std::cout << myStack->top() << std::endl;
-			myStack->pop();
+	std::multimap<double, T>* myDataField = &fRingBuffer.at(index);
+	typename std::multimap<double, T>::iterator it;
+	if (!myDataField->empty()) {
+		//if (fVerbose > 1)std::cout << "RingSorter: " << std::endl;
+		for (it = myDataField->begin(); it != myDataField->end(); it++){
+			fOutputData.push_back(it->second);
 		}
-		std::cout << std::endl;
+		myDataField->clear();
 	}
 }
 
