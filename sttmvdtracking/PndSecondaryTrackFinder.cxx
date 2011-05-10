@@ -201,6 +201,26 @@ void PndSecondaryTrackFinder::WriteHistograms(){
 }
 void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 
+  Int_t nstthits = fSttHitArray->GetEntriesFast();
+  cout << "EVENTO with " << nstthits << endl;
+  Int_t stthits[nstthits];
+  OrderHits(fSttHitArray, stthits);
+
+  for(int ihit = 0; ihit < nstthits; ihit++) {
+    int hitid = stthits[ihit];
+    PndSttHit *stthit = (PndSttHit *) fSttHitArray->At(hitid);
+    if(!stthit) continue;
+    TVector3 position;
+    stthit->Position(position);
+    cout << "distance " << hitid << " " << position.Perp() << endl;
+
+//     // forget the skewed ones
+//     if(fDisplayOn) {
+//       TMarker *mrk = new TMarker(position.X(), position.Y(), 21);
+//       mrk->Draw();
+//     }
+
+  }
 
 }
 
@@ -237,8 +257,6 @@ void PndSecondaryTrackFinder::OrderHits(TClonesArray *hitarray, Int_t *sorthits)
     distances.push_back(distance);
     mapdistances.insert(std::pair<double, int>(distance, ihit));
  }
-
-  std::sort(distances.begin(), distances.end());
 
   std::sort(distances.begin(), distances.end());
 
