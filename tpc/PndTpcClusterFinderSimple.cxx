@@ -186,13 +186,15 @@ void
 PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
 {
   unsigned int ndigi = digis.size();
-  if(ndigi<=2) return;
+  if(ndigi<=3) return;
   
-  std::cerr<<"ndigis: "<<ndigi<<std::endl;
+  std::sort(digis.begin(),digis.end(),PndTpcDigiAge());
+
+  //std::cerr<<"ndigis: "<<ndigi<<std::endl;
 
   // sectorize in z
   unsigned int nSlices = ndigi/maxClusterSlice + 1;
-  unsigned int clusterSlice = ndigi/nSlices +1;
+  unsigned int clusterSlice = ndigi/nSlices + 1;
   
   double startTime, stopTime, time;
   unsigned int firstDigi, lastDigi;
@@ -200,8 +202,8 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
   for (unsigned int iSlice=0; iSlice<nSlices; ++iSlice){
     // find passive time window
     firstDigi = iSlice*clusterSlice;
-    lastDigi = (iSlice+1)*clusterSlice;
-    if (lastDigi > ndigi-1) lastDigi = ndigi-1;
+    lastDigi = (iSlice+1)*clusterSlice - 1;
+    if (lastDigi > ndigi-2) lastDigi = ndigi-1;
 
     startTime = digis[firstDigi]->t();
     stopTime = digis[lastDigi]->t();
@@ -210,18 +212,18 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
     
     while(firstDigi>0){
       time = digis[--firstDigi]->t();
-      if (startTime-time > 2*fdt) break;
+      if (TMath::Abs(startTime-time) > 2*fdt) break;
     }
     while(lastDigi<ndigi-1){
       time = digis[++lastDigi]->t();
-      if (time-stopTime > 2*fdt) break;
+      if (TMath::Abs(time-stopTime) > 2*fdt) break;
     }
 
-    //std::cerr<<" passive volume from "<<firstDigi<<" to "<<lastDigi<<std::endl;
+    //std::cerr<<"  passive volume from "<<firstDigi<<" to "<<lastDigi<<std::endl;
 
     std::vector<PndTpcDigi*> digisInSlice;
-    unsigned int ndigiInSlice = lastDigi-firstDigi;
-    digisInSlice.reserve(ndigiInSlice);
+    unsigned int ndigisInSlice = lastDigi-firstDigi;
+    digisInSlice.reserve(ndigisInSlice);
 
     for (unsigned int i=firstDigi; i<lastDigi; ++i){
       digisInSlice.push_back(digis[i]);
@@ -236,7 +238,7 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
     prelimClusters.push_back(new PndTpcPrelimCluster(fpadplane,fdt,prelimClusterCounter++, fG,fC));
     prelimClusters[0]->addHit(digisInSlice.back(),noXclust);
 
-    for(unsigned int idigi = ndigiInSlice-2; ; --idigi) { // loop over digis from back to front, last digi was already processed
+    for(unsigned int idigi = ndigisInSlice-2; ; --idigi) { // loop over digis from back to front, last digi was already processed
       std::vector<unsigned int> selClusters; // contains indices of clusters that the digi might belong to
       for(unsigned int iclust=0;iclust<prelimClusters.size();++iclust) { // loop over prelimClusters
         if(prelimClusters[iclust]->isInCluster(digisInSlice[idigi]) ) {
