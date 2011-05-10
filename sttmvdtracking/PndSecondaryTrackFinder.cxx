@@ -75,16 +75,16 @@ InitStatus PndSecondaryTrackFinder::Init() {
 	 << "RootManager not instantiated, return!" << endl;
     return kFATAL;
   }
-//  -----   maps of STT tubes
+  //  -----   maps of STT tubes
   // CHECK added 
   PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
   fTubeArray = mapper->FillTubeArray();
- //----------------------------------------------------  end map
+  //----------------------------------------------------  end map
 
 
 
 
-//    get   the MCTrack  array
+  //    get   the MCTrack  array
   fMCTrackArray = (TClonesArray*) ioman->GetObject("MCTrack");
   if ( ! fMCTrackArray) 
     {
@@ -95,7 +95,7 @@ InitStatus PndSecondaryTrackFinder::Init() {
 
 
 
- // Get SttTrackCand array  dal pattern recognition di STT
+  // Get SttTrackCand array  dal pattern recognition di STT
   fSttTrackCandArray  = (TClonesArray*) ioman->GetObject("STTTrackCand"); 
   if ( ! fSttTrackCandArray) 
     {
@@ -114,7 +114,7 @@ InitStatus PndSecondaryTrackFinder::Init() {
 
   // Get input array   hit di STT after digi
   fSttHitArray = (TClonesArray*) ioman->GetObject(fSttBranch);
-//  fSttHitArray = (TClonesArray*) ioman->GetObject("STTHit");
+  //  fSttHitArray = (TClonesArray*) ioman->GetObject("STTHit");
   if ( ! fSttHitArray ) {
     cout << "-W- PndSecondaryTrackFinder::Init: "
 	 << "No STTHit array, return!" << endl;
@@ -133,22 +133,22 @@ InitStatus PndSecondaryTrackFinder::Init() {
 
 
 
-//  -------------------------   get the Mvd hits
+  //  -------------------------   get the Mvd hits
   fMvdPixelHitArray = (TClonesArray*) ioman->GetObject(fMvdPixelBranch);
-//  fMvdPixelHitArray = (TClonesArray*) ioman->GetObject("MVDHitsPixel");
+  //  fMvdPixelHitArray = (TClonesArray*) ioman->GetObject("MVDHitsPixel");
   if ( !fMvdPixelHitArray){
     std::cout << "-W- PndSecondaryTrackFinder::Init: " << "No MVD Pixel hitArray, return!" << std::endl;
     return kERROR;
   }
   fMvdStripHitArray = (TClonesArray*) ioman->GetObject(fMvdStripBranch);
-//  fMvdStripHitArray = (TClonesArray*) ioman->GetObject("MVDHitsStrip");
+  //  fMvdStripHitArray = (TClonesArray*) ioman->GetObject("MVDHitsStrip");
 
   if ( !fMvdStripHitArray){
     std::cout << "-W- PndSecondaryTrackFinder::Init: " << "No MVD Strip hitArray, return!" << std::endl;
     return kERROR;
   }
 
-//  -------------------------   get the Mvd track candidates
+  //  -------------------------   get the Mvd track candidates
 
   fMvdTrackCandArray = (TClonesArray*) ioman->GetObject("MVDRiemannTrackCand");
   if ( !fMvdTrackCandArray){
@@ -158,7 +158,7 @@ InitStatus PndSecondaryTrackFinder::Init() {
 
   cout << "-I- PndSecondaryTrackFinder: Initialization successfull" << endl;
   
-//  -------------------------   get the Mvd MC points
+  //  -------------------------   get the Mvd MC points
 
   fMvdMCPointArray = (TClonesArray*) ioman->GetObject("MVDPoint");
   if ( !fMvdMCPointArray){
@@ -173,13 +173,22 @@ InitStatus PndSecondaryTrackFinder::Init() {
   fSttMvdGemTrackCandArray  = (TClonesArray*) ioman->GetObject("SttMvdGemTrackCand"); 
   if ( ! fSttMvdGemTrackCandArray) 
     {
-      cout << "-E- PndSecondaryTrackFinder::Init: No SttMvdGemTrackCand  array, return!"
+      cout << "-E- PndSecondaryTrackFinder::Init: No SttMvdGemTrackCand array, return!"
 	   << endl;
       return kERROR;
     }
   
+  // SttMvdGemTrack
+  fSttMvdGemTrackArray  = (TClonesArray*) ioman->GetObject("SttMvdGemTrack"); 
+  if ( ! fSttMvdGemTrackArray) 
+    {
+      cout << "-E- PndSecondaryTrackFinder::Init: No SttMvdGemTrack array, return!"
+	   << endl;
+      return kERROR;
+    }
+ 
   if(fDisplayOn) {
-     display = new TCanvas("display", "display", 0, 0, 600, 600);
+    display = new TCanvas("display", "display", 0, 0, 600, 600);
   } 
 
 
@@ -250,6 +259,11 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       display->Update();
       display->Modified();  
     }
+  }
+
+  if(fDisplayOn) {
+    DrawFoundTracks();
+    DrawMCTracks();
   }
 
   DeleteHits("STT", &stthits);
@@ -379,6 +393,206 @@ void PndSecondaryTrackFinder::DeleteHits(TString detectors, std::vector<int> *hi
 
       }
   }
+}
+
+void PndSecondaryTrackFinder::DrawFoundTracks() {
+  for(Int_t itrk = 0; itrk < fSttMvdGemTrackArray->GetEntriesFast(); itrk++) {
+    PndTrack *trk = (PndTrack*) fSttMvdGemTrackArray->At(itrk);
+    if(!trk) continue;
+
+    Double_t xc, yc, radius, fitm, fitp;
+    GetInitialParams(trk, xc, yc, radius, fitm, fitp);
+    TArc *arc = new TArc(xc, yc, radius);
+    arc->SetLineColor(kRed);
+    arc->SetFillStyle(0);
+    arc->Draw("SAME");
+    display->Update();
+    display->Modified();  
+  }
+}
+
+void PndSecondaryTrackFinder::DrawMCTracks() {
+  for(Int_t itrk = 0; itrk < fMCTrackArray->GetEntriesFast(); itrk++) {
+    PndMCTrack *mctrk = (PndMCTrack*) fMCTrackArray->At(itrk);
+    if(!mctrk) continue;
+
+    Double_t xc, yc, radius, fitm, fitp;
+    GetInitialParamsMC(mctrk, xc, yc, radius, fitm, fitp);
+    TArc *arc = new TArc(xc, yc, radius);
+    arc->SetLineColor(kBlue);
+    arc->SetFillStyle(0);
+    arc->Draw("SAME");
+    display->Update();
+    display->Modified();  
+    
+  }
+}
+
+// =====================================================================================================
+// CHECK :-)GOOD! THE SAME as in PndSttMvdGemTracking... already tested there, could me moved elsewhere.
+void PndSecondaryTrackFinder::GetInitialParams(PndTrack * track, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &fitm, Double_t &fitp)
+{
+  FairTrackParP recopar = track->GetParamFirst();
+  TVector3 recomom = recopar.GetMomentum();
+  TVector3 recopos = recopar.GetPosition();
+  Int_t charge = recopar.GetQ();
+  
+  radius = recomom.Perp()/0.006;
+  Double_t beta;
+  
+  if(fabs(recomom.X()) >  1e-10) {
+    // track from tangent ---------------------
+    double reco_m1 = recomom.Y() / recomom.X();
+    double reco_q1 = recopos.Y() - recopos.X() * reco_m1;
+    double reco_m2 = -1./reco_m1;
+    double reco_q2 = recopos.Y() - recopos.X() * reco_m2;
+    beta = TMath::ATan2(recomom.X(), recomom.Y());
+  }
+  else beta = TMath::Sign(1., recomom.Y()) * TMath::Pi(); 
+  double recoX0, recoY0;
+  if(charge > 0) { 
+    xc = recopos.X() + radius * TMath::Cos(beta);
+    yc = recopos.Y() - radius * TMath::Sin(beta);
+  }
+  else {
+    xc = recopos.X() - radius * TMath::Cos(beta);
+    yc = recopos.Y() + radius * TMath::Sin(beta);
+  }
+  
+  // vector calculation (alternative): tested, it works!
+  //   TVector2 direction(recomom.X(), recomom.Y());
+  //   direction = direction.Unit();
+  //   TVector2 rad(charge * direction.Y() * R, - charge * direction.X() * R);
+  
+  //   TVector2 center = recopos.XYvector() + rad;
+  //   xc = center.X();
+  //   yc = center.Y();
+  
+
+  // ---------------------------------------------------
+  FairTrackParP recoparlast = track->GetParamLast();
+  TVector3 recoposlast = recoparlast.GetPosition();
+
+
+  //   cout << "GETINITPARAM " << " " << charge << " " << xc << " " << yc << " " << radius << endl;
+  //   recomom.Print();
+  //   recopos.Print(); 
+  //   recoposlast.Print();
+
+
+  fitm = recomom.Z() / recomom.Perp(); // CHECK fitm = pz / pt :-)GOOD!
+
+  // x0 y0
+  Double_t d = TMath::Sqrt(xc * xc + yc * yc) - radius;
+  Double_t phi =  TMath::ATan2(yc, xc);
+  
+  Double_t x0 = d * TMath::Cos(phi);
+  Double_t y0 = d * TMath::Sin(phi);
+
+  Double_t Phi0 = TMath::ATan2((y0 - yc),(x0 - xc));
+  Double_t scosfirst = 0, scoslast = 0.;
+
+  //   cout << "Phi0 " << Phi0 * TMath::RadToDeg() << endl;
+  // CHECK :-)GOOD! ...
+  TVector2 v(x0 - xc, y0 - yc); 
+  double alpha1 = TMath::ATan2(recopos.Y() - y0 + radius * TMath::Sin(Phi0), recopos.X() - x0 + radius * TMath::Cos(Phi0));
+  TVector2 p1(recopos.X() - xc, recopos.Y() - yc);
+  Double_t Fi1 = CalculatePhi(v, p1, alpha1, Phi0, charge);
+  //   cout << "alpha1, Fi1 " << alpha1 * TMath::RadToDeg() << " " << Fi1 * TMath::RadToDeg() << endl;
+  //   p1.Print();
+
+  double alpha2 = TMath::ATan2(recoposlast.Y() - y0 + radius * TMath::Sin(Phi0), recoposlast.X() - x0 + radius * TMath::Cos(Phi0));
+  TVector2 p2(recoposlast.X() - xc, recoposlast.Y() - yc);
+  Double_t Fi2 = CalculatePhi(v, p2, alpha2, Phi0, charge);
+  Fi2 = CompareToPreviousPhi(Fi2, Fi1, charge); // CHECK this!
+  //   cout << "alpha2, Fi2 " << alpha2 * TMath::RadToDeg() << " " << Fi2 * TMath::RadToDeg() << endl;
+  //   p2.Print();
+ 
+  scosfirst = - charge * radius * Fi1; // scos = -q * R * phi CHECK :-)GOOD!
+  scoslast = - charge * radius * Fi2; //                     CHECK :-)GOOD!
+  // ............. :-)GOOD!
+
+  // z = z0 + scos * fitm
+  fitp = (recopos.Z() + recoposlast.Z() - fitm * (scosfirst + scoslast)) / 2.; // CHECK :-)GOOD!
+
+  //   cout << "positions first/last" << endl;
+  //   recopos.Print();
+  //   recoposlast.Print();
+
+  //   cout << "scosfirst/scoslast " << scosfirst << " " << scoslast << endl;
+  //   cout << "fitm/fitp " << fitm << " " << fitp << endl;
+  //   cout << "z1/z2 " << fitp + fitm * scosfirst << " " << fitp + fitm * scoslast << endl;
+
+}
+
+// CHECK :-)GOOD! this function has been tested and is ok! already tested there, could me moved elsewhere.
+Double_t PndSecondaryTrackFinder::CalculatePhi(TVector2 v, TVector2 p, double alpha, double Phi0, int charge)
+{
+  Double_t Fi = - charge *  TMath::ACos(v * p / (v.Mod() * p.Mod()));
+  double pi = TMath::Pi();
+  double pi2 = 2 * pi;
+     
+  // Fi = h * (pi2 - h * Fi) // should be correct
+  if((charge > 0 && (Phi0 > 0 && ((alpha > 0 && alpha > Phi0) ||
+				  (alpha < 0 && alpha < Phi0 - pi))
+		     ||
+		     (Phi0 < 0 && ((alpha > 0 && alpha < pi + Phi0) ||
+				   (alpha < 0 && alpha > Phi0))) ))) Fi = - (pi2 + Fi)  ;
+  else if((charge < 0 && (Phi0 > 0 && ((alpha > 0 && alpha < Phi0) ||
+				       (alpha < 0 && alpha > Phi0 - pi))
+			  ||
+			  (Phi0 < 0 && ((alpha > 0 && alpha > pi + Phi0) ||
+					(alpha < 0 && alpha < Phi0))) ))) Fi = pi2 - Fi  ;
+  
+  return Fi;
+}
+
+// CHECK already tested there, could me moved elsewhere.
+Double_t PndSecondaryTrackFinder::CompareToPreviousPhi(Double_t Fi, Double_t Fi_pre, int charge) 
+{
+  // if(fabs(Fi) < fabs(Fi_pre)) Fi += h * pi2 // CHECK should be ok
+  double pi = TMath::Pi();
+  double pi2 = 2 * pi;
+  
+  if(charge < 0 && Fi < Fi_pre) Fi += pi2;
+  else if(charge > 0 && Fi > Fi_pre) Fi -= pi2;
+  Fi_pre = Fi;
+  return Fi;
+}
+// =====================================================================================================
+
+
+void PndSecondaryTrackFinder::GetInitialParamsMC(PndMCTrack * mctrack, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &fitm, Double_t &fitp)
+{
+
+  TVector3 mcmom = mctrack->GetMomentum();
+  TVector3 mcpos = mctrack->GetStartVertex();
+  Int_t charge = (Int_t) TDatabasePDG::Instance()->GetParticle(mctrack->GetPdgCode())->Charge()/3.;
+  
+  radius = mcmom.Perp()/0.006;
+  Double_t beta;
+  
+  if(fabs(mcmom.X()) >  1e-10) {
+    // track from tangent ---------------------
+    double mc_m1 = mcmom.Y() / mcmom.X();
+    double mc_q1 = mcpos.Y() - mcpos.X() * mc_m1;
+    double mc_m2 = -1./mc_m1;
+    double mc_q2 = mcpos.Y() - mcpos.X() * mc_m2;
+    beta = TMath::ATan2(mcmom.X(), mcmom.Y());
+  }
+  else beta = TMath::Sign(1., mcmom.Y()) * TMath::Pi(); 
+  double mcX0, mcY0;
+  if(charge > 0) { 
+    xc = mcpos.X() + radius * TMath::Cos(beta);
+    yc = mcpos.Y() - radius * TMath::Sin(beta);
+  }
+  else {
+    xc = mcpos.X() - radius * TMath::Cos(beta);
+    yc = mcpos.Y() + radius * TMath::Sin(beta);
+  }
+
+  fitm = 0; // CHECK
+  fitp = 0; // CHECK 
 }
 
 

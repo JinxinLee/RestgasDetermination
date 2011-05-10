@@ -3,6 +3,9 @@
 
 
 #include "PndGeoSttPar.h"
+#include "PndTrack.h"
+#include "PndMCTrack.h"
+
 #include "FairTask.h"
 
 #include "TH2F.h"
@@ -59,6 +62,14 @@ class PndSecondaryTrackFinder : public FairTask {
   void DeleteHits(TString detectors, std::vector<int> *hits);
 
  void SwitchOnDisplay() { fDisplayOn = kTRUE; }
+ void GetInitialParams(PndTrack * track, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &fitm, Double_t &fitp);
+ void GetInitialParamsMC(PndMCTrack * mctrack, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &fitm, Double_t &fitp);
+ Double_t CalculatePhi(TVector2 v, TVector2 p, double alpha, double Phi0, int charge);
+ Double_t CompareToPreviousPhi(Double_t Fi, Double_t Fi_pre, int charge);
+
+
+void DrawFoundTracks();
+ void DrawMCTracks();
 
  private:
 
@@ -94,6 +105,8 @@ class PndSecondaryTrackFinder : public FairTask {
 
   /** SttMvdGemTrackCandArray **/ 
  TClonesArray* fSttMvdGemTrackCandArray;
+  /** SttMvdGemTrackArray **/ 
+ TClonesArray* fSttMvdGemTrackArray;
 
  
   TClonesArray* fTubeArray;
