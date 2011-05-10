@@ -17,6 +17,7 @@
 #include "PndTpcSPHit.h"
 
 #include "TGeoManager.h"
+#include "TStopwatch.h"
 #include "FairRootManager.h"
 
 #include "GFAbsTrackRep.h"
@@ -41,7 +42,7 @@ PndTpcClustVis::PndTpcClustVis():
   doClustering(true), ClMode(2), ClTimeslice(3),ClTimecut(2),
   ClSingleDigiClAmpCut(15), ClClAmpCut(9),
   ClElPerADC(600.), ClErrorNorm(300.),
-  ClSimpleCl(true), ClSimpleTimeslice(4),
+  ClSimpleCl(true), ClSimpleTimeslice(4), ClSimpleMaxClusterSlice(3000),
   instantRedraw(true), drawTpc(false), drawRawDigis(false), drawDigis(false),
   drawClusters(false), drawClusterErrors(false),
   drawRiemannTracks(true), drawFitMarkers(false),
@@ -67,14 +68,14 @@ PndTpcClustVis::PndTpcClustVis():
   //init colors
   //colors.push_back(kRed);
   colors.push_back(kGreen);
-  colors.push_back(kBlue);
+  /*colors.push_back(kBlue);
   colors.push_back(kCyan+1);
   colors.push_back(kMagenta);
   colors.push_back(kYellow+1);
   colors.push_back(kRed-7);
   colors.push_back(kSpring+5);
   colors.push_back(kCyan-3);
-  colors.push_back(kOrange+1);
+  colors.push_back(kOrange+1);*/
 
   // Build hit factory -----------------------------
   clusterArray = new TClonesArray("PndTpcCluster");
@@ -228,6 +229,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       ffinder=new PndTpcClusterFinderSimple(PndTpcDigiMapper::getInstance()->getPadPlane(),
               fcluster_buffer, ClSimpleTimeslice,fgain/ClElPerADC,ClErrorNorm);
       ((PndTpcClusterFinderSimple*)(ffinder))->setNoXclust(false);
+      ((PndTpcClusterFinderSimple*)(ffinder))->setMaxClusterSlice(ClSimpleMaxClusterSlice);
     }
 
     ffinder->setTrivialClustering(false);
@@ -243,6 +245,8 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       digis[k]=digi;
     }
     std::cout<<"number of digis: "<<ndigis<<std::endl;
+    TStopwatch timer;
+    timer.Start();
     try{
       ffinder->process(digis);
     } catch (std::exception& e) {
@@ -250,6 +254,9 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     } catch (...) {
       std::cout << "unknown exception..." << std::endl;
     }
+    timer.Stop();
+    Double_t ctime = timer.CpuTime();
+    std::cerr<<"cpu time for clustering: "<<ctime<<std::endl;
 
     delete ffinder;
 
@@ -670,14 +677,15 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
           catch(GFException& e) {
             std::cerr << "Error: Exception caught (getDetPlane): Hit " << j << " in Track " << itrk << " skipped!" << std::endl;
             std::cerr << e.what();
-            if (e.isFatal()) {
+            break;
+            /*if (e.isFatal()) {
               std::cerr<<"Fatal exception, skipping track"<<std::endl;
               break;
             }
             else{
               std::cerr<<"Exception, skipping hit"<<std::endl;
               continue;
-            }
+            }*/
           }
         }
         track_pos = rep->getPos(plane);
@@ -1029,6 +1037,17 @@ void PndTpcClustVis::makeGui() {
     hf->AddFrame(lbl);
   }
   frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    giuSimpleMaxClusterSlice = new TGNumberEntry(hf, ClSimpleMaxClusterSlice, 6,999, TGNumberFormat::kNESInteger,
+                          TGNumberFormat::kNEAPositive,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 1000000);
+    hf->AddFrame(giuSimpleMaxClusterSlice);
+    giuSimpleMaxClusterSlice->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
+    lbl = new TGLabel(hf, "Clusterslice for Simple Clustering z sectoring");
+    hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
 
 
 
@@ -1304,6 +1323,7 @@ void PndTpcClustVis::guiSetClusterfinderParams(){
   ClErrorNorm = guiErrorNorm->GetNumberEntry()->GetNumber();
   ClSimpleCl=(guiSimpleCl->IsOn());
   ClSimpleTimeslice = giuSimpleTimeslice->GetNumberEntry()->GetIntNumber();
+  ClSimpleMaxClusterSlice = giuSimpleMaxClusterSlice->GetNumberEntry()->GetIntNumber();
   
   PndTpcClustVis*  fh = PndTpcClustVis::getInstance();
   if(instantRedraw) fh->gotoEvent(fEventId);

@@ -20,6 +20,7 @@
 
 // Base Class Headers ----------------
 #include "FairTask.h"
+#include "TH2D.h"
 
 // Collaborating Class Headers -------
 #include "PndTpcCluster.h"
@@ -109,6 +110,9 @@ private:
   PndTpcDigiPar* fpar;
  
   std::vector<PndTpcCluster*>* fcluster_buffer;
+
+  TH2D* nDigivsTime;
+
   // Private Methods -----------------
 
 public:

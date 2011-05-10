@@ -317,7 +317,6 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     fHistCont["clHist5"]->SetNameTitle(clName.c_str(), "merged Riemann trackcands");
 
     canv = new TCanvas(canvName.c_str());
-    counter++;
 
     unsigned int totCl=_clusterArray->GetEntriesFast();
     TVector3 pos;
@@ -783,6 +782,7 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     //fHistoFile->Close();
   }
 
+  counter++;
   return;
 }
 

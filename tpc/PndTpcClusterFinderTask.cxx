@@ -40,6 +40,9 @@
 #include "GFRecoHitFactory.h"
 #include "PndTpcClusterFinder.h"
 #include "PndTpcClusterFinderSimple.h"
+#include "TStopwatch.h"
+
+//#define PERFMON
 
 // Class Member definitions -----------
 
@@ -142,7 +145,10 @@ PndTpcClusterFinderTask::Init()
   ffinder->checkConsistency();
   ffinder->setTrivialClustering(ftrivial);
   ffinder->saveRaw(fDigiPersistence);
-  
+
+  #ifdef PERFMON
+    nDigivsTime = new TH2D("nDigis vs Time","nDigis vs Time",500,0,50000,500,0,100);
+  #endif
 
   return kSUCCESS;
 }
@@ -167,6 +173,10 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
   
 
   std::cerr<<"process digis ";
+  #ifdef PERFMON
+    TStopwatch timer;
+    timer.Start();
+  #endif
   try{
     ffinder->process(digis);   
   } catch (std::exception& e) {
@@ -174,8 +184,18 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
   } catch (...) {
     std::cout << "unknown exception..." << std::endl;
   }
+  #ifdef PERFMON
+    timer.Stop();
+    Double_t ctime = timer.CpuTime();
+    nDigivsTime->Fill(ndigis,ctime);
+  #endif
   std::cerr<<"... done"<<std::endl;
   
+  #ifdef PERFMON
+    TFile* outfile=new TFile("nDigivsTime.root","RECREATE");
+    nDigivsTime->Write();
+    outfile->Close();
+  #endif
 
   /*for(Int_t i=0;i<ndigis;++i){
     PndTpcDigi* digi=digis[i];

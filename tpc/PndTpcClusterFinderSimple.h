@@ -42,6 +42,8 @@ class PndTpcPrelimCluster{
   virtual ~PndTpcPrelimCluster();
 
   void addHit(PndTpcDigi*, bool noXclust=false, double share=1.);
+  double getCogT(){return fcogT;}
+  PndTpcDigi* getDigi(unsigned int id){return fdigis[id];}
 
   bool isInCluster(const PndTpcDigi* const);
 
@@ -62,6 +64,8 @@ public:
   virtual void reset();
   virtual void checkConsistency();
 
+  void setMaxClusterSlice(unsigned int i){maxClusterSlice = i;}
+
   void setNoXclust(bool b=true){noXclust=b;}
   unsigned int NsplitDigis(){return splitDigis;}
   
@@ -73,6 +77,8 @@ private:
   unsigned int splitDigis;
   double fG;
   double fC;
+
+  unsigned int maxClusterSlice;
 
 };
 

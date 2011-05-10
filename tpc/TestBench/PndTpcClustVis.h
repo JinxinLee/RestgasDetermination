@@ -208,6 +208,8 @@ private:
   bool ClSimpleCl;
   TGNumberEntry* giuSimpleTimeslice;
   int ClSimpleTimeslice;
+  TGNumberEntry* giuSimpleMaxClusterSlice;
+  int ClSimpleMaxClusterSlice;
 
   bool ClHasChanged;
 
