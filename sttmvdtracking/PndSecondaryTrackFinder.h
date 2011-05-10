@@ -2,24 +2,17 @@
 #define PNDSECONDARYTRACKFINDER_H 1
 
 
-#include "PndMCTrack.h"
-#include "PndSttTrack.h"
-#include "FairTask.h"
-#include "FairRootManager.h"
-#include "FairRunAna.h"
-#include "FairRuntimeDb.h"
-#include "FairTrackParP.h"
 #include "PndGeoSttPar.h"
+#include "FairTask.h"
 
-#include "TVector3.h"
-#include "TH1F.h"
 #include "TH2F.h"
+#include "TCanvas.h"
+#include "TString.h"
 
 class TClonesArray;
 class TObjectArray;
 
-class PndSecondaryTrackFinder : public FairTask
-{
+class PndSecondaryTrackFinder : public FairTask {
 
  public:
 
@@ -61,14 +54,16 @@ class PndSecondaryTrackFinder : public FairTask
   };
 
 
-  void OrderHits(TClonesArray *hitarray, Int_t *sorthits);
+  std::vector<int> OrderHits(TClonesArray *hitarray);
+  void DeleteHit(Int_t ihit, std::vector<int> *hits);
+  void DeleteHits(TString detectors, std::vector<int> *hits);
 
+ void SwitchOnDisplay() { fDisplayOn = kTRUE; }
 
  private:
 
   /** Input array of PndSttTube (map of STT tubes) **/
   TClonesArray* fMCTrackArray;
-  TClonesArray* fSttTubeArray;
 
    /** Input array of PndSttPoints **/
   TClonesArray* fSttPointArray;
@@ -97,11 +92,16 @@ class PndSecondaryTrackFinder : public FairTask
   /** Output array of PndSttMvd   PndTrack **/
   TClonesArray* fSttMvdPndTrackArray;
 
+  /** SttMvdGemTrackCandArray **/ 
+ TClonesArray* fSttMvdGemTrackCandArray;
+
+ 
+  TClonesArray* fTubeArray;
 
 
   /** object persistence **/
   Bool_t  fPersistence; //!
-
+  Bool_t fDisplayOn; //!
   PndGeoSttPar *fSttParameters;  //  CHECK added
 
 
@@ -111,7 +111,8 @@ class PndSecondaryTrackFinder : public FairTask
 		fMvdPixelBranch[200],
 		fMvdStripBranch[200];
 
-
+  TH2F *h2;
+  TCanvas *display;
 
   ClassDef(PndSecondaryTrackFinder,1);
 

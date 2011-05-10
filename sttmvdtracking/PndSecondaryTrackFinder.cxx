@@ -3,10 +3,7 @@
 #include "PndSecondaryTrackFinder.h"
 
 #include "PndSttHit.h"
-#include "PndSttTrack.h"
 #include "PndSttPoint.h"
-#include "PndSttHelixHit.h"
-#include "PndSttSingleStraw.h"
 #include "PndSttTube.h"
 #include "PndSttMapCreator.h"
 
@@ -20,20 +17,17 @@
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include "FairTrackParP.h"
 
-#include "TGeoManager.h"
 #include "TClonesArray.h"
-#include "TGeoVolume.h"
 #include "TVector3.h"
-#include "TRandom.h"
-#include "TH1F.h"
 #include "TMath.h"
-#include "TCanvas.h"
-#include "TGeoTube.h"
+#include "TArc.h"
 
 #include <iostream>
 #include <cmath>
+#include <vector>
+#include <iterator>
+
 
 
 using namespace std;
@@ -43,6 +37,7 @@ using namespace std;
 PndSecondaryTrackFinder::PndSecondaryTrackFinder() : FairTask("STT Stt-Mvd Tracking") { 
   fPersistence = kTRUE;
   fVerbose = 0;
+  fDisplayOn = kFALSE;
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
@@ -52,6 +47,7 @@ PndSecondaryTrackFinder::PndSecondaryTrackFinder() : FairTask("STT Stt-Mvd Track
 PndSecondaryTrackFinder::PndSecondaryTrackFinder(Int_t verbose) : FairTask("STT Stt-Mvd Tracking") { 
   fPersistence = kTRUE;
   fVerbose = verbose;
+  fDisplayOn = kFALSE;
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
@@ -82,7 +78,7 @@ InitStatus PndSecondaryTrackFinder::Init() {
 //  -----   maps of STT tubes
   // CHECK added 
   PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
-  fSttTubeArray = mapper->FillTubeArray();
+  fTubeArray = mapper->FillTubeArray();
  //----------------------------------------------------  end map
 
 
@@ -173,8 +169,18 @@ InitStatus PndSecondaryTrackFinder::Init() {
   cout << "-I- PndSecondaryTrackFinder: Initialization successfull" << endl;
   
 
-
-
+  // SttMvdGemTrackCand
+  fSttMvdGemTrackCandArray  = (TClonesArray*) ioman->GetObject("SttMvdGemTrackCand"); 
+  if ( ! fSttMvdGemTrackCandArray) 
+    {
+      cout << "-E- PndSecondaryTrackFinder::Init: No SttMvdGemTrackCand  array, return!"
+	   << endl;
+      return kERROR;
+    }
+  
+  if(fDisplayOn) {
+     display = new TCanvas("display", "display", 0, 0, 600, 600);
+  } 
 
 
 
@@ -201,10 +207,26 @@ void PndSecondaryTrackFinder::WriteHistograms(){
 }
 void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 
+
+  if(fDisplayOn) {
+    char goOnChar;
+    cout << "press any key" << endl;
+    cin >> goOnChar;
+    cout << "GOING ON" << endl;
+    
+    h2 = new TH2F("h2", "XY plane", 100, -43, 43, 100, -43, 43);
+    display->cd();
+    h2->Draw();
+    display->Update();
+    display->Modified();  
+  }
+
   Int_t nstthits = fSttHitArray->GetEntriesFast();
   cout << "EVENTO with " << nstthits << endl;
-  Int_t stthits[nstthits];
-  OrderHits(fSttHitArray, stthits);
+
+  std::vector<int> stthits;
+  // stthits.clear();
+  stthits = OrderHits(fSttHitArray);
 
   for(int ihit = 0; ihit < nstthits; ihit++) {
     int hitid = stthits[ihit];
@@ -214,12 +236,45 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     stthit->Position(position);
     cout << "distance " << hitid << " " << position.Perp() << endl;
 
-//     // forget the skewed ones
-//     if(fDisplayOn) {
-//       TMarker *mrk = new TMarker(position.X(), position.Y(), 21);
-//       mrk->Draw();
-//     }
+    Int_t tubeID = stthit->GetTubeID();
+    PndSttTube *tube = (PndSttTube* ) fTubeArray->At(tubeID);
+    
+    TVector3 wireDirection = tube->GetWireDirection();
+    if(wireDirection != TVector3(0., 0., 1.)) continue;
+     
+    if(fDisplayOn) {
+      TArc *arc = new TArc(position.X(), position.Y(), stthit->GetIsochrone());
+      arc->SetLineColor(kGray);
+      arc->SetFillStyle(0);
+      arc->Draw("SAME");
+      display->Update();
+      display->Modified();  
+    }
+  }
 
+  DeleteHits("STT", &stthits);
+
+  nstthits = stthits.size();
+  for(int ihit = 0; ihit < nstthits; ihit++) {
+    int hitid = stthits[ihit];
+    PndSttHit *stthit = (PndSttHit *) fSttHitArray->At(hitid);
+    if(!stthit) continue;
+    TVector3 position;
+    stthit->Position(position);
+    //    cout << "distance " << hitid << " " << position.Perp() << endl;
+    Int_t tubeID = stthit->GetTubeID();
+    PndSttTube *tube = (PndSttTube* ) fTubeArray->At(tubeID);
+    TVector3 wireDirection = tube->GetWireDirection();
+    if(wireDirection != TVector3(0., 0., 1.)) continue;
+     
+    if(fDisplayOn) {
+      TArc *arc = new TArc(position.X(), position.Y(), stthit->GetIsochrone());
+      arc->SetLineColor(kBlack);
+      arc->SetFillStyle(0);
+      arc->Draw("SAME");
+      display->Update();
+      display->Modified();  
+    }
   }
 
 }
@@ -240,11 +295,11 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 //   }
 
 
-void PndSecondaryTrackFinder::OrderHits(TClonesArray *hitarray, Int_t *sorthits)
+std::vector<int> PndSecondaryTrackFinder::OrderHits(TClonesArray *hitarray)
 {
-
+  std::vector<int> sorthits;
   std::vector<double> distances;
- std::multimap<double, int> mapdistances;
+  std::multimap<double, int> mapdistances;
 
   for(int ihit = 0; ihit < hitarray->GetEntriesFast(); ihit++) {
     FairHit* hit = (FairHit*) hitarray->At(ihit);
@@ -256,12 +311,12 @@ void PndSecondaryTrackFinder::OrderHits(TClonesArray *hitarray, Int_t *sorthits)
 
     distances.push_back(distance);
     mapdistances.insert(std::pair<double, int>(distance, ihit));
- }
+  }
 
   std::sort(distances.begin(), distances.end());
 
   double tmpdistance = 0;
-  int counter = 0;
+
   for(int j = 0; j < distances.size(); j++) {
     double d = distances[j];
 
@@ -277,14 +332,54 @@ void PndSecondaryTrackFinder::OrderHits(TClonesArray *hitarray, Int_t *sorthits)
 	if(count == n) break;
 	if((*it).first != tmpdistance) continue;
 
-	sorthits[counter] = (*it).second;
+	sorthits.push_back((*it).second);
 	count++;
-   	counter++;
-     }
+      }
+  }
+  return sorthits;
+}
+ 
+ 
+void PndSecondaryTrackFinder::DeleteHit(Int_t ihit, std::vector<int> *hits)
+{
+  std::vector<int>::iterator iter = std::find(hits->begin(), hits->end(), ihit);
+  int where = iter - hits->begin();
+  if(where == hits->size()) cout << "where " << where << endl;
+  else hits->erase(iter);
+}
+ 
+ 
+void PndSecondaryTrackFinder::DeleteHits(TString detectors, std::vector<int> *hits) {
+  for(Int_t itrk = 0; itrk < fSttMvdGemTrackCandArray->GetEntriesFast(); itrk++) {
+    PndTrackCand *trkCand = (PndTrackCand*) fSttMvdGemTrackCandArray->At(itrk);
+    if(!trkCand) continue;
+    Int_t nhits = trkCand->GetNHits(); 
+    for(int ihit = 0; ihit < nhits; ihit++)
+      {
+	PndTrackCandHit candhit = trkCand->GetSortedHit(ihit);
+	Int_t hitId = candhit.GetHitId();
+	Int_t detId = candhit.GetDetId();
+
+	if(detectors.Contains("STT") 
+	   && 
+	   detId == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+	  cout << "deleting " << hitId << endl;
+	  DeleteHit(hitId, hits);
+	}
+	else if(detectors.Contains("PIXEL") 
+		&& 
+		detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) DeleteHit(hitId, hits);
+	else if(detectors.Contains("STRIP") 
+		&& 
+		detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) DeleteHit(hitId, hits);
+	//    else if(detectors.Contains("GEM") 
+	// 	 && 
+	// 	 detId == FairRootManager::Instance()->GetBranchId(fGemBranch)) DeleteHit(hitId, hits);
+
+
+      }
   }
 }
-
-
 
 
 ClassImp(PndSecondaryTrackFinder)
