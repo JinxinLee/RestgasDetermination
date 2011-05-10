@@ -84,7 +84,7 @@ void PndMultiClassMlpTrain::InitMlp()
   }
   if( m_transform == "")
   {
-    m_transform = "Transformations=I;D;P;G,D";
+    m_transform = "Transformations=I;D;P;G";
     std::cerr << "<WARNING> No transformation was specified. We will set this to:\n\t"
 	      << m_transform << '\n';
   }
@@ -103,7 +103,7 @@ void PndMultiClassMlpTrain::InitMlp()
   // Set the Weight files directory name.
   (TMVA::gConfig().GetIONames()).fWeightFileDir = m_weightDirName.c_str();
 
-  std::string factOpt = "!V:!Silent:Color:DrawProgressBar:" + m_transform + ":AnalysisType=multiclass";
+  std::string factOpt = "!V:!Silent:Color:DrawProgressBar:" + m_transform + ":AnalysisType=Multiclass";
   EvalFile  = new TFile(m_evalFileName.c_str(), "RECREATE");
   m_factory = new TMVA::Factory(m_JName.c_str(), EvalFile, factOpt.c_str());
 }

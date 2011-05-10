@@ -94,8 +94,9 @@ void PndMvaDataSet::Initialize()
   {
   case TMVATRAIN:// Train TMVA method
   case TMVACLS: // Use trained TMVA method.
-    std::cout << "Yet To be done\n"
-	      << "Niet alles tegelijk,:P\n";
+    std::cout << "<INFO> Controle is completely passed to TMVA.\n"
+	      << "\tFor available parameters and options and how to use\n"
+	      << "\tthe available methods, read the TMVA manuals.\n";
     break;
   case CLASSIFY:
     // Validate the weight File
@@ -279,7 +280,13 @@ void PndMvaDataSet::NormalizeDataSet()
 	 << "using sample Variance and mean.\n";
     ComputeVariance();
     break;
-    
+
+  case VARNORM:
+    std::cout << "<INFO> Normalizing the dataset "
+	      << "using Variable Normalize Transform.\n";
+    VarNormalize();
+    break;
+
   case NONORM:
   default:
     std::cout << "<INFO> No normalization scheme was selected.\n";
@@ -766,24 +773,20 @@ void PndMvaDataSet::MinMaxDiff()
     }
     // Sort variables
     std::sort( vec.begin(), vec.end() );
-        
-    //float diff   = vec[ vec.size() - 1 ] - vec[0];
-    //m_vars[i].NormFactor = diff;
-
-    //float middle = vec[ static_cast<unsigned int>(vec.size()/2)];
-    //m_vars[i].Mean = middle;
 
     // Store values for each variable.
     m_vars[i].Min  = vec[0];// Minimum
     m_vars[i].Max  = vec[vec.size() - 1 ];//Maximum
+    // Distance between the Min and the Max
     m_vars[i].NormFactor = m_vars[i].Max - m_vars[i].Min;
+    // The value at the middle of the list.
     m_vars[i].Mean = vec[ static_cast<size_t>(vec.size()/2)];
 
     std::cout << m_vars[i].Name 
-	      << ": min = "   << m_vars[i].Min
-	      << ", max = "   << m_vars[i].Max
-	      << ", diff  = " << m_vars[i].NormFactor
-	      << ", midle = " << m_vars[i].Mean
+	      << ": min = "    << m_vars[i].Min
+	      << ", max = "    << m_vars[i].Max
+	      << ", diff  = "  << m_vars[i].NormFactor
+	      << ", middle = " << m_vars[i].Mean
 	      << '\n';
   }
   std::cout << '\n';
@@ -853,6 +856,17 @@ void PndMvaDataSet::PCATransForm()
     delete trsEvt;
   }
 }
+
+/**
+ * VariableNormalizeTransform. Linear interpolation.
+ */
+void PndMvaDataSet::VarNormalize()
+{
+  float min, max, offset, scale;
+  min = max = offset = scale = 0.00;
+  // Maybe we need to implement this.
+}
+
 
 // Init Classe.
 void PndMvaDataSet::InitClasses(std::vector<std::string> const& classNames)

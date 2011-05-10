@@ -42,7 +42,8 @@ std::string* PndMultiClassBdtClassify::Classify( std::vector<float> EvtData )
 void PndMultiClassBdtClassify::Initialize()
 {
   PndMvaClassifier::SetAppType(TMVACLS);
-
+  PndMvaClassifier::Initialize();
+  
   m_reader = new TMVA::Reader(m_readerOptions.c_str());
   std::vector<PndMvaVariable> const& variables = m_dataSets.GetVars();
   m_EventContainer = std::vector<float>(variables.size(), 0.00);

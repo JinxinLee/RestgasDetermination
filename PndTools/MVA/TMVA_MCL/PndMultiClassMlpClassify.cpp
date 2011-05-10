@@ -42,6 +42,7 @@ std::string* PndMultiClassMlpClassify::Classify( std::vector<float> EvtData )
 void PndMultiClassMlpClassify::Initialize()
 {
   PndMvaClassifier::SetAppType(TMVACLS);
+  PndMvaClassifier::Initialize();
 
   m_reader = new TMVA::Reader(m_readerOptions.c_str());
   std::vector<PndMvaVariable> const& variables = m_dataSets.GetVars();
@@ -54,6 +55,7 @@ void PndMultiClassMlpClassify::Initialize()
 
   m_reader->BookMVA("MLP method", m_weightsFile.c_str());
 }
+
 void PndMultiClassMlpClassify::SetOptions()
 {
 }

@@ -46,7 +46,8 @@ typedef enum{
   NONORM = 0, // Do nothing
   VARX   = 1, // Use Sample variance
   MINMAX = 2, // Use Sample Min and Max
-  MEDIAN = 3  // Use median and interquartile range (IQR).
+  MEDIAN = 3, // Use median and interquartile range (IQR).
+  VARNORM = 4 // Variable Normalize Transform
 } NormType;
 
 ////___________________ Exception _________________
@@ -240,6 +241,12 @@ class PndMvaDataSet
    * Find minimum and maximum per variable.
    */
   void FindMinMax();
+
+  /**
+   * VariableNormalizeTransform. Linear interpolation.
+   */
+  void VarNormalize();
+
   // __________________________ Member parameters ___________
   //! Input File name
   std::string m_input;

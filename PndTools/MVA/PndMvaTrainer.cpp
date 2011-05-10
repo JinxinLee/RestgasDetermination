@@ -65,8 +65,8 @@ void PndMvaTrainer::splitTetsSet()
   size_t TestEvtCnt = (m_testSetSize * events.size()) / 100 ;
   
   std::cout << "<INFO> preparing train and test sets.\n"
-	    << "       Test set containes "<< TestEvtCnt
-	    <<" examples and train set "<< (events.size() - TestEvtCnt) 
+	    << "\t-I- Test set containes " << TestEvtCnt
+	    <<" examples and train set " << (events.size() - TestEvtCnt) 
 	    << '\n';
   // Select the index of the examples that are going to be used as the
   // test set.
@@ -78,24 +78,24 @@ void PndMvaTrainer::splitTetsSet()
     tsindx = tsindx % events.size();
     m_testSet_indices.insert(tsindx);
   }
-  //================= Delete me
-  /*
-    std::set<size_t>::iterator it;
-    std::map <std::string, int> tsMap;
-    for(it = m_testSet_indices.begin(); it != m_testSet_indices.end(); ++it)
-    {
+  //======================================
+  // Print some extra information on number of examples per label.
+  std::set<size_t>::iterator it;
+  std::map <std::string, int> tsMap;
+  for(it = m_testSet_indices.begin(); it != m_testSet_indices.end(); ++it)
+  {
     size_t id = *it;
     const std::string name = (events[id]).first;
     tsMap[name] += 1;
-    }
-    std::map <std::string, int>::iterator mit;
-    for( mit = tsMap.begin(); mit != tsMap.end(); ++mit)
-    {
-    std::cout << "tsMap [ " << (*mit).first << " ] = " << (*mit).second
-    << std::endl;
-    }
-  */
-  //=================== DELETE ME
+  }
+  std::map <std::string, int>::iterator mit;
+  for( mit = tsMap.begin(); mit != tsMap.end(); ++mit)
+  {
+    std::cout << "\t-I- Test Events for[ " << (*mit).first
+	      << " ] = " << (*mit).second
+	      << std::endl;
+  }
+  //======================================
 }
 
 void PndMvaTrainer::WriteErroVect(std::string const& FileName)

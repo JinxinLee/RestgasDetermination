@@ -7,7 +7,7 @@ int main(int argc, char** argv)
   if(argc < 2)
   {
     std::cerr << "<USAGE>: " << argv[0]
-	      << " <inputFile> \n";
+	      << " <Events inFile> \n";
     exit(10);
   }
   

@@ -17,10 +17,10 @@ int main(int argc, char** argv)
   if(argc < 2)
   {
     std::cerr << "<USAGE>: " << argv[0]
-	      << " <inputFile> \n";
+	      << " <WeightFile> \n";
     exit(10);
   }
-  
+  // The weightFile.
   std::string inFile = argv[1];
 
   // Labels.
@@ -44,13 +44,20 @@ int main(int argc, char** argv)
   
   std::vector<float> event(variables.size(), 1.0);
   std::vector<float> event1(variables.size(), 0.4);
+  std::vector<float> event2(variables.size(), 0.03);
+
   std::map<std::string, float> result;
 
   PndMultiClassMlpClassify cls(inFile, labels, variables);
   cls.Initialize();
+
   cls.GetMvaValues(event, result);
   printResult(result);
+
   cls.GetMvaValues(event1, result);
+  printResult(result);
+
+  cls.GetMvaValues(event2, result);
   printResult(result);
   return 0;
 }

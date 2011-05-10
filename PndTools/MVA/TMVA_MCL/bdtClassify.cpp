@@ -17,7 +17,7 @@ int main(int argc, char** argv)
   if(argc < 2)
   {
     std::cerr << "<USAGE>: " << argv[0]
-	      << " <inputFile> \n";
+	      << " <Weight File> \n";
     exit(10);
   }
   
@@ -42,7 +42,7 @@ int main(int argc, char** argv)
   variables.push_back("z20");
   variables.push_back("z53");
   
-  std::vector<float> event(variables.size(), 1.2);
+  std::vector<float> event(variables.size(), 5.9);
   std::vector<float> event1(variables.size(), 0.3);
   std::map<std::string, float> result;
 

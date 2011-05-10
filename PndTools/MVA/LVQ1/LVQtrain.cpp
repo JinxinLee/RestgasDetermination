@@ -91,7 +91,7 @@ int main(int argc, char** argv)
   
   // Create trainer object.
   PndLVQTrain tr(ip, clas, nam, true);
-  
+
   float initC  = 0.8;
   float ethaZ  = 0.1;
   float ethaF  = 0.001;
@@ -101,14 +101,15 @@ int main(int argc, char** argv)
   // Use for symm. initialization.
   tr.SetNumberOfProto(numProto);
 
-  // Use for asymm. init.  
+  // Use for asymm. init.
   /*
     std::map <std::string, unsigned int> numProtoMap;
     numProtoMap["electron"] = 70;
     numProtoMap["pion"] = 150;
     tr.SetNumberOfProto(numProtoMap);
   */
-  tr.SetTetsSetSize(10);//10% (DEFAULT)
+
+  tr.SetTetsSetSize(50);//10% (DEFAULT)
 
   tr.SetErrorStepSize(100);//100 (DEFALUT)
   

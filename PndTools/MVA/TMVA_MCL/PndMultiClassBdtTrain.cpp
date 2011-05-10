@@ -25,15 +25,17 @@ PndMultiClassBdtTrain::PndMultiClassBdtTrain(std::string const& InPut,
 
 PndMultiClassBdtTrain::~PndMultiClassBdtTrain()
 {
-  if(m_factory)
-  {
-    delete m_factory;
-  }
   if (EvalFile)
   {
     EvalFile->Close();
     delete EvalFile;
   }
+
+  if(m_factory)
+  {
+    delete m_factory;
+  }
+
 }
 
 void PndMultiClassBdtTrain::Train()
