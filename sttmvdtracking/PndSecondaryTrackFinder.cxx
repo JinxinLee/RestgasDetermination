@@ -22,6 +22,7 @@
 #include "TVector3.h"
 #include "TMath.h"
 #include "TArc.h"
+#include "TLine.h"
 
 #include <iostream>
 #include <cmath>
@@ -235,15 +236,15 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 
   std::vector<int> stthits;
   // stthits.clear();
-  stthits = OrderHits(fSttHitArray);
-
+  stthits = OrderHits(fSttHitArray, FairRootManager::Instance()->GetBranchId(fSttBranch));
+  nstthits = stthits.size();
   for(int ihit = 0; ihit < nstthits; ihit++) {
     int hitid = stthits[ihit];
     PndSttHit *stthit = (PndSttHit *) fSttHitArray->At(hitid);
     if(!stthit) continue;
     TVector3 position;
     stthit->Position(position);
-    cout << "distance " << hitid << " " << position.Perp() << endl;
+    //    cout << "distance " << hitid << " " << position.Perp() << endl;
 
     Int_t tubeID = stthit->GetTubeID();
     PndSttTube *tube = (PndSttTube* ) fTubeArray->At(tubeID);
@@ -275,6 +276,8 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     if(!stthit) continue;
     TVector3 position;
     stthit->Position(position);
+    cout << "------------------------ " << hitid << endl;
+    position.Print();
     //    cout << "distance " << hitid << " " << position.Perp() << endl;
     Int_t tubeID = stthit->GetTubeID();
     PndSttTube *tube = (PndSttTube* ) fTubeArray->At(tubeID);
@@ -290,6 +293,23 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       display->Modified();  
     }
   }
+
+  std::vector<std::vector<int> > clusterlist;
+  clusterlist = ClusterFinder(stthits,  FairRootManager::Instance()->GetBranchId(fSttBranch));
+  cout << "# of clusters " << clusterlist.size() << endl;
+
+  for(int iclus = 0; iclus < clusterlist.size(); iclus++) {
+    std::vector<int> cluster = clusterlist[iclus];
+    int nhits = cluster.size();
+    cout << "cluster no. " << iclus << " has " << nhits << " hits: ";
+    for(int ihit = 0; ihit < nhits; ihit++) {
+      int hitid = cluster[ihit];
+      cout << hitid << " " ;
+    }
+    cout << endl;
+  }
+
+
 
 }
 
@@ -309,7 +329,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 //   }
 
 
-std::vector<int> PndSecondaryTrackFinder::OrderHits(TClonesArray *hitarray)
+std::vector<int> PndSecondaryTrackFinder::OrderHits(TClonesArray *hitarray, Int_t detId)
 {
   std::vector<int> sorthits;
   std::vector<double> distances;
@@ -318,6 +338,12 @@ std::vector<int> PndSecondaryTrackFinder::OrderHits(TClonesArray *hitarray)
   for(int ihit = 0; ihit < hitarray->GetEntriesFast(); ihit++) {
     FairHit* hit = (FairHit*) hitarray->At(ihit);
     if(!hit) continue;
+    if(detId == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+      Int_t tubeID = ((PndSttHit*) hit)->GetTubeID();
+      PndSttTube *tube = (PndSttTube* ) fTubeArray->At(tubeID);
+      TVector3 wireDirection = tube->GetWireDirection();
+      if(wireDirection != TVector3(0., 0., 1.)) continue;
+    }
     
     TVector3 distance3;
     hit->Position(distance3);
@@ -567,7 +593,7 @@ void PndSecondaryTrackFinder::GetInitialParamsMC(PndMCTrack * mctrack, Double_t 
 
   TVector3 mcmom = mctrack->GetMomentum();
   TVector3 mcpos = mctrack->GetStartVertex();
-  Int_t charge = (Int_t) TDatabasePDG::Instance()->GetParticle(mctrack->GetPdgCode())->Charge()/3.;
+  Int_t charge = (Int_t (TDatabasePDG::Instance()->GetParticle(mctrack->GetPdgCode())->Charge()/3.));
   
   radius = mcmom.Perp()/0.006;
   Double_t beta;
@@ -595,5 +621,263 @@ void PndSecondaryTrackFinder::GetInitialParamsMC(PndMCTrack * mctrack, Double_t 
   fitp = 0; // CHECK 
 }
 
+// std::vector<std::vector<int> > PndSecondaryTrackFinder::ClusterFinder(std::vector<int> hits, Int_t detId) 
+// {
+//   TClonesArray *array;
+ 
+//   if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) array = fMvdPixelHitArray;
+//   else if(detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) array = fMvdStripHitArray;
+//   else if(detId ==  FairRootManager::Instance()->GetBranchId(fSttBranch)) array = fSttHitArray;
+//   //  else if(detId ==  FairRootManager::Instance()->GetBranchId(fGemBranch)) array = fGemHitArray;
+
+//   int nhits = hits.size();
+//   TVector3 tmpposition;
+//   std::vector<std::vector<int> > list;
+//   std::vector<int> cluster;
+//   int colors[10] = {2, 3, 4, kMagenta, kBlack, kGray, kViolet, kCyan, kYellow, kOrange};
+//   for(int ihit = 0; ihit < nhits; ihit++) {
+//     int hitid = hits[ihit];
+//     FairHit *hit = (FairHit*) array->At(hitid);
+//     if(!hit) continue;
+//     TVector3 position;
+//     hit->Position(position);
+//     if(ihit == 0) tmpposition = position;
+//     double distance = (position - tmpposition).Perp();
+//     cout << ihit << " " <<  hitid  << "/" << hits[ihit - 1] << " distance " << distance << " " ;
+//     double fLimit = 2.5;
+//     if(distance < fLimit) {
+//       cout << " YES" << endl;
+//       cluster.push_back(hitid); // CHECK fLimit
+//       if(fDisplayOn) {
+// 	TLine *line = new TLine(position.X(), position.Y(), tmpposition.X(), tmpposition.Y());
+// 	line->SetLineColor(colors[list.size()]);
+// 	line->Draw("SAME");
+// 	display->Update();
+// 	display->Modified();  
+//       }
+//     }
+//     else {
+//       cout << " NO" << endl;
+//       if(cluster.size() > 1) {
+// 	cout << "SAVE CLUS" << endl;
+// 	list.push_back(cluster); // CHECK
+//       }
+//       cluster.clear();
+//       cluster.push_back(hitid); 
+//       cout << endl;
+//     }
+    
+//     tmpposition = position;
+      
+//   }
+//   return list; 
+// }
+
+
+// std::vector<std::vector<int> > PndSecondaryTrackFinder::ClusterFinder(std::vector<int> hits, Int_t detId) 
+// {
+//   TClonesArray *array;
+ 
+//   if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) array = fMvdPixelHitArray;
+//   else if(detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) array = fMvdStripHitArray;
+//   else if(detId ==  FairRootManager::Instance()->GetBranchId(fSttBranch)) array = fSttHitArray;
+//   //  else if(detId ==  FairRootManager::Instance()->GetBranchId(fGemBranch)) array = fGemHitArray;
+
+//   int nhits = hits.size();
+
+//   std::vector<std::vector<int> > list;
+//   std::vector<int> cluster;
+//   int colors[10] = {2, 3, 4, kMagenta, kBlack, kGray, kViolet, kCyan, kYellow, kOrange};
+
+//   // 
+//   bool usable[nhits];
+//   for(int ihit = 0; ihit < nhits; ihit++) usable[ihit] = true;
+
+//   // loop on starting hit
+//   for(int ihit = 0; ihit < nhits; ihit++) {
+//     int hitid1 = hits[ihit];
+//     usable[ihit] = false;
+//     FairHit *hit1 = (FairHit*) array->At(hitid1);
+//     if(!hit1) continue;
+//     TVector3 position1;
+//     hit1->Position(position1);
+
+//     // loop on other hits
+//     for(int jhit = 0; jhit < nhits; jhit++) {
+//       int hitid2 = hits[jhit];
+//       FairHit *hit2 = (FairHit*) array->At(hitid2);
+//       if(!hit2) continue;
+//       TVector3 position2;
+//       hit2->Position(position2);
+
+//       ouble distance = (position1 - position2).Perp();
+//       cout << hitid1  << "/" << hitid2 << " distance " << distance << " " ;
+//       double fLimit = 2.5;
+//       if(distance < fLimit) {
+// 	cout << " YES" << endl;
+// 	std::vector<int>::iterator it;
+// 	it = find(cluster.begin(), cluster.end(), hitid1);
+// 	if(it = cluster.size())	cluster.push_back(hitid1); // CHECK fLimit
+// 	it = find(cluster.begin(), cluster.end(), hitid2);
+// 	if(it = cluster.size())	cluster.push_back(hitid2); // CHECK fLimit
+
+// 	if(fDisplayOn) {
+// 	  TLine *line = new TLine(position1.X(), position1.Y(), position2.X(), position2.Y());
+// 	  line->SetLineColor(colors[list.size()]);
+// 	  line->Draw("SAME");
+// 	  display->Update();
+// 	  display->Modified();  
+// 	}
+//       }
+
+//     }
+
+//     else {
+//       cout << " NO" << endl;
+//       if(cluster.size() > 1) {
+// 	cout << "SAVE CLUS" << endl;
+// 	list.push_back(cluster); // CHECK
+//       }
+//       cluster.clear();
+//       cluster.push_back(hitid); 
+//       cout << endl;
+//     }
+    
+//     tmpposition = position;
+      
+//   }
+//   return list; 
+// }
+
+
+
+std::vector<std::vector<int> > PndSecondaryTrackFinder::ClusterFinder(std::vector<int> hits, Int_t detId) 
+{
+  TClonesArray *array;
+ 
+  if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) array = fMvdPixelHitArray;
+  else if(detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) array = fMvdStripHitArray;
+  else if(detId ==  FairRootManager::Instance()->GetBranchId(fSttBranch)) array = fSttHitArray;
+  //  else if(detId ==  FairRootManager::Instance()->GetBranchId(fGemBranch)) array = fGemHitArray;
+
+  int nhits = hits.size();
+  int tmphit = -1;
+  TVector3 tmpposition;
+  std::vector<std::vector<int> > list;
+ 
+  int colors[10] = {2, 3, 4, kMagenta, kBlack, kGray, kViolet, kCyan, kYellow, kOrange};
+
+
+  map<int, bool> usable;
+  //  bool usable[nhits];
+  for(int ihit = 0; ihit < nhits; ihit++) usable[hits[ihit]] = true;
+
+  int assigned = 0;
+  bool newclus = true;
+  while(assigned != nhits) {
+    std::vector<int> cluster;
+    for(int ihit = 0; ihit < nhits; ihit++) {
+      int hitid = hits[ihit];
+      if(usable[hitid] == false) continue;
+      
+      FairHit *hit = (FairHit*) array->At(hitid);
+      if(!hit) continue;
+      TVector3 position;
+      hit->Position(position);
+      //       if(ihit == 0) {
+      // 	tmpposition = position;
+      // 	tmphit = ihit;
+      //       }
+
+      if(newclus) {
+	cluster.push_back(hitid); // CHECK fLimit
+	cout << "push " << hitid << endl;
+	usable[hitid] = false;
+	assigned++;
+	newclus = false;
+	tmpposition = position;
+	tmphit = ihit;
+      }
+
+      double distance = (position - tmpposition).Perp();
+      cout << ihit << " " <<  hitid  << "/" << hits[tmphit] << " distance " << distance << " " ;
+
+      // to have 1 cm for radius = 15 cm, 3 cm for radius = 42 cm
+      double fLimit = 2.7; // 0.075 * position.Perp() - 0125.; CHECK
+      if(distance < fLimit && position.Perp() != tmpposition.Perp()) {
+	cout << " YES" << endl;
+	cluster.push_back(hitid); // CHECK fLimit
+	cout << "push " << hitid << endl;
+	usable[hitid] = false;
+	assigned++;
+	if(fDisplayOn) {
+	  TLine *line = new TLine(position.X(), position.Y(), tmpposition.X(), tmpposition.Y());
+	  line->SetLineColor(colors[list.size()]);
+	  line->Draw("SAME");
+	  display->Update();
+	  display->Modified();  
+	}
+	tmpposition = position;
+     	tmphit = ihit;
+      }
+      else cout << "NO" << endl;
+    }
+
+    newclus = true;
+    if(cluster.size() > 2) {
+      cout << "SAVE CLUS" << endl;
+      list.push_back(cluster); // CHECK
+    }
+    cout << "---------- ASSIGNED " << 	assigned << " " << nhits << endl;;
+  }
+
+  // reset usable all the hits and then
+  // delete the unes already gathered
+  for(int ihit = 0; ihit < nhits; ihit++) usable[hits[ihit]] = true;
+  for(int iclus = 0; iclus < list.size(); iclus++) {
+    std::vector<int> cluster = list[iclus];
+    int nhits2 = cluster.size();
+    for(int ihit = 0; ihit < nhits2; ihit++) {
+      int hitid = cluster[ihit];
+      usable[hitid] = false;
+    }
+  }
+
+  // recompare distances of remaining hits
+  for(int ihit = 0; ihit < nhits; ihit++) {
+    int hitid = hits[ihit];
+    if(usable[hitid] == false) continue;
+      
+    FairHit *hit = (FairHit*) array->At(hitid);
+    if(!hit) continue;
+    TVector3 position;
+    hit->Position(position);
+    
+    for(int iclus = 0; iclus < list.size(); iclus++) {
+      std::vector<int> cluster = list[iclus];
+      int nhits2 = cluster.size();
+      for(int jhit = 0; jhit < nhits2; jhit++) {
+	int hitid2 = cluster[jhit];
+
+	FairHit *hit2 = (FairHit*) array->At(hitid2);
+	if(!hit2) continue;
+	TVector3 position2;
+	hit2->Position(position2);
+    
+	double distance = (position - position2).Perp();
+
+	// to have 1 cm for radius = 15 cm, 3 cm for radius = 42 cm
+	double fLimit = 2.7; // 0.075 * position.Perp() - 0125.; CHECK
+	if(distance < fLimit && position2.Perp() != position.Perp()) {
+	  cluster.push_back(hitid);
+	  usable[hitid] = false;
+	}
+      }
+    }
+  }
+
+
+  return list; 
+}
 
 ClassImp(PndSecondaryTrackFinder)

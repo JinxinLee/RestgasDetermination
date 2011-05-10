@@ -12,6 +12,9 @@
 #include "TCanvas.h"
 #include "TString.h"
 
+
+#include <vector>
+
 class TClonesArray;
 class TObjectArray;
 
@@ -57,7 +60,8 @@ class PndSecondaryTrackFinder : public FairTask {
   };
 
 
-  std::vector<int> OrderHits(TClonesArray *hitarray);
+  std::vector<int> OrderHits(TClonesArray *hitarray, Int_t detId);
+
   void DeleteHit(Int_t ihit, std::vector<int> *hits);
   void DeleteHits(TString detectors, std::vector<int> *hits);
 
@@ -67,6 +71,7 @@ class PndSecondaryTrackFinder : public FairTask {
  Double_t CalculatePhi(TVector2 v, TVector2 p, double alpha, double Phi0, int charge);
  Double_t CompareToPreviousPhi(Double_t Fi, Double_t Fi_pre, int charge);
 
+ std::vector<std::vector<int> > ClusterFinder(std::vector<int> hits, Int_t detId);
 
 void DrawFoundTracks();
  void DrawMCTracks();
