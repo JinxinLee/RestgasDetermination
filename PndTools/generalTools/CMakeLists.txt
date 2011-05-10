@@ -8,6 +8,9 @@ ${CLHEP_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/fairtools
 ${CMAKE_SOURCE_DIR}/base 
 ${CMAKE_SOURCE_DIR}/parbase
+${CMAKE_SOURCE_DIR}/pnddata 
+${CMAKE_SOURCE_DIR}/pnddata/TrackData
+${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/PndTools/generalTools
 )
 
@@ -27,6 +30,7 @@ PndSensorNameContFact.cxx
 PndSensorNamePar.cxx
 PndBlackBoxTask.cxx
 PndEventCounterTask.cxx
+PndTrackArrayMerger.cxx
 )
 
 # fill list of header files from list of source files
