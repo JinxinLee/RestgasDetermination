@@ -6,14 +6,17 @@ SET_TESTS_PROPERTIES(qa_evtgen_macro1 PROPERTIES PASS_REGULAR_EXPRESSION "Test P
 GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/evtgen/QAmacro_evtgen_2.C)
 add_test(qa_evtgen_macro2 ${PANDAROOT_BINARY_DIR}/macro/qa/evtgen/QAmacro_evtgen_2.sh)
 SET_TESTS_PROPERTIES(qa_evtgen_macro2 PROPERTIES TIMEOUT "100")
+SET_TESTS_PROPERTIES(qa_evtgen_macro2 PROPERTIES DEPENDS qa_evtgen_macro1)
 SET_TESTS_PROPERTIES(qa_evtgen_macro2 PROPERTIES PASS_REGULAR_EXPRESSION "Test Passed;All Ok")
 
 GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/evtgen/QAmacro_evtgen_3.C)
 add_test(qa_evtgen_macro3 ${PANDAROOT_BINARY_DIR}/macro/qa/evtgen/QAmacro_evtgen_3.sh)
 SET_TESTS_PROPERTIES(qa_evtgen_macro3 PROPERTIES TIMEOUT "100")
+SET_TESTS_PROPERTIES(qa_evtgen_macro3 PROPERTIES DEPENDS qa_evtgen_macro2)
 SET_TESTS_PROPERTIES(qa_evtgen_macro3 PROPERTIES PASS_REGULAR_EXPRESSION "Test Passed;All Ok")
 
 GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/evtgen/QAmacro_evtgen_4.C)
 add_test(qa_evtgen_macro4 ${PANDAROOT_BINARY_DIR}/macro/qa/evtgen/QAmacro_evtgen_4.sh)
 SET_TESTS_PROPERTIES(qa_evtgen_macro4 PROPERTIES TIMEOUT "100")
+SET_TESTS_PROPERTIES(qa_evtgen_macro4 PROPERTIES DEPENDS qa_evtgen_macro3)
 SET_TESTS_PROPERTIES(qa_evtgen_macro4 PROPERTIES PASS_REGULAR_EXPRESSION "Test Passed;All Ok")

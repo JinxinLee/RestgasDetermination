@@ -6,9 +6,11 @@ SET_TESTS_PROPERTIES(qa_mvd_macro1 PROPERTIES PASS_REGULAR_EXPRESSION "SimPassed
 GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/mvd/QAmacro_mvd_2.C)
 add_test(qa_mvd_macro2 ${PANDAROOT_BINARY_DIR}/macro/qa/mvd/QAmacro_mvd_2.sh)
 SET_TESTS_PROPERTIES(qa_mvd_macro2 PROPERTIES TIMEOUT "20")
+SET_TESTS_PROPERTIES(qa_mvd_macro2 PROPERTIES DEPENDS qa_mvd_macro1)
 SET_TESTS_PROPERTIES(qa_mvd_macro2 PROPERTIES PASS_REGULAR_EXPRESSION "DigiRecoPassed;All ok")
 
 GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/mvd/QAmacro_mvd_ana.C)
 add_test(qa_mvd_macroana ${PANDAROOT_BINARY_DIR}/macro/qa/mvd/QAmacro_mvd_ana.sh)
 SET_TESTS_PROPERTIES(qa_mvd_macroana PROPERTIES TIMEOUT "20")
+SET_TESTS_PROPERTIES(qa_mvd_macroana PROPERTIES DEPENDS qa_mvd_macro2)
 SET_TESTS_PROPERTIES(qa_mvd_macroana PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")
