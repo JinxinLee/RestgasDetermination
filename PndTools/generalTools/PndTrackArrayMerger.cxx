@@ -78,7 +78,12 @@ void PndTrackArrayMerger::Exec(Option_t* opt)
       PndTrack* mynewtrack = new ((*fOutputArray)[entries]) 
            PndTrack(tmptrk->GetParamFirst(),tmptrk->GetParamLast(),*(tmptrk->GetTrackCandPtr()),
                     tmptrk->GetFlag(), tmptrk->GetChi2(), tmptrk->GetNDF(), 
-                    tmptrk->GetPidHypo(), i, FairRootManager::Instance()->GetBranchId(brname));
+                    tmptrk->GetPidHypo(),-1,-1);
+      mynewtrack->Reset(); //resetting links 
+      for(int nlin=0;nlin<tmptrk->GetNLinks();nlin++)
+      {
+        mynewtrack->AddLink(tmptrk->GetLink(nlin));
+      }
     }
     namenum++;
   }

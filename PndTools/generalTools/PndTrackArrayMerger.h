@@ -19,7 +19,7 @@ public:
   virtual void Exec(Option_t* opt);
   virtual void FinishEvent();
 
-  void SetPersistance(Bool_t p) {fPersistance = p;}
+  void SetPersistance(Bool_t p=kTRUE) {fPersistance = p;}
   void AddInputBranch(TString s) {fInputBranchList.push_back(s);}
   void SetOutputBranch(TString s) {fOutputBranch = s;}
 
