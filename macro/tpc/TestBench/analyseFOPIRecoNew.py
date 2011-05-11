@@ -10,14 +10,15 @@ def drawPrelim() :
     prelim.DrawLatex(0.38,0.45,"preliminary")
     return
 
-#default dir
-dir = "/nfs/hicran/data/tpc/fopi/2010/reconstructed"
-
 preliminary = 0
 chi2ProbCut = 1.
 numFiles = 10000000
 processClusters = 1
 processTracks = 1
+
+dir = "/nfs/hicran/data/tpc/fopi/2011/reconstructed"
+runs = ""
+
 
 #argument parsing:
 for iarg in range(len(sys.argv)) :
@@ -36,7 +37,15 @@ for iarg in range(len(sys.argv)) :
         print "**** Disabled cluster analysis & plots *****"
     if arg == "-noTr" :
         processTracks = 0
+    if arg == "-runs" :
+        runs = sys.argv[iarg+1];    
         
+dashIndex = runs.find("-")
+if dashIndex > 0 :
+    runs = runs.split("-")
+    runList = range(int(runs[0]), int(runs[1])+1)
+if dashIndex < 0 and len(runs) > 1 :
+    runList = [runs]
 
 outfile = ROOT.TFile("anaOut.root", "recreate")
 
@@ -62,7 +71,7 @@ occXY_end_amp = ROOT.TH2D("OccXY_end_amp",
 occZ = ROOT.TH1D("OccZ", "Cluster Z occupancy created from cosmic tracks",
                  200,0,75)
 
-files = glob.glob(dir + "/*.2174.reco.root")
+files = glob.glob(dir + "/*.reco.root")
 files.sort()
 
 
@@ -210,6 +219,15 @@ planefile = simpath + "/tpc/TestBench/padPlane_FOPI.dat"
 plane = ROOT.PndTpcPadPlane(planefile, pool)
 
 for file in files :
+    #check if it appears in the runList
+    if len(runList) >= 1 :
+        found = 0
+        for i in runList :
+            if file.find(str(i)) >= 0 :
+                found = 1
+        if found == 0 :
+            continue
+    
     if fcounter > numFiles :
         continue
     
@@ -464,7 +482,7 @@ for i in range(6) :
     fit.SetParameter(5, testfit.GetParameter(2))
     fit.SetParLimits(5, testfit.GetParameter(2)*2, testfit.GetParameter(2)*30)
     resVs[i].Fit(fit, "+", "", -1,1)
-    diffV.SetPoint(i,zCuts[i]+5,fit.GetParameter(2)*10000)
+    #diffV.SetPoint(i,zCuts[i]+5,fit.GetParameter(2)*10000)
 
     # preliminary
     if preliminary :
@@ -555,7 +573,7 @@ for i in range(6) :
     if preliminary :
        drawPrelim()
 
-    diffVID.SetPoint(i,zCuts[i]+5,fit.GetParameter(2)*10000)
+    diffV.SetPoint(i,zCuts[i]+5,fit.GetParameter(2)*10000)
     #calculate ratio of central and background integrals
     ratio = fit.GetParameter(3)*fit.GetParameter(5)/(fit.GetParameter(0)*fit.GetParameter(2))
     bckgrShareID.SetPoint(i,zCuts[i]+5,ratio)
