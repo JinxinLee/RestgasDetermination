@@ -97,7 +97,8 @@ void PndTpcDetector::SetSpecialPhysicsCuts(){
   if (strcmp(fRun->GetName(),"TGeant3") == 0) {
 
     //get material ID for customs settings
-    
+    std::cout<<"PndTpcDetector::SetSpecialPhysicsCuts() "
+	     <<"Working on medium "<<fMixture.c_str()<<std::endl;
     int matIdVMC = gGeoManager->GetMedium(fMixture.c_str())->GetId();
   
     
@@ -378,13 +379,21 @@ PndTpcDetector::ConstructGeometry() {
 
 bool
 PndTpcDetector::CheckIfSensitive(std::string name) {
-  if(fAllSensitive)
-    return true;
   TString test(name.c_str());
+  //IMPORTANT:
+  //THIS REQUIRES THE ACTIVE VOLUME IN THE ROOT-GEOMETRY FILE TO CONTAIN
+  //THE STRING "gas"
   if(test.Contains("gas")) {
     std::cout<<test<<" was set active"<<std::endl;
+    TString meh = gGeoManager->GetVolume(name.c_str())->GetMaterial()->GetName();
+    std::cout<<"Set active mixture to "<<meh<<std::endl;
+    fMixture = meh.Data();
     return true;
   }
+
+  if(fAllSensitive) 
+    return true;
+  
   return false;
 }
 
