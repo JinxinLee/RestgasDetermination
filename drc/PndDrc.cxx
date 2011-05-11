@@ -997,20 +997,16 @@ void PndDrc::ConstructOpGeometry()
   cout<< " ==================================================== " << endl;
   cout<< " =======  DRC::  ConstructOpticalGeometry()  ======== " << endl; 
   
-  Int_t npoints = 2;
-  
+  Int_t npoints = 2;  
   Double_t ephoton[npoints];
   ephoton[0] = 1.0e-09;  // 1 eV
   ephoton[1] = 10.0e-09; // 10 eV
   Double_t reflectivity[npoints];
   reflectivity[0] = 1.;
   reflectivity[1] = 1.;
-  Double_t reflectivity1[npoints];
-  reflectivity1[0] = 0.;
-  reflectivity1[1] = 0.;
-
-  gMC->DefineOpSurface("BarSurface", kGlisur, kDielectric_metal, kPolished, 0.0);
-//  gMC->DefineOpSurface("BarSurface", kUnified, kDielectric_metal, kGround, 0.1);  
+  
+  gMC->DefineOpSurface("BarSurface", kGlisur, kDielectric_dielectric, kPolished, 0.0);
+//  gMC->DefineOpSurface("BarSurface", kUnified, kDielectric_metal, kGround, 0.1); 
 
   for(Int_t i=0; i<fGeo->barNum(); i++){
     gMC->SetBorderSurface("BarAirSurface", "DrcBarSensor", i+1, "DrcAirBox", 0, "BarSurface");
@@ -1024,16 +1020,15 @@ void PndDrc::ConstructOpGeometry()
       gMC->SetBorderSurface("Block2AirSurface", "DrcBlock2", i+1, "DrcAirBox", 0, "BarSurface");
     }    
   }  
-  gMC->SetMaterialProperty("BarSurface", "REFLECTIVITY", npoints, ephoton, reflectivity);
+  //gMC->SetMaterialProperty("BarSurface", "REFLECTIVITY", npoints, ephoton, reflectivity);
  
-  gMC->DefineOpSurface("EVSurface", kGlisur, kDielectric_metal, kPolished, 0.0);
+  gMC->DefineOpSurface("EVSurface", kGlisur, kDielectric_dielectric, kPolished, 0.0);
   gMC->SetBorderSurface("EVAirSurface", "DrcEV", 1, "BarrelDIRC", 0, "EVSurface"); 
-  gMC->SetMaterialProperty("EVSurface", "REFLECTIVITY", npoints, ephoton, reflectivity);
+  //gMC->SetMaterialProperty("EVSurface", "REFLECTIVITY", npoints, ephoton, reflectivity);
   
-  gMC->DefineOpSurface("PDSurface", kGlisur, kDielectric_metal, kPolished, 0.0);
+  gMC->DefineOpSurface("PDSurface", kGlisur, kDielectric_dielectric, kPolished, 0.0);
   gMC->SetBorderSurface("EVPDSurface", "DrcEV", 1, "DrcPDSensor", 1, "PDSurface");
-  gMC->SetMaterialProperty("PDSurface", "REFLECTIVITY", npoints, ephoton, reflectivity1); 
-
+  
   cout<<" =======  DRC::ConstructOpGeometry -> Finished! ====== "<< endl;     
 }  
 
