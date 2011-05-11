@@ -169,7 +169,7 @@ class PndDrc : public FairDetector
   TLorentzVector fPos;             //!  position
   TLorentzVector fMom;             //!  momentum
   Double32_t     fTime;            //!  time
-  Double32_t     fLength;          //!  length
+  Double32_t     fLength;          //!  length 
   Double_t       fAngIn;
   Int_t          fNBar;
   Int_t          fPosIndex;                 //! 
@@ -196,13 +196,6 @@ class PndDrc : public FairDetector
   Double_t       fPhoMaxTime;
   Bool_t         fTakeDirect;     
   Int_t 	 ffocusing; 
-  
-  // lens shift:
-  Double_t       fdz_lens3;
-  Double_t       fdz_lens2;
-  Double_t       fdz_lens1;
-  Double_t	 fdz_mirr1;
-  Double_t	 fdz_mirr2;
 
   PndGeoDrc*     fGeo;             //! Pointer to basic DRC geometry data
 
@@ -214,17 +207,12 @@ class PndDrc : public FairDetector
   Int_t          fEventID;
   
   Int_t aaa;
-  
-  // js group velocity check    
-  Float_t fTime_out, fTime_in, fLength_in, fLength_out, fPEnergy, fLambda, fDeltaT;
-  Double32_t     fTrackTime;            
-  // end
 
   // reset all parameters   
   void ResetParameters();
 
   Int_t  fSenId1, fSenId2, fSenIdBar;
-  ClassDef(PndDrc,5)
+  ClassDef(PndDrc,6)
 
 }; 
 

@@ -725,10 +725,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
   
   TString nam =vol->GetName();
   Int_t num = vol->getMCid();
-  Int_t volID = vol->getVolumeId();
-  Int_t modID = vol->getModId();
-  Int_t uniID = vol->GetUniqueID();
-     
+       
    //Register points in the barrel (PndDrcBarPoints)
   fEventID = gMC->CurrentEvent();
   fPdgCode = gMC->TrackPid();
@@ -755,7 +752,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
         gMC->StopTrack();
       }
     }
-    
+       
 /*  
   // check whether function 'ConstructOpGeometry' works:
   if(gMC->IsTrackExiting()==1){
@@ -797,6 +794,8 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
         gMC->TrackPosition(fPos);
         gMC->TrackMomentum(fMom); // GeV/c	
         fTime=gMC->TrackTime()*1.0e09; // ns
+	fLength = gMC->TrackLength(); // cm ??
+	//cout<<"TRACK IS IN THE PD!"<<endl;
         AddHit(fTrackID,
 	     fCopyNo,
 	     TVector3(fPos.X(),   fPos.Y(),   fPos.Z()),
@@ -996,7 +995,7 @@ void PndDrc::ConstructOpGeometry()
 {
   cout<< " ==================================================== " << endl;
   cout<< " =======  DRC::  ConstructOpticalGeometry()  ======== " << endl; 
-  
+/*  
   Int_t npoints = 2;  
   Double_t ephoton[npoints];
   ephoton[0] = 1.0e-09;  // 1 eV
@@ -1028,7 +1027,7 @@ void PndDrc::ConstructOpGeometry()
   
   gMC->DefineOpSurface("PDSurface", kGlisur, kDielectric_dielectric, kPolished, 0.0);
   gMC->SetBorderSurface("EVPDSurface", "DrcEV", 1, "DrcPDSensor", 1, "PDSurface");
-  
+*/  
   cout<<" =======  DRC::ConstructOpGeometry -> Finished! ====== "<< endl;     
 }  
 
