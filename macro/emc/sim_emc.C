@@ -2,6 +2,8 @@
 // It creates a geant simulation file for emc
 
 sim_emc(Int_t nEvents = 10, Float_t mom = 1.){
+  // flag which define if the full PANDA geomerty is used or only EMC
+  Bool_t useFullPANDAGeometry=false;
   TStopwatch timer;
   timer.Start();
   gDebug=0;
@@ -47,47 +49,61 @@ sim_emc(Int_t nEvents = 10, Float_t mom = 1.){
   FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
-
-  FairModule *Magnet= new PndMagnet("MAGNET");
-  Magnet->SetGeometryFileName("FullSolenoid.root");
   
-  FairModule *Dipole= new PndMagnet("MAGNET");
-  Dipole->SetGeometryFileName("dipole.geo");
-  fRun->AddModule(Dipole);
-
-  FairModule *Pipe= new PndPipe("PIPE");
-  //fRun->AddModule(Pipe);
-
-  FairDetector *Stt= new PndStt("STT", kTRUE);
-  Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
-  fRun->AddModule(Stt);
-
-  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
-  Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
-  fRun->AddModule(Mvd);
-
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
   Emc->SetGeometryVersion(15);
   // See PndEmc::SetGeometryVersion() for available geometries and add there new one if necessary
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
 
-  FairDetector *Tof = new PndTof("TOF",kTRUE);
-  Tof->SetGeometryFileName("tofbarrel.geo");
-  fRun->AddModule(Tof);
-  
-  PndMdt *Muo = new PndMdt("MDT",kTRUE);
-  Muo->SetBarrel("torino");
-  Muo->SetEndcap("torino");
-  Muo->SetMuonFilter("torino");
-  Muo->SetMdtMagnet(kTRUE);
-  Muo->SetMdtMFIron(kTRUE);
-  fRun->AddModule(Muo);
+  if (useFullPANDAGeometry)
+  {
+	FairModule *Magnet= new PndMagnet("MAGNET");
+	//Magnet->SetGeometryFileName("FullSolenoid_V842.root");
+	Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
+	fRun->AddModule(Magnet);
 
-  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-  Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
-  fRun->AddModule(Drc);
+	FairModule *Dipole= new PndMagnet("MAGNET");
+	Dipole->SetGeometryFileName("dipole.geo");
+	fRun->AddModule(Dipole);
 
+	FairModule *Pipe= new PndPipe("PIPE");
+	fRun->AddModule(Pipe);
+
+	FairDetector *Stt= new PndStt("STT", kTRUE);
+	Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
+	fRun->AddModule(Stt);
+
+	FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+	Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
+	fRun->AddModule(Mvd);
+
+	PndMdt *Muo = new PndMdt("MDT",kTRUE);
+	Muo->SetBarrel("fast");
+	Muo->SetEndcap("fast");
+	Muo->SetMuonFilter("fast");
+	Muo->SetMdtMagnet(kTRUE);
+	Muo->SetMdtMFIron(kTRUE);
+	fRun->AddModule(Muo);
+
+	FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+	Gem->SetGeometryFileName("gem_3Stations.root");
+	fRun->AddModule(Gem);
+
+	PndDsk* Dsk = new PndDsk("DSK", kTRUE);
+	Dsk->SetGeometryFileName("dsk.root");
+	Dsk->SetStoreCerenkovs(kFALSE);
+	Dsk->SetStoreTrackPoints(kFALSE);
+	fRun->AddModule(Dsk);
+
+	PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+	Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
+	fRun->AddModule(Drc);
+	
+	FairDetector *Fts= new PndFts("FTS", kTRUE);
+	Fts->SetGeometryFileName("fts.geo");
+	fRun->AddModule(Fts);
+  }
   // Create and Set Event Generator
   //-------------------------------
 
