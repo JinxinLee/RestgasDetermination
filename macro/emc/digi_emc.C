@@ -2,7 +2,7 @@
   // Loads a filewith hits and makes digitization for EMC
   
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-  Int_t iVerbose = 0; // just forget about it, for the moment
+  Int_t iVerbose = 1; // just forget about it, for the moment
   
   // Input file (MC events)
   TString inFile = "sim_emc.root";
@@ -56,8 +56,8 @@
   
   // ----------------------------------------------------
   
-	PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform();
-	PndEmcWaveformToDigi* emcWaveformToDigi=new PndEmcWaveformToDigi();
+	PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform(iVerbose);
+	PndEmcWaveformToDigi* emcWaveformToDigi=new PndEmcWaveformToDigi(iVerbose);
 	
 	fRun->AddTask(emcHitsToWaveform);
 	fRun->AddTask(emcWaveformToDigi);
