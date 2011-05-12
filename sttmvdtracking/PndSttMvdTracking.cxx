@@ -613,7 +613,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 
 
   pSttHit = (PndSttHit *) fSttHitArray->At(i);
-  ipunto= pSttHit->GetRefIndex();// modo giusto di estrarre il punto MC corrispondente.
+  ipunto= pSttHit->GetRefIndex();// right way to extract the corrisponding MC point.
   tubeID = pSttHit->GetTubeID();
   pSttTube = (PndSttTube *) fSttTubeArray->At(tubeID);
       TVector3 center = pSttTube->GetPosition();
@@ -2018,7 +2018,7 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 // -----------------  finding the charge of those track found starting from Mvd
 
 	bool flag;
-	int nMvdplusSkew;
+	int nMvdOnly;
 	Double_t Sini, Slast;
 
 
@@ -2030,30 +2030,32 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 	// esse[] is used for the CHARGE determination and therefore it contains
 	// also info of Parallel Straws (the last hit is in general a parallel straw hit).
 
-	    for(i=0, nMvdplusSkew=0; i<nTrackCandHit[ncand]; i++){
+	    for(i=0, nMvdOnly=0; i<nTrackCandHit[ncand]; i++){
 
 		if( ListTrackCandHitType[ncand][i] == 0){ //  Pixel
-			S[nMvdplusSkew] = atan2(
+			S[nMvdOnly] = atan2(
 					YMvdPixel[ListTrackCandHit[ncand][i]]-Oy[ncand],
 					XMvdPixel[ListTrackCandHit[ncand][i]]-Ox[ncand]
 					);
-			if(S[nMvdplusSkew]<0.) S[nMvdplusSkew] +=2.*PI;
-			if(S[nMvdplusSkew]<0.) S[nMvdplusSkew] =0.;
-			esse[i]=S[nMvdplusSkew];
-			ZED[nMvdplusSkew] = ZMvdPixel[ListTrackCandHit[ncand][i]];
-			DriftRadius[nMvdplusSkew]= -1. ;
-			ErrorDriftRadius[nMvdplusSkew]= 0.01 ;
-			nMvdplusSkew++;
+			if(S[nMvdOnly]<0.) S[nMvdOnly] +=2.*PI;
+			if(S[nMvdOnly]<0.) S[nMvdOnly] =0.;
+			esse[i]=S[nMvdOnly];
+			ZED[nMvdOnly] = ZMvdPixel[ListTrackCandHit[ncand][i]];
+			DriftRadius[nMvdOnly]= -1. ;
+			ErrorDriftRadius[nMvdOnly]= 0.01 ;
+			nMvdOnly++;
 		} else if (ListTrackCandHitType[ncand][i] == 1) {  //  Strip
-			S[nMvdplusSkew] = atan2(
+			S[nMvdOnly] = atan2(
 					YMvdStrip[ListTrackCandHit[ncand][i]]-Oy[ncand],
 					XMvdStrip[ListTrackCandHit[ncand][i]]-Ox[ncand]
 					);
-			if(S[nMvdplusSkew]<0.) S[nMvdplusSkew] +=2.*PI;
-			if(S[nMvdplusSkew]<0.) S[nMvdplusSkew] =0.;
-			esse[i]=S[nMvdplusSkew];
-			ZED[nMvdplusSkew] = ZMvdStrip[ListTrackCandHit[ncand][i]];
-			nMvdplusSkew++;
+			if(S[nMvdOnly]<0.) S[nMvdOnly] +=2.*PI;
+			if(S[nMvdOnly]<0.) S[nMvdOnly] =0.;
+			esse[i]=S[nMvdOnly];
+			ZED[nMvdOnly] = ZMvdStrip[ListTrackCandHit[ncand][i]];
+			DriftRadius[nMvdOnly]= -1. ;
+			ErrorDriftRadius[nMvdOnly]= 0.01 ;
+			nMvdOnly++;
 		} else { // Parallel and Skew Straws.
 			esse[i] = atan2(info[ListTrackCandHit[ncand][i]][1]-Oy[ncand],
 					info[ListTrackCandHit[ncand][i]][0]-Ox[ncand]
@@ -2123,7 +2125,7 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 
 // ----------------------------- fit in SZ with the Mvd tracks
 		resultFitSZagain[ncand] = FitSZspace(
-					nMvdplusSkew,	// n. hits to be fitted
+					nMvdOnly,	// n. hits to be fitted
 					S,
 					ZED,
 					DriftRadius,
@@ -6739,17 +6741,23 @@ if(istampa>=3){
         NRowsInWhichStructVarArePresent[1] = 	//  this is for m2
         NRowsInWhichStructVarArePresent[2] =	//  this is for q1
         NRowsInWhichStructVarArePresent[3] = nMvdHits*2 + nSttHits *4;	//  this is for q2
-	//--- the following is for the  lam   structural variables
+	//--- the following is for the  lam* (Mvd hits) or lamp* (Stt hits) structural variables
       for(i=0,ii=0; i< NpointsInFit ; i++) {
 		if( mvdhit[i]){
 			NRowsInWhichStructVarArePresent[4+ii]= 4;
-			ii++;
 		} else {
 			NRowsInWhichStructVarArePresent[4+ii]= 5;
-			NRowsInWhichStructVarArePresent[4+ii+1]= 5;
-			ii+=2;
+		}
+		ii++;
+	}
+	//--- the following is for the  lamm* (Mvd Hits, if any)  structural variables
+      for(i=0; i< NpointsInFit ; i++) {
+		if( !mvdhit[i]){
+			NRowsInWhichStructVarArePresent[4+ii]= 5;
+			ii++;
 		}
 	}
+
 	//--- the following is for the  sigma   structural variables
 	for(i=0 ; i< nMvdHits+2*nSttHits ; i++) {
 		NRowsInWhichStructVarArePresent[4+ii+i]= 5;
@@ -7648,7 +7656,6 @@ if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "
 
 
 
-
 //--------- calculation of # structural variables (see Gianluigi's logbook pag. 236) etc.etc.
 
 	int NStructVar =     4           +    1       +  nMvdHits * 2     +                nSttHits *4 ;
@@ -7700,17 +7707,28 @@ if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "
         NRowsInWhichStructVarArePresent[1] = 	//  this is for m2
         NRowsInWhichStructVarArePresent[2] =	//  this is for q1
         NRowsInWhichStructVarArePresent[3] = nMvdHits*2 + nSttHits *4;	//  this is for q2
-	//--- the following is for the  lam   structural variables
+	//--- the following is for the  lam* (Mvd Hits) and lamp* (Stt hits) structural variables
       for(i=0,ii=0; i< NpointsInFit ; i++) {
 		if( mvdhit[i]){
 			NRowsInWhichStructVarArePresent[4+ii]= 4;
-			ii++;
 		} else {
 			NRowsInWhichStructVarArePresent[4+ii]= 5;
-			NRowsInWhichStructVarArePresent[4+ii+1]= 5;
-			ii+=2;
+		}
+			ii++;
+	}
+
+	//  the lamm* (Stt hits) if any.
+      for(i=0; i< NpointsInFit ; i++) {
+		if( !mvdhit[i]){
+			NRowsInWhichStructVarArePresent[4+ii]= 5;
+			ii++;
 		}
 	}
+
+
+
+
+
 	//--- the following is for the  sigma   structural variables
 	for(i=0 ; i< nMvdHits+2*nSttHits ; i++) {
 		NRowsInWhichStructVarArePresent[4+ii+i]= 5;
@@ -8340,6 +8358,7 @@ if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "
       fprintf(FMCS,"ENDATA\n");
       fclose(FMCS);
 */
+
 /*
 cout<<"n.  punti nel fit "<<NpointsInFit<<endl;
 
@@ -8349,7 +8368,14 @@ for(int ic =0;ic<nRows; ic++){
    cout<<"n.  Row  "<<ic<<", nameRows "<<nameRows[ic]<<",  typeRows "<<typeRows[ic]<<endl;
 }
 
-cout<<"NStructRowsMax, NStructVar "<<NStructRowsMax<<", "<<NStructVar<<endl;
+cout<<"NStructRowsMax = "<<NStructRowsMax<<endl;
+cout<<"NStructVar "<<NStructVar<<" e loro elenco "<<endl;
+for(int ic =0;ic<NStructVar; ic++){
+	cout<<"\tvar. n. "<<ic<<", nome = "<<StructVarName[ic]<<endl;
+}
+
+
+
 for(int ic =0;ic<NStructVar; ic++){
    cout<<"NRowsInWhichStructVarArePresent  "<<NRowsInWhichStructVarArePresent[ic]
      <<", nome var. strut. n."<<ic<<"  = "
@@ -8390,6 +8416,7 @@ for(int ic =0;ic<nBounds; ic++){
    cout<<"n. "<<ic<<",  Bound Name   "<<BoundStructVarName[ic]<<endl;
 }
 */
+
 //-------fine stampaggi
 
 //-----------------------  funzioni chiamate direttamente
