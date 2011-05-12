@@ -794,7 +794,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
         gMC->TrackPosition(fPos);
         gMC->TrackMomentum(fMom); // GeV/c	
         fTime=gMC->TrackTime()*1.0e09; // ns
-	fLength = gMC->TrackLength(); // cm ??
+	fLength = gMC->TrackLength(); // cm 
 	//cout<<"TRACK IS IN THE PD!"<<endl;
         AddHit(fTrackID,
 	     fCopyNo,
