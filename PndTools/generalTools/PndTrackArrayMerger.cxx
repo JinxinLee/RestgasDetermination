@@ -49,7 +49,9 @@ InitStatus PndTrackArrayMerger::Init()
       Error("Init()","No %s array! Skipping that name.",(*iter).Data());
       continue;
     }
-    fInputArrayList.push_back(tmparray);    
+    if(tmparray->GetClass()->GetName() == "PndTrack"){
+      fInputArrayList.push_back(tmparray);    
+    }
   }
   
   //setup output array
@@ -67,10 +69,19 @@ void PndTrackArrayMerger::Exec(Option_t* opt)
   Int_t namenum=0;
   TString brname;
   Int_t entries=0;
+  
+  
   for(std::vector<TClonesArray*>::iterator iter = fInputArrayList.begin(); iter!=fInputArrayList.end();++iter)
   {
-    brname=fInputBranchList[namenum];
     tmparray=*iter;
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,29,1)
+  // MOVES References into a new TCA
+  // Just from root 5.29.02
+  if (tmparray != 0) {
+    fOutputArray->AbsorbObjects(tmparray, 0, tmparray->GetEntries() - 1);
+  }
+#else
+    brname=fInputBranchList[namenum];
     for ( Int_t i=0;i<tmparray->GetEntriesFast();i++)
     {
       tmptrk=(PndTrack*)tmparray->At(i);
@@ -86,7 +97,9 @@ void PndTrackArrayMerger::Exec(Option_t* opt)
       }
     }
     namenum++;
+#endif
   }
+
   return;
 }
 
