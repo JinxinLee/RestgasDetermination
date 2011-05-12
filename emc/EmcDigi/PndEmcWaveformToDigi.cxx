@@ -155,7 +155,7 @@ InitStatus PndEmcWaveformToDigi::Init()
 void PndEmcWaveformToDigi::Exec(Option_t* opt)
 {
 	TStopwatch timer;
-	if (fVerbose>0){
+	if (fVerbose>2){
 		timer.Start();
 	}
 // Reset output array
@@ -197,7 +197,7 @@ void PndEmcWaveformToDigi::Exec(Option_t* opt)
 			
 		}
 	}
-	if (fVerbose>0){
+	if (fVerbose>2){
 		timer.Stop();
 		Double_t rtime = timer.RealTime();
 		Double_t ctime = timer.CpuTime();

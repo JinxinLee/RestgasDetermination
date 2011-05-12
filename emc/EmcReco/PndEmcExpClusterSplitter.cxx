@@ -412,7 +412,8 @@ void PndEmcExpClusterSplitter::Exec(Option_t* opt)
 			theBump = theBumpsIterator->second;
 			Int_t size_ba = fBumpArray->GetEntriesFast();
 			PndEmcBump* theNextBump = new((*fBumpArray)[size_ba]) PndEmcBump(*(theBump));
-			std::cout << "Bump Created!" << std::endl;
+			if (fVerbose>0)
+				std::cout << "Bump Created!" << std::endl;
 			theNextBump->SetLink(FairLink("EmcCluster", iCluster));
 		}
 		

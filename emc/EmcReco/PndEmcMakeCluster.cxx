@@ -131,7 +131,7 @@ InitStatus PndEmcMakeCluster::Init() {
 void PndEmcMakeCluster::Exec(Option_t* opt) 
 {
 	TStopwatch timer;
-	if (fVerbose>0){
+	if (fVerbose>2){
 		timer.Start();
 	}
 	// Reset output array
@@ -139,7 +139,7 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 	fClusterArray->Delete();
 
 	Int_t nDigis = fDigiArray->GetEntriesFast();
-	if (fVerbose>0){
+	if (fVerbose>2){
 		cout<<"DigiList length "<<nDigis<<endl;
 	}
 	
@@ -244,9 +244,10 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 	}
 	
 	fEventCounter++;
-	cout<<"PndEmcMakeCluster, event: "<<fEventCounter<<endl;
+	if (fVerbose>0)
+		cout<<"PndEmcMakeCluster, event: "<<fEventCounter<<endl;
 	
-	if (fVerbose>0){
+	if (fVerbose>2){
 		timer.Stop();
 		Double_t rtime = timer.RealTime();
 		Double_t ctime = timer.CpuTime();

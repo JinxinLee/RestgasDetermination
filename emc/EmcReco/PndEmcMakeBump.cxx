@@ -95,8 +95,9 @@ InitStatus PndEmcMakeBump::Init() {
 
 void PndEmcMakeBump::Exec(Option_t* opt) 
 {
-	std::cout<<"***************** PndEmcMakeBump, event: "
-	   <<fEventCounter<<" **************"<<endl;
+	if (fVerbose>0)
+		std::cout<<"***************** PndEmcMakeBump, event: "
+		<<fEventCounter<<" **************"<<endl;
 	fEventCounter++;
 	return;
 }

@@ -236,7 +236,7 @@ const PndEmcCoordIndexSet &amongstTheseNeighbours ) const
 		}
 	}
 		
-	if (result) {
+	if ((result)&&(fVerbose>0)) {
 		std::cout << " Digi at (" << theDigi->GetThetaInt() << ", " 
 				<< theDigi->GetPhiInt() << ") was a local max. Energy = "<<theDigi->GetEnergy()<< std::endl;
 	}

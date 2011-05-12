@@ -195,7 +195,7 @@ InitStatus PndEmcHitsToWaveform::Init()
 void PndEmcHitsToWaveform::Exec(Option_t* opt)
 {
 	TStopwatch timer;
-	if (fVerbose>0){
+	if (fVerbose>2){
 		timer.Start();
 	}
 	// Reset output array
@@ -212,8 +212,9 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 	// Loop over PndEmcHits to add them to correspondent waveforms
 	// <set> fWaveformInd contains indexes of detectors for which Waveforms are created
 	Int_t nHits = fHitArray->GetEntriesFast();
-	cout<<"Hit array contains "<<nHits<< " hits"<<endl;
-	
+	if (fVerbose>0){
+		cout<<"PndEmcHitsToWaveform:: Hit array contains "<<nHits<< " hits"<<endl;
+	}
 	PndEmcAsicPulseshape *pulseshape= new PndEmcAsicPulseshape(fASIC_Shaping_int_time,fCrystal_time_constant);
 	PndEmcAbsPulseshape *pulseshape2=new PndEmcCRRCPulseshape(fPMT_Shaping_int_time,fPMT_Shaping_diff_time,fShashlyk_time_constant);
 
@@ -279,7 +280,7 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 	// There are two options how to add noise (before and after shaping) 
 
 	Int_t nWf = fWaveformArray->GetEntriesFast();
-	if (fVerbose>0){
+	if (fVerbose>2){
 		cout << "Number of waveforms processed= "<<nWf<<endl;
 	}
 	
@@ -341,7 +342,7 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 	delete pulseshape;
 	delete pulseshape2;
 	
-	if (fVerbose>0){
+	if (fVerbose>2){
 		timer.Stop();
 		Double_t rtime = timer.RealTime();
 		Double_t ctime = timer.CpuTime();
