@@ -2,13 +2,7 @@ void runGeotestMC(double momentum, double angle, TString outdir) {
   TStopwatch timer;
   timer.Start();
 
-  //double momentum = momStr.Atof();
-  //double angle = angStr.Atof();
-  
-  // Load basic libraries in rootlogon
-  //gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  //rootlogon();
-  
+    
   FairRunSim *fRun = new FairRunSim();
   
   // set the MC version used
@@ -21,7 +15,7 @@ void runGeotestMC(double momentum, double angle, TString outdir) {
 
   // SET NUMBER OF EVENTS
   // --------------------------------------------------
-  Int_t nEvents = 100;
+  Int_t nEvents = 1000;
 
   //Set JOBNAME + JOBDIR (will not be created!)
   // --------------------------------------------------
@@ -30,7 +24,7 @@ void runGeotestMC(double momentum, double angle, TString outdir) {
   if(jobdir[length-1] != "/") 
     jobdir.Append("/");
   
-  TString jobname="GeotestMartin_deg";
+  TString jobname="GeotestElectron_deg";
   char bufferang[5];
   sprintf(bufferang, "%.1f", angle);
   jobname.Append(bufferang);
@@ -99,8 +93,8 @@ void runGeotestMC(double momentum, double angle, TString outdir) {
   
   PndTpcDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
   PndTpc->SetAllSensitive(true);
-  //PndTpc->SetGeometryFileName("TPC_V1.0.root");
-  PndTpc->SetGeometryFileName("tpc_prototype.root");
+  PndTpc->SetGeometryFileName("TPC_V1.0.root");
+  //PndTpc->SetGeometryFileName("tpc_prototype.root");
   //ALICE Style MC (only for G3): =========================
   if(GEANT=="TGeant3") 
     PndTpc->SetAliMC();
@@ -130,7 +124,7 @@ void runGeotestMC(double momentum, double angle, TString outdir) {
   
   //pdgs 211=pion 13=muon 11=electron, ...
   //(PDG ID, MULTIPLICITY)
-  FairBoxGenerator* boxGen = new FairBoxGenerator(13, 5); 
+  FairBoxGenerator* boxGen = new FairBoxGenerator(11, 5); 
   
   boxGen->SetPRange(momentum,momentum); // GeV/c 
   boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
