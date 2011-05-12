@@ -1292,8 +1292,8 @@ if(istampa>2&& IVOLTE<20){
 //---------- translation of the reference system in the best Mvd hit position
 
 		for(i=0, diff = 1.e20;i<nTrackCandHit[ncand];i++){
-// ListTrackCandHitType[ncand][i]=0 --> Pixel; = 1 --> Strip; = 2 Stt parallel; 3 = Stt Skew;
-//   = -1 --> noise
+// ListTrackCandHitType[ncand][i]=0 --> Pixel; = 1 --> Strip; = 2 Stt parallel; 3 = Stt Skew.
+// There are no -1 type hits at this point.
 			if(!(ListTrackCandHitType[ncand][i]==1
 				||
 				ListTrackCandHitType[ncand][i]==0) ) continue;
@@ -1871,7 +1871,9 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 		   List[nalone] = ListHitMvdTrackCand[i][j];
 		   ListType[nalone] = 0;
 		   nalone++;
-		  }else{
+		  }else if (ListHitTypeMvdTrackCand[i][j] ==	// this condition in principle at this
+								// point is always satisfied.
+			FairRootManager::Instance()->GetBranchId(fMvdStripBranch)){
 		   if(UsedStrip[ ListHitMvdTrackCand[i][j] ])   continue;
 		   AloneX[nalone] = XMvdStrip[ ListHitMvdTrackCand[i][j] ];
 		   AloneY[nalone] = YMvdStrip[ ListHitMvdTrackCand[i][j] ];
@@ -1940,6 +1942,7 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 				ListTrackCandHit[nTotalCandidates][j]= List[j];
 				ListTrackCandHitType[nTotalCandidates][j]= ListType[j];
 			}
+			// here at this point there are no Stt hits associated.
 			RefitMvdStt(
 				nalone,
 				&ListTrackCandHit[nTotalCandidates][0],
@@ -2056,12 +2059,12 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 			DriftRadius[nMvdOnly]= -1. ;
 			ErrorDriftRadius[nMvdOnly]= 0.01 ;
 			nMvdOnly++;
-		} else { // Parallel and Skew Straws.
-			esse[i] = atan2(info[ListTrackCandHit[ncand][i]][1]-Oy[ncand],
-					info[ListTrackCandHit[ncand][i]][0]-Ox[ncand]
-					);
-			if(esse[i]<0.) esse[i] +=2.*PI;
-			if(esse[i]<0.) esse[i] =0.;
+//		} else { // Parallel and Skew Straws.
+//			esse[i] = atan2(info[ListTrackCandHit[ncand][i]][1]-Oy[ncand],
+//					info[ListTrackCandHit[ncand][i]][0]-Ox[ncand]
+//					);
+//			if(esse[i]<0.) esse[i] +=2.*PI;
+//			if(esse[i]<0.) esse[i] =0.;
 		}   //   end of    if( ListTrackCandHitType[ncand][0] == 0)
 
 
