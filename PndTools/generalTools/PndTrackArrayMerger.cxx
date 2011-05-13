@@ -55,14 +55,14 @@ InitStatus PndTrackArrayMerger::Init()
   }
   
   //setup output array
-  fOutputArray = new TClonesArray("PndTrack");
-  ioman->Register(fOutputBranch, "AllTracks", fOutputArray, fPersistance);
+  fOutputArray = ioman->Register(fOutputBranch, "PndTrack", "AllTracks", fPersistance);
   
   return kSUCCESS;
 }
 
 void PndTrackArrayMerger::Exec(Option_t* opt)
 {
+  fOutputArray->Clear();
   // copy data from input arrays to output array
   TClonesArray* tmparray;
   PndTrack* tmptrk;
@@ -106,7 +106,7 @@ void PndTrackArrayMerger::Exec(Option_t* opt)
 void PndTrackArrayMerger::FinishEvent()
 {
   // called after all Tasks did their Exex() and the data is copied to the file
-  fOutputArray->Clear();
+//  fOutputArray->Clear();
   FinishEvents();
 }
 
