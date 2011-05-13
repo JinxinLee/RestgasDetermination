@@ -82,7 +82,7 @@ private:
 	TVector3 fDirSeed;
 	double fQoverPseed;
 public:
-  ClassDef(PndTrackCand,1)
+  ClassDef(PndTrackCand,1);
 };
 
 #endif

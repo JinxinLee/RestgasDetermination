@@ -62,6 +62,8 @@ TofData/PndTofPoint.cxx
 RpcData/PndRpcPoint.cxx
 RpcData/PndRpcHit.cxx
 
+FtsData/PndFtsPoint.cxx
+FtsData/PndFtsHit.cxx
 
 HypData/PndHypCluster.cxx
 HypData/PndHypDigi.cxx

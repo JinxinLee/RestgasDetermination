@@ -262,10 +262,7 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
     }
     
     PndTrackCand* pndTrackCand = new(pndtrackcands[size]) PndTrackCand(*tcand);
-    PndTrack* pndTrack = new(pndtracks[size]) PndTrack(*firstPar, *lastPar, *tcand);
-    //  pndTrack->SetRefIndex(idx);
-    //  pndTrack->SetLink(FairLink("LheCandidate", idx));
-    //  PndTrackID* pndTrackId = new(pndtrackids[size]) PndTrackID(size ,trackID, multID);
+    PndTrack* pndTrack = new(pndtracks[size]) PndTrack(*firstPar, *lastPar, *tcand,0,0,1,mc->GetPdgCode(),trackID,FairRootManager::Instance()->GetBranchId("MCTrack"));
   }
   
   if(fVerbose>3) Info("Exec","End eventloop.");
@@ -280,8 +277,8 @@ void PndFtsTrackerIdeal::Finish()
 //________________________________________________________________
 void PndFtsTrackerIdeal::Reset() {
   //---
-  if (fTracks->GetEntriesFast() != 0)  fTracks->Clear("C");
-  if (fTrackCands->GetEntriesFast() != 0)  fTrackCands->Clear("C");
+  if (fTracks->GetEntriesFast() != 0)  fTracks->Clear();
+  if (fTrackCands->GetEntriesFast() != 0)  fTrackCands->Clear();
 }
 
 //_________________________________________________________________

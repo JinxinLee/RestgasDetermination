@@ -46,6 +46,9 @@
 #pragma link C++ class  PndRpcPoint+;
 #pragma link C++ class  PndRpcHit+;
 
+#pragma link C++ class  PndFtsPoint+;
+#pragma link C++ class  PndFtsHit+;
+
 #pragma link C++ class  PndHypCluster+;
 #pragma link C++ class  PndHypDigi+;
 #pragma link C++ class  PndHypDigiStrip+;

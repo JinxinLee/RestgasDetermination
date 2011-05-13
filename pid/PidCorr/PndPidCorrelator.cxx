@@ -45,13 +45,8 @@ PndPidCorrelator::~PndPidCorrelator() {
 //___________________________________________________________
 PndPidCorrelator::PndPidCorrelator() {
   //---
-  fTrack = new TClonesArray("PndTrack");
-  fTrackID = new TClonesArray("PndTrackID");
-  fTrack2 = new TClonesArray("PndTrack");
-  fTrackID2 = new TClonesArray("PndTrackID");
   fPidChargedCand = new TClonesArray("PndPidCandidate");
   fPidNeutralCand = new TClonesArray("PndPidCandidate");
-  fMdtTrack = new TClonesArray("PndTrack");
   fDebugMode = kFALSE;
   fGeanePro = kTRUE;
   fMdtRefit = kFALSE;
@@ -88,13 +83,8 @@ PndPidCorrelator::PndPidCorrelator() {
 PndPidCorrelator::PndPidCorrelator(const char *name, const char *title)
 :FairTask(name) {
   //---
-  fTrack = new TClonesArray("PndTrack");
-  fTrackID = new TClonesArray("PndTrackID");
-  fTrack2 = new TClonesArray("PndTrack");
-  fTrackID2 = new TClonesArray("PndTrackID");
   fPidChargedCand = new TClonesArray("PndPidCandidate"); 
   fPidNeutralCand = new TClonesArray("PndPidCandidate");
-  fMdtTrack = new TClonesArray("PndTrack");
   fDebugMode = kFALSE;
   fGeanePro = kTRUE;
   fMdtRefit = kFALSE;
@@ -133,7 +123,7 @@ InitStatus PndPidCorrelator::Init() {
   
   FairRootManager *fManager =FairRootManager::Instance();	
   
-  fTrack = (TClonesArray *)fManager->GetObject(fTrackBranch);
+  fTrack = (TClonesArray *)fManager->GetTClonesArray(fTrackBranch);
   if ( ! fTrack ) {
     cout << "-I- PndPidCorrelator::Init: No PndTrack array!" << endl;
     return kERROR;
@@ -150,7 +140,7 @@ InitStatus PndPidCorrelator::Init() {
   
   if (fTrackBranch2!="")
   {
-    fTrack2 = (TClonesArray *)fManager->GetObject(fTrackBranch2);
+    fTrack2 = (TClonesArray *)fManager->GetTClonesArray(fTrackBranch2);
     if ( ! fTrack2 ) {
       cout << "-I- PndPidCorrelator::Init: No 2nd PndTrack array!" << endl;
       return kERROR;

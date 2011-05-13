@@ -13,6 +13,7 @@ ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/SdsData
 ${CMAKE_SOURCE_DIR}/pnddata/SttData
 ${CMAKE_SOURCE_DIR}/pnddata/GemData
+${CMAKE_SOURCE_DIR}/pnddata/FtsData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/pndbase/PndStdUtils
 ${CMAKE_SOURCE_DIR}/field 

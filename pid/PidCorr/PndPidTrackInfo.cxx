@@ -103,19 +103,17 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
     FairRunAna::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
     Double_t B = Bf[0]*Bf[0]+Bf[1]*Bf[1]+Bf[2]*Bf[2];
     Double_t qBc = -0.299792458*B*Q;
-    Double_t icL = 1 / cos(fRes->GetLambda()); // inverted for practical reasons (better to multiply than to divide)
+    Double_t icL = 1. / cos(fRes->GetLambda()); // inverted for practical reasons (better to multiply than to divide)
     Double_t icLs = icL*icL;
     Double_t helixparams[5];
+    //helixparams[0]=pocaz.Perp(); //D0
     helixparams[0]=fRes->GetY_sc() ; //D0
-    helixparams[1]=fRes->GetPhi(); //phi0
+    //helixparams[1]=fRes->GetPhi(); //phi0
+    helixparams[1]=fRes->GetMomentum().Phi(); //phi0
     helixparams[2]=qBc/(fRes->GetMomentum().Perp()); //omega=rho=1/R[cm]=-2.998*B[kGs]*Q[e]/p_perp[GeV/c] 
+    //helixparams[3]=pocaz.Z(); //z0
     helixparams[3]=fRes->GetZ_sc()*icL; //z0
     helixparams[4]=tan(fRes->GetLambda()); //lambda(averey)=cot(theta)=tan(lambda(geane))
-    //helixparams[0]=pocaz.Perp(); //D0
-    //helixparams[1]=fRes->GetPhi(); //phi0
-    //helixparams[2]=-0.299792458*B*charge/momentum.Perp(); //omega=rho=1/R[cm]=-2.998*B[kGs]*Q[e]/p_perp[GeV/c] 
-    //helixparams[3]=pocaz.Z(); //z0
-    //helixparams[4]=1/tan(fRes->GetLambda()); //lambda(fair)=theta; lambda(averey)=cot(theta)
     pidCand->SetHelixParams(helixparams);    
     Double_t fairhelixcov[15];
     fRes->GetCov(fairhelixcov);    

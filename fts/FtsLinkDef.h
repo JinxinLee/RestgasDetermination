@@ -5,9 +5,7 @@
 #pragma link off all functions;
 #pragma link C++ class PndGeoFtsPar+;           
 #pragma link C++ class PndGeoFts+;    
-#pragma link C++ class PndFtsPoint+;
 #pragma link C++ class PndFtsDigiPar+;
-#pragma link C++ class PndFtsHit+;
 #pragma link C++ class PndFtsHitInfo+;
 #pragma link C++ class PndFts+;
 #pragma link C++ class PndFtsContFact+;

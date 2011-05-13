@@ -11,6 +11,7 @@ ${CMAKE_SOURCE_DIR}/parbase
 ${CMAKE_SOURCE_DIR}/base 
 ${CMAKE_SOURCE_DIR}/field 
 ${CMAKE_SOURCE_DIR}/pnddata
+${CMAKE_SOURCE_DIR}/pnddata/FtsData
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/fts
@@ -27,9 +28,7 @@ link_directories( ${LINK_DIRECTORIES})
 set(FTS_SRCS
 PndGeoFtsPar.cxx
 PndGeoFts.cxx
-PndFtsPoint.cxx
 PndFtsDigiPar.cxx
-PndFtsHit.cxx
 PndFtsHitInfo.cxx
 PndFts.cxx
 PndFtsContFact.cxx

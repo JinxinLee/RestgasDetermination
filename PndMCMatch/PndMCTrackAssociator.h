@@ -35,6 +35,7 @@ class PndMCTrackAssociator : public FairTask {
   Int_t GetTpcClusters(Int_t index);     // from the TPC cluster index retrns the Pndrack index
   Int_t GetSttHits(Int_t index);     // from the STT hit index retrns the Pndrack index
   Int_t GetGemHits(Int_t index);     // from the GEM hit index retrns the Pndrack index
+  Int_t GetFtsHits(Int_t index);     // from the FTS hit index retrns the Pndrack index
  
 
   // Modifiers -----------------------
@@ -62,6 +63,8 @@ class PndMCTrackAssociator : public FairTask {
   TClonesArray  *fMvdPixelDigiArray;    //!
   TClonesArray  *fGemMCArray;           //! pointers to GEMPoint TCA
   TClonesArray  *fGemInput;             //! pointers to GEMHit TCA
+  TClonesArray  *fFtsMCArray;           //! pointers to FtsPoint TCA
+  TClonesArray  *fFtsInput;             //! pointers to FtsHit TCA
   
   TClonesArray  *fTrackIDArray;         //! pointers to PndTrackID (output)
   TClonesArray  *fTrackArray;           //! pointers to PndTrack (input)    
