@@ -139,7 +139,7 @@ InitStatus PndSttMvdGemTracking::Init() {
   }
   
   // open SttMvdTrack array 
-  fTrackArray = (TClonesArray*) ioman->GetObject("SttMvdTrack"); 
+  fTrackArray = (TClonesArray*) ioman->GetTClonesArray("SttMvdTrack"); 
   if(!fTrackArray) {
     Error("PndSttMvdGemTracking:Init","stt + mvd track - array not found!");
     return kERROR;
@@ -204,9 +204,9 @@ InitStatus PndSttMvdGemTracking::Init() {
   // Create and register PndTrack array
   fCompleteTrackCandArray = new TClonesArray("PndTrackCand", 100);
   ioman->Register("SttMvdGemTrackCand", "SttMvdGem", fCompleteTrackCandArray, fPersistence);  
-  fCompleteTrackArray = new TClonesArray("PndTrack", 100);
-  ioman->Register("SttMvdGemTrack", "SttMvdGem", fCompleteTrackArray, fPersistence);
- 
+
+  fCompleteTrackArray = ioman->Register("SttMvdGemTrack", "PndTrack", "SttMvdGem", fPersistence);
+
   // GEANE propagation to volume
   fPro = new FairGeanePro();
 
