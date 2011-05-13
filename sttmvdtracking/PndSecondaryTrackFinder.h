@@ -61,20 +61,33 @@ class PndSecondaryTrackFinder : public FairTask {
 
 
   std::vector<int> OrderHits(TClonesArray *hitarray, Int_t detId);
+  std::vector<int> OrderCluster(std::vector<int> cluster, Int_t detId, TVector3 point);
 
   void DeleteHit(Int_t ihit, std::vector<int> *hits);
   void DeleteHits(TString detectors, std::vector<int> *hits);
 
- void SwitchOnDisplay() { fDisplayOn = kTRUE; }
- void GetInitialParams(PndTrack * track, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &fitm, Double_t &fitp);
- void GetInitialParamsMC(PndMCTrack * mctrack, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &fitm, Double_t &fitp);
- Double_t CalculatePhi(TVector2 v, TVector2 p, double alpha, double Phi0, int charge);
- Double_t CompareToPreviousPhi(Double_t Fi, Double_t Fi_pre, int charge);
+  void SwitchOnDisplay() { fDisplayOn = kTRUE; }
+  void GetInitialParams(PndTrack * track, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &fitm, Double_t &fitp);
+  void GetInitialParamsMC(PndMCTrack * mctrack, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &fitm, Double_t &fitp);
+  Double_t CalculatePhi(TVector2 v, TVector2 p, double alpha, double Phi0, int charge);
+  Double_t CompareToPreviousPhi(Double_t Fi, Double_t Fi_pre, int charge);
 
- std::vector<std::vector<int> > ClusterFinder(std::vector<int> hits, Int_t detId);
+  std::vector<std::vector<int> > ClusterFinder(std::vector<int> hits, Int_t detId);
+  std::vector<std::vector<int> > ClusterFinder2(std::vector<int> hits, Int_t detId);
+  
+  void DrawFoundTracks();
+  void DrawMCTracks();
+  void DrawGeometry();
+  void DrawGeometryConformal(Double_t umin, Double_t vmin, Double_t umax, Double_t vmax);
+  void DrawHits(std::vector<int> hits, Int_t detId);
+  void DrawUsableHits(std::vector<int> hits, Int_t detId);
+  void DrawHitsColor(std::vector<int> hits, Int_t detId, Int_t color);
+  void Refresh(std::vector<int> hits, Int_t detId);
+  void DrawLinks(std::vector<int> cluster, Int_t detId, Int_t iclus);
+  void FindBoundary(Int_t iclus, std::vector<int> cluster, Int_t detId, TMatrixT<double> &boundaries);
 
-void DrawFoundTracks();
- void DrawMCTracks();
+  Bool_t ConformalPlane(std::vector<int> cluster, TMatrixT<double> boundaries,  std::vector<int> hits, Int_t detId, Int_t iclus);
+
 
  private:
 
@@ -120,6 +133,7 @@ void DrawFoundTracks();
   /** object persistence **/
   Bool_t  fPersistence; //!
   Bool_t fDisplayOn; //!
+  int fColors[10];
   PndGeoSttPar *fSttParameters;  //  CHECK added
 
 
@@ -131,6 +145,8 @@ void DrawFoundTracks();
 
   TH2F *h2;
   TCanvas *display;
+
+  Double_t fLimit;
 
   ClassDef(PndSecondaryTrackFinder,1);
 
