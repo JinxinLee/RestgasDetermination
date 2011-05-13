@@ -49,7 +49,8 @@ InitStatus PndTrackArrayMerger::Init()
       Error("Init()","No %s array! Skipping that name.",(*iter).Data());
       continue;
     }
-    if(tmparray->GetClass()->GetName() == "PndTrack"){
+    TString namebuff = (TString) tmparray->GetClass()->GetName();
+    if(namebuff == "PndTrack"){
       fInputArrayList.push_back(tmparray);    
     }
   }
