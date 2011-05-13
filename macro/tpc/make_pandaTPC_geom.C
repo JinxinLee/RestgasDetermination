@@ -237,8 +237,8 @@ TGeoVolumeAssembly* createCooling() {
 TGeoVolumeAssembly* createGas() {
   //dead space for GEM foils:
   double gemDz = 1.;
-  double gas_pars[6] = { 15.5,   //rMin
-			 41.,   //rMax
+  double gas_pars[6] = { 15.65,   //rMin
+			 41.3,   //rMax
 			 (150.-gemDz)/2.,   //dZ  HALF OF ACTUAL LENGTH 
 			 95.,
 			 265. };
@@ -321,13 +321,13 @@ TGeoVolumeAssembly* createGEMStack() {
 
   //---------------- CONSTRUCT FIELDCAGE BARREL ------------------------------
 TGeoVolumeAssembly* createFieldCageBarrel() {
-  double cageOut_meas[6] = { 41.,   //rMin
-			     41.64,   //rMax
+  double cageOut_meas[6] = { 41.3,   //rMin
+			     41.95,   //rMax
 			     150./2.,   //dZ  HALF OF ACTUAL LENGTH (GEANT STYLE)
 			     95.,
 			     265. };
   double cageIn_meas[6] = { 15.,   //rMin
-			    15.5,   //rMax
+			    15.65,   //rMax
 			    150./2.,   //dZ  HALF OF ACTUAL LENGTH (GEANT STYLE)
 			    95.,
 			    265. };
@@ -345,7 +345,7 @@ TGeoVolumeAssembly* createFieldCageBarrel() {
 			      0.640,0.0002,FieldCage1,kGray);
   addFieldCageBarrelComponent("FC_kapton_cage1", "kapton", 
 			      cageIn_meas, cageOut_meas, 
-			      0.195,0.045,FieldCage1,kOrange+8);
+			      0.595,0.045,FieldCage1,kOrange+8);
   addFieldCageBarrelComponent("FC_roha_cage1", "rohacell", 
 			      cageIn_meas, cageOut_meas, 
 			      0.001,0.594,FieldCage1,kYellow-2);
@@ -365,7 +365,7 @@ TGeoVolumeAssembly* createFieldCageBarrel() {
 }
 
 //helper function for creating the fieldcage more convenient
-//distFromMin: taking as reference the OUTER fieldcage barrel wall
+//distFromMin: taking as reference the INNER radius of the outer fieldcage barrel wall
 void addFieldCageBarrelComponent(TString name, TString matName, const double* tubeSegParsIn,
 				 const double* tubeSegParsOut, 
 				 double distFromMin, double thickness,
