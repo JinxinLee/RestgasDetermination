@@ -749,10 +749,10 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
       Double_t lambda=197.0*2.0*TMath::Pi()/(fP*1.0E9);      
       Double_t ra = frand.Uniform(0., 1.);
       if(ra > fDetEff->Eval(lambda)){               
-        gMC->StopTrack();
+        gMC->StopTrack();	
       }
     }
-       
+             
 /*  
   // check whether function 'ConstructOpGeometry' works:
   if(gMC->IsTrackExiting()==1){
@@ -794,8 +794,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
         gMC->TrackPosition(fPos);
         gMC->TrackMomentum(fMom); // GeV/c	
         fTime=gMC->TrackTime()*1.0e09; // ns
-	fLength = gMC->TrackLength(); // cm 
-	//cout<<"TRACK IS IN THE PD!"<<endl;
+	fLength = gMC->TrackLength(); // cm ??	
         AddHit(fTrackID,
 	     fCopyNo,
 	     TVector3(fPos.X(),   fPos.Y(),   fPos.Z()),
@@ -982,8 +981,7 @@ void PndDrc::ConstructGeometry()
     if(fileName.Contains("_l1_")){
       fBarEnd = -118.725;
       ffocusing = 1;
-    }
-    
+    }    
   } else{
     std::cout<<"Geometry format not supported!"<<std::endl;
   }   
@@ -995,7 +993,7 @@ void PndDrc::ConstructOpGeometry()
 {
   cout<< " ==================================================== " << endl;
   cout<< " =======  DRC::  ConstructOpticalGeometry()  ======== " << endl; 
-/*  
+  
   Int_t npoints = 2;  
   Double_t ephoton[npoints];
   ephoton[0] = 1.0e-09;  // 1 eV
@@ -1004,23 +1002,25 @@ void PndDrc::ConstructOpGeometry()
   reflectivity[0] = 1.;
   reflectivity[1] = 1.;
   
-  gMC->DefineOpSurface("BarSurface", kGlisur, kDielectric_dielectric, kPolished, 0.0);
-//  gMC->DefineOpSurface("BarSurface", kUnified, kDielectric_metal, kGround, 0.1); 
+//  gMC->DefineOpSurface("BarSurface", kGlisur, kDielectric_dielectric, kPolished, 0.0);
+  gMC->DefineOpSurface("MirrSurface", kGlisur, kDielectric_metal, kPolished, 0.0); 
 
   for(Int_t i=0; i<fGeo->barNum(); i++){
-    gMC->SetBorderSurface("BarAirSurface", "DrcBarSensor", i+1, "DrcAirBox", 0, "BarSurface");
-    if(ffocusing == 1){ // lens
-      gMC->SetBorderSurface("Lens1AirSurface", "DrcLENS1", i+1, "DrcAirBox", 0, "BarSurface");
-      gMC->SetBorderSurface("Lens2AirSurface", "DrcLENS2", i+1, "DrcAirBox", 0, "BarSurface");
+    //gMC->SetBorderSurface("BarAirSurface", "DrcBarSensor", i+1, "DrcAirBox", 0, "BarSurface");
+    if(ffocusing == 1 || ffocusing == 0){ // lens or no focusing      
+      //gMC->SetBorderSurface("Lens1AirSurface", "DrcLENS1", i+1, "DrcAirBox", 0, "BarSurface");
+      //gMC->SetBorderSurface("Lens2AirSurface", "DrcLENS2", i+1, "DrcAirBox", 0, "BarSurface");
       //gMC->SetBorderSurface("Lens3AirSurface", "DrcLENS3", i+1, "DrcAirBox", 0, "BarSurface");
+      gMC->SetBorderSurface("BarMirrSurface", "DrcBarSensor", i+1, "DrcMirr", i+1, "MirrSurface");
     }
-    if(ffocusing == 2){ // forward mirror
+    /*if(ffocusing == 2){ // forward mirror
       gMC->SetBorderSurface("Block1AirSurface", "DrcBlock1", i+1, "DrcAirBox", 0, "BarSurface");
       gMC->SetBorderSurface("Block2AirSurface", "DrcBlock2", i+1, "DrcAirBox", 0, "BarSurface");
-    }    
+    } */   
   }  
   //gMC->SetMaterialProperty("BarSurface", "REFLECTIVITY", npoints, ephoton, reflectivity);
- 
+  gMC->SetMaterialProperty("MirrSurface", "REFLECTIVITY", npoints, ephoton, reflectivity);
+/* 
   gMC->DefineOpSurface("EVSurface", kGlisur, kDielectric_dielectric, kPolished, 0.0);
   gMC->SetBorderSurface("EVAirSurface", "DrcEV", 1, "BarrelDIRC", 0, "EVSurface"); 
   //gMC->SetMaterialProperty("EVSurface", "REFLECTIVITY", npoints, ephoton, reflectivity);
