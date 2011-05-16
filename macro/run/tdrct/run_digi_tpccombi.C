@@ -77,18 +77,20 @@
   tpcElec->SetPersistence();
   fRun->AddTask(tpcElec);
 
-  PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
-  tpcCF->SetPersistence();
-  tpcCF->timeslice(20); // = 4 sample times = 100ns @ 40MHz
-  //
-  // Following three lines added on request by Felix, 20/02/2011
-  //
-  tpcCF->SetMode(1);
-  tpcCF->SetDiffFactor(1.3);
-  tpcCF->SetErrorPars(600,300);
-  //
-  fRun->AddTask(tpcCF);
+  PndTpcEvtTimeGenTask* evttimegen = new PndTpcEvtTimeGenTask();
+  evttimegen->SetPersistence();
+  evttimegen->SetEvtRate(1E7);   
+  evttimegen->SetT0(0);
+  fRun->AddTask(evttimegen);
 
+  PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
+  tpcCF->SetDigiPersistence(); // keep Digis refs in clusters
+  tpcCF->SetPersistence();     // keep Clusters
+  tpcCF->timeslice(10);        //in samples
+  tpcCF->SetErrorPars(600,300);
+  tpcCF->SetSimpleClustering(); // use PndTpcClusterFinderSimple
+  fRun->AddTask(tpcCF);
+  
   // -----   MDV digi producers   --------------------------------- 
   PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
   mvddigi->SetVerbose(iVerbose);
