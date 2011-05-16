@@ -41,6 +41,7 @@ PndSttMvdTracking.cxx
 PndSttMvdGemTracking.cxx
 #PndSttMvdV0PR.cxx
 PndMixBackgroundEvents.cxx
+PndSecondaryTrackFinder.cxx
 )
 
 if(RULE_CHECKER_FOUND)
@@ -59,7 +60,7 @@ ROOT_GENERATE_DICTIONARY("${STTMVDTRACKING_HEADERS}" "${STTMVDTRACKING_LINKDEF}"
 SET(STTMVDTRACKING_SRCS ${STTMVDTRACKING_SRCS} ${STTMVDTRACKING_DICTIONARY})
 
 add_library(SttMvdTracking SHARED ${STTMVDTRACKING_SRCS})
-target_link_libraries(SttMvdTracking ${ROOT_LIBRARIES})
+target_link_libraries(SttMvdTracking ${ROOT_LIBRARIES} ${GLPK_LIB_DIR}/libglpk.so )
 set_target_properties(SttMvdTracking PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS SttMvdTracking DESTINATION ${CMAKE_BINARY_DIR}/lib)

@@ -7,7 +7,7 @@
 #pragma link C++ class PndSttMvdGemTracking+;
 // #pragma link C++ class PndSttMvdV0PR+;           
 #pragma link C++ class PndMixBackgroundEvents+;           
-
+#pragma link C++ class PndSecondaryTrackFinder+;
 
 #endif
 
