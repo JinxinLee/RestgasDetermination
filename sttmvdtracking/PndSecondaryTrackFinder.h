@@ -84,7 +84,7 @@ class PndSecondaryTrackFinder : public FairTask {
   void DrawHitsColor(std::vector<int> hits, Int_t detId, Int_t color);
   void Refresh(std::vector<int> hits, Int_t detId);
   void DrawLinks(std::vector<int> cluster, Int_t detId, Int_t iclus);
-  void FindBoundary(Int_t iclus, std::vector<int> cluster, Int_t detId, TMatrixT<double> &boundaries);
+  void FindBoundary(Int_t iclus, std::vector<int> cluster, Int_t detId, TMatrixT<double> &boundaries, Bool_t draw);
 
   Bool_t ConformalPlane(std::vector<int> cluster, TMatrixT<double> boundaries,  std::vector<int> hits, Int_t detId, Int_t iclus);
 
@@ -145,6 +145,8 @@ class PndSecondaryTrackFinder : public FairTask {
 
   TH2F *h2;
   TCanvas *display;
+  TString fDisName;
+  Int_t fEventCounter;
 
   Double_t fLimit;
 

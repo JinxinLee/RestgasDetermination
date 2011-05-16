@@ -71,7 +71,8 @@ PndSecondaryTrackFinder::~PndSecondaryTrackFinder() {
 // -----   Public method Init   --------------------------------------------
 InitStatus PndSecondaryTrackFinder::Init() {
   
-  
+    fEventCounter = 0;
+
   fLimit = 2.;
 
   // Get RootManager
@@ -223,6 +224,9 @@ void PndSecondaryTrackFinder::WriteHistograms(){
 }
 void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 
+ fDisName = "display_second"; fDisName += fEventCounter;
+
+  fEventCounter++;
 
   if(fDisplayOn) {
     char goOnChar;
@@ -274,8 +278,10 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     cout << endl;
   }
 
-
-
+  if(fDisplayOn) {
+    fDisName += ".pdf";
+    display->SaveAs(fDisName);
+  }
 }
 
 
@@ -375,13 +381,64 @@ void PndSecondaryTrackFinder::DrawFoundTracks() {
   for(Int_t itrk = 0; itrk < fSttMvdGemTrackArray->GetEntriesFast(); itrk++) {
     PndTrack *trk = (PndTrack*) fSttMvdGemTrackArray->At(itrk);
     if(!trk) continue;
+    //    PndTrackCand *cand = trk->GetTrackCandPtr();
+    TVector3 pos1 = trk->GetParamFirst().GetPosition();
+    TVector3 pos2 = trk->GetParamLast().GetPosition();
+    Int_t charge = trk->GetParamFirst().GetQ();
 
     Double_t xc, yc, radius, fitm, fitp;
     GetInitialParams(trk, xc, yc, radius, fitm, fitp);
-    TArc *arc = new TArc(xc, yc, radius);
-    arc->SetLineColor(kRed);
-    arc->SetFillStyle(0);
-    arc->Draw("SAME");
+
+    /**
+       int nstep = 30;
+       double xmin, xmax;
+       xmin = pos1.X();
+       xmax = pos2.X();
+       double step = (xmax - xmin)/nstep;
+       
+       Double_t x[nstep], y[nstep], y2[nstep];
+       for(int i = 0; i < nstep; i++) {
+       x[i] = xmin + step * i;
+       y[i] = yc - TMath::Sqrt(radius * radius - (x[i] - xc) * (x[i] - xc));
+       y2[i] = yc + TMath::Sqrt(radius * radius - (x[i] - xc) * (x[i] - xc));
+       cout << x[i] << " " << y[i] << endl;
+       }
+       
+       TPolyLine *p =  new TPolyLine(10, x, y);
+       p->SetLineColor(kRed);
+       p->Draw("SAME");
+       
+       TPolyLine *p2 =  new TPolyLine(10, x, y2);
+       p2->Draw("SAME");
+    **/
+
+    TVector2 x1 = pos1.XYvector();
+    TVector2 x2 = pos2.XYvector();
+    TVector2 c(xc, yc);
+
+    TVector2 x1c = x1 - c;
+    TVector2 x2c = x2 - c;
+
+    Double_t Phi1 = x1c.Phi() * TMath::RadToDeg();
+    Double_t Phi2 = x2c.Phi() * TMath::RadToDeg();
+    
+//     cout << "x1 " << x1.X() << " " << x1.Y() << endl;
+//     cout << "x2 " << x2.X() << " " << x2.Y() << endl;
+//     cout << "c  " << c.X() << " " << c.Y() << endl;
+//     cout << "x1c  " << x1c.X() << " " << x1c.Y() <<  endl;
+//     cout << "x2c  " << x2c.X() << " " << x2c.Y() <<  endl;
+//     cout << "Phi1 " << Phi1 << " Phi2 " << Phi2 << endl;
+//     cout << endl;
+    TArc *arc2 = new TArc(xc, yc, radius, Phi1, Phi2);
+    arc2->SetLineColor(kRed);
+    arc2->SetFillStyle(0);
+    arc2->Draw("SAME ONLY");
+
+  //   TArc *arc = new TArc(xc, yc, radius);
+//     arc->SetLineColor(kGreen);
+//     arc->SetFillStyle(0);
+//     arc->Draw("SAME ONLY");
+
     display->Update();
     display->Modified();  
   }
@@ -391,13 +448,42 @@ void PndSecondaryTrackFinder::DrawMCTracks() {
   for(Int_t itrk = 0; itrk < fMCTrackArray->GetEntriesFast(); itrk++) {
     PndMCTrack *mctrk = (PndMCTrack*) fMCTrackArray->At(itrk);
     if(!mctrk) continue;
-
+    //    if(mctrk->GetMotherID() != -1) continue;
     Double_t xc, yc, radius, fitm, fitp;
     GetInitialParamsMC(mctrk, xc, yc, radius, fitm, fitp);
-    TArc *arc = new TArc(xc, yc, radius);
-    arc->SetLineColor(kBlue);
-    arc->SetFillStyle(0);
-    arc->Draw("SAME");
+
+    TVector3 pos1 = mctrk->GetStartVertex();
+    TVector2 x1 = pos1.XYvector();
+    TVector2 c(xc, yc);
+
+    TVector2 x1c = x1 - c;
+
+    Double_t Phi1 = x1c.Phi() * TMath::RadToDeg();
+    TParticlePDG *part = TDatabasePDG::Instance()->GetParticle(mctrk->GetPdgCode());
+    int mccharge = 0;
+    if(part == NULL) {
+      cout << "wrong pdg " << mctrk->GetPdgCode() << endl;
+      continue;
+    }
+    else mccharge = ((int) (part->Charge()/3.));
+    Double_t Phi2 = Phi1 - 60 * mccharge;
+    if(mctrk->GetMomentum().Mag() < 0.5) {
+      Phi1 = 0;
+      Phi2 = 360;
+    }
+    
+    TArc *arc2 = new TArc(xc, yc, radius, Phi1, Phi2);
+    arc2->SetLineColor(kBlue);
+    if(mccharge < 0) arc2->SetLineStyle(2);
+    else arc2->SetLineStyle(3);
+    arc2->SetFillStyle(0);
+    arc2->Draw("SAME ONLY");
+
+
+//     TArc *arc = new TArc(xc, yc, radius);
+//     arc->SetLineColor(kBlue);
+//     arc->SetFillStyle(0);
+//     arc->Draw("SAME");
     display->Update();
     display->Modified();  
     
@@ -544,7 +630,6 @@ void PndSecondaryTrackFinder::GetInitialParamsMC(PndMCTrack * mctrack, Double_t 
   TVector3 mcmom = mctrack->GetMomentum();
   TVector3 mcpos = mctrack->GetStartVertex();
   TParticlePDG *part = TDatabasePDG::Instance()->GetParticle(mctrack->GetPdgCode());
-  if(mctrack->GetMotherID() != -1) return;
   if(part == NULL) {
     cout << "wrong pdg " << mctrack->GetPdgCode() << endl;
     return;
@@ -760,7 +845,7 @@ std::vector<std::vector<int> > PndSecondaryTrackFinder::ClusterFinder(std::vecto
   for(int iclus = 0; iclus < nclus; iclus++) {
     std::vector<int> cluster = list[iclus];
     fDisplayOn = kFALSE; // CHECK
-    FindBoundary(iclus, cluster, FairRootManager::Instance()->GetBranchId(fSttBranch), boundaries);
+    FindBoundary(iclus, cluster, FairRootManager::Instance()->GetBranchId(fSttBranch), boundaries, kFALSE);
     fDisplayOn = kTRUE; // CHECK
   }
 
@@ -869,7 +954,7 @@ std::vector<std::vector<int> > PndSecondaryTrackFinder::ClusterFinder(std::vecto
 	list.erase(iter);
 
 	TMatrixT<double> bounds(1, 4);
-	FindBoundary(0, cluster1b, FairRootManager::Instance()->GetBranchId(fSttBranch), bounds);
+	FindBoundary(0, cluster1b, FairRootManager::Instance()->GetBranchId(fSttBranch), bounds, kFALSE);
 
 	double xmin = bounds[0][0];
 	double ymin = bounds[0][1];
@@ -894,7 +979,9 @@ std::vector<std::vector<int> > PndSecondaryTrackFinder::ClusterFinder(std::vecto
 	if(!hit1last) continue;
 	hit1last->Position(position1last);
 	jclus = iclus; 
+	cluster1 = list[iclus];
       }
+
 
     }
 
@@ -916,7 +1003,7 @@ std::vector<std::vector<int> > PndSecondaryTrackFinder::ClusterFinder(std::vecto
   boundaries.ResizeTo(nclus, 4);
   for(int iclus = 0; iclus < nclus; iclus++) {
     std::vector<int> cluster = list[iclus];
-    FindBoundary(iclus, cluster, FairRootManager::Instance()->GetBranchId(fSttBranch), boundaries);
+    FindBoundary(iclus, cluster, FairRootManager::Instance()->GetBranchId(fSttBranch), boundaries, kTRUE);
   }
 
   // ******************
@@ -1003,7 +1090,7 @@ std::vector<int> PndSecondaryTrackFinder::OrderCluster(std::vector<int> cluster,
 
 
 
-void PndSecondaryTrackFinder::FindBoundary(Int_t iclus, std::vector<int> cluster, Int_t detId, TMatrixT<double> &boundaries) {
+void PndSecondaryTrackFinder::FindBoundary(Int_t iclus, std::vector<int> cluster, Int_t detId, TMatrixT<double> &boundaries, Bool_t draw) {
 
   TClonesArray *array;
  
@@ -1036,7 +1123,7 @@ void PndSecondaryTrackFinder::FindBoundary(Int_t iclus, std::vector<int> cluster
     boundaries[iclus][3] = ymax + 0.5;
 
     // cout << xmin << " "  << ymin << " " << xmax << " " << ymax << endl;
-    if(fDisplayOn) {
+    if(fDisplayOn && draw) {
 
       TBox *b = new TBox(boundaries[iclus][0], boundaries[iclus][1], boundaries[iclus][2], boundaries[iclus][3]);
       b->SetFillStyle(0);
@@ -1063,7 +1150,7 @@ void PndSecondaryTrackFinder::FindBoundary(Int_t iclus, std::vector<int> cluster
 
 void PndSecondaryTrackFinder::DrawGeometry() {
 
-    h2 = new TH2F("h2", "XY plane", 100, -43, 43, 100, -43, 43);
+    h2 = new TH2F(fDisName, fDisName, 100, -43, 43, 100, -43, 43);
     display->cd();
     h2->Draw();
     display->Update();
@@ -1091,8 +1178,8 @@ void PndSecondaryTrackFinder::DrawHitsColor(std::vector<int> stthits, Int_t detI
       if(!stthit) continue;
       TVector3 position;
       stthit->Position(position);
-      cout << "distance " << hitid << " " << position.Perp() << endl;
-      position.Print();
+//       cout << "distance " << hitid << " " << position.Perp() << endl;
+//       position.Print();
       
       Int_t tubeID = stthit->GetTubeID();
       PndSttTube *tube = (PndSttTube* ) fTubeArray->At(tubeID);
