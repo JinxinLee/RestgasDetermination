@@ -71,19 +71,19 @@ PndRecoMultiKalmanTask::Init()
     }
   
   // Get input collection
-  fTrackArray=(TClonesArray*) ioman->GetTClonesArray(fTrackInBranchName);
+  fTrackArray=(TClonesArray*) ioman->GetObject(fTrackInBranchName);
   if(fTrackArray==0)
     {
       Error("PndRecoMultiKalmanTask::Init","track-array not found!");
       return kERROR;
     }
   
-  fFitTrackArrayElectron=ioman->Register(fTrackOutBranchName+"Electron","PndTrack","Gen", kTRUE);
-  fFitTrackArrayMuon=ioman->Register(fTrackOutBranchName+"Muon", "PndTrack",   "Gen",     kTRUE);
-  fFitTrackArrayPion=ioman->Register(fTrackOutBranchName+"Pion", "PndTrack",   "Gen",     kTRUE);
-  fFitTrackArrayKaon=ioman->Register(fTrackOutBranchName+"Kaon", "PndTrack",   "Gen",     kTRUE);
-  fFitTrackArrayProton=ioman->Register(fTrackOutBranchName+"Proton", "PndTrack", "Gen",   kTRUE);
-  return kSUCCESS;
+  ioman->Register(fTrackOutBranchName+"Electron","Gen", fFitTrackArrayElectron, kTRUE); 
+  ioman->Register(fTrackOutBranchName+"Muon",    "Gen", fFitTrackArrayMuon,     kTRUE); 
+  ioman->Register(fTrackOutBranchName+"Pion",    "Gen", fFitTrackArrayPion,     kTRUE); 
+  ioman->Register(fTrackOutBranchName+"Kaon",    "Gen", fFitTrackArrayKaon,     kTRUE); 
+  ioman->Register(fTrackOutBranchName+"Proton",  "Gen", fFitTrackArrayProton,   kTRUE); 
+ 	return kSUCCESS;
 }
 
 void PndRecoMultiKalmanTask::SetParContainers() 

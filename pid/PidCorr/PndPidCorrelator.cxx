@@ -123,7 +123,7 @@ InitStatus PndPidCorrelator::Init() {
   
   FairRootManager *fManager =FairRootManager::Instance();	
   
-  fTrack = (TClonesArray *)fManager->GetTClonesArray(fTrackBranch);
+  fTrack = (TClonesArray *)fManager->GetObject(fTrackBranch);
   if ( ! fTrack ) {
     cout << "-I- PndPidCorrelator::Init: No PndTrack array!" << endl;
     return kERROR;
@@ -464,6 +464,8 @@ void PndPidCorrelator::Exec(Option_t * option) {
 //______________________________________________________
 void PndPidCorrelator::ConstructChargedCandidate() {
   //-
+  //FIXME: Use Clear() to save time. 
+  //Call Delete() only for too busy events to save Memory
   fPidChargedCand->Delete();
   if (fMdtRefit) fMdtTrack->Delete();
   

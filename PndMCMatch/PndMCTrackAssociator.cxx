@@ -66,7 +66,7 @@ InitStatus PndMCTrackAssociator::Init() {
   
   FairRootManager *fManager =FairRootManager::Instance();	
   
-  fTrackArray = (TClonesArray *)fManager->GetTClonesArray(fTrackInBranchName);
+  fTrackArray = (TClonesArray *)fManager->GetObject(fTrackInBranchName);
   if ( ! fTrackArray ) {
     cout << "-I-  PndMCTrackAssociator::Init: No PndTrack array!" << endl;
     return kERROR;
@@ -222,6 +222,8 @@ Int_t PndMCTrackAssociator::GetFtsHits(Int_t index)
 //_________________________________________________________________
 void PndMCTrackAssociator::Exec(Option_t * option)
 {
+  //FIXME: Here we should call Clear() to save time. For 
+  //       really large events we could call Delete() to save Memory
   fTrackIDArray->Delete();
   
   for (Int_t tt=0; tt<fTrackArray->GetEntriesFast(); tt++)

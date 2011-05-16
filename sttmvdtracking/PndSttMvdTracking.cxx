@@ -202,7 +202,8 @@ if(istampa >=1 ){
 
 
   // Create and register output array for PndTrack of Stt+Mvd combined
-  fSttMvdPndTrackArray = ioman->Register("SttMvdTrack", "PndTrack", "SttMvd", kTRUE);
+  fSttMvdPndTrackArray = new TClonesArray("PndTrack"); 
+  ioman->Register("SttMvdTrack","SttMvd",fSttMvdPndTrackArray, kTRUE);  
 
 
 

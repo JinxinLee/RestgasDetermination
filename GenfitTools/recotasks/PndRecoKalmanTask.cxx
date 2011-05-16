@@ -37,7 +37,7 @@ PndRecoKalmanTask::PndRecoKalmanTask(const char* name, Int_t iVerbose)
 {
   fTrackInBranchName  = "LheTrack"; 
   fTrackOutBranchName = "LheGenTrack";
-  
+  fFitTrackArray = new TClonesArray("PndTrack");  
   fUseGeane = kTRUE;
   fNumIt = 1;
   fFitter = new PndRecoKalmanFit();
@@ -67,14 +67,14 @@ PndRecoKalmanTask::Init()
   }
   
   // Get input collection
-  fTrackArray=(TClonesArray*) ioman->GetTClonesArray(fTrackInBranchName);
+  fTrackArray=(TClonesArray*) ioman->GetObject(fTrackInBranchName);
   if(fTrackArray==0)
   {
     Error("PndRecoKalmanTask::Init","track-array not found!");
     return kERROR;
   }
   
-  fFitTrackArray = ioman->Register(fTrackOutBranchName,"PndTrack","Gen", kTRUE);
+  ioman->Register(fTrackOutBranchName,"Gen", fFitTrackArray, kTRUE);
   
   return kSUCCESS;
 }
