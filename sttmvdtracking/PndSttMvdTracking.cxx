@@ -3377,13 +3377,12 @@ i=0;
 		   primoangolo
 					);
 
-
+/*
 	for(int kk=-200; kk<= 150; kk += 50){
 		float  time = (float) kk;
 		WriteMacroParallelHitsGeneralspecial(
 		   time,	// backgound time
-                   nSttHit, info,
-//		   nSttTrackCand,
+		   nSttHit, info,
 		   nTotalCandidates,
 		   Ox,Oy,R,
 		   FI0,
@@ -3391,6 +3390,9 @@ i=0;
 		   primoangolo
 					);
 	}
+
+*/
+
 
 
         WriteMacroAllHitsRestanti(
