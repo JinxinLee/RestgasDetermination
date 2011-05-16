@@ -8,6 +8,13 @@
 
 #include "PndMultiClassBdtTrain.h"
 
+/*
+ * Constructor.
+ *@param InPut The file containig the event data.
+ *@param ClassNames Labels of the classes to be used.
+ *@param VarNames  The name of the involved variables(features).
+ *@param trim If the data set needs to be trimmed.
+ */
 PndMultiClassBdtTrain::PndMultiClassBdtTrain(std::string const& InPut,
 					     std::vector<std::string> const& ClassNames, 
 					     std::vector<std::string> const& VarNames,
@@ -23,6 +30,9 @@ PndMultiClassBdtTrain::PndMultiClassBdtTrain(std::string const& InPut,
     m_Evaluate(false)
 {}
 
+/*
+ * Destructor.
+ */
 PndMultiClassBdtTrain::~PndMultiClassBdtTrain()
 {
   if (EvalFile)
@@ -38,13 +48,16 @@ PndMultiClassBdtTrain::~PndMultiClassBdtTrain()
 
 }
 
+/*
+ * Train the classifier.
+ */
 void PndMultiClassBdtTrain::Train()
 {
   std::string const& inFileName = m_dataSets.GetInFileName();
   std::vector<PndMvaClass> const& labels = m_dataSets.GetClasses();
 
-  InitBdt();
-  AddVariables();
+  //InitBdt();
+  //AddVariables();
 
   TFile InFile (inFileName.c_str(), "READ");
 
@@ -72,6 +85,18 @@ void PndMultiClassBdtTrain::Train()
   InFile.Close();
 }
 
+/*
+ *Initialize Classifier and data structures.
+ */
+void PndMultiClassBdtTrain::Initialize()
+{
+  InitBdt();
+  AddVariables();
+}
+
+/*
+ *Initialize Classifier and data structures.
+ */
 void PndMultiClassBdtTrain::InitBdt()
 {
   PndMvaTrainer::SetAppType(TMVATRAIN);
@@ -118,10 +143,4 @@ void PndMultiClassBdtTrain::AddVariables()
   {
     m_factory->AddVariable( (variables[v].Name).c_str(), 'F' );
   }
-}
-
-void PndMultiClassBdtTrain::Initialize()
-{
-  PndMvaTrainer::SetAppType(TMVATRAIN);
-  //PndMvaTrainer::Initialize();
 }

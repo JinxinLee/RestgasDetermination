@@ -19,10 +19,10 @@
 //! How to initialize LVQ code books.
 typedef enum
 {
-  RAND_FROM_DATA = 0,
-  RANDOM_PR = 1,// Random initialization.
-  KMEANS_PR = 10,// Init using K-Means clustering.
-  FILE_PR = 20   // Read pre-init from file.
+  RAND_FROM_DATA = 0, // Select randomly from data vector.
+  CCM_PR = 1,        // Random init arounf Class Conditional Mean.
+  KMEANS_PR = 10,   // Init using K-Means clustering.
+  FILE_PR = 20     // Read pre-init from file.
 } ProtoInitType;
 
 //! Interface definition for LVQ trainers.
@@ -127,7 +127,7 @@ class PndLVQTrain: public PndMvaTrainer
 
   /**
    * Initialize LVQ prototypes (Code books) using class conditional
-   * means vectors.
+   * means (CCM) vectors.
    */
   void InitProtoRand();
 

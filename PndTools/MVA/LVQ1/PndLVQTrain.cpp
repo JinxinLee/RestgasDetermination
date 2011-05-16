@@ -74,7 +74,7 @@ void PndLVQTrain::Train()
   m_ProgStep = (tFinal / 100);
   
   std::cout << "<INFO> Each . equals " << m_ProgStep 
-	    << " learning steps and\n\teach + means one re-initialization.\n";
+	    << " learning steps and\n\teach +/- means one re-initialization.\n";
 
   // We need to fix this___ FIXME
   if( a <= 0.00 )
@@ -223,6 +223,9 @@ void PndLVQTrain::Train21()
   long double a       = (ethaZero - ethaFinal)/(ethaFinal * static_cast<double>(tFinal));
   
   m_ProgStep = (tFinal / 100);
+
+  std::cout << "<INFO> Each . equals " << m_ProgStep 
+	    << " learning steps and\n\teach +/- means one re-initialization.\n";
 
   // We need to fix this___ FIXME
   if( a <= 0.00 )
@@ -417,8 +420,8 @@ void PndLVQTrain::InitProtoTypes()
     InitProtoK_Means();
     break;
     
-  case RANDOM_PR:
-    //Initialize using CLM.
+  case CCM_PR:
+    //Initialize using CCM.
     InitProtoRand();
     break;
     
@@ -534,7 +537,7 @@ void PndLVQTrain::InitProtoK_Means()
  */
 void PndLVQTrain::InitProtoRand()
 {
-  std::cout << "<INFO> Initializing LVQ prototypes based on CLM.\n";
+  std::cout << "<INFO> Initializing LVQ prototypes based on CCM.\n";
 
   // Initialize LVQ-prototypes.
   double c = m_initConst;//0.8;
@@ -718,17 +721,20 @@ void PndLVQTrain::UpdateProto(std::vector<float> const& EvtData,
 void PndLVQTrain::ValidateProtoUpdate(std::vector<float>& p)
 {
   bool reinit = false;
+  char marker = '-';
   std::vector<PndMvaVariable> const& variables = m_dataSets.GetVars();
-
+  
   for(size_t var = 0; var < variables.size(); ++var)
   {
     if( p[var] < variables[var].Min )
     {
       reinit = true;
     }
+
     if( p[var] > variables[var].Max )
     {
       reinit = true;
+      marker = '+';
     }
   }
   // We need to reinitialize the codebook.  For now we init using
@@ -741,7 +747,7 @@ void PndLVQTrain::ValidateProtoUpdate(std::vector<float>& p)
       p[idx] = static_cast<float>(rnd.Uniform(variables[idx].Min, variables[idx].Max));
     }
     // Indicate a re-init
-    std::cerr << "+";
+    std::cerr << marker;
   }
 }
 

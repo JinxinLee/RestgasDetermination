@@ -35,8 +35,28 @@ void PndMultiClassBdtClassify::GetMvaValues( std::vector<float> EvtData,
 
 std::string* PndMultiClassBdtClassify::Classify( std::vector<float> EvtData )
 {
-  std::cout << EvtData.size();
-  return (new std::string("\n\tNot_Implemented_YET\n\n"));
+  // The map to store the results.
+  std::map<std::string, float> result;
+
+  // Get the MVA values.
+  GetMvaValues(EvtData, result);
+  
+  // Fetch the labels.
+  std::vector<PndMvaClass> const& labels = m_dataSets.GetClasses();
+  
+  float winner = std::numeric_limits<float>::min();
+  std::string winLabel;
+
+  // Loop labels
+  for(size_t cls = 0; cls < labels.size(); ++cls)
+  {
+    if (winner < result[ labels[cls].Name ])
+    {
+      winLabel = labels[cls].Name;
+      winner   = result[ labels[cls].Name ];
+    }
+  }
+  return (new std::string(winLabel));
 }
 
 void PndMultiClassBdtClassify::Initialize()

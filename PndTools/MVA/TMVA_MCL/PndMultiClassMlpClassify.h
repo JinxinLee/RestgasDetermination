@@ -62,10 +62,16 @@ class PndMultiClassMlpClassify : public PndMvaClassifier
   
   //______________________________________________
   //====== Getters and setters.
+  // Set the TMVA reader options
   inline void SetReaderOptions(std::string const& opt);
+
+  // Set the file name which contains the weights
   inline void SetWeightsFileName(std::string const& name);
 
+  // Get the TMVA reader options
   inline std::string const& GetReaderOptions() const;
+
+  // Get weights file name.
   inline std::string const& GetWeightsFileName() const;
 
   //______________ Protected__________________
@@ -75,9 +81,6 @@ class PndMultiClassMlpClassify : public PndMvaClassifier
   // To avoid mistakes.
   PndMultiClassMlpClassify(PndMultiClassMlpClassify const& oth);
   PndMultiClassMlpClassify& operator=(PndMultiClassMlpClassify const& oth);
-  
-  // Set the TMVA reader options.
-  void SetOptions();
 
   //======================
   TMVA::Reader* m_reader;//! TMVA reader.

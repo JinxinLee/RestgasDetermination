@@ -8,6 +8,13 @@
 
 #include "PndMultiClassMlpTrain.h"
 
+/*
+ * Constructor.
+ *@param InPut The file containig the event data.
+ *@param ClassNames Labels of the classes to be used.
+ *@param VarNames  The name of the involved variables(features).
+ *@param trim If the data set needs to be trimmed.
+ */
 PndMultiClassMlpTrain::PndMultiClassMlpTrain(std::string const& InPut,
 					     std::vector<std::string> const& ClassNames, 
 					     std::vector<std::string> const& VarNames,
@@ -23,6 +30,9 @@ PndMultiClassMlpTrain::PndMultiClassMlpTrain(std::string const& InPut,
     m_Evaluate(false)
 {}
 
+/*
+ * Destructor.
+ */
 PndMultiClassMlpTrain::~PndMultiClassMlpTrain()
 {
   if (EvalFile)
@@ -30,20 +40,23 @@ PndMultiClassMlpTrain::~PndMultiClassMlpTrain()
     EvalFile->Close();
     delete EvalFile;
   }
-
+  
   if(m_factory)
   {
     delete m_factory;
   }
 }
 
+/*
+ * Train the classifier.
+ */
 void PndMultiClassMlpTrain::Train()
 {
   std::string const& inFileName = m_dataSets.GetInFileName();
   std::vector<PndMvaClass> const& labels = m_dataSets.GetClasses();
 
-  InitMlp();
-  AddVariables();
+  //Initialize();
+  //AddVariables();
 
   TFile InFile (inFileName.c_str(), "READ");
 
@@ -71,6 +84,16 @@ void PndMultiClassMlpTrain::Train()
   InFile.Close();
 }
 
+/*
+ *Initialize Classifier and data structures.
+ */
+void PndMultiClassMlpTrain::Initialize()
+{
+  InitMlp();
+  AddVariables();
+}
+
+// Initialize mlp object and set the options.
 void PndMultiClassMlpTrain::InitMlp()
 {
   PndMvaTrainer::SetAppType(TMVATRAIN);
@@ -84,7 +107,7 @@ void PndMultiClassMlpTrain::InitMlp()
   }
   if( m_transform == "")
   {
-    m_transform = "Transformations=I;D;P;G";
+    m_transform = "Transformations=I;N;D;P;G";
     std::cerr << "<WARNING> No transformation was specified. We will set this to:\n\t"
 	      << m_transform << '\n';
   }
@@ -104,10 +127,14 @@ void PndMultiClassMlpTrain::InitMlp()
   (TMVA::gConfig().GetIONames()).fWeightFileDir = m_weightDirName.c_str();
 
   std::string factOpt = "!V:!Silent:Color:DrawProgressBar:" + m_transform + ":AnalysisType=Multiclass";
+
+  // Evaluation File. Needed by TMVA factory
   EvalFile  = new TFile(m_evalFileName.c_str(), "RECREATE");
+  // Create and init the factory object.
   m_factory = new TMVA::Factory(m_JName.c_str(), EvalFile, factOpt.c_str());
 }
 
+// Add the variables to the TMVA factory object.
 void PndMultiClassMlpTrain::AddVariables()
 {
   std::vector<PndMvaVariable> const& variables = m_dataSets.GetVars();
@@ -116,10 +143,4 @@ void PndMultiClassMlpTrain::AddVariables()
   {
     m_factory->AddVariable( (variables[v].Name).c_str(), 'F' );
   }
-}
-
-void PndMultiClassMlpTrain::Initialize()
-{
-  PndMvaTrainer::SetAppType(TMVATRAIN);
-  //PndMvaTrainer::Initialize();
 }

@@ -95,7 +95,7 @@ void PndMvaDataSet::Initialize()
   case TMVATRAIN:// Train TMVA method
   case TMVACLS: // Use trained TMVA method.
     std::cout << "<INFO> Controle is completely passed to TMVA.\n"
-	      << "\tFor available parameters and options and how to use\n"
+	      << "\tFor available parameters, options and how to use\n"
 	      << "\tthe available methods, read the TMVA manuals.\n";
     break;
   case CLASSIFY:

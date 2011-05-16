@@ -38,7 +38,7 @@ typedef enum{
   TRAIN     = 1, // Training algorithm.
   CLASSIFY  = 2, // Read weights to do classification..
   TMVATRAIN = 10, // Provide input for TMVA Training.
-  TMVACLS   = 20
+  TMVACLS   = 20  // TMVA classification
 } AppType;
 
 // Normalization schemes
