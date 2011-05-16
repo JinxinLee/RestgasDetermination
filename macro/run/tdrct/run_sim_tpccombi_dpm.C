@@ -62,7 +62,8 @@ run_sim_tpccombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t s
   fRun->AddModule(Pipe);
 
   PndTpcDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
-  Tpc->SetGeometryFileName("tpc.geo");
+  Tpc->SetGeometryFileName("TPC_V1.0.root");    //new ROOT geometry
+  //Tpc->SetGeometryFileName("tpc.geo");        //old geometry
   if(mcMode=="TGeant3")  Tpc->SetAliMC();
   fRun->AddModule(Tpc);
 
