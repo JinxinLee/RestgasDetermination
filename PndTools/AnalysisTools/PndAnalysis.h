@@ -5,6 +5,9 @@
 #include <vector>
 
 #include "TString.h"
+#include "TVector3.h"
+#include "TLorentzVector.h"
+#include "TMatrixD.h"
 
 #include "TCandList.h"
 #include "FairRootManager.h"
@@ -17,6 +20,7 @@ class TDatabasePDG;
 
 class PndPidListMaker;
 class PndEventInfo;
+class FairTrackParP;
 
 class TGeant3;
 
@@ -33,10 +37,14 @@ public:
   void SetVerbose(Int_t level){fVerbose = level;}
   void SetPidChargedName(TString s) {fChargedPidName = s;}
   void SetPidNeutralName(TString s) {fNeutralPidName = s;}  
+  void SetTracksName(TString s) {fTracksName = s;}
+  void SetTracksName2(TString s) {fTracksName2 = s;}
   Bool_t PropagateToIp(TCandidate* cand);
   Bool_t PropagateToZAxis(TCandidate* cand);
   Bool_t PropagateToPoint(TCandidate* cand, TVector3* mypoint);
-  
+  Bool_t P7toHelix(const TVector3 &pos, const TLorentzVector &p4, const Double_t Q, 
+                   const TMatrixD &cov77, Float_t *helixparams, TMatrixD &helixCov, Bool_t skipcov=kFALSE);
+
   //FIXME: This is an aweful solution to access the correct
   //track array from a fitter object. [R.K.03'11]
   TClonesArray* GetTrackArrayPointer() const {return fTracks;};
@@ -46,7 +54,8 @@ private:
   void Init();
   void BuildMcCands();
   TClonesArray* ReadTCA(TString tcaname);
-  Bool_t Propagator(int mode, TCandidate* cand, TVector3* point);
+  Bool_t Propagator(int mode, FairTrackParP &tStart, TCandidate* cand, 
+                    TVector3* point=NULL, Bool_t skipcov=kFALSE);
   
   
   // Private Member Variables
@@ -66,6 +75,7 @@ private:
   TClonesArray *fChargedProbability;
   TClonesArray *fNeutralProbability;
   TClonesArray *fTracks;
+  TClonesArray *fTracks2;
   TClonesArray *fMcCands;
   TClonesArray *fMcTracks;
   
@@ -76,7 +86,8 @@ private:
   
   TString fChargedPidName;
   TString fNeutralPidName;
-  
+  TString fTracksName;
+  TString fTracksName2;
   ClassDef(PndAnalysis,0);
 };
 
