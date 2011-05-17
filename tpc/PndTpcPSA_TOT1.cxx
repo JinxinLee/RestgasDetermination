@@ -45,8 +45,8 @@ PndTpcPSA_TOT1::ProcessNext(const PndTpcSample* sample)
 }
 
 void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples, 
-						  std::vector<PndTpcDigi*>& digis,
-						  double padThreshold) {
+              std::vector<PndTpcDigi*>& digis,
+              double padThreshold) {
 
   McIdCollection mcid;
   mcid.ClearData();
@@ -91,7 +91,9 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
       deriv_0=amp; //setting the derivative for the first sample
       fallingEdge=false;
     }
-    if(DEBUG) cout<<"Processing sample: "<<i<<", a:"<<amp<<", t:"<<time<<" der0,1,2: "<<deriv_0<<", "<<deriv_1<<", "<<deriv_2<<endl;
+    if(DEBUG) cout<<"Processing sample: "<<i
+      <<", a:"<<amp<<", t:"<<time
+      <<" der0,1,2: "<<deriv_0<<", "<<deriv_1<<", "<<deriv_2<<endl;
     if(!inpulse){
       if(deriv_0>0 && 
          deriv_1>=0 && 
@@ -99,7 +101,7 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
         if(DEBUG) cout<<" starting new pulse"<<endl;
         inpulse=true;
         mcid.ClearData();
-        if(time-prevtime==1&&time>1){ //TODO get from config-file
+        if(time-prevtime==1){
           mcid.AddIDCollection(samples[i-1]->mcId(),1);
           samplesInPulse.push_back(samples[i-1]);
         }
@@ -111,7 +113,7 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
          (fallingEdge && deriv_0==0 ) ||
           time-prevtime>1 ||
           i==samples.size()-1){
-        if(time==510){  //TODO get from config-file
+        if(i==samples.size()-1){
           mcid.AddIDCollection(samples[i]->mcId(),1);
           samplesInPulse.push_back(samples[i]);
         }
@@ -157,9 +159,7 @@ void PndTpcPSA_TOT1::processPulse(std::vector<PndTpcSample*> samples,
   A=0.;
   t0=0.;
   // find maximum
-  if(DEBUG){
-    cout<<"Pulse created from samples: ";
-  }
+  if(DEBUG) cout<<"Pulse created from samples: ";
   for(unsigned int i=0;i<samples.size();i++) {
     if(A<samples[i]->amp())A=samples[i]->amp();
     if(DEBUG){
@@ -168,8 +168,6 @@ void PndTpcPSA_TOT1::processPulse(std::vector<PndTpcSample*> samples,
   }
   length=samples.back()->t()-samples[0]->t();
   t0=samples[0]->t() + 0.5*length;
-  if(DEBUG){
-    cout<<"with t:"<<t0<<", a:"<<A<<endl;
-  }
+  if(DEBUG) cout<<"with t:"<<t0<<", a:"<<A<<endl;
 
 }
