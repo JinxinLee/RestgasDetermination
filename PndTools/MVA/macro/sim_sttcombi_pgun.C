@@ -69,8 +69,8 @@ void sim_sttcombi_pgun( int seed = 32579, int nEvents = 10, int pid  = 11,
   Dipole->SetGeometryFileName("dipole.geo");
   fRun->AddModule(Dipole);
   
-  //FairModule* Pipe= new PndPipe("PIPE");
-  //fRun->AddModule(Pipe);
+  FairModule* Pipe= new PndPipe("PIPE");
+  fRun->AddModule(Pipe);
   
   FairDetector* Stt= new PndStt("STT", kTRUE);
   Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
@@ -92,9 +92,9 @@ void sim_sttcombi_pgun( int seed = 32579, int nEvents = 10, int pid  = 11,
   */
 
   PndMdt* Muo = new PndMdt("MDT",kTRUE);
-  Muo->SetBarrel("torino");
-  Muo->SetEndcap("torino");
-  Muo->SetMuonFilter("torino");
+  Muo->SetBarrel("fast");
+  Muo->SetEndcap("fast");
+  Muo->SetMuonFilter("fast");
   Muo->SetMdtMagnet(kTRUE);
   Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);

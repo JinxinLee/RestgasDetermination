@@ -51,6 +51,7 @@
   PndPidCorrelator* corr = new PndPidCorrelator();
   //corr->SetVerbose();
   corr->SetInputBranch("SttMvdGenTrack");
+  corr->SetInputIDBranch("SttMvdGenTrackID");
   //corr->SetInputIDBranch("LheTrackID");
   corr->SetDebugMode(kTRUE);
   fRun->AddTask(corr);
@@ -62,10 +63,11 @@
 
   clas.push_back("electron");
   clas.push_back("pion");
-  clas.push_back("kaon");
-  clas.push_back("muon");
-  clas.push_back("proton");
+  //clas.push_back("kaon");
+  //clas.push_back("muon");
+  //clas.push_back("proton");
   
+  /*
   PndPidEmcAssociatorTask* ts = new PndPidEmcAssociatorTask();
   // Set the path to the weightFiles; otherwise the standard
   // path is used.
@@ -77,7 +79,7 @@
   
   //Add task
   fRun->AddTask(ts);
-
+  */
   //////////////
   fRun->Init();
   fRun->Run(0,nEvents);

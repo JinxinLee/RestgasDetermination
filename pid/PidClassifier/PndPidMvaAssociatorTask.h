@@ -25,12 +25,18 @@
 
 #include "PndKnnClassify.h"
 #include "PndLVQClassify.h"
+#include "PndMultiClassMlpClassify.h"
+#include "PndMultiClassBdtClassify.h"
 
 // ========================================================================
 //! Method types for selecting which classifier to use.
-typedef enum { KNN = 0, LVQ = 1, 
-	       TMVA_MLP = 2, TMVA_BDT = 3 // Multi label TMVA MLP & BDT.
-} MethodType;
+typedef enum
+  {
+    KNN = 0,// KNN methode
+    LVQ = 1, // LVQ
+    TMVA_MLP = 2, // Multi label TMVA ANN.
+    TMVA_BDT = 3 // Multi label TMVA BDT.
+  } MethodType;
 
 // ========================================================================
 class PndPidMvaAssociatorTask: public FairTask
