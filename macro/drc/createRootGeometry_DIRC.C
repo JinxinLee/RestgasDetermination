@@ -241,6 +241,28 @@ void createRootGeometry_DIRC(Int_t fFocusingSystem = 0, Bool_t fprizm = kFALSE){
    par[7]  = -1.000000; // stmin
    TGeoMedium *Marcol82_m = new TGeoMedium("Marcol82", numed,Marcol82, par);
 
+// Mixture: Marcol82-7
+   nel     = 2;
+   density = 0.850000;
+   TGeoMixture *Marcol82_7 = new TGeoMixture("Marcol82-7", nel,density);
+      aa = 1.007940;   z = 1.000000;   w = 0.148605;  // H
+   Marcol82_7->DefineElement(0,aa,z,w);
+      aa = 12.010700;   z = 6.000000;   w = 0.851395;  // C
+   Marcol82_7->DefineElement(1,aa,z,w);
+   //Marcol82_7->SetIndex(5);
+// Medium: Marcol82_7
+   numed   = 6;  // medium number
+   par[0]  = 0.000000; // isvol
+   par[1]  = 1.000000; // ifield
+   par[2]  = 30.000000; // fieldm
+   par[3]  = -1.000000; // tmaxfd
+   par[4]  = -1.000000; // stemax
+   par[5]  = -1.000000; // deemax
+   par[6]  = 0.001000; // epsil
+   par[7]  = -1.000000; // stmin
+   TGeoMedium *Marcol82_7_m = new TGeoMedium("Marcol82-7", numed,Marcol82_7, par);
+
+
 // Mixture: NLAK33A
    nel = 2;
    density = 4.220000;
