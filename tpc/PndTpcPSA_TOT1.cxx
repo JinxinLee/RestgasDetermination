@@ -29,7 +29,7 @@
 #include "PndTpcSample.h"
 #include "PndTpcDigi.h"
 
-#define DEBUG 1
+#define DEBUG 0
 
 using std::cout; using std::endl;
 
