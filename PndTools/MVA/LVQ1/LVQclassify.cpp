@@ -218,7 +218,8 @@ int main(int argc, char** argv)
 	   << "\n\tNumber of mis-classified events = " <<  wrongCls
 	   << "\n\tErro = "
 	   << ((static_cast<float>(wrongCls) * 100.00)/static_cast<float>(totNumEvt))
-	   << " %\n" ;
+	   << " %.\n"
+	   << std::flush;
   }// CLass Loop
 
   timer.Stop();
