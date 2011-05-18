@@ -29,7 +29,7 @@
 #include "PndTpcSample.h"
 #include "PndTpcDigi.h"
 
-#define DEBUG 0
+#define DEBUG 1
 
 using std::cout; using std::endl;
 
@@ -51,6 +51,8 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
   McIdCollection mcid;
   mcid.ClearData();
 
+  unsigned int nsamples = samples.size();
+
   int amp=0;
   int prevamp=0;
 
@@ -63,60 +65,62 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
   int deriv_1=0;  
   int deriv_2=0;  
   bool fallingEdge = false;
+
   std::vector<PndTpcSample*> samplesInPulse;
   
-  for(unsigned int i=0;i<samples.size();++i){
+  for(unsigned int i=0;i<nsamples;++i){ // loop over samples
     amp=samples.at(i)->amp();
     time=samples.at(i)->t();
-    if(i>2){
-      deriv_2=deriv_1;
-    }
-    if(i>1){
-      deriv_1=deriv_0;
-    }
-    if(i>0){
+    deriv_2=deriv_1;
+    deriv_1=deriv_0;
+
+    if(i==0){ // first sample
+      deriv_0=amp; //setting the derivative for the first sample
+      fallingEdge=false;
+    }else{ // i>0
       prevamp=samples.at(i-1)->amp();
       prevtime=samples.at(i-1)->t();
-      if(time-prevtime!=1){
-        deriv_0=amp; //if there were empty samples between
+      if(time-prevtime!=1){ //if there were empty samples between
+        deriv_0=amp;
         fallingEdge=false;
       }else{
         deriv_0=amp-prevamp;
-        if(deriv_0<0){
-          fallingEdge=true;
-        }
+        if(deriv_0<0) fallingEdge=true;
       }
-    }
-    if(i==0){ 
-      deriv_0=amp; //setting the derivative for the first sample
-      fallingEdge=false;
     }
     if(DEBUG) cout<<"Processing sample: "<<i
       <<", a:"<<amp<<", t:"<<time
       <<" der0,1,2: "<<deriv_0<<", "<<deriv_1<<", "<<deriv_2<<endl;
+
     if(!inpulse){
-      if(deriv_0>0 && 
-         deriv_1>=0 && 
-         time-prevtime==1){
+      // check for starting pulse
+      if( ((deriv_0>0 && deriv_1>=0)|| // _/ or //
+           (deriv_0>=0 && deriv_1>0)|| // /_ or //
+           (deriv_0<0 && deriv_1>0 && prevamp>0)) //  /\       //
+           && time-prevtime==1){
         if(DEBUG) cout<<" starting new pulse"<<endl;
         inpulse=true;
         mcid.ClearData();
-        if(time-prevtime==1){
+        if(i>0){ // add previous sample to pulse
           mcid.AddIDCollection(samples[i-1]->mcId(),1);
           samplesInPulse.push_back(samples[i-1]);
         }
+        // add sample to pulse
         mcid.AddIDCollection(samples[i]->mcId(),1);
         samplesInPulse.push_back(samples[i]);
       }
-    }else{
-      if((deriv_0>0 && deriv_1<0) ||
-         (fallingEdge && deriv_0==0 ) ||
-          time-prevtime>1 ||
-          i==samples.size()-1){
-        if(i==samples.size()-1){
+    }else{ // sample is in pulse
+      //checking for the end of a pulse
+      if((deriv_0>0 && deriv_1<0) ||     //local minimum
+         (fallingEdge && deriv_0==0) ||  //flat valley, on falling edge
+         time-prevtime>1 ||              //gap in the samples
+         i==nsamples-1){                 //last sample
+
+        if(i==nsamples-1 && time-prevtime==1){ // add last sample if there is no gap
           mcid.AddIDCollection(samples[i]->mcId(),1);
           samplesInPulse.push_back(samples[i]);
         }
+
         inpulse=false;
         fallingEdge=false;
         double t0,A,length;
@@ -137,19 +141,21 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
           if(DEBUG) cout<<"starting new pulse"<<endl;
           inpulse = true;
           mcid.ClearData();
-          if(time-prevtime==1){
+          if(time-prevtime==1 && i>0){ // add previous sample to pulse; this sample will then be in two pulses
             mcid.AddIDCollection(samples[i-1]->mcId(),1);
             samplesInPulse.push_back(samples[i-1]);
           }
+          // add sample to pulse
           mcid.AddIDCollection(samples[i]->mcId(),1);
           samplesInPulse.push_back(samples[i]);
         }
-      }else{
+      }else{ // not at the end of pulse
+        // add sample to pulse
         mcid.AddIDCollection(samples[i]->mcId(),1);
         samplesInPulse.push_back(samples[i]);
       }
     }
-  }
+  } // end loop over samples
   if(DEBUG) cout<<endl;
 }
 
@@ -161,10 +167,8 @@ void PndTpcPSA_TOT1::processPulse(std::vector<PndTpcSample*> samples,
   // find maximum
   if(DEBUG) cout<<"Pulse created from samples: ";
   for(unsigned int i=0;i<samples.size();i++) {
-    if(A<samples[i]->amp())A=samples[i]->amp();
-    if(DEBUG){
-      cout<<samples[i]->t()<<", ";
-    }
+    if(A<samples[i]->amp()) A=samples[i]->amp();
+    if(DEBUG) cout<<samples[i]->t()<<", ";
   }
   length=samples.back()->t()-samples[0]->t();
   t0=samples[0]->t() + 0.5*length;
