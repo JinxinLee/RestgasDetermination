@@ -91,6 +91,8 @@
 
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kTRUE); // for fast sim Cherenkov -> kFALSE
+  // set reflectivity for the mirror at the bar end, in case of kFALSE reflectivity = 1 = const.
+  Drc->SetMirrorReal(kTRUE);  
   Drc->SetDetEffAtProduction(kTRUE);
   //Drc->SetStopTime(200.); 
   Drc->SetVerboseLevel(0);
