@@ -34,6 +34,7 @@ Double_t krin, krout;
 const Int_t kNofLayersOfc = 8;
 const Double_t kOfcrad = 15.4;
 Double_t kOfclen = 72.78;
+Double_t kOfcRad, kOfcThick;
 
 TString kLayerNameOfc[kNofLayersOfc] = {"FcFirst_aluminium",
 					"FcFirst_kapton",
@@ -68,6 +69,8 @@ const Int_t kNofLayersIfc = 8;
 const Double_t kIfcrad = 5.2;
 const Double_t kIfclen = 80.5;
 Double_t kIfcrin, kIfcrout;
+Double_t kIfcRad, kIfcThick;
+
 TString kLayerNameIfc[kNofLayersIfc] = {"FcFirst_aluminium",
 					"FcFirst_kapton",
 					"FcSecond_kapton",
@@ -106,6 +109,7 @@ const Double_t kStripPitch = 0.15;
 // }}}		      
 // {{{ Outer Stripfoil Config
 const Int_t kNofLayersOs = 3;
+Double_t kOsRad, kOsThick;
 const TString kLayerNameOs[kNofLayersOs] = {"StInner_copper",
 					    "StMiddle_kapton",
 					    "StOuter_copper"};
@@ -121,6 +125,7 @@ const Double_t kLayerZOs[kNofLayersOs] = {0.05,kOfclen/2,0.05};
 // {{{ Inner Stripfoil Config
 
 const Int_t kNofLayersIs = 3;
+Double_t kIsRad, kIsThick;
 TString kLayerNameIs[kNofLayersIs] = {"StInner_copper",
 				      "StMiddle_kapton",
 				      "StOuter_copper"};
@@ -133,7 +138,8 @@ const Double_t kLayerZIs[kNofLayersIs] = {0.05,kOfclen/2,0.05};
 
 // }}}		      
 // {{{ DriftCathode Config
-  const Int_t kNofLayersDc = 13;
+const Int_t kNofLayersDc = 13;
+Double_t kDcRad;
 const TString kLayerNameDc[kNofLayersDc] = {"DcFirst_aluminium",
 					    "DcFirst_kapton",
 					    "DcSecond_kapton",
@@ -216,9 +222,9 @@ const TString kLayerNameGf[kNofLayersGf] = {"GfUpperOuter_G10",
 
 const Double_t kLayerThickGf[kNofLayersGf] = {0.1, //upper outer g10 ring
 					      0.1, //upper inner g10 ring
-					      5e-4, //upper copper	  
+					      4e-4, //upper copper	  
 					      50e-4, //kapton		  
-					      5e-4, //lower copper	  
+					      4e-4, //lower copper	  
 					      0.1, //lower inner g10 ring
 					      0.1};//lower outer g10 ring
 // }}}
@@ -254,15 +260,17 @@ TGeoVolumeAssembly * CreateFieldCage(TGeoManager* _gGeoMan)
   Double_t rin  = kFcrad;
   Double_t rout;
   Double_t z = kFclen;
-  Double_t totZ=0; 
+  Double_t totZ=0;
+  Double_t radlen, thick;
 
   TString shapename, layerMaterial;
 
-
+  thick=0;
   for ( Int_t ilay  =0 ; ilay < kNofLayersFc ; ilay++)
     {
     totZ=totZ + kZOffsetFc[ilay]; 
     rin-=kLayerThickFc[ilay];
+    thick+=kLayerThickFc[ilay];
     }
   kFcrin=rin;
   //after this rin is the most inner radius
@@ -291,15 +299,27 @@ TGeoVolumeAssembly * CreateFieldCage(TGeoManager* _gGeoMan)
   // now rin ist the most outer radius
 
   SetColors(Volumes,kNofLayersFc);
-  
-  FieldCageTop->AddNode(FieldCage,0);
-  return FieldCageTop;
+
+  radlen=GetRadLen(Volumes,kLayerThickFc,kNofLayersFc);
+ 
+
+  if( &kLayerNameFc[0] == &kLayerNameOfc[0]){
+    kOfcRad=radlen;
+    kOfcThick=thick;
+  }
+  else if( &kLayerNameFc[0] == &kLayerNameIfc[0]){
+    kIfcRad=radlen;
+    kIfcThick=thick;
+  }
+
+   return FieldCage;
 }
 // }}}
 // {{{ CreateStripFoil
 TGeoVolumeAssembly * CreateStripFoil(TGeoManager* _gGeoMan)
 {
-  
+
+  Double_t thick, radlen;
   Int_t kNofStrips  = (Int_t)(kOfclen/kStripPitch);
   //  cout<<"Number of strips:"<<kNofStrips<<endl;
 
@@ -311,7 +331,6 @@ TGeoVolumeAssembly * CreateStripFoil(TGeoManager* _gGeoMan)
 
   if( &kLayerNameS[0] == &kLayerNameOs[0])
     {
-      TGeoVolumeAssembly * StripFoilTop = new TGeoVolumeAssembly("Outer_Strip_Foil_Top");
       TGeoVolumeAssembly * StripFoil = new TGeoVolumeAssembly("Outer_Strip_Foil");
       TGeoShape  * ShapesS[kNofLayersOs];
       TGeoVolume * VolumesS[kNofLayersOs];
@@ -361,6 +380,8 @@ TGeoVolumeAssembly * CreateStripFoil(TGeoManager* _gGeoMan)
       rin=rout;
     }
 
+  SetColors(VolumesS,kNofLayersS);
+
   //if ( &kLayerNameS[0] == &kLayerNameIs[0]) t1->SetDz(kIfclen-kOfclen);
 
   //generate stripfoil strips  
@@ -370,6 +391,7 @@ TGeoVolumeAssembly * CreateStripFoil(TGeoManager* _gGeoMan)
       for ( Int_t istrlay = 0 ; istrlay < kNofLayersS ; istrlay+=kNofLayersS-1)
 	{
 	  StripFoil->AddNode((TGeoVolume*)VolumesS[istrlay]->Clone(),kStrFoCount,(TGeoTranslation*)t1->Clone());
+	  //	  cout<<(TGeoVolume*)VolumesS[istrlay]->Clone()->GetMaterial()->GetName()<<endl;
 	  kStrFoCount++;
 	  t1->SetDz(t1->GetTranslation()[2]-kStripPitch/2);
 	}
@@ -382,10 +404,20 @@ TGeoVolumeAssembly * CreateStripFoil(TGeoManager* _gGeoMan)
   // SetColors(VolumesS,kNofLayersS);
   // cout<<VolumesS<<endl;
   //  StripFoil->Dump();
-  SetColors(VolumesS,kNofLayersS);
+ 
 
-  StripFoilTop->AddNode(StripFoil,0);
-  return StripFoilTop;
+  radlen=GetRadLen(VolumesS,kLayerThickS,kNofLayersS);
+
+  if( &kLayerNameS[0] == &kLayerNameOs[0]){
+    kOsRad=radlen;
+    kOsThick=dtot;
+  }
+  else{
+    kIsRad=radlen;
+    kIsThick=dtot;
+  }
+
+   return StripFoil;
   
 }
 
@@ -440,8 +472,9 @@ TGeoVolume * CreateDriftCathode(TGeoManager* _gGeoMan )
   
   SetColors(Volumes,kNofLayersDc);
 
-  DriftCathodeTop->AddNode(DriftCathode,0);
-  return DriftCathodeTop;
+  //DriftCathodeTop->AddNode(DriftCathode,0);
+  kDcRad=GetRadLen(Volumes,kLayerThickDc,kNofLayersDc);
+  return DriftCathode;
 }
 
 // }}}
@@ -454,7 +487,6 @@ TGeoVolumeAssembly * CreateMediaGemFlange(TGeoManager* _gGeoMan )
   //     cout << kLayerNameMgf[ilayer].Data() << " -> " << kLayerThickMgf[ilayer] << endl;
   //   }
 
-  TGeoVolumeAssembly * MediaGemFlangeTop = new TGeoVolumeAssembly("Media_Gem_Flange_Top");
   TGeoVolumeAssembly * MediaGemFlange = new TGeoVolumeAssembly("Media_Gem_Flange");
 
   TGeoShape  *Shapes [kNofLayersMgf];
@@ -504,14 +536,14 @@ TGeoVolumeAssembly * CreateMediaGemFlange(TGeoManager* _gGeoMan )
  for ( Int_t igem = 0 ; igem < 3 ; igem++ )
    {
      //     MediaGemFlange->AddNode(CreateGemFoil(_gGeoMan),ilay++,trans1);
-     MediaGemFlange->AddNode((TGeoVolume*)GemFoil->Clone(),igem+1,(TGeoTranslation*)trans1->Clone());
+     MediaGemFlange->AddNode((TGeoVolume*)GemFoil->Clone(),igem,(TGeoTranslation*)trans1->Clone());
+     //     MediaGemFlange->AddNode((TGeoVolume*)GemFoil,igem+1,(TGeoTranslation*)trans1->Clone());
      trans1->SetDz((trans1->GetTranslation()[2])+kgemheight/2);
    }
 
  SetColors(Volumes,kNofLayersMgf);
 
- MediaGemFlangeTop->AddNode(MediaGemFlange,0);
- return MediaGemFlangeTop;
+  return MediaGemFlange;
 
 }
 // }}}
@@ -524,7 +556,6 @@ TGeoVolumeAssembly * CreateGemFoil(TGeoManager* _gGeoMan )
   //     cout << kLayerNameGf[ilayer].Data() << " -> " << kLayerThickGf[ilayer] << endl;
   //   }
 
-  TGeoVolumeAssembly * GemFoilTop = new TGeoVolumeAssembly("Gem_Foil_Top");
   TGeoVolumeAssembly * GemFoil = new TGeoVolumeAssembly("Gem_Foil");
 
   TGeoShape  *Shapes [kNofLayersGf];
@@ -561,8 +592,7 @@ TGeoVolumeAssembly * CreateGemFoil(TGeoManager* _gGeoMan )
 
   SetColors(Volumes,kNofLayersGf);
 
-  GemFoilTop->AddNode(GemFoil,0);
-  return GemFoilTop;
+    return GemFoil;
 }
 // }}}
 // {{{ SetColors
@@ -591,13 +621,27 @@ void SetColors(TGeoVolume ** _Volumes,Int_t _layers)
 }
 
 // }}}
+// {{{ get radlen
+Double_t GetRadLen(TGeoVolume** _Volumes, Double_t * _thick, Int_t _layers)
+{
+  Double_t radlen;
+  radlen=0;
+  for (Int_t icage = 0 ; icage < _layers ; icage++)
+    {
+      radlen+=_thick[icage]/_Volumes[icage]->GetMaterial()->GetRadLen();     
+      //      cout<<_Volumes[icage]->GetName()<<" has a radlen of:"<<_Volumes[icage]->GetMaterial()->GetRadLen()<<endl;
+      //      cout<<"the material is:"<<_Volumes[icage]->GetMaterial()->GetName()<<endl;
+    }
+  return radlen;
+}
+// }}}
 // {{{ create_prototype_geom
 
 void create_prototype_geom()
 {
 
   
-  //gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   
   TString vmcWorkdir = getenv("VMCWORKDIR");
   
@@ -666,7 +710,7 @@ void create_prototype_geom()
   gmm  = 1;
   gas  = 1;
 
-  draw = 0;
+  draw = 1;
 
  //create gas
   TGeoVolume *Gas;
@@ -687,15 +731,19 @@ void create_prototype_geom()
     krout-=kLayerThickOs[ilay];
 
   ivol=1;
+  
+  Double_t globoff;
+  globoff=-kOfclen/2+10.78;
+  trans1->SetDz(globoff);
 
   GasShape = new TGeoTube("GasShape",krin,krout,kOfclen/2);
   // ArCo2 90/10
-  //Gas = new TGeoVolume("gasARCO2",GasShape,gGeoMan->GetMedium("TPCFOPI_mix"));
+  //Gas = new TGeoVolume("gasArCO2",GasShape,gGeoMan->GetMedium("TPCFOPI_mix"));
   // NeCo2 90/10
-  Gas = new TGeoVolume("gasNECO2",GasShape,gGeoMan->GetMedium("TPCmixture"));
+  Gas = new TGeoVolume("gasNeCO2",GasShape,gGeoMan->GetMedium("TPCmixture"));
   Gas->SetLineColor(7);
   Gas->SetTransparency(10);
-  if(gas==1) top->AddNode(Gas,0);
+  if(gas==1) top->AddNode(Gas,0,(TGeoTranslation*)trans1->Clone());
 
   // outer fieldcage
   kNofLayersFc = kNofLayersOfc;
@@ -704,7 +752,7 @@ void create_prototype_geom()
   kLayerNameFc = kLayerNameOfc;
   kLayerThickFc = kLayerThickOfc;
   kZOffsetFc = kZOffsetOfc;
-  if(ofc==1) top->AddNode(CreateFieldCage(gGeoMan),0);
+  if(ofc==1) top->AddNode(CreateFieldCage(gGeoMan),0,(TGeoTranslation*)trans1->Clone());
   
 
   //outer stripfoil
@@ -712,10 +760,10 @@ void create_prototype_geom()
   kLayerNameS = kLayerNameOs;
   kLayerThickS = kLayerThickOs;
   kLayerZ = kLayerZOs;
-  if(osf==1) top->AddNode(CreateStripFoil(gGeoMan),0);
+  if(osf==1) top->AddNode(CreateStripFoil(gGeoMan),0,(TGeoTranslation*)trans1->Clone());
 
   //inner fieldcage
-  trans1->SetDz((kOfclen-kIfclen)/2);
+  trans1->SetDz((kOfclen-kIfclen)/2+globoff);
   kNofLayersFc = kNofLayersIfc;
   kFcrad = kIfcrad;
   kFclen = kIfclen;
@@ -729,28 +777,42 @@ void create_prototype_geom()
 
   //inner stripfoil
   //  trans1->SetDz(trans1->GetTranslation()[2]+kOfclen/8);
-  trans1->SetDz(0);
+  trans1->SetDz(globoff);
   kNofLayersS = kNofLayersIs;
   kLayerNameS = kLayerNameIs;
   kLayerThickS = kLayerThickIs;
   kLayerZ = kLayerZIs;
   if(isf==1) top->AddNode(CreateStripFoil(gGeoMan),0,(TGeoTranslation*)trans1->Clone());
   
-  if(dc==1) top->AddNode(CreateDriftCathode(gGeoMan),0);
-  trans1->SetDz(kLayerThickMgf[0]);
+  if(dc==1) top->AddNode(CreateDriftCathode(gGeoMan),0,(TGeoTranslation*)trans1->Clone());
+  trans1->SetDz(kLayerThickMgf[0]+globoff);
   if(gmm==1) top->AddNode(CreateMediaGemFlange(gGeoMan),0,(TGeoTranslation*)trans1->Clone());
   //top->AddNode(CreateGemFoil(gGeoMan),7);
 
   //top->Draw("test.pdf");
 
   gGeoMan->SetTopVolume(top);
-  toptop->AddNode(top,0);
+  toptop->AddNode(top,0,(TGeoTranslation*)trans1->Clone());
   
 
   fi.cd();
   toptop->Write();
   //gGeoMan->Write();
   fi.Close();
+
+  //  cout<<"Fieldcageradlen="<<kOfcRad<<" and "<<kIfcRad<<endl;
+  //  cout<<"Inner Fieldcage thickness:"<<kIfcThick<<" Outer:"<<kOfcThick<<endl;
+  //  cout<<"Inner Strip radlen:"<<kIsRad<<" outer:"<<kOsRad<<endl;
+  Double_t totperrad;
+
+  cout<<"Outer Fieldcage radlen="<<kOfcRad<<endl;
+  cout<<"Strip Foil radlen="<<kIsRad<<endl;
+  cout<<"Drift Cathode radlen="<<kDcRad<<endl;
+
+  totperrad=(kOfcRad+kIfcRad+kOsRad+kIsRad)*100;
+  cout<<"Radlen perp in percentage="<<totperrad<<endl;
+  totperrad=(kIfcRad+kIsRad+kDcRad)*100;
+  cout<<"Radlen long in percentage="<<totperrad<<endl;
 
   if(draw==1){
   TEveManager::Create();
