@@ -164,14 +164,21 @@ void PndTpcPSA_TOT1::processPulse(std::vector<PndTpcSample*> samples,
                                   double& t0,double& A, double& length){
   A=0.;
   t0=0.;
+  double tA;
   // find maximum
   if(DEBUG) cout<<"Pulse created from samples: ";
   for(unsigned int i=0;i<samples.size();i++) {
-    if(A<samples[i]->amp()) A=samples[i]->amp();
+    if(A<samples[i]->amp()){
+      A=samples[i]->amp();
+      tA = samples[i]->t();
+    }
     if(DEBUG) cout<<samples[i]->t()<<", ";
   }
   length=samples.back()->t()-samples[0]->t();
   t0=samples[0]->t() + 0.5*length;
-  if(DEBUG) cout<<"with t:"<<t0<<", a:"<<A<<endl;
+  // take mean time of center between minima and time of maximum amplitude
+  t0*=0.5;
+  t0+=0.5*tA;
 
+  if(DEBUG) cout<<"with t:"<<t0<<", a:"<<A<<endl;
 }
