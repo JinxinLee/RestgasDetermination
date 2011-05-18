@@ -71,6 +71,7 @@ PndDrc::PndDrc() {
   fTakeDirect = kFALSE; 
   fDetEffAtProduction = kFALSE;  
   ffocusing = 0; 
+  fTakeRealReflectivity = kTRUE;
   fListOfSensitives.push_back("Sensor");
   if(fVerboseLevel > 0){
     std::cout<<"-I- PndBarrelDIRC: fListOfSensitives contains:";
@@ -99,6 +100,7 @@ PndDrc::PndDrc(const char* name, Bool_t active)
     fStopTime = kFALSE;
     fTakeDirect = kFALSE;     
     ffocusing = 0; 
+    fTakeRealReflectivity = kTRUE;
     fDetEffAtProduction = kFALSE;   
     fListOfSensitives.push_back("Sensor");
     if(fVerboseLevel > 0){
@@ -994,13 +996,112 @@ void PndDrc::ConstructOpGeometry()
   cout<< " ==================================================== " << endl;
   cout<< " =======  DRC::  ConstructOpticalGeometry()  ======== " << endl; 
   
-  Int_t npoints = 2;  
-  Double_t ephoton[npoints];
-  ephoton[0] = 1.0e-09;  // 1 eV
-  ephoton[1] = 10.0e-09; // 10 eV
-  Double_t reflectivity[npoints];
-  reflectivity[0] = 1.;
-  reflectivity[1] = 1.;
+  // ideal reflectivity:
+  Int_t npoints_i = 2;  
+  Double_t ephoton_i[npoints_i];
+  ephoton_i[0] = 1.907*1.0e-09;  // 1 eV
+  ephoton_i[1] = 6.199*1.0e-09; // 10 eV  
+  Double_t reflectivity_i[npoints_i];
+  reflectivity_i[0] = 1.;
+  reflectivity_i[1] = 1.;
+  
+  // real reflectivity (added 18.05.2011, measured by Jerry for BABAR):
+  Int_t npoints_r = 46;
+  Double_t ephoton_r[npoints_r];
+  ephoton_r[0]  = 1.907*1.0e-09; //eV
+  ephoton_r[1]  = 1.937*1.0e-09;
+  ephoton_r[2]  = 1.968*1.0e-09;
+  ephoton_r[3]  = 2.000*1.0e-09;
+  ephoton_r[4]  = 2.033*1.0e-09;
+  ephoton_r[5]  = 2.066*1.0e-09;
+  ephoton_r[6]  = 2.101*1.0e-09;
+  ephoton_r[7]  = 2.138*1.0e-09;
+  ephoton_r[8]  = 2.175*1.0e-09;
+  ephoton_r[9]  = 2.214*1.0e-09;
+  ephoton_r[10] = 2.254*1.0e-09;
+  ephoton_r[11] = 2.296*1.0e-09;
+  ephoton_r[12] = 2.339*1.0e-09;
+  ephoton_r[13] = 2.384*1.0e-09;
+  ephoton_r[14] = 2.431*1.0e-09;
+  ephoton_r[15] = 2.480*1.0e-09;
+  ephoton_r[16] = 2.530*1.0e-09;
+  ephoton_r[17] = 2.583*1.0e-09;
+  ephoton_r[18] = 2.638*1.0e-09;
+  ephoton_r[19] = 2.695*1.0e-09;
+  ephoton_r[20] = 2.755*1.0e-09;
+  ephoton_r[21] = 2.818*1.0e-09;
+  ephoton_r[22] = 2.883*1.0e-09;
+  ephoton_r[23] = 2.952*1.0e-09;
+  ephoton_r[24] = 3.024*1.0e-09;
+  ephoton_r[25] = 3.100*1.0e-09;
+  ephoton_r[26] = 3.179*1.0e-09;
+  ephoton_r[27] = 3.263*1.0e-09;
+  ephoton_r[28] = 3.351*1.0e-09;
+  ephoton_r[29] = 3.444*1.0e-09;
+  ephoton_r[30] = 3.542*1.0e-09;
+  ephoton_r[31] = 3.647*1.0e-09;
+  ephoton_r[32] = 3.757*1.0e-09;
+  ephoton_r[33] = 3.875*1.0e-09;
+  ephoton_r[34] = 3.999*1.0e-09;
+  ephoton_r[35] = 4.133*1.0e-09;
+  ephoton_r[36] = 4.275*1.0e-09;
+  ephoton_r[37] = 4.428*1.0e-09;
+  ephoton_r[38] = 4.592*1.0e-09;
+  ephoton_r[39] = 4.769*1.0e-09;
+  ephoton_r[40] = 4.959*1.0e-09;
+  ephoton_r[41] = 5.166*1.0e-09;
+  ephoton_r[42] = 5.391*1.0e-09;
+  ephoton_r[43] = 5.636*1.0e-09;
+  ephoton_r[44] = 5.904*1.0e-09;
+  ephoton_r[45] = 6.199*1.0e-09;
+  
+  Double_t reflectivity_r[npoints_r];
+  reflectivity_r[0]  = 0.870;
+  reflectivity_r[1]  = 0.880;
+  reflectivity_r[2]  = 0.885;
+  reflectivity_r[3]  = 0.890;
+  reflectivity_r[4]  = 0.895;
+  reflectivity_r[5]  = 0.900;
+  reflectivity_r[6]  = 0.905;
+  reflectivity_r[7]  = 0.910;
+  reflectivity_r[8]  = 0.915;
+  reflectivity_r[9]  = 0.920;
+  reflectivity_r[10] = 0.923;
+  reflectivity_r[11] = 0.925;
+  reflectivity_r[12] = 0.926;
+  reflectivity_r[13] = 0.928;
+  reflectivity_r[14] = 0.930;
+  reflectivity_r[15] = 0.935;
+  reflectivity_r[16] = 0.936;
+  reflectivity_r[17] = 0.937;
+  reflectivity_r[18] = 0.938;
+  reflectivity_r[19] = 0.940;
+  reflectivity_r[20] = 0.940;
+  reflectivity_r[21] = 0.939;
+  reflectivity_r[22] = 0.938;
+  reflectivity_r[23] = 0.938;
+  reflectivity_r[24] = 0.937;
+  reflectivity_r[25] = 0.937;
+  reflectivity_r[26] = 0.936;
+  reflectivity_r[27] = 0.935;
+  reflectivity_r[28] = 0.934;
+  reflectivity_r[29] = 0.932;
+  reflectivity_r[30] = 0.930;
+  reflectivity_r[31] = 0.928;
+  reflectivity_r[32] = 0.926;
+  reflectivity_r[33] = 0.924;
+  reflectivity_r[34] = 0.922;
+  reflectivity_r[35] = 0.920;
+  reflectivity_r[36] = 0.910;
+  reflectivity_r[37] = 0.905;
+  reflectivity_r[38] = 0.895;
+  reflectivity_r[39] = 0.890;
+  reflectivity_r[40] = 0.885;
+  reflectivity_r[41] = 0.860;
+  reflectivity_r[42] = 0.840;
+  reflectivity_r[43] = 0.820;
+  reflectivity_r[44] = 0.800;
+  reflectivity_r[45] = 0.780;
   
 //  gMC->DefineOpSurface("BarSurface", kGlisur, kDielectric_dielectric, kPolished, 0.0);
   gMC->DefineOpSurface("MirrSurface", kGlisur, kDielectric_metal, kPolished, 0.0); 
@@ -1019,7 +1120,13 @@ void PndDrc::ConstructOpGeometry()
     } */   
   }  
   //gMC->SetMaterialProperty("BarSurface", "REFLECTIVITY", npoints, ephoton, reflectivity);
-  gMC->SetMaterialProperty("MirrSurface", "REFLECTIVITY", npoints, ephoton, reflectivity);
+  if(fTakeRealReflectivity == kFALSE){
+    gMC->SetMaterialProperty("MirrSurface", "REFLECTIVITY", npoints_i, ephoton_i, reflectivity_i);
+  }
+  if(fTakeRealReflectivity == kTRUE){
+    gMC->SetMaterialProperty("MirrSurface", "REFLECTIVITY", npoints_r, ephoton_r, reflectivity_r);
+  }
+  
 /* 
   gMC->DefineOpSurface("EVSurface", kGlisur, kDielectric_dielectric, kPolished, 0.0);
   gMC->SetBorderSurface("EVAirSurface", "DrcEV", 1, "BarrelDIRC", 0, "EVSurface"); 

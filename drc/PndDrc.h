@@ -48,6 +48,13 @@ class PndDrc : public FairDetector
     \param dep 
   */
   void SetDetEffAtProduction(Bool_t dep = kFALSE){fDetEffAtProduction = dep;}
+  
+  /*! \brief  Choose between ideal and real mirror:
+    \param mir 
+    kFALSE - take ideal mirror, reflectivity = 1 for photons within energy range 1..10 eV
+    kTRUE  - take real  mirror, reflectivity has realistic values for photons within energy range 1.907..6.199 eV
+  */
+  void SetMirrorReal(Bool_t mir = kTRUE){fTakeRealReflectivity = mir;}
 
 
   /*! \brief  Set time after which photons are killed.
@@ -196,6 +203,7 @@ class PndDrc : public FairDetector
   Double_t       fPhoMaxTime;
   Bool_t         fTakeDirect;     
   Int_t 	 ffocusing; 
+  Bool_t         fTakeRealReflectivity;
 
   PndGeoDrc*     fGeo;             //! Pointer to basic DRC geometry data
 
@@ -212,7 +220,7 @@ class PndDrc : public FairDetector
   void ResetParameters();
 
   Int_t  fSenId1, fSenId2, fSenIdBar;
-  ClassDef(PndDrc,6)
+  ClassDef(PndDrc,7)
 
 }; 
 
