@@ -1,6 +1,6 @@
 // Macro created 03/05/2011 by S.Spataro
 // It creates a DPM background simulation for the tracking TDR
-run_sim_stt_dpm(Int_t nEvents=10, Float_t mom = 6.5788, Int_t mode =1, UInt_t seed=0, Float_t thMin = 1.)
+run_sim_stt_dpm(Int_t nEvents=10, Float_t mom = 6.5788, Int_t mode =1, UInt_t seed=0)
 {
   gRandom->SetSeed(seed);
 
@@ -100,7 +100,7 @@ run_sim_stt_dpm(Int_t nEvents=10, Float_t mom = 6.5788, Int_t mode =1, UInt_t se
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
-  PndDpmDirect *dpmGen = new PndDpmDirect(mom,mode, gRandom->GetSeed(), thMin);
+  PndDpmDirect *dpmGen = new PndDpmDirect(mom,mode);
   primGen->AddGenerator(dpmGen);
 
   // Create and Set Magnetic Field
