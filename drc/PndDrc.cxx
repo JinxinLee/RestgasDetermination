@@ -40,6 +40,8 @@ using std::cout;
 #include "TObject.h"
 #include "TColor.h"
 
+#include "TCanvas.h"
+
 #include "FairGeoInterface.h"
 #include "FairGeoLoader.h"
 #include "FairGeoNode.h"
@@ -177,14 +179,13 @@ void PndDrc::Initialize() {
   if(fDetEffAtProduction == kTRUE){
     fCollectionEff=0.65;//Collection Efficiency 
     fPackingFraction=0.80;//Packing Efficiency 
-    Double_t fEfficiency[1000];
-    
-    Float_t credibleLimit=280.;
-
+   
 // quantum efficiency data from Alex Britting, Jan 25, 2011
 // unit is percent
 // first value is at 200 nm, last at 700 nm
 // credible range start around 250nm, >= 280nm to be safe
+
+    Float_t credibleLimit=280.;
 
     fEfficiency[0]=  231.84;
     fEfficiency[1]=  615.36;
@@ -688,27 +689,27 @@ void PndDrc::Initialize() {
     fEfficiency[499]=0.68;
     fEfficiency[500]=0.73;
     
-    Double_t lambda[1000];
+    fLambda[1000];
     for(Int_t i=0; i<1000; i++){
-      lambda[i] = i;
+      fLambda[i] = i;
     }
-   
+    
     // still need to convert from percent and cut values below credible limit
     for (Int_t iBin=0;iBin<1000;iBin++) 
       {
-        if (iBin<(Int_t)(credibleLimit) || iBin > 500)
+        if (iBin<(Int_t)(credibleLimit) || iBin > 700)
 	  {
-	    fEfficiency[iBin]=0.;
+	    fEfficiencyR[iBin]=0.;
 	  } 
         else
 	  {
 	    // total detector efficiency
-	    fEfficiency[iBin]=fEfficiency[iBin]/100.*fCollectionEff*fPackingFraction;
+	    fEfficiencyR[iBin]=fEfficiency[iBin-200]/100.*fCollectionEff*fPackingFraction;
 	  }
         //      cout << "efficiency is " << fEfficiency[iBin] << " at " << fLambdaMin+iBin<<endl;
       }   
   
-    fDetEff = new TGraph(1000, lambda,fEfficiency);
+    fDetEff = new TGraph(1000, fLambda,fEfficiencyR);    
     fLastTrackID = -2;
   }
       

@@ -185,6 +185,10 @@ class PndDrc : public FairDetector
   TLorentzVector fMom1;
   Double_t 	 fBarEnd;
   
+  // from Initialisation:
+  Double_t       fLambda[1000];
+  Double_t       fEfficiency[1000];
+  Double_t       fEfficiencyR[1000];
   // used in ProcessHits function:
   Int_t		 fbarID;	   //!  ID number of DrcBarSensors
   Int_t          fpdID;		   //!  ID number of DrcPdSensor
