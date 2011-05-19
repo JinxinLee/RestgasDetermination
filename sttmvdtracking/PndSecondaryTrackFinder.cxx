@@ -1009,12 +1009,28 @@ std::vector<std::vector<int> > PndSecondaryTrackFinder::ClusterFinder(std::vecto
   // ******************
   // conformal map ****
 
-//   for(int iclus = 0; iclus < nclus; iclus++) {
-//     std::vector<int> cluster = list[iclus];
-//    FindBoundary(iclus, cluster, FairRootManager::Instance()->GetBranchId(fSttBranch), boundaries);
-//    bool conf = ConformalPlane(cluster, boundaries, hits, FairRootManager::Instance()->GetBranchId(fSttBranch), iclus);
-//     cout << "conform " << conf << endl;
-//   }
+  for(int iclus = 0; iclus < nclus; iclus++) {
+    std::vector<int> cluster = list[iclus];
+    FindBoundary(iclus, cluster, FairRootManager::Instance()->GetBranchId(fSttBranch), boundaries, kFALSE);
+    Double_t xc, yc, radius;
+    bool conf = ConformalPlaneStt3(cluster, boundaries, hits, iclus, xc, yc, radius);
+    cout << "conform " << conf << endl;
+
+    if(fDisplayOn) {
+      char goOnChar;
+      cout << "Go back to reak plane: cluster " << iclus << endl;
+      cin >> goOnChar;
+      cout << "GOING ON" << endl;
+      Refresh(hits, FairRootManager::Instance()->GetBranchId(fSttBranch)); // CHECK
+      cout << "helix " << xc << " " << yc << " " << radius;     
+ TArc *arc = new TArc(xc, yc, radius);
+      arc->SetLineColor(kGreen);
+      arc->SetFillStyle(0);
+      arc->Draw("SAME ONLY");
+      display->Update();
+      display->Modified();
+    }
+  }
 
   return list;
 }
@@ -1357,7 +1373,7 @@ Bool_t PndSecondaryTrackFinder::ConformalPlane(std::vector<int> cluster, TMatrix
     cout << "Go to conformal plane: cluster " << iclus << endl;
     cin >> goOnChar;
     cout << "GOING ON" << endl;
-    DrawGeometryConformal(-1, -1, 10, 1); 
+    DrawGeometryConformal(-40, -40, 40, 40); 
 //     double xmin = boundaries[iclus][0];
 //     double ymin = boundaries[iclus][1];
 //     double xmax = boundaries[iclus][2];
@@ -1561,6 +1577,891 @@ Bool_t PndSecondaryTrackFinder::ConformalPlane(std::vector<int> cluster, TMatrix
     double outxc = xc;
     double outyc = yc;
     double outradius = R;
+
+}
+
+
+
+Bool_t PndSecondaryTrackFinder::ConformalPlaneStt(std::vector<int> cluster, TMatrixT<double> boundaries, std::vector<int> hits, Int_t iclus) {
+  
+  int nhits = cluster.size();
+  int lasthitid = cluster[0];
+  int firsthitid = cluster[nhits - 1];
+  
+  TClonesArray *array = fSttHitArray;
+  
+  
+  FairHit *hitfirst = (FairHit*) array->At(firsthitid);
+  if(!hitfirst) return kFALSE;
+  TVector3 positionfirst;
+  hitfirst->Position(positionfirst);
+
+  FairHit *hitlast = (FairHit*) array->At(lasthitid);
+  if(!hitlast) return kFALSE;
+  TVector3 positionlast;
+  hitlast->Position(positionlast);
+  
+    Double_t trasl[2] = {positionfirst.X(), positionfirst.Y()};
+
+    Double_t  alpha = TMath::ATan2(positionlast.Y() - positionfirst.Y(),
+				   positionlast.X() - positionfirst.X());
+
+    
+
+ if(fDisplayOn) {
+    char goOnChar;
+    cout << "Go to conformal plane: cluster " << iclus << endl;
+    cin >> goOnChar;
+    cout << "GOING ON" << endl;
+    DrawGeometryConformal(-1, -1, 1, 1); 
+   }
+  
+ TVector3 centerposition;
+ 
+ for(int ihit = 0; ihit < cluster.size(); ihit++)
+   {
+     Int_t hitid = cluster[ihit];
+     if(hitid == firsthitid) continue;
+
+     PndSttHit *hit = (PndSttHit*) array->At(hitid);
+     if(!hit) continue;
+     
+     hit->Position(centerposition);
+     Double_t rd = hit->GetIsochrone();
+ 
+     Double_t sigx = 0.50; // CHECK
+     Double_t sigy = 0.50;
+     
+     // to the fit ================================
+     Double_t xtrasl, ytrasl;
+     // traslation
+     xtrasl = centerposition.X() - trasl[0];
+     ytrasl = centerposition.Y() - trasl[1];
+     
+     Double_t xrot, yrot;
+     // rotation
+     xrot = TMath::Cos(alpha)*xtrasl + TMath::Sin(alpha)*ytrasl;
+     yrot = -TMath::Sin(alpha)*xtrasl + TMath::Cos(alpha)*ytrasl;
+     
+     // re-traslation
+     xtrasl = xrot;
+     ytrasl = yrot;
+	
+     // change coordinate of the center
+     Double_t u, v, sigv2, sigu2, rc;
+     u = xtrasl / (xtrasl*xtrasl + ytrasl*ytrasl - rd * rd);
+     v = ytrasl / (xtrasl*xtrasl + ytrasl*ytrasl - rd * rd);
+     rc = rd / (xtrasl*xtrasl + ytrasl*ytrasl - rd * rd);
+     
+     if(fDisplayOn) {
+       
+       std::vector<int>::iterator it;
+       it = find(cluster.begin(), cluster.end(), hitid);
+       
+       TArc *arc = new TArc(u, v, rc);
+       arc->SetLineColor(kBlack);
+       if(it != cluster.end())   arc->SetLineColor(kRed);
+       arc->SetFillStyle(0);
+       arc->Draw("SAME");
+       display->Update();
+       display->Modified();  
+     }
+   }
+ 
+ if(fDisplayOn) {
+   TString fConName = fDisName;
+   fConName += "_clus"; 
+   fConName += iclus;
+   fConName += ".pdf";
+   display->SaveAs(fConName);
+ }
+ return kTRUE;
+}
+
+
+Bool_t PndSecondaryTrackFinder::ConformalPlaneStt2(std::vector<int> cluster, TMatrixT<double> boundaries, std::vector<int> hits, Int_t iclus) {
+  
+  int nhits = cluster.size();
+  int lasthitid = cluster[0];
+  int firsthitid = cluster[nhits - 1];
+  
+  TClonesArray *array = fSttHitArray;
+  
+
+  if(fDisplayOn) {
+    char goOnChar;
+    cout << "Go to conformal plane: cluster " << iclus << endl;
+    cin >> goOnChar;
+    cout << "GOING ON" << endl;
+    DrawGeometryConformal(-1, -1, 1, 1); 
+   }
+  
+  TVector3 centerposition;
+  TVector2 uvfirst, uvlast;
+  Double_t auxinfoparalConformal[nhits - 1][3];
+
+ for(int ihit = 0; ihit < cluster.size(); ihit++)
+   {
+     Int_t hitid = cluster[ihit];
+
+     PndSttHit *hit = (PndSttHit*) array->At(hitid);
+     if(!hit) continue;
+     hit->Position(centerposition);
+     Double_t rd = hit->GetIsochrone();
+
+     // change coordinate of the center
+     Double_t u, v, rc;
+     u = centerposition.X() / (centerposition.X()*centerposition.X() + centerposition.Y()*centerposition.Y() - rd * rd);
+     v = centerposition.Y() / (centerposition.X()*centerposition.X() + centerposition.Y()*centerposition.Y() - rd * rd);
+     rc = rd / (centerposition.X()*centerposition.X() + centerposition.Y()*centerposition.Y() - rd * rd);
+
+     if(hitid != firsthitid) {
+       auxinfoparalConformal[ihit][0] = u;
+       auxinfoparalConformal[ihit][1] = v;
+       auxinfoparalConformal[ihit][2] = rc;
+     }
+     if(hitid == firsthitid) uvfirst = TVector2(u, v);
+     if(hitid == lasthitid)  uvlast = TVector2(u, v);
+  
+     if(fDisplayOn) {
+       
+       std::vector<int>::iterator it;
+       it = find(cluster.begin(), cluster.end(), hitid);
+       
+       TArc *arc = new TArc(u, v, rc);
+       arc->SetLineColor(kBlack);
+       if(it != cluster.end())   arc->SetLineColor(kRed);
+       arc->SetFillStyle(0);
+       arc->Draw("SAME");
+       display->Update();
+       display->Modified();  
+     }
+   } 
+
+ // ---------------------
+ // traslation / rotation in conformal plane
+ Double_t trasl[2] = {uvfirst.X(), uvfirst.Y()};
+ Double_t delta = TMath::ATan2(uvlast.Y() - uvfirst.Y(),
+			       uvlast.X() - uvfirst.X());
+ // ---------------------
+ Double_t m, p, alpha, beta, gamma;
+ Bool_t typeConf;  
+ Short_t fitting = FitHelixCylinder(nhits - 1,
+				    auxinfoparalConformal,
+				    delta, trasl,
+				    m, p,
+				    alpha, beta, gamma,
+				    typeConf);
+ 
+ cout << "CONFORMAL FITTING " << fitting << " " << typeConf << endl;
+ cout << "ROT " << delta << " TRASL " << trasl[0] << " " << trasl[1] << endl;
+ cout << "M/P " << m << " " << p << endl;
+ cout  << "ALPHA/BETA/GAMMA " << alpha << " " << beta << " " << gamma << endl;
+
+ if(fDisplayOn) {
+   TLine *line = new TLine(-1, -m + p, 1, m + p);
+   line->SetLineColor(3);
+   line->Draw("SAME");
+
+   TString fConName = fDisName;
+   fConName += "_clus"; 
+   fConName += iclus;
+   fConName += ".pdf";
+   display->SaveAs(fConName);
+ }
+
+
+
+
+ return kTRUE;
+}
+
+
+Bool_t PndSecondaryTrackFinder::ConformalPlaneStt3(std::vector<int> cluster, TMatrixT<double> boundaries, std::vector<int> hits, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius) {
+  
+  int nhits = cluster.size();
+  int lasthitid = cluster[0];
+  int firsthitid = cluster[nhits - 1];
+  
+  TClonesArray *array = fSttHitArray;
+  
+  
+  FairHit *hitfirst = (FairHit*) array->At(firsthitid);
+  if(!hitfirst) return kFALSE;
+  TVector3 positionfirst;
+  hitfirst->Position(positionfirst);
+
+  FairHit *hitlast = (FairHit*) array->At(lasthitid);
+  if(!hitlast) return kFALSE;
+  TVector3 positionlast;
+  hitlast->Position(positionlast);
+  
+  Double_t trasl[2] = {positionfirst.X(), positionfirst.Y()};
+
+  Double_t  delta = TMath::ATan2(positionlast.Y() - positionfirst.Y(),
+				 positionlast.X() - positionfirst.X());
+
+    
+
+  if(fDisplayOn) {
+    char goOnChar;
+    cout << "Go to conformal plane: cluster " << iclus << endl;
+    cin >> goOnChar;
+    cout << "GOING ON" << endl;
+    DrawGeometryConformal(-1, -1, 1, 1); 
+  }
+  
+  TVector3 centerposition;
+  Double_t auxinfoparalConformal[nhits][3];
+
+  for(int ihit = 0; ihit < cluster.size(); ihit++)
+    {
+      Int_t hitid = cluster[ihit];
+      //   if(hitid == firsthitid) continue;
+
+      PndSttHit *hit = (PndSttHit*) array->At(hitid);
+      if(!hit) continue;
+     
+      hit->Position(centerposition);
+      Double_t rd = hit->GetIsochrone();
+ 
+      Double_t sigx = 0.50; // CHECK
+      Double_t sigy = 0.50;
+     
+      // to the fit ================================
+      Double_t xtrasl, ytrasl;
+      // traslation
+      xtrasl = centerposition.X() - trasl[0];
+      ytrasl = centerposition.Y() - trasl[1];
+     
+      // change coordinate of the center
+      Double_t u, v, sigv2, sigu2, rc;
+      u = xtrasl / (xtrasl*xtrasl + ytrasl*ytrasl - rd * rd);
+      v = ytrasl / (xtrasl*xtrasl + ytrasl*ytrasl - rd * rd);
+      rc = rd / (xtrasl*xtrasl + ytrasl*ytrasl - rd * rd);
+
+
+      if(hitid != firsthitid) {     
+	auxinfoparalConformal[ihit][0] = u;
+	auxinfoparalConformal[ihit][1] = v;
+	auxinfoparalConformal[ihit][2] = rc;
+      }
+
+      if(fDisplayOn) {
+      
+ 	std::vector<int>::iterator it;
+ 	it = find(cluster.begin(), cluster.end(), hitid);
+      
+ 	TArc *arc = new TArc(u, v, rc);
+ 	arc->SetLineColor(kBlack);
+ 	if(it != cluster.end())   arc->SetLineColor(kRed);
+ 	arc->SetFillStyle(0);
+	arc->Draw("SAME");
+ 	display->Update();
+ 	display->Modified();  
+       }
+    } 
+
+  // ---------------------
+  Double_t m, p, alpha, beta, gamma;
+  Bool_t typeConf;  
+  Short_t fitting = FitHelixCylinder(nhits - 1,
+				     auxinfoparalConformal,
+				     delta, trasl,
+				     m, p,
+				     alpha, beta, gamma,
+				     typeConf);
+ 
+  cout << "CONFORMAL FITTING " << fitting << " " << typeConf << endl;
+  cout << "ROT " << delta << " TRASL " << trasl[0] << " " << trasl[1] << endl;
+  cout << "M/P " << m << " " << p << endl;
+  cout  << "ALPHA/BETA/GAMMA " << alpha << " " << beta << " " << gamma << endl;
+
+  if(fDisplayOn) { 
+    // double mnew = (m * TMath::Cos(delta) + TMath::Sin(delta))/(TMath::Cos(delta) - m * TMath::Sin(delta));
+    // double pnew = p / (TMath::Cos(delta) - m * TMath::Sin(delta));
+    TLine *line = new TLine(-1, -m + p, 1, m + p);
+    line->SetLineColor(3);
+    line->Draw("SAME");
+
+    TString fConName = fDisName;
+    fConName += "_clus"; 
+    fConName += iclus;
+    fConName += ".pdf";
+    display->SaveAs(fConName);
+  }
+
+  xc = -alpha / 2.;
+  yc = -beta / 2.;
+  radius = TMath::Sqrt(- gamma + xc * xc + yc * yc);
+
+
+  return kTRUE;
+}
+
+
+// ============================================================================
+// needs:
+// nHitsinTrack = #hits nel cluster - 1st one
+// auxinfoparalConformal all hits - 1st one:
+// translate x, y -> compute u, v, rc (no rotation)
+// trajectory_vertex & rotation are in the REAL plane 
+Short_t PndSecondaryTrackFinder::FitHelixCylinder( UShort_t nHitsinTrack,
+						   Double_t auxinfoparalConformal[][3],
+						   Double_t rotationangle,
+						   Double_t trajectory_vertex[2],
+						   Double_t &slope,
+						   Double_t &intercept,
+						   Double_t &alpha,
+						   Double_t &beta,
+						   Double_t &gamma,
+						   Bool_t &TypeConf
+						   )
+{
+
+  int maximumTracks = 40; // CHECK
+  int nmaxHits = maximumTracks * 30; // max hits total // CHECK
+  int MINIMUMHITSPERTRACK = 3; // CHECK
+  int NHITSINFIT = 15; // CHECK
+  Double_t StrawRadius = 0.5; // CHECK
+
+  //   definition of variables for the glpsol  solver
+  //    ROWS (for read_rows  function)
+  //
+  UShort_t  NpointsInFit = nHitsinTrack-NHITSINFIT <0 ?  nHitsinTrack :  NHITSINFIT;
+  int    nRows= NpointsInFit*9 +1;
+  int typeRows[nRows];
+  char * nameRows[nRows];
+  char  auxnameRows[nRows][20];
+  //-------  end ROWS information
+  //--------begin COLUMNS information
+  int  NStructVar=5+NpointsInFit*4;  //  number of  structural variables
+  int  NStructRows = 8*NpointsInFit ;  //  maximum number of ROWS in which a structural variable can be found
+  double final_values[NStructVar];
+  int  NRowsInWhichStructVarArePresent[NStructVar];
+  char *StructVarName[NStructVar];
+  char auxStructVarName[NStructVar][20];
+  //      char *AuxNameRowsInWhichStructVarArePresent[NStructVar][NStructRows];
+  char *NameRowsInWhichStructVarArePresent[NStructVar*NStructRows];
+  char aux[NStructVar*NStructRows][20];
+  //      double Coefficients[NStructVar][NStructRows];
+  double Coefficients[NStructVar*NStructRows];
+  //--------end COLUMNS information
+  //--------begin RHS information
+  double ValueB[9*NpointsInFit];
+  //--------end RHS information
+  //--------begin RANGES information
+  int nRanges = NpointsInFit;
+  double ValueRanges[nRanges];
+  char *NameRanges[nRanges];
+  char auxNameRanges[nRanges][20];
+  //--------end RANGES information
+  //--------start BOUNDS information
+  int nBounds=2*NpointsInFit+1;
+  double BoundValue[nBounds];
+  char *BoundStructVarName[nBounds];
+  char auxBoundStructVarName[nBounds][20];
+  char *TypeofBound[nBounds];
+  char auxTypeofBound[nBounds][20];
+  //--------end BOUNDS information
+
+
+
+
+  Double_t M = 1.,
+    m_result,
+    q_result,
+    A,
+    alfetta,
+    angle,
+    offsety,
+    Delta[nmaxHits],
+    Ox[nmaxHits],
+    Oy[nmaxHits];
+
+  UShort_t  i, ii;
+  Short_t Status;
+
+  char nome[300], stringa[300], stringa2[300];
+
+  //     FILE * MACRO ;
+
+  float m1_result,m2_result, q1_result,q2_result, A1_result, A2_result;
+
+  // --
+
+  if( nHitsinTrack < MINIMUMHITSPERTRACK) {
+    return -1;
+  }
+
+  //  use the trick of increasing the rotation angle by 10 degrees in order to obtain always a positive m
+  rotationangle -= TMath::Pi()/18.;
+
+  Double_t cose = cos(rotationangle), sine = sin(rotationangle);
+  for(i=0;i<nHitsinTrack; i++){
+    //       if( i== iExclude)  continue;
+    Ox[i] = auxinfoparalConformal[ i ][0] *cose +
+      auxinfoparalConformal[ i ][1]*sine;
+    Oy[i] = -auxinfoparalConformal[ i ][0] *sine +
+      auxinfoparalConformal[ i ][1]*cose;
+
+//     if(fDisplayOn) {
+//       TArc *arc = new TArc(Ox[i], Oy[i], auxinfoparalConformal[i][2]);
+//       arc->SetLineColor(kBlack);
+//       arc->SetFillStyle(0);
+//       arc->Draw("SAME");
+//       display->Update();
+//       display->Modified();  
+//     }
+    //         Delta[i] = auxinfoparalConformal[ i ][4];
+         
+    if( auxinfoparalConformal[ i ][2] > 1.e-10) {
+      Delta[i] = 3.*auxinfoparalConformal[ i ][2];   //   3 times the Drift Radius
+    } else {
+      Delta[i] = 3.*StrawRadius;
+    }
+  }
+
+ 
+  //--------
+  //      nameRows[0]="OBJECT";
+  sprintf(&(auxnameRows[0][0]),"OBJECT",i);  nameRows[0]=&auxnameRows[0][0];
+  typeRows[0]=GLP_FR;
+  for(i=0 ; i< NpointsInFit ; i++) {
+    ii=9*i;
+
+    typeRows[1+ii]=GLP_UP;typeRows[2+ii]=GLP_UP;typeRows[3+ii]=GLP_UP;typeRows[4+ii]=GLP_UP;
+    typeRows[5+ii]=GLP_UP;typeRows[6+ii]=GLP_UP;typeRows[7+ii]=GLP_UP;typeRows[8+ii]=GLP_UP;
+    typeRows[9+ii]=GLP_LO;
+
+    sprintf(&(auxnameRows[1+ii][0]),"Ap%d",i);  nameRows[1+ii]=&auxnameRows[1+ii][0];
+    sprintf(&(auxnameRows[2+ii][0]),"Bp%d",i);  nameRows[2+ii]=&auxnameRows[2+ii][0];
+    sprintf(&(auxnameRows[3+ii][0]),"Cp%d",i);  nameRows[3+ii]=&auxnameRows[3+ii][0];
+    sprintf(&(auxnameRows[4+ii][0]),"Dp%d",i);  nameRows[4+ii]=&auxnameRows[4+ii][0];
+    sprintf(&(auxnameRows[5+ii][0]),"Am%d",i);  nameRows[5+ii]=&auxnameRows[5+ii][0];
+    sprintf(&(auxnameRows[6+ii][0]),"Bm%d",i);  nameRows[6+ii]=&auxnameRows[6+ii][0];
+    sprintf(&(auxnameRows[7+ii][0]),"Cm%d",i);  nameRows[7+ii]=&auxnameRows[7+ii][0];
+    sprintf(&(auxnameRows[8+ii][0]),"Dm%d",i);  nameRows[8+ii]=&auxnameRows[8+ii][0];
+    sprintf(&(auxnameRows[9+ii][0]),"LAMBDA%d",i);  nameRows[9+ii]=&auxnameRows[9+ii][0];
+  }
+
+
+
+
+  //-----------------  write the COLUMNS  section
+
+  //      fprintf(MACRO,"COLUMNS\n");
+
+  //  Column variable  m1
+
+
+  for(i=0, ii=0 ; i< NpointsInFit ; i++) {
+    ii++;
+    //          fprintf(MACRO,"  m1 Ap%d  %g  Am%d  %g\n  m1 Bp%d  %g   Bm%d  %g\n",
+    //                                  i,Ox[i],i,Ox[i],i,-Ox[i],i,-Ox[i]);
+    Coefficients[i*4]=    Ox[i];
+    Coefficients[i*4+1]=  Ox[i];
+    Coefficients[i*4+2]= -Ox[i];
+    Coefficients[i*4+3]= -Ox[i];
+  }
+
+
+
+  //  Column variable  m2
+  for(i=0; i< NpointsInFit ; i++) {
+    //          fprintf(MACRO,"  m2 Ap%d  %g  Am%d  %g\n  m2 Bp%d  %g   Bm%d  %g\n",
+    //                                  i,-Ox[i],i,-Ox[i],i,Ox[i],i,Ox[i]);
+    Coefficients[NStructRows+i*4]=   -Ox[i];
+    Coefficients[NStructRows+i*4+1]= -Ox[i];
+    Coefficients[NStructRows+i*4+2]= Ox[i];
+    Coefficients[NStructRows+i*4+3]= Ox[i];
+
+  }
+
+  //  Column variable  q1
+  for(i=0 ; i< NpointsInFit ; i++) {
+    //          fprintf(MACRO,"  q1 Ap%d   1.  Am%d   1.\n  q1 Bp%d  -1.  Bm%d  -1.\n",
+    //                                  i,i,i,i);
+    Coefficients[2*NStructRows+i*4]=    1.;
+    Coefficients[2*NStructRows+i*4+1]=  1.;
+    Coefficients[2*NStructRows+i*4+2]= -1.;
+    Coefficients[2*NStructRows+i*4+3]= -1.;
+  }
+
+  //  Column variable  q2
+  for(i=0 ; i< NpointsInFit ; i++) {
+    //          fprintf(MACRO,"  q2 Ap%d   -1.  Am%d   -1.\n  q2 Bp%d   1.   Bm%d   1.\n",
+    //                                  i,i,i,i);
+    Coefficients[3*NStructRows+i*4]=   -1.;
+    Coefficients[3*NStructRows+i*4+1]= -1.;
+    Coefficients[3*NStructRows+i*4+2]=  1.;
+    Coefficients[3*NStructRows+i*4+3]=  1.;
+  }
+
+  //  Column variable  lambdap(i)
+  for(i=0 ; i< NpointsInFit ; i++) {
+    //          fprintf(MACRO,"  lamp%d  Ap%d  %g  Bp%d  %g\n  lamp%d  Cp%d  %g  Dp%d   %g\n  lamp%d  LAMBDA%d  1.\n",
+    //                                                i,i,-M,i,-M, i , i,-M, i, M, i,i);
+    Coefficients[(4+i)*NStructRows+0]= -M;
+    Coefficients[(4+i)*NStructRows+1]= -M;
+    Coefficients[(4+i)*NStructRows+2]= -M;
+    Coefficients[(4+i)*NStructRows+3]=  M;
+    Coefficients[(4+i)*NStructRows+4]=  1.;
+  }
+  //  Column variable  lambdam(i)
+  for(i=0 ; i< NpointsInFit ; i++) {
+    //          fprintf(MACRO,"  lamm%d  Am%d  %g  Bm%d  %g\n  lamm%d  Cm%d  %g  Dm%d %g\n  lamm%d  LAMBDA%d  1.\n",
+    //                                                i,i,-M,i,-M, i,i , -M, i, M, i,i);
+    Coefficients[(4+i+NpointsInFit)*NStructRows+0]= -M;
+    Coefficients[(4+i+NpointsInFit)*NStructRows+1]= -M;
+    Coefficients[(4+i+NpointsInFit)*NStructRows+2]= -M;
+    Coefficients[(4+i+NpointsInFit)*NStructRows+3]=  M;
+    Coefficients[(4+i+NpointsInFit)*NStructRows+4]=  1.;
+  }
+  //  Column variable  sigmap(i)
+  for(i=0; i< NpointsInFit ; i++) {
+
+    //          fprintf(MACRO,"  sigmap%d  OBJECT  %g  Ap%d  -1.\n  sigmap%d  Bp%d    -1. Cp%d  1.\n  sigmap%d  Dp%d -1.\n",
+    //                                                i,1./Delta[i],i,i,i,i,i,i);
+    Coefficients[(4+i+2*NpointsInFit)*NStructRows+0]=  1./Delta[i];
+    Coefficients[(4+i+2*NpointsInFit)*NStructRows+1]= -1.;
+    Coefficients[(4+i+2*NpointsInFit)*NStructRows+2]= -1.;
+    Coefficients[(4+i+2*NpointsInFit)*NStructRows+3]=  1.;
+    Coefficients[(4+i+2*NpointsInFit)*NStructRows+4]= -1.;
+  }
+  //  Column variable  sigmam(i)
+  for(i=0 ; i< NpointsInFit ; i++) {
+    //          fprintf(MACRO,"  sigmam%d  OBJECT %g  Am%d  -1.\n  sigmam%d  Bm%d   -1. Cm%d   1.\n  sigmam%d  Dm%d  -1.\n",
+    //                                                i,1./Delta[i],i,i,i,i,i,i);
+    Coefficients[(4+i+3*NpointsInFit)*NStructRows+0]=  1./Delta[i];
+    Coefficients[(4+i+3*NpointsInFit)*NStructRows+1]= -1.;
+    Coefficients[(4+i+3*NpointsInFit)*NStructRows+2]= -1.;
+    Coefficients[(4+i+3*NpointsInFit)*NStructRows+3]=  1.;
+    Coefficients[(4+i+3*NpointsInFit)*NStructRows+4]= -1.;
+  }
+
+
+  for(i=0 ; i< NStructRows ; i++) {
+    Coefficients[(4+4*NpointsInFit)*NStructRows+i]= 1.;
+  }
+  //--------------------
+  sprintf(&auxStructVarName[0][0],"m1",i);
+  StructVarName[0] = &auxStructVarName[0][0];
+  //      StructVarName[0]="m1";
+  NRowsInWhichStructVarArePresent[0]= 4*NpointsInFit;
+
+  sprintf(&auxStructVarName[1][0],"m2",i);
+  StructVarName[1] = &auxStructVarName[1][0];
+  //      StructVarName[1]="m2";
+  NRowsInWhichStructVarArePresent[1]= 4*NpointsInFit;
+
+  sprintf(&auxStructVarName[2][0],"q1",i);
+  StructVarName[2] = &auxStructVarName[2][0];
+  //      StructVarName[2]="q1";
+  NRowsInWhichStructVarArePresent[2]= 4*NpointsInFit;
+
+  sprintf(&auxStructVarName[3][0],"q2",i);
+  StructVarName[3] = &auxStructVarName[3][0];
+  //      StructVarName[3]="q2";
+  NRowsInWhichStructVarArePresent[3]= 4*NpointsInFit;
+  for(i=0; i< NpointsInFit ; i++) {
+    sprintf(&auxStructVarName[3+i+1][0],"lamp%d",i);
+    StructVarName[4+i] = &auxStructVarName[4+i][0];
+    NRowsInWhichStructVarArePresent[4+i]= 5;
+
+    sprintf(&auxStructVarName[4+NpointsInFit+i][0],"lamm%d",i);
+    StructVarName[4+NpointsInFit+i] = &auxStructVarName[4+NpointsInFit+i][0];
+    NRowsInWhichStructVarArePresent[4+NpointsInFit+i]= 5;
+
+    sprintf(&auxStructVarName[4+2*NpointsInFit+i][0],"sigmap%d",i);
+    StructVarName[4+2*NpointsInFit+i] = &auxStructVarName[4+2*NpointsInFit+i][0];
+    NRowsInWhichStructVarArePresent[4+2*NpointsInFit+i]= 5;
+
+    sprintf(&auxStructVarName[4+3*NpointsInFit+i][0],"sigmam%d",i);
+    StructVarName[4+3*NpointsInFit+i] = &auxStructVarName[4+3*NpointsInFit+i][0];
+    NRowsInWhichStructVarArePresent[4+3*NpointsInFit+i]= 5;
+
+  }
+
+
+  sprintf(&auxStructVarName[4+4*NpointsInFit][0],"DUMMY",i);
+  StructVarName[4+4*NpointsInFit] = &auxStructVarName[4+4*NpointsInFit][0];
+  //      StructVarName[4+4*NpointsInFit]="DUMMY";
+  NRowsInWhichStructVarArePresent[4+4*NpointsInFit]= NStructRows;
+
+
+  //  for m1, m2, q1, q2
+  for(i=0; i< 4; i++){
+    for(ii=0; ii< NpointsInFit;ii++){
+      sprintf(&aux[i*NStructRows+ii*4][0],"Ap%d",ii);
+      NameRowsInWhichStructVarArePresent[i*NStructRows+ii*4]=&aux[i*NStructRows+ii*4][0];
+      sprintf(&aux[i*NStructRows+ii*4+1][0],"Am%d",ii);
+      NameRowsInWhichStructVarArePresent[i*NStructRows+ii*4+1]=&aux[i*NStructRows+ii*4+1][0];
+      sprintf(&aux[i*NStructRows+ii*4+2][0],"Bp%d",ii);
+      NameRowsInWhichStructVarArePresent[i*NStructRows+ii*4+2]=&aux[i*NStructRows+ii*4+2][0];
+      sprintf(&aux[i*NStructRows+ii*4+3][0],"Bm%d",ii);
+      NameRowsInWhichStructVarArePresent[i*NStructRows+ii*4+3]=&aux[i*NStructRows+ii*4+3][0];
+    }
+  }
+
+  //  now for the    lamp*   variables
+  for(i=0; i< NpointsInFit;i++){
+    sprintf(&aux[(i+4)*NStructRows+0][0],"Ap%d",i);
+    NameRowsInWhichStructVarArePresent[(i+4)*NStructRows+0]= &aux[(i+4)*NStructRows+0][0];
+    sprintf(&aux[(i+4)*NStructRows+1][0],"Bp%d",i);
+    NameRowsInWhichStructVarArePresent[(i+4)*NStructRows+1]= &aux[(i+4)*NStructRows+1][0];
+    sprintf(&aux[(i+4)*NStructRows+2][0],"Cp%d",i);
+    NameRowsInWhichStructVarArePresent[(i+4)*NStructRows+2]= &aux[(i+4)*NStructRows+2][0];
+    sprintf(&aux[(i+4)*NStructRows+3][0],"Dp%d",i);
+    NameRowsInWhichStructVarArePresent[(i+4)*NStructRows+3]= &aux[(i+4)*NStructRows+3][0];
+    sprintf(&aux[(i+4)*NStructRows+4][0],"LAMBDA%d",i);
+    NameRowsInWhichStructVarArePresent[(i+4)*NStructRows+4]= &aux[(i+4)*NStructRows+4][0];
+  }
+
+  //  now for the    lamm*   variables
+  for(i=0; i< NpointsInFit;i++){
+    sprintf(&aux[(i+4+NpointsInFit)*NStructRows+0][0],"Am%d",i);
+    NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit)*NStructRows+0]= &aux[(i+4+NpointsInFit)*NStructRows+0][0];
+    sprintf(&aux[(i+4+NpointsInFit)*NStructRows+1][0],"Bm%d",i);
+    NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit)*NStructRows+1]= &aux[(i+4+NpointsInFit)*NStructRows+1][0];
+    sprintf(&aux[(i+4+NpointsInFit)*NStructRows+2][0],"Cm%d",i);
+    NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit)*NStructRows+2]= &aux[(i+4+NpointsInFit)*NStructRows+2][0];
+    sprintf(&aux[(i+4+NpointsInFit)*NStructRows+3][0],"Dm%d",i);
+    NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit)*NStructRows+3]= &aux[(i+4+NpointsInFit)*NStructRows+3][0];
+    sprintf(&aux[(i+4+NpointsInFit)*NStructRows+4][0],"LAMBDA%d",i);
+    NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit)*NStructRows+4]= &aux[(i+4+NpointsInFit)*NStructRows+4][0];
+  }
+
+  //  now for the    sigmap*   variables
+  for(i=0; i< NpointsInFit;i++){
+    sprintf(&aux[(i+4+2*NpointsInFit)*NStructRows+0][0],"OBJECT",i);
+    NameRowsInWhichStructVarArePresent[(i+4+2*NpointsInFit)*NStructRows+0]= &aux[(i+4+2*NpointsInFit)*NStructRows+0][0];
+    sprintf(&aux[(i+4+2*NpointsInFit)*NStructRows+1][0],"Ap%d",i);
+    NameRowsInWhichStructVarArePresent[(i+4+2*NpointsInFit)*NStructRows+1]= &aux[(i+4+2*NpointsInFit)*NStructRows+1][0];
+    sprintf(&aux[(i+4+2*NpointsInFit)*NStructRows+2][0],"Bp%d",i);
+    NameRowsInWhichStructVarArePresent[(i+4+2*NpointsInFit)*NStructRows+2]= &aux[(i+4+2*NpointsInFit)*NStructRows+2][0];
+    sprintf(&aux[(i+4+2*NpointsInFit)*NStructRows+3][0],"Cp%d",i);
+    NameRowsInWhichStructVarArePresent[(i+4+2*NpointsInFit)*NStructRows+3]= &aux[(i+4+2*NpointsInFit)*NStructRows+3][0];
+    sprintf(&aux[(i+4+2*NpointsInFit)*NStructRows+4][0],"Dp%d",i);
+    NameRowsInWhichStructVarArePresent[(i+4+2*NpointsInFit)*NStructRows+4]= &aux[(i+4+2*NpointsInFit)*NStructRows+4][0];
+  }
+
+  //  now for the    sigmam*   variables
+  for(i=0; i< NpointsInFit;i++){
+    sprintf(&aux[(i+4+3*NpointsInFit)*NStructRows+0][0],"OBJECT",i);
+    NameRowsInWhichStructVarArePresent[(i+4+3*NpointsInFit)*NStructRows+0]= &aux[(i+4+3*NpointsInFit)*NStructRows+0][0];
+    sprintf(&aux[(i+4+3*NpointsInFit)*NStructRows+1][0],"Am%d",i);
+    NameRowsInWhichStructVarArePresent[(i+4+3*NpointsInFit)*NStructRows+1]= &aux[(i+4+3*NpointsInFit)*NStructRows+1][0];
+    sprintf(&aux[(i+4+3*NpointsInFit)*NStructRows+2][0],"Bm%d",i);
+    NameRowsInWhichStructVarArePresent[(i+4+3*NpointsInFit)*NStructRows+2]= &aux[(i+4+3*NpointsInFit)*NStructRows+2][0];
+    sprintf(&aux[(i+4+3*NpointsInFit)*NStructRows+3][0],"Cm%d",i);
+    NameRowsInWhichStructVarArePresent[(i+4+3*NpointsInFit)*NStructRows+3]= &aux[(i+4+3*NpointsInFit)*NStructRows+3][0];
+    sprintf(&aux[(i+4+3*NpointsInFit)*NStructRows+4][0],"Dm%d",i);
+    NameRowsInWhichStructVarArePresent[(i+4+3*NpointsInFit)*NStructRows+4]= &aux[(i+4+3*NpointsInFit)*NStructRows+4][0];
+  }
+
+  //  now for the    DUMMY   variable
+  for(i=0; i< NpointsInFit;i++){
+    sprintf(&aux[(4+4*NpointsInFit)*NStructRows  +8*i][0],"Ap%d",i);
+    NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+i*8  ]= &aux[(4+4*NpointsInFit)*NStructRows  +8*i][0];
+
+    sprintf(&aux[(4+4*NpointsInFit)*NStructRows+1+8*i][0],"Am%d",i);
+    NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+1+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+1+8*i][0];
+    sprintf(&aux[(4+4*NpointsInFit)*NStructRows+2+8*i][0],"Bp%d",i);
+    NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+2+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+2+8*i][0];
+    sprintf(&aux[(4+4*NpointsInFit)*NStructRows+3+8*i][0],"Bm%d",i);
+    NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+3+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+3+8*i][0];
+    sprintf(&aux[(4+4*NpointsInFit)*NStructRows+4+8*i][0],"Cp%d",i);
+    NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+4+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+4+8*i][0];
+    sprintf(&aux[(4+4*NpointsInFit)*NStructRows+5+8*i][0],"Cm%d",i);
+    NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+5+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+5+8*i][0];
+    sprintf(&aux[(4+4*NpointsInFit)*NStructRows+6+8*i][0],"Dp%d",i);
+    NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+6+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+6+8*i][0];
+    sprintf(&aux[(4+4*NpointsInFit)*NStructRows+7+8*i][0],"Dm%d",i);
+    NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+7+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+7+8*i][0];
+  }
+
+
+
+  //-----------------  write the RHS  section
+
+  //      fprintf(MACRO,"RHS\n");
+  for(i=0 ; i< NpointsInFit ; i++) {
+    //          fprintf(MACRO,"  BOUND  Ap%d  %g  Bp%d  %g\n  BOUND  Cp%d  %g  Dp%d  %g\n",
+    //              i, Oy[i]+auxinfoparalConformal[ i ][2]+2.*M,i,
+    //                -Oy[i]-auxinfoparalConformal[ i ][2]+2.*M,i,
+    //                 Delta[i]+2.*M,i,M-Delta[i]+2.*M);
+    ValueB[i*9]  =  Oy[i]+auxinfoparalConformal[ i ][2]+2.*M;
+    ValueB[i*9+1]= -Oy[i]-auxinfoparalConformal[ i ][2]+2.*M;
+    ValueB[i*9+2]= Delta[i]+2.*M;
+    ValueB[i*9+3]= M-Delta[i]+2.*M;
+
+
+    ValueB[i*9+4]=  Oy[i]-auxinfoparalConformal[ i ][2]+2.*M;
+    ValueB[i*9+5]= -Oy[i]+auxinfoparalConformal[ i ][2]+2.*M;
+    ValueB[i*9+6]= Delta[i]+2.*M;
+    ValueB[i*9+7]= M-Delta[i]+2.*M;
+    ValueB[i*9+8]= 1.;
+
+
+  }
+
+
+  //-----------------  write the RANGES  section
+
+  //      fprintf(MACRO,"RANGES\n");
+  for(i=0 ; i< NpointsInFit ; i++) {
+    //          fprintf(MACRO,"  RANGE  LAMBDA%d  1.\n",i);
+    //---
+    ValueRanges[i]=1.;
+    sprintf(&auxNameRanges[i][0],"LAMBDA%d",i);
+    NameRanges[i]=&auxNameRanges[i][0];
+  }
+
+  //-----------------  write the BOUNDS  section
+
+  //      fprintf(MACRO,"BOUNDS\n");
+
+  for(i=0 ; i< NpointsInFit ; i++) {
+    //          fprintf(MACRO," BV  Bounds  lamp%d\n",  i);
+
+    sprintf(&auxTypeofBound[i][0],"BV");   TypeofBound[i]= &auxTypeofBound[i][0];
+    //          TypeofBound[i]="BV";
+    sprintf(&auxBoundStructVarName[i][0],"lamp%d",i);
+    BoundStructVarName[i]=&auxBoundStructVarName[i][0];
+    BoundValue[i]=0.;
+  }
+
+  for(i=0 ; i< NpointsInFit ; i++) {
+    //          fprintf(MACRO," BV  Bounds  lamm%d\n", i);
+    sprintf(&auxTypeofBound[i+NpointsInFit][0],"BV");
+    TypeofBound[i+NpointsInFit]= &auxTypeofBound[i+NpointsInFit][0];
+    //          TypeofBound[i+NpointsInFit]="BV";
+    sprintf(&auxBoundStructVarName[i+NpointsInFit][0],"lamm%d",i);
+    BoundStructVarName[i+NpointsInFit]=&auxBoundStructVarName[i+NpointsInFit][0];
+    BoundValue[i+NpointsInFit]=0.;
+  }
+
+  //          fprintf(MACRO," FX  Bounds  DUMMY  %g\n",2.*M);
+  sprintf(&auxTypeofBound[2*NpointsInFit][0],"FX");
+  TypeofBound[2*NpointsInFit]= &auxTypeofBound[2*NpointsInFit][0];
+  //          TypeofBound[2*NpointsInFit]="FX";
+
+  sprintf(&auxTypeofBound[2*NpointsInFit][0],"FX");
+  TypeofBound[2*NpointsInFit]= &auxTypeofBound[2*NpointsInFit][0];
+
+  sprintf(&auxBoundStructVarName[2*NpointsInFit][0],"DUMMY");
+  BoundStructVarName[2*NpointsInFit]=&auxBoundStructVarName[2*NpointsInFit][0];
+  //          BoundStructVarName[2*NpointsInFit]="DUMMY";
+  BoundValue[2*NpointsInFit]=2.;
+  //-----
+
+
+  int status= glp_main(
+		       nRows,nameRows,typeRows, //  ROWS info
+		       NStructVar, NStructRows, NRowsInWhichStructVarArePresent,  //  COLUMNS info
+		       StructVarName, NameRowsInWhichStructVarArePresent,  //  COLUMNS info
+		       Coefficients,  //  COLUMNS info
+		       ValueB,  // RHS  info
+		       nRanges, ValueRanges, NameRanges, //  RANGES  info
+		       nBounds, BoundValue, BoundStructVarName, TypeofBound //  BOUNDS info
+		       //         ,final_values, TIMEOUT  //  timeout is in seconds.
+		       ,final_values
+		       );
+  if (status != 0) return -100;	// fit failed
+
+  m1_result = final_values[0];
+  m2_result = final_values[1];
+  q1_result = final_values[2];
+  q2_result = final_values[3];
+
+
+
+  //------------------------  transformation of the result in terms of alpha, beta, gamma
+
+
+  intercept = q1_result - q2_result;
+  //     intercept = q1_result;
+  //     slope = m1_result ;
+  slope = m1_result-m2_result ;
+//    if(fDisplayOn) {
+//       TLine *line = new TLine(-1, -slope + intercept, 1, slope + intercept);
+//       line->SetLineColor(3);
+//       line->Draw("SAME");
+//       display->Update();
+//       display->Modified();  
+//     }
+
+  gamma = 0.;
+  if( fabs( intercept ) > 1.e-10) {    //  trajectory is a circle in XY space
+    alpha = slope/(intercept);
+    beta = -1./(intercept);
+    TypeConf=true;
+    //  now take into account the rotation and correct; the only affected quantities are alpha and beta
+    alfetta = alpha;
+    alpha = alpha*cose - beta*sine;
+    beta = alfetta*sine + beta*cose;
+  }  else if(fabs(slope)> 1.e-10)  {    //  trajectory is a straight line in XY space of equation y= m*x
+    //  the rotation first
+    angle = atan(slope) + rotationangle;
+    if( fabs(cos(angle)) > 1.e-10 ) {
+      alpha = 999999.;
+      beta = -alpha/tan(angle);
+
+    } else {  //  in this case the equation is y = 0.
+      alpha = 999999.;
+      beta = 0.;
+      TypeConf=false;
+    }
+  }  else {   //  in this case also the equation in XY plane is  y = 0.
+    alpha = 999999.;
+    beta = 0.;
+    TypeConf=false;
+  }
+
+
+  // now take into account the displacement and correct
+  gamma += (trajectory_vertex[0]*trajectory_vertex[0]+ trajectory_vertex[1]*trajectory_vertex[1]
+			       -alpha*trajectory_vertex[0]-beta*trajectory_vertex[1]);
+  alpha -=  2.*trajectory_vertex[0];
+  beta -=  2.*trajectory_vertex[1];
+
+
+  //------------------------ end of transformation of the result in terms of alpha, beta, gamma
+
+
+
+  //--------   end of taking into account the traslation that was performed and undoing that
+
+
+  // taking into account the rotation that was performed and calculate emme and qu in the normal conformal plane
+
+  if(fabs(cose-slope*sine)> 1.e-10) {
+    intercept=intercept/(cose-slope*sine);
+    slope=(slope*cose+sine)/(cose-slope*sine);
+
+  //   if(fDisplayOn) {
+//       TLine *line = new TLine(-1, -slope + intercept, 1, slope + intercept);
+//       line->SetLineColor(3);
+//       line->Draw("SAME");
+//       display->Update();
+//       display->Modified();  
+//     }
+    return 1;
+  } else {    //  in this case the equation is   0 = x+intercept .
+    if(fabs(sine+slope*cose) < 1.e-10)  {
+      cout<<" From FitHelixCylinder, situation impossible in principle! Returning -1"
+	  <<endl;
+      return -1;
+    }
+
+    slope=1.;
+    intercept = intercept/(sine+slope*cose);
+    return 99;    //  in this case the equation is   0 = x+intercept .
+  }
+
+
+
 
 }
 

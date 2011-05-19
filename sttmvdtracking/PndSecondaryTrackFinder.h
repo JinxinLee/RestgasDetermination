@@ -87,8 +87,11 @@ class PndSecondaryTrackFinder : public FairTask {
   void FindBoundary(Int_t iclus, std::vector<int> cluster, Int_t detId, TMatrixT<double> &boundaries, Bool_t draw);
 
   Bool_t ConformalPlane(std::vector<int> cluster, TMatrixT<double> boundaries,  std::vector<int> hits, Int_t detId, Int_t iclus);
-
-
+  Bool_t ConformalPlaneStt(std::vector<int> cluster, TMatrixT<double> boundaries, std::vector<int> hits, Int_t iclus);
+   Bool_t ConformalPlaneStt2(std::vector<int> cluster, TMatrixT<double> boundaries, std::vector<int> hits, Int_t iclus);
+   Bool_t ConformalPlaneStt3(std::vector<int> cluster, TMatrixT<double> boundaries, std::vector<int> hits, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius);
+  Short_t FitHelixCylinder( UShort_t nHitsinTrack, Double_t auxinfoparalConformal[][3], Double_t rotationangle, Double_t trajectory_vertex[2], Double_t &slope, Double_t &intercept, Double_t &alpha, Double_t &beta, Double_t &gamma, Bool_t &TypeConf);
+						
  private:
 
   /** Input array of PndSttTube (map of STT tubes) **/
