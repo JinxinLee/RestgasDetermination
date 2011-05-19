@@ -245,20 +245,35 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   Int_t nstthits = fSttHitArray->GetEntriesFast();
   cout << "EVENTO with " << nstthits << endl;
 
-  std::vector<int> stthits;
+  std::vector<int> stthits, sttskewedhits, mvdpixhits, mvdstriphits;
+  fDetList.clear();
+  fDetMap.clear();
   // stthits.clear();
-  stthits = OrderHits(fSttHitArray, FairRootManager::Instance()->GetBranchId(fSttBranch));
+  stthits = OrderHits(fSttHitArray, FairRootManager::Instance()->GetBranchId(fSttBranch), false);
+  fDetList.push_back(stthits);
+  fDetMap[0] =  FairRootManager::Instance()->GetBranchId(fSttBranch);
+  sttskewedhits = OrderHits(fSttHitArray, FairRootManager::Instance()->GetBranchId(fSttBranch), true);
+  fDetList.push_back(sttskewedhits);
+  fDetMap[1] =  FairRootManager::Instance()->GetBranchId(fSttBranch);
+  mvdpixhits = OrderHits(fMvdPixelHitArray, FairRootManager::Instance()->GetBranchId(fMvdPixelBranch), false);
+  fDetList.push_back(mvdpixhits);
+  fDetMap[2] =  FairRootManager::Instance()->GetBranchId(fMvdPixelBranch);
+  mvdstriphits = OrderHits(fMvdStripHitArray, FairRootManager::Instance()->GetBranchId(fMvdStripBranch), false);
+  fDetList.push_back(mvdstriphits);
+  fDetMap[3] =  FairRootManager::Instance()->GetBranchId(fMvdStripBranch);
+
+
 
 
   if(fDisplayOn) {
-    DrawHits(stthits, FairRootManager::Instance()->GetBranchId(fSttBranch));
+    DrawAllHits();
     DrawFoundTracks();
     DrawMCTracks();
   }
 
   DeleteHits("STT", &stthits);
   if(fDisplayOn) {
-    DrawUsableHits(stthits, FairRootManager::Instance()->GetBranchId(fSttBranch));
+    DrawAllUsableHits();
   }
 
 
@@ -285,7 +300,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 }
 
 
-std::vector<int> PndSecondaryTrackFinder::OrderHits(TClonesArray *hitarray, Int_t detId)
+std::vector<int> PndSecondaryTrackFinder::OrderHits(TClonesArray *hitarray, Int_t detId, Bool_t skewed)
 {
   std::vector<int> sorthits;
   std::vector<double> distances;
@@ -298,7 +313,8 @@ std::vector<int> PndSecondaryTrackFinder::OrderHits(TClonesArray *hitarray, Int_
       Int_t tubeID = ((PndSttHit*) hit)->GetTubeID();
       PndSttTube *tube = (PndSttTube* ) fTubeArray->At(tubeID);
       TVector3 wireDirection = tube->GetWireDirection();
-      if(wireDirection != TVector3(0., 0., 1.)) continue;
+      if(skewed && wireDirection == TVector3(0., 0., 1.)) continue;
+      else if(!skewed && wireDirection != TVector3(0., 0., 1.)) continue;
     }
     
     TVector3 distance3;
@@ -329,6 +345,7 @@ std::vector<int> PndSecondaryTrackFinder::OrderHits(TClonesArray *hitarray, Int_
 	if((*it).first != tmpdistance) continue;
 
 	sorthits.push_back((*it).second);
+	cout << "SORTED HIT " << (*it).second << endl;
 	count++;
       }
   }
@@ -887,7 +904,7 @@ std::vector<std::vector<int> > PndSecondaryTrackFinder::ClusterFinder(std::vecto
     cout << endl;
   }
 
-  //  if(fDisplayOn) Refresh(hits, FairRootManager::Instance()->GetBranchId(fSttBranch));
+  //  if(fDisplayOn) Refresh();
 
 
   for(int iclus = 0; iclus < nclus; iclus++) {
@@ -895,7 +912,7 @@ std::vector<std::vector<int> > PndSecondaryTrackFinder::ClusterFinder(std::vecto
     if(fDisplayOn) DrawLinks(cluster, FairRootManager::Instance()->GetBranchId(fSttBranch), iclus);
   }
 
-  //  if(fDisplayOn) Refresh(hits, FairRootManager::Instance()->GetBranchId(fSttBranch)); // CHECK
+  //  if(fDisplayOn) Refresh();
 
   // **************************************************
   // combine pieces           *************************
@@ -1013,23 +1030,24 @@ std::vector<std::vector<int> > PndSecondaryTrackFinder::ClusterFinder(std::vecto
     std::vector<int> cluster = list[iclus];
     FindBoundary(iclus, cluster, FairRootManager::Instance()->GetBranchId(fSttBranch), boundaries, kFALSE);
     Double_t xc, yc, radius;
+    cout << "cluster " << iclus << " has " << cluster.size() << " hits on " << hits.size() << endl;
     bool conf = ConformalPlaneStt3(cluster, boundaries, hits, iclus, xc, yc, radius);
     cout << "conform " << conf << endl;
 
-    if(fDisplayOn) {
-      char goOnChar;
-      cout << "Go back to reak plane: cluster " << iclus << endl;
-      cin >> goOnChar;
-      cout << "GOING ON" << endl;
-      Refresh(hits, FairRootManager::Instance()->GetBranchId(fSttBranch)); // CHECK
-      cout << "helix " << xc << " " << yc << " " << radius;     
- TArc *arc = new TArc(xc, yc, radius);
-      arc->SetLineColor(kGreen);
-      arc->SetFillStyle(0);
-      arc->Draw("SAME ONLY");
-      display->Update();
-      display->Modified();
-    }
+//     if(fDisplayOn) {
+//       char goOnChar;
+//       cout << "Go back to reak plane: cluster " << iclus << endl;
+//       cin >> goOnChar;
+//       cout << "GOING ON" << endl;
+//      Refresh(); // CHECK
+//       cout << "helix " << xc << " " << yc << " " << radius;     
+//  TArc *arc = new TArc(xc, yc, radius);
+//       arc->SetLineColor(kGreen);
+//       arc->SetFillStyle(0);
+//       arc->Draw("SAME ONLY");
+//       display->Update();
+//       display->Modified();
+//     }
   }
 
   return list;
@@ -1184,34 +1202,65 @@ void PndSecondaryTrackFinder::DrawGeometryConformal(Double_t umin, Double_t vmin
 }
 
 
-void PndSecondaryTrackFinder::DrawHitsColor(std::vector<int> stthits, Int_t detId, Int_t color) {
+void PndSecondaryTrackFinder::DrawHitsColor(std::vector<int> hits, Int_t detId, Int_t color) {
+  TClonesArray* array;
+  
+  if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch))  array = fMvdPixelHitArray;
+  else if(detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) array = fMvdStripHitArray;
+  else if(detId ==  FairRootManager::Instance()->GetBranchId(fSttBranch)) array = fSttHitArray;
+  //  else if(detId ==  FairRootManager::Instance()->GetBranchId(fGemBranch)) array = fGemHitArray;
+  
+  int nhits = hits.size();
+  for(int ihit = 0; ihit < nhits; ihit++) {
+    int hitid = hits[ihit];
+    FairHit *hit = (FairHit *) array->At(hitid);
+    //    cout << "HIT ----> " << hitid << " " << detId << endl;
+    if(!hit) { 
+      //  cout << "HIT NOT FOUND" << endl; 
+      continue; 
+    }
+    TVector3 position;
+    hit->Position(position);
+    TMarker *mrk = new TMarker(position.X(), position.Y(), 3);
+    mrk->SetMarkerColor(color);
 
-  if(detId == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
-    int nstthits = stthits.size();
-    for(int ihit = 0; ihit < nstthits; ihit++) {
-      int hitid = stthits[ihit];
-      PndSttHit *stthit = (PndSttHit *) fSttHitArray->At(hitid);
-      if(!stthit) continue;
-      TVector3 position;
-      stthit->Position(position);
-//       cout << "distance " << hitid << " " << position.Perp() << endl;
-//       position.Print();
-      
-      Int_t tubeID = stthit->GetTubeID();
+    if(detId ==  FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+      Int_t tubeID = ((PndSttHit* ) hit)->GetTubeID();
       PndSttTube *tube = (PndSttTube* ) fTubeArray->At(tubeID);
       
       TVector3 wireDirection = tube->GetWireDirection();
-      if(wireDirection != TVector3(0., 0., 1.)) continue;
-      
-      if(fDisplayOn) {
-	TArc *arc = new TArc(position.X(), position.Y(), tube->GetRadIn()); // stthit->GetIsochrone());
+    
+      if(wireDirection != TVector3(0., 0., 1.))  {
+	mrk->Draw("SAME");
+      }
+      else {
+	TArc *arc = new TArc(position.X(), position.Y(), tube->GetRadIn()); // ((PndSttHit* ) hit->GetIsochrone()));
 	arc->SetLineColor(color);
 	arc->SetFillStyle(0);
 	arc->Draw("SAME");
-	display->Update();
-	display->Modified();  
       }
     }
+    else if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) { mrk->SetMarkerStyle(21); mrk->Draw("SAME"); }
+    else if(detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) { mrk->SetMarkerStyle(25); mrk->Draw("SAME"); }
+  }
+	
+  display->Update();
+  display->Modified();  
+}
+
+void PndSecondaryTrackFinder::DrawAllHits() {
+  for(int idet = 0; idet < fDetList.size(); idet++) {
+    std::vector<int> hits = fDetList[idet];
+    int detId = fDetMap[idet];
+    DrawHitsColor(hits, detId, kGray);
+  }
+}
+
+void PndSecondaryTrackFinder::DrawAllUsableHits() {
+  for(int idet = 0; idet < fDetList.size(); idet++) {
+    std::vector<int> hits = fDetList[idet];
+    int detId = fDetMap[idet];
+    DrawHitsColor(hits, detId, kBlack);
   }
 }
 
@@ -1224,13 +1273,14 @@ void PndSecondaryTrackFinder::DrawUsableHits(std::vector<int> hits, Int_t detId)
 }
 
 
-void PndSecondaryTrackFinder::Refresh(std::vector<int> hits, Int_t detId) {
+void PndSecondaryTrackFinder::Refresh()
+{
   char goOnChar;
   cout << "Refresh?" << endl;
   cin >> goOnChar;
   cout << "GOING ON" << endl;
   DrawGeometry();
-  DrawUsableHits(hits, detId);
+  DrawAllUsableHits();
   DrawFoundTracks();
   DrawMCTracks();
 }
@@ -1848,13 +1898,9 @@ Bool_t PndSecondaryTrackFinder::ConformalPlaneStt3(std::vector<int> cluster, TMa
       }
 
       if(fDisplayOn) {
-      
- 	std::vector<int>::iterator it;
- 	it = find(cluster.begin(), cluster.end(), hitid);
-      
+            
  	TArc *arc = new TArc(u, v, rc);
- 	arc->SetLineColor(kBlack);
- 	if(it != cluster.end())   arc->SetLineColor(kRed);
+	arc->SetLineColor(kRed);
  	arc->SetFillStyle(0);
 	arc->Draw("SAME");
  	display->Update();
@@ -1895,10 +1941,185 @@ Bool_t PndSecondaryTrackFinder::ConformalPlaneStt3(std::vector<int> cluster, TMa
   yc = -beta / 2.;
   radius = TMath::Sqrt(- gamma + xc * xc + yc * yc);
 
+  if(fDisplayOn) {
+    char goOnChar;
+    cout << "Go back to reak plane: cluster " << iclus << endl;
+    Refresh();
+    cout << "helix " << xc << " " << yc << " " << radius << endl;     
+    TArc *arc = new TArc(xc, yc, radius);
+    arc->SetLineColor(kGreen);
+    arc->SetFillStyle(0);
+    arc->Draw("SAME ONLY");
+    display->Update();
+    display->Modified();
+  }
+ 
+  // chi2
+  double chi2 = 0;
+  for(int ihit = 0; ihit < cluster.size(); ihit++)
+    {
+      Int_t hitid = cluster[ihit];
+      PndSttHit *hit = (PndSttHit*) array->At(hitid);
+      if(!hit) continue;
+      TVector3 centerposition2;
+      hit->Position(centerposition2);
+      Double_t rd = hit->GetIsochrone();
+      Double_t rderror = hit->GetIsochroneError();
+      Double_t distancepc = TMath::Sqrt((centerposition2.X() - xc) * (centerposition2.X() - xc) +
+					(centerposition2.Y() - yc) * (centerposition2.Y() - yc));
+      chi2 += pow((fabs(distancepc - radius) - rd)/(rderror), 2);
+    }
+  double redchi2 = chi2 / cluster.size();
+  cout << "===> RED CHI2 no. 0 = " << redchi2 << " <===" << endl;
+  
+  // intersection finder & fit
+  for(int iter = 0; iter < 2; iter++) {
+    TMatrixT<double> points(cluster.size(), 11);
+    for(int ihit = 0; ihit < cluster.size(); ihit++)
+      {
+	Int_t hitid = cluster[ihit];
+	PndSttHit *hit = (PndSttHit*) array->At(hitid);
+	if(!hit) continue;
+	Double_t rd = hit->GetIsochrone();
+	TVector3 xyz, dxyz;
+	Bool_t inters = IntersectionFinder(xc, yc, radius, hit, xyz, dxyz);
+	
+	if(fDisplayOn) {
+	  TMarker *mrk = new TMarker(xyz.X(), xyz.Y(), 6);  
+	  mrk->SetMarkerColor(4);
+	  mrk->Draw("SAME");
+	  display->Update();
+	  display->Modified();
+	}
+	if(inters == kFALSE) continue;
+
+	points[ihit][0] = hitid;
+	points[ihit][2] = xyz.X();
+	points[ihit][3] = xyz.Y();
+	points[ihit][4] = xyz.Z();
+	points[ihit][5] = dxyz.X();
+	points[ihit][6] = dxyz.Y();
+	points[ihit][7] = dxyz.Z();
+	points[ihit][8] = hit->GetIsochrone();
+	points[ihit][9] = hit->GetIsochroneError();
+	points[ihit][10] = 0;
+      }
+    
+    // xy fit
+    Double_t outxc, outyc, outradius;
+    Bool_t fitting2 = Fit(points, outxc, outyc, outradius);
+
+    if(fDisplayOn) {
+      cout << "refit helix " << outxc << " " << outyc << " " << outradius << endl;     
+      TArc *arc2 = new TArc(outxc, outyc, outradius);
+      if(iter == 0) arc2->SetLineColor(kRed);
+      else arc2->SetLineColor(kBlue);
+      
+      arc2->SetFillStyle(0);
+      arc2->Draw("SAME ONLY");
+      display->Update();
+      display->Modified();
+    }
+    xc = outxc;
+    yc = outyc;
+    radius = outradius;
+
+    // chi2
+    chi2 = 0;
+    for(int ihit = 0; ihit < cluster.size(); ihit++)
+      {
+	Int_t hitid = cluster[ihit];
+	PndSttHit *hit = (PndSttHit*) array->At(hitid);
+	if(!hit) continue;
+	TVector3 centerposition2;
+	hit->Position(centerposition2);
+	Double_t rd = hit->GetIsochrone();
+	Double_t rderror = hit->GetIsochroneError();
+	Double_t distancepc = TMath::Sqrt((centerposition2.X() - xc) * (centerposition2.X() - xc) +
+					  (centerposition2.Y() - yc) * (centerposition2.Y() - yc));
+
+	chi2 += pow((fabs(distancepc - radius) - rd)/rderror, 2);
+
+      }
+    redchi2 = chi2 / cluster.size();
+    cout << "===> RED CHI2 no. " << iter + 1 << " = " << redchi2 << " <===" << endl;
+  }
+ 
+  // add points
+  for(int ihit = 0; ihit <  hits.size(); ihit++)
+    {
+      Int_t hitid = hits[ihit];
+      std::vector<int>::iterator it;
+      it = find(cluster.begin(), cluster.end(), hitid);
+      if(it != cluster.end()) continue;
+      PndSttHit *hit = (PndSttHit*) array->At(hitid);
+      if(!hit) continue;
+      TVector3 centerposition2;
+      hit->Position(centerposition2);
+      Double_t rd = hit->GetIsochrone();
+      Double_t rderror = hit->GetIsochroneError();
+      Double_t distancepc = TMath::Sqrt((centerposition2.X() - xc) * (centerposition2.X() - xc) +
+					(centerposition2.Y() - yc) * (centerposition2.Y() - yc));
+      
+      double res = fabs(distancepc - radius) - rd;
+      cout << "RES " << res << " " << " limit " << fLimit << endl;
+      if(res < fLimit) {
+	cout << "ADD " << hitid << " TO CLUSTER" << iclus << endl;
+	if(fDisplayOn) {
+	  TArc *arc3 = new TArc(centerposition2.X(), centerposition2.Y(), 0.5); // CHECK
+	  arc3->SetLineColor(fColors[iclus]);
+	  arc3->SetFillStyle(0);
+	  arc3->Draw("SAME ONLY");
+	  display->Update();
+	  display->Modified();
+	}
+      }
+    }
+
+
+//   // the rest of the hits
+//   for(int ihit = 0; ihit < hits.size(); ihit++)
+//     {
+//       Int_t hitid = hits[ihit];
+//       cout << "new hit " << hitid << endl;
+//       std::vector<int>::iterator it;
+//       it = find(cluster.begin(), cluster.end(), hitid);
+//       if(it != cluster.end()) continue;   
+      
+//       PndSttHit *hit = (PndSttHit*) array->At(hitid);
+//       if(!hit) continue;
+     
+//       hit->Position(centerposition);
+//       Double_t rd = hit->GetIsochrone();
+ 
+//       Double_t sigx = 0.50; // CHECK
+//       Double_t sigy = 0.50;
+     
+//       // to the fit ================================
+//       Double_t xtrasl, ytrasl;
+//       // traslation
+//       xtrasl = centerposition.X() - trasl[0];
+//       ytrasl = centerposition.Y() - trasl[1];
+     
+//       // change coordinate of the center
+//       Double_t u, v, sigv2, sigu2, rc;
+//       u = xtrasl / (xtrasl*xtrasl + ytrasl*ytrasl - rd * rd);
+//       v = ytrasl / (xtrasl*xtrasl + ytrasl*ytrasl - rd * rd);
+//       rc = rd / (xtrasl*xtrasl + ytrasl*ytrasl - rd * rd);
+//       cout << "other hits " << hitid << " " << u << " " << v << " " << rc << endl;
+//       if(fDisplayOn) {
+//        	TArc *arc = new TArc(u, v, rc);
+//  	arc->SetLineColor(kBlack);
+//  	arc->SetFillStyle(0);
+// 	arc->Draw("SAME");
+//  	display->Update();
+//  	display->Modified();  
+//        }
+//     } 
+//   // -----------
 
   return kTRUE;
 }
-
 
 // ============================================================================
 // needs:
@@ -2467,6 +2688,278 @@ Short_t PndSecondaryTrackFinder::FitHelixCylinder( UShort_t nHitsinTrack,
 
 
 
+Bool_t PndSecondaryTrackFinder::IntersectionFinder(Double_t xc, Double_t yc, Double_t radius, PndSttHit* stthit, TVector3 &xyz, TVector3 &dxyz) {
 
+	// tubeID  CHECK added
+	Int_t tubeID = stthit->GetTubeID();
+	PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+	TVector3 wiredirection = tube->GetWireDirection();
+      
+	if(wiredirection != TVector3(0.,0.,1.)) { 
+	  // cout << "wire skewed" << endl; 
+	  return false; 
+	}
+      
+	// [xp, yp] point = coordinates xy of the centre of the firing tube
+	TVector2 point;
+	point.Set(tube->GetPosition().X(), tube->GetPosition().Y());
+	Double_t isochrone = stthit->GetIsochrone();
+      
+	// the coordinates of the point are taken from the intersection
+	// between the circumference from the drift time and the R radius of
+	// curvature. -------------------------------------------------------
+	// 2. find the intersection between the little circle and the line // R
+	// 2.a
+	// find the line passing throught [xc, yc] (centre of curvature) and [xp, yp] (first wire)
+	// y = mx + q
+	Double_t m = (point.Y() - yc)/(point.X() - xc);
+	Double_t q = point.Y() - m*point.X();
+   
+	// cut on radius CHECK
+        // if the simulated radius is too small, the stthit
+        // is not used because rouning errors may occur
+	// if(isochrone < 0.7e-3) { cout << "isochrone < 0.7e-3" << endl; return false; } // CHECK
+
+	Double_t x1 = 0, y1 = 0,
+	  x2 = 0, y2 = 0,
+	  xb1 = 0, yb1 = 0,
+	  xb2 = 0, yb2 = 0;
+      
+	// CHECK the vertical track
+	if(fabs(point.X() - xc) < 1e-6) {
+	
+	  // 2.b
+	  // intersection little circle and line --> [x1, y1]
+	  // + and - refer to the 2 possible intersections
+	  // +
+	  x1 = point.X();
+	  y1 = point.Y() + sqrt(isochrone * isochrone - (x1 - point.X()) * (x1 - point.X()));
+	  // - 
+	  x2 = x1;
+	  y2 = point.Y() - sqrt(isochrone * isochrone - (x2 - point.X()) * (x2 - point.X()));
+	
+	  // 2.c intersection between line and circle
+	  // +
+	  xb1 = xc;
+	  yb1 = yc + sqrt(radius * radius - (xb1 - xc) * (xb1 - xc));
+	  // -
+	  xb2 = xb1;
+	  yb2 = yc - sqrt(radius * radius - (xb2 - xc) * (xb2 - xc));
+       
+	}    // END CHECK
+	else {
+	
+	  // 2.b
+	  // intersection little circle and line --> [x1, y1]
+	  // + and - refer to the 2 possible intersections
+	  // +
+
+	  if(((m*(q - point.Y()) - point.X())*(m*(q - point.Y()) - point.X()) - (m*m + 1)*((q - point.Y())*(q - point.Y()) + point.X()*point.X() - isochrone*isochrone)) < 0.) {  if(fVerbose > 0) cout << "IntersectionFinder round errors: " << isochrone << endl; 
+	    return false; }
+
+	  x1 = (-(m*(q - point.Y()) - point.X()) + sqrt((m*(q - point.Y()) - point.X())*(m*(q - point.Y()) - point.X()) - (m*m + 1)*((q - point.Y())*(q - point.Y()) + point.X()*point.X() - isochrone*isochrone))) / (m*m + 1);
+	  y1 = m*x1 + q;
+	  // - 
+	  x2 = (-(m*(q - point.Y()) - point.X()) - sqrt((m*(q - point.Y()) - point.X())*(m*(q - point.Y()) - point.X()) - (m*m + 1)*((q - point.Y())*(q - point.Y()) + point.X()*point.X() - isochrone*isochrone))) / (m*m + 1);
+	  y2 = m*x2 + q;
+      
+	  // 2.c intersection between line and circle
+	  // +
+	  xb1 = (-(m*(q - yc) - xc) + sqrt((m*(q - yc) - xc)*(m*(q - yc) - xc) - (m*m + 1)*((q - yc)*(q - yc) + xc*xc - (radius) *(radius) ))) / (m*m + 1);
+	  yb1 = m*xb1 + q;
+	  // -
+	  xb2 = (-(m*(q - yc) - xc) - sqrt((m*(q - yc) - xc)*(m*(q - yc) - xc) - (m*m + 1)*((q - yc)*(q - yc) + xc*xc - (radius) *(radius)))) / (m*m + 1);
+	  yb2 = m*xb2 + q;
+	}
+    
+	// calculation of the distance between [xb, yb] and [xp, yp]
+	Double_t distb1 = sqrt((yb1 - point.Y())*(yb1 - point.Y()) + (xb1 - point.X())*(xb1 - point.X()));
+	Double_t distb2 = sqrt((yb2 - point.Y())*(yb2 - point.Y()) + (xb2 - point.X())*(xb2 - point.X()));
+    
+	// choice of [xb, yb]
+	TVector2 xyb;
+	if(distb1 > distb2) xyb.Set(xb2, yb2); 
+	else xyb.Set(xb1, yb1); 
+
+	// calculation of the distance between [x, y] and [xb. yb]
+	Double_t dist1 = sqrt((xyb.Y() - y1)*(xyb.Y() - y1) + (xyb.X() - x1)*(xyb.X() - x1));
+	Double_t dist2 = sqrt((xyb.Y() - y2)*(xyb.Y() - y2) + (xyb.X() - x2)*(xyb.X() - x2));
+
+	// choice of [x, y]
+	if(dist1 > dist2)  xyz.SetXYZ(x2, y2, stthit->GetZ());
+	else xyz.SetXYZ(x1, y1, stthit->GetZ());  // <========= THIS IS THE NEW POINT to be used for the fit
+
+	Double_t sigr = stthit->GetIsochroneError();
+	Double_t sigx = sigr; // fabs(sigr * TMath::Cos(m));
+	Double_t sigy = sigr; // fabs(sigr * TMath::Sin(m));
+	dxyz.SetXYZ(sigx, sigy, 0);
+
+	return kTRUE;
+}
+
+
+ Bool_t PndSecondaryTrackFinder::Fit(TMatrixT<double> points, Double_t &outxc, Double_t &outyc, Double_t &outradius)
+{
+
+  Int_t nhits = points.GetRowUpb() + 1;
+  int lasthitid = -1, firsthitid = -1;
+  for(int ihit = 0; ihit < nhits; ihit++) {
+    if(points[ihit][0] != -1 && points[ihit][10] != -1 && points[ihit][10] != 1) {
+      if(firsthitid == -1) firsthitid = ihit;
+      lasthitid = ihit;
+    }
+  }
+
+  if(firsthitid == -1 || lasthitid == -1) return kFALSE; // CHECK
+
+  Double_t trasl[2] = {points[firsthitid][2], points[firsthitid][3]};
+
+  //  cout << "first/last " << firsthitid << " " << lasthitid << endl;
+  if(firsthitid >= lasthitid) return false;
+  Double_t  alpha = TMath::ATan2(points[lasthitid][3] - points[firsthitid][3],
+				 points[lasthitid][2] - points[firsthitid][2]);
+   Double_t Suu, Su, Sv, Suv, S1, Suuu, Suuv, Suuuu;
+  
+  Su = 0.;
+  Sv = 0.;
+  Suu = 0.;
+  Suv = 0.;
+  Suuu = 0.;
+  S1 = 0.;
+  Suuv = 0.;
+  Suuuu = 0.;
+  Double_t s = 0.001; // CHECK
+  // ..............................................
+
+  TVector3 fitpoint;
+  for(int ihit = 0; ihit < nhits; ihit++)
+    {
+      Int_t hitId = (Int_t) points[ihit][0];
+      Int_t detId = (Int_t) points[ihit][1];
+      if(hitId == -1) continue;
+      Int_t fitflag = (Int_t) points[ihit][10];
+      if(fitflag == 1 || fitflag == -1) continue;
+      if(detId == FairRootManager::Instance()->GetBranchId(fSttBranch) && points[ihit][8] < 0.1) continue;
+      fitpoint.SetXYZ(points[ihit][2], points[ihit][3], points[ihit][4]);
+      Double_t sigx = points[ihit][5];
+      Double_t sigy = points[ihit][6];
+//       cout << "fitpoint" << endl;
+//       fitpoint.Print();
+      // to the fit ================================
+      Double_t xtrasl, ytrasl;
+      // traslation
+      xtrasl = fitpoint.X() - trasl[0];
+      ytrasl = fitpoint.Y() - trasl[1];
+
+      Double_t xrot, yrot;
+      // rotation
+      xrot = TMath::Cos(alpha)*xtrasl + TMath::Sin(alpha)*ytrasl;
+      yrot = -TMath::Sin(alpha)*xtrasl + TMath::Cos(alpha)*ytrasl;
+   
+      // re-traslation
+      xtrasl = xrot + s;
+      ytrasl = yrot;
+
+      // change coordinate
+      Double_t u, v, sigv2, sigu2;
+      u = xtrasl / (xtrasl*xtrasl + ytrasl*ytrasl);
+      v = ytrasl / (xtrasl*xtrasl + ytrasl*ytrasl);
+    
+      Double_t dvdx = (-2 * xtrasl * ytrasl)/pow((xtrasl*xtrasl + ytrasl*ytrasl),2);
+      Double_t dvdy = (xtrasl*xtrasl - ytrasl*ytrasl) / pow((xtrasl*xtrasl + ytrasl*ytrasl),2);
+      Double_t dudx = (ytrasl*ytrasl - xtrasl*xtrasl) / pow((xtrasl*xtrasl + ytrasl*ytrasl),2);
+      Double_t dudy = (-2 * xtrasl * ytrasl)/pow((xtrasl*xtrasl + ytrasl*ytrasl),2);
+    
+      sigu2 = dudx * dudx * sigx * sigx + dudy * dudy * sigy * sigy + 2 * dudx * dudy * sigx * sigy; 
+      sigv2 = dvdx * dvdx * sigx * sigx + dvdy * dvdy * sigy * sigy + 2 * dvdx * dvdy * sigx * sigy; 
+
+      if(sigv2 == 0) sigv2 = 1e-5; // CHECK MVD covariance
+
+      Su = Su + (u/sigv2);
+      Sv = Sv + (v/sigv2);
+    
+      Suv = Suv + ((u*v)/sigv2);
+      Suu = Suu + ((u*u)/sigv2);
+    
+      Suuu = Suuu + ((u*u*u)/sigv2);
+      Suuv = Suuv + ((u*u*v)/sigv2);  
+    
+      Suuuu = Suuuu + ((u*u*u*u)/sigv2);  
+      
+      S1 = S1 + 1/sigv2;
+    }
+
+  
+  TMatrixT<double> matrix(3,3);
+  matrix[0][0] = S1;
+  matrix[0][1] = Su;
+  matrix[0][2] = Suu;
+  
+  matrix[1][0] = Su;
+  matrix[1][1] = Suu;
+  matrix[1][2] = Suuu;
+  
+  matrix[2][0] = Suu;
+  matrix[2][1] = Suuu;
+  matrix[2][2] = Suuuu;
+  
+  Double_t determ;
+  
+  determ = matrix.Determinant();
+  
+  if (determ != 0) {
+    matrix.Invert();
+  }
+  else {
+    //    cout << "DET 0" << endl; // CHECK what to do
+    return false;
+  }
+  
+  TMatrixT<double> column(3,1);
+  column[0][0] = Sv;
+  column[1][0] = Suv;
+  column[2][0] = Suuv;
+  
+  TMatrixT<double> column2(3,1);
+  column2.Mult(matrix, column);
+  
+  Double_t a, b, c;
+  a = column2[0][0];
+  b = column2[1][0];
+  c = column2[2][0];
+  
+  if(fabs(a)<0.000001) { 
+    // cout << "A < 1e-**" << endl;
+    return kFALSE;
+  }
+
+  // center and radius
+  Double_t xcrot, ycrot, xc, yc, epsilon, R;
+  ycrot = 1/(2*a);
+  xcrot = -b/(2*a);
+  epsilon = -c*pow((1+(b*b)), -3/2);
+  R = epsilon + sqrt((xcrot*xcrot)+(ycrot*ycrot));
+
+  // re-rotation and re-traslation of xc and yc
+  // translation
+  xcrot = xcrot - s;
+  // rotation    
+  xc = TMath::Cos(alpha)*xcrot - TMath::Sin(alpha)*ycrot;
+  yc = TMath::Sin(alpha)*xcrot + TMath::Cos(alpha)*ycrot;
+  // traslation
+  xc = xc + trasl[0];
+  yc = yc + trasl[1];
+  Double_t phi = TMath::ATan2(yc, xc); 
+  Double_t d;
+  d = ((xc + yc) - R*(TMath::Cos(phi) + TMath::Sin(phi)))/(TMath::Cos(phi) + TMath::Sin(phi)); 
+  
+  //  cout << "REFITTED FIT: " << xc << " " << yc << endl;
+  //  cout << "RAGGIO: " << R << endl;
+
+  outxc = xc;
+  outyc = yc;
+  outradius = R;
+  return true;
+}
 
 ClassImp(PndSecondaryTrackFinder)

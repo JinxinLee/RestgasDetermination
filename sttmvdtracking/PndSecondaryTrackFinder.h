@@ -5,6 +5,7 @@
 #include "PndGeoSttPar.h"
 #include "PndTrack.h"
 #include "PndMCTrack.h"
+#include "PndSttHit.h"
 
 #include "FairTask.h"
 
@@ -60,7 +61,7 @@ class PndSecondaryTrackFinder : public FairTask {
   };
 
 
-  std::vector<int> OrderHits(TClonesArray *hitarray, Int_t detId);
+  std::vector<int> OrderHits(TClonesArray *hitarray, Int_t detId, Bool_t skewed);
   std::vector<int> OrderCluster(std::vector<int> cluster, Int_t detId, TVector3 point);
 
   void DeleteHit(Int_t ihit, std::vector<int> *hits);
@@ -71,7 +72,7 @@ class PndSecondaryTrackFinder : public FairTask {
   void GetInitialParamsMC(PndMCTrack * mctrack, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &fitm, Double_t &fitp);
   Double_t CalculatePhi(TVector2 v, TVector2 p, double alpha, double Phi0, int charge);
   Double_t CompareToPreviousPhi(Double_t Fi, Double_t Fi_pre, int charge);
-
+  
   std::vector<std::vector<int> > ClusterFinder(std::vector<int> hits, Int_t detId);
   std::vector<std::vector<int> > ClusterFinder2(std::vector<int> hits, Int_t detId);
   
@@ -82,7 +83,10 @@ class PndSecondaryTrackFinder : public FairTask {
   void DrawHits(std::vector<int> hits, Int_t detId);
   void DrawUsableHits(std::vector<int> hits, Int_t detId);
   void DrawHitsColor(std::vector<int> hits, Int_t detId, Int_t color);
-  void Refresh(std::vector<int> hits, Int_t detId);
+  void DrawAllHits();
+  void DrawAllUsableHits();
+ 
+  void Refresh();
   void DrawLinks(std::vector<int> cluster, Int_t detId, Int_t iclus);
   void FindBoundary(Int_t iclus, std::vector<int> cluster, Int_t detId, TMatrixT<double> &boundaries, Bool_t draw);
 
@@ -91,6 +95,8 @@ class PndSecondaryTrackFinder : public FairTask {
    Bool_t ConformalPlaneStt2(std::vector<int> cluster, TMatrixT<double> boundaries, std::vector<int> hits, Int_t iclus);
    Bool_t ConformalPlaneStt3(std::vector<int> cluster, TMatrixT<double> boundaries, std::vector<int> hits, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius);
   Short_t FitHelixCylinder( UShort_t nHitsinTrack, Double_t auxinfoparalConformal[][3], Double_t rotationangle, Double_t trajectory_vertex[2], Double_t &slope, Double_t &intercept, Double_t &alpha, Double_t &beta, Double_t &gamma, Bool_t &TypeConf);
+  Bool_t Fit(TMatrixT<double> points, Double_t &outxc, Double_t &outyc, Double_t &outradius);
+  Bool_t IntersectionFinder(Double_t xc, Double_t yc, Double_t radius, PndSttHit* stthit, TVector3 &xyz, TVector3 &dxyz);
 						
  private:
 
@@ -152,6 +158,9 @@ class PndSecondaryTrackFinder : public FairTask {
   Int_t fEventCounter;
 
   Double_t fLimit;
+
+  std::vector<std::vector<int> > fDetList;
+  std::map<int, int> fDetMap;
 
   ClassDef(PndSecondaryTrackFinder,1);
 
