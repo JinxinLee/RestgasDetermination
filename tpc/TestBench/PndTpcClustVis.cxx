@@ -68,14 +68,14 @@ PndTpcClustVis::PndTpcClustVis():
   //init colors
   //colors.push_back(kRed);
   colors.push_back(kGreen);
-  /*colors.push_back(kBlue);
+  colors.push_back(kBlue);
   colors.push_back(kCyan+1);
   colors.push_back(kMagenta);
   colors.push_back(kYellow+1);
   colors.push_back(kRed-7);
   colors.push_back(kSpring+5);
   colors.push_back(kCyan-3);
-  colors.push_back(kOrange+1);*/
+  colors.push_back(kOrange+1);
 
   // Build hit factory -----------------------------
   clusterArray = new TClonesArray("PndTpcCluster");

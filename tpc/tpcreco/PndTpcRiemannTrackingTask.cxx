@@ -500,7 +500,7 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
 
   unsigned int nr=riemannlist.size();
 
-  int minhits = 4; // minimum hits needed to build pndtrackcands and GFTrackCands
+  int minhits = 10; // minimum hits needed to build pndtrackcands and GFTrackCands
   if(minhits<_minpoints) minhits=_minpoints;
   double pbackup = 2.;  // momentum value that is set when other initialisations fail
 
