@@ -19,7 +19,7 @@
 
 
 PndMvdRiemannTrackFinderTask::PndMvdRiemannTrackFinderTask() :
-	FairTask("MVD Riemann Track Finder"), fMaxSZChi2(1), fMaxSZDist(10), fMinPointDist(1), fMaxDist(1), fEventNr(0), fB(2.0), fInitDone(kFALSE)
+	FairTask("MVD Riemann Track Finder"), fMaxSZChi2(1), fMaxSZDist(10), fMinPointDist(1), fMaxDist(1), fEventNr(0), fB(2.0), fInitDone(kFALSE), fCutChi2H(0), fCutDistH(0)
 {
   PndGeoHandling::Instance();
 }
