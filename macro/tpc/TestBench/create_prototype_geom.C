@@ -792,7 +792,8 @@ void create_prototype_geom()
   //top->Draw("test.pdf");
 
   gGeoMan->SetTopVolume(top);
-  toptop->AddNode(top,0,(TGeoTranslation*)trans1->Clone());
+  //toptop->AddNode(top,0,(TGeoTranslation*)trans1->Clone());
+  toptop->AddNode(top,0);
   
 
   fi.cd();
