@@ -2724,6 +2724,7 @@ Bool_t PndSttMvdGemTracking::ZFit(TMatrixT<double> points, Int_t charge, Double_
 // CHECK :-)GOOD!
 Bool_t PndSttMvdGemTracking::GetInitialParams(PndTrack * sttmvd, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &fitm, Double_t &fitp)
 {
+  if(fVerbose > 0) cout << "GET INITIAL PARAMS" << endl;
   FairTrackParP recopar = sttmvd->GetParamFirst();
   TVector3 recomom = recopar.GetMomentum();
   TVector3 recopos = recopar.GetPosition();
@@ -2765,11 +2766,14 @@ Bool_t PndSttMvdGemTracking::GetInitialParams(PndTrack * sttmvd, Double_t &xc, D
   FairTrackParP recoparlast = sttmvd->GetParamLast();
   TVector3 recoposlast = recoparlast.GetPosition();
 
-
-  //   cout << "GETINITPARAM " << " " << charge << " " << xc << " " << yc << " " << radius << endl;
-  //   recomom.Print();
-  //   recopos.Print(); 
-  //   recoposlast.Print();
+  
+  if(fVerbose > 0)  {
+    cout << "charge/xc/yc/radius " << charge << " " << xc << " " << yc << " " << radius << endl;
+    recomom.Print();
+    recopos.Print(); 
+    recoparlast.GetMomentum().Print();
+    recoposlast.Print();
+  }
 
 
   fitm = recomom.Z() / recomom.Perp(); // CHECK fitm = pz / pt :-)GOOD!
@@ -2784,21 +2788,27 @@ Bool_t PndSttMvdGemTracking::GetInitialParams(PndTrack * sttmvd, Double_t &xc, D
   Double_t Phi0 = TMath::ATan2((y0 - yc),(x0 - xc));
   Double_t scosfirst = 0, scoslast = 0.;
 
-  //   cout << "Phi0 " << Phi0 * TMath::RadToDeg() << endl;
+  if(fVerbose > 0)  cout << "Phi0 " << Phi0 * TMath::RadToDeg() << endl;
   // CHECK :-)GOOD! ...
   TVector2 v(x0 - xc, y0 - yc); 
   double alpha1 = TMath::ATan2(recopos.Y() - y0 + radius * TMath::Sin(Phi0), recopos.X() - x0 + radius * TMath::Cos(Phi0));
   TVector2 p1(recopos.X() - xc, recopos.Y() - yc);
   Double_t Fi1 = CalculatePhi(v, p1, alpha1, Phi0, charge);
-  //   cout << "alpha1, Fi1 " << alpha1 * TMath::RadToDeg() << " " << Fi1 * TMath::RadToDeg() << endl;
-  //   p1.Print();
+ 
+  if(fVerbose > 0) {
+    cout << "alpha1, Fi1 " << alpha1 * TMath::RadToDeg() << " " << Fi1 * TMath::RadToDeg() << endl;
+    p1.Print();
+  }
 
   double alpha2 = TMath::ATan2(recoposlast.Y() - y0 + radius * TMath::Sin(Phi0), recoposlast.X() - x0 + radius * TMath::Cos(Phi0));
   TVector2 p2(recoposlast.X() - xc, recoposlast.Y() - yc);
   Double_t Fi2 = CalculatePhi(v, p2, alpha2, Phi0, charge);
   Fi2 = CompareToPreviousPhi(Fi2, Fi1, charge); // CHECK this!
-  //   cout << "alpha2, Fi2 " << alpha2 * TMath::RadToDeg() << " " << Fi2 * TMath::RadToDeg() << endl;
-  //   p2.Print();
+  
+  if(fVerbose > 0) {
+    cout << "alpha2, Fi2 " << alpha2 * TMath::RadToDeg() << " " << Fi2 * TMath::RadToDeg() << endl;
+    p2.Print();
+  }
  
   scosfirst = - charge * radius * Fi1; // scos = -q * R * phi CHECK :-)GOOD!
   scoslast = - charge * radius * Fi2; //                     CHECK :-)GOOD!
@@ -2807,14 +2817,16 @@ Bool_t PndSttMvdGemTracking::GetInitialParams(PndTrack * sttmvd, Double_t &xc, D
   // z = z0 + scos * fitm
   fitp = (recopos.Z() + recoposlast.Z() - fitm * (scosfirst + scoslast)) / 2.; // CHECK :-)GOOD!
 
-  //   cout << "positions first/last" << endl;
-  //   recopos.Print();
-  //   recoposlast.Print();
+ 
+  if(fVerbose > 0) {
+    cout << "positions first/last" << endl;
+    recopos.Print();
+    recoposlast.Print();
 
-  //   cout << "scosfirst/scoslast " << scosfirst << " " << scoslast << endl;
-  //   cout << "fitm/fitp " << fitm << " " << fitp << endl;
-  //   cout << "z1/z2 " << fitp + fitm * scosfirst << " " << fitp + fitm * scoslast << endl;
-
+    cout << "scosfirst/scoslast " << scosfirst << " " << scoslast << endl;
+    cout << "fitm/fitp " << fitm << " " << fitp << endl;
+    cout << "z1/z2 " << fitp + fitm * scosfirst << " " << fitp + fitm * scoslast << endl;
+  }
   return true;
 }
 
