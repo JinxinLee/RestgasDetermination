@@ -52,7 +52,7 @@
 
 PndTpcDetector::PndTpcDetector(const char * Name, Bool_t Active)
   : FairDetector(Name, Active),fAliMC(kFALSE), fDeltaAttach(kFALSE), 
-    fCut_el(1.0E-3), fCut_had(1.0E-3),  //standard values 1MeV
+    fCut_el(1.0E-1), fCut_had(1.0E-3),  //standard values 1MeV
     fAllSensitive(kFALSE)
 {
   fPndTpcPointCollection= new TClonesArray("PndTpcPoint");
@@ -100,42 +100,67 @@ void PndTpcDetector::SetSpecialPhysicsCuts(){
     std::cout<<"PndTpcDetector::SetSpecialPhysicsCuts() "
 	     <<"Working on medium "<<fMixture.c_str()<<std::endl;
     int matIdVMC = gGeoManager->GetMedium(fMixture.c_str())->GetId();
-  
     
-   
-    //double cut_el = 1.0E-5;   // (GeV)
-    //double cut_had = 1.0E-3;  // (GeV)
     double tofmax = 1.E10;    // (s)
     
     // Set new properties, physics cuts etc. for the TPCmixture
     
-    gMC->Gstpar(matIdVMC,"PAIR",1); /** pair production*/
-    gMC->Gstpar(matIdVMC,"COMP",1); /**Compton scattering*/
-    gMC->Gstpar(matIdVMC,"PHOT",1); /** photo electric effect */
-    gMC->Gstpar(matIdVMC,"PFIS",0); /**photofission*/
-    gMC->Gstpar(matIdVMC,"DRAY",1); /**delta-ray*/
-    gMC->Gstpar(matIdVMC,"ANNI",1); /**annihilation*/
-    gMC->Gstpar(matIdVMC,"BREM",1); /**bremsstrahlung*/
-    gMC->Gstpar(matIdVMC,"HADR",1); /**hadronic process*/
-    gMC->Gstpar(matIdVMC,"MUNU",1); /**muon nuclear interaction*/
-    gMC->Gstpar(matIdVMC,"DCAY",1); /**decay*/
-    gMC->Gstpar(matIdVMC,"LOSS",1); /**energy loss*/
-    gMC->Gstpar(matIdVMC,"MULS",1); /**multiple scattering*/
-    gMC->Gstpar(matIdVMC,"STRA",0); 
-    gMC->Gstpar(matIdVMC,"RAYL",1);
     
-    gMC->Gstpar(matIdVMC,"CUTGAM",fCut_el); /** gammas (GeV)*/
-    gMC->Gstpar(matIdVMC,"CUTELE",fCut_el); /** electrons (GeV)*/
-    gMC->Gstpar(matIdVMC,"CUTNEU",fCut_had); /** neutral hadrons (GeV)*/
-    gMC->Gstpar(matIdVMC,"CUTHAD",fCut_had); /** charged hadrons (GeV)*/
-    gMC->Gstpar(matIdVMC,"CUTMUO",fCut_el); /** muons (GeV)*/
-    gMC->Gstpar(matIdVMC,"BCUTE",fCut_el);  /** electron bremsstrahlung (GeV)*/
-    gMC->Gstpar(matIdVMC,"BCUTM",fCut_el);  /** muon and hadron bremsstrahlung(GeV)*/ 
-    gMC->Gstpar(matIdVMC,"DCUTE",fCut_el);  /** delta-rays by electrons (GeV)*/
-    gMC->Gstpar(matIdVMC,"DCUTM",fCut_el);  /** delta-rays by muons (GeV)*/
-    gMC->Gstpar(matIdVMC,"PPCUTM",fCut_el); /** direct pair production by muons (GeV)*/
+    //gMC->Gstpar(matIdVMC,"PAIR",1); /** pair production*/
+    //gMC->Gstpar(matIdVMC,"COMP",1); /**Compton scattering*/
+    //gMC->Gstpar(matIdVMC,"PHOT",1); /** photo electric effect */
+    //gMC->Gstpar(matIdVMC,"PFIS",0); /**photofission*/
+    //gMC->Gstpar(matIdVMC,"DRAY",1); /**delta-ray*/
+    //gMC->Gstpar(matIdVMC,"ANNI",1); /**annihilation*/
+    //gMC->Gstpar(matIdVMC,"BREM",1); /**bremsstrahlung*/
+    //gMC->Gstpar(matIdVMC,"HADR",1); /**hadronic process*/
+    //gMC->Gstpar(matIdVMC,"MUNU",1); /**muon nuclear interaction*/
+    //gMC->Gstpar(matIdVMC,"DCAY",1); /**decay*/
+    //gMC->Gstpar(matIdVMC,"LOSS",1); /**energy loss*/
+    //gMC->Gstpar(matIdVMC,"MULS",1); /**multiple scattering*/
+    //gMC->Gstpar(matIdVMC,"STRA",0); 
+    //gMC->Gstpar(matIdVMC,"RAYL",1);
+    
+    //gMC->Gstpar(matIdVMC,"CUTGAM",fCut_el); /** gammas (GeV)*/
+    //gMC->Gstpar(matIdVMC,"CUTELE",fCut_el); /** electrons (GeV)*/
+    //gMC->Gstpar(matIdVMC,"CUTNEU",fCut_had); /** neutral hadrons (GeV)*/
+    //gMC->Gstpar(matIdVMC,"CUTHAD",fCut_had); /** charged hadrons (GeV)*/
+    //gMC->Gstpar(matIdVMC,"CUTMUO",fCut_el); /** muons (GeV)*/
+    //gMC->Gstpar(matIdVMC,"BCUTE",fCut_el);  /** electron bremsstrahlung (GeV)*/
+    //gMC->Gstpar(matIdVMC,"BCUTM",fCut_el);  /** muon and hadron bremsstrahlung(GeV)*/ 
+    //gMC->Gstpar(matIdVMC,"DCUTE",fCut_el);  /** delta-rays by electrons (GeV)*/
+    //gMC->Gstpar(matIdVMC,"DCUTM",fCut_el);  /** delta-rays by muons (GeV)*/
+    //gMC->Gstpar(matIdVMC,"PPCUTM",fCut_el); /** direct pair production by muons (GeV)*/
+     gMC->SetProcess("PAIR",1); /** pair production*/
+     gMC->SetProcess("COMP",1); /**Compton scattering*/
+     gMC->SetProcess("PHOT",1); /** photo electric effect */
+     gMC->SetProcess("PFIS",0); /**photofission*/
+     gMC->SetProcess("DRAY",1); /**delta-ray*/
+     gMC->SetProcess("ANNI",1); /**annihilation*/
+     gMC->SetProcess("BREM",1); /**bremsstrahlung*/
+     gMC->SetProcess("HADR",1); /**hadronic process*/
+     gMC->SetProcess("MUNU",1); /**muon nuclear interaction*/
+     gMC->SetProcess("DCAY",1); /**decay*/
+     gMC->SetProcess("LOSS",1); /**energy loss*/
+     gMC->SetProcess("MULS",1); /**multiple scattering*/
+     
+     Double_t cut1 = 1.0E-3;         // GeV --> 1 MeV
+     Double_t cutel = 1.0E-3;
+     
+     gMC->SetCut("CUTGAM",cutel);   /** gammas (GeV)*/
+     gMC->SetCut("CUTELE",cutel);   /** electrons (GeV)*/
+     gMC->SetCut("CUTNEU",cut1);   /** neutral hadrons (GeV)*/
+     gMC->SetCut("CUTHAD",cut1);   /** charged hadrons (GeV)*/
+     gMC->SetCut("CUTMUO",cut1);   /** muons (GeV)*/
+     gMC->SetCut("BCUTE",cutel);    /** electron bremsstrahlung (GeV)*/
+     gMC->SetCut("BCUTM",cut1);    /** muon and hadron bremsstrahlung(GeV)*/ 
+     gMC->SetCut("DCUTE",cutel);    /** delta-rays by electrons (GeV)*/
+     gMC->SetCut("DCUTM",cut1);    /** delta-rays by muons (GeV)*/
+     gMC->SetCut("PPCUTM",cut1);   /** direct pair production by muons (GeV)*/
+     gMC->SetCut("TOFMAX",tofmax); /**time of flight cut in seconds*/
+          
       
-    gMC->SetMaxNStep((int)1E6);
+     gMC->SetMaxNStep((int)1E6);
     
     std::cout<<"\n************************************************************\n"
 	     <<"PndTpcDetector::SetSpecialPhysicsCuts():\n"
@@ -183,7 +208,8 @@ PndTpcDetector::ProcessHits( FairVolume *v)
   Int_t trackID  = gMC->GetStack()->GetCurrentTrackNumber();
   Int_t volumeID = v->getMCid();
   
-  if(fAliMC)	{
+  TString volumeName = v->GetName();
+  if(fAliMC && volumeName.Contains("gas"))	{
   	AliTPCv3_SetStepToNextCollision(); 
   }
     
