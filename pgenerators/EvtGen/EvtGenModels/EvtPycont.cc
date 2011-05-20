@@ -36,11 +36,14 @@ extern "C" {
   extern void pystat_(int &);
 }
 
+/*
 extern struct
 {
   int dc[18];
 } decaych_;
+*/
 
+extern Decaych_t decaych_;
 
 EvtPycont::~EvtPycont() {
   //  int i=1;

@@ -24,7 +24,10 @@
 #include "EvtGenBase/EvtDecayBase.hh"
 #include "EvtGenBase/EvtParticle.hh"
 
-
+typedef struct
+{
+  int dc[18];
+} Decaych_t;
 
 class EvtDecayIncoherent : public EvtDecayBase{
 
