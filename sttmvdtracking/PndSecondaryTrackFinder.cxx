@@ -293,6 +293,55 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     cout << endl;
   }
 
+
+  // ******************
+  // conformal map ****
+  int nclus = clusterlist.size();
+  TMatrixT<double> boundaries(nclus, 4);
+  for(int iclus = 0; iclus < nclus; iclus++) {
+    std::vector<int> cluster = clusterlist[iclus];
+    FindBoundary(iclus, cluster, FairRootManager::Instance()->GetBranchId(fSttBranch), boundaries, kFALSE);
+    Double_t xc, yc, radius;
+    cout << "cluster " << iclus << " has " << cluster.size() << " hits on " << stthits.size() << endl;
+    bool conf = ConformalPlaneStt3(cluster, boundaries, stthits, iclus, xc, yc, radius);
+    cout << "conform " << conf << endl;
+
+//     if(fDisplayOn) {
+//       char goOnChar;
+//       cout << "Go back to real plane: cluster " << iclus << endl;
+//       cin >> goOnChar;
+//       cout << "GOING ON" << endl;
+//      Refresh(); // CHECK
+//       cout << "helix " << xc << " " << yc << " " << radius;     
+//  TArc *arc = new TArc(xc, yc, radius);
+//       arc->SetLineColor(kGreen);
+//       arc->SetFillStyle(0);
+//       arc->Draw("SAME ONLY");
+//       display->Update();
+//       display->Modified();
+//     }
+
+/**
+   std::vector<double> parameters;
+   parameters.push_back(xc, yc, radius);
+   maptracks[iclus] = newtracks.size();
+   newtracks.push_back(parameters);
+   maptracks[iclus] = newtracks.size();
+**/
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
   if(fDisplayOn) {
     fDisName += ".pdf";
     display->SaveAs(fDisName);
@@ -1021,33 +1070,6 @@ std::vector<std::vector<int> > PndSecondaryTrackFinder::ClusterFinder(std::vecto
   for(int iclus = 0; iclus < nclus; iclus++) {
     std::vector<int> cluster = list[iclus];
     FindBoundary(iclus, cluster, FairRootManager::Instance()->GetBranchId(fSttBranch), boundaries, kTRUE);
-  }
-
-  // ******************
-  // conformal map ****
-
-  for(int iclus = 0; iclus < nclus; iclus++) {
-    std::vector<int> cluster = list[iclus];
-    FindBoundary(iclus, cluster, FairRootManager::Instance()->GetBranchId(fSttBranch), boundaries, kFALSE);
-    Double_t xc, yc, radius;
-    cout << "cluster " << iclus << " has " << cluster.size() << " hits on " << hits.size() << endl;
-    bool conf = ConformalPlaneStt3(cluster, boundaries, hits, iclus, xc, yc, radius);
-    cout << "conform " << conf << endl;
-
-//     if(fDisplayOn) {
-//       char goOnChar;
-//       cout << "Go back to reak plane: cluster " << iclus << endl;
-//       cin >> goOnChar;
-//       cout << "GOING ON" << endl;
-//      Refresh(); // CHECK
-//       cout << "helix " << xc << " " << yc << " " << radius;     
-//  TArc *arc = new TArc(xc, yc, radius);
-//       arc->SetLineColor(kGreen);
-//       arc->SetFillStyle(0);
-//       arc->Draw("SAME ONLY");
-//       display->Update();
-//       display->Modified();
-//     }
   }
 
   return list;
@@ -1830,11 +1852,30 @@ Bool_t PndSecondaryTrackFinder::ConformalPlaneStt2(std::vector<int> cluster, TMa
 Bool_t PndSecondaryTrackFinder::ConformalPlaneStt3(std::vector<int> cluster, TMatrixT<double> boundaries, std::vector<int> hits, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius) {
   
   int nhits = cluster.size();
-  int lasthitid = cluster[0];
-  int firsthitid = cluster[nhits - 1];
-  
   TClonesArray *array = fSttHitArray;
   
+  double tmpdrift = 0.5; // CHECK
+  int tmphitid = -1;
+  for(int ihit = 0; ihit < nhits; ihit++)
+    {
+      Int_t hitid = cluster[ihit];
+      
+      PndSttHit *hit = (PndSttHit*) array->At(hitid);
+      if(!hit) continue;
+      
+      Double_t rd = hit->GetIsochrone();
+      if(rd < tmpdrift) {
+	tmpdrift = rd;
+	tmphitid = hitid;
+      }
+    }
+
+  cout << "tmp drift " << tmpdrift << endl;
+
+  int lasthitid; //  = cluster[0];
+  int firsthitid = tmphitid; // cluster[nhits - 1];
+  if(tmphitid == cluster[0]) lasthitid = cluster[nhits - 1];
+  else lasthitid = cluster[0];
   
   FairHit *hitfirst = (FairHit*) array->At(firsthitid);
   if(!hitfirst) return kFALSE;
@@ -1971,80 +2012,82 @@ Bool_t PndSecondaryTrackFinder::ConformalPlaneStt3(std::vector<int> cluster, TMa
     }
   double redchi2 = chi2 / cluster.size();
   cout << "===> RED CHI2 no. 0 = " << redchi2 << " <===" << endl;
-  
-  // intersection finder & fit
-  for(int iter = 0; iter < 2; iter++) {
-    TMatrixT<double> points(cluster.size(), 11);
-    for(int ihit = 0; ihit < cluster.size(); ihit++)
-      {
-	Int_t hitid = cluster[ihit];
-	PndSttHit *hit = (PndSttHit*) array->At(hitid);
-	if(!hit) continue;
-	Double_t rd = hit->GetIsochrone();
-	TVector3 xyz, dxyz;
-	Bool_t inters = IntersectionFinder(xc, yc, radius, hit, xyz, dxyz);
-	
-	if(fDisplayOn) {
-	  TMarker *mrk = new TMarker(xyz.X(), xyz.Y(), 6);  
-	  mrk->SetMarkerColor(4);
-	  mrk->Draw("SAME");
-	  display->Update();
-	  display->Modified();
+
+  if(tmpdrift > 0.01) {
+    // intersection finder & fit
+    for(int iter = 0; iter < 2; iter++) {
+      TMatrixT<double> points(cluster.size(), 11);
+      for(int ihit = 0; ihit < cluster.size(); ihit++)
+	{
+	  Int_t hitid = cluster[ihit];
+	  PndSttHit *hit = (PndSttHit*) array->At(hitid);
+	  if(!hit) continue;
+	  Double_t rd = hit->GetIsochrone();
+	  TVector3 xyz, dxyz;
+	  Bool_t inters = IntersectionFinder(xc, yc, radius, hit, xyz, dxyz);
+	  
+	  if(fDisplayOn) {
+	    TMarker *mrk = new TMarker(xyz.X(), xyz.Y(), 6);  
+	    mrk->SetMarkerColor(4);
+	    mrk->Draw("SAME");
+	    display->Update();
+	    display->Modified();
+	  }
+	  if(inters == kFALSE) continue;
+	  
+	  points[ihit][0] = hitid;
+	  points[ihit][2] = xyz.X();
+	  points[ihit][3] = xyz.Y();
+	  points[ihit][4] = xyz.Z();
+	  points[ihit][5] = dxyz.X();
+	  points[ihit][6] = dxyz.Y();
+	  points[ihit][7] = dxyz.Z();
+	  points[ihit][8] = hit->GetIsochrone();
+	  points[ihit][9] = hit->GetIsochroneError();
+	  points[ihit][10] = 0;
 	}
-	if(inters == kFALSE) continue;
-
-	points[ihit][0] = hitid;
-	points[ihit][2] = xyz.X();
-	points[ihit][3] = xyz.Y();
-	points[ihit][4] = xyz.Z();
-	points[ihit][5] = dxyz.X();
-	points[ihit][6] = dxyz.Y();
-	points[ihit][7] = dxyz.Z();
-	points[ihit][8] = hit->GetIsochrone();
-	points[ihit][9] = hit->GetIsochroneError();
-	points[ihit][10] = 0;
-      }
-    
-    // xy fit
-    Double_t outxc, outyc, outradius;
-    Bool_t fitting2 = Fit(points, outxc, outyc, outradius);
-
-    if(fDisplayOn) {
-      cout << "refit helix " << outxc << " " << outyc << " " << outradius << endl;     
-      TArc *arc2 = new TArc(outxc, outyc, outradius);
-      if(iter == 0) arc2->SetLineColor(kRed);
-      else arc2->SetLineColor(kBlue);
       
-      arc2->SetFillStyle(0);
-      arc2->Draw("SAME ONLY");
-      display->Update();
-      display->Modified();
-    }
-    xc = outxc;
-    yc = outyc;
-    radius = outradius;
-
-    // chi2
-    chi2 = 0;
-    for(int ihit = 0; ihit < cluster.size(); ihit++)
-      {
-	Int_t hitid = cluster[ihit];
-	PndSttHit *hit = (PndSttHit*) array->At(hitid);
-	if(!hit) continue;
-	TVector3 centerposition2;
-	hit->Position(centerposition2);
-	Double_t rd = hit->GetIsochrone();
-	Double_t rderror = hit->GetIsochroneError();
-	Double_t distancepc = TMath::Sqrt((centerposition2.X() - xc) * (centerposition2.X() - xc) +
-					  (centerposition2.Y() - yc) * (centerposition2.Y() - yc));
-
-	chi2 += pow((fabs(distancepc - radius) - rd)/rderror, 2);
-
+      // xy fit
+      Double_t outxc, outyc, outradius;
+      Bool_t fitting2 = Fit(points, outxc, outyc, outradius);
+      
+      if(fDisplayOn) {
+	cout << "refit helix " << outxc << " " << outyc << " " << outradius << endl;     
+	TArc *arc2 = new TArc(outxc, outyc, outradius);
+	if(iter == 0) arc2->SetLineColor(kRed);
+	else arc2->SetLineColor(kBlue);
+	
+	arc2->SetFillStyle(0);
+	arc2->Draw("SAME ONLY");
+	display->Update();
+	display->Modified();
       }
-    redchi2 = chi2 / cluster.size();
-    cout << "===> RED CHI2 no. " << iter + 1 << " = " << redchi2 << " <===" << endl;
+      xc = outxc;
+      yc = outyc;
+      radius = outradius;
+      
+      // chi2
+      chi2 = 0;
+      for(int ihit = 0; ihit < cluster.size(); ihit++)
+	{
+	  Int_t hitid = cluster[ihit];
+	  PndSttHit *hit = (PndSttHit*) array->At(hitid);
+	  if(!hit) continue;
+	  TVector3 centerposition2;
+	  hit->Position(centerposition2);
+	  Double_t rd = hit->GetIsochrone();
+	  Double_t rderror = hit->GetIsochroneError();
+	  Double_t distancepc = TMath::Sqrt((centerposition2.X() - xc) * (centerposition2.X() - xc) +
+					    (centerposition2.Y() - yc) * (centerposition2.Y() - yc));
+	  
+	  chi2 += pow((fabs(distancepc - radius) - rd)/rderror, 2);
+	  
+	}
+      redchi2 = chi2 / cluster.size();
+      cout << "===> RED CHI2 no. " << iter + 1 << " = " << redchi2 << " <===" << endl;
+    }
   }
- 
+
   // add points
   for(int ihit = 0; ihit <  hits.size(); ihit++)
     {
@@ -2062,8 +2105,8 @@ Bool_t PndSecondaryTrackFinder::ConformalPlaneStt3(std::vector<int> cluster, TMa
 					(centerposition2.Y() - yc) * (centerposition2.Y() - yc));
       
       double res = fabs(distancepc - radius) - rd;
-      cout << "RES " << res << " " << " limit " << fLimit << endl;
-      if(res < fLimit) {
+      cout << "RES " << res << " " << " limit " << 3 * fLimit << endl;
+      if(res < (3 * fLimit)) {
 	cout << "ADD " << hitid << " TO CLUSTER" << iclus << endl;
 	if(fDisplayOn) {
 	  TArc *arc3 = new TArc(centerposition2.X(), centerposition2.Y(), 0.5); // CHECK
