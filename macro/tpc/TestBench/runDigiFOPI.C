@@ -1,4 +1,4 @@
-{
+void runDigiFOPI(){
 //Digi for the small testChamber
 //Maxence Vandenbroucke 11/10/2010 from runDigi.C
 
@@ -24,8 +24,8 @@
   
   // Set INPUT DIRECTORY (MC files) and JOBNAME
   // ------------------------------------------------------------------------
-  TString inDir="dummy";
-  TString jobname="dummy";
+  TString inDir="TDR_Plots";
+  TString jobname="1GeV_Protons";
 
   inDir=(basedir+"/")+inDir;
   TString inFile=(inDir+"/")+jobname;
@@ -37,7 +37,7 @@
   //   TString cmd="mkdir ";
   //   cmd+=jobDir; 
   //   if(gSystem->Exec(cmd)){
-  //     std::cout<<"Could not create Job-Directory "<<jobDir
+  //     std::cerr<<"Could not create Job-Directory "<<jobDir
   // 	     <<". Aborting."<<std::endl;
   //     return;
   //   }
@@ -48,13 +48,13 @@
   TString paramIn = inFile;
   paramIn.ReplaceAll(".mc.root",".mc.param.root");
   TString paramOut = outFile;
-  paramOut.ReplaceAll(".raw.root",".digi.param.root");
+  paramOut.ReplaceAll(".raw.root",".raw.param.root");
   
 
-  std::cout<<"Input: "<<inFile<<std::endl;
-  std::cout<<"Output: "<<outFile<<std::endl;
-  std::cout<<"ParamIn: "<<paramIn<<std::endl;
-  std::cout<<"ParamOut: "<<paramOut<<std::endl;
+  std::cerr<<"Input: "<<inFile<<std::endl;
+  std::cerr<<"Output: "<<outFile<<std::endl;
+  std::cerr<<"ParamIn: "<<paramIn<<std::endl;
+  std::cerr<<"ParamOut: "<<paramOut<<std::endl;
  
 
 
@@ -86,12 +86,14 @@
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
   parInput1->open(paramIn.Data());
-//FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
-//TString tpcDigiFile = gSystem->Getenv("VMCWORKDIR");
-// tpcDigiFile += "/tpc/tpc.par";
-// parInput2->open(tpcDigiFile.Data(),"in");
+
+  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
+  TString tpcDigiFile = gSystem->Getenv("VMCWORKDIR");
+  tpcDigiFile += "/tpc/TestBench/tpc.TBtestChamber.par";
+  parInput2->open(tpcDigiFile.Data(),"in");
+
   rtdb->setFirstInput(parInput1);
-// rtdb->setSecondInput(parInput1);
+  rtdb->setSecondInput(parInput2);
 
   PndTpcDigiPar* par = (PndTpcDigiPar*) rtdb->getContainer("PndTpcDigiPar");
   par->setInputVersion(fRun->GetRunId(),1);
@@ -102,7 +104,8 @@
   rtdb->setOutput(parOutput1);
   rtdb->saveOutput();
 
-  fRun->LoadGeometry();
+  rtdb->Print();
+
   // ------------------------------------------------------------------------
   
  
@@ -111,7 +114,8 @@
   tpcClusterizer->SetPersistence();
   //ONLY USE THIS WHEN USING ALICE SETTINGS WITH GEANT3
   tpcClusterizer->SetMereChargeConversion();  
-  tpcClusterizer->SetFirstPoti(15.13); //ArgonCO2 mixture in eV
+  //tpcClusterizer->SetFirstPoti(15.13); //ArgonCO2 mixture in eV
+  tpcClusterizer->SetFirstPoti(21.5646); //Ne in eV
   fRun->AddTask(tpcClusterizer);
   
   /*   use Alice Style MC    
@@ -127,21 +131,21 @@
 		:-(	
 	    6. SetMaxNStep should be set to a high value
    */ 
-/*
+
   PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
   tpcDrifter->SetPersistence();
   tpcDrifter->SetDistort(false);
   tpcDrifter->SetQAPlotCol(qa);
-  //fRun->AddTask(tpcDrifter);
+  fRun->AddTask(tpcDrifter);
 
   PndTpcGemTask* tpcGem = new PndTpcGemTask();
   tpcGem->SetPersistence();
-  //fRun->AddTask(tpcGem);
+  fRun->AddTask(tpcGem);
 
   PndTpcPadResponseTask* tpcPadResponse = new PndTpcPadResponseTask();
   tpcPadResponse->SetPersistence();
   //tpcPadResponse->SetQAPlotCol(qa);
-  //fRun->AddTask(tpcPadResponse);
+  fRun->AddTask(tpcPadResponse);
 
   //PndTpcEvtMixTask* evtmixer = new PndTpcEvtMixTask();
   //  evtmixer->SetBkgFileName("bkg2.raw.root");
@@ -157,14 +161,14 @@
   PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
   tpcElec->SetPersistence();
   //tpcElec->SetQAPlotCol(qa);
-  //fRun->AddTask(tpcElec);
+  fRun->AddTask(tpcElec);
 
-*/
+
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   rtdb->print();
 
-fRun->Run(0,nEvents); // process all events from input file
+  fRun->Run(0,nEvents); // process all events from input file
   // ------------------------------------------------------------------------
 
   
@@ -186,12 +190,12 @@ fRun->Run(0,nEvents); // process all events from input file
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
-  cout << endl << endl;
-  cout << "Macro finished succesfully." << endl;
-  cout << "Output file is "    << outFile << endl;
-  cout << "Parameter file is " << paramOut << endl;
-  cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
-  cout << endl;
+  cerr << endl << endl;
+  cerr << "Macro finished succesfully." << endl;
+  cerr << "Output file is "    << outFile << endl;
+  cerr << "Parameter file is " << paramOut << endl;
+  cerr << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
+  cerr << endl;
   // ------------------------------------------------------------------------
 
 

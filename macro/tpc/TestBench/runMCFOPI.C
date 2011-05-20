@@ -1,4 +1,4 @@
-{ 
+void runMCFOPI(){
 //MC for the FOPI setup
 //Maxence Vandenbroucke 11/01/2010 from runMC.C
 
@@ -21,18 +21,18 @@
 
   // SET NUMBER OF EVENTS
   // --------------------------------------------------
-  Int_t nEvents = 100;
+  Int_t nEvents = 10000;
 
   //Set JOBNAME + JOBDIR (will not be created!)
   // --------------------------------------------------
-  TString jobname="dummy";
-  TString jobdir="dummy";
+  TString jobname="1GeV_Protons";
+  TString jobdir="TDR_Plots";
   
 
   TString basejobdir=gSystem->Getenv("VMCWORKDIR");
   jobdir=(basejobdir+"/")+jobdir+"/";
-  std::cout<<jobdir<<std::endl;
 
+  std::cout<<jobdir<<std::endl;
 
   TString copy = jobdir;
   
@@ -45,33 +45,29 @@
   fRun->SetOutputFile(outfile);
 
 
-  //SET USER CONFIG AND CUTS:
-  //REQUIRES CUSTOM g3Config.C and SetCuts.C present in JOBDIR
-  //COMMENT OUT IF YOU WANT TO USE THE STANDARD FILES FROM gconfig/
-  // --------------------------------------------------------
-  //fRun->SetUserCuts(copy+"SetCuts.C");
-  //if(GEANT=="TGeant3")
-  //  fRun->SetUserConfig(copy+"g3Config.C");
-  //if(GEANT=="TGeant4")
-  //  fRun->SetUserConfig(copy+"g4Config.C");  
-  
-   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
-  Bool_t kParameterMerged=kTRUE;
-
-  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
-  TString tpcPar = gSystem->Getenv("VMCWORKDIR");
-  tpcPar += "/tpc/TestBench/tpc.TBtestChamber.par";
-  parInput2->open(tpcPar.Data(),"in");
-  rtdb->setFirstInput(parInput2);
-
-  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  output->open(dbfile.Data());
-  rtdb->setOutput(output);
-
-
   // Set Material file Name
   //-----------------------
   fRun->SetMaterials("media_pnd.geo");
+
+
+ // Fill the Parameter containers for this run
+  //-------------------------------------------
+  TString digiFile = gSystem->Getenv("VMCWORKDIR");
+  digiFile += "/tpc/TestBench/tpc.TBtestChamber.par";
+  
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
+  parIo1->open(digiFile.Data(),"in");
+  rtdb->setFirstInput(parIo1);
+  Bool_t kParameterMerged=kTRUE;
+
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
+  std::cout<<dbfile<<std::endl;
+  output->open(dbfile.Data());
+  rtdb->setOutput(output);
+
+  rtdb->Print();
+
   
   // Create and add detectors
   //-------------------------
@@ -80,54 +76,11 @@
   fRun->AddModule(Cave);
 
   PndTpcDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
-  PndTpc->SetGeometryFileName("tpcFOPI.geo");
-  // PndTpc->SetGeometryFileName("tpc.geo");
-  PndTpc->SetMixture("TPCFOPI_mix");
-  //ALICE Style MC (only for G3): =========================
-  if(GEANT=="TGeant3") 
-    PndTpc->SetAliMC();
-  // ======================================================
+  PndTpc->SetGeometryFileName("tpc_prototype.root");
+  PndTpc->SetMixture("TPCmixture"); // TPCmixture: Neon CO2 (90/10)
+  if(GEANT=="TGeant3") PndTpc->SetAliMC();
   fRun->AddModule(PndTpc);
    
-  
-  //OTHER SUBDETECTORS; Uncomment if you want to use
-
-  //FairDetector *Sts= new CbmTst("TST", kTRUE);
-  //Sts->SetGeometryFileName("tst_mvd.geo");
-  //fRun->AddModule(Sts);
-
-  //FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
-  //Mvd->SetGeometryFileName("MVD14.root");
-//fRun->AddModule(Mvd);
-  
-  //FairDetector *Emc = new PndEmc("EMC",kTRUE);
-  //Emc->SetGeometryFileName("emc_module1234.dat");
-  //fRun->AddModule(Emc);
-
-  //FairDetector *Drc = new CbmDrc("DIRC", kTRUE);
-  //Drc->SetGeometryFileName("dirc.geo");
-  //fRun->AddModule(Drc);
-
-  //FairModule *Target= new CbmTarget("Target");
-  //Target->SetGeometryFileName("target_vacuum.geo");
-  //fRun->AddModule(Target);		
-  
-  //FairDetector *Tof= new CbmTof("TOF", kTRUE );
-  //Tof->SetGeometryFileName("tof.geo");
-  //fRun->AddModule(Tof);
-  
-  //FairDetector *Trd= new CbmTrd("TRD",kTRUE );
-  //Trd->SetGeometryFileName("trd_9.geo");
-  //fRun->AddModule(Trd);
-  
-  // FairDetector *Rich= new CbmRich("RICH", kTRUE);
-  // Rich->SetGeometryFileName("rich.geo");
-  // fRun->AddModule(Rich);
-  
-  //FairDetector *Ecal= new CbmEcal("ECAL", kTRUE);
-  //Ecal->SetGeometryFileName("ecal.geo");
-  //fRun->AddModule(Ecal);
-
   
   // Create and Set Event Generator
   //-------------------------------
@@ -138,14 +91,14 @@
  
   // Box Generator
   
-  //pdgs 211=pion 13=muon 11=electron, ...
+  //pdgs 211=pion 13=muon 11=electron, 2212 proton ...
   //(PDG ID, MULTIPLICITY)
-  FairBoxGenerator* boxGen = new FairBoxGenerator(11, 1); 
+  FairBoxGenerator* boxGen = new FairBoxGenerator(2212, 10);
   
-  boxGen->SetPRange(1.5,1.5); // GeV/c 
+  boxGen->SetPRange(1.0,1.0); // GeV/c
   boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(0, 2.3); // Polar angle in lab system range [degree]
-  boxGen->SetXYZ(0., 0., -100.); // cm 
+  boxGen->SetThetaRange(5, 175); // Polar angle in lab system range [degree]
+  boxGen->SetXYZ(0., 0., 0.); // cm
   primGen->AddGenerator(boxGen);
 
   //FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
@@ -169,11 +122,8 @@
   // FairFieldMap *fMagField= new FairFieldMap("FIELD.v04_pavel.map");
   // Constant Field
   PndConstField *fMagField=new PndConstField();
-  fMagField->SetField(0., 0. , 0. ); // values are in kG
-  // MinX=-75, MinY=-40,MinZ=-12 ,MaxX=75, MaxY=40 ,MaxZ=124 ); //
-  // values are in cm
-  fMagField->SetFieldRegion(-50, 50,-50, 50, -2000, 2000);
-      
+  fMagField->SetField(0., 0. , 6. ); // values are in kG
+  fMagField->SetFieldRegion(-50, 50,-50, 50, -2000, 2000); // values are in cm
   fRun->SetField(fMagField);
    
 //fRun->SetStoreTraj(kTRUE);

@@ -27,6 +27,8 @@ void runRecoFOPI_batch_jrauch(TString filename, TString outpath)
   outName.ReplaceAll(".lmd_decoded_repaired.root",".reco.root");
   if(outName.Contains("decoded"))
     outName.ReplaceAll(".lmd_decoded.root",".reco.root");
+  if(outName.Contains("raw"))
+    outName.ReplaceAll(".raw.root",".reco.root");
   TString outFile = outpath+"/";
   outFile += outName; 
     
@@ -64,13 +66,13 @@ void runRecoFOPI_batch_jrauch(TString filename, TString outpath)
   
   //extract number of entries in external data tree
   TFile testFile(filename);
-  unsigned int nEvents = ((TTree*)testFile.Get("tpcEvent"))->GetEntries();
+  unsigned int nEvents;
+  nEvents = ((TTree*)testFile.Get("tpcEvent"))->GetEntries();
   std::cout<<"Found "<<nEvents<<" events in input data file"<<std::endl;
 
 
   //--------------------SET UP TASKS ------------------------------
 
-    
   PndTpcDataReaderTask* read = new PndTpcDataReaderTask();
   read->SetPersistence();
   read->SetDatafile(filename);
@@ -79,49 +81,23 @@ void runRecoFOPI_batch_jrauch(TString filename, TString outpath)
   //read->SetMinSamples(1000);
   fRun->AddTask(read);
   
-  //PndTpcTCcrossTalkTask* CT = new PndTpcTCcrossTalkTask();
-  //CT->SetPersistence();
-  //fRun->AddTask(CT);
-  
-bool SimpleClustering = true;
   
   PndTpcPSATask* tpsa = new  PndTpcPSATask();
   tpsa->SetPersistence();
   tpsa->SetSampleBranchName("PndTpcSample"); // Input of PSA
   fRun->AddTask(tpsa);
 
+
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
-  //tpcCF->SetDataMode(true); //prevents usage of FairLinks
   tpcCF->SetDigiPersistence(); // keep reference to digis in clusters
   tpcCF->SetPersistence(); // keep Clusters
   tpcCF->timeslice(4); //in samples
   tpcCF->SetThreshold(1);
   tpcCF->SetSingleDigiClusterAmpCut(15);
-  tpcCF->SetClusterAmpCut(9.1);
-  if(!SimpleClustering) {
-    tpcCF->SetMode(2); // 0 - global time bins;  
-                       // 1 - individual time bins for each sector;  
-                       // 2 - each pad gets its time window - actually we search for gaps on a pad;
-    tpcCF->SetDiffFactor(1.);
-    tpcCF->SetClusterTimeCut(5.);
-  }
-  tpcCF->SetErrorPars(600.,300.);
-  //tpcCF->SetTrivialClustering();
-  if(SimpleClustering) tpcCF->SetSimpleClustering(); // use PndTpcClusterFinderSimple
+  tpcCF->SetClusterAmpCut(9.1); // cut on mean digi amplitude
+  tpcCF->SetErrorPars(600.,400.);
+  tpcCF->SetSimpleClustering(); // use PndTpcClusterFinderSimple
   fRun->AddTask(tpcCF);
-
-
-  //actually MODIFIES existing clusters, does NOT create a new branch
-  PndTpcClusterCorrectionTask* tpcCC = new PndTpcClusterCorrectionTask();
-  double pars[6] = {-0.115634, -1.85970, 11.5997,
-        	    -24.8201, 24.9152,-9.56801};
-  tpcCC->SetParameters(pars);
-  // fRun->AddTask(tpcCC);
-
-
-  //PndTpcCTapplyTask* CTapply = new PndTpcCTapplyTask();
-  //CTapply->SetPersistence();
-  //fRun->AddTask(CTapply);
 
 
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
@@ -142,25 +118,9 @@ bool SimpleClustering = true;
                    0.025);// plane cut (RMS)
   tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
   tpcSPR->SetPersistence();
-  tpcSPR->SetStoreHistograms(PROutFile); //
+  //tpcSPR->SetStoreHistograms(PROutFile); //
   //tpcSPR->WriteHistograms(PROutFile);
   fRun->AddTask(tpcSPR);
-
-  PndTpcSLPatternRecoTask* tpcSLPR = new PndTpcSLPatternRecoTask();
-  tpcSLPR->SetPersistence(true);
-  tpcSLPR->SetStoreHistograms(PROutFile);
-  tpcSLPR->SetClusterAmpCut(30.);
-  tpcSLPR->SetCutTracksParallelZ(5);
-  //tpcSLPR->SetXSorting(true);
-  double parMins[4] = {-TMath::Pi(),0.,-TMath::Pi(),0.};
-  double parMaxs[4] = {TMath::Pi(),10.,TMath::Pi(),20.};
-  tpcSLPR->SetParameterSpace(parMins, parMaxs);
-  tpcSLPR->SetDepth(8);
-  tpcSLPR->SetThresh(22);
-  tpcSLPR->SetMinCandHits(22);
-  //tpcSLPR->SetClusterBranchName("PndTpcCluster_cut");
-  tpcSLPR->SetAbsMomentum(1000);
-  //fRun->AddTask(tpcSLPR);
 
 
   KalmanTask* kalman =new KalmanTask();
@@ -182,11 +142,11 @@ bool SimpleClustering = true;
   //fitstat->DoResiduals();
   //fRun->AddTask(fitstat);
 
-  PndTpcSLResidualTask* SLres = new PndTpcSLResidualTask();
-  SLres->SetPersistence();
+
+  PndTpcResidualTask* Res = new PndTpcResidualTask();
+  Res->SetPersistence();
   //SLres->SetClusterBranchName("PndTpcCluster_cut");
-  SLres->SetSecondarySuppression(false);
-  //fRun->AddTask(SLres);
+  fRun->AddTask(Res);
   
   
 
@@ -194,7 +154,7 @@ bool SimpleClustering = true;
  
  
   fRun->Init();
-  fRun->Run(0,50);
+  fRun->Run(0,0);
 
   timer.Stop();
   Double_t rtime = timer.RealTime();

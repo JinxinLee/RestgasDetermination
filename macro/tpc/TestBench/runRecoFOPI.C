@@ -1,60 +1,66 @@
-{
+void runRecoFOPI(){
 //Data analysis framework for the test bench tpc data.
-//Maxence Vandenbroucke 11/01/2010
 
-// ========================================================================
-// Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
+  // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 1;
 
 
-
-
-// ----  Load libraries   -------------------------------------------------
-//gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-//basiclibs();
-gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-//gROOT->Macro("tpc/TestChamber/macro/christian_style.C");
+  //Load libraries
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
   
   TString basedir = gSystem->Getenv("VMCWORKDIR");
   
   //Set JOBNAME and JOBDIR
-  // -------------------------------------------------------------------
+  TString jobdir = "TDR_Plots";
+  TString jobname="1GeV_Protons";
 
-  TString jobdir = "TEST";
-  TString jobname="FOPI1297"; 
 
-  TString digiDir=(basedir+"/")+jobdir;
+  TString digiDir=jobdir;
   TString inFile=(digiDir+"/")+jobname;
   inFile+=".raw.root";
- 
+
   TString mcFile=inFile;
   mcFile.ReplaceAll("raw","mc");
 
+  ///TString inDir=inFile(0,inFile.Last('/')+1);
+  // make new subdir
+  //TString jobDir=inDir; jobDir+=jobname; jobDir+="/";
+  //TString cmd="mkdir ";
+  //cmd+=jobDir;
+  //if(gSystem->Exec(cmd)){
+  //  std::cout<<"Could not create Job-Directory "<<jobDir
+  //     <<". Aborting."<<std::endl;
+  //  return;
+  // }
+
   TString outFile = inFile;
+  //outFile.ReplaceAll(inDir,jobDir);
   outFile.ReplaceAll(".raw.root",".reco.root");
-  
-  TString PROutFile = inFile; //monitoring file for the PR task
-  PROutFile.ReplaceAll(".raw.root",".patternReco.root");
-  TFile test(PROutFile);
-  if(!test.IsZombie()) { //delete file
-    gSystem->Setenv("PROUTFILENAME", PROutFile.Data());
-    gROOT->ProcessLine(".! rm $PROUTFILENAME");
-    gSystem->Unsetenv("PROUTFILENAME");
-  }
-  
 
 
-  TString paramIn = inFile;
-  paramIn.ReplaceAll(".raw.root",".param.root");
+  TString paramIn1 = inFile;
+  TString paramIn2 = inFile;
+  paramIn1.ReplaceAll(".raw.root",".raw.param.root");
+  paramIn2.ReplaceAll(".raw.root",".mc.param.root");
+
   TString paramOut = outFile;
-  paramOut.ReplaceAll(".reco.root",".param.root");
+  paramOut.ReplaceAll(".reco.root",".reco.param.root");
+
+
+  /*TString mcDir = inDir;
+  mcDir=mcDir(0,mcDir.Last('/')); // remove last /
+  mcDir=mcDir(0,mcDir.Last('/')+1); // one directory up
+  TString mcFile= inFile;
+  mcFile.ReplaceAll(inDir,mcDir);
+  mcFile.ReplaceAll(".raw.root",".mc.root");
+  */
   
   std::cout<<"Input: "<<inFile<<std::endl;
-  std::cout<<"Output: "<<outFile<<std::endl;  
+  std::cout<<"Output: "<<outFile<<std::endl;
   std::cout<<"MCFile: "<<mcFile<<std::endl;
-
-  std::cout<<"ParamIn: "<<paramIn<<std::endl;
+  std::cout<<"ParamIn1: "<<paramIn1<<std::endl;
+  std::cout<<"ParamIn2: "<<paramIn2<<std::endl;
   std::cout<<"ParamOut: "<<paramOut<<std::endl;
 
 
@@ -64,6 +70,7 @@ gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   timer.Start();
   // ------------------------------------------------------------------------
 
+gStyle->SetPalette(1);
   
   // -----   Digitization run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
@@ -71,99 +78,83 @@ gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
 
   fRun->AddFriend(mcFile);
   fRun->SetOutputFile(outFile);
-  
-  FairGeane *Geane = new FairGeane();
-  fRun->AddTask(Geane);
-  std::cout<<"\nGEANE initialised"<<std::endl;
+
   // ------------------------------------------------------------------------
- 
+
+
 
   // -----  Parameter database   --------------------------------------------
   
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
-  parInput1->open(paramIn.Data());
-  
-  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
+  parInput1->open(paramIn1.Data());
+ FairParRootFileIo* parInput2 = new FairParRootFileIo(kTRUE);
+  parInput2->open(paramIn2.Data());
+
+  FairParAsciiFileIo* parInput3 = new FairParAsciiFileIo();
   TString tpcDigiFile = gSystem->Getenv("VMCWORKDIR");
   tpcDigiFile += "/tpc/TestBench/tpc.TBtestChamber.par";
-  parInput2->open(tpcDigiFile.Data(),"in");
+  //tpcDigiFile += "/tpc/tpc.par";
+  parInput3->open(tpcDigiFile.Data(),"in");
 
-  rtdb->setFirstInput(parInput2); //root file IO tends to fail, use ASCII first
-  rtdb->setSecondInput(parInput1);
+
+  rtdb->setFirstInput(parInput1); //root file IO tends to fail, use ASCII first
+  rtdb->setSecondInput(parInput2);
 
   rtdb->Print();
 
-  
+
   // ------------------------------------------------------------------------
-  QAPlotCollection* qa=new QAPlotCollection("TpcDigiQAPlots");  
+
+  FairGeane *Geane = new FairGeane();
+  fRun->AddTask(Geane);
+  std::cout<<"\nGEANE initialised"<<std::endl;
 
 
     // -----    Reco Sequence  --------------------------------------------
 
-  PndTpcDataReaderTask* read = new PndTpcDataReaderTask();
-  read->SetPersistence();
-  read->SetDatafile("/home/felix/data/FOPI_TPC/2010/decoded/runC_1702.lmd_decoded_repaired.root");
-  read->SetClusterBranchName("PndTpcSample");
-  //read->SetCutSmallPad();
-  //read->SetMinSamples(1000);
-  fRun->AddTask(read);
-  
-  //PndTpcTCcrossTalkTask* CT = new PndTpcTCcrossTalkTask();
-  //CT->SetPersistence();
-  //fRun->AddTask(CT);
-  
-  
-  PndTpcPSATask* tpsa = new  PndTpcPSATask();
-  //tpsa->SetPersistence();
-  tpsa->SetSampleBranchName("PndTpcSample");
-  fRun->AddTask(tpsa);
-
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
+  bool SimpleClustering = true;
   //tpcCF->SetDataMode(true); //prevents usage of FairLinks
-  tpcCF->SetMode(1); // individual timeslice
-  tpcCF->SetDataMode(true);
-  tpcCF->SetPersistence();
-  tpcCF->SetDigiBranchName("PndTpcDigi");
+  tpcCF->SetDigiPersistence(); // keep reference to digis in clusters
+  tpcCF->SetPersistence(); // keep Clusters
   tpcCF->timeslice(5); //in samples
-  //tpcCF->SetTrivialClustering();
+  tpcCF->SetThreshold(1);
+  tpcCF->SetSingleDigiClusterAmpCut(15);
+  tpcCF->SetClusterAmpCut(9.1);
+  if(!SimpleClustering) {
+    tpcCF->SetMode(2); // 0 - global time bins;
+                       // 1 - individual time bins for each sector;
+                       // 2 - each pad gets its time window - actually we search for gaps on a pad;
+    tpcCF->SetDiffFactor(1.);
+    tpcCF->SetClusterTimeCut(5.);
+  }
+  tpcCF->SetErrorPars(600.,500.);
+  if(SimpleClustering) tpcCF->SetSimpleClustering(); // use PndTpcClusterFinderSimple
   fRun->AddTask(tpcCF);
 
 
-  //PndTpcCTapplyTask* CTapply = new PndTpcCTapplyTask();
-  //CTapply->SetPersistence();
-  //fRun->AddTask(CTapply);
-  
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
-  tpcSPR->SetTrkFinderParameters(1.,// proxcut
-                                 0.05, // proxcut on rieman sphere
-                                 5.E-3, // planecut
-                                 4.0, // szcut
-                                 4); // minnumhits for fit
+  tpcSPR->SetSortingParameters(
+                   true, // false: sort only according to _sorting (see next argument); true: use internal sorting when adding hits to trackcands
+                   3,    // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
+                   0.); // z-position of interaction point (for sorting 4)
+  tpcSPR->SetTrkFinderParameters(
+                   1.9,  // proximity cut in 3D
+                   0.1, // proximity cut on rieman sphere
+                   0.04, // distance to plane cut
+                   0.2,  // szcut
+                   4);   // minimum hits for plane & sz-fit
+  tpcSPR->SetMergeTracks();
+  tpcSPR->SetTrkMergerParameters(
+                   2.2,  // proximity cut
+                   0.33,  // sz cut
+                   0.025);// plane cut (RMS)
+  tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
   tpcSPR->SetPersistence();
-  //fRun->AddTask(tpcSPR);
-
-  
-
-  PndTpcSLPatternRecoTask* tpcSLPR = new PndTpcSLPatternRecoTask();
-  tpcSLPR->SetStoreHistograms(PROutFile);
-  tpcSLPR->SetClusterAmpCut(50.);
-  tpcSLPR->SetCutTracksParallelZ(5);
-  tpcSLPR->SetXSorting(true);
-  double parMins[4] = {-TMath::Pi(),0.,-TMath::Pi(),0.};
-  double parMaxs[4] = {TMath::Pi(),30.,TMath::Pi(),30.};
-  tpcSLPR->SetParameterSpace(parMins, parMaxs);
-  tpcSLPR->SetDepth(8);
-  tpcSLPR->SetThresh(15);
-  tpcSLPR->SetMinCandHits(13);
-  //tpcSLPR->SetClusterBranchName("PndTpcCluster_cut");
-  fRun->AddTask(tpcSLPR);
-
-
-//  PndTpcTCtrackFit* tf = new PndTpcTCtrackFit();
-//  tf->SetPersistence();
-  //tf->SetDraw();
-  //fRun->AddTask(tf);
+  //tpcSPR->SetStoreHistograms(PROutFile); //
+  //tpcSPR->WriteHistograms(PROutFile);
+  fRun->AddTask(tpcSPR);
 
 
   KalmanTask* kalman =new KalmanTask();
@@ -175,25 +166,25 @@ gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
 
   TrackFitStatTask* fitstat=new TrackFitStatTask();
   fitstat->SetPersistence();
-//  fitstat->SetMCPCut(0); // in sigma dp/p
-//  fitstat->SetMCCuts(0.005, // pmin
-//	             10., // pmax
-//		     -TMath::Pi(),   // thetamin 5deg
-//		     TMath::Pi(),  // thetamax
-//		     5); // nPndTpcPoints
-  fitstat->SetPdgSelection(11);//321
-//fitstat->DoResiduals();
-//  fRun->AddTask(fitstat);
+  //  fitstat->SetMCPCut(0); // in sigma dp/p
+  fitstat->SetMCCuts(0.005,       // pmin
+                     10.,         // pmax
+                     -TMath::Pi(),// thetamin
+                     TMath::Pi(), // thetamax
+                     5);          // nPndTpcPoints
+  fitstat->SetPdgSelection(11);   // 321
+  fitstat->DoResiduals();
+  fRun->AddTask(fitstat);
 
-  PndTpcSLResidualTask* SLres = new PndTpcSLResidualTask();
-  SLres->SetPersistence();
+
+  PndTpcResidualTask* Res = new PndTpcResidualTask();
+  Res->SetPersistence();
   //SLres->SetClusterBranchName("PndTpcCluster_cut");
-  SLres->SetSecondarySuppression(true);
-  fRun->AddTask(SLres);
+  //fRun->AddTask(Res);
   
 
 
-  // -----   Intialise and run   --------------------------------------------
+  // -----   Initialise and run   --------------------------------------------
   fRun->Init();
   
   fRun->Run(0,0);
