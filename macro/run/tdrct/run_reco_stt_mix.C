@@ -71,7 +71,7 @@
   //  PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
   PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(0, false, true);
   PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
-  sttFindTracks->AddHitCollectionName("STTHitMix", "STTPoint");
+  sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
   fRun->AddTask(sttFindTracks);
   
   PndSttMvdTracking *  SttMvdTracking = new PndSttMvdTracking(0,false,true);
@@ -87,6 +87,11 @@
   recoKalman->SetBusyCut(50); // CHECK to be tuned
   //recoKalman->SetNumIterations(3);
   fRun->AddTask(recoKalman);
+
+  PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
+  trackMC->SetTrackInBranchName("SttMvdiGemGenTrack"); 
+  trackMC->SetTrackOutBranchName("SttMvdGemGenTrackID");
+  fRun->AddTask(trackMC);
 
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(6);

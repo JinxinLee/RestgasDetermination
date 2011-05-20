@@ -72,8 +72,14 @@
   PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
   recoKalman->SetTrackInBranchName("SttMvdGemTrack");
   recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
+  recoKalman->SetBusyCut(50); // CHECK to be tuned
   //recoKalman->SetNumIterations(3);
   fRun->AddTask(recoKalman);
+
+  PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
+  trackMC->SetTrackInBranchName("SttMvdGemGenTrack"); 
+  trackMC->SetTrackOutBranchName("SttMvdGemGenTrackID");
+  fRun->AddTask(trackMC);
 
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(6);

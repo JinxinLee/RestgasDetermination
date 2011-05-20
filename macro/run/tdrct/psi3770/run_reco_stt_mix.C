@@ -88,6 +88,11 @@
   //recoKalman->SetNumIterations(3);
   fRun->AddTask(recoKalman);
 
+  PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
+  trackMC->SetTrackInBranchName("SttMvdiGemGenTrack"); 
+  trackMC->SetTrackOutBranchName("SttMvdGemGenTrackID");
+  fRun->AddTask(trackMC);
+
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(6);
   fRun->Init();
