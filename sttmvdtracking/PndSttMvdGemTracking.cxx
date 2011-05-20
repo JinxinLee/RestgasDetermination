@@ -562,32 +562,32 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 // 	cout << "START MOM " << lastpar.GetMomentum().Mag() << " " << tmppar.GetMomentum().Mag() << endl;
 
       // **************
-      int mcIndex = sttmvdCand->getMcTrackId();
-      if(mcIndex == -1)  { 
-	flag[itrk] = -4; 
-	if(THROWAWAY) continue;
-      } // CHECK 4 PERFORMANCE delete this!!!!
-     else {
-       //  cout << "FROM MC " << mcIndex << endl;
-       PndMCTrack *mctrk = (PndMCTrack*) fMCTrackArray->At(mcIndex);
-       if(mctrk) {
-	 // 	cout << "PDG " << mctrk->GetPdgCode() << " MOTHERID " << mctrk->GetMotherID() << endl;
-	 int mccharge = (int) TMath::Sign(1., TDatabasePDG::Instance()->GetParticle(mctrk->GetPdgCode())->Charge()/3.);
-	 if(mccharge != charge && fVerbose > 0) cout << "WRONG CHARGE " << charge << " " << mccharge << " " << mctrk->GetPdgCode() << endl;
+ 	if(fEvaluate) {
+	  int mcIndex = sttmvdCand->getMcTrackId();
+	  if(mcIndex == -1)  { 
+	    flag[itrk] = -4; 
+	    if(THROWAWAY) continue;
+	  } // CHECK 4 PERFORMANCE delete this!!!!
+	  else {
+	    //  cout << "FROM MC " << mcIndex << endl;
+	    PndMCTrack *mctrk = (PndMCTrack*) fMCTrackArray->At(mcIndex);
+	    if(mctrk) {
+	      // 	cout << "PDG " << mctrk->GetPdgCode() << " MOTHERID " << mctrk->GetMotherID() << endl;
+	      int mccharge = (int) TMath::Sign(1., TDatabasePDG::Instance()->GetParticle(mctrk->GetPdgCode())->Charge()/3.);
+	      if(mccharge != charge && fVerbose > 0) cout << "WRONG CHARGE " << charge << " " << mccharge << " " << mctrk->GetPdgCode() << endl;
 
-
-	 if(mctrk->GetMotherID() != -1)  {
-	   flag[itrk] = -5; 
-	   if(THROWAWAY) continue;
-	 } // CHECK 4 PERFORMANCE delete this!!!!
-       }
-     }
-      // **************
-
-  
-      countsttmvdusable++;
-      usabletracks.push_back(mcIndex); // CHECK 4 PERFORMANCE delete this!!!!
-
+	      
+	      if(mctrk->GetMotherID() != -1)  {
+		flag[itrk] = -5; 
+		if(THROWAWAY) continue;
+	      } // CHECK 4 PERFORMANCE delete this!!!!
+	    }
+	  }
+	  // **************
+	  countsttmvdusable++;
+	  usabletracks.push_back(mcIndex); // CHECK 4 PERFORMANCE delete this!!!!
+	}
+	
       Int_t closestonfirst = -1;
       Double_t closestdistance = -1;
       // loop over the GEM hits from the closest to 0, 0, 0 to the most external
