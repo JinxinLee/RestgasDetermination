@@ -1254,7 +1254,7 @@ void PndTpcClustVis::makeGui() {
     hf->AddFrame(guiUseGeane);
     guiUseGeane->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetFittingParams()");
   }
-  frmMain->AddFrame(hf);
+  //frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
     guiNumIts = new TGNumberEntry(hf, numIts, 6,999, TGNumberFormat::kNESInteger,
                           TGNumberFormat::kNEANonNegative,
@@ -1272,7 +1272,7 @@ void PndTpcClustVis::makeGui() {
     hf->AddFrame(guiSmooth);
     guiSmooth->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetFittingParams()");
   }
-  //frmMain->AddFrame(hf);
+  frmMain->AddFrame(hf);
 
   frmMain->MapSubwindows();
   frmMain->Resize();
