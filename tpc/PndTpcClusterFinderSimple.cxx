@@ -121,24 +121,9 @@ void PndTpcPrelimCluster::cog(){
   // calculate errors: ------------------------------------------
 	double dx, dy;
 	PndTpcDigiMapper::getInstance()->padsize(fdigis[0]->padId(),dx,dy);
-  double Dl = PndTpcDigiMapper::getInstance()->getGas()->Dl();
-  double Dt = PndTpcDigiMapper::getInstance()->getGas()->Dt();
-  double driftl=fpos.z()-PndTpcDigiMapper::getInstance()->zGem();
 
   ferr=(0.,0.,0.);
      
-  if(DEBUG) {
-    std::cout<<"PndTpcSectorProcessor: Gas DiffL: "<<Dl 
-	     <<", Gas DiffT: "<<Dt<<std::endl;
-    std::cout<<"PndTpcSectorProcessor: zGem is "
-	     <<PndTpcDigiMapper::getInstance()->zGem()<<std::endl
-	     <<", drift length: "<<driftl<<std::endl;
-  }
-    
-  double absdriftl=fabs(driftl);
-  double diffSigmaL = Dl * Dl * absdriftl;
-  double diffSigmaT = Dt * Dt * absdriftl;
-    
   for(unsigned int id=0;id<ndigis;++id){
     PndTpcDigi* adigi=fdigis[id];
     double a=(double)adigi->amp()*fdigiShares[adigi];
@@ -153,12 +138,14 @@ void PndTpcPrelimCluster::cog(){
     ferr+=thissig;  
   } // end second loop over digis
 
-  if(ferr.X()<1E-5) ferr.SetX(sqrt(dx*dx/12+diffSigmaT));
-  else ferr.SetX(sqrt((ferr.X()+fG*diffSigmaT)/famp)*fC/famp);
-  if(ferr.Y()<1E-5) ferr.SetY(sqrt(dy*dy/12+diffSigmaT));
-  else ferr.SetY(sqrt((ferr.Y()+fG*diffSigmaT)/famp)*fC/famp);
-  if(ferr.Z()<1E-5) ferr.SetZ(sqrt(zDiff*zDiff/12+diffSigmaL));
-  else ferr.SetZ(sqrt((ferr.Z()+fG*diffSigmaL)/famp)*fC/famp);
+  if(ferr.X()<1E-5) ferr.SetX(sqrt(dx*dx/12));
+  else ferr.SetX(sqrt(ferr.X()/famp)*fC/famp);
+
+  if(ferr.Y()<1E-5) ferr.SetY(sqrt(dy*dy/12));
+  else ferr.SetY(sqrt(ferr.Y()/famp)*fC/famp);
+
+  if(ferr.Z()<1E-5) ferr.SetZ(sqrt(zDiff*zDiff/12));
+  else ferr.SetZ(sqrt(ferr.Z()/famp)*fC/famp);
   
   if(DEBUG) ferr.Print();
 
