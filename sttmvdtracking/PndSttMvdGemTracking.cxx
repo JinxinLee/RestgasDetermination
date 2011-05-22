@@ -548,6 +548,7 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 	if (tmppar.GetMomentum().Z() == 0) {
 	  if(fVerbose > 0) cout  << " CANNOT PROPAGATE because z mom == 0" << endl; 
 	  flag[itrk] = -7;
+	  continue;
 	}
 
 	// =========== test of prop on 1st plane
