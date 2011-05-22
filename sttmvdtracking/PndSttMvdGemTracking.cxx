@@ -545,6 +545,11 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 
 	FairTrackParP tmppar = SetStartParameters(sttmvd, sttmvdCand);
 
+	if (tmppar.GetMomentum().Z() == 0) {
+	  if(fVerbose > 0) cout  << " CANNOT PROPAGATE because z mom == 0" << endl; 
+	  flag[itrk] = -7;
+	}
+
 	// =========== test of prop on 1st plane
 	FairTrackParP *gempartest = new FairTrackParP();
 	if(PropagateToGemPlaneAsHelix(sttmvd, gempartest, 0) == kFALSE) {
