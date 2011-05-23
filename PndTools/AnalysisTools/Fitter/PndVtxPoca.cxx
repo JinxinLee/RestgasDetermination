@@ -31,9 +31,7 @@ Double_t PndVtxPoca::GetPocaVtx(TVector3 &vertex)
   vertex.SetXYZ(0.,0.,0.); 
   if ( fHeadOfTree->NDaughters() <  2 ) return 0.;
   if ( fHeadOfTree->NDaughters() == 2 ) return GetPoca(vertex,fHeadOfTree->Daughter(0),fHeadOfTree->Daughter(1));
-
   
-  Double_t distance=0.;
   std::vector<Double_t> distances;
   std::vector<TVector3> results;
   // loop over daughters, take the mean value of all "best" positions
@@ -56,20 +54,22 @@ Double_t PndVtxPoca::GetPocaVtx(TVector3 &vertex)
   // Averaging vertex results from each track pair how to do that? "geometric" or arithmetic mean?
   std::vector<Double_t>::iterator iterDoca;
   std::vector<TVector3>::iterator iterVtx;
-  Double_t idocasq=0,sumdoca=0; 
-  TVector3 ivertex;
+  Double_t docaweight=0,sumdocaweigts=0; 
+  TVector3 vertexK;
   for(iterVtx=results.begin(), iterDoca=distances.begin();iterVtx!=results.end()&&iterDoca!=distances.end();++iterVtx,++iterDoca)
   {
-    idocasq=*iterDoca * *iterDoca;
-    ivertex=*iterVtx;
-    if (idocasq == 0) idocasq = 1; // right so?
-    ivertex *= 1./idocasq;
-    vertex+=ivertex;
-    sumdoca+=idocasq;
+    docaweight=1/(*iterDoca);
+    //docaweight *= docaweight;
+    vertexK=*iterVtx;
+    if (docaweight == 0) docaweight = 1; // right so?
+    vertexK *= docaweight;
+    vertex+=vertexK;
+    sumdocaweigts+=docaweight;
   }
-  if (sumdoca == 0) sumdoca=1;
-  vertex*=1./sumdoca;
-  return distance;
+  if (sumdocaweigts == 0) sumdocaweigts=1;
+  vertex*=1./sumdocaweigts;
+  //sumdocaweigts = sqrt(sumdocaweigts);
+  return fHeadOfTree->NDaughters()/sumdocaweigts;
 }
 
 
