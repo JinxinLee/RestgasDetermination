@@ -7,27 +7,15 @@
   // ----  Load libraries   -------------------------------------------------
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
   basiclibs();
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libPndData");
-  gSystem->Load("libField");
-  gSystem->Load("libGen");
-  gSystem->Load("libPassive");
-  gSystem->Load("libgenfit");
-  gSystem->Load("libtpc");
-  gSystem->Load("libtpcreco");
-gSystem->Load("libtrackrep");
-  gSystem->Load("librecotasks");
-  
+
   
   TString PANDAMC=gSystem->Getenv("PANDAMC");
 
   // Input file (RAW events)
-  TString inFile="../data/Pion40_0/DigiSlice/evtmix13/test1.raw.root";
-  TString jobname="reco1";
+  TString inFile="TEST/evtmix13/DPM.mixed.root";
+  TString jobname="reco2";
 
-  TString mcFile="../data/Pion40_0/test1.mc.root";
+  TString mcFile="TEST/DPM.mc.root";
   
   inFile.ReplaceAll("$PANDAMC",PANDAMC);
 
@@ -44,10 +32,16 @@ gSystem->Load("libtrackrep");
   
   TString outFile = inFile; 
   outFile.ReplaceAll(inDir,jobDir);
-  outFile.ReplaceAll(".raw.root",".reco.root");
+  outFile.ReplaceAll(".mixed.root",".reco.root");
+  TString plotsfile = outFile;
+  plotsfile.ReplaceAll("reco.root","plots.root");
 
-  TString paramIn = inFile;
-  paramIn.ReplaceAll(".raw.root",".param.root");
+
+  TString paramIn1 = inFile;
+  TString paramIn2 = mcFile;
+  paramIn1.ReplaceAll(".mixed.root",".param.root");
+  paramIn2.ReplaceAll(".mc.root",".param.root");
+
   TString paramOut = outFile;
   paramOut.ReplaceAll(".reco.root",".param.root");
 
@@ -63,7 +57,8 @@ gSystem->Load("libtrackrep");
   std::cout<<"Input: "<<inFile<<std::endl;
   std::cout<<"Output: "<<outFile<<std::endl;
   std::cout<<"MCFile: "<<mcFile<<std::endl;
-  std::cout<<"ParamIn: "<<paramIn<<std::endl;
+  std::cout<<"ParamIn1: "<<paramIn1<<std::endl;
+  std::cout<<"ParamIn2: "<<paramIn2<<std::endl;
   std::cout<<"ParamOut: "<<paramOut<<std::endl;
 
 
@@ -89,7 +84,7 @@ gSystem->Load("libtrackrep");
   // -----   Digitization run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
-  mcFile.ReplaceAll("$PANDAMC","/afs/e18/data/panda/MC");
+  //mcFile.ReplaceAll("$PANDAMC","/afs/e18/data/panda/MC");
   fRun->AddFriend(mcFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
@@ -99,8 +94,13 @@ gSystem->Load("libtrackrep");
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
-  parInput1->open(paramIn.Data());
+  parInput1->open(paramIn1.Data());
   rtdb->setFirstInput(parInput1);
+
+  FairParRootFileIo* parInput2 = new FairParRootFileIo();
+  parInput2->open(paramIn2.Data());
+  rtdb->setSecondInput(parInput2);
+
   
   rtdb->print();
 
@@ -109,114 +109,104 @@ gSystem->Load("libtrackrep");
   rtdb->setOutput(parOutput1);
   rtdb->saveOutput();
 
-  fRun->LoadGeometry();
+  //fRun->LoadGeometry();
   // ------------------------------------------------------------------------
   
 
 
-    // -----    Reco Sequence  --------------------------------------------
-  PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
-  tpcCF->SetMode(1); // individual timeslice
-  tpcCF->SetPersistence();
-  tpcCF->timeslice(20); // = 4 sample times = 100ns @ 40MHz
-//tpcCF->SetTrivialClustering();
-  fRun->AddTask(tpcCF);
+  // -----    Reco Sequence  --------------------------------------------
+  // PndTpcRiemannMCTask* tpcRMC = new PndTpcRiemannMCTask();
+  // tpcRMC->SetBkgFileName("../data/DPM/test1.mc.root");
+  // tpcRMC->SetPersistence();
+  // fRun->AddTask(tpcRMC);
+  
+  PndTpcPatternRecoTask* tpcPR= new PndTpcPatternRecoTask();
+  tpcPR->SetTrkFinderParameters(20.,    // riemannScale
+		       1.5,   //proxcut, 
+		       0.025, // riproxcut, 
+                       2.5,   // szcut,
+		       0.02,  // planecut,
+		       2.5,   //  TTproxcut, 
+		       4.0,   // TTplanecut, 
+		       2.5,   //  TTszcut,
+		       6,     // t minpointsforfit,
+		       200);
+    tpcPR->SetTrkFinderOptions(true, // dosorting
+			       3, // sortingmode
+			       false, // doClean,
+			       true); // doMerge
+    fRun->AddTask(tpcPR);
 
-  PndTpcRiemannMCTask* tpcRMC = new PndTpcRiemannMCTask();
-  tpcRMC->SetBkgFileName("../data/DPM/test1.mc.root");
-  tpcRMC->SetPersistence();
-  fRun->AddTask(tpcRMC);
+ // PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
+ //    tpcSPR->SetSortingParameters(
+ // 				 true, // false: sort only according to _sorting (see next argument); true: use internal sorting when adding hits to trackcands
+ // 				 3,    // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
+ // 				 30.); // z-position of interaction point (for sorting 4)
+ //    tpcSPR->SetTrkFinderParameters(
+ // 				   1.5,  // proximity cut in 3D
+ // 				   0.025, // proximity cut on rieman sphere
+ // 				   0.02, // distance to plane cut
+ // 				   2.5,  // szcut
+ // 				   8);   // minimum hits for plane & sz-fit
+ //    tpcSPR->SetMergeTracks();
+ //    tpcSPR->SetTrkMergerParameters(
+ // 				   2.5,  // proximity cut
+ // 				   2.5,  // sz cut
+ // 				   4);// plane cut (RMS)
+    
+ //    tpcSPR->SetPersistence();
+ //    tpcSPR->SetStoreHistograms("riemann.root");
+ //    //    tpcSPR->useGeane();
+ //    fRun->AddTask(tpcSPR);
+  
 
 
-  PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
-  tpcSPR->SetTrkFinderParameters(2.,// proxcut
-			       0.02, // proxcut on rieman sphere
-			       2.E-3, // planecut
-			       4.0, // szcut
-			       4); // minnumhits for fit
-  tpcSPR->SetPersistence();
+
+
+
+
+  // PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
+  // tpcSPR->SetTrkFinderParameters(2.,// proxcut
+  // 			       0.02, // proxcut on rieman sphere
+  // 			       2.E-3, // planecut
+  // 			       4.0, // szcut
+  // 			       4); // minnumhits for fit
+  // tpcSPR->SetPersistence();
 // fRun->AddTask(tpcSPR);
 
-  KalmanTask* kalman =new KalmanTask();
-  kalman->SetPersistence();
-//fRun->AddTask(kalman);
+ //  KalmanTask* kalman =new KalmanTask();
+//   kalman->SetPersistence();
+// //fRun->AddTask(kalman);
 
 
-  TrackFitStatTask* fitstat=new TrackFitStatTask();
-  fitstat->SetPersistence();
-  fitstat->SetMCPCut(3); // in sigma dp/p
-  fitstat->SetMCCuts(0.05, // pmin
-	             10., // pmax
-		     -TMath::Pi(),   // thetamin 5deg
-		     TMath::Pi(),  // thetamax
-		     20); // nPndTpcPoints
+  // TrackFitStatTask* fitstat=new TrackFitStatTask();
+  // fitstat->SetPersistence();
+  // fitstat->SetMCPCut(3); // in sigma dp/p
+  // fitstat->SetMCCuts(0.05, // pmin
+  // 	             10., // pmax
+  // 		     -TMath::Pi(),   // thetamin 5deg
+  // 		     TMath::Pi(),  // thetamax
+  // 		     20); // nPndTpcPoints
 //fitstat->SetPdgSelection(321);
 //fitstat->DoResiduals();
 //fRun->AddTask(fitstat);
 
   
-  PndTpcRecoDEdxTask* dEdx=new PndTpcRecoDEdxTask();
-  dEdx->SetPersistence();
-//fRun->AddTask(dEdx);
 
-
-  PndTpcTrackVisTask* trkVis = new PndTpcTrackVisTask();
-  trkVis->SetTrackBranchName("TrackPreFit");
-  trkVis->drawFits(true);
-// fRun->AddTask(trkVis);
-
-  LambdaSelector* lambdaSel = new LambdaSelector();
-  lambdaSel->SetTrackBranchName("TrackPreFit");
-  lambdaSel->SetPersistence();
-// fRun->AddTask(lambdaSel);
-
-  V0Selector* V0Sel = new V0Selector();
-  V0Sel->SetTrackBranchName("TrackPreFit");
-//V0Sel->SetPositivePartMass(0.938272);
-//V0Sel->SetNegativePartMass(0.13957);
-//V0Sel->SetPositivePartMass(511.E-6);
-//V0Sel->SetNegativePartMass(511.E-6);
-
-  V0Sel->SetPersistence();
-//  fRun->AddTask(V0Sel);
-
-V0Selector* V0Sel2 = new V0Selector();
-  V0Sel2->SetTrackBranchName("TrackPreFit");
-//V0Sel2->SetV0BranchName("Lambda");
-//V0Sel->SetPositivePartMass(0.938272);
-//V0Sel->SetNegativePartMass(0.13957);
-//V0Sel2->SetPositivePartMass(0.13957);
-//V0Sel2->SetNegativePartMass(0.13957);
-
-  V0Sel2->SetPersistence();
-//fRun->AddTask(V0Sel2);
-
-
-
-  LambdaStatTask* lambdaStat = new LambdaStatTask();
- lambdaStat->SetPersistence();
-//fRun->AddTask(lambdaStat);
-
-
-
-
-  // -----   Intialise and run   --------------------------------------------
-  fRun->Init();
-  fRun->Run(0);
-  // ------------------------------------------------------------------------
-
-
-
+ 
+ fRun->Init();
+  
+  fRun->Run(0,0);
   // -----   Finish   -------------------------------------------------------
 
-  tpcRMC->WriteHistograms();
+  // tpcRMC->WriteHistograms();
 //  tpcSPR->WriteHistograms("RecoHistos.root");
 //kalman->WriteHistograms("RecoHistos.root");
 //fitstat->WriteHistograms("RecoHistos.root");
-  dEdx->WriteHistograms("RecoHistos.root");
+  // dEdx->WriteHistograms("RecoHistos.root");
 
-  DebugLogger::Instance()->WriteFiles();
-
+  //DebugLogger::Instance()->WriteFiles();
+tpcPR->WriteHistograms(plotsfile);
 //delete tpcSplitter;
   rtdb->saveOutput();
   rtdb->print();
