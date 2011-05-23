@@ -43,7 +43,7 @@ public:
   // Operators
   
   // Accessors -----------------------
-
+  Double_t MeanEvtSpacing() const {return fmeanEvtSpacing;}
 
   // Modifiers -----------------------
   void SetInBranchName(const TString& name) {finBranchName=name;}
@@ -52,7 +52,10 @@ public:
   void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
   void SetNBkgEvts(Int_t n) {fnbkgEvts=n;}
   void AddSector(UInt_t id){fsectors.insert(id);}
-
+  void SetMeanEvtSpacing(Double_t deltaT) {fmeanEvtSpacing=deltaT;fdoTimeSim=true;} // [ns]
+  void SetEvtRate(Double_t evt_per_sec) {fmeanEvtSpacing=1/evt_per_sec*1.E9;fdoTimeSim=true;}
+  void SetT0(Double_t t0) {ft0=t0;fdoTimeSim=true;}
+  
   // Operations ----------------------
   virtual InitStatus Init();
   virtual void SetParContainers();
@@ -69,6 +72,7 @@ private:
   TClonesArray* fsignalArray;
   TClonesArray* fbkgArray;
   TClonesArray* ftimeArray;
+  TClonesArray* ftimeOutArray;
 
   TFile* finFile;
   TTree* fbkgTree;
@@ -77,6 +81,11 @@ private:
   Bool_t fpersistence;
   Bool_t fdoSignals;
   Int_t fnbkgEvts;
+  Int_t fnAvailableBkgEvents;
+  Bool_t fdoTimeSim;
+  Double_t fmeanEvtSpacing;
+  Double_t ft0;
+  
 
   std::set<unsigned int> fsectors;
   PndTpcDigiPar* fpar;

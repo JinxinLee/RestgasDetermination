@@ -54,7 +54,10 @@ PndTpcEvtMixTask::PndTpcEvtMixTask()
     ftimeArray(NULL),
     fbkgArray(NULL),
     fpersistence(kFALSE),
-    fnbkgEvts(0)
+    fnbkgEvts(0),
+    fmeanEvtSpacing(0),
+    ft0(0),
+    fdoTimeSim(false)
 {}
 
 PndTpcEvtMixTask::~PndTpcEvtMixTask()
@@ -167,10 +170,16 @@ PndTpcEvtMixTask::Init()
   fbkgArray = new TClonesArray(fbkgBranchName);
   ftimeArray = new TClonesArray("PndTpcEvtTime");
   fbkgTree->SetBranchAddress(fbkgBranchName,&fbkgArray);
-   fbkgTree->SetBranchAddress("PndTpcEvtTime",&ftimeArray);
-  
+  fbkgTree->SetBranchAddress("PndTpcEvtTime",&ftimeArray);
+  fnAvailableBkgEvents=fbkgTree->GetEntries();
+
 
   fpadPlane= fpar->getPadPlane();
+
+  
+  // store timing info in this event
+  ftimeOutArray = new TClonesArray("PndTpcEvtTime");
+  ioman->Register("PndTpcEvtTime","PndTpc",ftimeOutArray,fpersistence);
 
 
   return kSUCCESS;
@@ -182,16 +191,27 @@ void
 PndTpcEvtMixTask::Exec(Option_t* opt)
 {
   std::cout<< "PndTpcEvtMixTask::Exec" << std::endl;
+  // clean up fTimeArray
+  ftimeArray->Delete();
 
   // Look at this event geantHits in the TPC:
   Int_t iout=fsignalArray->GetEntriesFast();
   std::cout<<iout<<" signals in signalArray"<<std::endl;
-
   
-  // Get background event
+  // reset timer
+  double teventSim=ft0;
+  
+  // Get background events
   for(Int_t i=0;i<fnbkgEvts;++i){
-    fbkgTree->GetEntry(i);
+    Int_t selectEvt=gRandom->Uniform(fnAvailableBkgEvents);
+    fbkgTree->GetEntry(selectEvt);
     double tevent=((PndTpcEvtTime*)ftimeArray->At(0))->t0();
+    // if reshuffel
+    if(fdoTimeSim){
+       teventSim+=gRandom->Exp(fmeanEvtSpacing);
+       new ((*ftimeOutArray)[i]) PndTpcEvtTime(tevent,selectEvt+1);    
+       tevent=teventSim;
+    }
     double teventClock=PndTpcDigiMapper::getInstance()->t_to_ticks(tevent);
     //std::cout<<"tevent="<<tevent<<std::endl;
     // Load bkg array
@@ -211,7 +231,7 @@ PndTpcEvtMixTask::Exec(Option_t* opt)
 	}
 	// TODO: modify time of point according to event time
 	sig->sett(sig->t()+tevent);
-	sig->setmcEventId(i+1);
+	sig->setmcEventId(selectEvt+1); // add because evt 0 = physics event!
 	// Add background to point-array of this event
 	new((*fsignalArray)[iout++]) PndTpcSignal(*sig);
       } // if doSignals
@@ -226,7 +246,7 @@ PndTpcEvtMixTask::Exec(Option_t* opt)
 	}
 	// TODO: modify time of point according to event time
 	digi->t(digi->t()+teventClock);
-	digi->shiftEventIds(i+1);
+	digi->shiftEventIds(selectEvt+1);
 	// Add background to point-array of this event
 	new((*fsignalArray)[iout++]) PndTpcDigi(*digi);
       } // end digis
