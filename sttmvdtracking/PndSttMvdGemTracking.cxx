@@ -940,6 +940,7 @@ Bool_t PndSttMvdGemTracking::PropagateToGemPlane(FairTrackParP *tmppar, FairTrac
   if(fVerbose > 0) {
     cout << "propagation from " << endl;
     tmppar->GetPosition().Print();
+    tmppar->GetMomentum().Print();
   }
   
   // last z position
@@ -956,8 +957,8 @@ Bool_t PndSttMvdGemTracking::PropagateToGemPlane(FairTrackParP *tmppar, FairTrac
   if(fVerbose > 0) {
     cout << "propagation to " << prop << endl;
     gempar->GetPosition().Print();
+    gempar->GetMomentum().Print();
   }
-  // gempar->GetMomentum().Print();
   return prop;
 }
 
@@ -1979,6 +1980,12 @@ FairTrackParP PndSttMvdGemTracking::SetStartParameters(PndTrack *sttmvd, PndTrac
        
   }
 
+  if(fVerbose) {
+    cout << "from prefit " << endl;
+    startpar.GetPosition().Print();
+    startpar.GetMomentum().Print();
+  }
+       
   return startpar;
 }
 
