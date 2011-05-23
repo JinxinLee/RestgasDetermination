@@ -219,8 +219,7 @@ InitStatus PndSttMvdGemTracking::Init() {
   // set up geometry of GEMs;
   SetupGEMPlanes();
 
-
-
+ 
   cout << "-I- PndSttMvdGemTracking: Intialisation successfull" << endl;
   return kSUCCESS;
 }
@@ -446,7 +445,15 @@ void PndSttMvdGemTracking::OrderGemHits(Int_t nhits) {
 
 // -----   Public method Exec   --------------------------------------------
 void PndSttMvdGemTracking::Exec(Option_t* opt) {
-  if(fVerbose > 0)  cout << "==================== EVENT " << evt << endl;
+  if(fVerbose > 0) {
+    cout << "==================== EVENT " << evt << endl;
+    cout << "detId " << FairRootManager::Instance()->GetBranchId(fMvdPixelBranchName) 
+	 << " "      << FairRootManager::Instance()->GetBranchId(fMvdStripBranchName)
+	 << " "      << FairRootManager::Instance()->GetBranchId(fGemBranchName)
+      	 << " "      << FairRootManager::Instance()->GetBranchId(fSttBranchName) << endl;
+  }
+
+
   evt++;
   fTurn = 1;
   fCompleteTrackCandArray->Delete();
@@ -481,6 +488,9 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
   // loop on the tracks found in mvd + stt ************
   for (Int_t itrk = 0; itrk < ntracks; itrk++) 
     {
+
+      if(fVerbose > 0)  cout << "----------- TRACK " << itrk << "------------" << endl;
+
       flag[itrk] = 0; 
       sttmvd = (PndTrack*) fTrackArray->At(itrk);
       if (!sttmvd) 
@@ -508,7 +518,7 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
       // -------------------------------------------------
 
       if(nhits == 0)  { flag[itrk] = -1;  continue; } // CHECK 
-
+    
       // cout << "copied completeCand from sttmvdCand @ " << itrk << " has hits " << completeCand->GetNHits() << endl;
       //       
       FairTrackParP lastpar = sttmvd->GetParamLast();
@@ -542,13 +552,27 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
  	// continue; // CHECK 4 PERFORMANCE delete this!!!!
 
       }
-
+    
+	if(fVerbose > 0) cout << "setParameters for track " << itrk << endl;
 	FairTrackParP tmppar = SetStartParameters(sttmvd, sttmvdCand);
-
+	if(fVerbose > 0) {
+	  cout << "PARAMETERS about momentum" << endl;
+	  tmppar.GetMomentum().Print();
+	  cout << "pz " << tmppar.GetMomentum().Z() << endl;
+	}
+	
 	if (tmppar.GetMomentum().Z() < 1.e-5) {
 	  if(fVerbose > 0) cout  << " CANNOT PROPAGATE because z mom == 0" << endl; 
 	  flag[itrk] = -7;
 	  continue;
+	}
+    
+	if(fVerbose > 0) {
+	  if (tmppar.GetMomentum().Z() < 1.e-5) cout << "less 10-5" << endl;
+	  if (tmppar.GetMomentum().Z() < 1.e-4) cout << "less 10-4" << endl;
+	  if (tmppar.GetMomentum().Z() < 1.e-3) cout << "less 10-3" << endl;
+	  if (tmppar.GetMomentum().Z() < 1.e-2) cout << "less 10-2" << endl;
+	  cout << "$$$$$$$$$$$$$$$$$$$$$$$" << endl;
 	}
 
 	// =========== test of prop on 1st plane
@@ -559,7 +583,7 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 	  flag[itrk] = -6;
 	  continue;
 	}
-
+    
 	// ===========
 
 	int charge = tmppar.GetQ();
@@ -593,7 +617,7 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 	  countsttmvdusable++;
 	  usabletracks.push_back(mcIndex); // CHECK 4 PERFORMANCE delete this!!!!
 	}
-	
+    
       Int_t closestonfirst = -1;
       Double_t closestdistance = -1;
       // loop over the GEM hits from the closest to 0, 0, 0 to the most external
@@ -636,7 +660,7 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 
 
     }
-
+  
   if(nhits == 0) return;
 
   if(fVerbose > 0 && CountTracks() != fCompleteTrackCandArray->GetEntriesFast()) cout << "ERROR!!! " << CountTracks() << " " << fCompleteTrackCandArray->GetEntriesFast() << endl;
@@ -719,7 +743,9 @@ void PndSttMvdGemTracking::Copy(PndTrackCand *completeCand, PndTrack *completeTr
     completeCand->AddHit(sttmvdCand->GetSortedHit(ihit).GetDetId(),
 			 sttmvdCand->GetSortedHit(ihit).GetHitId(),
 			 sttmvdCand->GetSortedHit(ihit).GetRho());
-    if(fVerbose > 0) cout << "PRIMA iHit " << sttmvdCand->GetSortedHit(ihit).GetHitId() << " detId " << sttmvdCand->GetSortedHit(ihit).GetDetId() << "(" << FairRootManager::Instance()->GetBranchId(fGemBranchName) << ")" << endl;
+
+
+    if(fVerbose > 0) cout << "STT + MVD iHit " << sttmvdCand->GetSortedHit(ihit).GetHitId() << " detId " << sttmvdCand->GetSortedHit(ihit).GetDetId() << endl;
     
   }
   
