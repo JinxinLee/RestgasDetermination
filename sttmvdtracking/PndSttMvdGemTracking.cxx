@@ -485,9 +485,14 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 
   if(CHECKCOMBI > 0) ConsiderCombinatorialEffect(nhits);
 
+  // list of tracks which can/cannot be propagated
+  fProTracks.clear();
+
+
   // loop on the tracks found in mvd + stt ************
   for (Int_t itrk = 0; itrk < ntracks; itrk++) 
     {
+      fProTracks[itrk] = false;
 
       if(fVerbose > 0)  cout << "----------- TRACK " << itrk << "------------" << endl;
 
@@ -561,7 +566,7 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 	  cout << "pz " << tmppar.GetMomentum().Z() << endl;
 	}
 	
-	if (tmppar.GetMomentum().Z() < 1.e-5) {
+	if (fabs(tmppar.GetMomentum().Z()) < 1.e-5) {
 	  if(fVerbose > 0) cout  << " CANNOT PROPAGATE because z mom == 0" << endl; 
 	  flag[itrk] = -7;
 	  continue;
@@ -618,6 +623,8 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 	  usabletracks.push_back(mcIndex); // CHECK 4 PERFORMANCE delete this!!!!
 	}
     
+	fProTracks[itrk] = true;
+
       Int_t closestonfirst = -1;
       Double_t closestdistance = -1;
       // loop over the GEM hits from the closest to 0, 0, 0 to the most external
@@ -1129,6 +1136,7 @@ void PndSttMvdGemTracking::OnlyOneHitToEachTrack(Int_t nhits, Int_t ntracks)
 
   for(Int_t i = 0; i < CountTracks(); i++) {
     int itrk = GetTrackIndex(i);
+    if(fProTracks[itrk] == false) continue;
     std::vector<int> thistrackhits = GetHitsAssociatedToTrack(itrk);
     
     std::vector<double> tmpposdistance; // CHECK needs init?
@@ -1366,7 +1374,8 @@ void PndSttMvdGemTracking::AddRemainingHits(Int_t ntracks) {
   
   for(Int_t k = 0; k < CountTracks(); k++) {
     int itrk = GetTrackIndex(k);
-   if(fVerbose > 0) cout << k << " ITRK " << itrk << endl;
+    if(fProTracks[itrk] == false) continue;
+    if(fVerbose > 0) cout << k << " ITRK " << itrk << endl;
     
     std::vector<int> hitvector = GetHitsAssociatedToTrack(itrk);
     Int_t nhitinthistrack = hitvector.size();
@@ -1437,7 +1446,8 @@ void PndSttMvdGemTracking::Retrack() {
  
   for(Int_t k = 0; k < CountTracks(); k++) {
     int itrk = GetTrackIndex(k);
-    
+    if(fProTracks[itrk] == false) continue;
+	
     std::vector<int> alreadyassociatedhits = GetHitsAssociatedToTrack(itrk);
     if(fVerbose > 0) {
       cout << "TRK " << itrk << " has hits ";
@@ -3159,6 +3169,7 @@ void PndSttMvdGemTracking::CheckCombinatorial(Int_t nhits, Int_t ntracks)
   // loop over the tracks 
   for(Int_t it = 0; it < ntracks; it++) {
     int itrk = GetTrackIndex(it);
+    if(fProTracks[itrk] == false) continue;
     std::vector<int> thistrackhits = GetHitsAssociatedToTrack(itrk);
     if(thistrackhits.size() == 0) continue;
     // fill table:

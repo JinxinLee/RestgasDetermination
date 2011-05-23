@@ -192,6 +192,9 @@ class PndSttMvdGemTracking : public FairTask {
 
   /** hit to plane map **/
   std::map<int, bool> towhichplane;
+
+  /** map which tracks can(not) be extrapolated to GEM **/  
+  std::map<int, bool> fProTracks;
   
   /** hitmap:
       rows = position in ordering (plane: 0, 1, 2, ...)
