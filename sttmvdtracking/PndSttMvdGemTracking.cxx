@@ -545,7 +545,7 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 
 	FairTrackParP tmppar = SetStartParameters(sttmvd, sttmvdCand);
 
-	if (tmppar.GetMomentum().Z() == 0) {
+	if (tmppar.GetMomentum().Z() < 1.e-5) {
 	  if(fVerbose > 0) cout  << " CANNOT PROPAGATE because z mom == 0" << endl; 
 	  flag[itrk] = -7;
 	  continue;
