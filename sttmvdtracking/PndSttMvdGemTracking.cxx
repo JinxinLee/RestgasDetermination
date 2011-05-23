@@ -558,13 +558,8 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 
       }
     
-	if(fVerbose > 0) cout << "setParameters for track " << itrk << endl;
+	if(fVerbose > 0) cout << "SetParameters for track " << itrk << endl;
 	FairTrackParP tmppar = SetStartParameters(sttmvd, sttmvdCand);
-	if(fVerbose > 0) {
-	  cout << "PARAMETERS about momentum" << endl;
-	  tmppar.GetMomentum().Print();
-	  cout << "pz " << tmppar.GetMomentum().Z() << endl;
-	}
 	
 	if (fabs(tmppar.GetMomentum().Z()) < 1.e-5) {
 	  if(fVerbose > 0) cout  << " CANNOT PROPAGATE because z mom == 0" << endl; 
@@ -572,14 +567,6 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 	  continue;
 	}
     
-	if(fVerbose > 0) {
-	  if (tmppar.GetMomentum().Z() < 1.e-5) cout << "less 10-5" << endl;
-	  if (tmppar.GetMomentum().Z() < 1.e-4) cout << "less 10-4" << endl;
-	  if (tmppar.GetMomentum().Z() < 1.e-3) cout << "less 10-3" << endl;
-	  if (tmppar.GetMomentum().Z() < 1.e-2) cout << "less 10-2" << endl;
-	  cout << "$$$$$$$$$$$$$$$$$$$$$$$" << endl;
-	}
-
 	// =========== test of prop on 1st plane
 	FairTrackParP *gempartest = new FairTrackParP();
 	if(PropagateToGemPlaneAsHelix(sttmvd, gempartest, 0) == kFALSE) {
@@ -2110,7 +2097,7 @@ void PndSttMvdGemTracking::FillTrueDistances() {
     if(!sttmvdTrack) continue;
     PndTrackCand *sttmvdCand = sttmvdTrack->GetTrackCandPtr();
     if(!sttmvdCand) continue;
-    
+    if(fProTracks[itrk] == kFALSE) continue;
     Int_t mcIndex = sttmvdCand->getMcTrackId();
   //   cout << "TRACK " << itrk << " HAS MC " << mcIndex << endl;
     if(mcIndex == -1) continue;
