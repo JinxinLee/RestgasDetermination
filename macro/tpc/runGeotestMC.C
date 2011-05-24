@@ -124,7 +124,7 @@ void runGeotestMC(double momentum, double angle, TString outdir) {
   
   //pdgs 211=pion 13=muon 11=electron, ...
   //(PDG ID, MULTIPLICITY)
-  FairBoxGenerator* boxGen = new FairBoxGenerator(11, 5); 
+  FairBoxGenerator* boxGen = new FairBoxGenerator(13, 5); 
   
   boxGen->SetPRange(momentum,momentum); // GeV/c 
   boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
@@ -133,9 +133,11 @@ void runGeotestMC(double momentum, double angle, TString outdir) {
   primGen->AddGenerator(boxGen);
 
   fRun->SetBeamMom(15);
-  PndMultiField *fField= new PndMultiField("FULL");
+  //PndMultiField *fField= new PndMultiField("FULL");
+  PndConstField* fField = new PndConstField("ConstField", -200,200,-200,200,-200,200,
+					    0.,0.,0.);
   fRun->SetField(fField);
-  //fRun->SetStoreTraj(kTRUE);
+
   fRun->SetStoreTraj(kFALSE);
   
   std::cout<<"Starting INIT"<<std::endl;

@@ -490,10 +490,12 @@ for i in range(6) :
 
     resVs[i].Write()
     #calculate ratio of central and background integrals
-    ratio = fit.GetParameter(3)*fit.GetParameter(5)/(fit.GetParameter(0)*fit.GetParameter(2))
+    int1 = fit.GetParameter(0)*fit.GetParameter(2)
+    int2 = fit.GetParameter(3)*fit.GetParameter(5)
+    ratio = 0
+    if int1 > 0 :
+        ratio = int2/int1
     bckgrShare.SetPoint(i,zCuts[i]+5,ratio)
-   
-
                           
 
 c5 = ROOT.TCanvas()
@@ -573,9 +575,14 @@ for i in range(6) :
     if preliminary :
        drawPrelim()
 
-    diffV.SetPoint(i,zCuts[i]+5,fit.GetParameter(2)*10000)
+    diffVID.SetPoint(i,zCuts[i]+5,fit.GetParameter(2)*10000)
     #calculate ratio of central and background integrals
-    ratio = fit.GetParameter(3)*fit.GetParameter(5)/(fit.GetParameter(0)*fit.GetParameter(2))
+    int1 = fit.GetParameter(0)*fit.GetParameter(2)
+    int2 = fit.GetParameter(3)*fit.GetParameter(5)
+    ratio = int2/int1
+    #mean resolution:
+    meanRes = (int1*fit.GetParameter(2)+int2*fit.GetParameter(5))/(int1+int2)
+    diffV.SetPoint(i,zCuts[i]+5,meanRes*10000)
     bckgrShareID.SetPoint(i,zCuts[i]+5,ratio)
     
     resVIDs[i].Write()

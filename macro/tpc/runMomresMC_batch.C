@@ -39,9 +39,10 @@ runMomresMC_batch(float mom, int angle, int PDG, TString outdir, int nEvents=500
   fRun->SetOutputFile(outfile);
   std::cout<<"Set output file to "<<outfile<<std::endl;
   
-  TString parfile = outfile.ReplaceAll("mc.root","param.root");
+  TString copy = outfile;
+  TString parfile = copy.ReplaceAll("mc.root","param.root");
   TString digifile = gSystem->Getenv("VMCWORKDIR");
-  digifile+="/tpc/tpc.par";
+  digifile+="/macro/params/all.par";
   
   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
