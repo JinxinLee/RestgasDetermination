@@ -3074,7 +3074,7 @@ if( istampa>=3){
 		//  the momentum direction
 		ddd = Ptras*sqrt(Ptras*Ptras+Pzini*Pzini);
 
-if(istampa>=3) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
+if(istampa>=3){ cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
 	"\tfirst hit, tipo hit = "<<ListTrackCandHitType[ncand][0]<<", X = "<<Posiz1[0]
 	<<", Y = "<<Posiz1[1]<<", Z = "<<Posiz1[2]<<
 	"\n\tPx = "<<px<<", Py = "<<py<<", Pz = "<<Pzini<<", Ptras "<<Ptras<<endl
@@ -3086,6 +3086,9 @@ if(istampa>=3) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
 		else cout<<"SttSZfit = false";};
 	cout<<",  KAPPA = "<<KAPPA[ncand]<<", FI0 = "<<FI0[ncand]<<", n. hit (original) = "<<
 	ListTrackCandHit[ncand][0]<<endl;
+
+}
+
 
 		FairTrackParP first( Position,  Momentum,
 		   ErrPosition, ErrMomentum, CHARGE[ncand],
@@ -3154,7 +3157,7 @@ if(istampa>=3) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
 		//  the momentum direction
 		ddd = Ptras*sqrt(Ptras*Ptras+Pzini*Pzini);
 
-if(istampa>=3) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
+if(istampa>=3){ cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
 	"\tlast hit, tipo hit = "<<ListTrackCandHitType[ncand][k]
 	<<", X = "<<Posiz1[0]
 	<<", Y = "<<Posiz1[1]<<", Z = "<<Posiz1[2]<<
@@ -3167,6 +3170,8 @@ if(istampa>=3) cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
 		else cout<<"SttSZfit = false";};
 	cout<<", KAPPA = "<<KAPPA[ncand]<<", FI0 = "<<FI0[ncand]<<", n. hit (original) = "<<
 	ListTrackCandHit[ncand][k]<<endl;
+}
+
 
 		FairTrackParP last( Position,  Momentum,
 		   ErrPosition, ErrMomentum, CHARGE[ncand],
