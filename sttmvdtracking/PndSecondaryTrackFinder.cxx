@@ -328,25 +328,25 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
    newtracks.push_back(parameters);
    maptracks[iclus] = newtracks.size();
 **/
-  }
-
-
-
-
-
-
-
-
-
-
-
-
 
   if(fDisplayOn) {
     fDisName += ".pdf";
     display->SaveAs(fDisName);
   }
 }
+
+  }
+
+
+
+
+
+
+
+
+
+
+
 
 
 std::vector<int> PndSecondaryTrackFinder::OrderHits(TClonesArray *hitarray, Int_t detId, Bool_t skewed)
@@ -514,7 +514,7 @@ void PndSecondaryTrackFinder::DrawMCTracks() {
   for(Int_t itrk = 0; itrk < fMCTrackArray->GetEntriesFast(); itrk++) {
     PndMCTrack *mctrk = (PndMCTrack*) fMCTrackArray->At(itrk);
     if(!mctrk) continue;
-    //    if(mctrk->GetMotherID() != -1) continue;
+    if(mctrk->GetMotherID() > 0) continue;
     Double_t xc, yc, radius, fitm, fitp;
     GetInitialParamsMC(mctrk, xc, yc, radius, fitm, fitp);
 
@@ -1256,7 +1256,7 @@ void PndSecondaryTrackFinder::DrawHitsColor(std::vector<int> hits, Int_t detId, 
 	mrk->Draw("SAME");
       }
       else {
-	TArc *arc = new TArc(position.X(), position.Y(), tube->GetRadIn()); // ((PndSttHit* ) hit->GetIsochrone()));
+	TArc *arc = new TArc(position.X(), position.Y(), ((PndSttHit* ) hit)->GetIsochrone());
 	arc->SetLineColor(color);
 	arc->SetFillStyle(0);
 	arc->Draw("SAME");
@@ -1274,7 +1274,7 @@ void PndSecondaryTrackFinder::DrawAllHits() {
   for(int idet = 0; idet < fDetList.size(); idet++) {
     std::vector<int> hits = fDetList[idet];
     int detId = fDetMap[idet];
-    DrawHitsColor(hits, detId, kGray);
+    DrawHits(hits, detId);
   }
 }
 
@@ -1282,7 +1282,7 @@ void PndSecondaryTrackFinder::DrawAllUsableHits() {
   for(int idet = 0; idet < fDetList.size(); idet++) {
     std::vector<int> hits = fDetList[idet];
     int detId = fDetMap[idet];
-    DrawHitsColor(hits, detId, kBlack);
+    DrawUsableHits(hits, detId);
   }
 }
 
