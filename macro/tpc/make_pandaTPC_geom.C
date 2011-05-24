@@ -87,7 +87,7 @@ TGeoVolumeAssembly* createDriftCathode() {
   TGeoRotation* rot = new TGeoRotation();
   rot->SetAngles(180.,0,0);
   Cathode->AddNode(Cathode1,0);
-  Cathode->AddNode((TGeoVolume*)Cathode1->Clone(),1,rot);
+  Cathode->AddNode((TGeoVolume*)Cathode1,1,rot);
 
   return Cathode;
 }
@@ -162,22 +162,22 @@ TGeoVolumeAssembly* createFE() {
   TGeoVolume* chipV1 = new TGeoVolume("chip0", chip,
 				     gGeoManager->GetMedium("silicon"));
   chipV1->SetLineColor(kBlack);
-  TGeoVolume* chipV2 = chipV1->Clone();
+  //TGeoVolume* chipV2 = chipV1->Clone();
   //equip FE card:
   TGeoTranslation* transCh1 = new TGeoTranslation(chip_thickness/2. + thickness/2.,0,0);
   TGeoTranslation* transCh2 = new TGeoTranslation(-(chip_thickness/2.+ thickness/2.),0,0);
   FECard->AddNode(chipV1,0,transCh1);
-  FECard->AddNode(chipV2,1,transCh2);
+  FECard->AddNode(chipV1,1,transCh2);
   
   TGeoTranslation* transC1 = new TGeoTranslation(chip_thickness/2. + thickness/2.,length/3.,0);
   TGeoTranslation* transC2 = new TGeoTranslation(chip_thickness/2. + thickness/2.,-length/3.,0);
   TGeoTranslation* transC3 = new TGeoTranslation(-(chip_thickness/2. + thickness/2.),length/3.,0);
   TGeoTranslation* transC4 = new TGeoTranslation(-(chip_thickness/2. + thickness/2.),-length/3.,0);
   //FECard->AddNode(ChipPair,0);
-  FECard->AddNode((TGeoVolume*)chipV1->Clone(),2, transC1);
-  FECard->AddNode((TGeoVolume*)chipV1->Clone(),3, transC2);
-  FECard->AddNode((TGeoVolume*)chipV1->Clone(),4, transC3);
-  FECard->AddNode((TGeoVolume*)chipV1->Clone(),5, transC4);
+  FECard->AddNode((TGeoVolume*)chipV1,2, transC1);
+  FECard->AddNode((TGeoVolume*)chipV1,3, transC2);
+  FECard->AddNode((TGeoVolume*)chipV1,4, transC3);
+  FECard->AddNode((TGeoVolume*)chipV1,5, transC4);
     
   //finalize:
   for(unsigned int ife=0; ife<nCards; ife++) {
@@ -189,13 +189,13 @@ TGeoVolumeAssembly* createFE() {
     TGeoRotation* rot = new TGeoRotation();
     rot->SetAngles(angle*ife,0,0);
     TGeoCombiTrans* com = new TGeoCombiTrans(*trans,*rot);
-    TGeoVolume* meh = FECard->Clone();
-    TString name = meh->GetName();
-    char buffer[2];
-    sprintf(buffer, "%i",ife);
-    name.Append(buffer);
-    meh->SetName(name);
-    FullFE->AddNode(meh,1,com);
+//    TGeoVolume* meh = FECard->Clone();
+//    TString name = meh->GetName();
+//    char buffer[2];
+//    sprintf(buffer, "%i",ife);
+//    name.Append(buffer);
+//    meh->SetName(name);
+    FullFE->AddNode(FECard,1+ife,com);
   }
   return FullFE;
 }
@@ -214,19 +214,19 @@ TGeoVolumeAssembly* createCooling() {
   TGeoVolume* ring1 = new TGeoVolume("CoolingRing1",
 				     seg1, gGeoManager->GetMedium("copper"));
   ring1->SetLineColor(kRed+3);
-  TGeoVolume* ring2 = ring1->Clone();
-  ring2->SetName("CoolingRing2");
+//  TGeoVolume* ring2 = ring1->Clone();
+//  ring2->SetName("CoolingRing2");
   TGeoTranslation* trans1 = new TGeoTranslation(0.,0.,-86.);
   TGeoTranslation* trans2 = new TGeoTranslation(0.,0.,-88.);
   Half1->AddNode(ring1, 1, trans1);
-  Half1->AddNode(ring2, 1, trans2);
+  Half1->AddNode(ring1, 1, trans2);
   
   //create second half
   TGeoRotation* rot = new TGeoRotation();
   rot->SetAngles(180.,0,0);
   
   Cooling->AddNode(Half1,0);
-  Cooling->AddNode((TGeoVolume*)Half1->Clone(),1,rot);
+  Cooling->AddNode(Half1,1,rot);
 
   return Cooling;
 }
@@ -252,10 +252,10 @@ TGeoVolumeAssembly* createGas() {
   TGeoTranslation* trans = new TGeoTranslation(0.,0.,gemDz/2.);
   Gas->AddNode(gas,1,trans);
   rot->SetAngles(180.,0.,0.);
-  TGeoVolume* gas2 = gas->Clone();
-  gas2->SetName("gas2");
+ // TGeoVolume* gas2 = gas->Clone();
+ // gas2->SetName("gas2");
   TGeoCombiTrans* combi = new TGeoCombiTrans(*trans, *rot);
-  Gas->AddNode(gas2,2, combi);
+  Gas->AddNode(gas,2, combi);
   return Gas;  
 }
 
@@ -313,7 +313,7 @@ TGeoVolumeAssembly* createGEMStack() {
   for(unsigned int g=0; g<nGems; g++) {
     double dz = g*(totThick+gemPitch);
     TGeoTranslation* trans_s = new TGeoTranslation(0., 0., dz+dz_glob);
-    stack->AddNode((TGeoVolume*)gem->Clone(),g,trans_s);
+    stack->AddNode((TGeoVolume*)gem,g,trans_s);
   }
   return stack;
 }
@@ -354,12 +354,12 @@ TGeoVolumeAssembly* createFieldCageBarrel() {
 			      0.,0.001,FieldCage1, kOrange+3);
     
   //now clone and rotate -----------------------------------
-  TGeoVolumeAssembly* FieldCage2 = FieldCage1->Clone();
-  FieldCage2->SetName("FieldCage2");
-  rename(FieldCage2, "cage1", "cage2");
+//  TGeoVolumeAssembly* FieldCage2 = FieldCage1->Clone();
+//  FieldCage2->SetName("FieldCage2");
+//  rename(FieldCage2, "cage1", "cage2");
   
   FieldCage->AddNode(FieldCage1,1);
-  FieldCage->AddNode(FieldCage2,2, rot);
+  FieldCage->AddNode(FieldCage1,2, rot);
   
   return FieldCage;
 }
