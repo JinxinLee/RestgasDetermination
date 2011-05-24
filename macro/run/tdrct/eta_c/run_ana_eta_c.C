@@ -1,5 +1,4 @@
-//void run_ana_tpccombi(TString fname="output.evt.fast.root",int nevts=0)
-void run_ana_tpccombi(TString fname="evt_pid_stt.root",int nevts=0)
+void run_ana_eta_c(TString fname="./data/evt_pid_stt.root",int nevts=0)
 {
   	TStopwatch timer;
   	timer.Start();
@@ -16,17 +15,15 @@ void run_ana_tpccombi(TString fname="evt_pid_stt.root",int nevts=0)
 	// to attach more files: evr.Add(fname2);evr.Add(fname3); ...
 
 	TH1F *invmass=new TH1F("invmass","invariant mass",100,2.5,3.5);
+	TH1F *m1=new TH1F("m1","#phi: m(K+ K-)",100,1.020-0.15,1.020+0.15);
+	TH1F *nc=new TH1F("nc","n charged",20,0,20);
+	
+	TPidMassSelector *phiMassSel=new TPidMassSelector("phi",1.02,0.04);
 	
 	// the candidates lists we need
-	TCandList p1;
-	TCandList p2;
-	TCandList p3;
-	TCandList p4;
-	TCandList phi1;
-	TCandList phi2;
-	TCandList etac;
+	TCandList p1, p2, p3, p4, phi1, phi2, etac;
 
-	TLorentzVector ini(0,0,3.6772,7.24015);
+	TLorentzVector ini(0,0,3.6772,4.7333);
 		
 	if (nevts==0) nevts=evr.GetEntries();
 	// cout << "nevts " << nevts << "\n";
@@ -38,15 +35,16 @@ void run_ana_tpccombi(TString fname="evt_pid_stt.root",int nevts=0)
 	while (evr.GetEvent() && i++<nevts)
 	{
 
-	    if (!((i+1)%1000)) cout << i << "\n";
-
-
+	    if (!((i+1)%100)) cout<<"evt " << i << "\n";
+	    
 	    evr.FillList(p1,"Charged");
 	    evr.FillList(p2,"Charged");
 		evr.FillList(p3,"Charged");
 		evr.FillList(p4,"Charged");
 	    
-		cout << p1.GetLength() << " charged candidates found" << "\n";
+		int nchrg=p1.GetLength();
+		nc->Fill(nchrg);
+		//cout << p1.GetLength() << " charged candidates found" << "\n";
 
 	    for (j=0;j<p1.GetLength();++j) { 
 			p1[j].SetMass(TRho::Instance()->GetPDG()->GetParticle(321)->Mass());
@@ -64,9 +62,13 @@ void run_ana_tpccombi(TString fname="evt_pid_stt.root",int nevts=0)
 
 	    phi1.Combine(p1,p2);
 		phi2.Combine(p3,p4);
+		for (j=0;j<phi1.GetLength();++j) m1->Fill(phi1[j].M()); 
+		phi1.Select(phiMassSel);
+		phi2.Select(phiMassSel);
+		
 		etac.Combine(phi1,phi2);
 
-	    cout << etac.GetLength() << " eta_c candidates found" << "\n";
+	    //cout << etac.GetLength() << " eta_c candidates found" << "\n";
 	    
 		for (l=0;l<etac.GetLength();++l) { 
 			invmass->Fill(etac[l].M());
@@ -74,13 +76,20 @@ void run_ana_tpccombi(TString fname="evt_pid_stt.root",int nevts=0)
 
 	}
 	
-	//c1->cd(); 
+	TCanvas *c1=new TCanvas("c1","c1",600,600);
+	c1->Divide(2,2);
 
+	c1->cd(1);
 	invmass->Draw();
+	c1->cd(2);
+	m1->Draw();
+	c1->cd(3);
+	nc->Draw();
+	
 
-	out->cd();
-	invmass->Write();
-	out->Save();
+// 	out->cd();
+// 	invmass->Write();
+// 	out->Save();
 	
 	timer.Stop();
 	Double_t rtime = timer.RealTime();
