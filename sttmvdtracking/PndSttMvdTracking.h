@@ -85,7 +85,8 @@ class PndSttMvdTracking : public FairTask
   int IVOLTE ;
 
 #define maxTracks 40
-  static const UShort_t   nmaxSttHits = maxTracks*30,
+  static const UShort_t   nmassimo=20,
+			  nmaxSttHits = maxTracks*30,
 			  MAXMCTRACKS=maxTracks,
 			  MAXTRACKSPEREVENT=maxTracks,
 			  nmaxMvdPixelHits=500,
@@ -392,6 +393,7 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 					);
 
     void AssociateFoundTrackstoMCquater(
+		bool *keepit,
 		  Double_t info[][7],
 		Double_t Ox[MAXTRACKSPEREVENT],
 		Double_t Oy[MAXTRACKSPEREVENT],
@@ -424,6 +426,7 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 
 
   void SttMatchedSpurious(
+			bool *keepit,
 			UShort_t ntotalHits,
 			Double_t info[][7],
                         UShort_t nTracksFoundSoFar, //  quelle trovate dal PR
@@ -474,6 +477,7 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 
 
   void MatchMvdHitsToSttTracks2(
+			bool *keepit,
 			Double_t delta,
 			Double_t highqualitycut,
 			UShort_t nSttTrackCand,
@@ -492,6 +496,7 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
                     );
 
   void MatchMvdHitsToSttTracksagain(
+			bool *keepit,
 			bool *Mvdhits,
 			Double_t delta,
 			Double_t highqualitycut,
@@ -513,6 +518,7 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 
 
   void CollectParSttHitsagain(
+			bool *keepit,
 			bool *Mvdhits,
 			Double_t info[][7],
 			UShort_t nSttParHit,
@@ -589,6 +595,7 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 
   void MvdMatchedSpurioustoTrackCand(
 			UShort_t nSttTrackCand,				// input
+			bool * keepit,				// input
 			Short_t *daTrackFoundaTrackMC,			// input
 //			UShort_t nMvdPixelHit,				// input
 			Short_t *FromPixeltoMCTrack,			// input
@@ -747,8 +754,8 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
                    Double_t Fi_low_limit,
                    Double_t Fi_up_limit,
                    Short_t  Charge,
-                   Double_t Fi_initial_helix_referenceframe,
-                   Double_t Fi_final_helix_referenceframe,
+//                   Double_t Fi_initial_helix_referenceframe,
+//                   Double_t Fi_final_helix_referenceframe,
                    UShort_t SkewList[nmaxSttHits][2], // output,  list of selected skew hits (in skew numbering)
                    Double_t *S,       //  output,  S coordinate of selected Skew hit
                    Double_t *Z,       //  output,  Z coordinate of selected Skew hit
@@ -787,6 +794,7 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 
 
    void   Ordering_Loading_ListTrackCandHit(
+			bool *keepit,
 			UShort_t FirstCandidate,
 			UShort_t LastCandidate,
 			Double_t info[][7]
