@@ -495,10 +495,20 @@ void make_pandaTPC_geom() {
   topAss->AddNode(createCoolingPot(),0,glob);
   topAss->AddNode(createGEMStack(),0,glob);
   
+ 
+  
+  TGeoVoxelFinder* voxels = top->GetVoxels();
+  if (voxels) { voxels->SetNeedRebuild(); }
+  
   geoMan->SetTopVolume(topAss);
   
   top->AddNode(topAss, 0);
+  geoMan->CloseGeometry();
+  
+  geoMan->CheckOverlaps(0.01);
+  geoMan->GetListOfOverlaps()->ls();
 
+  
   TEveManager::Create();
   
   TEveGeoTopNode* meh = new TEveGeoTopNode(geoMan, geoMan->GetTopNode());
