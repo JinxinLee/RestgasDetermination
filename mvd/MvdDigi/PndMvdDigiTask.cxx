@@ -16,7 +16,7 @@ PndMvdDigiTask::PndMvdDigiTask() :
 {
   this->Add(new PndMvdHybridHitProducer());
   this->Add(new PndMvdStripHitProducer());
-  this->Add(new PndMvdNoiseProducer());
+  //this->Add(new PndMvdNoiseProducer());
    
   fPersistance = kTRUE;
   SetPersistance(fPersistance);
@@ -29,7 +29,7 @@ void PndMvdDigiTask::SetPersistance(Bool_t pers)
   TList* thistasks = this->GetListOfTasks();
   ((PndMvdHybridHitProducer*)thistasks->At(0))->SetPersistance(fPersistance);
   ((PndMvdStripHitProducer*)thistasks->At(1))->SetPersistance(fPersistance);
-  ((PndMvdNoiseProducer*)thistasks->At(2))->SetPersistance(fPersistance);
+  //((PndMvdNoiseProducer*)thistasks->At(2))->SetPersistance(fPersistance);
   return;
 }
 

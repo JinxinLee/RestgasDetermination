@@ -57,7 +57,7 @@ Double_t PndSdsTotChargeConversion::ChargeToDigiValue(Double_t charge){ //return
   
 	if ((Q <= Qt) or (Q <= 0)){
 		if (fVerboseLevel>0)
-      Warning("ConvertChargeToDigiValue(Double_t charge)","charge is equal or less than threshold -> zero TOT");
+      Warning("ConvertChargeToDigiValue(Double_t charge)","charge (%g) is equal or less than threshold (%g) -> zero TOT",Q,Qt);
 		Q = 1.;
 		Qt = 1.;
 	}

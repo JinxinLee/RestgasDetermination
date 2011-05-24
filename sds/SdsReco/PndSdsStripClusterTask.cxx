@@ -176,9 +176,9 @@ InitStatus PndSdsStripClusterTask::Init()
   
   fHitArray = new TClonesArray("PndSdsHit");
   ioman->Register(fOutBranchName, fFolderName, fHitArray, fPersistance);
-
+  
   SetInBranchId();
-
+  
   SetCalculators();
   
   Info("Init","Initialisation successfull");
@@ -252,7 +252,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
     	  myCluster->AddLink(FairLink(fInBranchName, myCluster->GetDigiIndex(i)));
       }
     }
-
+    
     //printout for checking
     if(fVerbose > 2) {
       std::cout<<"Check.. Offset: "<<clusterOffset<<"Top Clusters: ";
@@ -283,7 +283,6 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
     
     // -----  merge top/bot clusters to hits  -----
     // loop on clusters from the top side
-    mcindex = -1;
     for (std::vector< Int_t>::iterator itTop = topclusters.begin();
          itTop!=topclusters.end(); ++itTop)
     {
@@ -311,14 +310,6 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
       if(meantopstrip < 0) { // not a sane strip number
         Error("Exec() - Hit combination","Not a sane top mean (%f) calculated, skip cluster %i",meantopstrip, *itTop);
         continue;
-      }
-      if(mcindex < 0) {//look for the first digi from a MC point
-        for(Int_t mcI = 0; mcI<atopDigi->GetNIndices();mcI++){ 
-          if (atopDigi->GetIndex(mcI) > -1) {
-            mcindex = atopDigi->GetIndex(mcI);
-            break;
-          }
-        }
       }
       fCurrentStripCalcTop->CalcStripPointOnLine(meantopstrip, meantopPoint);
       // loop on bottom side
@@ -361,11 +352,14 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
         {// look if the charges are not too differently
           mycharge = (botcharge + topcharge) / 2.;
           fCurrentStripCalcBot->CalcStripPointOnLine(meanbotstrip, meanbotPoint);
-          if(mcindex < 0) {//look for the first digi from a MC point
-            for(Int_t mcI = 0; mcI<abotDigi->GetNIndices();mcI++){ 
-              if (abotDigi->GetIndex(mcI) > -1) {
-                mcindex = abotDigi->GetIndex(mcI);
-                break;
+          mcindex=-1; // reset
+          for(Int_t mcI = 0; mcI<atopDigi->GetNIndices();mcI++){ 
+            if (atopDigi->GetIndex(mcI) > -1) {
+              for(Int_t mcIb = 0; mcIb<abotDigi->GetNIndices();mcIb++){ 
+                if (abotDigi->GetIndex(mcIb) == atopDigi->GetIndex(mcI)) {
+                  mcindex = abotDigi->GetIndex(mcIb);
+                  break;
+                }
               }
             }
           }
