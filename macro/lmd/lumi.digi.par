@@ -37,6 +37,13 @@ chargeconv_method:Int_t 0
 # Digitization parameters for TRAPEZOID Lmd strip sensors
 #################################################################
 # threshold set to 5*sigmaNoise (noise rate ~ DPM signals rate)
+# orient:Double_t 1.178097245
+# skew:Double_t 0.785398164
+# orient:Double_t 1.570796327
+# skew:Double_t -1.570796327
+# top_pitch:Double_t 0.005
+# bot_pitch:Double_t 0.005
+# nr_fe_channels:Int_t 384
 [SDSStripDigiParTrap]
 top_pitch:Double_t 0.005
 bot_pitch:Double_t 0.005
