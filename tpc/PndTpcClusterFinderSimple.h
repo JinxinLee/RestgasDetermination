@@ -33,7 +33,7 @@ class PndTpcPrelimCluster{
 
   PndTpcPadPlane* fpadplane;
   double ftimeslice;
-  McId fdominant_mcid;
+  McIdCollection fmcidCol;
 
   bool isInTimeWindow(const PndTpcDigi* const);
 

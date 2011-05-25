@@ -75,12 +75,17 @@ bool PndTpcPrelimCluster::isInCluster(const PndTpcDigi* const digi) {
 PndTpcCluster* PndTpcPrelimCluster::convPndTpcCluster(bool saveRaw) {
   cog(); // also error is calculated here
   PndTpcCluster* c = new PndTpcCluster(fpos,ferr,famp,fid,fdigis.size());
-
+  c->SetMcId(fmcidCol);
+  
   if(saveRaw){//defined in PndTpcAbsClusterFinder.h and default false
     for(unsigned int i=0;i<fdigis.size();++i){
       c->addDigi(fdigis[i], fdigiShares[fdigis[i]]);
     }
   }
+  
+  // simply choose first pad to define sector
+  unsigned int sid=PndTpcDigiMapper::getInstance()->getPad(fdigis[0]->padId())->sectorId();
+  c->SetSector(sid);
   
   return c;
 }
@@ -101,8 +106,8 @@ void PndTpcPrelimCluster::cog(){
   // loop over digis to calculate cog
   for(unsigned int id=0;id<ndigis;++id){
 	  PndTpcDigi* adigi=fdigis[id];
-	  mcid.AddIDCollection(adigi->mcId());
 	  double a=(double)adigi->amp()*fdigiShares[adigi];
+	  mcid.AddIDCollection(adigi->mcId(),a);
 	  TVector3 thispos;
 	  PndTpcDigiMapper::getInstance()->map(adigi,thispos);
 	  fpos+=a*thispos;
@@ -149,7 +154,7 @@ void PndTpcPrelimCluster::cog(){
   
   if(DEBUG) ferr.Print();
 
-  //  fdominant_mcid = mcid.DominantID();
+  fmcidCol = mcid;
 }
 
 
