@@ -4,7 +4,7 @@
 //
 // Description:
 //      Pattern recognition = track finding in the TPC
-//      Using a conformal track follower
+//      Using a riemann track follower
 //
 // Environment:
 //      Software developed for the PANDA Detector at FAIR.
@@ -23,15 +23,20 @@
 
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
+#include <vector>
+#include <map>
+
 
 // Collaborating Class Declarations --
 #include "PndTpcCluster.h"
 class TClonesArray;
 class PndTpcFrontend;
-class GFRecoHitFactory;
-class PndTpcConfTrackFinder;
+class PndTpcRiemannTrackFinder;
+class PndTpcRiemannTrack;
+class PndTpcDigiPar;
 class TH1I;
 class TH1D;
+class TGraph;
 
 class PndTpcPatternRecoTask : public FairTask {
 public:
@@ -48,15 +53,23 @@ public:
   // Modifiers -----------------------
   void SetClusterBranchName(const TString& name) {_clusterBranchName=name;}
   void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
-  void SetTrkFinderParameters(double xcut, double ycut, double zcut,
-			      double chi2cut,
-			      unsigned int minpointsforfit);
-
+  void SetTrkFinderParameters(double RiemannScale,
+			      double proxcut, double riproxcut, double szcut,
+			      double planecut,
+			      double TTproxcut, 
+			      double TTplanecut, 
+			      double TTszcut,
+			      unsigned int minpointsforfit,
+			      unsigned int maxpointsforPR);
+  void SetTrkFinderOptions(bool dosorting, int sortingmode,
+			   bool doClean, bool doMerge){
+    _sorting=dosorting; _sortingmode=sortingmode; 
+    _doClean=doClean; _doMerge=doMerge;}
 
   // Operations ----------------------
   virtual InitStatus Init();
-
   virtual void Exec(Option_t* opt);
+   virtual void SetParContainers();
 
   void WriteHistograms(const TString& filename);
 
@@ -67,25 +80,40 @@ private:
   TClonesArray* _clusterArray;
   TClonesArray* _trackArray;
 
+  std::map<unsigned int, std::vector<PndTpcCluster*>*> fbuffermap;
+  std::vector<PndTpcCluster*>* fcluster_buffer;
+  std::vector<PndTpcRiemannTrack*> friemannlist;
+  unsigned int fnsectors;
+
   Bool_t _persistence;
 
-  // tuning parameters for Conformal Map TrackFinder
-  double _xcut;
-  double _ycut;
-  double _zcut; 
-  double _chi2cut;     
-  unsigned int _minpoints;
+  double _proxcut;
+  double _riproxcut;
+  double _szcut;
+  double _planecut;
+  double _TTproxcut;
+  double _TTplanecut;
+  double _TTszcut;
+
+  unsigned int _minpoints; // min points for fit
+  unsigned int _maxpoints; // max points in pr
+
+  bool _sorting;
+  int _sortingmode;
+  bool _doMerge;
+  bool _doClean;
+  double fRiemannScale;
 
   TH1I* _multiplicityHisto;
   TH1I* _trackSizeH;
   TH1D* _trackPurityH;
+  TGraph* _gpurity;
+  unsigned int _nbins;
 
-  PndTpcConfTrackFinder* _trackfinder;
+  PndTpcRiemannTrackFinder* _trackfinder;
+  PndTpcDigiPar* fpar;
 
-  GFRecoHitFactory* _theRecoHitFactory;
-
-
-  // Private Methods -----------------
+   // Private Methods -----------------
 
 public:
   ClassDef(PndTpcPatternRecoTask,1)
