@@ -106,7 +106,7 @@ void PndAnalysis::Init()
   } else {
     fTracks->Print();
   }
-
+  
   // -- Forward part
   std::cout << "-I- PndAnalysis::Init(): Second: Trying "<<fTracksName2.Data()<<" now." << std::endl; 
   fTracks2 = ReadTCA(fTracksName2);
@@ -494,20 +494,35 @@ Bool_t PndAnalysis::Propagator(int mode, FairTrackParP &tStart, TCandidate* cand
   TMatrixD helixcov(5,5);
   rc = P7toHelix(pos, cand->P4(), Q, covPosMom, helixparams, helixcov, skipcov);
   if (!rc) {Warning("Propagator()","P7toHelix failed");return kFALSE;}
-
+  
   cand->SetHelixParms(helixparams);
-
+  
   Float_t rhohelixcov[15];
   Int_t klz=0;
   if(!skipcov){
-    for(int kli=0;kli<5;kli++) 
-    {
-      for(int klj=kli;klj<5;klj++)
-      {
-        rhohelixcov[klz]=helixcov[kli][klj];
-        klz++;
-      }
-    }
+    //for(int kli=0;kli<5;kli++) 
+    //{
+    //for(int klj=kli;klj<5;klj++)
+    //{
+    //rhohelixcov[klz]=helixcov[kli][klj];        
+    //klz++;
+    //}
+    //}
+    rhohelixcov[0]  = helixcov[0][0];
+    rhohelixcov[1]  = helixcov[1][0];
+    rhohelixcov[2]  = helixcov[2][0];
+    rhohelixcov[3]  = helixcov[3][0];
+    rhohelixcov[4]  = helixcov[4][0];
+    rhohelixcov[5]  = helixcov[1][1];
+    rhohelixcov[6]  = helixcov[2][1];
+    rhohelixcov[7]  = helixcov[3][1];
+    rhohelixcov[8]  = helixcov[4][1];
+    rhohelixcov[9]  = helixcov[2][2];
+    rhohelixcov[10] = helixcov[3][2];
+    rhohelixcov[11] = helixcov[4][2];
+    rhohelixcov[12] = helixcov[3][3];
+    rhohelixcov[13] = helixcov[4][3];
+    rhohelixcov[14] = helixcov[4][4];
     cand->SetHelixCov(rhohelixcov); 
   }
   
@@ -576,42 +591,52 @@ Bool_t PndAnalysis::P7toHelix(const TVector3 &pos, const TLorentzVector &p4, con
   //helixparams[4]=p4.Pz()/p4.Perp(); //lambda(averey)=cot(theta)=tan(lambda(geane))
   if(fVerbose>1)printf("P7ToHelix: Charge is %g e-\n",Q);
   if(fVerbose>1)printf("P7ToHelix: QBc is %g \n",qBc);
-
+  
   const double xp = pos.X();
   const double yp = pos.Y();
   const double zp = pos.Z();
-  const double phip = p4.Phi();
-  const double pti = 1/p4.Perp();
+  const double px = p4.Px();
+  const double py = p4.Py();
+  const double pz = p4.Pz();
+  const double phip = TMath::ATan2(py,px);
+  const double pti = 1/TMath::Sqrt(px*px+py*py);
+  //const double phip = p4.Phi();
+  //const double pti = 1/p4.Perp();
   if(fVerbose>1)printf("P7ToHelix: P_t is %g GeV/c\n",p4.Perp());
   if(fVerbose>1)printf("P7ToHelix: P_t^-1 is %g c/GeV\n",pti);
   
   // get rho
-  const double rho = qBc*pti;//
+  const double rho = qBc*pti;
   if(fVerbose>1)printf("P7ToHelix: rho is %g cm^-1\n",rho);
-
+  
   // get tan(dip)
-  const double tanDip=p4.Pz()*pti;
-  const double rhoinverse = 1./rho;
+  const double tanDip=pz*pti;
+  const double R0 = 1./rho;
   if(fVerbose>1)printf("P7ToHelix: tanDip is %g \n",tanDip);
-  if(fVerbose>1)printf("P7ToHelix: R0 = rho^-1 is %g cm\n",rhoinverse);
-
+  if(fVerbose>1)printf("P7ToHelix: R0 = rho^-1 is %g cm\n",R0);
+  
   //circle center
-  const double xc = xp - rhoinverse*TMath::Sin(phip);
-  const double yc = yp + rhoinverse*TMath::Cos(phip);
+  const double xc = xp - py/qBc;
+  const double yc = yp + px/qBc;
+  //const double xc = xp - R0*p4.Py()*pti;
+  //const double yc = yp + R0*p4.Px()*pti;
+  //const double xc = xp - R0*TMath::Sin(phip);
+  //const double yc = yp + R0*TMath::Cos(phip);
   const double DC = TMath::Sqrt(xc*xc+yc*yc);
-
+  
   //get phi0 at doca
-  const double phi0 = TMath::ATan2(xc,yc);
-  if(fVerbose>1)printf("P7ToHelix: phi0 is %g, DeltaPhi = %g \n",phi0,phip-phi0);
-
+  const double phi0 = -TMath::ATan2(xc,yc);
+  if(fVerbose>1)printf("P7ToHelix: phi0 is %g, phiP is %g, DeltaPhi = %g \n",phi0,phip,phip-phi0);
+  
   //get D0
-  const double D0 = DC - TMath::Abs(rhoinverse);
+  const double D0 = DC - TMath::Abs(R0);
   //const double x0 = D0*TMath::Cos(phi0);
   //const double y0 = D0*TMath::Sin(phi0);
   if(fVerbose>1)printf("P7ToHelix: D0 is %g cm\n",D0);
-
+  
   //get z0
-  const double z0 = zp - tanDip*fabs(rhoinverse*(phip-phi0));
+  const double z0 = zp - pz*(phip-phi0)/qBc;
+  //const double z0 = zp - tanDip*R0*(phip-phi0);
   if(fVerbose>1)printf("P7ToHelix: z0 is %g cm\n",z0);
   
   if(fVerbose>1)std::cout<<std::endl;
@@ -629,12 +654,12 @@ Bool_t PndAnalysis::P7toHelix(const TVector3 &pos, const TLorentzVector &p4, con
   if(!skipcov)
   {
     TMatrixD jacobian(5,7); 
-        
+    
     jacobian[0][0] = xc/DC; // dD0  / dvx
     jacobian[0][1] = yc/DC; // dD0   /dvy
     jacobian[0][2] = 0.; // dD0   /dvz
-    jacobian[0][3] = yc/(qBc*DC)-p4.Px()*pti*pti/fabs(rho); // dD0   /dpx
-    jacobian[0][4] = xc/(qBc*DC)-p4.Py()*pti*pti/fabs(rho); // dD0   /dpy
+    jacobian[0][3] = yc/(qBc*DC)-px*pti*pti/fabs(rho); // dD0   /dpx
+    jacobian[0][4] = xc/(qBc*DC)-py*pti*pti/fabs(rho); // dD0   /dpy
     jacobian[0][5] = 0.; // dD0   /dpz
     jacobian[0][6] = 0.; // dD0   /de
     
@@ -649,74 +674,53 @@ Bool_t PndAnalysis::P7toHelix(const TVector3 &pos, const TLorentzVector &p4, con
     jacobian[2][0] = 0.; // drho  /dvx
     jacobian[2][1] = 0.; // drho  /dvy
     jacobian[2][2] = 0.; // drho  /dvz
-    jacobian[2][3] = -1.*rho*p4.Px()*pti*pti; // drho  /dpx
-    jacobian[2][4] = -1.*rho*p4.Py()*pti*pti; // drho  /dpy
+    jacobian[2][3] = -1.*rho*px*pti*pti; // drho  /dpx
+    jacobian[2][4] = -1.*rho*py*pti*pti; // drho  /dpy
     jacobian[2][5] = 0.; // drho  /dpz
     jacobian[2][6] = 0.; // drho  /de
     
     jacobian[3][0] = 0.; // dZ0   /dvx
     jacobian[3][1] = 0.; // dZ0   /dvy
     jacobian[3][2] = 1.; // dZ0   /dvz
-    jacobian[3][3] = p4.Pz()*yc/(DC*DC*qBc); // dZ0   /dpx
-    jacobian[3][4] = -1.*p4.Pz()*xc/(DC*DC*qBc); // dZ0   /dpy
+    jacobian[3][3] = pz*yc/(DC*DC*qBc); // dZ0   /dpx
+    jacobian[3][4] = -1.*pz*xc/(DC*DC*qBc); // dZ0   /dpy
     jacobian[3][5] = (phi0-phip)/qBc; // dZ0   /dpz
     jacobian[3][6] = 0.; // dZ0   /de
     
     jacobian[4][0] = 0.; // dtLam /dvx
     jacobian[4][1] = 0.; // dtLam /dvy
     jacobian[4][2] = 0.; // dtLam /dvz
-    jacobian[4][3] = -1.*tanDip*p4.Px()*pti*pti; // dtLam /dpx
-    jacobian[4][4] = -1.*tanDip*p4.Py()*pti*pti; // dtLam /dpy
+    jacobian[4][3] = -1.*tanDip*px*pti*pti; // dtLam /dpx
+    jacobian[4][4] = -1.*tanDip*py*pti*pti; // dtLam /dpy
     jacobian[4][5] = pti; // dtLam /dpz
     jacobian[4][6] = 0.; // dtLam /de
-
-    //for(int kkk=0;kkk<5;kkk++)for(int kjk=0;kjk<7;kjk++)jacobian[kkk][kjk]=fabs(jacobian[kkk][kjk]);
     
-    //TODO add D0 sign
-    //jacobian[0][0] = 2*x0/D0; // dD0  / dvx
-    //jacobian[0][1] = 2*y0/D0; // dD0   /dvy
-    //jacobian[0][2] = 0.; // dD0   /dvz
-    //jacobian[0][3] = 0.; // dD0   /dpx
-    //jacobian[0][4] = 0.; // dD0   /dpy
-    //jacobian[0][5] = 0.; // dD0   /dpz
-    //jacobian[0][6] = 0.; // dD0   /de
-    //jacobian[1][0] = 0.; // dPhi0 /dvx
-    //jacobian[1][1] = 0.; // dPhi0 /dvy
-    //jacobian[1][2] = 0.; // dPhi0 /dvz
-    //jacobian[1][3] = p4.Py()*pti*pti; // dPhi0 /dpx 
-    //jacobian[1][4] = p4.Px()*pti*pti; // dPhi0 /dpy 
-    //jacobian[1][5] = 0.; // dPhi0 /dpz 
-    //jacobian[1][6] = 0.; // dPhi0 /de
-    //jacobian[2][0] = 0.; // drho  /dvx
-    //jacobian[2][1] = 0.; // drho  /dvy
-    //jacobian[2][2] = 0.; // drho  /dvz
-    //jacobian[2][3] = qBc*p4.Px()*pti*pti*pti; // drho  /dpx
-    //jacobian[2][4] = qBc*p4.Py()*pti*pti*pti; // drho  /dpy
-    //jacobian[2][5] = 0.; // drho  /dpz
-    //jacobian[2][6] = 0.; // drho  /de
-    //jacobian[3][0] = 0.; // dZ0   /dvx
-    //jacobian[3][1] = 0.; // dZ0   /dvy
-    //jacobian[3][2] = 1.; // dZ0   /dvz
-    //jacobian[3][3] = 0.; // dZ0   /dpx
-    //jacobian[3][4] = 0.; // dZ0   /dpy
-    //jacobian[3][5] = 0.; // dZ0   /dpz
-    //jacobian[3][6] = 0.; // dZ0   /de
-    //jacobian[4][0] = 0.; // dtLam /dvx
-    //jacobian[4][1] = 0.; // dtLam /dvy
-    //jacobian[4][2] = 0.; // dtLam /dvz
-    //jacobian[4][3] = p4.Pz()*p4.Px()*pti*pti*pti; // dtLam /dpx
-    //jacobian[4][4] = p4.Pz()*p4.Py()*pti*pti*pti; // dtLam /dpy
-    //jacobian[4][5] = pti; // dtLam /dpz
-    //jacobian[4][6] = 0.; // dtLam /de
-    
+    //TMatrixD sigmas(cov77);
+    //for(int cci=0;cci<7;cci++){
+      //for(int ccj=cci+1;ccj<7;ccj++)
+      //{
+        //sigmas[cci][ccj]=0.;
+        //sigmas[ccj][cci]=0.;
+      //}
+    //}
+    //TMatrixD tempmat(jacobian,TMatrixD::kMult,sigmas);
     TMatrixD tempmat(jacobian,TMatrixD::kMult,cov77);
     TMatrixD covrho(tempmat,TMatrixD::kMultTranspose,jacobian);
     helixCov=covrho;
     
     if (fVerbose>2) {
       std::cout<<"cov77: "; cov77.Print();
+      //std::cout<<"sigmas: "; sigmas.Print();
       std::cout<<"jacobian: "; jacobian.Print();
       std::cout<<"covrho: "; covrho.Print();
+      if(fVerbose>1) {
+        std::cout<<"helixparams[0] = D0 \t= ("<<helixparams[0]<<" \t+- "<<sqrt(helixCov[0][0])<<") cm"<<std::endl;
+        std::cout<<"helixparams[1] = Phi0 \t= ("<<helixparams[1]<<" \t+- "<<sqrt(helixCov[1][1])<<") rad"<<std::endl;
+        std::cout<<"helixparams[2] = rho \t= ("<<helixparams[2]<<" \t+- "<<sqrt(helixCov[2][2])<<") 1/cm"<<std::endl;
+        std::cout<<"helixparams[3] = Z0 \t= ("<<helixparams[3]<<" \t+- "<<sqrt(helixCov[3][3])<<") cm"<<std::endl;
+        std::cout<<"helixparams[4] = tanDip\t= ("<<helixparams[4]<<" \t+- "<<sqrt(helixCov[4][4])<<")"<<std::endl;
+      }
+      
     }
   } // skip cov or not
   return kTRUE;
