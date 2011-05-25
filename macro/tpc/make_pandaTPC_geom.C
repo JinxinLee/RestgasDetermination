@@ -2,9 +2,6 @@
 //Author: Felix Boehmer
 
 
-//TODO:
-//GEMS, mind the holes -> correct material density
-
 void rename(TGeoVolume* v, TString str, TString replace) {
   unsigned int nNodes = v->GetNodes()->GetEntries();
   for(unsigned int n=0; n<nNodes; n++) {
@@ -20,9 +17,9 @@ void rename(TGeoVolume* v, TString str, TString replace) {
 TGeoVolumeAssembly* createCoolingPot() {
   double pot_pars[3] = { 42.5,   //rMin
 			 43.,   //rMax
-			 8./2.};
+			 11./2.};
   //local positioning:
-  double dz = -76.;
+  double dz = -73.;
   
   TGeoVolumeAssembly* ass = new TGeoVolumeAssembly("CoolingPot");
   TString mat("aluminium");
@@ -237,8 +234,8 @@ TGeoVolumeAssembly* createCooling() {
 TGeoVolumeAssembly* createGas() {
   //dead space for GEM foils:
   double gemDz = 1.;
-  double gas_pars[6] = { 15.65,   //rMin
-			 41.3,   //rMax
+  double gas_pars[6] = { 15.75,   //rMin
+			 41.2,   //rMax
 			 (150.-gemDz)/2.,   //dZ  HALF OF ACTUAL LENGTH 
 			 95.,
 			 265. };
@@ -321,19 +318,23 @@ TGeoVolumeAssembly* createGEMStack() {
 
   //---------------- CONSTRUCT FIELDCAGE BARREL ------------------------------
 TGeoVolumeAssembly* createFieldCageBarrel() {
+  double nominal = 150.;
+  double length = 149.;  //actual length
+
   double cageOut_meas[6] = { 41.3,   //rMin
 			     41.95,   //rMax
-			     150./2.,   //dZ  HALF OF ACTUAL LENGTH (GEANT STYLE)
+			     length/2.,   //dZ  HALF OF ACTUAL LENGTH (GEANT STYLE)
 			     95.,
 			     265. };
   double cageIn_meas[6] = { 15.,   //rMin
 			    15.65,   //rMax
-			    150./2.,   //dZ  HALF OF ACTUAL LENGTH (GEANT STYLE)
+			    length/2.,   //dZ  HALF OF ACTUAL LENGTH (GEANT STYLE)
 			    95.,
 			    265. };
 
   TGeoRotation* rot = new TGeoRotation();
   rot->SetAngles(180.,0,0);
+  TGeoTranslation* trans = new TGeoTranslation(0.,0.,(nominal-length)/2.);
 
   //complete cage to return
   TGeoVolumeAssembly* FieldCage = new TGeoVolumeAssembly("FieldCage");
@@ -358,8 +359,9 @@ TGeoVolumeAssembly* createFieldCageBarrel() {
 //  FieldCage2->SetName("FieldCage2");
 //  rename(FieldCage2, "cage1", "cage2");
   
-  FieldCage->AddNode(FieldCage1,1);
-  FieldCage->AddNode(FieldCage1,2, rot);
+  TGeoCombiTrans* combi = new TGeoCombiTrans(*trans, *rot);
+  FieldCage->AddNode(FieldCage1,1, trans);
+  FieldCage->AddNode(FieldCage1,2, combi);
   
   return FieldCage;
 }
