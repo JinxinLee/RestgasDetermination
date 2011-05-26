@@ -17,7 +17,8 @@
 // fFocusingSystem = 2 && fprizm = kFALSE  output file is in geometry/dirc_l2_p0.root
 // fFocusingSystem = 2 && fprizm = kTRUE   output file is in geometry/dirc_l2_p1.root
 // corresponding .root files with geometry please fone in the geometry directory
-void createRootGeometry_DIRC(Int_t fFocusingSystem = 0, Bool_t fprizm = kFALSE){ 
+
+void createRootGeometry_DIRC_flatEV(Int_t fFocusingSystem = 0, Bool_t fprizm = kFALSE){ 
   
   const Double_t pi = 3.1415926535;
 
@@ -33,7 +34,7 @@ void createRootGeometry_DIRC(Int_t fFocusingSystem = 0, Bool_t fprizm = kFALSE){
   gSystem->Load("libPassive");
   
   // variable to achieve the DIRC basic parameters
-  PndGeoDrc* fGeo = new PndGeoDrc();
+  PndGeoDrc* fGeo = new PndGeoDrc(); 
   
   // units = cm
   
@@ -69,8 +70,8 @@ void createRootGeometry_DIRC(Int_t fFocusingSystem = 0, Bool_t fprizm = kFALSE){
   Double_t sob_angleB	 =  fGeo->EVbackAngle();  //90. [degrees] angle of the EV (usually it is 90)
   Double_t sob_angle	 =  fGeo->EVangle();	  //60. [degrees] opening angle of the EV
    
-  Double_t bbAngle       =  ( 180. - 2.*pipehAngle - bbGap/radius/pi*180.*(bbnum/2.-1.) )/(bbnum/2.);  
-  Double_t bbX           =  radius*bbAngle/180.*pi;  
+  Double_t bbAngle       =  ( 180. - 2.*pipehAngle - bbGap/radius/pi*180.*(bbnum/2.-1.) )/(bbnum/2.);  // ~20 degrees
+  Double_t bbX           =  radius*bbAngle/180.*pi;  // 17.45 cm
   cout<<"bbAngle = "<<bbAngle<<", bbX = "<<bbX<<endl;
   
   
@@ -494,7 +495,7 @@ void createRootGeometry_DIRC(Int_t fFocusingSystem = 0, Bool_t fprizm = kFALSE){
   shape->DefineSection(1, bbox_zup, 45., 55.);
   shape->DefineSection(2, bbox_zup - sob_len, 45., sob_Rout+poffset+pheight+EVoffset+0.1);
   shape->DefineSection(3, bbox_zup - sob_len - 0.1, 45., sob_Rout+poffset+pheight+EVoffset+0.1);
-  vLocalMother = new TGeoVolume("BarrelDIRC", shape, DIRCairNoSens_m);
+  vLocalMother = new TGeoVolume("BarrelDIRC", shape, air_m); //DIRCairNoSens_m); //################
   cave->AddNode(vLocalMother, 0,0);
  
 
@@ -628,84 +629,106 @@ void createRootGeometry_DIRC(Int_t fFocusingSystem = 0, Bool_t fprizm = kFALSE){
   // Expansion volume:
   Double_t dR; 
   Double_t xEV; 
- 
-  TGeoPcon* logicEV;// = new TGeoPcon("logicEV", 0., 360., 2);
+
+  TGeoPgon* logicEV1, * logicEV2;
   if(fprizm == kFALSE){
     dR = (radius+hthick+boxgap+boxthick)/cos(dphi/2./180.*pi) - (radius-hthick);
     xEV = (dR + sob_len*tan(sob_angle/180.*pi))/ (tan(sob_angle/180.*pi) + tan(sob_angleB/180.*pi));
-    cout<<"No prism, X = "<<xEV<<endl;
     if(sob_angleB == 90.){
-      logicEV = new TGeoPcon("logicEV", 0., 360., 2);
-      logicEV->DefineSection(0, 0.,      radius-hthick,  sob_Rout);
-      logicEV->DefineSection(1, sob_len, radius-hthick,  (radius+hthick+boxgap+boxthick)/cos(dphi/2./180.*pi));
+      logicEV1 = new TGeoPgon("logicEV1", 93.6, 172.8, bbnum/2, 2);
+      logicEV1->DefineSection(0, 0.,      radius-hthick,  sob_Rout);
+      logicEV1->DefineSection(1, sob_len, radius-hthick,  (radius+hthick+boxgap+boxthick)/cos(dphi/2./180.*pi));
+      logicEV2 = new TGeoPgon("logicEV2", -86.4, 172.8, bbnum/2, 2);
+      logicEV2->DefineSection(0, 0.,      radius-hthick,  sob_Rout);
+      logicEV2->DefineSection(1, sob_len, radius-hthick,  (radius+hthick+boxgap+boxthick)/cos(dphi/2./180.*pi));     
     }
-    if(sob_angleB != 90.){
-      logicEV = new TGeoPcon("logicEV", 0., 360., 3);
-      logicEV->DefineSection(0, 0.,      radius-hthick,  radius-hthick+eps);
-      logicEV->DefineSection(1, xEV,     radius-hthick,  sob_Rout - xEV*tan(sob_angle/180.*pi));
-      logicEV->DefineSection(2, sob_len, radius-hthick,  (radius+hthick+boxgap+boxthick)/cos(dphi/2./180.*pi));
-    }  
+    if(sob_angleB != 90.){  
+      logicEV1 = new TGeoPgon("logicEV1", 93.6, 172.8, bbnum/2, 3);
+      logicEV1->DefineSection(0, 0.,      radius-hthick,  radius-hthick+eps);
+      logicEV1->DefineSection(1, xEV,     radius-hthick,  sob_Rout - xEV*tan(sob_angle/180.*pi));
+      logicEV1->DefineSection(2, sob_len, radius-hthick,  (radius+hthick+boxgap+boxthick)/cos(dphi/2./180.*pi));
+      logicEV2 = new TGeoPgon("logicEV2", -86.4, 172.8, bbnum/2, 3);
+      logicEV2->DefineSection(0, 0.,      radius-hthick,  radius-hthick+eps);
+      logicEV2->DefineSection(1, xEV,     radius-hthick,  sob_Rout - xEV*tan(sob_angle/180.*pi));
+      logicEV2->DefineSection(2, sob_len, radius-hthick,  (radius+hthick+boxgap+boxthick)/cos(dphi/2./180.*pi));           
+    }
   }
   if(fprizm == kTRUE){
     dR = (radius+hthick+poffset+pheight+EVoffset)/cos(dphi/2./180.*pi) - (radius-hthick-pdrop-EVdrop);
     xEV = (dR + (sob_len-2.*phlength)*tan(sob_angle/180.*pi))/ (tan(sob_angle/180.*pi) + tan(sob_angleB/180.*pi));
-    cout<<"Prism, X = "<<xEV<<endl;
     if(sob_angleB == 90.){
-      logicEV = new TGeoPcon("logicEV", 0., 360., 2);
-      logicEV->DefineSection(0, 0.,      radius-hthick-pdrop-EVdrop,  sob_Rprizm);
-      logicEV->DefineSection(1, sob_len-2.*phlength, radius-hthick-pdrop-EVdrop, (radius+hthick+poffset+pheight+EVoffset)/cos(dphi/2./180.*pi));
+      logicEV1 = new TGeoPgon("logicEV1", 93.6, 172.8, bbnum/2, 2);
+      logicEV1->DefineSection(0, 0.,      radius-hthick-pdrop-EVdrop,  sob_Rprizm);
+      logicEV1->DefineSection(1, sob_len-2.*phlength, radius-hthick-pdrop-EVdrop, (radius+hthick+poffset+pheight+EVoffset)/cos(dphi/2./180.*pi));
+      logicEV2 = new TGeoPgon("logicEV2", -86.4, 172.8, bbnum/2, 2);
+      logicEV2->DefineSection(0, 0.,      radius-hthick-pdrop-EVdrop,  sob_Rprizm);
+      logicEV2->DefineSection(1, sob_len-2.*phlength, radius-hthick-pdrop-EVdrop, (radius+hthick+poffset+pheight+EVoffset)/cos(dphi/2./180.*pi));
     }
     if(sob_angleB != 90.){
-      logicEV = new TGeoPcon("logicEV", 0., 360., 3);
-      logicEV->DefineSection(0, 0.,      radius-hthick-pdrop-EVdrop,  radius-hthick-pdrop-EVdrop+eps);
-      logicEV->DefineSection(1, xEV,     radius-hthick-pdrop-EVdrop,  sob_Rprizm - xEV*tan(sob_angle/180.*pi));
-      logicEV->DefineSection(2, sob_len-2.*phlength, radius-hthick-pdrop-EVdrop,  (radius+hthick+poffset+pheight+EVoffset)/cos(dphi/2./180.*pi));      
-    }  
+      logicEV1 = new TGeoPgon("logicEV1", 93.6, 172.8, bbnum/2, 3);
+      logicEV1->DefineSection(0, 0.,      radius-hthick-pdrop-EVdrop,  radius-hthick-pdrop-EVdrop+eps);
+      logicEV1->DefineSection(1, xEV,     radius-hthick-pdrop-EVdrop,  sob_Rprizm - xEV*tan(sob_angle/180.*pi));
+      logicEV1->DefineSection(2, sob_len-2.*phlength, radius-hthick-pdrop-EVdrop,  (radius+hthick+poffset+pheight+EVoffset)/cos(dphi/2./180.*pi));      
+      logicEV2 = new TGeoPgon("logicEV2", -86.4, 172.8, bbnum/2, 3);
+      logicEV2->DefineSection(0, 0.,      radius-hthick-pdrop-EVdrop,  radius-hthick-pdrop-EVdrop+eps);
+      logicEV2->DefineSection(1, xEV,     radius-hthick-pdrop-EVdrop,  sob_Rprizm - xEV*tan(sob_angle/180.*pi));
+      logicEV2->DefineSection(2, sob_len-2.*phlength, radius-hthick-pdrop-EVdrop,  (radius+hthick+poffset+pheight+EVoffset)/cos(dphi/2./180.*pi));      
+    }
   }
-  TGeoVolume* baseEV = new TGeoVolume("DrcEV", logicEV, Marcol82_m);
+  
+  TGeoCompositeShape *logicEV = new TGeoCompositeShape("logicEV","logicEV1 + logicEV2");
+  TGeoVolume* baseEV = new TGeoVolume("DrcEV", logicEV, Marcol82_7_m);
   baseEV->SetLineColor(kMagenta+2);
   baseEV->SetTransparency(50);
   vLocalMother->AddNode(baseEV, 1, new TGeoCombiTrans(0.,0.,sob_shift, new TGeoRotation(0)));
-  
+
   // PhotoDetector:
-  TGeoCone *logicPD;
+  TGeoPgon *logicPD1 = new TGeoPgon("logicPD1",  93.6, 172.8, bbnum/2, 2);
+  TGeoPgon *logicPD2 = new TGeoPgon("logicPD2", -86.4, 172.8, bbnum/2, 2);
   if(fprizm == kFALSE){
-    if(sob_angleB == 90.){
-      logicPD = new TGeoCone("logicPD", 0.1/2., radius-hthick, sob_Rout, radius-hthick, sob_Rout);
-      //TGeoPcon *logicPD = new TGeoPcon("logicPD", 0., 360., 2);
-      //logicPD->DefineSection(0, 0.0, radius-hthick, sob_Rout);
-      //logicPD->DefineSection(1, 0.1, radius-hthick, sob_Rout);
+    if(sob_angleB == 90.){     
+      logicPD1->DefineSection(0, 0.0, radius-hthick, sob_Rout);
+      logicPD1->DefineSection(1, 0.1, radius-hthick, sob_Rout);     
+      logicPD2->DefineSection(0, 0.0, radius-hthick, sob_Rout);
+      logicPD2->DefineSection(1, 0.1, radius-hthick, sob_Rout);
     }
-    if(sob_angleB != 90.){
-      //TGeoCone *
-      logicPD = new TGeoCone("logicPD", xEV/2., radius-hthick+eps, radius-hthick+eps+0.1, sob_Rout-xEV*tan(sob_angle/180.*pi), sob_Rout-xEV*tan(sob_angle/180.*pi)+0.1);
-    }  
+    if(sob_angle != 90.){     
+      logicPD1->DefineSection(0, 0.0, radius-hthick, radius-hthick+0.1);
+      logicPD1->DefineSection(1, xEV, sob_Rout - xEV*tan(sob_angle/180.*pi), sob_Rout- xEV*tan(sob_angle/180.*pi)+0.1);     
+      logicPD2->DefineSection(0, 0.0, radius-hthick, radius-hthick+0.1);
+      logicPD2->DefineSection(1, xEV, sob_Rout - xEV*tan(sob_angle/180.*pi), sob_Rout- xEV*tan(sob_angle/180.*pi)+0.1);
+    }
   }
   if(fprizm == kTRUE){
     if(sob_angleB == 90.){
-      logicPD = new TGeoCone("logicPD", 0.1/2., radius-hthick, sob_Rprizm, radius-hthick, sob_Rprizm);
-      //TGeoPcon *logicPD = new TGeoPcon("logicPD", 0., 360., 2);
-      //logicPD->DefineSection(0, 0.0, radius-hthick, sob_Rprizm);
-      //logicPD->DefineSection(1, 0.1, radius-hthick, sob_Rprizm);  
+      logicPD1->DefineSection(0, 0.0, radius-hthick-pdrop-EVdrop+eps, sob_Rprizm);
+      logicPD1->DefineSection(1, 0.1, radius-hthick-pdrop-EVdrop+eps, sob_Rprizm);     
+      logicPD2->DefineSection(0, 0.0, radius-hthick-pdrop-EVdrop+eps, sob_Rprizm);
+      logicPD2->DefineSection(1, 0.1, radius-hthick-pdrop-EVdrop+eps, sob_Rprizm);
     }
-    if(sob_angleB != 90.){
-      //TGeoCone *
-      logicPD = new TGeoCone("logicPD", xEV/2., radius-hthick-pdrop-EVdrop+eps, radius-hthick-pdrop-EVdrop+eps+0.1, sob_Rprizm-xEV*tan(sob_angle/180.*pi), sob_Rprizm-xEV*tan(sob_angle/180.*pi)+0.1);
-    }    
-  }
+    if(sob_angle != 90.){    
+      logicPD1->DefineSection(0, 0.0, radius-hthick-pdrop-EVdrop+eps, radius-hthick-pdrop-EVdrop+eps+0.1);
+      logicPD1->DefineSection(1, xEV, sob_Rprizm - xEV*tan(sob_angle/180.*pi), sob_Rprizm- xEV*tan(sob_angle/180.*pi)+0.1);     
+      logicPD2->DefineSection(0, 0.0, radius-hthick-pdrop-EVdrop+eps, radius-hthick-pdrop-EVdrop+eps+0.1);
+      logicPD2->DefineSection(1, xEV, sob_Rprizm - xEV*tan(sob_angle/180.*pi), sob_Rprizm- xEV*tan(sob_angle/180.*pi)+0.1);
+    
+    }
+  }  
+  TGeoCompositeShape *logicPD = new TGeoCompositeShape("logicPD","logicPD1 + logicPD2");
   TGeoVolume *pd = new TGeoVolume("DrcPDSensor", logicPD, FusedSil_m);
   pd->SetLineColor(kGreen-6);
   if(sob_angleB == 90.){
-    vLocalMother->AddNode(pd, 1,new TGeoCombiTrans(0., 0., sob_shift-0.1/2., new TGeoRotation (rot1)));
+    vLocalMother->AddNode(pd, 1, new TGeoCombiTrans(0., 0., sob_shift-0.1/2., new TGeoRotation(0)));
   }
   if(sob_angleB != 90.){
-    vLocalMother->AddNode(pd, 1,new TGeoCombiTrans(0., 0., sob_shift+0.5*xEV, new TGeoRotation (rot1)));
-  }  
+    vLocalMother->AddNode(pd, 1,new TGeoCombiTrans(0., 0., sob_shift, new TGeoRotation(0)));
+  }
+
   gGeoManager->CloseGeometry();
 
   cave->CheckOverlaps(0.1, "");
   gGeoManager->CheckOverlaps(0.001); // [cm]
-  
+  //gGeoManager->CheckGeometryFull();
 
   
   cave->Write();
