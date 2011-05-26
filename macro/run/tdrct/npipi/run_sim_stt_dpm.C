@@ -91,6 +91,7 @@ run_sim_stt_dpm(Int_t nEvents=10, Float_t mom = 4.0, Int_t mode =1, UInt_t seed=
   fRun->AddModule(Dsk);
 
   PndDrc *Drc = new PndDrc("DIRC", kFALSE);
+  Drc->SetGeometryFileName("dirc_l0_p0.root");
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc);
   
