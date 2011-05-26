@@ -5495,10 +5495,11 @@ nohits: ;
 		toMCtracklist[nTracksFoundSoFar][nmaxSttHits],
 		toMCtrackfrequency[nTracksFoundSoFar][nmaxSttHits];
 
-   UShort_t  i, j, enne, jtemp,jexp;
+   UShort_t  i, j, jtemp,jexp;
 
    Short_t  itemp, massimo;
 
+   Int_t  enne;
 
 
    for(i=0; i<nTracksFoundSoFar;i++){
@@ -5521,7 +5522,7 @@ nohits: ;
 
 // prima  gli hits paralleli ---------------------
 	for(i=1; i<nHitsinTrack[jexp]; i++){
-		enne = (UShort_t)( info[  ListHitsinTrack[jexp][i] ][6]+0.01 );
+		enne = (Int_t)( info[  ListHitsinTrack[jexp][i] ][6]+0.01 );
 		for(j=0; j<ntoMCtrack[jexp]; j++){
 			if( enne == toMCtracklist[jexp][j] ) {
 				toMCtrackfrequency[jexp][j]++;
@@ -5538,7 +5539,7 @@ out1:  ;
 
 // poi  gli hits skew ---------------------
 	for(i=0; i<nSkewHitsinTrack[jexp]; i++){
-		enne = (UShort_t)( info[ ListSkewHitsinTrack[jexp][i]  ][6]+0.01 );
+		enne = (Int_t)( info[ ListSkewHitsinTrack[jexp][i]  ][6]+0.01 );
 		for(j=0; j<ntoMCtrack[jexp]; j++){
 			if( enne == toMCtracklist[jexp][j] ) {
 				toMCtrackfrequency[jexp][j]++;
@@ -5754,8 +5755,10 @@ out2:  ;
 
    UShort_t  i, j, jtemp,jexp , nmid;
 
-   Short_t  enne, itemp, massimo,
+   Short_t   itemp, massimo,
 		toMCtracklist[nTracksFoundSoFar][nmaxSttHits];
+
+   Int_t enne;
 
 	Double_t dx,
 		 Cx,
@@ -5829,15 +5832,9 @@ int nevento=4;
 	ntoMCtrack[jexp]=0;
 
 
-
-
-
-
-
-
 // solo  gli hits paralleli ---------------------
 	for(i=0; i<nHitsinTrack[jexp]; i++){
-		enne = (Short_t)( info[  ListHitsinTrack[jexp][i] ][6]+0.01 );
+		enne = (Int_t)( info[  ListHitsinTrack[jexp][i] ][6]+0.01 );
 		if(enne<0) continue;   //  hit not associated to any MC track; noise hit.
 
 		if(firstime) {
@@ -5975,8 +5972,10 @@ out1:  ;
 
    UShort_t  i, j, jtemp,jexp , nmid;
 
-   Short_t  enne, itemp, massimo,
+   Short_t  itemp, massimo,
 		toMCtracklist[nTracksFoundSoFar][nmaxSttHits];
+
+   Int_t enne;
 
 	Double_t dx,
 		 Cx,
@@ -6084,7 +6083,7 @@ out1:  ;
 
 // prima  gli hits paralleli ---------------------
 	for(i=0; i<nHitsinTrack[jexp]; i++){
-		enne = (Short_t)( info[  ListHitsinTrack[jexp][i] ][6]+0.01 );
+		enne = (Int_t)( info[  ListHitsinTrack[jexp][i] ][6]+0.01 );
 		if(enne<0) continue;   //  hit not associated to any MC track; noise hit.
 
 		if(firstime) {
@@ -6184,7 +6183,8 @@ out2:  ;
 // infine le strip -------------------------------------------
 
 	for(i=0; i<nStripHitsinTrack[jexp]; i++){
-		enne = FromStriptoMCTrack[ ListPixelHitsinTrack[jexp][i] ] ;
+
+		enne = FromStriptoMCTrack[ ListStripHitsinTrack[jexp][i] ] ;
 		if(enne<0) continue;   //  hit not associated to any MC track; noise hit.
 
 		if(firstime) {
@@ -9800,7 +9800,7 @@ zippo: ;
 //------------------------- begin of function  PndSttMvdTracking::getMCInfo
 
   void PndSttMvdTracking::getMCInfo(
-  					Short_t MCTrack,
+  					Int_t MCTrack,
 					Double_t * Cx,
 					Double_t * Cy,
 					Double_t * Rr
