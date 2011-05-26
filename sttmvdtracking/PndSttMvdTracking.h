@@ -634,7 +634,7 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 
 
   void getMCInfo(
-			Short_t MCTrack,
+			Int_t MCTrack,
 			Double_t * Cx,
 			Double_t * Cy,
 			Double_t * Rr
