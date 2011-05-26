@@ -28,4 +28,5 @@ void basiclibs()
   gSystem->Load("libNet");  
   gSystem->Load("libTree"); 
   gSystem->Load("libMinuit");
+  gSystem->Load("libMathMore");
 }  
