@@ -51,6 +51,7 @@ public:
   void SetTrackBranchName(TString tn) {fTrackBranchName=tn;}
 
   void SetSecondarySuppression(Bool_t opt=kTRUE) {fSecondarySupp=opt;}
+  void SetNumberOfTrackReps(unsigned int n) {fNumReps=n;}
   
 
 private:
@@ -69,6 +70,9 @@ private:
  TClonesArray* fFitStatArray;
  
  PndTpcDigiPar* fPar;
+
+ std::map<unsigned int, TClonesArray*> fOutArrayMap;
+ unsigned int fNumReps;
 
 public:
   ClassDef(PndTpcResidualTask,1)

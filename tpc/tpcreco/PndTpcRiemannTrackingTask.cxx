@@ -45,6 +45,8 @@
 #include "GFTrack.h"
 #include "LSLTrackRep.h"
 #include "RKTrackRep.h"
+#include "GeaneTrackRep.h"
+#include "FairGeanePro.h"
 #include "TH1I.h"
 #include "TH1D.h"
 #include "McIdCollection.h"
@@ -616,9 +618,11 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     TVector3 poserr(0.3,0.3,0.3);
     // end build start position
 
+    int q = -1.;
+    
     // pdg
     int pdg = winding * 211; // Todo: pions hardcoded atm
-    if(Bz<0) pdg *= -1;
+    if(Bz<0) { pdg *= -1; q*=(-1);}
 
     std::cout<<" center of track "; center.Print();
     std::cout<<" Radius of track [cm]: " << trackR << std::endl;
@@ -638,7 +642,15 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     cand->setCurv(trackR); //  actually this is never used
     cand->setDip(trk->dip());
 
-    RKTrackRep* rep = new RKTrackRep(pos1, mom, poserr, momerr,pdg);
+    RKTrackRep* rkrep = new RKTrackRep(pos1, mom, poserr, momerr,pdg);
+    FairGeanePro* gPro = new FairGeanePro();
+    
+    TVector3 u=mom.Orthogonal();
+    u.SetMag(1.);
+    TVector3 v=mom.Cross(u);
+    v.SetMag(1.);
+    GFDetPlane pl(pos1,u,v);
+    GeaneTrackRep* grep=new GeaneTrackRep(gPro,pl,mom,poserr,momerr,q,pdg);
 
     candlist.push_back(cand);
 
@@ -658,9 +670,11 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
 
 
     // store GFTracks in output array
-    GFTrack* gftrk=new((*_trackArray)[_trackArray->GetEntriesFast()]) GFTrack(rep);
+    GFTrack* gftrk=new((*_trackArray)[_trackArray->GetEntriesFast()]) GFTrack(grep);
     gftrk->setCandidate(*cand); // here the candidate is copied!
-    //Is this what we want?
+    //add RK trackrep
+    gftrk->addTrackRep(rkrep);
+    
     
 
     // visualisation of seed values
