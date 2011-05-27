@@ -45,21 +45,21 @@ void PndMvdRiemannTrackFinder::AddHits(TClonesArray* hits, Int_t branchId)
 		if (flag && geoPath.Contains("PixeloSdko(Silicon)_4")){Layer=5;flag=false;}  //naming after MVD2.2
 		if (flag && geoPath.Contains("PixeloSdkoco(Silicon)_4")){Layer=5;flag=false;}
 		if (flag && geoPath.Contains("PixeloBlo2")){Layer=6;flag=false;}
-    if (flag && geoPath.Contains("PixeloLdko(Silicon)_1")){Layer=7;flag=false;}  //naming after MVD2.2
+    if (flag && geoPath.Contains("PixeloLdkoio(Silicon)_1")){Layer=7;flag=false;}  //naming after MVD2.2
     if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_1")){Layer=7;flag=false;}
-		if (flag && geoPath.Contains("PixeloLdko(Silicon)_2")){Layer=8;flag=false;}  //naming after MVD2.2
+		if (flag && geoPath.Contains("PixeloLdkoiio(Silicon)_1")){Layer=8;flag=false;}  //naming after MVD2.2
 		if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_2")){Layer=8;flag=false;}
-		if (flag && geoPath.Contains("PixeloLdko(Silicon)_3")){Layer=9;flag=false;}  //naming after MVD2.2
+		if (flag && geoPath.Contains("PixeloLdkoiiio(Silicon)_1")){Layer=9;flag=false;}  //naming after MVD2.2
 		if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_3")){Layer=9;flag=false;}
-    if (flag && geoPath.Contains("PixeloLdko(Silicon)_4")){Layer=10;flag=false;}  //naming after MVD2.2
+    if (flag && geoPath.Contains("PixeloLdkoiiio(Silicon)_2")){Layer=10;flag=false;}  //naming after MVD2.2
     if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_4")){Layer=10;flag=false;}
-		if (flag && geoPath.Contains("PixeloLdko(Silicon)_5")){Layer=11;flag=false;}  //naming after MVD2.2
+		if (flag && geoPath.Contains("PixeloLdkoiio(Silicon)_2")){Layer=11;flag=false;}  //naming after MVD2.2
 		if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_5")){Layer=11;flag=false;}
-    if (flag && geoPath.Contains("PixeloLdko(Silicon)_6")){Layer=12;flag=false;}  //naming after MVD2.2
+    if (flag && geoPath.Contains("PixeloLdkoio(Silicon)_2")){Layer=12;flag=false;}  //naming after MVD2.2
     if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_6")){Layer=12;flag=false;}
-    if (flag && geoPath.Contains("PixeloLdko(Silicon)_7")){Layer=13;flag=false;}  //naming after MVD2.2
+    if (flag && geoPath.Contains("PixeloLdkoiiio(Silicon)_4")){Layer=13;flag=false;}  //naming after MVD2.2
     if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_7")){Layer=13;flag=false;}
-		if (flag && geoPath.Contains("PixeloLdko(Silicon)_8")){Layer=14;flag=false;}  //naming after MVD2.2
+		if (flag && geoPath.Contains("PixeloLdkoiiio(Silicon)_3")){Layer=14;flag=false;}  //naming after MVD2.2
 		if (flag && geoPath.Contains("PixeloLdkoco(Silicon)_8")){Layer=14;flag=false;}
     
 		if (flag && geoPath.Contains("StripoBl3o(Silicon)")){Layer=15;flag=false;}
