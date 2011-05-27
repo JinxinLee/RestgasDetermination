@@ -1128,14 +1128,15 @@ void PndDrc::ConstructOpGeometry()
     gMC->SetMaterialProperty("MirrSurface", "REFLECTIVITY", npoints_r, ephoton_r, reflectivity_r);
   }
   
-/* 
-  gMC->DefineOpSurface("EVSurface", kGlisur, kDielectric_dielectric, kPolished, 0.0);
+ 
+  gMC->DefineOpSurface("EVSurface", kGlisur, kDielectric_metal, kPolished, 0.0);
   gMC->SetBorderSurface("EVAirSurface", "DrcEV", 1, "BarrelDIRC", 0, "EVSurface"); 
-  //gMC->SetMaterialProperty("EVSurface", "REFLECTIVITY", npoints, ephoton, reflectivity);
+  gMC->SetMaterialProperty("EVSurface", "REFLECTIVITY", npoints_i, ephoton_i, reflectivity_i);
   
   gMC->DefineOpSurface("PDSurface", kGlisur, kDielectric_dielectric, kPolished, 0.0);
   gMC->SetBorderSurface("EVPDSurface", "DrcEV", 1, "DrcPDSensor", 1, "PDSurface");
-*/  
+  gMC->SetMaterialProperty("PDSurface", "EFFICIENCY", npoints_i, ephoton_i, reflectivity_i);
+  
   cout<<" =======  DRC::ConstructOpGeometry -> Finished! ====== "<< endl;     
 }  
 
