@@ -39,7 +39,7 @@ PndTpcClustVis* PndTpcClustVis::eventDisplay = NULL;
 
 PndTpcClustVis::PndTpcClustVis():
   tree(NULL), digisBranch(NULL), clustersBranch(NULL), guiEvent(0), fEventId(0), ClHasChanged(true),
-  doClustering(true), ClMode(2), ClTimeslice(3),ClTimecut(2),
+  doClustering(false), ClMode(2), ClTimeslice(3),ClTimecut(2),
   ClSingleDigiClAmpCut(15), ClClAmpCut(9),
   ClElPerADC(600.), ClErrorNorm(300.),
   ClSimpleCl(true), ClSimpleTimeslice(4), ClSimpleMaxClusterSlice(3000),
@@ -49,10 +49,10 @@ PndTpcClustVis::PndTpcClustVis():
   doPR(true), doMerge(true), doClean(false),
   _sorting(3), _interactionZ(0), _sortingMode(true),
   PRNHits(1000000),
-  _minpoints(4), _planecut(0.04), _riproxcut(0.1), _szcut(0.2), _proxcut(1.9),
+  _minpoints(4), _planecut(0.04), _riproxcut(0.1), _szcut(0.2), _proxcut(1.9), _helixcut(0.5),
   _TTproxcut(2.2), _TTplanecut(0.025), _TTszcut(0.33), PRHasChanged(true),
   fRiemannScale(8.6),
-  doFit(true), useGeane(false), numIts(0), smooth(false), Bz(0)
+  doFit(false), useGeane(false), numIts(0), smooth(false), Bz(0)
 {
   if(!gApplication) {
     std::cout << "In PndTpcClustVis ctor: gApplication not found, creating..." << std::flush;
@@ -377,6 +377,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     _trackfinder->addCorrelator(new PndTpcRiProxHTCorrelator(_riproxcut));
     _trackfinder->addCorrelator(new PndTpcSzHTCorrelator(_szcut));
     _trackfinder->addCorrelator(new PndTpcRiemannHTCorrelator(_planecut));
+    //_trackfinder->addCorrelator(new PndTpcHelixHTCorrelator(_helixcut));
 
     // Track-Track Correlators
     _trackfinder->addTTCorrelator(new PndTpcProximityTTCorrelator(_TTproxcut));
@@ -1049,22 +1050,36 @@ void PndTpcClustVis::makeGui() {
   }
   frmMain->AddFrame(hf);
 
+  frmMain->MapSubwindows();
+  frmMain->Resize();
+  frmMain->MapWindow();
+
+  browser->StopEmbedding();
+  browser->SetTabTitle("Options & Clustering", 0);
 
 
-  hf = new TGHorizontalFrame(frmMain); {
+  browser->StartEmbedding(TRootBrowser::kLeft);
+
+  TGMainFrame* frmMain2 = new TGMainFrame(gClient->GetRoot(), 1200, 800);
+  frmMain2->SetWindowName("Pandoras Playground");
+  frmMain2->SetCleanup(kDeepCleanup);
+
+
+
+  hf = new TGHorizontalFrame(frmMain2); {
     lbl = new TGLabel(hf, "\n Pattern Recognition");
     hf->AddFrame(lbl);
   }
-  frmMain->AddFrame(hf);
-  hf = new TGHorizontalFrame(frmMain); {
+  frmMain2->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain2); {
     guiDoPR =  new TGCheckButton(hf, "Run Pattern Recognition");
     if(doPR) guiDoPR->Toggle();
     hf->AddFrame(guiDoPR);
     guiDoPR->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
   }
-  frmMain->AddFrame(hf);
+  frmMain2->AddFrame(hf);
 
-  hf = new TGHorizontalFrame(frmMain); {
+  hf = new TGHorizontalFrame(frmMain2); {
     // evt number entry
     lbl = new TGLabel(hf, "Do PR up to Hit: ");
     hf->AddFrame(lbl);
@@ -1081,10 +1096,10 @@ void PndTpcClustVis::makeGui() {
     hf->AddFrame(tb);
     tb->Connect("Clicked()", "PndTpcClustVis", fh, "guiGoto()");
   }
-  frmMain->AddFrame(hf);
+  frmMain2->AddFrame(hf);
 
   // sorting parameters
-  hf = new TGHorizontalFrame(frmMain); {
+  hf = new TGHorizontalFrame(frmMain2); {
     guisorting = new TGNumberEntry(hf, _sorting, 6,999, TGNumberFormat::kNESInteger,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
@@ -1094,8 +1109,8 @@ void PndTpcClustVis::makeGui() {
     lbl = new TGLabel(hf, "Sorting Mode");
     hf->AddFrame(lbl);
   }
-  //frmMain->AddFrame(hf);
-  hf = new TGHorizontalFrame(frmMain); {
+  //frmMain2->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain2); {
     guiinteractionZ = new TGNumberEntry(hf, _interactionZ, 6,999, TGNumberFormat::kNESRealThree,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
@@ -1105,17 +1120,17 @@ void PndTpcClustVis::makeGui() {
     lbl = new TGLabel(hf, "Z-position of interaction point (for sorting Mode 4)");
     hf->AddFrame(lbl);
   }
-  //frmMain->AddFrame(hf);
-  hf = new TGHorizontalFrame(frmMain); {
+  //frmMain2->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain2); {
     guisortingMode =  new TGCheckButton(hf, "Use sorting of riemann tracker");
     if(_sortingMode) guisortingMode->Toggle();
     hf->AddFrame(guisortingMode);
     guisortingMode->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
   }
-  frmMain->AddFrame(hf);
+  frmMain2->AddFrame(hf);
 
   // Trackfinder Parameters
-  hf = new TGHorizontalFrame(frmMain); {
+  hf = new TGHorizontalFrame(frmMain2); {
     guiminpoints = new TGNumberEntry(hf, _minpoints, 6,999, TGNumberFormat::kNESInteger,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
@@ -1125,8 +1140,8 @@ void PndTpcClustVis::makeGui() {
     lbl = new TGLabel(hf, "min points for sz-/plane-fit");
     hf->AddFrame(lbl);
   }
-  frmMain->AddFrame(hf);
-  hf = new TGHorizontalFrame(frmMain); {
+  frmMain2->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain2); {
     guiplanecut = new TGNumberEntry(hf, _planecut, 6,999, TGNumberFormat::kNESRealFour,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
@@ -1136,9 +1151,9 @@ void PndTpcClustVis::makeGui() {
     lbl = new TGLabel(hf, "Planecut");
     hf->AddFrame(lbl);
   }
-  frmMain->AddFrame(hf);
+  frmMain2->AddFrame(hf);
 
-  hf = new TGHorizontalFrame(frmMain); {
+  hf = new TGHorizontalFrame(frmMain2); {
     guiriproxcut = new TGNumberEntry(hf, _riproxcut, 6, 999, TGNumberFormat::kNESRealFour,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
@@ -1148,8 +1163,8 @@ void PndTpcClustVis::makeGui() {
     lbl = new TGLabel(hf, "Riemann proximity cut");
     hf->AddFrame(lbl);
   }
-  frmMain->AddFrame(hf);
-  hf = new TGHorizontalFrame(frmMain); {
+  frmMain2->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain2); {
     guiszcut = new TGNumberEntry(hf, _szcut, 6,999, TGNumberFormat::kNESRealThree,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
@@ -1159,8 +1174,8 @@ void PndTpcClustVis::makeGui() {
     lbl = new TGLabel(hf, "sz cut");
     hf->AddFrame(lbl);
   }
-  frmMain->AddFrame(hf);
-  hf = new TGHorizontalFrame(frmMain); {
+  frmMain2->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain2); {
     guiproxcut = new TGNumberEntry(hf, _proxcut, 6,999, TGNumberFormat::kNESRealThree,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
@@ -1170,17 +1185,28 @@ void PndTpcClustVis::makeGui() {
     lbl = new TGLabel(hf, "Proximity cut");
     hf->AddFrame(lbl);
   }
-  frmMain->AddFrame(hf);
+  frmMain2->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain2); {
+    guihelixcut = new TGNumberEntry(hf, _helixcut, 6,999, TGNumberFormat::kNESRealThree,
+                          TGNumberFormat::kNEANonNegative,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 99);
+    hf->AddFrame(guihelixcut);
+    guihelixcut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
+    lbl = new TGLabel(hf, "Helix cut");
+    hf->AddFrame(lbl);
+  }
+  frmMain2->AddFrame(hf);
 
   // Trackmerger Parameters
-  hf = new TGHorizontalFrame(frmMain); {
+  hf = new TGHorizontalFrame(frmMain2); {
     guiDoMerge =  new TGCheckButton(hf, "Do TrackMerging");
     if(doMerge) guiDoMerge->Toggle();
     hf->AddFrame(guiDoMerge);
     guiDoMerge->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
   }
-  frmMain->AddFrame(hf);
-  hf = new TGHorizontalFrame(frmMain); {
+  frmMain2->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain2); {
     guiTTproxcut = new TGNumberEntry(hf, _TTproxcut, 6,999, TGNumberFormat::kNESRealThree,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
@@ -1190,8 +1216,8 @@ void PndTpcClustVis::makeGui() {
     lbl = new TGLabel(hf, "TT Proximity cut");
     hf->AddFrame(lbl);
   }
-  frmMain->AddFrame(hf);
-  hf = new TGHorizontalFrame(frmMain); {
+  frmMain2->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain2); {
     guiTTplanecut = new TGNumberEntry(hf, _TTplanecut, 6,999, TGNumberFormat::kNESRealFour,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
@@ -1201,9 +1227,9 @@ void PndTpcClustVis::makeGui() {
     lbl = new TGLabel(hf, "TT plane cut");
     hf->AddFrame(lbl);
   }
-  frmMain->AddFrame(hf);
+  frmMain2->AddFrame(hf);
 
-  hf = new TGHorizontalFrame(frmMain); {
+  hf = new TGHorizontalFrame(frmMain2); {
     guiTTszcut = new TGNumberEntry(hf, _TTszcut, 6,999, TGNumberFormat::kNESRealThree,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
@@ -1213,17 +1239,17 @@ void PndTpcClustVis::makeGui() {
     lbl = new TGLabel(hf, "TT sz cut");
     hf->AddFrame(lbl);
   }
-  frmMain->AddFrame(hf);
+  frmMain2->AddFrame(hf);
 
-  hf = new TGHorizontalFrame(frmMain); {
+  hf = new TGHorizontalFrame(frmMain2); {
     guiDoClean =  new TGCheckButton(hf, "Clean Tracks before & after merging");
     if(doClean) guiDoClean->Toggle();
     hf->AddFrame(guiDoClean);
     guiDoClean->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
   }
-  frmMain->AddFrame(hf);
+  frmMain2->AddFrame(hf);
 
-  hf = new TGHorizontalFrame(frmMain); {
+  hf = new TGHorizontalFrame(frmMain2); {
     guiTTscale = new TGNumberEntry(hf, fRiemannScale, 6,999, TGNumberFormat::kNESRealThree,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
@@ -1233,29 +1259,29 @@ void PndTpcClustVis::makeGui() {
     lbl = new TGLabel(hf, "RiemannScale");
     hf->AddFrame(lbl);
   }
-  frmMain->AddFrame(hf);
+  frmMain2->AddFrame(hf);
 
   // Fitting Parameters
-  hf = new TGHorizontalFrame(frmMain); {
+  hf = new TGHorizontalFrame(frmMain2); {
     lbl = new TGLabel(hf, "\n Fitting");
     hf->AddFrame(lbl);
   }
-  frmMain->AddFrame(hf);
-  hf = new TGHorizontalFrame(frmMain); {
+  frmMain2->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain2); {
     guiDoFit =  new TGCheckButton(hf, "Run Kalman");
     if(doFit) guiDoFit->Toggle();
     hf->AddFrame(guiDoFit);
     guiDoFit->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetFittingParams()");
   }
-  frmMain->AddFrame(hf);
-  hf = new TGHorizontalFrame(frmMain); {
+  frmMain2->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain2); {
     guiUseGeane =  new TGCheckButton(hf, "Use Geane");
     if(useGeane) guiUseGeane->Toggle();
     hf->AddFrame(guiUseGeane);
     guiUseGeane->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetFittingParams()");
   }
-  //frmMain->AddFrame(hf);
-  hf = new TGHorizontalFrame(frmMain); {
+  //frmMain2->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain2); {
     guiNumIts = new TGNumberEntry(hf, numIts, 6,999, TGNumberFormat::kNESInteger,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
@@ -1265,21 +1291,21 @@ void PndTpcClustVis::makeGui() {
     lbl = new TGLabel(hf, "Number of iterations for the Kalman Filter");
     hf->AddFrame(lbl);
   }
-  frmMain->AddFrame(hf);
-  hf = new TGHorizontalFrame(frmMain); {
+  frmMain2->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain2); {
     guiSmooth =  new TGCheckButton(hf, "Use smoothing");
     if(smooth) guiDoFit->Toggle();
     hf->AddFrame(guiSmooth);
     guiSmooth->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetFittingParams()");
   }
-  frmMain->AddFrame(hf);
+  frmMain2->AddFrame(hf);
 
-  frmMain->MapSubwindows();
-  frmMain->Resize();
-  frmMain->MapWindow();
+  frmMain2->MapSubwindows();
+  frmMain2->Resize();
+  frmMain2->MapWindow();
 
   browser->StopEmbedding();
-  browser->SetTabTitle("Event Control", 0);
+  browser->SetTabTitle("PR & Fitting", 0);
 }
 
 
@@ -1342,6 +1368,7 @@ void PndTpcClustVis::guiSetTrackingParams(){
   _riproxcut = guiriproxcut->GetNumberEntry()->GetNumber();
   _szcut = guiszcut->GetNumberEntry()->GetNumber();
   _proxcut = guiproxcut->GetNumberEntry()->GetNumber();
+  _helixcut = guihelixcut->GetNumberEntry()->GetNumber();
   _TTproxcut = guiTTproxcut->GetNumberEntry()->GetNumber();
   _TTplanecut = guiTTplanecut->GetNumberEntry()->GetNumber();
   _TTszcut = guiTTszcut->GetNumberEntry()->GetNumber();

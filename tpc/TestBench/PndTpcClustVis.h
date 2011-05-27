@@ -82,7 +82,7 @@
 #include "PndTpcRiemannHTCorrelator.h"
 #include "PndTpcRiProxHTCorrelator.h"
 #include "PndTpcProximityHTCorrelator.h"
-#include "PndTpcProximityHTCorrelator.h"
+#include "PndTpcHelixHTCorrelator.h"
 #include "PndTpcProximityTTCorrelator.h"
 #include "PndTpcRiemannTTCorrelator.h"
 #include "PndTpcSzHTCorrelator.h"
@@ -238,6 +238,8 @@ private:
   double _szcut;
   TGNumberEntry* guiproxcut;
   double _proxcut;
+  TGNumberEntry* guihelixcut;
+  double _helixcut;
   TGNumberEntry* guiTTproxcut;
   double _TTproxcut;
   TGNumberEntry* guiTTplanecut;
