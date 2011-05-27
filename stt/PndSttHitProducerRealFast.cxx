@@ -78,7 +78,7 @@ InitStatus PndSttHitProducerRealFast::Init() {
   
  // Create and register output array
   fHitInfoArray = new TClonesArray("PndSttHitInfo");
-  ioman->Register("STTHitInfo", "STT", fHitInfoArray, fPersistence);
+  ioman->Register("STTHitInfo", "STT", fHitInfoArray, kFALSE);
 
   fVolumeArray = gGeoManager->GetListOfVolumes();
   
