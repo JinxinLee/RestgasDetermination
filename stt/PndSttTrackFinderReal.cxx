@@ -1203,8 +1203,7 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 	// origin of te track.
 	Posiz[0]=Posiz[1]=Posiz[2]=0.;
 
- cout<<"\n\n\nIVOLTE = "<<IVOLTE<<"  and Ntrack = "<< nTracksFoundSoFar<<
- ", prima di cleanup ----------------\n";
+
 	if ( ! (SttParalCleanup(
 			Ox[nTracksFoundSoFar],
 			Oy[nTracksFoundSoFar],
@@ -1222,11 +1221,6 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 
 //--------------------------- end of cleanup
 
-cout<<"\tcazzo, nTracksFoundSoFar = "<<nTracksFoundSoFar<<" passa il cleanup parallele"<<
-" con "<<nHitsinTrack[nTracksFoundSoFar]<<" hits,ecco la lista :"<<     endl;
-for(int iz=0;iz<nHitsinTrack[nTracksFoundSoFar];iz++){
-cout<<"\thit n. (nativo) "<<auxListHitsinTrack[iz]<<endl;
-}
 
 
 // --------  here the track and its hits were found, filling the exclusion list
@@ -1502,8 +1496,6 @@ if(istampa>=2) {
 
    for(i=0; i<nTracksFoundSoFar;i++){
 	Double_t auxS[nSkewHitsinTrack[i]];
-cout<<"cazzoprima, IVOLTE = "<<IVOLTE<<", n. track = "<<
-i<<", nSkewHitsinTrack[i] = "<<nSkewHitsinTrack[i]<<endl;
 	if(nSkewHitsinTrack[i]==0) continue;
 
 	// the following loop  exploits the ordering previously done.
@@ -1517,8 +1509,6 @@ i<<", nSkewHitsinTrack[i] = "<<nSkewHitsinTrack[i]<<endl;
 	if( fabs( info[ BigList[i][ nTotalHits[i]-1 ] ][5] -1. ) < 1.e-5 )
 		Consider = true;	// last hit is parallel.
 	else	Consider = false;
-cout<<"cazzo, IVOLTE = "<<IVOLTE<<", traccia n. "<<i<<", prima Skew cleanup,  n Hit Skew = "<<
-	nSkewHitsinTrack[i]<<endl;
 
 	if ( ! (SttSkewCleanup(
 			Ox[i],
@@ -1538,9 +1528,6 @@ cout<<"cazzo, IVOLTE = "<<IVOLTE<<", traccia n. "<<i<<", prima Skew cleanup,  n 
 	else  keepit[i] = true;
 
 
-if( keepit[i] )cout<<"\tcazzo, traccia n. "<<i<<" la tengo.\n";
-else cout<<"\tcazzo, traccia n. "<<i<<" la butto.\n";
-cout<<"cazzo, IVOLTE = "<<IVOLTE<<", traccia n. "<<i<<", dopo Skew cleanup\n";
 
    }
 
@@ -2252,8 +2239,6 @@ if(istampa>=2){
 
 if(iplotta && IVOLTE <= nmassimo){
 
-cout<<"echocazzo, IVOLTE = "<<
-IVOLTE<<", nTracksFoundSoFar che  arrivano ad essere plottate = "<<nTracksFoundSoFar<<endl;
 
 
 //--------------------------------------------------    macro for display
@@ -11194,10 +11179,8 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 			1	// maximum allowed # consecutive hits with distance > cut.
 					)
 	   ) {
-		cout<<"cazzo, questa fallisce le inner.\n";
 		return false;
 	}
-		cout<<"cazzo, questa passa le inner.\n";
 	if( flagInnerStt == 2) return true;
 
 
@@ -11268,7 +11251,6 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 
 
 
-cout<<"\tcazzo prima di Outer || BadTrack_ParStt.\n";
 	if ( BadTrack_ParStt(
 			Oxx,
 			Oyy,
@@ -11287,10 +11269,8 @@ cout<<"\tcazzo prima di Outer || BadTrack_ParStt.\n";
 			1	// maximum allowed # consecutive hits with distance > cut.
 					)
 	   ){
-		cout<<"cazzo, questa fallisce le outer.\n";
 		return false;
 	}
-		cout<<"cazzo, questa passa le outer.\n";
 
 
 //----------------------------------------------------------------------------
@@ -11419,8 +11399,6 @@ cout<<"\tcazzo prima di Outer || BadTrack_ParStt.\n";
 			);
 		if(Distance[0]>cut){
 			if(Distance[0]>4.*cut){
-	cout<<"cazzo, da SttSkewCleanup, distanza catastrofica = "<<
-	Distance[i]<<", !Eliminare!\n";
 				return false;
 			}
 			ibad++;
@@ -11430,8 +11408,6 @@ cout<<"\tcazzo prima di Outer || BadTrack_ParStt.\n";
 		Distance[i] = Rr*( auxS[i]-auxS[i-1]); //length of the arc,not really the distance.
 		if(Distance[i]>cut){
 			if(Distance[i]>4.*cut){
-	cout<<"cazzo, da SttSkewCleanup, distanza catastrofica = "<<
-	Distance[i]<<", !Eliminare!\n";
 				return false;
 			}
 			ibad++;
@@ -11449,11 +11425,6 @@ cout<<"\tcazzo prima di Outer || BadTrack_ParStt.\n";
 				);
 	   if( Distance[nHits]>cut ){
 		if( Distance[nHits]>4.*cut){
-	cout<<"cazzo, da SttSkewCleanup, distanza catastrofica = "<<
-	Distance[nHits]<<", !Eliminare!\n";
-cout<<"\tcon il printout : Xcross = "<<Xcross[1]<<", Ycross = "<<Ycross[1]<<", Oxx = "<<Oxx
-	<<", Oyy = "<<Oyy<<", Rr "<<Rr<<", auxS[nHits-1] "<<auxS[nHits-1]<<
-	"\tsuo X = "<<  Oxx+Rr*cos(auxS[nHits-1])<<", suo Y "<<Oyy+Rr*sin(auxS[nHits-1])<<endl;
 
 
 			return false;
@@ -11462,26 +11433,13 @@ cout<<"\tcon il printout : Xcross = "<<Xcross[1]<<", Ycross = "<<Ycross[1]<<", O
 	   }
 	}	// end of  if( Distance[nHits]>cut )
 
-//-------- stampaggi
-if(istampa>=0) {
-	for(int ic=0;ic<nHits;ic++){
-		cout<<"\tcazzo, distanza = "<<Distance[ic]<<endl;
-	}
-if(ConsiderLastHit) cout<<"\tcazzo,ultimo hit considerato, distanza = "<<Distance[nHits]<<endl;
-else cout<<"\tcazzo,ultimo hit NON considerato."<<endl;
-
-}
-//-------------------
 
 
-cout<<"cazzo, da SttSkewCleanup, ibad = "<<ibad<<",  maxnum = "<<maxnum<<endl;
 	if( ibad > maxnum){
-		cout<<"cazzo, questa fallisce le skew\n";
 		 return false;
 	}
 
 
-	cout<<"cazzo, questa passa le skew.\n";
 	return true;
 
 
@@ -11533,11 +11491,8 @@ cout<<"cazzo, da SttSkewCleanup, ibad = "<<ibad<<",  maxnum = "<<maxnum<<endl;
 		(info[ListHits[0]][0]-Xcross[0])*(info[ListHits[0]][0]-Xcross[0])+
 		(info[ListHits[0]][1]-Ycross[0])*(info[ListHits[0]][1]-Ycross[0])
 			);
-	cout<<"from BadTrack_ParStt, Stt || hit n. (original notation) "<<
-	ListHits[0]<<", Distance = "<<Distance[0]<<endl;
 	if(Distance[0]>cut){
 		if(Distance[0]>4.*cut){
-			cout<<"cazzo, distanza catastrofica!Eliminare!\n";
 			return true;
 		}
 		ibad++;
@@ -11551,11 +11506,8 @@ cout<<"cazzo, da SttSkewCleanup, ibad = "<<ibad<<",  maxnum = "<<maxnum<<endl;
 			(info[ListHits[ihit]][1]-info[ListHits[ihit-1]][1])
 					);
 
-	cout<<"from BadTrack_ParStt, Stt || hit n. (original notation) "<<
-	ListHits[ihit]<<", Distance = "<<Distance[ihit]<<endl;
 		if(Distance[ihit]>cut){
 			if(Distance[ihit]>4.*cut){
-				cout<<"cazzo, distanza catastrofica!Eliminare!\n";
 				return true;
 			}
 			ibad++;
@@ -11571,11 +11523,8 @@ cout<<"cazzo, da SttSkewCleanup, ibad = "<<ibad<<",  maxnum = "<<maxnum<<endl;
 	   (info[ListHits[nHits-1]][0]-Xcross[1])*(info[ListHits[nHits-1]][0]-Xcross[1])+
 	   (info[ListHits[nHits-1]][1]-Ycross[1])*(info[ListHits[nHits-1]][1]-Ycross[1])
 						);
-	cout<<"from BadTrack_ParStt, Stt || hit n. (original notation) "<<
-	ListHits[nHits-1]<<", Distance to boundary = "<<Distance[nHits]<<endl;
 	   if( Distance[nHits]>cut ){
 		if( Distance[nHits]>4.*cut){
-			cout<<"cazzo, distanza catastrofica!Eliminare!\n";
 			return true;
 		}
 		ibad++;
@@ -11583,16 +11532,6 @@ cout<<"cazzo, da SttSkewCleanup, ibad = "<<ibad<<",  maxnum = "<<maxnum<<endl;
 	}	// end of  if( Distance[nHits]>cut )
 
 
-//-------- stampaggi
-if(istampa>=0) {
-	for(int ic=0;ic<nHits;ic++){
-		cout<<"\tcazzo, distanza = "<<Distance[ic]<<endl;
-	}
-if(ConsiderLastHit) cout<<"\tcazzo,ultimo hit considerato, distanza = "<<Distance[nHits]<<endl;
-else cout<<"\tcazzo,ultimo hit NON considerato."<<endl;
-
-}
-//-------------------
 //-------- some plots
 if(iplotta){
 	for(int ic=0;ic<nHits;ic++){
@@ -11606,7 +11545,6 @@ else  hdistbadlast->Fill( Distance[nHits]);
 //---------------------------------------------
 
 
-cout<<"cazzo, ibad = "<<ibad<<",  maxnum = "<<maxnum<<endl;
 	if( ibad > maxnum) return true;
 	return false;
 }
