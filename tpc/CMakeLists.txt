@@ -142,6 +142,7 @@ TestBench/PndTpcEvent.cxx
 TestBench/PndTpcEventIdentifier.cxx
 TestBench/PndTpcDataReaderTask.cxx
 TestBench/PndTpcClusterCorrectionTask.cxx
+TestBench/PndTpcDigiAmpCorrectionTask.cxx
 #TestBench/PndTpcTCcrossTalk.cxx
 #TestBench/PndTpcTCcrossTalkTask.cxx
 #TestBench/PndTpcCTapplyTask.cxx

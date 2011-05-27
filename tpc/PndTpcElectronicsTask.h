@@ -64,6 +64,8 @@ public:
   
 private:
 
+  unsigned int fCount;  //event counter
+  
   // Private Data Members ------------
   TString fsignalBranchName;
   TClonesArray* fsignalArray;

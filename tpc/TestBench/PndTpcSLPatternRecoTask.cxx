@@ -76,7 +76,7 @@ PndTpcSLPatternRecoTask::PndTpcSLPatternRecoTask()
    fDepth(6), fThresh(6), fMin(5), counter(-1),
    fXZ(true), fZY(false), _cutbigpad(kFALSE), _cutsmallpad(kFALSE),
    fStore(false), fAmpCut(0.), fZStackLimit(0), fClLimit(500), fDebug(false),
-   fMomScale(1)
+   fMomScale(1), fSmoothing(kFALSE)
     
 {
   fClusterBranchName = "PndTpcCluster";
@@ -530,6 +530,8 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     //build GFTrack object
     
     GFTrack* trk=new((*fTrackArray)[fTrackArray->GetEntriesFast()]) GFTrack(rep);
+    if(fSmoothing)
+      trk->setSmoothing(true);
     trk->setCandidate(cand); // here the candidate is copied! 
   }
   

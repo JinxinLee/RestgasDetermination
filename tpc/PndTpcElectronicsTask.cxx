@@ -59,7 +59,7 @@
 
 
 PndTpcElectronicsTask::PndTpcElectronicsTask()
-  : FairTask("TPC Electronics response"), fpersistence(kFALSE),fsamplePersistence(kFALSE), finitialized(kFALSE), fqa(NULL)
+  : FairTask("TPC Electronics response"), fpersistence(kFALSE),fsamplePersistence(kFALSE), finitialized(kFALSE), fqa(NULL), fCount(0)
  {
   fsignalBranchName = "PndTpcSignal";
  }
@@ -155,7 +155,9 @@ PndTpcElectronicsTask::Init()
 void
 PndTpcElectronicsTask::Exec(Option_t* opt)
 {
-  std::cout<<"PndTpcElectronicsTask::Exec"<<std::endl;
+  std::cout<<"PndTpcElectronicsTask::Exec for Evt "
+	   <<fCount<<std::endl;
+  fCount++;
   // Reset output Array
   if(fdigiArray==0) Fatal("PndTpcElectronics::Exec)","No DigiArray");
   fdigiArray->Delete();
