@@ -181,11 +181,11 @@ bool SimpleClustering = true;
   //fitstat->DoResiduals();
   //fRun->AddTask(fitstat);
 
-  PndTpcSLResidualTask* SLres = new PndTpcSLResidualTask();
-  SLres->SetPersistence();
+
+  PndTpcResidualTask* Res = new PndTpcResidualTask();
+  Res->SetPersistence();
   //SLres->SetClusterBranchName("PndTpcCluster_cut");
-  SLres->SetSecondarySuppression(false);
-  //fRun->AddTask(SLres);
+  fRun->AddTask(Res);
   
   
 
