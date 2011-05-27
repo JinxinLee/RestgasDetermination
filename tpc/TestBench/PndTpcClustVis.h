@@ -82,7 +82,7 @@
 #include "PndTpcRiemannHTCorrelator.h"
 #include "PndTpcRiProxHTCorrelator.h"
 #include "PndTpcProximityHTCorrelator.h"
-#include "PndTpcHelixHTCorrelator.h"
+//#include "PndTpcHelixHTCorrelator.h"
 #include "PndTpcProximityTTCorrelator.h"
 #include "PndTpcRiemannTTCorrelator.h"
 #include "PndTpcSzHTCorrelator.h"
