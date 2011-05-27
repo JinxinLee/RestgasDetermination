@@ -112,15 +112,15 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
             NHITSINFIT=15,
             DELTAnR = 2;   //  defines the range of nR in PndSttTrkAssociatedParallelHitsToHelixBis
 
-#define RadiusMinStrawDetector 16.
+#define RadiusMinStrawDetector 16.119
 #define DiameterStrawTube  1.
     static const  Double_t PI = 3.141592654,
                  RStrawDetectorMin = RadiusMinStrawDetector, // minimum radius of the Stt detector in  cm
-                 RStrawDetectorMax = 42.2, // maximum radius of the Stt detector in  cm
-	RStrawDetectorInnerParMax = (RadiusMinStrawDetector + 0.5*DiameterStrawTube)/0.866 +
-			7.5*DiameterStrawTube, // maximum radial extension of the inner parallel
-					      //  straw section.
-	RStrawDetectorOuterParMin = RadiusMinStrawDetector+(1.+7.*0.866)*DiameterStrawTube+8.622,
+		ApotemaMaxInnerParStraw = 23.246827,
+		ApotemaMinSkewStraw = 23.246827, // delimitation of the skew area
+		ApotemaMaxSkewStraw = 31.517569, // delimitation of the skew area
+		ApotemaMinOuterParStraw = 31.863369,
+                 RStrawDetectorMax = 40.73, // maximum radius of the Stt detector in  cm
                  Rmin=20.,
                  Rmax=700.,
                  StrawRadius = DiameterStrawTube/2. ,
@@ -151,9 +151,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                stepKAPPA,
                stepFI0,
                stepfineKAPPA,
-               stepfineFI0,
-               RminStrawSkewArea , // delimitation of the skew area
-               RmaxStrawSkewArea;
+               stepfineFI0;
 
 
       static const int TIMEOUT=60;  // timeout in seconds for the GLPK fitting.
@@ -166,8 +164,12 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
       bool  iplotta, doMcComparison ;
       int istampa ;
 
-      static const int  nmassimo=10;
-      TH1F * hx;
+      static const int  nmassimo=20;
+
+	TH1F	*hdist,
+		*hdistgoodlast,
+		*hdistbadlast;
+
       FILE * HANDLE ;
       FILE * HANDLE2 ;
       FILE * HANDLEXYZ ;
@@ -310,7 +312,6 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
   Short_t PndSttFitHelixCylinder( UShort_t nHitsinTrack,
-//                                UShort_t iExclude ,
                           Double_t auxinfoparalConformal[][5],
                           UShort_t  nTracksFoundSoFar,
                           Double_t rotationangle,
@@ -447,7 +448,8 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                    Double_t Ox,Double_t Oy,Double_t R,
                    UShort_t Nhits, UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
                    Double_t info[][7], Int_t Nincl, Int_t Minclinations[], Double_t inclination[][3],
-                   UShort_t imaxima
+                   UShort_t imaxima,
+		Int_t sequencial
                                                      );
 
   void WriteMacroParallelAssociatedHitswithMC(
@@ -457,6 +459,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
                    Double_t info[][7],
                    UShort_t ifoundtrack,
+		Int_t sequentialNTrack,
 		UShort_t nParalCommon[MAXTRACKSPEREVENT],
 		UShort_t ParalCommonList[MAXTRACKSPEREVENT][nmaxHits],
 		UShort_t nSpuriParinTrack[MAXTRACKSPEREVENT],
@@ -465,6 +468,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		UShort_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxHits]
                                                      );
   void WriteMacroParallelHitsGeneral(
+		bool * keepit,		
                    Int_t Nhits, Double_t info[][7], Int_t Nincl, Int_t Minclinations[], Double_t inclination[][3],
                    UShort_t nTracksFoundSoFar,
                    bool *TypeConf,
@@ -472,7 +476,9 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                                                      );
 
   void WriteMacroParallelHitsGeneralConformalwithMC(
-                   Int_t Nhits, Double_t info[][7], Int_t Nincl, Int_t Minclinations[], Double_t inclination[][3],
+		bool * keepit,
+                   Int_t Nhits, Double_t info[][7], Int_t Nincl,
+		    Int_t Minclinations[], Double_t inclination[][3],
                    UShort_t nTracksFoundSoFar,
                    bool *TypeConf,
                    Double_t *ALFA, Double_t *BETA, Double_t *GAMMA
@@ -482,10 +488,8 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
   void WriteMacroParallelHitsConformalwithMCspecial(
                    Int_t Nhits,
-//                   UShort_t iExclude,
                    Double_t auxinfoparalConformal[][5],
                    UShort_t nTracksFoundSoFar,
-//                   Double_t m, Double_t q,
                    Double_t *ALFA,
                    Double_t * BETA,
                    Double_t * GAMMA,
@@ -505,11 +509,10 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                    Int_t Nincl,
                    Int_t Minclinations[],
                    Double_t inclination[][3],
-                   Int_t imaxima, Int_t nMaxima, 
+                   Int_t imaxima,
+		   Int_t sequentialNTrack,
                    UShort_t nSkewHitsinTrack,
                    UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits]
-//                   UShort_t nSkewCommon,
-//                   UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxHits]
 
                                                      );
 
@@ -524,7 +527,8 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                    Int_t Nincl,
                    Int_t Minclinations[],
                    Double_t inclination[][3],
-                   Int_t imaxima, Int_t nMaxima, 
+                   Int_t imaxima,
+		   Int_t sequentialNTrack,
                    UShort_t nSkewHitsinTrack,
                    UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
                    UShort_t nSkewCommon,
@@ -639,15 +643,6 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		Double_t Rmax	// Rmax of cylindrical volume intersected by track;
 						);
 
-      void   PndSttFindingAllowedAngularRangeforSkew(
-                                                     Double_t oX,
-                                                     Double_t oY,
-                                                     Double_t R,
-                                                     Short_t  Charge,
-                                                     Double_t *Fi_allowedforskew_low,
-                                                     Double_t *Fi_allowedforskew_up
-                                                       );
-
       void WriteMacroParallelHitswithRfromMC(
                    Int_t Nhits, Double_t info[][7],
                    UShort_t nTracksFoundSoFar,
@@ -681,6 +676,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
     void AssociateFoundTrackstoMCbis(
+		bool *keepit,
 		  Double_t info[][7],
                   UShort_t nTracksFoundSoFar,
                   UShort_t nHitsinTrack[MAXTRACKSPEREVENT],
@@ -706,8 +702,6 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
     void PndSttInfoXYZSkew (
-//                             Double_t info[][7],
-//                             UShort_t infosk,
                              Double_t Z,       //  Z coordinate of selected Skew hit
                              Double_t ZDrift,   // drift distance IN Z DIRECTION only, of Skew hit
                              Double_t S,
@@ -744,22 +738,121 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 			Double_t RStrawDetMax
 			);
 
+  bool SttSkewCleanup(
+			Double_t Oxx,
+			Double_t Oyy,
+			Double_t Rr,
+			Short_t  Charge,
+			Double_t Start[3],
+			UShort_t nHits,
+			UShort_t *ListHits,
+			Double_t info[][7],
+			Double_t RminStrawSkew,
+			Double_t RmaxStrawSkew,
+			bool ConsiderLastHit
+						);
+
+  bool SttSkewCleanup(
+			Double_t Oxx,
+			Double_t Oyy,
+			Double_t Rr,
+			Short_t  Charge,
+			Double_t Start[3],
+			UShort_t nHits,
+			Double_t *auxS,
+			Double_t RminStrawSkew,
+			Double_t RmaxStrawSkew,
+			bool ConsiderLastHit,
+			Double_t cut,
+			UShort_t maxnum
+			);
+
   bool BadTrack_ParStt(
 			Double_t Oxx,
 			Double_t Oyy,
 			Double_t Rr,
 			Short_t Charge,
-			Double_t Fi_inner_low,
-			Double_t Fi_inner_up,
-			Short_t  flagstt,
+			Double_t Xcross[2],  // Xcross[0]=point of entrance;
+						//  Xcross[1]=point of exit.
+			Double_t Ycross[2],
+			bool  ConsiderLastHit,
 			UShort_t nHits,
 			UShort_t* ListHits,
 			Double_t info[][7],
 			Double_t RStrawDetectorParMin,
-			Double_t RStrawDetectorParMax
+			Double_t RStrawDetectorParMax,
+			Double_t cut,
+			UShort_t maxnum
 				);
 
 
+      Short_t   IntersectionsWithClosedPolygon(
+		Double_t Ox,
+		Double_t Oy,
+		Double_t R,
+		Double_t Rmi,	// Rmin of cylindrical volume intersected by track;
+		Double_t Rma,	// Rmax of cylindrical volume intersected by track;
+
+		//-------- outputs
+		UShort_t nIntersections[2],
+		Double_t XintersectionList[2][12],
+		Double_t YintersectionList[2][12]
+					);
+      bool IntersectionCircle_Segment(
+			Double_t a, // coefficients implicit equation.
+			Double_t b, // of segment : a*x + b*y + c =0.
+			Double_t c,
+			Double_t P1x, // point delimiting the segment.
+			Double_t P2x, // point delimiting the segment.
+			Double_t P1y, // point delimiting the segment.
+			Double_t P2y, // point delimiting the segment.
+			Double_t Ox, // center of circle.
+			Double_t Oy,
+			Double_t R, // Radius of circle.
+			UShort_t * Nintersections,
+			Double_t XintersectionList[2],
+			Double_t YintersectionList[2],
+			Double_t *distance
+								);
+
+
+	bool IsInternal(
+			Double_t Px,	// point
+			Double_t Py,
+			Double_t Xtraslation,
+			Double_t Ytraslation,
+			Double_t Theta
+					);
+
+
+
+	void FindEntranceExit(
+			Double_t Oxx,
+			Double_t Oyy,
+			Short_t flag,
+			Short_t  Charge,
+			Double_t FiStart,
+			UShort_t nIntersections[2],
+			Double_t XintersectionList[2][12],
+			Double_t YintersectionList[2][12],
+			Double_t Xcross[2],	// output
+			Double_t Ycross[2]	// output
+					);
+
+	void SeparateInnerOuterParallel(
+
+				// input
+				UShort_t nHits,
+				UShort_t *ListHits,
+				Double_t info[][7],
+				Double_t RStrawDetInnerParMax,
+
+				// output
+				UShort_t *nInnerHits,
+				UShort_t *ListInnerHits,
+				UShort_t *nOuterHits,
+				UShort_t *ListOuterHits
+					);
 
 
 //----------------------------------------------
