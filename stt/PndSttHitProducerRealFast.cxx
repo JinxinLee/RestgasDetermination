@@ -45,7 +45,6 @@ PndSttHitProducerRealFast::PndSttHitProducerRealFast() :
 // -------------------------------------------------------------------------
 
 
-
 // -----   Destructor   ----------------------------------------------------
 PndSttHitProducerRealFast::~PndSttHitProducerRealFast() { }
 // -------------------------------------------------------------------------
