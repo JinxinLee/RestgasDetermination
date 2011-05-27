@@ -15,7 +15,7 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath)
   TString basedir = gSystem->Getenv("VMCWORKDIR");
   FairRunAna* fRun = new FairRunAna();
   //FairRunSim* fSim = new FairRunSim();
-  
+
   TString jobdir = outpath; 
   std::string jobname(filename.Data());
   int last = jobname.rfind("/");
@@ -56,7 +56,7 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath)
   fRun->SetGeomFile(geoFile);
   
   PndConstField *fMagField=new PndConstField();
-  fMagField->SetField(0., 0. , 0. ); // values are in kG
+  fMagField->SetField(0., 0. , 6. ); // values are in kG
   // values are in cm
   fMagField->SetFieldRegion(-50, 50,-50, 50, -2000, 2000);
       
@@ -73,27 +73,30 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath)
   
   //--------------------SET UP TASKS ------------------------------
 
+  FairGeane *Geane = new FairGeane();
+  fRun->AddTask(Geane);
     
   PndTpcDataReaderTask* read = new PndTpcDataReaderTask();
-  //read->SetPersistence();
+  read->SetPersistence();
   read->SetDatafile(filename);
   read->SetClusterBranchName("PndTpcSample");
   //read->SetCutSmallPad();
   //read->SetMinSamples(1000);
   fRun->AddTask(read);
   
+
   //PndTpcTCcrossTalkTask* CT = new PndTpcTCcrossTalkTask();
   //CT->SetPersistence();
   //fRun->AddTask(CT);
   
-bool SimpleClustering = true;
   
   PndTpcPSATask* tpsa = new  PndTpcPSATask();
   tpsa->SetPersistence();
   tpsa->SetSampleBranchName("PndTpcSample"); // Input of PSA
-  //tpsa->SetDigiBranchName("PndTpcRawDigi");  // Output of PSA
   fRun->AddTask(tpsa);
 
+
+  bool SimpleClustering = true;
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
   //tpcCF->SetDataMode(true); //prevents usage of FairLinks
   tpcCF->SetDigiPersistence(); // keep Digis refs in clusters
@@ -120,30 +123,30 @@ bool SimpleClustering = true;
   double pars[6] = {-0.115634, -1.85970, 11.5997,
         	    -24.8201, 24.9152,-9.56801};
   tpcCC->SetParameters(pars);
-  // fRun->AddTask(tpcCC);
+  // if(!SimpleClustering) fRun->AddTask(tpcCC);
 
   
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
   tpcSPR->SetSortingParameters(
                    true, // false: sort only according to _sorting (see next argument); true: use internal sorting when adding hits to trackcands
                    3,    // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
-                   30.); // z-position of interaction point (for sorting 4)
+                   0.); // z-position of interaction point (for sorting 4)
   tpcSPR->SetTrkFinderParameters(
-                   1.5,  // proximity cut in 3D
-                   0.025, // proximity cut on rieman sphere
-                   0.02, // distance to plane cut
-                   2.5,  // szcut
-                   8);   // minimum hits for plane & sz-fit
+                   1.9,  // proximity cut in 3D
+                   0.1, // proximity cut on rieman sphere
+                   0.04, // distance to plane cut
+                   0.2,  // szcut
+                   4);   // minimum hits for plane & sz-fit
   tpcSPR->SetMergeTracks();
   tpcSPR->SetTrkMergerParameters(
-                   2.5,  // proximity cut
-                   2.5,  // sz cut
-                   8E-3);// plane cut (RMS)
-  //tpcSPR->SetRiemannScale();
+                   2.2,  // proximity cut
+                   0.33,  // sz cut
+                   0.025);// plane cut (RMS)
+  tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
   tpcSPR->SetPersistence();
-  tpcSPR->SetStoreHistograms(PROutFile);
+  //tpcSPR->SetStoreHistograms(PROutFile); //
   //tpcSPR->WriteHistograms(PROutFile);
-  //fRun->AddTask(tpcSPR);
+  fRun->AddTask(tpcSPR);
 
   PndTpcSLPatternRecoTask* tpcSLPR = new PndTpcSLPatternRecoTask();
   tpcSLPR->SetPersistence(true);
@@ -166,7 +169,7 @@ bool SimpleClustering = true;
   kalman->SetPersistence();
   //kalman->SetClusterBranchName("PndTpcCluster_cut");
   kalman->SetNumIterations(3); // number of fitting iterations (back and forth)
-  //fRun->AddTask(kalman);
+  fRun->AddTask(kalman);
 
 
   TrackFitStatTask* fitstat=new TrackFitStatTask();
