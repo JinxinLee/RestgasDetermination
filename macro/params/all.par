@@ -195,8 +195,8 @@ AttachFlag:Int_t 0
 LogitudinaldiffusionFlag:Int_t 1
 TransversediffusionFlag:Int_t 1
 DriftDistortionFlag:Int_t 0
-zGem:Double_t -40
-zMax:Double_t 110
+zGem:Double_t -39.5
+zMax:Double_t 109.5
 Gain:Double_t 4000
 Supression:Double_t 0.001
 Spread:Double_t 0.02
@@ -212,7 +212,7 @@ ADCThreshold:Int_t 10
 ADCMax:Int_t 100000
 ADCBits:Int_t 12
 SamplingFreq:Double_t 40
-T0_wallclock:Double_t -60000
+T0_wallclock:Double_t -200000
 TimeBits:Int_t 28
 PSAThreshold:Int_t 100
 Shaper_tDiff:Double_t 50
