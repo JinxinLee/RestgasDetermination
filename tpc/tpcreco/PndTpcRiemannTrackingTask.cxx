@@ -12,7 +12,7 @@
 // Author List:
 //      Sebastian Neubert    TUM            (original author)
 //      Johannes Rauch
-//
+//      Felix Boehmer
 //
 //-----------------------------------------------------------
 
@@ -93,7 +93,8 @@ PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
     _TTszcut(2.),
     _TTplanecut(0.001),
     _riemannscale(24.6),
-    _clusterBranchName("PndTpcCluster")
+    _clusterBranchName("PndTpcCluster"),
+    _smoothing(false)
   {;}
 
 PndTpcRiemannTrackingTask::~PndTpcRiemannTrackingTask(){
@@ -642,6 +643,7 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     cand->setCurv(trackR); //  actually this is never used
     cand->setDip(trk->dip());
 
+    //RK TRACKREP
     RKTrackRep* rkrep = new RKTrackRep(pos1, mom, poserr, momerr,pdg);
     FairGeanePro* gPro = new FairGeanePro();
     
@@ -650,6 +652,8 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     TVector3 v=mom.Cross(u);
     v.SetMag(1.);
     GFDetPlane pl(pos1,u,v);
+
+    //GEANE TACKREP
     GeaneTrackRep* grep=new GeaneTrackRep(gPro,pl,mom,poserr,momerr,q,pdg);
 
     candlist.push_back(cand);
@@ -674,6 +678,10 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     gftrk->setCandidate(*cand); // here the candidate is copied!
     //add RK trackrep
     gftrk->addTrackRep(rkrep);
+    
+    //SMOOTHING
+    if(_smoothing)
+      gftrk->setSmoothing(true);
     
     
 

@@ -11,7 +11,7 @@
 //
 // Author List:
 //      Sebastian Neubert    TUM            (original author)
-//
+//      Felix Boehmer        TUM
 //
 //-----------------------------------------------------------
 
@@ -50,7 +50,7 @@ public:
   // Modifiers -----------------------
   void SetClusterBranchName(const TString& name) {_clusterBranchName=name;}
   void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
-  void useGeane(Bool_t opt=kTRUE){_useGeane=opt;}
+  void SetSmoothing(Bool_t opt=true) {_smoothing=opt;}
   void useDistSorting(Bool_t opt=kTRUE) {_useDistSorting=opt;}
   void SetSecondarySuppression(Bool_t opt=kTRUE) {_secondarySuppression=opt;}
   void SetMinHits(int min) {fMin = min;}
@@ -73,9 +73,10 @@ private:
   std::vector<GFTrackCand*> nullGFTrackCands; // needed to correctly delete GFTrackCands created in Exec
 
   Bool_t _persistence;
-  Bool_t _useGeane;
+  Bool_t _smoothing;
   Bool_t _useDistSorting;
   Bool_t _secondarySuppression;  //ignore secondaries
+  
 
   int fMin;  //minimum number of hits required for a track candidate
 

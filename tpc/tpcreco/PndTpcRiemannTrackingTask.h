@@ -65,6 +65,7 @@ public:
                    unsigned int minpointsforfit);
 
   void SetMergeTracks(bool mergeTracks=true){_mergeTracks = mergeTracks;}
+  void SetSmoothing(bool s=true) {_smoothing=s;}
 
   void SetTrkMergerParameters(
                    double TTproxcut,
@@ -145,6 +146,7 @@ private:
   unsigned int _minpoints;
 
   bool _mergeTracks;
+  bool _smoothing;
 
   double _TTproxcut;
   double _TTszcut;

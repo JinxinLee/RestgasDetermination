@@ -11,7 +11,7 @@
 //
 // Author List:
 //      Sebastian Neubert    TUM            (original author)
-//
+//      Felix Boehmer        TUM
 //
 //-----------------------------------------------------------
 
@@ -35,7 +35,7 @@
 #include "PndTpcClusterDist.h"
 #include "GFTrackCand.h"
 #include "GFTrack.h"
-#include "LSLTrackRep.h"
+#include "RKTrackRep.h"
 #include "GeaneTrackRep.h"
 #include "FairGeanePro.h"
 #include "TH1I.h"
@@ -62,7 +62,7 @@ ClassImp(PndTpcIdealTrackingTask)
 
 PndTpcIdealTrackingTask::PndTpcIdealTrackingTask()
   : FairTask("PndTpc Ideal Pattern Reco"),
-    _persistence(kFALSE),_useGeane(kFALSE),_geanePro(NULL), 
+  _persistence(kFALSE),_geanePro(NULL), _smoothing(false),
     _useDistSorting(kFALSE), _secondarySuppression(kFALSE),
     fMin(5)
 {
@@ -109,7 +109,7 @@ PndTpcIdealTrackingTask::Init()
   _trackArray = new TClonesArray("GFTrack");
   ioman->Register("TrackPreFit","GenFit",_trackArray,_persistence);
   // GeanePro will get Geometry and BField from the Run
-  if(_useGeane)_geanePro=new FairGeanePro();
+  _geanePro=new FairGeanePro();
   
   // init histos
   _multiplicityHisto=new TH1I("multipl","# track candidates",20,0,20);
@@ -134,7 +134,7 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
      std::cerr<<"PndTpcIdealTrackingTask: "
 	      <<"No const field! Curvature seeding not valid..."
 	      <<std::endl;
-     Bz=0.;
+     Bz=field->GetBz(0.,0.,0.);
    }
    //this is crap, but better than hardcoding for the moment ...
    else
@@ -255,35 +255,18 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
     
     // create track-representation object and initialize with start values
     GFAbsTrackRep* rep=0;
-    if(_useGeane){
-      
-      GFDetPlane pl(pos,u,v);
-      
-      rep = new RKTrackRep(pos,mom,poserr,momerr,pdg);
-      
-      //GeaneTrackRep* grep=new GeaneTrackRep(_geanePro,pl,mom,poserr,momerr,q,pdg);
-      //grep->setPropDir(1); // propagate in flight direction!
-      //rep=grep;
-      
-    }
-    else { // use LSLTrackRep
-      // calc momentum projections
-      std::cout<<"\nUsing LSL Track Representation"<<std::endl;
-      TVector3 dir=mom.Unit();
-      double dxdz=dir.X()/dir.Z();
-      double dydz=dir.Y()/dir.Z();
-      double qp=q/mom.Mag();
-      LSLTrackRep* lrep=new LSLTrackRep(pos.Z(),pos.X(),pos.Y(),dxdz,dydz,qp,
-			  poserr.X(),poserr.Y(),0.1,0.1,0.1,NULL);
-      // check inversion
-      if(dir.Theta()>TMath::Pi()*0.5)lrep->setInverted();
-      rep=lrep;
-    }
     
-    
+    GFDetPlane pl(pos,u,v);
+      
+    RKTrackRep* rkrep = new RKTrackRep(pos,mom,poserr,momerr,pdg);
+    GeaneTrackRep* grep=new GeaneTrackRep(_geanePro,pl,mom,poserr,momerr,q,pdg);
+        
     // create track object
-    GFTrack* trk=new((*_trackArray)[_trackArray->GetEntriesFast()]) GFTrack(rep);
+    GFTrack* trk=new((*_trackArray)[_trackArray->GetEntriesFast()]) GFTrack(grep);
     trk->setCandidate(*cand); // here the candidate is copied! 
+    trk->addTrackRep(rkrep);
+    if(_smoothing)
+      trk->setSmoothing(true);
     ++candit;
   
   } // end loop over track candidates
