@@ -45,6 +45,8 @@
 #pragma link C++ class PndSdsTotChargeConversion+;
 #pragma link C++ class PndSdsTotDigiPar+;
 #pragma link C++ class PndSdsAdcChargeConversion+;
+#pragma link C++ class PndSdsFE+;
+
 
 //#pragma link C++ class PndMvdCalcFePixel+;
 

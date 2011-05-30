@@ -21,6 +21,7 @@ ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
 ${CMAKE_SOURCE_DIR}/sds/SdsMC
 ${CMAKE_SOURCE_DIR}/sds/SdsTools
 ${CMAKE_SOURCE_DIR}/sds/SdsDigi
+${CMAKE_SOURCE_DIR}/sds/SdsFEModel
 ${CMAKE_SOURCE_DIR}/sds
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/recotasks
@@ -63,6 +64,9 @@ SdsDigi/PndSdsChargeConversion.cxx
 SdsDigi/PndSdsIdealChargeConversion.cxx
 SdsDigi/PndSdsTotChargeConversion.cxx
 SdsDigi/PndSdsAdcChargeConversion.cxx
+
+SdsFEModel/PndSdsFE.cxx
+SdsFEModel/PndSdsFEAmpModelSimple.cxx
 
 SdsMC/PndSdsDetector.cxx
 SdsMC/PndSdsGeo.cxx
