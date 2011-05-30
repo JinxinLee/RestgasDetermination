@@ -19,7 +19,7 @@
 
 
 PndMvdRiemannTrackFinderTask::PndMvdRiemannTrackFinderTask() :
-	FairTask("MVD Riemann Track Finder"), fMaxSZChi2(1), fMaxSZDist(10), fMinPointDist(1), fMaxDist(1), fEventNr(0), fB(2.0), fInitDone(kFALSE), fCutChi2H(0), fCutDistH(0)
+	FairTask("MVD Riemann Track Finder"), fMaxSZChi2(1), fMaxSZDist(10), fMinPointDist(1), fMaxDist(1), fEventNr(0), fB(2.0), fInitDone(kFALSE), fCutChi2H(0), fCutDistH(0), fPersistence(kTRUE)
 {
   PndGeoHandling::Instance();
 }
@@ -69,10 +69,10 @@ InitStatus PndMvdRiemannTrackFinderTask::Init()
 
 
   fTrackCandArray = new TClonesArray("PndTrackCand");
-  ioman->Register("MVDRiemannTrackCand", "MVD", fTrackCandArray, kTRUE);
+  ioman->Register("MVDRiemannTrackCand", "MVD", fTrackCandArray, fPersistence);
 
   fTrackArray = new TClonesArray("PndTrack");
-  ioman->Register("MVDTrack", "MVD", fTrackArray, kTRUE);
+  ioman->Register("MVDTrack", "MVD", fTrackArray, fPersistence);
 
   fRiemannTrackArray = new TClonesArray("PndRiemannTrack");
 //  ioman->Register("MVDRiemannTrack", "MVD", fRiemannTrackArray, kTRUE);

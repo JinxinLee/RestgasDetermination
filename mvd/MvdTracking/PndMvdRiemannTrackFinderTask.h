@@ -37,6 +37,7 @@ public:
 
     //void PrintResult();  // not implemented
     void SetVerbose(Int_t verbose){ fVerbose = verbose;};
+    void SetPersistence(Bool_t val){ fPersistence = val;};
   //  void SetGeoH(PndGeoHandling geoH){ fGeoH=geoH;};
 
 private:
@@ -63,6 +64,7 @@ private:
 	TH2F *fCutChi2H;
 
 	Bool_t fInitDone;
+	Bool_t fPersistence;
 
 	//PndGeoHandling* fGeoH;
 
