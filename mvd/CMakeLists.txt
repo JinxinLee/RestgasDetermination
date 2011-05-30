@@ -33,6 +33,7 @@ ${CMAKE_SOURCE_DIR}/sds/SdsMC
 ${CMAKE_SOURCE_DIR}/sds/SdsTools
 ${CMAKE_SOURCE_DIR}/sds/SdsDigi
 ${CMAKE_SOURCE_DIR}/sds/SdsReco
+${CMAKE_SOURCE_DIR}/sds/SdsFEModel
 ${CMAKE_SOURCE_DIR}/sds
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/recotasks
