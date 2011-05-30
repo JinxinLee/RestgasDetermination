@@ -221,15 +221,16 @@ PndTpcDetector::ProcessHits( FairVolume *v)
     
     //if this is a low momentum particle (e.g. delta) assign mother id
     //if(mom.E()<10.*1E-6){ // E<10keV
-  
-    TParticle* mother=gMC->GetStack()->GetCurrentTrack();
-    while(!mother->IsPrimary()){
-      trackID=mother->GetFirstMother();
-      mother=dynamic_cast<PndStack*>(gMC->GetStack())->GetParticle(trackID);
-      //std::cout<<"Fetching mother id="<<trackID<<std::endl;
-    }
   }
-    
+
+  TParticle* mother=gMC->GetStack()->GetCurrentTrack();
+  while(!mother->IsPrimary()){
+    trackID=mother->GetFirstMother();
+    mother=dynamic_cast<PndStack*>(gMC->GetStack())->GetParticle(trackID);
+    //std::cout<<"Fetching mother id="<<trackID<<std::endl;
+  }
+  
+  
   //gotta love TClonesArray syntax!
   PndTpcPoint* p=AddHit(trackID, volumeID, pos.Vect(), mom.Vect(), 
 			time, length, eLoss);
