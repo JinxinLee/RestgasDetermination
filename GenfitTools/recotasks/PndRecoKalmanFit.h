@@ -17,6 +17,7 @@
 
 // Base Class Headers ----------------
 #include "TNamed.h"
+#include "TString.h"
 
 // Collaborating Class Headers ------
 #include "FairGeanePro.h"
@@ -39,7 +40,8 @@ class PndRecoKalmanFit : public TNamed
   void SetGeane(Bool_t opt = kTRUE)              { fUseGeane = opt;     }
   void SetNumIterations(Int_t num)               { fNumIt    = num;     } 
   void SetVerbose(Int_t verb)                    { fVerbose  = verb;    }
- 
+  void SetMvdBranchName(const TString& name)             { fMvdBranchName = name; }
+  void SetCentralTrackerBranchName(const TString& name)  { fCentralTrackerBranchName = name; }
   // Operations ---------------------- 
   Bool_t Init();
   PndTrack*  Fit(PndTrack *tBefore, Int_t PDG);
@@ -51,8 +53,10 @@ private:
   GFKalman fGenFitter;
   
   FairGeanePro* fPro;   //! Geane Propagator
-  
  
+  TString fMvdBranchName;           //! Name of the TCA for MVD
+  TString fCentralTrackerBranchName;//! Name of the TCA for central tracker
+  
   Bool_t fUseGeane;     //! Flag to use Geane 
   Int_t fNumIt;         //! Number of iterations
   Int_t fVerbose;       //! Verbose level

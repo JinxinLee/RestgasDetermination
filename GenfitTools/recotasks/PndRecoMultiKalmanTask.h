@@ -45,6 +45,8 @@ public:
   // Modifiers -----------------------
   void SetTrackInBranchName(const TString& name)   { fTrackInBranchName = name; } 
   void SetTrackOutBranchName(const TString& name)  { fTrackOutBranchName = name; }
+  void SetMvdBranchName(const TString& name)       { fMvdBranchName = name; }
+  void SetCentralTrackerBranchName(const TString& name)  { fCentralTrackerBranchName = name; }
   void SetPersistence(Bool_t opt = kTRUE)        { fPersistence = opt;      }
   void SetGeane(Bool_t opt = kTRUE)              { fUseGeane = opt;         }
   void SetNumIterations(Int_t num)               { fNumIt = num;        }
@@ -67,7 +69,10 @@ private:
   
   TString fTrackInBranchName;      //! Name of the input TCA
   TString fTrackOutBranchName;     //! Name of the output TCA
-   
+  
+  TString fMvdBranchName;           //! Name of the TCA for MVD
+  TString fCentralTrackerBranchName;//! Name of the TCA for central tracker
+  
   PndRecoKalmanFit *fFitter;
   
   Bool_t fPersistence;

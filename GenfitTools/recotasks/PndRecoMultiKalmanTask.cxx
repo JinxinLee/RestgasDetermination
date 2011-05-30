@@ -37,7 +37,8 @@ PndRecoMultiKalmanTask::PndRecoMultiKalmanTask(const char* name, Int_t iVerbose)
 {
   fTrackInBranchName  = "LheTrack"; 
   fTrackOutBranchName = "LheGenTrack";
-  
+  fMvdBranchName = "";
+  fCentralTrackerBranchName = "";
   fFitTrackArrayElectron = new TClonesArray("PndTrack");
   fFitTrackArrayMuon     = new TClonesArray("PndTrack");
   fFitTrackArrayPion     = new TClonesArray("PndTrack");
@@ -59,6 +60,8 @@ PndRecoMultiKalmanTask::Init()
  
   fFitter->SetGeane(fUseGeane);
   fFitter->SetNumIterations(fNumIt);
+  fFitter->SetMvdBranchName(fMvdBranchName);
+  fFitter->SetCentralTrackerBranchName(fCentralTrackerBranchName);
   if (!fFitter->Init()) return kFATAL;
   
   //Get ROOT Manager

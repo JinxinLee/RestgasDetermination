@@ -36,7 +36,9 @@ PndRecoKalmanTask::PndRecoKalmanTask(const char* name, Int_t iVerbose)
 : FairTask(name, iVerbose), fPersistence(kFALSE), fPDGHyp(-13)
 {
   fTrackInBranchName  = "LheTrack"; 
-  fTrackOutBranchName = "LheGenTrack";
+  fTrackOutBranchName = "LheGenTrack"; 
+  fMvdBranchName = "";
+  fCentralTrackerBranchName = "";
   fFitTrackArray = new TClonesArray("PndTrack");  
   fUseGeane = kTRUE;
   fNumIt = 1;
@@ -54,7 +56,9 @@ PndRecoKalmanTask::Init()
 {
   
   fFitter->SetGeane(fUseGeane);
-  fFitter->SetNumIterations(fNumIt);
+  fFitter->SetNumIterations(fNumIt); 
+  fFitter->SetMvdBranchName(fMvdBranchName);
+  fFitter->SetCentralTrackerBranchName(fCentralTrackerBranchName);
   if (!fFitter->Init()) return kFATAL;
   
   //Get ROOT Manager
