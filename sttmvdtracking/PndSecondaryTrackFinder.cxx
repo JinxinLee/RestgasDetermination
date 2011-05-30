@@ -910,9 +910,9 @@ std::vector<std::vector<int> > PndSecondaryTrackFinder::ClusterFinder(std::vecto
   TMatrixT<double> boundaries(nclus, 4);
   for(int iclus = 0; iclus < nclus; iclus++) {
     std::vector<int> cluster = list[iclus];
-    fDisplayOn = kFALSE; // CHECK
+    //    fDisplayOn = kFALSE; // CHECK
     FindBoundary(iclus, cluster, FairRootManager::Instance()->GetBranchId(fSttBranch), boundaries, kFALSE);
-    fDisplayOn = kTRUE; // CHECK
+    //    fDisplayOn = kTRUE; // CHECK
   }
 
   // ************************************
@@ -1905,6 +1905,8 @@ Bool_t PndSecondaryTrackFinder::ConformalPlaneStt3(std::vector<int> cluster, TMa
   TVector3 centerposition;
   Double_t auxinfoparalConformal[nhits][3];
 
+  //  cout << "first/lasthitid " << firsthitid << " " << lasthitid << endl;
+  int counter = 0;
   for(int ihit = 0; ihit < cluster.size(); ihit++)
     {
       Int_t hitid = cluster[ihit];
@@ -1931,11 +1933,13 @@ Bool_t PndSecondaryTrackFinder::ConformalPlaneStt3(std::vector<int> cluster, TMa
       v = ytrasl / (xtrasl*xtrasl + ytrasl*ytrasl - rd * rd);
       rc = rd / (xtrasl*xtrasl + ytrasl*ytrasl - rd * rd);
 
-
+   
       if(hitid != firsthitid) {     
-	auxinfoparalConformal[ihit][0] = u;
-	auxinfoparalConformal[ihit][1] = v;
-	auxinfoparalConformal[ihit][2] = rc;
+	cout << hitid << " u/v/c " << u << " " << v << " " << rc << endl;
+   	auxinfoparalConformal[counter][0] = u;
+	auxinfoparalConformal[counter][1] = v;
+	auxinfoparalConformal[counter][2] = rc;
+	counter++;
       }
 
       if(fDisplayOn) {
@@ -2268,6 +2272,9 @@ Short_t PndSecondaryTrackFinder::FitHelixCylinder( UShort_t nHitsinTrack,
       auxinfoparalConformal[ i ][1]*sine;
     Oy[i] = -auxinfoparalConformal[ i ][0] *sine +
       auxinfoparalConformal[ i ][1]*cose;
+
+    //    cout << "fitting " << Ox[i] << " " << Oy[i] << " " <<  auxinfoparalConformal[i][2] << endl;
+
 
 //     if(fDisplayOn) {
 //       TArc *arc = new TArc(Ox[i], Oy[i], auxinfoparalConformal[i][2]);
