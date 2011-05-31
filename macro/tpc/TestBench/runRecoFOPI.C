@@ -1,138 +1,75 @@
-void runRecoFOPI(){
-//Data analysis framework for the test bench tpc data.
-
+void runRecoFOPI(TString digifile) {
+  // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-  Int_t iVerbose = 1;
+  Int_t iVerbose = 0;
+
+  // Input file
+  TString inDigiFile = digifile;
+  TString inSimFile = inDigiFile;
+  inSimFile.ReplaceAll("raw.root", "mc.root");
+  // Parameter file
+  TString parFile = inDigiFile;
+  parFile.ReplaceAll("raw.root", "param.root");
+
+  // Output file
+  TString outFile = inDigiFile;
+  outFile.ReplaceAll("raw.root", "reco.root");
 
 
-  //Load libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
-  
-  TString basedir = gSystem->Getenv("VMCWORKDIR");
-  
-  //Set JOBNAME and JOBDIR
-  TString jobdir = "TDR_Plots";
-  TString jobname="1GeV_Protons";
+  // Number of events to process
+  Int_t nEvents = 0;
 
-
-  TString digiDir=jobdir;
-  TString inFile=(digiDir+"/")+jobname;
-  inFile+=".raw.root";
-
-  TString mcFile=inFile;
-  mcFile.ReplaceAll("raw","mc");
-
-  ///TString inDir=inFile(0,inFile.Last('/')+1);
-  // make new subdir
-  //TString jobDir=inDir; jobDir+=jobname; jobDir+="/";
-  //TString cmd="mkdir ";
-  //cmd+=jobDir;
-  //if(gSystem->Exec(cmd)){
-  //  std::cout<<"Could not create Job-Directory "<<jobDir
-  //     <<". Aborting."<<std::endl;
-  //  return;
-  // }
-
-  TString outFile = inFile;
-  //outFile.ReplaceAll(inDir,jobDir);
-  outFile.ReplaceAll(".raw.root",".reco.root");
-
-
-  TString paramIn1 = inFile;
-  TString paramIn2 = inFile;
-  paramIn1.ReplaceAll(".raw.root",".raw.param.root");
-  paramIn2.ReplaceAll(".raw.root",".mc.param.root");
-
-  TString paramOut = outFile;
-  paramOut.ReplaceAll(".reco.root",".reco.param.root");
-
-
-  /*TString mcDir = inDir;
-  mcDir=mcDir(0,mcDir.Last('/')); // remove last /
-  mcDir=mcDir(0,mcDir.Last('/')+1); // one directory up
-  TString mcFile= inFile;
-  mcFile.ReplaceAll(inDir,mcDir);
-  mcFile.ReplaceAll(".raw.root",".mc.root");
-  */
-  
-  std::cout<<"Input: "<<inFile<<std::endl;
-  std::cout<<"Output: "<<outFile<<std::endl;
-  std::cout<<"MCFile: "<<mcFile<<std::endl;
-  std::cout<<"ParamIn1: "<<paramIn1<<std::endl;
-  std::cout<<"ParamIn2: "<<paramIn2<<std::endl;
-  std::cout<<"ParamOut: "<<paramOut<<std::endl;
-
-
+  // ----  Load libraries   -------------------------------------------------
+  TString sysFile = gSystem->Getenv("VMCWORKDIR");
+  // ------------------------------------------------------------------------
+  // In general, the following parts need not be touched
+  // ========================================================================
 
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
   // ------------------------------------------------------------------------
 
-gStyle->SetPalette(1);
-  
   // -----   Digitization run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(inFile);
-
-  fRun->AddFriend(mcFile);
+  fRun->SetInputFile(inDigiFile);
+  cout<<"Set Input File: "<<inDigiFile<<endl;
+  fRun->AddFriend(inSimFile);
+  cout<<"Set Friend MC File: "<<inSimFile<<endl;
   fRun->SetOutputFile(outFile);
-
-  // ------------------------------------------------------------------------
-
-
-
-  // -----  Parameter database   --------------------------------------------
-  
-  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
-  parInput1->open(paramIn1.Data());
- FairParRootFileIo* parInput2 = new FairParRootFileIo(kTRUE);
-  parInput2->open(paramIn2.Data());
-
-  FairParAsciiFileIo* parInput3 = new FairParAsciiFileIo();
-  TString tpcDigiFile = gSystem->Getenv("VMCWORKDIR");
-  tpcDigiFile += "/tpc/TestBench/tpc.TBtestChamber.par";
-  //tpcDigiFile += "/tpc/tpc.par";
-  parInput3->open(tpcDigiFile.Data(),"in");
-
-
-  rtdb->setFirstInput(parInput1); //root file IO tends to fail, use ASCII first
-  rtdb->setSecondInput(parInput2);
-
-  rtdb->Print();
-
-
-  // ------------------------------------------------------------------------
-
+  cout<<"Set Output File: "<<outFile<<endl;
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
-  std::cout<<"\nGEANE initialised"<<std::endl;
+  // ------------------------------------------------------------------------
+
+  // -----  Parameter database   --------------------------------------------
+  TString allDigiFile = sysFile+"/tpc/TestBench/tpc.TBtestChamber.par";
+
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
+  parInput1->open(parFile.Data());
+  
+  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
+  parIo1->open(allDigiFile.Data(),"in");
+
+  rtdb->setFirstInput(parInput1);
+  rtdb->setSecondInput(parIo1);
+
+  PndGeoHandling* geoH = PndGeoHandling::Instance();
 
 
-    // -----    Reco Sequence  --------------------------------------------
+  // ------- RECO procedure ------------------------------------------------
 
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
-  bool SimpleClustering = true;
-  //tpcCF->SetDataMode(true); //prevents usage of FairLinks
   tpcCF->SetDigiPersistence(); // keep reference to digis in clusters
   tpcCF->SetPersistence(); // keep Clusters
   tpcCF->timeslice(5); //in samples
   tpcCF->SetThreshold(1);
-  tpcCF->SetSingleDigiClusterAmpCut(15);
-  tpcCF->SetClusterAmpCut(9.1);
-  if(!SimpleClustering) {
-    tpcCF->SetMode(2); // 0 - global time bins;
-                       // 1 - individual time bins for each sector;
-                       // 2 - each pad gets its time window - actually we search for gaps on a pad;
-    tpcCF->SetDiffFactor(1.);
-    tpcCF->SetClusterTimeCut(5.);
-  }
-  tpcCF->SetErrorPars(600.,500.);
-  if(SimpleClustering) tpcCF->SetSimpleClustering(); // use PndTpcClusterFinderSimple
+  tpcCF->SetSingleDigiClusterAmpCut(0.);
+  tpcCF->SetClusterAmpCut(0.); // cut on mean digi amplitude
+  tpcCF->SetErrorPars(600.,400.);
+  tpcCF->SetSimpleClustering(); // use PndTpcClusterFinderSimple
   fRun->AddTask(tpcCF);
-
 
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
   tpcSPR->SetSortingParameters(
@@ -156,58 +93,29 @@ gStyle->SetPalette(1);
   //tpcSPR->WriteHistograms(PROutFile);
   fRun->AddTask(tpcSPR);
 
-
   KalmanTask* kalman =new KalmanTask();
   kalman->SetPersistence();
-  //kalman->SetClusterBranchName("PndTpcCluster_cut");
   kalman->SetNumIterations(3); // number of fitting iterations (back and forth)
   fRun->AddTask(kalman);
 
-
-  TrackFitStatTask* fitstat=new TrackFitStatTask();
-  fitstat->SetPersistence();
-  //  fitstat->SetMCPCut(0); // in sigma dp/p
-  fitstat->SetMCCuts(0.005,       // pmin
-                     10.,         // pmax
-                     -TMath::Pi(),// thetamin
-                     TMath::Pi(), // thetamax
-                     5);          // nPndTpcPoints
-  fitstat->SetPdgSelection(11);   // 321
-  fitstat->DoResiduals();
-  fRun->AddTask(fitstat);
-
-
   PndTpcResidualTask* Res = new PndTpcResidualTask();
   Res->SetPersistence();
+  Res->SetNumberOfTrackReps(2);
   //SLres->SetClusterBranchName("PndTpcCluster_cut");
-  //fRun->AddTask(Res);
-  
+  fRun->AddTask(Res);
 
+  // -----   Intialise and run   --------------------------------------------
 
-  // -----   Initialise and run   --------------------------------------------
   fRun->Init();
-  
-  fRun->Run(0,0);
-  // ------------------------------------------------------------------------
+  std::cout<<"post init"<<std::endl;
+  fRun->Run(0, nEvents);
 
-  FairRootManager::Instance()->GetOutFile()->mkdir("QAPlots");
-  FairRootManager::Instance()->GetOutFile()->cd("QAPlots");
-  qa->Write();
-
-
-  // -----   Finish   -------------------------------------------------------
-
-  //tpcRMC->WriteHistograms();
-  //  tpcSPR->WriteHistograms("RecoHistos.root");
-  //kalman->WriteHistograms("RecoHistos.root");
-  //fitstat->WriteHistograms("RecoHistos.root");
-  //dEdx->WriteHistograms("RecoHistos.root");
-
-  DebugLogger::Instance()->WriteFiles();
-
-//delete tpcSplitter;
   rtdb->saveOutput();
   rtdb->print();
+
+  // ------------------------------------------------------------------------
+
+  // -----   Finish   -------------------------------------------------------
 
   timer.Stop();
   Double_t rtime = timer.RealTime();
@@ -215,7 +123,7 @@ gStyle->SetPalette(1);
   cout << endl << endl;
   cout << "Macro finished succesfully." << endl;
   cout << "Output file is "    << outFile << endl;
-  cout << "Parameter file is " << paramOut << endl;
+  cout << "Parameter file is " << parFile << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   // ------------------------------------------------------------------------

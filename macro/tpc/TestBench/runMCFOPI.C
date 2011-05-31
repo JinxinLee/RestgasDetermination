@@ -1,73 +1,74 @@
-void runMCFOPI(){
-//MC for the FOPI setup
-//Maxence Vandenbroucke 11/01/2010 from runMC.C
+void runMCFOPI(float mom, int angle, int PDG, TString outdir, int nEvents=5000, unsigned int seed=0) {
 
-  TStopwatch timer;
-  timer.Start();
+  // ------------------------------------------------------------------------
+  gRandom->SetSeed(seed);
   
-  // Load basic libraries in rootlogon
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
-  
+  // ========================================================================
+  // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
+  Int_t iVerbose = 1;
   FairRunSim *fRun = new FairRunSim();
   
   // set the MC version used
   // --------------------------------------------------
-  TString GEANT = "TGeant3";
+  TString mcMode = "TGeant3";
+  fRun->SetName(mcMode);
+
+
+
+  TString jobdir=outdir;
+  int length = jobdir.Length();
+  if(jobdir[length-1] != "/")
+    jobdir.Append("/");
   
-  fRun->SetName(GEANT);
-  // Choose the Geant Navigation System
-  // fRun->SetGeoModel("G3Native");
-
-  // SET NUMBER OF EVENTS
-  // --------------------------------------------------
-  Int_t nEvents = 10000;
-
-  //Set JOBNAME + JOBDIR (will not be created!)
-  // --------------------------------------------------
-  TString jobname="1GeV_Protons";
-  TString jobdir="TDR_Plots";
+  TString jobname="SIM_FOPI_PDG";
+  char bufferPDG[5];
+  sprintf(bufferPDG, "%i", PDG);
+  jobname.Append(bufferPDG);
+  char buffermom[5];
+  jobname.Append("_mom");
+  sprintf(buffermom, "%.1f", mom);
+  jobname.Append(buffermom);
+  jobname.Append("_deg");
+  char bufferang[5];
+  sprintf(bufferang, "%i", angle);
+  jobname.Append(bufferang);
+  jobname.Append(".mc.root");
   
-
-  TString basejobdir=gSystem->Getenv("VMCWORKDIR");
-  jobdir=(basejobdir+"/")+jobdir+"/";
-
-  std::cout<<jobdir<<std::endl;
-
-  TString copy = jobdir;
-  
-  jobdir+=jobname;
-  
-  TString base=jobdir;
-  TString outfile=base+".mc.root";
-  TString dbfile=base+".mc.param.root";
-
+  TString outfile = jobdir+jobname;
+  std::cout<<outfile<<std::endl;
   fRun->SetOutputFile(outfile);
+  std::cout<<"Set output file to "<<outfile<<std::endl;
+
+  TString copy = outfile;
+  TString parfile = copy.ReplaceAll("mc.root","param.root");
+  TString digifile = gSystem->Getenv("VMCWORKDIR");
+  digifile += "/tpc/TestBench/tpc.TBtestChamber.par";
+
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
+  parIo1->open(digifile.Data(),"in");
+  rtdb->setFirstInput(parIo1);
+  Bool_t kParameterMerged=kTRUE;
+
+  FairParRootFileIo* parOut=new FairParRootFileIo(kParameterMerged);
+  parOut->open(parfile.Data());
+  rtdb->setOutput(parOut);
+  
+
+
+  // In general, the following parts need not be touched
+  // ========================================================================
+
+
+  // -----   Timer   --------------------------------------------------------
+  TStopwatch timer;
+  timer.Start();
+  // ------------------------------------------------------------------------
 
 
   // Set Material file Name
   //-----------------------
   fRun->SetMaterials("media_pnd.geo");
-
-
- // Fill the Parameter containers for this run
-  //-------------------------------------------
-  TString digiFile = gSystem->Getenv("VMCWORKDIR");
-  digiFile += "/tpc/TestBench/tpc.TBtestChamber.par";
-  
-  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
-  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
-  parIo1->open(digiFile.Data(),"in");
-  rtdb->setFirstInput(parIo1);
-  Bool_t kParameterMerged=kTRUE;
-
-  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  std::cout<<dbfile<<std::endl;
-  output->open(dbfile.Data());
-  rtdb->setOutput(output);
-
-  rtdb->Print();
-
   
   // Create and add detectors
   //-------------------------
@@ -78,96 +79,50 @@ void runMCFOPI(){
   PndTpcDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
   PndTpc->SetGeometryFileName("tpc_prototype.root");
   PndTpc->SetMixture("TPCmixture"); // TPCmixture: Neon CO2 (90/10)
-  if(GEANT=="TGeant3") PndTpc->SetAliMC();
+  if(mcMode=="TGeant3") PndTpc->SetAliMC();
   fRun->AddModule(PndTpc);
    
   
-  // Create and Set Event Generator
-  //-------------------------------
-  std::cout<<"Setup EvtGens"<<std::endl;std::cout.flush();
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
-  
- 
-  // Box Generator
-  
-  //pdgs 211=pion 13=muon 11=electron, 2212 proton ...
-  //(PDG ID, MULTIPLICITY)
-  FairBoxGenerator* boxGen = new FairBoxGenerator(2212, 10);
-  
-  boxGen->SetPRange(1.0,1.0); // GeV/c
+
+  FairBoxGenerator* boxGen = new FairBoxGenerator(PDG, 1);
+  boxGen->SetPRange(mom,mom); // GeV/c
   boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(5, 175); // Polar angle in lab system range [degree]
-  boxGen->SetXYZ(0., 0., 0.); // cm
+  boxGen->SetThetaRange(angle, angle); // Polar angle in lab system range [degree]
+  boxGen->SetXYZ(0., 0., 0.);
   primGen->AddGenerator(boxGen);
 
-  //FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
-  //fRun->SetGenerator(primGen);
-
-  //DPM
-  //TString dpmfile = basejobdir+"10k_2Gev_el_and_inel_DPMDATA.root";
-  //PndDpmGenerator* dpmGen = new PndDpmGenerator(dpmfile);
-  //primGen->AddGenerator(dpmGen);  
-   
   
-  //FairEvtGenGenerator* evtGen = new
-  //FairEvtGenGenerator("../data/evtgen.y4260.jpsipipi.vvpipi.dat");
-  //primGen->AddGenerator(evtGen);
-  
-  
-  // Field Map Definition
+  // Create and Set Magnetic Field
   // --------------------
-  // 1- Reading the new field map in the old format
-  
-  // FairFieldMap *fMagField= new FairFieldMap("FIELD.v04_pavel.map");
   // Constant Field
   PndConstField *fMagField=new PndConstField();
   fMagField->SetField(0., 0. , 6. ); // values are in kG
   fMagField->SetFieldRegion(-50, 50,-50, 50, -2000, 2000); // values are in cm
   fRun->SetField(fMagField);
    
-//fRun->SetStoreTraj(kTRUE);
-  //fRun->SetStoreTraj(kFALSE);
-  
-  std::cout<<"Starting INIT"<<std::endl;
+  /**Initialize the session*/
   fRun->Init();
-  std::cout<<"Ending INIT"<<std::endl;
-  std::cout.flush();
-  
-  // -Trajectories Visualization (TGeoManager Only )
-  // -----------------------------------------------
-    
-  // Set cuts for storing the trajectpries
-  //   FairTrajFilter* trajFilter = FairTrajFilter::Instance();
-  //   trajFilter->SetStepSizeCut(0.01); // 1 cm
-  //   trajFilter->SetVertexCut(-2000., -2000., 4., 2000., 2000., 100.);
-  //   trajFilter->SetMomentumCutP(10e-3); // p_lab > 10 MeV
-  //   trajFilter->SetEnergyCut(0., 1.02); // 0 < Etot < 1.04 GeV
-  //   trajFilter->SetStorePrimaries(kTRUE);
-  //   trajFilter->SetStoreSecondaries(kTRUE);
-  
-
-  // Fill the Parameter containers for this run
-  //-------------------------------------------
-
-   
-//PndConstPar* fieldPar = (PndConstPar*) rtdb->getContainer("PndConstPar");
-// if ( fMagField ) {  fieldPar->SetParameters(fMagField); }
-//  fieldPar->setInputVersion(fRun->GetRunId(),1);
-//  fieldPar->setChanged(kTRUE);
-  
 
   rtdb->saveOutput();
   rtdb->print();
 
   // Transport nEvents
   // -----------------
-
   fRun->Run(nEvents);
+
 
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
-  printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  cout << endl << endl;
+  cout << "Macro finished succesfully." << endl;
+  cout << "Output file is "    << outfile << endl;
+  cout << "Parameter file is " << parfile << endl;
+  cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
+  cout << endl;
+  // ------------------------------------------------------------------------
+
+
 }  
-  
