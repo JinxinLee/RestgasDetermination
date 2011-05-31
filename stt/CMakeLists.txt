@@ -25,6 +25,7 @@ set(GLPK_LIB_DIR ${SIMPATH}/basics/glpk/lib)
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
+${GLPK_LIB_DIR}
 )
  
 link_directories( ${LINK_DIRECTORIES})
@@ -72,7 +73,7 @@ ROOT_GENERATE_DICTIONARY("${STT_HEADERS}" "${STT_LINKDEF}" "${STT_DICTIONARY}" "
 SET(STT_SRCS ${STT_SRCS} ${STT_DICTIONARY})
 
 add_library(Stt SHARED ${STT_SRCS})
-target_link_libraries(Stt ${ROOT_LIBRARIES} ${GLPK_LIB_DIR}/libglpk.so )
+target_link_libraries(Stt ${ROOT_LIBRARIES})
 #target_link_libraries(Stt ${ROOT_LIBRARIES})
 set_target_properties(Stt PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
