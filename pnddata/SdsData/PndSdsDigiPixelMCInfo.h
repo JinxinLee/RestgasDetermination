@@ -34,7 +34,7 @@ class PndSdsDigiPixelMCInfo: public PndSdsDigiPixel {
     }
 public:
 	PndSdsDigiPixelMCInfo();
-	PndSdsDigiPixelMCInfo(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Int_t col, Int_t row, Double_t totcharge, Int_t mcPointType, Double_t timeStamp, Double_t chargewonoise, Double_t addnoise, Double_t timewalk, Double_t timewalkcorrection, Double_t tof, Double_t digicharge);
+	PndSdsDigiPixelMCInfo(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Int_t col, Int_t row, Double_t totcharge, Double_t timeStamp, Double_t chargewonoise, Double_t addnoise, Double_t timewalk, Double_t timewalkcorrection, Double_t tof, Double_t digicharge);
 	virtual ~PndSdsDigiPixelMCInfo();
 
 	void SetMCCharge(Double_t charge) {fMCCharge = charge;}

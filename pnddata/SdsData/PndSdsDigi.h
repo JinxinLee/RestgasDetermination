@@ -40,8 +40,8 @@ class PndSdsDigi : public FairTimeStamp
     
   public: 
     PndSdsDigi();
-    PndSdsDigi(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Double_t charge, Int_t type, Double_t timestamp = -1);
-    PndSdsDigi(Int_t index, Int_t detID, Int_t fSensorID, Int_t fe, Double_t charge, Int_t type, Double_t timestamp = -1);
+    PndSdsDigi(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Double_t charge, Double_t timestamp = -1);
+    PndSdsDigi(Int_t index, Int_t detID, Int_t fSensorID, Int_t fe, Double_t charge, Double_t timestamp = -1);
 		/**<constructor
      * \param index position of PndSdsMCPoint in TClonesArray
      * \param detID detector ID (from/for CbmPoint/Hit)
@@ -61,20 +61,16 @@ class PndSdsDigi : public FairTimeStamp
 		Int_t GetNIndices() const { return fIndex.size();}
     Double_t GetTimeStamp() const { return fTimeStamp;}
     
-    Int_t GetMCPointType() const {return fMCPointType;}
-    
-		virtual void SetMCPointType(Int_t type){fMCPointType = type;}
-    
 		virtual void AddIndex(int index)
 		{
 			fIndex.push_back(index);
-			AddLink(FairLink(fMCPointType, index));
+			AddLink(FairLink(fDetID, index));
 		}
     
 		virtual void AddIndex(std::vector<Int_t> index)
 		{
 			fIndex = index;
-			AddLinks(FairMultiLinkedData(fMCPointType, index));
+			AddLinks(FairMultiLinkedData(fDetID, index));
 		}
 		void SetCharge(double charge){fCharge = charge;}
     void AddCharge(double charge){fCharge += charge;}
@@ -84,14 +80,11 @@ class PndSdsDigi : public FairTimeStamp
 		}
     
   protected:
-		std::vector<Int_t> fIndex;
-		Int_t fDetID;
-		//TString fDetName;
-		Int_t fSensorID;
-		Int_t fFE;
-		Double_t fCharge;
-		Int_t fMCPointType;
-
+		std::vector<Int_t> fIndex;   // indice of mc points contributing to this digi
+		Int_t fDetID;                // branch ID of mc point array
+		Int_t fSensorID;             // Geometry ID for sensor volume
+		Int_t fFE;                   // Frontend number
+		Double_t fCharge;            // collected charge
     
     ClassDef(PndSdsDigi,4);
   };
