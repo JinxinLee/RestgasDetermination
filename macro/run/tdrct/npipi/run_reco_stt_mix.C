@@ -64,6 +64,7 @@
   mvdTrackFinder->AddHitBranch("MVDHitsStripMix");
   mvdTrackFinder->SetVerbose(iVerbose);
   mvdTrackFinder->SetMaxDist(0.05);
+  mvdTrackFinder->SetPersistence(kFALSE);
   fRun->AddTask(mvdTrackFinder);
 
   // =========================================================================
@@ -72,10 +73,12 @@
   PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(0, false, true);
   PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
   sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
+  sttFindTracks->SetPersistence(kFALSE);
   fRun->AddTask(sttFindTracks);
   
   PndSttMvdTracking *  SttMvdTracking = new PndSttMvdTracking(0,false,true);
   SttMvdTracking->SetInputBranchName("STTHitMix","MVDHitsPixelMix","MVDHitsStripMix");
+  SttMvdTracking->SetPersistence(kFALSE);
   fRun->AddTask(SttMvdTracking);
  
   PndSttMvdGemTracking * SttMvdGemTracking = new PndSttMvdGemTracking(0);
@@ -85,11 +88,13 @@
   recoKalman->SetTrackInBranchName("SttMvdGemTrack");
   recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
   recoKalman->SetBusyCut(50); // CHECK to be tuned
+  recoKalman->SetMvdBranchName("Mix");
+  recoKalman->SetCentralTrackerBranchName("Mix");
   //recoKalman->SetNumIterations(3);
   fRun->AddTask(recoKalman);
 
   PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
-  trackMC->SetTrackInBranchName("SttMvdiGemGenTrack"); 
+  trackMC->SetTrackInBranchName("SttMvdGemGenTrack"); 
   trackMC->SetTrackOutBranchName("SttMvdGemGenTrackID");
   fRun->AddTask(trackMC);
 
