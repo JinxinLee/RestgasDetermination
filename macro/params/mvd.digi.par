@@ -26,6 +26,7 @@ charge_noise:Double_t 1000
 QCloudSigma:Double_t 0.0008
 sens_Type:Text_t Rect
 fe_Type:Text_t APV25
+fe_BusClock: Double_t 30
 cluster_mod:Int_t 0
 cluster_mean:Int_t 1
 cluster_radchan:Int_t 2
@@ -54,6 +55,7 @@ charge_noise:Double_t 1000
 QCloudSigma:Double_t 0.0008
 sens_Type:Text_t Trap
 fe_Type:Text_t APV25
+fe_BusClock: Double_t 30
 cluster_mod:Int_t 0
 cluster_mean:Int_t 1
 cluster_radchan:Int_t 2
@@ -83,6 +85,7 @@ charge_noise:Double_t 1000
 QCloudSigma:Double_t 0.0008
 sens_Type:Text_t TD
 fe_Type:Text_t APV25
+fe_BusClock: Double_t 30
 cluster_mod:Int_t 0
 cluster_mean:Int_t 0
 cluster_radchan:Int_t 2
@@ -112,6 +115,7 @@ charge_noise:Double_t 1000
 QCloudSigma:Double_t 0.0008
 sens_Type:Text_t TS
 fe_Type:Text_t APV25
+fe_BusClock: Double_t 30
 cluster_mod:Int_t 0
 cluster_mean:Int_t 0
 cluster_radchan:Int_t 2
@@ -126,12 +130,13 @@ chargeconv_method:Int_t 0
 [MVDPixelDigiPar]
 dimX:Double_t 0.0100
 dimY:Double_t 0.0100
-threshold:Double_t 1100
+threshold:Double_t 1000
 noise:Double_t 200
 QCloudSigma:Double_t 0.0008
-FECols:Int_t 104
-FERows:Int_t 104
+FECols:Int_t 110
+FERows:Int_t 116
 ClustRad:Double_t 1.8
+fe_BusClock: Double_t 155.52
 chargeconv_method:Int_t 1
 #################################################################
 #################################################################

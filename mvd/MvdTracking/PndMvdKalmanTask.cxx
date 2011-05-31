@@ -100,7 +100,7 @@ PndMvdKalmanTask::Init()
     Error("PndMvdKalmanTask::Init","MVDHitsStrip array not found");
   } else {
     fTheRecoHitFactory->addProducer
-      (kMVDHitsStrip,new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(stripar));
+      (ioman->GetBranchId("MVDHitsStrip"),new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(stripar));
   }
 
   TClonesArray* pixelar=(TClonesArray*) ioman->GetObject("MVDHitsPixel");
@@ -108,7 +108,7 @@ PndMvdKalmanTask::Init()
     Error("PndMvdKalmanTask::Init","MVDHitsPixel array not found");
   } else { //TODO Convention on detector number needed
     fTheRecoHitFactory->addProducer
-      (kMVDHitsPixel,new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(pixelar));
+      (ioman->GetBranchId("MVDHitsPixel"),new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(pixelar));
   }
 
 

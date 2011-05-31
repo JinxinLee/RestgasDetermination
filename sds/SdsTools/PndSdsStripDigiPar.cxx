@@ -28,6 +28,7 @@ void PndSdsStripDigiPar::putParams(FairParamList* list)
   list->add("QCloudSigma", fCSigma);
   list->add("sens_Type", fSensType); //("sens_Type", fSensType, 's', 1)
   list->add("fe_Type", fFeType); //("fe_Type", fFeType, 's', 1)
+  list->add("fe_BusClock", fFeBusClock);
   list->add("cluster_mod", fClusterMod);
   list->add("cluster_mean", fClusterMean);
   list->add("cluster_radchan", fRadChannel);
@@ -68,6 +69,7 @@ Bool_t PndSdsStripDigiPar::getParams(FairParamList* list)
   Text_t feName[80];
   if (!list->fill("fe_Type",feName,80)) return kFALSE;
   fFeType = feName;
+  if (!list->fill("fe_BusClock",&fFeBusClock)) return kFALSE;
   if (!list->fill("cluster_mod", &fClusterMod)) return kFALSE;
   if (!list->fill("cluster_mean", &fClusterMean)) return kFALSE;
   if (!list->fill("cluster_radchan", &fRadChannel)) return kFALSE;

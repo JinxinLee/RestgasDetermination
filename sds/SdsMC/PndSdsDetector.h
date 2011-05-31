@@ -143,6 +143,8 @@ class PndSdsDetector : public FairDetector
  // void ConstructRootGeometry();
   virtual void ConstructASCIIGeometry();
  // void ExpandNode(TGeoNode *fN);
+  
+  void SetDetectorID(DetectorId id){fDetectorID = id;}
 
   void SetRadDamOption(bool val){fUseRadDamOption = val;};
   bool GetRadDamOption(){return fUseRadDamOption;};
@@ -176,6 +178,7 @@ protected:
   bool fUseRadDamOption;			//! enables the detection of neutral particles
   TString fOutBranchName;     //! To be set by daughter classes
   TString fFolderName;        //! To be set by daughter classes
+  DetectorId fDetectorID;          //! To be set by daughter classes
 
   std::vector<std::string> fListOfSensitives;
 

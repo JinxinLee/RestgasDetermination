@@ -312,7 +312,7 @@ Int_t PndSdsNoiseProducer::CalcChargeAboveThreshold(Double_t spread,Double_t thr
 void PndSdsNoiseProducer::AddDigiStrip(Int_t &noisies, Int_t iPoint, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge)
 {
   Bool_t found = kFALSE;
-  Int_t detID = kMVDHitsStrip;
+  Int_t detID = -1; // we have no input array with MC Points 
   Int_t iStrip = fDigiStripArray->GetEntriesFast();
   PndSdsDigiStrip* aDigi = 0;
   for(Int_t kstr = 0; kstr < iStrip && found == kFALSE; kstr++)
@@ -332,7 +332,7 @@ void PndSdsNoiseProducer::AddDigiStrip(Int_t &noisies, Int_t iPoint, Int_t senso
 	  //TODO: get a reasonable timestamp fake for the noise
     std::vector<Int_t> indices;
     indices.push_back(iPoint);
-    new ((*fDigiStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,sensorID,fe,chan,charge, fMCPointType, 0) ;
+    new ((*fDigiStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,sensorID,fe,chan,charge, 0) ;
     noisies++;
     if(fVerbose>2) std::cout
       << " -I- PndSdsNoiseProducer: Added StripTrap Digi at: FE=" << fe
@@ -344,7 +344,7 @@ void PndSdsNoiseProducer::AddDigiStrip(Int_t &noisies, Int_t iPoint, Int_t senso
 void PndSdsNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t sensorID, Int_t fe, Int_t col, Int_t row, Double_t charge)
 {
   Bool_t found = kFALSE;
-  Int_t detID = kMVDHitsPixel;
+  Int_t detID = -1;
   Int_t iPix = fDigiPixelArray->GetEntriesFast();
   PndSdsDigiPixel* aDigi = 0;
   for(Int_t kstr = 0; kstr < iPix && found == kFALSE; kstr++)

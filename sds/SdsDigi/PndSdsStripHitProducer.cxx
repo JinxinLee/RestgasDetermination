@@ -238,8 +238,8 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
       if (fVerbose > 1) std::cout  << "SensorStrips: " << std::endl;
       for(std::vector<PndSdsStrip>::const_iterator kit=topStrips.begin();
           kit!= topStrips.end(); ++kit)
-      {   //TODO: What to do with the kMVD* enmums in sds?
-        AddDigi(iStrip,iPoint,kMVDHitsStrip,point->GetSensorID(),
+      {   
+        AddDigi(iStrip,iPoint,FairRootManager::Instance()->GetBranchId(fInBranchName),point->GetSensorID(),
             		fCurrentStripCalcTop->CalcFEfromStrip(kit->GetIndex()),
             		fCurrentStripCalcTop->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
         if (fVerbose > 1) std::cout << *kit << std::endl;
@@ -259,7 +259,7 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
           kit!= botStrips.end();
           ++kit)
       {
-        AddDigi(iStrip,iPoint,kMVDHitsStrip,point->GetSensorID(),
+        AddDigi(iStrip,iPoint,FairRootManager::Instance()->GetBranchId(fInBranchName),point->GetSensorID(),
                 fCurrentStripCalcBot->CalcFEfromStrip(kit->GetIndex()) + fCurrentDigiPar->GetNrTopFE(),
                 fCurrentStripCalcBot->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
         if (fVerbose > 2) std::cout << *kit << std::endl;
@@ -299,7 +299,6 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
 
 void PndSdsStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge)
 {
-  Bool_t found = kFALSE;
   PndSdsDigiStrip* aDigi = 0;
   for(Int_t kstr = 0; kstr < iStrip ; kstr++)
   {
@@ -318,7 +317,7 @@ void PndSdsStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, I
   // we're here when this channel didn't fire
   std::vector<Int_t>indices;
 	indices.push_back(iPoint);
-  new ((*fStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,sensorID,fe,chan,charge, fInBranchId, 0) ;
+  new ((*fStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,sensorID,fe,chan,charge, 0) ;
   iStrip++;
   return;
 }

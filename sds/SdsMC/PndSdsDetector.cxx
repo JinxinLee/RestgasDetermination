@@ -36,7 +36,7 @@
 class FairVolume;
 
 // -----   Default constructor   -------------------------------------------
-PndSdsDetector::PndSdsDetector() : fPersistance(kTRUE), fUseRadDamOption(false) 
+PndSdsDetector::PndSdsDetector() : fPersistance(kTRUE), fUseRadDamOption(false)
 {
   fPndSdsCollection = new TClonesArray("PndSdsMCPoint");
   fPosIndex = 0;
@@ -47,7 +47,7 @@ PndSdsDetector::PndSdsDetector() : fPersistance(kTRUE), fUseRadDamOption(false)
 
 // -----   Standard constructor   ------------------------------------------
 PndSdsDetector::PndSdsDetector (const char* name, Bool_t active)
-: FairDetector(name, active), fPersistance(kTRUE), fUseRadDamOption(false) 
+: FairDetector(name, active), fPersistance(kTRUE), fUseRadDamOption(false)
 {
   fPndSdsCollection = new TClonesArray("PndSdsMCPoint");
   fPosIndex = 0;
@@ -192,7 +192,7 @@ Bool_t  PndSdsDetector::ProcessHits(FairVolume* vol)
     
     // Increment number of PndSds points for TParticle
     PndStack* stack = (PndStack*) gMC->GetStack();
-    stack->AddPoint(kMVD); //TODO: Which detector Type?
+    stack->AddPoint(fDetectorID);
     ResetParameters();
   }
   

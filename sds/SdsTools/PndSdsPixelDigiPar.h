@@ -31,6 +31,7 @@ class PndSdsPixelDigiPar : public FairParGenericSet
     Int_t GetFECols()           const {return fFeCols;}
     Int_t GetFERows()           const {return fFeRows;}
     Double_t GetClustRadius()   const {return fRadius;}
+    Double_t GetFeBusClock()      const {return fFeBusClock;}
     Int_t GetChargeConvMethod() const  {return fChargeConvMethod;}
     
     void SetXPitch(Double_t x)        {fDimX = x;}
@@ -41,6 +42,7 @@ class PndSdsPixelDigiPar : public FairParGenericSet
     void SetFECols(Int_t x)           {fFeCols = x;}
     void SetFERows(Int_t x)           {fFeRows = x;}
     void SetClustRadius(Double_t x)   {fRadius=x;}
+    void SetFeBusClock(Double_t x)      {fFeBusClock = x;}
     void SetChargeConvMethod(Int_t x) {fChargeConvMethod = x;}
     
   private:
@@ -53,6 +55,7 @@ class PndSdsPixelDigiPar : public FairParGenericSet
     Double_t fThreshold;      // Discriminator Threshold (electrons)
     Double_t fNoise;          // Gaussian electronics noise including threshold dispersion (electrons)
     Double_t fCSigma;         // Gaussian charge cloud smearing
+    Double_t fFeBusClock;   // Frontend bus clock to determin noise rate
     Int_t fChargeConvMethod;	// 0: ideal conversion; 1: TOT calculation
     //Text_t fSensName;         // Sensor name
     //Text_t fFeName;           // Frontend name

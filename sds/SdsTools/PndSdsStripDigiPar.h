@@ -39,6 +39,7 @@ class PndSdsStripDigiPar : public FairParGenericSet
     Double_t GetQCloudSigma()     const {return fCSigma;}
     const char*  GetSensType()    const {return fSensType.Data();}
     const char*  GetFeType()      const {return fFeType.Data();}
+    Double_t GetFeBusClock()      const {return fFeBusClock;}
     Int_t GetClusterMod()         const {return fClusterMod;}
     Int_t GetClusterMean()        const {return fClusterMean;}
     Int_t GetRadChannel()         const {return fRadChannel;}
@@ -61,6 +62,7 @@ class PndSdsStripDigiPar : public FairParGenericSet
     void SetQCloudSigma(Double_t x)     {fCSigma = x;}
     void SetSensType(TString x)         {fSensType = x;}
     void SetFeType(TString x)           {fFeType = x;}
+    void SetFeBusClock(Double_t x)      {fFeBusClock = x;}
     void SetClusterMod(Int_t  x)        {fClusterMod = x;}
     void SetClusterMean(Int_t  x)       {fClusterMean = x;}
     void SetRadChnnel(Int_t x)          {fRadChannel = x;}
@@ -80,6 +82,7 @@ class PndSdsStripDigiPar : public FairParGenericSet
     Double_t fCSigma;       // Gaussian charge cloud sigma
     Double_t fChargeCut;    // Cluster charge corralation for double sided sensors
     Double_t fSingleChargeCut;    // Charge Threshold for single-strip clusters
+    Double_t fFeBusClock;   // Frontend bus clock to determin noise rate
     TVector2 fTopAnchor;    // Anchor point of top strip#0
     TVector2 fBotAnchor;    // Anchor point of bottom strip#0
     Int_t    fFeChannels;   // Number of Channels per FE

@@ -274,9 +274,9 @@ void PndTpcClustPlusRTFTask::MergeMVDandTPC()
 			detId=cand->GetSortedHit(j).GetDetId();
 			hitId=cand->GetSortedHit(j).GetHitId();
 			PndSdsHit *point;
-			if (detId == kMVDHitsPixel)
+			if (detId == FairRootManager::Instance()->GetBranchId(fHitBranch))
 				 point = (PndSdsHit*)fHitArray->At(hitId);
-			else if (detId == kMVDHitsStrip)
+			else if (detId == FairRootManager::Instance()->GetBranchId(fHitBranch2))
 				 point = (PndSdsHit*)fHitArray2->At(hitId);
 			else point = 0;
 			if (point!=0){
@@ -372,11 +372,11 @@ void PndTpcClustPlusRTFTask::MergeMVDandTPC()
 	}
 ////////////////////////////////< filling restMVDhits
 	for(int i=0;i<fHitArray->GetEntriesFast();i++){
-		std::pair<unsigned int,unsigned int> hit(kMVDHitsPixel,i);
+		std::pair<unsigned int,unsigned int> hit(FairRootManager::Instance()->GetBranchId(fHitBranch),i);
 		restMVDhits.push_back(hit);
 	}
 	for(int i=0;i<fHitArray2->GetEntriesFast();i++){
-		std::pair<unsigned int,unsigned int> hit(kMVDHitsStrip,i);
+		std::pair<unsigned int,unsigned int> hit(FairRootManager::Instance()->GetBranchId(fHitBranch2),i);
 		restMVDhits.push_back(hit);
 	}
 	for(unsigned int i=0;i<SkipMVDCands.size();i++){
@@ -398,9 +398,9 @@ void PndTpcClustPlusRTFTask::MergeMVDandTPC()
 	std::vector<PndRiemannHit> MvdHits;
 	for(unsigned int j=0;j<restMVDhits.size();j++){
 		PndSdsHit* point;
-		if (restMVDhits[j].first == kMVDHitsPixel)
+		if (restMVDhits[j].first == FairRootManager::Instance()->GetBranchId(fHitBranch))
 			 point = (PndSdsHit*)fHitArray->At(restMVDhits[j].second);
-		else if ( restMVDhits[j].first == kMVDHitsStrip)
+		else if ( restMVDhits[j].first == FairRootManager::Instance()->GetBranchId(fHitBranch2))
 			 point = (PndSdsHit*)fHitArray2->At(restMVDhits[j].second);
 		else point = 0;
 		if (point!=0){

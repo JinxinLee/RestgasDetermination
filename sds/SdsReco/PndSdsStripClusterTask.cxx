@@ -210,7 +210,9 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
   std::vector< Int_t > oneclustertop;
   std::vector< Int_t > oneclusterbot;
   std::vector< Int_t > leftDigis;
-  Int_t detID, mcindex, clindex, botIndex, topIndex;
+  Int_t mcindex, clindex, botIndex, topIndex;
+  Int_t detID = FairRootManager::Instance()->GetBranchId(fInBranchName);
+  Int_t clDetID = FairRootManager::Instance()->GetBranchId(fClustBranchName);
   Double_t mycharge;
   TVector2 meantopPoint, meanbotPoint, onsensorPoint;
   TVector3 hitPos,hitErr;
@@ -294,9 +296,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
       PndSdsDigiStrip* atopDigi = ((PndSdsDigiStrip*)fDigiArray->At(oneclustertop[0]));
       Int_t sensorIDtop = atopDigi->GetSensorID();
       
-      //if (kFALSE==SelectSensorParams(detName)) continue; // Invalid parameters, skip here. 
-      detID = atopDigi->GetDetID();
-      
+      //if (kFALSE==SelectSensorParams(detName)) continue; // Invalid parameters, skip here.       
       CalcMeanCharge(aTopCluster,meantopstrip,meantoperr,topcharge);
       
       if(oneclustertop.size()==1 && topcharge < fSingleStripChargeThreshold) { 
@@ -369,7 +369,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
           // --- add hit to list ---
           Int_t i = fHitArray->GetEntriesFast();
           hitErr.SetXYZ(sqrt(hitCov[0][0]),sqrt(hitCov[1][1]),sqrt(hitCov[2][2]));
-          tmphit = new((*fHitArray)[i]) PndSdsHit(detID,sensorIDtop,hitPos,hitErr,
+          tmphit = new((*fHitArray)[i]) PndSdsHit(clDetID,sensorIDtop,hitPos,hitErr,
                                                   topIndex,mycharge,oneclusterbot.size()+oneclustertop.size(),mcindex);
           tmphit->SetBotIndex(botIndex);
           tmphit->SetLink(FairLink(fClusterType, topIndex));

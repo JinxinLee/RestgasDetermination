@@ -112,8 +112,7 @@ InitStatus PndSdsPixelClusterTask::Init()
   
   SetInBranchId();
 
-  
-  fDigiPar->Print();
+  if(fVerbose>1) fDigiPar->Print();
   
   std::cout << "-I- PndSdsPixelClusterTask: Initialisation successfull" << std::endl;
   return kSUCCESS;

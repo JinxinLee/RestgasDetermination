@@ -292,18 +292,18 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
     point = (PndSdsMCPoint*) fPointArray->At(fPixelList[iPix].GetMCIndex()[0]);
     if(fDigiPixelMCInfo==kTRUE)
     {
-      new ((*fPixelMCArray)[iFePixel]) PndSdsDigiPixelMCInfo(fPixelList[iPix].GetMCIndex(), kMVDHitsPixel, fPixelList[iPix].GetSensorID() ,fPixelList[iPix].GetFE(),
+      new ((*fPixelMCArray)[iFePixel]) PndSdsDigiPixelMCInfo(fPixelList[iPix].GetMCIndex(), FairRootManager::Instance()->GetBranchId(fInBranchName), fPixelList[iPix].GetSensorID() ,fPixelList[iPix].GetFE(),
                                                              fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
-                                                             fChargeConverter->ChargeToDigiValue(smearedCharge), fInBranchId, fChargeConverter->GetTimeStamp(point->GetTime(), smearedCharge,fMCEventHeader->GetT()),smearedCharge-fPixelList[iPix].GetAddNoise(),fPixelList[iPix].GetAddNoise(), fChargeConverter->GetTimeWalk(smearedCharge),0,point->GetTime(),smearedCharge  );
+                                                             fChargeConverter->ChargeToDigiValue(smearedCharge), fChargeConverter->GetTimeStamp(point->GetTime(), smearedCharge,fMCEventHeader->GetT()),smearedCharge-fPixelList[iPix].GetAddNoise(),fPixelList[iPix].GetAddNoise(), fChargeConverter->GetTimeWalk(smearedCharge),0,point->GetTime(),smearedCharge  );
       std::cout << "-I- PndSdsHybridHitProducer::Exec: TimeStamp: " << fChargeConverter->GetTimeStamp(point->GetTime(), smearedCharge,fMCEventHeader->GetT()) << " point->GetTime: " <<  point->GetTime() << " EventHeader->GetT() " << fMCEventHeader->GetT() << std::endl;
       test++;
       std::cout <<"fPixelList.AddNosie"<< fPixelList[iPix].GetAddNoise() << std::endl;
     }
 	  if (fVerbose > 1)  std::cout << fPixelList[iPix] << std::endl;
     new ((*fPixelArray)[iFePixel++])
-    PndSdsDigiPixel( fPixelList[iPix].GetMCIndex(), kMVDHitsPixel, fPixelList[iPix].GetSensorID() ,fPixelList[iPix].GetFE(),
+    PndSdsDigiPixel( fPixelList[iPix].GetMCIndex(), FairRootManager::Instance()->GetBranchId(fInBranchName), fPixelList[iPix].GetSensorID() ,fPixelList[iPix].GetFE(),
                     fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
-                    fChargeConverter->ChargeToDigiValue(smearedCharge), fInBranchId, fChargeConverter->GetTimeStamp(point->GetTime(), smearedCharge,fMCEventHeader->GetT()) );
+                    fChargeConverter->ChargeToDigiValue(smearedCharge), fChargeConverter->GetTimeStamp(point->GetTime(), smearedCharge,fMCEventHeader->GetT()) );
   }
   
   

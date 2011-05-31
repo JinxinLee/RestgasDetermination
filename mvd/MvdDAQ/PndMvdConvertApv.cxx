@@ -194,24 +194,22 @@ std::vector<PndSdsDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hi
     if(fFake)
     {
       PndSdsDigiStrip DigiHit(hitlist[hitnumber].GetEventID(), // index
-                              kMVDHitsStrip,                   // panda detID 
+                              -1,                   // panda detID 
                               -1,                              // No  SensorID (from geopath) 
                               hitlist[hitnumber].GetFeID(),    // fe
                               hitlist[hitnumber].GetChannel(), // chan
                               q/*/1000/1000*/,                 // charge
-                              kUnknown,                               // mcpoint type
                               hitlist[hitnumber].GetTimestamp()// timestamp
                               );
 
       result.push_back(DigiHit);
     }else{
       PndSdsDigiStrip DigiHit(hitlist[hitnumber].GetEventID(), 
-                              kMVDHitsStrip,
+                              -1,
                               hitlist[hitnumber].GetModuleID(),
                               hitlist[hitnumber].GetFeID(),
                               hitlist[hitnumber].GetChannel(),
                               q/*/1000/1000*/,
-                              kUnknown,
                               hitlist[hitnumber].GetTimestamp() 
                               );
       result.push_back(DigiHit);

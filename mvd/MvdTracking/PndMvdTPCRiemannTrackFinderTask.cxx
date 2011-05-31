@@ -140,11 +140,11 @@ void PndMvdTPCRiemannTrackFinderTask::Exec(Option_t* opt)
 		  PndRiemannHit hit;
 		  detId=trackFinder.GetTrackCand(i).GetSortedHit(j).GetDetId();
 		  hitId=trackFinder.GetTrackCand(i).GetSortedHit(j).GetHitId();
-			  if (detId==kMVDHitsPixel){
+			  if (detId==FairRootManager::Instance()->GetBranchId(fHitBranch)){
 				  hit.setXYZ(((PndSdsHit*)fHitArray->At(hitId))->GetPosition().X(),((PndSdsHit*)fHitArray->At(hitId))->GetPosition().Y(),((PndSdsHit*)fHitArray->At(hitId))->GetPosition().Z());
 				  hit.setDXYZ(((PndSdsHit*)fHitArray->At(hitId))->GetDx(),((PndSdsHit*)fHitArray->At(hitId))->GetDy(),((PndSdsHit*)fHitArray->At(hitId))->GetDz());
 			  }
-			  else if (detId==kMVDHitsStrip){
+			  else if (detId==FairRootManager::Instance()->GetBranchId(fHitBranch2)){
 				  hit.setXYZ(((PndSdsHit*)fHitArray2->At(hitId))->GetPosition().X(),((PndSdsHit*)fHitArray2->At(hitId))->GetPosition().Y(),((PndSdsHit*)fHitArray2->At(hitId))->GetPosition().Z());
 				  hit.setDXYZ(((PndSdsHit*)fHitArray2->At(hitId))->GetDx(),((PndSdsHit*)fHitArray2->At(hitId))->GetDy(),((PndSdsHit*)fHitArray2->At(hitId))->GetDz());
 			  }

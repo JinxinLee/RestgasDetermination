@@ -19,6 +19,7 @@ void PndSdsPixelDigiPar::putParams(FairParamList* list)
   list->add("FERows", fFeRows);
   list->add("ClustRad",fRadius);
   list->add("QCloudSigma",fCSigma);
+  list->add("fe_BusClock", fFeBusClock);
   
   list->add("chargeconv_method", fChargeConvMethod);
   
@@ -37,6 +38,7 @@ Bool_t PndSdsPixelDigiPar::getParams(FairParamList* list)
   if (!list->fill("FERows",&fFeRows)) return kFALSE;
   if (!list->fill("ClustRad",&fRadius)) return kFALSE;
   if (!list->fill("QCloudSigma",&fCSigma)) return kFALSE;
+  if (!list->fill("fe_BusClock",&fFeBusClock)) return kFALSE;
   if (!list->fill("chargeconv_method",&fChargeConvMethod)) return kFALSE;
   
   //   if (!list->fill("sensName",&sensName)) return kFALSE;

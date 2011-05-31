@@ -200,9 +200,9 @@ bool PndMvdTPCRiemannTrackFinderTaskEff::CheckRecoTrack(PndTrackCand *cand,PndMC
 			detIDi=cand->GetSortedHit(i).GetDetId();
 			hitIDi=cand->GetSortedHit(i).GetHitId();
 			PndSdsHit *pointI;
-			if (detIDi ==kMVDHitsPixel )
+			if (detIDi ==FairRootManager::Instance()->GetBranchId(fHitBranch) )
 				 pointI = (PndSdsHit*)fHitArray->At(hitIDi);
-			else if (detIDi ==kMVDHitsStrip )
+			else if (detIDi ==FairRootManager::Instance()->GetBranchId(fHitBranch2) )
 				 pointI = (PndSdsHit*)fHitArray2->At(hitIDi);
 			else pointI = 0;
 
@@ -210,9 +210,9 @@ bool PndMvdTPCRiemannTrackFinderTaskEff::CheckRecoTrack(PndTrackCand *cand,PndMC
 					detIDj=cand->GetSortedHit(j).GetDetId();
 					hitIDj=cand->GetSortedHit(j).GetHitId();
 					PndSdsHit *pointJ;
-					if (detIDj ==kMVDHitsPixel )
+					if (detIDj ==FairRootManager::Instance()->GetBranchId(fHitBranch) )
 						 pointJ = (PndSdsHit*)fHitArray->At(hitIDj);
-					else if (detIDj == kMVDHitsStrip)
+					else if (detIDj == FairRootManager::Instance()->GetBranchId(fHitBranch2))
 						 pointJ = (PndSdsHit*)fHitArray2->At(hitIDj);
 					else pointJ = 0;
 
@@ -353,9 +353,9 @@ void PndMvdTPCRiemannTrackFinderTaskEff::AddGhostTrack(int trackF)
 //			hitID=((PndTrackCand*)fTrackCandArray->At(trackF))->GetSortedHit(i).GetHitId();
 			((GFTrackCand*)fTrackCandArray->At(trackF))->getHit(i,detID, hitID);
 			PndSdsHit *point;
-			if (detID == kMVDHitsPixel)
+			if (detID == FairRootManager::Instance()->GetBranchId(fHitBranch))
 				 point = (PndSdsHit*)fHitArray->At(hitID);
-			else if (detID == kMVDHitsStrip)
+			else if (detID == FairRootManager::Instance()->GetBranchId(fHitBranch2))
 				 point = (PndSdsHit*)fHitArray2->At(hitID);
 			else point = 0;
 			if (point!=0){

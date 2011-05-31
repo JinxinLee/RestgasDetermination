@@ -4,12 +4,14 @@
 
 // -----   Default constructor   -------------------------------------------
 PndMvdDetector::PndMvdDetector() {
+  SetDetectorID(kMVD);
 }
 // -------------------------------------------------------------------------
 
 // -----   Standard constructor   ------------------------------------------
 PndMvdDetector::PndMvdDetector (const char* name, Bool_t active)
   : PndSdsDetector(name, active) {
+    SetDetectorID(kMVD);
 }
 // -------------------------------------------------------------------------
 

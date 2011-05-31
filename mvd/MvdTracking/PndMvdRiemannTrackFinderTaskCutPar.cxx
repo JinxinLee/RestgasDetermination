@@ -161,13 +161,13 @@ void PndMvdRiemannTrackFinderTaskCutPar::CalcRiemannTracks()
 			  unsigned int detId,hitId;
 			  detId=((PndTrackCand*)fTrackCandArray->At(j))->GetSortedHit(i).GetDetId();
 			  hitId=((PndTrackCand*)fTrackCandArray->At(j))->GetSortedHit(i).GetHitId();
-				  if (detId==kMVDHitsPixel){
+				  if (detId==FairRootManager::Instance()->GetBranchId(fHitBranch)){
 					  hit[count].setXYZ(((PndSdsHit*)fHitArray->At(hitId))->GetPosition().X(),((PndSdsHit*)fHitArray->At(hitId))->GetPosition().Y(),((PndSdsHit*)fHitArray->At(hitId))->GetPosition().Z());
 					  hit[count].setDXYZ(((PndSdsHit*)fHitArray->At(hitId))->GetDx(),((PndSdsHit*)fHitArray->At(hitId))->GetDy(),((PndSdsHit*)fHitArray->At(hitId))->GetDz());
 					  i++;
 					  count++;
 				  }
-				  else if (detId==kMVDHitsStrip){
+				  else if (detId==FairRootManager::Instance()->GetBranchId(fHitBranch2)){
 					  hit[count].setXYZ(((PndSdsHit*)fHitArray2->At(hitId))->GetPosition().X(),((PndSdsHit*)fHitArray2->At(hitId))->GetPosition().Y(),((PndSdsHit*)fHitArray2->At(hitId))->GetPosition().Z());
 					  hit[count].setDXYZ(((PndSdsHit*)fHitArray2->At(hitId))->GetDx(),((PndSdsHit*)fHitArray2->At(hitId))->GetDy(),((PndSdsHit*)fHitArray2->At(hitId))->GetDz());
 					  i++;
@@ -206,11 +206,11 @@ void  PndMvdRiemannTrackFinderTaskCutPar::CalcParHists()
 			  for(unsigned int j=0;j<((PndTrackCand*)fTrackCandArray->At(i))->GetNHits();j++){
 				  detId=((PndTrackCand*)fTrackCandArray->At(i))->GetSortedHit(j).GetDetId();
 				  hitId=((PndTrackCand*)fTrackCandArray->At(i))->GetSortedHit(j).GetHitId();
-				  if (detId==kMVDHitsPixel){
+				  if (detId==FairRootManager::Instance()->GetBranchId(fHitBranch)){
 					  hit0.setXYZ(((PndSdsHit*)fHitArray->At(hitId))->GetPosition().X(),((PndSdsHit*)fHitArray->At(hitId))->GetPosition().Y(),((PndSdsHit*)fHitArray->At(hitId))->GetPosition().Z());
 					  hit0.setDXYZ(((PndSdsHit*)fHitArray->At(hitId))->GetDx(),((PndSdsHit*)fHitArray->At(hitId))->GetDy(),((PndSdsHit*)fHitArray->At(hitId))->GetDz());
 				  }
-				  else if (detId==kMVDHitsStrip){
+				  else if (detId==FairRootManager::Instance()->GetBranchId(fHitBranch2)){
 					  hit0.setXYZ(((PndSdsHit*)fHitArray2->At(hitId))->GetPosition().X(),((PndSdsHit*)fHitArray2->At(hitId))->GetPosition().Y(),((PndSdsHit*)fHitArray2->At(hitId))->GetPosition().Z());
 					  hit0.setDXYZ(((PndSdsHit*)fHitArray2->At(hitId))->GetDx(),((PndSdsHit*)fHitArray2->At(hitId))->GetDy(),((PndSdsHit*)fHitArray2->At(hitId))->GetDz());
 				  }

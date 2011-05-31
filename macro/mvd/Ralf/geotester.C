@@ -1,8 +1,9 @@
+void geotester(TString filename="../../../geometry/MVD_v1.0_woPassiveTraps.root")
 {
 
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
-  TFile* file = new TFile("../../../geometry/MVD_v1.0_woPassiveTraps.root");
+  TFile* file = new TFile(filename.Data());
 
  //A
 //   TGeoManager *geoMan = (TGeoManager*) file->Get("CADtoROOT");
