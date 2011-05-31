@@ -35,10 +35,17 @@ Bool_t PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
     {
       PndSdsHit *mvdHit = NULL;
       PndTrackCandHit candHit = trackCand.GetSortedHit(ii);
-      if ( (candHit.GetDetId()!=FairRootManager::Instance()->GetBranchId("MVDHitsPixel")) && (candHit.GetDetId()!=FairRootManager::Instance()->GetBranchId("MVDHitsStrip")) ) continue;
-      
-      if (candHit.GetDetId()==FairRootManager::Instance()->GetBranchId("MVDHitsPixel")) mvdHit = (PndSdsHit*)fMvdHitsPixel->At(candHit.GetHitId());
-      if (candHit.GetDetId()==FairRootManager::Instance()->GetBranchId("MVDHitsStrip")) mvdHit = (PndSdsHit*)fMvdHitsStrip->At(candHit.GetHitId());
+      if (fMixMode==kFALSE)
+        if ( (candHit.GetDetId()!=FairRootManager::Instance()->GetBranchId("MVDHitsPixel")) && (candHit.GetDetId()!=FairRootManager::Instance()->GetBranchId("MVDHitsStrip")) ) continue;
+      if (fMixMode==kTRUE)
+        if ( (candHit.GetDetId()!=FairRootManager::Instance()->GetBranchId("MVDHitsPixelMix")) && (candHit.GetDetId()!=FairRootManager::Instance()->GetBranchId("MVDHitsStripMix")) ) continue;         
+
+      if ( (candHit.GetDetId()==FairRootManager::Instance()->GetBranchId("MVDHitsPixel") && !fMixMode) ||
+           (candHit.GetDetId()==FairRootManager::Instance()->GetBranchId("MVDHitsPixelMix") && fMixMode) )
+        mvdHit = (PndSdsHit*)fMvdHitsPixel->At(candHit.GetHitId());
+      if ( (candHit.GetDetId()==FairRootManager::Instance()->GetBranchId("MVDHitsStrip") && !fMixMode) ||
+           (candHit.GetDetId()==FairRootManager::Instance()->GetBranchId("MVDHitsStripMix") && fMixMode))
+        mvdHit = (PndSdsHit*)fMvdHitsStrip->At(candHit.GetHitId());
       if (mvdHit==0) continue;
       TVector3 mvdPos;
       mvdHit->Position(mvdPos);

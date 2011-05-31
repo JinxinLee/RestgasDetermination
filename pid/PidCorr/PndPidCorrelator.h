@@ -95,6 +95,7 @@ protected:
   Bool_t fMdtRefit;                 // Use MDT Kalman refit propagation
   Bool_t fIdeal;                    // Ideal Correlation
   Bool_t fCorrErrorProp;            // Error propagation in correlation
+  Bool_t fMixMode;                  // Mix mode flag
   Int_t  fEventCounter;             // Event number
   Int_t fPidHyp;                    // particle hypothesis for propagation
   PndGeoHandling* fGeoH;             // Object to retrieve MVD geometry
@@ -143,6 +144,7 @@ public:
   void SetDebugMode(Bool_t debug)         { fDebugMode = debug; };
   void SetDebugFilename(TString filename) { sFile = filename; };
   void SetMdtRefit(Bool_t mdt)            { fMdtRefit = mdt; };
+  void SetMixMode(Bool_t mix)             { fMixMode = mix; };
   void SetInputBranch(TString branch)     { fTrackBranch = branch; };
   void SetInputBranch2(TString branch)    { fTrackBranch2 = branch; };
   void SetInputIDBranch(TString branch)   { fTrackIDBranch = branch; };	 

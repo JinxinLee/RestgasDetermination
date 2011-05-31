@@ -38,7 +38,8 @@ Bool_t PndPidCorrelator::GetSttInfo(PndTrack* track, PndPidCandidate* pidCand) {
       PndTrackCandHit candHit = trackCand.GetSortedHit(ii);
       Double_t dedx = 0.;
 
-      if ( candHit.GetDetId()!=FairRootManager::Instance()->GetBranchId("STTHit")) continue;
+      if ( ( candHit.GetDetId()!=FairRootManager::Instance()->GetBranchId("STTHit") && fMixMode==kFALSE) ||
+           ( candHit.GetDetId()!=FairRootManager::Instance()->GetBranchId("STTHitMix") && fMixMode==kTRUE) ) continue;
       PndSttHit *sttHit = (PndSttHit*) fSttHit->At(candHit.GetHitId());
       if(!sttHit) continue;
       // compute dE/dx
