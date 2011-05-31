@@ -125,12 +125,6 @@ void PndSttTrackFinderReal::WriteHistograms(){
  	  file->mkdir("PndSttTrackFinderReal");
  	  file->cd("PndSttTrackFinderReal");
 
-	hdist->Write();
-	hdistgoodlast->Write();
-	hdistbadlast->Write();
-	delete hdist;
-	delete hdistgoodlast;
-	delete hdistbadlast;
 
 
 }
@@ -197,9 +191,6 @@ if(istampa >=3 )   HANDLEXYZ = fopen("infoPndTrackFinderRealXYZ.txt","w");
 //   -------------------------------------------------------------------
 
 
-  hdist = new TH1F("hdist", "distance (cm)", 20, 0., 10.);
-  hdistgoodlast = new TH1F("hDistanceTrulyInnerLast", "distance (cm)", 20, 0., 10.);
-  hdistbadlast = new TH1F("hDistanceNonLastInner", "distance (cm)", 20, 0., 10.);
 
   if (!ioman) 
     {
@@ -10697,7 +10688,7 @@ out2:  ;
 
    UShort_t  i, j, jtemp,jexp;
 
-   Short_t	enne,
+   Int_t	enne,
 		itemp,
 		massimo,
 		toMCtracklist[nTracksFoundSoFar][nmaxHits];
@@ -10750,7 +10741,6 @@ out1:  ;
 	}   //  end of for(i=0; i<nHitsinTrack[jexp]; i++)
 
 
-
      }  // end of  for(jexp=0; jexp< nTracksFoundSoFar ;jexp++)
 
 
@@ -10773,6 +10763,7 @@ out1:  ;
 		daTrackFoundaTrackMC[jtemp]=itemp;
 		inclusionExp[jtemp]=false;
 		for(jexp=0; jexp<nTracksFoundSoFar;jexp++){
+			if( !inclusionExp[jexp])  continue;
 			for(int jk=0;jk<ntoMCtrack[jexp];jk++){
 				if( itemp==toMCtracklist[jexp][jk]){
 					inclusionMC[jexp][jk]=false;
@@ -11532,17 +11523,6 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 	}	// end of  if( Distance[nHits]>cut )
 
 
-//-------- some plots
-if(iplotta){
-	for(int ic=0;ic<nHits;ic++){
-		hdist->Fill(Distance[ic]);
-	}
-
-if(ConsiderLastHit)  hdistgoodlast->Fill( Distance[nHits]);
-else  hdistbadlast->Fill( Distance[nHits]);
-
-}
-//---------------------------------------------
 
 
 	if( ibad > maxnum) return true;
