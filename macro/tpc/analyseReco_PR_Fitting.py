@@ -11,18 +11,14 @@ def drawPrelim() :
     return
 
 preliminary = 0
-chi2ProbCut = 1.
 numFiles = 10000000
-processClusters = 1
-processTracks = 1
 
 panda=1
-
+mult = 1
 minNumHits = 10
 
 dir = "/nfs/nas/data/panda/tpc/SIM/momres/"
 runs = "reco"
-
 
 #argument parsing:
 for iarg in range(len(sys.argv)) :
@@ -39,9 +35,12 @@ for iarg in range(len(sys.argv)) :
         panda = 0
     if arg == "-minnumhits" :
         minNumHits = sys.argv[iarg+1];
-        
-minNumHits = int(minNumHits)
-            
+        minNumHits = int(minNumHits)
+    if arg == "-mult" :
+        mult = sys.argv[iarg+1];        
+        mult = int(mult)
+#finished argument parsing
+
 dashIndex = runs.find("-")
 if dashIndex > 0 :
     runs = runs.split("-")
@@ -60,12 +59,12 @@ files.sort()
 
 print files
 print "minnumhits =  %i" %minNumHits
+print "multiplicity =  %i" %mult
 
 
-
-failed = ROOT.TH1D("Failed", "Failed Hits", 30,0,30)
 recoMom0 = ROOT.TH1D("recoMom", "Rec. Momenta 0", 500,0,3)
 recoMom1 = ROOT.TH1D("recoMom", "Rec. Momenta 1", 500,0,3)
+
 recoEff = ROOT.TH1D("recoEff", "unique rec. Tracks with > minNumHits", 50,0,6.1) 
 splitting = ROOT.TH1D("splitting", "split Tracks with > minNumHits", 50,0,6.1) 
 trkPurity = ROOT.TH1D("trkPurity", "Track Purity of Tracks with > minNumHits", 50,0,1.1) 
@@ -102,6 +101,7 @@ else :
 pool = ROOT.PndTpcPadShapePool(poolfile)
 plane = ROOT.PndTpcPadPlane(planefile, pool)
 
+
 print "loop over files"
 for file in files :
     #check if it appears in the runList
@@ -123,9 +123,9 @@ for file in files :
     mcfile += ".mc.root"
     
     
-    print "Processing file: "
+    print "Processing files: "
     print(file)
-    #print(mcfile)
+    print(mcfile)
     
     #~ print "Parsing filename: "    
     #~ pdg = int(file[file.find("pdg_")+4:file.find("__mult_")])
@@ -135,7 +135,6 @@ for file in files :
     
     print "Parsing filename: "    
     pdg = int(file[file.find("PDG")+3:file.find("_mom")])
-    mult = 1
     mom = float(file[file.find("_mom")+4:file.find("_deg")])
     theta = float(file[file.find("_deg")+4:file.find(".reco")])
     
@@ -153,15 +152,13 @@ for file in files :
     mctree.SetBranchStatus("MCTrack.*", 1)
 
     Rfile = ROOT.TFile.Open(file, "read")
-    #print(Rfile.GetOpenTimeout())
     tree = Rfile.Get("cbmsim")
     tree.SetBranchStatus("*", 0)
     tree.SetBranchStatus("TrackFitStat_0.*", 1)
     tree.SetBranchStatus("TrackFitStat_1.*", 1)
     tree.SetBranchStatus("RiemannTrack.*", 1)
     tree.SetBranchStatus("PndTpcCluster.*", 1)
-    #if processTracks :
-     #   tree.SetBranchStatus("TrackPostFit.*", 1)
+
     
     counter = 0
     nGlobTrks = 0
@@ -170,6 +167,7 @@ for file in files :
     meanSplit = 0
     meanPurity = 0
     meanCompl = 0
+
 
     for e in tree :
         nTracks = e.TrackFitStat_0.GetEntriesFast()  
@@ -182,7 +180,7 @@ for file in files :
             cdDomId=cl.mcId().DominantID().mctrackID()
             nClusterPerID[cdDomId]+=1
             
-        print nClusterPerID
+        #print nClusterPerID
 
         nMCIDs = globalCol.nIDs()
         
@@ -191,15 +189,16 @@ for file in files :
         index+=1
         
         if nMCIDs != mult :
-            print "nMCIDs = %i != mult, skipping event" %nMCIDs
+            print "nMCIDs != mult, skipping event %i" %index
             continue
         if nMCTracks != mult :
-            print "nMCTracks = %i != mult, skipping event" %nMCIDs
+            print "nMCTracks != mult, skipping event %i" %index
             continue        
         if nMCIDs == 0 :
+            print "no McIds, skipping event %i" %index
             continue
             
-        print "Found %i MCIDs in event" %nMCIDs
+        #print "Found %i MCIDs in event" %nMCIDs
             
         nRecoTrks = 0
         nSplitTrks = 0
@@ -213,7 +212,7 @@ for file in files :
              
             
             numHits = rtrk.getNumHits()
-            print "Found %i hits in track" %numHits
+            #print "Found %i hits in track" %numHits
             DominantID=rtrk.mcid().DominantID().mctrackID()
 
             if numHits >= minNumHits :
