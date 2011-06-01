@@ -25,6 +25,7 @@
 #include <ostream> // remove if you do not need streaming op
 
 // Collaborating Class Declarations --
+#include "PndTpcRiemannTrack.h"
 #include "PndTpcCluster.h"
 #include "FairGeanePro.h"
 class TClonesArray;
@@ -97,12 +98,13 @@ private:
   TClonesArray* _trackCandArray;
   TClonesArray* _pndTrackArray;
 
+  std::map<unsigned int, std::vector<PndTpcCluster*>*> fbuffermap;
+  std::vector<PndTpcCluster*>* fcluster_buffer;
+  std::vector<PndTpcRiemannTrack*> friemannlist;
+  unsigned int fnsectors;
+
 
   Bool_t fPersistence;
-  Bool_t fStore;
-  Bool_t fDebug;
-
-
 
   Bool_t _persistence;
   Bool_t _geane;
@@ -111,27 +113,9 @@ private:
   double fMaxs[4];
   double fAmpCut;
 
-  TString fHistoFileName;
-
-  TFile* fHistoFile;
-
-  unsigned fClLimit; //limit nClusters an event may have
-
-  TClonesArray* fClusterArray;
-  TClonesArray* fTrackArray;
-  TClonesArray* fMonitorArray;
-
-  //PndTpcDigiPar* fPar;
- // TF1* fRep; //Hough space representation
-  FairField* fField;
+  double Bz; //mag field
 
   int counter;
-  unsigned int fZStackLimit;
-  unsigned int fMomScale;
-
-  std::vector<Color_t> colors;
-  std::map<std::string, TH1*> fHistCont;   //container for histograms
-
 
   // tuning parameters for Conformal Map TrackFinder
   bool _sortingMode;
