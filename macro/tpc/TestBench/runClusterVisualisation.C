@@ -65,7 +65,7 @@ void runClusterVisualisation(TString filename,
     DriftField=400;
 
     MagField=20.;
-    geoFile="";
+    geoFile="geometry/TPC_V1.1.root";
   }
 
   clustVis->initDigimapper(DriftField,gain,spread,zGem,samplingFreq,wallclock,
