@@ -91,8 +91,8 @@ KalmanTask::Init()
   PndGeoHandling::Instance();
   
   //book fpe handler
-  signal(8,sighandler);
-  signal(10,sighandler);
+  //signal(8,sighandler);
+  //signal(10,sighandler);
   //signal(11,sighandler);
   
   //Get ROOT Manager
