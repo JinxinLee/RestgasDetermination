@@ -57,6 +57,9 @@ class PndMvaClassifier
 
   virtual void Initialize();
 
+  //! Get the list of available classes (labels).
+  inline std::vector<PndMvaClass> const& GetClasses() const;
+
  protected:
   //! Normalize the given event vector.
   virtual void NormalizeEvent(std::vector<float>& EvtVector) const;
@@ -77,4 +80,11 @@ inline void PndMvaClassifier::SetAppType(AppType t)
   m_dataSets.SetAppType(t);
 };
 //End of class interface
+//___________________ Inline implement ___________
+//! Get the list of available classes (labels).
+inline std::vector<PndMvaClass> const& PndMvaClassifier::GetClasses() const
+{
+  return m_dataSets.GetClasses();
+};
+
 #endif

@@ -49,6 +49,8 @@ int main(int argc, char** argv)
 
   PndMultiClassMlpTrain mltr(inFile, labels, variables);
   mltr.SetEvaluation(true);
+  std::string mlpOption = "!H:!V:NeuronType=tanh:NCycles=400:HiddenLayers=N+4:TestRate=5:EstimatorType=MSE";
+  mltr.SetMlpOptions(mlpOption);
   mltr.Initialize();
   mltr.Train();
 

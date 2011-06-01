@@ -107,17 +107,17 @@ void PndLVQClassify::GetMvaValues(vector<float> eventData,
   // Normalize (SUM distances = 1.0)
   // Is this really needed??????
   /*
-    float sumOfDists = 0.00;
-    for(size_t cls = 0; cls < classes.size(); ++cls)
-    {
+  float sumOfDists = 0.00;
+  for(size_t cls = 0; cls < classes.size(); ++cls)
+  {
     std::string Name = classes[cls].Name;
     sumOfDists += result[Name];
-    }
-    
-    for(size_t cls = 0; cls < classes.size(); ++cls)
-    {
+  }
+  
+  for(size_t cls = 0; cls < classes.size(); ++cls)
+  {
     std::string Name = classes[cls].Name;
     result[Name] /= sumOfDists;
-    }
+  }
   */
 }

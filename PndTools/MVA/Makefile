@@ -156,7 +156,7 @@ examples: PndMvaUtil PndMvaDataSet PndMvaClassifier Classifiers
 	-o build/bdtClassify
 
 clean:
-	rm -f *~ *.o *.root build/*
+	rm -f *~ *.o build/*
 	cd Clusters; $(MAKE) clean
 	cd KNN ; $(MAKE) clean
 	cd LVQ1; $(MAKE) clean
@@ -165,5 +165,6 @@ clean:
 	cd TMVA_MCL; $(MAKE) clean
 
 distclean: clean
+	rm -f  *.root
 	rm -fr PndMVAWeights/* plots
 	cd macro; $(MAKE) cleanall

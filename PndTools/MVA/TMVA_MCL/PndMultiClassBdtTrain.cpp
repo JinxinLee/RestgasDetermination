@@ -55,10 +55,8 @@ void PndMultiClassBdtTrain::Train()
 {
   std::string const& inFileName = m_dataSets.GetInFileName();
   std::vector<PndMvaClass> const& labels = m_dataSets.GetClasses();
-
-  //InitBdt();
-  //AddVariables();
-
+  
+  //
   TFile InFile (inFileName.c_str(), "READ");
 
   for(size_t cl = 0; cl < labels.size(); ++cl)
@@ -67,6 +65,7 @@ void PndMultiClassBdtTrain::Train()
     m_factory->AddTree( (TTree*)InFile.Get(curName), curName);
   }
 
+  // Book the methods and perform the actual training
   m_factory->PrepareTrainingAndTestTree( "", "SplitMode=Random:NormMode=NumEvents:!V" );
   m_factory->BookMethod(TMVA::Types::kBDT, "BDTG_Method", m_BdtOptions.c_str());
 
@@ -131,6 +130,8 @@ void PndMultiClassBdtTrain::InitBdt()
 
   // Set the factory options and create the object
   std::string factOpt = "!V:!Silent:Color:DrawProgressBar:" + m_transform + ":AnalysisType=multiclass";
+
+  // Init factory and Evaluation file
   EvalFile  = new TFile(m_evalFileName.c_str(), "RECREATE");
   m_factory = new TMVA::Factory(m_JName.c_str(), EvalFile, factOpt.c_str());
 }

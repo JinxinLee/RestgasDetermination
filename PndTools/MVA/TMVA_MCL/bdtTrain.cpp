@@ -48,6 +48,8 @@ int main(int argc, char** argv)
   variables.push_back("z53");
 
   PndMultiClassBdtTrain mltr(EventsFile, labels, variables);
+  std::string bdtOpts = "!H:!V:NTrees=1000:BoostType=Grad:Shrinkage=0.10:UseBaggedGrad:GradBaggingFraction=0.50:nCuts=20:NNodesMax=8";
+  mltr.SetBdtOptions(bdtOpts);
   mltr.SetEvaluation(true);
   mltr.Initialize();
   mltr.Train();

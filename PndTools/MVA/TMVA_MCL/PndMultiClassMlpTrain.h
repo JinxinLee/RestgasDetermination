@@ -59,37 +59,37 @@ class PndMultiClassMlpTrain : public PndMvaTrainer
   //______________________________________________
   //====== Getters and setters.
   // Set the name of the current job
-  inline void SetJobName       (std::string const& name);
+  inline void SetJobName (std::string const& name);
 
   // Set data Transformation scheme
-  inline void SetTransformation(std::string const& tran);
+  inline void SetTransformation (std::string const& tran);
   
   // Set the options for the MLP alg. See TMVA manuals.
-  inline void SetMlpOptions    (std::string const& opts);
+  inline void SetMlpOptions (std::string const& opts);
   
   // Set the file name to store evaluation outputs.
-  inline void SetEvalFileName  (std::string const& fname);
+  inline void SetEvalFileName (std::string const& fname);
   
   // Set the directory where weights are stored.
   inline void SetWeightsOutDir (std::string const& dirName);
   
   // Evaluate the classifier?
-  inline void SetEvaluation(bool evaluate);
+  inline void SetEvaluation (bool evaluate);
   
   // Get the current job name.
-  inline std::string const& GetJobName()const;
+  inline std::string const& GetJobName() const;
   
   // Get the current transformation info.
-  inline std::string const& GetTransformation()const;
+  inline std::string const& GetTransformation() const;
   
   // Get the classifier options.
-  inline std::string const& GetMlpOptions()const;
+  inline std::string const& GetMlpOptions() const;
   
   // Get the name of the weight file.
-  inline std::string const& GetEvalFileName()const;
+  inline std::string const& GetEvalFileName() const;
   
   // Get the directory where the weights are stored.
-  inline std::string const& GetWeightsOutDir()const;
+  inline std::string const& GetWeightsOutDir() const;
   //----------------------------------------
   
   //================== protected ============
