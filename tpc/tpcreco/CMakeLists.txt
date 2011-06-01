@@ -39,7 +39,6 @@ set(TPCRECO_SRCS
 PndTpcConfMapRecoHit.cxx 
 PndTpcConfMapFit.cxx 
 PndTpcZSFit.cxx 
-PndTpcPatternRecoTask.cxx 
 PndTpcConfTrackFinder.cxx 
 #test/PndTpcRecoTester.cxx 
 PndTpcPlanarRecoHit.cxx 
