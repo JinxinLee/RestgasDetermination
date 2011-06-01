@@ -70,7 +70,7 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath,
   unsigned int nEvents = ((TTree*)testFile.Get("tpcEvent"))->GetEntries();
   std::cout<<"Found "<<nEvents<<" events in input data file"<<std::endl;
   
-    
+  
   //--------------------SET UP TASKS ------------------------------
 
   FairGeane *Geane = new FairGeane();
@@ -85,11 +85,6 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath,
   fRun->AddTask(read);
   
 
-  //PndTpcTCcrossTalkTask* CT = new PndTpcTCcrossTalkTask();
-  //CT->SetPersistence();
-  //fRun->AddTask(CT);
-  
-  
   PndTpcPSATask* tpsa = new  PndTpcPSATask();
   tpsa->SetPersistence();
   tpsa->SetSampleBranchName("PndTpcSample"); // Input of PSA
@@ -98,34 +93,16 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath,
 
   bool SimpleClustering = true;
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
-  //tpcCF->SetDataMode(true); //prevents usage of FairLinks
   tpcCF->SetDigiPersistence(); // keep Digis refs in clusters
   tpcCF->SetPersistence(); // keep Clusters
-  //tpcCF->SetDigiBranchName("PndTpcRawDigi"); // Input of clustering
-  //tpcCF->SetDigiOutBranchName("PndTpcDigi"); // Digi output of clustering
   tpcCF->timeslice(6); //in samples
   tpcCF->SetSingleDigiClusterAmpCut(20);
-  if(!SimpleClustering) {
-    tpcCF->SetMode(2); // 0 - global time bins;  
-                       // 1 - individual time bins for each sector;  
-                       // 2 - each pad gets its time window - actually we search for gaps on a pad;
-    tpcCF->SetDiffFactor(1.);
-    tpcCF->SetClusterTimeCut(5.);
-  }
+  tpcCF->SetClusterAmpCut(9.1); // cut on mean digi amplitude
   tpcCF->SetErrorPars(600,300);
-  //tpcCF->SetTrivialClustering();
-  if(SimpleClustering) tpcCF->SetSimpleClustering(); // use PndTpcClusterFinderSimple
+  tpcCF->SetSimpleClustering(); // use PndTpcClusterFinderSimple
   fRun->AddTask(tpcCF);
-
-
-  //actually MODIFIES existing clusters, does NOT create a new branch
-  PndTpcClusterCorrectionTask* tpcCC = new PndTpcClusterCorrectionTask();
-  double pars[6] = {-0.115634, -1.85970, 11.5997,
-        	    -24.8201, 24.9152,-9.56801};
-  tpcCC->SetParameters(pars);
-  // if(!SimpleClustering) fRun->AddTask(tpcCC);
-
   
+
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
   tpcSPR->SetSortingParameters(
                    true, // false: sort only according to _sorting (see next argument); true: use internal sorting when adding hits to trackcands
@@ -144,7 +121,7 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath,
                    0.025);// plane cut (RMS)
   tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
   tpcSPR->SetPersistence();
-  //tpcSPR->SetStoreHistograms(PROutFile); //
+  //tpcSPR->useGeane(); // uses RKTrackrep and GeaneTrackrep
   //tpcSPR->WriteHistograms(PROutFile);
   fRun->AddTask(tpcSPR);
 
@@ -162,7 +139,7 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath,
   tpcSLPR->SetMinCandHits(15);
   //tpcSLPR->SetClusterBranchName("PndTpcCluster_cut");
   tpcSLPR->SetAbsMomentum(1000);
-  fRun->AddTask(tpcSLPR);
+  //fRun->AddTask(tpcSLPR);
 
 
   KalmanTask* kalman =new KalmanTask();
@@ -172,23 +149,11 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath,
   fRun->AddTask(kalman);
 
 
-  TrackFitStatTask* fitstat=new TrackFitStatTask();
-  fitstat->SetPersistence();
-  //  fitstat->SetMCPCut(0); // in sigma dp/p
-  fitstat->SetMCCuts(0.005, // pmin
-	             10., // pmax
-		     -TMath::Pi(),   // thetamin 5deg
-		     TMath::Pi(),  // thetamax
-		     5); // nPndTpcPoints
-  fitstat->SetPdgSelection(11);//321
-  //fitstat->DoResiduals();
-  //fRun->AddTask(fitstat);
-
-  PndTpcSLResidualTask* SLres = new PndTpcSLResidualTask();
-  SLres->SetPersistence();
+  PndTpcResidualTask* Res = new PndTpcResidualTask();
+  Res->SetPersistence();
+  //Res->SetNumberOfTrackReps(2); // set to 2 if you use GeaneTrackrep (tpcSPR->useGeane();)
   //SLres->SetClusterBranchName("PndTpcCluster_cut");
-  SLres->SetSecondarySuppression(false);
-  fRun->AddTask(SLres);
+  fRun->AddTask(Res);
   
   
 

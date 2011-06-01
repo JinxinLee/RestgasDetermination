@@ -89,7 +89,7 @@ void runRecoFOPI(TString digifile) {
                    0.025);// plane cut (RMS)
   tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
   tpcSPR->SetPersistence();
-  //tpcSPR->SetStoreHistograms(PROutFile); //
+  tpcSPR->useGeane(); // uses RKTrackrep and GeaneTrackrep
   //tpcSPR->WriteHistograms(PROutFile);
   fRun->AddTask(tpcSPR);
 
@@ -100,7 +100,7 @@ void runRecoFOPI(TString digifile) {
 
   PndTpcResidualTask* Res = new PndTpcResidualTask();
   Res->SetPersistence();
-  Res->SetNumberOfTrackReps(2);
+  Res->SetNumberOfTrackReps(2); // set to 2 if you use GeaneTrackrep (tpcSPR->useGeane();)
   //SLres->SetClusterBranchName("PndTpcCluster_cut");
   fRun->AddTask(Res);
 
