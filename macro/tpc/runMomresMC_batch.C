@@ -1,4 +1,5 @@
-runMomresMC_batch(float mom, int angle, int PDG, TString outdir, int nEvents=5000, unsigned int seed=0) {
+runMomresMC_batch(float mom, int angle, int PDG, unsigned int MULT, 
+		  TString outdir, int nEvents=5000, unsigned int seed=0) {
   
   // ------------------------------------------------------------------------
   gRandom->SetSeed(seed);
@@ -31,6 +32,10 @@ runMomresMC_batch(float mom, int angle, int PDG, TString outdir, int nEvents=500
   jobname.Append("_deg");
   char bufferang[5];
   sprintf(bufferang, "%i", angle);
+  jobname.Append(bufferang);
+  jobname.Append("_mult");
+  char buffemult[5];
+  sprintf(buffermult, "%i", MULT);
   jobname.Append(bufferang);
   jobname.Append(".mc.root");
 
@@ -84,7 +89,7 @@ runMomresMC_batch(float mom, int angle, int PDG, TString outdir, int nEvents=500
   fRun->AddModule(Pipe);
 
   PndTpcDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
-  Tpc->SetGeometryFileName("TPC_V1.0.root");    //new ROOT geometry
+  Tpc->SetGeometryFileName("TPC_V1.1.root");    //new ROOT geometry
   if(mcMode=="TGeant3")  Tpc->SetAliMC();
   fRun->AddModule(Tpc);
 
@@ -96,7 +101,7 @@ runMomresMC_batch(float mom, int angle, int PDG, TString outdir, int nEvents=500
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
-  FairBoxGenerator* boxGen = new FairBoxGenerator(PDG, 1); 
+  FairBoxGenerator* boxGen = new FairBoxGenerator(PDG, MULT); 
   boxGen->SetPRange(mom,mom); // GeV/c 
   boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
   boxGen->SetThetaRange(angle, angle); // Polar angle in lab system range [degree]

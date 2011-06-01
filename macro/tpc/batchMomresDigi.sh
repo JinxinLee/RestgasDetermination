@@ -1,5 +1,5 @@
 #!/bin/bash
-#$ -l h_vmem=800M,short=TRUE
+#$ -l h_vmem=1700M,short=TRUE
 # Divert output to directory
 #$ -o /nfs/hicran/home/fboehmer/private/sgeout/
 # Write error in same file
@@ -17,7 +17,7 @@ source build/config.sh
 MOM=5.0
 PDG=211
 
-DATAPATH=/nfs/nas/data/panda/tpc/SIM/momres
+DATAPATH=/nfs/nas/data/panda/tpc/SIM/momres/mult1
 
 for file in $DATAPATH/*PDG$PDG*mom$MOM*deg$ID*mc.root 
 do

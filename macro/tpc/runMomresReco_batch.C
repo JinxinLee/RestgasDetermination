@@ -89,9 +89,18 @@ runMomresReco_batch(TString digifile) {
                    0.025);// plane cut (RMS)
   tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
   tpcSPR->SetPersistence();
+  tpcSPR->SetSmoothing(true);
   //tpcSPR->SetStoreHistograms(PROutFile); //
   //tpcSPR->WriteHistograms(PROutFile);
   fRun->AddTask(tpcSPR);
+
+  PndTpcIdealTrackingTask* tpcIPR = new PndTpcIdealTrackingTask();
+  //tpcIPR->useGeane(true);
+  tpcIPR->useDistSorting(true);
+  tpcIPR->SetPersistence();
+  tpcIPR->SetSmoothing(true);
+  //fRun->AddTask(tpcIPR);
+  
 
   KalmanTask* kalman =new KalmanTask();
   kalman->SetPersistence();

@@ -73,6 +73,10 @@ runMomresDigi_batch(TString filename) {
   evttimegen->SetEvtRate(1E7);   
   evttimegen->SetT0(0);
   fRun->AddTask(evttimegen);
+  
+  //PndTpcDigiAmpCorrectionTask* digiCorr = new PndTpcDigiAmpCorrectionTask();
+  //digiCorr->SetExternalInput("gain_corrected.csv");
+  //fRun->AddTask(digiCorr);
 
     
   // -----   MDV digi producers   --------------------------------- 

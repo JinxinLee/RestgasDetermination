@@ -1,4 +1,5 @@
-void runRecoFOPI_batch_standalone(TString filename, TString outpath) 
+void runRecoFOPI_batch_standalone(TString filename, TString outpath, 
+				 				  unsigned int smoothing = 0) 
 {
   
 // ========================================================================
@@ -27,6 +28,8 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath)
     outName.ReplaceAll(".lmd_decoded_repaired.root",".reco.root");
   if(outName.Contains("decoded."))
     outName.ReplaceAll(".lmd_decoded.root",".reco.root");
+  if(smoothing)
+    outName.ReplaceAll("reco.root", "smoothed_reco.root");
   TString outFile = outpath+"/";
   outFile += outName; 
     
@@ -62,15 +65,12 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath)
       
   fRun->SetField(fMagField);
 
-
   //extract number of entries in external data tree
   TFile testFile(filename);
   unsigned int nEvents = ((TTree*)testFile.Get("tpcEvent"))->GetEntries();
   std::cout<<"Found "<<nEvents<<" events in input data file"<<std::endl;
   
-
-  
-  
+    
   //--------------------SET UP TASKS ------------------------------
 
   FairGeane *Geane = new FairGeane();
@@ -162,7 +162,7 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath)
   tpcSLPR->SetMinCandHits(15);
   //tpcSLPR->SetClusterBranchName("PndTpcCluster_cut");
   tpcSLPR->SetAbsMomentum(1000);
-  //fRun->AddTask(tpcSLPR);
+  fRun->AddTask(tpcSLPR);
 
 
   KalmanTask* kalman =new KalmanTask();
@@ -184,11 +184,11 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath)
   //fitstat->DoResiduals();
   //fRun->AddTask(fitstat);
 
-
-  PndTpcResidualTask* Res = new PndTpcResidualTask();
-  Res->SetPersistence();
+  PndTpcSLResidualTask* SLres = new PndTpcSLResidualTask();
+  SLres->SetPersistence();
   //SLres->SetClusterBranchName("PndTpcCluster_cut");
-  fRun->AddTask(Res);
+  SLres->SetSecondarySuppression(false);
+  fRun->AddTask(SLres);
   
   
 
