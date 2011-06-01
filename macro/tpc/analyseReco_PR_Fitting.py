@@ -48,7 +48,11 @@ if dashIndex > 0 :
 if dashIndex < 0 and len(runs) > 1 :
     runList = [runs]
 
-outfile = ROOT.TFile("anaOut.root", "recreate")
+outname = "anaOut_minnumhits"
+outname+= str(minNumHits)
+outname += ".root"
+print outname
+outfile = ROOT.TFile(outname, "recreate")
 
 ROOT.gROOT.ProcessLine(".x rootlogon.C") 
 ROOT.gROOT.ProcessLine('gSystem->Load("libPhysics")')
@@ -57,23 +61,23 @@ ROOT.gROOT.ProcessLine('gStyle->SetPalette(1)')
 files = glob.glob(dir + "/*.reco.root")
 files.sort()
 
-print files
+#print files
 print "minnumhits =  %i" %minNumHits
 print "multiplicity =  %i" %mult
 
 
-recoMom0 = ROOT.TH1D("recoMom", "Rec. Momenta 0", 500,0,3)
-recoMom1 = ROOT.TH1D("recoMom", "Rec. Momenta 1", 500,0,3)
+recoMom0 = ROOT.TH1D("recoMom0", "Rec. Momenta RK", 500,0,10)
+recoMom1 = ROOT.TH1D("recoMom1", "Rec. Momenta Geane", 500,0,10)
 
-recoEff = ROOT.TH1D("recoEff", "unique rec. Tracks with > minNumHits", 50,0,6.1) 
-splitting = ROOT.TH1D("splitting", "split Tracks with > minNumHits", 50,0,6.1) 
-trkPurity = ROOT.TH1D("trkPurity", "Track Purity of Tracks with > minNumHits", 50,0,1.1) 
-trkCompleteness = ROOT.TH1D("trkCompleteness", "Track Completeness of Tracks with > minNumHits", 50,0,1.1) 
+recoEff = ROOT.TH1D("recoEff", "unique rec. Tracks with > minNumHits", mult+1, 0,mult+1) 
+splitting = ROOT.TH1D("splitting", "split Tracks with > minNumHits", 8*mult+1, 0,8*mult+1) 
+trkPurity = ROOT.TH1D("trkPurity", "Track Purity of Tracks with > minNumHits", 51, 0,1.02) 
+trkCompleteness = ROOT.TH1D("trkCompleteness", "Track Completeness of Tracks with > minNumHits", 51, 0,1.02) 
 
-effVsTheta = ROOT.TH2D("effVsTheta", "Reco Efficiency vs theta", 36,0,180, 101,0,1.01) 
-splitVsTheta = ROOT.TH2D("splitVsTheta", "Track Splitting vs theta", 36,0,180, 101,0,1.01) 
-purityVsTheta = ROOT.TH2D("purityVsTheta", "Track Purity vs theta", 36,0,180, 101,0,1.01) 
-complVsTheta = ROOT.TH2D("complVsTheta", "Track Completeness vs theta", 36,0,180, 101,0,1.01) 
+effVsTheta = ROOT.TH2D("effVsTheta", "Reco Efficiency vs theta", 37,0,185, 101,0,1.01) 
+splitVsTheta = ROOT.TH2D("splitVsTheta", "Track Splitting vs theta", 37,0,185, 101,0,1.01) 
+purityVsTheta = ROOT.TH2D("purityVsTheta", "Track Purity vs theta", 37,0,185, 101,0,1.01) 
+complVsTheta = ROOT.TH2D("complVsTheta", "Track Completeness vs theta", 37,0,185, 101,0,1.01) 
 
 
 #  ---------------------------------------- ANA LOOP --------------------------------------
@@ -154,8 +158,9 @@ for file in files :
     Rfile = ROOT.TFile.Open(file, "read")
     tree = Rfile.Get("cbmsim")
     tree.SetBranchStatus("*", 0)
+    tree.SetBranchStatus("TrackPostFit.*", 1)
     tree.SetBranchStatus("TrackFitStat_0.*", 1)
-    tree.SetBranchStatus("TrackFitStat_1.*", 1)
+    #tree.SetBranchStatus("TrackFitStat_1.*", 1)
     tree.SetBranchStatus("RiemannTrack.*", 1)
     tree.SetBranchStatus("PndTpcCluster.*", 1)
 
@@ -170,15 +175,20 @@ for file in files :
 
 
     for e in tree :
-        nTracks = e.TrackFitStat_0.GetEntriesFast()  
+        nTracks = e.TrackPostFit.GetEntriesFast()  
         nCluster = e.PndTpcCluster.GetEntriesFast()
         
+        # find out how many MCIDs there are and how many clusters belong to each MCID
         globalCol = ROOT.McIdCollection()
-        nClusterPerID=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        nClusterPerID={0:0}
         for cl in e.PndTpcCluster :
             globalCol.AddIDCollection(cl.mcId());
-            cdDomId=cl.mcId().DominantID().mctrackID()
-            nClusterPerID[cdDomId]+=1
+            cdDomId=int(cl.mcId().DominantID().mctrackID())
+            #print cdDomId
+            if (cdDomId in nClusterPerID) :
+                nClusterPerID[cdDomId] += 1
+            else :
+                nClusterPerID[cdDomId] = 1
             
         #print nClusterPerID
 
@@ -226,12 +236,10 @@ for file in files :
                 DominantIDs.append(DominantID)
                 
                 if DominantIDs.count(DominantID) == 1 :
-                    nRecoTrks+=1     
-                    
-                if DominantIDs.count(DominantID) > 1 :
+                    nRecoTrks+=1
+                else :
                     nSplitTrks+=1
-                
-                
+                    
                 #print DominantIDs
                 
                 
@@ -242,11 +250,14 @@ for file in files :
         splitting.Fill(nSplitTrks)
         meanSplit += nSplitTrks
         
+        
 
         for tfs in e.TrackFitStat_0 :
-            recoMom0.Fill(tfs.GetP())
-        for tfs in e.TrackFitStat_1 :
-            recoMom1.Fill(tfs.GetP())
+            if tfs.GetHitIDs().size()>= minNumHits :
+                recoMom0.Fill(tfs.GetP())
+        #for tfs in e.TrackFitStat_1 :
+             #if tfs.GetHitIDs().size()>= minNumHits :
+        #       recoMom1.Fill(tfs.GetP())
             
             
         counter+=1   
@@ -298,10 +309,10 @@ complVsTheta.Draw("colz")
 c1.cd(10)
 recoMom1.Draw()
 
-
+c1.Write()
+outfile.Close()
 
 input()
 
-outfile.Close()
 
 
