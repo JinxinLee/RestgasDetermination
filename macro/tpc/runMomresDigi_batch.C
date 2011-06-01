@@ -1,4 +1,4 @@
-runMomresDigi_batch(TString filename) {
+void runMomresDigi_batch(TString filename) {
 
 
 // ========================================================================

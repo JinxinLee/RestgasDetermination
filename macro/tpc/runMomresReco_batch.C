@@ -1,4 +1,4 @@
-runMomresReco_batch(TString digifile) {
+void runMomresReco_batch(TString digifile) {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
@@ -63,7 +63,7 @@ runMomresReco_batch(TString digifile) {
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
   //tpcCF->SetDigiPersistence(); // keep reference to digis in clusters
   tpcCF->SetPersistence(); // keep Clusters
-  tpcCF->timeslice(10); //in samples
+  tpcCF->timeslice(9); //in samples
   tpcCF->SetThreshold(1);
   tpcCF->SetSingleDigiClusterAmpCut(0.);
   tpcCF->SetClusterAmpCut(0.); // cut on mean digi amplitude
@@ -71,7 +71,8 @@ runMomresReco_batch(TString digifile) {
   tpcCF->SetSimpleClustering(); // use PndTpcClusterFinderSimple
   fRun->AddTask(tpcCF);
 
-   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
+  PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
+  tpcSPR->SetPersistence();
   tpcSPR->SetSortingParameters(
                    true, // false: sort only according to _sorting (see next argument); true: use internal sorting when adding hits to trackcands
                    3,    // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
@@ -84,13 +85,12 @@ runMomresReco_batch(TString digifile) {
                    4);   // minimum hits for plane & sz-fit
   tpcSPR->SetMergeTracks();
   tpcSPR->SetTrkMergerParameters(
-                   2.2,  // proximity cut
+                   3.,  // proximity cut
                    0.33,  // sz cut
                    0.025);// plane cut (RMS)
   tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
-  tpcSPR->SetPersistence();
+  tpcSPR->useGeane(); // uses RKTrackrep and GeaneTrackrep
   tpcSPR->SetSmoothing(true);
-  //tpcSPR->SetStoreHistograms(PROutFile); //
   //tpcSPR->WriteHistograms(PROutFile);
   fRun->AddTask(tpcSPR);
 

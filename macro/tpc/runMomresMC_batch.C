@@ -1,4 +1,4 @@
-runMomresMC_batch(float mom, int angle, int PDG, unsigned int MULT, 
+void runMomresMC_batch(float mom, int angle, int PDG, unsigned int MULT, 
 		  TString outdir, int nEvents=5000, unsigned int seed=0) {
   
   // ------------------------------------------------------------------------
@@ -36,7 +36,7 @@ runMomresMC_batch(float mom, int angle, int PDG, unsigned int MULT,
   jobname.Append("_mult");
   char buffemult[5];
   sprintf(buffermult, "%i", MULT);
-  jobname.Append(bufferang);
+  jobname.Append(buffermult);
   jobname.Append(".mc.root");
 
   TString outfile = jobdir+jobname;
