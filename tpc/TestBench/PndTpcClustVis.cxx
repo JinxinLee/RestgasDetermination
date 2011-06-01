@@ -33,12 +33,15 @@
 #include "GeaneTrackRep2.h"
 #include "RKTrackRep.h"
 
+#define DEBUG 0
+
 
 PndTpcClustVis* PndTpcClustVis::eventDisplay = NULL;
 
 
 PndTpcClustVis::PndTpcClustVis():
-  tree(NULL), digisBranch(NULL), clustersBranch(NULL), guiEvent(0), fEventId(0), ClHasChanged(true),
+  tree(NULL), digisBranch(NULL), clustersBranch(NULL), preFitBranch(NULL), postFitBranch(NULL),
+  guiEvent(0), fEventId(0), ClHasChanged(true),
   doClustering(false), ClMode(2), ClTimeslice(3),ClTimecut(2),
   ClSingleDigiClAmpCut(15), ClClAmpCut(9),
   ClElPerADC(600.), ClErrorNorm(300.),
@@ -96,15 +99,15 @@ void PndTpcClustVis::initDigimapper(double drifField,
 
   // init Digimapper
   std::cout<<"init DigiMapper with \n"
-	   <<" Drift Field   : "<<drifField<<std::endl
-	   <<" Gain          : "<<gain<<std::endl
-	   <<" Spread        : "<<spread<<std::endl
-	   <<" zGem          : "<<zGem<<std::endl
-	   <<" Sampling Freq : "<<samplingFreq<<std::endl
-	   <<" t0            : "<<wallclock<<std::endl
-	   <<" Gas           : "<<gasfile<<std::endl
-	   <<" PadPlane      : "<<padplanefile<<std::endl
-	   <<" PadShapes     : "<<padshapefile<<std::endl;
+     <<" Drift Field   : "<<drifField<<std::endl
+     <<" Gain          : "<<gain<<std::endl
+     <<" Spread        : "<<spread<<std::endl
+     <<" zGem          : "<<zGem<<std::endl
+     <<" Sampling Freq : "<<samplingFreq<<std::endl
+     <<" t0            : "<<wallclock<<std::endl
+     <<" Gas           : "<<gasfile<<std::endl
+     <<" PadPlane      : "<<padplanefile<<std::endl
+     <<" PadShapes     : "<<padshapefile<<std::endl;
 
   fgas = new PndTpcGas(gasfile.c_str(), drifField);
   fgem = new PndTpcGem(gain, spread);
@@ -144,15 +147,23 @@ void PndTpcClustVis::reset() {}
 
 void PndTpcClustVis::setTree(TTree* treeIn) {
   tree = treeIn;
-  if(tree==NULL) std::cerr<<"WARNING: Tree not found!"<<std::endl;
+  if(tree==NULL) {
+    std::cerr<<"WARNING: Tree not found!"<<std::endl;
+    exit(1);
+  }
+  //else tree->Print();
 
   tree->SetBranchAddress("PndTpcDigi", &digisBranch);
   if(digisBranch==NULL) std::cerr<<"WARNING: No Digi Branch found!"<<std::endl;
+  else digisBranch->Print();
 
   tree->SetBranchAddress("PndTpcCluster", &clustersBranch);
   if(clustersBranch==NULL) std::cerr<<"WARNING: No Cluster Branch found!"<<std::endl;
+  else clustersBranch->Print();
 
-  tree->SetBranchAddress("TrackPreFit", &preFitBranch);
+  if (digisBranch==NULL && clustersBranch==NULL) exit(1);
+
+  //tree->SetBranchAddress("TrackPreFit", &preFitBranch);
 }
 
 
@@ -177,8 +188,8 @@ void PndTpcClustVis::gotoEvent(int id) {
 
   fEventId = id;
 
-  std::cout << "\nAt event " << fEventId << std::endl;
   if(gEve->GetCurrentEvent()!=NULL) gEve->GetCurrentEvent()->DestroyElements();
+  std::cout << "\nAt event " << fEventId << std::endl;
   drawEvent(fEventId, resetCam);
 }
 
@@ -194,6 +205,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
   // Draw tpc
   if(drawTpc){
+    std::cerr<<"drawTpc..."<<std::endl;
     double tpcLength = 72.5;
 
     tpcLength*=0.5;
@@ -207,7 +219,10 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     gEve->AddElement(tpc_shape);
   }
 
+
+  //std::cerr<<"tree->GetEntry("<<id<<")...";
   tree->GetEntry(id);
+  //std::cerr<<"done"<<std::endl;
 
   //
   // Clustering
@@ -216,6 +231,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     std::cerr<<"Run Cluster finder..."<<std::endl;
 
     this->clearBufferMap();
+
     fcluster_buffer=buffermap[0];
 
     PndTpcAbsClusterFinder* ffinder = 0;
@@ -270,16 +286,17 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       }
       else ++i;
     }
+
   }
   else if(!doClustering && clustersBranch!=NULL){ // fill clusters in cluster_buffer (and use buffermap)
     this->clearBufferMap();
-
     std::cerr<<"Fetching clusters from cluster branch..."<<std::endl;
-    unsigned int ncl=clustersBranch->GetEntries();
+    unsigned int ncl=clustersBranch->GetEntriesFast();
     for(unsigned int isect=0;isect<nsectors;++isect)
       buffermap[isect]->reserve(ncl/nsectors+10);
     for(unsigned int i=0; i<ncl; ++i){
       PndTpcCluster *cluster = (PndTpcCluster*)clustersBranch->At(i);
+      //std::cout<<"sector "<<cluster->sector()<<std::endl;
       buffermap[cluster->sector()]->push_back(cluster);
     }
     std::cout << "number of clusters: " << ncl << std::endl;
@@ -290,6 +307,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
   // copy clusters to TClonesArray needed for RecoHitFactory
   if(doFit){
+    std::cerr<<"copy clusters to TClonesArray needed for RecoHitFactory..."<<std::endl;
     for(unsigned int i=0; i<fcluster_buffer->size(); ++i){
       PndTpcCluster* cl = (*fcluster_buffer)[i];
       cl->SetIndex(i);
@@ -301,6 +319,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
   // DRAW
   //
   if(drawRawDigis && digisBranch!=NULL){ // draw raw digis
+    std::cerr<<"draw raw digis..."<<std::endl;
     unsigned int ndigis = digisBranch->GetEntriesFast();
     std::cout<<"number of digis: "<<ndigis<<std::endl;
     for(unsigned int j=0; j<ndigis; ++j){ // loop over digis
@@ -311,42 +330,45 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
 
   // draw clusters and digis
-  for(unsigned int isect=0;isect<nsectors;++isect){ // loop over sectors
-    fcluster_buffer=buffermap[isect];
-    unsigned int ncl=fcluster_buffer->size();
-    std::cerr << "number of clusters: " << ncl << " in sector " << isect << std::endl;
-    unsigned int tenpercent=(unsigned int)(ncl*0.1);
+  if(drawDigis || drawClusters){
+    std::cerr<<"draw digis and/or clusters..."<<std::endl;
+    for(unsigned int isect=0;isect<nsectors;++isect){ // loop over sectors
+      fcluster_buffer=buffermap[isect];
+      unsigned int ncl=fcluster_buffer->size();
+      std::cerr << "number of clusters: " << ncl << " in sector " << isect << std::endl;
+      unsigned int tenpercent=(unsigned int)(ncl*0.1);
 
-    for(unsigned int i=0; i<ncl; i++){ // loop over clusters
-      //************ Progress messages **********************
-      // if(i%10000==0){std::cout<<".";std::cout.flush();}
-      // if(i%tenpercent==0){
-      //   std::cout<<"["
-      //            <<ceil((double)i*100/(double)ncl)<<"%"
-      //            <<"]";
-      //   std::cout.flush();
-      // }
-      // ****************************************************
+      for(unsigned int i=0; i<ncl; i++){ // loop over clusters
+        //************ Progress messages **********************
+        // if(i%10000==0){std::cout<<".";std::cout.flush();}
+        // if(i%tenpercent==0){
+        //   std::cout<<"["
+        //            <<ceil((double)i*100/(double)ncl)<<"%"
+        //            <<"]";
+        //   std::cout.flush();
+        // }
+        // ****************************************************
 
-      int colour = i%colors.size();
+        int colour = i%colors.size();
 
-      PndTpcCluster *cluster = (*fcluster_buffer)[i];
+        PndTpcCluster *cluster = (*fcluster_buffer)[i];
 
-      // get Digis from Cluster & draw
-      if(drawDigis){
-        int ndigis = cluster->nDigi();
+        // get Digis from Cluster & draw
+        if(drawDigis){
+          int ndigis = cluster->nDigi();
 
-        for(unsigned int j=0; j<ndigis; ++j){ // loop over digis
-          const PndTpcDigi* digi = cluster->getDigi(j);
-          this->drawDigi(digi, false, colors[colour]);
-        } // end loop over digis
-      } // end draw digis
+          for(unsigned int j=0; j<ndigis; ++j){ // loop over digis
+            const PndTpcDigi* digi = cluster->getDigi(j);
+            this->drawDigi(digi, false, colors[colour]);
+          } // end loop over digis
+        } // end draw digis
 
-      if(drawClusters && !doPR) this->drawCluster(cluster, colors[colour]);
+        if(drawClusters && !doPR) this->drawCluster(cluster, colors[colour]);
 
-    }// end loop over clusters
-  }// end loop over sectors;
-  std::cout << std::endl;
+      }// end loop over clusters
+    }// end loop over sectors;
+    std::cout << std::endl;
+  }
   // end DRAW
 
   //
@@ -404,7 +426,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       unsigned int ntrklts=riemannTemp.size();
       riemannlist.reserve(riemannlist.size()+ntrklts);
       for(unsigned int it=0;it<ntrklts;++it){
-	      riemannlist.push_back(riemannTemp[it]);
+        riemannlist.push_back(riemannTemp[it]);
       }
       riemannTemp.clear();
     } // end loop over sectors
@@ -415,6 +437,18 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
     if(doClean && nsectors>1) _trackfinder->cleanTracks(riemannlist, _szcut, _planecut);
 
+
+    // print MCIDs
+    for(unsigned int itrk=0; itrk<riemannlist.size(); ++itrk){
+      std::cout<<"Riemann Track "<<itrk<<std::endl;
+      for (unsigned int icl=0; icl<riemannlist[itrk]->getNumHits(); ++icl){
+        std::cout<<" Cluster "<<icl<<std::endl;
+        for (unsigned int imc=0; imc<riemannlist[itrk]->getHit(icl)->cluster()->nMcIds(); ++imc){
+          std::cout<<"   McId "<<imc<<"  "<<riemannlist[itrk]->getHit(icl)->cluster()->mcId().ID(imc)<<std::endl;
+        }
+      }
+    }
+
     std::cerr << "Pattern Reco finished" << std::endl;
   } // end PR
 
@@ -423,6 +457,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
   // draw PR results
   if(doPR && (drawClusters || drawRiemannTracks)){
+    std::cerr<<"draw PR results..."<<std::endl;
     for(unsigned int ir=0;ir<riemannlist.size();ir+=1){ // loop over trackcands
       PndTpcRiemannTrack* trkcand = riemannlist[ir];
       unsigned int nhits=trkcand->getNumHits();
@@ -768,9 +803,11 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
 void PndTpcClustVis::clearBufferMap(){
   for(unsigned int isect=0;isect<nsectors;++isect){
-    for(unsigned icl=0; icl<buffermap[isect]->size(); ++icl){
-      delete (*(buffermap[isect]))[icl];
-    }
+    /*if (doClustering){
+      for(unsigned icl=0; icl<buffermap[isect]->size(); ++icl){
+        delete (*(buffermap[isect]))[icl];
+      }
+    }*/
     buffermap[isect]->clear();
   }
   clusterArray->Delete();
