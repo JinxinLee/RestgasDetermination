@@ -218,7 +218,9 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
     resetFlags();
   } // end loop over hits
   
-  std::cout<<candlist.size()<<" Riemann Tracks found."<<std::endl;
+  #ifdef DEBUG
+    std::cout<<candlist.size()<<" Riemann Tracks found."<<std::endl;
+  #endif
   /*for(int i=0;i<candlist.size();++i){
     std::cout<<"Track"<<i<<": "
   	     <<candlist[i]->getNumHits()<<" hits  R=";
@@ -232,7 +234,9 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
 
 void
 PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist){
-  std::cout<<"PndTpcRiemannTrackFinder::mergeTracks"<<std::endl;
+  #ifdef DEBUG
+    std::cout<<"PndTpcRiemannTrackFinder::mergeTracks"<<std::endl;
+  #endif
 
   unsigned int ntr=candlist.size();
   if (ntr<2) return; // need at least 2 trackcands to merge
@@ -366,7 +370,9 @@ PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist
     }
   }
 
-  std::cout<<candlist.size()<<" Merged Riemann Tracks: "<<std::endl;
+  #ifdef DEBUG
+    std::cout<<candlist.size()<<" Merged Riemann Tracks: "<<std::endl;
+  #endif
   /*for(int i=0;i<candlist.size();++i){
     std::cout<<"Track "<<i<<": "
          <<candlist[i]->getNumHits()<<" hits  R=";
