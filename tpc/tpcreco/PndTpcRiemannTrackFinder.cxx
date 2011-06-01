@@ -39,7 +39,7 @@
 
 using namespace std;
 
-#define DEBUG
+//#define DEBUG
 
 // Class Member definitions -----------
 PndTpcRiemannTrackFinder::PndTpcRiemannTrackFinder()
