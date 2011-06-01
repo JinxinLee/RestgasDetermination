@@ -1525,8 +1525,8 @@ InitStatus PndBarrelTrackFinder::Init() {
   fHitArrayName[3] = "TPCHit";
   fHitArrayName[4] = "GEMHit";
 
-  fDetType[0] = kMVDHitsPixel;
-  fDetType[1] = kMVDHitsStrip;
+  fDetType[0] = kMVDHitsPixel;// FIXME: Use FairRootManager::Instance()->GetBranchId()
+  fDetType[1] = kMVDHitsStrip;// FIXME: Use FairRootManager::Instance()->GetBranchId()
   fDetType[2] = kSttHit;
   fDetType[3] = kTpcCluster;
   fDetType[4] = kGemHit;

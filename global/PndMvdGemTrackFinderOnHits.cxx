@@ -386,7 +386,7 @@ Int_t PndMvdGemTrackFinderOnHits::CreateTracks(Int_t nofRecoTracks) {
 	       << " )  " << flush;
 	}
       }
-      else if ( detId == kMVDHitsStrip ) {
+      else if ( detId == kMVDHitsStrip ) { // FIXME: Use FairRootManager::Instance()->GetBranchId()
 	mvdHit = (PndSdsHit*)fMvdStripHitArray->At(hitIndices[itr][ihit][1]);
 	trackCand->AddHit(FairRootManager::Instance()->GetBranchId("MVDHitsStrip"),hitIndices[itr][ihit][1],mvdHit->GetPosition().Mag());
 	nMvdStrH += 1;
@@ -397,7 +397,7 @@ Int_t PndMvdGemTrackFinderOnHits::CreateTracks(Int_t nofRecoTracks) {
 	       << " )  " << flush;
 	}
       }
-      else if ( detId == kMVDHitsPixel ) {
+      else if ( detId == kMVDHitsPixel ) {// FIXME: Use FairRootManager::Instance()->GetBranchId()
 	mvdHit = (PndSdsHit*)fMvdPixelHitArray->At(hitIndices[itr][ihit][1]);
 	trackCand->AddHit(FairRootManager::Instance()->GetBranchId("MVDHitsPixel"),hitIndices[itr][ihit][1],mvdHit->GetPosition().Mag());
 	nMvdPixH += 1;

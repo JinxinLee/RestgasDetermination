@@ -13,12 +13,12 @@
 #include "FairDetector.h"
 #include "PndGeoFtsPar.h"
 #include "FairRun.h"  
+#include "PndFtsPoint.h"
 
 #include <string>
 #include <sstream>
 
 class TClonesArray;
-class PndFtsPoint;
 class FairVolume; 
 
 class PndFts : public FairDetector

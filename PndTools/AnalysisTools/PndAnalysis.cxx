@@ -274,8 +274,8 @@ Int_t PndAnalysis::GetEntries()
 
 void PndAnalysis::BuildMcCands()
 {
-  if (fMcCands->GetEntriesFast() != 0) fMcCands->Delete();
-  //if (fMcCands->GetEntriesFast() != 0)  fMcCands->Clear("C");
+  if (fMcCands->GetEntriesFast() > 100) fMcCands->Delete(); // deep cleanup after really busy events
+  else if (fMcCands->GetEntriesFast() != 0)  fMcCands->Clear();
   
   // Get the Candidates
   for(Int_t i=0; i<fMcTracks->GetEntriesFast(); i++)
@@ -363,22 +363,35 @@ void PndAnalysis::BuildMcCands()
     //      //pmc->SetHelixParms(helixparams);
     
     //    //} // if false
-    Double_t covMARS[6][6];
-    for(int d=0;d<6;d++)for(int c=0;c<6;c++)covMARS[d][c]=0.;
-    TVector3 mom=p4.Vect();
-    TVector3 di = mom;
-    di.SetMag(1.);
-    TVector3 dj = di.Orthogonal();
-    TVector3 dk = di.Cross(dj);
-    FairTrackParP tStart(stvtx, mom, covMARS, (Int_t)charge, stvtx,  dj,  dk);
-    Bool_t rc = Propagator(2,tStart,pmc,NULL,kTRUE);
-    if(!rc && fVerbose>0) {
-      Warning("BuildMcCands()","Faild propagation of mc particle no.%i to z axis",i);
+    //Double_t covMARS[6][6];
+    //for(int d=0;d<6;d++)for(int c=0;c<6;c++)covMARS[d][c]=0.;
+    //TVector3 mom=p4.Vect();
+    //TVector3 di = mom;
+    //di.SetMag(1.);
+    //TVector3 dj = di.Orthogonal();
+    //TVector3 dk = di.Cross(dj);
+    //FairTrackParP tStart(stvtx, mom, covMARS, (Int_t)charge, stvtx,  dj,  dk);
+    //Bool_t rc = Propagator(2,tStart,pmc,NULL,kTRUE);
+    //if(!rc && fVerbose>0) {
+    //Warning("BuildMcCands()","Faild propagation of mc particle no.%i to z axis",i);
+    //std::cout<<*pmc<<std::endl;
+    //stvtx.Print();
+    //std::cout<<"Mother pointer: "<<pmc->TheMother()<<std::endl;
+    //}
+    TMatrixD zerocov;
+    Float_t helix[5];
+    Bool_t rc = P7toHelix(stvtx, p4, charge, zerocov, helix, zerocov, kTRUE);
+    if(rc) pmc->SetHelixParms(helix);
+    else if(fVerbose>0) {
+      Warning("BuildMcCands()","Faild calculation helix parameters");
       std::cout<<*pmc<<std::endl;
       stvtx.Print();
       std::cout<<"Mother pointer: "<<pmc->TheMother()<<std::endl;
     }
+    
   }
+  
+  
   
   if(fVerbose) std::cout <<"-I- PndMcListConverter: found ="<<fMcCands->GetEntriesFast()<<std::endl;
   
@@ -438,6 +451,14 @@ Bool_t PndAnalysis::Propagator(int mode, FairTrackParP &tStart, TCandidate* cand
   FairTrackParH* myResult = new FairTrackParH();
   Int_t pdgcode = cand->PdgCode();
   if(fVerbose>0)cout<<"Try mode "<<mode<<" with pdgCode "<<pdgcode<<endl;
+  std::cout<<"Start Params are:"<<std::endl;
+  tStart.Print();
+  Double_t startCov[6][6];
+  tStart.GetMARSCov(startCov);
+  TMatrixD errst(6,6);
+  for (Int_t ii=0;ii<6;ii++) for(Int_t jj=0;jj<6;jj++) errst[ii][jj]=startCov[ii][jj];
+  std::cout<<"Start MARS cov: ";errst.Print();
+  
   if(1==mode && NULL!=mypoint){
     geaneProp->BackTrackToVertex(); //set where to propagate
     geaneProp->SetPoint(*mypoint);
@@ -697,11 +718,11 @@ Bool_t PndAnalysis::P7toHelix(const TVector3 &pos, const TLorentzVector &p4, con
     
     //TMatrixD sigmas(cov77);
     //for(int cci=0;cci<7;cci++){
-      //for(int ccj=cci+1;ccj<7;ccj++)
-      //{
-        //sigmas[cci][ccj]=0.;
-        //sigmas[ccj][cci]=0.;
-      //}
+    //for(int ccj=cci+1;ccj<7;ccj++)
+    //{
+    //sigmas[cci][ccj]=0.;
+    //sigmas[ccj][cci]=0.;
+    //}
     //}
     //TMatrixD tempmat(jacobian,TMatrixD::kMult,sigmas);
     TMatrixD tempmat(jacobian,TMatrixD::kMult,cov77);

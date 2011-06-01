@@ -57,6 +57,8 @@ InitStatus PndTrackArrayMerger::Init()
   
   //setup output array
   fOutputArray = ioman->Register(fOutputBranch, "PndTrack", "AllTracks", fPersistance);
+ //fOutputArray = new TClonesArray("PndTrack");
+ // ioman->Register(fOutputBranch, "AllTracks", fOutputArray, fPersistance);
   
   return kSUCCESS;
 }

@@ -6,7 +6,6 @@
 
 #include "PndGeoFtsPar.h"
 #include "PndGeoFts.h"
-#include "PndFtsPoint.h"
 #include "PndDetectorList.h"
 #include "PndStack.h"
 #include "PndFtsMapCreator.h"
