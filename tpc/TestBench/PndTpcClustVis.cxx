@@ -296,7 +296,6 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       buffermap[isect]->reserve(ncl/nsectors+10);
     for(unsigned int i=0; i<ncl; ++i){
       PndTpcCluster *cluster = (PndTpcCluster*)clustersBranch->At(i);
-      //std::cout<<"sector "<<cluster->sector()<<std::endl;
       buffermap[cluster->sector()]->push_back(cluster);
     }
     std::cout << "number of clusters: " << ncl << std::endl;
@@ -308,10 +307,15 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
   // copy clusters to TClonesArray needed for RecoHitFactory
   if(doFit){
     std::cerr<<"copy clusters to TClonesArray needed for RecoHitFactory..."<<std::endl;
-    for(unsigned int i=0; i<fcluster_buffer->size(); ++i){
-      PndTpcCluster* cl = (*fcluster_buffer)[i];
-      cl->SetIndex(i);
-      new ((*clusterArray)[i]) PndTpcCluster(*cl);
+    unsigned int icl = 0;
+    for(unsigned int isect=0;isect<nsectors;++isect){
+      for(unsigned int i=0; i<buffermap[isect]->size(); ++i){
+        PndTpcCluster* cl = (*(buffermap[isect]))[i];
+        cl->SetIndex(icl);
+        new ((*clusterArray)[icl]) PndTpcCluster(*cl);
+        ++icl;
+      }
+
     }
   }
 
@@ -433,13 +437,20 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
     if(doClean) _trackfinder->cleanTracks(riemannlist, _szcut, _planecut);
 
-    if(doMerge && nsectors>1) _trackfinder->mergeTracks(riemannlist);
+    if(doMerge && nsectors>1) {
+      if(_sorting==3){
+        _trackfinder->setSorting(2);
+        _trackfinder->mergeTracks(riemannlist);
+        _trackfinder ->setSorting(_sorting);
+      }
+      _trackfinder->mergeTracks(riemannlist);
+    }
 
     if(doClean && nsectors>1) _trackfinder->cleanTracks(riemannlist, _szcut, _planecut);
 
 
     // print MCIDs
-    for(unsigned int itrk=0; itrk<riemannlist.size(); ++itrk){
+    /*for(unsigned int itrk=0; itrk<riemannlist.size(); ++itrk){
       std::cout<<"Riemann Track "<<itrk<<std::endl;
       for (unsigned int icl=0; icl<riemannlist[itrk]->getNumHits(); ++icl){
         std::cout<<" Cluster "<<icl<<std::endl;
@@ -447,7 +458,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
           std::cout<<"   McId "<<imc<<"  "<<riemannlist[itrk]->getHit(icl)->cluster()->mcId().ID(imc)<<std::endl;
         }
       }
-    }
+    }*/
 
     std::cerr << "Pattern Reco finished" << std::endl;
   } // end PR
@@ -1279,7 +1290,7 @@ void PndTpcClustVis::makeGui() {
   frmMain2->AddFrame(hf);
 
   hf = new TGHorizontalFrame(frmMain2); {
-    guiDoClean =  new TGCheckButton(hf, "Clean Tracks before & after merging");
+    guiDoClean =  new TGCheckButton(hf, "Clean Tracks before \& after merging");
     if(doClean) guiDoClean->Toggle();
     hf->AddFrame(guiDoClean);
     guiDoClean->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
