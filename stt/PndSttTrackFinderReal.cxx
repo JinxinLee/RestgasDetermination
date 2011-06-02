@@ -125,6 +125,12 @@ void PndSttTrackFinderReal::WriteHistograms(){
  	  file->mkdir("PndSttTrackFinderReal");
  	  file->cd("PndSttTrackFinderReal");
 
+	hdist->Write();
+	hdistgoodlast->Write();
+	hdistbadlast->Write();
+	delete hdist;
+	delete hdistgoodlast;
+	delete hdistbadlast;
 
 
 }
@@ -191,6 +197,9 @@ if(istampa >=3 )   HANDLEXYZ = fopen("infoPndTrackFinderRealXYZ.txt","w");
 //   -------------------------------------------------------------------
 
 
+  hdist = new TH1F("hdist", "distance (cm)", 20, 0., 10.);
+  hdistgoodlast = new TH1F("hDistanceTrulyInnerLast", "distance (cm)", 20, 0., 10.);
+  hdistbadlast = new TH1F("hDistanceNonLastInner", "distance (cm)", 20, 0., 10.);
 
   if (!ioman) 
     {
@@ -716,8 +725,6 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
                Fi_up_limit[MAXTRACKSPEREVENT],
                Fi_initial_helix_referenceframe[MAXTRACKSPEREVENT],
                Fi_final_helix_referenceframe[MAXTRACKSPEREVENT],
-               Fi_allowedforskew_low[MAXTRACKSPEREVENT],
-               Fi_allowedforskew_up[MAXTRACKSPEREVENT],
                m[MAXTRACKSPEREVENT],
                q[MAXTRACKSPEREVENT],
                ALFA[MAXTRACKSPEREVENT],
@@ -743,6 +750,8 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
                Posiz1[3],
                Posiz2[3],
 	       versor[3],
+	       U[MAXTRACKSPEREVENT][nmaxHits],
+	       V[MAXTRACKSPEREVENT][nmaxHits],
                Xpos_for_LHeTrack[nmaxHits],
                Ypos_for_LHeTrack[nmaxHits],
                Zpos_for_LHeTrack[nmaxHits],
@@ -1121,9 +1130,19 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 	// the hits are ordered by going around the trajectory cclockwise for
 	// positive tracks or counterclockwise for negative particles; in other words
 	//  it is not used simply the distance of the hit from (0,0) as ordering parameter
-	//  but the track length of thecircle.
+	//  but the track length of the circle.
 	// The charge is calculated assuming that the hit closer to (0,0) was the
 	// first one to be produced by the track, assumed to originate at (0,0).
+
+
+	// this method finds also Fi_initial_helix_referenceframe and Fi_final_helix_referenceframe.
+	// The former is simply the fi angle of the point (0,0) with respect to the center
+	// of this Helix. Important : this angle has to be > 0 always and it is between 0. and
+	// 2 PI here (later,  FixDiscontinuitiesFiangleinSZplane may change it adding +2PI or
+	// -2PI if necessary).
+	// Fi_final_helix_referenceframe is made such that  it is < Fi_initial_helix_referenceframe
+	// when the track is  positive, and it is > Fi_initial_helix_referenceframe for negative
+	// tracks.
        PndSttOrderingParallel(
                              Ox[nTracksFoundSoFar],
                              Oy[nTracksFoundSoFar],
@@ -1132,8 +1151,10 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
                              &ListHitsinTrack[nTracksFoundSoFar][0],
                              infoparal,
                              &Charge[nTracksFoundSoFar],
-                             &Fi_initial_helix_referenceframe[nTracksFoundSoFar],
-                             &Fi_final_helix_referenceframe[nTracksFoundSoFar]
+                             &Fi_initial_helix_referenceframe[nTracksFoundSoFar],//output
+                             &Fi_final_helix_referenceframe[nTracksFoundSoFar],// output
+		&U[nTracksFoundSoFar][0],
+		&V[nTracksFoundSoFar][0]
                        );
 
 //    end of ordering the parallel  hits; determining the charge of this track
@@ -1194,20 +1215,25 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 	// origin of te track.
 	Posiz[0]=Posiz[1]=Posiz[2]=0.;
 
+if(istampa>=3) cout<<"\n\n\nIVOLTE = "<<IVOLTE<<"  and Ntrack = "<< nTracksFoundSoFar<<
+ ", prima di cleanup ----------------\n";
 
+
+	UShort_t &nHits = nHitsinTrack[nTracksFoundSoFar];
 	if ( ! (SttParalCleanup(
 			Ox[nTracksFoundSoFar],
 			Oy[nTracksFoundSoFar],
 			R[nTracksFoundSoFar],
 			Charge[nTracksFoundSoFar],
-			Posiz,  // strarting point of trajectory.
-			nHitsinTrack[nTracksFoundSoFar],
-			auxListHitsinTrack,
+			Posiz,  // starting point of trajectory.
+			nHits, // input and output
+			auxListHitsinTrack,  // input and output
 			info,
-			RStrawDetectorMin,  //distance hexagon side from (0,0)
+		RStrawDetectorMin,  //this is the  same as the distance hexagon side from (0,0)
 			ApotemaMaxInnerParStraw,  //distance hexagon side from (0,0)
 			ApotemaMinOuterParStraw,  //distance hexagon side from (0,0)
-			RStrawDetectorMax  //distance hexagon side from (0,0).
+			RStrawDetectorMax  // Outer Radius containing all the wire positions,
+					   // in XY plane, of the Straw Detector.
 			) ) )  continue;
 
 //--------------------------- end of cleanup
@@ -1256,10 +1282,17 @@ if(iplotta && IVOLTE <= nmassimo){
 
 
 
-
-
+//-----------------------
+//-----------------------
+//-----------------------
 //-----------------------  doing the fit with the skew hits for each XY plane track found
+//-----------------------
+//-----------------------
+//-----------------------
+
+
   for(i=0; i<nTracksFoundSoFar;i++){
+
 
 
     GoodSkewFit[i]=false;  //  flag indicating if the skew sector info has completed the parameter info;
@@ -1282,8 +1315,6 @@ if(iplotta && IVOLTE <= nmassimo){
                    inclination,
                    Fi_low_limit[i],// in the Helix XY frame, taking into account the minimum/maximum
                    Fi_up_limit[i], // radius of the STT  detector.
-                   Fi_allowedforskew_low[i],
-                   Fi_allowedforskew_up[i],
                    Charge[i],
                    Fi_initial_helix_referenceframe[i],
                    Fi_final_helix_referenceframe[i],
@@ -1294,31 +1325,31 @@ if(iplotta && IVOLTE <= nmassimo){
                    ZErrorafterTilt   //  output,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
                                                      );
     nSkewHitsinTrack[i]=TemporarynSkewHitsinTrack;   // it can be also zero!
-    for(j=0;j<TemporarynSkewHitsinTrack;j++){ ListSkewHitsinTrack[i][j]=TemporarySkewList[j][0];}
+    for(j=0;j<nSkewHitsinTrack[i];j++){
+	ListSkewHitsinTrack[i][j]=TemporarySkewList[j][0];
+    }
 
 
  //    if( nSkewHitsinTrack[i] < MINIMUMHITSPERTRACK) {
      if( nSkewHitsinTrack[i] < 2) {
+	for(j=0;j<nSkewHitsinTrack[i];j++){
+		Sfinal[i][infoskew[ ListSkewHitsinTrack[i][j] ]]= S[j];
+	}
 	goto fine ;
 //        continue;
      }
-
-
-
-
-
 
 //  finding if there are discontinuity at 0 for fi value of the Skew Straws Hit.
 //  In case of discontinuity at 0, add 2*PI to fi of those hits with fi in the 1st quadrant.
 //  This is necessary because the discontinuities would make the fit
 //  in the SZ plane fail.
 //  In this discontinuity fixing, the value FI0 of the vertex (0,0) is also included.
-//  If there is discontinuity fixing, the values of S[i] AND POSSIBLY Fi_initial_helix_referenceframe[i]
-//  might be modified (+2.*PI) from  now on.
+//  If there is discontinuity fixing, the values of S[i] AND POSSIBLY
+//  Fi_initial_helix_referenceframe[i] might be modified (+2.*PI) from  now on.
 
 
       FixDiscontinuitiesFiangleinSZplane(
-                TemporarynSkewHitsinTrack,
+                nSkewHitsinTrack[i],
                 S,
                 &Fi_initial_helix_referenceframe[i],
                 Charge[i]
@@ -1326,7 +1357,7 @@ if(iplotta && IVOLTE <= nmassimo){
 
 
       Status[i] = PndSttFitSZspacebis( 
-                TemporarynSkewHitsinTrack,
+                nSkewHitsinTrack[i],
                 S,
                 Z,
                 ZDrift,
@@ -1340,6 +1371,10 @@ if(iplotta && IVOLTE <= nmassimo){
 
 
       if(Status[i] < 0 || fabs(KAPPA[i])>1.e10)  {
+	//  necessary to load here the Sfinal  vector anyway.
+	for(j=0;j<nSkewHitsinTrack[i];j++){
+		Sfinal[i][infoskew[ListSkewHitsinTrack[i][j]]]= S[j];
+	}
 	goto fine ;
 //        continue;
       }
@@ -1351,21 +1386,22 @@ if(iplotta && IVOLTE <= nmassimo){
 
 
 
-//-----  finding a better association  the skew hits intersecting this XY trajectory circle
+//-----  finding a better association of the skew hits intersecting this XY trajectory circle
 
 //    this means discarding those skew hits that are too far away from the fitted straight line
 //    found in the SZ fit.
 
 
   NNN=AssociateBetterAfterFitSkewHitsToXYTrack(
-                   TemporarynSkewHitsinTrack,
-                   TemporarySkewList, // input,  list of selected skew hits (in skew numbering)
-                   S,       //  input,  S coordinate of selected Skew hit
-                   Z,       //  input,  Z coordinate of center wire of selected Skew hit
-                   ZDrift,   //  input,  drift distance IN Z DIRECTION only, of selected Skew hit
-                   ZErrorafterTilt,   //  input,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
-                   KAPPA[i],    // input, KAPPA result of fit
-                   FI0[i],    // input, FI0 result of fit,
+		nSkewHitsinTrack[i],
+		TemporarySkewList, // input, list of selected skew hits (in skew numbering)
+		S,       //  input,  S coordinate of selected Skew hit
+		Z,       //  input,  Z coordinate of center wire of selected Skew hit
+		ZDrift,   //  input,  drift distance IN Z DIRECTION only, of selected Skew hit
+		ZErrorafterTilt,   //  input,  Radius taking into account the tilt,
+				   // IN Z DIRECTION only, of selected Skew hit
+		KAPPA[i],    // input, KAPPA result of fit
+		FI0[i],    // input, FI0 result of fit,
                    tempore,  //  output, associated skew hits
                    temporeS,  //  output, associated skew hit  S
                    temporeZ,  //  output, associated skew hits Zcoordinate of center wire
@@ -1382,11 +1418,14 @@ if(iplotta && IVOLTE <= nmassimo){
 
        nSkewHitsinTrack[i] = NNN;
        for(j=0;j<nSkewHitsinTrack[i];j++){
-           ListSkewHitsinTrack[i][j]=tempore[j];
-             S[j]  =  temporeS[j] ;
-             Z[j]  =  temporeZ[j] ;
-             ZDrift[j]  =  temporeZDrift[j] ;
-             ZErrorafterTilt[j]  =  temporeZErrorafterTilt[j] ;
+
+
+		ListSkewHitsinTrack[i][j]=tempore[j];
+		Sfinal[i][infoskew[ListSkewHitsinTrack[i][j]]]= temporeS[j];
+		S[j]  =  temporeS[j] ;
+		Z[j]  =  temporeZ[j] ;
+		ZDrift[j]  =  temporeZDrift[j] ;
+		ZErrorafterTilt[j]  =  temporeZErrorafterTilt[j] ;
        }
 
        if (NNN < 2) goto fine ;
@@ -1417,7 +1456,7 @@ if(iplotta && IVOLTE <= nmassimo){
 fine: ;
 
 //----------------------------------------------   some printouts
-if(istampa>=2 && IVOLTE<= nmassimo) {
+if(istampa>=2 && IVOLTE<= 0 && i==0) {
    cout<<"      Evento n. "<<IVOLTE<<", GoodSkewFit = "<<GoodSkewFit[i]<<
    "; elenco finale hits per traccia n. "<<i<<"  list dei "<<nHitsinTrack[i]
                <<" hit paralleli (original notation) :\n";
@@ -1447,32 +1486,61 @@ cout<<"     elenco dei "<<nSkewHitsinTrack[i]<<" hits skew\n";
 
 // now the   ordering the parallel and skew hits; determining the charge of this track
 
-if(istampa>=2) {  cout<<"da TrackFinder Real :  nTracksFoundSoFar "<<nTracksFoundSoFar<<endl; }
 
    for(i=0; i<nTracksFoundSoFar;i++){
+	nTotalHits[i] =  nHitsinTrack[i]+nSkewHitsinTrack[i];
+	if ( nSkewHitsinTrack[i]==0) continue;
 
 
+	PndSttOrderingSkewandParallel(
+		infoparal,
+		infoskew,
+		Ox[i],
+		Oy[i],
+		R[i],
+		nSkewHitsinTrack[i],  // input
+		&ListSkewHitsinTrack[i][0],// input, but this gets ordered
+		&Sfinal[i][0], // input from Skew Straws
+		Charge[i], // input
+		nHitsinTrack[i], // input, # parallel Hits in the current track
+		&ListHitsinTrack[i][0],	// this was already ordered
+		&U[i][0], // U conformal parallel hits; input, this was already ordered
+		&V[i][0], // V conformal parallel hits; input, this was already ordered
+		&BigList[i][0] // this is the final ordered Parallel+Skew list; already
+				// in NATIVE hit number.
+				);
+
+
+/*
        PndSttOrdering(
                              Ox[i],
                              Oy[i],
                              info,
                              nHitsinTrack[i],
-                             &ListHitsinTrack[i][0],	// this also gets ordered.
+                             &ListHitsinTrack[i][0],	// this was already ordered.
                              nSkewHitsinTrack[i],
-                             &ListSkewHitsinTrack[i][0],	// this also gets ordered.
+                             &ListSkewHitsinTrack[i][0],// this gets ordered.
                              &Sfinal[i][0],
                              infoparal,
                              infoskew,
                              &nTotalHits[i],
-                             &BigList[i][0],
+                             &BigList[i][0], // this is the final ordered Parallel+Skew list.
                              &Charge[i]
                        );
+*/
 
-if(istampa>=2) {
-  cout<<"Traccia n. "<<i<<",  list dei "<<nTotalHits[i]<<"   hits come stanno in BigList (original notation) :\n";
+
+if(istampa>=2) 
+{
+  cout<<"Traccia n. "<<i<<",  list dei "<<nTotalHits[i]
+  <<"   hits come stanno in BigList (original notation) :\n";
 
    for(int ig=0;ig<nTotalHits[i];ig++){
         cout<<"          hit n.  "<<BigList[i][ig] <<endl;
+   }
+  cout<<"e ora gli skew hits ordinati (original notation) :\n";
+   for(int ig=0;ig<nSkewHitsinTrack[i];ig++){
+        cout<<"          hit n.  "<<infoskew[ListSkewHitsinTrack[i][ig]] <<endl;
    }
 }
 
@@ -1484,8 +1552,11 @@ if(istampa>=2) {
 //------------------  cleanup of tracks based on the Stt Skew hits.
 
    bool keepit[nTracksFoundSoFar];
-
    for(i=0; i<nTracksFoundSoFar;i++){
+
+if(istampa>=2)cout<<"\tprima di Skew cleanup, IVOLTE = "
+<<IVOLTE<<",  traccia n. "<<i<<", lista degli hit skew :"<<endl;
+
 	Double_t auxS[nSkewHitsinTrack[i]];
 	if(nSkewHitsinTrack[i]==0) continue;
 
@@ -1493,6 +1564,15 @@ if(istampa>=2) {
 	for(j=0;j<nSkewHitsinTrack[i];j++){
 		auxListHitsinTrack[j]=infoskew[ ListSkewHitsinTrack[i][j] ];
 		auxS[j]=Sfinal[i][ infoskew[ ListSkewHitsinTrack[i][j] ] ];
+
+if(istampa>=2)cout<<"\thit skew (nativo) n. "<<infoskew[ ListSkewHitsinTrack[i][j] ]
+<<", X (tubo) "<<info[infoskew[ ListSkewHitsinTrack[i][j] ]][0]
+<<", Y (tubo) "<<info[infoskew[ ListSkewHitsinTrack[i][j] ]][1]
+<<", FI "<<auxS[j]<<endl
+<<"\t\tsuo X calcolato "<<Ox[i]+R[i]*cos(auxS[j])
+<<", suo Y calcolato "<<Oy[i]+R[i]*sin(auxS[j])
+<<endl;
+
 	}
 
 
@@ -1515,8 +1595,8 @@ if(istampa>=2) {
 					// of last skew hit from Skew boundary.
 			2.,
 			1
-			) ) )  keepit[i] = false;
-	else  keepit[i] = true;
+			) ) )  {keepit[i] = false;}
+	else  {keepit[i] = true;}
 
 
 
@@ -2296,8 +2376,8 @@ for(i=0,ii=-1; i<nTracksFoundSoFar;i++){
     if(HoughFi<0.)  HoughFi += 2.*PI;
 
 
-
              WriteMacroSkewAssociatedHits(
+		GoodSkewFit[i],
                    KAPPA[i],FI0[i], HoughD, HoughFi, HoughR,
                    info, Nincl,Minclinations,inclination,
                    i,
@@ -2309,6 +2389,7 @@ for(i=0,ii=-1; i<nTracksFoundSoFar;i++){
    if(doMcComparison) {
       if( daTrackFoundaTrackMC[i] >= 0){
              WriteMacroSkewAssociatedHitswithMC(
+		GoodSkewFit[i],
                    KAPPA[i],FI0[i], HoughD, HoughFi, HoughR,
                    info, Nincl,Minclinations,inclination,
                    i,
@@ -5003,6 +5084,7 @@ carica0: ;
 
 
   void PndSttTrackFinderReal::WriteMacroSkewAssociatedHits(
+  		bool goodskewfit,
                    Double_t KAPPA,
                    Double_t FI0,
                    Double_t D,
@@ -5147,7 +5229,7 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
 
 
         Double_t rotation1 = 180.*atan2(Tiltdirection1[1],Tiltdirection1[0])/PI;
-        fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nE%d->SetFillStyle(0);\n",
+fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nE%d->SetFillStyle(0);\n",
                      index,POINTS1[j+2],fi1,Aellipsis1,Bellipsis1,rotation1,index);
 
 
@@ -5216,7 +5298,7 @@ fuori: ;
 // --------------------------------
 
 //  plot della traccia trovata dal finder
-
+	if(!goodskewfit)goto niente ;
   if ( fabs(KAPPA) > 1.e-10 && fabs(KAPPA) < 1.e10  ) {
      fmin = KAPPA*zmin + FI0;
      fmax = KAPPA*zmax + FI0;
@@ -5224,6 +5306,13 @@ fuori: ;
   	cout<<"PndSttTrackFinderReal::WriteMacroSkewAssociatedHits, this track found by PR not plotted"
 	<<"\n\t because KAPPA = "<<KAPPA<<endl;
 	goto niente ;
+  }
+  if ( KAPPA >= 0.) {
+     fmin = KAPPA*zmin + FI0;
+     fmax = KAPPA*zmax + FI0;
+  }  else {
+     fmax = KAPPA*zmin + FI0;
+     fmin = KAPPA*zmax + FI0;
   }
 
   if( fmax>=0.) {
@@ -5240,7 +5329,7 @@ fuori: ;
    offset = 2.*PI*i;
    z1 = (i*2.*PI-FI0)/KAPPA;
    z2 = ((i+1)*2.*PI-FI0)/KAPPA;
-   fprintf(MACRO,"TLine* FOUND%d = new TLine(%f,%f,%f,%f);\nFOUND%d->SetLineColor(2);\nFOUND%d->Draw();\n",
+fprintf(MACRO,"TLine* FOUND%d = new TLine(%f,%f,%f,%f);\nFOUND%d->SetLineColor(2);\nFOUND%d->Draw();\n",
                  i-Nmin,z1,0.,z2, 2.*PI,i-Nmin,i-Nmin);
 
   }   //  end of  for(i=Nmin; i<= Nmax;++)
@@ -5278,6 +5367,7 @@ nohits: ;
 
 
   void PndSttTrackFinderReal::WriteMacroSkewAssociatedHitswithMC(
+  		bool goodskewfit,
                    Double_t KAPPA,
                    Double_t FI0,
                    Double_t D,
@@ -5540,29 +5630,7 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
   }   //   end of  for( iii=0; iii< nMCSkewAlone[imaxima]; iii++)
 
 //-------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
 //------ fine aggiunta in blu eventuali punti della traccia MC che sono non mecciati
-
-
-
-
-
-
-
-
-
 
   if(index==0) goto nohits ;
   if( zmax < zmin ) goto nohits ;
@@ -5603,6 +5671,7 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
 
 //  plot della traccia trovata dal finder
 
+	if(!goodskewfit) goto nulla ;
   if ( fabs(KAPPA) > 1.e-10 && fabs(KAPPA) < 1.e10) {
      fmin = KAPPA*zmin + FI0;
      fmax = KAPPA*zmax + FI0;
@@ -5611,6 +5680,16 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
 	<<"\n\t because KAPPA = "<<KAPPA<<endl;
 	goto nulla ;
   }
+
+  if ( KAPPA >= 0.) {
+     fmin = KAPPA*zmin + FI0;
+     fmax = KAPPA*zmax + FI0;
+  }  else {
+     fmax = KAPPA*zmin + FI0;
+     fmin = KAPPA*zmax + FI0;
+  }
+
+
   if( fmax>=0.) {
     Nmax = (int) (0.5*fmax/ PI);
   }  else  {
@@ -7997,8 +8076,8 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
                    Double_t inclination[][3],
                    Double_t Fi_low_limit,
                    Double_t Fi_up_limit,
-                   Double_t Fi_allowedforskew_low,
-                   Double_t Fi_allowedforskew_up,
+//                   Double_t Fi_allowedforskew_low,
+//                   Double_t Fi_allowedforskew_up,
                    Short_t  Charge,
                    Double_t Fi_initial_helix_referenceframe,
                    Double_t Fi_final_helix_referenceframe,
@@ -9515,17 +9594,19 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
 //----------begin of function PndSttTrackFinderReal::PndSttOrderingParallel
 
-      void   PndSttTrackFinderReal::PndSttOrderingParallel(
-                                                     Double_t oX,
-                                                     Double_t oY,
-                                                     Double_t info[][7],
-                                                     UShort_t nParallelHits,
-                                                     UShort_t *ListParallelHits,
-                                                     UShort_t *Infoparal,
-                                                     Short_t  * Charge,
-                                                     Double_t *Fi_initial_helix_referenceframe,
-                                                     Double_t *Fi_final_helix_referenceframe
-                                                       )
+	void   PndSttTrackFinderReal::PndSttOrderingParallel(
+		Double_t oX,
+		Double_t oY,
+		Double_t info[][7],
+		UShort_t nParallelHits,
+		UShort_t *ListParallelHits,
+		UShort_t *Infoparal,
+		Short_t  * Charge,
+		Double_t *Fi_initial_helix_referenceframe,
+		Double_t *Fi_final_helix_referenceframe,
+		Double_t *U,
+		Double_t *V
+							)
 {
 
 
@@ -9536,6 +9617,252 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 		firstR2,
 		lastR2,
 		aux[nParallelHits];
+
+
+
+//  here there is the ordering of the hits, under the assumption that the circumference
+//  in XY goes through (0,0).
+//  Moreover, the code before is supposed to have selected trajectories in XY with (Ox,Oy)
+//  farther from (0,0) by > 0.9 * RminStrawDetector/2 and consequently Ox and Oy are not both 0.
+//  The scheme for the ordering of the hit is as follows :
+//  1)  order hits by increasing U or V of the conformal mapping; see Gianluigi's Logbook page 283;
+//  2)  find the charge of the track by checking if it is closest to the center in XY
+//	the first or the last of the ordered hits.
+//  3)  in case, invert the ordering of U, V and ListParallelHits such that the first hits in the
+//	list are alway those closer to the (0,0).
+
+
+//   ordering of the hits
+	for (j = 0; j< nParallelHits; j++){
+		U[j]=info[ Infoparal[ ListParallelHits[j] ]  ][0]/(
+			info[ Infoparal[ ListParallelHits[j] ]  ][0]*
+			info[ Infoparal[ ListParallelHits[j] ]  ][0]+
+			info[ Infoparal[ ListParallelHits[j] ]  ][1]*
+			info[ Infoparal[ ListParallelHits[j] ]  ][1]);
+		V[j]=info[ Infoparal[ ListParallelHits[j] ]  ][1]/(
+			info[ Infoparal[ ListParallelHits[j] ]  ][0]*
+			info[ Infoparal[ ListParallelHits[j] ]  ][0]+
+			info[ Infoparal[ ListParallelHits[j] ]  ][1]*
+			info[ Infoparal[ ListParallelHits[j] ]  ][1]);
+	}
+
+	aaa = atan2( oY, oX);  // atan2 defined between -PI and PI.
+
+	// the following statement is necessary since for unknown reason the root interpreter
+	// gives a weird error when using PI directly in the if statement below!!!!!!! I lost
+	// 2 hours trying to figure this out!
+	b1 = PI/4.;
+
+	if((aaa>b1&&aaa<3.*b1) || (aaa>-3.*b1&&aaa<-b1)){//use U as ordering variable;
+							//[case 1 or 3 Gianluigi's Logbook page 285].
+		for (j = 0; j< nParallelHits; j++){
+			U[j]=info[ Infoparal[ ListParallelHits[j] ]  ][0]/(
+			info[ Infoparal[ ListParallelHits[j] ]  ][0]*
+			info[ Infoparal[ ListParallelHits[j] ]  ][0]+
+			info[ Infoparal[ ListParallelHits[j] ]  ][1]*
+			info[ Infoparal[ ListParallelHits[j] ]  ][1]);
+		}
+		PndStt_Merge_Sort( nParallelHits, U, ListParallelHits);
+		firstR2 = info[ Infoparal[ ListParallelHits[0] ] ][0]*
+			  info[ Infoparal[ ListParallelHits[0] ] ][0]+
+			  info[ Infoparal[ ListParallelHits[0] ] ][1]*
+			  info[ Infoparal[ ListParallelHits[0] ] ][1];
+		lastR2  = info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][0]*
+			  info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][0]+
+			  info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][1]*
+			  info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][1];
+
+		if((aaa>b1&&aaa<3.*b1)){  //  case #1;
+			if( firstR2<lastR2){
+				*Charge = 1;
+			}else{
+				*Charge = -1;
+				// inverting the order of the hits.
+				for(i=0;i<nParallelHits;i++){
+					tmp[i]=ListParallelHits[nParallelHits-1-i];
+					aux[i] = U[nParallelHits-1-i];
+				}
+				for(i=0;i<nParallelHits;i++){
+					ListParallelHits[i]=tmp[i];
+					U[i] = aux[i];
+				}
+			}
+			for (j = 0; j< nParallelHits; j++){
+				V[j]=info[ Infoparal[ ListParallelHits[j] ]  ][1]/(
+				info[ Infoparal[ ListParallelHits[j] ]  ][0]*
+				info[ Infoparal[ ListParallelHits[j] ]  ][0]+
+				info[ Infoparal[ ListParallelHits[j] ]  ][1]*
+				info[ Infoparal[ ListParallelHits[j] ]  ][1]);
+			}
+		} else{  //  case # 3.
+			if( firstR2<lastR2){
+				*Charge = -1;
+			}else{
+				*Charge = 1;
+				// inverting the order of the hits.
+				for(i=0;i<nParallelHits;i++){
+					tmp[i]=ListParallelHits[nParallelHits-1-i];
+					aux[i] = U[nParallelHits-1-i];
+				}
+				for(i=0;i<nParallelHits;i++){
+					ListParallelHits[i]=tmp[i];
+					U[i] = aux[i];
+				}
+			}// end of  if( firstR2<lastR2)
+			for (j = 0; j< nParallelHits; j++){
+				V[j]=info[ Infoparal[ ListParallelHits[j] ]  ][1]/(
+				info[ Infoparal[ ListParallelHits[j] ]  ][0]*
+				info[ Infoparal[ ListParallelHits[j] ]  ][0]+
+				info[ Infoparal[ ListParallelHits[j] ]  ][1]*
+				info[ Infoparal[ ListParallelHits[j] ]  ][1]);
+			}
+		}// end of  if((aaa>b1&&aaa<3.*b1))
+
+	} else { // use V as ordering variable [case 2 or 4 Gianluigi's Logbook page 285].
+		for (j = 0; j< nParallelHits; j++){
+			V[j]=info[ Infoparal[ ListParallelHits[j] ]  ][1]/(
+			info[ Infoparal[ ListParallelHits[j] ]  ][0]*
+			info[ Infoparal[ ListParallelHits[j] ]  ][0]+
+			info[ Infoparal[ ListParallelHits[j] ]  ][1]*
+			info[ Infoparal[ ListParallelHits[j] ]  ][1]);
+		}
+		PndStt_Merge_Sort( nParallelHits, V, ListParallelHits);
+		firstR2 = info[ Infoparal[ ListParallelHits[0] ] ][0]*
+			  info[ Infoparal[ ListParallelHits[0] ] ][0]+
+			  info[ Infoparal[ ListParallelHits[0] ] ][1]*
+			  info[ Infoparal[ ListParallelHits[0] ] ][1];
+		lastR2  = info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][0]*
+			  info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][0]+
+			  info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][1]*
+			  info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][1];
+
+		if((aaa<=-3.*b1 || aaa>=3.*b1)){  //  case #2;
+			if( firstR2<lastR2){
+				*Charge = 1;
+			}else{
+				*Charge = -1;
+				// inverting the order of the hits.
+				for(i=0;i<nParallelHits;i++){
+					tmp[i]=ListParallelHits[nParallelHits-1-i];
+					aux[i] = V[nParallelHits-1-i];
+				}
+				for(i=0;i<nParallelHits;i++){
+					ListParallelHits[i]=tmp[i];
+					V[i] = aux[i];
+				}
+			}
+			for (j = 0; j< nParallelHits; j++){
+				U[j]=info[ Infoparal[ ListParallelHits[j] ]  ][0]/(
+				info[ Infoparal[ ListParallelHits[j] ]  ][0]*
+				info[ Infoparal[ ListParallelHits[j] ]  ][0]+
+				info[ Infoparal[ ListParallelHits[j] ]  ][1]*
+				info[ Infoparal[ ListParallelHits[j] ]  ][1]);
+			}
+		} else{  //  case # 4.
+			if( firstR2<lastR2){
+				*Charge = -1;
+			} else{
+				*Charge = 1;
+			}
+				*Charge = -1;
+				// inverting the order of the hits.
+				for(i=0;i<nParallelHits;i++){
+					tmp[i]=ListParallelHits[nParallelHits-1-i];
+					aux[i] = V[nParallelHits-1-i];
+				}
+				for(i=0;i<nParallelHits;i++){
+					ListParallelHits[i]=tmp[i];
+					V[i] = aux[i];
+				}
+			for (j = 0; j< nParallelHits; j++){
+				U[j]=info[ Infoparal[ ListParallelHits[j] ]  ][0]/(
+				info[ Infoparal[ ListParallelHits[j] ]  ][0]*
+				info[ Infoparal[ ListParallelHits[j] ]  ][0]+
+				info[ Infoparal[ ListParallelHits[j] ]  ][1]*
+				info[ Infoparal[ ListParallelHits[j] ]  ][1]);
+			}
+		}
+
+	} //  end of   if((aaa>b1&& ....
+
+
+
+
+
+
+//  FI initial value (at 0,0  vertex) in the Helix reference frame
+
+	*Fi_initial_helix_referenceframe = atan2(-oY,-oX) ;//  this is in order to be coherent
+			//  with the calculatation of Fi, which is atan2(oY,oX). 
+			//  atan2  is defined in [-PI,PI)
+	if ( *Fi_initial_helix_referenceframe <0.)
+			*Fi_initial_helix_referenceframe += 2.*PI;
+
+//  FI of the last parallel hit in the Helix reference frame
+
+	*Fi_final_helix_referenceframe = atan2(
+		info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][1]-oY,
+		info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][0]-oX
+						);
+	if ( *Fi_final_helix_referenceframe <0.)
+			*Fi_final_helix_referenceframe += 2.*PI;
+
+	if ( *Charge > 0 ) {
+		if( *Fi_final_helix_referenceframe> *Fi_initial_helix_referenceframe)
+			*Fi_final_helix_referenceframe -= 2.*PI;
+		if( *Fi_final_helix_referenceframe> *Fi_initial_helix_referenceframe)
+			*Fi_final_helix_referenceframe = *Fi_initial_helix_referenceframe;
+	} else {
+		if( *Fi_final_helix_referenceframe< *Fi_initial_helix_referenceframe)
+			*Fi_final_helix_referenceframe += 2.*PI;
+		if( *Fi_final_helix_referenceframe< *Fi_initial_helix_referenceframe)
+			*Fi_final_helix_referenceframe = *Fi_initial_helix_referenceframe;
+	}
+
+
+
+
+ return; 
+
+}
+//----------end of function PndSttTrackFinderReal::PndSttOrderingParallel
+
+
+
+
+
+
+//----------begin of function PndSttTrackFinderReal::PndSttOrderingSkewandParallel
+
+      void   PndSttTrackFinderReal::PndSttOrderingSkewandParallel(
+			UShort_t *Infoparal,
+			UShort_t *Infoskew,
+			Double_t oX,
+			Double_t oY,
+			Double_t Rr,
+			UShort_t nSkewHits,
+			UShort_t *ListSkewHits,
+			Double_t *SList, // this is rekated to the skew hits. IMPORTANT :
+					// the index must be the ORIGINAL skew hit number,
+					// therefore SList[Infoskew[ListSkewHits[*]]].
+			Short_t  Charge,
+			UShort_t nParHits,
+			UShort_t *ListParHits,
+			Double_t *U,
+			Double_t *V,
+			UShort_t *BigList
+				)
+{
+
+
+      UShort_t	i,j,
+		index[nSkewHits+nParHits],
+		tmp[nSkewHits+nParHits],
+		tmpList[nSkewHits];
+      Double_t	aaa,
+		b1,
+		sign,
+		aux[nSkewHits+nParHits];
 
 
 
@@ -9559,128 +9886,85 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 	// 2 hours trying to figure this out!
 	b1 = PI/4.;
 
-	if((aaa>b1&&aaa<3.*b1) || (aaa>-3.*b1&&aaa<-b1)){//use U as ordering variable;
-							//[case 1 or 3 Gianluigi's Logbook page 285].
-		for (j = 0; j< nParallelHits; j++){
-			aux[j]=info[ Infoparal[ ListParallelHits[j] ]  ][0]/(
-				info[ Infoparal[ ListParallelHits[j] ]  ][0]*
-				info[ Infoparal[ ListParallelHits[j] ]  ][0]+
-				info[ Infoparal[ ListParallelHits[j] ]  ][1]*
-				info[ Infoparal[ ListParallelHits[j] ]  ][1]);
-		}
-		PndStt_Merge_Sort( nParallelHits, aux, ListParallelHits);
-		firstR2 = info[ Infoparal[ ListParallelHits[0] ] ][0]*
-			  info[ Infoparal[ ListParallelHits[0] ] ][0]+
-			  info[ Infoparal[ ListParallelHits[0] ] ][1]*
-			  info[ Infoparal[ ListParallelHits[0] ] ][1];
-		lastR2  = info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][0]*
-			  info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][0]+
-			  info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][1]*
-			  info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][1];
 
-		if((aaa>b1&&aaa<3.*b1)){  //  case #1;
-			if( firstR2<lastR2){
-				*Charge = 1;
-			}else{
-				*Charge = -1;
-				// inverting the order of the hits.
-				for(i=0;i<nParallelHits;i++){
-					tmp[i]=ListParallelHits[nParallelHits-1-i];
-				}
-				for(i=0;i<nParallelHits;i++){
-					ListParallelHits[i]=tmp[i];
-				}
-			}
-		} else{  //  case # 3.
-			if( firstR2<lastR2){
-				*Charge = -1;
-			}else{
-				*Charge = 1;
-				// inverting the order of the hits.
-				for(i=0;i<nParallelHits;i++){
-					tmp[i]=ListParallelHits[nParallelHits-1-i];
-				}
-				for(i=0;i<nParallelHits;i++){
-					ListParallelHits[i]=tmp[i];
-				}
-			}
+	if(aaa>b1&&aaa<3.*b1|| (aaa>-3.*b1&&aaa<-b1)){  //  case #1 or #3;see Gianluigi's Logbook page 285.
+		if( (aaa>b1&&aaa<3.*b1 && Charge == -1)||( aaa>-3.*b1&&aaa<-b1 && Charge == 1) )
+				{  // for speeding up the ordering taking advantage
+				    // that the parallel hits were earlier ordered and
+				    //  apply the trick of multiplying by   -1.
+			sign=-1.;
+		} else {  //  normal calculation
+			sign=1.;
 		}
 
-	} else { // use V as ordering variable [case 2 or 4 Gianluigi's Logbook page 285].
-		for (j = 0; j< nParallelHits; j++){
-			aux[j]=info[ Infoparal[ ListParallelHits[j] ]  ][1]/(
-				info[ Infoparal[ ListParallelHits[j] ]  ][0]*
-				info[ Infoparal[ ListParallelHits[j] ]  ][0]+
-				info[ Infoparal[ ListParallelHits[j] ]  ][1]*
-				info[ Infoparal[ ListParallelHits[j] ]  ][1]);
+		for (j = 0 ; j< nParHits; j++){
+			aux[j] = sign*U[j];
+			BigList[j]=Infoparal[ListParHits[j]];
+			index[j] = j;
 		}
-		PndStt_Merge_Sort( nParallelHits, aux, ListParallelHits);
-		firstR2 = info[ Infoparal[ ListParallelHits[0] ] ][0]*
-			  info[ Infoparal[ ListParallelHits[0] ] ][0]+
-			  info[ Infoparal[ ListParallelHits[0] ] ][1]*
-			  info[ Infoparal[ ListParallelHits[0] ] ][1];
-		lastR2  = info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][0]*
-			  info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][0]+
-			  info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][1]*
-			  info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][1];
-
-		if((aaa<=-3.*b1 || aaa>=3.*b1)){  //  case #2;
-			if( firstR2<lastR2){
-				*Charge = 1;
-			}else{
-				*Charge = -1;
-				// inverting the order of the hits.
-				for(i=0;i<nParallelHits;i++){
-					tmp[i]=ListParallelHits[nParallelHits-1-i];
-				}
-				for(i=0;i<nParallelHits;i++){
-					ListParallelHits[i]=tmp[i];
-				}
-			}
-		} else{  //  case # 4.
-			if( firstR2<lastR2){
-				*Charge = -1;
-			} else{
-				*Charge = 1;
-			}
-				*Charge = -1;
-				// inverting the order of the hits.
-				for(i=0;i<nParallelHits;i++){
-					tmp[i]=ListParallelHits[nParallelHits-1-i];
-				}
-				for(i=0;i<nParallelHits;i++){
-					ListParallelHits[i]=tmp[i];
-				}
+		for (j = 0; j< nSkewHits; j++){
+			// this is U in conformal space
+			aux[j+nParHits]=sign*(oX + Rr*cos(SList[Infoskew[ListSkewHits[j]]]))/
+					(oX*oX+oY*oY+Rr*Rr + 2.*Rr*
+					(oX*cos(SList[Infoskew[ListSkewHits[j]]])
+					+oY*sin(SList[Infoskew[ListSkewHits[j]]])));
+			BigList[j+nParHits]=Infoskew[ListSkewHits[j]];
+			index[j+nParHits] = j+nParHits;
 		}
 
-	} //  end of   if((aaa>b1&& ....
+
+	} else {    // use V as ordering variable
+		    // [case 2 and 4 Gianluigi's Logbook page 285].
+
+		if( ((aaa<=-3.*b1|| aaa>=3.*b1) && Charge == -1)
+				|| ( -b1 <= aaa && aaa <= b1 && Charge == 1) ){
+			sign=-1.;
+		} else {
+			sign=1.;
+		}
+		for (j = 0 ; j< nParHits; j++){
+			aux[j] = sign*V[j];
+			BigList[j]=Infoparal[ListParHits[j]];
+		}
+		for (j = 0; j< nSkewHits; j++){
+			// this is V in conformal space.
+			aux[j+nParHits]=sign*(oY + Rr*sin(SList[Infoskew[ListSkewHits[j]]]))/
+			(oX*oX+oY*oY+Rr*Rr + 2.*Rr*
+				(oX*cos(SList[Infoskew[ListSkewHits[j]]])
+				+oY*sin(SList[Infoskew[ListSkewHits[j]]])));
+			BigList[j+nParHits]=Infoskew[ListSkewHits[j]];
+		}
+
+
+	}  //  end of  if((aaa>b1&& ....
 
 
 
+	PndStt_Merge_Sort( nSkewHits+nParHits, aux, index);
+
+
+	for(i=0, j=0;i<nSkewHits+nParHits;i++){
+		tmp[i]=BigList[index[i]];
+		//  reorder the ListSkewHits also.
+		if( index[i] >= nParHits ){
+			tmpList[j] = ListSkewHits[index[i]-nParHits];
+			j++;
+		}
+	}
+	for(i=0;i<nSkewHits+nParHits;i++){
+		BigList[i]= tmp[i];
+	}
+		//  reorder the ListSkewHits also.
+	for(i=0;i<nSkewHits;i++){
+		ListSkewHits[i]= tmpList[i];
+	}
 
 
 
-//  FI initial value (at 0,0  vertex) in the Helix reference frame
-
-      *Fi_initial_helix_referenceframe = atan2(-oY,-oX) ;    //  this is in order to be coherent
-                                                             //  with the calculatation of Fi, which is atan2(oY,oX). 
-                                                             //  atan2  is defined in [-PI,PI)
-      if ( *Fi_initial_helix_referenceframe <0.) *Fi_initial_helix_referenceframe += 2.*PI;
-
-//  FI of the last parallel hit in the Helix reference frame
-
-	*Fi_final_helix_referenceframe = atan2(
-		info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][1]-oY,
-		info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][0]-oX
-						);
-
- return; 
+ return;
 
 }
-//----------end of function PndSttTrackFinderReal::PndSttOrderingParallel
-
-
-
+//----------end of function PndSttTrackFinderReal::PndSttOrderingSkewandParallel
 
 
 
@@ -9722,8 +10006,11 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
 //  here there is the ordering of the hits
 
-//   ordering of the parallel hits first
+//   ordering of the parallel hits is not necessary; already done previously in
+//   PndSttOrderingParallel, also taking care of the Charge (when positive, the
+//   ordering must be reversed).
 
+/*
     for (j = 0; j< nParallelHits; j++){
       auxRvalues[j]=
                     info[ Infoparal[ ListParallelHits[j] ]  ][0]*
@@ -9733,6 +10020,9 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
     }
 
     PndStt_Merge_Sort( nParallelHits, auxRvalues, ListParallelHits);
+
+*/
+
 
     for (j = 0; j< nParallelHits; j++){              
       auxFivalues[j] = atan2( info[ Infoparal[ ListParallelHits[j] ]  ][1]-oY,
@@ -9756,14 +10046,15 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
       }
    }
 
-//   finding the charge of the track
+//   finding the charge of the track not necessary; already done prima.
 
+/*
     if( auxFivalues[0] > auxFivalues[nParallelHits-1]) {
       *Charge =  1;
     }  else {
      *Charge =  -1;
     }
-
+*/
 
 
 
@@ -9787,6 +10078,11 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
  }   //  end of   if(nSkewHits>0)
 
 
+
+
+
+
+
 //    merge the parallel and skew hits
      for(j = 0;j< nParallelHits; j++){
        BigListFi[j]=auxFivalues[j];
@@ -9805,7 +10101,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
 
 
-
+/*
 // for POSITIVE charged tracks, the ordering based on the Fi angle must be reversed because hits at smaller
 // distance from center have geatest Fi
 
@@ -9819,6 +10115,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
        BigList[j]=aux[j];
       }
      }
+*/
 
 
 /*
@@ -10688,7 +10985,7 @@ out2:  ;
 
    UShort_t  i, j, jtemp,jexp;
 
-   Int_t	enne,
+   Short_t	enne,
 		itemp,
 		massimo,
 		toMCtracklist[nTracksFoundSoFar][nmaxHits];
@@ -10739,6 +11036,7 @@ out2:  ;
 out1:  ;
 		}
 	}   //  end of for(i=0; i<nHitsinTrack[jexp]; i++)
+
 
 
      }  // end of  for(jexp=0; jexp< nTracksFoundSoFar ;jexp++)
@@ -11037,7 +11335,7 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 						Double_t Rr,
 						Short_t  Charge,
 						Double_t Start[3],
-						UShort_t nHits,
+						UShort_t &nHits,
 						UShort_t *ListHits,
 						Double_t info[][7],
 						Double_t RStrawDetMin,
@@ -11046,6 +11344,14 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 						Double_t RStrawDetMax
 						)
 {
+// this method does 3 things :
+//
+//	1)  finds the entrance and exit points in the STT parallel volumes of the current track;
+//	2)  eliminates from the track hit list possible spurious hits that are not encompassed
+//		by the entrance and exit point;
+//	3)  eliminates the tracks if the hit sequence is not continuous enough.
+
+
 	bool ConsiderLastHit;
 
 	Short_t flagInnerStt,
@@ -11086,63 +11392,32 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 
 //------------------------------------------
 
-// finding all possible intersections with inner parallel straw region.
-// The inner parallel straw region is delimited by two hexagons.
 
-	// flagInnerStt meaning :
-	// -2 -->  track outside outer polygon;
-	// -1 -->  track contained completely within inner polygon;
-	// 0 -->  at least 1 intersection with inner polygon, at least 1 with outer polygon;
-	// 1 -->  track contained completely between the two polygons;
-	// 2 -->  track contained completely by larger polygons, with intersections in the smaller;
-	// 3 -->  track completely outsiede the small polygon with intersections in the bigger.
-
-
-
-	flagInnerStt=IntersectionsWithClosedPolygon(
-		Oxx,
-		Oyy,
-		Rr,
-		RStrawDetMin,	// Rmin of the inner part of parallele straws,
-		ApotemaMaxInnerParStraw,// max Apotema of the inner part of parallele straws.
-		nIntersections,
-		XintersectionList, // XintersectionList[0][..] --> inner polygon,
-				   // XintersectionList[1][..] --> outer polygon.
-		YintersectionList
-					);
-
-	// IMPORTANT :
-	// this is true because here it is assumed that the track comes from (0,0,0)
-	// otherwise the code must be changed!
-
-	if (!(flagInnerStt == 0 || flagInnerStt == 2)) return false;
-	if (flagInnerStt == 2 &&nIntersections[0]<2 ){
+	// find the entrance and exit of the track in the Inner Parallel Straw region.
+	// This region is bounded by two Hexagons, and it has the target gap in the middle.
+	flagInnerStt=FindTrackEntranceExitbiHexagon(
+				Oxx,
+				Oyy,
+				Rr,
+				Charge,
+				Start,
+				RStrawDetMin,
+				ApotemaMaxInnerParStraw,
+				Xcross,
+				Ycross
+				);
+	if (!(flagInnerStt == 0 || flagInnerStt == 2)) {
+		 return false;
+		}
+	if (flagInnerStt == -99 ){
 			cout<<"PndSttTrackFinderReal::SttParalCleanup,"<<
-			" contraddiction, nIntersections[0]="<<
+			" contraddiction,inner, nIntersections[0]="<<
 			nIntersections[0]<<"<2, returning false!\n";
 			return false;
 	}
-	if( nInnerHits==0)  return false;
-
-//-------  among all  possible intersection find the entrance point (Xcross[0], Ycross[0])
-//	   and the exit point (Xcross[1], Ycross[1])  of this track.
-
-//-------- the starting point of the track.
-	FiStart = atan2( Start[1]-Oyy,Start[0]-Oxx);
-	FindEntranceExit(
-			Oxx,
-			Oyy,
-			flagInnerStt,
-			Charge,
-			FiStart,
-			nIntersections,
-			XintersectionList,
-			YintersectionList,
-			Xcross,	// output
-			Ycross	// output
-					);
-
-//----------------------
+	if( nInnerHits==0) {
+	 return false;
+	 }
 
 //-------------  cleanup of the spurious tracks first using the inner parallel straws.
 
@@ -11178,68 +11453,37 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 
 //-----------------------------------------------------
 
-
-// find intersections with outer parallel straw detector region.
-
-	// flagOuterStt meaning :
-	// -2 -->  track outside outer polygon;
-	// -1 -->  track contained completely within inner polygon;
-	// 0 -->  at least 1 intersection with inner polygon, at least 1 with outer polygon;
-	// 1 -->  track contained completely between the two polygons;
-	// 2 -->  track contained completely by larger polygons, with intersections in the smaller;
-	// 3 -->  track completely outsiede the small polygon with intersections in the bigger.
-
 	if(nOuterHits==0){
 		return true;	// at this point of the code the absence of outer parallel hits
 					// is possible (= track with very high Pz).
 	}
 
-	flagOuterStt=IntersectionsWithClosedPolygon(
-		Oxx,
-		Oyy,
-		Rr,
-		ApotemaMinOuterParStraw, // min Apotema of the outer part of parallele straws.
-		RStrawDetMax,
-		nIntersections,
-		XintersectionList,
-		YintersectionList
+//------------
+	// find the entrance and exit of the track in the Outer Parallel Straw region.
+	// This region is bounded by a Hexagon (inner), a Circle (outer) and it has
+	// the target gap in the middle.
+	flagOuterStt=FindTrackEntranceExitHexagonCircle(
+				Oxx,
+				Oyy,
+				Rr,
+				Charge,
+				Start,
+				ApotemaMinOuterParStraw,
+				RStrawDetMax,
+				Xcross,
+				Ycross
 				);
-
-
-
-//-------  find the entrance point (Xcross[0], Ycross[0])  and the exit point
-//		(Xcross[1], Ycross[1])  of this track.
-
-	// here it is assumed that the track comes from (0,0,0)
-	if (!(flagOuterStt == 0 || flagOuterStt == 2 || flagOuterStt == -1)) return false;
-	if (flagOuterStt == 2 &&nIntersections[0]<2 ){
+	if (!(flagOuterStt == 0 || flagOuterStt == 2|| flagOuterStt == -1)) return false;
+	if (flagOuterStt == -99 ){
 			cout<<"PndSttTrackFinderReal::SttParalCleanup,"<<
-			" contraddiction, nIntersections[0]="<<
+			" contraddiction,outer, nIntersections[0]="<<
 			nIntersections[0]<<"<2, returning false!\n";
 			return false;
 	}
-	if( flagOuterStt == -1) return true;	// case of track confined in inner polygon of
-						// outer part of parallel Stt. In principle this case
-						// should never happen bacause nOuterHits>0!
+//-------------------------
 
-	FindEntranceExit(
-			Oxx,
-			Oyy,
-			flagOuterStt,
-			Charge,
-			FiStart,
-			nIntersections,
-			XintersectionList,
-			YintersectionList,
-			Xcross,	// output
-			Ycross	// output
-			);
 
 //  cleanup of the spurious tracks now using the outer parallel straws.
-
-
-
-
 
 
 	if ( BadTrack_ParStt(
@@ -11274,15 +11518,6 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 
 
 //----------end of function PndSttTrackFinderReal::SttParalCleanup
-
-
-
-
-
-
-
-
-
 
 
 
@@ -11322,63 +11557,32 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 			YintersectionList[2][12]; // second index : all the possible intersections
 						  // (up to 12 intersections).
 
-//------------------------
-
-// finding all possible intersections with skew straw region.
-// The skew straw region is delimited by two hexagons.
-
-	// flagInnerStt meaning :
-	// -2 -->  track outside outer polygon;
-	// -1 -->  track contained completely within inner polygon;
-	// 0 -->  at least 1 intersection with inner polygon, at least 1 with outer polygon;
-	// 1 -->  track contained completely between the two polygons;
-	// 2 -->  track contained completely by larger polygons, with intersections in the smaller;
-	// 3 -->  track completely outside the small polygon with intersections in the bigger.
+//------------------------------------------
 
 
-
-	flagStt=IntersectionsWithClosedPolygon(
-		Oxx,
-		Oyy,
-		Rr,
-		ApotemaMinSkewStraw,	// min Apotema of the Skew straws,
-		ApotemaMaxSkewStraw,	// max Apotema of the Skew straws.
-		nIntersections,
-		XintersectionList, // XintersectionList[0][..] --> inner polygon,
-				   // XintersectionList[1][..] --> outer polygon.
-		YintersectionList
-					);
-
-	// IMPORTANT :
-	// this is true because here it is assumed that the track comes from (0,0,0)
-	// otherwise the code must be changed!
-
+	// find the entrance and exit of the track in the Skew Straw region.
+	// This region is bounded by two Hexagons, and it has the target gap in the middle.
+	flagStt=FindTrackEntranceExitbiHexagon(
+				Oxx,
+				Oyy,
+				Rr,
+				Charge,
+				Start,
+		ApotemaMinSkewStraw,
+		ApotemaMaxSkewStraw, // Apotema is the distance of a Hexagonal side from (0,0)
+				Xcross,
+				Ycross
+				);
 	if (!(flagStt == 0 || flagStt == 2)) return false;
-	if (flagStt == 2 &&nIntersections[0]<2 ){
+	if (flagStt == -99 ){
 			cout<<"PndSttTrackFinderReal::SttSkewCleanup,"<<
-			" contraddiction, nIntersections[0]="<<
+			" contraddiction,skew, nIntersections[0]="<<
 			nIntersections[0]<<"<2, returning false!\n";
 			return false;
 	}
 
-//-------  among all  possible intersection find the entrance point (Xcross[0], Ycross[0])
-//	   and the exit point (Xcross[1], Ycross[1])  of this track.
+//-------------------------------------------------------------------------
 
-//-------- the starting point of the track.
-	FiStart = atan2( Start[1]-Oyy,Start[0]-Oxx);
-	FindEntranceExit(
-			Oxx,
-			Oyy,
-			flagStt,
-			Charge,
-			FiStart,
-			nIntersections,
-			XintersectionList,
-			YintersectionList,
-			Xcross,	// output
-			Ycross	// output
-					);
-//-------------  cleanup of the spurious tracks first using the inner parallel straws.
 
 	//  if there are also Outer Parallel hits, then require continuity of hits
 	//  also at the external border of the inner parallel straw section (ConsiderLastHit=true).
@@ -11396,7 +11600,7 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 		}
 
 	for (i=1; i<nHits;i++){
-		Distance[i] = Rr*( auxS[i]-auxS[i-1]); //length of the arc,not really the distance.
+		Distance[i] = fabs(Rr*( auxS[i]-auxS[i-1])); //length of the arc,not really the distance.
 		if(Distance[i]>cut){
 			if(Distance[i]>4.*cut){
 				return false;
@@ -11404,7 +11608,6 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 			ibad++;
 		}
 	}	// end of do (i=1; i<nHits;i++)
-
 
 
 	if( ConsiderLastHit ){
@@ -11416,7 +11619,15 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 				);
 	   if( Distance[nHits]>cut ){
 		if( Distance[nHits]>4.*cut){
-
+//--------stampaggio
+	if(istampa>=3) cout<<"da SttSkewCleanup,Distance[nHits], distanza catastrofica = "<<
+	Distance[nHits]<<", !Eliminare!\n"
+"\tcon il printout : Xcross[0] = "<<Xcross[0]<<", Ycross[0] = "<<Ycross[0]
+	<<"\n\tcon il printout : Xcross[1] = "<<Xcross[1]<<", Ycross[1] = "<<Ycross[1]
+<<"\n\tOxx = "<<Oxx
+	<<", Oyy = "<<Oyy<<"\n\tRr "<<Rr<<"\n\tauxS[nHits-1] "<<auxS[nHits-1]<<
+	"\tsuo X = "<<  Oxx+Rr*cos(auxS[nHits-1])<<", suo Y "<<Oyy+Rr*sin(auxS[nHits-1])<<endl;
+//---------fine stampa
 
 			return false;
 		}
@@ -11424,12 +11635,21 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 	   }
 	}	// end of  if( Distance[nHits]>cut )
 
+//-------- stampaggi
+if(istampa>=3) {
+	for(int ic=0;ic<nHits;ic++){
+		cout<<"\tda SttSkewCleanup, distanza = "<<Distance[ic]<<endl;
+	}
+if(ConsiderLastHit) cout<<"\tultimo hit considerato, distanza = "<<Distance[nHits]<<endl;
+else cout<<"\tultimo hit NON considerato."<<endl;
+
+}
+//-------------------
 
 
 	if( ibad > maxnum){
 		 return false;
 	}
-
 
 	return true;
 
@@ -11482,6 +11702,8 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 		(info[ListHits[0]][0]-Xcross[0])*(info[ListHits[0]][0]-Xcross[0])+
 		(info[ListHits[0]][1]-Ycross[0])*(info[ListHits[0]][1]-Ycross[0])
 			);
+	if(istampa>=3)cout<<"from BadTrack_ParStt, Stt || hit n. (original notation) "<<
+	ListHits[0]<<", Distance = "<<Distance[0]<<endl;
 	if(Distance[0]>cut){
 		if(Distance[0]>4.*cut){
 			return true;
@@ -11497,6 +11719,8 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 			(info[ListHits[ihit]][1]-info[ListHits[ihit-1]][1])
 					);
 
+if(istampa>=3)cout<<"from BadTrack_ParStt, Stt || hit n. (original notation) "<<
+	ListHits[ihit]<<", Distance = "<<Distance[ihit]<<endl;
 		if(Distance[ihit]>cut){
 			if(Distance[ihit]>4.*cut){
 				return true;
@@ -11514,6 +11738,8 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 	   (info[ListHits[nHits-1]][0]-Xcross[1])*(info[ListHits[nHits-1]][0]-Xcross[1])+
 	   (info[ListHits[nHits-1]][1]-Ycross[1])*(info[ListHits[nHits-1]][1]-Ycross[1])
 						);
+if(istampa>=3)cout<<"from BadTrack_ParStt, Stt || hit n. (original notation) "<<
+	ListHits[nHits-1]<<", Distance to boundary = "<<Distance[nHits]<<endl;
 	   if( Distance[nHits]>cut ){
 		if( Distance[nHits]>4.*cut){
 			return true;
@@ -11523,6 +11749,27 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 	}	// end of  if( Distance[nHits]>cut )
 
 
+//-------- stampaggi
+if(istampa>=3) {
+	for(int ic=0;ic<nHits;ic++){
+		cout<<"\tBadTrack_ParStt, distanza = "<<Distance[ic]<<endl;
+	}
+if(ConsiderLastHit) cout<<"\tBadTrack_ParStt,ultimo hit considerato, distanza = "<<Distance[nHits]<<endl;
+else cout<<"\tBadTrack_ParStt,ultimo hit NON considerato."<<endl;
+
+}
+//-------------------
+//-------- some plots
+if(iplotta){
+	for(int ic=0;ic<nHits;ic++){
+		hdist->Fill(Distance[ic]);
+	}
+
+if(ConsiderLastHit)  hdistgoodlast->Fill( Distance[nHits]);
+else  hdistbadlast->Fill( Distance[nHits]);
+
+}
+//---------------------------------------------
 
 
 	if( ibad > maxnum) return true;
@@ -11782,8 +12029,8 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 }
 //----------end of function PndSttTrackFinderReal::IsInternal
 
-//----------star of function PndSttTrackFinderReal::FindEntranceExit
-	void PndSttTrackFinderReal::FindEntranceExit(
+//----------star of function PndSttTrackFinderReal::ChooseEntranceExit
+	void PndSttTrackFinderReal::ChooseEntranceExit(
 			Double_t Oxx,
 			Double_t Oyy,
 			Short_t flag,
@@ -11873,7 +12120,7 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 
 
 }
-//----------end of function PndSttTrackFinderReal::FindEntranceExit
+//----------end of function PndSttTrackFinderReal::ChooseEntranceExit
 
 //----------begin of function PndSttTrackFinderReal::SeparateInnerOuterParallel
 
@@ -11916,6 +12163,190 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 }
 
 //----------end of function PndSttTrackFinderReal::SeparateInnerOuterParallel
+
+
+//----------begin of function PndSttTrackFinderReal::FindTrackEntranceExitbiHexagon
+
+
+	Short_t PndSttTrackFinderReal::FindTrackEntranceExitbiHexagon(
+				Double_t Oxx,
+				Double_t Oyy,
+				Double_t Rr,
+				Short_t  Charge,
+				Double_t Start[3],
+				Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
+				Double_t ApotemaMax,
+				Double_t Xcross[2],
+				Double_t Ycross[2]
+							)
+{
+	Short_t flag;
+	UShort_t	nIntersections[2];
+	Double_t	FiStart,
+			XintersectionList[2][12], // first index =0 --> inner Hexagon, =1 --> outer.
+			YintersectionList[2][12]; // second index : all the possible intersections
+						  // (up to 12 intersections).
+
+// finding all possible intersections with inner parallel straw region.
+// The inner parallel straw region is delimited by two hexagons.
+
+	// flag meaning :
+	// -2 -->  track outside outer polygon;
+	// -1 -->  track contained completely within inner polygon;
+	// 0 -->  at least 1 intersection with inner polygon, at least 1 with outer polygon;
+	// 1 -->  track contained completely between the two polygons;
+	// 2 -->  track contained completely by larger polygons, with intersections in the smaller;
+	// 3 -->  track completely outsiede the small polygon with intersections in the bigger.
+
+
+	flag=IntersectionsWithClosedPolygon(
+		Oxx,
+		Oyy,
+		Rr,
+		ApotemaMin,	// Rmin of the inner part of parallele straws,
+		ApotemaMax,// max Apotema of the inner part of parallele straws.
+		nIntersections,
+		XintersectionList, // XintersectionList[0][..] --> inner polygon,
+				   // XintersectionList[1][..] --> outer polygon.
+		YintersectionList
+					);
+
+	// IMPORTANT :
+	// this is true because here it is assumed that the track comes from (0,0,0)
+	// otherwise the code must be changed!
+
+	if (!(flag == 0 || flag == 2)) return flag;
+	if (flag == 2 &&nIntersections[0]<2 ){
+			cout<<"PndSttTrackFinderReal::FindTrackEntranceExitbiHexagon,"<<
+			" contraddiction, nIntersections[0]="<<
+			nIntersections[0]<<"<2, returning -99!\n";
+			return -99;
+	}
+
+//-------  among all  possible intersection find the entrance point (Xcross[0], Ycross[0])
+//	   and the exit point (Xcross[1], Ycross[1])  of this track.
+
+//-------- the starting point of the track.
+	FiStart = atan2( Start[1]-Oyy,Start[0]-Oxx);
+
+	// this method selects the entrance and exit points of the trajectory among all
+	// geometrical intersections of the circular trajectory with the straw particular
+	// volume.
+
+	ChooseEntranceExit(
+			Oxx,
+			Oyy,
+			flag,
+			Charge,
+			FiStart,
+			nIntersections,
+			XintersectionList,
+			YintersectionList,
+			Xcross,	// output
+			Ycross	// output
+					);
+
+//----------------------
+
+	return flag;
+
+}
+
+//----------end of function PndSttTrackFinderReal::FindTrackEntranceExitbiHexagon
+
+
+
+
+
+
+//----------begin of function PndSttTrackFinderReal::FindTrackEntranceExitHexagonCircle
+
+
+	Short_t PndSttTrackFinderReal::FindTrackEntranceExitHexagonCircle(
+				Double_t Oxx,
+				Double_t Oyy,
+				Double_t Rr,
+				Short_t  Charge,
+				Double_t Start[3],
+				Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
+				Double_t ApotemaMax,
+				Double_t Xcross[2],
+				Double_t Ycross[2]
+							)
+{
+	Short_t flag;
+	UShort_t	nIntersections[2];
+	Double_t	FiStart,
+			XintersectionList[2][12], // first index =0 --> inner Hexagon, =1 --> outer.
+			YintersectionList[2][12]; // second index : all the possible intersections
+						  // (up to 12 intersections).
+
+// finding all possible intersections with inner parallel straw region.
+// The inner parallel straw region is delimited by two hexagons.
+
+	// flag meaning :
+	// -2 -->  track outside outer polygon;
+	// -1 -->  track contained completely within inner polygon;
+	// 0 -->  at least 1 intersection with inner polygon, at least 1 with outer polygon;
+	// 1 -->  track contained completely between the two polygons;
+	// 2 -->  track contained completely by larger polygons, with intersections in the smaller;
+	// 3 -->  track completely outsiede the small polygon with intersections in the bigger.
+
+
+	flag=IntersectionsWithClosedPolygon(
+		Oxx,
+		Oyy,
+		Rr,
+		ApotemaMin,	// Rmin of the inner part of parallele straws,
+		ApotemaMax,// max Apotema of the inner part of parallele straws.
+		nIntersections,
+		XintersectionList, // XintersectionList[0][..] --> inner polygon,
+				   // XintersectionList[1][..] --> outer polygon.
+		YintersectionList
+					);
+
+	// IMPORTANT :
+	// this is true because here it is assumed that the track comes from (0,0,0)
+	// otherwise the code must be changed!
+
+	if (!(flag == 0 || flag == 2)) return flag;
+	if (flag == 2 &&nIntersections[0]<2 ){
+			cout<<"PndSttTrackFinderReal::FindTrackEntranceExitbiHexagon,"<<
+			" contraddiction, nIntersections[0]="<<
+			nIntersections[0]<<"<2, returning -99!\n";
+			return -99;
+	}
+
+//-------  among all  possible intersection find the entrance point (Xcross[0], Ycross[0])
+//	   and the exit point (Xcross[1], Ycross[1])  of this track.
+
+//-------- the starting point of the track.
+	FiStart = atan2( Start[1]-Oyy,Start[0]-Oxx);
+
+	// this method selects the entrance and exit points of the trajectory among all
+	// geometrical intersections of the circular trajectory with the straw particular
+	// volume.
+
+	ChooseEntranceExit(
+			Oxx,
+			Oyy,
+			flag,
+			Charge,
+			FiStart,
+			nIntersections,
+			XintersectionList,
+			YintersectionList,
+			Xcross,	// output
+			Ycross	// output
+					);
+
+//----------------------
+
+	return flag;
+
+}
+
+//----------end of function PndSttTrackFinderReal::FindTrackEntranceExitHexagonCircle
 
 
 ClassImp(PndSttTrackFinderReal)
