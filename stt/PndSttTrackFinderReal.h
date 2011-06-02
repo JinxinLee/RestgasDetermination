@@ -91,7 +91,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 #define maximumTracks 40
       static const UShort_t
-            nmaxHits = maximumTracks*30, // max hits total
+            nmaxHits = maximumTracks*30, // max hits total.
             MAXMCTRACKS=maximumTracks,
             MAXTRACKSPEREVENT=maximumTracks,
 	    MAXHITSINCELL=50,
@@ -500,6 +500,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
   void WriteMacroSkewAssociatedHits(
+		bool goodskewfit,
                    Double_t KAPPA,
                    Double_t FI0,
                    Double_t D,
@@ -518,6 +519,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
   void WriteMacroSkewAssociatedHitswithMC(
+		bool goodskewfit,
                    Double_t KAPPA,
                    Double_t FI0,
                    Double_t D,
@@ -549,8 +551,8 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                    Double_t inclination[][3],
                    Double_t Fi_low_limit,
                    Double_t Fi_up_limit,
-                   Double_t Fi_allowedforskew_low,
-                   Double_t Fi_allowedforskew_up,
+//                   Double_t Fi_allowedforskew_low,
+//                   Double_t Fi_allowedforskew_up,
                    Short_t Charge,
                    Double_t Fi_initial_helix_referenceframe,
                    Double_t Fi_final_helix_referenceframe,
@@ -598,17 +600,37 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
       void   PndSttOrderingParallel(
-                                                     Double_t oX,
-                                                     Double_t oY,
-                                                     Double_t info[][7],
-                                                     UShort_t nParallelHits,
-                                                     UShort_t *ListParallelHits,
-                                                     UShort_t *Infoparal,
-                                                     Short_t  * Charge,
-                                                     Double_t *Fi_initial_helix_referenceframe,
-                                                     Double_t *Fi_final_helix_referenceframe
-                                                       );
+		Double_t oX,
+		Double_t oY,
+		Double_t info[][7],
+		UShort_t nParallelHits,
+		UShort_t *ListParallelHits,
+		UShort_t *Infoparal,
+		Short_t  * Charge,
+		Double_t *Fi_initial_helix_referenceframe,
+		Double_t *Fi_final_helix_referenceframe,
+		Double_t *U,
+		Double_t *V
+				);
 
+
+      void   PndSttOrderingSkewandParallel(
+			UShort_t *Infoparal,
+			UShort_t *Infoskew,
+			Double_t oX,
+			Double_t oY,
+			Double_t Rr,
+			UShort_t nSkewHits,
+			UShort_t *ListSkewHits,
+			Double_t *SList,
+			Short_t  Charge,
+			UShort_t nParHits,
+			UShort_t *ListParHits,
+			Double_t *U,
+			Double_t *V,
+			UShort_t *BigList
+
+                                                       );
 
       void   PndSttOrdering(
                                                      Double_t oX,
@@ -729,7 +751,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 			Double_t Rr,
 			Short_t Charge,
 			Double_t Start[3],
-			UShort_t nHits,
+			UShort_t &nHits,
 			UShort_t *ListHits,
 			Double_t info[][7],
 			Double_t RStrawDetMin,
@@ -738,19 +760,6 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 			Double_t RStrawDetMax
 			);
 
-  bool SttSkewCleanup(
-			Double_t Oxx,
-			Double_t Oyy,
-			Double_t Rr,
-			Short_t  Charge,
-			Double_t Start[3],
-			UShort_t nHits,
-			UShort_t *ListHits,
-			Double_t info[][7],
-			Double_t RminStrawSkew,
-			Double_t RmaxStrawSkew,
-			bool ConsiderLastHit
-						);
 
   bool SttSkewCleanup(
 			Double_t Oxx,
@@ -826,7 +835,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
 
-	void FindEntranceExit(
+	void ChooseEntranceExit(
 			Double_t Oxx,
 			Double_t Oyy,
 			Short_t flag,
@@ -839,6 +848,29 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 			Double_t Ycross[2]	// output
 					);
 
+	Short_t FindTrackEntranceExitbiHexagon(
+				Double_t Oxx,
+				Double_t Oyy,
+				Double_t Rr,
+				Short_t  Charge,
+				Double_t Start[3],
+				Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
+				Double_t ApotemaMax,
+				Double_t Xcross[2],
+				Double_t Ycross[2]
+					);
+
+	Short_t FindTrackEntranceExitHexagonCircle(
+				Double_t Oxx,
+				Double_t Oyy,
+				Double_t Rr,
+				Short_t  Charge,
+				Double_t Start[3],
+				Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
+				Double_t ApotemaMax,
+				Double_t Xcross[2],
+				Double_t Ycross[2]
+					);
 	void SeparateInnerOuterParallel(
 
 				// input
