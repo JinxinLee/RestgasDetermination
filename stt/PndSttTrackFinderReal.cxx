@@ -1070,7 +1070,7 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 	infoparal[ ListHitsinTrack[nTracksFoundSoFar][iq] ]<<endl; 
   }
   cout<<"\tOx = "<<Ox[nTracksFoundSoFar]<<",  Oy = "<<Oy[nTracksFoundSoFar]<<
-  ",  R = "<<R[nTracksFoundSoFar]<<", and Status = "<<Status[nTracksFoundSoFar]<<endl;
+  ",  R*R = "<<R[nTracksFoundSoFar]<<", and Status = "<<Status[nTracksFoundSoFar]<<endl;
  }
 
 	// some obvious preliminary cuts
@@ -1491,7 +1491,6 @@ cout<<"     elenco dei "<<nSkewHitsinTrack[i]<<" hits skew\n";
 	nTotalHits[i] =  nHitsinTrack[i]+nSkewHitsinTrack[i];
 	if ( nSkewHitsinTrack[i]==0) continue;
 
-
 	PndSttOrderingSkewandParallel(
 		infoparal,
 		infoskew,
@@ -1511,28 +1510,11 @@ cout<<"     elenco dei "<<nSkewHitsinTrack[i]<<" hits skew\n";
 				);
 
 
-/*
-       PndSttOrdering(
-                             Ox[i],
-                             Oy[i],
-                             info,
-                             nHitsinTrack[i],
-                             &ListHitsinTrack[i][0],	// this was already ordered.
-                             nSkewHitsinTrack[i],
-                             &ListSkewHitsinTrack[i][0],// this gets ordered.
-                             &Sfinal[i][0],
-                             infoparal,
-                             infoskew,
-                             &nTotalHits[i],
-                             &BigList[i][0], // this is the final ordered Parallel+Skew list.
-                             &Charge[i]
-                       );
-*/
 
 
 if(istampa>=2) 
 {
-  cout<<"Traccia n. "<<i<<",  list dei "<<nTotalHits[i]
+  cout<<"Evt. n. "<<IVOLTE<<", Traccia n. "<<i<<",  list dei "<<nTotalHits[i]
   <<"   hits come stanno in BigList (original notation) :\n";
 
    for(int ig=0;ig<nTotalHits[i];ig++){
@@ -9850,7 +9832,8 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 			UShort_t *ListParHits,
 			Double_t *U,
 			Double_t *V,
-			UShort_t *BigList
+			UShort_t *BigList // this is the final ordered Parallel+Skew list;
+				// already in NATIVE hit number.
 				)
 {
 
@@ -9899,8 +9882,8 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
 		for (j = 0 ; j< nParHits; j++){
 			aux[j] = sign*U[j];
-			BigList[j]=Infoparal[ListParHits[j]];
-			index[j] = j;
+//			BigList[j]=Infoparal[ListParHits[j]];
+//			index[j] = j;
 		}
 		for (j = 0; j< nSkewHits; j++){
 			// this is U in conformal space
@@ -9908,8 +9891,8 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 					(oX*oX+oY*oY+Rr*Rr + 2.*Rr*
 					(oX*cos(SList[Infoskew[ListSkewHits[j]]])
 					+oY*sin(SList[Infoskew[ListSkewHits[j]]])));
-			BigList[j+nParHits]=Infoskew[ListSkewHits[j]];
-			index[j+nParHits] = j+nParHits;
+//			BigList[j+nParHits]=Infoskew[ListSkewHits[j]];
+//			index[j+nParHits] = j+nParHits;
 		}
 
 
@@ -9924,7 +9907,8 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 		}
 		for (j = 0 ; j< nParHits; j++){
 			aux[j] = sign*V[j];
-			BigList[j]=Infoparal[ListParHits[j]];
+//			BigList[j]=Infoparal[ListParHits[j]];
+//			index[j] = j;
 		}
 		for (j = 0; j< nSkewHits; j++){
 			// this is V in conformal space.
@@ -9932,13 +9916,22 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 			(oX*oX+oY*oY+Rr*Rr + 2.*Rr*
 				(oX*cos(SList[Infoskew[ListSkewHits[j]]])
 				+oY*sin(SList[Infoskew[ListSkewHits[j]]])));
-			BigList[j+nParHits]=Infoskew[ListSkewHits[j]];
+//			BigList[j+nParHits]=Infoskew[ListSkewHits[j]];
+//			index[j+nParHits] = j+nParHits;
 		}
 
 
 	}  //  end of  if((aaa>b1&& ....
 
 
+	for (j = 0 ; j< nParHits; j++){
+		BigList[j]=Infoparal[ListParHits[j]];
+		index[j] = j;
+	}
+	for (j = 0; j< nSkewHits; j++){
+		BigList[j+nParHits]=Infoskew[ListSkewHits[j]];
+		index[j+nParHits] = j+nParHits;
+	}
 
 	PndStt_Merge_Sort( nSkewHits+nParHits, aux, index);
 
@@ -9958,7 +9951,6 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 	for(i=0;i<nSkewHits;i++){
 		ListSkewHits[i]= tmpList[i];
 	}
-
 
 
  return;
@@ -11368,8 +11360,8 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 			r,
 			Xcross[2],
 			Ycross[2],
-			XintersectionList[2][12], // first index =0 --> inner Hexagon, =1 --> outer.
-			YintersectionList[2][12]; // second index : all the possible intersections
+			XintersectionList[12][2], // second index =0 --> inner Hexagon, =1 --> outer.
+			YintersectionList[12][2]; // first index : all the possible intersections
 						  // (up to 12 intersections).
 
 //------------------------
@@ -11553,11 +11545,36 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 			Distance[nHits+1],
 			Xcross[2],
 			Ycross[2],
-			XintersectionList[2][12], // first index =0 --> inner Hexagon, =1 --> outer.
-			YintersectionList[2][12]; // second index : all the possible intersections
+			XintersectionList[12][2], // second index =0 --> inner Hexagon, =1 --> outer.
+			YintersectionList[12][2]; // first index : all the possible intersections
 						  // (up to 12 intersections).
 
 //------------------------------------------
+	// find the entrance and exit of the track in the Skew Straw region.
+	// This region is bounded by two Hexagons, and it has the target gap
+	// in the middle. So Left is the left looking from downstream.
+	flagStt=FindTrackEntranceExitbiHexagonLeft(
+				Oxx,
+				Oyy,
+				Rr,
+				Charge,
+				Start,
+		ApotemaMinSkewStraw,
+		ApotemaMaxSkewStraw, // Apotema is the distance of a Hexagonal side from (0,0)
+				Xcross,
+				Ycross
+				);
+	flagStt=FindTrackEntranceExitbiHexagonRight(
+				Oxx,
+				Oyy,
+				Rr,
+				Charge,
+				Start,
+		ApotemaMinSkewStraw,
+		ApotemaMaxSkewStraw, // Apotema is the distance of a Hexagonal side from (0,0)
+				Xcross,
+				Ycross
+				);
 
 
 	// find the entrance and exit of the track in the Skew Straw region.
@@ -11791,8 +11808,8 @@ else  hdistbadlast->Fill( Distance[nHits]);
 		Double_t Rma,	// max Apotema of hexagonal volume intersected by track;
 		//-------- outputs
 		UShort_t nIntersections[2],
-		Double_t XintersectionList[2][12],
-		Double_t YintersectionList[2][12]
+		Double_t XintersectionList[][2],
+		Double_t YintersectionList[][2]
 						)
 {
 
@@ -11879,8 +11896,8 @@ else  hdistbadlast->Fill( Distance[nHits]);
 			   ){
 			   AtLeast1[i]=true;
 			   for(j=0;j<Nintersections;j++){
-				XintersectionList[i][ nIntersections[i] ] =tempX[j];
-				YintersectionList[i][ nIntersections[i] ] =tempY[j];
+				XintersectionList[ nIntersections[i] ][i] =tempX[j];
+				YintersectionList[ nIntersections[i] ][i] =tempY[j];
 				nIntersections[i]++;
 			   }
 			}	// end of if ( IntersectionCircle_Segment( .....
@@ -11919,6 +11936,144 @@ else  hdistbadlast->Fill( Distance[nHits]);
 //---------- end of  function PndSttTrackFinderReal::IntersectionsWithClosedPolygon
 
 
+
+//----------start  function PndSttTrackFinderReal::IntersectionsWithClosedbiHexagonLeft
+
+	Short_t  PndSttTrackFinderReal::IntersectionsWithClosedbiHexagonLeft(
+		//-------- inputs
+		Double_t Ox,
+		Double_t Oy,
+		Double_t R,
+		Double_t Rmi,	// min Apotema of hexagonal  volume intersected by track;
+		Double_t Rma,	// max Apotema of hexagonal volume intersected by track;
+		//-------- outputs
+		UShort_t nIntersections[2],
+		Double_t XintersectionList[][2],
+		Double_t YintersectionList[][2]
+						)
+{
+
+
+	// return integer convention :
+	// -2 -->  track outside outer polygon;
+	// -1 -->  track contained completely within inner polygon;
+	// 0 -->  at least 1 intersection with inner polygon, at least 1 with outer polygon;
+	// 1 -->  track contained completely between the two polygons;
+	// 2 -->  track contained completely by larger polygons, with intersections in the smaller;
+	// 3 -->  track completely outsiede the small polygon with intersections in the bigger.
+
+
+	//  inner Hexagon --> 0
+	//  outer Hexagon --> 1
+
+	bool	internal[2],
+		AtLeast1[2];
+
+	UShort_t i,
+		 is,
+		 j,
+		 Nintersections;
+
+	Double_t mindist[2],
+		 distance,
+	//-------------------
+	// a,b,c == coefficients of the implicit equations of the six sides of the Hexagon
+	// centered at 0 :   a*x + b*y +c =0; see Gianluigi's logbook on page 277;
+	// the coefficient  c  has to be multiplied by Erre.
+	// The first side is 
+		a[] = { 1./sqrt(3.) , 1., -1./sqrt(3.), 1./sqrt(3.) , 1. , -1./sqrt(3.) } ,
+		b[] = { 1., 0. , 1., 1., 0. , 1. },
+		c[] = { -2./sqrt(3.) , -1., 2./sqrt(3.), 2./sqrt(3.), 1., -2./sqrt(3.)},
+	//----------------------
+
+		Erre[] = {Rmi, Rma},  //  this is the distance from (0,0) 
+					// of the Verteces of the Hexagon delimiting the Skew area
+		tempX[2],
+		tempY[2];
+
+	// both hexagon_side_xlow and hexagon_side_xup must be multiplied by appropriate Erre;
+	// sides of Hexagon ordered as a, b, c ..... in Gianluigi's logbook on page 280.
+	Double_t
+		hexagon_side_x[] = { 0., 1. , 1., 0., -1., -1., 0. },
+		hexagon_side_y[] = { 2./sqrt(3.),1./sqrt(3.),-1./sqrt(3.),
+					-2./sqrt(3.),-1./sqrt(3.), 1./sqrt(3.), 2./sqrt(3.)};
+
+
+
+//-----------------------
+
+//   find intersection with the 6 sides of the small exhagon delimiting the skew straws zone
+//   see on page 277 of Gianluigi's logbook.
+
+	// status  =0, at least 1 intersection with inner Hexagon, at least 1 intersection
+	// with the outer Hexagon; =1, track contained completely between the
+	// two Hexagons; = -1 track contained within inner Hexagon;
+	// =-2 track outside outer Hexagon.
+
+
+	for(i=0;i<2;i++){	// i=0 --> inner Hexagon, i= 1 --> outer Hexagon.
+		AtLeast1[i] = false;
+		nIntersections[i]=0;
+		internal[i] = true;
+		mindist[i]=999999.;
+		for(is=0; is<6; is++){
+			if ( IntersectionCircle_Segment(a[is],
+						b[is],
+						c[is]*Erre[i],
+						hexagon_side_x[is]*Erre[i],
+						hexagon_side_x[is+1]*Erre[i],
+						hexagon_side_y[is]*Erre[i],
+						hexagon_side_y[is+1]*Erre[i],
+						Ox,
+						Oy,
+						R,
+						&Nintersections,
+						tempX,
+						tempY,
+						&distance // distance of (Ox,Oy) from line
+							  // defined by  a*x+b*y+c=0.
+							)
+			   ){
+			   AtLeast1[i]=true;
+			   for(j=0;j<Nintersections;j++){
+				XintersectionList[ nIntersections[i] ][i] =tempX[j];
+				YintersectionList[ nIntersections[i] ][i] =tempY[j];
+				nIntersections[i]++;
+			   }
+			}	// end of if ( IntersectionCircle_Segment( .....
+
+			if(mindist[i]>distance) mindist[i]=distance;
+
+			// the definition of 'internal' here is when the given Point
+			// stays at the same side of the origin (0,0) with respect to
+			// the given line of equation   a*x+b*y+c=0.
+			 internal[i] = internal[i] && IsInternal(Ox,
+								Oy,
+								a[is],
+								b[is],
+								c[is]*Erre[i]
+								);
+
+		} // end of  for(is=0; is<6; is++)
+	}  // end of  for(i=0;i<2;i++)
+
+
+	if( (!AtLeast1[0]) && (!AtLeast1[1]) ){
+	  if (!internal[1])  return -2;	// trajectory outside outer Hexagon.
+	  if( R > mindist[1]) return -2;
+	  if( !internal[0]) return 1; // trajectory contained between inner and outer Hexagon.
+	  if( mindist[0] >= R)  return -1; //  trajectory contained in inner Hexagon.
+	  return 1;	// trajectory contained between inner and outer Hexagon.
+	} else if (AtLeast1[0] && AtLeast1[1] ){ // continuation of  if( (!AtLeast1[0]) && ...
+	  return  0;
+	} else if (AtLeast1[0]){
+		return 2;
+	}
+
+	return 3;
+}
+
+//---------- end of  function PndSttTrackFinderReal::IntersectionsWithClosedbiHexagonLeft
 
 
 //----------begin of function PndSttTrackFinderReal::IntersectionCircle_Segment
@@ -12037,8 +12192,8 @@ else  hdistbadlast->Fill( Distance[nHits]);
 			Short_t  Charge,
 			Double_t FiStart,
 			UShort_t nIntersections[2],
-			Double_t XintersectionList[2][12],
-			Double_t YintersectionList[2][12],
+			Double_t XintersectionList[][2], //  second index =1 -->inner polygon;
+			Double_t YintersectionList[][2], //  second index =2 -->outer polygon.
 			Double_t Xcross[2],	// output
 			Double_t Ycross[2]	// output
 					)
@@ -12054,15 +12209,15 @@ else  hdistbadlast->Fill( Distance[nHits]);
 		UShort_t auxIndex[nIntersections[j]];
 		Double_t fi[nIntersections[j]];
 		for( i=0;i<nIntersections[j];i++){
-		  fi[i] = atan2(YintersectionList[j][i]-Oyy,
-				XintersectionList[j][i]-Oxx);
+		  fi[i] = atan2(YintersectionList[i][j]-Oyy,
+				XintersectionList[i][j]-Oxx);
 		  if( fi[i] > FiStart) fi[i]  -= 2.*PI;
 		  if( fi[i] > FiStart) fi[i] = FiStart;
 		  auxIndex[i]=i;
 		} // end of for( i=0;i<nIntersections[j];i++)
 		PndStt_Merge_Sort( nIntersections[j], fi, auxIndex);
-		Xcross[j] = XintersectionList[j][ auxIndex[nIntersections[j]-1] ];
-		Ycross[j] = YintersectionList[j][ auxIndex[nIntersections[j]-1] ];
+		Xcross[j] = XintersectionList[ auxIndex[nIntersections[j]-1] ][j];
+		Ycross[j] = YintersectionList[ auxIndex[nIntersections[j]-1] ][j];
 	     }  //   end of for(j=0;j<2;j++)
 
 	  } else {
@@ -12070,15 +12225,15 @@ else  hdistbadlast->Fill( Distance[nHits]);
 		UShort_t auxIndex[nIntersections[j]];
 		Double_t fi[nIntersections[j]];
 		for( i=0;i<nIntersections[j];i++){
-		  fi[i] = atan2(YintersectionList[j][i]-Oyy,
-				XintersectionList[j][i]-Oxx);
+		  fi[i] = atan2(YintersectionList[i][j]-Oyy,
+				XintersectionList[i][j]-Oxx);
 		  if( fi[i] < FiStart) fi[i]  += 2.*PI;
 		  if( fi[i] < FiStart) fi[i] = FiStart;
 		  auxIndex[i]=i;
 		} // end of for( i=0;i<nIntersections[j];i++)
 		PndStt_Merge_Sort( nIntersections[j], fi, auxIndex);
-		Xcross[j] = XintersectionList[j][ auxIndex[0] ];
-		Ycross[j] = YintersectionList[j][ auxIndex[0] ];
+		Xcross[j] = XintersectionList[ auxIndex[0] ][j];
+		Ycross[j] = YintersectionList[ auxIndex[0] ][j];
 	     }  //   end of for(j=0;j<2;j++)
 	  }
 
@@ -12088,31 +12243,31 @@ else  hdistbadlast->Fill( Distance[nHits]);
 	  Double_t fi[nIntersections[0]];
 	  if(Charge > 0) {
 		for( i=0;i<nIntersections[0];i++){
-		  fi[i] = atan2(YintersectionList[0][i]-Oyy,
-				XintersectionList[0][i]-Oxx);
+		  fi[i] = atan2(YintersectionList[i][0]-Oyy,
+				XintersectionList[i][0]-Oxx);
 		  if( fi[i] > FiStart) fi[i]  -= 2.*PI;
 		  if( fi[i] > FiStart) fi[i] = FiStart;
 		  auxIndex[i]=i;
 		} // end of for( i=0;i<nIntersections[0];i++)
 		PndStt_Merge_Sort( nIntersections[0], fi, auxIndex);
-		Xcross[0] = XintersectionList[0][ auxIndex[nIntersections[0]-1] ];
-		Ycross[0] = YintersectionList[0][ auxIndex[nIntersections[0]-1] ];
-		Xcross[1] = XintersectionList[0][ auxIndex[nIntersections[0]-2] ];
-		Ycross[1] = YintersectionList[0][ auxIndex[nIntersections[0]-2] ];
+		Xcross[0] = XintersectionList[ auxIndex[nIntersections[0]-1] ][0];
+		Ycross[0] = YintersectionList[ auxIndex[nIntersections[0]-1] ][0];
+		Xcross[1] = XintersectionList[ auxIndex[nIntersections[0]-2] ][0];
+		Ycross[1] = YintersectionList[ auxIndex[nIntersections[0]-2] ][0];
 
 	  } else {
 		for( i=0;i<nIntersections[0];i++){
-		  fi[i] = atan2(YintersectionList[0][i]-Oyy,
-				XintersectionList[0][i]-Oxx);
+		  fi[i] = atan2(YintersectionList[i][0]-Oyy,
+				XintersectionList[i][0]-Oxx);
 		  if( fi[i] < FiStart) fi[i]  += 2.*PI;
 		  if( fi[i] < FiStart) fi[i] = FiStart;
 		  auxIndex[i]=i;
 		} // end of for( i=0;i<nIntersections[0];i++)
 		PndStt_Merge_Sort( nIntersections[0], fi, auxIndex);
-		Xcross[0] = XintersectionList[0][ auxIndex[0] ];
-		Ycross[0] = YintersectionList[0][ auxIndex[0] ];
-		Xcross[1] = XintersectionList[0][ auxIndex[1] ];
-		Ycross[1] = YintersectionList[0][ auxIndex[1] ];
+		Xcross[0] = XintersectionList[ auxIndex[0] ][0];
+		Ycross[0] = YintersectionList[ auxIndex[0] ][0];
+		Xcross[1] = XintersectionList[ auxIndex[1] ][0];
+		Ycross[1] = YintersectionList[ auxIndex[1] ][0];
 	  }
 	}	// end of if(flag == 0)
 
@@ -12167,7 +12322,6 @@ else  hdistbadlast->Fill( Distance[nHits]);
 
 //----------begin of function PndSttTrackFinderReal::FindTrackEntranceExitbiHexagon
 
-
 	Short_t PndSttTrackFinderReal::FindTrackEntranceExitbiHexagon(
 				Double_t Oxx,
 				Double_t Oyy,
@@ -12183,8 +12337,8 @@ else  hdistbadlast->Fill( Distance[nHits]);
 	Short_t flag;
 	UShort_t	nIntersections[2];
 	Double_t	FiStart,
-			XintersectionList[2][12], // first index =0 --> inner Hexagon, =1 --> outer.
-			YintersectionList[2][12]; // second index : all the possible intersections
+			XintersectionList[12][2], // first index =0 --> inner Hexagon, =1 --> outer.
+			YintersectionList[12][2]; // second index : all the possible intersections
 						  // (up to 12 intersections).
 
 // finding all possible intersections with inner parallel straw region.
@@ -12206,8 +12360,8 @@ else  hdistbadlast->Fill( Distance[nHits]);
 		ApotemaMin,	// Rmin of the inner part of parallele straws,
 		ApotemaMax,// max Apotema of the inner part of parallele straws.
 		nIntersections,
-		XintersectionList, // XintersectionList[0][..] --> inner polygon,
-				   // XintersectionList[1][..] --> outer polygon.
+		XintersectionList, // XintersectionList[..][0] --> inner polygon,
+				   // XintersectionList[..][1] --> outer polygon.
 		YintersectionList
 					);
 
@@ -12257,6 +12411,275 @@ else  hdistbadlast->Fill( Distance[nHits]);
 
 
 
+//----------begin of function PndSttTrackFinderReal::FindTrackEntranceExitbiHexagonLeft
+
+	Short_t PndSttTrackFinderReal::FindTrackEntranceExitbiHexagonLeft(
+				Double_t Oxx,
+				Double_t Oyy,
+				Double_t Rr,
+				Short_t  Charge,
+				Double_t Start[3],
+				Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
+				Double_t ApotemaMax,
+				Double_t Xcross[2],
+				Double_t Ycross[2]
+							)
+{
+	Short_t flag;
+	UShort_t	nIntersections[2];
+	Double_t	FiStart,
+			XintersectionList[16][2], // second index =0 --> inner Hexagon, =1 --> outer.
+			YintersectionList[16][2]; // first index : all the possible intersections
+						  // (up to 16 intersections).
+// The following is the form of the Left (looking from downstream into the beam) biHexagon
+// geometrical shape considered in this method :
+//
+/*
+
+	      /|
+	     / |
+	    /  |
+	   /  /|
+	  /  / |
+	 /  /  |
+	/  /   |
+	|  |   |
+	|  |   |
+	|  |   |
+	|  |   |
+	\  \   |
+	 \  \  |
+	  \  \ |
+	   \  \|
+	    \  |
+	     \ |
+	      \|
+
+*/
+
+
+
+// finding all possible intersections with inner parallel straw region.
+// The inner parallel straw region is delimited by two hexagons.
+
+	// flag meaning :
+	// -2 -->  track outside outer polygon;
+	// -1 -->  track contained completely within inner polygon;
+	// 0 -->  at least 1 intersection with inner polygon, at least 1 with outer polygon;
+	// 1 -->  track contained completely between the two polygons;
+	// 2 -->  track contained completely by larger polygons, with intersections in the smaller;
+	// 3 -->  track completely outsiede the small polygon with intersections in the bigger.
+
+
+	flag=IntersectionsWithClosedbiHexagonLeft(
+		Oxx,
+		Oyy,
+		Rr,
+		ApotemaMin,	// Apotema of the inner Hexagon,
+		ApotemaMax,// Apotema of the outer Hexagon.
+		nIntersections,
+		XintersectionList, // XintersectionList[..][0] --> inner polygon,
+				   // XintersectionList[..][1] --> outer polygon.
+		YintersectionList
+					);
+
+	// IMPORTANT :
+	// this is true because here it is assumed that the track comes from (0,0,0)
+	// otherwise the code must be changed!
+
+	if (!(flag == 0 || flag == 2)) return flag;
+	if (flag == 2 &&nIntersections[0]<2 ){
+			cout<<"PndSttTrackFinderReal::FindTrackEntranceExitbiHexagonLeft,"<<
+			" contraddiction, nIntersections[0]="<<
+			nIntersections[0]<<"<2, returning -99!\n";
+			return -99;
+	}
+
+//-------  among all  possible intersection find the entrance point (Xcross[0], Ycross[0])
+//	   and the exit point (Xcross[1], Ycross[1])  of this track.
+
+//-------- the starting point of the track.
+	FiStart = atan2( Start[1]-Oyy,Start[0]-Oxx);
+
+	// this method selects the entrance and exit points of the trajectory among all
+	// geometrical intersections of the circular trajectory with the straw particular
+	// volume.
+
+	ChooseEntranceExit(
+			Oxx,
+			Oyy,
+			flag,
+			Charge,
+			FiStart,
+			nIntersections,
+			XintersectionList,
+			YintersectionList,
+			Xcross,	// output
+			Ycross	// output
+					);
+
+//----------------------
+
+	return flag;
+
+}
+
+//----------end of function PndSttTrackFinderReal::FindTrackEntranceExitbiHexagonLeft
+
+
+
+
+
+
+
+
+
+//----------begin of function PndSttTrackFinderReal::FindTrackEntranceExitbiHexagonRight
+
+	Short_t PndSttTrackFinderReal::FindTrackEntranceExitbiHexagonRight(
+				Double_t Oxx,
+				Double_t Oyy,
+				Double_t Rr,
+				Short_t  Charge,
+				Double_t Start[3],
+				Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
+				Double_t ApotemaMax,
+				Double_t Xcross[2],
+				Double_t Ycross[2]
+							)
+{
+	Short_t flag;
+	UShort_t	nIntersections[2];
+	Double_t	FiStart,
+			XintersectionList[12][2], // second index =0 --> inner Hexagon, =1 --> outer.
+			YintersectionList[12][2]; // first index : all the possible intersections
+						  // (up to 16 intersections).
+
+// finding all possible intersections with inner parallel straw region.
+// The inner parallel straw region is delimited by two hexagons.
+
+	// flag meaning :
+	// -2 -->  track outside outer polygon;
+	// -1 -->  track contained completely within inner polygon;
+	// 0 -->  at least 1 intersection with inner polygon, at least 1 with outer polygon;
+	// 1 -->  track contained completely between the two polygons;
+	// 2 -->  track contained completely by larger polygons, with intersections in the smaller;
+	// 3 -->  track completely outsiede the small polygon with intersections in the bigger.
+
+// The following is the form of the Right (looking from downstream into the beam)
+// biHexagon geometrical shape considered in this method :
+/*
+
+	|\
+	| \
+	|  \
+	|\  \
+	| \  \
+	|  |  |
+	|  |  |
+	|  /  /
+	| /  /
+	|/  /
+	|  /
+	| /
+	|/
+
+*/
+
+
+	flag=IntersectionsWithClosedPolygon(
+		Oxx,
+		Oyy,
+		Rr,
+		ApotemaMin,	// Rmin of the inner part of parallele straws,
+		ApotemaMax,// max Apotema of the inner part of parallele straws.
+		nIntersections,
+		XintersectionList, // XintersectionList[..][0] --> inner polygon,
+				   // XintersectionList[..][1] --> outer polygon.
+		YintersectionList
+					);
+
+	// IMPORTANT :
+	// this is true because here it is assumed that the track comes from (0,0,0)
+	// otherwise the code must be changed!
+
+	if (!(flag == 0 || flag == 2)) return flag;
+	if (flag == 2 &&nIntersections[0]<2 ){
+			cout<<"PndSttTrackFinderReal::FindTrackEntranceExitbiHexagonRight,"<<
+			" contraddiction, nIntersections[0]="<<
+			nIntersections[0]<<"<2, returning -99!\n";
+			return -99;
+	}
+
+//-------  among all  possible intersection find the entrance point (Xcross[0], Ycross[0])
+//	   and the exit point (Xcross[1], Ycross[1])  of this track.
+
+//-------- the starting point of the track.
+	FiStart = atan2( Start[1]-Oyy,Start[0]-Oxx);
+
+	// this method selects the entrance and exit points of the trajectory among all
+	// geometrical intersections of the circular trajectory with the straw particular
+	// volume.
+
+	ChooseEntranceExit(
+			Oxx,
+			Oyy,
+			flag,
+			Charge,
+			FiStart,
+			nIntersections,
+			XintersectionList,
+			YintersectionList,
+			Xcross,	// output
+			Ycross	// output
+					);
+
+//----------------------
+
+	return flag;
+
+}
+
+//----------end of function PndSttTrackFinderReal::FindTrackEntranceExitbiHexagonRight
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //----------begin of function PndSttTrackFinderReal::FindTrackEntranceExitHexagonCircle
@@ -12277,8 +12700,8 @@ else  hdistbadlast->Fill( Distance[nHits]);
 	Short_t flag;
 	UShort_t	nIntersections[2];
 	Double_t	FiStart,
-			XintersectionList[2][12], // first index =0 --> inner Hexagon, =1 --> outer.
-			YintersectionList[2][12]; // second index : all the possible intersections
+			XintersectionList[12][2], // second index =0 --> inner Hexagon, =1 --> outer.
+			YintersectionList[12][2]; // first index : all the possible intersections
 						  // (up to 12 intersections).
 
 // finding all possible intersections with inner parallel straw region.
@@ -12300,8 +12723,8 @@ else  hdistbadlast->Fill( Distance[nHits]);
 		ApotemaMin,	// Rmin of the inner part of parallele straws,
 		ApotemaMax,// max Apotema of the inner part of parallele straws.
 		nIntersections,
-		XintersectionList, // XintersectionList[0][..] --> inner polygon,
-				   // XintersectionList[1][..] --> outer polygon.
+		XintersectionList, // XintersectionList[..][0] --> inner polygon,
+				   // XintersectionList[..][1] --> outer polygon.
 		YintersectionList
 					);
 
