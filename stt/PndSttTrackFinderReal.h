@@ -804,8 +804,20 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 		//-------- outputs
 		UShort_t nIntersections[2],
-		Double_t XintersectionList[2][12],
-		Double_t YintersectionList[2][12]
+		Double_t XintersectionList[][2],
+		Double_t YintersectionList[][2]
+					);
+      Short_t   IntersectionsWithClosedbiHexagonLeft(
+		Double_t Ox,
+		Double_t Oy,
+		Double_t R,
+		Double_t Rmi,	// Rmin of cylindrical volume intersected by track;
+		Double_t Rma,	// Rmax of cylindrical volume intersected by track;
+
+		//-------- outputs
+		UShort_t nIntersections[2],
+		Double_t XintersectionList[][2],
+		Double_t YintersectionList[][2]
 					);
       bool IntersectionCircle_Segment(
 			Double_t a, // coefficients implicit equation.
@@ -842,13 +854,35 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 			Short_t  Charge,
 			Double_t FiStart,
 			UShort_t nIntersections[2],
-			Double_t XintersectionList[2][12],
-			Double_t YintersectionList[2][12],
+			Double_t XintersectionList[][2],
+			Double_t YintersectionList[][2],
 			Double_t Xcross[2],	// output
 			Double_t Ycross[2]	// output
 					);
 
 	Short_t FindTrackEntranceExitbiHexagon(
+				Double_t Oxx,
+				Double_t Oyy,
+				Double_t Rr,
+				Short_t  Charge,
+				Double_t Start[3],
+				Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
+				Double_t ApotemaMax,
+				Double_t Xcross[2],
+				Double_t Ycross[2]
+					);
+	Short_t FindTrackEntranceExitbiHexagonLeft(
+				Double_t Oxx,
+				Double_t Oyy,
+				Double_t Rr,
+				Short_t  Charge,
+				Double_t Start[3],
+				Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
+				Double_t ApotemaMax,
+				Double_t Xcross[2],
+				Double_t Ycross[2]
+					);
+	Short_t FindTrackEntranceExitbiHexagonRight(
 				Double_t Oxx,
 				Double_t Oyy,
 				Double_t Rr,
