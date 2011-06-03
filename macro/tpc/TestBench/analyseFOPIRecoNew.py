@@ -52,24 +52,25 @@ outfile = ROOT.TFile("anaOut.root", "recreate")
 ROOT.gROOT.ProcessLine(".x rootlogon.C") 
 ROOT.gROOT.ProcessLine('gSystem->Load("libPhysics")')
 ROOT.gROOT.ProcessLine('gStyle->SetPalette(1)')
+ROOT.gROOT.ProcessLine('gROOT->SetStyle("Plain")')
 
 failed = ROOT.TH1D("Failed", "Failed Hits", 30,0,30)
 recoMom = ROOT.TH1D("recoMom", "Rec. Momenta", 500,900,1100)
 sampTimes = ROOT.TH1D("SamT", "Drift Time Distribution (samples)",511,0,511)
 
-occXY = ROOT.TH2D("OccXY", "Cluster XY occupancy created from cosmic tracks",
+occXY = ROOT.TH2D("OccXY", "Cluster XY occupancy created from tracks",
                   200,-15,15,200,-15,15)
 occXY_end = ROOT.TH2D("OccXY_end", 
-                      "Cluster XY (z>50cm) occupancy created from cosmic tracks",
+                      "Cluster XY (z>-10cm) occupancy created from tracks",
                       200,-15,15,200,-15,15)
 occXY_amp = ROOT.TH2D("OccXY_amp", 
                       "Cluster XY occupancy weighted with Amp",
                       200,-15,15,200,-15,15)
 occXY_end_amp = ROOT.TH2D("OccXY_end_amp", 
-                          "Cluster XY (z>50cm) occupancy weighted with Amp",
+                          "Cluster XY (z>-10cm) occupancy weighted with Amp",
                           200,-15,15,200,-15,15)
-occZ = ROOT.TH1D("OccZ", "Cluster Z occupancy created from cosmic tracks",
-                 200,0,75)
+occZ = ROOT.TH1D("OccZ", "Cluster Z occupancy created from tracks",
+                 200,-65,15)
 
 files = glob.glob(dir + "/*.reco.root")
 files.sort()
@@ -81,7 +82,7 @@ files.sort()
 #velCorr = driftVelReal / driftVelSim
 
 # define cuts in Z
-zCuts = (0,10,20,30,40,50,60)
+zCuts = (-60,-50,-40,-30,-20,-10,0)
 #define cuts in Size
 sCuts = (0,1,2,3,5,10,20)
 
@@ -89,31 +90,31 @@ sCuts = (0,1,2,3,5,10,20)
 OFFSET = -2.8
 
 resUs = dict([(i, ROOT.TH1D("StatsResX"+str(zCuts[i]), 
-                            "Cosmic Residuals U (Z')", 500,-1,1)) 
+                            "Residuals U (Z')", 500,-1,1)) 
               for i in range(len(zCuts))])
 pullsUs = dict([(i, ROOT.TH1D("StatsPullX"+str(zCuts[i]), 
-                            "Cosmic Pulls U (Z')", 100,-3,3)) 
+                            "Pulls U (Z')", 100,-3,3)) 
               for i in range(len(zCuts))])
 
 
 resVIDs = dict([(i, ROOT.TH1D("StatsResVID"+str(zCuts[i]), 
-                              "Cosmic Residuals V (X') single track events", 
+                              "Residuals V (X') single track events", 
                               500,-1,1)) 
                 for i in range(len(zCuts))])
 resVs = dict([(i, ROOT.TH1D("StatsResV"+str(zCuts[i]), 
-                            "Cosmic Residuals V (X')", 500,-1,1)) 
+                            "Residuals V (X')", 500,-1,1)) 
               for i in range(len(zCuts))])
 
 
 resVvsZvsS = dict([(i, dict([(j, ROOT.TH1D("resVvsZvsS"+str(i)+str(j),
-                                           "Cosmic Residuals V (X') Z>"+str(zCuts[i])
+                                           "Residuals V (X') Z>"+str(zCuts[i])
                                            +"ClSize>"+str(sCuts[j]),500,-1,1,))
                              for j in range(len(sCuts))]))
                    for i in range(len(zCuts))])
                                          
 
 pullsVs = dict([(i, ROOT.TH1D("StatsPullV"+str(zCuts[i]), 
-                            "Cosmic Pulls V (X')", 100,-3,3)) 
+                            "Pulls V (X')", 100,-3,3)) 
               for i in range(len(zCuts))])
 
 cl2Ds = dict([(i, ROOT.TH1D("cl2Ds"+str(zCuts[i]), 
@@ -125,9 +126,9 @@ clSvA = dict([(i, ROOT.TH1D("clsVa"+str(i), "Amplitude Distribution for ClSize>"
 
 
 #resUVs = dict([(i, ROOT.TH1D("StatsResXY"+str(zCuts[i]), 
-#                             "Cosmic Residuals X'Y'", 500,-1,1)) for i in range(len(zCuts))])
+#                             "Residuals X'Y'", 500,-1,1)) for i in range(len(zCuts))])
 resVsUs = dict([(i, ROOT.TH2D("StatsResXsYs"+str(zCuts[i]), 
-                              "Cosmic Residuals U(Z') vs V(X')", 500,-0.5,0.5,
+                              "Residuals U(Z') vs V(X')", 500,-0.5,0.5,
                               500,-0.5,0.5)) 
                 for i in range(len(zCuts))])
 
@@ -136,13 +137,13 @@ clSize2D.SetFillColor(ROOT.kBlack)
 clSize = ROOT.TH1D("clSize", "Cluster Size Distribution", 100,0,100)
 clSize.SetLineColor(ROOT.kRed+3)
 clSizevsDrift = ROOT.TH2D("clnSizevsDrift", "Cluster Size vs. Drift",
-                          100,0,75,60,0,60)
+                          100,-65,15,60,0,60)
 clOccRbins = 50
 clOccZbins = 200
 clOccRmin = 5
 clOccRmax = 15
-clOccZmin = 0
-clOccZmax = 75
+clOccZmin = -65
+clOccZmax = 15
 clOcc = ROOT.TH2D("clOcc", "Cluster Chamber Occupancy Z-R",
                   clOccZbins, clOccZmin, clOccZmax,
                   clOccRbins, clOccRmin, clOccRmax)
@@ -174,7 +175,7 @@ sigXvsDrift = ROOT.TH2D("sigXvsZ", "Cluster SigmaX vs Drift Length Z",
                          400,0,65,400,0,3000)
 sigXvsDrift.GetYaxis().SetTitle("#sigma_X (#mu m)")
 
-nTracksDist = ROOT.TH1D("nTracksDist", "Distribution of track multiplicity",10,0,10)
+nTracksDist = ROOT.TH1D("nTracksDist", "Distribution of track multiplicity",50,0,50)
 
 pullAllV = ROOT.TH1D("pullAllV", "V (X') Pull Distribution", 200,-3,3)
 
@@ -198,7 +199,7 @@ chi2func.SetParameter(0,2500)
 
 
 probVsZ = ROOT.TH2D("probVsZ", "#xi^2 Probability vs Z (rough)",
-                    200,0,75,200,0,1)
+                    200,-65,15,200,0,1)
 probVsNHits = ROOT.TH2D("probVNHits", "#xi^2 Probability vs number of track hits",
                         200,0,100,200,0,1)
 
@@ -231,7 +232,7 @@ for file in files :
     if fcounter > numFiles :
         continue
     
-    if file.find("runC") < 0 :
+    if file.find("run") < 0 :
         continue
     
     fcounter+=1
@@ -240,7 +241,7 @@ for file in files :
     #print(Rfile.GetOpenTimeout())
     tree = Rfile.Get("cbmsim")
     tree.SetBranchStatus("*", 0)
-    tree.SetBranchStatus("TrackFitStat.*", 1)
+    tree.SetBranchStatus("TrackFitStat_0.*", 1)
     if processClusters :
         tree.SetBranchStatus("PndTpcCluster.*", 1)
     #if processTracks :
@@ -259,23 +260,29 @@ for file in files :
                 amp = cl.amp()
                 rad = math.sqrt(pos.X()**2 + pos.Y()**2)
                 sigXvsClSize.Fill(size, sig.X())
-                sigXvsDrift.Fill(pos.Z(), sig.X()*10000)
+                sigXvsDrift.Fill(pos.Z()+62.5, sig.X()*10000)
                 clSizevsDrift.Fill(pos.Z(),size)
                 clOcc.Fill(pos.Z(), rad)
                 clOccAmp.Fill(pos.Z(), rad, amp)
                
-        nTracks = e.TrackFitStat.GetEntriesFast()  
-        if nTracks > 0 :
-            nTracksDist.Fill(nTracks)
+        nTracks = e.TrackFitStat_0.GetEntriesFast()  
+        if nTracks < 1 :
+            continue
+            
+        nTracksDist.Fill(nTracks)
             
                     
-        for tfs in e.TrackFitStat :
+        for tfs in e.TrackFitStat_0 :
             chi2 = tfs.getChi2()
             #redChi2 = tfs.getRedChi2()
             NDF = tfs.getNDF()
             NDIM=4
             
             numHits = tfs.GetHitPositionsZ().size()
+            
+            if numHits < 1 :
+                continue
+            
             chi2Prob = ROOT.TMath.Prob(chi2, NDF)
             
             if chi2Prob > chi2ProbCut :
@@ -286,7 +293,6 @@ for file in files :
                 chi2raw.Fill(chi2/(NDF))
             else : 
                 chi2raw.Fill(1000)
-                
         
             probVsZ.Fill(tfs.GetHitPositionsZ().at(0),chi2Prob)
             probVsNHits.Fill(numHits,chi2Prob)
@@ -336,9 +342,10 @@ for file in files :
                 sigZ = tfs.GetSigZ().at(p)
                 sig = ROOT.TVector3(sigX,sigY,sigZ)
             
-                resU = res.Dot(u)
-                resV = res.Dot(v)   
+                resU = tfs.GetResU().at(p)
+                resV = tfs.GetResV().at(p)   
                 
+                # todo: 
                 sigU = sig.Dot(u)
                 sigV = sig.Dot(v)   
             
@@ -350,31 +357,31 @@ for file in files :
             
                 for j in range(len(sCuts)):
                     if cl2Dsize <= sCuts[j] :
-                        clSvA[j-1].Fill(clAmp)
+                        clSvA[j].Fill(clAmp)
                         break
                 
                 for i in range(len(zCuts)) :
                     if z < zCuts[i] :
-                        cl2Ds[i-1].Fill(cl2Dsize)
+                        cl2Ds[i].Fill(cl2Dsize)
                         
-                        resUs[i-1].Fill(resU)
-                        resVs[i-1].Fill(resV)
+                        resUs[i].Fill(resU)
+                        resVs[i].Fill(resV)
                 
-                        pullsUs[i-1].Fill(resU/sigU)
-                        pullsVs[i-1].Fill(resV/sigV)
+                        pullsUs[i].Fill(resU/sigU)
+                        pullsVs[i].Fill(resV/sigV)
                 
-                        #resUVs[i-1].Fill(math.sqrt(resX**2 + resY**2)) 
-                        resVsUs[i-1].Fill(resV, resU)
+                        #resUVs[i].Fill(math.sqrt(resX**2 + resY**2)) 
+                        resVsUs[i].Fill(resV, resU)
                         
                         #compare with these filters:
                         if nTracks == 1 :
-                            resVIDs[i-1].Fill(resV)
+                            resVIDs[i].Fill(resV)
                         
                             #if xyRad > 8 and xyRad < 12:
                             #if numHits > 20 :
                             for j in range(len(sCuts)) :
                                 if cl2Dsize <= sCuts[j] :
-                                    resVvsZvsS[i-1][j-1].Fill(resV)
+                                    resVvsZvsS[i][j].Fill(resV)
                                     break
                             
                             break
@@ -384,7 +391,7 @@ for file in files :
                 y = tfs.GetHitPositionsY().at(p)
                 occXY.Fill(x,y)
                 occXY_amp.Fill(x,y,clAmp)
-                if z > 50 :
+                if z > -10 :
                     occXY_end.Fill(x,y)
                     occXY_end_amp.Fill(x,y,clAmp)
                 occZ.Fill(z)
