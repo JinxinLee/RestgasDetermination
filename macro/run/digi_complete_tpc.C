@@ -126,6 +126,7 @@ void digi_complete_tpc()
 
   PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
   tpcElec->SetPersistence();
+  tpcElec->SetSamplePersistence();
   //tpcElec->SetQAPlotCol(qa);
   fRun->AddTask(tpcElec);
 
