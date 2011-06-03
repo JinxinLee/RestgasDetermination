@@ -34,7 +34,7 @@ void runMomresMC_batch(float mom, int angle, int PDG, unsigned int MULT,
   sprintf(bufferang, "%i", angle);
   jobname.Append(bufferang);
   jobname.Append("_mult");
-  char buffemult[5];
+  char buffermult[5];
   sprintf(buffermult, "%i", MULT);
   jobname.Append(buffermult);
   jobname.Append(".mc.root");
