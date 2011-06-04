@@ -224,6 +224,8 @@ void PndSecondaryTrackFinder::WriteHistograms(){
 }
 void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 
+  cout << "++++++++++++++++++++++++++++++++++++" << endl;
+
  fDisName = "display_second"; fDisName += fEventCounter;
 
   fEventCounter++;
@@ -249,15 +251,19 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   fDetList.clear();
   fDetMap.clear();
   // stthits.clear();
+  cout << "Stt hits" << endl;
   stthits = OrderHits(fSttHitArray, FairRootManager::Instance()->GetBranchId(fSttBranch), false);
   fDetList.push_back(stthits);
   fDetMap[0] =  FairRootManager::Instance()->GetBranchId(fSttBranch);
+  cout << "Stt skewed hits" << endl;
   sttskewedhits = OrderHits(fSttHitArray, FairRootManager::Instance()->GetBranchId(fSttBranch), true);
   fDetList.push_back(sttskewedhits);
   fDetMap[1] =  FairRootManager::Instance()->GetBranchId(fSttBranch);
-  mvdpixhits = OrderHits(fMvdPixelHitArray, FairRootManager::Instance()->GetBranchId(fMvdPixelBranch), false);
+  cout << "mvd pix hits" << endl;
+ mvdpixhits = OrderHits(fMvdPixelHitArray, FairRootManager::Instance()->GetBranchId(fMvdPixelBranch), false);
   fDetList.push_back(mvdpixhits);
   fDetMap[2] =  FairRootManager::Instance()->GetBranchId(fMvdPixelBranch);
+  cout << "mvd str hits" << endl;
   mvdstriphits = OrderHits(fMvdStripHitArray, FairRootManager::Instance()->GetBranchId(fMvdStripBranch), false);
   fDetList.push_back(mvdstriphits);
   fDetMap[3] =  FairRootManager::Instance()->GetBranchId(fMvdStripBranch);
@@ -271,7 +277,26 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     DrawMCTracks();
   }
 
+  cout << "STT/MVD HITS " << stthits.size() << " "  << sttskewedhits.size() << " " 
+       << mvdpixhits.size() << " " << mvdstriphits.size() << endl;
+
+
+  /**
   DeleteHits("STT", &stthits);
+  DeleteHits("STTSKEW", &sttskewedhits);
+  DeleteHits("MVDPIXEL", &mvdpixhits);
+  DeleteHits("MVDSTRIP", &mvdstriphits);
+  fDetList.clear();
+  fDetList.push_back(stthits);
+  fDetList.push_back(sttskewedhits);
+  fDetList.push_back(mvdpixhits);
+  fDetList.push_back(mvdstriphits);
+  cout << "DELETED STT/MVD HITS " << stthits.size() << " "  << sttskewedhits.size() << " " 
+       << mvdpixhits.size() << " " << mvdstriphits.size() << endl;
+  **/
+
+
+
   if(fDisplayOn) {
     DrawAllUsableHits();
   }
@@ -293,7 +318,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     cout << endl;
   }
 
-
+  std::vector<TVector3> xyparameters;
   // ******************
   // conformal map ****
   int nclus = clusterlist.size();
@@ -364,16 +389,30 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       }
     }
 
-    std::vector<int> cluster1b = cluster;
-    AddRemainingPoints(stthits, FairRootManager::Instance()->GetBranchId(fSttBranch), xc, yc, radius, &cluster1b, iclus);
+    // save tracks
+    xyparameters.push_back(TVector3(xc, yc, radius));
+  }
+
+  // ==============================================
+  cout << " NEW HITS COLLECTION" << endl;
+  clusterlist.clear();
+  // loop on the tracks
+  for(int itrk = 0; itrk < xyparameters.size(); itrk++) {
+
+    TVector3 xypar = xyparameters[itrk];
+    double xc = xypar.X();
+    double yc = xypar.Y();
+    double radius = xypar.Z();
+
+    std::vector<int> cluster = AddPoints(stthits, FairRootManager::Instance()->GetBranchId(fSttBranch), xc, yc, radius, itrk);
   
     TMatrixT<double> bounds(1, 4);
-    FindBoundary(0, cluster1b, FairRootManager::Instance()->GetBranchId(fSttBranch), bounds, kFALSE);
+    FindBoundary(0, cluster, FairRootManager::Instance()->GetBranchId(fSttBranch), bounds, kFALSE);
 
-    double xmin = boundaries[iclus][0];
-    double ymin = boundaries[iclus][1];
-    double xmax = boundaries[iclus][2];
-    double ymax = boundaries[iclus][3];
+    double xmin = boundaries[itrk][0];
+    double ymin = boundaries[itrk][1];
+    double xmax = boundaries[itrk][2];
+    double ymax = boundaries[itrk][3];
     
     double large = fabs(xmax - xmin);
     double high = fabs(ymax - ymin);
@@ -381,11 +420,44 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     if(large > high) point.SetXYZ(xmin, (ymin + ymax) / 2., 35.);
     else point.SetXYZ((xmin + xmax) / 2., ymin, 35.);
     
-    std::vector<int> sorthits = OrderCluster(cluster1b, FairRootManager::Instance()->GetBranchId(fSttBranch), point);
-    std::replace(clusterlist.begin(), clusterlist.end(), cluster, sorthits);
+    std::vector<int> sorthits = OrderCluster2(cluster, FairRootManager::Instance()->GetBranchId(fSttBranch), xc, yc, radius);
+    clusterlist.push_back(sorthits);
+  }
+  // ===========================================
+  cout << " NEW FIT " << endl;
+
+  Refresh();
+  xyparameters.clear();
+  // refit tracks
+  for(int iclus = 0; iclus < clusterlist.size(); iclus++) {
+
+    std::vector<int> cluster = clusterlist[iclus];
+
+    double xc, yc, radius;
+    Double_t firstdrift, delta, trasl[2];
+    std::vector< std::vector<double> > conformalhits;  
+    Bool_t conftras = ConformalPlaneStt4(cluster, iclus, conformalhits, firstdrift, delta, trasl);
+    cout << "conform bis " << conftras << endl;
+    Double_t conffit = ConformalFit(conformalhits,  iclus, delta,  trasl,  xc,  yc, radius);
+    
+    if(fDisplayOn) {
+      char goOnChar;
+      cout << "Go back to reak plane: cluster " << iclus << endl;
+      Refresh();
+      cout << "helix " << xc << " " << yc << " " << radius << endl;     
+      TArc *arc = new TArc(xc, yc, radius);
+      arc->SetLineColor(kCyan);
+      arc->SetFillStyle(0);
+      arc->Draw("SAME ONLY");
+      display->Update();
+      display->Modified();
+    }
+    
+    xyparameters.push_back(TVector3(xc, yc, radius));
   }
 
   // 
+  Refresh();
   cout << "# of clusters " << clusterlist.size() << endl;
   for(int iclus = 0; iclus < clusterlist.size(); iclus++) {
     std::vector<int> cluster = clusterlist[iclus];
@@ -395,15 +467,17 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       int hitid = cluster[ihit];
       cout << hitid << " " ;
     }
+    DrawHitsColor(cluster, FairRootManager::Instance()->GetBranchId(fSttBranch), iclus);
     cout << endl;
   }
 
-
+  MergeClusters(clusterlist);
   
   if(fDisplayOn) {
     fDisName += ".pdf";
     display->SaveAs(fDisName);
   }
+
 }
 
 
@@ -413,6 +487,7 @@ std::vector<int> PndSecondaryTrackFinder::OrderHits(TClonesArray *hitarray, Int_
   std::vector<double> distances;
   std::multimap<double, int> mapdistances;
 
+  //  cout << "hitarray " << hitarray->GetEntriesFast() << endl;
   for(int ihit = 0; ihit < hitarray->GetEntriesFast(); ihit++) {
     FairHit* hit = (FairHit*) hitarray->At(ihit);
     if(!hit) continue;
@@ -422,6 +497,7 @@ std::vector<int> PndSecondaryTrackFinder::OrderHits(TClonesArray *hitarray, Int_
       TVector3 wireDirection = tube->GetWireDirection();
       if(skewed && wireDirection == TVector3(0., 0., 1.)) continue;
       else if(!skewed && wireDirection != TVector3(0., 0., 1.)) continue;
+      //      cout << "reading " << ihit << endl;
     }
     
     TVector3 distance3;
@@ -433,6 +509,7 @@ std::vector<int> PndSecondaryTrackFinder::OrderHits(TClonesArray *hitarray, Int_
   }
 
   std::sort(distances.begin(), distances.end());
+  cout << "size " << distances.size() << endl;
 
   double tmpdistance = 0;
 
@@ -452,7 +529,7 @@ std::vector<int> PndSecondaryTrackFinder::OrderHits(TClonesArray *hitarray, Int_
 	if((*it).first != tmpdistance) continue;
 
 	sorthits.push_back((*it).second);
-	cout << "SORTED HIT " << (*it).second << endl;
+	//	cout << "SORTED HIT " << (*it).second << endl;
 	count++;
       }
   }
@@ -470,32 +547,60 @@ void PndSecondaryTrackFinder::DeleteHit(Int_t ihit, std::vector<int> *hits)
  
  
 void PndSecondaryTrackFinder::DeleteHits(TString detectors, std::vector<int> *hits) {
+  cout << "DELETING FROM  " << detectors << endl;
   for(Int_t itrk = 0; itrk < fSttMvdGemTrackCandArray->GetEntriesFast(); itrk++) {
     PndTrackCand *trkCand = (PndTrackCand*) fSttMvdGemTrackCandArray->At(itrk);
     if(!trkCand) continue;
     Int_t nhits = trkCand->GetNHits(); 
+    cout << "TRACK CAND " << itrk << " HAS " << nhits << endl;
     for(int ihit = 0; ihit < nhits; ihit++)
       {
 	PndTrackCandHit candhit = trkCand->GetSortedHit(ihit);
 	Int_t hitId = candhit.GetHitId();
 	Int_t detId = candhit.GetDetId();
-
+	//	cout << "hitId " << hitId << " detId " << detId << endl;
 	if(detectors.Contains("STT") 
 	   && 
-	   detId == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
-	  cout << "deleting " << hitId << endl;
-	  DeleteHit(hitId, hits);
-	}
+	   detId == FairRootManager::Instance()->GetBranchId(fSttBranch)) 
+	  {
+	    PndSttHit *hit = (PndSttHit *) fSttHitArray->At(hitId);
+	    Int_t tubeID = hit->GetTubeID();
+	    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+	    TVector3 wiredirection = tube->GetWireDirection();
+	    // if it is skewed and I am looking for skewed
+	    if(TVector3(0., 0., 1.) != wiredirection &&  detectors.Contains("SKEW")) 
+	      {
+		//		cout << "stt skew deleting " << hitId << endl;
+		DeleteHit(hitId, hits);
+	      }
+	    else  if(TVector3(0., 0., 1.) == wiredirection &&  !detectors.Contains("SKEW")) 
+	      { // if it is parallel and I am looking for parallels
+		//		cout << "stt paral deleting " << hitId << endl;
+		DeleteHit(hitId, hits);
+	      }
+	    else {
+	      // cout << "skipping " << detectors << " " << detId << " " << wiredirection.Z() << endl;
+	      continue; // if it is skewed while looking for parallel or parallel while looking for skewed --> continue
+	    }
+	  }
 	else if(detectors.Contains("PIXEL") 
 		&& 
-		detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) DeleteHit(hitId, hits);
+		detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) 
+	  {
+	    //	    cout << "mvdpix deleting " << hitId << endl;
+	    DeleteHit(hitId, hits);
+	  }
 	else if(detectors.Contains("STRIP") 
 		&& 
-		detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) DeleteHit(hitId, hits);
-	//    else if(detectors.Contains("GEM") 
+		detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) 
+	  {
+	    //	    cout << "mvd str deleting " << hitId << endl;
+	    DeleteHit(hitId, hits);
+	  }	
+
+	    //    else if(detectors.Contains("GEM") 
 	// 	 && 
 	// 	 detId == FairRootManager::Instance()->GetBranchId(fGemBranch)) DeleteHit(hitId, hits);
-
 
       }
   }
@@ -844,12 +949,12 @@ std::vector<std::vector<int> > PndSecondaryTrackFinder::ClusterFinder(std::vecto
       }
 
       double distance = (position - tmpposition).Perp();
-      cout << ihit << " " <<  hitid  << "/" << hits[tmphit] << " distance " << distance << " " ;
+      //      cout << ihit << " " <<  hitid  << "/" << hits[tmphit] << " distance " << distance << " " ;
 
       // to have 1 cm for radius = 15 cm, 3 cm for radius = 42 cm
       //      double fLimit = 2.7; // 0.075 * position.Perp() - 0125.; CHECK
       if(distance < fLimit && position.Perp() != tmpposition.Perp()) {
-	cout << " YES" << endl;
+	// cout << " YES" << endl;
 	cluster.push_back(hitid); // CHECK fLimit
 	// cout << "push " << hitid << endl;
 	usable[hitid] = false;
@@ -864,7 +969,7 @@ std::vector<std::vector<int> > PndSecondaryTrackFinder::ClusterFinder(std::vecto
 	tmpposition = position;
      	tmphit = ihit;
       }
-      else cout << "NO" << endl;
+      //      else cout << "NO" << endl;
     }
 
     newclus = true;
@@ -1185,9 +1290,9 @@ std::vector<int> PndSecondaryTrackFinder::OrderCluster(std::vector<int> cluster,
       }
   }
 
-  cout << "sorted" << endl;
+  //  cout << "sorted" << endl;
   for(int ihit = 0; ihit < sorthits.size(); ihit++) {
-    cout << sorthits[ihit] << " ";
+    //    cout << sorthits[ihit] << " ";
     int hitid = sorthits[ihit];
     
     FairHit* hit = (FairHit*) array->At(hitid);
@@ -1196,12 +1301,13 @@ std::vector<int> PndSecondaryTrackFinder::OrderCluster(std::vector<int> cluster,
     TVector3 distance3;
     hit->Position(distance3);
     double distance = distance3.Perp();
-    cout << distance << endl;     
+    //    cout << distance << endl;     
  }
-  cout << endl;
+  //  cout << endl;
 
   return sorthits;
 }
+
 
 
 
@@ -1292,6 +1398,7 @@ void PndSecondaryTrackFinder::DrawHitsColor(std::vector<int> hits, Int_t detId, 
   //  else if(detId ==  FairRootManager::Instance()->GetBranchId(fGemBranch)) array = fGemHitArray;
   
   int nhits = hits.size();
+  cout << "nhits " << nhits << endl;
   for(int ihit = 0; ihit < nhits; ihit++) {
     int hitid = hits[ihit];
     FairHit *hit = (FairHit *) array->At(hitid);
@@ -1341,6 +1448,8 @@ void PndSecondaryTrackFinder::DrawAllUsableHits() {
   for(int idet = 0; idet < fDetList.size(); idet++) {
     std::vector<int> hits = fDetList[idet];
     int detId = fDetMap[idet];
+    cout << "************************" << endl;
+    cout << "DETLIST " << idet << " " << fDetMap[idet] << " " << hits.size() <<  endl;
     DrawHitsColor(hits, detId, kBlack);
   }
 }
@@ -1433,15 +1542,15 @@ std::vector<std::vector<int> > PndSecondaryTrackFinder::ClusterFinder2(std::vect
 	hit2->Position(position2);
 	
 	double distance = (position - position2).Perp();
-	cout << ihit << " " <<  hitid  << "/" << hits[tmphit] << " distance " << distance << " " ;
+	//	cout << ihit << " " <<  hitid  << "/" << hits[tmphit] << " distance " << distance << " " ;
 	
 	// to have 1 cm for radius = 15 cm, 3 cm for radius = 42 cm
 	//      double fLimit = 2.7; // 0.075 * position.Perp() - 0125.; CHECK
 	if(distance < fLimit) { // && position.Perp() != position.Perp()) {
-	  cout << " YES" << endl;
+// 	  cout << " YES" << endl;
 	  mapdistances.insert(std::pair<int, int>(hitid, hitid2));
 	}
-	else cout << "NO" << endl;
+// 	else   cout << "NO" << endl;
       }
   }
 
@@ -2165,7 +2274,7 @@ Bool_t PndSecondaryTrackFinder::ConformalPlaneStt3(std::vector<int> cluster, TMa
       
       double res = fabs(distancepc - radius) - rd;
       cout << "RES " << res << " " << " limit " << 3 * fLimit << endl;
-      if(res < (3 * fLimit)) {
+      if(res < (3 * fLimit)) { 
 	cout << "ADD " << hitid << " TO CLUSTER" << iclus << endl;
 	if(fDisplayOn) {
 	  TArc *arc3 = new TArc(centerposition2.X(), centerposition2.Y(), 0.5); // CHECK
@@ -2426,7 +2535,7 @@ Double_t PndSecondaryTrackFinder::CalculateRedChi2(std::vector<int> cluster, Int
       chi2 += pow((fabs(distancepc - radius) - rd)/(rderror), 2);
     }
   double redchi2 = chi2 / cluster.size();
-  cout << "===> RED CHI2 no. 0 = " << redchi2 << " <===" << endl;
+  // cout << "===> RED CHI2 no. 0 = " << redchi2 << " <===" << endl;
   return redchi2;
 }
 
@@ -2508,8 +2617,8 @@ Bool_t PndSecondaryTrackFinder::AddRemainingPoints(std::vector<int> hits, Int_t 
       
       double res = fabs(distancepc - radius) - rd;
       //  cout << "RES " << res << " " << " limit " << 3 * fLimit << endl;
-      if(res < (3 * fLimit)) {
-	cout << "ADD " << hitid << " TO CLUS " << iclus << endl;
+      if(res < (fLimit)) { // 3 * fLimt CHECK
+	// 	cout << "ADD " << hitid << " TO CLUS " << iclus << endl;
 	cluster->push_back(hitid);
 
 
@@ -3371,5 +3480,340 @@ Bool_t PndSecondaryTrackFinder::IntersectionFinder(Double_t xc, Double_t yc, Dou
   outradius = R;
   return true;
 }
+
+
+
+
+std::vector<int> PndSecondaryTrackFinder::OrderCluster2(std::vector<int> cluster, Int_t detId, double xc, double yc, double radius) {
+
+  TClonesArray *array;
+ 
+  if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) array = fMvdPixelHitArray;
+  else if(detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) array = fMvdStripHitArray;
+  else if(detId ==  FairRootManager::Instance()->GetBranchId(fSttBranch)) array = fSttHitArray;
+  //  else if(detId ==  FairRootManager::Instance()->GetBranchId(fGemBranch)) array = fGemHitArray;
+
+  std::vector<int> sorthits;
+  std::vector<double> distances, phiangles, distancesphi;
+  std::multimap<double, int> mapdistances, mapphiangles, mapdistancesphi;
+    
+
+  
+  // x0 y0
+  Double_t d = TMath::Sqrt(xc * xc + yc * yc) - radius;
+  Double_t phi =  TMath::ATan2(yc, xc);
+  
+  Double_t x0 = d * TMath::Cos(phi);
+  Double_t y0 = d * TMath::Sin(phi);
+  
+//   int firsthitid = cluster[0];
+//   FairHit* firsthit = (FairHit*) array->At(firsthitid);
+//   //  if(!firsthit) return;
+//   double x0 = firsthit->GetX();
+//   double y0 = firsthit->GetY(); 
+
+  Double_t Phi0 = TMath::ATan2((y0 - yc),(x0 - xc));
+  Double_t scosfirst = 0, scoslast = 0.;
+  TVector2 v(x0 - xc, y0 - yc); 
+
+  for(int ihit = 0; ihit < cluster.size(); ihit++) {
+    int hitid = cluster[ihit];
+      
+    FairHit* hit = (FairHit*) array->At(hitid);
+    if(!hit) continue;
+
+    TVector3 distance3;
+    hit->Position(distance3);
+    TVector3 point(xc, yc, 0.);
+    double distance = (point - distance3).Perp();
+    distances.push_back(distance);
+    mapdistances.insert(std::pair<double, int>(distance, hitid));
+    
+    double alpha = TMath::ATan2(hit->GetY() - y0 + radius * TMath::Sin(Phi0), hit->GetX() - x0 + radius * TMath::Cos(Phi0));
+    TVector2 p(hit->GetX() - xc, hit->GetY() - yc);
+    int charge = -1; // CHECK
+    Double_t phi2 = CalculatePhi(v, p, alpha, Phi0, charge);
+    phiangles.push_back(phi2);
+    mapphiangles.insert(std::pair<double, int>(phi2, hitid));
+ 
+    if(fabs(radius - distance) > 1.) continue;
+    double disphi = distance * phi2;
+    distancesphi.push_back(disphi);
+    cout << "DISPHI " << distance << " " << phi2 << " " << disphi << " " << radius << endl;
+    mapdistancesphi.insert(std::pair<double, int>(disphi, hitid));
+  }
+    
+  std::sort(distances.begin(), distances.end());
+  std::sort(phiangles.begin(), phiangles.end());
+  std::sort(distancesphi.begin(), distancesphi.end());
+
+
+  double tmpdistancephi = 0;
+
+  for(int j = 0; j < distancesphi.size(); j++) {
+    double pd = distancesphi[j];
+      
+    if(tmpdistancephi < pd) tmpdistancephi = pd;
+    else continue;
+
+    std::multimap<double, int>::iterator it;
+    int count = 0;
+    int n = mapdistancesphi.count(tmpdistancephi);
+      
+    for(it = mapdistancesphi.begin(); it != mapdistancesphi.end(); ++it)
+      {
+	if(count == n) break;
+	if((*it).first != tmpdistancephi) continue;
+	  
+	sorthits.push_back((*it).second);
+	count++;
+      }
+  }
+
+  cout << "sorted" << endl;
+  for(int ihit = 0; ihit < sorthits.size(); ihit++) {
+    Int_t hitid = sorthits[ihit];
+    cout << hitid << " " ;
+    
+    FairHit* hit = (FairHit*) array->At(hitid);
+    if(!hit) continue;
+    
+    TVector3 position;
+    hit->Position(position);
+    
+    if(fDisplayOn) {
+      TArc *arc3 = new TArc(position.X(), position.Y(), 0.5); // CHECK
+      arc3->SetLineColor(kOrange);
+      arc3->SetFillStyle(0);
+      arc3->Draw("SAME ONLY");
+      display->Update();
+      display->Modified();
+    }
+    
+  }
+  cout << endl;
+
+  return sorthits;
+}
+
+std::vector<int> PndSecondaryTrackFinder::AddPoints(std::vector<int> hits, Int_t detId,  Double_t xc, Double_t yc, Double_t radius, int iclus)
+{
+  std::vector<int> cluster;
+  TClonesArray *array;
+ 
+  if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) array = fMvdPixelHitArray;
+  else if(detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) array = fMvdStripHitArray;
+  else if(detId ==  FairRootManager::Instance()->GetBranchId(fSttBranch)) array = fSttHitArray;
+  //  else if(detId ==  FairRootManager::Instance()->GetBranchId(fGemBranch)) array = fGemHitArray;
+
+  // add points
+  for(int ihit = 0; ihit <  hits.size(); ihit++)
+    {
+      Int_t hitid = hits[ihit];
+
+      PndSttHit *hit = (PndSttHit*) array->At(hitid);
+      if(!hit) continue;
+      TVector3 centerposition2;
+      hit->Position(centerposition2);
+
+      Double_t rd = hit->GetIsochrone();
+      Double_t rderror = hit->GetIsochroneError();
+      Double_t distancepc = TMath::Sqrt((centerposition2.X() - xc) * (centerposition2.X() - xc) +
+					(centerposition2.Y() - yc) * (centerposition2.Y() - yc));
+      
+      double res = fabs(distancepc - radius) - rd;
+      //  cout << "RES " << res << " " << " limit " << 3 * fLimit << endl;
+      if(res < (fLimit)) { // 3 * fLimt CHECK
+	// 	cout << "ADD " << hitid << " TO CLUS " << iclus << endl;
+	cluster.push_back(hitid);
+
+	if(fDisplayOn) {
+	  TArc *arc3 = new TArc(centerposition2.X(), centerposition2.Y(), 0.5); // CHECK
+	  arc3->SetLineColor(fColors[iclus]);
+	  arc3->SetFillStyle(0);
+	  arc3->Draw("SAME ONLY");
+	  display->Update();
+	  display->Modified();
+	}
+      }
+    }
+
+  return cluster;
+}
+
+
+std::vector< std::vector<int> > PndSecondaryTrackFinder::MergeClusters(std::vector< std::vector<int> > clusterlist) {
+
+  int nclus = clusterlist.size();
+  /**
+     std:vector<int> doublecoll;
+     TMatrixT<double> mapcoincidences(nclus, nclus);
+     for(int iclus = 0; iclus < nclus; iclus++) for(int jclus = 0; jclus < nclus; jclus++) mapcoincidences[iclus][jclus] = 0;
+     
+     for(int iclus = 0; iclus < nclus; iclus++) {
+     std::vector<int> cluster = clusterlist[iclus];
+     int nhits = cluster.size();
+     for(int ihit = 0; ihit < nhits; ihit++) {
+     Int_t hitid = cluster[ihit];	  
+     
+     // for each hit
+     for(int jclus = 0; jclus < nclus; jclus++) {
+     if(iclus == jclus) continue;
+     std::vector<int> clusterj = clusterlist[jclus];
+     int nhitsj = clusterj.size();
+     for(int jhit = 0; jhit < nhitsj; jhit++) {
+     Int_t hitidj = clusterj[jhit];
+     if(hitid == hitidj) {
+     mapcoincidences[iclus][jclus]++;
+     std::vector<int>::iterator it;
+     it = std::find(doublecoll.begin(), doublecoll.end(), hitid);
+     if(it == doublecoll.end()) doublecoll.push_back(hitid);
+     break;
+     }
+     }
+     }
+     }
+     }
+
+     cout << "double collected hits" << endl;
+     for(int i = 0; i < doublecoll.size(); i++) {
+     cout << doublecoll[i] << " ";
+     }
+     cout << endl;
+
+     mapcoincidences.Print();
+     bool usablecluster[nclus]; 
+     for(int iclus = 0; iclus < nclus; iclus++) usablecluster[iclus] = true;
+
+
+     for(int iclus = 0; iclus < nclus; iclus++) {
+     std::vector<int> cluster = clusterlist[iclus];
+     if(usablecluster[iclus] == false) continue;
+     std::vector<int> tmpcluster, tmpcombinations;
+     for(int ihit = 0; ihit < cluster.size(); ihit++) tmpcluster.push_back(cluster[ihit]);    
+
+     for(int jclus = iclus + 1; jclus < nclus; jclus++) {
+     std::vector<int> clusterj = clusterlist[jclus];
+     int percij = mapcoincidences[iclus][jclus]/tmpcluster.size() ;
+     int percji = mapcoincidences[iclus][jclus]/clusterj.size() ;
+     cout << iclus << " has in common with " << jclus << " the " << 100 * percij << " % of its hits" << endl;
+     cout << jclus << " has in common with " << iclus << " the " << 100 * percji << " % of its hits" << endl;
+     if(percij > 0.5 || percji > 0.5) {
+     tmpcombinations.push_back(jclus);
+     usablecluster[iclus] = false;
+     usablecluster[jclus] = false;
+     std::vector<int>::iterator it;
+     for(int jhit = 0; jhit < clusterj.size(); jhit++) {
+     it = find(tmpcluster.begin(), tmpcluster.end(), clusterj[jhit]);
+     if(it == tmpcluster.end()) tmpcluster.push_back(clusterj[jhit]);
+     }
+     }
+     }
+     cout << endl;
+     }
+
+  **/
+
+  std::vector< std::vector<int> > combinations;
+
+  for(int iclus = 0; iclus < nclus; iclus++) {
+    std::vector<int> cluster = clusterlist[iclus];
+    int nhits = cluster.size();
+    cout << "-------------------> " << iclus << endl;
+    for(int jclus = iclus + 1; jclus < nclus; jclus++) {
+      std::vector<int> clusterj = clusterlist[jclus];
+      int nhitsj = clusterj.size();
+      int combination = 0;
+      for(int jhit = 0; jhit < nhitsj; jhit++) {
+	Int_t hitidj = clusterj[jhit];
+	std::vector<int>::iterator it;
+	it = find(cluster.begin(), cluster.end(), hitidj);
+	if(it != cluster.end()) combination++;
+      }
+     
+      double percij = ((double) combination) / nhits;
+      double percji = ((double) combination) / nhitsj;
+      double perc = 0;
+      if(percij < percji) perc = percji;
+      else perc = percij;
+      cout << iclus << " " << jclus << " " << percij << " " << percji << " " << combination << endl;    
+
+      if(perc > 0.5) {
+	cout << "PERC " << iclus << " " << jclus << " " << perc << endl;
+	bool done = false;
+	for(int icom = 0; icom < combinations.size(); icom++) {
+	  std::vector<int> knowncombination = combinations[icom];
+	  std::vector<int>::iterator it, itj;
+	  
+	  for(int kclus = 0; kclus < knowncombination.size(); kclus++) {
+	    cout << "checking combi " << icom << " clus " << knowncombination.at(kclus) << endl;
+	    it = find(knowncombination.begin(), knowncombination.end(), iclus);
+	    itj = find(knowncombination.begin(), knowncombination.end(), jclus);
+	    if(it != knowncombination.end() || itj != knowncombination.end()) {
+	      if(it == knowncombination.end()) knowncombination.push_back(iclus);
+	      if(itj == knowncombination.end()) knowncombination.push_back(jclus);
+	      cout << "update knowncombination " << icom << " " << iclus << " " << jclus << endl;
+	      done = true;
+	      break;
+	    }
+	  }
+	  if(done == true) {
+	    std::replace(combinations.begin(), combinations.end(), combinations[icom], knowncombination);
+	    cout << "update knowncombinations " << knowncombination.size() << endl; 
+}
+
+	}
+	if(false == done) {
+	  cout << "newcombination " << iclus << " " << jclus << endl;
+	  std::vector<int> newcombination;
+	  newcombination.push_back(iclus);
+	  newcombination.push_back(jclus);
+	  combinations.push_back(newcombination);
+	}
+      }
+    }
+  }
+
+  cout << "combination size " <<  combinations.size() << endl;
+
+  for(int icom = 0; icom < combinations.size(); icom++) {
+    std::vector<int> knowncombination = combinations[icom];
+    cout << "combination " << icom << ": ";
+    for(int kclus = 0; kclus < knowncombination.size(); kclus++) {
+      cout << knowncombination[kclus] << " ";
+    }
+    cout << endl;
+  }
+  
+
+
+
+
+
+//   for(int ihit = 0; ihit < doublecoll.size(); ihit++) {
+//     int hitid = doublecoll[ihit];
+    
+//     std::vector<int>::iterator it;
+//     for(int iclus = 0; iclus < nclus; iclus++) {
+//       std::vector<int> cluster = clusterlist[iclus];
+//       it = std::find(cluster.begin(), cluster.end(), hitid);
+//       if(it == cluster.end()) continue;
+
+//       FairHit *hit = (FariHit*) array->At(hitid);
+//       if(!hit) continue;
+
+//       hit->Position();
+
+//     }	 
+
+
+//   }
+
+
+
+}
+
+
+
 
 ClassImp(PndSecondaryTrackFinder)
