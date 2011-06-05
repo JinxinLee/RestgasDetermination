@@ -86,7 +86,9 @@ class PndSecondaryTrackFinder : public FairTask {
   void DrawHitsColor(std::vector<int> hits, Int_t detId, Int_t color);
   void DrawAllHits();
   void DrawAllUsableHits();
- 
+  void PrintClusters(std::vector< std::vector<int> > clusterlist);
+  void DrawClusters(std::vector< std::vector<int> > clusterlist);
+
   void Refresh();
   void DrawLinks(std::vector<int> cluster, Int_t detId, Int_t iclus);
   void FindBoundary(Int_t iclus, std::vector<int> cluster, Int_t detId, TMatrixT<double> &boundaries, Bool_t draw);
@@ -105,7 +107,10 @@ class PndSecondaryTrackFinder : public FairTask {
   Bool_t IntersectionFinder(Double_t xc, Double_t yc, Double_t radius, PndSttHit* stthit, TVector3 &xyz, TVector3 &dxyz);
   std::vector<int> AddPoints(std::vector<int> hits, Int_t detId, Double_t xc, Double_t yc, Double_t radius, Int_t iclus);
   std::vector< std::vector<int> > MergeClusters(std::vector< std::vector<int> > clusterlist);
-    
+  Bool_t CompleteSttFit(std::vector<int> cluster, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius);
+
+  void DeleteCluster(std::vector< std::vector<int> > * clusterlist, std::vector<int> deletecluster);
+
 
  private:
 
