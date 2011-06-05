@@ -104,7 +104,7 @@ class PndSecondaryTrackFinder : public FairTask {
   Bool_t Fit(TMatrixT<double> points, Double_t &outxc, Double_t &outyc, Double_t &outradius);
   Bool_t IntersectionFinder(Double_t xc, Double_t yc, Double_t radius, PndSttHit* stthit, TVector3 &xyz, TVector3 &dxyz);
   std::vector<int> AddPoints(std::vector<int> hits, Int_t detId, Double_t xc, Double_t yc, Double_t radius, Int_t iclus);
-  void MergeClusters(std::vector< std::vector<int> > clusterlist);
+  std::vector< std::vector<int> > MergeClusters(std::vector< std::vector<int> > clusterlist);
     
 
  private:
