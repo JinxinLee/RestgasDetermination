@@ -205,6 +205,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
   // Draw tpc
   if(drawTpc){
+    // TODO: DRAW CORRECT FOR FOPI AND PANDA
     std::cerr<<"drawTpc..."<<std::endl;
     double tpcLength = 72.5;
 
@@ -1290,7 +1291,7 @@ void PndTpcClustVis::makeGui() {
   frmMain2->AddFrame(hf);
 
   hf = new TGHorizontalFrame(frmMain2); {
-    guiDoClean =  new TGCheckButton(hf, "Clean Tracks before \& after merging");
+    guiDoClean =  new TGCheckButton(hf, "Clean Tracks before and after merging");
     if(doClean) guiDoClean->Toggle();
     hf->AddFrame(guiDoClean);
     guiDoClean->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
