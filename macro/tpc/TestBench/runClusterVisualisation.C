@@ -46,12 +46,12 @@ void runClusterVisualisation(TString filename,
     padshapefile=basedir+"/tpc/TestBench/TBhexa_pads.dat";
     gain=4000;
     spread=0.02;
-    zGem=0.2;
+    zGem=-62.5;
     samplingFreq=20;
     wallclock=1000;
 
     MagField=6.;
-    geoFile="tpc/TestBench/FOPIGeo.root";
+    geoFile="$VMCWORKDIR/geometry/tpc_prototype.root";
   }
   else if(paramSet==1){ // standard PANDA SIM Settings
     gasfile=basedir+"/tpc/NEON-90_CO2-10_B2_PRES1013.asc";
@@ -65,7 +65,11 @@ void runClusterVisualisation(TString filename,
     DriftField=400;
 
     MagField=20.;
-    geoFile="geometry/TPC_V1.1.root";
+    geoFile="$VMCWORKDIR/geometry/TPC_V1.1.root";
+  }
+  else{
+    cout<<"use paramSet 0 or 1"<<endl;
+    return;
   }
 
   clustVis->initDigimapper(DriftField,gain,spread,zGem,samplingFreq,wallclock,
