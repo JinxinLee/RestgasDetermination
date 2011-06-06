@@ -1220,7 +1220,9 @@ if(istampa>=3) cout<<"\n\n\nIVOLTE = "<<IVOLTE<<"  and Ntrack = "<< nTracksFound
 
 
 	UShort_t &nHits = nHitsinTrack[nTracksFoundSoFar];
+	if(YesClean){
 	if ( ! (SttParalCleanup(
+			VERTICALGAP,
 			Ox[nTracksFoundSoFar],
 			Oy[nTracksFoundSoFar],
 			R[nTracksFoundSoFar],
@@ -1235,6 +1237,7 @@ if(istampa>=3) cout<<"\n\n\nIVOLTE = "<<IVOLTE<<"  and Ntrack = "<< nTracksFound
 			RStrawDetectorMax  // Outer Radius containing all the wire positions,
 					   // in XY plane, of the Straw Detector.
 			) ) )  continue;
+	}
 
 //--------------------------- end of cleanup
 
@@ -1484,7 +1487,7 @@ cout<<"     elenco dei "<<nSkewHitsinTrack[i]<<" hits skew\n";
 //------------------------------------------------------  end of skew hits section
 
 
-// now the   ordering the parallel and skew hits; determining the charge of this track
+// now the   ordering the parallel and skew hits.
 
 
    for(i=0; i<nTracksFoundSoFar;i++){
@@ -1546,7 +1549,7 @@ if(istampa>=2)cout<<"\tprima di Skew cleanup, IVOLTE = "
 	for(j=0;j<nSkewHitsinTrack[i];j++){
 		auxListHitsinTrack[j]=infoskew[ ListSkewHitsinTrack[i][j] ];
 		auxS[j]=Sfinal[i][ infoskew[ ListSkewHitsinTrack[i][j] ] ];
-
+//------------------ stampe.
 if(istampa>=2)cout<<"\thit skew (nativo) n. "<<infoskew[ ListSkewHitsinTrack[i][j] ]
 <<", X (tubo) "<<info[infoskew[ ListSkewHitsinTrack[i][j] ]][0]
 <<", Y (tubo) "<<info[infoskew[ ListSkewHitsinTrack[i][j] ]][1]
@@ -1554,8 +1557,8 @@ if(istampa>=2)cout<<"\thit skew (nativo) n. "<<infoskew[ ListSkewHitsinTrack[i][
 <<"\t\tsuo X calcolato "<<Ox[i]+R[i]*cos(auxS[j])
 <<", suo Y calcolato "<<Oy[i]+R[i]*sin(auxS[j])
 <<endl;
-
-	}
+//------------------- fine stampe.
+	}// endo of for(j=0;j<nSkewHitsinTrack[i];j++)
 
 
 	//  calculate if the last hit is a parallel or skew.
@@ -1563,7 +1566,10 @@ if(istampa>=2)cout<<"\thit skew (nativo) n. "<<infoskew[ ListSkewHitsinTrack[i][
 		Consider = true;	// last hit is parallel.
 	else	Consider = false;
 
+
+	if(YesClean) {
 	if ( ! (SttSkewCleanup(
+			VERTICALGAP,
 			Ox[i],
 			Oy[i],
 			R[i],
@@ -1579,8 +1585,25 @@ if(istampa>=2)cout<<"\thit skew (nativo) n. "<<infoskew[ ListSkewHitsinTrack[i][
 			1
 			) ) )  {keepit[i] = false;}
 	else  {keepit[i] = true;}
+	} else {
+		keepit[i] = true;
+	}
+//--------inizio stampe
+if(istampa>=2)cout<<"\tdopo di Skew cleanup, IVOLTE = "
+<<IVOLTE<<",  traccia n. "<<i<<", lista degli hit skew :"<<endl;
+	for(j=0;j<nSkewHitsinTrack[i];j++){
+		auxListHitsinTrack[j]=infoskew[ ListSkewHitsinTrack[i][j] ];
+		auxS[j]=Sfinal[i][ infoskew[ ListSkewHitsinTrack[i][j] ] ];
 
-
+if(istampa>=2)cout<<"\thit skew (nativo) n. "<<infoskew[ ListSkewHitsinTrack[i][j] ]
+<<", X (tubo) "<<info[infoskew[ ListSkewHitsinTrack[i][j] ]][0]
+<<", Y (tubo) "<<info[infoskew[ ListSkewHitsinTrack[i][j] ]][1]
+<<", FI "<<auxS[j]<<endl
+<<"\t\tsuo X calcolato "<<Ox[i]+R[i]*cos(auxS[j])
+<<", suo Y calcolato "<<Oy[i]+R[i]*sin(auxS[j])
+<<endl;
+	}
+//----------------fine stampe.
 
    }
 
@@ -11322,18 +11345,19 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 
 
   bool PndSttTrackFinderReal::SttParalCleanup(
-						Double_t Oxx,
-						Double_t Oyy,
-						Double_t Rr,
-						Short_t  Charge,
-						Double_t Start[3],
-						UShort_t &nHits,
-						UShort_t *ListHits,
-						Double_t info[][7],
-						Double_t RStrawDetMin,
-						Double_t RStrawDetInnerParMax,
-						Double_t RStrawDetOuterParMin,
-						Double_t RStrawDetMax
+				Double_t GAP,
+				Double_t Oxx,
+				Double_t Oyy,
+				Double_t Rr,
+				Short_t  Charge,
+				Double_t Start[3],
+				UShort_t &nHits,
+				UShort_t *ListHits,
+				Double_t info[][7],
+				Double_t RStrawDetMin,
+				Double_t RStrawDetInnerParMax,
+				Double_t RStrawDetOuterParMin,
+				Double_t RStrawDetMax
 						)
 {
 // this method does 3 things :
@@ -11383,7 +11407,35 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 				);
 
 //------------------------------------------
-
+	// find the entrance and exit of the track in the Inner Left Parallel Straw region.
+	// This region is bounded by two Hexagons, and it has the target gap in the middle.
+	flagInnerStt=FindTrackEntranceExitbiHexagonLeft(
+				GAP,
+				Oxx,
+				Oyy,
+				Rr,
+				Charge,
+				Start,
+				RStrawDetMin,
+				ApotemaMaxInnerParStraw,
+				Xcross,
+				Ycross
+				);
+	// find the entrance and exit of the track in the Inner Right Parallel Straw region.
+	// This region is bounded by two Hexagons, and it has the target gap in the middle.
+	flagInnerStt=FindTrackEntranceExitbiHexagonRight(
+				GAP,
+				Oxx,
+				Oyy,
+				Rr,
+				Charge,
+				Start,
+				RStrawDetMin,
+				ApotemaMaxInnerParStraw,
+				Xcross,
+				Ycross
+				);
+//-----------------
 
 	// find the entrance and exit of the track in the Inner Parallel Straw region.
 	// This region is bounded by two Hexagons, and it has the target gap in the middle.
@@ -11449,6 +11501,46 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 		return true;	// at this point of the code the absence of outer parallel hits
 					// is possible (= track with very high Pz).
 	}
+//------------
+	// find the entrance and exit of the track in the Outer Parallel Straw region, Left side.
+	// This region is bounded by a Hexagon (inner), a Circle (outer) and it has
+	// the target gap in the middle.
+	flagOuterStt=FindTrackEntranceExitHexagonCircleLeft(
+				Oxx,
+				Oyy,
+				Rr,
+				Charge,
+				Start,
+				ApotemaMinOuterParStraw,
+				RStrawDetMax,
+				GAP,
+				Xcross,
+				Ycross
+				);
+
+//------------
+	// find the entrance and exit of the track in the Outer Parallel Straw region, Right side.
+	// This region is bounded by a Hexagon (inner), a Circle (outer) and it has
+	// the target gap in the middle.
+	flagOuterStt=FindTrackEntranceExitHexagonCircleRight(
+				Oxx,
+				Oyy,
+				Rr,
+				Charge,
+				Start,
+				ApotemaMinOuterParStraw,
+				RStrawDetMax,
+				GAP,
+				Xcross,
+				Ycross
+				);
+
+
+
+
+
+
+
 
 //------------
 	// find the entrance and exit of the track in the Outer Parallel Straw region.
@@ -11519,6 +11611,7 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 
 
   bool PndSttTrackFinderReal::SttSkewCleanup(
+			Double_t GAP,
 			Double_t Oxx,
 			Double_t Oyy,
 			Double_t Rr,
@@ -11553,18 +11646,9 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 	// find the entrance and exit of the track in the Skew Straw region.
 	// This region is bounded by two Hexagons, and it has the target gap
 	// in the middle. So Left is the left looking from downstream.
+
 	flagStt=FindTrackEntranceExitbiHexagonLeft(
-				Oxx,
-				Oyy,
-				Rr,
-				Charge,
-				Start,
-		ApotemaMinSkewStraw,
-		ApotemaMaxSkewStraw, // Apotema is the distance of a Hexagonal side from (0,0)
-				Xcross,
-				Ycross
-				);
-	flagStt=FindTrackEntranceExitbiHexagonRight(
+				GAP,
 				Oxx,
 				Oyy,
 				Rr,
@@ -11576,6 +11660,19 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 				Ycross
 				);
 
+
+	flagStt=FindTrackEntranceExitbiHexagonRight(
+				GAP,
+				Oxx,
+				Oyy,
+				Rr,
+				Charge,
+				Start,
+		ApotemaMinSkewStraw,
+		ApotemaMaxSkewStraw, // Apotema is the distance of a Hexagonal side from (0,0)
+				Xcross,
+				Ycross
+				);
 
 	// find the entrance and exit of the track in the Skew Straw region.
 	// This region is bounded by two Hexagons, and it has the target gap in the middle.
@@ -11937,93 +12034,59 @@ else  hdistbadlast->Fill( Distance[nHits]);
 
 
 
-//----------start  function PndSttTrackFinderReal::IntersectionsWithClosedbiHexagonLeft
+//----------start  function PndSttTrackFinderReal::IntersectionsWithOpenPolygon
 
-	Short_t  PndSttTrackFinderReal::IntersectionsWithClosedbiHexagonLeft(
+	UShort_t  PndSttTrackFinderReal::IntersectionsWithOpenPolygon(
 		//-------- inputs
-		Double_t Ox,
-		Double_t Oy,
-		Double_t R,
-		Double_t Rmi,	// min Apotema of hexagonal  volume intersected by track;
-		Double_t Rma,	// max Apotema of hexagonal volume intersected by track;
+		Double_t Ox, // Track parameter
+		Double_t Oy, // Track parameter
+		Double_t R, // Track parameter
+		UShort_t nSides, // input, n. of Sides of open Polygon.
+		Double_t *a, //  coefficient of formula :  aX + bY + c = 0 defining
+		Double_t *b, //  the Polygon sides.
+		Double_t *c,
+		Double_t *Side_x,  // X,Y coordinate of the Sides vertices (in sequence, following
+		Double_t *Side_y,  // the Polygon along.
 		//-------- outputs
-		UShort_t nIntersections[2],
-		Double_t XintersectionList[][2],
-		Double_t YintersectionList[][2]
+		Double_t *XintersectionList, // XintersectionList
+		Double_t *YintersectionList // YintersectionList.
 						)
 {
 
-
-	// return integer convention :
-	// -2 -->  track outside outer polygon;
-	// -1 -->  track contained completely within inner polygon;
-	// 0 -->  at least 1 intersection with inner polygon, at least 1 with outer polygon;
-	// 1 -->  track contained completely between the two polygons;
-	// 2 -->  track contained completely by larger polygons, with intersections in the smaller;
-	// 3 -->  track completely outsiede the small polygon with intersections in the bigger.
+	// this methods returns the n. of intersections.
 
 
-	//  inner Hexagon --> 0
-	//  outer Hexagon --> 1
-
-	bool	internal[2],
-		AtLeast1[2];
 
 	UShort_t i,
 		 is,
 		 j,
+		 nIntersections,
 		 Nintersections;
 
-	Double_t mindist[2],
+	Double_t mindist,
 		 distance,
 	//-------------------
 	// a,b,c == coefficients of the implicit equations of the six sides of the Hexagon
 	// centered at 0 :   a*x + b*y +c =0; see Gianluigi's logbook on page 277;
 	// the coefficient  c  has to be multiplied by Erre.
-	// The first side is 
-		a[] = { 1./sqrt(3.) , 1., -1./sqrt(3.), 1./sqrt(3.) , 1. , -1./sqrt(3.) } ,
-		b[] = { 1., 0. , 1., 1., 0. , 1. },
-		c[] = { -2./sqrt(3.) , -1., 2./sqrt(3.), 2./sqrt(3.), 1., -2./sqrt(3.)},
-	//----------------------
 
-		Erre[] = {Rmi, Rma},  //  this is the distance from (0,0) 
-					// of the Verteces of the Hexagon delimiting the Skew area
 		tempX[2],
 		tempY[2];
 
-	// both hexagon_side_xlow and hexagon_side_xup must be multiplied by appropriate Erre;
-	// sides of Hexagon ordered as a, b, c ..... in Gianluigi's logbook on page 280.
-	Double_t
-		hexagon_side_x[] = { 0., 1. , 1., 0., -1., -1., 0. },
-		hexagon_side_y[] = { 2./sqrt(3.),1./sqrt(3.),-1./sqrt(3.),
-					-2./sqrt(3.),-1./sqrt(3.), 1./sqrt(3.), 2./sqrt(3.)};
 
 
 
 //-----------------------
 
-//   find intersection with the 6 sides of the small exhagon delimiting the skew straws zone
-//   see on page 277 of Gianluigi's logbook.
-
-	// status  =0, at least 1 intersection with inner Hexagon, at least 1 intersection
-	// with the outer Hexagon; =1, track contained completely between the
-	// two Hexagons; = -1 track contained within inner Hexagon;
-	// =-2 track outside outer Hexagon.
-
-
-	for(i=0;i<2;i++){	// i=0 --> inner Hexagon, i= 1 --> outer Hexagon.
-		AtLeast1[i] = false;
-		nIntersections[i]=0;
-		internal[i] = true;
-		mindist[i]=999999.;
-		for(is=0; is<6; is++){
+		nIntersections=0;
+		for(is=0; is<nSides; is++){
 			if ( IntersectionCircle_Segment(a[is],
 						b[is],
-						c[is]*Erre[i],
-						hexagon_side_x[is]*Erre[i],
-						hexagon_side_x[is+1]*Erre[i],
-						hexagon_side_y[is]*Erre[i],
-						hexagon_side_y[is+1]*Erre[i],
+						c[is],
+						Side_x[is],
+						Side_x[is+1],
+						Side_y[is],
+						Side_y[is+1],
 						Ox,
 						Oy,
 						R,
@@ -12034,47 +12097,298 @@ else  hdistbadlast->Fill( Distance[nHits]);
 							  // defined by  a*x+b*y+c=0.
 							)
 			   ){
-			   AtLeast1[i]=true;
 			   for(j=0;j<Nintersections;j++){
-				XintersectionList[ nIntersections[i] ][i] =tempX[j];
-				YintersectionList[ nIntersections[i] ][i] =tempY[j];
-				nIntersections[i]++;
+				XintersectionList[ nIntersections ] =tempX[j];
+				YintersectionList[ nIntersections ] =tempY[j];
+				nIntersections += Nintersections;
 			   }
 			}	// end of if ( IntersectionCircle_Segment( .....
 
-			if(mindist[i]>distance) mindist[i]=distance;
+
+		} // end of  for(is=0; is<nSides; is++)
+//	}  // end of  for(i=0;i<2;i++)
+
+
+
+	return nIntersections;
+}
+
+//---------- end of  function PndSttTrackFinderReal::IntersectionsWithOpenPolygon
+
+
+//----------start  function PndSttTrackFinderReal::IntersectionsWithClosedbiHexagonLeft
+
+	Short_t  PndSttTrackFinderReal::IntersectionsWithClosedbiHexagonLeft(
+		//-------- inputs
+		Double_t vgap,
+		Double_t Ox,
+		Double_t Oy,
+		Double_t R,
+		Double_t Ami,	// min Apotema of hexagonal  volume intersected by track;
+		Double_t Ama,	// max Apotema of hexagonal volume intersected by track;
+		//-------- outputs
+		UShort_t *nIntersections,
+		Double_t *XintersectionList,
+		Double_t *YintersectionList
+						)
+{
+
+
+	// return integer convention :
+	// -1 -->  track outside outer perimeter;
+	// 0 -->  at least 1 intersection with polygon;
+  	// 1 -->  track contained completely between the two polygons;
+
+
+	//  inner Hexagon --> 0
+	//  outer Hexagon --> 1
+
+	bool	internal,
+		AtLeast1;
+
+	UShort_t i,
+		 is,
+		 j,
+		 Nintersections;
+
+	Double_t aaa,
+		 maxdistq,
+		 distance,
+	//-------------------
+	// a,b,c == coefficients of the implicit equations of the 3 sides of the half inner Hexagon
+	// plus 3 sides of the half outer Hexagon plus 2 vertical sides corresponding to the Gap :
+	//    a*x + b*y +c =0; the numbering of these 8 sides foolows the convention of Gianluigi's
+	// logbook on page 286.
+a[] = {-1./sqrt(3.) ,	1.,	1./sqrt(3.),	1.,	1./sqrt(3.),	1.,	-1./sqrt(3.),	1.},
+b[] = {1.,		0.,	1.,		0.,	1.,		0.,	1.,		0.},
+c[] = {-2.*Ama/sqrt(3.),Ama,	2.*Ama/sqrt(3.),vgap/2.,2.*Ami/sqrt(3.),Ami,	-2.*Ami/sqrt(3.),vgap/2.},
+	//----------------------
+
+		tempX[2],
+		tempY[2];
+
+	// side_x and side_y are ordered as side1, side2, ..... in Gianluigi's logbook on page 286.
+	Double_t
+		side_x[] = { -vgap/2.,	-Ama ,	-Ama,	-vgap/2.,	-vgap/2.,	-Ami,
+					-Ami,	-vgap/2.,	-vgap/2.},
+		side_y[] = {(-0.5*vgap+2.*Ama)/sqrt(3.),	Ama/sqrt(3.),	-Ama/sqrt(3.),
+			    -(-0.5*vgap+2.*Ama)/sqrt(3.),	-(-0.5*vgap+2.*Ami)/sqrt(3.),
+			    -Ami/sqrt(3.),	Ami/sqrt(3.),	(-0.5*vgap+2.*Ami)/sqrt(3.),
+			    (-0.5*vgap+2.*Ama)/sqrt(3.)	};
+
+
+
+//-----------------------
+
+//   find intersections (maximum 16) with the 8 sides.
+
+
+
+		AtLeast1 = false;
+		*nIntersections =0;
+		internal = true;
+		maxdistq=-9999.;
+		for(is=0; is<8; is++){
+			aaa = (side_x[is]-Ox)*(side_x[is]-Ox)+(side_y[is]-Oy)*(side_y[is]-Oy);
+			if(aaa>maxdistq) maxdistq=aaa;
+			aaa = (side_x[is+1]-Ox)*(side_x[is+1]-Ox)+(side_y[is+1]-Oy)*(side_y[is+1]-Oy);
+			if(aaa>maxdistq) maxdistq=aaa;
+			if ( IntersectionCircle_Segment(
+						a[is],
+						b[is],
+						c[is],
+						side_x[is],
+						side_x[is+1],
+						side_y[is],
+						side_y[is+1],
+						Ox,
+						Oy,
+						R,
+						&Nintersections,
+						tempX,
+						tempY,
+						&distance // distance of (Ox,Oy) from line
+							  // defined by  a*x+b*y+c=0.
+							)
+			   ){
+			   AtLeast1=true;
+			   for(j=0;j<Nintersections;j++){
+				XintersectionList[ *nIntersections ] =tempX[j];
+				YintersectionList[ *nIntersections ] =tempY[j];
+				(*nIntersections)++;
+			   }
+			}	// end of if ( IntersectionCircle_Segment( .....
+
 
 			// the definition of 'internal' here is when the given Point
 			// stays at the same side of the origin (0,0) with respect to
 			// the given line of equation   a*x+b*y+c=0.
-			 internal[i] = internal[i] && IsInternal(Ox,
+			if(is<3) {
+				internal = internal && IsInternal(Ox,
 								Oy,
 								a[is],
 								b[is],
-								c[is]*Erre[i]
+								c[is]
 								);
+			} else {
+				internal = internal && (!IsInternal(Ox,
+								Oy,
+								a[is],
+								b[is],
+								c[is]
+								) );
+			}
 
-		} // end of  for(is=0; is<6; is++)
-	}  // end of  for(i=0;i<2;i++)
+		} // end of  for(is=0; is<8; is++)
 
 
-	if( (!AtLeast1[0]) && (!AtLeast1[1]) ){
-	  if (!internal[1])  return -2;	// trajectory outside outer Hexagon.
-	  if( R > mindist[1]) return -2;
-	  if( !internal[0]) return 1; // trajectory contained between inner and outer Hexagon.
-	  if( mindist[0] >= R)  return -1; //  trajectory contained in inner Hexagon.
-	  return 1;	// trajectory contained between inner and outer Hexagon.
-	} else if (AtLeast1[0] && AtLeast1[1] ){ // continuation of  if( (!AtLeast1[0]) && ...
-	  return  0;
-	} else if (AtLeast1[0]){
-		return 2;
+	if( !AtLeast1){
+	  if (!internal)  return -1;// trajectory outside polygon.
+	  if( maxdistq < R*R ) return -1;// trajectory outside polygon.
+	  return 1;	// trajectory completely contained inside this Polygon.
 	}
+	return 0;
 
-	return 3;
 }
 
 //---------- end of  function PndSttTrackFinderReal::IntersectionsWithClosedbiHexagonLeft
 
+//----------start  function PndSttTrackFinderReal::IntersectionsWithClosedbiHexagonRight
+
+	Short_t  PndSttTrackFinderReal::IntersectionsWithClosedbiHexagonRight(
+		//-------- inputs
+		Double_t vgap,
+		Double_t Ox,
+		Double_t Oy,
+		Double_t R,
+		Double_t Ami,	// min Apotema of hexagonal  volume intersected by track;
+		Double_t Ama,	// max Apotema of hexagonal volume intersected by track;
+		//-------- outputs
+		UShort_t *nIntersections,
+		Double_t *XintersectionList,
+		Double_t *YintersectionList
+						)
+{
+
+
+	// return integer convention :
+	// -1 -->  track outside outer perimeter;
+	// 0 -->  at least 1 intersection with polygon;
+  	// 1 -->  track contained completely between the two polygons;
+
+
+	//  inner Hexagon --> 0
+	//  outer Hexagon --> 1
+
+	bool	internal,
+		AtLeast1;
+
+	UShort_t i,
+		 is,
+		 j,
+		 Nintersections;
+
+	Double_t aaa,
+		 maxdistq,
+		 distance,
+	//-------------------
+	// a,b,c == coefficients of the implicit equations of the 3 sides of the half inner Hexagon
+	// plus 3 sides of the half outer Hexagon plus 2 vertical sides corresponding to the Gap :
+	//    a*x + b*y +c =0; the numbering of these 8 sides foolows the convention of Gianluigi's
+	// logbook on page 286.
+a[] = {1./sqrt(3.) ,	1.,	-1./sqrt(3.),	1.,	-1./sqrt(3.),	1.,	1./sqrt(3.),	1.},
+b[] = {1.,		0.,	1.,		0.,	1.,		0.,	1.,		0.},
+c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.*Ami/sqrt(3.),-vgap/2.},
+	//----------------------
+
+		tempX[2],
+		tempY[2];
+
+	// side_x and side_y are ordered as side1, side2, ..... in Gianluigi's logbook on page 286.
+	Double_t
+		side_x[] = { vgap/2.,	Ama ,	Ama,	vgap/2.,	vgap/2.,	Ami,
+					Ami,	vgap/2.,	vgap/2.},
+		side_y[] = {(-0.5*vgap+2.*Ama)/sqrt(3.),	Ama/sqrt(3.),	-Ama/sqrt(3.),
+			    -(-0.5*vgap+2.*Ama)/sqrt(3.),	-(-0.5*vgap+2.*Ami)/sqrt(3.),
+			    -Ami/sqrt(3.),	Ami/sqrt(3.),	(-0.5*vgap+2.*Ami)/sqrt(3.),
+			    (-0.5*vgap+2.*Ama)/sqrt(3.)	};
+
+
+
+//-----------------------
+
+//   find intersections (maximum 16) with the 8 sides.
+
+
+
+		AtLeast1 = false;
+		*nIntersections =0;
+		internal = true;
+		maxdistq=-9999.;
+		for(is=0; is<8; is++){
+			aaa = (side_x[is]-Ox)*(side_x[is]-Ox)+(side_y[is]-Oy)*(side_y[is]-Oy);
+			if(aaa>maxdistq) maxdistq=aaa;
+			aaa = (side_x[is+1]-Ox)*(side_x[is+1]-Ox)+(side_y[is+1]-Oy)*(side_y[is+1]-Oy);
+			if(aaa>maxdistq) maxdistq=aaa;
+			if ( IntersectionCircle_Segment(
+						a[is],
+						b[is],
+						c[is],
+						side_x[is],
+						side_x[is+1],
+						side_y[is],
+						side_y[is+1],
+						Ox,
+						Oy,
+						R,
+						&Nintersections,
+						tempX,
+						tempY,
+						&distance // distance of (Ox,Oy) from line
+							  // defined by  a*x+b*y+c=0.
+							)
+			   ){
+			   AtLeast1=true;
+			   for(j=0;j<Nintersections;j++){
+				XintersectionList[ *nIntersections ] =tempX[j];
+				YintersectionList[ *nIntersections ] =tempY[j];
+				(*nIntersections)++;
+			   }
+			}	// end of if ( IntersectionCircle_Segment( .....
+
+
+			// the definition of 'internal' here is when the given Point
+			// stays at the same side of the origin (0,0) with respect to
+			// the given line of equation   a*x+b*y+c=0.
+			if(is<3) {
+				internal = internal && IsInternal(Ox,
+								Oy,
+								a[is],
+								b[is],
+								c[is]
+								);
+			} else {
+				internal = internal && (!IsInternal(Ox,
+								Oy,
+								a[is],
+								b[is],
+								c[is]
+								) );
+			}
+
+		} // end of  for(is=0; is<8; is++)
+
+
+	if( !AtLeast1){
+	  if (!internal)  return -1;// trajectory outside polygon.
+	  if( maxdistq < R*R ) return -1;// trajectory outside polygon.
+	  return 1;	// trajectory completely contained inside this Polygon.
+	}
+	return 0;
+
+}
+
+//---------- end of  function PndSttTrackFinderReal::IntersectionsWithClosedbiHexagonRight
 
 //----------begin of function PndSttTrackFinderReal::IntersectionCircle_Segment
 
@@ -12095,6 +12409,9 @@ else  hdistbadlast->Fill( Distance[nHits]);
 				Double_t *distance
 								)
 {
+
+// this method finds the intersection of a circle with a segment. If the circle
+// passes through an endpoint of the segment, that is considered an intersection also.
 
 	bool status;
 
@@ -12163,6 +12480,106 @@ else  hdistbadlast->Fill( Distance[nHits]);
 }
 
 //----------end of function PndSttTrackFinderReal::IntersectionCircle_Segment
+
+
+//----------begin of function PndSttTrackFinderReal::IntersectionsWithGapSemicircle
+
+
+	UShort_t PndSttTrackFinderReal::IntersectionsWithGapSemicircle(
+			Double_t Oxx,
+			Double_t Oyy,
+			Double_t Rr,
+			Double_t GAP,
+			bool left,  // if true --> Left semicircle; false --> Right semicircle.
+			Double_t Rma,
+			Double_t *XintersectionList,
+			Double_t *YintersectionList
+						)
+{
+
+	UShort_t	nIntersectionsCircle;
+
+	Double_t	cosFi,
+			theta1,
+			theta2,
+			Theta1,
+			Theta2,
+			aaa,
+			Fi,
+			FI0,
+			x1,
+			x2,
+			y1,
+			y2;
+
+
+
+	nIntersectionsCircle=0;
+	aaa = sqrt(Oxx*Oxx+Oyy*Oyy);
+
+	//  preliminary condition for having intersections between trajectory and  Circle.
+
+	if( !( aaa >= Rr + Rma || Rr >= aaa + Rma) &&
+		!( aaa + Rr <= Rma || aaa - Rr >= Rma  ) )	{
+
+//	now the calculation
+
+		FI0 = atan2(-Oyy,-Oxx);
+		cosFi = (aaa*aaa + Rr*Rr - Rma*Rma)/(2.*Rr*aaa);
+		if(cosFi<-1.) cosFi=-1.; else if(cosFi>1.) cosFi=1.;
+		Fi = acos(cosFi);
+
+
+		//  (x1, y1) and (x2,y2) are the intersections between the trajectory
+		//  and the circle, in the laboratory reference frame.
+		x1 = Oxx+Rr*cos(FI0 - Fi);
+		y1 = Oyy+Rr*sin(FI0 - Fi);
+		theta1 = atan2(y1,x1); // in this way theta1 is between -PI and PI.
+		x2 = Oxx+Rr*cos(FI0 + Fi);
+		y2 = Oyy+Rr*sin(FI0 + Fi);
+		theta2 = atan2(y2,x2); // in this way theta2 is between -PI and PI.
+		//  Theta1, Theta2 = angle of the edges of the outer circle + Gap in the laboratory frame.
+		//  Theta1, Theta2 are angles between -PI/2 and +PI/2.
+		if(!left){	//  Right (looking into the beam) Semicircle.
+			Theta2 = atan2( sqrt(Rma*Rma-GAP*GAP/4.),GAP/2.);
+			Theta1 = atan2( -sqrt(Rma*Rma-GAP*GAP/4.),GAP/2.);
+			if( Theta1<= theta1 && theta1 <= Theta2 ){
+				XintersectionList[nIntersectionsCircle]=x1;
+				YintersectionList[nIntersectionsCircle]=y1;
+				nIntersectionsCircle++;
+			}
+			if( Theta1<= theta2 && theta2 <= Theta2 ){
+				XintersectionList[nIntersectionsCircle]=x2;
+				YintersectionList[nIntersectionsCircle]=y2;
+				nIntersectionsCircle++;
+			}
+		} else {	//  Left (looking into the beam) Semicircle.
+			Theta2 = atan2( -sqrt(Rma*Rma-GAP*GAP/4.),-GAP/2.);
+			Theta1 = atan2( sqrt(Rma*Rma-GAP*GAP/4.),-GAP/2.);
+			if( Theta1<= theta1 || theta1 <= Theta2 ){
+				XintersectionList[nIntersectionsCircle]=x1;
+				YintersectionList[nIntersectionsCircle]=y1;
+				nIntersectionsCircle++;
+			}
+			if( Theta1<= theta2 || theta2 <= Theta2 ){
+				XintersectionList[nIntersectionsCircle]=x2;
+				YintersectionList[nIntersectionsCircle]=y2;
+				nIntersectionsCircle++;
+			}
+		}
+
+	}  // end of   if (!( a >= Rr + Rma || .....
+
+//---------------------------- end of calculation intersection with outer circle.
+
+	return nIntersectionsCircle;
+
+
+}
+//----------end of function PndSttTrackFinderReal::IntersectionsWithGapSemicircle
+
+
+
 
 //----------star of function PndSttTrackFinderReal::IsInternal
 	bool PndSttTrackFinderReal::IsInternal(
@@ -12276,6 +12693,80 @@ else  hdistbadlast->Fill( Distance[nHits]);
 
 }
 //----------end of function PndSttTrackFinderReal::ChooseEntranceExit
+
+
+
+
+
+
+
+
+//----------star of function PndSttTrackFinderReal::ChooseEntranceExitbis
+	void PndSttTrackFinderReal::ChooseEntranceExitbis(
+			Double_t Oxx,
+			Double_t Oyy,
+			Short_t  Charge,
+			Double_t FiStart,
+			UShort_t nIntersections,
+			Double_t *XintersectionList, //  second index =1 -->inner polygon;
+			Double_t *YintersectionList, //  second index =2 -->outer polygon.
+			Double_t Xcross[2],	// output
+			Double_t Ycross[2]	// output
+					)
+{
+
+	UShort_t i,
+		 j;
+// this method works under the hypothesis that there are at least 2 intersections.
+	if (nIntersections<2) return;
+
+	  if(Charge > 0) {
+		UShort_t auxIndex[nIntersections];
+		Double_t fi[nIntersections];
+		for( i=0;i<nIntersections;i++){
+		  fi[i] = atan2(YintersectionList[i]-Oyy,
+				XintersectionList[i]-Oxx);
+		  if( fi[i] > FiStart) fi[i]  -= 2.*PI;
+		  if( fi[i] > FiStart) fi[i] = FiStart;
+		  auxIndex[i]=i;
+		} // end of for( i=0;i<nIntersections[j];i++)
+		PndStt_Merge_Sort( nIntersections, fi, auxIndex);
+		Xcross[0] = XintersectionList[ auxIndex[nIntersections-1] ];
+		Ycross[0] = YintersectionList[ auxIndex[nIntersections-1] ];
+		Xcross[1] = XintersectionList[ auxIndex[nIntersections-2] ];
+		Ycross[1] = YintersectionList[ auxIndex[nIntersections-2] ];
+
+	  } else {
+		UShort_t auxIndex[nIntersections];
+		Double_t fi[nIntersections];
+		for( i=0;i<nIntersections;i++){
+		  fi[i] = atan2(YintersectionList[i]-Oyy,
+				XintersectionList[i]-Oxx);
+		  if( fi[i] < FiStart) fi[i]  += 2.*PI;
+		  if( fi[i] < FiStart) fi[i] = FiStart;
+		  auxIndex[i]=i;
+		} // end of for( i=0;i<nIntersections;i++)
+		PndStt_Merge_Sort( nIntersections, fi, auxIndex);
+		Xcross[0] = XintersectionList[ auxIndex[0] ];
+		Ycross[0] = YintersectionList[ auxIndex[0] ];
+		Xcross[1] = XintersectionList[ auxIndex[1] ];
+		Ycross[1] = YintersectionList[ auxIndex[1] ];
+	  }
+
+
+
+
+}
+//----------end of function PndSttTrackFinderReal::ChooseEntranceExitbis
+
+
+
+
+
+
+
+
+
 
 //----------begin of function PndSttTrackFinderReal::SeparateInnerOuterParallel
 
@@ -12400,8 +12891,6 @@ else  hdistbadlast->Fill( Distance[nHits]);
 			Ycross	// output
 					);
 
-//----------------------
-
 	return flag;
 
 }
@@ -12414,6 +12903,7 @@ else  hdistbadlast->Fill( Distance[nHits]);
 //----------begin of function PndSttTrackFinderReal::FindTrackEntranceExitbiHexagonLeft
 
 	Short_t PndSttTrackFinderReal::FindTrackEntranceExitbiHexagonLeft(
+				Double_t vgap,
 				Double_t Oxx,
 				Double_t Oyy,
 				Double_t Rr,
@@ -12426,11 +12916,11 @@ else  hdistbadlast->Fill( Distance[nHits]);
 							)
 {
 	Short_t flag;
-	UShort_t	nIntersections[2];
+	UShort_t	nIntersections;
 	Double_t	FiStart,
-			XintersectionList[16][2], // second index =0 --> inner Hexagon, =1 --> outer.
-			YintersectionList[16][2]; // first index : all the possible intersections
-						  // (up to 16 intersections).
+			XintersectionList[16], // all the possible intersections
+			YintersectionList[16]; // (up to 16 intersections).
+
 // The following is the form of the Left (looking from downstream into the beam) biHexagon
 // geometrical shape considered in this method :
 //
@@ -12439,45 +12929,40 @@ else  hdistbadlast->Fill( Distance[nHits]);
 	      /|
 	     / |
 	    /  |
-	   /  /|
-	  /  / |
-	 /  /  |
-	/  /   |
-	|  |   |
-	|  |   |
-	|  |   |
-	|  |   |
-	\  \   |
-	 \  \  |
-	  \  \ |
-	   \  \|
+	   /  /
+	  /  / 
+	 /  /  
+	/  /   
+	|  |   
+	|  |   
+	|  |   
+	|  |   
+	\  \   
+	 \  \  
+	  \  \ 
+	   \  \
 	    \  |
 	     \ |
 	      \|
 
 */
-
-
-
 // finding all possible intersections with inner parallel straw region.
 // The inner parallel straw region is delimited by two hexagons.
 
 	// flag meaning :
-	// -2 -->  track outside outer polygon;
-	// -1 -->  track contained completely within inner polygon;
-	// 0 -->  at least 1 intersection with inner polygon, at least 1 with outer polygon;
+	// -1 -->  track outside outer perimeter;
+	// 0 -->  at least 1 intersection with polygon, therefore a possible entry and an exit;
 	// 1 -->  track contained completely between the two polygons;
-	// 2 -->  track contained completely by larger polygons, with intersections in the smaller;
-	// 3 -->  track completely outsiede the small polygon with intersections in the bigger.
 
 
 	flag=IntersectionsWithClosedbiHexagonLeft(
+		vgap,
 		Oxx,
 		Oyy,
 		Rr,
 		ApotemaMin,	// Apotema of the inner Hexagon,
 		ApotemaMax,// Apotema of the outer Hexagon.
-		nIntersections,
+		&nIntersections,
 		XintersectionList, // XintersectionList[..][0] --> inner polygon,
 				   // XintersectionList[..][1] --> outer polygon.
 		YintersectionList
@@ -12487,13 +12972,8 @@ else  hdistbadlast->Fill( Distance[nHits]);
 	// this is true because here it is assumed that the track comes from (0,0,0)
 	// otherwise the code must be changed!
 
-	if (!(flag == 0 || flag == 2)) return flag;
-	if (flag == 2 &&nIntersections[0]<2 ){
-			cout<<"PndSttTrackFinderReal::FindTrackEntranceExitbiHexagonLeft,"<<
-			" contraddiction, nIntersections[0]="<<
-			nIntersections[0]<<"<2, returning -99!\n";
-			return -99;
-	}
+	if (!(flag == 0)) return flag;
+	if( nIntersections<2) return -1;
 
 //-------  among all  possible intersection find the entrance point (Xcross[0], Ycross[0])
 //	   and the exit point (Xcross[1], Ycross[1])  of this track.
@@ -12505,10 +12985,11 @@ else  hdistbadlast->Fill( Distance[nHits]);
 	// geometrical intersections of the circular trajectory with the straw particular
 	// volume.
 
-	ChooseEntranceExit(
+	// so at this point, the intersections are at least 2.
+
+	ChooseEntranceExitbis(
 			Oxx,
 			Oyy,
-			flag,
 			Charge,
 			FiStart,
 			nIntersections,
@@ -12517,6 +12998,7 @@ else  hdistbadlast->Fill( Distance[nHits]);
 			Xcross,	// output
 			Ycross	// output
 					);
+
 
 //----------------------
 
@@ -12536,7 +13018,9 @@ else  hdistbadlast->Fill( Distance[nHits]);
 
 //----------begin of function PndSttTrackFinderReal::FindTrackEntranceExitbiHexagonRight
 
+
 	Short_t PndSttTrackFinderReal::FindTrackEntranceExitbiHexagonRight(
+				Double_t vgap,
 				Double_t Oxx,
 				Double_t Oyy,
 				Double_t Rr,
@@ -12549,51 +13033,47 @@ else  hdistbadlast->Fill( Distance[nHits]);
 							)
 {
 	Short_t flag;
-	UShort_t	nIntersections[2];
+	UShort_t	nIntersections;
 	Double_t	FiStart,
-			XintersectionList[12][2], // second index =0 --> inner Hexagon, =1 --> outer.
-			YintersectionList[12][2]; // first index : all the possible intersections
-						  // (up to 16 intersections).
+			XintersectionList[16], // all the possible intersections
+			YintersectionList[16]; // (up to 16 intersections).
+
+// The following is the form of the Left (looking from downstream into the beam) biHexagon
+// geometrical shape considered in this method :
+//
+/*
+	|\
+	| \
+	|  \
+	 \  \
+	  \  \
+	   |  |
+	   |  |
+	   /  /
+	  /  /
+	 /  /
+	|  /
+	| /
+	|/
+*/
 
 // finding all possible intersections with inner parallel straw region.
 // The inner parallel straw region is delimited by two hexagons.
 
 	// flag meaning :
-	// -2 -->  track outside outer polygon;
-	// -1 -->  track contained completely within inner polygon;
-	// 0 -->  at least 1 intersection with inner polygon, at least 1 with outer polygon;
+	// -1 -->  track outside outer perimeter;
+	// 0 -->  at least 1 intersection with polygon, therefore a possible entry and an exit;
 	// 1 -->  track contained completely between the two polygons;
-	// 2 -->  track contained completely by larger polygons, with intersections in the smaller;
-	// 3 -->  track completely outsiede the small polygon with intersections in the bigger.
-
-// The following is the form of the Right (looking from downstream into the beam)
-// biHexagon geometrical shape considered in this method :
-/*
-
-	|\
-	| \
-	|  \
-	|\  \
-	| \  \
-	|  |  |
-	|  |  |
-	|  /  /
-	| /  /
-	|/  /
-	|  /
-	| /
-	|/
-
-*/
 
 
-	flag=IntersectionsWithClosedPolygon(
+	flag=IntersectionsWithClosedbiHexagonRight(
+		vgap,
 		Oxx,
 		Oyy,
 		Rr,
-		ApotemaMin,	// Rmin of the inner part of parallele straws,
-		ApotemaMax,// max Apotema of the inner part of parallele straws.
-		nIntersections,
+		ApotemaMin,	// Apotema of the inner Hexagon,
+		ApotemaMax,// Apotema of the outer Hexagon.
+		&nIntersections,
 		XintersectionList, // XintersectionList[..][0] --> inner polygon,
 				   // XintersectionList[..][1] --> outer polygon.
 		YintersectionList
@@ -12603,13 +13083,8 @@ else  hdistbadlast->Fill( Distance[nHits]);
 	// this is true because here it is assumed that the track comes from (0,0,0)
 	// otherwise the code must be changed!
 
-	if (!(flag == 0 || flag == 2)) return flag;
-	if (flag == 2 &&nIntersections[0]<2 ){
-			cout<<"PndSttTrackFinderReal::FindTrackEntranceExitbiHexagonRight,"<<
-			" contraddiction, nIntersections[0]="<<
-			nIntersections[0]<<"<2, returning -99!\n";
-			return -99;
-	}
+	if (!(flag == 0)) return flag;
+	if( nIntersections<2) return -1;
 
 //-------  among all  possible intersection find the entrance point (Xcross[0], Ycross[0])
 //	   and the exit point (Xcross[1], Ycross[1])  of this track.
@@ -12621,10 +13096,11 @@ else  hdistbadlast->Fill( Distance[nHits]);
 	// geometrical intersections of the circular trajectory with the straw particular
 	// volume.
 
-	ChooseEntranceExit(
+	// so at this point, the intersections are at least 2.
+
+	ChooseEntranceExitbis(
 			Oxx,
 			Oyy,
-			flag,
 			Charge,
 			FiStart,
 			nIntersections,
@@ -12634,44 +13110,15 @@ else  hdistbadlast->Fill( Distance[nHits]);
 			Ycross	// output
 					);
 
+
 //----------------------
 
 	return flag;
 
 }
 
+
 //----------end of function PndSttTrackFinderReal::FindTrackEntranceExitbiHexagonRight
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -12771,6 +13218,263 @@ else  hdistbadlast->Fill( Distance[nHits]);
 
 //----------end of function PndSttTrackFinderReal::FindTrackEntranceExitHexagonCircle
 
+
+
+
+
+
+
+
+
+
+//----------begin of function PndSttTrackFinderReal::FindTrackEntranceExitHexagonCircleLeft
+
+
+	Short_t PndSttTrackFinderReal::FindTrackEntranceExitHexagonCircleLeft(
+				Double_t Oxx,
+				Double_t Oyy,
+				Double_t Rr,
+				Short_t  Charge,
+				Double_t Start[3],
+				Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
+				Double_t Rma, // outer radius of the Circle.
+				Double_t GAP,
+				Double_t Xcross[2],
+				Double_t Ycross[2]
+							)
+{
+
+//  This methods finds the intersections between a trajectory coming from (0,0) and
+//  parameters  Oxx, Oyy, Rr   with the closed geometrical figure (in XY) formed by the STT
+//  external Left semicircle and the Outer STT parallel Left straw semi-Hexagon + Gap for
+//  the pellet target target.
+//  It returns -1 if there are 0 or 1 intersections, 0 if there are at least 2 intersections.
+
+
+	Double_t	cosFi,
+			theta1,
+			theta2,
+			Theta1,
+			Theta2,
+			aaa,
+			Fi,
+			FI0,
+			x1,
+			x2,
+			y1,
+			y2;
+//------------------
+
+	UShort_t	nIntersectionsCircle,
+			nIntersections;
+	Double_t	FiStart,
+			XintersectionList[12],
+			YintersectionList[12]; // all the possible intersections (up to 12 intersections).
+
+// finding all possible intersections with inner parallel straw region.
+
+
+	Double_t Side_x[] = {	-GAP/2., -GAP/2. , -ApotemaMin, -ApotemaMin, -GAP/2., -GAP/2. },
+		 Side_y[] = {	sqrt(Rma*Rma-GAP*GAP/4.),  (2.*ApotemaMin-GAP)/sqrt(3.),
+				ApotemaMin/sqrt(3.),
+				-ApotemaMin/sqrt(3.),
+				-(2.*ApotemaMin-GAP)/sqrt(3.), -sqrt(Rma*Rma-GAP*GAP/4.)},
+		 a[] =	{1.,		-1./sqrt(3.),	1.,	1./sqrt(3.),	1.},
+		 b[] =	{0.,		1.,		0.,	1.,		0.},
+		 c[] =	{GAP/2., -2.*ApotemaMin/sqrt(3.),ApotemaMin, 2.*ApotemaMin/sqrt(3.), GAP/2.};
+
+	nIntersections=IntersectionsWithOpenPolygon(
+		Oxx,
+		Oyy,
+		Rr,
+		5, //  n. Sides of open Polygon.
+		a, //  coefficient of formula :  aX + bY + c = 0 defining the Polygon sides.
+		b,
+		c,
+		Side_x,  // X,Y coordinate of the Sides vertices (in sequence, following
+		Side_y,  // the Polygon along.
+		XintersectionList, // XintersectionList
+		YintersectionList // YintersectionList.
+					);
+
+
+
+
+//-------------------------------------------------------------------------
+// finding intersections of trajectory [assumed to originate from (0,0) ]
+// with outer semicircle, the Left part.
+
+	nIntersectionsCircle=IntersectionsWithGapSemicircle(
+		Oxx, // input from trajectory
+		Oyy, // input from trajectory
+		Rr, // input from trajectory
+		GAP, // input, vertical gap in XY plane of STT detector.
+		true, // true --> Left semicircle, false --> Right semicircle.
+		Rma, // radius of external Stt containment.
+		&XintersectionList[nIntersections], // output, X list of intersections (maximal 2).
+		&YintersectionList[nIntersections]
+						);
+	nIntersections += nIntersectionsCircle;
+
+//-------- the starting point of the track.
+
+	if(nIntersections<2) return -1;
+
+	FiStart = atan2( Start[1]-Oyy,Start[0]-Oxx);
+
+	// this method selects the entrance and exit points of the trajectory among all
+	// geometrical intersections of the circular trajectory with the straw particular
+	// volume.
+
+
+	ChooseEntranceExitbis(
+			Oxx,
+			Oyy,
+			Charge,
+			FiStart,
+			nIntersections,
+			XintersectionList,
+			YintersectionList,
+			Xcross,	// output
+			Ycross	// output
+					);
+
+
+	return 0;
+
+}
+
+//----------end of function PndSttTrackFinderReal::FindTrackEntranceExitHexagonCircleLeft
+
+
+
+
+
+
+
+
+
+
+
+
+//----------begin of function PndSttTrackFinderReal::FindTrackEntranceExitHexagonCircleRight
+
+
+	Short_t PndSttTrackFinderReal::FindTrackEntranceExitHexagonCircleRight(
+				Double_t Oxx,
+				Double_t Oyy,
+				Double_t Rr,
+				Short_t  Charge,
+				Double_t Start[3],
+				Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
+				Double_t Rma, // outer radius of the Circle.
+				Double_t GAP,
+				Double_t Xcross[2],
+				Double_t Ycross[2]
+							)
+{
+
+//  This methods finds the intersections between a trajectory coming from (0,0) and
+//  parameters  Oxx, Oyy, Rr   with the closed geometrical figure (in XY) formed by the STT
+//  external Left semicircle and the Outer STT parallel Left straw semi-Hexagon + Gap for
+//  the pellet target target.
+//  It returns -1 if there are 0 or 1 intersections, 0 if there are at least 2 intersections.
+
+
+	Double_t	cosFi,
+			theta1,
+			theta2,
+			Theta1,
+			Theta2,
+			aaa,
+			Fi,
+			FI0,
+			x1,
+			x2,
+			y1,
+			y2;
+//------------------
+
+	UShort_t	nIntersectionsCircle,
+			nIntersections;
+	Double_t	FiStart,
+			XintersectionList[12],
+			YintersectionList[12]; // all the possible intersections (up to 10 intersections).
+
+// finding all possible intersections with inner parallel straw region.
+
+
+	Double_t Side_x[] = {	GAP/2., GAP/2. , ApotemaMin, ApotemaMin, GAP/2., GAP/2. },
+		 Side_y[] = {	sqrt(Rma*Rma-GAP*GAP/4.),  (2.*ApotemaMin-GAP)/sqrt(3.),
+				ApotemaMin/sqrt(3.),
+				-ApotemaMin/sqrt(3.),
+				-(2.*ApotemaMin-GAP)/sqrt(3.), -sqrt(Rma*Rma-GAP*GAP/4.)},
+		 a[] =	{1.,		1./sqrt(3.),	1.,	-1./sqrt(3.),	1.},
+		 b[] =	{0.,		1.,		0.,	1.,		0.},
+		 c[] =	{-GAP/2.,-2.*ApotemaMin/sqrt(3.),-ApotemaMin, 2.*ApotemaMin/sqrt(3.), -GAP/2.};
+
+	nIntersections=IntersectionsWithOpenPolygon(
+		Oxx,
+		Oyy,
+		Rr,
+		5, //  n. Sides of open Polygon.
+		a, //  coefficient of formula :  aX + bY + c = 0 defining the Polygon sides.
+		b,
+		c,
+		Side_x,  // X,Y coordinate of the Sides vertices (in sequence, following
+		Side_y,  // the Polygon along.
+		XintersectionList, // XintersectionList
+		YintersectionList // YintersectionList.
+					);
+
+
+
+//-------------------------------------------------------------------------
+// finding intersections of trajectory [assumed to originate from (0,0) ]
+// with outer semicircle, the Left part.
+
+	nIntersectionsCircle=IntersectionsWithGapSemicircle(
+		Oxx, // input from trajectory
+		Oyy, // input from trajectory
+		Rr, // input from trajectory
+		GAP, // input, vertical gap in XY plane of STT detector.
+		false, // true --> Left semicircle, false --> Right semicircle.
+		Rma, // radius of external Stt containment.
+		&XintersectionList[nIntersections], // output, X list of intersections (maximal 2).
+		&YintersectionList[nIntersections]
+						);
+
+
+	nIntersections += nIntersectionsCircle;
+
+//-------- the starting point of the track.
+
+	if(nIntersections<2) return -1;
+
+	FiStart = atan2( Start[1]-Oyy,Start[0]-Oxx);
+
+	// this method selects the entrance and exit points of the trajectory among all
+	// geometrical intersections of the circular trajectory with the straw particular
+	// volume.
+
+	ChooseEntranceExitbis(
+			Oxx,
+			Oyy,
+			Charge,
+			FiStart,
+			nIntersections,
+			XintersectionList,
+			YintersectionList,
+			Xcross,	// output
+			Ycross	// output
+					);
+
+
+	return 0;
+
+}
+
+//----------end of function PndSttTrackFinderReal::FindTrackEntranceExitHexagonCircleRight
 
 ClassImp(PndSttTrackFinderReal)
 
