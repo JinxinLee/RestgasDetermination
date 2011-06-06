@@ -78,6 +78,7 @@ class PndSttMvdTracking : public FairTask
 #define errorPixel sqrt(errorsqPixel)
 #define errorStrip sqrt(errorsqStrip)
 
+#define DiameterStrawTube  1.
   int static const TIMEOUT= 60;
 
   int istampa ;
@@ -98,12 +99,22 @@ class PndSttMvdTracking : public FairTask
   static const Double_t   BFIELD=2.,  // in Tesla
 			  PI = 3.141592654,
 			  CVEL = 2.99792,  //  velocity of light
-			  RStrawDetectorMin = 16., // minimum radius of the Stt detector in  cm
-			  RStrawDetectorMax = 42.2, // maximum radius of the Stt detector in  cm
+			  RStrawDetectorMin = 16.119, // minimum radius of the Stt detector in  cm
+		ApotemaMaxInnerParStraw = 23.246827,
+		ApotemaMinSkewStraw = 23.246827, // delimitation of the skew area
+		ApotemaMaxSkewStraw = 31.517569, // delimitation of the skew area
+		ApotemaMinOuterParStraw = 31.863369,
+			  RStrawDetectorMax = 40.73, // maximum radius of the Stt detector in  cm
+		VERTICALGAP = 4.,  // in cm, the gap between Left and Right sections of the
 			  STTdriftVEL = 0.0025,	//   in cm/nsec
-			  STRAWRADIUS = 0.5,
+			  STRAWRADIUS = DiameterStrawTube/2.,
 			  STRAWRESOLUTION= 0.015;
+	static const bool YesClean = false;
+
+
   bool    ExclusionListStt[nmaxSttHits];
+
+
 
   UShort_t	nTrackCandHit[MAXTRACKSPEREVENT],
 		nSttParHitsinTrack[MAXTRACKSPEREVENT],
@@ -236,7 +247,8 @@ class PndSttMvdTracking : public FairTask
                    UShort_t Nhits,
 		   UShort_t ListParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
                    Double_t info[][7],
-                   UShort_t imaxima,
+                   UShort_t iTrack,
+		Int_t iNome,
 		Short_t daSttTrackaMCTrack,
 		UShort_t nParalCommon[MAXTRACKSPEREVENT],
 		UShort_t ParalCommonList[MAXMCTRACKS][nmaxSttHits],
@@ -277,6 +289,7 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
                    Int_t Nhits,
 		   Double_t info[][7],
                    UShort_t nTracksFoundSoFar,
+		   bool *keepit,
                    Double_t *Ox,
 		   Double_t *Oy,
 		   Double_t *R,
@@ -308,7 +321,8 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
                    Double_t WDX[nmaxSttHits],
                    Double_t WDY[nmaxSttHits],
                    Double_t WDZ[nmaxSttHits],
-                   UShort_t iTrack, Int_t nMaxima, 
+                   UShort_t iTrack,
+			Int_t iNome,
                    UShort_t nSkewHitsinTrack,
                    UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
                    UShort_t nSkewCommon,
@@ -344,6 +358,7 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 		UShort_t nSttParHit,
 		UShort_t nSttSkewHit,
 		Double_t info[][7],
+		bool * keepit,
 		UShort_t nSttTrackCand,
 		UShort_t nTrackCandHit[MAXTRACKSPEREVENT],
 		UShort_t ListTrackCandHit[MAXTRACKSPEREVENT][nmaxSttHits+
@@ -798,7 +813,246 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 			UShort_t FirstCandidate,
 			UShort_t LastCandidate,
 			Double_t info[][7]
-		  );
+					);
+//--------
+
+	void SeparateInnerOuterParallel(
+
+				// input
+				UShort_t nHits,
+				UShort_t *ListHits,
+				Double_t info[][7],
+				Double_t RStrawDetInnerParMax,
+
+				// output
+				UShort_t *nInnerHits,
+				UShort_t *ListInnerHits,
+				UShort_t *nOuterHits,
+				UShort_t *ListOuterHits
+					);
+
+
+
+//------ clenup methods
+
+	bool SttParalCleanup(
+			Double_t GAP,
+			Double_t Oxx,
+			Double_t Oyy,
+			Double_t Rr,
+			Short_t Charge,
+			Double_t Start[3],
+			UShort_t &nHits,
+			UShort_t *ListHits,
+			Double_t info[][7],
+			Double_t RStrawDetMin,
+			Double_t RStrawDetInnerParMax,
+			Double_t RStrawDetOuterParMin,
+			Double_t RStrawDetMax
+			);
+
+
+	bool SttSkewCleanup(
+			Double_t GAP,
+			Double_t Oxx,
+			Double_t Oyy,
+			Double_t Rr,
+			Short_t  Charge,
+			Double_t Start[3],
+			UShort_t nHits,
+			Double_t *auxS,
+			Double_t RminStrawSkew,
+			Double_t RmaxStrawSkew,
+			bool ConsiderLastHit,
+			Double_t cut,
+			UShort_t maxnum
+			);
+
+	bool BadTrack_ParStt(
+			Double_t Oxx,
+			Double_t Oyy,
+			Double_t Rr,
+			Short_t Charge,
+			Double_t Xcross[2],  // Xcross[0]=point of entrance;
+						//  Xcross[1]=point of exit.
+			Double_t Ycross[2],
+			bool  ConsiderLastHit,
+			UShort_t nHits,
+			UShort_t* ListHits,
+			Double_t info[][7],
+			Double_t RStrawDetectorParMin,
+			Double_t RStrawDetectorParMax,
+			Double_t cut,
+			UShort_t maxnum
+				);
+
+//--------  geometry intersection methods.
+
+	Short_t   IntersectionsWithClosedPolygon(
+		Double_t Ox,
+		Double_t Oy,
+		Double_t R,
+		Double_t Rmi,	// Rmin of cylindrical volume intersected by track;
+		Double_t Rma,	// Rmax of cylindrical volume intersected by track;
+
+		//-------- outputs
+		UShort_t nIntersections[2],
+		Double_t XintersectionList[][2],
+		Double_t YintersectionList[][2]
+					);
+
+
+
+	UShort_t   IntersectionsWithOpenPolygon(
+		Double_t Ox, // Track parameter
+		Double_t Oy, // Track parameter
+		Double_t R, // Track parameter
+		UShort_t nSides, // input, n. of Sides of open Polygon.
+		Double_t *a, //  coefficient of formula :  aX + bY + c = 0 defining
+		Double_t *b, //  the Polygon sides.
+		Double_t *c,
+		Double_t *side_x,  // X,Y coordinate of the Sides vertices (in sequence, following
+		Double_t *side_y,  // the Polygon along.
+		//-------- outputs
+		Double_t *XintersectionList, // XintersectionList
+		Double_t *YintersectionList // YintersectionList.
+					);
+
+	Short_t   IntersectionsWithClosedbiHexagonLeft(
+		Double_t vgap,
+		Double_t Ox,
+		Double_t Oy,
+		Double_t R,
+		Double_t Ami,	// Apotema min of inner Hexagon;
+		Double_t Ama,	// Apotema max of outer Hexagon;
+
+		//-------- outputs
+		UShort_t *nIntersections,
+		Double_t *XintersectionList,
+		Double_t *YintersectionList
+					);
+
+
+	Short_t   IntersectionsWithClosedbiHexagonRight(
+		Double_t vgap,
+		Double_t Ox,
+		Double_t Oy,
+		Double_t R,
+		Double_t Ami,	// Apotema min of inner Hexagon;
+		Double_t Ama,	// Apotema max of outer Hexagon;
+
+		//-------- outputs
+		UShort_t *nIntersections,
+		Double_t *XintersectionList,
+		Double_t *YintersectionList
+					);
+
+
+	bool IntersectionCircle_Segment(
+			Double_t a, // coefficients implicit equation.
+			Double_t b, // of segment : a*x + b*y + c =0.
+			Double_t c,
+			Double_t P1x, // point delimiting the segment.
+			Double_t P2x, // point delimiting the segment.
+			Double_t P1y, // point delimiting the segment.
+			Double_t P2y, // point delimiting the segment.
+			Double_t Ox, // center of circle.
+			Double_t Oy,
+			Double_t R, // Radius of circle.
+			UShort_t * Nintersections,
+			Double_t XintersectionList[2],
+			Double_t YintersectionList[2],
+			Double_t *distance
+								);
+
+
+	UShort_t IntersectionsWithGapSemicircle(
+			Double_t Oxx,
+			Double_t Oyy,
+			Double_t Rr,
+			Double_t gap,
+			bool left,
+			Double_t Rma,
+			Double_t *XintersectionList,
+			Double_t *YintersectionList
+						);
+
+	bool IsInternal(
+			Double_t Px,	// point
+			Double_t Py,
+			Double_t Xtraslation,
+			Double_t Ytraslation,
+			Double_t Theta
+					);
+
+
+
+	void ChooseEntranceExitbis(
+			Double_t Oxx,
+			Double_t Oyy,
+			Short_t  Charge,
+			Double_t FiStart,
+			UShort_t nIntersections,
+			Double_t *XintersectionList,
+			Double_t *YintersectionList,
+			Double_t Xcross[2],	// output
+			Double_t Ycross[2]	// output
+					);
+
+
+	Short_t FindTrackEntranceExitbiHexagonLeft(
+				Double_t vgap,
+				Double_t Oxx,
+				Double_t Oyy,
+				Double_t Rr,
+				Short_t  Charge,
+				Double_t Start[3],
+				Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
+				Double_t ApotemaMax,
+				Double_t Xcross[2],
+				Double_t Ycross[2]
+					);
+
+	Short_t FindTrackEntranceExitbiHexagonRight(
+				Double_t vgap,
+				Double_t Oxx,
+				Double_t Oyy,
+				Double_t Rr,
+				Short_t  Charge,
+				Double_t Start[3],
+				Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
+				Double_t ApotemaMax,
+				Double_t Xcross[2],
+				Double_t Ycross[2]
+					);
+
+	Short_t FindTrackEntranceExitHexagonCircleLeft(
+				Double_t Oxx,
+				Double_t Oyy,
+				Double_t Rr,
+				Short_t  Charge,
+				Double_t Start[3],
+				Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
+				Double_t ApotemaMax,
+				Double_t GAP,
+				Double_t Xcross[2],
+				Double_t Ycross[2]
+					);
+	Short_t FindTrackEntranceExitHexagonCircleRight(
+				Double_t Oxx,
+				Double_t Oyy,
+				Double_t Rr,
+				Short_t  Charge,
+				Double_t Start[3],
+				Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
+				Double_t ApotemaMax,
+				Double_t GAP,
+				Double_t Xcross[2],
+				Double_t Ycross[2]
+					);
+
+
+
 
   ClassDef(PndSttMvdTracking,1);
 
