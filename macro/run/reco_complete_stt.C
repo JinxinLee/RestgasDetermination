@@ -13,13 +13,13 @@ void reco_complete_stt()
   Int_t nEvents = 0;  // if 0 all the vents will be processed
   
   // Parameter file
-  TString parFile = "simparams.root"; // at the moment you do not need it
+  TString parFile = "simparams_stt.root"; // at the moment you do not need it
   
   // Digitisation file (ascii)
   TString digiFile = "all.par";
   
   // Output file
-  TString outFile = "reco_complete.root";
+  TString outFile = "reco_complete_stt.root";
   
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -27,8 +27,8 @@ void reco_complete_stt()
   
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile("sim_complete.root");
-  fRun->AddFriend("digi_complete.root");
+  fRun->SetInputFile("sim_complete_stt.root");
+  fRun->AddFriend("digi_complete_stt.root");
   fRun->SetOutputFile(outFile);
 
   // -----  Parameter database   --------------------------------------------

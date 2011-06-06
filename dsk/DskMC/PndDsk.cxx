@@ -633,7 +633,8 @@ PndDsk::ProcessHitsCerenkov(FairVolume* vol)
     }
     // and numer of reflections if IsTrackEntering() in the radiator
     /// @todo needs to take glue, mirrors and diffrent media into account!
-    if ((gMC->IsTrackEntering()) && ((vol->getName()).BeginsWith("radiator"))) {
+    TString volName = vol->GetName();
+    if ((gMC->IsTrackEntering()) && (volName.BeginsWith("radiator"))) {
       pCerenkov->AddReflection();
 
       // get simulated total reflection angle
@@ -662,10 +663,10 @@ PndDsk::ProcessHitsCerenkov(FairVolume* vol)
 //     // if cerenkov reaches mcp: detect it
 //     if ((vol->getName()).BeginsWith("mcp")) {
 // and this is what is is at the moment:
-    if ((vol->getName()).BeginsWith("mirror")) {
+    if (volName.BeginsWith("mirror")) {
 
 //       sscanf((vol->getName()).Data(),"mcp%hu",&fDetType);
-      sscanf((vol->getName()).Data(),"mirror%hu",&fDetType);
+      sscanf(volName.Data(),"mirror%hu",&fDetType);
 
       
       // decide if photon is detected

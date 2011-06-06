@@ -1,6 +1,6 @@
 # -*- mode: cmake -*-
 
-message(" -- Read CTestCustom.cmake --")
+#message(" -- Read CTestCustom.cmake --")
 
 # -----------------------------------------------------------
 # -- Number of warnings to display
@@ -34,6 +34,10 @@ set(CTEST_CUSTOM_WARNING_EXCEPTION
  	# -- CLHEP and Pluto warnings
         "/include/CLHEP/"
         "PParticle.h"
+        "PDataBase.h"
+        "PMesh.h"
+        "PStaticData.h"
+        "PUtils.h"
 
         # -- warnings from ubuntu systems which are a little to much
         # -- probably defined warn-unused-result. ignoring the result
@@ -50,6 +54,7 @@ set(CTEST_CUSTOM_WARNING_EXCEPTION
         # -- Root warnings which should not show up in the test setup
         "/include/G__ci.h:"
         "/include/TAttImage.h:"
+        "/include/TBuffer.h"
         "/include/TCollectionProxyInfo.h"
         "/include/TCut.h:"
         "/include/TEveBoxSet.h:"
@@ -66,6 +71,7 @@ set(CTEST_CUSTOM_WARNING_EXCEPTION
         "/include/TMatrixTSym.h:"
         "/include/TObjArray.h:"
         "/include/TRefArray.h:"
+        "/include/TMemberInspector.h:"
         "/include/Minuit2/BasicFunctionGradient.h:"
         "/include/Minuit2/MnUserParameterState.h:"
         "/include/Minuit2/StackAllocator.h:"
@@ -87,6 +93,12 @@ set(CTEST_CUSTOM_WARNING_EXCEPTION
         # -- Geant3 warnings
         "/geant3/TGeant3/TGeant3.h:"
         "/geant3/TGeant3/TGeant3TGeo.h:"
+
+        # -- Errors which are filtered for the time being
+        # -- MbsAPI is only a copy from elsewhere so don't know what to do
+        # -- FairTSBufferFunctional.h has to be fixed by Tobias
+	"MbsAPI"
+	"FairTSBufferFunctional.h"
   )
 
 # -----------------------------------------------------------

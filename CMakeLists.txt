@@ -25,7 +25,10 @@ include(CheckCompiler)
 include(CheckFortran)
 
 #Check the compiler and set the compile and link flags
-set(CMAKE_BUILD_TYPE Debug)
+If(NOT CMAKE_BUILD_TYPE)
+  Message("Set BuildType DEBUG")
+  set(CMAKE_BUILD_TYPE Debug)
+EndIf(NOT CMAKE_BUILD_TYPE)
 Check_Compiler()
 
 set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")

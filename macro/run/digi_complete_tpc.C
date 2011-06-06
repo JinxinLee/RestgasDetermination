@@ -10,7 +10,7 @@ void digi_complete_tpc()
   Int_t iVerbose = 0; // just forget about it, for the moment
   
   // Input file (MC events)
-  TString inFile = "sim_complete.root";
+  TString inFile = "sim_complete_tpc.root";
   
   // Parameter file
   TString parFile = "simparams.root"; // at the moment you do not need it
@@ -19,7 +19,7 @@ void digi_complete_tpc()
   TString digiFile = "all.par";
   
   // Output file
-  TString outFile = "digi_complete.root";
+  TString outFile = "digi_complete_tpc.root";
   
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;

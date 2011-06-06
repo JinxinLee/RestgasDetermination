@@ -19,9 +19,9 @@ void reco_complete_tpc()
   TString digiFile = "all.par";
   
   // Output file
-  TString outFile = "reco_complete.root";
+  TString outFile = "reco_complete_tpc.root";
   // MC file
-  TString mcFile = "sim_complete.root";
+  TString mcFile = "sim_complete_tpc.root";
   
   
   // -----   Timer   --------------------------------------------------------
@@ -30,8 +30,8 @@ void reco_complete_tpc()
   
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile("sim_complete.root");
-  fRun->AddFriend("digi_complete.root");
+  fRun->SetInputFile("sim_complete_tpc.root");
+  fRun->AddFriend("digi_complete_tpc.root");
   fRun->SetOutputFile(outFile);
 
 

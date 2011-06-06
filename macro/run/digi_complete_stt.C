@@ -10,16 +10,16 @@ void digi_complete_stt()
   Int_t iVerbose = 0; // just forget about it, for the moment
   
   // Input file (MC events)
-  TString inFile = "sim_complete.root";
+  TString inFile = "sim_complete_stt.root";
   
   // Parameter file
-  TString parFile = "simparams.root"; // at the moment you do not need it
+  TString parFile = "simparams_stt.root"; // at the moment you do not need it
   
   // Digitisation file (ascii)
   TString digiFile = "all.par";
   
   // Output file
-  TString outFile = "digi_complete.root";
+  TString outFile = "digi_complete_stt.root";
   
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;

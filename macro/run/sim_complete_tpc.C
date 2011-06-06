@@ -12,7 +12,7 @@
 sim_complete_tpc(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.24)
 {
   //-----User Settings:-----------------------------------------------
-  TString  OutputFile     ="sim_complete.root";
+  TString  OutputFile     ="sim_complete_tpc.root";
   TString  ParOutputfile  ="simparams.root";
   Double_t BeamMomentum   =15.0;
   TString  MediaFile      ="media_pnd.geo";
