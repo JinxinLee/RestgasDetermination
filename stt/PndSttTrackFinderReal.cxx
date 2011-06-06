@@ -649,6 +649,7 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 	GoodTrack[MAXTRACKSPEREVENT];    //  yes = track found passes minimal requirements
 
 
+
   UShort_t iExclude,
            imc,jexp,mchit,exphit,
            nTracksFoundSoFar,
@@ -1124,17 +1125,27 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
      ListHitsinTrack[nTracksFoundSoFar][i]=auxListHitsinTrack[i];
    }
 
-//----------------------------------------------
+//----------------------------- Finding the CHarge
+	// The charge is calculated first by dividing the hits in two categories by using the Perpendicular
+	// to the tangent to the trajectory in (0,0). Then simply the majority of the hits decides the
+	// sign of the  charge. See Gianluigi's Logbook page 290.
 
-	// the ordering reflects the angle Fi in the Helix reference frame because
+
+	FindCharge(
+		Ox[nTracksFoundSoFar],
+		Oy[nTracksFoundSoFar],
+		info,
+		nHitsinTrack[nTracksFoundSoFar],
+		&ListHitsinTrack[nTracksFoundSoFar][0],
+		infoparal,
+		&Charge[nTracksFoundSoFar]
+		);
+//----------------------------- Ordering.
+	// The ordering reflects the angle Fi in the Helix reference frame because
 	// the hits are ordered by going around the trajectory cclockwise for
 	// positive tracks or counterclockwise for negative particles; in other words
 	//  it is not used simply the distance of the hit from (0,0) as ordering parameter
 	//  but the track length of the circle.
-	// The charge is calculated assuming that the hit closer to (0,0) was the
-	// first one to be produced by the track, assumed to originate at (0,0).
-
-
 	// this method finds also Fi_initial_helix_referenceframe and Fi_final_helix_referenceframe.
 	// The former is simply the fi angle of the point (0,0) with respect to the center
 	// of this Helix. Important : this angle has to be > 0 always and it is between 0. and
@@ -1143,6 +1154,7 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 	// Fi_final_helix_referenceframe is made such that  it is < Fi_initial_helix_referenceframe
 	// when the track is  positive, and it is > Fi_initial_helix_referenceframe for negative
 	// tracks.
+
        PndSttOrderingParallel(
                              Ox[nTracksFoundSoFar],
                              Oy[nTracksFoundSoFar],
@@ -1150,12 +1162,13 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
                              nHitsinTrack[nTracksFoundSoFar],
                              &ListHitsinTrack[nTracksFoundSoFar][0],
                              infoparal,
-                             &Charge[nTracksFoundSoFar],
+                             Charge[nTracksFoundSoFar],
                              &Fi_initial_helix_referenceframe[nTracksFoundSoFar],//output
                              &Fi_final_helix_referenceframe[nTracksFoundSoFar],// output
 		&U[nTracksFoundSoFar][0],
 		&V[nTracksFoundSoFar][0]
                        );
+
 
 //    end of ordering the parallel  hits; determining the charge of this track
 
@@ -1293,10 +1306,11 @@ if(iplotta && IVOLTE <= nmassimo){
 //-----------------------
 //-----------------------
 
+   bool keepit[nTracksFoundSoFar];
 
   for(i=0; i<nTracksFoundSoFar;i++){
 
-
+    keepit[i]=true;	// initialization.
 
     GoodSkewFit[i]=false;  //  flag indicating if the skew sector info has completed the parameter info;
 			   //  a priori this is set false.
@@ -1459,8 +1473,9 @@ if(iplotta && IVOLTE <= nmassimo){
 fine: ;
 
 //----------------------------------------------   some printouts
-if(istampa>=2 && IVOLTE<= 0 && i==0) {
-   cout<<"      Evento n. "<<IVOLTE<<", GoodSkewFit = "<<GoodSkewFit[i]<<
+if(istampa>=2) {
+//if(IVOLTE== 44) {
+   cout<<"      Evento n. "<<IVOLTE<<", track n. "<<i<<", GoodSkewFit = "<<GoodSkewFit[i]<<
    "; elenco finale hits per traccia n. "<<i<<"  list dei "<<nHitsinTrack[i]
                <<" hit paralleli (original notation) :\n";
    for(int ig=0;ig<nHitsinTrack[i];ig++){
@@ -1536,7 +1551,6 @@ if(istampa>=2)
 
 //------------------  cleanup of tracks based on the Stt Skew hits.
 
-   bool keepit[nTracksFoundSoFar];
    for(i=0; i<nTracksFoundSoFar;i++){
 
 if(istampa>=2)cout<<"\tprima di Skew cleanup, IVOLTE = "
@@ -1583,10 +1597,7 @@ if(istampa>=2)cout<<"\thit skew (nativo) n. "<<infoskew[ ListSkewHitsinTrack[i][
 					// of last skew hit from Skew boundary.
 			2.,
 			1
-			) ) )  {keepit[i] = false;}
-	else  {keepit[i] = true;}
-	} else {
-		keepit[i] = true;
+			) ) )  keepit[i] = false;  // otherwise it remains true, as per initialization.
 	}
 //--------inizio stampe
 if(istampa>=2)cout<<"\tdopo di Skew cleanup, IVOLTE = "
@@ -2130,7 +2141,6 @@ if( istampa>=2){
       }   else  { //   continuation of    if(   GoodSkewFit[i]  )   //  case in which there is no
                                                                     //  skew hits in this track.
 								    //  This fact is signalled by
-								    //  Pzini = 9999
          Pzini = 9999.;
          new((*trackCandArray)[ipinco])  PndTrackCand;
          pTrckCand = (PndTrackCand*) trackCandArray->At(ipinco);
@@ -2297,7 +2307,6 @@ if(istampa>=2){
 
 
 
-
 	}   //  end of     for(i=0; i<nTracksFoundSoFar;i++)
 
    }  //  end of  if( nMCTracks >0 && nTracksFoundSoFar > 0  && doMcComparison )
@@ -2319,7 +2328,8 @@ if(iplotta && IVOLTE <= nmassimo){
 
 //--------------------------------------------------    macro for display
 
-
+//------
+//----------------fine stampa
         WriteMacroParallelHitsGeneral(
 		keepit,
                    Nhits, info, Nincl, Minclinations,
@@ -2330,7 +2340,6 @@ if(iplotta && IVOLTE <= nmassimo){
 
 
   if(doMcComparison) {
-
         WriteMacroParallelHitsGeneralConformalwithMC(
 		keepit,
                    Nhits, info, Nincl, Minclinations,
@@ -2339,7 +2348,9 @@ if(iplotta && IVOLTE <= nmassimo){
 
 
 	for(i=0, ii=-1; i<nTracksFoundSoFar;i++){
-		if(!keepit[i]) continue;
+
+
+		if(!keepit[i])continue;
 		ii++;
 
            WriteMacroParallelAssociatedHits(
@@ -2365,8 +2376,8 @@ if(iplotta && IVOLTE <= nmassimo){
 		nMCParalAlone,
 		MCParalAloneList
                                                      );
-	}
-  }
+	} // end of for(i=0, ii=-1; i<nTracksFoundSoFar;i++)
+  }	// end of if(doMcComparison) 
 
 for(i=0,ii=-1; i<nTracksFoundSoFar;i++){
 	if(!keepit[i]) continue;
@@ -9606,13 +9617,25 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 		UShort_t nParallelHits,
 		UShort_t *ListParallelHits,
 		UShort_t *Infoparal,
-		Short_t  * Charge,
+		Short_t  Charge,
 		Double_t *Fi_initial_helix_referenceframe,
 		Double_t *Fi_final_helix_referenceframe,
 		Double_t *U,
 		Double_t *V
 							)
 {
+
+
+
+
+
+
+
+
+
+
+
+
 
 
       UShort_t	i,j,
@@ -9638,18 +9661,6 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
 
 //   ordering of the hits
-	for (j = 0; j< nParallelHits; j++){
-		U[j]=info[ Infoparal[ ListParallelHits[j] ]  ][0]/(
-			info[ Infoparal[ ListParallelHits[j] ]  ][0]*
-			info[ Infoparal[ ListParallelHits[j] ]  ][0]+
-			info[ Infoparal[ ListParallelHits[j] ]  ][1]*
-			info[ Infoparal[ ListParallelHits[j] ]  ][1]);
-		V[j]=info[ Infoparal[ ListParallelHits[j] ]  ][1]/(
-			info[ Infoparal[ ListParallelHits[j] ]  ][0]*
-			info[ Infoparal[ ListParallelHits[j] ]  ][0]+
-			info[ Infoparal[ ListParallelHits[j] ]  ][1]*
-			info[ Infoparal[ ListParallelHits[j] ]  ][1]);
-	}
 
 	aaa = atan2( oY, oX);  // atan2 defined between -PI and PI.
 
@@ -9668,20 +9679,9 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 			info[ Infoparal[ ListParallelHits[j] ]  ][1]);
 		}
 		Merge_Sort( nParallelHits, U, ListParallelHits);
-		firstR2 = info[ Infoparal[ ListParallelHits[0] ] ][0]*
-			  info[ Infoparal[ ListParallelHits[0] ] ][0]+
-			  info[ Infoparal[ ListParallelHits[0] ] ][1]*
-			  info[ Infoparal[ ListParallelHits[0] ] ][1];
-		lastR2  = info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][0]*
-			  info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][0]+
-			  info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][1]*
-			  info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][1];
 
 		if((aaa>b1&&aaa<3.*b1)){  //  case #1;
-			if( firstR2<lastR2){
-				*Charge = 1;
-			}else{
-				*Charge = -1;
+			if( Charge == -1){
 				// inverting the order of the hits.
 				for(i=0;i<nParallelHits;i++){
 					tmp[i]=ListParallelHits[nParallelHits-1-i];
@@ -9700,10 +9700,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 				info[ Infoparal[ ListParallelHits[j] ]  ][1]);
 			}
 		} else{  //  case # 3.
-			if( firstR2<lastR2){
-				*Charge = -1;
-			}else{
-				*Charge = 1;
+			if(Charge == 1){
 				// inverting the order of the hits.
 				for(i=0;i<nParallelHits;i++){
 					tmp[i]=ListParallelHits[nParallelHits-1-i];
@@ -9713,7 +9710,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 					ListParallelHits[i]=tmp[i];
 					U[i] = aux[i];
 				}
-			}// end of  if( firstR2<lastR2)
+			}// end of  if( Charge ==1)
 			for (j = 0; j< nParallelHits; j++){
 				V[j]=info[ Infoparal[ ListParallelHits[j] ]  ][1]/(
 				info[ Infoparal[ ListParallelHits[j] ]  ][0]*
@@ -9732,20 +9729,9 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 			info[ Infoparal[ ListParallelHits[j] ]  ][1]);
 		}
 		Merge_Sort( nParallelHits, V, ListParallelHits);
-		firstR2 = info[ Infoparal[ ListParallelHits[0] ] ][0]*
-			  info[ Infoparal[ ListParallelHits[0] ] ][0]+
-			  info[ Infoparal[ ListParallelHits[0] ] ][1]*
-			  info[ Infoparal[ ListParallelHits[0] ] ][1];
-		lastR2  = info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][0]*
-			  info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][0]+
-			  info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][1]*
-			  info[ Infoparal[ ListParallelHits[nParallelHits-1] ] ][1];
 
 		if((aaa<=-3.*b1 || aaa>=3.*b1)){  //  case #2;
-			if( firstR2<lastR2){
-				*Charge = 1;
-			}else{
-				*Charge = -1;
+			if( Charge == -1){
 				// inverting the order of the hits.
 				for(i=0;i<nParallelHits;i++){
 					tmp[i]=ListParallelHits[nParallelHits-1-i];
@@ -9764,12 +9750,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 				info[ Infoparal[ ListParallelHits[j] ]  ][1]);
 			}
 		} else{  //  case # 4.
-			if( firstR2<lastR2){
-				*Charge = -1;
-			} else{
-				*Charge = 1;
-			}
-				*Charge = -1;
+			if( Charge == 1){
 				// inverting the order of the hits.
 				for(i=0;i<nParallelHits;i++){
 					tmp[i]=ListParallelHits[nParallelHits-1-i];
@@ -9779,6 +9760,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 					ListParallelHits[i]=tmp[i];
 					V[i] = aux[i];
 				}
+			}
 			for (j = 0; j< nParallelHits; j++){
 				U[j]=info[ Infoparal[ ListParallelHits[j] ]  ][0]/(
 				info[ Infoparal[ ListParallelHits[j] ]  ][0]*
@@ -9812,7 +9794,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 	if ( *Fi_final_helix_referenceframe <0.)
 			*Fi_final_helix_referenceframe += 2.*PI;
 
-	if ( *Charge > 0 ) {
+	if ( Charge > 0 ) {
 		if( *Fi_final_helix_referenceframe> *Fi_initial_helix_referenceframe)
 			*Fi_final_helix_referenceframe -= 2.*PI;
 		if( *Fi_final_helix_referenceframe> *Fi_initial_helix_referenceframe)
@@ -9828,6 +9810,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
 
  return; 
+
 
 }
 //----------end of function PndSttTrackFinderReal::PndSttOrderingParallel
@@ -11339,7 +11322,67 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 }
 //----------end of function PndSttTrackFinderReal::FixDiscontinuitiesFiangleinSZplane
 
+//----------begin of function PndSttTrackFinderReal::FindCharge
 
+	void   PndSttTrackFinderReal::FindCharge(
+		Double_t oX,
+		Double_t oY,
+		Double_t info[][7],
+		UShort_t nParallelHits,
+		UShort_t *ListParallelHits,
+		UShort_t *Infoparal,
+		Short_t  * Charge
+				)
+{
+
+	UShort_t ihit,
+			nleft,
+			nright;
+
+	Double_t cross,
+		 disq,
+		 minl,
+		 minr;
+
+
+	// this methods works with the hypothesis that this track comes
+	//  from (0,0)
+
+	for(ihit=0, nleft=0, nright=0, minr = 9999999., minl = 9999999.; ihit<nParallelHits; ihit++){ 
+	// find the Z component of the cross product between the vector from (0,0) to center of
+	// circular trajectory [namely, (oX,oY) ]  and the Position vector of the center of the
+	// parallel Hits [namely, (x,y)].
+
+		cross = oX*info[ Infoparal[ ListParallelHits[ihit] ] ][1] -
+			oY*info[ Infoparal[ ListParallelHits[ihit] ] ][0];
+
+	// if  cross >0  hits stays 'on the left' (which means clockwise to go from the origin
+	// to the hit following the smaller path) otherwise it stays 'on the right'.
+
+		if (cross>0.) {
+			disq =	info[ Infoparal[ ListParallelHits[ihit] ] ][0]*
+				info[ Infoparal[ ListParallelHits[ihit] ] ][0]+
+				info[ Infoparal[ ListParallelHits[ihit] ] ][1]*
+				info[ Infoparal[ ListParallelHits[ihit] ] ][1];
+			nleft++;
+		} else {
+			nright++;
+		}
+	}	// end of   for(ihit=0, nleft=0, nright=0;....
+
+	if( nright> nleft) {
+		*Charge = -1;
+	} else if ( nleft > nright) {
+		*Charge = 1;
+	} else {	// then choose according the closest hit ti the center
+		if( minr < minl ) *Charge = -1;
+		else  *Charge = 1;
+	}
+
+
+
+}
+//----------end of function PndSttTrackFinderReal::FindCharge
 
 
 //----------begin of function PndSttTrackFinderReal::SttParalCleanup
