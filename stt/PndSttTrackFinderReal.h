@@ -121,6 +121,8 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		ApotemaMaxSkewStraw = 31.517569, // delimitation of the skew area
 		ApotemaMinOuterParStraw = 31.863369,
                  RStrawDetectorMax = 40.73, // maximum radius of the Stt detector in  cm
+		VERTICALGAP = 4.,  // in cm, the gap between Left and Right sections of the
+				   //  Central Detector.
                  Rmin=20.,
                  Rmax=700.,
                  StrawRadius = DiameterStrawTube/2. ,
@@ -138,7 +140,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                DELTA_FI0= 0.3,
                BFIELD=2.,  // in Tesla
                CVEL = 2.99792;  //  velocity of light
-
+	static const bool YesClean = false;
 
 //               nFidivConformal = (UShort_t) (    PI*RStrawDetectorMax /StrawRadius   );
        static const UShort_t  nFidivConformal = (UShort_t) (3.141592654 * 45./0.5)  ;
@@ -746,6 +748,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
   bool SttParalCleanup(
+			Double_t GAP,
 			Double_t Oxx,
 			Double_t Oyy,
 			Double_t Rr,
@@ -762,6 +765,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
   bool SttSkewCleanup(
+			Double_t GAP,
 			Double_t Oxx,
 			Double_t Oyy,
 			Double_t Rr,
@@ -807,18 +811,50 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		Double_t XintersectionList[][2],
 		Double_t YintersectionList[][2]
 					);
+      UShort_t   IntersectionsWithOpenPolygon(
+		Double_t Ox, // Track parameter
+		Double_t Oy, // Track parameter
+		Double_t R, // Track parameter
+		UShort_t nSides, // input, n. of Sides of open Polygon.
+		Double_t *a, //  coefficient of formula :  aX + bY + c = 0 defining
+		Double_t *b, //  the Polygon sides.
+		Double_t *c,
+		Double_t *side_x,  // X,Y coordinate of the Sides vertices (in sequence, following
+		Double_t *side_y,  // the Polygon along.
+		//-------- outputs
+		Double_t *XintersectionList, // XintersectionList
+		Double_t *YintersectionList // YintersectionList.
+					);
       Short_t   IntersectionsWithClosedbiHexagonLeft(
+		Double_t vgap,
 		Double_t Ox,
 		Double_t Oy,
 		Double_t R,
-		Double_t Rmi,	// Rmin of cylindrical volume intersected by track;
-		Double_t Rma,	// Rmax of cylindrical volume intersected by track;
+		Double_t Ami,	// Apotema min of inner Hexagon;
+		Double_t Ama,	// Apotema max of outer Hexagon;
 
 		//-------- outputs
-		UShort_t nIntersections[2],
-		Double_t XintersectionList[][2],
-		Double_t YintersectionList[][2]
+		UShort_t *nIntersections,
+		Double_t *XintersectionList,
+		Double_t *YintersectionList
 					);
+
+
+      Short_t   IntersectionsWithClosedbiHexagonRight(
+		Double_t vgap,
+		Double_t Ox,
+		Double_t Oy,
+		Double_t R,
+		Double_t Ami,	// Apotema min of inner Hexagon;
+		Double_t Ama,	// Apotema max of outer Hexagon;
+
+		//-------- outputs
+		UShort_t *nIntersections,
+		Double_t *XintersectionList,
+		Double_t *YintersectionList
+					);
+
+
       bool IntersectionCircle_Segment(
 			Double_t a, // coefficients implicit equation.
 			Double_t b, // of segment : a*x + b*y + c =0.
@@ -836,6 +872,16 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 			Double_t *distance
 								);
 
+	UShort_t IntersectionsWithGapSemicircle(
+			Double_t Oxx,
+			Double_t Oyy,
+			Double_t Rr,
+			Double_t gap,
+			bool left,
+			Double_t Rma,
+			Double_t *XintersectionList,
+			Double_t *YintersectionList
+						);
 
 	bool IsInternal(
 			Double_t Px,	// point
@@ -860,6 +906,17 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 			Double_t Ycross[2]	// output
 					);
 
+	void ChooseEntranceExitbis(
+			Double_t Oxx,
+			Double_t Oyy,
+			Short_t  Charge,
+			Double_t FiStart,
+			UShort_t nIntersections,
+			Double_t *XintersectionList,
+			Double_t *YintersectionList,
+			Double_t Xcross[2],	// output
+			Double_t Ycross[2]	// output
+					);
 	Short_t FindTrackEntranceExitbiHexagon(
 				Double_t Oxx,
 				Double_t Oyy,
@@ -872,17 +929,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 				Double_t Ycross[2]
 					);
 	Short_t FindTrackEntranceExitbiHexagonLeft(
-				Double_t Oxx,
-				Double_t Oyy,
-				Double_t Rr,
-				Short_t  Charge,
-				Double_t Start[3],
-				Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
-				Double_t ApotemaMax,
-				Double_t Xcross[2],
-				Double_t Ycross[2]
-					);
-	Short_t FindTrackEntranceExitbiHexagonRight(
+				Double_t vgap,
 				Double_t Oxx,
 				Double_t Oyy,
 				Double_t Rr,
@@ -894,7 +941,8 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 				Double_t Ycross[2]
 					);
 
-	Short_t FindTrackEntranceExitHexagonCircle(
+	Short_t FindTrackEntranceExitbiHexagonRight(
+				Double_t vgap,
 				Double_t Oxx,
 				Double_t Oyy,
 				Double_t Rr,
@@ -905,6 +953,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 				Double_t Xcross[2],
 				Double_t Ycross[2]
 					);
+
 	void SeparateInnerOuterParallel(
 
 				// input
@@ -920,6 +969,41 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 				UShort_t *ListOuterHits
 					);
 
+	Short_t FindTrackEntranceExitHexagonCircle(
+				Double_t Oxx,
+				Double_t Oyy,
+				Double_t Rr,
+				Short_t  Charge,
+				Double_t Start[3],
+				Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
+				Double_t ApotemaMax,
+				Double_t Xcross[2],
+				Double_t Ycross[2]
+					);
+	Short_t FindTrackEntranceExitHexagonCircleLeft(
+				Double_t Oxx,
+				Double_t Oyy,
+				Double_t Rr,
+				Short_t  Charge,
+				Double_t Start[3],
+				Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
+				Double_t ApotemaMax,
+				Double_t GAP,
+				Double_t Xcross[2],
+				Double_t Ycross[2]
+					);
+	Short_t FindTrackEntranceExitHexagonCircleRight(
+				Double_t Oxx,
+				Double_t Oyy,
+				Double_t Rr,
+				Short_t  Charge,
+				Double_t Start[3],
+				Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
+				Double_t ApotemaMax,
+				Double_t GAP,
+				Double_t Xcross[2],
+				Double_t Ycross[2]
+					);
 
 //----------------------------------------------
 
