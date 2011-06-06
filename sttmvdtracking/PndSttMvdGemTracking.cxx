@@ -3412,3 +3412,5 @@ void PndSttMvdGemTracking::SetBranchNames(TString mvdpixel, TString mvdstrip, TS
   fSttBranchName = stt;
   fGemBranchName = gem;
 }
+
+ClassImp(PndSttMvdGemTracking)
