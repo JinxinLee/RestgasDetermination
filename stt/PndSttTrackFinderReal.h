@@ -262,9 +262,9 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
 
-  void PndStt_Merge_Sort(UShort_t n_ele, Double_t *array, UShort_t *ind);
+  void Merge_Sort(UShort_t n_ele, Double_t *array, UShort_t *ind);
 
-  void PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *ind_left, UShort_t nr,
+  void Merge(UShort_t nl, Double_t *left, UShort_t *ind_left, UShort_t nr,
                                          Double_t *right, UShort_t *ind_right,  Double_t *result, UShort_t *ind);
 
 
@@ -747,7 +747,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
 
-  bool SttParalCleanup(
+	bool SttParalCleanup(
 			Double_t GAP,
 			Double_t Oxx,
 			Double_t Oyy,
@@ -764,7 +764,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 			);
 
 
-  bool SttSkewCleanup(
+	bool SttSkewCleanup(
 			Double_t GAP,
 			Double_t Oxx,
 			Double_t Oyy,
@@ -780,7 +780,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 			UShort_t maxnum
 			);
 
-  bool BadTrack_ParStt(
+	bool BadTrack_ParStt(
 			Double_t Oxx,
 			Double_t Oyy,
 			Double_t Rr,
@@ -799,7 +799,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 				);
 
 
-      Short_t   IntersectionsWithClosedPolygon(
+	Short_t   IntersectionsWithClosedPolygon(
 		Double_t Ox,
 		Double_t Oy,
 		Double_t R,
@@ -811,7 +811,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		Double_t XintersectionList[][2],
 		Double_t YintersectionList[][2]
 					);
-      UShort_t   IntersectionsWithOpenPolygon(
+	UShort_t   IntersectionsWithOpenPolygon(
 		Double_t Ox, // Track parameter
 		Double_t Oy, // Track parameter
 		Double_t R, // Track parameter
@@ -825,7 +825,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		Double_t *XintersectionList, // XintersectionList
 		Double_t *YintersectionList // YintersectionList.
 					);
-      Short_t   IntersectionsWithClosedbiHexagonLeft(
+	Short_t   IntersectionsWithClosedbiHexagonLeft(
 		Double_t vgap,
 		Double_t Ox,
 		Double_t Oy,
@@ -840,7 +840,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 					);
 
 
-      Short_t   IntersectionsWithClosedbiHexagonRight(
+	Short_t   IntersectionsWithClosedbiHexagonRight(
 		Double_t vgap,
 		Double_t Ox,
 		Double_t Oy,
@@ -855,7 +855,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 					);
 
 
-      bool IntersectionCircle_Segment(
+	bool IntersectionCircle_Segment(
 			Double_t a, // coefficients implicit equation.
 			Double_t b, // of segment : a*x + b*y + c =0.
 			Double_t c,
@@ -917,6 +917,9 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 			Double_t Xcross[2],	// output
 			Double_t Ycross[2]	// output
 					);
+
+
+
 	Short_t FindTrackEntranceExitbiHexagon(
 				Double_t Oxx,
 				Double_t Oyy,
@@ -928,6 +931,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 				Double_t Xcross[2],
 				Double_t Ycross[2]
 					);
+
 	Short_t FindTrackEntranceExitbiHexagonLeft(
 				Double_t vgap,
 				Double_t Oxx,
