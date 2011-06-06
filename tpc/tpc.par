@@ -31,7 +31,7 @@ ADCBits:Int_t 12
 SamplingFreq:Double_t 40
 T0_wallclock:Double_t -200000
 TimeBits:Int_t 28
-PSAThreshold:Int_t 100
+PSAThreshold:Int_t 10
 Shaper_tDiff:Double_t 50
 Shaper_tInt:Double_t 50
 Shaper_tSig:Double_t 2
