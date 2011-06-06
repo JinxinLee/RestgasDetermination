@@ -166,7 +166,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
       bool  iplotta, doMcComparison ;
       int istampa ;
 
-      static const int  nmassimo=20;
+      static const int  nmassimo=50;
 
 	TH1F	*hdist,
 		*hdistgoodlast,
@@ -608,7 +608,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		UShort_t nParallelHits,
 		UShort_t *ListParallelHits,
 		UShort_t *Infoparal,
-		Short_t  * Charge,
+		Short_t  Charge,
 		Double_t *Fi_initial_helix_referenceframe,
 		Double_t *Fi_final_helix_referenceframe,
 		Double_t *U,
@@ -744,6 +744,19 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                           Double_t *Fi_initial_helix_referenceframe,
                           Short_t Charge
                           );
+
+
+
+	void   FindCharge(
+		Double_t oX,
+		Double_t oY,
+		Double_t info[][7],
+		UShort_t nParallelHits,
+		UShort_t *ListParallelHits,
+		UShort_t *Infoparal,
+		Short_t  * Charge
+				);
+
 
 
 
