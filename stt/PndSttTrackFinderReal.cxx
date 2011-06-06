@@ -613,7 +613,7 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
     }
 
 
-    PndStt_Merge_Sort( Minclinations[0], auxRvalues, auxIndex);
+    Merge_Sort( Minclinations[0], auxRvalues, auxIndex);
     for (int j = 0; j< Minclinations[0]; j++){
       infoparal[ Minclinations[0]-1-j]  =  OLDinfoparal[ auxIndex[ j ]   ];
     }
@@ -5980,11 +5980,11 @@ nohits: ;
 
 
 
-//----------begin of function PndSttTrackFinderReal::PndStt_Merge_Sort
+//----------begin of function PndSttTrackFinderReal::Merge_Sort
 
 
 
-void PndSttTrackFinderReal::PndStt_Merge_Sort(UShort_t n_ele, Double_t *array, UShort_t *ind)
+void PndSttTrackFinderReal::Merge_Sort(UShort_t n_ele, Double_t *array, UShort_t *ind)
 {
 
 
@@ -6010,11 +6010,11 @@ void PndSttTrackFinderReal::PndStt_Merge_Sort(UShort_t n_ele, Double_t *array, U
      ind_right[i-middle]= ind[i];
    }
 
-   PndStt_Merge_Sort( middle,  left, ind_left);
-   PndStt_Merge_Sort(n_ele-middle, right, ind_right);
+   Merge_Sort( middle,  left, ind_left);
+   Merge_Sort(n_ele-middle, right, ind_right);
 
    if( left[middle-1] > right[0]) {
-     PndStt_Merge(middle, left,ind_left, n_ele-middle, right, ind_right, array, ind);
+     Merge(middle, left,ind_left, n_ele-middle, right, ind_right, array, ind);
    }  else {
      //  do the appending
      for(i=0; i<middle; i++){
@@ -6032,15 +6032,15 @@ void PndSttTrackFinderReal::PndStt_Merge_Sort(UShort_t n_ele, Double_t *array, U
 }
 
 
-//----------end of function PndSttTrackFinderReal::PndStt_Merge_Sort
+//----------end of function PndSttTrackFinderReal::Merge_Sort
 
 
-//----------begin of function PndSttTrackFinderReal::PndStt_Merge
+//----------begin of function PndSttTrackFinderReal::Merge
 
 
 
 
-void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *ind_left, UShort_t nr,
+void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_left, UShort_t nr,
                                          Double_t *right, UShort_t *ind_right,  Double_t *result, UShort_t *ind)
 {
    UShort_t i =0, j, nl_curr=0, nr_curr=0;
@@ -6078,7 +6078,7 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
 
 }
 
-//----------end of function PndSttTrackFinderReal::PndStt_Merge
+//----------end of function PndSttTrackFinderReal::Merge
 
 
 
@@ -9439,7 +9439,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
                     info[ infoparal[ ListParallelHits[j] ]  ][1];
     }
 
-    PndStt_Merge_Sort( nParallelHits, auxRvalues, ListParallelHits);
+    Merge_Sort( nParallelHits, auxRvalues, ListParallelHits);
 
     for (j = 0; j< nParallelHits; j++){              
       auxFivalues[j] = atan2( info[ infoparal[ ListParallelHits[j] ]  ][1]-oY,
@@ -9477,7 +9477,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
       }
    }
  
-    PndStt_Merge_Sort( nSkewHits, auxFiSkewvalues, ListSkewHits);
+    Merge_Sort( nSkewHits, auxFiSkewvalues, ListSkewHits);
 //    merge the parallel and skew hits
      for(j = 0;j< nParallelHits; j++){
        BigListFi[j]=auxFivalues[j];
@@ -9488,7 +9488,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
        BigList [i+nParallelHits] = Infoskew[  ListSkewHits[i]  ] ;
       }
 
-    PndStt_Merge_Sort(nTotal, BigListFi, BigList);
+    Merge_Sort(nTotal, BigListFi, BigList);
 
 //  now decide if track ran clockwise or anticlockwise
 
@@ -9667,7 +9667,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 			info[ Infoparal[ ListParallelHits[j] ]  ][1]*
 			info[ Infoparal[ ListParallelHits[j] ]  ][1]);
 		}
-		PndStt_Merge_Sort( nParallelHits, U, ListParallelHits);
+		Merge_Sort( nParallelHits, U, ListParallelHits);
 		firstR2 = info[ Infoparal[ ListParallelHits[0] ] ][0]*
 			  info[ Infoparal[ ListParallelHits[0] ] ][0]+
 			  info[ Infoparal[ ListParallelHits[0] ] ][1]*
@@ -9731,7 +9731,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 			info[ Infoparal[ ListParallelHits[j] ]  ][1]*
 			info[ Infoparal[ ListParallelHits[j] ]  ][1]);
 		}
-		PndStt_Merge_Sort( nParallelHits, V, ListParallelHits);
+		Merge_Sort( nParallelHits, V, ListParallelHits);
 		firstR2 = info[ Infoparal[ ListParallelHits[0] ] ][0]*
 			  info[ Infoparal[ ListParallelHits[0] ] ][0]+
 			  info[ Infoparal[ ListParallelHits[0] ] ][1]*
@@ -9956,7 +9956,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 		index[j+nParHits] = j+nParHits;
 	}
 
-	PndStt_Merge_Sort( nSkewHits+nParHits, aux, index);
+	Merge_Sort( nSkewHits+nParHits, aux, index);
 
 
 	for(i=0, j=0;i<nSkewHits+nParHits;i++){
@@ -10034,7 +10034,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
                     info[ Infoparal[ ListParallelHits[j] ]  ][1];
     }
 
-    PndStt_Merge_Sort( nParallelHits, auxRvalues, ListParallelHits);
+    Merge_Sort( nParallelHits, auxRvalues, ListParallelHits);
 
 */
 
@@ -10089,7 +10089,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
       }
    }
  
-    PndStt_Merge_Sort( nSkewHits, auxFiSkewvalues, ListSkewHits);
+    Merge_Sort( nSkewHits, auxFiSkewvalues, ListSkewHits);
  }   //  end of   if(nSkewHits>0)
 
 
@@ -10110,7 +10110,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 // cout<<"from Ordering, Skew; j= "<<j<<", n. Hit skew in original numbering = "<<BigList[j+nParallelHits]<<endl;
       }
 
-    if(nSkewHits>0) PndStt_Merge_Sort(*nTotal, BigListFi, BigList);
+    if(nSkewHits>0) Merge_Sort(*nTotal, BigListFi, BigList);
 
 
 
@@ -11340,6 +11340,8 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 //----------end of function PndSttTrackFinderReal::FixDiscontinuitiesFiangleinSZplane
 
 
+
+
 //----------begin of function PndSttTrackFinderReal::SttParalCleanup
 
 
@@ -11534,12 +11536,6 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 				Xcross,
 				Ycross
 				);
-
-
-
-
-
-
 
 
 //------------
@@ -12632,7 +12628,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 		  if( fi[i] > FiStart) fi[i] = FiStart;
 		  auxIndex[i]=i;
 		} // end of for( i=0;i<nIntersections[j];i++)
-		PndStt_Merge_Sort( nIntersections[j], fi, auxIndex);
+		Merge_Sort( nIntersections[j], fi, auxIndex);
 		Xcross[j] = XintersectionList[ auxIndex[nIntersections[j]-1] ][j];
 		Ycross[j] = YintersectionList[ auxIndex[nIntersections[j]-1] ][j];
 	     }  //   end of for(j=0;j<2;j++)
@@ -12648,7 +12644,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 		  if( fi[i] < FiStart) fi[i] = FiStart;
 		  auxIndex[i]=i;
 		} // end of for( i=0;i<nIntersections[j];i++)
-		PndStt_Merge_Sort( nIntersections[j], fi, auxIndex);
+		Merge_Sort( nIntersections[j], fi, auxIndex);
 		Xcross[j] = XintersectionList[ auxIndex[0] ][j];
 		Ycross[j] = YintersectionList[ auxIndex[0] ][j];
 	     }  //   end of for(j=0;j<2;j++)
@@ -12666,7 +12662,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 		  if( fi[i] > FiStart) fi[i] = FiStart;
 		  auxIndex[i]=i;
 		} // end of for( i=0;i<nIntersections[0];i++)
-		PndStt_Merge_Sort( nIntersections[0], fi, auxIndex);
+		Merge_Sort( nIntersections[0], fi, auxIndex);
 		Xcross[0] = XintersectionList[ auxIndex[nIntersections[0]-1] ][0];
 		Ycross[0] = YintersectionList[ auxIndex[nIntersections[0]-1] ][0];
 		Xcross[1] = XintersectionList[ auxIndex[nIntersections[0]-2] ][0];
@@ -12680,7 +12676,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 		  if( fi[i] < FiStart) fi[i] = FiStart;
 		  auxIndex[i]=i;
 		} // end of for( i=0;i<nIntersections[0];i++)
-		PndStt_Merge_Sort( nIntersections[0], fi, auxIndex);
+		Merge_Sort( nIntersections[0], fi, auxIndex);
 		Xcross[0] = XintersectionList[ auxIndex[0] ][0];
 		Ycross[0] = YintersectionList[ auxIndex[0] ][0];
 		Xcross[1] = XintersectionList[ auxIndex[1] ][0];
@@ -12730,7 +12726,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 		  if( fi[i] > FiStart) fi[i] = FiStart;
 		  auxIndex[i]=i;
 		} // end of for( i=0;i<nIntersections[j];i++)
-		PndStt_Merge_Sort( nIntersections, fi, auxIndex);
+		Merge_Sort( nIntersections, fi, auxIndex);
 		Xcross[0] = XintersectionList[ auxIndex[nIntersections-1] ];
 		Ycross[0] = YintersectionList[ auxIndex[nIntersections-1] ];
 		Xcross[1] = XintersectionList[ auxIndex[nIntersections-2] ];
@@ -12746,7 +12742,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 		  if( fi[i] < FiStart) fi[i] = FiStart;
 		  auxIndex[i]=i;
 		} // end of for( i=0;i<nIntersections;i++)
-		PndStt_Merge_Sort( nIntersections, fi, auxIndex);
+		Merge_Sort( nIntersections, fi, auxIndex);
 		Xcross[0] = XintersectionList[ auxIndex[0] ];
 		Ycross[0] = YintersectionList[ auxIndex[0] ];
 		Xcross[1] = XintersectionList[ auxIndex[1] ];
