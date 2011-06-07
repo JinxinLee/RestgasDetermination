@@ -52,24 +52,36 @@ PndTpcDipTTCorrelator::corr(PndTpcRiemannTrack* trk1,
     double phi1 = trk1->dip();
     double phi2 = trk2->dip();
 
+    unsigned int nh1 = trk1->getNumHits();
+    unsigned int nh2 = trk2->getNumHits();
+
     // check if tracks are sorted the same way
     TVector3 t1h1 = trk1->getFirstHit()->cluster()->pos();
     TVector3 t1hn = trk1->getLastHit()->cluster()->pos();
     TVector3 t2h1 = trk2->getFirstHit()->cluster()->pos();
     TVector3 t2hn = trk2->getLastHit()->cluster()->pos();
 
-    double dist = (t1hn - t2h1).Mag();
-    bool back2back=false; // tracks in opposite direction?
-    bool back=false; // end of trk2 nearer
-    double d = (t1hn - t2hn).Mag();
-    if (d<dist){dist = d; back2back=true; back=true;}
-    d = (t1h1 - t2h1).Mag();
-    if (d<dist){dist = d; back2back=true; back=false;}
-    d = (t1h1 - t2hn).Mag();
-    if (d<dist){dist = d; back2back=false; back=true;}
+    double d1n21 = (t1hn - t2h1).Mag();
+    double d1n2n = (t1hn - t2hn).Mag();
+    double d1121 = (t1h1 - t2h1).Mag();
+    double d112n = (t1h1 - t2hn).Mag();
+    double dist = d1n21;
+
+    bool back1(true), back2(false);
+    if (d1n2n<dist){dist = d1n2n; back1=true;  back2=true;}
+    if (d1121<dist){dist = d1121; back1=false; back2=false;}
+    if (d112n<dist){dist = d112n; back1=false; back2=true;}
+
+    // check if we have to flip one dip
+    TVector3 pos1, dir1, pos2, dir2;
+    if(back1) trk1->getPosDirOnHelix(nh1-1, pos1, dir1);
+    else trk1->getPosDirOnHelix(0, pos1, dir1);
+
+    if(back2) trk2->getPosDirOnHelix(nh2-1, pos2, dir2);
+    else trk2->getPosDirOnHelix(0, pos2, dir2);
 
     // if tracks are not sorted the same way, "flip" the dip
-    if(back2back){
+    if(dir1*dir2<0){
       if(phi1>phi2) phi1=TMath::Pi()-phi1;
       else phi2=TMath::Pi()-phi2;
     }
@@ -88,7 +100,7 @@ PndTpcDipTTCorrelator::corr(PndTpcRiemannTrack* trk1,
 
     // now also check if sz distance matches
     double hDist;
-    if(back)
+    if(back2)
       hDist = trk1->distHelix(trk2->getLastHit(),true);
     else
       hDist = trk1->distHelix(trk2->getFirstHit(),true);
