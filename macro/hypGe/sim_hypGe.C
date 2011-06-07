@@ -14,7 +14,7 @@
   FairRunSim *fRun = new FairRunSim();
   
   // Set the number of events
-  Int_t nEvents = 400; //6000 gamma spectra(hyp)
+  Int_t nEvents = 2000; //6000 gamma spectra(hyp)
   TString inFile="/d/panda02/urqmd_smm/pbarC_3_GeV.root";
   //TString inFile="/u/asanchez/razhyp_gt12.dat";
   // set the MC version used
@@ -47,6 +47,7 @@
   PndHypGe *HypGe= new PndHypGe("HYPGE",kTRUE);
   TString nam = gSystem->Getenv("VMCWORKDIR");
   HypGe->SetPathGeo(nam.Data());
+  HypGe->SetGeometryFileName("HPGeCluster.root");
   fRun->AddModule(HypGe); 
 
   //  FairDetector *Hyp= new FairHyp("HYP",kTRUE);
@@ -94,8 +95,9 @@
   boxGen2->SetThetaRange(120., 180.); // Polar angle in lab system range [degree]
   boxGen2->SetCosTheta(); // Set uniform ditribution in cos(theta)
   boxGen2->SetXYZ(0., 0., -76.); // vertex coordinates [cm]
-				  */
-  primGen->AddGenerator(boxGen);  
+				  
+  primGen->AddGenerator(boxGen);  */
+
   /*
   TChain *t =new TChain("data");
    t->Add(inFile);
