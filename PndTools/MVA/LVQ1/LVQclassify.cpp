@@ -9,6 +9,8 @@
  * procedure. This classifier is implemented based on the LVQ
  * algorithm.
  */
+#define LVQ_CLS_DEBUG 0
+
 // Local includes
 #include "PndLVQClassify.h"
 
@@ -17,33 +19,43 @@
 
 // ROOT
 #include "TFile.h"
-#include "TH1.h"
 #include "TStopwatch.h"
 
 /////////_______ Inline header ______///////////////////////////
+// Prints the classification result to stdout.
 void printResult(std::map<std::string, float> const& res);
 
+/*
+ * Reads the event data from the inputfile (inFile). The output is
+ * stored in coNt. Per label counts are the return values.
+ */
 std::map<std::string, size_t>* readEvents(const char* infile, std::vector<std::string> const& varNames,
 					  std::vector<std::string> const& classNames,
 					  std::vector<std::pair<std::string, std::vector<float>*> >& coNt);
 
+// STructure to hold the ROC points.
 struct ROCPoints
 {
-  //public:
   // Constructors
   ROCPoints()
-    : FP_rate(0.0), TP_rate(0.0)
+    : FP_rate(0.0),
+      TP_rate(0.0)
   {};
+  
   ROCPoints(float fpr, float tpr)
-    : FP_rate(fpr), TP_rate(tpr)
+    : FP_rate(fpr),
+      TP_rate(tpr)
   {};
+  
   // Destructor
   ~ROCPoints(){};
-
+  
   // Copy Const
   ROCPoints(ROCPoints const& ot)
-    : FP_rate(ot.FP_rate), TP_rate(ot.TP_rate)
+    : FP_rate(ot.FP_rate),
+      TP_rate(ot.TP_rate)
   {};
+  
   // Operators.  
   ROCPoints& operator=(ROCPoints const& ot)
   {
@@ -56,37 +68,49 @@ struct ROCPoints
   float FP_rate;
   float TP_rate;
 
-  //protected:
+  // protected:
   private:
   bool operator==(ROCPoints const& ot) const;
   bool operator>( ROCPoints const& ot) const;
   bool operator<( ROCPoints const& ot) const;
 };
 
+// Structure used to hold the classifier output (label and dist or
+// prob.) for each example in the test set together with the original
+// class name.
 struct ProbLabel
 {
   //public:
   // Constructors
   ProbLabel()
-    : clsOut(0.0), label("UNKNOWN"), Orig_label("DONTKNOW")
+    : clsOut(0.0),
+      label("UNKNOWN"),
+      Orig_label("DONTKNOW")
   {};
+
   ProbLabel(float x, std::string lb, std::string Orlb)
-    : clsOut(x), label(lb), Orig_label(Orlb)
+    : clsOut(x),
+      label(lb),
+      Orig_label(Orlb)
   {};
+
   // Destructor
   ~ProbLabel(){};
 
   // Copy Const
   ProbLabel(ProbLabel const& ot)
-    : clsOut(ot.clsOut), label(ot.label), Orig_label(ot.Orig_label)
+    : clsOut(ot.clsOut),
+      label(ot.label),
+      Orig_label(ot.Orig_label)
   {};
+
   // Operators.
-  inline bool operator> (ProbLabel  const& ot) const
+  inline bool operator>(ProbLabel const& ot) const
   {
     return (this->clsOut > ot.clsOut);
   };
   
-  inline bool operator< (ProbLabel  const& ot) const
+  inline bool operator<(ProbLabel const& ot) const
   {
     return (this->clsOut < ot.clsOut);
   };
@@ -100,9 +124,10 @@ struct ProbLabel
   };
 
   // Variables
-  float clsOut; // Classifier output
-  std::string label; // Given label (by the classifier)
+  float clsOut;// Classifier output
+  std::string label;// Given label (by the classifier)
   std::string Orig_label;// True label
+  
   //protected:
   private:
   //==
@@ -115,21 +140,17 @@ struct ProbLabel
  */
 void ProduceROC( std::vector< ProbLabel >& input, std::string SigName,
 		 size_t sigCnt, size_t bgCnt, std::vector< ROCPoints >& Roc);
-//////////////////////////////////////////////////////////////////
+
+void print(std::vector <ProbLabel> const& el);
+/////////_______ Inline header ______///////////////////////////
+//________________________________________________________________
 
 void ProduceROC( std::vector< ProbLabel >& input, std::string SigName,
 		 size_t sigCnt, size_t bgCnt, std::vector< ROCPoints >& Roc)
 {
-  // Clean the output
-  Roc.clear();
-
-  // First we need to sort the list (decreasing) (input)
-  std::sort( input.begin(), input.end());
-  std::reverse( input.begin(), input.end() );
-  
   float sg, bg;
   sg = bg = 0.0;
-
+  
   if( (sigCnt > 0) && (bgCnt > 0) )
   {
     sg = static_cast<float>(sigCnt);
@@ -138,36 +159,65 @@ void ProduceROC( std::vector< ProbLabel >& input, std::string SigName,
   else
   {
     std::cerr << "Signal OR Background count is zero\n";
-    return;
+    exit(10);
   }
 
-  float fp, tp, prevF;
-  fp = tp = 0.0;
-  prevF = std::numeric_limits<float>::min();
+  // Clean the output
+  Roc.clear();
 
-  for(size_t i = 0; i < input.size(); ++i)
-  {
-    //if(prevF != input[i].clsOut)
-    if( (prevF < input[i].clsOut) || (prevF > input[i].clsOut))
+  SigName.size();
+
+  // First we need to sort the list (decreasing) (input) on the
+  // classifier output values
+  std::sort( input.begin(), input.end());
+  // std::reverse(input.begin(), input.end());
+#if LVQ_CLS_DEBUG
+  print(input);
+#endif
+  /*
+    float minProb, maxProb;
+    minProb = input[0].clsOut;
+    maxProb = input[(input.size() - 1)].clsOut;
+
+    float fp, tp, Mindiff;
+    fp = tp = 0.0;
+    Mindiff = std::numeric_limits<float>::max();
+
+    // We need to find the smallest difference.
+
+    size_t loopCounter = (input.size() - 1);
+    while (loopCounter >  0)
+    {// Current - previous.
+    if( 
+    ( (Mindiff > 0.0) || (Mindiff < 0.0)) &&
+    ( (input[loopCounter].clsOut - input[loopCounter - 1].clsOut) < Mindiff)
+    )
     {
-      Roc.push_back(ROCPoints(fp/bg, tp/sg));
-      prevF = input[i].clsOut;
+    Mindiff = (input[loopCounter].clsOut - input[loopCounter - 1].clsOut);
     }
-    // If input[i] == signal
-    //if(input[i].label == SigName)
-    //SigName.size();
-    if( (input[i].label == SigName) && (input[i].Orig_label == SigName) )
-    {
-      tp++;
+    std::cout << input[loopCounter].clsOut << std::endl;
+    loopCounter--;
     }
-    else if( (input[i].label == SigName) && (input[i].Orig_label != SigName) )
-    {
-      fp++;
-    }
-  }
+  */
+  // We have found the smallest difference can be used as the step
+  // size for discrete ROC curve computations.
+  //std::cout << "Class is "<< SigName
+  //	    << " Minimum distance is " << Mindiff
+  //	    << std::endl;
   //(1,1)
-  Roc.push_back(ROCPoints(fp/bg, tp/sg));
-  std::cerr << "Added ( " << fp/bg <<", " << tp/sg << ")\n";
+  //Roc.push_back(ROCPoints(fp/bg, tp/sg));
+  //  std::cerr << "Added ( " << fp/bg
+  //	    <<", " << tp/sg << ")\n";
+}
+
+// Print DistVal and label
+void print(std::vector <ProbLabel> const& el)
+{
+  for(size_t i = 0; i < el.size(); ++i)
+  {
+    std::cout << "el[ "<< i << " ] = "
+              << el[i].clsOut << '\n';
+  }
 }
 
 // Print the results map.
@@ -185,8 +235,8 @@ void printResult(std::map<std::string, float> const& res)
 
 // Read the events from a given file
 std::map<std::string, size_t>* readEvents(const char* infile, std::vector<std::string> const& varNames,
-					  std::vector<std::string> const& classNames, 
-					  std::vector<std::pair<std::string, std::vector<float>*> >& coNt)
+					  std::vector< std::string > const& classNames, 
+					  std::vector< std::pair< std::string, std::vector<float>* > >& coNt)
 {
   // Clear event container
   coNt.clear();
@@ -205,6 +255,7 @@ std::map<std::string, size_t>* readEvents(const char* infile, std::vector<std::s
     
     // Get the tree object
     TTree *t = (TTree*) inf.Get(name);
+  
     if(!t)
     {
       std::cerr << "Could not find tree named: " << name 
@@ -212,9 +263,10 @@ std::map<std::string, size_t>* readEvents(const char* infile, std::vector<std::s
       delete counts;
       exit(10);
     }
-
+    
     // Get the counts for the current label
     size_t NumEvtCurLabel = static_cast<size_t>(t->GetEntriesFast());
+    
     counts->insert( std::make_pair (classNames[cls], NumEvtCurLabel) );
 
     // Init a container to bind to the tree branches
@@ -265,17 +317,14 @@ int main(int argc, char** argv)
 	      << std::endl;
     return 1;
   }
-  // Proto types
+  // Number of Proto types
   std::string inF  = argv[1];
-
+  
   // Events to classify
   std::string evtF = argv[2];
 
   // Output results file
   std::string outF = argv[3];
-
-  // Output hists-File  
-  std::string outHistFile = "Hists_" + outF;
   
   std::cout << "\tClassifying events from " << evtF << '\n'
 	    << "\tUsing prototypes from " << inF << '\n'
@@ -286,7 +335,7 @@ int main(int argc, char** argv)
   std::vector<std::string> labels;
 
   // Sig label name
-  std::vector<std::string> sigName;
+  std::string sigName;
   
   // Variables.
   std::vector<std::string> varNames;
@@ -297,11 +346,8 @@ int main(int argc, char** argv)
   // To be classified events.
   std::vector<std::pair<std::string, std::vector<float>* > > events;
 
-  // Store distances from the winning codebooks.
-  std::map<std::string, TH1F*> histograms;
-  
-  // Add Sig. label
-  sigName.push_back("electron");
+  // Assign Sig. label
+  sigName = "electron";
 
   // Add labels
   labels.push_back("electron");
@@ -321,14 +367,6 @@ int main(int argc, char** argv)
   //nam.push_back("stt");
   //nam.push_back("mvd"); 
   
-  // Init histograms.
-  for(size_t i = 0; i < labels.size(); ++i)
-  {
-    std::string des = "DescriptionOf" + labels[i];
-    TH1F* h1 = new TH1F(labels[i].c_str(), des.c_str(), 100, 0.0, 1.0);
-    histograms.insert(std::make_pair(labels[i], h1));
-  }
-  
   // Create classifier.
   PndLVQClassify cls (inF, labels, varNames);
 
@@ -336,13 +374,15 @@ int main(int argc, char** argv)
   cls.Initialize();  
   
   // Read events to be classified.
-  std::map<std::string, size_t>* counts = readEvents(evtF.c_str(), varNames, labels, events);
+  std::map<std::string, size_t>* counts = readEvents(evtF.c_str(), varNames,
+						     labels, events);
   
   std::cout << "Total number of events to be classified = "
 	    << events.size()
 	    << '\n';
   
   std::ofstream OutPut;
+  
   OutPut.open (outF.c_str());
   OutPut << "# Classification results for the events from\n# "
 	 << evtF
@@ -352,6 +392,8 @@ int main(int argc, char** argv)
   TStopwatch timer;
   timer.Start();
 
+  std::vector <ProbLabel> probs;
+
   // Class loop
   for(size_t cl = 0; cl < labels.size(); cl++)
   {
@@ -359,10 +401,13 @@ int main(int argc, char** argv)
     std::string curClsName = labels[cl];
     size_t correctCls      = 0; // Correct classified
     size_t wrongCls        = 0; // Mis classified
-
+    
     // Events Loop
+#if LVQ_CLS_DEBUG
+    for(size_t k = 0; k < 10; k++)
+#else
     for(size_t k = 0; k < events.size(); k++)
-    //for(size_t k = 0; k < 20; k++)
+#endif
     {
       // Only the events from the current class.
       if( (events[k]).first == curClsName )
@@ -370,19 +415,23 @@ int main(int argc, char** argv)
 	std::vector<float>* evt = (events[k]).second;
 	
 	// Get Mva Value
-	// cls.GetMvaValues(*evt, res);
+	cls.GetMvaValues(*evt, res);
 	//printResult(res);
 		
 	// Perform winner takes all.
 	std::string* tmpClsName = cls.Classify(*evt);
-
-	// std::cout << "Class Name is " << *tmpClsName << '\n';
-
+#if LVQ_CLS_DEBUG
+	std::cout << *tmpClsName << std::endl;
+#endif
+	probs.push_back(ProbLabel(res[(*tmpClsName)], (*tmpClsName), curClsName));
+#if LVQ_CLS_DEBUG
+	std::cout << "Class Name is " << *tmpClsName
+		  << " With dist " << res[(*tmpClsName)]
+		  << '\n';
+#endif
 	if( (*tmpClsName) == curClsName)
 	{// Correct Label
 	  correctCls++;
-	  // Fill the distance to the wining Codebook.
-	  (histograms[curClsName])->Fill(res[curClsName]);
 	}
 	else
 	{// Wrong label classification.
@@ -392,6 +441,7 @@ int main(int argc, char** argv)
 	delete tmpClsName;
       }// End if
     }// Events Loop
+
     std::cout << "\t<-I-> Writing results for " << curClsName
 	      << '\n';
     
@@ -407,10 +457,16 @@ int main(int argc, char** argv)
   }// CLass Loop
 
   timer.Stop();
+
+  //void ProduceROC( std::vector< ProbLabel >& input, std::string SigName,
+  //		 size_t sigCnt, size_t bgCnt, std::vector< ROCPoints >& Roc)
+  std::vector <ROCPoints> rocpt;
+  
+  ProduceROC(probs, sigName, (*counts)["electron"], (*counts)["pion"], rocpt);
   
   // Close Open file
   OutPut.close();
-
+  
   double rtime = timer.RealTime();
   double ctime = timer.CpuTime();
   std::cout << "Classifier timing results:\n"
@@ -418,9 +474,9 @@ int main(int argc, char** argv)
 	    << ctime <<" Seconds\n"
 	    << "It took " << (rtime/static_cast<double>(events.size()))
 	    << " Per event.\n";
-
+  
   //__________________ Clean up _____________//
-
+  
   // Clean events
   std::cout << "Clean up.\n";
   for(size_t i = 0; i < events.size(); ++i)
@@ -432,27 +488,9 @@ int main(int argc, char** argv)
   // Results
   res.clear();
 
-  // Write distances histogram.
-  TFile routf(outHistFile.c_str(), "RECREATE");
-  
-  for(size_t h = 0; h < labels.size(); ++h)
-  {
-    std::string nn = labels[h];
-    (histograms[nn])->Write();
-  }
-  routf.Close();
-
-  // Clean histo list
-  for(size_t h = 0; h < labels.size(); ++h)
-  {
-    std::string nn = labels[h];
-    delete (histograms[nn]);
-  }
-  histograms.clear();
-
   // Delete per label example counts
   counts->clear();
   delete counts;
-
+  
   return 0;
 }
