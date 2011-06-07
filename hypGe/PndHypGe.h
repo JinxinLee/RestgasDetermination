@@ -111,6 +111,10 @@ class PndHypGe : public FairDetector
  
 
   virtual void ConstructGeometry();
+  
+
+  void ConstructHPGeGeometry();
+  
 
   PndHypGePoint* AddHit(Int_t trackID, Int_t evtID, Int_t pdgCode,
 			Int_t charge,TVector3 pos, TVector3 mom,
@@ -136,7 +140,8 @@ class PndHypGe : public FairDetector
 
  private:
   
-   
+  std::vector<std::string> fListOfSensitives;
+  bool CheckIfSensitive(std::string name);
 
   PndGeoHypGePar *par;
  Int_t fpdgCode; 
@@ -163,7 +168,7 @@ class PndHypGe : public FairDetector
   // reset all parameters   
   void ResetParameters();
 
-  ClassDef(PndHypGe,2)
+  ClassDef(PndHypGe,3)
 
 }; 
 

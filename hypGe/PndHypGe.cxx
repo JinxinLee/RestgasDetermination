@@ -54,6 +54,11 @@ PndHypGe::PndHypGe() {
   fPosIndex   = 0;
   fEventID=-1; fdist=-78.;
 
+  fListOfSensitives.push_back("GeCrystal");//Root_Test.root
+  fListOfSensitives.push_back("laySci");//Root_Test.root
+  fListOfSensitives.push_back("Cap");//Root_Test.root
+
+
 }
 // -------------------------------------------------------------------------
 
@@ -65,6 +70,11 @@ PndHypGe::PndHypGe(const char* name, Bool_t active)
     //fHypGecapCollection        = new TClonesArray("PndHypGePoint");
     fPosIndex   = 0;
     fEventID=-1;fdist=-78.;
+    
+    fListOfSensitives.push_back("GeCrystal");//Root_Test.root
+    fListOfSensitives.push_back("laySci");//Root_Test.root
+    fListOfSensitives.push_back("Cap");//Root_Test.root
+
 }
 // -------------------------------------------------------------------------
 
@@ -313,7 +323,24 @@ void PndHypGe::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset ) {
 // ----------------------------------------------------------------------------
  // -----   Public method ConstructGeometry   ----------------------------------
 void PndHypGe::ConstructGeometry() {
- Double_t deg = TMath::Pi()/180.;
+ 
+  TString fileName=GetGeometryFileName();
+  
+  if(fileName.EndsWith(".root")){
+    ConstructRootGeometry();
+  }else{
+    
+    ConstructHPGeGeometry();
+    
+  }
+  
+}
+
+void PndHypGe::ConstructHPGeGeometry() {
+
+  cout<<"----- constructing HPGe Geometry default -----"<<endl;
+
+Double_t deg = TMath::Pi()/180.;
 
   
   //vacuum = gGeoManager->Medium("vacuum");
@@ -528,9 +555,22 @@ void PndHypGe::ConstructGeometry() {
 
   vcave->AddNode(sphere, 1,new TGeoCombiTrans(0., 0., fdist, new TGeoRotation (0)));
   
- 
+
    
 }
+
+
+// -------------------------------------------------------------------------
+bool PndHypGe::CheckIfSensitive(std::string name)
+{
+  for (Int_t i = 0; i < fListOfSensitives.size(); i++){
+    if (name.find(fListOfSensitives[i]) != std::string::npos)
+    return true;
+  }
+  return false;
+}
+
+
 
 // -----   Private method AddHit   --------------------------------------------
 PndHypGePoint* PndHypGe::AddHit(Int_t trackID, Int_t evtID, Int_t pdgCode,Int_t charge,
