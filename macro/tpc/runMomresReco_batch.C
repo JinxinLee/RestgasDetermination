@@ -74,21 +74,21 @@ void runMomresReco_batch(TString digifile) {
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
   tpcSPR->SetPersistence();
   tpcSPR->SetSortingParameters(
-                   true, // false: sort only according to _sorting (see next argument); true: use internal sorting when adding hits to trackcands
-                   3,    // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
-                   0.); // z-position of interaction point (for sorting 4)
+        true, // false: sort only according to _sorting (see next argument); true: use internal sorting when adding hits to trackcands
+        3,    // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
+        0.); // z-position of interaction point (for sorting 4)
   tpcSPR->SetTrkFinderParameters(
-                   1.9,  // proximity cut in 3D [cm]
-                   0.4,  // helix cut [cm]
-                   4);   // minimum hits for helix-fit
+        1.9,  // proximity cut in 3D [cm]
+        0.4,  // helix cut [cm]
+        5);   // minimum hits for helix-fit
   tpcSPR->SetMergeTracks();
   tpcSPR->SetTrkMergerParameters(
-                   2.2,  // proximity cut [cm]
-                   0.09,  // dip cut [rad]
-                   0.6,  // helix cut [cm]
-                   0.025);// plane cut (RMS)
+        2.5,  // proximity cut [cm]
+        0.1,  // dip cut [rad]
+        0.6,  // helix cut [cm]
+        0.025);// plane cut (RMS)
   tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
-  tpcSPR->useGeane(); // uses RKTrackrep and GeaneTrackrep
+  //tpcSPR->useGeane(); // uses RKTrackrep and GeaneTrackrep
   tpcSPR->SetSmoothing(true);
   //tpcSPR->WriteHistograms(PROutFile);
   fRun->AddTask(tpcSPR);
@@ -108,7 +108,7 @@ void runMomresReco_batch(TString digifile) {
 
   PndTpcResidualTask* Res = new PndTpcResidualTask();
   Res->SetPersistence();
-  Res->SetNumberOfTrackReps(2);
+  //Res->SetNumberOfTrackReps(2);
   //SLres->SetClusterBranchName("PndTpcCluster_cut");
   fRun->AddTask(Res);
  

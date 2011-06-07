@@ -52,7 +52,6 @@
 
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
-  timer.Start();
   // ------------------------------------------------------------------------
 
 
@@ -88,7 +87,6 @@
   rtdb->setOutput(parOutput1);
   rtdb->saveOutput();
 
-  fRun->LoadGeometry();
   // ------------------------------------------------------------------------
   
     
@@ -102,7 +100,14 @@
   fRun->Init();
   rtdb->print();
 
+  timer.Start();
+
   fRun->Run(0,nEvents); // process all events from input file
+
+  timer.Stop();
+  Double_t rtime = timer.RealTime();
+  Double_t ctime = timer.CpuTime();
+  cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   // ------------------------------------------------------------------------
 
   gftest->WriteTree();
@@ -114,14 +119,10 @@
   rtdb->print();
 
 
-  timer.Stop();
-  Double_t rtime = timer.RealTime();
-  Double_t ctime = timer.CpuTime();
   cout << endl << endl;
   cout << "Macro finished succesfully." << endl;
   cout << "Output file is "    << outFile << endl;
   cout << "Parameter file is " << paramOut << endl;
-  cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   // ------------------------------------------------------------------------
 

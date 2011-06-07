@@ -93,7 +93,7 @@
   
   //pdgs 211=pion 13=muon 11=electron, 2212 proton...
   //(PDG ID, MULTIPLICITY)
-  FairBoxGenerator* boxGen = new FairBoxGenerator(13, 1); 
+  FairBoxGenerator* boxGen = new FairBoxGenerator(11, 1);
   
   //boxGen->SetPRange(0.5,0.5); // GeV/c 
   //boxGen->SetPRange(1.0,1.0); // GeV/c 

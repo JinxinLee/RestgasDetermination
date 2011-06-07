@@ -186,6 +186,7 @@ for file in files :
     
     counter = 0
     nGlobTrks = 0
+    nUniqueTrks = 0
     index = 0
     meanEff = 0
     meanSplit = 0
@@ -234,6 +235,9 @@ for file in files :
         nTrks = 0
         DominantIDs = []
         
+        maxClustersPerID={0:0} # for finding the track with the most hits
+        
+        
         for rtrk in e.RiemannTrack :
             TrkCol = rtrk.mcid()
             ntrkMCIDs = TrkCol.nIDs()
@@ -243,6 +247,8 @@ for file in files :
             numHits = rtrk.getNumHits()
             #print "Found %i hits in track" %numHits
             DominantID=rtrk.mcid().DominantID().mctrackID()
+            
+            
 
             if numHits >= minNumHits :
                 nTrks += 1
@@ -253,9 +259,13 @@ for file in files :
                 meanPurity += purity
                 
                 compleetness = numHits/float(nClusterPerID[DominantID])
-                trkCompleteness.Fill(compleetness)
-                complVsThetaA.Fill(theta, compleetness) 
-                meanCompl += compleetness
+                
+                if (DominantID in maxClustersPerID) :
+                    if maxClustersPerID[DominantID] < compleetness :
+                       maxClustersPerID[DominantID] = compleetness
+                else :
+                    maxClustersPerID[DominantID] = compleetness 
+                
                 
                 DominantIDs.append(DominantID)
                 
@@ -266,6 +276,13 @@ for file in files :
                     
                 #print DominantIDs
                 
+        # end loop over tracks        
+                
+        for id, compleetness in maxClustersPerID.iteritems() :      
+            trkCompleteness.Fill(compleetness)
+            complVsThetaA.Fill(theta, compleetness) 
+            meanCompl += compleetness
+            nUniqueTrks += 1
                 
             
         recoEff.Fill(nRecoTrks/float(mult))
@@ -290,6 +307,8 @@ for file in files :
         
         if counter > numEntries :
             break
+            
+    # end loop over tree
 
     print counter
     
@@ -300,7 +319,7 @@ for file in files :
     meanSplit /= float(counter)
     splitVsTheta.Fill(theta, meanSplit)  
       
-    meanCompl /= float(nGlobTrks)
+    meanCompl /= float(nUniqueTrks)
     complVsTheta.Fill(theta, meanCompl) 
           
     meanPurity /= float(nGlobTrks)
