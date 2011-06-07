@@ -125,6 +125,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 				   //  Central Detector.
                  Rmin=20.,
                  Rmax=700.,
+		 PMAX=100.,
                  StrawRadius = DiameterStrawTube/2. ,
                  StrawDriftError = 0.02,
 		 SKEWinclination_DEGREES = 3.,
