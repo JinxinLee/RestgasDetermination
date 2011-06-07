@@ -34,8 +34,9 @@
 #include "PndTpcRiemannTrack.h"
 #include "PndTpcRiemannHit.h"
 #include "PndTpcProximityHTCorrelator.h"
-#include "PndTpcRiemannHTCorrelator.h"
 #include "PndTpcRiemannTTCorrelator.h"
+
+#include "TMath.h"
 
 using namespace std;
 
@@ -93,6 +94,10 @@ unsigned int
 PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
 				   std::vector<PndTpcRiemannTrack*>& candlist)
 {
+  #ifdef DEBUG
+    std::cout<<"PndTpcRiemannTrackFinder::buildTracks"<<std::endl;
+  #endif
+
   unsigned int ncl=cll.size();
   if(ncl<3) return 0;
 
@@ -197,22 +202,19 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
     else {
       // add hit to best match
       // use the bestMatch from deepest level
-      // std::cout<<"bestMatch[0]="<<_bestMatchIndex[0]
-// 	       <<"   bestMatch[1]="<<_bestMatchIndex[1]<<std::endl;
-//       std::cout<<"choosing "<<_bestMatchIndex[maxlevel]<<std::endl;
       PndTpcRiemannTrack* theTrk=candlist[_bestMatchIndex[maxlevel]];
       #ifdef DEBUG
         if(icl==_MaxNumHitsForPR-1) std::cout<<"-> adding hit to track"<<_bestMatchIndex[maxlevel]<<std::endl;
       #endif
       theTrk->addHit(rhit);
       if(theTrk->getNumHits()>=_minHitsForFit){
-        theTrk->refit();
-        theTrk->szFit();
-      #ifdef DEBUG
-        if(icl==_MaxNumHitsForPR-1){
-         std::cout<<" track parameters: _c="<<theTrk->c()<<"  R="<<theTrk->r()<<"  dip="<<theTrk->dip()<<std::endl;
-        } 
-      #endif
+        theTrk->fitAndSort();
+        #ifdef DEBUG
+          if(icl==_MaxNumHitsForPR-1){
+           std::cout<<" track parameters: _c="<<theTrk->c()<<"  R="<<theTrk->r()<<"  dip °="<<(theTrk->dip())*180/TMath::Pi()<<std::endl;
+           std::cout<<" center: "; theTrk->center().Print();
+          }
+        #endif
       }
     }
     resetFlags();
@@ -221,13 +223,6 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
   #ifdef DEBUG
     std::cout<<candlist.size()<<" Riemann Tracks found."<<std::endl;
   #endif
-  /*for(int i=0;i<candlist.size();++i){
-    std::cout<<"Track"<<i<<": "
-  	     <<candlist[i]->getNumHits()<<" hits  R=";
-    if(candlist[i]->getNumHits()>=_minHitsForFit)std::cout<<candlist[i]->r();
-    std::cout<<std::endl;
-    //candlist[i]->Plot(1);
-  }*/
 
  return candlist.size();
 }
@@ -252,9 +247,9 @@ PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist
     for(unsigned int itrk2=itrk1+1; itrk2<ntr; ++itrk2){ // loop over the other tracks to be tested
       if(candlist[itrk2]==NULL)continue;
 
-      /*#ifdef DEBUG
+      #ifdef DEBUG
         std::cout<<"Testing track "<<itrk1<<" with track "<<itrk2<<std::endl;
-      #endif*/
+      #endif
 
       PndTpcRiemannTrack* trk2=candlist[itrk2];
 
@@ -274,10 +269,10 @@ PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist
         else
           applicable=_TTcorrelators[icor]->corr(trk2,trk1,survive,matchQuality);
 
-        /*#ifdef DEBUG
+        #ifdef DEBUG
           if(!applicable){std::cout<<"  correlator "<<icor<<" NOT applicable"<<std::endl;}
           else{std::cout<<"  correlator "<<icor<<"  IS applicable; survived "<<survive<<" with MatchQuality "<<matchQuality<<std::endl;}
-        #endif*/
+        #endif
 
         if(!applicable) {
           survive = false;
@@ -291,6 +286,7 @@ PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist
       #ifdef DEBUG
         std::cout<<"merge track "<<itrk1<<" with track "<<itrk2<<std::endl;
       #endif
+
       unsigned int nhits1 = trk1->getNumHits();
       unsigned int nhits2 = trk2->getNumHits();
 
@@ -313,46 +309,19 @@ PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist
 							fRiemannScale);
           mergedTrack->addHit(rhit);
         }
-        if(mergedTrack->getNumHits()>=_minHitsForFit){
-          mergedTrack->refit();
-          mergedTrack->szFit();
-        }
+        if(mergedTrack->getNumHits()>=_minHitsForFit) mergedTrack->fitAndSort();
 
         // delete old trackcands and store new trackcand
         delete candlist[itrk1];
         trk1=mergedTrack;
         candlist[itrk1]=mergedTrack;
       }
-      else{ // we can just add the hits from trk2 to trk1 and the sorting is done internally
-        // check if beginning or end of trk2 is closer to trk1
-        TVector3 t1h1 = trk1->getFirstHit()->cluster()->pos();
-        TVector3 t1hn = trk1->getLastHit()->cluster()->pos();
-        TVector3 t2h1 = trk2->getFirstHit()->cluster()->pos();
-        TVector3 t2hn = trk2->getLastHit()->cluster()->pos();
-
-        double dist = (t1hn - t2h1).Mag();
-        bool back=false;
-        double d = (t1hn - t2hn).Mag();
-        if (d<dist){dist = d; back=true;}
-        d = (t1h1 - t2h1).Mag();
-        if (d<dist){dist = d; back=false;}
-        d = (t1h1 - t2hn).Mag();
-        if (d<dist) back=true;
-
-        if(back){
-          for(unsigned int i=nhits2; i>0; --i)
-            trk1->addHit(trk2->getHit(i-1));
-        }
-        else{
-          for(unsigned int i=0; i<nhits2; ++i)
-            trk1->addHit(trk2->getHit(i));
-        }
+      else { // we can just add the hits from trk2 to trk1 and the sorting is done internally
+        for(unsigned int i=0; i<nhits2; ++i)
+          trk1->addHit(trk2->getHit(i));
 
         // refit if we have enough hits
-        if(trk1->getNumHits()>=_minHitsForFit){
-          trk1->refit();
-          trk1->szFit();
-        }
+        if(trk1->getNumHits()>=_minHitsForFit) trk1->fitAndSort();
       }
 
       // delete trk2
@@ -363,7 +332,7 @@ PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist
   } // end loop over tracks
 
   // clean up candlist
-  for(int i=0;i<candlist.size();++i){
+  for(int i=0; i<candlist.size(); ++i){
     if (candlist[i]==NULL) {
       candlist.erase(candlist.begin()+i);
       --i; // go one step back because "erase" shifts back the rest
@@ -373,36 +342,30 @@ PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist
   #ifdef DEBUG
     std::cout<<candlist.size()<<" Merged Riemann Tracks: "<<std::endl;
   #endif
-  /*for(int i=0;i<candlist.size();++i){
-    std::cout<<"Track "<<i<<": "
-         <<candlist[i]->getNumHits()<<" hits  R=";
-    if(candlist[i]->getNumHits()>=_minHitsForFit)std::cout<<candlist[i]->r();
-    std::cout<<std::endl;
-  }*/
-
 }
 
 
 void
 PndTpcRiemannTrackFinder::cleanTracks(std::vector<PndTpcRiemannTrack*>& candlist,
                                       double szcut, double planecut){
-  PndTpcRiemannHit* hit;
+
+  std::cout<<"WARNING: PndTpcRiemannTrackFinder::cleanTracks - no functionality!"<<std::endl;
+  /*PndTpcRiemannHit* hit;
 
   for(unsigned int i=0; i<candlist.size(); ++i){ // loop over trackcands
-    if(!candlist[i]->isFitted() || !candlist[i]->isFittedPlane()) continue; // skip track
+    if(!candlist[i]->isFitted() || !candlist[i]->isFitted()) continue; // skip track
 
     for(unsigned int j=0; j<candlist[i]->getNumHits(); ++j){ // loop over hits
       hit = candlist[i]->getHit(j);
       if (TMath::Abs(candlist[i]->dist(hit)) > planecut || TMath::Abs(candlist[i]->szDist(hit)) > szcut){
         candlist[i]->removeHit(j);
         candlist[i]->refit();
-        candlist[i]->szFit();
         --j;
       }
-      if(!candlist[i]->isFitted() || !candlist[i]->isFittedPlane()) break; // skip track
+      if(!candlist[i]->isFitted() || !candlist[i]->isFitted()) break; // skip track
     } // end loop over hits
 
-  } // end loop over trackcands
+  } // end loop over trackcands*/
 
 }
 

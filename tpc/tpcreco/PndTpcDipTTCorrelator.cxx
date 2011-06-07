@@ -4,7 +4,7 @@
 //
 // Description:
 //      Implementation of class PndTpcRiemannTTCorrelator
-//      see PndTpcRiemannTTCorrelator.hh for details
+//      see PndTpcDipTTCorrelator.hh for details
 //
 // Environment:
 //      Software developed for the PANDA Detector at FAIR.
@@ -19,7 +19,7 @@
 // Panda Headers ----------------------
 
 // This Class' Header ------------------
-#include "PndTpcSzTTCorrelator.h"
+#include "PndTpcDipTTCorrelator.h"
 
 // C/C++ Headers ----------------------
 #include "TVector3.h"
@@ -34,18 +34,18 @@
 
 // Class Member definitions -----------
 
-PndTpcSzTTCorrelator::PndTpcSzTTCorrelator(double szcut)
-  : _szcut(szcut)
+PndTpcDipTTCorrelator::PndTpcDipTTCorrelator(double dipcut, double helixcut)
+  : _dipcut(dipcut), _helixcut(helixcut)
 {}
 
 
 bool
-PndTpcSzTTCorrelator::corr(PndTpcRiemannTrack* trk1,
+PndTpcDipTTCorrelator::corr(PndTpcRiemannTrack* trk1,
         PndTpcRiemannTrack* trk2,
 				bool& survive,
 				double& matchQuality)
 {
-  //std::cout<<" PndTpcSzTTCorrelator::corr"<<std::endl;
+  //std::cout<<" PndTpcDipTTCorrelator::corr"<<std::endl;
   if(!trk1->isFitted())return false;
 
   if(trk2->isFitted()){
@@ -59,8 +59,8 @@ PndTpcSzTTCorrelator::corr(PndTpcRiemannTrack* trk1,
     TVector3 t2hn = trk2->getLastHit()->cluster()->pos();
 
     double dist = (t1hn - t2h1).Mag();
-    bool back2back=false;
-    bool back=false;
+    bool back2back=false; // tracks in opposite direction?
+    bool back=false; // end of trk2 nearer
     double d = (t1hn - t2hn).Mag();
     if (d<dist){dist = d; back2back=true; back=true;}
     d = (t1h1 - t2h1).Mag();
@@ -74,15 +74,12 @@ PndTpcSzTTCorrelator::corr(PndTpcRiemannTrack* trk1,
       else phi2=TMath::Pi()-phi2;
     }
 
-    // compare phi of the s-z line
     double dphi = TMath::Abs(phi2-phi1);
-    //dphi*=57.295779513; // rad to °
 
-    matchQuality=TMath::Abs(dphi);
-    DebugLogger::Instance()->Histo("TT_sz_dphi",dphi,-4,4,100);
+    DebugLogger::Instance()->Histo("TT_dip_dphi",dphi,-4,4,100);
 
     // check if tracks have equal dip
-    if(TMath::Abs(dphi)>_szcut){
+    if(dphi>_dipcut){
       DebugLogger::Instance()->Histo("TT_riemanncuts",3,0,20,20);
       survive=false;
       return true;
@@ -90,18 +87,17 @@ PndTpcSzTTCorrelator::corr(PndTpcRiemannTrack* trk1,
 
 
     // now also check if sz distance matches
-    double szDist;
+    double hDist;
     if(back)
-      szDist = TMath::Abs(trk1->szDist(trk2->getLastHit(),true));
+      hDist = trk1->distHelix(trk2->getLastHit(),true);
     else
-      szDist = TMath::Abs(trk1->szDist(trk2->getFirstHit(),true));
+      hDist = trk1->distHelix(trk2->getFirstHit(),true);
 
-    matchQuality=szDist;
-    DebugLogger::Instance()->Histo("TT_sz_szDist",szDist,-4,4,100);
+    DebugLogger::Instance()->Histo("TT_dip_hDist",hDist,-10,10,100);
 
     // check if sz distace small enough
-    if(szDist>_szcut){
-      DebugLogger::Instance()->Histo("TT_riemanncuts",3,0,20,20);
+    if(hDist>_helixcut){
+      DebugLogger::Instance()->Histo("TT_riemanncuts",4,0,20,20);
       survive=false;
       return true;
     }
@@ -112,18 +108,17 @@ PndTpcSzTTCorrelator::corr(PndTpcRiemannTrack* trk1,
 
 
   // trk2 not fitted: test hit by hit
-  double maxSzDist = 0;
+  double maxhDist = 0;
   for(unsigned int i=0; i<trk2->getNumHits(); ++i){
-    double szDist = TMath::Abs(trk1->szDist(trk2->getHit(i),true));
-    if(szDist > maxSzDist) maxSzDist=szDist;
-    if(maxSzDist>_szcut) break; // track did not survive!
+    double hDist = TMath::Abs(trk1->distHelix(trk2->getHit(i),true));
+    if(hDist > maxhDist) maxhDist=hDist;
+    if(maxhDist>_helixcut) break; // track did not survive!
   }
 
-  matchQuality=maxSzDist;
-  DebugLogger::Instance()->Histo("TT_sz_maxSzDist",maxSzDist,-4,4,100);
+  DebugLogger::Instance()->Histo("TT_dip_hDist",maxhDist,-10,10,100);
 
-  if(maxSzDist>_szcut){
-    DebugLogger::Instance()->Histo("TT_riemanncuts",3,0,20,20);
+  if(maxhDist>_helixcut){
+    DebugLogger::Instance()->Histo("TT_riemanncuts",4,0,20,20);
     survive=false;
     return true;
   }

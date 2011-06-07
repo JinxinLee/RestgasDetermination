@@ -3,7 +3,7 @@
 // $Id$
 //
 // Description:
-//      Hit-Track-Correlator using riemann fit
+//      Track-Track-Correlator using dip fit
 //
 //
 // Environment:
@@ -11,15 +11,16 @@
 //
 // Author List:
 //      Sebastian Neubert    TUM            (original author)
+//      Johannes Rauch       TUM
 //
 //
 //-----------------------------------------------------------
 
-#ifndef TPCRIEMANNHTCORRELATOR_HH
-#define TPCRIEMANNHTCORRELATOR_HH
+#ifndef TPCPDIPTTCORRELATOR_HH
+#define TPCPDIPTTCORRELATOR_HH
 
 // Base Class Headers ----------------
-#include "PndTpcAbsHitTrackCorrelator.h"
+#include "PndTpcAbsTrackTrackCorrelator.h"
 
 // Collaborating Class Headers -------
 
@@ -28,33 +29,41 @@
 class TH1D;
 
 
-class PndTpcRiemannHTCorrelator : public PndTpcAbsHitTrackCorrelator {
+class PndTpcDipTTCorrelator : public PndTpcAbsTrackTrackCorrelator {
 public:
 
   // Constructors/Destructors ---------
-  PndTpcRiemannHTCorrelator(double planecut);
-  ~PndTpcRiemannHTCorrelator(){;}
+  PndTpcDipTTCorrelator(double dipcut, double helixcut);
+  ~PndTpcDipTTCorrelator(){;}
 
   // Accessors -----------------------
+  /*
   TH1D* getPlaneHisto() {return _hplane;}
+  TH1D* getProxHisto() {return _hprox;}
+  TH1D* getSZHisto() {return _hsz;}
+  */
   
-
   // Modifiers -----------------------
 
 
   // Operations ----------------------
-  virtual bool corr(PndTpcRiemannTrack* trk,
-		    PndTpcRiemannHit* rhit,
+  virtual bool corr(PndTpcRiemannTrack* trk1,
+        PndTpcRiemannTrack* trk2,
 		    bool& survive,
 		    double& matchQuality);
 
 private:
 
   // Private Data Members ------------
-  double _planecut;
+  double _dipcut;
+  double _helixcut;
 
   // histograms for logging
+  /*
   TH1D* _hplane;
+  TH1D* _hprox;
+  TH1D* _hsz;
+*/
 
   // Private Methods -----------------
 

@@ -47,13 +47,14 @@ PndTpcClustVis::PndTpcClustVis():
   ClElPerADC(600.), ClErrorNorm(300.),
   ClSimpleCl(true), ClSimpleTimeslice(4), ClSimpleMaxClusterSlice(3000),
   instantRedraw(true), drawTpc(false), drawRawDigis(false), drawDigis(false),
-  drawClusters(false), drawClusterErrors(false),
+  drawClusters(true), drawClusterErrors(false),
   drawRiemannTracks(true), drawFitMarkers(false),
-  doPR(true), doMerge(true), doClean(false),
+  doPR(true), doMerge(false), doClean(false),
   _sorting(3), _interactionZ(0), _sortingMode(true),
   PRNHits(1000000),
-  _minpoints(4), _planecut(0.04), _riproxcut(0.1), _szcut(0.2), _proxcut(1.9), _helixcut(0.5),
-  _TTproxcut(2.2), _TTplanecut(0.025), _TTszcut(0.33), PRHasChanged(true),
+  _minpoints(4), _planecut(0.04), _riproxcut(0.1), _szcut(0.2), _proxcut(1.9), _helixcut(0.4),
+  _TTproxcut(2.2), _TTplanecut(0.025), _TTszcut(0.33), _TTdipcut(0.09), _TThelixcut(0.6),
+  PRHasChanged(true),
   fRiemannScale(8.6),
   doFit(false), useGeane(false), numIts(0), smooth(false), Bz(0)
 {
@@ -401,15 +402,12 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
     // Hit-Track Correlators
     _trackfinder->addCorrelator(new PndTpcProximityHTCorrelator(_proxcut));
-    _trackfinder->addCorrelator(new PndTpcRiProxHTCorrelator(_riproxcut));
-    _trackfinder->addCorrelator(new PndTpcSzHTCorrelator(_szcut));
-    _trackfinder->addCorrelator(new PndTpcRiemannHTCorrelator(_planecut));
-    //_trackfinder->addCorrelator(new PndTpcHelixHTCorrelator(_helixcut));
+    _trackfinder->addCorrelator(new PndTpcHelixHTCorrelator(_helixcut));
 
     // Track-Track Correlators
     _trackfinder->addTTCorrelator(new PndTpcProximityTTCorrelator(_TTproxcut));
+    _trackfinder->addTTCorrelator(new PndTpcDipTTCorrelator(_TTdipcut, _TThelixcut));
     _trackfinder->addTTCorrelator(new PndTpcRiemannTTCorrelator(_TTplanecut, _minpoints));
-    _trackfinder->addTTCorrelator(new PndTpcSzTTCorrelator(_TTszcut));
 
     /// PLAN: 
     /// 1) build several cluster buffer, sectorwise
@@ -511,7 +509,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     GFFieldManager::getInstance()->init(new GFConstField(0.,0.,Bz));
 
 
-    int minhits = 4; // minimum hits needed to build pndtrackcands and GFTrackCands
+    int minhits = 3; // minimum hits needed to build pndtrackcands and GFTrackCands
     if(minhits<_minpoints) minhits=_minpoints;
     double pbackup = 2.;  // momentum value that is set when other initialisations fail
 
@@ -520,28 +518,27 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       PndTpcRiemannTrack* trk=riemannlist[itrk];
       int nhits=trk->getNumHits();
 
-      std::cout<<"Tracklet "<<itrk<<"   nhits = "<<nhits;
+      if (DEBUG) std::cout<<"Tracklet "<<itrk<<"   nhits = "<<nhits;
 
       // check if enough points
       if(nhits<_minpoints || nhits<minhits){
         std::cout<<" - skipping, not enough hits"<<std::endl;
         continue;
       }
-
-      // check if momentum not high enough
-      // calculate momentum
-      // p = 0.3*B*R/cos(dip-Pi/2) (R in meters, B in T; we have R in cm, B in kG)
-      double p;
-      double trackR = trk->r();
-      double trackDip = trk->dip();
-      /*if (TMath::Abs(sin(trackDip))<0.01) p=pbackup;
-      else*/ p = TMath::Abs(trackR/sin(trackDip) * 0.0003 * Bz);
-      if (Bz==0) p=pbackup;
-      if(p<1E-4) {
-        std::cout<<" - skipping, momentum too small: "<<p*1E3<<" MeV"<<std::endl;
+      // check if track too steep
+      double trackSinDip = trk->sinDip();
+      if (TMath::Abs(trackSinDip)<0.01) {
+        if (DEBUG) std::cout<<" - skipping, sin(dip) too small: "<<trackSinDip<<std::endl;
         continue;
       }
-      std::cout<<std::endl;
+      // ceck if momentum high enough
+      double p = trk->getMom(Bz);
+      if (Bz==0) p=pbackup;
+      if(p<1E-4) {
+        if (DEBUG) std::cout<<" - skipping, momentum too small: "<<p*1E3<<" MeV"<<std::endl;
+        continue;
+      }
+      if (DEBUG) std::cout<<std::endl;
 
       // create GFTrackCands
       GFTrackCand* cand=new GFTrackCand();
@@ -550,7 +547,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       bool invertedTrack = false;
       double r1=trk->getHit(0)->cluster()->pos().Perp();
       double r2=trk->getHit(nhits-1)->cluster()->pos().Perp();
-      if(r1<=r2){
+      if(r1<=r2 || true){
         for(unsigned int ih=0; ih<nhits; ++ih){
           cand->addHit(2,trk->getHit(ih)->cluster()->index());
         }
@@ -562,73 +559,45 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
         invertedTrack = true;
       }// finished filling hits
 
-      //
-      // calculate seed values
-      //
 
-      // build momentum vector from prefit values
-      TVector3 center = trk->center();
-      TVector3 posProjection, posProjection2;
+      // get seed values
+      int winding = trk->winding(); // we look in z direction!
 
-      if(!invertedTrack) posProjection=trk->getFirstHit()->cluster()->pos();
-      else posProjection=trk->getLastHit()->cluster()->pos();
-      posProjection.SetZ(0);
+      TVector3 pos1, direction;
 
-      int i=0;
-      while(i<nhits){
-        if(!invertedTrack) posProjection2=trk->getHit(i)->cluster()->pos();
-        else posProjection2=trk->getHit(nhits-1-i)->cluster()->pos();
-        posProjection2.SetZ(0);
-        if ((posProjection-posProjection2).Mag()>1.5) break;
-        ++i;
+      if(invertedTrack) {
+        trk->getPosDirOnHelix(trk->getNumHits()-1, pos1, direction);
+        direction *= -1.;
+        winding*=-1.;
       }
+      else trk->getPosDirOnHelix(0, pos1, direction);
 
-      TVector3 z(0.,0.,1.);
-      TVector3 direction = z.Cross(posProjection-center);
-      direction.SetMag(1.);
-      int winding = -1; // we look in z direction!
-
-      TVector3 approxDir;
-      approxDir = posProjection2-posProjection;
-
-      if(direction*approxDir < 0){
-        direction *= -1.; // make point into right direction
-        winding *= -1;
-      }
-
-      if(!invertedTrack) direction.SetTheta(trackDip);
-      else direction.SetTheta(-1.*trackDip);
-
-      if(invertedTrack) direction *= -1.; // otherwise Kalman extrapolates backwards for inverted tracks!!!
+      TVector3 poserr(0.3,0.3,0.3);
 
       TVector3 mom = p * direction;
       TVector3 momerr(fabs(mom.X()),fabs(mom.Y()),fabs(mom.Z()));
       momerr *= 1./TMath::Sqrt(nhits);
-      // end build momentum vector from prefit values
-
-      // build start position
-      TVector3 pos1;
-      if(!invertedTrack) pos1 = trk->getFirstHit()->cluster()->pos();
-      else pos1 = trk->getLastHit()->cluster()->pos();
-      TVector3 poserr(0.3,0.3,0.3);
-      // end build start position
 
       // pdg
       int pdg = winding * 211; // Todo: pions hardcoded atm
       if(Bz<0) pdg *= -1;
 
-      std::cout<<" center of track "; center.Print();
-      std::cout<<" Radius of track [cm]: " << trackR << std::endl;
-      std::cout<<" Dip of track [deg]:   " << trackDip/TMath::Pi()*180 << std::endl;
-      std::cout<<" seed values: "<<std::endl;
-      std::cout<<"  start position: "; pos1.Print();
-      std::cout<<"  momentum [GeV]: "<<p<<std::endl;
-      std::cout<<"  p_perp [GeV]:   " << trackR*0.0003*Bz <<std::endl;
-      std::cout<<"  direction: "; direction.Print();
-      std::cout<<"  winding: "<<winding<<std::endl;
-      std::cout<<"  invertedTrack: "<<invertedTrack<<std::endl;
-      std::cout<<"  pdg id: "<<pdg<<std::endl;
+      double trackR = trk->r();
 
+      if (DEBUG) {
+        double trackDip = trk->dip();
+        std::cout<<" center of track "; trk->center().Print();
+        std::cout<<" Radius of track [cm]: " << trackR << std::endl;
+        std::cout<<" Dip of track [deg]:   " << trackDip/TMath::Pi()*180 << std::endl;
+        std::cout<<" seed values: "<<std::endl;
+        std::cout<<"  start position: "; pos1.Print();
+        std::cout<<"  momentum [GeV]: "<<p<<std::endl;
+        std::cout<<"  p_perp [GeV]:   " << trackR*0.0003*Bz <<std::endl;
+        std::cout<<"  direction: "; direction.Print();
+        std::cout<<"  winding: "<<winding<<std::endl;
+        std::cout<<"  invertedTrack: "<<invertedTrack<<std::endl;
+        std::cout<<"  pdg id: "<<pdg<<std::endl;
+      }
 
       cand->setCurv(trackR); //  actually this is never used
       cand->setDip(trk->dip());
@@ -1186,7 +1155,7 @@ void PndTpcClustVis::makeGui() {
                           0, 200);
     hf->AddFrame(guiminpoints);
     guiminpoints->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
-    lbl = new TGLabel(hf, "min points for sz-/plane-fit");
+    lbl = new TGLabel(hf, "min points for helix-fit");
     hf->AddFrame(lbl);
   }
   frmMain2->AddFrame(hf);
@@ -1200,7 +1169,7 @@ void PndTpcClustVis::makeGui() {
     lbl = new TGLabel(hf, "Planecut");
     hf->AddFrame(lbl);
   }
-  frmMain2->AddFrame(hf);
+  //frmMain2->AddFrame(hf);
 
   hf = new TGHorizontalFrame(frmMain2); {
     guiriproxcut = new TGNumberEntry(hf, _riproxcut, 6, 999, TGNumberFormat::kNESRealFour,
@@ -1212,7 +1181,7 @@ void PndTpcClustVis::makeGui() {
     lbl = new TGLabel(hf, "Riemann proximity cut");
     hf->AddFrame(lbl);
   }
-  frmMain2->AddFrame(hf);
+  //frmMain2->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain2); {
     guiszcut = new TGNumberEntry(hf, _szcut, 6,999, TGNumberFormat::kNESRealThree,
                           TGNumberFormat::kNEANonNegative,
@@ -1223,7 +1192,7 @@ void PndTpcClustVis::makeGui() {
     lbl = new TGLabel(hf, "sz cut");
     hf->AddFrame(lbl);
   }
-  frmMain2->AddFrame(hf);
+  //frmMain2->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain2); {
     guiproxcut = new TGNumberEntry(hf, _proxcut, 6,999, TGNumberFormat::kNESRealThree,
                           TGNumberFormat::kNEANonNegative,
@@ -1279,13 +1248,24 @@ void PndTpcClustVis::makeGui() {
   frmMain2->AddFrame(hf);
 
   hf = new TGHorizontalFrame(frmMain2); {
-    guiTTszcut = new TGNumberEntry(hf, _TTszcut, 6,999, TGNumberFormat::kNESRealThree,
+    guiTTdipcut = new TGNumberEntry(hf, _TTdipcut, 6,999, TGNumberFormat::kNESRealThree,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
                           0, 99);
-    hf->AddFrame(guiTTszcut);
-    guiTTszcut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
-    lbl = new TGLabel(hf, "TT sz cut");
+    hf->AddFrame(guiTTdipcut);
+    guiTTdipcut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
+    lbl = new TGLabel(hf, "TT dip cut");
+    hf->AddFrame(lbl);
+  }
+  frmMain2->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain2); {
+    guiTThelixcut = new TGNumberEntry(hf, _TThelixcut, 6,999, TGNumberFormat::kNESRealThree,
+                          TGNumberFormat::kNEANonNegative,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 99);
+    hf->AddFrame(guiTThelixcut);
+    guiTThelixcut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
+    lbl = new TGLabel(hf, "TT helix cut");
     hf->AddFrame(lbl);
   }
   frmMain2->AddFrame(hf);
@@ -1420,7 +1400,9 @@ void PndTpcClustVis::guiSetTrackingParams(){
   _helixcut = guihelixcut->GetNumberEntry()->GetNumber();
   _TTproxcut = guiTTproxcut->GetNumberEntry()->GetNumber();
   _TTplanecut = guiTTplanecut->GetNumberEntry()->GetNumber();
-  _TTszcut = guiTTszcut->GetNumberEntry()->GetNumber();
+  //_TTszcut = guiTTszcut->GetNumberEntry()->GetNumber();
+  _TTdipcut = guiTTdipcut->GetNumberEntry()->GetNumber();
+  _TThelixcut = guiTThelixcut->GetNumberEntry()->GetNumber();
   fRiemannScale=guiTTscale->GetNumberEntry()->GetNumber();
   doMerge=(guiDoMerge->IsOn());
   doClean=(guiDoClean->IsOn());

@@ -31,12 +31,10 @@
 #include "PndTpcRiemannTrackFinder.h"
 #include "PndTpcRiemannHit.h"
 
-#include "PndTpcRiemannHTCorrelator.h"
-#include "PndTpcRiProxHTCorrelator.h"
-#include "PndTpcSzHTCorrelator.h"
 #include "PndTpcProximityHTCorrelator.h"
+#include "PndTpcHelixHTCorrelator.h"
 #include "PndTpcProximityTTCorrelator.h"
-#include "PndTpcSzTTCorrelator.h"
+#include "PndTpcDipTTCorrelator.h"
 #include "PndTpcRiemannTTCorrelator.h"
 
 #include "GFTrackCand.h"
@@ -65,6 +63,7 @@
 #include "TH3D.h"
 #include "TVector3.h"
 #include "TMath.h"
+#include"TDatabasePDG.h"
 
 #include <cmath>
 
@@ -78,14 +77,14 @@ ClassImp(PndTpcRiemannTrackingTask)
 
 PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
   : FairTask("PndTpc Pattern Reco"), _persistence(kFALSE),
-    _sortingMode(false), _sorting(3), _interactionZ(0.),
-    _mergeTracks(false),
-    _proxcut(1), _riproxcut(0.05),
-    _planecut(0.1),
-    _minpoints(10),
-    _szcut(2.),
+    _sortingMode(true), _sorting(3), _interactionZ(0.),
+    _mergeTracks(true),
+    _proxcut(2),
+    _helixcut(0.4),
+    _minpoints(5),
     _TTproxcut(2.),
-    _TTszcut(2.),
+    _TTdipcut(.01),
+    _TThelixcut(.5),
     _TTplanecut(0.001),
     _riemannscale(24.6),
     _clusterBranchName("PndTpcCluster"),
@@ -114,24 +113,22 @@ PndTpcRiemannTrackingTask::SetSortingParameters(
 void
 PndTpcRiemannTrackingTask::SetTrkFinderParameters(
                  double proxcut,
-					       double riproxcut,
-					       double planecut,
-					       double szcut,
+					       double helixcut,
 					       unsigned int minpointsforfit){
   _proxcut=proxcut;
-  _riproxcut=riproxcut;
-  _planecut=planecut;
-  _szcut=szcut;
+  _helixcut=helixcut;
   _minpoints=minpointsforfit;
 }
 
 void
 PndTpcRiemannTrackingTask::SetTrkMergerParameters(
 					       double TTproxcut,
-					       double TTszcut,
+					       double TTdipcut,
+					       double TThelixcut,
 					       double TTplanecut){
   _TTproxcut=TTproxcut;
-  _TTszcut=TTszcut;
+  _TTdipcut=TTdipcut;
+  _TThelixcut=TThelixcut;
   _TTplanecut=TTplanecut;
 }
 
@@ -193,14 +190,12 @@ PndTpcRiemannTrackingTask::Init()
 
   // Hit-Track Correlators
   _trackfinder->addCorrelator(new PndTpcProximityHTCorrelator(_proxcut));
-  _trackfinder->addCorrelator(new PndTpcRiProxHTCorrelator(_riproxcut));
-  _trackfinder->addCorrelator(new PndTpcSzHTCorrelator(_szcut));
-  _trackfinder->addCorrelator(new PndTpcRiemannHTCorrelator(_planecut));
+  _trackfinder->addCorrelator(new PndTpcHelixHTCorrelator(_helixcut));
 
   // Track-Track Correlators
   _trackfinder->addTTCorrelator(new PndTpcProximityTTCorrelator(_TTproxcut));
+  _trackfinder->addTTCorrelator(new PndTpcDipTTCorrelator(_TTdipcut, _TThelixcut));
   _trackfinder->addTTCorrelator(new PndTpcRiemannTTCorrelator(_TTplanecut, _minpoints));
-  _trackfinder->addTTCorrelator(new PndTpcSzTTCorrelator(_TTszcut));
  
   // init histos
   _multiplicityHisto=new TH1I("multipl","# track candidates",100,0,100);
@@ -236,11 +231,9 @@ PndTpcRiemannTrackingTask::Init()
     std::cerr<<"PndTpcRiemannTrackingTask: "<<"default setting Bz="<<Bz<<std::endl;
   }
 
-
-
-
   return kSUCCESS;
 }
+
 
 void
 PndTpcRiemannTrackingTask::Exec(Option_t* opt)
@@ -347,21 +340,16 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       if (DEBUG) std::cout<<" - skipping, not enough hits"<<std::endl;
       continue;
     }
-    
-    // check if momentum not high enough
-    // calculate momentum
-    // p = 0.3*B*R/cos(dip-Pi/2) (R in meters, B in T; we have R in cm, B in kG)
-    double p;
-    double trackR = trk->r();
-    double trackDip = trk->dip();
-    double absSinDip = TMath::Abs(sin(trackDip));
-    if (absSinDip<0.01) {
-      if (DEBUG) std::cout<<" - skipping, sin(dip) too small: "<<absSinDip<<std::endl;
+    // check if track too steep
+    double trackSinDip = trk->sinDip();
+    if (TMath::Abs(trackSinDip)<0.01) {
+      if (DEBUG) std::cout<<" - skipping, sin(dip) too small: "<<trackSinDip<<std::endl;
       continue;
     }
-    p = 1./absSinDip * trackR * 0.0003 * TMath::Abs(Bz);
+    // ceck if momentum high enough
+    double p = trk->getMom(Bz);
     if (Bz==0) p=pbackup;
-    if(p<4E-5) {
+    if(p<1E-4) {
       if (DEBUG) std::cout<<" - skipping, momentum too small: "<<p*1E3<<" MeV"<<std::endl;
       continue;
     }
@@ -393,65 +381,43 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       invertedTrack = true;
     }// finished filling hits
 
-    //
-    // calculate seed values
-    //
 
-    // build momentum vector from prefit values
-    TVector3 center = trk->center();
-    TVector3 posProjection, posProjection2;
+    // get seed values
+    int winding = trk->winding(); // we look in z direction!
 
-    if(!invertedTrack) posProjection=trk->getFirstHit()->cluster()->pos();
-    else posProjection=trk->getLastHit()->cluster()->pos();
-    posProjection.SetZ(0);
+    TVector3 pos1, direction;
 
-    int i=0;
-    while(i<nhits){
-      if(!invertedTrack) posProjection2=trk->getHit(i)->cluster()->pos();
-      else posProjection2=trk->getHit(nhits-1-i)->cluster()->pos();
-      posProjection2.SetZ(0);
-      if ((posProjection-posProjection2).Mag()>1.5) break;
-      ++i;
+    if(invertedTrack) {
+      trk->getPosDirOnHelix(trk->getNumHits()-1, pos1, direction);
+      direction *= -1.;
+      winding*=-1.;
     }
+    else trk->getPosDirOnHelix(0, pos1, direction);
 
-    TVector3 z(0.,0.,1.);
-    TVector3 direction = z.Cross(posProjection-center);
-    direction.SetMag(1.);
-    int winding = -1; // we look in z direction!
-
-    TVector3 approxDir;
-    approxDir = posProjection2-posProjection;
-
-    if(direction*approxDir < 0){
-      direction *= -1.; // make point into right direction
-      winding *= -1;
-    }
-
-    if(!invertedTrack) direction.SetTheta(trackDip);
-    else direction.SetTheta(-1.*trackDip);
-
-    if(invertedTrack) direction *= -1.; // otherwise Kalman extrapolates backwards for inverted tracks!!!
+    TVector3 poserr(0.3,0.3,0.3);
 
     TVector3 mom = p * direction;
     TVector3 momerr(fabs(mom.X()),fabs(mom.Y()),fabs(mom.Z()));
     momerr *= 1./TMath::Sqrt(nhits);
-    // end build momentum vector from prefit values
 
-    // build start position
-    TVector3 pos1;
-    if(!invertedTrack) pos1 = trk->getFirstHit()->cluster()->pos();
-    else pos1 = trk->getLastHit()->cluster()->pos();
-    TVector3 poserr(0.3,0.3,0.3);
-    // end build start position
-
-    int q = -1.;
-    
     // pdg
     int pdg = winding * 211; // Todo: pions hardcoded atm
-    if(Bz<0) { pdg *= -1; q*=(-1);}
+    if(Bz<0) pdg *= -1;
+
+    // charge (for geane)
+    TParticlePDG * part = TDatabasePDG::Instance()->GetParticle(pdg);
+    if(part == 0){
+      std::cerr << "PndTpcRiemannTrackingTask::Exec - unknown PDG id" << std::endl;
+      exit(1);
+    }
+    int q = int(part->Charge()/(3.));
+
+
+    double trackR = trk->r();
 
     if (DEBUG) {
-      std::cout<<" center of track "; center.Print();
+      double trackDip = trk->dip();
+      std::cout<<" center of track "; trk->center().Print();
       std::cout<<" Radius of track [cm]: " << trackR << std::endl;
       std::cout<<" Dip of track [deg]:   " << trackDip/TMath::Pi()*180 << std::endl;
       std::cout<<" seed values: "<<std::endl;
@@ -467,7 +433,7 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     // set seed values to cands
     pndcand->setTrackSeed(pos1,direction,1./p);
 
-    cand->setCurv(trackR); //  actually this is never used
+    cand->setCurv(1./trackR); //  actually this is never used
     cand->setDip(trk->dip());
 
     //RK TRACKREP
@@ -520,7 +486,6 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
   _multiplicityHisto->Fill(candlist.size());
 
   counter++;
-  return;
 }
 
 void

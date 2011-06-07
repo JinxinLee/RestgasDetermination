@@ -3,14 +3,14 @@
 // $Id$
 //
 // Description:
-//      Implementation of class PndTpcRiemannHTCorrelator
-//      see PndTpcRiemannHTCorrelator.hh for details
+//      Implementation of class PndTpcHelixHTCorrelator
+//      see PndTpcHelixHTCorrelator.hh for details
 //
 // Environment:
 //      Software developed for the PANDA Detector at FAIR.
 //
 // Author List:
-//      Sebastian Neubert    TUM            (original author)
+//      Johanness Rauch    TUM            (original author)
 //
 //
 //-----------------------------------------------------------
@@ -18,11 +18,12 @@
 // Panda Headers ----------------------
 
 // This Class' Header ------------------
-#include "PndTpcRiemannHTCorrelator.h"
+#include "PndTpcHelixHTCorrelator.h"
 
 // C/C++ Headers ----------------------
 #include "TVector3.h"
 #include "TH1D.h"
+#include "TMath.h"
 
 // Collaborating Class Headers --------
 #include "PndTpcRiemannTrack.h"
@@ -32,27 +33,30 @@
 
 // Class Member definitions -----------
 
-PndTpcRiemannHTCorrelator::PndTpcRiemannHTCorrelator(double planecut)
-  : _planecut(planecut)
+PndTpcHelixHTCorrelator::PndTpcHelixHTCorrelator(double hdistcut)
+  : _hdistcut(hdistcut)
 {}
 
 
 bool
-PndTpcRiemannHTCorrelator::corr(PndTpcRiemannTrack* trk,
+PndTpcHelixHTCorrelator::corr(PndTpcRiemannTrack* trk,
 				PndTpcRiemannHit* rhit,
 				bool& survive,
 				double& matchQuality)
 {
   // check if we have a fit:
-  if(!trk->isFittedPlane())return false;
+  if(!trk->isFitted()) return false;
 
-  double d=trk->dist(rhit);
+  double d=trk->distHelix(rhit);
   //std::cout<<"distance to plane: "<< d<<std::endl;
-  DebugLogger::Instance()->Histo("HT_riem_dist",d,0,0.2,100);
+  DebugLogger::Instance()->Histo("HT_helix_dist",d,0,0.2,100);
   d = TMath::Abs(d);
   matchQuality=d;
-  if(d>_planecut){
-    DebugLogger::Instance()->Histo("HT_riemanncuts",7,0,20,20);
+
+  double stat = 1.+ 1/TMath::Sqrt(trk->getNumHits()); // "statistical error" of the fit
+
+  if(d>_hdistcut*stat){
+    DebugLogger::Instance()->Histo("HT_riemanncuts",8,0,20,20);
     survive=false;
     return true;
   }

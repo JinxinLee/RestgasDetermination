@@ -69,10 +69,14 @@ PndTpcRiemannTTCorrelator::corr(PndTpcRiemannTrack* trk1,
   for(unsigned int i=0; i<nhits2; ++i){
     mergedTrack->addHit(trk2->getHit(i));
   }
-  mergedTrack->refit();
+  mergedTrack->fitAndSort();
 
   double rms = mergedTrack->planeRMS();
   delete mergedTrack;
+
+  // restore original states
+  trk1->fitAndSort();
+  trk2->fitAndSort();
 
   matchQuality=rms;
   DebugLogger::Instance()->Histo("TT_riem_rms",rms,0,0.005,100);

@@ -3,24 +3,23 @@
 // $Id$
 //
 // Description:
-//      Track-Track-Correlator using sz fit
+//      Hit-Track-Correlator using Helix fit
 //
 //
 // Environment:
 //      Software developed for the PANDA Detector at FAIR.
 //
 // Author List:
-//      Sebastian Neubert    TUM            (original author)
-//      Johannes Rauch       TUM
+//      Johanness Rauch    TUM            (original author)
 //
 //
 //-----------------------------------------------------------
 
-#ifndef TPCPSZTTCORRELATOR_HH
-#define TPCPSZTTCORRELATOR_HH
+#ifndef TPCHELIXHTCORRELATOR_HH
+#define TPCHELIXHTCORRELATOR_HH
 
 // Base Class Headers ----------------
-#include "PndTpcAbsTrackTrackCorrelator.h"
+#include "PndTpcAbsHitTrackCorrelator.h"
 
 // Collaborating Class Headers -------
 
@@ -29,40 +28,33 @@
 class TH1D;
 
 
-class PndTpcSzTTCorrelator : public PndTpcAbsTrackTrackCorrelator {
+class PndTpcHelixHTCorrelator : public PndTpcAbsHitTrackCorrelator {
 public:
 
   // Constructors/Destructors ---------
-  PndTpcSzTTCorrelator(double szcut);
-  ~PndTpcSzTTCorrelator(){;}
+  PndTpcHelixHTCorrelator(double hdist);
+  ~PndTpcHelixHTCorrelator(){;}
 
   // Accessors -----------------------
-  /*
-  TH1D* getPlaneHisto() {return _hplane;}
-  TH1D* getProxHisto() {return _hprox;}
-  TH1D* getSZHisto() {return _hsz;}
-  */
+  TH1D* getPlaneHisto() {return _helixdist;}
   
+
   // Modifiers -----------------------
 
 
   // Operations ----------------------
-  virtual bool corr(PndTpcRiemannTrack* trk1,
-        PndTpcRiemannTrack* trk2,
+  virtual bool corr(PndTpcRiemannTrack* trk,
+		    PndTpcRiemannHit* rhit,
 		    bool& survive,
 		    double& matchQuality);
 
 private:
 
   // Private Data Members ------------
-  double _szcut;
+  double _hdistcut;
 
   // histograms for logging
-  /*
-  TH1D* _hplane;
-  TH1D* _hprox;
-  TH1D* _hsz;
-*/
+  TH1D* _helixdist;
 
   // Private Methods -----------------
 

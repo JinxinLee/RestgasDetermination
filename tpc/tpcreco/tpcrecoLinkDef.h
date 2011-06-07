@@ -12,7 +12,7 @@
 #pragma link C++ class PndTpcRiemannTrackingTask++;
 #pragma link C++ class PndTpcIdealTrackingTask++;
 #pragma link C++ class PndTpcIdealTrackingTask2++;
-#pragma link C++ class PndTpcRiemannMCTask++;
+//#pragma link C++ class PndTpcRiemannMCTask++;
 #pragma link C++ class PndTpcRiemannHit++;
 #pragma link C++ class PndTpcRiemannTrack++;
 #pragma link C++ class DebugLogger+;

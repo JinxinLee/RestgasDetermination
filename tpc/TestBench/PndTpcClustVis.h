@@ -79,14 +79,11 @@
 #include "PndTpcRiemannTrack.h"
 #include "PndTpcRiemannHit.h"
 #include "PndTpcRiemannTrackFinder.h"
-#include "PndTpcRiemannHTCorrelator.h"
-#include "PndTpcRiProxHTCorrelator.h"
 #include "PndTpcProximityHTCorrelator.h"
-//#include "PndTpcHelixHTCorrelator.h"
+#include "PndTpcHelixHTCorrelator.h"
 #include "PndTpcProximityTTCorrelator.h"
 #include "PndTpcRiemannTTCorrelator.h"
-#include "PndTpcSzHTCorrelator.h"
-#include "PndTpcSzTTCorrelator.h"
+#include "PndTpcDipTTCorrelator.h"
 
 #include "PndTpcDigi.h"
 #include "PndTpcCluster.h"
@@ -246,6 +243,10 @@ private:
   double _TTplanecut;
   TGNumberEntry* guiTTszcut;
   double _TTszcut;
+  TGNumberEntry* guiTTdipcut;
+  double _TTdipcut;
+  TGNumberEntry* guiTThelixcut;
+  double _TThelixcut;
   TGNumberEntry* guiTTscale;
   double fRiemannScale;
 

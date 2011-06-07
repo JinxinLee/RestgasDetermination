@@ -33,8 +33,8 @@ class PndTpcRiemannHit : public TObject{
 public:
 
   // Constructors/Destructors ---------
-  PndTpcRiemannHit():_cluster(NULL),_s(0.),_alpha(0.),fRiemannScale(24.6){}
-  PndTpcRiemannHit(double scale):_cluster(NULL),_s(0.),_alpha(0.),fRiemannScale(scale){}
+  PndTpcRiemannHit():_cluster(NULL),_s(0.),_angleOnHelix(0.),fRiemannScale(24.6){}
+  PndTpcRiemannHit(double scale):_cluster(NULL),_s(0.),_angleOnHelix(0.),fRiemannScale(scale){}
   PndTpcRiemannHit(double r,double phi, double scale=24.6);
   PndTpcRiemannHit(PndTpcCluster* cl, double scale=24.6);
   ~PndTpcRiemannHit();
@@ -44,14 +44,13 @@ public:
   const TVector3& x() const {return _x;}
   PndTpcCluster* cluster() const {return _cluster;}
   double s() const {return _s;}
-  double tempPosOnTrack() const {return _tempPosOnTrack;}
+  double getAngleOnHelix() const {return _angleOnHelix;}
   double z() const;
-  double alpha() const {return _alpha;}
   double getScale() const {return fRiemannScale;}
 
   // Modifiers -----------------------
-  double tempPosOnTrack(double tempPos){_tempPosOnTrack=tempPos;}
   double setPosOnTrk(double S){_s=S;}
+  double setAngleOnHelix(double ang){_angleOnHelix=ang;}
 
   // Operations ----------------------
 
@@ -61,13 +60,11 @@ private:
   TVector3 _x; // Position on Riemann sphere in cartesian coordinates
   PndTpcCluster* _cluster; //->  //no ownership over this pointer!
   double _s;     // pathlength along track
-  double _tempPosOnTrack; // this is not valid for the whole track and used in the sorting of addHit
-  double _alpha; // angle along track
+  double _angleOnHelix;   // angle on helix
   double fRiemannScale; //scaling in xy plane: 8.7 for prototype, 24.6 for panda
-  // Private Methods -----------------
 
 public:
-  ClassDef(PndTpcRiemannHit,2)
+  ClassDef(PndTpcRiemannHit,3)
 
 };
 

@@ -60,9 +60,7 @@ public:
 
   void SetTrkFinderParameters(
                    double proxcut,
-                   double riproxcut,
-                   double planecut,
-                   double szcut,
+                   double _helixcut,
                    unsigned int minpointsforfit);
 
   void SetMergeTracks(bool mergeTracks=true){_mergeTracks = mergeTracks;}
@@ -70,7 +68,8 @@ public:
 
   void SetTrkMergerParameters(
                    double TTproxcut,
-                   double TTszcut,
+                   double TTdipcut,
+                   double TThelixcut,
                    double TTplanecut);
 
   void SetRiemannScale(double riemannscale=8.7) {_riemannscale = riemannscale;}
@@ -124,17 +123,17 @@ private:
 
   int _sorting;
   double _proxcut;
-  double _riproxcut;
-  double _planecut;      
-  double _szcut;
+  double _helixcut;
   unsigned int _minpoints;
 
   bool _mergeTracks;
   bool _smoothing;
 
   double _TTproxcut;
-  double _TTszcut;
+  double _TTdipcut;
+  double _TThelixcut;
   double _TTplanecut;
+
   double _interactionZ;
 
 

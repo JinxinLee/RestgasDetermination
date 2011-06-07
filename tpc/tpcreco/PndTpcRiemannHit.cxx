@@ -36,7 +36,7 @@ ClassImp(PndTpcRiemannHit)
 
 
 PndTpcRiemannHit::PndTpcRiemannHit(double r, double phi, double scale)
-: _cluster(NULL),_s(0.),_alpha(0.),fRiemannScale(scale)
+: _cluster(NULL), _s(0.), _angleOnHelix(0.), fRiemannScale(scale)
 {
   double r2=r*r;
   double d=1+r2;
@@ -45,8 +45,8 @@ PndTpcRiemannHit::PndTpcRiemannHit(double r, double phi, double scale)
   _x.SetZ(r2/d);
 }
 
-PndTpcRiemannHit::PndTpcRiemannHit(PndTpcCluster* cl,double scale)
-  : _cluster(cl),_s(0.),_alpha(0.),fRiemannScale(scale)
+PndTpcRiemannHit::PndTpcRiemannHit(PndTpcCluster* cl, double scale)
+  : _cluster(cl), _s(0.), _angleOnHelix(0.), fRiemannScale(scale)
 {
   TVector2 a(cl->pos().X(),cl->pos().Y());
   double r = a.Mod()/fRiemannScale;
@@ -68,6 +68,6 @@ PndTpcRiemannHit::z()const {
     std::cout<<"PndTpcRiemannHit::z() No cluster available!!!"<<std::endl;
     return 0;
   }
-  else return _cluster->pos().Z();
+  return _cluster->pos().Z();
 }
 
