@@ -86,7 +86,7 @@ class PndSttMvdTracking : public FairTask
   int IVOLTE ;
 
 #define maxTracks 40
-  static const UShort_t   nmassimo=20,
+  static const UShort_t   nmassimo=50,
 			  nmaxSttHits = maxTracks*30,
 			  MAXMCTRACKS=maxTracks,
 			  MAXTRACKSPEREVENT=maxTracks,
@@ -108,7 +108,8 @@ class PndSttMvdTracking : public FairTask
 		VERTICALGAP = 4.,  // in cm, the gap between Left and Right sections of the
 			  STTdriftVEL = 0.0025,	//   in cm/nsec
 			  STRAWRADIUS = DiameterStrawTube/2.,
-			  STRAWRESOLUTION= 0.015;
+			  STRAWRESOLUTION= 0.015,
+			  PMAX=100.;
 	static const bool YesClean = false;
 
 
@@ -317,6 +318,7 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
                    Double_t Ox,
                    Double_t Oy,
                    Double_t R,
+		   Short_t  charge,
                    Double_t info[][7],
                    Double_t WDX[nmaxSttHits],
                    Double_t WDY[nmaxSttHits],
