@@ -703,7 +703,7 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
     completeTrack = (PndTrack*) fCompleteTrackArray->At(itrk);
     if(fVerbose > 0 && completeTrack->GetRefIndex() != itrk) cout << "************** ERROR ****************" << endl;
     completeTrack->SetTrackCand(*completeCand);
-    completeTrack->SetFlag(flag[itrk]);
+    //    completeTrack->SetFlag(flag[itrk]);
     //    cout << "track " << itrk << " has flag " << flag[itrk] << endl;
   }
 
@@ -749,6 +749,7 @@ void PndSttMvdGemTracking::Copy(PndTrackCand *completeCand, PndTrack *completeTr
 					      sttmvd->GetParamLast(),
 					      *completeCand);
   completeTrack->SetRefIndex("SttMvdGemTrackCand", size); // CHECK size or size2?
+  completeTrack->SetFlag(sttmvd->GetFlag());
 }
 
 
