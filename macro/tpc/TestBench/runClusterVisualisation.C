@@ -51,7 +51,8 @@ void runClusterVisualisation(TString filename,
     wallclock=1000;
 
     MagField=6.;
-    geoFile="$VMCWORKDIR/geometry/tpc_prototype.root";
+    geoFile="$VMCWORKDIR/geometry/tpc_prototype.root"; // todo: kalman crashes
+    geoFile="$VMCWORKDIR/tpc/TestBench/FOPIGeo.root"; // this works
   }
   else if(paramSet==1){ // standard PANDA SIM Settings
     gasfile=basedir+"/tpc/NEON-90_CO2-10_B2_PRES1013.asc";
@@ -65,7 +66,8 @@ void runClusterVisualisation(TString filename,
     DriftField=400;
 
     MagField=20.;
-    geoFile="$VMCWORKDIR/geometry/TPC_V1.1.root";
+    geoFile="$VMCWORKDIR/geometry/TPC_V1.1.root"; // todo: kalman crashes
+    geoFile="$VMCWORKDIR/tpc/TestBench/FOPIGeo.root"; // this works
   }
   else{
     cout<<"use paramSet 0 or 1"<<endl;
