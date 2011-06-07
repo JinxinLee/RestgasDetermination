@@ -1865,6 +1865,7 @@ if( istampa>=2){
 //   loading the hits found and associated to a track in a  PndTrackCand  class; a class per each track
 
 	int   ipinco=0, ipanco=0;
+	Int_t flag;
 	Double_t Ptras,Pxini,Pyini,Pzini,dista, qop;
 	PndTrackCand *pTrckCand;
 	PndTrack*     pTrck; 
@@ -1883,6 +1884,8 @@ if( istampa>=2){
 
        if(fabs(KAPPA[i])>1.e-20  ){
 		Pzini = -Charge[i]*0.003*BFIELD/KAPPA[i];
+		// PMAX is the maximum Pz tolerable; it is set at 100 for now.
+		if(fabs(Pzini) < PMAX)  flag =0 ; else flag=-1;
 		TVector3 dirSeed(Pxini,
 			   Pyini,
 			   Pzini); // momentum direction in starting point
@@ -2024,19 +2027,20 @@ if( istampa>=2){
 				//--------   load PndTrack object
 				pTrck = new((*trackArray)[ipanco]) PndTrack(first, last, *pTrckCand);
 				pTrck->SetRefIndex(ipanco);
+				pTrck->SetFlag(flag);  // at this point flag = 0 for Pz<PMAX, -1 otherwise.
 				ipanco++;
 
 			}  else { // continuation  of  if( Posiz2[0]>-777777776.)
 				//case of something wrong with last hit
 				FairTrackParP first(
-						    TVector3(-99999., -99999., -99999.), //  dummy Position
-						    TVector3(-99999., -99999., -99999.), //  dummy Momentum
-						    TVector3(-99999., -99999., -99999.), //  dummy ErrPosition
-						    TVector3(-99999., -99999., -99999.), //  dummy ErrMomentum
-						    0, //  dummy Charge
-						    TVector3(-99999., -99999., -99999.), //  dummy Position again
-						    TVector3(1., 0., 0.), //  dummy direction versor
-						    TVector3(0., 1., 0.) //  dummy direction versor
+					TVector3(-99999., -99999., -99999.), //  dummy Position
+					TVector3(-99999., -99999., -99999.), //  dummy Momentum
+					TVector3(-99999., -99999., -99999.), //  dummy ErrPosition
+					TVector3(-99999., -99999., -99999.), //  dummy ErrMomentum
+					0, //  dummy Charge
+					TVector3(-99999., -99999., -99999.), //  dummy Position again
+					TVector3(1., 0., 0.), //  dummy direction versor
+					TVector3(0., 1., 0.) //  dummy direction versor
 						);
 				FairTrackParP last(
 					TVector3(-99999., -99999., -99999.), //  dummy Position
