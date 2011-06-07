@@ -78,15 +78,14 @@ void runMomresReco_batch(TString digifile) {
                    3,    // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
                    0.); // z-position of interaction point (for sorting 4)
   tpcSPR->SetTrkFinderParameters(
-                   1.9,  // proximity cut in 3D
-                   0.1, // proximity cut on rieman sphere
-                   0.04, // distance to plane cut
-                   0.2,  // szcut
-                   4);   // minimum hits for plane & sz-fit
+                   1.9,  // proximity cut in 3D [cm]
+                   0.4,  // helix cut [cm]
+                   4);   // minimum hits for helix-fit
   tpcSPR->SetMergeTracks();
   tpcSPR->SetTrkMergerParameters(
-                   3.,  // proximity cut
-                   0.33,  // sz cut
+                   2.2,  // proximity cut [cm]
+                   0.09,  // dip cut [rad]
+                   0.6,  // helix cut [cm]
                    0.025);// plane cut (RMS)
   tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
   tpcSPR->useGeane(); // uses RKTrackrep and GeaneTrackrep

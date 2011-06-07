@@ -9,6 +9,8 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath,
   TStopwatch timer;
   timer.Start();
   
+  unsigned int nEvents = 0;
+
   // Load basic libraries in rootlogon
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
@@ -67,7 +69,7 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath,
 
   //extract number of entries in external data tree
   TFile testFile(filename);
-  unsigned int nEvents = ((TTree*)testFile.Get("tpcEvent"))->GetEntries();
+  if(nEvents==0) nEvents = ((TTree*)testFile.Get("tpcEvent"))->GetEntries();
   std::cout<<"Found "<<nEvents<<" events in input data file"<<std::endl;
   
   
@@ -109,15 +111,14 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath,
                    3,    // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
                    0.); // z-position of interaction point (for sorting 4)
   tpcSPR->SetTrkFinderParameters(
-                   1.9,  // proximity cut in 3D
-                   0.1, // proximity cut on rieman sphere
-                   0.04, // distance to plane cut
-                   0.2,  // szcut
-                   4);   // minimum hits for plane & sz-fit
+                   1.9,  // proximity cut in 3D [cm]
+                   0.4,  // helix cut [cm]
+                   4);   // minimum hits for helix-fit
   tpcSPR->SetMergeTracks();
   tpcSPR->SetTrkMergerParameters(
-                   2.2,  // proximity cut
-                   0.33,  // sz cut
+                   2.2,  // proximity cut [cm]
+                   0.09,  // dip cut [rad]
+                   0.6,  // helix cut [cm]
                    0.025);// plane cut (RMS)
   tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
   tpcSPR->SetPersistence();
