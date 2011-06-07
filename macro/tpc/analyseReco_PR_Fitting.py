@@ -12,13 +12,15 @@ def drawPrelim() :
 
 preliminary = 0
 numFiles = 10000000
+numEntries = 10000000
 
 panda=1
 mult = 1
 minNumHits = 10
 
-dir = "/nfs/nas/data/panda/tpc/SIM/momres/"
 runs = "reco"
+dir = "/nfs/nas/data/panda/tpc/SIM/momres/mult%i" %mult
+outdir = "./"
 
 #argument parsing:
 for iarg in range(len(sys.argv)) :
@@ -27,20 +29,23 @@ for iarg in range(len(sys.argv)) :
         preliminary = 1
     if arg == "-path" :
         dir = sys.argv[iarg+1];
+    if arg == "-outpath" :
+        outdir = sys.argv[iarg+1];        
     if arg == "-n" :
         numFiles = int(sys.argv[iarg+1])
+    if arg == "-nEntries" :
+        numEntries = int(sys.argv[iarg+1])
     if arg == "-runs" :
         runs = sys.argv[iarg+1];    
     if arg == "-TB" :
         panda = 0
     if arg == "-minnumhits" :
-        minNumHits = sys.argv[iarg+1];
-        minNumHits = int(minNumHits)
+        minNumHits = int(sys.argv[iarg+1]);
     if arg == "-mult" :
-        mult = sys.argv[iarg+1];        
-        mult = int(mult)
+        mult = int(sys.argv[iarg+1]);
 #finished argument parsing
 
+runList=[]
 dashIndex = runs.find("-")
 if dashIndex > 0 :
     runs = runs.split("-")
@@ -48,36 +53,22 @@ if dashIndex > 0 :
 if dashIndex < 0 and len(runs) > 1 :
     runList = [runs]
 
-outname = "anaOut_minnumhits"
-outname+= str(minNumHits)
-outname += ".root"
-print outname
-outfile = ROOT.TFile(outname, "recreate")
+
+
 
 ROOT.gROOT.ProcessLine(".x rootlogon.C") 
 ROOT.gROOT.ProcessLine('gSystem->Load("libPhysics")')
 ROOT.gROOT.ProcessLine('gStyle->SetPalette(1)')
+ROOT.gROOT.ProcessLine('gROOT->SetStyle("Plain")')
 
 files = glob.glob(dir + "/*.reco.root")
 files.sort()
 
-#print files
+print files
 print "minnumhits =  %i" %minNumHits
 print "multiplicity =  %i" %mult
+print "numEntries =  %i" %numEntries
 
-
-recoMom0 = ROOT.TH1D("recoMom0", "Rec. Momenta RK", 500,0,10)
-recoMom1 = ROOT.TH1D("recoMom1", "Rec. Momenta Geane", 500,0,10)
-
-recoEff = ROOT.TH1D("recoEff", "unique rec. Tracks with > minNumHits", mult+1, 0,mult+1) 
-splitting = ROOT.TH1D("splitting", "split Tracks with > minNumHits", 8*mult+1, 0,8*mult+1) 
-trkPurity = ROOT.TH1D("trkPurity", "Track Purity of Tracks with > minNumHits", 51, 0,1.02) 
-trkCompleteness = ROOT.TH1D("trkCompleteness", "Track Completeness of Tracks with > minNumHits", 51, 0,1.02) 
-
-effVsTheta = ROOT.TH2D("effVsTheta", "Reco Efficiency vs theta", 37,0,185, 101,0,1.01) 
-splitVsTheta = ROOT.TH2D("splitVsTheta", "Track Splitting vs theta", 37,0,185, 101,0,1.01) 
-purityVsTheta = ROOT.TH2D("purityVsTheta", "Track Purity vs theta", 37,0,185, 101,0,1.01) 
-complVsTheta = ROOT.TH2D("complVsTheta", "Track Completeness vs theta", 37,0,185, 101,0,1.01) 
 
 
 #  ---------------------------------------- ANA LOOP --------------------------------------
@@ -140,7 +131,7 @@ for file in files :
     print "Parsing filename: "    
     pdg = int(file[file.find("PDG")+3:file.find("_mom")])
     mom = float(file[file.find("_mom")+4:file.find("_deg")])
-    theta = float(file[file.find("_deg")+4:file.find(".reco")])
+    theta = float(file[file.find("_deg")+4:file.find("_mult")])
     
     print "pdg = %i" %pdg
     print "multiplicity = %i" %mult
@@ -163,6 +154,34 @@ for file in files :
     #tree.SetBranchStatus("TrackFitStat_1.*", 1)
     tree.SetBranchStatus("RiemannTrack.*", 1)
     tree.SetBranchStatus("PndTpcCluster.*", 1)
+    
+    
+    recoMom0 = ROOT.TH1D("recoMom0", "Rec. Momenta RK", 500,0,10)
+    recoMom1 = ROOT.TH1D("recoMom1", "Rec. Momenta Geane", 500,0,10)
+
+    recoEff = ROOT.TH1D("recoEff", "unique rec. Tracks with > minNumHits", mult+1, 0,mult+1) 
+    splitting = ROOT.TH1D("splitting", "split Tracks with > minNumHits", 8*mult+1, 0,8*mult+1) 
+    trkPurity = ROOT.TH1D("trkPurity", "Track Purity of Tracks with > minNumHits", 101,0,1.01) 
+    trkCompleteness = ROOT.TH1D("trkCompleteness", "Track Completeness of Tracks with > minNumHits", 101,0,1.01) 
+
+    effVsTheta = ROOT.TH2D("effVsTheta", "Reco Efficiency vs theta", 37,0,185, 101,0,1.01) 
+    splitVsTheta = ROOT.TH2D("splitVsTheta", "Track Splitting vs theta", 37,0,185, 101,0,1.01) 
+    purityVsTheta = ROOT.TH2D("purityVsTheta", "Track Purity vs theta", 37,0,185, 101,0,1.01) 
+    complVsTheta = ROOT.TH2D("complVsTheta", "Track Completeness vs theta", 37,0,185, 101,0,1.01) 
+
+    effVsThetaA = ROOT.TH2D("effVsThetaA", "Reco Efficiency vs theta", 37,0,185, mult+1, 0,mult+1) 
+    splitVsThetaA = ROOT.TH2D("splitVsThetaA", "Track Splitting vs theta", 37,0,185, 8*mult+1, 0,8*mult+1) 
+    purityVsThetaA = ROOT.TH2D("purityVsThetaA", "Track Purity vs theta", 37,0,185, 101,0,1.01) 
+    complVsThetaA = ROOT.TH2D("complVsThetaA", "Track Completeness vs theta", 37,0,185, 101,0,1.01)     
+    
+    outname = outdir
+    outname += file[file.rfind("/"):file.find(".reco")]
+    #outname+= str(mult)
+    outname += "_minnumhits"
+    outname+= str(minNumHits)
+    outname += ".ana.root"
+    print outname
+    outfile = ROOT.TFile(outname, "recreate")
 
     
     counter = 0
@@ -228,10 +247,15 @@ for file in files :
             if numHits >= minNumHits :
                 nTrks += 1
                 nGlobTrks += 1
-                trkPurity.Fill(rtrk.mcid().MaxRelWeight())
-                meanPurity += rtrk.mcid().MaxRelWeight()
-                trkCompleteness.Fill(numHits/float(nClusterPerID[DominantID]))
-                meanCompl += numHits/float(nClusterPerID[DominantID])
+                purity = rtrk.mcid().MaxRelWeight()
+                trkPurity.Fill(purity)
+                purityVsThetaA.Fill(theta, purity) 
+                meanPurity += purity
+                
+                compleetness = numHits/float(nClusterPerID[DominantID])
+                trkCompleteness.Fill(compleetness)
+                complVsThetaA.Fill(theta, compleetness) 
+                meanCompl += compleetness
                 
                 DominantIDs.append(DominantID)
                 
@@ -245,9 +269,11 @@ for file in files :
                 
             
         recoEff.Fill(nRecoTrks/float(mult))
+        effVsThetaA.Fill(theta, nRecoTrks/float(mult))
         meanEff += nRecoTrks/float(mult)
         
         splitting.Fill(nSplitTrks)
+        splitVsThetaA.Fill(theta, nSplitTrks)  
         meanSplit += nSplitTrks
         
         
@@ -261,6 +287,9 @@ for file in files :
             
             
         counter+=1   
+        
+        if counter > numEntries :
+            break
 
     print counter
     
@@ -277,42 +306,65 @@ for file in files :
     meanPurity /= float(nGlobTrks)
     purityVsTheta.Fill(theta, meanPurity) 
 
+    outfile.cd()
+
+    c1 = ROOT.TCanvas()
+    #title =  "pdg = %i, multiplicity = %i, momentum = %f, theta = %f" %pdg %mult %mom %theta
+    c1.SetTitle(dir)
+    c1.Divide(5,3)
+
+    c1.cd(1)
+    recoEff.Draw()
+    recoEff.Write()
+    c1.cd(2)
+    splitting.Draw()
+    splitting.Write()
+    c1.cd(3)
+    trkPurity.Draw()
+    trkPurity.Write()
+    c1.cd(4)
+    trkCompleteness.Draw()
+    trkCompleteness.Write()
+    c1.cd(5)
+    recoMom0.Draw()
+    recoMom0.Write()
+    c1.cd(6)
+    effVsTheta.Draw("colz")
+    effVsTheta.Write()
+    c1.cd(7)
+    splitVsTheta.Draw("colz")
+    splitVsTheta.Write()
+    c1.cd(8)
+    purityVsTheta.Draw("colz")
+    purityVsTheta.Write()
+    c1.cd(9)
+    complVsTheta.Draw("colz")
+    complVsTheta.Write()
+    c1.cd(10)
+    recoMom1.Draw()
+    recoMom1.Write()
+    c1.cd(11)
+    effVsThetaA.Draw("colz")
+    effVsThetaA.Write()
+    c1.cd(12)
+    splitVsThetaA.Draw("colz")
+    splitVsThetaA.Write()
+    c1.cd(13)
+    purityVsThetaA.Draw("colz")
+    purityVsThetaA.Write()
+    c1.cd(14)
+    complVsThetaA.Draw("colz")
+    complVsThetaA.Write()    
+
+    input()
+
+    c1.Write()
+    outfile.Close()
     
 #  ------------------------------- END OF ANA LOOP ---------------------------------------           
 
     
-outfile.cd()
 
-c1 = ROOT.TCanvas()
-#title =  "pdg = %i, multiplicity = %i, momentum = %f, theta = %f" %pdg %mult %mom %theta
-c1.SetTitle(dir)
-c1.Divide(5,2)
-
-c1.cd(1)
-recoEff.Draw()
-c1.cd(2)
-splitting.Draw()
-c1.cd(3)
-trkPurity.Draw()
-c1.cd(4)
-trkCompleteness.Draw()
-c1.cd(5)
-recoMom0.Draw()
-c1.cd(6)
-effVsTheta.Draw("colz")
-c1.cd(7)
-splitVsTheta.Draw("colz")
-c1.cd(8)
-purityVsTheta.Draw("colz")
-c1.cd(9)
-complVsTheta.Draw("colz")
-c1.cd(10)
-recoMom1.Draw()
-
-c1.Write()
-outfile.Close()
-
-input()
 
 
 
