@@ -1096,6 +1096,10 @@ if(istampa>=3  && IVOLTE<20){  cout<<"\thit n. "<<ListHitMvdTrackCand[i][k]
 //	of the track candidates, and for the Mvd hits (FI0 and Fi_low_limit ).
 
  for(  ncand= 0; ncand< nSttTrackCand; ncand++){
+
+
+
+
 	keepit[ncand]=true;
 	PndSttFindingParallelTrackAngularRange(
 		Ox[ncand],
@@ -1117,6 +1121,11 @@ if(istampa>=3  && IVOLTE<20){  cout<<"\thit n. "<<ListHitMvdTrackCand[i][k]
 
 	if( statusflag[ncand] == -1) { Fi_low_limit[ncand] = -99999.; }
 	else if (statusflag[ncand] == -2){ keepit[ncand] = false; };
+
+
+
+
+
 
  }	// end of for(  ncand= 0; ncand< nSttTrackCand; ncand++)
 
@@ -1145,10 +1154,12 @@ if(istampa>=3  && IVOLTE<20){  cout<<"\thit n. "<<ListHitMvdTrackCand[i][k]
 			);
 
 
-if(istampa>2&& IVOLTE<20){
+//if(istampa>2&& IVOLTE<20){
+if(IVOLTE==6){
            cout<<"da PndSttMvdTracking ;  n. SttTrackCand totali = "<<nSttTrackCand
 	       <<"--------------------------------------\n";
-      for(  i= 0; i< nSttTrackCand; i++){
+//      for(  i= 0; i< nSttTrackCand; i++){
+      for(  i= 4; i< 5; i++){
       	if(!keepit[i]) continue;
 	   cout<<"da PndSttMvdTracking --------------------------------------\n"<<
 	   "	SttTrackCand n.  "<<i<<";  n. Hits in Pixels associati = "
@@ -1419,6 +1430,10 @@ for(int iiii=0;iiii<nMvdStripHitsinTrack[ncand];iiii++)
 	// region completely.
 	if( statusflag[ncand] == -1 ) Fi_low_limit[ncand] = -99999.;
 	if( statusflag[ncand] == -2) keepit[ncand] = false;
+
+
+
+
 
 
 	}	// end of for(ncand=0; ncand< nTotalCandidates; ncand++)
@@ -1708,9 +1723,9 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 			nSttSkewHitsinTrack[ncand]<5 ? j += nSttSkewHitsinTrack[ncand] :   j += 5; 
 		} else if (j==2){
 			// trick when 2 Mvd hit are very discordant
-			double dot = ZED[0]*ZED[1] + (s[0]-FI0[0])*(s[1]-FI0[0]);
-			double modulo0 = ZED[0]*ZED[0] + (s[0]-FI0[0])*(s[0]-FI0[0]);
-			double modulo1 = ZED[1]*ZED[1] + (s[1]-FI0[0])*(s[1]-FI0[0]);
+			double dot = ZED[0]*ZED[1] + (S[0]-FI0[ncand])*(S[1]-FI0[ncand]);
+			double modulo0 = ZED[0]*ZED[0] + (S[0]-FI0[ncand])*(S[0]-FI0[ncand]);
+			double modulo1 = ZED[1]*ZED[1] + (S[1]-FI0[ncand])*(S[1]-FI0[ncand]);
 			if( modulo0 > 1.e-20 && modulo1 > 1.e-20 ){
 				dot /= (sqrt(modulo1*modulo0));
 				if(dot < 0.866 ) {
@@ -1756,6 +1771,8 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 
 
 
+
+
 //-------------------------------------------
 
 //	use the risult just obtained from the fit in SZ to reject the spurious Skew Straw hits
@@ -1764,7 +1781,20 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 //	circle in the XY plane)
 
 
-	EliminateSpuriousSZ(
+
+
+
+
+
+
+
+
+
+
+
+
+
+	if(keepit[ncand]) EliminateSpuriousSZ(
 				&nMvdPixelHitsinTrack[ncand],	// input and output
 				&ListMvdPixelHitsinTrack[ncand][0],// input and output
 				&nMvdStripHitsinTrack[ncand],	// input and output
@@ -2948,6 +2978,7 @@ if( istampa>=3){
 //-------  load the new PndTrackCand ; each track has the STT and the Mvd hits associated
 //-------  also load the new PndTrack ; each track has the STT and the Mvd hits associated
 	Double_t Oxx, Oyy;
+//	Int_t iflaggo;
 	for(ncand=0, ipinco = 0; ncand< nTotalCandidates; ncand++){
 		if(!keepit[ncand]) continue;
 		// case in which there was no Skew hits and no KAPPA info and that
@@ -2971,8 +3002,9 @@ if( istampa>=3){
 
 		if(fabs(KAPPA[ncand])>1.e-20  ){
 			Pzini = -CHARGE[ncand]*0.003*BFIELD/KAPPA[ncand];
+			if(fabs(Pzini) < PMAX)  continue;
 		} else {
-			Pzini = 999999.;
+			continue;
 		}
 		// PndTrackCand Array loading
 		new((*fSttMvdPndTrackCandArray)[ipinco])  PndTrackCand;
@@ -3023,7 +3055,7 @@ if( istampa>=3){
 			ErrPosition.SetY(sigmaXMvdStrip[ ListTrackCandHit[ncand][0] ]/sqrt(12.));
 			ErrPosition.SetZ(sigmaXMvdStrip[ ListTrackCandHit[ncand][0] ]/sqrt(12.));
 		} else if( ListTrackCandHitType[ncand][0] == 2 ){  // it is a parallel straw hit
-			PndSttInfoXYZParal (
+			PndSttInfoXYZParal(
 				info,
 				ListTrackCandHit[ncand][0],
 				Ox[ncand],
@@ -3034,11 +3066,18 @@ if( istampa>=3){
 				CHARGE[ncand],
 				Posiz1
 				);
+
+			// cases in which the calculation of the position failed, see
+			// PndSttInfoXYZParal  method.
+			if(Posiz1[2]<-888888887. || Posiz1[0] < -999999998.)
+				continue;
+
 			ErrPosition.SetX(0.02);	// 200 microns
 			ErrPosition.SetY(0.02);	// 200 microns
 			ErrPosition.SetZ(1.);		// 1 cm
 
-		} else if ( ListTrackCandHitType[ncand][0] == 3 ){  // it is a skew straw hit
+
+	} else if ( ListTrackCandHitType[ncand][0] == 3 ){  // it is a skew straw hit
 
 			Posiz1[0] = Ox[ncand]+R[ncand]*cos(SchosenSkew[ncand][ ListTrackCandHit[ncand][0] ]);
 			Posiz1[1] = Oy[ncand]+R[ncand]*sin(SchosenSkew[ncand][ ListTrackCandHit[ncand][0] ]);
@@ -3120,6 +3159,9 @@ if(istampa>=3){ cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
 				CHARGE[ncand],
 				Posiz1
 				);
+			if(Posiz1[2]<-888888887. || Posiz1[0] < -999999998.)
+				continue;
+
 			ErrPosition.SetX(0.02);	// 200 microns
 			ErrPosition.SetY(0.02);	// 200 microns
 			ErrPosition.SetZ(1.);		// 1 cm
@@ -3181,6 +3223,7 @@ if(istampa>=3){ cout<<" evento = "<<IVOLTE<<", track cand n. "<<ncand<<endl<<
 		PndTrack *pTrck = new((*fSttMvdPndTrackArray)[ipinco]) PndTrack(first,last,*pTrckCand);
 //		PndTrack *pTrck = (PndTrack*) fSttMvdPndTrackArray->At(ipinco);
 		pTrck->SetRefIndex(ipinco);
+		pTrck->SetFlag(0);
 
 		ipinco++;
 	}	// end of     for(ncand=0, ipinco = 0; ncand< nTotalCandidates; ncand++)
@@ -3376,6 +3419,7 @@ for(l =0;l<nMvdPixelHitsinTrack[it]+nMvdStripHitsinTrack[it]
       	nMvdStripHitsinTrack[i]>0 &&  doMcComparison){
              WriteMacroSkewAssociatedHitswithMC(
                    KAPPA[i],FI0[i], Ox[i], Oy[i], R[i],
+		   CHARGE[i],
                    info,
 		   WDX,WDY,WDZ,
                    i,
@@ -4526,6 +4570,7 @@ fprintf(MACRO,
                    Double_t Ox,
                    Double_t Oy,
                    Double_t R,
+		   Short_t charge,
                    Double_t info[][7],
 
                    Double_t WDX[nmaxSttHits],
@@ -4574,7 +4619,7 @@ fprintf(MACRO,
            dx, dy, diff, d1, d2,
            delta, deltax, deltay, deltaz, deltaS,
            esse,factor,
-           zmin, zmax, Smin, Smax, S1, S2,
+           zmin, zmax, zmin2, zmax2, Smin, Smax, S1, S2,
            z1, z2, y1, y2,
            vx1, vy1, vz1, C0x1, C0y1, C0z1,
            aaa, bbb, ccc, angle, minor, major,
@@ -5164,6 +5209,28 @@ ponco: ;
 
 //  plot della traccia trovata dal finder
 
+
+	zmin2=zmin;
+	zmax2=zmax;
+
+	if( -KAPPA*charge>0.) {	// Pz>0.
+		if( zmax <0.) {
+			cout<<"da WriteMacroSkewAssociatedHitswithMC, questa traccia"
+			<<" e' inconsistente col proprio Pz, non plottata!\n";
+			goto dopp ;
+		}
+		zmin = 0.;
+	} else {  // Pz<0.
+		if( zmin >0.) {
+			cout<<"da WriteMacroSkewAssociatedHitswithMC, questa traccia"
+			<<" e' inconsistente col proprio Pz, non plottata!\n";
+			goto dopp ;
+		}
+		zmax = 0.;
+
+	}
+
+
   if ( KAPPA >= 0.) {
      fmin = KAPPA*zmin + FI0;
      fmax = KAPPA*zmax + FI0;
@@ -5197,6 +5264,10 @@ ponco: ;
   }   //  end of  for(i=Nmin; i<= Nmax;++)
 
 dopp: ;
+
+	zmin=zmin2;
+	zmax=zmax2;
+
 
 //----------------- ora la traccia MC corrispondente a questa traccia Stt
 
@@ -10180,7 +10251,6 @@ int nevento=1;
 	for(j=0;j<*nSkewHitsinTrack;j++){
 		i=j+(*nPixelHitsinTrack)+
 		    (*nStripHitsinTrack);
-
 		if( ZED[i][0]<999990. && ZED[i][1]<999990.){
 
 			Dista[0] = Dist_SZ(R,KAPPA,FI0,ZED[i][0]+DriftRadius[i][0],S[i][0],&Nround[0]);
@@ -10284,7 +10354,6 @@ int nevento=1;
 		} else {
 			continue;
 		}
-
 
 
 
@@ -10450,7 +10519,7 @@ int nevento=1;
 //---------- begin of function PndSttMvdTracking::PndSttInfoXYZParal
 
 
-    void PndSttMvdTracking::PndSttInfoXYZParal (
+    void PndSttMvdTracking::PndSttInfoXYZParal(
                              Double_t info[][7],
                              UShort_t infopar,
                              Double_t Ox,
