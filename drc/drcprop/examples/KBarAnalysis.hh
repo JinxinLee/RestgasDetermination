@@ -23,7 +23,8 @@ using namespace std;
 #include "TPaveText.h"
 #include "TRandom3.h"
 
-// const Int_t kMaxPosSize = 14; // 1 start + 3 volume transition (+ tiny shifts) + detector + 1 exceed + 5 reflections (limit)
+// const Int_t kMaxPosSize = 105; // 5 reflections (limit) + 100 backup (see prototype.cc)
+const Int_t size_reflType = 6; // all, direct, left, right, up, down
 
 class KBarAnalysis : public TSelector {
 public :
@@ -34,30 +35,26 @@ public :
    Double_t        kBarX;
    Double_t        kBarY;
    Double_t        kBarZ;
-   Double_t        hitPosX;
-   Double_t        hitPosY;
+   Double_t        hitPosDetX;
+   Double_t        hitPosDetY;
+   Double_t        hitPosDetZ;
    Double_t        hitPosZ;
-   Double_t        hitDirX;
-   Double_t        hitDirY;
-   Double_t        hitDirZ;
    Bool_t          measured;
-   Double_t        posX[14];
-   Double_t        posY[14];
-   Double_t        posZ[14];
+   Double_t        posX[105];
+   Double_t        posY[105];
+   Double_t        posZ[105];
    Int_t           index_pos;
 
    // List of branches
    TBranch        *b_wavelength;   //!
    TBranch        *b_kBarX;   //!
-   //TBranch        *b_kBarY;   //!
-   TBranch        *b_time;   //!
+   TBranch        *b_kBarY;   //!
+   //TBranch        *b_time;   //!
    TBranch        *b_kBarZ;   //!
-   TBranch        *b_hitPosX;   //!
-   TBranch        *b_hitPosY;   //!
+   TBranch        *b_hitPosDetX;   //!
+   TBranch        *b_hitPosDetY;   //!
+   TBranch        *b_hitPosDetZ;   //!
    TBranch        *b_hitPosZ;   //!
-   TBranch        *b_hitDirX;   //!
-   TBranch        *b_hitDirY;   //!
-   TBranch        *b_hitDirZ;   //!
    TBranch        *b_measured;   //!
    TBranch        *b_posX;   //!
    TBranch        *b_posY;   //!
@@ -65,7 +62,8 @@ public :
    TBranch        *b_index_pos;   //!
 
 
-   KBarAnalysis(TTree * /*tree*/ =0);
+//    KBarAnalysis(TTree * /*tree*/ =0);
+   KBarAnalysis( Int_t n_mcp = 1 );
    virtual ~KBarAnalysis() { }
    virtual Int_t   Version() const { return 2; }
    virtual void    Begin(TTree *tree);
@@ -91,36 +89,45 @@ public :
    Bool_t _mcpMode;
    Bool_t _effiMode;
 
-   Double_t _effi[70];
+   Double_t _effi[501]; // index is the wavelength in nm + 200 (min_wave)
 
    TRandom3 _rand;
 
-   TString _gap_str;
-
    Int_t _n_mcp;
 
-   Double_t _mcp_dim;
-   Double_t _mcp_active;
+   Int_t _pixeltot;
 
-   Double_t _minX_dim[4];
-   Double_t _minY_dim[4];
-   Double_t _maxX_dim[4];
-   Double_t _maxY_dim[4];
+   TString _gap_str;
 
-   Double_t _minX_active[4];
-   Double_t _minY_active[4];
-   Double_t _maxX_active[4];
-   Double_t _maxY_active[4];
+   vector<Double_t> _mcp_dim;
+   vector<Double_t> _mcp_active;
 
-   Double_t _px_kBarX[6];
-   Double_t _px_kBarY[6];
-   Double_t _px_kBarZ[6];
+   vector<Double_t> _minX_dim;
+   vector<Double_t> _minY_dim;
+   vector<Double_t> _maxX_dim;
+   vector<Double_t> _maxY_dim;
 
-   Double_t _px_kBarXerr[6];
-   Double_t _px_kBarYerr[6];
-   Double_t _px_kBarZerr[6];
+   vector<Double_t> _minX_active;
+   vector<Double_t> _minY_active;
+   vector<Double_t> _maxX_active;
+   vector<Double_t> _maxY_active;
 
-   Int_t _px_freq[6];
+   vector<Int_t> _x_bins;
+   vector<Int_t> _y_bins;
+
+   Double_t _px_kBarX[size_reflType];
+   Double_t _px_kBarY[size_reflType];
+   Double_t _px_kBarZ[size_reflType];
+
+   Double_t _px_kBarXerr[size_reflType];
+   Double_t _px_kBarYerr[size_reflType];
+   Double_t _px_kBarZerr[size_reflType];
+
+   Int_t _px_freq[size_reflType];
+
+   Int_t _px_mcp;
+   Int_t _px_col;
+   Int_t _px_row;
 
    Double_t _fishtank_width;
    Double_t _fishtank_height;
@@ -131,45 +138,44 @@ public :
    TString _outDirectory;
    TString _outFileCore;
 
-   Int_t _x_bins;
-   Int_t _y_bins;
+   vector< vector< vector< vector<TH1F*> > > > _pixelX;
+   vector< vector< vector< vector<TH1F*> > > > _pixelY;
+   vector< vector< vector< vector<TH1F*> > > > _pixelZ;
 
-   vector< vector< vector<TH1F> > > _pixelX;
-   vector< vector< vector<TH1F> > > _pixelY;
-   vector< vector< vector<TH1F> > > _pixelZ;
+   vector< vector< vector< vector<TString*> > > > _pixelX_str;
+   vector< vector< vector< vector<TString*> > > > _pixelY_str;
+   vector< vector< vector< vector<TString*> > > > _pixelZ_str;
 
-   vector< vector< vector<TString> > > _pixelX_str;
-   vector< vector< vector<TString> > > _pixelY_str;
-   vector< vector< vector<TString> > > _pixelZ_str;
+   vector< vector< vector< vector<Double_t> > > > _kBarXsum;
+   vector< vector< vector< vector<Double_t> > > > _kBarYsum;
+   vector< vector< vector< vector<Double_t> > > > _kBarZsum;
 
-   vector< vector< vector<Double_t> > > _kBarXsum;
-   vector< vector< vector<Double_t> > > _kBarYsum;
-   vector< vector< vector<Double_t> > > _kBarZsum;
-
-   vector< vector< vector<Int_t> > > _freq;
+   vector< vector< vector< vector<Int_t> > > > _freq;
 
    TH2F *_screen;
 
-   TLine _line_mcpCase[4][4]; // MCP position case
-   TLine _line_mcpArea[4][4]; // MCP position avtive area
+   Int_t _n_lines;
 
-   TPaveText *_mcpLabel[4]; // need it as pointer due to AddText()
+   vector< vector<TLine*> > _line_mcpCase;
+   vector< vector<TLine*> > _line_mcpArea;
 
-   vector< vector<TH2F> > _kBarX;
-   vector< vector<TH2F> > _kBarY;
-   vector< vector<TH2F> > _kBarZ;
+   vector<TPaveText*> _mcpLabel; // need it as pointer due to AddText()
 
-   vector< vector<TString> > _kBarX_str;
-   vector< vector<TString> > _kBarY_str;
-   vector< vector<TString> > _kBarZ_str;
+   vector< vector<TH2F*> > _kBarX;
+   vector< vector<TH2F*> > _kBarY;
+   vector< vector<TH2F*> > _kBarZ;
 
-   vector< vector<TH2F> > _kBarX_screen;
-   vector< vector<TH2F> > _kBarY_screen;
-   vector< vector<TH2F> > _kBarZ_screen;
+   vector< vector<TString*> > _kBarX_str;
+   vector< vector<TString*> > _kBarY_str;
+   vector< vector<TString*> > _kBarZ_str;
 
-   vector< vector<TString> > _kBarX_screen_str;
-   vector< vector<TString> > _kBarY_screen_str;
-   vector< vector<TString> > _kBarZ_screen_str;
+   vector< vector<TH2F*> > _kBarX_screen;
+   vector< vector<TH2F*> > _kBarY_screen;
+   vector< vector<TH2F*> > _kBarZ_screen;
+
+   vector< vector<TString*> > _kBarX_screen_str;
+   vector< vector<TString*> > _kBarY_screen_str;
+   vector< vector<TString*> > _kBarZ_screen_str;
 
 
    enum reflType
@@ -183,7 +189,17 @@ public :
        size   = 6
    };
 
-   TString type_str[6];
+   TString _type_str[size_reflType];
+
+
+   enum magicNumber
+   {
+     min_wave = 200,  // _effi index + min_wave = wavelength
+     unknown  = -666, // for initializing
+     nokbar   = 666,  // for the combination nokbar/nofreq = unknown
+     nofreq   = -1,
+     n_lines  = 4     // lines to dra a square
+   };
 
 
    ClassDef(KBarAnalysis,0);
@@ -212,16 +228,14 @@ void KBarAnalysis::Init(TTree *tree)
 //    fChain->SetBranchAddress("time", &kBarY, &b_time); // kBarY is now time
    fChain->SetBranchAddress("kBarY", &kBarY, &b_kBarY);
    fChain->SetBranchAddress("kBarZ", &kBarZ, &b_kBarZ);
-   fChain->SetBranchAddress("hitPosX", &hitPosX, &b_hitPosX);
-   fChain->SetBranchAddress("hitPosY", &hitPosY, &b_hitPosY);
+   fChain->SetBranchAddress("hitPosDetX", &hitPosDetX, &b_hitPosDetX);
+   fChain->SetBranchAddress("hitPosDetY", &hitPosDetY, &b_hitPosDetY);
+   fChain->SetBranchAddress("hitPosDetZ", &hitPosDetZ, &b_hitPosDetZ);
    fChain->SetBranchAddress("hitPosZ", &hitPosZ, &b_hitPosZ);
-   fChain->SetBranchAddress("hitDirX", &hitDirX, &b_hitDirX);
-   fChain->SetBranchAddress("hitDirY", &hitDirY, &b_hitDirY);
-   fChain->SetBranchAddress("hitDirZ", &hitDirZ, &b_hitDirY);
    fChain->SetBranchAddress("measured", &measured, &b_measured);
-   fChain->SetBranchAddress("posX[14]", posX, &b_posX);
-   fChain->SetBranchAddress("posY[14]", posY, &b_posY);
-   fChain->SetBranchAddress("posZ[14]", posZ, &b_posZ);
+   fChain->SetBranchAddress("posX[105]", posX, &b_posX);
+   fChain->SetBranchAddress("posY[105]", posY, &b_posY);
+   fChain->SetBranchAddress("posZ[105]", posZ, &b_posZ);
    fChain->SetBranchAddress("index_pos", &index_pos, &b_index_pos);
 }
 

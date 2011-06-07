@@ -51,16 +51,16 @@ void mcpPos( TString inFilename = "", Double_t minX_dim = 0, Double_t minY_dim =
 
 
     // set some global options
-	gStyle->SetCanvasColor( 0 );        // white
-	gStyle->SetCanvasBorderMode( 0 );   // no yellow frame
-	gStyle->SetFrameFillColor( 0 );
-	gStyle->SetFrameBorderMode( 0 );    // no red frame
-	gStyle->SetHistFillColor( 0 );
-	gStyle->SetPadColor( 0 );
-	gStyle->SetTitleFillColor( 0 );     // white; not saved in the root file
-	gStyle->SetTitleFontSize( 0.05 );
-	gStyle->SetPalette( 1 );            // better color palette
-	gStyle->SetStatColor( 0 );          // stat. box color
+// 	gStyle->SetCanvasColor( 0 );        // white
+// 	gStyle->SetCanvasBorderMode( 0 );   // no yellow frame
+// 	gStyle->SetFrameFillColor( 0 );
+// 	gStyle->SetFrameBorderMode( 0 );    // no red frame
+// 	gStyle->SetHistFillColor( 0 );
+// 	gStyle->SetPadColor( 0 );
+// 	gStyle->SetTitleFillColor( 0 );     // white; not saved in the root file
+// 	gStyle->SetTitleFontSize( 0.05 );
+// 	gStyle->SetPalette( 1 );            // better color palette
+// 	gStyle->SetStatColor( 1 );          // stat. box color
 
 	TCanvas *canvas = new TCanvas( "canvas", "" ,200, 10, 1250, 500 );
 	canvas->Draw();
@@ -113,7 +113,7 @@ void mcpPos( TString inFilename = "", Double_t minX_dim = 0, Double_t minY_dim =
 
     // mcp plot
 	TH2F *mcp = new TH2F( "mcp", "MCP", 8, minX_active, maxX_active, 8, minY_active, maxY_active );
-	mcp->SetStats(0);
+	mcp->SetStats(1);
 	mcp->GetXaxis()->SetTitle( "x [mm]" );
 	mcp->GetXaxis()->CenterTitle();
 	mcp->GetYaxis()->SetTitle( "y [mm]" );

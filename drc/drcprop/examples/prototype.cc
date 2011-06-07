@@ -92,9 +92,9 @@ int main(int argc, char *argv[])
 
 
 
-  //==============================================================================
-  // Simulation options
-  //==============================================================================
+//==============================================================================
+// Simulation options
+//==============================================================================
 
   // main options
   bool opt_default         = true;  // default simulation
@@ -115,13 +115,13 @@ int main(int argc, char *argv[])
 
 
   // sub options
-  bool opt_fishtankBlack_bottom = false; // absorbed fishtank side
-  bool opt_fishtankBlack_sides  = false; //
-  bool opt_fishtankBlack_top    = false; //
+  bool opt_fishtankBlack_bottom = true; // absorbed fishtank side
+  bool opt_fishtankBlack_sides  = true; //
+  bool opt_fishtankBlack_top    = true; //
   bool opt_frontLens            = true; // forward lens
   bool opt_prism                = false; // prism (forward)
   bool opt_backLens             = false; // backward lens
-  bool opt_mirror               = false; // mirror (backward)
+  bool opt_mirror               = true; // mirror (backward)
   bool opt_noFresnel_backLens   = false; // disable Fresnel reflections
   bool opt_noFresnel_slab       = false; //
   bool opt_noFresnel_frontLens  = false; //
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
   if( opt_backLens && !opt_mirror )
   {
     opt_mirror = true;
-    cout << "*** WARN: Lens in backward direction w/o mirrored end is useless " << endl;
+    cout << "*** WARNING: Lens in backward direction w/o mirrored end is useless " << endl;
   }
 
   cout << "  sub:  ";
@@ -204,13 +204,13 @@ int main(int argc, char *argv[])
 
 
 
-  //==============================================================================
-  // Changable parameters & constants
-  //==============================================================================
-  //
-  // dimensions in mm
-  // angle in degree
-  //
+//==============================================================================
+// Changable parameters & constants
+//==============================================================================
+//
+// dimensions in mm
+// angle in degree
+//
 
   // math constants
   const double pi = Pi();
@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
   // material
   PndDrcOptMatLithotecQ0  *quartz  = new PndDrcOptMatLithotecQ0();
   PndDrcOptMatVacuum      *vacuum  = new PndDrcOptMatVacuum();
-//   PndDrcOptMatBK7         *bk7     = new PndDrcOptMatBK7();
+  PndDrcOptMatBK7         *bk7     = new PndDrcOptMatBK7();
   PndDrcOptMatMarcol7     *marcol7 = new PndDrcOptMatMarcol7();
 
   PndDrcOptMatAbs *mat_backLens  = quartz;
@@ -233,16 +233,16 @@ int main(int argc, char *argv[])
   // dimensions
   double slab_width  = 17.; // default: 17 mm
   double slab_height = 35.; // default: 35 mm
-  double slab_length = 800.; // default: 800 mm
+  double slab_length = 1200.; // default: 800 mm
 
-  double backLens_radius    = 816.; // f = R/(n-1) (from manufacturer in general at 589 nm)
+  double backLens_radius    = 459.; // f = R/(n-1) (from manufacturer in general at 589 nm)
   double backLens_thickness = 10.;
   double backLens_diameter  = 40.; // rectangular lens base shape (NOT cylindrical)
   double backLens_conical   = 0.; // default: 0 (spherical)
 
-  double frontLens_radius    = 100.;
-  double frontLens_thickness = 5.;
-  double frontLens_diameter  = 40.;
+  double frontLens_radius    = 117.4;
+  double frontLens_thickness = 9.0;
+  double frontLens_diameter  = 50.;
   double frontLens_conical   = 0.;
 
 
@@ -263,9 +263,9 @@ int main(int argc, char *argv[])
 //                    \  |
 //                     \ |
 //                      \|
-  //
+//
 //                 |--L--|
-  //
+//
 // same for the width
 
   double prism_length      = 91.;
@@ -281,10 +281,10 @@ int main(int argc, char *argv[])
   double prism_widthDown2  = 0.; // or Sin(x*degree)*prism_length
 
 
-  double airgap = 15.; // distance between slab or prism and fishtank ; 0 means no air box
+  double airgap = 11.; // distance between slab or prism and fishtank ; 0 means no air box
 
-  double fishtank_width  = 700.;
-  double fishtank_height = 700.;
+  double fishtank_width  = 760.;
+  double fishtank_height = 760.;
   double fishtank_length = 300.;
 
   double fishtank_width_offset  = 0.; // default: 0 mm ; 0 means bar is centered
@@ -305,20 +305,20 @@ int main(int argc, char *argv[])
   double mass = mass_pi;
 
   double kinE = -666; // in GeV; T = sqrt( m^2 + p^2 ) - m; -666 means unset, then mom has to be set
-  double mom  = 1.5;  // in GeV; p = sqrt( (T + m)^2 - m^2 ); -666 means unset, then kinE has to be set
+  double mom  = 1.7;  // in GeV; p = sqrt( (T + m)^2 - m^2 ); -666 means unset, then kinE has to be set
   double beta = -666; // just for initialization; will be overwritten later
 
   double spot_radius = 20.; // default: 20 mm 1-sigma beam spot radius (gaus smeared)
   double spot_limit  = 50.; // default: 50 mm beam spot radius limit
 
-  int particle_number = 20; // default: 300
+  int particle_number = 10; // default: 300
 
   double inci_theta = 30.; // default: 30 degree
   double inci_phi   = 0.;  // default: 0 degree
 
   double hitBarX = slab_width/2.; // default: slab_width/2
   double hitBarY = 0.;            // default: 0 mm
-  double hitBarZ = -500.;         // default: -500 mm
+  double hitBarZ = -1000.;        // default: -500 mm
 
 
   // photon properties
@@ -343,6 +343,8 @@ int main(int argc, char *argv[])
 
   int seed = 4357; // default TRandom3 value
 
+  double z_offset = -0.01; // default: -0.01 mm to be sure that photon is in bar
+
 
   // single photon
   double singlePosX = 0.;
@@ -362,72 +364,76 @@ int main(int argc, char *argv[])
 
 
 
-  //==============================================================================
-  // Input parameters
-  //==============================================================================
+//==============================================================================
+// Input parameters
+//==============================================================================
 
   // command line arguments (set variable parameter to avoid permanent compiling)
   for( int i = 1; i < argc; i++)
   {
     if( i == 1 )
       outFilename = argv[1];
-//             if( i == 2 )
-//                 seed = atoi( argv[2]);
-//             if( i == 3 )
-//                 shoots = atoi( argv[3]);
-//             if( i == 3 )
-//             {
-//               opt_angleAcceptance = atoi( argv[3]);
-    //
-//               if( opt_angleAcceptance == true)
-//                 cout << "*** angleAcceptance ***" << endl;
-//             }
-    //         if( i == 4 )
-    //             lambda_min = atof( argv[4]);
-    //         if( i == 5 )
-    //             lambda_max = atof( argv[5]);
 
+//     if( i == 2 )
+//       seed = atoi( argv[2]);
+//     if( i == 3 )
+//       shoots = atoi( argv[3]);
+//     if( i == 4 )
+//       z_offset = atof( argv[4]);
+
+//     if( i == 3 )
+//     {
+//       opt_angleAcceptance = atoi( argv[3]);
+    //
+//       if( opt_angleAcceptance == true)
+//         cout << "*** angleAcceptance ***" << endl;
+//     }
+//     if( i == 4 )
+//       lambda_min = atof( argv[4]);
+//     if( i == 5 )
+//       lambda_max = atof( argv[5]);
+    //
     if( i == 2)
       inci_theta = atof( argv[2]);
-    if( i == 3)
-      inci_phi = atof( argv[3]);
+//     if( i == 3)
+//       inci_phi = atof( argv[3]);
 //     if( i == 3)
 //       fishtank_thetaX = atof( argv[3]);
-
-    //         if( i == 3 )
-    //             fishtank_thetaY = atof( argv[3]);
-    //         if( i == 4 )
-    //             fishtank_phi = atof( argv[4]);
+    //
+//     if( i == 3 )
+//       fishtank_thetaY = atof( argv[3]);
+//     if( i == 4 )
+//       fishtank_phi = atof( argv[4]);
   }
 
 
 
-  //==============================================================================
-  // Incidence angle & hit position on bar
-  //==============================================================================
+//==============================================================================
+// Incidence angle & hit position on bar
+//==============================================================================
 
-  //                    detector              alongBar option:
-  //                       ^ z
-  //                       |                       detector
-  //                       |                          ^
-  //                 x<----|                          |
-  //                   exit end                       |
-  //                   --------                       |
-  //                   |                    |                  |
-  //                   |                    |                  |
-  //                   |                    |        bar       |
-  //                   |                    |                  |
-  //                   |  bar               -------------------- front end
-  //                   |                              |\.
-  //                   |                              | \.
-  // perp. ------------|                              |  \.
-  //           \ theta/|                              |   \.
-  //            \    / |                              |    \.
-  //             \  /  |                              |     \.
-  //              \/   |                              | theta\.
-  //              /    |                              |       \.
-  //       particle    |  test.root                            |      particle
-  //       trajectory  |                             perp.   trajectory
+//                    detector              alongBar option:
+//                       ^ z
+//                       |                       detector
+//                       |                          ^
+//                 x<----|                          |
+//                   exit end                       |
+//                   --------                       |
+//                   |                    |                  |
+//                   |                    |                  |
+//                   |                    |        bar       |
+//                   |                    |                  |
+//                   |  bar               -------------------- front end
+//                   |                              |\.
+//                   |                              | \.
+// perp. ------------|                              |  \.
+//           \ theta/|                              |   \.
+//            \    / |                              |    \.
+//             \  /  |                              |     \.
+//              \/   |                              | theta\.
+//              /    |                              |       \.
+//       particle    |  test.root                            |      particle
+//       trajectory  |                             perp.   trajectory
 
 
   double parDirX, parDirY, parDirZ;
@@ -462,31 +468,31 @@ int main(int argc, char *argv[])
   parDirZ = parDir.Z();
 
 
-  // hit position on bar (is independent of the incidence angle)
+// hit position on bar (is independent of the incidence angle)
 
-  //              Y     exit
-  //              ^    z
-  //              |   ^
-  //              |  /
-  //              | /
-  //              |/
-  //   x <--------x
+//              Y     exit
+//              ^    z
+//              |   ^
+//              |  /
+//              | /
+//              |/
+//   x <--------x
 
-  // origin x is centered at the slab exit (back end)
+// origin x is centered at the slab exit (back end)
 
-  //                    exit
-  //               s8----------s5
-  //              /|     _    /|      _ (0,0,0) origin
-  //             / |         / |
-  //            /  s7-------/--s6
-  //           /  /        /  /
-  //          /  /        /  /
-  //         /  /        /  /
-  //        /  /        /  /
-  //      s4----------s1  /
-  //      |  /        |  /
-  //      | / front   | /
-  //      s3----------s2
+//                    exit
+//               s8----------s5
+//              /|     _    /|      _ (0,0,0) origin
+//             / |         / |
+//            /  s7-------/--s6
+//           /  /        /  /
+//          /  /        /  /
+//         /  /        /  /
+//        /  /        /  /
+//      s4----------s1  /
+//      |  /        |  /
+//      | / front   | /
+//      s3----------s2
 
 
   if( opt_default || opt_angleAcceptance )
@@ -534,9 +540,9 @@ int main(int argc, char *argv[])
 
 
 
-  //==============================================================================
-  // Parameter output
-  //==============================================================================
+//==============================================================================
+// Parameter output
+//==============================================================================
   cout << "material:" << endl;
 
   string mat_backLens_str  = mat_backLens->Name();
@@ -720,7 +726,9 @@ int main(int argc, char *argv[])
       cout << "  theta:    " << cannon_theta << " deg" << endl;
       cout << "  phi:      " << cannon_phi   << " deg" << endl;
     }
-    cout <<     "  reflection limit: " << refl_limit_2 << endl;
+    cout <<   "  z offset: " << z_offset << " mm" << endl;
+    cout <<   "  reflection limit: " << refl_limit_2 << endl;
+    cout <<   "  lambda: [" << lambda_min << ", " << lambda_max << "] nm" << endl;
   }
 
   if( opt_singlePhoton )
@@ -733,30 +741,30 @@ int main(int argc, char *argv[])
 
 
 
-  //==============================================================================
-  // ROOT output file
-  //==============================================================================
+//==============================================================================
+// ROOT output file
+//==============================================================================
 
-  // ROOT file content:
-  //  photon (TTree)
-  //  particle (TTree)
-  //  info (TTree) for global parameter like e.g. lens thickness
-  //  default plots: screen, beamspot, setup geometry
-  //
-  // debug tools
-  // 1. paramater.cc to check the used paramters for a certain ROOT-file
-  // 2. parTrajectory.cc to visualize the particle trajectories
-  // 3. photTrajectory.cc to visualize the photon trajectories
-  //
-  // to analyze this root-file there:
-  // 1. kBarAnalysis.cc produces a lot of histograms to study the kBar-vectors
-  // 2. mcpPos.cc for fast plotting the effect of different MCP positions
-  // 3. mcp4Pos.cc to create a further root-file for Cherenkov angle reconstruction
+// ROOT file content:
+//  photon (TTree)
+//  particle (TTree)
+//  info (TTree) for global parameter like e.g. lens thickness
+//  default plots: screen, beamspot, setup geometry
+//
+// debug tools
+// 1. paramater.cc to check the used paramters for a certain ROOT-file
+// 2. parTrajectory.cc to visualize the particle trajectories
+// 3. photTrajectory.cc to visualize the photon trajectories
+//
+// to analyze this root-file there:
+// 1. kBarAnalysis.cc produces a lot of histograms to study the kBar-vectors
+// 2. mcpPos.cc for fast plotting the effect of different MCP positions
+// 3. mcp4Pos.cc to create a further root-file for Cherenkov angle reconstruction
 
 
 
-  // file name
-  //==============================================================================
+// file name
+//==============================================================================
   Bool_t defaultFilenameFlag = false;
   if( outFilename == defaultFilename )
     defaultFilenameFlag = true;
@@ -811,8 +819,8 @@ int main(int argc, char *argv[])
 
 
 
-  // trees
-  //==============================================================================
+// trees
+//==============================================================================
   TTree *photonTree  	= new TTree( "photon", outFilename );
   TTree *particleTree = new TTree( "particle", outFilename );
   TTree *infoTree  	  = new TTree( "info", outFilename );
@@ -820,10 +828,10 @@ int main(int argc, char *argv[])
 
   // infoTree (parameter list)
 
-  //******************************************************************************
-  // Note:
-  // Unfortunetly TTree allows only basic c-types (no strings) and no-const types
-  //******************************************************************************
+//******************************************************************************
+// Note:
+// Unfortunetly TTree allows only basic c-types (no strings) and no-const types
+//******************************************************************************
 
   const char *slab_mat_helper      = mat_slab_str.c_str(); // includes \0 (escape sequence)
   const char *backLens_mat_helper  = mat_backLens_str.c_str();
@@ -924,6 +932,7 @@ int main(int argc, char *argv[])
     gridYstep    = -666;
     cannon_theta = -666;
     cannon_phi   = -666;
+    z_offset     = -666;
   }
 
   const int pos_size = refl_limit + 100; // due to tiny shifts at volume transitions, start and detection position)
@@ -985,6 +994,7 @@ int main(int argc, char *argv[])
   infoTree->Branch( "refl_limit"            , &refl_limit            , "refl_limit/I" );
   infoTree->Branch( "particle_mass"         , &mass                  , "particle_mass/D" );
   infoTree->Branch( "particle_kinE"         , &kinE                  , "particle_kinE/D" );
+  infoTree->Branch( "particle_mom"          , &mom                   , "particle_mom/D" );
   infoTree->Branch( "particle_beta"         , &beta                  , "particle_beta/D" );
   infoTree->Branch( "particle_dirX"         , &parDirX               , "particle_dirX/D" );
   infoTree->Branch( "particle_dirY"         , &parDirY               , "particle_dirY/D" );
@@ -1002,6 +1012,7 @@ int main(int argc, char *argv[])
   infoTree->Branch( "gridYstep"             , &gridYstep             , "gridYstep/D");
   infoTree->Branch( "cannon_theta"          , &cannon_theta          , "cannon_theta/D");
   infoTree->Branch( "cannon_phi"            , &cannon_phi            , "cannon_phi/D");
+  infoTree->Branch( "z_offset"              , &z_offset              , "z_offset/D");
   infoTree->Branch( "pos_size"              , &pos_size_info         , "pos_size/I");
 
   infoTree->Fill();
@@ -1072,7 +1083,7 @@ int main(int argc, char *argv[])
   photonTree->Branch( "hitPosDetZ", &hitPosDetZ, "hitPosDetZ/D" );
   photonTree->Branch( "hitDirX"   , &hitDirX   , "hitDirX/D" );
   photonTree->Branch( "hitDirY"   , &hitDirY   , "hitDirY/D" );
-  photonTree->Branch( "hitDirZ"   , &hitDirZ   , "hitDirY/D" );
+  photonTree->Branch( "hitDirZ"   , &hitDirZ   , "hitDirZ/D" );
   if( opt_photonPosList )
   {
     photonTree->Branch( posX_str    , posX       , posX_str_2 );
@@ -1128,8 +1139,8 @@ int main(int argc, char *argv[])
   }
 
 
-  // plot declarations
-  //==============================================================================
+// plot declarations
+//==============================================================================
 
   // set some global options
 //   gStyle->SetCanvasColor( 0 );        // white
@@ -1318,55 +1329,55 @@ int main(int argc, char *argv[])
 
 
 
-  //==============================================================================
-  // Optical device declarations
-  //==============================================================================
+//==============================================================================
+// Optical device declarations
+//==============================================================================
 
-  // reflectivity
+// reflectivity
 
-  //******************************************************************************
-  // Note:
-  // Fresnel reflection is enable by default (hard-coded)
-  // currently a fresnelFlag for a certain surface is not implemented yet (only for volumes)
-  // for non-specular reflection (diffuse) change "diffuseProb" in the method "Refract" (PndDerPhoton.h)
-  //******************************************************************************
+//******************************************************************************
+// Note:
+// Fresnel reflection is enable by default (hard-coded)
+// currently a fresnelFlag for a certain surface is not implemented yet (only for volumes)
+// for non-specular reflection (diffuse) change "diffuseProb" in the method "Refract" (PndDerPhoton.h)
+//******************************************************************************
 
   PndDrcOptReflPerfect refl_perfect;  // reflected (mirror)
   PndDrcOptReflNone    refl_none;     // absorbed (black)
 
-  // coordination system for device sketches
+// coordination system for device sketches
 
-  //             top
-  //
-  //              Y     exit
-  //              ^    z
-  //              |   ^
-  //              |  /
-  //     left     | /    right
-  //              |/
-  //   x <--------x
-  //
-  //           bottom
+//             top
+//
+//              Y     exit
+//              ^    z
+//              |   ^
+//              |  /
+//     left     | /    right
+//              |/
+//   x <--------x
+//
+//           bottom
 
-  // origin x is centered at the slab end
+// origin x is centered at the slab end
 
 
-  // quartz bar (slab)
-  //==============================================================================
+// quartz bar (slab)
+//==============================================================================
 
-  //                    exit
-  //               s8----------s5
-  //              /|     _    /|      _ (0,0,0) origin
-  //             / |         / |
-  //            /  s7-------/--s6
-  //           /  /        /  /
-  //          /  /        /  /
-  //         /  /        /  /
-  //        /  /        /  /
-  //      s4----------s1  /
-  //      |  /        |  /
-  //      | / front   | /
-  //      s3----------s2
+//                    exit
+//               s8----------s5
+//              /|     _    /|      _ (0,0,0) origin
+//             / |         / |
+//            /  s7-------/--s6
+//           /  /        /  /
+//          /  /        /  /
+//         /  /        /  /
+//        /  /        /  /
+//      s4----------s1  /
+//      |  /        |  /
+//      | / front   | /
+//      s3----------s2
 
 
   XYZPoint s1(-slab_width/2, +slab_height/2, -slab_length);
@@ -1458,8 +1469,8 @@ int main(int argc, char *argv[])
 
 
 
-   // lens (forward)
-  //==============================================================================
+// lens (forward)
+//==============================================================================
   XYZPoint l0(-frontLens_diameter/2, +frontLens_diameter/2, 0);
   XYZPoint l1(-frontLens_diameter/2, -frontLens_diameter/2, 0);
   XYZPoint l2(+frontLens_diameter/2, -frontLens_diameter/2, 0);
@@ -1738,31 +1749,31 @@ int main(int argc, char *argv[])
 
 
 
-  // fishtank with oil
-  //==============================================================================
+// fishtank with oil
+//==============================================================================
 
-  //                   screen
-  //               b8----------b5
-  //              /|          /|
-  //             / |         / |
-  //            /  b7-------/--b6
-  //           /  /        /  /
-  //          /  /        /  /
-  //         /  /        /  /
-  //        /  /        /  /
-  //      b4----------b1  /
-  //      |  /        |  /
-  //      | /         | /
-  //      b3----------b2
-  //
-  //
-  // fishtank thetX:
-  //	positive angle: rotation axis b2-b3
-  //	negative angle: rotation axis b4-b1
-  //
-  // fishtank thetaY:
-  //  positive angle: rotation axis b3-b4
-  //  negative angle: rotation axis b1-b2
+//                   screen
+//               b8----------b5
+//              /|          /|
+//             / |         / |
+//            /  b7-------/--b6
+//           /  /        /  /
+//          /  /        /  /
+//         /  /        /  /
+//        /  /        /  /
+//      b4----------b1  /
+//      |  /        |  /
+//      | /         | /
+//      b3----------b2
+//
+//
+// fishtank thetX:
+//	positive angle: rotation axis b2-b3
+//	negative angle: rotation axis b4-b1
+//
+// fishtank thetaY:
+//  positive angle: rotation axis b3-b4
+//  negative angle: rotation axis b1-b2
 
 
   double fishtank_posZ_front = airgap;
@@ -1860,17 +1871,17 @@ int main(int argc, char *argv[])
 
 
 
-  // fishtank rotation
-  //==============================================================================
+// fishtank rotation
+//==============================================================================
 
-  // for example both rotation angles theta are positive:
-  // 1. translation b3
-  // 2. rotation about y-axis
-  // 3. rotation about (new) b2
-  // 4. back translation b3
-  // 5. translation (new) origin_fishtank_front
-  // 6. rotation about (new) origin_fishtank_back
-  // 7. back translation (new) origin_fishtank_front
+// for example both rotation angles theta are positive:
+// 1. translation b3
+// 2. rotation about y-axis
+// 3. rotation about (new) b2
+// 4. back translation b3
+// 5. translation (new) origin_fishtank_front
+// 6. rotation about (new) origin_fishtank_back
+// 7. back translation (new) origin_fishtank_front
 
 
   XYZPoint origin_fishtank_front(0,0, fishtank_posZ_front);
@@ -2030,21 +2041,21 @@ int main(int argc, char *argv[])
 
 
 
-  // air box
-  //==============================================================================
+// air box
+//==============================================================================
 
-  //               b4----------b1
-  //              /|          /|
-  //             / |         / |
-  //            /  b3-------/--b2
-  //           /  /        /  /
-  //          /  /        /  /
-  //         /  /        /  /
-  //        /  /        /  /
-  //      a4----------a1  /
-  //      |  /  _     |  /      _ (0,0,0) origin (w/o prism)
-  //      | /         | /
-  //      a3----------a2
+//               b4----------b1
+//              /|          /|
+//             / |         / |
+//            /  b3-------/--b2
+//           /  /        /  /
+//          /  /        /  /
+//         /  /        /  /
+//        /  /        /  /
+//      a4----------a1  /
+//      |  /  _     |  /      _ (0,0,0) origin (w/o prism)
+//      | /         | /
+//      a3----------a2
 
 
   double aZ = 0;
@@ -2150,26 +2161,26 @@ int main(int argc, char *argv[])
 
 
 
-  // air box with hole for air lens
-  //==============================================================================
+// air box with hole for air lens
+//==============================================================================
 
-  //              b4----------b1
-  //             /|          / |
-  //            / |         /  |
-  //           /  |        /   |
-  //          /   |       /    |
-  //         /    |      /     |
-  //        /     b3----/------b2
-  //       /     /     /       /
-  //      a4----------a1      /
-  //      | \        /|      /
-  //      |  \      / |     /
-  //      |   l3--l0  |    /
-  //      |   | H |   |   /       H: lens-hole
-  //      |   l2--l1  |  /
-  //      |  /      \ | /
-  //      | /        \|/
-  //      a3----------a2
+//              b4----------b1
+//             /|          / |
+//            / |         /  |
+//           /  |        /   |
+//          /   |       /    |
+//         /    |      /     |
+//        /     b3----/------b2
+//       /     /     /       /
+//      a4----------a1      /
+//      | \        /|      /
+//      |  \      / |     /
+//      |   l3--l0  |    /
+//      |   | H |   |   /       H: lens-hole
+//      |   l2--l1  |  /
+//      |  /      \ | /
+//      | /        \|/
+//      a3----------a2
 
 
   double maxXY = frontLens_diameter/2;
@@ -2342,9 +2353,9 @@ int main(int argc, char *argv[])
 
 
 
-  // prism
-  //==============================================================================
-
+// prism
+//==============================================================================
+//
 //                      /|
 //                     / |
 //                    /  |
@@ -2362,23 +2373,23 @@ int main(int argc, char *argv[])
 //                    \  |
 //                     \ |
 //                      \|
-  //
+//
 //                 |--L--|
-  //
+//
 // same for the width
-  //
-  //
+//
+//
 //               p8----------p5
 //              /|          /|
 //             / |         / |
 //            /  p7-------/--p6
-  //           /  /        /  /
-  //          /  /        /  /
-  //         /  /        /  /
-  //        /  /        /  /
-  //      p4----------p1  /
+//           /  /        /  /
+//          /  /        /  /
+//         /  /        /  /
+//        /  /        /  /
+//      p4----------p1  /
 //      |  /  _     |  /    _ (0,0,0) origin
-  //      | /         | /
+//      | /         | /
 //      p3----------p2
 
 
@@ -2470,8 +2481,8 @@ int main(int argc, char *argv[])
 
 
 
-  // connect optical devices
-  //==============================================================================
+// connect optical devices
+//==============================================================================
   PndDrcOptDevSys opt_system;
   opt_system.SetNameCopyNumber("opt_system");
   opt_system.SetVerbosity(0);
@@ -2544,8 +2555,8 @@ int main(int argc, char *argv[])
   }
 
 
-  // setup plot
-  //==============================================================================
+// setup plot
+//==============================================================================
   canvas_setup->cd();
   fstream geo;
   geo.open("geo.tmp",std::ios::out);
@@ -2555,13 +2566,13 @@ int main(int argc, char *argv[])
   canvas_setup->Clear();
 
 
-  //==============================================================================
-  // Photon propagation
-  //==============================================================================
+//==============================================================================
+// Photon propagation
+//==============================================================================
 
-  // 1. simulation for beamtest_2009 with or w/o lens and beamtest_2008
-  // 2. photon cannon
-  // 3. single photon for debugging
+// 1. simulation for beamtest_2009 with or w/o lens and beamtest_2008
+// 2. photon cannon
+// 3. single photon for debugging
 
   int icnt_measured = 0;
   int icnt_flying   = 0;
@@ -2571,8 +2582,8 @@ int main(int argc, char *argv[])
   int n_iph = 0; // for debugging
 
 
-  // beamtest simulation
-  //==============================================================================
+// beamtest simulation
+//==============================================================================
   if( opt_default || opt_angleAcceptance )
   {
     TRandom3 randAngles;
@@ -2716,8 +2727,8 @@ int main(int argc, char *argv[])
 
 
         double maxZ_fishtank = Sqrt( Power(fishtank_length, 2) + Power(fishtank_width, 2) + Power(fishtank_height, 2) );
-        double maxSetupLength = slab_length + airgap + maxZ_fishtank + spot_limit;
-        double stepsTo = maxSetupLength / parDirZ  ;
+        double maxSetupLength = slab_length + airgap + prism_length + maxZ_fishtank + spot_limit;
+        double stepsTo = maxSetupLength / Abs(parDirZ);
 
         if( stepsTo > maxSetupLength )
           stepsTo = maxSetupLength;
@@ -2735,7 +2746,8 @@ int main(int argc, char *argv[])
           cout << "+++++ DEBUG INFO: particle's origin and hit position" << endl;
           cout << "     start pos: (" << spotX << ", " << spotY << ", " << spotZ << ")" << endl;
           cout << "     hit pos  : (" << hitOnBarX  << ", " << hitOnBarY  << ", " << hitOnBarZ  << ")" << endl;
-          cout << "     range     : " << range << endl << endl;;
+          cout << "     end pos  : (" << spotEndX << ", " << spotEndY << ", " << spotEndZ << ")" << endl;
+          cout << "     range    : " << range << endl << endl;;
         }
 
 
@@ -2930,8 +2942,8 @@ int main(int argc, char *argv[])
 
 
 
-  // photon cannon
-  //==============================================================================
+// photon cannon
+//==============================================================================
   if( opt_photonCannon )
   {
     // 		TF1 *f1 = new TF1("f1","1/x",300,700);
@@ -2998,8 +3010,6 @@ int main(int argc, char *argv[])
           photDir = photDir.Unit();
           XYZVector photDirXYZ( photDir.X(), photDir.Y(), photDir.Z() );
 
-          double z_offset = -0.01; // to be sure that photon is in bar
-
           PndDrcPhoton ph;
           ph.SetPrintFlag(true);
 
@@ -3016,7 +3026,19 @@ int main(int argc, char *argv[])
           list<PndDrcPhoton>::iterator iph;
           list_photon.push_back(ph);
 
-          manager->SetPhotonList(list_photon,"slab","opt_system",0,0);
+          string start_vol;
+
+          if( z_offset < 0 && z_offset > -slab_length )
+            start_vol = "slab";
+          else if( z_offset > 0 && z_offset < frontLens_thickness && opt_frontLens )
+            start_vol = "frontLens";
+          else
+          {
+            cout << "*** ERROR: photon cannon position (z_offset) is not valid ! " << endl;
+            abort();
+          }
+
+          manager->SetPhotonList(list_photon,start_vol,"opt_system",0,0);
           manager->Propagate(); // propagate photons
 
 
@@ -3173,8 +3195,8 @@ int main(int argc, char *argv[])
   }
 
 
-  // single photon
-  //==============================================================================
+// single photon
+//==============================================================================
   if( opt_singlePhoton )
   {
     geo.open("geo.tmp",std::ios::out);
@@ -3243,8 +3265,8 @@ int main(int argc, char *argv[])
   }
 
 
-  // Photon summary
-  //==============================================================================
+// Photon summary
+//==============================================================================
   int icnt = icnt_measured + icnt_flying + icnt_lost + icnt_absorbed;
 
   cout << endl << endl;

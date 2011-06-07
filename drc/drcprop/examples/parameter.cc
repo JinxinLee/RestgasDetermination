@@ -35,37 +35,33 @@ void parameter( TString inFilename = ""  )
   TTree *infoTree = (TTree*) inFile->Get("info");
 
 
-  Int_t root_version;
+  Int_t root_version = -666;
   char slab_material[64], prism_material[64], airBox_material[64], fishtank_material[64];
   char backLens_material[64], frontLens_material[64];
   char lens_material[64]; // obsolete
-  Int_t photon_number, particle_number, shoots;
-  Int_t refl_limit;
-  Double_t lambda_min, lambda_max;
-  Double_t frontLens_radius = -666;
-  Double_t frontLens_thickness, frontLens_diameter, frontLens_conical;
-  Double_t backLens_radius = -666;
-  Double_t backLens_thickness, backLens_diameter, backLens_conical;
-  Double_t lens_radius = -666;
-  Double_t lens_thickness, lens_diameter, lens_conical; // obsolete
-  Double_t airgap;
-  Double_t slab_width, slab_height, slab_length;
+  Int_t photon_number = -666, particle_number = -666, shoots = -666, refl_limit = -666;
+  Double_t lambda_min = -666, lambda_max = -666;
+  Double_t frontLens_radius = -666, frontLens_thickness = -666, frontLens_diameter = -666, frontLens_conical = -666;
+  Double_t backLens_radius = -666, backLens_thickness = -666, backLens_diameter = -666, backLens_conical = -666;
+  Double_t lens_radius = -666, lens_thickness = -666, lens_diameter = -666, lens_conical = -666; // obsolete
+  Double_t airgap = -666;
+  Double_t slab_width = -666, slab_height = -666, slab_length = -666;
   Double_t prism_length = -666;
-  Double_t prism_heightUp1, prism_heightUp2, prism_heightDown1, prism_heightDown2;
-  Double_t prism_widthUp1, prism_widthUp2, prism_widthDown1, prism_widthDown2;
-  Double_t fishtank_width, fishtank_height, fishtank_length;
-  Double_t fishtank_width_offset, fishtank_height_offset;
-  Double_t fishtank_thetaX, fishtank_thetaY, fishtank_phi;
-  Double_t particle_mass, particle_kinE, particle_beta;
-  Double_t parDirX, parDirY, parDirZ;
-  Double_t incidence_theta, incidence_phi;
-  Double_t hitBarX, hitBarY, hitBarZ;
-  Double_t spot_radius, spot_limit;
+  Double_t prism_heightUp1 = -666, prism_heightUp2 = -666, prism_heightDown1 = -666, prism_heightDown2 = -666;
+  Double_t prism_widthUp1 = -666, prism_widthUp2 = -666, prism_widthDown1 = -666, prism_widthDown2 = -666;
+  Double_t fishtank_width = -666, fishtank_height = -666, fishtank_length = -666;
+  Double_t fishtank_width_offset = -666, fishtank_height_offset = -666;
+  Double_t fishtank_thetaX = -666, fishtank_thetaY = -666, fishtank_phi = -666;
+  Double_t particle_mass = -666, particle_kinE = -666, particle_mom = -666, particle_beta = -666;
+  Double_t parDirX = -666, parDirY = -666, parDirZ = -666;
+  Double_t incidence_theta = -666, incidence_phi = -666;
+  Double_t hitBarX = -666, hitBarY = -666, hitBarZ = -666;
+  Double_t spot_radius = -666, spot_limit = -666;
   Bool_t slab_fresnel, backLens_fresnel, frontLens_fresnel, prism_fresnel, airBox_fresnel, fishtank_fresnel;
   Bool_t lens_fresnel; // obsolete
   Bool_t fishtankBlack_bottom, fishtankBlack_sides, fishtankBlack_top, mirror;
-  Double_t gridXstep, gridYstep;
-  Double_t cannon_theta, cannon_phi;
+  Double_t gridXstep = -666, gridYstep = -666;
+  Double_t cannon_theta = -666, cannon_phi = -666, z_offset = -666;
 
 
   infoTree->SetBranchAddress( "root_version"          , &root_version );
@@ -126,6 +122,7 @@ void parameter( TString inFilename = ""  )
   infoTree->SetBranchAddress( "refl_limit"            , &refl_limit );
   infoTree->SetBranchAddress( "particle_mass"         , &particle_mass );
   infoTree->SetBranchAddress( "particle_kinE"         , &particle_kinE );
+  infoTree->SetBranchAddress( "particle_mom"          , &particle_mom );
   infoTree->SetBranchAddress( "particle_beta"         , &particle_beta );
   infoTree->SetBranchAddress( "particle_dirX"         , &parDirX );
   infoTree->SetBranchAddress( "particle_dirY"         , &parDirY );
@@ -143,6 +140,7 @@ void parameter( TString inFilename = ""  )
   infoTree->SetBranchAddress( "gridYstep"             , &gridYstep );
   infoTree->SetBranchAddress( "cannon_theta"          , &cannon_theta );
   infoTree->SetBranchAddress( "cannon_phi"            , &cannon_phi );
+  infoTree->SetBranchAddress( "z_offset"              , &z_offset );
 
   infoTree->GetEntry( 0 );
 
@@ -276,6 +274,7 @@ void parameter( TString inFilename = ""  )
     cout << "  particle properties:" << endl;
     cout << "    particle mass [GeV]: " << particle_mass << endl;
     cout << "    T [GeV]:             " << particle_kinE << endl;
+    cout << "    p [GeV]:             " << particle_mom  << endl;
     cout << "    beta:                " << particle_beta << endl;
 
     cout << "    incidence angle (theta): " << incidence_theta << " deg" << endl;
@@ -319,6 +318,8 @@ void parameter( TString inFilename = ""  )
       cout << "    theta:    " << cannon_theta << " deg" << endl;
       cout << "    phi:      " << cannon_phi   << " deg" << endl;
     }
-    cout <<     "    reflection limit: " << refl_limit << endl;
+    cout <<   "    z offset: " << z_offset << " mm" << endl;
+    cout <<   "    reflection limit: " << refl_limit << endl;
+    cout <<   "    lambda: [" << lambda_min << ", " << lambda_max << "] nm" << endl;
   }
 }

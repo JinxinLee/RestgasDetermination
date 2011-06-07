@@ -7,6 +7,7 @@
 #include <TPolyLine.h>
 #include <TString.h>
 #include <TTree.h>
+#include <TMath.h>
 
 
 //=========
@@ -71,6 +72,11 @@ void photTrajectory( TString inFilename = "", Double_t photonID = 0 ) // ID 0 me
   photonTree->SetBranchAddress( "absorbed"  , &absorbed );
   photonTree->SetBranchAddress( "lost"      , &lost );
 
+  Double_t hitDirX, hitDirY, hitDirZ;
+  photon->SetBranchAddress( "hitDirX"   , &hitDirX );
+  photon->SetBranchAddress( "hitDirY"   , &hitDirY );
+  photon->SetBranchAddress( "hitDirZ"   , &hitDirZ );
+
   Int_t nEntries = photonTree->GetEntries();
 
 
@@ -83,11 +89,10 @@ void photTrajectory( TString inFilename = "", Double_t photonID = 0 ) // ID 0 me
   //==============================================================================
   // Event loop
   //==============================================================================
-  Int_t n_ph = 0;
+  Int_t n_ph       = 0;
   Int_t n_measured = 0;
   Int_t n_absorbed = 0;
-  Int_t n_lost = 0;
-
+  Int_t n_lost     = 0;
 
   for( int i = 0; i < nEntries; i++ )
   {
@@ -115,37 +120,36 @@ void photTrajectory( TString inFilename = "", Double_t photonID = 0 ) // ID 0 me
           cout << "lost" << endl;
       }
 
-      if( lost == true )
-      {
-//         if( n_ph < 100 )
-//           cout << n_ph << endl;
-      }
 
+//       if( n_measured < 200 )
+//       {
+//       if( measured == true )//n_lost%100 == 0 )
+//       {
 
-
-      if( n_measured < 200 )
-      {
-        if( measured == true )//n_lost%100 == 0 )
+        for( int j = 0; j < index_pos; j++ )
         {
-          for( int j = 0; j < index_pos; j++ )
+          if( j > 0 )
           {
-            if( j > 0 )
-            {
-              TPolyLine3D *l = new TPolyLine3D(2);
+            TPolyLine3D *l = new TPolyLine3D(2);
 
               l->SetPoint(0, posX[j-1], posY[j-1], posZ[j-1]);
               l->SetPoint(1, posX[j], posY[j], posZ[j]);
               l->SetLineColor(3);
               l->Draw();
-            }
 
-//             cout << "pos.: (" << posX[j]<< "," << posY[j] << "," << posZ[j] << ")" << endl;
           }
+//           if( posY[j] == -350 || posY[j] == 350 )
+//             cout << i << endl;
+             cout << i+1 << " pos.: (" << posX[j]<< "," << posY[j] << "," << posZ[j] << ")" //<< endl;
+             << " dir.: (" << hitDirX<< "," << hitDirY << "," << hitDirZ << ")" << endl;
         }
-      }
+
+//       }
+//       }
     }
   }
 
+  cout << "generated photons: " << n_ph       << endl;
   cout << "measured  photons: " << n_measured << endl;
   cout << "absorbed  photons: " << n_absorbed << endl;
   cout << "lost      photons: " << n_lost     << endl;

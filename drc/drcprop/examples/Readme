@@ -28,10 +28,14 @@ prototype.cc                beamtest simulation with prism and backward lens opt
 photTrajectory.cc           debug tool for beamtest0909_sim.cc & prototype.cc (visualization of the photon trajectory)
 parTrajectory.cc            debug tool for beamtest0909_sim.cc & prototype.cc (visualization of the particle trajectory)
 parameter.cc                debug tool for beamtest0909_sim.cc & prototype.cc (show all used parameters in a ROOT-file)
-KBarAnalysis.cc/hh          analysis tool for beamtest0909_sim.cc (kBar vectors)
+KBarAnalysis.cc/hh          generates the kBar maps (look-up tables)
 run_KBarAnalysis.cc         macro to start the kBar analysis
 mcpPos.cc                   display a single MCP on screen (adjustable) and show the hit pixels
 mcp4Pos.cc                  advanced mcpPos.cc with pixel-tree
 screenPix.cc                pixelization with pixel-tree
 recoCherenkovAngle.cc       Cherenkov angle reconstruction from a pixel-tree & kBar-tree
 recoCherenkovAngleTrue.cc   Cherenkov angle reconstruction from a beamtest simulation
+effiConti.cc                show the separate efficiency contributions for a single beamtest simulation
+EffiContiAll.cc/hh          combines different beamtest simulation to show efficiency as a function of incidence angle
+run_EffiContiAll.cc         macro to start efficiency analysis
+effiContiAllPlot.cc         plot some efficiencies as a function of incidence angle
