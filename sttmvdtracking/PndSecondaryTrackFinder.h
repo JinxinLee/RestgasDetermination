@@ -99,7 +99,7 @@ class PndSecondaryTrackFinder : public FairTask {
   Bool_t ConformalPlaneStt3(std::vector<int> cluster, TMatrixT<double> boundaries, std::vector<int> hits, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius);
   Bool_t ConformalPlaneStt4(std::vector<int> cluster, Int_t iclus, std::vector<std::vector<double> > &conformalhits, Double_t &firstdrift, Double_t &delta, Double_t trasl[2]);
   Bool_t ConformalFit(std::vector<std::vector<double> > conformalhits, Int_t iclus, Double_t delta, Double_t trasl[2], Double_t &xc, Double_t &yc, Double_t &radius);
-  Double_t CalculateRedChi2(std::vector<int> cluster, Int_t detId, Double_t xc, Double_t yc, Double_t radius);
+  Double_t CalculateRedChi2(std::vector<int> cluster, Int_t detId, Double_t xc, Double_t yc, Double_t radius, Int_t &countelements);
   Bool_t RefitConformal(std::vector<int> cluster, Int_t detId, Double_t xc, Double_t yc, Double_t radius, Double_t &outxc, Double_t &outyc, Double_t &outradius);
   Bool_t AddRemainingPoints(std::vector<int> hits, Int_t detId,   Double_t xc, Double_t yc, Double_t radius, std::vector<int> *cluster, Int_t iclus);
   Short_t FitHelixCylinder( UShort_t nHitsinTrack, Double_t auxinfoparalConformal[][3], Double_t rotationangle, Double_t trajectory_vertex[2], Double_t &slope, Double_t &intercept, Double_t &alpha, Double_t &beta, Double_t &gamma, Bool_t &TypeConf);
@@ -107,11 +107,12 @@ class PndSecondaryTrackFinder : public FairTask {
   Bool_t IntersectionFinder(Double_t xc, Double_t yc, Double_t radius, PndSttHit* stthit, TVector3 &xyz, TVector3 &dxyz);
   std::vector<int> AddPoints(std::vector<int> hits, Int_t detId, Double_t xc, Double_t yc, Double_t radius, Int_t iclus);
   std::vector< std::vector<int> > MergeClusters(std::vector< std::vector<int> > clusterlist);
-  Bool_t CompleteSttFit(std::vector<int> cluster, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius);
-
+  Bool_t CompleteSttFit(std::vector<int> cluster, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &chosenchi2, Int_t &chosencountelem);
+  
   void DeleteCluster(std::vector< std::vector<int> > * clusterlist, std::vector<int> deletecluster);
-
-
+  
+  Bool_t TestChi2(std::vector<int> cluster, Double_t xc, Double_t yc, Double_t radius,  Int_t detId, Int_t iclus, Double_t chi2, Int_t countelem, Double_t &newxc, Double_t &newyc, Double_t &newradius, std::vector<int> * newcluster, Double_t &newchi2);
+  
  private:
 
   /** Input array of PndSttTube (map of STT tubes) **/
@@ -171,7 +172,7 @@ class PndSecondaryTrackFinder : public FairTask {
   TString fDisName;
   Int_t fEventCounter;
 
-  Double_t fLimit;
+  Double_t fLimit, fChi2Limit, fCountElemLimit;
 
   std::vector<std::vector<int> > fDetList;
   std::map<int, int> fDetMap;

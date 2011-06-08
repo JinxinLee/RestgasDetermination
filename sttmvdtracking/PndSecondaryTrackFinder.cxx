@@ -43,6 +43,10 @@ PndSecondaryTrackFinder::PndSecondaryTrackFinder() : FairTask("STT Stt-Mvd Track
   fPersistence = kTRUE;
   fVerbose = 0;
   fDisplayOn = kFALSE;
+  fChi2Limit = 500;
+  fCountElemLimit = 100;
+  fLimit = 2.;
+
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
@@ -53,6 +57,10 @@ PndSecondaryTrackFinder::PndSecondaryTrackFinder(Int_t verbose) : FairTask("STT 
   fPersistence = kTRUE;
   fVerbose = verbose;
   fDisplayOn = kFALSE;
+  fChi2Limit = 500;
+  fCountElemLimit = 100;
+  fLimit = 2.;
+
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
@@ -72,8 +80,6 @@ PndSecondaryTrackFinder::~PndSecondaryTrackFinder() {
 InitStatus PndSecondaryTrackFinder::Init() {
   
     fEventCounter = 0;
-
-  fLimit = 2.;
 
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
@@ -315,12 +321,36 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   std::vector<int> deletecluster;
   for(int iclus = 0; iclus < nclus; iclus++) {
     std::vector<int> cluster = clusterlist[iclus];
-    Double_t xc, yc, radius;
-    Bool_t fit = CompleteSttFit(cluster, iclus, xc, yc, radius);
+    Double_t xc, yc, radius, chi2; 
+    Int_t countelem;
+    Bool_t fit = CompleteSttFit(cluster, iclus, xc, yc, radius, chi2, countelem);
     if(fit == kFALSE) {
-      cout << "GOTTA DELETE THIS " << iclus << endl;
+      cout << "GOTTA DELETE THIS fit fails " << iclus << endl;
       deletecluster.push_back(iclus);
       continue;
+    }
+
+    
+    Double_t newxc, newyc, newradius, newchi2 = 0;
+    std::vector<int> newcluster;
+    cout << "TEST CHI2" << endl;
+    Bool_t testchi2 = TestChi2(cluster, xc, yc, radius,  FairRootManager::Instance()->GetBranchId(fSttBranch), iclus, chi2, countelem, newxc, newyc, newradius, &newcluster, newchi2);
+    cout << "testchi2 = " << testchi2 << endl;
+    if(testchi2 == kFALSE)  {
+      cout << "GOTTA DELETE THIS chi2 fails " << iclus << endl;
+      deletecluster.push_back(iclus);
+      continue;
+    }
+    else if(newchi2 != 0) {
+      xc = newxc;
+      yc = newyc;
+      radius = newradius;
+      chi2 = newchi2;
+      cout << "................. replacing" << endl;
+      PrintClusters(clusterlist);
+      std::replace(clusterlist.begin(), clusterlist.end(), cluster, newcluster);
+      cout << "................. done" << endl;
+      PrintClusters(clusterlist);
     }
     // save tracks
     xyparameters.push_back(TVector3(xc, yc, radius));
@@ -329,6 +359,10 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 
   // DELETE CLUSTER ================================ 
   DeleteCluster(&clusterlist, deletecluster);
+
+  cout << "after replacing and deleting" << endl;
+  PrintClusters(clusterlist);
+  DrawClusters(clusterlist);
 
 
   // NEW HITS COLLECTION  ==============================================
@@ -362,7 +396,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     Double_t firstdrift, delta, trasl[2];
     std::vector< std::vector<double> > conformalhits;  
     Bool_t conftras = ConformalPlaneStt4(cluster, iclus, conformalhits, firstdrift, delta, trasl);
-    cout << "conform bis " << conftras << endl;
+    //    cout << "conform bis " << conftras << endl;
     Double_t conffit = ConformalFit(conformalhits,  iclus, delta,  trasl,  xc,  yc, radius);
     
     if(fDisplayOn) {
@@ -410,26 +444,31 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     // CONF FIT 1
     Bool_t conffit = ConformalFit(conformalhits,  iclus, delta,  trasl,  xc,  yc, radius);
     // chi2
-    double redchi2 = CalculateRedChi2(cluster,  FairRootManager::Instance()->GetBranchId(fSttBranch), xc, yc, radius);
-    cout << "===> RED CHI2 no. 0 = " << redchi2 << " <===" << endl;
+    int countelem = 0;
+    double redchi2 = CalculateRedChi2(cluster,  FairRootManager::Instance()->GetBranchId(fSttBranch), xc, yc, radius, countelem);
+    cout << "===> RED CHI2 no. 0 = " << redchi2 << " " << countelem << " <===" << endl;
     
     Double_t tmpxc = xc;
     Double_t tmpyc = yc;
     Double_t tmpradius = radius;
     // intersection finder & fit
-    Double_t outxc, outyc, outradius, red2chi2;
+    int niter = 2;
+    Double_t outxc[niter], outyc[niter], outradius[niter], red2chi2[niter];
+    Int_t countelem2[niter];
     for(int iter = 0; iter < 2; iter++) {
-	
-      Bool_t refit = RefitConformal(cluster, FairRootManager::Instance()->GetBranchId(fSttBranch), tmpxc, tmpyc, tmpradius, outxc, outyc, outradius);
-      red2chi2 = CalculateRedChi2(cluster,  FairRootManager::Instance()->GetBranchId(fSttBranch), outxc, outyc, outradius);
-      cout << "===> RED CHI2 no. " << iter + 1 << " = " << red2chi2 << " <===" << endl;
-      tmpxc = outxc;
-      tmpyc = outyc;
-      tmpradius = outradius;
+      red2chi2[iter] = 10000;
+      countelem2[iter] = 0;
+      Bool_t refit = RefitConformal(cluster, FairRootManager::Instance()->GetBranchId(fSttBranch), tmpxc, tmpyc, tmpradius, outxc[iter], outyc[iter], outradius[iter]);
+
+      red2chi2[iter] = CalculateRedChi2(cluster,  FairRootManager::Instance()->GetBranchId(fSttBranch),  outxc[iter], outyc[iter], outradius[iter], countelem2[iter]);
+      cout << "===> RED CHI2 no. " << iter + 1 << " = " << red2chi2[iter] << " " << countelem2[iter] << " <===" << endl;
+      tmpxc = outxc[iter];
+      tmpyc = outyc[iter];
+      tmpradius = outradius[iter];
       
       if(fDisplayOn) {
-	cout << "refit helix " << outxc << " " << outyc << " " << outradius << endl;     
-	TArc *arc2 = new TArc(outxc, outyc, outradius);
+	cout << "refit helix " << outxc[iter] << " " << outyc[iter] << " " << outradius[iter] << endl;     
+	TArc *arc2 = new TArc(outxc[iter], outyc[iter], outradius[iter]);
 	if(iter == 0) arc2->SetLineColor(kRed);
 	else arc2->SetLineColor(kBlue);
 	arc2->SetFillStyle(0);
@@ -438,10 +477,15 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 	display->Modified();
       }
     }
-    if(red2chi2 < redchi2) {
-      xc = outxc;
-      yc = outyc;
-      radius = outradius;
+
+    int tmpredchi2 = redchi2;
+    for(int iter = 0; iter < 2; iter++) {
+      if(red2chi2[iter] < tmpredchi2) {
+	xc = outxc[iter];
+	yc = outyc[iter];
+	radius = outradius[iter];
+	tmpredchi2 = red2chi2[iter];
+      }
     }
     xyparameters.push_back(TVector3(xc, yc, radius));
   }
@@ -487,7 +531,7 @@ std::vector<int> PndSecondaryTrackFinder::OrderHits(TClonesArray *hitarray, Int_
   }
 
   std::sort(distances.begin(), distances.end());
-  cout << "size " << distances.size() << endl;
+  //  cout << "size " << distances.size() << endl;
 
   double tmpdistance = 0;
 
@@ -525,12 +569,12 @@ void PndSecondaryTrackFinder::DeleteHit(Int_t ihit, std::vector<int> *hits)
  
  
 void PndSecondaryTrackFinder::DeleteHits(TString detectors, std::vector<int> *hits) {
-  cout << "DELETING FROM  " << detectors << endl;
+  //  cout << "DELETING FROM  " << detectors << endl;
   for(Int_t itrk = 0; itrk < fSttMvdGemTrackCandArray->GetEntriesFast(); itrk++) {
     PndTrackCand *trkCand = (PndTrackCand*) fSttMvdGemTrackCandArray->At(itrk);
     if(!trkCand) continue;
     Int_t nhits = trkCand->GetNHits(); 
-    cout << "TRACK CAND " << itrk << " HAS " << nhits << endl;
+    //    cout << "TRACK CAND " << itrk << " HAS " << nhits << endl;
     for(int ihit = 0; ihit < nhits; ihit++)
       {
 	PndTrackCandHit candhit = trkCand->GetSortedHit(ihit);
@@ -2488,10 +2532,11 @@ Bool_t PndSecondaryTrackFinder::ConformalFit(std::vector<std::vector<double> > c
 }
 
 
-Double_t PndSecondaryTrackFinder::CalculateRedChi2(std::vector<int> cluster, Int_t detId,  Double_t xc, Double_t yc, Double_t radius) 
+Double_t PndSecondaryTrackFinder::CalculateRedChi2(std::vector<int> cluster, Int_t detId,  Double_t xc, Double_t yc, Double_t radius, Int_t &countelement) 
 {
   TClonesArray *array;
   
+
   if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) array = fMvdPixelHitArray;
   else if(detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) array = fMvdStripHitArray;
   else if(detId ==  FairRootManager::Instance()->GetBranchId(fSttBranch)) array = fSttHitArray;
@@ -2499,6 +2544,7 @@ Double_t PndSecondaryTrackFinder::CalculateRedChi2(std::vector<int> cluster, Int
 
   // chi2
   double chi2 = 0;
+
   for(int ihit = 0; ihit < cluster.size(); ihit++)
     {
       Int_t hitid = cluster[ihit];
@@ -2510,7 +2556,10 @@ Double_t PndSecondaryTrackFinder::CalculateRedChi2(std::vector<int> cluster, Int
       Double_t rderror = hit->GetIsochroneError();
       Double_t distancepc = TMath::Sqrt((centerposition2.X() - xc) * (centerposition2.X() - xc) +
 					(centerposition2.Y() - yc) * (centerposition2.Y() - yc));
-      chi2 += pow((fabs(distancepc - radius) - rd)/(rderror), 2);
+      double element = pow((fabs(distancepc - radius) - rd)/(rderror), 2);
+      if(element >= fCountElemLimit) countelement++;
+      chi2 += element;
+      cout << "element " <<  element  << endl;
     }
   double redchi2 = chi2 / cluster.size();
   // cout << "===> RED CHI2 no. 0 = " << redchi2 << " <===" << endl;
@@ -3548,10 +3597,10 @@ std::vector<int> PndSecondaryTrackFinder::OrderCluster2(std::vector<int> cluster
       }
   }
 
-  cout << "sorted" << endl;
+  // cout << "sorted" << endl;
   for(int ihit = 0; ihit < sorthits.size(); ihit++) {
     Int_t hitid = sorthits[ihit];
-    cout << hitid << " " ;
+    //    cout << hitid << " " ;
     
     FairHit* hit = (FairHit*) array->At(hitid);
     if(!hit) continue;
@@ -3569,13 +3618,16 @@ std::vector<int> PndSecondaryTrackFinder::OrderCluster2(std::vector<int> cluster
     }
     
   }
-  cout << endl;
+  // cout << endl;
 
   return sorthits;
 }
 
 std::vector<int> PndSecondaryTrackFinder::AddPoints(std::vector<int> hits, Int_t detId,  Double_t xc, Double_t yc, Double_t radius, int iclus)
 {
+
+  cout << "==========> ADD POINT <=========" << endl;
+
   std::vector<int> cluster;
   TClonesArray *array;
  
@@ -3602,7 +3654,7 @@ std::vector<int> PndSecondaryTrackFinder::AddPoints(std::vector<int> hits, Int_t
       double res = fabs(distancepc - radius) - rd;
       //  cout << "RES " << res << " " << " limit " << 3 * fLimit << endl;
       if(res < (fLimit)) { // 3 * fLimt CHECK
-	// 	cout << "ADD " << hitid << " TO CLUS " << iclus << endl;
+	 	cout << "ADD " << hitid << " TO CLUS " << iclus << endl;
 	cluster.push_back(hitid);
 
 	if(fDisplayOn) {
@@ -3841,7 +3893,7 @@ void PndSecondaryTrackFinder::DrawClusters(std::vector< std::vector<int> > clust
 }
 
 
-Bool_t PndSecondaryTrackFinder::CompleteSttFit(std::vector<int> cluster, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius) {
+Bool_t PndSecondaryTrackFinder::CompleteSttFit(std::vector<int> cluster, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &chosenchi2, Int_t &chosencountelem) {
   
 
 //   TMatrixT<double> boundaries(nclus, 4);
@@ -3872,30 +3924,37 @@ Bool_t PndSecondaryTrackFinder::CompleteSttFit(std::vector<int> cluster, Int_t i
   }
 
   // chi2
-  double redchi2 = CalculateRedChi2(cluster,  FairRootManager::Instance()->GetBranchId(fSttBranch), xc, yc, radius);
-  cout << "===> RED CHI2 no. 0 = " << redchi2 << " <===" << endl;
-
+  int countelement = 0;
+  double redchi2 = CalculateRedChi2(cluster,  FairRootManager::Instance()->GetBranchId(fSttBranch), xc, yc, radius, countelement);
+  cout << "===> RED CHI2 no. 0 = " << redchi2 << " " << countelement << " <===" << endl;
+  chosenchi2 = redchi2;
+  chosencountelem = countelement;
+  
   // REFIT ============================================
-  double red2chi2 = 10000;
+  Int_t niter = 2;
+  double red2chi2[niter];
+  int countelement2[niter];
   if(firstdrift > 0.01) { // CHECK
     Double_t tmpxc = xc;
     Double_t tmpyc = yc;
     Double_t tmpradius = radius;
     // intersection finder & fit
-    Double_t outxc, outyc, outradius;
-    for(int iter = 0; iter < 2; iter++) {
-      
-      Bool_t refit = RefitConformal(cluster, FairRootManager::Instance()->GetBranchId(fSttBranch), tmpxc, tmpyc, tmpradius, outxc, outyc, outradius);
+    Double_t outxc[niter], outyc[niter], outradius[niter];
+    for(int iter = 0; iter < niter; iter++) {
+      red2chi2[iter] = 10000;
+      countelement2[iter] = 0;
+
+      Bool_t refit = RefitConformal(cluster, FairRootManager::Instance()->GetBranchId(fSttBranch), tmpxc, tmpyc, tmpradius, outxc[iter], outyc[iter], outradius[iter]);
       if(refit == kFALSE) continue;
-      red2chi2 = CalculateRedChi2(cluster,  FairRootManager::Instance()->GetBranchId(fSttBranch), outxc, outyc, outradius);
-      cout << "===> RED CHI2 no. " << iter + 1 << " = " << red2chi2 << " <===" << endl;
-      tmpxc = outxc;
-      tmpyc = outyc;
-      tmpradius = outradius;
+      red2chi2[iter] = CalculateRedChi2(cluster,  FairRootManager::Instance()->GetBranchId(fSttBranch), outxc[iter], outyc[iter], outradius[iter], countelement2[iter]);
+      cout << "===> RED CHI2 no. " << iter + 1 << " = " << red2chi2[iter] << " " << countelement2[iter]  << " <===" << endl;
+      tmpxc = outxc[iter];
+      tmpyc = outyc[iter];
+      tmpradius = outradius[iter];
       
       if(fDisplayOn) {
-	cout << "refit helix " << outxc << " " << outyc << " " << outradius << endl;     
-	TArc *arc2 = new TArc(outxc, outyc, outradius);
+	cout << "refit helix " << outxc[iter] << " " << outyc[iter] << " " << outradius[iter] << endl;     
+	TArc *arc2 = new TArc(outxc[iter], outyc[iter], outradius[iter]);
 	if(iter == 0) arc2->SetLineColor(kRed);
 	else arc2->SetLineColor(kBlue);
 	arc2->SetFillStyle(0);
@@ -3904,20 +3963,19 @@ Bool_t PndSecondaryTrackFinder::CompleteSttFit(std::vector<int> cluster, Int_t i
 	display->Modified();
       }
     }
-    if(red2chi2 < redchi2) {
-      xc = outxc;
-      yc = outyc;
-      radius = outradius;
+  
+    for(int iter = 0; iter < 2; iter++) {
+      if(red2chi2[iter] < chosenchi2) {
+	xc = outxc[iter];
+	yc = outyc[iter];
+	radius = outradius[iter];
+	chosenchi2 = red2chi2[iter];
+	chosencountelem = countelement2[iter];
+      }
     }
   }
 
-  if(red2chi2 > 500 && redchi2 > 500) {
-    cout << "too bad " <<  xc << " " << yc << " " << radius << endl;     
-    return kFALSE;
-  }
-
   cout << "kept " << xc << " " << yc << " " << radius << endl;     
-
   return kTRUE;
 }
 
@@ -3931,5 +3989,45 @@ void PndSecondaryTrackFinder::DeleteCluster(std::vector< std::vector<int> > *clu
     cout << "DELETING CLUSTER " << deletecluster[iclus] << endl;
   }
 }
+
+Bool_t PndSecondaryTrackFinder::TestChi2(std::vector<int> cluster, Double_t xc, Double_t yc, Double_t radius,  Int_t detId, Int_t iclus, Double_t chi2, Int_t countelem, Double_t &newxc, Double_t &newyc, Double_t &newradius, std::vector<int> *newcluster, Double_t &newchi2) {
+  if(chi2 < fChi2Limit) return kTRUE;
+
+  if(countelem > fCountElemLimit) return kFALSE;
+
+  // retry
+  TClonesArray *array;
+  if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) array = fMvdPixelHitArray;
+  else if(detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) array = fMvdStripHitArray;
+  else if(detId ==  FairRootManager::Instance()->GetBranchId(fSttBranch)) array = fSttHitArray;
+  //  else if(detId ==  FairRootManager::Instance()->GetBranchId(fGemBranch)) array = fGemHitArray;
+
+  for(int ihit = 0; ihit < cluster.size(); ihit++)
+    {
+      Int_t hitid = cluster[ihit];
+      PndSttHit *hit = (PndSttHit*) array->At(hitid);
+      if(!hit) continue;
+      TVector3 centerposition2;
+      hit->Position(centerposition2);
+      Double_t rd = hit->GetIsochrone();
+      Double_t rderror = hit->GetIsochroneError();
+      Double_t distancepc = TMath::Sqrt((centerposition2.X() - xc) * (centerposition2.X() - xc) +
+					(centerposition2.Y() - yc) * (centerposition2.Y() - yc));
+      double element = pow((fabs(distancepc - radius) - rd)/(rderror), 2);
+      cout << "TESTCHI2 " << fCountElemLimit << " " << element << endl;
+      if(element >= fCountElemLimit) continue;
+      newcluster->push_back(hitid);
+      cout << "pushing back " << hitid << endl;
+    }
+  
+  int countelem2 = 0;
+  Bool_t fit = CompleteSttFit(* newcluster, iclus, newxc, newyc, newradius, newchi2, countelem2);
+  if(fit == kFALSE || newchi2 > fChi2Limit) return kFALSE;
+
+  return kTRUE;
+
+}
+
+
 
 ClassImp(PndSecondaryTrackFinder)
