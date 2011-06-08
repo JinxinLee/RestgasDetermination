@@ -3002,7 +3002,7 @@ if( istampa>=3){
 
 		if(fabs(KAPPA[ncand])>1.e-20  ){
 			Pzini = -CHARGE[ncand]*0.003*BFIELD/KAPPA[ncand];
-			if(fabs(Pzini) < PMAX)  continue;
+			if(fabs(Pzini) > PMAX)  continue;
 		} else {
 			continue;
 		}
