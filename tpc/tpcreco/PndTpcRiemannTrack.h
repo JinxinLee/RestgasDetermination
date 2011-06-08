@@ -50,7 +50,7 @@ class PndTpcRiemannTrack : public TObject{
   double getScale() const {return fRiemannScale;}
 
   double r() const {return _radius;} // radius of track
-  TVector3 center() const {return _center;} // center of helix in xz plane (z=0)
+  const TVector3& center() const {return _center;} // center of helix in xz plane (z=0)
   double dip() const {return _dip;} // dip angle vs z axis [0, pi]
   double sinDip() const {return _sinDip;} // dip angle vs z axis [0, pi]
 
@@ -87,9 +87,8 @@ class PndTpcRiemannTrack : public TObject{
   // Operations ----------------------
   void fitAndSort();  // refit the plane and sort the hits; calculate center and radius
   
-  // calculate RMS of distances of hits to intersection of plane with riemann sphere
-  // if use Arguments == false, the members _n and _c will be used for calculation
-  double planeRMS(TVector3 n1=(0.,0.,0.), double c1=0, bool useArguments=false) const;
+  // RMS of distances of hits to intersection of plane with riemann sphere
+  double planeRMS() const {return _rms;}
                                                                     
   // calculate distance of hit to intersection of plane with riemann sphere
   // if use Arguments == false, the members _n and _c will be used for calculation
@@ -100,8 +99,9 @@ class PndTpcRiemannTrack : public TObject{
 
  private:
   // Operations ----------------------
-  void refit(); // refit the plane and dip; set angles of hits
+  void refit(); // refit the plane and dip; set angles of hits; calc rms
   void centerR(); // calculate center and radius
+  double calcRMS(TVector3 n1, double c1) const;
 
   // Private Data Members ------------
   TVector3 _n;  // normal vector of plane (pointing towards origin!)
@@ -116,11 +116,13 @@ class PndTpcRiemannTrack : public TObject{
   double _dip; // dip angle of track [0, pi]
   double _sinDip; // sinus of dip angle
 
+  double _rms; // RMS of distances of hits to intersection of plane with riemann sphere
+
   bool _isFitted; // fit plane and dip
 
   double fRiemannScale;
 
-  std::vector<PndTpcRiemannHit*> _hits; //
+  std::vector<PndTpcRiemannHit*> _hits; // riemann hits of the track; track has ownership!
   TVector3 _av;  // average over all hits
   double _sumOfWeights; // for weighing the average with cluster error
 
@@ -132,7 +134,7 @@ class PndTpcRiemannTrack : public TObject{
   bool checkScale(PndTpcRiemannHit*) const;
 
  public:
-  ClassDef(PndTpcRiemannTrack,3)
+  ClassDef(PndTpcRiemannTrack,4)
 
 };
 

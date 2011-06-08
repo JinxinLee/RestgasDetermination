@@ -65,7 +65,7 @@ PndTpcRiemannTrack::PndTpcRiemannTrack()
 : _n(0.,0.,0.), _c(0),
   _av(0.,0.,0.),  _sumOfWeights(0),
   _m(0), _t(0),
-  _dip(0), _sinDip(0),
+  _dip(0), _sinDip(0), _rms(0),
   fRiemannScale(24.6), _isFitted(false), _doSort(true)
 {}
 
@@ -73,7 +73,7 @@ PndTpcRiemannTrack::PndTpcRiemannTrack(double scale)
 : _n(0.,0.,0.), _c(0),
   _av(0.,0.,0.),  _sumOfWeights(0),
   _m(0), _t(0),
-  _dip(0), _sinDip(0),
+  _dip(0), _sinDip(0), _rms(0),
   fRiemannScale(scale), _isFitted(false), _doSort(true)
 {}
 
@@ -293,7 +293,7 @@ PndTpcRiemannTrack::refit(){ // helix fit
   // check smallest and second smallest eigenvector
   // for this we use the rms distance of hits to section of plane with sphere on the sphere
 
-  double minrms=1000000;
+  _rms=1.E32;
   unsigned int imin=2;
 
   for(unsigned int i=1;i<3;++i){
@@ -302,9 +302,9 @@ PndTpcRiemannTrack::refit(){ // helix fit
     planeN*=norm;
     TVector3 plane3(planeN[0],planeN[1],planeN[2]);
     double c1=-1.*plane3*_av; // distance plane to origin
-    double rms=planeRMS(plane3, c1, true); 
-    if(rms<minrms){
-	    minrms=rms;
+    double rms=calcRMS(plane3, c1);
+    if(rms<_rms){
+	    _rms=rms;
 	    imin=i;
     }
   }
@@ -395,12 +395,7 @@ PndTpcRiemannTrack::fitAndSort(){
 
 
 double
-PndTpcRiemannTrack::planeRMS(TVector3 n1, double c1, bool useArguments) const {
-  if(!useArguments){
-    if(!_isFitted) return 0.;
-    n1 = _n;
-    c1 = _c;
-  }
+PndTpcRiemannTrack::calcRMS(TVector3 n1, double c1) const {
   // loop over hits and calculate RMS
   double rms = 0.;
   double norm = 0.;
