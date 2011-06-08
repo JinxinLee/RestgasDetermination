@@ -17,6 +17,7 @@ numEntries = 10000000
 panda=1
 mult = 1
 minNumHits = 10
+recreate = 1
 
 runs = "reco"
 dir = "/nfs/nas/data/panda/tpc/SIM/momres/mult%i" %mult
@@ -43,6 +44,8 @@ for iarg in range(len(sys.argv)) :
         minNumHits = int(sys.argv[iarg+1]);
     if arg == "-mult" :
         mult = int(sys.argv[iarg+1]);
+    if arg == "-leaveExistingFiles" :
+        recreate = 0
 #finished argument parsing
 
 runList=[]
@@ -57,12 +60,16 @@ if dashIndex < 0 and len(runs) > 1 :
 
 
 ROOT.gROOT.ProcessLine(".x rootlogon.C") 
+ROOT.gROOT.SetBatch(True)
 ROOT.gROOT.ProcessLine('gSystem->Load("libPhysics")')
 ROOT.gROOT.ProcessLine('gStyle->SetPalette(1)')
 ROOT.gROOT.ProcessLine('gROOT->SetStyle("Plain")')
 
 files = glob.glob(dir + "/*.reco.root")
 files.sort()
+
+outfiles = glob.glob(outdir + "/*.ana.root")
+outfiles.sort()
 
 print files
 print "minnumhits =  %i" %minNumHits
@@ -122,12 +129,7 @@ for file in files :
     print(file)
     print(mcfile)
     
-    #~ print "Parsing filename: "    
-    #~ pdg = int(file[file.find("pdg_")+4:file.find("__mult_")])
-    #~ mult = int(file[file.find("__mult_")+7:file.find("__mom_")])
-    #~ mom = float(file[file.find("__mom_")+6:file.find("__theta_")])
-    #~ theta = float(file[file.find("__theta_")+8:file.find(".reco")]) 
-    
+
     print "Parsing filename: "    
     pdg = int(file[file.find("PDG")+3:file.find("_mom")])
     mom = float(file[file.find("_mom")+4:file.find("_deg")])
@@ -141,6 +143,19 @@ for file in files :
     
     fcounter+=1
     
+    outname = outdir
+    outname += file[file.rfind("/"):file.find(".reco")]
+    #outname+= str(mult)
+    outname += "_minnumhits"
+    outname+= str(minNumHits)
+    outname += ".ana.root"
+    print outname
+    
+    if recreate==0 :
+        if outfiles.count(outname) > 0 :
+            print " already exists, skipping file"
+            continue
+    
     MCfile = ROOT.TFile.Open(mcfile, "read")
     mctree = MCfile.Get("cbmsim")
     mctree.SetBranchStatus("*", 0)
@@ -148,6 +163,12 @@ for file in files :
 
     Rfile = ROOT.TFile.Open(file, "read")
     tree = Rfile.Get("cbmsim")
+    if tree == None :
+        print "did not find cbmsim"
+        MCfile.Close()
+        Rfile.Close()
+        continue
+        
     tree.SetBranchStatus("*", 0)
     tree.SetBranchStatus("TrackPostFit.*", 1)
     tree.SetBranchStatus("TrackFitStat_0.*", 1)
@@ -176,13 +197,6 @@ for file in files :
     purityVsThetaA = ROOT.TH2D("purityVsThetaA", "Track Purity vs theta", 37,0,185, 101,0,1.01) 
     complVsThetaA = ROOT.TH2D("complVsThetaA", "Track Completeness vs theta", 37,0,185, 101,0,1.01)     
     
-    outname = outdir
-    outname += file[file.rfind("/"):file.find(".reco")]
-    #outname+= str(mult)
-    outname += "_minnumhits"
-    outname+= str(minNumHits)
-    outname += ".ana.root"
-    print outname
     outfile = ROOT.TFile(outname, "recreate")
 
     
@@ -226,10 +240,10 @@ for file in files :
             print "nMCIDs != mult, skipping event %i" %index
             continue
         if nMCTracks != mult :
-            print "nMCTracks != mult, skipping event %i" %index
+            print "nMCTracks != mult, skipping event %i" %index         
             continue        
         if nMCIDs == 0 :
-            print "no McIds, skipping event %i" %index
+            print "no McIds, skipping event %i" %index        
             continue
             
         #print "Found %i MCIDs in event" %nMCIDs
@@ -308,7 +322,6 @@ for file in files :
         #for tfs in e.TrackFitStat_1 :
              #if tfs.GetHitIDs().size()>= minNumHits :
         #       recoMom1.Fill(tfs.GetP())
-            
             
         counter+=1   
         
@@ -391,6 +404,11 @@ for file in files :
 
     c1.Write()
     outfile.Close()
+            
+    MCfile.Close()
+    Rfile.Close()
+    
+    print "wrote out file"
     
 #  ------------------------------- END OF ANA LOOP ---------------------------------------           
 
