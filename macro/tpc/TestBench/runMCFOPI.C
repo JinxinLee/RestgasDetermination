@@ -1,4 +1,5 @@
-void runMCFOPI(float mom, int angle, int PDG, TString outdir, int nEvents=5000, unsigned int seed=0) {
+void runMCFOPI(float mom, int angle, int PDG, unsigned int MULT,
+      TString outdir, int nEvents=5000, unsigned int seed=0) {
 
   // ------------------------------------------------------------------------
   gRandom->SetSeed(seed);
@@ -32,6 +33,10 @@ void runMCFOPI(float mom, int angle, int PDG, TString outdir, int nEvents=5000, 
   char bufferang[5];
   sprintf(bufferang, "%i", angle);
   jobname.Append(bufferang);
+  jobname.Append("_mult");
+  char buffermult[5];
+  sprintf(buffermult, "%i", MULT);
+  jobname.Append(buffermult);
   jobname.Append(".mc.root");
   
   TString outfile = jobdir+jobname;
@@ -86,7 +91,7 @@ void runMCFOPI(float mom, int angle, int PDG, TString outdir, int nEvents=5000, 
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
-  FairBoxGenerator* boxGen = new FairBoxGenerator(PDG, 1);
+  FairBoxGenerator* boxGen = new FairBoxGenerator(PDG, MULT);
   boxGen->SetPRange(mom,mom); // GeV/c
   boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
   boxGen->SetThetaRange(angle, angle); // Polar angle in lab system range [degree]
