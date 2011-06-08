@@ -393,6 +393,17 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                    UShort_t *auxListHitsinTrack
                                                      );
 
+  UShort_t PndSttTrkAssociatedParallelHitsToHelix5(
+		   bool ExclusionList[nmaxHits],
+                   Int_t NhitsParallel,
+                   Double_t Ox,
+                   Double_t Oy,
+                   Double_t R,
+                   Double_t info[][7],
+		Double_t Fi_low,
+		Double_t Fi_up,
+                   UShort_t *auxListHitsinTrack
+                                                     );
 
  bool  PndSttAcceptHitsConformal( Double_t  distance,
                                                          Double_t  DriftConfR,
