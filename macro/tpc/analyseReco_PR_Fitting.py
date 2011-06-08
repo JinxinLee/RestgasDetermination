@@ -375,7 +375,7 @@ for file in files :
     complVsThetaA.Draw("colz")
     complVsThetaA.Write()    
 
-    input()
+    #input()
 
     c1.Write()
     outfile.Close()
