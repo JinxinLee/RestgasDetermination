@@ -168,6 +168,8 @@ for file in files :
     splitVsTheta = ROOT.TH2D("splitVsTheta", "Track Splitting vs theta", 37,0,185, 101,0,1.01) 
     purityVsTheta = ROOT.TH2D("purityVsTheta", "Track Purity vs theta", 37,0,185, 101,0,1.01) 
     complVsTheta = ROOT.TH2D("complVsTheta", "Track Completeness vs theta", 37,0,185, 101,0,1.01) 
+    
+    foundVsTheta = ROOT.TH2D("foundVsTheta", "percentage of found tracks (>50% of clusters) vs theta", 37,0,185, 101,0,1.01) 
 
     effVsThetaA = ROOT.TH2D("effVsThetaA", "Reco Efficiency vs theta", 37,0,185, mult+1, 0,mult+1) 
     splitVsThetaA = ROOT.TH2D("splitVsThetaA", "Track Splitting vs theta", 37,0,185, 8*mult+1, 0,8*mult+1) 
@@ -192,6 +194,8 @@ for file in files :
     meanSplit = 0
     meanPurity = 0
     meanCompl = 0
+    
+    foundTracks = 0
 
 
     for e in tree :
@@ -234,6 +238,7 @@ for file in files :
         nSplitTrks = 0
         nTrks = 0
         DominantIDs = []
+        
         
         maxClustersPerID={0:0} # for finding the track with the most hits
         
@@ -283,6 +288,8 @@ for file in files :
             complVsThetaA.Fill(theta, compleetness) 
             meanCompl += compleetness
             nUniqueTrks += 1
+            if compleetness > 0.5 :
+                foundTracks += 1;
                 
             
         recoEff.Fill(nRecoTrks/float(mult))
@@ -324,6 +331,8 @@ for file in files :
           
     meanPurity /= float(nGlobTrks)
     purityVsTheta.Fill(theta, meanPurity) 
+    
+    foundVsTheta.Fill(theta, foundTracks/float(counter*mult))
 
     outfile.cd()
 
@@ -374,6 +383,9 @@ for file in files :
     c1.cd(14)
     complVsThetaA.Draw("colz")
     complVsThetaA.Write()    
+    c1.cd(15)
+    foundVsTheta.Draw("colz")
+    foundVsTheta.Write()    
 
     #input()
 
