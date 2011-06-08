@@ -840,9 +840,6 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 
 
 
-
-
-
 //-----------------------------------  end of exclusion of straws with multiple hits
 
 
@@ -1096,7 +1093,38 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 
 
 
-  NN =  PndSttTrkAssociatedParallelHitsToHelixQuater(
+// treat differently the case in which the track has radius < RStrawDetectorMax/2
+// and the other case.
+
+  if( R[nTracksFoundSoFar] < RStrawDetectorMax/2){
+	PndSttFindingParallelTrackAngularRange(
+		Ox[nTracksFoundSoFar],
+		Oy[nTracksFoundSoFar],
+		R[nTracksFoundSoFar],
+		1,  /// this is supposed to be the charge, irrelevant here if it is +1 or -1.
+		&Fi_low_limit[nTracksFoundSoFar],
+		&Fi_up_limit[nTracksFoundSoFar],
+		&flagStt,
+		RStrawDetectorMin,
+		RStrawDetectorMax
+		);
+
+	NN =  PndSttTrkAssociatedParallelHitsToHelix5(
+		ExclusionList,
+                   Minclinations[0],
+                   Ox[nTracksFoundSoFar],
+                   Oy[nTracksFoundSoFar],
+                   R[nTracksFoundSoFar],
+                   info,
+		Fi_low_limit[nTracksFoundSoFar],
+		Fi_up_limit[nTracksFoundSoFar],
+                   auxListHitsinTrack              //  this is the output
+                                                     );
+
+
+  }  else {
+
+	NN =  PndSttTrkAssociatedParallelHitsToHelixQuater(
 		   ExclusionList,
                    m[nTracksFoundSoFar],
                    q[nTracksFoundSoFar],
@@ -1115,6 +1143,11 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
                    HitsinBoxConformal,
                    auxListHitsinTrack              //  this is the output
                                                      );
+  } // end of  if( R[nTracksFoundSoFar] < RStrawDetectorMax/2)
+
+
+
+
 
 
    if( NN < MINIMUMHITSPERTRACK ) {
@@ -8041,6 +8074,99 @@ if(istampa>=3) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+//----------begin of function PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelix5
+
+  UShort_t PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelix5(
+		bool ExclusionList[nmaxHits],
+		Int_t NhitsParallel,
+		Double_t Ox,
+		Double_t Oy,
+		Double_t R,
+		Double_t info[][7],
+		Double_t Fi_low,
+		Double_t Fi_up,
+		UShort_t *auxListHitsinTrack
+			)
+{
+
+  Short_t i;
+
+  UShort_t nAssociatedHits;
+
+  Double_t angle,
+           dx,
+           dy,
+           distance,
+           NTIMES=5.;   //   number of Straw radia allowed in association.
+
+  nAssociatedHits=0;
+//   find the Hits belonging to this Track.
+
+
+
+  for(i=0; i<NhitsParallel;i++){
+	if( !ExclusionList[ infoparal[i] ] ) continue;
+// check if the hit position is near the circle of the Helix found by the fit
+
+
+
+
+
+	dx = -Ox+info[ infoparal[i] ][0];
+	dy = -Oy+info[ infoparal[i] ][1];
+	angle=atan2(dy,dx);
+	if(angle<0.) angle += 2.*PI;
+	if(angle<0.) angle =0.;
+	distance = sqrt(dx*dx+dy*dy);
+	if ( fabs(R - distance ) > NTIMES*StrawRadius )  continue;
+	if(angle<Fi_low) angle += 2.*PI;
+	if(angle>Fi_up) continue;
+	auxListHitsinTrack[nAssociatedHits]= i;
+	nAssociatedHits++; 
+  } // end for(i=0; i<NhitsParallel;i++)
+
+ return nAssociatedHits;
+
+}
+
+
+
+//----------end of function PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelix5
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //----------begin of function PndSttTrackFinderReal::PndSttAcceptHitsConformal
 
 bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
@@ -10175,6 +10301,11 @@ cout<<"    j= "<<j<<", n. Hit in original numbering = "<<BigList[j]<<" e suo FI 
 				Double_t Rma	// Rmax of cylindrical volume intersected by track;
 									)
 {
+//  The hits ALWAYS are contained between Fi_low_limit and Fi_up_limit;
+//  the Point at (0,0) is NEVER contained between Fi_low_limit and Fi_up_limit.
+
+
+
 // -------------- calculate the maximum fi and minimum fi spanned by this track,
 
 // see logbook pag.270; by using the Rmin and Rmax of the straw detector.
