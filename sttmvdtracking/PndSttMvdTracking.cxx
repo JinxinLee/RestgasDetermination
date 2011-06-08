@@ -1154,8 +1154,7 @@ if(istampa>=3  && IVOLTE<20){  cout<<"\thit n. "<<ListHitMvdTrackCand[i][k]
 			);
 
 
-//if(istampa>2&& IVOLTE<20){
-if(IVOLTE==6){
+if(istampa>2&& IVOLTE<20){
            cout<<"da PndSttMvdTracking ;  n. SttTrackCand totali = "<<nSttTrackCand
 	       <<"--------------------------------------\n";
 //      for(  i= 0; i< nSttTrackCand; i++){
