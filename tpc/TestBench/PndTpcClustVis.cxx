@@ -207,13 +207,27 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
   // Draw tpc
   if(drawTpc){
     // TODO: DRAW CORRECT FOR FOPI AND PANDA
+    bool panda = false;
+    if(fRiemannScale >10) panda = true;
+
     std::cerr<<"drawTpc..."<<std::endl;
     double tpcLength = 72.5;
+    if (panda) tpcLength = 150;
 
     tpcLength*=0.5;
-    TGeoMatrix* tpc_trans = new TGeoGenTrans(0,0,tpcLength, 1,1,1, 0);
+    TGeoMatrix* tpc_trans;
+    if(panda)
+      tpc_trans = new TGeoGenTrans(0,0,tpcLength-39.5, 1,1,1, 0);
+    else
+      tpc_trans = new TGeoGenTrans(0,0,tpcLength-62, 1,1,1, 0);
+
     TEveGeoShape* tpc_shape = new TEveGeoShape("tpc_shape");
-    tpc_shape->SetShape(new TGeoTube(5.,15., tpcLength));
+
+    if(panda)
+      tpc_shape->SetShape(new TGeoTube(15.,42., tpcLength));
+    else
+      tpc_shape->SetShape(new TGeoTube(5.,15., tpcLength));
+
     tpc_shape->SetTransMatrix(*tpc_trans);
 
     tpc_shape->SetMainColor(kBlue);
