@@ -49,11 +49,11 @@ PndTpcClustVis::PndTpcClustVis():
   instantRedraw(true), drawTpc(false), drawRawDigis(false), drawDigis(false),
   drawClusters(true), drawClusterErrors(false),
   drawRiemannTracks(true), drawFitMarkers(false),
-  doPR(true), doMerge(false), doClean(false),
+  doPR(true), doMerge(true), doClean(false),
   _sorting(3), _interactionZ(0), _sortingMode(true),
   PRNHits(1000000),
   _minpoints(4), _planecut(0.04), _riproxcut(0.1), _szcut(0.2), _proxcut(1.9), _helixcut(0.4),
-  _TTproxcut(2.2), _TTplanecut(0.025), _TTszcut(0.33), _TTdipcut(0.09), _TThelixcut(0.6),
+  _TTproxcut(2.5), _TTplanecut(0.025), _TTszcut(0.33), _TTdipcut(0.1), _TThelixcut(0.6),
   PRHasChanged(true),
   fRiemannScale(8.6),
   doFit(false), useGeane(false), numIts(0), smooth(false), Bz(0)

@@ -116,6 +116,8 @@ public:
 
   void setFieldZ(double B){Bz=B;}
 
+  void setRiemannscale(double scale){fRiemannScale=scale;}
+
   /** @brief Go to the next event or step a certain number of events ahead.*/
   void next(unsigned int stp = 1);
 
