@@ -368,7 +368,11 @@ PndTpcRiemannTrack::refit(){ // helix fit
     std::cerr<<"PndTpcRiemannTrack::refit() - can't fit dip"<<std::endl;
     return; // phi z fit did not work
   }
-
+  
+  // limit the range of m
+  if (_m > 1.E6) _m=1E6;
+  if (_m < -1.E6) _m=-1E6;
+  
   // calc dip
   _dip = TMath::ATan(_m/r()) + TMath::PiOver2();
   _sinDip=TMath::Sin(_dip);
