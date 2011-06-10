@@ -63,6 +63,7 @@ ClassImp(PndTpcRiemannTrack)
 
 PndTpcRiemannTrack::PndTpcRiemannTrack()
 : _n(0.,0.,0.), _c(0),
+  _center(0.,0.,0.), _radius(0),
   _av(0.,0.,0.),  _sumOfWeights(0),
   _m(0), _t(0),
   _dip(0), _sinDip(0), _rms(0),
@@ -71,6 +72,7 @@ PndTpcRiemannTrack::PndTpcRiemannTrack()
 
 PndTpcRiemannTrack::PndTpcRiemannTrack(double scale)
 : _n(0.,0.,0.), _c(0),
+  _center(0.,0.,0.), _radius(0),
   _av(0.,0.,0.),  _sumOfWeights(0),
   _m(0), _t(0),
   _dip(0), _sinDip(0), _rms(0),
