@@ -122,7 +122,7 @@ class PndTpcRiemannTrack : public TObject{
 
   double fRiemannScale;
 
-  std::vector<PndTpcRiemannHit*> _hits; // riemann hits of the track; track has ownership!
+  std::vector<PndTpcRiemannHit*> _hits; //! riemann hits of the track; track has ownership!
   TVector3 _av;  // average over all hits
   double _sumOfWeights; // for weighing the average with cluster error
 
