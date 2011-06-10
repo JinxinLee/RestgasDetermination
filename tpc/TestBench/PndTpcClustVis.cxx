@@ -965,7 +965,7 @@ void PndTpcClustVis::makeGui() {
     guiDoClustering =  new TGCheckButton(hf, "Run Clustering");
     if(doClustering) guiDoClustering->Toggle();
     hf->AddFrame(guiDoClustering);
-    guiDoClustering->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
+    guiDoClustering->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetClusterfinderParams()");
   }
   frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
@@ -1362,7 +1362,6 @@ void PndTpcClustVis::guiGoto(){
 void PndTpcClustVis::guiSetDrawParams(){
   if (!guiInstantRedraw->IsOn()) instantRedraw=false;
 
-  doClustering=(guiDoClustering->IsOn());
   drawTpc=(guiDrawTpc->IsOn());
   drawRawDigis=(guiDrawRawDigis->IsOn());
   drawDigis=(guiDrawDigis->IsOn());
@@ -1383,6 +1382,7 @@ void PndTpcClustVis::guiSetDrawParams(){
 void PndTpcClustVis::guiSetClusterfinderParams(){
   ClHasChanged=true;
 
+  doClustering=(guiDoClustering->IsOn());
   ClMode = guiMode->GetNumberEntry()->GetIntNumber();
   ClTimeslice = giuTimeslice->GetNumberEntry()->GetIntNumber();
   ClTimecut = giuTimecut->GetNumberEntry()->GetIntNumber();
