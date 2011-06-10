@@ -89,7 +89,9 @@ PndTpcDipTTCorrelator::corr(PndTpcRiemannTrack* trk1,
     double dphi = TMath::Abs(phi2-phi1);
 
     DebugLogger::Instance()->Histo("TT_dip_dphi",dphi,-4,4,100);
-
+    
+    matchQuality=dphi;
+    
     // check if tracks have equal dip
     if(dphi>_dipcut){
       DebugLogger::Instance()->Histo("TT_riemanncuts",3,0,20,20);
@@ -128,6 +130,8 @@ PndTpcDipTTCorrelator::corr(PndTpcRiemannTrack* trk1,
   }
 
   DebugLogger::Instance()->Histo("TT_dip_hDist",maxhDist,-10,10,100);
+  
+  matchQuality=maxhDist;
 
   if(maxhDist>_helixcut){
     DebugLogger::Instance()->Histo("TT_riemanncuts",4,0,20,20);

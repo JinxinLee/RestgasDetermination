@@ -196,7 +196,9 @@ PndTpcRiemannTrack::addHit(PndTpcRiemannHit* hit){
   _mcid.AddIDCollection(hit->cluster()->mcId(),1.);
 
   // update average
-  double weightFactor = 1./(hit->cluster()->sig().Perp());
+  double weightFactor = hit->cluster()->sig().Perp();
+  if (weightFactor>1.E-3) weightFactor=1./weightFactor;
+  else weightFactor=1.E3;
   
   _av *= _sumOfWeights;
   _av += hit->x() * weightFactor;
@@ -259,10 +261,13 @@ PndTpcRiemannTrack::refit(){ // helix fit
   TMatrixD sampleCov(3,3);
   
   double nh=0;
+  double weightFactor;
   for(int it=0; it<nhits; ++it){
     TMatrixD h(3,1);
     // weigh hits with 1/cluster error
-    double weightFactor = 1./(_hits[it]->cluster()->sig().Perp());
+    weightFactor = _hits[it]->cluster()->sig().Perp();
+    if (weightFactor>1.E-3) weightFactor=1./weightFactor;
+    else weightFactor=1.E3;
     nh += weightFactor;
     h[0][0]=_hits[it]->x().X();
     h[1][0]=_hits[it]->x().Y();
@@ -295,24 +300,29 @@ PndTpcRiemannTrack::refit(){ // helix fit
 
   _rms=1.E32;
   unsigned int imin=2;
+  
+  double norm, c1, rms;
+  TVectorD planeN(3);
+  TVectorD planeNmin(3);
 
   for(unsigned int i=1;i<3;++i){
-    TVectorD planeN=TMatrixDColumn(eigenVec,i);
-    double norm=1./TMath::Sqrt(planeN.Norm2Sqr());
-    planeN*=norm;
+    planeN=TMatrixDColumn(eigenVec,i);
+    norm=TMath::Sqrt(planeN.Norm2Sqr());
+    if (norm<1E-10) {
+      std::cerr<<"PndTpcRiemannTrack::refit() - eigenvector too small"<<std::endl;
+      return;
+    }
+    planeN*=1./norm;
     TVector3 plane3(planeN[0],planeN[1],planeN[2]);
-    double c1=-1.*plane3*_av; // distance plane to origin
-    double rms=calcRMS(plane3, c1);
+    c1=-1.*plane3*_av; // distance plane to origin
+    rms=calcRMS(plane3, c1);
     if(rms<_rms){
 	    _rms=rms;
-	    imin=i;
+	    planeNmin = planeN;
     }
   }
 	
-	TVectorD planeN=TMatrixDColumn(eigenVec,imin);
-  double norm=1./TMath::Sqrt(planeN.Norm2Sqr());
-  planeN*=norm;
-  _n.SetXYZ(planeN[0],planeN[1],planeN[2]);
+  _n.SetXYZ(planeNmin[0],planeNmin[1],planeNmin[2]);
   _c=-1.*_n*_av; 
 
   _isFitted = true;
@@ -453,6 +463,8 @@ PndTpcRiemannTrack::centerR() {
   r2 *= fRiemannScale;
 
   _radius = 0.5*TMath::Abs(r2-r1);
+  
+  if (_radius<0.01) _radius = 0.01;
 
   // center
   _center=_n;
@@ -515,7 +527,8 @@ PndTpcRiemannTrack::distHelix(PndTpcRiemannHit* hit, bool calcPos) const {
 
     }
 
-    double hit_angleZ = (hitZ-_t)/_m;
+    double hit_angleZ = 0;
+    if (TMath::Abs(_m)>1.E-3) hit_angleZ = (hitZ-_t)/_m;
 
     double zWeigh = 0.5*(TMath::Cos(2.*_dip)+1.);
     hit_angle = (hit_angleR*_sinDip + hit_angleZ*zWeigh) / (_sinDip+zWeigh);
@@ -536,7 +549,8 @@ PndTpcRiemannTrack::getPosDirOnHelix(unsigned int i, TVector3& pos, TVector3& di
   if (!_isFitted) return;
 
   double hit_angleR = _hits[i]->getAngleOnHelix();
-  double hit_angleZ = (_hits[i]->z() - _t)/_m;
+  double hit_angleZ = 0;
+  if (TMath::Abs(_m)>1.E-3) hit_angleZ = (_hits[i]->z()-_t)/_m;
 
   double zWeigh = 0.5*(TMath::Cos(2.*_dip)+1.);
   double hit_angle = (hit_angleR*_sinDip + hit_angleZ*zWeigh) / (_sinDip+zWeigh);
@@ -560,7 +574,7 @@ PndTpcRiemannTrack::getPosDirOnHelix(unsigned int i, TVector3& pos, TVector3& di
 double
 PndTpcRiemannTrack::getMom(double Bz) const {
   if (!_isFitted) return 0;
-  if(_sinDip<1E-2) return TMath::Abs(_radius/1E-2 * 0.0003 * Bz);
+  if(_sinDip<1E-2) return TMath::Abs(_radius/1.E-2 * 0.0003 * Bz);
   return TMath::Abs(_radius/_sinDip * 0.0003 * Bz);
 }
 
