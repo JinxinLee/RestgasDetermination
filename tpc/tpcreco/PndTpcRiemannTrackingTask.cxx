@@ -76,7 +76,9 @@ using std::fabs;
 ClassImp(PndTpcRiemannTrackingTask)
 
 PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
-  : FairTask("PndTpc Pattern Reco"), _persistence(kFALSE),
+  : FairTask("PndTpc Pattern Reco"), 
+    _persistence(kFALSE),
+    _riemannPersistence(kFALSE),
     _sortingMode(true), _sorting(3), _interactionZ(0.),
     _mergeTracks(true),
     _proxcut(2),
@@ -168,10 +170,10 @@ PndTpcRiemannTrackingTask::Init()
   ioman->Register("TrackPreFit","GenFit",_trackArray,true);
 
   _riemannTrackArray = new TClonesArray("PndTpcRiemannTrack");
-  ioman->Register("RiemannTrack","Tpc",_riemannTrackArray,_persistence);
+  ioman->Register("RiemannTrack","Tpc",_riemannTrackArray,_riemannPersistence);
 
   _riemannHitArray = new TClonesArray("PndTpcRiemannHit");
-  ioman->Register("RiemannHit","Tpc",_riemannHitArray,_persistence);
+  ioman->Register("RiemannHit","Tpc",_riemannHitArray,_riemannPersistence);
     
   
   _trackCandArray = new TClonesArray("PndTrackCand");

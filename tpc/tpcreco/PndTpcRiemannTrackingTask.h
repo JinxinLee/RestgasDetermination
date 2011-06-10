@@ -52,6 +52,7 @@ public:
   // Modifiers -----------------------
   void SetClusterBranchName(const TString& name) {_clusterBranchName=name;}
   void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
+  void SetRiemannPersistence(Bool_t opt=kTRUE) {_riemannPersistence=opt;}
 
   void SetSortingParameters(
                    bool sortingMode=false, // false: sort only according to _sorting; true: use internal sorting when adding hits to trackcands
@@ -102,10 +103,9 @@ private:
   std::vector<PndTpcRiemannTrack*> friemannlist;
   unsigned int fnsectors;
 
-
-  Bool_t fPersistence;
-
   Bool_t _persistence;
+  Bool_t _riemannPersistence;
+  
   Bool_t _geane;
 
   double fMins[4];
