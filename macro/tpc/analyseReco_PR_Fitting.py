@@ -181,7 +181,7 @@ for file in files :
     recoMom0 = ROOT.TH1D("recoMom0", "Rec. Momenta RK", 500,0,10)
     recoMom1 = ROOT.TH1D("recoMom1", "Rec. Momenta Geane", 500,0,10)
 
-    recoEff = ROOT.TH1D("recoEff", "unique rec. Tracks with > minNumHits", mult+1, 0,mult+1) 
+    recoEff = ROOT.TH1D("recoEff", "(unique rec. Tracks with > minNumHits)/mult", mult+1, 0,1+1/float(mult)) 
     splitting = ROOT.TH1D("splitting", "split Tracks with > minNumHits", 8*mult+1, 0,8*mult+1) 
     trkPurity = ROOT.TH1D("trkPurity", "Track Purity of Tracks with > minNumHits", 101,0,1.01) 
     trkCompleteness = ROOT.TH1D("trkCompleteness", "Track Completeness of Tracks with > minNumHits", 101,0,1.01) 
@@ -193,7 +193,7 @@ for file in files :
     
     foundVsTheta = ROOT.TH2D("foundVsTheta", "percentage of found tracks (>50% of clusters) vs theta", 37,0,185, 101,0,1.01) 
 
-    effVsThetaA = ROOT.TH2D("effVsThetaA", "Reco Efficiency vs theta", 37,0,185, mult+1, 0,mult+1) 
+    effVsThetaA = ROOT.TH2D("effVsThetaA", "Reco Efficiency vs theta", 37,0,185,  mult+1, 0,1+1/float(mult)) 
     splitVsThetaA = ROOT.TH2D("splitVsThetaA", "Track Splitting vs theta", 37,0,185, 8*mult+1, 0,8*mult+1) 
     purityVsThetaA = ROOT.TH2D("purityVsThetaA", "Track Purity vs theta", 37,0,185, 101,0,1.01) 
     complVsThetaA = ROOT.TH2D("complVsThetaA", "Track Completeness vs theta", 37,0,185, 101,0,1.01)     
