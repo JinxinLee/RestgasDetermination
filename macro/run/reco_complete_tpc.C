@@ -105,50 +105,61 @@ void reco_complete_tpc()
 
     // -----   TPC Reco Sequence  --------------------------------------------
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
-  tpcCF->SetMode(1); // individual timeslice
-  tpcCF->SetPersistence();
-  tpcCF->timeslice(20); // = 4 sample times = 100ns @ 40MHz
-  //tpcCF->SetTrivialClustering();
+  //tpcCF->SetDigiPersistence(); // keep reference to digis in clusters
+  tpcCF->SetPersistence(); // keep Clusters
+  tpcCF->timeslice(9); //in samples
+  tpcCF->SetThreshold(1);
+  tpcCF->SetSingleDigiClusterAmpCut(0.);
+  tpcCF->SetClusterAmpCut(0.); // cut on mean digi amplitude
+  tpcCF->SetErrorPars(600.,400.);
+  tpcCF->SetSimpleClustering(); // use PndTpcClusterFinderSimple
   fRun->AddTask(tpcCF);
-
-  
-  //PndTpcIdealTrackingTask* tpcIPR = new PndTpcIdealTrackingTask();
-  //tpcIPR->useGeane(true);
-  //tpcIPR->useDistSorting(true);
-  //fRun->AddTask(tpcIPR);
-  //tpcIPR->SetPersistence();
 
 
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
-  tpcSPR->SetTrkFinderParameters(3.,// proxcut
-				 0.05, // proxcut on rieman sphere
-				 5.E-3, // planecut
-				 4.0, // szcut
-				 4); // minnumhits for fit
   tpcSPR->SetPersistence();
-  tpcSPR->useGeane();
+  //tpcSPR->SetRiemannPersistence();
+  //tpcSPR->SetRiemannPersistence();
+  tpcSPR->SetSortingParameters(
+        true, // false: sort only according to _sorting (see next argument); true: use internal sorting when adding hits to trackcands
+        3,    // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
+        0.); // z-position of interaction point (for sorting 4)
+  tpcSPR->SetTrkFinderParameters(
+        1.9,  // proximity cut in 3D [cm]
+        0.4,  // helix cut [cm]
+        5);   // minimum hits for helix-fit
+  tpcSPR->SetMergeTracks();
+  tpcSPR->SetTrkMergerParameters(
+        2.5,  // proximity cut [cm]
+        0.1,  // dip cut [rad]
+        0.6,  // helix cut [cm]
+        0.025);// plane cut (RMS)
+  //tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
+  //tpcSPR->useGeane(); // uses RKTrackrep and GeaneTrackrep
+  tpcSPR->SetSmoothing(true);
+  //tpcSPR->WriteHistograms(PROutFile);
   fRun->AddTask(tpcSPR);
   
+  PndTpcIdealTrackingTask* tpcIPR = new PndTpcIdealTrackingTask();
+  //tpcIPR->useGeane(true);
+  tpcIPR->useDistSorting(true);
+  tpcIPR->SetPersistence();
+  tpcIPR->SetSmoothing(true);
+  //fRun->AddTask(tpcIPR);
+
+
   KalmanTask* kalman =new KalmanTask();
   kalman->SetPersistence();
   kalman->SetNumIterations(3); // number of fitting iterations (back and forth)
   fRun->AddTask(kalman);
 
 
-  TrackFitStatTask* fitstat=new TrackFitStatTask();
-  fitstat->SetPersistence();
-  fitstat->SetMCPCut(10); // in sigma dp/p
-  fitstat->SetMCCuts(0.05, // pmin
-	             10., // pmax
-		     -TMath::Pi(),   // thetamin 5deg
-		     TMath::Pi(),  // thetamax
-		     5); // nPndTpcPoints
-  //fitstat->SetPdgSelection(321);
-  //fitstat->DoResiduals();
-  fRun->AddTask(fitstat);
+  PndTpcResidualTask* Res = new PndTpcResidualTask();
+  Res->SetPersistence();
+  //Res->SetNumberOfTrackReps(2);
+  //SLres->SetClusterBranchName("PndTpcCluster_cut");
+  fRun->AddTask(Res);
   
-
-
 
 	
   // -----   Intialise and run   --------------------------------------------
@@ -159,8 +170,7 @@ void reco_complete_tpc()
   fRun->Run(0,nEvents);
   // ------------------------------------------------------------------------
 
-  tpcSPR->WriteHistograms("blub");
-  fitstat->WriteHistograms("fitstat.root");
+  tpcSPR->WriteHistograms("Riemann");
 
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
