@@ -172,6 +172,8 @@ private:
   bool instantRedraw;
   TGCheckButton* guiDrawTpc;
   bool drawTpc;
+  TGNumberEntry* guiTpcTransp;
+  double TpcTransp;
   TGCheckButton* guiDrawRawDigis;
   bool drawRawDigis;
   TGCheckButton* guiDrawDigis;

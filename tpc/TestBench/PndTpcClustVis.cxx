@@ -46,7 +46,7 @@ PndTpcClustVis::PndTpcClustVis():
   ClSingleDigiClAmpCut(15), ClClAmpCut(9),
   ClElPerADC(600.), ClErrorNorm(300.),
   ClSimpleCl(true), ClSimpleTimeslice(4), ClSimpleMaxClusterSlice(3000),
-  instantRedraw(true), drawTpc(false), drawRawDigis(false), drawDigis(false),
+  instantRedraw(true), drawTpc(false), TpcTransp(80), drawRawDigis(false), drawDigis(false),
   drawClusters(true), drawClusterErrors(false),
   drawRiemannTracks(true), drawFitMarkers(false),
   doPR(true), doMerge(true), doClean(false),
@@ -231,7 +231,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     tpc_shape->SetTransMatrix(*tpc_trans);
 
     tpc_shape->SetMainColor(kBlue);
-    tpc_shape->SetMainTransparency(80);
+    tpc_shape->SetMainTransparency(drawTpc);
     gEve->AddElement(tpc_shape);
   }
 
@@ -911,6 +911,17 @@ void PndTpcClustVis::makeGui() {
   }
   frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
+    guiTpcTransp = new TGNumberEntry(hf, TpcTransp, 3,999, TGNumberFormat::kNESInteger,
+                          TGNumberFormat::kNEANonNegative,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 100);
+    hf->AddFrame(guiTpcTransp);
+    guiTpcTransp->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
+    lbl = new TGLabel(hf, "TPC Transparency");
+    hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
     guiDrawRawDigis =  new TGCheckButton(hf, "Draw Digis from DigiBranch");
     if(drawRawDigis) guiDrawRawDigis->Toggle();
     hf->AddFrame(guiDrawRawDigis);
@@ -1363,6 +1374,7 @@ void PndTpcClustVis::guiSetDrawParams(){
   if (!guiInstantRedraw->IsOn()) instantRedraw=false;
 
   drawTpc=(guiDrawTpc->IsOn());
+  TpcTransp=guiTpcTransp->GetNumberEntry()->GetIntNumber();
   drawRawDigis=(guiDrawRawDigis->IsOn());
   drawDigis=(guiDrawDigis->IsOn());
   drawClusters=(guiDrawClusters->IsOn());
