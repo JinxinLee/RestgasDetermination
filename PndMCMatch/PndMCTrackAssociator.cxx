@@ -139,9 +139,19 @@ Int_t PndMCTrackAssociator::GetMvdHitPixels(Int_t index) {
   // Taking points from PndMvdHitPixel
   
   PndSdsHit* hit = (PndSdsHit*) fMvdPixelHitArray->At(index);
+  if (!hit)
+  {
+    cout << "-E- PndMCTrackAssociator::GetMvdHitPixels: MvdHitPixel #" << index << " does not exist!!!" << endl;
+    return -1;
+  }
   if (hit->GetRefIndex()!=-1)
   {
     PndSdsMCPoint* myPoint = (PndSdsMCPoint*)(fMvdMCArray->At(hit->GetRefIndex()));
+    if (!myPoint)
+    {
+      cout << "-E- PndMCTrackAssociator::GetMvdHitPixels: MvdMCPoint #" << hit->GetRefIndex() << " does not exist!!!" << endl;
+      return -1;
+    }
     return (myPoint->GetTrackID());
   }
   else
@@ -156,9 +166,19 @@ Int_t PndMCTrackAssociator::GetMvdHitStrips(Int_t index)
   // Taking points from PndMvdHitStrip
   
   PndSdsHit* hit = (PndSdsHit*) fMvdStripHitArray->At(index);
+  if (!hit)
+  {
+    cout << "-E- PndMCTrackAssociator::GetMvdHitStrips: MvdHitStrip #" << index << " does not exist!!!" << endl;
+    return -1;
+  }
   if (hit->GetRefIndex()!=-1)
   {
     PndSdsMCPoint* myPoint = (PndSdsMCPoint*)(fMvdMCArray->At(hit->GetRefIndex()));
+    if (!myPoint)
+    {
+      cout << "-E- PndMCTrackAssociator::GetMvdHitStrips: MvdMCPoint #" << hit->GetRefIndex() << " does not exist!!!" << endl;
+      return -1;
+    }
     return (myPoint->GetTrackID());
   }
   else
@@ -173,6 +193,12 @@ Int_t PndMCTrackAssociator::GetTpcClusters(Int_t index)
   // Taking points from PndTpcCluster
   
   PndTpcCluster* clu = (PndTpcCluster*) fTpcInput->At(index);
+  if (!clu)
+  {
+    cout << "-E- PndMCTrackAssociator::GetTpcClusters: TpcCluster #" << index << " does not exist!!!" << endl;
+    return -1;
+  }
+
   return (clu->mcId().DominantID().mctrackID());
 } 
 
@@ -182,6 +208,11 @@ Int_t PndMCTrackAssociator::GetSttHits(Int_t index)
   // Taking points from PndSttHit
   
   PndSttHit* sttHit = (PndSttHit*) fSttHitInput->At(index);
+  if (!sttHit)
+  {
+    cout << "-E- PndMCTrackAssociator::GetSttHits: SttHit #" << index << " does not exist!!!" << endl;
+    return -1;
+  }
   return (sttHit->GetRefIndex());
 } 
 
@@ -191,9 +222,19 @@ Int_t PndMCTrackAssociator::GetGemHits(Int_t index)
   // Taking points from PndGemHits
   
   PndGemHit* gemHit = (PndGemHit*) fGemInput->At(index);
+  if (!gemHit)
+  {
+    cout << "-E- PndMCTrackAssociator::GetGemHits: GemHit #" << index << " does not exist!!!" << endl;
+    return -1;
+  }
   if (gemHit->GetRefIndex()!=-1) 
   {
     PndGemMCPoint* myPoint = (PndGemMCPoint*)(fGemMCArray->At(gemHit->GetRefIndex()));
+    if (!myPoint)
+    {
+      cout << "-E- PndMCTrackAssociator::GetGemHits: GemMCPoint #" << gemHit->GetRefIndex() << " does not exist!!!" << endl;
+      return -1;
+    }
     return(myPoint->GetTrackID());
   }
   else
@@ -208,9 +249,20 @@ Int_t PndMCTrackAssociator::GetFtsHits(Int_t index)
   // Taking points from PndGemHits
   
   PndFtsHit* ftsHit = (PndFtsHit*) fFtsInput->At(index);
+  if (!ftsHit)
+  {
+    cout << "-E- PndMCTrackAssociator::GetFtsHits: FtsHit #" << index << " does not exist!!!" << endl;
+    return -1;
+  }
+
   if (ftsHit->GetRefIndex()!=-1) 
   {
     PndFtsPoint* myPoint = (PndFtsPoint*)(fFtsMCArray->At(ftsHit->GetRefIndex()));
+    if (!myPoint)
+    {
+      cout << "-E- PndMCTrackAssociator::GetFtsHits: FtsPoint #" << ftsHit->GetRefIndex() << " does not exist!!!" << endl;
+      return -1;
+    }
     return(myPoint->GetTrackID());
   }
   else
