@@ -231,7 +231,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     tpc_shape->SetTransMatrix(*tpc_trans);
 
     tpc_shape->SetMainColor(kBlue);
-    tpc_shape->SetMainTransparency(drawTpc);
+    tpc_shape->SetMainTransparency(TpcTransp);
     gEve->AddElement(tpc_shape);
   }
 

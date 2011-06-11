@@ -173,7 +173,7 @@ private:
   TGCheckButton* guiDrawTpc;
   bool drawTpc;
   TGNumberEntry* guiTpcTransp;
-  double TpcTransp;
+  int TpcTransp;
   TGCheckButton* guiDrawRawDigis;
   bool drawRawDigis;
   TGCheckButton* guiDrawDigis;
