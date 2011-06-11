@@ -170,10 +170,11 @@ for file in files :
         continue
         
     tree.SetBranchStatus("*", 0)
+    tree.SetBranchStatus("TrackPreFit.*", 1)
     tree.SetBranchStatus("TrackPostFit.*", 1)
     tree.SetBranchStatus("TrackFitStat_0.*", 1)
     #tree.SetBranchStatus("TrackFitStat_1.*", 1)
-    tree.SetBranchStatus("RiemannTrack.*", 1)
+    #tree.SetBranchStatus("RiemannTrack.*", 1)
     tree.SetBranchStatus("PndTpcCluster.*", 1)
     
     
@@ -257,22 +258,31 @@ for file in files :
         maxClustersPerID={0:0} # for finding the track with the most hits
         
         
-        for rtrk in e.RiemannTrack :
-            TrkCol = rtrk.mcid()
+        for rtrk in e.TrackPreFit :
+            cand = rtrk.getCand()
+            numHits = rtrk.getNumHits()
+
+           
+            TrkCol = ROOT.McIdCollection()
+            hitIds = cand.GetHitIDs(2)
+            for hitId in hitIds :
+                cluster = e.PndTpcCluster.At(hitId)
+                TrkCol.AddIDCollection(cluster.mcId())
+                            
+
             ntrkMCIDs = TrkCol.nIDs()
             #print "Found %i MCIDs in track" %ntrkMCIDs
              
             
-            numHits = rtrk.getNumHits()
             #print "Found %i hits in track" %numHits
-            DominantID=rtrk.mcid().DominantID().mctrackID()
+            DominantID=TrkCol.DominantID().mctrackID()
             
             
 
             if numHits >= minNumHits :
                 nTrks += 1
                 nGlobTrks += 1
-                purity = rtrk.mcid().MaxRelWeight()
+                purity = TrkCol.MaxRelWeight()
                 trkPurity.Fill(purity)
                 purityVsThetaA.Fill(theta, purity) 
                 meanPurity += purity
@@ -346,6 +356,27 @@ for file in files :
     purityVsTheta.Fill(theta, meanPurity) 
     
     foundVsTheta.Fill(theta, foundTracks/float(counter*mult))
+    
+    #normalize the 2d histograms
+    histos = [effVsThetaA, splitVsThetaA, purityVsThetaA, complVsThetaA]
+    
+    for histo in histos :
+    
+        if histo == None :
+            continue
+    
+        NbinsX = histo.GetNbinsX()
+        NbinsY = histo.GetNbinsY()
+        
+        for x  in range(NbinsX+1) :
+            norm =0.
+            for y in range(NbinsY+1) :
+                norm += histo.GetBinContent(x,y)
+            for y in range(NbinsY+1) :
+                if norm > 0 :
+                    histo.SetBinContent(x,y, histo.GetBinContent(x,y)/norm)
+                    
+                    
 
     outfile.cd()
 
@@ -409,6 +440,7 @@ for file in files :
     Rfile.Close()
     
     print "wrote out file"
+    print outname
     
 #  ------------------------------- END OF ANA LOOP ---------------------------------------           
 
