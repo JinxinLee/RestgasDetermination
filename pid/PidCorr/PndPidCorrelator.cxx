@@ -510,7 +510,6 @@ void PndPidCorrelator::ConstructChargedCandidate() {
   Int_t nTracks = fTrack->GetEntriesFast();
   for (Int_t i = 0; i < nTracks; i++) {
     PndTrack* track = (PndTrack*) fTrack->At(i);
-    PndTrackID* trackID = (PndTrackID*) fTrackID->At(i);
     Int_t ierr = 0;
     FairTrackParP par = track->GetParamLast();
     if ((par.GetMomentum().Mag()<0.1) || (par.GetMomentum().Mag()>15.) )continue;
@@ -519,6 +518,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
     PndPidCandidate* pidCand = 	new PndPidCandidate();
     if (fTrackIDBranch!="")
     {
+      PndTrackID* trackID = (PndTrackID*) fTrackID->At(i);
       if (trackID->GetNCorrTrackId()>0)
       {
         pidCand->SetMcIndex(trackID->GetCorrTrackID());
@@ -546,7 +546,6 @@ void PndPidCorrelator::ConstructChargedCandidate() {
     Int_t nTracks2 = fTrack2->GetEntriesFast();
     for (Int_t i = 0; i < nTracks2; i++) {
       PndTrack* track = (PndTrack*) fTrack2->At(i);
-      PndTrackID* trackID = (PndTrackID*) fTrackID2->At(i);
       Int_t ierr = 0;
       FairTrackParP par = track->GetParamLast();
       if ((par.GetMomentum().Mag()<0.1) || (par.GetMomentum().Mag()>15.) )continue;
@@ -555,8 +554,9 @@ void PndPidCorrelator::ConstructChargedCandidate() {
       PndPidCandidate* pidCand =  new PndPidCandidate();
       if (fTrackIDBranch2!="")
       {
-        if (trackID->GetNCorrTrackId()>0)
-        {
+        PndTrackID* trackID = (PndTrackID*) fTrackID2->At(i);
+	if (trackID->GetNCorrTrackId()>0)
+	  {
           pidCand->SetMcIndex(trackID->GetCorrTrackID());
         }
       } else { // added for PndAnalysis, TODO: remove after Fairlinks work with Associators
