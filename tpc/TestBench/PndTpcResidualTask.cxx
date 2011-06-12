@@ -53,6 +53,7 @@
 PndTpcResidualTask::PndTpcResidualTask()
   : fClusterBranchName("PndTpcCluster"),
     fTrackBranchName("TrackPostFit"),
+    fOutBranchName("TrackFitStat"),
     fPersistence(kTRUE),
     fSecondarySupp(kFALSE),
     fNumReps(1)
@@ -91,7 +92,8 @@ PndTpcResidualTask::Init() {
   //unsigned int nReps = tr->getNumReps();
   for(unsigned int r=0; r<fNumReps; r++) {
     fFitStatArray = new TClonesArray("TrackFitStat");
-    TString title = "TrackFitStat_";
+    TString title = fOutBranchName;
+    title.Append("_");
     char buffer[5];
     sprintf(buffer,"%i",r);
     title.Append(buffer);
@@ -206,7 +208,9 @@ PndTpcResidualTask::Exec(Option_t* opt) {
 
       //Loop over clusters
       for(unsigned int k=0; k<candIDs.size(); k++){
-        PndTpcCluster* cl = (PndTpcCluster*)fClusterArray->At(candIDs[k]);
+        PndTpcCluster* cl = dynamic_cast<PndTpcCluster*>(fClusterArray->At(candIDs[k]));
+        if(cl==NULL) continue;
+
         TVector3 cl_pos = cl->pos();
 
         hit = track->getHit(k);

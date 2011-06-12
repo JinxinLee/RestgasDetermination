@@ -49,6 +49,7 @@ public:
   void SetPersistence(Bool_t opt=kTRUE) {fPersistence=opt;} 
   void SetClusterBranchName(TString cln) {fClusterBranchName=cln;}
   void SetTrackBranchName(TString tn) {fTrackBranchName=tn;}
+  void SetOutBranchName(TString tn) {fOutBranchName=tn;}
 
   void SetSecondarySuppression(Bool_t opt=kTRUE) {fSecondarySupp=opt;}
   void SetNumberOfTrackReps(unsigned int n) {fNumReps=n;}
@@ -62,6 +63,7 @@ private:
 
  TString fClusterBranchName;
  TString fTrackBranchName;
+ TString fOutBranchName;
 
  TClonesArray* fClusterArray;
  TClonesArray* fTrackArray;
