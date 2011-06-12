@@ -152,7 +152,7 @@ PndTpcResidualTask::Exec(Option_t* opt) {
   for(unsigned int n=0; n<nTr; n++) {
     GFTrack* track = (GFTrack*) fTrackArray->At(n);
     if(track==NULL) continue;
-
+    
     if(DEBUG) {
       std::cout<<"PndTpcResidualTask::Exec(): Processing track #"
          <<n<<std::endl;
@@ -223,9 +223,9 @@ PndTpcResidualTask::Exec(Option_t* opt) {
           rep->extrapolate(plane);
         }
         catch(GFException& e) {
-          std::cerr << "Error: Exception caught" << std::endl;
+          std::cerr << "PndTpcResidualTask(): Could not get DetPlane"  << std::endl;
           std::cerr << e.what();
-          break;
+          continue;
           /*if (e.isFatal()) {
             std::cerr<<"Fatal exception, skipping track"<<std::endl;
             break;
@@ -235,7 +235,14 @@ PndTpcResidualTask::Exec(Option_t* opt) {
             continue;
             }*/
         }
-        track_pos = rep->getPos(plane);
+	try{
+	  track_pos = rep->getPos(plane);
+	}
+	catch(const GFException& ex) {
+	  std::cerr << "PndTpcResidualTask(): Could not get Position on Plane"  << std::endl;
+	  std::cerr<<ex.what()<<std::endl;
+	  continue;
+	}
 
         pps.push_back(track_pos);
         //calculate residual
