@@ -47,6 +47,8 @@
 
 #include "RKTrackRep.h"
 
+#include "PndDetectorList.h"
+
 #define DEBUG 1
 
 
@@ -156,7 +158,7 @@ PndTpcResidualTask::Exec(Option_t* opt) {
 
     GFTrackCand cand = track->getCand();
     candIDs.clear(); 
-    candIDs = cand.GetHitIDs(2);
+    candIDs = cand.GetHitIDs(kTpcCluster);
     
     /*if(fSecondarySupp==true  && n>0)
       continue;*/
@@ -208,8 +210,7 @@ PndTpcResidualTask::Exec(Option_t* opt) {
 
       //Loop over clusters
       for(unsigned int k=0; k<candIDs.size(); k++){
-        PndTpcCluster* cl = dynamic_cast<PndTpcCluster*>(fClusterArray->At(candIDs[k]));
-        if(cl==NULL) continue;
+        PndTpcCluster* cl = (PndTpcCluster*)(fClusterArray->At(candIDs[k]));
 
         TVector3 cl_pos = cl->pos();
 
