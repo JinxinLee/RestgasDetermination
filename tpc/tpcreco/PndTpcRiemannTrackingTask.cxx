@@ -65,6 +65,8 @@
 #include "TMath.h"
 #include"TDatabasePDG.h"
 
+#include "PndDetectorList.h"
+
 #include <cmath>
 
 using std::fabs;
@@ -371,14 +373,14 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     double r2=trk->getHit(nhits-1)->cluster()->pos().Perp();
     if(r1<=r2){
       for(unsigned int ih=0; ih<nhits; ++ih){
-        cand->addHit(2,trk->getHit(ih)->cluster()->index());
-        //pndcand->AddHit(2,trk->getHit(ih)->cluster()->index(),trk->getHit(ih)->cluster()->pos().Mag()); // todo: fix issues
+        cand->addHit(kTpcCluster,trk->getHit(ih)->cluster()->index());
+        //pndcand->AddHit(kTpcCluster,trk->getHit(ih)->cluster()->index(),trk->getHit(ih)->cluster()->pos().Mag()); // todo: fix issues
       }
     }
     else {
       for(unsigned int ih=nhits; ih>0; --ih){
-        cand->addHit(2,trk->getHit(ih-1)->cluster()->index());
-        //pndcand->AddHit(2,trk->getHit(ih-1)->cluster()->index(),trk->getHit(ih-1)->cluster()->pos().Mag());// todo: fix issues
+        cand->addHit(kTpcCluster,trk->getHit(ih-1)->cluster()->index());
+        //pndcand->AddHit(kTpcCluster,trk->getHit(ih-1)->cluster()->index(),trk->getHit(ih-1)->cluster()->pos().Mag());// todo: fix issues
       }
       invertedTrack = true;
     }// finished filling hits

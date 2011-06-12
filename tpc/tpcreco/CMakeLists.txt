@@ -22,9 +22,13 @@ ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep2
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/RKTrackRep
-${CMAKE_SOURCE_DIR}/pnddata
+${CMAKE_SOURCE_DIR}/GenfitTools/recohits
+${CMAKE_SOURCE_DIR}/pnddata/SdsData
 ${CMAKE_SOURCE_DIR}/tpc
 ${CMAKE_SOURCE_DIR}/tpc/tpcreco
+${CMAKE_SOURCE_DIR}/PndTools/generalTools
+
+
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -75,6 +79,8 @@ PndTpcdEdxTask.cxx
 PndTpcdEdx.cxx
 PndTpcGenfitTestTask.cxx
 PndTpcTestPlanarHit.cxx
+PndTpcMVDCorrelatorTask.cxx
+PndTpcRoughAlignmentTask.cxx
 ../DebugLogger.cxx
 ../dbgstream.cxx
 )
