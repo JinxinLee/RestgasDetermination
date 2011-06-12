@@ -49,7 +49,7 @@
 
 #include "PndDetectorList.h"
 
-#define DEBUG 1
+#define DEBUG 0
 
 
 PndTpcResidualTask::PndTpcResidualTask()
@@ -132,6 +132,8 @@ PndTpcResidualTask::SetParContainers() {
 void
 PndTpcResidualTask::Exec(Option_t* opt) {
   
+  std::cout<<"PndTpcResidualTask::Exec()"<<std::endl;
+
   //clear output
   for(unsigned int r=0; r<fNumReps; r++) {
     fFitStatArray = fOutArrayMap[r];
@@ -153,7 +155,7 @@ PndTpcResidualTask::Exec(Option_t* opt) {
 
     if(DEBUG) {
       std::cout<<"PndTpcResidualTask::Exec(): Processing track #"
-         <<nTr<<std::endl;
+         <<n<<std::endl;
     }
 
     GFTrackCand cand = track->getCand();
