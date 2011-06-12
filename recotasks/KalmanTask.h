@@ -45,6 +45,7 @@ public:
 
   // Modifiers -----------------------
   void SetTrackBranchName(const TString& name) {_trackBranchName=name;}
+  void SetOutBranchName(const TString& name) {_outBranchName=name;}
   void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
   void SetLazy(Bool_t opt){_lazy=opt;}
   void SetNumIterations(Int_t it){_numIt=it;}
@@ -63,6 +64,7 @@ private:
   TClonesArray* _trackArray;
   TClonesArray* _trackOutArray;
   TString _trackBranchName;
+  TString _outBranchName;
 
   Bool_t _persistence;
   Bool_t _lazy;

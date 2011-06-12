@@ -75,6 +75,7 @@ KalmanTask::KalmanTask()
   : FairTask("Kalman Filter"), _persistence(kFALSE),_lazy(0),_numIt(1)
 {
   _trackBranchName = "TrackPreFit";
+  _outBranchName = "TrackPostFit";
 }
 
 
@@ -105,7 +106,7 @@ KalmanTask::Init()
     }
   
   // Get input collection
-  _trackArray=(TClonesArray*) ioman->GetObject("TrackPreFit");
+  _trackArray=(TClonesArray*) ioman->GetObject("_trackBranchName");
   if(_trackArray==0)
     {
       Error("KalmanTask::Init","track-array not found!");
@@ -149,7 +150,7 @@ KalmanTask::Init()
    }
    
    _trackOutArray = new TClonesArray("GFTrack");
-   ioman->Register("TrackPostFit","",_trackOutArray,kTRUE);
+   ioman->Register(_outBranchName,"",_trackOutArray,kTRUE);
 
 
   // setup histograms
