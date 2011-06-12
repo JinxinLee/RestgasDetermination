@@ -72,10 +72,9 @@ void sighandler(int sig){
 
 
 KalmanTask::KalmanTask()
-  : FairTask("Kalman Filter"), _persistence(kFALSE),_lazy(0),_numIt(1)
+  : FairTask("Kalman Filter"), _persistence(kFALSE),_lazy(0),_numIt(1), _trackBranchName("TrackPreFit"), _outBranchName("TrackPostFit")
 {
-  _trackBranchName = "TrackPreFit";
-  _outBranchName = "TrackPostFit";
+
 }
 
 
@@ -106,7 +105,7 @@ KalmanTask::Init()
     }
   
   // Get input collection
-  _trackArray=(TClonesArray*) ioman->GetObject("_trackBranchName");
+  _trackArray=(TClonesArray*) ioman->GetObject(_trackBranchName);
   if(_trackArray==0)
     {
       Error("KalmanTask::Init","track-array not found!");
