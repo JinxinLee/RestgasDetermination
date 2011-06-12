@@ -329,9 +329,6 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     int nhits=trk->getNumHits();
     
     // store PndTpcRiemannTracks in output array
-    std::cout<<"DEBUG: "<<std::endl;
-    std::cout<<"trackArray size: "<<_riemannTrackArray->GetEntriesFast()<<std::endl;
-    
     (*_riemannTrackArray)[_riemannTrackArray->GetEntriesFast()] = trk;
     for(unsigned int ih=0;ih<nhits;++ih){
       PndTpcRiemannHit* hit=trk->getHit(ih);
