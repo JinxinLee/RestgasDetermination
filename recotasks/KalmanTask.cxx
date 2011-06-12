@@ -120,33 +120,48 @@ KalmanTask::Init()
      Error("KalmanTask::Init","PndTpcCluster array not found");
    }
    else{ 
-     _theRecoHitFactory->addProducer(2,new GFRecoHitProducer<PndTpcCluster,PndTpcSPHit>(ar));
+     _theRecoHitFactory->addProducer(kTpcCluster,new GFRecoHitProducer<PndTpcCluster,PndTpcSPHit>(ar));
    }
  
-   TClonesArray* mvdHitArray=(TClonesArray*) ioman->GetObject("MVDHit");
-   if(mvdHitArray==0){ //TODO Convention on detector number needed
-     Error("PndFwdKalmanTask::Init","MVDHit array not found");
+   // TClonesArray* mvdHitArray=(TClonesArray*) ioman->GetObject("MVDHit");
+   // if(mvdHitArray==0){ //TODO Convention on detector number needed
+   //   Error("PndFwdKalmanTask::Init","MVDHit array not found");
+   // } else {
+   //   _theRecoHitFactory->addProducer(kMVD,new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(mvdHitArray));
+   // }
+   
+   TClonesArray* mvdPixArray=(TClonesArray*) ioman->GetObject("MVDHitsPixel");
+   if(mvdPixArray==0){ //TODO Convention on detector number needed
+     Error("PndFwdKalmanTask::Init","MVDHitsPixel array not found");
    } else {
-     _theRecoHitFactory->addProducer(kMVD,new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(mvdHitArray));
+     _theRecoHitFactory->addProducer(kMVDHitsPixel,
+				     new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(mvdPixArray));
    }
    
-   
-   TClonesArray* gemHitArray=(TClonesArray*) ioman->GetObject("GEMHit");
-   if(gemHitArray==0){ //TODO Convention on detector number needed
-     Error("PndFwdKalmanTask::Init","GEMHit array not found");
+   TClonesArray* mvdStrArray=(TClonesArray*) ioman->GetObject("MVDHitsStrip");
+   if(mvdStrArray==0){ //TODO Convention on detector number needed
+     Error("PndFwdKalmanTask::Init","MVDHitsStrip array not found");
    } else {
-     _theRecoHitFactory->addProducer(kGEM,new GFRecoHitProducer<PndGemHit,PndGemRecoHit>(gemHitArray));
-     _theRecoHitFactory->addProducer(5,new GFRecoHitProducer<PndGemHit,PndGemRecoHit>(gemHitArray));
+     _theRecoHitFactory->addProducer(kMVDHitsStrip,
+   				     new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(mvdStrArray));
    }
    
+   // TClonesArray* gemHitArray=(TClonesArray*) ioman->GetObject("GEMHit");
+   // if(gemHitArray==0){ //TODO Convention on detector number needed
+   //   Error("PndFwdKalmanTask::Init","GEMHit array not found");
+   // } else {
+   //   _theRecoHitFactory->addProducer(kGEM,new GFRecoHitProducer<PndGemHit,PndGemRecoHit>(gemHitArray));
+   //   _theRecoHitFactory->addProducer(5,new GFRecoHitProducer<PndGemHit,PndGemRecoHit>(gemHitArray));
+   // }
    
    
-   TClonesArray* dchCylHitArray=(TClonesArray*) ioman->GetObject("PndDchCylinderHit");
-   if(dchCylHitArray==0){ //TODO Convention on detector number needed
-     Error("PndFwdKalmanTask::Init","PndDchCylinderHit array not found");
-   } else {
-     _theRecoHitFactory->addProducer(kDCH,new GFRecoHitProducer<PndDchCylinderHit,PndDchRecoHit2>(dchCylHitArray));
-   }
+   
+   // TClonesArray* dchCylHitArray=(TClonesArray*) ioman->GetObject("PndDchCylinderHit");
+   // if(dchCylHitArray==0){ //TODO Convention on detector number needed
+   //   Error("PndFwdKalmanTask::Init","PndDchCylinderHit array not found");
+   // } else {
+   //   _theRecoHitFactory->addProducer(kDCH,new GFRecoHitProducer<PndDchCylinderHit,PndDchRecoHit2>(dchCylHitArray));
+   // }
    
    _trackOutArray = new TClonesArray("GFTrack");
    ioman->Register(_outBranchName,"",_trackOutArray,kTRUE);
