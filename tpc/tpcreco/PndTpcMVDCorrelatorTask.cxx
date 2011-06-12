@@ -45,7 +45,7 @@
 
 // Class Member definitions -----------
 
-#define DEBUG 1
+#define DEBUG 0
 
 bool sortByR(const std::map<PndSdsHit*, std::map<unsigned int, int> >& h1, 
 	     const std::map<PndSdsHit*, std::map<unsigned int, int> >& h2) {
@@ -140,6 +140,7 @@ void
 PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
 {
   std::cout<<"PndTpcMVDCorrelatorTask::Exec"<<std::endl;
+  fOutTrackArray->Delete();
   
   unsigned int ntracks = fTrackArray->GetEntriesFast();
   
@@ -264,8 +265,12 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
     std::cout<<"======= TempCand from found MVD pixel/strip hits has size "<<
       tempCand.size()<<" =======\n"<<std::endl;
 
-    if(tempCand.size() < fMinMVDHits)
+    if(tempCand.size() < fMinMVDHits) {
+      GFTrack* outTrack = new GFTrack(*track);
+      outTrack->clearBookkeeping();
+      (*fOutTrackArray)[fOutTrackArray->GetEntriesFast()] = outTrack;
       continue;
+    }
     
     std::sort(tempCand.begin(), tempCand.end(), sortByR);
     //create MVD hit candidate
@@ -275,6 +280,8 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
 		      tempCand[im].begin()->second.begin()->first); //hit in array
     }
     
+    //GFAbsTrackRep* oldRep = track->getCardinalRep();
+        
     GFTrack* outTrack = new GFTrack(track->getCardinalRep()->clone(), true);
     for(unsigned int irep=1; irep<track->getNumReps(); irep++) 
       outTrack->addTrackRep(track->getTrackRep(irep));
@@ -282,6 +289,7 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
     outTrack->setCandidate(*mvdCand);
         
     GFTrack* tmpTrack = new GFTrack(*track);
+    tmpTrack->clearBookkeeping();
     outTrack->mergeHits(tmpTrack);
     (*fOutTrackArray)[fOutTrackArray->GetEntriesFast()] = outTrack;
     
