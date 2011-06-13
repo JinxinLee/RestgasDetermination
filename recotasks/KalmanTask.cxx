@@ -190,7 +190,7 @@ KalmanTask::Exec(Option_t* opt)
 
   Int_t ntracks=_trackArray->GetEntriesFast();
   
-  if(ntracks>2000){
+  if(ntracks>20000){
     std::cout<<"ntracks="<<ntracks<<" Evil Event! skipping"<<std::endl;
     return;
   }
@@ -263,7 +263,7 @@ KalmanTask::Exec(Option_t* opt)
       std::cerr << "Calling processTrack" << std::endl;
       fitter.processTrack(trkCopy);
     }
-    catch (GFException e){
+    catch (GFException& e){
       std::cout<<e.what()<<std::endl;
     }
 
