@@ -174,7 +174,7 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
 	try { 
 	  rep->extrapolateToPoint(destination, poca, dirInPoca);
 	}
-	catch(GFException ex) {
+	catch(GFException& ex) {
 	  std::cout<<ex.what()<<std::endl;
 	  continue;
 	}
@@ -226,7 +226,7 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
 	try { 
 	  rep->extrapolateToPoint(destination, poca, dirInPoca);
 	}
-	catch(GFException ex) {
+	catch(GFException& ex) {
 	  std::cout<<ex.what()<<std::endl;
 	  continue;
 	}
