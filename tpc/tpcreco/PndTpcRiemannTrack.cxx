@@ -43,6 +43,8 @@
 #include "TPolyLine3D.h"
 #include "TSystem.h"
 
+#define DEBUG 1
+
 // Class Member definitions -----------
 
 bool sortByZ(PndTpcRiemannHit* hit1, PndTpcRiemannHit* hit2){
@@ -482,7 +484,6 @@ PndTpcRiemannTrack::centerR() {
 
 double
 PndTpcRiemannTrack::distHelix(PndTpcRiemannHit* hit, bool calcPos) const {
-
   if(!_isFitted) return 0.; // sz distance not defined
 
   double hit_angle=hit->getAngleOnHelix();
@@ -511,18 +512,23 @@ PndTpcRiemannTrack::distHelix(PndTpcRiemannHit* hit, bool calcPos) const {
 
       double zCheck;
 
-      while (1){
+      const unsigned int maxIt = 5;
+      unsigned int it = 0;
+
+      while (it<maxIt){
         zCheck =  _m * (hit_angleR + twoPi) + _t;
         if (TMath::Abs(hitZ- zCheck) < TMath::Abs(dZ)){
           dZ = hitZ-zCheck;
           hit_angleR += twoPi;
         }
         else break;
+        ++it;
       }
 
       nn=0;
+      it=0;
 
-      while (1){
+      while (it<maxIt){
         zCheck =  _m * (hit_angleR - twoPi) + _t;
         if (TMath::Abs(hitZ- zCheck) < TMath::Abs(dZ)){
           dZ = hitZ-zCheck;
