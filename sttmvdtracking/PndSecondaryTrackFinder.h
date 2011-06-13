@@ -80,6 +80,7 @@ class PndSecondaryTrackFinder : public FairTask {
   void DrawFoundTracks();
   void DrawMCTracks();
   void DrawGeometry();
+  void DrawScosZGeometry();
   void DrawGeometryConformal(Double_t umin, Double_t vmin, Double_t umax, Double_t vmax);
   void DrawHits(std::vector<int> hits, Int_t detId);
   void DrawUsableHits(std::vector<int> hits, Int_t detId);
@@ -112,7 +113,15 @@ class PndSecondaryTrackFinder : public FairTask {
   void DeleteCluster(std::vector< std::vector<int> > * clusterlist, std::vector<int> deletecluster);
   
   Bool_t TestChi2(std::vector<int> cluster, Double_t xc, Double_t yc, Double_t radius,  Int_t detId, Int_t iclus, Double_t chi2, Int_t countelem, Double_t &newxc, Double_t &newyc, Double_t &newradius, std::vector<int> * newcluster, Double_t &newchi2);
-  
+
+  // Z FINDING
+  Bool_t DoesHitBelong(Int_t hitId, Double_t xc, Double_t yc, Double_t radius, TVector3 &intersection);
+  std::vector<int>  ZFinder(std::vector<int> hits, Double_t xc, Double_t yc, Double_t radius);
+  Double_t CalculateZ(Int_t hitId, Double_t x, Double_t y);
+  Bool_t ZFit(std::vector<int> cluster, Int_t charge, Double_t xc, Double_t yc, Double_t radius, Double_t &fitm, Double_t &fitp);
+  Int_t FindCharge(Double_t oX, Double_t oY, std::vector<int> cluster);
+
+
  private:
 
   /** Input array of PndSttTube (map of STT tubes) **/
