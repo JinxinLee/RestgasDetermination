@@ -28,6 +28,7 @@
 #include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "GFTrack.h"
+#include "GFTrackCand.h"
 #include "PndTpcCluster.h"
 #include "PndTpcDigiMapper.h"
 #include "PndTpcFrontend.h"
@@ -88,8 +89,6 @@ PndTpcdEdxTask::Init()
   
   // Get input collection
   _trackArray=(TClonesArray*) ioman->GetObject(_trackBranchName);
-  
-  
   if(_trackArray==0)
     {
       Error("PndTpcdEdxTask::Init","track-array not found!");
@@ -97,7 +96,6 @@ PndTpcdEdxTask::Init()
     }
 
   _mcTrackArray=(TClonesArray*) ioman->GetObject("MCTrack");
-  
   if(_mcTrackArray==0)
     {
       Error("PndTpcdEdxTask::Init","MCTrack-array not found!");
@@ -105,10 +103,16 @@ PndTpcdEdxTask::Init()
     }
 
   _pointArray=(TClonesArray*) ioman->GetObject("PndTpcPoint");
-  
   if(_pointArray==0)
     {
       Error("PndTpcdEdxTask::Init","Point-array not found!");
+      return kERROR;
+    }
+
+  _clusterArray=(TClonesArray*) ioman->GetObject("PndTpcCluster");
+  if(_clusterArray==0)
+    {
+      Error("PndTpcdEdxTask::Init","Cluster-array not found!");
       return kERROR;
     }
  
@@ -178,8 +182,8 @@ PndTpcdEdxTask::Exec(Option_t* opt)
   }
 
   //cut: only use single event tracks!
-  if(ntracks>1)
-    return;
+  //if(ntracks>1)
+  //  return;
 
   for(Int_t itr=0;itr<ntracks;++itr){
     std::cout<<"PndTpcdEdxTask::Exec(): starting track "<<itr<<std::endl;
@@ -194,23 +198,9 @@ PndTpcdEdxTask::Exec(Option_t* opt)
       ((GeaneTrackRep*)theRep)->setPropDir(0); // not needed for RKTrackRep
     }
 
-
+    GFTrackCand cand = trk->getCand();
+    std::vector<unsigned int> hitIDs = cand.GetHitIDs(kTpcCluster); // get tpc hit ids
     
-    std::vector<GFAbsRecoHit*> hits = trk->getHits();
-    std::cout<<"\nstd::vector<GFAbsRecoHit*> hits has "<< hits.size()<<" entries"<<std::endl;
-    
-    //skip evil events
-    if(hits.size() > 500)
-      continue;
-    
-    std::vector<GFAbsRecoHit*>::iterator it;
-    
-    for(it = hits.begin(); it!=hits.end(); it++) {
-      PndTpcSPHit* the_sphit = dynamic_cast<PndTpcSPHit*>(*it);
-      //erase non-TPC hits
-      if(the_sphit==NULL)
-        hits.erase(it);
-    }
 
     //GET MC INFORMATION FOR CROSS-CHECK
     //only works with IdealTracking and pure trackIDs
@@ -241,18 +231,14 @@ PndTpcdEdxTask::Exec(Option_t* opt)
     
     bool unsorted =false;
     
+    // get all digis in the track
     std::vector<const PndTpcDigi*> digis;
-    for(int i=0;i<hits.size();++i){
-      int ndigi = ((PndTpcSPHit*)(hits.at(i)))->getCluster()->nDigi();
+    for(int i=0;i<hitIDs.size();++i){
+      PndTpcCluster* cl = (PndTpcCluster*)(_clusterArray->At(hitIDs[i]));
+      int ndigi = cl->nDigi();
       for(unsigned int j=0;j<ndigi;++j){
-        digis.push_back(((PndTpcSPHit*)(hits.at(i)))->getCluster()->getDigi(j));
-        //((PndTpcSPHit*)(hits.at(i)))->getCluster()->getDigi(j).Print();
-        //TVector3 vec;
-        //PndTpcDigiMapper::getInstance()->map(&(((PndTpcSPHit*)(hits.at(i)))->getCluster()->getDigi(j)),vec);
-        //vec.Print();
+        digis.push_back(cl->getDigi(j));
       }
-      //hits.at(i)->getRawHitCoord().Print();
-      //std::cout << "#################" << std::endl;
     }
 
 

@@ -66,6 +66,7 @@ private:
   TClonesArray* _dEdxMCOutArray;  
   TClonesArray* _mcTrackArray;
   TClonesArray* _pointArray;
+  TClonesArray* _clusterArray;
 
   TString _trackBranchName;
 
