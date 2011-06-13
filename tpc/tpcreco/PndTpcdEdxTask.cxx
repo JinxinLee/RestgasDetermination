@@ -58,7 +58,7 @@
 #include <signal.h>
 #include <stdlib.h>
 
-
+#include "PndDetectorList.h"
 
 // Class Member definitions -----------
 
@@ -172,7 +172,7 @@ PndTpcdEdxTask::Exec(Option_t* opt)
 
   Int_t ntracks=_trackArray->GetEntriesFast();
   
-  if(ntracks>2000){
+  if(ntracks>20000){
     std::cout<<"ntracks="<<ntracks<<" Evil Event! skipping"<<std::endl;
     return;
   }
@@ -187,16 +187,13 @@ PndTpcdEdxTask::Exec(Option_t* opt)
     std::cout<<"*** Number of clusters in track: "<<trk->getNumHits()<<" ***"<<std::endl;
     
     GFAbsTrackRep* absrep = trk->getCardinalRep();
-     
+    GFAbsTrackRep* theRep = absrep->clone();
+
     //check for GEANE trackrep
-    if(dynamic_cast<GeaneTrackRep*>(absrep) == NULL) {
-      std::cerr<<"WRONG trackrep! Need GEANE to process ... skipping track"<<std::endl;
-      continue;
+    if(dynamic_cast<GeaneTrackRep*>(absrep) != NULL) {
+      ((GeaneTrackRep*)theRep)->setPropDir(0); // not needed for RKTrackRep
     }
 
-    //temporary fix
-    GFAbsTrackRep* theRep = absrep->clone();
-    ((GeaneTrackRep*)theRep)->setPropDir(0);
 
     
     std::vector<GFAbsRecoHit*> hits = trk->getHits();
@@ -212,7 +209,7 @@ PndTpcdEdxTask::Exec(Option_t* opt)
       PndTpcSPHit* the_sphit = dynamic_cast<PndTpcSPHit*>(*it);
       //erase non-TPC hits
       if(the_sphit==NULL)
-	hits.erase(it);
+        hits.erase(it);
     }
 
     //GET MC INFORMATION FOR CROSS-CHECK
@@ -235,7 +232,7 @@ PndTpcdEdxTask::Exec(Option_t* opt)
     for(int p=0; p<_pointArray->GetEntriesFast(); ++p) {
       int id = ((PndTpcPoint*)_pointArray->At(p))->GetTrackID();
       if(id==0) //only primary tracks
-	pointlist.push_back((PndTpcPoint*)_pointArray->At(p));
+        pointlist.push_back((PndTpcPoint*)_pointArray->At(p));
     }
       
 
@@ -248,11 +245,11 @@ PndTpcdEdxTask::Exec(Option_t* opt)
     for(int i=0;i<hits.size();++i){
       int ndigi = ((PndTpcSPHit*)(hits.at(i)))->getCluster()->nDigi();
       for(unsigned int j=0;j<ndigi;++j){
-	digis.push_back(((PndTpcSPHit*)(hits.at(i)))->getCluster()->getDigi(j));
-	//((PndTpcSPHit*)(hits.at(i)))->getCluster()->getDigi(j).Print();
-	//TVector3 vec;
-	//PndTpcDigiMapper::getInstance()->map(&(((PndTpcSPHit*)(hits.at(i)))->getCluster()->getDigi(j)),vec);
-	//vec.Print();
+        digis.push_back(((PndTpcSPHit*)(hits.at(i)))->getCluster()->getDigi(j));
+        //((PndTpcSPHit*)(hits.at(i)))->getCluster()->getDigi(j).Print();
+        //TVector3 vec;
+        //PndTpcDigiMapper::getInstance()->map(&(((PndTpcSPHit*)(hits.at(i)))->getCluster()->getDigi(j)),vec);
+        //vec.Print();
       }
       //hits.at(i)->getRawHitCoord().Print();
       //std::cout << "#################" << std::endl;
@@ -283,16 +280,16 @@ PndTpcdEdxTask::Exec(Option_t* opt)
       TVector3 poca,dirInPoca;
       double dist;
       try{
-	theRep->extrapolateToPoint(destination,poca,dirInPoca);
-	next.setO(poca);
-	next.setNormal(dirInPoca);
-	dist = theRep->extrapolate(next);
+        theRep->extrapolateToPoint(destination,poca,dirInPoca);
+        next.setO(poca);
+        next.setNormal(dirInPoca);
+        dist = theRep->extrapolate(next);
       }
       catch(GFException& e){
-	e.what();
-	exc=true;
-	break;
-	//TODO: exception handling
+        e.what();
+        exc=true;
+        break;
+        //TODO: exception handling
       }
       
       TVector3 normHere = here.getNormal();
@@ -301,50 +298,50 @@ PndTpcdEdxTask::Exec(Option_t* opt)
       double dE = 0.;
       bool _abort(true);
       for(unsigned int i=0;i<digis.size();++i){
-	TVector3 digiPos;
-	PndTpcDigiMapper::getInstance()->map(digis[i],digiPos);
-	double behindHere = normHere * (here.dist(digiPos));
-	double behindNext = normNext * (next.dist(digiPos));
-	if(behindHere<0.){//in front of
-	  _abort=false;
-	  if(behindNext>=0.){
-	    dE+=digis[i]->amp();
-	  }
-	}
-	else{
-	  if(behindNext<0.){//in front of
-	    _abort=false;
-	    dE+=digis[i]->amp();
-	  }
-	}
+        TVector3 digiPos;
+        PndTpcDigiMapper::getInstance()->map(digis[i],digiPos);
+        double behindHere = normHere * (here.dist(digiPos));
+        double behindNext = normNext * (next.dist(digiPos));
+        if(behindHere<0.){//in front of
+          _abort=false;
+          if(behindNext>=0.){
+            dE+=digis[i]->amp();
+          }
+        }
+        else{
+          if(behindNext<0.){//in front of
+            _abort=false;
+            dE+=digis[i]->amp();
+          }
+        }
       }
       if(dE>0. && (!exc)){
-	dedx.add(dE,dist);
+        dedx.add(dE,dist);
       }
       
       //if(_abort) break;
       dE = 0.;
 
       for(unsigned int i=0;i<pointlist.size();++i){
-	TVector3 pointPos;
-	pointlist.at(i)->Position(pointPos);
-	double behindHere = normHere * (here.dist(pointPos));
-	double behindNext = normNext * (next.dist(pointPos));
-	if(behindHere<0.){//in front of
-	  _abort=false;
-	  if(behindNext>=0.){
-	    dE+=pointlist.at(i)->GetEnergyLoss();
-	  }
-	}
-	else{
-	  if(behindNext<0.){//in front of
-	    _abort=false;
-	    dE+=pointlist.at(i)->GetEnergyLoss();
-	  }
-	}
+        TVector3 pointPos;
+        pointlist.at(i)->Position(pointPos);
+        double behindHere = normHere * (here.dist(pointPos));
+        double behindNext = normNext * (next.dist(pointPos));
+        if(behindHere<0.){//in front of
+          _abort=false;
+          if(behindNext>=0.){
+            dE+=pointlist.at(i)->GetEnergyLoss();
+          }
+        }
+        else{
+          if(behindNext<0.){//in front of
+            _abort=false;
+            dE+=pointlist.at(i)->GetEnergyLoss();
+          }
+        }
       }
       if(dE>0. && (!exc)){
-	dedx_MC.add(dE*1E9,dist);
+        dedx_MC.add(dE*1E9,dist);
       }
       if(_abort) break;
     }
