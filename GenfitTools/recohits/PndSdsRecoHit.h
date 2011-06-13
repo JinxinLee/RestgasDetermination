@@ -61,7 +61,7 @@ private:
 
   // Private Data Members ------------
   static const Int_t fNparHitRep = 2;//3;
-  PndGeoHandling* fGeoH;
+  PndGeoHandling* fGeoH;    //!
 
   // Private Methods -----------------
 
