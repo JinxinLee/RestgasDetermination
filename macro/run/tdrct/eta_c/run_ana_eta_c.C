@@ -1,5 +1,9 @@
-void run_ana_eta_c(TString fname="./data2/evt_pid_stt_101.root",int nevts=0)
+void run_ana_eta_c(int nevts=0)
 {
+
+	TString inPidFile  = "evt_pid_stt.root"; 	//./data2/evt_pid_stt_101.root
+	TString inSimFile = "evt_points_stt.root";                                                                                                                                        
+	
 	gStyle->SetOptFit(1011);
 
   	TStopwatch timer;
@@ -10,19 +14,7 @@ void run_ana_eta_c(TString fname="./data2/evt_pid_stt_101.root",int nevts=0)
 	TFile *out = TFile::Open("etac_histo.root","RECREATE");
 
 	// the PndEventReader takes care about file/event handling
-	PndEventReader evr(fname);
-	
-	// to attach more files: evr.Add(fname2);evr.Add(fname3); ...
-// 	evr.Add("./data2/evt_pid_stt_102.root");
-// 	evr.Add("./data2/evt_pid_stt_103.root");
-// 	evr.Add("./data2/evt_pid_stt_104.root");
-// 	evr.Add("./data2/evt_pid_stt_105.root");
-// 	evr.Add("./data2/evt_pid_stt_106.root");
-// 	evr.Add("./data2/evt_pid_stt_107.root");
-// 	evr.Add("./data2/evt_pid_stt_108.root");
-// 	evr.Add("./data2/evt_pid_stt_109.root");
-// 	evr.Add("./data2/evt_pid_stt_110.root");
-
+	PndEventReader evr(inPidFile);
 
 	TH1F *h_etac_nocut=new TH1F("h_etac_nocut","m(eta_c), (no cuts);E, GeV",100,2.5,3.5);
 	TH1F *h_etac_pid=new TH1F("h_etac_pid","m(eta_c), (MC PID);E, GeV",100,2.5,3.5);
