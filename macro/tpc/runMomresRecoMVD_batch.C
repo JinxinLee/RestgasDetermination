@@ -1,4 +1,4 @@
-void runMomresReco_batch(TString digifile) {
+void runMomresRecoMVD_batch(TString digifile) {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
@@ -13,7 +13,7 @@ void runMomresReco_batch(TString digifile) {
 
   // Output file
   TString outFile = inDigiFile;
-  outFile.ReplaceAll("raw.root", "reco.root");
+  outFile.ReplaceAll("raw.root", "MVD.reco.root");
   
 
   // Number of events to process
@@ -71,6 +71,10 @@ void runMomresReco_batch(TString digifile) {
   tpcCF->SetSimpleClustering(); // use PndTpcClusterFinderSimple
   fRun->AddTask(tpcCF);
 
+  PndTpcRoughAlignmentTask* align = new PndTpcRoughAlignmentTask();
+  align->SetShift(TVector3(0.,0.,-3.71357e-01));
+  fRun->AddTask(align);
+
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
   tpcSPR->SetPersistence();
   tpcSPR->SetSortingParameters(
@@ -106,13 +110,38 @@ void runMomresReco_batch(TString digifile) {
   kalman->SetPersistence();
   kalman->SetNumIterations(3); // number of fitting iterations (back and forth)
   fRun->AddTask(kalman);
-
+  
   PndTpcResidualTask* Res = new PndTpcResidualTask();
   Res->SetPersistence();
   //Res->SetNumberOfTrackReps(2);
+  //fRun->AddTask(Res);
+  
+  PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
+  mvdmccls->SetVerbose(iVerbose);
+  fRun->AddTask(mvdmccls);
+
+  PndTpcMVDCorrelatorTask* corr = new PndTpcMVDCorrelatorTask();
+  corr->SetMatchDistance(100.);   //mutliple of MVD hit sigma (which is roughly 20 mu)
+  corr->SetMinMVDHits(3);
+  corr->SetPersistence(true);
+  fRun->AddTask(corr);
+  
+  //fit once more
+  KalmanTask* kalman2 =new KalmanTask();
+  kalman2->SetPersistence();
+  kalman2->SetNumIterations(3); // number of fitting iterations (back and forth)
+  kalman2->SetTrackBranchName("TrackPreFitComplete");
+  kalman2->SetOutBranchName("TrackPostFitComplete");
+  fRun->AddTask(kalman2);
+  
+  PndTpcResidualTask* Res2 = new PndTpcResidualTask();
+  Res2->SetPersistence();
+  Res2->SetTrackBranchName("TrackPostFitComplete");
+  Res2->SetOutBranchName("TrackFitStatMVD");
+  //Res->SetNumberOfTrackReps(2);
   //SLres->SetClusterBranchName("PndTpcCluster_cut");
-  fRun->AddTask(Res);
- 
+  //fRun->AddTask(Res2);
+    
   // -----   Intialise and run   --------------------------------------------
   
   fRun->Init();
@@ -121,9 +150,13 @@ void runMomresReco_batch(TString digifile) {
 
   rtdb->saveOutput();
   rtdb->print();
-
+  
   // ------------------------------------------------------------------------
-
+  
+  TString resName = inDigiFile;
+  resName.ReplaceAll("raw.root", "MVDres.root");
+  corr->WriteHistograms(resName);
+  
   // -----   Finish   -------------------------------------------------------
 
   timer.Stop();

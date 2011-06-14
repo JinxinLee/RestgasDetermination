@@ -1,7 +1,7 @@
 #!/bin/bash
-#$ -l h_vmem=1700M,short=TRUE
+#$ -l h_vmem=2000M,short=TRUE
 # Divert output to directory
-#$ -o /nfs/hicran/home/fboehmer/private/sgeout/
+#$ -o /nfs/hicran/scratch/user/fboehmer/sgeout
 # Write error in same file
 #$ -j y
 
@@ -14,10 +14,10 @@ source ~/.bashrc
 cd $PANDAPATH
 source build/config.sh
 
-MOM=5.0
+#MOM=5.0
 PDG=211
 
-DATAPATH=/nfs/nas/data/panda/tpc/SIM/momres/mult1
+DATAPATH=/nfs/nas/data/panda/tpc/SIM/momres/mult10
 
 for file in $DATAPATH/*PDG$PDG*mom$MOM*deg$ID*mc.root 
 do

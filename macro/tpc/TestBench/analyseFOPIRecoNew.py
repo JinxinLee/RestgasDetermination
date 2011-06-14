@@ -1,5 +1,6 @@
 import ROOT, glob, math, sys, os
 from ROOT import std
+from array import array
 
 def drawPrelim() :
     prelim= ROOT.TLatex()
@@ -49,10 +50,16 @@ if dashIndex < 0 and len(runs) > 1 :
 
 outfile = ROOT.TFile("anaOut.root", "recreate")
 
-ROOT.gROOT.ProcessLine(".x rootlogon.C") 
-ROOT.gROOT.ProcessLine('gSystem->Load("libPhysics")')
-ROOT.gROOT.ProcessLine('gStyle->SetPalette(1)')
+ROOT.gROOT.ProcessLine(".L rootlogon.C") 
+ROOT.gROOT.ProcessLine("rootlogon()") 
+ROOT.gROOT.ProcessLine(".L rootlogon_Bernhard.C") 
+ROOT.gROOT.ProcessLine("rootlogon_Bernhard()") 
+#ROOT.gROOT.ProcessLine('gSystem->Load("libPhysics")')
+#ROOT.gROOT.ProcessLine('gStyle->SetPalette(1)')
+#pretty draw:
+ROOT.gROOT.ProcessLine('gROOT->SetStyle("col")') 
 ROOT.gROOT.ProcessLine('gROOT->SetStyle("Plain")')
+
 
 failed = ROOT.TH1D("Failed", "Failed Hits", 30,0,30)
 recoMom = ROOT.TH1D("recoMom", "Rec. Momenta", 500,900,1100)
@@ -448,11 +455,6 @@ c3.SetTitle(dir)
 occZ.Draw()
 occZ.Write()
 
-diffV = ROOT.TGraph(6)
-diffV.SetName("diffX")
-diffV.SetTitle("V(X') Resolution as function of Drift Length")
-diffVID = ROOT.TGraph(6)
-diffVID.SetMarkerColor(ROOT.kRed+2)
 bckgrShare = ROOT.TGraph(6)
 bckgrShare.SetName("bckgShare")
 bckgrShare.SetTitle("Share of background (from fits)")
@@ -552,6 +554,15 @@ for i in range(6) :
 c7 = ROOT.TCanvas()
 c7.SetTitle(dir)
 c7.Divide(3,2)
+
+drifts = []
+vals = []
+valsID = []
+errX = []
+errY = []
+errYID = []
+
+
 for i in range(6) :
     c7.cd(i+1)
     resVIDs[i].SetFillColor(ROOT.kAzure-8)
@@ -581,15 +592,23 @@ for i in range(6) :
     # preliminary
     if preliminary :
        drawPrelim()
-
-    diffVID.SetPoint(i,zCuts[i]+5,fit.GetParameter(2)*10000)
+        
+    #diffVID.SetPoint(i,zCuts[i]+5,fit.GetParameter(2)*10000)
     #calculate ratio of central and background integrals
     int1 = fit.GetParameter(0)*fit.GetParameter(2)
     int2 = fit.GetParameter(3)*fit.GetParameter(5)
     ratio = int2/int1
     #mean resolution:
     meanRes = (int1*fit.GetParameter(2)+int2*fit.GetParameter(5))/(int1+int2)
-    diffV.SetPoint(i,zCuts[i]+5,meanRes*10000)
+    #diffV.SetPoint(i,zCuts[i]+5,meanRes*10000)
+
+    drifts.append(zCuts[i] + 5)   #ugly, half the binwidth
+    valsID.append(fit.GetParameter(2)*10000)
+    errYID.append(math.sqrt(fit.GetParError(2)**2 + fit.GetParError(1)**2)*10000)
+    vals.append(meanRes*10000)
+    errY.append(errYID[i])
+    errX.append(0)
+    
     bckgrShareID.SetPoint(i,zCuts[i]+5,ratio)
     
     resVIDs[i].Write()
@@ -606,6 +625,14 @@ bckgrShareID.SetMarkerColor(ROOT.kRed+2)
 bckgrShareID.GetYaxis().SetRangeUser(0,1)
 bckgrShareID.Draw("LP")
 bckgrShareID.Write()
+
+
+diffV = ROOT.TGraphErrors(6,array('d',drifts), array('d',vals), array('d',errX), array('d',errY))
+diffV.SetName("diffX")
+diffV.SetTitle("V(X') Resolution as function of Drift Length")
+diffVID = ROOT.TGraphErrors(6,array('d',drifts), array('d',valsID), array('d',errX), array('d',errYID))
+diffVID.SetMarkerColor(ROOT.kRed+2)
+
 
 c9 = ROOT.TCanvas()
 c9.SetTitle(dir)

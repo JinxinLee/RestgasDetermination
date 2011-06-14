@@ -1,5 +1,5 @@
 void runRecoFOPI_batch_standalone(TString filename, TString outpath, 
-				 				  unsigned int smoothing = 0) 
+				  unsigned int smoothing = 0) 
 {
   
 // ========================================================================
@@ -124,7 +124,7 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath,
   tpcSPR->SetPersistence();
   //tpcSPR->useGeane(); // uses RKTrackrep and GeaneTrackrep
   //tpcSPR->WriteHistograms(PROutFile);
-  fRun->AddTask(tpcSPR);
+  //fRun->AddTask(tpcSPR);
 
   PndTpcSLPatternRecoTask* tpcSLPR = new PndTpcSLPatternRecoTask();
   tpcSLPR->SetPersistence(true);
@@ -140,7 +140,7 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath,
   tpcSLPR->SetMinCandHits(15);
   //tpcSLPR->SetClusterBranchName("PndTpcCluster_cut");
   tpcSLPR->SetAbsMomentum(1000);
-  //fRun->AddTask(tpcSLPR);
+  fRun->AddTask(tpcSLPR);
 
 
   KalmanTask* kalman =new KalmanTask();
@@ -156,6 +156,11 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath,
   //SLres->SetClusterBranchName("PndTpcCluster_cut");
   fRun->AddTask(Res);
   
+  PndTpcSLResidualTask* SLres = new PndTpcSLResidualTask();
+  SLres->SetPersistence();
+  //SLres->SetClusterBranchName("PndTpcCluster_cut");
+  SLres->SetSecondarySuppression(true);
+  fRun->AddTask(SLres);
   
 
   // -----   Intialise and run   --------------------------------------------
