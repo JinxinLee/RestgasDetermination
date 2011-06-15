@@ -92,6 +92,7 @@ void runMomresRecoMVD_batch(TString digifile, Int_t nEvents = 0) {
   //tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
   tpcSPR->useGeane(); // uses RKTrackrep and GeaneTrackrep
   tpcSPR->SetSmoothing(true);
+  tpcSPR->SetMCPid(); // use ideal particle identification
   //tpcSPR->WriteHistograms(PROutFile);
   fRun->AddTask(tpcSPR);
 
