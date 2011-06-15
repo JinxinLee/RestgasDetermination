@@ -1,4 +1,4 @@
-void runMomresRecoMVD_batch(TString digifile) {
+void runMomresRecoMVD_batch(TString digifile, Int_t nEvents = 0) {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
@@ -16,9 +16,6 @@ void runMomresRecoMVD_batch(TString digifile) {
   outFile.ReplaceAll("raw.root", "MVD.reco.root");
   
 
-  // Number of events to process
-  Int_t nEvents = 0;
- 
   // ----  Load libraries   -------------------------------------------------
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
   // ------------------------------------------------------------------------
@@ -77,6 +74,7 @@ void runMomresRecoMVD_batch(TString digifile) {
 
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
   tpcSPR->SetPersistence();
+  //tpcSPR->SetRiemannPersistence(true);
   tpcSPR->SetSortingParameters(
         true, // false: sort only according to _sorting (see next argument); true: use internal sorting when adding hits to trackcands
         3,    // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
@@ -91,10 +89,9 @@ void runMomresRecoMVD_batch(TString digifile) {
         0.1,  // dip cut [rad]
         0.6,  // helix cut [cm]
         0.025);// plane cut (RMS)
-  tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
-  //tpcSPR->useGeane(); // uses RKTrackrep and GeaneTrackrep
+  //tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
+  tpcSPR->useGeane(); // uses RKTrackrep and GeaneTrackrep
   tpcSPR->SetSmoothing(true);
-  tpcSPR->SetRiemannPersistence(true);
   //tpcSPR->WriteHistograms(PROutFile);
   fRun->AddTask(tpcSPR);
 
@@ -113,7 +110,7 @@ void runMomresRecoMVD_batch(TString digifile) {
   
   PndTpcResidualTask* Res = new PndTpcResidualTask();
   Res->SetPersistence();
-  //Res->SetNumberOfTrackReps(2);
+  Res->SetNumberOfTrackReps(2);
   //fRun->AddTask(Res);
   
   PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
@@ -138,7 +135,7 @@ void runMomresRecoMVD_batch(TString digifile) {
   Res2->SetPersistence();
   Res2->SetTrackBranchName("TrackPostFitComplete");
   Res2->SetOutBranchName("TrackFitStatMVD");
-  //Res->SetNumberOfTrackReps(2);
+  Res2->SetNumberOfTrackReps(2);
   //SLres->SetClusterBranchName("PndTpcCluster_cut");
   //fRun->AddTask(Res2);
     
