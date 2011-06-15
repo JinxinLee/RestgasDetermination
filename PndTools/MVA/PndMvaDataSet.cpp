@@ -156,11 +156,11 @@ void PndMvaDataSet::Trim()
 
   time_t seconds;
   seconds = time (NULL);
-  unsigned int  m_RND_seed = seconds;
+  size_t   m_RND_seed = seconds;
   TRandom3 rnd(m_RND_seed);
 
-  int minCntIndex = 0;
-  unsigned int minEvtCnt   = std::numeric_limits<unsigned>::max();
+  size_t minCntIndex = 0;
+  size_t minEvtCnt   = std::numeric_limits<size_t>::max();
 
   // Find the class with minimum number of examples.
   for(size_t i = 0; i < m_classes.size(); i++)
@@ -173,8 +173,8 @@ void PndMvaDataSet::Trim()
   }
 
   // Indices of examples to deleted.
-  std::set<size_t> delIdxs;
-  unsigned int totCnt = 0;
+  std::set < size_t > delIdxs;
+  size_t totCnt = 0;
   
   // Select random indices per class
   for(size_t j = 0; j < m_classes.size(); j++)
@@ -182,7 +182,7 @@ void PndMvaDataSet::Trim()
     std::cout << "\t-I- Selecting events for " << m_classes[j].Name
 	      <<'\n';
     
-    unsigned int diff = m_classes[j].NExamples  - minEvtCnt;
+    size_t diff = m_classes[j].NExamples  - minEvtCnt;
 
     if(!(diff == 0))
     {
@@ -862,8 +862,8 @@ void PndMvaDataSet::PCATransForm()
  */
 void PndMvaDataSet::VarNormalize()
 {
-  float min, max, offset, scale;
-  min = max = offset = scale = 0.00;
+  //float min, max, offset, scale;
+  //min = max = offset = scale = 0.00;
   // Maybe we need to implement this.
 }
 

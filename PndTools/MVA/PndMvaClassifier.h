@@ -55,10 +55,16 @@ class PndMvaClassifier
    */
   virtual std::string *Classify( std::vector<float> EvtData ) = 0;
 
+  //virtual std::string *Classify( std::vector<float> EvtData,
+  //    		 std::map<std::string, float>& result ) = 0;
+  
   virtual void Initialize();
 
   //! Get the list of available classes (labels).
   inline std::vector<PndMvaClass> const& GetClasses() const;
+  
+  //! Get the list of available variables
+  inline std::vector<PndMvaVariable> const& GetVariables() const;
 
  protected:
   //! Normalize the given event vector.
@@ -87,4 +93,9 @@ inline std::vector<PndMvaClass> const& PndMvaClassifier::GetClasses() const
   return m_dataSets.GetClasses();
 };
 
+//! Get the list of available variables
+inline std::vector<PndMvaVariable> const& PndMvaClassifier::GetVariables() const
+{
+  return m_dataSets.GetVars();
+};
 #endif

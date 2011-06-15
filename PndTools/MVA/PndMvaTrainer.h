@@ -78,7 +78,7 @@ class PndMvaTrainer
    * Writes the train and test errors evaluations to a given file.
    *@param FileName Output file name.
    */
-  void WriteErroVect(std::string const& FileName);
+  void WriteErroVect(std::string const& FileName) const;
 
   /**
    * Initialize data structures.
@@ -89,6 +89,12 @@ class PndMvaTrainer
    * Get the indices of the events selected to be used for testing.
    */
   inline std::set <size_t> const& GetTestEvetIdx() const;
+ 
+  //! Get the list of available classes (labels).
+  inline std::vector<PndMvaClass> const& GetClasses() const;
+  
+  //! Get the list of available variables
+  inline std::vector<PndMvaVariable> const& GetVariables() const; 
   
   //==============================================
   //================ Protected ===================
@@ -100,14 +106,14 @@ class PndMvaTrainer
    * Write the training and normalization data to outFile.
    */
   void WriteToWeightFile(std::vector< std::pair<std::string, 
-			 std::vector<float>*> > const& weights);
+			 std::vector<float>*> > const& weights) const;
   /**
    * Writes generated TMVA Foams to file.
    *@param foams The list of the foams to be stored.
    * Note that the implementation of TMVA foams here is in early
    * experimental stage.
    */
-  void WriteToWeightFile(std::vector<TMVA::PDEFoam*> const& foams);
+  void WriteToWeightFile(std::vector<TMVA::PDEFoam*> const& foams) const;
   
   //void WriteDataSetToOutFile();
   
@@ -161,5 +167,17 @@ inline std::set <size_t> const& PndMvaTrainer::GetTestEvetIdx() const
 inline void PndMvaTrainer::SetTetsSetSize(int percent)
 {
   m_testSetSize = percent;
+};
+
+//! Get the list of available classes (labels).
+inline std::vector<PndMvaClass> const& PndMvaTrainer::GetClasses() const
+{
+  return m_dataSets.GetClasses();
+};
+
+//! Get the list of available variables
+inline std::vector<PndMvaVariable> const& PndMvaTrainer::GetVariables() const
+{
+  return m_dataSets.GetVars();
 };
 #endif

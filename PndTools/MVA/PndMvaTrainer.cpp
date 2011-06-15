@@ -98,7 +98,7 @@ void PndMvaTrainer::splitTetsSet()
   //======================================
 }
 
-void PndMvaTrainer::WriteErroVect(std::string const& FileName)
+void PndMvaTrainer::WriteErroVect(std::string const& FileName) const
 {
   std::ofstream Outfile;
   
@@ -122,7 +122,7 @@ void PndMvaTrainer::WriteErroVect(std::string const& FileName)
  * Write the training and normalization data to outFile.
  */
 void PndMvaTrainer::WriteToWeightFile(std::vector< std::pair<std::string, 
-				      std::vector<float>*> > const& weights)
+				      std::vector<float>*> > const& weights) const
 {
   
   std::cout << "<INFO> Writing classifier Output to "
@@ -301,7 +301,7 @@ void PndMvaTrainer::WriteToWeightFile(std::vector< std::pair<std::string,
   out.Close();
 }
 
-void PndMvaTrainer::WriteToWeightFile(std::vector<TMVA::PDEFoam*> const& foamList)
+void PndMvaTrainer::WriteToWeightFile(std::vector<TMVA::PDEFoam*> const& foamList) const
 {
   std::cout << "<INFO> Writing Foams to file "
 	    << m_outFile
