@@ -40,6 +40,7 @@
 #pragma link C++ class PndSdsHitProducerIdeal+;
 #pragma link C++ class PndSdsNoiseProducer+;
 #pragma link C++ class PndSdsDigiPixelWriteoutBuffer+;
+#pragma link C++ class PndSdsPixelDigiSorterTask+;
 
 #pragma link C++ class PndSdsChargeConversion+;
 #pragma link C++ class PndSdsIdealChargeConversion+;

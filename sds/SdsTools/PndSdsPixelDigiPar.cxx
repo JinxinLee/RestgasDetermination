@@ -23,6 +23,9 @@ void PndSdsPixelDigiPar::putParams(FairParamList* list)
   
   list->add("chargeconv_method", fChargeConvMethod);
   
+  list->add("PixelSorterCellWidth", fPixelSorterCellWidth);
+  list->add("PixelSorterNumberOfCells", fPixelSorterNumberOfCells);
+
   //   list->add("sensName", sensName);
   //   list->add("feName", feName);
 }
@@ -40,6 +43,8 @@ Bool_t PndSdsPixelDigiPar::getParams(FairParamList* list)
   if (!list->fill("QCloudSigma",&fCSigma)) return kFALSE;
   if (!list->fill("fe_BusClock",&fFeBusClock)) return kFALSE;
   if (!list->fill("chargeconv_method",&fChargeConvMethod)) return kFALSE;
+  if (!list->fill("PixelSorterCellWidth", &fPixelSorterCellWidth)) return kFALSE;
+  if (!list->fill("PixelSorterNumberOfCells", &fPixelSorterNumberOfCells)) return kFALSE;
   
   //   if (!list->fill("sensName",&sensName)) return kFALSE;
   //   if (!list->fill("feName",&feName)) return kFALSE;

@@ -80,6 +80,7 @@ MvdDigi/PndMvdStripHitProducer.cxx
 MvdDigi/PndMvdHitProducerIdeal.cxx
 MvdDigi/PndMvdDigiTask.cxx
 MvdDigi/PndMvdNoiseProducer.cxx
+MvdDigi/PndMvdPixelDigiSorterTask.cxx
 
 MvdDAQ/PndMvdConvertApv.cxx
 MvdDAQ/PndMvdConvertApvTask.cxx

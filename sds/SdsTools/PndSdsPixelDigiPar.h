@@ -33,6 +33,8 @@ class PndSdsPixelDigiPar : public FairParGenericSet
     Double_t GetClustRadius()   const {return fRadius;}
     Double_t GetFeBusClock()      const {return fFeBusClock;}
     Int_t GetChargeConvMethod() const  {return fChargeConvMethod;}
+    Double_t GetPixelSorterCellWidth() const {return fPixelSorterCellWidth;}
+    Int_t GetPixelSorterNumberOfCells() const {return fPixelSorterNumberOfCells;}
     
     void SetXPitch(Double_t x)        {fDimX = x;}
     void SetYPitch(Double_t x)        {fDimY = x;}
@@ -44,6 +46,9 @@ class PndSdsPixelDigiPar : public FairParGenericSet
     void SetClustRadius(Double_t x)   {fRadius=x;}
     void SetFeBusClock(Double_t x)      {fFeBusClock = x;}
     void SetChargeConvMethod(Int_t x) {fChargeConvMethod = x;}
+
+    Double_t SetPixelSorterCellWidth(Double_t x) {fPixelSorterCellWidth = x;}
+    Int_t SetPixelSorterNumberOfCells(Int_t x) {fPixelSorterNumberOfCells=x;}
     
   private:
     // Pixel Parameters
@@ -57,11 +62,13 @@ class PndSdsPixelDigiPar : public FairParGenericSet
     Double_t fCSigma;         // Gaussian charge cloud smearing
     Double_t fFeBusClock;   // Frontend bus clock to determin noise rate
     Int_t fChargeConvMethod;	// 0: ideal conversion; 1: TOT calculation
+    Double_t fPixelSorterCellWidth;	// Parameter for TimeStamp Sorter
+    Int_t fPixelSorterNumberOfCells; // Parameter for TimeStamp Sorter
     //Text_t fSensName;         // Sensor name
     //Text_t fFeName;           // Frontend name
     
     
-    ClassDef(PndSdsPixelDigiPar,3);
+    ClassDef(PndSdsPixelDigiPar,4);
   };
 
 #endif /*!PNDSDSSTRIPDIGIPAR_H*/
