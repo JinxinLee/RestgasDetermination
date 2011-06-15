@@ -18,6 +18,7 @@ ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/PndTools/generalTools
 ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
+${CMAKE_SOURCE_DIR}/PndTools/buffers
 ${CMAKE_SOURCE_DIR}/sds/SdsMC
 ${CMAKE_SOURCE_DIR}/sds/SdsTools
 ${CMAKE_SOURCE_DIR}/sds/SdsDigi
@@ -64,6 +65,7 @@ SdsDigi/PndSdsChargeConversion.cxx
 SdsDigi/PndSdsIdealChargeConversion.cxx
 SdsDigi/PndSdsTotChargeConversion.cxx
 SdsDigi/PndSdsAdcChargeConversion.cxx
+SdsDigi/PndSdsDigiPixelWriteoutBuffer.cxx
 
 SdsFEModel/PndSdsFE.cxx
 SdsFEModel/PndSdsFEAmpModelSimple.cxx

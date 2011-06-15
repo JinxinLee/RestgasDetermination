@@ -49,8 +49,35 @@ class PndSdsDigiPixel : public PndSdsDigi
       std::cout << *this;
     }
     
-		Int_t GetPixelColumn() const { return fCol; }
-		Int_t GetPixelRow()    const { return fRow; }
+	Int_t GetPixelColumn() const { return fCol; }
+	Int_t GetPixelRow()    const { return fRow; }
+
+	bool operator==(PndSdsDigiPixel& myDigi){
+		if (fSensorID == myDigi.GetSensorID())
+			if (fFE == myDigi.GetFE())
+				if (fCol == myDigi.GetPixelColumn())
+					if (fRow == myDigi.GetPixelRow())
+						return true;
+		return false;
+	}
+
+	virtual bool operator<(const PndSdsDigiPixel& myDigi) const{
+		if (fDetID < myDigi.GetDetID()) 	return true;	else if(fDetID > myDigi.GetDetID()) return false;
+		if (fSensorID < myDigi.GetSensorID()) 	return true; 	else if (fSensorID > myDigi.GetSensorID()) return false;
+		if (fFE < myDigi.GetFE()) 		return true;	else if (fFE > myDigi.GetFE()) return false;
+		if (fCol < myDigi.GetPixelColumn()) 		return true;	else if (fCol > myDigi.GetPixelColumn()) return false;
+		if (fRow < myDigi.GetPixelRow()) 		return true;	else if (fRow > myDigi.GetPixelRow()) return false;
+		return false;
+	}
+
+	PndSdsDigiPixel& operator=(const PndSdsDigiPixel& pix){
+		if (this != &pix){
+			this->PndSdsDigi::operator=(pix);
+			fCol = pix.GetPixelColumn();
+			fRow = pix.GetPixelRow();
+		}
+		return *this;
+	}
     
     private :
 		Int_t fCol, fRow;

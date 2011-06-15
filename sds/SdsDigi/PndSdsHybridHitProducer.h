@@ -22,6 +22,8 @@
 #include "PndSdsChargeConversion.h"
 #include "PndSdsTotDigiPar.h"
 
+#include "PndSdsDigiPixelWriteoutBuffer.h"
+
 #include <string>
 #include <vector>
 
@@ -52,6 +54,7 @@ class PndSdsHybridHitProducer : public PndSdsTask
   virtual void Exec(Option_t* opt);
 
   virtual void FinishEvent();
+  virtual void FinishTask();
   
   void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
   Bool_t GetPersistance() {return fPersistance;};
@@ -76,6 +79,8 @@ protected:
   PndSdsTotDigiPar* fTotDigiPar;
   PndSdsChargeConversion* fChargeConverter;
   FairMCEventHeader* fMCEventHeader;
+
+  PndSdsDigiPixelWriteoutBuffer* fDataBuffer;
  // fDetectorType fMCPointType;
 
   void Register();
@@ -91,7 +96,7 @@ protected:
   void AddHits(std::vector<PndSdsPixel>* hitList, int mcIndex);
   Double_t SmearCharge(Double_t charge);
 
-  Double_t flx;	//pixel widh in x;
+  Double_t flx;	//pixel width in x;
   Double_t fly;	//pixel width in y;
   Double_t fthreshold; //pixel threshold in electrons
   Double_t fnoise; //pixel noise in electrons
@@ -103,10 +108,11 @@ protected:
   PndGeoHandling* fGeoH;
   Int_t fEventNr;
   Bool_t fOverwriteParams;
+  Bool_t fTimeOrderedDigi; ///<set to kTRUE to use the time ordering of the output data.
 
   std::vector<PndSdsPixel> fPixelList;
 
-  ClassDef(PndSdsHybridHitProducer,7);
+  ClassDef(PndSdsHybridHitProducer,8);
 
 };
 
