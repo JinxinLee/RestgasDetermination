@@ -66,7 +66,7 @@ private:
   // Private Methods -----------------
 
 //public:
-  ClassDef(PndSdsRecoHit,1);
+  ClassDef(PndSdsRecoHit,2);
 
 };
 
