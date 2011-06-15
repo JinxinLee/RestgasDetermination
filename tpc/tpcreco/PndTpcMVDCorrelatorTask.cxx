@@ -146,7 +146,7 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
   
   //loop over tracks
   for(unsigned int itr=0;  itr<ntracks; itr++) {
-    std::cout<<"  ... processing TPC track no. "<<itr<<std::endl;
+    if(DEBUG) std::cout<<"  ... processing TPC track no. "<<itr<<std::endl;
     GFTrack* track = (GFTrack*) (*fTrackArray)[itr];
     //GFAbsTrackRep* rep = track->getCardinalRep();
     
@@ -164,49 +164,48 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
       hit->Position(destination);
       hit->PositionError(error);
       if(DEBUG) {
-	std::cout<<"       processing hit at ";
-	destination.Print();
-	std::cout<<"       position error: ";
-	error.Print();
+        std::cout<<"       processing hit at ";
+        destination.Print();
+        std::cout<<"       position error: ";
+        error.Print();
       }
-      for(unsigned int irep=0; irep<track->getNumReps(); irep++) {
-	GFAbsTrackRep* rep = track->getTrackRep(irep);
-	try { 
-	  rep->extrapolateToPoint(destination, poca, dirInPoca);
-	}
-	catch(GFException& ex) {
-	  std::cout<<ex.what()<<std::endl;
-	  continue;
-	}
-	res.SetXYZ(poca.X()-destination.X(),
-		   poca.Y()-destination.Y(),
-		   poca.Z()-destination.Z());
-	//Fill Histo
-	fResHistX->Fill(res.X());
-	fResHistY->Fill(res.Y());
-	fResHistZ->Fill(res.Z());
-		
-	//check if hit is close enough
-	if(fabs(res.X()) > fMatchDistance*error.X()  ||
-	   fabs(res.Y()) > fMatchDistance*error.Y()  ||
-	   fabs(res.Z()) > fMatchDistance*error.Z()) {
-	  if(DEBUG) {
-	    std::cout<<"       rep"<<irep<<":    not close enough: RES was ";
-	    res.Print();
-	  }
-	  continue; //hit wasn't close enough to the track
-	}
-	else {	
-	  if(DEBUG) {
-	    std::cout<<"       rep"<<irep<<":    added hit - RES was ";
-	    res.Print();
-	  }
-	  std::map<PndSdsHit*, std::map<unsigned int, int> > tmp;
-	  std::map<unsigned int, int> id;
-	  id[ipx] = kMVDHitsPixel;
-	  tmp[hit] = id;
-	  tempCand.push_back(tmp);
-	}
+
+      GFAbsTrackRep* rep = track->getCardinalRep();
+      try {
+        rep->extrapolateToPoint(destination, poca, dirInPoca);
+      }
+      catch(GFException& ex) {
+        std::cout<<ex.what()<<std::endl;
+        continue;
+      }
+      res.SetXYZ(poca.X()-destination.X(),
+           poca.Y()-destination.Y(),
+           poca.Z()-destination.Z());
+      //Fill Histo
+      fResHistX->Fill(res.X());
+      fResHistY->Fill(res.Y());
+      fResHistZ->Fill(res.Z());
+
+      //check if hit is close enough
+      if(fabs(res.X()) > fMatchDistance*error.X()  ||
+         fabs(res.Y()) > fMatchDistance*error.Y()  ||
+         fabs(res.Z()) > fMatchDistance*error.Z()) {
+        if(DEBUG) {
+          std::cout<<"       rep:    not close enough: RES was ";
+          res.Print();
+        }
+        continue; //hit wasn't close enough to the track
+      }
+      else {
+        if(DEBUG) {
+          std::cout<<"       rep:    added hit - RES was ";
+          res.Print();
+        }
+        std::map<PndSdsHit*, std::map<unsigned int, int> > tmp;
+        std::map<unsigned int, int> id;
+        id[ipx] = kMVDHitsPixel;
+        tmp[hit] = id;
+        tempCand.push_back(tmp);
       }
     }//end loop over pixels
     
@@ -216,54 +215,55 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
       hit->Position(destination);
       hit->PositionError(error);
       if(DEBUG) {
-	std::cout<<"       processing hit at ";
-	destination.Print();
-	std::cout<<"       position error: ";
-	error.Print();
+        std::cout<<"       processing hit at ";
+        destination.Print();
+        std::cout<<"       position error: ";
+        error.Print();
       }
-      for(unsigned int irep=0; irep<track->getNumReps(); irep++) {
-	GFAbsTrackRep* rep = track->getTrackRep(irep);
-	try { 
-	  rep->extrapolateToPoint(destination, poca, dirInPoca);
-	}
-	catch(GFException& ex) {
-	  std::cout<<ex.what()<<std::endl;
-	  continue;
-	}
-	res.SetXYZ(poca.X()-destination.X(),
-		   poca.Y()-destination.Y(),
-		   poca.Z()-destination.Z());
-	//Fill Histo
-	fResHistX->Fill(res.X());
-	fResHistY->Fill(res.Y());
-	fResHistZ->Fill(res.Z());
-		
-	//check if hit is close enough
-	if(fabs(res.X()) > fMatchDistance*error.X()  ||
-	   fabs(res.Y()) > fMatchDistance*error.Y()  ||
-	   fabs(res.Z()) > fMatchDistance*error.Z()) {
-	  if(DEBUG) {
-	    std::cout<<"       rep"<<irep<<":    not close enough: RES was ";
-	    res.Print();
-	  }
-	  continue; //hit wasn't close enough to the track
-	}
-	else {	
-	  if(DEBUG) {
-	    std::cout<<"       rep"<<irep<<":    added hit - RES was ";
-	    res.Print();
-	  }
-	  std::map<PndSdsHit*, std::map<unsigned int, int> > tmp;
-	  std::map<unsigned int, int> id;
-	  id[istr] = kMVDHitsStrip;
-	  tmp[hit] = id;
-	  tempCand.push_back(tmp);
-	}
+
+      GFAbsTrackRep* rep = track->getCardinalRep();
+      try {
+        rep->extrapolateToPoint(destination, poca, dirInPoca);
+      }
+      catch(GFException& ex) {
+        std::cout<<ex.what()<<std::endl;
+        continue;
+      }
+      res.SetXYZ(poca.X()-destination.X(),
+           poca.Y()-destination.Y(),
+           poca.Z()-destination.Z());
+      //Fill Histo
+      fResHistX->Fill(res.X());
+      fResHistY->Fill(res.Y());
+      fResHistZ->Fill(res.Z());
+
+      //check if hit is close enough
+      if(fabs(res.X()) > fMatchDistance*error.X()  ||
+         fabs(res.Y()) > fMatchDistance*error.Y()  ||
+         fabs(res.Z()) > fMatchDistance*error.Z()) {
+        if(DEBUG) {
+          std::cout<<"       rep:    not close enough: RES was ";
+          res.Print();
+        }
+        continue; //hit wasn't close enough to the track
+      }
+      else {
+        if(DEBUG) {
+          std::cout<<"       rep:    added hit - RES was ";
+          res.Print();
+        }
+        std::map<PndSdsHit*, std::map<unsigned int, int> > tmp;
+        std::map<unsigned int, int> id;
+        id[istr] = kMVDHitsStrip;
+        tmp[hit] = id;
+        tempCand.push_back(tmp);
       }
     }//end loop over strips
   
-    std::cout<<"======= TempCand from found MVD pixel/strip hits has size "<<
-      tempCand.size()<<" =======\n"<<std::endl;
+    if(DEBUG){
+      std::cout<<"======= TempCand from found MVD pixel/strip hits has size "<<
+          tempCand.size()<<" =======\n"<<std::endl;
+    }
 
     if(tempCand.size() < fMinMVDHits) {
       GFTrack* outTrack = new GFTrack(*track);
@@ -280,11 +280,18 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
 		      tempCand[im].begin()->second.begin()->first); //hit in array
     }
     
-    //GFAbsTrackRep* oldRep = track->getCardinalRep();
         
+    // copy the trackreps
     GFTrack* outTrack = new GFTrack(track->getCardinalRep()->clone(), true);
-    for(unsigned int irep=1; irep<track->getNumReps(); irep++) 
-      outTrack->addTrackRep(track->getTrackRep(irep));
+    for(unsigned int irep=1; irep<track->getNumReps(); irep++) {
+      GFAbsTrackRep* repclone = track->getTrackRep(irep)->clone();
+      if(dynamic_cast<GeaneTrackRep*>(repclone) != NULL) {
+        FairGeanePro* gPro = new FairGeanePro();
+        ((GeaneTrackRep*)repclone)->setPropagator(gPro);
+        ((GeaneTrackRep*)repclone)->setPropDir(0);
+      }
+      outTrack->addTrackRep(repclone);
+    }
 
     outTrack->setCandidate(*mvdCand);
         
@@ -292,8 +299,7 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
     tmpTrack->clearBookkeeping();
     outTrack->mergeHits(tmpTrack);
     (*fOutTrackArray)[fOutTrackArray->GetEntriesFast()] = outTrack;
-    
-    
+
   } //end loop over tracks
   
   return;
