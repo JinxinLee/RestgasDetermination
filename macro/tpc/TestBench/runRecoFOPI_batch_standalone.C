@@ -1,5 +1,5 @@
 void runRecoFOPI_batch_standalone(TString filename, TString outpath, 
-				  unsigned int smoothing = 0) 
+				  unsigned int smoothing = 0, unsigned int nEvents = 0) 
 {
   
 // ========================================================================
@@ -9,8 +9,6 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath,
   TStopwatch timer;
   timer.Start();
   
-  unsigned int nEvents = 0;
-
   // Load basic libraries in rootlogon
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
@@ -67,11 +65,6 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath,
       
   fRun->SetField(fMagField);
 
-  //extract number of entries in external data tree
-  TFile testFile(filename);
-  if(nEvents==0) nEvents = ((TTree*)testFile.Get("tpcEvent"))->GetEntries();
-  std::cout<<"Found "<<nEvents<<" events in input data file"<<std::endl;
-  
   
   //--------------------SET UP TASKS ------------------------------
 
@@ -79,7 +72,7 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath,
   fRun->AddTask(Geane);
     
   PndTpcDataReaderTask* read = new PndTpcDataReaderTask();
-  read->SetPersistence();
+  //read->SetPersistence();
   read->SetDatafile(filename);
   read->SetClusterBranchName("PndTpcSample");
   //read->SetCutSmallPad();
@@ -93,7 +86,6 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath,
   fRun->AddTask(tpsa);
 
 
-  bool SimpleClustering = true;
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
   tpcCF->SetDigiPersistence(); // keep Digis refs in clusters
   tpcCF->SetPersistence(); // keep Clusters
@@ -122,9 +114,9 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath,
         0.025);// plane cut (RMS)
   tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
   tpcSPR->SetPersistence();
-  //tpcSPR->useGeane(); // uses RKTrackrep and GeaneTrackrep
+  tpcSPR->useGeane(); // uses RKTrackrep and GeaneTrackrep
   //tpcSPR->WriteHistograms(PROutFile);
-  //fRun->AddTask(tpcSPR);
+  fRun->AddTask(tpcSPR);
 
   PndTpcSLPatternRecoTask* tpcSLPR = new PndTpcSLPatternRecoTask();
   tpcSLPR->SetPersistence(true);
@@ -140,7 +132,7 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath,
   tpcSLPR->SetMinCandHits(15);
   //tpcSLPR->SetClusterBranchName("PndTpcCluster_cut");
   tpcSLPR->SetAbsMomentum(1000);
-  fRun->AddTask(tpcSLPR);
+  //fRun->AddTask(tpcSLPR);
 
 
   KalmanTask* kalman =new KalmanTask();
@@ -152,7 +144,7 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath,
 
   PndTpcResidualTask* Res = new PndTpcResidualTask();
   Res->SetPersistence();
-  //Res->SetNumberOfTrackReps(2); // set to 2 if you use GeaneTrackrep (tpcSPR->useGeane();)
+  Res->SetNumberOfTrackReps(2); // set to 2 if you use GeaneTrackrep (tpcSPR->useGeane();)
   //SLres->SetClusterBranchName("PndTpcCluster_cut");
   fRun->AddTask(Res);
   
@@ -160,7 +152,7 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath,
   SLres->SetPersistence();
   //SLres->SetClusterBranchName("PndTpcCluster_cut");
   SLres->SetSecondarySuppression(true);
-  fRun->AddTask(SLres);
+  //fRun->AddTask(SLres);
   
 
   // -----   Intialise and run   --------------------------------------------
