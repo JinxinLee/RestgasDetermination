@@ -24,6 +24,7 @@ ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/RKTrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/recohits
 ${CMAKE_SOURCE_DIR}/pnddata/SdsData
+${CMAKE_SOURCE_DIR}/pnddata/GemData
 ${CMAKE_SOURCE_DIR}/tpc
 ${CMAKE_SOURCE_DIR}/tpc/tpcreco
 ${CMAKE_SOURCE_DIR}/PndTools/generalTools
@@ -80,6 +81,7 @@ PndTpcdEdx.cxx
 PndTpcGenfitTestTask.cxx
 PndTpcTestPlanarHit.cxx
 PndTpcMVDCorrelatorTask.cxx
+PndTpcGEMCorrelatorTask.cxx
 PndTpcRoughAlignmentTask.cxx
 ../DebugLogger.cxx
 ../dbgstream.cxx
