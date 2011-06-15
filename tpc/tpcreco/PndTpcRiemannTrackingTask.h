@@ -146,6 +146,8 @@ private:
 
   GFRecoHitFactory* _theRecoHitFactory;
 
+  FairGeanePro* gPro;
+
 
   // Private Methods -----------------
 

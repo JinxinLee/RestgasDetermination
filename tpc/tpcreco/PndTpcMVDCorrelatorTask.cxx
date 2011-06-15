@@ -286,8 +286,6 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
     for(unsigned int irep=1; irep<track->getNumReps(); irep++) {
       GFAbsTrackRep* repclone = track->getTrackRep(irep)->clone();
       if(dynamic_cast<GeaneTrackRep*>(repclone) != NULL) {
-        FairGeanePro* gPro = new FairGeanePro();
-        ((GeaneTrackRep*)repclone)->setPropagator(gPro);
         ((GeaneTrackRep*)repclone)->setPropDir(0);
       }
       outTrack->addTrackRep(repclone);

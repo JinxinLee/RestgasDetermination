@@ -235,6 +235,9 @@ PndTpcRiemannTrackingTask::Init()
     std::cerr<<"PndTpcRiemannTrackingTask: "<<"default setting Bz="<<Bz<<std::endl;
   }
 
+  //init gPro
+  gPro = new FairGeanePro();
+
   return kSUCCESS;
 }
 
@@ -472,7 +475,6 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
 
     //GEANE TACKREP
     if(_geane) {
-      FairGeanePro* gPro = new FairGeanePro();
       GeaneTrackRep* grep = new GeaneTrackRep(gPro,pl,mom,poserr,momerr,q,pdg);
       gftrk->addTrackRep(grep);
     }
