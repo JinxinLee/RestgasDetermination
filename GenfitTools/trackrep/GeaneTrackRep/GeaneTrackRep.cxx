@@ -36,7 +36,7 @@
 #define THETACUT 0.4
 
 GeaneTrackRep::GeaneTrackRep()
-  : GFAbsTrackRep(5), _pdg(211),_backw(0)
+  : GFAbsTrackRep(5), _pdg(211),_backw(0), _spu(1)
 {
 
 }
@@ -48,7 +48,7 @@ GeaneTrackRep::GeaneTrackRep(FairGeanePro* geane,
 			     const TVector3& momerr,
 			     double q,
 			     int PDGCode) 
-  : GFAbsTrackRep(5), _geane(geane), _pdg(PDGCode), _backw(0)
+  : GFAbsTrackRep(5), _geane(geane), _pdg(PDGCode), _backw(0), _spu(1)
 {
   FairTrackParP par(plane.getO(),mom,poserr,momerr,(int)TMath::Sign(1.0, q),plane.getO(),plane.getU(),plane.getV());
 
@@ -82,7 +82,7 @@ GeaneTrackRep::GeaneTrackRep(FairGeanePro* geane,
 			     const TVector3& momerr,
 			     int q,
 			     int PDGCode) 
-  : GFAbsTrackRep(5), _geane(geane), _pdg(PDGCode), _backw(0)
+  : GFAbsTrackRep(5), _geane(geane), _pdg(PDGCode), _backw(0), _spu(1)
 {
   FairTrackParP par(plane.getO(),mom,poserr,momerr,q,plane.getO(),plane.getU(),plane.getV());
 
