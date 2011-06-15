@@ -55,6 +55,7 @@
 #include "GFFieldManager.h"
 #include "PndTrackCand.h"
 #include "PndTrack.h"
+#include "PndMCTrack.h"
 
 #include "TFile.h"
 #include "TH1I.h"
@@ -94,6 +95,7 @@ PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
     _clusterBranchName("PndTpcCluster"),
     _smoothing(false),
     _geane(false),
+    _mcPid(false),
     counter(0),
     Bz(0)
   {;}
@@ -149,8 +151,14 @@ PndTpcRiemannTrackingTask::Init()
     }
 
   // Get input collection
+  _mcTrackArray=(TClonesArray*) ioman->GetObject("MCTrack");
+  if(_mcTrackArray==0)
+    {
+      Error("PndTpcdEdxTask::Init","MCTrack-array not found!");
+      return kERROR;
+    }
+    
   _clusterArray=(TClonesArray*) ioman->GetObject(_clusterBranchName);
-
   if(_clusterArray==0)
     {
       Error("PndTpcRiemannTrackingTask::Init","Cluster-array not found!");
@@ -410,6 +418,12 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     // pdg
     int pdg = winding * 211; // Todo: pions hardcoded atm
     if(Bz<0) pdg *= -1;
+    
+    if(_mcPid){
+      unsigned int trackId = trk->mcid().DominantID().mctrackID();
+      pdg = ((PndMCTrack*)(_mcTrackArray->At(trackId)))->GetPdgCode();
+      
+    }
 
     // charge (for geane)
     TParticlePDG * part = TDatabasePDG::Instance()->GetParticle(pdg);

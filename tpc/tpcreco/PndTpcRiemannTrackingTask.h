@@ -74,6 +74,8 @@ public:
                    double TTplanecut);
 
   void SetRiemannScale(double riemannscale=8.7) {_riemannscale = riemannscale;}
+  
+  void SetMCPid(Bool_t opt=kTRUE) {_mcPid = opt;} // use MC information for particle identification
 
   // Operations ----------------------
   virtual InitStatus Init();
@@ -90,6 +92,7 @@ private:
 
   // Private Data Members ------------
   TString _clusterBranchName;
+  TClonesArray* _mcTrackArray;
   TClonesArray* _clusterArray;
   TClonesArray* _mvdArray;
   TClonesArray* _trackArray;
@@ -107,6 +110,8 @@ private:
   Bool_t _riemannPersistence;
   
   Bool_t _geane;
+  
+  Bool_t _mcPid;
 
   double fMins[4];
   double fMaxs[4];
