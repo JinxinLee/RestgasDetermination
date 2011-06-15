@@ -1,9 +1,7 @@
-// Macro created 20/09/2006 by S.Spataro
-// It creates a geant simulation file for emc
-run_sim_tpccombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t seed=0){
-
+// Macro created 03/05/2011 by S.Spataro
+// It creates an evtgen simulation for the tracking TDR
+run_sim_tpc_evt(Int_t nEvents=10, UInt_t seed=0){
   gRandom->SetSeed(seed);
-
   TStopwatch timer;
   timer.Start();
   gDebug=0;
@@ -13,7 +11,7 @@ run_sim_tpccombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t s
   rootlogon();
   
   TString digiFile = "all.par";
-  TString parFile = "params_tpccombi.root";
+  TString parFile = "evt_params_tpc.root";
   TString mcMode = "TGeant3";
   FairRunSim *fRun = new FairRunSim();
 
@@ -21,7 +19,7 @@ run_sim_tpccombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t s
   // ------------------------
 
   fRun->SetName(mcMode);
-  fRun->SetOutputFile("points_tpccombi.root");
+  fRun->SetOutputFile("evt_points_tpc.root");
 
   // Set the parameters
   //-------------------------------
@@ -54,16 +52,15 @@ run_sim_tpccombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t s
   Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
   fRun->AddModule(Magnet);
   
-  //FairModule *Dipole= new PndMagnet("MAGNET");
-  //Dipole->SetGeometryFileName("dipole.geo");
-  //fRun->AddModule(Dipole);
+  FairModule *Dipole= new PndMagnet("MAGNET");
+  Dipole->SetGeometryFileName("dipole.geo");
+  fRun->AddModule(Dipole);
 
   FairModule *Pipe= new PndPipe("PIPE");
   fRun->AddModule(Pipe);
 
   PndTpcDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
   Tpc->SetGeometryFileName("TPC_V1.1.root");    //new ROOT geometry
-  //Tpc->SetGeometryFileName("tpc.geo");        //old geometry
   if(mcMode=="TGeant3")  Tpc->SetAliMC();
   fRun->AddModule(Tpc);
 
@@ -95,17 +92,24 @@ run_sim_tpccombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t s
   fRun->AddModule(Dsk);
 
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+  Drc->SetGeometryFileName("dirc_l0_p0.root");
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc);
-  
+ 
+  FairDetector *Fts= new PndFts("FTS", kTRUE);
+  Fts->SetGeometryFileName("fts.geo");
+  fRun->AddModule(Fts);
+ 
   // Create and Set Event Generator
   //-------------------------------
 
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
-  PndDpmDirect *dpmGen = new PndDpmDirect(mom,mode);
-  primGen->AddGenerator(dpmGen);
+  // ... generate your signal on the fly
+  PndEvtGenDirect *EvtGen = new PndEvtGenDirect("psi(2S)","PSI2S.DEC");
+  EvtGen->SetStoreTree(kFALSE);
+  primGen->AddGenerator(EvtGen);
 
   // Create and Set Magnetic Field
   //-------------------------------

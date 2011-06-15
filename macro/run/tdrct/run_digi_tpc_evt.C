@@ -4,13 +4,13 @@
   Int_t iVerbose = 0;
 
   // Input file (MC events)
-  TString inFile = "points_tpccombi.root";
+  TString inFile = "evt_points_tpc.root";
 
   // Parameter file
-  TString parFile = "params_tpccombi.root";
+  TString parFile = "evt_params_tpc.root";
 
   // Output file
-  TString outFile = "digi_tpccombi.root";
+  TString outFile = "evt_digi_tpc.root";
 
   // Number of events to process
   Int_t nEvents = 0;
@@ -99,13 +99,8 @@
   PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls); 
+
   // -----   EMC hit producers   ---------------------------------
-  //PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
-  //fRun->AddTask(emcHitProd); // hit production 
-
-  //PndEmcMakeDigi* emcMakeDigi=new PndEmcMakeDigi();
-  //fRun->AddTask(emcMakeDigi); // fast digitization
-
   PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform(iVerbose);
   PndEmcWaveformToDigi* emcWaveformToDigi=new PndEmcWaveformToDigi(iVerbose);
   emcHitsToWaveform->SetStorageOfData(kFALSE);
@@ -134,7 +129,13 @@
   PndDrcHitProducerIdeal* drchit = new PndDrcHitProducerIdeal();
   drchit->SetVerbose(iVerbose);
   fRun->AddTask(drchit);
-  
+ 
+  // -----   FTS hit producers   ---------------------------------
+  PndFtsHitProducerRealFast* ftsHitProducer = new PndFtsHitProducerRealFast();
+  //PndFtsHitProducerIdeal* ftsHitProducer = new PndFtsHitProducerIdeal();
+  //PndFtsHitProducerRealFull* ftsHitProducer = new PndFtsHitProducerRealFull();
+  fRun->AddTask(ftsHitProducer);
+ 
   // -----   GEM hit producers   ---------------------------------
   Int_t verboseLevel = 0;
   PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", verboseLevel);
