@@ -4,14 +4,14 @@
   Int_t iVerbose = 0;
 
   // Input file
-  TString inDigiFile = "digi_tpccombi.root";
-  TString inSimFile = "points_tpccombi.root";
+  TString inDigiFile = "evt_digi_tpc.root";
+  TString inSimFile = "evt_points_tpc.root";
 
   // Parameter file
-  TString parFile = "params_tpccombi.root";
+  TString parFile = "evt_params_tpc.root";
 
   // Output file
-  TString outFile = "reco_tpccombi.root";
+  TString outFile = "evt_reco_tpc.root";
 
   // Number of events to process
   Int_t nEvents = 0;
@@ -50,12 +50,14 @@
         
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
-  PndGeoHandling* geoH = PndGeoHandling::Instance();
-
-  bool SimpleClustering=true;
-
-  // ------- RECO procedure ------------------------------------------------
+  // ------------------------------------------------------------------------
  
+  PndMvdRiemannTrackFinderTask* mvdTrackFinder = new PndMvdRiemannTrackFinderTask();
+  mvdTrackFinder->SetVerbose(iVerbose);
+  mvdTrackFinder->SetPersistence(kFALSE);
+  mvdTrackFinder->SetMaxDist(0.05);
+  fRun->AddTask(mvdTrackFinder);
+
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
   //tpcCF->SetDigiPersistence(); // keep reference to digis in clusters
   tpcCF->SetPersistence(); // keep Clusters
@@ -99,8 +101,20 @@
   Res->SetPersistence();
   //SLres->SetClusterBranchName("PndTpcCluster_cut");
   fRun->AddTask(Res);
-    
- 
+
+  /*
+  PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
+  recoKalman->SetTrackInBranchName("SttMvdGemTrack");
+  recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
+  recoKalman->SetBusyCut(50); // CHECK to be tuned
+  //recoKalman->SetNumIterations(3);
+  fRun->AddTask(recoKalman);
+
+  PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
+  trackMC->SetTrackInBranchName("SttMvdGemGenTrack"); 
+  trackMC->SetTrackOutBranchName("SttMvdGemGenTrackID");
+  fRun->AddTask(trackMC);
+  */
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(6);
   fRun->Init();
