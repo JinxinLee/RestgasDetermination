@@ -34,6 +34,7 @@
 // Class Member definitions -----------
 
 #define THETACUT 0.4
+#define EPSILON 1E-4
 
 GeaneTrackRep::GeaneTrackRep()
   : GFAbsTrackRep(5), _pdg(211),_backw(0), _spu(1)
@@ -178,8 +179,8 @@ GeaneTrackRep::extrapolate(const GFDetPlane& pl,
 //   }
 
   // protect against (x,y)=(0,0)
-  if(fState[3][0]==0)fState[3][0]=1E-4;
-  if(fState[4][0]==0)fState[4][0]=1E-4;
+  if(fabs(fState[3][0])<EPSILON) fState[3][0]=EPSILON;
+  if(fabs(fState[4][0])<EPSILON) fState[4][0]=EPSILON;
   
   
   FairTrackParP par(fState[3][0],fState[4][0],fState[1][0],fState[2][0],fState[0][0],cova,ofrom,ufrom,vfrom,_spu);
@@ -279,8 +280,8 @@ GeaneTrackRep::extrapolateToPoint(const TVector3& pos,
 //   }
 
   // protect against (x,y)=(0,0)
-  if(fState[3][0]==0)fState[3][0]=1E-4;
-  if(fState[4][0]==0)fState[4][0]=1E-4;
+  if(fabs(fState[3][0])<EPSILON) fState[3][0]=EPSILON;
+  if(fabs(fState[4][0])<EPSILON) fState[4][0]=EPSILON;
   
   FairTrackParP par(fState[3][0],fState[4][0],fState[1][0],fState[2][0],fState[0][0],cova,ofrom,ufrom,vfrom,_spu);
   //par.Print();
@@ -426,8 +427,8 @@ GeaneTrackRep::getPocaOnLine(const TVector3& p1, const TVector3& p2, bool back){
 //   }
 
   // protect against (x,y)=(0,0)
-  if(fState[3][0]==0)fState[3][0]=1E-4;
-  if(fState[4][0]==0)fState[4][0]=1E-4;
+  if(fabs(fState[3][0])<EPSILON) fState[3][0]=EPSILON;
+  if(fabs(fState[4][0])<EPSILON) fState[4][0]=EPSILON;
   
   
   FairTrackParP par(fState[3][0],fState[4][0],fState[1][0],fState[2][0],fState[0][0],cova,ofrom,ufrom,vfrom,_spu);
