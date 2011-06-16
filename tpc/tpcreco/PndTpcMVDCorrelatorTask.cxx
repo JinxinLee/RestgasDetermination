@@ -148,7 +148,7 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
   for(unsigned int itr=0;  itr<ntracks; itr++) {
     if(DEBUG) std::cout<<"  ... processing TPC track no. "<<itr<<std::endl;
     GFTrack* track = (GFTrack*) (*fTrackArray)[itr];
-    //GFAbsTrackRep* rep = track->getCardinalRep();
+    GFAbsTrackRep* rep = track->getCardinalRep();
     
     unsigned int nPix = fPixelArray->GetEntriesFast();
     unsigned int nStr = fStripArray->GetEntriesFast();
@@ -169,8 +169,6 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
         std::cout<<"       position error: ";
         error.Print();
       }
-
-      GFAbsTrackRep* rep = track->getCardinalRep();
       try {
         rep->extrapolateToPoint(destination, poca, dirInPoca);
       }
@@ -221,7 +219,6 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
         error.Print();
       }
 
-      GFAbsTrackRep* rep = track->getCardinalRep();
       try {
         rep->extrapolateToPoint(destination, poca, dirInPoca);
       }

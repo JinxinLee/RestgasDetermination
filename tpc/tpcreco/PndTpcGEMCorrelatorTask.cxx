@@ -183,6 +183,7 @@ PndTpcGEMCorrelatorTask::Exec(Option_t* opt)
 	if(DEBUG) {
 	  std::cout<<"   not close enough: RES was ";
 	  res.Print();
+	  std::cout<< "  Station: "<<hit->GetStationNr()<<std::endl;
 	}
 	continue; //hit wasn't close enough to the track
       }
@@ -190,6 +191,7 @@ PndTpcGEMCorrelatorTask::Exec(Option_t* opt)
 	if(DEBUG) {
 	  std::cout<<"   added hit - RES was ";
 	  res.Print();
+	  std::cout<< "  Station: "<<hit->GetStationNr()<<std::endl;
 	}
 	std::map<unsigned int, PndGemHit*> tmp;
 	tmp[ig] = hit;
@@ -235,4 +237,4 @@ PndTpcGEMCorrelatorTask::WriteHistograms(const TString& fname) const {
   fResHistZ->Write();
   rOut->Close();
 }
-  
+

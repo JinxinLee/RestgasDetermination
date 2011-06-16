@@ -87,6 +87,11 @@ public:
   TH1D* fResHistY;
   TH1D* fResHistZ;
 
+  // gem correlator stuff goes here
+  std::vector<int> fOrdering;
+  std::vector<int>::iterator fOrderingIterator; 
+  
+
   ClassDef(PndTpcGEMCorrelatorTask,1);
   
 };
