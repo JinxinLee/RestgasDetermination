@@ -157,6 +157,16 @@ public:
   void SetGeanePro(Bool_t gea = kTRUE)    { fGeanePro = gea; };
   void SetPidHyp(Int_t pid)               { fPidHyp = pid; };
   
+
+  void SetMvdMode(Short_t mode)	{ fMvdMode = mode; };                 // MVD Mode: 0 no MVD, 1 MvdPoint, (2) MvdHit
+  void SetSttMode(Short_t mode)	{ fSttMode = mode; };                 // STT Mode: 0 no STT, 1 SttPoint,  2  SttHit, (3) SttHelixHit
+  void SetTpcMode(Short_t mode)	{ fTpcMode = mode; };                 // TPC Mode: 0 no TPC, (2) PndTpcCluster
+  void SetTofMode(Short_t mode)	{ fTofMode = mode; };                 // TOF Mode: 0 no TOF, 1 -empty-,  (2) TofHit
+  void SetEmcMode(Short_t mode)	{ fEmcMode = mode; };                 // EMC Mode: 0 no EMC, 1 -empty-,  (2) EmcCluster, 3 EmcBumps
+  void SetMdtMode(Short_t mode)	{ fMdtMode = mode; };                 // MDT Mode: 0 no MDT, 1 -empty-,  (2) MdtHit 
+  void SetDrcMode(Short_t mode)	{ fDrcMode = mode; };                 // DRC Mode: 0 no DRC, 1 -empty-,  (2) DrcHit
+  void SetDskMode(Short_t mode)	{ fDskMode = mode; };                 // DSK Mode: 0 no DSK, 1 -empty-,  (2) DskParticle
+
   /** Get parameter containers **/
   virtual void SetParContainers();
   virtual void Finish();

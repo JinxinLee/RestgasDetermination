@@ -159,176 +159,198 @@ InitStatus PndPidCorrelator::Init() {
   }
   
   // *** STT ***
-  if (fMixMode==kFALSE)
-  {
-    fSttHit = (TClonesArray*) fManager->GetObject("STTHit");
-    if ( fSttHit ) 
-      {
-        cout << "-I- PndPidCorrelator::Init: Using STTHit" << endl;
-        fSttMode = 2;
-      }
-    if (fSttMode ==0)
-      {
-        cout << "-W- PndPidCorrelator::Init: No STT hits array! Switching STT OFF" << endl;
-      } 
-  }
-  else
-  {
-    fSttHit = (TClonesArray*) fManager->GetObject("STTHitMix");
-    if ( fSttHit )
-      {
-        cout << "-I- PndPidCorrelator::Init: Using STTHitMix" << endl;
-        fSttMode = 2;
-      }
-    if (fSttMode ==0)
-      {
-        cout << "-W- PndPidCorrelator::Init: No STT hits mix array! Switching STT OFF" << endl;
-      }
-  }
-
-  // *** TPC ***
-  fTpcCluster = (TClonesArray*) fManager->GetObject("PndTpcCluster");
-  if ( fTpcCluster ) 
-  {
-    cout << "-I- PndPidCorrelator::Init: Using PndTpcCluster" << endl;
-    fTpcMode = 2;
-  }
-  else
+  if (fSttMode)
     {
-      cout << "-W- PndPidCorrelator::Init: No TPC Cluster array! Switching TPC OFF" << endl;
-      fTpcMode = 0;
+      if (fMixMode==kFALSE)
+	{
+	  fSttHit = (TClonesArray*) fManager->GetObject("STTHit");
+	  if ( fSttHit ) 
+	    {
+	      cout << "-I- PndPidCorrelator::Init: Using STTHit" << endl;
+	      fSttMode = 2;
+	    }
+	  if (fSttMode ==0)
+	    {
+	      cout << "-W- PndPidCorrelator::Init: No STT hits array! Switching STT OFF" << endl;
+	    } 
+	}
+      else
+	{
+	  fSttHit = (TClonesArray*) fManager->GetObject("STTHitMix");
+	  if ( fSttHit )
+	    {
+	      cout << "-I- PndPidCorrelator::Init: Using STTHitMix" << endl;
+	      fSttMode = 2;
+	    }
+	  if (fSttMode ==0)
+	    {
+	      cout << "-W- PndPidCorrelator::Init: No STT hits mix array! Switching STT OFF" << endl;
+	    }
+	}
+    }
+  
+  // *** TPC ***
+  if (fTpcMode)
+    {
+      fTpcCluster = (TClonesArray*) fManager->GetObject("PndTpcCluster");
+      if ( fTpcCluster ) 
+	{
+	  cout << "-I- PndPidCorrelator::Init: Using PndTpcCluster" << endl;
+	  fTpcMode = 2;
+	}
+      else
+	{
+	  cout << "-W- PndPidCorrelator::Init: No TPC Cluster array! Switching TPC OFF" << endl;
+	  fTpcMode = 0;
+	}
     }
   
   // *** MVD ***
-  if (fMixMode==kFALSE)
+  if (fMvdMode)
     {
-      fMvdHitsStrip = (TClonesArray*) fManager->GetObject("MVDHitsStrip");
-      if ( ! fMvdHitsStrip ) 
-        {
-          cout << "-W- PndPidCorrelator::Init: No MVDHitsStrip array!" << endl;
-        }
-      else fMvdMode = 2;
-  
-      fMvdHitsPixel = (TClonesArray*) fManager->GetObject("MVDHitsPixel");
-      if ( ! fMvdHitsPixel ) 
-        {
-          cout << "-W- PndPidCorrelator::Init: No MVDHitsPixel array!" << endl;
-        }
-      else fMvdMode = 2;
+      if (fMixMode==kFALSE)
+	{
+	  fMvdHitsStrip = (TClonesArray*) fManager->GetObject("MVDHitsStrip");
+	  if ( ! fMvdHitsStrip ) 
+	    {
+	      cout << "-W- PndPidCorrelator::Init: No MVDHitsStrip array!" << endl;
+	    }
+	  else fMvdMode = 2;
+	  
+	  fMvdHitsPixel = (TClonesArray*) fManager->GetObject("MVDHitsPixel");
+	  if ( ! fMvdHitsPixel ) 
+	    {
+	      cout << "-W- PndPidCorrelator::Init: No MVDHitsPixel array!" << endl;
+	    }
+	  else fMvdMode = 2;
+	}
+      else
+	{
+	  fMvdHitsStrip = (TClonesArray*) fManager->GetObject("MVDHitsStripMix");
+	  if ( ! fMvdHitsStrip )
+	    {
+	      cout << "-W- PndPidCorrelator::Init: No MVDHitsStripMix array!" << endl;
+	    }
+	  else fMvdMode = 2;
+	  
+	  fMvdHitsPixel = (TClonesArray*) fManager->GetObject("MVDHitsPixelMix");
+	  if ( ! fMvdHitsPixel )
+	    {
+	      cout << "-W- PndPidCorrelator::Init: No MVDHitsPixelMix array!" << endl;
+	    }
+	  else fMvdMode = 2;
+	}
+      
+      if (( ! fMvdHitsStrip ) &&  ( ! fMvdHitsPixel ))
+	{
+	  cout << "-W- PndPidCorrelator::Init: No MVD hits array! Switching MVD OFF" << endl;
+	  fMvdMode = 0;
+	}
+      else
+	{
+	  cout << "-I- PndPidCorrelator::Init: Using MVDHit" << endl;
+	}
     }
-  else
-    {
-      fMvdHitsStrip = (TClonesArray*) fManager->GetObject("MVDHitsStripMix");
-      if ( ! fMvdHitsStrip )
-        {
-          cout << "-W- PndPidCorrelator::Init: No MVDHitsStripMix array!" << endl;
-        }
-      else fMvdMode = 2;
-
-      fMvdHitsPixel = (TClonesArray*) fManager->GetObject("MVDHitsPixelMix");
-      if ( ! fMvdHitsPixel )
-        {
-          cout << "-W- PndPidCorrelator::Init: No MVDHitsPixelMix array!" << endl;
-        }
-      else fMvdMode = 2;
-    }
-
-  if (( ! fMvdHitsStrip ) &&  ( ! fMvdHitsPixel ))
-  {
-    cout << "-W- PndPidCorrelator::Init: No MVD hits array! Switching MVD OFF" << endl;
-    fMvdMode = 0;
-  }
-  else
-  {
-    cout << "-I- PndPidCorrelator::Init: Using MVDHit" << endl;
-  }
   
   // *** TOF ***
-  fTofHit = (TClonesArray*) fManager->GetObject("TofHit");
-  if ( ! fTofHit ) 
-  {
-    cout << "-W- PndPidCorrelator::Init: No TofHit array!" << endl;
-    fTofMode = 0;
-  }
-  else  
-  {
-    cout << "-I- PndPidCorrelator::Init: Using TofHit" << endl;
-    fTofMode = 2;
-  }
+  if (fTofMode)
+    {
+      fTofHit = (TClonesArray*) fManager->GetObject("TofHit");
+      if ( ! fTofHit ) 
+	{
+	  cout << "-W- PndPidCorrelator::Init: No TofHit array!" << endl;
+	  fTofMode = 0;
+	}
+      else  
+	{
+	  cout << "-I- PndPidCorrelator::Init: Using TofHit" << endl;
+	  fTofMode = 2;
+	}
+    }
   
   // *** EMC ***
-  
-  fEmcCluster = (TClonesArray*) fManager->GetObject("EmcCluster");
-  if ( ! fEmcCluster ) 
-  {
-    cout << "-W- PndPidCorrelator::Init: No EmcCluster array!" << endl;
-    fEmcMode = 0;
-  }
-  else 
-  {
-    cout << "-I- PndPidCorrelator::Init: Using EmcCluster" << endl;
-    fEmcMode = 2;
-  }
-  
-  fEmcBump = (TClonesArray*) fManager->GetObject("EmcBump");
-  if ( ! fEmcBump ) 
-  {
-    cout << "-W- PndPidCorrelator::Init: No EmcBump array!" << endl;
-  }
-  else fEmcMode = 3;
+  if (fEmcMode)
+    {
+      fEmcCluster = (TClonesArray*) fManager->GetObject("EmcCluster");
+      if ( ! fEmcCluster ) 
+	{
+	  cout << "-W- PndPidCorrelator::Init: No EmcCluster array!" << endl;
+	  fEmcMode = 0;
+	}
+      else 
+	{
+	  cout << "-I- PndPidCorrelator::Init: Using EmcCluster" << endl;
+	  fEmcMode = 2;
+	}
+      
+      fEmcBump = (TClonesArray*) fManager->GetObject("EmcBump");
+      if ( ! fEmcBump ) 
+	{
+	  cout << "-W- PndPidCorrelator::Init: No EmcBump array!" << endl;
+	}
+      else fEmcMode = 3;
+    }
   
   // *** DRC ***
-  fDrcHit = (TClonesArray*) fManager->GetObject("DrcHit");
-  if ( ! fDrcHit ) 
-  {
-    cout << "-W- PndPidCorrelator::Init: No DrcHit array!" << endl;
-    fDrcMode = 0;
-  }
-  else  
-  {
-    cout << "-I- PndPidCorrelator::Init: Using DrcHit" << endl;
-    fDrcMode = 2;
-  }
+  if (fDrcMode)
+    {
+      fDrcHit = (TClonesArray*) fManager->GetObject("DrcHit");
+      if ( ! fDrcHit ) 
+	{
+	  cout << "-W- PndPidCorrelator::Init: No DrcHit array!" << endl;
+	  fDrcMode = 0;
+	}
+      else  
+	{
+	  cout << "-I- PndPidCorrelator::Init: Using DrcHit" << endl;
+	  fDrcMode = 2;
+	}
+    }
   
   // *** DSK ***
-  fDskParticle = (TClonesArray*) fManager->GetObject("DskParticle");
-  if ( ! fDskParticle )
-  {
-    cout << "-W- PndPidCorrelator::Init: No DskParticle array!" << endl;
-    fDskMode = 0;
-  }
-  else
-  {
-    cout << "-I- PndPidCorrelator::Init: Using DskParticle" << endl;
-    fDskMode = 2;
-  }
-  
+  if (fDskMode)
+    {
+      fDskParticle = (TClonesArray*) fManager->GetObject("DskParticle");
+      if ( ! fDskParticle )
+	{
+	  cout << "-W- PndPidCorrelator::Init: No DskParticle array!" << endl;
+	  fDskMode = 0;
+	}
+      else
+	{
+	  cout << "-I- PndPidCorrelator::Init: Using DskParticle" << endl;
+	  fDskMode = 2;
+	}
+    }
   
   // *** MDT ***
-  fMdtHit = (TClonesArray*) fManager->GetObject("MdtHit");
-  if ( ! fMdtHit ) 
-  {
-    cout << "-W- PndPidCorrelator::Init: No MdtHit array!" << endl;
-    fMdtMode = 0;
-  }
-  else  
-  {
+  if (fMdtMode)
+    {
+      fMdtHit = (TClonesArray*) fManager->GetObject("MdtHit");
+      if ( ! fMdtHit ) 
+	{
+	  cout << "-W- PndPidCorrelator::Init: No MdtHit array!" << endl;
+	  fMdtMode = 0;
+	}
+      else  
+	{
     cout << "-I- PndPidCorrelator::Init: Using MdtHit" << endl;
     fMdtMode = 2;
-  }
-  fMdtTrk = (TClonesArray*) fManager->GetObject("MdtTrk");
-  if ( ! fMdtTrk ) 
-  {
-    cout << "-W- PndPidCorrelator::Init: No MdtTrk array!" << endl;
-  }
-  else  
-  {
-    cout << "-I- PndPidCorrelator::Init: Using MdtTrk" << endl;
-    fMdtMode = 3;
-  }
+	}
+      fMdtTrk = (TClonesArray*) fManager->GetObject("MdtTrk");
+      if ( ! fMdtTrk ) 
+	{
+	  cout << "-W- PndPidCorrelator::Init: No MdtTrk array!" << endl;
+	}
+      else  
+	{
+	  cout << "-I- PndPidCorrelator::Init: Using MdtTrk" << endl;
+	  fMdtMode = 3;
+	}
+    }
   
   if (fIdeal)
-  {
+    {
     cout << "-I- PndPidCorrelator::Init: Using MonteCarlo correlation" << endl;
     fTofPoint = (TClonesArray*) fManager->GetObject("TofPoint");
     if ( ! fTofPoint ) 
