@@ -50,14 +50,14 @@ PndPidCorrelator::PndPidCorrelator() {
   fDebugMode = kFALSE;
   fGeanePro = kTRUE;
   fMdtRefit = kFALSE;
-  fMvdMode = 0;
-  fSttMode = 0;
-  fTpcMode = 0;
-  fTofMode = 0;
-  fEmcMode = 0;
-  fMdtMode = 0; 
-  fDrcMode = 0;
-  fDskMode = 0;
+  fMvdMode = -1;
+  fSttMode = -1;
+  fTpcMode = -1;
+  fTofMode = -1;
+  fEmcMode = -1;
+  fMdtMode = -1; 
+  fDrcMode = -1;
+  fDskMode = -1;
   fMixMode = kFALSE;
   fPidHyp = 0;
   fVerbose = kFALSE;
@@ -82,21 +82,21 @@ PndPidCorrelator::PndPidCorrelator() {
 
 //___________________________________________________________
 PndPidCorrelator::PndPidCorrelator(const char *name, const char *title)
-:FairTask(name) {
+ :FairTask(name) {
   //---
   fPidChargedCand = new TClonesArray("PndPidCandidate"); 
   fPidNeutralCand = new TClonesArray("PndPidCandidate");
   fDebugMode = kFALSE;
   fGeanePro = kTRUE;
   fMdtRefit = kFALSE;
-  fMvdMode = 0;  
-  fSttMode = 0; 
-  fTpcMode = 0;
-  fTofMode = 0;
-  fEmcMode = 0;
-  fMdtMode = 0;
-  fDrcMode = 0;
-  fDskMode = 0; 
+  fMvdMode = -1;  
+  fSttMode = -1; 
+  fTpcMode = -1;
+  fTofMode = -1;
+  fEmcMode = -1;
+  fMdtMode = -1;
+  fDrcMode = -1;
+  fDskMode = -1; 
   fMixMode = kFALSE;
   fPidHyp = 0;
   fVerbose = kFALSE;
@@ -132,31 +132,31 @@ InitStatus PndPidCorrelator::Init() {
   }
   
   if (fTrackIDBranch!="")
-  {
-    fTrackID = (TClonesArray *)fManager->GetObject(fTrackIDBranch);
-    if ( ! fTrackID ) {
-      cout << "-I- PndPidCorrelator::Init: No PndTrackID array! Switching MC propagation OFF" << endl;
-      fTrackIDBranch = "";
+    {
+      fTrackID = (TClonesArray *)fManager->GetObject(fTrackIDBranch);
+      if ( ! fTrackID ) {
+	cout << "-I- PndPidCorrelator::Init: No PndTrackID array! Switching MC propagation OFF" << endl;
+	fTrackIDBranch = "";
+      }
     }
-  }
   
   if (fTrackBranch2!="")
-  {
-    fTrack2 = (TClonesArray *)fManager->GetTClonesArray(fTrackBranch2);
-    if ( ! fTrack2 ) {
-      cout << "-I- PndPidCorrelator::Init: No 2nd PndTrack array!" << endl;
-      return kERROR;
+    {
+      fTrack2 = (TClonesArray *)fManager->GetTClonesArray(fTrackBranch2);
+      if ( ! fTrack2 ) {
+	cout << "-I- PndPidCorrelator::Init: No 2nd PndTrack array!" << endl;
+	return kERROR;
+      }
     }
-  }
   
   if (fTrackIDBranch2!="")
-  {
-    fTrackID2 = (TClonesArray *)fManager->GetObject(fTrackIDBranch2);
-    if ( ! fTrackID2 ) {
-      cout << "-I- PndPidCorrelator::Init: No 2nd PndTrackID array! Switching MC propagation OFF" << endl;
-      fTrackIDBranch2 = "";
+    {
+      fTrackID2 = (TClonesArray *)fManager->GetObject(fTrackIDBranch2);
+      if ( ! fTrackID2 ) {
+	cout << "-I- PndPidCorrelator::Init: No 2nd PndTrackID array! Switching MC propagation OFF" << endl;
+	fTrackIDBranch2 = "";
+      }
     }
-  }
   
   // *** STT ***
   if (fSttMode)
@@ -169,9 +169,10 @@ InitStatus PndPidCorrelator::Init() {
 	      cout << "-I- PndPidCorrelator::Init: Using STTHit" << endl;
 	      fSttMode = 2;
 	    }
-	  if (fSttMode ==0)
+	  else
 	    {
 	      cout << "-W- PndPidCorrelator::Init: No STT hits array! Switching STT OFF" << endl;
+	      fSttMode = 0;
 	    } 
 	}
       else
@@ -182,9 +183,10 @@ InitStatus PndPidCorrelator::Init() {
 	      cout << "-I- PndPidCorrelator::Init: Using STTHitMix" << endl;
 	      fSttMode = 2;
 	    }
-	  if (fSttMode ==0)
+	  else
 	    {
 	      cout << "-W- PndPidCorrelator::Init: No STT hits mix array! Switching STT OFF" << endl;
+	      fSttMode = 0;
 	    }
 	}
     }
@@ -334,8 +336,8 @@ InitStatus PndPidCorrelator::Init() {
 	}
       else  
 	{
-    cout << "-I- PndPidCorrelator::Init: Using MdtHit" << endl;
-    fMdtMode = 2;
+	  cout << "-I- PndPidCorrelator::Init: Using MdtHit" << endl;
+	  fMdtMode = 2;
 	}
       fMdtTrk = (TClonesArray*) fManager->GetObject("MdtTrk");
       if ( ! fMdtTrk ) 
@@ -351,132 +353,132 @@ InitStatus PndPidCorrelator::Init() {
   
   if (fIdeal)
     {
-    cout << "-I- PndPidCorrelator::Init: Using MonteCarlo correlation" << endl;
-    fTofPoint = (TClonesArray*) fManager->GetObject("TofPoint");
-    if ( ! fTofPoint ) 
-    {
-      cout << "-W- PndPidCorrelator::Init: No TofPoint array!" << endl;
-      fTofMode = 0;
+      cout << "-I- PndPidCorrelator::Init: Using MonteCarlo correlation" << endl;
+      fTofPoint = (TClonesArray*) fManager->GetObject("TofPoint");
+      if ( ! fTofPoint ) 
+	{
+	  cout << "-W- PndPidCorrelator::Init: No TofPoint array!" << endl;
+	  fTofMode = 0;
+	}
+      else  
+	{
+	  cout << "-I- PndPidCorrelator::Init: Using TofPoint" << endl;
+	}
+      fDrcPoint = (TClonesArray*) fManager->GetObject("DrcBarPoint");
+      if ( ! fDrcPoint ) 
+	{
+	  cout << "-W- PndPidCorrelator::Init: No DrcBarPoint array!" << endl;
+	  fDrcMode = 0;
+	}
+      else  
+	{
+	  cout << "-I- PndPidCorrelator::Init: Using DrcPoint" << endl;
+	}
+      fMdtPoint = (TClonesArray*) fManager->GetObject("MdtPoint");
+      if ( ! fMdtPoint ) 
+	{
+	  cout << "-W- PndPidCorrelator::Init: No MdtPoint array!" << endl;
+	  fMdtMode = 0;
+	}
+      else  
+	{
+	  cout << "-I- PndPidCorrelator::Init: Using MdtPoint" << endl;
+	}
     }
-    else  
-    {
-      cout << "-I- PndPidCorrelator::Init: Using TofPoint" << endl;
-    }
-    fDrcPoint = (TClonesArray*) fManager->GetObject("DrcBarPoint");
-    if ( ! fDrcPoint ) 
-    {
-      cout << "-W- PndPidCorrelator::Init: No DrcBarPoint array!" << endl;
-      fDrcMode = 0;
-    }
-    else  
-    {
-      cout << "-I- PndPidCorrelator::Init: Using DrcPoint" << endl;
-    }
-    fMdtPoint = (TClonesArray*) fManager->GetObject("MdtPoint");
-    if ( ! fMdtPoint ) 
-    {
-      cout << "-W- PndPidCorrelator::Init: No MdtPoint array!" << endl;
-      fMdtMode = 0;
-    }
-    else  
-    {
-      cout << "-I- PndPidCorrelator::Init: Using MdtPoint" << endl;
-    }
-  }
   
   Register();
   
   fCorrPar->printParams();
   
   if (fGeanePro)
-  { 
-    cout << "-I- PndPidCorrelator::Init: Using Geane for Track propagation" << endl;
-    if (!fCorrErrorProp)
-      {
-	cout << "-I- PndPidCorrelator::Init: Switching OFF Geane error propagation" << endl;
-      }
+    { 
+      cout << "-I- PndPidCorrelator::Init: Using Geane for Track propagation" << endl;
+      if (!fCorrErrorProp)
+	{
+	  cout << "-I- PndPidCorrelator::Init: Switching OFF Geane error propagation" << endl;
+	}
     
-    switch (abs(fPidHyp))
-    {
-      case 0:
-        cout << "-I- PndPidCorrelator::Init: No PID set -> Using default PION hypothesis" << endl;
-        fPidHyp = 211;
-        break;
+      switch (abs(fPidHyp))
+	{
+	case 0:
+	  cout << "-I- PndPidCorrelator::Init: No PID set -> Using default PION hypothesis" << endl;
+	  fPidHyp = 211;
+	  break;
         
-      case 11:
-        cout << "-I- PndPidCorrelator::Init: Using ELECTRON hypothesis" << endl;
-        fPidHyp = -11;
-        break;
+	case 11:
+	  cout << "-I- PndPidCorrelator::Init: Using ELECTRON hypothesis" << endl;
+	  fPidHyp = -11;
+	  break;
         
-      case 13:
-        cout << "-I- PndPidCorrelator::Init: Using MUON hypothesis" << endl;
-        fPidHyp = -13;
-        break;
+	case 13:
+	  cout << "-I- PndPidCorrelator::Init: Using MUON hypothesis" << endl;
+	  fPidHyp = -13;
+	  break;
         
-      case 211:
-        cout << "-I- PndPidCorrelator::Init: Using PION hypothesis" << endl;
-        fPidHyp = 211;
-        break;
+	case 211:
+	  cout << "-I- PndPidCorrelator::Init: Using PION hypothesis" << endl;
+	  fPidHyp = 211;
+	  break;
         
-      case 321:
-        cout << "-I- PndPidCorrelator::Init: Using KAON hypothesis" << endl;
-        fPidHyp = 321;
-        break;
+	case 321:
+	  cout << "-I- PndPidCorrelator::Init: Using KAON hypothesis" << endl;
+	  fPidHyp = 321;
+	  break;
         
-      case 2212:
-        cout << "-I- PndPidCorrelator::Init: Using PROTON hypothesis" << endl;
-        fPidHyp = 2212;
-        break;
+	case 2212:
+	  cout << "-I- PndPidCorrelator::Init: Using PROTON hypothesis" << endl;
+	  fPidHyp = 2212;
+	  break;
         
-      default:
-        cout << "-I- PndPidCorrelator::Init: Not recognised PID set -> Using default PION hypothesis" << endl;
-        fPidHyp = 211;
-        break;
+	default:
+	  cout << "-I- PndPidCorrelator::Init: Not recognised PID set -> Using default PION hypothesis" << endl;
+	  fPidHyp = 211;
+	  break;
+	}
     }
-  }
   else
-  {
-    return kFATAL;
-  }
+    {
+      return kFATAL;
+    }
   
   if   (fMdtRefit)
-  {
-    fFitter = new PndRecoKalmanFit();
-    fFitter->SetGeane(fGeanePro);
-    fFitter->SetNumIterations(1);
-    if (!fFitter->Init()) return kFATAL;
-  } 
+    {
+      fFitter = new PndRecoKalmanFit();
+      fFitter->SetGeane(fGeanePro);
+      fFitter->SetNumIterations(1);
+      if (!fFitter->Init()) return kFATAL;
+    } 
   
   if (fDebugMode)
-  {
-    r = TFile::Open(sDir+sFile,"RECREATE");
+    {
+      r = TFile::Open(sDir+sFile,"RECREATE");
     
-    tofCorr = new TNtuple("tofCorr","TRACK-TOF Correlation",
-                          "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:tof_x:tof_y:tof_z:tof_phi:chi2:dphi:len:glen");
-    emcCorr = new TNtuple("emcCorr","TRACK-EMC Correlation",
-                          "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:emc_x:emc_y:emc_z:emc_phi:chi2:dphi:emc_ene:glen:emc_mod");
-    mdtCorr = new TNtuple("mdtCorr","TRACK-MDT Correlation",
-                          "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:mdt_x:mdt_y:mdt_z:mdt_phi:chi2:mdt_mod:dphi:glen:mdt_count");
-    drcCorr = new TNtuple("drcCorr","TRACK-DRC Correlation",
-                          "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:drc_x:drc_y:drc_phi:chi2:drc_thetac:drc_nphot:dphi:glen");
-    dskCorr = new TNtuple("dskCorr","TRACK-DSK Correlation",
-                          "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:dsk_x:dsk_y:dsk_phi:chi2:dsk_thetac:dsk_nphot:dphi:glen");
-    cout << "-I- PndPidCorrelator::Init: Filling Debug histograms" << endl;
+      tofCorr = new TNtuple("tofCorr","TRACK-TOF Correlation",
+			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:tof_x:tof_y:tof_z:tof_phi:chi2:dphi:len:glen");
+      emcCorr = new TNtuple("emcCorr","TRACK-EMC Correlation",
+			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:emc_x:emc_y:emc_z:emc_phi:chi2:dphi:emc_ene:glen:emc_mod");
+      mdtCorr = new TNtuple("mdtCorr","TRACK-MDT Correlation",
+			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:mdt_x:mdt_y:mdt_z:mdt_phi:chi2:mdt_mod:dphi:glen:mdt_count");
+      drcCorr = new TNtuple("drcCorr","TRACK-DRC Correlation",
+			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:drc_x:drc_y:drc_phi:chi2:drc_thetac:drc_nphot:dphi:glen");
+      dskCorr = new TNtuple("dskCorr","TRACK-DSK Correlation",
+			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:dsk_x:dsk_y:dsk_phi:chi2:dsk_thetac:dsk_nphot:dphi:glen");
+      cout << "-I- PndPidCorrelator::Init: Filling Debug histograms" << endl;
     
-  }
+    }
 	
-	// Set Parameters for Emc error matrix 
-	if (fEmcErrorMatrixPar->IsValid())
-	{
-		fEmcErrorMatrix->Init(fEmcErrorMatrixPar->GetParObject());
-		//std::cout<<"PndPidCorrelator: Emc error matrix is read from RTDB"<<std::endl;
-	} else
-	{
-		Int_t emcGeomVersion=fEmcGeoPar->GetGeometryVersion();
-		fEmcErrorMatrix->InitFromFile(emcGeomVersion);
-		fEmcErrorMatrixPar->SetErrorMatrixObject(fEmcErrorMatrix->GetParObject());
-		//std::cout<<"PndPidCorrelator: Emc error matrix is read from file"<<std::endl;
-	}
+  // Set Parameters for Emc error matrix 
+  if (fEmcErrorMatrixPar->IsValid())
+    {
+      fEmcErrorMatrix->Init(fEmcErrorMatrixPar->GetParObject());
+      //std::cout<<"PndPidCorrelator: Emc error matrix is read from RTDB"<<std::endl;
+    } else
+    {
+      Int_t emcGeomVersion=fEmcGeoPar->GetGeometryVersion();
+      fEmcErrorMatrix->InitFromFile(emcGeomVersion);
+      fEmcErrorMatrixPar->SetErrorMatrixObject(fEmcErrorMatrix->GetParObject());
+      //std::cout<<"PndPidCorrelator: Emc error matrix is read from file"<<std::endl;
+    }
 	
   
   cout << "-I- PndPidCorrelator::Init: Success!" << endl;
@@ -539,13 +541,13 @@ void PndPidCorrelator::ConstructChargedCandidate() {
     
     PndPidCandidate* pidCand = 	new PndPidCandidate();
     if (fTrackIDBranch!="")
-    {
-      PndTrackID* trackID = (PndTrackID*) fTrackID->At(i);
-      if (trackID->GetNCorrTrackId()>0)
       {
-        pidCand->SetMcIndex(trackID->GetCorrTrackID());
-      }
-    } else { // added for PndAnalysis, TODO: remove after Fairlinks work with Associators
+	PndTrackID* trackID = (PndTrackID*) fTrackID->At(i);
+	if (trackID->GetNCorrTrackId()>0)
+	  {
+	    pidCand->SetMcIndex(trackID->GetCorrTrackID());
+	  }
+      } else { // added for PndAnalysis, TODO: remove after Fairlinks work with Associators
       PndTrackCand trackCand = track->GetTrackCand();
       pidCand->SetMcIndex(trackCand.getMcTrackId());
     }
@@ -564,41 +566,41 @@ void PndPidCorrelator::ConstructChargedCandidate() {
   } 
   
   if (fTrackBranch2!="")
-  {
-    Int_t nTracks2 = fTrack2->GetEntriesFast();
-    for (Int_t i = 0; i < nTracks2; i++) {
-      PndTrack* track = (PndTrack*) fTrack2->At(i);
-      Int_t ierr = 0;
-      FairTrackParP par = track->GetParamLast();
-      if ((par.GetMomentum().Mag()<0.1) || (par.GetMomentum().Mag()>15.) )continue;
-      FairTrackParH *helix = new FairTrackParH(&par, ierr);
+    {
+      Int_t nTracks2 = fTrack2->GetEntriesFast();
+      for (Int_t i = 0; i < nTracks2; i++) {
+	PndTrack* track = (PndTrack*) fTrack2->At(i);
+	Int_t ierr = 0;
+	FairTrackParP par = track->GetParamLast();
+	if ((par.GetMomentum().Mag()<0.1) || (par.GetMomentum().Mag()>15.) )continue;
+	FairTrackParH *helix = new FairTrackParH(&par, ierr);
       
-      PndPidCandidate* pidCand =  new PndPidCandidate();
-      if (fTrackIDBranch2!="")
-      {
-        PndTrackID* trackID = (PndTrackID*) fTrackID2->At(i);
-	if (trackID->GetNCorrTrackId()>0)
+	PndPidCandidate* pidCand =  new PndPidCandidate();
+	if (fTrackIDBranch2!="")
 	  {
-          pidCand->SetMcIndex(trackID->GetCorrTrackID());
-        }
-      } else { // added for PndAnalysis, TODO: remove after Fairlinks work with Associators
-        PndTrackCand trackCand = track->GetTrackCand();
-        pidCand->SetMcIndex(trackCand.getMcTrackId());
+	    PndTrackID* trackID = (PndTrackID*) fTrackID2->At(i);
+	    if (trackID->GetNCorrTrackId()>0)
+	      {
+		pidCand->SetMcIndex(trackID->GetCorrTrackID());
+	      }
+	  } else { // added for PndAnalysis, TODO: remove after Fairlinks work with Associators
+	  PndTrackCand trackCand = track->GetTrackCand();
+	  pidCand->SetMcIndex(trackCand.getMcTrackId());
+	}
+	pidCand->SetTrackIndex(i);
+	pidCand->AddLink(FairLink("PndTrack", i));
+	if (!GetTrackInfo(track, pidCand)) continue;
+	GetMvdInfo(track, pidCand);
+	//GetTpcInfo(track, pidCand);
+	if ( (fSttMode==3) && (fSttHit    ->GetEntriesFast()>0) ) GetSttInfo(track, pidCand);
+	if ( (fTofMode==2) && (fTofHit    ->GetEntriesFast()>0) ) GetTofInfo(helix, pidCand);
+	if ( (fEmcMode>0)  && (fEmcCluster->GetEntriesFast()>0) ) GetEmcInfo(helix, pidCand);
+	if ( (fMdtMode>0)  && (fMdtHit    ->GetEntriesFast()>0) ) GetMdtInfo(track, pidCand);
+	if ( (fDrcMode>0)  && (fDrcHit    ->GetEntriesFast()>0) ) GetDrcInfo(helix, pidCand);
+	if ( (fDskMode>0)  && (fDskParticle->GetEntriesFast()>0) ) GetDskInfo(helix, pidCand);
+	AddChargedCandidate(pidCand);
       }
-      pidCand->SetTrackIndex(i);
-      pidCand->AddLink(FairLink("PndTrack", i));
-      if (!GetTrackInfo(track, pidCand)) continue;
-      GetMvdInfo(track, pidCand);
-      //GetTpcInfo(track, pidCand);
-      if ( (fSttMode==3) && (fSttHit    ->GetEntriesFast()>0) ) GetSttInfo(track, pidCand);
-      if ( (fTofMode==2) && (fTofHit    ->GetEntriesFast()>0) ) GetTofInfo(helix, pidCand);
-      if ( (fEmcMode>0)  && (fEmcCluster->GetEntriesFast()>0) ) GetEmcInfo(helix, pidCand);
-      if ( (fMdtMode>0)  && (fMdtHit    ->GetEntriesFast()>0) ) GetMdtInfo(track, pidCand);
-      if ( (fDrcMode>0)  && (fDrcHit    ->GetEntriesFast()>0) ) GetDrcInfo(helix, pidCand);
-      if ( (fDskMode>0)  && (fDskParticle->GetEntriesFast()>0) ) GetDskInfo(helix, pidCand);
-      AddChargedCandidate(pidCand);
     }
-  }
   
 }
 
@@ -610,68 +612,68 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
   
   Int_t nBumps;
   if (fEmcMode==2) 
-  {
-    nBumps = fEmcCluster->GetEntriesFast();
-    emcType = "EmcCluster";
-  }
+    {
+      nBumps = fEmcCluster->GetEntriesFast();
+      emcType = "EmcCluster";
+    }
   else
-  {
-    nBumps = fEmcBump->GetEntriesFast();
-    emcType = "EmcBump";
-  }
+    {
+      nBumps = fEmcBump->GetEntriesFast();
+      emcType = "EmcBump";
+    }
   
   for (Int_t i = 0; i < nBumps; i++)
-  {
-    PndEmcBump* bump;
-    PndEmcCluster *clu;
-    if (fEmcMode==2) 
-    { 
-      if (fClusterList[i]) continue;
-      bump = (PndEmcBump*) fEmcCluster->At(i);
-      clu  = (PndEmcBump*) fEmcCluster->At(i);
-    }
-    else
     {
-      bump = (PndEmcBump*) fEmcBump->At(i);
-      if (fClusterList[bump->GetClusterIndex()]) continue; // skip correlated clusters
-      clu = (PndEmcCluster*)fEmcCluster->At(bump->GetClusterIndex());
+      PndEmcBump* bump;
+      PndEmcCluster *clu;
+      if (fEmcMode==2) 
+	{ 
+	  if (fClusterList[i]) continue;
+	  bump = (PndEmcBump*) fEmcCluster->At(i);
+	  clu  = (PndEmcBump*) fEmcCluster->At(i);
+	}
+      else
+	{
+	  bump = (PndEmcBump*) fEmcBump->At(i);
+	  if (fClusterList[bump->GetClusterIndex()]) continue; // skip correlated clusters
+	  clu = (PndEmcCluster*)fEmcCluster->At(bump->GetClusterIndex());
       
+	}
+    
+      TVector3 vtx(0,0,0);
+      TVector3 v1=bump->where();
+      TVector3 p3;
+      p3.SetMagThetaPhi(bump->GetEnergyCorrected(), v1.Theta(), v1.Phi());
+      TLorentzVector lv(p3,p3.Mag());
+      TMatrixD covP4=fEmcErrorMatrix->Get4MomentumErrorMatrix(*clu);
+    
+      PndPidCandidate* pidCand = new PndPidCandidate(0, vtx, lv);
+      pidCand->SetP4Cov(covP4);
+      pidCand->SetEmcRawEnergy(bump->energy());
+      pidCand->SetEmcCalEnergy(bump->GetEnergyCorrected());
+      pidCand->SetEmcIndex(i);
+      pidCand->SetEmcModule(bump->GetModule());
+      pidCand->SetEmcNumberOfCrystals(bump->NumberOfDigis());
+    
+      pidCand->SetLink(FairLink(emcType, i));
+    
+      std::vector<Int_t> mclist = clu->GetMcList();
+      if (mclist.size()>0)
+	{
+	  pidCand->SetMcIndex(mclist[0]);
+	}
+      AddNeutralCandidate(pidCand);
     }
-    
-    TVector3 vtx(0,0,0);
-    TVector3 v1=bump->where();
-    TVector3 p3;
-    p3.SetMagThetaPhi(bump->GetEnergyCorrected(), v1.Theta(), v1.Phi());
-    TLorentzVector lv(p3,p3.Mag());
-		TMatrixD covP4=fEmcErrorMatrix->Get4MomentumErrorMatrix(*clu);
-    
-    PndPidCandidate* pidCand = new PndPidCandidate(0, vtx, lv);
-    pidCand->SetP4Cov(covP4);
-    pidCand->SetEmcRawEnergy(bump->energy());
-    pidCand->SetEmcCalEnergy(bump->GetEnergyCorrected());
-    pidCand->SetEmcIndex(i);
-    pidCand->SetEmcModule(bump->GetModule());
-    pidCand->SetEmcNumberOfCrystals(bump->NumberOfDigis());
-    
-    pidCand->SetLink(FairLink(emcType, i));
-    
-    std::vector<Int_t> mclist = clu->GetMcList();
-    if (mclist.size()>0)
-    {
-      pidCand->SetMcIndex(mclist[0]);
-    }
-    AddNeutralCandidate(pidCand);
-  }
 }
 
 //_________________________________________________________________
 Bool_t PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCand) {
   
   if (!fIdeal)
-  {
-    if ((helix->GetMomentum().Theta()*TMath::RadToDeg())<20.) return kFALSE; 
-    if ((helix->GetMomentum().Theta()*TMath::RadToDeg())>150.) return kFALSE;
-  }
+    {
+      if ((helix->GetMomentum().Theta()*TMath::RadToDeg())<20.) return kFALSE; 
+      if ((helix->GetMomentum().Theta()*TMath::RadToDeg())>150.) return kFALSE;
+    }
   FairGeanePro *fProTof = new FairGeanePro();
   if (!fCorrErrorProp) fProTof->PropagateOnlyParameters(); 
   FairGeanePro *fProVertex = new FairGeanePro();
@@ -688,55 +690,55 @@ Bool_t PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCa
   TVector3 tofPos(0., 0., 0.);
   TVector3 momentum(0., 0., 0.);
   for (Int_t tt = 0; tt<tofEntries; tt++)
-  {
-    tofHit = (PndTofHit*)fTofHit->At(tt);
-    if ( fIdeal && ( ((PndTofPoint*)fTofPoint->At(tofHit->GetRefIndex()))->GetTrackID() !=pidCand->GetMcIndex()) ) continue;
-    tofHit->Position(tofPos);
+    {
+      tofHit = (PndTofHit*)fTofHit->At(tt);
+      if ( fIdeal && ( ((PndTofPoint*)fTofPoint->At(tofHit->GetRefIndex()))->GetTrackID() !=pidCand->GetMcIndex()) ) continue;
+      tofHit->Position(tofPos);
     
-    if (fGeanePro) // Overwrites vertex if Geane is used
-    { 
+      if (fGeanePro) // Overwrites vertex if Geane is used
+	{ 
      
-      fProTof->SetPoint(tofPos);
-      fProTof->PropagateToPCA(1, 1);
-      FairTrackParH *fRes= new FairTrackParH();
-      Bool_t rc =  fProTof->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge());	
-      if (!rc) continue;
+	  fProTof->SetPoint(tofPos);
+	  fProTof->PropagateToPCA(1, 1);
+	  FairTrackParH *fRes= new FairTrackParH();
+	  Bool_t rc =  fProTof->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge());	
+	  if (!rc) continue;
       
-      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
      
-      fProVertex->SetPoint(TVector3(0,0,0));
-      fProVertex->PropagateToPCA(1, -1);
-      FairTrackParH *fRes2= new FairTrackParH();
-      Bool_t rc2 =  fProVertex->Propagate(fRes, fRes2, fPidHyp*pidCand->GetCharge());
-      if (rc2) tofLength = fProVertex->GetLengthAtPCA();
-    }
+	  fProVertex->SetPoint(TVector3(0,0,0));
+	  fProVertex->PropagateToPCA(1, -1);
+	  FairTrackParH *fRes2= new FairTrackParH();
+	  Bool_t rc2 =  fProVertex->Propagate(fRes, fRes2, fPidHyp*pidCand->GetCharge());
+	  if (rc2) tofLength = fProVertex->GetLengthAtPCA();
+	}
     
-    Float_t dist = (tofPos-vertex).Mag2();
+      Float_t dist = (tofPos-vertex).Mag2();
     
-    if ( tofQuality > dist)
-    {
-      tofIndex = tt;
-      tofQuality = dist;
-      tofTof = tofHit->GetTime();
-      //tofLength = fabs(phi * track->GetRadius() / TMath::Sin(track->GetMomentum().Theta()));
+      if ( tofQuality > dist)
+	{
+	  tofIndex = tt;
+	  tofQuality = dist;
+	  tofTof = tofHit->GetTime();
+	  //tofLength = fabs(phi * track->GetRadius() / TMath::Sin(track->GetMomentum().Theta()));
+	}
+      if (fDebugMode)
+	{
+	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
+			      helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
+			      tofPos.X(), tofPos.Y(), tofPos.Z(), tofPos.Phi(),
+			      dist, vertex.DeltaPhi(tofPos), tofLength, tofGLength};
+	  tofCorr->Fill(ntuple);
+	}
     }
-    if (fDebugMode)
-    {
-      Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
-        helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
-        tofPos.X(), tofPos.Y(), tofPos.Z(), tofPos.Phi(),
-      dist, vertex.DeltaPhi(tofPos), tofLength, tofGLength};
-      tofCorr->Fill(ntuple);
-    }
-  }
   
   if ( (tofQuality<fCorrPar->GetTofCut()) || (fIdeal && tofIndex!=-1) )
-  {
-    pidCand->SetTofQuality(tofQuality);
-    pidCand->SetTofStopTime(tofTof);
-    pidCand->SetTofTrackLength(tofLength);
-    pidCand->SetTofIndex(tofIndex);
-  }
+    {
+      pidCand->SetTofQuality(tofQuality);
+      pidCand->SetTofStopTime(tofTof);
+      pidCand->SetTofTrackLength(tofLength);
+      pidCand->SetTofIndex(tofIndex);
+    }
   
   return kTRUE;
 }
@@ -745,12 +747,12 @@ Bool_t PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCand) { 
   if(! helix){
     std::cerr << "<Error> PndPidCorrelator EMCINFO: FairTrackParH NULL pointer parameter."
-    <<std::endl;
+	      <<std::endl;
     return kFALSE;
   }
   if(! pidCand){
     std::cerr << "<Error> PndPidCorrelator EMCINFO: pidCand NULL pointer parameter."
-    <<std::endl;
+	      <<std::endl;
     return kFALSE;
   }
   FairGeanePro *fProEmc = new FairGeanePro(); 
@@ -817,7 +819,7 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
       Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
 			  helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
 			  emcPos.X(), emcPos.Y(), emcPos.Z(), emcPos.Phi(),
-      dist, vertex.DeltaPhi(emcPos), emcHit->energy(), emcGLength, emcModule};
+			  dist, vertex.DeltaPhi(emcPos), emcHit->energy(), emcGLength, emcModule};
       emcCorr->Fill(ntuple);
     }
   }// End for(ee = 0;)
@@ -852,13 +854,13 @@ Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
   if (!fCorrErrorProp) fProMdt->PropagateOnlyParameters();
 
   if (fMdtMode == 3)
-  { 
-    for (Int_t tt = 0; tt<fMdtTrk->GetEntriesFast(); tt++)
-    {
-      PndMdtTrk *mdtTrk = (PndMdtTrk*)fMdtTrk->At(tt);
-      mapMdtTrk[mdtTrk->GetHitIndex(0)] = tt;
+    { 
+      for (Int_t tt = 0; tt<fMdtTrk->GetEntriesFast(); tt++)
+	{
+	  PndMdtTrk *mdtTrk = (PndMdtTrk*)fMdtTrk->At(tt);
+	  mapMdtTrk[mdtTrk->GetHitIndex(0)] = tt;
+	}
     }
-  }
   PndMdtHit *mdtHit = NULL;
   Int_t mdtEntries = fMdtHit->GetEntriesFast();
   Int_t mdtIndex = -1, mdtMod = 0, mdtLayer = 0;
@@ -871,44 +873,44 @@ Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
   TVector3 mdtPos(0., 0., 0.);
   TVector3 momentum(0., 0., 0.);
   for (Int_t mm = 0; mm<mdtEntries; mm++)
-  {
-    mdtHit = (PndMdtHit*)fMdtHit->At(mm);
-    if ( fIdeal && ( ((PndMdtPoint*)fMdtPoint->At(mdtHit->GetRefIndex()))->GetTrackID() !=pidCand->GetMcIndex()) ) continue;
-    if (mdtHit->GetLayerID()!=0) continue;
-    if (mdtHit->GetModule()>2) continue;
-    mdtHit->Position(mdtPos);
-    if (fGeanePro) // Overwrites vertex if Geane is used
-    { 
+    {
+      mdtHit = (PndMdtHit*)fMdtHit->At(mm);
+      if ( fIdeal && ( ((PndMdtPoint*)fMdtPoint->At(mdtHit->GetRefIndex()))->GetTrackID() !=pidCand->GetMcIndex()) ) continue;
+      if (mdtHit->GetLayerID()!=0) continue;
+      if (mdtHit->GetModule()>2) continue;
+      mdtHit->Position(mdtPos);
+      if (fGeanePro) // Overwrites vertex if Geane is used
+	{ 
      
-      fProMdt->SetPoint(mdtPos);
-      fProMdt->PropagateToPCA(1, 1);
-      vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
-      FairTrackParH *fRes= new FairTrackParH();
-      Bool_t rc =  fProMdt->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); 
-      if (!rc) continue;
-      mdtTempMom = fRes->GetMomentum().Mag();  
-      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
-      mdtGLength = fProMdt->GetLengthAtPCA();
-    }
+	  fProMdt->SetPoint(mdtPos);
+	  fProMdt->PropagateToPCA(1, 1);
+	  vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
+	  FairTrackParH *fRes= new FairTrackParH();
+	  Bool_t rc =  fProMdt->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); 
+	  if (!rc) continue;
+	  mdtTempMom = fRes->GetMomentum().Mag();  
+	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	  mdtGLength = fProMdt->GetLengthAtPCA();
+	}
     
-    Float_t dist;
-    if (mdtHit->GetModule()==1) 
-    {
-      dist = (mdtPos-vertex).Mag2();
-    }
-    else
-    {
-      dist = (vertex.X()-mdtPos.X())*(vertex.X()-mdtPos.X())+(vertex.Y()-mdtPos.Y())*(vertex.Y()-mdtPos.Y());
-    }
+      Float_t dist;
+      if (mdtHit->GetModule()==1) 
+	{
+	  dist = (mdtPos-vertex).Mag2();
+	}
+      else
+	{
+	  dist = (vertex.X()-mdtPos.X())*(vertex.X()-mdtPos.X())+(vertex.Y()-mdtPos.Y())*(vertex.Y()-mdtPos.Y());
+	}
     
-    if ( mdtQuality > dist)
-    {
-      mdtIndex = mm;
-      mdtQuality = dist;
-      mdtMod = mdtHit->GetModule();
-      mdtMom = mdtTempMom;
-      mdtLayer = 1;
-      if (fMdtMode==3)
+      if ( mdtQuality > dist)
+	{
+	  mdtIndex = mm;
+	  mdtQuality = dist;
+	  mdtMod = mdtHit->GetModule();
+	  mdtMom = mdtTempMom;
+	  mdtLayer = 1;
+	  if (fMdtMode==3)
 	    {
 	      PndMdtTrk *mdtTrk = (PndMdtTrk*)fMdtTrk->At(mapMdtTrk[mdtIndex]);
 	      mdtIndex = mapMdtTrk[mm];
@@ -916,43 +918,43 @@ Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
 	      mdtIron = mdtTrk->GetIronDist();
 	      mdtMod = mdtTrk->GetModule();
 	    }
+	}
+      if (fDebugMode)
+	{
+	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(), 
+			      helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
+			      mdtPos.X(), mdtPos.Y(), mdtPos.Z(), mdtPos.Phi(),
+			      dist, mdtHit->GetModule(), vertex.DeltaPhi(mdtPos), mdtGLength, mdtLayer};
+	  mdtCorr->Fill(ntuple);
+	}
     }
-    if (fDebugMode)
-    {
-      Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(), 
-        helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
-        mdtPos.X(), mdtPos.Y(), mdtPos.Z(), mdtPos.Phi(),
-      dist, mdtHit->GetModule(), vertex.DeltaPhi(mdtPos), mdtGLength, mdtLayer};
-      mdtCorr->Fill(ntuple);
-    }
-  }
   
   if ((mdtQuality<fCorrPar->GetMdtCut()) || ( fIdeal && mdtIndex!=-1))
-  {
-    pidCand->SetMuoIndex(mdtIndex);
-    pidCand->SetMuoQuality(mdtQuality);
-    pidCand->SetMuoIron(mdtIron);
-    pidCand->SetMuoMomentumIn(mdtMom);
-    pidCand->SetMuoModule(mdtMod);
-    pidCand->SetMuoNumberOfLayers(mdtLayer);
-  }
+    {
+      pidCand->SetMuoIndex(mdtIndex);
+      pidCand->SetMuoQuality(mdtQuality);
+      pidCand->SetMuoIron(mdtIron);
+      pidCand->SetMuoMomentumIn(mdtMom);
+      pidCand->SetMuoModule(mdtMod);
+      pidCand->SetMuoNumberOfLayers(mdtLayer);
+    }
   
   if (fMdtRefit && (mdtIndex!=-1) && (mdtMom>0.)  )
-  {
-    PndMdtTrk *mdtTrk = (PndMdtTrk*)fMdtTrk->At(mdtIndex); 
-    PndTrack *mdtTrack = new PndTrack(*track);
-    PndTrackCand *oldCand = track->GetTrackCandPtr();
-    PndTrackCand *newCand = mdtTrk->AddTrackCand(oldCand);
-    mdtTrack->SetTrackCand(*newCand);
-    Int_t fCharge= mdtTrack->GetParamFirst().GetQ();
-    Int_t PDGCode = fPidHyp*fCharge;
+    {
+      PndMdtTrk *mdtTrk = (PndMdtTrk*)fMdtTrk->At(mdtIndex); 
+      PndTrack *mdtTrack = new PndTrack(*track);
+      PndTrackCand *oldCand = track->GetTrackCandPtr();
+      PndTrackCand *newCand = mdtTrk->AddTrackCand(oldCand);
+      mdtTrack->SetTrackCand(*newCand);
+      Int_t fCharge= mdtTrack->GetParamFirst().GetQ();
+      Int_t PDGCode = fPidHyp*fCharge;
     
-    PndTrack *fitTrack = new PndTrack();
-    fitTrack = fFitter->Fit(mdtTrack, PDGCode);
-    PndTrack* pndTrack = new PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
-                                      fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), fitTrack->GetRefIndex(), kLheTrack);
-    AddMdtTrack(pndTrack);
-  }
+      PndTrack *fitTrack = new PndTrack();
+      fitTrack = fFitter->Fit(mdtTrack, PDGCode);
+      PndTrack* pndTrack = new PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
+					fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), fitTrack->GetRefIndex(), kLheTrack);
+      AddMdtTrack(pndTrack);
+    }
   return kTRUE;
 }
 
@@ -972,51 +974,51 @@ Bool_t PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
   TVector3 drcPos(0., 0., 0.);
   TVector3 momentum(0., 0., 0.);
   for (Int_t dd = 0; dd<drcEntries; dd++)
-  {
-    drcHit = (PndDrcHit*)fDrcHit->At(dd); 
-    if ( fIdeal && ( ((PndDrcBarPoint*)fDrcPoint->At(drcHit->GetRefIndex()))->GetTrackID() !=pidCand->GetMcIndex()) ) continue;
-    drcHit->Position(drcPos);
-    
-    if (fGeanePro) // Overwrites vertex if Geane is used
     {
+      drcHit = (PndDrcHit*)fDrcHit->At(dd); 
+      if ( fIdeal && ( ((PndDrcBarPoint*)fDrcPoint->At(drcHit->GetRefIndex()))->GetTrackID() !=pidCand->GetMcIndex()) ) continue;
+      drcHit->Position(drcPos);
+    
+      if (fGeanePro) // Overwrites vertex if Geane is used
+	{
      
-      fProDrc->PropagateToVolume("DrcBase",0,1);
-      vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
-      FairTrackParH *fRes= new FairTrackParH();
-      Bool_t rc =  fProDrc->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); 	
-      if (!rc) continue;
-      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), 0.);
-      drcGLength = fProDrc->GetLengthAtPCA();
-    }
+	  fProDrc->PropagateToVolume("DrcBase",0,1);
+	  vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
+	  FairTrackParH *fRes= new FairTrackParH();
+	  Bool_t rc =  fProDrc->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); 	
+	  if (!rc) continue;
+	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), 0.);
+	  drcGLength = fProDrc->GetLengthAtPCA();
+	}
     
-    Float_t dphi = vertex.DeltaPhi(drcPos);
-    Float_t dist = dphi * dphi;
+      Float_t dphi = vertex.DeltaPhi(drcPos);
+      Float_t dist = dphi * dphi;
     
-    if ( drcQuality > dist)
-    {
-      drcIndex = dd;
-      drcQuality = dist;
-      drcThetaC = drcHit->GetThetaC();
-      drcThetaCErr = drcHit->GetErrThetaC();
-      drcPhot = 0; // ** to be filled **
+      if ( drcQuality > dist)
+	{
+	  drcIndex = dd;
+	  drcQuality = dist;
+	  drcThetaC = drcHit->GetThetaC();
+	  drcThetaCErr = drcHit->GetErrThetaC();
+	  drcPhot = 0; // ** to be filled **
+	}
+      if (fDebugMode)
+	{
+	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),  
+			      helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
+			      drcPos.X(), drcPos.Y(), drcPos.Phi(), dist, drcHit->GetThetaC(), 0., vertex.DeltaPhi(drcPos), drcGLength};
+	  drcCorr->Fill(ntuple);
+	}
     }
-    if (fDebugMode)
-    {
-      Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),  
-        helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
-      drcPos.X(), drcPos.Y(), drcPos.Phi(), dist, drcHit->GetThetaC(), 0., vertex.DeltaPhi(drcPos), drcGLength};
-      drcCorr->Fill(ntuple);
-    }
-  }
   
   if ((drcQuality<fCorrPar->GetDrcCut()) || (fIdeal && drcIndex!=-1))
-  {
-    pidCand->SetDrcQuality(drcQuality);
-    pidCand->SetDrcThetaC(drcThetaC);
-    pidCand->SetDrcThetaCErr(drcThetaCErr);
-    pidCand->SetDrcNumberOfPhotons(drcPhot);
-    pidCand->SetDrcIndex(drcIndex);
-  }
+    {
+      pidCand->SetDrcQuality(drcQuality);
+      pidCand->SetDrcThetaC(drcThetaC);
+      pidCand->SetDrcThetaCErr(drcThetaCErr);
+      pidCand->SetDrcNumberOfPhotons(drcPhot);
+      pidCand->SetDrcIndex(drcIndex);
+    }
   return kTRUE;
 }
 
@@ -1037,52 +1039,52 @@ Bool_t PndPidCorrelator::GetDskInfo(FairTrackParH* helix, PndPidCandidate* pidCa
   TVector3 dskPos(0., 0., 0.);
   TVector3 momentum(0., 0., 0.);
   for (Int_t dd = 0; dd<dskEntries; dd++)
-  {
-    dskParticle = (PndDskParticle*)fDskParticle->At(dd);
-    //if ( fIdeal && ( ((PndDskParticle*)fDrcPoint->At(drcHit->GetRefIndex()))->GetTrackID() !=pidCand->GetMcIndex()) ) continue;
-    dskParticle->Position(dskPos);
-    
-    if (fGeanePro) // Overwrites vertex if Geane is used
     {
+      dskParticle = (PndDskParticle*)fDskParticle->At(dd);
+      //if ( fIdeal && ( ((PndDskParticle*)fDrcPoint->At(drcHit->GetRefIndex()))->GetTrackID() !=pidCand->GetMcIndex()) ) continue;
+      dskParticle->Position(dskPos);
+    
+      if (fGeanePro) // Overwrites vertex if Geane is used
+	{
       
-      fProDsk->PropagateToVolume("DskBase",0,1);
-      vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
-      FairTrackParH *fRes= new FairTrackParH();
-      Bool_t rc =  fProDsk->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge());
-      if (!rc) continue;
-      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
-      dskGLength = fProDsk->GetLengthAtPCA();
-    }
+	  fProDsk->PropagateToVolume("DskBase",0,1);
+	  vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
+	  FairTrackParH *fRes= new FairTrackParH();
+	  Bool_t rc =  fProDsk->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge());
+	  if (!rc) continue;
+	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	  dskGLength = fProDsk->GetLengthAtPCA();
+	}
     
     
-    Float_t dist = (vertex-dskPos).Mag();
+      Float_t dist = (vertex-dskPos).Mag();
     
-    if ( dskQuality > dist)
-    {
-      dskIndex = dd;
-      dskQuality = dist;
-      dskThetaC = dskParticle->GetThetaC();
-      //dskThetaCErr = dskParticle->GetErrThetaC();
-      dskPhot = 0; // ** to be filled **
+      if ( dskQuality > dist)
+	{
+	  dskIndex = dd;
+	  dskQuality = dist;
+	  dskThetaC = dskParticle->GetThetaC();
+	  //dskThetaCErr = dskParticle->GetErrThetaC();
+	  dskPhot = 0; // ** to be filled **
+	}
+      if (fDebugMode)
+	{
+	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
+			      helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
+			      dskPos.X(), dskPos.Y(), dskPos.Phi(), dist, dskParticle->GetThetaC(), 0., vertex.DeltaPhi(dskPos), dskGLength};
+	  dskCorr->Fill(ntuple);
+	}
     }
-    if (fDebugMode)
-    {
-      Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
-        helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
-      dskPos.X(), dskPos.Y(), dskPos.Phi(), dist, dskParticle->GetThetaC(), 0., vertex.DeltaPhi(dskPos), dskGLength};
-      dskCorr->Fill(ntuple);
-    }
-  }
   
   //if ((dskQuality<fCorrPar->GetDskCut()) || (fIdeal && dskIndex!=-1))
   if ((dskQuality<1000) || (fIdeal && dskIndex!=-1))
-  {
-    pidCand->SetDiscQuality(dskQuality);
-    pidCand->SetDiscThetaC(dskThetaC);
-    //pidCand->SetDskThetaCErr(dskThetaCErr);
-    pidCand->SetDiscNumberOfPhotons(dskPhot);
-    pidCand->SetDiscIndex(dskIndex);
-  }
+    {
+      pidCand->SetDiscQuality(dskQuality);
+      pidCand->SetDiscThetaC(dskThetaC);
+      //pidCand->SetDskThetaCErr(dskThetaCErr);
+      pidCand->SetDiscNumberOfPhotons(dskPhot);
+      pidCand->SetDiscIndex(dskIndex);
+    }
   return kTRUE;
 }
 
@@ -1091,43 +1093,43 @@ void PndPidCorrelator::Register() {
   //---
   TString chargName = "PidChargedCand" + fTrackOutBranch;
   FairRootManager::Instance()->
-  Register(chargName,"Pid", fPidChargedCand, kTRUE); 
+    Register(chargName,"Pid", fPidChargedCand, kTRUE); 
   FairRootManager::Instance()->
-  Register("PidNeutralCand","Pid", fPidNeutralCand, kTRUE);
+    Register("PidNeutralCand","Pid", fPidNeutralCand, kTRUE);
   if (fMdtRefit)
-  {
-    FairRootManager::Instance()->
-    Register("MdtTrack","Pid", fMdtTrack, kTRUE);
-  }
+    {
+      FairRootManager::Instance()->
+	Register("MdtTrack","Pid", fMdtTrack, kTRUE);
+    }
 }
 
 //_________________________________________________________________
 void PndPidCorrelator::Finish() {
   //---
   if (fDebugMode)
-  {
-    //TFile *r = TFile::Open(sDir+sFile,"RECREATE");
-    r->cd();
-    tofCorr->Write();
-    emcCorr->Write(); 
-    mdtCorr->Write();  
-    drcCorr->Write();
+    {
+      //TFile *r = TFile::Open(sDir+sFile,"RECREATE");
+      r->cd();
+      tofCorr->Write();
+      emcCorr->Write(); 
+      mdtCorr->Write();  
+      drcCorr->Write();
     
-    r->Save();
+      r->Save();
     
-    tofCorr->Delete();
-    emcCorr->Delete(); 
-    mdtCorr->Delete();
-    drcCorr->Delete();
+      tofCorr->Delete();
+      emcCorr->Delete(); 
+      mdtCorr->Delete();
+      drcCorr->Delete();
     
-    tofCorr = 0;
-    emcCorr = 0; 
-    mdtCorr = 0;
-    drcCorr = 0;
+      tofCorr = 0;
+      emcCorr = 0; 
+      mdtCorr = 0;
+      drcCorr = 0;
     
-    r->Close();
-    r->Delete();
-  }
+      r->Close();
+      r->Delete();
+    }
   
 }
 //_________________________________________________________________
