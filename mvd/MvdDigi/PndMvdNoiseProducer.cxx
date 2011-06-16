@@ -438,7 +438,7 @@ void PndMvdNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t senso
   if(found == kFALSE){
 	  std::vector<Int_t> indices;
 	  indices.push_back(iPoint);
-    new ((*fDigiPixelArray)[iPix]) PndSdsDigiPixel(indices,detID,sensorID,fe,col,row,fPixChargeConv->ChargeToDigiValue(charge)) ;
+    new ((*fDigiPixelArray)[iPix]) PndSdsDigiPixel(indices,detID,sensorID,fe,col,row,fPixChargeConv->ChargeToDigiValue(charge), FairRootManager::Instance()->GetEventTime()) ;
     noisies++;
     if(fVerbose>2) std::cout
       << " -I- PndSdsNoiseProducer: Added Pixel Digi at: FE=" << fe
