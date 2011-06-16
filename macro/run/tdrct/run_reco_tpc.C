@@ -118,7 +118,7 @@
   fRun->AddTask(kalman2);
 
   PndTpcGEMCorrelatorTask* corrG = new PndTpcGEMCorrelatorTask();
-  corrG->SetMatchDistance(10.);   //mutliple of GEM hit sigma 
+  corrG->SetMatchDistance(100.);   //mutliple of GEM hit sigma 
   corrG->SetMinGEMHits(2);
   corrG->SetTrackBranchName("TrackPostFitMVD");
   corrG->SetOutTrackBranchName("TrackPreFitGEM");
