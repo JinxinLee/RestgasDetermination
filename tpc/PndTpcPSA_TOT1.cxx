@@ -180,8 +180,8 @@ void PndTpcPSA_TOT1::processPulse(std::vector<PndTpcSample*> samples,
   // scale factor
   double c=0.3;
   if(t1==tA)t0=t1;
-  else t0=t1-c*a1*(tA-t1)/(A-a1);
-
+  //else t0=t1-c*a1*(tA-t1)/(A-a1);
+  else t0=(1-c)*t1+c*tA;
   
 
 
