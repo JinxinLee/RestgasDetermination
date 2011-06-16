@@ -56,17 +56,6 @@
 
   // ------- RECO procedure ------------------------------------------------
  
-  PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
-  //tpcCF->SetDigiPersistence(); // keep reference to digis in clusters
-  tpcCF->SetPersistence(); // keep Clusters
-  tpcCF->timeslice(4); //in samples
-  tpcCF->SetThreshold(1);
-  tpcCF->SetSingleDigiClusterAmpCut(0.);
-  tpcCF->SetClusterAmpCut(0.); // cut on mean digi amplitude
-  tpcCF->SetErrorPars(600.,400.);
-  tpcCF->SetSimpleClustering(); // use PndTpcClusterFinderSimple
-  fRun->AddTask(tpcCF);
-
   //correct for unfortunate shift in TPC digi
   PndTpcRoughAlignmentTask* align = new PndTpcRoughAlignmentTask();
   align->SetShift(TVector3(0.,0.,-3.71357e-01));
