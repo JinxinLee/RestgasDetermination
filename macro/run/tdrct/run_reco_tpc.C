@@ -123,7 +123,7 @@
   corrG->SetTrackBranchName("TrackPostFitMVD");
   corrG->SetOutTrackBranchName("TrackPreFitGEM");
   corrG->SetPersistence(true);
-  //fRun->AddTask(corrG);
+  fRun->AddTask(corrG);
 
   //final fit
   KalmanTask* kalman3 =new KalmanTask();
@@ -131,7 +131,7 @@
   kalman3->SetNumIterations(3); // number of fitting iterations (back and forth)
   kalman3->SetTrackBranchName("TrackPreFitGEM");
   kalman3->SetOutBranchName("TrackPostFitComplete");
-  //fRun->AddTask(kalman3);
+  fRun->AddTask(kalman3);
 
       
  
