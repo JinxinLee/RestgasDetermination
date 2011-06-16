@@ -88,7 +88,7 @@ InitStatus
 KalmanTask::Init()
 {
   
-  PndGeoHandling::Instance();
+  //PndGeoHandling::Instance();
   
   //book fpe handler
   //signal(8,sighandler);
@@ -146,13 +146,13 @@ KalmanTask::Init()
    				     new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(mvdStrArray));
    }
    
-   // TClonesArray* gemHitArray=(TClonesArray*) ioman->GetObject("GEMHit");
-   // if(gemHitArray==0){ //TODO Convention on detector number needed
-   //   Error("PndFwdKalmanTask::Init","GEMHit array not found");
-   // } else {
-   //   _theRecoHitFactory->addProducer(kGEM,new GFRecoHitProducer<PndGemHit,PndGemRecoHit>(gemHitArray));
+    TClonesArray* gemHitArray=(TClonesArray*) ioman->GetObject("GEMHit");
+    if(gemHitArray==0){ //TODO Convention on detector number needed
+      Error("PndFwdKalmanTask::Init","GEMHit array not found");
+    } else {
+      _theRecoHitFactory->addProducer(kGemHit,new GFRecoHitProducer<PndGemHit,PndGemRecoHit>(gemHitArray));
    //   _theRecoHitFactory->addProducer(5,new GFRecoHitProducer<PndGemHit,PndGemRecoHit>(gemHitArray));
-   // }
+    }
    
    
    
