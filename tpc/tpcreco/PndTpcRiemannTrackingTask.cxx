@@ -95,7 +95,7 @@ PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
     _clusterBranchName("PndTpcCluster"),
     _smoothing(false),
     _geane(false),
-    _mcPid(false),
+    _mcPid(true), // todo: remember to turn this off agan at some point
     counter(0),
     Bz(0)
   {;}
