@@ -154,8 +154,8 @@ PndTpcRiemannTrackingTask::Init()
   _mcTrackArray=(TClonesArray*) ioman->GetObject("MCTrack");
   if(_mcTrackArray==0)
     {
-      Error("PndTpcdEdxTask::Init","MCTrack-array not found!");
-      return kERROR;
+      Error("PndTpcdEdxTask::Init","MCTrack-array not found! Cannot use ideal PID");
+      _mcPid=false;
     }
     
   _clusterArray=(TClonesArray*) ioman->GetObject(_clusterBranchName);
