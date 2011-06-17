@@ -1,10 +1,10 @@
 {
-	bool vtxfit=1;
+	bool vtxfit=0;
 	
 	if (vtxfit)
 		TString inFile="etac_histo_vtx.root";
 	else 
-		TString inFile="etac_histo_4c.root";
+		TString inFile="etac_histo_4c_new.root";
 	
 // 	gStyle->SetLabelSize(0.08);
 // 	gStyle->SetTitleSize(0.08);
@@ -76,10 +76,20 @@
 	c5->cd(2);
 	h_etac_phimass->Draw();
 
-	TF1 *f1 = new TF1("f1","gaus",2.9,3.06);
-	h_etac_phimass->Fit("gaus");
-	double sigma=f1->GetParameter(2);
-	std::cout<<"sigma="<<sigma<<std::endl;
+	double mean=h_etac_phimass->GetMean();
+	double rms=h_etac_phimass->GetRMS();
+	
+	TF1 *f1 = new TF1("f1","gaus",2.8,3.2);
+	h_etac_phimass->Fit(f1,"R","",mean-1.6*rms,mean+1.6*rms);
+	
+	double sigma1=f1->GetParameter(2);
+	double mean1=f1->GetParameter(1);
+	
+	TF1 *f2 = new TF1("f2","gaus",2.8,3.2);
+	h_etac_phimass->Fit(f2,"R","",mean1-1.6*sigma1,mean1+1.6*sigma1);
+
+	double sigma2=f2->GetParameter(2);
+	std::cout<<"sigma="<<sigma2<<std::endl;
 	
 	TCanvas *c6=new TCanvas("c6","c6",600,600);
 	h_chi2_4c->Draw();
