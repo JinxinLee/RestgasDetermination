@@ -94,8 +94,7 @@ class PndSttMvdTracking : public FairTask
 			  nmaxMvdStripHits=500,
 			  nmaxMvdPixelHitsInTrack=30,
 			  nmaxMvdStripHitsInTrack=30,
-			  MAXMVDTRACKSPEREVENT=400,
-			  MAXTURNSOFTRACK=0;
+			  MAXMVDTRACKSPEREVENT=400;
   static const Double_t   BFIELD=2.,  // in Tesla
 			  PI = 3.141592654,
 			  CVEL = 2.99792,  //  velocity of light
@@ -110,7 +109,7 @@ class PndSttMvdTracking : public FairTask
 			  STRAWRADIUS = DiameterStrawTube/2.,
 			  STRAWRESOLUTION= 0.015,
 			  PMAX=100.;
-	static const bool YesClean = false;
+	static const bool YesClean = true;
 
 
   bool    ExclusionListStt[nmaxSttHits];
@@ -688,6 +687,7 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 
 
   void EliminateSpuriousSZ(
+			UShort_t MaxTurnofTracks,
 			UShort_t *nMvdPixelHitsAssociatedToSttTrack,
 			UShort_t *ListMvdPixelHitsAssociatedToSttTrack,
 			UShort_t *nMvdStripHitsAssociatedToSttTrack,
@@ -837,6 +837,30 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 
 //------ clenup methods
 
+	bool TrackCleanup(
+				Double_t GAP,
+				Double_t Oxx,
+				Double_t Oyy,
+				Double_t Rr,
+				Double_t KAPPA,
+				Double_t FI0,
+				Short_t  Charge,
+				Double_t Start[3],
+				UShort_t &nHitsPar,
+				UShort_t *ListHitsPar,
+				UShort_t &nHitsSkew,
+				UShort_t *ListHitsSkew,
+				Double_t *auxS,
+				Double_t info[][7],
+				Double_t RStrawDetMin,
+				Double_t ApotemaMaxInnerPar,
+				Double_t ApotemaMinSkew,
+				Double_t ApotemaMaxSkew,
+				Double_t ApotemaMinOuterPar,
+				Double_t RStrawDetMax
+			);
+
+
 	bool SttParalCleanup(
 			Double_t GAP,
 			Double_t Oxx,
@@ -844,6 +868,8 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 			Double_t Rr,
 			Short_t Charge,
 			Double_t Start[3],
+			Double_t FI0,
+			Double_t FiLimitAdmissible,
 			UShort_t &nHits,
 			UShort_t *ListHits,
 			Double_t info[][7],
@@ -861,11 +887,13 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 			Double_t Rr,
 			Short_t  Charge,
 			Double_t Start[3],
-			UShort_t nHits,
-			Double_t *auxS,
+			Double_t FI0,
+			Double_t FiLimitAdmissible,
+			UShort_t &nHits,
+			UShort_t *ListHits,
+			Double_t *S,
 			Double_t RminStrawSkew,
 			Double_t RmaxStrawSkew,
-			bool ConsiderLastHit,
 			Double_t cut,
 			UShort_t maxnum
 			);
@@ -878,12 +906,9 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 			Double_t Xcross[2],  // Xcross[0]=point of entrance;
 						//  Xcross[1]=point of exit.
 			Double_t Ycross[2],
-			bool  ConsiderLastHit,
 			UShort_t nHits,
 			UShort_t* ListHits,
 			Double_t info[][7],
-			Double_t RStrawDetectorParMin,
-			Double_t RStrawDetectorParMax,
 			Double_t cut,
 			UShort_t maxnum
 				);
@@ -1054,6 +1079,14 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 					);
 
 
+	bool IsInsideArc(
+			Double_t Oxx,
+			Double_t Oyy,
+			Short_t Charge,
+			Double_t Xcross[2],
+			Double_t Ycross[2],
+			Double_t Spoint
+			);
 
 
   ClassDef(PndSttMvdTracking,1);
