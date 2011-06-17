@@ -4,14 +4,14 @@
   Int_t iVerbose = 0;
 
   // Input file
-  TString inDigiFile = "digi_tpccombi.root";
-  TString inSimFile = "points_tpccombi.root";
+  TString inDigiFile = "dpm_digi_tpc.root";
+  TString inSimFile = "dpm_points_tpc.root";
 
   // Parameter file
-  TString parFile = "params_tpccombi.root";
+  TString parFile = "dpm_params_tpc.root";
 
   // Output file
-  TString outFile = "reco_tpccombi.root";
+  TString outFile = "dpm_reco_tpc.root";
 
   // Number of events to process
   Int_t nEvents = 0;
@@ -58,7 +58,8 @@
  
   //correct for unfortunate shift in TPC digi
   PndTpcRoughAlignmentTask* align = new PndTpcRoughAlignmentTask();
-  align->SetShift(TVector3(0.,0.,-3.71357e-01));
+  //align->SetShift(TVector3(0.,0.,-3.71357e-01));
+  align->SetShift(TVector3(0.,0.,2.25E-1));
   fRun->AddTask(align);
   
 
@@ -91,8 +92,8 @@
 
   //correlate fitted track with MVD pixels and strips
   PndTpcMVDCorrelatorTask* corr = new PndTpcMVDCorrelatorTask();
-  corr->SetMatchDistance(100.);   //mutliple of MVD hit sigma (which 100 -> roughly 20 mu)
-  corr->SetMinMVDHits(3);
+  corr->SetMatchDistance(200.);   //mutliple of MVD hit sigma (which 100 -> roughly 20 mu)
+  corr->SetMinMVDHits(2);
   corr->SetOutTrackBranchName("TrackPreFitMVD");
   corr->SetPersistence(true);
   fRun->AddTask(corr);
@@ -112,7 +113,7 @@
   corrG->SetTrackBranchName("TrackPostFitMVD");
   corrG->SetOutTrackBranchName("TrackPreFitGEM");
   corrG->SetPersistence(true);
-  fRun->AddTask(corrG);
+  //fRun->AddTask(corrG);
 
   //final fit
   KalmanTask* kalman3 =new KalmanTask();
@@ -120,7 +121,7 @@
   kalman3->SetNumIterations(3); // number of fitting iterations (back and forth)
   kalman3->SetTrackBranchName("TrackPreFitGEM");
   kalman3->SetOutBranchName("TrackPostFitComplete");
-  fRun->AddTask(kalman3);
+  //fRun->AddTask(kalman3);
 
       
  
@@ -131,6 +132,8 @@
 
   rtdb->saveOutput();
   rtdb->print();
+
+  corr->WriteHistograms("mvdRes.root");
 
   // ------------------------------------------------------------------------
 
