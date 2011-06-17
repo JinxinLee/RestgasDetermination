@@ -9,7 +9,7 @@
  * procedure. This classifier is implemented based on the LVQ
  * algorithm.
  */
-#define LVQ_CLS_DEBUG 0
+#define LVQ_CLS_DEBUG 1
 #define LVQ_CLS_PRINT_ROC 1
 
 // Local includes
@@ -21,11 +21,15 @@
 // ROOT
 #include "TFile.h"
 #include "TStopwatch.h"
+#include "TH1.h"
 
 /////////_______ Inline header ______///////////////////////////
-// Structure used to hold the classifier output (label and distance or
-// prob.) for each example in the test set together with the original
-// class name.
+
+/**
+ * Structure used to hold the classifier output (label and distance or
+ * prob.) for each example in the test set together with the original
+ * class name.
+ */
 struct ClassifierOutPuts
 {
   //public:
@@ -90,18 +94,23 @@ struct ROCPoints
       TN_rate(0.0),
       FN_rate(0.0),
       fp(0),
-      tp(0)
+      tp(0),
+      fn(0),
+      tn(0)
   {};
   
   ROCPoints(float  const fpr, float  const tpr,
 	    float  const tnr, float  const fnr,
-	    size_t const nfp, size_t const ntp)
+	    size_t const nfp, size_t const ntp,
+	    size_t const nfn, size_t const ntn)
     : FP_rate(fpr),
       TP_rate(tpr),
       TN_rate(tnr),
       FN_rate(fnr),
       fp(nfp),
-      tp(ntp)
+      tp(ntp),
+      fn(nfn),
+      tn(ntn)
   {};
   
   // Destructor
@@ -115,7 +124,9 @@ struct ROCPoints
       TN_rate(ot.TN_rate),
       FN_rate(ot.FN_rate),
       fp(ot.fp),
-      tp(ot.tp)
+      tp(ot.tp),
+      fn(ot.fn),
+      tn(ot.tn)
   {};
   
   // Operators.  
@@ -127,6 +138,8 @@ struct ROCPoints
     this->FN_rate = ot.FN_rate;
     this->fp      = ot.fp;
     this->tp      = ot.tp;
+    this->fn      = ot.fn;
+    this->tn      = ot.tn;
     return (*this);
   };
 
@@ -137,6 +150,8 @@ struct ROCPoints
   float FN_rate;// False negatief rate
   size_t fp;// False positief count
   size_t tp;// True positief count
+  size_t fn;// False negatief
+  size_t tn;// True negatief
 
   //  protected:
   
@@ -170,13 +185,18 @@ void ProduceROC(std::vector< ClassifierOutPuts >& input,
 		size_t sigCnt, size_t bgCnt,
 		std::vector< ROCPoints >& Roc);
 
+// Print the list of classifier outputs.
 void print(std::vector< ClassifierOutPuts > const& el);
+
+// Print list of ROC objects.
 void printRoc(std::vector< ROCPoints > const& Roc);
-void WriteRocToFile( std::string const& fName,
+
+// Write the list of ROC objects in a file.
+void WriteRocToFile( std::string const& FileName,
 		     std::vector< ROCPoints > const& Roc);
 
-  /////////_______ Inline header ______///////////////////////////
-  //________________________________________________________________
+/////////_______ Inline header ______///////////////////////////
+//________________________________________________________________
 
 void ProduceROC( std::vector< ClassifierOutPuts >& input,
 		 std::string const& SigName,
@@ -220,29 +240,31 @@ void ProduceROC( std::vector< ClassifierOutPuts >& input,
 
   // We want to make 10 steps.
   float inc;
-  inc = 0.01;//(MaxVal - MinVal )/20.00;
+  inc = (MaxVal - MinVal )/10.00;
 
+  // Add (0,0)
   Roc.push_back(ROCPoints());
   
   float trhold, fpRate, tpRate;
   float tnRate, fnRate;
   size_t fpCnt, tpCnt, fn, tn;
 
-  trhold = 0.0;//MinVal;
+  trhold = MinVal;
   fpRate = tpRate = tnRate = fnRate = 0.00;
   fpCnt = tpCnt = fn = tn = 0;
   
-  //while( trhold <= MaxVal )
-  while( trhold <= 1.0 )
+  while( trhold <= MaxVal )
   {
     // Reset counters
-    fpCnt = tpCnt = fn = tn = 0;
-    
+    fpCnt = tpCnt = 0;
+    fn    = tn    = 0;
+    // Event loop (classification outputs)
     for(size_t k = 0; k < input.size(); ++k)
     {
       ClassifierOutPuts& a = input[k];
       
-      if( a.clsOuts[a.givenLabel] <= trhold )
+      //if( a.clsOuts[a.givenLabel] < trhold )
+      if( a.clsOuts[SigName] <= trhold )
       {// In the Signal region (Assume signal)
 	if( a.realLabel == SigName)
 	{// True positief
@@ -252,7 +274,7 @@ void ProduceROC( std::vector< ClassifierOutPuts >& input,
 	{// False positief
 	  fpCnt++;
 	}
-      }// In region
+      }// End of In region
       else// Out of region
       {
 	if( a.realLabel == BgName)
@@ -263,35 +285,40 @@ void ProduceROC( std::vector< ClassifierOutPuts >& input,
 	{// False negatief.
 	  fn++;
 	}
-      }
+      }// End out of region
     }// Evt loop
-    tpRate = static_cast<float>(tpCnt)/sg;
-    fpRate = static_cast<float>(fpCnt)/bg;
-    tnRate = static_cast<float>(tn)/bg;
-    fnRate = static_cast<float>(fn)/sg;
 
-    Roc.push_back(ROCPoints(fpRate, tpRate, tnRate, fnRate, fpCnt, tpCnt));
+    // True positief.
+    tpRate = static_cast<float>(tpCnt)/sg;
+    
+    // False negatief.
+    fpRate = static_cast<float>(fpCnt)/bg;
+    
+    // True negatief.
+    tnRate = static_cast<float>(tn)/bg;
+    
+    // False negatief.
+    fnRate = static_cast<float>(fn)/sg;
+    
+    Roc.push_back(ROCPoints(fpRate, tpRate, tnRate, fnRate, fpCnt, tpCnt, fn, tn));
+    
     trhold += inc;
   }//While
+
 #if LVQ_CLS_PRINT_ROC
   std::cout << "<-I-> DEBUG INFO\n  inc = "  << inc 
 	    << " Min = " << MinVal
 	    << " Max = " << MaxVal
-	    << " tn  = " << tn
-	    << " fn  = " << fn
+	    << " tn  = " << tpCnt
+	    << " fn  = " << fpCnt
 	    << std::endl;
 #endif
 
 #if LVQ_CLS_DEBUG
   printRoc(Roc);
 #endif
-  //___________________ Delete me
-  BgName.size();
-  input.size();
-  SigName.size();
-  Roc.size();
-  //___________________ Delete me
 }
+
 // Print Roc points
 void printRoc(std::vector< ROCPoints > const& rc)
 {
@@ -306,6 +333,7 @@ void printRoc(std::vector< ROCPoints > const& rc)
 	      << " }\n";
   }
 }
+
 void WriteRocToFile( std::string const& fName,
 		     std::vector< ROCPoints > const& rc)
 {
@@ -315,7 +343,7 @@ void WriteRocToFile( std::string const& fName,
   
   OutPut.open (fName.c_str());
   OutPut << "# ROC graph points\n# "
-	 << "# <index>\t <FP_rate>\t <TP_rate>\t <TN_rate>\t <FN_rate>\t <fp>\t <tp>\n";
+	 << "# <index>\t <FP_rate>\t <TP_rate>\t <TN_rate>\t <FN_rate>\t <fp>\t <tp>\t <fn>\t <tn>\n";
   for(size_t i = 0; i < rc.size(); ++i)
   {
     OutPut << "   " << i << "\t "
@@ -324,7 +352,9 @@ void WriteRocToFile( std::string const& fName,
 	   << rc[i].TN_rate << "\t "
 	   << rc[i].FN_rate << "\t "
 	   << rc[i].fp << "\t "
-	   << rc[i].tp << '\n';
+	   << rc[i].tp << "\t "
+	   << rc[i].fn << "\t "
+	   << rc[i].tn << '\n';
   }
   OutPut.close();
 }
@@ -365,6 +395,8 @@ std::map<std::string, size_t>* readEvents(const char* infile, std::vector<std::s
 					  std::vector< std::string > const& classNames, 
 					  std::vector< std::pair< std::string, std::vector<float>* > >& coNt)
 {
+  std::cout << "<-I-> Reading examples from " << infile
+	    << '\n';
   // The file containing the examples.
   TFile inf(infile, "READ");
 
@@ -393,6 +425,9 @@ std::map<std::string, size_t>* readEvents(const char* infile, std::vector<std::s
     
     counts->insert( std::make_pair (classNames[cls], NumEvtCurLabel) );
 
+    // Disable all branches
+    t->SetBranchStatus("*",0);
+    
     // Init a container to bind to the tree branches
     std::vector<float> ev (varNames.size(), 0.0);
     
@@ -400,7 +435,11 @@ std::map<std::string, size_t>* readEvents(const char* infile, std::vector<std::s
     for(size_t j = 0; j < varNames.size(); j++)
     {
       char const* branchName = varNames[j].c_str();
-      //Binding the branches
+
+      // Activate branches
+      t->SetBranchStatus(branchName, 1);
+
+      // Binding the branches
       t->SetBranchAddress(branchName, &(ev[j]));
     }// Tree parameters are bounded
     
@@ -525,8 +564,6 @@ int main(int argc, char** argv)
     // Store results.
     classifiedEvents.push_back(ClassifierOutPuts((events[k]).first, (*givenLabel), res));
 
-    //printResult(res);
-
     delete givenLabel;
   }// Events Loop
 
@@ -549,6 +586,7 @@ int main(int argc, char** argv)
   events.clear();
 
 #if LVQ_CLS_DEBUG
+  std::cout << "\n<-I-> DEBUG INFO\n";
   for(size_t ot = 0; ot < 5; ++ot)
   {
     std::cout << "\nReal lable is "  << classifiedEvents[ot].realLabel
@@ -615,8 +653,24 @@ int main(int argc, char** argv)
   std::cout << "<-I-> Creating ROC.\n";
   std::vector< ROCPoints > Roc;
   ProduceROC( classifiedEvents, "electron", "pion", (*counts)["electron"], (*counts)["pion"], Roc);
-
+  
   WriteRocToFile("ROC" + outF, Roc); 
+
+  // TestPart
+  TH1F myHist ("myHist","myHistDesc", 100, 0.0, 1.0);
+  for(size_t k = 0; k < classifiedEvents.size(); ++k)
+  {
+    ClassifierOutPuts& a = classifiedEvents[k];
+    //    std::map< std::string, float>& rel = a.getClsOut();
+    float val = a.clsOuts["electron"]/ a.clsOuts["pion"];
+    
+    if(val < 1.0)
+    {
+      myHist.Fill(val);
+    }
+  }
+  myHist.SaveAs("testHistDists.root");
+  
   //__________________ Clean up _____________//
   // Delete per label example counts
   counts->clear();

@@ -136,6 +136,7 @@ inline bool compareL(T const* l, T const* r)
 float ComputeDist(std::vector<float> const& EvtData, 
 		  std::vector<float> const& Example);
 
+
 // C style function declarations
 #ifdef __cplusplus
 extern "C"
