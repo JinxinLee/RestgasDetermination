@@ -257,10 +257,9 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
       }
     }//end loop over strips
   
-    if(DEBUG){
-      std::cout<<"======= TempCand from found MVD pixel/strip hits has size "<<
+    std::cout<<"======= TempCand from found MVD pixel/strip hits has size "<<
           tempCand.size()<<" =======\n"<<std::endl;
-    }
+    
 
     if(tempCand.size() < fMinMVDHits) {
       GFTrack* outTrack = new GFTrack(*track);
