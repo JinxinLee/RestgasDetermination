@@ -1,3 +1,4 @@
+
 {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
@@ -55,21 +56,10 @@
   bool SimpleClustering=true;
 
   // ------- RECO procedure ------------------------------------------------
- 
-  PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
-  //tpcCF->SetDigiPersistence(); // keep reference to digis in clusters
-  tpcCF->SetPersistence(); // keep Clusters
-  tpcCF->timeslice(4); //in samples
-  tpcCF->SetThreshold(1);
-  tpcCF->SetSingleDigiClusterAmpCut(0.);
-  tpcCF->SetClusterAmpCut(0.); // cut on mean digi amplitude
-  tpcCF->SetErrorPars(600.,400.);
-  tpcCF->SetSimpleClustering(); // use PndTpcClusterFinderSimple
-  fRun->AddTask(tpcCF);
-
   //correct for unfortunate shift in TPC digi
   PndTpcRoughAlignmentTask* align = new PndTpcRoughAlignmentTask();
-  align->SetShift(TVector3(0.,0.,-3.71357e-01));
+  //align->SetShift(TVector3(0.,0.,-3.71357e-01));   //old PSA
+  align->SetShift(TVector3(0.,0.,2.25E-1));      //new PSA
   fRun->AddTask(align);
   
 
@@ -77,21 +67,21 @@
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
   tpcSPR->SetPersistence();
   tpcSPR->SetSortingParameters(
-        true, // false: sort only according to _sorting (see next argument); true: use internal sorting when adding hits to trackcands
-        3,    // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
-        0.); // z-position of interaction point (for sorting 4)
+			       true, // false: sort only according to _sorting (see next argument); true: use internal sorting when adding hits to trackcands
+			       3,    // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
+			       0.); // z-position of interaction point (for sorting 4)
   tpcSPR->SetTrkFinderParameters(
-        1.9,  // proximity cut in 3D [cm]
-        0.4,  // helix cut [cm]
-        5);   // minimum hits for helix-fit
+				 1.9,  // proximity cut in 3D [cm]
+				 0.4,  // helix cut [cm]
+				 5);   // minimum hits for helix-fit
   tpcSPR->SetMergeTracks();
   tpcSPR->SetTrkMergerParameters(
-        2.5,  // proximity cut [cm]
-        0.1,  // dip cut [rad]
-        0.6,  // helix cut [cm]
-        0.025);// plane cut (RMS)
+				 2.5,  // proximity cut [cm]
+				 0.1,  // dip cut [rad]
+				 0.6,  // helix cut [cm]
+				 0.025);// plane cut (RMS)
   tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
-  //tpcSPR->useGeane(); // use RKTrackrep and GeaneTrackrep
+  tpcSPR->useGeane(); // use RKTrackrep and GeaneTrackrep
   tpcSPR->SetSmoothing(true);
   fRun->AddTask(tpcSPR);
   
@@ -102,8 +92,8 @@
 
   //correlate fitted track with MVD pixels and strips
   PndTpcMVDCorrelatorTask* corr = new PndTpcMVDCorrelatorTask();
-  corr->SetMatchDistance(100.);   //mutliple of MVD hit sigma (which 100 -> roughly 20 mu)
-  corr->SetMinMVDHits(3);
+  corr->SetMatchDistance(200.);   //mutliple of MVD hit sigma (which 100 -> roughly 20 mu)
+  corr->SetMinMVDHits(2);
   corr->SetOutTrackBranchName("TrackPreFitMVD");
   corr->SetPersistence(true);
   fRun->AddTask(corr);
@@ -132,7 +122,7 @@
   kalman3->SetTrackBranchName("TrackPreFitGEM");
   kalman3->SetOutBranchName("TrackPostFitComplete");
   fRun->AddTask(kalman3);
-  
+ 
   PndGFTrackToPndTrackConvertorTask* converter =new PndGFTrackToPndTrackConvertorTask();
   converter->SetTrackInBranchName("TrackPostFitComplete");
   converter->SetTrackOutBranchName("PndTrackPostFitComplete");
