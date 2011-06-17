@@ -91,7 +91,7 @@
         0.6,  // helix cut [cm]
         0.025);// plane cut (RMS)
   tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
-  tpcSPR->useGeane(); // use RKTrackrep and GeaneTrackrep
+  //tpcSPR->useGeane(); // use RKTrackrep and GeaneTrackrep
   tpcSPR->SetSmoothing(true);
   fRun->AddTask(tpcSPR);
   
@@ -132,11 +132,16 @@
   kalman3->SetTrackBranchName("TrackPreFitGEM");
   kalman3->SetOutBranchName("TrackPostFitComplete");
   fRun->AddTask(kalman3);
+  
+  PndGFTrackToPndTrackConvertorTask* converter =new PndGFTrackToPndTrackConvertorTask();
+  converter->SetTrackInBranchName("TrackPostFitComplete");
+  converter->SetTrackOutBranchName("PndTrackPostFitComplete");
+  fRun->AddTask(converter);
 
-//   PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
-//   trackMC->SetTrackInBranchName("TrackPostFitComplete"); 
-//   trackMC->SetTrackOutBranchName("TrackPostFitCompleteID");
-//   fRun->AddTask(trackMC);
+  PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
+  trackMC->SetTrackInBranchName("PndTrackPostFitComplete"); 
+  trackMC->SetTrackOutBranchName("TrackPostFitCompleteID");
+  fRun->AddTask(trackMC);
       
  
   // -----   Intialise and run   --------------------------------------------

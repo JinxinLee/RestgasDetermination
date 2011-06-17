@@ -48,8 +48,9 @@
   
   PndPidCorrelator* corr = new PndPidCorrelator();
   //corr->SetVerbose();
-  corr->SetInputBranch("TrackPostFitComplete");
+  corr->SetInputBranch("PndTrackPostFitComplete");
   corr->SetInputIDBranch("TrackPostFitCompleteID");
+  corr->SetMvdMode(0);
   //corr->SetDebugMode(kTRUE);
   fRun->AddTask(corr);
  
