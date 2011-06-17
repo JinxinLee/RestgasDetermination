@@ -64,8 +64,13 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath,
   fMagField->SetFieldRegion(-50, 50,-50, 50, -2000, 2000);
       
   fRun->SetField(fMagField);
-
   
+  //extract number of entries in external data tree
+  TFile testFile(filename);
+  unsigned int numEvents = ((TTree*)testFile.Get("tpcEvent"))->GetEntries();
+  std::cout<<"Found "<<nEvents<<" events in input data file"<<std::endl;
+  if(nEvents==0 || nEvents>numEvents) nEvents=numEvents;
+
   //--------------------SET UP TASKS ------------------------------
 
   FairGeane *Geane = new FairGeane();
@@ -87,12 +92,12 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath,
 
 
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
-  tpcCF->SetDigiPersistence(); // keep Digis refs in clusters
+  tpcCF->SetDigiPersistence(); // keep Digis copys in clusters
   tpcCF->SetPersistence(); // keep Clusters
   tpcCF->timeslice(6); //in samples
   tpcCF->SetSingleDigiClusterAmpCut(20);
   tpcCF->SetClusterAmpCut(9.1); // cut on mean digi amplitude
-  tpcCF->SetErrorPars(600,300);
+  tpcCF->SetErrorPars(600,400);
   tpcCF->SetSimpleClustering(); // use PndTpcClusterFinderSimple
   fRun->AddTask(tpcCF);
   
