@@ -164,6 +164,8 @@ GeaneTrackRep::extrapolate(const GFDetPlane& pl,
   //std::cout<<"Before prop:"<<std::endl;
   //Print();
 
+
+
   double cova[15];
   int count=0;;
   for(int i=0; i<5;++i){
@@ -171,16 +173,14 @@ GeaneTrackRep::extrapolate(const GFDetPlane& pl,
       cova[count++]=fCov[i][j];
     }
   }
-  // protect against low momentum:
-//   if(fabs(fState[0][0])>10){
-//     GFException exc("GeaneTrackRep: PROTECT AGAINST LOW MOMENTA",__LINE__,__FILE__);
-//     exc.setFatal();
-//     throw exc;
-//   }
+  //protect against low momentum:
+  if(fabs(fState[0][0])>10){
+    GFException exc("GeaneTrackRep: PROTECT AGAINST LOW MOMENTA",__LINE__,__FILE__);
+    exc.setFatal();
+    throw exc;
+  }
 
-  // protect against (x,y)=(0,0)
-  if(fabs(fState[3][0])<EPSILON) fState[3][0]=EPSILON;
-  if(fabs(fState[4][0])<EPSILON) fState[4][0]=EPSILON;
+  checkState();
   
   
   FairTrackParP par(fState[3][0],fState[4][0],fState[1][0],fState[2][0],fState[0][0],cova,ofrom,ufrom,vfrom,_spu);
@@ -272,17 +272,15 @@ GeaneTrackRep::extrapolateToPoint(const TVector3& pos,
       cova[count++]=fCov[i][j];
     }
   }
-  // protect against low momentum:
-//   if(fabs(fState[0][0])>10){
-//     GFException exc("GeaneTrackRep: PROTECT AGAINST LOW MOMENTA",__LINE__,__FILE__);
-//     exc.setFatal();
-//     throw exc;
-//   }
+  //protect against low momentum:
+  if(fabs(fState[0][0])>10){
+    GFException exc("GeaneTrackRep: PROTECT AGAINST LOW MOMENTA",__LINE__,__FILE__);
+    exc.setFatal();
+    throw exc;
+  }
 
-  // protect against (x,y)=(0,0)
-  if(fabs(fState[3][0])<EPSILON) fState[3][0]=EPSILON;
-  if(fabs(fState[4][0])<EPSILON) fState[4][0]=EPSILON;
-  
+  checkState();
+    
   FairTrackParP par(fState[3][0],fState[4][0],fState[1][0],fState[2][0],fState[0][0],cova,ofrom,ufrom,vfrom,_spu);
   //par.Print();
   bool backprop=_backw<0;
@@ -419,18 +417,14 @@ GeaneTrackRep::getPocaOnLine(const TVector3& p1, const TVector3& p2, bool back){
     }
   }
   // protect against low momentum:
-//   if(fabs(fState[0][0])>10){
-//     GFException exc("GeaneTrackRep: PROTECT AGAINST LOW MOMENTA",__LINE__,__FILE__);
-//     exc.setFatal();
-//     throw exc;
+  if(fabs(fState[0][0])>10){
+    GFException exc("GeaneTrackRep: PROTECT AGAINST LOW MOMENTA",__LINE__,__FILE__);
+    exc.setFatal();
+    throw exc;
+  }
 
-//   }
-
-  // protect against (x,y)=(0,0)
-  if(fabs(fState[3][0])<EPSILON) fState[3][0]=EPSILON;
-  if(fabs(fState[4][0])<EPSILON) fState[4][0]=EPSILON;
-  
-  
+  checkState();
+    
   FairTrackParP par(fState[3][0],fState[4][0],fState[1][0],fState[2][0],fState[0][0],cova,ofrom,ufrom,vfrom,_spu);
 
   
@@ -526,5 +520,20 @@ GeaneTrackRep::getPosMomCov(const GFDetPlane& pl,TVector3& pos,TVector3& mom,TMa
   for(int i = 0; i < 6; i++) for(int j = 0; j < 6; j++) cov[i][j] = cov66[i][j];
  
 }
+
+
+void
+GeaneTrackRep::checkState(){
+  if(fabs(fState[3][0])<1.E-4)fState[3][0]=1.E-4;
+  if(fabs(fState[4][0])<1.E-4)fState[4][0]=1.E-4;
+  
+  //if (!(fState.Abs()>1.E-15) || !(fState.Abs()<1.E50)){
+  //  GFException exc("fState out of numerical bounds",__LINE__,__FILE__);
+  //  exc.setFatal();
+  //  throw exc;
+  //}
+}
+
  
 ClassImp(GeaneTrackRep)
+

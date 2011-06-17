@@ -112,6 +112,8 @@ public:
 
 private:
 
+  void checkState(); // checks if state vector is inside numerical limits
+
   // Private Data Members ------------
   FairGeanePro* _geane; //!
   double _spu; // sign of z-component of momentum
@@ -136,3 +138,4 @@ private:
 //--------------------------------------------------------------
 // $Log$
 //--------------------------------------------------------------
+
