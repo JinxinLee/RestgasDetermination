@@ -348,6 +348,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 
   UShort_t
 	   nTotalCandidates,
+	   nRemainingCandidates,
 	   nMvdMCPoint,
 	   nSttHit,
 	   nSttParHit,
@@ -361,8 +362,6 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 	   nSttHitsinTrack[MAXTRACKSPEREVENT],
 	   ListSttHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
 	   ListSttHitsinTrackType[MAXTRACKSPEREVENT][nmaxSttHits]
-//	   ListSttParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
-//	   ListSttSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits]
 		;
   UShort_t	ipinco,
 		ncand,
@@ -1097,9 +1096,6 @@ if(istampa>=3  && IVOLTE<20){  cout<<"\thit n. "<<ListHitMvdTrackCand[i][k]
 
  for(  ncand= 0; ncand< nSttTrackCand; ncand++){
 
-
-
-
 	keepit[ncand]=true;
 	PndSttFindingParallelTrackAngularRange(
 		Ox[ncand],
@@ -1137,7 +1133,8 @@ if(istampa>=3  && IVOLTE<20){  cout<<"\thit n. "<<ListHitMvdTrackCand[i][k]
    //  This method matches the Mvd hits to the found tracks.
    //  keepit is set to false if the n. of Pixel+Strips at the end is 0.
    MatchMvdHitsToSttTracks2(
-			keepit,// input and output.
+			keepit,// input and output. If there are no MVD hits associate,
+				// keepit is set to   false.
 			delta,
 			highqualitycut,
 			nSttTrackCand,
@@ -1157,8 +1154,7 @@ if(istampa>=3  && IVOLTE<20){  cout<<"\thit n. "<<ListHitMvdTrackCand[i][k]
 if(istampa>2&& IVOLTE<20){
            cout<<"da PndSttMvdTracking ;  n. SttTrackCand totali = "<<nSttTrackCand
 	       <<"--------------------------------------\n";
-//      for(  i= 0; i< nSttTrackCand; i++){
-      for(  i= 4; i< 5; i++){
+      for(  i= 0; i< nSttTrackCand; i++){
       	if(!keepit[i]) continue;
 	   cout<<"da PndSttMvdTracking --------------------------------------\n"<<
 	   "	SttTrackCand n.  "<<i<<";  n. Hits in Pixels associati = "
@@ -1222,23 +1218,23 @@ if(istampa>2&& IVOLTE<20){
 					nMvdStripHitsinTrack[ncand] ];
 		// adding the Mvd hits (Pixel and Strips)
 		for(i=0; i< nMvdPixelHitsinTrack[ncand]; i++){
-			auxR[i] = sqrt(
+			auxR[i] =
 			 XMvdPixel[ ListMvdPixelHitsinTrack[ncand][i] ]*
 			 XMvdPixel[ ListMvdPixelHitsinTrack[ncand][i] ]+
 			 YMvdPixel[ ListMvdPixelHitsinTrack[ncand][i] ]*
 			 YMvdPixel[ ListMvdPixelHitsinTrack[ncand][i] ]
-					    );
+					;
 			tempmvdindex[i]=ListMvdPixelHitsinTrack[ncand][i];
 			tempmvdtype[i]=0;
 			auxIndex[i] = i;
 		}
 		for(i=0; i< nMvdStripHitsinTrack[ncand]; i++){
-			auxR[i+nMvdPixelHitsinTrack[ncand]] = sqrt(
+			auxR[i+nMvdPixelHitsinTrack[ncand]] =
 			 XMvdStrip[ ListMvdStripHitsinTrack[ncand][i] ]*
 			 XMvdStrip[ ListMvdStripHitsinTrack[ncand][i] ]+
 			 YMvdStrip[ ListMvdStripHitsinTrack[ncand][i] ]*
 			 YMvdStrip[ ListMvdStripHitsinTrack[ncand][i] ]
-					    );
+					;
 			tempmvdindex[i+nMvdPixelHitsinTrack[ncand]]=
 				ListMvdStripHitsinTrack[ncand][i];
 			tempmvdtype[i+nMvdPixelHitsinTrack[ncand]]=1;
@@ -1410,7 +1406,7 @@ for(int iiii=0;iiii<nMvdStripHitsinTrack[ncand];iiii++)
 		Ox[ncand],
 		Oy[ncand],
 		R[ncand],
-		CHARGE[ncand],
+		CHARGE[ncand],  // this is an input.
 		&Fi_low_limit[ncand],	// Fi (in XY Helix frame) lower limit using
 					// the Stt detector minimum/maximum radius
 					// Fi_low_limit is ALWAYS between 0. and 2PI
@@ -1429,10 +1425,6 @@ for(int iiii=0;iiii<nMvdStripHitsinTrack[ncand];iiii++)
 	// region completely.
 	if( statusflag[ncand] == -1 ) Fi_low_limit[ncand] = -99999.;
 	if( statusflag[ncand] == -2) keepit[ncand] = false;
-
-
-
-
 
 
 	}	// end of for(ncand=0; ncand< nTotalCandidates; ncand++)
@@ -1495,8 +1487,6 @@ for(int iiii=0;iiii<nMvdStripHitsinTrack[ncand];iiii++)
                    Fi_low_limit[ncand],	// Fi (in Helix XY frame) lower limit using the Stt detector minimum/maximum radius
                    Fi_up_limit[ncand],	// Fi (in Helix XY frame) upper limit using the Stt detector maximum/minimum radius
                    CHARGE[ncand],
-//                   FI0[ncand],	// Fi of the vertex of track (0,0) in the Helix XY frame.
-//                   Fi_final_helix_referenceframe, // Fi of last parallel Stt hit of track, in the Helix XY frame.
                    TemporarySkewList, // output,  list of selected skew hits (in skew numbering)
                    TemporaryS,       //  output,  S coordinate of selected Skew hit
                    TemporaryZ,       //  output,  Z coordinate of selected Skew hit (center wire)
@@ -1581,6 +1571,8 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 					zdrift, //  drift radius projected onto the Helix
 					zerror  // STRAWRESOLUTION (0.015 cm) projected onto the Helix.
 					);
+
+
 				if( z[0]<999998. && z[1]<999998.){
 					ZEDbis[kall][0]=ZED[i]=z[0];
 					Sbis[kall][0]=S[i] = s[0];
@@ -1703,6 +1695,8 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 		}	//   end of   for(j=0, i = nMvdPixelHitsinTrack[ncand]+
 
 
+
+
 			j=nMvdPixelHitsinTrack[ncand]+
 			nMvdStripHitsinTrack[ncand];
 
@@ -1771,7 +1765,6 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 
 
 
-
 //-------------------------------------------
 
 //	use the risult just obtained from the fit in SZ to reject the spurious Skew Straw hits
@@ -1779,34 +1772,31 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 //	of the SKEW hits and the MVD hits, for a given track candidate (ie for a given Helix
 //	circle in the XY plane)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	UShort_t MaxTurns;
+	if(R[ncand] < RStrawDetectorMax/2.){
+		if(-CHARGE[ncand]*KAPPA[ncand]>0.)	// this means Pz>0.
+		  MaxTurns=(UShort_t)(0.5*fabs((ZCENTER_STRAIGHT+SEMILENGTH_STRAIGHT)
+					*KAPPA[ncand])/PI);
+		else MaxTurns=(UShort_t)
+		  (0.5*fabs((ZCENTER_STRAIGHT-SEMILENGTH_STRAIGHT)*KAPPA[ncand])/PI);
+	} else {
+		MaxTurns=0;
+	}
 	if(keepit[ncand]) EliminateSpuriousSZ(
+				MaxTurns,
 				&nMvdPixelHitsinTrack[ncand],	// input and output
 				&ListMvdPixelHitsinTrack[ncand][0],// input and output
 				&nMvdStripHitsinTrack[ncand],	// input and output
 				&ListMvdStripHitsinTrack[ncand][0],// input and output
 				&nSttSkewHitsinTrack[ncand],	// input and output
 				&ListSttSkewHitsinTrack[ncand][0],// input and output
-				Sbis,	// input
-				ZEDbis,	// input
+				Sbis,	// input, position of the central wire
+				ZEDbis,	// input, position of the central wire.
 				DriftRadiusbis,	// input
 				ErrorDriftRadiusbis,	// input
-				&SchosenPixel[ncand][0],
-				&SchosenStrip[ncand][0],
-				&SchosenSkew[ncand][0],
+				&SchosenPixel[ncand][0], // this value from now on
+				&SchosenStrip[ncand][0], // can also be > 2PI or < 2PI when
+				&SchosenSkew[ncand][0],  // the particle makes more than 1 turn.
 				&ZchosenPixel[ncand][0],
 				&ZchosenStrip[ncand][0],
 				&ZchosenSkew[ncand][0],
@@ -1824,7 +1814,9 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 
 
 
+
     }	//  end of for(ncand=0; ncand< nTotalCandidates; ncand++)
+
 
 
 
@@ -1850,8 +1842,65 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 
 //	ordering all the hits belonging to the candidate track, by increasing R;
 //	from candidate n. 0 to candidate n. nTotalCandidates-1; loading ListTrackCandHit.
-
+//	the array ordered are :
+//	ListTrackCandHit, ListTrackCandHitType, ListSttParHitsinTrack, ListSttSkewHitsinTrack.
 	Ordering_Loading_ListTrackCandHit(keepit,0,nTotalCandidates,info);
+
+//------------- cleanup section.
+
+// The cleanup is done on the Straw hits only.
+
+	Double_t Start[3]={0., 0., 0.};
+	Double_t gap = (Double_t) (VERTICALGAP/2.);
+
+
+    for(ncand=0, nRemainingCandidates=0; ncand< nTotalCandidates; ncand++){
+	if(!keepit[ncand]) continue;
+	UShort_t &nHitsPar = nSttParHitsinTrack[ncand];
+	UShort_t &nHitsSkew = nSttSkewHitsinTrack[ncand];
+	Double_t auxS[nHitsSkew];
+
+	for(i=0;i<nHitsSkew;i++){
+		auxS[i] = SchosenSkew[ncand][ListSttSkewHitsinTrack[ncand][i]];
+	}
+    if(YesClean){
+	if ( !TrackCleanup(
+			gap,
+			Ox[ncand],
+			Oy[ncand],
+			R[ncand],
+			KAPPA[ncand],
+			FI0[ncand],
+			CHARGE[ncand],
+			Start,
+			nHitsPar,
+			&ListSttParHitsinTrack[ncand][0],  // this is already ordered.
+			nHitsSkew,
+			&ListSttSkewHitsinTrack[ncand][0],  // this is already ordered.
+			auxS,
+			info,
+			RStrawDetectorMin,
+			ApotemaMaxInnerParStraw,
+			ApotemaMinSkewStraw,
+			ApotemaMaxSkewStraw,
+			ApotemaMinOuterParStraw,
+			RStrawDetectorMax
+				) ) {
+		keepit[ncand]=false;
+	}
+    }  // end of if(YesClean)
+
+
+
+
+
+
+
+	nRemainingCandidates++;
+
+    }	//  end of for(ncand=0; ncand< nTotalCandidates; ncand++)
+
+//------------- end of cleanup section.
 
 
 //---------------------------------------------------------------------------------------
@@ -1862,7 +1911,7 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 
 
 
-	if( nTotalCandidates == MAXTRACKSPEREVENT ) goto dontdoit ; // if there are already
+	if( nRemainingCandidates >= MAXTRACKSPEREVENT ) goto dontdoit ; // if there are already
 								// too many candidates
 								// don't do anything.
 
@@ -1886,6 +1935,7 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 	}
 
 	for(ncand=0; ncand< nTotalCandidates; ncand++){
+//		if(!keepit[ncand]) continue;
 		for(i=0; i< nMvdPixelHitsinTrack[ncand]; i++){
 			UsedPixel[ ListMvdPixelHitsinTrack[ncand][i] ] = true;
 		}// end of for(i=0; i< nMvdPixelHitsinTrack[ncand]; i++)
@@ -1902,7 +1952,9 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 	//  Pixel or Strip hits were not used previously in this code.
 
 	for(i=0; i<nMvdTrackCand; i++){
-		if( nTotalCandidates == MAXTRACKSPEREVENT ) break; // protection for the
+//		if( nTotalCandidates == MAXTRACKSPEREVENT ) break; // protection for the
+						// length of many of my arrays.
+		if( nRemainingCandidates == MAXTRACKSPEREVENT ) break; // protection for the
 						// length of many of my arrays.
 		nalone=0;
 
@@ -1979,6 +2031,7 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 				keepit[nTotalCandidates]=true;
 				Mvdhits[nTotalCandidates]=true;
 				nTotalCandidates++;
+				nRemainingCandidates++;
 			} // end  of  if( status[nTotalCandidates] )
 
 
@@ -2043,21 +2096,15 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 
 				nTrackCandHit[nTotalCandidates]=nalone;
 
-
 				keepit[nTotalCandidates]=true;
 
 				Mvdhits[nTotalCandidates]=true;
 				nTotalCandidates++;
-
+				nRemainingCandidates++;
 
 			} // end of  if(status[nTotalCandidates])
 
 		} // end of  if( nalone == 3 )
-
-
-
-
-
 
 	} //end of  for(i=0; i<nMvdTrackCand; i++)
 
@@ -3078,12 +3125,12 @@ if( istampa>=3){
 
 	} else if ( ListTrackCandHitType[ncand][0] == 3 ){  // it is a skew straw hit
 
-			Posiz1[0] = Ox[ncand]+R[ncand]*cos(SchosenSkew[ncand][ ListTrackCandHit[ncand][0] ]);
-			Posiz1[1] = Oy[ncand]+R[ncand]*sin(SchosenSkew[ncand][ ListTrackCandHit[ncand][0] ]);
-			Posiz1[2] = ZchosenSkew[ncand][ ListTrackCandHit[ncand][0] ];
-			ErrPosition.SetX(0.02);	// 200 microns
-			ErrPosition.SetY(0.02);	// 200 microns
-			ErrPosition.SetZ(1.);		// 1 cm
+		Posiz1[0] = Ox[ncand]+R[ncand]*cos(SchosenSkew[ncand][ ListTrackCandHit[ncand][0] ]);
+		Posiz1[1] = Oy[ncand]+R[ncand]*sin(SchosenSkew[ncand][ ListTrackCandHit[ncand][0] ]);
+		Posiz1[2] = ZchosenSkew[ncand][ ListTrackCandHit[ncand][0] ];
+		ErrPosition.SetX(0.02);	// 200 microns
+		ErrPosition.SetY(0.02);	// 200 microns
+		ErrPosition.SetZ(1.);		// 1 cm
 
 		}
 
@@ -3311,6 +3358,25 @@ for(l =0;l<nMvdPixelHitsinTrack[it]+nMvdStripHitsinTrack[it]
 //    for(  i= 0; i< nSttTrackCand; i++){
     for(  i= 0, k=-1; i< nTotalCandidates; i++){
 
+
+	//-------stampe.
+if(istampa>=2&&IVOLTE<20){
+		cout<<"\n\n---------------------------------------------\n";
+		cout<<" evt. n. "<<IVOLTE<<", candidato "<<i
+		<<", n hits || "<<nSttParHitsinTrack[i]<<" e loro lista :\n";
+		for(int iz=0;iz<nSttParHitsinTrack[i];iz++){
+			cout<<"\thit || n. "<<ListSttParHitsinTrack[i][iz]<<endl;
+		}
+		cout<<"\tn hits // "<<nSttSkewHitsinTrack[i]<<" e loro lista :\n";
+		for(int iz=0;iz<nSttSkewHitsinTrack[i];iz++){
+			cout<<"\thit || n. "<<ListSttSkewHitsinTrack[i][iz]<<endl;
+		}
+		if(keepit[i])cout<<"\tkeepit = true\n";
+		else cout<<"\tkeepit = false\n";
+		cout<<"---------------------------------------------\n";
+}
+	//--------fine stampe.
+
 	if(!keepit[i]) continue;
 	k++;
 	int npunti=-1+nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i]+
@@ -3367,6 +3433,7 @@ for(l =0;l<nMvdPixelHitsinTrack[it]+nMvdStripHitsinTrack[it]
 	   }
 
 
+
 		WriteMacroSttParallelAssociatedHitsandMvdwithMC(
                    Ox[i], Oy[i], R[i],
 			primoangolo[i],ultimoangolo[i],
@@ -3410,7 +3477,6 @@ for(l =0;l<nMvdPixelHitsinTrack[it]+nMvdStripHitsinTrack[it]
 		nMCSkewAlone,
 		MCSkewAloneList
 						);
-
 	}	// end of  if( nSttParHitsinTrack[i]+nMvdPixelHitsinTrack[i]+
 		//			nMvdStripHitsinTrack[i]>0 &&  doMcComparison)
 
@@ -10154,6 +10220,7 @@ int nevento=1;
 //-------------------------  begin of function  PndSttMvdTracking::EliminateSpuriousSZ
 
   void PndSttMvdTracking::EliminateSpuriousSZ(
+			UShort_t MaxTurnofTracks,
 			UShort_t *nPixelHitsinTrack,
 			UShort_t *ListPixelHitsinTrack,
 			UShort_t *nStripHitsinTrack,
@@ -10193,6 +10260,7 @@ int nevento=1;
 	Int_t  nr2,
 		 nrounds0,
 		 nrounds1,
+		 nchosen,
 		 Nround[4];
 
 	const Double_t  MvdCut=0.3,
@@ -10221,11 +10289,12 @@ int nevento=1;
 	for(i=0;i<*nPixelHitsinTrack;i++){
 
 
-		if( Dist_SZ(R,KAPPA,FI0,ZED[i][0],S[i][0],&nrounds0) < MvdCut
+		if( fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][0],S[i][0],&nrounds0)) < MvdCut
 						&&
-					abs(nrounds0)<=MAXTURNSOFTRACK){
+					abs(nrounds0)<=MaxTurnofTracks){
 			auxListMvdPixel[auxnMvdPixel]=ListPixelHitsinTrack[i];
-			SchosenPixel[ListPixelHitsinTrack[i]]=S[i][0];
+			if(nrounds0>=0)SchosenPixel[ListPixelHitsinTrack[i]]=S[i][0]+nrounds0*2.*PI;
+			else SchosenPixel[ListPixelHitsinTrack[i]]=S[i][0]+(nrounds0-1)*2.*PI;
 			ZchosenPixel[ListPixelHitsinTrack[i]]=ZED[i][0];
 			ErrorchosenPixel[ListPixelHitsinTrack[i]]=errorPixel;
 			auxnMvdPixel++;
@@ -10236,11 +10305,12 @@ int nevento=1;
 		i=j+(*nPixelHitsinTrack);
 
 
-		if( Dist_SZ(R,KAPPA,FI0,ZED[i][0],S[i][0],&nrounds0) < MvdCut
+		if( fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][0],S[i][0],&nrounds0)) < MvdCut
 						&&
-					abs(nrounds0)<=MAXTURNSOFTRACK){
+					abs(nrounds0)<=MaxTurnofTracks){
 			auxListMvdStrip[auxnMvdStrip]=ListStripHitsinTrack[j];
-			SchosenStrip[ListStripHitsinTrack[j]]=S[i][0];
+			if(nrounds0>=0)SchosenStrip[ListStripHitsinTrack[j]]=S[i][0]+nrounds0*2.*PI;
+			else SchosenStrip[ListStripHitsinTrack[j]]=S[i][0]+(nrounds0-1)*2.*PI;
 			ZchosenStrip[ListStripHitsinTrack[j]]=ZED[i][0];
 			ErrorchosenStrip[ListStripHitsinTrack[j]]=errorStrip;
 			auxnMvdStrip++;
@@ -10252,32 +10322,33 @@ int nevento=1;
 		    (*nStripHitsinTrack);
 		if( ZED[i][0]<999990. && ZED[i][1]<999990.){
 
-			Dista[0] = Dist_SZ(R,KAPPA,FI0,ZED[i][0]+DriftRadius[i][0],S[i][0],&Nround[0]);
-			Dista[1] = Dist_SZ(R,KAPPA,FI0,ZED[i][0]-DriftRadius[i][0],S[i][0],&Nround[1]);
-			Dista[2] = Dist_SZ(R,KAPPA,FI0,ZED[i][1]+DriftRadius[i][1],S[i][1],&Nround[2]);
-			Dista[3] = Dist_SZ(R,KAPPA,FI0,ZED[i][1]-DriftRadius[i][1],S[i][1],&Nround[3]);
-			Zeta[0] = ZED[i][0]-DriftRadius[i][0];
-			Zeta[1] = ZED[i][0]+DriftRadius[i][0];
-			Zeta[2] = ZED[i][1]-DriftRadius[i][1];
-			Zeta[3] = ZED[i][1]+DriftRadius[i][1];
-			Esse[0] = S[i][0];
-			Esse[1] = S[i][0];
-			Esse[2] = S[i][1];
-			Esse[3] = S[i][1];
-			Errore[0]= DriftRadius[i][0];
-			Errore[1]= DriftRadius[i][1];
-			Errore[2]= DriftRadius[i][2];
-			Errore[3]= DriftRadius[i][3];
-//			Errore[0]= ErrorDriftRadius[i][0];
-//			Errore[1]= ErrorDriftRadius[i][1];
-//			Errore[2]= ErrorDriftRadius[i][2];
-//			Errore[3]= ErrorDriftRadius[i][3];
+	// here the fabs() is necessary!
+	Dista[0] = fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][0]+DriftRadius[i][0],S[i][0],&Nround[0]));
+	Dista[1] = fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][0]-DriftRadius[i][0],S[i][0],&Nround[1]));
+	Dista[2] = fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][1]+DriftRadius[i][1],S[i][1],&Nround[2]));
+	Dista[3] = fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][1]-DriftRadius[i][1],S[i][1],&Nround[3]));
+	Zeta[0] = ZED[i][0]-DriftRadius[i][0];
+	Zeta[1] = ZED[i][0]+DriftRadius[i][0];
+	Zeta[2] = ZED[i][1]-DriftRadius[i][1];
+	Zeta[3] = ZED[i][1]+DriftRadius[i][1];
+	if(Nround[0]>=0)Esse[0] = S[i][0]+Nround[0]*2.*PI;
+	else Esse[0] = S[i][0]+(Nround[0]-1)*2.*PI;
+	if(Nround[1]>=0)Esse[1] = S[i][0]+Nround[1]*2.*PI;
+	else Esse[1] = S[i][0]+(Nround[1]-1)*2.*PI;
+	if(Nround[2]>=0)Esse[2] = S[i][1]+Nround[2]*2.*PI;
+	else Esse[2] = S[i][1]+(Nround[2]-1)*2.*PI;
+	if(Nround[3]>=0)Esse[3] = S[i][1]+Nround[3]*2.*PI;
+	else Esse[3] = S[i][1]+(Nround[3]-1)*2.*PI;
+	Errore[0]= DriftRadius[i][0];
+	Errore[1]= DriftRadius[i][1];
+	Errore[2]= DriftRadius[i][2];
+	Errore[3]= DriftRadius[i][3];
 
 			d_min=999999999.;
 			for(k=1;k<4;k++){
-				if( Nround[k]<=MAXTURNSOFTRACK )
+				if( Nround[k]<=MaxTurnofTracks )
 				{
-					if( fabs(Dista[k]) < d_min ){
+					if( Dista[k] < d_min ){
 					 d_min=fabs(Dista[k]);
 					 Kmin = k;
 					}
@@ -10289,65 +10360,74 @@ int nevento=1;
 			SchosenSkew[ListSkewHitsinTrack[j]]=Esse[Kmin];
 			ZchosenSkew[ListSkewHitsinTrack[j]]=Zeta[Kmin];
 
-
 		} else if (ZED[i][0]<999990.){
 
-			dista = Dist_SZ(R,KAPPA,FI0,ZED[i][0]+DriftRadius[i][0],S[i][0],&nrounds0);
-			ddd = Dist_SZ(R,KAPPA,FI0,ZED[i][0]-DriftRadius[i][0],S[i][0],&nr2);
-		if( abs(nrounds0) > MAXTURNSOFTRACK &&
-				 abs(nr2)>MAXTURNSOFTRACK)
+			dista =
+		fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][0]+DriftRadius[i][0],S[i][0],&nrounds0));
+			ddd = fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][0]-DriftRadius[i][0],S[i][0],&nr2));
+			if( abs(nrounds0) > MaxTurnofTracks &&
+				 abs(nr2)>MaxTurnofTracks)
 			{
 				continue;
-			} else if ( abs(nr2)>MAXTURNSOFTRACK)
+			} else if ( abs(nr2)>MaxTurnofTracks)
 			{
 				 zeta0 = ZED[i][0]+DriftRadius[i][0];
-			} else if ( abs(nrounds0) > MAXTURNSOFTRACK )
+				 nchosen=nrounds0;
+			} else if ( abs(nrounds0) > MaxTurnofTracks )
 			{
 				 dista = ddd;
 				 zeta0 = ZED[i][0]-DriftRadius[i][0];
+				 nchosen=nr2;
 			} else
 			{
 				if( fabs(dista)>fabs(ddd) ) {
 				 dista = ddd;
 				 zeta0 = ZED[i][0]-DriftRadius[i][0];
+				 nchosen=nr2;
 				} else {
 				 zeta0 = ZED[i][0]+DriftRadius[i][0];
+				 nchosen=nrounds0;
 				}
 			}
 			error = DriftRadius[i][0];
-//			error = ErrorDriftRadius[i][0];
-			SchosenSkew[ListSkewHitsinTrack[j]]=S[i][0];
+			if(nchosen>=0)SchosenSkew[ListSkewHitsinTrack[j]]=S[i][0]+nchosen*2.*PI;
+			else SchosenSkew[ListSkewHitsinTrack[j]]=S[i][0]+(nchosen-1)*2.*PI;
 			ZchosenSkew[ListSkewHitsinTrack[j]]=zeta0;
 
 		} else if (ZED[i][1]<999990.){
 
-			dista = Dist_SZ(R,KAPPA,FI0,ZED[i][1]+DriftRadius[i][1],S[i][1],&nrounds1);
-			ddd = Dist_SZ(R,KAPPA,FI0,ZED[i][1]-DriftRadius[i][1],S[i][1],&nr2);
+			dista =
+		fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][1]+DriftRadius[i][1],S[i][1],&nrounds1));
+			ddd = fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][1]-DriftRadius[i][1],S[i][1],&nr2));
 
 
-			if( abs(nrounds1) > MAXTURNSOFTRACK &&
-				 abs(nr2)>MAXTURNSOFTRACK)
+			if( abs(nrounds1) > MaxTurnofTracks &&
+				 abs(nr2)>MaxTurnofTracks)
 			{
 				continue;
-			} else if ( abs(nr2)>MAXTURNSOFTRACK)
+			} else if ( abs(nr2)>MaxTurnofTracks)
 			{
 				 zeta1 = ZED[i][1]+DriftRadius[i][1];
-			} else if ( abs(nrounds1) > MAXTURNSOFTRACK )
+				 nchosen=nrounds1;
+			} else if ( abs(nrounds1) > MaxTurnofTracks )
 			{
 				 dista = ddd;
 				 zeta1 = ZED[i][1]-DriftRadius[i][1];
+				 nchosen=nr2;
 			} else
 			{
 				if( dista>ddd ) {
 				 dista = ddd;
 				 zeta1 = ZED[i][1]-DriftRadius[i][1];
+				 nchosen=nr2;
 				} else {
 				 zeta1 = ZED[i][1]+DriftRadius[i][1];
+				 nchosen=nrounds1;
 				}
 			}
 			error = DriftRadius[i][1];
-//			error = ErrorDriftRadius[i][1];
-			SchosenSkew[ListSkewHitsinTrack[j]]=S[i][1];
+			if(nchosen>=0)SchosenSkew[ListSkewHitsinTrack[j]]=S[i][1]+nchosen*2.*PI;
+			else SchosenSkew[ListSkewHitsinTrack[j]]=S[i][1]+(nchosen-1)*2.*PI;
 			ZchosenSkew[ListSkewHitsinTrack[j]]=zeta1;
 
 		} else {
@@ -10438,8 +10518,9 @@ int nevento=1;
 		*nrounds = (Int_t) aaa;
 	}
 
-	dis_segments = 2.*PI*R/sqrt(1.+KAPPA*KAPPA*R*R); // distance between two consecutive segments
-						   //  of trajectory.
+	dis_segments = 2.*PI*R/sqrt(1.+KAPPA*KAPPA*R*R); // distance between
+						// two consecutive segments
+						//  of trajectory.
 
 	dis1 = fabs( R*S -R*KAPPA*ZED - R*FI0)/sqrt( 1.+KAPPA*KAPPA*R*R);
 	dis1 = fmod(dis1,dis_segments);
@@ -10826,6 +10907,7 @@ int nevento=1;
          i = infoskew[iii];
          if( !ExclusionListSkew[i]) continue;
 
+
          aaa = sqrt(WDX[i]*WDX[i]+WDY[i]*WDY[i]+WDZ[i]*WDZ[i]);
          vx1 = WDX[i]/aaa;
          vy1 = WDY[i]/aaa;
@@ -10874,8 +10956,9 @@ int nevento=1;
 
         Bellipsis1 = info[i][3]/R;
 
-        if( distance >= info[i][4]+Aellipsis1 ) continue;
-
+        if( distance >= info[i][4]+Aellipsis1 ){
+		 continue;
+	}
 
 
 // checks that the projected ellipsis doesn't go out the boundaries of both the skew straw and the trajectory cylinder
@@ -10897,6 +10980,7 @@ int nevento=1;
 //  check if the S of this intersection is compatible with information coming from the parallel fit of this track
 //        Double_t Sprime = atan2(POINTS1[j+1], POINTS1[j]) ;
 //        if( Sprime < 0.) Sprime += 2.*PI;
+
 
         if(  S[NAssociated] < Fi_low_limit) {
            if(  S[NAssociated]+2.*PI > Fi_up_limit)  continue;
@@ -11006,6 +11090,8 @@ int nevento=1;
 
 	UShort_t	i,
 			j,
+			ipar,
+			iskew,
 			ncand;
 
 
@@ -11105,12 +11191,20 @@ int nevento=1;
 			Merge_Sort( nSttParHitsinTrack[ncand]+nSttSkewHitsinTrack[ncand],
 				    auxR2, auxIndex2);
 
-			for(j=0; j< nSttParHitsinTrack[ncand]+nSttSkewHitsinTrack[ncand];j++){
+			for(j=0,ipar=0,iskew=0;
+				  j< nSttParHitsinTrack[ncand]+nSttSkewHitsinTrack[ncand];j++){
 				i = j+nMvdPixelHitsinTrack[ncand]+
 				    nMvdStripHitsinTrack[ncand];
 				ListTrackCandHit[ncand][i] = tempmvdindex2[ auxIndex2[j] ];
 				ListTrackCandHitType[ncand][i] = tempmvdtype2[ auxIndex2[j] ];
 
+				if( ListTrackCandHitType[ncand][i]==2) {
+				  ListSttParHitsinTrack[ncand][ipar]=tempmvdindex2[auxIndex2[j]];
+				  ipar++;
+				} else {
+				  ListSttSkewHitsinTrack[ncand][iskew]=tempmvdindex2[auxIndex2[j]];
+				  iskew++;
+				}
 			}
 		}	// end of  if( nSttParHitsinTrack[ncand]+
 
@@ -11129,29 +11223,36 @@ int nevento=1;
 
 
 
-//----------begin of function PndSttMvdTracking::SttParalCleanup
+//----------begin of function PndSttMvdTracking::TrackCleanup
 
 
 
-  bool PndSttMvdTracking::SttParalCleanup(
+  bool PndSttMvdTracking::TrackCleanup(
 				Double_t GAP,
 				Double_t Oxx,
 				Double_t Oyy,
 				Double_t Rr,
+				Double_t KAPPA,
+				Double_t FI0,
 				Short_t  Charge,
 				Double_t Start[3],
-				UShort_t &nHits,
-				UShort_t *ListHits,
+				UShort_t &nHitsPar,  // n. hits parall Stt
+				UShort_t *ListHitsPar,
+				UShort_t &nHitsSkew,  // n. hits parall Stt
+				UShort_t *ListHitsSkew,
+				Double_t *auxS,
 				Double_t info[][7],
 				Double_t RStrawDetMin,
-				Double_t RStrawDetInnerParMax,
-				Double_t RStrawDetOuterParMin,
+				Double_t ApotemaMaxInnerPar,
+				Double_t ApotemaMinSkew,
+				Double_t ApotemaMaxSkew,
+				Double_t ApotemaMinOuterPar,
 				Double_t RStrawDetMax
 						)
 {
 // this method does 3 things :
 //
-//	1)  finds the entrance and exit points in the STT parallel volumes of the current track;
+//	1)  finds the entrance and exit points in the STT parallel and skew volumes of the current track;
 //	2)  eliminates from the track hit list possible spurious hits that are not encompassed
 //		by the entrance and exit point;
 //	3)  eliminates the tracks if the hit sequence is not continuous enough.
@@ -11166,10 +11267,10 @@ int nevento=1;
 			nInnerHits,
 			nOuterHits,
 			nIntersections[2],
-			ListInnerHits[nHits],
-			ListOuterHits[nHits];
+			ListInnerHits[nHitsPar],
+			ListOuterHits[nHitsPar];
 
-	Double_t	FiStart,
+	Double_t	FiLimitAdmissible,
 			r,
 			Xcross[2],
 			Ycross[2],
@@ -11178,15 +11279,187 @@ int nevento=1;
 						  // (up to 12 intersections).
 
 //------------------------
+	// calculation of the Maximum FI angle possible (if it is a +ve charge) of the Minimum
+	// for this track, taking into account
+	// that the maximum possible Z of a hit is ZCENTER_STRAIGHT + SEMILENGTH_STRAIGHT; the minimum
+	// Z of a hit is ZCENTER_STRAIGHT - SEMILENGTH_STRAIGHT.
+	if(Charge<0){
+		if( KAPPA>0.){
+			FiLimitAdmissible = FI0 + KAPPA*(ZCENTER_STRAIGHT + SEMILENGTH_STRAIGHT) ;
+		} else {
+			FiLimitAdmissible = FI0 + KAPPA*(ZCENTER_STRAIGHT - SEMILENGTH_STRAIGHT) ;
+		}
+	} else {
+		if( KAPPA>0.){
+			FiLimitAdmissible = FI0 + KAPPA*(ZCENTER_STRAIGHT - SEMILENGTH_STRAIGHT) ;
+		} else {
+			FiLimitAdmissible = FI0 + KAPPA*(ZCENTER_STRAIGHT + SEMILENGTH_STRAIGHT) ;
+		}
+	}  // end of    if(Charge<0)
+//-----------------------------------------------------------------------------------------------------
+
+	// parallel cleanup.
+
+
+	if(nHitsPar>0 && !SttParalCleanup(
+				GAP,
+				Oxx,
+				Oyy,
+				Rr,
+				Charge,
+				Start,
+				FI0,
+				FiLimitAdmissible,
+				nHitsPar, // input and output.
+				ListHitsPar, // input and output.
+				info,
+				RStrawDetMin,
+				ApotemaMaxInnerPar,
+				ApotemaMinOuterPar,
+				RStrawDetMax
+						) ){
+						  return false;
+				}
+
+
+
+//----------------------------------------------------------------------------
+
+	// skew cleanup.
+	if ( ! (SttSkewCleanup(
+			GAP,
+			Oxx,
+			Oyy,
+			Rr,
+			Charge,
+			Start,  // strarting point of trajectory.
+			FI0,
+			FiLimitAdmissible,
+			nHitsSkew,
+			ListHitsSkew,
+			auxS,
+			ApotemaMinSkew,  //distance hexagon side from (0,0)
+			ApotemaMaxSkew,  //distance hexagon side from (0,0)
+			3.,
+			1
+			) ) ) {
+
+						  return false;
+				}
+
+
+	return true;
+	
+	
+
+};
+
+
+
+//----------end of function PndSttMvdTracking::TrackCleanup
+
+
+
+//----------begin of function PndSttMvdTracking::SttParalCleanup
+
+
+
+  bool PndSttMvdTracking::SttParalCleanup(
+				Double_t GAP,
+				Double_t Oxx,
+				Double_t Oyy,
+				Double_t Rr,
+				Short_t  Charge,
+				Double_t Start[3],
+				Double_t FI0,
+				Double_t FiLimitAdmissible,
+				UShort_t &nHits,
+				UShort_t *ListHits,
+				Double_t info[][7],
+				Double_t RStrawDetMin,
+				Double_t ApotemaInnerParMax,
+				Double_t ApotemaOuterParMin,
+				Double_t RStrawDetMax
+						)
+{
+// this method does 3 things :
+//
+//	1)  finds the entrance and exit points in the STT parallel volumes of the current track;
+//	2)  eliminates from the track hit list possible spurious hits that are not encompassed
+//		by the entrance and exit point;
+//	3)  eliminates the tracks if the hit sequence is not continuous enough.
+
+
+//	bool ConsiderLastHit;
+
+	Short_t flagInnerSttR,
+		flagOuterSttR,
+		flagInnerSttL,
+		flagOuterSttL;
+
+	UShort_t	enne,
+			i,
+			ihit,
+			ipurged,
+			nInnerHits,
+			nOuterHits,
+			nIntersections[2],
+			ListInnerHits[nHits],
+			ListOuterHits[nHits];
+
+	Double_t	epsilonTheta,
+			fi,
+			r,
+			aux[2],
+			Xcross[2],
+			Ycross[2],
+			XcrossL[2],
+			YcrossL[2],
+			XcrossR[2],
+			YcrossR[2],
+			XintersectionList[5], // there is also the last boundary FiLimitAdmissible
+			YintersectionList[5]; // take into account.
+
+//------------------------
+//  elimination of hits outside the physical FI range (FiLimitAdmissible) due to finite length of
+//  Straws.
+
+	epsilonTheta = STRAWRADIUS/Rr;  // some extra slac for being conservative.
+	for(i=0, ipurged=0; i< nHits; i++){
+
+		fi = atan2( info[ListHits[i]][1]-Oyy,info[ListHits[i]][0]-Oxx);
+		if (fi<0.) fi+=2.*PI;
+
+	  if(Charge <0) {
+		if( fi > FI0){
+			if( fi>FiLimitAdmissible+epsilonTheta) continue;
+		} else {
+			fi += 2.*PI;
+			if( fi >FiLimitAdmissible+epsilonTheta ) continue; 
+		}  // end of  if( fi > FI0)
+	  } else {  // continuation of  if(Charge <0)
+		if( fi > FI0){
+			fi -= 2.*PI;
+		}  // end of  if( fi > FI0)
+		if (fi < FiLimitAdmissible-epsilonTheta) continue;
+	  } // end of if(Charge <0)
+
+	  ListHits[ipurged]=ListHits[i];
+	  ipurged++;
+	}  // end of    for(i=0, ipurged=0; i< nHits; i++)
+
+	nHits = ipurged;
+	if(nHits==0) return true; // don't discard track because it may have Mvd hits anyway.
 //------------------
 //   separation of inner Parallel Stt hits from outer Parallel Stt hits.
+
 	SeparateInnerOuterParallel(
 
 				// input
 				nHits,
 				ListHits,
 				info,
-				RStrawDetInnerParMax,
+				2.*ApotemaInnerParMax/sqrt(3.),
 
 				// output
 				&nInnerHits,
@@ -11195,10 +11468,18 @@ int nevento=1;
 				ListOuterHits
 				);
 
+	if(nHits==0) return true; // don't discard track because it may have Mvd hits anyway.
 //------------------------------------------
 	// find the entrance and exit of the track in the Inner Left Parallel Straw region.
 	// This region is bounded by two Hexagons, and it has the target gap in the middle.
-	flagInnerStt=FindTrackEntranceExitbiHexagonLeft(
+
+	// flag meaning :
+	// -1 -->  track outside outer perimeter;
+	// 0 -->  at least 1 intersection with polygon, therefore a possible entry and an exit;
+	// 1 -->  track contained completely between the two polygons;
+
+
+	flagInnerSttL=FindTrackEntranceExitbiHexagonLeft(
 				GAP,
 				Oxx,
 				Oyy,
@@ -11206,13 +11487,13 @@ int nevento=1;
 				Charge,
 				Start,
 				RStrawDetMin,
-				ApotemaMaxInnerParStraw,
-				Xcross,
-				Ycross
+				ApotemaInnerParMax,
+				XcrossL,
+				YcrossL
 				);
 	// find the entrance and exit of the track in the Inner Right Parallel Straw region.
 	// This region is bounded by two Hexagons, and it has the target gap in the middle.
-	flagInnerStt=FindTrackEntranceExitbiHexagonRight(
+	flagInnerSttR=FindTrackEntranceExitbiHexagonRight(
 				GAP,
 				Oxx,
 				Oyy,
@@ -11220,49 +11501,160 @@ int nevento=1;
 				Charge,
 				Start,
 				RStrawDetMin,
-				ApotemaMaxInnerParStraw,
-				Xcross,
-				Ycross
+				ApotemaInnerParMax,
+				XcrossR,
+				YcrossR
 				);
 //-----------------
 
-	// find the entrance and exit of the track in the Inner Parallel Straw region.
-	// This region is bounded by two Hexagons, and it has the target gap in the middle.
-/*
-	flagInnerStt=FindTrackEntranceExitbiHexagon(
+//	working in the hypothesis that his is a track coming from Vertex at (0,0).
+
+	if( flagInnerSttL != 0 && flagInnerSttR != 0 ){
+		nHits=0; // eliminate all the hits from hit list.
+		return true;
+	}
+
+	if( flagInnerSttL == 0 && flagInnerSttR != 0 ){
+		XintersectionList[0]=XcrossL[0];
+		YintersectionList[0]=YcrossL[0];
+		XintersectionList[1]=XcrossL[1];
+		YintersectionList[1]=YcrossL[1];
+		if(fabs(FiLimitAdmissible-FI0) < 2.*PI){  // in this case the point
+			// corresponding to FiLimitAdmissible can play a role in the
+			// determination of the limiting points of the hits.
+			aux[0]=Oxx+Rr*cos(FiLimitAdmissible);
+			aux[1]=Oyy+Rr*sin(FiLimitAdmissible);
+			XintersectionList[2]=aux[0];
+			YintersectionList[2]=aux[1];
+			ChooseEntranceExitbis(
 				Oxx,
 				Oyy,
-				Rr,
 				Charge,
-				Start,
-				RStrawDetMin,
-				ApotemaMaxInnerParStraw,
-				Xcross,
-				Ycross
+				FI0,
+				3,// n. intersection in input.
+				XintersectionList,
+				YintersectionList,
+				Xcross,	// output
+				Ycross	// output
 				);
-*/
-	if (!(flagInnerStt == 0 || flagInnerStt == 2)) {
-		 return false;
+			if( fabs(aux[0]-Xcross[0])<1.e-5 && fabs(aux[1]-Ycross[0])<1.e-5 ){
+				nHits=0; // eliminate all the hits from hit list.
+				return true;
+			}
+		} else { // continuation of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
+			ChooseEntranceExitbis(
+				Oxx,
+				Oyy,
+				Charge,
+				FI0,
+				2,// n. intersection in input.
+				XintersectionList,
+				YintersectionList,
+				Xcross,	// output
+				Ycross	// output
+				);
+		}  // end of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
+
+
+	} else if ( flagInnerSttL != 0 && flagInnerSttR == 0 ){
+		XintersectionList[0]=XcrossR[0];
+		YintersectionList[0]=YcrossR[0];
+		XintersectionList[1]=XcrossR[1];
+		YintersectionList[1]=YcrossR[1];
+
+		if(fabs(FiLimitAdmissible-FI0) < 2.*PI){  // in this case the point
+			// corresponding to FiLimitAdmissible can play a role in the
+			// determination of the limiting points of the hits.
+			aux[0]=Oxx+Rr*cos(FiLimitAdmissible);
+			aux[1]=Oyy+Rr*sin(FiLimitAdmissible);
+			XintersectionList[2]=aux[0];
+			YintersectionList[2]=aux[1];
+			ChooseEntranceExitbis(
+				Oxx,
+				Oyy,
+				Charge,
+				FI0,
+				3,// n. intersection in input.
+				XintersectionList,
+				YintersectionList,
+				Xcross,	// output
+				Ycross	// output
+				);
+			if( fabs(aux[0]-Xcross[0])<1.e-5 && fabs(aux[1]-Ycross[0])<1.e-5 ){
+				nHits=0; // eliminate all the hits from hit list.
+				return true;
+			}
+		} else { // continuation of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
+			ChooseEntranceExitbis(
+				Oxx,
+				Oyy,
+				Charge,
+				FI0,
+				2,// n. intersection in input.
+				XintersectionList,
+				YintersectionList,
+				Xcross,	// output
+				Ycross	// output
+				);
+		}  // end of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
+
+
+
+	} else { // continuation of  if (flagInnerSttL == 0 && flagInnerSttR != 0)
+
+		// case in which flagInnerSttL==0 && flagInnerSttR==0.
+		for(i=0;i<2;i++){
+			XintersectionList[i]=XcrossR[i];
+			XintersectionList[i+2]=XcrossL[i];
+			YintersectionList[i]=YcrossR[i];
+			YintersectionList[i+2]=YcrossL[i];
 		}
-	if (flagInnerStt == -99 ){
-			cout<<"PndSttMvdTracking::SttParalCleanup,"<<
-			" contraddiction,inner, nIntersections[0]="<<
-			nIntersections[0]<<"<2, returning false!\n";
-			return false;
-	}
-	if( nInnerHits==0) {
-	 return false;
-	 }
+
+		if(fabs(FiLimitAdmissible-FI0) < 2.*PI){  // in this case the point
+			// corresponding to FiLimitAdmissible can play a role in the
+			// determination of the limiting points of the hits.
+			aux[0]=Oxx+Rr*cos(FiLimitAdmissible);
+			aux[1]=Oyy+Rr*sin(FiLimitAdmissible);
+			XintersectionList[4]=aux[0];
+			YintersectionList[4]=aux[1];
+			ChooseEntranceExitbis(
+				Oxx,
+				Oyy,
+				Charge,
+				FI0,
+				5,// n. intersection in input.
+				XintersectionList,
+				YintersectionList,
+				Xcross,	// output
+				Ycross	// output
+				);
+			if( fabs(aux[0]-Xcross[0])<1.e-5 && fabs(aux[1]-Ycross[0])<1.e-5 ){
+				nHits=0; // eliminate all the hits from hit list.
+				return true;
+			}
+		} else { // continuation of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
+			ChooseEntranceExitbis(
+				Oxx,
+				Oyy,
+				Charge,
+				FI0,
+				4,// n. intersection in input.
+				XintersectionList,
+				YintersectionList,
+				Xcross,	// output
+				Ycross	// output
+				);
+		} // end of if(fabs(FiLimitAdmissible-FI0) < 2.*PI).
+
+	} //  end of    if( flagInnerSttL == 0 && flagInnerSttR != 0 ){
+
+
 
 //-------------  cleanup of the spurious tracks first using the inner parallel straws.
 
-	//  if there are also Outer Parallel hits, then require continuity of hits
-	//  also at the external border of the inner parallel straw section (ConsiderLastHit=true).
 
-
-	if( nInnerHits<nHits) ConsiderLastHit=true;
-	else	ConsiderLastHit=false;
-
+	// at this point the n. of inner hits cannot be 0 for a true track.
+	if(nInnerHits==0) return false;
 	if ( BadTrack_ParStt(
 			Oxx,
 			Oyy,
@@ -11270,33 +11662,26 @@ int nevento=1;
 			Charge,
 			Xcross,  // Xcross[0]=point of entrance; Xcross[1]=point of exit.
 			Ycross,
-			ConsiderLastHit,
 			nInnerHits,
 			ListInnerHits,
 			info,
-			RStrawDetMin,
-			RStrawDetInnerParMax,
-			1.1*DiameterStrawTube,	//  cut of proximity between hits.
+			1.5*DiameterStrawTube,	//  cut of proximity between hits.
 			1	// maximum allowed # consecutive hits with distance > cut.
 					)
-	   ) {
-		return false;
-	}
-	if( flagInnerStt == 2) return true;
+	   ) return false;
+
 
 
 
 //-----------------------------------------------------
 
-	if(nOuterHits==0){
-		return true;	// at this point of the code the absence of outer parallel hits
-					// is possible (= track with very high Pz).
-	}
 //------------
 	// find the entrance and exit of the track in the Outer Parallel Straw region, Left side.
 	// This region is bounded by a Hexagon (inner), a Circle (outer) and it has
 	// the target gap in the middle.
-	flagOuterStt=FindTrackEntranceExitHexagonCircleLeft(
+
+	//  Returns -1 if there are 0 or 1 intersections, 0 if there are at least 2 intersections.
+		flagOuterSttL=FindTrackEntranceExitHexagonCircleLeft(
 				Oxx,
 				Oyy,
 				Rr,
@@ -11305,15 +11690,15 @@ int nevento=1;
 				ApotemaMinOuterParStraw,
 				RStrawDetMax,
 				GAP,
-				Xcross,
-				Ycross
+				XcrossL,
+				YcrossL
 				);
 
 //------------
 	// find the entrance and exit of the track in the Outer Parallel Straw region, Right side.
 	// This region is bounded by a Hexagon (inner), a Circle (outer) and it has
 	// the target gap in the middle.
-	flagOuterStt=FindTrackEntranceExitHexagonCircleRight(
+		flagOuterSttR=FindTrackEntranceExitHexagonCircleRight(
 				Oxx,
 				Oyy,
 				Rr,
@@ -11322,41 +11707,163 @@ int nevento=1;
 				ApotemaMinOuterParStraw,
 				RStrawDetMax,
 				GAP,
-				Xcross,
-				Ycross
+				XcrossR,
+				YcrossR
 				);
 
+//--------------------------------
 
-//------------
-	// find the entrance and exit of the track in the Outer Parallel Straw region.
-	// This region is bounded by a Hexagon (inner), a Circle (outer) and it has
-	// the target gap in the middle.
-/*
-	flagOuterStt=FindTrackEntranceExitHexagonCircle(
+	if( flagOuterSttL != 0 && flagOuterSttR != 0 ){
+		if(nOuterHits==0){
+			return true;
+		} else {
+			nHits -= nOuterHits;  // eliminate the Outer hits.
+			return true;
+		}
+	}
+
+
+	if( flagOuterSttL == 0 && flagOuterSttR != 0 ){
+		Xcross[0]=XcrossL[0];
+		Ycross[0]=YcrossL[0];
+		Xcross[1]=XcrossL[1];
+		Ycross[1]=YcrossL[1];
+		if(fabs(FiLimitAdmissible-FI0) < 2.*PI){  // in this case the point
+			// corresponding to FiLimitAdmissible can play a role in the
+			// determination of the limiting points of the hits.
+			aux[0]=Oxx+Rr*cos(FiLimitAdmissible);
+			aux[1]=Oyy+Rr*sin(FiLimitAdmissible);
+			XintersectionList[2]=aux[0];
+			YintersectionList[2]=aux[1];
+			ChooseEntranceExitbis(
 				Oxx,
 				Oyy,
-				Rr,
 				Charge,
-				Start,
-				ApotemaMinOuterParStraw,
-				RStrawDetMax,
-				Xcross,
-				Ycross
+				FI0,
+				3,// n. intersection in input.
+				XintersectionList,
+				YintersectionList,
+				Xcross,	// output
+				Ycross	// output
 				);
-*/
-	if (!(flagOuterStt == 0 || flagOuterStt == 2|| flagOuterStt == -1)) return false;
-	if (flagOuterStt == -99 ){
-			cout<<"PndSttMvdTracking::SttParalCleanup,"<<
-			" contraddiction,outer, nIntersections[0]="<<
-			nIntersections[0]<<"<2, returning false!\n";
-			return false;
-	}
-//-------------------------
+			if( fabs(aux[0]-Xcross[0])<1.e-5 && fabs(aux[1]-Ycross[0])<1.e-5 ){
+				nHits -= nOuterHits;  // eliminate the Outer hits.
+				return true;
+			}
+		} else { // continuation of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
+			ChooseEntranceExitbis(
+				Oxx,
+				Oyy,
+				Charge,
+				FI0,
+				2,// n. intersection in input.
+				XintersectionList,
+				YintersectionList,
+				Xcross,	// output
+				Ycross	// output
+				);
+		}  // end of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
+
+	} else if ( flagOuterSttL != 0 && flagOuterSttR == 0 ){
+		Xcross[0]=XcrossR[0];
+		Ycross[0]=YcrossR[0];
+		Xcross[1]=XcrossR[1];
+		Ycross[1]=YcrossR[1];
+		if(fabs(FiLimitAdmissible-FI0) < 2.*PI){  // in this case the point
+			// corresponding to FiLimitAdmissible can play a role in the
+			// determination of the limiting points of the hits.
+			aux[0]=Oxx+Rr*cos(FiLimitAdmissible);
+			aux[1]=Oyy+Rr*sin(FiLimitAdmissible);
+			XintersectionList[2]=aux[0];
+			YintersectionList[2]=aux[1];
+			ChooseEntranceExitbis(
+				Oxx,
+				Oyy,
+				Charge,
+				FI0,
+				3,// n. intersection in input.
+				XintersectionList,
+				YintersectionList,
+				Xcross,	// output
+				Ycross	// output
+					);
+			if( fabs(aux[0]-Xcross[0])<1.e-5 && fabs(aux[1]-Ycross[0])<1.e-5 ){
+				nHits -= nOuterHits;  // eliminate the Outer hits.
+				return true;
+			}
+		} else { // continuation of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
+			ChooseEntranceExitbis(
+				Oxx,
+				Oyy,
+				Charge,
+				FI0,
+				2,// n. intersection in input.
+				XintersectionList,
+				YintersectionList,
+				Xcross,	// output
+				Ycross	// output
+				);
+		}  // end of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
+	} else { // this is when flagOuterSttL == 0 && flagOuterSttR == 0.
+		for(i=0;i<2;i++){
+			XintersectionList[i]=XcrossR[i];
+			XintersectionList[i+2]=XcrossL[i];
+			YintersectionList[i]=YcrossR[i];
+			YintersectionList[i+2]=YcrossL[i];
+		}
+		if(fabs(FiLimitAdmissible-FI0) < 2.*PI){  // in this case the point
+			// corresponding to FiLimitAdmissible can play a role in the
+			// determination of the limiting points of the hits.
+			aux[0]=Oxx+Rr*cos(FiLimitAdmissible);
+			aux[1]=Oyy+Rr*sin(FiLimitAdmissible);
+			XintersectionList[4]=aux[0];
+			YintersectionList[4]=aux[1];
+			ChooseEntranceExitbis(
+			Oxx,
+			Oyy,
+			Charge,
+			FI0,
+			5,// n. intersection in input.
+			XintersectionList,
+			YintersectionList,
+			Xcross,	// output
+			Ycross	// output
+				);
+			if( fabs(aux[0]-Xcross[0])<1.e-5 && fabs(aux[1]-Ycross[0])<1.e-5 ){
+				nHits=0;
+				return true;
+			}
+		} else { // continuation of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
+			ChooseEntranceExitbis(
+				Oxx,
+				Oyy,
+				Charge,
+				FI0,
+				4,// n. intersection in input.
+				XintersectionList,
+				YintersectionList,
+				Xcross,	// output
+				Ycross	// output
+				);
+		} // end of if(fabs(FiLimitAdmissible-FI0) < 2.*PI).
+
+//-------------------- stampe
+if(istampa>=2&&IVOLTE<20){
+cout<<"OUTER, caso R&L true, IVOLTE = "<<IVOLTE<<"\n\t Xcross[0] "
+<< Xcross[0]<<", Ycross[0] " <<Ycross[0]<<"\n\t Xcross[1] "
+<< Xcross[1]<<", Ycross[1] " <<Ycross[1]<<" e charge = "<<Charge<<", FiLimitAdmissible "
+<<FiLimitAdmissible<<endl;
+}
+//-------------------fine stampe
+
+	} //  end of    if( flagOuterSttL == 0 && flagOuterSttR != 0 ){
 
 
 //  cleanup of the spurious tracks now using the outer parallel straws.
 
 
+	// at this point nOuterHits cannot be 0 for a real track.
+	if(nOuterHits==0) return false;
 	if ( BadTrack_ParStt(
 			Oxx,
 			Oyy,
@@ -11364,24 +11871,19 @@ int nevento=1;
 			Charge,
 			Xcross,  // Xcross[0]=point of entrance; Xcross[1]=point of exit.
 			Ycross,
-			false,	// for the Outer Parallel Stt at this stage don't require
-				// continuity  of hits at the external border.
 			nOuterHits,
 			ListOuterHits,
 			info,
-			RStrawDetOuterParMin,
-			RStrawDetMax,
 			1.1*DiameterStrawTube,	//  cut of proximity between hits.
 			1	// maximum allowed # consecutive hits with distance > cut.
 					)
-	   ){
-		return false;
-	}
+	   ) return false;
 
+//      }  // end of  if(nOuterHits==0)
 
 //----------------------------------------------------------------------------
 
-
+	// if the code comes here it means that the track is acceptable.
 	return true;
 
 };
@@ -11389,6 +11891,9 @@ int nevento=1;
 
 
 //----------end of function PndSttMvdTracking::SttParalCleanup
+
+
+
 
 
 
@@ -11404,37 +11909,97 @@ int nevento=1;
 			Double_t Rr,
 			Short_t  Charge,
 			Double_t Start[3],
-			UShort_t nHits,
-			Double_t *auxS,
+			Double_t FI0,
+			Double_t FiLimitAdmissible,
+			UShort_t &nHits,
+			UShort_t *ListHits,
+			Double_t *S,
 			Double_t RminStrawSkew,
 			Double_t RmaxStrawSkew,
-			bool ConsiderLastHit,
 			Double_t cut,
 			UShort_t maxnum
 						)
 {
 
-	Short_t flagStt;
+	bool ConsiderLastHit;
+
+	Short_t flagSttL,
+		flagSttR;
 
 	UShort_t	i,
+			ipurged,
 			ibad,
 			nIntersections[2];
 
-	Double_t	FiStart,
+	Double_t	cut2,
+			epsilonTheta,
+			fi,
+			FiStart,
 			r,
+			Sprevious,
+			aux[2],
 			Distance[nHits+1],
 			Xcross[2],
 			Ycross[2],
-			XintersectionList[12][2], // second index =0 --> inner Hexagon, =1 --> outer.
-			YintersectionList[12][2]; // first index : all the possible intersections
+			XcrossL[2],
+			YcrossL[2],
+			XcrossR[2],
+			YcrossR[2],
+			XintersectionList[5], // second index =0 --> inner Hexagon, =1 --> outer.
+			YintersectionList[5]; // first index : all the possible intersections
 						  // (up to 12 intersections).
+
+
+	cut2=cut*cut;
+
+//------------------------
+//  elimination of hits outside the physical FI range (FiLimitAdmissible) due to finite length of
+//  Straws.
+
+	epsilonTheta = STRAWRADIUS/Rr;  // some extra slac for being conservative.
+
+if(istampa>=2&&IVOLTE<20)
+cout<<"\n\nevt "<<IVOLTE<<", FI0 "<<FI0<<", Filimit "<< FiLimitAdmissible+epsilonTheta <<endl;
+
+	for(i=0, ipurged=0; i< nHits; i++){
+//	  fi = S[ListHits[i]];
+	  fi = S[i];
+
+if(istampa>=2&&IVOLTE<20)cout<<"\thit // n. "<<ListHits[i]<<", fi "<<fi<<endl;
+
+	  if(Charge <0) {
+		if(fi > FI0){
+			if( fi>FiLimitAdmissible+epsilonTheta) continue;
+		} else {
+			fi += 2.*PI;
+			if( fi > FiLimitAdmissible+epsilonTheta ) continue; 
+		}  // end of  if( fi > FI0)
+	  } else {  // continuation of  if(Charge <0)
+		if( fi > FI0){
+			fi -= 2.*PI;
+		}  // end of  if( fi > FI0)
+		if (fi < FiLimitAdmissible-epsilonTheta) continue;
+	  } // end of if(Charge <0)
+if(istampa>=2&&IVOLTE<20)cout<<"\t\thit preso!"<<endl;
+
+	  ListHits[ipurged]=ListHits[i];
+	  S[ipurged]=S[i];
+	  ipurged++;
+	}  // end of    for(i=0, ipurged=0; i< nHits; i++)
+
+	nHits = ipurged;
+	if(nHits==0) return true; // don't discard track because it may have Mvd hits anyway.
+
+
+
+
 
 //------------------------------------------
 	// find the entrance and exit of the track in the Skew Straw region.
 	// This region is bounded by two Hexagons, and it has the target gap
 	// in the middle. So Left is the left looking from downstream.
 
-	flagStt=FindTrackEntranceExitbiHexagonLeft(
+	flagSttL=FindTrackEntranceExitbiHexagonLeft(
 				GAP,
 				Oxx,
 				Oyy,
@@ -11443,12 +12008,12 @@ int nevento=1;
 				Start,
 		ApotemaMinSkewStraw,
 		ApotemaMaxSkewStraw, // Apotema is the distance of a Hexagonal side from (0,0)
-				Xcross,
-				Ycross
+				XcrossL,
+				YcrossL
 				);
 
 
-	flagStt=FindTrackEntranceExitbiHexagonRight(
+	flagSttR=FindTrackEntranceExitbiHexagonRight(
 				GAP,
 				Oxx,
 				Oyy,
@@ -11457,57 +12022,124 @@ int nevento=1;
 				Start,
 		ApotemaMinSkewStraw,
 		ApotemaMaxSkewStraw, // Apotema is the distance of a Hexagonal side from (0,0)
-				Xcross,
-				Ycross
+				XcrossR,
+				YcrossR
 				);
 
 	// find the entrance and exit of the track in the Skew Straw region.
 	// This region is bounded by two Hexagons, and it has the target gap in the middle.
 
-/*
-	flagStt=FindTrackEntranceExitbiHexagon(
-				Oxx,
-				Oyy,
-				Rr,
-				Charge,
-				Start,
-		ApotemaMinSkewStraw,
-		ApotemaMaxSkewStraw, // Apotema is the distance of a Hexagonal side from (0,0)
-				Xcross,
-				Ycross
-				);
-*/
 
-	if (!(flagStt == 0 || flagStt == 2)) return false;
-	if (flagStt == -99 ){
-			cout<<"PndSttMvdTracking::SttSkewCleanup,"<<
-			" contraddiction,skew, nIntersections[0]="<<
-			nIntersections[0]<<"<2, returning false!\n";
-			return false;
+	if (flagSttR != 0 && flagSttL != 0 ) {
+		nHits=0;
+		return true; // don't discard track because it may have Mvd hits anyway
+				// and/or they can have Inner Parallel hits.
 	}
+
+
+	if( flagSttL == 0 && flagSttR != 0 ){
+		XintersectionList[0]=XcrossL[0];
+		YintersectionList[0]=YcrossL[0];
+		XintersectionList[1]=XcrossL[1];
+		YintersectionList[1]=YcrossL[1];
+//		aux[0]=Oxx+Rr*cos(FiLimitAdmissible);
+//		aux[1]=Oyy+Rr*sin(FiLimitAdmissible);
+//		XintersectionList[2]=aux[0]; // add also the FiLimitAdmissible
+//		YintersectionList[2]=aux[1]; // in the boundary calculation.
+		ChooseEntranceExitbis(
+			Oxx,
+			Oyy,
+			Charge,
+			FI0,
+			2,// n. intersection in input.
+			XintersectionList,
+			YintersectionList,
+			Xcross,	// output
+			Ycross	// output
+				);
+		// if the FiLimitAdmissible comes before the physical crossing points,
+		// that means this track doesn't have hits in this region. That is no problem.
+//		if( fabs(aux[0]-Xcross[0])<1.e-5 && fabs(aux[1]-Ycross[0])<1.e-5 ){
+//			nHits=0; // eliminate all the hits from hit list.
+//			return true;
+//		}
+
+	} else if ( flagSttL != 0 && flagSttR == 0 ){
+		XintersectionList[0]=XcrossR[0];
+		YintersectionList[0]=YcrossR[0];
+		XintersectionList[1]=XcrossR[1];
+		YintersectionList[1]=YcrossR[1];
+//		aux[0]=Oxx+Rr*cos(FiLimitAdmissible);
+//		aux[1]=Oyy+Rr*sin(FiLimitAdmissible);
+//		XintersectionList[2]=aux[0]; // add also the FiLimitAdmissible
+//		YintersectionList[2]=aux[1]; // in the boundary calculation.
+		ChooseEntranceExitbis(
+			Oxx,
+			Oyy,
+			Charge,
+			FI0,
+			2,// n. intersection in input.
+			XintersectionList,
+			YintersectionList,
+			Xcross,	// output
+			Ycross	// output
+				);
+//		if( fabs(aux[0]-Xcross[0])<1.e-5 && fabs(aux[1]-Ycross[0])<1.e-5 ){
+//			nHits=0; // eliminate all the hits from hit list.
+//			return true;
+//		}
+
+	} else {
+		for(i=0;i<2;i++){
+			XintersectionList[i]=XcrossR[i];
+			XintersectionList[i+2]=XcrossL[i];
+			YintersectionList[i]=YcrossR[i];
+			YintersectionList[i+2]=YcrossL[i];
+		}
+//		aux[0]=Oxx+Rr*cos(FiLimitAdmissible);
+//		aux[1]=Oyy+Rr*sin(FiLimitAdmissible);
+//		XintersectionList[4]=aux[0];
+//		YintersectionList[4]=aux[1];
+		ChooseEntranceExitbis(
+			Oxx,
+			Oyy,
+			Charge,
+			FI0,
+			4,// n. intersection in input.
+			XintersectionList,
+			YintersectionList,
+			Xcross,	// output
+			Ycross	// output
+				);
+//		if( fabs(aux[0]-Xcross[0])<1.e-5 && fabs(aux[1]-Ycross[0])<1.e-5 ){
+//			nHits=0;
+//			return true;
+//		}
+
+	} //  end of    if( flagSttL == 0 && flagSttR != 0 ){
 
 //-------------------------------------------------------------------------
 
 
-	//  if there are also Outer Parallel hits, then require continuity of hits
-	//  also at the external border of the inner parallel straw section (ConsiderLastHit=true).
-
+	Sprevious = atan2(Ycross[0]-Oyy,Xcross[0]-Oxx);
 	ibad=0;
-	Distance[0]= sqrt(
-			(Oxx+Rr*cos(auxS[0])-Xcross[0])*(Oxx+Rr*cos(auxS[0])-Xcross[0]) +
-			(Oyy+Rr*sin(auxS[0])-Ycross[0])*(Oyy+Rr*sin(auxS[0])-Ycross[0])
-			);
-		if(Distance[0]>cut){
-			if(Distance[0]>4.*cut){
-				return false;
-			}
-			ibad++;
-		}
 
-	for (i=1; i<nHits;i++){
-		Distance[i] = fabs(Rr*( auxS[i]-auxS[i-1])); //length of the arc,not really the distance.
-		if(Distance[i]>cut){
-			if(Distance[i]>4.*cut){
+	for (i=0; i<nHits;i++){
+		if( ! IsInsideArc(
+			Oxx,Oyy,Charge,
+			Xcross,
+			Ycross,
+			S[i])
+			) continue;
+
+		Distance[i] = 2.*Rr*Rr*(1.-cos(S[i]-Sprevious)); // this is the usual
+					//  distance**2 formula: (x1-x2)**2+(y1-y2)**2;
+					// it is already 'protected' against S[i] jumps
+					// around 2PI/0.
+		Sprevious = S[i];
+		if(Distance[i]<0.) Distance[i]=0.;   // rounding errors protection.
+		if(Distance[i]>cut2){
+			if(Distance[i]>16.*cut2){
 				return false;
 			}
 			ibad++;
@@ -11515,41 +12147,28 @@ int nevento=1;
 	}	// end of do (i=1; i<nHits;i++)
 
 
-	if( ConsiderLastHit ){
 
-	// compute the distance of last hit to point at which track leaves this detector volume.
+	// compute the distance of last hit to point at which track leaves this detector volume
+	// or the last physical possible Fi (given the length of the  straw).
+
+	if(IsInsideArc(Oxx,Oyy,Charge,
+			Xcross,
+			Ycross,
+			S[nHits-1])
+			) {
+
 	   Distance[nHits] = sqrt(
-		(Oxx+Rr*cos(auxS[nHits-1])-Xcross[1])*(Oxx+Rr*cos(auxS[nHits-1])-Xcross[1]) +
-		(Oyy+Rr*sin(auxS[nHits-1])-Ycross[1])*(Oyy+Rr*sin(auxS[nHits-1])-Ycross[1])
+		(Oxx+Rr*cos(S[nHits-1])-Xcross[1])*(Oxx+Rr*cos(S[nHits-1])-Xcross[1]) +
+		(Oyy+Rr*sin(S[nHits-1])-Ycross[1])*(Oyy+Rr*sin(S[nHits-1])-Ycross[1])
 				);
-	   if( Distance[nHits]>cut ){
-		if( Distance[nHits]>4.*cut){
-//--------stampaggio
-	if(istampa>=3) cout<<"da SttSkewCleanup,Distance[nHits], distanza catastrofica = "<<
-	Distance[nHits]<<", !Eliminare!\n"
-"\tcon il printout : Xcross[0] = "<<Xcross[0]<<", Ycross[0] = "<<Ycross[0]
-	<<"\n\tcon il printout : Xcross[1] = "<<Xcross[1]<<", Ycross[1] = "<<Ycross[1]
-<<"\n\tOxx = "<<Oxx
-	<<", Oyy = "<<Oyy<<"\n\tRr "<<Rr<<"\n\tauxS[nHits-1] "<<auxS[nHits-1]<<
-	"\tsuo X = "<<  Oxx+Rr*cos(auxS[nHits-1])<<", suo Y "<<Oyy+Rr*sin(auxS[nHits-1])<<endl;
-//---------fine stampa
-
+	   if( Distance[nHits]>cut2 ){
+		if( Distance[nHits]>16.*cut2){
 			return false;
 		}
 		ibad++;
 	   }
-	}	// end of  if( Distance[nHits]>cut )
+	}  // end of if(IsInsideArc(
 
-//-------- stampaggi
-if(istampa>=3) {
-	for(int ic=0;ic<nHits;ic++){
-		cout<<"\tda SttSkewCleanup, distanza = "<<Distance[ic]<<endl;
-	}
-if(ConsiderLastHit) cout<<"\tultimo hit considerato, distanza = "<<Distance[nHits]<<endl;
-else cout<<"\tultimo hit NON considerato."<<endl;
-
-}
-//-------------------
 
 
 	if( ibad > maxnum){
@@ -11587,12 +12206,10 @@ else cout<<"\tultimo hit NON considerato."<<endl;
 			Double_t Xcross[2],  // Xcross[0]=point of entrance;
 						//  Xcross[1]=point of exit.
 			Double_t Ycross[2],
-			bool  ConsiderLastHit,
+//			bool  ConsiderLastHit,
 			UShort_t nHits,
 			UShort_t* ListHits,
 			Double_t info[][7],
-			Double_t RStrawDetectorParMin,
-			Double_t RStrawDetectorParMax,
 			Double_t cut,
 			UShort_t maxnum
 				)
@@ -11600,34 +12217,43 @@ else cout<<"\tultimo hit NON considerato."<<endl;
 	UShort_t	ibad,
 			ihit;
 
-	Double_t	Distance[nHits+1];
+	Double_t	cut2,
+			Xprevious,
+			Yprevious,
+			S,
+			Distance[nHits+1];
 
+	cut2=cut*cut;
 	ibad=0;
-	Distance[0]= sqrt(
-		(info[ListHits[0]][0]-Xcross[0])*(info[ListHits[0]][0]-Xcross[0])+
-		(info[ListHits[0]][1]-Ycross[0])*(info[ListHits[0]][1]-Ycross[0])
-			);
-	if(istampa>=3)cout<<"from BadTrack_ParStt, Stt || hit n. (original notation) "<<
-	ListHits[0]<<", Distance = "<<Distance[0]<<endl;
-	if(Distance[0]>cut){
-		if(Distance[0]>4.*cut){
-			return true;
-		}
-		ibad++;
-	}
 
-	for(ihit=1; ihit<nHits;ihit++){
-		Distance[ihit]= sqrt(
-			(info[ListHits[ihit]][0]-info[ListHits[ihit-1]][0])*
-			(info[ListHits[ihit]][0]-info[ListHits[ihit-1]][0])+
-			(info[ListHits[ihit]][1]-info[ListHits[ihit-1]][1])*
-			(info[ListHits[ihit]][1]-info[ListHits[ihit-1]][1])
-					);
+	Xprevious=Xcross[0];
+	Yprevious=Ycross[0];
 
-if(istampa>=3)cout<<"from BadTrack_ParStt, Stt || hit n. (original notation) "<<
-	ListHits[ihit]<<", Distance = "<<Distance[ihit]<<endl;
-		if(Distance[ihit]>cut){
-			if(Distance[ihit]>4.*cut){
+	for(ihit=0; ihit<nHits;ihit++){
+		S = atan2(info[ListHits[ihit]][1],info[ListHits[ihit]][0]);
+		if(S<0.) S += 2.*PI;
+		if(S<0.) S = 0.;
+		if( ! IsInsideArc(
+			Oxx,Oyy,Charge,
+			Xcross,
+			Ycross,
+			S
+		) ) continue;
+
+		Distance[ihit]= 
+			(info[ListHits[ihit]][0]-Xprevious)*
+			(info[ListHits[ihit]][0]-Xprevious)+
+			(info[ListHits[ihit]][1]-Yprevious)*
+			(info[ListHits[ihit]][1]-Yprevious);
+
+		Xprevious=info[ListHits[ihit]][0];
+		Yprevious=info[ListHits[ihit]][1];
+
+
+if(istampa>=0)cout<<"from BadTrack_ParStt, Stt || hit n. (original notation) "<<
+	ListHits[ihit]<<", Distance = "<<sqrt(Distance[ihit])<<endl;
+		if(Distance[ihit]>cut2){
+			if(Distance[ihit]>16.*cut2){
 				return true;
 			}
 			ibad++;
@@ -11636,50 +12262,29 @@ if(istampa>=3)cout<<"from BadTrack_ParStt, Stt || hit n. (original notation) "<<
 	}	// end of   for(ihit=0,NinDet=0 ;ihit<nHits;ihit++)
 
 
-	if( ConsiderLastHit ){
 
 	// compute the distance of last hit to point at which track leaves this detector volume.
-	   Distance[nHits] = sqrt(
+
+	// here S is already the fi of the last point.
+	if( IsInsideArc(Oxx,Oyy,Charge,
+			Xcross,
+			Ycross,
+			S )
+		) {
+	   Distance[nHits] =
 	   (info[ListHits[nHits-1]][0]-Xcross[1])*(info[ListHits[nHits-1]][0]-Xcross[1])+
 	   (info[ListHits[nHits-1]][1]-Ycross[1])*(info[ListHits[nHits-1]][1]-Ycross[1])
-						);
-if(istampa>=3)cout<<"from BadTrack_ParStt, Stt || hit n. (original notation) "<<
-	ListHits[nHits-1]<<", Distance to boundary = "<<Distance[nHits]<<endl;
-	   if( Distance[nHits]>cut ){
-		if( Distance[nHits]>4.*cut){
+						;
+if(istampa>=0)cout<<"from BadTrack_ParStt, Stt || hit n. (original notation) "<<
+	ListHits[nHits-1]<<", Distance to boundary = "<<sqrt(Distance[nHits])<<endl;
+	   if( Distance[nHits]>cut2 ){
+		if( Distance[nHits]>16.*cut2){
 			return true;
 		}
 		ibad++;
 	   }
-	}	// end of  if( Distance[nHits]>cut )
+	}	// end of if( IsInsideArc
 
-
-//-------- stampaggi
-if(istampa>=3) {
-	for(int ic=0;ic<nHits;ic++){
-		cout<<"\tBadTrack_ParStt, distanza = "<<Distance[ic]<<endl;
-	}
-if(ConsiderLastHit) cout<<"\tBadTrack_ParStt,ultimo hit considerato, distanza = "<<Distance[nHits]<<endl;
-else cout<<"\tBadTrack_ParStt,ultimo hit NON considerato."<<endl;
-
-}
-//-------------------
-//-------- some plots
-
-/*
-if(iplotta){
-	for(int ic=0;ic<nHits;ic++){
-		hdist->Fill(Distance[ic]);
-	}
-
-if(ConsiderLastHit)  hdistgoodlast->Fill( Distance[nHits]);
-else  hdistbadlast->Fill( Distance[nHits]);
-
-}
-
-*/
-
-//---------------------------------------------
 
 
 	if( ibad > maxnum) return true;
@@ -12426,6 +13031,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 		for( i=0;i<nIntersections;i++){
 		  fi[i] = atan2(YintersectionList[i]-Oyy,
 				XintersectionList[i]-Oxx);
+		  if( fi[i] < 0.) fi[i]  += 2.*PI;
 		  if( fi[i] > FiStart) fi[i]  -= 2.*PI;
 		  if( fi[i] > FiStart) fi[i] = FiStart;
 		  auxIndex[i]=i;
@@ -12436,14 +13042,15 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 		Xcross[1] = XintersectionList[ auxIndex[nIntersections-2] ];
 		Ycross[1] = YintersectionList[ auxIndex[nIntersections-2] ];
 
-	  } else {
+	  } else { // case in which Charge is negative.
 		UShort_t auxIndex[nIntersections];
 		Double_t fi[nIntersections];
 		for( i=0;i<nIntersections;i++){
 		  fi[i] = atan2(YintersectionList[i]-Oyy,
 				XintersectionList[i]-Oxx);
+		  if( fi[i] < 0.) fi[i]  += 2.*PI;
 		  if( fi[i] < FiStart) fi[i]  += 2.*PI;
-		  if( fi[i] < FiStart) fi[i] = FiStart;
+		  if( fi[i] < FiStart) fi[i] += FiStart;
 		  auxIndex[i]=i;
 		} // end of for( i=0;i<nIntersections;i++)
 		Merge_Sort( nIntersections, fi, auxIndex);
@@ -12989,30 +13596,60 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 
 
 
+//----------begin of function PndSttMvdTracking::IsInsideCircle
 
 
 
+	bool PndSttMvdTracking::IsInsideArc(
+			Double_t Oxx,
+			Double_t Oyy,
+			Short_t Charge,
+			Double_t Xcross[2],
+			Double_t Ycross[2],
+			Double_t f  // f should be between 0 and 2PI.
+			)
+{
+
+	Double_t f1,
+		 f2;
+
+
+	// Xcross[0],Ycross[0] is the point of entrance.
+
+
+	f1 = atan2(Ycross[0]-Oyy, Xcross[0]-Oxx);
+	if(f1<0.) f1+= 2.*PI;
+	if(f1<0.) f1= 0.;
+	f2 = atan2(Ycross[1]-Oyy, Xcross[1]-Oxx);
+	if(f2<0.) f2+= 2.*PI;
+	if(f2<0.) f2= 0.;
 
 
 
+	if(Charge<0){
+		if(f1 > f2 ) f2 +=2.*PI;
+		if(f1 > f2 ) f2 = f1;
+		if( f>f1){
+			if(f<f2) return true; else return false;
+		} else {
+			f +=2.*PI;
+			if(f<f1) f= f1;
+			if(f<f2) return true; else return false;
+		}
+	} else {  // Charge > 0.
+		if(f1 < f2 ) f1 +=2.*PI;
+		if(f1 < f2 ) f1 = f2;
+		if( f>f2){
+			if(f<f1) return true; else return false;
+		} else {
+			f +=2.*PI;
+			if(f<f2) f= f2;
+			if(f<f1) return true; else return false;
+		}
+	}	// end of if(Charge<0)
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//----------end of function PndSttMvdTracking::IsInsideCircle
 
 
 ClassImp(PndSttMvdTracking)
