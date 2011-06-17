@@ -133,10 +133,10 @@
   kalman3->SetOutBranchName("TrackPostFitComplete");
   fRun->AddTask(kalman3);
 
-  PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
-  trackMC->SetTrackInBranchName("TrackPostFitComplete"); 
-  trackMC->SetTrackOutBranchName("TrackPostFitCompleteID");
-  fRun->AddTask(trackMC);
+//   PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
+//   trackMC->SetTrackInBranchName("TrackPostFitComplete"); 
+//   trackMC->SetTrackOutBranchName("TrackPostFitCompleteID");
+//   fRun->AddTask(trackMC);
       
  
   // -----   Intialise and run   --------------------------------------------
