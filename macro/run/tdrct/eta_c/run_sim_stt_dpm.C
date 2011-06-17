@@ -99,6 +99,11 @@ run_sim_stt_dpm(Int_t nEvents=10, Float_t mom = 3.6772, Int_t mode =1, UInt_t se
   //-------------------------------
 
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
+  primGen->SetTarget(0., 0.5/2.355);
+  primGen->SmearVertexZ(kTRUE);
+  primGen->SmearGausVertexZ(kTRUE);
+  primGen->SetBeam(0., 0., 0.1, 0.1);
+  primGen->SmearVertexXY(kTRUE);
   fRun->SetGenerator(primGen);
 
   PndDpmDirect *dpmGen = new PndDpmDirect(mom,mode, gRandom->GetSeed());
