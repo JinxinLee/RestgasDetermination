@@ -9758,16 +9758,6 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
 
 
-
-
-
-
-
-
-
-
-
-
       UShort_t	i,j,
 		tmp[nParallelHits];
       Double_t	aaa,
