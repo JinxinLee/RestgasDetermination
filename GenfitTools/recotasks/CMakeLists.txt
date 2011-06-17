@@ -44,6 +44,7 @@ set(RECOTASKS_SRCS
 PndRecoKalmanFit.cxx
 PndRecoKalmanTask.cxx
 PndRecoMultiKalmanTask.cxx
+PndGFTrackToPndTrackConvertorTask.cxx
 )
 
 if(RULE_CHECKER_FOUND)

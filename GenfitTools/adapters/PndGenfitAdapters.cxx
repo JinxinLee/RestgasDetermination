@@ -10,6 +10,7 @@
 #include"FairTrackParP.h"
 
 #include"GeaneTrackRep.h"
+#include"RKTrackRep.h"
 #include <cmath>
 
 PndTrackCand* GenfitTrackCand2PndTrackCand(const GFTrackCand* cand){
@@ -50,23 +51,32 @@ PndTrack* GenfitTrack2PndTrack(const GFTrack* tr){
   TMatrixT<double> lastCov = clone->getLastCov();
   GFDetPlane firstPlane = clone->getFirstPlane();
   GFDetPlane lastPlane = clone->getLastPlane();
-  GeaneTrackRep* gtr = dynamic_cast<GeaneTrackRep*>(clone);
-  if (gtr != NULL) {//is GeaneTrackRep
-    //make the FairTrackParP for first and last hit
-    double firstCova[15];
-    int count=0;;
-    for(int i=0; i<5;++i){
-      for(int j=i;j<5;++j){
-	firstCova[count++]=firstCov[i][j];
-      }
+  
+  GFAbsTrackRep* gtr;
+  if (dynamic_cast<GeaneTrackRep*>(clone)!=NULL)
+	  gtr = dynamic_cast<GeaneTrackRep*>(clone);
+  else if (dynamic_cast<RKTrackRep*>(clone)!=NULL)
+	  gtr = dynamic_cast<RKTrackRep*>(clone);
+  else {
+    std::cerr << " GenfitGFAbsTrackRep2PndTrack() can currently only handle GeaneTrackRep and RKTrackRep" << std::endl;
+    throw;
+  }
+
+  //make the FairTrackParP for first and last hit
+  double firstCova[15];
+  int count=0;;
+  for(int i=0; i<5;++i){
+     for(int j=i;j<5;++j){
+	   firstCova[count++]=firstCov[i][j];
+     }
+  }
+  double lastCova[15];
+  count=0;;
+  for(int i=0; i<5;++i){
+    for(int j=i;j<5;++j){
+	  lastCova[count++]=lastCov[i][j];
     }
-    double lastCova[15];
-    count=0;;
-    for(int i=0; i<5;++i){
-      for(int j=i;j<5;++j){
-	lastCova[count++]=lastCov[i][j];
-      }
-    }
+  }
 
     //  calculation of spu = sign[p·(DJ x DK)]  
     double first_pro = gtr->getMom(firstPlane).Dot(firstPlane.getNormal());
@@ -93,9 +103,5 @@ PndTrack* GenfitTrack2PndTrack(const GFTrack* tr){
       }
     delete pndCand;
     return retVal;
-  }
-  else {
-    std::cerr << " GenfitGFAbsTrackRep2PndTrack() can currently only handle GeaneTrackRep" << std::endl;
-    throw;
-  }
+  
 }
