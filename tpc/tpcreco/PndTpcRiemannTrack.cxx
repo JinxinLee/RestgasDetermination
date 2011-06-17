@@ -535,6 +535,7 @@ PndTpcRiemannTrack::distHelix(PndTpcRiemannHit* hit, bool calcPos) const {
           hit_angleR -= twoPi;
         }
         else break;
+        ++it;
       }
 
     }
