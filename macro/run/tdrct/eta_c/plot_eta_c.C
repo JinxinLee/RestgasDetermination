@@ -4,7 +4,7 @@
 	if (vtxfit)
 		TString inFile="etac_histo_vtx.root";
 	else 
-		TString inFile="etac_histo_4c_new.root";
+		TString inFile="etac_histo_4c.root";
 	
 // 	gStyle->SetLabelSize(0.08);
 // 	gStyle->SetTitleSize(0.08);
@@ -32,7 +32,9 @@
 	h_mphi_vtx->UseCurrentStyle(); 
 	TH1F *h_mphi_4c=(TH1F *)f->Get("h_mphi_4c");
 	h_mphi_4c->UseCurrentStyle(); 
-
+	TH1F *h_mphi_final=(TH1F *)f->Get("h_mphi_final");
+	h_mphi_final->UseCurrentStyle();
+	
 	TH1F *nc=(TH1F *)f->Get("nc");
 	nc->UseCurrentStyle(); 
 	 
@@ -72,10 +74,26 @@
 	TCanvas *c5=new TCanvas("c5","c5",600,600);
 	c5->Divide(1,2);
 	c5->cd(1);
-	h_mphi_4c->Draw();
+	h_mphi_final->Draw();
+	
+	double mean_phi=1.1;
+	double rms_phi=0.1;
+	
+	TF1 *f1_phi = new TF1("f1_phi","gaus",0.9,1.1);
+	h_mphi_final->Fit(f1_phi,"R","",mean_phi-1.6*rms_phi,mean_phi+1.6*rms_phi);
+	
+	double sigma1_phi=f1_phi->GetParameter(2);
+	double mean1_phi=f1_phi->GetParameter(1);
+	
+	TF1 *f2_phi = new TF1("f2_phi","gaus",0.9,1.1);
+	h_mphi_final->Fit(f2_phi,"R","",mean1_phi-1.6*sigma1_phi,mean1_phi+1.6*sigma1_phi);
+
+	double sigma2_phi=f2_phi->GetParameter(2);
+	std::cout<<"sigma phi="<<sigma2_phi<<std::endl;
+
 	c5->cd(2);
 	h_etac_phimass->Draw();
-
+	// fit eta_c
 	double mean=h_etac_phimass->GetMean();
 	double rms=h_etac_phimass->GetRMS();
 	
@@ -90,7 +108,7 @@
 
 	double sigma2=f2->GetParameter(2);
 	std::cout<<"sigma="<<sigma2<<std::endl;
-	
+
 	TCanvas *c6=new TCanvas("c6","c6",600,600);
 	h_chi2_4c->Draw();
 	

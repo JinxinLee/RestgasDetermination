@@ -14,8 +14,10 @@ void run_ana_eta_c(int nevts=0)
 	
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
-	TString inPidFile  = "evt_pid_stt.root"; 	//./data2/evt_pid_stt_101.root
-	TString inSimFile = "evt_points_stt.root";                                                                                                                                        
+	TString inPidFile  = "evt_pid_stt.root"; 	
+	TString inSimFile = ".evt_points_stt.root";                                                                                                                                        
+//	TString inPidFile  = "./data_stt_160611/evt_pid_stt.root"; 	
+//	TString inSimFile = "./data_stt_160611/evt_points_stt.root";                                                                                                                                        
 	TFile *inFile = TFile::Open(inPidFile,"READ");                                                                                             
 	TTree *tree=(TTree *) inFile->Get("cbmsim") ;                                                                                           
 	tree->AddFriend("cbmsim",inSimFile);                                                                                                     
@@ -41,6 +43,7 @@ void run_ana_eta_c(int nevts=0)
 	TH1F *h_mphi_pid=new TH1F("h_mphi_pid","#phi: m(K+ K-) (MC PID)",100,1.020-0.15,1.020+0.5);
 	TH1F *h_mphi_vtx=new TH1F("h_mphi_vtx","#phi: m(K+ K-) (Vertex fit)",100,1.020-0.15,1.020+0.5);
 	TH1F *h_mphi_4c=new TH1F("h_mphi_4c","#phi: m(K+ K-) (4C-fit)",100,1.020-0.15,1.020+0.5);
+	TH1F *h_mphi_final=new TH1F("h_mphi_final","#phi: m(K+ K-)",200,1.020-0.15,1.020+0.15);
 	
 	TH1F *nc=new TH1F("nc","n charged",20,0,20);
 	
@@ -208,6 +211,8 @@ void run_ana_eta_c(int nevts=0)
 				double m_phi2=phi2best->M();
 				h_mphi_4c->Fill(m_phi1);
 				h_mphi_4c->Fill(m_phi2);
+				h_mphi_final->Fill(m_phi1);
+				h_mphi_final->Fill(m_phi2);
 				//std::cout<<"m_phi1="<<m_phi1<<" m_phi2="<<m_phi2<<std::endl;
 				if (((m_phi1>1.02-0.03)&&(m_phi1<1.02+0.03))&&((m_phi2>1.02-0.03)&&(m_phi2<1.02+0.03)))
 				{
@@ -285,6 +290,7 @@ void run_ana_eta_c(int nevts=0)
 	h_mphi_pid->Write();
 	h_mphi_vtx->Write();
 	h_mphi_4c->Write();
+	h_mphi_final->Write();
 
 	nc->Write();
 
