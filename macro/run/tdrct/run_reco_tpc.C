@@ -58,8 +58,8 @@
  
   //correct for unfortunate shift in TPC digi
   PndTpcRoughAlignmentTask* align = new PndTpcRoughAlignmentTask();
-  //align->SetShift(TVector3(0.,0.,-3.71357e-01));
-  align->SetShift(TVector3(0.,0.,2.25E-1));
+  align->SetShift(TVector3(0.,0.,-3.71357e-01));   //old PSA
+  //align->SetShift(TVector3(0.,0.,2.25E-1));      //new PSA
   fRun->AddTask(align);
   
 
@@ -113,7 +113,7 @@
   corrG->SetTrackBranchName("TrackPostFitMVD");
   corrG->SetOutTrackBranchName("TrackPreFitGEM");
   corrG->SetPersistence(true);
-  //fRun->AddTask(corrG);
+  fRun->AddTask(corrG);
 
   //final fit
   KalmanTask* kalman3 =new KalmanTask();
@@ -121,7 +121,7 @@
   kalman3->SetNumIterations(3); // number of fitting iterations (back and forth)
   kalman3->SetTrackBranchName("TrackPreFitGEM");
   kalman3->SetOutBranchName("TrackPostFitComplete");
-  //fRun->AddTask(kalman3);
+  fRun->AddTask(kalman3);
 
       
  
@@ -133,7 +133,8 @@
   rtdb->saveOutput();
   rtdb->print();
 
-  corr->WriteHistograms("mvdRes.root");
+  corr->WriteHistograms("MVDRes.root");
+  corrG->WriteHistograms("GEMRes.root");
 
   // ------------------------------------------------------------------------
 

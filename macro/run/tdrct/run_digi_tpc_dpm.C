@@ -100,6 +100,13 @@
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls); 
 
+
+  PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", iVerbose);
+  fRun->AddTask(gemDigitize);
+	
+  PndGemFindHits* gemFindHits = new PndGemFindHits("GEM Hit Finder",  iVerbose);
+  fRun->AddTask(gemFindHits);
+
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   fRun->Run(0, nEvents);
