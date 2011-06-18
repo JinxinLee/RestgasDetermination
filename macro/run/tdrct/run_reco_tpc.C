@@ -58,8 +58,8 @@
  
   //correct for unfortunate shift in TPC digi
   PndTpcRoughAlignmentTask* align = new PndTpcRoughAlignmentTask();
-  align->SetShift(TVector3(0.,0.,-3.71357e-01));   //old PSA
-  //align->SetShift(TVector3(0.,0.,2.25E-1));      //new PSA
+  //align->SetShift(TVector3(0.,0.,-3.71357e-01));   //old PSA
+  align->SetShift(TVector3(0.,0.,5.6E-2));      //new PSA
   fRun->AddTask(align);
   
 
