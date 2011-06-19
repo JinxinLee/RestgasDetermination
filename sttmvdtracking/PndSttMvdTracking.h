@@ -1089,6 +1089,20 @@ UShort_t ListMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT][nmaxMvdStripHit
 			);
 
 
+	bool IsInTargetPipe(
+			Double_t Oxx,
+			Double_t Oyy,
+			Double_t Rr,
+			Double_t fi0,
+			Double_t kappa,
+			Short_t charge,
+			Double_t gap
+			);
+
+
+
+
+
   ClassDef(PndSttMvdTracking,1);
 
 };
