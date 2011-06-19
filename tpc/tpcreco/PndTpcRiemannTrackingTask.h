@@ -36,6 +36,7 @@ class TH1I;
 class TH1D;
 class PndTrackCand;
 class PndTrack;
+class PndTpcDigiPar;
 
 class PndTpcRiemannTrackingTask : public FairTask {
 public:
@@ -80,6 +81,8 @@ public:
   // Operations ----------------------
   virtual InitStatus Init();
 
+  virtual void SetParContainers();
+
   virtual void Exec(Option_t* opt);
   
   void useGeane(Bool_t geane=kTRUE) {_geane=geane;}
@@ -100,6 +103,8 @@ private:
   TClonesArray* _riemannHitArray;
   TClonesArray* _trackCandArray;
   TClonesArray* _pndTrackArray;
+
+  PndTpcDigiPar* fpar;
 
   std::map<unsigned int, std::vector<PndTpcCluster*>*> fbuffermap;
   std::vector<PndTpcCluster*>* fcluster_buffer;

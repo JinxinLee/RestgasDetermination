@@ -26,6 +26,7 @@
 
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
+#include "FairRuntimeDb.h"
 #include "TClonesArray.h"
 #include "PndTpcCluster.h"
 #include "PndTpcRiemannTrackFinder.h"
@@ -36,6 +37,7 @@
 #include "PndTpcProximityTTCorrelator.h"
 #include "PndTpcDipTTCorrelator.h"
 #include "PndTpcRiemannTTCorrelator.h"
+#include "PndTpcDigiPar.h"
 
 #include "GFTrackCand.h"
 #include "GFTrack.h"
@@ -216,7 +218,7 @@ PndTpcRiemannTrackingTask::Init()
   _trackMcIdsH=new TH1D("trkmcids","# mcids in track",25,0,25);
 
   
-  fnsectors= PndTpcDigiMapper::getInstance()->getPadPlane()->GetNSectors();
+  fnsectors= fpar->getPadPlane()->GetNSectors();
   std::cerr << "Found " << fnsectors << " sectors in padplane" << std::endl;
   for(unsigned int  isect=0;isect<fnsectors;++isect){
     fbuffermap[isect]=new std::vector<PndTpcCluster*>;
@@ -248,6 +250,26 @@ PndTpcRiemannTrackingTask::Init()
 
   return kSUCCESS;
 }
+
+
+void
+PndTpcRiemannTrackingTask::SetParContainers() {
+
+  std::cout<<"PndTpcClusterFinderTask::SetParContainers"<<std::endl;
+  std::cout.flush();
+
+  // Get run and runtime database
+  FairRun* run = FairRun::Instance();
+  if ( ! run ) Fatal("SetParContainers", "No analysis run");
+
+  FairRuntimeDb* db = run->GetRuntimeDb();
+  if ( ! db ) Fatal("SetParContainers", "No runtime database");
+
+  // Get PndTpc digitisation parameter container
+  fpar= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
+  if (! fpar ) Fatal("SetParContainers", "PndTpcDigiPar not found");
+}
+
 
 
 void
