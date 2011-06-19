@@ -424,12 +424,15 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
 
     TVector3 pos1, direction;
 
+    // the start direction has to point opposite to the actual direction, I don't know why, but otherwise the charge is wrong
     if(invertedTrack) {
       trk->getPosDirOnHelix(trk->getNumHits()-1, pos1, direction);
+    }
+    else {
+      trk->getPosDirOnHelix(0, pos1, direction);
       direction *= -1.;
       winding*=-1.;
     }
-    else trk->getPosDirOnHelix(0, pos1, direction);
 
     TVector3 poserr(0.3,0.3,0.3);
 
@@ -443,17 +446,19 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     
     if(_mcPid){
       unsigned int trackId = trk->mcid().DominantID().mctrackID();
-      pdg = ((PndMCTrack*)(_mcTrackArray->At(trackId)))->GetPdgCode();
-      
-    }
+      int MCpdg = ((PndMCTrack*)(_mcTrackArray->At(trackId)))->GetPdgCode();
 
-    // charge (for geane)
-    TParticlePDG * part = TDatabasePDG::Instance()->GetParticle(pdg);
-    if(part == 0){
-      std::cerr << "PndTpcRiemannTrackingTask::Exec - unknown PDG id" << std::endl;
-      exit(1);
+      double pdgCharge = TDatabasePDG::Instance()->GetParticle(pdg)->Charge();
+      double MCpdgCharge = TDatabasePDG::Instance()->GetParticle(MCpdg)->Charge();
+      if (DEBUG) {
+        std::cout << "pdg: " << pdg << " charge: " << pdgCharge << std::endl;
+        std::cout << "MC pid pdg: " << MCpdg << " charge: " << MCpdgCharge << std::endl;
+      }
+
+      if (pdgCharge*MCpdgCharge > 0.) pdg = MCpdg;
+      else pdg = -1.*MCpdg;
+      if (DEBUG) std::cout << "charge corrected MC pid pdg: " << pdg << std::endl;
     }
-    int q = int(part->Charge()/(3.));
 
 
     double trackR = trk->r();
@@ -483,12 +488,6 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     RKTrackRep* rkrep = new RKTrackRep(pos1, mom, poserr, momerr,pdg);
     
 
-    TVector3 u=mom.Orthogonal();
-    u.SetMag(1.);
-    TVector3 v=mom.Cross(u);
-    v.SetMag(1.);
-    GFDetPlane pl(pos1,u,v);
-
     candlist.push_back(cand);
 
     // check Monte Carlo Truth
@@ -511,6 +510,20 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
 
     //GEANE TACKREP
     if(_geane) {
+      TVector3 u=mom.Orthogonal();
+      u.SetMag(1.);
+      TVector3 v=mom.Cross(u);
+      v.SetMag(1.);
+      GFDetPlane pl(pos1,u,v);
+
+      // charge (for geane)
+      TParticlePDG * part = TDatabasePDG::Instance()->GetParticle(pdg);
+      if(part == 0){
+        std::cerr << "PndTpcRiemannTrackingTask::Exec - unknown PDG id: " << pdg << std::endl;
+        exit(1);
+      }
+      int q = int(part->Charge()/(3.));
+
       GeaneTrackRep* grep = new GeaneTrackRep(gPro,pl,mom,poserr,momerr,q,pdg);
       // add rep and set as cardinal rep
       gftrk->addTrackRep(grep);
