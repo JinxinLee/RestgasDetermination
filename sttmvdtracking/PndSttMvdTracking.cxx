@@ -13889,8 +13889,6 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 				Ycross	// output
 				);
 
-if(IVOLTE==1) {cout<<"PndSttMvdTracking : Xcross[0] "<<Xcross[0]<<", Ycross[0] "<<Ycross[0]<<endl;
-cout<<" Xcross[1] "<<Xcross[1]<<", Ycross[1] "<<Ycross[1]<<endl;}
 
 	// here I suppose that the Mvd system CONSERVATIVELY ends at Rmax=5 cm.
 	if( fabs(Ycross[0]) > 5. ) return true;
