@@ -275,7 +275,7 @@ PndTpcRiemannTrackingTask::SetParContainers() {
 void
 PndTpcRiemannTrackingTask::Exec(Option_t* opt)
 {
-  std::cout<<"PndTpcRiemannTrackingTask::Exec; Event Number: "<<counter<<std::endl;
+  std::cout<<"PndTpcRiemannTrackingTask::Exec; Event Number: "<<counter++<<std::endl;
 
   // Reset output Arrays
   if(_trackArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No TrackArray");
@@ -541,8 +541,6 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
            <<candlist.size()<<" track candidates found."<<std::endl;
 
   _multiplicityHisto->Fill(candlist.size());
-
-  counter++;
 }
 
 void
