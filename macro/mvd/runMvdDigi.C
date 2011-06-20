@@ -1,13 +1,14 @@
 // Macro to emulate the MVD digitization in pandaroot
 // Updated 30.11.2009
 // Ralf Kliemt
+runMvdDigi(Int_t nEvents=10)
 {
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
-  Int_t nEvents  = 100;
+
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   TString inFile = "Mvd_Test.root";
   TString parFile = "Mvd_Params.root";

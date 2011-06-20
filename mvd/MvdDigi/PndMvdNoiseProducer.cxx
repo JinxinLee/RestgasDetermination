@@ -451,8 +451,8 @@ void PndMvdNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t senso
 void PndMvdNoiseProducer::FinishEvent()
 {
   // called after all Tasks did their Exex() and the data is copied to the file
-  fDigiStripArray->Clear();
-  fDigiPixelArray->Clear();
+  fDigiStripArray->Delete();
+  fDigiPixelArray->Delete();
   FinishEvents();
 }
 // -------------------------------------------------------------------------

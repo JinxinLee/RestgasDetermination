@@ -1,13 +1,13 @@
 // Macro to reconstruct the MVD data in pandaroot
 // Updated 30.11.2009
 // Ralf Kliemt
+runMvdReco(Int_t nEvents=10)
 {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
   TString MCFile = "Mvd_Test.root";
   TString parFile = "Mvd_Params.root";
-  Int_t nEvents = 100;
   // ----  Load libraries   -------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");  
   // ------------------------------------------------------------------------

@@ -1,12 +1,12 @@
 // Macro to simulate the MVD in pandaroot
 // Updated 30.11.2009
 // Ralf Kliemt
+runMvdSim(Int_t nEvents=10)
 {
   TStopwatch timer;
   timer.Start();
   gDebug=0;
   int verboseLevel = 0;
-  Int_t nEvents = 100;
 
   //FileNames
   TString simOutput="Mvd_Test.root";
@@ -24,6 +24,14 @@
 
   fRun->SetOutputFile(simOutput);
 
+  // Fill the Parameter containers for this run
+  //-------------------------------------------
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  Bool_t kParameterMerged=kTRUE;
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
+  output->open(parOutput.Data(),"RECREATE");
+  rtdb->setOutput(output);
+
   // Set Material file Name
   //-----------------------
   fRun->SetMaterials("media_pnd.geo");
@@ -40,7 +48,7 @@
   FairModule *Pipe= new PndPipe("PIPE");
   //fRun->AddModule(Pipe);
   //-------------------------  STT       -----------------
-  FairDetector *Stt= new PndStt("STT", kTRUE);
+  FairDetector *Stt= new PndStt("STT", kFALSE);
   Stt->SetGeometryFileName("straws_skewed_blocks_pipe_120cm.geo");
   fRun->AddModule(Stt);
   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
@@ -49,13 +57,13 @@
   fRun->AddModule(Mvd);
 
   //-------------------------  EMC       -----------------
-  PndEmc *Emc = new PndEmc("EMC",kTRUE);
+  PndEmc *Emc = new PndEmc("EMC",kFALSE);
   Emc->SetGeometryVersion(15);
   // See PndEmc::SetGeometryVersion() for available geometries and add there new one if necessary
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
   //-------------------------  MDT       -----------------
-  PndMdt *Muo = new PndMdt("MDT",kTRUE);
+  PndMdt *Muo = new PndMdt("MDT",kFALSE);
   Muo->SetBarrel("torino");
   Muo->SetEndcap("torino");
   Muo->SetMuonFilter("torino");
@@ -63,12 +71,12 @@
   Muo->SetMdtMFIron(kTRUE);
   //fRun->AddModule(Muo);
   //-------------------------  DCH       -----------------
-  FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
+  FairDetector *Dch = new PndDchDetector("DCH", kFALSE);
   Dch->SetGeometryFileName("dch.root"); 
   //fRun->AddModule(Dch);
  
   //-------------------------  GEM      -----------------
-  FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+  FairDetector *Gem = new PndGemDetector("GEM", kFALSE);
   Gem->SetGeometryFileName("gem_3Stations.root");
   //fRun->AddModule(Gem);
 
@@ -138,13 +146,6 @@
 //     trajFilter->SetStoreSecondaries(kTRUE);
 
 
-  // Fill the Parameter containers for this run
-  //-------------------------------------------
-  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
-  Bool_t kParameterMerged=kTRUE;
-  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  output->open(parOutput.Data(),"RECREATE");
-  rtdb->setOutput(output);
 
   // Transport nEvents
   // -----------------
