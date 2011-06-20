@@ -31,7 +31,7 @@ LIBS += -lMLP -lXMLIO -fopenmp
 # .PHONY: all
 
 # Define targets
-TRGTS  = PndMvaUtil PndMvaVarPCATransform PndMvaDataSet
+TRGTS  = PndMvaUtil PndMvaTools PndMvaVarPCATransform PndMvaDataSet
 TRGTS += PndMvaClassifier PndMvaTrainer CreateRandomDataSet
 TRGTS += examplePCATransform Classifiers examples
 
@@ -50,6 +50,10 @@ PndMvaDataSet: % : %.cpp PndMvaVarPCATransform
 	@echo "Done building:" $@
 
 PndMvaUtil:  % : %.cpp
+	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ./build/$@.o
+	@echo "Done building:" $@
+
+PndMvaTools: % : %.cpp
 	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ./build/$@.o
 	@echo "Done building:" $@
 
@@ -88,7 +92,8 @@ examples: PndMvaUtil PndMvaDataSet PndMvaClassifier Classifiers
 
 # Build LVQ Cassifier.
 	$(CXX) $(CCFLAGS) $(LIBS) build/LVQclassify.o build/PndLVQClassify.o build/PndMvaClassifier.o \
-	build/PndMvaUtil.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o -o build/LVQclassify
+	build/PndMvaUtil.o build/PndMvaTools.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o \
+	-o build/LVQclassify
 
 # Build kd-tree KNN Cassifier.
 	$(CXX) $(CCFLAGS) $(LIBS) build/KnnClassify.o build/PndKnnClassify.o build/PndMvaClassifier.o \

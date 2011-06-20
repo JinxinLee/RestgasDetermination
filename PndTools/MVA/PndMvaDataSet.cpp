@@ -159,7 +159,7 @@ void PndMvaDataSet::Trim()
   size_t   m_RND_seed = seconds;
   TRandom3 rnd(m_RND_seed);
 
-  size_t minCntIndex = 0;
+  //size_t minCntIndex = 0;
   size_t minEvtCnt   = std::numeric_limits<size_t>::max();
 
   // Find the class with minimum number of examples.
@@ -168,7 +168,7 @@ void PndMvaDataSet::Trim()
     if(m_classes[i].NExamples < minEvtCnt)
     {
       minEvtCnt = m_classes[i].NExamples;
-      minCntIndex = i;
+      //minCntIndex = i;
     }
   }
 

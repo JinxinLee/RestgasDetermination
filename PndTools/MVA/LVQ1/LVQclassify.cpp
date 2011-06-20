@@ -49,16 +49,6 @@ void ProduceROC(std::vector< ClassifierOutPuts >& input,
 		size_t sigCnt, size_t bgCnt,
 		std::vector< ROCPoints >& Roc);
 
-// Print the list of classifier outputs.
-void print(std::vector< ClassifierOutPuts > const& el);
-
-// Print list of ROC objects.
-void printRoc(std::vector< ROCPoints > const& Roc);
-
-// Write the list of ROC objects in a file.
-void WriteRocToFile( std::string const& FileName,
-		     std::vector< ROCPoints > const& Roc);
-
 /////////_______ Inline header ______///////////////////////////
 //________________________________________________________________
 
@@ -183,68 +173,6 @@ void ProduceROC( std::vector< ClassifierOutPuts >& input,
 #if LVQ_CLS_DEBUG
   printRoc(Roc);
 #endif
-}
-
-// Print Roc points
-void printRoc(std::vector< ROCPoints > const& rc)
-{
-  for(size_t i = 0; i < rc.size(); ++i)
-  {
-    std::cout << "rc ["<< i<< "] { FP_rate = " << rc[i].FP_rate
-	      << " TP_rate = " << rc[i].TP_rate
-	      << " TN_rate = " << rc[i].TN_rate
-	      << " FN_rate = " << rc[i].FN_rate
-	      << " fp = " << rc[i].fp
-	      << " tp = " << rc[i].tp
-	      << " thr = " << rc[i].thr
-	      << " }\n";
-  }
-}
-
-void WriteRocToFile( std::string const& fName,
-		     std::vector< ROCPoints > const& rc)
-{
-  std::cout << "<-I-> Write ROC values to file " << fName
-	    << '\n';
-  std::ofstream OutPut;
-  
-  OutPut.open (fName.c_str());
-  OutPut << "# ROC graph points\n"
-	 << "# <index>\t <FP_rate>\t <TP_rate>\t <TN_rate>\t <FN_rate>\t"
-	 << " <fp>\t <tp>\t <fn>\t <tn>\t <threshold>\n";
-  for(size_t i = 0; i < rc.size(); ++i)
-  {
-    OutPut << "   " << i << "\t "
-	   << rc[i].FP_rate << "\t "
-	   << rc[i].TP_rate << "\t "
-	   << rc[i].TN_rate << "\t "
-	   << rc[i].FN_rate << "\t "
-	   << rc[i].fp << "\t "
-	   << rc[i].tp << "\t "
-	   << rc[i].fn << "\t "
-	   << rc[i].tn << "\t "
-	   << rc[i].thr
-	   << '\n';
-  }
-  OutPut.close();
-}
-
-// Print DistVal and label
-void print(std::vector <ClassifierOutPuts> const& el)
-{
-  std::map<std::string, float>::const_iterator it;
-  for(size_t i = 0; i < el.size(); ++i)
-  {
-    std::cout << "O_Label = "  << el[i].realLabel
-	      << ", G_Label = " << el[i].givenLabel
-	      << '\n';
-    std::map<std::string, float> const& out = (el[i]).getClsOut();
-    for(it = out.begin(); it != out.end(); ++it)
-    {
-      std::cout << it->first << " " << it->second << " ";
-    }
-  }
-  std::cout << '\n';
 }
 
 // Print the results map.
@@ -531,7 +459,6 @@ int main(int argc, char** argv)
   for(size_t k = 0; k < classifiedEvents.size(); ++k)
   {
     ClassifierOutPuts& a = classifiedEvents[k];
-    //    std::map< std::string, float>& rel = a.getClsOut();
     float val = a.clsOuts["electron"]/ a.clsOuts["pion"];
     
     if(val < 1.0)

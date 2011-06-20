@@ -9,6 +9,13 @@
 #ifndef PND_MVA_TOOLS_H
 #define PND_MVA_TOOLS_H
 
+// C++
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <map>
+#include <string>
+
 /**
  * Structure used to hold the classifier output (label and distance or
  * prob.) for each example in the test set together with the original
@@ -74,7 +81,7 @@ private:
 };
 
 /**
- * STructure to hold the ROC points.
+ * Structure to hold the ROC points.
  */
 struct ROCPoints
 {
@@ -168,13 +175,34 @@ private:
   bool operator<( ROCPoints const& ot) const;
 };
 
+//____________ Functions and modifiers.
+
+/**
+ * Print list of ROC objects.
+ *@param RocList The list of ROC points
+ */
+void printRoc(std::vector< ROCPoints > const& RocList);
+  
+/**
+ * Write the list of ROC objects in a file.
+ *@param FileName The name of the file to write into.
+ *@param RocList The list of the ROC poits to write.
+ */
+void WriteRocToFile( std::string const& FileName,
+		     std::vector< ROCPoints > const& RocList);
+
+/**
+ * Print the list of classifier outputs.
+ *@param OutPutList The list of outputs created by a classifier.
+ */
+void print(std::vector< ClassifierOutPuts > const& OutPutList);
+
 // C style function declarations
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-  // Place your C code here.
-  
+  // Place your C code and/or C headers here.  
 #ifdef __cplusplus
 }
 #endif
