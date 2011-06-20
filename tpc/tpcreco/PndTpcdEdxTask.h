@@ -45,6 +45,7 @@ public:
   // Modifiers -----------------------
   void SetTrackBranchName(const TString& name) {_trackBranchName=name;}
   void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
+  void SetIdealdEdx(Bool_t opt=kTRUE) {_idealdEdx=opt;}
   void SetDXgrid(double dx) {_DX = dx;}
   
 
@@ -71,6 +72,7 @@ private:
   TString _trackBranchName;
 
   Bool_t _persistence;
+  Bool_t _idealdEdx;
   double _DX;                       //dx slice size
   
   TH1D* _distHist;

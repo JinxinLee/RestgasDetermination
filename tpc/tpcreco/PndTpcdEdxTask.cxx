@@ -61,11 +61,14 @@
 
 #include "PndDetectorList.h"
 
+#define DEBUG 0
+
 // Class Member definitions -----------
 
 
 PndTpcdEdxTask::PndTpcdEdxTask()
-  : FairTask("dE/dx Task"), _persistence(kFALSE), _DX(1.)
+  : FairTask("dE/dx Task"), _persistence(kFALSE),
+    _DX(1.), _idealdEdx(kFALSE)
 {
   _trackBranchName = "TrackPostFit";
 }
@@ -98,15 +101,15 @@ PndTpcdEdxTask::Init()
   _mcTrackArray=(TClonesArray*) ioman->GetObject("MCTrack");
   if(_mcTrackArray==0)
     {
-      Error("PndTpcdEdxTask::Init","MCTrack-array not found!");
-      return kERROR;
+      Error("PndTpcdEdxTask::Init","MCTrack-array not found! Cannot calculate MC dEdx");
+      _idealdEdx=false;
     }
 
   _pointArray=(TClonesArray*) ioman->GetObject("PndTpcPoint");
   if(_pointArray==0)
     {
-      Error("PndTpcdEdxTask::Init","Point-array not found!");
-      return kERROR;
+      Error("PndTpcdEdxTask::Init","Point-array not found! Cannot calculate MC dEdx");
+      _idealdEdx=false;
     }
 
   _clusterArray=(TClonesArray*) ioman->GetObject("PndTpcCluster");
@@ -118,10 +121,10 @@ PndTpcdEdxTask::Init()
  
 
   _dEdxOutArray = new TClonesArray("PndTpcdEdx");
-  ioman->Register("dEdx","PndTpc",_dEdxOutArray,kTRUE);
+  ioman->Register("dEdx","PndTpc",_dEdxOutArray,_persistence);
   
   _dEdxMCOutArray = new TClonesArray("PndTpcdEdx");
-  ioman->Register("dEdx_MC","PndTpc",_dEdxMCOutArray,kTRUE);
+  ioman->Register("dEdx_MC","PndTpc",_dEdxMCOutArray,_persistence);
 
   //TClonesArray* ar=(TClonesArray*) ioman->GetObject("PndTpcCluster");
   // if(ar==0){
@@ -162,7 +165,6 @@ PndTpcdEdxTask::SetParContainers() {
   _par= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
   if (! _par ) Fatal("SetParContainers", "PndTpcDigiPar not found");
 
-
 }
 
 
@@ -170,6 +172,8 @@ PndTpcdEdxTask::SetParContainers() {
 void
 PndTpcdEdxTask::Exec(Option_t* opt)
 {
+  std::cout<<"PndTpcdEdxTask::Exec()"<<std::endl;
+
   _dEdxOutArray->Delete();
   _dEdxMCOutArray->Delete();
   
@@ -182,19 +186,20 @@ PndTpcdEdxTask::Exec(Option_t* opt)
   }
 
   //cut: only use single event tracks!
-  //if(ntracks>1)
-  //  return;
+  if(ntracks>1){
+    return;
+  }
 
   for(Int_t itr=0;itr<ntracks;++itr){
-    std::cout<<"PndTpcdEdxTask::Exec(): starting track "<<itr<<std::endl;
+    if (DEBUG) std::cout<<"PndTpcdEdxTask::Exec(): starting track "<<itr<<std::endl;
     GFTrack* trk=(GFTrack*)_trackArray->At(itr);
-    std::cout<<"*** Number of clusters in track: "<<trk->getNumHits()<<" ***"<<std::endl;
+    if (DEBUG) std::cout<<"*** Number of clusters in track: "<<trk->getNumHits()<<" ***"<<std::endl;
     
-    GFAbsTrackRep* absrep = trk->getCardinalRep();
-    GFAbsTrackRep* theRep = absrep->clone();
+    GFAbsTrackRep* theRep = trk->getCardinalRep();
+    if (theRep->getStatusFlag() != 0) continue;
 
     //check for GEANE trackrep
-    if(dynamic_cast<GeaneTrackRep*>(absrep) != NULL) {
+    if(dynamic_cast<GeaneTrackRep*>(theRep) != NULL) {
       ((GeaneTrackRep*)theRep)->setPropDir(0); // not needed for RKTrackRep
     }
 
@@ -205,32 +210,18 @@ PndTpcdEdxTask::Exec(Option_t* opt)
     //GET MC INFORMATION FOR CROSS-CHECK
     //only works with IdealTracking and pure trackIDs
     std::vector<PndTpcPoint*> pointlist;
-    
-    // int trackID = 0;
-//     //testing loop
-//     for(int t=0; t<hits.size(); ++t) {
-//       if(t==0)
-// 	int trackID = ((PndTpcSPHit*)hits.at(t))->getCluster()->mcId().DominantID().mctrackID();
-//       else
-// 	if(((PndTpcSPHit*)hits.at(t))->getCluster()->mcId().DominantID().mctrackID() != trackID) {
-// 	  break;
-// 	}
-//     }
-
-    
-    //loop over MC points and collect 
-    for(int p=0; p<_pointArray->GetEntriesFast(); ++p) {
-      int id = ((PndTpcPoint*)_pointArray->At(p))->GetTrackID();
-      if(id==0) //only primary tracks
-        pointlist.push_back((PndTpcPoint*)_pointArray->At(p));
+    if(_idealdEdx) {
+      if (DEBUG) std::cerr<<"collect MC points"<<std::endl;
+      //loop over MC points and collect
+      for(int p=0; p<_pointArray->GetEntriesFast(); ++p) {
+        int id = ((PndTpcPoint*)_pointArray->At(p))->GetTrackID();
+        if(id==0) //only primary tracks
+          pointlist.push_back((PndTpcPoint*)_pointArray->At(p));
+      }
     }
-      
+    
 
-    PndTpcdEdx dedx;
-    PndTpcdEdx dedx_MC;
-    
-    bool unsorted =false;
-    
+    if (DEBUG) std::cerr<<"collect digis"<<std::endl;
     // get all digis in the track
     std::vector<const PndTpcDigi*> digis;
     for(int i=0;i<hitIDs.size();++i){
@@ -241,9 +232,10 @@ PndTpcdEdxTask::Exec(Option_t* opt)
       }
     }
 
+    TVector3 startDir( ((PndTpcCluster*)(_clusterArray->At(hitIDs[2])))->pos() - ((PndTpcCluster*)(_clusterArray->At(hitIDs[0])))->pos() );
 
     TVector3 pos,mom;
-    
+    if (DEBUG) std::cerr<<"get pos and mom"<<std::endl;
     try{
       pos = theRep->getPos();
       mom = theRep->getMom();
@@ -254,15 +246,30 @@ PndTpcdEdxTask::Exec(Option_t* opt)
       //TODO: exception handling
     }
 
+    if (DEBUG) {
+      TVector3 pos0(((PndTpcCluster*)(_clusterArray->At(hitIDs[0])))->pos());
+      std::cout<<"pos - pos0 mag"<< (pos-pos0).Mag() << std::endl;
+    }
+
+
+    PndTpcdEdx dedx;
+    PndTpcdEdx dedx_MC;
+
     GFDetPlane here,next;
     here.setO(pos);
     here.setNormal(mom);
     int counter(0);
 
+
     bool exc(false);
     while(true){
-      if(counter++>0) here=next;//just the first time
       TVector3 destination = here.getO()+here.getNormal()*_DX;
+      if (DEBUG) std::cerr<<"at counter "<<counter<<std::endl;
+      if(counter++>0) here=next;//not the first time
+      else if(here.getNormal() * startDir < 0) {
+        _DX*=-1;
+        destination*=-1;
+      }
       TVector3 poca,dirInPoca;
       double dist;
       try{
@@ -283,24 +290,28 @@ PndTpcdEdxTask::Exec(Option_t* opt)
       
       double dE = 0.;
       bool _abort(true);
+
       for(unsigned int i=0;i<digis.size();++i){
+        //if (DEBUG) std::cerr<<"at digi "<< i <<std::endl;
         TVector3 digiPos;
         PndTpcDigiMapper::getInstance()->map(digis[i],digiPos);
+        if((here.getO()-digiPos).Mag() > (_DX+3.)) continue;
         double behindHere = normHere * (here.dist(digiPos));
         double behindNext = normNext * (next.dist(digiPos));
-        if(behindHere<0.){//in front of
+        if(behindHere<0.){  //in front of here
           _abort=false;
-          if(behindNext>=0.){
+          if(behindNext>=0.){   // behind next
             dE+=digis[i]->amp();
           }
         }
-        else{
-          if(behindNext<0.){//in front of
+        else{                // behind here
+          if(behindNext<0.){ //in front of next
             _abort=false;
             dE+=digis[i]->amp();
           }
         }
       }
+
       if(dE>0. && (!exc)){
         dedx.add(dE,dist);
       }
@@ -308,34 +319,40 @@ PndTpcdEdxTask::Exec(Option_t* opt)
       //if(_abort) break;
       dE = 0.;
 
-      for(unsigned int i=0;i<pointlist.size();++i){
-        TVector3 pointPos;
-        pointlist.at(i)->Position(pointPos);
-        double behindHere = normHere * (here.dist(pointPos));
-        double behindNext = normNext * (next.dist(pointPos));
-        if(behindHere<0.){//in front of
-          _abort=false;
-          if(behindNext>=0.){
-            dE+=pointlist.at(i)->GetEnergyLoss();
-          }
-        }
-        else{
-          if(behindNext<0.){//in front of
+      if(_idealdEdx) {
+        for(unsigned int i=0;i<pointlist.size();++i){
+          TVector3 pointPos;
+          pointlist.at(i)->Position(pointPos);
+          if((here.getO()-pointPos).Mag() > (_DX+3.)) continue;
+          double behindHere = normHere * (here.dist(pointPos));
+          double behindNext = normNext * (next.dist(pointPos));
+          if(behindHere<0.){//in front of
             _abort=false;
-            dE+=pointlist.at(i)->GetEnergyLoss();
+            if(behindNext>=0.){
+              dE+=pointlist.at(i)->GetEnergyLoss();
+            }
+          }
+          else{
+            if(behindNext<0.){//in front of
+              _abort=false;
+              dE+=pointlist.at(i)->GetEnergyLoss();
+            }
           }
         }
-      }
-      if(dE>0. && (!exc)){
-        dedx_MC.add(dE*1E9,dist);
-      }
+
+        if(dE>0. && (!exc)){
+          dedx_MC.add(dE*1E9,dist);
+        }
+      } // end if _idealdEdx
+
       if(_abort) break;
     }
   
-    int size = _dEdxOutArray->GetEntriesFast();
-    new((*_dEdxOutArray)[size]) PndTpcdEdx(dedx);
-    size = _dEdxMCOutArray->GetEntriesFast();
-    new((*_dEdxMCOutArray)[size]) PndTpcdEdx(dedx_MC);
+    new((*_dEdxOutArray)[_dEdxOutArray->GetEntriesFast()]) PndTpcdEdx(dedx);
+
+    if(_idealdEdx) {
+      new((*_dEdxMCOutArray)[_dEdxMCOutArray->GetEntriesFast()]) PndTpcdEdx(dedx_MC);
+    }
     
     
   }

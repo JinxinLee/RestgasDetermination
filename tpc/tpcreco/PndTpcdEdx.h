@@ -19,6 +19,9 @@ public:
   double simpleMean();
   double truncMean(double trash = 0.4);
   unsigned int nEntries(){return _data.size();}
+  double detdE(int i){return _data.at(i).first;}
+  double getdx(int i){return _data.at(i).second;}
+
   void add(double dE,double dx){
 	PAIR p;
 	p.first = dE;
@@ -32,7 +35,7 @@ private:
 
 
 public:
-  ClassDef(PndTpcdEdx,1)
+  ClassDef(PndTpcdEdx,2)
 
 };
 
