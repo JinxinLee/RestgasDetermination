@@ -43,7 +43,7 @@ TMVAkd_KNN/PndKnnClassify.h
 TMVAkd_KNN/PndKnnTrain.h
 # TMVAkd_KNN/PndProjectedKNN.h
 )
-# MCL Headers.
+# MCL TMVA Headers.
 SET (TMVA_ALG_HEADR
 TMVA_MCL/PndMultiClassMlpTrain.h
 TMVA_MCL/PndMultiClassMlpClassify.h
@@ -67,7 +67,7 @@ TMVAkd_KNN/PndKnnClassify.cpp
 TMVAkd_KNN/PndKnnTrain.cpp
 # TMVAkd_KNN/PndProjectedKNN.cpp
 )
-# MCL Sources.
+# MCL TMVA Sources.
 SET (TMVA_ALG_SOURCE
 TMVA_MCL/PndMultiClassMlpTrain.cpp
 TMVA_MCL/PndMultiClassMlpClassify.cpp

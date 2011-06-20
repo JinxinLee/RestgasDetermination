@@ -91,9 +91,16 @@ void PndLVQClassify::GetMvaValues(vector<float> eventData,
 
   // Loop trough the prototypes list and compute the distances
   float dist = 0.0;
+
+  /*
+   * Compute the distance to al of the available protypes.
+   */
   for(size_t i = 0; i < ProtoList.size(); i++)
   {
+    // Current class Name.
     string clsName    = ProtoList[i].first;
+
+    // Current prototype.
     vector<float>* ev = ProtoList[i].second;
     
     dist = ComputeDist(*ev, eventData);
@@ -103,9 +110,8 @@ void PndLVQClassify::GetMvaValues(vector<float> eventData,
       result[clsName] = dist;
     }
   }
-  // Normalize (SUM distances = 1.0)
-  // Is this really needed??????
-  
+  // Normalize the output. SUM( distances )= 1.0
+  // The smaller the better.  
   float sumOfDists = 0.00;
   for(size_t cls = 0; cls < classes.size(); ++cls)
   {

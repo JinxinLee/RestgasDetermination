@@ -1,7 +1,6 @@
 /* ********************************************
  * MVA Utility functions and data definitions.*
  * Author: M.Babai@rug.nl                     *
- * LICENSE:                                   *
  * Version:                                   *
  * License:                                   *
  * *******************************************

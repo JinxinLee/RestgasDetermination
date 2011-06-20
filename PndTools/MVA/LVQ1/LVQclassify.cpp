@@ -9,11 +9,12 @@
  * procedure. This classifier is implemented based on the LVQ
  * algorithm.
  */
-#define LVQ_CLS_DEBUG 1
-#define LVQ_CLS_PRINT_ROC 1
+#define LVQ_CLS_DEBUG 0
+#define LVQ_CLS_PRINT_ROC 0
 
 // Local includes
 #include "PndLVQClassify.h"
+#include "PndMvaTools.h"
 
 // C++
 #include <fstream>
@@ -24,143 +25,6 @@
 #include "TH1.h"
 
 /////////_______ Inline header ______///////////////////////////
-
-/**
- * Structure used to hold the classifier output (label and distance or
- * prob.) for each example in the test set together with the original
- * class name.
- */
-struct ClassifierOutPuts
-{
-  //public:
-  // Constructors
-  ClassifierOutPuts()
-    : realLabel ("ALABEL"),
-      givenLabel("NOLABEL")
-  {};
-
-  ClassifierOutPuts(std::string const& Rlabel, std::string const& Glabel,
-		    std::map<std::string, float> const& clsOut)
-    : realLabel  (Rlabel),
-      givenLabel (Glabel),
-      clsOuts    (clsOut)
-  {};
-
-  // Destructor
-  virtual ~ClassifierOutPuts()
-  {};
-
-  // Copy Const
-  ClassifierOutPuts(ClassifierOutPuts const& ot)
-    : realLabel  (ot.realLabel),
-      givenLabel (ot.givenLabel),
-      clsOuts    (ot.clsOuts)
-  {};
-
-  // Operators.  
-  ClassifierOutPuts& operator=(ClassifierOutPuts const& ot)
-  {
-    this->realLabel  = ot.realLabel;
-    this->givenLabel = ot.givenLabel;
-    this->clsOuts    = ot.clsOuts;
-    return (*this);
-  };
-
-  std::map<std::string, float> const& getClsOut() const
-  {
-    return clsOuts;
-  };
-
-  // Variables
-  std::string realLabel;// Original label
-  std::string givenLabel;// Given label
-  std::map<std::string, float> clsOuts; // Classifier outputs per label
-  
-  //protected:
-private:
-  //==
-  inline bool operator> (ClassifierOutPuts const& ot) const;
-  inline bool operator< (ClassifierOutPuts const& ot) const;
-  inline bool operator==(ClassifierOutPuts const& ot) const;
-};
-
-// STructure to hold the ROC points.
-struct ROCPoints
-{
-  // Constructors
-  ROCPoints()
-    : FP_rate(0.0),
-      TP_rate(0.0),
-      TN_rate(0.0),
-      FN_rate(0.0),
-      fp(0),
-      tp(0),
-      fn(0),
-      tn(0)
-  {};
-  
-  ROCPoints(float  const fpr, float  const tpr,
-	    float  const tnr, float  const fnr,
-	    size_t const nfp, size_t const ntp,
-	    size_t const nfn, size_t const ntn)
-    : FP_rate(fpr),
-      TP_rate(tpr),
-      TN_rate(tnr),
-      FN_rate(fnr),
-      fp(nfp),
-      tp(ntp),
-      fn(nfn),
-      tn(ntn)
-  {};
-  
-  // Destructor
-  virtual ~ROCPoints()
-  {};
-  
-  // Copy Const
-  ROCPoints(ROCPoints const& ot)
-    : FP_rate(ot.FP_rate),
-      TP_rate(ot.TP_rate),
-      TN_rate(ot.TN_rate),
-      FN_rate(ot.FN_rate),
-      fp(ot.fp),
-      tp(ot.tp),
-      fn(ot.fn),
-      tn(ot.tn)
-  {};
-  
-  // Operators.  
-  ROCPoints& operator=(ROCPoints const& ot)
-  {
-    this->FP_rate = ot.FP_rate;
-    this->TP_rate = ot.TP_rate;
-    this->TN_rate = ot.TN_rate;
-    this->FN_rate = ot.FN_rate;
-    this->fp      = ot.fp;
-    this->tp      = ot.tp;
-    this->fn      = ot.fn;
-    this->tn      = ot.tn;
-    return (*this);
-  };
-
-  // Variables
-  float FP_rate;// False positief rate
-  float TP_rate;// True positief rate
-  float TN_rate;// True negatief rate
-  float FN_rate;// False negatief rate
-  size_t fp;// False positief count
-  size_t tp;// True positief count
-  size_t fn;// False negatief
-  size_t tn;// True negatief
-
-  //  protected:
-  
-private:
-  bool operator==(ROCPoints const& ot) const;
-  bool operator>( ROCPoints const& ot) const;
-  bool operator<( ROCPoints const& ot) const;
-};
-
 // Prints the classification result to stdout.
 void printResult(std::map<std::string, float> const& res);
 
@@ -300,7 +164,9 @@ void ProduceROC( std::vector< ClassifierOutPuts >& input,
     // False negatief.
     fnRate = static_cast<float>(fn)/sg;
     
-    Roc.push_back(ROCPoints(fpRate, tpRate, tnRate, fnRate, fpCnt, tpCnt, fn, tn));
+    // Add the current ROC point
+    Roc.push_back(ROCPoints(fpRate, tpRate, tnRate, fnRate,
+			    fpCnt, tpCnt, fn, tn, trhold));
     
     trhold += inc;
   }//While
@@ -330,6 +196,7 @@ void printRoc(std::vector< ROCPoints > const& rc)
 	      << " FN_rate = " << rc[i].FN_rate
 	      << " fp = " << rc[i].fp
 	      << " tp = " << rc[i].tp
+	      << " thr = " << rc[i].thr
 	      << " }\n";
   }
 }
@@ -342,8 +209,9 @@ void WriteRocToFile( std::string const& fName,
   std::ofstream OutPut;
   
   OutPut.open (fName.c_str());
-  OutPut << "# ROC graph points\n# "
-	 << "# <index>\t <FP_rate>\t <TP_rate>\t <TN_rate>\t <FN_rate>\t <fp>\t <tp>\t <fn>\t <tn>\n";
+  OutPut << "# ROC graph points\n"
+	 << "# <index>\t <FP_rate>\t <TP_rate>\t <TN_rate>\t <FN_rate>\t"
+	 << " <fp>\t <tp>\t <fn>\t <tn>\t <threshold>\n";
   for(size_t i = 0; i < rc.size(); ++i)
   {
     OutPut << "   " << i << "\t "
@@ -354,7 +222,9 @@ void WriteRocToFile( std::string const& fName,
 	   << rc[i].fp << "\t "
 	   << rc[i].tp << "\t "
 	   << rc[i].fn << "\t "
-	   << rc[i].tn << '\n';
+	   << rc[i].tn << "\t "
+	   << rc[i].thr
+	   << '\n';
   }
   OutPut.close();
 }
