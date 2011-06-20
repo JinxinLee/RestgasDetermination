@@ -141,8 +141,9 @@ InitStatus PndSdsHybridHitProducer::Init()
   //  ioman->Register("MVDHit", "MVD", fHitArray, kTRUE);
   
   // Create and register output array
+  fPixelArray	= new TClonesArray("PndSdsDigiPixel");
   if(fVerbose>1) Info("Init","Registering this branch: %s/%s",fFolderName.Data(),fOutBranchName.Data());
-  fPixelArray = ioman->Register(fOutBranchName, "PndSdsDigiPixel", fFolderName, fPersistance);
+  ioman->Register(fOutBranchName, fFolderName, fPixelArray, fPersistance);
   
 //  if(fDigiPixelMCInfo==kTRUE)
 //  {
