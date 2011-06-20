@@ -29,9 +29,13 @@
 #include "GFTrack.h"
 #include "GFTrackCand.h"
 
+#include "FairGeane.h"
+#include "FairGeanePro.h"
 #include "GeaneTrackRep.h"
 #include "GeaneTrackRep2.h"
 #include "RKTrackRep.h"
+
+#include "PndDetectorList.h"
 
 #define DEBUG 0
 
@@ -84,7 +88,7 @@ PndTpcClustVis::PndTpcClustVis():
   // Build hit factory -----------------------------
   clusterArray = new TClonesArray("PndTpcCluster");
   _theRecoHitFactory = new GFRecoHitFactory();
-  _theRecoHitFactory->addProducer(2,new GFRecoHitProducer<PndTpcCluster,PndTpcSPHit>(clusterArray));
+  _theRecoHitFactory->addProducer(kTpcCluster,new GFRecoHitProducer<PndTpcCluster,PndTpcSPHit>(clusterArray));
 }
 
 
@@ -231,7 +235,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     tpc_shape->SetTransMatrix(*tpc_trans);
 
     tpc_shape->SetMainColor(kBlue);
-    tpc_shape->SetMainTransparency(TpcTransp);
+    tpc_shape->SetMainTransparency(char(TpcTransp));
     gEve->AddElement(tpc_shape);
   }
 
@@ -563,12 +567,12 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       double r2=trk->getHit(nhits-1)->cluster()->pos().Perp();
       if(r1<=r2 || true){
         for(unsigned int ih=0; ih<nhits; ++ih){
-          cand->addHit(2,trk->getHit(ih)->cluster()->index());
+          cand->addHit(kTpcCluster,trk->getHit(ih)->cluster()->index());
         }
       }
       else {
         for(unsigned int ih=nhits; ih>0; --ih){
-          cand->addHit(2,trk->getHit(ih-1)->cluster()->index());
+          cand->addHit(kTpcCluster,trk->getHit(ih-1)->cluster()->index());
         }
         invertedTrack = true;
       }// finished filling hits
@@ -581,10 +585,12 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
       if(invertedTrack) {
         trk->getPosDirOnHelix(trk->getNumHits()-1, pos1, direction);
+      }
+      else {
+        trk->getPosDirOnHelix(0, pos1, direction);
         direction *= -1.;
         winding*=-1.;
       }
-      else trk->getPosDirOnHelix(0, pos1, direction);
 
       TVector3 poserr(0.3,0.3,0.3);
 
@@ -619,15 +625,16 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       GFAbsTrackRep* rep;
 
       if(useGeane){
-        TGeant3* geant3  = new  TGeant3("C++ Interface to Geant3");
+        //FairGeane *Geane = new FairGeane();
+        //TGeant3* geant3  = new  TGeant3("C++ Interface to Geant3");
         GeanePro = new FairGeanePro();
         const GFDetPlane* initialPlane = new GFDetPlane(pos1, direction);
         const TVector3 cmom(mom);
         const TVector3 cposerr(poserr);
         const TVector3 cmomerr(momerr);
 
-        //rep = new GeaneTrackRep(GeanePro, *initialPlane, cmom, cposerr, cmomerr, pdg/TMath::Abs(pdg)*3, pdg);
-        rep = new GeaneTrackRep2(*initialPlane, cmom, cposerr, cmomerr, pdg);
+        rep = new GeaneTrackRep(GeanePro, *initialPlane, cmom, cposerr, cmomerr, pdg/TMath::Abs(pdg)*3, pdg);
+        //rep = new GeaneTrackRep2(*initialPlane, cmom, cposerr, cmomerr, pdg);
       }
       else{
         rep = new RKTrackRep(pos1, mom, poserr, momerr,pdg);
@@ -911,7 +918,7 @@ void PndTpcClustVis::makeGui() {
   }
   frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
-    guiTpcTransp = new TGNumberEntry(hf, TpcTransp, 3,999, TGNumberFormat::kNESInteger,
+    guiTpcTransp = new TGNumberEntry(hf, TpcTransp, 6,999, TGNumberFormat::kNESInteger,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
                           0, 100);
@@ -969,7 +976,7 @@ void PndTpcClustVis::makeGui() {
   // Clusterfinder Params
   hf = new TGHorizontalFrame(frmMain); {
     lbl = new TGLabel(hf, "\n Clustering");
-        hf->AddFrame(lbl);
+    hf->AddFrame(lbl);
   }
   frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
@@ -1152,7 +1159,7 @@ void PndTpcClustVis::makeGui() {
     lbl = new TGLabel(hf, "Sorting Mode");
     hf->AddFrame(lbl);
   }
-  //frmMain2->AddFrame(hf);
+  frmMain2->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain2); {
     guiinteractionZ = new TGNumberEntry(hf, _interactionZ, 6,999, TGNumberFormat::kNESRealThree,
                           TGNumberFormat::kNEANonNegative,
@@ -1163,7 +1170,7 @@ void PndTpcClustVis::makeGui() {
     lbl = new TGLabel(hf, "Z-position of interaction point (for sorting Mode 4)");
     hf->AddFrame(lbl);
   }
-  //frmMain2->AddFrame(hf);
+  frmMain2->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain2); {
     guisortingMode =  new TGCheckButton(hf, "Use sorting of riemann tracker");
     if(_sortingMode) guisortingMode->Toggle();
@@ -1334,7 +1341,7 @@ void PndTpcClustVis::makeGui() {
     hf->AddFrame(guiUseGeane);
     guiUseGeane->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetFittingParams()");
   }
-  //frmMain2->AddFrame(hf);
+  frmMain2->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain2); {
     guiNumIts = new TGNumberEntry(hf, numIts, 6,999, TGNumberFormat::kNESInteger,
                           TGNumberFormat::kNEANonNegative,
