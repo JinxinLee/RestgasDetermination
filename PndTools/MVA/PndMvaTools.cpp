@@ -79,3 +79,89 @@ void print(std::vector <ClassifierOutPuts> const& el)
   }
   std::cout << '\n';
 }
+
+/**
+ * Reads the event data from the inputfile.
+ *@param inFile The input file.
+ *@param varNames Name of the parameters (branches per tree).
+ *@param classNames Name of the labels to read.
+ *@param coNt Output is stored here.
+ */
+std::map<std::string, size_t>* readEvents(const char* infile, std::vector<std::string> const& varNames,
+					  std::vector< std::string > const& classNames, 
+					  std::vector< std::pair< std::string, std::vector<float>* > >& coNt)
+{
+  std::cout << "<-I-> Reading examples from " << infile
+	    << '\n';
+  // The file containing the examples.
+  TFile inf(infile, "READ");
+
+  // Holds the number of examples per label.
+  std::map<std::string, size_t>* counts = new std::map<std::string, size_t>();
+
+  // Class Loop
+  for(size_t cls = 0; cls < classNames.size(); cls++)
+  {
+    // Tree name
+    char const* name = classNames[cls].c_str();
+    
+    // Get the tree object
+    TTree *t = (TTree*) inf.Get(name);
+  
+    if(!t)
+    {
+      std::cerr << "Could not find tree named: " << name 
+		<< std::endl;
+      delete counts;
+      exit(EXIT_FAILURE);
+    }
+    
+    // Get the counts for the current label
+    size_t NumEvtCurLabel = static_cast<size_t>(t->GetEntriesFast());
+    
+    counts->insert( std::make_pair (classNames[cls], NumEvtCurLabel) );
+
+    // Disable all branches
+    t->SetBranchStatus("*",0);
+    
+    // Init a container to bind to the tree branches
+    std::vector<float> ev (varNames.size(), 0.0);
+    
+    // Bind the parameters to the tree branches
+    for(size_t j = 0; j < varNames.size(); j++)
+    {
+      char const* branchName = varNames[j].c_str();
+
+      // Activate branches
+      t->SetBranchStatus(branchName, 1);
+
+      // Binding the branches
+      t->SetBranchAddress(branchName, &(ev[j]));
+    }// Tree parameters are bounded
+    
+    // Fetch and store the variables to per class variable container
+    for(int k = 0; k < t->GetEntriesFast(); k++)
+    {
+      t->GetEntry(k);
+
+      // Container to store the vent data read from the input tree
+      std::vector<float>* EvtDat = new std::vector<float>();
+      
+      // Var Loop
+      for(size_t idx = 0; idx < varNames.size(); idx++)
+      {
+        EvtDat->push_back(ev[idx]);
+      }// Var Loop
+      
+      // Store the event and its class name
+      coNt.push_back(std::make_pair(classNames[cls], EvtDat));
+    }
+    // We are done and can delete the tree pointer
+    delete t;
+  }// Class Loop
+
+  // Close open file
+  inf.Close();
+
+  return counts;
+}

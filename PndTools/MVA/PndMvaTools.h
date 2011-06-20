@@ -10,11 +10,16 @@
 #define PND_MVA_TOOLS_H
 
 // C++
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <map>
 #include <string>
+
+// ROOT
+#include "TFile.h"
+#include "TTree.h"
 
 /**
  * Structure used to hold the classifier output (label and distance or
@@ -197,7 +202,19 @@ void WriteRocToFile( std::string const& FileName,
  */
 void print(std::vector< ClassifierOutPuts > const& OutPutList);
 
-// C style function declarations
+/**
+ * Reads the event data from the inputfile.
+ *@param inFile The input file.
+ *@param varNames Name of the parameters (branches per tree).
+ *@param classNames Name of the labels to read.
+ *@param Outcontainer Output is stored here.
+ */
+std::map<std::string, size_t>* readEvents(char const* infile,
+					  std::vector<std::string> const& varNames,
+					  std::vector<std::string> const& classNames,
+					  std::vector<std::pair<std::string, std::vector<float>*> >& Outcontainer);
+
+//____________________ C style function declarations
 #ifdef __cplusplus
 extern "C"
 {
@@ -207,4 +224,5 @@ extern "C"
 }
 #endif
 
-#endif// interface definition
+#endif
+//interface definition

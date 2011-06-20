@@ -10,53 +10,38 @@
  * algorithm.
  */
 #define LVQ_CLS_DEBUG 0
-#define LVQ_CLS_PRINT_ROC 0
+
+// C++
+#include <fstream>
 
 // Local includes
 #include "PndLVQClassify.h"
 #include "PndMvaTools.h"
 
-// C++
-#include <fstream>
-
 // ROOT
-#include "TFile.h"
 #include "TStopwatch.h"
 #include "TH1.h"
 
-/////////_______ Inline header ______///////////////////////////
-// Prints the classification result to stdout.
-void printResult(std::map<std::string, float> const& res);
-
-/*
- * Reads the event data from the inputfile (inFile). The output is
- * stored in coNt. Per label counts are the return values.
- */
-std::map<std::string, size_t>* readEvents(char const* infile,
-					  std::vector<std::string> const& varNames,
-					  std::vector<std::string> const& classNames,
-					  std::vector<std::pair<std::string, std::vector<float>*> >& coNt);
-
-/*
- * creates pairs of [fpRate, tpRate]
- * List of (LVQ output, label) decreasing.
- * Roc: List of (FP/N, TP/P)
- */
-
-void ProduceROC(std::vector< ClassifierOutPuts >& input,
-		std::string const& SigName,
-		std::string const& BgName,
-		size_t sigCnt, size_t bgCnt,
-		std::vector< ROCPoints >& Roc);
-
-/////////_______ Inline header ______///////////////////////////
+// Print the results map.
+void printResult(std::map<std::string, float> const& res)
+{
+  std::cout << "\n================================== \n";
+  for( std::map<std::string,float>::const_iterator ii=res.begin();
+       ii != res.end(); ++ii)
+  {
+    std::cout << (*ii).first << " => " << (*ii).second << '\n';
+    //std::cout << (*ii).first << " => " << (1 - (*ii).second) << '\n';
+  }
+  std::cout << "======================================= \n";
+}
 //________________________________________________________________
-
-void ProduceROC( std::vector< ClassifierOutPuts >& input,
-		 std::string const& SigName,
-		 std::string const& BgName,
-		 size_t sigCnt, size_t bgCnt,
-		 std::vector< ROCPoints >& Roc)
+// Produce a set of points to draw the ROC.
+void ProduceROC( std::vector< ClassifierOutPuts >& input,//Alg. input
+		 std::string const& SigName,// Signal name
+		 std::string const& BgName,// Background name
+		 size_t sigCnt, size_t bgCnt,// number of sg and bg
+		 std::vector< ROCPoints >& Roc,// Produced set of ROC points
+		 size_t numSteps = 10)// Number of steps (ROC points)
 {
   float sg, bg;
   sg = bg = 0.0;
@@ -92,9 +77,13 @@ void ProduceROC( std::vector< ClassifierOutPuts >& input,
     }
   }
 
-  // We want to make 10 steps.
+  // Determine the value for increment.
   float inc;
-  inc = (MaxVal - MinVal )/10.00;
+  if( numSteps == 0 )
+  {
+    numSteps = 10;
+  }
+  inc = (MaxVal - MinVal )/static_cast<float>(numSteps);
 
   // Add (0,0)
   Roc.push_back(ROCPoints());
@@ -116,10 +105,10 @@ void ProduceROC( std::vector< ClassifierOutPuts >& input,
     for(size_t k = 0; k < input.size(); ++k)
     {
       ClassifierOutPuts& a = input[k];
-      
-      //if( a.clsOuts[a.givenLabel] < trhold )
+
+      // LVQ (smaller is better)
       if( a.clsOuts[SigName] <= trhold )
-      {// In the Signal region (Assume signal)
+      {// In Signal region (Assume signal)
 	if( a.realLabel == SigName)
 	{// True positief
 	  tpCnt++;
@@ -130,7 +119,7 @@ void ProduceROC( std::vector< ClassifierOutPuts >& input,
 	}
       }// End of In region
       else// Out of region
-      {
+      {//Assume background
 	if( a.realLabel == BgName)
 	{// True negatief.
 	  tn++;
@@ -160,112 +149,6 @@ void ProduceROC( std::vector< ClassifierOutPuts >& input,
     
     trhold += inc;
   }//While
-
-#if LVQ_CLS_PRINT_ROC
-  std::cout << "<-I-> DEBUG INFO\n  inc = "  << inc 
-	    << " Min = " << MinVal
-	    << " Max = " << MaxVal
-	    << " tn  = " << tpCnt
-	    << " fn  = " << fpCnt
-	    << std::endl;
-#endif
-
-#if LVQ_CLS_DEBUG
-  printRoc(Roc);
-#endif
-}
-
-// Print the results map.
-void printResult(std::map<std::string, float> const& res)
-{
-  std::cout << "\n================================== \n";
-  for( std::map<std::string,float>::const_iterator ii=res.begin();
-       ii != res.end(); ++ii)
-  {
-    std::cout << (*ii).first << " => " << (*ii).second << '\n';
-    //std::cout << (*ii).first << " => " << (1 - (*ii).second) << '\n';
-  }
-  std::cout << "======================================= \n";
-}
-
-// Read the events from a given file
-std::map<std::string, size_t>* readEvents(const char* infile, std::vector<std::string> const& varNames,
-					  std::vector< std::string > const& classNames, 
-					  std::vector< std::pair< std::string, std::vector<float>* > >& coNt)
-{
-  std::cout << "<-I-> Reading examples from " << infile
-	    << '\n';
-  // The file containing the examples.
-  TFile inf(infile, "READ");
-
-  // Holds the number of examples per label.
-  std::map<std::string, size_t>* counts = new std::map<std::string, size_t>();
-
-  // Class Loop
-  for(size_t cls = 0; cls < classNames.size(); cls++)
-  {
-    // Tree name
-    char const* name = classNames[cls].c_str();
-    
-    // Get the tree object
-    TTree *t = (TTree*) inf.Get(name);
-  
-    if(!t)
-    {
-      std::cerr << "Could not find tree named: " << name 
-		<< std::endl;
-      delete counts;
-      exit(EXIT_FAILURE);
-    }
-    
-    // Get the counts for the current label
-    size_t NumEvtCurLabel = static_cast<size_t>(t->GetEntriesFast());
-    
-    counts->insert( std::make_pair (classNames[cls], NumEvtCurLabel) );
-
-    // Disable all branches
-    t->SetBranchStatus("*",0);
-    
-    // Init a container to bind to the tree branches
-    std::vector<float> ev (varNames.size(), 0.0);
-    
-    // Bind the parameters to the tree branches
-    for(size_t j = 0; j < varNames.size(); j++)
-    {
-      char const* branchName = varNames[j].c_str();
-
-      // Activate branches
-      t->SetBranchStatus(branchName, 1);
-
-      // Binding the branches
-      t->SetBranchAddress(branchName, &(ev[j]));
-    }// Tree parameters are bounded
-    
-    // Fetch and store the variables to per class variable container
-    for(int k = 0; k < t->GetEntriesFast(); k++)
-    {
-      t->GetEntry(k);
-
-      // Container to store the vent data read from the input tree
-      std::vector<float>* EvtDat = new std::vector<float>();
-      
-      // Var Loop
-      for(size_t idx = 0; idx < varNames.size(); idx++)
-      {
-        EvtDat->push_back(ev[idx]);
-      }// Var Loop
-      
-      // Store the event and its class name
-      coNt.push_back(std::make_pair(classNames[cls], EvtDat));
-    }
-    // We are done and can delete the tree pointer
-    delete t;
-  }// Class Loop
-
-  // Close open file
-  inf.Close();
-
-  return counts;
 }
 
 /* ******************
@@ -411,7 +294,7 @@ int main(int argc, char** argv)
   for(size_t l = 0; l < labels.size(); ++l)
   {
     std::string curLabel = labels[l];
-    // Reset for each label
+    // Reset counters for each label
     correctCls = 0;
     wrongCls   = 0;
     
@@ -432,7 +315,7 @@ int main(int argc, char** argv)
       }// If current label
     }//Events loop
     
-    // Write the results to the output file.    
+    // Write classification results to the output file.    
     OutPut << "++++++++++++++ Classification Results ++++++++++++\n"
 	   << "\tCurrent class Name " << curLabel
 	   << "\n\tWe have seen "     << (*counts)[curLabel]
@@ -441,9 +324,10 @@ int main(int argc, char** argv)
 	   << "\n\tNumber of mis-classified events = "   <<  wrongCls
 	   << "\n\tErro = "
 	   << ((static_cast<float>(wrongCls) * 100.00)/static_cast<float>( (*counts)[curLabel] ))
-	   << " %.\n"
-	   << std::flush;
+	   << " %."
+	   << std::endl;
   }// Labels loop
+
   // Close Open file
   OutPut.close();
   
@@ -454,20 +338,26 @@ int main(int argc, char** argv)
   
   WriteRocToFile("ROC" + outF, Roc); 
 
+#if LVQ_CLS_DEBUG
+  printRoc(Roc);
+#endif
+
   // TestPart
-  TH1F myHist ("myHist","myHistDesc", 100, 0.0, 1.0);
-  for(size_t k = 0; k < classifiedEvents.size(); ++k)
-  {
+  /*
+    TH1F myHist ("myHist","myHistDesc", 100, 0.0, 1.0);
+    for(size_t k = 0; k < classifiedEvents.size(); ++k)
+    {
     ClassifierOutPuts& a = classifiedEvents[k];
     float val = a.clsOuts["electron"]/ a.clsOuts["pion"];
     
     if(val < 1.0)
     {
-      myHist.Fill(val);
+    myHist.Fill(val);
     }
-  }
-  myHist.SaveAs("testHistDists.root");
-  
+    }
+    myHist.SaveAs("testHistDists.root");
+  */
+
   //__________________ Clean up _____________//
   // Delete per label example counts
   counts->clear();
