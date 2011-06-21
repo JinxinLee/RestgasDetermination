@@ -1,11 +1,11 @@
-void run_ana_eta_c(int nevts=0)
+void run_ana_eta_c_stt(int nevts=0)
 {
-	bool use4cfit=1;
+	bool use4cfit=1; // if flag is off vertex fit is used
 	TString OutFile;
 	if (use4cfit==1)
-		OutFile="etac_histo_4c.root";
+		OutFile="etac_histo_4c_stt.root";
 	else
-		OutFile="etac_histo_vtx.root";
+		OutFile="etac_histo_vtx_stt.root";
 	
 	gStyle->SetOptFit(1011);
 
@@ -15,9 +15,7 @@ void run_ana_eta_c(int nevts=0)
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
 	TString inPidFile  = "evt_pid_stt.root"; 	
-	TString inSimFile = ".evt_points_stt.root";                                                                                                                                        
-//	TString inPidFile  = "./data_stt_160611/evt_pid_stt.root"; 	
-//	TString inSimFile = "./data_stt_160611/evt_points_stt.root";                                                                                                                                        
+	TString inSimFile = "evt_points_stt.root";                                                                                                                                        
 	TFile *inFile = TFile::Open(inPidFile,"READ");                                                                                             
 	TTree *tree=(TTree *) inFile->Get("cbmsim") ;                                                                                           
 	tree->AddFriend("cbmsim",inSimFile);                                                                                                     
@@ -62,13 +60,17 @@ void run_ana_eta_c(int nevts=0)
 	
 	int n_reco=0;
 	// Number of events in file and number of reconstructed eta_c to store in root file
-	TVectorD n_events(1);
-	TVectorD n_etac(1);
+	TH1F *n_events=new TH1F("n_events","total number of 
+events",1,0,1);
+	TH1F *n_etac=new TH1F("n_etac","number of reconstructed 
+eta_c",1,0,1);
+
 
 	TLorentzVector ini(0,0,3.6772,4.7333);
 		
 	if (nevts==0) nevts=evr.GetEntries();
-	n_events[0]=nevts;
+	
+	n_events->SetBinContent(1,nevts);
 	// cout << "nevts " << nevts << "\n";
 	int i=0,j=0, k=0, l=0;
 	
@@ -274,12 +276,12 @@ void run_ana_eta_c(int nevts=0)
 	}
 	
 	std::cout<<"Number of reconstructed eta_c = "<<n_reco<<std::endl;
-	n_etac[0]=n_reco;
+	n_etac->SetBinContent(1,n_reco;
 	
 		
 	out->cd();
-	n_etac.Write("n_etac");
-	n_events.Write("n_events");
+	n_etac->Write();
+	n_events->Write();
 	h_etac_nocut->Write();
 	h_etac_pid->Write();
 	h_etac_phimass->Write();
