@@ -1677,7 +1677,7 @@ void PndSecondaryTrackFinder::Refresh()
   // CHECK
    char goOnChar;
    cout << "Refresh?" << endl;
-   cin >> goOnChar;
+   //  cin >> goOnChar;
    cout << "GOING ON" << endl;
   DrawGeometry();
   DrawAllUsableHits();
@@ -1836,7 +1836,7 @@ Bool_t PndSecondaryTrackFinder::ConformalPlaneStt4(std::vector<int> cluster, Int
   if(fDisplayOn) {
      char goOnChar;
      cout << "Go to conformal plane: cluster " << iclus << endl;
-    cin >> goOnChar;
+     // cin >> goOnChar;
      cout << "GOING ON" << endl;
     DrawGeometryConformal(-1, -1, 1, 1); 
   }
