@@ -240,11 +240,17 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     int trackid = pnt->GetTrackID();
     std::vector<int>::iterator iter = std::find(mctracks.begin(), mctracks.end(), trackid);
     if(iter == mctracks.end()) mctracks.push_back(trackid);
+   
+    Int_t tubeID = pnt->GetTubeID();
+    PndSttTube *tube = (PndSttTube* ) fTubeArray->At(tubeID);
+    TVector3 wireDirection = tube->GetWireDirection();
+    if( wireDirection == TVector3(0., 0., 1.)) cout << "MCPOINT " << ipnt << " belongs to track " << trackid  << " not skewed " << endl;
+    else cout << "MCPOINT " << ipnt << " belongs to track " << trackid << "     skewed " << endl;
   }
-
-  for(int imc = 0; imc < fMCTrackArray->GetEntriesFast(); imc++) {
-    PndMCTrack *mctrk = (PndMCTrack*) fMCTrackArray->At(imc);
-    cout << "MC TRACK No. " << imc << endl;
+  for(int imc = 0; imc < mctracks.size(); imc++) {
+    int mctrackid = mctracks[imc];
+    PndMCTrack *mctrk = (PndMCTrack*) fMCTrackArray->At(mctrackid);
+    cout << "MC TRACK No. " << mctrackid << endl;
     mctrk->GetMomentum().Print();
   }
   // -------------------------------------
@@ -1342,9 +1348,9 @@ std::vector<std::vector<int> > PndSecondaryTrackFinder::ClusterFinder(std::vecto
     hit1last->Position(position1last);
    
     for(int jclus = iclus + 1; jclus < list.size(); jclus++) {
-      cout << "comparing " << iclus << " " << jclus << endl;
-      position1first.Print();
-      position1last.Print();
+ //      cout << "comparing " << iclus << " " << jclus << endl;
+//       position1first.Print();
+//       position1last.Print();
 
       std::vector<int> cluster2 = list[jclus];
 
@@ -1358,8 +1364,8 @@ std::vector<std::vector<int> > PndSecondaryTrackFinder::ClusterFinder(std::vecto
       TVector3 position2last;
       hit2last->Position(position2last);
 
-      position2first.Print();
-      position2last.Print();
+//       position2first.Print();
+//       position2last.Print();
 
       double distance1f2f = (position1first - position2first).Perp();      
       double distance1f2l = (position1first - position2last).Perp();      
@@ -3181,7 +3187,7 @@ std::vector< std::vector<int> > PndSecondaryTrackFinder::MergeClusters(std::vect
   for(int iclus = 0; iclus < nclus; iclus++) {
     std::vector<int> cluster = clusterlist[iclus];
     int nhits = cluster.size();
-    cout << "-------------------> " << iclus << endl;
+//     cout << "-------------------> " << iclus << endl;
     for(int jclus = iclus + 1; jclus < nclus; jclus++) {
       std::vector<int> clusterj = clusterlist[jclus];
       int nhitsj = clusterj.size();
@@ -3198,35 +3204,35 @@ std::vector< std::vector<int> > PndSecondaryTrackFinder::MergeClusters(std::vect
       double perc = 0;
       if(percij < percji) perc = percji;
       else perc = percij;
-      cout << iclus << " " << jclus << " " << percij << " " << percji << " " << combination << endl;    
+      //       cout << iclus << " " << jclus << " " << percij << " " << percji << " " << combination << endl;    
 
       if(perc > 0.5) {
-	cout << "PERC " << iclus << " " << jclus << " " << perc << endl;
+	// 	cout << "PERC " << iclus << " " << jclus << " " << perc << endl;
 	bool done = false;
 	for(int icom = 0; icom < combinations.size(); icom++) {
 	  std::vector<int> knowncombination = combinations[icom];
 	  std::vector<int>::iterator it, itj;
 	  
 	  for(int kclus = 0; kclus < knowncombination.size(); kclus++) {
-	    cout << "checking combi " << icom << " clus " << knowncombination.at(kclus) << endl;
+	    // 	    cout << "checking combi " << icom << " clus " << knowncombination.at(kclus) << endl;
 	    it = find(knowncombination.begin(), knowncombination.end(), iclus);
 	    itj = find(knowncombination.begin(), knowncombination.end(), jclus);
 	    if(it != knowncombination.end() || itj != knowncombination.end()) {
 	      if(it == knowncombination.end()) knowncombination.push_back(iclus);
 	      if(itj == knowncombination.end()) knowncombination.push_back(jclus);
-	      cout << "update knowncombination " << icom << " " << iclus << " " << jclus << endl;
+	      // 	      cout << "update knowncombination " << icom << " " << iclus << " " << jclus << endl;
 	      done = true;
 	      break;
 	    }
 	  }
 	  if(done == true) {
 	    std::replace(combinations.begin(), combinations.end(), combinations[icom], knowncombination);
-	    cout << "update knowncombinations " << knowncombination.size() << endl; 
-}
+	    // 	    cout << "update knowncombinations " << knowncombination.size() << endl; 
+	  }
 
 	}
 	if(false == done) {
-	  cout << "newcombination " << iclus << " " << jclus << endl;
+	  // 	  cout << "newcombination " << iclus << " " << jclus << endl;
 	  std::vector<int> newcombination;
 	  newcombination.push_back(iclus);
 	  newcombination.push_back(jclus);
@@ -3236,7 +3242,7 @@ std::vector< std::vector<int> > PndSecondaryTrackFinder::MergeClusters(std::vect
     }
   }
 
-  cout << "combination size " <<  combinations.size() << endl;
+  //   cout << "combination size " <<  combinations.size() << endl;
 
   std::vector< std::vector<int> > newlist;
   std::vector<int> usedclusters;
@@ -3244,7 +3250,7 @@ std::vector< std::vector<int> > PndSecondaryTrackFinder::MergeClusters(std::vect
   for(int icom = 0; icom < combinations.size(); icom++) {
     std::vector<int> knowncombination = combinations[icom];
     std::vector<int> newcluster;
-    cout << "combination " << icom << ": ";
+    //    cout << "combination " << icom << ": ";
     for(int kclus = 0; kclus < knowncombination.size(); kclus++) {
       int clusno = knowncombination[kclus];
       cout << knowncombination[kclus] << " ";
@@ -3259,7 +3265,7 @@ std::vector< std::vector<int> > PndSecondaryTrackFinder::MergeClusters(std::vect
 	}
 
     }
-    cout << endl;
+    //     cout << endl;
     newlist.push_back(newcluster);
   }
   
