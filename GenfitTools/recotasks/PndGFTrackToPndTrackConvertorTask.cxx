@@ -16,6 +16,7 @@
 #include "FairRootManager.h"
 #include "PndTrack.h"
 #include "GFTrack.h"
+#include "GFException.h"
 #include "PndGenfitAdapters.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
@@ -79,10 +80,19 @@ void PndGFTrackToPndTrackConvertorTask::Exec(Option_t* opt)
     Int_t size = trkRef.GetEntriesFast();
 
 	GFTrack *inTrack = (GFTrack*) fInTrackArray->At(itr);
-	PndTrack* outTrack = GenfitTrack2PndTrack(inTrack);
-    
-    PndTrack* pndTrack = new(trkRef[size]) PndTrack(outTrack->GetParamFirst(), outTrack->GetParamLast(), outTrack->GetTrackCand(),
+  try 
+    {
+		PndTrack* outTrack = GenfitTrack2PndTrack(inTrack);
+		PndTrack* pndTrack = new(trkRef[size]) PndTrack(outTrack->GetParamFirst(), outTrack->GetParamLast(), outTrack->GetTrackCand(),
                                                     outTrack->GetFlag(), outTrack->GetChi2(), outTrack->GetNDF(), outTrack->GetPidHypo(), itr, FairRootManager::Instance()->GetBranchId(fTrackInBranchName));
+    }
+  catch(GFException& e)
+    {
+      std::cout << "*** PndGFTrackToPndTrackConvertorTask::Exec" << "\t" << "Genfit Exception: " << e.what() << std::endl;
+	  continue;
+      //throw e;
+    }
+
   }
   
   return;
