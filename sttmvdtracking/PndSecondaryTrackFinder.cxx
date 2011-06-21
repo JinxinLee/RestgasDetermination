@@ -268,25 +268,25 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   }
 
   Int_t nstthits = fSttHitArray->GetEntriesFast();
-  cout << "EVENTO with " << nstthits << endl;
+  //  cout << "EVENTO with " << nstthits << endl;
 
   std::vector<int> stthits, sttskewedhits, mvdpixhits, mvdstriphits;
   fDetList.clear();
   fDetMap.clear();
   // stthits.clear();
-  cout << "Stt hits" << endl;
+  // cout << "Stt hits" << endl;
   stthits = OrderHits(fSttHitArray, FairRootManager::Instance()->GetBranchId(fSttBranch), false);
   fDetList.push_back(stthits);
   fDetMap[0] =  FairRootManager::Instance()->GetBranchId(fSttBranch);
-  cout << "Stt skewed hits" << endl;
+  //  cout << "Stt skewed hits" << endl;
   sttskewedhits = OrderHits(fSttHitArray, FairRootManager::Instance()->GetBranchId(fSttBranch), true);
   fDetList.push_back(sttskewedhits);
   fDetMap[1] =  FairRootManager::Instance()->GetBranchId(fSttBranch);
-  cout << "mvd pix hits" << endl;
+  //  cout << "mvd pix hits" << endl;
  mvdpixhits = OrderHits(fMvdPixelHitArray, FairRootManager::Instance()->GetBranchId(fMvdPixelBranch), false);
   fDetList.push_back(mvdpixhits);
   fDetMap[2] =  FairRootManager::Instance()->GetBranchId(fMvdPixelBranch);
-  cout << "mvd str hits" << endl;
+  //  cout << "mvd str hits" << endl;
   mvdstriphits = OrderHits(fMvdStripHitArray, FairRootManager::Instance()->GetBranchId(fMvdStripBranch), false);
   fDetList.push_back(mvdstriphits);
   fDetMap[3] =  FairRootManager::Instance()->GetBranchId(fMvdStripBranch);
@@ -1809,7 +1809,7 @@ Bool_t PndSecondaryTrackFinder::ConformalPlaneStt4(std::vector<int> cluster, Int
       }
     }
 
-  cout << "tmp drift " << tmpdrift << endl;
+  //  cout << "tmp drift " << tmpdrift << endl;
   firstdrift = tmpdrift;
   int lasthitid; //  = cluster[0];
   int firsthitid = tmphitid; // cluster[nhits - 1];
@@ -1991,7 +1991,7 @@ Double_t PndSecondaryTrackFinder::CalculateRedChi2(std::vector<int> cluster, Int
       double element = pow((fabs(distancepc - radius) - rd)/(rderror), 2);
       if(element >= fCountElemLimit) countelement++;
       chi2 += element;
-      cout << "element " <<  element  << endl;
+      //   cout << "element " <<  element  << endl;
     }
   double redchi2 = chi2 / cluster.size();
   // cout << "===> RED CHI2 no. 0 = " << redchi2 << " <===" << endl;
@@ -4106,7 +4106,7 @@ std::vector<int> PndSecondaryTrackFinder::AssociateSkewHitsToXYTrack(
       vy1 = wiredirection.Y();
       vz1 = wiredirection.Z(); // CHECK
 
-      cout << "vvzz11 " << vz1 << endl;
+      //      cout << "vvzz11 " << vz1 << endl;
 
       C0x1 = hit->GetX();
       C0y1 = hit->GetY();
