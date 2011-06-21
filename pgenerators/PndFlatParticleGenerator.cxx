@@ -164,11 +164,11 @@ Bool_t PndFlatParticleGenerator::ReadEvent(FairPrimaryGenerator* primGen)
 void PndFlatParticleGenerator::CalcActValues(PndRangeValues* val1, PndRangeValues* val2, PndRangeValues* val3)
 {
 	if (val1 == 0)
-		val1 = &PndRangeValues();
+		val1 = new PndRangeValues();
 	if (val2 == 0)
-		val2 = &PndRangeValues();
+		val2 = new PndRangeValues();
 	if (val3 == 0)
-		val3 = &PndRangeValues();
+		val3 = new PndRangeValues();
 
 	if (fDoit){
 		val3->fActualValue += val3->fStep;
