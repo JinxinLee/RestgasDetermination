@@ -117,11 +117,15 @@ class PndSecondaryTrackFinder : public FairTask {
   // Z FINDING
   Bool_t DoesHitBelong(Int_t hitId, Double_t xc, Double_t yc, Double_t radius, TVector3 &intersection);
   std::vector<int>  ZFinder(std::vector<int> hits, Double_t xc, Double_t yc, Double_t radius);
-  Double_t CalculateZ(Int_t hitId, Double_t x, Double_t y);
+  Bool_t ZFinder2(std::vector<int> hits, Double_t xc, Double_t yc, Double_t radius, Int_t charge);
+
+  Double_t CalculateZ(Int_t hitId, Double_t x, Double_t y, Double_t &z1, Double_t &z2, Double_t &errz);
   Bool_t ZFit(std::vector<int> cluster, Int_t charge, Double_t xc, Double_t yc, Double_t radius, Double_t &fitm, Double_t &fitp);
   Int_t FindCharge(Double_t oX, Double_t oY, std::vector<int> cluster);
-
-
+  std::vector<int> AssociateSkewHitsToXYTrack(Double_t Ox,  Double_t Oy,  Double_t R,  std::vector<int> hits,  std::vector< TMatrixT<double> > *szpar);
+  void calculateintersections(Double_t Ox,Double_t Oy,Double_t R,Double_t C0x,Double_t C0y,
+			      Double_t C0z,Double_t r,Double_t vx,Double_t vy,Double_t vz,
+			      Int_t *STATUS, Double_t* POINTS);
  private:
 
   /** Input array of PndSttTube (map of STT tubes) **/
