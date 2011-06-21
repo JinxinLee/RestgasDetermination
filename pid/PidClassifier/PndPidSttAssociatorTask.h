@@ -83,7 +83,12 @@ class PndPidSttAssociatorTask : public FairTask {
 
   void SetVerbose(Bool_t verb)            { fVerbose = verb  ;};
 	
- 
+  void SetDefaultMassHypo(Bool_t hypo ) { fDefaultHypo = hypo; }
+  Bool_t IsDefaultMassHypo() { return fDefaultHypo; }
+
+  // when using the Kalman performed only with the muon hypothesis
+  // and the pid with the default hypothesis
+  Int_t fDefaultHypo;
   ClassDef(PndPidSttAssociatorTask,1);
     
 };
