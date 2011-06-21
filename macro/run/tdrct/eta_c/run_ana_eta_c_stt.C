@@ -276,7 +276,7 @@ eta_c",1,0,1);
 	}
 	
 	std::cout<<"Number of reconstructed eta_c = "<<n_reco<<std::endl;
-	n_etac->SetBinContent(1,n_reco;
+	n_etac->SetBinContent(1,n_reco);
 	
 		
 	out->cd();
