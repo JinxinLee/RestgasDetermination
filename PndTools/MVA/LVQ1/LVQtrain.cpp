@@ -13,7 +13,7 @@
 #include "TRandom3.h"
 
 // *************  DEBUG ONLY **********
-void printProto(const std::vector< std::pair<std::string, std::vector<float>*> >& dat)
+void printProto(std::vector< std::pair<std::string, std::vector<float>*> > const& dat)
 {
   std::cout << "==========================\n";
   for(size_t i = 0; i < dat.size(); i++)
@@ -51,7 +51,7 @@ int main(int argc, char** argv)
   int algNum = atoi(argv[1]);
   std::cout << "Using algoritme " << algNum << '\n';
 
-  unsigned int numProto = 0;
+  size_t numProto = 0;
   std::string numstr = argv[2];// Number of proto's
   std::istringstream buff(numstr);
   buff >> numProto;

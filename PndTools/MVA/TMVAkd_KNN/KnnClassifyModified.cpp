@@ -16,15 +16,13 @@ void printResult( std::map<std::string,float>& res, unsigned int evtId)
 {
   std::cout << "\t==================================\n"
 	    << " Evt Num = " << evtId << '\n';
-  
-  for( std::map<std::string,float>::iterator ii=res.begin(); 
-       ii != res.end(); ++ii)
+  std::map<std::string,float>::iterator ii;
+  for( ii=res.begin(); ii != res.end(); ++ii)
   {
     std::cout <<"\t" << (*ii).first 
 	      << "\t=> " << (*ii).second
 	      << '\n';
   }
-  
   std::cout << "\t==================================\n";
 }
 
@@ -57,10 +55,9 @@ int main(int argc, char** argv)
   // Classes (container to hold the class names)
   clasNames.push_back("electron");
   clasNames.push_back("pion");
-
-  //clasNames.push_back("kaon");
-  //clasNames.push_back("muon");
-  //clasNames.push_back("proton");
+  clasNames.push_back("kaon");
+  clasNames.push_back("muon");
+  clasNames.push_back("proton");
   
   // Variables (names)
   vars.push_back("emc");
@@ -95,13 +92,14 @@ int main(int argc, char** argv)
   
   //Create the classifier object and specify the weight file
   PndKnnClassify cls (InPutFileName, clasNames, vars);
-  cls.Initialize();
+  cls.SetKnn(1);
 
   // Set classifier parameters and init.
-  cls.SetEvtParam(0.8,1.0);
+  cls.SetEvtParam(0.8, 1.0);
 
-  //cls.InitKNN();
-
+  // Init the classifier.
+  cls.Initialize();
+  
   // Open OutputFile.
   std::ofstream Outfile;
 
@@ -111,8 +109,8 @@ int main(int argc, char** argv)
 	  << " classified events: " << events->GetEntriesFast()
 	  << "\n#<neighb>\t<missclassified>\t<%>\n";
     
-  int nm = MIN_NUM_NEIGH;
-  while ( nm <= MAX_NUM_NEIGH)
+  size_t nm = MIN_NUM_NEIGH;
+  while ( nm <= MAX_NUM_NEIGH )
   {
     // Set number of neighbors.
     cls.SetKnn(nm);

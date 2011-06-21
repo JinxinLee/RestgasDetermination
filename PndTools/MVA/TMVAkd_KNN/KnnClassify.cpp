@@ -9,16 +9,19 @@
  * recognition performance.
  */
 
+#define DEBUG_PRINT 0
+
 // C++ headers
 #include <sstream>
 
 // Local headers
 #include "PndKnnClassify.h"
+#include "PndMvaTools.h"
 
 // Root and PandaRoot.
 #include "TStopwatch.h"
-#include "TNtuple.h"
 
+//______________ Helper functions and variables _______________________
 void printResult( std::map<std::string,float>& res, unsigned int evtId)
 {
   std::cout << "\t==================================\n"
@@ -36,6 +39,121 @@ void printResult( std::map<std::string,float>& res, unsigned int evtId)
   std::cout << "\t==================================\n";
 }
 
+// Produce a set of points to draw the ROC.
+void Produce_KNN_ROC( std::vector< ClassifierOutPuts >& input,//Alg. input
+		      std::string const& SigName,// Signal name
+		      std::string const& BgName,// Background name
+		      size_t sigCnt, size_t bgCnt,// number of sg and bg
+		      std::vector< ROCPoints >& Roc,// Produced set of ROC points
+		      size_t numSteps = 10)// Number of steps (ROC points)
+{
+  float sg, bg;
+  sg = bg = 0.0;
+
+  if( (sigCnt > 0) && (bgCnt > 0) )
+  {
+    sg = static_cast<float>(sigCnt);
+    bg = static_cast<float>(bgCnt);
+  }
+  else
+  {
+    std::cerr << "Signal OR Background count is zero\n";
+    exit(EXIT_FAILURE);
+  }
+  
+  float MinVal, MaxVal;
+  MinVal = std::numeric_limits<float>::max();
+  MaxVal = std::numeric_limits<float>::min();
+
+  // We need to find Min and Max output for Signal.
+  for(size_t i = 0; i < input.size(); ++i)
+  {
+    // MinVal
+    if( (input[i]).clsOuts[SigName] < MinVal)
+    {
+      MinVal = (input[i]).clsOuts[SigName];
+    }
+    
+    // MaxVal
+    if( (input[i]).clsOuts[SigName] > MaxVal)
+    {
+      MaxVal = (input[i]).clsOuts[SigName];
+    }
+  }
+
+  // Determine the value for increment.
+  float inc;
+  if( numSteps == 0 )
+  {
+    numSteps = 10;
+  }
+  inc = (MaxVal - MinVal )/static_cast<float>(numSteps);
+
+  // Add (0,0)
+  Roc.push_back(ROCPoints());
+  
+  float trhold, fpRate, tpRate;
+  float tnRate, fnRate;
+  size_t fpCnt, tpCnt, fn, tn;
+
+  trhold = MinVal;
+  fpRate = tpRate = tnRate = fnRate = 0.00;
+  fpCnt = tpCnt = fn = tn = 0;
+  
+  while( trhold <= MaxVal )
+  {
+    // Reset counters
+    fpCnt = tpCnt = 0;
+    fn    = tn    = 0;
+    // Event loop (classification outputs)
+    for(size_t k = 0; k < input.size(); ++k)
+    {
+      ClassifierOutPuts& a = input[k];
+
+      // LVQ (smaller is better)
+      if( a.clsOuts[SigName] >= trhold )
+      {// In Signal region (Assume signal)
+	if( a.realLabel == SigName)
+	{// True positief
+	  tpCnt++;
+	}
+	else
+	{// False positief
+	  fpCnt++;
+	}
+      }// End of In region
+      else// Out of region
+      {//Assume background
+	if( a.realLabel == BgName)
+	{// True negatief.
+	  tn++;
+	}
+	else
+	{// False negatief.
+	  fn++;
+	}
+      }// End out of region
+    }// Evt loop
+
+    // True positief.
+    tpRate = static_cast<float>(tpCnt)/sg;
+    
+    // False negatief.
+    fpRate = static_cast<float>(fpCnt)/bg;
+    
+    // True negatief.
+    tnRate = static_cast<float>(tn)/bg;
+    
+    // False negatief.
+    fnRate = static_cast<float>(fn)/sg;
+    
+    // Add the current ROC point
+    Roc.push_back(ROCPoints(fpRate, tpRate, tnRate, fnRate,
+			    fpCnt, tpCnt, fn, tn, trhold));
+    
+    trhold += inc;
+  }//While
+}
 /* *********************************************
  * Testing routine, can be deleted afterwards. *
  * *********************************************
@@ -43,11 +161,11 @@ void printResult( std::map<std::string,float>& res, unsigned int evtId)
 
 int main(int argc, char** argv)
 {
-  if(argc < 5)
+  if(argc < 4)
   {
     std::cerr << "\t<ERROR>" 
 	      << argv[0] << " <inputWeightFile> <InputEventsFile>"
-	      << " <Treename> <numOfneigh>"
+	      << " <numOfneigh>"
 	      << std::endl;
     return 1;
   }
@@ -55,8 +173,7 @@ int main(int argc, char** argv)
   // Init input variables.
   std::string InPutFileName = argv[1];
   std::string InputEvents   = argv[2];
-  std::string EvtTreeName   = argv[3];
-  std::string NumNeistr     = argv[4];
+  std::string NumNeistr     = argv[3];
   
   // Convert to int.
   std::istringstream buff(NumNeistr);
@@ -64,15 +181,15 @@ int main(int argc, char** argv)
   buff >> NumNei;
   
   // Containers to hold labels and variable names.
-  std::vector<std::string> clasNames;
+  std::vector<std::string> labels;
   std::vector<std::string> vars;
   
   // Classes (container to hold the class names)
-  clasNames.push_back("electron");
-  clasNames.push_back("pion");
-  //clasNames.push_back("kaon");
-  //clasNames.push_back("muon");
-  //clasNames.push_back("proton");
+  labels.push_back("electron");
+  labels.push_back("pion");
+  //labels.push_back("kaon");
+  //labels.push_back("muon");
+  //labels.push_back("proton");
   
   // Variables (names)
   //vars.push_back("p");
@@ -89,13 +206,13 @@ int main(int argc, char** argv)
   timer.Start();
   
   //Create the classifier object and specify the weight file
-  PndKnnClassify cls (InPutFileName, clasNames, vars);
+  PndKnnClassify cls (InPutFileName, labels, vars);
 
   // Set classifier parameters and init.
   cls.SetEvtParam(0.8,1.0);
-  //cls.SetKnn(NumNei);
-  cls.Initialize();
   cls.SetKnn(NumNei);
+  
+  cls.Initialize();
   
   std::cout << ".......... Init is done.\n";
   
@@ -107,55 +224,59 @@ int main(int argc, char** argv)
 	    << "RealTime = " << rtime << " seconds, CpuTime = " 
 	    << ctime <<" Seconds.\n";
   
-  // Open input events file.
-  TFile inFile(InputEvents.c_str(), "READ");
+  // To be classified events.
+  std::vector<std::pair<std::string, std::vector<float>* > > events;
   
-  // Prepare events to be classified.
-  TNtuple* events = (TNtuple*) inFile.Get(EvtTreeName.c_str());
-  
-  // Deactivate all branches
-  events->SetBranchStatus("*",0);
-  
-  std::vector<float> curEvt(vars.size(), 0.0);
-  
-  // Bind tree branches to the container.
-  for(size_t i = 0; i < vars.size(); i++)
-  {
-    // Activate branches
-    events->SetBranchStatus( vars[i].c_str(), 1);
-    
-    // Bind
-    events->SetBranchAddress( (vars[i]).c_str(), &(curEvt[i]));
-  }
-  
+  // Read events to be classified for a given label.
+  std::map<std::string, size_t>* counts = readEvents(InputEvents.c_str(),
+						     vars, labels,
+						     events);
   // Map to store the results
   std::map<std::string, float> res;
-  
+
+  // Store classifier outputs per event.
+  std::vector< ClassifierOutPuts > classifiedEvents;
+
   // Reste and start the timer.
   timer.Reset();
   timer.Start();
   
   // Perform classification of the available events.
-  unsigned int misCl = 0;
-  int numberOfEvt = events->GetEntriesFast();
-  
-  //numberOfEvt = 20;
-  
-  for(int ev = 0; ev < numberOfEvt; ev++)
+  size_t numberOfEvt = events.size();
+
+#if DEBUG_PRINT
+  numberOfEvt = 20;
+#endif
+  std::cout << "Total number of events to be classified = "
+	    << numberOfEvt //events.size()
+	    << '\n';
+
+  // Events are ready Start to classify.
+  // Examples loop
+  for(size_t ev = 0; ev < numberOfEvt; ++ev)
   {
-    events->GetEntry(ev);
+    // Fetch the current event
+    std::vector<float>* curEvt = (events[ev]).second;
     
-    //cls.GetMvaValues(curEvt, res);
-    //printResult(res, ev);
-    
-    std::string* resStr = cls.Classify(curEvt);
-    if( *resStr != EvtTreeName)
-    {
-      misCl++;
-    }
-    delete resStr;
-  }
+    // Get Mva Value
+    cls.GetMvaValues((*curEvt), res);
   
+    // Do classification
+    std::string* givenLabel = cls.Classify( (*curEvt));
+
+    // Store results.
+    classifiedEvents.push_back(ClassifierOutPuts((events[ev]).first, (*givenLabel), res));
+
+#if DEBUG_PRINT
+    std::cout << " Given label is "
+	      << (*givenLabel)
+	      << std::endl;
+    printResult(res, ev);
+#endif
+    
+    delete givenLabel;
+  }// End Examples loop
+
   timer.Stop();
   rtime = timer.RealTime();
   ctime = timer.CpuTime();
@@ -163,9 +284,28 @@ int main(int argc, char** argv)
   std::cout << "<INFO> Classifier timing results:\n"
 	    << "RealTime = " << rtime << " seconds, CpuTime = "
 	    << ctime <<" Seconds.\n\n";
+
+  //__________________ Clean up _____________//
+  // We are done with events vector. Cleaning
+  std::cout << "Clean up Events.\n";
+  for(size_t i = 0; i < events.size(); ++i)
+  {
+    delete (events[i]).second;
+  }
+  events.clear();
   
-  // Classifier evaluation info.
-  std::cout << "+++++++++++++++++++++++++++++++++++++++\n" 
+  //_______ Classifier evaluation info.
+  size_t misCl = 0;
+  
+  // Events loop
+  for(size_t ev = 0; ev < classifiedEvents.size(); ++ev)
+  {
+    if( classifiedEvents[ev].realLabel != classifiedEvents[ev].givenLabel )
+    {
+      misCl++;
+    }
+  }
+  std::cout << "+++++++++++++++++++++++++++++++++++++++\n"
 	    << " Total number of classified events: "
 	    << numberOfEvt << '\n'
 	    << " Number of missclassified: " << misCl << " = "
@@ -173,11 +313,22 @@ int main(int argc, char** argv)
 	    <<" %\n"
 	    << " Correct cassified = " << (numberOfEvt - misCl)
 	    << "\n (time / event) = " << rtime/ static_cast<double>(numberOfEvt)
-	    << "\n With #neighb = " << NumNei 
+	    << "\n With #neighb = " << NumNei
 	    << "\n+++++++++++++++++++++++++++++++++++++++\n";
 
-  // Close open file
-  inFile.Close();
+  // Create ROC points.
+  std::cout << "<-I-> Creating ROC.\n";
+  std::vector< ROCPoints > Roc;
+  Produce_KNN_ROC( classifiedEvents, "electron", "pion",
+		  (*counts)["electron"], (*counts)["pion"],
+		  Roc);
+  
+  WriteRocToFile("ROCKNN.root", Roc); 
+
+  //__________________ Clean up _____________//
+  // Delete per label example counts
+  counts->clear();
+  delete counts;
   
   return 0;
 }

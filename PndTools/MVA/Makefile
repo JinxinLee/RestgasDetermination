@@ -97,7 +97,8 @@ examples: PndMvaUtil PndMvaDataSet PndMvaClassifier Classifiers
 
 # Build kd-tree KNN Cassifier.
 	$(CXX) $(CCFLAGS) $(LIBS) build/KnnClassify.o build/PndKnnClassify.o build/PndMvaClassifier.o \
-	build/PndMvaUtil.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o -o build/KNNclassify
+	build/PndMvaUtil.o build/PndMvaTools.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o \
+	-o build/KNNclassify
 
 # Build Projected KNN Cassifier.
 	$(CXX) $(CCFLAGS) $(LIBS) build/Prclassify.o build/PndProjectedKNN.o build/PndKnnClassify.o \

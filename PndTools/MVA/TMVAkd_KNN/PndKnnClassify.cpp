@@ -55,6 +55,14 @@ void PndKnnClassify::InitKNN()
 {
   std::cout << "<INFO> Initializing KNN classifier.\n";
 
+  // Zero number of neighbors.
+  if(m_knn == 0)
+  {
+    cerr << "\t<ERROR> Number neighbours can not be zero."
+              << endl;
+    assert (m_knn != 0);
+  }
+  
   // Get variables.
   vector<PndMvaVariable> const& vars = m_dataSets.GetVars();
 
@@ -87,12 +95,12 @@ void PndKnnClassify::InitKNN()
 std::string* PndKnnClassify::Classify(std::vector<float> EvtData)
 {
   // Zero number of neighbors.
-  if( m_knn == 0 )
-  {
-    std::cerr << "\t<ERROR> Number neighbours cannot be zero."
-              << std::endl;
-    assert (m_knn != 0);
-  }
+  // if( m_knn == 0 )
+  // {
+  //   std::cerr << "\t<ERROR> Number neighbours cannot be zero."
+  //             << std::endl;
+  //   assert (m_knn != 0);
+  // }
   
   // Get the Mva-value.
   std::map<std::string, float> TMPres;
@@ -131,12 +139,12 @@ std::string* PndKnnClassify::Classify(std::vector<float> EvtData)
 void PndKnnClassify::GetMvaValues(std::vector<float> eventData, 
 				  std::map<string, float>& result)
 {
-  if(m_knn == 0)
-  {
-    cerr << "\t<ERROR> Number neighbours can not be zero."
-              << endl;
-    assert (m_knn != 0);
-  }
+  // if(m_knn == 0)
+  // {
+  //   cerr << "\t<ERROR> Number neighbours can not be zero."
+  //             << endl;
+  //   assert (m_knn != 0);
+  // }
 
   // Get Variables.
   vector <PndMvaVariable> const& vars = m_dataSets.GetVars();

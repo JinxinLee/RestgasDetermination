@@ -6,6 +6,7 @@
  * Modified:                          *
  *                                    *
  * ************************************/
+
 #ifndef PND_KNN_CLASSIFY_H
 #define PND_KNN_CLASSIFY_H
 
@@ -62,7 +63,7 @@ class PndKnnClassify: public PndMvaClassifier
   inline void SetEvtParam(float const scFact, double const weight);
 
   //! Set the number of neighbours.
-  inline void SetKnn(int const N);
+  inline void SetKnn(size_t const N);
   
   /**
    * Initialize the needed internal and external data structures.
@@ -87,20 +88,17 @@ class PndKnnClassify: public PndMvaClassifier
   //!< Type definition for the neighbours list.
   typedef std::list < std::pair<const TMVA::kNN::Node<TMVA::kNN::Event>*, float> > ResList;
   
-  //!< Number of required neighbours.
-  unsigned int m_knn;
-  //!< Scalefactor Default =  0.8
-  float m_ScaleFact;
-  //!< Event weight
-  double m_weight;
-  // TMVA Knn module.
-  TMVA::kNN::ModulekNN* m_module;
+  size_t m_knn;//!< Number of required neighbours.
+  float m_ScaleFact;//!< Scalefactor Default =  0.8
+  double m_weight;//!< Event weight
+  TMVA::kNN::ModulekNN* m_module;// TMVA Knn module.
 
   /**
    * Mapping between class names and their indices in the class vector.
    */
   std::map<std::string, size_t> m_classIndices;
 };//End of classifier interface definition
+
 //___________________ Inline implementation. __________________________________
 inline void PndKnnClassify::SetEvtParam(float const scFact, double const weight)
 {
@@ -108,7 +106,7 @@ inline void PndKnnClassify::SetEvtParam(float const scFact, double const weight)
   m_weight = weight;
 };
 
-inline void PndKnnClassify::SetKnn(int const N)
+inline void PndKnnClassify::SetKnn(size_t const N)
 {
   m_knn = N;
 };

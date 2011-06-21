@@ -9,7 +9,7 @@
  * procedure. This classifier is implemented based on the LVQ
  * algorithm.
  */
-#define LVQ_CLS_DEBUG 0
+#define LVQ_CLS_DEBUG 1
 
 // C++
 #include <fstream>
@@ -26,8 +26,8 @@
 void printResult(std::map<std::string, float> const& res)
 {
   std::cout << "\n================================== \n";
-  for( std::map<std::string,float>::const_iterator ii=res.begin();
-       ii != res.end(); ++ii)
+  std::map<std::string,float>::const_iterator ii;
+  for( ii = res.begin(); ii != res.end(); ++ii)
   {
     std::cout << (*ii).first << " => " << (*ii).second << '\n';
     //std::cout << (*ii).first << " => " << (1 - (*ii).second) << '\n';
@@ -36,12 +36,12 @@ void printResult(std::map<std::string, float> const& res)
 }
 //________________________________________________________________
 // Produce a set of points to draw the ROC.
-void ProduceROC( std::vector< ClassifierOutPuts >& input,//Alg. input
-		 std::string const& SigName,// Signal name
-		 std::string const& BgName,// Background name
-		 size_t sigCnt, size_t bgCnt,// number of sg and bg
-		 std::vector< ROCPoints >& Roc,// Produced set of ROC points
-		 size_t numSteps = 10)// Number of steps (ROC points)
+void Produce_VQ_ROC( std::vector< ClassifierOutPuts >& input,//Alg. input
+		     std::string const& SigName,// Signal name
+		     std::string const& BgName,// Background name
+		     size_t sigCnt, size_t bgCnt,// number of sg and bg
+		     std::vector< ROCPoints >& Roc,// Produced set of ROC points
+		     size_t numSteps = 10)// Number of steps (ROC points)
 {
   float sg, bg;
   sg = bg = 0.0;
@@ -334,7 +334,9 @@ int main(int argc, char** argv)
   // Create ROC points.
   std::cout << "<-I-> Creating ROC.\n";
   std::vector< ROCPoints > Roc;
-  ProduceROC( classifiedEvents, "electron", "pion", (*counts)["electron"], (*counts)["pion"], Roc);
+  Produce_VQ_ROC( classifiedEvents, "electron", "pion",
+		  (*counts)["electron"], (*counts)["pion"],
+		  Roc);
   
   WriteRocToFile("ROC" + outF, Roc); 
 

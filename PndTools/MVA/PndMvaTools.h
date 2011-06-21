@@ -181,21 +181,7 @@ private:
 };
 
 //____________ Functions and modifiers.
-
-/**
- * Print list of ROC objects.
- *@param RocList The list of ROC points
- */
-void printRoc(std::vector< ROCPoints > const& RocList);
-  
-/**
- * Write the list of ROC objects in a file.
- *@param FileName The name of the file to write into.
- *@param RocList The list of the ROC poits to write.
- */
-void WriteRocToFile( std::string const& FileName,
-		     std::vector< ROCPoints > const& RocList);
-
+//______________________________________________________________
 /**
  * Print the list of classifier outputs.
  *@param OutPutList The list of outputs created by a classifier.
@@ -213,6 +199,20 @@ std::map<std::string, size_t>* readEvents(char const* infile,
 					  std::vector<std::string> const& varNames,
 					  std::vector<std::string> const& classNames,
 					  std::vector<std::pair<std::string, std::vector<float>*> >& Outcontainer);
+
+/**
+ * Print list of ROC objects.
+ *@param RocList The list of ROC points
+ */
+void printRoc(std::vector< ROCPoints > const& RocList);
+  
+/**
+ * Write the list of ROC objects in a file.
+ *@param FileName The name of the file to write into.
+ *@param RocList The list of the ROC poits to write.
+ */
+void WriteRocToFile( std::string const& FileName,
+		     std::vector< ROCPoints > const& RocList);
 
 //____________________ C style function declarations
 #ifdef __cplusplus

@@ -18,10 +18,12 @@
 #include "TStopwatch.h"
 
 
-void printResult(std::map<std::string,float>& res){
+void printResult(std::map<std::string,float>& res)
+{
+  std::map<std::string,float>::iterator ii;
   std::cout << "\n\t================================== \n";
-  for( std::map<std::string,float>::iterator ii=res.begin(); 
-       ii != res.end(); ++ii){
+  for( ii=res.begin(); ii != res.end(); ++ii)
+  {
     std::cout <<"\t" << (*ii).first 
 	      << "\t=> " << (*ii).second
 	      <<'\n';
@@ -47,40 +49,42 @@ int main(int argc, char** argv)
   std::string InPutFileName = argv[1];
   std::string NumNeistr = argv[2];
   std::istringstream buff(NumNeistr);
+
   int NumNei = 0;
   buff >> NumNei;
 
   TRandom3 myran(4125373);
-  std::vector<std::string> clas;
-  std::vector<std::string> nam;
+  std::vector<std::string> labels;
+  std::vector<std::string> vars;
   
   // Classes (container to hold the class names)
-  clas.push_back("electron");
-  clas.push_back("pion");
-  clas.push_back("kaon");
-  clas.push_back("muon");
-  clas.push_back("proton");
+  labels.push_back("electron");
+  labels.push_back("pion");
+  
+  //labels.push_back("kaon");
+  //labels.push_back("muon");
+  //labels.push_back("proton");
 
   // Variables (names)
-  nam.push_back("emc");
-  nam.push_back("lat");
-  nam.push_back("z20");
-  nam.push_back("z53");
+  vars.push_back("emc");
+  vars.push_back("lat");
+  vars.push_back("z20");
+  vars.push_back("z53");
 
-  //nam.push_back("mvd");  nam.push_back("stt");
-  //nam.push_back("tof"); nam.push_back("tpc");
+  //vars.push_back("mvd");  vars.push_back("stt");
+  //vars.push_back("tof"); vars.push_back("tpc");
   
   //Create the classifier object and specify the weight file
-  PndStdKnnClassify cls (InPutFileName, clas, nam);
+  PndStdKnnClassify cls (InPutFileName, labels, vars);
   
   cls.Initialize();
 
   cls.SetKNN(NumNei);
     
-  std::vector<float> evt,evt1,evt2;
+  std::vector<float> evt, evt1, evt2;
   
   evt.clear();
-  for(size_t j = 0; j < nam.size(); j++)
+  for(size_t j = 0; j < vars.size(); ++j)
   {
     evt.push_back(myran.Gaus(1,10));
     evt1.push_back(myran.Uniform(-1,1));
@@ -92,23 +96,24 @@ int main(int argc, char** argv)
   
   TStopwatch ti;
   ti.Start();
-
-  for(int i = 0; i < 3; i++)
-  {
-    cls.GetMvaValues(evt, res);
-    //cls.Classify(evt1, res);
-    //cls.Classify(evt2, res);
-    printResult(res);
-  }
-
+  
+  cls.GetMvaValues(evt, res);
+  printResult(res);
+  
+  // cls.Classify(evt1, res);
+  //printResult(res);
+  
+  //cls.Classify(evt2, res);
+  //printResult(res);
+  
   ti.Stop();
   double rtime = ti.RealTime();
   double ctime = ti.CpuTime();
-
+  
   std::cout << "timer 1: Classifier timing results:\n"
 	    << "RealTime = " << rtime << " seconds, CpuTime = "
 	    << ctime
 	    <<" Seconds\n\n";
-
+  
   return 0;
 }
