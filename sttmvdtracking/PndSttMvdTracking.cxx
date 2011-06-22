@@ -486,7 +486,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 
   IVOLTE++;
 
-if(istampa>0) cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<endl;
+if(istampa>=1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<endl;}
 
 //----------   fetching the MC truth tracks
 	nMCTracks = fMCTrackArray->GetEntriesFast(); // num. tracce/evento
@@ -969,12 +969,29 @@ if(istampa>=3  && IVOLTE<20){  cout<<"\thit n. "<<ListHitMvdTrackCand[i][k]
 
 
     //  for the calculation of the approximate Fi of the first hit in thos track
-    pndtrackcandhit = pSttTrackCand->GetSortedHit(0);
+//    pndtrackcandhit = pSttTrackCand->GetSortedHit(0);
+//    x = info[ pndtrackcandhit.GetHitId() ][0];  //  this is in the middle of the tube
+//    y = info[ pndtrackcandhit.GetHitId() ][1];  //  this is in the middle of the tube
+
+// temporary patch
+//  for(j=0,nSttParHitsinTrack[i]=0,nSttSkewHitsinTrack[i]=0; j<nSttHitsinTrack[i]; j++){
+  int jj;
+  for(jj=0,j=0,nSttParHitsinTrack[i]=0,nSttSkewHitsinTrack[i]=0; jj<nSttHitsinTrack[i]; jj++){
+//    pndtrackcandhit = pSttTrackCand->GetSortedHit(j);
+    pndtrackcandhit = pSttTrackCand->GetSortedHit(jj);
+	if( pndtrackcandhit.GetHitId() > nSttHit || pndtrackcandhit.GetHitId()<0)
+		continue; 
+
+	if(j==0) {
+    //  for the calculation of the approximate Fi of the first hit in thos track
     x = info[ pndtrackcandhit.GetHitId() ][0];  //  this is in the middle of the tube
     y = info[ pndtrackcandhit.GetHitId() ][1];  //  this is in the middle of the tube
 
-  for(j=0,nSttParHitsinTrack[i]=0,nSttSkewHitsinTrack[i]=0; j<nSttHitsinTrack[i]; j++){
-    pndtrackcandhit = pSttTrackCand->GetSortedHit(j);
+	}
+
+	j++;
+
+//----------- end of patch.
 
     ListSttHitsinTrack[i][j] = pndtrackcandhit.GetHitId(); // # hit of Stt
 
@@ -990,7 +1007,7 @@ if(istampa>=3  && IVOLTE<20){  cout<<"\thit n. "<<ListHitMvdTrackCand[i][k]
 
   }    //   end of    for(j=0; j<nSttHitsinTrack[i]; j++)
 
-
+nSttHitsinTrack[i]=j;  // temporary patch.
 
 
 
@@ -1150,8 +1167,7 @@ if(istampa>=3  && IVOLTE<20){  cout<<"\thit n. "<<ListHitMvdTrackCand[i][k]
 			ListMvdStripHitsinTrack // output
 			);
 
-
-if(istampa>0&& IVOLTE<20){
+if(istampa>=2&& IVOLTE<20){
            cout<<"da PndSttMvdTracking ;  n. SttTrackCand totali = "<<nSttTrackCand
 	       <<"--------------------------------------\n";
       for(  i= 0; i< nSttTrackCand; i++){
@@ -2944,7 +2960,6 @@ if(istampa>=3){
 // ora il confronto per il meeting di  Groningen
 
 //---------- conteggio delle tracce MC accettabili!!
-
 int citata;
 int nMCTracksaccettabili=0;
 for (i=0;i<nMCTracks;i++){
@@ -2995,20 +3010,25 @@ for (i=0;i<nMCTracks;i++){
 
 
 
+if(istampa>=2)cout<<"da PndSttMvdTracking, MC comparison; evt. "<<IVOLTE<<", nMCTracks "<<nMCTracks
+<<", n. MC tracce accettabili "<<nMCTracksaccettabili
+<<", track trovate "<<nTotalCandidates<<endl;
 
 
 
 //  if(istampa>=1 )  fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE, nMCTracks);
-  if(istampa>=3 ) {
+  if(istampa>=1 ) {
 
    fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE,
   	nMCTracksaccettabili);
-}
+
 int ii, ibuone=-1;
 Double_t HoughFiii;
 
-for (ii=0; ii<nSttTrackCand && istampa>=3 ;ii++){
-   if(!keepit[ii]) continue;
+//for (ii=0; ii<nSttTrackCand && istampa>=3 ;ii++){
+for (ii=0; ii<nTotalCandidates  ;ii++){
+   if(!keepit[ii]) { cout<<"\tevt. n "<<IVOLTE<<", cand. "<<ii<<" ha keepit false."<<
+   	endl; continue;}
    ibuone++;
    fprintf(HANDLE,"----------------------------------------------------------\n");
    i=daTrackFoundaTrackMC[ii];
@@ -3122,12 +3142,12 @@ for (ii=0; ii<nSttTrackCand && istampa>=3 ;ii++){
 //----------------------------------
 
 
-  }   //   end of  for (ii=0; ii<nSttTrackCand && istampa>=1 ;ii++)
-
+  }   //   end of  for (ii=0; ii<nSttTrackCand  ;ii++)
+}  // end of if(istampa>=1)
 
 //--------------ghosts
 
-if( istampa>=3){
+if( istampa>=1){
     int NParghost=0, NParhitsghost=0,icc;
     for(icc=0; icc<nSttTrackCand;icc++){
 	if(!keepit[icc]) continue;
@@ -6224,8 +6244,10 @@ out1:  ;
 {
 
    bool	firstime,
-	inclusionMC[nTracksFoundSoFar][nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits],
-		inclusionExp[nTracksFoundSoFar];
+//	inclusionMC[nTracksFoundSoFar][nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits],
+//		inclusionExp[nTracksFoundSoFar];
+	inclusionMC[MAXTRACKSPEREVENT][nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits],
+		inclusionExp[MAXTRACKSPEREVENT];
 
    UShort_t	ntoMCtrack[nTracksFoundSoFar],
 		toMCtrackfrequency[nTracksFoundSoFar][nmaxSttHits];
