@@ -178,7 +178,7 @@ void PndPidEmcBayesAssociatorTask::Exec(Option_t * option) {
       TClonesArray& pidRef = *fPidChargedProb;
       PndPidProbability* prob = new(pidRef[i]) PndPidProbability();// initializes with zeros
       prob->SetIndex(i);
-      if (pidcand->GetDrcIndex()==-1) continue;
+      if (pidcand->GetEmcIndex()==-1) continue;
       DoPidMatch(pidcand,prob);
     }
  
