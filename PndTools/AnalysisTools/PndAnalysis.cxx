@@ -42,7 +42,7 @@ using std::endl;
 
 ClassImp(PndAnalysis);
 
-PndAnalysis::PndAnalysis() :
+PndAnalysis::PndAnalysis(TString tname1, TString tname2) :
 fRootManager(FairRootManager::Instance()),
 fPidListMaker(0),
 fEvtCount(0),
@@ -51,7 +51,9 @@ fEventRead(false),
 fBuildMcCands(false),
 fVerbose(0),
 fChargedPidName("PidAlgoIdealCharged"),
-fNeutralPidName("PidAlgoIdealNeutral")
+fNeutralPidName("PidAlgoIdealNeutral"),
+fTracksName(tname1),
+fTracksName2(tname2)
 {
   if ( 0 == fRootManager )
   {
@@ -282,7 +284,10 @@ void PndAnalysis::BuildMcCands()
   {
   	PndMCTrack *part = (PndMCTrack*)fMcTracks->At(i);
   	//if (part->GetMotherID()!=-1) continue;
-  	
+  	if(fVerbose>2){
+      std::cout<<"Build MC cand: ";
+      part->Print(i);
+    }
     TLorentzVector p4 = part->Get4Momentum();
     TVector3    stvtx = part->GetStartVertex();
     
@@ -309,89 +314,20 @@ void PndAnalysis::BuildMcCands()
     pmc->SetPos(stvtx);
     pmc->SetType(part->GetPdgCode());
     
-    //if(false){
-    //// additional helix parameters for checking... 
-    //// Calculate DOCA from circle projection
-    //Double_t pnt[3], Bf[3];
-    //pnt[0]=stvtx.X();
-    //pnt[1]=stvtx.Y();
-    //pnt[2]=stvtx.Z(); 
-    //FairRunAna::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
-    //const double B = Bf[0]*Bf[0]+Bf[1]*Bf[1]+Bf[2]*Bf[2];
-    //const double qBc = -0.299792458*B*charge;
-    //const double xp = stvtx.X();
-    //const double yp = stvtx.Y();
-    //const double zp = stvtx.Z();
-    //const double phip = p4.Phi();
-    //const double pti=1/p4.Perp();
-    
-    //      //// get rho
-    //const double rho = qBc*pti;
-    
-    //      //// get tan(dip)
-    //const double tanDip=p4.Pz()*pti;
-    //const double rhoinverse = 1./rho;
-    
-    //      ////circle center
-    //const double xc = xp - rhoinverse*TMath::Sin(phip);
-    //const double yc = yp + rhoinverse*TMath::Cos(phip);
-    
-    //      ////get phi0 at doca
-    //const double phi0 = TMath::ATan2(xc,yc);
-    
-    //      ////get D0
-    //const double D0 = TMath::Sqrt(xc*xc + yc*yc) - fabs(rhoinverse);
-    ////or
-    ////Double_t dfi=(stvtx.Phi()-p4.Phi())*TMath::RadToDeg();
-    ////if(dfi>180)dfi-=360;
-    ////if(dfi<-180)dfi+=360;
-    ////Double_t sign=-charge*((dfi>0)?1:-1); // TODO get a decent D0 sign!!!
-    ////const double x0 = xc + rhoinverse*TMath::Sin(phi0);
-    ////const double y0 = yc - rhoinverse*TMath::Cos(phi0);
-    ////const double D0 = sign*TMath::Sqrt(x0*x0 + y0*y0);
-    
-    //      ////get z0
-    //const double z0 = zp - tanDip*rhoinverse*(phip-phi0);
-    
-    //      //Float_t helixparams[5];
-    //helixparams[0]=D0;
-    //helixparams[1]=phi0;
-    //helixparams[2]=rho;
-    //helixparams[3]=z0;
-    //helixparams[4]=tanDip;
-    
-    //      //pmc->SetHelixParms(helixparams);
-    
-    //    //} // if false
-    //Double_t covMARS[6][6];
-    //for(int d=0;d<6;d++)for(int c=0;c<6;c++)covMARS[d][c]=0.;
-    //TVector3 mom=p4.Vect();
-    //TVector3 di = mom;
-    //di.SetMag(1.);
-    //TVector3 dj = di.Orthogonal();
-    //TVector3 dk = di.Cross(dj);
-    //FairTrackParP tStart(stvtx, mom, covMARS, (Int_t)charge, stvtx,  dj,  dk);
-    //Bool_t rc = Propagator(2,tStart,pmc,NULL,kTRUE);
-    //if(!rc && fVerbose>0) {
-    //Warning("BuildMcCands()","Faild propagation of mc particle no.%i to z axis",i);
-    //std::cout<<*pmc<<std::endl;
-    //stvtx.Print();
-    //std::cout<<"Mother pointer: "<<pmc->TheMother()<<std::endl;
-    //}
-    TMatrixD zerocov;
-    Float_t helix[5];
-    Bool_t rc = P7toHelix(stvtx, p4, charge, zerocov, helix, zerocov, kTRUE);
-    if(rc) pmc->SetHelixParms(helix);
-    else if(fVerbose>0) {
-      Warning("BuildMcCands()","Faild calculation helix parameters");
-      std::cout<<*pmc<<std::endl;
-      stvtx.Print();
-      std::cout<<"Mother pointer: "<<pmc->TheMother()<<std::endl;
+    if(fabs(charge)>0){
+      TMatrixD zerocov;
+      Float_t helix[5];
+      Bool_t rc = P7toHelix(stvtx, p4, charge, zerocov, helix, zerocov, kTRUE);
+      if(rc) pmc->SetHelixParms(helix);
+      else if(fVerbose>0) {
+        Warning("BuildMcCands()","Faild calculation helix parameters");
+        std::cout<<*pmc<<std::endl;
+        stvtx.Print();
+        std::cout<<"Mother pointer: "<<pmc->TheMother()<<std::endl;
+      }
     }
     
   }
-  
-  
   
   if(fVerbose) std::cout <<"-I- PndMcListConverter: found ="<<fMcCands->GetEntriesFast()<<std::endl;
   
@@ -437,6 +373,24 @@ Bool_t PndAnalysis::PropagateToPoint(TCandidate* cand, TVector3* mypoint)
   return Propagator(1,tStart,cand,mypoint,kFALSE);
 }
 
+FairTrackParP PndAnalysis::GetFirstPar(TCandidate* cand)
+{
+  if(!cand) {
+    Error("GetFirstPar","Candidate not found: %p",cand);
+    FairTrackParP dummy;
+    return dummy;
+  }
+  PndPidCandidate* pidCand = static_cast<PndPidCandidate*>(&cand->GetMicroCandidate());
+  PndTrack* track = (PndTrack*)fTracks->At(pidCand->GetTrackIndex());
+  if (!track) {
+    Warning("GetFirstPar","Could not find track object of index %d",pidCand->GetTrackIndex()); 
+    FairTrackParP dummy;
+    return dummy;
+  }
+  FairTrackParP tStart = track->GetParamFirst();
+  return tStart;
+}
+
 Bool_t PndAnalysis::Propagator(int mode, FairTrackParP &tStart, TCandidate* cand, TVector3* mypoint, Bool_t skipcov)
 {
   //Propagate from the tracks first parameter set to the POCA from mypoint
@@ -451,13 +405,12 @@ Bool_t PndAnalysis::Propagator(int mode, FairTrackParP &tStart, TCandidate* cand
   FairTrackParH* myResult = new FairTrackParH();
   Int_t pdgcode = cand->PdgCode();
   if(fVerbose>0)cout<<"Try mode "<<mode<<" with pdgCode "<<pdgcode<<endl;
-  std::cout<<"Start Params are:"<<std::endl;
-  tStart.Print();
+  if(fVerbose>2){std::cout<<"Start Params are:"<<std::endl; tStart.Print();}
   Double_t startCov[6][6];
   tStart.GetMARSCov(startCov);
   TMatrixD errst(6,6);
   for (Int_t ii=0;ii<6;ii++) for(Int_t jj=0;jj<6;jj++) errst[ii][jj]=startCov[ii][jj];
-  std::cout<<"Start MARS cov: ";errst.Print();
+  if(fVerbose>2){std::cout<<"Start MARS cov: ";errst.Print();}
   
   if(1==mode && NULL!=mypoint){
     geaneProp->BackTrackToVertex(); //set where to propagate
@@ -503,9 +456,10 @@ Bool_t PndAnalysis::Propagator(int mode, FairTrackParP &tStart, TCandidate* cand
   myParab->GetMARSCov(globalCov);
   TMatrixD err(6,6);
   for (Int_t ii=0;ii<6;ii++) for(Int_t jj=0;jj<6;jj++) err[ii][jj]=globalCov[ii][jj];
-  if(fVerbose>2){ std::cout<<"MARS cov: ";err.Print();} 
+  if(fVerbose>2){ std::cout<<"MARS cov (px,py,pz,E,x,y,z): ";err.Print();} 
   TLorentzVector lv = cand->P4();
   TMatrixD covPosMom = covTool.GetConverted7(covTool.GetFitError(lv, err));
+  if(fVerbose>2){ std::cout<<"covPosMom (x,y,z,px,py,pz,E): ";covPosMom.Print();} 
   
   cand->SetCov7(covPosMom);
   Double_t Q=myResult->GetQ();
@@ -519,7 +473,7 @@ Bool_t PndAnalysis::Propagator(int mode, FairTrackParP &tStart, TCandidate* cand
   cand->SetHelixParms(helixparams);
   
   Float_t rhohelixcov[15];
-  Int_t klz=0;
+  //Int_t klz=0;
   if(!skipcov){
     //for(int kli=0;kli<5;kli++) 
     //{
@@ -596,7 +550,7 @@ Bool_t PndAnalysis::P7toHelix(const TVector3 &pos, const TLorentzVector &p4, con
   pnt[2]=pos.Z(); 
   FairRunAna::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
   //Double_t B = sqrt(Bf[0]*Bf[0]+Bf[1]*Bf[1]+Bf[2]*Bf[2]);
-  Double_t B = Bf[2];
+  Double_t B = Bf[2]; // assume field in z only
   //Double_t B = 20.;
   if(fVerbose>1)printf("P7ToHelix: BField is %g kGs\n",B);
   Double_t qBc = -0.000299792458*B*Q;//Mind factor from momenta being in GeV
@@ -660,7 +614,6 @@ Bool_t PndAnalysis::P7toHelix(const TVector3 &pos, const TLorentzVector &p4, con
   //const double z0 = zp - tanDip*R0*(phip-phi0);
   if(fVerbose>1)printf("P7ToHelix: z0 is %g cm\n",z0);
   
-  if(fVerbose>1)std::cout<<std::endl;
   helixparams[0]=D0;
   helixparams[1]=phi0;
   helixparams[2]=rho;
@@ -733,7 +686,7 @@ Bool_t PndAnalysis::P7toHelix(const TVector3 &pos, const TLorentzVector &p4, con
       std::cout<<"cov77: "; cov77.Print();
       //std::cout<<"sigmas: "; sigmas.Print();
       std::cout<<"jacobian: "; jacobian.Print();
-      std::cout<<"covrho: "; covrho.Print();
+      std::cout<<"covrho (D0,Phi0,rho,Z0,tanDip): "; covrho.Print();
       if(fVerbose>1) {
         std::cout<<"helixparams[0] = D0 \t= ("<<helixparams[0]<<" \t+- "<<sqrt(helixCov[0][0])<<") cm"<<std::endl;
         std::cout<<"helixparams[1] = Phi0 \t= ("<<helixparams[1]<<" \t+- "<<sqrt(helixCov[1][1])<<") rad"<<std::endl;
@@ -741,7 +694,6 @@ Bool_t PndAnalysis::P7toHelix(const TVector3 &pos, const TLorentzVector &p4, con
         std::cout<<"helixparams[3] = Z0 \t= ("<<helixparams[3]<<" \t+- "<<sqrt(helixCov[3][3])<<") cm"<<std::endl;
         std::cout<<"helixparams[4] = tanDip\t= ("<<helixparams[4]<<" \t+- "<<sqrt(helixCov[4][4])<<")"<<std::endl;
       }
-      
     }
   } // skip cov or not
   return kTRUE;

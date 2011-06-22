@@ -11,7 +11,7 @@
 
 #include "TCandList.h"
 #include "FairRootManager.h"
-
+#include "FairTrackParP.h"
 class TChain;
 class TClonesArray;
 class TBranch;
@@ -20,13 +20,12 @@ class TDatabasePDG;
 
 class PndPidListMaker;
 class PndEventInfo;
-class FairTrackParP;
 
 class TGeant3;
 
 class PndAnalysis {
 public:
-  PndAnalysis();
+  PndAnalysis(TString tname1="", TString tname2="");
   virtual ~PndAnalysis();
   
   void Rewind();
@@ -37,13 +36,14 @@ public:
   void SetVerbose(Int_t level){fVerbose = level;}
   void SetPidChargedName(TString s) {fChargedPidName = s;}
   void SetPidNeutralName(TString s) {fNeutralPidName = s;}  
-  void SetTracksName(TString s) {fTracksName = s;}
-  void SetTracksName2(TString s) {fTracksName2 = s;}
+  //void SetTracksName(TString s) {fTracksName = s;}
+  //void SetTracksName2(TString s) {fTracksName2 = s;}
   Bool_t PropagateToIp(TCandidate* cand);
   Bool_t PropagateToZAxis(TCandidate* cand);
   Bool_t PropagateToPoint(TCandidate* cand, TVector3* mypoint);
   Bool_t P7toHelix(const TVector3 &pos, const TLorentzVector &p4, const Double_t Q, 
                    const TMatrixD &cov77, Float_t *helixparams, TMatrixD &helixCov, Bool_t skipcov=kFALSE);
+  FairTrackParP GetFirstPar(TCandidate* cand);
 
   //FIXME: This is an aweful solution to access the correct
   //track array from a fitter object. [R.K.03'11]
