@@ -3893,7 +3893,7 @@ Bool_t PndSecondaryTrackFinder::ZFit(std::vector<int> cluster, Int_t charge, Dou
     //    cout << "after compare Fi " << Fi * 360 / (6.28) << " " << endl;
     Fi_pre = Fi;
     Double_t scos = - charge * radius * Fi; // scos = -q * R * phi CHECK :-)GOOD!
-    cout << charge << " scosl " << scos << endl;
+  cout << charge << " scosl " << scos << endl;
 
     Double_t sigz2 = errz * errz;
   
