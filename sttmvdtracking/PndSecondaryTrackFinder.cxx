@@ -34,7 +34,7 @@
 #include <iterator>
 #include <algorithm>
 
-
+#define skew 3. * TMath::DegToRad()
 using namespace std;
 
 
@@ -597,7 +597,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     std::vector<int> skewedcluster;
     skewedcluster = ZFinder(sttskewedhits, xc, yc, radius);
     if(skewedcluster.size() > 0) {
-      skewedclustopar[skewedcluster.size()] = itrk;
+      skewedclustopar[skewedclusterlist.size()] = itrk;
       skewedclusterlist.push_back(skewedcluster);
     }
 
@@ -616,44 +616,44 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 
 
 
-  }  
+  }
 
 
-   for(int iclus = 0; iclus < skewedclusterlist.size(); iclus++) {
+  for(int iclus = 0; iclus < skewedclusterlist.size(); iclus++) {
 
-   if(fDisplayOn) { 
-      char goOnChar;
-      cout << "Z FIT press any key" << endl;
+    if(fDisplayOn) { 
+       char goOnChar;
+       cout << "Z FIT press any key" << endl;
       cin >> goOnChar;
-      cout << "GOING ON" << endl;
-      DrawScosZGeometry();
-   }
+       cout << "GOING ON" << endl;
+       DrawScosZGeometry();
+    }
    
-   std::vector<int> skewedcluster = skewedclusterlist[iclus];
-   Int_t itrk = skewedclustopar[iclus];
+    std::vector<int> skewedcluster = skewedclusterlist[iclus];
+    Int_t itrk = skewedclustopar[iclus];
    TMatrixT<double> par = xyparameters[itrk];
    Double_t xc = par[0][0];
    Double_t yc = par[0][1];
    Double_t radius = par[0][2];
    Int_t charge = TMath::Sign(1., par[0][3]);
+   
+//    // CHECK testing
+//     std::vector< TMatrixT<double> > szpar;
+//     std::vector<int> skewedcluster2 = AssociateSkewHitsToXYTrack(xc, yc, radius, sttskewedhits, &szpar);
 
-   // CHECK testing
-    std::vector< TMatrixT<double> > szpar;
-    std::vector<int> skewedcluster2 = AssociateSkewHitsToXYTrack(xc, yc, radius, sttskewedhits, &szpar);
-
-    for(int ihit = 0; ihit < szpar.size(); ihit++) {
-      if(fDisplayOn) { 
-	TMatrixT<double> sz = szpar[ihit];
-	TMarker *m = new TMarker(sz[0][0], sz[0][1], 2);
-	m->SetMarkerColor(2);
-	m->Draw("SAME");
-     	TMarker *m2 = new TMarker(sz[0][2], sz[0][3], 2);
-	m2->SetMarkerColor(4);
-	m2->Draw("SAME");
-	display->Update();
-      display->Modified();  
-      }
-    }
+//     for(int ihit = 0; ihit < szpar.size(); ihit++) {
+//       if(fDisplayOn) { 
+// 	TMatrixT<double> sz = szpar[ihit];
+// 	TMarker *m = new TMarker(sz[0][0], sz[0][1], 2);
+// 	m->SetMarkerColor(2);
+// 	m->Draw("SAME");
+//      	TMarker *m2 = new TMarker(sz[0][2], sz[0][3], 2);
+// 	m2->SetMarkerColor(4);
+// 	m2->Draw("SAME");
+// 	display->Update();
+//       display->Modified();  
+//       }
+//     }
  //   //   ZFinder2(skewedcluster, xc, yc, radius, charge);
 //    if(fDisplayOn) { 
 //      char goOnChar;
@@ -676,11 +676,34 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   }
 
 
-  if(fDisplayOn) {
-    fDisName += ".pdf";
-    display->SaveAs(fDisName);
+//   if(fDisplayOn) {
+//     fDisName += ".pdf";
+//     display->SaveAs(fDisName);
+//   }
+
+// CHECK MC INFO
+  for(int imc = 0; imc < mctracks.size(); imc++) {
+    int mctrackid = mctracks[imc];
+    PndMCTrack *mctrk = (PndMCTrack*) fMCTrackArray->At(mctrackid);
+    cout << "MC TRACK No. " << mctrackid << endl;
+    mctrk->GetMomentum().Print();
+
+    double mcfitm = mctrk->GetMomentum().Z() / mctrk->GetMomentum().Perp();
+    double mcfitp = 0;
+    cout << "MC FITM/FITP " << mcfitm << " " << mcfitp << endl;
+    TLine *line = new TLine(-45,  -45 * mcfitm + mcfitp, 120, 120* mcfitm + mcfitp);
+    line->SetLineStyle(2);
+    line->Draw("SAME");
+    display->Update();
+    display->Modified();  
+
   }
 
+  char goOnChar;
+  cout << "NEXT ONE ? press any key" << endl;
+  cin >> goOnChar;
+  cout << "GOING ON" << endl;
+ 
 }
 
 
@@ -1945,7 +1968,7 @@ Bool_t PndSecondaryTrackFinder::ConformalFit(std::vector<std::vector<double> > c
     fConName += "_clus"; 
     fConName += iclus;
     fConName += ".pdf";
-    display->SaveAs(fConName);
+    //    display->SaveAs(fConName);
   }
 
   xc = -alpha / 2.;
@@ -3061,6 +3084,119 @@ std::vector<int> PndSecondaryTrackFinder::OrderCluster2(std::vector<int> cluster
   return sorthits;
 }
 
+std::vector<int> PndSecondaryTrackFinder::OrderClusterInPhi(std::vector<int> cluster, std::vector<TVector3> positions, std::map<int, int> hitidtointersection, double xc, double yc, double radius) {
+
+  std::vector<int> sorthits;
+  std::vector<double> phiangles;
+  std::multimap<double, int> mapphiangles;
+
+  // x0 y0
+  Double_t d = TMath::Sqrt(xc * xc + yc * yc) - radius;
+  Double_t phi =  TMath::ATan2(yc, xc);
+  
+  Double_t x0 = d * TMath::Cos(phi);
+  Double_t y0 = d * TMath::Sin(phi);
+  
+
+  Double_t Phi0 = TMath::ATan2((y0 - yc),(x0 - xc));
+  TVector2 v(x0 - xc, y0 - yc); 
+
+  for(int ihit = 0; ihit < cluster.size(); ihit++) {
+    int hitid = cluster[ihit];
+    int pointid  = hitidtointersection[hitid]; 
+    //    cout << "size " << positions.size() << endl;
+    TVector3 position = positions[pointid];
+
+   double alpha = TMath::ATan2(position.Y() - y0 + radius * TMath::Sin(Phi0), position.X() - x0 + radius * TMath::Cos(Phi0));
+   TVector2 p(position.X() - xc, position.Y() - yc);
+   int charge = -1; // CHECK
+   Double_t phi2 = CalculatePhi(v, p, alpha, Phi0, charge);
+   phiangles.push_back(phi2);
+   mapphiangles.insert(std::pair<double, int>(phi2, hitid));
+  }
+    
+  std::sort(phiangles.begin(), phiangles.end());
+
+  double tmpphi = 0;
+
+  for(int j = 0; j < phiangles.size(); j++) {
+    double pd = phiangles[j];
+      
+    if(tmpphi < pd) tmpphi = pd;
+    else continue;
+
+    std::multimap<double, int>::iterator it;
+    int count = 0;
+    int n = mapphiangles.count(tmpphi);
+      
+    for(it = mapphiangles.begin(); it != mapphiangles.end(); ++it)
+      {
+	if(count == n) break;
+	if((*it).first != tmpphi) continue;
+	  
+	sorthits.push_back((*it).second);
+	count++;
+      }
+  }
+
+  return sorthits;
+}
+
+
+
+std::vector<int> PndSecondaryTrackFinder::OrderClusterInZ(std::vector<int> cluster, std::vector<TVector3> positions, std::map<int, int> hitidtointersection, double xc, double yc, double radius) {
+
+  std::vector<int> sorthits;
+  std::vector<double> zpositions;
+  std::multimap<double, int> mapzpositions;
+
+  // x0 y0
+  Double_t d = TMath::Sqrt(xc * xc + yc * yc) - radius;
+  Double_t phi =  TMath::ATan2(yc, xc);
+  
+  Double_t x0 = d * TMath::Cos(phi);
+  Double_t y0 = d * TMath::Sin(phi);
+  
+
+  Double_t Phi0 = TMath::ATan2((y0 - yc),(x0 - xc));
+  TVector2 v(x0 - xc, y0 - yc); 
+
+  for(int ihit = 0; ihit < cluster.size(); ihit++) {
+    int hitid = cluster[ihit];
+    int pointid  = hitidtointersection[hitid]; 
+    TVector3 position = positions[pointid];
+
+    zpositions.push_back(position.Z());
+    mapzpositions.insert(std::pair<double, int>(position.Z(), hitid));
+  }
+    
+  std::sort(zpositions.begin(), zpositions.end());
+
+  double tmpphi = 0;
+
+  for(int j = 0; j < zpositions.size(); j++) {
+    double pd = zpositions[j];
+      
+    if(tmpphi < pd) tmpphi = pd;
+    else continue;
+
+    std::multimap<double, int>::iterator it;
+    int count = 0;
+    int n = mapzpositions.count(tmpphi);
+      
+    for(it = mapzpositions.begin(); it != mapzpositions.end(); ++it)
+      {
+	if(count == n) break;
+	if((*it).first != tmpphi) continue;
+	  
+	sorthits.push_back((*it).second);
+	count++;
+      }
+  }
+
+  return sorthits;
+}
+
 std::vector<int> PndSecondaryTrackFinder::AddPoints(std::vector<int> hits, Int_t detId,  Double_t xc, Double_t yc, Double_t radius, int iclus)
 {
 
@@ -3187,7 +3323,7 @@ std::vector< std::vector<int> > PndSecondaryTrackFinder::MergeClusters(std::vect
   for(int iclus = 0; iclus < nclus; iclus++) {
     std::vector<int> cluster = clusterlist[iclus];
     int nhits = cluster.size();
-//     cout << "-------------------> " << iclus << endl;
+    //     cout << "-------------------> " << iclus << endl;
     for(int jclus = iclus + 1; jclus < nclus; jclus++) {
       std::vector<int> clusterj = clusterlist[jclus];
       int nhitsj = clusterj.size();
@@ -3467,10 +3603,10 @@ Bool_t PndSecondaryTrackFinder::TestChi2(std::vector<int> cluster, Double_t xc, 
 }
 
 // ======================= SKEW TIME! =======================
-Bool_t PndSecondaryTrackFinder::DoesHitBelong(Int_t hitId, Double_t xc, Double_t yc, Double_t radius, TVector3 &intersection)
+Bool_t PndSecondaryTrackFinder::DoesHitBelong(Int_t hitId, Double_t xc, Double_t yc, Double_t radius, TVector3 &intersection, Bool_t draw)
 {
  
-   if(fDisplayOn) {
+   if(fDisplayOn && draw) {
     char goOnChar;
      cout << "press any key" << endl;
    cin >> goOnChar;
@@ -3493,7 +3629,7 @@ Bool_t PndSecondaryTrackFinder::DoesHitBelong(Int_t hitId, Double_t xc, Double_t
    TVector3 first  = pos + wireDirection * halflength; // CHECK
    TVector3 second = pos - wireDirection * halflength; // CHECK
 
-   if(fDisplayOn) {
+   if(fDisplayOn && draw) {
 //      cout << "1st " << first.X() << " " << first.Y() << endl;
 //      cout << "2nd " << second.X() << " " << second.Y() << endl;
 //      first.Print();
@@ -3582,7 +3718,7 @@ Bool_t PndSecondaryTrackFinder::DoesHitBelong(Int_t hitId, Double_t xc, Double_t
       intersection.SetX(xint);
       intersection.SetY(yint);
 
-      if(fDisplayOn) {
+      if(fDisplayOn && draw) {
 	TMarker *m = new TMarker(xint, yint, 21);
 	m->SetMarkerColor(5);
 	m->Draw("SAME");
@@ -3599,12 +3735,12 @@ std::vector<int> PndSecondaryTrackFinder::ZFinder(std::vector<int> hits, Double_
   int nhits = hits.size();
   for(int ihit = 0; ihit < nhits; ihit++) {
     Int_t hitid = hits[ihit];
-    Bool_t belong = DoesHitBelong(hitid, xc, yc, radius, intersection);
+    Bool_t belong = DoesHitBelong(hitid, xc, yc, radius, intersection, kTRUE);
     if(belong == kTRUE) {
       skewedcluster.push_back(hitid);
     }
   }
-
+  cout << "CLUSTER FOUND WITH " << skewedcluster.size() << " HITS" << endl;
   return  skewedcluster;
 }
 
@@ -3633,8 +3769,8 @@ Double_t PndSecondaryTrackFinder::CalculateZ(Int_t hitId, Double_t x, Double_t y
    //   cout << "0 : calculate t, z " << t << " " << z << endl;
  
    double alpha = (first - second).Phi();
-   double dx = hit->GetIsochrone() * TMath::Cos(alpha);
-   double dy = hit->GetIsochrone() * TMath::Sin(alpha);
+   double dx = hit->GetIsochrone() * TMath::Cos(skew) * TMath::Cos(alpha);
+   double dy = hit->GetIsochrone() * TMath::Cos(skew) * TMath::Sin(alpha);
 
    double x1 = x + dx;
    double y1 = y + dy;
@@ -3653,6 +3789,30 @@ Double_t PndSecondaryTrackFinder::CalculateZ(Int_t hitId, Double_t x, Double_t y
 
    return z;
 }
+
+void PndSecondaryTrackFinder::ReCalculateXY(Int_t hitId, Double_t z, Double_t &x, Double_t &y) {
+  cout << "RECALCULATION <<" << " " << hitId << endl;
+  PndSttHit *hit = (PndSttHit* ) fSttHitArray->At(hitId);
+  if(!hit) return;
+  
+  Int_t tubeID = hit->GetTubeID();
+  
+  PndSttTube *tube = (PndSttTube* ) fTubeArray->At(tubeID);
+  TVector3 pos = tube->GetPosition();
+  TVector3 wireDirection = tube->GetWireDirection();
+  Double_t halflength = tube->GetHalfLength();
+  
+  TVector3 first  = pos + wireDirection * halflength; // CHECK
+  TVector3 second = pos - wireDirection * halflength; // CHECK
+  
+  Double_t t = (z - first.Z()) / (second.Z() - first.Z());
+  cout << "RECALCULATION " << t << endl;
+  first.Print();
+  second.Print();
+  x = first.X() + (second.X() - first.X()) * t;
+  y = first.Y() + (second.Y() - first.Y()) * t;
+}
+
 
 Bool_t PndSecondaryTrackFinder::ZFit(std::vector<int> cluster, Int_t charge, Double_t xc, Double_t yc, Double_t radius, Double_t &fitm, Double_t &fitp)
 {
@@ -3673,82 +3833,99 @@ Bool_t PndSecondaryTrackFinder::ZFit(std::vector<int> cluster, Int_t charge, Dou
   
   Double_t x0 = d * TMath::Cos(phi);
   Double_t y0 = d * TMath::Sin(phi);
-
+ TVector2 v(x0 - xc, y0 - yc); 
   Double_t Phi0 = TMath::ATan2((y0 - yc),(x0 - xc));
-  Double_t scos = 0;
-
-  Double_t Fi_pre = 0.; 
   int zcounter = 0;
 
   TVector3 intersection(0., 0., 0.);
+  TVector3 intersection1(0., 0., 0.);
+  TVector3 intersection2(0., 0., 0.);
   int nhits = cluster.size();
-  double scosmean = 0;
+ 
+  std::map<int, int> hitidtointersections;
+  std::vector<TVector3> intersectionpoints, intersectionpoints1, intersectionpoints2;
+  std::vector<double> zerrors;
+  cout << "CLUSTER WITH " << nhits << " HITS" << endl;
   for(int ihit = 0; ihit < nhits; ihit++) {
     Int_t hitid = cluster[ihit];
-    Bool_t belong = DoesHitBelong(hitid, xc, yc, radius, intersection);
+    Bool_t belong = DoesHitBelong(hitid, xc, yc, radius, intersection, kFALSE);
     if(belong == kFALSE) continue;
     Double_t zint1, zint2, errz;
     Double_t zint = CalculateZ(hitid, intersection.X(), intersection.Y(), zint1, zint2, errz);
     intersection.SetZ(zint);
-//     cout << "intersection " << endl;
-//     intersection.Print();
-    TVector2 v(x0 - xc, y0 - yc); 
-    Double_t alpha = TMath::ATan2(intersection.Y() - y0 + radius * TMath::Sin(Phi0), intersection.X() - x0 + radius * TMath::Cos(Phi0));
-    TVector2 p(intersection.X() - xc, intersection.Y() - yc);
+    intersection1 = intersection;
+    intersection1.SetZ(zint1);
+    intersection2 = intersection;
+    intersection2.SetZ(zint2);
+    //     cout << "intersection " << endl;
+    //     intersection.Print();
+    hitidtointersections[hitid] = intersectionpoints.size();
+    intersectionpoints.push_back(intersection);
+     intersectionpoints1.push_back(intersection1);
+    intersectionpoints2.push_back(intersection2);
+     zerrors.push_back(errz);
+    zcounter++; 
+
+ }
+
+  cout << "ZCOUNTER " << zcounter << endl;
+  std::vector<int> sortedhits = OrderClusterInPhi(cluster, intersectionpoints, hitidtointersections, xc, yc, radius);
+
+  nhits = sortedhits.size();
+  Double_t Fi_pre = 0.; 
+  for(int ihit = 0; ihit < nhits; ihit++) {
+    int hitid = sortedhits[ihit];
+    int pointid  = hitidtointersections[hitid]; 
+    TVector3 point = intersectionpoints[pointid];
+    TVector3 point1 = intersectionpoints1[pointid];
+    TVector3 point2 = intersectionpoints2[pointid];
+    double errz = zerrors[pointid];
+    
+    Double_t alpha = TMath::ATan2(point.Y() - y0 + radius * TMath::Sin(Phi0), point.X() - x0 + radius * TMath::Cos(Phi0));
+    TVector2 p(point.X() - xc, point.Y() - yc);
+
+    cout << "alpha " << alpha << endl;
+    point.Print();
+
     Double_t Fi = CalculatePhi(v, p, alpha, Phi0, charge);
-    cout << "Fi " << Fi * 360 / (6.28) << " " << endl;
-    if(ihit > 0) Fi = CompareToPreviousPhi(Fi, Fi_pre, charge);  // CHECK This
-    // cout << "after compare Fi " << Fi * 360 / (6.28) << " " << endl;
-
+    cout << "Fi " << Fi * TMath::RadToDeg() << " " << endl;
+    //    if(ihit > 0) Fi = CompareToPreviousPhi(Fi, Fi_pre, charge);  // CHECK This
+    //    cout << "after compare Fi " << Fi * 360 / (6.28) << " " << endl;
     Fi_pre = Fi;
-    scos = - charge * radius * Fi; // scos = -q * R * phi CHECK :-)GOOD!
-    cout << charge << " zfit " << scos << endl;
-
-    // check on the mean;
-
-  //   if(ihit == 0) scosmean = scos;
-//     else if(fabs(((scosmean * ihit + scos)/ (ihit + 1)) - scos) > 30) 
-//       {
-// 	cout << "scosmean check fails " << scosmean << " " << scos << endl;
-// 	Fi -= 2 * TMath::Pi();
-// 	scos = - charge * radius * Fi; 
-// 	cout << "fi/scos " << Fi << " " << scos << endl;
-//       }
-//     scosmean = (scosmean * ihit + scos)/ (ihit + 1);
-//     cout << "scosmean " << scosmean << endl;
-    // --------------------------------
+    Double_t scos = - charge * radius * Fi; // scos = -q * R * phi CHECK :-)GOOD!
+    cout << charge << " scosl " << scos << endl;
 
     Double_t sigz2 = errz * errz;
   
-     if(sigz2 == 0) sigz2 = 1e-5; // CHECK MVD covariance
+    if(sigz2 == 0) sigz2 = 1e-5; // CHECK MVD covariance
      //      cout << "scosl " << scos << " " << points[ihit][4] << " " << sigz2 <<  " " <<  points[ihit][7] << endl;
      zcounter++;
 
      if(fDisplayOn) {
-       cout << "scos/z 0 : " << scos << " " << intersection.Z() << " " << errz << endl;
-       TArc *mrk = new TArc(scos, intersection.Z(), errz);
-       mrk->SetFillStyle(0);
-       mrk->SetLineColor(4);
-       mrk->Draw("SAME");
-   //     cout << "scos/z I : " << scos << " " << zint1 << endl;
-//        TMarker *mrk1 = new TMarker(scos, zint1, 21);
-//        mrk1->SetMarkerColor(2);
-//        mrk1->Draw("SAME");
-//        cout << "scos/z II : " << scos << " " << zint2 << endl;
-//        TMarker *mrk2 = new TMarker(scos, zint2, 21);
-//        mrk2->SetMarkerColor(3);
-//        mrk2->Draw("SAME");
+       cout << "scos/z 0 : " << scos << " " << point.Z() << " " << errz << endl;
+       TLine *l = new TLine(scos, point.Z() - errz, scos, point.Z() + errz);
+       l->SetLineColor(4);
+       l->Draw("SAME");
+       //     cout << "scos/z I : " << scos << " " << zint1 << endl;
 
+       TMarker *mrk1 = new TMarker(scos, point1.Z(), 21);
+       mrk1->SetMarkerColor(2);
+       mrk1->Draw("SAME");
+       //        cout << "scos/z II : " << scos << " " << zint2 << endl;
+       TMarker *mrk2 = new TMarker(scos, point2.Z(), 21);
+       mrk2->SetMarkerColor(3);
+       mrk2->Draw("SAME");
+       
        display->Update();
        display->Modified();  
      }
-
+     
      Sx = Sx + (scos /(sigz2));
-     Sz = Sz + (intersection.Z()/(sigz2));
-     Sxz = Sxz + ((scos * intersection.Z())/(sigz2));
+     Sz = Sz + (point.Z()/(sigz2));
+     Sxz = Sxz + ((scos * point.Z())/(sigz2));
      Sxx = Sxx + ((scos * scos)/(sigz2));
      S1z = S1z + 1/(sigz2);
-
+     
   }
   
   if(zcounter <= 1) return kFALSE;  //  CHECK 
@@ -3759,12 +3936,247 @@ Bool_t PndSecondaryTrackFinder::ZFit(std::vector<int> cluster, Int_t charge, Dou
   } // CHECK
   fitp = (1/Detz)*(Sxx*Sz - Sx*Sxz);
   fitm = (1/Detz)*(S1z*Sxz - Sx*Sz);
-  //  cout << "z fit " << fitm << " " << fitp << endl;
-
-
+  cout << "z fit " << fitm << " " << fitp << endl;
+    double pt = radius * 0.006;
+  double pl = fitm * pt;
+  double ptot = TMath::Sqrt(pt * pt + pl * pl);
+  cout << "MOMENTUM pt: " << pt << " pl: " << pl << " ptot: " << ptot << endl;
   return true;
 }
 
+
+Bool_t PndSecondaryTrackFinder::ZFit2(std::vector<int> cluster, Int_t charge, Double_t xc, Double_t yc, Double_t radius, Double_t &fitm, Double_t &fitp)
+{
+
+  // recalculate z - s fit only from MVD
+  Double_t Sxx, Sx, Sz, Sxz, S1z;
+  Double_t Detz = 0.;
+  
+  Sx = 0.;
+  Sz = 0.;
+  Sxx = 0.;
+  Sxz = 0.;
+  S1z = 0.;
+
+  // x0 y0
+  Double_t d = TMath::Sqrt(xc * xc + yc * yc) - radius;
+  Double_t phi =  TMath::ATan2(yc, xc);
+  
+  Double_t x0 = d * TMath::Cos(phi);
+  Double_t y0 = d * TMath::Sin(phi);
+ TVector2 v(x0 - xc, y0 - yc); 
+  Double_t Phi0 = TMath::ATan2((y0 - yc),(x0 - xc));
+  int zcounter = 0, zerrcounter = 0;
+
+  TVector3 intersection(0., 0., 0.);
+  int nhits = cluster.size();
+ 
+  std::map<int, int> hitidtointersections;
+  std::vector<TVector3> intersectionpoints;
+  std::vector<double> zerrors;
+  cout << "CLUSTER WITH " << nhits << " HITS" << endl;
+  int tmphitid;
+  double tmperrz = 1000;  
+  for(int ihit = 0; ihit < nhits; ihit++) {
+    Int_t hitid = cluster[ihit];
+    Bool_t belong = DoesHitBelong(hitid, xc, yc, radius, intersection, kFALSE);
+    if(belong == kFALSE) continue;
+    Double_t zint1, zint2, errz;
+    Double_t zint = CalculateZ(hitid, intersection.X(), intersection.Y(), zint1, zint2, errz);
+    intersection.SetZ(zint);
+    //     cout << "intersection " << endl;
+    //     intersection.Print();
+    hitidtointersections[hitid] = intersectionpoints.size();
+    intersectionpoints.push_back(intersection);
+    zerrors.push_back(errz);
+    if(tmperrz >= errz) {
+      tmperrz = errz;
+      tmphitid = hitid;
+    }
+    zcounter++; 
+    if(errz < 10) zerrcounter++;
+ }
+
+  int besthitid = tmphitid;
+  int bpointid  = hitidtointersections[besthitid]; 
+  TVector3 bpoint = intersectionpoints[bpointid];
+  double berrz = zerrors[bpointid];
+  Double_t balpha = TMath::ATan2(bpoint.Y() - y0 + radius * TMath::Sin(Phi0), bpoint.X() - x0 + radius * TMath::Cos(Phi0));
+  TVector2 bp(bpoint.X() - xc, bpoint.Y() - yc);
+  cout << "best alpha " << balpha << endl;
+  bpoint.Print();
+  Double_t bFi = CalculatePhi(v, bp, balpha, Phi0, charge);
+  cout << "best Fi " << bFi * TMath::RadToDeg() << " " << endl;
+  Double_t bscos = - charge * radius * bFi; // scos = -q * R * phi CHECK :-)GOOD!
+  cout << charge << " best scosl " << bscos << endl;
+  Double_t bsigz2 = berrz * berrz;
+  // ...................
+
+  cout << "ZCOUNTER " << zcounter << endl;
+  std::vector<int> sortedhits = OrderClusterInPhi(cluster, intersectionpoints, hitidtointersections, xc, yc, radius);
+
+  nhits = sortedhits.size();
+  Double_t Fi_pre = 0.; 
+  for(int ihit = 0; ihit < nhits; ihit++) {
+    int hitid = sortedhits[ihit];
+    int pointid  = hitidtointersections[hitid]; 
+    TVector3 point = intersectionpoints[pointid];
+    double errz = zerrors[pointid];
+    if(zerrcounter > 2 && errz > 10) continue;
+    Double_t alpha = TMath::ATan2(point.Y() - y0 + radius * TMath::Sin(Phi0), point.X() - x0 + radius * TMath::Cos(Phi0));
+    TVector2 p(point.X() - xc, point.Y() - yc);
+
+    cout << "alpha " << alpha << endl;
+    point.Print();
+
+    Double_t Fi = CalculatePhi(v, p, alpha, Phi0, charge);
+    cout << "Fi " << Fi * TMath::RadToDeg() << " " << endl;
+    //    if(ihit > 0) Fi = CompareToPreviousPhi(Fi, Fi_pre, charge);  // CHECK This
+    //    cout << "after compare Fi " << Fi * 360 / (6.28) << " " << endl;
+    Fi_pre = Fi;
+    Double_t scos = - charge * radius * Fi; // scos = -q * R * phi CHECK :-)GOOD!
+    cout << charge << " scosl " << scos << endl;
+
+    Double_t sigz2 = errz * errz;
+  
+    if(sigz2 == 0) sigz2 = 1e-5; // CHECK MVD covariance
+     //      cout << "scosl " << scos << " " << points[ihit][4] << " " << sigz2 <<  " " <<  points[ihit][7] << endl;
+     zcounter++;
+
+     if(fDisplayOn) {
+       cout << "scos/z 0 : " << scos << " " << point.Z() << " " << errz << endl;
+       TLine *l = new TLine(scos, point.Z() - errz, scos, point.Z() + errz);
+       l->SetLineColor(4);
+       l->Draw("SAME");
+       //     cout << "scos/z I : " << scos << " " << zint1 << endl;
+       //        TMarker *mrk1 = new TMarker(scos, zint1, 21);
+       //        mrk1->SetMarkerColor(2);
+       //        mrk1->Draw("SAME");
+       //        cout << "scos/z II : " << scos << " " << zint2 << endl;
+       //        TMarker *mrk2 = new TMarker(scos, zint2, 21);
+       //        mrk2->SetMarkerColor(3);
+       //        mrk2->Draw("SAME");
+       
+       display->Update();
+       display->Modified();  
+     }
+     
+     // translation 
+     double pointz = point.Z() - bpoint.Z();
+     double scosd = scos - bscos;
+     Sxz = Sxz + ((scosd * pointz)/(sigz2));
+     Sxx = Sxx + ((scosd * scos)/(sigz2));
+     
+  }
+  
+  if(zcounter <= 1) return kFALSE;  //  CHECK 
+
+  if(Sxx == 0) { 
+    cout << "Sxx = 0" << endl; 
+    return kFALSE;
+  } // CHECK
+  
+  fitm = Sxz/Sxx;
+  fitp = bpoint.Z() - fitm * bscos;
+  cout << "z fit " << fitm << " " << fitp << endl;
+  double pt = radius * 0.006;
+  double pl = fitm * pt;
+  double ptot = TMath::Sqrt(pt * pt + pl * pl);
+  cout << "MOMENTUM pt: " << pt << " pl: " << pl << " ptot: " << ptot << endl;
+  if(fDisplayOn) { 
+    TLine *line = new TLine(-45, -45 * fitm + fitp, 120, 120 * fitm + fitp);
+    line->SetLineColor(2);
+    line->Draw("SAME");
+    display->Update();
+    display->Modified();  
+  }
+  // recompute all
+  for(int ihit = 0; ihit < nhits; ihit++) {
+    int hitid = sortedhits[ihit];
+    int pointid  = hitidtointersections[hitid]; 
+    TVector3 point = intersectionpoints[pointid];
+    double errz = zerrors[pointid];
+    Double_t alpha = TMath::ATan2(point.Y() - y0 + radius * TMath::Sin(Phi0), point.X() - x0 + radius * TMath::Cos(Phi0));
+    TVector2 p(point.X() - xc, point.Y() - yc);
+    Double_t Fi = CalculatePhi(v, p, alpha, Phi0, charge);
+    Double_t scos = - charge * radius * Fi; // scos = -q * R * phi CHECK :-)GOOD!
+    // z = scos * fitm + fitp
+    double newz = scos * fitm + fitp;
+    double x, y;
+    ReCalculateXY(hitid, newz, x, y);
+    cout << "new point " << hitid << " " << x << " " << y << " " << newz << endl;
+    TVector3 newpoint(x, y, newz);
+    std::replace(intersectionpoints.begin(), intersectionpoints.end(), point, newpoint);
+  }
+
+  std::vector<int> sortedhits2 = OrderClusterInPhi(cluster, intersectionpoints, hitidtointersections, xc, yc, radius);
+
+  nhits = sortedhits2.size();
+  Fi_pre = 0.; 
+  for(int ihit = 0; ihit < nhits; ihit++) {
+    int hitid = sortedhits2[ihit];
+    int pointid  = hitidtointersections[hitid]; 
+    TVector3 point = intersectionpoints[pointid];
+    double errz = zerrors[pointid];
+    Double_t alpha = TMath::ATan2(point.Y() - y0 + radius * TMath::Sin(Phi0), point.X() - x0 + radius * TMath::Cos(Phi0));
+    TVector2 p(point.X() - xc, point.Y() - yc);
+    Double_t Fi = CalculatePhi(v, p, alpha, Phi0, charge);
+    Double_t scos = - charge * radius * Fi; // scos = -q * R * phi CHECK :-)GOOD!
+   Double_t sigz2 = errz * errz;
+  
+    if(sigz2 == 0) sigz2 = 1e-5; // CHECK MVD covariance
+     //      cout << "scosl " << scos << " " << points[ihit][4] << " " << sigz2 <<  " " <<  points[ihit][7] << endl;
+     zcounter++;
+
+     if(fDisplayOn) {
+       cout << "scos/z 0 : " << scos << " " << point.Z() << " " << errz << endl;
+       TLine *l = new TLine(scos, point.Z() - errz, scos, point.Z() + errz);
+       l->SetLineColor(3);
+       l->Draw("SAME");
+       //     cout << "scos/z I : " << scos << " " << zint1 << endl;
+       //        TMarker *mrk1 = new TMarker(scos, zint1, 21);
+       //        mrk1->SetMarkerColor(2);
+       //        mrk1->Draw("SAME");
+       //        cout << "scos/z II : " << scos << " " << zint2 << endl;
+       //        TMarker *mrk2 = new TMarker(scos, zint2, 21);
+       //        mrk2->SetMarkerColor(3);
+       //        mrk2->Draw("SAME");
+       
+       display->Update();
+       display->Modified();  
+     }
+     
+      Sx = Sx + (scos /(sigz2));
+      Sz = Sz + (point.Z()/(sigz2));
+      Sxz = Sxz + ((scos * point.Z())/(sigz2));
+      Sxx = Sxx + ((scos * scos)/(sigz2));
+      S1z = S1z + 1/(sigz2);
+     
+  }
+  
+  if(zcounter <= 1) return kFALSE;  //  CHECK 
+  Detz = S1z*Sxx - Sx*Sx;
+  if(Detz == 0) { 
+    cout << "DET Z = 0" << endl; 
+    return kFALSE;
+  } // CHECK
+  fitp = (1/Detz)*(Sxx*Sz - Sx*Sxz);
+  fitm = (1/Detz)*(S1z*Sxz - Sx*Sz);
+  cout << "z fit " << fitm << " " << fitp << endl;
+  if(fDisplayOn) { 
+    TLine *line = new TLine(-45, -45 * fitm + fitp, 120, 120 * fitm + fitp);
+    line->SetLineColor(3);
+    line->Draw("SAME");
+    display->Update();
+    display->Modified();  
+  }
+  pt = radius * 0.006;
+  pl = fitm * pt;
+  ptot = TMath::Sqrt(pt * pt + pl * pl);
+  cout << "MOMENTUM BIS pt: " << pt << " pl: " << pl << " ptot: " << ptot << endl;
+
+  return true;
+}
 
 // void   PndSttTrackFinderReal::FindCharge(
 // 					 Double_t oX,  // center of track

@@ -64,6 +64,8 @@ class PndSecondaryTrackFinder : public FairTask {
   std::vector<int> OrderHits(TClonesArray *hitarray, Int_t detId, Bool_t skewed);
   std::vector<int> OrderCluster(std::vector<int> cluster, Int_t detId, TVector3 point);
   std::vector<int> OrderCluster2(std::vector<int> cluster, Int_t detId, double xc, double yc, double radius) ;
+  std::vector<int> OrderClusterInPhi(std::vector<int> cluster, std::vector<TVector3> positions, std::map<int, int> hitidtointersection, double xc, double yc, double radius);
+  std::vector<int> OrderClusterInZ(std::vector<int> cluster, std::vector<TVector3> positions, std::map<int, int> hitidtointersection, double xc, double yc, double radius);
 
   void DeleteHit(Int_t ihit, std::vector<int> *hits);
   void DeleteHits(TString detectors, std::vector<int> *hits);
@@ -115,12 +117,14 @@ class PndSecondaryTrackFinder : public FairTask {
   Bool_t TestChi2(std::vector<int> cluster, Double_t xc, Double_t yc, Double_t radius,  Int_t detId, Int_t iclus, Double_t chi2, Int_t countelem, Double_t &newxc, Double_t &newyc, Double_t &newradius, std::vector<int> * newcluster, Double_t &newchi2);
 
   // Z FINDING
-  Bool_t DoesHitBelong(Int_t hitId, Double_t xc, Double_t yc, Double_t radius, TVector3 &intersection);
+  Bool_t DoesHitBelong(Int_t hitId, Double_t xc, Double_t yc, Double_t radius, TVector3 &intersection, Bool_t draw);
   std::vector<int>  ZFinder(std::vector<int> hits, Double_t xc, Double_t yc, Double_t radius);
   Bool_t ZFinder2(std::vector<int> hits, Double_t xc, Double_t yc, Double_t radius, Int_t charge);
 
   Double_t CalculateZ(Int_t hitId, Double_t x, Double_t y, Double_t &z1, Double_t &z2, Double_t &errz);
+  void ReCalculateXY(Int_t hitId, Double_t z, Double_t &x, Double_t &y);
   Bool_t ZFit(std::vector<int> cluster, Int_t charge, Double_t xc, Double_t yc, Double_t radius, Double_t &fitm, Double_t &fitp);
+  Bool_t ZFit2(std::vector<int> cluster, Int_t charge, Double_t xc, Double_t yc, Double_t radius, Double_t &fitm, Double_t &fitp);
   Int_t FindCharge(Double_t oX, Double_t oY, std::vector<int> cluster);
   std::vector<int> AssociateSkewHitsToXYTrack(Double_t Ox,  Double_t Oy,  Double_t R,  std::vector<int> hits,  std::vector< TMatrixT<double> > *szpar);
   void calculateintersections(Double_t Ox,Double_t Oy,Double_t R,Double_t C0x,Double_t C0y,
