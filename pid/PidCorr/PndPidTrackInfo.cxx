@@ -101,7 +101,8 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
     pnt[1]=pocaz.Y();
     pnt[2]=pocaz.Z(); 
     FairRunAna::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
-    Double_t B = Bf[0]*Bf[0]+Bf[1]*Bf[1]+Bf[2]*Bf[2];
+    //Double_t B = sqrt(Bf[0]*Bf[0]+Bf[1]*Bf[1]+Bf[2]*Bf[2]);
+    Double_t B = Bf[2];
     Double_t qBc = -0.000299792458*B*Q;
     Double_t icL = 1. / cos(fRes->GetLambda()); // inverted for practical reasons (better to multiply than to divide)
     Double_t icLs = icL*icL;
