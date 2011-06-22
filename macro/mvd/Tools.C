@@ -223,7 +223,7 @@ void LoadPandaStyle(void)
   pandaStyle->SetMarkerStyle(8);
   pandaStyle->SetHistLineWidth(1.85);//1.85);
   pandaStyle->SetLineStyleString(2,"[12 12]"); // postscript dashes
-  
+
   // do not display any of the standard histogram decorations
   pandaStyle->SetOptTitle(1);
   pandaStyle->SetOptStat(1);
@@ -305,17 +305,23 @@ plothistosfromfile(TString filename = "histos.root", TString ext=".ps")
     {
       //cout<<"try plotting a TH1"<<endl;
       TH1* his = (TH1*)key->ReadObj();
+      his->GetXaxis()->SetNoExponent(); // put exponents to numbers directly
+      his->GetYaxis()->SetNoExponent(); // put exponents to numbers directly
       his->Draw();
     }else if(keyclass.Contains("TH2"))
     {
       //cout<<"try plotting a TH2"<<endl;
       TH2* his2 = (TH2*)key->ReadObj();
+      his2->GetXaxis()->SetNoExponent(); // put exponents to numbers directly
+      his2->GetYaxis()->SetNoExponent(); // put exponents to numbers directly
       //DrawNice2DHisto(his2);
       his2->Draw("colz");
     }else if(keyclass.Contains("TProfile"))
     {
       //cout<<"try plotting a TH2"<<endl;
       TProfile* hpro = (TProfile*)key->ReadObj();
+      hpro->GetXaxis()->SetNoExponent(); // put exponents to numbers directly
+      hpro->GetYaxis()->SetNoExponent(); // put exponents to numbers directly
       hpro->Draw();
     } else continue;
     
@@ -343,6 +349,45 @@ void LoadManySimFiles(TString treename="cbmsim")
   TChain *R=new TChain(treename.Data());
   while (fi=(TFile*)next()) R->Add(fi->GetName());
   cout<<(Int_t)R->GetEntries()<<endl;
+}
+
+TString InitDefaultRun(TString filetag)
+{
+  cout << "-I- Using InitDefaultRun() from macro/mvd/Tools.C with the sim file " << filetag.Data() << endl;
+  FairRunAna* fRun = new FairRunAna();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  
+  filetag.ReplaceAll("_sim.root",".root");
+  PndFileNameCreator namecreator(filetag.Data());
+  TString simFile = namecreator.GetSimFileName();
+  TString parFile = namecreator.GetParFileName();
+  TString recoFile = namecreator.GetRecoFileName();
+  TString tracksFile = namecreator.GetCustomFileName("tracks");
+  TString pidFile = namecreator.GetCustomFileName("pid");
+  TString histoFile = namecreator.GetCustomFileName("histos-pocavtx");
+  TString evrdummy = namecreator.GetCustomFileName("evrdummy");
+  std::cout<<"simFile="<<simFile.Data()<<std::endl;
+  std::cout<<"parFile="<<parFile.Data()<<std::endl;
+  std::cout<<"recoFile="<<recoFile.Data()<<std::endl;
+  std::cout<<"trkFile="<<tracksFile.Data()<<std::endl;
+  std::cout<<"pidFile="<<pidFile.Data()<<std::endl;
+  fRun->SetInputFile(simFile);
+  fRun->AddFriend(recoFile);//,"rec");
+  fRun->AddFriend(tracksFile);//,"trk");
+  fRun->AddFriend(pidFile);//,"pid");
+  FairParRootFileIo* parIO = new FairParRootFileIo();
+  parIO->open(parFile.Data());
+  rtdb->setFirstInput(parIO);
+  rtdb->setOutput(parIO);  
+  
+  TString outFile = evrdummy;
+  TString sysFile = gSystem->Getenv("VMCWORKDIR");  
+  
+  fRun->SetOutputFile(outFile.Data());
+  FairGeane* geane = new FairGeane();
+  fRun->AddTask(geane);
+  fRun->Init();  
+  return histoFile;
 }
 
 

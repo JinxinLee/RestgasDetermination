@@ -16,7 +16,7 @@ class PndSdsCalcFePixel
   {
     public :
     ///Default constructor
-    PndSdsCalcFePixel(){ fNcols = 0; fNrows = 0; fMaxFEperCol = 0;};
+    PndSdsCalcFePixel(){ fNcols = 1; fNrows = 1; fMaxFEperCol = 1;};
     
     ///Main constructor
     /// @param ncols number of columns on a front-end chip
