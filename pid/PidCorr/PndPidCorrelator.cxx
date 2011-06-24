@@ -142,7 +142,7 @@ InitStatus PndPidCorrelator::Init() {
   
   if (fTrackBranch2!="")
     {
-      fTrack2 = (TClonesArray *)fManager->GetTClonesArray(fTrackBranch2);
+      fTrack2 = (TClonesArray *)fManager->GetObject(fTrackBranch2);
       if ( ! fTrack2 ) {
 	cout << "-I- PndPidCorrelator::Init: No 2nd PndTrack array!" << endl;
 	return kERROR;
