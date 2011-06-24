@@ -337,7 +337,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   clusterlist = ClusterFinder(stthits,  FairRootManager::Instance()->GetBranchId(fSttBranch));
   cout << "after cluster finding" << endl;
   PrintClusters(clusterlist);
-  DrawClusters(clusterlist);
+  if(fDisplayOn) DrawClusters(clusterlist);
 
   std::vector< TMatrixT<double> > xyparameters;
   // GO TO CONFORMAL PLANE FOR FITTING ==================================
@@ -391,7 +391,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 
   cout << "after replacing and deleting" << endl;
   PrintClusters(clusterlist);
-  DrawClusters(clusterlist);
+  if(fDisplayOn) DrawClusters(clusterlist);
 
 //  if(fDisplayOn) { 
 //       char goOnChar;
@@ -414,7 +414,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   }
   cout << "after adding the points" << endl;
   PrintClusters(clusterlist);
-  DrawClusters(clusterlist);
+   if(fDisplayOn) DrawClusters(clusterlist);
  
 //  if(fDisplayOn) { 
 //       char goOnChar;
@@ -424,7 +424,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 //    }
   // FIT THE NEW CLUSTERS AGAIN ===========================================
   cout << " NEW FIT " << endl;
-  Refresh();
+  if(fDisplayOn) Refresh();
   xyparameters.clear();
   // refit tracks
   for(int iclus = 0; iclus < clusterlist.size(); iclus++) {
@@ -441,7 +441,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     if(fDisplayOn) {
       char goOnChar;
       cout << "Go back to reak plane: cluster " << iclus << endl;
-      Refresh();
+      if(fDisplayOn) Refresh();
       cout << "helix " << xc << " " << yc << " " << radius << endl;     
       TArc *arc = new TArc(xc, yc, radius);
       arc->SetLineColor(kCyan);
@@ -460,7 +460,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   }
 
   // 
-  Refresh();
+  if(fDisplayOn) Refresh();
 
 //  if(fDisplayOn) { 
 //       char goOnChar;
@@ -474,10 +474,10 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   newlist = MergeClusters(clusterlist);
   clusterlist.clear();
   clusterlist = newlist;
-  Refresh();
+  if(fDisplayOn) Refresh();
   cout << "after merging" << endl;
   PrintClusters(clusterlist);
-  DrawClusters(clusterlist);
+ if(fDisplayOn)  DrawClusters(clusterlist);
 
 //  if(fDisplayOn) { 
 //       char goOnChar;
@@ -486,8 +486,8 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 //       cout << "GOING ON" << endl;
 //    }
 
-  // FIT THE MERGED CLUSTERS ======================================================
-  Refresh();
+  // FIT THE MERGED CLUSTERS =====================================================
+  if(fDisplayOn) Refresh();
   xyparameters.clear();
   // refit tracks
   for(int iclus = 0; iclus < clusterlist.size(); iclus++) {
@@ -698,20 +698,22 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     double mcfitm = mctrk->GetMomentum().Z() / mctrk->GetMomentum().Perp();
     double mcfitp = 0;
     cout << "MC FITM/FITP " << mcfitm << " " << mcfitp << endl;
-    TLine *line = new TLine(-45,  -45 * mcfitm + mcfitp, 120, 120* mcfitm + mcfitp);
-    line->SetLineColor(4);
-    line->SetLineStyle(2);
-    line->Draw("SAME");
-    display->Update();
-    display->Modified();  
-
+    if(fDisplayOn) {
+      TLine *line = new TLine(-45,  -45 * mcfitm + mcfitp, 120, 120* mcfitm + mcfitp);
+      line->SetLineColor(4);
+      line->SetLineStyle(2);
+      line->Draw("SAME");
+      display->Update();
+      display->Modified();  
+    }
   }
 
-  char goOnChar;
-  cout << "NEXT ONE ? press any key" << endl;
-  cin >> goOnChar;
-  cout << "GOING ON" << endl;
- 
+  if(fDisplayOn) {
+    char goOnChar;
+    cout << "NEXT ONE ? press any key" << endl;
+    cin >> goOnChar;
+    cout << "GOING ON" << endl;
+  }
 }
 
 
@@ -1986,7 +1988,7 @@ Bool_t PndSecondaryTrackFinder::ConformalFit(std::vector<std::vector<double> > c
   if(fDisplayOn) {
     char goOnChar;
     cout << "Go back to reak plane: cluster " << iclus << endl;
-    Refresh();
+    if(fDisplayOn) Refresh();
     cout << "helix " << xc << " " << yc << " " << radius << endl;     
     TArc *arc = new TArc(xc, yc, radius);
     arc->SetLineColor(kGreen);
@@ -3495,7 +3497,7 @@ Bool_t PndSecondaryTrackFinder::CompleteSttFit(std::vector<int> cluster, Int_t i
   if(fDisplayOn) {
     char goOnChar;
     cout << "Go back to reak plane: cluster " << iclus << endl;
-    Refresh();
+    if(fDisplayOn) Refresh();
     cout << "helix " << xc << " " << yc << " " << radius << endl;     
     TArc *arc = new TArc(xc, yc, radius);
     arc->SetLineColor(kGreen);
@@ -5219,12 +5221,14 @@ std::vector<TVector3>  PndSecondaryTrackFinder::FindRealIntersections(std::vecto
   case 3: fitm = m22; fitp = p22; break;
   }
   cout << "THE CHOICE IS fitmfip " << fitm << " " << fitp << endl;
-  TLine *line2 = new TLine(-45,  -45 * fitm + fitp, 120, 120* fitm + fitp);
-  line2->SetLineStyle(2);
-  line2->SetLineColor(kCyan);
-  line2->Draw("SAME");
-  display->Update();
-  display->Modified();  
+  if(fDisplayOn) { 
+    TLine *line2 = new TLine(-45,  -45 * fitm + fitp, 120, 120* fitm + fitp);
+    line2->SetLineStyle(2);
+    line2->SetLineColor(kCyan);
+    line2->Draw("SAME");
+    display->Update();
+    display->Modified();  
+  }
 
   for(int ihit = 0; ihit < nrealhits; ihit++)
     { 
