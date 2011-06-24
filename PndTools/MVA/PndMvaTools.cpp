@@ -65,17 +65,13 @@ void WriteRocToFile( std::string const& fName,
  */
 void print(std::vector <ClassifierOutPuts> const& el)
 {
-  std::map<std::string, float>::const_iterator it;
   for(size_t i = 0; i < el.size(); ++i)
   {
-    std::cout << "O_Label = "  << el[i].realLabel
+    std::cout << "O_Label = "   << el[i].realLabel
 	      << ", G_Label = " << el[i].givenLabel
+	      << ", SgValue = " << el[i].sgValue
+	      << ", bgValue = " << el[i].bgValue
 	      << '\n';
-    std::map<std::string, float> const& out = (el[i]).getClsOut();
-    for(it = out.begin(); it != out.end(); ++it)
-    {
-      std::cout << it->first << " " << it->second << " ";
-    }
   }
   std::cout << '\n';
 }

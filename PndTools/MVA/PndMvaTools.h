@@ -14,7 +14,6 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <map>
 #include <string>
 
 // ROOT
@@ -24,37 +23,44 @@
 /**
  * Structure used to hold the classifier output (label and distance or
  * prob.) for each example in the test set together with the original
- * class name.
+ * class name. Used for ROC curves.
  */
 struct ClassifierOutPuts
 {
   //public:
   // Constructors
-  ClassifierOutPuts()
-    : realLabel ("ALABEL"),
-      givenLabel("NOLABEL")
+ClassifierOutPuts()
+: realLabel ("ALABEL"),
+    givenLabel("NOLABEL"),
+    sgValue(0.00),
+    bgValue(0.00)
   {};
+
   /**
    *@param Rlabel True label.
    *@param Glabel Given label.
-   *@param clsOut Classifier output for each label.
+   *@param sgVal Classifier output for each signal.
+   *@param bgVal Classifier output for each background.
    */
-  ClassifierOutPuts(std::string const& Rlabel, std::string const& Glabel,
-		    std::map<std::string, float> const& clsOut)
-    : realLabel  (Rlabel),
-      givenLabel (Glabel),
-      clsOuts    (clsOut)
+ClassifierOutPuts(std::string const& Rlabel,
+		  std::string const& Glabel,
+		  float sgVal, float bgVal)
+: realLabel(Rlabel),
+    givenLabel(Glabel),
+    sgValue(sgVal),
+    bgValue(bgVal)
   {};
-
+  
   // Destructor
   virtual ~ClassifierOutPuts()
   {};
-
+  
   // Copy Const
-  ClassifierOutPuts(ClassifierOutPuts const& ot)
-    : realLabel  (ot.realLabel),
-      givenLabel (ot.givenLabel),
-      clsOuts    (ot.clsOuts)
+ClassifierOutPuts(ClassifierOutPuts const& ot)
+: realLabel(ot.realLabel),
+    givenLabel(ot.givenLabel),
+    sgValue(ot.sgValue),
+    bgValue(ot.bgValue)
   {};
 
   // Operators.  
@@ -62,26 +68,30 @@ struct ClassifierOutPuts
   {
     this->realLabel  = ot.realLabel;
     this->givenLabel = ot.givenLabel;
-    this->clsOuts    = ot.clsOuts;
+    this->sgValue    = ot.sgValue;
+    this->bgValue    = ot.bgValue;
     return (*this);
   };
-
-  // Get classifier output for all available labels.
-  std::map<std::string, float> const& getClsOut() const
+  
+  inline bool operator> (ClassifierOutPuts const& ot) const
   {
-    return clsOuts;
+    return (this->sgValue > ot.sgValue);
+  };
+  
+  inline bool operator< (ClassifierOutPuts const& ot) const
+  {
+    return (this->sgValue < ot.sgValue);
   };
 
   // Variables
   std::string realLabel;// Original label
   std::string givenLabel;// Given label
-  std::map<std::string, float> clsOuts; // Classifier outputs per label
-  
+  float sgValue;// Classifier output for label signal
+  float bgValue;// Classifier output for label background
+
   //protected:
 private:
   //==
-  inline bool operator> (ClassifierOutPuts const& ot) const;
-  inline bool operator< (ClassifierOutPuts const& ot) const;
   inline bool operator==(ClassifierOutPuts const& ot) const;
 };
 

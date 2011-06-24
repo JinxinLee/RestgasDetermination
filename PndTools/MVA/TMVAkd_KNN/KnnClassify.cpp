@@ -40,12 +40,12 @@ void printResult( std::map<std::string,float>& res, unsigned int evtId)
 }
 
 // Produce a set of points to draw the ROC.
+
 void Produce_KNN_ROC( std::vector< ClassifierOutPuts >& input,//Alg. input
 		      std::string const& SigName,// Signal name
 		      std::string const& BgName,// Background name
 		      size_t sigCnt, size_t bgCnt,// number of sg and bg
-		      std::vector< ROCPoints >& Roc,// Produced set of ROC points
-		      size_t numSteps = 10)// Number of steps (ROC points)
+		      std::vector< ROCPoints >& Roc)// Produced set of ROC points
 {
   float sg, bg;
   sg = bg = 0.0;
@@ -60,81 +60,26 @@ void Produce_KNN_ROC( std::vector< ClassifierOutPuts >& input,//Alg. input
     std::cerr << "Signal OR Background count is zero\n";
     exit(EXIT_FAILURE);
   }
-  
-  float MinVal, MaxVal;
-  MinVal = std::numeric_limits<float>::max();
-  MaxVal = std::numeric_limits<float>::min();
 
   // We need to find Min and Max output for Signal.
-  for(size_t i = 0; i < input.size(); ++i)
-  {
-    // MinVal
-    if( (input[i]).clsOuts[SigName] < MinVal)
-    {
-      MinVal = (input[i]).clsOuts[SigName];
-    }
+  std::sort(input.begin(), input.end());
+  std::reverse(input.begin(), input.end());
+
+
     
-    // MaxVal
-    if( (input[i]).clsOuts[SigName] > MaxVal)
-    {
-      MaxVal = (input[i]).clsOuts[SigName];
-    }
-  }
-
-  // Determine the value for increment.
-  float inc;
-  if( numSteps == 0 )
-  {
-    numSteps = 10;
-  }
-  inc = (MaxVal - MinVal )/static_cast<float>(numSteps);
-
-  // Add (0,0)
-  Roc.push_back(ROCPoints());
-  
-  float trhold, fpRate, tpRate;
+  float fprev, trhold, fpRate, tpRate;
   float tnRate, fnRate;
   size_t fpCnt, tpCnt, fn, tn;
 
-  trhold = MinVal;
+  fprev = std::numeric_limits<float>::min();
+  trhold = fprev;
+
   fpRate = tpRate = tnRate = fnRate = 0.00;
   fpCnt = tpCnt = fn = tn = 0;
+  size_t cnt = 0;
   
-  while( trhold <= MaxVal )
+  while( cnt < input.size() )
   {
-    // Reset counters
-    fpCnt = tpCnt = 0;
-    fn    = tn    = 0;
-    // Event loop (classification outputs)
-    for(size_t k = 0; k < input.size(); ++k)
-    {
-      ClassifierOutPuts& a = input[k];
-
-      // LVQ (smaller is better)
-      if( a.clsOuts[SigName] >= trhold )
-      {// In Signal region (Assume signal)
-	if( a.realLabel == SigName)
-	{// True positief
-	  tpCnt++;
-	}
-	else
-	{// False positief
-	  fpCnt++;
-	}
-      }// End of In region
-      else// Out of region
-      {//Assume background
-	if( a.realLabel == BgName)
-	{// True negatief.
-	  tn++;
-	}
-	else
-	{// False negatief.
-	  fn++;
-	}
-      }// End out of region
-    }// Evt loop
-
     // True positief.
     tpRate = static_cast<float>(tpCnt)/sg;
     
@@ -142,18 +87,46 @@ void Produce_KNN_ROC( std::vector< ClassifierOutPuts >& input,//Alg. input
     fpRate = static_cast<float>(fpCnt)/bg;
     
     // True negatief.
-    tnRate = static_cast<float>(tn)/bg;
+    //tnRate = static_cast<float>(tn)/bg;
     
     // False negatief.
-    fnRate = static_cast<float>(fn)/sg;
-    
-    // Add the current ROC point
-    Roc.push_back(ROCPoints(fpRate, tpRate, tnRate, fnRate,
-			    fpCnt, tpCnt, fn, tn, trhold));
-    
-    trhold += inc;
+    //fnRate = static_cast<float>(fn)/sg;
+
+    if( (fprev > input[cnt].sgValue) ||
+	(fprev < input[cnt].sgValue)
+	)
+    {
+      Roc.push_back(ROCPoints(fpRate, tpRate, tnRate, fnRate,
+			      fpCnt, tpCnt, fn, tn, trhold));
+
+      fprev = input[cnt].sgValue;
+      trhold = fprev;
+    }
+    // If input[cnt] == True positief
+    if( input[cnt].realLabel == SigName )
+    {
+      tpCnt++;
+    }
+    else
+    {
+      fpCnt++;
+    }
+
+    // If input[cnt] == True Negatief
+    if( input[cnt].realLabel == BgName )
+    {
+      //tn++;
+    }
+    else
+    {
+      //fn++;
+    }
+    cnt++;
   }//While
+  Roc.push_back(ROCPoints(fpRate, tpRate, tnRate, fnRate,
+			  fpCnt, tpCnt, fn, tn, trhold));
 }
+
 /* *********************************************
  * Testing routine, can be deleted afterwards. *
  * *********************************************
@@ -181,6 +154,9 @@ int main(int argc, char** argv)
   buff >> NumNei;
   
   // Containers to hold labels and variable names.
+  std::string sgName = "electron";
+  std::string bgName = "pion";
+
   std::vector<std::string> labels;
   std::vector<std::string> vars;
   
@@ -265,7 +241,8 @@ int main(int argc, char** argv)
     std::string* givenLabel = cls.Classify( (*curEvt));
 
     // Store results.
-    classifiedEvents.push_back(ClassifierOutPuts((events[ev]).first, (*givenLabel), res));
+    classifiedEvents.push_back(ClassifierOutPuts((events[ev]).first, (*givenLabel),
+						 res[sgName], res[bgName]));
 
 #if DEBUG_PRINT
     std::cout << " Given label is "
@@ -319,9 +296,8 @@ int main(int argc, char** argv)
   // Create ROC points.
   std::cout << "<-I-> Creating ROC.\n";
   std::vector< ROCPoints > Roc;
-  Produce_KNN_ROC( classifiedEvents, "electron", "pion",
-		  (*counts)["electron"], (*counts)["pion"],
-		  Roc);
+  Produce_KNN_ROC( classifiedEvents, sgName, bgName,
+		  (*counts)[sgName], (*counts)[bgName], Roc);
   
   WriteRocToFile("ROCKNN.root", Roc); 
 

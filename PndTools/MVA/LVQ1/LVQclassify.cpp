@@ -9,6 +9,10 @@
  * procedure. This classifier is implemented based on the LVQ
  * algorithm.
  */
+
+#define CREATE_DIST_HISTS 0
+#define NUM_DEBUG_PRINT 15
+
 #define LVQ_CLS_DEBUG 1
 
 // C++
@@ -36,6 +40,7 @@ void printResult(std::map<std::string, float> const& res)
 }
 //________________________________________________________________
 // Produce a set of points to draw the ROC.
+
 void Produce_VQ_ROC( std::vector< ClassifierOutPuts >& input,//Alg. input
 		     std::string const& SigName,// Signal name
 		     std::string const& BgName,// Background name
@@ -65,15 +70,15 @@ void Produce_VQ_ROC( std::vector< ClassifierOutPuts >& input,//Alg. input
   for(size_t i = 0; i < input.size(); ++i)
   {
     // MinVal
-    if( (input[i]).clsOuts[SigName] < MinVal)
+    if( input[i].sgValue < MinVal )
     {
-      MinVal = (input[i]).clsOuts[SigName];
+      MinVal = input[i].sgValue;
     }
     
     // MaxVal
-    if( (input[i]).clsOuts[SigName] > MaxVal)
+    if( input[i].sgValue > MaxVal )
     {
-      MaxVal = (input[i]).clsOuts[SigName];
+      MaxVal = input[i].sgValue;
     }
   }
 
@@ -107,7 +112,7 @@ void Produce_VQ_ROC( std::vector< ClassifierOutPuts >& input,//Alg. input
       ClassifierOutPuts& a = input[k];
 
       // LVQ (smaller is better)
-      if( a.clsOuts[SigName] <= trhold )
+      if( a.sgValue <= trhold )
       {// In Signal region (Assume signal)
 	if( a.realLabel == SigName)
 	{// True positief
@@ -165,7 +170,8 @@ int main(int argc, char** argv)
 	      << std::endl;
     return 1;
   }
-  // Number of Proto types
+
+  // Input file containing prototypes
   std::string inF  = argv[1];
   
   // Events to classify
@@ -178,7 +184,11 @@ int main(int argc, char** argv)
 	    << "\tUsing prototypes from " << inF << '\n'
 	    << "\tThe outoput will be stored in txt format in "<< outF 
 	    << '\n';
-  
+
+  // Signal and background labels
+  std::string sgName = "electron";
+  std::string bgName = "pion";
+
   // Labels.
   std::vector<std::string> labels;
 
@@ -243,7 +253,7 @@ int main(int argc, char** argv)
     std::string* givenLabel = cls.Classify( (*evt) );
 
     // Store results.
-    classifiedEvents.push_back(ClassifierOutPuts((events[k]).first, (*givenLabel), res));
+    classifiedEvents.push_back(ClassifierOutPuts((events[k]).first, *givenLabel, res[sgName], res[bgName]));
 
     delete givenLabel;
   }// Events Loop
@@ -253,8 +263,8 @@ int main(int argc, char** argv)
   double rtime = timer.RealTime();
   double ctime = timer.CpuTime();
   std::cout << "Classifier timing results:\n"
-	    << "RealTime = " << rtime << " seconds, CpuTime = " 
-	    << ctime <<" Seconds\n"
+	    << "RealTime = " << rtime
+	    << " seconds, CpuTime = " << ctime <<" Seconds\n"
 	    << "It took " << (rtime/static_cast<double>(events.size()))
 	    << " Per event.\n";  
   
@@ -268,14 +278,16 @@ int main(int argc, char** argv)
 
 #if LVQ_CLS_DEBUG
   std::cout << "\n<-I-> DEBUG INFO\n";
-  for(size_t ot = 0; ot < 5; ++ot)
+  for(size_t ot = 0; ot < NUM_DEBUG_PRINT; ++ot)
   {
     std::cout << "\nReal lable is "  << classifiedEvents[ot].realLabel
-	      << "  given lable is " << classifiedEvents[ot].givenLabel;
-    printResult( classifiedEvents[ot].clsOuts );
+	      << "  given lable is " << classifiedEvents[ot].givenLabel
+	      << " clsOut[signal]  " << classifiedEvents[ot].sgValue
+	      << " clsOut[bground] " << classifiedEvents[ot].bgValue;
   }
+  std::cout <<'\n';
 #endif
-  
+
   // Open file to write the results to  
   std::ofstream OutPut;
   
@@ -334,31 +346,33 @@ int main(int argc, char** argv)
   // Create ROC points.
   std::cout << "<-I-> Creating ROC.\n";
   std::vector< ROCPoints > Roc;
-  Produce_VQ_ROC( classifiedEvents, "electron", "pion",
-		  (*counts)["electron"], (*counts)["pion"],
-		  Roc);
+  Produce_VQ_ROC( classifiedEvents, sgName, bgName,
+		  (*counts)[sgName], (*counts)[bgName], Roc);
   
   WriteRocToFile("ROC" + outF, Roc); 
-
+  
 #if LVQ_CLS_DEBUG
   printRoc(Roc);
 #endif
 
-  // TestPart
-  /*
-    TH1F myHist ("myHist","myHistDesc", 100, 0.0, 1.0);
-    for(size_t k = 0; k < classifiedEvents.size(); ++k)
-    {
+#if CREATE_DIST_HISTS
+  // Create dist histograms.
+  TH1F fgHist ("fgHist","fgHistDesc", 100, 0.0, 1.0);
+  TH1F bgHist ("bgHist","bgHistDesc", 100, 0.0, 1.0);
+
+  for(size_t k = 0; k < classifiedEvents.size(); ++k)
+  {
     ClassifierOutPuts& a = classifiedEvents[k];
-    float val = a.clsOuts["electron"]/ a.clsOuts["pion"];
+    fgHist.Fill(a.sgValue);
+    bgHist.Fill(a.bgValue);
     
-    if(val < 1.0)
-    {
-    myHist.Fill(val);
-    }
-    }
-    myHist.SaveAs("testHistDists.root");
-  */
+  }
+  outF = "Hists" + outF;
+  TFile histsfile(outF.c_str(),"RECREATE");
+  fgHist.Write();
+  bgHist.Write();
+  histsfile.Close();
+#endif
 
   //__________________ Clean up _____________//
   // Delete per label example counts
