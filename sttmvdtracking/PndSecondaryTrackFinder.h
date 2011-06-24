@@ -122,9 +122,16 @@ class PndSecondaryTrackFinder : public FairTask {
   Bool_t ZFinder2(std::vector<int> hits, Double_t xc, Double_t yc, Double_t radius, Int_t charge);
 
   Double_t CalculateZ(Int_t hitId, Double_t x, Double_t y, Double_t &z1, Double_t &z2, Double_t &errz);
-  void ReCalculateXY(Int_t hitId, Double_t z, Double_t &x, Double_t &y);
+
+  void CalculateZ2(Int_t hitId, Double_t x, Double_t y, Double_t xc, Double_t yc, Double_t radius, TVector3 &int1, TVector3 &int2, Double_t &errz);
+  TVector3 FindTangentInPoint(Double_t  xc, Double_t yc, Double_t radius, Double_t x, Double_t y, Double_t &m, Double_t &p) ;
+
+
+ void ReCalculateXY(Int_t hitId, Double_t z, Double_t &x, Double_t &y);
   Bool_t ZFit(std::vector<int> cluster, Int_t charge, Double_t xc, Double_t yc, Double_t radius, Double_t &fitm, Double_t &fitp);
   Bool_t ZFit2(std::vector<int> cluster, Int_t charge, Double_t xc, Double_t yc, Double_t radius, Double_t &fitm, Double_t &fitp);
+  Bool_t ZFit3(std::vector<int> cluster, Int_t charge, Double_t xc, Double_t yc, Double_t radius, Double_t &fitm, Double_t &fitp);
+  std::vector<TVector3>  FindRealIntersections(std::vector<int> *cluster, std::vector<TVector3> intersectionpoints, std::vector<TVector3>  intersectionpoints1, std::vector<TVector3> intersectionpoints2, std::map<int, int> hitidtointersections, Int_t charge, Double_t xc, Double_t yc, Double_t radius, Double_t &fitm, Double_t &fitp,  std::map<int, int> &hitidtolistmap);
   Int_t FindCharge(Double_t oX, Double_t oY, std::vector<int> cluster);
   std::vector<int> AssociateSkewHitsToXYTrack(Double_t Ox,  Double_t Oy,  Double_t R,  std::vector<int> hits,  std::vector< TMatrixT<double> > *szpar);
   void calculateintersections(Double_t Ox,Double_t Oy,Double_t R,Double_t C0x,Double_t C0y,
