@@ -1,4 +1,4 @@
-void runLumi5Geane(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=3)
+void runLumi5Geane(const int nEvents=10, const double mom=15, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0)
 {
   // ========================================================================
   // Input file (MC events)
@@ -87,8 +87,9 @@ void runLumi5Geane(const int nEvents=10, const int startEvent=0, TString storePa
   // -----    SDS hit producer   --------------------------------------------
 
  // PndEmcMapper *emcMap = PndEmcMapper::Instance(6);
- 
-  PndLmdGeaneTask* lmdgeane = new PndLmdGeaneTask();
+  Double_t fpBeam = mom;
+  TVector3 IP(0,0,0);
+  PndLmdGeaneTask* lmdgeane = new PndLmdGeaneTask(fpBeam, IP);
   lmdgeane->SetVerbose(verboseLevel);
   fRun->AddTask(lmdgeane);
   rtdb->setOutput(parInput1);
