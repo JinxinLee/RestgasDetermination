@@ -10,6 +10,7 @@
 #include "TROOT.h"
 #include "TClonesArray.h"
 #include "TVector3.h"
+#include <TMatrixDSym.h>
 
 
 // framework includes
@@ -20,11 +21,14 @@
 #include "FairHit.h"
 #include "PndMCTrack.h"
 #include "FairBaseParSet.h"
-// PndMvd includes
-#include "PndSdsMCPoint.h"
-#include "FairTrackParH.h"
 #include "TGeant3.h"
+#include "FairTrackParH.h"
+#include "FairTrackParP.h"
 #include "TDatabasePDG.h"
+
+// PndSds includes
+#include "PndSdsMCPoint.h"
+#include "PndSdsHit.h"
 //PndLmd includes
 #include "PndLinTrack.h"
 
@@ -37,6 +41,18 @@ PndLmdGeaneTask::PndLmdGeaneTask() : FairTask("Geane Task for PANDA Lmd"), fEven
 {
 }
 // -------------------------------------------------------------------------
+
+
+PndLmdGeaneTask::PndLmdGeaneTask(Double_t pBeam,TVector3 IP): FairTask("Geane Task for PANDA Lmd"), fEventNr(0), fUseMVDPoint(false)
+{
+  fPbeam = pBeam;
+  // if(fPDGid!=-2212){ //calculate momentum if particle is not antiproton
+  //     }
+  cout<<"Beam Momentum for particle with PDGid#"<<fPDGid<<" this run is "<<fPbeam<<endl;
+  vtx = IP;
+  cout<<"Interaction Point:"<<endl;
+  vtx.Print();
+}
 
 
 // -----   Destructor   ----------------------------------------------------
@@ -74,6 +90,12 @@ InitStatus PndLmdGeaneTask::Init()
     return kERROR;
   }
 
+  fHits = (TClonesArray*) ioman->GetObject("LMDHitsStrip");
+  if (!fHits){
+    std::cout << "-W- PndLmdGeaneTask::Init: "<< "No Hits" << " array!" << std::endl;
+    return kERROR;
+  }
+
   fTrackParGeane = new TClonesArray("FairTrackParH");
   ioman->Register("GeaneTrackPar","Geane", fTrackParGeane, kTRUE);
 
@@ -83,18 +105,26 @@ InitStatus PndLmdGeaneTask::Init()
   fTrackParFinal = new TClonesArray("FairTrackParH");
   ioman->Register("GeaneTrackFinal","Geane", fTrackParFinal, kTRUE);
 
+  // fTrackParGeane = new TClonesArray("FairTrackParP");
+  // ioman->Register("GeaneTrackPar","Geane", fTrackParGeane, kTRUE);
+
+  // fTrackParIni = new TClonesArray("FairTrackParP");
+  // ioman->Register("GeaneTrackIni","Geane", fTrackParIni, kTRUE);
+
+  // fTrackParFinal = new TClonesArray("FairTrackParP");
+  // ioman->Register("GeaneTrackFinal","Geane", fTrackParFinal, kTRUE);
+
   fDetName = new TClonesArray("TObjString");
   ioman->Register("DetName", "Geane", fDetName, kTRUE);
 
   fPro = new FairGeanePro();
-  //  fGeoH = new PndGeoHandling(gGeoManager);
   fGeoH = PndGeoHandling::Instance();
   FairRun* fRun = FairRun::Instance();
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  FairBaseParSet* par=(FairBaseParSet*)
-    (rtdb->findContainer("FairBaseParSet"));
-  fPbeam = par->GetBeamMom();
-
+  // FairBaseParSet* par=(FairBaseParSet*)
+  //   (rtdb->findContainer("FairBaseParSet"));
+  // fPbeam = par->GetBeamMom();
+  //  cout<<"Beam Momentum for this run is "<<fPbeam<<endl;
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
@@ -110,91 +140,52 @@ void PndLmdGeaneTask::SetParContainers()
 // -----   Public method Exec   --------------------------------------------
 void PndLmdGeaneTask::Exec(Option_t* opt)
 {
-  std::map<int, std::vector<int> > mcHitMap;						//Track ->  MCHits
+  // cout<<"PndLmdGeaneTask::Exec starts!"<<endl;
+  std::map<int, std::vector<int> > mcHitMap;//Track ->  MCHits
   fTrackParGeane->Delete();
   fTrackParIni->Delete();
   fTrackParFinal->Delete();
   fDetName->Delete();
 
   mcHitMap = AssignHitsToTracks();
-  // cout<<"Beam Momentum = "<<fPbeam<<endl;
-  // std::cout << "------------Event " << fEventNr << "-------------" << std::endl;
   fEventNr++;
 
   //Charge & mass of particle
-  Int_t PDGCode = -2212;
+  Int_t PDGCode = -2212; //antiproton
+  //  Int_t PDGCode = fPDGid;
   TDatabasePDG *fdbPDG = TDatabasePDG::Instance();
   TParticlePDG *fParticle = fdbPDG->GetParticle(PDGCode);
   Double_t  fCharge = fParticle->Charge();
 
   //go through all tracks
   int glI = fTracks->GetEntriesFast();
-  int glMC = fMCTracks->GetEntriesFast();
-  // cout<<"glI = "<<glI<<" glMC = "<<glMC<<endl;
+  // cout<<"glI = "<<glI<<endl;
   Int_t counterGeaneTrk = 0;
   for (Int_t i = 0; i<glI;i++){ 
-    //   cout<<"PndLmdGeaneTask::Exec for track#"<<i<<endl;
+    //  cout<<"PndLmdGeaneTask::Exec for track#"<<i<<endl;
       TVector3 StartPos, StartPosErr, StartMom, StartMomErr, StartO, StartU, StartV;
       int p = 0;
 
       ///Get parameters of real track
       PndLinTrack* recTrack = (PndLinTrack*)(fTracks->At(i));
-      Double_t parrecTrk[4];
-      recTrack->GetPar(parrecTrk);
-      Double_t p0 = parrecTrk[0];
-      Double_t p1 = parrecTrk[1];
-      Double_t p2 = parrecTrk[2];
-      Double_t p3 = parrecTrk[3];
-      Double_t parrecTrkErr[4];
-      recTrack->GetParErr(parrecTrkErr);
-     
+      //   cout<<"recTrack="<<recTrack<<endl;
+      TString 	DecName = recTrack->GetDetName();
+      if(DecName!="Lumi") continue;
+      // cout<<"DecName: "<<DecName<<endl;
       //Vector of particle momentum and starting point
-      TVector3  DirVec =  recTrack->GetDirectionVec();
-      // //      Double_t theta = DirVec.Theta();
-      // Double_t Pz;
-      // if(TMath::Hypot(p1,p3)>1) Pz = fPbeam;
-      // else Pz = fPbeam*TMath::Sqrt(1-p1*p1-p3*p3);
-      Double_t Pnorm = fPbeam/DirVec.Mag();
-      //      Double_t Pnorm = (fPbeam-8e-2)/DirVec.Mag();
-      //  StartMom = TVector3(p1*fPbeam,p3*fPbeam,Pz);
-      //  cout<<"p1*p1+p3*p3 = "<<p1*p1+p3*p3<<endl;
-      //StartMom = TVector3(p1*fPbeam,p3*fPbeam,fPbeam); //TEST of Pz
-      StartMom = TVector3(p1*Pnorm,p3*Pnorm,Pnorm); 
+      TVector3 DirVec =  recTrack->GetDirectionVec();
+      StartMom = TVector3(DirVec.X()*fPbeam,DirVec.Y()*fPbeam,DirVec.Z()*fPbeam); 
       StartPos = recTrack->GetStartVec();
-      // if(fabs(StartPos.X())>100 || fabs(StartPos.Y())>100) continue;
-      //  StartMomErr = TVector3(parrecTrkErr[1]*fPbeam,parrecTrkErr[3]*fPbeam,errPz);
-      //  StartMomErr = TVector3(parrecTrkErr[1]*Pnorm,parrecTrkErr[3]*Pnorm,errPz);
-      StartPosErr = TVector3(parrecTrkErr[0],parrecTrkErr[2],0);
-      Double_t errpx = 
-	Pnorm*TMath::Hypot((p3*p3+1-2*p1*p1)*parrecTrkErr[1],
-			   3*p3*p1*parrecTrkErr[3])/DirVec.Mag2();
-      Double_t errpy = 
-	Pnorm*TMath::Hypot((p1*p1+1-2*p3*p3)*parrecTrkErr[3],
-			   3*p3*p1*parrecTrkErr[1])/DirVec.Mag2();
-      Double_t errpz = 3*Pnorm*TMath::Hypot(p1*parrecTrkErr[1],p3*parrecTrkErr[3])/DirVec.Mag2();
+      // TVector3 StartPosOut;
+      // StartPosOut.SetZ(StartPos.Z()-0.008);
+      // StartPosOut.SetX(StartPos.X() - 0.008*DirVec.X());
+      // StartPosOut.SetY(StartPos.Y() - 0.008*DirVec.Y());
+      StartPosErr = recTrack->GetStartErrVec();
+      //   StartPosErr.SetZ(1000.); //TEST
+      // StartPosErr.SetZ(TMath::Hypot(StartPosErr.Z(),StartPosErr.X()*sin(2.326)));
+      StartMomErr = (recTrack->GetDirectionErrVec())*fPbeam;
       
-      StartMomErr = TVector3(errpx,errpy,errpz);
-      TClonesArray& clref1 = *fTrackParIni;
-      Int_t size1 = clref1.GetEntriesFast();
-      
-      FairTrackParH *fStart = 
-  	new (clref1[size1]) FairTrackParH(StartPos, StartMom, StartPosErr, StartMomErr, fCharge);
-    
-      TClonesArray& clref = *fTrackParGeane;
-      Int_t size = clref.GetEntriesFast();
-      FairTrackParH *fRes = new(clref[size]) FairTrackParH();
-      TVector3 vtx(0.,0.,0.);
-      fPro->SetPoint(vtx);
-      fPro->PropagateToPCA(1,-1);
-      Bool_t isProp =	fPro->Propagate(fStart, fRes, PDGCode);
-
-      //------- TEST of calculation errors -------
-      TVector3 gPos(fRes->GetX(),fRes->GetY(),fRes->GetZ());
-      TVector3 gMom(fRes->GetPx(),fRes->GetPy(),fRes->GetPz());
-      TVector3 gErrPos(fRes->GetDX(),fRes->GetDY(),fRes->GetDZ());
-      TVector3 gErrMom(fRes->GetDPx(),fRes->GetDPy(),fRes->GetDPz());
-      // cout<<" "<<endl;
-      // cout<<"================= %%%% ===================="<<endl;
+      // // cout<<"------------------------------------------"<<endl;      
       // cout<<"StartPos:"<<endl;
       // StartPos.Print();
       // cout<<"StartPosErr:"<<endl;
@@ -204,30 +195,102 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
       // StartMom.Print();
       // cout<<"StartMomErr: "<<StartMomErr.Mag()<<endl;
       // StartMomErr.Print();     
-      // cout<<"------------------------------------------"<<endl;
+
+      TClonesArray& clref1 = *fTrackParIni;
+      Int_t size1 = clref1.GetEntriesFast();
+
+      ///Propagate to the PCA to a space point---------------------------------
+      FairTrackParH *fStart = 
+       	 new (clref1[size1]) FairTrackParH(StartPos, StartMom, StartPosErr, StartMomErr, fCharge);
+      TClonesArray& clref = *fTrackParGeane;
+      Int_t size = clref.GetEntriesFast();
+      FairTrackParH *fRes = new(clref[size]) FairTrackParH();
+      fPro->SetPoint(vtx);
+      fPro->PropagateToPCA(1,-1);
+      //  fPro->BackTrackToVertex();
+      Bool_t isProp = fPro->Propagate(fStart, fRes, PDGCode);
+      ///----------------------------------------------------------------------
+
+      // ///Forwars propagate to the 1st plane to a space point---------------------------------
+      // PndMCTrack* mctrk = (PndMCTrack*)(fMCTracks->At(i));
+      // TVector3 MomMC = mctrk->GetMomentum();
+      // TVector3 PosMC = mctrk->GetStartVertex();
+      // FairTrackParH *fStart = 
+      // 	new (clref1[size1]) FairTrackParH(PosMC, MomMC, StartPosErr, StartMomErr, fCharge);
+      // TClonesArray& clref = *fTrackParGeane;
+      // Int_t size = clref.GetEntriesFast();
+      // FairTrackParH *fRes = new(clref[size]) FairTrackParH();
+      // fPro->SetPoint(StartPos);
+      // //fPro->PropagateToPCA(1,-1);
+      // fPro->PropagateToPCA(1,1);
+      // Bool_t isProp = fPro->Propagate(fStart, fRes, PDGCode);
+      // ///----------------------------------------------------------------------
+
+
+      // ///Propagate to virtual plane at PCA ------------------------------------
+      // TVector3 oc = (0,0,0);
+      // TVector3 dj(0,1,0);
+      // TVector3 dk(-1,0,0);
+      // FairTrackParP *fStart = 
+      // 	new (clref1[size1]) FairTrackParP(StartPos, StartMom, StartPosErr, StartMomErr, fCharge, oc, dj, dk);
+      // TClonesArray& clref = *fTrackParGeane;
+      // Int_t size = clref.GetEntriesFast();
+      // FairTrackParP *fRes = new(clref[size]) FairTrackParP();
+      // fPro->SetPoint(vtx);
+      // fPro->BackTrackToVirtualPlaneAtPCA(1);
+      // Bool_t isProp =	fPro->Propagate(fStart, fRes, PDGCode);
+      // cout<<"================= %%%% ===================="<<endl;
+      // ///----------------------------------------------------------------------
+
+    
+    
+     
+
+      //------- TEST of calculation errors -------
+      TVector3 gPos(fRes->GetX(),fRes->GetY(),fRes->GetZ());
+      TVector3 gMom(fRes->GetPx(),fRes->GetPy(),fRes->GetPz());
+      TVector3 gErrPos(fRes->GetDX(),fRes->GetDY(),fRes->GetDZ());
+      TVector3 gErrMom(fRes->GetDPx(),fRes->GetDPy(),fRes->GetDPz());
+      // cout<<" "<<endl;
+      // cout<<"================= %%%% ===================="<<endl;
+      
       // cout<<"gPos:"<<endl;
       // gPos.Print();
-      // cout<<"difference between initial and final point = "<<(StartPos.Mag()-gPos.Mag())<<endl;
+      // // cout<<"difference between final and initial point = "<<(-StartPos.Mag()+gPos.Mag())<<endl;
       // cout<<"gErrPos:"<<endl;
       // gErrPos.Print();
-      // cout<<"difference between initial and final point error = "<<(StartPosErr.Mag()-gErrPos.Mag())<<endl;
+      // //  cout<<"difference between final and initial point error = "<<(-StartPosErr.Mag()+gErrPos.Mag())<<endl;
 
       // cout<<"gMom: "<<gMom.Mag()<<endl;
       // gMom.Print();   
-      // cout<<"difference between initial and final momentum = "<<(StartMom.Mag()-gMom.Mag())<<endl;
+      // // cout<<"difference between initial and final momentum = "<<(StartMom.Mag()-gMom.Mag())<<endl;
       // cout<<"gErrMom: "<<gErrMom.Mag()<<endl;
-      // cout<<"difference between initial and final momentum error= "<<(StartMomErr.Mag()-gErrMom.Mag())<<endl;
+      // // cout<<"difference between initial and final momentum error= "<<(StartMomErr.Mag()-gErrMom.Mag())<<endl;
       // gErrMom.Print();
       // cout<<"================= %%%% ===================="<<endl;
       //------------------------------------------
       
       if(isProp == kTRUE){
-	//	new((*fTrackParFinal)[i]) FairTrackParH(*(fRes)); //save Track
 	new((*fTrackParFinal)[counterGeaneTrk]) FairTrackParH(*(fRes)); //save Track
+	//	new((*fTrackParFinal)[counterGeaneTrk]) FairTrackParP(*(fRes)); //save Track
 	counterGeaneTrk++;
-	//	cout<<"***** isProp TRUE *****"<<endl;
+	//cout<<"***** isProp TRUE *****"<<endl;
       }
-      else cout<<"!!! Back-propagation with GEANE didn't return result !!!"<<endl;
+      else{
+	cout<<"!!! Back-propagation with GEANE didn't return result !!!"<<endl;
+	cout<<"StartPos:"<<endl;
+	StartPos.Print();
+	cout<<"StartPosErr:"<<endl;
+	StartPosErr.Print();
+	
+	cout<<"StartMom: "<<StartMom.Mag()<<endl;
+	StartMom.Print();
+	cout<<"StartMomErr: "<<StartMomErr.Mag()<<endl;
+	StartMomErr.Print();  
+	new((*fTrackParFinal)[counterGeaneTrk]) FairTrackParH(); //save NULL
+	//	new((*fTrackParFinal)[counterGeaneTrk]) FairTrackParP(); //save NULL
+	counterGeaneTrk++;
+      }
   }
   fMCTracks->Delete();
   fMCHits->Delete();

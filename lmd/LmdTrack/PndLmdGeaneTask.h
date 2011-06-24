@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------
 // -----                   PndLmdGeaneTask header file                 -----
 // -----                  Created 20/03/07  by R.Kliemt                -----
-// -----                  modified for Lmd by M. Michel                -----
+// -----                  modified for Lmd by M. Michel & A.Karavdina  -----
 // -------------------------------------------------------------------------
 
 
@@ -39,6 +39,9 @@ class PndLmdGeaneTask : public FairTask
   /** Default constructor **/  
   PndLmdGeaneTask();
 
+  ///Set up beam momuntum value and position of interaction point
+  PndLmdGeaneTask(Double_t pBeam, TVector3 IP);
+
   /** Destructor **/
   ~PndLmdGeaneTask();
 
@@ -52,7 +55,7 @@ class PndLmdGeaneTask : public FairTask
   virtual void Exec(Option_t* opt);
   
   virtual void Finish();
-  
+
  private:
   
 		
@@ -66,6 +69,8 @@ class PndLmdGeaneTask : public FairTask
   int fEventNr;
   bool fUseMVDPoint;
   Double_t fPbeam;
+  Int_t fPDGid;
+  TVector3 vtx;
 		
   std::map<int, std::vector<int> > fTrackPixHitIdMap;	 //Track -> PixHitId
   std::map<int, std::vector<int> > fTrackStripHitIdMap;	 //Track -> StripHitId
