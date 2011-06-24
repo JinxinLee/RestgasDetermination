@@ -1,4 +1,4 @@
-void runLumi1Digi(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=3, const int pitch=1)
+void runLumi1Digi(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const int pitch=1)
 {
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -21,17 +21,18 @@ void runLumi1Digi(const int nEvents=10, const int startEvent=0, TString storePat
   parFile += ".root";
 
   // Parameter file
-  // TString digiparFile = "digipar/lumi";
-  TString digiparFile = "lumi";
-  switch(pitch){
-    case 0:{
-      digiparFile += "50";
-      break;}
-  }
+  TString digiparFile = "lumi.digi.par";
+  //TString digiparFile = "noMClumi.digi.par";
+  // TString digiparFile = "lumi";
+  // switch(pitch){
+  //   case 0:{
+  //     digiparFile += "50";
+  //     break;}
+  // }
 
-  digiparFile += ".digi.par";
+  // digiparFile += ".digi.par";
 
-  cout<<"digiparFile = "<<digiparFile<<endl;
+  // cout<<"digiparFile = "<<digiparFile<<endl;
   // In general, the following parts need not be touched
   // ========================================================================
   // Output file
@@ -59,7 +60,7 @@ void runLumi1Digi(const int nEvents=10, const int startEvent=0, TString storePat
   parInput2->open(digiparFile.Data(),"in");
   rtdb->setSecondInput(parInput2);
 
-  fRun->LoadGeometry();
+  // fRun->LoadGeometry();
 
 
   // -----   Digitization   ---------------------------------------

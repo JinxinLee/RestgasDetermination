@@ -1,12 +1,34 @@
-#!/bin/bash
-time root -l -b -q 'runLumi0SimBox.C(10000)'
-time root -l -b -q 'runLumi1Digi.C(10000)'
-time root -l -b -q 'runLumi2Reco.C(10000)'
+#!/bin/bash      
+time root -l -b -q 'runLumi0SimBox.C(1000,8.9)'
+#time root -l -b -q 'MCinfo.C(100,1.5)'
+#cp tmpOutput/Lumi_MC_0.root tmpOutput/Lumi_MC_pp_4Pi_copy.root 
+time root -l -b -q 'runLumi1Digi.C(1000)'
+time root -l -b -q 'runLumi2Reco.C(1000)'
+time root -l -b -q 'runLumi3Finder.C(1000,0,"tmpOutput", 0, "CA",true)'
+time root -l -b -q 'runLumi4Fitter.C(1000)'
+time root -l -b -q 'runLumi5Geane.C(1000,8.9)'
+#time root -l -b -q 'MCandGEANTTrkmatchesBgk.C(1000,0,8.9)'
+#time root -l -b -q 'HitsInfoNEW.C(100)'
+time root -l -b -q 'MCandRECTrkmatches.C(1000)'
+
+
+#time root -l -b -q 'HitsRecTrkvsMCPoints.C(100)'
+#time root -l -b -q 'HitsInfoMCIdeal.C(1000)'
+#time root -l -b -q 'HitsInfoMC.C(100)'
 #time root -l -b -q 'HitsInfo.C(100)'
-time root -l -b -q 'runLumi3Finder.C(10000)'
-time root -l -b -q 'runLumi4Fitter.C(10000)'
-#time root -l -b -q 'TracksParamsInfo.C(10000)'
-time root -l -b -q 'runLumi5Geane.C(10000)'
-time root -l -b -q 'MyTestLumiMultiEvn.C(10000)'
+
+#time root -l -b -q 'RecTrkResolution.C(100)'
+#time root -l -b -q 'TracksParamsInfo.C(100)'
+
+#time root -l -b -q 'MCandGEANTTrkmatchesBgk.C(335,0,1.5)'
+#time root -l -b -q  'MCandRECTrkBeforeGEANEmatches.C(100)'
+
+#time root -l -b -q 'OutputResolutionAndPull.C(100)'
+#time root -l -b -q 'MC1stHitandRecLINTrkmatches.C(100)'
+#time root -l -b -q 'MCTrkandRecLINTrkmatches.C(100)'
+#time root -l -b -q 'MCandGEANTTrkmatches.C(10000)'
+#mv tmpOutput/* PlotsAndGraphs/14042011/AllPbeam/hits_matches/1trk/1_5GeV/.
+#time root -l -b -q 'GeneratorParticlesINFO.C(1000)'
+#time root -l -b -q 'MyTestLumiMultiEvn.C(1000)'
 #root -l -b -q 'MyTestLumi.C(2)'
 exit

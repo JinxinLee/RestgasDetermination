@@ -1,4 +1,4 @@
-void runLumi2Reco(const int nEvents=1, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=3)
+void runLumi2Reco(const int nEvents=1, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0)
 {
   // ========================================================================
   // Input file (MC events)
@@ -80,6 +80,7 @@ void runLumi2Reco(const int nEvents=1, const int startEvent=0, TString storePath
  
   Double_t chargecut = 1.e5;
   PndLmdStripClusterTask* lmdmccls = new PndLmdStripClusterTask();
+  //  PndLmdIdealClusterTask* lmdmccls = new PndLmdIdealClusterTask();
   lmdmccls->SetVerbose(verboseLevel);
   fRun->AddTask(lmdmccls);
 

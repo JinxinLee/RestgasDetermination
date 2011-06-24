@@ -1,4 +1,4 @@
-void runLumi4Fitter(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=3)
+void runLumi4Fitter(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0)
 {
   // ========================================================================
   // Input file (MC events)
@@ -93,6 +93,7 @@ void runLumi4Fitter(const int nEvents=100000, const int startEvent=0, TString st
   fRun->Init();
 
   fRun->Run(0,nEvents);
+  cout<<"fRun->Run(0, "<<nEvents<<") was done!"<<endl;
   // ------------------------------------------------------------------------
 
  rtdb->saveOutput();

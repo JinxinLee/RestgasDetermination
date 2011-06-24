@@ -1,7 +1,7 @@
 // Panda FullSim macro
 
-//void runLumi0SimBox(const int nEvents=10, const double mom=4.06, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=211)
-void runLumi0SimBox(const int nEvents=10, const double mom=8.9, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-2212)
+//void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-211)
+void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-2212)
 {
   TStopwatch timer;
   timer.Start();
@@ -20,7 +20,7 @@ void runLumi0SimBox(const int nEvents=10, const double mom=8.9, TString storePat
 
   //set the MC version used
   fRun->SetName("TGeant4");
-  //  fRun->SetName("TGeant3");
+  //fRun->SetName("TGeant3");
   
   fRun->SetOutputFile(simOutput);
 
@@ -115,19 +115,39 @@ void runLumi0SimBox(const int nEvents=10, const double mom=8.9, TString storePat
   //    primGen->AddGenerator(fIongen);
   
   // Box Generator
-  //Pions
   FairBoxGenerator *fBox = new FairBoxGenerator(particle, 1);
   fBox->SetPRange(mom,mom);
-  // fBox->SetThetaRange(0.2,0.4); //3...8 mrad
-  fBox->SetThetaRange(0.15,0.52); //2...9 mrad
-  fBox->SetPhiRange(0.,360.);
+  //fBox->SetThetaRange(0.2,0.4); //3...8 mrad
+  //  fBox->SetThetaRange(0.13,0.56);
+  // fBox->SetThetaRange(0.13,0.7); // 2... 12 mrad
+  // fBox->SetThetaRange(0.3,0.3);
+  //  fBox->SetThetaRange(0.,0.7);
+  fBox->SetThetaRange(0.229183, 0.458366); //4 ... 8 mrad
+  // fBox->SetThetaRange(0., 3.14);
+  // fBox->SetThetaRange(0.4, 0.46); //7-8 mrad
+  //fBox->SetThetaRange(0.257831, 0.315127); //4.5 ... 5.5 mrad
+  //  fBox->SetThetaRange(0.257831, 0.257831); //4.5 mrad
+  // fBox->SetThetaRange(0., 90.);
+  // fBox->SetPhiRange(0.,360.);
+  //fBox->SetThetaRange(0.35, 0.35);
+  //fBox->SetPhiRange(89.,91.);
+  //  fBox->SetPhiRange(0.,20.);//TEST
+  //  fBox->SetPhiRange(44.,46.);
+  //fBox->SetPhiRange(90.,90.);
+  //  fBox->SetPhiRange(22.5,22.5);
+  fBox->SetPhiRange(0,360.);
+  //  fBox->SetThetaRange(0.2,0.46); //3.5 ... 8.? mrad
+  //
+  //  fBox->SetPhiRange(1*180./TMath::Pi(),2*180./TMath::Pi());
+  //fBox->SetPhiRange(80.,100.);
   primGen->AddGenerator(fBox);
 
-  //EvtGen Generator
-  //    FairEvtGenGenerator* evtGen = new
-  //      FairEvtGenGenerator("/home/ralfk/Pandaroot/pandaroot/macro/mvd/output.evt");
-  //    primGen->AddGenerator(evtGen);
   
+  // //EvtGen Generator
+  // PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem","PBARSYSTEMTO4PIPHSP.DEC",mom);
+  // primGen->AddGenerator(EvtGen);
+
+
   // Urqmd  Generator
   //    FairUrqmdGenerator* urqmdGen = new FairUrqmdGenerator("../../input/00-03fm.100ev.f14");
   //    primGen->AddGenerator(urqmdGen);
