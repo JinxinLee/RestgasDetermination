@@ -10,8 +10,8 @@
 //data
 
 //reco
-#pragma link C++ class PndLmdIdealRecoTask+;
-#pragma link C++ class PndLmdIdealClusterTask+;
+//#pragma link C++ class PndLmdIdealRecoTask+;
+//#pragma link C++ class PndLmdIdealClusterTask+;
 #pragma link C++ class PndLmdStripClusterTask+;
 #endif
 

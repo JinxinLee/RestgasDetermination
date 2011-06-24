@@ -82,9 +82,8 @@ set_target_properties(Lmd PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ########################### create libLmdReco ##################################
 set(LMDRECO_SRCS
 
-LmdReco/PndLmdIdealClusterTask.cxx
 LmdReco/PndLmdStripClusterTask.cxx
-LmdReco/PndLmdIdealRecoTask.cxx
+# LmdReco/PndLmdIdealRecoTask.cxx
 
 )
 set (LMD_RULECHECKER_SRCS ${LMD_RULECHECKER_SRCS} ${LMDRECO_SRCS})
@@ -111,7 +110,10 @@ set_target_properties(LmdReco PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 set(LMDTRK_SRCS
 
 LmdTrack/PndLmdTrackFinderTask.cxx
+LmdTrack/PndLmdTrackFinderCATask.cxx
+#LmdTrack/PndLmdMCPointTrackFinderTask.cxx
 LmdTrack/PndLmdLinFitTask.cxx
+#LmdTrack/PndLmdMCPointLinFitTask.cxx
 LmdTrack/PndLmdIdealFitTask.cxx
 LmdTrack/PndLinTrack.cxx
 LmdTrack/PndLmdGeaneTask.cxx
