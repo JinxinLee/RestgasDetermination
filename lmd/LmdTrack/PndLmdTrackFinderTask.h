@@ -55,18 +55,20 @@ class PndLmdTrackFinderTask : public FairTask
    TString fClusterBranchStrip;
    TString fDigiBranchStrip;
 
+
+
     /** Input array of PndSdsDigis **/
      TClonesArray* fStripHitArray;
      TClonesArray* fStripClusterArray;
      TClonesArray* fStripDigiArray;
 
-  /** Output array of PndSdsHits **/
-      TClonesArray* fTrackCandArray;
+     /** Output array of PndSdsHits **/
+     TClonesArray* fTrackCandArray;
 
+     void Register();
+     void Reset();
+     void ProduceHits();
 
-  void Register();
-  void Reset();
-  void ProduceHits();
   bool SortHitsByZ(std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t nStripHits);
   bool SortHitsByDet(std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t nStripHits);
   void FindHitsI(std::vector<PndTrackCand> &tofill, std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t nStripHits);

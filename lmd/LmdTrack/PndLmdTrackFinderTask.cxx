@@ -26,7 +26,7 @@ PndLmdTrackFinderTask::PndLmdTrackFinderTask(Int_t inFinderMode=0) :
    fClusterBranchStrip = "LMDStripClusterCand";
    fDigiBranchStrip = "LMDStripDigis";
    dXY = 0.01;
-   //   dXY = 20;
+   //   dXY = 0.01;//TEST
 }
 
 
@@ -100,6 +100,10 @@ InitStatus PndLmdTrackFinderTask::Init()
   fTrackCandArray = new TClonesArray("PndTrackCand");
   ioman->Register("LMDTrackCand", "PndLmd", fTrackCandArray, kTRUE);
 
+  //  fTruePointArray = new TClonesArray("PndSdsMCPoint");
+
+  
+
   std::cout << "-I- PndLmdTrackFinderTask: Initialisation successfull" << std::endl;
   return kSUCCESS;
 }
@@ -113,10 +117,9 @@ bool PndLmdTrackFinderTask::SortHitsByDet(std::vector< std::vector< std::pair<In
 //sort in plane's
   for(Int_t iHit = 0; iHit < nStripHits; iHit++){
     PndSdsHit* myHit = (PndSdsHit*)(fStripHitArray->At(iHit));
-
+  
     Int_t sensid = myHit->GetSensorID(); // Sensors: 1..32
     Int_t planeid = floor((sensid)/8.); //8 sensors/plane => Planes: 0..3
-
     hitsd.at(planeid).push_back( make_pair (iHit,false) );
   }
 
@@ -191,7 +194,7 @@ bool PndLmdTrackFinderTask::SortHitsByZ(std::vector< std::vector< std::pair<Int_
     }
   }
 
-   cout << "Hits: " << nStripHits << endl;
+  //   cout << "Hits: " << nStripHits << endl;
    if(fVerbose>2) {
      cout << "Hits: " << nStripHits << " in " << detZ.size() << " plane(s)." << endl;
      for(Int_t idet = 0; idet < detZ.size(); idet++)
@@ -541,8 +544,14 @@ void PndLmdTrackFinderTask::FindHitsI(std::vector<PndTrackCand> &tofill, std::ve
 
     //create track für fitting
     if(ids.size()>2){ //third hit found <=> !track found!
+    //   if(ids.size()>3){ //4 hits are needed because 6 parameters are used in trk-fit!
+    // // //third hit found <=> !track found!
+    // // //check direction for reduction of ghost tracks
+    // if(ids.size()>2 && 
+    //    fabs(vec.Phi())<0.26 && vec.Theta()>3e-2 && vec.Theta()<5e-2){ 
+      if(fVerbose>2) cout << "  Track: "<< i << "#Planes: " << ids.size() <<endl;
       PndTrackCand *myTCand = new PndTrackCand();
-
+      
       for (Int_t id=0; id<ids.size(); id++){
         PndSdsHit* myHit = (PndSdsHit*)(fStripHitArray->At(ids.at(id)));
         PndSdsClusterStrip* myCluster =  (PndSdsClusterStrip*)(fStripClusterArray->At(myHit->GetClusterIndex()));
@@ -558,17 +567,35 @@ void PndLmdTrackFinderTask::FindHitsI(std::vector<PndTrackCand> &tofill, std::ve
       }
 
       ///Add seed information to track------------
-      PndSdsHit* myHit0 = (PndSdsHit*)(fStripHitArray->At(ids.at(0)));
-      PndSdsHit* myHit1 = (PndSdsHit*)(fStripHitArray->At(ids.at(1)));
-      TVector3 hit0 = myHit0->GetPosition(); TVector3 hit1 = myHit1->GetPosition();
-      double p1seed = (hit0.X()-hit1.X())/(hit0.Z()-hit1.Z());
-      double p0seed = 0.5*(hit0.X()+hit1.X()-p1seed*(hit0.Z()+hit1.Z()-2*1099.)); //TO DO: don't use const
-      double p3seed = (hit0.Y()-hit1.Y())/(hit0.Z()-hit1.Z());
-      double p2seed = 0.5*(hit0.Y()+hit1.Y()-p1seed*(hit0.Z()+hit1.Z()-2*1099.)); //TO DO: don't use const
-      TVector3 posSeed(p0seed,p2seed,0);
-      TVector3 dirSeed(p1seed,p3seed,1100.);
-      myTCand->setTrackSeed(posSeed,dirSeed,0);
+      // Double_t Z0 = 1099.;
+      // //  Double_t Z0 = 0;
+      // PndSdsHit* myHit0 = (PndSdsHit*)(fStripHitArray->At(ids.at(0)));
+      // PndSdsHit* myHit1 = (PndSdsHit*)(fStripHitArray->At(ids.at(1)));
+      // TVector3 hit0 = myHit0->GetPosition(); TVector3 hit1 = myHit1->GetPosition();
+      // double p1seed = (hit0.X()-hit1.X())/(hit0.Z()-hit1.Z());
+      // double p0seed = hit0.X() - p1seed*(hit0.Z()-Z0);
+      // //      double p0seed = 0.5*(hit0.X()+hit1.X()-p1seed*(hit0.Z()+hit1.Z()-2*1099.)); //TO DO: don't use const
+      // double p3seed = (hit0.Y()-hit1.Y())/(hit0.Z()-hit1.Z());
+      // double p2seed = hit0.Y() - p3seed*(hit0.Z()-Z0);
+      // //double p2seed = 0.5*(hit0.Y()+hit1.Y()-p1seed*(hit0.Z()+hit1.Z()-2*1099.)); //TO DO: don't use const
+      // TVector3 posSeed(p0seed,p2seed,Z0);
+      // TVector3 dirSeed(p1seed,p3seed,1.);
+      //   cout<<"posSeed:"<<endl;
+      //   posSeed.Print();
+      //   cout<<"dirSeed:"<<endl;
+      //   dirSeed.Print();
+
+      //  Double_t Z0 = 1099.;
+      //     TVector3 posSeed(start.X(),start.Y(),Z0);
+      TVector3 posSeed(start.X(),start.Y(),start.Z());
+      // cout<<"Trk cand: pos"<<endl;
+      // posSeed.Print();
+      vec*=1./vec.Mag();
+      // cout<<"Trk cand: vec"<<endl;
+      // vec.Print();
+      myTCand->setTrackSeed(posSeed,vec,-1);
       ///-------------------------------------
+      
 
       tofill.push_back(*(myTCand)); //save Track Candidate
       //new((*fTrackCandArray)[trackCnt]) PndTrackCand(*(myTCand)); 
