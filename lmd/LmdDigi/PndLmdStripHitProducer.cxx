@@ -41,6 +41,7 @@ void PndLmdStripHitProducer::SetBranchNames()
   fInBranchName = "LMDPoint";
   fOutBranchName = "LMDStripDigis";
   fFolderName = "PndLmd";
+  SetInBranchId(); 
 }
 // -------------------------------------------------------------------------
 void PndLmdStripHitProducer::SetCalculators()
@@ -91,9 +92,15 @@ void PndLmdStripHitProducer::SetParContainers()
       PndSdsStripDigiPar* digipar = (PndSdsStripDigiPar*)(rtdb->getContainer(parsetname.Data()));
       fDigiParameterList->Add(digipar);
     }
+    if(parsetname.BeginsWith("SDSStripTotDigiPar")){
+      PndSdsTotDigiPar* totdigipar = (PndSdsTotDigiPar*)(rtdb->getContainer(parsetname.Data()));
+      if ( ! totdigipar ) Fatal("SetParContainers","No TOT parameter found: %s",parsetname.Data());
+      fChargeDigiParameterList->Add(totdigipar);
+    }
   }
-
+  PndSdsStripHitProducer::SetParContainers();
 }
 
+//------------------------------------------------------------------
 ClassImp(PndLmdStripHitProducer);
 
