@@ -1,4 +1,6 @@
-void runLumi3Finder(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=3)
+///  Method="Follow" - Track-following method, Method="CA" - Cellular Automaton
+///  missPl=true - use "missing plane" algorithm
+void runLumi3Finder(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=5,  TString Method="Follow", const bool missPl=false)
 {
   // ========================================================================
   // Input file (MC events)
@@ -72,8 +74,14 @@ void runLumi3Finder(const int nEvents=100000, const int startEvent=0, TString st
   // =========================================================================
   
   // -----    MVD hit producer   --------------------------------------------
- 
-  PndLmdTrackFinderTask* lmdfinder = new PndLmdTrackFinderTask();
+  if(Method=="Follow") PndLmdTrackFinderTask* lmdfinder = new PndLmdTrackFinderTask();
+  else{
+    if(Method=="CA") PndLmdTrackFinderCATask* lmdfinder = new PndLmdTrackFinderCATask(missPl);
+    else{
+      cout<<"Method "<<Method<<" doesn't exist!"<<endl;
+      break;
+    }
+  }
   lmdfinder->SetVerbose(verboseLevel);
   fRun->AddTask(lmdfinder);
 
