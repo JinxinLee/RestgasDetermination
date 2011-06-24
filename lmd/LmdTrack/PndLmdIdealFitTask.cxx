@@ -181,9 +181,10 @@ void PndLmdIdealFitTask::Exec(Option_t* opt)
     firstPoint->Momentum(trueTrack);
     TVector3 truePos = firstPoint->GetPosition();
 
-    PndLinTrack* trackfit = new PndLinTrack("Lumi", truePos.Z(), truePos.X(), trueTrack.X()/trueTrack.Z(), truePos.Y(), trueTrack.Y()/trueTrack.Z(),
-					    0, 0, 0, 0,
-					    0, fhit, lhit, track);
+    // PndLinTrack* trackfit = new PndLinTrack("Lumi", truePos.Z(), truePos.X(), trueTrack.X()/trueTrack.Z(), truePos.Y(), trueTrack.Y()/trueTrack.Z(),
+    // 					    0, 0, 0, 0,
+    // 					    0, fhit, lhit, track);
+    PndLinTrack* trackfit = new PndLinTrack("Lumi", truePos.X(), trueTrack.X()/trueTrack.Z(), truePos.Y(), trueTrack.Y()/trueTrack.Z(), truePos.Z(), trueTrack.Z(), 0, fhit, lhit, track);
 
     new((*fTrackArray)[track]) PndLinTrack(*(trackfit)); //save Track
 
