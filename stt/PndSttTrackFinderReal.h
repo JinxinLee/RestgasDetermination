@@ -89,9 +89,10 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
  private:
 
 
-#define maximumTracks 40
+#define maximumTracks 50
       static const UShort_t
             nmaxHits = maximumTracks*30, // max hits total.
+	nmaxHitsInTrack=60,
             MAXMCTRACKS=maximumTracks,
             MAXTRACKSPEREVENT=maximumTracks,
 	    MAXHITSINCELL=50,
