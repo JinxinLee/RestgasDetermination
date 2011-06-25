@@ -902,7 +902,8 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
   }
  }
 
-      if( nHitsinTrack[nTracksFoundSoFar] < MINIMUMHITSPERTRACK) {
+      if( nHitsinTrack[nTracksFoundSoFar] < MINIMUMHITSPERTRACK ||
+	 nHitsinTrack[nTracksFoundSoFar]>nmaxHitsInTrack) {
         continue;
       }
 
@@ -981,20 +982,18 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
             ListHitsinTrack[nTracksFoundSoFar][Naux+j] = OutputList2HitsinTrack[j];
          }
          break;
-      }
+      }  // end of  if( Naux >= MINIMUMOUTERHITSPERTRACK)
 
       }   // end of for(i=0; i< Nouter;i++)
      }    // end of if( Nouter >= MINIMUMOUTERHITSPERTRACK)
 
 
-
+      if( nHitsinTrack[nTracksFoundSoFar] < MINIMUMHITSPERTRACK ||
+	 nHitsinTrack[nTracksFoundSoFar]>nmaxHitsInTrack) {
+        continue;
+      }
 
 //---------------------------
-
-
-
-
-
 
 //  finding the rotation angle for best utilization of the MILP procedure
 
@@ -1046,11 +1045,7 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
                 TypeConf
                       );
 
-      if(Status[nTracksFoundSoFar] < 0  ) {
-
-        continue;
-      }
-
+      if(Status[nTracksFoundSoFar] < 0  ) continue;
 
 
 //  this trasformation is valid even if the equation is a straight line from the fit
@@ -1148,11 +1143,8 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 
 
 
+	if( NN < MINIMUMHITSPERTRACK || NN>nmaxHitsInTrack)continue;
 
-
-   if( NN < MINIMUMHITSPERTRACK ) {
-     continue;
-   }
    nHitsinTrack[nTracksFoundSoFar]=NN;
    for(i=0; i<nHitsinTrack[nTracksFoundSoFar];i++){
      ListHitsinTrack[nTracksFoundSoFar][i]=auxListHitsinTrack[i];
@@ -1350,7 +1342,7 @@ if(iplotta && IVOLTE <= nmassimo){
 
     nSkewHitsinTrack[i]=0;
 
-    if( Fi_low_limit[i] <-99998.) goto fine ;  // this is when in XY the Helix circle is not in the
+    if( Fi_low_limit[i] <-99998.) continue ;  // this is when in XY the Helix circle is not in the
 						// STT region; this in principle should never happen.
 
 //-----  finding the skew hits intersecting this XY trajectory circle
@@ -1385,7 +1377,7 @@ if(iplotta && IVOLTE <= nmassimo){
 	for(j=0;j<nSkewHitsinTrack[i];j++){
 		Sfinal[i][infoskew[ ListSkewHitsinTrack[i][j] ]]= S[j];
 	}
-	goto fine ;
+	continue ;
 //        continue;
      }
 
@@ -1425,8 +1417,7 @@ if(iplotta && IVOLTE <= nmassimo){
 	for(j=0;j<nSkewHitsinTrack[i];j++){
 		Sfinal[i][infoskew[ListSkewHitsinTrack[i][j]]]= S[j];
 	}
-	goto fine ;
-//        continue;
+        continue;
       }
 
       FI0[i]=Fi_initial_helix_referenceframe[i];  //  therefore, FI0[i] has an extra +2*PI or -2*PI added
@@ -1478,7 +1469,7 @@ if(iplotta && IVOLTE <= nmassimo){
 		ZErrorafterTilt[j]  =  temporeZErrorafterTilt[j] ;
        }
 
-       if (NNN < 2) goto fine ;
+       if (NNN < 2) continue ;
 
        GoodSkewFit[i]= true;
 
@@ -1490,44 +1481,25 @@ if(iplotta && IVOLTE <= nmassimo){
  }    //  end of     if( STATUS >=0 )
 
 
+      if( nHitsinTrack[i]+nSkewHitsinTrack[i] < MINIMUMHITSPERTRACK ||
+	 nHitsinTrack[i]+nSkewHitsinTrack[i]>nmaxHitsInTrack) {
+	keepit[i]=false;
+        continue;
+      }
+
+
+
       // ---------    numbering according to the ORIGINAL hit number
-           for(i1=0; i1< nSkewHitsinTrack[i]; i1++){
+    for(i1=0; i1< nSkewHitsinTrack[i]; i1++){
              Sfinal[i][  infoskew[ ListSkewHitsinTrack[i][i1]  ]  ]  =  S[i1] ;
              Zfinal[i][  infoskew[ ListSkewHitsinTrack[i][i1]  ]  ]  =  Z[i1] ;
              ZDriftfinal[i][  infoskew[ ListSkewHitsinTrack[i][i1]  ]  ]  =  ZDrift[i1] ;
              ZErrorafterTiltfinal[i][  infoskew[ ListSkewHitsinTrack[i][i1]  ]  ]  =  ZErrorafterTilt[i1] ;
-           }
+    }
      // ---------
 
 
 //     -------------------------------------------------------------
-
-
-fine: ;
-
-//----------------------------------------------   some printouts
-if(istampa>=2) {
-//if(IVOLTE== 44) {
-   cout<<"      Evento n. "<<IVOLTE<<", track n. "<<i<<", GoodSkewFit = "<<GoodSkewFit[i]<<
-   "; elenco finale hits per traccia n. "<<i<<"  list dei "<<nHitsinTrack[i]
-               <<" hit paralleli (original notation) :\n";
-   for(int ig=0;ig<nHitsinTrack[i];ig++){
-        cout<<"          hit n.  "<<infoparal[ ListHitsinTrack[i][ig] ] <<endl;
-   }
-cout<<"     elenco dei "<<nSkewHitsinTrack[i]<<" hits skew\n";
-   for(int ig=0;ig<nSkewHitsinTrack[i];ig++){
-        cout<<"          hit n.  "<<infoskew[ ListSkewHitsinTrack[i][ig] ] <<endl;
-   }
-
-
-   cout<<"-------------------------------------------------------------\n";
-
-
-
-}
-//----------------------------------------------   end of some printouts
-
-
 
 
 
