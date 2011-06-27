@@ -119,7 +119,6 @@ InitStatus PndSdsHybridHitProducer::Init()
     return kFATAL;
   }
 
-  fDataBuffer = new PndSdsDigiPixelWriteoutBuffer(fOutBranchName);
 
   fPointArray = (TClonesArray*) ioman->GetObject(fInBranchName);  
   if ( ! fPointArray )
@@ -141,9 +140,11 @@ InitStatus PndSdsHybridHitProducer::Init()
   //  ioman->Register("MVDHit", "MVD", fHitArray, kTRUE);
   
   // Create and register output array
-  fPixelArray	= new TClonesArray("PndSdsDigiPixel");
-  if(fVerbose>1) Info("Init","Registering this branch: %s/%s",fFolderName.Data(),fOutBranchName.Data());
-  ioman->Register(fOutBranchName, fFolderName, fPixelArray, fPersistance);
+//  fPixelArray	= new TClonesArray("PndSdsDigiPixel");
+//  if(fVerbose>1) Info("Init","Registering this branch: %s/%s",fFolderName.Data(),fOutBranchName.Data());
+//  ioman->Register(fOutBranchName, fFolderName, fPixelArray, fPersistance);
+  fPixelArray = ioman->Register(fOutBranchName, "PndSdsDigiPixel", fFolderName, fPersistance);
+  fDataBuffer = new PndSdsDigiPixelWriteoutBuffer(fOutBranchName);
   
 //  if(fDigiPixelMCInfo==kTRUE)
 //  {
@@ -191,7 +192,7 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
 
   std::cout << " EventTime: " << EventTime << std::endl;
 
-  fPixelArray->Delete();
+  fPixelArray = FairRootManager::Instance()->GetTClonesArray(fOutBranchName);
   if (fTimeOrderedDigi){
 	  std::vector<PndSdsDigiPixel> data = fDataBuffer->WriteOutData(EventTime);
 	  int nPix = 0;
@@ -325,12 +326,12 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
 		new ((*fPixelArray)[iFePixel++])
 		PndSdsDigiPixel( fPixelList[iPix].GetMCIndex(), FairRootManager::Instance()->GetBranchId(fInBranchName), fPixelList[iPix].GetSensorID() ,fPixelList[iPix].GetFE(),
                     fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
-                    fChargeConverter->ChargeToDigiValue(smearedCharge), fChargeConverter->GetTimeStamp(point->GetTime(), smearedCharge,fMCEventHeader->GetT()) );
+                    fChargeConverter->ChargeToDigiValue(smearedCharge), fMCEventHeader->GetT()); //fChargeConverter->GetTimeStamp(point->GetTime(), smearedCharge,fMCEventHeader->GetT()) );
 	}
 	else {
 		PndSdsDigiPixel tempPixel( fPixelList[iPix].GetMCIndex(), FairRootManager::Instance()->GetBranchId(fInBranchName), fPixelList[iPix].GetSensorID() ,fPixelList[iPix].GetFE(),
 		                    fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
-		                    fChargeConverter->ChargeToDigiValue(smearedCharge), fChargeConverter->GetTimeStamp(point->GetTime(), smearedCharge,fMCEventHeader->GetT()) );
+		                    fChargeConverter->ChargeToDigiValue(smearedCharge), fMCEventHeader->GetT()); //fChargeConverter->GetTimeStamp(point->GetTime(), smearedCharge,fMCEventHeader->GetT()) );
 		fDataBuffer->FillNewData(tempPixel, fChargeConverter->ChargeToDigiValue(fPixelList[iPix].GetCharge()) + EventTime);
 	}
   }
@@ -493,6 +494,7 @@ void PndSdsHybridHitProducer::FinishEvent()
   {
 		fPixelMCArray->Delete();
   }
+	  fPixelArray->Delete();
   FinishEvents();
 }
 // -------------------------------------------------------------------------
@@ -513,7 +515,7 @@ void PndSdsHybridHitProducer::FinishTask()
 		  new ((*fPixelArray)[nPix++])PndSdsDigiPixel(data[i]);
 		}
 
-		ioman->ForceFill();
+//		ioman->ForceFill();
 	}
 
 }

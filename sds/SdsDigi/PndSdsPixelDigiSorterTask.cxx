@@ -65,13 +65,14 @@ InitStatus PndSdsPixelDigiSorterTask::Init()
   }
 
   fSorter = new PndRingSorterT<PndSdsDigiPixel>(fNumberOfCells, fWidthOfCells);
-  fPixelArray = (TClonesArray*) ioman->GetObject(fInBranchName);
-  if ( ! fPixelArray )
-  {
-    std::cout << "-W- PndSdsPixelDigiSorterTask::Init: "
-    << "No SDSPoint array!" << std::endl;
-    return kERROR;
-  }
+ // fPixelArray = (TClonesArray*) ioman->GetObject(fInBranchName);
+//  fPixelArray = FairRootManager::Instance()->GetTClonesArray(fInBranchName);
+//  if ( ! fPixelArray )
+//  {
+//    std::cout << "-W- PndSdsPixelDigiSorterTask::Init: "
+//    << "No SDSPoint array!" << std::endl;
+//    return kERROR;
+//  }
   
 
   // Create and register output array
@@ -100,8 +101,11 @@ void PndSdsPixelDigiSorterTask::Exec(Option_t* opt)
 
   fSortedPixelArray->Delete();
   
+  fPixelArray = FairRootManager::Instance()->GetTClonesArray(fInBranchName);
+  std::cout << "-I- PndSdsPixelDigiSorterTask: Size PixelArray: " << fPixelArray->GetEntriesFast() << std::endl;
   for (int i = 0; i < fPixelArray->GetEntriesFast(); i++){
 	  PndSdsDigiPixel* myDigi = (PndSdsDigiPixel*)fPixelArray->At(i);
+	  std::cout << "SortedPixelDigi filled with: " << *myDigi << std::endl;
   	  fSorter->AddElement(*myDigi, myDigi->GetTimeStamp());
     }
     fSorter->Print();
@@ -112,7 +116,8 @@ void PndSdsPixelDigiSorterTask::Exec(Option_t* opt)
     int nPix = 0;
     fSortedPixelArray = FairRootManager::Instance()->GetEmptyTClonesArray(fOutBranchName);
     for (int i = 0; i < sortedData.size(); i++){
-  	  new ((*fSortedPixelArray)[nPix++])PndSdsDigiPixel(sortedData[i]);
+  	  PndSdsDigiPixel* myPixel = new ((*fSortedPixelArray)[nPix++])PndSdsDigiPixel(sortedData[i]);
+  	  std::cout << "SortedPixelDigi written: " << *myPixel << std::endl;
     }
 
 }
@@ -122,19 +127,27 @@ void PndSdsPixelDigiSorterTask::Exec(Option_t* opt)
 
 void PndSdsPixelDigiSorterTask::FinishTask()
 {
-	  fSorter->WriteOutAll();
-	  std::vector<PndSdsDigiPixel> sortedData = fSorter->GetOutputData();
-	  fSorter->DeleteOutputData();
+	fPixelArray = FairRootManager::Instance()->GetTClonesArray(fInBranchName);
+	std::cout << "-I- PndSdsPixelDigiSorterTask::FinishTask Size PixelArray: " << fPixelArray->GetEntriesFast() << std::endl;
+	for (int i = 0; i < fPixelArray->GetEntriesFast(); i++) {
+		PndSdsDigiPixel* myDigi = (PndSdsDigiPixel*) fPixelArray->At(i);
+		fSorter->AddElement(*myDigi, myDigi->GetTimeStamp());
+	}
+	fSorter->WriteOutAll();
+	std::vector<PndSdsDigiPixel> sortedData = fSorter->GetOutputData();
+	fSorter->DeleteOutputData();
 
-	  FairRootManager* ioman = FairRootManager::Instance();
-	  int nPix = 0;
-	  fSortedPixelArray = ioman->GetEmptyTClonesArray(fOutBranchName);
-	  for (int i = 0; i < sortedData.size(); i++){
-		  new ((*fSortedPixelArray)[nPix++])PndSdsDigiPixel(sortedData[i]);
-	  }
+	FairRootManager* ioman = FairRootManager::Instance();
+	int nPix = 0;
+	fSortedPixelArray = ioman->GetEmptyTClonesArray(fOutBranchName);
+	for (int i = 0; i < sortedData.size(); i++) {
+		PndSdsDigiPixel* myPixel =
+				new ((*fSortedPixelArray)[nPix++]) PndSdsDigiPixel(
+						sortedData[i]);
+		std::cout << "SortedPixelDigi written: " << *myPixel << std::endl;
+	}
 
 	//ioman->SaveAllContainers();
-	ioman->ForceFill();
 
 }
 

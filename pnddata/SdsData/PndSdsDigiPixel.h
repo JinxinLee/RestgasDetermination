@@ -62,10 +62,10 @@ class PndSdsDigiPixel : public PndSdsDigi
 	}
 
 	virtual bool operator<(const PndSdsDigiPixel& myDigi) const{
-		if (fDetID < myDigi.GetDetID()) 	return true;	else if(fDetID > myDigi.GetDetID()) return false;
+		if (fDetID < myDigi.GetDetID()) 		return true;	else if(fDetID > myDigi.GetDetID()) return false;
 		if (fSensorID < myDigi.GetSensorID()) 	return true; 	else if (fSensorID > myDigi.GetSensorID()) return false;
-		if (fFE < myDigi.GetFE()) 		return true;	else if (fFE > myDigi.GetFE()) return false;
-		if (fCol < myDigi.GetPixelColumn()) 		return true;	else if (fCol > myDigi.GetPixelColumn()) return false;
+		if (fFE < myDigi.GetFE()) 				return true;	else if (fFE > myDigi.GetFE()) return false;
+		if (fCol < myDigi.GetPixelColumn()) 	return true;	else if (fCol > myDigi.GetPixelColumn()) return false;
 		if (fRow < myDigi.GetPixelRow()) 		return true;	else if (fRow > myDigi.GetPixelRow()) return false;
 		return false;
 	}

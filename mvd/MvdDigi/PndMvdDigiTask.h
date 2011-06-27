@@ -25,6 +25,7 @@ class PndMvdDigiTask : public PndBlackBoxTask
     
   void SetPersistance(Bool_t p = kTRUE);
   Bool_t GetPersistance() {return fPersistance;};
+  void RunTimeBased();
 
  private:
   Bool_t fPersistance; // switch to turn on/off storing the arrays to a file

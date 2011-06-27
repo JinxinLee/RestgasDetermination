@@ -58,12 +58,11 @@ InitStatus PndSdsNoiseProducer::Init()
     ioman->Register(fBranchNameStrip, fFolderName, fDigiStripArray, fPersistance);
   }
   
-  fDigiPixelArray = (TClonesArray*) ioman->GetObject(fBranchNamePixel);
+  fDigiPixelArray = FairRootManager::Instance()->GetTClonesArray(fBranchNamePixel);
   if ( ! fDigiPixelArray )     {
     std::cout << "-W- PndSdsNoiseProducer::Init: No "<<fBranchNamePixel<<" array!" << std::endl;
     std::cout << "    Create a new one." << std::endl;
-    fDigiPixelArray = new TClonesArray("PndSdsDigiPixel");
-    ioman->Register(fBranchNamePixel, fFolderName, fDigiPixelArray, fPersistance);
+    ioman->Register(fBranchNamePixel, "PndSdsDigiPixel", fFolderName, fPersistance);
   }
   
   
@@ -345,6 +344,7 @@ void PndSdsNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t senso
 {
   Bool_t found = kFALSE;
   Int_t detID = -1;
+  fDigiPixelArray = FairRootManager::Instance()->GetTClonesArray(fBranchNamePixel);
   Int_t iPix = fDigiPixelArray->GetEntriesFast();
   PndSdsDigiPixel* aDigi = 0;
   for(Int_t kstr = 0; kstr < iPix && found == kFALSE; kstr++)

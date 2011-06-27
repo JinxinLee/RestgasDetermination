@@ -5,7 +5,7 @@
 
 #include "PndMvdPixelClusterTask.h"
 #include "FairRuntimeDb.h"
-#include "FairRun.h"
+#include "FairRunAna.h"
 #include "PndSdsPixelDigiPar.h"
 // -----   Default constructor   -------------------------------------------
 PndMvdPixelClusterTask::PndMvdPixelClusterTask() :
@@ -55,7 +55,10 @@ void PndMvdPixelClusterTask::SetBranchNames(TString inBranchname, TString outHit
 // -----   Default I/O folder/branches   ----------------------------------------------------
 void PndMvdPixelClusterTask::SetBranchNames()
 {
-  fInBranchName = "MVDPixelDigis";
+	if (FairRunAna::Instance()->IsTimeStamp())
+		fInBranchName = "MVDSortedPixelDigis";
+	else
+		fInBranchName = "MVDPixelDigis";
   fOutBranchName = "MVDHitsPixel";
   fClustBranchName = "MVDPixelClusterCand";
   fFolderName = "PndMvd";

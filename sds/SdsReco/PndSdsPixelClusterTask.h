@@ -41,6 +41,8 @@
 #include "PndSdsPixelClusterFinder.h"
 #include "PndSdsPixelBackMapping.h"
 
+#include "FairTSBufferFunctional.h"
+
 #include <string>
 #include <vector>
 
@@ -96,6 +98,8 @@ class PndSdsPixelClusterTask : public PndSdsTask
     /** Output array of PndSdsHits **/
     TClonesArray* fClusterArray;
     TClonesArray* fHitArray;
+
+    BinaryFunctor* fFunctor;
     
     Int_t fClusterType;
     

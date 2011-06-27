@@ -66,12 +66,13 @@ InitStatus PndMvdNoiseProducer::Init()
     ioman->Register("MVDStripDigis","MVD",fDigiStripArray,fPersistance);
   }
   
-  fDigiPixelArray = (TClonesArray*) ioman->GetObject("MVDPixelDigis");
+//  fDigiPixelArray = (TClonesArray*) ioman->GetObject("MVDPixelDigis");
+  fDigiPixelArray = FairRootManager::Instance()->GetTClonesArray("MVDPixelDigis");
   if ( ! fDigiPixelArray )     {
     std::cout << " -W- PndMvdNoiseProducer::Init: No MVDPixelDigis array!" << std::endl;
     std::cout << "    Create a new one." << std::endl;
-    fDigiPixelArray = new TClonesArray("PndSdsDigiPixel");
-    ioman->Register("MVDPixelDigis","MVD",fDigiPixelArray,fPersistance);
+   //fDigiPixelArray = new TClonesArray("PndSdsDigiPixel");
+    ioman->Register("MVDPixelDigis","PndSdsDigiPixel", "MVD",fPersistance);
   }
   
   fMCEventheader = (FairMCEventHeader*) ioman->GetObject("MCEventHeader.");
@@ -418,7 +419,8 @@ void PndMvdNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t senso
 {
   Double_t tempcharge = 0.;
   Bool_t found = kFALSE;
-  Int_t detID = -1; //no source mc branch 
+  Int_t detID = -1; //no source mc branch
+  fDigiPixelArray = FairRootManager::Instance()->GetTClonesArray("MVDPixelDigis");
   Int_t iPix = fDigiPixelArray->GetEntriesFast();
   PndSdsDigiPixel* aDigi = 0;
   for(Int_t kstr = 0; kstr < iPix && found == kFALSE; kstr++)

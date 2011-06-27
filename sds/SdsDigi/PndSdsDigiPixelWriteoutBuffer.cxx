@@ -9,7 +9,7 @@
 
 ClassImp(PndSdsDigiPixelWriteoutBuffer);
 
-PndSdsDigiPixelWriteoutBuffer::PndSdsDigiPixelWriteoutBuffer() {
+PndSdsDigiPixelWriteoutBuffer::PndSdsDigiPixelWriteoutBuffer():PndWriteoutBufferT<PndSdsDigiPixel>() {
 	// TODO Auto-generated constructor stub
 
 }
@@ -26,12 +26,16 @@ std::vector<std::pair<double, PndSdsDigiPixel> > PndSdsDigiPixelWriteoutBuffer::
 {
 	std::vector<std::pair<double, PndSdsDigiPixel> > result;
 	std::pair<double, PndSdsDigiPixel> singleResult;
-	singleResult.first = oldData.first + newData.first;
+	if (newData.first > 0)
+		singleResult.first = oldData.first + newData.first;
 	singleResult.second = oldData.second;
 	singleResult.second.AddCharge(newData.second.GetCharge());
 	std::cout << "Modify hit" << std::endl;
 
-	result.push_back(oldData);
+	std::cout << "OldData: " << oldData.first << " : " << oldData.second << " NewData: " << newData.first << " : " << newData.second << std::endl;
+	std::cout << "Resulting Data: " << singleResult.first << " : " << singleResult.second << std::endl;
+
+	result.push_back(singleResult);
 	return result;
 }
 

@@ -15,7 +15,7 @@ PndSdsHit PndSdsChargeWeightedPixelMapping::GetCluster(std::vector<PndSdsDigiPix
 {
 fDigiArray = pixelArray;
 	Double_t col = 0, row = 0, charge = 0;
-	Double_t tempCol = 0, tempRow = 0;
+	Double_t tempCol = 0, tempRow = 0, tempTime = 0;
 	Int_t count = 0, mcindex=-1;
 	//Double_t local[2], master[2];
   //TODO: Get away from default 10 Frontends per column?
@@ -56,6 +56,7 @@ fDigiArray = pixelArray;
 				col += (tempCol*fChargeConverter->DigiValueToCharge(fDigiArray[i]));
 				row += (tempRow*fChargeConverter->DigiValueToCharge(fDigiArray[i]));
 				charge += fChargeConverter->DigiValueToCharge(fDigiArray[i]);
+				tempTime += fDigiArray[i].GetTimeStamp();
 				count++;
         if(mcindex < 0){
           for(Int_t mcI = 0; mcI<fDigiArray[i].GetNIndices();mcI++){ 
@@ -95,6 +96,8 @@ fDigiArray = pixelArray;
   TVector3 dpos(sqrt(hitCov[0][0]),sqrt(hitCov[1][1]),sqrt(hitCov[2][2]));
   PndSdsHit thehit(fDigiArray[0].GetDetID(),fDigiArray[0].GetSensorID(), pos, dpos, -1, charge, fDigiArray.size(),mcindex);
   thehit.SetCov(hitCov);
+  thehit.SetTimeStamp(tempTime/count);
+  std::cout << "-I- PndSdsChargeWeightedPixelMapping TimeStamp: " << tempTime/count << std::endl;
   return thehit;
 }
 

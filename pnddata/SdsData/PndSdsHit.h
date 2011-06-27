@@ -32,7 +32,7 @@ class PndSdsHit : public FairHit
   friend std::ostream& operator<< (std::ostream& out, const PndSdsHit& hit){
     out << "PndSdsHit in " << hit.GetSensorID() << " at" << std::endl;
     out << "(" << hit.GetX() << ", " << hit.GetY() << ", " << hit.GetZ() << ") cm "
-        << " with " << hit.GetCharge() << " e" << ", Cluster No. " << hit.GetClusterIndex();
+        << " with " << hit.GetCharge() << " e" << " at Time: " << hit.GetTimeStamp() << ", Cluster No. " << hit.GetClusterIndex();
     if (hit.GetBotIndex() > -1)
     	out << " and bottom " << hit.GetBotIndex();
     if (hit.GetRefIndex() > -1)

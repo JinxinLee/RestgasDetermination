@@ -9,6 +9,7 @@
 #include "PndMvdHybridHitProducer.h"
 #include "PndMvdStripHitProducer.h"
 #include "PndMvdNoiseProducer.h"
+#include "PndMvdPixelDigiSorterTask.h"
 
 // -----   Default constructor   -------------------------------------------
 PndMvdDigiTask::PndMvdDigiTask() :
@@ -31,6 +32,14 @@ void PndMvdDigiTask::SetPersistance(Bool_t pers)
   ((PndMvdStripHitProducer*)thistasks->At(1))->SetPersistance(fPersistance);
   ((PndMvdNoiseProducer*)thistasks->At(2))->SetPersistance(fPersistance);
   return;
+}
+
+void PndMvdDigiTask::RunTimeBased()
+{
+	 TList* thistasks = this->GetListOfTasks();
+	((PndMvdHybridHitProducer*)thistasks->At(0))->RunTimeBased();
+	this->Add(new PndMvdPixelDigiSorterTask());
+	std::cout << "PndMvdDigiTask: PndMvdPixelDigiSorterTask added" << std::endl;
 }
 
 // -----   Destructor   ----------------------------------------------------
