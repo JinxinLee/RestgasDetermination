@@ -361,8 +361,8 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 	   ListAllParHits[nmaxSttHits],
 	   ListAllSkewHits[nmaxSttHits],
 	   nSttHitsinTrack[MAXTRACKSPEREVENT],
-	   ListSttHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
-	   ListSttHitsinTrackType[MAXTRACKSPEREVENT][nmaxSttHits]
+	   ListSttHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
+	   ListSttHitsinTrackType[MAXTRACKSPEREVENT][nmaxSttHitsInTrack]
 		;
   UShort_t	ipinco,
 		ncand,
@@ -841,7 +841,7 @@ cout<<"from PndSttMvdTracking : # Mvd hits of this Mvd Track Cand is >= than the
      }
 
 
-if(istampa>=3  && IVOLTE<20) 
+if(istampa>=2  && IVOLTE<20) 
    cout<<"Evento n. "<<IVOLTE<<", info da MvdTrackCand n. "<<i<<"  ---------------------------------------\n"<<
        "\n      direzione X traccia = "<<dirSeed.X()<<
        "\n      direzione Y traccia = "<<dirSeed.Y()<<
@@ -876,7 +876,7 @@ if(istampa>=3  && IVOLTE<20)
 		continue;	// ignore this hit.
 	}
 
-if(istampa>=3  && IVOLTE<20){  cout<<"\thit n. "<<ListHitMvdTrackCand[i][k]
+if(istampa>=2  && IVOLTE<20){  cout<<"\thit n. "<<ListHitMvdTrackCand[i][k]
 	<<" e suo Detector Id "<<ListHitTypeMvdTrackCand[i][k]
 	<<" (Pixel DetId = "<<FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)
 	<<", Strip DetId = "
@@ -923,7 +923,7 @@ if(istampa>=3  && IVOLTE<20){  cout<<"\thit n. "<<ListHitMvdTrackCand[i][k]
 	}
   }
 
- if(istampa>2){
+ if(istampa>=3){
  	for( i= 0; i< nMvdTrackCand ; i++){
 		cout<<" PndSttMvdTracking, MvdTrackCand n. "<<i<<" ha "<<nHitMvdTrackCand[i]
 		<<" hits Mvd. Ecco la loro lista :\n";
@@ -968,20 +968,14 @@ if(istampa>=3  && IVOLTE<20){  cout<<"\thit n. "<<ListHitMvdTrackCand[i][k]
   pSttTrackCand = (PndTrackCand *) fSttTrackCandArray->At(i);
   nSttHitsinTrack[i] = pSttTrackCand->GetNHits();  // n. hits in questa track cand
 
-
-    //  for the calculation of the approximate Fi of the first hit in thos track
+    //  for the calculation of the approximate Fi of the first hit in those track
 //    pndtrackcandhit = pSttTrackCand->GetSortedHit(0);
 //    x = info[ pndtrackcandhit.GetHitId() ][0];  //  this is in the middle of the tube
 //    y = info[ pndtrackcandhit.GetHitId() ][1];  //  this is in the middle of the tube
 
-// temporary patch
-//  for(j=0,nSttParHitsinTrack[i]=0,nSttSkewHitsinTrack[i]=0; j<nSttHitsinTrack[i]; j++){
-  int jj;
-  for(jj=0,j=0,nSttParHitsinTrack[i]=0,nSttSkewHitsinTrack[i]=0; jj<nSttHitsinTrack[i]; jj++){
-//    pndtrackcandhit = pSttTrackCand->GetSortedHit(j);
-    pndtrackcandhit = pSttTrackCand->GetSortedHit(jj);
-	if( pndtrackcandhit.GetHitId() > nSttHit || pndtrackcandhit.GetHitId()<0)
-		continue; 
+  for(j=0,nSttParHitsinTrack[i]=0,nSttSkewHitsinTrack[i]=0; j<nSttHitsinTrack[i]; j++){
+    pndtrackcandhit = pSttTrackCand->GetSortedHit(j);
+
 
 	if(j==0) {
     //  for the calculation of the approximate Fi of the first hit in thos track
@@ -990,9 +984,7 @@ if(istampa>=3  && IVOLTE<20){  cout<<"\thit n. "<<ListHitMvdTrackCand[i][k]
 
 	}
 
-	j++;
 
-//----------- end of patch.
 
     ListSttHitsinTrack[i][j] = pndtrackcandhit.GetHitId(); // # hit of Stt
 
@@ -1008,7 +1000,7 @@ if(istampa>=3  && IVOLTE<20){  cout<<"\thit n. "<<ListHitMvdTrackCand[i][k]
 
   }    //   end of    for(j=0; j<nSttHitsinTrack[i]; j++)
 
-nSttHitsinTrack[i]=j;  // temporary patch.
+//nSttHitsinTrack[i]=j;  // temporary patch.
 
 
 
@@ -1378,6 +1370,8 @@ if(istampa>=2&& IVOLTE<20){
 			trajectory_vertex[0]=trajectory_vertex[1]=0.;
 			iexcl=-1;
 		}
+
+
 		RefitMvdStt(
 			nTrackCandHit[ncand], //this is  input
 			&ListTrackCandHit[ncand][0],//this is both input and output
@@ -5582,7 +5576,7 @@ nohits: ;
 		bool *keepit,
 		UShort_t nSttTrackCand,
 		UShort_t nCandHit[MAXTRACKSPEREVENT],
-		UShort_t ListCandHit[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
+		Short_t ListCandHit[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
 	                           nmaxMvdPixelHitsInTrack+
 				   nmaxMvdStripHitsInTrack],
 	Short_t ListCandHitType[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
@@ -8835,7 +8829,7 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 
  void   PndSttMvdTracking::RefitMvdStt(
 			UShort_t nCandHit,
-			UShort_t *ListCandHit,
+			Short_t *ListCandHit,
 			Short_t *ListCandHitType,
 			Double_t info[][7],
 			Double_t rotationangle, //  this is between 0. and 2*PI
@@ -8876,6 +8870,8 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 //	trajectory_vertex[0]=trajectory_vertex[1]=0.;
 
 	for(i=0, iparallel=0; i<nCandHit && iparallel< MAXIMUMHITSINFIT; i++){
+
+
 		if(i==iexcl) continue;
 		if( ListCandHitType[i] == 0 ){	// mvd pixels
 			//----- translate the little circumference in XY representing
@@ -8919,6 +8915,7 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 			ErrorDriftRadiusconformal[iparallel]=factor* ErrorMvd/gamma;
 			iparallel++;
 		} else if ( ListCandHitType[i] == 2 ){	// Stt parallel hit.
+
 
 			dist2 = (info[ListCandHit[i]][0]-tv[0])*
 				(info[ListCandHit[i]][0]-tv[0])+
