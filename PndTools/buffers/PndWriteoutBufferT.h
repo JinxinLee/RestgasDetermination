@@ -42,7 +42,12 @@ public:
 	virtual std::vector<T> GetAllData();
 	virtual void FillNewData(T& data, double activeTime);
 
-	virtual T Modify(T& oldData, T& newData){ return oldData;};
+	virtual std::vector<std::pair<double, T> > Modify(std::pair<double, T> oldData, std::pair<double, T> newData){
+		std::vector<std::pair<double, T> > result;
+		result.push_back(oldData);
+		return result;
+	}
+
 	virtual double CalcNewActiveTime(double oldActiveTime, T& newData){ return oldActiveTime;};
 
 protected:

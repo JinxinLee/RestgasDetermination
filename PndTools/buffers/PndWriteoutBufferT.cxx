@@ -33,12 +33,13 @@ template<class T> std::vector<T> PndWriteoutBufferT<T>::WriteOutData(double time
 				std::cout << "-E- PndWriteoutBuffer::WriteOutData " << fBranchName << " array is not available!" << std::endl;
 			for (int i = 0; i < data.size(); i++){
 				new ((*myArray)[i]) T(data[i]);
+				if (fVerbose > 1)std::cout << i << " : " << data[i] << std::endl;
 			}
-			ioman->GetEmptyTClonesArray(fBranchName);
+			ioman->GetTClonesArray(fBranchName);
 		}
 	}
 	else{
-		ioman->GetEmptyTClonesArray(fBranchName);
+		ioman->GetTClonesArray(fBranchName);
 	}
 	return data;
 }
@@ -46,7 +47,7 @@ template<class T> std::vector<T> PndWriteoutBufferT<T>::WriteOutData(double time
 template<class T> std::vector<T> PndWriteoutBufferT<T>::WriteOutAllData()
 {
 	if (fDeadTime_map.size() > 0){
-		return WriteOutData(fDeadTime_map.rbegin()->first);
+		return WriteOutData(fDeadTime_map.rbegin()->first + 1);
 	}
 }
 
@@ -94,11 +95,13 @@ template<class T> void PndWriteoutBufferT<T>::FillNewData(T& data, double active
 					break;
 				}
 			}
-			double newDeadTime = CalcNewActiveTime(currentdeadtime, data);
-			fData_map[data] = newDeadTime;
-			T modifiedData = Modify(oldData, data);
-			fDeadTime_map.insert(std::pair<double, T>(newDeadTime, modifiedData));
-			if (fVerbose > 1) std::cout << "Modified Data: " << newDeadTime << " : " << modifiedData << std::endl;
+//			double newDeadTime = CalcNewActiveTime(currentdeadtime, data);
+//			fData_map[data] = newDeadTime;
+			std::vector<std::pair<double, T> > modifiedData = Modify(std::pair<double, T>(currentdeadtime, oldData), std::pair<double, T>(-1, data));
+			for (int i = 0; i < modifiedData.size(); i++){
+				fDeadTime_map.insert(modifiedData[i]);
+				if (fVerbose > 1) std::cout << i << " :Modified Data: " << modifiedData[i].first << " : " << modifiedData[i].second << std::endl;
+			}
 			//T newData = Modify(myData, data);
 		}
 		else{
@@ -116,14 +119,14 @@ template<class T> void PndWriteoutBufferT<T>::FillNewData(T& data, double active
 	}
 }
 
-template <> double PndWriteoutBufferT<PndSdsDigiPixel>::CalcNewActiveTime(double oldActiveTime, PndSdsDigiPixel& newData){
-	return oldActiveTime + newData.GetCharge()*4;
-};
+//template <> double PndWriteoutBufferT<PndSdsDigiPixel>::CalcNewActiveTime(double oldActiveTime, PndSdsDigiPixel& newData){
+//	return oldActiveTime + newData.GetCharge()*4;
+//};
 
-template <> PndSdsDigiPixel PndWriteoutBufferT<PndSdsDigiPixel>::Modify(PndSdsDigiPixel& oldData, PndSdsDigiPixel& newData){
-	oldData.AddCharge(newData.GetCharge());
-	return oldData;
-};
+//template <> PndSdsDigiPixel PndWriteoutBufferT<PndSdsDigiPixel>::Modify(PndSdsDigiPixel& oldData, PndSdsDigiPixel& newData){
+//	oldData.AddCharge(newData.GetCharge());
+//	return oldData;
+//};
 
 
 template class PndWriteoutBufferT<PndSdsDigiPixel>;
