@@ -47,6 +47,7 @@ PndMCResult.cxx
 PndMCEntry.cxx
 PndMCList.cxx
 PndMCTrackAssociator.cxx
+PndMCTrackEnumAssociator.cxx
 )
 
 # fill list of header files from list of source files
