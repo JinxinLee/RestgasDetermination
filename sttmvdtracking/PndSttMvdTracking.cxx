@@ -97,13 +97,14 @@ InitStatus PndSttMvdTracking::Init() {
 
 */
 
+ if(iplotta){
   hdeltaRPixel = new TH1F("hdeltaRPixel", "distance MC Pixel point from trajectory in XY plane", 100, -1, 1);
   hdeltaRStrip = new TH1F("hdeltaRStrip", "distance MC Strip point from trajectory in XY plane", 100, -1, 1);
   hdeltaRPixel2 = new TH1F(
   "hdeltaRPixel2", "distance MC point from trajectory in XY plane (Pixels)", 100, -10, 10);
   hdeltaRStrip2 = new TH1F(
   "hdeltaRStrip2", "distance MC point from trajectory in XY plane (Strips)", 100, -10,10);
-
+}
 
 
   IVOLTE=-1;
@@ -3851,7 +3852,7 @@ return;
 		   Double_t primoangolo,
 		   Double_t ultimoangolo,
                    UShort_t Nhits,
-		   UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
+UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
                    Double_t info[][7],
                    UShort_t iTrack,
 		Int_t iNome,
@@ -3865,9 +3866,9 @@ return;
 		UShort_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHits],
 
 	UShort_t nMvdPixelHitsAssociatedToSttTra,
-UShort_t ListPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHits],
+UShort_t ListPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack],
 	UShort_t nMvdStripHitsAssociatedToSttTra,
-UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHits],
+UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],
 
 		UShort_t nMvdPixelCommon,
 		UShort_t *MvdPixelCommonList,
@@ -3884,7 +3885,7 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHits],
 		UShort_t *MCMvdStripAloneList,
 
 		UShort_t nSkewHitsinTrack,
-		UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
+UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 		Double_t *SchosenSkew,
 		UShort_t nSkewCommon[MAXTRACKSPEREVENT],
 		UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxSttHits],
@@ -4798,16 +4799,16 @@ fprintf(MACRO,
                    UShort_t iTrack,
 		    Int_t iNome, // questo e' per il nome delle Macro solamente.
                    UShort_t nSkewHitsinTrack,
-                   UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
+UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
                    UShort_t nSkewCommon,
                    UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxSttHits],
                    Short_t daTrackFoundaTrackMC,
                    UShort_t nMCSkewAlone,
                    UShort_t MCSkewAloneList[MAXMCTRACKS][nmaxSttHits],
 		   UShort_t nPixelHitsinTrack[MAXTRACKSPEREVENT], // output
-		   UShort_t ListPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHits], // output
+		   UShort_t ListPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack], // output
 		   UShort_t nStripHitsinTrack[MAXTRACKSPEREVENT], // output
-		   UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHits], // output
+		   UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack], // output
 
 
 
@@ -5581,10 +5582,10 @@ nohits: ;
 		bool *keepit,
 		UShort_t nSttTrackCand,
 		UShort_t nCandHit[MAXTRACKSPEREVENT],
-		UShort_t ListCandHit[MAXTRACKSPEREVENT][nmaxSttHits+
+		UShort_t ListCandHit[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
 	                           nmaxMvdPixelHitsInTrack+
 				   nmaxMvdStripHitsInTrack],
-		Short_t ListCandHitType[MAXTRACKSPEREVENT][nmaxSttHits+
+	Short_t ListCandHitType[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
 	                           nmaxMvdPixelHitsInTrack+
 				   nmaxMvdStripHitsInTrack]
 					)
@@ -6228,15 +6229,15 @@ out1:  ;
 
                    UShort_t nTracksFoundSoFar,
                   UShort_t nHitsinTrack[MAXTRACKSPEREVENT],
-                  UShort_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
+UShort_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
                   UShort_t nSkewHitsinTrack[MAXTRACKSPEREVENT],
-                  UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
+UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 
 		UShort_t nPixelHitsinTrack[MAXTRACKSPEREVENT],
-		UShort_t ListPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHits],
+UShort_t ListPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack],
 		Short_t *FromPixeltoMCTrack,
 		UShort_t nStripHitsinTrack[MAXTRACKSPEREVENT],
-		UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHits],
+UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],
 		Short_t *FromStriptoMCTrack,
 
 		Short_t daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
@@ -6572,9 +6573,9 @@ void PndSttMvdTracking::SttMatchedSpurious(
 			Double_t info[][7],
                         UShort_t nTracksFoundSoFar, //  quelle trovate dal PR
   			UShort_t nHitsinTrack[MAXTRACKSPEREVENT], // n. hits PARALLELI+SKEW, dal PR
-			UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits], // dal PR
+UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack], // dal PR
   			UShort_t nSkewHitsinTrack[MAXTRACKSPEREVENT], // n. hits skew, dal PR
-			UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits], // dal PR
+UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack], // dal PR
 
 			UShort_t nParalCommon[MAXTRACKSPEREVENT],
                         UShort_t ParalCommonList[MAXMCTRACKS][nmaxSttHits],
@@ -9116,9 +9117,9 @@ cout<<"Evento n. "<<IVOLTE<<
 			Short_t *FromPixeltoMCTrack,			// input
 			Short_t *FromStriptoMCTrack,			// input
 			UShort_t *nPixelHitsinTrack,	// input
-UShort_t ListPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHits],// input
+UShort_t ListPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack],// input
 			UShort_t *nStripHitsinTrack,	// input
-UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHits],// input
+UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 
 			UShort_t *nMvdPixelCommon,		// output
 			UShort_t *MvdPixelCommonList,		// output
@@ -9272,9 +9273,9 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHits],// input
 			Short_t CHARGE[MAXTRACKSPEREVENT],
 
 			UShort_t nPixelHitsinTrack[MAXTRACKSPEREVENT], // output
-			UShort_t ListPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHits], // output
+UShort_t ListPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack], // output
 			UShort_t nStripHitsinTrack[MAXTRACKSPEREVENT], // output
-			UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHits] // output
+UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack] // output
                     )
 {
 	bool specialcase;
@@ -9754,9 +9755,9 @@ IVOLTE<<", Stt track cand = "<<i<<endl;}
 			Short_t CHARGE[MAXTRACKSPEREVENT],
 
 			UShort_t nPixelHitsinTrack[MAXTRACKSPEREVENT], // output
-			UShort_t ListPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHits], // output
+UShort_t ListPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack], // output
 			UShort_t nStripHitsinTrack[MAXTRACKSPEREVENT], // output
-			UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHits] // output
+UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack] // output
                     )
 {
 	bool specialcase,
@@ -9981,7 +9982,7 @@ zippo: ;
 			Double_t Fi_low_limit[MAXTRACKSPEREVENT],
 			Double_t Fi_up_limit[MAXTRACKSPEREVENT],
 			UShort_t nParHitsinTrack[MAXTRACKSPEREVENT], // input/output
-			UShort_t ListParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits] // input/output
+	UShort_t ListParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack] // input/output
 						)
 {
 
