@@ -61,7 +61,6 @@
 #include <signal.h>
 #include <stdlib.h>
 
-#define DEBUG 1
 
 
 void sighandler(int sig){
@@ -195,20 +194,20 @@ KalmanTask::Exec(Option_t* opt)
   //std::vector<int> signs;
   
   for(Int_t itr=0;itr<ntracks;++itr){
-    if (DEBUG) std::cout<<"starting track"<<itr<<std::endl;
+    if (fVerbose) std::cout<<"starting track"<<itr<<std::endl;
     GFTrack* trk=(GFTrack*)_trackArray->At(itr);
     
     // Load RecoHits 
     try {
       trk->addHitVector(_theRecoHitFactory->createMany(trk->getCand()));
-      if (DEBUG) std::cout<<trk->getNumHits()<<" hits in track " <<itr<<std::endl;
+      if (fVerbose) std::cout<<trk->getNumHits()<<" hits in track " <<itr<<std::endl;
     }
     catch(GFException& e) {
       std::cout << e.what() << std::endl;
       e.info();
       throw e;
     }
-    if (DEBUG) std::cout<<"*** Number of clusters in track: "<<trk->getNumHits()<<" ***"<<std::endl;
+    if (fVerbose) std::cout<<"*** Number of clusters in track: "<<trk->getNumHits()<<" ***"<<std::endl;
 
     Int_t size = _trackOutArray->GetEntriesFast();
     GFTrack* trkCopy = new((*_trackOutArray)[size]) GFTrack(*trk);
@@ -216,7 +215,7 @@ KalmanTask::Exec(Option_t* opt)
     
     // Start Fitter
     try{
-      if (DEBUG) std::cerr << "KalmanTask::Exec - Calling processTrack" << std::endl;
+      if (fVerbose) std::cerr << "KalmanTask::Exec - Calling processTrack" << std::endl;
       fitter.processTrack(trkCopy);
     }
     catch (GFException& e){
@@ -226,7 +225,7 @@ KalmanTask::Exec(Option_t* opt)
 
     // Print Track Parameters after fit
     if(trkCopy->getTrackRep(0)->getStatusFlag()==0){
-      if(DEBUG) trkCopy->getTrackRep(0)->Print();
+      if(fVerbose) trkCopy->getTrackRep(0)->Print();
       double p=trkCopy->getMom().Mag();
       _pH->Fill(p);
       
@@ -236,7 +235,7 @@ KalmanTask::Exec(Option_t* opt)
 
   }
 
-  if (DEBUG) std::cout<<"Fitting done"<<std::endl;
+  if (fVerbose) std::cout<<"Fitting done"<<std::endl;
 
   return;
 }
