@@ -41,9 +41,10 @@
 #include "TBranch.h"
 
 #include <iostream>
-
+#include <deque>
 // Class Member definitions -----------
 
+using std::deque;
 
 PndTpcEvtMixTask::PndTpcEvtMixTask()
   : FairTask("TPC Background Event Addmixer"),
@@ -201,9 +202,22 @@ PndTpcEvtMixTask::Exec(Option_t* opt)
   // reset timer
   double teventSim=ft0;
   
+  // prepare drawing events without putting them back
+  deque<unsigned int> availableEvents;
+  for(unsigned int i=0;i<fnAvailableBkgEvents;++i){
+    availableEvents.push_back(i);
+  }
+
+
   // Get background events
   for(Int_t i=0;i<fnbkgEvts;++i){
-    Int_t selectEvt=gRandom->Uniform(fnAvailableBkgEvents);
+    // select event from evailable ones:
+    //std::cout << availableEvents.size() << " events left" << std::endl;
+    unsigned int EventNum=gRandom->Integer(availableEvents.size());
+    Int_t selectEvt=availableEvents.at(EventNum);
+    // remove event from list of availables
+    availableEvents.erase(availableEvents.begin()+EventNum);
+    // -------------
     fbkgTree->GetEntry(selectEvt);
     double tevent=((PndTpcEvtTime*)ftimeArray->At(0))->t0();
     // if reshuffel
