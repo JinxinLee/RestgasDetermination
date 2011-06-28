@@ -377,7 +377,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       PrintClusters(clusterlist);
     }
     // save tracks
-    TMatrixT<double> param(1, 4);
+    TMatrixT<double> param(1, 6);
     param[0][0] = xc;
     param[0][1] = yc;
     param[0][2] = radius;
@@ -451,7 +451,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       display->Modified();
     }
 
-    TMatrixT<double> param(1, 4);
+    TMatrixT<double> param(1, 6);
     param[0][0] = xc;
     param[0][1] = yc;
     param[0][2] = radius;
@@ -544,11 +544,13 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       }
     }
 
-  TMatrixT<double> param(1, 4);
+  TMatrixT<double> param(1, 6);
     param[0][0] = xc;
     param[0][1] = yc;
     param[0][2] = radius;
     param[0][3] = 0;
+
+    cout << "XC/YC/RADIUS " << xc << " " << yc << " " << radius << endl;
     xyparameters.push_back(param);
   }
 
@@ -674,6 +676,10 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       display->Update();
       display->Modified();  
     }
+
+    xyparameters.at(itrk)[0][4] = fitm;
+    xyparameters.at(itrk)[0][5] = fitp;
+
   }
 
   // +++++++++ NOW ++++++++++
@@ -682,6 +688,57 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   // list of track parameters xyparameters 1:1 with clusterlist
   // map slewed cluster to parameters: skewedclustopar
 
+  // std::vector< std::vector< std::pair<int, int> > >  clusterlist
+  // std::vector< std::vector< TMatrixT<double> > >     positionlist
+  // std::vector< TMatrixT<double> >                    parameters
+  std::vector< std::vector< std::pair<int, int> > > completeclusterlist;
+  for(int itrk = 0; itrk < xyparameters.size(); itrk++) {
+    TMatrixT<double> xypar = xyparameters[itrk];
+    std::vector< std::pair<int, int> > completecluster;
+    double xc = xypar[0][0];
+    double yc = xypar[0][1];
+    double radius = xypar[0][2];
+    double charge = xypar[0][3];
+
+    std::vector<int> parallel = clusterlist[itrk];
+
+    // ++++++++++++++++++ skewid ++++++++++++++++++ 
+    std::map<int, int>::iterator it;
+    int skewid = -1;
+    for(it = skewedclustopar.begin(); it != skewedclustopar.end(); it++) {
+      int trackid = (*it).second;
+      if(trackid != itrk) continue;
+      skewid = (*it).first;
+      break;
+    }
+    std::vector<int> skewed = skewedclusterlist[skewid];
+    // ++++++++++++++++++++++++++++++++++++++++++++ 
+
+    for(int ihit = 0; ihit < parallel.size(); ihit++) {
+      int hitid = parallel[ihit];
+      std::pair<int, int> thispair(hitid, FairRootManager::Instance()->GetBranchId(fSttBranch));
+      completecluster.push_back(thispair);
+    }
+   
+    for(int ihit = 0; ihit < skewed.size(); ihit++) {
+      int hitid = skewed[ihit];
+      std::pair<int, int> thispair(hitid, FairRootManager::Instance()->GetBranchId(fSttBranch));
+      completecluster.push_back(thispair);
+    }
+    completeclusterlist.push_back(completecluster);
+  }
+
+  
+  for(int itrk = 0; itrk < xyparameters.size(); itrk++) {
+    cout << " =============== FINAL PARAMETERS " << itrk << endl;
+    TMatrixT<double> par = xyparameters[itrk];
+    par.Print();
+    std::vector< std::pair<int, int> > completecluster = completeclusterlist[itrk];
+    for(int ihit = 0; ihit < completecluster.size(); ihit++) {
+      std::pair<int, int> thispair = completecluster[ihit];
+      cout << thispair.first << " " << thispair.second << endl;
+    }
+  }
 
 //   if(fDisplayOn) {
 //     fDisName += ".pdf";
@@ -3750,7 +3807,7 @@ std::vector<int> PndSecondaryTrackFinder::ZFinder(std::vector<int> hits, Double_
       skewedcluster.push_back(hitid);
     }
   }
-  cout << "CLUSTER FOUND WITH " << skewedcluster.size() << " HITS" << endl;
+  //  cout << "CLUSTER FOUND WITH " << skewedcluster.size() << " HITS" << endl;
   return  skewedcluster;
 }
 
@@ -3857,7 +3914,7 @@ Bool_t PndSecondaryTrackFinder::ZFit(std::vector<int> cluster, Int_t charge, Dou
   std::map<int, int> hitidtointersections;
   std::vector<TVector3> intersectionpoints, intersectionpoints1, intersectionpoints2;
   std::vector<double> zerrors;
-  cout << "CLUSTER WITH " << nhits << " HITS" << endl;
+  //  cout << "CLUSTER WITH " << nhits << " HITS" << endl;
   for(int ihit = 0; ihit < nhits; ihit++) {
     Int_t hitid = cluster[ihit];
     Bool_t belong = DoesHitBelong(hitid, xc, yc, radius, intersection, kFALSE);
@@ -3880,7 +3937,7 @@ Bool_t PndSecondaryTrackFinder::ZFit(std::vector<int> cluster, Int_t charge, Dou
 
  }
 
-  cout << "ZCOUNTER " << zcounter << endl;
+//   cout << "ZCOUNTER " << zcounter << endl;
   std::vector<int> sortedhits = OrderClusterInPhi(cluster, intersectionpoints, hitidtointersections, xc, yc, radius);
  for(int ihit = 0; ihit < nhits; ihit++) {
     int hitid = sortedhits[ihit];
@@ -3944,7 +4001,7 @@ Bool_t PndSecondaryTrackFinder::ZFit(std::vector<int> cluster, Int_t charge, Dou
     Fi_pre = Fi;
     Double_t scos = - charge * radius * Fi; // scos = -q * R * phi CHECK :-)GOOD!
     //  cout << charge << " scosl " << scos << endl;
-    cout << "FITTING POINT " << scos << " " << point.Z() << " " << errz <<endl;
+    // cout << "FITTING POINT " << scos << " " << point.Z() << " " << errz <<endl;
 
     Double_t sigz2 = errz * errz;
   
@@ -4020,7 +4077,7 @@ Bool_t PndSecondaryTrackFinder::ZFit2(std::vector<int> cluster, Int_t charge, Do
   std::map<int, int> hitidtointersections;
   std::vector<TVector3> intersectionpoints;
   std::vector<double> zerrors;
-  cout << "CLUSTER WITH " << nhits << " HITS" << endl;
+  //  cout << "CLUSTER WITH " << nhits << " HITS" << endl;
   int tmphitid;
   double tmperrz = 1000;  
   for(int ihit = 0; ihit < nhits; ihit++) {
@@ -4266,7 +4323,7 @@ Bool_t PndSecondaryTrackFinder::ZFit3(std::vector<int> cluster, Int_t charge, Do
   std::map<int, int> hitidtointersections;
   std::vector<TVector3> intersectionpoints, intersectionpoints1, intersectionpoints2;
   std::vector<double> zerrors;
-  cout << "CLUSTER WITH " << nhits << " HITS" << endl;
+  //  cout << "CLUSTER WITH " << nhits << " HITS" << endl;
   for(int ihit = 0; ihit < nhits; ihit++) {
     Int_t hitid = cluster[ihit];
     Bool_t belong = DoesHitBelong(hitid, xc, yc, radius, intersection, kFALSE);
@@ -4291,6 +4348,8 @@ Bool_t PndSecondaryTrackFinder::ZFit3(std::vector<int> cluster, Int_t charge, Do
   
   cout << "ZCOUNTER " << zcounter << endl;
   std::vector<int> sortedhits = OrderClusterInPhi(cluster, intersectionpoints, hitidtointersections, xc, yc, radius);
+
+  TH1F *hz = new TH1F("hz", "", 17, -50, 120);
   for(int ihit = 0; ihit < nhits; ihit++) {
     int hitid = sortedhits[ihit];
     int pointid  = hitidtointersections[hitid]; 
@@ -4303,6 +4362,10 @@ Bool_t PndSecondaryTrackFinder::ZFit3(std::vector<int> cluster, Int_t charge, Do
     TVector2 p(point.X() - xc, point.Y() - yc);
     Double_t Fi = CalculatePhi(v, p, alpha, Phi0, charge);
     Double_t scos = - charge * radius * Fi; // scos = -q * R * phi CHECK :-)GOOD!
+
+    hz->Fill(point1.Z());
+    hz->Fill(point2.Z());
+
     if(fDisplayOn) {
       //    cout << "scos/z 0 : " << scos << " " << point.Z() << " " << errz << endl;
       TLine *l = new TLine(scos, point.Z() - errz, scos, point.Z() + errz);
@@ -4318,6 +4381,10 @@ Bool_t PndSecondaryTrackFinder::ZFit3(std::vector<int> cluster, Int_t charge, Do
       mrk2->SetMarkerColor(3);
       mrk2->Draw("SAME");
       
+
+      hz->Draw();
+
+
       display->Update();
       display->Modified();  
     }
@@ -4353,7 +4420,7 @@ Bool_t PndSecondaryTrackFinder::ZFit3(std::vector<int> cluster, Int_t charge, Do
     Fi_pre = Fi;
     Double_t scos = - charge * radius * Fi; // scos = -q * R * phi CHECK :-)GOOD!
     //  cout << charge << " scosl " << scos << endl;
-    cout << "FITTING POINT " << scos << " " << point.Z() << " " << errz <<endl;
+    //     cout << "FITTING POINT " << scos << " " << point.Z() << " " << errz <<endl;
 
     Double_t sigz2 = 1.; // errz * errz; // CHECK THIS!!
 
@@ -4952,7 +5019,7 @@ std::vector<TVector3>  PndSecondaryTrackFinder::FindRealIntersections(std::vecto
 
   for(int ihit = 0; ihit < nhits; ihit++) {
     int hitid = cluster->at(ihit);
-    cout << "INITIAL " << hitid << endl;    
+   //  cout << "INITIAL " << hitid << endl;    
     int pointid  = hitidtointersections[hitid]; 
     TVector3 point = intersectionpoints[pointid];
     TVector3 point1 = intersectionpoints1[pointid];
@@ -4976,9 +5043,9 @@ std::vector<TVector3>  PndSecondaryTrackFinder::FindRealIntersections(std::vecto
       zcoordmax[1] = point2.Z();
     }
   }
-  cout << "SCOS MIN/MAX " << scosmin << " " << scosmax << endl;
- cout << "ZCOOR MIN " << zcoordmin[0] << " " << zcoordmin[1] << endl;
- cout << "ZCOOR MAX " << zcoordmax[0] << " " << zcoordmax[1] << endl;
+//   cout << "SCOS MIN/MAX " << scosmin << " " << scosmax << endl;
+//  cout << "ZCOOR MIN " << zcoordmin[0] << " " << zcoordmin[1] << endl;
+//  cout << "ZCOOR MAX " << zcoordmax[0] << " " << zcoordmax[1] << endl;
 
   // compute 4 lines
   // min1 max1
@@ -5038,27 +5105,27 @@ std::vector<TVector3>  PndSecondaryTrackFinder::FindRealIntersections(std::vecto
     // distance from 11
     d1 = fabs(point1.Z() - f11->Eval(scos));
     d2 = fabs(point2.Z() - f11->Eval(scos));
-    cout << "for hit " << point1.Z() << " " << point2.Z() << " " << scos << " " << err1 << " " << err2 << endl;
-    cout << "11: " << d1 << " " << d2 << endl;
+//     cout << "for hit " << point1.Z() << " " << point2.Z() << " " << scos << " " << err1 << " " << err2 << endl;
+//     cout << "11: " << d1 << " " << d2 << endl;
     if(d1 <= err1 && d2 > err2) {
       realhits[0].push_back(hitid);
       listofrealintersections[0].push_back(point1);
-      cout << "takin1 " << endl;;
+//       cout << "takin1 " << endl;;
     }
     else if(d1 > err1 && d2 <= err2) {
       realhits[0].push_back(hitid);
       listofrealintersections[0].push_back(point2);
-       cout << "takin2 " << endl;;
+//        cout << "takin2 " << endl;;
     }
     else if(d1 <= err1 && d2 <= err2 && d1 < d2) {
       realhits[0].push_back(hitid);
       listofrealintersections[0].push_back(point1);
-       cout << "takin3 " << endl;;
+//        cout << "takin3 " << endl;;
     }
     else if(d1 <= err1 && d2 <= err2 && d2 < d1) {
       realhits[0].push_back(hitid);
       listofrealintersections[0].push_back(point2);
-        cout << "takin4 " << endl;;
+//         cout << "takin4 " << endl;;
    }
 
     if(fDisplayOn) { 
@@ -5073,7 +5140,7 @@ std::vector<TVector3>  PndSecondaryTrackFinder::FindRealIntersections(std::vecto
     // distance from 12
     d1 = fabs(point1.Z() - f12->Eval(scos));
     d2 = fabs(point2.Z() - f12->Eval(scos));
-    cout << "12: " << d1 << " " << d2 << endl;  
+//     cout << "12: " << d1 << " " << d2 << endl;  
     if(d1 <= err1 && d2 > err2) {
       realhits[1].push_back(hitid);
       listofrealintersections[1].push_back(point1);
@@ -5102,7 +5169,7 @@ std::vector<TVector3>  PndSecondaryTrackFinder::FindRealIntersections(std::vecto
     // distance from 21
     d1 = fabs(point1.Z() - f21->Eval(scos));
     d2 = fabs(point2.Z() - f21->Eval(scos));
-    cout << "21: " << d1 << " " << d2 << endl;  
+ //    cout << "21: " << d1 << " " << d2 << endl;  
     if(d1 <= err1 && d2 > err2) {
       realhits[2].push_back(hitid);
       listofrealintersections[2].push_back(point1);
@@ -5130,7 +5197,7 @@ std::vector<TVector3>  PndSecondaryTrackFinder::FindRealIntersections(std::vecto
     // distance from 22
     d1 = fabs(point1.Z() - f22->Eval(scos));
     d2 = fabs(point2.Z() - f22->Eval(scos));
-     cout << "22: " << d1 << " " << d2 << endl;  
+//      cout << "22: " << d1 << " " << d2 << endl;  
    if(d1 <= err1 && d2 > err2) {
       realhits[3].push_back(hitid);
       listofrealintersections[3].push_back(point1);
@@ -5155,7 +5222,7 @@ std::vector<TVector3>  PndSecondaryTrackFinder::FindRealIntersections(std::vecto
     }
   }
 
-  cout << "HOUGH YPOO " << listofrealintersections[0].size() << " " << listofrealintersections[1].size() << " " << listofrealintersections[2].size() << " " << listofrealintersections[3].size() << endl;
+//   cout << "HOUGH YPOO " << listofrealintersections[0].size() << " " << listofrealintersections[1].size() << " " << listofrealintersections[2].size() << " " << listofrealintersections[3].size() << endl;
   int tmpchoice = -1, tmpnum = -1;  
   for(int ich = 0; ich < 4; ich++) {
     int no =  listofrealintersections[ich].size();
@@ -5167,11 +5234,11 @@ std::vector<TVector3>  PndSecondaryTrackFinder::FindRealIntersections(std::vecto
     }
   }
 
-  cout << "THE CHOICE IS " << tmpchoice << endl;
+ //  cout << "THE CHOICE IS " << tmpchoice << endl;
   // delete wrong hits from cluster
   int nrealhits =  realhits[tmpchoice].size();
   std::vector<int>  realcluster = realhits[tmpchoice];
-  cout << "NHITS vs REALHITS " << nhits << " " << nrealhits << endl;
+ //  cout << "NHITS vs REALHITS " << nhits << " " << nrealhits << endl;
   if(nhits != nrealhits) {
     std::vector<int> deleting;
     for(int ihit = 0; ihit < nhits; ihit++)
@@ -5181,7 +5248,7 @@ std::vector<TVector3>  PndSecondaryTrackFinder::FindRealIntersections(std::vecto
 	it = find(realcluster.begin(), realcluster.end(), hitid);
 	if(it == realcluster.end()) {
 	  deleting.push_back(hitid);
-	  cout << "DELETING " << hitid << endl;
+	//   cout << "DELETING " << hitid << endl;
 	}
       }
 
@@ -5255,7 +5322,7 @@ TVector3 PndSecondaryTrackFinder::FindTangentInPoint(Double_t xc, Double_t yc, D
   m = t.Y()/t.X();
   p = y - m * x;
 
-  cout << "TANGENT IN " << x << " " << y << " " << m << " " << p << endl;
+  //  cout << "TANGENT IN " << x << " " << y << " " << m << " " << p << endl;
  //  if(fDisplayOn) { 
 //     TLine *line = new TLine(-45, -45 * m + p, 120, 120 * m + p);
 //     line->SetLineColor(2);
@@ -5282,9 +5349,9 @@ void PndSecondaryTrackFinder::CalculateZ2(Int_t hitId, Double_t x, Double_t y, D
    TVector3 first  = pos + wireDirection * halflength; // CHECK
    TVector3 second = pos - wireDirection * halflength; // CHECK
 
-   cout << "first/second " << endl;
-   first.Print();
-   second.Print();
+//    cout << "first/second " << endl;
+//    first.Print();
+//    second.Print();
 
    if(fDisplayOn) {
      TMarker *mrk = new TMarker(x, y, 4);  
@@ -5386,11 +5453,11 @@ void PndSecondaryTrackFinder::CalculateZ2(Int_t hitId, Double_t x, Double_t y, D
    double x0bnew = TMath::Cos(beta) * x0b - TMath::Sin(beta) * y0;
    double y0bnew = TMath::Cos(beta) * y0 + TMath::Sin(beta) * x0b;
    
-   cout << "RETRANSLATED/ROTATEa " << x0anew << " " << y0anew << endl;
-   cout << "RETRANSLATED/ROTATEb " << x0bnew << " " << y0bnew << endl;
+//    cout << "RETRANSLATED/ROTATEa " << x0anew << " " << y0anew << endl;
+//    cout << "RETRANSLATED/ROTATEb " << x0bnew << " " << y0bnew << endl;
    
-   cout << "DELTA " << - 2 * x0a * rotm * rotp - rotp * rotp + b * b - rotm * rotm * x0a * x0a + a * a * rotm * rotm << " " 
-	<< - 2 * x0b * rotm * rotp - rotp * rotp + b * b - rotm * rotm * x0b * x0b + a * a * rotm * rotm << endl;
+//    cout << "DELTA " << - 2 * x0a * rotm * rotp - rotp * rotp + b * b - rotm * rotm * x0a * x0a + a * a * rotm * rotm << " " 
+// 	<< - 2 * x0b * rotm * rotp - rotp * rotp + b * b - rotm * rotm * x0b * x0b + a * a * rotm * rotm << endl;
    
    
    double intxanew = TMath::Cos(beta) * intxa - TMath::Sin(beta) * intya;
@@ -5438,11 +5505,11 @@ void PndSecondaryTrackFinder::CalculateZ2(Int_t hitId, Double_t x, Double_t y, D
    // calculate z0a, z0b
    Double_t t = ((x0a + y0a) - (first.X() + first.Y())) /  ((second.X() - first.X()) + (second.Y() - first.Y()));
    Double_t z0a = first.Z() + (second.Z() - first.Z()) * t;
-   cout << "0 : calculate t, z0a " << t << " " << z0a << endl;
+//    cout << "0 : calculate t, z0a " << t << " " << z0a << endl;
  
    t = ((x0b + y0b) - (first.X() + first.Y())) /  ((second.X() - first.X()) + (second.Y() - first.Y()));
    Double_t z0b = first.Z() + (second.Z() - first.Z()) * t;
-   cout << "0 : calculate t, z0b " << t << " " << z0b << endl;
+//    cout << "0 : calculate t, z0b " << t << " " << z0b << endl;
  
 
    // int1.SetXYZ(x0a, y0a, z0a);
@@ -5458,7 +5525,7 @@ void PndSecondaryTrackFinder::CalculateZ2(Int_t hitId, Double_t x, Double_t y, D
 
    t = ((intxa + intya) - (tfirst.X() + tfirst.Y())) /  ((tsecond.X() - tfirst.X()) + (tsecond.Y() - tfirst.Y()));
    double intza = tfirst.Z() + (tsecond.Z() - tfirst.Z()) * t;
-   cout << "I : calculate t, z " << t << " " << intza << endl;
+//    cout << "I : calculate t, z " << t << " " << intza << endl;
  
 
    tfirst = first - dxdy;
@@ -5466,7 +5533,7 @@ void PndSecondaryTrackFinder::CalculateZ2(Int_t hitId, Double_t x, Double_t y, D
 
    t = ((intxb + intyb) - (tfirst.X() + tfirst.Y())) /  ((tsecond.X() - tfirst.X()) + (tsecond.Y() - tfirst.Y()));
    double intzb = tfirst.Z() + (tsecond.Z() - tfirst.Z()) * t;
-   cout << "II : calculate t, z " << t << " " << intzb << endl;
+ //   cout << "II : calculate t, z " << t << " " << intzb << endl;
  
    int1.SetXYZ(intxa, intya, intza);
    int2.SetXYZ(intxb, intyb, intzb);

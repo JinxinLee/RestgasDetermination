@@ -201,6 +201,9 @@ class PndSecondaryTrackFinder : public FairTask {
   std::vector<std::vector<int> > fDetList;
   std::map<int, int> fDetMap;
 
+  // std::vector<TMatrixT<double> > xyzpositions; // skewflag x y z dx dy dz
+
+
   ClassDef(PndSecondaryTrackFinder,1);
 
 };
