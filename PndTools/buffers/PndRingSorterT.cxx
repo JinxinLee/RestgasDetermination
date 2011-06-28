@@ -70,5 +70,6 @@ template<class T> int PndRingSorterT<T>::CalcIndex(double val){
 }
 
 template class PndRingSorterT<PndSdsDigiPixel>;
+template class PndRingSorterT<PndSdsDigiStrip>;
 
 templateClassImp(PndRingSorterT);

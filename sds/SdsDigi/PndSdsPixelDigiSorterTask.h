@@ -38,7 +38,7 @@ class PndSdsPixelDigiSorterTask : public PndSdsTask
 
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
-
+  virtual void FinishEvent();
   virtual void FinishTask();
   
   void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};

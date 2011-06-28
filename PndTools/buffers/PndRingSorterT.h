@@ -10,6 +10,7 @@
 
 #include "TObject.h"
 #include "PndSdsDigiPixel.h"
+#include "PndSdsDigiStrip.h"
 
 #include <vector>
 #include <stack>

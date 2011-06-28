@@ -50,12 +50,11 @@ InitStatus PndSdsNoiseProducer::Init()
   }
   
   // Get input array
-  fDigiStripArray = (TClonesArray*) ioman->GetObject(fBranchNameStrip);
+  fDigiStripArray = FairRootManager::Instance()->GetTClonesArray(fBranchNameStrip);
   if ( ! fDigiStripArray )  {
     std::cout << "-W- PndSdsNoiseProducer::Init: No "<<fBranchNameStrip<<" array!" << std::endl;
     std::cout << "    Create a new one." << std::endl;
-    fDigiStripArray = new TClonesArray("PndSdsDigiStrip");
-    ioman->Register(fBranchNameStrip, fFolderName, fDigiStripArray, fPersistance);
+    ioman->Register(fBranchNameStrip, "PndSdsDigiStrip", fFolderName, fPersistance);
   }
   
   fDigiPixelArray = FairRootManager::Instance()->GetTClonesArray(fBranchNamePixel);
@@ -312,6 +311,7 @@ void PndSdsNoiseProducer::AddDigiStrip(Int_t &noisies, Int_t iPoint, Int_t senso
 {
   Bool_t found = kFALSE;
   Int_t detID = -1; // we have no input array with MC Points 
+  fDigiStripArray = FairRootManager::Instance()->GetTClonesArray(fBranchNameStrip);
   Int_t iStrip = fDigiStripArray->GetEntriesFast();
   PndSdsDigiStrip* aDigi = 0;
   for(Int_t kstr = 0; kstr < iStrip && found == kFALSE; kstr++)

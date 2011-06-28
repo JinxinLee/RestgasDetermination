@@ -1,18 +1,18 @@
 #include "PndSdsDigiStrip.h"
 #include "PndSdsDigi.h"
 
-PndSdsDigiStrip::PndSdsDigiStrip(){
+PndSdsDigiStrip::PndSdsDigiStrip():fChannel(-1){
 }
 
 PndSdsDigiStrip::PndSdsDigiStrip(std::vector<Int_t> index, Int_t detID, 
-                                 Int_t sensorID, Int_t fe, Int_t chan, Double_t charge, Int_t timestamp)
+                                 Int_t sensorID, Int_t fe, Int_t chan, Double_t charge, Double_t timestamp)
 : PndSdsDigi(index,detID,sensorID,fe,charge,timestamp)
 {
 	fChannel = chan;
 }
 
 PndSdsDigiStrip::PndSdsDigiStrip(Int_t index, Int_t detID,
-                                 Int_t sensorID, Int_t fe, Int_t chan, Double_t charge, Int_t timestamp)
+                                 Int_t sensorID, Int_t fe, Int_t chan, Double_t charge, Double_t timestamp)
 : PndSdsDigi(index,detID,sensorID,fe,charge,timestamp)
 {
 	fChannel = chan;
@@ -34,9 +34,9 @@ Bool_t PndSdsDigiStrip::operator==(const PndSdsDigiStrip& d2) const
           && fSensorID==d2.GetSensorID()
           && fFE==d2.GetFE()
           && fChannel==d2.GetChannel()
-          && fCharge==d2.GetCharge()
+       //   && fCharge==d2.GetCharge()
           //           && fMCID==d2.GetMCID()
-          && fTimeStamp==d2.GetTimeStamp()
+       //   && fTimeStamp==d2.GetTimeStamp()
           );
 }
 

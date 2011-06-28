@@ -8,6 +8,7 @@
 #include "PndWriteoutBufferT.h"
 #include "FairRootManager.h"
 #include "PndSdsDigiPixel.h"
+#include "PndSdsDigiStrip.h"
 #include "TClonesArray.h"
 #include <iostream>
 
@@ -130,6 +131,7 @@ template<class T> void PndWriteoutBufferT<T>::FillNewData(T& data, double active
 
 
 template class PndWriteoutBufferT<PndSdsDigiPixel>;
+template class PndWriteoutBufferT<PndSdsDigiStrip>;
 
 //#include "Rtypes.h"
 //template<class T> class PndWriteoutBufferT;

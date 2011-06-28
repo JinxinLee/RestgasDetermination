@@ -38,6 +38,7 @@ void PndMvdDigiTask::RunTimeBased()
 {
 	 TList* thistasks = this->GetListOfTasks();
 	((PndMvdHybridHitProducer*)thistasks->At(0))->RunTimeBased();
+	((PndMvdStripHitProducer*)thistasks->At(1))->RunTimeBased();
 	this->Add(new PndMvdPixelDigiSorterTask());
 	std::cout << "PndMvdDigiTask: PndMvdPixelDigiSorterTask added" << std::endl;
 }

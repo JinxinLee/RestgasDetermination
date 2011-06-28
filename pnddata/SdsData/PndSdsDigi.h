@@ -75,6 +75,13 @@ class PndSdsDigi : public FairTimeStamp
 		void SetCharge(double charge){fCharge = charge;}
     void AddCharge(double charge){fCharge += charge;}
 
+    virtual bool operator<(const PndSdsDigi& myDigi) const{
+    	if (fDetID < myDigi.GetDetID()) 		return true;	else if(fDetID > myDigi.GetDetID()) return false;
+		if (fSensorID < myDigi.GetSensorID()) 	return true; 	else if (fSensorID > myDigi.GetSensorID()) return false;
+		if (fFE < myDigi.GetFE()) 				return true;	else if (fFE > myDigi.GetFE()) return false;
+    	return false;
+    }
+
 		virtual void Print() {
 			std::cout << *this;
 		}

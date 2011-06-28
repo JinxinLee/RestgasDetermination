@@ -11,7 +11,7 @@
 #include "TCanvas.h"
 #include "TMatrixD.h"
 #include "FairRootManager.h"
-#include "FairRun.h"
+#include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 #include "FairGeoNode.h"
 #include "FairGeoVector.h"
@@ -29,6 +29,7 @@
 #include "PndSdsSimpleStripClusterFinder.h"
 #include "PndSdsStripAdvClusterFinder.h"
 #include "PndSdsChargeWeightingAlgorithms.h"
+
 #include <map>
 
 // -----   Default constructor   -------------------------------------------
@@ -71,6 +72,7 @@ PndSdsStripClusterTask::~PndSdsStripClusterTask()
 {
 	if(0!=fDigiParameterList) delete fDigiParameterList;
   if(0!=fChargeDigiParameterList) delete fChargeDigiParameterList;
+  if (0!=fFunctor) delete fFunctor;
   ClearCalculators();
 }
 // -------------------------------------------------------------------------
@@ -160,19 +162,16 @@ InitStatus PndSdsStripClusterTask::Init()
     return kFATAL;
   }
   
-  // Get input array
-  fDigiArray = (TClonesArray*) ioman->GetObject(fInBranchName);
-  if ( ! fDigiArray )
-  {
-    std::cout << "-W- PndSdsStripClusterTask::Init: "
-    << "No SDSDigi array!" << std::endl;
-    return kERROR;
-  }
-  
+  fFunctor = new StopTime();
+
+
   // set output arrays
   
-  fClusterArray = new TClonesArray("PndSdsClusterStrip");
-  ioman->Register(fClustBranchName, fFolderName, fClusterArray, fPersistance);
+//  fClusterArray = new TClonesArray("PndSdsClusterStrip");
+//  ioman->Register(fClustBranchName, fFolderName, fClusterArray, fPersistance);
+
+  fClusterArray = ioman->Register(fClustBranchName, "PndSdsClusterStrip", fFolderName, fPersistance);
+
   
   fHitArray = new TClonesArray("PndSdsHit");
   ioman->Register(fOutBranchName, fFolderName, fHitArray, fPersistance);
@@ -193,10 +192,31 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
     std::cout<<" **Starting PndSdsStripClusterTask::Exec()**"<<std::endl;
   std::vector<PndSdsDigiStrip> digiStripArray;
   // Reset output array
+  fClusterArray = FairRootManager::Instance()->GetTClonesArray(fClustBranchName);
   if ( ! fClusterArray ) Fatal("Exec", "No ClusterArray");
   fClusterArray->Delete();
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
   fHitArray->Delete();
+
+  // Get input array
+
+  if (fDigiArray > 0)
+	  fDigiArray->Clear();
+
+	if (FairRunAna::Instance()->IsTimeStamp())
+	  fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fFunctor, FairRootManager::Instance()->GetEventTime() + 10); //FairRootManager::Instance()->GetEventTime() +
+	else
+	  fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, 0, 0);
+
+	std::cout << "-I- PndSdsStripClusterTask:: fDigiArray->Size(): " << fDigiArray->GetEntriesFast() << std::endl;
+  //fDigiArray = (TClonesArray*) ioman->GetObject(fInBranchName);
+  if ( ! fDigiArray )
+  {
+    std::cout << "-W- PndSdsStripClusterTask::Init: "
+    << "No SDSDigi array!" << std::endl;
+    return;
+  }
+
   // when we have no digis, we can end the event here.
   if (fDigiArray->GetEntriesFast() == 0) return;
   fGeoH->SetVerbose(fVerbose);
@@ -255,6 +275,8 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
       }
     }
     
+    std::cout << "-I- PndSdsStripClusterTask:: fClusterArray size: " << fClusterArray->GetEntries() << std::endl;
+
     //printout for checking
     if(fVerbose > 2) {
       std::cout<<"Check.. Offset: "<<clusterOffset<<"Top Clusters: ";

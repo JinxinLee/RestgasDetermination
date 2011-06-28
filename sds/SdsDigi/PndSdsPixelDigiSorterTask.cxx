@@ -65,15 +65,6 @@ InitStatus PndSdsPixelDigiSorterTask::Init()
   }
 
   fSorter = new PndRingSorterT<PndSdsDigiPixel>(fNumberOfCells, fWidthOfCells);
- // fPixelArray = (TClonesArray*) ioman->GetObject(fInBranchName);
-//  fPixelArray = FairRootManager::Instance()->GetTClonesArray(fInBranchName);
-//  if ( ! fPixelArray )
-//  {
-//    std::cout << "-W- PndSdsPixelDigiSorterTask::Init: "
-//    << "No SDSPoint array!" << std::endl;
-//    return kERROR;
-//  }
-  
 
   // Create and register output array
   if(fVerbose>1) Info("Init","Registering this branch: %s/%s",fFolderName.Data(),fOutBranchName.Data());
@@ -99,7 +90,7 @@ InitStatus PndSdsPixelDigiSorterTask::Init()
 void PndSdsPixelDigiSorterTask::Exec(Option_t* opt)
 {
 
-  fSortedPixelArray->Delete();
+
   
   fPixelArray = FairRootManager::Instance()->GetTClonesArray(fInBranchName);
   std::cout << "-I- PndSdsPixelDigiSorterTask: Size PixelArray: " << fPixelArray->GetEntriesFast() << std::endl;
@@ -124,6 +115,9 @@ void PndSdsPixelDigiSorterTask::Exec(Option_t* opt)
 
 // -------------------------------------------------------------------------
 
+void PndSdsPixelDigiSorterTask::FinishEvent(){
+	  fSortedPixelArray->Delete();
+}
 
 void PndSdsPixelDigiSorterTask::FinishTask()
 {

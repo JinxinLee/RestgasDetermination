@@ -31,8 +31,8 @@ class PndSdsDigiStrip : public PndSdsDigi
     public :
     PndSdsDigiStrip();
     
-    PndSdsDigiStrip(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge, Int_t timestamp = -1);
-    PndSdsDigiStrip(Int_t index, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge, Int_t timestamp = -1);
+    PndSdsDigiStrip(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge, Double_t timestamp = -1);
+    PndSdsDigiStrip(Int_t index, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge, Double_t timestamp = -1);
     ~PndSdsDigiStrip(){};
     
     friend std::ostream& operator<< (std::ostream& out, PndSdsDigiStrip& digi){
@@ -72,6 +72,21 @@ class PndSdsDigiStrip : public PndSdsDigi
     
     Bool_t operator==(const PndSdsDigiStrip& d2) const;
     //     Bool_t const HasNeighbour(const PndSdsDigiStrip& d2);
+
+    virtual bool operator<(const PndSdsDigiStrip& myDigi) const{
+		if (fDetID < myDigi.GetDetID()) 		return true;	else if(fDetID > myDigi.GetDetID()) return false;
+		if (fSensorID < myDigi.GetSensorID()) 	return true; 	else if (fSensorID > myDigi.GetSensorID()) return false;
+		if (fFE < myDigi.GetFE()) 				return true;	else if (fFE > myDigi.GetFE()) return false;
+		if (fChannel < myDigi.GetChannel()) 	return true;	else if (fChannel > myDigi.GetChannel()) return false;
+		return false;
+    }
+
+    PndSdsDigiStrip& operator=(const PndSdsDigiStrip& strip){
+    	if (this != &strip){
+    		this->PndSdsDigi::operator=(strip);
+    		fChannel = strip.GetChannel();
+    	}
+    }
     void Print(){
       std::cout << *this;
     }

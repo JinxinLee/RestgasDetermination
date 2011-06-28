@@ -25,6 +25,9 @@
 #include "PndDetectorList.h" 
 #include "PndSdsChargeConversion.h"
 
+
+#include "FairTSBufferFunctional.h"
+
 #include <string>
 #include <vector>
 
@@ -117,6 +120,8 @@ class PndSdsStripClusterTask : public PndSdsTask
     PndSdsStripClusterer* fCurrentClusterfinder;
     std::map<const char*,PndSdsStripClusterer*> fClusterFinderList;
     
+    BinaryFunctor* fFunctor;
+
     ClassDef(PndSdsStripClusterTask,2);
     
   };
