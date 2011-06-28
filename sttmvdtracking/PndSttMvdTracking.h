@@ -124,15 +124,12 @@ class PndSttMvdTracking : public FairTask
 		nMvdStripHitsinTrack[MAXTRACKSPEREVENT],
 		ListMvdPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack],
 		ListMvdStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],
-//		ListTrackCandHit[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
-//				nmaxMvdPixelHitsInTrack+
-//				nmaxMvdStripHitsInTrack],
+		ListTrackCandHit[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
+				nmaxMvdPixelHitsInTrack+
+				nmaxMvdStripHitsInTrack],
 		ListSttParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 		ListSttSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack]
 		;
-	Short_t ListTrackCandHit[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
-				nmaxMvdPixelHitsInTrack+
-				nmaxMvdStripHitsInTrack];
 
 	Short_t	nMvdPixelHit,
 			nMvdStripHit,
@@ -366,7 +363,7 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack], // output
 		bool * keepit,
 		UShort_t nSttTrackCand,
 		UShort_t nTrackCandHit[MAXTRACKSPEREVENT],
-		Short_t ListTrackCandHit[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
+		UShort_t ListTrackCandHit[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
 	                           nmaxMvdPixelHitsInTrack+
 				   nmaxMvdStripHitsInTrack],
 Short_t ListTrackCandHitType[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
@@ -587,7 +584,7 @@ UShort_t ListSttParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack] // input/o
 
   void RefitMvdStt(
 			UShort_t nCandHit,
-			Short_t *ListTrackCandHit,
+			UShort_t *ListTrackCandHit,
 			Short_t *ListTrackCandHitType,
 			Double_t info[][7],
 			Double_t rotationangle,
