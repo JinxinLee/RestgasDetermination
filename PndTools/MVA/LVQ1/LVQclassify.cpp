@@ -11,6 +11,7 @@
  */
 
 #define CREATE_DIST_HISTS 0
+
 #define NUM_DEBUG_PRINT 15
 
 #define LVQ_CLS_DEBUG 1
@@ -349,7 +350,7 @@ int main(int argc, char** argv)
   Produce_VQ_ROC( classifiedEvents, sgName, bgName,
 		  (*counts)[sgName], (*counts)[bgName], Roc);
   
-  WriteRocToFile("ROC" + outF, Roc); 
+  WriteRocToFile( ("ROC" + outF), Roc); 
   
 #if LVQ_CLS_DEBUG
   printRoc(Roc);

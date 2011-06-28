@@ -161,3 +161,108 @@ std::map<std::string, size_t>* readEvents(const char* infile, std::vector<std::s
 
   return counts;
 }
+
+/**
+ * Function to produce ROC curve. This will work if the classifier can
+ * produce probs or scores.
+ *@param input   Vector containing classifier outputs for a given test data set.
+ *@param SigName Signal name.
+ *@param BgName  Background name.
+ *@param sigCnt  Number of signal events.
+ *@param bgCnt   Number of background events.
+ *@param Roc     The list of ROC points (output var).
+ */
+void Produce_ROC(std::vector< ClassifierOutPuts >& input,
+		 std::string const& SigName, std::string const& BgName,
+		 size_t sigCnt, size_t bgCnt, std::vector< ROCPoints >& Roc)
+{
+  float sg, bg;
+  sg = bg = 0.0;
+  
+  if( (sigCnt > 0) && (bgCnt > 0) )
+  {
+    sg = static_cast<float>(sigCnt);
+    bg = static_cast<float>(bgCnt);
+  }
+  else
+  {
+    std::cerr << "Signal OR Background count is zero\n";
+    exit(EXIT_FAILURE);
+  }
+
+  // We need to find Min and Max output for Signal.
+  std::sort(input.begin(), input.end());
+  std::reverse(input.begin(), input.end());
+    
+  float fprev, trhold, fpRate, tpRate;
+  float tnRate, fnRate;
+  size_t fpCnt, tpCnt, fn, tn;
+
+  fprev = std::numeric_limits<float>::min();
+  trhold = fprev;
+
+  fpRate = tpRate = tnRate = fnRate = 0.00;
+  fpCnt = tpCnt = fn = tn = 0;
+  size_t idx = 0;
+  
+  while( idx < input.size() )
+  {
+    // True positief.
+    tpRate = static_cast<float>(tpCnt)/sg;
+    
+    // False negatief.
+    fpRate = static_cast<float>(fpCnt)/bg;
+    
+    // True negatief.
+    tnRate = static_cast<float>(tn)/bg;
+    
+    // False negatief.
+    fnRate = static_cast<float>(fn)/sg;
+
+    // if(fprev != input[idx].sgValue)
+    if( (fprev > input[idx].sgValue) ||
+	(fprev < input[idx].sgValue)
+	)
+    {
+      Roc.push_back(ROCPoints(fpRate, tpRate, tnRate, fnRate,
+			      fpCnt, tpCnt, fn, tn, trhold));
+      // New threshold
+      fprev = input[idx].sgValue;
+      trhold = fprev;
+      // Determine new TN and FN values.
+      // Reste counters.
+      tn = fn = 0;
+      //_____________
+      BgName.size();
+      /*
+      // Assume the rest of the list is negatief.
+      for(size_t k = idx; k < input.size(); ++k)
+      {
+      // If input[idx] == True Negatief
+      if( input[idx].realLabel == BgName )
+      {
+      tn++;
+      }
+      else// False negatief.
+      {
+      fn++;
+      }
+      }// End for(idx to size())
+      */
+    }//END IF
+
+    // If input[idx] == True positief
+    if( input[idx].realLabel == SigName )
+    {
+      tpCnt++;
+    }
+    else// False positief.
+    {
+      fpCnt++;
+    }    
+    idx++;
+  }//END While
+  //(1,1)
+  Roc.push_back(ROCPoints(fpRate, tpRate, tnRate, fnRate,
+			  fpCnt, tpCnt, fn, tn, trhold));
+}

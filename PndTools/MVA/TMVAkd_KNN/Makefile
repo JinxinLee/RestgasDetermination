@@ -34,10 +34,10 @@ KnnClassifyModified: % : %.cpp
 
 PndProjectedKNN: % : %.cpp
 	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
-	@echo "Done building"$@
+	@echo "Done building:" $@
 
 Prclassify: % : %.cpp PndProjectedKNN
 	$(CXX) $(CCFLAGS) $(INCLUDE) $(HDR) -c $< -o ../build/$@.o
-	@echo "Done building"$@
+	@echo "Done building:" $@
 clean:
 	rm -f *~ *.o

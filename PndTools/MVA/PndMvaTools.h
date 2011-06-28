@@ -15,6 +15,8 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <algorithm>
+#include <limits>
 
 // ROOT
 #include "TFile.h"
@@ -192,6 +194,19 @@ private:
 
 //____________ Functions and modifiers.
 //______________________________________________________________
+/**
+ * Function to produce ROC curve. This will work if the classifier can
+ * produce probs or scores.
+ *@param input   Vector containing classifier outputs for a given test data set.
+ *@param SigName Signal name.
+ *@param BgName  Background name.
+ *@param sigCnt  Number of signal events.
+ *@param bgCnt   Number of background events.
+ *@param Roc     The list of ROC points (output var).
+ */
+void Produce_ROC(std::vector< ClassifierOutPuts >& input,
+		 std::string const& SigName, std::string const& BgName,
+		 size_t sigCnt, size_t bgCnt, std::vector< ROCPoints >& Roc);
 /**
  * Print the list of classifier outputs.
  *@param OutPutList The list of outputs created by a classifier.

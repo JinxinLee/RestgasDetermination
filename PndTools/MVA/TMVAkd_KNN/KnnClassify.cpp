@@ -22,111 +22,20 @@
 #include "TStopwatch.h"
 
 //______________ Helper functions and variables _______________________
-void printResult( std::map<std::string,float>& res, unsigned int evtId)
+void printResult( std::map<std::string,float>& res, size_t evtId)
 {
   std::cout << "\t==================================\n"
 	    << " Evt Num = " << evtId
 	    << '\n';
-  
-  for( std::map<std::string,float>::iterator ii=res.begin(); 
-       ii != res.end(); ++ii)
+  std::map<std::string,float>::iterator ii;
+  for( ii = res.begin(); ii != res.end(); ++ii)
   {
     std::cout <<"\t" << (*ii).first 
 	      << "\t=> " << (*ii).second
 	      << '\n';
   }
-  
   std::cout << "\t==================================\n";
 }
-
-// Produce a set of points to draw the ROC.
-
-void Produce_KNN_ROC( std::vector< ClassifierOutPuts >& input,//Alg. input
-		      std::string const& SigName,// Signal name
-		      std::string const& BgName,// Background name
-		      size_t sigCnt, size_t bgCnt,// number of sg and bg
-		      std::vector< ROCPoints >& Roc)// Produced set of ROC points
-{
-  float sg, bg;
-  sg = bg = 0.0;
-
-  if( (sigCnt > 0) && (bgCnt > 0) )
-  {
-    sg = static_cast<float>(sigCnt);
-    bg = static_cast<float>(bgCnt);
-  }
-  else
-  {
-    std::cerr << "Signal OR Background count is zero\n";
-    exit(EXIT_FAILURE);
-  }
-
-  // We need to find Min and Max output for Signal.
-  std::sort(input.begin(), input.end());
-  std::reverse(input.begin(), input.end());
-
-
-    
-  float fprev, trhold, fpRate, tpRate;
-  float tnRate, fnRate;
-  size_t fpCnt, tpCnt, fn, tn;
-
-  fprev = std::numeric_limits<float>::min();
-  trhold = fprev;
-
-  fpRate = tpRate = tnRate = fnRate = 0.00;
-  fpCnt = tpCnt = fn = tn = 0;
-  size_t cnt = 0;
-  
-  while( cnt < input.size() )
-  {
-    // True positief.
-    tpRate = static_cast<float>(tpCnt)/sg;
-    
-    // False negatief.
-    fpRate = static_cast<float>(fpCnt)/bg;
-    
-    // True negatief.
-    //tnRate = static_cast<float>(tn)/bg;
-    
-    // False negatief.
-    //fnRate = static_cast<float>(fn)/sg;
-
-    if( (fprev > input[cnt].sgValue) ||
-	(fprev < input[cnt].sgValue)
-	)
-    {
-      Roc.push_back(ROCPoints(fpRate, tpRate, tnRate, fnRate,
-			      fpCnt, tpCnt, fn, tn, trhold));
-
-      fprev = input[cnt].sgValue;
-      trhold = fprev;
-    }
-    // If input[cnt] == True positief
-    if( input[cnt].realLabel == SigName )
-    {
-      tpCnt++;
-    }
-    else
-    {
-      fpCnt++;
-    }
-
-    // If input[cnt] == True Negatief
-    if( input[cnt].realLabel == BgName )
-    {
-      //tn++;
-    }
-    else
-    {
-      //fn++;
-    }
-    cnt++;
-  }//While
-  Roc.push_back(ROCPoints(fpRate, tpRate, tnRate, fnRate,
-			  fpCnt, tpCnt, fn, tn, trhold));
-}
-
 /* *********************************************
  * Testing routine, can be deleted afterwards. *
  * *********************************************
@@ -296,9 +205,9 @@ int main(int argc, char** argv)
   // Create ROC points.
   std::cout << "<-I-> Creating ROC.\n";
   std::vector< ROCPoints > Roc;
-  Produce_KNN_ROC( classifiedEvents, sgName, bgName,
-		  (*counts)[sgName], (*counts)[bgName], Roc);
-  
+  Produce_ROC( classifiedEvents, sgName, bgName,
+	       (*counts)[sgName], (*counts)[bgName], Roc);
+
   WriteRocToFile("ROCKNN.root", Roc); 
 
   //__________________ Clean up _____________//
