@@ -12,10 +12,10 @@
   TString PANDAMC=gSystem->Getenv("PANDAMC");
 
   // Input file (RAW events)
-  TString inFile="TEST/evtmix13/DPM.mixed.root";
-  TString jobname="reco2";
+  TString inFile="TEST/evtmix1000_32s/DPM.NEWGEO.32s.mixed.root";
+  TString jobname="reco3";
 
-  TString mcFile="TEST/DPM.mc.root";
+  TString mcFile="TEST/DPM.NEWGEO.mc.root";
   
   inFile.ReplaceAll("$PANDAMC",PANDAMC);
 
@@ -112,89 +112,37 @@
   //fRun->LoadGeometry();
   // ------------------------------------------------------------------------
   
-
+FairGeane *Geane = new FairGeane();
+  fRun->AddTask(Geane);
+  std::cout<<"\nGEANE initialised"<<std::endl;
 
   // -----    Reco Sequence  --------------------------------------------
-  // PndTpcRiemannMCTask* tpcRMC = new PndTpcRiemannMCTask();
-  // tpcRMC->SetBkgFileName("../data/DPM/test1.mc.root");
-  // tpcRMC->SetPersistence();
-  // fRun->AddTask(tpcRMC);
-  
-  PndTpcPatternRecoTask* tpcPR= new PndTpcPatternRecoTask();
-  tpcPR->SetTrkFinderParameters(20.,    // riemannScale
-		       1.5,   //proxcut, 
-		       0.025, // riproxcut, 
-                       2.5,   // szcut,
-		       0.02,  // planecut,
-		       2.5,   //  TTproxcut, 
-		       4.0,   // TTplanecut, 
-		       2.5,   //  TTszcut,
-		       6,     // t minpointsforfit,
-		       200);
-    tpcPR->SetTrkFinderOptions(true, // dosorting
-			       3, // sortingmode
-			       false, // doClean,
-			       true); // doMerge
-    fRun->AddTask(tpcPR);
+   
+ PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
+  tpcSPR->SetPersistence();
+  //tpcSPR->SetRiemannPersistence();
+  tpcSPR->SetSortingParameters(
+        true, // false: sort only according to _sorting (see next argument); true: use internal sorting when adding hits to trackcands
+	3,   // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
+       0.); // z-position of interaction point (for sorting 4)
+  tpcSPR->SetTrkFinderParameters(
+        1.9,  // proximity cut in 3D [cm]
+        0.4,  // helix cut [cm]
+        5);   // minimum hits for helix-fit
+  tpcSPR->SetMergeTracks();
+  tpcSPR->SetTrkMergerParameters(
+        2.5,  // proximity cut [cm]
+        0.1,  // dip cut [rad]
+        0.6,  // helix cut [cm]
+        0.025);// plane cut (RMS)
+  //tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
+  tpcSPR->useGeane(false); // uses RKTrackrep and GeaneTrackrep
+  tpcSPR->SetSmoothing(true);
+  tpcSPR->SetMCPid(false);
+  //tpcSPR->WriteHistograms(PROutFile);
+  fRun->AddTask(tpcSPR);
 
- // PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
- //    tpcSPR->SetSortingParameters(
- // 				 true, // false: sort only according to _sorting (see next argument); true: use internal sorting when adding hits to trackcands
- // 				 3,    // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
- // 				 30.); // z-position of interaction point (for sorting 4)
- //    tpcSPR->SetTrkFinderParameters(
- // 				   1.5,  // proximity cut in 3D
- // 				   0.025, // proximity cut on rieman sphere
- // 				   0.02, // distance to plane cut
- // 				   2.5,  // szcut
- // 				   8);   // minimum hits for plane & sz-fit
- //    tpcSPR->SetMergeTracks();
- //    tpcSPR->SetTrkMergerParameters(
- // 				   2.5,  // proximity cut
- // 				   2.5,  // sz cut
- // 				   4);// plane cut (RMS)
-    
- //    tpcSPR->SetPersistence();
- //    tpcSPR->SetStoreHistograms("riemann.root");
- //    //    tpcSPR->useGeane();
- //    fRun->AddTask(tpcSPR);
-  
-
-
-
-
-
-
-  // PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
-  // tpcSPR->SetTrkFinderParameters(2.,// proxcut
-  // 			       0.02, // proxcut on rieman sphere
-  // 			       2.E-3, // planecut
-  // 			       4.0, // szcut
-  // 			       4); // minnumhits for fit
-  // tpcSPR->SetPersistence();
-// fRun->AddTask(tpcSPR);
-
- //  KalmanTask* kalman =new KalmanTask();
-//   kalman->SetPersistence();
-// //fRun->AddTask(kalman);
-
-
-  // TrackFitStatTask* fitstat=new TrackFitStatTask();
-  // fitstat->SetPersistence();
-  // fitstat->SetMCPCut(3); // in sigma dp/p
-  // fitstat->SetMCCuts(0.05, // pmin
-  // 	             10., // pmax
-  // 		     -TMath::Pi(),   // thetamin 5deg
-  // 		     TMath::Pi(),  // thetamax
-  // 		     20); // nPndTpcPoints
-//fitstat->SetPdgSelection(321);
-//fitstat->DoResiduals();
-//fRun->AddTask(fitstat);
-
-  
-
- 
- fRun->Init();
+  fRun->Init();
   
   fRun->Run(0,0);
   // -----   Finish   -------------------------------------------------------
@@ -206,7 +154,7 @@
   // dEdx->WriteHistograms("RecoHistos.root");
 
   //DebugLogger::Instance()->WriteFiles();
-tpcPR->WriteHistograms(plotsfile);
+
 //delete tpcSplitter;
   rtdb->saveOutput();
   rtdb->print();
