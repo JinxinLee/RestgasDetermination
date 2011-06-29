@@ -45,7 +45,6 @@
 
 // Class Member definitions -----------
 
-#define DEBUG 0
 
 bool sortByR(const std::map<PndSdsHit*, std::map<unsigned int, int> >& h1, 
 	     const std::map<PndSdsHit*, std::map<unsigned int, int> >& h2) {
@@ -63,6 +62,7 @@ PndTpcMVDCorrelatorTask::PndTpcMVDCorrelatorTask()
   fTrackBranchName = "TrackPostFit";
   fPixelBranchName = "MVDHitsPixel";
   fStripBranchName = "MVDHitsStrip";
+  fVerbose = 0;
 }
 
 
@@ -146,7 +146,7 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
   
   //loop over tracks
   for(unsigned int itr=0;  itr<ntracks; itr++) {
-    if(DEBUG) std::cout<<"  ... processing TPC track no. "<<itr<<std::endl;
+    if(fVerbose) std::cout<<"  ... processing TPC track no. "<<itr<<std::endl;
     GFTrack* track = (GFTrack*) (*fTrackArray)[itr];
     GFAbsTrackRep* rep = track->getCardinalRep();
     
@@ -163,7 +163,7 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
       PndSdsHit* hit = (PndSdsHit*) (*fPixelArray)[ipx];
       hit->Position(destination);
       hit->PositionError(error);
-      if(DEBUG) {
+      if(fVerbose) {
         std::cout<<"       processing hit at ";
         destination.Print();
         std::cout<<"       position error: ";
@@ -188,20 +188,20 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
       if(fabs(res.X()) > fMatchDistance*error.X()  ||
          fabs(res.Y()) > fMatchDistance*error.Y()  ||
          fabs(res.Z()) > fMatchDistance*error.Z()) {
-        if(DEBUG) {
+        if(fVerbose) {
           std::cout<<"       rep:    not close enough: RES was ";
           res.Print();
         }
         continue; //hit wasn't close enough to the track
       }
       else {
-        if(DEBUG) {
+        if(fVerbose) {
           std::cout<<"       rep:    added hit - RES was ";
           res.Print();
         }
         std::map<PndSdsHit*, std::map<unsigned int, int> > tmp;
         std::map<unsigned int, int> id;
-        id[ipx] = kMVDHitsPixel;
+        id[ipx] = FairRootManager::Instance()->GetBranchId("MVDHitsPixel");
         tmp[hit] = id;
         tempCand.push_back(tmp);
       }
@@ -212,7 +212,7 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
       PndSdsHit* hit = (PndSdsHit*) (*fStripArray)[istr];
       hit->Position(destination);
       hit->PositionError(error);
-      if(DEBUG) {
+      if(fVerbose) {
         std::cout<<"       processing hit at ";
         destination.Print();
         std::cout<<"       position error: ";
@@ -238,20 +238,20 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
       if(fabs(res.X()) > fMatchDistance*error.X()  ||
          fabs(res.Y()) > fMatchDistance*error.Y()  ||
          fabs(res.Z()) > fMatchDistance*error.Z()) {
-        if(DEBUG) {
+        if(fVerbose) {
           std::cout<<"       rep:    not close enough: RES was ";
           res.Print();
         }
         continue; //hit wasn't close enough to the track
       }
       else {
-        if(DEBUG) {
+        if(fVerbose) {
           std::cout<<"       rep:    added hit - RES was ";
           res.Print();
         }
         std::map<PndSdsHit*, std::map<unsigned int, int> > tmp;
         std::map<unsigned int, int> id;
-        id[istr] = kMVDHitsStrip;
+        id[istr] = FairRootManager::Instance()->GetBranchId("MVDHitsStrip");
         tmp[hit] = id;
         tempCand.push_back(tmp);
       }

@@ -74,8 +74,6 @@
 
 using std::fabs;
 
-#define DEBUG 0
-
 // Class Member definitions -----------
 
 ClassImp(PndTpcRiemannTrackingTask)
@@ -100,7 +98,9 @@ PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
     _mcPid(true), // todo: remember to turn this off agan at some point
     counter(0),
     Bz(0)
-  {;}
+  {
+    fVerbose = 0;
+  }
 
 PndTpcRiemannTrackingTask::~PndTpcRiemannTrackingTask(){
   if(_multiplicityHisto!=NULL)delete _multiplicityHisto;
@@ -300,7 +300,7 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
   for(unsigned int isect=0;isect<fnsectors;++isect) fbuffermap[isect]->clear();
 
 
-  if (DEBUG) std::cerr<<"Fetching clusters from cluster branch..."<<std::endl;
+  if (fVerbose) std::cerr<<"Fetching clusters from cluster branch..."<<std::endl;
   unsigned int ncl=_clusterArray->GetEntriesFast();
   for(unsigned int isect=0;isect<fnsectors;++isect)
     fbuffermap[isect]->reserve(ncl/fnsectors+10);
@@ -310,14 +310,14 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     fbuffermap[sectorId]->push_back(cluster);
   }
 
-  if (DEBUG) std::cerr << "Starting Pattern Reco..." << std::endl;
+  if (fVerbose) std::cerr << "Starting Pattern Reco..." << std::endl;
 
 
   std::vector<PndTpcRiemannTrack*> riemannTemp;
 
   // loop over sectors
   for(unsigned int isect=0;isect<fnsectors;++isect){
-    if (DEBUG) std::cerr << "... building tracks in sector " << isect << std::endl;
+    if (fVerbose) std::cerr << "... building tracks in sector " << isect << std::endl;
     fcluster_buffer=fbuffermap[isect];
     _trackfinder->buildTracks(*fcluster_buffer,riemannTemp);
     //if(_doClean) _trackfinder->cleanTracks(friemannlist, _szcut, _planecut);
@@ -345,7 +345,7 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
 
   //if(_doClean && fnsectors>1) _trackfinder->cleanTracks(friemannlist, _szcut, _planecut);
 
-  if (DEBUG) std::cerr << "Pattern Reco finished. "
+  if (fVerbose) std::cerr << "Pattern Reco finished. "
                        << friemannlist.size() << " tracklets found." << std::endl;
 
 
@@ -370,27 +370,27 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       new ((*_riemannHitArray)[_riemannHitArray->GetEntriesFast()]) PndTpcRiemannHit(*hit);
     }
 
-    if (DEBUG) std::cout<<"Tracklet "<<itrk<<"   nhits = "<<nhits;
+    if (fVerbose) std::cout<<"Tracklet "<<itrk<<"   nhits = "<<nhits;
 
     // check if enough points
     if(nhits<minhits){
-      if (DEBUG) std::cout<<" - skipping, not enough hits"<<std::endl;
+      if (fVerbose) std::cout<<" - skipping, not enough hits"<<std::endl;
       continue;
     }
     // check if track too steep
     double trackSinDip = trk->sinDip();
     if (TMath::Abs(trackSinDip)<0.01) {
-      if (DEBUG) std::cout<<" - skipping, sin(dip) too small: "<<trackSinDip<<std::endl;
+      if (fVerbose) std::cout<<" - skipping, sin(dip) too small: "<<trackSinDip<<std::endl;
       continue;
     }
     // ceck if momentum high enough
     double p = trk->getMom(Bz);
     if (Bz==0) p=pbackup;
     if(p<1E-4) {
-      if (DEBUG) std::cout<<" - skipping, momentum too small: "<<p*1E3<<" MeV"<<std::endl;
+      if (fVerbose) std::cout<<" - skipping, momentum too small: "<<p*1E3<<" MeV"<<std::endl;
       continue;
     }
-    if (DEBUG) std::cout<<std::endl;
+    if (fVerbose) std::cout<<std::endl;
 
     // store pndtracks and pndcands in output array
     PndTrackCand* pndcand=new((*_trackCandArray)[_trackCandArray->GetEntriesFast()]) PndTrackCand();
@@ -406,14 +406,14 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     double r2=trk->getHit(nhits-1)->cluster()->pos().Perp();
     if(r1<=r2){
       for(unsigned int ih=0; ih<nhits; ++ih){
-        cand->addHit(kTpcCluster,trk->getHit(ih)->cluster()->index());
-        //pndcand->AddHit(kTpcCluster,trk->getHit(ih)->cluster()->index(),trk->getHit(ih)->cluster()->pos().Mag()); // todo: fix issues
+        cand->addHit(FairRootManager::Instance()->GetBranchId("PndTpcCluster"),trk->getHit(ih)->cluster()->index());
+        //pndcand->AddHit(FairRootManager::Instance()->GetBranchId("PndTpcCluster"),trk->getHit(ih)->cluster()->index(),trk->getHit(ih)->cluster()->pos().Mag()); // todo: fix issues
       }
     }
     else {
       for(unsigned int ih=nhits; ih>0; --ih){
-        cand->addHit(kTpcCluster,trk->getHit(ih-1)->cluster()->index());
-        //pndcand->AddHit(kTpcCluster,trk->getHit(ih-1)->cluster()->index(),trk->getHit(ih-1)->cluster()->pos().Mag());// todo: fix issues
+        cand->addHit(FairRootManager::Instance()->GetBranchId("PndTpcCluster"),trk->getHit(ih-1)->cluster()->index());
+        //pndcand->AddHit(FairRootManager::Instance()->GetBranchId("PndTpcCluster"),trk->getHit(ih-1)->cluster()->index(),trk->getHit(ih-1)->cluster()->pos().Mag());// todo: fix issues
       }
       invertedTrack = true;
     }// finished filling hits
@@ -450,20 +450,20 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
 
       double pdgCharge = TDatabasePDG::Instance()->GetParticle(pdg)->Charge();
       double MCpdgCharge = TDatabasePDG::Instance()->GetParticle(MCpdg)->Charge();
-      if (DEBUG) {
+      if (fVerbose) {
         std::cout << "pdg: " << pdg << " charge: " << pdgCharge << std::endl;
         std::cout << "MC pid pdg: " << MCpdg << " charge: " << MCpdgCharge << std::endl;
       }
 
       if (pdgCharge*MCpdgCharge > 0.) pdg = MCpdg;
       else pdg = -1.*MCpdg;
-      if (DEBUG) std::cout << "charge corrected MC pid pdg: " << pdg << std::endl;
+      if (fVerbose) std::cout << "charge corrected MC pid pdg: " << pdg << std::endl;
     }
 
 
     double trackR = trk->r();
 
-    if (DEBUG) {
+    if (fVerbose) {
       double trackDip = trk->dip();
       std::cout<<" center of track "; trk->center().Print();
       std::cout<<" Radius of track [cm]: " << trackR << std::endl;

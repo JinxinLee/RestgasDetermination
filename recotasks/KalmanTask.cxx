@@ -75,7 +75,7 @@ void sighandler(int sig){
 KalmanTask::KalmanTask()
   : FairTask("Kalman Filter"), _persistence(kFALSE),_lazy(0),_numIt(1), _trackBranchName("TrackPreFit"), _outBranchName("TrackPostFit")
 {
-
+  fVerbose = 0;
 }
 
 
@@ -119,7 +119,7 @@ KalmanTask::Init()
      Error("KalmanTask::Init","PndTpcCluster array not found");
    }
    else{ 
-     _theRecoHitFactory->addProducer(kTpcCluster,
+     _theRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("PndTpcCluster"),
                          new GFRecoHitProducer<PndTpcCluster,PndTpcSPHit>(ar));
    }
    
@@ -127,7 +127,7 @@ KalmanTask::Init()
    if(mvdPixArray==0){
      Error("PndFwdKalmanTask::Init","MVDHitsPixel array not found");
    } else {
-     _theRecoHitFactory->addProducer(kMVDHitsPixel,
+     _theRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("MVDHitsPixel"),
                          new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(mvdPixArray));
    }
    
@@ -135,7 +135,7 @@ KalmanTask::Init()
    if(mvdStrArray==0){
      Error("PndFwdKalmanTask::Init","MVDHitsStrip array not found");
    } else {
-     _theRecoHitFactory->addProducer(kMVDHitsStrip,
+     _theRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("MVDHitsStrip"),
                          new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(mvdStrArray));
    }
    
@@ -143,7 +143,7 @@ KalmanTask::Init()
     if(gemHitArray==0){
       Error("PndFwdKalmanTask::Init","GEMHit array not found");
     } else {
-      _theRecoHitFactory->addProducer(kGemHit,
+      _theRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("GEMHit"),
                           new GFRecoHitProducer<PndGemHit,PndGemRecoHit>(gemHitArray));
     }
    
@@ -151,7 +151,7 @@ KalmanTask::Init()
    // if(dchCylHitArray==0){ //TODO Convention on detector number needed
    //   Error("PndFwdKalmanTask::Init","PndDchCylinderHit array not found");
    // } else {
-   //   _theRecoHitFactory->addProducer(kDCH,new GFRecoHitProducer<PndDchCylinderHit,PndDchRecoHit2>(dchCylHitArray));
+   //   _theRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("PndDchCylinderHit"),new GFRecoHitProducer<PndDchCylinderHit,PndDchRecoHit2>(dchCylHitArray));
    // }
    
    _trackOutArray = new TClonesArray("GFTrack");

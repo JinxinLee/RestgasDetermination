@@ -46,8 +46,6 @@
 
 // Class Member definitions -----------
 
-#define DEBUG 0
-
 bool sortByZ(const std::map<unsigned int, PndGemHit*>& h1,
 	     const std::map<unsigned int, PndGemHit*>& h2) {
   TVector3 pos1, pos2;
@@ -64,6 +62,7 @@ PndTpcGEMCorrelatorTask::PndTpcGEMCorrelatorTask()
   fOutTrackBranchName = "TrackPreFitGEM";
   fTrackBranchName = "TrackPostFit";
   fGEMBranchName = "GEMHit";
+  fVerbose = 0;
 } 
 
 
@@ -150,7 +149,7 @@ PndTpcGEMCorrelatorTask::Exec(Option_t* opt)
       PndGemHit* hit = (PndGemHit*) (*fGEMArray)[ig];
       hit->Position(destination);
       hit->PositionError(error);
-      if(DEBUG) {
+      if(fVerbose) {
 	std::cout<<"       processing hit at ";
 	destination.Print();
 	std::cout<<"       position error: ";
@@ -158,7 +157,7 @@ PndTpcGEMCorrelatorTask::Exec(Option_t* opt)
       }
       	
       
-      if(DEBUG)
+      if(fVerbose)
 	std::cout<<"starting extrap"<<std::endl;
       try { 
 	rep->extrapolateToPoint(destination, poca, dirInPoca);
@@ -180,7 +179,7 @@ PndTpcGEMCorrelatorTask::Exec(Option_t* opt)
       if(fabs(res.X()) > fMatchDistance*error.X()  ||
 	 fabs(res.Y()) > fMatchDistance*error.Y()  ||
 	 fabs(res.Z()) > fMatchDistance*error.Z()) {
-	if(DEBUG) {
+	if(fVerbose) {
 	  std::cout<<"   not close enough: RES was ";
 	  res.Print();
 	  std::cout<< "  Station: "<<hit->GetStationNr()<<std::endl;
@@ -188,7 +187,7 @@ PndTpcGEMCorrelatorTask::Exec(Option_t* opt)
 	continue; //hit wasn't close enough to the track
       }
       else {	
-	if(DEBUG) {
+	if(fVerbose) {
 	  std::cout<<"   added hit - RES was ";
 	  res.Print();
 	  std::cout<< "  Station: "<<hit->GetStationNr()<<std::endl;
@@ -216,7 +215,7 @@ PndTpcGEMCorrelatorTask::Exec(Option_t* opt)
 
     //append hits to track
     for(unsigned int ig=0; ig<tempCand.size(); ig++) {
-      outCand->addHit(kGemHit,
+      outCand->addHit(FairRootManager::Instance()->GetBranchId("GEMHit"),
 		      tempCand[ig].begin()->first);		       
     } //end append hits
     

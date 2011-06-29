@@ -61,8 +61,6 @@
 
 #include "PndDetectorList.h"
 
-#define DEBUG 0
-
 // Class Member definitions -----------
 
 
@@ -71,6 +69,7 @@ PndTpcdEdxTask::PndTpcdEdxTask()
     _DX(1.), _idealdEdx(kFALSE)
 {
   _trackBranchName = "TrackPostFit";
+  fVerbose = 0;
 }
 
 
@@ -191,9 +190,9 @@ PndTpcdEdxTask::Exec(Option_t* opt)
   }
 
   for(Int_t itr=0;itr<ntracks;++itr){
-    if (DEBUG) std::cout<<"PndTpcdEdxTask::Exec(): starting track "<<itr<<std::endl;
+    if (fVerbose) std::cout<<"PndTpcdEdxTask::Exec(): starting track "<<itr<<std::endl;
     GFTrack* trk=(GFTrack*)_trackArray->At(itr);
-    if (DEBUG) std::cout<<"*** Number of clusters in track: "<<trk->getNumHits()<<" ***"<<std::endl;
+    if (fVerbose) std::cout<<"*** Number of clusters in track: "<<trk->getNumHits()<<" ***"<<std::endl;
     
     GFAbsTrackRep* theRep = trk->getCardinalRep();
     if (theRep->getStatusFlag() != 0) continue;
@@ -204,14 +203,14 @@ PndTpcdEdxTask::Exec(Option_t* opt)
     }
 
     GFTrackCand cand = trk->getCand();
-    std::vector<unsigned int> hitIDs = cand.GetHitIDs(kTpcCluster); // get tpc hit ids
+    std::vector<unsigned int> hitIDs = cand.GetHitIDs(FairRootManager::Instance()->GetBranchId("PndTpcCluster")); // get tpc hit ids
     
 
     //GET MC INFORMATION FOR CROSS-CHECK
     //only works with IdealTracking and pure trackIDs
     std::vector<PndTpcPoint*> pointlist;
     if(_idealdEdx) {
-      if (DEBUG) std::cerr<<"collect MC points"<<std::endl;
+      if (fVerbose) std::cerr<<"collect MC points"<<std::endl;
       //loop over MC points and collect
       for(int p=0; p<_pointArray->GetEntriesFast(); ++p) {
         int id = ((PndTpcPoint*)_pointArray->At(p))->GetTrackID();
@@ -221,7 +220,7 @@ PndTpcdEdxTask::Exec(Option_t* opt)
     }
     
 
-    if (DEBUG) std::cerr<<"collect digis"<<std::endl;
+    if (fVerbose) std::cerr<<"collect digis"<<std::endl;
     // get all digis in the track
     std::vector<const PndTpcDigi*> digis;
     for(int i=0;i<hitIDs.size();++i){
@@ -235,7 +234,7 @@ PndTpcdEdxTask::Exec(Option_t* opt)
     TVector3 startDir( ((PndTpcCluster*)(_clusterArray->At(hitIDs[2])))->pos() - ((PndTpcCluster*)(_clusterArray->At(hitIDs[0])))->pos() );
 
     TVector3 pos,mom;
-    if (DEBUG) std::cerr<<"get pos and mom"<<std::endl;
+    if (fVerbose) std::cerr<<"get pos and mom"<<std::endl;
     try{
       pos = theRep->getPos();
       mom = theRep->getMom();
@@ -246,7 +245,7 @@ PndTpcdEdxTask::Exec(Option_t* opt)
       //TODO: exception handling
     }
 
-    if (DEBUG) {
+    if (fVerbose) {
       TVector3 pos0(((PndTpcCluster*)(_clusterArray->At(hitIDs[0])))->pos());
       std::cout<<"pos - pos0 mag"<< (pos-pos0).Mag() << std::endl;
     }
@@ -264,7 +263,7 @@ PndTpcdEdxTask::Exec(Option_t* opt)
     bool exc(false);
     while(true){
       TVector3 destination = here.getO()+here.getNormal()*_DX;
-      if (DEBUG) std::cerr<<"at counter "<<counter<<std::endl;
+      if (fVerbose) std::cerr<<"at counter "<<counter<<std::endl;
       if(counter++>0) here=next;//not the first time
       else if(here.getNormal() * startDir < 0) {
         _DX*=-1;
@@ -292,7 +291,7 @@ PndTpcdEdxTask::Exec(Option_t* opt)
       bool _abort(true);
 
       for(unsigned int i=0;i<digis.size();++i){
-        //if (DEBUG) std::cerr<<"at digi "<< i <<std::endl;
+        //if (fVerbose) std::cerr<<"at digi "<< i <<std::endl;
         TVector3 digiPos;
         PndTpcDigiMapper::getInstance()->map(digis[i],digiPos);
         if((here.getO()-digiPos).Mag() > (_DX+3.)) continue;
