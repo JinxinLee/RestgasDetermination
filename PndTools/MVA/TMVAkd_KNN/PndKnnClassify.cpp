@@ -53,7 +53,9 @@ PndKnnClassify::~PndKnnClassify()
  */
 void PndKnnClassify::InitKNN()
 {
-  std::cout << "<INFO> Initializing KNN classifier.\n";
+  std::cout << "<INFO> Initializing KNN classifier with KNN = "
+	    << m_knn
+	    << ".\n";
 
   // Zero number of neighbors.
   if(m_knn == 0)

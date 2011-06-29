@@ -67,7 +67,7 @@
   //clas.push_back("muon");
   //clas.push_back("proton");
   
-  /*
+  
   PndPidEmcAssociatorTask* ts = new PndPidEmcAssociatorTask();
   // Set the path to the weightFiles; otherwise the standard
   // path is used.
@@ -75,14 +75,14 @@
   
   // Set class names.
   ts->SetClassNames(clas);
-  ts->SetNumNeigh(250);
+  ts->SetNumNeigh(300);
   
   //Add task
   fRun->AddTask(ts);
-  */
+  
   //////////////
   fRun->Init();
-  fRun->Run(0,nEvents);
+  fRun->Run(0, nEvents);
  
   // ------------------------------------------------------------------------
   rtdb->print();

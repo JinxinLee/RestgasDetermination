@@ -207,9 +207,9 @@ InitStatus PndPidMvaAssociatorTask::Init()
     }
     
     // Set parameters.
-    KnnCls->Initialize();
     KnnCls->SetEvtParam(fScFact, fWeight);
     KnnCls->SetKnn(fNumNeigh);
+    KnnCls->Initialize();
     
     //fClassifier = dynamic_cast<PndMvaClassifier*>(KnnCls);
     fClassifier = KnnCls;

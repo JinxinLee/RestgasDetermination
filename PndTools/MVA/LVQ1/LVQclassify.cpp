@@ -14,7 +14,7 @@
 
 #define NUM_DEBUG_PRINT 15
 
-#define LVQ_CLS_DEBUG 1
+#define LVQ_CLS_DEBUG 0
 
 // C++
 #include <fstream>
@@ -47,7 +47,7 @@ void Produce_VQ_ROC( std::vector< ClassifierOutPuts >& input,//Alg. input
 		     std::string const& BgName,// Background name
 		     size_t sigCnt, size_t bgCnt,// number of sg and bg
 		     std::vector< ROCPoints >& Roc,// Produced set of ROC points
-		     size_t numSteps = 10)// Number of steps (ROC points)
+		     size_t numSteps = 20)// Number of steps (ROC points)
 {
   float sg, bg;
   sg = bg = 0.0;
@@ -254,8 +254,15 @@ int main(int argc, char** argv)
     std::string* givenLabel = cls.Classify( (*evt) );
 
     // Store results.
-    classifiedEvents.push_back(ClassifierOutPuts((events[k]).first, *givenLabel, res[sgName], res[bgName]));
-
+    
+    classifiedEvents.push_back(ClassifierOutPuts((events[k]).first, *givenLabel,
+						 res[sgName], res[bgName]));
+    
+    /*
+      classifiedEvents.push_back(ClassifierOutPuts((events[k]).first, *givenLabel,
+      (1.0 - res[sgName]), (1.0 - res[bgName]) ) );
+    */
+    
     delete givenLabel;
   }// Events Loop
 
@@ -347,9 +354,13 @@ int main(int argc, char** argv)
   // Create ROC points.
   std::cout << "<-I-> Creating ROC.\n";
   std::vector< ROCPoints > Roc;
-  Produce_VQ_ROC( classifiedEvents, sgName, bgName,
-		  (*counts)[sgName], (*counts)[bgName], Roc);
   
+  Produce_VQ_ROC( classifiedEvents, sgName, bgName,
+		  (*counts)[sgName], (*counts)[bgName], Roc, 200);
+  /*
+    Produce_ROC( classifiedEvents, sgName, bgName,
+    (*counts)[sgName], (*counts)[bgName], Roc);
+  */
   WriteRocToFile( ("ROC" + outF), Roc); 
   
 #if LVQ_CLS_DEBUG
