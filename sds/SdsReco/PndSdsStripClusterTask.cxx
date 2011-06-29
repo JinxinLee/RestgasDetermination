@@ -206,7 +206,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
 	if (FairRunAna::Instance()->IsTimeStamp())
 	  fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fFunctor, FairRootManager::Instance()->GetEventTime() + 10); //FairRootManager::Instance()->GetEventTime() +
 	else
-	  fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, 0, 0);
+	  fDigiArray = FairRootManager::Instance()->GetTClonesArray(fInBranchName);
 
 	std::cout << "-I- PndSdsStripClusterTask:: fDigiArray->Size(): " << fDigiArray->GetEntriesFast() << std::endl;
   //fDigiArray = (TClonesArray*) ioman->GetObject(fInBranchName);
