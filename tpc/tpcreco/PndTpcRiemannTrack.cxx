@@ -592,6 +592,37 @@ PndTpcRiemannTrack::getMom(double Bz) const {
 }
 
 
+TVector3
+PndTpcRiemannTrack::pocaToZ() const {
+  TVector3 POCA(0,0,0);
+  if (!_isFitted) return POCA;
+
+  double closestAngle; // angle on track of hit with smallest distance to z axis
+  TVector3 ctrToClHit; // vector from center to hit with smallest distance to z axis
+  if (_hits.front()->cluster()->pos().Perp() < _hits.back()->cluster()->pos().Perp()){
+    closestAngle = _hits.front()->getAngleOnHelix();
+    ctrToClHit = _hits.front()->cluster()->pos() - _center;
+  }
+  else {
+    closestAngle = _hits.back()->getAngleOnHelix();
+    ctrToClHit = _hits.back()->cluster()->pos() - _center;
+  }
+
+  double angle = closestAngle - ctrToClHit.DeltaPhi(-1.*_center); // angle on helix of POCA
+  //double angle = (-1.*_center).Phi();
+
+  POCA.SetX(1.);
+  POCA.SetPhi(angle);
+  POCA.SetMag(_radius);
+  POCA += _center;
+  POCA.SetZ(_m*angle + _t);
+
+  //std::cout<<"POCA "; POCA.Print();
+
+  return POCA;
+}
+
+
 void
 PndTpcRiemannTrack::Plot(bool standalone){
   TCanvas* cc=NULL;

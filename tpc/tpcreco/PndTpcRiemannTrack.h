@@ -73,6 +73,8 @@ class PndTpcRiemannTrack : public TObject{
   double getMom(double Bz) const; // get the magnitude of the momentum
   int winding() const; // +- 1; winding sense along z axis
 
+  TVector3 pocaToZ() const; // calc POCA to z-axis
+
   const McIdCollection& mcid() const {return _mcid;}
 
   // Modifiers -----------------------
