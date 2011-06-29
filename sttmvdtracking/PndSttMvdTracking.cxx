@@ -36,6 +36,7 @@
 #include <cmath>
 
 
+
 using namespace std;
 
 
@@ -1863,8 +1864,8 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 			keepit[ncand]=false;
 		}
 
-if(keepit[ncand])cout<<"cazzo, evt. "<<IVOLTE<<", cand. "<<ncand<<" passa.\n";
-else cout<<"cazzo, evt. "<<IVOLTE<<", cand. "<<ncand<<" non passa.\n";
+
+
     }	//  end of for(ncand=0; ncand< nTotalCandidates; ncand++)
 
 
@@ -1977,7 +1978,7 @@ for(int ip=0;ip<nHitsSkew;ip++){
 }
 }
 //-------------------------fine stampaggi.
-cout<<"cazzo, evt. "<<IVOLTE<<", cand. "<<ncand<<" prima di cleanup ||\n";
+
 
     if(YesClean){
 	if ( !TrackCleanup(
@@ -2006,8 +2007,8 @@ cout<<"cazzo, evt. "<<IVOLTE<<", cand. "<<ncand<<" prima di cleanup ||\n";
 	}
     }  // end of if(YesClean)
 
-if(keepit[ncand])cout<<"cazzo, evt. "<<IVOLTE<<", cand. "<<ncand<<" passa dopo clenup ||\n";
-else cout<<"cazzo, evt. "<<IVOLTE<<", cand. "<<ncand<<" non passa dopo clenup ||.\n";
+
+
 
 
 
@@ -4043,6 +4044,38 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 
        fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
 
+
+//	disegna il BiHexagon destro e sinistro delle inner parallel straws.
+	DrawBiHexagonInMacro(
+				VERTICALGAP,
+				MACRO,
+				RStrawDetectorMin,
+				ApotemaMaxInnerParStraw,
+				4,  // color code, 4= blue.
+				"InnerPar"
+				);
+//--------------
+//	disegna il BiHexagon destro e sinistro delle skew straws.
+	DrawBiHexagonInMacro(
+				VERTICALGAP,
+				MACRO,
+				ApotemaMinSkewStraw,
+				ApotemaMaxSkewStraw,
+				2,  // color code.
+				"Skew"
+				);
+//--------------
+//	disegna il BiHexagon destro e sinistro delle skew straws.
+	DrawHexagonCircleInMacro(
+				VERTICALGAP,
+				MACRO,
+				ApotemaMinOuterParStraw,
+				RStrawDetectorMax,
+				4,  // color code.
+				"OuterPar"
+				);
+//--------------
+
        fprintf(MACRO,"TEllipse* FoundTrack = new TEllipse(%f,%f,%f,%f,%f,%f);\n"
 			,Ox,Oy,R,R,primoangolo,ultimoangolo);
 
@@ -4341,6 +4374,10 @@ fuori: ;
        ymin = ymin - delta*0.05;
 
 
+	ymin=xmin=-1.05*RStrawDetectorMax;
+	ymax=xmax= 1.05*RStrawDetectorMax;
+
+
        fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
 
 
@@ -4349,6 +4386,36 @@ fuori: ;
        fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
        fprintf(MACRO,"Assey->Draw();\n");
 
+//	disegna il BiHexagon destro e sinistro delle inner parallel straws.
+	DrawBiHexagonInMacro(
+				VERTICALGAP,
+				MACRO,
+				RStrawDetectorMin,
+				ApotemaMaxInnerParStraw,
+				4,  // color code, 4= blue.
+				"InnerPar"
+				);
+//--------------
+//	disegna il BiHexagon destro e sinistro delle skew straws.
+	DrawBiHexagonInMacro(
+				VERTICALGAP,
+				MACRO,
+				ApotemaMinSkewStraw,
+				ApotemaMaxSkewStraw,
+				2,  // color code.
+				"Skew"
+				);
+//--------------
+//	disegna il BiHexagon destro e sinistro delle skew straws.
+	DrawHexagonCircleInMacro(
+				VERTICALGAP,
+				MACRO,
+				ApotemaMinOuterParStraw,
+				RStrawDetectorMax,
+				4,  // color code.
+				"OuterPar"
+				);
+//--------------
 
        for( i=0; i< Nhits; i++) {
          if( info[i][5] == 1 ) {     // parallel straws
@@ -4426,6 +4493,36 @@ fprintf(MACRO,
        fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
        fprintf(MACRO,"Assey->Draw();\n");
 
+//	disegna il BiHexagon destro e sinistro delle inner parallel straws.
+	DrawBiHexagonInMacro(
+				VERTICALGAP,
+				MACRO,
+				RStrawDetectorMin,
+				ApotemaMaxInnerParStraw,
+				4,  // color code, 4= blue.
+				"InnerPar"
+				);
+//--------------
+//	disegna il BiHexagon destro e sinistro delle skew straws.
+	DrawBiHexagonInMacro(
+				VERTICALGAP,
+				MACRO,
+				ApotemaMinSkewStraw,
+				ApotemaMaxSkewStraw,
+				2,  // color code.
+				"Skew"
+				);
+//--------------
+//	disegna il BiHexagon destro e sinistro delle skew straws.
+	DrawHexagonCircleInMacro(
+				VERTICALGAP,
+				MACRO,
+				ApotemaMinOuterParStraw,
+				RStrawDetectorMax,
+				4,  // color code.
+				"OuterPar"
+				);
+//--------------
 
        for( i=0; i< Nhits; i++) {
          if( info[i][5] == 1 ) {     // parallel straws
@@ -5721,6 +5818,36 @@ nohits: ;
        fprintf(MACRO,"Assey->Draw();\n");
 
 
+//	disegna il BiHexagon destro e sinistro delle inner parallel straws.
+	DrawBiHexagonInMacro(
+				VERTICALGAP,
+				MACRO,
+				RStrawDetectorMin,
+				ApotemaMaxInnerParStraw,
+				4,  // color code, 4= blue.
+				"InnerPar"
+				);
+//--------------
+//	disegna il BiHexagon destro e sinistro delle skew straws.
+	DrawBiHexagonInMacro(
+				VERTICALGAP,
+				MACRO,
+				ApotemaMinSkewStraw,
+				ApotemaMaxSkewStraw,
+				2,  // color code.
+				"Skew"
+				);
+//--------------
+//	disegna il BiHexagon destro e sinistro delle skew straws.
+	DrawHexagonCircleInMacro(
+				VERTICALGAP,
+				MACRO,
+				ApotemaMinOuterParStraw,
+				RStrawDetectorMax,
+				4,  // color code.
+				"OuterPar"
+				);
+//--------------
 
        for( i=0; i< nSttHit; i++) {
          if( !exclusionStt[i]) {     // all straws
@@ -5767,11 +5894,130 @@ nohits: ;
 
 
 
+//----------begin of function PndSttMvdTracking::DrawBiHexagonInMacro
+
+    void PndSttMvdTracking::DrawBiHexagonInMacro(
+					Double_t vgap,
+					FILE * MACRO,
+					Double_t Ami,
+					Double_t Ama,
+					UShort_t color,
+					char *name
+					)
+{
+	UShort_t iside;
+
+	// these are the points defining the sides of the biexhagon on the left(inner).
+	Double_t
+		side_x[] = { -vgap/2.,	-Ama ,	-Ama,	-vgap/2.,	-vgap/2.,	-Ami,
+					-Ami,	-vgap/2.,	-vgap/2.},
+		side_y[] = {(-0.5*vgap+2.*Ama)/sqrt(3.),	Ama/sqrt(3.),	-Ama/sqrt(3.),
+			    -(-0.5*vgap+2.*Ama)/sqrt(3.),	-(-0.5*vgap+2.*Ami)/sqrt(3.),
+			    -Ami/sqrt(3.),	Ami/sqrt(3.),	(-0.5*vgap+2.*Ami)/sqrt(3.),
+			    (-0.5*vgap+2.*Ama)/sqrt(3.)	};
+
+	//  Inner straws left
+	for(iside=0;iside<8;iside++){
+		fprintf(MACRO,
+		"TLine* %sL%d = new TLine(%f,%f,%f,%f);\n",name,
+			iside,side_x[iside],side_y[iside],side_x[iside+1],side_y[iside+1]);
+		fprintf(MACRO,"%sL%d->SetLineColor(%d);\n",name,iside,color);
+		fprintf(MACRO,"%sL%d->SetLineStyle(2);\n",name,iside);
+		fprintf(MACRO,"%sL%d->Draw();\n",name,iside);
+	}
+
+	//  Inner straws right
+	for(iside=0;iside<8;iside++){
+		fprintf(MACRO,
+		"TLine* %sR%d = new TLine(%f,%f,%f,%f);\n",name,
+			iside,-side_x[iside],side_y[iside],-side_x[iside+1],side_y[iside+1]);
+		fprintf(MACRO,"%sR%d->SetLineColor(%d);\n",name,iside,color);
+		fprintf(MACRO,"%sR%d->SetLineStyle(2);\n",name,iside);
+		fprintf(MACRO,"%sR%d->Draw();\n",name,iside);
+	}
+
+}
+//----------end of function PndSttMvdTracking::DrawBiHexagonInMacro
 
 
 
 
-//----------begin of function PndSttMvdTracking::AssociateFoundTrackstoMC
+
+
+//----------begin of function PndSttMvdTracking::DrawHexagonCircleInMacro
+
+    void PndSttMvdTracking::DrawHexagonCircleInMacro(
+					Double_t GAP,
+					FILE * MACRO,
+					Double_t ApotemaMin,
+					Double_t Rma,
+					UShort_t color,
+					char *name
+					)
+{
+	UShort_t iside;
+
+	Double_t angle1, angle2;
+
+	// these are the points defining the sides of the exhagon on the left(outer).
+	Double_t side_x[] = {	-GAP/2., -GAP/2. , -ApotemaMin, -ApotemaMin, -GAP/2., -GAP/2. },
+		 side_y[] = {	sqrt(Rma*Rma-GAP*GAP/4.),  (2.*ApotemaMin-0.5*GAP)/sqrt(3.),
+				ApotemaMin/sqrt(3.),
+				-ApotemaMin/sqrt(3.),
+				-(2.*ApotemaMin-0.5*GAP)/sqrt(3.), -sqrt(Rma*Rma-GAP*GAP/4.)};
+
+
+	//  Outer straws left
+	for(iside=0;iside<5;iside++){
+		fprintf(MACRO,
+		"TLine* %sL%d = new TLine(%f,%f,%f,%f);\n",name,
+			iside,side_x[iside],side_y[iside],side_x[iside+1],side_y[iside+1]);
+		fprintf(MACRO,"%sL%d->SetLineColor(%d);\n",name,iside,color);
+		fprintf(MACRO,"%sL%d->SetLineStyle(2);\n",name,iside);
+		fprintf(MACRO,"%sL%d->Draw();\n",name,iside);
+	}
+
+	//  Outer straws right
+	for(iside=0;iside<5;iside++){
+		fprintf(MACRO,
+		"TLine* %sR%d = new TLine(%f,%f,%f,%f);\n",name,
+			iside,-side_x[iside],side_y[iside],-side_x[iside+1],side_y[iside+1]);
+		fprintf(MACRO,"%sR%d->SetLineColor(%d);\n",name,iside,color);
+		fprintf(MACRO,"%sR%d->SetLineStyle(2);\n",name,iside);
+		fprintf(MACRO,"%sR%d->Draw();\n",name,iside);
+	}
+
+
+	// drawing the left circle.
+	angle1 = atan2 ( side_y[0], side_x[0])*180./PI;
+	angle2 = 360. + atan2 ( side_y[4], side_x[4])*180./PI;
+	fprintf(MACRO,"TEllipse* %sCircleL = new TEllipse(0.,0.,%f,%f,%f,%f);\n",
+			name,Rma,Rma,angle1,angle2);
+	fprintf(MACRO,"%sCircleL->SetFillStyle(0);\n",name);
+	fprintf(MACRO,"%sCircleL->SetLineColor(%d);\n",name,color);
+	fprintf(MACRO,"%sCircleL->Draw(\"only\");\n",name,color);
+
+
+	// drawing the right circle.
+	angle2 = atan2 ( side_y[0], -side_x[0])*180./PI;
+	angle1 = atan2 ( side_y[4], -side_x[4])*180./PI;
+		fprintf(MACRO,"TEllipse* %sCircleR = new TEllipse(0.,0.,%f,%f,%f,%f);\n",
+			name,Rma,Rma,angle1,angle2);
+	fprintf(MACRO,"%sCircleR->SetFillStyle(0);\n",name);
+	fprintf(MACRO,"%sCircleR->SetLineColor(%d);\n",name,color);
+	fprintf(MACRO,"%sCircleR->Draw(\"only\");\n",name,color);
+
+
+}
+//----------end of function PndSttMvdTracking::DrawHexagonCircleInMacro
+
+
+
+
+
+
+
+//----------begin of function PndSttMvdTracking::DrawSttDetectorInMacro
 
     void PndSttMvdTracking::AssociateFoundTrackstoMC(
 		  Double_t info[][7],
@@ -11478,7 +11724,7 @@ int nevento=1;
 	// parallel cleanup.
 
 //----------------stampe
-if(istampa>=2&&IVOLTE==0){
+if(istampa>=0&&IVOLTE==0){
 cout<<" IVOLTE = "<<IVOLTE<<", prima di paral cleanup, nHitsPar "<<nHitsPar<<
 ", KAPPA = "<<KAPPA <<", charge "<<Charge<<", FI0 "<<FI0
 <<"\n\tFiLimitAdmissible "<<
@@ -11504,8 +11750,10 @@ FiLimitAdmissible<<", X limit "<<Oxx+Rr*cos(FiLimitAdmissible)<<
 				ApotemaMinOuterPar,
 				RStrawDetMax
 						) ){
+
 						  return false;
 				}
+
 
 
 
@@ -11530,8 +11778,10 @@ FiLimitAdmissible<<", X limit "<<Oxx+Rr*cos(FiLimitAdmissible)<<
 			1
 			) ) ) {
 
+
 						  return false;
 				}
+
 
 
 	return true;
@@ -11670,6 +11920,7 @@ FiLimitAdmissible<<", X limit "<<Oxx+Rr*cos(FiLimitAdmissible)<<
 
 jumpa: ;
 
+
 	flagInnerSttL=FindTrackEntranceExitbiHexagonLeft(
 				GAP,
 				Oxx,
@@ -11684,6 +11935,7 @@ jumpa: ;
 				);
 	// find the entrance and exit of the track in the Inner Right Parallel Straw region.
 	// This region is bounded by two Hexagons, and it has the target gap in the middle.
+
 	flagInnerSttR=FindTrackEntranceExitbiHexagonRight(
 				GAP,
 				Oxx,
@@ -11706,6 +11958,7 @@ jumpa: ;
 		nHits=0; // eliminate all the hits from hit list.
 		return true;
 	}
+
 
 	if( flagInnerSttL == 0 && flagInnerSttR != 0 ){
 		XintersectionList[0]=XcrossL[0];
@@ -11799,6 +12052,7 @@ jumpa: ;
 
 	} else { // continuation of  if (flagInnerSttL == 0 && flagInnerSttR != 0)
 
+
 		// case in which flagInnerSttL==0 && flagInnerSttR==0.
 		for(i=0;i<2;i++){
 			XintersectionList[i]=XcrossR[i];
@@ -11808,6 +12062,7 @@ jumpa: ;
 		}
 
 		if(fabs(FiLimitAdmissible-FI0) < 2.*PI){  // in this case the point
+
 			// corresponding to FiLimitAdmissible can play a role in the
 			// determination of the limiting points of the hits.
 			aux[0]=Oxx+Rr*cos(FiLimitAdmissible);
@@ -11831,6 +12086,8 @@ jumpa: ;
 			}
 			if (nInnerHits == 0) return false;
 		} else { // continuation of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
+
+
 			if (nInnerHits == 0) return false;
 			ChooseEntranceExitbis(
 				Oxx,
@@ -11852,6 +12109,7 @@ jumpa: ;
 //-------------  cleanup of the spurious tracks first using the inner parallel straws.
 
 
+
 	// at this point the n. of inner hits cannot be 0 for a true track.
 	if ( BadTrack_ParStt(
 			Oxx,
@@ -11866,8 +12124,10 @@ jumpa: ;
 			1.5*DiameterStrawTube,	//  cut of proximity between hits.
 			1	// maximum allowed # consecutive hits with distance > cut.
 					)
-	   ) return false;
+	   ){
 
+		return false;
+	}
 
 
 //-----------------------------------------------------
@@ -11891,6 +12151,8 @@ jumpa: ;
 				YcrossL
 				);
 
+
+
 //------------
 	// find the entrance and exit of the track in the Outer Parallel Straw region, Right side.
 	// This region is bounded by a Hexagon (inner), a Circle (outer) and it has
@@ -11907,6 +12169,8 @@ jumpa: ;
 				XcrossR,
 				YcrossR
 				);
+
+
 
 //--------------------------------
 	if( flagOuterSttL != 0 && flagOuterSttR != 0 ){
@@ -13602,10 +13866,10 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 
 
 	Double_t Side_x[] = {	-GAP/2., -GAP/2. , -ApotemaMin, -ApotemaMin, -GAP/2., -GAP/2. },
-		 Side_y[] = {	sqrt(Rma*Rma-GAP*GAP/4.),  (2.*ApotemaMin-GAP)/sqrt(3.),
+		 Side_y[] = {	sqrt(Rma*Rma-GAP*GAP/4.),  (2.*ApotemaMin-0.5*GAP)/sqrt(3.),
 				ApotemaMin/sqrt(3.),
 				-ApotemaMin/sqrt(3.),
-				-(2.*ApotemaMin-GAP)/sqrt(3.), -sqrt(Rma*Rma-GAP*GAP/4.)},
+				-(2.*ApotemaMin-0.5*GAP)/sqrt(3.), -sqrt(Rma*Rma-GAP*GAP/4.)},
 		 a[] =	{1.,		-1./sqrt(3.),	1.,	1./sqrt(3.),	1.},
 		 b[] =	{0.,		1.,		0.,	1.,		0.},
 		 c[] =	{GAP/2., -2.*ApotemaMin/sqrt(3.),ApotemaMin, 2.*ApotemaMin/sqrt(3.), GAP/2.};
