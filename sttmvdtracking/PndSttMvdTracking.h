@@ -371,7 +371,24 @@ Short_t ListTrackCandHitType[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
 				   nmaxMvdStripHitsInTrack]
 					);
 
+    void DrawBiHexagonInMacro(
+					Double_t vgap,
+					FILE * MACRO,
+					Double_t Ami,
+					Double_t Ama,
+					UShort_t color,
+					char *name
+				);
 
+
+    void DrawHexagonCircleInMacro(
+					Double_t GAP,
+					FILE * MACRO,
+					Double_t ApotemaMin,
+					Double_t Rma,
+					UShort_t color,
+					char *name
+					);
 
     void AssociateFoundTrackstoMC(
 		  Double_t info[][7],
@@ -382,8 +399,7 @@ Short_t ListTrackCandHitType[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
                   UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHits],
                   Short_t daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
 
-                                                        );
-
+				);
 
     void AssociateFoundTrackstoMCbis(
 		  Double_t info[][7],
