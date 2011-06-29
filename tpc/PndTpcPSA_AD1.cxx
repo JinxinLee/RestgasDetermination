@@ -27,6 +27,7 @@
 #include <vector>
 
 //TODO : implement init of the factor for whatever shape
+//#define fPULSEDELAYFACTOR 63//time between the maxamp and 50% of rising egde in ns
 #define fPULSEDELAYFACTOR 63//time between the maxamp and 50% of rising egde in ns
 
 using std::max;

@@ -35,7 +35,7 @@ using std::cout; using std::endl;
 
 PndTpcPSA_TOT1::PndTpcPSA_TOT1()
   : PndTpcAbsPSAStrategy(), fcurrentPadID(0), finprogress(false),
-    famp(0),ft(0),fthreshold(10), fNbEmptySampleAllowed(1)
+    famp(0),ft(0),fthreshold(10), fNbEmptySampleAllowed(1), fTimeCalib(0.5)
 {}
 
 PndTpcDigi*
@@ -178,10 +178,8 @@ void PndTpcPSA_TOT1::processPulse(std::vector<PndTpcSample*> samples,
   double t1=samples[0]->t();// + 0.3*length;
   double a1=samples[0]->amp();
   // scale factor
-  double c=0.3;
-  if(t1==tA)t0=t1;
-  //else t0=t1-c*a1*(tA-t1)/(A-a1);
-  else t0=(1-c)*t1+c*tA;
+  double c=fTimeCalib;
+  t0=tA-c;
   
 
 

@@ -50,6 +50,8 @@ class PndTpcPSA_TOT1 : public PndTpcAbsPSAStrategy {
 					   std::vector<PndTpcDigi*>& digis,
 					   double padThreshold);
   void setOpt(unsigned int f){fNbEmptySampleAllowed=f;} //nb of empty samples tolarate inside a pulse
+  void setTimeCalib(double c){fTimeCalib=c;} // set calibration constant for timing 
+
 
  private:
 
@@ -60,6 +62,8 @@ class PndTpcPSA_TOT1 : public PndTpcAbsPSAStrategy {
   unsigned int ft;
   unsigned int fthreshold;
   unsigned int fNbEmptySampleAllowed;
+  double fTimeCalib;
+
   McIdCollection fmcid;
   // Private Methods -----------------
   void processPulse(std::vector<PndTpcSample*>,double& t0,double& A,double& length);

@@ -48,6 +48,7 @@
 #include "PndTpcPSA_TOT1.h"
 #include "PndTpcDigitizationPolicy.h"
 #include "PndTpcCRRCPulseshape.h"
+#include "PndTpcT2KPulseshape.h"
 #include "PndTpcPSAplot.h"
 #include "PndTpcPSA_TOT1.h"
 #include "PndDetectorList.h"
@@ -59,9 +60,10 @@
 
 
 PndTpcElectronicsTask::PndTpcElectronicsTask()
-  : FairTask("TPC Electronics response"), fpersistence(kFALSE),fsamplePersistence(kFALSE), finitialized(kFALSE), fqa(NULL), fCount(0)
+  : FairTask("TPC Electronics response"), fpersistence(kFALSE),fsamplePersistence(kFALSE), finitialized(kFALSE), fqa(NULL), fCount(0),fPSATimeCalib(0.5)
  {
   fsignalBranchName = "PndTpcSignal";
+  fshaper= "CRRC";
  }
 
 
@@ -124,17 +126,30 @@ PndTpcElectronicsTask::Init()
   //TODO: Get this from Database!
   ffrontend= fpar->getFrontend();
 
-  fpulseshape= new PndTpcCRRCPulseshape(ffrontend->tdiff(),
-				     ffrontend->tint(),
-				     ffrontend->tsig());
-					
+  if(fshaper=="CRRC"){
+    fpulseshape= new PndTpcCRRCPulseshape(ffrontend->tdiff(),
+					  ffrontend->tint(),
+					  ffrontend->tsig());
+  }
+  else if(fshaper=="T2K"){
+    fpulseshape= new PndTpcT2KPulseshape(ffrontend->tdiff());
+  }
+  else  {
+      Error("PndTpcElectronicsTask::Init",
+	    "Choose a proper pulseshape, Sucker!");
+      return kERROR;
+  }
+			
    if( fpar->getPSA() == 0)	{
   	fpsa= new PndTpcSimplePSAStrategy(ffrontend->psaThreshold());
 	std::cout << "Using Simple PSA strategy!" << std::endl;
    }
    else if( fpar->getPSA() == 1)	{
-  	fpsa= new PndTpcPSA_TOT1();
+  	PndTpcPSA_TOT1* mypsa= new PndTpcPSA_TOT1();
+	mypsa->setTimeCalib(fPSATimeCalib);
+	fpsa=mypsa;
 	std::cout << "Using PSA_TOT strategy!" << std::endl;
+	std::cout << "with time calibration const c="<<fPSATimeCalib << std::endl;
   }
   else	{
   	assert(0);

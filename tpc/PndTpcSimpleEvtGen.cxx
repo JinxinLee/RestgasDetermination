@@ -101,8 +101,8 @@ PndTpcSimpleEvtGen::Exec(Option_t* opt)
 {  
   if(fmode.compare("iron55") == 0) {
     Int_t nPrim = fprimArray->GetEntriesFast();
-    if(nPrim!=0) 
-      Fatal("PndTpcSimpleEvtGen::Exec","Input-Array not empty!");
+    //if(nPrim!=0) 
+    //  Fatal("PndTpcSimpleEvtGen::Exec","Input-Array not empty!");
       
     std::cerr<<"\n\nPndTpcSimpleEvtGen: running in mode *** "<<fmode.c_str()
 	     <<" ***\n"<<std::endl;
@@ -112,7 +112,7 @@ PndTpcSimpleEvtGen::Exec(Option_t* opt)
     TRandom3 randm;
     randm.SetSeed(1);
     
-    for(unsigned int n=0; n<207; ++n) {
+    for(unsigned int n=0; n<20; ++n) {
       TVector3 postemp = fpos+TVector3(randm.Uniform(-0.01,0.01),
 				       randm.Uniform(-0.01,0.01),
 				       randm.Uniform(-0.01,0.01));

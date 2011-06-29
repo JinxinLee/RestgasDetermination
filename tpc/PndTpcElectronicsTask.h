@@ -50,8 +50,11 @@ public:
   // Modifiers -----------------------
   void SetSignalBranchName(const TString& name) {fsignalBranchName=name;}
   void SetPersistence(Bool_t opt=kTRUE) 	{fpersistence=opt;}
+  void SetShaper(const TString& opt){fshaper=opt;}
+  void SetPSATimeCalib(Double_t c){fPSATimeCalib=c;}
   void SetSamplePersistence(Bool_t opt=kTRUE)	{fsamplePersistence=opt;}
   void SetQAPlotCol(QAPlotCollection* col){fqa=col;}
+
   // Operations ----------------------
   
   virtual InitStatus Init();
@@ -68,12 +71,15 @@ private:
   
   // Private Data Members ------------
   TString fsignalBranchName;
+  TString fshaper; 
   TClonesArray* fsignalArray;
   TClonesArray* fsampleArray;
   TClonesArray* fdigiArray;
   
   Bool_t fpersistence;
   Bool_t fsamplePersistence;
+  Double_t fPSATimeCalib; // [0..1]
+
   const PndTpcFrontend* ffrontend;
   PndTpcAbsPulseshape* fpulseshape;
   PndTpcAbsPSAStrategy* fpsa;

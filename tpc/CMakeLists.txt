@@ -48,7 +48,8 @@ PndTpcDigiPar.cxx
 PndTpcContFact.cxx 		    
 PndTpcDetector.cxx 		    
 PndTpcClusterizerTask.cxx 	    
-PndTpcGas.cxx 			    
+PndTpcGas.cxx 		
+PndTpcSimpleEvtGen.cxx	    
 LinearInterpolPolicy.cxx 	    
 PndTpcDriftTask.cxx 		    
 #PndTpcRadialDriftTask.cxx 		    
