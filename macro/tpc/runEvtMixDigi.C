@@ -13,9 +13,9 @@ runEvtMixDigi(){
 
   //  TString inFile="/afs/e18/panda/DATA/fboehmer/dipl_data/SpaceCharge/07_01_2009/new_PndTpcDetector/GEANT3_ALICE_L5_1MeV_cuts_withPIPE_MVD/sigSlice1/2Gev_G3_ALICE_L5_1MeV_cuts_with_PIPE_MVD_10k_evts.sig.root";
 
-  TString inFile = "TEST/DPM.NEWGEO.32s.raw.root";
-  TString jobname="evtmix1000_32s";
-  unsigned int nBkgEvts=1000;
+  TString inFile = "TEST/physics.32s.raw.root";
+  TString jobname="evtmix500_32s";
+  unsigned int nBkgEvts=500;
   double EvtRate=1E7;
 
   TString inDir=inFile(0,inFile.Last('/')+1);
@@ -38,7 +38,7 @@ runEvtMixDigi(){
   TString paramOut = outFile;
   paramOut.ReplaceAll(".mixed.root",".param.root");
 
-  TString bkgFile = inFile;
+  TString bkgFile = "TEST/DPM.NEWGEO.32s.raw.root";
 
 std::cout<<"Input: "<<inFile<<std::endl;
 std::cout<<"Output: "<<outFile<<std::endl;
