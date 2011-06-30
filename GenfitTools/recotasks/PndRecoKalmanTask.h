@@ -43,12 +43,14 @@ public:
   // Accessors -----------------------
   
   // Modifiers -----------------------
-  void SetTrackInBranchName(const TString& name)   { fTrackInBranchName = name;  } 
+  void SetTrackInBranchName(const TString& name)   { fTrackInBranchName = name;  }  
+  void SetTrackInIDBranchName(const TString& name) { fTrackInIDBranchName = name;  } 
   void SetTrackOutBranchName(const TString& name)  { fTrackOutBranchName = name; } 
   void SetMvdBranchName(const TString& name)       { fMvdBranchName = name; }
   void SetCentralTrackerBranchName(const TString& name)  { fCentralTrackerBranchName = name; }
   void SetPersistence(Bool_t opt = kTRUE)          { fPersistence = opt;         }
-  void SetGeane(Bool_t opt = kTRUE)                { fUseGeane = opt;            }
+  void SetGeane(Bool_t opt = kTRUE)                { fUseGeane = opt;            } 
+  void SetIdealHyp(Bool_t opt = kTRUE)             { fIdealHyp = opt;            }
   void SetNumIterations(Int_t num)                 { fNumIt = num;               }
   void SetParticleHypo(TString s); 
   void SetParticleHypo(Int_t h);
@@ -62,21 +64,26 @@ public:
 private:
   
   // Private Data Members ------------
-  TClonesArray* fTrackArray; 
+  TClonesArray* fTrackArray;      //! Input TCA for PndTrack
+  TClonesArray* fTrackIDArray;    //! Input TCA for PndTrackID
+  TClonesArray* fMCTrackArray;    //! Input TCA for PndMCTrack
   TClonesArray* fFitTrackArray;    //! Output TCA for track
   
-  TString fTrackInBranchName;      //! Name of the input TCA
+  TString fTrackInBranchName;      //! Name of the input TCA 
+  TString fTrackInIDBranchName;    //! Name of the input TCA
   TString fTrackOutBranchName;     //! Name of the output TCA
    
   TString fMvdBranchName;           //! Name of the TCA for MVD
   TString fCentralTrackerBranchName;//! Name of the TCA for central tracker
 
   PndRecoKalmanFit *fFitter;
-  
-  Bool_t fPersistence;
+  TDatabasePDG *pdg;             //! Particle DB
+
+  Bool_t fPersistence;           //! Persistence
 
   Bool_t fUseGeane;              //! Flag to use Geane 
-  Bool_t fSmoothing;             //! Flag to set on smoothing (not used)
+  Bool_t fSmoothing;             //! Flag to set on smoothing (not used) 
+  Bool_t fIdealHyp;              //! Flag to use MC particle hypothesis
   Int_t fNumIt;                  //! Number of iterations
   PndGeoSttPar *fSttParameters;  //! STT params
   Int_t fPDGHyp;                 //! Hypothesis

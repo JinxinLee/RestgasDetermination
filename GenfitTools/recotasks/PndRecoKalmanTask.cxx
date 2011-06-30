@@ -26,7 +26,10 @@
 
 // Collaborating Class Headers --------
 #include "TClonesArray.h"
+#include "TParticlePDG.h"
 #include "PndTrack.h"
+#include "PndTrackID.h"
+#include "PndMCTrack.h"
 #include "FairRootManager.h"
 #include "FairGeanePro.h"
 #include "FairRunAna.h"
@@ -35,12 +38,15 @@
 PndRecoKalmanTask::PndRecoKalmanTask(const char* name, Int_t iVerbose)
 : FairTask(name, iVerbose), fPersistence(kFALSE), fPDGHyp(-13)
 {
-  fTrackInBranchName  = "LheTrack"; 
-  fTrackOutBranchName = "LheGenTrack"; 
+  fTrackInBranchName    = "LheTrack"; 
+  fTrackInIDBranchName  = "LheTrackID";
+  fTrackOutBranchName   = "LheGenTrack"; 
   fMvdBranchName = "";
   fCentralTrackerBranchName = "";
   fFitTrackArray = new TClonesArray("PndTrack");  
   fUseGeane = kTRUE;
+  fIdealHyp = kFALSE;
+  fPersistence = kTRUE;
   fNumIt = 1;
   fFitter = new PndRecoKalmanFit();
   fBusyCut=20;
@@ -77,8 +83,25 @@ PndRecoKalmanTask::Init()
     Error("PndRecoKalmanTask::Init","track-array not found!");
     return kERROR;
   }
+  if (fIdealHyp)
+    { 
+      pdg = new TDatabasePDG();
+      fTrackIDArray=(TClonesArray*) ioman->GetObject(fTrackInIDBranchName);
+      if(fTrackIDArray==0)
+	{
+	  Error("PndRecoKalmanTask::Init","track ID array not found! It is not possible to run ideal particle hypothesis");
+	  return kERROR;
+	} 
+
+      fMCTrackArray=(TClonesArray*) ioman->GetObject("MCTrack");
+      if(fMCTrackArray==0)
+	{
+	  Error("PndRecoKalmanTask::Init","MCTrack array not found! It is not possible to run ideal particle hypothesis");
+	  return kERROR;
+	}
+    }
   
-  ioman->Register(fTrackOutBranchName,"Gen", fFitTrackArray, kTRUE);
+  ioman->Register(fTrackOutBranchName,"Gen", fFitTrackArray, fPersistence);
   
   return kSUCCESS;
 }
@@ -116,10 +139,55 @@ void PndRecoKalmanTask::Exec(Option_t* opt)
     
     PndTrack *prefitTrack = (PndTrack*)fTrackArray->At(itr);
     Int_t  fCharge= prefitTrack->GetParamFirst().GetQ();
-    Int_t PDGCode= fPDGHyp*fCharge;
+    Int_t PDGCode = 0;
+    if (fIdealHyp)
+      {
+	PndTrackID *prefitTrackID = (PndTrackID*)fTrackIDArray->At(itr);
+	if (prefitTrackID->GetNCorrTrackId()>0)
+          {
+	    Int_t mcTrackId = prefitTrackID->GetCorrTrackID();
+	    if (mcTrackId!=-1)
+	      {
+		PndMCTrack *mcTrack = (PndMCTrack*)fMCTrackArray->At(mcTrackId);
+		PDGCode = mcTrack->GetPdgCode();
+		if ((((TParticlePDG*)pdg->GetParticle(PDGCode))->Charge())==0)
+		  {
+		    PDGCode = 0;
+		    std::cout << "-E- PndRecoKalmanTask::Exec: Track MC charge is 0!!!!" << std::endl;
+		  }
+		if (PDGCode>=100000000)
+		  {
+		    std::cout << "-I- PndRecoKalmanTask::Exec: Track is an ion (PDGCode>100000000)" << std::endl;
+		  }
+	      } // end of MCTrack ID != -1
+	    else
+	      {
+		PDGCode = 0;
+		std::cout << "-E- PndRecoKalmanTask::Exec: No MCTrack index in PndTrackID!!" << std::endl;
+	      }
+	  } // end of "at least one correlated mc index"
+	else
+	  {
+	    PDGCode = 0;
+	    std::cout << "-E- PndRecoKalmanTask::Exec: No Correlated MCTrack id in PndTrackID!!" << std::endl;
+	  }
+      } // end of ideal hyp condition
+    else
+      {
+	PDGCode = fPDGHyp*fCharge;
+      }
     
     PndTrack *fitTrack = new PndTrack();
-    fitTrack = fFitter->Fit(prefitTrack, PDGCode);
+    if (PDGCode!=0)
+      {
+	fitTrack = fFitter->Fit(prefitTrack, PDGCode);
+      }
+    else
+      {
+	fitTrack = prefitTrack;
+	fitTrack->SetFlag(22);
+	std::cout << "-I- PndRecoKalmanTask::Exec: Kalman cannot run on this track because of the bad MonteCarlo PDC code" << std::endl;
+      }
     
     PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
                                                     fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr, FairRootManager::Instance()->GetBranchId(fTrackInBranchName));
