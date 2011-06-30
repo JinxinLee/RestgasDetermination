@@ -210,8 +210,12 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& alldigis)
     std::vector<PndTpcDigi*>* digis=secIt->second;
     unsigned int ndigi=digis->size();
     
-    std::cout << "Sector " << secIt->first << std::endl; 
+    std::cout << "Sector " << secIt->first << " with " <<ndigi<< " digits"<<std::endl; 
 
+    if(ndigi<=3){
+      ++secIt;
+      continue;
+    }
   // sectorize in z
   unsigned int nSlices = ndigi/maxClusterSlice + 1;
   unsigned int clusterSlice = ndigi/nSlices + 1;
