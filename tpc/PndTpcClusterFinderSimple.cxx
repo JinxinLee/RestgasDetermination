@@ -165,24 +165,52 @@ PndTpcClusterFinderSimple::PndTpcClusterFinderSimple(PndTpcPadPlane* p,
   : fpadplane(p), foutput_buffer(ob), fdt(timeslice), noXclust(false),
     splitDigis(0), fG(G), fC(C), maxClusterSlice(3000)
 {
-
+// construct sector map
+  std::vector<unsigned int> ids=fpadplane->GetSectorIds();
+  unsigned int nsec=ids.size();
+  for(unsigned int is=0;is<nsec;++is){
+    unsigned int Sectorid=ids[is];
+    fsectormap[Sectorid]=new std::vector<PndTpcDigi*>();
+  }
+  std::cout<<"PndTpcClusterFinderSimple: "
+	   <<fsectormap.size()<<" Sectors instantiated."<<std::endl;
+  
 }
 
 
 PndTpcClusterFinderSimple::~PndTpcClusterFinderSimple(){
-
+  std::map<unsigned int,std::vector<PndTpcDigi*>*>::iterator secIt=fsectormap.begin();
+  while(secIt!=fsectormap.end()){
+    delete secIt->second;
+    ++secIt;
+  }
+  fsectormap.clear();
 }
 
 
 void 
-PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
+PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& alldigis)
 {
-  unsigned int ndigi = digis.size();
-  if(ndigi<=3) return;
+  unsigned int nalldigi = alldigis.size();
+  if(nalldigi<=3) return;
   
-  std::sort(digis.begin(),digis.end(),PndTpcDigiAge());
+  std::sort(alldigis.begin(),alldigis.end(),PndTpcDigiAge());
 
   //std::cerr<<"ndigis: "<<ndigi<<std::endl;
+
+  // sectorize on pad plane 
+  for(int idi=0;idi<nalldigi;++idi){//loop over
+    unsigned int sectorId=fpadplane->GetPad(alldigis[idi]->padId())->sectorId();
+    fsectormap[sectorId]->push_back(alldigis[idi]);
+  }
+  
+  // now process each sectorprocessor independently
+  std::map<unsigned int,std::vector<PndTpcDigi*>* >::iterator secIt=fsectormap.begin();
+  while(secIt!=fsectormap.end()){ // loop over sectors
+    std::vector<PndTpcDigi*>* digis=secIt->second;
+    unsigned int ndigi=digis->size();
+    
+    std::cout << "Sector " << secIt->first << std::endl; 
 
   // sectorize in z
   unsigned int nSlices = ndigi/maxClusterSlice + 1;
@@ -197,17 +225,17 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
     lastDigi = (iSlice+1)*clusterSlice - 1;
     if (lastDigi > ndigi-2) lastDigi = ndigi-1;
 
-    startTime = digis[firstDigi]->t();
-    stopTime = digis[lastDigi]->t();
+    startTime = (*digis)[firstDigi]->t();
+    stopTime = (*digis)[lastDigi]->t();
 
     //std::cerr<<" active volume from "<<firstDigi<<" to "<<lastDigi<<std::endl;
     
     while(firstDigi>0){
-      time = digis[--firstDigi]->t();
+      time = (*digis)[--firstDigi]->t();
       if (TMath::Abs(startTime-time) > 2*fdt) break;
     }
     while(lastDigi<ndigi-1){
-      time = digis[++lastDigi]->t();
+      time = (*digis)[++lastDigi]->t();
       if (TMath::Abs(time-stopTime) > 2*fdt) break;
     }
 
@@ -218,9 +246,10 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
     digisInSlice.reserve(ndigisInSlice);
 
     for (unsigned int i=firstDigi; i<lastDigi; ++i){
-      digisInSlice.push_back(digis[i]);
+      digisInSlice.push_back((*digis)[i]);
     }
-
+    
+    
     std::stable_sort(digisInSlice.begin(),digisInSlice.end(),PndTpcDigiAmplitude());
 
     std::vector<PndTpcPrelimCluster*> prelimClusters;
@@ -267,7 +296,10 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
       delete prelimClusters[i];
     }
 
-  }
+  } // end loop over time-slices
+  secIt->second->clear(); // clean up
+   ++secIt;
+  } // end loop over sectors
 
 }
 
@@ -276,6 +308,7 @@ void
 PndTpcClusterFinderSimple::reset()
 { 
   splitDigis = 0;
+  
 }
 
 

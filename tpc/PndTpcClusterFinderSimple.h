@@ -30,7 +30,6 @@ class PndTpcPrelimCluster{
   std::map<const PndTpcDigi*, double> fdigiShares;
   std::set<unsigned int> fpossiblePads;
 
-
   PndTpcPadPlane* fpadplane;
   double ftimeslice;
   McIdCollection fmcidCol;
@@ -70,6 +69,7 @@ public:
   unsigned int NsplitDigis(){return splitDigis;}
   
 private:
+  std::map<unsigned int, std::vector<PndTpcDigi*>* > fsectormap;
   PndTpcPadPlane* fpadplane;
   std::vector<PndTpcCluster*>* foutput_buffer;
   bool noXclust;
