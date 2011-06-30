@@ -560,10 +560,10 @@ if(istampa>=1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<endl;}
 	nMvdStripHit=nmaxMvdStripHits;
  }
 
- if (nMvdPixelHit+nMvdStripHit ==0){
-	cout<<"da PndSttMvdTracking  :  N. of MvdPixelHit=nMvdStripHit=0, return!\n"<<endl;
-	return;
- }
+//  if (nMvdPixelHit+nMvdStripHit ==0){
+// 	cout<<"da PndSttMvdTracking  :  N. of MvdPixelHit=nMvdStripHit=0, return!\n"<<endl;
+// 	return;
+//  }
 
 // ---------------------------------------------  get MC Points of  MVD
 
