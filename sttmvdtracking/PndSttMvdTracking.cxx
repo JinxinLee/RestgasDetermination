@@ -394,6 +394,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 	   dista1_1,
 	   delta,
 	   emme,
+	   gap,
 	   highqualitycut,
 	   Pxini,
 	   px,
@@ -404,6 +405,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 	   x,
 	   y,
 	   s[2],
+	   Start[3],
 	   versor[2],
 	   z[2],
 	   zeta0,
@@ -414,6 +416,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 	   ultimoangolo[MAXTRACKSPEREVENT],
 	   AloneX[nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack],
 	   AloneY[nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack];
+
 
 
   Double_t ALFA[MAXTRACKSPEREVENT],
@@ -538,7 +541,7 @@ if(istampa>=1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<endl;}
 
  if (istampa >= 1  && IVOLTE<20) {
      cout<<"da PndSttMvdTracking  : evento (partendo da 0)  N. "<<
-       IVOLTE<< "\n       N. totale Hits in STT  : "<<nSttHit<<endl;
+       IVOLTE<< "\n\tN. totale Hits in STT  : "<<nSttHit<<endl;
  }
 // ---------------------------------------------  estraggo le info da MVD
 
@@ -991,9 +994,6 @@ if(istampa>=2  && IVOLTE<20){
   }    //   end of    for(j=0; j<nSttHitsinTrack[i]; j++)
 
 
-
-
-
 // --- estraggo le altre info della TrackCand
 
 	TVector3 dirSeed=pSttTrackCand->getDirSeed();
@@ -1058,12 +1058,145 @@ if(istampa>=2  && IVOLTE<20){
 
 //---------------  end fetching of the Stt PndTrackCand from PR of the STT
 
+//----------- treat here the special pathological case when there are no Mvd hits at all.
+//----------- Copy simply the quantities from the STT alone PndTrackCand.
+	if(nMvdPixelHit+nMvdStripHit<=0){
+		for( ncand= 0; ncand< nSttTrackCand; ncand++){
+			int nbuoni, nparbuoni, nskewbuoni;
+			for(j=0, nbuoni=0,nparbuoni=0, nskewbuoni=0;j<nSttHitsinTrack[ncand]; j++){
 
-//---------------  Plotting the distance between the Mvd Strip and Pixel points and the trajectory
-//                 found by pattern recognition
+			  if(ListSttHitsinTrackType[ncand][j]==3){ // skew stt.
+
+				k=ListSttHitsinTrack[ncand][j];
+				CalculateSandZ(
+					Ox[ncand],
+					Oy[ncand],
+					R[ncand],
+					k,
+					info,
+					WDX,
+					WDY,
+					WDZ,
+					s,
+					z,
+					zdrift,
+					zerror
+					);
+				if( z[0]<999998. && z[1]<999998.){
+
+					  dista0 = Dist_SZ(R[ncand],KAPPA[ncand],FI0[ncand],
+							z[0]+zdrift[0],s[0],&nrounds0);
+					  ddd = Dist_SZ(R[ncand],KAPPA[ncand],FI0[ncand],
+							z[0]-zdrift[0],s[0],&nrounds0);
+					  if( fabs(dista0)> fabs(ddd) ){
+					   dista0=ddd;
+					   zeta0 = z[0]-zdrift[0];
+					  } else {
+					   zeta0 = z[0]+zdrift[0];
+					  }
+
+					  dista1 = Dist_SZ(R[ncand],KAPPA[ncand],FI0[ncand],
+							z[1]+zdrift[1],s[1],&nrounds1);
+					  ddd = Dist_SZ(R[ncand],KAPPA[ncand],FI0[ncand],
+							z[1]-zdrift[1],s[1],&nrounds1);
+					  if( fabs(dista1)> fabs(ddd) ){
+					   dista1=ddd;
+					   zeta1 = z[1]-zdrift[1];
+					  } else {
+					   zeta1 = z[1]+zdrift[1];
+					  }
+					  if( fabs(dista1)<fabs(dista0)){
+						SchosenSkew[ncand][k]=s[1];
+						ZchosenSkew[ncand][k]=zeta1;
+					  }else{
+						SchosenSkew[ncand][k]=s[0];
+						ZchosenSkew[ncand][k]=zeta0;
+					  }
+					  ListTrackCandHit[ncand][nbuoni]=
+					  ListSttSkewHitsinTrack[ncand][nskewbuoni]=
+						ListSttHitsinTrack[ncand][j];
+					  ListTrackCandHitType[ncand][nbuoni]=
+						ListSttHitsinTrackType[ncand][j];
+					  
+					  nskewbuoni++;
+					  nbuoni++;
+
+				}else if( z[0]<999998.){
+
+					  dista = Dist_SZ(R[ncand],KAPPA[ncand],FI0[ncand],
+							z[0]+zdrift[0],s[0],&nrounds0);
+					  ddd = Dist_SZ(R[ncand],KAPPA[ncand],FI0[ncand],
+							z[0]-zdrift[0],s[0],&nrounds0);
+					  SchosenSkew[ncand][k]=s[0];
+					  if( fabs(dista)> fabs(ddd) ){
+					   ZchosenSkew[ncand][k]=z[0]-zdrift[0];
+					  } else {
+					   ZchosenSkew[ncand][k]=z[0]+zdrift[0];
+					  }
+					  ListTrackCandHit[ncand][nbuoni]=
+					  ListSttSkewHitsinTrack[ncand][nskewbuoni]=
+						ListSttHitsinTrack[ncand][j];
+					  ListTrackCandHitType[ncand][nbuoni]=
+						ListSttHitsinTrackType[ncand][j];
+					  nskewbuoni++;
+					  nbuoni++;
+				} else if( z[1]<999998.){
+
+					  dista = Dist_SZ(R[ncand],KAPPA[ncand],FI0[ncand]
+							,z[1]+zdrift[1],s[1],&nrounds0);
+					  ddd = Dist_SZ(R[ncand],KAPPA[ncand],FI0[ncand],
+							z[1]-zdrift[1],s[1],&nrounds1);
+					  SchosenSkew[ncand][k]=s[1];
+
+					  if( fabs(dista)> fabs(ddd) ){
+					   ZchosenSkew[ncand][k]=z[1]-zdrift[1];
+					  } else {
+					   ZchosenSkew[ncand][k]=z[1]+zdrift[1];
+					  }
+					  ListTrackCandHit[ncand][nbuoni]=
+					  ListSttSkewHitsinTrack[ncand][nskewbuoni]=
+						ListSttHitsinTrack[ncand][j];
+					  ListTrackCandHitType[ncand][nbuoni]=
+						ListSttHitsinTrackType[ncand][j];
+					  nskewbuoni++;
+					  nbuoni++;
+
+				} // end of  if( z[0]<999998. && z[1]<999998.)
+
+			  } else { // continuation of  if(ListSttHitsinTrackType[ncand][j]==3)
+				// so, here it must be a parallel hit.
+					  ListTrackCandHit[ncand][nbuoni]=
+					  ListSttParHitsinTrack[ncand][nparbuoni]=
+						ListSttHitsinTrack[ncand][j];
+					  ListTrackCandHitType[ncand][nbuoni]=
+						ListSttHitsinTrackType[ncand][j];
+					  nparbuoni++;
+					  nbuoni++;
+			  }  // end of  if(ListSttHitsinTrackType[ncand][j]==3)
+
+			} // end of  for(j=0; j<nSttHitsinTrack[i]; j++)
+			nSttHitsinTrack[ncand]=nbuoni;
+			nSttParHitsinTrack[ncand]=nparbuoni;
+			nSttSkewHitsinTrack[ncand]=nskewbuoni;
+			nTrackCandHit[ncand]=nbuoni;
+			nMvdPixelHitsinTrack[ncand]=0;
+			nMvdStripHitsinTrack[ncand]=0;
+			keepit[ncand]=true;
+		}  // end of for(  ncand= 0; ncand< nSttTrackCand; ncand++)
+		//  now skip and go directly to the upload of the MC comparison and
+		//  the new (= to the old) PndTrackCand.
+		nTotalCandidates=nSttTrackCand;
+		goto skipping ;
+	} // end of  if(nMvdPixelHit+nMvdStripHit)
+
+//------------------ end treatment special pathological case when there are no Mvd hits at all.
+
+
 
 //----------------------inizio plottamenti
 if(iplotta){
+//  Plotting the distance between the Mvd Strip and Pixel points and the trajectory
+//  found by pattern recognition
  for(  i= 0; i< nSttTrackCand; i++){
 	for( j= 0; j< nMvdPixelHit; j++){
 		dis = sqrt( pow(XMvdPixel[j]-Ox[i],2)+pow(YMvdPixel[j]-Oy[i],2)) - R[i];
@@ -1941,8 +2074,10 @@ if(istampa>2&& IVOLTE<20){
 //------------- cleanup section.
 
 
-	Double_t Start[3]={0., 0., 0.};
-	Double_t gap = (Double_t) (VERTICALGAP);
+	Start[0]=0.;
+	Start[1]=0.;
+	Start[2]=0.;
+	gap = (Double_t) (VERTICALGAP);
 
 
     for(ncand=0, nRemainingCandidates=0; ncand< nTotalCandidates; ncand++){
@@ -2514,7 +2649,7 @@ dontdoit:  ;	//  this is the label where the computer jumps if there are already
 // -------------------------------------------------------------------------------------
 
 
-
+skipping: ;
 
 //----------stampaggi
 if(istampa>=2){
@@ -3198,6 +3333,8 @@ if( istampa>=1){
 
 //-------  load the new PndTrackCand ; each track has the STT and the Mvd hits associated
 //-------  also load the new PndTrack ; each track has the STT and the Mvd hits associated
+
+
 	Double_t Oxx, Oyy;
 //	Int_t iflaggo;
 	for(ncand=0, ipinco = 0; ncand< nTotalCandidates; ncand++){
@@ -3241,16 +3378,20 @@ if( istampa>=1){
 		for(j=0; j< nTrackCandHit[ncand]; j++){
 		     switch (ListTrackCandHitType[ncand][j]){
 			case 0:
-			   pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId(fMvdPixelBranch),(Int_t)ListTrackCandHit[ncand][j],j);
+pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId(fMvdPixelBranch),
+		(Int_t)ListTrackCandHit[ncand][j],j);
 			break;
 			case 1:
-			   pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId(fMvdStripBranch),(Int_t)ListTrackCandHit[ncand][j],j);
+pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId(fMvdStripBranch),
+		(Int_t)ListTrackCandHit[ncand][j],j);
 			break;
 			case 2:
-			   pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId(fSttBranch),(Int_t)ListTrackCandHit[ncand][j],j);
+pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId(fSttBranch),
+		(Int_t)ListTrackCandHit[ncand][j],j);
 			break;
 			case 3:
-			   pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId(fSttBranch),(Int_t)ListTrackCandHit[ncand][j],j);
+pTrckCand->AddHit(FairRootManager::Instance()->GetBranchId(fSttBranch),
+		(Int_t)ListTrackCandHit[ncand][j],j);
 			break;
 		     }
 		}
@@ -11724,7 +11865,7 @@ int nevento=1;
 	// parallel cleanup.
 
 //----------------stampe
-if(istampa>=0&&IVOLTE==0){
+if(istampa>=2&&IVOLTE==0){
 cout<<" IVOLTE = "<<IVOLTE<<", prima di paral cleanup, nHitsPar "<<nHitsPar<<
 ", KAPPA = "<<KAPPA <<", charge "<<Charge<<", FI0 "<<FI0
 <<"\n\tFiLimitAdmissible "<<
