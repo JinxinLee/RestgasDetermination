@@ -52,6 +52,7 @@ StdDiscriminantFcn.cxx
 PndTpcRiemannHit.cxx
 PndTpcRiemannTrack.cxx
 PndTpcRiemannTrackFinder.cxx
+PndTpcEvtDeconvTask.cxx
 #PndTpcRiemannHough.cxx
 PndTpcProximityHTCorrelator.cxx
 PndTpcHelixHTCorrelator.cxx
