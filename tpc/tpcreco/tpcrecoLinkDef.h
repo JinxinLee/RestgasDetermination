@@ -32,6 +32,7 @@
 #pragma link C++ class PndTpcdEdx++;
 #pragma link C++ class PndTpcGenfitTestTask++;
 #pragma link C++ class PndTpcTestPlanarHit++;
+#pragma link C++ class PndTpcEvtDeconvTask++;
 
 #endif
 
