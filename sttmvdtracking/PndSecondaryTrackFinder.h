@@ -66,10 +66,13 @@ class PndSecondaryTrackFinder : public FairTask {
   std::vector<int> OrderCluster2(std::vector<int> cluster, Int_t detId, double xc, double yc, double radius) ;
   std::vector< TMatrixT<double> > OrderCluster2BIS(std::vector< TMatrixT<double> > cluster, double xc, double yc, double radius);
   std::vector<int> OrderClusterInPhi(std::vector<int> cluster, std::vector<TVector3> positions, std::map<int, int> hitidtointersection, double xc, double yc, double radius);
-  std::vector<int> OrderClusterInZ(std::vector<int> cluster, std::vector<TVector3> positions, std::map<int, int> hitidtointersection, double xc, double yc, double radius);
+  std::vector< TMatrixT<double> > OrderClusterInPhiBIS(std::vector< TMatrixT<double> > cluster, std::vector<TVector3> positions,   std::map<std::pair<int, int> , int> hitidtointersection, double xc, double yc, double radius);
+
+std::vector<int> OrderClusterInZ(std::vector<int> cluster, std::vector<TVector3> positions, std::map<int, int> hitidtointersection, double xc, double yc, double radius);
 
   void DeleteHit(Int_t ihit, std::vector<int> *hits);
   void DeleteHits(TString detectors, std::vector<int> *hits);
+  void DeleteHitBIS(TMatrixT<double> hit, std::vector< TMatrixT<double> > *hits);
 
   void SwitchOnDisplay() { fDisplayOn = kTRUE; }
   void GetInitialParams(PndTrack * track, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &fitm, Double_t &fitp);
@@ -141,8 +144,11 @@ class PndSecondaryTrackFinder : public FairTask {
   Bool_t RefitConformalBIS(std::vector< TMatrixT<double> > cluster, Double_t xc, Double_t yc, Double_t radius, Double_t &outxc, Double_t &outyc, Double_t &outradius);
   Bool_t RefitConformalBIS(std::vector< TMatrixT<double> > * cluster, Double_t xc, Double_t yc, Double_t radius, Double_t &outxc, Double_t &outyc, Double_t &outradius);
   Int_t FindChargeBIS(Double_t oX, Double_t oY, std::vector< TMatrixT<double> > cluster);
-
-
+  // zbis
+  std::vector<int> ZFinderBIS(std::vector<int> hits, Double_t xc, Double_t yc, Double_t radius, std::vector< TVector3 > &intersections);
+  Bool_t ZFit3BIS(std::vector< TMatrixT<double> > *cluster, Int_t charge, Double_t xc, Double_t yc, Double_t radius, Double_t &fitm, Double_t &fitp);
+  std::vector<TVector3> FindRealIntersectionsBIS(std::vector< TMatrixT<double> > *cluster, std::vector<TVector3> intersectionpoints, std::vector<TVector3>  intersectionpoints1, std::vector<TVector3> intersectionpoints2,  std::map<std::pair<int, int> , int> hitidtointersections, Int_t charge, Double_t xc, Double_t yc, Double_t radius, Double_t &fitm, Double_t &fitp, std::map<std::pair<int, int>, int> &hitidtolistmap);
+  Int_t FindInMap(std::map< std::pair<int, int>, int> m, std::pair<int, int> p);
  private:
 
   /** Input array of PndSttTube (map of STT tubes) **/
