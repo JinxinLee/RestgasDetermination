@@ -12,8 +12,8 @@
   TString PANDAMC=gSystem->Getenv("PANDAMC");
 
   // Input file (RAW events)
-  TString inFile="TEST/evtmix1000_32s/DPM.NEWGEO.32s.mixed.root";
-  TString jobname="reco3";
+  TString inFile="TEST/evtmix500_32s/physics.32s.mixed.root";
+  TString jobname="reco1";
 
   TString mcFile="TEST/DPM.NEWGEO.mc.root";
   
@@ -85,7 +85,7 @@
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   //mcFile.ReplaceAll("$PANDAMC","/afs/e18/data/panda/MC");
-  fRun->AddFriend(mcFile);
+  //fRun->AddFriend(mcFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
 
@@ -112,15 +112,15 @@
   //fRun->LoadGeometry();
   // ------------------------------------------------------------------------
   
-FairGeane *Geane = new FairGeane();
-  fRun->AddTask(Geane);
-  std::cout<<"\nGEANE initialised"<<std::endl;
+  // FairGeane *Geane = new FairGeane();
+  // fRun->AddTask(Geane);
+  // std::cout<<"\nGEANE initialised"<<std::endl;
 
   // -----    Reco Sequence  --------------------------------------------
    
  PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
   tpcSPR->SetPersistence();
-  //tpcSPR->SetRiemannPersistence();
+  tpcSPR->SetRiemannPersistence();
   tpcSPR->SetSortingParameters(
         true, // false: sort only according to _sorting (see next argument); true: use internal sorting when adding hits to trackcands
 	3,   // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
@@ -142,9 +142,14 @@ FairGeane *Geane = new FairGeane();
   //tpcSPR->WriteHistograms(PROutFile);
   fRun->AddTask(tpcSPR);
 
+  PndTpcEvtDeconvTask* evtDeconv=new PndTpcEvtDeconvTask();
+  evtDeconv->SetPersistence();
+  evtDeconv->SetCuts(50,2);
+  fRun->AddTask(evtDeconv);
+
   fRun->Init();
   
-  fRun->Run(0,0);
+  fRun->Run(0,1);
   // -----   Finish   -------------------------------------------------------
 
   // tpcRMC->WriteHistograms();
