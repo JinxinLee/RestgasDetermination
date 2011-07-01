@@ -870,65 +870,107 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 
   }
 
+  // %%%%%%%%%%%%%%%%% PUT THESE INSTEAD OF THE FOLLOWING ONES
+ 
   // +++++++++ NOW ++++++++++
-  // list of parallel cluster clusterlist
-  // list of skewed cluster skewedclusterlist
-  // list of track parameters xyparameters 1:1 with clusterlist
-  // map slewed cluster to parameters: skewedclustopar
-
-  // std::vector< std::vector< std::pair<int, int> > >  clusterlist
-  // std::vector< std::vector< TMatrixT<double> > >     positionlist
-  // std::vector< TMatrixT<double> >                    parameters
   std::vector< std::vector< std::pair<int, int> > > completeclusterlist;
   for(int itrk = 0; itrk < xyparameters.size(); itrk++) {
     TMatrixT<double> xypar = xyparameters[itrk];
-    std::vector< std::pair<int, int> > completecluster;
+    std::vector< TMatrixT<double> > completecluster;
     double xc = xypar[0][0];
     double yc = xypar[0][1];
     double radius = xypar[0][2];
     double charge = xypar[0][3];
 
-    std::vector<int> parallel = clusterlist[itrk];
-
-    // ++++++++++++++++++ skewid ++++++++++++++++++ 
-    std::map<int, int>::iterator it;
-    int skewid = -1;
-    for(it = skewedclustopar.begin(); it != skewedclustopar.end(); it++) {
-      int trackid = (*it).second;
-      if(trackid != itrk) continue;
-      skewid = (*it).first;
-      break;
-    }	
-    if(skewid != -1) {
-      std::vector<int> skewed = skewedclusterlist[skewid];
-      for(int ihit = 0; ihit < skewed.size(); ihit++) {
-	int hitid = skewed[ihit];
-	std::pair<int, int> thispair(hitid, FairRootManager::Instance()->GetBranchId(fSttBranch));
-	completecluster.push_back(thispair);
-      }
-    }	
-    // ++++++++++++++++++++++++++++++++++++++++++++ 
-
-    for(int ihit = 0; ihit < parallel.size(); ihit++) {
-      int hitid = parallel[ihit];
-      std::pair<int, int> thispair(hitid, FairRootManager::Instance()->GetBranchId(fSttBranch));
-      completecluster.push_back(thispair);
-    }
-   
-    completeclusterlist.push_back(completecluster);
+    std::vector< TMatrixT<double> > track = tracklist[itrk];
+    std::vector< TMatrixT<double> > newtrack = OrderClusterInPhiBIS(track, xc, yc, radius);
+    std::replace(tracklist.begin(), tracklist.end(), track, newtrack);
   }
+
+
+
+ for(int itrk = 0; itrk < xyparameters.size(); itrk++) {
+    TMatrixT<double> xypar = xyparameters[itrk];
+    std::vector< TMatrixT<double> > completecluster;
+    double xc = xypar[0][0];
+    double yc = xypar[0][1];
+    double radius = xypar[0][2];
+    double charge = xypar[0][3];
+    std::vector< TMatrixT<double> > track = tracklist[itrk];
+ 
+    cout << " =============== FINAL PARAMETERS " << itrk << endl;
+    xypar.Print();
+    for(int ihit = 0; ihit < track.size(); ihit++) {
+      TMatrixT<double> singlehit = track[ihit];
+      cout << singlehit[0][1] << " " << singlehit[0][2] << endl;
+    }
+  }
+
+
+  // %%%%%%%%%%%%%%%%% CHECK delete this!!!!!!!!1
+  /**
+   // +++++++++ NOW ++++++++++
+   // list of parallel cluster clusterlist
+   // list of skewed cluster skewedclusterlist
+   // list of track parameters xyparameters 1:1 with clusterlist
+   // map slewed cluster to parameters: skewedclustopar
+
+   // std::vector< std::vector< std::pair<int, int> > >  clusterlist
+   // std::vector< std::vector< TMatrixT<double> > >     positionlist
+   // std::vector< TMatrixT<double> >                    parameters
+   std::vector< std::vector< std::pair<int, int> > > completeclusterlist;
+   for(int itrk = 0; itrk < xyparameters.size(); itrk++) {
+   TMatrixT<double> xypar = xyparameters[itrk];
+   std::vector< std::pair<int, int> > completecluster;
+   double xc = xypar[0][0];
+   double yc = xypar[0][1];
+   double radius = xypar[0][2];
+   double charge = xypar[0][3];
+
+   std::vector<int> parallel = clusterlist[itrk];
+
+   // ++++++++++++++++++ skewid ++++++++++++++++++ 
+   std::map<int, int>::iterator it;
+   int skewid = -1;
+   for(it = skewedclustopar.begin(); it != skewedclustopar.end(); it++) {
+   int trackid = (*it).second;
+   if(trackid != itrk) continue;
+   skewid = (*it).first;
+   break;
+   }	
+   if(skewid != -1) {
+   std::vector<int> skewed = skewedclusterlist[skewid];
+   for(int ihit = 0; ihit < skewed.size(); ihit++) {
+   int hitid = skewed[ihit];
+   std::pair<int, int> thispair(hitid, FairRootManager::Instance()->GetBranchId(fSttBranch));
+   completecluster.push_back(thispair);
+   }
+   }	
+   // ++++++++++++++++++++++++++++++++++++++++++++ 
+
+   for(int ihit = 0; ihit < parallel.size(); ihit++) {
+   int hitid = parallel[ihit];
+   std::pair<int, int> thispair(hitid, FairRootManager::Instance()->GetBranchId(fSttBranch));
+   completecluster.push_back(thispair);
+   }
+   
+   completeclusterlist.push_back(completecluster);
+   }
 
   
-  for(int itrk = 0; itrk < xyparameters.size(); itrk++) {
-    cout << " =============== FINAL PARAMETERS " << itrk << endl;
-    TMatrixT<double> par = xyparameters[itrk];
-    par.Print();
-    std::vector< std::pair<int, int> > completecluster = completeclusterlist[itrk];
-    for(int ihit = 0; ihit < completecluster.size(); ihit++) {
-      std::pair<int, int> thispair = completecluster[ihit];
-      cout << thispair.first << " " << thispair.second << endl;
-    }
-  }
+   for(int itrk = 0; itrk < xyparameters.size(); itrk++) {
+   cout << " =============== FINAL PARAMETERS " << itrk << endl;
+   TMatrixT<double> par = xyparameters[itrk];
+   par.Print();
+   std::vector< std::pair<int, int> > completecluster = completeclusterlist[itrk];
+   for(int ihit = 0; ihit < completecluster.size(); ihit++) {
+   std::pair<int, int> thispair = completecluster[ihit];
+   cout << thispair.first << " " << thispair.second << endl;
+   }
+   }
+  **/
+  // %%%%%%%%%%%%%%%%%
+
 
 //   if(fDisplayOn) {
 //     fDisName += ".pdf";
@@ -3781,7 +3823,7 @@ std::vector<int> PndSecondaryTrackFinder::OrderClusterInPhi(std::vector<int> clu
 
 
 
-std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderClusterInPhiBIS(std::vector< TMatrixT<double> > cluster, std::vector<TVector3> positions,   std::map<std::pair<int, int> , int> hitidtointersection, double xc, double yc, double radius) {
+std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderClusterInPhiBIS(std::vector< TMatrixT<double> > cluster, double xc, double yc, double radius) {
 
   std::vector< TMatrixT<double> > sorthits;
   std::vector<double> phiangles;
@@ -3803,12 +3845,8 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderClusterInPhiBIS(st
     if(singlehit[0][0] == -1) continue;
    Int_t hitid = singlehit[0][1];
    Int_t detid = singlehit[0][2];
-    
-   std::pair<int, int> pointpair(hitid, detid);
-   Int_t pointid = FindInMap(hitidtointersection, pointpair); 
-   //     cout << "size " << positions.size() << " " << pointid << endl;
- 
-   TVector3 position = positions[pointid];
+   
+   TVector3 position(singlehit[0][4], singlehit[0][5], singlehit[0][6]);
    
    double alpha = TMath::ATan2(position.Y() - y0 + radius * TMath::Sin(Phi0), position.X() - x0 + radius * TMath::Cos(Phi0));
    TVector2 p(position.X() - xc, position.Y() - yc);
@@ -5233,12 +5271,14 @@ Bool_t PndSecondaryTrackFinder::ZFit3BIS(std::vector< TMatrixT<double> > *cluste
     intersectionpoints1.push_back(int1); // CHECK THIS ONE
     intersectionpoints2.push_back(int2); // CHECK THIS ONE
     zerrors.push_back(errz); // CHECK THIS ONE
+ //    cout << "intersections" << endl;
+//     intersection.Print();
     zcounter++; 
   }
   if(zcounter == 0) return kFALSE;  // CHECK put this outside
 
   cout << "ZCOUNTER " << zcounter << endl;
-  std::vector< TMatrixT<double> > sortedhits = OrderClusterInPhiBIS(*cluster, intersectionpoints, hitidtointersections, xc, yc, radius);
+  std::vector< TMatrixT<double> > sortedhits = OrderClusterInPhiBIS(*cluster, xc, yc, radius);
 
   TH1F *hz = new TH1F("hz", "", 17, -50, 120);
   nhits = sortedhits.size();

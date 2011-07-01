@@ -66,7 +66,7 @@ class PndSecondaryTrackFinder : public FairTask {
   std::vector<int> OrderCluster2(std::vector<int> cluster, Int_t detId, double xc, double yc, double radius) ;
   std::vector< TMatrixT<double> > OrderCluster2BIS(std::vector< TMatrixT<double> > cluster, double xc, double yc, double radius);
   std::vector<int> OrderClusterInPhi(std::vector<int> cluster, std::vector<TVector3> positions, std::map<int, int> hitidtointersection, double xc, double yc, double radius);
-  std::vector< TMatrixT<double> > OrderClusterInPhiBIS(std::vector< TMatrixT<double> > cluster, std::vector<TVector3> positions,   std::map<std::pair<int, int> , int> hitidtointersection, double xc, double yc, double radius);
+  std::vector< TMatrixT<double> > OrderClusterInPhiBIS(std::vector< TMatrixT<double> > cluster, double xc, double yc, double radius);
 
 std::vector<int> OrderClusterInZ(std::vector<int> cluster, std::vector<TVector3> positions, std::map<int, int> hitidtointersection, double xc, double yc, double radius);
 
