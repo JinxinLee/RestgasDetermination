@@ -785,7 +785,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     Double_t xc = par[0][0];
     Double_t yc = par[0][1];
     Double_t radius = par[0][2];
-    Int_t charge = TMath::Sign(1., par[0][3]);
+    Int_t charge = (Int_t) TMath::Sign(1., par[0][3]);
     
 //    // CHECK testing
 //     std::vector< TMatrixT<double> > szpar;
@@ -2247,8 +2247,8 @@ Bool_t PndSecondaryTrackFinder::ConformalPlaneStt4BIS(std::vector< TMatrixT<doub
     {
       TMatrixT<double> singlehit = cluster[ihit];
       if(singlehit[0][0] == -1) continue;
-      Int_t hitid = singlehit[0][1];
-      Int_t detid = singlehit[0][2];
+      Int_t hitid =  (Int_t) singlehit[0][1];
+      Int_t detid =  (Int_t) singlehit[0][2];
       if(detid != FairRootManager::Instance()->GetBranchId(fSttBranch)) continue; // CHECK THIS ONE!
       PndSttHit *hit = (PndSttHit*) array->At(hitid);
       if(!hit) continue;
