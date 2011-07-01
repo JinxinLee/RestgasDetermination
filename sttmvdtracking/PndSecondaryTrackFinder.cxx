@@ -659,11 +659,11 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     std::vector< TMatrixT<double> > track = tracklist[itrk];
      
 
-//     // ++++++++++++++
-//     cout << "######## WHEN COMPUTING CHARGE ######## " << itrk << endl;
-//     for(int ihit = 0; ihit < track.size(); ihit++)
-// 	{
-// 	  TMatrixT<double> singlehit = track[ihit];
+ //    // ++++++++++++++
+//      cout << "######## WHEN COMPUTING CHARGE ######## " << itrk << endl;
+//      for(int ihit = 0; ihit < track.size(); ihit++)
+//  	{
+//  	  TMatrixT<double> singlehit = track[ihit];
 // 	  if(singlehit[0][0] == -1) continue;
 // 	  Int_t hitid = singlehit[0][1];
 // 	  Int_t detid = singlehit[0][2];
@@ -776,8 +776,9 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
        DrawScosZGeometry();
     }
    
-    std::vector< TMatrixT<double> > track = tracklist[iclus];
-     Int_t itrk = skewedclustopar[iclus];
+    std::vector< TMatrixT<double> > track = tracklist[iclus]; // RESTYLE add
+    std::vector< TMatrixT<double> > newtrack = tracklist[iclus]; // RESTYLE add
+    Int_t itrk = skewedclustopar[iclus];
     TMatrixT<double> par = xyparameters[itrk];
     Double_t xc = par[0][0];
     Double_t yc = par[0][1];
@@ -810,16 +811,59 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 //    }
 
     Double_t fitm, fitp;
-    Bool_t zfit = ZFit3BIS(&track, charge, xc, yc, radius, fitm, fitp);
-    if(zfit == kFALSE) continue;
 
-    if(fDisplayOn) { 
-      TLine *line = new TLine(-45, -45 * fitm + fitp, 120, 120 * fitm + fitp);
-      line->SetLineColor(fColors[iclus]);
-      line->Draw("SAME");
-      display->Update();
-      display->Modified();  
-    }
+//    // ++++++++++++++
+//      cout << "######## BEFORE ZFIT3 ######## " << itrk << endl;
+//      for(int ihit = 0; ihit < track.size(); ihit++)
+//  	{
+//  	  TMatrixT<double> singlehit = track[ihit];
+// 	  if(singlehit[0][0] == -1) continue;
+// 	  Int_t hitid = singlehit[0][1];
+// 	  Int_t detid = singlehit[0][2];
+// 	  cout << "HITID/DETID " << hitid << " " << detid << " " << singlehit[0][3] << endl;
+// 	  double x = singlehit[0][4];
+// 	  double y = singlehit[0][5];
+// 	  double z = singlehit[0][6];
+// 	  double dx = singlehit[0][7];
+// 	  double dy = singlehit[0][8];
+// 	  double dz = singlehit[0][9];
+// 	  cout << "xyz    " << x << " " << y << " " << z << endl;
+// 	  cout << "dxdydz " << dx << " " << dy << " " << dz << endl;
+// 	}
+//      // ++++++++++++++
+
+     Bool_t zfit = ZFit3BIS(&newtrack, charge, xc, yc, radius, fitm, fitp);
+     if(zfit == kFALSE) continue;
+     std::replace(tracklist.begin(), tracklist.end(), track, newtrack);
+    
+     if(fDisplayOn) { 
+       TLine *line = new TLine(-45, -45 * fitm + fitp, 120, 120 * fitm + fitp);
+       line->SetLineColor(fColors[iclus]);
+       line->Draw("SAME");
+       display->Update();
+       display->Modified();  
+     }
+
+    
+ //     // ++++++++++++++
+//      cout << "######## AFTER ZFIT3 ######## " << itrk << endl;
+//      for(int ihit = 0; ihit < newtrack.size(); ihit++)
+//  	{
+//  	  TMatrixT<double> singlehit = newtrack[ihit];
+// 	  if(singlehit[0][0] == -1) continue;
+// 	  Int_t hitid = singlehit[0][1];
+// 	  Int_t detid = singlehit[0][2];
+// 	  cout << "HITID/DETID " << hitid << " " << detid << " " << singlehit[0][3] << endl;
+// 	  double x = singlehit[0][4];
+// 	  double y = singlehit[0][5];
+// 	  double z = singlehit[0][6];
+// 	  double dx = singlehit[0][7];
+// 	  double dy = singlehit[0][8];
+// 	  double dz = singlehit[0][9];
+// 	  cout << "xyz    " << x << " " << y << " " << z << endl;
+// 	  cout << "dxdydz " << dx << " " << dy << " " << dz << endl;
+// 	}
+//       // ++++++++++++++
 
     xyparameters.at(itrk)[0][4] = fitm;
     xyparameters.at(itrk)[0][5] = fitp;
@@ -5037,7 +5081,7 @@ Bool_t PndSecondaryTrackFinder::ZFit3(std::vector<int> cluster, Int_t charge, Do
       mrk2->Draw("SAME");
       
 
-      hz->Draw();
+   //    hz->Draw();
 
 
       display->Update();
@@ -5239,7 +5283,7 @@ Bool_t PndSecondaryTrackFinder::ZFit3BIS(std::vector< TMatrixT<double> > *cluste
       mrk2->Draw("SAME");
       
 
-      hz->Draw();
+   //    hz->Draw();
 
 
       display->Update();
@@ -5253,26 +5297,35 @@ Bool_t PndSecondaryTrackFinder::ZFit3BIS(std::vector< TMatrixT<double> > *cluste
   std::map<std::pair<int, int>, int> hitidtolistmap;
   std::vector<TVector3> realintersections = FindRealIntersectionsBIS(&sortedhits, intersectionpoints, intersectionpoints1, intersectionpoints2, hitidtointersections, charge, xc, yc, radius, tmpfitm, tmpfitp, hitidtolistmap);
 
-
+ //  cout << "++++ REAL INTERSECTIONS ++++" << endl;
   nhits = sortedhits.size();
   Double_t Fi_pre = 0.; 
   for(int ihit = 0; ihit < nhits; ihit++) {
-  TMatrixT<double> singlehit = sortedhits[ihit];
+    TMatrixT<double> singlehit = sortedhits[ihit];
+    TMatrixT<double> newsinglehit = sortedhits[ihit];
     if(singlehit[0][0] == -1) continue;
     int hitid = singlehit[0][1];
     int detid = singlehit[0][2];
-  
+ 
     if(detid == FairRootManager::Instance()->GetBranchId(fSttBranch) && singlehit[0][3] == 0) continue; 
    
     std::pair<int, int> pointpair(hitid, detid);
-
     Int_t realid = FindInMap(hitidtolistmap, pointpair); 
     TVector3 point = realintersections[realid];
-
+//     point.Print();
     Int_t pointid = FindInMap(hitidtointersections, pointpair); 
-
-     double errz = zerrors[pointid]/2.;
-   
+    double errz = zerrors[pointid]/2.;
+    // update intersections ...
+    newsinglehit[0][4] = point.X();
+    newsinglehit[0][5] = point.Y();
+    newsinglehit[0][6] = point.Z();
+    //    newsinglehit[0][7] = 1; // CHECK
+    //    newsinglehit[0][8] = 1; // CHECK
+    newsinglehit[0][9] = errz;
+    std::replace(cluster->begin(), cluster->end(), singlehit, newsinglehit);
+ //    cout << "NEW ONE" << endl;
+//     point.Print();
+    
     Double_t alpha = TMath::ATan2(point.Y() - y0 + radius * TMath::Sin(Phi0), point.X() - x0 + radius * TMath::Cos(Phi0));
     TVector2 p(point.X() - xc, point.Y() - yc);
 
@@ -6093,7 +6146,7 @@ std::vector<TVector3>  PndSecondaryTrackFinder::FindRealIntersectionsBIS(std::ve
       std::pair<int, int> thispair(hitid, detid);
       hitidtolistmap.insert(std::pair<std::pair<int, int>, int>(thispair, ihit)); // CHECK THIS ONE
     }
-
+  
   return listofrealintersections[tmpchoice];
 
 }
