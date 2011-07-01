@@ -22,7 +22,7 @@
 #include "PndTpcRiemannTrackingTask.h"
 
 // C/C++ Headers ----------------------
-
+#include <map>
 
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
@@ -72,7 +72,7 @@
 
 #include <cmath>
 
-using std::fabs;
+using namespace std;
 
 // Class Member definitions -----------
 
@@ -246,7 +246,7 @@ PndTpcRiemannTrackingTask::Init()
   }
 
   //init gPro
-  gPro = new FairGeanePro();
+  //gPro = new FairGeanePro();
 
   return kSUCCESS;
 }
@@ -348,6 +348,40 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
   if (fVerbose) std::cerr << "Pattern Reco finished. "
                        << friemannlist.size() << " tracklets found." << std::endl;
 
+  unsigned int _nbins=100;
+    // analysing riemann tracks
+    map<double,double> goodCl;
+    for(unsigned int ib=0;ib<_nbins;++ib){
+      double frac=1./(double)_nbins * (ib+1);
+      goodCl[frac]=0;
+    }
+    //TGraph* gPE=new TGraph(nbins);
+    unsigned int ntr=friemannlist.size();
+    McIdCollection globalCol;
+    for(unsigned int itr=0;itr<ntr;++itr){
+      globalCol.AddIDCollection(friemannlist[itr]->mcid());
+      map<double,double>::iterator it=goodCl.begin();
+      while(it!=goodCl.end()){
+	if(friemannlist[itr]->mcid().MaxRelWeight()>=it->first){
+	  it->second=it->second+1;
+	}
+	++it;
+      }// end loop over bins
+    }// end loop over tracklets
+    if (fVerbose) {
+      cout << "Found " << globalCol.nIDs() << " mcids in tracklets" << endl;
+      cout << "Purity: "<< endl;
+      map<double,double>::iterator it=goodCl.begin();
+    //unsigned int count=0;
+    while(it!=goodCl.end()){
+      //_gpurity->SetPoint(counter++, it->first, it->second /(double)ntr);
+      cout << it->first << ":   " 
+	   << it->second /(double)ntr*100. << "%" << endl;
+      ++it;
+    }// end loop over bins
+  
+    } // end if verbose
+
 
   // build GFTrackCands
   std::vector<GFTrackCand*> candlist;
@@ -359,17 +393,14 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
   double pbackup = 2.;  // momentum value that is set when other initialisations fail
 
   // loop over Riemann tracks
+  std::cout<< "Looping over "<<nr<<" riemann tracks to write out" << std::endl;
+
   for(unsigned int itrk=0; itrk<nr; ++itrk){
     PndTpcRiemannTrack* trk=friemannlist[itrk];
     int nhits=trk->getNumHits();
     
-    // store PndTpcRiemannTracks in output array
-    (*_riemannTrackArray)[_riemannTrackArray->GetEntriesFast()] = trk;
-    for(unsigned int ih=0;ih<nhits;++ih){
-      PndTpcRiemannHit* hit=trk->getHit(ih);
-      new ((*_riemannHitArray)[_riemannHitArray->GetEntriesFast()]) PndTpcRiemannHit(*hit);
-    }
-
+    
+    
     if (fVerbose) std::cout<<"Tracklet "<<itrk<<"   nhits = "<<nhits;
 
     // check if enough points
@@ -391,6 +422,14 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       continue;
     }
     if (fVerbose) std::cout<<std::endl;
+
+// store PndTpcRiemannTracks in output array
+   new((*_riemannTrackArray)[_riemannTrackArray->GetEntries()]) PndTpcRiemannTrack(*trk);
+    for(unsigned int ih=0;ih<nhits;++ih){
+      PndTpcRiemannHit* hit=trk->getHit(ih);
+      new ((*_riemannHitArray)[_riemannHitArray->GetEntries()]) PndTpcRiemannHit(*hit);
+    }
+
 
     // store pndtracks and pndcands in output array
     PndTrackCand* pndcand=new((*_trackCandArray)[_trackCandArray->GetEntriesFast()]) PndTrackCand();
@@ -541,6 +580,16 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
            <<candlist.size()<<" track candidates found."<<std::endl;
 
   _multiplicityHisto->Fill(candlist.size());
+
+  
+
+
+
+
+
+
+
+
 }
 
 void

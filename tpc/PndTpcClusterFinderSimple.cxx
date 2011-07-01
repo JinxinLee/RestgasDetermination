@@ -210,7 +210,7 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& alldigis)
     std::vector<PndTpcDigi*>* digis=secIt->second;
     unsigned int ndigi=digis->size();
     
-    std::cout << "Sector " << secIt->first << " with " <<ndigi<< " digits"<<std::endl; 
+    //std::cout << "Sector " << secIt->first << " with " <<ndigi<< " digits"<<std::endl; 
 
     if(ndigi<=3){
       ++secIt;
