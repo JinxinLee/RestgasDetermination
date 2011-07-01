@@ -67,6 +67,7 @@ rootlogon()
   if(isLibrary("libGlobal"))gSystem->Load("libGlobal");
   if(isLibrary("libMCMatch"))gSystem->Load("libMCMatch");
   if(isLibrary("libMva"))gSystem->Load("libMva");
+  if(isLibrary("libFtof"))gSystem->Load("libFtof");
 
   //gSystem->Load("libMemStat");
 }
