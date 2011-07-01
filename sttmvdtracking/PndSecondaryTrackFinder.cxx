@@ -3677,8 +3677,8 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderCluster2BIS(std::v
   
     TMatrixT<double> singlehit = cluster[ihit];
     if(singlehit[0][0] == -1) continue;
-    int hitid = singlehit[0][1];
-    int detid = singlehit[0][2];
+    int hitid = (int) singlehit[0][1];
+    int detid = (int) singlehit[0][2];
     if(detid == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) array = fMvdPixelHitArray;
     else if(detid == FairRootManager::Instance()->GetBranchId(fMvdStripBranch))  array = fMvdStripHitArray;
     else if(detid == FairRootManager::Instance()->GetBranchId(fSttBranch)) array = fSttHitArray;
@@ -3738,7 +3738,7 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderCluster2BIS(std::v
   // cout << "sorted" << endl;
   for(int ihit = 0; ihit < sorthits.size(); ihit++) {
     TMatrixT<double> singlehit = sorthits[ihit];
-    Int_t hitid = singlehit[0][1];
+    Int_t hitid = (Int_t) singlehit[0][1];
     //    cout << hitid << " " ;
     
     FairHit* hit = (FairHit*) array->At(hitid);
