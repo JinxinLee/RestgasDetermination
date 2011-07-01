@@ -10,6 +10,7 @@
 
 #include <typeinfo>
 #include <string>
+#include <sstream>
 #include <vector>
 #include <cmath>
 #include <cassert>
@@ -135,6 +136,8 @@ inline bool compareL(T const* l, T const* r)
 float ComputeDist(std::vector<float> const& EvtData, 
 		  std::vector<float> const& Example);
 
+int str2int (std::string const& str);
+std::string int2str (int n);
 
 // C style function declarations
 #ifdef __cplusplus

@@ -12,6 +12,11 @@
 #include "PndLVQTrain.h"
 #include "TRandom3.h"
 
+//____________________________________
+#define DEBUG 0
+//____________________________________
+
+#if DEBUG
 // *************  DEBUG ONLY **********
 void printProto(std::vector< std::pair<std::string, std::vector<float>*> > const& dat)
 {
@@ -30,6 +35,7 @@ void printProto(std::vector< std::pair<std::string, std::vector<float>*> > const
   std::cout << "==========================\n";
 }
 // *************  DEBUG ONLY **********
+#endif
 
 int main(int argc, char** argv)
 {
@@ -138,16 +144,22 @@ int main(int argc, char** argv)
   case 2:
     tr.Train21();
     break;
+
+#if DEBUG
   case 3:
     printProto( tr.train1sec() );
     break;
   case 4:
     printProto( tr.train2sec() );
+    break;
+#endif
+
   default:
     std::cerr << "No algorithm selected"
 	      << std::endl;
     break;
   }
+
   // Write out the error info.
   tr.WriteErroVect(OutErr);
   return 0;

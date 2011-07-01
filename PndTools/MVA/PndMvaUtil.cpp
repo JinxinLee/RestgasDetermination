@@ -27,3 +27,18 @@ float ComputeDist(std::vector<float> const &EvtData,
   
   return sqrt(dist);
 }
+
+int str2int (std::string const& str)
+{
+  std::stringstream ss(str);
+  int n;
+  ss >> n;
+  return n;
+}
+
+std::string int2str (int n)
+{
+  std::stringstream ss;
+  ss << n;
+  return ss.str();
+}

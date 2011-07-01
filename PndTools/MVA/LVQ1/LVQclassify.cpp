@@ -9,13 +9,6 @@
  * procedure. This classifier is implemented based on the LVQ
  * algorithm.
  */
-
-#define CREATE_DIST_HISTS 0
-
-#define NUM_DEBUG_PRINT 15
-
-#define LVQ_CLS_DEBUG 0
-
 // C++
 #include <fstream>
 
@@ -26,22 +19,27 @@
 // ROOT
 #include "TStopwatch.h"
 #include "TH1.h"
-
-// Print the results map.
-void printResult(std::map<std::string, float> const& res)
-{
-  std::cout << "\n================================== \n";
-  std::map<std::string,float>::const_iterator ii;
-  for( ii = res.begin(); ii != res.end(); ++ii)
-  {
-    std::cout << (*ii).first << " => " << (*ii).second << '\n';
-    //std::cout << (*ii).first << " => " << (1 - (*ii).second) << '\n';
-  }
-  std::cout << "======================================= \n";
-}
 //________________________________________________________________
-// Produce a set of points to draw the ROC.
 
+// Print DEBUG info
+#define LVQ_CLS_DEBUG 0
+
+// Number of elements to print
+#define NUM_DEBUG_PRINT 15
+
+// If produce ROC
+#define PRODUCE_ROC 0
+
+// Use VQ ROC procedure
+#define USE_PRODUCE_VQ_ROC 1
+
+// Create the distance histograms
+#define CREATE_DIST_HISTS 0
+//________________________________________________________________
+
+#if PRODUCE_ROC
+#if USE_PRODUCE_VQ_ROC
+// Produce a set of points to draw the ROC.
 void Produce_VQ_ROC( std::vector< ClassifierOutPuts >& input,//Alg. input
 		     std::string const& SigName,// Signal name
 		     std::string const& BgName,// Background name
@@ -156,6 +154,8 @@ void Produce_VQ_ROC( std::vector< ClassifierOutPuts >& input,//Alg. input
     trhold += inc;
   }//While
 }
+#endif// VQ ROC
+#endif// IF ROC
 
 /* ******************
  * Testing routine, *
@@ -254,20 +254,23 @@ int main(int argc, char** argv)
     std::string* givenLabel = cls.Classify( (*evt) );
 
     // Store results.
-    
+#if USE_PRODUCE_VQ_ROC
+    // The smaller (the output) the better
     classifiedEvents.push_back(ClassifierOutPuts((events[k]).first, *givenLabel,
 						 res[sgName], res[bgName]));
-    
-    /*
-      classifiedEvents.push_back(ClassifierOutPuts((events[k]).first, *givenLabel,
-      (1.0 - res[sgName]), (1.0 - res[bgName]) ) );
-    */
+#else
+    // If using the general ROC function
+    // The larger the better    
+    classifiedEvents.push_back(ClassifierOutPuts((events[k]).first, *givenLabel,
+						 (1.0 - res[sgName]),
+						 (1.0 - res[bgName]) ) );
+#endif
     
     delete givenLabel;
   }// Events Loop
 
   // Print some timing information
-  timer.Stop();  
+  timer.Stop();
   double rtime = timer.RealTime();
   double ctime = timer.CpuTime();
   std::cout << "Classifier timing results:\n"
@@ -276,7 +279,10 @@ int main(int argc, char** argv)
 	    << "It took " << (rtime/static_cast<double>(events.size()))
 	    << " Per event.\n";  
   
-  // We are done with events vector. Cleaning
+  /*
+   * Events vector is not needed anymore.
+   * Cleaning.
+   */
   std::cout << "Clean up Events.\n";
   for(size_t i = 0; i < events.size(); ++i)
   {
@@ -350,19 +356,25 @@ int main(int argc, char** argv)
 
   // Close Open file
   OutPut.close();
-  
+
+#if PRODUCE_ROC
   // Create ROC points.
   std::cout << "<-I-> Creating ROC.\n";
   std::vector< ROCPoints > Roc;
   
+#if USE_PRODUCE_VQ_ROC  
   Produce_VQ_ROC( classifiedEvents, sgName, bgName,
-		  (*counts)[sgName], (*counts)[bgName], Roc, 200);
-  /*
-    Produce_ROC( classifiedEvents, sgName, bgName,
-    (*counts)[sgName], (*counts)[bgName], Roc);
-  */
+		  (*counts)[sgName], (*counts)[bgName],
+		  Roc, 100);
+#else
+  Produce_ROC( classifiedEvents, sgName, bgName,
+	       (*counts)[sgName], (*counts)[bgName], Roc);
+#endif
+
+  // Write the ROC points to a file.
   WriteRocToFile( ("ROC" + outF), Roc); 
-  
+#endif
+
 #if LVQ_CLS_DEBUG
   printRoc(Roc);
 #endif

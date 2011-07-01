@@ -9,8 +9,6 @@
  * recognition performance.
  */
 
-#define DEBUG_PRINT 0
-
 // C++ headers
 #include <sstream>
 
@@ -21,26 +19,17 @@
 // Root and PandaRoot.
 #include "TStopwatch.h"
 
-//______________ Helper functions and variables _______________________
-void printResult( std::map<std::string,float>& res, size_t evtId)
-{
-  std::cout << "\t==================================\n"
-	    << " Evt Num = " << evtId
-	    << '\n';
-  std::map<std::string,float>::iterator ii;
-  for( ii = res.begin(); ii != res.end(); ++ii)
-  {
-    std::cout <<"\t" << (*ii).first 
-	      << "\t=> " << (*ii).second
-	      << '\n';
-  }
-  std::cout << "\t==================================\n";
-}
+//______________________________________
+#define DEBUG_PRINT 0
+
+// If produce ROC
+#define PRODUCE_ROC 0
+//________________________
+
 /* *********************************************
  * Testing routine, can be deleted afterwards. *
  * *********************************************
  */
-
 int main(int argc, char** argv)
 {
   if(argc < 4)
@@ -133,7 +122,7 @@ int main(int argc, char** argv)
   numberOfEvt = 20;
 #endif
   std::cout << "Total number of events to be classified = "
-	    << numberOfEvt //events.size()
+	    << numberOfEvt
 	    << '\n';
 
   // Events are ready Start to classify.
@@ -157,7 +146,7 @@ int main(int argc, char** argv)
     std::cout << " Given label is "
 	      << (*givenLabel)
 	      << std::endl;
-    printResult(res, ev);
+    print(res, ev);
 #endif
     
     delete givenLabel;
@@ -202,6 +191,7 @@ int main(int argc, char** argv)
 	    << "\n With #neighb = " << NumNei
 	    << "\n+++++++++++++++++++++++++++++++++++++++\n";
 
+#if PRODUCE_ROC
   // Create ROC points.
   std::cout << "<-I-> Creating ROC.\n";
   std::vector< ROCPoints > Roc;
@@ -209,6 +199,7 @@ int main(int argc, char** argv)
 	       (*counts)[sgName], (*counts)[bgName], Roc);
 
   WriteRocToFile("ROCKNN.root", Roc); 
+#endif
 
   //__________________ Clean up _____________//
   // Delete per label example counts

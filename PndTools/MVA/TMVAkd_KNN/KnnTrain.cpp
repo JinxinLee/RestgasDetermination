@@ -7,26 +7,9 @@
  * order to generate weight file to be used by the KNN based
  * classifier.
  */
-#include <sstream>
-
 #include "PndKnnTrain.h"
+
 #include "TRandom3.h"
-
-int str2int (const std::string &str)
-{
-  std::stringstream ss(str);
-  int n;
-  ss >> n;
-  return n;
-}
-
-std::string int2str (int n)
-{
-  std::stringstream ss;
-  ss << n;
-  return ss.str();
-}
-
 
 int main(int argc, char** argv)
 {

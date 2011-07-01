@@ -16,8 +16,11 @@
 #include "PndMvaDataSet.h"
 #include "PndMvaCluster.h"
 
+#define DEBUG_PRINT 0
+
 typedef std::vector< std::pair<std::string, std::vector<float>*> > RawPoints;
 
+#if DEBUG_PRINT
 // *************  DEBUG ONLY **********
 void printCentroids(const ClDataSample& dat)
 {
@@ -35,6 +38,7 @@ void printCentroids(const ClDataSample& dat)
   std::cout << "==========================\n";
 }
 // *************  DEBUG ONLY **********
+#endif
 
 /**
  * Example program. Shows, how to use the current clustering
@@ -120,14 +124,17 @@ int main(int argc, char** argv)
     PndMvaCluster clust (clusteringInput, numCentrrs);
     ClDataSample* protoA = clust.Cluster();
 
+#if DEBUG_PRINT
     printCentroids(*protoA);
+#endif
     
     ProtoVector[cl] = protoA;
     
     clusteringInput.clear();
     
   }// End of class loop
-  
+
+#if DEBUG_PRINT
   std::cout << "++++++++++++++++++++++++++++++++++++++\n"
 	    << "Printing the copied values:\n"
 	    << "++++++++++++++++++++++++++++++++++++++\n";
@@ -137,8 +144,9 @@ int main(int argc, char** argv)
     ClDataSample* protoA = ProtoVector[l];
     printCentroids(*protoA);
   }
+#endif
 
-  // Cleaning
+  //_______________ Cleaning ___________________//
   for(size_t l = 0; l < ProtoVector.size(); l++)
   {
     delete ProtoVector[l];

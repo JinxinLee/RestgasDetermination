@@ -16,25 +16,17 @@
  */
 
 #include "PndMultiClassMlpClassify.h"
+#include "PndMvaTools.h"
 
-// Print the results map.
-void printResult(std::map<std::string, float> const& res)
-{
-  std::cout << "\n================================== \n";
-  for( std::map<std::string,float>::const_iterator ii=res.begin();
-       ii != res.end(); ++ii)
-  {
-    std::cout << (*ii).first << " => " << (*ii).second << '\n';
-  }
-  std::cout << "======================================= \n";
-}
+#define DEBUG_PRINT 0
+#define DEBUG_NUM_EVENTS 20
 
 int main(int argc, char** argv)
 {
-  if(argc < 4)
+  if(argc < 3)
   {
     std::cerr << "<ERROR>\n\t<USAGE>: " << argv[0]
-	      << " <WeightFile> <Events File> <Tree Name>\n";
+	      << " <WeightFile> <Events File>\n";
     exit(10);
   }
   // The weightFile.
@@ -42,20 +34,19 @@ int main(int argc, char** argv)
 
   std::string EvtFile    = argv[2];
 
-  std::string TreeName   = argv[3];
-
   // Labels.
   std::vector<std::string> labels;
 
   // Variables.
   std::vector<std::string> variables;
 
+  // Signal and background labels
+  std::string sgName = "electron";
+  std::string bgName = "pion";
+  
   // Class names
   labels.push_back("electron");
   labels.push_back("pion");
-  //labels.push_back("kaon");
-  //labels.push_back("muon");
-  //labels.push_back("proton");
   
   // Variable names 
   variables.push_back("emc");
@@ -67,46 +58,70 @@ int main(int argc, char** argv)
   PndMultiClassMlpClassify cls(WeightFile, labels, variables);
   cls.Initialize();
 
-  // Open file and read the events.
-  TFile evtF(EvtFile.c_str(), "READ");
-  TTree* evTr = (TTree*) evtF.Get(TreeName.c_str());
-  
-  evTr->SetBranchStatus("*",0);
+  // To be classified events.
+  std::vector<std::pair<std::string, std::vector<float>* > > events;
 
-  std::vector<float> curEvt(variables.size(), 0.0);
+  // Read events to be classified.
+  std::map<std::string, size_t>* counts = readEvents(EvtFile.c_str(), variables,
+						     labels, events);
 
-  // Bind tree branches to the container.
-  for(size_t i = 0; i < variables.size(); i++)
+  std::cout << "The file contains " << events.size()
+	    << " events.\n";
+
+  // Map to store results.
+  std::map<std::string, float> res;
+
+  // Store classifier outputs per event.
+  std::vector< ClassifierOutPuts > classifiedEvents;
+
+  size_t numberOfEvt;
+
+#if DEBUG_PRINT
+  numberOfEvt = events.size();
+#else
+  numberOfEvt = DEBUG_NUM_EVENTS;
+#endif
+
+  // Events loop
+  for(size_t k = 0; k < numberOfEvt; k++)
   {
-    // Activate branches
-    evTr->SetBranchStatus( variables[i].c_str(), 1);
+    std::vector<float>* evt = (events[k]).second;
+
+    // Get Mva Value
+    cls.GetMvaValues( (*evt), res);
+
+    // Do classification
+    std::string* givenLabel = cls.Classify( (*evt) );
     
-    // Bind
-    evTr->SetBranchAddress( (variables[i]).c_str(), &(curEvt[i]));
+    classifiedEvents.push_back(ClassifierOutPuts((events[k]).first, *givenLabel,
+						 res[sgName], res[bgName]));
+    delete givenLabel;
+  }// Events Loop
+  
+  /*
+   * Events vector is not needed anymore.
+   * Cleaning.
+   */
+  std::cout << "Clean up Events.\n";
+  for(size_t i = 0; i < events.size(); ++i)
+  {
+    delete (events[i]).second;
   }
+  events.clear();
 
-  // The map to store the results.
-  std::map<std::string, float> result;
-  
-  int numberOfEvt = evTr->GetEntriesFast();
-  //numberOfEvt = 3;
-  unsigned int misCl = 0;
-  
-  for(int ev = 0; ev < numberOfEvt; ev++)
+#if DEBUG_PRINT
+  print(classifiedEvents);
+#endif
+
+  // We have seen all the events.
+  size_t misCl = 0;
+  for(size_t k = 0; k < classifiedEvents.size(); ++k)
   {
-    evTr->GetEntry(ev);
-    
-    //cls.GetMvaValues(curEvt, result);
-    //printResult(result);
-
-    std::string* resStr = cls.Classify(curEvt);
-    if( *resStr != TreeName)
+    if( classifiedEvents[k].realLabel != classifiedEvents[k].givenLabel)
     {
       misCl++;
     }
-    delete resStr;
   }
-
   // Classifier evaluation info.
   std::cout << "+++++++++++++++++++++++++++++++++++++++\n" 
 	    << " Total number of classified events: "
@@ -116,5 +131,10 @@ int main(int argc, char** argv)
 	    <<" %\n"
 	    << " Correct cassified = " << (numberOfEvt - misCl)
 	    << "\n+++++++++++++++++++++++++++++++++++++++\n";
+  //__________________ Clean up _____________//
+  // Delete per label example counts
+  counts->clear();
+  delete counts;
+
   return 0;
 }

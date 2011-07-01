@@ -26,6 +26,19 @@ void printRoc(std::vector< ROCPoints > const& rc)
   }
 }
 
+// Print the results map.
+void print(std::map<std::string, float> const& res)
+{
+  std::cout << "\n================================== \n";
+  std::map<std::string,float>::const_iterator ii;
+  for( ii = res.begin(); ii != res.end(); ++ii)
+  {
+    std::cout << (*ii).first << " => " << (*ii).second << '\n';
+    //std::cout << (*ii).first << " => " << (1 - (*ii).second) << '\n';
+  }
+  std::cout << "======================================= \n";
+}
+
 /**
  * Write the list of ROC objects in a file.
  *@param FileName The name of the file to write into.

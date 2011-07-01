@@ -10,24 +10,12 @@
 
 // PANDA ROOT
 #include "PndProjectedKNN.h"
+#include "PndMvaTools.h"
 
 // ROOT
 #include "TFile.h"
 #include "TNtuple.h"
 #include "TStopwatch.h"
-
-
-void PrintResult(std::map<std::string, float>& res, size_t evNum)
-{
-  std::cout << "\n\t================================== \n"
-	    << "Evt num = " << evNum << '\n';
-  for( std::map<std::string, float>::iterator ii=res.begin(); 
-       ii != res.end(); ++ii){
-    std::cout <<"\t" << (*ii).first 
-	      << "\t=> " << (*ii).second << '\n';
-  }
-  std::cout << "\n\t================================== \n";
-}
 
 /* *********************************************
  * Testing routine, can be deleted afterwards. *
@@ -145,7 +133,7 @@ int main(int argc, char** argv)
     events->GetEntry(ev);
     
     //cls.GetMvaValues(curEvt, res);
-    //PrintResult(res, ev);
+    //Print(res, ev);
     
     std::string* bla = cls.Classify(curEvt);    
     if((*bla) != TreeName)

@@ -214,6 +214,12 @@ void Produce_ROC(std::vector< ClassifierOutPuts >& input,
 void print(std::vector< ClassifierOutPuts > const& OutPutList);
 
 /**
+ * Print the output map.
+ *@param ClsMapOut The map to print.
+*/
+void print(std::map<std::string, float> const& ClsMapOut);
+
+/**
  * Reads the event data from the inputfile.
  *@param inFile The input file.
  *@param varNames Name of the parameters (branches per tree).
