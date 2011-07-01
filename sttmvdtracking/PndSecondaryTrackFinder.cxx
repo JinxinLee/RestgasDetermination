@@ -632,17 +632,19 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       }
     }
 
-    int tmpredchi2 = redchi2;
+    double tmpredchi2 = redchi2;
     for(int iter = 0; iter < 2; iter++) {
-      if(red2chi2[iter] < tmpredchi2) {
+      //  cout << "ITER " << iter << " " << red2chi2[iter] << " " << tmpredchi2 << endl;
+      if(fabs(1. - red2chi2[iter]) < fabs(1. - tmpredchi2)) {
 	xc = outxc[iter];
 	yc = outyc[iter];
 	radius = outradius[iter];
 	tmpredchi2 = red2chi2[iter];
+	// 	cout << "TAKEN " << iter << " " << red2chi2[iter] << " " << tmpredchi2 << endl;
       }
     }
-
-  TMatrixT<double> param(1, 6);
+    
+    TMatrixT<double> param(1, 6);
     param[0][0] = xc;
     param[0][1] = yc;
     param[0][2] = radius;
