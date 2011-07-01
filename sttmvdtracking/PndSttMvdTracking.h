@@ -110,7 +110,7 @@ class PndSttMvdTracking : public FairTask
 			  STRAWRADIUS = DiameterStrawTube/2.,
 			  STRAWRESOLUTION= 0.015,
 			  PMAX=100.;
-	static const bool YesClean = true;
+	static const bool YesClean = false;
 
 
   bool    ExclusionListStt[nmaxSttHits];
