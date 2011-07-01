@@ -60,7 +60,7 @@
 
 
 PndTpcElectronicsTask::PndTpcElectronicsTask()
-  : FairTask("TPC Electronics response"), fpersistence(kFALSE),fsamplePersistence(kFALSE), finitialized(kFALSE), fqa(NULL), fCount(0),fPSATimeCalib(0.5)
+  : FairTask("TPC Electronics response"), fpersistence(kFALSE),fsamplePersistence(kFALSE), finitialized(kFALSE), fqa(NULL), fCount(0),fPSATimeCalib(2.8)
  {
   fsignalBranchName = "PndTpcSignal";
   fshaper= "CRRC";

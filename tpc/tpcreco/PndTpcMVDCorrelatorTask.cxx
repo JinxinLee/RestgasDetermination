@@ -56,7 +56,7 @@ bool sortByR(const std::map<PndSdsHit*, std::map<unsigned int, int> >& h1,
 
 PndTpcMVDCorrelatorTask::PndTpcMVDCorrelatorTask()
   : FairTask("TPC-MVD Correlator"), fPersistence(kFALSE), fMatchDistance(3.),
-    fMinMVDHits(3)
+    fMinMVDHits(3), fRequireMatch(false)
 {
   fOutTrackBranchName = "TrackPreFitComplete";
   fTrackBranchName = "TrackPostFit";
@@ -262,9 +262,11 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
     
 
     if(tempCand.size() < fMinMVDHits) {
-      GFTrack* outTrack = new GFTrack(*track);
-      outTrack->clearBookkeeping();
-      (*fOutTrackArray)[fOutTrackArray->GetEntriesFast()] = outTrack;
+      if(!fRequireMatch) {
+	GFTrack* outTrack = new GFTrack(*track);
+	outTrack->clearBookkeeping();
+	(*fOutTrackArray)[fOutTrackArray->GetEntriesFast()] = outTrack;
+      }
       continue;
     }
     

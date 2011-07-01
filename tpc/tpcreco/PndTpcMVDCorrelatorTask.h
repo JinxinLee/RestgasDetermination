@@ -56,6 +56,7 @@ public:
   void SetMinMVDHits(unsigned int n) {fMinMVDHits = n;}
   
   void SetPersistence(Bool_t opt=kTRUE) {fPersistence=opt;}
+  void RequireMatch(bool opt=true) {fRequireMatch=opt;}
   
   virtual InitStatus Init();
 
@@ -75,6 +76,7 @@ public:
   TString fStripBranchName;
   
   bool fPersistence;
+  bool fRequireMatch; //true: ONLY write out tracks with a MVD match!
 
   unsigned int fMinMVDHits;
   
