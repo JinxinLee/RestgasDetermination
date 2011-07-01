@@ -246,7 +246,9 @@ PndTpcRiemannTrackingTask::Init()
   }
 
   //init gPro
-  //gPro = new FairGeanePro();
+  if(_geane){
+    gPro = new FairGeanePro();
+  }
 
   return kSUCCESS;
 }
