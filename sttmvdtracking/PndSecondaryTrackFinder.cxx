@@ -2247,8 +2247,8 @@ Bool_t PndSecondaryTrackFinder::ConformalPlaneStt4BIS(std::vector< TMatrixT<doub
     {
       TMatrixT<double> singlehit = cluster[ihit];
       if(singlehit[0][0] == -1) continue;
-      Int_t hitid =  (Int_t) singlehit[0][1];
-      Int_t detid =  (Int_t) singlehit[0][2];
+      Int_t hitid = (Int_t) singlehit[0][1];
+      Int_t detid = (Int_t) singlehit[0][2];
       if(detid != FairRootManager::Instance()->GetBranchId(fSttBranch)) continue; // CHECK THIS ONE!
       PndSttHit *hit = (PndSttHit*) array->At(hitid);
       if(!hit) continue;
@@ -2266,8 +2266,8 @@ Bool_t PndSecondaryTrackFinder::ConformalPlaneStt4BIS(std::vector< TMatrixT<doub
   int firsthitid = tmphitid; // cluster[nhits - 1];
   TMatrixT<double> singlehit0 = cluster[0];
   TMatrixT<double> singlehit1 = cluster[nhits - 1];
-  if(tmphitid == singlehit0[0][1]) lasthitid = singlehit1[0][1];
-  else lasthitid = singlehit0[0][1];
+  if(tmphitid == singlehit0[0][1]) lasthitid =  (Int_t) singlehit1[0][1];
+  else lasthitid =  (Int_t) singlehit0[0][1];
   //  cout << "first/lasthitid " << firsthitid << " " << lasthitid << endl;
   FairHit *hitfirst = (FairHit*) array->At(firsthitid);
   if(!hitfirst) return kFALSE;
@@ -2300,8 +2300,8 @@ Bool_t PndSecondaryTrackFinder::ConformalPlaneStt4BIS(std::vector< TMatrixT<doub
       
       TMatrixT<double> singlehit = cluster[ihit];
       if(singlehit[0][0] == -1) continue;
-      Int_t hitid = singlehit[0][1];
-      Int_t detid = singlehit[0][2];
+      Int_t hitid =  (Int_t) singlehit[0][1];
+      Int_t detid =  (Int_t) singlehit[0][2];
       if(detid !=  FairRootManager::Instance()->GetBranchId(fSttBranch)) continue; // CHECK THIS ONE!
       
       PndSttHit *hit = (PndSttHit*) array->At(hitid);
@@ -2472,8 +2472,8 @@ Double_t PndSecondaryTrackFinder::CalculateRedChi2BIS(std::vector< TMatrixT<doub
     {
       TMatrixT<double> singlehit = cluster[ihit];
       if(singlehit[0][0] == -1) continue;
-      Int_t hitid = singlehit[0][1];
-      Int_t detid = singlehit[0][2];
+      Int_t hitid =  (Int_t) singlehit[0][1];
+      Int_t detid =  (Int_t) singlehit[0][2];
       if(detid != FairRootManager::Instance()->GetBranchId(fSttBranch)) continue; // CHECK THIS ONE
       array = fSttHitArray;
 
@@ -2513,8 +2513,8 @@ Bool_t PndSecondaryTrackFinder::RefitConformalBIS(std::vector< TMatrixT<double> 
     {
       TMatrixT<double> singlehit = cluster[ihit];
       if(singlehit[0][0] == -1) continue;
-      Int_t hitid = singlehit[0][1];
-      Int_t detid = singlehit[0][2];
+      Int_t hitid = (Int_t) singlehit[0][1];
+      Int_t detid = (Int_t) singlehit[0][2];
       if(detid != FairRootManager::Instance()->GetBranchId(fSttBranch)) continue; // CHECK THIS ONE
       array = fSttHitArray;
       PndSttHit *hit = (PndSttHit*) array->At(hitid);
@@ -2570,8 +2570,8 @@ Bool_t PndSecondaryTrackFinder::RefitConformalBIS(std::vector< TMatrixT<double> 
       TMatrixT<double> singlehit = cluster->at(ihit);
       TMatrixT<double> newsinglehit = singlehit;
       if(singlehit[0][0] == -1) continue;
-      Int_t hitid = singlehit[0][1];
-      Int_t detid = singlehit[0][2];
+      Int_t hitid = (Int_t) singlehit[0][1];
+      Int_t detid = (Int_t) singlehit[0][2];
       if(detid != FairRootManager::Instance()->GetBranchId(fSttBranch)) continue; // CHECK THIS ONE
       array = fSttHitArray;
       PndSttHit *hit = (PndSttHit*) array->At(hitid);
@@ -3845,8 +3845,8 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderClusterInPhiBIS(st
   for(int ihit = 0; ihit < cluster.size(); ihit++) {
     TMatrixT<double> singlehit = cluster[ihit];
     if(singlehit[0][0] == -1) continue;
-   Int_t hitid = singlehit[0][1];
-   Int_t detid = singlehit[0][2];
+    Int_t hitid = (Int_t) singlehit[0][1];
+    Int_t detid = (Int_t) singlehit[0][2];
    
    TVector3 position(singlehit[0][4], singlehit[0][5], singlehit[0][6]);
    
@@ -4405,7 +4405,7 @@ void PndSecondaryTrackFinder::PrintClustersBIS(std::vector< std::vector< TMatrix
     cout << "cluster no. " << iclus << " has " << nhits << " hits: ";
     for(int ihit = 0; ihit < nhits; ihit++) {
       TMatrixT<double> singlehit = cluster[ihit];
-      int hitid = singlehit[0][1];
+      int hitid = (int) singlehit[0][1];
       cout << hitid << " " ;
     }
     cout << endl;
@@ -4428,8 +4428,8 @@ void PndSecondaryTrackFinder::DrawClustersBIS(std::vector< std::vector< TMatrixT
     for(int ihit = 0; ihit < cluster.size(); ihit++) {
       TMatrixT<double> singlehit = cluster[ihit];
       if(singlehit[0][0] == -1) continue;
-      int hitid = singlehit[0][1];
-      int detid = singlehit[0][2];
+      int hitid = (Int_t) singlehit[0][1];
+      int detid = (Int_t) singlehit[0][2];
       if(detid == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) mvdpix.push_back(detid);
       else if(detid == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) mvdstr.push_back(detid);
       else if(detid == FairRootManager::Instance()->GetBranchId(fSttBranch)) stt.push_back(detid);
@@ -4807,8 +4807,8 @@ Bool_t PndSecondaryTrackFinder::TestChi2BIS(std::vector< TMatrixT<double> > clus
     {
       TMatrixT<double> singlehit = cluster[ihit];
       if(singlehit[0][0] == -1) continue;
-      Int_t hitid = singlehit[0][1];
-      Int_t detid = singlehit[0][2];
+      Int_t hitid = (Int_t) singlehit[0][1];
+      Int_t detid = (Int_t) singlehit[0][2];
       if(detid != FairRootManager::Instance()->GetBranchId(fSttBranch)) continue; // CHECK THIS ONE
       array = fSttHitArray;
 
@@ -5244,8 +5244,8 @@ Bool_t PndSecondaryTrackFinder::ZFit3BIS(std::vector< TMatrixT<double> > *cluste
     TMatrixT<double> singlehit = cluster->at(ihit);
 
     if(singlehit[0][0] == -1) continue;
-    Int_t hitid = singlehit[0][1];
-    Int_t detid = singlehit[0][2];
+    Int_t hitid = (Int_t) singlehit[0][1];
+    Int_t detid = (Int_t) singlehit[0][2];
     // cout << "here " <<  detid << " " << FairRootManager::Instance()->GetBranchId(fSttBranch) << endl;
     if(detid != FairRootManager::Instance()->GetBranchId(fSttBranch)) continue; // CHECK THIS ONE
     //  cout << "here2 " << singlehit[0][3] << endl;
@@ -5289,8 +5289,8 @@ Bool_t PndSecondaryTrackFinder::ZFit3BIS(std::vector< TMatrixT<double> > *cluste
     //  cout << "ihit " << ihit << endl;
     TMatrixT<double> singlehit = sortedhits[ihit];
     if(singlehit[0][0] == -1) continue;
-    int hitid = singlehit[0][1];
-    int detid = singlehit[0][2];
+    int hitid = (Int_t) singlehit[0][1];
+    int detid = (Int_t) singlehit[0][2];
     if(detid == FairRootManager::Instance()->GetBranchId(fSttBranch) && singlehit[0][3] == 0) continue; 
     
     std::pair<int, int> pointpair(hitid, detid);
@@ -5346,8 +5346,8 @@ Bool_t PndSecondaryTrackFinder::ZFit3BIS(std::vector< TMatrixT<double> > *cluste
     TMatrixT<double> singlehit = sortedhits[ihit];
     TMatrixT<double> newsinglehit = sortedhits[ihit];
     if(singlehit[0][0] == -1) continue;
-    int hitid = singlehit[0][1];
-    int detid = singlehit[0][2];
+    int hitid = (Int_t) singlehit[0][1];
+    int detid = (Int_t) singlehit[0][2];
  
     if(detid == FairRootManager::Instance()->GetBranchId(fSttBranch) && singlehit[0][3] == 0) continue; 
    
@@ -5497,8 +5497,8 @@ Int_t PndSecondaryTrackFinder::FindChargeBIS(Double_t oX, Double_t oY, std::vect
     for(Int_t ihit=0; ihit < cluster.size(); ihit++){ 
       TMatrixT<double> singlehit = cluster[ihit];
       if(singlehit[0][0] == -1) continue;
-      Int_t hitid = singlehit[0][1];
-      Int_t detid = singlehit[0][2];
+      Int_t hitid = (Int_t) singlehit[0][1];
+      Int_t detid = (Int_t) singlehit[0][2];
     
       if(detid !=  FairRootManager::Instance()->GetBranchId(fSttBranch)) continue; // CHECK THIS ONE!
       if(singlehit[0][3] != 0) continue; // CHECK THIS ONE!
@@ -5883,8 +5883,8 @@ std::vector<TVector3>  PndSecondaryTrackFinder::FindRealIntersectionsBIS(std::ve
   for(int ihit = 0; ihit < nhits; ihit++) {
     TMatrixT<double> singlehit = cluster->at(ihit);
     if(singlehit[0][0] == -1) continue;
-    Int_t hitid = singlehit[0][1];
-    Int_t detid = singlehit[0][2];
+    Int_t hitid = (Int_t) singlehit[0][1];
+    Int_t detid = (Int_t) singlehit[0][2];
     if(detid == FairRootManager::Instance()->GetBranchId(fSttBranch) && singlehit[0][3] == 0) continue; 
 
     //  cout << "INITIAL " << hitid << endl;    
@@ -5955,8 +5955,8 @@ std::vector<TVector3>  PndSecondaryTrackFinder::FindRealIntersectionsBIS(std::ve
   for(int ihit = 0; ihit < nhits; ihit++) {
     TMatrixT<double> singlehit = cluster->at(ihit);
     if(singlehit[0][0] == -1) continue;
-    Int_t hitid = singlehit[0][1];
-    Int_t detid = singlehit[0][2];
+    Int_t hitid = (Int_t) singlehit[0][1];
+    Int_t detid = (Int_t) singlehit[0][2];
 
     std::pair<int, int> pointpair(hitid, detid);
     Int_t pointid = FindInMap(hitidtointersections, pointpair); 
@@ -6121,8 +6121,8 @@ std::vector<TVector3>  PndSecondaryTrackFinder::FindRealIntersectionsBIS(std::ve
       { 
 	TMatrixT<double> singlehit = cluster->at(ihit);
 	if(singlehit[0][0] == -1) continue;
-	Int_t hitid = singlehit[0][1];
-	Int_t detid = singlehit[0][2];
+	Int_t hitid = (Int_t) singlehit[0][1];
+	Int_t detid = (Int_t) singlehit[0][2];
 
 	std::vector< TMatrixT<double> >::iterator it;
 	it = find(realcluster.begin(), realcluster.end(), singlehit);
@@ -6151,8 +6151,8 @@ std::vector<TVector3>  PndSecondaryTrackFinder::FindRealIntersectionsBIS(std::ve
    
      if(fDisplayOn) { 
        TMatrixT<double> singlehit = realcluster[ipnt];
-       Int_t hitid = singlehit[0][1];
-       Int_t detid = singlehit[0][2];
+       Int_t hitid = (Int_t) singlehit[0][1];
+       Int_t detid = (Int_t) singlehit[0][2];
        cout << "NEW POINT " << scos << " " << point.Z() << " " << hitid << " " << detid << endl;
        TMarker *mrk = new TMarker(scos, point.Z(), 4);
        mrk->SetMarkerColor(kOrange);
@@ -6183,8 +6183,8 @@ std::vector<TVector3>  PndSecondaryTrackFinder::FindRealIntersectionsBIS(std::ve
   for(int ihit = 0; ihit < nrealhits; ihit++)
     { 
       TMatrixT<double> singlehit = realcluster[ihit];
-      Int_t hitid = singlehit[0][1];
-      Int_t detid = singlehit[0][2]; 
+      Int_t hitid = (Int_t) singlehit[0][1];
+      Int_t detid = (Int_t) singlehit[0][2]; 
       std::pair<int, int> thispair(hitid, detid);
       hitidtolistmap.insert(std::pair<std::pair<int, int>, int>(thispair, ihit)); // CHECK THIS ONE
     }
