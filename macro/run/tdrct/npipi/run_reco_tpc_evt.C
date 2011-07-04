@@ -93,7 +93,7 @@
   //correlate fitted track with MVD pixels and strips
   PndTpcMVDCorrelatorTask* corr = new PndTpcMVDCorrelatorTask();
   corr->SetMatchDistance(200.);   //mutliple of MVD hit sigma (which 100 -> roughly 20 mu)
-  corr->SetMinMVDHits(3);
+  corr->SetMinMVDHits(1);
   corr->SetOutTrackBranchName("TrackPreFitMVD");
   corr->SetPersistence(true);
   fRun->AddTask(corr);
