@@ -125,6 +125,8 @@ std::vector<int> OrderClusterInZ(std::vector<int> cluster, std::vector<TVector3>
 
   // Z FINDING
   Bool_t DoesHitBelong(Int_t hitId, Double_t xc, Double_t yc, Double_t radius, TVector3 &intersection, Bool_t draw);
+  Bool_t DoesHitBelong(Int_t hitId, Double_t xc, Double_t yc, Double_t radius, Double_t limits[2][3], TVector3 &intersection, Bool_t draw);
+
   std::vector<int>  ZFinder(std::vector<int> hits, Double_t xc, Double_t yc, Double_t radius);
 
   void CalculateZ2(Int_t hitId, Double_t x, Double_t y, Double_t xc, Double_t yc, Double_t radius, TVector3 &int1, TVector3 &int2, Double_t &errz);
@@ -145,10 +147,17 @@ std::vector<int> OrderClusterInZ(std::vector<int> cluster, std::vector<TVector3>
   Bool_t RefitConformalBIS(std::vector< TMatrixT<double> > * cluster, Double_t xc, Double_t yc, Double_t radius, Double_t &outxc, Double_t &outyc, Double_t &outradius);
   Int_t FindChargeBIS(Double_t oX, Double_t oY, std::vector< TMatrixT<double> > cluster);
   // zbis
-  std::vector<int> ZFinderBIS(std::vector<int> hits, Double_t xc, Double_t yc, Double_t radius, std::vector< TVector3 > &intersections);
+  std::vector<int> ZFinderBIS(std::vector<int> hits, Double_t xc, Double_t yc, Double_t radius, Double_t limits[2][3], std::vector< TVector3 > &intersections);
   Bool_t ZFit3BIS(std::vector< TMatrixT<double> > *cluster, Int_t charge, Double_t xc, Double_t yc, Double_t radius, Double_t &fitm, Double_t &fitp);
   std::vector<TVector3> FindRealIntersectionsBIS(std::vector< TMatrixT<double> > *cluster, std::vector<TVector3> intersectionpoints, std::vector<TVector3>  intersectionpoints1, std::vector<TVector3> intersectionpoints2,  std::map<std::pair<int, int> , int> hitidtointersections, Int_t charge, Double_t xc, Double_t yc, Double_t radius, Double_t &fitm, Double_t &fitp, std::map<std::pair<int, int>, int> &hitidtolistmap);
   Int_t FindInMap(std::map< std::pair<int, int>, int> m, std::pair<int, int> p);
+
+  typedef Double_t Mat2x3[2][3];
+  void FindLimits(std::vector< TMatrixT<double> > cluster, Mat2x3 &m);
+  Bool_t IsInsideLimits(TVector3 intersection, Double_t limits[2][3]) ;
+  void ForbidCrossingTracks(std::vector< std::vector< TMatrixT<double> > > * clusterlist, std::vector< TMatrixT<double> > parlist);
+
+
  private:
 
   /** Input array of PndSttTube (map of STT tubes) **/
