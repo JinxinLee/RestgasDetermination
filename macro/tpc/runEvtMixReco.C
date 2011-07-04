@@ -12,8 +12,8 @@
   TString PANDAMC=gSystem->Getenv("PANDAMC");
 
   // Input file (RAW events)
-  TString inFile="TEST/evtmix500_32s/physics.32s.mixed.root";
-  TString jobname="reco1";
+  TString inFile="TEST/evtmix1000_16s/physics.16s.mixed.root";
+  TString jobname="reco2";
 
   TString mcFile="TEST/DPM.NEWGEO.mc.root";
   

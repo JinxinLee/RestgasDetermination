@@ -18,12 +18,12 @@
 
   // SET NUMBER OF EVENTS
   // --------------------------------------------------
-  Int_t nEvents = 1000;
+  Int_t nEvents = 5000;
 
   //Set JOBNAME + JOBDIR (will not be created!)
   // --------------------------------------------------
   TString jobdir="TEST";
-  TString jobname="Test15deg";
+  TString jobname="DPM5k";
  
 
   TString basejobdir=gSystem->Getenv("VMCWORKDIR");
@@ -90,8 +90,8 @@
   // Target->SetGeometryFileName("target_vacuum.geo");
   // fRun->AddModule(Target);
   
- FairModule *Magnet= new PndMagnet("MAGNET");
-  //Magnet->SetGeometryFileName("FullSolenoid_V842.root");
+  FairModule *Magnet= new PndMagnet("MAGNET");
+  Magnet->SetGeometryFileName("FullSolenoid_V842.root");
   Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
   fRun->AddModule(Magnet);
 
@@ -101,7 +101,7 @@
   fRun->AddModule(Dipole);
   
   PndTpcDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
-  PndTpc->SetGeometryFileName("tpc.geo");
+  PndTpc->SetGeometryFileName("TPC_V1.0.root");  
   //ALICE Style MC (only for G3): =========================
   if(GEANT=="TGeant3") 
     PndTpc->SetAliMC();
@@ -112,7 +112,7 @@
   //OTHER SUBDETECTORS; Uncomment if you want to use
 
   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
-  Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
+    Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
   fRun->AddModule(Mvd);
   
    //-------------------------  GEM      -----------------
@@ -138,19 +138,22 @@
   boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
   boxGen->SetThetaRange(15, 15); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
-  primGen->AddGenerator(boxGen);
+  //primGen->AddGenerator(boxGen);
 
   //FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   //fRun->SetGenerator(primGen);
 
   //DPM
-  //TString dpmfile = basejobdir+"10k_2Gev_el_and_inel_DPMDATA.root";
-  //PndDpmGenerator* dpmGen = new PndDpmGenerator(dpmfile);
-  //primGen->AddGenerator(dpmGen);  
-   
+  // TString dpmfile = basejobdir+"10k_2Gev_el_and_inel_DPMDATA.root";
+  // PndDpmGenerator* dpmGen = new PndDpmGenerator(dpmfile);
+  // primGen->AddGenerator(dpmGen);  
+
+  double mom=15.;
+  double mode=1;
+  PndDpmDirect *dpmGen = new PndDpmDirect(mom,mode, gRandom->GetSeed(), 2.);
+  primGen->AddGenerator(dpmGen);
   
-  //FairEvtGenGenerator* evtGen = new
-  //FairEvtGenGenerator("../data/evtgen.y4260.jpsipipi.vvpipi.dat");
+  FairEvtGenGenerator* evtGen = new FairEvtGenGenerator("input/psi2s_jpsi2pi_1k.evt");
   //primGen->AddGenerator(evtGen);
   
   
@@ -161,8 +164,15 @@
 
   
   fRun->SetBeamMom(15);
-  PndMultiField *fField= new PndMultiField("FULL");
-  fRun->SetField(fField);
+  //PndMultiField *fField= new PndMultiField("FULL");
+
+ PndConstField *fMagField=new PndConstField();
+      fMagField->SetField(0, 0 ,20. ); // values are in kG
+     // MinX=-75, MinY=-40,MinZ=-12 ,MaxX=75, MaxY=40 ,MaxZ=124 );  // values are in cm
+  fMagField->SetFieldRegion(-500, 500,-500, 500, -500, 500);
+
+
+  fRun->SetField(fMagField);
   //fRun->SetStoreTraj(kTRUE);
   fRun->SetStoreTraj(kFALSE);
   
@@ -199,6 +209,9 @@
   // -----------------
 
   fRun->Run(nEvents);
+
+
+  rtdb->saveOutput();
 
   timer.Stop();
   Double_t rtime = timer.RealTime();
