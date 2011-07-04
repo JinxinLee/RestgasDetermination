@@ -201,6 +201,7 @@ PndTpcRiemannTrackingTask::Init()
   _trackfinder->setSortingMode(_sortingMode);
   _trackfinder->setMinHitsForFit(_minpoints);
   _trackfinder->setScale(_riemannscale);
+  _trackfinder->setTTProxcut(_TTproxcut);
 
   // Hit-Track Correlators
   _trackfinder->addCorrelator(new PndTpcProximityHTCorrelator(_proxcut));
@@ -337,11 +338,11 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
   //if(_doClean) _trackfinder->cleanTracks(friemannlist, _szcut, _planecut);
 
   if(_mergeTracks && fnsectors>1) {
-    if(_sorting==3){
+    /*if(_sorting==3){
       _trackfinder->setSorting(2);
       _trackfinder->mergeTracks(friemannlist);
       _trackfinder->setSorting(_sorting);
-    }
+    }*/
     _trackfinder->mergeTracks(friemannlist);
   }
 
@@ -364,10 +365,10 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       globalCol.AddIDCollection(friemannlist[itr]->mcid());
       map<double,double>::iterator it=goodCl.begin();
       while(it!=goodCl.end()){
-	if(friemannlist[itr]->mcid().MaxRelWeight()>=it->first){
-	  it->second=it->second+1;
-	}
-	++it;
+        if(friemannlist[itr]->mcid().MaxRelWeight()>=it->first){
+          it->second=it->second+1;
+        }
+        ++it;
       }// end loop over bins
     }// end loop over tracklets
     if (fVerbose) {
@@ -425,8 +426,8 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     }
     if (fVerbose) std::cout<<std::endl;
 
-// store PndTpcRiemannTracks in output array
-   new((*_riemannTrackArray)[_riemannTrackArray->GetEntries()]) PndTpcRiemannTrack(*trk);
+    // store PndTpcRiemannTracks in output array
+    new((*_riemannTrackArray)[_riemannTrackArray->GetEntries()]) PndTpcRiemannTrack(*trk);
     for(unsigned int ih=0;ih<nhits;++ih){
       PndTpcRiemannHit* hit=trk->getHit(ih);
       new ((*_riemannHitArray)[_riemannHitArray->GetEntries()]) PndTpcRiemannHit(*hit);
