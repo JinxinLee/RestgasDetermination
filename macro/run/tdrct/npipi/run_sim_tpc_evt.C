@@ -1,6 +1,6 @@
 // Macro created 03/05/2011 by S.Spataro
 // It creates an evtgen simulation for the tracking TDR
-run_sim_stt_evt(Int_t nEvents=10, UInt_t seed=0){
+run_sim_tpc_evt(Int_t nEvents=10, UInt_t seed=0){
   gRandom->SetSeed(seed);
   TStopwatch timer;
   timer.Start();
@@ -11,17 +11,15 @@ run_sim_stt_evt(Int_t nEvents=10, UInt_t seed=0){
   rootlogon();
   
   TString digiFile = "all.par";
-  TString parFile = "evt_params_stt.root";
-  
+  TString parFile = "evt_params_tpc.root";
+  TString mcMode = "TGeant3";  
   FairRunSim *fRun = new FairRunSim();
 
   // set the MC version used
   // ------------------------
 
-  fRun->SetName("TGeant3");
-  //fRun->SetName("TGeant4");
-
-  fRun->SetOutputFile("evt_points_stt.root");
+   fRun->SetName(mcMode);
+  fRun->SetOutputFile("evt_points_tpc.root");
 
   // Set the parameters
   //-------------------------------
@@ -61,9 +59,10 @@ run_sim_stt_evt(Int_t nEvents=10, UInt_t seed=0){
   FairModule *Pipe= new PndPipe("PIPE");
   fRun->AddModule(Pipe);
 
-  FairDetector *Stt= new PndStt("STT", kTRUE);
-  Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
-  fRun->AddModule(Stt);
+  PndTpcDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
+  Tpc->SetGeometryFileName("TPC_V1.1.root");    //new ROOT geometry
+  if(mcMode=="TGeant3")  Tpc->SetAliMC();
+  fRun->AddModule(Tpc);
 
   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
@@ -116,13 +115,13 @@ run_sim_stt_evt(Int_t nEvents=10, UInt_t seed=0){
   //primGen->AddGenerator(evtGen);
 
   // ... generate your signal on the fly
-  PndEvtGenDirect *EvtGen = new PndEvtGenDirect("psi(2S)","PSI2S.DEC");
+  PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem","pipi.dec",4.0);
   EvtGen->SetStoreTree(kFALSE);
   primGen->AddGenerator(EvtGen);
 
   // Create and Set Magnetic Field
   //-------------------------------
-  fRun->SetBeamMom(15);
+  fRun->SetBeamMom(4.0);
   PndMultiField *fField= new PndMultiField("FULL");
   fRun->SetField(fField);
 

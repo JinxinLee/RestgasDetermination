@@ -104,6 +104,11 @@ run_sim_tpc_evt(Int_t nEvents=10, UInt_t seed=0){
   //-------------------------------
 
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
+  primGen->SetTarget(0., 0.5/2.355);
+  primGen->SmearVertexZ(kTRUE);
+  primGen->SmearGausVertexZ(kTRUE);
+  primGen->SetBeam(0., 0., 0.1, 0.1);
+  primGen->SmearVertexXY(kTRUE);
   fRun->SetGenerator(primGen);
 
   // ... generate your signal on the fly

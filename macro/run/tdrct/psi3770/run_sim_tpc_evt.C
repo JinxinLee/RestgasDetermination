@@ -1,6 +1,6 @@
 // Macro created 03/05/2011 by S.Spataro
 // It creates an evtgen simulation for the tracking TDR
-run_sim_stt_evt(Int_t nEvents=10, UInt_t seed=0){
+run_sim_tpc_evt(Int_t nEvents=10, UInt_t seed=0){
   gRandom->SetSeed(seed);
   TStopwatch timer;
   timer.Start();
@@ -11,17 +11,15 @@ run_sim_stt_evt(Int_t nEvents=10, UInt_t seed=0){
   rootlogon();
   
   TString digiFile = "all.par";
-  TString parFile = "evt_params_stt.root";
-  
+  TString parFile = "evt_params_tpc.root";
+  TString mcMode = "TGeant3";
   FairRunSim *fRun = new FairRunSim();
 
   // set the MC version used
   // ------------------------
 
-  fRun->SetName("TGeant3");
-  //fRun->SetName("TGeant4");
-
-  fRun->SetOutputFile("evt_points_stt.root");
+  fRun->SetName(mcMode);
+  fRun->SetOutputFile("evt_points_tpc.root");
 
   // Set the parameters
   //-------------------------------
@@ -53,7 +51,7 @@ run_sim_stt_evt(Int_t nEvents=10, UInt_t seed=0){
   //Magnet->SetGeometryFileName("FullSolenoid_V842.root");
   Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
   fRun->AddModule(Magnet);
-
+  
   FairModule *Dipole= new PndMagnet("MAGNET");
   Dipole->SetGeometryFileName("dipole.geo");
   fRun->AddModule(Dipole);
@@ -61,16 +59,17 @@ run_sim_stt_evt(Int_t nEvents=10, UInt_t seed=0){
   FairModule *Pipe= new PndPipe("PIPE");
   fRun->AddModule(Pipe);
 
-  FairDetector *Stt= new PndStt("STT", kTRUE);
-  Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
-  fRun->AddModule(Stt);
+  PndTpcDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
+  Tpc->SetGeometryFileName("TPC_V1.1.root");    //new ROOT geometry
+  if(mcMode=="TGeant3")  Tpc->SetAliMC();
+  fRun->AddModule(Tpc);
 
   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
   fRun->AddModule(Mvd);
 
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
-  Emc->SetGeometryVersion(19); 
+  Emc->SetGeometryVersion(19);
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
 
@@ -112,17 +111,14 @@ run_sim_stt_evt(Int_t nEvents=10, UInt_t seed=0){
   primGen->SmearVertexXY(kTRUE);
   fRun->SetGenerator(primGen);
 
-  //FairEvtGenGenerator* evtGen = new FairEvtGenGenerator("output.evt");
-  //primGen->AddGenerator(evtGen);
-
   // ... generate your signal on the fly
-  PndEvtGenDirect *EvtGen = new PndEvtGenDirect("psi(2S)","PSI2S.DEC");
+  PndEvtGenDirect *EvtGen = new PndEvtGenDirect("psi(3770)","psi3770.dec");
   EvtGen->SetStoreTree(kFALSE);
   primGen->AddGenerator(EvtGen);
 
   // Create and Set Magnetic Field
   //-------------------------------
-  fRun->SetBeamMom(15);
+  fRun->SetBeamMom(6.5788);
   PndMultiField *fField= new PndMultiField("FULL");
   fRun->SetField(fField);
 
@@ -130,7 +126,6 @@ run_sim_stt_evt(Int_t nEvents=10, UInt_t seed=0){
   //-------------------------------
   PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
   fRun->AddTask(emcHitProd);
-  
   
   /**Initialize the session*/
   fRun->Init();

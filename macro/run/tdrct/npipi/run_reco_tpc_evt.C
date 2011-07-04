@@ -4,14 +4,14 @@
   Int_t iVerbose = 0;
 
   // Input file
-  TString inDigiFile = "digi_tpccombi.root";
-  TString inSimFile = "points_tpccombi.root";
+  TString inDigiFile = "evt_digi_tpc.root";
+  TString inSimFile = "evt_points_tpc.root";
 
   // Parameter file
-  TString parFile = "params_tpccombi.root";
+  TString parFile = "evt_params_tpc.root";
 
   // Output file
-  TString outFile = "reco_tpccombi.root";
+  TString outFile = "evt_reco_tpc.root";
 
   // Number of events to process
   Int_t nEvents = 0;
@@ -51,26 +51,15 @@
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
   PndGeoHandling* geoH = PndGeoHandling::Instance();
-
-  bool SimpleClustering=true;
-
+  // ------------------------------------------------------------------------
+ 
   // ------- RECO procedure ------------------------------------------------
  
-  PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
-  //tpcCF->SetDigiPersistence(); // keep reference to digis in clusters
-  tpcCF->SetPersistence(); // keep Clusters
-  tpcCF->timeslice(4); //in samples
-  tpcCF->SetThreshold(1);
-  tpcCF->SetSingleDigiClusterAmpCut(0.);
-  tpcCF->SetClusterAmpCut(0.); // cut on mean digi amplitude
-  tpcCF->SetErrorPars(600.,400.);
-  tpcCF->SetSimpleClustering(); // use PndTpcClusterFinderSimple
-  fRun->AddTask(tpcCF);
-
   //correct for unfortunate shift in TPC digi
-  PndTpcRoughAlignmentTask* align = new PndTpcRoughAlignmentTask();
-  align->SetShift(TVector3(0.,0.,-3.71357e-01));
-  fRun->AddTask(align);
+  //PndTpcRoughAlignmentTask* align = new PndTpcRoughAlignmentTask();
+  //align->SetShift(TVector3(0.,0.,-3.71357e-01));   //old PSA
+  //align->SetShift(TVector3(0.,0.,5.6E-2));      //new PSA
+  //fRun->AddTask(align);
   
 
   //find track candidates in the TPC alone
@@ -90,9 +79,10 @@
         0.1,  // dip cut [rad]
         0.6,  // helix cut [cm]
         0.025);// plane cut (RMS)
-  tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
+  //tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
   tpcSPR->useGeane(); // use RKTrackrep and GeaneTrackrep
-  tpcSPR->SetSmoothing(true);
+  tpcSPR->SetSmoothing(true); 
+  tpcSPR->SetMCPid(); // use ideal particle identification
   fRun->AddTask(tpcSPR);
   
   KalmanTask* kalman =new KalmanTask();
@@ -102,7 +92,7 @@
 
   //correlate fitted track with MVD pixels and strips
   PndTpcMVDCorrelatorTask* corr = new PndTpcMVDCorrelatorTask();
-  corr->SetMatchDistance(100.);   //mutliple of MVD hit sigma (which 100 -> roughly 20 mu)
+  corr->SetMatchDistance(200.);   //mutliple of MVD hit sigma (which 100 -> roughly 20 mu)
   corr->SetMinMVDHits(3);
   corr->SetOutTrackBranchName("TrackPreFitMVD");
   corr->SetPersistence(true);
@@ -118,8 +108,8 @@
   fRun->AddTask(kalman2);
 
   PndTpcGEMCorrelatorTask* corrG = new PndTpcGEMCorrelatorTask();
-  corrG->SetMatchDistance(200.);   //mutliple of GEM hit sigma 
-  corrG->SetMinGEMHits(1);
+  corrG->SetMatchDistance(100.);   //mutliple of GEM hit sigma 
+  corrG->SetMinGEMHits(2);
   corrG->SetTrackBranchName("TrackPostFitMVD");
   corrG->SetOutTrackBranchName("TrackPreFitGEM");
   corrG->SetPersistence(true);
@@ -133,8 +123,16 @@
   kalman3->SetOutBranchName("TrackPostFitComplete");
   fRun->AddTask(kalman3);
 
-      
- 
+  PndGFTrackToPndTrackConvertorTask* converter =new PndGFTrackToPndTrackConvertorTask();
+  converter->SetTrackInBranchName("TrackPostFitComplete");
+  converter->SetTrackOutBranchName("PndTrackPostFitComplete");
+  fRun->AddTask(converter);
+
+  PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
+  trackMC->SetTrackInBranchName("PndTrackPostFitComplete"); 
+  trackMC->SetTrackOutBranchName("TrackPostFitCompleteID");
+  fRun->AddTask(trackMC);
+
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(6);
   fRun->Init();
@@ -142,6 +140,9 @@
 
   rtdb->saveOutput();
   rtdb->print();
+
+  corr->WriteHistograms("MVDRes.root");
+  corrG->WriteHistograms("GEMRes.root");
 
   // ------------------------------------------------------------------------
 

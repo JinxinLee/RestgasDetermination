@@ -9,12 +9,12 @@
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
   // ------------------------------------------------------------------------
   // Output file
-  TString parFile = "params_tpccombi.root";
-  TString inSimuFile = "points_tpccombi.root";
-  TString inDigiFile = "digi_tpccombi.root";
-  TString inRecoFile = "reco_tpccombi.root";
+  TString parFile = "evt_params_tpc.root";
+  TString inSimuFile = "evt_points_tpc.root";
+  TString inDigiFile = "evt_digi_tpc.root";
+  TString inRecoFile = "evt_reco_tpc.root";
 
-  TString outFile = "pid_tpccombi.root";
+  TString outFile = "evt_pid_tpc.root";
    
   // In general, the following parts need not be touched
   // ========================================================================
@@ -48,8 +48,9 @@
   
   PndPidCorrelator* corr = new PndPidCorrelator();
   //corr->SetVerbose();
-  corr->SetInputBranch("LheGenTrack");
-  corr->SetInputIDBranch("LheTrackID");
+  corr->SetInputBranch("PndTrackPostFitComplete");
+  corr->SetInputIDBranch("TrackPostFitCompleteID");
+  //corr->SetMvdMode(0);
   //corr->SetDebugMode(kTRUE);
   fRun->AddTask(corr);
  
