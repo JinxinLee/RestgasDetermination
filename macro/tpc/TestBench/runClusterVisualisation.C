@@ -58,7 +58,7 @@ void runClusterVisualisation(TString filename,
   }
   else if(paramSet==1){ // standard PANDA SIM Settings
     gasfile=basedir+"/tpc/NEON-90_CO2-10_B2_PRES1013.asc";
-    padplanefile=basedir+"/tpc/pndhexplane0.15.dat";
+    padplanefile=basedir+"/tpc/pndhexplane0.15.16s.dat";
     padshapefile=basedir+"/tpc/Hexagons0.15.dat";
     gain=4000;
     spread=0.02;
