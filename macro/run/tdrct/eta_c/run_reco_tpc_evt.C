@@ -86,9 +86,10 @@
         0.1,  // dip cut [rad]
         0.6,  // helix cut [cm]
         0.025);// plane cut (RMS)
-  tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
+  //tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
   tpcSPR->useGeane(); // use RKTrackrep and GeaneTrackrep
-  tpcSPR->SetSmoothing(true);
+  tpcSPR->SetSmoothing(true); 
+  tpcSPR->SetMCPid(); // use ideal particle identification
   fRun->AddTask(tpcSPR);
   
   KalmanTask* kalman =new KalmanTask();

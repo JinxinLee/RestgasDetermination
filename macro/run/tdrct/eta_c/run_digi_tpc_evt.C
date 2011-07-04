@@ -84,13 +84,16 @@
   fRun->AddTask(evttimegen);
 
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
-  tpcCF->SetDigiPersistence(); // keep Digis refs in clusters
-  tpcCF->SetPersistence();     // keep Clusters
-  tpcCF->timeslice(10);        //in samples
-  tpcCF->SetErrorPars(600,300);
+  //tpcCF->SetDigiPersistence(); // keep reference to digis in clusters
+  tpcCF->SetPersistence(); // keep Clusters
+  tpcCF->timeslice(10); //in samples
+  tpcCF->SetThreshold(1);
+  tpcCF->SetSingleDigiClusterAmpCut(0.);
+  tpcCF->SetClusterAmpCut(0.); // cut on mean digi amplitude
+  tpcCF->SetErrorPars(600.,400.);
   tpcCF->SetSimpleClustering(); // use PndTpcClusterFinderSimple
   fRun->AddTask(tpcCF);
-  
+
   // -----   MDV digi producers   --------------------------------- 
   PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
   mvddigi->SetVerbose(iVerbose);
