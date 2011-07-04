@@ -70,6 +70,8 @@ public:
   void setInteractionZ(double z){_interactionZ=z;}
   void setMaxNumHitsForPR(double MaxNumHitsForPR){_MaxNumHitsForPR=MaxNumHitsForPR;} // for debugging
 
+  void setTTProxcut(double cut){_TTproxcut=cut;} // needed for speeding up the merging
+
   void setScale(double scale){fRiemannScale=scale;}
   double getScale()const {return fRiemannScale;}
 
@@ -102,6 +104,8 @@ private:
   int _MaxNumHitsForPR; // for debugging
 
   unsigned int _minHitsForFit;
+
+  double _TTproxcut;
   double fRiemannScale;
   
   // Private Methods -----------------

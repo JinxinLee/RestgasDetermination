@@ -41,17 +41,18 @@
 using namespace std;
 
 //#define DEBUG
+#define UPTOHIT
 
 // Class Member definitions -----------
 PndTpcRiemannTrackFinder::PndTpcRiemannTrackFinder()
   : _minHitsForFit(5), _sortingMode(false), 
-    _sorting(3), _interactionZ(0.), _MaxNumHitsForPR(2147483646), fRiemannScale(24.6)
+    _sorting(3), _interactionZ(0.), _MaxNumHitsForPR(2147483646), _TTproxcut(500), fRiemannScale(24.6)
 {   
 }
 
 PndTpcRiemannTrackFinder::PndTpcRiemannTrackFinder(double scale)
   : _minHitsForFit(5), _sortingMode(false), 
-    _sorting(3), _interactionZ(0.), _MaxNumHitsForPR(2147483646), fRiemannScale(scale)
+    _sorting(3), _interactionZ(0.), _MaxNumHitsForPR(2147483646), _TTproxcut(500), fRiemannScale(scale)
 {   
 }
 
@@ -104,7 +105,7 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
   sortClusters(cll);
   int ncor = _correlators.size();
 
-  #ifdef DEBUG
+  #ifdef UPTOHIT
     if(_MaxNumHitsForPR<ncl) ncl=_MaxNumHitsForPR;
   #endif
 
@@ -239,10 +240,18 @@ PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist
   // sort tracklets, but use different sorting than for clusters!
   sortTracklets(candlist);
 
+  double z1max, z2min, zTemp;
 
   for(unsigned int itrk1=0; itrk1<ntr-1; ++itrk1){ // loop over tracks
     if(candlist[itrk1]==NULL)continue;
     PndTpcRiemannTrack* trk1=candlist[itrk1];
+
+    // find max z of trk1
+    if(_sorting==3){
+      z1max = trk1->getFirstHit()->cluster()->pos().Z();
+      zTemp = trk1->getLastHit()->cluster()->pos().Z();
+      if (zTemp>z1max) z1max=zTemp;
+    }
 
     for(unsigned int itrk2=itrk1+1; itrk2<ntr; ++itrk2){ // loop over the other tracks to be tested
       if(candlist[itrk2]==NULL)continue;
@@ -252,6 +261,20 @@ PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist
       #endif
 
       PndTpcRiemannTrack* trk2=candlist[itrk2];
+
+      // find min z of trk2
+      if(_sorting==3){
+        z2min = trk2->getFirstHit()->cluster()->pos().Z();
+        zTemp = trk2->getLastHit()->cluster()->pos().Z();
+        if (zTemp<z2min) z2min=zTemp;
+        // tracklets are sorted by z (from small to big), if the smallest z of the trk2 is bigger than the maximum z of trk1, skip all other tracks
+        if (z2min > (z1max + _TTproxcut + 0.1) ) {
+          #ifdef DEBUG
+            std::cout<<" (z2min > (z1max + _TTproxcut + 0.1) ), skipping rest of trk2 tracklets (" << ntr-itrk2 << ")" <<std::endl;
+          #endif
+          break; // continue with next trk1
+        }
+      }
 
       // WE STEP THROUGH THE INDIVIDUAL CORRELATORS
       // IF THE TRACK trk2 SURVIVES EACH CORRELATOR
