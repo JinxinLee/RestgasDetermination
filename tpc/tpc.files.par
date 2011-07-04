@@ -34,3 +34,5 @@ tpc/TestBench/PadShapePrototype.dat
 tpc/TestBench/ARGON-89.635_CO2-10.365_B0.3_PRES1013.asc
 tpc/TestBench/NEON-90_CO2-10_B0.6_PRES1013.asc
 tpc/TestBench/ARGON-90_CO2-10_B0.6_PRES1013.asc
+tpc/pndhexplane0.15.32s.dat
+tpc/pndhexplane0.15.16s.dat
