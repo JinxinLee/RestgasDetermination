@@ -185,6 +185,10 @@ private:
 
   TGCheckButton* guiDrawRiemannTracks;
   bool drawRiemannTracks;
+  TGNumberEntry* guifpurityCut;
+  double fpurityCut;
+  TGCheckButton* guiDrawPOCA;
+  bool drawPOCA;
   TGCheckButton* guiDrawFitMarkers;
   bool drawFitMarkers;
 
@@ -218,8 +222,13 @@ private:
   bool doPR;
   TGNumberEntry* guiPRNHits;
   int PRNHits;
+  TGCheckButton* guiClearUnfitted;
+  bool clearUnfitted;
   TGCheckButton* guiDoMerge;
   bool doMerge;
+  TGCheckButton* guiDoGlobMerge;
+  bool doGlobMerge;
+
   TGCheckButton* guiDoClean;
   bool doClean;
 
@@ -239,6 +248,8 @@ private:
   double _szcut;
   TGNumberEntry* guiproxcut;
   double _proxcut;
+  TGNumberEntry* guiproxZstretch;
+  double _proxZstretch;
   TGNumberEntry* guihelixcut;
   double _helixcut;
   TGNumberEntry* guiTTproxcut;

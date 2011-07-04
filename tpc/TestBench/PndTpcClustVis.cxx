@@ -44,20 +44,20 @@ PndTpcClustVis* PndTpcClustVis::eventDisplay = NULL;
 
 
 PndTpcClustVis::PndTpcClustVis():
-  tree(NULL), digisBranch(NULL), clustersBranch(NULL), preFitBranch(NULL), postFitBranch(NULL),
+  tree(NULL), digisBranch(NULL), clustersBranch(NULL), preFitBranch(NULL), postFitBranch(NULL), fpurityCut(1.),
   guiEvent(0), fEventId(0), ClHasChanged(true),
   doClustering(false), ClMode(2), ClTimeslice(3),ClTimecut(2),
   ClSingleDigiClAmpCut(15), ClClAmpCut(9),
   ClElPerADC(600.), ClErrorNorm(300.),
   ClSimpleCl(true), ClSimpleTimeslice(4), ClSimpleMaxClusterSlice(3000),
   instantRedraw(true), drawTpc(false), TpcTransp(80), drawRawDigis(false), drawDigis(false),
-  drawClusters(true), drawClusterErrors(false),
-  drawRiemannTracks(true), drawFitMarkers(false),
-  doPR(true), doMerge(true), doClean(false),
+  drawClusters(false), drawClusterErrors(false),
+  drawRiemannTracks(true), drawPOCA(false), drawFitMarkers(false),
+  doPR(true), clearUnfitted(false), doMerge(true), doGlobMerge(true), doClean(false),
   _sorting(3), _interactionZ(0), _sortingMode(true),
   PRNHits(1000000),
-  _minpoints(4), _planecut(0.04), _riproxcut(0.1), _szcut(0.2), _proxcut(1.9), _helixcut(0.4),
-  _TTproxcut(2.5), _TTplanecut(0.025), _TTszcut(0.33), _TTdipcut(0.1), _TThelixcut(0.6),
+  _minpoints(4), _planecut(0.04), _riproxcut(0.1), _szcut(0.2), _proxcut(1.36), _proxZstretch(1.6), _helixcut(0.4),
+  _TTproxcut(2.5), _TTplanecut(0.015), _TTszcut(0.33), _TTdipcut(0.1), _TThelixcut(0.6),
   PRHasChanged(true),
   fRiemannScale(8.6),
   doFit(false), useGeane(false), numIts(0), smooth(false), Bz(0)
@@ -210,7 +210,6 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
   // Draw tpc
   if(drawTpc){
-    // TODO: DRAW CORRECT FOR FOPI AND PANDA
     bool panda = false;
     if(fRiemannScale >10) panda = true;
 
@@ -417,9 +416,10 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     _trackfinder->setMinHitsForFit(_minpoints);
     _trackfinder->setScale(fRiemannScale);
     _trackfinder->setMaxNumHitsForPR(PRNHits);
+    _trackfinder->setTTProxcut(_TTproxcut);
 
     // Hit-Track Correlators
-    _trackfinder->addCorrelator(new PndTpcProximityHTCorrelator(_proxcut));
+    _trackfinder->addCorrelator(new PndTpcProximityHTCorrelator(_proxcut, _proxZstretch));
     _trackfinder->addCorrelator(new PndTpcHelixHTCorrelator(_helixcut));
 
     // Track-Track Correlators
@@ -440,8 +440,14 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       std::cerr << "... building tracks in sector " << isect << std::endl;
       fcluster_buffer=buffermap[isect];
       _trackfinder->buildTracks(*fcluster_buffer,riemannTemp);
-      if(doClean) _trackfinder->cleanTracks(riemannlist, _szcut, _planecut);
-      if(doMerge) _trackfinder->mergeTracks(riemannTemp);
+
+      if(doClean) _trackfinder->cleanTracks(riemannTemp, _szcut, _planecut);
+
+      if(doMerge) {
+        std::cerr << "    merge " << riemannTemp.size() << " tracks in sector " << isect;
+        _trackfinder->mergeTracks(riemannTemp);
+        std::cerr << " ... done - created " << riemannTemp.size() << " merged tracks" <<std::endl;
+      }
 
       // copy tracklets of this sector to global list
       unsigned int ntrklts=riemannTemp.size();
@@ -452,18 +458,31 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       riemannTemp.clear();
     } // end loop over sectors
 
-    if(doClean) _trackfinder->cleanTracks(riemannlist, _szcut, _planecut);
+    if(doClean) {
+      _trackfinder->cleanTracks(riemannlist, _szcut, _planecut);
+    }
 
-    if(doMerge && nsectors>1) {
-      if(_sorting==3){
+    if(doGlobMerge && nsectors>1) {
+      std::cerr << "merge " << riemannlist.size() << " tracks ... ";
+      /*if(_sorting==3){
         _trackfinder->setSorting(2);
         _trackfinder->mergeTracks(riemannlist);
         _trackfinder ->setSorting(_sorting);
-      }
+      }*/
       _trackfinder->mergeTracks(riemannlist);
+      std::cerr << " done - created " << riemannlist.size() << " merged tracks" <<std::endl;
     }
 
     if(doClean && nsectors>1) _trackfinder->cleanTracks(riemannlist, _szcut, _planecut);
+
+    if(clearUnfitted){ // TODO
+      std::vector<PndTpcRiemannTrack*> riemannTemp2;
+      for (unsigned int i=0; i<riemannTemp.size(); ++i){
+        if (riemannTemp[i]->isFitted()) riemannTemp2.push_back(riemannTemp[i]);
+        riemannTemp.clear();
+        riemannTemp=riemannTemp2;
+      }
+    }
 
 
     // print MCIDs
@@ -482,18 +501,36 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
   ClHasChanged=false;
 
-
   // draw PR results
+  unsigned int counter=0;
   if(doPR && (drawClusters || drawRiemannTracks)){
     std::cerr<<"draw PR results..."<<std::endl;
-    for(unsigned int ir=0;ir<riemannlist.size();ir+=1){ // loop over trackcands
+    for(unsigned int ir=0; ir<riemannlist.size(); ir+=1){ // loop over trackcands
+
       PndTpcRiemannTrack* trkcand = riemannlist[ir];
+
+      // cut on purity -> draw only bad tracks
+      if(trkcand->mcid().MaxRelWeight()>fpurityCut){
+	      //std::cerr << "Skippping good track" << std::endl;
+	      continue;
+      }
+     
+      // only plot every 100th tracklet
+      /*if (fpurityCut<1){
+        if(! ++counter%100==0) continue;
+        else std::cout << ".";
+      }*/
+      
+
       unsigned int nhits=trkcand->getNumHits();
 
       int colour = ir%colors.size();
 
       TVector3 old_track_pos, pos;
       TEveStraightLineSet* track_lines = NULL;
+
+      if(drawPOCA) old_track_pos = riemannlist[ir]->pocaToZ();
+
 
       for(unsigned int ih=0;ih<nhits;++ih){ // loop over clusters
         PndTpcCluster* cluster = trkcand->getHit(ih)->cluster();
@@ -504,7 +541,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
         if(drawRiemannTracks){
           pos = cluster->pos();
           if(track_lines==NULL) track_lines = new TEveStraightLineSet;
-          if(ih > 0) {
+          if(ih > 0 || (ih==0 && drawPOCA && riemannlist[ir]->isFitted()) ) {
             track_lines->AddLine(old_track_pos(0), old_track_pos(1), old_track_pos(2), pos(0), pos(1), pos(2));
             track_lines->SetMainColor(colors[colour]);
             track_lines->SetLineWidth(1);
@@ -516,6 +553,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
       if(track_lines != NULL) gEve->AddElement(track_lines);
     } // end loop over trackcands
+    std::cerr<<" done"<<std::endl;
   } // end draw PR results
 
 
@@ -965,6 +1003,24 @@ void PndTpcClustVis::makeGui() {
   }
   frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
+    guifpurityCut = new TGNumberEntry(hf, fpurityCut, 6,999, TGNumberFormat::kNESRealThree,
+                          TGNumberFormat::kNEANonNegative,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 1);
+    hf->AddFrame(guifpurityCut);
+    guifpurityCut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
+    lbl = new TGLabel(hf, "Draw only tracks with purity less than x");
+    hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    guiDrawPOCA =  new TGCheckButton(hf, "Draw POCAs to z-axis");
+    if(drawPOCA) guiDrawPOCA->Toggle();
+    hf->AddFrame(guiDrawPOCA);
+    guiDrawPOCA->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
+  }
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
     guiDrawFitMarkers =  new TGCheckButton(hf, "Draw Fit-Markers");
     if(drawFitMarkers) guiDrawFitMarkers->Toggle();
     hf->AddFrame(guiDrawFitMarkers);
@@ -1237,6 +1293,17 @@ void PndTpcClustVis::makeGui() {
   }
   frmMain2->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain2); {
+    guiproxZstretch = new TGNumberEntry(hf, _proxZstretch, 6,999, TGNumberFormat::kNESRealThree,
+                          TGNumberFormat::kNEAPositive,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 99);
+    hf->AddFrame(guiproxZstretch);
+    guiproxZstretch->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
+    lbl = new TGLabel(hf, "Proximity cut z stretch");
+    hf->AddFrame(lbl);
+  }
+  frmMain2->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain2); {
     guihelixcut = new TGNumberEntry(hf, _helixcut, 6,999, TGNumberFormat::kNESRealThree,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
@@ -1250,10 +1317,24 @@ void PndTpcClustVis::makeGui() {
 
   // Trackmerger Parameters
   hf = new TGHorizontalFrame(frmMain2); {
-    guiDoMerge =  new TGCheckButton(hf, "Do TrackMerging");
+    guiClearUnfitted =  new TGCheckButton(hf, "Delete unfitted tracklets before merging");
+    if(clearUnfitted) guiClearUnfitted->Toggle();
+    hf->AddFrame(guiClearUnfitted);
+    guiClearUnfitted->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
+  }
+  frmMain2->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain2); {
+    guiDoMerge =  new TGCheckButton(hf, "Do TrackMerging in sectors");
     if(doMerge) guiDoMerge->Toggle();
     hf->AddFrame(guiDoMerge);
     guiDoMerge->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
+  }
+  frmMain2->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain2); {
+    guiDoGlobMerge =  new TGCheckButton(hf, "Do global TrackMerging");
+    if(doGlobMerge) guiDoGlobMerge->Toggle();
+    hf->AddFrame(guiDoGlobMerge);
+    guiDoGlobMerge->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
   }
   frmMain2->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain2); {
@@ -1378,7 +1459,7 @@ void PndTpcClustVis::guiGoto(){
 
 
 void PndTpcClustVis::guiSetDrawParams(){
-  if (!guiInstantRedraw->IsOn()) instantRedraw=false;
+  instantRedraw=(guiInstantRedraw->IsOn());
 
   drawTpc=(guiDrawTpc->IsOn());
   TpcTransp=guiTpcTransp->GetNumberEntry()->GetIntNumber();
@@ -1389,12 +1470,12 @@ void PndTpcClustVis::guiSetDrawParams(){
   doPR=(guiDoPR->IsOn());
 
   drawRiemannTracks=(guiDrawRiemannTracks->IsOn());
+  fpurityCut = guifpurityCut->GetNumberEntry()->GetNumber();
+  drawPOCA=(guiDrawPOCA->IsOn());
   drawFitMarkers=(guiDrawFitMarkers->IsOn());
 
   PndTpcClustVis*  fh = PndTpcClustVis::getInstance();
   if(instantRedraw) fh->gotoEvent(fEventId);
-
-  if (guiInstantRedraw->IsOn()) instantRedraw=true;
 }
 
 
@@ -1430,6 +1511,7 @@ void PndTpcClustVis::guiSetTrackingParams(){
   _riproxcut = guiriproxcut->GetNumberEntry()->GetNumber();
   _szcut = guiszcut->GetNumberEntry()->GetNumber();
   _proxcut = guiproxcut->GetNumberEntry()->GetNumber();
+  _proxZstretch = guiproxZstretch->GetNumberEntry()->GetNumber();
   _helixcut = guihelixcut->GetNumberEntry()->GetNumber();
   _TTproxcut = guiTTproxcut->GetNumberEntry()->GetNumber();
   _TTplanecut = guiTTplanecut->GetNumberEntry()->GetNumber();
@@ -1437,7 +1519,9 @@ void PndTpcClustVis::guiSetTrackingParams(){
   _TTdipcut = guiTTdipcut->GetNumberEntry()->GetNumber();
   _TThelixcut = guiTThelixcut->GetNumberEntry()->GetNumber();
   fRiemannScale=guiTTscale->GetNumberEntry()->GetNumber();
+  clearUnfitted=(guiClearUnfitted->IsOn());
   doMerge=(guiDoMerge->IsOn());
+  doGlobMerge=(guiDoGlobMerge->IsOn());
   doClean=(guiDoClean->IsOn());
   
   PndTpcClustVis*  fh = PndTpcClustVis::getInstance();
