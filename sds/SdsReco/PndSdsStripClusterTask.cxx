@@ -164,7 +164,15 @@ InitStatus PndSdsStripClusterTask::Init()
   
   fFunctor = new StopTime();
 
-
+  // Get input array
+  fDigiArray = (TClonesArray*) ioman->GetObject(fInBranchName);
+//
+  if ( ! fDigiArray )
+  {
+    std::cout << "-W- PndSdsPixelClusterTask::Init: "
+    << "No SDSDigi array!" << std::endl;
+    return kERROR;
+  }
   // set output arrays
   
 //  fClusterArray = new TClonesArray("PndSdsClusterStrip");
@@ -173,8 +181,8 @@ InitStatus PndSdsStripClusterTask::Init()
   fClusterArray = ioman->Register(fClustBranchName, "PndSdsClusterStrip", fFolderName, fPersistance);
 
   
-  fHitArray = new TClonesArray("PndSdsHit");
-  ioman->Register(fOutBranchName, fFolderName, fHitArray, fPersistance);
+  //fHitArray = new TClonesArray("PndSdsHit");
+  fHitArray = ioman->Register(fOutBranchName, "PndSdsHit", fFolderName, fPersistance);
   
   SetInBranchId();
   
@@ -195,20 +203,21 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
   fClusterArray = FairRootManager::Instance()->GetTClonesArray(fClustBranchName);
   if ( ! fClusterArray ) Fatal("Exec", "No ClusterArray");
   fClusterArray->Delete();
+
+  fHitArray = FairRootManager::Instance()->GetTClonesArray(fOutBranchName);
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
   fHitArray->Delete();
 
   // Get input array
 
-  if (fDigiArray > 0)
+	if (FairRunAna::Instance()->IsTimeStamp()){
 	  fDigiArray->Clear();
-
-	if (FairRunAna::Instance()->IsTimeStamp())
 	  fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fFunctor, FairRootManager::Instance()->GetEventTime() + 10); //FairRootManager::Instance()->GetEventTime() +
+	}
 	else
-	  fDigiArray = FairRootManager::Instance()->GetTClonesArray(fInBranchName);
+	  fDigiArray = (TClonesArray*)FairRootManager::Instance()->GetObject(fInBranchName);
 
-	std::cout << "-I- PndSdsStripClusterTask:: fDigiArray->Size(): " << fDigiArray->GetEntriesFast() << std::endl;
+	//std::cout << "-I- PndSdsStripClusterTask:: fDigiArray->Size(): " << fDigiArray->GetEntriesFast() << std::endl;
   //fDigiArray = (TClonesArray*) ioman->GetObject(fInBranchName);
   if ( ! fDigiArray )
   {
@@ -275,7 +284,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
       }
     }
     
-    std::cout << "-I- PndSdsStripClusterTask:: fClusterArray size: " << fClusterArray->GetEntries() << std::endl;
+   // std::cout << "-I- PndSdsStripClusterTask:: fClusterArray size: " << fClusterArray->GetEntries() << std::endl;
 
     //printout for checking
     if(fVerbose > 2) {

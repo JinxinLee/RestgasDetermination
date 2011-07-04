@@ -95,15 +95,16 @@ InitStatus PndSdsPixelClusterTask::Init()
     return kFATAL;
   }
   
+
   // Get input array
-//  fDigiArray = (TClonesArray*) ioman->GetObject(fInBranchName);
+  fDigiArray = (TClonesArray*) ioman->GetObject(fInBranchName);
 //
-//  if ( ! fDigiArray )
-//  {
-//    std::cout << "-W- PndSdsPixelClusterTask::Init: "
-//    << "No SDSDigi array!" << std::endl;
-//    return kERROR;
-//  }
+  if ( ! fDigiArray )
+  {
+    std::cout << "-W- PndSdsPixelClusterTask::Init: "
+    << "No SDSDigi array!" << std::endl;
+    return kERROR;
+  }
   
   fClusterArray = new TClonesArray("PndSdsClusterPixel");
   ioman->Register(fClustBranchName, fFolderName, fClusterArray, fPersistance);
@@ -134,23 +135,27 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
   fClusterArray->Delete();
   fGeoH->SetVerbose(fVerbose);
   
-  std::cout << "EventTime: " << FairRootManager::Instance()->GetEventTime() << std::endl;
+ // std::cout << "EventTime: " << FairRootManager::Instance()->GetEventTime() << std::endl;
 
-    if (fDigiArray > 0)
-  	  fDigiArray->Clear();
+//    if (fDigiArray > 0)
+//  	  fDigiArray->Clear();
 
-    if (FairRunAna::Instance()->IsTimeStamp())
-  	  fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fFunctor, FairRootManager::Instance()->GetEventTime() + 10); //FairRootManager::Instance()->GetEventTime() +
+    if (FairRunAna::Instance()->IsTimeStamp()){
+    	fDigiArray->Clear();
+    	fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fFunctor, FairRootManager::Instance()->GetEventTime() + 10); //FairRootManager::Instance()->GetEventTime() +
+
+    }
     else
-  	  fDigiArray = FairRootManager::Instance()->GetTClonesArray(fInBranchName);
+    	fDigiArray = (TClonesArray*) FairRootManager::Instance()->GetObject(fInBranchName);
 
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
   fHitArray->Delete();
   Int_t nPoints = fDigiArray->GetEntriesFast();
+//  std::cout << "Points in DigiArray: " << nPoints << std::endl;
   // convert from TClonesarray to a std::vector
   for (Int_t iPoint = 0; iPoint < nPoints; iPoint++){
     PndSdsDigiPixel myDigi = *(PndSdsDigiPixel*)(fDigiArray->At(iPoint));
-    std::cout << eventNr << " : Time " << FairRootManager::Instance()->GetEventTime() << " " << myDigi << std::endl;
+  //  std::cout << eventNr << " : Time " << FairRootManager::Instance()->GetEventTime() << " Entry: " << myDigi.GetEntryNr() << " " << myDigi << std::endl;
     DigiPixelArray.push_back(myDigi);
   }
   eventNr++;
@@ -176,10 +181,10 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
     // mapping with the choosen back mapping
     PndSdsHit myHit = fBackMapping->GetCluster(clusterArray);
     myHit.SetClusterIndex(fClusterType,i);
-//    if(fVerbose>1){
+    if(fVerbose>1){
       std::cout << " -I-  PndSdsPixelClusterTask::Exec(): Calculated Hit: " << std::endl;
       myHit.Print();
-//    }
+    }
     new ((*fHitArray)[i]) PndSdsHit(myHit);
   }
   if(fVerbose>1)std::cout << std::endl;
