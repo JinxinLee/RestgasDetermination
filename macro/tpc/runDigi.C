@@ -1,52 +1,30 @@
 {
   // ----  Load libraries   -------------------------------------------------
-  //gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  //basiclibs();
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
   
   // ------------------------------------------------------------------------
-
-  // ========================================================================
-  // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-  Int_t iVerbose = 1;
-
-
   //SET NUMBER OF EVENTS
   // ------------------------------------------------------------------------
 
-  Int_t nEvents=1000;
-
-
+  Int_t nEvents=100;
   TString basedir = gSystem->Getenv("VMCWORKDIR");
   
   // Set INPUT DIRECTORY (MC files) and JOBNAME
   // ------------------------------------------------------------------------
   TString inDir="TEST";
-  TString jobname="Test15deg";
+  TString jobname="physics";
 
   inDir=(basedir+"/")+inDir;
   TString inFile=(inDir+"/")+jobname;
   inFile+=".mc.root";
  
-
-  // make new subdir
-  // TString jobDir=inDir; jobDir+=jobname; jobDir+="/";
-  //   TString cmd="mkdir ";
-  //   cmd+=jobDir; 
-  //   if(gSystem->Exec(cmd)){
-  //     std::cout<<"Could not create Job-Directory "<<jobDir
-  // 	     <<". Aborting."<<std::endl;
-  //     return;
-  //   }
-
-
   TString outFile = inFile;
-  outFile.ReplaceAll(".mc.root", ".raw.root");
+  outFile.ReplaceAll(".mc.root", ".16s.raw.root");
   TString paramIn = inFile;
   paramIn.ReplaceAll(".mc.root",".param.root");
   TString paramOut = outFile;
-  paramOut.ReplaceAll(".raw.root",".raw.param.root");
+  paramOut.ReplaceAll(".raw.root",".param.root");
   
 
   std::cout<<"Input: "<<inFile<<std::endl;
@@ -65,16 +43,11 @@
   timer.Start();
   // ------------------------------------------------------------------------
 
-
-
   // -----   Digitization run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
-
-  // ------ QAplots
-  QAPlotCollection* qa=new QAPlotCollection("TpcDigiQAPlots");
 
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
@@ -97,19 +70,17 @@
   rtdb->setOutput(parOutput1);
   rtdb->saveOutput();
 
-  fRun->LoadGeometry();
+  //fRun->LoadGeometry();
   // ------------------------------------------------------------------------
-  
-    
-    // -----    Digi Sequence  --------------------------------------------
+     
+  // -----    Digi Sequence  --------------------------------------------
   PndTpcClusterizerTask* tpcClusterizer = new PndTpcClusterizerTask();
   //tpcClusterizer->SetPersistence();
   //ONLY USE THIS WHEN USING ALICE SETTINGS WITH GEANT3
   tpcClusterizer->SetMereChargeConversion();  
-  
   fRun->AddTask(tpcClusterizer);
   
-  /**   use Alice Style MC    
+  /**   Nots for the use of Alice Style MC    
    				make one hit per collision with atom
 				use other straggling
 		WARNING:	
@@ -126,7 +97,6 @@
   PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
   //tpcDrifter->SetPersistence();
   tpcDrifter->SetDistort(false);
-  tpcDrifter->SetQAPlotCol(qa);
   fRun->AddTask(tpcDrifter);
 
   PndTpcGemTask* tpcGem = new PndTpcGemTask();
@@ -135,32 +105,21 @@
 
   PndTpcPadResponseTask* tpcPadResponse = new PndTpcPadResponseTask();
   //tpcPadResponse->SetPersistence();
-  //tpcPadResponse->SetQAPlotCol(qa);
   fRun->AddTask(tpcPadResponse);
 
-  //PndTpcEvtMixTask* evtmixer = new PndTpcEvtMixTask();
-  //  evtmixer->SetBkgFileName("bkg2.raw.root");
-  //  evtmixer->SetNBkgEvts(500);
-  //  evtmixer->SetEvtRate(1E7);
-  //fRun->AddTask(evtmixer);
+  PndTpcEvtTimeGenTask* evttimegen = new PndTpcEvtTimeGenTask();
+  evttimegen->SetPersistence();
+  evttimegen->SetEvtRate(1E7);
+  evttimegen->SetT0(-evttimegen->MeanEvtSpacing()*0.5*nEvents);
+  fRun->AddTask(evttimegen);
+
 
   PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
   tpcElec->SetPersistence();
+ tpcElec->SetPSATimeCalib(2.8);
   //tpcElec->SetSamplePersistence();
-  //tpcElec->SetQAPlotCol(qa);
   fRun->AddTask(tpcElec);
   
-  PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
-  tpcCF->SetMode(1); // individual timeslice
-  tpcCF->SetDataMode(true);
-  tpcCF->SetPersistence();
-  tpcCF->SetDigiBranchName("PndTpcDigi");
-  tpcCF->timeslice(10); //in samples
-  tpcCF->SetDiffFactor(1.3);
-  //tpcCF->SetTrivialClustering();
-  fRun->AddTask(tpcCF);
-
-
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   rtdb->print();
@@ -168,21 +127,11 @@
   fRun->Run(0,nEvents); // process all events from input file
   // ------------------------------------------------------------------------
 
-  
-  //tpcDrifter->WriteHistograms();
-  //tpcPadResponse->WriteHistograms();
-  //tpcElec->WriteHistograms();
-
-  //FairRootManager::Instance()->GetOutFile()->mkdir("QAPlots");
-  //FairRootManager::Instance()->GetOutFile()->cd("QAPlots");
-  //qa->Write();
-
   // -----   Finish   -------------------------------------------------------
 
   
   rtdb->saveOutput();
   rtdb->print();
-
 
   timer.Stop();
   Double_t rtime = timer.RealTime();
@@ -194,6 +143,5 @@
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   // ------------------------------------------------------------------------
-
 
 }
