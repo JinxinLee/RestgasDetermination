@@ -201,7 +201,7 @@ PndTpcRiemannTrackingTask::Init()
   _trackfinder->setSortingMode(_sortingMode);
   _trackfinder->setMinHitsForFit(_minpoints);
   _trackfinder->setScale(_riemannscale);
-  //_trackfinder->setTTProxcut(_TTproxcut);
+  //_trackfinder->setTTProxcut(_TTproxcut); // TODO comment in again!!!
 
   // Hit-Track Correlators
   _trackfinder->addCorrelator(new PndTpcProximityHTCorrelator(_proxcut));
@@ -436,7 +436,7 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       double pdgCharge = TDatabasePDG::Instance()->GetParticle(pdg)->Charge();
       double MCpdgCharge = TDatabasePDG::Instance()->GetParticle(MCpdg)->Charge();
 
-      if (pdgCharge*MCpdgCharge > 0.) pdg = MCpdg;
+      if (pdgCharge*MCpdgCharge > -0.01) pdg = MCpdg; // also neutral particles may occur
       else pdg = -1.*MCpdg;
 
       // photon
