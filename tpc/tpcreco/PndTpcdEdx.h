@@ -17,7 +17,7 @@ public:
   PndTpcdEdx(){}
 
   double simpleMean();
-  double truncMean(double trash = 0.4);
+  double truncMean(double trashLow = 0.1, double trashHigh = 0.4);
   unsigned int nEntries(){return _data.size();}
   double detdE(int i){return _data.at(i).first;}
   double getdx(int i){return _data.at(i).second;}

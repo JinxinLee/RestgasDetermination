@@ -22,20 +22,22 @@ double PndTpcdEdx::simpleMean(){
   else return 0;
 }
 
-double PndTpcdEdx::truncMean(double trash){
+double PndTpcdEdx::truncMean(double trashLow, double trashHigh){
   int N = _data.size();
 
   //std::cout<<"N="<<N<<std::endl;
   
   sort(_data.begin(),_data.end(),dedxSort);
 
-  double cut=trash;  //throw away this percentage of entries (high tail)
+  double cutLow = trashLow;
+  double cutHigh = trashHigh;  //throw away this percentage of entries (high tail)
 
-  int intCut=(int)(cut*N);
+  int intCutLow = (int)(cutLow*N);
+  int intCutHigh = (int)(cutHigh*N);
 
   double sum=0.;
   int NinSum=0;
-  for(int i=0;i<(N-intCut);++i){
+  for(int i=intCutLow;i<(N-intCutHigh);++i){
 	if(fabs(_data.at(i).second)>1.E-10){
 	  sum+=_data.at(i).first/_data.at(i).second;
 	  ++NinSum;
