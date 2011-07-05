@@ -201,7 +201,7 @@ PndTpcRiemannTrackingTask::Init()
   _trackfinder->setSortingMode(_sortingMode);
   _trackfinder->setMinHitsForFit(_minpoints);
   _trackfinder->setScale(_riemannscale);
-  _trackfinder->setTTProxcut(_TTproxcut);
+  //_trackfinder->setTTProxcut(_TTproxcut);
 
   // Hit-Track Correlators
   _trackfinder->addCorrelator(new PndTpcProximityHTCorrelator(_proxcut));
