@@ -375,14 +375,15 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       cout << "Found " << globalCol.nIDs() << " mcids in tracklets" << endl;
       cout << "Purity: "<< endl;
       map<double,double>::iterator it=goodCl.begin();
-    //unsigned int count=0;
-    while(it!=goodCl.end()){
-      //_gpurity->SetPoint(counter++, it->first, it->second /(double)ntr);
-      cout << it->first << ":   " 
-	   << it->second /(double)ntr*100. << "%" << endl;
-      ++it;
-    }// end loop over bins
-  
+      //unsigned int count=0;
+      while(it!=goodCl.end()){
+        //_gpurity->SetPoint(counter++, it->first, it->second /(double)ntr);
+        if(ntr>0){
+          cout << it->first << ":   "
+            << it->second /(double)ntr*100. << "%" << endl;
+        }
+        ++it;
+      }// end loop over bins
     } // end if verbose
 
 
@@ -401,8 +402,6 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
   for(unsigned int itrk=0; itrk<nr; ++itrk){
     PndTpcRiemannTrack* trk=friemannlist[itrk];
     int nhits=trk->getNumHits();
-    
-    
     
     if (fVerbose) std::cout<<"Tracklet "<<itrk<<"   nhits = "<<nhits;
 
@@ -424,7 +423,34 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       if (fVerbose) std::cout<<" - skipping, momentum too small: "<<p*1E3<<" MeV"<<std::endl;
       continue;
     }
+
+    // check pdg
+    int winding = trk->winding(); // we look in z direction!
+    int pdg = winding * 211; // Todo: pions hardcoded atm
+    if(Bz<0) pdg *= -1;
+
+    if(_mcPid){ // monte carlo PID
+      unsigned int trackId = trk->mcid().DominantID().mctrackID();
+      int MCpdg = ((PndMCTrack*)(_mcTrackArray->At(trackId)))->GetPdgCode();
+
+      double pdgCharge = TDatabasePDG::Instance()->GetParticle(pdg)->Charge();
+      double MCpdgCharge = TDatabasePDG::Instance()->GetParticle(MCpdg)->Charge();
+
+      if (pdgCharge*MCpdgCharge > 0.) pdg = MCpdg;
+      else pdg = -1.*MCpdg;
+
+      // photon
+      if(pdg == -22) pdg = 22;
+
+      TParticlePDG * part = TDatabasePDG::Instance()->GetParticle(pdg);
+      if(part == 0){
+        if (fVerbose) std::cout << " - skipping, unknown PDG id: " << pdg;
+        continue;
+      }
+    }
+
     if (fVerbose) std::cout<<std::endl;
+
 
     // store PndTpcRiemannTracks in output array
     new((*_riemannTrackArray)[_riemannTrackArray->GetEntries()]) PndTpcRiemannTrack(*trk);
@@ -462,7 +488,6 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
 
 
     // get seed values
-    int winding = trk->winding(); // we look in z direction!
 
     TVector3 pos1, direction;
 
@@ -482,42 +507,22 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     TVector3 momerr(fabs(mom.X()),fabs(mom.Y()),fabs(mom.Z()));
     momerr *= 1./TMath::Sqrt(nhits);
 
-    // pdg
-    int pdg = winding * 211; // Todo: pions hardcoded atm
-    if(Bz<0) pdg *= -1;
-    
-    if(_mcPid){
-      unsigned int trackId = trk->mcid().DominantID().mctrackID();
-      int MCpdg = ((PndMCTrack*)(_mcTrackArray->At(trackId)))->GetPdgCode();
-
-      double pdgCharge = TDatabasePDG::Instance()->GetParticle(pdg)->Charge();
-      double MCpdgCharge = TDatabasePDG::Instance()->GetParticle(MCpdg)->Charge();
-      if (fVerbose) {
-        std::cout << "pdg: " << pdg << " charge: " << pdgCharge << std::endl;
-        std::cout << "MC pid pdg: " << MCpdg << " charge: " << MCpdgCharge << std::endl;
-      }
-
-      if (pdgCharge*MCpdgCharge > 0.) pdg = MCpdg;
-      else pdg = -1.*MCpdg;
-      if (fVerbose) std::cout << "charge corrected MC pid pdg: " << pdg << std::endl;
-    }
-
 
     double trackR = trk->r();
 
     if (fVerbose) {
       double trackDip = trk->dip();
       std::cout<<" center of track "; trk->center().Print();
-      std::cout<<" Radius of track [cm]: " << trackR << std::endl;
-      std::cout<<" Dip of track [deg]:   " << trackDip/TMath::Pi()*180 << std::endl;
-      std::cout<<" seed values: "<<std::endl;
-      std::cout<<"  start position: "; pos1.Print();
-      std::cout<<"  momentum [GeV]: "<<p<<std::endl;
-      std::cout<<"  p_perp [GeV]:   " << trackR*0.0003*TMath::Abs(Bz) <<std::endl;
-      std::cout<<"  direction: "; direction.Print();
-      std::cout<<"  winding: "<<winding<<std::endl;
-      std::cout<<"  invertedTrack: "<<invertedTrack<<std::endl;
-      std::cout<<"  pdg id: "<<pdg<<std::endl;
+      std::cout<<" Radius of track [cm]: " << trackR;
+      std::cout<<"\n Dip of track [deg]:   " << trackDip/TMath::Pi()*180;
+      std::cout<<"\n seed values: ";
+      std::cout<<"\n  start position: "; pos1.Print();
+      std::cout<<"  momentum [GeV]: "<<p;
+      std::cout<<"\n  p_perp [GeV]:   " << trackR*0.0003*TMath::Abs(Bz);
+      std::cout<<"\n  direction: "; direction.Print();
+      std::cout<<"  winding: "<<winding;
+      std::cout<<"\n  invertedTrack: "<<invertedTrack;
+      std::cout<<"\n  pdg id: "<<pdg<<std::endl;
     }
 
     // set seed values to cands
@@ -560,10 +565,6 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
 
       // charge (for geane)
       TParticlePDG * part = TDatabasePDG::Instance()->GetParticle(pdg);
-      if(part == 0){
-        std::cerr << "PndTpcRiemannTrackingTask::Exec - unknown PDG id: " << pdg << std::endl;
-        exit(1);
-      }
       int q = int(part->Charge()/(3.));
 
       GeaneTrackRep* grep = new GeaneTrackRep(gPro,pl,mom,poserr,momerr,q,pdg);
