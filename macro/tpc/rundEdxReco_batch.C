@@ -109,14 +109,16 @@ void rundEdxReco_batch(TString digifile) {
 
   PndTpcdEdxTask* dEdx = new PndTpcdEdxTask();
   dEdx->SetPersistence();
+  dEdx->SetIdealdEdx();
+  dEdx->SetDXgrid(0.6);
   fRun->AddTask(dEdx);
 
   PndTpcResidualTask* Res = new PndTpcResidualTask();
   Res->SetPersistence();
   //Res->SetNumberOfTrackReps(2);
   //SLres->SetClusterBranchName("PndTpcCluster_cut");
-  fRun->AddTask(Res);
- 
+  //fRun->AddTask(Res);
+
   // -----   Intialise and run   --------------------------------------------
   
   fRun->Init();
