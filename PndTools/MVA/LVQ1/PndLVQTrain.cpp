@@ -25,7 +25,7 @@ PndLVQTrain::PndLVQTrain(std::string const& inputFile,
     m_NumSweep(10),
     m_proto_init(RAND_FROM_DATA),
     m_initProtoFile(""),
-    m_ErrorStep(100),
+    m_ErrorStep(1000),
     m_ProgStep(1000)
 {}
 
@@ -124,7 +124,9 @@ void PndLVQTrain::Train()
     }
 
     // Evaluate classifier.
-    if( (time % m_ErrorStep) == 0)
+    if( (m_ErrorStep != 0) &&
+	((time % m_ErrorStep) == 0)
+	)
     {
       EvalClassifierError(time);
     }
@@ -266,7 +268,9 @@ void PndLVQTrain::Train21()
     }
     
     // Evaluate classifier.
-    if( (time % m_ErrorStep) == 0)
+    if( ( (m_ErrorStep != 0) &&
+	  (time % m_ErrorStep) == 0 )
+	)
     {
       EvalClassifierError(time);
     }

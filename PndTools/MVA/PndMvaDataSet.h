@@ -85,14 +85,6 @@ class PndMvaDataSetException: public std::exception
 class PndMvaDataSet
 {
  public:
-
-  /**
-   * Constructor.
-   *@param inputFilename  Input File name.
-   *@param varNames       Available variable names.
-   */
-  PndMvaDataSet( std::string const& WeightFile,
-		 std::vector<std::string> const& varNames);
   /**
    * Constructor.
    *@param inputFilename  Input File name.

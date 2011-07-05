@@ -88,7 +88,8 @@ examples: PndMvaUtil PndMvaDataSet PndMvaClassifier Classifiers
 
 # Build stdKnn Cassifier.
 	$(CXX) $(CCFLAGS) $(LIBS) build/classifyStdKnn.o  build/PndStdKnnClassify.o build/PndMvaClassifier.o \
-	build/PndMvaUtil.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o -o build/classifyStdKnn
+	build/PndMvaUtil.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o build/PndMvaTools.o \
+	-o build/classifyStdKnn
 
 # Build LVQ Cassifier.
 	$(CXX) $(CCFLAGS) $(LIBS) build/LVQclassify.o build/PndLVQClassify.o build/PndMvaClassifier.o \
@@ -124,7 +125,7 @@ examples: PndMvaUtil PndMvaDataSet PndMvaClassifier Classifiers
 # Build an example app using parzenWindow classifier.
 	$(CXX) $(CCFLAGS) $(LIBS) build/classifyPrzWin.o  build/PndPrzWindowClassify.o \
 	build/PndMvaClassifier.o build/PndMvaUtil.o build/PndMvaDataSet.o build/PndMvaVarPCATransform.o \
-	-o build/przWinClassify
+	build/PndMvaTools.o -o build/przWinClassify
 
 # Build PDE-Foam trainer and classifier.
 #	$(CXX) $(CCFLAGS) $(LIBS) build/FoamTrainTest.o build/PndMvaTrainer.o build/PndMvaUtil.o \

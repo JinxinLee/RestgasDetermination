@@ -22,7 +22,7 @@ typedef std::vector< std::pair<std::string, std::vector<float>*> > RawPoints;
 
 #if DEBUG_PRINT
 // *************  DEBUG ONLY **********
-void printCentroids(const ClDataSample& dat)
+void printCentroids(ClDataSample const& dat)
 {
   std::cout << "==========================\n";
   for(size_t i = 0; i < dat.size(); i++)
@@ -69,29 +69,26 @@ int main(int argc, char** argv)
   std::vector<std::string>clas;
   clas.push_back("electron");
   clas.push_back("pion");
- 
-  // clas.push_back("kaon");
-  //clas.push_back("muon");
-  //clas.push_back("proton");
   
   // Construct the variable name vector  
   std::vector<std::string>vars;
   
-  //vars.push_back("p");
   vars.push_back("emc");
   vars.push_back("lat");
   vars.push_back("z20");
   vars.push_back("z53");
-  
+
   //vars.push_back("stt"); vars.push_back("thetaC");
-  //vars.push_back("mvd"); vars.push_back("tof");
-  
+  //vars.push_back("mvd"); vars.push_back("tof");  
+
   // Read the input points.
   PndMvaDataSet data(InFile, clas, vars, TRAIN);
+  
   // Init structures and read.
   data.Initialize();
+  
   // Get available examples
-  const RawPoints& samples = data.GetData();
+  RawPoints const& samples = data.GetData();
 
   std::vector< ClDataSample* > ProtoVector ( clas.size() );
   

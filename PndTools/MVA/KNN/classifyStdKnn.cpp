@@ -11,25 +11,12 @@
  */
 
 #include <sstream>
+#include <iomanip>
 
 #include "PndStdKnnClassify.h"
+#include "PndMvaTools.h"
 
-#include "TRandom3.h"
 #include "TStopwatch.h"
-
-
-void printResult(std::map<std::string,float>& res)
-{
-  std::map<std::string,float>::iterator ii;
-  std::cout << "\n\t================================== \n";
-  for( ii=res.begin(); ii != res.end(); ++ii)
-  {
-    std::cout <<"\t" << (*ii).first 
-	      << "\t=> " << (*ii).second
-	      <<'\n';
-  }
-  std::cout << "\n\t================================== \n";
-}
 
 /* *********************************************
  * Testing routine, can be deleted afterwards. *
@@ -38,22 +25,27 @@ void printResult(std::map<std::string,float>& res)
 
 int main(int argc, char** argv)
 {
-  if(argc < 3)
+  if(argc < 4)
   {
     std::cerr <<"\t<ERROR>" 
-	      << argv[0] <<" <inputFile> <numOfneigh>"
+	      << argv[0] <<" <input Weights> <Events FIlename> <numOfneigh>"
 	      << std::endl;
     return 1;
   }
   
-  std::string InPutFileName = argv[1];
-  std::string NumNeistr = argv[2];
+  std::string InWeights = argv[1];
+  std::string InEvents  = argv[2];
+  std::string NumNeistr = argv[3];
+
   std::istringstream buff(NumNeistr);
 
   int NumNei = 0;
   buff >> NumNei;
 
-  TRandom3 myran(4125373);
+  // Signal and background labels
+  std::string sgName = "electron";
+  std::string bgName = "pion";
+
   std::vector<std::string> labels;
   std::vector<std::string> vars;
   
@@ -75,45 +67,122 @@ int main(int argc, char** argv)
   //vars.push_back("tof"); vars.push_back("tpc");
   
   //Create the classifier object and specify the weight file
-  PndStdKnnClassify cls (InPutFileName, labels, vars);
-  
+  PndStdKnnClassify cls (InWeights, labels, vars);
+  cls.SetKNN(NumNei);  
   cls.Initialize();
 
-  cls.SetKNN(NumNei);
-    
-  std::vector<float> evt, evt1, evt2;
+  // To be classified events.
+  std::vector<std::pair<std::string, std::vector<float>* > > events;
   
-  evt.clear();
-  for(size_t j = 0; j < vars.size(); ++j)
-  {
-    evt.push_back(myran.Gaus(1,10));
-    evt1.push_back(myran.Uniform(-1,1));
-    evt2.push_back(myran.Uniform(30,50));
-  }
-  
+  // Read events to be classified.
+  std::map<std::string, size_t>* counts = readEvents(InEvents.c_str(), vars,
+						     labels, events);
+
   // Map to store the results
   std::map<std::string,float> res;
   
+  // Store classifier outputs per event.
+  std::vector< ClassifierOutPuts > classifiedEvents;
+  size_t totNumEvt;
+
+#if DEBUG_PRINT
+  totNumEvt = 10;
+#else
+  totNumEvt = events.size();
+#endif
+
   TStopwatch ti;
   ti.Start();
   
-  cls.GetMvaValues(evt, res);
-  printResult(res);
+  // Events loop
+  for(size_t k = 0; k < totNumEvt; k++)
+  {
+    std::vector<float>* evt = (events[k]).second;
+    
+    // Get Mva Value
+    cls.GetMvaValues( (*evt), res);
+#if DEBUG_PRINT
+    print(res);    
+#endif
+    // Do classification
+    std::string* givenLabel = cls.Classify( (*evt) );
+    // Store results.
+    classifiedEvents.push_back(ClassifierOutPuts((events[k]).first, *givenLabel,
+						 res[sgName], res[bgName]));
+    delete givenLabel;
+  }
   
-  // cls.Classify(evt1, res);
-  //printResult(res);
-  
-  //cls.Classify(evt2, res);
-  //printResult(res);
-  
+
+  ti.Stop();
+  // Print some timing information
   ti.Stop();
   double rtime = ti.RealTime();
   double ctime = ti.CpuTime();
+  std::cout << "Classifier timing results:\n"
+	    << "RealTime = " << rtime
+	    << " seconds, CpuTime = " << ctime <<" Seconds\n"
+	    << "It took " << (rtime/static_cast<double>(events.size()))
+	    << " Per event.\n";
   
-  std::cout << "timer 1: Classifier timing results:\n"
-	    << "RealTime = " << rtime << " seconds, CpuTime = "
-	    << ctime
-	    <<" Seconds\n\n";
+  /*
+   * Events vector is not needed anymore.
+   * Cleaning.
+   */
+  std::cout << "Clean up Events.\n";
+  for(size_t i = 0; i < events.size(); ++i)
+  {
+    delete (events[i]).second;
+  }
+  events.clear();
   
-  return 0;
+  // ___________ Classify input events ________
+  size_t correctCls, wrongCls;
+  size_t totMisCls = 0;
+  // Class loop
+  for(size_t l = 0; l < labels.size(); ++l)
+  {
+    std::string curLabel = labels[l];
+    // Reset counters for each label
+    correctCls = 0;
+    wrongCls   = 0;
+    
+    // Events loop
+    for(size_t ev = 0; ev < classifiedEvents.size(); ++ev)
+    {
+      // Element of the Current labels
+      if( classifiedEvents[ev].realLabel == curLabel )
+      {
+	if (classifiedEvents[ev].realLabel == classifiedEvents[ev].givenLabel )
+	{//Correct classified
+	  correctCls++;
+	}
+	else// Wrong labels
+	{
+	  wrongCls++;
+	  totMisCls++;
+	}
+      }// If current label
+    }//Events loop
+    
+    // Write classification results to the output file.    
+    std::cout << "++++++++++++++ Classification Results ++++++++++++\n"
+	      << "\tCurrent class Name " << curLabel
+	      << "\n\tWe have seen "     << (*counts)[curLabel]
+	      << " Events in this class\n"
+	      << "\tNumber of Correct classified events = " << correctCls
+	      << "\n\tNumber of mis-classified events = "   <<  wrongCls
+	      << "\n\tErro = "
+	      << ((static_cast<float>(wrongCls) * 100.00)/static_cast<float>( (*counts)[curLabel] ))
+	      << " %.\n";
+  }
+  std::cout << std::setprecision(5) << "Total Number of Missclassified events = " << totMisCls
+	    << " "<< ( static_cast<float>(totMisCls * 100)/static_cast<float>(totNumEvt) )
+	    << '%' << std::endl;
+ 
+  //__________________ Clean up _____________//
+  // Delete per label example counts
+  counts->clear();
+  delete counts;
+
+ return 0;
 }

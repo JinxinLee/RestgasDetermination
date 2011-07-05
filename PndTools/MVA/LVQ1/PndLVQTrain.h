@@ -112,8 +112,10 @@ class PndLVQTrain: public PndMvaTrainer
   /**
    * Set how often the classifier has to be evaluated.
    *@param val Evaluate after #val steps.
+   * If (Val == 0) then the classifier is evaluated once at the end of
+   * the training prodecure.
    */
-  inline void SetErrorStepSize(unsigned int const val);
+  inline void SetErrorStepSize(unsigned int const val = 1000);
 
   //----------------------------------------
   //================== private =============

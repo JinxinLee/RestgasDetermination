@@ -117,7 +117,7 @@ int main(int argc, char** argv)
 
   tr.SetTetsSetSize(50);//10% (DEFAULT)
 
-  tr.SetErrorStepSize(100);//100 (DEFALUT)
+  tr.SetErrorStepSize(0);//1000 (DEFALUT)
   
   //VARX, MINMAX, MEDIAN, NONORM(DEFAULT)
   //tr.NormalizeData(VARX);

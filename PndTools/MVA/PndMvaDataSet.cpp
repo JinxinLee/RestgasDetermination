@@ -15,32 +15,6 @@ using namespace std;
 /**
  * Constructor.
  *@param inputFilename  Input File name.
- *@param varNames       Available variable names.
- */
-PndMvaDataSet::PndMvaDataSet( std::string const& WeightFile,
-			      std::vector<std::string> const& varNames)
-  : m_input(WeightFile),
-    m_UsePCA(false),
-    m_NormType(NONORM),
-    m_AppType(CLASSIFY),
-    m_trim(true)
-{
-  // FIXME (IMPLEMENT ME)
-  std::cerr <<"<ERROR> Yet to be done.\nFetching data directly from the"
-	    <<" weightfile."
-	    << std::endl;
-  // Read classes from the weight_file
-  // (Get)ReadClasses();
-
-  // Init variables.
-  // InitVariables(varNames);
-  varNames.size();
-  exit(10);
-}
-
-/**
- * Constructor.
- *@param inputFilename  Input File name.
  *@param classNames     Names of available Labels (classes).
  *@param varNames       Available variabl names.
  *@param type           Application Type.
