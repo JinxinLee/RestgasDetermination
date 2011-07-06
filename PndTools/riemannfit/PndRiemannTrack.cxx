@@ -50,9 +50,13 @@ void MatrixOutput(TMatrixD mat)
 ClassImp(PndRiemannTrack);
 
 PndRiemannTrack::PndRiemannTrack() :
-	fn(3),fav(3), fc(0), fcovPlane(4,4), fjacRXY(3,4), fcovRXY(3,3),
-	fVerbose(0), fFitDone(false), fSZFitDone(false), fErrorCalcDone(false), fweight(0),ftrefit(false),fVertexCut(0.5)
-{}
+	fn(3),fav(3), fc(0), fm(0), ft(0), fmError(0), ftError(0), fChi2(0), fcovPlane(4,4), fjacRXY(3,4), fcovRXY(3,3),
+	fVerbose(0), fFitDone(false), fSZFitDone(false), fErrorCalcDone(false), fweight(0),ftrefit(false),fVertexCut(0.5),
+	fStartAlpha(0), fStopAlpha(0)
+{
+	fHits.clear();
+}
+
 
 PndRiemannTrack::~PndRiemannTrack()
 {
