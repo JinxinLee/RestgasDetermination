@@ -78,7 +78,7 @@ PndTpcDevmapCyl.cxx
 PndTpcDevmapCylLoader.cxx
 PndTpcDevmapSLA.cxx	    
 PndTpcEvtMixTask.cxx 		    
-PndTpcMCEvtMixTask.cxx
+#PndTpcMCEvtMixTask.cxx
 PndTpcMCTracklet.cxx
 PndTpcEvtTime.cxx 		    
 PndTpcEvtTimeGenTask.cxx 		    

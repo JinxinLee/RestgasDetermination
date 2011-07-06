@@ -10,16 +10,18 @@
 
 class PndTpcMCTracklet : public TObject {
  public:
-  PndTpcMCTracklet():fq(0),fpdg(0),ft0(-9999),fID(19999,0),fV0res(9999),fstatus(0),fzpoca(999,999,999){};
+  PndTpcMCTracklet():fq(0),fpdg(0),ft0(-9999),fID(19999,0,0),fV0res(9999),fstatus(0),fzpoca(999,999,999){};
   ~PndTpcMCTracklet(){};
+
   PndTpcMCTracklet(const TVector3& Pos,
 		   const TVector3& Mom,
 		   const double& Q,
 		   const int& Pdg,
 		   const Int_t trackid,
-		   const Int_t evtid) : fpos(Pos),fmom(Mom),
+		   const Int_t evtid,
+		   const Int_t secid) : fpos(Pos),fmom(Mom),
                                         fq(Q),fpdg(Pdg),
-    fID(evtid,trackid),ft0(-9999),fV0res(9999),fstatus(0),fzpoca(999,999,999)
+    fID(evtid,trackid,secid),ft0(-9999),fV0res(9999),fstatus(0),fzpoca(999,999,999)
     {}
   
   const McId& mcid() const {return fID;}

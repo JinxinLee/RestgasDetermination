@@ -109,7 +109,7 @@ public:
   void EndOfEvent();
   void BeginEvent();
   
-  PndTpcPoint* AddHit(Int_t trackID, Int_t detID, TVector3 pos,
+  PndTpcPoint* AddHit(Int_t trackID, Int_t SecID, Int_t detID, TVector3 pos,
 		   TVector3 mom, Double_t time, Double_t length,
 		   Double_t eLoss);
   // Operators

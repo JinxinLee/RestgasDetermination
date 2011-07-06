@@ -99,7 +99,7 @@ void PndTpcPrelimCluster::cog(){
   McIdCollection mcid;
   unsigned int ndigis=fdigis.size();
 
-  McId dummyID(1,1);
+  McId dummyID(1,1,0);
   McIdCollection dummyColl;
   dummyColl.AddID(dummyID);
 

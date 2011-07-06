@@ -48,9 +48,10 @@ public:
   double amp() const {return famp;}
   unsigned int padId() const {return fpadId;}
   unsigned int mcTrackId() const; 
+  unsigned int mcSecId() const;
   unsigned int mcHitId() const; 
   unsigned int mcEventId() const {return fmcEventId;}
-  McId mcId() const {return McId(mcEventId(),mcTrackId());}
+  McId mcId() const;
   PndTpcAvalanche* mother() const {return fmother;}
   
   // Modifiers -----------------------
@@ -58,6 +59,7 @@ public:
   void setamp(const double A) {famp=A;}
   void setpadId(const unsigned int PadID) {fpadId=PadID;}
   void setmcTrackId(const unsigned int ID) {fmcTrackId=ID;}
+  void setmcSecId(const unsigned int ID) {fmcSecId=ID;}
   void setmcHitId(const unsigned int ID) {fmcHitId=ID;}
   void setmcEventId(const unsigned int ID) {fmcEventId=ID;}
  
@@ -70,6 +72,7 @@ private:
   double famp;  // Amplitude
   unsigned int fpadId;
   unsigned int fmcTrackId;
+  unsigned int fmcSecId;
   unsigned int fmcHitId;
   unsigned int fmcEventId;
   PndTpcAvalanche* fmother;
@@ -77,7 +80,7 @@ private:
   // Private Methods -----------------
 
 public:
-  ClassDef(PndTpcSignal,1)
+  ClassDef(PndTpcSignal,2)
 
 };
 

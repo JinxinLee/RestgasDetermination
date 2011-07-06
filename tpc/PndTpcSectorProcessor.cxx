@@ -223,7 +223,7 @@ void
 PndTpcSectorProcessor::cog(){
   assert(fpadplane!=NULL);
   assert(foutput_buffer!=NULL);
-  McId dummyID(1,1);
+  McId dummyID(1,1,0);
   McIdCollection dummyColl;
   dummyColl.AddID(dummyID);
   

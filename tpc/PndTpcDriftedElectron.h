@@ -51,6 +51,7 @@ public:
   double y() const {return fy;}
   double t() const {return ft;}
   unsigned int mcTrackId() const;
+  unsigned int mcSecId() const;
   unsigned int mcHitId() const;
 
   PndTpcPrimaryCluster* tpcPClusterp() const {return ftpcPClusterp;}
@@ -70,7 +71,7 @@ private:
   // Private Methods -----------------
 
 public:
-  ClassDef(PndTpcDriftedElectron,1)
+  ClassDef(PndTpcDriftedElectron,2)
 
 };
 

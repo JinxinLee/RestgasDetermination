@@ -179,6 +179,7 @@ PndTpcPadResponseTask::Exec(Option_t* opt)
                                      pad->id(),0,
                                      0);
         sig->setmcTrackId(Aval->mcTrackId());
+        sig->setmcSecId(Aval->mcSecId());
         sig->setmcHitId(Aval->mcHitId());
 	//        sig->SetLink(FairLink(favalancheBranchName, ia));
         ++nValidHits;

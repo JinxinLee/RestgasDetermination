@@ -95,7 +95,7 @@ PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
     _clusterBranchName("PndTpcCluster"),
     _smoothing(false),
     _geane(false),
-    _mcPid(true), // todo: remember to turn this off agan at some point
+    _mcPid(true), // todo: remember to turn this off again at some point
     counter(0),
     Bz(0)
   {
@@ -201,7 +201,7 @@ PndTpcRiemannTrackingTask::Init()
   _trackfinder->setSortingMode(_sortingMode);
   _trackfinder->setMinHitsForFit(_minpoints);
   _trackfinder->setScale(_riemannscale);
-  //_trackfinder->setTTProxcut(_TTproxcut); // TODO comment in again!!!
+  _trackfinder->setTTProxcut(_TTproxcut);
 
   // Hit-Track Correlators
   _trackfinder->addCorrelator(new PndTpcProximityHTCorrelator(_proxcut));

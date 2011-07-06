@@ -60,7 +60,7 @@ TrackFitStatTask.cxx
 #LambdaSelector.cxx
 #LambdaStatTask.cxx
 MCTruthAnnex.cxx
-TpcMCEvtDeconvTask.cxx
+#TpcMCEvtDeconvTask.cxx
 GlobalTrackMergingTask.cxx
 )
 

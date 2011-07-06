@@ -56,7 +56,7 @@ public:
   double t() const {return ft;}
   double amp() const {return famp;}
   unsigned int mcTrackId() const; 
-
+  unsigned int mcSecId() const;
   unsigned int mcHitId() const; 
 
   PndTpcDriftedElectron* mother() const {return fmother;}
@@ -76,7 +76,7 @@ private:
   // Private Methods -----------------
 
 public:
-  ClassDef(PndTpcAvalanche,1)
+  ClassDef(PndTpcAvalanche,2)
 
 };
 

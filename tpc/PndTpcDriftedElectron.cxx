@@ -51,6 +51,12 @@ PndTpcDriftedElectron::mcTrackId() const {
 }
 
 unsigned int
+PndTpcDriftedElectron::mcSecId() const {
+  if(ftpcPClusterp==0)return 0;
+  return ftpcPClusterp->mcSecId();
+}
+
+unsigned int
 PndTpcDriftedElectron::mcHitId() const {
   if(ftpcPClusterp==0)return 0;
   return ftpcPClusterp->mcHitId();

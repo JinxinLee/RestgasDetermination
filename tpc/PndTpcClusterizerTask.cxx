@@ -151,7 +151,7 @@ PndTpcClusterizerTask::Exec(Option_t* opt)
       //Step 0: calculate the overall ammount of charge, produced
       if(dE<0){
         Error("PndTpcClusterizerTask::Exec","Note: particle:: negative Energy loss!");
-	theLastPoint=point;
+        theLastPoint=point;
         continue;
       }
       unsigned int q_total =(unsigned int)floor(fabs(dE / fgas->W()));
@@ -167,12 +167,13 @@ PndTpcClusterizerTask::Exec(Option_t* opt)
         if(q_cluster>q_total)q_cluster=q_total;
         q_total-=q_cluster;
         // create cluster
-	Int_t size = fprimArray->GetEntriesFast();
-	new((*fprimArray)[size]) PndTpcPrimaryCluster(point->GetTime(),
+        Int_t size = fprimArray->GetEntriesFast();
+        new((*fprimArray)[size]) PndTpcPrimaryCluster(point->GetTime(),
 						   q_cluster,
 						   TVector3(0,0,0),
 						   point->GetTrackID(),
-						   ip);
+						   ip,
+						   point->GetSecID());
 	
         ++ncluster;
      }// finish loop for cluster creation
@@ -216,7 +217,8 @@ void PndTpcClusterizerTask::ChargeConversion()
 							      point->GetY(),
 							      point->GetZ()),
 						     point->GetTrackID(),
-						     ip);
+						     ip,
+						     point->GetSecID());
   }
 }
 

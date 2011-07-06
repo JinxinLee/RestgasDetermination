@@ -17,6 +17,7 @@
 #pragma link C++ class PndTpcSimpleEvtGen+;
 //#pragma link C++ class PndTpcRadialDriftTask+;
 #pragma link C++ class PndTpcGemTask+;
+#pragma link C++ class PndTpcGem+;
 //#pragma link C++ class PndTpcSignal+;
 //#pragma link C++ class McId+;
 //#pragma link C++ class McIdCollection+;
@@ -27,7 +28,7 @@
 #pragma link C++ class PndTpcPSATask+;
 #pragma link C++ class PndTpcSpaceChargeTask+;
 #pragma link C++ class PndTpcEvtMixTask+;
-#pragma link C++ class PndTpcMCEvtMixTask+;
+//#pragma link C++ class PndTpcMCEvtMixTask+;
 #pragma link C++ class PndTpcMCTracklet+;
 #pragma link C++ class PndTpcEvtTime+;
 #pragma link C++ class PndTpcEvtTimeGenTask+;

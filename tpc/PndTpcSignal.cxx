@@ -48,9 +48,20 @@ PndTpcSignal::mcTrackId() const {
 }
 
 unsigned int 
+PndTpcSignal::mcSecId() const {
+  if(fmother==0) return fmcTrackId;
+  return fmother->mcSecId();
+}
+
+unsigned int
 PndTpcSignal::mcHitId() const {
   if(fmother==0) return fmcHitId;
   return fmother->mcHitId();
+}
+
+McId
+PndTpcSignal::mcId() const {
+  return McId( mcEventId(),mcTrackId(),mcSecId() );
 }
 
 bool operator== (const PndTpcSignal& lhs, const PndTpcSignal& rhs) {

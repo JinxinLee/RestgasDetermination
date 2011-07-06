@@ -44,7 +44,8 @@ public:
 		       const int P,
 		       const TVector3& Pos,
 		       const unsigned int McTrackId,
-		       const unsigned int McHitId); // for creation without G4
+		       const unsigned int McHitId, // for creation without G4
+		       const unsigned int McSecId=0);
 
   ~PndTpcPrimaryCluster();
 
@@ -61,8 +62,9 @@ public:
   double x() const {return fpos(0);}
   double y() const {return fpos(1);}
   double z() const {return fpos(2);}
-  unsigned int mcTrackId() const;
-  unsigned int mcHitId() const;
+  unsigned int mcTrackId() const {return fmcTrackId;}
+  unsigned int mcSecId() const {return fmcSecId;}
+  unsigned int mcHitId() const {return fmcHitId;}
 
   // Modifiers -----------------------
   void sett(const double T){ft=T;}
@@ -77,13 +79,14 @@ private:
   double ft;               // time of creation
   int fq;                  // charge
   unsigned int fmcTrackId;      // internal mc id if GEANT is not used
+  unsigned int fmcSecId;   // 0 if primary track, else >0
   unsigned int fmcHitId;
   TVector3 fpos;         // position
 
   // Private Methods -----------------
 
 public: 
-  ClassDef(PndTpcPrimaryCluster,1)
+  ClassDef(PndTpcPrimaryCluster,2)
 
 };
 

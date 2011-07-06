@@ -206,6 +206,7 @@ PndTpcDetector::ProcessHits( FairVolume *v)
   }
 
   Int_t trackID  = gMC->GetStack()->GetCurrentTrackNumber();
+  Int_t secID = trackID;
   Int_t volumeID = v->getMCid();
   
   TString volumeName = v->GetName();
@@ -224,15 +225,21 @@ PndTpcDetector::ProcessHits( FairVolume *v)
   }
 
   TParticle* mother=gMC->GetStack()->GetCurrentTrack();
-  while(!mother->IsPrimary()){
+  if(mother->IsPrimary()) secID = 0;
+  else while(!mother->IsPrimary()){
     trackID=mother->GetFirstMother();
     mother=dynamic_cast<PndStack*>(gMC->GetStack())->GetParticle(trackID);
     //std::cout<<"Fetching mother id="<<trackID<<std::endl;
   }
   
+  // trackID is now ID of primary mother
+  // if the mother is already primary, secID is 0
+  // else secID is an (arbitrary) number !=0
+
+  //std::cout<<"trackID "<<trackID<<",  secID "<<secID<<std::endl;
   
   //gotta love TClonesArray syntax!
-  PndTpcPoint* p=AddHit(trackID, volumeID, pos.Vect(), mom.Vect(), 
+  PndTpcPoint* p=AddHit(trackID, secID, volumeID, pos.Vect(), mom.Vect(),
 			time, length, eLoss);
   
   return kTRUE;
@@ -323,13 +330,13 @@ TClonesArray* PndTpcDetector::GetCollection(Int_t iColl) const {
 }
 
 
-PndTpcPoint* PndTpcDetector::AddHit(Int_t trackID, Int_t detID, TVector3 pos,
+PndTpcPoint* PndTpcDetector::AddHit(Int_t trackID, Int_t SecID, Int_t detID, TVector3 pos,
     TVector3 mom, Double_t time, Double_t length,
     Double_t eLoss) {
   TClonesArray& clref = *fPndTpcPointCollection;
   Int_t size = clref.GetEntriesFast();
   return new(clref[size]) PndTpcPoint(trackID, detID, pos, mom,
-      time, length, eLoss);
+      time, length, eLoss, SecID);
 }
 
 

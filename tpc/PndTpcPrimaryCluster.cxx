@@ -39,8 +39,9 @@ PndTpcPrimaryCluster::PndTpcPrimaryCluster(const double T,
 				     const int Q, 
 				     const TVector3& Pos,
 				     const unsigned int McTrackId,
-				     const unsigned int McHitId)
-  : ft(T), fq(Q), fmcTrackId(McTrackId),fmcHitId(McHitId),fpos(Pos)
+				     const unsigned int McHitId,
+				     const unsigned int McSecId)
+  : ft(T), fq(Q), fmcTrackId(McTrackId),fmcHitId(McHitId),fpos(Pos), fmcSecId(McSecId)
 {
 	SetLink(FairLink("PndTpcPoint", McHitId));
 }
@@ -48,13 +49,3 @@ PndTpcPrimaryCluster::PndTpcPrimaryCluster(const double T,
 
 PndTpcPrimaryCluster::~PndTpcPrimaryCluster()
 {}
-
-unsigned int 
-PndTpcPrimaryCluster::mcTrackId() const {
-  return fmcTrackId;
-}
-
-unsigned int
-PndTpcPrimaryCluster::mcHitId() const {
-  return fmcHitId;
-}

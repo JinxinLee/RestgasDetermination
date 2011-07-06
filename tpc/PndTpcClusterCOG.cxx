@@ -54,7 +54,7 @@ PndTpcClusterCOG::cog(std::vector<PndTpcDigi*>* digis){
     double dy;
     PndTpcDigiMapper::getInstance()->padsize(adigi->padId(),dx,dy);
     
-    McId dummyID(1,1);
+    McId dummyID(1,1,0);
     McIdCollection dummyColl;
     dummyColl.AddID(dummyID);
     

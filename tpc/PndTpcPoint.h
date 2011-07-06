@@ -35,7 +35,7 @@ public:
   // Constructors/Destructors ---------
   PndTpcPoint();
   PndTpcPoint(Int_t trackID, Int_t detID, TVector3 pos, TVector3 mom,
-	      Double_t tof, Double_t length, Double_t eLoss);
+	      Double_t tof, Double_t length, Double_t eLoss, Int_t SecID=0);
   ~PndTpcPoint(){;}
 
   // Operators
@@ -43,6 +43,7 @@ public:
 
   // Accessors -----------------------
   double p() const {return TMath::Sqrt(fPx*fPx+fPy*fPy+fPz*fPz);}
+  Int_t GetSecID() const {return fSecID;}
 
   // Modifiers -----------------------
 
@@ -54,12 +55,13 @@ public:
 private:
 
   // Private Data Members ------------
+  Int_t fSecID; // 0 if primary track, else >0
 
 
   // Private Methods -----------------
 
 public:
-  ClassDef(PndTpcPoint,1)
+  ClassDef(PndTpcPoint,2)
 
 };
 

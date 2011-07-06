@@ -54,6 +54,12 @@ PndTpcAvalanche::mcTrackId() const {
 }
 
 unsigned int
+PndTpcAvalanche::mcSecId() const {
+  if (fmother==0) return 0;
+  return fmother->mcSecId();
+}
+
+unsigned int
 PndTpcAvalanche::mcHitId() const {
   if (fmother==0) return 0;
   return fmother->mcHitId();
