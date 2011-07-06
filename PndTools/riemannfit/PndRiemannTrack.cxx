@@ -135,11 +135,17 @@ PndRiemannTrack::refit(bool withErrorCalc)
     d=h-my_av;
     TMatrixD dt(TMatrixD::kTransposed,d);
     TMatrixD ddt(d,TMatrixD::kMult,dt);
-    ddt *= 1/(fHits[i].sigmaXY()*fHits[i].sigmaXY());  //TS
+    if (fHits[i].sigmaXY() != 0)
+    	ddt *= 1/(fHits[i].sigmaXY()*fHits[i].sigmaXY());  //TS
+    else
+    	std::cout << "-E- PndRiemannTrack::refit sigmaXY() == 0" << std::endl;
     sampleCov+=ddt;
   }
 
-  sampleCov*=1./(double)nh;
+  if (nh != 0)
+	  sampleCov*=1./(double)nh;
+  else
+      	std::cout << "-E- PndRiemannTrack::refit nh == 0" << std::endl;
 
   if (fVerbose > 1) std::cout << "sampleCov: " << std::endl;
   if (fVerbose > 1) MatrixOutput(sampleCov);
@@ -167,7 +173,10 @@ PndRiemannTrack::refit(bool withErrorCalc)
   }
   if (fVerbose > 1) std::cout << std::endl;
 
-  double norm=1./TMath::Sqrt(fn.Norm2Sqr());
+  double norm = 1;
+  if (fn.Norm2Sqr() != 0)
+	  norm=1./TMath::Sqrt(fn.Norm2Sqr());
+
   fn*=norm;
   fc=-1.*fn*fav;
 
