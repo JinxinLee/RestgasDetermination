@@ -85,7 +85,7 @@ charge_noise:Double_t 1000
 QCloudSigma:Double_t 0.0008
 sens_Type:Text_t TD
 fe_Type:Text_t APV25
-fe_BusClock: Double_t 30
+fe_BusClock:Double_t 30
 cluster_mod:Int_t 0
 cluster_mean:Int_t 0
 cluster_radchan:Int_t 2
@@ -210,7 +210,7 @@ Spread:Double_t 0.02
 MinSignalAmp:Double_t 10
 rMin:Double_t 15.5
 rMax:Double_t 41.5
-PadPlaneFile:Int_t 24
+PadPlaneFile:Int_t 37
 PadShapeFile:Int_t 14
 PadShapeRange:Double_t 0.5
 PadShapeStep:Double_t 0.02
