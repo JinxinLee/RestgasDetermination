@@ -15,7 +15,7 @@
   TString inFile="TEST/evtmix1000_16s/physics.16s.mixed.root";
   TString jobname="reco2";
 
-  TString mcFile="TEST/DPM.NEWGEO.mc.root";
+  TString mcFile="TEST/DPM.mc.root";
   
   inFile.ReplaceAll("$PANDAMC",PANDAMC);
 
@@ -144,8 +144,21 @@
 
   PndTpcEvtDeconvTask* evtDeconv=new PndTpcEvtDeconvTask();
   evtDeconv->SetPersistence();
-  evtDeconv->SetCuts(50,2);
+  evtDeconv->SetCuts(10,2);
+  evtDeconv->SetOutTrackBranchName("RiemannTrackTagged");
   fRun->AddTask(evtDeconv);
+
+
+  PndTpcTrackInitTask* trackInit=new PndTpcTrackInitTask();
+  trackInit->SetPersistence();
+  trackInit->SetVerbose(true);
+  trackInit->SetRiemannBranchName("RiemannTrackTagged");
+  trackInit->SetOutBranchNames("TrackPreFitTagged",
+			       "PndTrackCandTagged",
+			       "PndTrackTpcTagged");
+  fRun->AddTask(trackInit);
+
+
 
   fRun->Init();
   
