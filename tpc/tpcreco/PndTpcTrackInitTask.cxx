@@ -29,14 +29,8 @@
 #include "FairRuntimeDb.h"
 #include "TClonesArray.h"
 #include "PndTpcCluster.h"
-#include "PndTpcRiemannTrackFinder.h"
 #include "PndTpcRiemannHit.h"
 
-#include "PndTpcProximityHTCorrelator.h"
-#include "PndTpcHelixHTCorrelator.h"
-#include "PndTpcProximityTTCorrelator.h"
-#include "PndTpcDipTTCorrelator.h"
-#include "PndTpcRiemannTTCorrelator.h"
 #include "PndTpcDigiPar.h"
 
 #include "GFTrackCand.h"
@@ -81,9 +75,7 @@ ClassImp(PndTpcTrackInitTask)
 PndTpcTrackInitTask::PndTpcTrackInitTask()
   : FairTask("PndTpc Pattern Reco"), 
     _persistence(kFALSE),
-    _riemannPersistence(kFALSE),
-    _sortingMode(true), _sorting(3), _interactionZ(0.),
-    _mergeTracks(true),
+    _interactionZ(0.),
     _proxcut(2),
     _helixcut(0.4),
     _minpoints(5),
@@ -95,18 +87,13 @@ PndTpcTrackInitTask::PndTpcTrackInitTask()
     _clusterBranchName("PndTpcCluster"),
     _smoothing(false),
     _geane(false),
-    _mcPid(true), // todo: remember to turn this off again at some point
     counter(0),
     Bz(0)
   {
     fVerbose = 0;
   }
 
-PndTpcTrackInitTask::~PndTpcTrackInitTask(){
-  if(_multiplicityHisto!=NULL)delete _multiplicityHisto;
-  if(_trackPurityH!=NULL)delete _trackPurityH;
-  if(_trackSizeH!=NULL)delete _trackSizeH;
-}
+PndTpcTrackInitTask::~PndTpcTrackInitTask(){}
 
 void 
 PndTpcTrackInitTask::SetSortingParameters(
@@ -169,13 +156,13 @@ PndTpcTrackInitTask::Init()
 
   // create and register output array
   _trackArray = new TClonesArray("GFTrack");
-  ioman->Register("TrackPreFit","GenFit",_trackArray,true);
+  ioman->Register(_trackBranchName,"GenFit",_trackArray,true);
 
    _trackCandArray = new TClonesArray("PndTrackCand");
-  ioman->Register("PndTrackCandTpc","Tpc",_trackCandArray,_persistence);
+  ioman->Register(_trackCandBranchName,"Tpc",_trackCandArray,_persistence);
 
   _pndTrackArray = new TClonesArray("PndTrack");
-  ioman->Register("PndTrackTpc","Tpc",_pndTrackArray,_persistence);
+  ioman->Register(_pndTrackBranchName,"Tpc",_pndTrackArray,_persistence);
 
 
   //get the magnetic field for curvature seeding
@@ -232,29 +219,32 @@ void
 PndTpcTrackInitTask::Exec(Option_t* opt)
 {
   std::cout<<"PndTpcTrackInitTask::Exec; Event Number: "<<counter++<<std::endl;
-
+  
   // Reset output Arrays
   if(_trackArray==0) Fatal("PndTpcSimpleTrackInit::Exec)","No TrackArray");
-   _trackArray->Delete();
+  _trackArray->Delete();
   
   if(_pndTrackArray==0) Fatal("PndTpcSimpleTrackInit::Exec)","No PndTrackArray");
-     _pndTrackArray->Delete();
+  _pndTrackArray->Delete();
   if(_trackCandArray==0) Fatal("PndTpcSimpleTrackInit::Exec)","No TrackCandArray");
-     _trackCandArray->Delete();
+  _trackCandArray->Delete();
+  
 
-  if(_riemannTrackArray==0) Fatal("PndTpcSimpleTrackInit::Exec)","No RiemannTrackArray");
-     _riemannTrackArray->Delete();
-  if(_riemannHitArray==0) Fatal("PndTpcSimpleTrackInit::Exec)","No RiemannHitArray");
-     _riemannHitArray->Delete();
+  
+  // fill riemannlist
+  std::vector<PndTpcRiemannTrack*> friemannlist;
+  unsigned int nr=_riemannTrackArray->GetEntries();
+  for(unsigned int ir=0;ir<nr;++ir){
+    friemannlist.push_back((PndTpcRiemannTrack*)_riemannTrackArray->At(ir));
+  }
 
- 
   // build GFTrackCands
   std::vector<GFTrackCand*> candlist;
 
-  unsigned int nr=friemannlist.size();
+  
 
-  int minhits = 10; // minimum hits needed to build pndtrackcands and GFTrackCands
-  if(minhits<_minpoints) minhits=_minpoints;
+  //int minhits = 10; // minimum hits needed to build pndtrackcands and GFTrackCands
+  // if(minhits<_minpoints) minhits=_minpoints;
   double pbackup = 2.;  // momentum value that is set when other initialisations fail
 
   // loop over Riemann tracks
@@ -266,11 +256,6 @@ PndTpcTrackInitTask::Exec(Option_t* opt)
     
     if (fVerbose) std::cout<<"Tracklet "<<itrk<<"   nhits = "<<nhits;
 
-    // check if enough points
-    if(nhits<minhits){
-      if (fVerbose) std::cout<<" - skipping, not enough hits"<<std::endl;
-      continue;
-    }
     // check if track too steep
     double trackSinDip = trk->sinDip();
     if (TMath::Abs(trackSinDip)<0.01) {
@@ -290,35 +275,27 @@ PndTpcTrackInitTask::Exec(Option_t* opt)
     int pdg = winding * 211; // Todo: pions hardcoded atm
     if(Bz<0) pdg *= -1;
 
-    if(_mcPid){ // monte carlo PID
-      unsigned int trackId = trk->mcid().DominantID().mctrackID();
-      int MCpdg = ((PndMCTrack*)(_mcTrackArray->At(trackId)))->GetPdgCode();
+    // if(_mcPid){ // monte carlo PID
+//       unsigned int trackId = trk->mcid().DominantID().mctrackID();
+//       int MCpdg = ((PndMCTrack*)(_mcTrackArray->At(trackId)))->GetPdgCode();
 
-      double pdgCharge = TDatabasePDG::Instance()->GetParticle(pdg)->Charge();
-      double MCpdgCharge = TDatabasePDG::Instance()->GetParticle(MCpdg)->Charge();
+//       double pdgCharge = TDatabasePDG::Instance()->GetParticle(pdg)->Charge();
+//       double MCpdgCharge = TDatabasePDG::Instance()->GetParticle(MCpdg)->Charge();
 
-      if (pdgCharge*MCpdgCharge > -0.01) pdg = MCpdg; // also neutral particles may occur
-      else pdg = -1.*MCpdg;
+//       if (pdgCharge*MCpdgCharge > -0.01) pdg = MCpdg; // also neutral particles may occur
+//       else pdg = -1.*MCpdg;
 
-      // photon
-      if(pdg == -22) pdg = 22;
+//       // photon
+//       if(pdg == -22) pdg = 22;
 
-      TParticlePDG * part = TDatabasePDG::Instance()->GetParticle(pdg);
-      if(part == 0){
-        if (fVerbose) std::cout << " - skipping, unknown PDG id: " << pdg;
-        continue;
-      }
-    }
+//       TParticlePDG * part = TDatabasePDG::Instance()->GetParticle(pdg);
+//       if(part == 0){
+//         if (fVerbose) std::cout << " - skipping, unknown PDG id: " << pdg;
+//         continue;
+//       }
+//     }
 
     if (fVerbose) std::cout<<std::endl;
-
-
-    // store PndTpcRiemannTracks in output array
-    new((*_riemannTrackArray)[_riemannTrackArray->GetEntries()]) PndTpcRiemannTrack(*trk);
-    for(unsigned int ih=0;ih<nhits;++ih){
-      PndTpcRiemannHit* hit=trk->getHit(ih);
-      new ((*_riemannHitArray)[_riemannHitArray->GetEntries()]) PndTpcRiemannHit(*hit);
-    }
 
 
     // store pndtracks and pndcands in output array
@@ -407,10 +384,7 @@ PndTpcTrackInitTask::Exec(Option_t* opt)
       cand->getHit(ic,detId,hitId);
       mcid.AddIDCollection(((PndTpcCluster*)_clusterArray->At(hitId))->mcId());
     }
-    _trackPurityH->Fill(mcid.MaxRelWeight());
-    _trackMcIdsH->Fill(mcid.nIDs());
-    _trackSizeH->Fill(cand->getNHits());
-
+  
 
     // store GFTracks in output array
     GFTrack* gftrk=new((*_trackArray)[_trackArray->GetEntriesFast()]) GFTrack(rkrep);
@@ -442,19 +416,9 @@ PndTpcTrackInitTask::Exec(Option_t* opt)
   
 
   std::cout<<"PndTpcTrackInitTask::Exec:: "
-           <<candlist.size()<<" track candidates found."<<std::endl;
+           <<candlist.size()<<" tracks setup."<<std::endl;
 
-  _multiplicityHisto->Fill(candlist.size());
-
-  
-
-
-
-
-
-
-
-
+ 
 }
 
 void
@@ -469,20 +433,4 @@ void
   TFile* file=FairRootManager::Instance()->GetOutFile();
   file->mkdir("TrackInit");
   file->cd("TrackInit");
-
-  _multiplicityHisto->Write();
-  delete _multiplicityHisto;
-  _multiplicityHisto=NULL;
-
-  _trackSizeH->Write();
-  delete _trackSizeH;
-  _trackSizeH=NULL;
-
-  _trackPurityH->Write();
-  delete _trackPurityH;
-  _trackPurityH=NULL;
-
-  _trackMcIdsH->Write();
-  delete _trackMcIdsH;
-  _trackMcIdsH=NULL;
 }

@@ -48,6 +48,7 @@ PndTpcConfTrackFinder.cxx
 #test/PndTpcRecoTester.cxx 
 PndTpcPlanarRecoHit.cxx 
 PndTpcTrackVisTask.cxx
+PndTpcTrackInitTask.cxx
 StdDiscriminantFcn.cxx
 PndTpcRiemannHit.cxx
 PndTpcRiemannTrack.cxx

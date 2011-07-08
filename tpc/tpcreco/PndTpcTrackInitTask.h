@@ -15,8 +15,8 @@
 //
 //-----------------------------------------------------------
 
-#ifndef TPCRIEMANNTRACKINGTASK_HH
-#define TPCRIEMANNTRACKINGTASK_HH
+#ifndef TPCTRACKINITTASK_HH
+#define TPCTRACKINITTASK_HH
 
 // Base Class Headers ----------------
 #include "FairTask.h"
@@ -30,7 +30,6 @@
 #include "FairGeanePro.h"
 class TClonesArray;
 class PndTpcFrontend;
-class PndTpcRiemannTrackFinder;
 class GFRecoHitFactory;
 class TH1I;
 class TH1D;
@@ -53,6 +52,13 @@ public:
   // Modifiers -----------------------
   void SetClusterBranchName(const TString& name) {_clusterBranchName=name;}
   void SetRiemannBranchName(const TString& name) {_riemannBranchName=name;}
+  void SetOutBranchNames(const TString& tracks,
+			 const TString& cands,
+			 const TString& pndcands) 
+  {_trackBranchName=tracks;
+    _trackCandBranchName=cands;
+    _pndTrackBranchName=pndcands;}
+
   void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
 
   void SetSortingParameters(
@@ -74,10 +80,9 @@ public:
                    double TThelixcut,
                    double TTplanecut);
 
-  void SetRiemannScale(double riemannscale=8.7) {_riemannscale = riemannscale;}
+ 
   
-  void SetMCPid(Bool_t opt=kTRUE) {_mcPid = opt;} // use MC information for particle identification
-
+ 
   // Operations ----------------------
   virtual InitStatus Init();
 
@@ -96,7 +101,12 @@ private:
   // Private Data Members ------------
   TString _clusterBranchName;
   TString _riemannBranchName;
+  TString _trackBranchName;
+  TString _trackCandBranchName;
+  TString _pndTrackBranchName;
  
+
+
   TClonesArray* _clusterArray;
   TClonesArray* _trackArray;
   TClonesArray* _riemannTrackArray;
