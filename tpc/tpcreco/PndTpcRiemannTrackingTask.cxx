@@ -424,9 +424,11 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       continue;
     }
 
+    bool invertedTrack = false;
+
     // check pdg
     int winding = trk->winding(); // we look in z direction!
-    int pdg = winding * 211; // Todo: pions hardcoded atm
+    int pdg = winding * -13; // Todo: muons hardcoded atm
     if(Bz<0) pdg *= -1;
 
     if(_mcPid){ // monte carlo PID
@@ -436,11 +438,10 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       double pdgCharge = TDatabasePDG::Instance()->GetParticle(pdg)->Charge();
       double MCpdgCharge = TDatabasePDG::Instance()->GetParticle(MCpdg)->Charge();
 
-      if (pdgCharge*MCpdgCharge > -0.01) pdg = MCpdg; // also neutral particles may occur
-      else pdg = -1.*MCpdg;
+      if (pdgCharge*MCpdgCharge > -0.01) invertedTrack = false;
+      else invertedTrack = true;
 
-      // photon
-      if(pdg == -22) pdg = 22;
+      pdg = MCpdg;
 
       TParticlePDG * part = TDatabasePDG::Instance()->GetParticle(pdg);
       if(part == 0){
@@ -469,10 +470,13 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     GFTrackCand* cand=new GFTrackCand();
 
     // fill hits into GFTrackCands and pndcands from small to big Radius
-    bool invertedTrack = false;
-    double r1=trk->getHit(0)->cluster()->pos().Perp();
-    double r2=trk->getHit(nhits-1)->cluster()->pos().Perp();
-    if(r1<=r2){
+    if(!_mcPid){
+      double r1=trk->getFirstHit()->cluster()->pos().Perp();
+      double r2=trk->getLastHit()->cluster()->pos().Perp();
+      if(r1<=r2) invertedTrack = false;
+      else invertedTrack = true;
+    }
+    if(!invertedTrack){
       for(unsigned int ih=0; ih<nhits; ++ih){
         cand->addHit(FairRootManager::Instance()->GetBranchId("PndTpcCluster"),trk->getHit(ih)->cluster()->index());
         //pndcand->AddHit(FairRootManager::Instance()->GetBranchId("PndTpcCluster"),trk->getHit(ih)->cluster()->index(),trk->getHit(ih)->cluster()->pos().Mag()); // todo: fix issues
@@ -483,7 +487,6 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
         cand->addHit(FairRootManager::Instance()->GetBranchId("PndTpcCluster"),trk->getHit(ih-1)->cluster()->index());
         //pndcand->AddHit(FairRootManager::Instance()->GetBranchId("PndTpcCluster"),trk->getHit(ih-1)->cluster()->index(),trk->getHit(ih-1)->cluster()->pos().Mag());// todo: fix issues
       }
-      invertedTrack = true;
     }// finished filling hits
 
 
