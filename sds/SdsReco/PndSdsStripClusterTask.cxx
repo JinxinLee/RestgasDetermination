@@ -331,7 +331,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
       CalcMeanCharge(aTopCluster,meantopstrip,meantoperr,topcharge);
       
       if(oneclustertop.size()==1 && topcharge < fSingleStripChargeThreshold) { 
-        std::cout<<"-W- PndSdsClusterTask::Exec: Single strip charge falls below the threshold of "<<fSingleStripChargeThreshold<<"e- : skipping. "<<endl; 
+        std::cout<<"-W- PndSdsClusterTask::Exec: Single strip charge ("<<topcharge<<" e-) falls below the threshold of "<<fSingleStripChargeThreshold<<"e- : skipping. "<<endl; 
         continue; 
       }
       if(topcharge <= 0) { // not a sane charge
@@ -361,7 +361,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
         CalcMeanCharge(aBotCluster,meanbotstrip,meanboterr,botcharge);
         
         if(oneclusterbot.size() == 1 && botcharge < fSingleStripChargeThreshold) { 
-          std::cout<<"-W- PndSdsClusterTask::Exec: Single strip charge falls below the threshold of "<<fSingleStripChargeThreshold<<"e- : skipping. "<<endl; 
+          std::cout<<"-W- PndSdsClusterTask::Exec: Single strip charge ("<<botcharge<<" e-) falls below the threshold of "<<fSingleStripChargeThreshold<<"e- : skipping. "<<endl; 
           continue; 
         }
         if(botcharge <= 0) { // not a sane charge
@@ -408,7 +408,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
           tmphit->SetCov(hitCov);
           if (fVerbose > 1) tmphit->Print();
         } else
-          if (fVerbose > 2) std::cout<<"Strip charge contents too differently"<<std::endl;
+          if (fVerbose > 2) std::cout<<"Strip charge contents too different"<<std::endl;
       }// loop bot clusters
     }// loop top clusters
   }//loop finders
@@ -613,7 +613,7 @@ Bool_t PndSdsStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantope
   
   //do the transformation from sensor to lab frame
   hitCov = fGeoH->LocalToMasterErrorsShortId(locCov,sensorID);
-  
+  //hitCov = locCov;
   return kTRUE;
 }
 

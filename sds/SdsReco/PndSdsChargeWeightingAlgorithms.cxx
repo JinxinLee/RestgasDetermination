@@ -38,16 +38,16 @@ std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::CenterOfGravity(co
   if(nrHits>1)							// minimum of hits in cluster
   {
     Double_t x_g=0., chargesum=0, charge=0, chargemean=0, noise=0, form=0, stripno=0;
-    Double_t xerror=0.;
+    Double_t xerror=0.,xerrtmp=0.,cherr=0.;
     noise = fCalcStrip->GetNoise();
     for(Int_t l=0;l<nrHits;++l)     // loop over all hits
     {
       // we work in cannel numbers, so no pitch used
       //
-      //     _ q_i*chan_i
-      // x_g=\ --------------
-      //     /   Q_sum
-      //     -
+      //           ( q_i*chan_i )
+      // x_g= SUM ( ------------ )
+      //           (   Q_sum    )
+      //     
       //
       
       charge = DigiCharge(Cluster->GetDigiIndex(l));
@@ -59,41 +59,24 @@ std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::CenterOfGravity(co
     x_g = x_g/chargesum;
     result.first=x_g;
     
-    if(false) 
+    // error estimation propagate dq:
+    //      Sqrt (SUM{ ((x_i - x)dq_i)^2 })
+    // dx=  -------------------------------
+    //                    Q
+    //
+    for(Int_t l=0;l<nrHits;++l)     // loop over all hits again (errors)
     {
-      //       noise
-      // dx=   ------ * a^.5(formfactor)
-      //       q_mean
-      //
-      chargemean=chargesum/nrHits;
-      switch (nrHits) {
-        case 2:
-          //form=sqrt(1.-2.*x_i+2.*x_i*x_i);//[Turchetta1993]
-          //x_i is the relative position of the hit in respect of the flight path (0<=x_i<=1) //[Turchetta1993]
-          // sqrt(2.)/2. <= form <= 1 //[Turchetta1993]
-          form=sqrt(2./3.); //[Bashindzhagyan2005] //this seems to be reasonable, simple & fast
-          break;
-        case 3:
-          form=2.12; //[Radeka1980]
-          break;
-        default:
-          form=1.; //TODO: What to add more? Larger Clusters should use head-tail anyway.
-          break;
-      }
-      result.second=form*noise/chargemean;
-    }else{
-      // by hand:
-      //      SUM{ (x_i - x)dq_i }
-      // dx=  --------------------
-      //              Q
-      //
-      for(Int_t l=0;l<nrHits;++l)     // loop over all hits again (errors)
-      {
-        xerror += ( x_g - DigiStripno(Cluster->GetDigiIndex(l)) )*DigiChargeError(Cluster->GetDigiIndex(l));
-      }
-      xerror = xerror/chargesum;
-      result.second = xerror;
+      cherr = DigiChargeError(Cluster->GetDigiIndex(l));
+      cherr = sqrt(noise*noise+cherr*cherr);
+      xerrtmp = ( x_g - DigiStripno(Cluster->GetDigiIndex(l)) ) * cherr;
+      xerror += xerrtmp*xerrtmp;
     }
+    xerror = sqrt(xerror)/(chargesum);
+    
+    if (xerror < 1e-15) 
+      Warning("center_of_gravity","Got bad error value: Cluster with %i digis. Position %f ± %f chn.",nrHits,x_g,xerror);
+    result.second = xerror;
+    
   }else{
     result=Binary(Cluster);
   }

@@ -191,7 +191,7 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
 
   Double_t EventTime = FairRootManager::Instance()->GetEventTime();
 
-  //std::cout << " EventTime: " << EventTime << std::endl;
+  if(fVerbose>0) std::cout << " EventTime: " << EventTime << std::endl;
 
   //FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
   //std::cout << "Test of EventHeader " << evtHeader->GetInputFileId() << "/" << evtHeader->GetMCEntryNumber() << " " << evtHeader->GetEventTime() << std::endl;
