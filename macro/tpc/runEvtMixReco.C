@@ -11,13 +11,17 @@
   
   TString PANDAMC=gSystem->Getenv("PANDAMC");
 
-  // Input file (RAW events)
+  // Input file (Mixed tpc events)
   TString inFile="TEST/evtmix1000_16s/physics.16s.mixed.root";
-  TString jobname="reco2";
+  // Input physics events with MVD and GEM
+  TString physFile="TEST/physics.16s.raw.root"; 
+  TString jobname="reco1";
 
-  TString mcFile="TEST/DPM.mc.root";
+  // TString mcFile="TEST/DPM.mc.root";
   
   inFile.ReplaceAll("$PANDAMC",PANDAMC);
+  physFile.ReplaceAll("$PANDAMC",PANDAMC);
+
 
   TString inDir=inFile(0,inFile.Last('/')+1);
   // make new subdir
@@ -38,9 +42,9 @@
 
 
   TString paramIn1 = inFile;
-  TString paramIn2 = mcFile;
+  TString paramIn2 = physFile;
   paramIn1.ReplaceAll(".mixed.root",".param.root");
-  paramIn2.ReplaceAll(".mc.root",".param.root");
+  paramIn2.ReplaceAll(".raw.root",".param.root");
 
   TString paramOut = outFile;
   paramOut.ReplaceAll(".reco.root",".param.root");
@@ -54,12 +58,12 @@
   mcFile.ReplaceAll(".raw.root",".mc.root");
   */
   
-  std::cout<<"Input: "<<inFile<<std::endl;
-  std::cout<<"Output: "<<outFile<<std::endl;
-  std::cout<<"MCFile: "<<mcFile<<std::endl;
-  std::cout<<"ParamIn1: "<<paramIn1<<std::endl;
-  std::cout<<"ParamIn2: "<<paramIn2<<std::endl;
-  std::cout<<"ParamOut: "<<paramOut<<std::endl;
+  std::cout<<"Input Mixed : "<<inFile<<std::endl;
+  std::cout<<"Physics     : "<<physFile<<std::endl;
+  std::cout<<"Output      : "<<outFile<<std::endl;
+  std::cout<<"ParamIn1    : "<<paramIn1<<std::endl;
+  std::cout<<"ParamIn2    : "<<paramIn2<<std::endl;
+  std::cout<<"ParamOut    : "<<paramOut<<std::endl;
 
 
   
@@ -85,7 +89,7 @@
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   //mcFile.ReplaceAll("$PANDAMC","/afs/e18/data/panda/MC");
-  //fRun->AddFriend(mcFile);
+  fRun->AddFriend(physFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
 
@@ -93,15 +97,19 @@
 
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  FairParRootFileIo* parInput1 = new FairParRootFileIo();
-  parInput1->open(paramIn1.Data());
-  rtdb->setFirstInput(parInput1);
 
+  TString allDigiFile = "macro/params/all.par";
+  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
+  parIo1->open(allDigiFile.Data(),"in");
+  
   FairParRootFileIo* parInput2 = new FairParRootFileIo();
   parInput2->open(paramIn2.Data());
-  rtdb->setSecondInput(parInput2);
 
-  
+  rtdb->setFirstInput(parInput2);
+  rtdb->setSecondInput(parIo1);
+
+  PndGeoHandling* geoH = PndGeoHandling::Instance();
+
   rtdb->print();
 
   FairParRootFileIo* parOutput1 = new FairParRootFileIo(kTRUE);
@@ -112,9 +120,9 @@
   //fRun->LoadGeometry();
   // ------------------------------------------------------------------------
   
-  // FairGeane *Geane = new FairGeane();
-  // fRun->AddTask(Geane);
-  // std::cout<<"\nGEANE initialised"<<std::endl;
+  FairGeane *Geane = new FairGeane();
+  fRun->AddTask(Geane);
+  std::cout<<"\nGEANE initialised"<<std::endl;
 
   // -----    Reco Sequence  --------------------------------------------
    
@@ -136,7 +144,7 @@
         0.6,  // helix cut [cm]
         0.025);// plane cut (RMS)
   //tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
-  tpcSPR->useGeane(false); // uses RKTrackrep and GeaneTrackrep
+  tpcSPR->useGeane(true); // uses RKTrackrep and GeaneTrackrep
   tpcSPR->SetSmoothing(true);
   tpcSPR->SetMCPid(false);
   //tpcSPR->WriteHistograms(PROutFile);
@@ -151,12 +159,61 @@
 
   PndTpcTrackInitTask* trackInit=new PndTpcTrackInitTask();
   trackInit->SetPersistence();
-  trackInit->SetVerbose(true);
+  trackInit->SetVerbose(false);
   trackInit->SetRiemannBranchName("RiemannTrackTagged");
   trackInit->SetOutBranchNames("TrackPreFitTagged",
 			       "PndTrackCandTagged",
 			       "PndTrackTpcTagged");
+  trackInit->useGeane(true); // uses RKTrackrep and GeaneTrackrep
+  trackInit->SetSmoothing(true);
   fRun->AddTask(trackInit);
+
+
+
+  KalmanTask* kalman =new KalmanTask();
+  kalman->SetPersistence();
+  kalman->SetTrackBranchName("TrackPreFitTagged");
+  kalman->SetOutBranchName("TrackFitTagged");
+  kalman->SetNumIterations(3); // number of fitting iterations (back and forth)
+  fRun->AddTask(kalman);       // creates TrackPostFit branch
+
+  //correlate fitted track with MVD pixels and strips
+  PndTpcMVDCorrelatorTask* corr = new PndTpcMVDCorrelatorTask();
+  corr->SetMatchDistance(200.);   //mutliple of MVD hit sigma (which 100 -> roughly 20 mu)
+  corr->SetMinMVDHits(2);
+  corr->RequireMatch(true);
+  corr->SetTrackBranchName("TrackFitTagged");
+  corr->SetOutTrackBranchName("TrackPreFitTaggedMVD");
+  corr->SetPersistence(true);
+  fRun->AddTask(corr);
+
+  
+  //fit after MVD corr
+  KalmanTask* kalman2 =new KalmanTask();
+  kalman2->SetPersistence();
+  kalman2->SetNumIterations(3); // number of fitting iterations (back and forth)
+  kalman2->SetTrackBranchName("TrackPreFitTaggedMVD");
+  kalman2->SetOutBranchName("TrackFitTaggedMVD");
+  fRun->AddTask(kalman2);
+
+  PndTpcGEMCorrelatorTask* corrG = new PndTpcGEMCorrelatorTask();
+  corrG->SetMatchDistance(100.);   //mutliple of GEM hit sigma 
+  corrG->SetMinGEMHits(2);
+  //corrG->RequireMatch(true);
+  corrG->SetTrackBranchName("TrackFitTaggedMVD");
+  corrG->SetOutTrackBranchName("TrackPreFitTaggedGEM");
+  corrG->SetPersistence(true);
+  fRun->AddTask(corrG);
+
+  //final fit
+  KalmanTask* kalman3 =new KalmanTask();
+  kalman3->SetPersistence();
+  kalman3->SetNumIterations(3); // number of fitting iterations (back and forth)
+  kalman3->SetTrackBranchName("TrackPreFitTaggedGEM");
+  kalman3->SetOutBranchName("TrackPostFitComplete");
+  fRun->AddTask(kalman3);
+
+
 
 
 
