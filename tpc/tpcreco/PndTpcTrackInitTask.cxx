@@ -265,7 +265,7 @@ PndTpcTrackInitTask::Exec(Option_t* opt)
     // ceck if momentum high enough
     double p = trk->getMom(Bz);
     if (Bz==0) p=pbackup;
-    if(p<1E-4) {
+    if(fabs(p)<1E-1) {
       if (fVerbose) std::cout<<" - skipping, momentum too small: "<<p*1E3<<" MeV"<<std::endl;
       continue;
     }

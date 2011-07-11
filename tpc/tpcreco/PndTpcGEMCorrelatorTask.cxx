@@ -163,7 +163,7 @@ PndTpcGEMCorrelatorTask::Exec(Option_t* opt)
 	rep->extrapolateToPoint(destination, poca, dirInPoca);
       }
       catch(GFException& ex) {
-	std::cout<<ex.what()<<std::endl;
+	 if(fVerbose) std::cout<<ex.what()<<std::endl;
 	continue;
       }
       

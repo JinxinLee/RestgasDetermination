@@ -173,7 +173,7 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
         rep->extrapolateToPoint(destination, poca, dirInPoca);
       }
       catch(GFException& ex) {
-        std::cout<<ex.what()<<std::endl;
+        if(fVerbose)std::cout<<ex.what()<<std::endl;
         continue;
       }
       res.SetXYZ(poca.X()-destination.X(),
@@ -223,7 +223,7 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
         rep->extrapolateToPoint(destination, poca, dirInPoca);
       }
       catch(GFException& ex) {
-        std::cout<<ex.what()<<std::endl;
+         if(fVerbose) std::cout<<ex.what()<<std::endl;
         continue;
       }
       res.SetXYZ(poca.X()-destination.X(),
@@ -297,6 +297,8 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
     (*fOutTrackArray)[fOutTrackArray->GetEntriesFast()] = outTrack;
 
   } //end loop over tracks
+
+  std::cout <<"### Found "<< fOutTrackArray->GetEntries() << " tracks with MVD correlations." << std::endl; 
   
   return;
 }
