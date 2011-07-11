@@ -2,9 +2,9 @@
 	bool vtxfit=0;
 	
 	if (vtxfit)
-		TString inFile="etac_histo_vtx_stt.root";
+		TString inFile="etac_histo_vtx_tpc.root";
 	else 
-		TString inFile="etac_histo_4c_stt.root";
+		TString inFile="etac_histo_4c_tpc.root";
 	
 	TFile *f = TFile::Open(inFile);
 
