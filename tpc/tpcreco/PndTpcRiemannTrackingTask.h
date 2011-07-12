@@ -77,6 +77,7 @@ public:
   void SetRiemannScale(double riemannscale=8.7) {_riemannscale = riemannscale;}
   
   void SetMCPid(Bool_t opt=kTRUE) {_mcPid = opt;} // use MC information for particle identification
+  void SetPDG(int pdg) {_pdg=pdg;}
 
   // Operations ----------------------
   virtual InitStatus Init();
@@ -117,6 +118,7 @@ private:
   Bool_t _geane;
   
   Bool_t _mcPid;
+  int _pdg;
 
   double fMins[4];
   double fMaxs[4];

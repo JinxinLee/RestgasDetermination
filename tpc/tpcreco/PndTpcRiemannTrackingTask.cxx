@@ -96,6 +96,7 @@ PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
     _smoothing(false),
     _geane(false),
     _mcPid(true), // todo: remember to turn this off again at some point
+    _pdg(211),
     counter(0),
     Bz(0)
   {
@@ -427,15 +428,18 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     bool invertedTrack = false;
 
     // check pdg
+    double pdgCharge = TDatabasePDG::Instance()->GetParticle(_pdg)->Charge();
     int winding = trk->winding(); // we look in z direction!
-    int pdg = winding * -13; // Todo: muons hardcoded atm
-    if(Bz<0) pdg *= -1;
+    int pdg = winding * _pdg;
+    if (pdgCharge < 0 || Bz<0) {
+      pdg *= -1;
+      pdgCharge *= -1;
+    }
 
     if(_mcPid){ // monte carlo PID
       unsigned int trackId = trk->mcid().DominantID().mctrackID();
       int MCpdg = ((PndMCTrack*)(_mcTrackArray->At(trackId)))->GetPdgCode();
 
-      double pdgCharge = TDatabasePDG::Instance()->GetParticle(pdg)->Charge();
       double MCpdgCharge = TDatabasePDG::Instance()->GetParticle(MCpdg)->Charge();
 
       if (pdgCharge*MCpdgCharge > -0.01) invertedTrack = false;
@@ -443,11 +447,12 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
 
       pdg = MCpdg;
 
-      TParticlePDG * part = TDatabasePDG::Instance()->GetParticle(pdg);
-      if(part == 0){
-        if (fVerbose) std::cout << " - skipping, unknown PDG id: " << pdg;
-        continue;
-      }
+    }
+
+    TParticlePDG * part = TDatabasePDG::Instance()->GetParticle(pdg);
+    if(part == 0){
+      if (fVerbose) std::cout << " - skipping, unknown PDG id: " << pdg;
+      continue;
     }
 
     if (fVerbose) std::cout<<std::endl;
@@ -476,6 +481,7 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       if(r1<=r2) invertedTrack = false;
       else invertedTrack = true;
     }
+
     if(!invertedTrack){
       for(unsigned int ih=0; ih<nhits; ++ih){
         cand->addHit(FairRootManager::Instance()->GetBranchId("PndTpcCluster"),trk->getHit(ih)->cluster()->index());
@@ -567,7 +573,6 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       GFDetPlane pl(pos1,u,v);
 
       // charge (for geane)
-      TParticlePDG * part = TDatabasePDG::Instance()->GetParticle(pdg);
       int q = int(part->Charge()/(3.));
 
       GeaneTrackRep* grep = new GeaneTrackRep(gPro,pl,mom,poserr,momerr,q,pdg);
