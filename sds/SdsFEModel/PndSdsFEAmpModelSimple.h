@@ -19,15 +19,12 @@ public:
 	virtual ~PndSdsFEAmpModelSimple();
 
 	double Definition(double *x, double *params);
-
-//	double fRisingTime;    		// Constant rising time from parameter database [ns]
-//	double fConstantCurrent;  	// Current that unloads the capacitor [e/ns]
-//	double fCharge; 			// [e]
-//	double fPar; 				// parameter for function
+	int GetModelNumber();
 
 private:
 
 	TF1 fFunction;
+	int fModelNumber;    // Holds the number of the model - necessary to save the interpolatorlist in PndSdsFE
 
 };
 

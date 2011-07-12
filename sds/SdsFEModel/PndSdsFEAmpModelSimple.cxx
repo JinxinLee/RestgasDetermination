@@ -8,7 +8,7 @@
 #include "PndSdsFEAmpModelSimple.h"
 
 PndSdsFEAmpModelSimple::PndSdsFEAmpModelSimple() {
-
+fModelNumber = 1;
 }
 
 PndSdsFEAmpModelSimple::~PndSdsFEAmpModelSimple() {
@@ -33,6 +33,11 @@ double PndSdsFEAmpModelSimple::Definition(double * x, double *params)  {
 	   {
 	     return TMath::Max( params[2]- ((*x- params[0])* params[1]),0.0);
 	   }
+}
+
+int PndSdsFEAmpModelSimple::GetModelNumber(){
+
+	return fModelNumber;
 }
 
 
