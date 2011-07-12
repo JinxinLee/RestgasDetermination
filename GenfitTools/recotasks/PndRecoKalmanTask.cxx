@@ -149,27 +149,36 @@ void PndRecoKalmanTask::Exec(Option_t* opt)
 	    if (mcTrackId!=-1)
 	      {
 		PndMCTrack *mcTrack = (PndMCTrack*)fMCTrackArray->At(mcTrackId);
-		PDGCode = mcTrack->GetPdgCode();
-		if ((((TParticlePDG*)pdg->GetParticle(PDGCode))->Charge())==0)
+		if (!mcTrack)
+		   {
+                    PDGCode = 211*fCharge;
+                    std::cout << "-I- PndRecoKalmanTask::Exec: MCTrack #" << mcTrackId << " is not existing!! Trying with pion hyp" << std::endl;
+                  }
+		else
 		  {
-		    PDGCode = 0;
-		    std::cout << "-E- PndRecoKalmanTask::Exec: Track MC charge is 0!!!!" << std::endl;
+		    PDGCode = mcTrack->GetPdgCode();
 		  }
-		if (PDGCode>=100000000)
+                if (PDGCode>=100000000)
+                  {
+                    PDGCode = 211*fCharge;
+                    std::cout << "-I- PndRecoKalmanTask::Exec: Track is an ion (PDGCode>100000000)! Trying with pion hyp" << std::endl;
+                  }
+                else if ((((TParticlePDG*)pdg->GetParticle(PDGCode))->Charge())==0)
 		  {
-		    std::cout << "-I- PndRecoKalmanTask::Exec: Track is an ion (PDGCode>100000000)" << std::endl;
+		    PDGCode = 211*fCharge;
+		    std::cout << "-E- PndRecoKalmanTask::Exec: Track MC charge is 0!!!! Trying with pion hyp" << std::endl;
 		  }
 	      } // end of MCTrack ID != -1
 	    else
 	      {
-		PDGCode = 0;
-		std::cout << "-E- PndRecoKalmanTask::Exec: No MCTrack index in PndTrackID!!" << std::endl;
+		PDGCode = 211*fCharge;
+		std::cout << "-E- PndRecoKalmanTask::Exec: No MCTrack index in PndTrackID!! Trying with pion hyp" << std::endl;
 	      }
 	  } // end of "at least one correlated mc index"
 	else
 	  {
-	    PDGCode = 0;
-	    std::cout << "-E- PndRecoKalmanTask::Exec: No Correlated MCTrack id in PndTrackID!!" << std::endl;
+	    PDGCode = 211*fCharge;
+	    std::cout << "-E- PndRecoKalmanTask::Exec: No Correlated MCTrack id in PndTrackID!! Trying with pion hyp" << std::endl;
 	  }
       } // end of ideal hyp condition
     else

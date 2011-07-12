@@ -39,7 +39,8 @@ class TGeant3;
 class PndPidCorrelator : public FairTask {
 
 protected:
-
+ 
+  TClonesArray* fMcTrack;           //! PndMCTrack TCA
   TClonesArray* fTrack;             //! PndTrack TCA
   TClonesArray* fTrackID;           //! PndTrackID TCA
   TClonesArray* fTrack2;            //! 2nd PndTrack TCA
@@ -98,6 +99,7 @@ protected:
   Bool_t fMixMode;                  // Mix mode flag
   Int_t  fEventCounter;             // Event number
   Int_t fPidHyp;                    // particle hypothesis for propagation
+  Bool_t fIdealHyp;                 // Flag to use MC particle hypothesis
   PndGeoHandling* fGeoH;             // Object to retrieve MVD geometry
   PndRecoKalmanFit *fFitter;         // Refitter for MDT tracks
   TFile *r;                          // File for debug ntuples
@@ -156,7 +158,7 @@ public:
   void SetCorrErrProp(Bool_t err)         { fCorrErrorProp = err; };
   void SetGeanePro(Bool_t gea = kTRUE)    { fGeanePro = gea; };
   void SetPidHyp(Int_t pid)               { fPidHyp = pid; };
-  
+  void SetIdealHyp(Bool_t opt = kTRUE)    { fIdealHyp = opt;            }
 
   void SetMvdMode(Short_t mode)	{ fMvdMode = mode; };                 // MVD Mode: 0 no MVD
   void SetSttMode(Short_t mode)	{ fSttMode = mode; };                 // STT Mode: 0 no STT

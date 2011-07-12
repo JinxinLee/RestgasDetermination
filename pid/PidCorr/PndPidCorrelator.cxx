@@ -1,6 +1,7 @@
 #include "PndDetectorList.h"
 #include "PndPidCorrelator.h"
 #include "PndPidCandidate.h"
+#include "PndMCTrack.h"
 #include "PndTrack.h"
 #include "PndTrackID.h"
 
@@ -60,6 +61,7 @@ PndPidCorrelator::PndPidCorrelator() {
   fDskMode = -1;
   fMixMode = kFALSE;
   fPidHyp = 0;
+  fIdealHyp = kFALSE;
   fVerbose = kFALSE;
   fSimulation = kFALSE;
   fIdeal = kFALSE; 
@@ -82,7 +84,7 @@ PndPidCorrelator::PndPidCorrelator() {
 
 //___________________________________________________________
 PndPidCorrelator::PndPidCorrelator(const char *name, const char *title)
- :FairTask(name) {
+  :FairTask(name) {
   //---
   fPidChargedCand = new TClonesArray("PndPidCandidate"); 
   fPidNeutralCand = new TClonesArray("PndPidCandidate");
@@ -99,6 +101,7 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title)
   fDskMode = -1; 
   fMixMode = kFALSE;
   fPidHyp = 0;
+  fIdealHyp = kFALSE;
   fVerbose = kFALSE;
   fSimulation = kFALSE;
   fIdeal = kFALSE; 
@@ -397,43 +400,57 @@ InitStatus PndPidCorrelator::Init() {
 	{
 	  cout << "-I- PndPidCorrelator::Init: Switching OFF Geane error propagation" << endl;
 	}
-    
-      switch (abs(fPidHyp))
+      if (fIdealHyp)
 	{
-	case 0:
-	  cout << "-I- PndPidCorrelator::Init: No PID set -> Using default PION hypothesis" << endl;
-	  fPidHyp = 211;
-	  break;
+	  fMcTrack = (TClonesArray *)fManager->GetObject("MCTrack");
+	  if ( ! fMcTrack ) {
+	    cout << "-I- PndPidCorrelator::Init: No PndMcTrack array! No ideal pid hypothesis is possible!" << endl;
+	    return kERROR;
+	  }
+	  if (fTrackIDBranch=="") {
+	    cout << "-I- PndPidCorrelator::Init: No TrackID Branch name! No ideal pid hypothesis is possible!" << endl;
+	    return kERROR;
+	  }
+	}
+      else
+	{
+	  switch (abs(fPidHyp))
+	    {
+	    case 0:
+	      cout << "-I- PndPidCorrelator::Init: No PID set -> Using default PION hypothesis" << endl;
+	      fPidHyp = 211;
+	      break;
         
-	case 11:
-	  cout << "-I- PndPidCorrelator::Init: Using ELECTRON hypothesis" << endl;
-	  fPidHyp = -11;
-	  break;
+	    case 11:
+	      cout << "-I- PndPidCorrelator::Init: Using ELECTRON hypothesis" << endl;
+	      fPidHyp = -11;
+	      break;
         
-	case 13:
-	  cout << "-I- PndPidCorrelator::Init: Using MUON hypothesis" << endl;
-	  fPidHyp = -13;
-	  break;
+	    case 13:
+	      cout << "-I- PndPidCorrelator::Init: Using MUON hypothesis" << endl;
+	      fPidHyp = -13;
+	      break;
         
-	case 211:
-	  cout << "-I- PndPidCorrelator::Init: Using PION hypothesis" << endl;
-	  fPidHyp = 211;
-	  break;
+	    case 211:
+	      cout << "-I- PndPidCorrelator::Init: Using PION hypothesis" << endl;
+	      fPidHyp = 211;
+	      break;
         
-	case 321:
-	  cout << "-I- PndPidCorrelator::Init: Using KAON hypothesis" << endl;
-	  fPidHyp = 321;
-	  break;
+	    case 321:
+	      cout << "-I- PndPidCorrelator::Init: Using KAON hypothesis" << endl;
+	      fPidHyp = 321;
+	      break;
         
-	case 2212:
-	  cout << "-I- PndPidCorrelator::Init: Using PROTON hypothesis" << endl;
-	  fPidHyp = 2212;
-	  break;
+	    case 2212:
+	      cout << "-I- PndPidCorrelator::Init: Using PROTON hypothesis" << endl;
+	      fPidHyp = 2212;
+	      break;
         
-	default:
-	  cout << "-I- PndPidCorrelator::Init: Not recognised PID set -> Using default PION hypothesis" << endl;
-	  fPidHyp = 211;
-	  break;
+	    default:
+	      cout << "-I- PndPidCorrelator::Init: Not recognised PID set -> Using default PION hypothesis" << endl;
+	      fPidHyp = 211;
+	      break;
+	    }
 	}
     }
   else
@@ -546,6 +563,25 @@ void PndPidCorrelator::ConstructChargedCandidate() {
 	if (trackID->GetNCorrTrackId()>0)
 	  {
 	    pidCand->SetMcIndex(trackID->GetCorrTrackID());
+            if (fIdealHyp)
+	      {
+		PndMCTrack *mcTrack = (PndMCTrack*)fMcTrack->At(trackID->GetCorrTrackID());
+		if ( ! mcTrack ) 
+		  {
+		    fPidHyp = 211;
+                    cout << "-I- PndPidCorrelator::ConstructChargedCandidate: PndMCTrack does not exist!! (why?) -> let's try with pion hyp " << endl;
+		  }
+                else
+    		  fPidHyp = mcTrack->GetPdgCode();
+                if (fPidHyp>=100000000)
+                  {
+                    fPidHyp = 211;
+                    std::cout << "-I- PndPidCorrelator::ConstructChargedCandidate: Track is an ion (PDGCode>100000000) -> let's try with pion hyp" << std::endl;
+                  }
+
+		if ( abs(fPidHyp)==13 ) fPidHyp = -13;
+		if ( abs(fPidHyp)==11 ) fPidHyp = -11;
+	      }
 	  }
       } else { // added for PndAnalysis, TODO: remove after Fairlinks work with Associators
       PndTrackCand trackCand = track->GetTrackCand();
