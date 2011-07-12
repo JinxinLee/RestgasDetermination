@@ -14,9 +14,9 @@
 PndSdsFE::PndSdsFE() {
 
 	fFrontEndModel = new PndSdsFEAmpModelSimple();
-	fFunctionRange = 12000;
+	fFunctionRange = 22000;
 	Function = new TF1("fFunction",fFrontEndModel,&PndSdsFEAmpModelSimple::Definition,0,fFunctionRange,3);
-	Function->SetNpx(10000);
+	Function->SetNpx(20000);
 
 	Function->SetParName(0,"chargetime");
 	Function->SetParName(1,"constantcurrent");
@@ -31,16 +31,20 @@ PndSdsFE::PndSdsFE() {
 
 	fBaselineEpsilon = 1;
 	GetTimeOffSet();
+
+	fThreshold = 1100;
+
+	GetInterpolatorList();
 }
 
 PndSdsFE::PndSdsFE(double chargetime, double constcurrent, double threshold, double frequency, int verbose) {
 
 	fFrontEndModel = new PndSdsFEAmpModelSimple();
 	fTimeStep = 1. / frequency * 1000.;
-	fFunctionRange = 12000;
+	fFunctionRange = 22000;
 	fBaselineEpsilon = 1;
 	Function = new TF1("fFunction",fFrontEndModel,&PndSdsFEAmpModelSimple::Definition,0,fFunctionRange,3);
-	Function->SetNpx(10000);
+	Function->SetNpx(20000);
 	Function->SetParName(0,"chargetime");
 	Function->SetParName(1,"constantcurrent");
 	Function->SetParName(2,"charge");
@@ -52,7 +56,9 @@ PndSdsFE::PndSdsFE(double chargetime, double constcurrent, double threshold, dou
 
 	fThreshold = threshold;
 
-	InterpolatorList(threshold);
+	//CreateInterpolatorList(threshold);
+
+	GetInterpolatorList();
 }
 
 PndSdsFE::~PndSdsFE() {
@@ -127,7 +133,7 @@ double PndSdsFE::GetTimeOffSet(){
 	fTimeOffSet = fRand.Uniform(fTimeStep);
 }
 
-void PndSdsFE::InterpolatorList(double threshold){
+void PndSdsFE::CreateInterpolatorList(){
 
 	number_of_support_points = 2000;
 	number_of_max_electrons = 630000;
@@ -141,28 +147,127 @@ void PndSdsFE::InterpolatorList(double threshold){
 		}
 		else{
 
-		y_value.push_back(i*stepsize);
-		x_value.push_back(GetTotFromCharge(i*stepsize));
+		fTot_list.push_back(i*stepsize);
+		fCharge_list.push_back(GetTotFromCharge(i*stepsize));
 
-		printf("x-value %f ,y-value %f \n",x_value.back(),y_value.back());
+		printf("x-value %f ,y-value %f \n",fCharge_list.back(),fTot_list.back());
+		//printf("x-value %f ,y-value %f \n",fCharge_list[],fTot_list.back());
 
-		if(x_value.back()< x_value.back()-1) {
+		if(fTot_list.back()< fTot_list.back()-1) {
 			printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++%d \n",i );
-			printf("x-value[i-3] %f ,x-value[i-2] %f \n",x_value.back()-3,x_value.back()-2);
+			printf("x-value[i-3] %f ,x-value[i-2] %f \n",fTot_list.back()-3,fTot_list.back()-2);
 
-			printf("x-value[i] %f ,x-value[i-1] %f \n",x_value.back(),x_value.back());
+			printf("x-value[i] %f ,x-value[i-1] %f \n",fTot_list.back(),fTot_list.back());
 			}
 		}
 	}
 
-	TCanvas *t = new TCanvas("blubb2");
+	SaveInterpolatorList(fCharge_list,fTot_list);
+}
 
-	TGraph* graph = new TGraph(x_value.size(), &x_value.at(0),&y_value.at(0));
+void PndSdsFE::SaveInterpolatorList(std::vector<double> charge, std::vector<double> tot){
+
+	// To save an object to a root file it needs to inherit from TObject.
+	// std::vector does not inherit from TObject, but TVectorD does.
+	// so i convert the std::vector to a TVectorD and save them to a root file.
+
+	int size_x = charge.size();
+	int size_y = tot.size();
+
+	TVectorD charge_root(size_x);
+	TVectorD tot_root(size_y);
+
+	for(int bx=0; bx < size_x;bx++)
+	{
+		charge_root[bx] = charge.at(bx);
+	}
+
+	for(int by=0; by < size_x;by++)
+	{
+		tot_root[by] = tot.at(by);
+	}
+
+	// in den namen der interpolatorliste sollte die threshold und das model hinein. sind diese beiden angaben identisch
+	// ist die interpolatorliste eindeutig.
+
+	char s[20];
+
+	sprintf(s,"interpolatorlist-modelnumber_%i-thr_%g.root",fFrontEndModel->GetModelNumber(),fThreshold);
+
+	TFile f1(s,"RECREATE");
+
+	TGraph* graph = new TGraph(charge.size(), &charge.at(0),&tot.at(0));
 	graph->Draw("AP");
-	printf("Blubb \n");
+	graph->Write();
 
+	charge_root.Write("charge");
+	tot_root.Write("tot");
+}
 
-	inter =  new ROOT::Math::Interpolator(x_value,y_value, ROOT::Math::Interpolation::kCSPLINE);
+void PndSdsFE::GetInterpolatorList(){
+	// is list available?
+
+	char s[20];
+	sprintf(s,"interpolatorlist-modelnumber_%i-thr_%g.root",fFrontEndModel->GetModelNumber(),fThreshold);
+
+	 TFile *fInFile = new TFile(s,"read");
+
+	 if(fInFile->IsZombie()) {
+		 std::cout << "No interpolator list to load, create one... " << std::endl;
+		 CreateInterpolatorList();
+		 LoadInterpolatorList();
+		 return;
+	 }
+	 else
+	 {
+		 std::cout << "Loading Interpolator List " << std::endl;
+		 LoadInterpolatorList();
+		 return;
+	 }
+
+}
+
+void PndSdsFE::LoadInterpolatorList(){
+
+	char dd[20];
+	sprintf(dd,"interpolatorlist-modelnumber_%i-thr_%g.root",fFrontEndModel->GetModelNumber(),fThreshold);
+
+	 TFile *fInFile = new TFile(dd);
+
+	 if(fInFile->IsZombie()) {
+		 std::cout << "PndSdsFE::LoadInterpolatorList(): error loading root file " << std::endl;
+
+		 return;
+	 }
+	 else
+	 {
+		 std::cout << "PndSdsFE::LoadInterpolatorList(): Loading list done " << std::endl;
+
+	 }
+
+	 TVectorD *charge = (TVectorD*)fInFile->Get("charge");
+	 TVectorD *tot = (TVectorD*)fInFile->Get("tot");
+
+	 int size_charge = charge->GetNoElements();
+	 int size_tot = tot->GetNoElements();
+
+	 fCharge_list.clear();
+	 fCharge_list.clear();
+
+		for(int bxx=0; bxx < size_charge;bxx++)
+		{
+			//fCharge_list.push_back(charge[bxx]);
+			fCharge_list.push_back((*charge)[bxx]);
+
+		}
+
+		for(int byy=0; byy < size_tot;byy++)
+		{
+		//	fTot_list.push_back(tot);
+				fTot_list.push_back((*tot)[byy]);
+		}
+
+		inter =  new ROOT::Math::Interpolator(fCharge_list,fTot_list, ROOT::Math::Interpolation::kCSPLINE);
 }
 
 ClassImp(PndSdsFE);

@@ -19,6 +19,7 @@
 #include "Math/Interpolator.h"
 #include "Math/InterpolationTypes.h"
 #include "PndSdsTotChargeConversion.h"
+#include "TVectorT.h"
 
 class PndSdsFE: public TObject {
 public:
@@ -36,7 +37,10 @@ public:
 private:
 	double DigitizeTime(double time);
 	double GetTimeOffSet();
-	void InterpolatorList(double threshold);  // Creates the Interpolatorlist for TotFromCharge calculation
+	void CreateInterpolatorList();  // Creates the Interpolatorlist for GetTotFromCharge calculation
+	void SaveInterpolatorList(std::vector<double> charge, std::vector<double> tot);
+	void LoadInterpolatorList();
+	void GetInterpolatorList();
 	int number_of_support_points;
 	int number_of_max_electrons ;
 	PndSdsFEAmpModelSimple *fFrontEndModel;
@@ -52,9 +56,10 @@ private:
 	TRandom2 fRand;
 	int i;
 	double stepsize;
+	int fModel;						// Saves the modeltype: (1) ModelSimple.
 
-	std::vector<double> x_value;
-	std::vector<double> y_value;
+	std::vector<double> fCharge_list;
+	std::vector<double> fTot_list;
 	ROOT::Math::Interpolator *inter;
 
 
