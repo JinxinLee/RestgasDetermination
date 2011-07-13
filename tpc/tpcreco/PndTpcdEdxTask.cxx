@@ -193,9 +193,21 @@ PndTpcdEdxTask::Exec(Option_t* opt)
     if (fVerbose) std::cout<<"PndTpcdEdxTask::Exec(): starting track "<<itr<<std::endl;
     GFTrack* trk=(GFTrack*)_trackArray->At(itr);
     if (fVerbose) std::cout<<"*** Number of clusters in track: "<<trk->getNumHits()<<" ***"<<std::endl;
+
+    PndTpcdEdx dedx;
+    PndTpcdEdx dedx_MC;
     
     GFAbsTrackRep* theRep = trk->getCardinalRep();
-    if (theRep->getStatusFlag() != 0) continue;
+    if (theRep->getStatusFlag() != 0) {
+      // write empty dEdx and continue with next trk
+      new((*_dEdxOutArray)[itr]) PndTpcdEdx(dedx);
+
+      if(_idealdEdx) {
+        new((*_dEdxMCOutArray)[itr]) PndTpcdEdx(dedx_MC);
+      }
+
+      continue;
+    }
 
     //check for GEANE trackrep
     if(dynamic_cast<GeaneTrackRep*>(theRep) != NULL) {
@@ -241,6 +253,14 @@ PndTpcdEdxTask::Exec(Option_t* opt)
     }
     catch(GFException& e){
       e.what();
+
+      // write empty dEdx and continue with next trk
+      new((*_dEdxOutArray)[itr]) PndTpcdEdx(dedx);
+
+      if(_idealdEdx) {
+        new((*_dEdxMCOutArray)[itr]) PndTpcdEdx(dedx_MC);
+      }
+
       continue;
       //TODO: exception handling
     }
@@ -250,9 +270,6 @@ PndTpcdEdxTask::Exec(Option_t* opt)
       std::cout<<"pos - pos0 mag"<< (pos-pos0).Mag() << std::endl;
     }
 
-
-    PndTpcdEdx dedx;
-    PndTpcdEdx dedx_MC;
 
     GFDetPlane here,next;
     here.setO(pos);
