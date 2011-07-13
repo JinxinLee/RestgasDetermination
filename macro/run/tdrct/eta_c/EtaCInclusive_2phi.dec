@@ -6,6 +6,7 @@
 # Author: Georges London 26/7/2001         #
 #         london@hep.saclay.cea.fr         #
 ############################################
+noPhotos
 
  Alias MyPhi phi
  
