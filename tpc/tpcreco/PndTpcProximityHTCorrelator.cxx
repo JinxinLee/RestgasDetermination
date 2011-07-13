@@ -29,7 +29,10 @@
 #include "PndTpcCluster.h"
 #include "DebugLogger.h"
 
+
 // Class Member definitions -----------
+
+//#define MCCORR // use ideal correlation for adjusting cuts!!
 
 
 PndTpcProximityHTCorrelator::PndTpcProximityHTCorrelator(double cut, double zStretch)
@@ -82,6 +85,49 @@ PndTpcProximityHTCorrelator::corr(PndTpcRiemannTrack* trk,
   double l;
   int index = trk->getClosestHit(rhit,l,closest-2*speedupfactor,closest+3*speedupfactor);
   TVector3 dist = posX - trk->getHit(index)->cluster()->pos();
+
+
+
+// use ideal correlation for adjusting cuts!!
+#ifdef MCCORR
+
+  double minWeight(0.9);
+
+  //dist.Print();
+
+  if (dist.Mag()>_proxcut){
+    survive=false;
+    return true;
+  }
+
+  double Tweight, Hweight;
+
+  Tweight = trk->mcid().MaxRelWeight();
+  Hweight = rhit->cluster()->mcId().MaxRelWeight();
+
+  //std::cout<<trk->mcid().DominantID()<<"\n"
+  //    <<rhit->cluster()->mcId().DominantID()<<"\n\n";
+
+  if(trk->mcid().DominantID()==rhit->cluster()->mcId().DominantID() &&
+     Tweight>minWeight && Hweight>minWeight){
+    DebugLogger::Instance()->Histo3D("HT_prox_true",dist.X(),dist.Y(),dist.Z(), -5,5,100, -5,5,100, -5,5,100);
+    DebugLogger::Instance()->Histo("HT_prox_true_X",dist.X(),-10,10,1000);
+    DebugLogger::Instance()->Histo("HT_prox_true_Y",dist.Y(),-10,10,1000);
+    DebugLogger::Instance()->Histo("HT_prox_true_Z",dist.Z(),-10,10,1000);
+    matchQuality=1-Tweight;
+    survive=true;
+    //std::cout<<"    survive!"<<std::endl;
+  }
+  else{
+    DebugLogger::Instance()->Histo3D("HT_prox_false",dist.X(),dist.Y(),dist.Z(), -5,5,100, -5,5,100, -5,5,100);
+    DebugLogger::Instance()->Histo("HT_prox_false_X",dist.X(),-10,10,1000);
+    DebugLogger::Instance()->Histo("HT_prox_false_Y",dist.Y(),-10,10,1000);
+    DebugLogger::Instance()->Histo("HT_prox_false_Z",dist.Z(),-10,10,1000);
+    survive=false;
+  }
+  return true;
+#endif
+
 
   dist.SetZ(dist.Z()/_zStretch);
   l = dist.Mag();
