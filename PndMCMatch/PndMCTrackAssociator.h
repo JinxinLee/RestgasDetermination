@@ -53,7 +53,8 @@ class PndMCTrackAssociator : public FairTask {
   TString fTrackOutBranchName;     //! Name of the output TCA
   
   TClonesArray  *fTpcInput;             //! pointers to TPC TCA
-  TClonesArray  *fSttHitInput;          //! pointers to STT Hit TCA
+  TClonesArray  *fSttHitInput;          //! pointers to STT Hit TCA 
+  TClonesArray  *fSttMCArray;          //! pointers to STT Hit TCA
   TClonesArray  *fMvdMCArray;           //!
   TClonesArray  *fMvdStripHitArray;     //!
   TClonesArray  *fMvdPixelHitArray;     //!
