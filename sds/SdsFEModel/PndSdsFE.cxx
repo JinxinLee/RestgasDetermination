@@ -15,17 +15,17 @@ PndSdsFE::PndSdsFE() {
 
 	fFrontEndModel = new PndSdsFEAmpModelSimple();
 	fFunctionRange = 22000;
-	Function = new TF1("fFunction",fFrontEndModel,&PndSdsFEAmpModelSimple::Definition,0,fFunctionRange,3);
-	Function->SetNpx(20000);
+	fFunction = new TF1("fFunction",fFrontEndModel,&PndSdsFEAmpModelSimple::Definition,0,fFunctionRange,3);
+	fFunction->SetNpx(20000);
 
-	Function->SetParName(0,"chargetime");
-	Function->SetParName(1,"constantcurrent");
-	Function->SetParName(2,"charge");
+	fFunction->SetParName(0,"chargetime");
+	fFunction->SetParName(1,"constantcurrent");
+	fFunction->SetParName(2,"charge");
 
-	Function->SetParameter("chargetime",100);
-	Function->SetParameter("constcurrent",60);
-	Function->SetParameter("threshold",1100);
-	Function->SetParameter("frequency",150);
+	fFunction->SetParameter("chargetime",100);
+	fFunction->SetParameter("constcurrent",60);
+	fFunction->SetParameter("threshold",1100);
+	fFunction->SetParameter("frequency",150);
 
 	fTimeStep = 1. / 150 * 1000.; // Dont forget to change the frequency here if you change it above
 
@@ -43,14 +43,14 @@ PndSdsFE::PndSdsFE(double chargetime, double constcurrent, double threshold, dou
 	fTimeStep = 1. / frequency * 1000.;
 	fFunctionRange = 22000;
 	fBaselineEpsilon = 1;
-	Function = new TF1("fFunction",fFrontEndModel,&PndSdsFEAmpModelSimple::Definition,0,fFunctionRange,3);
-	Function->SetNpx(20000);
-	Function->SetParName(0,"chargetime");
-	Function->SetParName(1,"constantcurrent");
-	Function->SetParName(2,"charge");
+	fFunction = new TF1("fFunction",fFrontEndModel,&PndSdsFEAmpModelSimple::Definition,0,fFunctionRange,3);
+	fFunction->SetNpx(20000);
+	fFunction->SetParName(0,"chargetime");
+	fFunction->SetParName(1,"constantcurrent");
+	fFunction->SetParName(2,"charge");
 
-	Function->SetParameter(0,chargetime);
-	Function->SetParameter(1,constcurrent);
+	fFunction->SetParameter(0,chargetime);
+	fFunction->SetParameter(1,constcurrent);
 
 	GetTimeOffSet();
 
@@ -66,17 +66,17 @@ PndSdsFE::~PndSdsFE() {
 
 double PndSdsFE::GetTotFromCharge(Double_t Charge){
 
-	Function->SetParameter("charge",Charge);
-	fMaximumAmplitude = Function->GetMaximumX();
+	fFunction->SetParameter("charge",Charge);
+	fMaximumAmplitude = fFunction->GetMaximumX();
 
-	if (Function->GetParameter("constantcurrent") <= 0){
+	if (fFunction->GetParameter("constantcurrent") <= 0){
 		Error("PndSdsFE::GetTotFromCharge","const. current is less or equal zero -> now set to 60 e/ns");
-		Function->SetParameter("constantcurrent",60);
+		fFunction->SetParameter("constantcurrent",60);
 	}
 
-	if (Function->GetParameter("chargetime")<= 0){
+	if (fFunction->GetParameter("chargetime")<= 0){
 		Error("PndSdsFE::GetTotFromCharge","charge time is less than zero -> now set to 100 ns");
-		Function->SetParameter("chargetime",100);
+		fFunction->SetParameter("chargetime",100);
 	}
 
 	if (fThreshold < 0){
@@ -84,16 +84,16 @@ double PndSdsFE::GetTotFromCharge(Double_t Charge){
 		fThreshold = 0;
 	}
 
-	if (Function->GetParameter("charge")<= fThreshold){
+	if (fFunction->GetParameter("charge")<= fThreshold){
 		Warning("PndSdsFE::GetTotFromCharge","charge is equal or less than threshold -> zero TOT");
 		return 0;
 	}
 
-	double start_exakt=Function->GetX(fThreshold,0,fMaximumAmplitude );
-	double stop_exakt=Function->GetX(fThreshold,fMaximumAmplitude,Function->GetXmax());
+	double start_exakt=fFunction->GetX(fThreshold,0,fMaximumAmplitude );
+	double stop_exakt=fFunction->GetX(fThreshold,fMaximumAmplitude,fFunction->GetXmax());
 
-	double start=DigitizeTime(Function->GetX(fThreshold,0,fMaximumAmplitude)+fTimeOffSet);
-	double stop=DigitizeTime(Function->GetX(fThreshold,fMaximumAmplitude,Function->GetXmax())+fTimeOffSet);
+	double start=DigitizeTime(fFunction->GetX(fThreshold,0,fMaximumAmplitude)+fTimeOffSet);
+	double stop=DigitizeTime(fFunction->GetX(fThreshold,fMaximumAmplitude,fFunction->GetXmax())+fTimeOffSet);
 //	printf("start exakt:%f   \n",start_exakt);
 //	printf("start 	   :%f   \n",start);
 //	printf("stop exakt:%f    \n",stop_exakt);
@@ -108,15 +108,15 @@ double PndSdsFE::GetChargeFromTot(double tot){
 }
 
 double PndSdsFE::GetTimeWalkFromCharge(double Charge){
-	Function->SetParameter("charge",Charge);
-	fMaximumAmplitude = Function->GetMaximumX();
-	return Function->GetX(fThreshold,0,fMaximumAmplitude); //(xmin<x<xmax)
+	fFunction->SetParameter("charge",Charge);
+	fMaximumAmplitude = fFunction->GetMaximumX();
+	return fFunction->GetX(fThreshold,0,fMaximumAmplitude); //(xmin<x<xmax)
 }
 
 double PndSdsFE::GetTimeBackToBaseline(double Charge){
-	Function->SetParameter("charge",Charge);
-	fMaximumAmplitude = Function->GetMaximumX();
-	return Function->GetX(fBaselineEpsilon,fMaximumAmplitude,Function->GetXmax());
+	fFunction->SetParameter("charge",Charge);
+	fMaximumAmplitude = fFunction->GetMaximumX();
+	return fFunction->GetX(fBaselineEpsilon,fMaximumAmplitude,fFunction->GetXmax());
 }
 
 double PndSdsFE::DigitizeTime(double time){

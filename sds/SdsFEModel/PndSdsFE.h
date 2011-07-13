@@ -44,7 +44,7 @@ private:
 	int number_of_support_points;
 	int number_of_max_electrons ;
 	PndSdsFEAmpModelSimple *fFrontEndModel;
-	TF1 *Function;
+	TF1 *fFunction;
 	double fMaximumAmplitude;      // Saves position of the maximum amplitude of the signal
 	double fThreshold;				// Threshold for Signal from Parameter database
 	double fBaselineEpsilon;		//
