@@ -82,6 +82,12 @@ InitStatus PndMCTrackAssociator::Init() {
   if ( ! fSttHitInput ) 
   {
     cout << "-W- PndMCTrackAssociator::Init: No STTHit array" << endl;
+  } 
+
+  fSttMCArray   = (TClonesArray *)fManager->GetObject("STTPoint");
+  if ( ! fSttMCArray ) 
+  {
+    cout << "-W- PndMCTrackAssociator::Init: No STTPoint array" << endl;
   }
   
   fMvdMCArray = (TClonesArray*) fManager->GetObject("MVDPoint");
@@ -137,7 +143,7 @@ InitStatus PndMCTrackAssociator::Init() {
 //_________________________________________________________________
 Int_t PndMCTrackAssociator::GetMvdHitPixels(Int_t index) {
   // Taking points from PndMvdHitPixel
-  
+ 
   PndSdsHit* hit = (PndSdsHit*) fMvdPixelHitArray->At(index);
   if (!hit)
   {
@@ -156,6 +162,7 @@ Int_t PndMCTrackAssociator::GetMvdHitPixels(Int_t index) {
   }
   else
   {
+    cout << "-E- PndMCTrackAssociator::GetMvdHitPixels: MvdHitPixel #" << index << " has GetRefIndex()==-1 -> noise hit" << endl;
     return -1;
   }
 }
@@ -212,8 +219,21 @@ Int_t PndMCTrackAssociator::GetSttHits(Int_t index)
   {
     cout << "-E- PndMCTrackAssociator::GetSttHits: SttHit #" << index << " does not exist!!!" << endl;
     return -1;
-  }
-  return (sttHit->GetRefIndex());
+  }  
+  if (sttHit->GetRefIndex()!=-1) 
+    {
+      PndSttPoint* myPoint = (PndSttPoint*)(fSttMCArray->At(sttHit->GetRefIndex()));
+      if (!myPoint)
+	{
+	  cout << "-E- PndMCTrackAssociator::GetSttHits: STTPoint #" << sttHit->GetRefIndex() << " does not exist!!!" << endl;
+	  return -1;
+	}
+      return(myPoint->GetTrackID());
+    }
+  else
+    {
+      return -1;
+    }
 } 
 
 //_________________________________________________________________
