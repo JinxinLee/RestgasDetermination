@@ -24,6 +24,7 @@
 #include "dbgstream.h"
 #include "TH1D.h"
 #include "TH2D.h"
+#include "TH3I.h"
 
 // C/C++ Headers ----------------------
 #include <iostream>
@@ -86,7 +87,19 @@ DebugLogger::Histo2D(string name, double xvalue, double yvalue,
   return;
 }
 
-
+void
+DebugLogger::Histo3D(std::string name, double xvalue, double yvalue, double zvalue,
+    double xmin, double xmax, int xbins,
+    double ymin, double ymax, int ybins,
+    double zmin, double zmax, int zbins){
+  if(fhistomap3D[name]==NULL){
+    fhistomap3D[name]=new TH3I(name.c_str(),name.c_str(),xbins,xmin,xmax,
+             ybins,ymin,ymax,
+             zbins,zmin,zmax);
+  }
+  fhistomap3D[name]->Fill(xvalue,yvalue,zvalue);
+  return;
+}
 
 void 
 DebugLogger::WriteFiles(){
@@ -110,6 +123,16 @@ DebugLogger::WriteFiles(){
     it2->second=NULL;
     }
     ++it2;
+  }
+  std::map<string, TH3I*>::iterator it3=fhistomap3D.begin();
+  while(it3!=fhistomap3D.end()){
+    std::cout<<"DebugLogger::Writing histogram "<<it3->first<<std::endl;
+    if(it3->second!=NULL){
+    it3->second->Write();
+    delete it3->second;
+    it3->second=NULL;
+    }
+    ++it3;
   }
 
   if(foutfile!=NULL){

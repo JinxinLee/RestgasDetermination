@@ -34,6 +34,7 @@
 class abslogrule;
 class TH1;
 class TH2;
+class TH3I;
 
 class DebugLogger : public TNamed{
 public:
@@ -60,11 +61,16 @@ public:
   void Histo2D(std::string name, double xvalue, double yvalue, 
 	    double xmin=0, double xmax=10, int xbins=100,
 	    double ymin=0, double ymax=10, int ybins=100);
+  void Histo3D(std::string name, double xvalue, double yvalue, double zvalue,
+      double xmin=0, double xmax=10, int xbins=100,
+      double ymin=0, double ymax=10, int ybins=100,
+      double zmin=0, double zmax=10, int zbins=100);
 
   // Operations ----------------------
   void WriteFiles();
   TH1* GetHisto(std::string name) {return fhistomap[name];}
   TH2* GetHisto2D(std::string name) {return fhistomap2D[name];}
+  TH3I* GetHisto3D(std::string name) {return fhistomap3D[name];}
 
 
 protected:
@@ -82,9 +88,10 @@ bool findFuncInSource(std::string file,std::string function,
   TFile* foutfile;
   std::map<std::string, TH1*> fhistomap;
   std::map<std::string, TH2*> fhistomap2D;
+  std::map<std::string, TH3I*> fhistomap3D;
 
 public:
-  ClassDef(DebugLogger,1)
+  ClassDef(DebugLogger,2)
 };
 
 
