@@ -76,6 +76,8 @@ public:
 
   void SetRiemannScale(double riemannscale=8.7) {_riemannscale = riemannscale;}
   
+  void SkipCrossingAreas(bool opt=true) {_skipCrossingAreas=opt;}
+
   void SetMCPid(Bool_t opt=kTRUE) {_mcPid = opt;} // use MC information for particle identification
   void SetPDG(int pdg) {_pdg=pdg;}
 
@@ -137,6 +139,8 @@ private:
   double _proxcut;
   double _helixcut;
   unsigned int _minpoints;
+
+  bool _skipCrossingAreas;
 
   bool _mergeTracks;
   bool _smoothing;

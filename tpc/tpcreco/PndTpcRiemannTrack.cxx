@@ -69,7 +69,7 @@ PndTpcRiemannTrack::PndTpcRiemannTrack()
   _av(0.,0.,0.),  _sumOfWeights(0),
   _m(0), _t(0),
   _dip(0), _sinDip(0), _rms(0),
-  fRiemannScale(24.6), _isFitted(false), _doSort(true)
+  fRiemannScale(24.6), _isFitted(false), _isInitialized(false), _doSort(true)
 {}
 
 PndTpcRiemannTrack::PndTpcRiemannTrack(double scale)
@@ -78,30 +78,51 @@ PndTpcRiemannTrack::PndTpcRiemannTrack(double scale)
   _av(0.,0.,0.),  _sumOfWeights(0),
   _m(0), _t(0),
   _dip(0), _sinDip(0), _rms(0),
-  fRiemannScale(scale), _isFitted(false), _doSort(true)
+  fRiemannScale(scale), _isFitted(false), _isInitialized(false), _doSort(true)
 {}
 
-void
-PndTpcRiemannTrack::init(double x0_, double y0_, double R_, 
-			 double Dip, double z0){
-  double x0=x0_/100;
-  double y0=y0_/100;
-  double R=R_/100;
 
-  double R2=R*R;
-  double lambda=R2-x0*x0-y0*y0;
-  if(lambda==0)lambda=0.0001;
-  double D=lambda/sqrt(4*R2+(1-lambda)*(1-lambda));
-  double DC=-D/lambda;
-  double C=DC-D;
-  double A=-2*x0*DC;
-  double B=-2*y0*DC;
-  
-  _n.SetXYZ(A, B, C);
-  _c=D;
-  _dip=Dip;
-  _sinDip=TMath::Sin(_dip);
-  _t=z0;
+void
+PndTpcRiemannTrack::initSL(double Dip){
+  if (getNumHits()!=1) return;
+
+  _isInitialized=true;
+  _isFitted=true;
+
+  TVector3 hit0 = _hits[0]->cluster()->pos();
+
+  // hit1 is the "origin" or vertex of the track to be initialized
+  double z1 = hit0.Z() - hit0.Perp() / TMath::Tan(TMath::PiOver2()-Dip);
+  TVector3 hit1(0,0,z1);
+
+  // init plane parameters
+  _n.SetXYZ(hit0.X(), hit0.Y(), 0.);
+  _n.RotateZ(TMath::PiOver2()); // rotate 90 deg
+  _n.SetMag(1.);
+  _c=0; // track coming from origin
+
+  // calc _center and _radius
+  centerR();
+
+  _radius = (hit0-_center).Perp();
+
+  // get angle of hit0
+  hit0 -= _center;
+  double angle0 = hit0.Phi(); // [-pi, pi]
+  _hits[0]->setAngleOnHelix(angle0); // set angle of first hit relative to x axis
+
+  // get angle of hit1
+  hit1 -= _center;
+  double angle1 = hit1.Phi(); // [-pi, pi]
+
+  _m = (z1 - hit0.Z()) / (angle1 - angle0) * -1.;
+  _t = hit0.Z() - _m*angle0;
+
+  _dip = TMath::ATan(-1.* _m/_radius) + TMath::PiOver2();
+  _sinDip=sin(_dip);
+
+  //std::cout << "Dip " << _dip << " angle 0 " << angle0 << "  angle1 " << angle1 << "\n";
+
 }
 
 
@@ -225,7 +246,18 @@ PndTpcRiemannTrack::removeHit(unsigned int ihit){
 
 int
 PndTpcRiemannTrack::winding() const { // returns winding sense along z-axis
-  if (_hits.back()->getAngleOnHelix() > _hits.front()->getAngleOnHelix()) return 1;
+  if(!_isFitted && !_isInitialized) return 1;
+  double angle0 = _hits.front()->getAngleOnHelix();
+  double angle1;
+  if(_isInitialized){
+    TVector3 hit1(0,0,0);
+    hit1 -= _center;
+    angle1 = hit1.Phi(); // [-pi, pi]
+  }
+  else{
+    angle1 = _hits.back()->getAngleOnHelix();
+  }
+  if (angle1 > angle0) return 1;
   return -1;
 }
 
@@ -373,18 +405,17 @@ PndTpcRiemannTrack::refit(){ // helix fit
     return; // phi z fit did not work
   }
   
-  // limit the range of m
-  if (_m > 1.E6) _m=1E6;
-  if (_m < -1.E6) _m=-1E6;
-  
   // calc dip
-  _dip = TMath::ATan(_m/r()) + TMath::PiOver2();
-  _sinDip=TMath::Sin(_dip);
+  _dip = TMath::ATan(_m/_radius) + TMath::PiOver2();
+  _sinDip=sin(_dip);
 }
 
 
 void
 PndTpcRiemannTrack::fitAndSort(){
+
+  _isInitialized=false;
+
   // sort by z so that angle calculation in refit() is possible
   if(_doSort) {
     // keep rough sorting!
@@ -426,14 +457,14 @@ PndTpcRiemannTrack::calcRMS(TVector3 n1, double c1) const {
   }
 
   rms /= norm;
-  rms = TMath::Sqrt(rms);
+  rms = sqrt(rms);
   return rms;
 }
 
 
 void
 PndTpcRiemannTrack::centerR() {
-  if(!_isFitted) return;
+  if(!_isFitted && !_isInitialized) return;
 
   // look at sphere from side, perpendicular to plane, so that plane becomes a line
   // line:   x=-_c*nx + a*nz;  z=-_c*nz - a*nx
@@ -442,13 +473,21 @@ PndTpcRiemannTrack::centerR() {
   // then intersect line with circle -> solutions a1, a2;
   double nz = _n[2];    // z component 
   double c2 = _c*_c;
-  double root1 = TMath::Sqrt(-1.*(nz-1)*(nz+1));
-  double root2 = TMath::Sqrt(1.-nz*nz-4.*c2-4.*_c*nz);
+  double arg1 = -1.*(nz-1)*(nz+1);
+  double root1(1E-5);
+  if(arg1>1E-10) root1 = sqrt(arg1);
+
+  double arg2 = 1.-nz*nz-4.*c2-4.*_c*nz;
+  double root2(1E-5);
+  if(arg2>1E-10) root2 = sqrt(arg2);
   double a1 = -0.5*root1 + 0.5*root2;
   double a2 = -0.5*root1 - 0.5*root2;
 
   // now we get two points on the sphere (x1,z1), (x2,z2)
-  double nx = TMath::Sqrt(1.-nz*nz);
+  double argnx = 1.-nz*nz;
+  double nx(1E-5);
+  if(argnx>1E-10) nx = sqrt(argnx);
+
   double x1 = -1.*_c*nx + a1*nz;
   double z1 = -1.*_c*nz - a1*nx;
   double x2 = -1.*_c*nx + a2*nz;
@@ -458,33 +497,39 @@ PndTpcRiemannTrack::centerR() {
   // we get two radii
   double r1, r2;
 
-  if(z1>0.999999) r1=1.E3;
-  else if(z1<0.000001) r1=1.E-3;
-  else r1 = TMath::Sqrt(z1/(1.-z1));
+  if(z1>0.99999999) r1=1.E4;
+  else if(z1<0.0000000001) r1=1.E-5;
+  else r1 = sqrt(z1/(1.-z1));
   if(x1<0) r1 *= -1.;
   r1 *= fRiemannScale;
 
-  if(z2>0.999999) r2=1.E3;
-  else if(z2<0.000001) r2=1.E-3;
-  else r2 = TMath::Sqrt(z2/(1.-z2));
+  if(z2>0.99999999) r2=1.E4;
+  else if(z2<0.0000000001) r2=1.E-5;
+  else r2 = sqrt(z2/(1.-z2));
   if(x2<0) r2 *= -1.;
   r2 *= fRiemannScale;
 
-  _radius = 0.5*TMath::Abs(r2-r1);
+  _radius = 0.5*fabs(r2-r1);
   
-  if (_radius<0.01) _radius = 0.01;
+  //std::cout<< "r1 = " << r1 << "   r2 = " << r2 << "   radius = " << _radius;
+
+  // limit
+  if (_radius<0.1) _radius = 0.1;   // 1 mm
+  //if (_radius>1.E5) _radius = 1.E5; // 1 km
 
   // center
   _center=_n;
   _center.SetZ(0);
   _center.SetMag(0.5*(r1+r2));
 
+  //_center.Print();
+
 }
 
 
 double
 PndTpcRiemannTrack::distHelix(PndTpcRiemannHit* hit, bool calcPos) const {
-  if(!_isFitted) return 0.; // sz distance not defined
+  if(!_isFitted && !_isInitialized) return 0.;
 
   double hit_angle=hit->getAngleOnHelix();
   TVector3 pos = hit->cluster()->pos();
@@ -492,18 +537,23 @@ PndTpcRiemannTrack::distHelix(PndTpcRiemannHit* hit, bool calcPos) const {
 
   TVector3 hitX = pos - _center;
 
+  double hit_angleR, hit_angleZ;
+
   if(calcPos){
     double d;
-    int ahit = getClosestHit(hit, d);
-    if (ahit == getNumHits()) --ahit;
+    int ahit(0);
+    if(!_isInitialized){ // when track is initialized, only hit0 has a meaningful angle!
+      ahit = getClosestHit(hit, d);
+      if (ahit == getNumHits()) --ahit;
+    }
 
     TVector3 hit1 =  _hits[ahit]->cluster()->pos() - _center;
     double phi1 = _hits[ahit]->getAngleOnHelix();
 
-    double hit_angleR = hitX.DeltaPhi(hit1) + phi1;
+    hit_angleR = hitX.DeltaPhi(hit1) + phi1;
 
     // check if nearest position position lies multiples of 2Pi away
-    if(_radius < 5.){
+    if(_radius < 15.){
       double z = _m * hit_angleR + _t;
       double dZ =  hitZ-z; // positive when above helix, negative when below
 
@@ -517,7 +567,7 @@ PndTpcRiemannTrack::distHelix(PndTpcRiemannHit* hit, bool calcPos) const {
 
       while (it<maxIt){
         zCheck =  _m * (hit_angleR + twoPi) + _t;
-        if (TMath::Abs(hitZ- zCheck) < TMath::Abs(dZ)){
+        if (fabs(hitZ- zCheck) < fabs(dZ)){
           dZ = hitZ-zCheck;
           hit_angleR += twoPi;
         }
@@ -530,7 +580,7 @@ PndTpcRiemannTrack::distHelix(PndTpcRiemannHit* hit, bool calcPos) const {
 
       while (it<maxIt){
         zCheck =  _m * (hit_angleR - twoPi) + _t;
-        if (TMath::Abs(hitZ- zCheck) < TMath::Abs(dZ)){
+        if (fabs(hitZ- zCheck) < fabs(dZ)){
           dZ = hitZ-zCheck;
           hit_angleR -= twoPi;
         }
@@ -540,38 +590,82 @@ PndTpcRiemannTrack::distHelix(PndTpcRiemannHit* hit, bool calcPos) const {
 
     }
 
-    double hit_angleZ = 0;
-    if (TMath::Abs(_m)>1.E-3) hit_angleZ = (hitZ-_t)/_m;
+    hit_angleZ = 0;
+    if (fabs(_m)>1.E-3) hit_angleZ = (hitZ-_t)/_m;
 
-    double zWeigh = 0.5*(TMath::Cos(2.*_dip)+1.);
-    hit_angle = (hit_angleR*_sinDip + hit_angleZ*zWeigh) / (_sinDip+zWeigh);
+    double zWeigh = 0.5*(cos(2.*_dip)+1.);
+    hit_angle = hit_angleR*(1-zWeigh) + hit_angleZ*zWeigh;
 
   } // end recalcPos
 
-  TVector3 Rn(1.,0.,0.);
-  Rn.SetPhi(hit_angle);
-  TVector3 poca = _center + _radius*Rn;
-  poca.SetZ(_m * hit_angle + _t);
+  double sinphi, cosphi, xHelix, yHelix, zHelix, dist2, distance, deltadist, delta, mindist(999999), accuracy(1E-4);
+  unsigned int i(0), maxIt(4);
 
-  return (poca - pos).Mag(); // always >= 0
+  //std::cout<< " _m " << _m << "; _t: " <<  _t << "\n";
+
+  // newtons method for finding POCA
+  while (true){
+    sinphi = sin(hit_angle);
+    cosphi = cos(hit_angle);
+
+    xHelix = _center.X() + cosphi * _radius - pos.X();
+    yHelix = _center.Y() + sinphi * _radius - pos.Y();
+    zHelix = _m * hit_angle + _t - hitZ;
+
+    dist2 = (xHelix*xHelix + yHelix*yHelix + zHelix*zHelix);
+    if (dist2 > 1E-20) distance = sqrt(dist2);
+    else distance = 1E-10;
+
+    deltadist = mindist - distance;
+
+    //std::cout<< "Newton iteration " << i << "; angle: " <<  hit_angle << "   distance: " << distance <<  "   rel. distance to mindist: " << -1.*deltadist << "\n";
+    //std::cout<< " xHelix " << xHelix << "; yHelix: " <<  yHelix << "; zHelix: " << zHelix << "\n";
+
+    if (distance < mindist) mindist = distance;
+
+    if (deltadist < accuracy || i>maxIt) break;
+
+    //
+    // f  = (-1.* xHelix*sinphi*_radius + yHelix*cosphi*_radius + zHelix*_m) / distance; // first derivative of  distance  wrt  phi
+    // f1 = f/(distance*distance) + ( _radius*_radius - xHelix*cosphi*_radius - yHelix*sinphi*_radius + 2.*_m*_m )/distance; // second derivative of  distance  wrt  phi
+    //
+    // hit_angle -= f/f1;
+    //
+
+    // simplified:
+    delta = (-1.* xHelix*sinphi*_radius + yHelix*cosphi*_radius + zHelix*_m);
+    delta = delta / (delta/(distance*distance) + _radius*_radius - xHelix*cosphi*_radius - yHelix*sinphi*_radius + 2.*_m*_m);
+    hit_angle -= delta;
+
+    ++i;
+  }
+
+  return mindist;
 }
 
 
 void
 PndTpcRiemannTrack::getPosDirOnHelix(unsigned int i, TVector3& pos, TVector3& dir) const {
-  if (!_isFitted) return;
+  if (!_isFitted && !_isInitialized) return;
 
-  double hit_angleR = _hits[i]->getAngleOnHelix();
-  double hit_angleZ = 0;
-  if (TMath::Abs(_m)>1.E-3) hit_angleZ = (_hits[i]->z()-_t)/_m;
+  double hit_angle;
 
-  double zWeigh = 0.5*(TMath::Cos(2.*_dip)+1.);
-  double hit_angle = (hit_angleR*_sinDip + hit_angleZ*zWeigh) / (_sinDip+zWeigh);
+  if(_isInitialized) {
+    hit_angle = _hits[0]->getAngleOnHelix();
+  }
+  else {
+    double hit_angleR = _hits[i]->getAngleOnHelix();
+    double hit_angleZ = 0;
+    if (fabs(_m)>1.E-3) hit_angleZ = (_hits[i]->z()-_t)/_m;
 
-  TVector3 Rn(1.,0.,0.);
+    double zWeigh = 0.5*(cos(2.*_dip)+1.);
+    hit_angle = hit_angleR*(1-zWeigh) + hit_angleZ*zWeigh;
+  }
+
+  TVector3 Rn(_radius,0.,0.);
   Rn.SetPhi(hit_angle);
 
-  pos = _center + _radius*Rn;
+  pos = _center + Rn;
   pos.SetZ(_m * hit_angle + _t);
 
   // direction
@@ -586,9 +680,9 @@ PndTpcRiemannTrack::getPosDirOnHelix(unsigned int i, TVector3& pos, TVector3& di
 
 double
 PndTpcRiemannTrack::getMom(double Bz) const {
-  if (!_isFitted) return 0;
-  if(_sinDip<1E-2) return TMath::Abs(_radius/1.E-2 * 0.0003 * Bz);
-  return TMath::Abs(_radius/_sinDip * 0.0003 * Bz);
+  if (!_isFitted && !_isInitialized) return 0;
+  if(_sinDip<1E-2) return fabs(_radius/1.E-2 * 0.0003 * Bz);
+  return fabs(_radius/_sinDip * 0.0003 * Bz);
 }
 
 

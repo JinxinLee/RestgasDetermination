@@ -40,19 +40,22 @@
 
 using namespace std;
 
-//#define DEBUG
+//#define DEBUGHT
+//#define DEBUGTT
 #define UPTOHIT
 
 // Class Member definitions -----------
 PndTpcRiemannTrackFinder::PndTpcRiemannTrackFinder()
   : _minHitsForFit(5), _sortingMode(false), 
-    _sorting(3), _interactionZ(0.), _MaxNumHitsForPR(2147483646), _TTproxcut(500), fRiemannScale(24.6)
+    _sorting(3), _interactionZ(0.), _MaxNumHitsForPR(2147483646), _TTproxcut(500), fRiemannScale(24.6),
+    _initTrks(false), _initDip(0), _skipCrossingAreas(false)
 {   
 }
 
 PndTpcRiemannTrackFinder::PndTpcRiemannTrackFinder(double scale)
   : _minHitsForFit(5), _sortingMode(false), 
-    _sorting(3), _interactionZ(0.), _MaxNumHitsForPR(2147483646), _TTproxcut(500), fRiemannScale(scale)
+    _sorting(3), _interactionZ(0.), _MaxNumHitsForPR(2147483646), _TTproxcut(500), fRiemannScale(scale),
+    _initTrks(false), _initDip(0), _skipCrossingAreas(false)
 {   
 }
 
@@ -95,7 +98,7 @@ unsigned int
 PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
 				   std::vector<PndTpcRiemannTrack*>& candlist)
 {
-  #ifdef DEBUG
+  #ifdef DEBUGHT
     std::cout<<"PndTpcRiemannTrackFinder::buildTracks"<<std::endl;
   #endif
 
@@ -110,7 +113,7 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
   #endif
 
   for(unsigned int icl=0;icl<ncl;++icl){ // loop over hits
-    #ifdef DEBUG
+    #ifdef DEBUGHT
         if(icl%1000==0 && icl > 1){
           cout << "At cluster " << icl << endl;
           cout << "Active Tracklets: "<< candlist.size() << endl;
@@ -120,6 +123,7 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
 
     PndTpcRiemannHit* rhit=new PndTpcRiemannHit(cll[icl],fRiemannScale);
     unsigned int ntrks=candlist.size();
+    unsigned int matchTrks(0);
     unsigned int maxlevel=0; // index of track with highest number of applicable correlators
     bool foundAtAll=false; 
     for(int i=0;i<ncor;++i) _bestMatchQuality[i] = 99999.;// reset 
@@ -135,7 +139,7 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
       bool trksurvive = false;
       std::vector<double> matchQualities(ncor, 99999.); // for saving the match qualities for each correlator
       int level = 0; // number of survived correlators
-      #ifdef DEBUG
+      #ifdef DEBUGHT
         if(icl==_MaxNumHitsForPR-1) std::cout<<"Testing hit "<<icl<<" with track "<<itrk<<std::endl;
       #endif
 
@@ -144,7 +148,7 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
         double matchQuality = 99999;
         bool survive=false;
         bool applicable=_correlators[icor]->corr(trk,rhit,survive,matchQuality);
-        #ifdef DEBUG
+        #ifdef DEBUGHT
           if(icl==_MaxNumHitsForPR-1){
             if(!applicable){std::cout<<"  correlator "<<icor<<" NOT applicable"<<std::endl;}
             else{std::cout<<"  correlator "<<icor<<"  IS applicable; survived "<<survive<<" with MatchQuality "<<matchQuality<<std::endl;}
@@ -163,6 +167,8 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
 
 
       if(trksurvive){ // update best values
+        if(level==ncor-1) ++matchTrks; // number matching tracks that survived all corrs
+        
         if(level>maxlevel) maxlevel=level;
         for(unsigned int i=0; i<=level; ++i){
           if(matchQualities[i]<_bestMatchQuality[i]){
@@ -172,7 +178,7 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
         }
       }
 
-      #ifdef DEBUG
+      #ifdef DEBUGHT
       if(icl==_MaxNumHitsForPR-1 && trksurvive) std::cout<<" Track "<<itrk<<" survived with level "<<level<<std::endl;
         if(icl==_MaxNumHitsForPR-1) std::cout<<std::endl;
       #endif
@@ -181,7 +187,7 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
     } // end loop over tracks
 
 
-    #ifdef DEBUG
+    #ifdef DEBUGHT
       if(icl==_MaxNumHitsForPR-1){
         std::cout<<"maxlevel "<< maxlevel <<std::endl;
         std::cout<<"_bestMatchIndex[maxlevel] "<<_bestMatchIndex[maxlevel] <<std::endl;
@@ -196,21 +202,34 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
       candlist.push_back(trk);
       //std::cout<<"Creating new track"<<std::endl;
       trk->addHit(rhit);
-      #ifdef DEBUG
+      #ifdef DEBUGHT
         if(icl==_MaxNumHitsForPR-1) std::cout<<"-> creating new track Nr "<<candlist.size()-1<<std::endl;
       #endif
+
+      if(_initTrks) trk->initSL(_initDip);
+
     }
     else {
+      // if more than one track matches, hit lies in crossing section -> skip
+      if(_skipCrossingAreas && matchTrks>1) {
+        #ifdef DEBUGHT
+          if(icl==_MaxNumHitsForPR-1){
+           std::cout<<" "<<matchTrks<<" tracks match -> hit lies in crossing area -> skip hit"<<std::endl;
+          }
+        #endif        
+        resetFlags();
+        continue;
+      }
       // add hit to best match
       // use the bestMatch from deepest level
       PndTpcRiemannTrack* theTrk=candlist[_bestMatchIndex[maxlevel]];
-      #ifdef DEBUG
+      #ifdef DEBUGHT
         if(icl==_MaxNumHitsForPR-1) std::cout<<"-> adding hit to track"<<_bestMatchIndex[maxlevel]<<std::endl;
       #endif
       theTrk->addHit(rhit);
       if(theTrk->getNumHits()>=_minHitsForFit){
         theTrk->fitAndSort();
-        #ifdef DEBUG
+        #ifdef DEBUGHT
           if(icl==_MaxNumHitsForPR-1){
            std::cout<<" track parameters: _c="<<theTrk->c()<<"  R="<<theTrk->r()<<"  dip °="<<(theTrk->dip())*180/TMath::Pi()<<std::endl;
            std::cout<<" center: "; theTrk->center().Print();
@@ -221,7 +240,7 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
     resetFlags();
   } // end loop over hits
   
-  #ifdef DEBUG
+  #ifdef DEBUGHT
     std::cout<<candlist.size()<<" Riemann Tracks found."<<std::endl;
   #endif
 
@@ -230,7 +249,7 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
 
 void
 PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist){
-  #ifdef DEBUG
+  #ifdef DEBUGTT
     std::cout<<"PndTpcRiemannTrackFinder::mergeTracks"<<std::endl;
   #endif
 
@@ -256,7 +275,7 @@ PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist
     for(unsigned int itrk2=itrk1+1; itrk2<ntr; ++itrk2){ // loop over the other tracks to be tested
       if(candlist[itrk2]==NULL)continue;
 
-      #ifdef DEBUG
+      #ifdef DEBUGTT
         std::cout<<"Testing track "<<itrk1<<" with track "<<itrk2<<std::endl;
       #endif
 
@@ -269,7 +288,7 @@ PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist
         if (zTemp<z2min) z2min=zTemp;
         // tracklets are sorted by z (from small to big), if the smallest z of the trk2 is bigger than the maximum z of trk1, skip all other tracks
         if (z2min > (z1max + _TTproxcut + 0.1) ) {
-          #ifdef DEBUG
+          #ifdef DEBUGTT
             std::cout<<" (z2min > (z1max + _TTproxcut + 0.1) ), skipping rest of trk2 tracklets (" << ntr-itrk2 << ")" <<std::endl;
           #endif
           break; // continue with next trk1
@@ -292,7 +311,7 @@ PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist
         else
           applicable=_TTcorrelators[icor]->corr(trk2,trk1,survive,matchQuality);
 
-        #ifdef DEBUG
+        #ifdef DEBUGTT
           if(!applicable){std::cout<<"  correlator "<<icor<<" NOT applicable"<<std::endl;}
           else{std::cout<<"  correlator "<<icor<<"  IS applicable; survived "<<survive<<" with MatchQuality "<<matchQuality<<std::endl;}
         #endif
@@ -306,7 +325,7 @@ PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist
       if (!survive) continue; // test next trk2
 
       // merge tracks if survived
-      #ifdef DEBUG
+      #ifdef DEBUGTT
         std::cout<<"merge track "<<itrk1<<" with track "<<itrk2<<std::endl;
       #endif
 
@@ -347,6 +366,13 @@ PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist
         if(trk1->getNumHits()>=_minHitsForFit) trk1->fitAndSort();
       }
 
+      // update max z of trk1
+      if(_sorting==3){
+        z1max = trk1->getFirstHit()->cluster()->pos().Z();
+        zTemp = trk1->getLastHit()->cluster()->pos().Z();
+        if (zTemp>z1max) z1max=zTemp;
+      }
+
       // delete trk2
       delete candlist[itrk2];
       candlist[itrk2]=NULL;
@@ -362,7 +388,7 @@ PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist
     }
   }
 
-  #ifdef DEBUG
+  #ifdef DEBUGTT
     std::cout<<candlist.size()<<" Merged Riemann Tracks: "<<std::endl;
   #endif
 }

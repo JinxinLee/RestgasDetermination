@@ -55,6 +55,7 @@ class PndTpcRiemannTrack : public TObject{
   double sinDip() const {return _sinDip;} // dip angle vs z axis [0, pi]
 
   bool isFitted() const {return _isFitted;}
+  bool isInitialized() const {return _isInitialized;}
   double m() const {return _m;}
   double t() const {return _t;}
 
@@ -83,8 +84,7 @@ class PndTpcRiemannTrack : public TObject{
 
   void setSort(bool k=true){_doSort=k;}
 
-  void init(double x0, double y0, double R, 
-	    double Dip, double z0);
+  void initSL(double Dip); // init as straight track from Origin for single hit track
 
   // Operations ----------------------
   void fitAndSort();  // refit the plane and sort the hits; calculate center and radius
@@ -120,7 +120,8 @@ class PndTpcRiemannTrack : public TObject{
 
   double _rms; // RMS of distances of hits to intersection of plane with riemann sphere
 
-  bool _isFitted; // fit plane and dip
+  bool _isFitted; // fitted plane and dip
+  bool _isInitialized; // initSL was called, is set to false if fitandsort is called
 
   double fRiemannScale;
 
@@ -136,7 +137,7 @@ class PndTpcRiemannTrack : public TObject{
   bool checkScale(PndTpcRiemannHit*) const;
 
  public:
-  ClassDef(PndTpcRiemannTrack,4)
+  ClassDef(PndTpcRiemannTrack,5)
 
 };
 

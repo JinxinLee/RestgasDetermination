@@ -98,7 +98,8 @@ PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
     _mcPid(true), // todo: remember to turn this off again at some point
     _pdg(211),
     counter(0),
-    Bz(0)
+    Bz(0),
+    _skipCrossingAreas(false)
   {
     fVerbose = 0;
   }
@@ -203,6 +204,7 @@ PndTpcRiemannTrackingTask::Init()
   _trackfinder->setMinHitsForFit(_minpoints);
   _trackfinder->setScale(_riemannscale);
   _trackfinder->setTTProxcut(_TTproxcut);
+  _trackfinder->SkipCrossingAreas(_skipCrossingAreas); // TODO: make configurable
 
   // Hit-Track Correlators
   _trackfinder->addCorrelator(new PndTpcProximityHTCorrelator(_proxcut));

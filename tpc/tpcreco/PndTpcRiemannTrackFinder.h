@@ -70,7 +70,10 @@ public:
   void setInteractionZ(double z){_interactionZ=z;}
   void setMaxNumHitsForPR(double MaxNumHitsForPR){_MaxNumHitsForPR=MaxNumHitsForPR;} // for debugging
 
+  void SkipCrossingAreas(bool opt=true) {_skipCrossingAreas=opt;}
   void setTTProxcut(double cut){_TTproxcut=cut;} // needed for speeding up the merging
+
+  void initTracks(bool initTrks=true, double dip=0) {_initTrks=initTrks; _initDip=dip;}
 
   void setScale(double scale){fRiemannScale=scale;}
   double getScale()const {return fRiemannScale;}
@@ -102,6 +105,11 @@ private:
   bool _sortingMode;
   double _interactionZ;
   int _MaxNumHitsForPR; // for debugging
+
+  bool _skipCrossingAreas;
+
+  bool _initTrks;
+  double _initDip;
 
   unsigned int _minHitsForFit;
 
