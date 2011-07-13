@@ -186,7 +186,7 @@ PndTpcdEdxTask::Exec(Option_t* opt)
 
   //cut: only use single event tracks!
   if(ntracks>1){
-    return;
+    //return;
   }
 
   for(Int_t itr=0;itr<ntracks;++itr){
@@ -347,10 +347,10 @@ PndTpcdEdxTask::Exec(Option_t* opt)
       if(_abort) break;
     }
   
-    new((*_dEdxOutArray)[_dEdxOutArray->GetEntriesFast()]) PndTpcdEdx(dedx);
+    new((*_dEdxOutArray)[itr]) PndTpcdEdx(dedx);
 
     if(_idealdEdx) {
-      new((*_dEdxMCOutArray)[_dEdxMCOutArray->GetEntriesFast()]) PndTpcdEdx(dedx_MC);
+      new((*_dEdxMCOutArray)[itr]) PndTpcdEdx(dedx_MC);
     }
     
     
