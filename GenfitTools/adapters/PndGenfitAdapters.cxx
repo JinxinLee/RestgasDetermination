@@ -1,11 +1,14 @@
 #include"PndGenfitAdapters.h"
 
+#include <iostream>
+
 #include"GFTrack.h"
 #include"GFAbsTrackRep.h"
 #include"GFTrackCand.h"
 #include"PndTrack.h"
 #include"PndTrackCand.h"
 #include"GFDetPlane.h"
+#include"GFException.h"
 #include"TMatrixT.h"
 #include"FairTrackParP.h"
 
@@ -78,30 +81,40 @@ PndTrack* GenfitTrack2PndTrack(const GFTrack* tr){
     }
   }
 
-    //  calculation of spu = sign[p·(DJ x DK)]  
-    double first_pro = gtr->getMom(firstPlane).Dot(firstPlane.getNormal());
-    double first_spu = first_pro/fabs(first_pro);
-    double last_pro = gtr->getMom(lastPlane).Dot(lastPlane.getNormal());
-    double last_spu = last_pro/fabs(last_pro);
+  //  calculation of spu = sign[p·(DJ x DK)]
+  double first_pro(0), last_pro(0), first_spu, last_spu;
+  bool exc(false);
+
+  try{
+    first_pro = gtr->getMom(firstPlane).Dot(firstPlane.getNormal());
+    last_pro = gtr->getMom(lastPlane).Dot(lastPlane.getNormal());
+  }
+  catch (GFException& e){
+    exc=true;
+    std::cerr<<"could not convert GenfitTrack to PndTrack"<<std::endl;
+    e.what();
+  }
+
+  first_spu = (first_pro>=0) ? 1 : -1;
+  last_spu = (last_pro>=0) ? 1 : -1;
     
-    FairTrackParP first(firstState[3][0],firstState[4][0],firstState[1][0],firstState[2][0],firstState[0][0],firstCova,firstPlane.getO(),firstPlane.getU(),firstPlane.getV(),first_spu);
-    FairTrackParP last(lastState[3][0],lastState[4][0],lastState[1][0],lastState[2][0],lastState[0][0],lastCova,lastPlane.getO(),lastPlane.getU(),lastPlane.getV(),last_spu);
+  FairTrackParP first(firstState[3][0],firstState[4][0],firstState[1][0],firstState[2][0],firstState[0][0],firstCova,firstPlane.getO(),firstPlane.getU(),firstPlane.getV(),first_spu);
+  FairTrackParP last(lastState[3][0],lastState[4][0],lastState[1][0],lastState[2][0],lastState[0][0],lastCova,lastPlane.getO(),lastPlane.getU(),lastPlane.getV(),last_spu);
     
-    //copy the trackCand
-    GFTrackCand genfitCand = tr->getCand();
-    PndTrackCand* pndCand = GenfitTrackCand2PndTrackCand(&genfitCand);
-    PndTrack* retVal =  new PndTrack(first,last,*pndCand);
-    retVal->SetChi2(tr->getChiSqu());
-    retVal->SetNDF(tr->getNDF());
-    if (tr->getNDF()==0)
-      {
-	retVal->SetFlag(-1);
-      }
-    else
-      {
-	retVal->SetFlag(1);
-      }
-    delete pndCand;
-    return retVal;
+  //copy the trackCand
+  GFTrackCand genfitCand = tr->getCand();
+  PndTrackCand* pndCand = GenfitTrackCand2PndTrackCand(&genfitCand);
+  PndTrack* retVal =  new PndTrack(first,last,*pndCand);
+  retVal->SetChi2(tr->getChiSqu());
+  retVal->SetNDF(tr->getNDF());
+  if (tr->getNDF()==0 || exc) {
+    retVal->SetFlag(-1);
+  }
+  else {
+	  retVal->SetFlag(1);
+  }
+
+  delete pndCand;
+  return retVal;
   
 }
