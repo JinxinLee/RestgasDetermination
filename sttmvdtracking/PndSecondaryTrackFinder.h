@@ -82,8 +82,12 @@ std::vector<int> OrderClusterInZ(std::vector<int> cluster, std::vector<TVector3>
   
   std::vector<std::vector<int> > ClusterFinder(std::vector<int> hits, Int_t detId);
   std::vector<std::vector<int> > ClusterFinder2(std::vector<int> hits, Int_t detId);
-  
+  std::vector<std::vector<int> > ClusterFinder3(std::vector<int> hits, Int_t detId);
+  std::vector<std::vector< TMatrixT<double> > > ClusterFinder3b(std::vector<int> hits, Int_t detId);
+
+  void Brief(std::vector< std::vector< TMatrixT<double> > > clusterlist, std::vector< TMatrixT<double> > xyparameters);
   void DrawFoundTracks();
+  void DrawFoundTracks(std::vector< TMatrixT<double> > xyparameters);
   void DrawMCTracks();
   void DrawGeometry();
   void DrawScosZGeometry();
@@ -95,8 +99,12 @@ std::vector<int> OrderClusterInZ(std::vector<int> cluster, std::vector<TVector3>
   void DrawAllUsableHits();
   void PrintClusters(std::vector< std::vector<int> > clusterlist);
   void PrintClustersBIS(std::vector< std::vector< TMatrixT<double> > > clusterlist);
+  void PrintFoundTracks(std::vector< TMatrixT<double> > xyparameters);
   void DrawClusters(std::vector< std::vector<int> > clusterlist);
   void DrawClustersBIS(std::vector< std::vector< TMatrixT<double> > > clusterlist);
+  Color_t GetColor(int iclus);
+  void  DrawMultipleAssignedHits(std::vector< std::vector< TMatrixT<double> > > clusterlist);
+
 
   void Refresh();
   void DrawLinks(std::vector<int> cluster, Int_t detId, Int_t iclus);
@@ -119,6 +127,8 @@ std::vector<int> OrderClusterInZ(std::vector<int> cluster, std::vector<TVector3>
   
   void DeleteCluster(std::vector< std::vector<int> > * clusterlist, std::vector<int> deletecluster);
   void DeleteClusterBIS(std::vector< std::vector< TMatrixT<double> > > *clusterlist, std::vector<int> deletecluster);
+  void DeleteParametersBIS(std::vector< TMatrixT<double> > *xyparameters, std::vector<int> deletecluster);
+  void DeleteTrackBIS(std::vector< std::vector< TMatrixT<double> > > *clusterlist, std::vector< TMatrixT<double> > *xyparameters, std::vector<int> deletecluster);
 
   Bool_t TestChi2(std::vector<int> cluster, Double_t xc, Double_t yc, Double_t radius,  Int_t detId, Int_t iclus, Double_t chi2, Int_t countelem, Double_t &newxc, Double_t &newyc, Double_t &newradius, std::vector<int> * newcluster, Double_t &newchi2);
   Bool_t TestChi2BIS(std::vector< TMatrixT<double> > cluster, Double_t xc, Double_t yc, Double_t radius,  Int_t iclus, Double_t chi2, Int_t countelem, Double_t &newxc, Double_t &newyc, Double_t &newradius, std::vector< TMatrixT<double> > *newcluster, Double_t &newchi2);
@@ -156,8 +166,13 @@ std::vector<int> OrderClusterInZ(std::vector<int> cluster, std::vector<TVector3>
   void FindLimits(std::vector< TMatrixT<double> > cluster, Mat2x3 &m);
   Bool_t IsInsideLimits(TVector3 intersection, Double_t limits[2][3]) ;
   void ForbidCrossingTracks(std::vector< std::vector< TMatrixT<double> > > * clusterlist, std::vector< TMatrixT<double> > parlist);
+  void SetUpUsableHitMap();
 
-
+  std::vector<int> FindAssignedClusters(TMatrixT<double> singlehit, std::vector< std::vector< TMatrixT<double> > > clusterlist);
+  Bool_t IsMultiplyAssigned(TMatrixT<double> singlehit, std::vector< std::vector< TMatrixT<double> > > clusterlist, std::vector<int> &assignlist);
+  std::vector< TMatrixT<double> > FindConnections(TMatrixT<double> singlehit, std::vector<TMatrixT<double> > cluster);
+   Bool_t IsAggregation(TMatrixT<double> singlehit, std::vector<TMatrixT<double> > cluster,  std::vector< TMatrixT<double> > &connectionslist);
+  std::vector< TMatrixT<double> >  CleanAggregations(std::vector<TMatrixT<double> > cluster, std::vector< std::vector<TMatrixT<double> > > clusterlist);
  private:
 
   /** Input array of PndSttTube (map of STT tubes) **/
@@ -202,7 +217,7 @@ std::vector<int> OrderClusterInZ(std::vector<int> cluster, std::vector<TVector3>
   /** object persistence **/
   Bool_t  fPersistence; //!
   Bool_t fDisplayOn; //!
-  int fColors[10];
+  Color_t fColors[84];
   PndGeoSttPar *fSttParameters;  //  CHECK added
 
 
@@ -223,7 +238,7 @@ std::vector<int> OrderClusterInZ(std::vector<int> cluster, std::vector<TVector3>
   std::map<int, int> fDetMap;
 
   // std::vector<TMatrixT<double> > xyzpositions; // skewflag x y z dx dy dz
-
+  TMatrixT<double> fSttUsableHits;
 
   ClassDef(PndSecondaryTrackFinder,1);
 
