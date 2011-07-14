@@ -315,24 +315,24 @@ void run_ana_eta_c_tpc(int nevts=0)
 				k3fit_best=vtxfitter.FittedCand(*(etacfit_best->Daughter(2)));
 				k4fit_best=vtxfitter.FittedCand(*(etacfit_best->Daughter(3)));
 			}
+		}
 
-			if((best_chi2<150)&&(etac.GetLength()!=0))
+		if((best_chi2<150)&&(etac.GetLength()!=0))
+		{
+			h_etac_vtx->Fill(etacfit_best->M());
+			phi1fit_best=k1fit_best->Combine(*k2fit_best);
+			phi2fit_best=k3fit_best->Combine(*k4fit_best);
+			double m_phi1=phi1fit_best->M();
+			double m_phi2=phi2fit_best->M();
+			h_mphi_vtx->Fill(m_phi1);
+			h_mphi_vtx->Fill(m_phi2);
+			h_mphi_final->Fill(m_phi1);
+			h_mphi_final->Fill(m_phi2);
+			if (((m_phi1>1.02-0.03)&&(m_phi1<1.02+0.03))&&((m_phi2>1.02-0.03)&&(m_phi2<1.02+0.03)))
 			{
-				h_etac_vtx->Fill(etacfit_best->M());
-				phi1fit_best=k1fit_best->Combine(*k2fit_best);
-				phi2fit_best=k3fit_best->Combine(*k4fit_best);
-				double m_phi1=phi1fit_best->M();
-				double m_phi2=phi2fit_best->M();
-				h_mphi_vtx->Fill(m_phi1);
-				h_mphi_vtx->Fill(m_phi2);
-				h_mphi_final->Fill(m_phi1);
-				h_mphi_final->Fill(m_phi2);
-				if (((m_phi1>1.02-0.03)&&(m_phi1<1.02+0.03))&&((m_phi2>1.02-0.03)&&(m_phi2<1.02+0.03)))
-				{
-					h_etac_phimass->Fill(etacfit_best->M());
-					if ((etacfit_best->M()>2.9)&&(etacfit_best->M()<3.06))
-						n_reco++;
-				}
+				h_etac_phimass->Fill(etacfit_best->M());
+				if ((etacfit_best->M()>2.9)&&(etacfit_best->M()<3.06))
+					n_reco++;
 			}
 		}
 	}
