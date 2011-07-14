@@ -18,7 +18,7 @@
 
 
 // -----   Default constructor   -------------------------------------------
-PndLmdTrackFinderTask::PndLmdTrackFinderTask(Int_t inFinderMode=0) :
+PndLmdTrackFinderTask::PndLmdTrackFinderTask(Int_t inFinderMode) :
   FairTask("LMD Track Finding Task")
 {
    fFinderMode = inFinderMode;

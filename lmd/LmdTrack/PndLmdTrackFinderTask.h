@@ -26,7 +26,7 @@ class PndLmdTrackFinderTask : public FairTask
  public:
 
     /** Default constructor **/
-    PndLmdTrackFinderTask(Int_t inFinderMode);
+    PndLmdTrackFinderTask(Int_t inFinderMode=0);
     /** Destructor **/
     virtual ~PndLmdTrackFinderTask();
 
