@@ -30,7 +30,7 @@ PndLmdStripClusterTask::PndLmdStripClusterTask() :
 }
 
 // -----   Public method Init   --------------------------------------------
-InitStatus PndLmdStripClusterTask::Init()
+/*InitStatus PndLmdStripClusterTask::Init()
 {
 SetBranchNames();
   
@@ -74,7 +74,7 @@ SetBranchNames();
   //  cout<<"PndLmdStripClusterTask::Init() fPbeam = "<<fPbeam<<endl;
   Info("Init","Initialisation successfull");
   return kSUCCESS;
-}
+  }*/
 
 // -----   Destructor   ----------------------------------------------------
 PndLmdStripClusterTask::~PndLmdStripClusterTask()

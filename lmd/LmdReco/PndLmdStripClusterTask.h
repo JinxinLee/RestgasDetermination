@@ -23,7 +23,7 @@ class PndLmdStripClusterTask : public PndSdsStripClusterTask
     /** Destructor **/
     virtual ~PndLmdStripClusterTask();
     /** Virtual method Init **/
-    virtual InitStatus Init();
+    //virtual InitStatus Init();
     virtual void SetBranchNames(TString inBranchname, TString outHitBranchname, TString outClustBranchname, TString folderName);
     virtual void SetBranchNames();
     virtual void SetParContainers();
