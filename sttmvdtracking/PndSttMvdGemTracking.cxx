@@ -1,3 +1,13 @@
+////////////////////////////////////////////////////////////
+//
+// PndSttMvdGemTracking (a.k.a. "the GEM extension")
+// 
+// Class for extending the SttMvdTrack to the GEM stations
+//
+// authors: Lia Lavezzi - INFN Pavia (2011)
+//
+////////////////////////////////////////////////////////////
+
 #include "PndSttMvdGemTracking.h"
 
 // pandaroot
