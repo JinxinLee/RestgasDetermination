@@ -53,6 +53,7 @@ public:
   void SetSampleBranchName(const TString& name) {fsampleBranchName=name;}
   void SetDigiBranchName(const TString& name) {fDigiOutName=name;}
   void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
+  void SetSamplePersistence(Bool_t opt=kTRUE){fSamplePersistence = opt;}
   void SetPeakingtime(int pik) {fpeak=pik;}
   void SetTail(bool b){fTail=b;}
   void SetOpt(unsigned int b){fopt=b;}
@@ -76,6 +77,7 @@ private:
   TClonesArray* fdigiArray;
   
   Bool_t fpersistence;
+  Bool_t fSamplePersistence;
   bool fTail;
  
   PndTpcFrontend* ffrontend;

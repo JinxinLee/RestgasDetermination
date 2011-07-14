@@ -65,7 +65,7 @@ PndTpcPSATask::SetParContainers() {
 
 PndTpcPSATask::PndTpcPSATask()
   : FairTask("TPC Pulse shape analyser"), fpersistence(kFALSE), fpeak(100), fopt(0),
-    fPads(0)
+    fPads(0), fSamplePersistence(kFALSE)
 {
   fsampleBranchName = "PndTpcSample";
   fDigiOutName = "PndTpcDigi";
@@ -129,6 +129,7 @@ PndTpcPSATask::Init()
    }
    else if( fpar->getPSA() == 1){
      fpsa= new PndTpcPSA_TOT1();
+     ((PndTpcPSA_TOT1*)fpsa)->setSamplePersistence(fSamplePersistence);
      std::cout << "Using PSA_TOT strategy!";
      if (fopt) {fpsa->setOpt(fopt); std::cout << " with " << fopt << "nb of empty samples allowed.";}
      std::cout << std::endl;
