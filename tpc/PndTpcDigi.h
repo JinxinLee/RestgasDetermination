@@ -27,6 +27,7 @@
 #include "McIdCollection.h"
 #include <iostream>
 #include <assert.h>
+#include <vector>
 
 // Collaborating Class Declarations --
 #include "PndTpcSample.h"
@@ -38,9 +39,10 @@ public:
   // Constructors/Destructors ---------
   PndTpcDigi();
   PndTpcDigi(const double Amp,
-		  const double T,
-		  const unsigned int PadID,
-		  const McIdCollection& mcid, const unsigned int index = 0);
+	     const double T,
+	     const unsigned int PadID,
+	     const McIdCollection& mcid, 
+	     const unsigned int index = 0);
   ~PndTpcDigi(){;}
 
   // Operators
@@ -68,21 +70,28 @@ public:
 
   //Samples Vector-------------------
  
-  /*
+  
   unsigned int nSample() const {
-    return samples.size();
+    return fsamples.size();
   }
   
   void addSample(const PndTpcSample* d){
-    samples.push_back(d);
+    fsamples.push_back(*d);
   }
   
-  const PndTpcSample* getSample(int i) const{
-    assert (i<samples.size());
-    return samples[i];
+  const PndTpcSample* getSample(int i) const {
+    assert (i<fsamples.size());
+    return &(fsamples[i]);
   }
-  */
-  
+
+  //  void setSamples(std::vector<PndTpcSample*> samples){
+  //    fsamples = samples;
+  //  }	     
+
+  //  std::vector<PndTpcSample*> getSamples(){
+  //    return fsamples;
+  //  }
+ 
   // Operations ----------------------
   void Print() const {
     std::cout << "===== PndTpcDigi::print() =====" << std::endl;
@@ -104,11 +113,11 @@ public:
   // Private Methods -----------------
 
   //for optional saving of raw info that went into the cluster
-  //std::vector<const PndTpcSample*> samples;
+  std::vector<PndTpcSample> fsamples; //->
 
 
 public:
-  ClassDef(PndTpcDigi,5)
+  ClassDef(PndTpcDigi,7)
 
 };
 
