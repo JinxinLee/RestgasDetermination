@@ -10,6 +10,27 @@
 
 /**
  * Constructor:
+ * @param InputEvtsParam Input events vector.
+ * @param ClassNames class names.
+ * @param VarNames variable names of the features.
+ */
+PndLVQTrain::PndLVQTrain(std::vector< std::pair<std::string, std::vector<float>*> > const& Input,
+			 std::vector<std::string> const& ClassNames, 
+			 std::vector<std::string> const& VarNames,
+			 bool trim)
+  : PndMvaTrainer(Input, ClassNames, VarNames, trim),
+    m_initConst(0.8),
+    m_ethaZero(0.1),
+    m_ethaFinal(0.01),
+    m_NumSweep(10),
+    m_proto_init(RAND_FROM_DATA),
+    m_initProtoFile(""),
+    m_ErrorStep(1000),
+    m_ProgStep(1000)
+{}
+
+/**
+ * Constructor:
  * @param InPut: Input file name.
  * @param ClassNames: class names.
  * @param VarNames: variable names of the features.
@@ -766,8 +787,8 @@ void PndLVQTrain::EvalClassifierError(unsigned int stp)
   // Test-set iterator.
   std::set <size_t>::const_iterator iter;
 
-  int TrError = 0;// Train error
-  int TsError = 0;// Test  error
+  size_t TrError = 0;// Train error
+  size_t TsError = 0;// Test  error
 
   //========== Classify Test Set
   for(iter = m_testSet_indices.begin(); iter != m_testSet_indices.end(); ++iter)
@@ -825,10 +846,20 @@ void PndLVQTrain::EvalClassifierError(unsigned int stp)
       }
     }
   }
-  float tsEr, trEr;
-  tsEr = (TsError * 100.00) / static_cast<float>(m_testSet_indices.size());
-  size_t numTrEvt = events.size() - m_testSet_indices.size() - 1 ;
-  trEr = (TrError * 100.00) / static_cast<float>(numTrEvt);
+
+  // Number of events in each subset (test and train)
+  size_t NumTsTrEvt = m_testSet_indices.size();
+  NumTsTrEvt = (NumTsTrEvt > 0)? NumTsTrEvt : -1;
+
+  // Test error.
+  float tsEr = (TsError * 100.00) / static_cast<float>(NumTsTrEvt);
+
+  // Number of train examples
+  NumTsTrEvt = abs( events.size() - m_testSet_indices.size() );
+  NumTsTrEvt = (NumTsTrEvt > 0)? NumTsTrEvt : -1;
+
+  // Train error
+  float trEr = (TrError * 100.00) / static_cast<float>(NumTsTrEvt);
 
   // Create object and Add to the container.
   StepError StpEr (stp, trEr, tsEr);

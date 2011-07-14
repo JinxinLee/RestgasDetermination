@@ -16,31 +16,42 @@
 #include <iomanip>
 #include <cstdlib>
 
-// Local includes
-#include "PndMvaDataSet.h"
-#include "PndMvaUtil.h"
-
+// ROOT and PandaRoot
 #include "TMVA/Tools.h"
 #include "TMVA/PDEFoam.h"
 #include "TMVA/Event.h"
 
 class TRandom3;
 
+// Local includes
+#include "PndMvaDataSet.h"
+#include "PndMvaUtil.h"
+
 class PndMvaTrainer
 {
   //==============================================
   //================ Public =======================
  public:
+  
+  /**
+   * Constructor.
+   *@param InPut The input parameters.
+   *@param ClassNames Names of available labels(classes).
+   *@param VarNames Names of available variables.
+   */
+  PndMvaTrainer(std::vector< std::pair<std::string, std::vector<float>*> > const& InputEvtsParam,
+		std::vector<std::string> const& ClassNames,
+		std::vector<std::string> const& VarNames,
+		bool trim = true);
+
   /**
    * Constructor.
    *@param InPut, The input filename.
    *@param ClassNames Names of available classes.
    *@param VarNames Names of available variables.
-   * Note that all of the members of these lists are selected 
-   * and used during the training runs.
    */
   PndMvaTrainer(std::string const& InPut,
-		std::vector<std::string> const& ClassNames, 
+		std::vector<std::string> const& ClassNames,
 		std::vector<std::string> const& VarNames,
 		bool trim = true);
 
@@ -56,7 +67,7 @@ class PndMvaTrainer
    * @param percent Percent of the data set to be used for testing and
    * cross-validation
    */
-  inline void SetTetsSetSize(int percent = 50);
+  void SetTetsSetSize(size_t percent = 50);
   
   //! Select input data normalization scheme.
   void NormalizeData(NormType t = NONORM);
@@ -143,9 +154,10 @@ class PndMvaTrainer
  //! To avoid mistakes.
   PndMvaTrainer(PndMvaTrainer const& other);
   PndMvaTrainer& operator=(PndMvaTrainer const& other);
-  // Either trim or not
+
+  // trim or not
   bool m_trim;
-  int  m_testSetSize;
+  size_t  m_testSetSize;
 };// End of class definition.
 
 //========================= Inline implementations =================
@@ -162,11 +174,6 @@ inline void PndMvaTrainer::SetAppType(AppType t)
 inline std::set <size_t> const& PndMvaTrainer::GetTestEvetIdx() const
 {
   return m_testSet_indices;
-};
-
-inline void PndMvaTrainer::SetTetsSetSize(int percent)
-{
-  m_testSetSize = percent;
 };
 
 //! Get the list of available classes (labels).

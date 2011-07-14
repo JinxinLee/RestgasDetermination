@@ -12,6 +12,84 @@
 
 using namespace std;
 
+#define DEBUG_DATASET 0
+
+/**
+ * Constructor.
+ *@param InputEvtsParam  Input event data (attributes).
+ *@param classNames      Names of available Labels (classes).
+ *@param varNames        Available variable names.
+ *@param type            Application Type.
+ */
+PndMvaDataSet::PndMvaDataSet(std::vector< std::pair<std::string, std::vector<float>*> > const& Input,
+			     std::vector<std::string> const& classNames,
+			     std::vector<std::string> const& varNames,
+			     AppType type
+			     )
+  : m_input("NO_INPUT_FILE"),
+    m_UsePCA(false),
+    m_NormType(NONORM),
+    m_AppType(type),
+    m_trim(true)
+{
+  // Init labels.
+  InitClasses(classNames);
+  
+  // Init variables.
+  InitVariables(varNames);
+  
+  // Copyt input data
+  /*
+   * This is (absolutly) not elegant.
+   * BUT, maybe I will solve this later
+   * MAYBE FIXME.
+   */
+  size_t evtCnt, tmpIdx;
+  tmpIdx = 0;
+
+  // Label loop
+  for(size_t lb = 0; lb < m_classes.size(); ++lb)
+  {
+    evtCnt = 0;
+    std::string& curLabel = m_classes[lb].Name;
+    // Event data loop.
+    for(size_t ev = 0; ev < Input.size(); ++ev)
+    {
+      // If current event belongs to the current class.
+      if( Input[ev].first == curLabel)
+      {
+	std::vector<float>* evt = new std::vector<float>( (*(Input[ev]).second ) );
+	m_events.push_back(std::make_pair(curLabel, evt) );
+	evtCnt++;
+      }
+    }
+    // Update indices.
+    m_classes[lb].NExamples = evtCnt;
+    m_classes[lb].StartIdx  = tmpIdx;
+    tmpIdx += (evtCnt - 1);
+    m_classes[lb].EndIdx    = tmpIdx;
+    tmpIdx++;
+  }
+  
+#if ( DEBUG_DATASET != 0 )
+  std::cout << "========================================================\n"
+	    << "<DEBUG> Info on classes constructed from data vector.\n"
+	    << " Total number of evnts in Input vector = " << Input.size()
+	    << " total number of added events = " << m_events.size()
+	    << '\n';
+  for(size_t lb = 0; lb < m_classes.size(); ++lb)
+  {
+    std::cout << " labels ["     << lb << "]\n"
+	      << "\tName = "     << m_classes[lb].Name
+	      << " NExamples = " << m_classes[lb].NExamples
+	      << " StartIdx  = " << m_classes[lb].StartIdx
+	      << " EndIdx    = " << m_classes[lb].EndIdx
+	      <<'\n';
+  }
+  std::cout << "========================================================\n";
+#endif
+}
+
 /**
  * Constructor.
  *@param inputFilename  Input File name.
@@ -68,9 +146,9 @@ void PndMvaDataSet::Initialize()
   {
   case TMVATRAIN:// Train TMVA method
   case TMVACLS: // Use trained TMVA method.
-    std::cout << "<INFO> Controle is completely passed to TMVA.\n"
+    std::cout << "\n\n<INFO> Controle is completely passed to TMVA.\n"
 	      << "\tFor available parameters, options and how to use\n"
-	      << "\tthe available methods, read the TMVA manuals.\n";
+	      << "\tthe available methods, read the TMVA manuals.\n\n";
     break;
   case CLASSIFY:
     // Validate the weight File
@@ -91,7 +169,10 @@ void PndMvaDataSet::Initialize()
   case TRAIN:
     // Read input file
     ReadInput();
+    // NO BREAK;
 
+    // Pre read data into a vector.
+  case PRE_INIT_EVTS:
     // Trim if required.
     if(m_trim)
     {
@@ -112,7 +193,7 @@ void PndMvaDataSet::Initialize()
     std::cerr << "<ERROR> Unknown application type.\n"
 	      << "I do not know what to do.\n"
 	      << std::endl;
-    exit(2);
+    exit(EXIT_FAILURE);
     break;
   }
   std::cout <<"<INFO> Initialization done.\n" ;
@@ -133,7 +214,7 @@ void PndMvaDataSet::Trim()
   size_t   m_RND_seed = seconds;
   TRandom3 rnd(m_RND_seed);
 
-  //size_t minCntIndex = 0;
+  // Number of examples of the class with the smallest number of members.
   size_t minEvtCnt   = std::numeric_limits<size_t>::max();
 
   // Find the class with minimum number of examples.
@@ -142,7 +223,6 @@ void PndMvaDataSet::Trim()
     if(m_classes[i].NExamples < minEvtCnt)
     {
       minEvtCnt = m_classes[i].NExamples;
-      //minCntIndex = i;
     }
   }
 
@@ -154,7 +234,7 @@ void PndMvaDataSet::Trim()
   for(size_t j = 0; j < m_classes.size(); j++)
   {
     std::cout << "\t-I- Selecting events for " << m_classes[j].Name
-	      <<'\n';
+	      << '\n';
     
     size_t diff = m_classes[j].NExamples  - minEvtCnt;
 
@@ -174,7 +254,7 @@ void PndMvaDataSet::Trim()
 
   // Copy all events we want to keep.
   vector< pair<string, vector<float>*> > newEvents(m_classes.size() * minEvtCnt);
-  set<size_t>::const_iterator nextDelIdx = delIdxs.begin();  // set is sorted
+  set<size_t>::const_iterator nextDelIdx = delIdxs.begin();// set is sorted
 
   size_t newIdx = 0;
   for(size_t oldIdx = 0; oldIdx < m_events.size(); oldIdx++)
@@ -217,7 +297,8 @@ void PndMvaDataSet::Trim()
       minIdx = idx + 1;
     }
   }
-  std::cout << "<INFO> Finished Trimming." << '\n';
+  std::cout << "<INFO> Finished Trimming."
+	    << '\n';
 }
 
 /**
@@ -590,7 +671,7 @@ void PndMvaDataSet::ReadInput()
  */
 void PndMvaDataSet::ReadWeightsFromFile()
 {
-  std::cerr <<"<ERROR> NOT IMPLEMENTED YET.\n"
+  std::cerr << "<ERROR> NOT IMPLEMENTED YET.\n"
 	    << "IMPLEMENT ME."
 	    << std::endl;
 }

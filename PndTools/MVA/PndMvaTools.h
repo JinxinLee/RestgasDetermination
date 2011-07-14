@@ -229,7 +229,7 @@ void print(std::map<std::string, float> const& ClsMapOut);
 std::map<std::string, size_t>* readEvents(char const* infile,
 					  std::vector<std::string> const& varNames,
 					  std::vector<std::string> const& classNames,
-					  std::vector<std::pair<std::string, std::vector<float>*> >& Outcontainer);
+					  std::vector<std::pair<std::string, std::vector<float>* > >& Outcontainer);
 
 /**
  * Print list of ROC objects.

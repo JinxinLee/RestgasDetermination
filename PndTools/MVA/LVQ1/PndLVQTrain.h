@@ -16,13 +16,17 @@
 #include "PndMvaTrainer.h"
 #include "PndMvaCluster.h"
 
+// ____ Local CPP definitions _________
+#define DEBUG_LVQ_TRAIN 0
+// ____________________________________
+
 //! How to initialize LVQ code books.
 typedef enum
 {
-  RAND_FROM_DATA = 0, // Select randomly from data vector.
-  CCM_PR = 1,        // Random init arounf Class Conditional Mean.
-  KMEANS_PR = 10,   // Init using K-Means clustering.
-  FILE_PR = 20     // Read pre-init from file.
+  RAND_FROM_DATA = 0,  // Select randomly from data vector.
+  CCM_PR         = 1,  // Random init around Class Conditional Mean.
+  KMEANS_PR      = 10, // Init using K-Means clustering.
+  FILE_PR        = 20  // Read pre-init from file.
 } ProtoInitType;
 
 //! Interface definition for LVQ trainers.
@@ -31,6 +35,17 @@ class PndLVQTrain: public PndMvaTrainer
   //----------------------------------------
   //================== public ==============
  public:
+
+  /**
+   * Constructor:
+   * @param InputEvtsParam Input events vector.
+   * @param ClassNames class names.
+   * @param VarNames variable names of the features.
+   */
+  PndLVQTrain(std::vector< std::pair<std::string, std::vector<float>* > > const& InputEvtsParam,
+	      std::vector<std::string> const& ClassNames, 
+	      std::vector<std::string> const& VarNames,
+	      bool trim = false);
   /**
    * Constructor:
    * @param InPut: Input file name.
@@ -57,6 +72,7 @@ class PndLVQTrain: public PndMvaTrainer
   void Train21();
 
   ////================= DEBUG Only, NOT TO BE USED
+#if DEBUG_LVQ_TRAIN
   inline std::vector< std::pair<std::string, std::vector<float>*> > const& train1sec()
   {
     InitProtoK_Means();
@@ -68,6 +84,7 @@ class PndLVQTrain: public PndMvaTrainer
     InitProtoRand();
     return m_LVQProtos;
   };
+#endif
   ////================= DEBUG Only, NOT TO BE USED
 
   /**

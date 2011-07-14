@@ -96,8 +96,9 @@ void print(std::vector <ClassifierOutPuts> const& el)
  *@param classNames Name of the labels to read.
  *@param coNt Output is stored here.
  */
-std::map<std::string, size_t>* readEvents(const char* infile, std::vector<std::string> const& varNames,
-					  std::vector< std::string > const& classNames, 
+std::map<std::string, size_t>* readEvents(const char* infile,
+					  std::vector<std::string> const& varNames,
+					  std::vector< std::string > const& classNames,
 					  std::vector< std::pair< std::string, std::vector<float>* > >& coNt)
 {
   std::cout << "<-I-> Reading examples from " << infile
@@ -126,7 +127,7 @@ std::map<std::string, size_t>* readEvents(const char* infile, std::vector<std::s
     }
     
     // Get the counts for the current label
-    size_t NumEvtCurLabel = static_cast<size_t>(t->GetEntriesFast());
+    size_t NumEvtCurLabel = static_cast<size_t>(t->GetEntries());
     
     counts->insert( std::make_pair (classNames[cls], NumEvtCurLabel) );
 
@@ -149,7 +150,7 @@ std::map<std::string, size_t>* readEvents(const char* infile, std::vector<std::s
     }// Tree parameters are bounded
     
     // Fetch and store the variables to per class variable container
-    for(int k = 0; k < t->GetEntriesFast(); k++)
+    for(int k = 0; k < t->GetEntries(); k++)
     {
       t->GetEntry(k);
 

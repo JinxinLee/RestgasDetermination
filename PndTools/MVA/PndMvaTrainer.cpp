@@ -11,13 +11,29 @@
 
 using namespace std;
 
+/**
+ * Constructor.
+ *@param InPut The input parameters.
+ *@param ClassNames Names of available labels(classes).
+ *@param VarNames Names of available variables.
+ */
+PndMvaTrainer::PndMvaTrainer(std::vector< std::pair<std::string, std::vector<float>*> > const& InputEvtsParam,
+			     std::vector<std::string> const& ClassNames, 
+			     std::vector<std::string> const& VarNames,
+			     bool trim)
+  : m_dataSets(InputEvtsParam, ClassNames, VarNames, PRE_INIT_EVTS),
+    m_trim(trim),
+    m_testSetSize(0)
+{}
+
 //! Constructor
 PndMvaTrainer::PndMvaTrainer(std::string const& InPut,
 			     std::vector<std::string> const& ClassNames, 
 			     std::vector<std::string> const& VarNames,
 			     bool trim)
   : m_dataSets(InPut, ClassNames, VarNames, TRAIN),
-    m_trim(trim), m_testSetSize(50)
+    m_trim(trim),
+    m_testSetSize(50)
 {}
 
 //! Destructor
@@ -43,7 +59,7 @@ void PndMvaTrainer::Initialize()
   
   // Init random seed for this run.
   srand ( time(NULL) );
-  m_RND_seed = (rand() % 1000000) + 1;
+  m_RND_seed = (rand() % 10000000) + 1;
   std::cout << "<INFO> Seed for current run is "
 	    << m_RND_seed << '\n';
 }
@@ -55,7 +71,7 @@ void PndMvaTrainer::splitTetsSet()
 {
   TRandom3 rndIndx(m_RND_seed);
   double tempIndex = 0.0;
-  size_t tsindx = 0;
+  size_t tsindx    = 0;
 
   // Get all available examples.
   std::vector<std::pair<std::string, std::vector<float>*> > const& events = m_dataSets.GetData();
@@ -68,6 +84,7 @@ void PndMvaTrainer::splitTetsSet()
 	    << "\t-I- Test set containes " << TestEvtCnt
 	    <<" examples and train set " << (events.size() - TestEvtCnt) 
 	    << '\n';
+  
   // Select the index of the examples that are going to be used as the
   // test set.
   while(m_testSet_indices.size() < TestEvtCnt)
@@ -290,6 +307,7 @@ void PndMvaTrainer::WriteToWeightFile(std::vector< std::pair<std::string,
 
   Modifiers.Add(new TObjString("Means"));
   Modifiers.Add(new TObjString("NormFact"));
+
   if(m_dataSets.Used_PCA())
   {
     Modifiers.Add(new TObjString("PCAMeans"));
@@ -415,4 +433,20 @@ void PndMvaTrainer::NormalizeData(NormType t)
 void PndMvaTrainer::PCATransForm()
 { 
   m_dataSets.Use_PCA(true);
+}
+
+void PndMvaTrainer::SetTetsSetSize(size_t prc)
+{
+  // Using all events for testing does not make sence.
+  if(prc < 100)
+  {
+    m_testSetSize = prc;
+  }
+  else
+  {
+    std::cerr << "<ERROR> Too large test Set.\n"
+	      << "        The size is set to 50%."
+	      << std::endl;
+    exit(EXIT_FAILURE);
+  }
 }

@@ -9,14 +9,18 @@
  * based classifier.
  */
 #include <sstream>
-#include "PndLVQTrain.h"
 #include "TRandom3.h"
 
+#include "PndLVQTrain.h"
+#include "PndMvaTools.h"
+
 //____________________________________
-#define DEBUG 0
+#define DEBUGVQ_TRAIN_EXAMPLE 0
+
+#define CROSS_VALIDATE 1
 //____________________________________
 
-#if DEBUG
+#if DEBUGVQ_TRAIN_EXAMPLE
 // *************  DEBUG ONLY **********
 void printProto(std::vector< std::pair<std::string, std::vector<float>*> > const& dat)
 {
@@ -39,11 +43,6 @@ void printProto(std::vector< std::pair<std::string, std::vector<float>*> > const
 
 int main(int argc, char** argv)
 {
-  // Labels.
-  std::vector<std::string> clas;
-  // Variables.
-  std::vector<std::string> nam;
-  
   if(argc < 5)
   {
     std::cerr << "\t<ERROR> Usage:\n"
@@ -55,7 +54,8 @@ int main(int argc, char** argv)
   }
   
   int algNum = atoi(argv[1]);
-  std::cout << "Using algoritme " << algNum << '\n';
+  std::cout << "Using algoritme " << algNum
+	    << '\n';
 
   size_t numProto = 0;
   std::string numstr = argv[2];// Number of proto's
@@ -73,34 +73,61 @@ int main(int argc, char** argv)
   std::cout << " outPut = " << ot << " ";
   
   std::string OutErr = "Err" + ot;
-  std::cout << " ErrorFile = " << OutErr << '\n';
+  std::cout << " ErrorFile = " << OutErr
+	    << '\n';
   
-  // Class names
-  clas.push_back("electron");
-  clas.push_back("pion");
+  // Labels.
+  std::vector<std::string> labels;
+  // Variables.
+  std::vector<std::string> vars;
   
-  //clas.push_back("muon");
-  //clas.push_back("kaon");
-  //clas.push_back("proton");
+  // Labelss names
+  labels.push_back("electron");
+  labels.push_back("pion");
+  
+  //labels.push_back("muon");
+  //labels.push_back("kaon");
+  //labels.push_back("proton");
   
   // Variable names 
-  //nam.push_back("p");
-  nam.push_back("emc");
-  nam.push_back("lat");
-  nam.push_back("z20");
-  nam.push_back("z53");
+  vars.push_back("emc");
+  vars.push_back("lat");
+  vars.push_back("z20");
+  vars.push_back("z53");
   
-  //nam.push_back("thetaC");
-  //nam.push_back("mvd");
-  //nam.push_back("tof");
-  //nam.push_back("stt"); 
+  //vars.push_back("thetaC");
+  //vars.push_back("mvd");
+  //vars.push_back("tof");
+  //vars.push_back("stt"); 
   
+#if (CROSS_VALIDATE == 0)
+  std::cout << "<-I-> Init classifier using Tree data.\n";
   // Create trainer object.
-  PndLVQTrain tr(ip, clas, nam, true);
+  PndLVQTrain tr(ip, labels, vars, true);
+
+#else
+  std::cout << "<-I-> Init classifier using PreInitialized"
+	    << " vector of events.\n";
+  std::vector<std::pair<std::string, std::vector<float>*> > events;
+
+  std::map<std::string, size_t>* counts = readEvents (ip.c_str(), vars, labels, events);
+
+  // Create trainer object.
+  PndLVQTrain tr(events, labels, vars, true);
+
+  // Clean-up un-needed stuff
+  for(size_t ev = 0; ev < events.size(); ++ev)
+  {
+    delete events[ev].second;
+  }
+  events.clear();
+  counts->clear();
+  delete counts;
+#endif
 
   float initC  = 0.8;
-  float ethaZ  = 0.01;
-  float ethaF  = 0.001;
+  float ethaZ  = 0.1;
+  float ethaF  = 0.0001;
   
   tr.SetLearnPrameters(initC, ethaZ, ethaF, numSweep);
   
@@ -114,8 +141,9 @@ int main(int argc, char** argv)
     numProtoMap["pion"] = 150;
     tr.SetNumberOfProto(numProtoMap);
   */
-
-  tr.SetTetsSetSize(50);//10% (DEFAULT)
+  
+  // Set the size of the test set in (%)
+  tr.SetTetsSetSize(0);
 
   tr.SetErrorStepSize(0);//1000 (DEFALUT)
   
@@ -145,7 +173,7 @@ int main(int argc, char** argv)
     tr.Train21();
     break;
 
-#if DEBUG
+#if DEBUGVQ_TRAIN_EXAMPLE
   case 3:
     printProto( tr.train1sec() );
     break;

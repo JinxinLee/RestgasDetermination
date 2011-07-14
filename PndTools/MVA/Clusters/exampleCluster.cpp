@@ -16,11 +16,11 @@
 #include "PndMvaDataSet.h"
 #include "PndMvaCluster.h"
 
-#define DEBUG_PRINT 0
+#define DEBUG_CLUSTERS_PRINT 0
 
 typedef std::vector< std::pair<std::string, std::vector<float>*> > RawPoints;
 
-#if DEBUG_PRINT
+#if DEBUG_CLUSTERS_PRINT
 // *************  DEBUG ONLY **********
 void printCentroids(ClDataSample const& dat)
 {
@@ -121,7 +121,7 @@ int main(int argc, char** argv)
     PndMvaCluster clust (clusteringInput, numCentrrs);
     ClDataSample* protoA = clust.Cluster();
 
-#if DEBUG_PRINT
+#if DEBUG_CLUSTERS_PRINT
     printCentroids(*protoA);
 #endif
     
@@ -131,7 +131,7 @@ int main(int argc, char** argv)
     
   }// End of class loop
 
-#if DEBUG_PRINT
+#if DEBUG_CLUSTERS_PRINT
   std::cout << "++++++++++++++++++++++++++++++++++++++\n"
 	    << "Printing the copied values:\n"
 	    << "++++++++++++++++++++++++++++++++++++++\n";

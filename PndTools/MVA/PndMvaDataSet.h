@@ -20,6 +20,7 @@
 #include <limits>
 #include <typeinfo>
 #include <exception>
+#include <utility>
 
 // ROOT
 #include "TFile.h"
@@ -33,20 +34,21 @@
 
 // ========================================================================
 // Application type
-typedef enum{
-  UNKAPP    = 0,
-  TRAIN     = 1, // Training algorithm.
-  CLASSIFY  = 2, // Read weights to do classification..
-  TMVATRAIN = 10, // Provide input for TMVA Training.
-  TMVACLS   = 20  // TMVA classification
+typedef enum {
+  UNKAPP        = 0,
+  TRAIN         = 1, // Training algorithm.
+  CLASSIFY      = 2, // Read weights to do classification.
+  TMVATRAIN     = 10,// Provide input for TMVA Training.
+  TMVACLS       = 20,// TMVA classification.
+  PRE_INIT_EVTS = 30 // Pre-initialized event data.
 } AppType;
 
 // Normalization schemes
-typedef enum{
-  NONORM = 0, // Do nothing
-  VARX   = 1, // Use Sample variance
-  MINMAX = 2, // Use Sample Min and Max
-  MEDIAN = 3, // Use median and interquartile range (IQR).
+typedef enum {
+  NONORM  = 0, // Do nothing
+  VARX    = 1, // Use Sample variance
+  MINMAX  = 2, // Use Sample Min and Max
+  MEDIAN  = 3, // Use median and interquartile range (IQR).
   VARNORM = 4 // Variable Normalize Transform
 } NormType;
 
@@ -56,14 +58,14 @@ class PndMvaDataSetException: public std::exception
 {
  public:
  PndMvaDataSetException()
-   : m_message("NOT_KNOWN_EXCEPTION")
+   : m_message("UNKNOWN_MvaDataSetException")
     {};
  
  PndMvaDataSetException(std::string const& val)
    : m_message(val)
   {};
   
-  ~PndMvaDataSetException() throw()
+  virtual ~PndMvaDataSetException() throw()
     {};
   
   virtual char const* what() const throw()
@@ -85,6 +87,18 @@ class PndMvaDataSetException: public std::exception
 class PndMvaDataSet
 {
  public:
+
+  /**
+   * Constructor.
+   *@param InputEvtsParam  Input event data (attributes).
+   *@param classNames      Names of available Labels (classes).
+   *@param varNames        Available variable names.
+   *@param type            Application Type.
+   */
+  PndMvaDataSet( std::vector< std::pair<std::string, std::vector<float>*> > const& InputEvtsParam,
+		 std::vector<std::string> const& classNames,
+		 std::vector<std::string> const& varNames,
+		 AppType type);
   /**
    * Constructor.
    *@param inputFilename  Input File name.
@@ -118,7 +132,7 @@ class PndMvaDataSet
   inline void SetTrim(bool t);
 
   //! Get available data.
-  inline std::vector< std::pair<std::string, std::vector<float>*> > const& GetData() const;
+  inline std::vector< std::pair<std::string, std::vector<float>* > > const& GetData() const;
 
   //! Get the list of available classes (labels).
   inline std::vector<PndMvaClass> const& GetClasses() const;

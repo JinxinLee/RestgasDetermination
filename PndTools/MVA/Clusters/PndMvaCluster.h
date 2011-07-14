@@ -21,7 +21,10 @@
 typedef std::vector < std::vector<float>* > ClDataSample;
 
 //! Clustering types
-typedef enum {KMEANS_HARD = 0, KMEANS_SOFT = 1} ClusteringType;
+typedef enum
+  { KMEANS_HARD = 0,
+    KMEANS_SOFT = 1
+  } ClusteringType;
 
 //---------------- Class definition --------------
 class PndMvaCluster
@@ -78,6 +81,7 @@ class PndMvaCluster
   void printStructs();
 
   //--------------------------------------------
+  //protected:
   // -------------- private members ------------
  private:
   //! To avoid mistakes.

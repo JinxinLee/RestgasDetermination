@@ -112,7 +112,8 @@ examples: PndMvaUtil PndMvaDataSet PndMvaClassifier Classifiers
 
 # Build LVQ Trainer.
 	$(CXX) $(CCFLAGS) $(LIBS) build/LVQtrain.o build/PndMvaTrainer.o build/PndMvaUtil.o build/PndLVQTrain.o \
-	build/PndMvaDataSet.o build/PndMvaCluster.o build/PndMvaVarPCATransform.o -o build/LVQtrain
+	build/PndMvaDataSet.o build/PndMvaCluster.o build/PndMvaVarPCATransform.o build/PndMvaTools.o \
+	-o build/LVQtrain
 
 # Build KNN Trainer.
 	$(CXX) $(CCFLAGS) $(LIBS) build/KnnTrain.o build/PndMvaTrainer.o build/PndMvaUtil.o build/PndKnnTrain.o \
