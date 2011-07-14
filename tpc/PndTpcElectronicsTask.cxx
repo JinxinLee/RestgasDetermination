@@ -147,6 +147,7 @@ PndTpcElectronicsTask::Init()
    else if( fpar->getPSA() == 1)	{
   	PndTpcPSA_TOT1* mypsa= new PndTpcPSA_TOT1();
 	mypsa->setTimeCalib(fPSATimeCalib);
+	mypsa->setSamplePersistence(fsamplePersistence);
 	fpsa=mypsa;
 	std::cout << "Using PSA_TOT strategy!" << std::endl;
 	std::cout << "with time calibration const c="<<fPSATimeCalib << std::endl;
