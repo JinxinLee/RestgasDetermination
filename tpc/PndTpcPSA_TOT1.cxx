@@ -12,7 +12,7 @@
 // Author List:
 //      Sebastian Neubert    TUM            (original author)
 //      Christian Hoeppner   TUM            (original author)
-//      Sverre Doerheim    TUM            
+//      Sverre Doerheim      TUM            
 //
 //
 //-----------------------------------------------------------
@@ -35,7 +35,8 @@ using std::cout; using std::endl;
 
 PndTpcPSA_TOT1::PndTpcPSA_TOT1()
   : PndTpcAbsPSAStrategy(), fcurrentPadID(0), finprogress(false),
-    famp(0),ft(0),fthreshold(10), fNbEmptySampleAllowed(1), fTimeCalib(0.5)
+    famp(0),ft(0),fthreshold(10), fNbEmptySampleAllowed(1), fTimeCalib(0.5),
+    fsamplePersistence(kFALSE)
 {}
 
 PndTpcDigi*
@@ -129,6 +130,11 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
         mcid.Renormalize();
         if(A>padThreshold){ // create Digi only when over threshold!
           PndTpcDigi* digi=new PndTpcDigi(A,t0,samples[i]->padId(),mcid);
+
+	  if (fsamplePersistence)
+	    for( Int_t isam = 0 ; isam < samplesInPulse.size(); isam ++)
+	      digi->addSample(samplesInPulse[isam]);
+	  
           digi->tlength(length);
           digis.push_back(digi);
           if(DEBUG) cout<<"Digi Amp over threshold ("<<padThreshold<<")! Push back Digi"<<endl;

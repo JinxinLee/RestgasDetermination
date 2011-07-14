@@ -51,13 +51,14 @@ class PndTpcPSA_TOT1 : public PndTpcAbsPSAStrategy {
 					   double padThreshold);
   void setOpt(unsigned int f){fNbEmptySampleAllowed=f;} //nb of empty samples tolarate inside a pulse
   void setTimeCalib(double c){fTimeCalib=c;} // set calibration constant for timing 
-
+  void setSamplePersistence(bool opt=kTRUE){fsamplePersistence = opt;}
 
  private:
 
   // Private Data Members ------------
   unsigned int fcurrentPadID;
   bool finprogress;
+  bool fsamplePersistence;
   unsigned int famp;
   unsigned int ft;
   unsigned int fthreshold;
