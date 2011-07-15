@@ -4,6 +4,7 @@
 //ROOT headers
 #include "TGeoMatrix.h"
 #include "TVector3.h"
+#include "TLorentzVector.h"
 #include "TMatrixD.h"
 //STL headers
 #include <string>
@@ -20,7 +21,7 @@
  */
 
 
-class TLorentzVector;
+//class TLorentzVector;
 
 class PndTpcAlignmentManager{
 
