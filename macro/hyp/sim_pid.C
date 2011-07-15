@@ -65,8 +65,14 @@
   //fRun->AddModule(Hyp);
   //--layers C+si+hyppipe
   //Hyp->SetGeometryFileName("HypST_prueba24pipe.geo"); 
-  
-  Hyp->SetGeometryFileName("HypST_newxy3C.geo"); 
+  //Hyp->SetGeometryFileName("HypST_newxy3C.geo"); 
+
+  // --- root geometry ------
+  Hyp->SetAbsorverVol("stglAb"); // absorber layer
+  Hyp->SetSensorVol("stglSi");   // silicon sensor
+  Hyp->SetGeometryFileName("HYPST_assexy3C.root");
+  // ---------------------------------
+
   //Hyp->SetHypSDtoFile(true,false);
   fRun->AddModule(Hyp);
   
@@ -100,7 +106,7 @@
   boxGen->SetPRange(.1,2.); // GeV/c
   // boxGen->SetPtRange(1.,1.); // GeV/c
   boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(0., 180.); // Polar angle in lab system range [degree]
+  boxGen->SetThetaRange(30., 180.); // Polar angle in lab system range [degree]
   boxGen->SetCosTheta(); // Set uniform ditribution in cos(theta)
   boxGen->SetXYZ(0., 0., -76.); // vertex coordinates [cm]
   primGen->AddGenerator(boxGen);
@@ -163,7 +169,7 @@
   boxGen7->SetCosTheta(); // Set uniform ditribution in cos(theta)
   boxGen7->SetXYZ(0., 0., -76.); // vertex coordinates [cm]
   primGen->AddGenerator(boxGen7);
-
+  
   
   //FairParticleGenerator* partGen = new FairParticleGenerator(3312, 1, -0.3,0.3,0.3, 0., 0., -76);
   //primGen->AddGenerator(partGen);
@@ -176,7 +182,7 @@
   
 
    PndConstField *fMagField=new PndConstField();
-  fMagField->SetField(0, 0 ,5. ); // values are in kG
+  fMagField->SetField(0, 0 ,10. ); // values are in kG
   // MinX=-75, MinY=-40,MinZ=-12 ,MaxX=75, MaxY=40 ,MaxZ=124 );  // values are in cm
   fMagField->SetFieldRegion(-50, 50,-50, 50, -200, 200);
   fRun->SetField(fMagField);
@@ -216,11 +222,11 @@
   // fieldPar->setInputVersion(fRun->GetRunId(),1);
   // fieldPar->setChanged();
 
- /* PndConstPar* fieldPar = (PndConstPar*) rtdb->getContainer("PndConstPar");
+ PndConstPar* fieldPar = (PndConstPar*) rtdb->getContainer("PndConstPar");
   if ( fMagField ) { fieldPar->SetParameters(fMagField); }
   fieldPar->setInputVersion(fRun->GetRunId(),1);
   fieldPar->setChanged();
-  */
+  
   Bool_t kParameterMerged=kTRUE;
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   //output->open("simparams.root");
@@ -232,7 +238,7 @@
   // Transport nEvents
   // -----------------
   // Set the number of events
-  Int_t nEvents =10; 
+  Int_t nEvents =100; 
   
   fRun->Run(nEvents);
   
