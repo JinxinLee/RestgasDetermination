@@ -42,6 +42,10 @@ void run_ana_singlepion_2pi(TString fname="evt_pid_stt.root",int nEntries=0)
   TH1F *reco_mc_diff_banda=new TH1F("reco_mc_diff_banda","(Reconstructed Momentum - MC Momentum)/MC Momentum;(Reco-MC)/MC",100,-1,1);
   TH1F *reco_mc_diff_highmom=new TH1F("reco_mc_diff_highmom","(Reconstructed Momentum - MC Momentum)/MC Momentum;(Reco-MC)/MC",100,-1,1);
 
+  TH1F *reco_mc_diff_theta=new TH1F("reco_mc_diff_theta","(Reconstructed theta - MC Theta);(Reco-MC)",100,-1,1);
+  TH1F *reco_mc_diff_phi=new TH1F("reco_mc_diff_phi","(Reconstructed Phi - MC Phi);(Reco-MC)",100,-10,10);
+
+
   TH2F *momvstheta=new TH2F("momvstheta","Reconstructed Momentum VS theta angle; Theta (degree); Reco Momentum",100,0,200,100,0,10);
   TH2F *diffmomvstheta=new TH2F("diffmomvstheta","Reconstructed Momentum - MC Momentum VS theta angle;Theta (degree);Reco-MC",100,0,200,100,-1,1);
   TH2F *diffmomvsmom=new TH2F("diffmomvsmom","Reconstructed Momentum - MC Momentum VS Transverse Momentum;p_{T} (GeV);Reco-MC",100,0,4,100,-1,1);
@@ -86,6 +90,8 @@ void run_ana_singlepion_2pi(TString fname="evt_pid_stt.root",int nEntries=0)
       if (mctrack->GetPdgCode()==211){
       mc_mom=mctrack->GetMomentum().Mag();
       mc_momentum->Fill(mc_mom);
+      mc_theta=mctrack->GetMomentum().Theta()*TMath::RadToDeg();
+      mc_phi=mctrack->GetMomentum().Phi()*TMath::RadToDeg();
       Int_t cand_mult=0;
 
       for (Int_t index=0; index<cand_array->GetEntriesFast(); index++)
@@ -110,6 +116,8 @@ void run_ana_singlepion_2pi(TString fname="evt_pid_stt.root",int nEntries=0)
       phiangle=pidCand->GetMomentum().Phi()*TMath::RadToDeg();
       phi->Fill(phiangle);
 
+      reco_mc_diff_theta->Fill(th-mc_theta);
+      reco_mc_diff_phi->Fill(phiangle-mc_phi);
       TLorentzVector pi_lab(momx,momy,momz,Energy);
       TLorentzVector pi_CM=pi_lab;
       pi_CM.Boost(-pbarp.BoostVector());
