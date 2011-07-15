@@ -27,18 +27,21 @@ void run_ana_invariantmass_4pi(TString fname="evt_pid_stt.root",int nEntries=0)
 
 
   PndEventReader evr(inPidFile);
+  TH1F *nc=new TH1F("nc","Number of Charged Tracks; Charged Tracks",20,-0.5,19.5);  
 
 
-  TH1F *invmassnosel=new TH1F("invmassnosel","#pi^{+}#pi^{-} Invariant mass;Invariant Mass (GeV)",100,0,10);
-  TH1F *invmassnocut=new TH1F("invmassnocut","#pi^{+}#pi^{-} Invariant mass;Invariant Mass (GeV)",100,2,4);
- TH1F *invmassvtx=new TH1F("invmassvtx","#pi^{+}#pi^{-} Invariant mass;Invariant Mass (GeV)",100,2,4);
- TH1F *invmass_trackhighmom= new TH1F("invmass_trackhighmom","#pi^{+}#pi^{-} Invariant mass;Invariant Mass (GeV)",100,2,4);
- TH1F *invmasschicut=new TH1F("invmasschicut","#pi^{+}#pi^{-} Invariant mass;Invariant Mass (GeV)",100,2,4);
+  TH1F *invmassnosel=new TH1F("invmassnosel","2(#pi^{+}#pi^{-}) Invariant mass;Invariant Mass (GeV)",100,0,10);
+  TH1F *invmassnocut=new TH1F("invmassnocut","2(#pi^{+}#pi^{-}) Invariant mass;Invariant Mass (GeV)",100,2,4);
+  // TH1F *invmassvtx=new TH1F("invmassvtx","2(#pi^{+}#pi^{-}) Invariant mass;Invariant Mass (GeV)",100,2,4);
+ TH1F *invmass_trackhighmom= new TH1F("invmass_trackhighmom","2(#pi^{+}#pi^{-}) Invariant mass;Invariant Mass (GeV)",100,2,4);
+ TH1F *invmasschicut=new TH1F("invmasschicut","#2(pi^{+}#pi^{-}) Invariant mass;Invariant Mass (GeV)",100,2,4);
+ TH1F *invmasschicut_best=new TH1F("invmasschicut_best","2(#pi^{+}#pi^{-}) Invariant mass;Invariant Mass (GeV)",100,2,4);
 
-
-  TH1F *chivtx=new TH1F("chivtx","Chi Square PndKinVtxFitter; Chi Square",100,0,100);
-  TH1F *hpullvtx=new TH1F("hpullvtx","Pull PndKinVtxFitter",100,-1,1);
-  TH1F *hprobvtx=new TH1F("hprobvtx","Prob PndKinVtxFitter; prob",100,0,1);
+ TH2F *hvpos = new TH2F("hvpos","(x,y) projection of fitted decay vertex",100,-5,5,100,-5,5);
+ TH1F *hvzpos = new TH1F("hvzpos","z position of fitted decay vertex",100,-10,10);
+ 
+ TH1F *chivtx=new TH1F("chivtx","Chi Square PndKinVtxFitter; Chi Square",100,0,100);
+ 
 
    TPidPlusSelector *piplusSel=new TPidPlusSelector("piplus");
   TPidMinusSelector *piminusSel=new TPidMinusSelector("piminus");
@@ -78,6 +81,9 @@ void run_ana_invariantmass_4pi(TString fname="evt_pid_stt.root",int nEntries=0)
     pp2.Select(piplusSel);
     pm2.Select(piminusSel);
 
+ int nchrg=pp1.GetLength();
+    nc->Fill(nchrg);
+
 
     float momentumpplus, momentumpminus, theta1, theta2, phi1, phi2;
 
@@ -92,25 +98,14 @@ void run_ana_invariantmass_4pi(TString fname="evt_pid_stt.root",int nEntries=0)
       
 }
 
-    for (Int_t l=0;l<pp2.GetLength();l++){
-      pp2[l].SetMass(TRho::Instance()->GetPDG()->GetParticle(211)->Mass());
-      momentumpplus=pp2[l].GetMicroCandidate().GetMomentum().Mag();
-      
-    }
-    for (Int_t l=0;l<pm2.GetLength();l++){
-      pm2[l].SetMass(TRho::Instance()->GetPDG()->GetParticle(211)->Mass());
-      momentumpminus=pm2[l].GetMicroCandidate().GetMomentum().Mag();
 
-    }
-
-
-    pipinosel.Combine(pp1,pm1,pp2,pm2);
+    pipinosel.Combine(pp1,pm1,pp1,pm1);
     
     for (y=0;y<pipinosel.GetLength();++y){
       invmassnosel->Fill(pipinosel[y].M());
     }
 
-    pipi.Combine(pp1,pm1,pp2,pm2);
+    pipi.Combine(pp1,pm1,pp1,pm1);
     pipi.Select(pipisel);
 
     for (y=0;y<pipi.GetLength();++y){
@@ -121,34 +116,45 @@ void run_ana_invariantmass_4pi(TString fname="evt_pid_stt.root",int nEntries=0)
 	   
 }
 
-       
+    int best_i=0;
+    double best_chi2=1000;
+    TCandidate *pipifit_best=0;
        //vertex fitter                                                                               
     for (y=0;y<pipi.GetLength();++y){
 
-       PndKinVtxFitter vtxfitter(pipi[y]);
+      PndKinVtxFitter vtxfitter(pipi[y]);
       vtxfitter.Fit();
-      
-      double chi2vtx=vtxfitter.GlobalChi2();
-      double pullvtx=vtxfitter.GetPull();
-      unsigned ndfvtx=1;
-      
-      TChisqConsistency cons(chi2vtx,ndfvtx);
-      double probvtx=cons.Likelihood();
-      
-      chivtx->Fill(chi2vtx);
-      hprobvtx->Fill(probvtx);
-      hpullvtx->Fill(pullvtx);
-      
       TCandidate *pipifit=vtxfitter.FittedCand(pipi[y]);
-     
-      invmassvtx->Fill(pipifit.M());
-      if(chi2vtx<6){
-	invmasschicut->Fill(pipifit.M());
-      }
-
+      TVector3 pipiVtx=pipifit->Pos();
+      double chi2_vtx=vtxfitter.GlobalChi2();
+    
+      hvpos->Fill(pipiVtx.X(),pipiVtx.Y());   
+      hvzpos->Fill(pipiVtx.Z()); 
+      if(chi2_vtx<best_chi2)
+	{
+	  best_chi2=chi2_vtx;
+	  best_i=y;
+	  pipifit_best=pipifit;
+	}
+      chivtx->Fill(chi2_vtx/5); // Number degree of freedom 2N-3=5; N=number of charged tracks
     }
+
+       if((best_chi2<6)&&(pipi.GetLength()!=0))
+    {
+	invmasschicut_best->Fill(pipifit_best.M());
+	n_reco++;
+	}
+    
+    //invmassvtx->Fill(pipifit.M());
+    //if(chi2_vtx<6){
+    //invmasschicut->Fill(pipifit.M());
+    //}
+    
+    
     }
   
+	
+	std::cout<<"Number of reconstructed pipipipi = "<<n_reco<<std::endl;
  
   out->cd();
   out->Write();
