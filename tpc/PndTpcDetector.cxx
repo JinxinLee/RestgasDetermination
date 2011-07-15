@@ -241,6 +241,9 @@ PndTpcDetector::ProcessHits( FairVolume *v)
   //gotta love TClonesArray syntax!
   PndTpcPoint* p=AddHit(trackID, secID, volumeID, pos.Vect(), mom.Vect(),
 			time, length, eLoss);
+  // Increment number of tpc points for TParticle
+  PndStack* stack = (PndStack*) gMC->GetStack();
+  stack->AddPoint(kTPC);
   
   return kTRUE;
 }
