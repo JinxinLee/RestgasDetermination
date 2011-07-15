@@ -26,8 +26,10 @@
 #include "TGeoMCGeometry.h"
 #include "FairGeoNode.h"
 #include "FairGeoMedium.h"
+#include "FairGeoMedia.h"
 #include "PndGeoHyp.h"
 #include "FairGeoRootBuilder.h"
+#include "TGeoVoxelFinder.h"
 #include "PndStack.h"
 #include "PndHyp.h"
 #include "PndHypPoint.h"
@@ -72,13 +74,19 @@ PndHyp::PndHyp() {
   // fpreflag = 0;  
   //fpostflag = 0;
   fEventID=-1; 
+  
 
+    fListOfSensitives.push_back(fVolNamAb.Data());//"stglAb");
+    fListOfSensitives.push_back(fVolNamSi.Data());//"stglSi");
+    fListOfSensitives.push_back("stglpipe");
+  
+  
 }
 // -------------------------------------------------------------------------
 
 // -----   Standard constructor   ------------------------------------------
 PndHyp::PndHyp(const char* name, Bool_t active)
-  : FairDetector(name, active) {
+  : FairDetector(name, active){
     fHypCollection        = new TClonesArray("PndHypPoint");
     fHypSecTarCollection  = new TClonesArray("PndHypPoint");
     //fHypSTpipeCollection  = new TClonesArray("PndHypPoint");
@@ -89,6 +97,13 @@ PndHyp::PndHyp(const char* name, Bool_t active)
     fPosIndex   = 0;
     
     fEventID=-1;
+
+    
+      fListOfSensitives.push_back(fVolNamAb.Data());//"stglAb");
+      fListOfSensitives.push_back(fVolNamSi.Data());//"stglSi");
+      fListOfSensitives.push_back("stglpipe");
+    
+    
 }
 // -------------------------------------------------------------------------
 
@@ -238,16 +253,19 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
 	 {
 	   fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
 	   
-	   nam = gMC->CurrentVolName();   
-	   if ((nam.Contains("Si"))) {
-	     sscanf(nam,"stglSi%d#01", &nSiL);
+	   //nam = gMC->CurrentVolName();   
+	   /*
+	     if ((nam.Contains("Si"))) {
+	     sscanf(nam,"stglSi%d#", &nSiL);
 	     // cout << "hyp::ProcessHits> : " << nam <<" # "
 	     //    <<nSiL<<" "<<"Hit in "<< gGeoManager->GetPath()<<endl;
-	   }
+	     }
+	   */
 	   
 	   //fVolumeID = vol->getMCid();//before it was on
 	   //*** now the volume is through the layer number characterised.(X-Z,Z-Y)
-	       fVolumeID = nSiL;
+	       
+	       fVolumeID = vol->getCopyNo();
 	   
 	   
 	   //**************///
@@ -261,7 +279,7 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
 	     Int_t fVolid = gMC->CurrentVolID(cp);
 	     
 	     
-	     // cout << " Vol Name: " << gMC->CurrentVolName() << endl;
+	     //cout << " Vol Name: " << gMC->CurrentVolPath() <<" vol id "<<vol->getMCid()<< endl;
 	     
 	     /*  TString nam2 = gMC->CurrentVolName();   
 		 if ((nam2.Contains("Si"))) {
@@ -466,6 +484,27 @@ void PndHyp::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset ) {
 // ----------------------------------------------------------------------------
  // -----   Public method ConstructGeometry   ----------------------------------
 void PndHyp::ConstructGeometry() {
+
+TString fileName=GetGeometryFileName();
+  
+ if(fileName.EndsWith(".geo")){
+   ConstructASCIIGeometry();
+   
+ }else if (fileName.EndsWith(".root")){
+   fRootSensVol= kTRUE;
+   
+  ConstructRootGeometry();
+}else{
+  std::cout<< "Geometry format not supported " <<std::endl;
+
+}
+
+}
+
+// -------------------------------------------------------------
+
+void PndHyp::ConstructASCIIGeometry() {
+
  FairGeoLoader*    geoLoad = FairGeoLoader::Instance();
   FairGeoInterface* geoFace = geoLoad->getGeoInterface();
   PndGeoHyp*      hypGeo = new PndGeoHyp();
@@ -506,7 +545,16 @@ void PndHyp::ConstructGeometry() {
 
 }
   
- 
+// -------------------------------------------------------------------------
+bool PndHyp::CheckIfSensitive(std::string name)
+{
+  for (Int_t i = 0; i < fListOfSensitives.size(); i++){
+    
+    if (name.find(fListOfSensitives[i]) != std::string::npos)
+    return true;
+  }
+  return false;
+}
 
 // -----   Private method AddHit   --------------------------------------------
 

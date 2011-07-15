@@ -112,6 +112,7 @@ class PndHyp : public FairDetector
    **
    **/
   virtual void ConstructGeometry();
+ void ConstructASCIIGeometry();
 
   PndHypPoint* AddHit(Int_t trackID,Int_t evtID, 
 		      Int_t detID, TString detName,
@@ -153,8 +154,22 @@ class PndHyp : public FairDetector
   
   void PreTrack();
 
+
+ void SetSensorVol(TString VolSi){ 
+    fVolNamSi=VolSi.Data();
+
+  }
+  void SetAbsorverVol(TString VolAb){ 
+    fVolNamAb=VolAb.Data();
+
+  }
+
   private:
   
+  std::vector<std::string> fListOfSensitives;
+  bool CheckIfSensitive(std::string name);
+  TString fVolNamSi,fVolNamAb;
+  Bool_t fRootSensVol;
   //PndGeoHypPar *par;
   Int_t          fTrackID;           //  track index
   Int_t          fVolumeID;          //  volume id
@@ -192,7 +207,7 @@ class PndHyp : public FairDetector
   void ResetParameters();
   Bool_t  fTrackStopNxtStep;
 
-  ClassDef(PndHyp,5)
+  ClassDef(PndHyp,7)
 
 }; 
 
