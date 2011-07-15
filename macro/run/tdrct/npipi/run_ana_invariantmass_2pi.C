@@ -28,17 +28,23 @@ void run_ana_invariantmass_2pi(TString fname="evt_pid_stt.root",int nEntries=0)
   PndEventReader evr(inPidFile);
 
   //Define all histograms
+int n_reco=0;
 
   TH1F *nc=new TH1F("nc","Number of Charged Tracks; Charged Tracks",20,-0.5,19.5);  
   TH1F *invmassnosel=new TH1F("invmassnosel","#pi^{+}#pi^{-} Invariant mass;Invariant Mass (GeV)",100,0,10);
   TH1F *invmassnocut=new TH1F("invmassnocut","#pi^{+}#pi^{-} Invariant mass;Invariant Mass (GeV)",100,2,4);
   TH1F *invmasswithpid=new TH1F("invmasswithpid","#pi^{+}#pi^{-} Invariant mass;Invariant Mass (GeV)",100,0,10); 
   TH1F *invmasswithpid_sel=new TH1F("invmasswithpid_sel","#pi^{+}#pi^{-} Invariant mass;Invariant Mass (GeV)",100,2,4); 
-  TH1F *invmassvtx=new TH1F("invmassvtx","#pi^{+}#pi^{-} Invariant mass;Invariant Mass (GeV)",100,2,4);
+  //  TH1F *invmassvtx=new TH1F("invmassvtx","#pi^{+}#pi^{-} Invariant mass;Invariant Mass (GeV)",100,2,4);
   TH1F *invmass_trackhighmom= new TH1F("invmass_trackhighmom","#pi^{+}#pi^{-} Invariant mass;Invariant Mass (GeV)",100,2,4);
+
+ TH1F *invmasschicut_best=new TH1F("invmasschicut_best","#pi^{+}#pi^{-} Invariant mass;Invariant Mass (GeV)",100,2,4);
+
+ TH2F *hvpos = new TH2F("hvpos","(x,y) projection of fitted decay vertex",100,-5,5,100,-5,5);
+ TH1F *hvzpos = new TH1F("hvzpos","z position of fitted decay vertex",100,-10,10);
+ 
   TH1F *chivtx=new TH1F("chivtx","Chi Square PndKinVtxFitter; Chi Square",100,0,8);
-  TH1F *hpullvtx=new TH1F("hpullvtx","Pull PndKinVtxFitter",100,-1,1);
-  TH1F *hprobvtx=new TH1F("hprobvtx","Prob PndKinVtxFitter; prob",100,0,1);
+ 
   TPidPlusSelector *piplusSel=new TPidPlusSelector("piplus");
   TPidMinusSelector *piminusSel=new TPidMinusSelector("piminus");
   
@@ -114,6 +120,7 @@ void run_ana_invariantmass_2pi(TString fname="evt_pid_stt.root",int nEntries=0)
     for (l=0;l<pp.GetLength();++l) { 
       if (pp[l].GetMicroCandidate().GetMcIndex()>-1){
 	PndMCTrack *mcTrack = (PndMCTrack*)mc_array->At(pp[l].GetMicroCandidate().GetMcIndex());
+	//		float a=mcTrack->GetMomentum().Mag();
 	if (mcTrack!=0)
 	  {
 	    if (mcTrack->GetPdgCode()!=211)
@@ -156,29 +163,36 @@ void run_ana_invariantmass_2pi(TString fname="evt_pid_stt.root",int nEntries=0)
       invmasswithpid_sel->Fill(pipiwithpid[y].M());
     }
    
-       //vertex fitter                                                                               
-    for (y=0;y<pipiwithpid.GetLength();++y){
+    int best_i=0;
+    double best_chi2=1000;
+    TCandidate *pipifit_best=0;
+ 
+  for (y=0;y<pipi.GetLength();++y){
 
-       PndKinVtxFitter vtxfitter(pipiwithpid[y]);
+      PndKinVtxFitter vtxfitter(pipi[y]);
       vtxfitter.Fit();
-      
-      double chi2vtx=vtxfitter.GlobalChi2();
-      double pullvtx=vtxfitter.GetPull();
-      unsigned ndfvtx=1;
-      
-      TChisqConsistency cons(chi2vtx,ndfvtx);
-      double probvtx=cons.Likelihood();
-      
-      chivtx->Fill(chi2vtx);
-      hprobvtx->Fill(probvtx);
-      hpullvtx->Fill(pullvtx);
-      
-      TCandidate *pipifit=vtxfitter.FittedCand(pipiwithpid[y]);
-     
-      invmassvtx->Fill(pipifit.M());
-                                         
+      TCandidate *pipifit=vtxfitter.FittedCand(pipi[y]);
+      TVector3 pipiVtx=pipifit->Pos();
+      double chi2_vtx=vtxfitter.GlobalChi2();
+    
+      hvpos->Fill(pipiVtx.X(),pipiVtx.Y());   
+      hvzpos->Fill(pipiVtx.Z()); 
+      if(chi2_vtx<best_chi2)
+	{
+	  best_chi2=chi2_vtx;
+	  best_i=y;
+	  pipifit_best=pipifit;
+	}
+      chivtx->Fill(chi2_vtx/5); // Number degree of freedom 2N-3=5; N=number of charged tracks
     }
-    }
+
+    if((best_chi2<6)&&(pipi.GetLength()!=0))
+      {
+	invmasschicut_best->Fill(pipifit_best.M());
+	n_reco++;
+      }
+
+       }
   
     
  
