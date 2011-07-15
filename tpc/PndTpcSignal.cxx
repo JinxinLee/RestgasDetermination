@@ -29,7 +29,7 @@
 ClassImp(PndTpcSignal)
 
 PndTpcSignal::PndTpcSignal()
-  : ft(0),famp(0),fpadId(0),fmcTrackId(0),fmcHitId(0),fmcEventId(0),fmother(0)
+  : ft(0),famp(0),fpadId(0),fmcTrackId(0),fmcSecId(0), fmcHitId(0),fmcEventId(0),fmother(0)
 {;}
 
 PndTpcSignal::PndTpcSignal(double T, 
@@ -37,7 +37,7 @@ PndTpcSignal::PndTpcSignal(double T,
 		     unsigned int PadID, 
 		     unsigned int EventID,
 		     PndTpcAvalanche* Mo)
-  : ft(T),famp(Amp),fpadId(PadID),fmcTrackId(0),fmcHitId(0),fmcEventId(EventID),fmother(Mo)
+  : ft(T),famp(Amp),fpadId(PadID),fmcTrackId(0),fmcSecId(0),fmcHitId(0),fmcEventId(EventID),fmother(Mo)
 {;}
 
 
@@ -49,7 +49,7 @@ PndTpcSignal::mcTrackId() const {
 
 unsigned int 
 PndTpcSignal::mcSecId() const {
-  if(fmother==0) return fmcTrackId;
+  if(fmother==0) return fmcSecId;
   return fmother->mcSecId();
 }
 
