@@ -123,6 +123,9 @@ std::vector<int> OrderClusterInZ(std::vector<int> cluster, std::vector<TVector3>
   std::vector< TMatrixT<double> > AddPointsBIS(std::vector<int> hits, Int_t detId,  Double_t xc, Double_t yc, Double_t radius, int iclus);
  std::vector< std::vector<int> > MergeClusters(std::vector< std::vector<int> > clusterlist);
  std::vector< std::vector< TMatrixT<double> > > MergeClustersBIS(std::vector< std::vector< TMatrixT<double> > > clusterlist);
+
+ std::vector< std::vector< TMatrixT<double> > > MergeClustersBIS(std::vector< std::vector< TMatrixT<double> > > clusterlist, std::vector< std::vector<int> > *combinations);
+
   Bool_t CompleteSttFit(std::vector<int> cluster, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &chosenchi2, Int_t &chosencountelem);
   
   void DeleteCluster(std::vector< std::vector<int> > * clusterlist, std::vector<int> deletecluster);

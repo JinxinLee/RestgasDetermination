@@ -647,32 +647,32 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       cout << "GOING ON" << endl;
     }
   // CLUSTER MERGING =======================================
-
   std::vector< std::vector< TMatrixT<double> > > newlist;
-  newlist = MergeClustersBIS(tracklist);
-  tracklist.clear();
-  tracklist = newlist;
+  std::vector< std::vector<int> > combinations;
+  newlist = MergeClustersBIS(tracklist, &combinations);
   if(fDisplayOn) Refresh();
   cout << "after merging" << endl;
-//   PrintClustersBIS(tracklist);
-//   if(fDisplayOn)  DrawClustersBIS(tracklist);
-
+  //   PrintClustersBIS(newlist);
+  //   if(fDisplayOn)  DrawClustersBIS(newlist);
+  
   if(fDisplayOn) { 
-      Brief(tracklist, xyparameters);
-      char goOnChar;
-        cout << "merging done any key" << endl;
-        cin >> goOnChar;
-        cout << "GOING ON" << endl;
-     }
+    Brief(newlist, xyparameters);
+    char goOnChar;
+    cout << "merging done any key" << endl;
+    cin >> goOnChar;
+    cout << "GOING ON" << endl;
+  }
 
   // FIT THE MERGED CLUSTERS =====================================================
   if(fDisplayOn) Refresh();
   xyparameters.clear();
+
+  std::vector<int> restorablecluster;
   // refit tracks
-  for(int iclus = 0; iclus < tracklist.size(); iclus++) {
+  for(int iclus = 0; iclus < newlist.size(); iclus++) {
     //   std::vector<int> cluster = clusterlist[iclus];
-    std::vector< TMatrixT<double> > track = tracklist[iclus]; // RESTYLE add
-    std::vector< TMatrixT<double> > newtrack = tracklist[iclus]; // RESTYLE add
+    std::vector< TMatrixT<double> > track = newlist[iclus]; // RESTYLE add
+    std::vector< TMatrixT<double> > newtrack = newlist[iclus]; // RESTYLE add
   
     std::vector<std::vector<double> > conformalhits;
     Double_t firstdrift, delta, trasl[2];
@@ -704,7 +704,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       tmpyc = outyc[iter];
       tmpradius = outradius[iter];
 
-      std::replace(tracklist.begin(), tracklist.end(), track, newtrack);
+      std::replace(newlist.begin(), newlist.end(), track, newtrack);
   
   
       if(fDisplayOn) {
@@ -741,7 +741,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     Bool_t testchi2 = TestChi2BIS(track, xc, yc, radius, iclus, chi2, countelem, newxc, newyc, newradius, &newtrack2, newchi2);
     cout << "testchi2 = " << testchi2 << endl;
     if(testchi2 == kFALSE)  {
-      cout << "GOTTA DELETE THIS chi2 fails " << iclus << endl;
+      cout << "GOTTA RESTORE the components cluster for chi2 fails " << iclus << endl;
       deletecluster.push_back(iclus);
       continue;
     }
@@ -751,10 +751,10 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       radius = newradius;
       chi2 = newchi2;
       cout << "................. replacing" << endl;
-      PrintClustersBIS(tracklist);
-      std::replace(tracklist.begin(), tracklist.end(), track, newtrack2);
+      PrintClustersBIS(newlist);
+      std::replace(newlist.begin(), newlist.end(), track, newtrack2);
       cout << "................. done" << endl;
-      PrintClustersBIS(tracklist);
+      PrintClustersBIS(newlist);
     }
     // ------------------------------------------------
 
@@ -768,10 +768,38 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     xyparameters.push_back(param);
   }
   // DELETE CLUSTER ================================ 
-  DeleteClusterBIS(&tracklist, deletecluster);
-   deletecluster.clear();
- cout << "tracklist " << tracklist.size() << " " << xyparameters.size() << endl;
-  //  ForbidCrossingTracks(&tracklist, xyparameters);
+  DeleteClusterBIS(&newlist, deletecluster);
+  cout << "newlist " << newlist.size() << " " << xyparameters.size() << endl;
+  //  ForbidCrossingTracks(&newlist, xyparameters);
+
+  // restore & fit
+  for(int idel = 0; idel < deletecluster.size(); idel++) {
+    int iclus = deletecluster[idel];
+    std::vector<int> combi = combinations[iclus]; 
+    for(int icl = 0; icl < combi.size(); icl++) {
+      int jclus = combi[icl];
+      std::vector< TMatrixT<double> > cluster = tracklist[jclus];
+      Double_t xc, yc, radius, chi2; 
+      Int_t countelem;
+      Bool_t fit = CompleteSttFitBIS(&cluster, newlist.size(), xc, yc, radius, chi2, countelem); // RESTYLE add
+      if(fit == kFALSE) {
+	cout << "WILL NOT ADD THIS fit fails " << iclus << endl;
+	continue;
+      }
+      else newlist.push_back(cluster);
+      TMatrixT<double> param(1, 6);
+      param[0][0] = xc;
+      param[0][1] = yc;
+      param[0][2] = radius;
+      param[0][3] = 0;
+      
+      cout << "XC/YC/RADIUS " << xc << " " << yc << " " << radius << endl;
+      xyparameters.push_back(param);
+    }
+  }
+  deletecluster.clear();
+  tracklist.clear();
+  tracklist = newlist;
 
   // ------------- CHARGE --------
   for(int itrk = 0; itrk < xyparameters.size(); itrk++) {
@@ -2093,7 +2121,8 @@ std::vector<std::vector< TMatrixT<double> > > PndSecondaryTrackFinder::ClusterFi
   // ---------------------------
   // cluster merging
   std::vector< std::vector< TMatrixT<double> > > newlist;
-  newlist = MergeClustersBIS(clusterlist);
+  std::vector< std::vector<int> > combinations;
+  newlist = MergeClustersBIS(clusterlist, &combinations);
   clusterlist = newlist; 
   
   for(int iclus = 0; iclus < clusterlist.size(); iclus++) {
@@ -5027,20 +5056,25 @@ std::vector< std::vector<int> > PndSecondaryTrackFinder::MergeClusters(std::vect
 
 }
 
-std::vector< std::vector< TMatrixT<double> > > PndSecondaryTrackFinder::MergeClustersBIS(std::vector< std::vector< TMatrixT<double> > > clusterlist) {
+std::vector< std::vector< TMatrixT<double> > > PndSecondaryTrackFinder::MergeClustersBIS(std::vector< std::vector< TMatrixT<double> > > clusterlist, std::vector< std::vector<int> > *combinations) {
 
   int nclus = clusterlist.size();
 
-  std::vector< std::vector<int> > combinations;
+  combinations->clear();
 
   for(int iclus = 0; iclus < nclus; iclus++) {
     std::vector< TMatrixT<double> > cluster = clusterlist[iclus];
     int nhits = cluster.size();
     //     cout << "-------------------> " << iclus << endl;
+
+    // for each cluster in clusterlist I loop over the next ones
+    // (not to try the same combinations twice). For each of them
+    // I count the hits in common. 
     for(int jclus = iclus + 1; jclus < nclus; jclus++) {
       std::vector< TMatrixT<double> > clusterj = clusterlist[jclus];
       int nhitsj = clusterj.size();
       int combination = 0;
+      // (count here)
       for(int jhit = 0; jhit < nhitsj; jhit++) {
 	TMatrixT<double> singlehitj = clusterj[jhit];
 	std::vector< TMatrixT<double> >::iterator it;
@@ -5048,6 +5082,9 @@ std::vector< std::vector< TMatrixT<double> > > PndSecondaryTrackFinder::MergeClu
 	if(it != cluster.end()) combination++;
       }
      
+      // compute the % of hits in cluster and clusterj (the
+      // clusters I am comparing).
+      // if one of the two % is higher than 50%, I combine them
       double percij = ((double) combination) / nhits;
       double percji = ((double) combination) / nhitsj;
       double perc = 0;
@@ -5058,10 +5095,13 @@ std::vector< std::vector< TMatrixT<double> > > PndSecondaryTrackFinder::MergeClu
       if(perc > 0.5) {
 	// 	cout << "PERC " << iclus << " " << jclus << " " << perc << endl;
 	bool done = false;
-	for(int icom = 0; icom < combinations.size(); icom++) {
-	  std::vector<int> knowncombination = combinations[icom];
+	// combine the clusters: loop over the existing combinations
+	for(int icom = 0; icom < combinations->size(); icom++) {
+	  std::vector<int> knowncombination = combinations->at(icom);
 	  std::vector<int>::iterator it, itj;
-	  
+	  // for each existing combination check if one of the two clusters
+	  // I am combining now is already there. If one of the two is already there
+	  // attach the other to the same combination.
 	  for(int kclus = 0; kclus < knowncombination.size(); kclus++) {
 	    // 	    cout << "checking combi " << icom << " clus " << knowncombination.at(kclus) << endl;
 	    it = find(knowncombination.begin(), knowncombination.end(), iclus);
@@ -5075,34 +5115,43 @@ std::vector< std::vector< TMatrixT<double> > > PndSecondaryTrackFinder::MergeClu
 	    }
 	  }
 	  if(done == true) {
-	    std::replace(combinations.begin(), combinations.end(), combinations[icom], knowncombination);
+	    std::replace(combinations->begin(), combinations->end(), combinations->at(icom), knowncombination);
 	    // 	    cout << "update knowncombinations " << knowncombination.size() << endl; 
 	  }
 
 	}
+	// if no existing combination includes any of the two clusters
+	// start a new combination
 	if(false == done) {
 	  // 	  cout << "newcombination " << iclus << " " << jclus << endl;
 	  std::vector<int> newcombination;
 	  newcombination.push_back(iclus);
 	  newcombination.push_back(jclus);
-	  combinations.push_back(newcombination);
+	  combinations->push_back(newcombination);
 	}
       }
     }
   }
 
-  //   cout << "combination size " <<  combinations.size() << endl;
+  //   cout << "combination size " <<  combinations->size() << endl;
 
   std::vector< std::vector< TMatrixT<double> > > newlist;
   std::vector<int> usedclusters;
-
-  for(int icom = 0; icom < combinations.size(); icom++) {
-    std::vector<int> knowncombination = combinations[icom];
+ 
+  // once the list of combinations is ready, loop over it
+  for(int icom = 0; icom < combinations->size(); icom++) {
+    std::vector<int> knowncombination = combinations->at(icom);
     std::vector< TMatrixT<double> > newcluster;
     //    cout << "combination " << icom << ": ";
+    // for each combination loop over the clusters and inside each
+    // cluster loop over the hits. Create, for each combination, 
+    // the newcluster with all the hits, counting them only once.
     for(int kclus = 0; kclus < knowncombination.size(); kclus++) {
       int clusno = knowncombination[kclus];
       cout << knowncombination[kclus] << " ";
+
+      // fill usedcluster vector with the cluster no you are
+      // about to delete because it entered a combination
       usedclusters.push_back(clusno);
       std::vector< TMatrixT<double> > cluster = clusterlist[clusno];
       for(int ihit = 0; ihit < cluster.size(); ihit++) 
@@ -5115,6 +5164,7 @@ std::vector< std::vector< TMatrixT<double> > > PndSecondaryTrackFinder::MergeClu
 
     }
     //     cout << endl;
+    // fill the newlist of clusters with the new compiled cluster
     newlist.push_back(newcluster);
   }
   
@@ -5129,10 +5179,30 @@ std::vector< std::vector< TMatrixT<double> > > PndSecondaryTrackFinder::MergeClu
       }
     }
 
-	
+  // TEST: first combinations then original clusters ==>
+  // 0 combination = 0 cluster
+  // 1    "        = 1    "
+  // -------------------------
+  //                 2 cluster
+  //                 3 cluster
+  cout << "CLUSTERS BEFORE COMBINATIONS" << endl;
+  PrintClustersBIS(clusterlist);
 
-
-
+  for(int icom = 0; icom < combinations->size(); icom++) {
+    cout << "COMBINATION " << icom << ": ";
+    std::vector<int> knowncombination = combinations->at(icom);
+    for(int kclus = 0; kclus < knowncombination.size(); kclus++) {
+      int clusno = knowncombination[kclus];
+      cout << clusno << " ";
+    }
+    cout << endl;
+  }
+  cout << "CLUSTERS AFTER COMBINATIONS" << endl;
+ PrintClustersBIS(newlist);
+ char goOnChar;
+ cout << ", press any key" << endl;
+ cin >> goOnChar;
+ cout << "GOING ON" << endl;
 
   //   for(int ihit = 0; ihit < doublecoll.size(); ihit++) {
   //     int hitid = doublecoll[ihit];
@@ -7395,7 +7465,7 @@ Bool_t PndSecondaryTrackFinder::IsInsideLimits(TVector3 intersection, Double_t l
       return kFALSE;
     }
   }
-  else if(dmax < skewlimit || dmin > skewlimit) {
+  else if(dmax < skewlimit) {
     cout << "2: dmin " << dmin << " dmax " << dmax << endl;
     if(TMath::Sqrt((intersection.X() - last.X()) * (intersection.X() - last.X()) + (intersection.Y() - last.Y()) * (intersection.Y() - last.Y())) > skewthickness) {
 
@@ -7405,6 +7475,20 @@ Bool_t PndSecondaryTrackFinder::IsInsideLimits(TVector3 intersection, Double_t l
       cout << "intersection " << intersection.X() << " " << intersection.Y() << endl;
       cout << "first " << first.X() << " " << first.Y() << endl;
       cout << "last " << last.X() << " " << last.Y() << endl;
+
+      return kFALSE;
+    }
+  }
+  else if( dmin > skewlimit) {
+    cout << "3: dmin " << dmin << " dmax " << dmax << endl;
+    if(TMath::Sqrt((intersection.X() - first.X()) * (intersection.X() - first.X()) + (intersection.Y() - first.Y()) * (intersection.Y() - first.Y())) > skewthickness) {
+
+
+      cout  << "OUTSIDE 2" << TMath::Sqrt((intersection.X() - first.X()) * (intersection.X() - first.X()) + 
+					  (intersection.Y() - first.Y()) * (intersection.Y() - first.Y())) << endl;
+      cout << "intersection " << intersection.X() << " " << intersection.Y() << endl;
+      cout << "first " << first.X() << " " << first.Y() << endl;
+      cout << "first " << first.X() << " " << first.Y() << endl;
 
       return kFALSE;
     }
