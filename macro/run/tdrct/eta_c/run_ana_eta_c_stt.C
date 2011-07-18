@@ -124,7 +124,7 @@ void run_ana_eta_c_stt(int nevts=0)
 		h_etac_nocut->Fill(etac_nocut[l].M());
     }
       
-    tree->GetEntry(i);
+    tree->GetEntry(i-1);
 
 	// MC PID
 	// Leave only kaons in particle lists
