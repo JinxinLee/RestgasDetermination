@@ -572,7 +572,9 @@ void PndPidCorrelator::ConstructChargedCandidate() {
                     cout << "-I- PndPidCorrelator::ConstructChargedCandidate: PndMCTrack does not exist!! (why?) -> let's try with pion hyp " << endl;
 		  }
                 else
-    		  fPidHyp = mcTrack->GetPdgCode();
+		  {
+		    fPidHyp = abs(mcTrack->GetPdgCode());
+		  }
                 if (fPidHyp>=100000000)
                   {
                     fPidHyp = 211;
