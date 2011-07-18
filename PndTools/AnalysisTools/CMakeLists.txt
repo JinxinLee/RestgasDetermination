@@ -48,6 +48,7 @@ PndEventInfo.cxx
 PndEventReader.cxx
 PndPidListMaker.cxx
 PndAnalysis.cxx
+PndAnalysisCalcTools.cxx
 PndSimpleAnalysis.cxx
 PndAnalysisTask.cxx
 PndAnaTask.cxx

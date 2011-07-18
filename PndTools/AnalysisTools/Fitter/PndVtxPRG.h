@@ -22,19 +22,28 @@ class PndVtxPRG : public VAbsFitter
     virtual ~PndVtxPRG();
     void Fit();
 
-    void SetPerigee(TVector3 P) {fPerigee=P;}
+    void SetExpansionPoint(TVector3 P) {fExpansionPoint=P;}
     
-    void SetTrackArray(TClonesArray* tcar)
-    {fTrackArray = tcar; if (! fTrackArray) std::cout << "-E- PndVtxPRG::SetTrackArray(): No track array found." << std::endl; }
+    //void SetTrackArray(TClonesArray* tcar)
+    //{fTrackArray = tcar; if (! fTrackArray) std::cout << "-E- PndVtxPRG::SetTrackArray(): No track array found." << std::endl; }
     
-    double CalculateVertexFast(TVector3 &vtx, TMatrixD &cov);
-    double CalculateVertexFull(TVector3 &vtx, TMatrixD &cov);
+    double FitVertexFast(TVector3 &vtx, TMatrixD &cov, bool skipcov=false);
+    double FitVertexFull(TVector3 &vtx, TMatrixD &cov, int niterations=0);
     
-    
+    void SetDebug(bool db = true){if(db)fVerbose=true; fDebug=db;};
+    void SetSilent(){fVerbose=false; fDebug=false;};
   private:
-    TVector3 fPerigee;
-   // Bool_t Propagator(int mode, TCandidate* cand, TVector3* mypoint);
-    TClonesArray* fTrackArray;
+    void Calculate(int niterations=3);
+    Bool_t CalcPrgParams(TCandidate* cand,TVector3 expansionpoint); // calculate helix and its covariance
+    //double CalculateVertexFast(Bool_t skpcov=false);
+    bool fDebug;
+    TVector3 fExpansionPoint; // Expansion point
+    // TODO: make std vectors from that?
+    Float_t fPrgParams[5]; // Helix Paramterization around expansion point of each track
+    TMatrixD fPrgCov; // Covariance matrix 5x5 of each track
+    TMatrixD fJacobian; // Jacobian 5x7
+    TVector3 fVertex; // current estimate
+    //TClonesArray* fTrackArray;
     ClassDef(PndVtxPRG,1) 
   };
 

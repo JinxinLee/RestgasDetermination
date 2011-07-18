@@ -24,6 +24,7 @@
 #pragma link C++ class PndEventReader+;
 #pragma link C++ class PndPidListMaker;
 #pragma link C++ class PndAnalysis+;
+#pragma link C++ class PndAnalysisCalcTools+;
 #pragma link C++ class PndSimpleAnalysis+;
 #pragma link C++ class PndAnalysisTask+;
 #pragma link C++ class PndAnaTask+;

@@ -39,8 +39,11 @@ using std::endl;
 #include "PndPidListMaker.h"
 #include "PndMCTrack.h"
 #include "PndVtxFitterParticle.h"
+#include "PndAnalysisCalcTools.h"
 
 ClassImp(PndAnalysis);
+
+Int_t PndAnalysis::fVerbose=0;
 
 PndAnalysis::PndAnalysis(TString tname1, TString tname2) :
 fRootManager(FairRootManager::Instance()),
@@ -49,7 +52,6 @@ fEvtCount(0),
 fChainEntries(0),
 fEventRead(false),
 fBuildMcCands(false),
-fVerbose(0),
 fChargedPidName("PidAlgoIdealCharged"),
 fNeutralPidName("PidAlgoIdealNeutral"),
 fTracksName(tname1),
@@ -315,11 +317,8 @@ void PndAnalysis::BuildMcCands()
     pmc->SetType(part->GetPdgCode());
     
     if(fabs(charge)>0){
-      TMatrixD zerocov;
-      Float_t helix[5];
-      Bool_t rc = P7toHelix(stvtx, p4, charge, zerocov, helix, zerocov, kTRUE);
-      if(rc) pmc->SetHelixParms(helix);
-      else if(fVerbose>0) {
+      Bool_t rc = PndAnalysisCalcTools::FillHelixParams(pmc, kTRUE);
+      if(!rc && fVerbose>0) {
         Warning("BuildMcCands()","Faild calculation helix parameters");
         std::cout<<*pmc<<std::endl;
         stvtx.Print();
@@ -390,6 +389,37 @@ FairTrackParP PndAnalysis::GetFirstPar(TCandidate* cand)
   FairTrackParP tStart = track->GetParamFirst();
   return tStart;
 }
+
+Bool_t PndAnalysis::ResetDaughters(TCandidate* cand)
+{
+  Bool_t success=kTRUE;
+  for(Int_t daug =0;daug<cand->NDaughters();daug++)
+  {
+    TCandidate* a=cand->Daughter(daug);
+    success = success && ResetCandidate(a);
+  }
+  return success;
+}
+
+Bool_t PndAnalysis::ResetCandidate(TCandidate* cand)
+{
+  FairTrackParP firstpar = GetFirstPar(cand);
+  Double_t globalCov[6][6];
+  firstpar.GetMARSCov(globalCov);
+  TMatrixD err(6,6);
+  for (Int_t ii=0;ii<6;ii++) for(Int_t jj=0;jj<6;jj++) err[ii][jj]=globalCov[ii][jj];
+  //if(fVerbose>2){ std::cout<<"MARS cov (px,py,pz,E,x,y,z): ";err.Print();} 
+  TLorentzVector lv = cand->P4();
+  static PndVtxFitterParticle covTool; // external tool to convert from a 6x6 (p3,v) cov matrix to the 7x7(p4,v) cov matrix
+  TMatrixD covPosMom = covTool.GetConverted7(covTool.GetFitError(lv, err));
+  //if(fVerbose>2){ std::cout<<"covPosMom (x,y,z,px,py,pz,E): ";covPosMom.Print();} 
+  
+  cand->SetPosition(firstpar.GetPosition());
+  cand->SetP3(firstpar.GetMomentum()); // implicitly uses the candidates mass to set P4
+  cand->SetCov7(covPosMom);
+  return kTRUE;
+}
+
 
 Bool_t PndAnalysis::Propagator(int mode, FairTrackParP &tStart, TCandidate* cand, TVector3* mypoint, Bool_t skipcov)
 {
@@ -462,57 +492,15 @@ Bool_t PndAnalysis::Propagator(int mode, FairTrackParP &tStart, TCandidate* cand
   if(fVerbose>2){ std::cout<<"covPosMom (x,y,z,px,py,pz,E): ";covPosMom.Print();} 
   
   cand->SetCov7(covPosMom);
-  Double_t Q=myResult->GetQ();
   
-  // write helix parameters & helix cov to TCandidate/TFitParams
-  Float_t helixparams[5];
-  TMatrixD helixcov(5,5);
-  rc = P7toHelix(pos, cand->P4(), Q, covPosMom, helixparams, helixcov, skipcov);
-  if (!rc) {Warning("Propagator()","P7toHelix failed");return kFALSE;}
-  
-  cand->SetHelixParms(helixparams);
-  
-  Float_t rhohelixcov[15];
-  //Int_t klz=0;
-  if(!skipcov){
-    //for(int kli=0;kli<5;kli++) 
-    //{
-    //for(int klj=kli;klj<5;klj++)
-    //{
-    //rhohelixcov[klz]=helixcov[kli][klj];        
-    //klz++;
-    //}
-    //}
-    rhohelixcov[0]  = helixcov[0][0];
-    rhohelixcov[1]  = helixcov[1][0];
-    rhohelixcov[2]  = helixcov[2][0];
-    rhohelixcov[3]  = helixcov[3][0];
-    rhohelixcov[4]  = helixcov[4][0];
-    rhohelixcov[5]  = helixcov[1][1];
-    rhohelixcov[6]  = helixcov[2][1];
-    rhohelixcov[7]  = helixcov[3][1];
-    rhohelixcov[8]  = helixcov[4][1];
-    rhohelixcov[9]  = helixcov[2][2];
-    rhohelixcov[10] = helixcov[3][2];
-    rhohelixcov[11] = helixcov[4][2];
-    rhohelixcov[12] = helixcov[3][3];
-    rhohelixcov[13] = helixcov[4][3];
-    rhohelixcov[14] = helixcov[4][4];
-    cand->SetHelixCov(rhohelixcov); 
-  }
+  rc = PndAnalysisCalcTools::FillHelixParams(cand,skipcov);
+  if (!rc) {Warning("Propagator()","P7toHelix failed"); return kFALSE;}
   
   if(fVerbose>2) {
     std::cout<<" :::::::::::  Printout in PndAnalysis::Propagator() :::::::::::  "<<std::endl;
     
     //std::cout<<"Start Params:"<<std::endl;
     //myStart->Print();
-    std::cout<<"calculated helix Params:"
-    <<"\nD0    ="<<helixparams[0]
-    <<"\nPhi0  ="<<helixparams[1]
-    <<"\nRho   ="<<helixparams[2]
-    <<"\nZ0    ="<<helixparams[3]
-    <<"\ncotTh ="<<helixparams[4]
-    <<std::endl;
     
     std::cout<<"SC system params:"
     <<"\nq/p    = "<<myResult->GetQp()
@@ -535,169 +523,4 @@ Bool_t PndAnalysis::Propagator(int mode, FairTrackParP &tStart, TCandidate* cand
   if(fVerbose>1)Info("Propagator  ","Succsess=%i",rc);
   return kTRUE;
 }
-
-
-Bool_t PndAnalysis::P7toHelix(const TVector3 &pos, const TLorentzVector &p4, const Double_t Q, 
-                              const TMatrixD &cov77, Float_t *helixparams, TMatrixD &helixCov, Bool_t skipcov)
-{ 
-  // Convert from fourmomentum (vx,vy,vz,px,py,pz,e)
-  // to RHO helix parameters (D0,Phi0,rho(omega),Z0,tan(dip))
-  // Assuming vx,vy,vz give the POCA to the z axis.
-  if(p4.Perp()< 1e-9) {Warning("P7toHelix","Too small transverse momentum: %g",p4.Perp());return kFALSE;}
-  Double_t pnt[3], Bf[3];
-  pnt[0]=pos.X();
-  pnt[1]=pos.Y();
-  pnt[2]=pos.Z(); 
-  FairRunAna::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
-  //Double_t B = sqrt(Bf[0]*Bf[0]+Bf[1]*Bf[1]+Bf[2]*Bf[2]);
-  Double_t B = Bf[2]; // assume field in z only
-  //Double_t B = 20.;
-  if(fVerbose>1)printf("P7ToHelix: BField is %g kGs\n",B);
-  Double_t qBc = -0.000299792458*B*Q;//Mind factor from momenta being in GeV
-  //Double_t pti=1/p4.Perp();
-  //Double_t dfi=(pos.Phi()-p4.Phi())*TMath::RadToDeg();
-  //if(dfi>180)dfi-=360;
-  //if(dfi<-180)dfi+=360;
-  //Double_t sign=-Q*((dfi>0)?1:-1); // TODO get a decent D0 sign!!!
-  //helixparams[0]=sign*pos.Perp(); //D0
-  //helixparams[1]=p4.Phi(); //phi0
-  //helixparams[2]=qBc*pti; //omega=rho=1/R[cm]=-2.998*B[kGs]*Q[e]/p_perp[GeV/c] 
-  //helixparams[3]=pos.Z(); //z0
-  //helixparams[4]=p4.Pz()/p4.Perp(); //lambda(averey)=cot(theta)=tan(lambda(geane))
-  if(fVerbose>1)printf("P7ToHelix: Charge is %g e-\n",Q);
-  if(fVerbose>1)printf("P7ToHelix: QBc is %g \n",qBc);
-  
-  const double xp = pos.X();
-  const double yp = pos.Y();
-  const double zp = pos.Z();
-  const double px = p4.Px();
-  const double py = p4.Py();
-  const double pz = p4.Pz();
-  const double phip = TMath::ATan2(py,px);
-  const double pti = 1/TMath::Sqrt(px*px+py*py);
-  //const double phip = p4.Phi();
-  //const double pti = 1/p4.Perp();
-  if(fVerbose>1)printf("P7ToHelix: P_t is %g GeV/c\n",p4.Perp());
-  if(fVerbose>1)printf("P7ToHelix: P_t^-1 is %g c/GeV\n",pti);
-  
-  // get rho
-  const double rho = qBc*pti;
-  if(fVerbose>1)printf("P7ToHelix: rho is %g cm^-1\n",rho);
-  
-  // get tan(dip)
-  const double tanDip=pz*pti;
-  const double R0 = 1./rho;
-  if(fVerbose>1)printf("P7ToHelix: tanDip is %g \n",tanDip);
-  if(fVerbose>1)printf("P7ToHelix: R0 = rho^-1 is %g cm\n",R0);
-  
-  //circle center
-  const double xc = xp - py/qBc;
-  const double yc = yp + px/qBc;
-  //const double xc = xp - R0*p4.Py()*pti;
-  //const double yc = yp + R0*p4.Px()*pti;
-  //const double xc = xp - R0*TMath::Sin(phip);
-  //const double yc = yp + R0*TMath::Cos(phip);
-  const double DC = TMath::Sqrt(xc*xc+yc*yc);
-  
-  //get phi0 at doca
-  const double phi0 = -TMath::ATan2(xc,yc);
-  if(fVerbose>1)printf("P7ToHelix: phi0 is %g, phiP is %g, DeltaPhi = %g \n",phi0,phip,phip-phi0);
-  
-  //get D0
-  const double D0 = DC - TMath::Abs(R0);
-  //const double x0 = D0*TMath::Cos(phi0);
-  //const double y0 = D0*TMath::Sin(phi0);
-  if(fVerbose>1)printf("P7ToHelix: D0 is %g cm\n",D0);
-  
-  //get z0
-  const double z0 = zp - pz*(phip-phi0)/qBc;
-  //const double z0 = zp - tanDip*R0*(phip-phi0);
-  if(fVerbose>1)printf("P7ToHelix: z0 is %g cm\n",z0);
-  
-  helixparams[0]=D0;
-  helixparams[1]=phi0;
-  helixparams[2]=rho;
-  helixparams[3]=z0;
-  helixparams[4]=tanDip; // == lambda
-  if(fVerbose>1) {
-    for(int ai=0;ai<5;ai++){
-      std::cout<<"helixparams["<<ai<<"]="<<helixparams[ai]<<std::endl;
-    }
-  }
-  
-  if(!skipcov)
-  {
-    TMatrixD jacobian(5,7); 
-    
-    jacobian[0][0] = xc/DC; // dD0  / dvx
-    jacobian[0][1] = yc/DC; // dD0   /dvy
-    jacobian[0][2] = 0.; // dD0   /dvz
-    jacobian[0][3] = yc/(qBc*DC)-px*pti*pti/fabs(rho); // dD0   /dpx
-    jacobian[0][4] = xc/(qBc*DC)-py*pti*pti/fabs(rho); // dD0   /dpy
-    jacobian[0][5] = 0.; // dD0   /dpz
-    jacobian[0][6] = 0.; // dD0   /de
-    
-    jacobian[1][0] = yc/(DC*DC); // dPhi0 /dvx
-    jacobian[1][1] = -1.*xc/(DC*DC); // dPhi0 /dvy
-    jacobian[1][2] = 0.; // dPhi0 /dvz
-    jacobian[1][3] = -1.*xc/(DC*DC*qBc); // dPhi0 /dpx 
-    jacobian[1][4] = -1.*yc/(DC*DC*qBc); // dPhi0 /dpy 
-    jacobian[1][5] = 0.; // dPhi0 /dpz 
-    jacobian[1][6] = 0.; // dPhi0 /de
-    
-    jacobian[2][0] = 0.; // drho  /dvx
-    jacobian[2][1] = 0.; // drho  /dvy
-    jacobian[2][2] = 0.; // drho  /dvz
-    jacobian[2][3] = -1.*rho*px*pti*pti; // drho  /dpx
-    jacobian[2][4] = -1.*rho*py*pti*pti; // drho  /dpy
-    jacobian[2][5] = 0.; // drho  /dpz
-    jacobian[2][6] = 0.; // drho  /de
-    
-    jacobian[3][0] = 0.; // dZ0   /dvx
-    jacobian[3][1] = 0.; // dZ0   /dvy
-    jacobian[3][2] = 1.; // dZ0   /dvz
-    jacobian[3][3] = pz*yc/(DC*DC*qBc); // dZ0   /dpx
-    jacobian[3][4] = -1.*pz*xc/(DC*DC*qBc); // dZ0   /dpy
-    jacobian[3][5] = (phi0-phip)/qBc; // dZ0   /dpz
-    jacobian[3][6] = 0.; // dZ0   /de
-    
-    jacobian[4][0] = 0.; // dtLam /dvx
-    jacobian[4][1] = 0.; // dtLam /dvy
-    jacobian[4][2] = 0.; // dtLam /dvz
-    jacobian[4][3] = -1.*tanDip*px*pti*pti; // dtLam /dpx
-    jacobian[4][4] = -1.*tanDip*py*pti*pti; // dtLam /dpy
-    jacobian[4][5] = pti; // dtLam /dpz
-    jacobian[4][6] = 0.; // dtLam /de
-    
-    //TMatrixD sigmas(cov77);
-    //for(int cci=0;cci<7;cci++){
-    //for(int ccj=cci+1;ccj<7;ccj++)
-    //{
-    //sigmas[cci][ccj]=0.;
-    //sigmas[ccj][cci]=0.;
-    //}
-    //}
-    //TMatrixD tempmat(jacobian,TMatrixD::kMult,sigmas);
-    TMatrixD tempmat(jacobian,TMatrixD::kMult,cov77);
-    TMatrixD covrho(tempmat,TMatrixD::kMultTranspose,jacobian);
-    helixCov=covrho;
-    
-    if (fVerbose>2) {
-      std::cout<<"cov77: "; cov77.Print();
-      //std::cout<<"sigmas: "; sigmas.Print();
-      std::cout<<"jacobian: "; jacobian.Print();
-      std::cout<<"covrho (D0,Phi0,rho,Z0,tanDip): "; covrho.Print();
-      if(fVerbose>1) {
-        std::cout<<"helixparams[0] = D0 \t= ("<<helixparams[0]<<" \t+- "<<sqrt(helixCov[0][0])<<") cm"<<std::endl;
-        std::cout<<"helixparams[1] = Phi0 \t= ("<<helixparams[1]<<" \t+- "<<sqrt(helixCov[1][1])<<") rad"<<std::endl;
-        std::cout<<"helixparams[2] = rho \t= ("<<helixparams[2]<<" \t+- "<<sqrt(helixCov[2][2])<<") 1/cm"<<std::endl;
-        std::cout<<"helixparams[3] = Z0 \t= ("<<helixparams[3]<<" \t+- "<<sqrt(helixCov[3][3])<<") cm"<<std::endl;
-        std::cout<<"helixparams[4] = tanDip\t= ("<<helixparams[4]<<" \t+- "<<sqrt(helixCov[4][4])<<")"<<std::endl;
-      }
-    }
-  } // skip cov or not
-  return kTRUE;
-}
-
-
 

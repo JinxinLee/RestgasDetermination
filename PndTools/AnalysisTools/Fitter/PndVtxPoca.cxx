@@ -4,6 +4,8 @@
 #include "RhoBase/TCandListIterator.h"
 #include "RhoBase/TRho.h"
 #include "RhoBase/TFactory.h"
+#include "FairRunAna.h"
+#include "PndAnalysisCalcTools.h"
 
 using namespace std;
 
@@ -76,8 +78,8 @@ Double_t PndVtxPoca::GetPocaVtx(TVector3 &vertex)
 Double_t PndVtxPoca::GetPoca(TVector3 &vertex,TCandidate* a, TCandidate* b)
 {
   vertex.SetXYZ(0.,0.,0.); 
-  // loop over daughters, take the mean value of all "best" positions
-  Double_t bField=2.0; // TODO: Get Field from RTDB
+  Double_t bField = 0.1*PndAnalysisCalcTools::GetBz(vertex); // T, assume field in z only
+  Double_t bc = 0.0029979246*bField;
   TVector3 dB(0,0,1.0);
   TVector3 position1 = a->GetPosition();
   // Momentum vectors
@@ -88,7 +90,7 @@ Double_t PndVtxPoca::GetPoca(TVector3 &vertex,TCandidate* a, TCandidate* b)
   d1*=1.0/pPerp1;
   
   // Radius and center
-  Double_t rho1 = pPerp1/(0.0029979246*bField); // Radius in cm
+  Double_t rho1 = pPerp1/bc; // Radius in cm
   TVector3 r1=d1.Cross(dB);
   r1 *= -a->Charge()*rho1;
   TVector3 center1 = position1 - r1;
@@ -104,7 +106,7 @@ Double_t PndVtxPoca::GetPoca(TVector3 &vertex,TCandidate* a, TCandidate* b)
   d2*=1.0/pPerp2;
   
   // Radius and center
-  Double_t rho2 =  pPerp2/(0.0029979246*bField); // Radius in cm
+  Double_t rho2 =  pPerp2/bc; // Radius in cm
   TVector3 r2=d2.Cross(dB);
   r2 *= -b->Charge()*rho2;
   TVector3 center2 = position2 - r2;
