@@ -4546,33 +4546,38 @@ fuori: ;
        fprintf(MACRO,"Assey->Draw();\n");
 
 //	disegna il BiHexagon destro e sinistro delle inner parallel straws.
+	char myname[100];
+
+	sprintf(myname,"InnerPar");
 	DrawBiHexagonInMacro(
 				VERTICALGAP,
 				MACRO,
 				RStrawDetectorMin,
 				ApotemaMaxInnerParStraw,
 				4,  // color code, 4= blue.
-				"InnerPar"
+				myname
 				);
 //--------------
 //	disegna il BiHexagon destro e sinistro delle skew straws.
+	sprintf(myname,"Skew");
 	DrawBiHexagonInMacro(
 				VERTICALGAP,
 				MACRO,
 				ApotemaMinSkewStraw,
 				ApotemaMaxSkewStraw,
 				2,  // color code.
-				"Skew"
+				myname
 				);
 //--------------
 //	disegna il BiHexagon destro e sinistro delle skew straws.
+	sprintf(myname,"OuterPar");
 	DrawHexagonCircleInMacro(
 				VERTICALGAP,
 				MACRO,
 				ApotemaMinOuterParStraw,
 				RStrawDetectorMax,
 				4,  // color code.
-				"OuterPar"
+				myname
 				);
 //--------------
 
@@ -4653,33 +4658,36 @@ fprintf(MACRO,
        fprintf(MACRO,"Assey->Draw();\n");
 
 //	disegna il BiHexagon destro e sinistro delle inner parallel straws.
+	sprintf(myname,"InnerPar");
 	DrawBiHexagonInMacro(
 				VERTICALGAP,
 				MACRO,
 				RStrawDetectorMin,
 				ApotemaMaxInnerParStraw,
 				4,  // color code, 4= blue.
-				"InnerPar"
+				myname
 				);
 //--------------
 //	disegna il BiHexagon destro e sinistro delle skew straws.
+	sprintf(myname,"Skew");
 	DrawBiHexagonInMacro(
 				VERTICALGAP,
 				MACRO,
 				ApotemaMinSkewStraw,
 				ApotemaMaxSkewStraw,
 				2,  // color code.
-				"Skew"
+				myname
 				);
 //--------------
 //	disegna il BiHexagon destro e sinistro delle skew straws.
+	sprintf(myname,"OuterPar");
 	DrawHexagonCircleInMacro(
 				VERTICALGAP,
 				MACRO,
 				ApotemaMinOuterParStraw,
 				RStrawDetectorMax,
 				4,  // color code.
-				"OuterPar"
+				myname
 				);
 //--------------
 
@@ -5978,33 +5986,38 @@ nohits: ;
 
 
 //	disegna il BiHexagon destro e sinistro delle inner parallel straws.
+	char myname[100];
+
+	sprintf(myname,"InnerPar");
 	DrawBiHexagonInMacro(
 				VERTICALGAP,
 				MACRO,
 				RStrawDetectorMin,
 				ApotemaMaxInnerParStraw,
 				4,  // color code, 4= blue.
-				"InnerPar"
+				myname
 				);
 //--------------
 //	disegna il BiHexagon destro e sinistro delle skew straws.
+	sprintf(myname,"Skew");
 	DrawBiHexagonInMacro(
 				VERTICALGAP,
 				MACRO,
 				ApotemaMinSkewStraw,
 				ApotemaMaxSkewStraw,
 				2,  // color code.
-				"Skew"
+				myname
 				);
 //--------------
 //	disegna il BiHexagon destro e sinistro delle skew straws.
+	sprintf(myname,"OuterPar");
 	DrawHexagonCircleInMacro(
 				VERTICALGAP,
 				MACRO,
 				ApotemaMinOuterParStraw,
 				RStrawDetectorMax,
 				4,  // color code.
-				"OuterPar"
+				myname
 				);
 //--------------
 
