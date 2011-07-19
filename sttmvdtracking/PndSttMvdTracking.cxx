@@ -1939,16 +1939,26 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 //	circle in the XY plane)
 
 	UShort_t MaxTurns;
-	if(R[ncand] < RStrawDetectorMax/2.){
-		if(-CHARGE[ncand]*KAPPA[ncand]>0.)	// this means Pz>0.
-		  MaxTurns=(UShort_t)(0.5*fabs((ZCENTER_STRAIGHT+SEMILENGTH_STRAIGHT)
-					*KAPPA[ncand])/PI);
-		else MaxTurns=(UShort_t)
-		  (0.5*fabs((ZCENTER_STRAIGHT-SEMILENGTH_STRAIGHT)*KAPPA[ncand])/PI);
-	} else {
+	Double_t Turns;
+
+
+	  if(keepit[ncand]){
+	    if(R[ncand] < RStrawDetectorMax/2.){
+		if(-CHARGE[ncand]*KAPPA[ncand]>0.){	// this means Pz>0.
+		  Turns= 0.5*fabs((ZCENTER_STRAIGHT+SEMILENGTH_STRAIGHT)
+					*KAPPA[ncand])/PI;
+		  if( fabs(Turns)<10.)  MaxTurns=(UShort_t) Turns ;
+		  else  MaxTurns=10;
+		} else {
+		  Turns= 0.5*fabs((ZCENTER_STRAIGHT-SEMILENGTH_STRAIGHT)
+					*KAPPA[ncand])/PI;
+		  if( fabs(Turns)<10.)  MaxTurns=(UShort_t) Turns ;
+		  else  MaxTurns=10;
+		}
+	    } else {
 		MaxTurns=0;
-	}
-	if(keepit[ncand]) EliminateSpuriousSZ(
+	    }
+	    EliminateSpuriousSZ(
 				MaxTurns,
 				&nMvdPixelHitsinTrack[ncand],	// input and output
 				&ListMvdPixelHitsinTrack[ncand][0],// input and output
@@ -1973,6 +1983,8 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 				FI0[ncand],
 				R[ncand]
 				    );
+
+	  }  // end of  if(keepit[ncand])
 
 //------------------------
 	}	// end of   if(Mvdhits[ncand])
