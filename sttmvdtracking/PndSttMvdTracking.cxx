@@ -8344,7 +8344,7 @@ if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "
 	}
 
 
-
+/*
 	ave=0.;
 	avex=0.;
 	avey=0.;
@@ -8362,13 +8362,12 @@ if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "
 		ave /=n;
 		avex /=n;
 		avey /=n;
-//		rotationangle = atan(ave);
 		rotationangle = atan2(avey,avex);
 	} else {
 		rotationangle=PI/2.;
 	}
 
-
+*/
 
 
 
