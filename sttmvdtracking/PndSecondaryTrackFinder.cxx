@@ -1163,6 +1163,28 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     cin >> goOnChar;
     cout << "GOING ON" << endl;
   }
+
+
+ for(int itrk = 0; itrk < tracklist.size(); itrk++) {
+
+   cout << "COMPUTE PARAMETERS @ FIRST AND LAST" << endl;
+   std::vector< TMatrixT<double> > track = tracklist[itrk];
+   TMatrixT<double> par = xyparameters[itrk];
+   
+   TVector3 firstpos, firstmom, dfirstpos;
+   Bool_t first = ComputeFirstParameters(track, par, firstpos, dfirstpos, firstmom);
+   TVector3 lastpos, lastmom, dlastpos;
+   Bool_t last = ComputeLastParameters(track, par, lastpos, dlastpos, lastmom);
+   cout << "OUTCOME " << first << " " << last << endl;
+   firstpos.Print();
+   firstmom.Print();
+   lastpos.Print();
+   lastmom.Print();
+   cout << "###" << endl;
+ }
+
+
+
  }
 
 
@@ -1721,13 +1743,14 @@ std::vector<std::vector<int> > PndSecondaryTrackFinder::ClusterFinder3(std::vect
 //   }
   cout << "after first finding" << endl;
   PrintClusters(clusterlist);
-  if(fDisplayOn) DrawClusters(clusterlist);
+  if(fDisplayOn) {
+    DrawClusters(clusterlist);
 
-  char goOnChar;
-  cout << "cluster finder, press any key" << endl;
-  cin >> goOnChar;
-  cout << "GOING ON" << endl;
-  
+    char goOnChar;
+    cout << "cluster finder, press any key" << endl;
+    cin >> goOnChar;
+    cout << "GOING ON" << endl;
+  }
 // // cut away vice versa, for couple clusters
 //   std::vector<int> deleteclusterlist;
 //   for(int iclus = 0; iclus < clusterlist.size(); iclus++) {
@@ -1856,11 +1879,12 @@ std::vector<std::vector<int> > PndSecondaryTrackFinder::ClusterFinder3(std::vect
 
 
  // ---------------------------
-
-  cout << "cluster finder, press any key" << endl;
-  cin >> goOnChar;
-  cout << "GOING ON" << endl;
-  
+ if(fDisplayOn) {
+   char goOnChar;
+   cout << "cluster finder, press any key" << endl;
+   cin >> goOnChar;
+   cout << "GOING ON" << endl;
+ }
 
   for(int iclus = 0; iclus < clusterlist.size(); iclus++) {
     std::vector<int> cluster = clusterlist[iclus];
@@ -2011,13 +2035,14 @@ std::vector<std::vector< TMatrixT<double> > > PndSecondaryTrackFinder::ClusterFi
 //   }
   cout << "after first finding" << endl;
   PrintClustersBIS(clusterlist);
-  if(fDisplayOn) DrawClustersBIS(clusterlist);
+  if(fDisplayOn) {
+    DrawClustersBIS(clusterlist);
 
-  char goOnChar;
-  cout << "cluster finder, press any key" << endl;
-  cin >> goOnChar;
-  cout << "GOING ON" << endl;
-  
+    char goOnChar;
+    cout << "cluster finder, press any key" << endl;
+    cin >> goOnChar;
+    cout << "GOING ON" << endl;
+  }
 // // cut away vice versa, for couple clusters
 //   std::vector<int> deleteclusterlist;
 //   for(int iclus = 0; iclus < clusterlist.size(); iclus++) {
@@ -2156,11 +2181,12 @@ std::vector<std::vector< TMatrixT<double> > > PndSecondaryTrackFinder::ClusterFi
 
 
  // ---------------------------
-
-  cout << "cluster finder, press any key" << endl;
-  cin >> goOnChar;
-  cout << "GOING ON" << endl;
-  
+ if(fDisplayOn) {
+   char goOnChar;
+   cout << "cluster finder, press any key" << endl;
+   cin >> goOnChar;
+   cout << "GOING ON" << endl;
+ }
 
 
   return clusterlist;
@@ -5199,11 +5225,12 @@ std::vector< std::vector< TMatrixT<double> > > PndSecondaryTrackFinder::MergeClu
   }
   cout << "CLUSTERS AFTER COMBINATIONS" << endl;
  PrintClustersBIS(newlist);
- char goOnChar;
- cout << ", press any key" << endl;
- cin >> goOnChar;
- cout << "GOING ON" << endl;
-
+ if(fDisplayOn) {
+   char goOnChar;
+   cout << ", press any key" << endl;
+   cin >> goOnChar;
+   cout << "GOING ON" << endl;
+ }
   //   for(int ihit = 0; ihit < doublecoll.size(); ihit++) {
   //     int hitid = doublecoll[ihit];
     
@@ -7738,6 +7765,106 @@ std::vector< TMatrixT<double> >  PndSecondaryTrackFinder::CleanAggregations(std:
  }
  return newcluster;
 }
+
+TVector3 PndSecondaryTrackFinder::ComputePositionAtParallelHit(Int_t hitid, Double_t xc, Double_t yc, Double_t radius, TVector3 &dxyz) {
+  
+  TVector3 xyz(-999., -999., -999.);
+  dxyz.SetXYZ(0., 0., 0.);
+
+  PndSttHit *hit = (PndSttHit*) fSttHitArray->At(hitid);
+  if(!hit) return xyz;
+  
+  Bool_t intersection = IntersectionFinder(xc, yc, radius, hit, xyz, dxyz);
+  if(intersection == kFALSE) cout << "ERROR NO INTERSECTION FOUND " << hitid << endl;
+//   cout << "INTERSECTION " << xc << " " << yc << " " << radius << endl;
+//   xyz.Print();
+  return xyz;
+}
+
+TVector3 PndSecondaryTrackFinder::ComputeMomentumAtPos(Double_t xc, Double_t yc, Double_t radius, Double_t tanl, Int_t charge, TVector3 position) {
+
+  TVector3 momentum(-999, -999, -999);
+  TVector2 center(xc, yc);
+  TVector2 pos(position.X(), position.Y());
+  TVector2 myrad = center - pos;
+
+  double distance = TMath::Abs(myrad.Mod() - radius);
+  if(distance > 0.5) {
+    cout << "ComputeMomentumAtPos: POINT NOT ON THE TRACK " << distance << endl;
+    return momentum; 
+  }
+
+  Double_t rotx, roty;
+  if(charge == 0) {
+    cout << "ComputeMomentumAtPos: CHARGE = 0!" << endl;
+    return momentum;
+  }
+  rotx = charge * myrad.Y();
+  roty = - charge * myrad.X();
+
+  Double_t pt = 0.006 * radius;
+  Double_t pl = pt * tanl;
+  Double_t ptot = TMath::Sqrt(pt * pt + pl * pl);
+
+  momentum.SetX(rotx);
+  momentum.SetY(roty);
+  momentum.SetZ(0.);
+  momentum.SetMag(pt);
+  momentum.SetZ(pl);
+
+  return momentum;
+
+
+}
+
+
+Bool_t PndSecondaryTrackFinder::ComputeParametersAtHit(Int_t ihit, std::vector< TMatrixT<double> > cluster, TMatrixT<double> par, TVector3 &position, TVector3 &dposition, TVector3 &momentum) {
+
+  TMatrixT<double> singlehit = cluster[ihit];
+  if(singlehit[0][0] != 0) {
+    cout << "NOT USABLE HIT!!! " << ihit << endl;
+    return kFALSE;
+  }
+ 
+  Double_t xc = par[0][0];
+  Double_t yc = par[0][1];
+  Double_t radius = par[0][2];
+  Int_t charge = (Int_t) TMath::Sign(1., par[0][3]);
+  Double_t tanl = par[0][4];
+
+  Int_t hitid = (Int_t) singlehit[0][1];
+  Int_t detid = (Int_t) singlehit[0][2];
+  Int_t isskew = (Int_t) singlehit[0][3];
+  // cout << "USABLE HIT " << ihit << " " << hitid << " " << detid << " " << isskew << endl;
+
+  position.SetXYZ(singlehit[0][4], singlehit[0][5], singlehit[0][6]);
+
+  // if it is mvd, gem, or stt skewed keep the positon, else compute it
+  if(detid == FairRootManager::Instance()->GetBranchId(fSttBranch) && isskew == 0) {
+    TVector3 xyz = ComputePositionAtParallelHit(hitid, xc, yc, radius, dposition);
+    if(xyz.X() != -999) position = xyz;
+  }
+
+  if(position.X() != -999) momentum = ComputeMomentumAtPos(xc, yc, radius, tanl, charge, position);
+
+  if(position.X() == -999 || momentum.X() == -999) {
+    cout << "FAILED" << endl;
+    position.Print();
+    momentum.Print();
+    return kFALSE;
+  }
+  return kTRUE; 
+}
+
+
+Bool_t PndSecondaryTrackFinder::ComputeFirstParameters(std::vector< TMatrixT<double> > cluster, TMatrixT<double> par, TVector3 &position, TVector3 &dposition, TVector3 &momentum) {
+  return ComputeParametersAtHit(0, cluster, par, position, dposition, momentum) ;
+}
+
+Bool_t PndSecondaryTrackFinder::ComputeLastParameters(std::vector< TMatrixT<double> > cluster, TMatrixT<double> par, TVector3 &position, TVector3 &dposition, TVector3 &momentum) {
+  return ComputeParametersAtHit(cluster.size() - 1, cluster, par, position, dposition, momentum) ;
+}
+
 
 ClassImp(PndSecondaryTrackFinder)
 

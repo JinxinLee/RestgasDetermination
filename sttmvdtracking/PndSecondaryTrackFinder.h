@@ -176,6 +176,18 @@ std::vector<int> OrderClusterInZ(std::vector<int> cluster, std::vector<TVector3>
   std::vector< TMatrixT<double> > FindConnections(TMatrixT<double> singlehit, std::vector<TMatrixT<double> > cluster);
    Bool_t IsAggregation(TMatrixT<double> singlehit, std::vector<TMatrixT<double> > cluster,  std::vector< TMatrixT<double> > &connectionslist);
   std::vector< TMatrixT<double> >  CleanAggregations(std::vector<TMatrixT<double> > cluster, std::vector< std::vector<TMatrixT<double> > > clusterlist);
+
+
+  TVector3 ComputePositionAtParallelHit(Int_t hitid, Double_t xc, Double_t yc, Double_t radius, TVector3 &dxyz);
+  TVector3 ComputeMomentumAtPos(Double_t xc, Double_t yc, Double_t radius, Double_t tanl, Int_t charge, TVector3 position);
+   Bool_t ComputeParametersAtHit(Int_t ihit, std::vector< TMatrixT<double> > cluster, TMatrixT<double> par, TVector3 &position, TVector3 &dposition, TVector3 &momentum);
+   Bool_t ComputeFirstParameters(std::vector< TMatrixT<double> > cluster, TMatrixT<double> par, TVector3 &position, TVector3 &dposition, TVector3 &momentum);
+  Bool_t ComputeLastParameters(std::vector< TMatrixT<double> > cluster, TMatrixT<double> par, TVector3 &position, TVector3 &dposition, TVector3 &momentum);
+
+
+
+
+
  private:
 
   /** Input array of PndSttTube (map of STT tubes) **/
