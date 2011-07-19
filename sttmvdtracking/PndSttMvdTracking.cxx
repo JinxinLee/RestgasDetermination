@@ -4200,7 +4200,7 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 
 //	disegna il BiHexagon destro e sinistro delle inner parallel straws.
 
-	char nome[100];
+	char myname[100];
 
 	sprintf(nome, "InnerPar");
 	DrawBiHexagonInMacro(
@@ -4209,7 +4209,7 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 				RStrawDetectorMin,
 				ApotemaMaxInnerParStraw,
 				4,  // color code, 4= blue.
-				nome
+				myname
 				);
 //--------------
 //	disegna il BiHexagon destro e sinistro delle skew straws.
