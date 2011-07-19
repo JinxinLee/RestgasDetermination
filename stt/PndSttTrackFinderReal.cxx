@@ -9719,11 +9719,11 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 		UShort_t nParallelHits,
 		UShort_t *ListParallelHits,
 		UShort_t *Infoparal,
-		Short_t  Charge,
-		Double_t *Fi_initial_helix_referenceframe,
-		Double_t *Fi_final_helix_referenceframe,
-		Double_t *U,
-		Double_t *V
+		Short_t  Charge,  // input
+		Double_t *Fi_initial_helix_referenceframe, // output
+		Double_t *Fi_final_helix_referenceframe,   // output
+		Double_t *U,  // output
+		Double_t *V   // output
 							)
 {
 
@@ -10100,18 +10100,6 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 //   PndSttOrderingParallel, also taking care of the Charge (when positive, the
 //   ordering must be reversed).
 
-/*
-    for (j = 0; j< nParallelHits; j++){
-      auxRvalues[j]=
-                    info[ Infoparal[ ListParallelHits[j] ]  ][0]*
-                    info[ Infoparal[ ListParallelHits[j] ]  ][0]+
-                    info[ Infoparal[ ListParallelHits[j] ]  ][1]*
-                    info[ Infoparal[ ListParallelHits[j] ]  ][1];
-    }
-
-    Merge_Sort( nParallelHits, auxRvalues, ListParallelHits);
-
-*/
 
 
     for (j = 0; j< nParallelHits; j++){              
@@ -10136,7 +10124,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
       }
    }
 
-//   finding the charge of the track not necessary; already done prima.
+//   finding the charge of the track not necessary; already done before.
 
 /*
     if( auxFivalues[0] > auxFivalues[nParallelHits-1]) {
