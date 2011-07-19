@@ -33,6 +33,9 @@
 
 // Class Member definitions -----------
 
+//#define MCCORR
+
+
 PndTpcHelixHTCorrelator::PndTpcHelixHTCorrelator(double hdistcut)
   : _hdistcut(hdistcut)
 {}
@@ -44,6 +47,27 @@ PndTpcHelixHTCorrelator::corr(PndTpcRiemannTrack* trk,
 				bool& survive,
 				double& matchQuality)
 {
+
+  // use ideal correlation for adjusting cuts!!
+#ifdef MCCORR
+
+  if(trk->getNumHits()>5)trk->fitAndSort();
+
+  double minWeight(0.8);
+  double Tweight, Hweight;
+  
+  Tweight = trk->mcid().MaxRelWeight();
+  Hweight = rhit->cluster()->mcId().MaxRelWeight();
+  
+  if(trk->mcid().DominantID()==rhit->cluster()->mcId().DominantID() &&
+     Tweight>minWeight && Hweight>minWeight){
+    survive=true;
+    matchQuality=1-Tweight;
+  }
+  else survive=false;
+  return true;
+#endif
+ 
   // check if we have a fit:
   if(!trk->isFitted()) return false;
 

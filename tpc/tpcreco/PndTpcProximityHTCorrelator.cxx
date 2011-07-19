@@ -91,7 +91,7 @@ PndTpcProximityHTCorrelator::corr(PndTpcRiemannTrack* trk,
 // use ideal correlation for adjusting cuts!!
 #ifdef MCCORR
 
-  double minWeight(0.9);
+  double minWeight(0.8);
 
   //dist.Print();
 

@@ -33,6 +33,8 @@
 
 // Class Member definitions -----------
 
+//#define MCCORR
+
 PndTpcProximityTTCorrelator::PndTpcProximityTTCorrelator(double proxcut)
   : _proxcut(proxcut)
 {}
@@ -45,6 +47,24 @@ PndTpcProximityTTCorrelator::corr(PndTpcRiemannTrack* trk1,
 				double& matchQuality)
 {
   //std::cout<<" PndTpcProximityTTCorrelator::corr"<<std::endl;
+#ifdef MCCORR 
+  double Tweight, Hweight;
+  double minWeight=0.8;
+
+  double weight1 = trk1->mcid().MaxRelWeight();
+  double weight2 = trk2->mcid().MaxRelWeight();
+
+  //std::cout<<trk->mcid().DominantID()<<"\n"
+  //    <<rhit->cluster()->mcId().DominantID()<<"\n\n";
+
+  if(trk1->mcid().DominantID()==trk2->mcid().DominantID() &&
+     weight1>minWeight && weight2>minWeight){
+    survive = true;
+    matchQuality=1-0.5*(weight1+weight2);
+  }
+  else survive=false;
+  return true;
+#endif
 
   TVector3 t1h1 = trk1->getFirstHit()->cluster()->pos();
   TVector3 t1hn = trk1->getLastHit()->cluster()->pos();
