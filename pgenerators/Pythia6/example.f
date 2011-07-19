@@ -149,6 +149,6 @@ c      write(iunit,*) nhep, nevhep, nvers
      >    jdahep(1,ihep), jdahep(2,ihep),
      >    (phep(m,ihep),m=1,5),(vhep(m,ihep),m=1,4)
 1001   continue
-80     format(6i10,9(1x,d15.8))
+80     format(6i10,9(1x,es15.8))
       return
       end
