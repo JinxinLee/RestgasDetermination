@@ -4213,23 +4213,25 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 				);
 //--------------
 //	disegna il BiHexagon destro e sinistro delle skew straws.
+	sprintf(nome, "Skew");
 	DrawBiHexagonInMacro(
 				VERTICALGAP,
 				MACRO,
 				ApotemaMinSkewStraw,
 				ApotemaMaxSkewStraw,
 				2,  // color code.
-				"Skew"
+				myname
 				);
 //--------------
 //	disegna il BiHexagon destro e sinistro delle skew straws.
+	sprintf(nome, "OuterPar");
 	DrawHexagonCircleInMacro(
 				VERTICALGAP,
 				MACRO,
 				ApotemaMinOuterParStraw,
 				RStrawDetectorMax,
 				4,  // color code.
-				"OuterPar"
+				myname
 				);
 //--------------
 
