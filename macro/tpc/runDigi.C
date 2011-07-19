@@ -7,20 +7,20 @@
   //SET NUMBER OF EVENTS
   // ------------------------------------------------------------------------
 
-  Int_t nEvents=100;
+  Int_t nEvents=1000;
   TString basedir = gSystem->Getenv("VMCWORKDIR");
   
   // Set INPUT DIRECTORY (MC files) and JOBNAME
   // ------------------------------------------------------------------------
   TString inDir="TEST";
-  TString jobname="physics";
+  TString jobname="DPM";
 
   inDir=(basedir+"/")+inDir;
   TString inFile=(inDir+"/")+jobname;
   inFile+=".mc.root";
  
   TString outFile = inFile;
-  outFile.ReplaceAll(".mc.root", ".16s.raw.root");
+  outFile.ReplaceAll(".mc.root", ".DD.raw.root");
   TString paramIn = inFile;
   paramIn.ReplaceAll(".mc.root",".param.root");
   TString paramOut = outFile;
@@ -55,7 +55,7 @@
   parInput1->open(paramIn.Data());
   FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
   TString tpcDigiFile = gSystem->Getenv("VMCWORKDIR");
-  tpcDigiFile += "/tpc/tpc.par";
+  tpcDigiFile += "/macro/params/all.par";
   parInput2->open(tpcDigiFile.Data(),"in");
 
   rtdb->setFirstInput(parInput2);
@@ -96,7 +96,8 @@
  
   PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
   //tpcDrifter->SetPersistence();
-  tpcDrifter->SetDistort(false);
+  tpcDrifter->SetDistort(true);
+  tpcDrifter->SetDeviationFile("tpc/DevMap_Efield_march09_official_B_Maps.dat");
   fRun->AddTask(tpcDrifter);
 
   PndTpcGemTask* tpcGem = new PndTpcGemTask();
@@ -117,9 +118,30 @@
   PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
   tpcElec->SetPersistence();
  tpcElec->SetPSATimeCalib(2.8);
-  //tpcElec->SetSamplePersistence();
+ //tpcElec->SetSamplePersistence();
   fRun->AddTask(tpcElec);
   
+
+ // -----   MDV digi producers   --------------------------------- 
+  PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
+  mvddigi->SetVerbose(0);
+  fRun->AddTask(mvddigi);
+
+  PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
+  mvdmccls->SetVerbose(0);
+  fRun->AddTask(mvdmccls); 
+
+
+  // -----   GEM hit producers   ---------------------------------
+  Int_t verboseLevel = 0;
+  PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", verboseLevel);
+  fRun->AddTask(gemDigitize);
+
+  PndGemFindHits* gemFindHits = new PndGemFindHits("GEM Hit Finder", verboseLevel);
+  fRun->AddTask(gemFindHits);
+
+
+
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   rtdb->print();

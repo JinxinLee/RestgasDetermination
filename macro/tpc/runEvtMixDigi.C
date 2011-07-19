@@ -13,13 +13,13 @@ runEvtMixDigi(){
 
   //  TString inFile="/afs/e18/panda/DATA/fboehmer/dipl_data/SpaceCharge/07_01_2009/new_PndTpcDetector/GEANT3_ALICE_L5_1MeV_cuts_withPIPE_MVD/sigSlice1/2Gev_G3_ALICE_L5_1MeV_cuts_with_PIPE_MVD_10k_evts.sig.root";
 
-  TString inFile = "TEST/physics.16s.raw.root";
-  TString jobname="evtmix1000_16s";
-  TString bkgFile = "TEST/DPM5k.16s.raw.root";
+  TString inFile = "TEST/physics.DD.raw.root";
+  TString jobname="evtmix1000DD";
+  TString bkgFile = "TEST/DPM.DD.raw.root";
   unsigned int nBkgEvts=1000;
-  double EvtRate=1E7;
+  double EvtRate=1.E7;
   // Number of events to process
-  Int_t nEvents = 2;
+  Int_t nEvents = 1;
 
   TString inDir=inFile(0,inFile.Last('/')+1);
 

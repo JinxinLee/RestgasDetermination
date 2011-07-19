@@ -12,9 +12,9 @@
   TString PANDAMC=gSystem->Getenv("PANDAMC");
 
   // Input file (Mixed tpc events)
-  TString inFile="TEST/evtmix1000_16s/physics.16s.mixed.root";
+  TString inFile="TEST/evtmix1000DD/physics.DD.mixed.root";
   // Input physics events with MVD and GEM
-  TString physFile="TEST/physics.16s.raw.root"; 
+  TString physFile="TEST/physics.DD.raw.root"; 
   TString jobname="reco1";
 
   // TString mcFile="TEST/DPM.mc.root";
@@ -134,15 +134,15 @@
 	3,   // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
        0.); // z-position of interaction point (for sorting 4)
   tpcSPR->SetTrkFinderParameters(
-        1.9,  // proximity cut in 3D [cm]
-        0.4,  // helix cut [cm]
-        5);   // minimum hits for helix-fit
+        200,  // proximity cut in 3D [cm] 1.9
+        20,  // helix cut [cm] 0.4
+        5);   // minimum hits for helix-fit stdnadrd: 5
   tpcSPR->SetMergeTracks();
   tpcSPR->SetTrkMergerParameters(
-        2.5,  // proximity cut [cm]
-        0.1,  // dip cut [rad]
-        0.6,  // helix cut [cm]
-        0.025);// plane cut (RMS)
+        25,  // proximity cut [cm] 2.5
+        3,  // dip cut [rad] 0.1
+        60,  // helix cut [cm] 0.6
+        2);// plane cut (RMS) 0.025
   //tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
   tpcSPR->useGeane(true); // uses RKTrackrep and GeaneTrackrep
   tpcSPR->SetSmoothing(true);
@@ -152,7 +152,7 @@
 
   PndTpcEvtDeconvTask* evtDeconv=new PndTpcEvtDeconvTask();
   evtDeconv->SetPersistence();
-  evtDeconv->SetCuts(10,2);
+  evtDeconv->SetCuts(15,5);
   evtDeconv->SetOutTrackBranchName("RiemannTrackTagged");
   fRun->AddTask(evtDeconv);
 
@@ -174,7 +174,7 @@
   kalman->SetPersistence();
   kalman->SetTrackBranchName("TrackPreFitTagged");
   kalman->SetOutBranchName("TrackFitTagged");
-  kalman->SetNumIterations(3); // number of fitting iterations (back and forth)
+  kalman->SetNumIterations(1); // number of fitting iterations (back and forth)
   fRun->AddTask(kalman);       // creates TrackPostFit branch
 
   //correlate fitted track with MVD pixels and strips
@@ -191,7 +191,7 @@
   //fit after MVD corr
   KalmanTask* kalman2 =new KalmanTask();
   kalman2->SetPersistence();
-  kalman2->SetNumIterations(3); // number of fitting iterations (back and forth)
+  kalman2->SetNumIterations(1); // number of fitting iterations (back and forth)
   kalman2->SetTrackBranchName("TrackPreFitTaggedMVD");
   kalman2->SetOutBranchName("TrackFitTaggedMVD");
   fRun->AddTask(kalman2);
@@ -208,7 +208,7 @@
   //final fit
   KalmanTask* kalman3 =new KalmanTask();
   kalman3->SetPersistence();
-  kalman3->SetNumIterations(3); // number of fitting iterations (back and forth)
+  kalman3->SetNumIterations(1); // number of fitting iterations (back and forth)
   kalman3->SetTrackBranchName("TrackPreFitTaggedGEM");
   kalman3->SetOutBranchName("TrackPostFitComplete");
   fRun->AddTask(kalman3);

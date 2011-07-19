@@ -18,13 +18,17 @@
 
   // SET NUMBER OF EVENTS
   // --------------------------------------------------
-  Int_t nEvents = 5000;
+  Int_t nEvents = 1000;
 
   //Set JOBNAME + JOBDIR (will not be created!)
   // --------------------------------------------------
   TString jobdir="TEST";
-  TString jobname="DPM5k";
+  TString jobname="physics";
  
+ // highly relatvistic approximation:
+  double Minv=3.686; // Psi(2s)
+  double p=Minv*Minv/ (2.*0.938);
+
 
   TString basejobdir=gSystem->Getenv("VMCWORKDIR");
   jobdir=(basejobdir+"/")+jobdir+"/";
@@ -148,13 +152,13 @@
   // PndDpmGenerator* dpmGen = new PndDpmGenerator(dpmfile);
   // primGen->AddGenerator(dpmGen);  
 
-  double mom=15.;
+  double mom=p;
   double mode=1;
   PndDpmDirect *dpmGen = new PndDpmDirect(mom,mode, gRandom->GetSeed(), 2.);
-  primGen->AddGenerator(dpmGen);
+  //primGen->AddGenerator(dpmGen);
   
   FairEvtGenGenerator* evtGen = new FairEvtGenGenerator("input/psi2s_jpsi2pi_1k.evt");
-  //primGen->AddGenerator(evtGen);
+  primGen->AddGenerator(evtGen);
   
   
   // Field Map Definition
@@ -162,17 +166,17 @@
   // 1- Reading the new field map in the old format
   //---------------------Create and Set the Field(s)---------- 
 
-  
-  fRun->SetBeamMom(15);
-  //PndMultiField *fField= new PndMultiField("FULL");
+ 
+  fRun->SetBeamMom(p);
+  PndMultiField *fField= new PndMultiField("FULL");
 
- PndConstField *fMagField=new PndConstField();
-      fMagField->SetField(0, 0 ,20. ); // values are in kG
+  //PndConstField *fMagField=new PndConstField();
+  //  fMagField->SetField(0, 0 ,20. ); // values are in kG
      // MinX=-75, MinY=-40,MinZ=-12 ,MaxX=75, MaxY=40 ,MaxZ=124 );  // values are in cm
-  fMagField->SetFieldRegion(-500, 500,-500, 500, -500, 500);
+  //fMagField->SetFieldRegion(-500, 500,-500, 500, -500, 500);
 
 
-  fRun->SetField(fMagField);
+  fRun->SetField(fField);
   //fRun->SetStoreTraj(kTRUE);
   fRun->SetStoreTraj(kFALSE);
   
