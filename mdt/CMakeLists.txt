@@ -37,6 +37,7 @@ set(MDT_SRCS
 MdtMC/PndGeoMdtPar.cxx
 MdtMC/PndMdt.cxx
 MdtMC/PndMdtMagnet.cxx
+MdtMC/PndMdtCoil.cxx
 MdtMC/PndMdtMuonFilter.cxx
 MdtMC/PndMdtMFIron.cxx
 MdtMC/PndMdtGeoConstructorFast.cxx

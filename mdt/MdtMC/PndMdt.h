@@ -25,6 +25,7 @@ public:
     ~PndMdt();
     
     inline void SetMdtMagnet(bool opt=false) { mdtMagnet = opt; return; };
+    inline void SetMdtCoil(bool opt=false) { mdtCoil = opt; return; };
     inline void SetMdtMFIron(bool opt=false) { mdtMFI = opt; return; };
 
     void SetBarrel(TString name)     { fBarrel = name; };
@@ -60,9 +61,6 @@ public:
     void Initialize();
     void BeginEvent();
     Bool_t ProcessHits(FairVolume* vol);
-    Bool_t ProcessHitsFast(FairVolume* vol);
-    Bool_t ProcessHitsRoot(FairVolume* vol);
-    
     void EndOfEvent();
 
     static Int_t fTrkIn; 
@@ -78,8 +76,9 @@ private:
     void PndMdtMagnet(); //!
     void PndMdtMuonFilter(); //!
     void PndMdtMFIron(); //!
-    void ConstructGeometryFast(); //!
-    void ConstructGeometryRoot(); //!
+    void PndMdtCoil(); //!
+    void ConstructGeometryTo(); //!
+    void ConstructGeometryDu(); //!
       
 // hit
     TClonesArray* fMdtCollection; //!
@@ -93,6 +92,7 @@ private:
     PndGeoMdtPar* par;   //! 
     TString ffn;
     bool mdtMagnet; //!
+    bool mdtCoil; //!
     bool mdtMFI; //!
 
     TString fBarrel;

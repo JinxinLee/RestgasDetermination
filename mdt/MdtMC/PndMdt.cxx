@@ -14,6 +14,8 @@
 #include "TGeoManager.h"
 #include "TVirtualMC.h"
 
+#include "TRandom.h"
+
 #include "FairVolume.h"
 // add on for debug
 #include "FairRuntimeDb.h"
@@ -44,8 +46,6 @@ PndMdt::PndMdt()
     fEndcap = "";
     fMuonFilter = "";
     fForward = "";
-    mdtMagnet = kFALSE;
-    mdtMFI = kFALSE;
 }
 // -------------------------------------------------------------------------
 
@@ -61,9 +61,7 @@ PndMdt::PndMdt(const char* name, Bool_t active) : FairDetector(name,active)
     fBarrel = "";
     fEndcap = "";
     fMuonFilter = "";
-    fForward = ""; 
-    mdtMagnet = kFALSE;
-    mdtMFI = kFALSE;
+    fForward = "";
 }
 // -------------------------------------------------------------------------
 
@@ -146,9 +144,9 @@ void PndMdt::ConstructGeometry()
  
   if (fBarrel!="")
     {
-      if (fBarrel=="fast" || fBarrel =="Fast")
+      if (fBarrel=="torino" || fBarrel =="Torino")
 	{
-	  ConstructGeometryFast();
+	  ConstructGeometryTo();
 	}
       else if (fBarrel.EndsWith(".root"))
 	{
@@ -169,7 +167,7 @@ void PndMdt::ConstructGeometry()
 	  SetGeometryFileName(fEndcap);
 	  ConstructRootGeometry();
 	}
-      else if (fBarrel!="fast" && fBarrel !="Fast")
+      else if (fBarrel!="torino" && fBarrel !="Torino")
 	{
 	  std::cout<< "PndMdt::ConstructGeometry : No good MDT Endcap definition " <<std::endl;
 	  exit(0);
@@ -178,7 +176,7 @@ void PndMdt::ConstructGeometry()
  
   if (fMuonFilter!="")
     {
-      if (fMuonFilter=="fast" || fMuonFilter=="Fast")
+      if (fMuonFilter=="torino" || fMuonFilter=="Torino")
 	{
 	  PndMdtMuonFilter();
 	}
@@ -196,9 +194,9 @@ void PndMdt::ConstructGeometry()
 
   if (fForward!="")
     {
-      if (fForward=="fast" || fForward =="Fast")
+      if (fForward=="torino" || fForward =="Torino")
 	{
-	  std::cout<< "PndMdt::ConstructGeometry : No fast design for Forward MDT" <<std::endl;
+	  std::cout<< "PndMdt::ConstructGeometry : No Torino design for Forward MDT" <<std::endl;
 	  exit(0); 
 	}
       else if (fForward.EndsWith(".root"))
@@ -214,7 +212,9 @@ void PndMdt::ConstructGeometry()
     }
   
   if(mdtMagnet) PndMdtMagnet();
-  if(mdtMFI) PndMdtMFIron();
+//  if(mdtMFI) PndMdtMFIron();
+
+  if(mdtCoil) PndMdtCoil();
  
   return;
 }
@@ -244,19 +244,6 @@ void PndMdt::BeginEvent()
 // -----   Public method ProcessHits  --------------------------------------
 Bool_t PndMdt::ProcessHits(FairVolume* vol) 
 {
-  TString name = gMC->CurrentVolOffName(1);
-  if (name.Contains("BA")) ProcessHitsRoot(vol);
-  else ProcessHitsFast(vol);
-    
-  
-  if (gMC->IsTrackEntering() || gMC->IsNewTrack() )
-
-  return kTRUE;
-}
-
-// -----   Public method ProcessHitsFast  --------------------------------------
-Bool_t PndMdt::ProcessHitsFast(FairVolume* vol) 
-{
   TString name = vol->GetName();
  
   if (gMC->IsTrackEntering() || gMC->IsNewTrack() )
@@ -276,6 +263,8 @@ Bool_t PndMdt::ProcessHitsFast(FairVolume* vol)
       Int_t pdg= gMC->TrackPid();
       if ( (TrNo == fTrkIn) && (fELoss >0.) )
 	{
+//	  Float_t ran = gRandom->Uniform(0,1);
+//	  cout << "ran= " << ran << endl;
 	  TLorentzVector lPos, lMom;
 	  Int_t iMod;
 	  Int_t iOct;
@@ -283,67 +272,13 @@ Bool_t PndMdt::ProcessHitsFast(FairVolume* vol)
 	  Int_t iBox;
 	  Int_t iWire;
 	  sscanf(name,"MDT%is%il%ib%iw%i", &iMod, &iOct, &iLayer, &iBox, &iWire);
-	  
-	  Int_t detectorId = iWire + 10*iBox + 1000*iLayer + 100000*iOct + 1000000*iMod; 
-	  gMC->TrackPosition(lPos); // cm
-	  gMC->TrackMomentum(lMom); // GeV
-	  TClonesArray& clref = *fMdtCollection;
-	  Int_t size = fMdtCollection->GetEntriesFast();
-	  PndMdtPoint *P= new(clref[size]) PndMdtPoint (TrNo,detectorId, lPos.Vect(), lMom.Vect(), gMC->TrackTime(),
-							gMC->TrackLength(), fELoss, gMC->GetStack()->GetCurrentParentTrackNumber(),pdg,
-							fPos_In.Vect(), fMom_In.Vect());
-	  /**if you add a point then tell the stack! here*/
-	  PndStack* stack = (PndStack*) gMC->GetStack();
-	  stack->AddPoint(kMDT);
-	};
-      
-      ResetParameters();
-    };
-  
-  ResetParameters();
-  return kTRUE;
-}
 
-// -----   Public method ProcessHitsRoot  --------------------------------------
-Bool_t PndMdt::ProcessHitsRoot(FairVolume* vol) 
-{
-  TString name = gMC->CurrentVolName();
-  TString path = gMC->CurrentVolPath();
-  
-  if (gMC->IsTrackEntering() || gMC->IsNewTrack() )
-    {
-      fPos_In.SetXYZM(0.,0.,0.,0.);
-      fMom_In.SetXYZM(0.,0.,0.,0.);
-      gMC->TrackPosition(fPos_In);
-      gMC->TrackMomentum(fMom_In);
-      fTrkIn = gMC->GetStack()->GetCurrentTrackNumber();
-    }; // end entering
-  
-  fELoss = fELoss + gMC->Edep(); 
-  
-  if (gMC->IsTrackExiting() || gMC->IsTrackStop() || gMC->IsTrackDisappeared() )
-    {
-      Int_t TrNo=gMC->GetStack()->GetCurrentTrackNumber();
-      Int_t pdg= gMC->TrackPid();
-      if ( (TrNo == fTrkIn) && (fELoss >0.) )
-	{
-	  TLorentzVector lPos, lMom;
-	  Int_t iMod = -1;
-	  Int_t iOct;
-	  Int_t iLayer;
-	  Int_t iBox;
-	  Int_t iWire;
-	  gMC->CurrentVolID(iWire);
-	  gMC->CurrentVolOffID(2,iBox);
-	  gMC->CurrentVolOffID(3,iLayer);
-	  gMC->CurrentVolOffID(4,iOct);
-	  if (path.Contains("Barrel")) iMod = 1;
-	  if (path.Contains("Endcap")) iMod = 2;
-	  if (path.Contains("MF"))     iMod = 3;
-	  
-	  //cout << iMod << "\t" <<  iOct << "\t" << iLayer << "\t" << iBox << "\t" << iWire << endl;
-	  Int_t detectorId = iWire + 10*iBox + 1000*iLayer + 100000*iOct + 1000000*iMod;
-	  
+//          cout << "name: " << name << endl;
+	      
+	  Int_t detectorId = iWire + 10*iBox + 1000*iLayer + 100000*iOct + 1000000*iMod; 
+//          cout << "name: " << name << "  iMod= " << iMod << " iOct= " << iOct << 
+//               " iLAyer= " << iLayer << " iBox= " << iBox << endl;
+
 	  gMC->TrackPosition(lPos); // cm
 	  gMC->TrackMomentum(lMom); // GeV
 	  TClonesArray& clref = *fMdtCollection;
