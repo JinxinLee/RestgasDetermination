@@ -266,13 +266,17 @@ TH1D TransformHisto(TH2* h2, double min, double max)
 }
 
 
-plothistosfromfile(TString filename = "histos.root", TString ext=".ps")
+plothistosfromfile(TString filename = "histos.root", TString ext=".ps", Int_t divx=2, Int_t divy=2, Int_t pix = 300)
 { // Plot all histograms into a ps file
   // works with TH1, TH2, & TProfile
   LoadPandaStyle();
   TFile* file = new TFile(filename.Data());
   if (!file) {cout<<"File \""<<filename.Data()<<"\" is not there..."<<endl;return;}
   TCanvas* can = new TCanvas();
+  Int_t pixx = ceil(1.4*pix*divx);
+  Int_t pixy = pix*divy;
+  can->SetCanvasSize(pixx,pixy);
+  can->Divide(divx, divy);
   TString picname = filename;
   ext="."+ext;
   ext.ReplaceAll("..",".");
@@ -284,16 +288,15 @@ plothistosfromfile(TString filename = "histos.root", TString ext=".ps")
   
   TList* list = file->GetListOfKeys();
   if (!list) {cout<<"List not there..."<<endl;return;}
-  int divx=2, divy=2;
   int padcount = 1;
   TString keyclass="";
-  can->Divide(divx, divy);
   for(int i=0;i<list->GetEntries();i++)
   {
-    if(padcount > divx+divy)
+    if(padcount > divx*divy)
     {
       can->Print(pic.Data());
       can->Clear();
+      can->SetCanvasSize(pixx,pixy);
       can->Divide(divx, divy);
       padcount=1;
     }
