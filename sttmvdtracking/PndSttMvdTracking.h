@@ -87,7 +87,7 @@ class PndSttMvdTracking : public FairTask
 
 #define maxTracks 200
   static const UShort_t   nmassimo=50,
-			  nmaxSttHits = 400,
+			  nmaxSttHits = 300,
 			  MAXMCTRACKS=maxTracks,
 			  MAXTRACKSPEREVENT=maxTracks,
 			  nmaxMvdPixelHits=500,
