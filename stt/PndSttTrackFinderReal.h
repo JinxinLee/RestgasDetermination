@@ -1038,10 +1038,10 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 	void   OrderingLia(
 		Double_t oX,
 		Double_t oY,
-		Int_t nParallelHits,
+		Int_t nHits,
 		Double_t XY[][2],
 		Int_t  Charge,  // input
-		UShort_t *ListParallelHits
+		UShort_t *ListHits
 							);
 
 //----------------------------------------------
