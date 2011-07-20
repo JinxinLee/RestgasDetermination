@@ -334,7 +334,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
   UShort_t  FromHitToMCTrack[nmaxSttHits],
            nMCParalAlone[MAXTRACKSPEREVENT],
            nMCSkewAlone[MAXTRACKSPEREVENT],
-           MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
+           MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHits],
            MCSkewAloneList[MAXTRACKSPEREVENT][nmaxSttHits],
 	nHitsInMCTrack[MAXTRACKSPEREVENT],
 	nSkewHitsInMCTrack[MAXTRACKSPEREVENT],
@@ -4046,7 +4046,7 @@ UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 		UShort_t ParSpuriList[MAXTRACKSPEREVENT][nmaxSttHits],
 
 		UShort_t nMCParalAlone[MAXTRACKSPEREVENT],
-		UShort_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
+		UShort_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHits],
 
 	UShort_t nMvdPixelHitsAssociatedToSttTra,
 UShort_t ListPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack],
@@ -7034,7 +7034,7 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack], // dal PR
                         UShort_t nSkewHitsInMCTrack[MAXTRACKSPEREVENT],
 
 			UShort_t nMCParalAlone[MAXTRACKSPEREVENT],
-                        UShort_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
+                        UShort_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHits],
 			UShort_t nMCSkewAlone[MAXTRACKSPEREVENT],
                         UShort_t MCSkewAloneList[MAXTRACKSPEREVENT][nmaxSttHits],
 
