@@ -466,8 +466,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
   TVector3   Momentum,ErrMomentum,Position,ErrPosition;
 
 
-//  FairMCPoint *  pSttMCPoint[MAXSTTMCPOINTS];
-  FairMCPoint *  puntator;
+  FairMCPoint *  pSttMCPoint[MAXSTTMCPOINTS];
 
   PndTrackCand * pMvdTrackCand,
                * pSttTrackCand;
@@ -517,13 +516,14 @@ if(istampa>=1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<endl;}
 //	return;
  } else  if( nSttMCPoint>nmaxSttHits){
 	cout<<"da PndSttMvdTracking  :  N. di Stt MC points = "<<nSttMCPoint
-	<<" and it is > nmaxSttHits ("<<nmaxSttHits<<").\n";
-//	nSttMCPoint=nmaxSttHits;
+	<<" and it is > nmaxSttHits ("<<nmaxSttHits<<"); setting nSttMCPoint to "
+	<<nmaxSttHits<<endl;
+	nSttMCPoint=nmaxSttHits;
  }
 
-// 	for( i= 0; i< nSttMCPoint; i++){
-//	pSttMCPoint[i] = (FairMCPoint*) fSttPointArray->At(i);
-// }
+ 	for( i= 0; i< nSttMCPoint; i++){
+	pSttMCPoint[i] = (FairMCPoint*) fSttPointArray->At(i);
+ }
 
 //------------------------------
 
@@ -644,9 +644,7 @@ if(istampa>=1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<endl;}
       info[i][3]= dradius;
       info[i][4]= pSttTube->GetHalfLength();
       if(ipunto>=0) {
-	puntator =  (FairMCPoint*) fSttPointArray->At(ipunto);
-//	info[i][6]= pSttMCPoint[ipunto]->GetTrackID();
-	info[i][6]= puntator->GetTrackID();
+	info[i][6]= pSttMCPoint[ipunto]->GetTrackID();
       } else {
 	info[i][6]= -10.;
       }
@@ -679,10 +677,8 @@ if(istampa>=1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<endl;}
       	cout <<"             wire direction, X, Y, Z (Z direction set always positive)"
       	<< WDX[i]<<"  "<<WDY[i]<<"  "<<WDZ[i] <<endl;
       } else{
-//      cout <<"             hit X, Y, Z space position "   << pSttMCPoint[ipunto]->GetX() << " " <<
-//                       pSttMCPoint[ipunto]->GetY() << " " << pSttMCPoint[ipunto]->GetZ()<<endl; 
-      cout <<"             hit X, Y, Z space position "   << puntator->GetX() << " " <<
-                       puntator->GetY() << " " << puntator->GetZ()<<endl; 
+      cout <<"             hit X, Y, Z space position "   << pSttMCPoint[ipunto]->GetX() << " " <<
+                       pSttMCPoint[ipunto]->GetY() << " " << pSttMCPoint[ipunto]->GetZ()<<endl; 
       cout <<"             hit wire pos. in middle "   << pSttTube->GetPosition().X() << " " <<
              pSttTube->GetPosition().Y() << " " << pSttTube->GetPosition().Z() 
            << "; R = "<<sqrt(pSttTube->GetPosition().X()*pSttTube->GetPosition().X()+
@@ -690,8 +686,7 @@ if(istampa>=1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<endl;}
 	   ", suo drift radius = "<<dradius <<endl;
       cout <<"             wire direction, X, Y, Z (Z direction set always positive)"
       << WDX[i]<<"  "<<WDY[i]<<"  "<<WDZ[i] <<endl
-           <<"             this hit belongs to MC track n. "<<puntator->GetTrackID()<<endl;
-//           <<"             this hit belongs to MC track n. "<<pSttMCPoint[ipunto]->GetTrackID()<<endl;
+           <<"             this hit belongs to MC track n. "<<pSttMCPoint[ipunto]->GetTrackID()<<endl;
       }
   }  //  end of   if(istampa >= 
 
@@ -3771,9 +3766,8 @@ if(istampa>=2&&IVOLTE<20){
 		nMvdStripHitsinTrack[i]>0 &&  doMcComparison) {
 
 	   for( j=0;j<nMCSkewAlone[i];j++){
-		puntator = (FairMCPoint*) fSttPointArray->At( MCSkewAloneList[i][j] );
-	   	MCSkewAloneX[ MCSkewAloneList[i][j] ]=puntator->GetX();
-	   	MCSkewAloneY[ MCSkewAloneList[i][j] ]=puntator->GetY();
+	   	MCSkewAloneX[ MCSkewAloneList[i][j] ]=pSttMCPoint[MCSkewAloneList[i][j]]->GetX();
+	   	MCSkewAloneY[ MCSkewAloneList[i][j] ]=pSttMCPoint[MCSkewAloneList[i][j]]->GetY();
 	   }
 
 
