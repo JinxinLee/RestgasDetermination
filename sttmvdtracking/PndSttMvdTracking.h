@@ -256,7 +256,7 @@ UShort_t ListParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 		UShort_t nSpuriParinTrack[MAXTRACKSPEREVENT],
 		UShort_t ParSpuriList[MAXTRACKSPEREVENT][nmaxSttHits],
 		UShort_t nMCParalAlone[MAXTRACKSPEREVENT],
-		UShort_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHits],
+		UShort_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 	UShort_t nMvdPixelHitsAssociatedToSttTra,
 UShort_t ListPixel[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack],
 	UShort_t nMvdStripHitsAssociatedToSttTra,
@@ -482,7 +482,7 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack], // dal PR
                         UShort_t nSkewHitsInMCTrack[MAXTRACKSPEREVENT],
 
 			UShort_t nMCParalAlone[MAXTRACKSPEREVENT],
-			UShort_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHits],
+			UShort_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 			UShort_t nMCSkewAlone[MAXTRACKSPEREVENT],
 			UShort_t MCSkewAloneList[MAXTRACKSPEREVENT][nmaxSttHits],
 
