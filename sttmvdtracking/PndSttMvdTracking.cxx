@@ -466,7 +466,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
   TVector3   Momentum,ErrMomentum,Position,ErrPosition;
 
 
-  FairMCPoint *  pSttMCPoint[MAXSTTMCPOINTS];
+  FairMCPoint *  pSttMCPoint[nmaxSttHits];
 
   PndTrackCand * pMvdTrackCand,
                * pSttTrackCand;
