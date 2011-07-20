@@ -978,22 +978,28 @@ if(istampa>=2  && IVOLTE<20){
   for(j=0,nSttParHitsinTrack[i]=0,nSttSkewHitsinTrack[i]=0; j<nSttHitsinTrack[i]; j++){
     pndtrackcandhit = pSttTrackCand->GetSortedHit(j);
 
+    // necessary check to exclude hits whose number is > nmaxSttHits.
+    if( pndtrackcandhit.GetHitId() >= nmaxSttHits ) continue;
 
-    ListSttHitsinTrack[i][j] = pndtrackcandhit.GetHitId(); // # hit of Stt
+    ListSttHitsinTrack[i][nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i]] = pndtrackcandhit.GetHitId(); // # hit of Stt
+//    ListSttHitsinTrack[i][j] = pndtrackcandhit.GetHitId(); // # hit of Stt
 
     if ( fabs(info[ pndtrackcandhit.GetHitId() ][5]- 1.) < 0.0001) {
-      ListSttHitsinTrackType[i][j] = 2; 
+      ListSttHitsinTrackType[i][nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i]] = 2; 
+//      ListSttHitsinTrackType[i][j] = 2; 
       ListSttParHitsinTrack[i][nSttParHitsinTrack[i]] = pndtrackcandhit.GetHitId(); // # hit of Stt
       nSttParHitsinTrack[i]++;
     }  else {
-      ListSttHitsinTrackType[i][j] = 3; 
+      ListSttHitsinTrackType[i][nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i]] = 3; 
+//      ListSttHitsinTrackType[i][j] = 3; 
       ListSttSkewHitsinTrack[i][nSttSkewHitsinTrack[i]] = pndtrackcandhit.GetHitId(); // # hit of Stt
       nSttSkewHitsinTrack[i]++;
     }
 
   }    //   end of    for(j=0; j<nSttHitsinTrack[i]; j++)
 
-
+  // redefinition of the total number of Stt hits.
+  nSttHitsinTrack[i] = nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i];
 // --- estraggo le altre info della TrackCand
 
 	TVector3 dirSeed=pSttTrackCand->getDirSeed();
@@ -2244,9 +2250,9 @@ for(int ip=0;ip<nHitsSkew;ip++){
 	//  Pixel or Strip hits were not used previously in this code.
 
 	for(i=0; i<nMvdTrackCand; i++){
-//		if( nTotalCandidates == MAXTRACKSPEREVENT ) break; // protection for the
+		if( nTotalCandidates == MAXTRACKSPEREVENT ) break; // protection for the
 						// length of many of my arrays.
-		if( nRemainingCandidates == MAXTRACKSPEREVENT ) break; // protection for the
+//		if( nRemainingCandidates == MAXTRACKSPEREVENT ) break; // protection for the
 						// length of many of my arrays.
 		nalone=0;
 
