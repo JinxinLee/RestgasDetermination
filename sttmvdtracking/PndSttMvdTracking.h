@@ -85,7 +85,7 @@ class PndSttMvdTracking : public FairTask
   bool  iplotta, doMcComparison ;
   int IVOLTE ;
 
-#define maxTracks 50
+#define maxTracks 200
   static const UShort_t   nmassimo=50,
 			  nmaxSttHits = maxTracks*30,
 			  MAXMCTRACKS=maxTracks,
