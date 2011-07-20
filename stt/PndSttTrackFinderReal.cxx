@@ -13621,10 +13621,10 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 	void   PndSttTrackFinderReal::OrderingLia(
 		Double_t oX,
 		Double_t oY,
-		Int_t nParallelHits,
+		Int_t nHits,
 		Double_t XY[][2],
 		Int_t  Charge,  // input
-		UShort_t *ListParallelHits
+		UShort_t *ListHits
 							)
 {
 
@@ -13632,14 +13632,14 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 
 
       UShort_t	i,j,
-		tmp[nParallelHits];
+		tmp[nHits];
       Double_t	aaa,
 		b1,
 		firstR2,
 		lastR2,
-		aux[nParallelHits],
-		U[nParallelHits],
-		V[nParallelHits];
+		aux[nHits],
+		U[nHits],
+		V[nHits];
 
 
 
@@ -13651,7 +13651,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 //  1)  order hits by increasing U or V of the conformal mapping; see Gianluigi's Logbook page 283;
 //  2)  find the charge of the track by checking if it is closest to the center in XY
 //	the first or the last of the ordered hits.
-//  3)  in case, invert the ordering of U, V and ListParallelHits such that the first hits in the
+//  3)  in case, invert the ordering of U, V and ListHits such that the first hits in the
 //	list are alway those closer to the (0,0).
 
 
@@ -13666,57 +13666,57 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 
 	if((aaa>b1&&aaa<3.*b1) || (aaa>-3.*b1&&aaa<-b1)){//use U as ordering variable;
 							//[case 1 or 3 Gianluigi's Logbook page 285].
-		for (j = 0; j< nParallelHits; j++){
+		for (j = 0; j< nHits; j++){
 			U[j]=XY[j][0]/(XY[j][0]*XY[j][0]+XY[j][1]*XY[j][1]);
 		}
-		Merge_Sort( nParallelHits, U, ListParallelHits);
+		Merge_Sort( nHits, U, ListHits);
 
 		if((aaa>b1&&aaa<3.*b1)){  //  case #1;
 			if( Charge == -1){
 				// inverting the order of the hits.
-				for(i=0;i<nParallelHits;i++){
-					tmp[i]=ListParallelHits[nParallelHits-1-i];
+				for(i=0;i<nHits;i++){
+					tmp[i]=ListHits[nHits-1-i];
 				}
-				for(i=0;i<nParallelHits;i++){
-					ListParallelHits[i]=tmp[i];
+				for(i=0;i<nHits;i++){
+					ListHits[i]=tmp[i];
 				}
 			}
 		} else{  //  case # 3.
 			if(Charge == 1){
 				// inverting the order of the hits.
-				for(i=0;i<nParallelHits;i++){
-					tmp[i]=ListParallelHits[nParallelHits-1-i];
+				for(i=0;i<nHits;i++){
+					tmp[i]=ListHits[nHits-1-i];
 				}
-				for(i=0;i<nParallelHits;i++){
-					ListParallelHits[i]=tmp[i];
+				for(i=0;i<nHits;i++){
+					ListHits[i]=tmp[i];
 				}
 			}// end of  if( Charge ==1)
 		}// end of  if((aaa>b1&&aaa<3.*b1))
 
 	} else { // use V as ordering variable [case 2 or 4 Gianluigi's Logbook page 285].
-		for (j = 0; j< nParallelHits; j++){
+		for (j = 0; j< nHits; j++){
 			V[j]=XY[j][1]/(XY[j][0]*XY[j][0]+XY[j][1]*XY[j][1]);
 		}
-		Merge_Sort( nParallelHits, V, ListParallelHits);
+		Merge_Sort( nHits, V, ListHits);
 
 		if((aaa<=-3.*b1 || aaa>=3.*b1)){  //  case #2;
 			if( Charge == -1){
 				// inverting the order of the hits.
-				for(i=0;i<nParallelHits;i++){
-					tmp[i]=ListParallelHits[nParallelHits-1-i];
+				for(i=0;i<nHits;i++){
+					tmp[i]=ListHits[nHits-1-i];
 				}
-				for(i=0;i<nParallelHits;i++){
-					ListParallelHits[i]=tmp[i];
+				for(i=0;i<nHits;i++){
+					ListHits[i]=tmp[i];
 				}
 			}
 		} else{  //  case # 4.
 			if( Charge == 1){
 				// inverting the order of the hits.
-				for(i=0;i<nParallelHits;i++){
-					tmp[i]=ListParallelHits[nParallelHits-1-i];
+				for(i=0;i<nHits;i++){
+					tmp[i]=ListHits[nHits-1-i];
 				}
-				for(i=0;i<nParallelHits;i++){
-					ListParallelHits[i]=tmp[i];
+				for(i=0;i<nHits;i++){
+					ListHits[i]=tmp[i];
 				}
 			}
 		}
