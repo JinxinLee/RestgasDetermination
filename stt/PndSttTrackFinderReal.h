@@ -1035,6 +1035,15 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 				Double_t Ycross[2]
 					);
 
+	void   OrderingLia(
+		Double_t oX,
+		Double_t oY,
+		Int_t nParallelHits,
+		Double_t XY[][2],
+		Int_t  Charge,  // input
+		UShort_t *ListParallelHits
+							);
+
 //----------------------------------------------
 
   ClassDef(PndSttTrackFinderReal,1);
