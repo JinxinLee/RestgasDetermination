@@ -78,6 +78,8 @@ private:
     void PndMdtMFIron(); //!
     void PndMdtCoil(); //!
     void ConstructGeometryTo(); //!
+    void ConstructGeometryFast(); //!
+    void ConstructGeometryRoot(); //!
     void ConstructGeometryDu(); //!
       
 // hit
