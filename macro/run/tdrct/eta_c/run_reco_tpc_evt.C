@@ -34,7 +34,8 @@
   fRun->SetInputFile(inDigiFile);
   fRun->AddFriend(inSimFile);
   fRun->SetOutputFile(outFile);
-  
+  FairGeane *Geane = new FairGeane();
+  fRun->AddTask(Geane);
   // ------------------------------------------------------------------------
 
   // -----  Parameter database   --------------------------------------------
@@ -46,20 +47,12 @@
 	
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
-    
+        
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
   PndGeoHandling* geoH = PndGeoHandling::Instance();
-
-  bool SimpleClustering=true;
-
-  // TString geoFile = sysFile;
-  // geoFile+="/tpc/TPC_V1.1.root";
-  // fRun->SetGeomFile(geoFile);
-  
-  FairGeane *Geane = new FairGeane();
-  fRun->AddTask(Geane);
-
+  // ------------------------------------------------------------------------
+ 
   // ------- RECO procedure ------------------------------------------------
  
   //correct for unfortunate shift in TPC digi
@@ -89,7 +82,7 @@
   //tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
   tpcSPR->useGeane(); // use RKTrackrep and GeaneTrackrep
   tpcSPR->SetSmoothing(true); 
-  tpcSPR->SetMCPid(); // use ideal particle identification
+  tpcSPR->SetMCPid(kFALSE); // use ideal particle identification
   fRun->AddTask(tpcSPR);
   
   KalmanTask* kalman =new KalmanTask();
@@ -139,8 +132,7 @@
   trackMC->SetTrackInBranchName("PndTrackPostFitComplete"); 
   trackMC->SetTrackOutBranchName("TrackPostFitCompleteID");
   fRun->AddTask(trackMC);
-      
- 
+
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(6);
   fRun->Init();

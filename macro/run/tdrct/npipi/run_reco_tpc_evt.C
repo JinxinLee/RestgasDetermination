@@ -82,7 +82,7 @@
   //tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
   tpcSPR->useGeane(); // use RKTrackrep and GeaneTrackrep
   tpcSPR->SetSmoothing(true); 
-  tpcSPR->SetMCPid(); // use ideal particle identification
+  tpcSPR->SetMCPid(kFALSE); // use ideal particle identification
   fRun->AddTask(tpcSPR);
   
   KalmanTask* kalman =new KalmanTask();

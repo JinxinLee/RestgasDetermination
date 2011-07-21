@@ -72,17 +72,24 @@
   PndSttMvdGemTracking * SttMvdGemTracking = new PndSttMvdGemTracking(0);
   fRun->AddTask(SttMvdGemTracking);
 
+  PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
+  trackMC->SetTrackInBranchName("SttMvdGemTrack");
+  trackMC->SetTrackOutBranchName("SttMvdGemTrackID");
+  fRun->AddTask(trackMC);
+
   PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
   recoKalman->SetTrackInBranchName("SttMvdGemTrack");
+  recoKalman->SetTrackInIDBranchName("SttMvdGemTrackID");
   recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
   recoKalman->SetBusyCut(50); // CHECK to be tuned
+  recoKalman->SetIdealHyp(kTRUE);
   //recoKalman->SetNumIterations(3);
   fRun->AddTask(recoKalman);
 
-  PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
-  trackMC->SetTrackInBranchName("SttMvdGemGenTrack"); 
-  trackMC->SetTrackOutBranchName("SttMvdGemGenTrackID");
-  fRun->AddTask(trackMC);
+  PndMCTrackAssociator* trackMC2 = new PndMCTrackAssociator();
+  trackMC2->SetTrackInBranchName("SttMvdGemGenTrack"); 
+  trackMC2->SetTrackOutBranchName("SttMvdGemGenTrackID");
+  fRun->AddTask(trackMC2);
 
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(6);
