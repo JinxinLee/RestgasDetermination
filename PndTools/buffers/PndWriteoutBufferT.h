@@ -24,23 +24,29 @@
 
 
 
-//#include "TObject.h"
+#include "TObject.h"
 #include "TString.h"
+#include "PndWriteoutBufferAbsBasis.h"
 #include <map>
 
 
-template <class T> class PndWriteoutBufferT{//: public TObject{
+template <class T> class PndWriteoutBufferT: public PndWriteoutBufferAbsBasis{
 public:
-	PndWriteoutBufferT():fTreeSave(false), fActivateTimeOrder(kFALSE), fVerbose(2) {};
+	PndWriteoutBufferT():fTreeSave(false), fActivateBuffering(kFALSE), fVerbose(2) {};
 	PndWriteoutBufferT(TString branchName, TString className);
 	virtual ~PndWriteoutBufferT(){};
 
-	virtual std::vector<T> WriteOutData(double time);
-	virtual std::vector<T> WriteOutAllData();
+	virtual void WriteOutData(double time);
+	virtual void WriteOutAllData();
+
+	virtual void SaveDataToTree(Bool_t val = kTRUE){fTreeSave = val;}
+	virtual void ActivateBuffering(Bool_t val = kTRUE){fActivateBuffering=val;}
 
 	virtual std::vector<T> GetRemoveOldData(double time);
 	virtual std::vector<T> GetAllData();
 	virtual void FillNewData(T& data, double activeTime);
+
+protected:
 
 	virtual std::vector<std::pair<double, T> > Modify(std::pair<double, T> oldData, std::pair<double, T> newData){
 		std::vector<std::pair<double, T> > result;
@@ -50,16 +56,16 @@ public:
 
 	virtual double CalcNewActiveTime(double oldActiveTime, T& newData){ return oldActiveTime;};
 
-protected:
+
 	std::multimap<double, T> fDeadTime_map;
 	std::map<T, double> fData_map;
 
 	TString fBranchName;
 	TString fClassName;
-	bool fTreeSave;
-	Bool_t fActivateTimeOrder;
+	Bool_t fTreeSave;
+	Bool_t fActivateBuffering;
 	int fVerbose;
-	//ClassDef(PndWriteoutBufferT, 1);
+	ClassDef(PndWriteoutBufferT, 2);
 };
 
 #endif /* PNDWRITEOUTBUFFERT_H_ */

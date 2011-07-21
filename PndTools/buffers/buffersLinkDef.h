@@ -9,8 +9,9 @@
 #pragma link C++ class PndWriteoutBufferT <PndSdsDigiPixel>+;
 #pragma link C++ class PndWriteoutBufferT <PndSdsDigiStrip>+;
 
-//#pragma link C++ function GetRemoveOldData (double);
-//#pragma link C++ function FillNewData (PndSdsDigiPixel&, double);
+#pragma link C++ class PndSorterTaskT <PndSdsDigiPixel>+;
+#pragma link C++ class PndSorterTaskT <PndSdsDigiStrip>+;
+
 
 #endif
 

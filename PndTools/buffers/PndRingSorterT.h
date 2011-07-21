@@ -43,12 +43,13 @@ public:
 
 	virtual void Print(std::ostream& out = std::cout){
 		out << "RingSorter: Size " << fRingBuffer.size() << " CellWidth: " << fCellWidth << std::endl;
-		std::cout << "| ";
+		out << "| ";
 		for (int i = 0; i < fRingBuffer.size(); i++){
-			std::cout << fRingBuffer[i].size() << " |";
+			out << fRingBuffer[i].size() << " |";
 		}
-		std::cout << std::endl;
+		out << std::endl;
 	}
+
 
 private:
 	int CalcIndex(double val);

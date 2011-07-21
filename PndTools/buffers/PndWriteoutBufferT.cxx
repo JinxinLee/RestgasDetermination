@@ -13,7 +13,7 @@
 #include <iostream>
 
 template<class T> PndWriteoutBufferT<T>::PndWriteoutBufferT(TString branchName, TString className):
-	fBranchName(branchName), fClassName(className), fActivateTimeOrder(kTRUE), fVerbose(2)
+	fBranchName(branchName), fClassName(className), fActivateBuffering(kTRUE), fVerbose(2)
 {
 	if (fBranchName == "" || fClassName == "")
 		fTreeSave = false;
@@ -21,34 +21,34 @@ template<class T> PndWriteoutBufferT<T>::PndWriteoutBufferT(TString branchName, 
 		fTreeSave = true;
 }
 
-template<class T> std::vector<T> PndWriteoutBufferT<T>::WriteOutData(double time)
+template<class T> void PndWriteoutBufferT<T>::WriteOutData(double time)
 {
 	FairRootManager* ioman = FairRootManager::Instance();
 	std::vector<T> data;
-	if (fActivateTimeOrder){
+	if (fActivateBuffering){
 		if (fVerbose > 1) std::cout << "WriteOutData for time: " << time << std::endl;
 		data = GetRemoveOldData(time);
-		if (data.size() > 0){
-			TClonesArray* myArray = ioman->GetEmptyTClonesArray(fBranchName);
+		if (fTreeSave && data.size() > 0){
+			TClonesArray* myArray = ioman->GetTClonesArray(fBranchName);
 			if (!myArray)
 				std::cout << "-E- PndWriteoutBuffer::WriteOutData " << fBranchName << " array is not available!" << std::endl;
 			for (int i = 0; i < data.size(); i++){
 				new ((*myArray)[i]) T(data[i]);
 				if (fVerbose > 1)std::cout << i << " : " << data[i] << std::endl;
 			}
-			ioman->GetTClonesArray(fBranchName);
+			//ioman->GetTClonesArray(fBranchName);
 		}
 	}
 	else{
 		ioman->GetTClonesArray(fBranchName);
 	}
-	return data;
+//	return data;
 }
 
-template<class T> std::vector<T> PndWriteoutBufferT<T>::WriteOutAllData()
+template<class T> void PndWriteoutBufferT<T>::WriteOutAllData()
 {
 	if (fDeadTime_map.size() > 0){
-		return WriteOutData(fDeadTime_map.rbegin()->first + 1);
+		WriteOutData(fDeadTime_map.rbegin()->first + 1);
 	}
 }
 
@@ -71,12 +71,12 @@ template<class T> std::vector<T> PndWriteoutBufferT<T>::GetRemoveOldData(double 
 
 template<class T> std::vector<T> PndWriteoutBufferT<T>::GetAllData()
 {
-	return GetRemoveOldData(fDeadTime_map.rbegin()->first);
+	return GetRemoveOldData(fDeadTime_map.rbegin()->first + 1);
 }
 
 template<class T> void PndWriteoutBufferT<T>::FillNewData(T& data, double activeTime)
 {
-	if (fActivateTimeOrder){
+	if (fActivateBuffering){
 		typedef typename std::multimap<double, T>::iterator DTMapIter;
 		typedef typename std::map<T, double>::iterator DataMapIter;
 
@@ -120,24 +120,9 @@ template<class T> void PndWriteoutBufferT<T>::FillNewData(T& data, double active
 	}
 }
 
-//template <> double PndWriteoutBufferT<PndSdsDigiPixel>::CalcNewActiveTime(double oldActiveTime, PndSdsDigiPixel& newData){
-//	return oldActiveTime + newData.GetCharge()*4;
-//};
-
-//template <> PndSdsDigiPixel PndWriteoutBufferT<PndSdsDigiPixel>::Modify(PndSdsDigiPixel& oldData, PndSdsDigiPixel& newData){
-//	oldData.AddCharge(newData.GetCharge());
-//	return oldData;
-//};
-
 
 template class PndWriteoutBufferT<PndSdsDigiPixel>;
 template class PndWriteoutBufferT<PndSdsDigiStrip>;
 
-//#include "Rtypes.h"
-//template<class T> class PndWriteoutBufferT;
-//typedef PndWriteoutBufferT<PndSdsDigiPixel> PndSdsPixelDigiBuffer;
-//
-//template PndSdsPixelDigiBuffer GetRemoveOldData <PndSdsDigiPixel> (double time);
-//template PndSdsPixelDigiBuffer FillNewData <PndSdsDigiPixel> (PndSdsDigiPixel& data, double activeTime);
 
-//ClassImp(PndWriteoutBufferT<PndSdsDigiPixel>);
+templateClassImp(PndWriteoutBufferT);
