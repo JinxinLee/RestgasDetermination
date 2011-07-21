@@ -143,13 +143,13 @@ void PndTpcPrelimCluster::cog(){
     ferr+=thissig;  
   } // end second loop over digis
 
-  if(ferr.X()<1E-5) ferr.SetX(sqrt(dx*dx/12));
+  if(ferr.X()<1E-5) ferr.SetX(sqrt(dx*dx/12)*fC/famp);
   else ferr.SetX(sqrt(ferr.X()/famp)*fC/famp);
 
-  if(ferr.Y()<1E-5) ferr.SetY(sqrt(dy*dy/12));
+  if(ferr.Y()<1E-5) ferr.SetY(sqrt(dy*dy/12)*fC/famp);
   else ferr.SetY(sqrt(ferr.Y()/famp)*fC/famp);
 
-  if(ferr.Z()<1E-5) ferr.SetZ(sqrt(zDiff*zDiff/12));
+  if(ferr.Z()<1E-5) ferr.SetZ(sqrt(zDiff*zDiff/12)*fC/famp);
   else ferr.SetZ(sqrt(ferr.Z()/famp)*fC/famp);
   
   if(DEBUG) ferr.Print();
