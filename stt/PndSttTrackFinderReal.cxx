@@ -1512,8 +1512,8 @@ if(iplotta && IVOLTE <= nmassimo){
 
    for(i=0; i<nTracksFoundSoFar;i++){
 	nTotalHits[i] =  nHitsinTrack[i]+nSkewHitsinTrack[i];
-	if ( nSkewHitsinTrack[i]==0) continue;
 
+	// the BigList array must be loaded also when there are no Skew hits.
 	PndSttOrderingSkewandParallel(
 		infoparal,
 		infoskew,
@@ -1533,6 +1533,7 @@ if(iplotta && IVOLTE <= nmassimo){
 				);
 
 
+//	if ( nSkewHitsinTrack[i]==0) continue;
 
 
 if(istampa>=2) 
@@ -1607,10 +1608,12 @@ if(istampa>=2)cout<<"\thit skew (nativo) n. "<<infoskew[ ListSkewHitsinTrack[i][
 //--------inizio stampe
 if(istampa>=2)cout<<"\tdopo di Skew cleanup, IVOLTE = "
 <<IVOLTE<<",  traccia n. "<<i<<", lista degli hit skew :"<<endl;
+
 	for(j=0;j<nSkewHitsinTrack[i];j++){
 		auxListHitsinTrack[j]=infoskew[ ListSkewHitsinTrack[i][j] ];
 		auxS[j]=Sfinal[i][ infoskew[ ListSkewHitsinTrack[i][j] ] ];
 
+//---------------stampe
 if(istampa>=2)cout<<"\thit skew (nativo) n. "<<infoskew[ ListSkewHitsinTrack[i][j] ]
 <<", X (tubo) "<<info[infoskew[ ListSkewHitsinTrack[i][j] ]][0]
 <<", Y (tubo) "<<info[infoskew[ ListSkewHitsinTrack[i][j] ]][1]
@@ -1618,10 +1621,11 @@ if(istampa>=2)cout<<"\thit skew (nativo) n. "<<infoskew[ ListSkewHitsinTrack[i][
 <<"\t\tsuo X calcolato "<<Ox[i]+R[i]*cos(auxS[j])
 <<", suo Y calcolato "<<Oy[i]+R[i]*sin(auxS[j])
 <<endl;
-	}
 //----------------fine stampe.
 
-   }
+	}  // end of  for(j=0;j<nSkewHitsinTrack[i];j++)
+
+   }  //  end of  for(i=0; i<nTracksFoundSoFar;i++)
 
 
 //------------------  end of  cleanup of tracks based on the Stt Skew hits.
