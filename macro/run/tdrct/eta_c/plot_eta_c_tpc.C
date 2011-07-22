@@ -1,5 +1,5 @@
 {
-	bool vtxfit=0;
+	bool vtxfit=1;
 	
 	if (vtxfit)
 		TString inFile="etac_histo_vtx_tpc.root";
@@ -103,10 +103,19 @@
 		c9->Divide(3,1);
 		c9->cd(1);
 		hvtxresX->Draw();
+
+		TF1 *f1_vtxx= new TF1("f1_vtxx","gaus",-1.,1.);
+		hvtxresX->Fit(f1_vtxx,"R","",-1,1.);
+		
 		c9->cd(2);
 		hvtxresY->Draw();
+		TF1 *f1_vtxy= new TF1("f1_vtxy","gaus",-1.,1.);
+		hvtxresY->Fit(f1_vtxy,"R","",-1,1.);
+
 		c9->cd(3);
 		hvtxresZ->Draw();
+		TF1 *f1_vtxz= new TF1("f1_vtxz","gaus",-1.,1.);
+		hvtxresZ->Fit(f1_vtxz,"R","",-1,1.);
 		
 		TCanvas *c10=new TCanvas("c10","c10",600,600);
 		c10->Divide(1,2);

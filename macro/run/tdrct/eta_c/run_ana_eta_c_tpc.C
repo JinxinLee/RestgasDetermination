@@ -4,7 +4,7 @@ class TFitParams;
 
 void run_ana_eta_c_tpc(int nevts=0)
 {
-  bool use4cfit=1; // if flag is off vertex fit is used
+  bool use4cfit=0; // if flag is off vertex fit is used
   TString OutFile;
   if (use4cfit==1)
     OutFile="etac_histo_4c_tpc.root";
@@ -293,7 +293,7 @@ vertex",100,-0.1,0.1);
               hvzpos->Fill(etacVtx.Z());
               if(chi2_vtx<best_chi2)
                 {
-                  best_chi2=chi2;
+                  best_chi2=chi2_vtx;
                   best_i=l;
                   etacfit_best=etacfit;
                   k1fit_best=vtxfitter.FittedCand(*(etacfit_best->Daughter(0)));

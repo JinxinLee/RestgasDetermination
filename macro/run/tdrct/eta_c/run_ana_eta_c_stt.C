@@ -4,7 +4,7 @@ class TFitParams;
 
 void run_ana_eta_c_stt(int nevts=0)
 {
-  bool use4cfit=1; // if flag is off vertex fit is used
+  bool use4cfit=0; // if flag is off vertex fit is used
   TString OutFile;
   if (use4cfit==1)
     OutFile="etac_histo_4c_stt.root";
@@ -109,7 +109,27 @@ vertex",100,-0.1,0.1);
       int nchrg=p1.GetLength()+p2.GetLength();
       nc->Fill(nchrg);
 
-      for (j=0;j<p1.GetLength();++j) {
+      int n_removed=0;
+      int ii=0;
+      for (Int_t l=0;l<p1.GetLength();l++){
+	  ii=l-n_removed;
+      if((p1[ii].GetMicroCandidate()->GetSttHits())==0){
+         p1.Remove(p1[ii]);
+         n_removed++;
+      }
+      }
+	  
+      int n_removed=0;
+      int ii=0;
+      for (Int_t l=0;l<p2.GetLength();l++){
+	  ii=l-n_removed;
+      if((p2[ii].GetMicroCandidate()->GetSttHits())==0){
+         p2.Remove(p2[ii]);
+         n_removed++;
+      }
+      }
+
+	  for (j=0;j<p1.GetLength();++j) {
         p1[j].SetMass(TRho::Instance()->GetPDG()->GetParticle(321)->Mass());
       }
       for (j=0;j<p2.GetLength();++j) {
@@ -293,7 +313,7 @@ vertex",100,-0.1,0.1);
               hvzpos->Fill(etacVtx.Z());
               if(chi2_vtx<best_chi2)
                 {
-                  best_chi2=chi2;
+                  best_chi2=chi2_vtx;
                   best_i=l;
                   etacfit_best=etacfit;
                   k1fit_best=vtxfitter.FittedCand(*(etacfit_best->Daughter(0)));
