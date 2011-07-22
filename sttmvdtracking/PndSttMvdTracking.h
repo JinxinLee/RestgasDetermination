@@ -87,11 +87,12 @@ class PndSttMvdTracking : public FairTask
 
 #define maxTracks 200
   static const UShort_t   nmassimo=50,
-			  nmaxSttHits = 150,
-			  MAXMCTRACKS=maxTracks,
+			  nmaxSttHits = 1000,
+			  MAXMCTRACKS=10000,
 			  MAXTRACKSPEREVENT=maxTracks,
 			  nmaxMvdPixelHits=500,
 			  nmaxMvdStripHits=500,
+			  nmaxMvdMCPoints = 2000,
 			  nmaxSttHitsInTrack=60,
 			  nmaxMvdPixelHitsInTrack=30,
 			  nmaxMvdStripHitsInTrack=30,
@@ -252,11 +253,11 @@ UShort_t ListParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 		Int_t iNome,
 		Short_t daSttTrackaMCTrack,
 		UShort_t nParalCommon[MAXTRACKSPEREVENT],
-		UShort_t ParalCommonList[MAXMCTRACKS][nmaxSttHits],
+		UShort_t ParalCommonList[MAXMCTRACKS][nmaxSttHitsInTrack],
 		UShort_t nSpuriParinTrack[MAXTRACKSPEREVENT],
-		UShort_t ParSpuriList[MAXTRACKSPEREVENT][nmaxSttHits],
+		UShort_t ParSpuriList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 		UShort_t nMCParalAlone[MAXTRACKSPEREVENT],
-		UShort_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHits],
+		UShort_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 	UShort_t nMvdPixelHitsAssociatedToSttTra,
 UShort_t ListPixel[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack],
 	UShort_t nMvdStripHitsAssociatedToSttTra,
@@ -280,9 +281,9 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],
 UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 		Double_t *SchosenSkew,
 		UShort_t nSkewCommon[MAXTRACKSPEREVENT],
-		UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxSttHits],
+		UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 		UShort_t nMCSkewAlone[MAXMCTRACKS],
-		UShort_t MCSkewAloneList[MAXMCTRACKS][nmaxSttHits]
+		UShort_t MCSkewAloneList[MAXMCTRACKS][nmaxSttHitsInTrack]
 			);
 
 
@@ -328,10 +329,10 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
                    UShort_t nSkewHitsinTrack,
 UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
                    UShort_t nSkewCommon,
-                   UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxSttHits],
+                   UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
                    Short_t daTrackFoundaTrackMC,
                    UShort_t nMCSkewAlone,
-                   UShort_t MCSkewAloneList[MAXMCTRACKS][nmaxSttHits],
+                   UShort_t MCSkewAloneList[MAXMCTRACKS][nmaxSttHitsInTrack],
 		   UShort_t nMvdPixelHitsAssociatedToSttTrack[MAXTRACKSPEREVENT], // output
 UShort_t ListPixel[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack], // output
 		   UShort_t nMvdStripHitsAssociatedToSttTrack[MAXTRACKSPEREVENT], // output
@@ -445,10 +446,10 @@ Short_t ListTrackCandHitType[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
 
 		UShort_t nMvdPixelHitsinTrack[MAXTRACKSPEREVENT],
 UShort_t ListMvdPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack],
-		Short_t *FromPixeltoMCTrack,
+		Int_t *FromPixeltoMCTrack,
 		UShort_t nMvdStripHitsinTrack[MAXTRACKSPEREVENT],
 UShort_t ListMvdStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],
-		Short_t *FromStriptoMCTrack,
+		Int_t *FromStriptoMCTrack,
 
                   Short_t daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
 					);
@@ -463,28 +464,28 @@ UShort_t ListMvdStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],
 			UShort_t ntotalHits,
 			Double_t info[][7],
                         UShort_t nTracksFoundSoFar, //  quelle trovate dal PR
-  			UShort_t nHitsinTrack[MAXTRACKSPEREVENT], // n. hits paralleli, dal PR
+  			UShort_t nHitsinTrack[], // n. hits paralleli, dal PR
 UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack], // dal PR
 			UShort_t nSkewHitsinTrack[MAXTRACKSPEREVENT], // n. hits skew, dal PR
 UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack], // dal PR
 
 			UShort_t nParalCommon[MAXTRACKSPEREVENT],
-                        UShort_t ParalCommonList[MAXMCTRACKS][nmaxSttHits],
+                        UShort_t ParalCommonList[MAXMCTRACKS][nmaxSttHitsInTrack],
                         UShort_t nSpuriParinTrack[MAXTRACKSPEREVENT],
-                        UShort_t ParSpuriList[MAXTRACKSPEREVENT][nmaxSttHits],
+                        UShort_t ParSpuriList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 
 			UShort_t nSkewCommon[MAXTRACKSPEREVENT],
-                        UShort_t SkewCommonList[MAXMCTRACKS][nmaxSttHits],
+                        UShort_t SkewCommonList[MAXMCTRACKS][nmaxSttHitsInTrack],
                         UShort_t nSpuriSkewinTrack[MAXTRACKSPEREVENT],
-                        UShort_t SkewSpuriList[MAXTRACKSPEREVENT][nmaxSttHits],
+                        UShort_t SkewSpuriList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 
                         UShort_t nHitsInMCTrack[MAXTRACKSPEREVENT],
                         UShort_t nSkewHitsInMCTrack[MAXTRACKSPEREVENT],
 
 			UShort_t nMCParalAlone[MAXTRACKSPEREVENT],
-			UShort_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHits],
+			UShort_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 			UShort_t nMCSkewAlone[MAXTRACKSPEREVENT],
-			UShort_t MCSkewAloneList[MAXTRACKSPEREVENT][nmaxSttHits],
+			UShort_t MCSkewAloneList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 
 			Short_t  daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
                                                );
@@ -615,13 +616,13 @@ UShort_t ListSttParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack] // input/o
 
   void MvdMatchtoMC(
 		UShort_t nMvdMCPoint,
-		Double_t *XMvdMCPoint,
-		Double_t *YMvdMCPoint,
-		Double_t *ZMvdMCPoint,
-		Short_t *MCPointtoMCTrackID,
+//		Double_t *XMvdMCPoint,
+//		Double_t *YMvdMCPoint,
+//		Double_t *ZMvdMCPoint,
+//		Short_t *MCPointtoMCTrackID,
 
-		Short_t *FromPixeltoMCTrack,	// output
-		Short_t *FromStriptoMCTrack	// output
+		Int_t *FromPixeltoMCTrack,	// output
+		Int_t *FromStriptoMCTrack	// output
 		   );
 
 
@@ -629,8 +630,8 @@ UShort_t ListSttParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack] // input/o
 			UShort_t nSttTrackCand,				// input
 			bool * keepit,				// input
 			Short_t *daTrackFoundaTrackMC,			// input
-			Short_t *FromPixeltoMCTrack,			// input
-			Short_t *FromStriptoMCTrack,			// input
+			Int_t *FromPixeltoMCTrack,			// input
+			Int_t *FromStriptoMCTrack,			// input
 			UShort_t *nMvdPixelHitsAssociatedToSttTrack,	// input
 UShort_t ListPixel[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack],// input
 			UShort_t *nMvdStripHitsAssociatedToSttTrack,	// input
