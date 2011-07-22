@@ -29,7 +29,7 @@
 #pragma link C++ class PndTpcSpaceChargeTask+;
 #pragma link C++ class PndTpcEvtMixTask+;
 //#pragma link C++ class PndTpcMCEvtMixTask+;
-#pragma link C++ class PndTpcMCTracklet+;
+//#pragma link C++ class PndTpcMCTracklet+;
 #pragma link C++ class PndTpcEvtTime+;
 #pragma link C++ class PndTpcEvtTimeGenTask+;
 #pragma link C++ class PndTpcElectronicsTask+;
