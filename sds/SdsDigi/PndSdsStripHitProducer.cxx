@@ -195,11 +195,11 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
   fStripArray = FairRootManager::Instance()->GetTClonesArray(fOutBranchName);
 
   if (fTimeOrderedDigi) {
-		std::vector<PndSdsDigiStrip> data =	fDataBuffer->WriteOutData(FairRootManager::Instance()->GetEventTime());
-		int nStrip = 0;
-		for (int i = 0; i < data.size(); i++)
-			new ((*fStripArray)[nStrip++]) PndSdsDigiStrip(data[i]);
-		data.clear();
+		fDataBuffer->WriteOutData(FairRootManager::Instance()->GetEventTime());
+//		int nStrip = 0;
+//		for (int i = 0; i < data.size(); i++)
+//			new ((*fStripArray)[nStrip++]) PndSdsDigiStrip(data[i]);
+//		data.clear();
 	}
 
   // Loop over PndSdsMCPoints
@@ -425,15 +425,15 @@ void PndSdsStripHitProducer::FinishTask()
  // fPixelArray->Delete();
  // FinishEvents();
 	if (fTimeOrderedDigi){
-		std::vector<PndSdsDigiStrip> data = fDataBuffer->WriteOutAllData();
-
-		FairRootManager* ioman = FairRootManager::Instance();
-		int nStrip = 0;
-		fStripArray = ioman->GetEmptyTClonesArray(fOutBranchName);
-		std::cout << "-I- PndsdsHybridHitProducer::FinishTask: " << std::endl;
-		for (int i = 0; i < data.size(); i++){
-		  new ((*fStripArray)[nStrip++])PndSdsDigiStrip(data[i]);
-		}
+		fDataBuffer->WriteOutAllData();
+//
+//		FairRootManager* ioman = FairRootManager::Instance();
+//		int nStrip = 0;
+//		fStripArray = ioman->GetEmptyTClonesArray(fOutBranchName);
+//		std::cout << "-I- PndsdsHybridHitProducer::FinishTask: " << std::endl;
+//		for (int i = 0; i < data.size(); i++){
+//		  new ((*fStripArray)[nStrip++])PndSdsDigiStrip(data[i]);
+//		}
 
 //		ioman->ForceFill();
 	}
