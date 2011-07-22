@@ -198,11 +198,7 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
 
   fPixelArray = FairRootManager::Instance()->GetTClonesArray(fOutBranchName);
   if (fTimeOrderedDigi){
-	  std::vector<PndSdsDigiPixel> data = fDataBuffer->WriteOutData(EventTime);
-	  int nPix = 0;
-	  for (int i = 0; i < data.size(); i++)
-		  new ((*fPixelArray)[nPix++])PndSdsDigiPixel(data[i]);
-	  data.clear();
+	  fDataBuffer->WriteOutData(EventTime);
   }
   // Reset output array
   
@@ -509,20 +505,8 @@ void PndSdsHybridHitProducer::FinishEvent()
 void PndSdsHybridHitProducer::FinishTask()
 {
   // called after all Tasks did their Exex() and the data is copied to the file
- // fPixelArray->Delete();
- // FinishEvents();
 	if (fTimeOrderedDigi){
-		std::vector<PndSdsDigiPixel> data = fDataBuffer->WriteOutAllData();
-
-		FairRootManager* ioman = FairRootManager::Instance();
-		int nPix = 0;
-		fPixelArray = ioman->GetEmptyTClonesArray(fOutBranchName);
-		std::cout << "-I- PndsdsHybridHitProducer::FinishTask: " << std::endl;
-		for (int i = 0; i < data.size(); i++){
-		  new ((*fPixelArray)[nPix++])PndSdsDigiPixel(data[i]);
-		}
-
-//		ioman->ForceFill();
+		fDataBuffer->WriteOutAllData();
 	}
 
 }
