@@ -94,6 +94,7 @@ TH1F *invmass_trackhighmom= new TH1F("invmass_trackhighmom","2(#pi^{+}#pi^{-}) I
       ii=l-n_removed;
       if((pp[ii].GetMicroCandidate()->GetSttHits())==0){
         pp.Remove(pp[ii]);
+        n_removed++;
       }
     }
 
@@ -103,6 +104,7 @@ TH1F *invmass_trackhighmom= new TH1F("invmass_trackhighmom","2(#pi^{+}#pi^{-}) I
       ii=l-n_removed;
       if((pm[ii].GetMicroCandidate()->GetSttHits())==0){
         pm.Remove(pm[ii]);
+        n_removed++;
       }
     }
 
