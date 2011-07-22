@@ -66,9 +66,14 @@ class PndSecondaryTrackFinder : public FairTask {
   std::vector<int> OrderCluster2(std::vector<int> cluster, Int_t detId, double xc, double yc, double radius) ;
   std::vector< TMatrixT<double> > OrderCluster2BIS(std::vector< TMatrixT<double> > cluster, double xc, double yc, double radius);
   std::vector<int> OrderClusterInPhi(std::vector<int> cluster, std::vector<TVector3> positions, std::map<int, int> hitidtointersection, double xc, double yc, double radius);
+  std::vector< TMatrixT<double> > OrderClusterInPhiBIS(std::vector< TMatrixT<double> > cluster, double xc, double yc, double radius, int charge);
   std::vector< TMatrixT<double> > OrderClusterInPhiBIS(std::vector< TMatrixT<double> > cluster, double xc, double yc, double radius);
+  std::vector<int> OrderClusterInZ(std::vector<int> cluster, std::vector<TVector3> positions, std::map<int, int> hitidtointersection, double xc, double yc, double radius);
+  void OrderConformal(Double_t oX, Double_t oY, Int_t nHits, Double_t XY[][2], Int_t  Charge, UShort_t *ListHits);
+  std::vector< TMatrixT<double> > OrderByDistanceFromRefPointWithoutCharge(Int_t refihit, std::vector< TMatrixT<double> > cluster, TMatrixT<double> par);
 
-std::vector<int> OrderClusterInZ(std::vector<int> cluster, std::vector<TVector3> positions, std::map<int, int> hitidtointersection, double xc, double yc, double radius);
+  void Merge_Sort(UShort_t n_ele, Double_t *array, UShort_t *ind);
+  void Merge(UShort_t nl, Double_t *left, UShort_t *ind_left, UShort_t nr, Double_t *right, UShort_t *ind_right,  Double_t *result, UShort_t *ind);
 
   void DeleteHit(Int_t ihit, std::vector<int> *hits);
   void DeleteHits(TString detectors, std::vector<int> *hits);
@@ -184,7 +189,15 @@ std::vector<int> OrderClusterInZ(std::vector<int> cluster, std::vector<TVector3>
    Bool_t ComputeFirstParameters(std::vector< TMatrixT<double> > cluster, TMatrixT<double> par, TVector3 &position, TVector3 &dposition, TVector3 &momentum);
   Bool_t ComputeLastParameters(std::vector< TMatrixT<double> > cluster, TMatrixT<double> par, TVector3 &position, TVector3 &dposition, TVector3 &momentum);
 
+  Int_t TrackType(TMatrixT<double> par);
 
+  void FindIntersectingPoints(Double_t xc, Double_t yc, Double_t radius, TVector3 &int1, TVector3 &int2);
+
+  Int_t FindRefPoint(std::vector< TMatrixT<double> > cluster, TMatrixT<double> par);
+  std::vector< TMatrixT<double> > OrderByDistanceFromRefPoint(Int_t refihit, std::vector< TMatrixT<double> > cluster);
+  std::vector< TMatrixT<double> > OrderInPhiFromRefPoint(Int_t refihit, std::vector< TMatrixT<double> > cluster,  TMatrixT<double> par);
+  Double_t CalculatePhi(TVector2 v0, TVector2 p0);
+  Double_t BringPhiInto2Pi(Double_t Fi, Int_t charge);
 
 
 
