@@ -316,8 +316,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
     Short_t Charge[MAXTRACKSPEREVENT],
             Status[MAXTRACKSPEREVENT],
             daTrackFoundaTrackMC[MAXTRACKSPEREVENT],
-		enne[MAXTRACKSPEREVENT][nmaxHits];
-//            daMCTrackaTrackFound[MAXMCTRACKS];
+		enne;
 
 
     UShort_t	emme,
@@ -378,6 +377,17 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 
 //       PndMCTrack*      pMCtr = NULL;     //  questo e' gia' definito in PndSttTrackFinderReal.h
    nMCTracks = fMCTrackArray->GetEntriesFast(); // num. tracce/evento
+	if (nMCTracks ==0){
+		cout<<"da PndSttTrackFinderReal  :  N. di MC truth tracks = 0, return!\n"<<endl;
+		return -1;
+	} else if(nMCTracks> MAXMCTRACKS){
+		cout<<"da PndSttTrackFinderReal  :  N. di MC truth tracks = "<<nMCTracks
+		<<" and it is > MAXMCTRACKS = "<<MAXMCTRACKS<<", setting it equal to MAXMCTRACKS.\n";
+		nMCTracks = MAXMCTRACKS;
+	}
+
+
+
    if(istampa>=1)  cout<<"Gianluigi, evento n. "<<IVOLTE<<", n. tracce MC = "<<nMCTracks<<endl;
 
   // Number of STT hits
@@ -395,21 +405,15 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
     return  -10;
   }
 
-  if(Nhits >= nmaxHits ) {
-    cout<<"from PndSttTrackFinderReal :  # Stt hits (|| + //)  = "<<Nhits<<" and it is >= nmaxHits = "
-    <<nmaxHits<<", return !"<<endl;
-    return  -10;
+  if(Nhits > nmaxHits ) {
+
+	cout<<"da PndSttTrackFinderReal  :  N. di Stt Hits = "<<Nhits
+	     <<" and it is > nmaxHits (="<<nmaxHits
+	     <<"), therefore consider only the first "<<nmaxHits<<" hits\n"<<endl;
+	Nhits= nmaxHits;
   }
 
 
-/*
-   if(istampa>=1 && (nMCTracks  != N_INTENDED)  ){
-    cout<<"Evento n. "<<IVOLTE<<" : n. MC tracks = "<<nMCTracks
-    <<" and it is different from n. intended tracks (= "<<
-        N_INTENDED<<"), returning!\n";
-    return  -20;
-  }
-*/
 
     
   // Initialise control counters
@@ -464,14 +468,6 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 
 	}
 
-
-
-
-//      if (ptIndex < 0) continue;           // fake or background hit
-//      if (!pMCpt){
-//       cout<<"from PndSttTrackFinderReal :  # MC points pointer missing, return!\n";
-//       continue;
-//      }
       
       // tubeID  CHECK added
       Int_t tubeID = pMhit->GetTubeID();
@@ -485,9 +481,6 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
       // wire direction
       TVector3 wiredirection = tube->GetWireDirection();
 
-      // "real" MC coordinates (in + out)/2.
-//      TVector3 mcpoint;
-//      pMCpt->Position(mcpoint);
 
       if(wiredirection.Z() >=0.) {
        WDX = wiredirection.X();     WDY = wiredirection.Y(); WDZ = wiredirection.Z();
@@ -1367,6 +1360,7 @@ if(iplotta && IVOLTE <= nmassimo){
                    ZErrorafterTilt   //  output,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
                                                      );
     nSkewHitsinTrack[i]=TemporarynSkewHitsinTrack;   // it can be also zero!
+    if( nSkewHitsinTrack[i] > nmaxHitsInTrack) continue;
     for(j=0;j<nSkewHitsinTrack[i];j++){
 	ListSkewHitsinTrack[i][j]=TemporarySkewList[j][0];
     }
@@ -1458,16 +1452,15 @@ if(iplotta && IVOLTE <= nmassimo){
  if( STATUS >=0 ){
 
        nSkewHitsinTrack[i] = NNN;
-       for(j=0;j<nSkewHitsinTrack[i];j++){
-
-
+    if( nSkewHitsinTrack[i] > nmaxHitsInTrack) continue;
+	for(j=0;j<nSkewHitsinTrack[i];j++){
 		ListSkewHitsinTrack[i][j]=tempore[j];
 		Sfinal[i][infoskew[ListSkewHitsinTrack[i][j]]]= temporeS[j];
 		S[j]  =  temporeS[j] ;
 		Z[j]  =  temporeZ[j] ;
 		ZDrift[j]  =  temporeZDrift[j] ;
 		ZErrorafterTilt[j]  =  temporeZErrorafterTilt[j] ;
-       }
+	}
 
        if (NNN < 2) continue ;
 
@@ -1670,8 +1663,9 @@ if(istampa>=2)cout<<"\thit skew (nativo) n. "<<infoskew[ ListSkewHitsinTrack[i][
 
 	for(exphit=0; exphit<nHitsinTrack[jexp]; exphit++){
 		iHit = infoparal[ ListHitsinTrack[jexp][exphit] ];
-		enne[jexp][exphit] = (Short_t) ( info[iHit][6] + 0.01);
-		if( enne[jexp][exphit] == daTrackFoundaTrackMC[jexp] ){
+//		enne[jexp][exphit] = (Short_t) ( info[iHit][6] + 0.01);
+		enne = (Short_t) ( info[iHit][6] + 0.01);
+		if( enne == daTrackFoundaTrackMC[jexp] ){
 			ParalCommonList[jexp][ nParalCommon[jexp] ] = iHit;
 			nParalCommon[jexp]++;
 		} else {
@@ -1699,8 +1693,9 @@ if(istampa>=2)cout<<"\thit skew (nativo) n. "<<infoskew[ ListSkewHitsinTrack[i][
 
 	for(exphit=0; exphit<nSkewHitsinTrack[jexp]; exphit++){
 		iHit = infoskew[ ListSkewHitsinTrack[jexp][exphit] ];
-		enne[jexp][exphit] = (Short_t) ( info[iHit][6] + 0.01);
-		if( enne[jexp][exphit] ==   daTrackFoundaTrackMC[jexp] ){
+//		enne[jexp][exphit] = (Short_t) ( info[iHit][6] + 0.01);
+		enne = (Short_t) ( info[iHit][6] + 0.01);
+		if( enne ==   daTrackFoundaTrackMC[jexp] ){
 			SkewCommonList[jexp][ nSkewCommon[jexp] ] = iHit;
 			nSkewCommon[jexp]++;
 		} else {
@@ -9984,8 +9979,6 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
 		for (j = 0 ; j< nParHits; j++){
 			aux[j] = sign*U[j];
-//			BigList[j]=Infoparal[ListParHits[j]];
-//			index[j] = j;
 		}
 		for (j = 0; j< nSkewHits; j++){
 			// this is U in conformal space
@@ -9993,8 +9986,6 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 					(oX*oX+oY*oY+Rr*Rr + 2.*Rr*
 					(oX*cos(SList[Infoskew[ListSkewHits[j]]])
 					+oY*sin(SList[Infoskew[ListSkewHits[j]]])));
-//			BigList[j+nParHits]=Infoskew[ListSkewHits[j]];
-//			index[j+nParHits] = j+nParHits;
 		}
 
 
@@ -10009,8 +10000,6 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 		}
 		for (j = 0 ; j< nParHits; j++){
 			aux[j] = sign*V[j];
-//			BigList[j]=Infoparal[ListParHits[j]];
-//			index[j] = j;
 		}
 		for (j = 0; j< nSkewHits; j++){
 			// this is V in conformal space.
@@ -10018,8 +10007,6 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 			(oX*oX+oY*oY+Rr*Rr + 2.*Rr*
 				(oX*cos(SList[Infoskew[ListSkewHits[j]]])
 				+oY*sin(SList[Infoskew[ListSkewHits[j]]])));
-//			BigList[j+nParHits]=Infoskew[ListSkewHits[j]];
-//			index[j+nParHits] = j+nParHits;
 		}
 
 
