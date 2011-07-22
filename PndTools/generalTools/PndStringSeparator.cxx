@@ -3,7 +3,7 @@
 #include <sstream>
 
 
-PndStringSeparator::PndStringSeparator (std::string AInput, std::string ADelimiter)
+PndStringSeparator::PndStringSeparator (std::string AInput, std::string ADelimiter): fStartPos(0), fFirstDel(false),fLastDel(false)
 {
   SetInput (AInput);
   SetDelimiter (ADelimiter);

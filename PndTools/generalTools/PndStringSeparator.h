@@ -30,7 +30,7 @@
 class PndStringSeparator
 {
   public :
-       PndStringSeparator():fFirstDel(false),fLastDel(false){};
+       PndStringSeparator():fFirstDel(false),fLastDel(false), fStartPos(0){};
        ~PndStringSeparator(){};
        PndStringSeparator(std::string AInput, std::string ADelimiter = " ");
        void SetInput (std::string AInput)       {fInput = AInput;};
