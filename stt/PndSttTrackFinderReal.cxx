@@ -1452,7 +1452,8 @@ if(iplotta && IVOLTE <= nmassimo){
  if( STATUS >=0 ){
 
        nSkewHitsinTrack[i] = NNN;
-    if( nSkewHitsinTrack[i] > nmaxHitsInTrack) continue;
+    //  since this is the final # of hits, check if they are not too many.
+    if( nSkewHitsinTrack[i]+nHitsinTrack[i] > nmaxHitsInTrack) continue;
 	for(j=0;j<nSkewHitsinTrack[i];j++){
 		ListSkewHitsinTrack[i][j]=tempore[j];
 		Sfinal[i][infoskew[ListSkewHitsinTrack[i][j]]]= temporeS[j];
