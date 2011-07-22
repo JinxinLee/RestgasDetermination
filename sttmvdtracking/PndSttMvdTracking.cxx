@@ -334,18 +334,18 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
   UShort_t  FromHitToMCTrack[nmaxSttHits],
            nMCParalAlone[MAXTRACKSPEREVENT],
            nMCSkewAlone[MAXTRACKSPEREVENT],
-           MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHits],
-           MCSkewAloneList[MAXTRACKSPEREVENT][nmaxSttHits],
+           MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
+           MCSkewAloneList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 	nHitsInMCTrack[MAXTRACKSPEREVENT],
 	nSkewHitsInMCTrack[MAXTRACKSPEREVENT],
            nParalCommon[MAXTRACKSPEREVENT],
-           ParalCommonList[MAXTRACKSPEREVENT][nmaxSttHits],
+           ParalCommonList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
            nSpuriParinTrack[MAXTRACKSPEREVENT],
-           ParSpuriList[MAXTRACKSPEREVENT][nmaxSttHits],
+           ParSpuriList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
            nSkewCommon[MAXTRACKSPEREVENT],
-           SkewCommonList[MAXTRACKSPEREVENT][nmaxSttHits],
+           SkewCommonList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
            nSpuriSkewinTrack[MAXTRACKSPEREVENT],
-           SkewSpuriList[MAXTRACKSPEREVENT][nmaxSttHits],
+           SkewSpuriList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 	   TemporarySkewList[2*nmaxSttHits][2];
 
   UShort_t
@@ -438,14 +438,14 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 	   Px[MAXTRACKSPEREVENT],
 	   Py[MAXTRACKSPEREVENT],
 	   Pz[MAXTRACKSPEREVENT],
-	   S[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits], // multiplication by 2 in the
-	   ZED[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits], // rather improbable chance that
-	   DriftRadius[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits],// all skew hits have double
-	   ErrorDriftRadius[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits],// solutions
-	   Sbis[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits][2], // multiplication by 2 in the
-	   ZEDbis[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits][2], // rather improbable chance that
-	   DriftRadiusbis[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits][2],// all skew hits have double
-	   ErrorDriftRadiusbis[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits][2],// solutions
+	   S[2*nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack], // multiplication by 2 in the
+	   ZED[2*nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack], // rather improbable chance that
+	   DriftRadius[2*nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack],// all skew hits have double
+	   ErrorDriftRadius[2*nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack],// solutions
+	   Sbis[2*nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack][2], // multiplication by 2 in the
+	   ZEDbis[2*nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack][2], // rather improbable chance that
+	   DriftRadiusbis[2*nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack][2],// all skew hits have double
+	   ErrorDriftRadiusbis[2*nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack][2],// solutions
 	   SchosenPixel[MAXTRACKSPEREVENT][nmaxMvdPixelHits],
 	   SchosenStrip[MAXTRACKSPEREVENT][nmaxMvdStripHits],
 	   SchosenSkew[MAXTRACKSPEREVENT][nmaxSttHits], // NO multiplication by 2 here because for the
@@ -454,9 +454,9 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 	   ZchosenPixel[MAXTRACKSPEREVENT][nmaxMvdPixelHits],
 	   ZchosenStrip[MAXTRACKSPEREVENT][nmaxMvdStripHits],
 	   ZchosenSkew[MAXTRACKSPEREVENT][nmaxSttHits],
-	   ErrorchosenPixel[MAXTRACKSPEREVENT][nmaxMvdPixelHits],
-	   ErrorchosenStrip[MAXTRACKSPEREVENT][nmaxMvdStripHits],
-	   ErrorchosenSkew[MAXTRACKSPEREVENT][nmaxSttHits],
+	   ErrorchosenPixel[nmaxMvdPixelHits],
+	   ErrorchosenStrip[nmaxMvdStripHits],
+	   ErrorchosenSkew[nmaxSttHits],
 	   info[nmaxSttHits][7],
 	   TemporaryS[2*nmaxSttHits],
 	   TemporaryZ[2*nmaxSttHits],
@@ -480,7 +480,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 
   PndSdsHit * pMvdPixelHit,
             * pMvdStripHit;
-  PndSdsMCPoint * pMvdMCPoint;
+//  PndSdsMCPoint * pMvdMCPoint;
 
   PndMCTrack* pMCtr;
 
@@ -574,11 +574,12 @@ if(istampa>=1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<endl;}
 // ---------------------------------------------  get MC Points of  MVD
 
    nMvdMCPoint = fMvdMCPointArray->GetEntriesFast();
-   if(nMvdMCPoint>nmaxMvdPixelHits+nmaxMvdStripHits) {
+   if(nMvdMCPoint>nmaxMvdMCPoints) {
 	cout<<"from PndSttMvdTracking, nMvdMCPoint = "<<nMvdMCPoint
-	<<" and it is > the maximum number allowed ("<<nmaxMvdPixelHits+nmaxMvdStripHits<<
-	"), setting nMvdMCPoint to "<<nmaxMvdPixelHits+nmaxMvdStripHits<<endl;
-	nMvdMCPoint=nmaxMvdPixelHits+nmaxMvdStripHits;
+	<<" and it is > the maximum number allowed ("<<nmaxMvdMCPoints<<
+	")"<<
+	", setting nMvdMCPoint to "<<nmaxMvdMCPoints<<endl;
+	nMvdMCPoint=nmaxMvdMCPoints;
    }
    if(istampa>2&& IVOLTE<20) cout<<"N. MC Points delle Mvd = "<<nMvdMCPoint<<endl;
 
@@ -805,24 +806,6 @@ if(istampa>=2  && IVOLTE<20){
 
 
 
-// ---------------------------------------------  get MC Points of  MVD
-
-   Short_t	MCPointtoMCTrackID[nmaxMvdPixelHits+nmaxMvdStripHits];
-   Double_t	XMvdMCPoint[nmaxMvdPixelHits+nmaxMvdStripHits],
-		YMvdMCPoint[nmaxMvdPixelHits+nmaxMvdStripHits],
-		ZMvdMCPoint[nmaxMvdPixelHits+nmaxMvdStripHits];
-
-   for(  i= 0; i< nMvdMCPoint; i++){
-	pMvdMCPoint = (PndSdsMCPoint*) fMvdMCPointArray->At(i);
-	TVector3 position;
-	pMvdMCPoint->Position(position);
-	XMvdMCPoint[i]=position.X();
-	YMvdMCPoint[i]=position.Y();
-	ZMvdMCPoint[i]=position.Z();
-	MCPointtoMCTrackID[i]= pMvdMCPoint->GetTrackID();
-
-   }
-// ----------------------------------------------------------------------
 
 
 
@@ -850,41 +833,78 @@ if(istampa>=2  && IVOLTE<20){
      TVector3 posSeed=pMvdTrackCand->getPosSeed();
      qop = pMvdTrackCand->getQoverPseed();
      nHitMvdTrackCand[i] = pMvdTrackCand->GetNHits();  // n. hits in questa track cand
-
+     if( nHitMvdTrackCand[i]>nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack){
+	cout<<"from PndSttMvdTracking, nHitMvdTrackCand[i] = "<<nHitMvdTrackCand[i]
+		<<" and it is > nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack (="
+		<<nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack
+		<<"); setting nHitMvdTrackCand[i] to "
+		<<nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack<<endl;
+	nHitMvdTrackCand[i]=nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack;
+     }
 
      UShort_t kPixel,kStrip;
 
      for(j=0, k=0, kPixel=0, kStrip=0; j<nHitMvdTrackCand[i]; j++){
-       pndtrackcandhit = pMvdTrackCand->GetSortedHit(j);
-       ListHitMvdTrackCand[i][k] = pndtrackcandhit.GetHitId(); // questo e' il n. Hit nativo che posso usare
-                                          // per estrarre tutte le info che voglio. Se il n. e' -1
-					  // dopo non lo considero; chiedere a Tobias cos'e' perche'
-					  // anche il suo detID e' -1 : ne' Pixel ne' Strip...!
-       ListHitTypeMvdTrackCand[i][k] = pndtrackcandhit.GetDetId(); // questo in realta' e' il Branch dello
-					  // Hit che viene usato - stupidamente - per dire che e'
-					  // un Pixel. Roba da matti.
-                                          // Se e' -1 dovrebbe essere noise ma a in quale Pixel
-					  // o Strip?? Mistero.
+	pndtrackcandhit = pMvdTrackCand->GetSortedHit(j);
 
-	// the following case should never happen (in principle), therefore don't
-	// consider that hit.
-	if(ListHitMvdTrackCand[i][k]<0 || ListHitTypeMvdTrackCand[i][k]<0)continue;
+	// the following case should never happen (in principle), but, just to be on
+	// the safe side ....
+	if(pndtrackcandhit.GetHitId()<0 || pndtrackcandhit.GetDetId()<0)continue;
 
-	if( ListHitTypeMvdTrackCand[i][k]==
+	// this is a Pixel.
+	if( pndtrackcandhit.GetDetId()==
 		FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)
 			&& kPixel < nmaxMvdPixelHitsInTrack){
-		inMvdTrackCandPixel[ ListHitMvdTrackCand[i][k] ]= true;
+
+		// the following is a protection because the maximum Mvd hit n. cannot exceed
+		// nmaxMvdPixelHits .
+		if( pndtrackcandhit.GetHitId()>nmaxMvdPixelHits ){
+			cout<<"from PndSttMvdTracking, this Pixel Mvd hit has a number = "
+			<<pndtrackcandhit.GetHitId()<<
+			" that is > nmaxMvdPixelHits (="<<nmaxMvdPixelHits<<"), rejected!\n";
+			continue;
+		}
+
+		inMvdTrackCandPixel[ pndtrackcandhit.GetHitId() ]= true;
+		ListHitTypeMvdTrackCand[i][k] = pndtrackcandhit.GetDetId();
+					  // questo in realta' e' il Branch dello
+					  // Hit che viene usato - stupidamente - per dire che e'
+					  // un Pixel. Roba da matti.
+					  // Se e' -1 dovrebbe essere noise ma a in quale Pixel
+					  // o Strip?? Mistero.
 		kPixel++;
 
-	} else if( ListHitTypeMvdTrackCand[i][k]==
+	// this is a Strip.
+	} else if( pndtrackcandhit.GetDetId()==
 		FairRootManager::Instance()->GetBranchId(fMvdStripBranch)
 			&& kStrip < nmaxMvdStripHitsInTrack){
-		inMvdTrackCandStrip[ ListHitMvdTrackCand[i][k] ]= true;
+
+		// the following is a protection because the maximum Mvd hit n. cannot exceed
+		// nmaxMvdStripHits .
+		if( pndtrackcandhit.GetHitId()>nmaxMvdStripHits ){
+			cout<<"from PndSttMvdTracking, this Strip Mvd hit has a number = "
+			<<pndtrackcandhit.GetHitId()<<
+			" that is > nmaxMvdStripHits (="<<nmaxMvdStripHits<<"), rejected!\n";
+			continue;
+		}
+
+		inMvdTrackCandStrip[ pndtrackcandhit.GetHitId() ]= true;
+		ListHitTypeMvdTrackCand[i][k] = pndtrackcandhit.GetDetId();
+					  // questo in realta' e' il Branch dello
+					  // Hit che viene usato - stupidamente - per dire che e'
+					  // un Pixel. Roba da matti.
+					  // Se e' -1 dovrebbe essere noise ma a in quale Pixel
+					  // o Strip?? Mistero.
 		kStrip++;
 	} else {	// this is the case should (in principle) never happen.
 		continue;	// ignore this hit.
 	}
 
+		ListHitMvdTrackCand[i][k] = pndtrackcandhit.GetHitId();
+					  // questo e' il n. Hit nativo che posso usare
+					  // per estrarre tutte le info che voglio. Se il n. e' -1
+					  // dopo non lo considero; chiedere a Tobias cos'e' perche'
+					  // anche il suo detID e' -1 : ne' Pixel ne' Strip...!
 
 	k++;
 
@@ -903,7 +923,7 @@ if(istampa>=2  && IVOLTE<20){
   nMvdUSStripHitNotTrackCand=0;
   nMvdDSStripHitNotTrackCand=0;
   for( i= 0; i< nMvdPixelHit ; i++){
-  	if( ! inMvdTrackCandPixel[i] ){
+	if( ! inMvdTrackCandPixel[i] ){
 		if( ZMvdPixel[i]>=0.){
 			ListMvdDSPixelHitNotTrackCand[nMvdDSPixelHitNotTrackCand] = i;
 			nMvdDSPixelHitNotTrackCand++;
@@ -915,7 +935,7 @@ if(istampa>=2  && IVOLTE<20){
   }
 
   for( i= 0; i< nMvdStripHit ; i++){
-  	if( ! inMvdTrackCandStrip[i] ){
+	if( ! inMvdTrackCandStrip[i] ){
 		if( ZMvdStrip[i]>=0.){
 			ListMvdDSStripHitNotTrackCand[nMvdDSStripHitNotTrackCand] = i;
 			nMvdDSStripHitNotTrackCand++;
@@ -927,7 +947,7 @@ if(istampa>=2  && IVOLTE<20){
   }
 
  if(istampa>2){
- 	for( i= 0; i< nMvdTrackCand ; i++){
+	for( i= 0; i< nMvdTrackCand ; i++){
 		cout<<" PndSttMvdTracking, MvdTrackCand n. "<<i<<" ha "<<nHitMvdTrackCand[i]
 		<<" hits Mvd. Ecco la loro lista :\n";
 		for(j=0;j<nHitMvdTrackCand[i];j++){
@@ -978,28 +998,30 @@ if(istampa>=2  && IVOLTE<20){
 	nSttHitsinTrack[i]= nmaxSttHits;
   }
 
-    //  for the calculation of the approximate Fi of the first hit in those track
-    pndtrackcandhit = pSttTrackCand->GetSortedHit(0);
-    x = info[ pndtrackcandhit.GetHitId() ][0];  //  this is in the middle of the tube
-    y = info[ pndtrackcandhit.GetHitId() ][1];  //  this is in the middle of the tube
+
+  Int_t igoodStt=-1;
 
   for(j=0,nSttParHitsinTrack[i]=0,nSttSkewHitsinTrack[i]=0; j<nSttHitsinTrack[i]; j++){
     pndtrackcandhit = pSttTrackCand->GetSortedHit(j);
-
     // necessary check to exclude hits whose number is > nmaxSttHits.
     if( pndtrackcandhit.GetHitId() >= nmaxSttHits ) continue;
 
+	igoodStt++;
+	if(igoodStt==0) {
+		//  for the calculation of the approximate Fi of the first hit in those track
+		x = info[ pndtrackcandhit.GetHitId() ][0];//this is in the middle of the tube
+		y = info[ pndtrackcandhit.GetHitId() ][1];//this is in the middle of the tube
+	}
+
     ListSttHitsinTrack[i][nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i]] = pndtrackcandhit.GetHitId(); // # hit of Stt
-//    ListSttHitsinTrack[i][j] = pndtrackcandhit.GetHitId(); // # hit of Stt
 
     if ( fabs(info[ pndtrackcandhit.GetHitId() ][5]- 1.) < 0.0001) {
       ListSttHitsinTrackType[i][nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i]] = 2; 
-//      ListSttHitsinTrackType[i][j] = 2; 
+
       ListSttParHitsinTrack[i][nSttParHitsinTrack[i]] = pndtrackcandhit.GetHitId(); // # hit of Stt
       nSttParHitsinTrack[i]++;
     }  else {
       ListSttHitsinTrackType[i][nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i]] = 3; 
-//      ListSttHitsinTrackType[i][j] = 3; 
       ListSttSkewHitsinTrack[i][nSttSkewHitsinTrack[i]] = pndtrackcandhit.GetHitId(); // # hit of Stt
       nSttSkewHitsinTrack[i]++;
     }
@@ -1990,9 +2012,9 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 				&ZchosenPixel[ncand][0],
 				&ZchosenStrip[ncand][0],
 				&ZchosenSkew[ncand][0],
-				&ErrorchosenPixel[ncand][0],
-				&ErrorchosenStrip[ncand][0],
-				&ErrorchosenSkew[ncand][0],
+				ErrorchosenPixel,
+				ErrorchosenStrip,
+				ErrorchosenSkew,
 				KAPPA[ncand],
 				FI0[ncand],
 				R[ncand]
@@ -2726,16 +2748,12 @@ cout<<"-------------------\n";
 
 //  the following method associates the Mvd hits to corresponding MC tracks
 
-   Short_t	FromPixeltoMCTrack[nMvdPixelHit],
+   Int_t	FromPixeltoMCTrack[nMvdPixelHit],
 		FromStriptoMCTrack[nMvdStripHit];
 
   if( doMcComparison){
 	MvdMatchtoMC(
 		nMvdMCPoint,
-		XMvdMCPoint,
-		YMvdMCPoint,
-		ZMvdMCPoint,
-		MCPointtoMCTrackID,
 		FromPixeltoMCTrack,	// output
 		FromStriptoMCTrack	// output
 		);
@@ -4048,12 +4066,12 @@ UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 		Int_t iNome,
 		Short_t daSttTrackaMCTrack,
 		UShort_t nParalCommon[MAXTRACKSPEREVENT],
-		UShort_t ParalCommonList[MAXMCTRACKS][nmaxSttHits],
+		UShort_t ParalCommonList[MAXMCTRACKS][nmaxSttHitsInTrack],
 		UShort_t nSpuriParinTrack[MAXTRACKSPEREVENT],
-		UShort_t ParSpuriList[MAXTRACKSPEREVENT][nmaxSttHits],
+		UShort_t ParSpuriList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 
 		UShort_t nMCParalAlone[MAXTRACKSPEREVENT],
-		UShort_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHits],
+		UShort_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 
 	UShort_t nMvdPixelHitsAssociatedToSttTra,
 UShort_t ListPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack],
@@ -4078,9 +4096,9 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],
 UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 		Double_t *SchosenSkew,
 		UShort_t nSkewCommon[MAXTRACKSPEREVENT],
-		UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxSttHits],
+		UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 		UShort_t nMCSkewAlone[MAXTRACKSPEREVENT],
-		UShort_t MCSkewAloneList[MAXMCTRACKS][nmaxSttHits]
+		UShort_t MCSkewAloneList[MAXMCTRACKS][nmaxSttHitsInTrack]
 					)
 {
 
@@ -5097,10 +5115,10 @@ fprintf(MACRO,
                    UShort_t nSkewHitsinTrack,
 UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
                    UShort_t nSkewCommon,
-                   UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxSttHits],
+                   UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
                    Short_t daTrackFoundaTrackMC,
                    UShort_t nMCSkewAlone,
-                   UShort_t MCSkewAloneList[MAXMCTRACKS][nmaxSttHits],
+                   UShort_t MCSkewAloneList[MAXMCTRACKS][nmaxSttHitsInTrack],
 		   UShort_t nPixelHitsinTrack[MAXTRACKSPEREVENT], // output
 UShort_t ListPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack], // output
 		   UShort_t nStripHitsinTrack[MAXTRACKSPEREVENT], // output
@@ -6685,28 +6703,31 @@ UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 
 		UShort_t nPixelHitsinTrack[MAXTRACKSPEREVENT],
 UShort_t ListPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack],
-		Short_t *FromPixeltoMCTrack,
+		Int_t *FromPixeltoMCTrack,
 		UShort_t nStripHitsinTrack[MAXTRACKSPEREVENT],
 UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],
-		Short_t *FromStriptoMCTrack,
+		Int_t *FromStriptoMCTrack,
 
 		Short_t daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
 						)
 {
 
    bool	firstime,
-//	inclusionMC[nTracksFoundSoFar][nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits],
-//		inclusionExp[nTracksFoundSoFar];
-	inclusionMC[MAXTRACKSPEREVENT][nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits],
-		inclusionExp[MAXTRACKSPEREVENT];
+ inclusionMC[nTracksFoundSoFar][nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack],
+		inclusionExp[nTracksFoundSoFar];
+//	inclusionMC[MAXTRACKSPEREVENT][nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits],
+//		inclusionExp[MAXTRACKSPEREVENT];
 
-   UShort_t	ntoMCtrack[MAXTRACKSPEREVENT],
-		toMCtrackfrequency[MAXTRACKSPEREVENT][nmaxSttHits];
+//   UShort_t	ntoMCtrack[MAXTRACKSPEREVENT],
+//		toMCtrackfrequency[MAXTRACKSPEREVENT][nmaxSttHits];
+   UShort_t	ntoMCtrack[nTracksFoundSoFar],
+		toMCtrackfrequency[nTracksFoundSoFar][nmaxSttHitsInTrack];
 
    UShort_t  i, j, jtemp,jexp , nmid;
 
    Short_t  itemp, massimo,
-		toMCtracklist[MAXTRACKSPEREVENT][nmaxSttHits];
+		toMCtracklist[nTracksFoundSoFar][nmaxSttHitsInTrack];
+//		toMCtracklist[MAXTRACKSPEREVENT][nmaxSttHits];
 
    Int_t enne;
 
@@ -6718,10 +6739,14 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],
 		 beta,
 		 gamma,
 		 minimo,
-		 tanlow[MAXTRACKSPEREVENT],
-		 tanmid[MAXTRACKSPEREVENT],
-		 tanup[MAXTRACKSPEREVENT],
-		 toMCtrackdistance[MAXTRACKSPEREVENT][nmaxSttHits];
+		 tanlow[nTracksFoundSoFar],
+		 tanmid[nTracksFoundSoFar],
+		 tanup[nTracksFoundSoFar],
+		 toMCtrackdistance[nTracksFoundSoFar][nmaxSttHitsInTrack];
+//		 tanlow[MAXTRACKSPEREVENT],
+//		 tanmid[MAXTRACKSPEREVENT],
+//		 tanup[MAXTRACKSPEREVENT],
+//		 toMCtrackdistance[MAXTRACKSPEREVENT][nmaxSttHits];
 
 
 
@@ -7022,28 +7047,28 @@ void PndSttMvdTracking::SttMatchedSpurious(
 			UShort_t ntotalHits,
 			Double_t info[][7],
                         UShort_t nTracksFoundSoFar, //  quelle trovate dal PR
-  			UShort_t nHitsinTrack[MAXTRACKSPEREVENT], // n. hits PARALLELI+SKEW, dal PR
+  			UShort_t nHitsinTrack[], // n. hits PARALLELI+SKEW, dal PR
 UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack], // dal PR
   			UShort_t nSkewHitsinTrack[MAXTRACKSPEREVENT], // n. hits skew, dal PR
 UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack], // dal PR
 
 			UShort_t nParalCommon[MAXTRACKSPEREVENT],
-                        UShort_t ParalCommonList[MAXMCTRACKS][nmaxSttHits],
+                        UShort_t ParalCommonList[MAXMCTRACKS][nmaxSttHitsInTrack],
                         UShort_t nSpuriParinTrack[MAXTRACKSPEREVENT],
-                        UShort_t ParSpuriList[MAXTRACKSPEREVENT][nmaxSttHits],
+                        UShort_t ParSpuriList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 
 			UShort_t nSkewCommon[MAXTRACKSPEREVENT],
-                        UShort_t SkewCommonList[MAXMCTRACKS][nmaxSttHits],
+                        UShort_t SkewCommonList[MAXMCTRACKS][nmaxSttHitsInTrack],
                         UShort_t nSpuriSkewinTrack[MAXTRACKSPEREVENT],
-                        UShort_t SkewSpuriList[MAXTRACKSPEREVENT][nmaxSttHits],
+                        UShort_t SkewSpuriList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 
                         UShort_t nHitsInMCTrack[MAXTRACKSPEREVENT],
                         UShort_t nSkewHitsInMCTrack[MAXTRACKSPEREVENT],
 
 			UShort_t nMCParalAlone[MAXTRACKSPEREVENT],
-                        UShort_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHits],
+                        UShort_t MCParalAloneList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 			UShort_t nMCSkewAlone[MAXTRACKSPEREVENT],
-                        UShort_t MCSkewAloneList[MAXTRACKSPEREVENT][nmaxSttHits],
+                        UShort_t MCSkewAloneList[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 
 			Short_t  daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
                                                )
@@ -9441,16 +9466,16 @@ if(istampa>2){
 
   void PndSttMvdTracking::MvdMatchtoMC(
 		UShort_t nMvdMCPoint,
-		Double_t *XMvdMCPoint,
-		Double_t *YMvdMCPoint,
-		Double_t *ZMvdMCPoint,
-		Short_t  *MCPointtoMCTrackID,
-		Short_t *FromPixeltoMCTrack,	// output
-		Short_t *FromStriptoMCTrack	// output
+//		Double_t *XMvdMCPoint,
+//		Double_t *YMvdMCPoint,
+//		Double_t *ZMvdMCPoint,
+//		Short_t  *MCPointtoMCTrackID,
+		Int_t *FromPixeltoMCTrack,	// output
+		Int_t *FromStriptoMCTrack	// output
 		   )
 {
 
-	bool	inclusionMCPoint[nmaxMvdPixelHits+nmaxMvdStripHits];
+	bool	inclusionMCPoint[nMvdMCPoint];
 
 
 	UShort_t	i,
@@ -9458,6 +9483,15 @@ if(istampa>2){
 			jmcpoint;
 	Double_t	dist,
 			distance;
+
+	Int_t	MCPointtoMCTrackID;
+
+	Double_t	XMvdMCPoint,
+			YMvdMCPoint,
+			ZMvdMCPoint;
+
+	PndSdsMCPoint * pMvdMCPoint;
+
 
 //----  initializations
 
@@ -9477,17 +9511,25 @@ if(istampa>2){
 		if (refindexMvdPixel[i]<0.) continue;
 		dist=errorsqPixel;
 		for(j=0;j<nMvdMCPoint;j++){
+			// get the MC info.
+			pMvdMCPoint = (PndSdsMCPoint*) fMvdMCPointArray->At(j);
+			TVector3 position;
+			pMvdMCPoint->Position(position);
+			XMvdMCPoint=position.X();
+			YMvdMCPoint=position.Y();
+			ZMvdMCPoint=position.Z();
+			MCPointtoMCTrackID= pMvdMCPoint->GetTrackID();
 
 			if( !inclusionMCPoint[j]) continue;
-			distance = (XMvdMCPoint[j]-XMvdPixel[i])*(XMvdMCPoint[j]-XMvdPixel[i])+
-				(YMvdMCPoint[j]-YMvdPixel[i])*(YMvdMCPoint[j]-YMvdPixel[i])+
-				(ZMvdMCPoint[j]-ZMvdPixel[i])*(ZMvdMCPoint[j]-ZMvdPixel[i]);
+			distance = (XMvdMCPoint-XMvdPixel[i])*(XMvdMCPoint-XMvdPixel[i])+
+				(YMvdMCPoint-YMvdPixel[i])*(YMvdMCPoint-YMvdPixel[i])+
+				(ZMvdMCPoint-ZMvdPixel[i])*(ZMvdMCPoint-ZMvdPixel[i]);
 if(istampa>2)	{
 	cout<<"distanza**2 di Pixel hit n. "<<i
    <<" da MC Mvd Point n. "<<j<<" = "<<distance<<endl;
 		}
 			if( distance<dist){
-				FromPixeltoMCTrack[i]=MCPointtoMCTrackID[j];
+				FromPixeltoMCTrack[i]=MCPointtoMCTrackID;
 				jmcpoint=j;
 				dist=distance;
 			}
@@ -9518,15 +9560,24 @@ cout<<"Evento n. "<<IVOLTE<<
 		if (refindexMvdStrip[i]<0.) continue;
 		dist=errorsqStrip;
 		for(j=0;j<nMvdMCPoint;j++){
+			// get the MC info.
+			pMvdMCPoint = (PndSdsMCPoint*) fMvdMCPointArray->At(j);
+			TVector3 position;
+			pMvdMCPoint->Position(position);
+			XMvdMCPoint=position.X();
+			YMvdMCPoint=position.Y();
+			ZMvdMCPoint=position.Z();
+			MCPointtoMCTrackID= pMvdMCPoint->GetTrackID();
+
 
 			if( !inclusionMCPoint[j]) continue;
-			distance = (XMvdMCPoint[j]-XMvdStrip[i])*(XMvdMCPoint[j]-XMvdStrip[i])+
-				(YMvdMCPoint[j]-YMvdStrip[i])*(YMvdMCPoint[j]-YMvdStrip[i])+
-				(ZMvdMCPoint[j]-ZMvdStrip[i])*(ZMvdMCPoint[j]-ZMvdStrip[i]);
+			distance = (XMvdMCPoint-XMvdStrip[i])*(XMvdMCPoint-XMvdStrip[i])+
+				(YMvdMCPoint-YMvdStrip[i])*(YMvdMCPoint-YMvdStrip[i])+
+				(ZMvdMCPoint-ZMvdStrip[i])*(ZMvdMCPoint-ZMvdStrip[i]);
 if(istampa>2) cout<<"distanza**2 di Strip hit n. "<<i
    <<" da MC Mvd Point n. "<<j<<" = "<<distance<<endl;
 			if( distance<dist){
-				FromStriptoMCTrack[i]=MCPointtoMCTrackID[j];
+				FromStriptoMCTrack[i]=MCPointtoMCTrackID;
 				jmcpoint=j;
 				dist=distance;
 			}
@@ -9571,8 +9622,8 @@ cout<<"Evento n. "<<IVOLTE<<
 			UShort_t nSttTrackCand,				// input
 			bool *keepit,				// input
 			Short_t *daTrackFoundaTrackMC,			// input
-			Short_t *FromPixeltoMCTrack,			// input
-			Short_t *FromStriptoMCTrack,			// input
+			Int_t *FromPixeltoMCTrack,			// input
+			Int_t *FromStriptoMCTrack,			// input
 			UShort_t *nPixelHitsinTrack,	// input
 UShort_t ListPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack],// input
 			UShort_t *nStripHitsinTrack,	// input
@@ -9595,8 +9646,10 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// inp
 {
 
 
-	bool includePixel[MAXTRACKSPEREVENT][nMvdPixelHit],
-	     includeStrip[MAXTRACKSPEREVENT][nMvdStripHit];
+//	bool includePixel[MAXTRACKSPEREVENT][nMvdPixelHit],
+//	     includeStrip[MAXTRACKSPEREVENT][nMvdStripHit];
+	bool includePixel[nSttTrackCand][nMvdPixelHit],
+	     includeStrip[nSttTrackCand][nMvdStripHit];
 
 	UShort_t i,j;
 
@@ -9744,8 +9797,8 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack] // out
 		oldN,
 		nn[MAXMVDTRACKSPEREVENT+2],
 		nHighQuality[MAXMVDTRACKSPEREVENT+2],
-		List[MAXMVDTRACKSPEREVENT+2][nmaxMvdPixelHits+nmaxMvdStripHits],
-		ListType[MAXMVDTRACKSPEREVENT+2][nmaxMvdPixelHits+nmaxMvdStripHits];
+		List[MAXMVDTRACKSPEREVENT+2][nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack],
+		ListType[MAXMVDTRACKSPEREVENT+2][nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack];
 
 	Double_t angle,
 		anglemax,
@@ -9790,8 +9843,6 @@ pippo: ;
 
 //--------------------
 
-		nPixelHitsinTrack[i]=0;
-		nStripHitsinTrack[i]=0;
 		ngoodmix=0;
 		nn[0]=0;
 
