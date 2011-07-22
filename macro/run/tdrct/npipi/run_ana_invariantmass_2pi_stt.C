@@ -95,6 +95,7 @@ int n_reco=0;
       ii=l-n_removed;
       if((pp[ii].GetMicroCandidate()->GetSttHits())==0){
 	pp.Remove(pp[ii]);
+        n_removed++;
       }
     }
 
@@ -104,7 +105,8 @@ int n_reco=0;
       ii=l-n_removed;
       if((pm[ii].GetMicroCandidate()->GetSttHits())==0){
 	pm.Remove(pm[ii]);
-      }
+        n_removed++; 
+     }
     }
 
     for (Int_t l=0;l<pp.GetLength();l++){
