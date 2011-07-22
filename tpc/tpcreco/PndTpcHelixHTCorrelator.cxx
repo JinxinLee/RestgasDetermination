@@ -77,7 +77,7 @@ PndTpcHelixHTCorrelator::corr(PndTpcRiemannTrack* trk,
   d = TMath::Abs(d);
   matchQuality=d;
 
-  double stat = 1.+ 1/TMath::Sqrt(trk->getNumHits()); // "statistical error" of the fit
+  double stat = 2. - trk->quality(); // tighten cut for better defined tracks
 
   if(d>_hdistcut*stat){
     DebugLogger::Instance()->Histo("HT_riemanncuts",8,0,20,20);

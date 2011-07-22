@@ -76,30 +76,50 @@ using namespace std;
 
 // Class Member definitions -----------
 
+#define MINHITS 10
+
 ClassImp(PndTpcRiemannTrackingTask)
 
 PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
   : FairTask("PndTpc Pattern Reco"), 
+
     _persistence(kFALSE),
     _riemannPersistence(kFALSE),
-    _sortingMode(true), _sorting(3), _interactionZ(0.),
+    fnsectors(1),
+    _maxRadius(100),
+
+    _sortingMode(true),
+    _sorting(3),
+    _interactionZ(0.),
+
+    _minpoints(4),
+    _proxcut(1.9),
+    _proxZstretch(1.6),
+    _helixcut(0.3),
+
     _mergeTracks(true),
-    _proxcut(2),
-    _helixcut(0.4),
-    _minpoints(5),
-    _TTproxcut(2.),
-    _TTdipcut(.01),
-    _TThelixcut(.5),
-    _TTplanecut(0.001),
+    _TTproxcut(7.0),
+    _TTdipcut(.1),
+    _TThelixcut(0.2),
+    _TTplanecut(0.015),
+
+    _skipCrossingAreas(true),
+
+    _doMultistep(true),
+    _minHitsR(20),
+    _minHitsZ(20),
+    _minHitsPhi(15),
+
     _riemannscale(24.6),
+
     _clusterBranchName("PndTpcCluster"),
-    _smoothing(false),
+    _smoothing(true),
     _geane(false),
-    _mcPid(true), // todo: remember to turn this off again at some point
+
+    _mcPid(false),
     _pdg(211),
     counter(0),
-    Bz(0),
-    _skipCrossingAreas(false)
+    Bz(0)
   {
     fVerbose = 0;
   }
@@ -121,13 +141,26 @@ PndTpcRiemannTrackingTask::SetSortingParameters(
 }
 
 void
+PndTpcRiemannTrackingTask::SetMultistepParameters(bool doMultistep,
+                 unsigned int minHitsR,
+                 unsigned int minHitsZ,
+                 unsigned int minHitsPhi){
+  _doMultistep=doMultistep;
+  _minHitsR=minHitsR;
+  _minHitsZ=minHitsZ;
+  _minHitsPhi=minHitsPhi;
+}
+
+void
 PndTpcRiemannTrackingTask::SetTrkFinderParameters(
                  double proxcut,
 					       double helixcut,
-					       unsigned int minpointsforfit){
+					       unsigned int minpointsforfit,
+					       double zStretch){
   _proxcut=proxcut;
   _helixcut=helixcut;
   _minpoints=minpointsforfit;
+  _proxZstretch=zStretch;
 }
 
 void
@@ -148,36 +181,28 @@ PndTpcRiemannTrackingTask::Init()
 //Get ROOT Manager
   FairRootManager* ioman= FairRootManager::Instance();
 
-  if(ioman==0)
-    {
-      Error("PndTpcRiemannTrackingTask::Init","RootManager not instantiated!");
-      return kERROR;
-    }
+  if(ioman==0){
+    Error("PndTpcRiemannTrackingTask::Init","RootManager not instantiated!");
+    return kERROR;
+  }
 
-  // Get input collection
   _mcTrackArray=(TClonesArray*) ioman->GetObject("MCTrack");
-  if(_mcTrackArray==0)
-    {
-      Error("PndTpcdEdxTask::Init","MCTrack-array not found! Cannot use ideal PID");
-      _mcPid=false;
-    }
+  if(_mcTrackArray==0){
+    Error("PndTpcdEdxTask::Init","MCTrack-array not found! Cannot use ideal PID");
+    _mcPid=false;
+  }
     
-  _clusterArray=(TClonesArray*) ioman->GetObject(_clusterBranchName);
-  if(_clusterArray==0)
-    {
-      Error("PndTpcRiemannTrackingTask::Init","Cluster-array not found!");
-      return kERROR;
-    }
   // Get input collection
-/*
-  _mvdArray=(TClonesArray*) ioman->GetObject("MVDPoint");
+  _clusterArray=(TClonesArray*) ioman->GetObject(_clusterBranchName);
+  if(_clusterArray==0){
+    Error("PndTpcRiemannTrackingTask::Init","Cluster-array not found!");
+    return kERROR;
+  }
 
-  if(_mvdArray==0)
-    {
-      Error("PndTpcRiemannTrackingTask::Init","mvd-array not found!");
-    }
-
-*/
+  /*_mvdArray=(TClonesArray*) ioman->GetObject("MVDPoint");
+  if(_mvdArray==0){
+    Error("PndTpcRiemannTrackingTask::Init","mvd-array not found!");
+  }*/
 
   // create and register output array
   _trackArray = new TClonesArray("GFTrack");
@@ -202,12 +227,18 @@ PndTpcRiemannTrackingTask::Init()
   _trackfinder->setInteractionZ(_interactionZ);
   _trackfinder->setSortingMode(_sortingMode);
   _trackfinder->setMinHitsForFit(_minpoints);
+
+  _trackfinder->initTracks(false);
+  _trackfinder->SkipCrossingAreas(_skipCrossingAreas);
+  _trackfinder->SetSkipAndDelete(false);
+
   _trackfinder->setScale(_riemannscale);
+
+  _trackfinder->setProxcut(_proxcut);
   _trackfinder->setTTProxcut(_TTproxcut);
-  _trackfinder->SkipCrossingAreas(_skipCrossingAreas); // TODO: make configurable
 
   // Hit-Track Correlators
-  _trackfinder->addCorrelator(new PndTpcProximityHTCorrelator(_proxcut));
+  _trackfinder->addCorrelator(new PndTpcProximityHTCorrelator(_proxcut, _proxZstretch));
   _trackfinder->addCorrelator(new PndTpcHelixHTCorrelator(_helixcut));
 
   // Track-Track Correlators
@@ -215,15 +246,19 @@ PndTpcRiemannTrackingTask::Init()
   _trackfinder->addTTCorrelator(new PndTpcDipTTCorrelator(_TTdipcut, _TThelixcut));
   _trackfinder->addTTCorrelator(new PndTpcRiemannTTCorrelator(_TTplanecut, _minpoints));
  
+
   // init histos
   _multiplicityHisto=new TH1I("multipl","# track candidates",100,0,100);
   _trackSizeH=new TH1I("trksize","# hits in track",100,0,100);
   _trackPurityH=new TH1D("trkpurity","trackPurity",25,0,1.01);
   _trackMcIdsH=new TH1D("trkmcids","# mcids in track",25,0,25);
 
+
+  // get the maximum radius
+  _maxRadius = fpar->getRMax();
   
   fnsectors= fpar->getPadPlane()->GetNSectors();
-  std::cerr << "Found " << fnsectors << " sectors in padplane" << std::endl;
+  std::cerr << "Found " << fnsectors << " sectors in padplane; outer radius = " << _maxRadius << std::endl;
   for(unsigned int  isect=0;isect<fnsectors;++isect){
     fbuffermap[isect]=new std::vector<PndTpcCluster*>;
   }
@@ -250,9 +285,7 @@ PndTpcRiemannTrackingTask::Init()
   }
 
   //init gPro
-  if(_geane){
-    gPro = new FairGeanePro();
-  }
+  if(_geane) gPro = new FairGeanePro();
 
   return kSUCCESS;
 }
@@ -319,40 +352,231 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
   if (fVerbose) std::cerr << "Starting Pattern Reco..." << std::endl;
 
 
-  std::vector<PndTpcRiemannTrack*> riemannTemp;
+  std::vector<PndTpcRiemannTrack*> riemannTempSec; // temporary storage, reused for every sector
+  std::vector<PndTpcRiemannTrack*> riemannTempCirc; // temporary global storage for circle tracks
+  std::vector<PndTpcRiemannTrack*> riemannTemp; // temporary global storage for arbitrary tracks
+
+  unsigned int nTotCl(0);
 
   // loop over sectors
   for(unsigned int isect=0;isect<fnsectors;++isect){
-    if (fVerbose) std::cerr << "... building tracks in sector " << isect << std::endl;
+    if (fVerbose) std::cerr << "\n... building tracks in sector " << isect << " from " << fbuffermap[isect]->size() << " clusters" << std::endl;
+
+
     fcluster_buffer=fbuffermap[isect];
-    _trackfinder->buildTracks(*fcluster_buffer,riemannTemp);
-    //if(_doClean) _trackfinder->cleanTracks(friemannlist, _szcut, _planecut);
-    if(_mergeTracks) _trackfinder->mergeTracks(riemannTemp);
+    nTotCl += fcluster_buffer->size();
+
+    unsigned int nErasedCl(0);
+
+
+    if(_doMultistep){
+
+      // find steep tracks
+      _trackfinder->setSorting(2);
+      _trackfinder->setMinHits(_minHitsZ);
+      _trackfinder->SkipCrossingAreas(true);
+      _trackfinder->SetSkipAndDelete(true);
+
+      _trackfinder->buildTracks(*fcluster_buffer,riemannTempSec);
+
+      // put found goodtracks into friemannlist and delete clusters from buffer
+      unsigned int nGoodSteepTrks(0);
+      for(unsigned int i=0; i<riemannTempSec.size(); ++i){
+        // store good tracklets in friemannlist
+        if (riemannTempSec[i]->getNumHits() > _minHitsZ){
+          friemannlist.push_back(riemannTempSec[i]);
+
+          // clear clusters
+          for(unsigned int iCl=0; iCl < riemannTempSec[i]->getNumHits(); ++iCl){
+            fcluster_buffer->erase( remove(fcluster_buffer->begin(), fcluster_buffer->end(),
+                                    riemannTempSec[i]->getHit(iCl)->cluster()), fcluster_buffer->end() );
+            ++nErasedCl;
+          }
+          ++nGoodSteepTrks;
+        }
+        else{ // delete bad tracklets
+          riemannTempSec[i]->deleteHits();
+          delete riemannTempSec[i];
+        }
+      }
+      // clear riemannTempSec
+      riemannTempSec.clear();
+
+      if (fVerbose) std::cerr << "   found steep tracks: " <<  nGoodSteepTrks << std::endl;
+      // end find steep tracks
+
+
+      // find circle tracks
+      _trackfinder->setSorting(5);
+      _trackfinder->setMinHits(_minHitsPhi);
+      _trackfinder->SkipCrossingAreas(true);
+      _trackfinder->SetSkipAndDelete(true);
+
+      _trackfinder->buildTracks(*fcluster_buffer,riemannTempSec);
+
+      // put found goodtracks into friemannlist and delete clusters from buffer
+      unsigned int nGoodCirlceTrks(0);
+      for(unsigned int i=0; i<riemannTempSec.size(); ++i){
+        // store good tracklets in friemannlist
+        if (riemannTempSec[i]->getNumHits() > _minHitsPhi) {
+          riemannTempCirc.push_back(riemannTempSec[i]);
+
+          // clear clusters
+          for(unsigned int iCl=0; iCl < riemannTempSec[i]->getNumHits(); ++iCl){
+            fcluster_buffer->erase( remove(fcluster_buffer->begin(), fcluster_buffer->end(),
+                                    riemannTempSec[i]->getHit(iCl)->cluster()), fcluster_buffer->end() );
+            ++nErasedCl;
+          }
+          ++nGoodCirlceTrks;
+        }
+        else{ // delete bad tracklets
+          riemannTempSec[i]->deleteHits();
+          delete riemannTempSec[i];
+        }
+      }
+      // clear riemannTempSec
+      riemannTempSec.clear();
+
+
+      // find circle tracks in other direction
+      _trackfinder->setSorting(-5);
+
+      _trackfinder->buildTracks(*fcluster_buffer,riemannTempSec);
+
+      // put found goodtracks into friemannlist and delete clusters from buffer
+      for(unsigned int i=0; i<riemannTempSec.size(); ++i){
+        // store good tracklets in friemannlist
+        if (riemannTempSec[i]->getNumHits() > _minHitsPhi) {
+          riemannTempCirc.push_back(riemannTempSec[i]);
+
+          // clear clusters
+          for(unsigned int iCl=0; iCl < riemannTempSec[i]->getNumHits(); ++iCl){
+            fcluster_buffer->erase( remove(fcluster_buffer->begin(), fcluster_buffer->end(),
+                                    riemannTempSec[i]->getHit(iCl)->cluster()), fcluster_buffer->end() );
+            ++nErasedCl;
+          }
+          ++nGoodCirlceTrks;
+        }
+        else{ // delete bad tracklets
+          riemannTempSec[i]->deleteHits();
+          delete riemannTempSec[i];
+        }
+      }
+      // clear riemannTempSec
+      riemannTempSec.clear();
+
+      if (fVerbose) std::cerr << "   found circle tracks: " <<  nGoodCirlceTrks << std::endl;
+      // end find circle tracks
+
+
+      if (fVerbose) std::cerr << "\n   this reduced the number of clusters by " <<  nErasedCl << std::endl;
+
+
+
+      // build rest of the tracks
+      _trackfinder->SkipCrossingAreas(true);
+      _trackfinder->SetSkipAndDelete(false);
+      _trackfinder->setSorting(3);
+    }
+
+    _trackfinder->buildTracks(*fcluster_buffer,riemannTempSec);
+    // end build rest of the tracks
+
+
+    if(_mergeTracks) {
+      if (fVerbose) std::cerr << "    merge " << riemannTempSec.size() << " tracks in sector " << isect;
+      _trackfinder->mergeTracks(riemannTempSec);
+      if (fVerbose) std::cerr << " ... done - created " << riemannTempSec.size() << " merged tracks" <<std::endl;
+    }
+
+
 
     // copy tracklets of this sector to global list
-    unsigned int ntrklts=riemannTemp.size();
-    friemannlist.reserve(friemannlist.size()+ntrklts);
+    unsigned int ntrklts=riemannTempSec.size();
+    riemannTemp.reserve(riemannTemp.size()+ntrklts);
     for(unsigned int it=0;it<ntrklts;++it){
-      friemannlist.push_back(riemannTemp[it]);
+      riemannTemp.push_back(riemannTempSec[it]);
     }
-    riemannTemp.clear();
+    riemannTempSec.clear();
+
   } // end loop over sectors
 
-  //if(_doClean) _trackfinder->cleanTracks(friemannlist, _szcut, _planecut);
 
-  if(_mergeTracks && fnsectors>1) {
-    /*if(_sorting==3){
-      _trackfinder->setSorting(2);
-      _trackfinder->mergeTracks(friemannlist);
-      _trackfinder->setSorting(_sorting);
-    }*/
-    _trackfinder->mergeTracks(friemannlist);
+  // clear small tracklets
+  if(true){
+    for (unsigned int i=0; i<riemannTemp.size(); ++i){
+      if (riemannTemp[i]->getNumHits() < _minpoints){
+        riemannTemp[i]->deleteHits();
+        delete riemannTemp[i];
+        riemannTemp.erase(riemannTemp.begin() + i);
+        --i;
+      }
+    }
   }
 
-  //if(_doClean && fnsectors>1) _trackfinder->cleanTracks(friemannlist, _szcut, _planecut);
+  if(_mergeTracks && fnsectors>1) {
+    if(_doMultistep){
+      if (fVerbose) std::cerr << "merge " << riemannTempCirc.size() << " circular tracks ... ";
+      _trackfinder->mergeTracks(riemannTempCirc);
+      if (fVerbose) std::cerr << " done - created " << riemannTempCirc.size() << " merged tracks" <<std::endl;
+    }
 
-  if (fVerbose) std::cerr << "Pattern Reco finished. "
-                       << friemannlist.size() << " tracklets found." << std::endl;
+    if (fVerbose) std::cerr << "\nmerge " << riemannTemp.size() << " tracks ... ";
+    _trackfinder->mergeTracks(riemannTemp);
+    if (fVerbose) std::cerr << " done - created " << riemannTemp.size() << " merged tracks" <<std::endl;
+  }
+
+
+  //append riemannTempCirc to friemannlist
+  if(_doMultistep){
+    for (unsigned int i=0; i<riemannTempCirc.size(); ++i){
+      friemannlist.push_back(riemannTempCirc[i]);
+    }
+  }
+
+  //append RiemannTemp to friemannlist
+  for (unsigned int i=0; i<riemannTemp.size(); ++i){
+    friemannlist.push_back(riemannTemp[i]);
+  }
+
+  // clear small tracklets
+  if(true){
+    for (unsigned int i=0; i<friemannlist.size(); ++i){
+      if (friemannlist[i]->getNumHits() <= MINHITS ||
+          (friemannlist[i]->getFirstHit()->cluster()->pos() -
+           friemannlist[i]->getLastHit()->cluster()->pos()).Mag() < 4.){
+        friemannlist[i]->deleteHits();
+        delete friemannlist[i];
+        friemannlist.erase(friemannlist.begin() + i);
+        --i;
+      }
+    }
+  }
+
+  if(_mergeTracks && fnsectors>1 && _doMultistep) {
+    if (fVerbose) std::cerr << "\nfinal merge of friemannlist: merge " << friemannlist.size() << " tracks ... ";
+    _trackfinder->mergeTracks(friemannlist);
+    if (fVerbose) std::cerr << " done - created " << friemannlist.size() << " merged tracks" <<std::endl;
+  }
+
+
+
+  unsigned int nUsedCl(0);
+  for (unsigned int i=0; i<friemannlist.size(); ++i){
+    nUsedCl += friemannlist[i]->getNumHits();
+  }
+
+  if (fVerbose) std::cerr << "Pattern Reco finished, found tracks: " << friemannlist.size() << "\n";
+  if (fVerbose) std::cerr << "used " << nUsedCl << " of " << nTotCl << " Clusters \n";
+  //----------------------------------------------------------------------------------------------------
+  // end PR
+
+
+
+
+
+
+
 
   unsigned int _nbins=100;
     // analysing riemann tracks
@@ -395,8 +619,6 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
 
   unsigned int nr=friemannlist.size();
 
-  int minhits = 10; // minimum hits needed to build pndtrackcands and GFTrackCands
-  if(minhits<_minpoints) minhits=_minpoints;
   double pbackup = 2.;  // momentum value that is set when other initialisations fail
 
   // loop over Riemann tracks
@@ -409,7 +631,7 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     if (fVerbose) std::cout<<"Tracklet "<<itrk<<"   nhits = "<<nhits;
 
     // check if enough points
-    if(nhits<minhits){
+    if(nhits<MINHITS || nhits<_minpoints){
       if (fVerbose) std::cout<<" - skipping, not enough hits"<<std::endl;
       continue;
     }
@@ -512,11 +734,12 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       winding*=-1.;
     }
 
-    TVector3 poserr(0.3,0.3,0.3);
+    TVector3 poserr(1,1,1);
+    poserr*=trk->resolution();
 
     TVector3 mom = p * direction;
     TVector3 momerr(fabs(mom.X()),fabs(mom.Y()),fabs(mom.Z()));
-    momerr *= 1./TMath::Sqrt(nhits);
+    momerr *= trk->resolution();
 
 
     double trackR = trk->r();

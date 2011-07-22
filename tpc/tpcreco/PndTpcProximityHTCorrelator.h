@@ -52,7 +52,7 @@ private:
   // Private Data Members ------------
   double _proxcut;
   double _zStretch;
-
+  double _meandist; // mean distance between hits in track
   // Private Methods -----------------
 
 };

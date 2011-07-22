@@ -65,15 +65,19 @@ public:
   // Modifiers -----------------------
   void setMinHitsForFit(unsigned int n){_minHitsForFit=n;}
 
-  void setSorting(int s){_sorting=s;} // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R
+  void setSorting(int s){_sorting=s;} // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: Distance to interaction point, 5: Phi
   void setSortingMode(bool sortingMode){_sortingMode=sortingMode;} // false: sort only according to _sorting; true: use internal sorting when adding hits to trackcands
   void setInteractionZ(double z){_interactionZ=z;}
   void setMaxNumHitsForPR(double MaxNumHitsForPR){_MaxNumHitsForPR=MaxNumHitsForPR;} // for debugging
 
   void SkipCrossingAreas(bool opt=true) {_skipCrossingAreas=opt;}
   void setTTProxcut(double cut){_TTproxcut=cut;} // needed for speeding up the merging
+  void setProxcut(double cut){_proxcut=cut;} // needed for speeding up the initialized trackbuilding
 
-  void initTracks(bool initTrks=true, double dip=0) {_initTrks=initTrks; _initDip=dip;}
+  void initTracks(bool initTrks=true, double dip=0, double curv=0) {_initTrks=initTrks; _initDip=dip; _initCurv=curv;}
+  void setMaxR(double R){_maxR=R;}
+  void setMinHits(unsigned int i){_minHits=i;}
+  void SetSkipAndDelete(bool opt=true) {_skipAndDelete=opt;}
 
   void setScale(double scale){fRiemannScale=scale;}
   double getScale()const {return fRiemannScale;}
@@ -109,13 +113,18 @@ private:
   bool _skipCrossingAreas;
 
   bool _initTrks;
+  bool _skipAndDelete; // skip hits far away from boundary and delete incomplete tracks!
   double _initDip;
+  double _initCurv;
+  double _maxR;
+  unsigned int _minHits;
 
   unsigned int _minHitsForFit;
 
+  double _proxcut;
   double _TTproxcut;
   double fRiemannScale;
-  
+
   // Private Methods -----------------
   void resetFlags();
 

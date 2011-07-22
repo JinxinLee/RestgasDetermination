@@ -69,7 +69,8 @@ PndTpcRiemannTrack::PndTpcRiemannTrack()
   _av(0.,0.,0.),  _sumOfWeights(0),
   _m(0), _t(0),
   _dip(0), _sinDip(0), _rms(0),
-  fRiemannScale(24.6), _isFitted(false), _isInitialized(false), _doSort(true)
+  fRiemannScale(24.6), _isFitted(false), _isInitialized(false),
+  _isFinished(false), _doSort(true)
 {}
 
 PndTpcRiemannTrack::PndTpcRiemannTrack(double scale)
@@ -78,12 +79,20 @@ PndTpcRiemannTrack::PndTpcRiemannTrack(double scale)
   _av(0.,0.,0.),  _sumOfWeights(0),
   _m(0), _t(0),
   _dip(0), _sinDip(0), _rms(0),
-  fRiemannScale(scale), _isFitted(false), _isInitialized(false), _doSort(true)
+  fRiemannScale(scale), _isFitted(false), _isInitialized(false),
+  _isFinished(false), _doSort(true)
 {}
 
 
+void PndTpcRiemannTrack::deleteHits(){
+  for (unsigned int i=0; i<getNumHits(); ++i){
+    delete _hits[i];
+  }
+  _hits.clear();
+}
+
 void
-PndTpcRiemannTrack::initSL(double Dip){
+PndTpcRiemannTrack::initTargetTrack(double Dip, double curvature){
   if (getNumHits()!=1) return;
 
   _isInitialized=true;
@@ -96,7 +105,7 @@ PndTpcRiemannTrack::initSL(double Dip){
   TVector3 hit1(0,0,z1);
 
   // init plane parameters
-  _n.SetXYZ(hit0.X(), hit0.Y(), 0.);
+  _n.SetXYZ(hit0.X(), hit0.Y(), curvature);
   _n.RotateZ(TMath::PiOver2()); // rotate 90 deg
   _n.SetMag(1.);
   _c=0; // track coming from origin
@@ -122,6 +131,27 @@ PndTpcRiemannTrack::initSL(double Dip){
   _sinDip=sin(_dip);
 
   //std::cout << "Dip " << _dip << " angle 0 " << angle0 << "  angle1 " << angle1 << "\n";
+
+}
+
+
+void
+PndTpcRiemannTrack::initCircle(double phi) {
+  if (getNumHits()!=1) return;
+
+  _isInitialized=true;
+  _isFitted=true;
+
+  TVector3 hit0 = _hits[0]->cluster()->pos();
+
+  _center.SetXYZ(0,0,0);
+  _radius = hit0.Perp();
+
+  _m = 0;
+  _t = hit0.Z();
+
+  _dip = TMath::PiOver2();
+  _sinDip=sin(_dip);
 
 }
 
@@ -172,22 +202,23 @@ PndTpcRiemannTrack::getClosestHit(PndTpcRiemannHit* hit, double& Dist, int from,
   TVector3 posX=hit->cluster()->pos();
   TVector3 pos2;
 
+  Dist=9.E99;
+
   int found;
-  double mindis=9.E99;
   double dis;
 
   if(from<0) from = 0;
+  if (to<from) to = from+1;
   if(to>_hits.size()) to = _hits.size();
 
   for(int it=from; it<to; ++it){
     pos2=_hits[it]->cluster()->pos(); 
     dis=(pos2-posX).Mag();
-    if(dis<mindis){
+    if(dis<Dist){
       found=it;
-      mindis=dis;
+      Dist=dis;
     }
   }
-  Dist = mindis;
   return found;
 }
 
@@ -553,7 +584,7 @@ PndTpcRiemannTrack::distHelix(PndTpcRiemannHit* hit, bool calcPos) const {
     hit_angleR = hitX.DeltaPhi(hit1) + phi1;
 
     // check if nearest position position lies multiples of 2Pi away
-    if(_radius < 15.){
+    if(false && _radius < 15.){
       double z = _m * hit_angleR + _t;
       double dZ =  hitZ-z; // positive when above helix, negative when below
 
@@ -562,7 +593,7 @@ PndTpcRiemannTrack::distHelix(PndTpcRiemannHit* hit, bool calcPos) const {
 
       double zCheck;
 
-      const unsigned int maxIt = 5;
+      const unsigned int maxIt = 3;
       unsigned int it = 0;
 
       while (it<maxIt){
@@ -714,6 +745,31 @@ PndTpcRiemannTrack::pocaToZ() const {
   //std::cout<<"POCA "; POCA.Print();
 
   return POCA;
+}
+
+
+double
+PndTpcRiemannTrack::resolution() const {
+  if (_isInitialized || !_isFitted) return 1.E3;
+
+  static const double minrms(1E-4);
+  double rms(minrms);
+  if (_rms > minrms) rms = _rms;
+
+  double projLength(fabs((getFirstHit()->getAngleOnHelix() - getLastHit()->getAngleOnHelix()) * _radius));
+  if (projLength<0.1) projLength = 0.1;
+
+  // estimate the resolution
+  return rms*fRiemannScale/(projLength*projLength) * sqrt(720/(getNumHits()+4)); // from pdg book, rms instead of epsilon (spacial resolution)
+}
+
+
+double
+PndTpcRiemannTrack::quality() const {
+  if (_isInitialized || !_isFitted) return 0;
+  double res = sqrt(1./resolution())/50.; // invert and scale [0..1]
+  if (res>1) return 1.;
+  return res;
 }
 
 

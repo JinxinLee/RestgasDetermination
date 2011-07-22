@@ -35,6 +35,8 @@
 #include "GeaneTrackRep2.h"
 #include "RKTrackRep.h"
 
+#include "DebugLogger.h"
+
 #include "PndDetectorList.h"
 
 #define DEBUG 0
@@ -44,7 +46,8 @@ PndTpcClustVis* PndTpcClustVis::eventDisplay = NULL;
 
 
 PndTpcClustVis::PndTpcClustVis():
-  tree(NULL), digisBranch(NULL), clustersBranch(NULL), preFitBranch(NULL), postFitBranch(NULL), fpurityCut(1.),
+  tree(NULL), digisBranch(NULL), clustersBranch(NULL), preFitBranch(NULL), postFitBranch(NULL),
+  NsectorsToProcess(1), fpurityCut(1.), fpurityLoCut(0.),
   guiEvent(0), fEventId(0), ClHasChanged(true),
   doClustering(false), ClMode(2), ClTimeslice(3),ClTimecut(2),
   ClSingleDigiClAmpCut(15), ClClAmpCut(9),
@@ -53,14 +56,14 @@ PndTpcClustVis::PndTpcClustVis():
   instantRedraw(true), drawTpc(false), TpcTransp(80), drawRawDigis(false), drawDigis(false),
   drawClusters(false), drawClusterErrors(false),
   drawRiemannTracks(true), drawPOCA(false), drawFitMarkers(false),
-  doPR(true), clearUnfitted(false), doMerge(true), doGlobMerge(true), doClean(false),
+  doPR(true), clearUnfitted(true), doMerge(true), doGlobMerge(true), doClean(false),
   _sorting(3), _interactionZ(0), _sortingMode(true),
-  PRNHits(1000000),
-  _minpoints(4), _planecut(0.04), _riproxcut(0.1), _szcut(0.2), _proxcut(1.36), _proxZstretch(1.6), _helixcut(0.4),
-  _TTproxcut(2.5), _TTplanecut(0.015), _TTszcut(0.33), _TTdipcut(0.1), _TThelixcut(0.6),
+  PRNHits(999999999), PRStage(5),
+  _minpoints(4), _planecut(0.04), _riproxcut(0.1), _szcut(0.2), _proxcut(1.9), _proxZstretch(1.6), _helixcut(0.2),
+  _TTproxcut(7.0), _TTplanecut(0.015), _TTszcut(0.33), _TTdipcut(0.1), _TThelixcut(0.2),
   PRHasChanged(true),
-  fRiemannScale(8.6),
-  doFit(false), useGeane(false), numIts(0), smooth(false), Bz(0)
+  fRiemannScale(8.6), initDip(4.),
+  doFit(false), invertCharge(false), useGeane(false), numIts(0), smooth(false), Bz(0)
 {
   if(!gApplication) {
     std::cout << "In PndTpcClustVis ctor: gApplication not found, creating..." << std::flush;
@@ -128,10 +131,10 @@ void PndTpcClustVis::initDigimapper(double drifField,
   PndTpcDigiMapper::getInstance(false)->init(fpadplane,fgem,fgas,fpadShapes,fzGem,t0,sf);
 
   // build a clusterbuffer for each sector;
-  nsectors=PndTpcDigiMapper::getInstance()->getPadPlane()->GetNSectors();
-  std::cerr << "Found " << nsectors << " sectors in padplane" << std::endl;
-  for(unsigned int  isect=0;isect<nsectors;++isect){
-    buffermap[isect]=new std::vector<PndTpcCluster*>;
+  fnsectors=PndTpcDigiMapper::getInstance()->getPadPlane()->GetNSectors();
+  std::cerr << "Found " << fnsectors << " sectors in padplane" << std::endl;
+  for(unsigned int  isect=0;isect<fnsectors;++isect){
+    fbuffermap[isect]=new std::vector<PndTpcCluster*>;
   }
 }
 
@@ -208,28 +211,31 @@ void PndTpcClustVis::open() {
 
 void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
+  if (NsectorsToProcess>fnsectors) NsectorsToProcess=fnsectors;
+
   // Draw tpc
+  double tpcLength(72.5);
+  double tpcOffset(-62);
+  bool panda = false;
+  if(fRiemannScale >10) panda = true;
+  if (panda) {
+    tpcLength = 150;
+    tpcOffset = -39.5;
+  }
+
   if(drawTpc){
-    bool panda = false;
-    if(fRiemannScale >10) panda = true;
 
     std::cerr<<"drawTpc..."<<std::endl;
-    double tpcLength = 72.5;
-    if (panda) tpcLength = 150;
 
-    tpcLength*=0.5;
     TGeoMatrix* tpc_trans;
-    if(panda)
-      tpc_trans = new TGeoGenTrans(0,0,tpcLength-39.5, 1,1,1, 0);
-    else
-      tpc_trans = new TGeoGenTrans(0,0,tpcLength-62, 1,1,1, 0);
+    tpc_trans = new TGeoGenTrans(0,0,0.5*tpcLength+tpcOffset, 1,1,1, 0);
 
     TEveGeoShape* tpc_shape = new TEveGeoShape("tpc_shape");
 
     if(panda)
-      tpc_shape->SetShape(new TGeoTube(15.,42., tpcLength));
+      tpc_shape->SetShape(new TGeoTube(15.,42., 0.5*tpcLength));
     else
-      tpc_shape->SetShape(new TGeoTube(5.,15., tpcLength));
+      tpc_shape->SetShape(new TGeoTube(5.,15., 0.5*tpcLength));
 
     tpc_shape->SetTransMatrix(*tpc_trans);
 
@@ -251,7 +257,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
     this->clearBufferMap();
 
-    fcluster_buffer=buffermap[0];
+    fcluster_buffer=fbuffermap[0];
 
     PndTpcAbsClusterFinder* ffinder = 0;
 
@@ -307,17 +313,24 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     }
 
   }
-  else if(!doClustering && clustersBranch!=NULL){ // fill clusters in cluster_buffer (and use buffermap)
+  else if(!doClustering && clustersBranch!=NULL && ClHasChanged){ // fill clusters in cluster_buffer (and use fbuffermap)
     this->clearBufferMap();
     std::cerr<<"Fetching clusters from cluster branch..."<<std::endl;
     unsigned int ncl=clustersBranch->GetEntriesFast();
-    for(unsigned int isect=0;isect<nsectors;++isect)
-      buffermap[isect]->reserve(ncl/nsectors+10);
+    for(unsigned int isect=0;isect<fnsectors;++isect)
+      fbuffermap[isect]->reserve(ncl/fnsectors+10);
+    unsigned int createdClusters(0);
     for(unsigned int i=0; i<ncl; ++i){
       PndTpcCluster *cluster = (PndTpcCluster*)clustersBranch->At(i);
-      buffermap[cluster->sector()]->push_back(cluster);
+
+      // omit clusters outside chamber
+      if (true && (cluster->pos().Z()<tpcOffset ||
+                   cluster->pos().Z()>tpcLength+tpcOffset)) continue; // TODO: make configurable!!!!
+
+      fbuffermap[cluster->sector()]->push_back(cluster);
+      ++createdClusters;
     }
-    std::cout << "number of clusters: " << ncl << std::endl;
+    std::cout << "number of clusters: " << createdClusters << std::endl;
   } //  end else (read clusters from file)
   else{
     std::cerr<<"Warning: no clusters were created"<<std::endl;
@@ -327,9 +340,9 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
   if(doFit){
     std::cerr<<"copy clusters to TClonesArray needed for RecoHitFactory..."<<std::endl;
     unsigned int icl = 0;
-    for(unsigned int isect=0;isect<nsectors;++isect){
-      for(unsigned int i=0; i<buffermap[isect]->size(); ++i){
-        PndTpcCluster* cl = (*(buffermap[isect]))[i];
+    for(unsigned int isect=0;isect<fnsectors;++isect){
+      for(unsigned int i=0; i<fbuffermap[isect]->size(); ++i){
+        PndTpcCluster* cl = (*(fbuffermap[isect]))[i];
         cl->SetIndex(icl);
         new ((*clusterArray)[icl]) PndTpcCluster(*cl);
         ++icl;
@@ -355,8 +368,8 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
   // draw clusters and digis
   if(drawDigis || drawClusters){
     std::cerr<<"draw digis and/or clusters..."<<std::endl;
-    for(unsigned int isect=0;isect<nsectors;++isect){ // loop over sectors
-      fcluster_buffer=buffermap[isect];
+    for(unsigned int isect=0;isect<NsectorsToProcess;++isect){ // loop over sectors
+      fcluster_buffer=fbuffermap[isect];
       unsigned int ncl=fcluster_buffer->size();
       std::cerr << "number of clusters: " << ncl << " in sector " << isect << std::endl;
       unsigned int tenpercent=(unsigned int)(ncl*0.1);
@@ -402,11 +415,11 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
     PRHasChanged=false;
 
-    // clean up riemannlist!
-    for(int i=0; i<riemannlist.size(); ++i){
-      if(riemannlist[i]!=NULL) delete riemannlist[i];
+    // clean up friemannlist!
+    for(int i=0; i<friemannlist.size(); ++i){
+      if(friemannlist[i]!=NULL) delete friemannlist[i];
     }
-    riemannlist.clear();
+    friemannlist.clear();
 
     // init TrackFinder
     PndTpcRiemannTrackFinder* _trackfinder= new PndTpcRiemannTrackFinder();
@@ -416,6 +429,8 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     _trackfinder->setMinHitsForFit(_minpoints);
     _trackfinder->setScale(fRiemannScale);
     _trackfinder->setMaxNumHitsForPR(PRNHits);
+
+    _trackfinder->setProxcut(_proxcut);
     _trackfinder->setTTProxcut(_TTproxcut);
 
     // Hit-Track Correlators
@@ -427,76 +442,283 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     _trackfinder->addTTCorrelator(new PndTpcDipTTCorrelator(_TTdipcut, _TThelixcut));
     _trackfinder->addTTCorrelator(new PndTpcRiemannTTCorrelator(_TTplanecut, _minpoints));
 
+
     /// PLAN: 
     /// 1) build several cluster buffer, sectorwise
     /// 2) run trackfinder over each clusterbuffer independently
     /// 3) put all found tracklets into one list
     /// 4) then do start merging
 
-    std::vector<PndTpcRiemannTrack*> riemannTemp;
+    //----------------------------------------------------------------------------------------------------
 
-    // loop over sectors
-    for(unsigned int isect=0;isect<nsectors;++isect){
-      std::cerr << "... building tracks in sector " << isect << std::endl;
-      fcluster_buffer=buffermap[isect];
-      _trackfinder->buildTracks(*fcluster_buffer,riemannTemp);
+    double _maxRadius(42);
 
-      if(doClean) _trackfinder->cleanTracks(riemannTemp, _szcut, _planecut);
+    unsigned int _minHitsZ(15);
+    unsigned int _minHitsR(20);
+    unsigned int _minHitsPhi(10);
 
-      if(doMerge) {
-        std::cerr << "    merge " << riemannTemp.size() << " tracks in sector " << isect;
-        _trackfinder->mergeTracks(riemannTemp);
-        std::cerr << " ... done - created " << riemannTemp.size() << " merged tracks" <<std::endl;
-      }
-
-      // copy tracklets of this sector to global list
-      unsigned int ntrklts=riemannTemp.size();
-      riemannlist.reserve(riemannlist.size()+ntrklts);
-      for(unsigned int it=0;it<ntrklts;++it){
-        riemannlist.push_back(riemannTemp[it]);
-      }
-      riemannTemp.clear();
-    } // end loop over sectors
-
-    if(doClean) {
-      _trackfinder->cleanTracks(riemannlist, _szcut, _planecut);
+    if(!panda){
+      _maxRadius=15;
     }
 
-    if(doGlobMerge && nsectors>1) {
-      std::cerr << "merge " << riemannlist.size() << " tracks ... ";
-      /*if(_sorting==3){
-        _trackfinder->setSorting(2);
-        _trackfinder->mergeTracks(riemannlist);
-        _trackfinder ->setSorting(_sorting);
-      }*/
-      _trackfinder->mergeTracks(riemannlist);
-      std::cerr << " done - created " << riemannlist.size() << " merged tracks" <<std::endl;
+    unsigned int size(0); //  size of biggest sector
+    unsigned int nTotCl(0); // number of total clusters
+    unsigned int bufferSize;
+    for(unsigned int isect=0;isect<NsectorsToProcess;++isect){
+      bufferSize = fbuffermap[isect]->size();
+      nTotCl += bufferSize;
+      if(bufferSize > size) size = bufferSize;
     }
+    ++size;
 
-    if(doClean && nsectors>1) _trackfinder->cleanTracks(riemannlist, _szcut, _planecut);
+    std::vector<PndTpcRiemannTrack*> riemannTempSec; // temporary storage, reused for every sector
+    std::vector<PndTpcRiemannTrack*> riemannTempCirc; // temporary global storage for circle tracks
+    std::vector<PndTpcRiemannTrack*> riemannTemp; // temporary global storage for arbitrary tracks
 
-    if(clearUnfitted){ // TODO
-      std::vector<PndTpcRiemannTrack*> riemannTemp2;
-      for (unsigned int i=0; i<riemannTemp.size(); ++i){
-        if (riemannTemp[i]->isFitted()) riemannTemp2.push_back(riemannTemp[i]);
-        riemannTemp.clear();
-        riemannTemp=riemannTemp2;
-      }
-    }
+    TStopwatch timer;
+    timer.Start();
+
+    // loop over sectors, find specific track topologies
+    for(unsigned int isect=0;isect<NsectorsToProcess;++isect){
+      std::cerr << "\n... building tracks in sector " << isect << " from " << fbuffermap[isect]->size() << " clusters" << std::endl;
 
 
-    // print MCIDs
-    /*for(unsigned int itrk=0; itrk<riemannlist.size(); ++itrk){
-      std::cout<<"Riemann Track "<<itrk<<std::endl;
-      for (unsigned int icl=0; icl<riemannlist[itrk]->getNumHits(); ++icl){
-        std::cout<<" Cluster "<<icl<<std::endl;
-        for (unsigned int imc=0; imc<riemannlist[itrk]->getHit(icl)->cluster()->nMcIds(); ++imc){
-          std::cout<<"   McId "<<imc<<"  "<<riemannlist[itrk]->getHit(icl)->cluster()->mcId().ID(imc)<<std::endl;
+      fcluster_buffer=fbuffermap[isect];
+
+      // copying needed for display in order not to have to rebuild the fbuffermap
+      // because the clusterbuffer ist altered by the PR
+      std::vector<PndTpcCluster*> cluster_buffer = *(fbuffermap[isect]);
+
+      unsigned int nErasedCl(0);
+
+      if(PRStage==1) _trackfinder->setMaxNumHitsForPR(PRNHits);
+      else _trackfinder->setMaxNumHitsForPR(size);
+
+      // find steep tracks
+      _trackfinder->setSorting(2);
+      _trackfinder->setMinHits(_minHitsZ);
+      _trackfinder->SkipCrossingAreas(true);
+      _trackfinder->SetSkipAndDelete(true);
+
+      _trackfinder->buildTracks(cluster_buffer,riemannTempSec);
+
+      // put found goodtracks into friemannlist and delete clusters from buffer
+      unsigned int nGoodSteepTrks(0);
+      for(unsigned int i=0; i<riemannTempSec.size(); ++i){
+        // store good tracklets in friemannlist
+        if (riemannTempSec[i]->getNumHits() > _minHitsZ &&
+            fabs(riemannTempSec[i]->dip()-TMath::PiOver2())> 0.2){
+          if ((PRStage==1 || PRStage>4)) friemannlist.push_back(riemannTempSec[i]);
+
+          // clear clusters
+          for(unsigned int iCl=0; iCl < riemannTempSec[i]->getNumHits(); ++iCl){
+            cluster_buffer.erase( remove(cluster_buffer.begin(), cluster_buffer.end(),
+                                  riemannTempSec[i]->getHit(iCl)->cluster()), cluster_buffer.end() );
+            ++nErasedCl;
+          }
+          ++nGoodSteepTrks;
+        }
+        else{ // delete bad tracklets
+          riemannTempSec[i]->deleteHits();
+          delete riemannTempSec[i];
         }
       }
-    }*/
+      // clear riemannTempSec
+      riemannTempSec.clear();
 
-    std::cerr << "Pattern Reco finished" << std::endl;
+      std::cerr << "   found steep tracks: " <<  nGoodSteepTrks << std::endl;
+      // end find steep tracks
+
+
+
+      if(PRStage==2) _trackfinder->setMaxNumHitsForPR(PRNHits);
+      else if(PRStage<2) _trackfinder->setMaxNumHitsForPR(0);
+      else if(PRStage>2) _trackfinder->setMaxNumHitsForPR(size);
+
+
+      // find circle tracks
+      _trackfinder->setSorting(5);
+      _trackfinder->setMinHits(_minHitsPhi);
+      _trackfinder->SkipCrossingAreas(true);
+      _trackfinder->initTracks(false, 0, 0);
+      _trackfinder->SetSkipAndDelete(true);
+
+      _trackfinder->buildTracks(cluster_buffer,riemannTempSec);
+
+      // put found goodtracks into friemannlist and delete clusters from buffer
+      unsigned int nGoodCirlceTrks(0);
+      for(unsigned int i=0; i<riemannTempSec.size(); ++i){
+        // store good tracklets in friemannlist
+        if (riemannTempSec[i]->getNumHits() > _minHitsPhi) {
+          if (PRStage==2 || PRStage>4) riemannTempCirc.push_back(riemannTempSec[i]);
+
+          // clear clusters
+          for(unsigned int iCl=0; iCl < riemannTempSec[i]->getNumHits(); ++iCl){
+            cluster_buffer.erase( remove(cluster_buffer.begin(), cluster_buffer.end(),
+                                  riemannTempSec[i]->getHit(iCl)->cluster()), cluster_buffer.end() );
+            ++nErasedCl;
+          }
+          ++nGoodCirlceTrks;
+        }
+        else{ // delete bad tracklets
+          riemannTempSec[i]->deleteHits();
+          delete riemannTempSec[i];
+        }
+      }
+      // clear riemannTempSec
+      riemannTempSec.clear();
+
+      std::cerr << "   found circle tracks: " <<  nGoodCirlceTrks << std::endl;
+      // end find circle tracks
+
+
+
+      if(PRStage==3) _trackfinder->setMaxNumHitsForPR(PRNHits);
+      else if(PRStage<3) _trackfinder->setMaxNumHitsForPR(0);
+      else if(PRStage>3) _trackfinder->setMaxNumHitsForPR(size);
+
+
+      // find circle tracks
+      _trackfinder->setSorting(-5);
+      _trackfinder->setMinHits(_minHitsPhi);
+      _trackfinder->SkipCrossingAreas(true);
+      _trackfinder->initTracks(false, 0, 0);
+      _trackfinder->SetSkipAndDelete(true);
+
+      _trackfinder->buildTracks(cluster_buffer,riemannTempSec);
+
+      // put found goodtracks into friemannlist and delete clusters from buffer
+      unsigned int nGoodCirlceTrks2(0);
+      for(unsigned int i=0; i<riemannTempSec.size(); ++i){
+        // store good tracklets in friemannlist
+        if (riemannTempSec[i]->getNumHits() > _minHitsPhi) {
+          if (PRStage==3 || PRStage>4) riemannTempCirc.push_back(riemannTempSec[i]);
+
+          // clear clusters
+          for(unsigned int iCl=0; iCl < riemannTempSec[i]->getNumHits(); ++iCl){
+            cluster_buffer.erase( remove(cluster_buffer.begin(), cluster_buffer.end(),
+                                  riemannTempSec[i]->getHit(iCl)->cluster()), cluster_buffer.end() );
+            ++nErasedCl;
+          }
+          ++nGoodCirlceTrks2;
+        }
+        else{ // delete bad tracklets
+          riemannTempSec[i]->deleteHits();
+          delete riemannTempSec[i];
+        }
+      }
+      // clear riemannTempSec
+      riemannTempSec.clear();
+
+      std::cerr << "   found circle tracks: " <<  nGoodCirlceTrks2 << std::endl;
+      // end find circle tracks
+
+
+      std::cerr << "\n   this reduced the number of clusters by " <<  nErasedCl << std::endl;
+
+
+
+      if(PRStage==4) _trackfinder->setMaxNumHitsForPR(PRNHits);
+      else if(PRStage<4) _trackfinder->setMaxNumHitsForPR(0);
+      else if(PRStage>4) _trackfinder->setMaxNumHitsForPR(size);
+
+      // build rest of the tracks
+      _trackfinder->initTracks(false);
+      _trackfinder->SkipCrossingAreas(true);
+      _trackfinder->SetSkipAndDelete(false);
+      _trackfinder->setSorting(3);
+
+      _trackfinder->buildTracks(cluster_buffer,riemannTempSec);
+      // end build rest of the tracks
+
+
+      if(doMerge) {
+        std::cerr << "    merge " << riemannTempSec.size() << " tracks in sector " << isect;
+        _trackfinder->mergeTracks(riemannTempSec);
+        std::cerr << " ... done - created " << riemannTempSec.size() << " merged tracks" <<std::endl;
+      }
+
+
+
+      // copy tracklets of this sector to global list
+      unsigned int ntrklts=riemannTempSec.size();
+      riemannTemp.reserve(riemannTemp.size()+ntrklts);
+      for(unsigned int it=0;it<ntrklts;++it){
+        riemannTemp.push_back(riemannTempSec[it]);
+      }
+      riemannTempSec.clear();
+
+    } // end loop over sectors, find tracks from clusters left
+
+
+    // clear small tracklets
+    if(clearUnfitted){
+      for (unsigned int i=0; i<riemannTemp.size(); ++i){
+        if (riemannTemp[i]->getNumHits() < _minpoints){
+          riemannTemp[i]->deleteHits();
+          delete riemannTemp[i];
+          riemannTemp.erase(riemannTemp.begin() + i);
+          --i;
+        }
+      }
+    }
+
+    if(doGlobMerge && fnsectors>1) {
+      std::cerr << "merge " << riemannTempCirc.size() << " circular tracks ... ";
+      _trackfinder->mergeTracks(riemannTempCirc);
+      std::cerr << " done - created " << riemannTempCirc.size() << " merged tracks" <<std::endl;
+
+      std::cerr << "\nmerge " << riemannTemp.size() << " tracks ... ";
+      _trackfinder->mergeTracks(riemannTemp);
+      std::cerr << " done - created " << riemannTemp.size() << " merged tracks" <<std::endl;
+    }
+
+
+    //append riemannTempCirc to friemannlist
+    for (unsigned int i=0; i<riemannTempCirc.size(); ++i){
+      friemannlist.push_back(riemannTempCirc[i]);
+    }
+
+    //append RiemannTemp to friemannlist
+    for (unsigned int i=0; i<riemannTemp.size(); ++i){
+      friemannlist.push_back(riemannTemp[i]);
+    }
+
+    // clear small tracklets
+    if(clearUnfitted){
+      for (unsigned int i=0; i<friemannlist.size(); ++i){
+        if (friemannlist[i]->getNumHits() <= 10 ||
+            (friemannlist[i]->getFirstHit()->cluster()->pos() -
+             friemannlist[i]->getLastHit()->cluster()->pos()).Mag() < 4.){
+          friemannlist[i]->deleteHits();
+          delete friemannlist[i];
+          friemannlist.erase(friemannlist.begin() + i);
+          --i;
+        }
+      }
+    }
+
+    if(doGlobMerge && fnsectors>1) {
+      std::cerr << "\nfinal merge of friemannlist: merge " << friemannlist.size() << " tracks ... ";
+      _trackfinder->mergeTracks(friemannlist);
+      std::cerr << " done - created " << friemannlist.size() << " merged tracks" <<std::endl;
+    }
+
+    timer.Stop();
+    Double_t rtime = timer.RealTime();
+    Double_t ctime = timer.CpuTime();
+
+
+
+    unsigned int nUsedCl(0);
+    for (unsigned int i=0; i<friemannlist.size(); ++i){
+      nUsedCl += friemannlist[i]->getNumHits();
+    }
+
+    std::cerr << "Pattern Reco finished, found tracks: " << friemannlist.size() << "\n";
+    std::cerr << "used " << nUsedCl << " of " << nTotCl << " Clusters \n";
+    printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+    //----------------------------------------------------------------------------------------------------
   } // end PR
 
   ClHasChanged=false;
@@ -505,22 +727,17 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
   unsigned int counter=0;
   if(doPR && (drawClusters || drawRiemannTracks)){
     std::cerr<<"draw PR results..."<<std::endl;
-    for(unsigned int ir=0; ir<riemannlist.size(); ir+=1){ // loop over trackcands
+    for(unsigned int ir=0; ir<friemannlist.size(); ir+=1){ // loop over trackcands
 
-      PndTpcRiemannTrack* trkcand = riemannlist[ir];
+      PndTpcRiemannTrack* trkcand = friemannlist[ir];
 
       // cut on purity -> draw only bad tracks
-      if(trkcand->mcid().MaxRelWeight()>fpurityCut){
+      if((trkcand->mcid().MaxRelWeight()<fpurityLoCut || trkcand->mcid().MaxRelWeight()>fpurityCut) &&
+         (fpurityLoCut>0. || fpurityCut<1.)){
 	      //std::cerr << "Skippping good track" << std::endl;
 	      continue;
       }
      
-      // only plot every 100th tracklet
-      /*if (fpurityCut<1){
-        if(! ++counter%100==0) continue;
-        else std::cout << ".";
-      }*/
-      
 
       unsigned int nhits=trkcand->getNumHits();
 
@@ -529,7 +746,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       TVector3 old_track_pos, pos;
       TEveStraightLineSet* track_lines = NULL;
 
-      if(drawPOCA) old_track_pos = riemannlist[ir]->pocaToZ();
+      if(drawPOCA) old_track_pos = friemannlist[ir]->pocaToZ();
 
 
       for(unsigned int ih=0;ih<nhits;++ih){ // loop over clusters
@@ -541,7 +758,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
         if(drawRiemannTracks){
           pos = cluster->pos();
           if(track_lines==NULL) track_lines = new TEveStraightLineSet;
-          if(ih > 0 || (ih==0 && drawPOCA && riemannlist[ir]->isFitted()) ) {
+          if(ih > 0 || (ih==0 && drawPOCA && friemannlist[ir]->isFitted()) ) {
             track_lines->AddLine(old_track_pos(0), old_track_pos(1), old_track_pos(2), pos(0), pos(1), pos(2));
             track_lines->SetMainColor(colors[colour]);
             track_lines->SetLineWidth(1);
@@ -570,15 +787,20 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     double pbackup = 2.;  // momentum value that is set when other initialisations fail
 
     // loop over riemann tracks
-    for(unsigned int itrk=0; itrk<riemannlist.size(); ++itrk){
-      PndTpcRiemannTrack* trk=riemannlist[itrk];
+    for(unsigned int itrk=0; itrk<friemannlist.size(); ++itrk){
+      PndTpcRiemannTrack* trk=friemannlist[itrk];
       int nhits=trk->getNumHits();
 
       if (DEBUG) std::cout<<"Tracklet "<<itrk<<"   nhits = "<<nhits;
 
       // check if enough points
-      if(nhits<_minpoints || nhits<minhits){
+      if(nhits<minhits){
         std::cout<<" - skipping, not enough hits"<<std::endl;
+        continue;
+      }
+      // check if fitted
+      if(!trk->isFitted() && !trk->isInitialized() || trk->isInitialized()){
+        std::cout<<" - skipping, riemann track not fitted"<<std::endl;
         continue;
       }
       // check if track too steep
@@ -603,7 +825,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       bool invertedTrack = false;
       double r1=trk->getHit(0)->cluster()->pos().Perp();
       double r2=trk->getHit(nhits-1)->cluster()->pos().Perp();
-      if(r1<=r2 || true){
+      if(r1<=r2){
         for(unsigned int ih=0; ih<nhits; ++ih){
           cand->addHit(kTpcCluster,trk->getHit(ih)->cluster()->index());
         }
@@ -634,11 +856,12 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
       TVector3 mom = p * direction;
       TVector3 momerr(fabs(mom.X()),fabs(mom.Y()),fabs(mom.Z()));
-      momerr *= 1./TMath::Sqrt(nhits);
+      momerr *= trk->resolution();
 
       // pdg
-      int pdg = winding * 211; // Todo: pions hardcoded atm
+      int pdg = winding * -13; // Todo: muons hardcoded atm
       if(Bz<0) pdg *= -1;
+      if(invertCharge) pdg *= -1;
 
       double trackR = trk->r();
 
@@ -716,8 +939,6 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       // DRAW Fit
       //
       double charge = rep->getCharge();
-
-      assert(winding/charge>0);
 
       if(rep->getStatusFlag()) {
         std::cout << "Warning: Trying to display a track with status flag != 0...";
@@ -842,13 +1063,13 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
 
 void PndTpcClustVis::clearBufferMap(){
-  for(unsigned int isect=0;isect<nsectors;++isect){
+  for(unsigned int isect=0;isect<fnsectors;++isect){
     /*if (doClustering){
-      for(unsigned icl=0; icl<buffermap[isect]->size(); ++icl){
-        delete (*(buffermap[isect]))[icl];
+      for(unsigned icl=0; icl<fbuffermap[isect]->size(); ++icl){
+        delete (*(fbuffermap[isect]))[icl];
       }
     }*/
-    buffermap[isect]->clear();
+    fbuffermap[isect]->clear();
   }
   clusterArray->Delete();
 }
@@ -893,7 +1114,8 @@ void PndTpcClustVis::drawCluster(const PndTpcCluster* cluster, Color_t color){
     err = cluster->sig();
     cluster_shape->SetShape(new TGeoBBox(err.X(), err.Y(), err.Z()) );
   }
-  else cluster_shape->SetShape(new TGeoSphere(0., 0.25) );
+  //else cluster_shape->SetShape(new TGeoSphere(0., 0.25) );
+  else cluster_shape->SetShape(new TGeoBBox(0.1,0.1,0.1) );
 
   cluster_shape->SetTransMatrix(*det_trans);
 
@@ -1003,17 +1225,6 @@ void PndTpcClustVis::makeGui() {
   }
   frmMain->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain); {
-    guifpurityCut = new TGNumberEntry(hf, fpurityCut, 6,999, TGNumberFormat::kNESRealThree,
-                          TGNumberFormat::kNEANonNegative,
-                          TGNumberFormat::kNELLimitMinMax,
-                          0, 1);
-    hf->AddFrame(guifpurityCut);
-    guifpurityCut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
-    lbl = new TGLabel(hf, "Draw only tracks with purity less than x");
-    hf->AddFrame(lbl);
-  }
-  frmMain->AddFrame(hf);
-  hf = new TGHorizontalFrame(frmMain); {
     guiDrawPOCA =  new TGCheckButton(hf, "Draw POCAs to z-axis");
     if(drawPOCA) guiDrawPOCA->Toggle();
     hf->AddFrame(guiDrawPOCA);
@@ -1027,6 +1238,54 @@ void PndTpcClustVis::makeGui() {
     guiDrawFitMarkers->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
   }
   frmMain->AddFrame(hf);
+
+
+  // event mix options
+  hf = new TGHorizontalFrame(frmMain); {
+    lbl = new TGLabel(hf, "\n Event Mix Options");
+        hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    guiNsectorsToProcess = new TGNumberEntry(hf, NsectorsToProcess, 6,999, TGNumberFormat::kNESInteger,
+                          TGNumberFormat::kNEANonNegative,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 80);
+    hf->AddFrame(guiNsectorsToProcess);
+    guiNsectorsToProcess->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
+    lbl = new TGLabel(hf, "Number of sectors to process");
+    hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    guifpurityLoCut = new TGNumberEntry(hf, fpurityLoCut, 6,999, TGNumberFormat::kNESRealThree,
+                          TGNumberFormat::kNEANonNegative,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 1);
+    hf->AddFrame(guifpurityLoCut);
+    guifpurityLoCut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
+    lbl = new TGLabel(hf, "Draw only tracks with purity more than x");
+    hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    guifpurityCut = new TGNumberEntry(hf, fpurityCut, 6,999, TGNumberFormat::kNESRealThree,
+                          TGNumberFormat::kNEANonNegative,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 1);
+    hf->AddFrame(guifpurityCut);
+    guifpurityCut->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
+    lbl = new TGLabel(hf, "Draw only tracks with purity less than x");
+    hf->AddFrame(lbl);
+  }
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    tb = new TGTextButton(hf, "Write DebugLogger files");
+    hf->AddFrame(tb);
+    tb->Connect("Clicked()", "PndTpcClustVis", fh, "writeDebugLogger()");
+  }
+  frmMain->AddFrame(hf);
+
 
 
   // Clusterfinder Params
@@ -1201,6 +1460,19 @@ void PndTpcClustVis::makeGui() {
     tb = new TGTextButton(hf, "Redraw Event");
     hf->AddFrame(tb);
     tb->Connect("Clicked()", "PndTpcClustVis", fh, "guiGoto()");
+  }
+  frmMain2->AddFrame(hf);
+
+  hf = new TGHorizontalFrame(frmMain2); {
+    // evt number entry
+    lbl = new TGLabel(hf, "Do PR stage (5=all): ");
+    hf->AddFrame(lbl);
+    guiPRStage = new TGNumberEntry(hf, PRStage, 9,999, TGNumberFormat::kNESInteger,
+                          TGNumberFormat::kNEANonNegative,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 10);
+    hf->AddFrame(guiPRStage);
+    guiPRStage->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
   }
   frmMain2->AddFrame(hf);
 
@@ -1384,12 +1656,12 @@ void PndTpcClustVis::makeGui() {
   frmMain2->AddFrame(hf);
 
   hf = new TGHorizontalFrame(frmMain2); {
-    guiDoClean =  new TGCheckButton(hf, "Clean Tracks before and after merging");
+    guiDoClean =  new TGCheckButton(hf, "Find only target tracks");
     if(doClean) guiDoClean->Toggle();
     hf->AddFrame(guiDoClean);
     guiDoClean->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
   }
-  frmMain2->AddFrame(hf);
+  //frmMain2->AddFrame(hf);
 
   hf = new TGHorizontalFrame(frmMain2); {
     guiTTscale = new TGNumberEntry(hf, fRiemannScale, 6,999, TGNumberFormat::kNESRealThree,
@@ -1399,6 +1671,17 @@ void PndTpcClustVis::makeGui() {
     hf->AddFrame(guiTTscale);
     guiTTscale->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
     lbl = new TGLabel(hf, "RiemannScale");
+    hf->AddFrame(lbl);
+  }
+  frmMain2->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain2); {
+    guiInitDip = new TGNumberEntry(hf, initDip, 6,999, TGNumberFormat::kNESRealThree,
+                          TGNumberFormat::kNEAAnyNumber,
+                          TGNumberFormat::kNELLimitMinMax,
+                          -1000, 1000);
+    hf->AddFrame(guiInitDip);
+    guiInitDip->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
+    lbl = new TGLabel(hf, "Init Dip");
     hf->AddFrame(lbl);
   }
   frmMain2->AddFrame(hf);
@@ -1414,6 +1697,13 @@ void PndTpcClustVis::makeGui() {
     if(doFit) guiDoFit->Toggle();
     hf->AddFrame(guiDoFit);
     guiDoFit->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetFittingParams()");
+  }
+  frmMain2->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain2); {
+    guiInvertCharge =  new TGCheckButton(hf, "Invert Charge");
+    if(invertCharge) guiInvertCharge->Toggle();
+    hf->AddFrame(guiInvertCharge);
+    guiInvertCharge->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetFittingParams()");
   }
   frmMain2->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain2); {
@@ -1470,6 +1760,8 @@ void PndTpcClustVis::guiSetDrawParams(){
   doPR=(guiDoPR->IsOn());
 
   drawRiemannTracks=(guiDrawRiemannTracks->IsOn());
+  NsectorsToProcess = guiNsectorsToProcess->GetNumberEntry()->GetNumber();
+  fpurityLoCut = guifpurityLoCut->GetNumberEntry()->GetNumber();
   fpurityCut = guifpurityCut->GetNumberEntry()->GetNumber();
   drawPOCA=(guiDrawPOCA->IsOn());
   drawFitMarkers=(guiDrawFitMarkers->IsOn());
@@ -1503,6 +1795,7 @@ void PndTpcClustVis::guiSetTrackingParams(){
   PRHasChanged=true;
 
   PRNHits = guiPRNHits->GetNumberEntry()->GetIntNumber();
+  PRStage = guiPRStage->GetNumberEntry()->GetIntNumber();
   _sorting = guisorting->GetNumberEntry()->GetIntNumber();
   _interactionZ = guiinteractionZ->GetNumberEntry()->GetNumber();
   _sortingMode=(guisortingMode->IsOn());
@@ -1519,6 +1812,7 @@ void PndTpcClustVis::guiSetTrackingParams(){
   _TTdipcut = guiTTdipcut->GetNumberEntry()->GetNumber();
   _TThelixcut = guiTThelixcut->GetNumberEntry()->GetNumber();
   fRiemannScale=guiTTscale->GetNumberEntry()->GetNumber();
+  initDip=guiInitDip->GetNumberEntry()->GetNumber();
   clearUnfitted=(guiClearUnfitted->IsOn());
   doMerge=(guiDoMerge->IsOn());
   doGlobMerge=(guiDoGlobMerge->IsOn());
@@ -1531,6 +1825,7 @@ void PndTpcClustVis::guiSetTrackingParams(){
 
 void PndTpcClustVis::guiSetFittingParams(){
   doFit=(guiDoFit->IsOn());
+  invertCharge=(guiInvertCharge->IsOn());
   useGeane=(guiUseGeane->IsOn());
   numIts=guiNumIts->GetNumberEntry()->GetNumber();
   smooth=(guiSmooth->IsOn());
@@ -1538,6 +1833,12 @@ void PndTpcClustVis::guiSetFittingParams(){
   PndTpcClustVis*  fh = PndTpcClustVis::getInstance();
   if(instantRedraw) fh->gotoEvent(fEventId);
 }
+
+
+void PndTpcClustVis::writeDebugLogger(){
+  DebugLogger::Instance()->WriteFiles();
+}
+
 
 
 ClassImp(PndTpcClustVis)

@@ -139,6 +139,8 @@ public:
   void guiSetTrackingParams();	
   void guiSetFittingParams();
 
+  void writeDebugLogger();
+
 private:
   static PndTpcClustVis* eventDisplay;
   int fEventId;
@@ -159,11 +161,11 @@ private:
   double fzGem;
   double fgain;
 
-  std::map<unsigned int, std::vector<PndTpcCluster*>*> buffermap;
+  std::map<unsigned int, std::vector<PndTpcCluster*>*> fbuffermap;
   std::vector<PndTpcCluster*>* fcluster_buffer;
   TClonesArray* clusterArray;
-  std::vector<PndTpcRiemannTrack*> riemannlist;
-  unsigned int nsectors;
+  std::vector<PndTpcRiemannTrack*> friemannlist;
+  unsigned int fnsectors;
 
   GFRecoHitFactory* _theRecoHitFactory;
   FairGeanePro* GeanePro;
@@ -183,8 +185,12 @@ private:
   TGCheckButton* guiDrawClustersErrors;
   bool drawClusterErrors;
 
+  TGNumberEntry* guiNsectorsToProcess;
+  unsigned int NsectorsToProcess;
   TGCheckButton* guiDrawRiemannTracks;
   bool drawRiemannTracks;
+  TGNumberEntry* guifpurityLoCut;
+  double fpurityLoCut;
   TGNumberEntry* guifpurityCut;
   double fpurityCut;
   TGCheckButton* guiDrawPOCA;
@@ -222,6 +228,8 @@ private:
   bool doPR;
   TGNumberEntry* guiPRNHits;
   int PRNHits;
+  TGNumberEntry* guiPRStage;
+  unsigned int PRStage;
   TGCheckButton* guiClearUnfitted;
   bool clearUnfitted;
   TGCheckButton* guiDoMerge;
@@ -264,11 +272,15 @@ private:
   double _TThelixcut;
   TGNumberEntry* guiTTscale;
   double fRiemannScale;
+  TGNumberEntry* guiInitDip;
+  double initDip;
 
   bool PRHasChanged;
 
   TGCheckButton* guiDoFit;
   bool doFit;
+  TGCheckButton* guiInvertCharge;
+  bool invertCharge;
   TGCheckButton* guiUseGeane;
   bool useGeane;
   TGNumberEntry* guiNumIts;

@@ -40,7 +40,9 @@ class PndTpcRiemannTrack : public TObject{
   // Constructors/Destructors ---------
   PndTpcRiemannTrack();
   PndTpcRiemannTrack(double scale);
-  ~PndTpcRiemannTrack(){;}
+  ~PndTpcRiemannTrack(){;} // does NOT delete Riemann Hits
+
+  void deleteHits(); // deletes Riemann Hits
 
   
   // Accessors -----------------------
@@ -56,8 +58,13 @@ class PndTpcRiemannTrack : public TObject{
 
   bool isFitted() const {return _isFitted;}
   bool isInitialized() const {return _isInitialized;}
+  bool isFinished(){return _isFinished;}
+
   double m() const {return _m;}
   double t() const {return _t;}
+
+  double resolution() const; // approximate momentum resolution of the track
+  double quality() const; // gives a quality-estimate of the track in range [0; 1], the higher the better!
 
 
   unsigned int getNumHits() const {return _hits.size();}
@@ -84,7 +91,10 @@ class PndTpcRiemannTrack : public TObject{
 
   void setSort(bool k=true){_doSort=k;}
 
-  void initSL(double Dip); // init as straight track from Origin for single hit track
+  void initTargetTrack(double Dip, double curvature=0); // init as straight track from Origin for single hit track
+  void initCircle(double phi); // init as a circle
+
+  void setFinished(bool opt=true){_isFinished=opt;}
 
   // Operations ----------------------
   void fitAndSort();  // refit the plane and sort the hits; calculate center and radius
@@ -123,6 +133,8 @@ class PndTpcRiemannTrack : public TObject{
   bool _isFitted; // fitted plane and dip
   bool _isInitialized; // initSL was called, is set to false if fitandsort is called
 
+  bool _isFinished; // track is finished, no more hits will be added
+
   double fRiemannScale;
 
   std::vector<PndTpcRiemannHit*> _hits; //! riemann hits of the track; track has ownership!
@@ -137,7 +149,7 @@ class PndTpcRiemannTrack : public TObject{
   bool checkScale(PndTpcRiemannHit*) const;
 
  public:
-  ClassDef(PndTpcRiemannTrack,5)
+  ClassDef(PndTpcRiemannTrack,6)
 
 };
 

@@ -101,11 +101,13 @@ PndTpcDipTTCorrelator::corr(PndTpcRiemannTrack* trk1,
 
 
     // now also check if sz distance matches
-    double hDist;
-    if(back2)
-      hDist = trk1->distHelix(trk2->getLastHit(),true);
-    else
-      hDist = trk1->distHelix(trk2->getFirstHit(),true);
+    PndTpcCluster* TestCluster = new PndTpcCluster(pos2,1,0);
+    PndTpcRiemannHit* TestHit = new PndTpcRiemannHit(TestCluster);
+    double hDist(trk1->distHelix(TestHit,true));
+
+    delete TestHit;
+    delete TestCluster;
+
 
     DebugLogger::Instance()->Histo("TT_dip_hDist",hDist,-10,10,100);
 

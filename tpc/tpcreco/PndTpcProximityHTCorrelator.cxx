@@ -33,10 +33,11 @@
 // Class Member definitions -----------
 
 //#define MCCORR // use ideal correlation for adjusting cuts!!
+#define SPEEDUP 8
 
 
 PndTpcProximityHTCorrelator::PndTpcProximityHTCorrelator(double cut, double zStretch)
-  : _proxcut(cut), _zStretch(zStretch)
+  : _proxcut(cut), _zStretch(zStretch), _meandist(0.7)
 {}
 
 
@@ -46,31 +47,39 @@ PndTpcProximityHTCorrelator::corr(PndTpcRiemannTrack* trk,
 				  bool& survive,
 				  double& matchQuality)
 {
-  int speedupfactor = 3;
-  int trksize = trk->getNumHits();
-  TVector3 posX = rhit->cluster()->pos();
+
+  //scale proxcut with track quality (makes it looser for better defined tracks)
+  double proxcut(_proxcut);
+  proxcut *= 1 + (2 * trk->quality());
+
+  unsigned int trksize(trk->getNumHits());
+  TVector3 posX(rhit->cluster()->pos());
   //std::cout<<"PndTpcProximityHTCorrelator::corr; tracksize: "<<trksize<<std::endl;
-  unsigned int i=0;
-  int closest = 0;
+  unsigned int i(0);
+  int closest(0);
+  int step(0);
+
   // do some fast approximation to speed things up
   if(trksize > 3){
     TVector3 pos;
     double dis;
-    double largecut = speedupfactor*_proxcut;
-    //if (_zStretch < 1) largecut *= _zStretch;
-    bool faraway = true;
-    bool check = true;
-    while(check){
+    double largecut(SPEEDUP*_meandist);
+    if (largecut < 1.5*proxcut) largecut = 1.5*proxcut;
+
+    bool faraway(true);
+
+    while(true){
       pos = trk->getHit(i)->cluster()->pos();
       dis = (posX-pos).Mag();
       //std::cout<<"i "<<i<<"   dis "<<dis<<std::endl;
       if(dis<largecut) {
         faraway=false;
         closest = i;
-        check=false;//break loop
+        break;
       }
-      if(i==trksize-1) check=false;  // last hit was checked
-      i+=(int)(dis/_proxcut);// step at least speedupfactor  hits
+      if(i==trksize-1) break;  // last hit was checked
+      step=(int)(dis/_meandist);
+      i+=step;
       if(i>trksize-1) i=trksize-1;
     }
 
@@ -81,11 +90,11 @@ PndTpcProximityHTCorrelator::corr(PndTpcRiemannTrack* trk,
     }
   }
   
+  if(step<SPEEDUP) step=SPEEDUP;
+
   // get closest hit from track
   double l;
-  int index = trk->getClosestHit(rhit,l,closest-2*speedupfactor,closest+3*speedupfactor);
-  TVector3 dist = posX - trk->getHit(index)->cluster()->pos();
-
+  TVector3 dist(posX - trk->getHit( trk->getClosestHit(rhit,l,closest-2*step,closest+2*step) )->cluster()->pos());
 
 
 // use ideal correlation for adjusting cuts!!
@@ -95,7 +104,7 @@ PndTpcProximityHTCorrelator::corr(PndTpcRiemannTrack* trk,
 
   //dist.Print();
 
-  if (dist.Mag()>_proxcut){
+  if (dist.Mag()>proxcut){
     survive=false;
     return true;
   }
@@ -128,14 +137,14 @@ PndTpcProximityHTCorrelator::corr(PndTpcRiemannTrack* trk,
   return true;
 #endif
 
+  matchQuality=l; // unaltered distance in 3D
 
   dist.SetZ(dist.Z()/_zStretch);
   l = dist.Mag();
 
   //std::cout<<"distance in 3D: "<<l<<std::endl;
   DebugLogger::Instance()->Histo("HT_prox_l",l,0,5,100);
-  matchQuality=l;
-  if(l>_proxcut){
+  if(l>proxcut){
     DebugLogger::Instance()->Histo("HT_riemanncuts",1,0,20,20);
     survive=false;
     return true;
