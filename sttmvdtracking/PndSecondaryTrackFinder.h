@@ -228,10 +228,10 @@ class PndSecondaryTrackFinder : public FairTask {
 
 
 
-  /** Output array of PndSttMvd  PndTrackCand **/
-  TClonesArray* fSttMvdPndTrackCandArray;
-  /** Output array of PndSttMvd   PndTrack **/
-  TClonesArray* fSttMvdPndTrackArray;
+  /** Output array of secondary track cand **/
+  TClonesArray* fSecondaryTrackCandArray;
+  /** Output array of secondary track **/
+  TClonesArray* fSecondaryTrackArray;
 
   /** SttMvdGemTrackCandArray **/ 
  TClonesArray* fSttMvdGemTrackCandArray;

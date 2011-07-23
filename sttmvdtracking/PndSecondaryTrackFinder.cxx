@@ -149,15 +149,12 @@ InitStatus PndSecondaryTrackFinder::Init() {
     return kERROR;
   }
   // Create and register output array for PndTrackCand of Stt+Mvd combined
-
-  fSttMvdPndTrackCandArray = new TClonesArray("PndTrackCand");
-  ioman->Register("SttMvdTrackCand","SttMvd",fSttMvdPndTrackCandArray, kTRUE);
-
+  fSecondaryTrackCandArray = new TClonesArray("PndTrackCand");
+  ioman->Register("SttMvdTrackCand","SttMvd",fSecondaryTrackCandArray, kTRUE);
 
   // Create and register output array for PndTrack of Stt+Mvd combined
-
-  fSttMvdPndTrackArray = new TClonesArray("PndTrack");
-  ioman->Register("SttMvdTrack","SttMvd",fSttMvdPndTrackArray, kTRUE);
+  fSecondaryTrackArray = new TClonesArray("PndTrack");
+  ioman->Register("SttMvdTrack","SttMvd",fSecondaryTrackArray, kTRUE);
 
 
 
@@ -1176,7 +1173,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   }
 
   // ORDERING
-  fDisplayOn = kTRUE;
+  //  fDisplayOn = kTRUE;
   for(int itrk = 0; itrk < tracklist.size(); itrk++) {
     
     cout << "ORDERING TIME !!!!" << endl;
@@ -1229,27 +1226,54 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 
 
   }
-   for(int itrk = 0; itrk < tracklist.size(); itrk++) {
 
-   cout << "COMPUTE PARAMETERS @ FIRST AND LAST" << endl;
-   std::vector< TMatrixT<double> > track = tracklist[itrk];
-   TMatrixT<double> par = xyparameters[itrk];
-   
-   TVector3 firstpos, firstmom, dfirstpos;
-   Bool_t first = ComputeFirstParameters(track, par, firstpos, dfirstpos, firstmom);
-   TVector3 lastpos, lastmom, dlastpos;
-   Bool_t last = ComputeLastParameters(track, par, lastpos, dlastpos, lastmom);
-   cout << "OUTCOME " << first << " " << last << endl;
-   firstpos.Print();
-   firstmom.Print();
-   lastpos.Print();
-   lastmom.Print();
-   cout << "###" << endl;
- }
+  for(int itrk = 0; itrk < tracklist.size(); itrk++) {
+    
+    cout << "COMPUTE PARAMETERS @ FIRST AND LAST" << endl;
+    std::vector< TMatrixT<double> > track = tracklist[itrk];
+    TMatrixT<double> par = xyparameters[itrk];
+    
+    TVector3 firstpos, firstmom, dfirstpos, dfirstmom; // CHECK error
+    Bool_t first = ComputeFirstParameters(track, par, firstpos, dfirstpos, firstmom);
+    TVector3 lastpos, lastmom, dlastpos, dlastmom; // CHECK error
+    Bool_t last = ComputeLastParameters(track, par, lastpos, dlastpos, lastmom);
+    cout << "OUTCOME " << first << " " << last << endl;
+    firstpos.Print();
+    firstmom.Print();
+    lastpos.Print();
+    lastmom.Print();
+    cout << "###" << endl;
 
+    int charge = (int) par[0][3];
+    TVector3 dj(1, 0, 0), dk(0, 0, 1);   // CHECK
 
+    FairTrackParP firstpar(firstpos, firstmom,
+			   dfirstpos, dfirstmom, charge,
+			   firstpos, dj, dk);
+    
+    FairTrackParP lastpar(lastpos, lastmom,
+			  dlastpos, dlastmom, charge,
+			  lastpos, dj, dk);
 
- }
+    TClonesArray& clref = *fSecondaryTrackCandArray;
+    Int_t size = clref.GetEntriesFast();
+    PndTrackCand *secCand = new(clref[size]) PndTrackCand();
+
+    for(int ihit = 0; ihit < track.size(); ihit++) {
+      TMatrixT<double> singlehit = track[ihit];
+      if(singlehit[0][0] == -1) continue;
+      Int_t hitid = singlehit[0][1];
+      Int_t detid = singlehit[0][2];
+      secCand->AddHit(detid, hitid, ihit);
+    }
+    
+    TClonesArray& clref2 = *fSecondaryTrackArray;
+    PndTrack *secTrack = new(clref2[size]) PndTrack(firstpar, lastpar, *secCand);
+ 
+  }
+    
+  
+}
 
 // hits are ordered in distance in xy plane from origin
 std::vector<int> PndSecondaryTrackFinder::OrderHits(TClonesArray *hitarray, Int_t detId, Bool_t skewed)
