@@ -316,7 +316,8 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
     Short_t Charge[MAXTRACKSPEREVENT],
             Status[MAXTRACKSPEREVENT],
             daTrackFoundaTrackMC[MAXTRACKSPEREVENT],
-		enne;
+		enne[MAXTRACKSPEREVENT][nmaxHits];
+//		enne[MAXTRACKSPEREVENT][nmaxHits];
 
 
     UShort_t	emme,
@@ -414,6 +415,14 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
   }
 
 
+/*
+   if(istampa>=1 && (nMCTracks  != N_INTENDED)  ){
+    cout<<"Evento n. "<<IVOLTE<<" : n. MC tracks = "<<nMCTracks
+    <<" and it is different from n. intended tracks (= "<<
+        N_INTENDED<<"), returning!\n";
+    return  -20;
+  }
+*/
 
     
   // Initialise control counters
@@ -468,6 +477,11 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 
 	}
 
+//      if (ptIndex < 0) continue;           // fake or background hit
+//      if (!pMCpt){
+//       cout<<"from PndSttTrackFinderReal :  # MC points pointer missing, return!\n";
+//       continue;
+//      }
       
       // tubeID  CHECK added
       Int_t tubeID = pMhit->GetTubeID();
@@ -481,6 +495,9 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
       // wire direction
       TVector3 wiredirection = tube->GetWireDirection();
 
+      // "real" MC coordinates (in + out)/2.
+//      TVector3 mcpoint;
+//      pMCpt->Position(mcpoint);
 
       if(wiredirection.Z() >=0.) {
        WDX = wiredirection.X();     WDY = wiredirection.Y(); WDZ = wiredirection.Z();
@@ -656,18 +673,18 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
            SeedParallelNumber,
            OLDnHitsinTrack,
            TemporarynSkewHitsinTrack,
-           BigList[MAXTRACKSPEREVENT][nmaxHits],
+           BigList[MAXTRACKSPEREVENT][nmaxHitsInTrack],
            TemporarySkewList[nmaxHits][2],
            nHitsinTrack[MAXTRACKSPEREVENT],
            nSkewHitsinTrack[MAXTRACKSPEREVENT],
            tempore[nmaxHits],
            auxListHitsinTrack[nmaxHits],
-           ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+           ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
            ListHitsinTrackinWhichToSearch[nmaxHits],
            OLDListHitsinTrack[nmaxHits],
            OutputListHitsinTrack[nmaxHits],
            OutputList2HitsinTrack[nmaxHits],
-           ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+           ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
            nMCParalAlone[MAXTRACKSPEREVENT],
            nMCSkewAlone[MAXTRACKSPEREVENT],
            MCParalAloneList[MAXTRACKSPEREVENT][nmaxHits],
@@ -968,15 +985,20 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
                                                 );
 //   add the new hits found to the list
          nHitsinTrack[nTracksFoundSoFar]=Naux+Nbaux;
-         for(j=0;j<Naux;j++){
-            ListHitsinTrack[nTracksFoundSoFar][j] = OutputListHitsinTrack[j];
-         }
-         for(j=0;j<Nbaux;j++){
-            ListHitsinTrack[nTracksFoundSoFar][Naux+j] = OutputList2HitsinTrack[j];
-         }
-         break;
-      }  // end of  if( Naux >= MINIMUMOUTERHITSPERTRACK)
+	if( nHitsinTrack[nTracksFoundSoFar] >= MINIMUMHITSPERTRACK &&
+	 nHitsinTrack[nTracksFoundSoFar]<=nmaxHitsInTrack) {
 
+		for(j=0;j<Naux;j++){
+			ListHitsinTrack[nTracksFoundSoFar][j] = OutputListHitsinTrack[j];
+		}
+		for(j=0;j<Nbaux;j++){
+			ListHitsinTrack[nTracksFoundSoFar][Naux+j] = OutputList2HitsinTrack[j];
+		}
+		break;
+	}// end of  if( nHitsinTrack[nTracksFoundSoFar] >= ....
+
+
+      }  // end of  if( Naux >= MINIMUMOUTERHITSPERTRACK)
       }   // end of for(i=0; i< Nouter;i++)
      }    // end of if( Nouter >= MINIMUMOUTERHITSPERTRACK)
 
@@ -1360,7 +1382,12 @@ if(iplotta && IVOLTE <= nmassimo){
                    ZErrorafterTilt   //  output,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
                                                      );
     nSkewHitsinTrack[i]=TemporarynSkewHitsinTrack;   // it can be also zero!
-    if( nSkewHitsinTrack[i] > nmaxHitsInTrack) continue;
+    // limit the total # hits to nmaxHitsInTrack
+    if( nSkewHitsinTrack[i]+nHitsinTrack[i] > nmaxHitsInTrack ) {
+	if(nmaxHitsInTrack-nHitsinTrack[i]>0)nSkewHitsinTrack[i]=nmaxHitsInTrack-nHitsinTrack[i];
+	else nSkewHitsinTrack[i]=0;
+    }
+
     for(j=0;j<nSkewHitsinTrack[i];j++){
 	ListSkewHitsinTrack[i][j]=TemporarySkewList[j][0];
     }
@@ -1452,16 +1479,19 @@ if(iplotta && IVOLTE <= nmassimo){
  if( STATUS >=0 ){
 
        nSkewHitsinTrack[i] = NNN;
-    //  since this is the final # of hits, check if they are not too many.
-    if( nSkewHitsinTrack[i]+nHitsinTrack[i] > nmaxHitsInTrack) continue;
-	for(j=0;j<nSkewHitsinTrack[i];j++){
+    // limit the total # of hits in track to nmaxHitsInTrack.
+	if( nSkewHitsinTrack[i]+nHitsinTrack[i] > nmaxHitsInTrack ) {
+	 if(nmaxHitsInTrack-nHitsinTrack[i]>0)nSkewHitsinTrack[i]=nmaxHitsInTrack-nHitsinTrack[i];
+	 else nSkewHitsinTrack[i]=0;
+	}
+       for(j=0;j<nSkewHitsinTrack[i];j++){
 		ListSkewHitsinTrack[i][j]=tempore[j];
 		Sfinal[i][infoskew[ListSkewHitsinTrack[i][j]]]= temporeS[j];
 		S[j]  =  temporeS[j] ;
 		Z[j]  =  temporeZ[j] ;
 		ZDrift[j]  =  temporeZDrift[j] ;
 		ZErrorafterTilt[j]  =  temporeZErrorafterTilt[j] ;
-	}
+       }
 
        if (NNN < 2) continue ;
 
@@ -1470,7 +1500,12 @@ if(iplotta && IVOLTE <= nmassimo){
  }   else {   //   continuation of   if( STATUS >=0 )
 
     nSkewHitsinTrack[i]=TemporarynSkewHitsinTrack;
-    for(j=0;j<TemporarynSkewHitsinTrack;j++){ ListSkewHitsinTrack[i][j]=TemporarySkewList[j][0];}
+    // limit the total # of hits in track to nmaxHitsInTrack.
+	if( nSkewHitsinTrack[i]+nHitsinTrack[i] > nmaxHitsInTrack ) {
+	 if(nmaxHitsInTrack-nHitsinTrack[i]>0)nSkewHitsinTrack[i]=nmaxHitsInTrack-nHitsinTrack[i];
+	 else nSkewHitsinTrack[i]=0;
+	}
+    for(j=0;j<nSkewHitsinTrack[i];j++){ ListSkewHitsinTrack[i][j]=TemporarySkewList[j][0];}
     GoodSkewFit[i]= true;
  }    //  end of     if( STATUS >=0 )
 
@@ -1664,9 +1699,8 @@ if(istampa>=2)cout<<"\thit skew (nativo) n. "<<infoskew[ ListSkewHitsinTrack[i][
 
 	for(exphit=0; exphit<nHitsinTrack[jexp]; exphit++){
 		iHit = infoparal[ ListHitsinTrack[jexp][exphit] ];
-//		enne[jexp][exphit] = (Short_t) ( info[iHit][6] + 0.01);
-		enne = (Short_t) ( info[iHit][6] + 0.01);
-		if( enne == daTrackFoundaTrackMC[jexp] ){
+		enne[jexp][exphit] = (Short_t) ( info[iHit][6] + 0.01);
+		if( enne[jexp][exphit] == daTrackFoundaTrackMC[jexp] ){
 			ParalCommonList[jexp][ nParalCommon[jexp] ] = iHit;
 			nParalCommon[jexp]++;
 		} else {
@@ -1694,9 +1728,8 @@ if(istampa>=2)cout<<"\thit skew (nativo) n. "<<infoskew[ ListSkewHitsinTrack[i][
 
 	for(exphit=0; exphit<nSkewHitsinTrack[jexp]; exphit++){
 		iHit = infoskew[ ListSkewHitsinTrack[jexp][exphit] ];
-//		enne[jexp][exphit] = (Short_t) ( info[iHit][6] + 0.01);
-		enne = (Short_t) ( info[iHit][6] + 0.01);
-		if( enne ==   daTrackFoundaTrackMC[jexp] ){
+		enne[jexp][exphit] = (Short_t) ( info[iHit][6] + 0.01);
+		if( enne[jexp][exphit] ==   daTrackFoundaTrackMC[jexp] ){
 			SkewCommonList[jexp][ nSkewCommon[jexp] ] = iHit;
 			nSkewCommon[jexp]++;
 		} else {
@@ -4760,7 +4793,7 @@ dopo:  ;
   void PndSttTrackFinderReal::WriteMacroParallelAssociatedHits(
                    Double_t Ox,Double_t Oy,Double_t R,
                    UShort_t Nhits,
-		   UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+		   UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
 //		   UShort_t infoparal[nmaxHits],
                    Double_t info[][7], Int_t Nincl, Int_t Minclinations[],
 		   Double_t inclination[][3],
@@ -4892,7 +4925,7 @@ dopo:  ;
                    Double_t Ox,Double_t Oy,Double_t R,
                   Short_t TrackFoundaTrackMC,
                    UShort_t Nhits,
-		UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+		UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
                    Double_t info[][7],
                    UShort_t ifoundtrack,
 		Int_t sequentialNTrack,
@@ -5122,7 +5155,7 @@ carica0: ;
                    Int_t imaxima,
 		Int_t sequentialNTrack,
                    UShort_t nSkewHitsinTrack,
-                   UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits]
+                   UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack]
 //                   UShort_t nSkewCommon,
 //                   UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxHits]
 
@@ -5405,7 +5438,7 @@ nohits: ;
                    Int_t imaxima,
 		   Int_t sequentialNTrack,
                    UShort_t nSkewHitsinTrack,
-                   UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+                   UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
                    UShort_t nSkewCommon,
                    UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxHits],
                    UShort_t daTrackFoundaTrackMC,
@@ -6204,6 +6237,7 @@ void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_lef
 //if(IVOLTE==3)   cout<<"\tnFi cell di hit accettato "<<iFi<<" e iR di hit accettato = "<<iR<<endl;
 
             nHitsinTrack++;
+	    if( nHitsinTrack >= nmaxHitsInTrack) goto stopsearch ;  // finish the search.
             TemporaryExclusionList[ infoparal[  HitsinBoxConformal[j][iR][iFi]  ]  ]= false;
             nRemainingHits--;
           }
@@ -6218,7 +6252,7 @@ void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_lef
 
 
 
-
+ stopsearch: ;
 
     return nHitsinTrack;
 
@@ -9980,6 +10014,8 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
 		for (j = 0 ; j< nParHits; j++){
 			aux[j] = sign*U[j];
+//			BigList[j]=Infoparal[ListParHits[j]];
+//			index[j] = j;
 		}
 		for (j = 0; j< nSkewHits; j++){
 			// this is U in conformal space
@@ -9987,6 +10023,8 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 					(oX*oX+oY*oY+Rr*Rr + 2.*Rr*
 					(oX*cos(SList[Infoskew[ListSkewHits[j]]])
 					+oY*sin(SList[Infoskew[ListSkewHits[j]]])));
+//			BigList[j+nParHits]=Infoskew[ListSkewHits[j]];
+//			index[j+nParHits] = j+nParHits;
 		}
 
 
@@ -10001,6 +10039,8 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 		}
 		for (j = 0 ; j< nParHits; j++){
 			aux[j] = sign*V[j];
+//			BigList[j]=Infoparal[ListParHits[j]];
+//			index[j] = j;
 		}
 		for (j = 0; j< nSkewHits; j++){
 			// this is V in conformal space.
@@ -10008,6 +10048,8 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 			(oX*oX+oY*oY+Rr*Rr + 2.*Rr*
 				(oX*cos(SList[Infoskew[ListSkewHits[j]]])
 				+oY*sin(SList[Infoskew[ListSkewHits[j]]])));
+//			BigList[j+nParHits]=Infoskew[ListSkewHits[j]];
+//			index[j+nParHits] = j+nParHits;
 		}
 
 
@@ -11044,9 +11086,9 @@ out2:  ;
 		  Double_t info[][7],
                   UShort_t nTracksFoundSoFar,
                   UShort_t nHitsinTrack[MAXTRACKSPEREVENT],
-                  UShort_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+                  UShort_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
                   UShort_t nSkewHitsinTrack[MAXTRACKSPEREVENT],
-                  UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+                  UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
                   Short_t daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
                                                         )
 {
