@@ -461,7 +461,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
   void WriteMacroParallelAssociatedHits(
                    Double_t Ox,Double_t Oy,Double_t R,
-                   UShort_t Nhits, UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+                   UShort_t Nhits, UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
                    Double_t info[][7], Int_t Nincl, Int_t Minclinations[], Double_t inclination[][3],
                    UShort_t imaxima,
 		Int_t sequencial
@@ -471,7 +471,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                    Double_t Ox,Double_t Oy,Double_t R,
                   Short_t TrackFoundaTrackMC,
                    UShort_t Nhits,
-		UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+		UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
                    Double_t info[][7],
                    UShort_t ifoundtrack,
 		Int_t sequentialNTrack,
@@ -528,7 +528,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                    Int_t imaxima,
 		   Int_t sequentialNTrack,
                    UShort_t nSkewHitsinTrack,
-                   UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits]
+                   UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack]
 
                                                      );
 
@@ -547,7 +547,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                    Int_t imaxima,
 		   Int_t sequentialNTrack,
                    UShort_t nSkewHitsinTrack,
-                   UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+                   UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
                    UShort_t nSkewCommon,
                    UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxHits],
                    UShort_t daTrackFoundaTrackMC,
@@ -717,9 +717,9 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		  Double_t info[][7],
                   UShort_t nTracksFoundSoFar,
                   UShort_t nHitsinTrack[MAXTRACKSPEREVENT],
-                  UShort_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+                  UShort_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
                   UShort_t nSkewHitsinTrack[MAXTRACKSPEREVENT],
-                  UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+                  UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
                   Short_t daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
 					);
 
