@@ -13633,26 +13633,9 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 }
 
 
+//----------begin of function PndSttTrackFinderReal::OrderingUsingConformal
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//----------begin of function PndSttTrackFinderReal::OrderingLia
-
-	void   PndSttTrackFinderReal::OrderingLia(
+	void   PndSttTrackFinderReal::OrderingUsingConformal(
 		Double_t oX,
 		Double_t oY,
 		Int_t nHits,
@@ -13763,7 +13746,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 
 
 }
-//----------end of function PndSttTrackFinderReal::OrderingLia
+//----------end of function PndSttTrackFinderReal::OrderingUsingConformal
 
 
 
