@@ -11885,6 +11885,130 @@ int nevento=1;
 
 
 
+
+//----------begin of function PndSttMvdTracking::OrderingUsingConformal
+
+	void   PndSttMvdTracking::OrderingUsingConformal(
+		Double_t oX,
+		Double_t oY,
+		Int_t nHits,
+		Double_t XY[][2],
+		Int_t  Charge,  // input
+		UShort_t *ListHits
+							)
+{
+
+
+
+
+      UShort_t	i,j,
+		tmp[nHits];
+      Double_t	aaa,
+		b1,
+		firstR2,
+		lastR2,
+		aux[nHits],
+		U[nHits],
+		V[nHits];
+
+
+
+//  here there is the ordering of the hits, under the assumption that the circumference
+//  in XY goes through (0,0).
+//  Moreover, the code before is supposed to have selected trajectories in XY with (Ox,Oy)
+//  farther from (0,0) by > 0.9 * RminStrawDetector/2 and consequently Ox and Oy are not both 0.
+//  The scheme for the ordering of the hit is as follows :
+//  1)  order hits by increasing U or V of the conformal mapping; see Gianluigi's Logbook page 283;
+//  2)  find the charge of the track by checking if it is closest to the center in XY
+//	the first or the last of the ordered hits.
+//  3)  in case, invert the ordering of U, V and ListHits such that the first hits in the
+//	list are alway those closer to the (0,0).
+
+
+//   ordering of the hits
+
+	aaa = atan2( oY, oX);  // atan2 defined between -PI and PI.
+
+	// the following statement is necessary since for unknown reason the root interpreter
+	// gives a weird error when using PI directly in the if statement below!!!!!!! I lost
+	// 2 hours trying to figure this out!
+	b1 = PI/4.;
+
+	if((aaa>b1&&aaa<3.*b1) || (aaa>-3.*b1&&aaa<-b1)){//use U as ordering variable;
+							//[case 1 or 3 Gianluigi's Logbook page 285].
+		for (j = 0; j< nHits; j++){
+			U[j]=XY[j][0]/(XY[j][0]*XY[j][0]+XY[j][1]*XY[j][1]);
+		}
+		Merge_Sort( nHits, U, ListHits);
+
+		if((aaa>b1&&aaa<3.*b1)){  //  case #1;
+			if( Charge == -1){
+				// inverting the order of the hits.
+				for(i=0;i<nHits;i++){
+					tmp[i]=ListHits[nHits-1-i];
+				}
+				for(i=0;i<nHits;i++){
+					ListHits[i]=tmp[i];
+				}
+			}
+		} else{  //  case # 3.
+			if(Charge == 1){
+				// inverting the order of the hits.
+				for(i=0;i<nHits;i++){
+					tmp[i]=ListHits[nHits-1-i];
+				}
+				for(i=0;i<nHits;i++){
+					ListHits[i]=tmp[i];
+				}
+			}// end of  if( Charge ==1)
+		}// end of  if((aaa>b1&&aaa<3.*b1))
+
+	} else { // use V as ordering variable [case 2 or 4 Gianluigi's Logbook page 285].
+		for (j = 0; j< nHits; j++){
+			V[j]=XY[j][1]/(XY[j][0]*XY[j][0]+XY[j][1]*XY[j][1]);
+		}
+		Merge_Sort( nHits, V, ListHits);
+
+		if((aaa<=-3.*b1 || aaa>=3.*b1)){  //  case #2;
+			if( Charge == -1){
+				// inverting the order of the hits.
+				for(i=0;i<nHits;i++){
+					tmp[i]=ListHits[nHits-1-i];
+				}
+				for(i=0;i<nHits;i++){
+					ListHits[i]=tmp[i];
+				}
+			}
+		} else{  //  case # 4.
+			if( Charge == 1){
+				// inverting the order of the hits.
+				for(i=0;i<nHits;i++){
+					tmp[i]=ListHits[nHits-1-i];
+				}
+				for(i=0;i<nHits;i++){
+					ListHits[i]=tmp[i];
+				}
+			}
+		}
+
+	} //  end of   if((aaa>b1&& ....
+
+
+
+ return; 
+
+
+}
+//----------end of function PndSttMvdTracking::OrderingUsingConformal
+
+
+
+
+
+
+
+
+
 //----------begin of function PndSttMvdTracking::TrackCleanup
 
 
