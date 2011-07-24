@@ -91,7 +91,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 #define maximumTracks 50
       static const UShort_t
-            nmaxHits = maximumTracks*30, // max hits total.
+            nmaxHits = 1000, // max hits total.
 	nmaxHitsInTrack=60,
             MAXMCTRACKS=10000,
             MAXTRACKSPEREVENT=maximumTracks,
@@ -1035,7 +1035,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 				Double_t Ycross[2]
 					);
 
-	void   OrderingLia(
+	void   OrderingUsingConformal(
 		Double_t oX,
 		Double_t oY,
 		Int_t nHits,
