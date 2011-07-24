@@ -831,6 +831,17 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 			UShort_t LastCandidate,
 			Double_t info[][7]
 					);
+
+
+	void   OrderingUsingConformal(
+		Double_t oX,
+		Double_t oY,
+		Int_t nHits,
+		Double_t XY[][2], // XY[*][0] = X position, XY[*][0] = Y position.
+		Int_t  Charge,  // input
+		UShort_t *ListHits
+							);
+
 //--------
 
 	void SeparateInnerOuterParallel(
