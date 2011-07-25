@@ -195,6 +195,7 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& alldigis)
   if(nalldigi<3) return;
 
   if(sectorize){
+    std::cerr<<"processing digis sectorwise"<<std::endl;
     // reserve
     std::map<unsigned int,std::vector<PndTpcDigi*>* >::iterator secIt=fsectormap.begin();
     while(secIt!=fsectormap.end()){ // loop over sectors
@@ -215,7 +216,10 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& alldigis)
       ++secIt;
     } // end loop over sectors
   }
-  else processSector(alldigis); // do not sectorize!
+  else {
+    std::cerr<<"processing all digis"<<std::endl;
+    processSector(alldigis); // do not sectorize!
+  }
 
 }
 
