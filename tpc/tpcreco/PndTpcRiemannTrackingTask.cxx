@@ -539,7 +539,7 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
   // clear small tracklets
   if(true){
     for (unsigned int i=0; i<friemannlist.size(); ++i){
-      if (friemannlist[i]->getNumHits() <= MINHITS ||
+      if (friemannlist[i]->getNumHits() <= _minpoints+1 ||
           (friemannlist[i]->getFirstHit()->cluster()->pos() -
            friemannlist[i]->getLastHit()->cluster()->pos()).Mag() < 4.){
         friemannlist[i]->deleteHits();

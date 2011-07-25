@@ -687,7 +687,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     // clear small tracklets
     if(clearUnfitted){
       for (unsigned int i=0; i<friemannlist.size(); ++i){
-        if (friemannlist[i]->getNumHits() <= 10 ||
+        if (friemannlist[i]->getNumHits() <= _minpoints+1 ||
             (friemannlist[i]->getFirstHit()->cluster()->pos() -
              friemannlist[i]->getLastHit()->cluster()->pos()).Mag() < 4.){
           friemannlist[i]->deleteHits();
