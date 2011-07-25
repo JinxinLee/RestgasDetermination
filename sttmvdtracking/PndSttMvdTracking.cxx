@@ -44,6 +44,7 @@ using namespace std;
 PndSttMvdTracking::PndSttMvdTracking() : FairTask("STT Stt-Mvd Tracking") { 
   fPersistence = kTRUE;
   fVerbose = 0;
+
   istampa = 0;
   iplotta = false;
   doMcComparison = false;
@@ -59,6 +60,7 @@ PndSttMvdTracking::PndSttMvdTracking(Int_t verbose) : FairTask("STT Stt-Mvd Trac
   istampa = verbose;
   iplotta = false;
   doMcComparison = false;
+
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
@@ -73,6 +75,7 @@ PndSttMvdTracking::PndSttMvdTracking(int istamp, bool  iplot, bool imc)
   doMcComparison = imc;
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
+
   sprintf(fMvdStripBranch,"MVDHitsStrip");
 }
 
@@ -4269,7 +4272,7 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 
 	char myname[100];
 
-	sprintf(nome, "InnerPar");
+	sprintf(myname, "InnerPar");
 	DrawBiHexagonInMacro(
 				VERTICALGAP,
 				MACRO,
@@ -4280,7 +4283,7 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 				);
 //--------------
 //	disegna il BiHexagon destro e sinistro delle skew straws.
-	sprintf(nome, "Skew");
+	sprintf(myname, "Skew");
 	DrawBiHexagonInMacro(
 				VERTICALGAP,
 				MACRO,
@@ -4291,7 +4294,7 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 				);
 //--------------
 //	disegna il BiHexagon destro e sinistro delle skew straws.
-	sprintf(nome, "OuterPar");
+	sprintf(myname, "OuterPar");
 	DrawHexagonCircleInMacro(
 				VERTICALGAP,
 				MACRO,
@@ -12232,7 +12235,8 @@ FiLimitAdmissible<<", X limit "<<Oxx+Rr*cos(FiLimitAdmissible)<<
 	Short_t flagInnerSttR,
 		flagOuterSttR,
 		flagInnerSttL,
-		flagOuterSttL;
+		flagOuterSttL,
+		flagOutStt;
 
 	UShort_t	enne,
 			i,
@@ -12254,6 +12258,8 @@ FiLimitAdmissible<<", X limit "<<Oxx+Rr*cos(FiLimitAdmissible)<<
 			YcrossL[2],
 			XcrossR[2],
 			YcrossR[2],
+			XcrossOut[2],
+			YcrossOut[2],
 			XintersectionList[5], // there is also the last boundary FiLimitAdmissible
 			YintersectionList[5]; // take into account.
 
@@ -12321,6 +12327,21 @@ FiLimitAdmissible<<", X limit "<<Oxx+Rr*cos(FiLimitAdmissible)<<
 
 jumpa: ;
 
+//	first of all, find possible intersection points with outer circle encompassing
+//	the Stt system.
+
+	flagOutStt = FindIntersectionsOuterCircle(
+				Oxx,
+				Oyy,
+				Rr,
+				RStrawDetectorMax,
+				XcrossOut,
+				YcrossOut
+				);
+
+
+
+//	intersection with Inner Section.
 
 	flagInnerSttL=FindTrackEntranceExitbiHexagonLeft(
 				GAP,
@@ -12351,9 +12372,11 @@ jumpa: ;
 				);
 
 
+
 //-----------------
 
 //	working in the hypothesis that his is a track coming from Vertex at (0,0).
+
 
 	if( flagInnerSttL != 0 && flagInnerSttR != 0 ){
 		nHits=0; // eliminate all the hits from hit list.
@@ -14473,6 +14496,48 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 //----------end of function PndSttMvdTracking::FindTrackEntranceExitHexagonCircleRight
 
 
+
+
+//----------begin of function PndSttMvdTracking::FindIntersectionsOuterCircle
+
+
+	Short_t PndSttMvdTracking::FindIntersectionsOuterCircle(
+				Double_t oX,
+				Double_t oY,
+				Double_t R,
+				Double_t Rma,
+				Double_t Xcross[2],
+				Double_t Ycross[2]
+					)
+{
+
+	// return -1 --> non intersection;
+	// return 0  --> 2 intersections.
+
+	Double_t	a,
+			cosFi,
+			Fi,
+			FI0;
+
+	a = sqrt(oX*oX+oY*oY);
+
+	// case with no intersections.
+	if( a >= R + Rma || R >= a + Rma ||  a + R <= Rma) return -1;
+
+
+	FI0 = atan2(-oY,-oX);
+	cosFi = (a*a + R*R - Rma*Rma)/(2.*R*a);
+	if(cosFi<-1.) cosFi=-1.; else if(cosFi>1.) cosFi=1.;
+	Fi = acos(cosFi);
+
+	Xcross[0] = oX + R*cos(FI0+Fi);
+	Ycross[0] = oX + R*sin(FI0+Fi);
+	Xcross[1] = oX + R*cos(FI0-Fi);
+	Ycross[1] = oX + R*sin(FI0-Fi);
+
+	return 0;
+}
+//----------end of function PndSttMvdTracking::FindIntersectionsOuterCircle
 
 
 
