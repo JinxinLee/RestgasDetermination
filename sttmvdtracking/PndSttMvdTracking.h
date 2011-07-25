@@ -1107,6 +1107,14 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 				Double_t Ycross[2]
 					);
 
+	Short_t FindIntersectionsOuterCircle(
+				Double_t Oxx,
+				Double_t Oyy,
+				Double_t Rr,
+				Double_t RMax,
+				Double_t Xcross[2],
+				Double_t Ycross[2]
+					);
 
 	bool IsInsideArc(
 			Double_t Oxx,
