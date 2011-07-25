@@ -2343,7 +2343,9 @@ for(int ip=0;ip<nHitsSkew;ip++){
 							&centrey,
 							&radius
 							   );
-			if( status[nTotalCandidates] ){
+			// the election on the radius is justified by the assumption that
+			// the track originates from (0,0,0).
+			if( status[nTotalCandidates] && radius > RStrawDetectorMin/2.){
 				Ox[nTotalCandidates] = centrex;
 				Oy[nTotalCandidates] = centrey;
 				R[nTotalCandidates] = radius;
