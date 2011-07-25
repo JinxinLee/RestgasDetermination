@@ -54,7 +54,7 @@ public:
   void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
   void SetDigiPersistence(Bool_t opt=kTRUE) {fDigiPersistence=opt;} // store references to digis in clusters
   void SetTrivialClustering(Bool_t opt=kTRUE) {ftrivial=opt;}
-  void SetSimpleClustering(Bool_t opt=kTRUE);
+  void SetSimpleClustering(Bool_t opt=kTRUE, Bool_t sectorize=kTRUE);
   void SetMode(int mode){fmode=mode;}
   
   void timeslice(unsigned int t){ftimeslice=t;}
@@ -87,6 +87,7 @@ private:
   Bool_t fDigiPersistence;
   Bool_t ftrivial;
   Bool_t fsimple;
+  Bool_t fsectorize; // sectorize simple clustering
   Bool_t fDataMode;   
  
   int fmode;                 /// controls method of sorting into time bins 

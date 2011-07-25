@@ -47,7 +47,7 @@
 // Class Member definitions -----------
 
 PndTpcClusterFinderTask::PndTpcClusterFinderTask()
-  : FairTask("TPC Cluster Finder"), fpersistence(kFALSE), fDigiPersistence(kFALSE),ftrivial(kFALSE),fsimple(kFALSE),
+  : FairTask("TPC Cluster Finder"), fpersistence(kFALSE), fDigiPersistence(kFALSE),ftrivial(kFALSE),fsimple(kFALSE), fsectorize(kFALSE),
     ftimeslice(2), fmode(0),fthres(1), fSDiClAmpCut(0), fClAmpCut(0), fDataMode(kFALSE), fDiffFactor(1.), fClusterTimeCut(5),
     fAdcSens(600.), fC(300.)
 {
@@ -78,8 +78,14 @@ PndTpcClusterFinderTask::SetParContainers() {
   if (! fpar ) Fatal("SetParContainers", "PndTpcDigiPar not found");
 }
 
-void PndTpcClusterFinderTask::SetSimpleClustering(Bool_t opt){
+void PndTpcClusterFinderTask::SetSimpleClustering(Bool_t opt, Bool_t sectorize){
   fsimple=opt;
+  fsectorize=sectorize;
+  if(fsimple){
+    std::cerr<<"PndTpcClusterFinderTask::SetSimpleClustering - using ClusterFinderSimple ";
+    if (fsectorize) std::cerr<<"with sectorization"<<std::endl;
+    else std::cerr<<"without sectorization"<<std::endl;
+  }
   if(fsimple && !fDigiPersistence)
     std::cerr<<"\n PndTpcClusterFinderTask::SetSimpleClustering  \n \
     You want to use SimpleClustering. \n \
@@ -140,6 +146,7 @@ PndTpcClusterFinderTask::Init()
             fcluster_buffer,
             ftimeslice, gain/fAdcSens, fC);
     ((PndTpcClusterFinderSimple*)(ffinder))->setNoXclust(false);
+    ((PndTpcClusterFinderSimple*)(ffinder))->setSectorize(fsectorize);
   }
   
   ffinder->checkConsistency();

@@ -83,7 +83,7 @@ PndTpcCluster* PndTpcPrelimCluster::convPndTpcCluster(bool saveRaw) {
     }
   }
   
-  // simply choose first pad to define sector
+  // simply choose first pad (biggest digi) to define sector
   unsigned int sid=PndTpcDigiMapper::getInstance()->getPad(fdigis[0]->padId())->sectorId();
   c->SetSector(sid);
   
@@ -163,7 +163,7 @@ PndTpcClusterFinderSimple::PndTpcClusterFinderSimple(PndTpcPadPlane* p,
 						     std::vector<PndTpcCluster*>* ob,
 						     unsigned int timeslice, double G, double C)
   : fpadplane(p), foutput_buffer(ob), fdt(timeslice), noXclust(false),
-    splitDigis(0), fG(G), fC(C), maxClusterSlice(3000)
+    splitDigis(0), fG(G), fC(C), maxClusterSlice(4000), sectorize(true)
 {
 // construct sector map
   std::vector<unsigned int> ids=fpadplane->GetSectorIds();
@@ -192,30 +192,42 @@ void
 PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& alldigis)
 {
   unsigned int nalldigi = alldigis.size();
-  if(nalldigi<=3) return;
-  
-  std::sort(alldigis.begin(),alldigis.end(),PndTpcDigiAge());
+  if(nalldigi<3) return;
 
-  //std::cerr<<"ndigis: "<<ndigi<<std::endl;
-
-  // sectorize on pad plane 
-  for(int idi=0;idi<nalldigi;++idi){//loop over
-    unsigned int sectorId=fpadplane->GetPad(alldigis[idi]->padId())->sectorId();
-    fsectormap[sectorId]->push_back(alldigis[idi]);
-  }
-  
-  // now process each sectorprocessor independently
-  std::map<unsigned int,std::vector<PndTpcDigi*>* >::iterator secIt=fsectormap.begin();
-  while(secIt!=fsectormap.end()){ // loop over sectors
-    std::vector<PndTpcDigi*>* digis=secIt->second;
-    unsigned int ndigi=digis->size();
-    
-    //std::cout << "Sector " << secIt->first << " with " <<ndigi<< " digits"<<std::endl; 
-
-    if(ndigi<=3){
+  if(sectorize){
+    // reserve
+    std::map<unsigned int,std::vector<PndTpcDigi*>* >::iterator secIt=fsectormap.begin();
+    while(secIt!=fsectormap.end()){ // loop over sectors
+      secIt->second->reserve(nalldigi/fsectormap.size()+250);
       ++secIt;
-      continue;
-    }
+    } // end loop over sectors
+
+    // sectorize on pad plane
+    for(int idi=0;idi<nalldigi;++idi){ // loop over digis
+      fsectormap[fpadplane->GetPad(alldigis[idi]->padId())->sectorId()]->push_back(alldigis[idi]);
+    } // end loop over digis
+
+    // now process each sector independently
+    secIt=fsectormap.begin();
+    while(secIt!=fsectormap.end()){ // loop over sectors
+      processSector(*(secIt->second));
+      secIt->second->clear(); // clean up
+      ++secIt;
+    } // end loop over sectors
+  }
+  else processSector(alldigis); // do not sectorize!
+
+}
+
+
+void
+PndTpcClusterFinderSimple::processSector(std::vector<PndTpcDigi*>& digis)
+{
+  std::sort(digis.begin(),digis.end(),PndTpcDigiAge()); // for sectorizing in z
+
+  unsigned int ndigi=digis.size();
+  if(ndigi<3) return;
+
   // sectorize in z
   unsigned int nSlices = ndigi/maxClusterSlice + 1;
   unsigned int clusterSlice = ndigi/nSlices + 1;
@@ -229,18 +241,18 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& alldigis)
     lastDigi = (iSlice+1)*clusterSlice - 1;
     if (lastDigi > ndigi-2) lastDigi = ndigi-1;
 
-    startTime = (*digis)[firstDigi]->t();
-    stopTime = (*digis)[lastDigi]->t();
+    startTime = digis[firstDigi]->t();
+    stopTime = digis[lastDigi]->t();
 
     //std::cerr<<" active volume from "<<firstDigi<<" to "<<lastDigi<<std::endl;
     
     while(firstDigi>0){
-      time = (*digis)[--firstDigi]->t();
-      if (TMath::Abs(startTime-time) > 2*fdt) break;
+      time = digis[--firstDigi]->t();
+      if (fabs(startTime-time) > 2*fdt) break;
     }
     while(lastDigi<ndigi-1){
-      time = (*digis)[++lastDigi]->t();
-      if (TMath::Abs(time-stopTime) > 2*fdt) break;
+      time = digis[++lastDigi]->t();
+      if (fabs(time-stopTime) > 2*fdt) break;
     }
 
     //std::cerr<<"  passive volume from "<<firstDigi<<" to "<<lastDigi<<std::endl;
@@ -250,7 +262,7 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& alldigis)
     digisInSlice.reserve(ndigisInSlice);
 
     for (unsigned int i=firstDigi; i<lastDigi; ++i){
-      digisInSlice.push_back((*digis)[i]);
+      digisInSlice.push_back(digis[i]);
     }
     
     
@@ -301,9 +313,6 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& alldigis)
     }
 
   } // end loop over time-slices
-  secIt->second->clear(); // clean up
-   ++secIt;
-  } // end loop over sectors
 
 }
 

@@ -65,13 +65,17 @@ public:
 
   void setMaxClusterSlice(unsigned int i){maxClusterSlice = i;}
 
+  void setSectorize(bool opt=true){sectorize=opt;}
   void setNoXclust(bool b=true){noXclust=b;}
   unsigned int NsplitDigis(){return splitDigis;}
   
 private:
+  virtual void processSector(std::vector<PndTpcDigi*>&);
   std::map<unsigned int, std::vector<PndTpcDigi*>* > fsectormap;
   PndTpcPadPlane* fpadplane;
   std::vector<PndTpcCluster*>* foutput_buffer;
+
+  bool sectorize;
   bool noXclust;
   unsigned int fdt; // time slice in units of sample time
   unsigned int splitDigis;
