@@ -70,6 +70,7 @@ private:
  
 
   TClonesArray* fsignalArray;
+  TClonesArray* fOutArray;
   TClonesArray* fbkgArray;
   TClonesArray* ftimeArray;
   TClonesArray* ftimeOutArray;

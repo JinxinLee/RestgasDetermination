@@ -182,7 +182,16 @@ PndTpcEvtMixTask::Init()
   ftimeOutArray = new TClonesArray("PndTpcEvtTime");
   ioman->Register("PndTpcEvtTime","PndTpc",ftimeOutArray,fpersistence);
 
+  if(fdoSignals){
+    fOutArray = new TClonesArray("PndTpcSignal");
+    ioman->Register("PndTpcSignalMixed","PndTpc",fOutArray,fpersistence);
+  }
+  else {
+    fOutArray = new TClonesArray("PndTpcDigi");
+    ioman->Register("PndTpcDigiMixed","PndTpc",fOutArray,fpersistence);
 
+  }
+  
   return kSUCCESS;
 }
 
@@ -194,6 +203,7 @@ PndTpcEvtMixTask::Exec(Option_t* opt)
   std::cout<< "PndTpcEvtMixTask::Exec" << std::endl;
   // clean up fTimeArray
   ftimeArray->Delete();
+  fOutArray->Delete();
 
   // Look at this event geantHits in the TPC:
   Int_t iout=fsignalArray->GetEntriesFast();
@@ -208,6 +218,18 @@ PndTpcEvtMixTask::Exec(Option_t* opt)
     availableEvents.push_back(i);
   }
 
+  // copy physics events into outarray;
+  unsigned int nph=fsignalArray->GetEntries();
+  for(unsigned int iph=0;iph<nph;++iph){
+    if(fdoSignals){
+      PndTpcSignal* digi=(PndTpcSignal*)fsignalArray->At(iph);
+      new((*fOutArray)[iph]) PndTpcSignal(*digi);
+    }
+    else {
+      PndTpcDigi* digi=(PndTpcDigi*)fsignalArray->At(iph);
+      new((*fOutArray)[iph]) PndTpcDigi(*digi);
+    }
+  }
 
   // Get background events
   for(Int_t i=0;i<fnbkgEvts;++i){
@@ -247,7 +269,7 @@ PndTpcEvtMixTask::Exec(Option_t* opt)
 	sig->sett(sig->t()+tevent);
 	sig->setmcEventId(selectEvt+1); // add because evt 0 = physics event!
 	// Add background to point-array of this event
-	new((*fsignalArray)[iout++]) PndTpcSignal(*sig);
+	new((*fOutArray)[iout++]) PndTpcSignal(*sig);
       } // if doSignals
       else {
 	PndTpcDigi* digi=(PndTpcDigi*)fbkgArray->At(ip);
@@ -262,7 +284,7 @@ PndTpcEvtMixTask::Exec(Option_t* opt)
 	digi->t(digi->t()+teventClock);
 	digi->shiftEventIds(selectEvt+1);
 	// Add background to point-array of this event
-	new((*fsignalArray)[iout++]) PndTpcDigi(*digi);
+	new((*fOutArray)[iout++]) PndTpcDigi(*digi);
       } // end digis
     }
   }
