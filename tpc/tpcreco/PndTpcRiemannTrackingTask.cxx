@@ -106,7 +106,6 @@ PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
     _skipCrossingAreas(true),
 
     _doMultistep(true),
-    _minHitsR(20),
     _minHitsZ(20),
     _minHitsPhi(15),
 
@@ -142,11 +141,9 @@ PndTpcRiemannTrackingTask::SetSortingParameters(
 
 void
 PndTpcRiemannTrackingTask::SetMultistepParameters(bool doMultistep,
-                 unsigned int minHitsR,
                  unsigned int minHitsZ,
                  unsigned int minHitsPhi){
   _doMultistep=doMultistep;
-  _minHitsR=minHitsR;
   _minHitsZ=minHitsZ;
   _minHitsPhi=minHitsPhi;
 }

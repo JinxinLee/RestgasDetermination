@@ -52,42 +52,43 @@ public:
 
   // Modifiers -----------------------
   void SetClusterBranchName(const TString& name) {_clusterBranchName=name;}
-  void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
-  void SetRiemannPersistence(Bool_t opt=kTRUE) {_riemannPersistence=opt;}
+  void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;} // store GFTracks
+  void SetRiemannPersistence(Bool_t opt=kTRUE) {_riemannPersistence=opt;} // store Riemann Hits and Tracks
 
   void SetSortingParameters(
-                   bool sortingMode=true, // false: sort only according to _sorting; true: use internal sorting when adding hits to trackcands
-                   int sorting=3,  // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to interaction point
+                   bool sortingMode=true,  // false: sort only according to _sorting; true: use internal sorting when adding hits to trackcands
+                   int sorting=3,          // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to interaction point, 5: Phi, -5: -Phi
                    double interactionZ=0); // set if you use sorting = 4
 
-  void SetMultistepParameters(bool doMultistep,
-                   unsigned int minHitsR = 20,
-                   unsigned int minHitsZ = 20,
-                   unsigned int minHitsPhi = 15);
+  void SetMultistepParameters(bool doMultistep,   // do a multistep approach: 1. find steep tracks (presort clusters along z)
+                                                  //                          2. find circle tracks  (presort clusters by angle)
+                                                  //                          3. find all other tracks (presort clusters by decreasing radius)
+                   unsigned int minHitsZ = 20,    // minimum number of hits for a track to be found in step 1
+                   unsigned int minHitsPhi = 15); // minimum number of hits for a track to be found in step 2
 
   void SetTrkFinderParameters(
-                   double proxcut,
-                   double helixcut,
-                   unsigned int minpointsforfit,
-                   double zStretch = 1.);
+                   double proxcut,  // proximity cut in 3D
+                   double helixcut, // distance to helix cut
+                   unsigned int minpointsforfit, // minimum number of hits in track before a helix is fitted
+                   double zStretch = 1.); // stretch proximity cut in z direction
 
-  void SetMergeTracks(bool mergeTracks=true){_mergeTracks = mergeTracks;}
+  void SetMergeTracks(bool mergeTracks=true){_mergeTracks = mergeTracks;} // merge tracklets
 
   void SetTrkMergerParameters(
-                   double TTproxcut,
-                   double TTdipcut,
-                   double TThelixcut,
-                   double TTplanecut);
+                   double TTproxcut,  // proximity cut in 3D
+                   double TTdipcut,   // cut on difference of dip angles of tracklets
+                   double TThelixcut, // distance of the two helices
+                   double TTplanecut);// cut on rms of distances of the riemann hits to intersection of the plane with the sphere of a combined fit
 
-  void SetRiemannScale(double riemannscale=8.7) {_riemannscale = riemannscale;}
+  void SetRiemannScale(double riemannscale=8.7) {_riemannscale = riemannscale;} // blow up factor of the riemann sphere
   
-  void SkipCrossingAreas(bool opt=true) {_skipCrossingAreas=opt;}
+  void SkipCrossingAreas(bool opt=true) {_skipCrossingAreas=opt;} // skip and remove hits which would match to more than one track at highest correlator level
 
   void SetMCPid(Bool_t opt=kTRUE) {_mcPid = opt;} // use MC information for particle identification
-  void SetPDG(int pdg) {_pdg=pdg;}
+  void SetPDG(int pdg) {_pdg=pdg;} // use hypothesis, only used if _mcPid==false
 
-  void SetSmoothing(bool s=true) {_smoothing=s;}
-  void useGeane(Bool_t geane=kTRUE) {_geane=geane;}
+  void SetSmoothing(bool s=true) {_smoothing=s;} // use smoothing for the Kalman
+  void useGeane(Bool_t geane=kTRUE) {_geane=geane;} // use GeaneTrackRep in addition to RKTrackRep
 
   // Operations ----------------------
   virtual InitStatus Init();
@@ -158,7 +159,6 @@ private:
 
   // parameters for multistep approach
   bool _doMultistep;
-  unsigned int _minHitsR;
   unsigned int _minHitsZ;
   unsigned int _minHitsPhi;
 
