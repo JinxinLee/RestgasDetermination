@@ -657,11 +657,11 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
   void  Merge_Sort(
 	UShort_t n_ele,
 	Double_t *array,
-	UShort_t *ind
+	Int_t *ind
 	);
 
-  void Merge(UShort_t nl, Double_t *left, UShort_t *ind_left, UShort_t nr,
-	Double_t *right, UShort_t *ind_right,  Double_t *result, UShort_t *ind);
+  void Merge(UShort_t nl, Double_t *left, Int_t *ind_left, UShort_t nr,
+	Double_t *right, Int_t *ind_right,  Double_t *result, Int_t *ind);
 
 
   void getMCInfo(
@@ -829,7 +829,10 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 			bool *keepit,
 			UShort_t FirstCandidate,
 			UShort_t LastCandidate,
-			Double_t info[][7]
+			Double_t info[][7],
+			Double_t * Ox,
+			Double_t * Oy,
+			Short_t *CHARGE
 					);
 
 
@@ -838,9 +841,9 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 		Double_t oY,
 		Int_t nHits,
 		Double_t XY[][2], // XY[*][0] = X position, XY[*][0] = Y position.
-		Int_t  Charge,  // input
-		UShort_t *ListHits
-							);
+		Short_t  Charge,  // input
+		Int_t *ListHits
+					);
 
 //--------
 
