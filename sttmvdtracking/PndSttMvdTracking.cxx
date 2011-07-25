@@ -1021,7 +1021,7 @@ if(istampa>=2  && IVOLTE<20){
       ListSttParHitsinTrack[i][nSttParHitsinTrack[i]] = pndtrackcandhit.GetHitId(); // # hit of Stt
       nSttParHitsinTrack[i]++;
     }  else {
-      ListSttHitsinTrackType[i][nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i]] = 3; 
+       ListSttHitsinTrackType[i][nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i]] = 3; 
       ListSttSkewHitsinTrack[i][nSttSkewHitsinTrack[i]] = pndtrackcandhit.GetHitId(); // # hit of Stt
       nSttSkewHitsinTrack[i]++;
     }
@@ -1395,14 +1395,14 @@ if(istampa>=2&& IVOLTE<20){
 //     forming the new track with Mvd+Stt hits
 
 
-	UShort_t tempmvdindex[nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack],
-		tempmvdtype[nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack],
-		auxIndex[nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack];
-	Double_t auxR[nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack];
 
 
 
 	nTotalCandidates = nSttTrackCand;  // nSttTrackCand is already <= MAXTRACKSPEREVENT.
+
+	// arrays used to store temporarily the info of Mvd hits to be ordered.
+	Int_t ListHits[nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack];
+	Double_t XY[nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack][2];
 
 	for(ncand=0; ncand< nTotalCandidates; ncand++){
 		if(!keepit[ncand]) continue;
@@ -1410,45 +1410,47 @@ if(istampa>=2&& IVOLTE<20){
 					nMvdPixelHitsinTrack[ncand]+
 					nMvdStripHitsinTrack[ncand];
 		// adding the Mvd hits (Pixel and Strips)
-		for(i=0; i< nMvdPixelHitsinTrack[ncand]; i++){
-			auxR[i] =
-			 XMvdPixel[ ListMvdPixelHitsinTrack[ncand][i] ]*
-			 XMvdPixel[ ListMvdPixelHitsinTrack[ncand][i] ]+
-			 YMvdPixel[ ListMvdPixelHitsinTrack[ncand][i] ]*
-			 YMvdPixel[ ListMvdPixelHitsinTrack[ncand][i] ]
-					;
-			tempmvdindex[i]=ListMvdPixelHitsinTrack[ncand][i];
-			tempmvdtype[i]=0;
-			auxIndex[i] = i;
-		}
-		for(i=0; i< nMvdStripHitsinTrack[ncand]; i++){
-			auxR[i+nMvdPixelHitsinTrack[ncand]] =
-			 XMvdStrip[ ListMvdStripHitsinTrack[ncand][i] ]*
-			 XMvdStrip[ ListMvdStripHitsinTrack[ncand][i] ]+
-			 YMvdStrip[ ListMvdStripHitsinTrack[ncand][i] ]*
-			 YMvdStrip[ ListMvdStripHitsinTrack[ncand][i] ]
-					;
-			tempmvdindex[i+nMvdPixelHitsinTrack[ncand]]=
-				ListMvdStripHitsinTrack[ncand][i];
-			tempmvdtype[i+nMvdPixelHitsinTrack[ncand]]=1;
-			auxIndex[i+nMvdPixelHitsinTrack[ncand]]=
-				i+nMvdPixelHitsinTrack[ncand];
-		}
-
-		//  ordering the Mvd Hits
 		if( nMvdPixelHitsinTrack[ncand]+
 		    nMvdStripHitsinTrack[ncand] >0){
-			Merge_Sort( nMvdPixelHitsinTrack[ncand]+
-		                    nMvdStripHitsinTrack[ncand],
-				    auxR, auxIndex);
-
-		//  constructing the ordered new Track  Candidate now
-			for(i=0; i< nMvdPixelHitsinTrack[ncand]+
-			    nMvdStripHitsinTrack[ncand]; i++){
-				ListTrackCandHit[ncand][i] = tempmvdindex[ auxIndex[i] ];
-				ListTrackCandHitType[ncand][i] = tempmvdtype[ auxIndex[i] ];
-
+			for(i=0; i< nMvdPixelHitsinTrack[ncand]; i++){
+			  XY[i][0] = XMvdPixel[ ListMvdPixelHitsinTrack[ncand][i] ];
+			  XY[i][1] = YMvdPixel[ ListMvdPixelHitsinTrack[ncand][i] ];
+			  ListHits[i] = ListMvdPixelHitsinTrack[ncand][i];
 			}
+			for(i=0; i< nMvdStripHitsinTrack[ncand]; i++){
+			  XY[i+nMvdPixelHitsinTrack[ncand]][0] =
+			    XMvdStrip[ ListMvdStripHitsinTrack[ncand][i] ];
+			  XY[i+nMvdPixelHitsinTrack[ncand]][1] =
+			    YMvdStrip[ ListMvdStripHitsinTrack[ncand][i] ];
+			  // to distinguish between Pixels and Strips, add a number
+			  // to the original Strip hit number.
+			  ListHits[i+nMvdPixelHitsinTrack[ncand]] =
+				ListMvdStripHitsinTrack[ncand][i]+
+				(nmaxMvdPixelHits+nmaxMvdStripHits)*10 ;
+			}
+
+			//  ordering the Mvd Hits
+			OrderingUsingConformal(
+			   Ox[ncand],
+			   Oy[ncand],
+			   nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand],
+			   XY, // XY[*][0] = X position, XY[*][0] = Y position.
+			   CHARGE[ncand],  // input
+			   ListHits  // output
+						);
+			//  constructing the ordered new Track  Candidate now
+			for(i=0; i< nMvdPixelHitsinTrack[ncand]+
+					nMvdStripHitsinTrack[ncand]; i++){
+				if(ListHits[i]<(nmaxMvdPixelHits+nmaxMvdStripHits)*10){//Pixel.
+					ListTrackCandHit[ncand][i] = ListHits[i];
+					ListTrackCandHitType[ncand][i] = 0;
+				} else { // Strip hits.
+					ListTrackCandHit[ncand][i] = ListHits[i]-
+						(nmaxMvdPixelHits+nmaxMvdStripHits)*10;
+					ListTrackCandHitType[ncand][i] = 1;
+				}
+			}  // end of  for(i=0; i< nMvdPixelHitsinTrack[ncand]+
+
 		}	// end of  if( nMvdPixelHitsinTrack[ncand]+
 
 		for(i=0; i<nSttHitsinTrack[ncand]; i++){
@@ -1462,7 +1464,11 @@ if(istampa>=2&& IVOLTE<20){
 					] = ListSttHitsinTrackType[ncand][i];
 		}
 
-
+if(istampa>=3) for(int ica=0; ica<nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+
+	nSttHitsinTrack[ncand]; ica++){
+	cout<<"from PndSttMvdTracking, hit n. "<<ListTrackCandHit[ncand][ica]<<", hit type "
+	<<ListTrackCandHitType[ncand][ica]<<endl;
+}
 
 
 	} //   end of  for(ncand=0; ncand< nTotalCandidates; ncand++)
@@ -2117,7 +2123,15 @@ if(istampa>2&& IVOLTE<20){
 //	from candidate n. 0 to candidate n. nTotalCandidates-1; loading ListTrackCandHit.
 //	the array ordered are :
 //	ListTrackCandHit, ListTrackCandHitType, ListSttParHitsinTrack, ListSttSkewHitsinTrack.
-	Ordering_Loading_ListTrackCandHit(keepit,0,nTotalCandidates,info);
+	Ordering_Loading_ListTrackCandHit(
+		keepit,
+		0,
+		nTotalCandidates,
+		info,
+		Ox,
+		Oy,
+		CHARGE
+		);
 
 //------------- cleanup section.
 
@@ -2441,7 +2455,15 @@ for(int ip=0;ip<nHitsSkew;ip++){
 //     loading    ListTrackCandHit. The ordering is necessary here because the charge
 //     has to be calculated.
 
-	Ordering_Loading_ListTrackCandHit(keepit,nSttTrackCand,nTotalCandidates,info);
+	Ordering_Loading_ListTrackCandHit(
+		keepit,
+		nSttTrackCand,
+		nTotalCandidates,
+		info,
+		Ox,
+		Oy,
+		CHARGE
+		);
 
 //-------------------- end of ordering
 
@@ -2645,7 +2667,15 @@ for(int ip=0;ip<nHitsSkew;ip++){
 //     ordering again all the hits belonging to the new candidate tracks, by increasing R;
 //     loading    ListTrackCandHit.
 
-	Ordering_Loading_ListTrackCandHit(keepit,nSttTrackCand,nTotalCandidates,info);
+	Ordering_Loading_ListTrackCandHit(
+		keepit,
+		nSttTrackCand,
+		nTotalCandidates,
+		info,
+		Ox,
+		Oy,
+		CHARGE
+		);
 
 //-------------------- end of ordering
 
@@ -7309,10 +7339,10 @@ if(istampa>=3 && IVOLTE<20) cout<<"MatchMvdHitsToSttTracks, trackcandidate n. = 
 void PndSttMvdTracking::Merge_Sort(
 	UShort_t n_ele,
 	Double_t *array,
-	UShort_t *ind)
+	Int_t *ind)
 {
 
-  UShort_t nr, nl, middle, i,
+  Int_t nr, nl, middle, i,
 	ind_left[n_ele], ind_right[n_ele];
 
   Double_t left[n_ele], right[n_ele], result[n_ele];
@@ -7360,8 +7390,8 @@ void PndSttMvdTracking::Merge_Sort(
 
 
 
-void PndSttMvdTracking::Merge(UShort_t nl, Double_t *left, UShort_t *ind_left, UShort_t nr,
-                                         Double_t *right, UShort_t *ind_right,  Double_t *result, UShort_t *ind)
+void PndSttMvdTracking::Merge(UShort_t nl, Double_t *left, Int_t *ind_left, UShort_t nr,
+                                         Double_t *right, Int_t *ind_right,  Double_t *result, Int_t *ind)
 {
    UShort_t i =0, j, nl_curr=0, nr_curr=0;
 
@@ -11746,7 +11776,10 @@ int nevento=1;
 			bool *keepit,
 			UShort_t FirstCandidate,
 			UShort_t LastCandidate,
-			Double_t info[][7]
+			Double_t info[][7],
+			Double_t * Ox,
+			Double_t * Oy,
+			Short_t *CHARGE
 				)
 {
 
@@ -11761,116 +11794,119 @@ int nevento=1;
 //     forming the new track with Mvd+Stt hits
 
 
+	// arrays used to store temporarily the info of Mvd hits to be ordered.
+	Int_t ListHits[nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack],
+		ListHits2[nmaxSttHitsInTrack];
+	Double_t XY[nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack][2],
+		XY2[nmaxSttHitsInTrack][2];
+
 	for(ncand=FirstCandidate; ncand< LastCandidate; ncand++){
 		if(!keepit[ncand]) continue;
 		nTrackCandHit[ncand] =nSttParHitsinTrack[ncand]+nSttSkewHitsinTrack[ncand]+
 					nMvdPixelHitsinTrack[ncand]+
 					nMvdStripHitsinTrack[ncand];
-		UShort_t tempmvdindex[nMvdPixelHitsinTrack[ncand]+
-					nMvdStripHitsinTrack[ncand] ],
-			 tempmvdtype[nMvdPixelHitsinTrack[ncand]+
-					nMvdStripHitsinTrack[ncand] ],
-			auxIndex[nMvdPixelHitsinTrack[ncand]+
-					nMvdStripHitsinTrack[ncand] ];
-		Double_t auxR[nMvdPixelHitsinTrack[ncand]+
-					nMvdStripHitsinTrack[ncand] ];
 		// adding the Mvd hits (Pixel and Strips)
-		for(i=0; i< nMvdPixelHitsinTrack[ncand]; i++){
-			auxR[i] =
-			 XMvdPixel[ ListMvdPixelHitsinTrack[ncand][i] ]*
-			 XMvdPixel[ ListMvdPixelHitsinTrack[ncand][i] ]+
-			 YMvdPixel[ ListMvdPixelHitsinTrack[ncand][i] ]*
-			 YMvdPixel[ ListMvdPixelHitsinTrack[ncand][i] ];
-			tempmvdindex[i]=ListMvdPixelHitsinTrack[ncand][i];
-			tempmvdtype[i]=0;
-			auxIndex[i] = i;
-		}
-		for(i=0; i< nMvdStripHitsinTrack[ncand]; i++){
-			auxR[i+nMvdPixelHitsinTrack[ncand]] =
-			 XMvdStrip[ ListMvdStripHitsinTrack[ncand][i] ]*
-			 XMvdStrip[ ListMvdStripHitsinTrack[ncand][i] ]+
-			 YMvdStrip[ ListMvdStripHitsinTrack[ncand][i] ]*
-			 YMvdStrip[ ListMvdStripHitsinTrack[ncand][i] ];
-			tempmvdindex[i+nMvdPixelHitsinTrack[ncand]]=
-				ListMvdStripHitsinTrack[ncand][i];
-			tempmvdtype[i+nMvdPixelHitsinTrack[ncand]]=1;
-			auxIndex[i+nMvdPixelHitsinTrack[ncand]]=
-				i+nMvdPixelHitsinTrack[ncand];
-		}
 
-		//  ordering the Mvd Hits
 		if( nMvdPixelHitsinTrack[ncand]+
 		    nMvdStripHitsinTrack[ncand] >0){
-			Merge_Sort( nMvdPixelHitsinTrack[ncand]+
-		                    nMvdStripHitsinTrack[ncand],
-				    auxR, auxIndex);
+			for(i=0; i< nMvdPixelHitsinTrack[ncand]; i++){
+			  XY[i][0] = XMvdPixel[ ListMvdPixelHitsinTrack[ncand][i] ];
+			  XY[i][1] = YMvdPixel[ ListMvdPixelHitsinTrack[ncand][i] ];
+			  ListHits[i] = ListMvdPixelHitsinTrack[ncand][i];
+			}
+			for(i=0; i< nMvdStripHitsinTrack[ncand]; i++){
+			  XY[i+nMvdPixelHitsinTrack[ncand]][0] =
+			    XMvdStrip[ ListMvdStripHitsinTrack[ncand][i] ];
+			  XY[i+nMvdPixelHitsinTrack[ncand]][1] =
+			    YMvdStrip[ ListMvdStripHitsinTrack[ncand][i] ];
+			  // to distinguish between Pixels and Strips, add a number
+			  // to the original Strip hit number.
+			  ListHits[i+nMvdPixelHitsinTrack[ncand]] =
+				ListMvdStripHitsinTrack[ncand][i]+
+				(nmaxMvdPixelHits+nmaxMvdStripHits)*10 ;
+			}
 
-		//  constructing the first part of the ordered new Track  Candidate
+			//  ordering the Mvd Hits
+			OrderingUsingConformal(
+			   Ox[ncand],
+			   Oy[ncand],
+			   nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand],
+			   XY, // XY[*][0] = X position, XY[*][0] = Y position.
+			   CHARGE[ncand],  // input
+			   ListHits  // output
+						);
+			//  constructing the ordered new Track  Candidate now
 			for(i=0; i< nMvdPixelHitsinTrack[ncand]+
 					nMvdStripHitsinTrack[ncand]; i++){
-				ListTrackCandHit[ncand][i] = tempmvdindex[ auxIndex[i] ];
-				ListTrackCandHitType[ncand][i] = tempmvdtype[ auxIndex[i] ];
+				if(ListHits[i]<(nmaxMvdPixelHits+nmaxMvdStripHits)*10){//Pixel.
+					ListTrackCandHit[ncand][i] = ListHits[i];
+					ListTrackCandHitType[ncand][i] = 0;
+				} else { // Strip hits.
+					ListTrackCandHit[ncand][i] = ListHits[i]-
+						(nmaxMvdPixelHits+nmaxMvdStripHits)*10;
+					ListTrackCandHitType[ncand][i] = 1;
+				}
+			}  // end of  for(i=0; i< nMvdPixelHitsinTrack[ncand]+
 
-			}
 		}	// end of  if( nMvdPixelHitsinTrack[ncand]+
+
+
+
 
 		// construction of the second part of the ordered new Track  Candidate
 
-		UShort_t tempmvdindex2[nSttParHitsinTrack[ncand]+
-					nSttSkewHitsinTrack[ncand] ],
-			 tempmvdtype2[nSttParHitsinTrack[ncand]+
-					nSttSkewHitsinTrack[ncand] ],
-			auxIndex2[nSttParHitsinTrack[ncand]+
-					nSttSkewHitsinTrack[ncand] ];
-		Double_t auxR2[nSttParHitsinTrack[ncand]+
-					nSttSkewHitsinTrack[ncand] ];
+		if( nSttParHitsinTrack[ncand]+nSttSkewHitsinTrack[ncand] >0){
 
-		for(i=0; i<nSttParHitsinTrack[ncand]; i++){
-			auxR2[i] =
-			 info[ ListSttParHitsinTrack[ncand][i] ][0]*
-			 info[ ListSttParHitsinTrack[ncand][i] ][0]+
-			 info[ ListSttParHitsinTrack[ncand][i] ][1]*
-			 info[ ListSttParHitsinTrack[ncand][i] ][1];
-			tempmvdindex2[i]=ListSttParHitsinTrack[ncand][i];
-			tempmvdtype2[i]=2;
-			auxIndex2[i] = i;
-		}
-		for(i=0; i<nSttSkewHitsinTrack[ncand]; i++){
-			j = i+nSttParHitsinTrack[ncand];
-			auxR2[j] =
-			 info[ ListSttSkewHitsinTrack[ncand][i] ][0]*
-			 info[ ListSttSkewHitsinTrack[ncand][i] ][0]+
-			 info[ ListSttSkewHitsinTrack[ncand][i] ][1]*
-			 info[ ListSttSkewHitsinTrack[ncand][i] ][1];
-			tempmvdindex2[j]=ListSttSkewHitsinTrack[ncand][i];
-			tempmvdtype2[j]=3;
-			auxIndex2[j] = j;
-		}
+			for(i=0; i<nSttParHitsinTrack[ncand]; i++){
+			 XY2[i][0] = info[ ListSttParHitsinTrack[ncand][i] ][0];
+			 XY2[i][1] = info[ ListSttParHitsinTrack[ncand][i] ][1];
+			 ListHits2[i] = ListSttParHitsinTrack[ncand][i];
+			}
+
+			for(i=0; i<nSttSkewHitsinTrack[ncand]; i++){
+			 j = i+nSttParHitsinTrack[ncand];
+			 XY2[j][0] = info[ ListSttSkewHitsinTrack[ncand][i] ][0];
+			 XY2[j][1] = info[ ListSttSkewHitsinTrack[ncand][i] ][1];
+			 ListHits2[j] = ListSttSkewHitsinTrack[ncand][i]+
+					nmaxSttHits*10; // in order to distinguish
+							//  the Skew hits.
+			}
 
 
 		//  ordering the Stt Hits
-		if( nSttParHitsinTrack[ncand]+nSttSkewHitsinTrack[ncand] >0){
-			Merge_Sort( nSttParHitsinTrack[ncand]+nSttSkewHitsinTrack[ncand],
-				    auxR2, auxIndex2);
+			OrderingUsingConformal(
+			 Ox[ncand],
+			 Oy[ncand],
+			 nSttParHitsinTrack[ncand]+nSttSkewHitsinTrack[ncand],
+			 XY2, // XY2[*][0] = X position, XY2[*][0] = Y position.
+			 CHARGE[ncand],  // input
+			 ListHits2  // output
+					);
 
 			for(j=0,ipar=0,iskew=0;
-				  j< nSttParHitsinTrack[ncand]+nSttSkewHitsinTrack[ncand];j++){
-				i = j+nMvdPixelHitsinTrack[ncand]+
-				    nMvdStripHitsinTrack[ncand];
-				ListTrackCandHit[ncand][i] = tempmvdindex2[ auxIndex2[j] ];
-				ListTrackCandHitType[ncand][i] = tempmvdtype2[ auxIndex2[j] ];
+				j< nSttParHitsinTrack[ncand]+nSttSkewHitsinTrack[ncand];j++){
+			  i = j+nMvdPixelHitsinTrack[ncand]+ nMvdStripHitsinTrack[ncand];
+			  if(ListHits2[j]<nmaxSttHits*10){  // parallel Stt hit.
+			    ListTrackCandHit[ncand][i] = ListHits2[j];
+			    ListTrackCandHitType[ncand][i] = 2;
+			    ListSttParHitsinTrack[ncand][ipar]=ListHits2[j];
+			    ipar++;
+			  } else {  // skew Stt hit.
+			    ListTrackCandHit[ncand][i] = ListHits2[j]-nmaxSttHits*10;
+			    ListTrackCandHitType[ncand][i] = 3;
+			    ListSttSkewHitsinTrack[ncand][iskew]=ListHits2[j]-nmaxSttHits*10;
+			    iskew++;
+			  }  // end of  if(ListHits2[j]<nmaxSttHits*10)
+			} // end of for(j=0,ipar=0,iskew=0; ....
 
-				if( ListTrackCandHitType[ncand][i]==2) {
-				  ListSttParHitsinTrack[ncand][ipar]=tempmvdindex2[auxIndex2[j]];
-				  ipar++;
-				} else {
-				  ListSttSkewHitsinTrack[ncand][iskew]=tempmvdindex2[auxIndex2[j]];
-				  iskew++;
-				}
-			}
 		}	// end of  if( nSttParHitsinTrack[ncand]+
 
 
+if(istampa>=3) for(int ica=0; ica<nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]+
+	nSttParHitsinTrack[ncand]+nSttSkewHitsinTrack[ncand]; ica++){
+	cout<<"from PndSttMvdTracking, hit n. "<<ListTrackCandHit[ncand][ica]<<", hit type "
+	<<ListTrackCandHitType[ncand][ica]<<endl;
+}
 
 
 	} //   end of  for(ncand=FirstCandidate; ncand< LastCandidate; ncand++)
@@ -11893,8 +11929,8 @@ int nevento=1;
 		Double_t oY,
 		Int_t nHits,
 		Double_t XY[][2],
-		Int_t  Charge,  // input
-		UShort_t *ListHits
+		Short_t  Charge,  // input
+		Int_t *ListHits
 							)
 {
 
@@ -13859,7 +13895,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 	if (nIntersections<2) return;
 
 	  if(Charge > 0) {
-		UShort_t auxIndex[100];
+		Int_t auxIndex[100];
 		Double_t fi[100];
 		for( i=0;i<nIntersections;i++){
 		  fi[i] = atan2(YintersectionList[i]-Oyy,
@@ -13876,7 +13912,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 		Ycross[1] = YintersectionList[ auxIndex[nIntersections-2] ];
 
 	  } else { // case in which Charge is negative.
-		UShort_t auxIndex[nIntersections];
+		Int_t auxIndex[nIntersections];
 		Double_t fi[nIntersections];
 		for( i=0;i<nIntersections;i++){
 		  fi[i] = atan2(YintersectionList[i]-Oyy,
