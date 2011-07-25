@@ -126,28 +126,11 @@
 
   // -----    Reco Sequence  --------------------------------------------
    
- PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
+  PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
   tpcSPR->SetPersistence();
-  tpcSPR->SetRiemannPersistence();
-  tpcSPR->SetSortingParameters(
-        true, // false: sort only according to _sorting (see next argument); true: use internal sorting when adding hits to trackcands
-	3,   // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
-       0.); // z-position of interaction point (for sorting 4)
-  tpcSPR->SetTrkFinderParameters(
-        200,  // proximity cut in 3D [cm] 1.9
-        20,  // helix cut [cm] 0.4
-        5);   // minimum hits for helix-fit stdnadrd: 5
-  tpcSPR->SetMergeTracks();
-  tpcSPR->SetTrkMergerParameters(
-        25,  // proximity cut [cm] 2.5
-        3,  // dip cut [rad] 0.1
-        60,  // helix cut [cm] 0.6
-        2);// plane cut (RMS) 0.025
-  //tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
-  tpcSPR->useGeane(true); // uses RKTrackrep and GeaneTrackrep
-  tpcSPR->SetSmoothing(true);
-  tpcSPR->SetMCPid(false);
-  //tpcSPR->WriteHistograms(PROutFile);
+  tpcSPR->useGeane(); // use RKTrackrep and GeaneTrackrep
+  tpcSPR->SetMCPid(); // use ideal particle identification
+  //tpcSPR->SetPDG(211);
   fRun->AddTask(tpcSPR);
 
   PndTpcEvtDeconvTask* evtDeconv=new PndTpcEvtDeconvTask();

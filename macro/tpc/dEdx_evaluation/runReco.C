@@ -101,16 +101,12 @@ mcFile.ReplaceAll("raw.root","mc.root");
   tpcIPR->SetPersistence();
 
 
-
-//   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
-//   tpcSPR->SetTrkFinderParameters(2.,// proxcut
-// 				 0.02, // proxcut on rieman sphere
-// 				 2.E-3, // planecut
-// 				 4.0, // szcut
-// 				 4); // minnumhits for fit
-//   tpcSPR->SetPersistence();
-//   tpcSPR->useGeane();
-//   fRun->AddTask(tpcSPR);
+  //PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
+  //tpcSPR->SetPersistence();
+  //tpcSPR->useGeane(); // use RKTrackrep and GeaneTrackrep
+  //tpcSPR->SetMCPid(); // use ideal particle identification
+  //tpcSPR->SetPDG(211);
+  //fRun->AddTask(tpcSPR);
   
   KalmanTask* kalman =new KalmanTask();
   kalman->SetPersistence();

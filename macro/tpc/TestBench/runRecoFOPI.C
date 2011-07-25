@@ -72,25 +72,10 @@ void runRecoFOPI(TString digifile) {
   fRun->AddTask(tpcCF);
 
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
-  tpcSPR->SetSortingParameters(
-                   true, // false: sort only according to _sorting (see next argument); true: use internal sorting when adding hits to trackcands
-                   3,    // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
-                   0.); // z-position of interaction point (for sorting 4)
-  tpcSPR->SetTrkFinderParameters(
-                   1.9,  // proximity cut in 3D
-                   0.1, // proximity cut on rieman sphere
-                   0.04, // distance to plane cut
-                   0.2,  // szcut
-                   4);   // minimum hits for plane & sz-fit
-  tpcSPR->SetMergeTracks();
-  tpcSPR->SetTrkMergerParameters(
-                   2.2,  // proximity cut
-                   0.33,  // sz cut
-                   0.025);// plane cut (RMS)
-  tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
   tpcSPR->SetPersistence();
-  tpcSPR->useGeane(); // uses RKTrackrep and GeaneTrackrep
-  //tpcSPR->WriteHistograms(PROutFile);
+  tpcSPR->useGeane(); // use RKTrackrep and GeaneTrackrep
+  tpcSPR->SetMCPid(); // use ideal particle identification
+  //tpcSPR->SetPDG(211);
   fRun->AddTask(tpcSPR);
 
   KalmanTask* kalman =new KalmanTask();

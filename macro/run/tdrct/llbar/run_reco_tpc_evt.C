@@ -65,24 +65,9 @@
   //find track candidates in the TPC alone
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
   tpcSPR->SetPersistence();
-  tpcSPR->SetSortingParameters(
-        true, // false: sort only according to _sorting (see next argument); true: use internal sorting when adding hits to trackcands
-        3,    // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
-        0.); // z-position of interaction point (for sorting 4)
-  tpcSPR->SetTrkFinderParameters(
-        1.9,  // proximity cut in 3D [cm]
-        0.4,  // helix cut [cm]
-        5);   // minimum hits for helix-fit
-  tpcSPR->SetMergeTracks();
-  tpcSPR->SetTrkMergerParameters(
-        2.5,  // proximity cut [cm]
-        0.1,  // dip cut [rad]
-        0.6,  // helix cut [cm]
-        0.025);// plane cut (RMS)
-  //tpcSPR->SetRiemannScale(); // sets riemannscale for the prototype;
   tpcSPR->useGeane(); // use RKTrackrep and GeaneTrackrep
-  tpcSPR->SetSmoothing(true); 
-  tpcSPR->SetMCPid(kFALSE); // use ideal particle identification
+  tpcSPR->SetMCPid(); // use ideal particle identification
+  //tpcSPR->SetPDG(211);
   fRun->AddTask(tpcSPR);
   
   KalmanTask* kalman =new KalmanTask();

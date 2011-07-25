@@ -160,25 +160,11 @@ void runRecoFOPI_batch(TString filename, TString outpath)
 
 
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
-  tpcSPR->SetSortingParameters(
-                   true, // false: sort only according to _sorting (see next argument); true: use internal sorting when adding hits to trackcands
-                   3,    // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to origin
-                   30.); // z-position of interaction point (for sorting 4)
-  tpcSPR->SetTrkFinderParameters(
-                   1.9,  // proximity cut in 3D [cm]
-                   0.4,  // helix cut [cm]
-                   4);   // minimum hits for helix-fit
-  tpcSPR->SetMergeTracks();
-  tpcSPR->SetTrkMergerParameters(
-                   2.2,  // proximity cut [cm]
-                   0.09,  // dip cut [rad]
-                   0.6,  // helix cut [cm]
-                   0.025);// plane cut (RMS)
   tpcSPR->SetPersistence();
-  tpcSPR->SetStoreHistograms(PROutFile);
-  //tpcSPR->WriteHistograms(PROutFile);
-  //fRun->AddTask(tpcSPR);
-
+  tpcSPR->useGeane(); // use RKTrackrep and GeaneTrackrep
+  tpcSPR->SetMCPid(); // use ideal particle identification
+  //tpcSPR->SetPDG(211);
+  fRun->AddTask(tpcSPR);
 
 
   PndTpcSLPatternRecoTask* tpcSLPR = new PndTpcSLPatternRecoTask();
