@@ -14,6 +14,7 @@
 #include "PndSttMapCreator.h"
 #include "PndSttTube.h"
 #include "PndTrack.h"
+#include "PndTrackID.h"
 #include "PndTrackCand.h"
 #include "PndGemHit.h"
 #include "PndGemMCPoint.h"
@@ -66,6 +67,8 @@ PndSttMvdGemTracking::PndSttMvdGemTracking() :
   fMaxDistance = -1;
   fUseMC = kFALSE;
   fCombiDistance = 1.;
+  fDefaultPdgCode = -13; 
+  fPdgFromMC = kFALSE;
 
   fMvdPixelBranchName = "MVDHitsPixel";
   fMvdStripBranchName = "MVDHitsStrip";
@@ -87,7 +90,9 @@ PndSttMvdGemTracking::PndSttMvdGemTracking(Int_t verbose) :
   fMaxDistance = -1;
   fUseMC = kFALSE;
   fCombiDistance = 1.;
-
+  fDefaultPdgCode = -13; 
+  fPdgFromMC = kFALSE;
+ 
   fMvdPixelBranchName = "MVDHitsPixel";
   fMvdStripBranchName = "MVDHitsStrip";
   fSttBranchName = "STTHit";
@@ -154,7 +159,16 @@ InitStatus PndSttMvdGemTracking::Init() {
     Error("PndSttMvdGemTracking:Init","stt + mvd track - array not found!");
     return kERROR;
   }
-
+  
+  // open SttMvdTrack array 
+  if(fPdgFromMC) {
+    fTrackIDArray = (TClonesArray*) ioman->GetObject("SttMvdTrackID"); 
+    if(!fTrackIDArray) {
+      Error("PndSttMvdGemTracking:Init","stt + mvd trackID - array not found!");
+      return kERROR;
+    }
+  }
+  
   // open GEM hit array
   fGemHitArray = (TClonesArray*) ioman->GetObject(fGemBranchName);
   if(!fGemHitArray) {
@@ -229,7 +243,9 @@ InitStatus PndSttMvdGemTracking::Init() {
   // set up geometry of GEMs;
   SetupGEMPlanes();
 
- 
+  if(fPdgFromMC) cout << "-I- PndSttMvdGemTracking: Taking PDG from MC (keeping backup default opt = " << fDefaultPdgCode << ")"  << endl;
+  else  cout << "-I- PndSttMvdGemTracking: using default PDG " << fDefaultPdgCode << endl;
+
   cout << "-I- PndSttMvdGemTracking: Intialisation successfull" << endl;
   return kSUCCESS;
 }
@@ -589,7 +605,9 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 	// ===========
 
 	int charge = tmppar.GetQ();
-	fPdgCode = -13  * charge;
+	//	fPdgCode = -13  * charge;
+	if(fPdgFromMC) fPdgCode = GetChargeCorrectedPdgFromMC(itrk, charge);
+	else           fPdgCode = fDefaultPdgCode * charge;
 	
 // 	cout << "START MOM " << lastpar.GetMomentum().Mag() << " " << tmppar.GetMomentum().Mag() << endl;
 
@@ -2157,8 +2175,10 @@ void PndSttMvdGemTracking::FillTrueDistances() {
     FairTrackParP *gempar = new FairTrackParP();
     FairTrackParP tmppar = SetStartParameters(sttmvdTrack, sttmvdCand);
     int charge = tmppar.GetQ();
-    fPdgCode = -13  * charge;
-    
+    //    fPdgCode = -13  * charge;
+    if(fPdgFromMC) fPdgCode = GetChargeCorrectedPdgFromMC(itrk, charge);
+    else           fPdgCode = fDefaultPdgCode * charge;
+  
     // extrapolate each track on each plane
     for(int ipos = 0; ipos < fNPositions; ipos++) {
       
@@ -3416,6 +3436,52 @@ void PndSttMvdGemTracking::UpdateMCTrackId(PndTrackCand *completeCand) {
 
 }
 
+Int_t PndSttMvdGemTracking::GetPdgFromMC(int trackid) {
+
+  PndTrackID *trackID = (PndTrackID*) fTrackIDArray->At(trackid);
+  if (trackID->GetNCorrTrackId()>0)
+    {
+      Int_t mctrackid = trackID->GetCorrTrackID();
+      if (mctrackid == -1) {
+	std::cout << "-W- PndSttMvdGemTracking: no mctrackid - use default hypo " << fDefaultPdgCode << std::endl;
+	return fDefaultPdgCode;
+      }
+      
+      PndMCTrack *mctrack = (PndMCTrack*) fMCTrackArray->At(mctrackid);
+      if (!mctrack)
+	{
+	  std::cout << "-W- PndSttMvdGemTracking: no mctrack " << mctrackid << " - use default hypo " << fDefaultPdgCode << std::endl;
+	  return fDefaultPdgCode;
+	}
+	 
+      Int_t pdg = mctrack->GetPdgCode();
+    
+      if(pdg >= 100000000) // ion
+	{
+	  std::cout << "-W- PndSttMvdGemTracking: we have an ion here " << pdg << " - use default hypo " << fDefaultPdgCode << std::endl;
+	  return fDefaultPdgCode; 
+	}
+      else if (TDatabasePDG::Instance()->GetParticle(mctrack->GetPdgCode())->Charge() == 0)
+	{
+	  std::cout << "-W- PndSttMvdGemTracking: we have an neutral here " << pdg << " - use default hypo " << fDefaultPdgCode << std::endl;
+	   return fDefaultPdgCode; 
+	}
+      return pdg;
+    } // end of "at least one correlated mc index"
+  else
+    {
+      std::cout << "-W- PndSttMvdGemTracking: no correlated mctrackid at all - use default hypo " << fDefaultPdgCode << std::endl;
+      return fDefaultPdgCode;
+    }	
+}
+
+Int_t PndSttMvdGemTracking::GetChargeCorrectedPdgFromMC(int trackid, int charge) {
+  int pdg = GetPdgFromMC(trackid);
+  // is the reco track in accordance with the mc one?
+  int mccharge = TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.;
+  if((charge * mccharge) > 0.) return pdg;
+  else return -pdg;
+}
 
 void PndSttMvdGemTracking::SetBranchNames(TString mvdpixel, TString mvdstrip, TString stt, TString gem) {
   fMvdPixelBranchName = mvdpixel;
@@ -3423,5 +3489,8 @@ void PndSttMvdGemTracking::SetBranchNames(TString mvdpixel, TString mvdstrip, TS
   fSttBranchName = stt;
   fGemBranchName = gem;
 }
+
+
+
 
 ClassImp(PndSttMvdGemTracking)

@@ -116,6 +116,11 @@ class PndSttMvdGemTracking : public FairTask {
 
   void SetEvaluateFlag(Bool_t flag) { fEvaluate = flag; }
 
+  // PDG stuff
+  Int_t GetPdgFromMC(int trackid);
+  Int_t GetChargeCorrectedPdgFromMC(int trackid, int charge);
+  void SetPdgFromMC() { fPdgFromMC = kTRUE; }
+  void SetDefaultPdg(int pdg) { fDefaultPdgCode = pdg; }
 
   void SetBranchNames(TString mvdpixel, TString mvdstrip, TString stt, TString gem);
 
@@ -143,6 +148,8 @@ class PndSttMvdGemTracking : public FairTask {
   TClonesArray* fMCTrackArray;
   /** Input array of mvd + stt tracks **/
   TClonesArray* fTrackArray;
+  /** Input array of mvd + stt trackID **/
+  TClonesArray* fTrackIDArray;
   /** Input array of mvd + stt track cand **/
   TClonesArray* fTrackCandArray;
 
@@ -156,6 +163,8 @@ class PndSttMvdGemTracking : public FairTask {
 
   /** object persistence **/
   Bool_t  fPersistence; //!
+ Bool_t  fPdgFromMC; //!
+
 
   PndGeoSttPar *fSttParameters; 
   PndGemDigiPar *fGemParameters; 
@@ -182,7 +191,7 @@ class PndSttMvdGemTracking : public FairTask {
   TVector3 fDj, fDk;
 
   /** PDG Code **/
-  Int_t fPdgCode;
+  Int_t fPdgCode, fDefaultPdgCode;
 
   // CHECK added -------------------------
   std::vector<std::pair<int, int> > trackvector;
