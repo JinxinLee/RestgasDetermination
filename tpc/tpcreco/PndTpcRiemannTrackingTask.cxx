@@ -800,7 +800,7 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       GeaneTrackRep* grep = new GeaneTrackRep(gPro,pl,mom,poserr,momerr,q,pdg);
       // add rep and set as cardinal rep
       gftrk->addTrackRep(grep);
-      gftrk->setCardinalRep(gftrk->getNumReps()-1);
+      //gftrk->setCardinalRep(gftrk->getNumReps()-1);
     }
     
     //SMOOTHING
