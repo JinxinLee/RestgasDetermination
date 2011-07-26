@@ -63,6 +63,7 @@ class PndSttMvdTracking : public FairTask
 	return;
   };
 
+  void Cleanup( ){YesClean=true; return;};
 
  private:
 
@@ -111,10 +112,10 @@ class PndSttMvdTracking : public FairTask
 			  STRAWRADIUS = DiameterStrawTube/2.,
 			  STRAWRESOLUTION= 0.015,
 			  PMAX=100.;
-	static const bool YesClean = false;
 
 
-  bool    ExclusionListStt[nmaxSttHits];
+  bool	YesClean,
+	ExclusionListStt[nmaxSttHits];
 
 
 
