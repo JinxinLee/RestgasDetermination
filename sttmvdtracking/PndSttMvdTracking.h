@@ -824,8 +824,6 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 			Double_t *Oy,
 			Double_t *R
 				);
-
-
    void   Ordering_Loading_ListTrackCandHit(
 			bool *keepit,
 			UShort_t FirstCandidate,
@@ -833,7 +831,26 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 			Double_t info[][7],
 			Double_t * Ox,
 			Double_t * Oy,
-			Short_t *CHARGE
+			Double_t * Rr,
+			Short_t *CHARGE,
+			Double_t SchosenSkew[][nmaxSttHits]
+					);
+
+  void OrderingR_Loading_ListTrackCandHit(
+			bool *keepit,
+			UShort_t ncand,
+			Double_t info[][7]
+				);
+
+   void   OrderingConformal_Loading_ListTrackCandHit(
+			bool *keepit,
+			UShort_t ncand,
+			Double_t info[][7],
+			Double_t * Ox,
+			Double_t * Oy,
+			Double_t * Rr,
+			Short_t *CHARGE,
+			Double_t SchosenSkew[][nmaxSttHits]
 					);
 
 
