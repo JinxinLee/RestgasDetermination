@@ -15,6 +15,7 @@
 #include "PndTpcClusterFinder.h"
 #include "PndTpcClusterFinderSimple.h"
 #include "PndTpcSPHit.h"
+#include "PndMultiField.h"
 
 #include "TGeoManager.h"
 #include "TStopwatch.h"
@@ -136,6 +137,13 @@ void PndTpcClustVis::initDigimapper(double drifField,
   for(unsigned int  isect=0;isect<fnsectors;++isect){
     fbuffermap[isect]=new std::vector<PndTpcCluster*>;
   }
+
+  // init geane stuff
+  //fRun = new FairRunAna();
+  //GeanePro = new FairGeanePro(); // todo: crashes
+  //fRun->SetBeamMom(15);
+  //PndMultiField *fField= new PndMultiField("FULL");
+  //fRun->SetField(fField);
 }
 
 
@@ -307,6 +315,16 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       if( ((*fcluster_buffer)[i])->amp() <= ClClAmpCut * ((*fcluster_buffer)[i])->size() ||
           (((*fcluster_buffer)[i])->size()==1 && ((*fcluster_buffer)[i])->amp()<=ClSingleDigiClAmpCut)){
         delete (*fcluster_buffer)[i];
+        (*fcluster_buffer).erase( (*fcluster_buffer).begin()+i );
+      }
+      else ++i;
+    }
+
+    // distribute to sectors
+    i=0;
+    while(i<fcluster_buffer->size()){
+      if( ((*fcluster_buffer)[i])->sector() != 0){
+        fbuffermap[((*fcluster_buffer)[i])->sector()]->push_back(((*fcluster_buffer)[i]));
         (*fcluster_buffer).erase( (*fcluster_buffer).begin()+i );
       }
       else ++i;
@@ -886,23 +904,15 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       GFAbsTrackRep* rep;
 
       if(useGeane){
-        //FairGeane *Geane = new FairGeane();
-        //TGeant3* geant3  = new  TGeant3("C++ Interface to Geant3");
-        GeanePro = new FairGeanePro();
         const GFDetPlane* initialPlane = new GFDetPlane(pos1, direction);
-        const TVector3 cmom(mom);
-        const TVector3 cposerr(poserr);
-        const TVector3 cmomerr(momerr);
-
-        rep = new GeaneTrackRep(GeanePro, *initialPlane, cmom, cposerr, cmomerr, pdg/TMath::Abs(pdg)*3, pdg);
-        //rep = new GeaneTrackRep2(*initialPlane, cmom, cposerr, cmomerr, pdg);
+        rep = new GeaneTrackRep(GeanePro, *initialPlane, mom, poserr, momerr, pdg/TMath::Abs(pdg)*3, pdg);
       }
       else{
         rep = new RKTrackRep(pos1, mom, poserr, momerr,pdg);
       }
 
 
-      GFTrack* track=new GFTrack(rep, smooth);
+      GFTrack* track = new GFTrack(rep, smooth);
       track->setCandidate(*cand); // here the candidate is copied!
       delete cand;
 

@@ -33,6 +33,7 @@
 #include <GFTrack.h>
 #include <GFRecoHitFactory.h>
 
+#include "FairRunAna.h"
 #include "FairGeanePro.h"
 
 #include <TApplication.h>
@@ -168,6 +169,7 @@ private:
   unsigned int fnsectors;
 
   GFRecoHitFactory* _theRecoHitFactory;
+  FairRunAna* fRun;
   FairGeanePro* GeanePro;
 
   TGCheckButton* guiInstantRedraw;
