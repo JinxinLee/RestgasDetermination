@@ -46,6 +46,7 @@
 #include "GFTrackCand.h"
 
 #include "RKTrackRep.h"
+#include "GeaneTrackRep.h"
 
 #include "PndDetectorList.h"
 
@@ -177,12 +178,16 @@ PndTpcResidualTask::Exec(Option_t* opt) {
       int failedHits = track->getFailedHits(r);
       unsigned int NDF = rep->getNDF();
       double Chi2 = rep->getChiSqu();
+      int pdg;
+      if (dynamic_cast<RKTrackRep*>(rep)) pdg =  ((RKTrackRep*)rep)->getPDG();
+      else if (dynamic_cast<GeaneTrackRep*>(rep)) pdg =  ((GeaneTrackRep*)rep)->getPDG();
 
       fitstat->setp(mom.Mag());
       fitstat->setmom(mom);
       fitstat->addFailedHits(failedHits);
       fitstat->setNDF(NDF);
       fitstat->setChi2(Chi2);
+      fitstat->setpdg(pdg);
 
 
       std::vector<double> resX;
@@ -235,14 +240,14 @@ PndTpcResidualTask::Exec(Option_t* opt) {
             continue;
             }*/
         }
-	try{
-	  track_pos = rep->getPos(plane);
-	}
-	catch(const GFException& ex) {
-	  std::cerr << "PndTpcResidualTask(): Could not get Position on Plane"  << std::endl;
-	  std::cerr<<ex.what()<<std::endl;
-	  continue;
-	}
+        try{
+          track_pos = rep->getPos(plane);
+        }
+        catch(const GFException& ex) {
+          std::cerr << "PndTpcResidualTask(): Could not get Position on Plane"  << std::endl;
+          std::cerr<<ex.what()<<std::endl;
+          continue;
+        }
 
         pps.push_back(track_pos);
         //calculate residual
