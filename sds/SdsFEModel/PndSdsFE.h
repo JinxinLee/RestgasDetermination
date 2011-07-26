@@ -30,6 +30,7 @@ public:
 	double GetTotFromCharge(Double_t charge);			// Calculates the ToT value from the charge
 	double GetChargeFromTot(double tot);				// Calculates the charge from the tot value
 	double GetTimeWalkFromCharge(double charge);		// Calculates the TimeWalk from the charge
+	double GetTimeWalkFromTot(double tot);				// Calculates the TimeWalk from the TOT value
 	double GetTimeBackToBaseline(double charge);		// Calculates the time from start of the signal till the signal is fBaselineEpsilon close to baseline
 	double GetTimeStamp(double eventtime, double tof, double charge);  // Calculates the TimeStamp of the signal
 

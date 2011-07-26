@@ -107,6 +107,14 @@ double PndSdsFE::GetChargeFromTot(double tot){
 	return   inter->Eval(tot);
 }
 
+double PndSdsFE::GetTimeWalkFromTot(double tot){
+	fFunction->SetParameter("charge",GetChargeFromTot(tot));
+	fMaximumAmplitude = fFunction->GetMaximumX();
+	return fFunction->GetX(fThreshold,0,fMaximumAmplitude); //(xmin<x<xmax)
+
+}
+
+
 double PndSdsFE::GetTimeWalkFromCharge(double Charge){
 	fFunction->SetParameter("charge",Charge);
 	fMaximumAmplitude = fFunction->GetMaximumX();
