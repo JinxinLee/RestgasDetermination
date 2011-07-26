@@ -263,9 +263,9 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
 
     if(tempCand.size() < fMinMVDHits) {
       if(!fRequireMatch) {
-	GFTrack* outTrack = new GFTrack(*track);
-	outTrack->clearBookkeeping();
-	(*fOutTrackArray)[fOutTrackArray->GetEntriesFast()] = outTrack;
+        GFTrack* outTrack = new GFTrack(*track);
+        outTrack->clearBookkeeping();
+        (*fOutTrackArray)[fOutTrackArray->GetEntriesFast()] = outTrack;
       }
       continue;
     }
@@ -278,19 +278,12 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
 		      tempCand[im].begin()->second.begin()->first); //hit in array
     }
     
-        
-    // copy the trackreps
-    GFTrack* outTrack = new GFTrack(track->getCardinalRep()->clone(), true);
-    for(unsigned int irep=1; irep<track->getNumReps(); irep++) {
-      GFAbsTrackRep* repclone = track->getTrackRep(irep)->clone();
-      if(dynamic_cast<GeaneTrackRep*>(repclone) != NULL) {
-        ((GeaneTrackRep*)repclone)->setPropDir(0);
-      }
-      outTrack->addTrackRep(repclone);
-    }
-
+    // copy track and set new candidate
+    GFTrack* outTrack = new GFTrack(*track);
+    outTrack->clearBookkeeping();
     outTrack->setCandidate(*mvdCand);
         
+    // merge with MVD hits
     GFTrack* tmpTrack = new GFTrack(*track);
     tmpTrack->clearBookkeeping();
     outTrack->mergeHits(tmpTrack);
