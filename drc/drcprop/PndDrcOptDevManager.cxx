@@ -171,7 +171,7 @@ void PndDrcOptDevManager::AddDeviceSystem(const PndDrcOptDevSys& sys)
        ++kSys_copy)
   {
 
-    string str = (*kDev)->Name() + "_" + itoa((*kDev)->CopyNumber(),6)
+    string str = (*kDev)->Name() + "_" + itoa((*kDev)->CopyNumber(),6) // kDev copy number is always the same
     + (*kSys) + "_" + itoa((*kSys_copy),6);
 
 
@@ -184,7 +184,7 @@ void PndDrcOptDevManager::AddDeviceSystem(const PndDrcOptDevSys& sys)
       <<"     name,copy: "<<tmp->Name()<<" "<<tmp->CopyNumber()<<endl;
       cout<<" inserted not "<<str<<endl;//###
       cout<<" long name = "<<tmp->LongName()<<endl;
-      exit(EXIT_FAILURE);
+//       exit(EXIT_FAILURE); // due to kDev copy number (see test_hook.cc)
     }
     else
     {
@@ -689,17 +689,20 @@ void PndDrcOptDevManager::SetPhotonList(list<PndDrcPhoton>& photon_list,
   list<PndDrcPhoton>::iterator iph;
   for (iph = fListPhoton.begin(); iph != fListPhoton.end(); ++iph)
   {
-    if( (*iph).Device() == 0 )
+    if( vol_name == "@@@")
+      dev = (*iph).Device();
+    else
+    {
+      dev =Device(vol_name,sys_name,ivol_copy,isys_copy); // internal device pointer
+      (*iph).SetDevice(dev);
+    }
+
+    if( dev == 0 )
     {
       cerr << "*** PndDrcOptDevManager::SetPhotonList: Photon device is not set" << endl;
 
       exit(EXIT_FAILURE);
     }
-
-    if( vol_name == "@@@")
-      dev = (*iph).Device();
-    else
-       dev =Device(vol_name,sys_name,ivol_copy,isys_copy); // internal device pointer
 
 
     double x = (*iph).Direction().Dot(dev->DirectionX());
