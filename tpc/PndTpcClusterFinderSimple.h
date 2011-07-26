@@ -16,7 +16,7 @@ class PndTpcCluster;
 
 class PndTpcPrelimCluster{
  private:
-  void cog();
+  void cog(double zJitter);
 
   TVector3 fpos;
   TVector3 ferr;
@@ -46,7 +46,7 @@ class PndTpcPrelimCluster{
 
   bool isInCluster(const PndTpcDigi* const);
 
-  PndTpcCluster* convPndTpcCluster(bool saveRaw);
+  PndTpcCluster* convPndTpcCluster(unsigned int sectorId, double zJitter, bool saveRaw);
 
 };
 
@@ -70,9 +70,11 @@ public:
   unsigned int NsplitDigis(){return splitDigis;}
   
 private:
-  virtual void processSector(std::vector<PndTpcDigi*>&);
+  virtual void processSector(std::vector<PndTpcDigi*>&, int sectorID);
   std::map<unsigned int, std::vector<PndTpcDigi*>* > fsectormap;
   PndTpcPadPlane* fpadplane;
+  unsigned int fnSectors;
+  std::map<unsigned int, std::vector<unsigned int>* > fpadIDsectorIDmap;
   std::vector<PndTpcCluster*>* foutput_buffer;
 
   bool sectorize;
@@ -81,6 +83,8 @@ private:
   unsigned int splitDigis;
   double fG;
   double fC;
+
+  double zJitter;
 
   unsigned int maxClusterSlice;
 

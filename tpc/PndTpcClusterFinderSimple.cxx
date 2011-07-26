@@ -72,8 +72,8 @@ bool PndTpcPrelimCluster::isInCluster(const PndTpcDigi* const digi) {
 }
 
 
-PndTpcCluster* PndTpcPrelimCluster::convPndTpcCluster(bool saveRaw) {
-  cog(); // also error is calculated here
+PndTpcCluster* PndTpcPrelimCluster::convPndTpcCluster(unsigned int sectorId, double zJitter, bool saveRaw) {
+  cog(zJitter); // also error is calculated here
   PndTpcCluster* c = new PndTpcCluster(fpos,ferr,famp,fid,fdigis.size());
   c->SetMcId(fmcidCol);
   
@@ -83,25 +83,19 @@ PndTpcCluster* PndTpcPrelimCluster::convPndTpcCluster(bool saveRaw) {
     }
   }
   
-  // simply choose first pad (biggest digi) to define sector
-  unsigned int sid=PndTpcDigiMapper::getInstance()->getPad(fdigis[0]->padId())->sectorId();
-  c->SetSector(sid);
+  c->SetSector(sectorId);
   
   return c;
 }
 
 
-void PndTpcPrelimCluster::cog(){
+void PndTpcPrelimCluster::cog(double zJitter){
   bool DEBUG=false;
 
   fpos.SetXYZ(0,0,0);
   famp=0;
   McIdCollection mcid;
   unsigned int ndigis=fdigis.size();
-
-  McId dummyID(1,1,0);
-  McIdCollection dummyColl;
-  dummyColl.AddID(dummyID);
 
   // loop over digis to calculate cog
   for(unsigned int id=0;id<ndigis;++id){
@@ -115,13 +109,6 @@ void PndTpcPrelimCluster::cog(){
   }
   fpos*=1./famp;
 
-  //this block is to define the z jitter
-  TVector3 zDiff1,zDiff2;
-  PndTpcDigi zDiffDigi1(1,1,1,dummyColl),zDiffDigi2(1,2,1,dummyColl);
-  PndTpcDigiMapper::getInstance()->map(&zDiffDigi1,zDiff1);
-  PndTpcDigiMapper::getInstance()->map(&zDiffDigi2,zDiff2);
-  double zDiff = zDiff2.z() - zDiff1.z();
-  //end of z jitter
 
   // calculate errors: ------------------------------------------
 	double dx, dy;
@@ -149,7 +136,7 @@ void PndTpcPrelimCluster::cog(){
   if(ferr.Y()<1E-5) ferr.SetY(sqrt(dy*dy/12)*fC/famp);
   else ferr.SetY(sqrt(ferr.Y()/famp)*fC/famp);
 
-  if(ferr.Z()<1E-5) ferr.SetZ(sqrt(zDiff*zDiff/12)*fC/famp);
+  if(ferr.Z()<1E-5) ferr.SetZ(sqrt(zJitter*zJitter/12)*fC/famp);
   else ferr.SetZ(sqrt(ferr.Z()/famp)*fC/famp);
   
   if(DEBUG) ferr.Print();
@@ -163,18 +150,102 @@ PndTpcClusterFinderSimple::PndTpcClusterFinderSimple(PndTpcPadPlane* p,
 						     std::vector<PndTpcCluster*>* ob,
 						     unsigned int timeslice, double G, double C)
   : fpadplane(p), foutput_buffer(ob), fdt(timeslice), noXclust(false),
-    splitDigis(0), fG(G), fC(C), maxClusterSlice(4000), sectorize(true)
+    splitDigis(0), fG(G), fC(C), maxClusterSlice(4000), sectorize(true), fnSectors(1), zJitter(0.1)
 {
-// construct sector map
+  // construct sector map
   std::vector<unsigned int> ids=fpadplane->GetSectorIds();
-  unsigned int nsec=ids.size();
-  for(unsigned int is=0;is<nsec;++is){
+  fnSectors=ids.size();
+  for(unsigned int is=0;is<fnSectors;++is){
     unsigned int Sectorid=ids[is];
     fsectormap[Sectorid]=new std::vector<PndTpcDigi*>();
   }
   std::cout<<"PndTpcClusterFinderSimple: "
-	   <<fsectormap.size()<<" Sectors instantiated."<<std::endl;
+	   <<fnSectors<<" Sectors instantiated."<<std::endl;
+
+  if (fnSectors==1) return; // no need to build fpadIDsectorIDmap
   
+
+  // build a map from padIds to SectorIds,
+  // the purpose is to put digis at the borders of sectors into the digi buffers of both sectors
+  // so that clusters won't be split at sector borders
+  std::cerr<<"PndTpcClusterFinderSimple::PndTpcClusterFinderSimple - building fpadIDsectorIDmap ";
+
+  unsigned int nPads, nNeighbors, sectorID;
+  PndTpcPad* pad;
+  std::vector<unsigned int> borderPads; // pads that lie at sector borders
+
+  nPads = fpadplane->GetNPads();
+
+  // loop over pads and find pads at borders
+  for (unsigned int iPad=0; iPad<nPads; ++iPad){
+    pad = fpadplane->GetPad(iPad);
+    sectorID = pad->sectorId();
+
+    fpadIDsectorIDmap[iPad] = new std::vector<unsigned int> (1, sectorID);
+
+    //loop over neighbors
+    nNeighbors = pad->nNeighbours();
+    for (unsigned int ineigh=0; ineigh<nNeighbors; ++ineigh){
+      unsigned int neighID = fpadplane->GetPad(pad->getNeighbour(ineigh))->sectorId();
+      if (neighID == sectorID) continue;
+
+      borderPads.push_back(iPad);
+      break;
+    }
+  }
+
+  double overlap(1.1);
+  double x, y;
+  unsigned int padId, padIdNeigh, nPadsInArea;;
+
+
+  // loop over digis at borders
+  for (unsigned int i=0; i<borderPads.size(); ++i){
+    padId = borderPads[i];
+
+    sectorID = fpadplane->GetPad(padId)->sectorId();
+
+    std::vector<PndTpcPad*> buffer;
+    fpadplane->GetPadXY(padId, x, y);
+    fpadplane->GetPadList(x, y, overlap, buffer);
+
+    // loop over pads in area
+    nPadsInArea = buffer.size();
+    for (unsigned int iPad=0; iPad<nPadsInArea; ++iPad){
+      padIdNeigh = buffer[iPad]->padId();
+
+      if ( (std::find(fpadIDsectorIDmap[padIdNeigh]->begin(), fpadIDsectorIDmap[padIdNeigh]->end(), sectorID)) == fpadIDsectorIDmap[padIdNeigh]->end() ){
+        fpadIDsectorIDmap[padIdNeigh]->push_back(sectorID);
+      }
+    }
+  }
+
+  std::cout<<"... done"<<std::endl;
+
+  // print
+  /*std::vector<unsigned int>* sectorIDs;
+  for (unsigned int iPad=0; iPad<nPads; ++iPad){
+    std::cout<<iPad<<"  ";
+    sectorIDs = fpadIDsectorIDmap[iPad];
+    for(unsigned int i=0; i<sectorIDs->size(); ++i){
+      std::cout<<(*sectorIDs)[i]<<" ";
+    }
+    std::cout<<"\n";
+  }*/
+
+
+  //this block is to define the z jitter
+  McId dummyID(1,1,0);
+  McIdCollection dummyColl;
+  dummyColl.AddID(dummyID);
+
+  TVector3 zDiff1,zDiff2;
+  PndTpcDigi zDiffDigi1(1,1,1,dummyColl),zDiffDigi2(1,2,1,dummyColl);
+  PndTpcDigiMapper::getInstance()->map(&zDiffDigi1,zDiff1);
+  PndTpcDigiMapper::getInstance()->map(&zDiffDigi2,zDiff2);
+  zJitter = zDiff2.z() - zDiff1.z();
+  //end of z jitter
+
 }
 
 
@@ -194,7 +265,7 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& alldigis)
   unsigned int nalldigi = alldigis.size();
   if(nalldigi<3) return;
 
-  if(sectorize){
+  if(sectorize && fnSectors>1){
     std::cerr<<"processing digis sectorwise"<<std::endl;
     // reserve
     std::map<unsigned int,std::vector<PndTpcDigi*>* >::iterator secIt=fsectormap.begin();
@@ -203,29 +274,35 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& alldigis)
       ++secIt;
     } // end loop over sectors
 
+    std::vector<unsigned int>* sectorIDs;
+
     // sectorize on pad plane
     for(int idi=0;idi<nalldigi;++idi){ // loop over digis
-      fsectormap[fpadplane->GetPad(alldigis[idi]->padId())->sectorId()]->push_back(alldigis[idi]);
+      // loop over sectorIDs
+      sectorIDs = fpadIDsectorIDmap[alldigis[idi]->padId()];
+      for(unsigned int i=0; i<sectorIDs->size(); ++i){
+        fsectormap[(*sectorIDs)[i]]->push_back(alldigis[idi]);
+      }
     } // end loop over digis
 
     // now process each sector independently
     secIt=fsectormap.begin();
     while(secIt!=fsectormap.end()){ // loop over sectors
-      processSector(*(secIt->second));
+      processSector(*(secIt->second), secIt->first);
       secIt->second->clear(); // clean up
       ++secIt;
     } // end loop over sectors
   }
   else {
     std::cerr<<"processing all digis"<<std::endl;
-    processSector(alldigis); // do not sectorize!
+    processSector(alldigis, -1); // do not sectorize!
   }
 
 }
 
 
 void
-PndTpcClusterFinderSimple::processSector(std::vector<PndTpcDigi*>& digis)
+PndTpcClusterFinderSimple::processSector(std::vector<PndTpcDigi*>& digis, int sectorID)
 {
   std::sort(digis.begin(),digis.end(),PndTpcDigiAge()); // for sectorizing in z
 
@@ -309,10 +386,15 @@ PndTpcClusterFinderSimple::processSector(std::vector<PndTpcDigi*>& digis)
     } // end loop over digis
 
     // convert prelimClusters to PndTpcClusters
+    PndTpcDigi* digi0;
     for(unsigned int i=0;i<prelimClusters.size();++i){
-      double t = prelimClusters[i]->getDigi(0)->t();
-      if(t>=startTime && t<stopTime)
-        foutput_buffer->push_back(prelimClusters[i]->convPndTpcCluster(fsaveRaw));
+      digi0 = prelimClusters[i]->getDigi(0);
+      double t = digi0->t();
+      if (t>=startTime && t<stopTime &&
+          (sectorID == -1 ||
+           fpadplane->GetPad(digi0->padId())->sectorId() == sectorID)){
+        foutput_buffer->push_back(prelimClusters[i]->convPndTpcCluster(sectorID, zJitter, fsaveRaw));
+      }
       delete prelimClusters[i];
     }
 
