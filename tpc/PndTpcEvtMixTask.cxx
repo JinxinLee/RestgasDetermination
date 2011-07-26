@@ -29,12 +29,14 @@
 #include "FairRuntimeDb.h"
 #include "TClonesArray.h"
 #include "PndTpcSignal.h"
-#include "PndTpcDigi.h"
 #include "PndTpcDigiMapper.h"
 #include "PndTpcEvtTime.h"
 #include "PndTpcDigiPar.h"
 #include "PndTpcPad.h"
 #include "PndTpcPadPlane.h"
+#include "PndTpcFrontend.h"
+#include "PndTpcGem.h"
+#include "PndTpcGas.h"
 #include "TRandom.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -45,6 +47,7 @@
 // Class Member definitions -----------
 
 using std::deque;
+using std::vector;
 
 PndTpcEvtMixTask::PndTpcEvtMixTask()
   : FairTask("TPC Background Event Addmixer"),
@@ -58,7 +61,8 @@ PndTpcEvtMixTask::PndTpcEvtMixTask()
     fnbkgEvts(0),
     fmeanEvtSpacing(0),
     ft0(0),
-    fdoTimeSim(false)
+    fdoTimeSim(false),
+    fevtCount(0)
 {}
 
 PndTpcEvtMixTask::~PndTpcEvtMixTask()
@@ -171,27 +175,88 @@ PndTpcEvtMixTask::Init()
   fbkgArray = new TClonesArray(fbkgBranchName);
   ftimeArray = new TClonesArray("PndTpcEvtTime");
   fbkgTree->SetBranchAddress(fbkgBranchName,&fbkgArray);
+  fbkgBranch=fbkgTree->GetBranch(fbkgBranchName);
+  //fbkgBranch->SetAutoDelete(true);
+  //fbkgBranch->SetBasketSize(2000);
   fbkgTree->SetBranchAddress("PndTpcEvtTime",&ftimeArray);
+  ftimeBranch=fbkgTree->GetBranch("PndTpcEvtTime");
+  //ftimeBranch->SetAutoDelete(true);
+  //ftimeBranch->SetBasketSize(2000);
   fnAvailableBkgEvents=fbkgTree->GetEntries();
 
+  fbkgTree->SetBranchStatus("*",0);
+  fbkgTree->SetBranchStatus(fbkgBranchName+"*",1);
+  fbkgTree->SetBranchStatus("PndTpcEvtTime*",1);
+  
+
+  int bytes=0;
+  // std::cerr <<  "Loading Branches" << std::endl;
+  //bytes+=fbkgBranch->LoadBaskets();
+  //bytes+=ftimeBranch->LoadBaskets();
+  //bytes+=fbkgTree->LoadBaskets();
+  
+  //std::cerr <<  "Branches Loaded: " <<bytes<<" basktes"<< std::endl;
+  
+  std::cerr <<  "Loading Digis" << std::endl;
+  // Load complete bkg data into memory
+  fDigiVectors = new vector<vector<PndTpcDigi>*>(fnAvailableBkgEvents);
+  fEvtTimes.resize(fnAvailableBkgEvents);
+  for(unsigned int ib=0;ib<fnAvailableBkgEvents;++ib){
+    fbkgTree->GetEntry(ib);
+    // loop over digis
+    unsigned int ndigis=fbkgArray->GetEntries();
+    (*fDigiVectors)[ib]=new vector<PndTpcDigi>(ndigis);
+    vector<PndTpcDigi>* list=(*fDigiVectors)[ib];
+    for(unsigned int id=0;id<ndigis;++id){
+      PndTpcDigi* digi=(PndTpcDigi*)fbkgArray->At(id);
+      (*list)[id]=(*digi); // copy digi;
+    } // end loop over digis
+    PndTpcEvtTime* t=(PndTpcEvtTime*)ftimeArray->At(0);
+    fEvtTimes[ib]=(*t);
+  }// end loop over bkg data
+
+   std::cerr <<  "Digis Loaded"<< std::endl;
+
+   // drop input file
+   finFile->Close();
+   delete finFile;
 
   fpadPlane= fpar->getPadPlane();
-
+  
   
   // store timing info in this event
   ftimeOutArray = new TClonesArray("PndTpcEvtTime");
   ioman->Register("PndTpcEvtTime","PndTpc",ftimeOutArray,fpersistence);
-
+  ftimeOutArray->Expand(fnbkgEvts+2);
   if(fdoSignals){
     fOutArray = new TClonesArray("PndTpcSignal");
-    ioman->Register("PndTpcSignalMixed","PndTpc",fOutArray,fpersistence);
+    ioman->Register("PndTpcSignalMixed","PndTpc",fOutArray,false);
   }
   else {
     fOutArray = new TClonesArray("PndTpcDigi");
-    ioman->Register("PndTpcDigiMixed","PndTpc",fOutArray,fpersistence);
+    ioman->Register("PndTpcDigiMixed","PndTpc",fOutArray,false);
 
   }
-  
+
+  fOutArray->Expand(3000*fnbkgEvts);
+
+
+ // init the DigiMapper
+  //fpar->printParams();
+  ffrontend= fpar->getFrontend();
+  fpadPlane= fpar->getPadPlane();
+  fgem=      fpar->getGem();
+  fgas=      fpar->getGas();
+  fzGem=     fpar->getZGem();
+  double sf= fpar->getFrontend()->samplingFrequency();
+  double t0= fpar->getFrontend()->t0();
+  double gain=fpar->getGain();
+
+  std::cout << "T0 " << t0 << "sF " << sf << std::endl;
+
+  PndTpcDigiMapper::getInstance(false)->init(fpadPlane,fgem,fgas,fpar->getPadShapes(),fzGem,t0,sf);
+ 
+
   return kSUCCESS;
 }
 
@@ -200,37 +265,46 @@ PndTpcEvtMixTask::Init()
 void
 PndTpcEvtMixTask::Exec(Option_t* opt)
 {
-  std::cout<< "PndTpcEvtMixTask::Exec" << std::endl;
+  std::cout<< "PndTpcEvtMixTask::Exec Event" << fevtCount++ << std::endl;
   // clean up fTimeArray
-  ftimeArray->Delete();
+  ftimeOutArray->Delete();
   fOutArray->Delete();
-
-  // Look at this event geantHits in the TPC:
-  Int_t iout=fsignalArray->GetEntriesFast();
-  std::cout<<iout<<" signals in signalArray"<<std::endl;
+  
+  // int bytes=0;
+  // std::cerr <<  "Loading Branches" << std::endl;
+  // bytes+=fbkgTree->LoadBaskets();
+  // std::cerr <<  "Branches Loaded: " <<bytes<<" basktes"<< std::endl;
   
   // reset timer
   double teventSim=ft0;
   
   // prepare drawing events without putting them back
-  deque<unsigned int> availableEvents;
+  deque<unsigned int> availableEvents(fnAvailableBkgEvents);
   for(unsigned int i=0;i<fnAvailableBkgEvents;++i){
-    availableEvents.push_back(i);
+    availableEvents[i]=i;
   }
 
   // copy physics events into outarray;
   unsigned int nph=fsignalArray->GetEntries();
+  
+
   for(unsigned int iph=0;iph<nph;++iph){
     if(fdoSignals){
       PndTpcSignal* digi=(PndTpcSignal*)fsignalArray->At(iph);
+    
       new((*fOutArray)[iph]) PndTpcSignal(*digi);
+
     }
     else {
       PndTpcDigi* digi=(PndTpcDigi*)fsignalArray->At(iph);
+      //std::cerr << "nSamples="<<digi->nSample() << std::endl;
       new((*fOutArray)[iph]) PndTpcDigi(*digi);
     }
   }
-
+ // Look at this event geantHits in the TPC:
+  Int_t iout=fOutArray->GetEntriesFast();
+  std::cout<<iout<<" physics signals in OutArray"<<std::endl;
+  
   // Get background events
   for(Int_t i=0;i<fnbkgEvts;++i){
     // select event from evailable ones:
@@ -240,8 +314,8 @@ PndTpcEvtMixTask::Exec(Option_t* opt)
     // remove event from list of availables
     availableEvents.erase(availableEvents.begin()+EventNum);
     // -------------
-    fbkgTree->GetEntry(selectEvt);
-    double tevent=((PndTpcEvtTime*)ftimeArray->At(0))->t0();
+  
+    double tevent=fEvtTimes[i].t0();
     // if reshuffel
     if(fdoTimeSim){
        teventSim+=gRandom->Exp(fmeanEvtSpacing);
@@ -249,48 +323,53 @@ PndTpcEvtMixTask::Exec(Option_t* opt)
        tevent=teventSim;
     }
     double teventClock=PndTpcDigiMapper::getInstance()->t_to_ticks(tevent);
-    //std::cout<<"tevent="<<tevent<<std::endl;
-    // Load bkg array
-    if(fbkgArray==NULL) Fatal("PndTpcEvtMixTask::Exec","bkgArray not loadable");
-    // copy bkg array into output array
+    vector<PndTpcDigi>* bkgDigis=(*fDigiVectors)[selectEvt];
+   
     // distinguish between signal and digi mixing!
-    Int_t nsig=fbkgArray->GetEntriesFast();
+    Int_t nsig=bkgDigis->size();
     for(Int_t ip=0;ip<nsig;++ip){
       if(fdoSignals){
-	PndTpcSignal* sig=(PndTpcSignal*)fbkgArray->At(ip);
-	// check if signal lies in region of interest
-	unsigned int sec=fpadPlane->GetPad(sig->padId())->sectorId();
-	if(fsectors.size()>0 && fsectors.find(sec)==fsectors.end()){
-	  // std::cout << "Skipping sig. Sector" 
-	  // 		  << sec << " not in list." << std::endl;
-	  continue;
-	}
-	// TODO: modify time of point according to event time
-	sig->sett(sig->t()+tevent);
-	sig->setmcEventId(selectEvt+1); // add because evt 0 = physics event!
-	// Add background to point-array of this event
-	new((*fOutArray)[iout++]) PndTpcSignal(*sig);
+	// PndTpcSignal* sig=(PndTpcSignal*)fbkgArray->At(ip);
+	// // check if signal lies in region of interest
+	// unsigned int sec=fpadPlane->GetPad(sig->padId())->sectorId();
+	// if(fsectors.size()>0 && fsectors.find(sec)==fsectors.end()){
+	//   // std::cout << "Skipping sig. Sector" 
+	//   // 		  << sec << " not in list." << std::endl;
+	//   continue;
+	// }
+	// // TODO: modify time of point according to event time
+	// sig->sett(sig->t()+tevent);
+	// sig->setmcEventId(selectEvt+1); // add because evt 0 = physics event!
+	// // Add background to point-array of this event
+	// new((*fOutArray)[iout++]) PndTpcSignal(*sig);
       } // if doSignals
       else {
-	PndTpcDigi* digi=(PndTpcDigi*)fbkgArray->At(ip);
+	PndTpcDigi mydigi=(*bkgDigis)[ip];//(PndTpcDigi*)fbkgArray->At(ip);
 	// check if signal lies in region of interest
-	unsigned int sec=fpadPlane->GetPad(digi->padId())->sectorId();
+	unsigned int sec=fpadPlane->GetPad(mydigi.padId())->sectorId();
 	if(fsectors.size()>0 && fsectors.find(sec)==fsectors.end()){
 	  // std::cout << "Skipping sig. Sector" 
 	  // 		  << sec << " not in list." << std::endl;
 	  continue;
 	}
 	// TODO: modify time of point according to event time
-	digi->t(digi->t()+teventClock);
-	digi->shiftEventIds(selectEvt+1);
+	mydigi.t(mydigi.t()+teventClock);
+	mydigi.shiftEventIds(selectEvt+1);
 	// Add background to point-array of this event
-	new((*fOutArray)[iout++]) PndTpcDigi(*digi);
-      } // end digis
-    }
-  }
+	new((*fOutArray)[iout++]) PndTpcDigi(mydigi);
+      } // end do digi
+     
+    } // end loop over digis/signals
+  } // end loop over bkg events
     //fbkgArray->Print();
-  std::cout<<fsignalArray->GetEntriesFast()<<" total signals in signalArray"<<std::endl;
 
+  //ftimeBranch->DropBaskets("all");
+  std::cout<<fOutArray->GetEntriesFast()<<" total in OutArray"<<std::endl;
+  std::cout<<fOutArray->Capacity()<<" total Capacity of OutArra"<<std::endl;
+}
+
+void PndTpcEvtMixTask::FinishTask(){
+  //finFile->Close();
 }
 
 ClassImp(PndTpcEvtMixTask)

@@ -23,8 +23,11 @@
 
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
+#include <vector>
 #include <set>
 
+#include "PndTpcDigi.h"
+#include "PndTpcEvtTime.h"
 // Collaborating Class Declarations --
 class TClonesArray;
 class TFile;
@@ -32,6 +35,9 @@ class TTree;
 class TBranch;
 class PndTpcPadPlane;
 class PndTpcDigiPar;
+class PndTpcFrontend;
+class PndTpcGem;
+class PndTpcGas;
 
 class PndTpcEvtMixTask : public FairTask {
 public:
@@ -60,6 +66,7 @@ public:
   virtual InitStatus Init();
   virtual void SetParContainers();
   virtual void Exec(Option_t* opt);
+  virtual void FinishTask();
 
 private:
 
@@ -77,7 +84,12 @@ private:
 
   TFile* finFile;
   TTree* fbkgTree;
+  
   TBranch* fbkgBranch;
+  TBranch* ftimeBranch;
+
+  std::vector<std::vector<PndTpcDigi>*>* fDigiVectors;
+  std::vector<PndTpcEvtTime> fEvtTimes;
 
   Bool_t fpersistence;
   Bool_t fdoSignals;
@@ -86,14 +98,16 @@ private:
   Bool_t fdoTimeSim;
   Double_t fmeanEvtSpacing;
   Double_t ft0;
-  
+  Int_t fevtCount;
 
   std::set<unsigned int> fsectors;
   PndTpcDigiPar* fpar;
 
-  const PndTpcPadPlane* fpadPlane;
- 
-
+   PndTpcPadPlane* fpadPlane;
+  const PndTpcFrontend* ffrontend;
+  const PndTpcGem* fgem;
+  const PndTpcGas* fgas;
+  double fzGem;
   // Private Methods -----------------
 
 public:
