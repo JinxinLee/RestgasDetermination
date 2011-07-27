@@ -100,7 +100,7 @@ PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
     _mergeTracks(true),
     _TTproxcut(7.0),
     _TTdipcut(.1),
-    _TThelixcut(0.2),
+    _TThelixcut(0.3),
     _TTplanecut(0.015),
 
     _skipCrossingAreas(true),
@@ -355,10 +355,10 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
 
   unsigned int nTotCl(0);
 
+
   // loop over sectors
   for(unsigned int isect=0;isect<fnsectors;++isect){
     if (fVerbose) std::cerr << "\n... building tracks in sector " << isect << " from " << fbuffermap[isect]->size() << " clusters" << std::endl;
-
 
     fcluster_buffer=fbuffermap[isect];
     nTotCl += fcluster_buffer->size();
@@ -465,9 +465,7 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       if (fVerbose) std::cerr << "   found circle tracks: " <<  nGoodCirlceTrks << std::endl;
       // end find circle tracks
 
-
       if (fVerbose) std::cerr << "\n   this reduced the number of clusters by " <<  nErasedCl << std::endl;
-
 
 
       // build rest of the tracks
@@ -485,7 +483,6 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       _trackfinder->mergeTracks(riemannTempSec);
       if (fVerbose) std::cerr << " ... done - created " << riemannTempSec.size() << " merged tracks" <<std::endl;
     }
-
 
 
     // copy tracklets of this sector to global list
@@ -541,7 +538,7 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     for (unsigned int i=0; i<friemannlist.size(); ++i){
       if (friemannlist[i]->getNumHits() <= _minpoints+1 ||
           (friemannlist[i]->getFirstHit()->cluster()->pos() -
-           friemannlist[i]->getLastHit()->cluster()->pos()).Mag() < 4.){
+           friemannlist[i]->getLastHit()->cluster()->pos()).Mag() < 2.){
         friemannlist[i]->deleteHits();
         delete friemannlist[i];
         friemannlist.erase(friemannlist.begin() + i);
@@ -557,21 +554,17 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
   }
 
 
-
   unsigned int nUsedCl(0);
   for (unsigned int i=0; i<friemannlist.size(); ++i){
     nUsedCl += friemannlist[i]->getNumHits();
   }
 
-  if (fVerbose) std::cerr << "Pattern Reco finished, found tracks: " << friemannlist.size() << "\n";
-  if (fVerbose) std::cerr << "used " << nUsedCl << " of " << nTotCl << " Clusters \n";
+  if (fVerbose) {
+    std::cerr << "Pattern Reco finished, found tracks: " << friemannlist.size() << "\n";
+    std::cerr << "used " << nUsedCl << " of " << nTotCl << " Clusters \n";
+  }
   //----------------------------------------------------------------------------------------------------
   // end PR
-
-
-
-
-
 
 
 
@@ -627,9 +620,14 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     
     if (fVerbose) std::cout<<"Tracklet "<<itrk<<"   nhits = "<<nhits;
 
+    // check if fitted
+    if(!trk->isFitted()){
+      if (fVerbose) std::cout<<" - skipping, tracklet not prefitted"<<std::endl;
+      continue;
+    }
     // check if enough points
-    if(nhits<MINHITS || nhits<_minpoints){
-      if (fVerbose) std::cout<<" - skipping, not enough hits"<<std::endl;
+    if(nhits<MINHITS){
+      if (fVerbose) std::cout<<" - skipping, not enough hits: "<<nhits<<std::endl;
       continue;
     }
     // check if track too steep
@@ -641,7 +639,7 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     // ceck if momentum high enough
     double p = trk->getMom(Bz);
     if (Bz==0) p=pbackup;
-    if(p<1E-4) {
+    if(p<1.E-2) {  // 10 MeV ~ 3cm helix diameter
       if (fVerbose) std::cout<<" - skipping, momentum too small: "<<p*1E3<<" MeV"<<std::endl;
       continue;
     }
@@ -722,9 +720,7 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     TVector3 pos1, direction;
 
     // the start direction has to point opposite to the actual direction, I don't know why, but otherwise the charge is wrong
-    if(invertedTrack) {
-      trk->getPosDirOnHelix(trk->getNumHits()-1, pos1, direction);
-    }
+    if(invertedTrack) trk->getPosDirOnHelix(trk->getNumHits()-1, pos1, direction);
     else {
       trk->getPosDirOnHelix(0, pos1, direction);
       direction *= -1.;
@@ -734,10 +730,9 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     TVector3 poserr(1,1,1);
     poserr*=trk->resolution();
 
-    TVector3 mom = p * direction;
+    TVector3 mom(p * direction);
     TVector3 momerr(fabs(mom.X()),fabs(mom.Y()),fabs(mom.Z()));
     momerr *= trk->resolution();
-
 
     double trackR = trk->r();
 
@@ -764,7 +759,6 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
 
     //RK TRACKREP
     RKTrackRep* rkrep = new RKTrackRep(pos1, mom, poserr, momerr,pdg);
-    
 
     candlist.push_back(cand);
 
@@ -804,32 +798,20 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     }
     
     //SMOOTHING
-    if(_smoothing)
-      gftrk->setSmoothing(true);
+    if(_smoothing) gftrk->setSmoothing(true);
     
   }// end loop over tracks
   
-
-  std::cout<<"PndTpcRiemannTrackingTask::Exec:: "
-           <<candlist.size()<<" track candidates found."<<std::endl;
-
+  std::cout<<"PndTpcRiemannTrackingTask::Exec:: "<<candlist.size()<<" track candidates found."<<std::endl;
   _multiplicityHisto->Fill(candlist.size());
-
-  
-
-
-
-
-
-
-
-
 }
+
 
 void
   PndTpcRiemannTrackingTask::SetStoreHistograms(TString file) {
   std::cerr<<"PndTpcRiemannTrackingTask::SetStoreHistograms() - empty implementation"<<std::endl;
 }
+
 
 void
   PndTpcRiemannTrackingTask::WriteHistograms(const TString& filename) {

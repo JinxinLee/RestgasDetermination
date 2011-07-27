@@ -61,7 +61,7 @@ PndTpcClustVis::PndTpcClustVis():
   _sorting(3), _interactionZ(0), _sortingMode(true),
   PRNHits(999999999), PRStage(5),
   _minpoints(4), _planecut(0.04), _riproxcut(0.1), _szcut(0.2), _proxcut(1.9), _proxZstretch(1.6), _helixcut(0.2),
-  _TTproxcut(7.0), _TTplanecut(0.015), _TTszcut(0.33), _TTdipcut(0.1), _TThelixcut(0.2),
+  _TTproxcut(7.0), _TTplanecut(0.015), _TTszcut(0.33), _TTdipcut(0.1), _TThelixcut(0.3),
   PRHasChanged(true),
   fRiemannScale(8.6), initDip(4.),
   doFit(false), invertCharge(false), useGeane(false), numIts(0), smooth(false), Bz(0)
