@@ -12401,6 +12401,7 @@ FiLimitAdmissible<<", X limit "<<Oxx+Rr*cos(FiLimitAdmissible)<<
 				ApotemaMinOuterPar,
 				RStrawDetMax
 						) ){
+if(istampa>=2) cout<<"SttParalCleanup false\n";
 						  return false;
 				}
 
@@ -12428,6 +12429,7 @@ FiLimitAdmissible<<", X limit "<<Oxx+Rr*cos(FiLimitAdmissible)<<
 			1 // max number of failures allowed.
 			) ) ) {
 
+if(istampa>=2) cout<<"SttSkewCleanup false\n";
 						  return false;
 				}
 
@@ -13371,7 +13373,7 @@ if(istampa>=2&&IVOLTE<20)cout<<"\treject this track because ibad = "<< ibad
 			(info[ListHits[ihit]][0]-Xprevious)+
 			(info[ListHits[ihit]][1]-Yprevious)*
 			(info[ListHits[ihit]][1]-Yprevious);
-if(IVOLTE==1) {cout<<"hit || n. "<<ListHits[ihit]<<", X "<<info[ListHits[ihit]][0]
+if(istampa>=2) {cout<<"hit || n. "<<ListHits[ihit]<<", X "<<info[ListHits[ihit]][0]
 <<", Y "<<info[ListHits[ihit]][1]<<"\n\tX prima "<<Xprevious
 <<", Y prima "<<Yprevious<<", Distanza "<<sqrt(Distance[ihit])<<", cut = "
 <<cut<<endl;
@@ -13404,7 +13406,7 @@ if(IVOLTE==1) {cout<<"hit || n. "<<ListHits[ihit]<<", X "<<info[ListHits[ihit]][
 	   (info[ListHits[nHits-1]][0]-Xcross[1])*(info[ListHits[nHits-1]][0]-Xcross[1])+
 	   (info[ListHits[nHits-1]][1]-Ycross[1])*(info[ListHits[nHits-1]][1]-Ycross[1])
 						;
-if(IVOLTE==1)cout<<"from BadTrack_ParStt, Stt || hit n. (original notation) "<<
+if(istampa>=2)cout<<"from BadTrack_ParStt, Stt || hit n. (original notation) "<<
 	ListHits[nHits-1]<<", Distance to boundary = "<<sqrt(Distance[nHits])
 	<<", 4*cut "<<4.*cut<<endl;
 	   if( Distance[nHits]>cut2 ){
@@ -13416,7 +13418,7 @@ if(IVOLTE==1)cout<<"from BadTrack_ParStt, Stt || hit n. (original notation) "<<
 	}	// end of if( IsInsideArc
 
 
-if(IVOLTE==1)cout<<"from BadTrack_ParStt, ibad "<<ibad<<", max bad allowed = "<< maxnum<<endl;
+if(istampa>=2)cout<<"from BadTrack_ParStt, ibad "<<ibad<<", max bad allowed = "<< maxnum<<endl;
 
 	if( ibad > maxnum) return true;
 	if(ninarc==0) return true;
