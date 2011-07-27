@@ -74,6 +74,7 @@ public:
   TString fGEMBranchName;
   
   bool fPersistence;
+  bool fRequireMatch; //true: ONLY write out tracks with a GEM match!
 
   unsigned int fMinGEMHits;
   

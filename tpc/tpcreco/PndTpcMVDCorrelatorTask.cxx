@@ -233,9 +233,7 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
       fResHistZ->Fill(res.Z());
 
       //check if hit is close enough
-      if(fabs(res.X()) > fMatchDistance*error.X()  ||
-         fabs(res.Y()) > fMatchDistance*error.Y()  ||
-         fabs(res.Z()) > fMatchDistance*error.Z()) {
+      if(res.Mag() > fMatchDistance) {
         if(fVerbose) {
           std::cout<<"       rep:    not close enough: RES was ";
           res.Print();

@@ -57,7 +57,7 @@ bool sortByZ(const std::map<unsigned int, PndGemHit*>& h1,
 
 PndTpcGEMCorrelatorTask::PndTpcGEMCorrelatorTask()
   : FairTask("TPC-GEM Correlator"), fPersistence(kFALSE), fMatchDistance(0.6),
-    fMinGEMHits(2)
+    fMinGEMHits(2), fRequireMatch(false)
 {
   fOutTrackBranchName = "TrackPreFitGEM";
   fTrackBranchName = "TrackPostFit";
@@ -205,8 +205,10 @@ PndTpcGEMCorrelatorTask::Exec(Option_t* opt)
     GFTrackCand* outCand = new GFTrackCand(outTrack->getCand());
     
     if(tempCand.size() < fMinGEMHits) {
-      (*fOutTrackArray)[fOutTrackArray->GetEntriesFast()] = outTrack;
-      continue;
+      if(!fRequireMatch) {
+        outTrack->clearBookkeeping();
+        (*fOutTrackArray)[fOutTrackArray->GetEntriesFast()] = outTrack;
+      }
     }
     
     std::sort(tempCand.begin(), tempCand.end(), sortByZ);
@@ -218,6 +220,7 @@ PndTpcGEMCorrelatorTask::Exec(Option_t* opt)
     } //end append hits
     
     outTrack->setCandidate(*outCand);
+    outTrack->clearBookkeeping();
     outTrack->blowUpCovs(500.);
     (*fOutTrackArray)[fOutTrackArray->GetEntriesFast()] = outTrack;
         
