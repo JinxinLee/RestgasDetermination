@@ -23,8 +23,9 @@
 
 class PndSdsFE: public TObject {
 public:
-	PndSdsFE();
-	PndSdsFE(double charsingtime, double constcurrent, double threshold, double frequency, int verbose);
+	PndSdsFE(): fFrontEndModel(0), fNumberOfSupportPoints(0), fNumberOfMaxElectons(0), fFunction(0), fMaximumAmplitude(0),fThreshold(0), fBaselineEpsilon(0), fToF(0), fEventTime(0),
+	fTimeOffSet(0), fTimeStep(0),fFunctionRange(0), fRand(0), i(0), stepsize(0), fCharge_list(0), fTot_list(0), inter(0) {};
+//	PndSdsFE(double charingtime, double constcurrent, double threshold, double frequency, int verbose);
 	virtual ~PndSdsFE();
 
 	double GetTotFromCharge(Double_t charge);			// Calculates the ToT value from the charge
@@ -33,18 +34,22 @@ public:
 	double GetTimeWalkFromTot(double tot);				// Calculates the TimeWalk from the TOT value
 	double GetTimeBackToBaseline(double charge);		// Calculates the time from start of the signal till the signal is fBaselineEpsilon close to baseline
 	double GetTimeStamp(double eventtime, double tof, double charge);  // Calculates the TimeStamp of the signal
+    void SetParameter(double chargingtime, double constcurrent, double threshold, double frequency);
 
-
-private:
-	double DigitizeTime(double time);
+protected:
+    double DigitizeTime(double time);
 	double GetTimeOffSet();
-	void CreateInterpolatorList();  // Creates the Interpolatorlist for GetTotFromCharge calculation
+    void CreateInterpolatorList();  // Creates the Interpolatorlist for GetTotFromCharge calculation
 	void SaveInterpolatorList(std::vector<double> charge, std::vector<double> tot);
 	void LoadInterpolatorList();
 	void GetInterpolatorList();
-	int number_of_support_points;
-	int number_of_max_electrons ;
+
+
 	PndSdsFEAmpModelSimple *fFrontEndModel;
+
+	int fNumberOfSupportPoints;
+	int fNumberOfMaxElectons ;
+
 	TF1 *fFunction;
 	double fMaximumAmplitude;      // Saves position of the maximum amplitude of the signal
 	double fThreshold;				// Threshold for Signal from Parameter database
@@ -57,11 +62,14 @@ private:
 	TRandom2 fRand;
 	int i;
 	double stepsize;
-	int fModel;						// Saves the modeltype: (1) ModelSimple.
 
 	std::vector<double> fCharge_list;
 	std::vector<double> fTot_list;
 	ROOT::Math::Interpolator *inter;
+
+private:
+
+
 
 
 	ClassDef(PndSdsFE,1);

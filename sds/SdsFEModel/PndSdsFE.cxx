@@ -11,57 +11,18 @@
 #include "TGraph.h"
 #include "TCanvas.h"
 #include "TLegend.h"
-PndSdsFE::PndSdsFE() {
 
-	fFrontEndModel = new PndSdsFEAmpModelSimple();
-	fFunctionRange = 22000;
-	fFunction = new TF1("fFunction",fFrontEndModel,&PndSdsFEAmpModelSimple::Definition,0,fFunctionRange,3);
-	fFunction->SetNpx(20000);
-
-	fFunction->SetParName(0,"chargetime");
-	fFunction->SetParName(1,"constantcurrent");
-	fFunction->SetParName(2,"charge");
-
-	fFunction->SetParameter("chargetime",100);
-	fFunction->SetParameter("constcurrent",60);
-	fFunction->SetParameter("threshold",1100);
-	fFunction->SetParameter("frequency",150);
-
-	fTimeStep = 1. / 150 * 1000.; // Dont forget to change the frequency here if you change it above
-
-	fBaselineEpsilon = 1;
-	GetTimeOffSet();
-
-	fThreshold = 1100;
-
-	GetInterpolatorList();
-}
-
-PndSdsFE::PndSdsFE(double chargetime, double constcurrent, double threshold, double frequency, int verbose) {
-
-	fFrontEndModel = new PndSdsFEAmpModelSimple();
-	fTimeStep = 1. / frequency * 1000.;
-	fFunctionRange = 22000;
-	fBaselineEpsilon = 1;
-	fFunction = new TF1("fFunction",fFrontEndModel,&PndSdsFEAmpModelSimple::Definition,0,fFunctionRange,3);
-	fFunction->SetNpx(20000);
-	fFunction->SetParName(0,"chargetime");
-	fFunction->SetParName(1,"constantcurrent");
-	fFunction->SetParName(2,"charge");
-
-	fFunction->SetParameter(0,chargetime);
-	fFunction->SetParameter(1,constcurrent);
-
-	GetTimeOffSet();
-
-	fThreshold = threshold;
-
-	//CreateInterpolatorList(threshold);
-
-	GetInterpolatorList();
-}
 
 PndSdsFE::~PndSdsFE() {
+}
+
+void PndSdsFE::SetParameter(double charsingtime, double constcurrent, double threshold, double frequency ){
+
+	fThreshold = threshold;
+	fFunction->SetParName(0,"chargetime");
+	fFunction->SetParName(1,"constantcurrent");
+	fFunction->SetParName(2,"charge");
+
 }
 
 double PndSdsFE::GetTotFromCharge(Double_t Charge){
@@ -143,13 +104,13 @@ double PndSdsFE::GetTimeOffSet(){
 
 void PndSdsFE::CreateInterpolatorList(){
 
-	number_of_support_points = 2000;
-	number_of_max_electrons = 630000;
-	stepsize = number_of_max_electrons/number_of_support_points;
+	fNumberOfSupportPoints = 2000;
+	fNumberOfMaxElectons = 630000;
+	stepsize = fNumberOfMaxElectons/fNumberOfSupportPoints;
 
 	printf("stepsize %f \n",stepsize);
 
-	for( i=0; i < number_of_support_points; i++){
+	for( i=0; i < fNumberOfSupportPoints; i++){
 		if(i*stepsize<fThreshold){
 				continue;
 		}
