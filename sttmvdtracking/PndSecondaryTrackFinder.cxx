@@ -256,8 +256,11 @@ void PndSecondaryTrackFinder::WriteHistograms(){
 }
 void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 
+  fSecondaryTrackCandArray->Delete();
+  fSecondaryTrackArray->Delete();
+
   cout << "++++++++++++++++++++++++++++++++++++" << endl;
-  fDisplayOn = kFALSE;
+  //  fDisplayOn = kFALSE;
   // MC Tracks ------------ CHECK MC INFO
   std::vector<int> mctracks;
   for(int ipnt = 0; ipnt < fSttPointArray->GetEntriesFast(); ipnt++) {
@@ -549,14 +552,27 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   tracklist.clear();
   // loop on the tracks
   for(int itrk = 0; itrk < xyparameters.size(); itrk++) {
-
+     if(fDisplayOn) Refresh();
     TMatrixT<double> xypar = xyparameters[itrk];
     double xc = xypar[0][0];
     double yc = xypar[0][1];
     double radius = xypar[0][2];
     std::vector< TMatrixT<double> > track = AddPointsBIS(stthits, FairRootManager::Instance()->GetBranchId(fSttBranch), xc, yc, radius, itrk);
-    std::vector< TMatrixT<double> > sorthits = OrderCluster2BIS(track, xc, yc, radius);
-    tracklist.push_back(sorthits);
+    cout << "TRACK ADDED POINTS " << track.size() << " " << endl;
+    for(int ihit = 0; ihit < track.size(); ihit++) cout << " " << (track.at(ihit))[0][1];
+    cout << endl;
+    //   std::vector< TMatrixT<double> > sorthits = OrderCluster2BIS(track, xc, yc, radius);
+    
+    Int_t tracktype = TrackType(xypar);
+    Int_t refihit = -1;
+    if(tracktype == 2) refihit = FindRefPoint(track, xypar) ;
+    else refihit = 0;
+    cout << "FIRST REF HIT " << refihit << endl;
+    std::vector< TMatrixT<double> > sorthits =  OrderByDistanceFromRefPointWithoutCharge(refihit, track, xypar);
+ 
+    cout << "sorthits POINTS " << sorthits.size() << " " << endl;
+
+   tracklist.push_back(sorthits);
   }
   cout << "after adding the points" << endl;
 //   PrintClustersBIS(tracklist);
@@ -844,6 +860,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       Brief(tracklist, xyparameters);
       cin >> goOnChar;
  }
+ cout << "TRACK LIST & PARAMETERS 1 - " << tracklist.size() << " " << xyparameters.size() << endl;
 
   // ---------------- Z fit -------------
  // fDisplayOn = kTRUE;
@@ -933,6 +950,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     //     cout << endl;
   }
 
+ cout << "TRACK LIST & PARAMETERS 2 - " << tracklist.size() << " " << xyparameters.size() << endl;
 
   for(int iclus = 0; iclus < tracklist.size(); iclus++) {
 
@@ -1037,11 +1055,12 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     xyparameters.at(itrk)[0][5] = fitp;
 
   }
+ cout << "TRACK LIST & PARAMETERS 3 - " << tracklist.size() << " " << xyparameters.size() << endl;
 
   // %%%%%%%%%%%%%%%%% PUT THESE INSTEAD OF THE FOLLOWING ONES
  
   // +++++++++ NOW ++++++++++
-  std::vector< std::vector< std::pair<int, int> > > completeclusterlist;
+ //  std::vector< std::vector< std::pair<int, int> > > completeclusterlist;
   for(int itrk = 0; itrk < xyparameters.size(); itrk++) {
     TMatrixT<double> xypar = xyparameters[itrk];
     std::vector< TMatrixT<double> > completecluster;
@@ -1051,11 +1070,19 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     int charge = (int) xypar[0][3];
 
     std::vector< TMatrixT<double> > track = tracklist[itrk];
-    std::vector< TMatrixT<double> > newtrack = OrderClusterInPhiBIS(track, xc, yc, radius);
+ //    std::vector< TMatrixT<double> > newtrack = OrderClusterInPhiBIS(track, xc, yc, radius);
+
+    Int_t tracktype = TrackType(xypar);
+    Int_t refihit = -1;
+    if(tracktype == 2) refihit = FindRefPoint(track, xypar) ;
+    else refihit = 0;
+    cout << "SECOND REF HIT " << refihit << endl;
+    std::vector< TMatrixT<double> > newtrack = OrderInPhiFromRefPoint(refihit, track, xypar);
+    // tracklist.push_back(newtrack);
     std::replace(tracklist.begin(), tracklist.end(), track, newtrack);
   }
 
-
+  cout << "TRACK LIST & PARAMETERS " << tracklist.size() << " " << xyparameters.size() << endl;
 
   for(int itrk = 0; itrk < xyparameters.size(); itrk++) {
     TMatrixT<double> xypar = xyparameters[itrk];
@@ -1176,7 +1203,9 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   //  fDisplayOn = kTRUE;
   for(int itrk = 0; itrk < tracklist.size(); itrk++) {
     
-    cout << "ORDERING TIME !!!!" << endl;
+    cout << "ORDERING TIME !!!! "  << itrk << endl;
+    cout << tracklist.size() << endl;
+    cout << xyparameters.size() << endl;
    std::vector< TMatrixT<double> > track = tracklist[itrk];
    TMatrixT<double> par = xyparameters[itrk];
    
@@ -4668,12 +4697,14 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderCluster2BIS(std::v
     phiangles.push_back(phi2);
     mapphiangles.insert(std::pair<double, int>(phi2, ihit));
  
-    if(fabs(radius - distance) > 1.) continue;
+    //  if(fabs(radius - distance) > 1.) continue;
     double disphi = distance * phi2;
     distancesphi.push_back(disphi);
-    //    cout << "DISPHI " << distance << " " << phi2 << " " << disphi << " " << radius << endl;
+//    cout << "DISPHI " << distance << " " << phi2 << " " << disphi << " " << radius << endl;
     mapdistancesphi.insert(std::pair<double, int>(disphi, ihit));
+    cout << "mapdistance insert " << ihit << " " << distance << " " << hitid << endl;
   }
+  cout << "MAPDISTANCE size " << mapdistances.size() << endl;
     
   std::sort(distances.begin(), distances.end());
   std::sort(phiangles.begin(), phiangles.end());
@@ -4699,6 +4730,8 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderCluster2BIS(std::v
 	int hitno = (*it).second;
 	TMatrixT<double> singlehit = cluster[hitno];
 	sorthits.push_back(singlehit);
+	cout << j << " sorted hit " << " " << d << " " << " " << singlehit[0][1] << endl;
+
 	count++;
       }
   }
@@ -4727,6 +4760,16 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderCluster2BIS(std::v
   }
   // cout << endl;
 
+
+  for(int ihit = 0; ihit < sorthits.size(); ihit++)
+    {
+      TMatrixT<double> singlehit = sorthits[ihit];
+      if(singlehit[0][0] == -1) continue;
+      Int_t hitid = singlehit[0][1];
+      Int_t detid = singlehit[0][2];
+      cout << "sorted HITID/DETID " << hitid << " " << detid << " " << singlehit[0][3] << endl;
+    }
+ 
   return sorthits;
 }
 
@@ -5941,6 +5984,8 @@ Bool_t PndSecondaryTrackFinder::TestChi2(std::vector<int> cluster, Double_t xc, 
 }
 
 Bool_t PndSecondaryTrackFinder::TestChi2BIS(std::vector< TMatrixT<double> > cluster, Double_t xc, Double_t yc, Double_t radius,  Int_t iclus, Double_t chi2, Int_t countelem, Double_t &newxc, Double_t &newyc, Double_t &newradius, std::vector< TMatrixT<double> > *newcluster, Double_t &newchi2) {
+
+ cout << xc << " " << yc << " " << radius << " " << chi2 << " " << countelem  << " " << cluster.size() << endl;
   if(chi2 < fChi2Limit) return kTRUE;
 
   if(countelem > cluster.size() * 0.5) return kFALSE;
@@ -8334,7 +8379,8 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderByDistanceFromRefP
 
   TMatrixT<double> refhit = cluster[refihit];
   TVector3 refposition(refhit[0][4], refhit[0][5], 0.);
-  
+  //  sorthits.push_back(refhit);
+
   std::vector<double> distances;
   std::multimap<double, int> mapdistances;
 
@@ -8353,8 +8399,9 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderByDistanceFromRefP
     
     distances.push_back(distance);
     mapdistances.insert(std::pair<double, int>(distance, ihit));
-  }
-    
+    cout << "mapdistance insert " << ihit << " " << distance << " " << hitid << endl;
+ }
+  cout << "MAPDISTANCE size " << mapdistances.size() << endl;
   std::sort(distances.begin(), distances.end());
 
   // sort better ----
@@ -8386,19 +8433,37 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderByDistanceFromRefP
 
   TVector3 tmppos = refposition;
   int fromhere = -1;
+  cout << "DISTANCES SIZE " << distances.size() << endl;
+
+  // add the hits at the same distance of the first one
+  std::multimap<double, int>::iterator it;
+  int count = 0;
+  int n = mapdistances.count(tmpdistance);
+  cout << "N " << n << endl;
+  for(it = mapdistances.begin(); it != mapdistances.end(); ++it)
+    {
+      if(count == n) { cout << "count/n " << count  << " " << n << endl;   break; } 
+      if((*it).first != tmpdistance) { cout << "first/d " << (*it).first << " " << tmpdistance << endl;  continue; }
+      int hitno = (*it).second;
+      TMatrixT<double> singlehit = cluster[hitno];
+      sorthits.push_back(singlehit);
+      count++;
+    }
+  // ------------------
+  
   for(int j = 0; j < distances.size(); j++) {
     double d = distances[j];
-    
+    cout.precision(12);
+    cout << "j " << j << " " << d << " " << tmpdistance << endl;
     if(tmpdistance < d) {
-    
-      std::multimap<double, int>::iterator it;
-      int count = 0;
-      int n = mapdistances.count(tmpdistance);
-      
+      // std::multimap<double, int>::iterator it;
+      count = 0;
+      n = mapdistances.count(d);
+      cout << "N " << n << endl;
       for(it = mapdistances.begin(); it != mapdistances.end(); ++it)
 	{
-	  if(count == n) break;
-	  if((*it).first != tmpdistance) continue;
+	  if(count == n) { cout << "count/n " << count  << " " << n << endl;   break; } 
+	  if((*it).first != d) { cout << "first/d " << (*it).first << " " << d << endl;  continue; }
 	  int hitno = (*it).second;
 	  TMatrixT<double> singlehit = cluster[hitno];
 	  TVector3 thispos(singlehit[0][4], singlehit[0][5], 0.);
@@ -8406,10 +8471,10 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderByDistanceFromRefP
 	  double reldis = (thispos - tmppos).Mag();
 	  tmppos.SetXYZ(singlehit[0][4], singlehit[0][5], 0.);
 	
-	  cout << "relative distance " << reldis << " " << d << " " << 2 * radius << endl;
+	  cout << j << " relative distance " << reldis << " " << d << " " << 2 * radius << " " << singlehit[0][1] << endl;
 	  if(reldis > 10. && d < 2 * radius && oppositeisinside == kTRUE) {
 	    fromhere = j;
-	    cout << "FROM HERE " << fromhere << endl;
+	    cout << "FROM HERE " << fromhere << " " <<  singlehit[0][1] << endl;
 	    break;
 	  }
 	}
@@ -8422,13 +8487,13 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderByDistanceFromRefP
   if(fromhere == -1) fromhere = distances.size();
   for(int j = 0; j < fromhere; j++) {
     double d = distances[j];
-     cout << "FWD " << j << endl;
+  //    cout << "FWD " << j << endl;
     if(tmpdistance < d) tmpdistance = d;
     else continue;
 
-    std::multimap<double, int>::iterator it;
-    int count = 0;
-    int n = mapdistances.count(tmpdistance);
+    //    std::multimap<double, int>::iterator it;
+    count = 0;
+    n = mapdistances.count(tmpdistance);
       
     for(it = mapdistances.begin(); it != mapdistances.end(); ++it)
       {
@@ -8437,21 +8502,26 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderByDistanceFromRefP
 	int hitno = (*it).second;
 	TMatrixT<double> singlehit = cluster[hitno];
 	sorthits.push_back(singlehit);
+	cout << "FWD " << j << " " <<  singlehit[0][1] << endl;
 	count++;
       }
   }
   if(fromhere < distances.size()) {
     for(int j = distances.size() - 1; j >= fromhere; j--) {
-      cout << "REVERSE " << j << endl;
+    //   cout << "REVERSE " << j << endl;
       double d = distances[j];
       
-      if(tmpdistance > d) tmpdistance = d;
-      else continue;
+      if(tmpdistance < d && j == distances.size() - 1) tmpdistance = d;
+      else if(tmpdistance > d) tmpdistance = d;
+      else { 
+	cout << "tmpdistance < d" << tmpdistance << " " << d << endl;
+	continue;
+      }
       
-      std::multimap<double, int>::iterator it;
-      int count = 0;
-      int n = mapdistances.count(tmpdistance);
-      
+      //    std::multimap<double, int>::iterator it;
+      count = 0;
+      n = mapdistances.count(tmpdistance);
+  
       for(it = mapdistances.begin(); it != mapdistances.end(); ++it)
 	{
 	  if(count == n) break;
@@ -8459,13 +8529,21 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderByDistanceFromRefP
 	  int hitno = (*it).second;
 	  TMatrixT<double> singlehit = cluster[hitno];
 	  sorthits.push_back(singlehit);
+	  cout << "REVERSE " << j <<  singlehit[0][1] << endl;
 	  count++;
 	}
     }
   }
 
 
-
+  for(int ihit = 0; ihit < sorthits.size(); ihit++)
+    {
+      TMatrixT<double> singlehit = sorthits[ihit];
+      if(singlehit[0][0] == -1) continue;
+      Int_t hitid = singlehit[0][1];
+      Int_t detid = singlehit[0][2];
+      cout << "sorted HITID/DETID " << hitid << " " << detid << " " << singlehit[0][3] << endl;
+    }
  
   return sorthits;
 }
