@@ -56,7 +56,7 @@ bool sortByZ(const std::map<unsigned int, PndGemHit*>& h1,
 
 
 PndTpcGEMCorrelatorTask::PndTpcGEMCorrelatorTask()
-  : FairTask("TPC-GEM Correlator"), fPersistence(kFALSE), fMatchDistance(3.),
+  : FairTask("TPC-GEM Correlator"), fPersistence(kFALSE), fMatchDistance(0.6),
     fMinGEMHits(2)
 {
   fOutTrackBranchName = "TrackPreFitGEM";
@@ -176,25 +176,23 @@ PndTpcGEMCorrelatorTask::Exec(Option_t* opt)
       fResHistZ->Fill(res.Z());
       
       //check if hit is close enough
-      if(fabs(res.X()) > fMatchDistance*error.X()  ||
-	 fabs(res.Y()) > fMatchDistance*error.Y()  ||
-	 fabs(res.Z()) > fMatchDistance*error.Z()) {
-	if(fVerbose) {
-	  std::cout<<"   not close enough: RES was ";
-	  res.Print();
-	  std::cout<< "  Station: "<<hit->GetStationNr()<<std::endl;
-	}
-	continue; //hit wasn't close enough to the track
+      if(res.Mag() > fMatchDistance) {
+        if(fVerbose) {
+          std::cout<<"   not close enough: RES was ";
+          res.Print();
+          std::cout<< "  Station: "<<hit->GetStationNr()<<std::endl;
+        }
+        continue; //hit wasn't close enough to the track
       }
       else {	
-	if(fVerbose) {
-	  std::cout<<"   added hit - RES was ";
-	  res.Print();
-	  std::cout<< "  Station: "<<hit->GetStationNr()<<std::endl;
-	}
-	std::map<unsigned int, PndGemHit*> tmp;
-	tmp[ig] = hit;
-	tempCand.push_back(tmp);
+        if(fVerbose) {
+          std::cout<<"   added hit - RES was ";
+          res.Print();
+          std::cout<< "  Station: "<<hit->GetStationNr()<<std::endl;
+        }
+        std::map<unsigned int, PndGemHit*> tmp;
+        tmp[ig] = hit;
+        tempCand.push_back(tmp);
       }
       
     }//end loop over pixels
@@ -220,6 +218,7 @@ PndTpcGEMCorrelatorTask::Exec(Option_t* opt)
     } //end append hits
     
     outTrack->setCandidate(*outCand);
+    outTrack->blowUpCovs(500.);
     (*fOutTrackArray)[fOutTrackArray->GetEntriesFast()] = outTrack;
         
   } //end loop over GEM hits

@@ -66,7 +66,7 @@ public:
   
  private:
 
-  double fMatchDistance;   // lookup distance (multiple of GEM hit error) for GEM hits (cm)
+  double fMatchDistance;   // lookup distance in cm
   
   // Private Data Members ------------
   TString fTrackBranchName;

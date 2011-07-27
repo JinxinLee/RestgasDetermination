@@ -67,7 +67,7 @@ public:
   
  private:
 
-  double fMatchDistance;   // lookup distance (multiple of MVD hit error) for MVD hits (cm)
+  double fMatchDistance;   // lookup distance in cm
   
   // Private Data Members ------------
   TString fTrackBranchName;

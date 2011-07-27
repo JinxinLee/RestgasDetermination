@@ -55,7 +55,7 @@ bool sortByR(const std::map<PndSdsHit*, std::map<unsigned int, int> >& h1,
 
 
 PndTpcMVDCorrelatorTask::PndTpcMVDCorrelatorTask()
-  : FairTask("TPC-MVD Correlator"), fPersistence(kFALSE), fMatchDistance(3.),
+  : FairTask("TPC-MVD Correlator"), fPersistence(kFALSE), fMatchDistance(0.15),
     fMinMVDHits(3), fRequireMatch(false)
 {
   fOutTrackBranchName = "TrackPreFitComplete";
@@ -185,9 +185,7 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
       fResHistZ->Fill(res.Z());
 
       //check if hit is close enough
-      if(fabs(res.X()) > fMatchDistance*error.X()  ||
-         fabs(res.Y()) > fMatchDistance*error.Y()  ||
-         fabs(res.Z()) > fMatchDistance*error.Z()) {
+      if(res.Mag() > fMatchDistance) {
         if(fVerbose) {
           std::cout<<"       rep:    not close enough: RES was ";
           res.Print();
@@ -287,6 +285,7 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
     GFTrack* tmpTrack = new GFTrack(*track);
     tmpTrack->clearBookkeeping();
     outTrack->mergeHits(tmpTrack);
+    outTrack->blowUpCovs(500.);
     (*fOutTrackArray)[fOutTrackArray->GetEntriesFast()] = outTrack;
 
   } //end loop over tracks
