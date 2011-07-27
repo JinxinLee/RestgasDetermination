@@ -6,20 +6,19 @@
  */
 
 #include "PndSdsFEAmpModelSimple.h"
+#include "TMath.h"
 
-PndSdsFEAmpModelSimple::PndSdsFEAmpModelSimple() {
-fModelNumber = 1;
+PndSdsFEAmpModelSimple::PndSdsFEAmpModelSimple(): fModelNumber(1) {
 }
 
 PndSdsFEAmpModelSimple::~PndSdsFEAmpModelSimple() {
-	// TODO Auto-generated destructor stub
 }
 
 double PndSdsFEAmpModelSimple::Definition(double * x, double *params)  {
 
 	// params[0] = charge time [ns]
 	// params[1] = constant current to discharge the capacitor of the amplifier [e/ns]
- 	// params[2] = charge
+ 	// params[2] = charge [e]
 
 	if( *x <= 0 )
 	  {

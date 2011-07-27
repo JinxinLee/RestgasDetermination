@@ -11,21 +11,16 @@
 #ifndef PNDSDSFEAMPMODELSIMPLE_H_
 #define PNDSDSFEAMPMODELSIMPLE_H_
 
-#include "TF1.h"
 
 class PndSdsFEAmpModelSimple {
 public:
 	PndSdsFEAmpModelSimple();
 	virtual ~PndSdsFEAmpModelSimple();
-
 	double Definition(double *x, double *params);
 	int GetModelNumber();
 
 private:
-
-	TF1 fFunction;
-	int fModelNumber;    // Holds the number of the model - necessary to save the interpolatorlist in PndSdsFE
-
+	const int fModelNumber;    // Holds the number of the model - necessary to save the interpolatorlist in PndSdsFE
 };
 
 #endif /* PNDSDSFEAMPMODELSIMPLE_H_ */
