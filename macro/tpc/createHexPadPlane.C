@@ -11,14 +11,16 @@
 #include "tpc/PndTpcGem.h"
 
 
+// this macro needs to be compiled!!!
+
 void
 createHexPadPlane(){
   double ar=0.15; // hexagone radius
   double a=ar*1.5;
   double b=ar*sqrt(3.); // y-grid distance
 
-  double outerR=42;
-  double innerR=15;
+  double outerR=41.5;
+  double innerR=15.5;
   
   bool targetpipe=true;
   double phislice=5.0*TMath::Pi()/180;
@@ -29,86 +31,85 @@ createHexPadPlane(){
   double startx=-outerR;
   double starty=startx;
 
-  int nrings=5;
+  int nrings=1;
   int nslices=16;
 
   double dring=(outerR-innerR)/(double)nrings;
 
   try{
 
-  PndTpcGem* _gem=new PndTpcGem(5000,           // Gain
-			  0.02);          // Spread
+    PndTpcGem* _gem=new PndTpcGem(5000,           // Gain
+             0.02);          // Spread
+
+    PndTpcPadShapePool* _padShapes = new PndTpcPadShapePool("tpc/Hexagons0.15.dat",
+             *_gem,
+             0.4, // lookup range
+             0.02, // Lookup Step
+             0.01); // LookupIntegrationStep
+
+    PndTpcAbsPadShape* shape=_padShapes->GetPadShape(0);
+
+    PndTpcPadPlane plane(42,42,2,2,-42,-42);
+
+
+    int count=0;
+    for(int i=0; i<ncols; ++i){
+      double x=startx+a*(double)i;
+      double yoff= (i%2==0) ? 0 : b/2.;
+      for(int j=0; j<nrows; ++j){
+        double y=starty+yoff+b*(double)j;
+
+        double r=sqrt(x*x+y*y);
+        TVector2 l(x,y);
+        double phi=l.Phi();
+
+        if(r>outerR)continue;
+        if(r<innerR)continue;
+        if(targetpipe){
+          if(fabs(phi-TMath::Pi()/2)<phislice)continue;
+          if(fabs(phi-3*TMath::Pi()/2)<phislice)continue;
+        }
+
+        unsigned int sliceId=(unsigned int)floor(nslices*phi/TMath::Pi()/2);
+        unsigned int ringId=(unsigned int)floor((r-innerR)/dring);
   
-  PndTpcPadShapePool* _padShapes = new PndTpcPadShapePool("tpc/Hexagons0.15.dat",
-				   *_gem,
-				   0.4, // lookup range
-				   0.02, // Lookup Step
-				   0.01); // LookupIntegrationStep
+        unsigned int sectorId=sliceId*nrings+ringId;
 
-  PndTpcAbsPadShape* shape=_padShapes->GetPadShape(0);
-
+        PndTpcPad* pad=new PndTpcPad(x,y,0,
+             shape, sectorId, count++);
   
-  PndTpcPadPlane plane(42,42,2,2,-42,-42);
+        plane.AddPad(pad);
 
-  
-
-  int count=0;
-  for(int i=0; i<ncols; ++i){
-    double x=startx+a*(double)i;
-    double yoff= (i%2==0) ? 0 : b/2.;
-    for(int j=0; j<nrows; ++j){
-      double y=starty+yoff+b*(double)j;
-      
-      double r=sqrt(x*x+y*y);
-      TVector2 l(x,y);
-      double phi=l.Phi();
-
-      if(r>outerR)continue;
-      if(r<innerR)continue;
-      if(targetpipe){
-	if(fabs(phi-TMath::Pi()/2)<phislice)continue;
-	if(fabs(phi-3*TMath::Pi()/2)<phislice)continue;
-      }
-
-      unsigned int sliceId=(unsigned int)floor(nslices*phi/TMath::Pi()/2);
-      unsigned int ringId=(unsigned int)floor((r-innerR)/dring);
-
-      unsigned int sectorId=sliceId*nrings+ringId;
-
-      PndTpcPad* pad=new PndTpcPad(x,y,0,
-			     shape, sectorId, count++);
-
-      plane.AddPad(pad);
-      
-    }
-  }
-
-  // build neighbourhoods!
-  unsigned int npads=plane.GetNPads();
-
-  std::cout<<npads<<" pads created. Building neighbourhoods..."<<std::endl;
-  std::cout.flush();
-
-  for(int k=0;k<npads;++k){
-    PndTpcPad* pad=plane.GetPad(k);
-    std::vector<PndTpcPad*> neighblist;
-    plane.GetPadList(pad->x(),pad->y(),ar*1.01,neighblist);
-    unsigned int nneigh=neighblist.size();
-    unsigned int c=0;
-    for(int ineigh=0;ineigh<nneigh;++ineigh){
-      if(neighblist[ineigh]->sectorId()==pad->sectorId() &&
-	 neighblist[ineigh]->padId()!=pad->padId()){
-	pad->addNeighbour(neighblist[ineigh]->id());
-	++c;
       }
     }
-    //std::cout<<"found "<<c<<" neighbours"<<std::endl;
-    neighblist.clear();
-  }
 
- ofstream outfile("hexplane.dat");
- plane.WriteToStream(outfile);
- outfile.close();
+    // build neighbourhoods!
+    unsigned int npads=plane.GetNPads();
+
+    std::cout<<npads<<" pads created. Building neighbourhoods..."<<std::endl;
+    std::cout.flush();
+
+    for(int k=0;k<npads;++k){
+      PndTpcPad* pad=plane.GetPad(k);
+      std::vector<PndTpcPad*> neighblist;
+      plane.GetPadList(pad->x(),pad->y(),ar*1.01,neighblist);
+      unsigned int nneigh=neighblist.size();
+      unsigned int c=0;
+      for(int ineigh=0;ineigh<nneigh;++ineigh){
+        if(/*neighblist[ineigh]->sectorId()==pad->sectorId() &&*/  // todo: if you want to use the cellular automaton clustering, coment this in again
+           neighblist[ineigh]->padId()!=pad->padId()){
+          pad->addNeighbour(neighblist[ineigh]->id());
+          ++c;
+        }
+      }
+      //std::cout<<"found "<<c<<" neighbours"<<std::endl;
+      neighblist.clear();
+    }
+
+    ofstream outfile("pndhexplane0.15.16s.dat");
+    plane.WriteToStream(outfile);
+    std::cout<<"Created padplane file "<<std::endl;
+    outfile.close();
 
 
   }
