@@ -46,6 +46,8 @@ public:
   void SetPointBranchName(const TString& name) {fpointBranchName=name;}
   void SetMCTrackBranchName(const TString& name) {ftrackBranchName=name;}
 
+  void SetMinTpcPoints(unsigned int n){fMinTpcPoints=n;}
+
   // Operations ----------------------
   
   virtual InitStatus Init();
@@ -60,8 +62,6 @@ public:
 private:
 
   // Private Data Members ------------
-  
-  
   TString fpointBranchName;
   TString ftrackBranchName;
   TString fgemBranchName;
@@ -74,6 +74,9 @@ private:
   TClonesArray* ftrackOutArray;
   TClonesArray* fgemOutArray;
   TClonesArray* fmvdOutArray;
+
+  unsigned int fMinTpcPoints;
+
   // Private Methods -----------------
 
 public:

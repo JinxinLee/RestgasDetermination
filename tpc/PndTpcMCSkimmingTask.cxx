@@ -48,7 +48,7 @@ using std::floor;
 
 
 PndTpcMCSkimmingTask::PndTpcMCSkimmingTask()
-  : FairTask("TPC MCSkimming") 
+  : FairTask("TPC MCSkimming") , fMinTpcPoints(1)
 {
   fpointBranchName = "PndTpcPoint";
   ftrackBranchName = "MCTrack";
@@ -183,8 +183,8 @@ PndTpcMCSkimmingTask::Exec(Option_t* opt)
   bool keep=true;
   map<unsigned int, unsigned int>::iterator mit=mcmap.begin();
   while(mit!=mcmap.end()){
-    if(mit->second<20){
-      cerr << "Track " << mit->first << " has " << mit->second << " < 20 points in TPC" << endl;
+    if(mit->second<fMinTpcPoints){
+      //cerr << "Track " << mit->first << " has " << mit->second << " < 20 points in TPC" << endl;
       run->SkimThisEvent();keep=false;
     }
     ++mit;
