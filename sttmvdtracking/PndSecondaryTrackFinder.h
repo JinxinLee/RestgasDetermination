@@ -60,36 +60,37 @@ class PndSecondaryTrackFinder : public FairTask {
 	return;
   };
 
-
+  /** ordering **/
   std::vector<int> OrderHits(TClonesArray *hitarray, Int_t detId, Bool_t skewed);
-  std::vector<int> OrderCluster(std::vector<int> cluster, Int_t detId, TVector3 point);
-  std::vector<int> OrderCluster2(std::vector<int> cluster, Int_t detId, double xc, double yc, double radius) ;
   std::vector< TMatrixT<double> > OrderCluster2BIS(std::vector< TMatrixT<double> > cluster, double xc, double yc, double radius);
-  std::vector<int> OrderClusterInPhi(std::vector<int> cluster, std::vector<TVector3> positions, std::map<int, int> hitidtointersection, double xc, double yc, double radius);
   std::vector< TMatrixT<double> > OrderClusterInPhiBIS(std::vector< TMatrixT<double> > cluster, double xc, double yc, double radius, int charge);
-  std::vector< TMatrixT<double> > OrderClusterInPhiBIS(std::vector< TMatrixT<double> > cluster, double xc, double yc, double radius);
   std::vector<int> OrderClusterInZ(std::vector<int> cluster, std::vector<TVector3> positions, std::map<int, int> hitidtointersection, double xc, double yc, double radius);
   void OrderConformal(Double_t oX, Double_t oY, Int_t nHits, Double_t XY[][2], Int_t  Charge, UShort_t *ListHits);
   std::vector< TMatrixT<double> > OrderByDistanceFromRefPointWithoutCharge(Int_t refihit, std::vector< TMatrixT<double> > cluster, TMatrixT<double> par);
+  std::vector< TMatrixT<double> > OrderByDistanceFromRefPoint(Int_t refihit, std::vector< TMatrixT<double> > cluster);
+  std::vector< TMatrixT<double> > OrderInPhiFromRefPoint(Int_t refihit, std::vector< TMatrixT<double> > cluster,  TMatrixT<double> par);
 
   void Merge_Sort(UShort_t n_ele, Double_t *array, UShort_t *ind);
   void Merge(UShort_t nl, Double_t *left, UShort_t *ind_left, UShort_t nr, Double_t *right, UShort_t *ind_right,  Double_t *result, UShort_t *ind);
 
+  /** deleting functions **/
   void DeleteHit(Int_t ihit, std::vector<int> *hits);
   void DeleteHits(TString detectors, std::vector<int> *hits);
   void DeleteHitBIS(TMatrixT<double> hit, std::vector< TMatrixT<double> > *hits);
 
-  void SwitchOnDisplay() { fDisplayOn = kTRUE; }
+
   void GetInitialParams(PndTrack * track, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &fitm, Double_t &fitp);
   void GetInitialParamsMC(PndMCTrack * mctrack, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &fitm, Double_t &fitp);
   Double_t CalculatePhi(TVector2 v, TVector2 p, double alpha, double Phi0, int charge);
   Double_t CompareToPreviousPhi(Double_t Fi, Double_t Fi_pre, int charge);
+  Double_t CalculatePhi(TVector2 v0, TVector2 p0);
+  Double_t BringPhiInto2Pi(Double_t Fi, Int_t charge);
+
   
-  std::vector<std::vector<int> > ClusterFinder(std::vector<int> hits, Int_t detId);
-  std::vector<std::vector<int> > ClusterFinder2(std::vector<int> hits, Int_t detId);
-  std::vector<std::vector<int> > ClusterFinder3(std::vector<int> hits, Int_t detId);
   std::vector<std::vector< TMatrixT<double> > > ClusterFinder3b(std::vector<int> hits, Int_t detId);
 
+  /** display **/
+ void SwitchOnDisplay() { fDisplayOn = kTRUE; }
   void Brief(std::vector< std::vector< TMatrixT<double> > > clusterlist, std::vector< TMatrixT<double> > xyparameters);
   void DrawFoundTracks();
   void DrawFoundTracks(std::vector< TMatrixT<double> > xyparameters);
@@ -102,10 +103,8 @@ class PndSecondaryTrackFinder : public FairTask {
   void DrawHitsColor(std::vector<int> hits, Int_t detId, Int_t color);
   void DrawAllHits();
   void DrawAllUsableHits();
-  void PrintClusters(std::vector< std::vector<int> > clusterlist);
   void PrintClustersBIS(std::vector< std::vector< TMatrixT<double> > > clusterlist);
   void PrintFoundTracks(std::vector< TMatrixT<double> > xyparameters);
-  void DrawClusters(std::vector< std::vector<int> > clusterlist);
   void DrawClustersBIS(std::vector< std::vector< TMatrixT<double> > > clusterlist);
   Color_t GetColor(int iclus);
   void  DrawMultipleAssignedHits(std::vector< std::vector< TMatrixT<double> > > clusterlist);
@@ -114,58 +113,35 @@ class PndSecondaryTrackFinder : public FairTask {
   void Refresh();
   void DrawLinks(std::vector<int> cluster, Int_t detId, Int_t iclus);
   void FindBoundary(Int_t iclus, std::vector<int> cluster, Int_t detId, TMatrixT<double> &boundaries, Bool_t draw);
-
-
-  Bool_t ConformalPlaneStt4(std::vector<int> cluster, Int_t iclus, std::vector<std::vector<double> > &conformalhits, Double_t &firstdrift, Double_t &delta, Double_t trasl[2]);
   Bool_t ConformalFit(std::vector<std::vector<double> > conformalhits, Int_t iclus, Double_t delta, Double_t trasl[2], Double_t &xc, Double_t &yc, Double_t &radius);
-  Double_t CalculateRedChi2(std::vector<int> cluster, Int_t detId, Double_t xc, Double_t yc, Double_t radius, Int_t &countelements);
-  Bool_t RefitConformal(std::vector<int> cluster, Int_t detId, Double_t xc, Double_t yc, Double_t radius, Double_t &outxc, Double_t &outyc, Double_t &outradius);
   Bool_t AddRemainingPoints(std::vector<int> hits, Int_t detId,   Double_t xc, Double_t yc, Double_t radius, std::vector<int> *cluster, Int_t iclus);
   Short_t FitHelixCylinder( UShort_t nHitsinTrack, Double_t auxinfoparalConformal[][3], Double_t rotationangle, Double_t trajectory_vertex[2], Double_t &slope, Double_t &intercept, Double_t &alpha, Double_t &beta, Double_t &gamma, Bool_t &TypeConf);
   Bool_t Fit(TMatrixT<double> points, Double_t &outxc, Double_t &outyc, Double_t &outradius);
   Bool_t IntersectionFinder(Double_t xc, Double_t yc, Double_t radius, PndSttHit* stthit, TVector3 &xyz, TVector3 &dxyz);
-  std::vector<int> AddPoints(std::vector<int> hits, Int_t detId, Double_t xc, Double_t yc, Double_t radius, Int_t iclus);
   std::vector< TMatrixT<double> > AddPointsBIS(std::vector<int> hits, Int_t detId,  Double_t xc, Double_t yc, Double_t radius, int iclus);
- std::vector< std::vector<int> > MergeClusters(std::vector< std::vector<int> > clusterlist);
- std::vector< std::vector< TMatrixT<double> > > MergeClustersBIS(std::vector< std::vector< TMatrixT<double> > > clusterlist);
-
+ // std::vector< std::vector< TMatrixT<double> > > MergeClustersBIS(std::vector< std::vector< TMatrixT<double> > > clusterlist);
  std::vector< std::vector< TMatrixT<double> > > MergeClustersBIS(std::vector< std::vector< TMatrixT<double> > > clusterlist, std::vector< std::vector<int> > *combinations);
-
-  Bool_t CompleteSttFit(std::vector<int> cluster, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &chosenchi2, Int_t &chosencountelem);
-  
-  void DeleteCluster(std::vector< std::vector<int> > * clusterlist, std::vector<int> deletecluster);
+ Bool_t CompleteSttFitBIS(std::vector< TMatrixT<double> > cluster, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &chosenchi2, Int_t &chosencountelem);
+  Bool_t CompleteSttFitBIS(std::vector< TMatrixT<double> > *cluster, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &chosenchi2, Int_t &chosencountelem);
+  Bool_t ConformalPlaneStt4BIS(std::vector< TMatrixT<double> > cluster, Int_t iclus, std::vector<std::vector<double> > &conformalhits, Double_t &firstdrift, Double_t &delta, Double_t trasl[2]);
+  Double_t CalculateRedChi2BIS(std::vector< TMatrixT<double> > cluster, Double_t xc, Double_t yc, Double_t radius, Int_t &countelements);
+  // Bool_t RefitConformalBIS(std::vector< TMatrixT<double> > cluster, Double_t xc, Double_t yc, Double_t radius, Double_t &outxc, Double_t &outyc, Double_t &outradius);
+  Bool_t RefitConformalBIS(std::vector< TMatrixT<double> > * cluster, Double_t xc, Double_t yc, Double_t radius, Double_t &outxc, Double_t &outyc, Double_t &outradius);
+  Int_t FindChargeBIS(Double_t oX, Double_t oY, std::vector< TMatrixT<double> > cluster);
+    
   void DeleteClusterBIS(std::vector< std::vector< TMatrixT<double> > > *clusterlist, std::vector<int> deletecluster);
   void DeleteParametersBIS(std::vector< TMatrixT<double> > *xyparameters, std::vector<int> deletecluster);
   void DeleteTrackBIS(std::vector< std::vector< TMatrixT<double> > > *clusterlist, std::vector< TMatrixT<double> > *xyparameters, std::vector<int> deletecluster);
 
-  Bool_t TestChi2(std::vector<int> cluster, Double_t xc, Double_t yc, Double_t radius,  Int_t detId, Int_t iclus, Double_t chi2, Int_t countelem, Double_t &newxc, Double_t &newyc, Double_t &newradius, std::vector<int> * newcluster, Double_t &newchi2);
   Bool_t TestChi2BIS(std::vector< TMatrixT<double> > cluster, Double_t xc, Double_t yc, Double_t radius,  Int_t iclus, Double_t chi2, Int_t countelem, Double_t &newxc, Double_t &newyc, Double_t &newradius, std::vector< TMatrixT<double> > *newcluster, Double_t &newchi2);
 
-  // Z FINDING
+   /** Z FINDING **/
   Bool_t DoesHitBelong(Int_t hitId, Double_t xc, Double_t yc, Double_t radius, TVector3 &intersection, Bool_t draw);
   Bool_t DoesHitBelong(Int_t hitId, Double_t xc, Double_t yc, Double_t radius, Double_t limits[2][3], TVector3 &intersection, Bool_t draw);
-
-  std::vector<int>  ZFinder(std::vector<int> hits, Double_t xc, Double_t yc, Double_t radius);
-
+  std::vector<int> ZFinderBIS(std::vector<int> hits, Double_t xc, Double_t yc, Double_t radius, Double_t limits[2][3], std::vector< TVector3 > &intersections);
   void CalculateZ2(Int_t hitId, Double_t x, Double_t y, Double_t xc, Double_t yc, Double_t radius, TVector3 &int1, TVector3 &int2, Double_t &errz);
   TVector3 FindTangentInPoint(Double_t  xc, Double_t yc, Double_t radius, Double_t x, Double_t y, Double_t &m, Double_t &p) ;
-
-
- void ReCalculateXY(Int_t hitId, Double_t z, Double_t &x, Double_t &y);
-  Bool_t ZFit3(std::vector<int> cluster, Int_t charge, Double_t xc, Double_t yc, Double_t radius, Double_t &fitm, Double_t &fitp);
-  std::vector<TVector3>  FindRealIntersections(std::vector<int> *cluster, std::vector<TVector3> intersectionpoints, std::vector<TVector3>  intersectionpoints1, std::vector<TVector3> intersectionpoints2, std::map<int, int> hitidtointersections, Int_t charge, Double_t xc, Double_t yc, Double_t radius, Double_t &fitm, Double_t &fitp,  std::map<int, int> &hitidtolistmap);
-  Int_t FindCharge(Double_t oX, Double_t oY, std::vector<int> cluster);
-
-  // ------------ BIS ----------------
-  Bool_t CompleteSttFitBIS(std::vector< TMatrixT<double> > cluster, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &chosenchi2, Int_t &chosencountelem);
-  Bool_t CompleteSttFitBIS(std::vector< TMatrixT<double> > *cluster, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &chosenchi2, Int_t &chosencountelem);
-  Bool_t ConformalPlaneStt4BIS(std::vector< TMatrixT<double> > cluster, Int_t iclus, std::vector<std::vector<double> > &conformalhits, Double_t &firstdrift, Double_t &delta, Double_t trasl[2]);
-  Double_t CalculateRedChi2BIS(std::vector< TMatrixT<double> > cluster, Double_t xc, Double_t yc, Double_t radius, Int_t &countelements);
-  Bool_t RefitConformalBIS(std::vector< TMatrixT<double> > cluster, Double_t xc, Double_t yc, Double_t radius, Double_t &outxc, Double_t &outyc, Double_t &outradius);
-  Bool_t RefitConformalBIS(std::vector< TMatrixT<double> > * cluster, Double_t xc, Double_t yc, Double_t radius, Double_t &outxc, Double_t &outyc, Double_t &outradius);
-  Int_t FindChargeBIS(Double_t oX, Double_t oY, std::vector< TMatrixT<double> > cluster);
-  // zbis
-  std::vector<int> ZFinderBIS(std::vector<int> hits, Double_t xc, Double_t yc, Double_t radius, Double_t limits[2][3], std::vector< TVector3 > &intersections);
+  void ReCalculateXY(Int_t hitId, Double_t z, Double_t &x, Double_t &y);
   Bool_t ZFit3BIS(std::vector< TMatrixT<double> > *cluster, Int_t charge, Double_t xc, Double_t yc, Double_t radius, Double_t &fitm, Double_t &fitp);
   std::vector<TVector3> FindRealIntersectionsBIS(std::vector< TMatrixT<double> > *cluster, std::vector<TVector3> intersectionpoints, std::vector<TVector3>  intersectionpoints1, std::vector<TVector3> intersectionpoints2,  std::map<std::pair<int, int> , int> hitidtointersections, Int_t charge, Double_t xc, Double_t yc, Double_t radius, Double_t &fitm, Double_t &fitp, std::map<std::pair<int, int>, int> &hitidtolistmap);
   Int_t FindInMap(std::map< std::pair<int, int>, int> m, std::pair<int, int> p);
@@ -180,25 +156,19 @@ class PndSecondaryTrackFinder : public FairTask {
   Bool_t IsMultiplyAssigned(TMatrixT<double> singlehit, std::vector< std::vector< TMatrixT<double> > > clusterlist, std::vector<int> &assignlist);
   std::vector< TMatrixT<double> > FindConnections(TMatrixT<double> singlehit, std::vector<TMatrixT<double> > cluster);
    Bool_t IsAggregation(TMatrixT<double> singlehit, std::vector<TMatrixT<double> > cluster,  std::vector< TMatrixT<double> > &connectionslist);
-  std::vector< TMatrixT<double> >  CleanAggregations(std::vector<TMatrixT<double> > cluster, std::vector< std::vector<TMatrixT<double> > > clusterlist);
+  std::vector< TMatrixT<double> > CleanAggregations(std::vector<TMatrixT<double> > cluster, std::vector< std::vector<TMatrixT<double> > > clusterlist);
 
-
+  /** final parameters **/
   TVector3 ComputePositionAtParallelHit(Int_t hitid, Double_t xc, Double_t yc, Double_t radius, TVector3 &dxyz);
   TVector3 ComputeMomentumAtPos(Double_t xc, Double_t yc, Double_t radius, Double_t tanl, Int_t charge, TVector3 position);
-   Bool_t ComputeParametersAtHit(Int_t ihit, std::vector< TMatrixT<double> > cluster, TMatrixT<double> par, TVector3 &position, TVector3 &dposition, TVector3 &momentum);
-   Bool_t ComputeFirstParameters(std::vector< TMatrixT<double> > cluster, TMatrixT<double> par, TVector3 &position, TVector3 &dposition, TVector3 &momentum);
+  Bool_t ComputeParametersAtHit(Int_t ihit, std::vector< TMatrixT<double> > cluster, TMatrixT<double> par, TVector3 &position, TVector3 &dposition, TVector3 &momentum);
+  Bool_t ComputeFirstParameters(std::vector< TMatrixT<double> > cluster, TMatrixT<double> par, TVector3 &position, TVector3 &dposition, TVector3 &momentum);
   Bool_t ComputeLastParameters(std::vector< TMatrixT<double> > cluster, TMatrixT<double> par, TVector3 &position, TVector3 &dposition, TVector3 &momentum);
 
+  /** geometrical stuff **/
   Int_t TrackType(TMatrixT<double> par);
-
   void FindIntersectingPoints(Double_t xc, Double_t yc, Double_t radius, TVector3 &int1, TVector3 &int2);
-
   Int_t FindRefPoint(std::vector< TMatrixT<double> > cluster, TMatrixT<double> par);
-  std::vector< TMatrixT<double> > OrderByDistanceFromRefPoint(Int_t refihit, std::vector< TMatrixT<double> > cluster);
-  std::vector< TMatrixT<double> > OrderInPhiFromRefPoint(Int_t refihit, std::vector< TMatrixT<double> > cluster,  TMatrixT<double> par);
-  Double_t CalculatePhi(TVector2 v0, TVector2 p0);
-  Double_t BringPhiInto2Pi(Double_t Fi, Int_t charge);
-
 
 
  private:
