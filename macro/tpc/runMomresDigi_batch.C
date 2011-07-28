@@ -1,12 +1,9 @@
-void runMomresDigi_batch(TString filename) {
+void runMomresDigi_batch(TString filename, Int_t nEvents = 0) {
 
 
 // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
-
-  // Number of events to process
-  Int_t nEvents = 0;
  
   TString mcMode = "TGeant3";
   // ----  Load libraries   -------------------------------------------------
@@ -66,6 +63,7 @@ void runMomresDigi_batch(TString filename) {
 
   PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
   tpcElec->SetPersistence();
+  //tpcElec->SetSamplePersistence();
   fRun->AddTask(tpcElec);
 
   PndTpcEvtTimeGenTask* evttimegen = new PndTpcEvtTimeGenTask();
