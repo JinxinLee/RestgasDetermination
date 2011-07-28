@@ -407,7 +407,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     Double_t newxc, newyc, newradius, newchi2 = 0;
     std::vector< TMatrixT<double> > newtrack2;
     cout << "FIRST TEST CHI2 " << xc << " " << yc << " " << radius  << endl;
-    Bool_t testchi2 = TestChi2BIS(track, xc, yc, radius, iclus, chi2, countelem, newxc, newyc, newradius, &newtrack2, newchi2);
+    Bool_t testchi2 = TestChi2BIS(newtrack, xc, yc, radius, iclus, chi2, countelem, newxc, newyc, newradius, &newtrack2, newchi2);
     cout << "testchi2 = " << testchi2 << endl;
     if(testchi2 == kFALSE)  {
       cout << "GOTTA DELETE THIS chi2 fails " << iclus << endl;
@@ -422,7 +422,25 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       countelem = 0;
       cout << "................. replacing" << endl;
       PrintClustersBIS(tracklist);
-      std::replace(tracklist.begin(), tracklist.end(), track, newtrack2);
+  
+  cout << "OLD TRACK " << track.size() << " HITS" << endl;
+  for(int ihit = 0; ihit < track.size(); ihit++) {
+    TMatrixT<double> singlehit = track.at(ihit);
+    int hitid = (int) singlehit[0][1];
+    cout << hitid << " " ;
+  }
+  cout << endl;
+  
+  
+  cout << "NEW TRACK " << newtrack2.size() << " HITS" << endl;
+  for(int ihit = 0; ihit < newtrack2.size(); ihit++) {
+    TMatrixT<double> singlehit = newtrack2.at(ihit);
+    int hitid = (int) singlehit[0][1];
+    cout << hitid << " " ;
+  }
+  cout << endl;
+  
+      std::replace(tracklist.begin(), tracklist.end(), newtrack, newtrack2);
       cout << "................. done" << endl;
       PrintClustersBIS(tracklist);
     }
@@ -2304,59 +2322,59 @@ Double_t PndSecondaryTrackFinder::CalculateRedChi2BIS(std::vector< TMatrixT<doub
 }
 
 
-Bool_t PndSecondaryTrackFinder::RefitConformalBIS(std::vector< TMatrixT<double> > cluster, Double_t xc, Double_t yc, Double_t radius,
-						  Double_t &outxc, Double_t &outyc, Double_t &outradius)
+// Bool_t PndSecondaryTrackFinder::RefitConformalBIS(std::vector< TMatrixT<double> > cluster, Double_t xc, Double_t yc, Double_t radius,
+// 						  Double_t &outxc, Double_t &outyc, Double_t &outradius)
   
-{
-  TClonesArray *array;
+// {
+//   TClonesArray *array;
  
-  //   if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) array = fMvdPixelHitArray;
-  //   else if(detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) array = fMvdStripHitArray;
-  //   else if(detId ==  FairRootManager::Instance()->GetBranchId(fSttBranch)) array = fSttHitArray;
-  //  else if(detId ==  FairRootManager::Instance()->GetBranchId(fGemBranch)) array = fGemHitArray;
+//   //   if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) array = fMvdPixelHitArray;
+//   //   else if(detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) array = fMvdStripHitArray;
+//   //   else if(detId ==  FairRootManager::Instance()->GetBranchId(fSttBranch)) array = fSttHitArray;
+//   //  else if(detId ==  FairRootManager::Instance()->GetBranchId(fGemBranch)) array = fGemHitArray;
 
-  // intersection finder & fit
-  TMatrixT<double> points(cluster.size(), 11);
-  for(int ihit = 0; ihit < cluster.size(); ihit++)
-    {
-      TMatrixT<double> singlehit = cluster[ihit];
-      if(singlehit[0][0] == -1) continue;
-      Int_t hitid = (Int_t) singlehit[0][1];
-      Int_t detid = (Int_t) singlehit[0][2];
-      if(detid != FairRootManager::Instance()->GetBranchId(fSttBranch)) continue; // CHECK THIS ONE
-      array = fSttHitArray;
-      PndSttHit *hit = (PndSttHit*) array->At(hitid);
-      if(!hit) continue;
-      Double_t rd = hit->GetIsochrone();
-      TVector3 xyz, dxyz;
-      Bool_t inters = IntersectionFinder(xc, yc, radius, hit, xyz, dxyz);
-      if(inters == kFALSE) continue;
-      if(fDisplayOn) {
-	TMarker *mrk = new TMarker(xyz.X(), xyz.Y(), 6);  
-	mrk->SetMarkerColor(4);
-	mrk->Draw("SAME");
-	display->Update();
-	display->Modified();
-      }
+//   // intersection finder & fit
+//   TMatrixT<double> points(cluster.size(), 11);
+//   for(int ihit = 0; ihit < cluster.size(); ihit++)
+//     {
+//       TMatrixT<double> singlehit = cluster[ihit];
+//       if(singlehit[0][0] == -1) continue;
+//       Int_t hitid = (Int_t) singlehit[0][1];
+//       Int_t detid = (Int_t) singlehit[0][2];
+//       if(detid != FairRootManager::Instance()->GetBranchId(fSttBranch)) continue; // CHECK THIS ONE
+//       array = fSttHitArray;
+//       PndSttHit *hit = (PndSttHit*) array->At(hitid);
+//       if(!hit) continue;
+//       Double_t rd = hit->GetIsochrone();
+//       TVector3 xyz, dxyz;
+//       Bool_t inters = IntersectionFinder(xc, yc, radius, hit, xyz, dxyz);
+//       if(inters == kFALSE) continue;
+//       if(fDisplayOn) {
+// 	TMarker *mrk = new TMarker(xyz.X(), xyz.Y(), 6);  
+// 	mrk->SetMarkerColor(4);
+// 	mrk->Draw("SAME");
+// 	display->Update();
+// 	display->Modified();
+//       }
     
 	  
-      points[ihit][0] = hitid;
-      points[ihit][2] = xyz.X();
-      points[ihit][3] = xyz.Y();
-      points[ihit][4] = xyz.Z();
-      points[ihit][5] = dxyz.X();
-      points[ihit][6] = dxyz.Y();
-      points[ihit][7] = dxyz.Z();
-      points[ihit][8] = hit->GetIsochrone();
-      points[ihit][9] = hit->GetIsochroneError();
-      points[ihit][10] = 0;
-    }
+//       points[ihit][0] = hitid;
+//       points[ihit][2] = xyz.X();
+//       points[ihit][3] = xyz.Y();
+//       points[ihit][4] = xyz.Z();
+//       points[ihit][5] = dxyz.X();
+//       points[ihit][6] = dxyz.Y();
+//       points[ihit][7] = dxyz.Z();
+//       points[ihit][8] = hit->GetIsochrone();
+//       points[ihit][9] = hit->GetIsochroneError();
+//       points[ihit][10] = 0;
+//     }
       
-  // xy fit
-  Bool_t fitting2 = Fit(points, outxc, outyc, outradius);
-  if(fitting2 == kFALSE) return kFALSE;
-  return kTRUE;
-}
+//   // xy fit
+//   Bool_t fitting2 = Fit(points, outxc, outyc, outradius);
+//   if(fitting2 == kFALSE) return kFALSE;
+//   return kTRUE;
+// }
 
 
 
@@ -3760,131 +3778,141 @@ void PndSecondaryTrackFinder::DeleteTrackBIS(std::vector< std::vector< TMatrixT<
 }
 
 
-Bool_t PndSecondaryTrackFinder::CompleteSttFitBIS(std::vector< TMatrixT<double> > cluster, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &chosenchi2, Int_t &chosencountelem) {
+// Bool_t PndSecondaryTrackFinder::CompleteSttFitBIS(std::vector< TMatrixT<double> > cluster, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &chosenchi2, Int_t &chosencountelem) {
   
-  // CONFORMAL HITS ==================================
-  std::vector<std::vector<double> > conformalhits;
-  Double_t firstdrift, delta, trasl[2];
-  cout << "==> CONFORMAL PLANE STT + CONFORMAL FIT" << endl;
-  Bool_t conftras = ConformalPlaneStt4BIS(cluster, iclus, conformalhits, firstdrift, delta, trasl);
-  if(conftras == kFALSE) return conftras;
+//   // CONFORMAL HITS ==================================
+//   std::vector<std::vector<double> > conformalhits;
+//   Double_t firstdrift, delta, trasl[2];
+//   cout << "==> CONFORMAL PLANE STT + CONFORMAL FIT" << endl;
+//   Bool_t conftras = ConformalPlaneStt4BIS(cluster, iclus, conformalhits, firstdrift, delta, trasl);
+//   if(conftras == kFALSE) return conftras;
 
-  // CONFORMAL FIT 1 =================================
-  Bool_t conffit = ConformalFit(conformalhits,  iclus, delta,  trasl,  xc,  yc, radius);
-  if(conffit == kFALSE) return conffit;
+//   // CONFORMAL FIT 1 =================================
+//   Bool_t conffit = ConformalFit(conformalhits,  iclus, delta,  trasl,  xc,  yc, radius);
+//   if(conffit == kFALSE) return conffit;
 
-  if(fDisplayOn) {
-    char goOnChar;
-    cout << "Go back to reak plane: cluster " << iclus << endl;
-    cin >> goOnChar;
-    if(fDisplayOn) Refresh();
-    cout << "helix " << xc << " " << yc << " " << radius << endl;     
-    TArc *arc = new TArc(xc, yc, radius);
-    arc->SetLineColor(kGreen);
-    arc->SetFillStyle(0);
-    arc->Draw("SAME ONLY");
-    display->Update();
-    display->Modified();
-  }
+//   if(fDisplayOn) {
+//     char goOnChar;
+//     cout << "Go back to reak plane: cluster " << iclus << endl;
+//     cin >> goOnChar;
+//     if(fDisplayOn) Refresh();
+//     cout << "helix " << xc << " " << yc << " " << radius << endl;     
+//     TArc *arc = new TArc(xc, yc, radius);
+//     arc->SetLineColor(kGreen);
+//     arc->SetFillStyle(0);
+//     arc->Draw("SAME ONLY");
+//     display->Update();
+//     display->Modified();
+//   }
 
-  // chi2
-  int countelement = 0;
-  double redchi2 = CalculateRedChi2BIS(cluster, xc, yc, radius, countelement);
-  cout << "===> RED CHI2 no. 0 = " << redchi2 << " " << countelement << " <===" << endl;
+//   // chi2
+//   int countelement = 0;
+//   double redchi2 = CalculateRedChi2BIS(cluster, xc, yc, radius, countelement);
+//   cout << "===> RED CHI2 no. 0 = " << redchi2 << " " << countelement << " <===" << endl;
  
- // --------------
-  Double_t newxc, newyc, newradius, newchi2 = 0;
-  std::vector< TMatrixT<double> > newcluster2;
-  cout << "CompleteSttFit FIRST TEST CHI2 " << xc << " " << yc << " " << radius  << endl;
-  Bool_t testchi2 = TestChi2BIS(cluster, xc, yc, radius, iclus, redchi2, countelement, newxc, newyc, newradius, &newcluster2, newchi2);
-  cout << "testchi2 = " << testchi2 << endl;
-  if(testchi2 == kTRUE && newchi2 != 0) {
-    xc = newxc;
-    yc = newyc;
-    radius = newradius;
-    redchi2 = newchi2;
-    countelement = 0;
-    cout << "................. replacing" << endl;
-    cluster.clear();
-    cluster = newcluster2;
-  }
-  // --------------
+//  // --------------
+//   Double_t newxc, newyc, newradius, newchi2 = 0;
+//   std::vector< TMatrixT<double> > newcluster2;
+//   cout << "CompleteSttFit FIRST TEST CHI2 " << xc << " " << yc << " " << radius  << endl;
+//   Bool_t testchi2 = TestChi2BIS(cluster, xc, yc, radius, iclus, redchi2, countelement, newxc, newyc, newradius, &newcluster2, newchi2);
+//   cout << "testchi2 = " << testchi2 << endl;
+//   if(testchi2 == kTRUE && newchi2 != 0) {
+//     xc = newxc;
+//     yc = newyc;
+//     radius = newradius;
+//     redchi2 = newchi2;
+//     countelement = 0;
+//     cout << "................. replacing" << endl;
+//     cluster.clear();
+//     cluster = newcluster2;
+//   }
+//   // --------------
 
- chosenchi2 = redchi2;
-  chosencountelem = countelement;
-  int chosenchoice = 0;
-  // REFIT ============================================
-  Int_t niter = 2;
-  double red2chi2[niter];
-  int countelement2[niter];
-  if(firstdrift > 0.01) { // CHECK
-    Double_t tmpxc = xc;
-    Double_t tmpyc = yc;
-    Double_t tmpradius = radius;
-    // intersection finder & fit
-    Double_t outxc[niter], outyc[niter], outradius[niter];
-    for(int iter = 0; iter < niter; iter++) {
-      red2chi2[iter] = 10000;
-      countelement2[iter] = 0;
+//  chosenchi2 = redchi2;
+//   chosencountelem = countelement;
+//   int chosenchoice = 0;
+//   // REFIT ============================================
+//   Int_t niter = 2;
+//   double red2chi2[niter];
+//   int countelement2[niter];
+//   if(firstdrift > 0.01) { // CHECK
+//     Double_t tmpxc = xc;
+//     Double_t tmpyc = yc;
+//     Double_t tmpradius = radius;
+//     // intersection finder & fit
+//     Double_t outxc[niter], outyc[niter], outradius[niter];
+//     for(int iter = 0; iter < niter; iter++) {
+//       red2chi2[iter] = 10000;
+//       countelement2[iter] = 0;
 
-      Bool_t refit = RefitConformalBIS(cluster, tmpxc, tmpyc, tmpradius, outxc[iter], outyc[iter], outradius[iter]);
-      if(refit == kFALSE) continue;
-      red2chi2[iter] = CalculateRedChi2BIS(cluster, outxc[iter], outyc[iter], outradius[iter], countelement2[iter]);
-      cout << "===> RED CHI2 no. " << iter + 1 << " = " << red2chi2[iter] << " " << countelement2[iter]  << " <===" << endl;
+//       Bool_t refit = RefitConformalBIS(cluster, tmpxc, tmpyc, tmpradius, outxc[iter], outyc[iter], outradius[iter]);
+//       if(refit == kFALSE) continue;
+//       red2chi2[iter] = CalculateRedChi2BIS(cluster, outxc[iter], outyc[iter], outradius[iter], countelement2[iter]);
+//       cout << "===> RED CHI2 no. " << iter + 1 << " = " << red2chi2[iter] << " " << countelement2[iter]  << " <===" << endl;
 
-      // --------------
-      newchi2 = 0;
-      newcluster2.clear();
-      cout << "CompleteSttFit " << iter << " TEST CHI2 " << outxc[iter] << " " << outyc[iter] << " " << outradius[iter]  << endl;
-      testchi2 = TestChi2BIS(cluster, outxc[iter], outyc[iter], outradius[iter], iclus,  red2chi2[iter], countelement2[iter], newxc, newyc, newradius, &newcluster2, newchi2);
-      cout << "testchi2 = " << testchi2 << endl;
-      if(testchi2 == kTRUE && newchi2 != 0) {
-	outxc[iter] = newxc;
-	outyc[iter] = newyc;
-	outradius[iter] = newradius;
-	red2chi2[iter] = newchi2;
-	countelement2[iter] = 0;
-	cout << "................. replacing" << endl;
-	cluster.clear();
-	cluster = newcluster2;
-      }
-      // --------------
+//       // --------------
+//       newchi2 = 0;
+//       newcluster2.clear();
+//       cout << "CompleteSttFit " << iter << " TEST CHI2 " << outxc[iter] << " " << outyc[iter] << " " << outradius[iter]  << endl;
+//       testchi2 = TestChi2BIS(cluster, outxc[iter], outyc[iter], outradius[iter], iclus,  red2chi2[iter], countelement2[iter], newxc, newyc, newradius, &newcluster2, newchi2);
+//       cout << "testchi2 = " << testchi2 << endl;
+//       if(testchi2 == kTRUE && newchi2 != 0) {
+// 	outxc[iter] = newxc;
+// 	outyc[iter] = newyc;
+// 	outradius[iter] = newradius;
+// 	red2chi2[iter] = newchi2;
+// 	countelement2[iter] = 0;
+// 	cout << "................. replacing" << endl;
+// 	cluster.clear();
+// 	cluster = newcluster2;
+//       }
+//       // --------------
 
-      tmpxc = outxc[iter];
-      tmpyc = outyc[iter];
-      tmpradius = outradius[iter];
+//       tmpxc = outxc[iter];
+//       tmpyc = outyc[iter];
+//       tmpradius = outradius[iter];
       
-      if(fDisplayOn) {
-	cout << "refit helix " << outxc[iter] << " " << outyc[iter] << " " << outradius[iter] << endl;     
-	TArc *arc2 = new TArc(outxc[iter], outyc[iter], outradius[iter]);
-	if(iter == 0) arc2->SetLineColor(kRed);
-	else arc2->SetLineColor(kBlue);
-	arc2->SetFillStyle(0);
-	arc2->Draw("SAME ONLY");
-	display->Update();
-	display->Modified();
-      }
-    }
+//       if(fDisplayOn) {
+// 	cout << "refit helix " << outxc[iter] << " " << outyc[iter] << " " << outradius[iter] << endl;     
+// 	TArc *arc2 = new TArc(outxc[iter], outyc[iter], outradius[iter]);
+// 	if(iter == 0) arc2->SetLineColor(kRed);
+// 	else arc2->SetLineColor(kBlue);
+// 	arc2->SetFillStyle(0);
+// 	arc2->Draw("SAME ONLY");
+// 	display->Update();
+// 	display->Modified();
+//       }
+//     }
   
-    for(int iter = 0; iter < 2; iter++) {
-      if(fabs(1. - red2chi2[iter]) < fabs(1. - chosenchi2)) {
-	xc = outxc[iter];
-	yc = outyc[iter];
-	radius = outradius[iter];
-	chosenchi2 = red2chi2[iter];
-	chosencountelem = countelement2[iter];
-	chosenchoice = iter + 1;
-      }
-    }
-  }
+//     for(int iter = 0; iter < 2; iter++) {
+//       if(fabs(1. - red2chi2[iter]) < fabs(1. - chosenchi2)) {
+// 	xc = outxc[iter];
+// 	yc = outyc[iter];
+// 	radius = outradius[iter];
+// 	chosenchi2 = red2chi2[iter];
+// 	chosencountelem = countelement2[iter];
+// 	chosenchoice = iter + 1;
+//       }
+//     }
+//   }
 
-  cout << "kept " << chosenchoice << " " << xc << " " << yc << " " << radius << endl;     
-  return kTRUE;
-}
+//   cout << "kept " << chosenchoice << " " << xc << " " << yc << " " << radius << endl;     
+//   return kTRUE;
+// }
 
 
 Bool_t PndSecondaryTrackFinder::CompleteSttFitBIS(std::vector< TMatrixT<double> > *cluster, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &chosenchi2, Int_t &chosencountelem) {
   
+  cout << "FITTING " << cluster->size() << " HITS" << endl;
+  for(int ihit = 0; ihit < cluster->size(); ihit++) {
+    TMatrixT<double> singlehit = cluster->at(ihit);
+    int hitid = (int) singlehit[0][1];
+    cout << hitid << " " ;
+  }
+  cout << endl;
+  
+
+
   // CONFORMAL HITS ==================================
   std::vector<std::vector<double> > conformalhits;
   Double_t firstdrift, delta, trasl[2];
@@ -4081,7 +4109,7 @@ Bool_t PndSecondaryTrackFinder::TestChi2BIS(std::vector< TMatrixT<double> > clus
 //     display->Modified();
 //   }
   int countelem2 = 0;
-  Bool_t fit = CompleteSttFitBIS(* newcluster, iclus, newxc, newyc, newradius, newchi2, countelem2);
+  Bool_t fit = CompleteSttFitBIS( newcluster, iclus, newxc, newyc, newradius, newchi2, countelem2);
   if(fit == kFALSE || newchi2 > fChi2Limit) return kFALSE;
 
   return kTRUE;
