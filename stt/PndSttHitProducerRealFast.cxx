@@ -17,6 +17,7 @@
 #include "PndGeoSttPar.h"
 #include "PndSttTube.h"
 #include "PndSttMapCreator.h"
+#include "PndSttSignalOverlap.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -41,6 +42,7 @@ using std::sqrt;
 PndSttHitProducerRealFast::PndSttHitProducerRealFast() :
   FairTask("Ideal STT Hit Producer") { 
   fPersistence = kTRUE;
+  fOverlap = kFALSE;
 }
 // -------------------------------------------------------------------------
 
@@ -72,8 +74,20 @@ InitStatus PndSttHitProducerRealFast::Init() {
   }
 
   // Create and register output array
-  fHitArray = new TClonesArray("PndSttHit");
-  ioman->Register("STTHit","STT",fHitArray, fPersistence);
+  if(!fOverlap) {
+    // if there is no overlap save in output the regular hits
+    fHitArray = new TClonesArray("PndSttHit");
+    ioman->Register("STTHit","STT",fHitArray, fPersistence);
+  }
+  else {
+    // otherwise, with overlap on, save the overlapped hits in
+    // regular output TCA (STTHit) and the "original", non overlapped
+    // hits in another TCA (STTOriginalHit)
+    fOverlapHitArray = new TClonesArray("PndSttHit");
+    ioman->Register("STTHit","STT",fOverlapHitArray, fPersistence);
+    fHitArray = new TClonesArray("PndSttHit");
+    ioman->Register("STTOriginalHit","STT",fHitArray, fPersistence);
+  }
   
  // Create and register output array
   fHitInfoArray = new TClonesArray("PndSttHitInfo");
@@ -110,6 +124,7 @@ void PndSttHitProducerRealFast::Exec(Option_t* opt) {
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
   
   fHitArray->Clear();
+  if(fOverlap)  fOverlapHitArray->Clear();
   fHitInfoArray->Clear();
 
   Int_t detID = 0;    // detectorID
@@ -219,6 +234,11 @@ void PndSttHitProducerRealFast::Exec(Option_t* opt) {
 
   }// Loop over MCPoints
 
+  if(fOverlap) {
+    PndSttSignalOverlap *soverlap = new PndSttSignalOverlap(fHitArray);
+    bool overlap = soverlap->OverlapSimultaneousSignals(fOverlapHitArray);
+    cout << "OVERLAP " << overlap << endl;
+  }
 
   // Event summary
   // cout << "-I- PndSttHitProducerRealFast: " << nPoints << " SttPoints, "

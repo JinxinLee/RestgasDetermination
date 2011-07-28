@@ -48,6 +48,7 @@ class PndSttHitProducerRealFast : public FairTask
  
   /** set persistence flag **/
   void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
+  void SwitchOnOverlap() { fOverlap = kTRUE; }
 
   private: 
 
@@ -58,6 +59,7 @@ class PndSttHitProducerRealFast : public FairTask
 
   /** Output array of PndSttHits **/
   TClonesArray* fHitArray;  
+ TClonesArray* fOverlapHitArray;  
 
   TObjArray *fVolumeArray;
 
@@ -69,7 +71,7 @@ class PndSttHitProducerRealFast : public FairTask
   
   /** object persistence **/
   Bool_t  fPersistence; //!
-
+  Bool_t fOverlap; //!
   /** from parameters array of PndSttTube **/ //  CHECK added
   TClonesArray* fTubeArray;
 
