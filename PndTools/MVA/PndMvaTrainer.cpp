@@ -450,3 +450,14 @@ void PndMvaTrainer::SetTetsSetSize(size_t prc)
     exit(EXIT_FAILURE);
   }
 }
+
+void PndMvaTrainer::SetTestSet(std::set <size_t> const& samples)
+{
+  m_testSet_indices = std::set <size_t> (samples);
+}
+
+void PndMvaTrainer::EvalClassifierError()
+{
+  std::cout << "\n\n\n\t<WARNING>"
+	    <<"Virtual function. Do not call me.\n\n\n";
+}

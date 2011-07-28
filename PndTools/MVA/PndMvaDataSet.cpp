@@ -169,7 +169,7 @@ void PndMvaDataSet::Initialize()
   case TRAIN:
     // Read input file
     ReadInput();
-    // NO BREAK;
+    // NO BREAK; Do not add break
 
     // Pre read data into a vector.
   case PRE_INIT_EVTS:

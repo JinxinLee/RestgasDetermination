@@ -78,6 +78,11 @@ inline PndMvaVariable::PndMvaVariable(PndMvaVariable const& oth)
 //! Assignment operator
 inline PndMvaVariable& PndMvaVariable::operator=(PndMvaVariable const &oth)
 {
+  // check for self-assignment
+  if (this == &oth)
+  {
+    return *this;
+  }
   this->Name = oth.Name;
   this->NormFactor = oth.NormFactor;
   this->Mean = oth.Mean;

@@ -22,6 +22,7 @@ PndLVQTrain::PndLVQTrain(std::vector< std::pair<std::string, std::vector<float>*
     m_initConst(0.8),
     m_ethaZero(0.1),
     m_ethaFinal(0.01),
+    m_WindowSize(0.3),
     m_NumSweep(10),
     m_proto_init(RAND_FROM_DATA),
     m_initProtoFile(""),
@@ -43,6 +44,7 @@ PndLVQTrain::PndLVQTrain(std::string const& inputFile,
     m_initConst(0.8),
     m_ethaZero(0.1),
     m_ethaFinal(0.01),
+    m_WindowSize(0.3),
     m_NumSweep(10),
     m_proto_init(RAND_FROM_DATA),
     m_initProtoFile(""),
@@ -168,9 +170,9 @@ void PndLVQTrain::Train()
       testSetIter = m_testSet_indices.find(index);
     }
     
-    unsigned int protoIndex = 0;
-    float distance          = 0.0;
-    float minProtoDistance  = std::numeric_limits<float>::max();
+    size_t protoIndex      = 0;
+    float distance         = 0.0;
+    float minProtoDistance = std::numeric_limits<float>::max();
 
     // Compute the distance to all available LVQ proto-types
     for(size_t ix = 0; ix < m_LVQProtos.size(); ix++)
@@ -233,10 +235,11 @@ void PndLVQTrain::Train21()
   // Fetch available event examples.
   std::vector<std::pair<std::string, std::vector<float>*> > const& events = m_dataSets.GetData();
 
+  // Test set iterator
   std::set <size_t>::const_iterator testSetIter;
 
   // Compute learning rate constant "a"
-  float windowSize = 0.3;// A value between 0.2 & 0.3 is recommended.
+  float windowSize = m_WindowSize;// A value between 0.2 & 0.3 is recommended.
   float s = (1 - windowSize)/(1 + windowSize);//Define the surrounding.
   
   double ethaZero     = m_ethaZero;//0.1;
@@ -394,7 +397,7 @@ void PndLVQTrain::InitProtoTypes()
 {
   // number of proto = 0 makes No sence.
   bool nonZeroProto = true;
-  for(std::map<std::string, unsigned int>::const_iterator iter = m_numProtoPerClass.begin(); 
+  for(std::map<std::string, size_t>::const_iterator iter = m_numProtoPerClass.begin(); 
       iter != m_numProtoPerClass.end(); iter++)
   {
     nonZeroProto = nonZeroProto && (iter->second != 0);
@@ -495,7 +498,7 @@ void PndLVQTrain::InitProtoK_Means()
   {
     ClDataSample clusteringInput;
     std::string clsName = (classes[cls]).Name;
-    unsigned int numProto = m_numProtoPerClass[clsName];
+    size_t numProto = m_numProtoPerClass[clsName];
 
     // Example loop
     for(size_t evt = 0; evt < events.size(); evt++)
@@ -595,9 +598,9 @@ void PndLVQTrain::InitProtoRand()
     int minIdx = classes[cl].StartIdx;
     int maxIdx = classes[cl].EndIdx;
     std::string curClsName = classes[cl].Name;
-    unsigned int numProto = m_numProtoPerClass[curClsName];
+    size_t numProto = m_numProtoPerClass[curClsName];
     
-    for(unsigned int i = 0; i < numProto; i++)
+    for(size_t i = 0; i < numProto; i++)
     {
       // select a random example
       if(minIdx == 0)
@@ -683,9 +686,9 @@ void PndLVQTrain::InitRandProtoFromData()
     int minIdx = classes[cl].StartIdx;
     int maxIdx = classes[cl].EndIdx;
     std::string curClsName = classes[cl].Name;
-    unsigned int numProto = m_numProtoPerClass[curClsName];
+    size_t numProto = m_numProtoPerClass[curClsName];
     
-    for(unsigned int i = 0; i < numProto; ++i)
+    for(size_t i = 0; i < numProto; ++i)
     {
       // Select a random example.
       int index = static_cast<int>(trand.Uniform(minIdx, maxIdx));
@@ -714,7 +717,7 @@ void PndLVQTrain::cleanProtoList()
   std::cout << "<INFO> Cleaning the prototype list.\n"; 
 
   // Clean up the container for proto-types
-  for(unsigned int k = 0; k < m_LVQProtos.size(); k++)
+  for(size_t k = 0; k < m_LVQProtos.size(); k++)
   {
     delete m_LVQProtos[k].second;
   }
@@ -796,7 +799,7 @@ void PndLVQTrain::EvalClassifierError(unsigned int stp)
     std::string WinClassName;
     float dist    = 0.0; // Current distance
     float minDist = std::numeric_limits<float>::max();// Winner dist
-    int idx = *iter;
+    size_t idx = *iter;
 
     std::vector<float>* EvtVect = (events.at(idx)).second;
 
@@ -950,7 +953,7 @@ void PndLVQTrain::ReadProtoFromFile()
  * Set the number of protoTypes to be used for training.
  *@param numProto  Number of prototypes.
  */  
-void PndLVQTrain::SetNumberOfProto(unsigned int const numProto)
+void PndLVQTrain::SetNumberOfProto(size_t const numProto)
 {
   // Fetch labels.
   const std::vector < PndMvaClass >& classes = m_dataSets.GetClasses();
@@ -965,12 +968,12 @@ void PndLVQTrain::SetNumberOfProto(unsigned int const numProto)
  *@param labelMap  Map containing number of prototypes 
  * for each class (label).
  */  
-void PndLVQTrain::SetNumberOfProto(std::map<std::string, unsigned int> const& labelMap)
+void PndLVQTrain::SetNumberOfProto(std::map<std::string, size_t> const& labelMap)
 {
   // Fetch labels.
   std::vector < PndMvaClass > const& classes = m_dataSets.GetClasses();
   // Init map iterator.
-  std::map < std::string, unsigned int >::const_iterator iter;
+  std::map < std::string, size_t>::const_iterator iter;
   for(size_t cl = 0; cl < classes.size(); cl++)
   {
     std::string curLabel = classes[cl].Name;
@@ -989,4 +992,64 @@ void PndLVQTrain::SetNumberOfProto(std::map<std::string, unsigned int> const& la
       exit(EXIT_FAILURE);      
     }
   }
+}
+
+/**
+ * Classifier evaluation.
+ */
+void PndLVQTrain::EvalClassifierError()
+{
+  std::cout << "\t<-I-> Evaluating LVQ.\n";
+  EvalClassifierError(std::numeric_limits<size_t>::max());
+}
+
+/**
+ * Evaluate the classifier, using the given test events.
+ *@param TestEvts The set which is used as test set.
+ */
+float PndLVQTrain::EvalClassifierError( std::vector< std::pair< std::string, std::vector<float>* > > const& TestEvts) const
+{ 
+  //Classifier error
+  float error = 0.0;
+  // Distance between curren event and prototype
+  float dist = 0.0;
+  // Winner dist
+  float minDist = std::numeric_limits<float>::max();
+  // Winner label
+  std::string WinClassName;
+
+  // Events loop
+  for(size_t ev = 0; ev < TestEvts.size(); ++ev)
+  {
+    // Current event.
+    std::vector<float> const* teEvt = (TestEvts.at(ev)).second;
+  
+    // Reset minDistance
+    minDist = std::numeric_limits<float>::max();
+
+    // Prototype loop
+    for(size_t pr = 0; pr < m_LVQProtos.size(); ++pr)
+    {
+      // Current prototype
+      std::vector<float> const* prot = m_LVQProtos[pr].second;
+
+      // compute distance
+      dist = ComputeDist( *teEvt, *prot );
+      
+      if(dist < minDist)
+      { 
+	minDist = dist;
+	WinClassName = m_LVQProtos[pr].first;
+      }
+    }// Proto loop
+
+    // If the classification was corect
+    if( WinClassName != (TestEvts.at(ev)).first )
+    {// Wrong (Labels are not equal), misclassified
+      error++;
+    }
+  }// Events Loop
+  
+  error = (error * 100.00) / static_cast<float>(TestEvts.size());
+  return error;
 }

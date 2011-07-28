@@ -64,17 +64,20 @@ class PndMvaTrainer
 
   /**
    * Creates test and train data sets.
-   * @param percent Percent of the data set to be used for testing and
-   * cross-validation
+   * @param percent Percent of the data set to be used for testing.
    */
   void SetTetsSetSize(size_t percent = 50);
-  
-  //! Select input data normalization scheme.
+
+  // FixME FIXME FixMe fixme
+  void SetTestSet(std::set <size_t> const& testSet);
+
+  /**
+   * Select input data normalization scheme.
+   */
   void NormalizeData(NormType t = NONORM);
   
   /**
    * Parameter decorrelation.
-   *
    * Performs PCA (Principal component analysis) on the input dataset.
    */
   void PCATransForm();
@@ -91,6 +94,9 @@ class PndMvaTrainer
    */
   void WriteErroVect(std::string const& FileName) const;
 
+  // FIXME FIXME
+  inline std::vector <StepError> const& GetErrorValues() const;
+  
   /**
    * Initialize data structures.
    */
@@ -101,13 +107,22 @@ class PndMvaTrainer
    */
   inline std::set <size_t> const& GetTestEvetIdx() const;
  
-  //! Get the list of available classes (labels).
+  /**
+   * Get the list of available classes (labels).
+   */
   inline std::vector<PndMvaClass> const& GetClasses() const;
   
-  //! Get the list of available variables
+  /**
+   * Get the list of available variables.
+   */
   inline std::vector<PndMvaVariable> const& GetVariables() const; 
-  
-  //==============================================
+ 
+  /**
+   * Classifier evaluation.
+   */
+  virtual void EvalClassifierError();
+
+  //______________________________________________
   //================ Protected ===================
  protected:
 
@@ -128,10 +143,6 @@ class PndMvaTrainer
   
   //void WriteDataSetToOutFile();
   
-  //! Classifier error evaluation
-  virtual void EvalClassifierError()
-  {};
-  
   //! Indices of the test set.
   std::set <size_t> m_testSet_indices;
   
@@ -145,10 +156,10 @@ class PndMvaTrainer
   std::string m_outFile;
   
   //! Random seed
-  unsigned int  m_RND_seed;
+  size_t m_RND_seed;
 
   void splitTetsSet();
-  //==============================================
+  //______________________________________________
   //================ Private =====================
  private:
  //! To avoid mistakes.
@@ -186,5 +197,11 @@ inline std::vector<PndMvaClass> const& PndMvaTrainer::GetClasses() const
 inline std::vector<PndMvaVariable> const& PndMvaTrainer::GetVariables() const
 {
   return m_dataSets.GetVars();
+};
+
+//FIXME FIXME
+inline  std::vector <StepError> const& PndMvaTrainer::GetErrorValues() const
+{
+  return m_StepErro;
 };
 #endif

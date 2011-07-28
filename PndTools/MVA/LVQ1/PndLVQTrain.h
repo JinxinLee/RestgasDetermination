@@ -109,7 +109,7 @@ class PndLVQTrain: public PndMvaTrainer
    * @param Nswp: Number of sweeps through the examples collection set.
    */
   inline void SetLearnPrameters(double const initConst, double const etZ,
-				double const etF, int const Nswp);
+				double const etF, unsigned int const Nswp);
 
   /**
    * Set the number of protoTypes to be used for training.
@@ -117,14 +117,14 @@ class PndLVQTrain: public PndMvaTrainer
    * labels(classes).
    *@param numProto  Number of prototypes.
    */  
-  void SetNumberOfProto(unsigned int const numProto);
+  void SetNumberOfProto(size_t const numProto);
   
   /**
    * Set the number of protoTypes to be used for training.
    *@param labelMap  Map containing number of prototypes 
    * for each class (label).
    */  
-  void SetNumberOfProto(std::map<std::string, unsigned int> const& labelMap);
+  void SetNumberOfProto(std::map<std::string, size_t> const& labelMap);
   
   /**
    * Set how often the classifier has to be evaluated.
@@ -134,13 +134,31 @@ class PndLVQTrain: public PndMvaTrainer
    */
   inline void SetErrorStepSize(unsigned int const val = 1000);
 
+  /**
+   * Set the window size for LVQ2.1 alg.
+   * A value between 0.2 & 0.3 is recommended.
+   */
+  inline void SetLVQ2_1WindowSize(float const Wsize = 0.3);
+
+  /**
+   * Classifier evaluation.
+   */
+  void EvalClassifierError();
+
+  /**
+   * Evaluate the classifier, using the given test events.
+   *@param tstEx The set which is used as test set.
+   */
+  float EvalClassifierError(std::vector< std::pair< std::string, std::vector<float>* > > const& TestEvts) const;
+
   //----------------------------------------
+  // protected:
   //================== private =============
  private:
   // To avoid mistakes, :).
   PndLVQTrain(PndLVQTrain const& other);
   PndLVQTrain& operator=(PndLVQTrain const& other);
-
+  
   //! Evaluate the classifier, train and test error.
   void EvalClassifierError(unsigned int stp);
 
@@ -206,7 +224,8 @@ class PndLVQTrain: public PndMvaTrainer
   double m_initConst; 
   double m_ethaZero; 
   double m_ethaFinal;
-  
+  float  m_WindowSize;
+
   //! Number of sweeps through example set.
   unsigned int m_NumSweep;
 
@@ -221,9 +240,10 @@ class PndLVQTrain: public PndMvaTrainer
   unsigned int m_ProgStep;
   
   //! Map labels (classes) to number of prototypes.
-  std::map < std::string, unsigned int> m_numProtoPerClass;
+  std::map < std::string, size_t> m_numProtoPerClass;
 };
 //END Interface definition
+
 //_______________________ Inline functions _________________________
 inline void PndLVQTrain::setProtoInitType(ProtoInitType iniTypeVal)
 {
@@ -236,7 +256,7 @@ inline void PndLVQTrain::SetInitProtoFileName(std::string const& fileName)
 };
 
 inline void PndLVQTrain::SetLearnPrameters(double const initConst, double const etZ,
-					   double const etF, int const Nswp)
+					   double const etF, unsigned int const Nswp)
 {
   m_initConst = initConst;
   m_ethaZero = etZ;
@@ -248,4 +268,9 @@ inline void PndLVQTrain::SetErrorStepSize(unsigned int const val)
 {
   m_ErrorStep = val;
 };
-#endif
+
+inline void PndLVQTrain::SetLVQ2_1WindowSize(float const Wsize)
+{
+  m_WindowSize = Wsize;
+};
+#endif// End of interface definition

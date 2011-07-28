@@ -17,6 +17,7 @@
 //____________________________________
 #define DEBUGVQ_TRAIN_EXAMPLE 0
 
+// 0 = no crossvalidation, 1 = crossvalidation
 #define CROSS_VALIDATE 1
 //____________________________________
 
@@ -143,7 +144,13 @@ int main(int argc, char** argv)
   */
   
   // Set the size of the test set in (%)
+#if (CROSS_VALIDATE == 0)
   tr.SetTetsSetSize(0);
+#else
+  tr.SetTetsSetSize(10);
+  std::set <size_t> const& bla = tr.GetTestEvetIdx();
+  tr.SetTestSet(bla);
+#endif
 
   tr.SetErrorStepSize(0);//1000 (DEFALUT)
   
@@ -188,7 +195,22 @@ int main(int argc, char** argv)
     break;
   }
 
+#if (CROSS_VALIDATE == 0)
   // Write out the error info.
   tr.WriteErroVect(OutErr);
+
+#else
+  //tr.EvalClassifierError();
+  std::vector <StepError> const& Error = tr.GetErrorValues();
+  for(size_t i = 0; i < Error.size(); ++i)
+  {
+    std::cout << " Index = "   << i
+	      << " m_step = "  << Error[i].m_step
+	      << " m_trErr = " << Error[i].m_trErr
+	      << " m_tsErr = " << Error[i].m_tsErr
+	      << '\n';
+  }
+#endif
+
   return 0;
 }

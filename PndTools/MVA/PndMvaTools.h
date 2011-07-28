@@ -68,6 +68,11 @@ ClassifierOutPuts(ClassifierOutPuts const& ot)
   // Operators.  
   ClassifierOutPuts& operator=(ClassifierOutPuts const& ot)
   {
+    // check for self-assignment
+    if( this == &ot )
+    {
+      return *this;
+    }
     this->realLabel  = ot.realLabel;
     this->givenLabel = ot.givenLabel;
     this->sgValue    = ot.sgValue;
@@ -161,6 +166,11 @@ struct ROCPoints
   // Operators.  
   ROCPoints& operator=(ROCPoints const& ot)
   {
+    // check for self-assignment
+    if(this == &ot)
+    {
+      return *this;
+    }
     this->FP_rate = ot.FP_rate;
     this->TP_rate = ot.TP_rate;
     this->TN_rate = ot.TN_rate;

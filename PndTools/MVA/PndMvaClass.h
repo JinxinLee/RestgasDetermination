@@ -52,6 +52,11 @@ inline PndMvaClass::PndMvaClass(PndMvaClass const& oth)
 //! = operator.
 inline PndMvaClass& PndMvaClass::operator=(PndMvaClass const& oth)
 {
+  // check for self-assignment
+  if (this == &oth)
+  {
+    return *this;
+  }
   this->Name = oth.Name;
   this->NExamples = oth.NExamples;
   this->StartIdx = oth.StartIdx;

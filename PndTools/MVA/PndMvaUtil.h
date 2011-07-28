@@ -21,7 +21,7 @@ struct StepError
 {
   //! Constructor
 StepError()
-:m_step(0), m_trErr(0.0), m_tsErr(0.0)
+: m_step(0), m_trErr(0.0), m_tsErr(0.0)
   {};
   
   /**
@@ -45,13 +45,18 @@ StepError(StepError const& ot)
   //! Assignment.
   StepError& operator=(StepError const& ot)
   {
+    // check for self-assignment
+    if (this == &ot)
+    {
+      return *this;
+    }
     this->m_step  = ot.m_step;
     this->m_trErr = ot.m_trErr;
     this->m_tsErr = ot.m_tsErr;
     return (*this);
   };
   
-  size_t m_step; // Step number
+  unsigned int m_step; // Step number
   float  m_trErr;// Train Error
   float  m_tsErr;// Test Error
   
@@ -72,10 +77,10 @@ struct PndMvaDistObj
 {
   //! Constructor
 PndMvaDistObj()
-:m_idx(-1), m_dist(0.0), m_cls("UNKNOWN_LABEL")
+: m_idx(0), m_dist(0.0), m_cls("UNKNOWN_LABEL")
   {};
   
-PndMvaDistObj(int const id, float const dist, std::string const& cls)
+PndMvaDistObj(size_t const id, float const dist, std::string const& cls)
 : m_idx(id), m_dist(dist), m_cls(cls)
   {};
   
@@ -95,8 +100,8 @@ PndMvaDistObj(int const id, float const dist, std::string const& cls)
     return (this->m_dist > other.m_dist);
   };
   
-  int m_idx;/**< Index of the prototype. */
-  float m_dist;/**< Distance to the current example. */
+  size_t m_idx ;/**< Index of the prototype. */
+  float  m_dist;/**< Distance to the current example. */
   std::string m_cls;/**< Class name of the prototype. */
 };
 // End class definition PndMvaDistObj
