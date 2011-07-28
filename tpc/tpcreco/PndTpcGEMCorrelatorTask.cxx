@@ -209,6 +209,7 @@ PndTpcGEMCorrelatorTask::Exec(Option_t* opt)
         outTrack->clearBookkeeping();
         (*fOutTrackArray)[fOutTrackArray->GetEntriesFast()] = outTrack;
       }
+      continue;
     }
     
     std::sort(tempCand.begin(), tempCand.end(), sortByZ);
