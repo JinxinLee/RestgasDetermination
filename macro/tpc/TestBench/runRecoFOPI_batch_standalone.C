@@ -102,11 +102,12 @@ void runRecoFOPI_batch_standalone(TString filename, TString outpath,
   fRun->AddTask(tpcCF);
   
 
+  //find track candidates in the TPC alone
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
   tpcSPR->SetPersistence();
-  tpcSPR->useGeane(); // use RKTrackrep and GeaneTrackrep
-  tpcSPR->SetMCPid(); // use ideal particle identification
-  //tpcSPR->SetPDG(211);
+  //tpcSPR->useGeane(); // use RKTrackrep and GeaneTrackrep
+  //tpcSPR->SetMCPid(); // use ideal particle identification
+  tpcSPR->SetPDG(211);
   fRun->AddTask(tpcSPR);
 
   PndTpcSLPatternRecoTask* tpcSLPR = new PndTpcSLPatternRecoTask();

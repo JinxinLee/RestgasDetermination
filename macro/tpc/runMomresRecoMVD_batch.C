@@ -72,11 +72,12 @@ void runMomresRecoMVD_batch(TString digifile, Int_t nEvents = 0) {
   align->SetShift(TVector3(0.,0.,-3.71357e-01));
   fRun->AddTask(align);
 
+  //find track candidates in the TPC alone
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
   tpcSPR->SetPersistence();
-  tpcSPR->useGeane(); // use RKTrackrep and GeaneTrackrep
-  tpcSPR->SetMCPid(); // use ideal particle identification
-  //tpcSPR->SetPDG(211);
+  //tpcSPR->useGeane(); // use RKTrackrep and GeaneTrackrep
+  //tpcSPR->SetMCPid(); // use ideal particle identification
+  tpcSPR->SetPDG(211);
   fRun->AddTask(tpcSPR);
 
   PndTpcIdealTrackingTask* tpcIPR = new PndTpcIdealTrackingTask();

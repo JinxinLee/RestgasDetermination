@@ -72,9 +72,9 @@
   //find track candidates in the TPC alone
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
   tpcSPR->SetPersistence();
-  tpcSPR->useGeane(); // use RKTrackrep and GeaneTrackrep
-  tpcSPR->SetMCPid(); // use ideal particle identification
-  //tpcSPR->SetPDG(211);
+  //tpcSPR->useGeane(); // use RKTrackrep and GeaneTrackrep
+  //tpcSPR->SetMCPid(); // use ideal particle identification
+  tpcSPR->SetPDG(211);
   fRun->AddTask(tpcSPR);
   
   KalmanTask* kalman =new KalmanTask();
@@ -84,7 +84,7 @@
 
   //correlate fitted track with MVD pixels and strips
   PndTpcMVDCorrelatorTask* corr = new PndTpcMVDCorrelatorTask();
-  corr->SetMatchDistance(200.);   //mutliple of MVD hit sigma (which 100 -> roughly 20 mu)
+  corr->SetMatchDistance(0.18);   //cm
   corr->SetMinMVDHits(3);
   corr->SetOutTrackBranchName("TrackPreFitMVD");
   corr->SetPersistence(true);
@@ -100,7 +100,7 @@
   fRun->AddTask(kalman2);
 
   PndTpcGEMCorrelatorTask* corrG = new PndTpcGEMCorrelatorTask();
-  corrG->SetMatchDistance(100.);   //mutliple of GEM hit sigma 
+  corrG->SetMatchDistance(0.5);   //cm 
   corrG->SetMinGEMHits(2);
   corrG->SetTrackBranchName("TrackPostFitMVD");
   corrG->SetOutTrackBranchName("TrackPreFitGEM");

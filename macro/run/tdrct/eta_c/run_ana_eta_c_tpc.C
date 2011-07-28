@@ -11,7 +11,7 @@ void run_ana_eta_c_tpc(int nevts=0)
 	TStopwatch timer;
 	timer.Start();
 
-	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+	//gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
 	TString inPidFile  = "evt_pid_tpc.root";
 	TString inSimFile = "evt_points_tpc.root";
@@ -44,12 +44,10 @@ void run_ana_eta_c_tpc(int nevts=0)
 	TH1F *h_etac_vtx=new TH1F("h_etac_vtx","m(eta_c), Vertex fit",100,2.5,3.5);
 	TH1F *h_mphi_vtx=new TH1F("h_mphi_vtx","#phi: m(K+ K-) (Vertex fit)",100,0.95,1.5);
 			
-	TH1F *h_etac_phimass_4c=new TH1F("h_etac_phimass_4c","m(eta_c), (cut on #phi mass);E,
-	GeV",100,2.5,3.5);
+	TH1F *h_etac_phimass_4c=new TH1F("h_etac_phimass_4c","m(eta_c), (cut on #phi mass);E,	GeV",100,2.5,3.5);
 	TH1F *h_mphi_final_4c=new TH1F("h_mphi_final_4c","#phi: m(K+ K-)",100,0.95,1.1);
 
-	TH1F *h_etac_phimass_vtx=new TH1F("h_etac_phimass_vtx","m(eta_c), (cut on #phi mass);E,
-	GeV",100,2.5,3.5);
+	TH1F *h_etac_phimass_vtx=new TH1F("h_etac_phimass_vtx","m(eta_c), (cut on #phi mass);E,	GeV",100,2.5,3.5);
 	TH1F *h_mphi_final_vtx=new TH1F("h_mphi_final_vtx","#phi: m(K+ K-)",100,0.95,1.1);
 
 	TH1F *h_etac_phimassfit=new TH1F("h_etac_phimassfit","m(eta_c);E, GeV",100,2.5,3.5);
@@ -64,15 +62,11 @@ void run_ana_eta_c_tpc(int nevts=0)
 	
 	TH1F *h_chi2_mass=new TH1F("h_chi2_mass","#chi^{2} Mass constraint fit;#chi^{2}",100,0,100);
 	
-	TH2F *hvpos = new TH2F("hvpos","(x,y) projection of fitted decay
-	vertex",100,-5,5,100,-5,5);
+	TH2F *hvpos = new TH2F("hvpos","(x,y) projection of fitted decay vertex",100,-5,5,100,-5,5);
 	TH1F *hvzpos = new TH1F("hvzpos","z position of fitted decay vertex",100,-10,10);
-	TH1F *hvtxresX = new TH1F("hvtxresX","X resolution of fitted decay
-	vertex",100,-0.1,0.1);
-	TH1F *hvtxresY = new TH1F("hvtxresY","Y resolution of fitted decay
-	vertex",100,-0.1,0.1);
-	TH1F *hvtxresZ = new TH1F("hvtxresZ","Z resolution of fitted decay
-	vertex",100,-0.1,0.1);
+	TH1F *hvtxresX = new TH1F("hvtxresX","X resolution of fitted decay vertex",100,-0.1,0.1);
+	TH1F *hvtxresY = new TH1F("hvtxresY","Y resolution of fitted decay vertex",100,-0.1,0.1);
+	TH1F *hvtxresZ = new TH1F("hvtxresZ","Z resolution of fitted decay vertex",100,-0.1,0.1);
 	
 	TPidMassSelector *phiMassSel=new TPidMassSelector("phi",1.02,0.4);
 
@@ -202,7 +196,7 @@ void run_ana_eta_c_tpc(int nevts=0)
 		////////////// 4C-fit ///////////////
 		int best_i=0;
 		double best_chi2=10000;
-		TCandidate *ccfit;// = new TCandidate();
+		TCandidate *ccfit = new TCandidate();
 		double m_phi1, m_phi2;
 		for (l=0;l<etac.GetLength();++l) {
 			Pnd4CFitter fitter(etac[l],ini);
