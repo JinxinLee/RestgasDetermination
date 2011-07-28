@@ -50,7 +50,7 @@
 
 	TCanvas *c1=new TCanvas("c1","N charged",600,600);
 	nc->Draw();
-	if (saveHistos) c1->SaveAs("n_charged_stt.png");
+	if (saveHistos) c1->SaveAs("n_charged_tpc.png");
 
 	TCanvas *c2=new TCanvas("c2","No cuts",600,600);
 	c2->Divide(1,2);
@@ -58,7 +58,7 @@
 	h_mphi_nocuts->Draw();
 	c2->cd(2);
 	h_etac_nocut->Draw();
-	if (saveHistos) c2->SaveAs("m_nocuts_stt.png");
+	if (saveHistos) c2->SaveAs("m_nocuts_tpc.png");
 	
 	TCanvas *c3=new TCanvas("c3","MC PID",600,600);
 	c3->Divide(1,2);
@@ -66,7 +66,7 @@
 	h_mphi_pid->Draw();
 	c3->cd(2);
 	h_etac_pid->Draw();
-	if (saveHistos) c3->SaveAs("m_pid_stt.png");
+	if (saveHistos) c3->SaveAs("m_pid_tpc.png");
 
 	//////////// 4C-fit fit ////////////////////////////////
 	TCanvas *c4=new TCanvas("c4","chi2 (4C-fit)",600,600);
@@ -75,7 +75,7 @@
 	h_chi2_4c->Draw();
 	c4->cd(2);
 	h_chi2b_4c->Draw();
-	if (saveHistos) c4->SaveAs("chi2_4c_stt.png");
+	if (saveHistos) c4->SaveAs("chi2_4c_tpc.png");
 
 	TCanvas *c5=new TCanvas("c5","m (4C-fit)",600,600);
 	c5->Divide(1,2);
@@ -83,7 +83,7 @@
 	h_mphi_4c->Draw();
 	c5->cd(2);
 	h_etac_4c->Draw();
-	if (saveHistos) c5->SaveAs("m_4c_stt.png");
+	if (saveHistos) c5->SaveAs("m_4c_tpc.png");
 
 	//////////// Vetrex fit ////////////////////////////////
 	TCanvas *c6=new TCanvas("c6","Vertex position",600,600);
@@ -92,7 +92,7 @@
 	hvpos->Draw();
 	c6->cd(2);
 	hvzpos->Draw();
-	if (saveHistos) c6->SaveAs("vertex_pos_stt.png");
+	if (saveHistos) c6->SaveAs("vertex_pos_tpc.png");
 	
 	TCanvas *c7=new TCanvas("c7","Vertex fit chi2",600,600);
 	c7->Divide(2,1);
@@ -100,7 +100,7 @@
 	h_chi2_vtx->Draw();
 	c7->cd(2);
 	h_chi2b_vtx->Draw();
-	if (saveHistos) c7->SaveAs("chi2_vtx_stt.png");
+	if (saveHistos) c7->SaveAs("chi2_vtx_tpc.png");
 	
 	TCanvas *c8=new TCanvas("c8","Vertex resolution",600,600);
 	c8->Divide(3,1);
@@ -119,7 +119,7 @@
 	hvtxresZ->Draw();
 	TF1 *f1_vtxz= new TF1("f1_vtxz","gaus",-1.,1.);
 	hvtxresZ->Fit(f1_vtxz,"R","",-1,1.);
-	if (saveHistos) c8->SaveAs("vertex_res_stt.png");
+	if (saveHistos) c8->SaveAs("vertex_res_tpc.png");
 	
 	TCanvas *c9=new TCanvas("c9","m vertex",600,600);
 	c9->Divide(1,2);
@@ -127,7 +127,7 @@
 	h_mphi_vtx->Draw();
 	c9->cd(2);
 	h_etac_vtx->Draw();
-	if (saveHistos) c9->SaveAs("m_vtx_stt.png");
+	if (saveHistos) c9->SaveAs("m_vtx_tpc.png");
 
 
 	double mean_phi, range_phi, sigma1_phi, mean1_phi, sigma2_phi, mean_etac, range_etac;
@@ -172,7 +172,7 @@
 	sigma2=f2_4c->GetParameter(2);
 	std::cout<<"!!!!!!!!!!!!! sigma eta_c (4c-fit) ="<<sigma2<<std::endl;
 	
-	if (saveHistos) c10->SaveAs("m_final_4c_stt.png");
+	if (saveHistos) c10->SaveAs("m_final_4c_tpc.png");
 	
 	//////////////////// Vertex fit ////////////////
 	TCanvas *c11=new TCanvas("c11","Mass final (Vertex fit)",600,600);
@@ -213,7 +213,7 @@
 	sigma2=f2_vtx->GetParameter(2);
 	std::cout<<"!!!!!!!!!!!!!!! sigma eta_c (vertex fit) ="<<sigma2<<std::endl;
 	
-	if (saveHistos) c11->SaveAs("m_final_vtx_stt.png");
+	if (saveHistos) c11->SaveAs("m_final_vtx_tpc.png");
 	
 	//////////////////// Phi mass fit ////////////////
 // 	TCanvas *c12=new TCanvas("c12","Mass final (phi mass fit)",600,600);
@@ -254,6 +254,6 @@
 // 	sigma2=f2_mass->GetParameter(2);
 // 	std::cout<<"!!!!!!!!!!!!!!! sigma eta_c (phi mass fit) ="<<sigma2<<std::endl;
 // 	
-// 	if (saveHistos) c12->SaveAs("m_final_phimass_stt.png");
+// 	if (saveHistos) c12->SaveAs("m_final_phimass_tpc.png");
 
 }

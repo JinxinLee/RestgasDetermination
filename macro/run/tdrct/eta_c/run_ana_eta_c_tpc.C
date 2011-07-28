@@ -11,7 +11,7 @@ void run_ana_eta_c_tpc(int nevts=0)
 	TStopwatch timer;
 	timer.Start();
 
-	//gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
 	TString inPidFile  = "evt_pid_tpc.root";
 	TString inSimFile = "evt_points_tpc.root";
