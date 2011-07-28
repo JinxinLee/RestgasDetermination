@@ -67,7 +67,10 @@ class PndSecondaryTrackFinder : public FairTask {
   void OrderConformal(Double_t oX, Double_t oY, Int_t nHits, Double_t XY[][2], Int_t  Charge, UShort_t *ListHits);
   std::vector< TMatrixT<double> > OrderByDistanceFromRefPointWithoutCharge(Int_t refihit, std::vector< TMatrixT<double> > cluster, TMatrixT<double> par);
   std::vector< TMatrixT<double> > OrderByDistanceFromRefPoint(Int_t refihit, std::vector< TMatrixT<double> > cluster);
-  std::vector< TMatrixT<double> > OrderInPhiFromRefPoint(Int_t refihit, std::vector< TMatrixT<double> > cluster,  TMatrixT<double> par);
+  std::vector< TMatrixT<double> > OrderInPhiFromRefPointWithCorrectCharge(Int_t refihit, std::vector< TMatrixT<double> > cluster,  TMatrixT<double> par);
+  std::vector< TMatrixT<double> > OrderInPhiFromRefPointWithReverseCharge(Int_t refihit, std::vector< TMatrixT<double> > cluster,  TMatrixT<double> par);
+  std::vector< TMatrixT<double> > OrderInPhiFromRefPoint(Int_t refihit, std::vector< TMatrixT<double> > cluster,  TMatrixT<double> par, Bool_t ischcorr);
+  std::vector< TMatrixT<double> > ReverseOrdering(std::vector< TMatrixT<double> > track);
 
   void Merge_Sort(UShort_t n_ele, Double_t *array, UShort_t *ind);
   void Merge(UShort_t nl, Double_t *left, UShort_t *ind_left, UShort_t nr, Double_t *right, UShort_t *ind_right,  Double_t *result, UShort_t *ind);
@@ -119,12 +122,12 @@ class PndSecondaryTrackFinder : public FairTask {
   Bool_t IntersectionFinder(Double_t xc, Double_t yc, Double_t radius, PndSttHit* stthit, TVector3 &xyz, TVector3 &dxyz);
   std::vector< TMatrixT<double> > AddPointsBIS(std::vector<int> hits, Int_t detId,  Double_t xc, Double_t yc, Double_t radius, int iclus);
  // std::vector< std::vector< TMatrixT<double> > > MergeClustersBIS(std::vector< std::vector< TMatrixT<double> > > clusterlist);
- std::vector< std::vector< TMatrixT<double> > > MergeClustersBIS(std::vector< std::vector< TMatrixT<double> > > clusterlist, std::vector< std::vector<int> > *combinations);
- Bool_t CompleteSttFitBIS(std::vector< TMatrixT<double> > cluster, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &chosenchi2, Int_t &chosencountelem);
+  std::vector< std::vector< TMatrixT<double> > > MergeClustersBIS(std::vector< std::vector< TMatrixT<double> > > clusterlist, std::vector< std::vector<int> > *combinations);
+  Bool_t CompleteSttFitBIS(std::vector< TMatrixT<double> > cluster, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &chosenchi2, Int_t &chosencountelem);
   Bool_t CompleteSttFitBIS(std::vector< TMatrixT<double> > *cluster, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &chosenchi2, Int_t &chosencountelem);
   Bool_t ConformalPlaneStt4BIS(std::vector< TMatrixT<double> > cluster, Int_t iclus, std::vector<std::vector<double> > &conformalhits, Double_t &firstdrift, Double_t &delta, Double_t trasl[2]);
   Double_t CalculateRedChi2BIS(std::vector< TMatrixT<double> > cluster, Double_t xc, Double_t yc, Double_t radius, Int_t &countelements);
-  // Bool_t RefitConformalBIS(std::vector< TMatrixT<double> > cluster, Double_t xc, Double_t yc, Double_t radius, Double_t &outxc, Double_t &outyc, Double_t &outradius);
+  Bool_t RefitConformalBIS(std::vector< TMatrixT<double> > cluster, Double_t xc, Double_t yc, Double_t radius, Double_t &outxc, Double_t &outyc, Double_t &outradius);
   Bool_t RefitConformalBIS(std::vector< TMatrixT<double> > * cluster, Double_t xc, Double_t yc, Double_t radius, Double_t &outxc, Double_t &outyc, Double_t &outradius);
   Int_t FindChargeBIS(Double_t oX, Double_t oY, std::vector< TMatrixT<double> > cluster);
     

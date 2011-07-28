@@ -488,10 +488,11 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     else refihit = 0;
     cout << "FIRST REF HIT " << refihit << endl;
     std::vector< TMatrixT<double> > sorthits =  OrderByDistanceFromRefPointWithoutCharge(refihit, track, xypar);
+    std::vector< TMatrixT<double> > revsorthits = ReverseOrdering(sorthits); // -> from inside
  
-    cout << "sorthits POINTS " << sorthits.size() << " " << endl;
+    cout << "sorthits POINTS " << revsorthits.size() << " " << endl;
 
-   tracklist.push_back(sorthits);
+   tracklist.push_back(revsorthits);
   }
   cout << "after adding the points" << endl;
 //   PrintClustersBIS(tracklist);
@@ -902,9 +903,14 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     if(tracktype == 2) refihit = FindRefPoint(track, xypar) ;
     else refihit = 0;
     cout << "SECOND REF HIT " << refihit << endl;
-    std::vector< TMatrixT<double> > newtrack = OrderInPhiFromRefPoint(refihit, track, xypar);
+
+    // the first ordering was made from iside to outside, then the correct charge was computed
+    // here we go from out to inside, then we must reverse the charge and after the ordering
+    // take the reversed one
+    std::vector< TMatrixT<double> > newtrack = OrderInPhiFromRefPointWithReverseCharge(refihit, track, xypar);
+    std::vector< TMatrixT<double> > revnewtrack = ReverseOrdering(newtrack);
     // tracklist.push_back(newtrack);
-    std::replace(tracklist.begin(), tracklist.end(), track, newtrack);
+    std::replace(tracklist.begin(), tracklist.end(), track, revnewtrack);
   }
 
   cout << "TRACK LIST & PARAMETERS " << tracklist.size() << " " << xyparameters.size() << endl;
@@ -968,10 +974,11 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
    if(tracktype == 2) {
      if(fDisplayOn) Refresh(); 
      Int_t refihit = FindRefPoint(track, par) ;
-    std::vector< TMatrixT<double> > sorthits = OrderByDistanceFromRefPointWithoutCharge(refihit, track, par);
-
-     std::replace(tracklist.begin(), tracklist.end(), track, sorthits);
-   
+     std::vector< TMatrixT<double> > sorthits = OrderInPhiFromRefPointWithReverseCharge(refihit, track, par); 
+     std::vector< TMatrixT<double> > revsorthits = ReverseOrdering(sorthits); // -> from inside
+     
+     std::replace(tracklist.begin(), tracklist.end(), track, revsorthits);
+    
      cout << "ORDERED CLUSTER: ";
      for(int ihit = 0; ihit < sorthits.size(); ihit++) {
        TMatrixT<double> singlehit = sorthits[ihit];
@@ -5676,15 +5683,21 @@ Int_t PndSecondaryTrackFinder::FindRefPoint(std::vector< TMatrixT<double> > clus
   
 }
 
+std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderInPhiFromRefPointWithCorrectCharge(Int_t refihit, std::vector< TMatrixT<double> > cluster,  TMatrixT<double> par) {
+  return OrderInPhiFromRefPoint(refihit, cluster, par, kTRUE);
+}
 
+std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderInPhiFromRefPointWithReverseCharge(Int_t refihit, std::vector< TMatrixT<double> > cluster,  TMatrixT<double> par) {
+  return OrderInPhiFromRefPoint(refihit, cluster, par, kFALSE);
+}
 
-std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderInPhiFromRefPoint(Int_t refihit, std::vector< TMatrixT<double> > cluster,  TMatrixT<double> par) {
+std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderInPhiFromRefPoint(Int_t refihit, std::vector< TMatrixT<double> > cluster,  TMatrixT<double> par, Bool_t ischcorr) {
 
   double xc = par[0][0];
   double yc = par[0][1];
   double radius = par[0][2];
   int charge = (int) par[0][3];
-  charge *= -1;  // <<<<<<<<<<<<<<<<<<<<+++++++++++++++++++++ // CHECK WARNING!!! this is correct!
+  if(ischcorr == kFALSE) charge *= -1;  // <<<<<<<<<<<<<<<<<<<<+++++++++++++++++++++ // CHECK WARNING!!! this is correct!
 
   std::vector< TMatrixT<double> > sorthits;
   std::vector<double> phiangles;
@@ -6180,6 +6193,20 @@ void PndSecondaryTrackFinder::Merge(UShort_t nl, Double_t *left, UShort_t *ind_l
       ind[i+j]= ind_left[nl_curr+j];
      }
    }
+
+}
+
+
+std::vector< TMatrixT<double> > PndSecondaryTrackFinder::ReverseOrdering(std::vector< TMatrixT<double> > track) {
+
+  std::vector< TMatrixT<double> > revtrack;
+  for(int ihit = track.size() - 1; ihit >= 0; ihit--) {
+    TMatrixT<double> singlehit = track[ihit];
+    if(singlehit[0][0] == -1) continue;
+    revtrack.push_back(singlehit);
+  }
+
+  return revtrack;
 
 }
 
