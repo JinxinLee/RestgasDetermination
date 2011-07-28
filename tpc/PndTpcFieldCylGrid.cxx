@@ -110,7 +110,7 @@ template <class t>
 t
 PndTpcFieldCylGrid<t>::value(const TVector3& point) const
 {
-  return( evalValue(point) );
+  return (evalValue(point)) * (PndTpcAbsField<t>::scale()) ;
 }
 
 template <class t>

@@ -61,6 +61,7 @@ public:
   // return the field value (t) at the given position (multiply with fscale)
   virtual t value(const TVector3&) const = 0;
   
+  
   // check if the queried point lies within the the field boundaries:
   virtual bool pointOk(const TVector3&) const = 0;
 
