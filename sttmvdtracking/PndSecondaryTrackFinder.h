@@ -62,7 +62,6 @@ class PndSecondaryTrackFinder : public FairTask {
 
   /** ordering **/
   std::vector<int> OrderHits(TClonesArray *hitarray, Int_t detId, Bool_t skewed);
-  std::vector< TMatrixT<double> > OrderCluster2BIS(std::vector< TMatrixT<double> > cluster, double xc, double yc, double radius);
   std::vector< TMatrixT<double> > OrderClusterInPhiBIS(std::vector< TMatrixT<double> > cluster, double xc, double yc, double radius, int charge);
   std::vector<int> OrderClusterInZ(std::vector<int> cluster, std::vector<TVector3> positions, std::map<int, int> hitidtointersection, double xc, double yc, double radius);
   void OrderConformal(Double_t oX, Double_t oY, Int_t nHits, Double_t XY[][2], Int_t  Charge, UShort_t *ListHits);
@@ -112,7 +111,7 @@ class PndSecondaryTrackFinder : public FairTask {
 
   void Refresh();
   void DrawLinks(std::vector<int> cluster, Int_t detId, Int_t iclus);
-  void FindBoundary(Int_t iclus, std::vector<int> cluster, Int_t detId, TMatrixT<double> &boundaries, Bool_t draw);
+
   Bool_t ConformalFit(std::vector<std::vector<double> > conformalhits, Int_t iclus, Double_t delta, Double_t trasl[2], Double_t &xc, Double_t &yc, Double_t &radius);
   Bool_t AddRemainingPoints(std::vector<int> hits, Int_t detId,   Double_t xc, Double_t yc, Double_t radius, std::vector<int> *cluster, Int_t iclus);
   Short_t FitHelixCylinder( UShort_t nHitsinTrack, Double_t auxinfoparalConformal[][3], Double_t rotationangle, Double_t trajectory_vertex[2], Double_t &slope, Double_t &intercept, Double_t &alpha, Double_t &beta, Double_t &gamma, Bool_t &TypeConf);
