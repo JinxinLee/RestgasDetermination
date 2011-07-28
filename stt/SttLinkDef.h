@@ -28,6 +28,7 @@
 #pragma link C++ class PndSttTrackFitterQATask+;
 #pragma link C++ class PndSttMapCreator+;
 #pragma link C++ class PndSttTube+;
+#pragma link C++ class PndSttSignalOverlap+;
 
 
 #endif

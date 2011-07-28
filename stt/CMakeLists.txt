@@ -55,6 +55,7 @@ PndSttHelixHitProducer.cxx
 PndSttTrackFinderReal.cxx
 PndSttMapCreator.cxx
 PndSttTube.cxx
+PndSttSignalOverlap.cxx
 )
 
 if(RULE_CHECKER_FOUND)
