@@ -36,6 +36,9 @@ class PndDrcSurfPolyFlat : public PndDrcSurfAbs
   virtual ~PndDrcSurfPolyFlat(){};         //!< Destructor.
 
   /*! \brief Add a surface boundary point
+
+  The points have to be given in the order going around the surface. Direction doesn't matter.
+
     \param point The point
   */
   void     AddPoint(XYZPoint point);       

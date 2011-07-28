@@ -63,6 +63,8 @@ using std::endl;
 #include "TPolyLine3D.h"
 
 
+// bended around y-axis  
+
 //----------------------------------------------------------------------
 PndDrcSurfPolyCyl::PndDrcSurfPolyCyl()
 {
@@ -126,11 +128,11 @@ bool PndDrcSurfPolyCyl::SurfaceHit(PndDrcPhoton& ph,
                                    XYZPoint&  pos_new,
                                    double&    path_length) const
 {
-	if (!fChecked) fChecked = Check();// check dimensions
+  if (!fChecked) fChecked = Check();// check dimensions
 
   // transform back in sphere definitions space
-	XYZPoint  pos(fTransInv*ph.Position());
-	XYZVector dir(fTransInv*ph.Direction());
+  XYZPoint  pos(fTransInv*ph.Position());
+  XYZVector dir(fTransInv*ph.Direction());
 
   // 2 positions for photon to have distance=radius from y-axis
   //
@@ -140,208 +142,208 @@ bool PndDrcSurfPolyCyl::SurfaceHit(PndDrcPhoton& ph,
   //
   // a1/2 = ...
 
-	double pos2   = XYZVector(pos).Dot(XYZVector(pos));
-	double dir2   = dir.Dot(dir);
-	double posdir = dir.Dot(pos);
+  double pos2   = XYZVector(pos).Dot(XYZVector(pos));
+  double dir2   = dir.Dot(dir);
+  double posdir = dir.Dot(pos);
 
-	double p = 2*posdir/dir2;
-	double q = (pos2-fRadius*fRadius)/dir2;
+  double p = 2*posdir/dir2;
+  double q = (pos2-fRadius*fRadius)/dir2;
 
-	double root2 = p*p/4-q;
-	if (root2<0) return false; // no hit
+  double root2 = p*p/4-q;
+  if (root2<0) return false; // no hit
 
 
-	double lambda1 = -posdir + sqrt(root2);
-	double lambda2 = -posdir - sqrt(root2);
-	const double kEps = 0.001;
+  double lambda1 = -posdir + sqrt(root2);
+  double lambda2 = -posdir - sqrt(root2);
+  const double kEps = 0.001;
 
-	if (fVerbosity>=4) cout<<" PndDrcSurfPolyCyl::surfaceHit lambda_1,2="
-		<<lambda1<<" "<<lambda2<<endl;
+  if (fVerbosity>=4) cout<<" PndDrcSurfPolyCyl::surfaceHit lambda_1,2="
+			 <<lambda1<<" "<<lambda2<<endl;
 
-	if (lambda1>kEps && lambda2>kEps)
-	{ // check both lambdas
+  if (lambda1>kEps && lambda2>kEps)
+    { // check both lambdas
 
-		XYZPoint pos_new1     = pos + lambda1*dir;
-		XYZPoint pos_check(pos_new1);
-		bool hit1 = (pos_new1.Z()>0);
-		pos_check.SetZ(0);
-		if (hit1) hit1 = WithinSurface(pos_check);
-		XYZPoint pos_new2     = pos + lambda2*dir;
-		pos_check = pos_new2;
-		bool hit2 = (pos_new2.Z()>0);
-		pos_check.SetZ(0);
-		if (hit2) hit2 = WithinSurface(pos_check);
-		if (hit1 && hit2)
-		{
-	      // take closest
-			double lambda = (lambda1<lambda2) ? lambda1 : lambda2;
-			pos_new = pos + lambda*dir;
-			path_length = lambda;
-			pos_new = fTrans * pos_new;
+      XYZPoint pos_new1     = pos + lambda1*dir;
+      XYZPoint pos_check(pos_new1);
+      bool hit1 = (pos_new1.Z()>0);
+      pos_check.SetZ(0);
+      if (hit1) hit1 = WithinSurface(pos_check);
+      XYZPoint pos_new2     = pos + lambda2*dir;
+      pos_check = pos_new2;
+      bool hit2 = (pos_new2.Z()>0);
+      pos_check.SetZ(0);
+      if (hit2) hit2 = WithinSurface(pos_check);
+      if (hit1 && hit2)
+	{
+	  // take closest
+	  double lambda = (lambda1<lambda2) ? lambda1 : lambda2;
+	  pos_new = pos + lambda*dir;
+	  path_length = lambda;
+	  pos_new = fTrans * pos_new;
           if (fPixel){
-	  if (fEffiCathode
-	      ->EffiFlag(ph.Wavelength(),
-			 ph.Direction().Dot(Normal(pos_new))))
-	    { 
-	      ph.SetFate(Drc::kPhotMeasured);
-	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
-	    }
-	  else
-	    { 
-	      ph.SetFate(Drc::kPhotAbsorbed);
-	    }
+	    if (fEffiCathode
+		->EffiFlag(ph.Wavelength(),
+			   ph.Direction().Dot(Normal(pos_new))))
+	      { 
+		ph.SetFate(Drc::kPhotMeasured);
+		if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	      }
+	    else
+	      { 
+		ph.SetFate(Drc::kPhotAbsorbed);
+	      }
 	  }
 	  
-			//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
-			return true;
-		}
-		else if (hit1)
-		{
-			pos_new = pos + lambda1*dir;
-			path_length = lambda1;
-			pos_new = fTrans * pos_new;
+	  //if (fPixel) ph.SetFate(Drc::kPhotMeasured);
+	  return true;
+	}
+      else if (hit1)
+	{
+	  pos_new = pos + lambda1*dir;
+	  path_length = lambda1;
+	  pos_new = fTrans * pos_new;
           if (fPixel){
-	  if (fEffiCathode
-	      ->EffiFlag(ph.Wavelength(),
-			 ph.Direction().Dot(Normal(pos_new))))
-	    { 
-	      ph.SetFate(Drc::kPhotMeasured);
-	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
-	    }
-	  else
-	    { 
-	      ph.SetFate(Drc::kPhotAbsorbed);
-	    }
+	    if (fEffiCathode
+		->EffiFlag(ph.Wavelength(),
+			   ph.Direction().Dot(Normal(pos_new))))
+	      { 
+		ph.SetFate(Drc::kPhotMeasured);
+		if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	      }
+	    else
+	      { 
+		ph.SetFate(Drc::kPhotAbsorbed);
+	      }
 	  }
 	  
-			//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
-			return true;
-		}
-		else if (hit2)
-		{
-			pos_new = pos + lambda2*dir;
-			path_length = lambda2;
-			pos_new = fTrans * pos_new;
+	  //if (fPixel) ph.SetFate(Drc::kPhotMeasured);
+	  return true;
+	}
+      else if (hit2)
+	{
+	  pos_new = pos + lambda2*dir;
+	  path_length = lambda2;
+	  pos_new = fTrans * pos_new;
           if (fPixel){
-	  if (fEffiCathode
-	      ->EffiFlag(ph.Wavelength(),
-			 ph.Direction().Dot(Normal(pos_new))))
-	    { 
-	      ph.SetFate(Drc::kPhotMeasured);
-	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
-	    }
-	  else
-	    { 
-	      ph.SetFate(Drc::kPhotAbsorbed);
-	    }
+	    if (fEffiCathode
+		->EffiFlag(ph.Wavelength(),
+			   ph.Direction().Dot(Normal(pos_new))))
+	      { 
+		ph.SetFate(Drc::kPhotMeasured);
+		if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	      }
+	    else
+	      { 
+		ph.SetFate(Drc::kPhotAbsorbed);
+	      }
 	  }
 	  
-			//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+	  //if (fPixel) ph.SetFate(Drc::kPhotMeasured);
+	  return true;
 	}
-	else if (lambda1>kEps && lambda2<=kEps)
+      else
 	{
-		path_length = lambda1;
+	  return false;
 	}
-	else if (lambda1<=kEps && lambda2>kEps)
-	{
-		path_length = lambda2;
-	}
-	else
-	{
-     //cout<<" not taken"<<endl;//###
-		return false;
+    }
+  else if (lambda1>kEps && lambda2<=kEps)
+    {
+      path_length = lambda1;
+    }
+  else if (lambda1<=kEps && lambda2>kEps)
+    {
+      path_length = lambda2;
+    }
+  else
+    {
+      //cout<<" not taken"<<endl;//###
+      return false;
 
-	}
-	pos_new     = pos + path_length*dir;
-	if (fVerbosity>=4) cout<<" PndDrcSurfPolyCyl::surfaceHit pos_new_z="
-		<<pos_new.Z()<<endl;
-	if (pos_new.Z()<0) return false; // wrong half cyl.
+    }
+  pos_new     = pos + path_length*dir;
+  if (fVerbosity>=4) cout<<" PndDrcSurfPolyCyl::surfaceHit pos_new_z="
+			 <<pos_new.Z()<<endl;
+  if (pos_new.Z()<0) return false; // wrong half cyl.
 
 
   // check if pos_new is within polynom
-	XYZPoint pos_check(pos_new);
-	pos_check.SetZ(0);
+  XYZPoint pos_check(pos_new);
+  pos_check.SetZ(0);
 
-	if (WithinSurface(pos_check))
-	{
-		pos_new = fTrans * pos_new;
-          if (fPixel){
-	  if (fEffiCathode
-	      ->EffiFlag(ph.Wavelength(),
-			 ph.Direction().Dot(Normal(pos_new))))
-	    { 
-	      ph.SetFate(Drc::kPhotMeasured);
-	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
-	    }
-	  else
-	    { 
-	      ph.SetFate(Drc::kPhotAbsorbed);
-	    }
+  if (WithinSurface(pos_check))
+    {
+      pos_new = fTrans * pos_new;
+      if (fPixel){
+	if (fEffiCathode
+	    ->EffiFlag(ph.Wavelength(),
+		       ph.Direction().Dot(Normal(pos_new))))
+	  { 
+	    ph.SetFate(Drc::kPhotMeasured);
+	    if (fPixelCorr) ph.SetPosition(fPixelPoint);
 	  }
+	else
+	  { 
+	    ph.SetFate(Drc::kPhotAbsorbed);
+	  }
+      }
 	  
-		//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
-		return true;
-	}
+      //if (fPixel) ph.SetFate(Drc::kPhotMeasured);
+      return true;
+    }
 
-	if (fVerbosity>=4) cout<<" PndDrcSurfPolyCyl::surfaceHit false"<<endl;
-
-
+  if (fVerbosity>=4) cout<<" PndDrcSurfPolyCyl::surfaceHit false"<<endl;
 
 
-	if (fVerbosity>=4) cout<<" PndDrcSurfPolyCyl::surfaceHit false"<<endl;
 
-	return false;
+
+  if (fVerbosity>=4) cout<<" PndDrcSurfPolyCyl::surfaceHit false"<<endl;
+
+  return false;
 
 }
 //----------------------------------------------------------------------
 bool PndDrcSurfPolyCyl::Check() const
 {
-	if (fRadius<=0)
+  if (fRadius<=0)
+    {
+      cerr<<" ***  PndDrcSurfPolyCyl::check: "
+	  <<fName<<": wrong or not set radius="
+	  <<fRadius<<endl;
+      exit(EXIT_FAILURE);
+    }
+  for (unsigned int i=0; i<fP.size(); i++)
+    {
+      if (fP[i].Z()*fP[i].Z()+fP[i].X()*fP[i].X()>fRadius*fRadius)
 	{
-		cerr<<" ***  PndDrcSurfPolyCyl::check: "
-			<<fName<<": wrong or not set radius="
-			<<fRadius<<endl;
-		exit(EXIT_FAILURE);
+	  cerr<<" ***  PndDrcSurfPolyCyl::check: "
+	      <<fName<<": point outside sphere projection:"
+	      <<" fP["<<i<<"]="
+	      <<fP[i].X()<<" "
+	      <<fP[i].Y()<<" "
+	      <<fP[i].Z()<<endl;
+	  exit(EXIT_FAILURE);
 	}
-	for (unsigned int i=0; i<fP.size(); i++)
+    }
+  for (unsigned int i=0; i<fP.size(); i++)
+    {
+      if (fP[i].Z() != 0)
 	{
-		if (fP[i].Z()*fP[i].Z()+fP[i].X()*fP[i].X()>fRadius*fRadius)
-		{
-			cerr<<" ***  PndDrcSurfPolyCyl::check: "
-				<<fName<<": point outside sphere projection:"
-				<<" fP["<<i<<"]="
-				<<fP[i].X()<<" "
-				<<fP[i].Y()<<" "
-				<<fP[i].Z()<<endl;
-			exit(EXIT_FAILURE);
-		}
+	  cerr<<" ***  PndDrcSurfPolyCyl::check: "
+	      <<fName<<": z component of point != 0 "
+	      <<" fP["<<i<<"]="
+	      <<fP[i].X()<<" "
+	      <<fP[i].Y()<<" "
+	      <<fP[i].Z()<<endl;
+	  exit(EXIT_FAILURE);
 	}
-	for (unsigned int i=0; i<fP.size(); i++)
-	{
-		if (fP[i].Z() != 0)
-		{
-			cerr<<" ***  PndDrcSurfPolyCyl::check: "
-				<<fName<<": z component of point != 0 "
-				<<" fP["<<i<<"]="
-				<<fP[i].X()<<" "
-				<<fP[i].Y()<<" "
-				<<fP[i].Z()<<endl;
-			exit(EXIT_FAILURE);
-		}
-	}
+    }
 
-	return true;
+  return true;
 }
 //----------------------------------------------------------------------
 XYZPoint PndDrcSurfPolyCyl::LimitingPoint(unsigned int i)
 {
-	unsigned int isize=fP.size();
+  unsigned int isize=fP.size();
 	if (i>(isize-1) || i<0)
 	{
 		cerr<<" *** PndDrcSurfPolyCyl::limitingPoint: index out of range, i="<<i<<endl;
@@ -374,72 +376,70 @@ void PndDrcSurfPolyCyl::AddTransform(const Transform3D& trans)
 //----------------------------------------------------------------------
 void PndDrcSurfPolyCyl::Print(fstream& stream) const
 {
-	if (!fChecked) fChecked = Check();// check dimensions
+  if (!fChecked) fChecked = Check();// check dimensions
 
   // print points
-	unsigned int isize = fP.size();
+  unsigned int isize = fP.size();
 
-	if (isize < 3)
+  if (isize < 3)
+    {
+      cerr<<" *** PndDrcSurfPolyCyl::surfaceHit: surface has only "<<fP.size()
+	  <<" points. Aborting. Name="<<Name()<<endl;
+      exit(EXIT_FAILURE);
+    }
+
+  double frac=1;
+
+  stream<<" TPolyLine3D *l = new TPolyLine3D("<<20*isize+1<<");"<<endl;
+  TPolyLine3D *l = new TPolyLine3D(20*isize+1); // for an opened canvas
+
+  XYZPoint fP1;
+  int icnt=0;
+
+  for (unsigned int i=0; i<isize; i++)
+    {
+      for (unsigned int j=0; j<20; j++)
 	{
-		cerr<<" *** PndDrcSurfPolyCyl::surfaceHit: surface has only "<<fP.size()
-			<<" points. Aborting. Name="<<Name()<<endl;
-		exit(EXIT_FAILURE);
-	}
-
-	double frac=1;
-
-	stream<<" TPolyLine3D *l = new TPolyLine3D("<<20*isize+1<<");"<<endl;
-	TPolyLine3D *l = new TPolyLine3D(20*isize+1); // for an opened canvas
-
-	XYZPoint fP1;
-	int icnt=0;
-
-	for (unsigned int i=0; i<isize; i++)
-	{
-		for (unsigned int j=0; j<20; j++)
-		{
-			unsigned int next = i+1;
-			if (next==isize) next=0;
+	  unsigned int next = i+1;
+	  if (next==isize) next=0;
 
 
-			fP1 = (fP[i]*frac) + j/20.0*(fP[next]-fP[i])*frac;
-			double x2y2 = fP1.X()*fP1.X()+fP1.Y()*fP1.Y();
-			fP1.SetZ(sqrt(fRadius*fRadius - x2y2)); // fP1.Z()=0...
+	  fP1 = (fP[i]*frac) + j/20.0*(fP[next]-fP[i])*frac;
+	  double x2 = fP1.X()*fP1.X();
+	  fP1.SetZ(sqrt(fRadius*fRadius - x2)); // fP1.Z()=0...
 
-			fP1 = fTrans(fP1);
+	  fP1 = fTrans(fP1);
 	  //fP1.Transform(fRot);
 	  //fP1 += fShift;
 
-			stream<<" l->SetPoint("<<icnt<<","
-				<<fP1.X()<<","
-				<<fP1.Y()<<","
-				<<fP1.Z()<<");"<<endl;
-
-			l->SetPoint( icnt, fP1.X(), fP1.Y(), fP1.Z()); // for an opened canvas
-			icnt++;
-		}
-	}
-
-	fP1 = fP[0]*frac;
-	double x2y2 = fP1.X()*fP1.X()+fP1.Y()*fP1.Y();
-	fP1.SetZ(sqrt(fRadius*fRadius - x2y2));
-
-	fP1 = fTrans(fP1);
-  //fP1.Transform(fRot);
-  //fP1 += fShift;
-
-	stream<<" l->SetPoint("<<icnt<<","
+	  stream<<" l->SetPoint("<<icnt<<","
 		<<fP1.X()<<","
 		<<fP1.Y()<<","
 		<<fP1.Z()<<");"<<endl;
-	stream<<" l->SetLineColor("<<fPrintColor<<");"<<endl;
-	stream<<" l->Draw();"<<endl;
 
-	// for an opened canvas
-	l->SetPoint( icnt, fP1.X(), fP1.Y(), fP1.Z() );
-	l->SetLineColor(fPrintColor);
-	l->Draw();
-	icnt++;
+	  l->SetPoint( icnt, fP1.X(), fP1.Y(), fP1.Z()); // for an opened canvas
+	  icnt++;
+	}
+    }
+
+  fP1 = fP[0]*frac;
+  double x2 = fP1.X()*fP1.X();
+  fP1.SetZ(sqrt(fRadius*fRadius - x2));
+
+  fP1 = fTrans(fP1);
+
+  stream<<" l->SetPoint("<<icnt<<","
+	<<fP1.X()<<","
+	<<fP1.Y()<<","
+	<<fP1.Z()<<");"<<endl;
+  stream<<" l->SetLineColor("<<fPrintColor<<");"<<endl;
+  stream<<" l->Draw();"<<endl;
+
+  // for an opened canvas
+  l->SetPoint( icnt, fP1.X(), fP1.Y(), fP1.Z() );
+  l->SetLineColor(fPrintColor);
+  l->Draw();
+  icnt++;
 }
 //----------------------------------------------------------------------
 void PndDrcSurfPolyCyl::Print() const

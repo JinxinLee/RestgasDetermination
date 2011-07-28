@@ -18,6 +18,24 @@
   \sa Shift \sa Rotate
   The rotation is performed before the shift operation.
 
+  The surfaces are named:
+  \verbatim
+                                                *------------*
+                                               /| side6     /|
+                                              / |          / |
+                                             /  *---------/--*               Y
+                                            p1-----------p2 /                ^  Z
+                                           / | /        /| /                 | /
+                                          /  |/        / |/                  |/
+                                         /   p4-------/--p3            X <---0
+                                        *------------*  /
+                                        | /side1     | /
+                                        |/           |/
+                                        *------------* 
+
+
+  \endverbatim
+  For other surfaces look into the code...
 */
 
 

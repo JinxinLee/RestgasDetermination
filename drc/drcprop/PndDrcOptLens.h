@@ -1,10 +1,33 @@
 /*! 
   \brief Class for optical device representation of a rectangular lens. 
 
-  The naming of the surfaces is as shown here:
 
-  \image html PndDrcOptLens1.png
+
+  The surfaces are named:
+  \verbatim
+                                                *------------*
+                                               /| side6     /|
+                                              / |          / |
+                                             /  *---------/--*               Y
+                                            p1-----------p2 /                ^  Z
+                                           / | /        /| /                 | /
+                                          /  |/        / |/                  |/
+                                         /   p4-------/--p3            X <---0
+                                        *------------*  /
+                                        | /side1     | /
+                                        |/           |/
+                                        *------------* 
+
+
+  \endverbatim
+  For other surfaces look into the code...
+
+
 */
+
+
+//  The naming of the surfaces is as shown here:
+//  \image html PndDrcOptLens1.png
 
 #ifndef PNDDRCOPTLENS_H
 #define PNDDRCOPTLENS_H
