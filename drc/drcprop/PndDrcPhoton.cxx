@@ -342,6 +342,16 @@ bool PndDrcPhoton::Fresnel(XYZVector normal, double n1, double ex1, double n2, d
     return false;
 }
 //----------------------------------------------------------------------
+void PndDrcPhoton::SetFate(Drc::kPhotonFate fate) 
+{
+  fFate=fate;
+
+  //if (fate==Drc::kPhotLost) cout<<" PndDrcPhoton::SetFate lost-------------------------------"<<endl;
+  
+
+
+}
+//----------------------------------------------------------------------
 int PndDrcPhoton::ColorNumber(double lambda) const
 {
 

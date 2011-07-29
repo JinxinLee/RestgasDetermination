@@ -132,105 +132,112 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 
 
   while (ph.Fate() == Drc::kPhotFlying)
-  {// while
+    {// while
+      
+      if (ph.Reflections() > ph.ReflectionLimit())
+	{
+	  ph.SetFate(Drc::kPhotAbsorbed);
+	  if (Verbosity()>=4) cout<<"     reflection limit was reached (absorbed)" << endl;
+	  break; // leave while loop
+	}
 
-    if (ph.Reflections() > ph.ReflectionLimit())
-    {
-      ph.SetFate(Drc::kPhotAbsorbed);
-      if (Verbosity()>=4) cout<<"     reflection limit was reached (absorbed)" << endl;
-      break; // leave while loop
-    }
 
-
-    ph.SetDevice(this);
+      ph.SetDevice(this);
       //---------------
       // search the closest surface which is not the surface where the photon is
       // right now.
-    PndDrcSurfAbs* surf_closest=0;
-    double path_length_min = numeric_limits<double>::max();
-    for(kSurf=fListSurf.begin(); kSurf != fListSurf.end(); ++kSurf)
-    {
-      if (Verbosity()>=4) cout<<"     check "<<(*kSurf)->Name()
-            <<" (surface coupling = "
-            <<(*kSurf)->Coupled()<<")"<<endl;
+      PndDrcSurfAbs* surf_closest=0;
+      double path_length_min = numeric_limits<double>::max();
+      for(kSurf=fListSurf.begin(); kSurf != fListSurf.end(); ++kSurf)
+	{
+	  if (Verbosity()>=4) cout<<"     check "<<(*kSurf)->Name()
+				  <<" (surface coupling = "
+				  <<(*kSurf)->Coupled()<<")"<<endl;
+	  XYZPoint pos_new;
+	  double   path_length;
+	  if ((*kSurf)->SurfaceHit(ph,pos_new,path_length))
+	    {
+	      if (Verbosity()>=4) 
+		{
+		  cout<<"     hit for "<<(*kSurf)->Name()<<endl;
+		  cout<<"     for ph x,xdir :"<<ph.Position().X()<<" "<<ph.Direction().X()<<endl;
+		  cout<<"     for ph y,ydir :"<<ph.Position().Y()<<" "<<ph.Direction().Y()<<endl;
+		  cout<<"     for ph z,zdir :"<<ph.Position().Z()<<" "<<ph.Direction().Z()<<endl;
+		  cout<<"     path_length "<<path_length<<endl;
+		}
+	      
+	      if (path_length<path_length_min && path_length>kEps)
+		{
+		  path_length_min = path_length;
+		  surf_closest    = (*kSurf);
+		}
+	    }
+	  else
+	    {
+	      if (Verbosity()>=4)
+		{
+		  cout<<"     no hit "<<(*kSurf)->Name()<<" of "<<Name()<<endl;
+		  cout<<"     for ph x,xdir :"<<ph.Position().X()<<" "<<ph.Direction().X()<<endl;
+		  cout<<"     for ph y,ydir :"<<ph.Position().Y()<<" "<<ph.Direction().Y()<<endl;
+		  cout<<"     for ph z,zdir :"<<ph.Position().Z()<<" "<<ph.Direction().Z()<<endl;
+		  // 		  ph.print();
+		}
+	      
+	    }
+	  
+	}
+      if (surf_closest==0)
+	{
+	  if (ph.Fate() == Drc::kPhotFlying)
+	    {
+	      if (Verbosity()>=4)
+		cout<<"     no hit with any surface ->edge hit->lost"<<endl;
+	      if (fPhotonTrace) ph.Print(*fPhotonTraceStream);
+	      ph.SetFate(Drc::kPhotLost);
+	      break;
+	    }
+	}
+      // reset photon, that was only a search...
+      ph.SetFate(Drc::kPhotFlying);
+      
+      //---------------
+      
+      
+      if (Verbosity()>=4) cout<<"     closest "<<surf_closest->Name()<<endl;
       XYZPoint pos_new;
       double   path_length;
-      if ((*kSurf)->SurfaceHit(ph,pos_new,path_length))
-      {
-        if (Verbosity()>=4) cout<<"     hit for "<<(*kSurf)->Name()<<endl;
-        if (Verbosity()>=4) cout<<"     path_length "<<path_length<<endl;
-        if (path_length<path_length_min && path_length>kEps)
-        {
-          path_length_min = path_length;
-          surf_closest    = (*kSurf);
-        }
-      }
-      else
-      {
-        if (Verbosity()>=4)
-        {
-          cout<<"     no hit "<<(*kSurf)->Name()<<endl;
-          cout<<"     for ph x,xdir :"<<ph.Position().X()<<" "<<ph.Direction().X()<<endl;
-          cout<<"     for ph y,ydir :"<<ph.Position().Y()<<" "<<ph.Direction().Y()<<endl;
-          cout<<"     for ph z,zdir :"<<ph.Position().Z()<<" "<<ph.Direction().Z()<<endl;
-// 		  ph.print();
-        }
-
-      }
-
-    }
-    if (surf_closest==0)
-    {
-      if (ph.Fate() == Drc::kPhotFlying)
-      {
-        if (Verbosity()>=4)
-          cout<<"     no hit with any surface ->edge hit->lost"<<endl;
-        if (fPhotonTrace) ph.Print(*fPhotonTraceStream);
-        ph.SetFate(Drc::kPhotLost);
-        break;
-      }
-    }
-      // reset photon, that was only a search...
-    ph.SetFate(Drc::kPhotFlying);
-
-      //---------------
-
-
-    if (Verbosity()>=4) cout<<"     closest "<<surf_closest->Name()<<endl;
-    XYZPoint pos_new;
-    double   path_length;
-    if (surf_closest->SurfaceHit(ph,pos_new,path_length))
-    {// hit surf_closest
-
-      if (Verbosity()>=4)
-      {
-        XYZPoint  pos_old(ph.Position());
-        XYZVector dir_old(ph.Direction());
-        cout<<"     hit, set pos from "<<pos_old<<endl;
-        cout<<"                  to   "<<pos_new<<endl;
-        cout<<"              dir old  "<<dir_old<<endl;
-
-      }
-
+      if (surf_closest->SurfaceHit(ph,pos_new,path_length))
+	{// hit surf_closest
+	  
+	  if (Verbosity()>=4)
+	    {
+	      XYZPoint  pos_old(ph.Position());
+	      XYZVector dir_old(ph.Direction());
+	      cout<<"     hit, set pos from "<<pos_old<<endl;
+	      cout<<"                  to   "<<pos_new<<endl;
+	      //cout<<"              dir old  "<<dir_old<<endl;
+	      
+	    }
+	  
 	  //if (ph.fate()!=PndDrc::kPhotFlying) return;
-
+	  
 	  // Step 1   ------------ Absorption -----------
-      ph.SetPosition(pos_new);
-
-      if (OptMaterial().AbsorptionFlag(ph.Wavelength(),path_length))
-      {
+	  ph.SetPosition(pos_new);
+	  
+	  if (OptMaterial().AbsorptionFlag(ph.Wavelength(),path_length))
+	    {
 	      //ph.setPosition(ph.position()+path_length*ph.direction());
-        if (fPhotonTrace) ph.Print(*fPhotonTraceStream);
-        ph.SetFate(Drc::kPhotAbsorbed);
-        if (Verbosity()>=4) cout<<"     absorption by material" << endl;
-        break; // leave while loop
-      }
-      else
-      {
-        if (Verbosity()>=4) cout<<"     new position set."<<endl;
-        if (fPhotonTrace) ph.Print(*fPhotonTraceStream);
-        if (ph.Fate()!=Drc::kPhotFlying) break;//###1 // measured photons
-      }
+	      if (fPhotonTrace) ph.Print(*fPhotonTraceStream);
+	      ph.SetFate(Drc::kPhotAbsorbed);
+	      if (Verbosity()>=4) cout<<"     absorption by material" << endl;
+	      break; // leave while loop
+	    }
+	  else
+	    {
+	      if (Verbosity()>=4) cout<<"     new position set."<<endl;
+	      if (fPhotonTrace) ph.Print(*fPhotonTraceStream);
+	      if (ph.Fate()!=Drc::kPhotFlying) break;//###1 // measured photons
+	    }
 
 
 
@@ -280,18 +287,15 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
       else if (!  surf_closest->Coupled())
       {
 	      // Step 3a ----------- Refraction (no reflectivity defined, no couplings)
-        if (Verbosity()>=4) cout<<"     PndDrcOptVol::reflectivity1b clause"<<endl;
+        if (Verbosity()>=4) cout<<"     PndDrcOptVol::reflectivity1b clause";
 
         bool refr = ph.Refract(norm,
                                OptMaterial().RefIndex(ph.Wavelength()),
                                OptMaterial().Extinction(ph.Wavelength()),
                                surf_closest->Fresnel());
 
-//         if( surf_closest->Name() == "box_side2" || surf_closest->Name() == "box_side3" || surf_closest->Name() == "box_side4"
-//             || surf_closest->Name() == "box_side6")
-//           refr = ph.Refract(norm,OptMaterial().RefIndex(ph.Wavelength()), OptMaterial().Extinction(ph.Wavelength()),1,0,false,0);
-//         else
-//           refr = ph.Refract(norm,OptMaterial().RefIndex(ph.Wavelength()), OptMaterial().Extinction(ph.Wavelength()) );
+        if (Verbosity()>=4) cout<<"  refr="<<refr<<endl;
+
 
         if (refr)
         {
@@ -343,7 +347,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
               cout<<"     bring back from "
                   <<ph.Position()<<" to "
                   <<ph1.Position()<<endl;
-              cout<<"           direction "<<ph1.Direction()<<endl;
+              //cout<<"           direction "<<ph1.Direction()<<endl;
             }
           }
 		  //(*kSurf_coupled)->setVerbosity(5);//###
@@ -351,10 +355,11 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 
           if (Verbosity()>=4)
           {
-            cout<<"     hit="<<hit<<" with "<<(*kSurf_coupled)->Name()<<endl;
-            cout<<"     x,px = "<<ph.Position().X()<<" "<<ph.Direction().X()<<endl;
-            cout<<"     y,py = "<<ph.Position().Y()<<" "<<ph.Direction().Y()<<endl;
-            cout<<"     z,pz = "<<ph.Position().Z()<<" "<<ph.Direction().Z()<<endl;
+            cout<<"     hit="<<hit<<" with "<<(*kSurf_coupled)->Name()<<" of "<<Name()<<endl;
+	    //cout<<"     for ph x,xdir :"<<ph.Position().X()<<" "<<ph.Direction().X()<<endl;
+	    //cout<<"     for ph y,ydir :"<<ph.Position().Y()<<" "<<ph.Direction().Y()<<endl;
+	    //cout<<"     for ph z,zdir :"<<ph.Position().Z()<<" "<<ph.Direction().Z()<<endl;
+	    cout<<"     path_length "<<path_length<<endl;
           }
 
 

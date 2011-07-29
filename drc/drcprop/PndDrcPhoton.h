@@ -87,7 +87,7 @@ class PndDrcPhoton
     \param fate The fate
     \sa PndDrc::kPhotonFate
   */
-  void SetFate(Drc::kPhotonFate fate) {fFate=fate;};
+  void SetFate(Drc::kPhotonFate fate);
 
   /*! \brief Fate of photon
     \return The fate

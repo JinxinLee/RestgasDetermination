@@ -49,6 +49,10 @@ void PndDrcOptBrik::SetSize(double dx, double dy, double dz)
   a1.AddPoint(p4);
   a1.SetName("side1");
 
+  //a1.SetVerbosity(5);//###
+  
+
+
   PndDrcSurfPolyFlat a2;
   a2.AddPoint(p4);
   a2.AddPoint(p3);
