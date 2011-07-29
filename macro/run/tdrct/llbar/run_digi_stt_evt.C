@@ -55,6 +55,7 @@
 
    // -----   STT digi producers   --------------------------------- 
   PndSttHitProducerRealFast* sttHitProducer = new PndSttHitProducerRealFast();
+  sttHitProducer->SwitchOnOverlap();
   fRun->AddTask(sttHitProducer);
  
   // -----   MDV digi producers   --------------------------------- 
