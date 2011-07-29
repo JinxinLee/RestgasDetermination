@@ -45,14 +45,14 @@ void run_ana_eta_c_stt(int nevts=0)
 	TH1F *h_mphi_vtx=new TH1F("h_mphi_vtx","#phi: m(K+ K-) (Vertex fit)",100,0.95,1.5);
 			
 	TH1F *h_etac_phimass_4c=new TH1F("h_etac_phimass_4c","m(eta_c), (cut on #phi mass);E,
-	GeV",100,2.5,3.5);
+	GeV",100,2.8,3.2);
 	TH1F *h_mphi_final_4c=new TH1F("h_mphi_final_4c","#phi: m(K+ K-)",100,0.95,1.1);
 
 	TH1F *h_etac_phimass_vtx=new TH1F("h_etac_phimass_vtx","m(eta_c), (cut on #phi mass);E,
-	GeV",100,2.5,3.5);
+	GeV",100,2.8,3.2);
 	TH1F *h_mphi_final_vtx=new TH1F("h_mphi_final_vtx","#phi: m(K+ K-)",100,0.95,1.1);
 
-	TH1F *h_etac_phimassfit=new TH1F("h_etac_phimassfit","m(eta_c);E, GeV",100,2.5,3.5);
+	TH1F *h_etac_phimassfit=new TH1F("h_etac_phimassfit","m(eta_c);E, GeV",100,2.8,3.2);
 	TH1F *h_mphi_final_massfit=new TH1F("h_mphi_final_massfit","#phi: m(K+ K-)",100,0.95,1.1);
 
 	TH1F *nc=new TH1F("nc","n charged",20,0,20);
@@ -74,7 +74,7 @@ void run_ana_eta_c_stt(int nevts=0)
 	TH1F *hvtxresZ = new TH1F("hvtxresZ","Z resolution of fitted decay
 	vertex",100,-0.1,0.1);
 	
-	TPidMassSelector *phiMassSel=new TPidMassSelector("phi",1.02,0.4);
+	TPidMassSelector *phiMassSel=new TPidMassSelector("phi",1.02,0.2);
 
 	TPidPlusSelector *kplusSel=new TPidPlusSelector("kplus");
 	TPidMinusSelector *kminusSel=new TPidMinusSelector("kminus");
@@ -258,8 +258,8 @@ void run_ana_eta_c_stt(int nevts=0)
 			h_mphi_4c->Fill(m_phi2);
 			h_mphi_final_4c->Fill(m_phi1);
 			h_mphi_final_4c->Fill(m_phi2);
-			if (((m_phi1>1.02-0.03)&&(m_phi1<1.02+0.03))
-				&& ((m_phi2>1.02-0.03)&&(m_phi2<1.02+0.03)))
+			if (((m_phi1>1.02-0.02)&&(m_phi1<1.02+0.02))
+				&& ((m_phi2>1.02-0.02)&&(m_phi2<1.02+0.02)))
 			{
 				h_etac_phimass_4c->Fill(etac[best_i].M());
 				if ((etac[best_i].M()>2.9)&&(etac[best_i].M()<3.06))
@@ -339,8 +339,8 @@ void run_ana_eta_c_stt(int nevts=0)
 			hvtxresY->Fill(mcVertex.Y()-bestPos.Y());
 			hvtxresZ->Fill(mcVertex.Z()-bestPos.Z());
 
-			if (((m_phi1>1.02-0.03)&&(m_phi1<1.02+0.03))&& 
-				((m_phi2>1.02-0.03)&&(m_phi2<1.02+0.03)))
+			if (((m_phi1>1.02-0.02)&&(m_phi1<1.02+0.02))&& 
+				((m_phi2>1.02-0.02)&&(m_phi2<1.02+0.02)))
 			{
 				h_etac_phimass_vtx->Fill(etacvtx_mass);
 				if ((etacvtx_mass>2.9)&&(etacvtx_mass<3.06))
