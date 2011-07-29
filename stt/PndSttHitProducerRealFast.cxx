@@ -237,7 +237,7 @@ void PndSttHitProducerRealFast::Exec(Option_t* opt) {
   if(fOverlap) {
     PndSttSignalOverlap *soverlap = new PndSttSignalOverlap(fHitArray);
     bool overlap = soverlap->OverlapSimultaneousSignals(fOverlapHitArray);
-    cout << "OVERLAP " << overlap << endl;
+    // cout << "OVERLAP " << overlap << endl;
   }
 
   // Event summary
