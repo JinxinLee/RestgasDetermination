@@ -78,6 +78,7 @@
   
   PndSttMvdTracking *  SttMvdTracking = new PndSttMvdTracking(0,false,false);
   SttMvdTracking->SetInputBranchName("STTHitMix","MVDHitsPixelMix","MVDHitsStripMix");
+  SttMvdTracking->Cleanup();
   SttMvdTracking->SetPersistence(kFALSE);
   fRun->AddTask(SttMvdTracking);
  
