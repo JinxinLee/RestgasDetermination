@@ -877,7 +877,17 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 				UShort_t *nInnerHits,
 				UShort_t *ListInnerHits,
 				UShort_t *nOuterHits,
-				UShort_t *ListOuterHits
+				UShort_t *ListOuterHits,
+
+				UShort_t *nInnerHitsLeft,
+				UShort_t *ListInnerHitsLeft,
+				UShort_t *nInnerHitsRight,
+				UShort_t *ListInnerHitsRight,
+
+				UShort_t *nOuterHitsLeft,
+				UShort_t *ListOuterHitsLeft,
+				UShort_t *nOuterHitsRight,
+				UShort_t *ListOuterHitsRight
 					);
 
 
@@ -939,6 +949,7 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 			UShort_t &nHits,
 			UShort_t *ListHits,
 			Double_t *S,
+			Double_t info[][7],
 			Double_t RminStrawSkew,
 			Double_t RmaxStrawSkew,
 			Double_t cut,
