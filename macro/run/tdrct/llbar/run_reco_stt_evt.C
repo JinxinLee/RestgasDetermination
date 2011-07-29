@@ -54,7 +54,7 @@
  
   PndMvdRiemannTrackFinderTask* mvdTrackFinder = new PndMvdRiemannTrackFinderTask();
   mvdTrackFinder->SetVerbose(iVerbose);
-  mvdTrackFinder->SetPersistence(kFALSE);
+  //  mvdTrackFinder->SetPersistence(kFALSE);
   mvdTrackFinder->SetMaxDist(0.05);
   fRun->AddTask(mvdTrackFinder);
 
@@ -62,12 +62,12 @@
   PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(0);
   PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
   sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
-  sttFindTracks->SetPersistence(kFALSE);
+  //  sttFindTracks->SetPersistence(kFALSE);
   fRun->AddTask(sttFindTracks);
   
   PndSttMvdTracking *  SttMvdTracking = new PndSttMvdTracking(0, false, false);
-//  SttMvdTracking->Cleanup();
-//  SttMvdTracking->SetPersistence(kFALSE);
+  SttMvdTracking->Cleanup();
+  //  SttMvdTracking->SetPersistence(kFALSE);
   fRun->AddTask(SttMvdTracking);
   
   PndMCTrackAssociator* trackMC0 = new PndMCTrackAssociator();
