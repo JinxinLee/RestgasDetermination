@@ -205,8 +205,10 @@ PndTpcDetector::ProcessHits( FairVolume *v)
     }
   }
 
-  Int_t trackID  = gMC->GetStack()->GetCurrentTrackNumber();
-  Int_t secID = trackID;
+  Int_t trackID(gMC->GetStack()->GetCurrentTrackNumber());
+  Int_t secID(0);
+  Int_t motherID(trackID);
+
   Int_t volumeID = v->getMCid();
   
   TString volumeName = v->GetName();
@@ -214,33 +216,19 @@ PndTpcDetector::ProcessHits( FairVolume *v)
   	AliTPCv3_SetStepToNextCollision(); 
   }
     
-  if(fDeltaAttach) {   //TODO: implement, this is just junk atm
-    
-    //PROBLEMS so far:
-    // - how are we looping through the steps? sorted by particle type or primary/sec ... ??
-    // - what happens in the ClusterizerTask
-    
-    //if this is a low momentum particle (e.g. delta) assign mother id
-    //if(mom.E()<10.*1E-6){ // E<10keV
-  }
-
   TParticle* mother=gMC->GetStack()->GetCurrentTrack();
   if(mother->IsPrimary()) secID = 0;
   else while(!mother->IsPrimary()){
-    trackID=mother->GetFirstMother();
-    mother=dynamic_cast<PndStack*>(gMC->GetStack())->GetParticle(trackID);
-    //std::cout<<"Fetching mother id="<<trackID<<std::endl;
+    motherID=mother->GetFirstMother();
+    mother=dynamic_cast<PndStack*>(gMC->GetStack())->GetParticle(motherID);
+    ++secID;
   }
   
-  // trackID is now ID of primary mother
-  // if the mother is already primary, secID is 0
-  // else secID is an (arbitrary) number !=0
+  // trackID is now ID of track in MCTrackArray
+  // secID is the "level" of the track (0: primary track, 1: secondary from primary track, 2: secondary from secondary from primary, ...)
 
-  //std::cout<<"trackID "<<trackID<<",  secID "<<secID<<std::endl;
+  PndTpcPoint* p=AddHit(trackID, secID, volumeID, pos.Vect(), mom.Vect(),	time, length, eLoss);
   
-  //gotta love TClonesArray syntax!
-  PndTpcPoint* p=AddHit(trackID, secID, volumeID, pos.Vect(), mom.Vect(),
-			time, length, eLoss);
   // Increment number of tpc points for TParticle
   PndStack* stack = (PndStack*) gMC->GetStack();
   stack->AddPoint(kTPC);
