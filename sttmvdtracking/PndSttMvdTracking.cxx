@@ -12414,8 +12414,8 @@ if(istampa>0) cout<<"\tentra in SttParalCleanup\n";
 				Start,
 				FI0,
 				FiLimitAdmissible,
-				nHitsPar, // input and output.
-				ListHitsPar, // input and output.
+				nHitsPar, // it doesn't get modify for now.
+				ListHitsPar, // input only for now. 
 				info,
 				RStrawDetMin,
 				ApotemaMaxInnerPar,
@@ -12443,8 +12443,8 @@ if(istampa>0) cout<<"\tentra in SttSkewCleanup\n";
 			Start,  // strarting point of trajectory.
 			FI0,
 			FiLimitAdmissible,
-			nHitsSkew,
-			ListHitsSkew,
+			nHitsSkew, // it doesn't get modify for now.
+			ListHitsSkew, // it doesn't get modify for now.
 			auxS,
 			info,
 			ApotemaMinSkew,  //distance hexagon side from (0,0)
@@ -12485,8 +12485,8 @@ if(istampa>0) cout<<"\tSttSkewCleanup truee\n";
 				Double_t Start[3],
 				Double_t FI0,
 				Double_t FiLimitAdmissible,
-				UShort_t &nHits,
-				UShort_t *ListHits,
+				UShort_t nHits,
+				UShort_t *Listofhits,
 				Double_t info[][7],
 				Double_t RStrawDetMin,
 				Double_t ApotemaInnerParMax,
@@ -12524,6 +12524,7 @@ if(istampa>0) cout<<"\tSttSkewCleanup truee\n";
 			nOuterHitsLeft,
 			nOuterHitsRight,
 			nIntersections[2],
+			ListHits[nHits],
 			ListInnerHits[nHits],
 			ListInnerHitsLeft[nHits],
 			ListInnerHitsRight[nHits],
@@ -12554,7 +12555,7 @@ if(istampa>0) cout<<"\tSttSkewCleanup truee\n";
 	epsilonTheta = STRAWRADIUS/Rr;  // some extra slac for being conservative.
 	for(i=0, ipurged=0; i< nHits; i++){
 
-		fi = atan2( info[ListHits[i]][1]-Oyy,info[ListHits[i]][0]-Oxx);
+		fi = atan2( info[Listofhits[i]][1]-Oyy,info[Listofhits[i]][0]-Oxx);
 		if (fi<0.) fi+=2.*PI;
 
 	  if(Charge <0) {
@@ -12571,7 +12572,7 @@ if(istampa>0) cout<<"\tSttSkewCleanup truee\n";
 		if (fi < FiLimitAdmissible-epsilonTheta) continue;
 	  } // end of if(Charge <0)
 
-	  ListHits[ipurged]=ListHits[i];
+	  ListHits[ipurged]=Listofhits[i];
 	  ipurged++;
 	}  // end of    for(i=0, ipurged=0; i< nHits; i++)
 
@@ -12692,9 +12693,9 @@ jumpa: ;
 
 	// case when track is outside both Inner Stt Parallel sections.
 	if( flagInnerSttL == -1 && flagInnerSttR == -1 ){
-		nInnerHits=0; // eliminate all the hits from hit list.
-		nInnerHitsLeft=0;
-		nInnerHitsRight=0;
+		//nInnerHits=0; // eliminate all the hits from hit list.
+		//nInnerHitsLeft=0;
+		//nInnerHitsRight=0;
 		goto outer ;
 	}
 
@@ -12791,13 +12792,13 @@ jumpa: ;
 			// case when this track exit in Z before having the possibility
 			// of hitting the Stt parallel inner section.
 		if( fabs(aux[0]-Xcross[0])<1.e-5&& fabs(aux[1]-Ycross[0])<1.e-5 ){
-			nHits=0; // eliminate all the hits from hit list.
-			nInnerHits=0;
-			nInnerHitsRight=0;
-			nInnerHitsLeft=0;
-			nOuterHits=0;
-			nOuterHitsRight=0;
-			nOuterHitsLeft=0;
+			//nHits=0; // eliminate all the hits from hit list.
+			//nInnerHits=0;
+			//nInnerHitsRight=0;
+			//nInnerHitsLeft=0;
+			//nOuterHits=0;
+			//nOuterHitsRight=0;
+			//nOuterHitsLeft=0;
 			return true;
 		}
 		if( flagOutStt ==0){// 2 intersections with outer Stt circle.
@@ -12809,9 +12810,9 @@ jumpa: ;
 				(fabs(XcrossOut[1]-Xcross[0])<1.e-5
 				&&fabs(YcrossOut[1]-Ycross[0])<1.e-5 )
 				){
-				nInnerHits=0; // eliminate all the hits from hit list.
-				nInnerHitsRight=0;
-				nInnerHitsLeft=0;
+				//nInnerHits=0; // eliminate all the hits from hit list.
+				//nInnerHitsRight=0;
+				//nInnerHitsLeft=0;
 				goto outer ;
 		   }
 		} // end of  if( flagOutStt ==0)
@@ -12830,9 +12831,9 @@ jumpa: ;
 				(fabs(XcrossOut[1]-Xcross[0])<1.e-5
 				&&fabs(YcrossOut[1]-Ycross[0])<1.e-5 )
 				){
-				nInnerHits=0; // eliminate all the hits from hit list.
-				nInnerHitsRight=0;
-				nInnerHitsLeft=0;
+				//nInnerHits=0; // eliminate all the hits from hit list.
+				//nInnerHitsRight=0;
+				//nInnerHitsLeft=0;
 				goto outer ;
 			   }
 		} // end of  if( flagOutStt ==0)
@@ -12935,10 +12936,10 @@ outer: ;
 
 	// case when track is outside both Outer Stt Parallel sections.
 	if( flagOuterSttL == -1 && flagOuterSttR == -1 ){
-		nOuterHits=0; // eliminate all the hits from hit list.
-		nOuterHitsLeft=0;
-		nOuterHitsRight=0;
-		goto finito ;
+		//nOuterHits=0; // eliminate all the hits from hit list.
+		//nOuterHitsLeft=0;
+		//nOuterHitsRight=0;
+		return true ;
 	}
 
 
@@ -13042,10 +13043,10 @@ outer: ;
 				(fabs(XcrossOut[1]-Xcross[0])<1.e-5
 				&&fabs(YcrossOut[1]-Ycross[0])<1.e-5 )
 				){
-				nOuterHits=0; // eliminate all the hits from hit list.
-				nOuterHitsRight=0;
-				nOuterHitsLeft=0;
-				goto finito ;
+				//nOuterHits=0; // eliminate all the hits from hit list.
+				//nOuterHitsRight=0;
+				//nOuterHitsLeft=0;
+				return true ;
 		   }
 		} // end of  if( flagOutStt ==0)
 
@@ -13065,10 +13066,10 @@ outer: ;
 				(fabs(XcrossOut[1]-Xcross[0])<1.e-5
 				&&fabs(YcrossOut[1]-Ycross[0])<1.e-5 )
 				){
-				nOuterHits=0; // eliminate all the hits from hit list.
-				nOuterHitsRight=0;
-				nOuterHitsLeft=0;
-				goto finito ;
+				//nOuterHits=0; // eliminate all the hits from hit list.
+				//nOuterHitsRight=0;
+				//nOuterHitsLeft=0;
+				return true ;
 			   }
 		} // end of  if( flagOutStt ==0)
 
@@ -13115,11 +13116,12 @@ cout<<"OUTER, caso R&L true, IVOLTE = "<<IVOLTE<<"\n\t Xcross[0] "
 
 //----------------------------------------------------------------------------
 
-finito: ;
+// finito: ;
 
 	// if the code comes here it means that the track is acceptable.
 
-	nHits = nOuterHits+nInnerHits;  // bisogna finire qui.
+//	nHits = nOuterHits+nInnerHits;
+
 	return true;
 
 };
@@ -13147,8 +13149,8 @@ finito: ;
 			Double_t Start[3],
 			Double_t FI0,
 			Double_t FiLimitAdmissible,
-			UShort_t &nHits,
-			UShort_t *ListHits,
+			UShort_t nHits,
+			UShort_t *Listofhits,
 			Double_t *S,
 			Double_t info[][7],
 			Double_t RminStrawSkew,
@@ -13172,6 +13174,7 @@ finito: ;
 			nintersections,
 			nnn,
 			nIntersections[2],
+			ListHits[nHits],
 			ListHitsRight[nHits],
 			ListHitsLeft[nHits];
 
@@ -13211,7 +13214,7 @@ cout<<"\n\nevt "<<IVOLTE<<", FI0 "<<FI0<<", Filimit "
 	for(i=0, ipurged=0; i< nHits; i++){
 	  fi = S[i];
 
-if(istampa>=1&&IVOLTE<20)cout<<"\thit // n. "<<ListHits[i]<<", fi "<<fi<<endl;
+if(istampa>=1&&IVOLTE<20)cout<<"\thit // n. "<<Listofhits[i]<<", fi "<<fi<<endl;
 
 	  if(Charge <0) {
 		if(fi > FI0){
@@ -13228,7 +13231,7 @@ if(istampa>=1&&IVOLTE<20)cout<<"\thit // n. "<<ListHits[i]<<", fi "<<fi<<endl;
 	  } // end of if(Charge <0)
 if(istampa>=1&&IVOLTE<20)cout<<"\t\thit preso!"<<endl;
 
-	  ListHits[ipurged]=ListHits[i];
+	  ListHits[ipurged]=Listofhits[i];
 	  S[ipurged]=S[i];
 	  ipurged++;
 	}  // end of    for(i=0, ipurged=0; i< nHits; i++)
@@ -13323,11 +13326,11 @@ jampa: ;
 
 	if (flagSttR == -1 || flagSttL == -1 ) { // the trajectory is outside
 					// the Right and Left Skew section.
-		nHits=0;
+		//nHits=0;
 		return true ;
 	}
 	if (flagSttR != 0 && flagSttL != 0 ) {
-		nHits=0;
+		//nHits=0;
 		return true; // don't discard track because it may have Mvd hits anyway
 				// and/or they can have Inner Parallel hits.
 	}
@@ -13428,10 +13431,10 @@ jampa: ;
 			// case when this track exit in Z before having the possibility
 			// of hitting the Stt parallel inner section.
 		if( fabs(aux[0]-Xcross[0])<1.e-5&& fabs(aux[1]-Ycross[0])<1.e-5 ){
-			nHits=0; // eliminate all the hits from hit list.
-			nHits=0;
-			nHitsRight=0;
-			nHitsLeft=0;
+			//nHits=0; // eliminate all the hits from hit list.
+			//nHits=0;
+			//nHitsRight=0;
+			//nHitsLeft=0;
 			return true;
 		}
 		if( flagOutStt ==0){// 2 intersections with outer Stt circle.
@@ -13443,9 +13446,9 @@ jampa: ;
 				(fabs(XcrossOut[1]-Xcross[0])<1.e-5
 				&&fabs(YcrossOut[1]-Ycross[0])<1.e-5 )
 				){
-				nHits=0; // eliminate all the hits from hit list.
-				nHitsRight=0;
-				nHitsLeft=0;
+				//nHits=0; // eliminate all the hits from hit list.
+				//nHitsRight=0;
+				//nHitsLeft=0;
 				return true ;
 		   }
 		} // end of  if( flagOutStt ==0)
@@ -13464,9 +13467,9 @@ jampa: ;
 				(fabs(XcrossOut[1]-Xcross[0])<1.e-5
 				&&fabs(YcrossOut[1]-Ycross[0])<1.e-5 )
 				){
-				nHits=0; // eliminate all the hits from hit list.
-				nHitsRight=0;
-				nHitsLeft=0;
+				//nHits=0; // eliminate all the hits from hit list.
+				//nHitsRight=0;
+				//nHitsLeft=0;
 				return true ;
 			   }
 		} // end of  if( flagOutStt ==0)
