@@ -66,6 +66,7 @@
   fRun->AddTask(sttFindTracks);
   
   PndSttMvdTracking *  SttMvdTracking = new PndSttMvdTracking(0, false, false);
+//  SttMvdTracking->Cleanup();
   SttMvdTracking->SetPersistence(kFALSE);
   fRun->AddTask(SttMvdTracking);
   
