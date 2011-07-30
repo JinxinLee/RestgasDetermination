@@ -99,6 +99,7 @@ private:
   Double_t fmeanEvtSpacing;
   Double_t ft0;
   Int_t fevtCount;
+ 
 
   std::set<unsigned int> fsectors;
   PndTpcDigiPar* fpar;
@@ -108,6 +109,7 @@ private:
   const PndTpcGem* fgem;
   const PndTpcGas* fgas;
   double fzGem;
+  Double_t fMaxDriftTime;
   // Private Methods -----------------
 
 public:

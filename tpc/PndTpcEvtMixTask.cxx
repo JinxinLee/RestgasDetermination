@@ -77,6 +77,18 @@ PndTpcEvtMixTask::~PndTpcEvtMixTask()
     finFile->Close();
     delete finFile;
   }
+
+  // clean up
+  unsigned int nbkg=fDigiVectors->size();
+  for(unsigned int ib=0;ib<nbkg;++ib){
+    // loop over digis
+    vector<PndTpcDigi>* list=(*fDigiVectors)[ib];
+    list->clear();
+    delete list;
+  }
+  fDigiVectors->clear();
+  delete fDigiVectors;
+  fEvtTimes.clear();
 }
 
 
@@ -220,6 +232,7 @@ PndTpcEvtMixTask::Init()
    // drop input file
    finFile->Close();
    delete finFile;
+   finFile=NULL;
 
   fpadPlane= fpar->getPadPlane();
   
@@ -251,6 +264,8 @@ PndTpcEvtMixTask::Init()
   double sf= fpar->getFrontend()->samplingFrequency();
   double t0= fpar->getFrontend()->t0();
   double gain=fpar->getGain();
+
+  fMaxDriftTime=150./fgas->VDrift(); 
 
   std::cout << "T0 " << t0 << "sF " << sf << std::endl;
 
@@ -354,6 +369,9 @@ PndTpcEvtMixTask::Exec(Option_t* opt)
 	}
 	// TODO: modify time of point according to event time
 	mydigi.t(mydigi.t()+teventClock);
+	// throw away digis that will not ly inside the physics event window
+	double realtime=PndTpcDigiMapper::getInstance()->t_from_tick(mydigi.t());
+	if(realtime < 0 || realtime > fMaxDriftTime) continue;
 	mydigi.shiftEventIds(selectEvt+1);
 	// Add background to point-array of this event
 	new((*fOutArray)[iout++]) PndTpcDigi(mydigi);
