@@ -1,5 +1,9 @@
 void 
-runEvtMixDigi(){
+runEvtMixDigi( TString inFile, 
+	       TString jobname,
+	       Int_t startEvent, // event number where we start processing
+	       Int_t nEvents,
+	       TString bkgFile, Int_t nBkgEvts=1000){
    // ----  Load libraries   -------------------------------------------------
    // ------------------------------------------------------------------------
 
@@ -13,28 +17,37 @@ runEvtMixDigi(){
 
   //  TString inFile="/afs/e18/panda/DATA/fboehmer/dipl_data/SpaceCharge/07_01_2009/new_PndTpcDetector/GEANT3_ALICE_L5_1MeV_cuts_withPIPE_MVD/sigSlice1/2Gev_G3_ALICE_L5_1MeV_cuts_with_PIPE_MVD_10k_evts.sig.root";
 
-  TString inFile = "TEST/physics.DD.raw.root";
-  TString jobname="evtmix1000DD";
-  TString bkgFile = "TEST/DPM.DD.raw.root";
-  unsigned int nBkgEvts=1000;
-  double EvtRate=1.E7;
-  // Number of events to process
-  Int_t nEvents = 1;
+  //TString inFile = "TEST/physics.16s.raw.root";
+  //TString inFile = "TEST/physics.skim.DD.raw.root";
+  //TString jobname="SkimEvtmix1000DD";
+  //TString bkgFile = "TEST/DPM5k.DD.16s.raw.root";
+  //TString bkgFile = "TEST/DPM.DD.raw.root";
+  //unsigned int nBkgEvts=1000;
+  TString parfile="/nfs/nas/data/panda/tpc/SIM/evtmix/all.par";
+  double EvtRate=1.E4*nBkgEvts; // simulate 100mus = 1.E4s^-1
 
   TString inDir=inFile(0,inFile.Last('/')+1);
 
   TString jobDir=inDir; jobDir+=jobname; jobDir+="/";
   TString cmd="mkdir ";
   cmd+=jobDir; 
-  if(gSystem->Exec(cmd)){
-    std::cout<<"Could not create Job-Directory "<<jobDir
-	     <<". Aborting."<<std::endl;
-    return;
-  }
+  gSystem->Exec(cmd);
+  // if(gSystem->Exec(cmd)){
+  //   std::cout<<"Could not create Job-Directory "<<jobDir
+  // 	     <<". Aborting."<<std::endl;
+  //   return;
+  // }
   
   TString outFile = inFile; 
   outFile.ReplaceAll(inDir,jobDir);
-  outFile.ReplaceAll(".raw.root",".mixed.root");
+  TString batchID(".");batchID+=startEvent;batchID+=".mixed.root";
+  outFile.ReplaceAll(".raw.root",batchID);
+  TString search=outFile;
+  if(gSystem->FindFile(jobDir.Data(), search)!=NULL){
+     std::cout<<"OutFile "<<outFile
+ 	     <<" already existing. Aborting."<<std::endl;
+     return;
+  } 
 
   TString paramIn = inFile;
   paramIn.ReplaceAll(".raw.root",".param.root");
@@ -74,8 +87,7 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
   //FairParRootFileIo* parInput1 = new FairParRootFileIo();
   //parInput1->open(paramIn.Data());
   FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
-  TString tpcDigiFile = gSystem->Getenv("VMCWORKDIR");
-  tpcDigiFile += "/tpc/tpc.par";
+  TString tpcDigiFile = parfile;
   parInput2->open(tpcDigiFile.Data(),"in");
 
   rtdb->setFirstInput(parInput2);
@@ -128,15 +140,17 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
 
   
 PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
-  tpcCF->SetMode(2); // individual timeslice
+ tpcCF->SetDigiBranchName("PndTpcDigiMixed");
+ //tpcCF->SetMode(2); // individual timeslice
   tpcCF->SetPersistence();
   //tpcCF->SetDigiPersistence();
-  tpcCF->SetClusterAmpCut(5);
-  tpcCF->timeslice(10); //  sample times 
+  tpcCF->SetClusterAmpCut(0);
+  tpcCF->timeslice(9); //  sample times 
   tpcCF->SetSimpleClustering();
-  tpcCF->SetClusterTimeCut(15);
-  tpcCF->SetErrorPars(600,300);
-  tpcCF->SetSingleDigiClusterAmpCut(10);
+  //tpcCF->SetClusterTimeCut(15);
+  tpcCF->SetErrorPars(600,400);
+
+  //tpcCF->SetSingleDigiClusterAmpCut(10);
   fRun->AddTask(tpcCF);
 
 
@@ -146,7 +160,7 @@ PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
 
   rtdb->print();
 
-  fRun->Run(0,nEvents);
+  fRun->Run(startEvent,startEvent+nEvents);
   // ------------------------------------------------------------------------
 
 
