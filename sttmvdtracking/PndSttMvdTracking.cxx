@@ -500,11 +500,11 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 
   IVOLTE++;
 
-if(istampa>=1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<endl;}
+if(istampa>1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<endl;}
 
 //----------   fetching the MC truth tracks
 	nMCTracks = fMCTrackArray->GetEntriesFast(); // num. tracce/evento
-	if (istampa >= 1  && IVOLTE<20) {
+	if (istampa > 1  && IVOLTE<20) {
 	     cout<<"da PndSttMvdTracking  : evento (partendo da 0)  N. "<<
 	       IVOLTE<< "\n       N. di MC truth tracks  : "<<nMCTracks<<endl;
 	}
@@ -553,7 +553,7 @@ if(istampa>=1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<endl;}
 	nSttHit= nmaxSttHits;
  }
 
- if (istampa >= 1  && IVOLTE<20) {
+ if (istampa > 1  && IVOLTE<20) {
      cout<<"da PndSttMvdTracking  : evento (partendo da 0)  N. "<<
        IVOLTE<< "\n\tN. totale Hits in STT  : "<<nSttHit<<endl;
  }
@@ -2741,7 +2741,7 @@ for(int ip=0;ip<nHitsSkew;ip++){
   if(YesClean){
      for(ncand=nSttTrackCand; ncand< nTotalCandidates; ncand++){
 
-if(istampa>0){ cout<<"PndSttMvdTracking, entra in TrackCleanup tracce Mvd, IVOLTE "<<IVOLTE
+if(istampa>1){ cout<<"PndSttMvdTracking, entra in TrackCleanup tracce Mvd, IVOLTE "<<IVOLTE
 	<<" e track cand. "<<ncand<<endl<<"\tN. || stt = "
 	<<nSttParHitsinTrack[ncand]<<", n Skew "<<nSttSkewHitsinTrack[ncand]
 	<<endl;
@@ -2773,7 +2773,7 @@ if(istampa>0){ cout<<"PndSttMvdTracking, entra in TrackCleanup tracce Mvd, IVOLT
 	}  // end of if ( !TrackCleanup
 
      } // end of   for(ncand=nSttTrackCand; ncand< nTotalCandidates; ncand++)
-if(istampa>0){ cout<<"\tPndSttMvdTracking, uscito da TrackCleanup tracce Mvd, keepit = ";
+if(istampa>1){ cout<<"\tPndSttMvdTracking, uscito da TrackCleanup tracce Mvd, keepit = ";
 	if(keepit[ncand]) cout<<" true!\n"; else  cout<<" false!\n";
 }
 
@@ -3313,7 +3313,7 @@ if(istampa>=2)cout<<"da PndSttMvdTracking, MC comparison; evt. "<<IVOLTE<<", nMC
 
 
 //  if(istampa>=1 )  fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE, nMCTracks);
-  if(istampa>=1 ) {
+  if(istampa>1 ) {
 
    fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE,
   	nMCTracksaccettabili);
@@ -3443,7 +3443,7 @@ for (ii=0; ii<nTotalCandidates  ;ii++){
 
 //--------------ghosts
 
-if( istampa>=1){
+if( istampa>1){
     int NParghost=0, NParhitsghost=0,icc;
     for(icc=0; icc<nSttTrackCand;icc++){
 	if(!keepit[icc]) continue;
@@ -3892,7 +3892,7 @@ if(istampa>=2&&IVOLTE<20){
 	   }
 
 
-if(istampa>0) cout<<"PndSttMvdTracking, prima di WriteMacro, n. vero della trackcand "
+if(istampa>1) cout<<"PndSttMvdTracking, prima di WriteMacro, n. vero della trackcand "
 	<<i<<", n. sequenziale per le macro = "<<k<<endl;
 		WriteMacroSttParallelAssociatedHitsandMvdwithMC(
                    Ox[i], Oy[i], R[i],
@@ -12402,7 +12402,7 @@ FiLimitAdmissible<<", X limit "<<Oxx+Rr*cos(FiLimitAdmissible)<<
 }
 //-------------------- fine stampe
 
-if(istampa>0) cout<<"\tentra in SttParalCleanup\n";
+if(istampa>1) cout<<"\tentra in SttParalCleanup\n";
 
 //	if(nHitsPar>0 && !SttParalCleanup(
 	if(!SttParalCleanup(
@@ -12422,10 +12422,10 @@ if(istampa>0) cout<<"\tentra in SttParalCleanup\n";
 				ApotemaMinOuterPar,
 				RStrawDetMax
 						) ){
-if(istampa>0) cout<<"\tSttParalCleanup false\n";
+if(istampa>1) cout<<"\tSttParalCleanup false\n";
 						  return false;
 				}
-if(istampa>0) cout<<"\tSttParalCleanup true\n";
+if(istampa>1) cout<<"\tSttParalCleanup true\n";
 
 
 
@@ -12433,7 +12433,7 @@ if(istampa>0) cout<<"\tSttParalCleanup true\n";
 //----------------------------------------------------------------------------
 
 	// skew cleanup.
-if(istampa>0) cout<<"\tentra in SttSkewCleanup\n";
+if(istampa>1) cout<<"\tentra in SttSkewCleanup\n";
 	if ( ! (SttSkewCleanup(
 			GAP,
 			Oxx,
@@ -12453,11 +12453,11 @@ if(istampa>0) cout<<"\tentra in SttSkewCleanup\n";
 			1 // max number of failures allowed.
 			) ) ) {
 
-if(istampa>0) cout<<"\tSttSkewCleanup false\n";
+if(istampa>1) cout<<"\tSttSkewCleanup false\n";
 						  return false;
 				}
 
-if(istampa>0) cout<<"\tSttSkewCleanup truee\n";
+if(istampa>1) cout<<"\tSttSkewCleanup truee\n";
 
 
 	return true;
@@ -13207,14 +13207,14 @@ cout<<"OUTER, caso R&L true, IVOLTE = "<<IVOLTE<<"\n\t Xcross[0] "
 
 	epsilonTheta = STRAWRADIUS/Rr;  // some extra slac for being conservative.
 
-if(istampa>=1&&IVOLTE<20)
+if(istampa>1&&IVOLTE<20)
 cout<<"\n\nevt "<<IVOLTE<<", FI0 "<<FI0<<", Filimit "
 << FiLimitAdmissible+epsilonTheta <<", Ox "<<Oxx<<", Oy "<<Oyy<<", R "<<Rr<<endl;
 
 	for(i=0, ipurged=0; i< nHits; i++){
 	  fi = S[i];
 
-if(istampa>=1&&IVOLTE<20)cout<<"\thit // n. "<<Listofhits[i]<<", fi "<<fi<<endl;
+if(istampa>1&&IVOLTE<20)cout<<"\thit // n. "<<Listofhits[i]<<", fi "<<fi<<endl;
 
 	  if(Charge <0) {
 		if(fi > FI0){
@@ -13229,7 +13229,7 @@ if(istampa>=1&&IVOLTE<20)cout<<"\thit // n. "<<Listofhits[i]<<", fi "<<fi<<endl;
 		}  // end of  if( fi > FI0)
 		if (fi < FiLimitAdmissible-epsilonTheta) continue;
 	  } // end of if(Charge <0)
-if(istampa>=1&&IVOLTE<20)cout<<"\t\thit preso!"<<endl;
+if(istampa>1&&IVOLTE<20)cout<<"\t\thit preso!"<<endl;
 
 	  ListHits[ipurged]=Listofhits[i];
 	  S[ipurged]=S[i];
@@ -13602,7 +13602,7 @@ if(istampa>=2&&IVOLTE<20)cout<<"\treject this track because ibad = "<< ibad
 	Xprevious=Xcross[0];
 	Yprevious=Ycross[0];
 
-if(istampa>=1) {cout<<"\tXingresso "<<Xcross[0]<<", Yingresso "<<Ycross[0]
+if(istampa>1) {cout<<"\tXingresso "<<Xcross[0]<<", Yingresso "<<Ycross[0]
 	<<", Xuscita "<<Xcross[1]<<", Yuscita "<<Ycross[1]<<endl;
 	}
 
@@ -13626,7 +13626,7 @@ if(istampa>=1) {cout<<"\tXingresso "<<Xcross[0]<<", Yingresso "<<Ycross[0]
 			(info[ListHits[ihit]][0]-Xprevious)+
 			(info[ListHits[ihit]][1]-Yprevious)*
 			(info[ListHits[ihit]][1]-Yprevious);
-if(istampa>=1) {cout<<"hit || n. "<<ListHits[ihit]<<", X "<<info[ListHits[ihit]][0]
+if(istampa>1) {cout<<"hit || n. "<<ListHits[ihit]<<", X "<<info[ListHits[ihit]][0]
 <<", Y "<<info[ListHits[ihit]][1]<<"\n\tX prima "<<Xprevious
 <<", Y prima "<<Yprevious<<", Distanza "<<sqrt(Distance[ihit])<<", cut = "
 <<cut<<endl;
@@ -13659,7 +13659,7 @@ if(istampa>=1) {cout<<"hit || n. "<<ListHits[ihit]<<", X "<<info[ListHits[ihit]]
 	   (info[ListHits[nHits-1]][0]-Xcross[1])*(info[ListHits[nHits-1]][0]-Xcross[1])+
 	   (info[ListHits[nHits-1]][1]-Ycross[1])*(info[ListHits[nHits-1]][1]-Ycross[1])
 						;
-if(istampa>=1)cout<<"from BadTrack_ParStt, Stt || hit n. (original notation) "<<
+if(istampa>1)cout<<"from BadTrack_ParStt, Stt || hit n. (original notation) "<<
 	ListHits[nHits-1]<<", Distance to boundary = "<<sqrt(Distance[nHits])
 	<<", 4*cut "<<4.*cut<<endl;
 	   if( Distance[nHits]>cut2 ){
@@ -13671,7 +13671,7 @@ if(istampa>=1)cout<<"from BadTrack_ParStt, Stt || hit n. (original notation) "<<
 	}	// end of if( IsInsideArc
 
 
-if(istampa>=1)cout<<"from BadTrack_ParStt, ibad "<<ibad<<", max bad allowed = "<< maxnum<<endl;
+if(istampa>1)cout<<"from BadTrack_ParStt, ibad "<<ibad<<", max bad allowed = "<< maxnum<<endl;
 
 	if( ibad > maxnum) return true;
 //	if(ninarc==0) return true;
