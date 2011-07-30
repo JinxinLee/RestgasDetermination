@@ -42,10 +42,17 @@ double PndTpcDigiMapper::z_from_tick(double t,double vdr){
   }
   return (t*ftbin+ft0)*v+fzGem;
 }
+double  PndTpcDigiMapper::t_from_tick(double samples) const {
+  return (samples*ftbin+ft0);
+}
+
 
 double PndTpcDigiMapper::t_to_ticks(double t) const {
   return t/ftbin;
 }
+
+ 
+
 
 void PndTpcDigiMapper::map(const PndTpcDigi* const fdig, TVector3& fvec) {
   double x,y,z;
