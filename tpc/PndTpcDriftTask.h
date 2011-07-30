@@ -51,7 +51,7 @@ public:
   // Modifiers -----------------------
   void SetPrimBranchName(const TString& name) {fprimBranchName=name;}
   void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
-  void SetDistort(Bool_t opt=kTRUE) {fdistort=opt;}
+  void SetDistort(Bool_t opt=kTRUE, double scale=1) {fdistort=opt;fscale=scale;}
   void SetDeviationFile(const char* file) {fdevFile = file;}
   void SetPhiCut(double phimin, double phimax){fphicut=true;fphimin=phimin;fphimax=phimax;}
   void SetQAPlotCol(QAPlotCollection* col){fqa=col;}
@@ -94,6 +94,7 @@ private:
   Bool_t fdiffuseL;
   Bool_t fdiffuseT;
   Bool_t fdistort;
+  Double_t fscale; /// scaling factor for the distortions
 
   Bool_t finitialized;
 

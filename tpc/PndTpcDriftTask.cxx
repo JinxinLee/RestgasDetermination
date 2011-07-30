@@ -52,7 +52,7 @@ using std::sqrt;
 PndTpcDriftTask::PndTpcDriftTask()
   : FairTask("TPC Drift"), fpersistence(kFALSE), 
     fattach(kTRUE), fdiffuseL(kTRUE), fdiffuseT(kTRUE), fdistort(kFALSE), 
-    fphicut(kFALSE), finitialized(kFALSE),
+    fscale(1), fphicut(kFALSE), finitialized(kFALSE),
     fqa(NULL)
 {
   fprimBranchName = "PndTpcPrimaryCluster";
@@ -118,6 +118,7 @@ PndTpcDriftTask::Init()
 //Instantiate deviation map
   if(fdistort){
     fdevmap = new PndTpcDevmapCyl(fdevFile,fgas->VDrift());
+    fdevmap->setScale(fscale);
     if(!fdevmap->loaded()) {
       Fatal("PndTpcDriftTask::Init","Deviation Map not loaded! Aborting...");
       return kERROR;
