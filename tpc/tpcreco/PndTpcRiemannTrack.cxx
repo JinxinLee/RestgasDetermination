@@ -702,8 +702,8 @@ PndTpcRiemannTrack::getPosDirOnHelix(unsigned int i, TVector3& pos, TVector3& di
   // direction
   TVector3 z(0.,0.,-1.);
   dir = z.Cross(pos-_center);
-  dir *= winding();
-  dir.SetTheta(_dip);
+  if (winding()>0) dir *= -1;
+  dir.SetTheta(TMath::Pi()-_dip);
 
   dir.SetMag(1.);
 }

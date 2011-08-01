@@ -77,6 +77,7 @@ using namespace std;
 // Class Member definitions -----------
 
 #define MINHITS 10
+#define PDGDEFAULT 211
 
 ClassImp(PndTpcRiemannTrackingTask)
 
@@ -116,7 +117,7 @@ PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
     _geane(false),
 
     _mcPid(false),
-    _pdg(211),
+    _pdg(PDGDEFAULT),
     counter(0),
     Bz(0)
   {
@@ -644,29 +645,50 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       continue;
     }
 
-    bool invertedTrack = false;
+
+    unsigned int trackId(trk->mcid().DominantID().mctrackID());
 
     // check pdg
-    double pdgCharge = TDatabasePDG::Instance()->GetParticle(_pdg)->Charge();
-    int winding = trk->winding(); // we look in z direction!
-    int pdg = winding * _pdg;
-    if (pdgCharge < 0 || Bz<0) {
+    int pdg(_pdg);
+    if(_mcPid) pdg=((PndMCTrack*)(_mcTrackArray->At(trackId)))->GetPdgCode();
+
+    double pdgCharge(TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.);
+
+    int winding(trk->winding()); // we look in z direction!
+
+
+    if (pdgCharge < 0) {
+      pdg *= -1;
+      pdgCharge *= -1.;
+    }
+    if (winding > 0) {
+      pdg *= -1;
+      pdgCharge *= -1.;
+    }
+    if (Bz < 0) {
+      pdg *= -1;
+      pdgCharge *= -1.;
+    }
+
+
+    // check sorting
+    bool invertTrack(true);
+
+    TVector3 ps1=trk->getFirstHit()->cluster()->pos();
+    TVector3 ps2=trk->getLastHit()->cluster()->pos();
+
+    if(ps1.Z() < ps2.Z()-7) invertTrack = false;
+    else if(ps1.Z() > ps2.Z()+7) invertTrack = true;
+    else if (ps1.Perp()>ps2.Perp()+5) invertTrack = true;
+    else if (ps1.Perp()<ps2.Perp()) invertTrack = false;
+    else invertTrack = true;
+
+    if (invertTrack){
+      winding*=-1;
       pdg *= -1;
       pdgCharge *= -1;
     }
 
-    if(_mcPid){ // monte carlo PID
-      unsigned int trackId = trk->mcid().DominantID().mctrackID();
-      int MCpdg = ((PndMCTrack*)(_mcTrackArray->At(trackId)))->GetPdgCode();
-
-      double MCpdgCharge = TDatabasePDG::Instance()->GetParticle(MCpdg)->Charge();
-
-      if (pdgCharge*MCpdgCharge > -0.01) invertedTrack = false;
-      else invertedTrack = true;
-
-      pdg = MCpdg;
-
-    }
 
     TParticlePDG * part = TDatabasePDG::Instance()->GetParticle(pdg);
     if(part == 0){
@@ -685,47 +707,27 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     }
 
 
-    // store pndtracks and pndcands in output array
-    PndTrackCand* pndcand=new((*_trackCandArray)[_trackCandArray->GetEntriesFast()]) PndTrackCand();
-    PndTrack* pndtrack=new((*_pndTrackArray)[_pndTrackArray->GetEntriesFast()]) PndTrack();
-    pndtrack->SetTrackCand(*pndcand);
-
     // create GFTrackCands
     GFTrackCand* cand=new GFTrackCand();
 
-    // fill hits into GFTrackCands and pndcands from small to big Radius
-    if(!_mcPid){
-      double r1=trk->getFirstHit()->cluster()->pos().Perp();
-      double r2=trk->getLastHit()->cluster()->pos().Perp();
-      if(r1<=r2) invertedTrack = false;
-      else invertedTrack = true;
-    }
+    // fill hits into GFTrackCands and pndcands  and get seed values
+    TVector3 pos1, direction;
 
-    if(!invertedTrack){
+    if(!invertTrack){
       for(unsigned int ih=0; ih<nhits; ++ih){
         cand->addHit(FairRootManager::Instance()->GetBranchId("PndTpcCluster"),trk->getHit(ih)->cluster()->index());
-        //pndcand->AddHit(FairRootManager::Instance()->GetBranchId("PndTpcCluster"),trk->getHit(ih)->cluster()->index(),trk->getHit(ih)->cluster()->pos().Mag()); // todo: fix issues
       }
+      trk->getPosDirOnHelix(0, pos1, direction);
     }
-    else {
+    else { // invert track
       for(unsigned int ih=nhits; ih>0; --ih){
         cand->addHit(FairRootManager::Instance()->GetBranchId("PndTpcCluster"),trk->getHit(ih-1)->cluster()->index());
-        //pndcand->AddHit(FairRootManager::Instance()->GetBranchId("PndTpcCluster"),trk->getHit(ih-1)->cluster()->index(),trk->getHit(ih-1)->cluster()->pos().Mag());// todo: fix issues
       }
+      trk->getPosDirOnHelix(trk->getNumHits()-1, pos1, direction);
+      direction *= -1.;
     }// finished filling hits
 
 
-    // get seed values
-
-    TVector3 pos1, direction;
-
-    // the start direction has to point opposite to the actual direction, I don't know why, but otherwise the charge is wrong
-    if(invertedTrack) trk->getPosDirOnHelix(trk->getNumHits()-1, pos1, direction);
-    else {
-      trk->getPosDirOnHelix(0, pos1, direction);
-      direction *= -1.;
-      winding*=-1.;
-    }
 
     TVector3 poserr(1,1,1);
     poserr*=trk->resolution();
@@ -747,20 +749,19 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       std::cout<<"\n  p_perp [GeV]:   " << trackR*0.0003*TMath::Abs(Bz);
       std::cout<<"\n  direction: "; direction.Print();
       std::cout<<"  winding: "<<winding;
-      std::cout<<"\n  invertedTrack: "<<invertedTrack;
+      std::cout<<"\n  invertTrack: "<<invertTrack;
       std::cout<<"\n  pdg id: "<<pdg<<std::endl;
     }
 
     // set seed values to cands
-    pndcand->setTrackSeed(pos1,direction,1./p);
-
-    cand->setCurv(1./trackR); //  actually this is never used
+    cand->setCurv(1./trackR);
     cand->setDip(trk->dip());
-
-    //RK TRACKREP
-    RKTrackRep* rkrep = new RKTrackRep(pos1, mom, poserr, momerr,pdg);
+    cand->setComplTrackSeed(pos1, mom, pdg, poserr, momerr*(1./p));
+    cand->setMcTrackId(trackId);
 
     candlist.push_back(cand);
+
+
 
     // check Monte Carlo Truth
     McIdCollection mcid;
@@ -776,6 +777,10 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     _trackSizeH->Fill(cand->getNHits());
 
 
+
+    //RK TRACKREP
+    RKTrackRep* rkrep = new RKTrackRep(pos1, mom, poserr, momerr, pdg);
+
     // store GFTracks in output array
     GFTrack* gftrk=new((*_trackArray)[_trackArray->GetEntriesFast()]) GFTrack(rkrep);
     gftrk->setCandidate(*cand); // here the candidate is copied!
@@ -788,11 +793,8 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       v.SetMag(1.);
       GFDetPlane pl(pos1,u,v);
 
-      // charge (for geane)
-      int q = int(part->Charge()/(3.));
-
-      GeaneTrackRep* grep = new GeaneTrackRep(gPro,pl,mom,poserr,momerr,q,pdg);
-      // add rep and set as cardinal rep
+      GeaneTrackRep* grep = new GeaneTrackRep(gPro,pl,mom,poserr,momerr,pdgCharge,pdg);
+      // add rep //and set as cardinal rep
       gftrk->addTrackRep(grep);
       //gftrk->setCardinalRep(gftrk->getNumReps()-1);
     }
