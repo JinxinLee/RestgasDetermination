@@ -75,6 +75,10 @@ PndSttMvdGemTracking::PndSttMvdGemTracking() :
   fSttBranchName = "STTHit";
   fGemBranchName = "GEMHit";
 
+  fStartTrackBranchName = "SttMvdTrack";
+  fStartTrackCandBranchName = "SttMvdTrackCand";
+  fStartTrackIDBranchName = "SttMvdTrackID";
+
 }
 // -------------------------------------------------------------------------
 
@@ -97,6 +101,10 @@ PndSttMvdGemTracking::PndSttMvdGemTracking(Int_t verbose) :
   fMvdStripBranchName = "MVDHitsStrip";
   fSttBranchName = "STTHit";
   fGemBranchName = "GEMHit";
+
+  fStartTrackBranchName = "SttMvdTrack";
+  fStartTrackCandBranchName = "SttMvdTrackCand";
+  fStartTrackIDBranchName = "SttMvdTrackID";
 
 }
 // -------------------------------------------------------------------------
@@ -136,6 +144,8 @@ InitStatus PndSttMvdGemTracking::Init() {
        << fSttBranchName << " " 
        << fGemBranchName << endl;
   cout << "-I- to change one or more of these use PndSttMvdGemTracking:SetBranchName( TStrings ); the order of TStrings is mvd pixel name, mvd strip name, stt name, gem name" << endl;
+  cout << "starting track for extrapolation " << fStartTrackBranchName << " " << fStartTrackCandBranchName << endl;
+  if(fPdgFromMC) cout << "starting trackid for extrapolation " << fStartTrackIDBranchName << endl;
   cout << "-I- -------------------" << endl;
 
   
@@ -147,14 +157,14 @@ InitStatus PndSttMvdGemTracking::Init() {
     }
   
   // open SttMvdTrackCand array
-  fTrackCandArray=(TClonesArray*) ioman->GetObject("SttMvdTrackCand");
+  fTrackCandArray=(TClonesArray*) ioman->GetObject(fStartTrackCandBranchName);
   if(fTrackCandArray==0){
     Error("PndSttMvdGemTracking:Init","stt + mvd trackcand - array not found!");
     return kERROR;
   }
   
   // open SttMvdTrack array 
-  fTrackArray = (TClonesArray*) ioman->GetObject("SttMvdTrack"); 
+  fTrackArray = (TClonesArray*) ioman->GetObject(fStartTrackBranchName); 
   if(!fTrackArray) {
     Error("PndSttMvdGemTracking:Init","stt + mvd track - array not found!");
     return kERROR;
@@ -162,7 +172,7 @@ InitStatus PndSttMvdGemTracking::Init() {
   
   // open SttMvdTrack array 
   if(fPdgFromMC) {
-    fTrackIDArray = (TClonesArray*) ioman->GetObject("SttMvdTrackID"); 
+    fTrackIDArray = (TClonesArray*) ioman->GetObject(fStartTrackIDBranchName); 
     if(!fTrackIDArray) {
       Error("PndSttMvdGemTracking:Init","stt + mvd trackID - array not found!");
       return kERROR;
@@ -3490,7 +3500,12 @@ void PndSttMvdGemTracking::SetBranchNames(TString mvdpixel, TString mvdstrip, TS
   fGemBranchName = gem;
 }
 
+void PndSttMvdGemTracking::SetTrackBranchNames(TString starttrack, TString starttrackcand)
+{
+  fStartTrackBranchName = starttrack;
+  fStartTrackCandBranchName = starttrackcand;
 
+}
 
 
 ClassImp(PndSttMvdGemTracking)

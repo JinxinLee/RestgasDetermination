@@ -120,9 +120,14 @@ class PndSttMvdGemTracking : public FairTask {
   Int_t GetPdgFromMC(int trackid);
   Int_t GetChargeCorrectedPdgFromMC(int trackid, int charge);
   void SetPdgFromMC() { fPdgFromMC = kTRUE; }
+  void SetPdgFromMC(TString trackid) { 
+    fStartTrackIDBranchName = trackid;
+    fPdgFromMC = kTRUE; 
+  }
   void SetDefaultPdg(int pdg) { fDefaultPdgCode = pdg; }
 
   void SetBranchNames(TString mvdpixel, TString mvdstrip, TString stt, TString gem);
+  void SetTrackBranchNames(TString startingtrack, TString startingtrackcand);
 
  private: 
 
@@ -236,6 +241,7 @@ class PndSttMvdGemTracking : public FairTask {
   Bool_t fUseMC;
 
   TString fMvdPixelBranchName, fMvdStripBranchName, fSttBranchName, fGemBranchName;
+  TString fStartTrackBranchName, fStartTrackCandBranchName, fStartTrackIDBranchName;
 
 
   /** combimap: hitID <-> 1/0 whether it is combinatorial or not **/
