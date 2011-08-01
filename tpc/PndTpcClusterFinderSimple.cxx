@@ -390,10 +390,13 @@ PndTpcClusterFinderSimple::processSector(std::vector<PndTpcDigi*>& digis, int se
     for(unsigned int i=0;i<prelimClusters.size();++i){
       digi0 = prelimClusters[i]->getDigi(0);
       double t = digi0->t();
-      if (t>=startTime && t<stopTime &&
-          (sectorID == -1 ||
-           fpadplane->GetPad(digi0->padId())->sectorId() == sectorID)){
-        foutput_buffer->push_back(prelimClusters[i]->convPndTpcCluster(sectorID, zJitter, fsaveRaw));
+      if (t>=startTime && t<stopTime){
+        if (sectorID == -1){ // no sectorization
+          foutput_buffer->push_back(prelimClusters[i]->convPndTpcCluster(0, zJitter, fsaveRaw)); // every cluster has secID 0
+        }
+        else if (fpadplane->GetPad(digi0->padId())->sectorId() == sectorID){
+          foutput_buffer->push_back(prelimClusters[i]->convPndTpcCluster(sectorID, zJitter, fsaveRaw));
+        }
       }
       delete prelimClusters[i];
     }
