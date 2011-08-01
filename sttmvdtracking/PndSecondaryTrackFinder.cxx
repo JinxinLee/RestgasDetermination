@@ -261,7 +261,8 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   fSecondaryTrackCandArray->Delete();
   fSecondaryTrackArray->Delete();
 
-  cout << "++++++++++++++++++++++++++++++++++++" << endl;
+  //  if(fVerbose) 
+cout << "++++++++++++++++++++++++++++++++++++" << endl;
   //  fDisplayOn = kFALSE;
   // MC Tracks ------------ CHECK MC INFO
   std::vector<int> mctracks;
@@ -275,14 +276,18 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     Int_t tubeID = pnt->GetTubeID();
     PndSttTube *tube = (PndSttTube* ) fTubeArray->At(tubeID);
     TVector3 wireDirection = tube->GetWireDirection();
-    if( wireDirection == TVector3(0., 0., 1.)) cout << "MCPOINT " << ipnt << " belongs to track " << trackid  << " not skewed " << endl;
-    else cout << "MCPOINT " << ipnt << " belongs to track " << trackid << "     skewed " << endl;
+    if(fVerbose) {
+      if( wireDirection == TVector3(0., 0., 1.)) cout << "MCPOINT " << ipnt << " belongs to track " << trackid  << " not skewed " << endl;
+      else cout << "MCPOINT " << ipnt << " belongs to track " << trackid << "     skewed " << endl;
+    }
   }
-  for(int imc = 0; imc < mctracks.size(); imc++) {
-    int mctrackid = mctracks[imc];
-    PndMCTrack *mctrk = (PndMCTrack*) fMCTrackArray->At(mctrackid);
-    cout << "MC TRACK No. " << mctrackid << endl;
-    mctrk->GetMomentum().Print();
+  if(fVerbose) {
+    for(int imc = 0; imc < mctracks.size(); imc++) {
+      int mctrackid = mctracks[imc];
+      PndMCTrack *mctrk = (PndMCTrack*) fMCTrackArray->At(mctrackid);
+      cout << "MC TRACK No. " << mctrackid << endl;
+      mctrk->GetMomentum().Print();
+    }
   }
   // -------------------------------------
 
@@ -337,7 +342,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     DrawMCTracks();
   }
 
-  cout << "STT/MVD HITS " << stthits.size() << " "  << sttskewedhits.size() << " " 
+  if(fVerbose) cout << "STT/MVD HITS " << stthits.size() << " "  << sttskewedhits.size() << " " 
        << mvdpixhits.size() << " " << mvdstriphits.size() << endl;
 
 
@@ -365,8 +370,10 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   //
   std::vector<std::vector< TMatrixT<double> > > tracklist;
   tracklist = ClusterFinder3b(stthits,  FairRootManager::Instance()->GetBranchId(fSttBranch));
-  cout << "after cluster finding" << endl;
-  PrintClustersBIS(tracklist);
+  if(fVerbose) {
+    cout << "after cluster finding" << endl;
+    PrintClustersBIS(tracklist);
+  }
   if(fDisplayOn) {
     DrawClustersBIS(tracklist);
     DrawMultipleAssignedHits(tracklist);
@@ -383,7 +390,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
  
 
   // ====================================================================
-  cout << "***************** FIRST FIT *****************" << endl;
+  if(fVerbose) cout << "***************** FIRST FIT *****************" << endl;
 
   std::vector< TMatrixT<double> > xyparameters;
   // GO TO CONFORMAL PLANE FOR FITTING ==================================
@@ -396,10 +403,10 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     Double_t xc, yc, radius, chi2; 
     Int_t countelem;
 
-    cout << "==> COMPLETE STT FIT" << endl;
+    if(fVerbose) cout << "==> COMPLETE STT FIT" << endl;
     Bool_t fit = CompleteSttFitBIS(&newtrack, iclus, xc, yc, radius, chi2, countelem); // RESTYLE add
     if(fit == kFALSE) {
-      cout << "GOTTA DELETE THIS fit fails " << iclus << endl;
+      if(fVerbose) cout << "GOTTA DELETE THIS fit fails " << iclus << endl;
       deletecluster.push_back(iclus);
       continue;
     }
@@ -407,11 +414,11 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     
     Double_t newxc, newyc, newradius, newchi2 = 0;
     std::vector< TMatrixT<double> > newtrack2;
-    cout << "FIRST TEST CHI2 " << xc << " " << yc << " " << radius  << endl;
+    if(fVerbose) cout << "FIRST TEST CHI2 " << xc << " " << yc << " " << radius  << endl;
     Bool_t testchi2 = TestChi2BIS(newtrack, xc, yc, radius, iclus, chi2, countelem, newxc, newyc, newradius, &newtrack2, newchi2);
-    cout << "testchi2 = " << testchi2 << endl;
+    if(fVerbose) cout << "testchi2 = " << testchi2 << endl;
     if(testchi2 == kFALSE)  {
-      cout << "GOTTA DELETE THIS chi2 fails " << iclus << endl;
+      if(fVerbose) cout << "GOTTA DELETE THIS chi2 fails " << iclus << endl;
       deletecluster.push_back(iclus);
       continue;
     }
@@ -421,8 +428,10 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       radius = newradius;
       chi2 = newchi2;
       countelem = 0;
-      cout << "................. replacing" << endl;
-      PrintClustersBIS(tracklist);
+       if(fVerbose) {
+	 cout << "................. replacing" << endl;
+	 PrintClustersBIS(tracklist);
+       }
   
 //   cout << "OLD TRACK " << track.size() << " HITS" << endl;
 //   for(int ihit = 0; ihit < track.size(); ihit++) {
@@ -442,8 +451,10 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 //   cout << endl;
   
       std::replace(tracklist.begin(), tracklist.end(), newtrack, newtrack2);
-      cout << "................. done" << endl;
-      PrintClustersBIS(tracklist);
+     if(fVerbose) {
+       cout << "................. done" << endl;
+       PrintClustersBIS(tracklist);
+     }
     }
 
     if(fDisplayOn) { 
@@ -473,7 +484,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   DeleteClusterBIS(&tracklist, deletecluster);
   deletecluster.clear();
 
-  cout << "after replacing and deleting" << endl;
+  if(fVerbose) cout << "after replacing and deleting" << endl;
 
 //   PrintClustersBIS(tracklist);
 //   if(fDisplayOn) DrawClustersBIS(tracklist);
@@ -497,22 +508,24 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     double yc = xypar[0][1];
     double radius = xypar[0][2];
     std::vector< TMatrixT<double> > track = AddPointsBIS(stthits, FairRootManager::Instance()->GetBranchId(fSttBranch), xc, yc, radius, itrk);
-    cout << "TRACK ADDED POINTS " << track.size() << " " << endl;
-    for(int ihit = 0; ihit < track.size(); ihit++) cout << " " << (track.at(ihit))[0][1];
-    cout << endl;
-
+    if(fVerbose) {
+      cout << "TRACK ADDED POINTS " << track.size() << " " << endl;
+      for(int ihit = 0; ihit < track.size(); ihit++) cout << " " << (track.at(ihit))[0][1];
+      cout << endl;
+    }
     
     Int_t tracktype = TrackType(xypar);
     Int_t refihit = -1;
     if(tracktype == 2) {
       refihit = FindRefPoint(track, xypar) ;
+
     }
     else refihit = 0;
-    cout << "FIRST REF HIT " << refihit << endl;
+    if(fVerbose) cout << "FIRST REF HIT " << refihit << endl;
     std::vector< TMatrixT<double> > sorthits =  OrderByDistanceFromRefPointWithoutCharge(refihit, track, xypar);
     std::vector< TMatrixT<double> > revsorthits = ReverseOrdering(sorthits); // -> from inside
  
-    cout << "sorthits POINTS " << revsorthits.size() << " " << endl;
+    if(fVerbose) cout << "sorthits POINTS " << revsorthits.size() << " " << endl;
     tracklist.push_back(revsorthits);
   }
 
@@ -529,7 +542,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     std::vector< TMatrixT<double> > track1, track2;
     TMatrixT<double> param1(1, 6), param2(1, 6);
     
-    cout << "before break" << endl;
+    if(fVerbose) cout << "before break" << endl;
     Bool_t breaking = BreakTooLongTracks(track, xypar, track1, param1, track2, param2) ;
     if(breaking == kFALSE) continue;    //    cout << " after break" << endl;
 
@@ -544,7 +557,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     newxyparameters.erase(it2);
     newxyparameters.push_back(param1);
     newxyparameters.push_back(param2);
-    cout << " after break" << endl;
+    if(fVerbose) cout << " after break" << endl;
   }
 
   tracklist = newtracklist;
@@ -552,8 +565,10 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 
 
 
-  cout << "after adding the points" << endl;
-//   PrintClustersBIS(tracklist);
+  if(fVerbose) {
+    cout << "after adding the points" << endl;
+    PrintClustersBIS(tracklist);
+  }
 //   if(fDisplayOn) DrawClustersBIS(tracklist);
  
   if(fDisplayOn) { 
@@ -564,7 +579,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     cout << "GOING ON" << endl;
   }
   // FIT THE NEW CLUSTERS AGAIN ===========================================
-  cout << " NEW FIT " << endl;
+  if(fVerbose) cout << " NEW FIT " << endl;
   if(fDisplayOn) Refresh();
   xyparameters.clear();
   // refit tracks
@@ -598,11 +613,11 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     double chi2 = CalculateRedChi2BIS(track, xc, yc, radius, countelem);
     Double_t newxc, newyc, newradius, newchi2 = 0;
     std::vector< TMatrixT<double> > newtrack2;
-    cout << "SECOND TEST CHI2" << endl;
+    if(fVerbose) cout << "SECOND TEST CHI2" << endl;
     Bool_t testchi2 = TestChi2BIS(track, xc, yc, radius, iclus, chi2, countelem, newxc, newyc, newradius, &newtrack2, newchi2);
-    cout << "testchi2 = " << testchi2 << endl;
+    if(fVerbose) cout << "testchi2 = " << testchi2 << endl;
     if(testchi2 == kFALSE)  {
-      cout << "GOTTA DELETE THIS chi2 fails " << iclus << endl;
+      if(fVerbose) cout << "GOTTA DELETE THIS chi2 fails " << iclus << endl;
       deletecluster.push_back(iclus);
       continue;
     }
@@ -611,11 +626,15 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       yc = newyc;
       radius = newradius;
       chi2 = newchi2;
-      cout << "................. replacing" << endl;
-      PrintClustersBIS(tracklist);
+      if(fVerbose) {
+	cout << "................. replacing" << endl;
+	PrintClustersBIS(tracklist);
+      }
       std::replace(tracklist.begin(), tracklist.end(), track, newtrack2);
-      cout << "................. done" << endl;
-      PrintClustersBIS(tracklist);
+      if(fVerbose) {
+	cout << "................. done" << endl;
+	PrintClustersBIS(tracklist);
+      }
     }
     // ------------------------------------------------
 
@@ -644,8 +663,10 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   std::vector< std::vector<int> > combinations;
   newlist = MergeClustersBIS(tracklist, &combinations);
   if(fDisplayOn) Refresh();
-  cout << "after merging" << endl;
-  //   PrintClustersBIS(newlist);
+  if(fVerbose) {
+    cout << "after merging" << endl;
+    PrintClustersBIS(newlist);
+  }
   //   if(fDisplayOn)  DrawClustersBIS(newlist);
   
   if(fDisplayOn) { 
@@ -677,7 +698,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     // chi2
     int countelem = 0;
     double redchi2 = CalculateRedChi2BIS(newtrack, xc, yc, radius, countelem);
-    cout << "===> RED CHI2 no. 0 = " << redchi2 << " " << countelem << " <===" << endl;
+    if(fVerbose) cout << "===> RED CHI2 no. 0 = " << redchi2 << " " << countelem << " <===" << endl;
     
     Double_t tmpxc = xc;
     Double_t tmpyc = yc;
@@ -692,7 +713,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       Bool_t refit = RefitConformalBIS(&newtrack, tmpxc, tmpyc, tmpradius, outxc[iter], outyc[iter], outradius[iter]);
       // CHECK no if(refit) ??
       red2chi2[iter] = CalculateRedChi2BIS(newtrack,  outxc[iter], outyc[iter], outradius[iter], countelem2[iter]);
-      cout << "===> RED CHI2 no. " << iter + 1 << " = " << red2chi2[iter] << " " << countelem2[iter] << " <===" << endl;
+      if(fVerbose) cout << "===> RED CHI2 no. " << iter + 1 << " = " << red2chi2[iter] << " " << countelem2[iter] << " <===" << endl;
       tmpxc = outxc[iter];
       tmpyc = outyc[iter];
       tmpradius = outradius[iter];
@@ -730,11 +751,11 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     double chi2 = CalculateRedChi2BIS(track, xc, yc, radius, countelem);
     Double_t newxc, newyc, newradius, newchi2 = 0;
     std::vector< TMatrixT<double> > newtrack2;
-    cout << "THIRD TEST CHI2" << endl;
+    if(fVerbose) cout << "THIRD TEST CHI2" << endl;
     Bool_t testchi2 = TestChi2BIS(track, xc, yc, radius, iclus, chi2, countelem, newxc, newyc, newradius, &newtrack2, newchi2);
-    cout << "testchi2 = " << testchi2 << endl;
+    if(fVerbose) cout << "testchi2 = " << testchi2 << endl;
     if(testchi2 == kFALSE)  {
-      cout << "GOTTA RESTORE the components cluster for chi2 fails " << iclus << endl;
+      if(fVerbose) cout << "GOTTA RESTORE the components cluster for chi2 fails " << iclus << endl;
       deletecluster.push_back(iclus);
       continue;
     }
@@ -743,11 +764,15 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       yc = newyc;
       radius = newradius;
       chi2 = newchi2;
-      cout << "................. replacing" << endl;
-      PrintClustersBIS(newlist);
+      if(fVerbose) {
+	cout << "................. replacing" << endl;
+	PrintClustersBIS(newlist);
+      }
       std::replace(newlist.begin(), newlist.end(), track, newtrack2);
-      cout << "................. done" << endl;
-      PrintClustersBIS(newlist);
+      if(fVerbose) {
+	cout << "................. done" << endl;
+	PrintClustersBIS(newlist);
+      }
     }
     // ------------------------------------------------
 
@@ -757,12 +782,12 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     param[0][2] = radius;
     param[0][3] = 0;
 
-    cout << "XC/YC/RADIUS " << xc << " " << yc << " " << radius << endl;
+  if(fVerbose) cout << "XC/YC/RADIUS " << xc << " " << yc << " " << radius << endl;
     xyparameters.push_back(param);
   }
   // DELETE CLUSTER ================================ 
   DeleteClusterBIS(&newlist, deletecluster);
-  cout << "newlist " << newlist.size() << " " << xyparameters.size() << endl;
+  if(fVerbose) cout << "newlist " << newlist.size() << " " << xyparameters.size() << endl;
   //  ForbidCrossingTracks(&newlist, xyparameters);
 
   // restore & fit
@@ -776,7 +801,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       Int_t countelem;
       Bool_t fit = CompleteSttFitBIS(&cluster, newlist.size(), xc, yc, radius, chi2, countelem); // RESTYLE add
       if(fit == kFALSE) {
-	cout << "WILL NOT ADD THIS fit fails " << iclus << endl;
+	if(fVerbose) cout << "WILL NOT ADD THIS fit fails " << iclus << endl;
 	continue;
       }
       else newlist.push_back(cluster);
@@ -786,7 +811,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       param[0][2] = radius;
       param[0][3] = 0;
       
-      cout << "XC/YC/RADIUS " << xc << " " << yc << " " << radius << endl;
+      if(fVerbose) cout << "XC/YC/RADIUS " << xc << " " << yc << " " << radius << endl;
       xyparameters.push_back(param);
     }
   }
@@ -805,7 +830,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     TMatrixT<double> newpar = par;
     newpar[0][3] = (Double_t) FindChargeBIS(xc, yc, track);
     if(newpar[0][3] != 0) std::replace(xyparameters.begin(), xyparameters.end(), par, newpar);
-    cout << "ITRK CHARGE " << itrk << " " << newpar[0][3] << endl;
+    if(fVerbose) cout << "ITRK CHARGE " << itrk << " " << newpar[0][3] << endl;
   }
 
  if(fDisplayOn) { 
@@ -815,14 +840,14 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       Brief(tracklist, xyparameters);
       cin >> goOnChar;
  }
- cout << "TRACK LIST & PARAMETERS 1 - " << tracklist.size() << " " << xyparameters.size() << endl;
+
 
   // ---------------- Z fit -------------
  // fDisplayOn = kTRUE;
   std::vector< std::vector<int> >  skewedclusterlist;
   std::map<int, int> skewedclustopar;
   for(int itrk = 0; itrk < xyparameters.size(); itrk++) {
-    cout << "ITRK " << itrk << endl; 
+    if(fVerbose) cout << "ITRK " << itrk << endl; 
     std::vector< TMatrixT<double> > track = tracklist[itrk];
     std::vector< TMatrixT<double> > newtrack = tracklist[itrk];
     TMatrixT<double> par = xyparameters[itrk];
@@ -832,7 +857,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 
     Mat2x3 limits;
     FindLimits(track, limits);
-    cout << "BIG LIMITS " << limits[0][0] << " " << limits[0][1] << " " << limits[0][2] << " " << limits[1][0] << " " << limits[1][1] << " " << limits[1][2] << endl;
+    if(fVerbose) cout << "BIG LIMITS " << limits[0][0] << " " << limits[0][1] << " " << limits[0][2] << " " << limits[1][0] << " " << limits[1][1] << " " << limits[1][2] << endl;
     
     if(fDisplayOn) { 
       char goOnChar;
@@ -904,8 +929,6 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     //     cout << endl;
   }
 
- cout << "TRACK LIST & PARAMETERS 2 - " << tracklist.size() << " " << xyparameters.size() << endl;
-
   for(int iclus = 0; iclus < tracklist.size(); iclus++) {
 
     if(fDisplayOn) { 
@@ -944,7 +967,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     xyparameters.at(itrk)[0][5] = fitp;
 
   }
- cout << "TRACK LIST & PARAMETERS 3 - " << tracklist.size() << " " << xyparameters.size() << endl;
+
 
    for(int itrk = 0; itrk < xyparameters.size(); itrk++) {
     TMatrixT<double> xypar = xyparameters[itrk];
@@ -958,20 +981,21 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
  
     Int_t tracktype = TrackType(xypar);
     Int_t refihit = -1;
-    if(tracktype == 2) refihit = FindRefPoint(track, xypar) ;
+    if(tracktype == 2) {
+   refihit = FindRefPoint(track, xypar) ;
+ 
+    }
     else refihit = 0;
-    cout << "SECOND REF HIT " << refihit << endl;
 
     // the first ordering was made from iside to outside, then the correct charge was computed
     // here we go from out to inside, then we must reverse the charge and after the ordering
     // take the reversed one
+
     std::vector< TMatrixT<double> > newtrack = OrderInPhiFromRefPointWithReverseCharge(refihit, track, xypar);
     std::vector< TMatrixT<double> > revnewtrack = ReverseOrdering(newtrack);
     // tracklist.push_back(newtrack);
     std::replace(tracklist.begin(), tracklist.end(), track, revnewtrack);
-  }
-
-  cout << "TRACK LIST & PARAMETERS " << tracklist.size() << " " << xyparameters.size() << endl;
+   }
 
   for(int itrk = 0; itrk < xyparameters.size(); itrk++) {
     TMatrixT<double> xypar = xyparameters[itrk];
@@ -982,11 +1006,13 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     double charge = xypar[0][3];
     std::vector< TMatrixT<double> > track = tracklist[itrk];
  
-    cout << " =============== FINAL PARAMETERS " << itrk << endl;
-    xypar.Print();
-    for(int ihit = 0; ihit < track.size(); ihit++) {
-      TMatrixT<double> singlehit = track[ihit];
-      cout << singlehit[0][1] << " " << singlehit[0][2] << endl;
+    if(fVerbose) {
+      cout << " =============== FINAL PARAMETERS " << itrk << endl;
+      xypar.Print();
+      for(int ihit = 0; ihit < track.size(); ihit++) {
+	TMatrixT<double> singlehit = track[ihit];
+	cout << singlehit[0][1] << " " << singlehit[0][2] << endl;
+      }
     }
   }
 
@@ -995,15 +1021,17 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   for(int imc = 0; imc < mctracks.size(); imc++) {
     int mctrackid = mctracks[imc];
     PndMCTrack *mctrk = (PndMCTrack*) fMCTrackArray->At(mctrackid);
-    cout << "MC TRACK No. " << mctrackid << endl;
-    mctrk->GetMomentum().Print();
+   if(fVerbose) {
+     cout << "MC TRACK No. " << mctrackid << endl;
+     mctrk->GetMomentum().Print();
+   }
 
-    double mcfitm = mctrk->GetMomentum().Z() / mctrk->GetMomentum().Perp();
-    double mcfitp = 0;
-    cout << "MC FITM/FITP " << mcfitm << " " << mcfitp << endl;
-    if(fDisplayOn) {
-      TLine *line = new TLine(-45,  -45 * mcfitm + mcfitp, 120, 120* mcfitm + mcfitp);
-      line->SetLineColor(4);
+   double mcfitm = mctrk->GetMomentum().Z() / mctrk->GetMomentum().Perp();
+   double mcfitp = 0;
+   if(fVerbose) cout << "MC FITM/FITP " << mcfitm << " " << mcfitp << endl;
+   if(fDisplayOn) {
+     TLine *line = new TLine(-45,  -45 * mcfitm + mcfitp, 120, 120* mcfitm + mcfitp);
+     line->SetLineColor(4);
       line->SetLineStyle(2);
       line->Draw("SAME");
       display->Update();
@@ -1021,10 +1049,11 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   // ORDERING
   //  fDisplayOn = kTRUE;
   for(int itrk = 0; itrk < tracklist.size(); itrk++) {
-    
-    cout << "ORDERING TIME !!!! "  << itrk << endl;
-    cout << tracklist.size() << endl;
-    cout << xyparameters.size() << endl;
+   if(fVerbose) { 
+     cout << "ORDERING TIME !!!! "  << itrk << endl;
+     cout << tracklist.size() << endl;
+     cout << xyparameters.size() << endl;
+   }
    std::vector< TMatrixT<double> > track = tracklist[itrk];
    TMatrixT<double> par = xyparameters[itrk];
    
@@ -1034,17 +1063,16 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
      Int_t refihit = FindRefPoint(track, par) ;
      std::vector< TMatrixT<double> > sorthits = OrderInPhiFromRefPointWithReverseCharge(refihit, track, par); 
      std::vector< TMatrixT<double> > revsorthits = ReverseOrdering(sorthits); // -> from inside
-     
      std::replace(tracklist.begin(), tracklist.end(), track, revsorthits);
     
-     cout << "ORDERED CLUSTER: ";
+   if(fVerbose) cout << "ORDERED CLUSTER: ";
      for(int ihit = 0; ihit < sorthits.size(); ihit++) {
        TMatrixT<double> singlehit = sorthits[ihit];
-      if(singlehit[0][0] == -1) continue;
-      Int_t hitid = singlehit[0][1];
-      Int_t detid = singlehit[0][2];
-      cout << hitid << " ";
-      if(fDisplayOn) {
+       if(singlehit[0][0] == -1) continue;
+       Int_t hitid = singlehit[0][1];
+       Int_t detid = singlehit[0][2];
+       if(fVerbose) cout << hitid << " ";
+       if(fDisplayOn) {
 	TArc *arc = new TArc(singlehit[0][4], singlehit[0][5], 0.5);
 	arc->SetFillColor(kMagenta);
 	//	arc->SetFillStyle(0);
@@ -1057,7 +1085,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 	cout << "GOING ON" << endl;
       }
      }
-     cout << endl;
+   if(fVerbose) cout << endl;
 						\
 
 
@@ -1076,7 +1104,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 
   for(int itrk = 0; itrk < tracklist.size(); itrk++) {
     
-    cout << "COMPUTE PARAMETERS @ FIRST AND LAST" << endl;
+   if(fVerbose) cout << "COMPUTE PARAMETERS @ FIRST AND LAST" << endl;
     std::vector< TMatrixT<double> > track = tracklist[itrk];
     TMatrixT<double> par = xyparameters[itrk];
     
@@ -1084,13 +1112,14 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     Bool_t first = ComputeFirstParameters(track, par, firstpos, dfirstpos, firstmom);
     TVector3 lastpos, lastmom, dlastpos, dlastmom; // CHECK error
     Bool_t last = ComputeLastParameters(track, par, lastpos, dlastpos, lastmom);
-    cout << "OUTCOME " << first << " " << last << endl;
-    firstpos.Print();
-    firstmom.Print();
-    lastpos.Print();
-    lastmom.Print();
-    cout << "###" << endl;
-
+    if(fVerbose) {
+      cout << "OUTCOME " << first << " " << last << endl;
+      firstpos.Print();
+      firstmom.Print();
+      lastpos.Print();
+      lastmom.Print();
+      cout << "###" << endl;
+    }
     int charge = (int) par[0][3];
     TVector3 dj(1, 0, 0), dk(0, 0, 1);   // CHECK
 
@@ -1542,6 +1571,7 @@ Double_t PndSecondaryTrackFinder::CalculatePhi(TVector2 v0, TVector2 p0)
   TVector3 p(p0.X(), p0.Y(), 0.);
 
   Double_t Fi = TMath::ACos(v.Dot(p) / (v.Mag() * p.Mag()));
+  if(fabs(Fi) < 1.e-6) return Fi;
   //  cout << "Fi " << Fi << endl;
   // direction
   TVector3 dir = v.Cross(p);
@@ -1751,8 +1781,10 @@ std::vector<std::vector< TMatrixT<double> > > PndSecondaryTrackFinder::ClusterFi
 //     }
 //     cout << endl;
 //   }
-  cout << "after first finding" << endl;
-  PrintClustersBIS(clusterlist);
+  if(fVerbose) {
+    cout << "after first finding" << endl;
+    PrintClustersBIS(clusterlist);
+  }
   if(fDisplayOn) {
     DrawClustersBIS(clusterlist);
 
@@ -1824,41 +1856,44 @@ std::vector<std::vector< TMatrixT<double> > > PndSecondaryTrackFinder::ClusterFi
 	TMatrixT<double> singlehit = smallcluster[ihit];
 	if(singlehit[0][0] == -1) continue;
 	int hitid = singlehit[0][1];
-	cout << "small " << iclus << " " << jclus << " " << hitid << endl;
+	if(fVerbose) cout << "small " << iclus << " " << jclus << " " << hitid << endl;
 	it2 = find(bigcluster.begin(), bigcluster.end(), singlehit);
 	if(it2 != bigcluster.end()) {
 	  counter++;
 	  deassociated.push_back(hitid);
-	  cout << "found " << hitid << endl;
+	  if(fVerbose) cout << "found " << hitid << endl;
 	}
       }
-      cout << "small " << smallcluster.size() << " big " << bigcluster.size() << "  " << counter << endl;
+      if(fVerbose) cout << "small " << smallcluster.size() << " big " << bigcluster.size() << "  " << counter << endl;
       
       if(smallcluster.size() == counter) 
 	{
-	  cout << "comparing " << iclus << " to " << jclus << " and deleting " << small << endl;
+	  if(fVerbose) cout << "comparing " << iclus << " to " << jclus << " and deleting " << small << endl;
 	  it = find(deleteclusterlist.begin(), deleteclusterlist.end(), small);
 	  if(it == deleteclusterlist.end()) deleteclusterlist.push_back(small);
 	  for(int ide = 0; ide < deassociated.size(); ide++) {
 	    int hitid = deassociated[ide];
 	    associations[hitid]--;
-	    cout << "deassociate " << hitid << endl;
+	    if(fVerbose) cout << "deassociate " << hitid << endl;
 	  }
 	}
     }
   }
   // delete actually
-  cout << "DELETE " << deleteclusterlist.size() << endl;
+  if(fVerbose) cout << "DELETE " << deleteclusterlist.size() << endl;
   DeleteClusterBIS(&clusterlist, deleteclusterlist);
    deleteclusterlist.clear();
- for(int ihit = 0; ihit < nhits; ihit++) {
-    int hitid = hits[ihit];
-    cout << "hitid " << hitid << " associtate to ntracks " << associated[ihit][1] << endl;
-  }
-
-  cout << "after deleting contained clusters" << endl;
-  PrintClustersBIS(clusterlist);
-  if(fDisplayOn) DrawClustersBIS(clusterlist);
+ 
+   if(fVerbose) {
+     for(int ihit = 0; ihit < nhits; ihit++) {
+       int hitid = hits[ihit];
+       cout << "hitid " << hitid << " associtate to ntracks " << associated[ihit][1] << endl;
+     }
+     
+     cout << "after deleting contained clusters" << endl;
+     PrintClustersBIS(clusterlist);
+   }
+   if(fDisplayOn) DrawClustersBIS(clusterlist);
 
 
   // ---------------------------
@@ -1868,20 +1903,22 @@ std::vector<std::vector< TMatrixT<double> > > PndSecondaryTrackFinder::ClusterFi
   newlist = MergeClustersBIS(clusterlist, &combinations);
   clusterlist = newlist; 
   
-  for(int iclus = 0; iclus < clusterlist.size(); iclus++) {
-    std::vector< TMatrixT<double> > cluster = clusterlist[iclus];
-    cout << "C cluster " << iclus << " has ";
-    for(int ihit = 0; ihit < cluster.size(); ihit++) {
-      TMatrixT<double> singlehit = cluster[ihit];
-      if(singlehit[0][0] == -1) continue;
-      Int_t hitid = singlehit[0][1];
-      Int_t detid = singlehit[0][2];
-      cout << hitid << " ";
+  if(fVerbose) {
+    for(int iclus = 0; iclus < clusterlist.size(); iclus++) {
+      std::vector< TMatrixT<double> > cluster = clusterlist[iclus];
+      cout << "C cluster " << iclus << " has ";
+      for(int ihit = 0; ihit < cluster.size(); ihit++) {
+	TMatrixT<double> singlehit = cluster[ihit];
+	if(singlehit[0][0] == -1) continue;
+	Int_t hitid = singlehit[0][1];
+	Int_t detid = singlehit[0][2];
+	cout << hitid << " ";
+      }
+      cout << endl;
     }
-    cout << endl;
+    cout << "after merging" << endl;
+    PrintClustersBIS(clusterlist);
   }
-  cout << "after merging" << endl;
-  PrintClustersBIS(clusterlist);
   if(fDisplayOn) DrawClustersBIS(clusterlist);
 
 
@@ -1889,12 +1926,14 @@ std::vector<std::vector< TMatrixT<double> > > PndSecondaryTrackFinder::ClusterFi
   // if a hit is inside two cluster, chose the closest one
   for(int iclus = 0; iclus < clusterlist.size(); iclus++) {
     std::vector< TMatrixT<double> > cluster = clusterlist[iclus];
-    cout << "CLEAN AGGREGATION " << iclus << endl;
+    if(fVerbose) cout << "CLEAN AGGREGATION " << iclus << endl;
     std::vector< TMatrixT<double> >  newcluster = CleanAggregations(cluster, clusterlist);
     replace(clusterlist.begin(), clusterlist.end(), cluster, newcluster);
   }
-  cout << "after cleaning aggregations" << endl;
+ if(fVerbose) {
+   cout << "after cleaning aggregations" << endl;
   PrintClustersBIS(clusterlist);
+ }
   if(fDisplayOn) DrawClustersBIS(clusterlist);
 
 
@@ -1926,7 +1965,7 @@ void PndSecondaryTrackFinder::FindLimits(std::vector< TMatrixT<double> > cluster
     double x = singlehit[0][4];
     double y = singlehit[0][5];
     double d = TMath::Sqrt(x * x + y * y);
-    cout << "xy " << x << " " << y << " " << d << endl;
+    if(fVerbose) cout << "xy " << x << " " << y << " " << d << endl;
     if(x < xmin) xmin = x; 
     if(y < ymin) ymin = y;
     if(x > xmax) xmax = x;
@@ -1934,7 +1973,7 @@ void PndSecondaryTrackFinder::FindLimits(std::vector< TMatrixT<double> > cluster
     if(d < dmin) dmin = d;
     if(d > dmax) dmax = d;
   }
-  cout << "IN LIMITS " << xmin << " " << ymin << " " << dmin << " " << xmax << " " << ymax << " " << dmax << endl;
+  if(fVerbose) cout << "IN LIMITS " << xmin << " " << ymin << " " << dmin << " " << xmax << " " << ymax << " " << dmax << endl;
   m[0][0] = xmin;
   m[0][1] = ymin;
   m[0][2] = dmin;
@@ -2119,7 +2158,7 @@ void PndSecondaryTrackFinder::DrawLinks(std::vector<int> cluster, Int_t detId, I
 
 Bool_t PndSecondaryTrackFinder::ConformalPlaneStt4BIS(std::vector< TMatrixT<double> > cluster, Int_t iclus, std::vector<std::vector<double> > &conformalhits, Double_t &firstdrift, Double_t &delta, Double_t trasl[2]) {
   
-  cout << "GOING TO FIT CLUSTER " << iclus << endl;
+  if(fVerbose) cout << "GOING TO FIT CLUSTER " << iclus << endl;
  if(fDisplayOn) {
    char goOnChar;
    cout << "light up the cluster, press any key" << endl;
@@ -3658,7 +3697,7 @@ std::vector< std::vector< TMatrixT<double> > > PndSecondaryTrackFinder::MergeClu
     // the newcluster with all the hits, counting them only once.
     for(int kclus = 0; kclus < knowncombination.size(); kclus++) {
       int clusno = knowncombination[kclus];
-      cout << knowncombination[kclus] << " ";
+      if(fVerbose)  cout << knowncombination[kclus] << " ";
 
       // fill usedcluster vector with the cluster no you are
       // about to delete because it entered a combination
@@ -3695,20 +3734,22 @@ std::vector< std::vector< TMatrixT<double> > > PndSecondaryTrackFinder::MergeClu
   // -------------------------
   //                 2 cluster
   //                 3 cluster
-  cout << "CLUSTERS BEFORE COMBINATIONS" << endl;
-  PrintClustersBIS(clusterlist);
+  if(fVerbose) {
+    cout << "CLUSTERS BEFORE COMBINATIONS" << endl;
+    PrintClustersBIS(clusterlist);
 
-  for(int icom = 0; icom < combinations->size(); icom++) {
-    cout << "COMBINATION " << icom << ": ";
-    std::vector<int> knowncombination = combinations->at(icom);
-    for(int kclus = 0; kclus < knowncombination.size(); kclus++) {
-      int clusno = knowncombination[kclus];
-      cout << clusno << " ";
+    for(int icom = 0; icom < combinations->size(); icom++) {
+      cout << "COMBINATION " << icom << ": ";
+      std::vector<int> knowncombination = combinations->at(icom);
+      for(int kclus = 0; kclus < knowncombination.size(); kclus++) {
+	int clusno = knowncombination[kclus];
+	cout << clusno << " ";
+      }
+      cout << endl;
     }
-    cout << endl;
+    cout << "CLUSTERS AFTER COMBINATIONS" << endl;
+    PrintClustersBIS(newlist);
   }
-  cout << "CLUSTERS AFTER COMBINATIONS" << endl;
- PrintClustersBIS(newlist);
  if(fDisplayOn) {
    char goOnChar;
    cout << ", press any key" << endl;
@@ -3794,7 +3835,7 @@ void PndSecondaryTrackFinder::DeleteClusterBIS(std::vector< std::vector< TMatrix
 
   for(int iclus = 0; iclus < deletecluster.size(); iclus++) {
     clusterlist->erase(it + deletecluster[iclus]);
-    cout << "DELETING CLUSTER " << deletecluster[iclus] << endl;
+    if(fVerbose) cout << "DELETING CLUSTER " << deletecluster[iclus] << endl;
   }
 }
 
@@ -3805,7 +3846,7 @@ void PndSecondaryTrackFinder::DeleteParametersBIS(std::vector< TMatrixT<double> 
 
   for(int iclus = 0; iclus < deletecluster.size(); iclus++) {
     xyparameters->erase(it + deletecluster[iclus]);
-    cout << "DELETING PARAMETERS " << deletecluster[iclus] << endl;
+    if(fVerbose) cout << "DELETING PARAMETERS " << deletecluster[iclus] << endl;
   }
 }
 
@@ -3942,14 +3983,15 @@ void PndSecondaryTrackFinder::DeleteTrackBIS(std::vector< std::vector< TMatrixT<
 
 Bool_t PndSecondaryTrackFinder::CompleteSttFitBIS(std::vector< TMatrixT<double> > *cluster, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &chosenchi2, Int_t &chosencountelem) {
   
-  cout << "FITTING " << cluster->size() << " HITS" << endl;
-  for(int ihit = 0; ihit < cluster->size(); ihit++) {
-    TMatrixT<double> singlehit = cluster->at(ihit);
-    int hitid = (int) singlehit[0][1];
-    cout << hitid << " " ;
+  if(fVerbose) {
+    cout << "FITTING " << cluster->size() << " HITS" << endl;
+    for(int ihit = 0; ihit < cluster->size(); ihit++) {
+      TMatrixT<double> singlehit = cluster->at(ihit);
+      int hitid = (int) singlehit[0][1];
+      cout << hitid << " " ;
+    }
+    cout << endl;
   }
-  cout << endl;
-  
 
 
   // CONFORMAL HITS ==================================
@@ -3978,7 +4020,7 @@ Bool_t PndSecondaryTrackFinder::CompleteSttFitBIS(std::vector< TMatrixT<double> 
   // chi2
   int countelement = 0;
   double redchi2 = CalculateRedChi2BIS(*cluster, xc, yc, radius, countelement);
-  cout << "===> RED CHI2 no. 0 = " << redchi2 << " " << countelement << " <===" << endl;
+ if(fVerbose)  cout << "===> RED CHI2 no. 0 = " << redchi2 << " " << countelement << " <===" << endl;
   chosenchi2 = redchi2;
   chosencountelem = countelement;
   
@@ -4041,7 +4083,7 @@ Bool_t PndSecondaryTrackFinder::CompleteSttFitBIS(std::vector< TMatrixT<double> 
       //       // ++++++++++++++
 
       red2chi2[iter] = CalculateRedChi2BIS(*cluster, outxc[iter], outyc[iter], outradius[iter], countelement2[iter]);
-      cout << "===> RED CHI2 no. " << iter + 1 << " = " << red2chi2[iter] << " " << countelement2[iter]  << " <===" << endl;
+      if(fVerbose) cout << "===> RED CHI2 no. " << iter + 1 << " = " << red2chi2[iter] << " " << countelement2[iter]  << " <===" << endl;
       tmpxc = outxc[iter];
       tmpyc = outyc[iter];
       tmpradius = outradius[iter];
@@ -4068,16 +4110,16 @@ Bool_t PndSecondaryTrackFinder::CompleteSttFitBIS(std::vector< TMatrixT<double> 
       }
     }
   }
-  else cout << "CIAO CIAO" << endl;
 
-  cout << "kept " << xc << " " << yc << " " << radius << endl;     
+
+  if(fVerbose) cout << "kept " << xc << " " << yc << " " << radius << endl;     
   return kTRUE;
 }
 
 
 Bool_t PndSecondaryTrackFinder::TestChi2BIS(std::vector< TMatrixT<double> > cluster, Double_t xc, Double_t yc, Double_t radius,  Int_t iclus, Double_t chi2, Int_t countelem, Double_t &newxc, Double_t &newyc, Double_t &newradius, std::vector< TMatrixT<double> > *newcluster, Double_t &newchi2) {
 
- cout << xc << " " << yc << " " << radius << " " << chi2 << " " << countelem  << " " << cluster.size() << endl;
+ if(fVerbose) cout << xc << " " << yc << " " << radius << " " << chi2 << " " << countelem  << " " << cluster.size() << endl;
   if(chi2 < fChi2Limit) return kTRUE;
 
   if(countelem > cluster.size() * 0.5) return kFALSE;
@@ -4137,7 +4179,7 @@ Bool_t PndSecondaryTrackFinder::TestChi2BIS(std::vector< TMatrixT<double> > clus
 	display->Modified();
       }
       newcluster->push_back(singlehit);
-      cout << "pushing back " << hitid << endl;
+      if(fVerbose) cout << "pushing back " << hitid << endl;
     }
 
 //   if(fDisplayOn) {
@@ -4182,11 +4224,11 @@ Bool_t PndSecondaryTrackFinder::DoesHitBelong(Int_t hitId, Double_t xc, Double_t
   Bool_t belongs = DoesHitBelong(hitId, xc, yc, radius, intersection, draw);
   if(belongs == kFALSE) return belongs;
 
-  cout << "LIMITS " << limits[0][0] << " " << limits[0][1] << " " << limits[0][2] << " " << limits[1][0] << " " << limits[1][1] << " " << limits[1][2] << endl;
+  if(fVerbose) cout << "LIMITS " << limits[0][0] << " " << limits[0][1] << " " << limits[0][2] << " " << limits[1][0] << " " << limits[1][1] << " " << limits[1][2] << endl;
   
 
   Bool_t ins = IsInsideLimits(intersection, limits);
-  cout << "IS INSIDE LIM? " << ins << endl;
+  if(fVerbose) cout << "IS INSIDE LIM? " << ins << endl;
 
   //   if((intersection.X() < limits[0][0] || intersection.X() > limits[1][0]) ||
   //      (intersection.Y() < limits[0][1] || intersection.Y() > limits[1][1])) return kFALSE;
@@ -4249,7 +4291,7 @@ Bool_t PndSecondaryTrackFinder::DoesHitBelong(Int_t hitId, Double_t xc, Double_t
     x2 = x1;
 
     delta = radius * radius - (x1 - xc) * (x1 - xc);
-    if(delta < 0) { cout << "delta1" << endl; return kFALSE; }
+    if(delta < 0) return kFALSE; 
     y1 = yc + TMath::Sqrt(delta);
     y2 = yc - TMath::Sqrt(delta);
 
@@ -4338,7 +4380,7 @@ std::vector<int> PndSecondaryTrackFinder::ZFinderBIS(std::vector<int> hits, Doub
 }
 
 void PndSecondaryTrackFinder::ReCalculateXY(Int_t hitId, Double_t z, Double_t &x, Double_t &y) {
-  cout << "RECALCULATION <<" << " " << hitId << endl;
+  if(fVerbose) cout << "RECALCULATION <<" << " " << hitId << endl;
   PndSttHit *hit = (PndSttHit* ) fSttHitArray->At(hitId);
   if(!hit) return;
   
@@ -4353,9 +4395,11 @@ void PndSecondaryTrackFinder::ReCalculateXY(Int_t hitId, Double_t z, Double_t &x
   TVector3 second = pos - wireDirection * halflength; // CHECK
   
   Double_t t = (z - first.Z()) / (second.Z() - first.Z());
-  cout << "RECALCULATION " << t << endl;
-  first.Print();
-  second.Print();
+  if(fVerbose) {
+    cout << "RECALCULATION " << t << endl;
+    first.Print();
+    second.Print();
+  }
   x = first.X() + (second.X() - first.X()) * t;
   y = first.Y() + (second.Y() - first.Y()) * t;
 }
@@ -4431,10 +4475,10 @@ Bool_t PndSecondaryTrackFinder::ZFit3BIS(std::vector< TMatrixT<double> > *cluste
   }
   if(zcounter == 0) return kFALSE;  // CHECK put this outside
 
-  cout << "ZCOUNTER " << zcounter << endl;
+  if(fVerbose) cout << "ZCOUNTER " << zcounter << endl;
   std::vector< TMatrixT<double> > sortedhits = OrderClusterInPhiBIS(*cluster, xc, yc, radius, charge);
 
-  TH1F *hz = new TH1F("hz", "", 17, -50, 120);
+  //  TH1F *hz = new TH1F("hz", "", 17, -50, 120);
   nhits = sortedhits.size();
   // cout << "NHITS " << nhits << endl;
   for(int ihit = 0; ihit < nhits; ihit++) {
@@ -4458,8 +4502,8 @@ Bool_t PndSecondaryTrackFinder::ZFit3BIS(std::vector< TMatrixT<double> > *cluste
     Double_t Fi = CalculatePhi(v, p, alpha, Phi0, charge);
     Double_t scos = - charge * radius * Fi; // scos = -q * R * phi CHECK :-)GOOD!
 
-    hz->Fill(point1.Z());
-    hz->Fill(point2.Z());
+//     hz->Fill(point1.Z());
+//     hz->Fill(point2.Z());
 
     if(fDisplayOn) {
       //    cout << "scos/z 0 : " << scos << " " << point.Z() << " " << errz << endl;
@@ -4572,11 +4616,11 @@ Bool_t PndSecondaryTrackFinder::ZFit3BIS(std::vector< TMatrixT<double> > *cluste
   } // CHECK
   fitp = (1/Detz)*(Sxx*Sz - Sx*Sxz);
   fitm = (1/Detz)*(S1z*Sxz - Sx*Sz);
-  cout << "z fit " << fitm << " " << fitp << endl;
+  if(fVerbose) cout << "z fit " << fitm << " " << fitp << endl;
   double pt = radius * 0.006;
   double pl = fitm * pt;
   double ptot = TMath::Sqrt(pt * pt + pl * pl);
-  cout << "MOMENTUM pt: " << pt << " pl: " << pl << " ptot: " << ptot << endl;
+  if(fVerbose) cout << "MOMENTUM pt: " << pt << " pl: " << pl << " ptot: " << ptot << endl;
   return true;
 }
 
@@ -4949,7 +4993,7 @@ std::vector<TVector3>  PndSecondaryTrackFinder::FindRealIntersectionsBIS(std::ve
   case 2: fitm = m21; fitp = p21; break;
   case 3: fitm = m22; fitp = p22; break;
   }
-  cout << "THE CHOICE IS fitmfip " << fitm << " " << fitp << endl;
+  if(fVerbose) cout << "THE CHOICE IS fitmfip " << fitm << " " << fitp << endl;
   if(fDisplayOn) { 
     TLine *line2 = new TLine(-45,  -45 * fitm + fitp, 120, 120* fitm + fitp);
     line2->SetLineStyle(2);
@@ -5244,38 +5288,39 @@ Bool_t PndSecondaryTrackFinder::IsInsideLimits(TVector3 intersection, Double_t l
   double skewthickness = 8.6; // CHECK THIS LIMIT
   
   if(dmin < skewlimit && dmax > skewlimit) {
-    cout << "1: dmin " << dmin << " dmax " << dmax << endl;
+    if(fVerbose) cout << "1: dmin " << dmin << " dmax " << dmax << endl;
     if((intersection.X() < limits[0][0] || intersection.X() > limits[1][0]) ||
        (intersection.Y() < limits[0][1] || intersection.Y() > limits[1][1])) {
-      cout  << "OUTSIDE" << endl;
+     if(fVerbose) cout  << "OUTSIDE" << endl;
       return kFALSE;
     }
   }
   else if(dmax < skewlimit) {
-    cout << "2: dmin " << dmin << " dmax " << dmax << endl;
+    if(fVerbose) cout << "2: dmin " << dmin << " dmax " << dmax << endl;
     if(TMath::Sqrt((intersection.X() - last.X()) * (intersection.X() - last.X()) + (intersection.Y() - last.Y()) * (intersection.Y() - last.Y())) > skewthickness) {
 
-
-      cout  << "OUTSIDE 2" << TMath::Sqrt((intersection.X() - last.X()) * (intersection.X() - last.X()) + 
-					  (intersection.Y() - last.Y()) * (intersection.Y() - last.Y())) << endl;
-      cout << "intersection " << intersection.X() << " " << intersection.Y() << endl;
-      cout << "first " << first.X() << " " << first.Y() << endl;
-      cout << "last " << last.X() << " " << last.Y() << endl;
-
+      if(fVerbose) {
+	cout  << "OUTSIDE 2" << TMath::Sqrt((intersection.X() - last.X()) * (intersection.X() - last.X()) + 
+					    (intersection.Y() - last.Y()) * (intersection.Y() - last.Y())) << endl;
+	cout << "intersection " << intersection.X() << " " << intersection.Y() << endl;
+	cout << "first " << first.X() << " " << first.Y() << endl;
+	cout << "last " << last.X() << " " << last.Y() << endl;
+      }
       return kFALSE;
     }
   }
   else if( dmin > skewlimit) {
-    cout << "3: dmin " << dmin << " dmax " << dmax << endl;
+    if(fVerbose) cout << "3: dmin " << dmin << " dmax " << dmax << endl;
     if(TMath::Sqrt((intersection.X() - first.X()) * (intersection.X() - first.X()) + (intersection.Y() - first.Y()) * (intersection.Y() - first.Y())) > skewthickness) {
 
-
-      cout  << "OUTSIDE 2" << TMath::Sqrt((intersection.X() - first.X()) * (intersection.X() - first.X()) + 
-					  (intersection.Y() - first.Y()) * (intersection.Y() - first.Y())) << endl;
-      cout << "intersection " << intersection.X() << " " << intersection.Y() << endl;
-      cout << "first " << first.X() << " " << first.Y() << endl;
-      cout << "first " << first.X() << " " << first.Y() << endl;
-
+      if(fVerbose) {
+ 
+	cout  << "OUTSIDE 2" << TMath::Sqrt((intersection.X() - first.X()) * (intersection.X() - first.X()) + 
+					    (intersection.Y() - first.Y()) * (intersection.Y() - first.Y())) << endl;
+	cout << "intersection " << intersection.X() << " " << intersection.Y() << endl;
+	cout << "first " << first.X() << " " << first.Y() << endl;
+	cout << "first " << first.X() << " " << first.Y() << endl;
+      }
       return kFALSE;
     }
   }
@@ -5305,9 +5350,12 @@ void PndSecondaryTrackFinder::ForbidCrossingTracks(std::vector< std::vector< TMa
     // through IP?
     double d0 = fabs(TMath::Sqrt(xc * xc  + yc * yc) - radius);
 
-    if(d0 < 0.5)   { // CHECK THIS LIMIT
-      if(limits[0][0] * limits[1][0] < 0 ||
-	 limits[1][0] * limits[1][1] < 0) cout << "TRANSVERSING ***********************" << endl;
+  
+    if(fVerbose) {
+      if(d0 < 0.5)   { // CHECK THIS LIMIT
+	if(limits[0][0] * limits[1][0] < 0 ||
+	   limits[1][0] * limits[1][1] < 0) cout << "TRANSVERSING ***********************" << endl;
+      }
     }
 
 
@@ -5398,7 +5446,7 @@ Bool_t PndSecondaryTrackFinder::IsMultiplyAssigned(TMatrixT<double> singlehit, s
 }
 
 void  PndSecondaryTrackFinder::DrawMultipleAssignedHits(std::vector< std::vector< TMatrixT<double> > > clusterlist) {
-  cout << "DRAW MULTIPLE HIT " << endl;
+  if(fVerbose) cout << "DRAW MULTIPLE HIT " << endl;
   
   for(int iclus = 0; iclus < clusterlist.size(); iclus++) {
     std::vector< TMatrixT<double> > cluster = clusterlist[iclus];
@@ -5429,7 +5477,7 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::FindConnections(TMatrix
     TVector3 position2(singlehit2[0][4], singlehit2[0][5], singlehit2[0][6]);
     double distance = (position - position2).Perp();
     if(distance < 1.1) {
-      cout << "connect " << singlehit[0][1] << " to " << singlehit2[0][1] << endl;
+      if(fVerbose) cout << "connect " << singlehit[0][1] << " to " << singlehit2[0][1] << endl;
       connectionslist.push_back(singlehit2);
     }
   }
@@ -5464,7 +5512,7 @@ std::vector< TMatrixT<double> >  PndSecondaryTrackFinder::CleanAggregations(std:
     it = find(aggregator.begin(), aggregator.end(), singlehit);
     if(it == aggregator.end()) aggregator.push_back(singlehit);
 
-    cout << "HIT " <<  singlehit[0][1] << " is aggregation" << endl;
+    if(fVerbose) cout << "HIT " <<  singlehit[0][1] << " is aggregation" << endl;
     // otherwise
     TVector3 position(singlehit[0][4], singlehit[0][5], singlehit[0][6]);
     // loop over the connections
@@ -5475,7 +5523,7 @@ std::vector< TMatrixT<double> >  PndSecondaryTrackFinder::CleanAggregations(std:
  
       std::vector<int> assignlist;
       bool multi = IsMultiplyAssigned(singlehit2, clusterlist, assignlist);
-      cout << "CONNECTION " << singlehit2[0][1] << " MULTI " << multi << endl;
+      if(fVerbose) cout << "CONNECTION " << singlehit2[0][1] << " MULTI " << multi << endl;
       if(multi == kFALSE) {
 	it = find(newcluster.begin(), newcluster.end(), singlehit2);
 	if(it ==  newcluster.end()) newcluster.push_back(singlehit2); 
@@ -5485,13 +5533,13 @@ std::vector< TMatrixT<double> >  PndSecondaryTrackFinder::CleanAggregations(std:
       bool goodhit  = kTRUE;
       for(int ias = 0; ias < assignlist.size(); ias++) {
 	int iasl = assignlist[ias];
-	cout << "ASSOCIATION TO CLUS " << iasl << endl;
+	if(fVerbose) cout << "ASSOCIATION TO CLUS " << iasl << endl;
 	std::vector<TMatrixT<double> > cluster2 = clusterlist[iasl];
 	std::vector< TMatrixT<double> > toclus1 = FindConnections(singlehit2, cluster);
 	std::vector< TMatrixT<double> > toclus2 = FindConnections(singlehit2, cluster2);
-	cout << toclus1.size() << " " << toclus2.size() << endl;
+	if(fVerbose) cout << toclus1.size() << " " << toclus2.size() << endl;
 	if(toclus1.size() < toclus2.size()) {
-	  cout << "HIT " << singlehit2[0][1] << " is not good" << endl;
+	  if(fVerbose) cout << "HIT " << singlehit2[0][1] << " is not good" << endl;
 	  goodhit = kFALSE;
 	}
       }
@@ -5607,9 +5655,11 @@ Bool_t PndSecondaryTrackFinder::ComputeParametersAtHit(Int_t ihit, std::vector< 
   if(position.X() != -999) momentum = ComputeMomentumAtPos(xc, yc, radius, tanl, charge, position);
 
   if(position.X() == -999 || momentum.X() == -999) {
-    cout << "FAILED" << endl;
-    position.Print();
-    momentum.Print();
+    if(fVerbose) {
+      cout << "FAILED" << endl;
+      position.Print();
+      momentum.Print();
+    }
     return kFALSE;
   }
   return kTRUE; 
@@ -5637,7 +5687,7 @@ Int_t PndSecondaryTrackFinder::TrackType(TMatrixT<double> par)
     return 1;
   }
   else if((OUTRADIUS - radius) <= TMath::Sqrt(xc * xc + yc * yc) < (OUTRADIUS + radius)) {
-    cout << "TRACK IS INTERSECTING" << endl;
+    //    cout << "TRACK IS INTERSECTING" << endl;
     return 2;
   }
   else {
@@ -5660,10 +5710,11 @@ void PndSecondaryTrackFinder::FindIntersectingPoints(Double_t xc, Double_t yc, D
   int1.SetXYZ(x1, y1, 0.);
   int2.SetXYZ(x2, y2, 0.);
 
-  cout << "FOUND INTERSECTIONS" << endl;
-  int1.Print();
-  int2.Print();
-
+   if(fVerbose) {
+     cout << "FOUND INTERSECTIONS" << endl;
+     int1.Print();
+     int2.Print();
+   }
   if(fDisplayOn) {
 
     TArc *arc42 =  new TArc(0., 0., OUTRADIUS);
@@ -5716,10 +5767,11 @@ void PndSecondaryTrackFinder::FindIntersectingPoints(Double_t xc, Double_t yc, D
   int1.SetXYZ(x1, y1, 0.);
   int2.SetXYZ(x2, y2, 0.);
 
-  cout << "FOUND INTERSECTIONS" << endl;
-  int1.Print();
-  int2.Print();
-
+  if(fVerbose) {
+    cout << "FOUND INTERSECTIONS" << endl;
+    int1.Print();
+    int2.Print();
+  }
   if(fDisplayOn) {
 
     TArc *arc42 =  new TArc(0., 0., circ);
@@ -5795,7 +5847,7 @@ Int_t PndSecondaryTrackFinder::FindRefPoint(std::vector< TMatrixT<double> > clus
 
   if(fDisplayOn) {
     
-    cout << "crashes " << tmpdist1 << " " << tmpdist2 << " " << cluster.size() << " " << hitid1 << endl;
+
     TMatrixT<double> singlehit(1, 10);
     if(tmpdist1 <= tmpdist2)  singlehit = cluster[hitid1];
     else  singlehit = cluster[hitid2];
@@ -5820,6 +5872,7 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderInPhiFromRefPointW
 
 std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderInPhiFromRefPoint(Int_t refihit, std::vector< TMatrixT<double> > cluster,  TMatrixT<double> par, Bool_t ischcorr) {
 
+
   double xc = par[0][0];
   double yc = par[0][1];
   double radius = par[0][2];
@@ -5831,8 +5884,6 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderInPhiFromRefPoint(
   std::multimap<double, int> mapphiangles;
 
   // x0 y0
-  cout << "refihit " << refihit << endl;
-  cout << cluster.size() << endl;
   TMatrixT<double> refhit = cluster[refihit];
 
   //  Double_t d = TMath::Sqrt(xc * xc + yc * yc) - radius;
@@ -5844,6 +5895,7 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderInPhiFromRefPoint(
   Double_t Phi0 = TMath::ATan2((y0 - yc),(x0 - xc));
   TVector2 v(x0 - xc, y0 - yc); 
 
+
   for(int ihit = 0; ihit < cluster.size(); ihit++) {
     TMatrixT<double> singlehit = cluster[ihit];
     if(singlehit[0][0] == -1) continue;
@@ -5854,17 +5906,18 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderInPhiFromRefPoint(
    
     double alpha = TMath::ATan2(position.Y() - y0 + radius * TMath::Sin(Phi0), position.X() - x0 + radius * TMath::Cos(Phi0));
     TVector2 p(position.X() - xc, position.Y() - yc);
-    //   cout << "calculatephi " << endl;
+    //     cout << "calculatephi " << endl;
 
     Double_t phi2 = CalculatePhi(v, p);
     phi2 = BringPhiInto2Pi(phi2, charge);
-    // cout << "hitid/charge/phi " << hitid << " " << charge << " " << phi2 * TMath::RadToDeg() << endl;
+    //     cout << "hitid/charge/phi " << hitid << " " << charge << " " << phi2 * TMath::RadToDeg() << endl;
 
     phiangles.push_back(fabs(phi2));
     mapphiangles.insert(std::pair<double, int>(fabs(phi2), ihit));
   }
     
   std::sort(phiangles.begin(), phiangles.end());
+
 
   double tmpphi = 0;
 
@@ -5889,7 +5942,6 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderInPhiFromRefPoint(
 	count++;
       }
   }
- 
   return sorthits;
 }
 
@@ -5996,14 +6048,14 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderByDistanceFromRefP
   double xopp1 = xc + TMath::Sqrt((radius * radius)/(1 + m * m));
   double xopp2 = xc - TMath::Sqrt((radius * radius)/(1 + m * m));
   double xopp;
-  cout << "OPPOSITE POINT calculation" << xopp1 << " " << xopp2 << " " << refposition.X() << endl;
+  if(fVerbose) cout << "OPPOSITE POINT calculation" << xopp1 << " " << xopp2 << " " << refposition.X() << endl;
   
 
   if(fabs(xopp1 - refposition.X()) < fabs(xopp2 - refposition.X())) xopp = xopp2;
   else xopp = xopp1;
   // opposite y
   double yopp = m * xopp + q;
-  cout << "OPPOSITE POINT " << xopp << " " << yopp << " " << TMath::Sqrt(xopp * xopp + yopp * yopp) << endl;
+  if(fVerbose) cout << "OPPOSITE POINT " << xopp << " " << yopp << " " << TMath::Sqrt(xopp * xopp + yopp * yopp) << endl;
   Bool_t oppositeisinside = kFALSE;
   if(TMath::Sqrt(xopp * xopp + yopp * yopp) < 42.) oppositeisinside = kTRUE;
   // .........................
@@ -6012,17 +6064,17 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderByDistanceFromRefP
 
   TVector3 tmppos = refposition;
   int fromhere = -1;
-  cout << "DISTANCES SIZE " << distances.size() << endl;
+ 
 
   // add the hits at the same distance of the first one
   std::multimap<double, int>::iterator it;
   int count = 0;
   int n = mapdistances.count(tmpdistance);
-  cout << "N " << n << endl;
+
   for(it = mapdistances.begin(); it != mapdistances.end(); ++it)
     {
-      if(count == n) { cout << "count/n " << count  << " " << n << endl;   break; } 
-      if((*it).first != tmpdistance) { cout << "first/d " << (*it).first << " " << tmpdistance << endl;  continue; }
+      if(count == n) break;
+      if((*it).first != tmpdistance) continue;
       int hitno = (*it).second;
       TMatrixT<double> singlehit = cluster[hitno];
       sorthits.push_back(singlehit);
@@ -6032,19 +6084,15 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderByDistanceFromRefP
   
   for(int j = 0; j < distances.size(); j++) {
     double d = distances[j];
-    cout.precision(12);
-    cout << "j " << j << " " << d << " " << tmpdistance << endl;
-    if(tmpdistance < d) {
+      if(tmpdistance < d) {
       // std::multimap<double, int>::iterator it;
       count = 0;
       n = mapdistances.count(d);
-      cout << "N " << n << endl;
+
       for(it = mapdistances.begin(); it != mapdistances.end(); ++it)
 	{
-	  if(count == n) { cout << "count/n " << count  << " " << n << endl;   break; } 
-	  if((*it).first != d) { 
-	    // cout << "first/d " << (*it).first << " " << d << endl; 
-	    continue; }
+	  if(count == n) break;
+	  if((*it).first != d) continue;
 	  int hitno = (*it).second;
 	  TMatrixT<double> singlehit = cluster[hitno];
 	  TVector3 thispos(singlehit[0][4], singlehit[0][5], 0.);
@@ -6052,10 +6100,10 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderByDistanceFromRefP
 	  double reldis = (thispos - tmppos).Mag();
 	  tmppos.SetXYZ(singlehit[0][4], singlehit[0][5], 0.);
 	
-	  cout << j << " relative distance " << reldis << " " << d << " " << 2 * radius << " " << singlehit[0][1] << endl;
+	//   cout << j << " relative distance " << reldis << " " << d << " " << 2 * radius << " " << singlehit[0][1] << endl;
 	  if(reldis > 10. && d < 2 * radius && oppositeisinside == kTRUE) {
 	    fromhere = j;
-	    cout << "FROM HERE " << fromhere << " " <<  singlehit[0][1] << endl;
+	  //   cout << "FROM HERE " << fromhere << " " <<  singlehit[0][1] << endl;
 	    break;
 	  }
 	}
@@ -6350,16 +6398,18 @@ Bool_t  PndSecondaryTrackFinder::BreakTooLongTracks(std::vector< TMatrixT<double
   
   TVector3 int1o, int2o;
   FindOuterIntersectingPoints(xc, yc, radius, int1o, int2o);
-  cout << "FOUND o INTERSECTIONS" << endl;
-  int1o.Print();
-  int2o.Print();
-
+  if(fVerbose) {
+    cout << "FOUND o INTERSECTIONS" << endl;
+    int1o.Print();
+    int2o.Print();
+  }
   TVector3 int1i, int2i;
   FindInnerIntersectingPoints(xc, yc, radius, int1i, int2i);
-  cout << "FOUND i INTERSECTIONS" << endl;
-  int1i.Print();
-  int2i.Print();
-
+  if(fVerbose) {
+    cout << "FOUND i INTERSECTIONS" << endl;
+    int1i.Print();
+    int2i.Print();
+  }
   Int_t hitid1o = -1, hitid2o = -1, hitid1i = -1, hitid2i = -1;
   Int_t ihit1o = -1, ihit2o = -1, ihit1i = -1, ihit2i = -1;
   Double_t tmpdist1o = 1000, tmpdist2o = 1000, tmpdist1i= 1000, tmpdist2i = 1000;
@@ -6379,42 +6429,44 @@ Bool_t  PndSecondaryTrackFinder::BreakTooLongTracks(std::vector< TMatrixT<double
       ihit1o = ihit;
       hitid1o = hitid;
       tmpdist1o = distance1o;
-      cout << "UPDATE 1o" << endl;
+      if(fVerbose) cout << "UPDATE 1o" << endl;
     }
 
     if(distance2o < tmpdist2o) {
       ihit2o = ihit;
       hitid2o = hitid;
       tmpdist2o = distance2o;
-      cout << "UPDATE 2o" << endl;
+      if(fVerbose) cout << "UPDATE 2o" << endl;
     }
 
    if(distance1i < tmpdist1i) {
       ihit1i = ihit;
       hitid1i = hitid;
       tmpdist1i = distance1i;
-      cout << "UPDATE 1i" << endl;
+      if(fVerbose) cout << "UPDATE 1i" << endl;
     }
 
-    if(distance2i < tmpdist2i) {
-      ihit2i = ihit;
-      hitid2i = hitid;
-      tmpdist2i = distance2i;
-      cout << "UPDATE 2i" << endl;
-    }
+   if(distance2i < tmpdist2i) {
+     ihit2i = ihit;
+     hitid2i = hitid;
+     tmpdist2i = distance2i;
+     if(fVerbose) cout << "UPDATE 2i" << endl;
+   }
 
-    cout << "----" << endl;
-    cout << ihit << " " << hitid << " " << hitid1i << " " << hitid2i << " " << hitid1o << " " << hitid2o <<  endl;
-   cout <<  distance1i << " " << distance2i << " " << distance1o << " " << distance2o <<  endl;
-
+   if(fVerbose) {
+     cout << "----" << endl;
+     cout << ihit << " " << hitid << " " << hitid1i << " " << hitid2i << " " << hitid1o << " " << hitid2o <<  endl;
+     cout <<  distance1i << " " << distance2i << " " << distance1o << " " << distance2o <<  endl;
+   }
   }
 
-  cout << "FINAL DISTANCES " << par[0][3] << endl;
-  cout  << hitid1o << " @ " << tmpdist1o << endl;
-  cout  << hitid1i << " @ " << tmpdist1i << endl;
-  cout  << hitid2o << " @ " << tmpdist2o << endl;
-  cout  << hitid2i << " @ " << tmpdist2i << endl;
-
+  if(fVerbose) {
+    cout << "FINAL DISTANCES " << par[0][3] << endl;
+    cout  << hitid1o << " @ " << tmpdist1o << endl;
+    cout  << hitid1i << " @ " << tmpdist1i << endl;
+    cout  << hitid2o << " @ " << tmpdist2o << endl;
+    cout  << hitid2i << " @ " << tmpdist2i << endl;
+  }
   if(tmpdist1i < 3. && tmpdist2i < 3. && tmpdist1o < 3. && tmpdist2o < 3.) {
 
     std::vector< TMatrixT<double> > newtrack = OrderByDistanceFromRefPointWithoutCharge(ihit1o, cluster, par);
@@ -6424,7 +6476,7 @@ Bool_t  PndSecondaryTrackFinder::BreakTooLongTracks(std::vector< TMatrixT<double
       TMatrixT<double> singlehit = newtrack[ihit];
       if(singlehit[0][0] == -1) continue;
       Int_t hitid = singlehit[0][1];
-      cout << "ordered " << ihit << " " << hitid << endl;
+      if(fVerbose) cout << "ordered " << ihit << " " << hitid << endl;
 
       if(from1 == -1 && (hitid ==  hitid1o || hitid ==  hitid2o || hitid ==  hitid1i || hitid ==  hitid2i)) from1 = ihit;
       else if(to1 == -1 && (hitid ==  hitid1o || hitid ==  hitid2o || hitid ==  hitid1i || hitid ==  hitid2i)) to1 = ihit;
@@ -6435,7 +6487,7 @@ Bool_t  PndSecondaryTrackFinder::BreakTooLongTracks(std::vector< TMatrixT<double
     
 //     std::vector< TMatrixT<double> > track1;
 //     std::vector< TMatrixT<double> > track2;
-    cout << "BREAKING TRACKS" << endl;
+    if(fVerbose) cout << "BREAKING TRACKS" << endl;
     Break(newtrack, from1, to1, from2, to2, track1, track2);
 
     Bool_t good1 = kFALSE, good2 = kFALSE;
@@ -6525,21 +6577,23 @@ void PndSecondaryTrackFinder::Break(std::vector< TMatrixT<double> > newtrack, in
     track2.push_back(singlehit);
   }
 
-  cout << "BROKEN TRACKS" << endl;
-  cout << "track1: from " << from1 << " to " << to1 << endl;;
+ if(fVerbose) {
+   cout << "BROKEN TRACKS" << endl;
+   cout << "track1: from " << from1 << " to " << to1 << endl;;
 
-  for(int ihit = 0; ihit < track1.size(); ihit++) {
-    TMatrixT<double> singlehit = track1[ihit];
-    int hitid = (int) singlehit[0][1];
-    cout << hitid << " " ;
-  }
-  cout << endl;
-  cout << "track2: " << from2 << " to " << to2 << endl;
-  for(int ihit = 0; ihit < track2.size(); ihit++) {
-    TMatrixT<double> singlehit = track2[ihit];
-    int hitid = (int) singlehit[0][1];
-    cout << hitid << " " ;
-  }
+   for(int ihit = 0; ihit < track1.size(); ihit++) {
+     TMatrixT<double> singlehit = track1[ihit];
+     int hitid = (int) singlehit[0][1];
+     cout << hitid << " " ;
+   }
+   cout << endl;
+   cout << "track2: " << from2 << " to " << to2 << endl;
+   for(int ihit = 0; ihit < track2.size(); ihit++) {
+     TMatrixT<double> singlehit = track2[ihit];
+     int hitid = (int) singlehit[0][1];
+     cout << hitid << " " ;
+   }
+ }
 }
 
 
