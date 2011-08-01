@@ -20,6 +20,9 @@ using namespace std;
  *@param classNames      Names of available Labels (classes).
  *@param varNames        Available variable names.
  *@param type            Application Type.
+ *
+ * Note: The data from "InputEvtsParam" is copied into the internal
+ * container. Use with caution in case of large data sets.
  */
 PndMvaDataSet::PndMvaDataSet(std::vector< std::pair<std::string, std::vector<float>*> > const& Input,
 			     std::vector<std::string> const& classNames,
@@ -71,7 +74,7 @@ PndMvaDataSet::PndMvaDataSet(std::vector< std::pair<std::string, std::vector<flo
     tmpIdx++;
   }
   
-#if ( DEBUG_DATASET != 0 )
+#if DEBUG_DATASET == 1
   std::cout << "========================================================\n"
 	    << "<DEBUG> Info on classes constructed from data vector.\n"
 	    << " Total number of evnts in Input vector = " << Input.size()
@@ -117,7 +120,7 @@ PndMvaDataSet::PndMvaDataSet(std::string const& WeightFile,
 //! Destructor
 PndMvaDataSet::~PndMvaDataSet()
 {
-  //Clean up event data container
+  // Clean up event data container
   for(size_t i = 0; i < m_events.size(); i++)
   {
     delete m_events[i].second;
@@ -159,11 +162,11 @@ void PndMvaDataSet::Initialize()
       // Read input file
       ReadInput();
     }    
-    catch (PndMvaDataSetException &e)
+    catch (PndMvaDataSetException &ex)
     {
-      std::cerr << e.what()
+      std::cerr << ex.what()
 		<< std::endl;
-      exit(1);
+      exit(EXIT_FAILURE);
     }
     break;
   case TRAIN:
@@ -297,13 +300,11 @@ void PndMvaDataSet::Trim()
       minIdx = idx + 1;
     }
   }
-  std::cout << "<INFO> Finished Trimming."
-	    << '\n';
+  std::cout << "<INFO> Finished Trimming.\n";
 }
 
 /**
  * Normalize event dataset using one of available methods.
- *@param t Normalization type (VARX, MINMAX, MEDIAN).
  */
 void PndMvaDataSet::NormalizeDataSet()
 {
@@ -371,12 +372,12 @@ void PndMvaDataSet::NormalizeDataSet()
 /**
  * Initialize the class conditional means vectors.
  */
-void PndMvaDataSet::InitClsCondMeans()
+void PndMvaDataSet::InitClsCondMeans(std::set <size_t> const& excludeIndxs)
 {
-  //void CompClsCondMean(const std::string& clsName);
-  for(size_t cls = 0; cls < m_classes.size(); cls++)
+  // Labels loop.
+  for(size_t lb = 0; lb < m_classes.size(); ++lb)
   {
-    CompClsCondMean(m_classes[cls].Name);
+    CompClsCondMean(m_classes[lb].Name, excludeIndxs);
   }
 }
 
@@ -680,42 +681,64 @@ void PndMvaDataSet::ReadWeightsFromFile()
  * Class conditional mean for a given class. Stored in class
  * conditional means container.
  */
-void PndMvaDataSet::CompClsCondMean(std::string const& clsName)
+void PndMvaDataSet::CompClsCondMean(std::string const& clsName,
+				    std::set <size_t> const& exCluds
+				    )
 {
-  cout << "<INFO> Determining class conditional mean for "
-       << clsName << ".\n";
+  cout << "<INFO> Determining class conditional mean vector for "
+       << clsName
+       << ".\n";
 
-  // Find the class.
-  size_t classNum = 0;  
-  for(size_t i = 0; i < m_classes.size(); i++)
+  // No labels makes no sense.
+  assert( !m_classes.empty() );
+
+  // Find the index of the given label.
+  size_t labelIdx = 0;
+
+  while( (labelIdx <= m_classes.size() ) && 
+	 (clsName != m_classes[labelIdx].Name)
+	 )
   {
-    if(clsName == m_classes[i].Name)
-    {
-      classNum = i;
-      break;
-    }
+    labelIdx++;
   }
 
-  vector <float>* vec = new vector <float> (m_vars.size(),0.0);
+  // Should never happen
+  assert( labelIdx < m_classes.size() );
+  
+  // Temporary vector.
+  vector <float>* vec = new vector <float> (m_vars.size(), 0.000);
+
+  // Number of train events for this class.
+  size_t NumTrEvts = 0;
+
+  // Events loop
   for(size_t i = 0; i < m_events.size(); i++)
   {
-    if( clsName == m_events[i].first )
+    if( ( clsName == m_events[i].first ) && // Same label
+	( exCluds.find(i) == exCluds.end() )// Not in test events.
+	)
     {
+      // Copy the values.
       for(size_t j = 0; j < m_vars.size(); j++ )
       {
         vec->at(j) += (m_events[i].second)->at(j);
       }
+      // Count as train event.
+      NumTrEvts++;
     }
   }// All available events are visited
 
-  /* 
+  /*
    * Dividing by the total number of available examples
    */
-  int numExam = m_classes[classNum].NExamples;
   for(size_t k = 0; k < vec->size(); k++)
   {
-    vec->at(k) = (vec->at(k)/(static_cast<float>(numExam)));
+    vec->at(k) = vec->at(k) / static_cast <float> (NumTrEvts);
   }
+
+  // Update labels data member.
+  m_classes[labelIdx].NTrainEx = NumTrEvts;
+  
   // Add to the Class Conditional Means container
   m_ClassCondMeans.insert( make_pair(clsName, vec) );
 }

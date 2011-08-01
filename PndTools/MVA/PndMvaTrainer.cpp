@@ -55,7 +55,7 @@ void PndMvaTrainer::Initialize()
   splitTetsSet();
 
   // Initialize class conditional means.
-  m_dataSets.InitClsCondMeans();
+  m_dataSets.InitClsCondMeans(m_testSet_indices);
   
   // Init random seed for this run.
   srand ( time(NULL) );
@@ -76,6 +76,9 @@ void PndMvaTrainer::splitTetsSet()
   // Get all available examples.
   std::vector<std::pair<std::string, std::vector<float>*> > const& events = m_dataSets.GetData();
   assert( events.size() != 0);
+  
+  // Get available labels
+  std::vector<PndMvaClass> const& labels = m_dataSets.GetClasses();
 
   // Number of examples in the test set.
   size_t TestEvtCnt = (m_testSetSize * events.size()) / 100 ;
@@ -98,21 +101,29 @@ void PndMvaTrainer::splitTetsSet()
   //======================================
   // Print some extra information on number of examples per label.
   std::set<size_t>::iterator it;
-  std::map <std::string, int> tsMap;
+  std::map <std::string, size_t> tsMap;
+
+  for(size_t lb = 0; lb < labels.size(); ++lb)
+  {
+    tsMap[labels[lb].Name] = 0;
+  }
+  
   for(it = m_testSet_indices.begin(); it != m_testSet_indices.end(); ++it)
   {
     size_t id = *it;
-    const std::string name = (events[id]).first;
+    std::string const& name = (events[id]).first;
     tsMap[name] += 1;
   }
-  std::map <std::string, int>::iterator mit;
-  for( mit = tsMap.begin(); mit != tsMap.end(); ++mit)
+
+  for(size_t lb = 0; lb < labels.size(); ++lb)
   {
-    std::cout << "\t-I- Test Events for[ " << (*mit).first
-	      << " ] = " << (*mit).second
-	      << std::endl;
+    std::string const& label = labels[lb].Name;
+    std::cout << "\t-I- Test Events for[ " << label
+ 	      << " ] = " << tsMap[label]  << " train events = "
+ 	      << ( labels[lb].NExamples - tsMap[label] )
+   	      << '\n';
   }
-  //======================================
+  //______________________________________
 }
 
 void PndMvaTrainer::WriteErroVect(std::string const& FileName) const

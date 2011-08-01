@@ -22,10 +22,11 @@ struct PndMvaClass
   PndMvaClass(PndMvaClass const& oth);
   PndMvaClass& operator=(PndMvaClass const& oth);
 
-  std::string Name;  /**< Name of the class. */
-  size_t NExamples;  /**< Number of examples available of the class. */
-  size_t StartIdx;   /**< Start index of events of this class. */
-  size_t EndIdx;     /**< End index of events of this class. */
+  std::string Name;  /**< Name of the class.*/
+  size_t NExamples;  /**< Number of examples available of the class.*/
+  size_t StartIdx;   /**< Start index of events of this class.*/
+  size_t EndIdx;     /**< End index of events of this class.*/
+  size_t NTrainEx;  /**< Number of examples in the train set.*/
 
 private:
   bool operator== (PndMvaClass const& oth) const;
@@ -33,20 +34,21 @@ private:
   bool operator<  (PndMvaClass const& oth) const;
 };// End of interface.
 
-//_________________________ Implement. _____ _____________
+//_________________________ Implement. __________________
 /**
  * Constructor implementation.
  *@Param name Class name.
 */
 inline PndMvaClass::PndMvaClass(std::string const& name)
 		   : Name(name), NExamples(0),
-		   StartIdx(0), EndIdx(0)
+		   StartIdx(0), EndIdx(0), NTrainEx(0)
 {};
 
 //! Copy Constructor.
 inline PndMvaClass::PndMvaClass(PndMvaClass const& oth)
 		   : Name(oth.Name), NExamples(oth.NExamples),
-		   StartIdx(oth.StartIdx), EndIdx(oth.EndIdx)
+		   StartIdx(oth.StartIdx), EndIdx(oth.EndIdx),
+		   NTrainEx(oth.NTrainEx)
 {};
 
 //! = operator.
@@ -61,6 +63,8 @@ inline PndMvaClass& PndMvaClass::operator=(PndMvaClass const& oth)
   this->NExamples = oth.NExamples;
   this->StartIdx = oth.StartIdx;
   this->EndIdx = oth.EndIdx;
+  this->NTrainEx = oth.NTrainEx;
+
   return (*this);
 };
 

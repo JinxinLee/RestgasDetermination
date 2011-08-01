@@ -19,6 +19,9 @@
 
 // 0 = no crossvalidation, 1 = crossvalidation
 #define CROSS_VALIDATE 1
+
+// k-Fold CV
+#define NUMBER_OF_FOLDS 10
 //____________________________________
 
 #if DEBUGVQ_TRAIN_EXAMPLE
@@ -73,12 +76,13 @@ int main(int argc, char** argv)
   std::string ot      = argv[5];// OutPutFile
   std::cout << " outPut = " << ot << " ";
   
-  std::string OutErr = "Err" + ot;
-  std::cout << " ErrorFile = " << OutErr
+  std::string OutErr = "EValuation" + ot;
+  std::cout << " EValuation File = " << OutErr
 	    << '\n';
   
   // Labels.
   std::vector<std::string> labels;
+
   // Variables.
   std::vector<std::string> vars;
   
@@ -102,21 +106,39 @@ int main(int argc, char** argv)
   //vars.push_back("stt"); 
   
 #if (CROSS_VALIDATE == 0)
-  std::cout << "<-I-> Init classifier using Tree data.\n";
+  std::cout << "<-I-> Init classifier using data from root Trees.\n";
   // Create trainer object.
   PndLVQTrain tr(ip, labels, vars, true);
 
 #else
   std::cout << "<-I-> Init classifier using PreInitialized"
 	    << " vector of events.\n";
+  // Store events
   std::vector<std::pair<std::string, std::vector<float>*> > events;
-
+  
+  // Read event features and store.
   std::map<std::string, size_t>* counts = readEvents (ip.c_str(), vars, labels, events);
+  
+  /*
+   * We want to do cross-validation. So first create k-disjoint subsets
+   * of the data point indices and use this to set the test set for
+   * each of k-classifiers.
+   */
+  size_t subsetSize = events.size() / NUMBER_OF_FOLDS;
+  std::cerr << "Each subset containes " << subsetSize
+	    << " Events.\n";
+
+  std::vector< std::set <size_t> > TestSets;
+
+  for(size_t ts = 0; ts < NUMBER_OF_FOLDS; ++ts)
+  {
+    TestSets.size();
+  }
 
   // Create trainer object.
   PndLVQTrain tr(events, labels, vars, true);
-
-  // Clean-up un-needed stuff
+  
+  //_________ Clean-up un-needed stuff __________
   for(size_t ev = 0; ev < events.size(); ++ev)
   {
     delete events[ev].second;
@@ -143,11 +165,12 @@ int main(int argc, char** argv)
     tr.SetNumberOfProto(numProtoMap);
   */
   
-  // Set the size of the test set in (%)
 #if (CROSS_VALIDATE == 0)
-  tr.SetTetsSetSize(0);
+  // Set the size of the test set in (%)
+  tr.SetTetsSetSize(20);
 #else
-  tr.SetTetsSetSize(10);
+  // We specify the test set ourselves.
+  tr.SetTetsSetSize(20);
   std::set <size_t> const& bla = tr.GetTestEvetIdx();
   tr.SetTestSet(bla);
 #endif
@@ -204,10 +227,10 @@ int main(int argc, char** argv)
   std::vector <StepError> const& Error = tr.GetErrorValues();
   for(size_t i = 0; i < Error.size(); ++i)
   {
-    std::cout << " Index = "   << i
-	      << " m_step = "  << Error[i].m_step
-	      << " m_trErr = " << Error[i].m_trErr
-	      << " m_tsErr = " << Error[i].m_tsErr
+    std::cout << " Index = "    << i
+	      << "\n\tm_step  = " << Error[i].m_step
+	      << "\n\tm_trErr = " << Error[i].m_trErr
+	      << "\n\tm_tsErr = " << Error[i].m_tsErr
 	      << '\n';
   }
 #endif

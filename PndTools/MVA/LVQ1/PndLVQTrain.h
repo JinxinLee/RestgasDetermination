@@ -71,22 +71,6 @@ class PndLVQTrain: public PndMvaTrainer
    */
   void Train21();
 
-  ////================= DEBUG Only, NOT TO BE USED
-#if DEBUG_LVQ_TRAIN
-  inline std::vector< std::pair<std::string, std::vector<float>*> > const& train1sec()
-  {
-    InitProtoK_Means();
-    return m_LVQProtos;
-  };
-  
-  inline std::vector< std::pair<std::string, std::vector<float>*> > const& train2sec()
-  {
-    InitProtoRand();
-    return m_LVQProtos;
-  };
-#endif
-  ////================= DEBUG Only, NOT TO BE USED
-
   /**
    * Set CodeBook init type.
    *@param iniTypeVal Initialization type.
@@ -145,12 +129,31 @@ class PndLVQTrain: public PndMvaTrainer
    */
   void EvalClassifierError();
 
+  ////================= DEBUG Only, NOT TO BE USED
+#if DEBUG_LVQ_TRAIN == 1
+  inline std::vector< std::pair<std::string, std::vector<float>*> > const& train1sec()
+  {
+    InitProtoK_Means();
+    return m_LVQProtos;
+  };
+  
+  inline std::vector< std::pair<std::string, std::vector<float>*> > const& train2sec()
+  {
+    InitProtoRand();
+    return m_LVQProtos;
+  };
+  
   /**
    * Evaluate the classifier, using the given test events.
    *@param tstEx The set which is used as test set.
+   *
+   * Note: tstEx is not normalized or modified. If it is needed, the
+   * user has to perform modifications before invoking this method.
    */
   float EvalClassifierError(std::vector< std::pair< std::string, std::vector<float>* > > const& TestEvts) const;
-
+#endif
+  ////================= DEBUG Only, NOT TO BE USED
+  
   //----------------------------------------
   // protected:
   //================== private =============

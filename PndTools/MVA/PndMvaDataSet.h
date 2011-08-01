@@ -52,7 +52,7 @@ typedef enum {
   VARNORM = 4 // Variable Normalize Transform
 } NormType;
 
-////___________________ Exception _________________
+////=================== Exception =================
 
 class PndMvaDataSetException: public std::exception
 {
@@ -83,7 +83,7 @@ class PndMvaDataSetException: public std::exception
 };
 ////___________________ Exception _________________
 
-// ========================================================================
+// ==================== Data set class ==========================
 class PndMvaDataSet
 {
  public:
@@ -94,6 +94,9 @@ class PndMvaDataSet
    *@param classNames      Names of available Labels (classes).
    *@param varNames        Available variable names.
    *@param type            Application Type.
+   *
+   * Note: The data from "InputEvtsParam" is copied into the internal
+   * container. Use with caution in case of large data sets.
    */
   PndMvaDataSet( std::vector< std::pair<std::string, std::vector<float>*> > const& InputEvtsParam,
 		 std::vector<std::string> const& classNames,
@@ -123,15 +126,18 @@ class PndMvaDataSet
 
   /**
    * Initialize the class conditional means vectors.
+   *@param excludeIndxs The ste of event indices to exclude during the
+   * computation.
    */
-  virtual void InitClsCondMeans();
+  virtual void InitClsCondMeans(std::set <size_t> const& excludeIndxs);
 
   /**
    * If trimming is needed.
+   *@param t If trim.
    */
   inline void SetTrim(bool t);
 
-  //! Get available data.
+  //! Get available data vectors.
   inline std::vector< std::pair<std::string, std::vector<float>* > > const& GetData() const;
 
   //! Get the list of available classes (labels).
@@ -154,16 +160,27 @@ class PndMvaDataSet
    */
   virtual void PCATransForm();
 
-  //! If PCA was applied.
+  /**
+   *@return If PCA was applied.
+   */
   inline bool Used_PCA() const;
+
+  /**
+   *@param t If apply PCA.
+   */
   inline void Use_PCA(bool t);
   
-  //! Get PCA object
+  /**
+   * Get PCA object
+   *@return PCA object containing PCA parameters.
+   */
   inline PndMvaVarPCATransform const& Get_PCA() const;
 
   //_________________________ PCA _____________________//
 
-  // Get normalization type.
+  /**
+   *@retun Normalization type.
+   */
   inline NormType GetNormType() const;
   
   /**
@@ -171,8 +188,13 @@ class PndMvaDataSet
    */
   inline void SetNormType(NormType t);
 
-  // Get & set Application type.
+  /**
+   *@return Application type.
+   */
   inline AppType GetAppType () const;
+
+  /**
+   *@param t Application type.*/
   inline void SetAppType(AppType t);
 
   /**
@@ -181,7 +203,7 @@ class PndMvaDataSet
    */
   virtual void Initialize();
 
-  //==============================================================
+  //______________________________________________________________
  protected:
   /**
    * Read input event data.
@@ -196,7 +218,6 @@ class PndMvaDataSet
   //==============================================================
  private:
   // Private to avoid mistakes.
-  // Copy constructor (Shallow copy).
   PndMvaDataSet(PndMvaDataSet const& other);
   PndMvaDataSet& operator=(PndMvaDataSet const& other);
 
@@ -210,26 +231,32 @@ class PndMvaDataSet
    */
   void NormalizeDataSet();
   
-  // Init Classe.
+  /**
+   * Init labels (class names).
+   *@param labels The list of labels to use.
+   */
   void InitClasses(std::vector<std::string> const& labels);
   
-  //Init Variables.
+  /**
+   * Init Variables.
+   *@param variables The list of variables to use.
+   */
   void InitVariables(std::vector<std::string> const& variables);
   
   // Validate the input file
   void ValidateWeightFile();
 
   /**
-   * Class conditional mean for a given class. Stored in class
+   * Class conditional mean for a given label (class). Stored in class
    * conditional means container.
+   *@param clsName Label for which CCM is computed.
+   *@param exCluds Set of indices of events that are not to be used.
    */
-  void CompClsCondMean(std::string const& clsName);
+  void CompClsCondMean( std::string const& clsName, std::set <size_t> const& exCluds );
   
   /**
    * Computes Variance (unbiased estimator) for each parameter in the
    * feature list.
-   * @param clsName The name of the class of events for with we want
-   * to compute Var(X).
    */
   void ComputeVariance();
   

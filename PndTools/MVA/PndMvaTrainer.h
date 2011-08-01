@@ -68,7 +68,10 @@ class PndMvaTrainer
    */
   void SetTetsSetSize(size_t percent = 50);
 
-  // FixME FIXME FixMe fixme
+  /**
+   * Set the indices of events that are going to be used for testing.
+   *@param testSet Set containing the indices of the test events.
+   */
   void SetTestSet(std::set <size_t> const& testSet);
 
   /**
@@ -94,7 +97,11 @@ class PndMvaTrainer
    */
   void WriteErroVect(std::string const& FileName) const;
 
-  // FIXME FIXME
+  /**
+   * Get the list of objects that contain the classifier evaluation
+   * results.
+   *@return  List of evaluation objects.
+   */
   inline std::vector <StepError> const& GetErrorValues() const;
   
   /**
@@ -104,16 +111,19 @@ class PndMvaTrainer
 
   /**
    * Get the indices of the events selected to be used for testing.
+   *@return A set containing the indices of test events.
    */
   inline std::set <size_t> const& GetTestEvetIdx() const;
  
   /**
    * Get the list of available classes (labels).
+   *@retrun Vector containing available labels.
    */
   inline std::vector<PndMvaClass> const& GetClasses() const;
   
   /**
    * Get the list of available variables.
+   *@retrun Vector containing available Parameters (features).
    */
   inline std::vector<PndMvaVariable> const& GetVariables() const; 
  
@@ -125,7 +135,9 @@ class PndMvaTrainer
   //______________________________________________
   //================ Protected ===================
  protected:
-
+  /**
+   * Set application type for the current object
+   */
   inline void SetAppType(AppType t);
 
   /**

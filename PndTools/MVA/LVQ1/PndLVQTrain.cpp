@@ -1003,9 +1003,12 @@ void PndLVQTrain::EvalClassifierError()
   EvalClassifierError(std::numeric_limits<size_t>::max());
 }
 
+#if DEBUG_LVQ_TRAIN == 1
 /**
  * Evaluate the classifier, using the given test events.
  *@param TestEvts The set which is used as test set.
+ * Note: tstEx is not normalized or modified. If it is needed, the
+ * user has to perform modifications before invoking this method.
  */
 float PndLVQTrain::EvalClassifierError( std::vector< std::pair< std::string, std::vector<float>* > > const& TestEvts) const
 { 
@@ -1017,22 +1020,22 @@ float PndLVQTrain::EvalClassifierError( std::vector< std::pair< std::string, std
   float minDist = std::numeric_limits<float>::max();
   // Winner label
   std::string WinClassName;
-
+  
   // Events loop
   for(size_t ev = 0; ev < TestEvts.size(); ++ev)
   {
     // Current event.
     std::vector<float> const* teEvt = (TestEvts.at(ev)).second;
-  
+    
     // Reset minDistance
     minDist = std::numeric_limits<float>::max();
-
+    
     // Prototype loop
     for(size_t pr = 0; pr < m_LVQProtos.size(); ++pr)
     {
       // Current prototype
       std::vector<float> const* prot = m_LVQProtos[pr].second;
-
+      
       // compute distance
       dist = ComputeDist( *teEvt, *prot );
       
@@ -1042,7 +1045,7 @@ float PndLVQTrain::EvalClassifierError( std::vector< std::pair< std::string, std
 	WinClassName = m_LVQProtos[pr].first;
       }
     }// Proto loop
-
+    
     // If the classification was corect
     if( WinClassName != (TestEvts.at(ev)).first )
     {// Wrong (Labels are not equal), misclassified
@@ -1053,3 +1056,4 @@ float PndLVQTrain::EvalClassifierError( std::vector< std::pair< std::string, std
   error = (error * 100.00) / static_cast<float>(TestEvts.size());
   return error;
 }
+#endif
