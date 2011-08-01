@@ -261,8 +261,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   fSecondaryTrackCandArray->Delete();
   fSecondaryTrackArray->Delete();
 
-  //  if(fVerbose) 
-cout << "++++++++++++++++++++++++++++++++++++" << endl;
+  if(fVerbose) cout << "++++++++++++++++++++++++++++++++++++" << endl;
   //  fDisplayOn = kFALSE;
   // MC Tracks ------------ CHECK MC INFO
   std::vector<int> mctracks;
@@ -532,13 +531,17 @@ cout << "++++++++++++++++++++++++++++++++++++" << endl;
   // break 
   std::vector< std::vector< TMatrixT<double> > > newtracklist;
   newtracklist = tracklist;
-    std::vector< TMatrixT<double> > newxyparameters;
-    newxyparameters = xyparameters;
+  std::vector< TMatrixT<double> > newxyparameters;
+  newxyparameters = xyparameters;
+  
+ //  cout << "before break" << endl;
+//   PrintClustersBIS(tracklist);
+  
   for(int itrk = 0; itrk < tracklist.size(); itrk++) {
     if(fDisplayOn) Refresh();
     std::vector< TMatrixT<double> > track = tracklist[itrk];
     TMatrixT<double> xypar = xyparameters[itrk];
-
+    
     std::vector< TMatrixT<double> > track1, track2;
     TMatrixT<double> param1(1, 6), param2(1, 6);
     
@@ -548,10 +551,15 @@ cout << "++++++++++++++++++++++++++++++++++++" << endl;
 
     std::vector< std::vector< TMatrixT<double> > >::iterator it1;
     it1 = find(newtracklist.begin(), newtracklist.end(), track);
+//     cout << "iterator 1 " <<  it1 - newtracklist.begin() << endl;
+//     cout << "before erasing " << newtracklist.size() << endl;
     newtracklist.erase(it1);
+//     cout << "after erasing " << newtracklist.size() << endl;
     newtracklist.push_back(track1);
+//     cout << "after tr1 " << newtracklist.size() << endl;
     newtracklist.push_back(track2);
-
+//     cout << "after tr2 " << newtracklist.size() << endl;
+ 
     std::vector< TMatrixT<double> >::iterator it2;
     it2 = find(newxyparameters.begin(), newxyparameters.end(), xypar);
     newxyparameters.erase(it2);
@@ -562,8 +570,9 @@ cout << "++++++++++++++++++++++++++++++++++++" << endl;
 
   tracklist = newtracklist;
   xyparameters = newxyparameters;
-
-
+ //    cout << "after break" << endl;
+//     PrintClustersBIS(newtracklist);
+    
 
   if(fVerbose) {
     cout << "after adding the points" << endl;
@@ -6487,7 +6496,7 @@ Bool_t  PndSecondaryTrackFinder::BreakTooLongTracks(std::vector< TMatrixT<double
     
 //     std::vector< TMatrixT<double> > track1;
 //     std::vector< TMatrixT<double> > track2;
-    if(fVerbose) cout << "BREAKING TRACKS" << endl;
+    if(fVerbose)   cout << "BREAKING TRACKS" << endl;
     Break(newtrack, from1, to1, from2, to2, track1, track2);
 
     Bool_t good1 = kFALSE, good2 = kFALSE;
@@ -6498,6 +6507,7 @@ Bool_t  PndSecondaryTrackFinder::BreakTooLongTracks(std::vector< TMatrixT<double
     Int_t countelem1;
     
     Bool_t fit = CompleteSttFitBIS(&track1, 0, xc1, yc1, radius1, chi21, countelem1);
+
     if(fit == kTRUE) {
     
       Double_t newxc1, newyc1, newradius1, newchi21 = 0;
@@ -6509,20 +6519,20 @@ Bool_t  PndSecondaryTrackFinder::BreakTooLongTracks(std::vector< TMatrixT<double
 	radius1 = newradius1;
 	chi21 = newchi21;
 	countelem1 = 0;
-
-	// save tracks
-	param1[0][0] = xc1;
-	param1[0][1] = yc1;
-	param1[0][2] = radius1;
-	param1[0][3] = 0;
-	param1[0][4] = 0;
-	param1[0][5] = 0;
-
-	// find charge
-	param1[0][3] = (Double_t) FindChargeBIS(xc1, yc1, track1);
-	good1 = kTRUE;
-
       }
+      // save tracks
+      param1[0][0] = xc1;
+      param1[0][1] = yc1;
+      param1[0][2] = radius1;
+      param1[0][3] = 0;
+      param1[0][4] = 0;
+      param1[0][5] = 0;
+      
+      // find charge
+      param1[0][3] = (Double_t) FindChargeBIS(xc1, yc1, track1);
+      good1 = kTRUE;
+
+      
     }
 
     // FIT 2
@@ -6530,6 +6540,7 @@ Bool_t  PndSecondaryTrackFinder::BreakTooLongTracks(std::vector< TMatrixT<double
     Int_t countelem2;
     
     fit = CompleteSttFitBIS(&track2, 1, xc2, yc2, radius2, chi22, countelem2);
+
     if(fit == kTRUE) {
     
       Double_t newxc2, newyc2, newradius2, newchi22 = 0;
@@ -6541,20 +6552,18 @@ Bool_t  PndSecondaryTrackFinder::BreakTooLongTracks(std::vector< TMatrixT<double
 	radius2 = newradius2;
 	chi22 = newchi22;
 	countelem2 = 0;
-
-	// save tracks
-	param2[0][0] = xc2;
-	param2[0][1] = yc2;
-	param2[0][2] = radius2;
-	param2[0][3] = 0;
-	param2[0][4] = 0;
-	param2[0][5] = 0;
-
-	// find charge
-	param2[0][3] = (Double_t) FindChargeBIS(xc2, yc2, track2);
-	good2 = kTRUE;
-
       }
+      // save tracks
+      param2[0][0] = xc2;
+      param2[0][1] = yc2;
+      param2[0][2] = radius2;
+      param2[0][3] = 0;
+      param2[0][4] = 0;
+      param2[0][5] = 0;
+      
+      // find charge
+      param2[0][3] = (Double_t) FindChargeBIS(xc2, yc2, track2);
+      good2 = kTRUE;
     }
 
     return good1 * good2;
@@ -6577,7 +6586,7 @@ void PndSecondaryTrackFinder::Break(std::vector< TMatrixT<double> > newtrack, in
     track2.push_back(singlehit);
   }
 
- if(fVerbose) {
+  if(fVerbose) {
    cout << "BROKEN TRACKS" << endl;
    cout << "track1: from " << from1 << " to " << to1 << endl;;
 
