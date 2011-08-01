@@ -20,6 +20,7 @@
 #include "TGeoManager.h"
 #include "TStopwatch.h"
 #include "FairRootManager.h"
+#include "TDatabasePDG.h"
 
 #include "GFAbsTrackRep.h"
 #include "GFAbsRecoHit.h"
@@ -836,85 +837,126 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       }
       if (DEBUG) std::cout<<std::endl;
 
-      // create GFTrackCands
-      GFTrackCand* cand=new GFTrackCand();
+      unsigned int trackId(trk->mcid().DominantID().mctrackID());
 
-      // fill hits into GFTrackCands and pndcands from small to big Radius
-      bool invertedTrack = false;
-      double r1=trk->getHit(0)->cluster()->pos().Perp();
-      double r2=trk->getHit(nhits-1)->cluster()->pos().Perp();
-      if(r1<=r2){
-        for(unsigned int ih=0; ih<nhits; ++ih){
-          cand->addHit(kTpcCluster,trk->getHit(ih)->cluster()->index());
-        }
-      }
-      else {
-        for(unsigned int ih=nhits; ih>0; --ih){
-          cand->addHit(kTpcCluster,trk->getHit(ih-1)->cluster()->index());
-        }
-        invertedTrack = true;
-      }// finished filling hits
+       // check pdg
+       int pdg(211);
+       //if(1) pdg=((PndMCTrack*)(_mcTrackArray->At(trackId)))->GetPdgCode();
+
+       double pdgCharge(TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.);
+
+       int winding(trk->winding()); // we look in z direction!
 
 
-      // get seed values
-      int winding = trk->winding(); // we look in z direction!
-
-      TVector3 pos1, direction;
-
-      if(invertedTrack) {
-        trk->getPosDirOnHelix(trk->getNumHits()-1, pos1, direction);
-      }
-      else {
-        trk->getPosDirOnHelix(0, pos1, direction);
-        direction *= -1.;
-        winding*=-1.;
-      }
-
-      TVector3 poserr(0.3,0.3,0.3);
-
-      TVector3 mom = p * direction;
-      TVector3 momerr(fabs(mom.X()),fabs(mom.Y()),fabs(mom.Z()));
-      momerr *= trk->resolution();
-
-      // pdg
-      int pdg = winding * -13; // Todo: muons hardcoded atm
-      if(Bz<0) pdg *= -1;
-      if(invertCharge) pdg *= -1;
-
-      double trackR = trk->r();
-
-      if (DEBUG) {
-        double trackDip = trk->dip();
-        std::cout<<" center of track "; trk->center().Print();
-        std::cout<<" Radius of track [cm]: " << trackR << std::endl;
-        std::cout<<" Dip of track [deg]:   " << trackDip/TMath::Pi()*180 << std::endl;
-        std::cout<<" seed values: "<<std::endl;
-        std::cout<<"  start position: "; pos1.Print();
-        std::cout<<"  momentum [GeV]: "<<p<<std::endl;
-        std::cout<<"  p_perp [GeV]:   " << trackR*0.0003*Bz <<std::endl;
-        std::cout<<"  direction: "; direction.Print();
-        std::cout<<"  winding: "<<winding<<std::endl;
-        std::cout<<"  invertedTrack: "<<invertedTrack<<std::endl;
-        std::cout<<"  pdg id: "<<pdg<<std::endl;
-      }
-
-      cand->setCurv(trackR); //  actually this is never used
-      cand->setDip(trk->dip());
-
-      GFAbsTrackRep* rep;
-
-      if(useGeane){
-        const GFDetPlane* initialPlane = new GFDetPlane(pos1, direction);
-        rep = new GeaneTrackRep(GeanePro, *initialPlane, mom, poserr, momerr, pdg/TMath::Abs(pdg)*3, pdg);
-      }
-      else{
-        rep = new RKTrackRep(pos1, mom, poserr, momerr,pdg);
-      }
+       if (pdgCharge < 0) {
+         pdg *= -1;
+         pdgCharge *= -1.;
+       }
+       if (winding > 0) {
+         pdg *= -1;
+         pdgCharge *= -1.;
+       }
+       if (Bz < 0) {
+         pdg *= -1;
+         pdgCharge *= -1.;
+       }
 
 
-      GFTrack* track = new GFTrack(rep, smooth);
-      track->setCandidate(*cand); // here the candidate is copied!
+       // check sorting
+       bool invertTrack(true);
+
+       TVector3 ps1=trk->getFirstHit()->cluster()->pos();
+       TVector3 ps2=trk->getLastHit()->cluster()->pos();
+
+       if(ps1.Z() < ps2.Z()-7) invertTrack = false;
+       else if(ps1.Z() > ps2.Z()+7) invertTrack = true;
+       else if (ps1.Perp()>ps2.Perp()+5) invertTrack = true;
+       else if (ps1.Perp()<ps2.Perp()) invertTrack = false;
+       else invertTrack = true;
+
+       if (invertTrack){
+         winding*=-1;
+         pdg *= -1;
+         pdgCharge *= -1;
+       }
+
+
+       TParticlePDG * part = TDatabasePDG::Instance()->GetParticle(pdg);
+       if(part == 0){
+         if (DEBUG) std::cout << " - skipping, unknown PDG id: " << pdg;
+         continue;
+       }
+
+       if (DEBUG) std::cout<<std::endl;
+
+
+
+
+       // create GFTrackCands
+       GFTrackCand* cand=new GFTrackCand();
+
+       // fill hits into GFTrackCands and pndcands from small to big Radius and get seed values
+       TVector3 pos1, direction;
+
+       if(!invertTrack){
+         for(unsigned int ih=0; ih<nhits; ++ih){
+           cand->addHit(21,trk->getHit(ih)->cluster()->index());
+         }
+         trk->getPosDirOnHelix(0, pos1, direction);
+       }
+       else { // invert track
+         for(unsigned int ih=nhits; ih>0; --ih){
+           cand->addHit(21,trk->getHit(ih-1)->cluster()->index());
+         }
+         trk->getPosDirOnHelix(trk->getNumHits()-1, pos1, direction);
+         direction *= -1.;
+       }// finished filling hits
+
+
+
+       TVector3 poserr(1,1,1);
+       poserr*=trk->resolution();
+
+       TVector3 mom(p * direction);
+       TVector3 momerr(fabs(mom.X()),fabs(mom.Y()),fabs(mom.Z()));
+       momerr *= trk->resolution();
+
+       double trackR = trk->r();
+
+       if (DEBUG) {
+         double trackDip = trk->dip();
+         std::cout<<" center of track "; trk->center().Print();
+         std::cout<<" Radius of track [cm]: " << trackR;
+         std::cout<<"\n Dip of track [deg]:   " << trackDip/TMath::Pi()*180;
+         std::cout<<"\n seed values: ";
+         std::cout<<"\n  start position: "; pos1.Print();
+         std::cout<<"  momentum [GeV]: "<<p;
+         std::cout<<"\n  p_perp [GeV]:   " << trackR*0.0003*TMath::Abs(Bz);
+         std::cout<<"\n  direction: "; direction.Print();
+         std::cout<<"  winding: "<<winding;
+         std::cout<<"\n  invertTrack: "<<invertTrack;
+         std::cout<<"\n  pdg id: "<<pdg<<std::endl;
+       }
+
+       // set seed values to cands
+       cand->setCurv(1./trackR);
+       cand->setDip(trk->dip());
+       cand->setComplTrackSeed(pos1, mom, pdg, poserr, momerr*(1./p));
+       cand->setMcTrackId(trackId);
+
+
+
+
+       //RK TRACKREP
+       RKTrackRep* rep = new RKTrackRep(pos1, mom, poserr, momerr, pdg);
+
+       // store GFTracks in output array
+       GFTrack* track=new GFTrack(rep);
+       track->setCandidate(*cand);
       delete cand;
+
+      //SMOOTHING
+      if(smooth) track->setSmoothing(true);
 
       //
       // run Kalman
@@ -970,8 +1012,8 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
         GFDetPlane plane;
 
         // get the hit infos ------------------------------------------------------------------
-        if(smooth && numIts>0) {
           TMatrixT<double> state;
+        if(smooth && numIts>0) {
           TMatrixT<double> cov;
           TMatrixT<double> auxInfo;
           GFTools::getSmoothedData(track, 0, j, state, cov, plane, auxInfo);
@@ -979,7 +1021,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
         } else {
           try{
             plane = hit->getDetPlane(rep);
-            rep->extrapolate(plane);
+            rep->extrapolate(plane, state);
           }
           catch(GFException& e) {
             std::cerr << "Error: Exception caught (getDetPlane): Hit " << j << " in Track " << itrk << " skipped!" << std::endl;
