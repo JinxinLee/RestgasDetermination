@@ -852,7 +852,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 
 
   // ---------------- Z fit -------------
- //  fDisplayOn = kTRUE;
+ // fDisplayOn = kTRUE;
   std::vector< std::vector<int> >  skewedclusterlist;
   std::map<int, int> skewedclustopar;
   for(int itrk = 0; itrk < xyparameters.size(); itrk++) {
@@ -893,11 +893,11 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       cin >> goOnChar;
       cout << "GOING ON" << endl;
   }
-  // fDisplayOn = kTRUE;
-    std::vector<int> skewedcluster;
-    std::vector< TVector3 > intersections;
+    // fDisplayOn = kTRUE;
+  std::vector<int> skewedcluster;
+  std::vector< TVector3 > intersections;
 
-    skewedcluster = ZFinderBIS(sttskewedhits, xc, yc, radius, limits, intersections); // RESTYLE delete
+  skewedcluster = ZFinderBIS(sttskewedhits, xc, yc, radius, limits, intersections); // RESTYLE delete
     if(skewedcluster.size() > 0) {
       skewedclustopar[skewedclusterlist.size()] = itrk;
       skewedclusterlist.push_back(skewedcluster);
@@ -1121,10 +1121,24 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     Bool_t first = ComputeFirstParameters(track, par, firstpos, dfirstpos, firstmom);
     TVector3 lastpos, lastmom, dlastpos, dlastmom; // CHECK error
     Bool_t last = ComputeLastParameters(track, par, lastpos, dlastpos, lastmom);
-    if(fVerbose) {
+    //    if(fVerbose)
+    {
       cout << "OUTCOME " << first << " " << last << endl;
+      cout << "track par " << par[0][0] << " " << par[0][1] << " "  << par[0][2] << " " << par[0][4] << " " << par[0][5] << endl;
+      cout << "charge " << par[0][3] << " " << " no hits " << track.size() << endl;
+      TMatrixT<double> singlehit = track[0 ];
+      if(singlehit[0][0] == -1) continue;
+      Int_t hitid = singlehit[0][1];
+      Int_t detid = singlehit[0][2];
+      cout << "first hit " << hitid << " " << detid << endl;
       firstpos.Print();
       firstmom.Print();
+
+      TMatrixT<double> singlehit2 = track[track.size() - 1];
+      if(singlehit2[0][0] == -1) continue;
+      hitid = singlehit2[0][1];
+      detid = singlehit2[0][2];
+      cout << "last hit " << hitid << " " << detid << endl;
       lastpos.Print();
       lastmom.Print();
       cout << "###" << endl;
@@ -5626,7 +5640,7 @@ std::vector< TMatrixT<double> >  PndSecondaryTrackFinder::CleanAggregations(std:
  return newcluster;
 }
 
-TVector3 PndSecondaryTrackFinder::ComputePositionAtParallelHit(Int_t hitid, Double_t xc, Double_t yc, Double_t radius, TVector3 &dxyz) {
+TVector3 PndSecondaryTrackFinder::ComputePositionAtParallelHit(Int_t hitid, Double_t xc, Double_t yc, Double_t radius, Double_t fitm, Double_t fitp, Int_t charge, TVector3 &dxyz) {
   
   TVector3 xyz(-999., -999., -999.);
   dxyz.SetXYZ(0., 0., 0.);
@@ -5638,8 +5652,36 @@ TVector3 PndSecondaryTrackFinder::ComputePositionAtParallelHit(Int_t hitid, Doub
   if(intersection == kFALSE) cout << "ERROR NO INTERSECTION FOUND " << hitid << endl;
 //   cout << "INTERSECTION " << xc << " " << yc << " " << radius << endl;
 //   xyz.Print();
+
+  Bool_t zcomp = ComputeZ(xc, yc, radius, fitm, fitp, charge, xyz);
+  if(zcomp == kFALSE)  cout << "ERROR NO Z FOUND " << hitid << endl;
+
   return xyz;
 }
+
+Bool_t PndSecondaryTrackFinder::ComputeZ(Double_t xc, Double_t yc, Double_t radius, Double_t fitm, Double_t fitp, Int_t charge, TVector3 &position) {
+  Double_t d = TMath::Sqrt(xc * xc + yc * yc) - radius;
+  Double_t phi =  TMath::ATan2(yc, xc);
+  
+  Double_t x0 = d * TMath::Cos(phi);
+  Double_t y0 = d * TMath::Sin(phi);
+
+  Double_t Phi0 = TMath::ATan2((y0 - yc),(x0 - xc));
+  TVector2 v(x0 - xc, y0 - yc); 
+  
+  double alpha = TMath::ATan2(position.Y() - y0 + radius * TMath::Sin(Phi0), position.X() - x0 + radius * TMath::Cos(Phi0));
+  TVector2 p(position.X() - xc, position.Y() - yc);
+  
+  Double_t Fi = CalculatePhi(v, p);
+  Fi = BringPhiInto2Pi(Fi, charge);
+  Double_t scos = - charge * radius * Fi; // scos = -q * R * phi CHECK :-)GOOD!
+  
+  double z = fitp + scos * fitm;
+  position.SetZ(z);
+  return kTRUE;
+
+}
+
 
 TVector3 PndSecondaryTrackFinder::ComputeMomentumAtPos(Double_t xc, Double_t yc, Double_t radius, Double_t tanl, Int_t charge, TVector3 position) {
 
@@ -5691,6 +5733,7 @@ Bool_t PndSecondaryTrackFinder::ComputeParametersAtHit(Int_t ihit, std::vector< 
   Double_t radius = par[0][2];
   Int_t charge = (Int_t) TMath::Sign(1., par[0][3]);
   Double_t tanl = par[0][4];
+  Double_t z0 = par[0][5];
 
   Int_t hitid = (Int_t) singlehit[0][1];
   Int_t detid = (Int_t) singlehit[0][2];
@@ -5701,7 +5744,7 @@ Bool_t PndSecondaryTrackFinder::ComputeParametersAtHit(Int_t ihit, std::vector< 
 
   // if it is mvd, gem, or stt skewed keep the positon, else compute it
   if(detid == FairRootManager::Instance()->GetBranchId(fSttBranch) && isskew == 0) {
-    TVector3 xyz = ComputePositionAtParallelHit(hitid, xc, yc, radius, dposition);
+    TVector3 xyz = ComputePositionAtParallelHit(hitid, xc, yc, radius, tanl, z0, charge, dposition);
     if(xyz.X() != -999) position = xyz;
   }
 

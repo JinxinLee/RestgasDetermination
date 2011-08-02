@@ -161,7 +161,10 @@ class PndSecondaryTrackFinder : public FairTask {
   std::vector< TMatrixT<double> > CleanAggregations(std::vector<TMatrixT<double> > cluster, std::vector< std::vector<TMatrixT<double> > > clusterlist);
 
   /** final parameters **/
-  TVector3 ComputePositionAtParallelHit(Int_t hitid, Double_t xc, Double_t yc, Double_t radius, TVector3 &dxyz);
+
+  TVector3 ComputePositionAtParallelHit(Int_t hitid, Double_t xc, Double_t yc, Double_t radius, Double_t fitm, Double_t fitp, Int_t charge, TVector3 &dxyz);
+  Bool_t ComputeZ(Double_t xc, Double_t yc, Double_t radius, Double_t fitm, Double_t fitp, Int_t charge, TVector3 &position);
+
   TVector3 ComputeMomentumAtPos(Double_t xc, Double_t yc, Double_t radius, Double_t tanl, Int_t charge, TVector3 position);
   Bool_t ComputeParametersAtHit(Int_t ihit, std::vector< TMatrixT<double> > cluster, TMatrixT<double> par, TVector3 &position, TVector3 &dposition, TVector3 &momentum);
   Bool_t ComputeFirstParameters(std::vector< TMatrixT<double> > cluster, TMatrixT<double> par, TVector3 &position, TVector3 &dposition, TVector3 &momentum);
