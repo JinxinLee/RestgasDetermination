@@ -355,10 +355,15 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 
           if (Verbosity()>=4)
           {
-            cout<<"     hit="<<hit<<" with "<<(*kSurf_coupled)->Name()<<" of "<<Name()<<endl;
-	    //cout<<"     for ph x,xdir :"<<ph.Position().X()<<" "<<ph.Direction().X()<<endl;
-	    //cout<<"     for ph y,ydir :"<<ph.Position().Y()<<" "<<ph.Direction().Y()<<endl;
-	    //cout<<"     for ph z,zdir :"<<ph.Position().Z()<<" "<<ph.Direction().Z()<<endl;
+            cout<<"     hit="<<hit<<" with "
+		<<(*kSurf_coupled)->Name()
+		<<" of "
+		<<(*kDev_coupled)->Name()
+		<<"/"
+		<<(*kDev_coupled)->CopyNumber()<<endl;
+	    cout<<"     for ph x,xdir :"<<ph.Position().X()<<" "<<ph.Direction().X()<<endl;
+	    cout<<"     for ph y,ydir :"<<ph.Position().Y()<<" "<<ph.Direction().Y()<<endl;
+	    cout<<"     for ph z,zdir :"<<ph.Position().Z()<<" "<<ph.Direction().Z()<<endl;
 	    cout<<"     path_length "<<path_length<<endl;
           }
 

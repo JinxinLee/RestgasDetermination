@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
   double half_thick  = 17.0/2;    //mm
   double half_length = 2500.0/2;  //mm
 
-  double lens_radius = 50.0;     // mm
+  double lens_radius = 8999.0;     // mm
 
 
   PndDrcOptDevSys opt_system;
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
   sheet.SetOptMaterial(PndDrcOptMatLithotecQ0());
   sheet.SetName("sheet");
   //sheet.Surface("side1")->SetPixel();
-  sheet.SetVerbosity(5);
+  sheet.SetVerbosity(0);
   
   // move sheet such into positive z space such that end of sheet is at z=0
   sheet.AddTransform(Transform3D(XYZVector(0,0,half_length)));
@@ -105,26 +105,23 @@ int main(int argc, char *argv[])
   
 
   PndDrcOptCylLens lens_quartz(half_thick,half_width,lens_body_hthick,lens_radius,99999.9);
-  //PndDrcOptBrik lens_quartz(half_thick,half_width,lens_body_hthick);
-  
   lens_quartz.SetOptMaterial(PndDrcOptMatLithotecQ0());
   lens_quartz.AddTransform(Transform3D(XYZVector(0,0,-lens_body_hthick)));
   lens_quartz.AddTransform(Transform3D(RotationZ(kPi/2)));
   lens_quartz.SetName("lens_quartz");
   lens_quartz.SetPrintColor(2);
-  lens_quartz.SetVerbosity(5);
+  lens_quartz.SetVerbosity(0);
 
   opt_system.AddDevice(lens_quartz);
 
   PndDrcOptCylLens lens_air(half_thick,half_width,lens_body_hthick,99999.9,-lens_radius);
-  //PndDrcOptBrik lens_air(half_thick,half_width,lens_body_hthick);
-  lens_quartz.SetOptMaterial(PndDrcOptMatVacuum());
   lens_air.AddTransform(Transform3D(XYZVector(0,0,-(2+1)*lens_body_hthick)));
   lens_air.AddTransform(Transform3D(RotationZ(kPi/2)));
+  //lens_air.SetOptMaterial(PndDrcOptMatVacuum());
   lens_air.SetOptMaterial(PndDrcOptMatLithotecQ0());
   lens_air.SetName("lens_air");
   lens_air.SetPrintColor(4);
-  lens_air.SetVerbosity(5);
+  lens_air.SetVerbosity(0);
   
 
   opt_system.AddDevice(lens_air);
@@ -198,55 +195,84 @@ int main(int argc, char *argv[])
   //
   // the intention is to play around with routines.
   // there hast to come another geo output after propagation...
-  manager->Print(); // print out to screen everything...
+  // manager->Print(); // print out to screen everything...
 
   // create a list of photons in sheet
 
   XYZPoint  pos(0,-half_thick-10.0,half_length);
   XYZVector dir(0,1,10); 
-  double   beta = 0.684;
-  //bool photons_exist = manager->Cerenkov(pos,dir,beta); // generate photons
+  double   beta = 0.784;
+  bool photons_exist = manager->Cerenkov(pos,dir,beta); // generate photons
 
-
+  /*
   PndDrcPhoton ph;
   ph.SetReflectionLimit(200);  
   list<PndDrcPhoton> list_photon; // get list
-
-  ph.SetPosition(XYZPoint(0,0,10));
-  ph.SetDirection(XYZVector(0,0,-1));
-  ph.SetWavelength(500);
-  ph.SetDevice(manager->Device("sheet"));
-  
-  list_photon.push_back(ph);
-
-
+  TRandom ran;
+  for (int i=0; i<50; i++)
+    {
+      ph.SetPosition(XYZPoint(ran.Uniform(-100,100),ran.Uniform(-8.5,8.5),10));
+      //ph.SetPosition(XYZPoint(0,0,10));
+    double y = ran.Uniform(-0.4,0.4);
+    double z = sqrt(1-y*y);
+    
+    ph.SetDirection(XYZVector(0,y,z));
+    ph.SetWavelength(400);
+    ph.SetDevice(manager->Device("sheet")); 
+    list_photon.push_back(ph);
+  }
   manager->SetPhotonList(list_photon,"sheet");
+  */
 
 
+  list<PndDrcPhoton> list_photon0 = manager->PhotonList();  // get list
 
 
+  if (photons_exist) manager->Propagate();              // propagate photons
 
-  /*if (photons_exist) */ manager->Propagate();              // propagate photons
 
-
-  /*list<PndDrcPhoton>*/ list_photon = manager->PhotonList();  // get list
+  list<PndDrcPhoton> list_photon = manager->PhotonList();  // get list
   
   geo<<"}"<<endl;     // here it is...
 
+
+
+
   // analyse list
+
+  fstream out;
+  out.open("debug.dat",std::ios::out);
+  
   int icnt_measured = 0;
   int icnt_flying   = 0;
   int icnt_lost     = 0;
   int icnt_absorbed = 0;
   list<PndDrcPhoton>::iterator iph;
-  for(iph=list_photon.begin(); iph != list_photon.end(); ++iph) 
+  list<PndDrcPhoton>::iterator iph0;
+  for(iph=list_photon.begin(), iph0=list_photon0.begin(); iph != list_photon.end(); ++iph,++iph0) 
     {
-      if      ((*iph).Fate()==Drc::kPhotMeasured) icnt_measured++;
-      else if ((*iph).Fate()==Drc::kPhotFlying)   icnt_flying++; // should never happen.
-      else if ((*iph).Fate()==Drc::kPhotAbsorbed) icnt_absorbed++;
-      else                                       icnt_lost++;
+      int icode = 4;
+      
+      if      ((*iph).Fate()==Drc::kPhotMeasured) {icode=1;icnt_measured++;}
+      
+      else if ((*iph).Fate()==Drc::kPhotFlying)   {icode=2;icnt_flying++;} // should never happen.
+      else if ((*iph).Fate()==Drc::kPhotAbsorbed) {icode=3;icnt_absorbed++;}
+      else icnt_lost++;
+ 
+     out
+       <<(*iph).Position().X()<<" "
+       <<(*iph).Position().Y()<<" "
+       <<(*iph).Position().Z()<<" "
+       <<(*iph).Direction().X()<<" "
+       <<(*iph).Direction().Y()<<" "
+       <<(*iph).Direction().Z()<<" "
+       <<(*iph).Wavelength()<<" "<<icode<<endl;
+     
+       
+     
     }
-
+  out.close();
+  
   int icnt = icnt_measured+icnt_flying+icnt_lost+icnt_absorbed;
   cout<<" generated photons: "<<icnt<<endl;
   cout<<" measured  photons: "<<icnt_measured<<endl;

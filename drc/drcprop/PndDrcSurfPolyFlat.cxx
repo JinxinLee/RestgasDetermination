@@ -15,7 +15,7 @@
 //
 //#include "TObject.h"
 #include "TVector3.h"
-//#include "TRandom.h"
+#include "TRandom.h"
 //#include "TMatrixD.h"
 #include "TVectorD.h"
 #include "TDecompSVD.h"
@@ -318,34 +318,44 @@ bool PndDrcSurfPolyFlat::WithinSurface(XYZPoint& point) const
 
   diff[isize-1] = (fP[0] - fP[isize-1]);
 
+  TRandom ran;
+  
 
+  // the random addition prevents for rectangles that the middle point of the rectangle
+  // is just going throug an edge point towards the outer point.
+  // The middle point of a rectangle is often set deliberately for photons for debugging
+  // purposes.
   XYZPoint p_out(diff[isize-1]);
   for (unsigned int i=0; i<isize-1; i++)
     {
-      diff[i] = fP[i+1] - fP[i];
+      diff[i] = (fP[i+1] - fP[i])*(1.0+ran.Uniform());
       if (diff[i].Dot(diff[isize-1])<0) diff[i] *= -1;
       p_out += diff[i];
     }
   p_out += XYZVector(fP[0]); // = p0 + differences
 
   //cout<<" p_out="<<p_out.X()<<" "<<p_out.Y()<<" "<<p_out.Z()<<endl;//###
-
+  //cout<<" 0 "<<fP[0].X()<<" "<<fP[0].Y()<<" "<<fP[0].Z()<<endl;
+  //cout<<" 1 "<<fP[1].X()<<" "<<fP[1].Y()<<" "<<fP[1].Z()<<endl;
+  //cout<<" 2 "<<fP[2].X()<<" "<<fP[2].Y()<<" "<<fP[2].Z()<<endl;
+  //cout<<" 3 "<<fP[3].X()<<" "<<fP[3].Y()<<" "<<fP[3].Z()<<endl;
+  
   // determine number of intersections.
   int intersections = 0;
   if (LineCross(p_out,point,fP[isize-1],fP[0])) intersections++;
-  //cout<<" 1st "<<intersections<<endl;
+  //cout<<" 1st "<<intersections<<endl; //###
   for (unsigned int i=0; i<isize-1; i++)
     {
 		if (LineCross(p_out,point,fP[i],fP[i+1])) intersections++;
-      /*
-	     cout<<" nst "<<i<<" "<<intersections<<" "
-	     <<fP[i].X()<<" "
-	     <<fP[i].Y()<<" "
-	     <<fP[i].Z()<<" "
-	     <<fP[i+1].X()<<" "
-	     <<fP[i+1].Y()<<" "
-	     <<fP[i+1].Z()<<endl;
-      */
+		/*
+		  cout<<" nst "<<i<<" "<<intersections<<" "
+		  <<fP[i].X()<<" "
+		  <<fP[i].Y()<<" "
+		  <<fP[i].Z()<<" "
+		  <<fP[i+1].X()<<" "
+		  <<fP[i+1].Y()<<" "
+		  <<fP[i+1].Z()<<endl;
+		*/
 	}
 
 	if (intersections%2 == 0)
