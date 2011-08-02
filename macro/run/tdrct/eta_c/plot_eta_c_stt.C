@@ -1,6 +1,6 @@
 {
 	bool saveHistos=false;
-	TString inFile="etac_histo_stt_grid.root";
+	TString inFile="etac_histo_stt.root";
 	
 	TFile *f = TFile::Open(inFile);
 
