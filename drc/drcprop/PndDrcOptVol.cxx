@@ -126,8 +126,12 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 //   fVerbosity=4;
   static const double kEps = 1.0e-9;
 
-  if (Verbosity()>=4) cout<<"    PndDrcOptVol::propagate, you are in "<<Name()<<endl;
-  //if (verbosity()>=4) ph.print();
+  if (Verbosity()>=4) 
+    {
+      cout<<"    PndDrcOptVol::propagate, you are in "<<Name()<<endl;
+      cout<<"    photon is"<<endl;
+      ph.Print();
+    }
   list<PndDrcSurfAbs*>::const_iterator kSurf;
 
 
@@ -160,9 +164,10 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 	      if (Verbosity()>=4) 
 		{
 		  cout<<"     hit for "<<(*kSurf)->Name()<<endl;
-		  cout<<"     for ph x,xdir :"<<ph.Position().X()<<" "<<ph.Direction().X()<<endl;
-		  cout<<"     for ph y,ydir :"<<ph.Position().Y()<<" "<<ph.Direction().Y()<<endl;
-		  cout<<"     for ph z,zdir :"<<ph.Position().Z()<<" "<<ph.Direction().Z()<<endl;
+
+		  // cout<<"     for ph x,xdir :"<<ph.Position().X()<<" "<<ph.Direction().X()<<endl;
+		  //cout<<"     for ph y,ydir :"<<ph.Position().Y()<<" "<<ph.Direction().Y()<<endl;
+		  //cout<<"     for ph z,zdir :"<<ph.Position().Z()<<" "<<ph.Direction().Z()<<endl;
 		  cout<<"     path_length "<<path_length<<endl;
 		}
 	      
@@ -177,9 +182,9 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 	      if (Verbosity()>=4)
 		{
 		  cout<<"     no hit "<<(*kSurf)->Name()<<" of "<<Name()<<endl;
-		  cout<<"     for ph x,xdir :"<<ph.Position().X()<<" "<<ph.Direction().X()<<endl;
-		  cout<<"     for ph y,ydir :"<<ph.Position().Y()<<" "<<ph.Direction().Y()<<endl;
-		  cout<<"     for ph z,zdir :"<<ph.Position().Z()<<" "<<ph.Direction().Z()<<endl;
+		  //cout<<"     for ph x,xdir :"<<ph.Position().X()<<" "<<ph.Direction().X()<<endl;
+		  //cout<<"     for ph y,ydir :"<<ph.Position().Y()<<" "<<ph.Direction().Y()<<endl;
+		  //cout<<"     for ph z,zdir :"<<ph.Position().Z()<<" "<<ph.Direction().Z()<<endl;
 		  // 		  ph.print();
 		}
 	      

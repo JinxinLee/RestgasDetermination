@@ -139,33 +139,23 @@ bool PndDrcSurfPolyCyl::SurfaceHit(PndDrcPhoton& ph,
   // There are 2 positions for photon to have distance=radius from y-axis
   // (work on projections with y component beeing zero)
   //
-  // (pos+lambda*dir)_x^2 + (pos+lanbda*dir)_z^2 = R^2
+  // (pos+lambda*dir)_x^2 + (pos+lambda*dir)_z^2 = R^2
   //   pos_x^2 + 2 lambda dir_x pos_x + lambda^2 dir_x^2 
   // + pos_z^2 + 2 lambda dir_z pos_z + lambda^2 dir_z^2 = R^2
-  // lambda^2 + lambda 2*dir_xz*pos_xz/dir_xz^2 + (pos_xz^2-R2)/dir_xz^2 = 0
   //
+  // ---------------------------------------------------------
+  // lambda^2 + 2*lambda*(dir_x*pos_x+dir_z*pos_z)/dir_xz^2 
+  // + (pos_x^2+pos_z^2-R2)/dir_xz^2 = 0
+  // ---------------------------------------------------------
+  //
+  // dir_xz^2 = dir_x^2+dir_z^2
   // lambda1/2 = ...
 
   double pos2,dir2,posdir;
   
-  //if (fVerbosity>=0 
-  //  && fabs(ph.Direction().X()-0.0122667)<0.0001
-  //  && fabs(ph.Direction().Y()-0.185798)<0.0001
-  //  && fabs(ph.Direction().Z()+0.982511)<0.0001) 
-  //{
-  pos2   = pos.X()*pos.X() + pos.Z()*pos.Z();//XYZVector(pos).Dot(XYZVector(pos));
-  dir2   = dir.X()*dir.X() + dir.Z()*dir.Z();//dir.Dot(dir);
-  posdir = pos.X()*dir.X() + pos.Z()*dir.Z();//dir.Dot(pos);
-  //}
-  //else
-  //{
-  //pos2   = XYZVector(pos).Dot(XYZVector(pos));
-  //dir2   = dir.Dot(dir);
-  //posdir = dir.Dot(pos);
-  //}
-  
-
-
+  pos2   = pos.X()*pos.X() + pos.Z()*pos.Z();
+  dir2   = dir.X()*dir.X() + dir.Z()*dir.Z();
+  posdir = pos.X()*dir.X() + pos.Z()*dir.Z();
 
   double p = 2*posdir/dir2;
   double q = (pos2-fRadius*fRadius)/dir2;
@@ -173,11 +163,8 @@ bool PndDrcSurfPolyCyl::SurfaceHit(PndDrcPhoton& ph,
   double root2 = p*p/4-q;
   if (root2<0) return false; // no hit
 
-
-  double lambda1 = -posdir + sqrt(root2);
-  double lambda2 = -posdir - sqrt(root2);
-
-
+  double lambda1 = -p/2 + sqrt(root2);
+  double lambda2 = -p/2 - sqrt(root2);
 
   const double kEps = 0.001;
 
