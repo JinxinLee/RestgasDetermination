@@ -852,7 +852,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 
 
   // ---------------- Z fit -------------
-  //  fDisplayOn = kTRUE;
+  //   fDisplayOn = kTRUE;
   std::vector< std::vector<int> >  skewedclusterlist;
   std::map<int, int> skewedclustopar;
   for(int itrk = 0; itrk < xyparameters.size(); itrk++) {
@@ -1110,7 +1110,10 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 
 
   }
-
+//   fDisplayOn = kTRUE;
+//   Refresh();
+//   DrawClustersBIS(tracklist);
+//   DrawFoundTracks(xyparameters);
   for(int itrk = 0; itrk < tracklist.size(); itrk++) {
     
     if(fVerbose) cout << "COMPUTE PARAMETERS @ FIRST AND LAST" << endl;
@@ -1536,12 +1539,17 @@ void PndSecondaryTrackFinder::GetInitialParams(PndTrack * track, Double_t &xc, D
   double alpha1 = TMath::ATan2(recopos.Y() - y0 + radius * TMath::Sin(Phi0), recopos.X() - x0 + radius * TMath::Cos(Phi0));
   TVector2 p1(recopos.X() - xc, recopos.Y() - yc);
   Double_t Fi1 = CalculatePhi(v, p1, alpha1, Phi0, charge);
+//   Double_t Fi1 = CalculatePhi(v, p1);
+//   Fi1 = BringPhiInto2Pi(Fi1, charge);
+
   //   cout << "alpha1, Fi1 " << alpha1 * TMath::RadToDeg() << " " << Fi1 * TMath::RadToDeg() << endl;
   //   p1.Print();
 
   double alpha2 = TMath::ATan2(recoposlast.Y() - y0 + radius * TMath::Sin(Phi0), recoposlast.X() - x0 + radius * TMath::Cos(Phi0));
   TVector2 p2(recoposlast.X() - xc, recoposlast.Y() - yc);
   Double_t Fi2 = CalculatePhi(v, p2, alpha2, Phi0, charge);
+//   Double_t Fi2 = CalculatePhi(v, p2);
+//   Fi2 = BringPhiInto2Pi(Fi2, charge);
   Fi2 = CompareToPreviousPhi(Fi2, Fi1, charge); // CHECK this!
   //   cout << "alpha2, Fi2 " << alpha2 * TMath::RadToDeg() << " " << Fi2 * TMath::RadToDeg() << endl;
   //   p2.Print();
@@ -2504,8 +2512,8 @@ Bool_t PndSecondaryTrackFinder::RefitConformalBIS(std::vector< TMatrixT<double> 
       PndSttHit *hit = (PndSttHit*) array->At(hitid);
       if(!hit) continue;
       Double_t rd = hit->GetIsochrone();
-      TVector3 xyz, dxyz;
-      Bool_t inters = IntersectionFinder(xc, yc, radius, hit, xyz, dxyz);
+      TVector3 xyz, dxyz, xyb;
+      Bool_t inters = IntersectionFinder(xc, yc, radius, hit, xyz, xyb, dxyz);
       if(inters == kFALSE) {
 	newsinglehit[0][0] = -1; // CHECK useit flag
 	std::replace(cluster->begin(), cluster->end(), singlehit, newsinglehit);
@@ -3173,9 +3181,7 @@ Short_t PndSecondaryTrackFinder::FitHelixCylinder( UShort_t nHitsinTrack,
 
 }
 
-
-
-Bool_t PndSecondaryTrackFinder::IntersectionFinder(Double_t xc, Double_t yc, Double_t radius, PndSttHit* stthit, TVector3 &xyz, TVector3 &dxyz) {
+Bool_t PndSecondaryTrackFinder::IntersectionFinder(Double_t xc, Double_t yc, Double_t radius, PndSttHit* stthit, TVector3 &xyz, TVector3 &xyb, TVector3 &dxyz) {
 
   // tubeID  CHECK added
   Int_t tubeID = stthit->GetTubeID();
@@ -3264,9 +3270,8 @@ Bool_t PndSecondaryTrackFinder::IntersectionFinder(Double_t xc, Double_t yc, Dou
   Double_t distb2 = sqrt((yb2 - point.Y())*(yb2 - point.Y()) + (xb2 - point.X())*(xb2 - point.X()));
     
   // choice of [xb, yb]
-  TVector2 xyb;
-  if(distb1 > distb2) xyb.Set(xb2, yb2); 
-  else xyb.Set(xb1, yb1); 
+  if(distb1 > distb2) xyb.SetXYZ(xb2, yb2, 0.); 
+  else xyb.SetXYZ(xb1, yb1, 0.); 
 
   // calculation of the distance between [x, y] and [xb. yb]
   Double_t dist1 = sqrt((xyb.Y() - y1)*(xyb.Y() - y1) + (xyb.X() - x1)*(xyb.X() - x1));
@@ -3275,6 +3280,31 @@ Bool_t PndSecondaryTrackFinder::IntersectionFinder(Double_t xc, Double_t yc, Dou
   // choice of [x, y]
   if(dist1 > dist2)  xyz.SetXYZ(x2, y2, stthit->GetZ());
   else xyz.SetXYZ(x1, y1, stthit->GetZ());  // <========= THIS IS THE NEW POINT to be used for the fit
+
+  if(fDisplayOn) {
+    Refresh();
+    TMarker *l1 = new TMarker(xyz.X(), xyz.Y(), 29);
+    l1->SetMarkerSize(2.5);
+    l1->SetMarkerColor(kYellow);
+    l1->Draw("SAME");
+
+    TMarker *l2 = new TMarker(xyb.X(), xyb.Y(), 29);
+    l2->SetMarkerSize(2.5);
+    l2->SetMarkerColor(kCyan);
+    l2->Draw("SAME");
+
+
+
+    display->Update();
+    display->Modified();
+
+    char goOnChar;
+    cout << ", press any key" << endl;
+    cin >> goOnChar;
+    cout << "GOING ON" << endl;
+
+  }
+
 
   Double_t sigr = stthit->GetIsochroneError();
   Double_t sigx = sigr; // fabs(sigr * TMath::Cos(m));
@@ -3478,6 +3508,10 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::OrderClusterInPhiBIS(st
     double alpha = TMath::ATan2(position.Y() - y0 + radius * TMath::Sin(Phi0), position.X() - x0 + radius * TMath::Cos(Phi0));
     TVector2 p(position.X() - xc, position.Y() - yc);
     Double_t phi2 = CalculatePhi(v, p, alpha, Phi0, charge);
+//     Double_t phi2 = CalculatePhi(v, p);
+//     phi2 = BringPhiInto2Pi(phi2, charge);
+  
+
     phiangles.push_back(phi2);
     mapphiangles.insert(std::pair<double, int>(phi2, ihit));
   }
@@ -4522,9 +4556,9 @@ Bool_t PndSecondaryTrackFinder::ZFit3BIS(std::vector< TMatrixT<double> > *cluste
     
     Double_t alpha = TMath::ATan2(point.Y() - y0 + radius * TMath::Sin(Phi0), point.X() - x0 + radius * TMath::Cos(Phi0));
     TVector2 p(point.X() - xc, point.Y() - yc);
-    //    Double_t Fi = CalculatePhi(v, p, alpha, Phi0, charge);
-    Double_t Fi = CalculatePhi(v, p);
-    Fi = BringPhiInto2Pi(Fi, charge);
+    Double_t Fi = CalculatePhi(v, p, alpha, Phi0, charge);
+//     Double_t Fi = CalculatePhi(v, p);
+//     Fi = BringPhiInto2Pi(Fi, charge);
     Double_t scos = - charge * radius * Fi; // scos = -q * R * phi CHECK :-)GOOD!
 
     //     hz->Fill(point1.Z());
@@ -4596,6 +4630,8 @@ Bool_t PndSecondaryTrackFinder::ZFit3BIS(std::vector< TMatrixT<double> > *cluste
     //    point.Print();
 
     Double_t Fi = CalculatePhi(v, p, alpha, Phi0, charge);
+//     Double_t Fi = CalculatePhi(v, p);
+//     Fi = BringPhiInto2Pi(Fi, charge);
     //    cout << "Fi " << Fi * TMath::RadToDeg() << " " << endl;
     //    if(ihit > 0) Fi = CompareToPreviousPhi(Fi, Fi_pre, charge);  // CHECK This
     //    cout << "after compare Fi " << Fi * 360 / (6.28) << " " << endl;
@@ -4747,6 +4783,8 @@ std::vector<TVector3>  PndSecondaryTrackFinder::FindRealIntersectionsBIS(std::ve
     TVector2 p(point.X() - xc, point.Y() - yc);
 
     Double_t Fi = CalculatePhi(v, p, alpha, Phi0, charge);
+//     Double_t Fi = CalculatePhi(v, p);
+//     Fi = BringPhiInto2Pi(Fi, charge);
     Double_t scos = - charge * radius * Fi; // scos = -q * R * phi CHECK :-)GOOD!
 
     if(scos < scosmin) {
@@ -4821,6 +4859,8 @@ std::vector<TVector3>  PndSecondaryTrackFinder::FindRealIntersectionsBIS(std::ve
     TVector2 p(point.X() - xc, point.Y() - yc);
     
     Double_t Fi = CalculatePhi(v, p, alpha, Phi0, charge);
+//     Double_t Fi = CalculatePhi(v, p);
+//     Fi = BringPhiInto2Pi(Fi, charge);
     Double_t scos = - charge * radius * Fi; // scos = -q * R * phi CHECK :-)GOOD!
 
     Double_t d1 = -1;
@@ -4994,7 +5034,9 @@ std::vector<TVector3>  PndSecondaryTrackFinder::FindRealIntersectionsBIS(std::ve
     Double_t alpha = TMath::ATan2(point.Y() - y0 + radius * TMath::Sin(Phi0), point.X() - x0 + radius * TMath::Cos(Phi0));
     TVector2 p(point.X() - xc, point.Y() - yc);
  
-    Double_t Fi = CalculatePhi(v, p, alpha, Phi0, charge);
+  Double_t Fi = CalculatePhi(v, p, alpha, Phi0, charge);
+//     Double_t Fi = CalculatePhi(v, p);
+//     Fi = BringPhiInto2Pi(Fi, charge);
     Double_t scos = - charge * radius * Fi; // scos = -q * R * phi CHECK :-)GOOD!
    
     if(fDisplayOn) { 
@@ -5643,12 +5685,13 @@ std::vector< TMatrixT<double> >  PndSecondaryTrackFinder::CleanAggregations(std:
 TVector3 PndSecondaryTrackFinder::ComputePositionAtParallelHit(Int_t hitid, Double_t xc, Double_t yc, Double_t radius, Double_t fitm, Double_t fitp, Int_t charge, TVector3 &dxyz) {
   
   TVector3 xyz(-999., -999., -999.);
+  TVector3 xyb(-999., -999., -999.);
   dxyz.SetXYZ(0., 0., 0.);
 
   PndSttHit *hit = (PndSttHit*) fSttHitArray->At(hitid);
   if(!hit) return xyz;
   
-  Bool_t intersection = IntersectionFinder(xc, yc, radius, hit, xyz, dxyz);
+  Bool_t intersection = IntersectionFinder(xc, yc, radius, hit, xyb, xyz, dxyz);
   if(intersection == kFALSE) cout << "ERROR NO INTERSECTION FOUND " << hitid << endl;
   //   cout << "INTERSECTION " << xc << " " << yc << " " << radius << endl;
   //   xyz.Print();
