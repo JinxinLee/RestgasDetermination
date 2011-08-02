@@ -262,7 +262,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   fSecondaryTrackArray->Delete();
 
   if(fVerbose) cout << "++++++++++++++++++++++++++++++++++++" << endl;
-  //    fDisplayOn = kFALSE;
+  fDisplayOn = kFALSE;
   // MC Tracks ------------ CHECK MC INFO
   std::vector<int> mctracks;
   for(int ipnt = 0; ipnt < fSttPointArray->GetEntriesFast(); ipnt++) {
@@ -852,7 +852,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 
 
   // ---------------- Z fit -------------
- // fDisplayOn = kTRUE;
+ //  fDisplayOn = kTRUE;
   std::vector< std::vector<int> >  skewedclusterlist;
   std::map<int, int> skewedclustopar;
   for(int itrk = 0; itrk < xyparameters.size(); itrk++) {
@@ -4229,7 +4229,7 @@ Bool_t PndSecondaryTrackFinder::DoesHitBelong(Int_t hitId, Double_t xc, Double_t
     display->Update();
     display->Modified();
   }
-
+  //  fDisplayOn = kTRUE;
   Bool_t belongs = DoesHitBelong(hitId, xc, yc, radius, intersection, draw);
   if(belongs == kFALSE) return belongs;
 
@@ -5277,23 +5277,65 @@ Bool_t PndSecondaryTrackFinder::IsInsideLimits(TVector3 intersection, Double_t l
   double dmax = limits[1][2];
   
   TVector2 first, last;
-  if( fabs(TMath::Sqrt(limits[0][0]* limits[0][0] + limits[0][1] * limits[0][1]) - dmin) < 1) {
+  /** NOT WORKING FINE
+     if( fabs(TMath::Sqrt(limits[0][0]* limits[0][0] + limits[0][1] * limits[0][1]) - dmin) < 1) {
+     first = TVector2(limits[0][0], limits[0][1]);
+     last = TVector2(limits[1][0], limits[1][1]);
+     }
+     else if( fabs(TMath::Sqrt(limits[0][0]* limits[0][0] + limits[0][1] * limits[0][1]) - dmax) < 1) {
+     last = TVector2(limits[0][0], limits[0][1]);
+     first = TVector2(limits[1][0], limits[1][1]);
+     }
+     else if( fabs(TMath::Sqrt(limits[0][0] * limits[0][0] + limits[1][1] * limits[1][1]) - dmin) < 1) {
+     first = TVector2(limits[0][0], limits[1][1]);
+     last = TVector2(limits[1][0], limits[0][1]);
+     } 
+     else if( fabs(TMath::Sqrt(limits[0][0] * limits[0][0] + limits[1][1] * limits[1][1]) - dmax) < 1) {
+     last = TVector2(limits[0][0], limits[1][1]);
+     first = TVector2(limits[1][0], limits[0][1]);
+     }
+  **/
+  // =========================
+  // |   dmin    |   dmax    |
+  // | xmin ymin | xmax ymax |
+  // | xmin ymax | xmax ymin |
+  // | xmax ymin | xmin ymax |
+  // | xmax ymax | xmin ymin |
+
+  if( fabs(TMath::Sqrt(limits[0][0] * limits[0][0] + limits[0][1] * limits[0][1]) - dmin) < 1 ||
+      fabs(TMath::Sqrt(limits[1][0] * limits[1][0] + limits[1][1] * limits[1][1]) - dmax) < 1) {
     first = TVector2(limits[0][0], limits[0][1]);
     last = TVector2(limits[1][0], limits[1][1]);
   }
-  else if( fabs(TMath::Sqrt(limits[0][0]* limits[0][0] + limits[0][1] * limits[0][1]) - dmax) < 1) {
-    last = TVector2(limits[0][0], limits[0][1]);
-    first = TVector2(limits[1][0], limits[1][1]);
-  }
-  else if( fabs(TMath::Sqrt(limits[0][0] * limits[0][0] + limits[1][1] * limits[1][1]) - dmin) < 1) {
+  else if( fabs(TMath::Sqrt(limits[0][0] * limits[0][0] + limits[1][1] * limits[1][1]) - dmin) < 1 ||
+	   fabs(TMath::Sqrt(limits[1][0] * limits[1][0] + limits[0][1] * limits[0][1]) - dmax) < 1) {
     first = TVector2(limits[0][0], limits[1][1]);
     last = TVector2(limits[1][0], limits[0][1]);
-  } 
-  else if( fabs(TMath::Sqrt(limits[0][0] * limits[0][0] + limits[1][1] * limits[1][1]) - dmax) < 1) {
-    last = TVector2(limits[0][0], limits[1][1]);
-    first = TVector2(limits[1][0], limits[0][1]);
   }
-  else cout << "WHAT??" << endl;
+  else if( fabs(TMath::Sqrt(limits[1][0] * limits[1][0] + limits[0][1] * limits[0][1]) - dmin) < 1 ||
+	   fabs(TMath::Sqrt(limits[0][0] * limits[0][0] + limits[1][1] * limits[1][1]) - dmax) < 1) {
+    first = TVector2(limits[1][0], limits[0][1]);
+    last = TVector2(limits[0][0], limits[1][1]);
+  } 
+  else if( fabs(TMath::Sqrt(limits[1][0] * limits[1][0] + limits[1][1] * limits[1][1]) - dmin) < 1 ||
+	   fabs(TMath::Sqrt(limits[0][0] * limits[0][0] + limits[0][1] * limits[0][1]) - dmax) < 1) {
+    first = TVector2(limits[1][0], limits[1][1]);
+    last = TVector2(limits[0][0], limits[0][1]);
+  }
+  else {
+    cout << "WHAT?? " << dmin << " " << dmax << endl;
+    cout << "limit 0 " << limits[0][0] << " " << limits[0][1] << endl;
+    cout << "limit 1 " << limits[1][0] << " " << limits[1][1] << endl;
+    // take the most internal
+    if(TMath::Sqrt(limits[0][0]* limits[0][0] + limits[0][1] * limits[0][1]) < TMath::Sqrt(limits[1][0] * limits[1][0] + limits[1][1] * limits[1][1])) {
+      first = TVector2(limits[0][0], limits[0][1]);
+      last = TVector2(limits[1][0], limits[1][1]);
+    }
+    else {
+      last = TVector2(limits[0][0], limits[0][1]);
+      first = TVector2(limits[1][0], limits[1][1]);
+    }
+  }
   
   double skewlimit     = 28.; // CHECK THIS LIMIT
   double skewthickness = 8.6; // CHECK THIS LIMIT
