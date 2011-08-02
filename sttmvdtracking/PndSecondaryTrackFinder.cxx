@@ -152,11 +152,11 @@ InitStatus PndSecondaryTrackFinder::Init() {
   }
   // Create and register output array for PndTrackCand of Stt+Mvd combined
   fSecondaryTrackCandArray = new TClonesArray("PndTrackCand");
-  ioman->Register("SttMvdTrackCand","SttMvd",fSecondaryTrackCandArray, kTRUE);
+  ioman->Register("SttMvdSecTrackCand", "SttMvd", fSecondaryTrackCandArray, kTRUE);
 
   // Create and register output array for PndTrack of Stt+Mvd combined
   fSecondaryTrackArray = new TClonesArray("PndTrack");
-  ioman->Register("SttMvdTrack","SttMvd",fSecondaryTrackArray, kTRUE);
+  ioman->Register("SttMvdSecTrack", "SttMvd", fSecondaryTrackArray, kTRUE);
 
 
 
