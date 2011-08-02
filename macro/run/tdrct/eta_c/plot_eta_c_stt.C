@@ -1,6 +1,6 @@
 {
 	bool saveHistos=false;
-	TString inFile="etac_histo_stt.root";
+	TString inFile="etac_histo_stt_grid.root";
 	
 	TFile *f = TFile::Open(inFile);
 
@@ -103,22 +103,45 @@
 	if (saveHistos) c7->SaveAs("chi2_vtx_stt.png");
 	
 	TCanvas *c8=new TCanvas("c8","Vertex resolution",600,600);
-	c8->Divide(3,1);
+	c8->Divide(2,2);
 	c8->cd(1);
 	hvtxresX->Draw();
 
 	TF1 *f1_vtxx= new TF1("f1_vtxx","gaus",-1.,1.);
 	hvtxresX->Fit(f1_vtxx,"R","",-1,1.);
+	double mean_x=f1_vtxx->GetParameter(1);
+	double sigma_x=f1_vtxx->GetParameter(2);
+	TF1 *f2_vtxx= new TF1("f2_vtxx","gaus",-1.,1.);
+	hvtxresX->Fit(f2_vtxx,"R","",mean_x-1.6*sigma_x,mean_x+1.6*sigma_x);
+	double mean_x2=f2_vtxx->GetParameter(1);
+	double sigma_x2=f2_vtxx->GetParameter(2);
+	std::cout<<"!!!!!!!!!! vertex x resolution = "<<sigma_x2<<std::endl;
 	
 	c8->cd(2);
 	hvtxresY->Draw();
 	TF1 *f1_vtxy= new TF1("f1_vtxy","gaus",-1.,1.);
 	hvtxresY->Fit(f1_vtxy,"R","",-1,1.);
+	double mean_y=f1_vtxy->GetParameter(1);
+	double sigma_y=f1_vtxy->GetParameter(2);
+	TF1 *f2_vtxy= new TF1("f2_vtxy","gaus",-1.,1.);
+	hvtxresY->Fit(f2_vtxy,"R","",mean_y-1.6*sigma_y,mean_y+1.6*sigma_y);
+	double mean_y2=f2_vtxy->GetParameter(1);
+	double sigma_y2=f2_vtxy->GetParameter(2);
+	std::cout<<"!!!!!!!!!! vertex y resolution = "<<sigma_y2<<std::endl;
 
 	c8->cd(3);
 	hvtxresZ->Draw();
 	TF1 *f1_vtxz= new TF1("f1_vtxz","gaus",-1.,1.);
 	hvtxresZ->Fit(f1_vtxz,"R","",-1,1.);
+	double mean_z=f1_vtxz->GetParameter(1);
+	double sigma_z=f1_vtxz->GetParameter(2);
+	TF1 *f2_vtxz= new TF1("f2_vtxz","gaus",-1.,1.);
+	hvtxresZ->Fit(f2_vtxz,"R","",mean_z-1.6*sigma_z,mean_z+1.6*sigma_z);
+	double mean_z2=f2_vtxz->GetParameter(1);
+	double sigma_z2=f2_vtxz->GetParameter(2);
+	std::cout<<"!!!!!!!!!! vertex z resolution = "<<sigma_z2<<std::endl;
+	
+	
 	if (saveHistos) c8->SaveAs("vertex_res_stt.png");
 	
 	TCanvas *c9=new TCanvas("c9","m vertex",600,600);

@@ -74,13 +74,15 @@ run_sim_tpc_evt(Int_t nEvents=10, UInt_t seed=0){
   fRun->AddModule(Emc);
 
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
-  Muo->SetBarrel("fast");
-  Muo->SetEndcap("fast");
-  Muo->SetMuonFilter("fast");
   Muo->SetMdtMagnet(kTRUE);
-  Muo->SetMdtMFIron(kTRUE);
+//  Muo->SetMdtMFIron(kFALSE);
+  Muo->SetMdtCoil(kTRUE);
+  Muo->SetBarrel("muon_TS_barrel_strip_v1_noGeo.root");
+  Muo->SetEndcap("muon_TS_endcap_strip_v1_noGeo.root");
+  Muo->SetForward("muon_Forward_strip_v1_noGeo.root");
+  Muo->SetMuonFilter("muon_MuonFilter_strip_v1_noGeo.root");
   fRun->AddModule(Muo);
-
+  
   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
   Gem->SetGeometryFileName("gem_3Stations.root");
   fRun->AddModule(Gem);
