@@ -262,7 +262,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   fSecondaryTrackArray->Delete();
 
   if(fVerbose) cout << "++++++++++++++++++++++++++++++++++++" << endl;
-  //  fDisplayOn = kFALSE;
+  //    fDisplayOn = kFALSE;
   // MC Tracks ------------ CHECK MC INFO
   std::vector<int> mctracks;
   for(int ipnt = 0; ipnt < fSttPointArray->GetEntriesFast(); ipnt++) {
@@ -893,7 +893,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       cin >> goOnChar;
       cout << "GOING ON" << endl;
   }
-
+  // fDisplayOn = kTRUE;
     std::vector<int> skewedcluster;
     std::vector< TVector3 > intersections;
 
@@ -2014,7 +2014,7 @@ void PndSecondaryTrackFinder::DrawGeometryConformal(Double_t umin, Double_t vmin
 
 void PndSecondaryTrackFinder::DrawScosZGeometry() {
 
-  h2 = new TH2F("h2", "Z vs Scos", 1000, -1500, 1500, 100, -245, 320);
+  h2 = new TH2F("h2", "Z vs Scos", 1000, -150, 150, 100, -245, 320);
   h2->GetXaxis()->SetTitle("Scos{#lambda}");
   h2->GetYaxis()->SetTitle("z");
   display->cd();
@@ -4485,7 +4485,7 @@ Bool_t PndSecondaryTrackFinder::ZFit3BIS(std::vector< TMatrixT<double> > *cluste
   if(zcounter == 0) return kFALSE;  // CHECK put this outside
 
   if(fVerbose) cout << "ZCOUNTER " << zcounter << endl;
-  std::vector< TMatrixT<double> > sortedhits = OrderClusterInPhiBIS(*cluster, xc, yc, radius, charge);
+  std::vector< TMatrixT<double> > sortedhits = *cluster; // OrderClusterInPhiBIS(*cluster, xc, yc, radius, charge);
 
   //  TH1F *hz = new TH1F("hz", "", 17, -50, 120);
   nhits = sortedhits.size();
@@ -4508,7 +4508,9 @@ Bool_t PndSecondaryTrackFinder::ZFit3BIS(std::vector< TMatrixT<double> > *cluste
     
     Double_t alpha = TMath::ATan2(point.Y() - y0 + radius * TMath::Sin(Phi0), point.X() - x0 + radius * TMath::Cos(Phi0));
     TVector2 p(point.X() - xc, point.Y() - yc);
-    Double_t Fi = CalculatePhi(v, p, alpha, Phi0, charge);
+    //    Double_t Fi = CalculatePhi(v, p, alpha, Phi0, charge);
+    Double_t Fi = CalculatePhi(v, p);
+    Fi = BringPhiInto2Pi(Fi, charge);
     Double_t scos = - charge * radius * Fi; // scos = -q * R * phi CHECK :-)GOOD!
 
 //     hz->Fill(point1.Z());
@@ -4840,7 +4842,7 @@ std::vector<TVector3>  PndSecondaryTrackFinder::FindRealIntersectionsBIS(std::ve
       TLine *line11 = new TLine(-45,  -45 * m11 + p11, 120, 120* m11 + p11);
       line11->SetLineStyle(3);
       line11->SetLineColor(1);
-      line11->Draw("SAME");
+ //      line11->Draw("SAME");
     }
     
     d1 = -1;
@@ -4870,7 +4872,7 @@ std::vector<TVector3>  PndSecondaryTrackFinder::FindRealIntersectionsBIS(std::ve
       TLine *line12 = new TLine(-45,  -45 * m12 + p12, 120, 120* m12 + p12);
       line12->SetLineStyle(3);
       line12->SetLineColor(2);
-      line12->Draw("SAME");
+  //     line12->Draw("SAME");
     }
     d1 = -1;
     d2 = -1;
@@ -4898,7 +4900,7 @@ std::vector<TVector3>  PndSecondaryTrackFinder::FindRealIntersectionsBIS(std::ve
       TLine *line21 = new TLine(-45,  -45 * m21 + p21, 120, 120* m21 + p21);
       line21->SetLineStyle(3);
       line21->SetLineColor(3);
-      line21->Draw("SAME");
+ //      line21->Draw("SAME");
     }
     d1 = -1;
     d2 = -1;
@@ -4926,7 +4928,7 @@ std::vector<TVector3>  PndSecondaryTrackFinder::FindRealIntersectionsBIS(std::ve
       TLine *line22 = new TLine(-45,  -45 * m22 + p22, 120, 120* m22 + p22);
       line22->SetLineStyle(3);
       line22->SetLineColor(4);
-      line22->Draw("SAME");
+ //      line22->Draw("SAME");
     }
   }
 
