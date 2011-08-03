@@ -36,6 +36,14 @@ int str2int (std::string const& str)
   return n;
 }
 
+unsigned int str2Uint (std::string const& str)
+{
+  std::stringstream ss(str);
+  unsigned int n;
+  ss >> n;
+  return n;
+}
+
 std::string int2str (int n)
 {
   std::stringstream ss;

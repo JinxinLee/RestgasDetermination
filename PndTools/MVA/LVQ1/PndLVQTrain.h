@@ -62,6 +62,12 @@ class PndLVQTrain: public PndMvaTrainer
   virtual ~PndLVQTrain();
   
   /**
+   * Store weights in the output File. If output file name is not
+   * specified, then write nothing.
+   */
+  void storeWeights();
+
+  /**
    * Train the classifier accourding to LVQ1 algorithm.
    */
   void Train();

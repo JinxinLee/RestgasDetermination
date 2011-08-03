@@ -52,6 +52,12 @@ class PndMultiClassBdtTrain : public PndMvaTrainer
   void Train();
 
   /**
+   * Store weights in the output File. If output file name is not
+   * specified, then write nothing.
+   */
+  void storeWeights();
+
+  /**
    *Initialize Classifier and data structures.
    */
   void Initialize();

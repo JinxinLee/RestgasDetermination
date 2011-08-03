@@ -207,9 +207,8 @@ void PndLVQTrain::Train()
   EvalClassifierError( (tFinal - 1) );
 
   std::cerr << '\n';
-  std::cout << "<INFO> Finished training and writing to file.\n"; 
-
-  WriteToWeightFile(m_LVQProtos);
+  std::cout << "<INFO> Finished training.\n";
+  //WriteToWeightFile(m_LVQProtos);
 }
 
 /**
@@ -383,9 +382,9 @@ void PndLVQTrain::Train21()
   EvalClassifierError( (tFinal - 1) );
 
   std::cerr << std::endl;
-  std::cout << "<INFO> Finished training and writing to file.\n";
+  std::cout << "<INFO> Finished training.\n";
 
-  WriteToWeightFile(m_LVQProtos);
+  //WriteToWeightFile(m_LVQProtos);
 }
 
 // ==================== Private functions =======================
@@ -909,12 +908,13 @@ void PndLVQTrain::ReadProtoFromFile()
     std::cout << "<INFO> There are "<< t->GetEntriesFast()
 	      << " vectors available for the current class."
 	      << '\n';
-    if( t->GetEntriesFast() != m_numProtoPerClass[classes[cls].Name])
+    
+    if( static_cast<size_t>(t->GetEntriesFast()) != m_numProtoPerClass[classes[cls].Name])
     {
       std::cerr << "<ERROR> Number of prototypes and the"
 		<<" number of available examples do not match."
 		<< std::endl;
-      assert(t->GetEntriesFast() == m_numProtoPerClass[classes[cls].Name]);
+      assert(static_cast<size_t>(t->GetEntriesFast()) == m_numProtoPerClass[classes[cls].Name]);
     }
     // Init a container to bind to the tree branches
     std::vector<float> ev (variables.size(), 0.0);
@@ -1001,6 +1001,15 @@ void PndLVQTrain::EvalClassifierError()
 {
   std::cout << "\t<-I-> Evaluating LVQ.\n";
   EvalClassifierError(std::numeric_limits<size_t>::max());
+}
+
+/**
+ * Store weights in the output File. If output file name is not
+ * specified, then write nothing.
+ */
+void PndLVQTrain::storeWeights()
+{
+  WriteToWeightFile(m_LVQProtos);
 }
 
 #if DEBUG_LVQ_TRAIN == 1

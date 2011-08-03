@@ -59,8 +59,13 @@ class PndMvaTrainer
   virtual ~PndMvaTrainer();
 
   //! Derived classes need to implement this methode.
-  //! Minimum requirment.  
   virtual void Train() = 0;
+
+  /**
+   * Store weights in the output File. If output file name is not
+   * specified, then write nothing.
+   */
+  virtual void storeWeights() = 0;
 
   /**
    * Creates test and train data sets.

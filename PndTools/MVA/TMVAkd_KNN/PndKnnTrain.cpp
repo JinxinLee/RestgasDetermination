@@ -38,3 +38,12 @@ void PndKnnTrain::Train()
   // Write to output file
   WriteToWeightFile(w);
 }
+
+/**
+ * Store weights in the output File. If output file name is not
+ * specified, then write nothing.
+ */
+void PndKnnTrain::storeWeights()
+{
+  // FIXME IMPLEMENT ME
+}

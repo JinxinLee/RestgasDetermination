@@ -145,3 +145,14 @@ void PndMultiClassBdtTrain::AddVariables()
     m_factory->AddVariable( (variables[v].Name).c_str(), 'F' );
   }
 }
+
+/**
+ * Store weights in the output File. If output file name is not
+ * specified, then write nothing.
+ */
+void PndMultiClassBdtTrain::storeWeights()
+{
+  /**
+   * Does not need implementation. TMVA does this.
+   */
+}

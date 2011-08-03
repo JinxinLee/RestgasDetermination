@@ -24,7 +24,7 @@ class PndKnnTrain : public PndMvaTrainer
   PndKnnTrain(const std::string& InputFile, 
 	      const std::vector<std::string>& ClassNames, 
 	      const std::vector<std::string>& VarNames,
-	      bool trim);
+	      bool trim = true);
   /**
    * Class destructor.
    */
@@ -34,7 +34,13 @@ class PndKnnTrain : public PndMvaTrainer
    * Train the classifier.
    */
   void Train();
-  
+
+  /**
+   * Store weights in the output File. If output file name is not
+   * specified, then write nothing.
+   */
+  void storeWeights();
+
  private:
   //! To avoid mistakes
   PndKnnTrain(const PndKnnTrain& other);

@@ -135,13 +135,69 @@ inline bool compareL(T const* l, T const* r)
 };
 
 /**
+ * If 2 sets are disjoint.
+ *
+ * Input two sorted (ASC) sequences.
+ *@return true if the sets are disjoint.
+ *
+ * NOTE: In some cases one might consider using std::set_intersection
+ * from <algorithm>
+ */
+template< typename Set1, typename Set2>
+bool is_disjoint(Set1 const& set1, Set2 const& set2)
+{
+  // IF one of the sets is empty. O(1) true on empty sets per
+  // definition.
+  if( set1.empty() || set2.empty())
+  {
+    return true;
+  }
+  // Start and end iterators of the first sequence.
+  typename Set1::const_iterator it1 = set1.begin();
+  typename Set1::const_iterator it1End = set1.end();
+  
+  // Start and end iterators of the second sequence.
+  typename Set2::const_iterator it2 = set2.begin();
+  typename Set2::const_iterator it2End = set2.end();
+  
+  // This holds because the sequences are pre-sorted. O(1)
+  if( *it1 > *set2.rbegin() || *it2 > *set1.rbegin() )
+  {
+    return true;
+  }
+  
+  // Investigate element-wise.
+  while( (it1 != it1End) && (it2 != it2End) )
+  {
+    if( *it1 == *it2 )
+    {
+      return false;
+    }
+    
+    if( *it1 < *it2 )
+    {
+      it1++;
+    }
+    else
+    {
+      it2++;
+    }
+  }// WHILE
+  return true;
+}
+
+/**
  * Computes the Euclidean distance between two given vectors of
  * event features.
  */
 float ComputeDist(std::vector<float> const& EvtData, 
 		  std::vector<float> const& Example);
 
+// Convert string to int or size_t
 int str2int (std::string const& str);
+unsigned int str2Uint (std::string const& str);
+
+// Convert int to string
 std::string int2str (int n);
 
 // C style function declarations

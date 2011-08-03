@@ -17,7 +17,7 @@ FLAGSMACHINE  = -march=native -mtune=native
 CCFLAGS  = -W -Wall -Wextra -Wshadow -Wredundant-decls
 CCFLAGS += -Wnormalized=nfc -Wdisabled-optimization -Woverlength-strings
 CCFLAGS += -Winvalid-pch -Wfloat-equal -Werror
-CCFLAGS += -fopenmp -O3 ${FLAGSMACHINE}
+CCFLAGS += -O3 -fopenmp ${FLAGSMACHINE}
 # CCFLAGS += -fdiagnostics-show-option -fdiagnostics-show-location=every-line
 
 INCLUDE = $(shell root-config --cflags) -I./
