@@ -87,7 +87,7 @@ class PndSttMvdTracking : public FairTask
   int IVOLTE ;
 
 #define maxTracks 200
-  static const UShort_t   nmassimo=30,
+  static const UShort_t   nmassimo=10,
 			  nmaxSttHits = 1000,
 			  MAXMCTRACKS=10000,
 			  MAXTRACKSPEREVENT=maxTracks,
