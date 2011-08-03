@@ -349,9 +349,11 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
             ph1.SetPosition(ph.Position()-ph.Direction()*0.1);
             if (Verbosity()>=4)
             {
-              cout<<"     bring back from "
+              cout<<"     bring temporarily back from "
                   <<ph.Position()<<" to "
-                  <<ph1.Position()<<endl;
+                  <<ph1.Position()<<endl;    
+	      cout<<"       ( ph has still old value...)"<<endl;
+	      
               //cout<<"           direction "<<ph1.Direction()<<endl;
             }
           }
@@ -374,96 +376,93 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 
 
           if (hit)
-          {
+	    {
+	      if (&((*kSurf_coupled)->Reflectivity())) // Reflectivity defined
+	      {
+		if (Verbosity()>=4) cout<<"     PndDrcOptVol::reflectivity2a clause"<<endl;
+		// check reflectivity
+		norm = (*kSurf_coupled)->Normal(ph.Position());
+		refl = Drc::ReflReflected;
+		refl = (*kSurf_coupled)->Reflectivity().Reflectivity(ph,norm);
+		
+		  
+		if (refl == Drc::ReflAbsorbed)
+		  {
+		    if (Verbosity()>=4)
+		      cout<<"     PndDrcOptVol::propagate: mirror absorbed"<<endl;
+		    ph.SetFate(Drc::kPhotAbsorbed);
+		    return;
+		  }
+		if (refl == Drc::ReflTransmitted)
+		  {
+		    // do nothing
+		  }
+		if (refl == Drc::ReflReflected)
+		  {
+		    ph.Reflect(norm);
+		  }
+		if (refl == Drc::ReflRefracted)
+		  {
+		    // do nothing
+		  }
+	      } // end of reflectivity
 
-            norm = (*kSurf_coupled)->Normal(ph.Position());
-            if (&((*kSurf_coupled)->Reflectivity())) // Reflectivity defined
-            {
-              if (Verbosity()>=4)
-                cout<<"     PndDrcOptVol::reflectivity2a clause"<<endl;
-			  // check reflectivity
-              refl = Drc::ReflReflected;
-              refl = (*kSurf_coupled)->Reflectivity().Reflectivity(ph,norm);
+	      
+	      // bring photon inside coupled volume
+	      // to prevent infinite recursion of coupled surface hits.
+	      // The factor 2 comes from comparisons with same kEps in
+	      // surfaceHit.
 
-
-              if (refl == Drc::ReflAbsorbed)
-              {
-                if (Verbosity()>=4)
-                  cout<<"     PndDrcOptVol::propagate: mirror absorbed"<<endl;
-                ph.SetFate(Drc::kPhotAbsorbed);
-                return;
-              }
-              if (refl == Drc::ReflTransmitted)
-              {
-			      // do nothing
-              }
-              if (refl == Drc::ReflReflected)
-              {
-                ph.Reflect(norm);
-              }
-              if (refl == Drc::ReflRefracted)
-              {
-			      // do nothing
-              }
-
-            }
-
-
-		      // bring photon inside coupled volume
-		      // to prevent infinite recursion of coupled surface hits.
-		      // The factor 2 comes from comparisons with same kEps in
-		      // surfaceHit.
-
-            PndDrcOptMatAbs* opt_mat = &((*kDev_coupled)->OptMaterial());
-            if (Verbosity()>=4) cout<<"     opt_mat="<<opt_mat->Name()<<endl;
-            if (opt_mat)
-            {
-              double n1 = OptMaterial().RefIndex(ph.Wavelength());
-              double ex1 = OptMaterial().Extinction(ph.Wavelength());
-              double n2 = opt_mat->RefIndex(ph.Wavelength());
-              double ex2 = opt_mat->Extinction(ph.Wavelength());
-//               cout << "VOLCHECK: " << n1 << " " << ex1 << " " << n2 << " " << ex2 << endl;
-
-              bool iref = ph.Refract(surf_closest->Normal(ph.Position()),
-                                     n1, ex1,
-                                     surf_closest->Fresnel(),
-                                     n2, ex2);
-
-//               if( surf_closest->Name() == "slab_side1" && !iref )
-//                 cout << "wrong" << endl;
-
-              if (Verbosity()>=4) cout<<" refract in new volume flag = "
-                    <<iref<<endl;
-
-              if (iref) // refraction in new volume
-              {
-                if (Verbosity()>=4) cout<<"     go into new volume "
-                      <<(*kDev_coupled)->Name()<<endl;
-                (*kDev_coupled)->Propagate(ph);
-              }
-              else
-              {
-                break; // coupled surface loop, since phot. is reflected.
-              }
-            }
-            else // screen or mirror...
-            {
-			  // do not bring photons inside flat objects
-			  // ph.setPosition(ph.position()+2*kEps*ph.direction());
-              (*kDev_coupled)->Propagate(ph);
-            }
-            if (ph.Fate() != Drc::kPhotFlying) break;
-          }
+	      PndDrcOptMatAbs* opt_mat = &((*kDev_coupled)->OptMaterial());
+	      if (Verbosity()>=4) cout<<"     opt_mat="<<opt_mat->Name()<<endl;
+	      if (opt_mat)
+		{
+		  double n1  = OptMaterial().RefIndex(ph.Wavelength());
+		  double ex1 = OptMaterial().Extinction(ph.Wavelength());
+		  double n2  = opt_mat->RefIndex(ph.Wavelength());
+		  double ex2 = opt_mat->Extinction(ph.Wavelength());
+		  // cout << "VOLCHECK: " << n1 << " " << ex1 << " " << n2 << " " << ex2 << endl;
+		  
+		  bool iref = ph.Refract(surf_closest->Normal(ph.Position()),
+					 n1, ex1,
+					 surf_closest->Fresnel(),
+					 n2, ex2);
+		  
+		  //               if( surf_closest->Name() == "slab_side1" && !iref )
+		  //                 cout << "wrong" << endl;
+		  
+		  if (Verbosity()>=4) cout<<" refract in new volume flag = "
+					  <<iref<<endl;
+		  
+		  if (iref) // refraction in new volume
+		    {
+		      if (Verbosity()>=4) cout<<"     go into new volume "
+					      <<(*kDev_coupled)->Name()<<endl;
+		      (*kDev_coupled)->Propagate(ph);
+		    }
+		  else
+		    {
+		      break; // coupled surface loop, since phot. is reflected.
+		    }
+		}
+	      else // screen or mirror...
+		{
+		  // do not bring photons inside flat objects
+		  // ph.setPosition(ph.position()+2*kEps*ph.direction());
+		  (*kDev_coupled)->Propagate(ph);
+		}
+	      if (ph.Fate() != Drc::kPhotFlying) break;
+	    }
         }
       }
       if (ph.Fate() != Drc::kPhotFlying) break; // while loop
-    } // if surf_closest...
-  } // while
-
-
+	} // if surf_closest...
+    } // while
+  
+  
   // if the photon got from a surface hit the attribute Drc::kPhotMeasured
   // it should pass this location.
-
+  
   // has moved into the surfaces->surfaceHit
   //  if (ph.Fate() == Drc::kPhotMeasured)
   //PositionCorrection(ph);

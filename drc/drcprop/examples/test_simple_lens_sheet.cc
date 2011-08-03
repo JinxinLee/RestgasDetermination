@@ -61,6 +61,7 @@ using ROOT::Math::Rotation3D;
 #include "PndDrcOptReflSilver.h"
 #include "PndDrcOptReflPerfect.h"
 #include "PndDrcOptMatLithotecQ0.h"
+#include "PndDrcOptMatMarcol7.h"
 #include "PndDrcOptMatVacuum.h"
 #include "PndDrcOptDevSys.h"
 #include "PndDrcOptVol.h"
@@ -81,17 +82,34 @@ int main(int argc, char *argv[])
   double half_thick  = 17.0/2;    //mm
   double half_length = 2500.0/2;  //mm
 
-  double lens_radius = 80.0;     // mm
 
+  // ex_box=300mm + 10mm air gap => for air filled box radius = 310mm = 1/(1.47-1) R
+  // R = 310 * 0.47 = 145.7
+  //
+  // the medium in the box enhances the focal length to 300mm *1.47 therefore use a focal length
+  // of 145.7/1.47 = 99.1
+  // or more precise: R = (300/1.47 + 10) *0.47 = 100.6
+
+  double lens_radius = 100.6;     // mm
+
+  //lens_radius = 98.6;
+  //lens_radius = 30;
+  
+
+  int ioption = 1; // 1=cherenkov, 2=testbeam
+  
 
   PndDrcOptDevSys opt_system;
   
   PndDrcOptBrik sheet(half_width,half_thick,half_length);
-  sheet.Surface("side6")->SetReflectivity(PndDrcOptReflSilver());
+  //sheet.Surface("side6")->SetReflectivity(PndDrcOptReflSilver());
+  sheet.Surface("side6")->SetReflectivity(PndDrcOptReflPerfect());
   sheet.SetOptMaterial(PndDrcOptMatLithotecQ0());
   sheet.SetName("sheet");
   // move sheet such into positive z space such that end of sheet is at z=0
   sheet.AddTransform(Transform3D(XYZVector(0,0,half_length)));
+  //sheet.SetVerbosity(5);
+  
   opt_system.AddDevice(sheet);
 
 
@@ -107,6 +125,8 @@ int main(int argc, char *argv[])
   lens_quartz.AddTransform(Transform3D(RotationZ(kPi/2)));
   lens_quartz.SetName("lens_quartz");
   lens_quartz.SetPrintColor(2);
+  //lens_quartz.SetVerbosity(5);
+  
   opt_system.AddDevice(lens_quartz);
 
   PndDrcOptCylLens lens_air(half_thick,half_width,lens_body_hthick,99999.9,-lens_radius);
@@ -116,15 +136,51 @@ int main(int argc, char *argv[])
   lens_air.SetOptMaterial(PndDrcOptMatVacuum());
   lens_air.SetName("lens_air");
   lens_air.SetPrintColor(4);
+  //lens_air.SetVerbosity(5);
+  //if (lens_air.Surface("side6")) lens_air.Surface("side6")->SetVerbosity(5);
+
+  lens_air.Surface("side56")->SetPrintColor(5);
+  lens_air.Surface("side51")->SetPrintColor(5);
+
+
   opt_system.AddDevice(lens_air);
+
+  // make the air gap extent larger than the lens
+  PndDrcOptBrik addition_top(half_thick,half_width,lens_body_hthick);
+  addition_top.SetOptMaterial(PndDrcOptMatVacuum());
+  addition_top.SetName("addition_top");
+  addition_top.SetPrintColor(4);
+  PndDrcOptBrik addition_bot(addition_top);
+  addition_bot.SetName("addition_bot");
+  
+  addition_top.AddTransform(Transform3D(XYZVector(2*half_thick,0,-(2+1)*lens_body_hthick)));
+  addition_top.AddTransform(Transform3D(RotationZ(kPi/2)));
+
+  addition_top.Surface("side3")->SetPrintColor(3); 
+  //addition_top.Surface("side1")->SetPrintColor(3); 
+
+  //addition_bot.Surface("side1")->SetPrintColor(5); 
+  //addition_bot.Surface("side5")->SetPrintColor(5); 
+ 
+
+
+ 
+  addition_bot.AddTransform(Transform3D(XYZVector(-2*half_thick,0,-(2+1)*lens_body_hthick)));
+  addition_bot.AddTransform(Transform3D(RotationZ(kPi/2)));
+
+  opt_system.AddDevice(addition_top);
+  opt_system.AddDevice(addition_bot);
+
+
+
 
   // expansion box
   double ex_box_hw = 300;
   double ex_box_ht = 300;
-  double ex_box_hl = 100;
+  double ex_box_hl = 150;
   
   PndDrcOptBrik ex_box(ex_box_hw,ex_box_ht,ex_box_hl);
-  ex_box.SetOptMaterial(PndDrcOptMatLithotecQ0());
+  ex_box.SetOptMaterial(PndDrcOptMatMarcol7());
   ex_box.SetName("expansion box");
   ex_box.Surface("side6")->SetPixel();
   ex_box.AddTransform(Transform3D(XYZVector(0,0,-ex_box_hl-(2+2)*lens_body_hthick)));
@@ -146,6 +202,14 @@ int main(int argc, char *argv[])
   opt_system.CoupleDevice("lens_quartz"  ,"lens_air"     ,"side1", "side6");
   opt_system.CoupleDevice("lens_air"     ,"expansion box","side1", "side6");
   
+  opt_system.CoupleDevice("addition_top" ,"lens_air",     "side3", "side56");
+  opt_system.CoupleDevice("addition_top" ,"lens_air",     "side3", "side51");
+  opt_system.CoupleDevice("addition_top" ,"expansion box","side1", "side6");
+
+  opt_system.CoupleDevice("addition_bot" ,"lens_air",     "side5", "side36");
+  opt_system.CoupleDevice("addition_bot" ,"lens_air",     "side5", "side31");
+  opt_system.CoupleDevice("addition_bot" ,"expansion box","side1", "side6");
+
   // The manager must be created as pointer.		
   // It is created as singleton, that is only 
   // one manager can exist per application.
@@ -184,13 +248,47 @@ int main(int argc, char *argv[])
   // create a list of photons in sheet
 
   XYZPoint  pos(0,-half_thick-10.0,half_length);
-  XYZVector dir(0,1,3); 
-  double    beta = 0.79;
-  bool      photons_exist = manager->Cerenkov(pos,dir,beta); // generate photons
-
+  XYZVector dir(0,1,2); 
+  double   beta = 0.686;
+  bool photons_exist = false;
+  
+  if (ioption==1)
+    {
+      photons_exist = manager->Cerenkov(pos,dir,beta); // generate photons
+    }
+  else
+    {
+      PndDrcPhoton ph;
+      ph.SetReflectionLimit(200);  
+      list<PndDrcPhoton> list_photon;
+      int imax=5;
+      for (int ix=0; ix<imax; ix++)
+	{
+      for (int iy=0; iy<imax; iy++)
+	{
+	  for (double theta=-40; theta<=40; theta+=10)
+	    {    
+	      ph.SetPosition(XYZPoint(
+				      -half_width+ix*2*half_width/imax,
+				      -half_thick+iy*2*half_thick/imax,
+				      half_length));
+	      double z = cos(theta*kPi/180);
+	      double y = sin(theta*kPi/180);
+	      ph.SetDirection(XYZVector(0,y,z));
+	      ph.SetWavelength(600-5*abs(theta));
+	      ph.SetDevice(manager->Device("sheet")); 
+	      list_photon.push_back(ph);
+	    }
+	}
+      
+	  
+	}
+      photons_exist=true;
+      manager->SetPhotonList(list_photon,"sheet");
+    }
+  
   if (photons_exist) manager->Propagate();              // propagate photons
 
-  list<PndDrcPhoton> list_photon = manager->PhotonList();  // get list
   
   geo<<"}"<<endl;     // here it is...
 
@@ -198,7 +296,7 @@ int main(int argc, char *argv[])
   scr.open("Screen.C",std::ios::out);
   scr<<"{"<<endl;
   scr<<"    TCanvas *c1 = new TCanvas(\"c1\"); "<<endl;
-  scr<<"    TH1F *hgr = new TH1F(\"hgr\",\"test_barrel1\",500,-500,500);"<<endl;
+  scr<<"    TH1F *hgr = new TH1F(\"hgr\",\"test_simple_lens_sheet time vs x\",500,-500,500);"<<endl;
   scr<<"    hgr->SetStats(0);"<<endl;
   scr<<"    hgr->SetMarkerStyle(20);"<<endl;
   scr<<"    hgr->SetMinimum(-500);"<<endl;
@@ -210,6 +308,13 @@ int main(int argc, char *argv[])
 
   // analyse list
 
+  list<PndDrcPhoton> list_photon = manager->PhotonList();  // get list
+
+  fstream out;
+  out.open("debug.dat",std::ios::out);
+  
+
+  int icnt1=0;
   
   int icnt_measured = 0;
   int icnt_flying   = 0;
@@ -222,9 +327,8 @@ int main(int argc, char *argv[])
 	{
 	  icnt_measured++;
 	  double xx=(*iph).Position().X();
-	  double yy=(*iph).Position().Y();
-	  cout<<xx<<" "<<yy<<endl;
-
+	  //double yy=(*iph).Position().Y();
+	  double yy=(*iph).Time();
 	  scr<<"    TMarker* t = new TMarker("<<xx<<","<<yy<<",20);"<<endl;
 	  scr<<"    t->SetMarkerColor("
 		<<(*iph).ColorNumber((*iph).Wavelength())
@@ -234,8 +338,15 @@ int main(int argc, char *argv[])
 	}
       else if ((*iph).Fate()==Drc::kPhotFlying)   {icnt_flying++;}
       else if ((*iph).Fate()==Drc::kPhotAbsorbed) {icnt_absorbed++;}
-      else icnt_lost++;
+      else 
+	{
+	  out<<(icnt1++)<<" "<<(*iph).Position().Z()<<" "<<(*iph).Wavelength()<<endl;
+	  icnt_lost++;
+	}
+      
     }
+  out.close();
+  
 
   scr<<"}"<<endl;
   scr.close();

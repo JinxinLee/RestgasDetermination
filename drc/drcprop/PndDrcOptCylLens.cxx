@@ -244,7 +244,6 @@ void PndDrcOptCylLens::Make_surf6(PndDrcSurfPolyFlat& surf6,double r6)
   side26.AddSurface(fA0,fP4,fP3);
   side26.AddSurface(surf6,surf6.LimitingPoint(3),surf6.LimitingPoint(2));
   side26.SetName("side26");
-  //side26.SetPrintColor(2);
   AddSurface(side26);
 
   //PndDrcSurfQuadFlatDiff side36;
@@ -258,7 +257,7 @@ void PndDrcOptCylLens::Make_surf6(PndDrcSurfPolyFlat& surf6,double r6)
   side36.AddPoint(fP2);
   side36.AddPoint(surf6.LimitingPoint(1));
   side36.AddPoint(surf6.LimitingPoint(2));
-  //side36.SetPrintColor(2);
+  side36.SetName("side36");
   AddSurface(side36);
   
 
@@ -280,6 +279,7 @@ void PndDrcOptCylLens::Make_surf6(PndDrcSurfPolyFlat& surf6,double r6)
   side56.AddPoint(fP4);
   side56.AddPoint(surf6.LimitingPoint(3));
   side56.AddPoint(surf6.LimitingPoint(0));
+  side56.SetName("side56");
   AddSurface(side56);
   
   
