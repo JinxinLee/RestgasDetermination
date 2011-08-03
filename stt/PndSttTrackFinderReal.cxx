@@ -162,7 +162,7 @@ if(istampa >=1 ){
    HANDLE2 = fopen("info_da_PndTrackFinderReal.txt","w");
 
 //  ---- open filehandle per statistica sugli hits etc.
-   HANDLE = fopen("statistiche.txt","w");
+   HANDLE = fopen("statistichePndTrackFinderReal.txt","w");
 //  ---------------
 if(istampa >=3 )   HANDLEXYZ = fopen("infoPndTrackFinderRealXYZ.txt","w");
 
@@ -1868,7 +1868,7 @@ for (ii=0; ii<nTracksFoundSoFar && istampa>=1 ;ii++){
 
 //--------------ghosts
 
-if( istampa>=2){
+if( istampa>=1){
     int NParghost=0, NParhitsghost=0,icc;
     for(icc=0; icc<nTracksFoundSoFar;icc++){
 	if(!keepit[icc]) continue;
@@ -5795,9 +5795,13 @@ nulla: ;
 
            	Cx = Oxx + Py*1000./(BFIELD*CVEL*carica);
            	Cy = Oyy - Px*1000./(BFIELD*CVEL*carica);
+		Fifi = atan2(Cy, Cx);       // MC truth Fifi angle of circle of Helix trajectory
+		if(Fifi<0.)  Fifi += 2.*PI;
     		if( fabs( pMC->GetMomentum().Z() )< 1.e-20) KAPPA = 99999999.;
     		else  KAPPA = -carica*0.001*BFIELD*CVEL/pMC->GetMomentum().Z();
      		FI0 = fmod(Fifi+ PI, 2.*PI);
+
+
 
   if ( fabs(KAPPA) > 1.e-10  && fabs(KAPPA) < 1.e10) {
      fmin = KAPPA*zmin + FI0;
