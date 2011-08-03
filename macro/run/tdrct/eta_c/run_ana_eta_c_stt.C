@@ -74,6 +74,10 @@ void run_ana_eta_c_stt(int nevts=0)
 	TH1F *hvtxresZ = new TH1F("hvtxresZ","Z resolution of fitted decay
 	vertex",100,-0.1,0.1);
 	
+	TH2F *h_theta_p = new TH2F("h_theta_p","Theta vs p",100,0,180,100,0,3);
+	TH2F *h_theta_p_pos = new TH2F("h_theta_p_pos","Theta vs p",100,0,180,100,0,3);
+	TH2F *h_theta_p_neg = new TH2F("h_theta_p_neg","Theta vs p",100,0,180,100,0,3);
+
 	TPidMassSelector *phiMassSel=new TPidMassSelector("phi",1.02,0.2);
 
 	TPidPlusSelector *kplusSel=new TPidPlusSelector("kplus");
@@ -115,6 +119,20 @@ void run_ana_eta_c_stt(int nevts=0)
 		int nchrg=p1.GetLength()+p2.GetLength();
 		nc->Fill(nchrg);
 
+		double theta, p;
+		for (Int_t l=0;l<p1.GetLength();l++){
+			p=p1[l].GetMicroCandidate().GetMomentum().Mag();
+			theta=p1[l].GetMicroCandidate().GetMomentum().Theta()*TMath::RadToDeg();
+			h_theta_p_pos->Fill(theta,p);
+			h_theta_p->Fill(theta,p);
+		}
+		for (Int_t l=0;l<p2.GetLength();l++){
+			p=p2[l].GetMicroCandidate().GetMomentum().Mag();
+			theta=p2[l].GetMicroCandidate().GetMomentum().Theta()*TMath::RadToDeg();
+			h_theta_p_neg->Fill(theta,p);
+			h_theta_p->Fill(theta,p);
+		}
+		
 		int n_removed=0;
 		int ii=0;
 		for (Int_t l=0;l<p1.GetLength();l++){
@@ -416,6 +434,10 @@ void run_ana_eta_c_stt(int nevts=0)
 	hvtxresY->Write();
 	hvtxresZ->Write();
 
+	h_theta_p->Write();
+	h_theta_p_pos->Write();
+	h_theta_p_neg->Write();
+	
 	out->Save();
 
 	timer.Stop();

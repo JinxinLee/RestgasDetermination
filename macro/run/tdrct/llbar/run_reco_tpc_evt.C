@@ -66,8 +66,8 @@
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
   tpcSPR->SetPersistence();
   //tpcSPR->useGeane(); // use RKTrackrep and GeaneTrackrep
-  //tpcSPR->SetMCPid(); // use ideal particle identification
-  tpcSPR->SetPDG(211);
+  tpcSPR->SetMCPid(); // use ideal particle identification
+  //tpcSPR->SetPDG(211);
   fRun->AddTask(tpcSPR);
   
   KalmanTask* kalman =new KalmanTask();
