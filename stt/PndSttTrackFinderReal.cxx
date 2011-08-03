@@ -1761,70 +1761,10 @@ if(istampa>=2)cout<<"\thit skew (nativo) n. "<<infoskew[ ListSkewHitsinTrack[i][
 
 
 
-//---------- conteggio delle tracce MC accettabili!!
-int citata;
-int nMCTracksaccettabili=0;
-int ListaMCTracksaccettabili[nMCTracks];
-for (i=0;i<nMCTracks;i++){
-	citata=0;
-   	pMCtr = (PndMCTrack*) fMCTrackArray->At(i);
-   	if ( ! pMCtr ) continue;
-         Double_t   Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Pxx, Pyy  ;
-         Int_t icode;
-         icode  = pMCtr->GetPdgCode() ;    //   PDG code of track
-         Oxx = pMCtr->GetStartVertex().X();    //   X of starting point track
-         Oyy = pMCtr->GetStartVertex().Y();    //   Y of starting point track
-         Pxx = pMCtr->GetMomentum().X();
-         Pyy = pMCtr->GetMomentum().Y();
-         aaa = sqrt( Pxx*Pxx + Pyy*Pyy);
-         Rr =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
 
 
 
-	if(istampa>2){
-		TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
-		TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
-		if (icode>1000000000) carica = 1.;
-		else  carica = fParticle->Charge()/3. ;    //   charge of track
-		if(fabs(carica)<1.e-5) continue;
-		Cx = Oxx + Pyy*1000./(BFIELD*CVEL*carica);
-		Cy = Oyy - Pxx*1000./(BFIELD*CVEL*carica);
-		cout<<"da PndSttMvdTracking, evento (cominciando da 0) n. "<<IVOLTE<<
-		",  traccia MC n. "<<i<<",  R MC = "<<Rr<<", Centro X = "<<Cx
-		<<", Centro Y = "<<Cy<<endl;
-	}
-
-
-
-	for(int ic=0;ic<Nhits;ic++){
-		if( ( (int) (info[ic][6]+0.1) ) == i   && info[ic][5]<2.){
-			citata++;
-		}
-	}
-	if( citata>2 && fabs(Oxx)<1. && fabs(Oyy) < 1. ) {
-		ListaMCTracksaccettabili[nMCTracksaccettabili]=i;
-		nMCTracksaccettabili++;
-	}
-
-
-}
-
-if(istampa>=1){cout<<"da PndSttTrackFinderReal, MC comparison; evt. "<<IVOLTE<<", nMCTracks "<<nMCTracks
-<<", n. MC tracce accettabili "<<nMCTracksaccettabili
-<<" e loro lista :\n";
-	for(int g=0; g<nMCTracksaccettabili;g++){
-		cout<<"\ttraccia MC n. "<<ListaMCTracksaccettabili[g]<<endl;
-	}
-cout<<"Total track trovate "<<nTracksFoundSoFar<<endl;
-}
-
-//----------- fine conteggio delle tracce MC accettabili
-
-
-
-
-  if(istampa>=1 )  fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",
-  	IVOLTE, nMCTracksaccettabili);
+  if(istampa>=1 )  fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE, nMCTracks);
 
 for (ii=0; ii<nTracksFoundSoFar && istampa>=1 ;ii++){
    if(!keepit[ii]) continue;
@@ -1842,12 +1782,12 @@ for (ii=0; ii<nTracksFoundSoFar && istampa>=1 ;ii++){
 "       TracciaMC %d; sua FoundTrack associata (n. %d) NONsoddisfaRequisitiMinimi perche' in Z-S KAPPA e' risultata || asse S\n",i,ii);
             continue;
          }
-   if(fabs(KAPPA[ii])<1.e-20 ){
+   if(fabs(KAPPA[ii])<1.e-10 ){
     fprintf(HANDLE,
 "       TracciaMC %d; sua FoundTrack associata (n. %d) NONsoddisfaRequisitiMinimi perche' KAPPA troppo piccolo; KAPPA = %g\n",
           i,ii,KAPPA[ii]);
            continue;
-//   } else if (fabs(KAPPA[ii])>1.e20 ){
+//   } else if (fabs(KAPPA[ii])>1.e-10 ){
 //    fprintf(HANDLE,
 //"       TracciaMC %d; sua FoundTrack associata (n. %d) NONsoddisfaRequisitiMinimi perche' KAPPA troppo grande; KAPPA = %g\n",
 //          i,ii,KAPPA[ii]);
