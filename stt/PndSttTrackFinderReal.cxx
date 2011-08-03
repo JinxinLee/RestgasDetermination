@@ -1787,11 +1787,11 @@ for (ii=0; ii<nTracksFoundSoFar && istampa>=1 ;ii++){
 "       TracciaMC %d; sua FoundTrack associata (n. %d) NONsoddisfaRequisitiMinimi perche' KAPPA troppo piccolo; KAPPA = %g\n",
           i,ii,KAPPA[ii]);
            continue;
-//   } else if (fabs(KAPPA[ii])>1.e-10 ){
-//    fprintf(HANDLE,
-//"       TracciaMC %d; sua FoundTrack associata (n. %d) NONsoddisfaRequisitiMinimi perche' KAPPA troppo grande; KAPPA = %g\n",
-//          i,ii,KAPPA[ii]);
-//           continue;
+   } else if (fabs(KAPPA[ii])>1.e-10 ){
+    fprintf(HANDLE,
+"       TracciaMC %d; sua FoundTrack associata (n. %d) NONsoddisfaRequisitiMinimi perche' KAPPA troppo grande; KAPPA = %g\n",
+          i,ii,KAPPA[ii]);
+           continue;
    }
    Double_t dista=sqrt( Ox[ii]*Ox[ii]+Oy[ii]*Oy[ii] );
    if(fabs(dista)<1.e-20 ){
