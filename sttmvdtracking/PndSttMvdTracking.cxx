@@ -777,11 +777,11 @@ if(istampa>1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<endl;}
 // ------------------------------------ fine di estraggo gli HITS Strip MVD
 
 //------------------------------------------ stampaggi  hits MVD
-if(istampa>=2  && IVOLTE<20){
+if(istampa>2  && IVOLTE<20){
   cout<<"da PndSttMvdTraking  :  n. Mvd Pixel Hits = "<<nMvdPixelHit<<endl;
   cout<<"da PndSttMvdTracking  :  n. Mvd Strip Hits = "<<nMvdStripHit<<endl;
 }
-if(istampa>=2  && IVOLTE<20){
+if(istampa>2  && IVOLTE<20){
   cout<<"da PndSttMvdTracking  :  info hits di Mvd pixels ------------------\n";
   for(i= 0; i< nMvdPixelHit; i++){
       cout<<"      Pixel hit n. "<<i<<" Info : X  = "<<XMvdPixel[i]<<";  Y  = "<<YMvdPixel[i]<<
@@ -1955,6 +1955,8 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 //---------------------   here do the fit again in the SZ space if there are Mvd hits.
 //			   For this, reordering of the  Mvd hits is not necessary.
 
+if(istampa>=2) cout<<"\nPndSttMvdTracking, Before FitSZspace, cand n. "<<ncand<<
+	", KAPPA "<<KAPPA[ncand]<<endl;
 
 		resultFitSZagain[ncand] = FitSZspace(
 					j,	// n. hits to be fitted
@@ -2012,6 +2014,45 @@ if(istampa>=2) cout<<"PndSttMvdTracking, after FitSZspace, cand n. "<<ncand<<
 	    } else {
 		MaxTurns=0;
 	    }
+
+
+
+
+//---------inizio stampe.
+if(istampa>=2&& IVOLTE<20){
+	i=ncand;
+	   cout<<"da PndSttMvdTracking, prima di EliminateSpuriousSZ\n"<<
+	   "	SttTrackCand n.  "<<i<<";  n. Hits in Pixels associati = "
+	   <<nMvdPixelHitsinTrack[i]<<"   e loro lista \n";
+	   for(j=0; j<nMvdPixelHitsinTrack[i];j++){
+		cout<<"\t\tMvd Pixel Hit n. "<<
+		     ListMvdPixelHitsinTrack[i][j]<<endl;
+	   }
+	   cout<<"	SttTrackCand n.  "<<i<<";  n. Hits in Strips associati = "
+	   <<nMvdStripHitsinTrack[i]<<"   e loro lista \n";
+	   for(j=0; j<nMvdStripHitsinTrack[i];j++){
+	        cout<<"\t\tMvd Strip Hit n. "<<
+		     ListMvdStripHitsinTrack[i][j]<<endl;
+	   }
+	   cout<<"	SttTrackCand n.  "<<i<<";  n. || Hits in Stt in Track = "
+	   <<nSttParHitsinTrack[i]<<"   e loro lista \n";
+	   for(j=0; j<nSttParHitsinTrack[i];j++){
+	        cout<<"\t\t|| Stt Hit n. "<<
+		     ListSttParHitsinTrack[i][j]<<endl;
+	   }
+	   cout<<"	SttTrackCand n.  "<<i<<";  n. skew Hits in Stt Track = "
+	   <<nSttSkewHitsinTrack[i]<<"   e loro lista \n";
+	   for(j=0; j<nSttSkewHitsinTrack[i];j++){
+	        cout<<"\t\tskew Stt Hit n. "<<
+		     ListSttSkewHitsinTrack[i][j]<<endl;
+	   }
+
+           cout<<"\t--------------------------------------\n";
+
+}   //end of if(istampa>=0)
+//---------------------------------- fine stampe.
+
+
 	    EliminateSpuriousSZ(
 				MaxTurns,
 				&nMvdPixelHitsinTrack[ncand],	// input and output
@@ -2038,10 +2079,51 @@ if(istampa>=2) cout<<"PndSttMvdTracking, after FitSZspace, cand n. "<<ncand<<
 				R[ncand]
 				    );
 
+//---------inizio stampe.
+if(istampa>=2&& IVOLTE<20){
+	i=ncand;
+	   cout<<"da PndSttMvdTracking, e DOPO di EliminateSpuriousSZ\n"<<
+	   "	SttTrackCand n.  "<<i<<";  n. Hits in Pixels associati = "
+	   <<nMvdPixelHitsinTrack[i]<<"   e loro lista \n";
+	   for(j=0; j<nMvdPixelHitsinTrack[i];j++){
+		cout<<"\t\tMvd Pixel Hit n. "<<
+		     ListMvdPixelHitsinTrack[i][j]<<endl;
+	   }
+	   cout<<"	SttTrackCand n.  "<<i<<";  n. Hits in Strips associati = "
+	   <<nMvdStripHitsinTrack[i]<<"   e loro lista \n";
+	   for(j=0; j<nMvdStripHitsinTrack[i];j++){
+	        cout<<"\t\tMvd Strip Hit n. "<<
+		     ListMvdStripHitsinTrack[i][j]<<endl;
+	   }
+	   cout<<"	SttTrackCand n.  "<<i<<";  n. || Hits in Stt in Track = "
+	   <<nSttParHitsinTrack[i]<<"   e loro lista \n";
+	   for(j=0; j<nSttParHitsinTrack[i];j++){
+	        cout<<"\t\t|| Stt Hit n. "<<
+		     ListSttParHitsinTrack[i][j]<<endl;
+	   }
+	   cout<<"	SttTrackCand n.  "<<i<<";  n. skew Hits in Stt Track = "
+	   <<nSttSkewHitsinTrack[i]<<"   e loro lista \n";
+	   for(j=0; j<nSttSkewHitsinTrack[i];j++){
+	        cout<<"\t\tskew Stt Hit n. "<<
+		     ListSttSkewHitsinTrack[i][j]<<endl;
+	   }
+
+           cout<<"\t--------------------------------------\n";
+
+}   //end of if(istampa>=0)
+//---------------------------------- fine stampe.
+
+
 	  }  // end of  if(keepit[ncand])
 
 //------------------------
 	}	// end of   if(Mvdhits[ncand])
+
+
+
+
+
+
 
 
 if(istampa>=2){
@@ -2089,7 +2171,7 @@ if(istampa>=2){
 
 //---  redo association of parallel Stt  straw  hits to this track, after better refit.
 
-
+//---------inizio stampe.
 if(istampa>=2&& IVOLTE<20){
            cout<<"da PndSttMvdTracking, prima di CollectParSttHitsagain ;  n. SttTrackCand totali = "<<nSttTrackCand
 	       <<"--------------------------------------\n";
@@ -2127,7 +2209,7 @@ if(istampa>=2&& IVOLTE<20){
 
 
 }   //end of if(istampa>=0)
-
+//---------------------------------- fine stampe.
 
 	CollectParSttHitsagain(
 			keepit,
@@ -2218,7 +2300,7 @@ for(int ip=0;ip<nHitsSkew;ip++){
 
 
     if(YesClean){
-if(istampa>0) cout<<"PndSttMvdTracking, entra in TrackCleanup tracce normali, IVOLTE "<<IVOLTE
+if(istampa>1) cout<<"PndSttMvdTracking, entra in TrackCleanup tracce normali, IVOLTE "<<IVOLTE
 	<<" e track cand. "<<ncand<<endl;
 	if ( !TrackCleanup(
 			gap,
@@ -2244,7 +2326,7 @@ if(istampa>0) cout<<"PndSttMvdTracking, entra in TrackCleanup tracce normali, IV
 				) ) {
 		keepit[ncand]=false;
 	}
-if(istampa>0){ cout<<"\tPndSttMvdTracking, uscito da TrackCleanup tracce normali, keepit = ";
+if(istampa>1){ cout<<"\tPndSttMvdTracking, uscito da TrackCleanup tracce normali, keepit = ";
 	if(keepit[ncand]) cout<<" true!\n"; else  cout<<" false!\n";
 }
     }  // end of if(YesClean)
@@ -3258,6 +3340,7 @@ if(istampa>=3){
 //---------- conteggio delle tracce MC accettabili!!
 int citata;
 int nMCTracksaccettabili=0;
+int ListaMCTracksaccettabili[nMCTracks];
 for (i=0;i<nMCTracks;i++){
 	citata=0;
    	pMCtr = (PndMCTrack*) fMCTrackArray->At(i);
@@ -3295,6 +3378,7 @@ for (i=0;i<nMCTracks;i++){
 		}
 	}
 	if( citata>2 && fabs(Oxx)<1. && fabs(Oyy) < 1. ) {
+		ListaMCTracksaccettabili[nMCTracksaccettabili]=i;
 		nMCTracksaccettabili++;
 	}
 
@@ -3302,18 +3386,22 @@ for (i=0;i<nMCTracks;i++){
 }
 
 
+
+
+
+if(istampa>=1){cout<<"da PndSttMvdTracking, MC comparison; evt. "<<IVOLTE<<", nMCTracks "<<nMCTracks
+<<", n. MC tracce accettabili "<<nMCTracksaccettabili
+<<" e loro lista :\n";
+	for(int g=0; g<nMCTracksaccettabili;g++){
+		cout<<"\ttraccia MC n. "<<ListaMCTracksaccettabili[g]<<endl;
+	}
+cout<<"Total track trovate "<<nTotalCandidates<<endl;
+}
+
 //----------- fine conteggio delle tracce MC accettabili
 
-
-
-if(istampa>=2)cout<<"da PndSttMvdTracking, MC comparison; evt. "<<IVOLTE<<", nMCTracks "<<nMCTracks
-<<", n. MC tracce accettabili "<<nMCTracksaccettabili
-<<", track trovate "<<nTotalCandidates<<endl;
-
-
-
 //  if(istampa>=1 )  fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE, nMCTracks);
-  if(istampa>1 ) {
+  if(istampa>=1 ) {
 
    fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE,
   	nMCTracksaccettabili);
@@ -3321,13 +3409,16 @@ if(istampa>=2)cout<<"da PndSttMvdTracking, MC comparison; evt. "<<IVOLTE<<", nMC
 int ii, ibuone=-1;
 Double_t HoughFiii;
 
-//for (ii=0; ii<nSttTrackCand && istampa>=3 ;ii++){
+
+
 for (ii=0; ii<nTotalCandidates  ;ii++){
-   if(!keepit[ii]) { cout<<"\tevt. n "<<IVOLTE<<", cand. "<<ii<<" ha keepit false."<<
-   	endl; continue;}
+   if(!keepit[ii]) { if(istampa>=1) {cout<<"\tevt. n "<<IVOLTE<<", cand. "<<ii<<" ha keepit false."<<
+   	endl;}; continue;}
    ibuone++;
    fprintf(HANDLE,"----------------------------------------------------------\n");
    i=daTrackFoundaTrackMC[ii];
+
+
 
    if( i <0  ) {
     fprintf(HANDLE,
@@ -3362,6 +3453,15 @@ for (ii=0; ii<nTotalCandidates  ;ii++){
 	  continue;
    }
 
+//   controllo che la traccia associata MC sia una delle tracce MC 'ragionevoli'.
+
+	for(int g=0; g<nMCTracksaccettabili;g++){
+		if( i==ListaMCTracksaccettabili[g]) goto difuori;
+	}
+	continue;
+
+
+difuori: ;
 
     fprintf(HANDLE,
 "       TracciaMC %d ParHitsMC %d ParMecc %d ParMeccSpuri %d SkewHitsMC %d  SkewMecc %d SkewMeccSpuri %d\n",
@@ -3443,15 +3543,17 @@ for (ii=0; ii<nTotalCandidates  ;ii++){
 
 //--------------ghosts
 
-if( istampa>1){
-    int NParghost=0, NParhitsghost=0,icc;
-    for(icc=0; icc<nSttTrackCand;icc++){
+if( istampa>=1){
+    int NParghost=0, NParhitsghost=0,icc,ibuone=-1;
+
+    for(icc=0; icc<nTotalCandidates;icc++){
 	if(!keepit[icc]) continue;
+	ibuone++;
        if( daTrackFoundaTrackMC[icc] == -1){
           NParghost++;
           NParhitsghost += nSttParHitsinTrack[icc]+nSttSkewHitsinTrack[icc];
 
-          fprintf(HANDLE,"          tracce Trovata n. %d e' Ghost\n",icc);
+          fprintf(HANDLE,"          tracce Trovata n. %d e' Ghost\n",ibuone);
        }
     }
     fprintf(HANDLE,
@@ -5959,7 +6061,6 @@ dopp: ;
   }   //  end of  for(i=Nmin; i<= Nmax;++)
 	}  // end of if ( pMC )
        }  // end of if( imc>-1 )
-
 
 
 
