@@ -146,26 +146,16 @@ int main(int argc, char *argv[])
   opt_system.AddDevice(lens_air);
 
   // make the air gap extent larger than the lens
-  PndDrcOptBrik addition_top(half_thick,half_width,lens_body_hthick);
+  PndDrcOptBrik addition_top(2*half_thick,half_width,lens_body_hthick);
   addition_top.SetOptMaterial(PndDrcOptMatVacuum());
   addition_top.SetName("addition_top");
   addition_top.SetPrintColor(4);
   PndDrcOptBrik addition_bot(addition_top);
   addition_bot.SetName("addition_bot");
   
-  addition_top.AddTransform(Transform3D(XYZVector(2*half_thick,0,-(2+1)*lens_body_hthick)));
+  addition_top.AddTransform(Transform3D(XYZVector(3*half_thick,0,-(2+1)*lens_body_hthick)));
   addition_top.AddTransform(Transform3D(RotationZ(kPi/2)));
-
-  addition_top.Surface("side3")->SetPrintColor(3); 
-  //addition_top.Surface("side1")->SetPrintColor(3); 
-
-  //addition_bot.Surface("side1")->SetPrintColor(5); 
-  //addition_bot.Surface("side5")->SetPrintColor(5); 
- 
-
-
- 
-  addition_bot.AddTransform(Transform3D(XYZVector(-2*half_thick,0,-(2+1)*lens_body_hthick)));
+  addition_bot.AddTransform(Transform3D(XYZVector(-3*half_thick,0,-(2+1)*lens_body_hthick)));
   addition_bot.AddTransform(Transform3D(RotationZ(kPi/2)));
 
   opt_system.AddDevice(addition_top);
@@ -248,7 +238,7 @@ int main(int argc, char *argv[])
   // create a list of photons in sheet
 
   XYZPoint  pos(0,-half_thick-10.0,half_length);
-  XYZVector dir(0,1,2); 
+  XYZVector dir(0,1,1); 
   double   beta = 0.686;
   bool photons_exist = false;
   
@@ -340,7 +330,11 @@ int main(int argc, char *argv[])
       else if ((*iph).Fate()==Drc::kPhotAbsorbed) {icnt_absorbed++;}
       else 
 	{
-	  out<<(icnt1++)<<" "<<(*iph).Position().Z()<<" "<<(*iph).Wavelength()<<endl;
+	  out<<(icnt1++)<<" "
+	     <<(*iph).Position().X()<<" "
+	     <<(*iph).Position().Y()<<" "
+	     <<(*iph).Position().Z()<<" "
+	     <<(*iph).Wavelength()<<endl;
 	  icnt_lost++;
 	}
       
