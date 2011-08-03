@@ -1869,6 +1869,15 @@ for (ii=0; ii<nTracksFoundSoFar && istampa>=1 ;ii++){
 	  continue;
    }
 
+//   controllo che la traccia associata MC sia una delle tracce MC 'ragionevoli'.
+
+	for(int g=0; g<nMCTracksaccettabili;g++){
+		if( i==ListaMCTracksaccettabili[g]) goto difuori;
+	}
+	continue;
+
+
+difuori: ;
 
     fprintf(HANDLE,
 "       TracciaMC %d ParHitsMC %d ParMecc %d ParMeccSpuri %d SkewHitsMC %d  SkewMecc %d SkewMeccSpuri %d\n",
