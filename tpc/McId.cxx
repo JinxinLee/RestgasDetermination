@@ -29,7 +29,7 @@
 ClassImp(McId);
 
 McId::McId()
-  : fmceventID(0), fmctrackID(0), fweight(1)
+  : fmceventID(0), fmctrackID(0), fmcsecID(0), fweight(1)
 {;}
 
 McId::McId(const unsigned int eventid,
