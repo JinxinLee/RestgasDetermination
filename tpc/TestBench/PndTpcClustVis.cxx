@@ -49,7 +49,7 @@ PndTpcClustVis* PndTpcClustVis::eventDisplay = NULL;
 
 PndTpcClustVis::PndTpcClustVis():
   tree(NULL), digisBranch(NULL), clustersBranch(NULL), preFitBranch(NULL), postFitBranch(NULL),
-  NsectorsToProcess(1), fpurityCut(1.), fpurityLoCut(0.),
+  NsectorsToProcess(64), fpurityCut(1.), fpurityLoCut(0.),
   guiEvent(0), fEventId(0), ClHasChanged(true),
   doClustering(false), ClMode(2), ClTimeslice(3),ClTimecut(2),
   ClSingleDigiClAmpCut(15), ClClAmpCut(9),
@@ -58,7 +58,8 @@ PndTpcClustVis::PndTpcClustVis():
   instantRedraw(true), drawTpc(false), TpcTransp(80), drawRawDigis(false), drawDigis(false),
   drawClusters(false), drawClusterErrors(false),
   drawRiemannTracks(true), drawPOCA(false), drawFitMarkers(false),
-  doPR(true), clearUnfitted(true), doMerge(true), doGlobMerge(true), doClean(false),
+  doPR(true), clearUnfitted(true), doMerge(true), doGlobMerge(true), doMergeCurlers(false),
+  doClean(false),
   _sorting(3), _interactionZ(0), _sortingMode(true),
   PRNHits(999999999), PRStage(5),
   _minpoints(4), _planecut(0.04), _riproxcut(0.1), _szcut(0.2), _proxcut(1.9), _proxZstretch(1.6), _helixcut(0.2),
@@ -721,6 +722,48 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       std::cerr << "\nfinal merge of friemannlist: merge " << friemannlist.size() << " tracks ... ";
       _trackfinder->mergeTracks(friemannlist);
       std::cerr << " done - created " << friemannlist.size() << " merged tracks" <<std::endl;
+    }
+
+    if(doMergeCurlers){
+      std::vector<PndTpcRiemannTrack*> riemannTempCurl;
+      for (unsigned int i=0; i<friemannlist.size(); ++i){
+        if (friemannlist[i]->isFitted() &&
+            friemannlist[i]->r() < 30. &&
+            friemannlist[i]->getMom(Bz) < 0.5 &&
+            fabs(friemannlist[i]->m()*1.57) < 140){ // Pi/2
+          riemannTempCurl.push_back(friemannlist[i]);
+          friemannlist.erase(friemannlist.begin() + i);
+          --i;
+        }
+      }
+      PndTpcRiemannTrackFinder* trackfinder= new PndTpcRiemannTrackFinder();
+      trackfinder->setSorting(_sorting);
+      trackfinder->setInteractionZ(_interactionZ);
+      trackfinder->setSortingMode(_sortingMode);
+      trackfinder->setMinHitsForFit(_minpoints);
+      trackfinder->setScale(fRiemannScale);
+      trackfinder->setMaxNumHitsForPR(PRNHits);
+
+      trackfinder->setProxcut(_proxcut);
+      trackfinder->setTTProxcut(2000.);
+
+
+      // Track-Track Correlators
+      double blowUp = 5.;
+      trackfinder->addTTCorrelator(new PndTpcDipTTCorrelator(_TTdipcut, blowUp*_TThelixcut));
+      trackfinder->addTTCorrelator(new PndTpcRiemannTTCorrelator(_TTplanecut, _minpoints));
+
+      std::cerr << "\nmerge curlers: merge " << riemannTempCurl.size() << " tracks ... ";
+      trackfinder->mergeTracks(riemannTempCurl);
+      std::cerr << " done1 - created " << riemannTempCurl.size() << " merged tracks" <<std::endl;
+      trackfinder->mergeTracks(riemannTempCurl);
+      std::cerr << " done2 - created " << riemannTempCurl.size() << " merged tracks" <<std::endl;
+
+      delete trackfinder;
+
+      for (unsigned int i=0; i<riemannTempCurl.size(); ++i){
+        friemannlist.push_back(riemannTempCurl[i]);
+      }
     }
 
     timer.Stop();
@@ -1662,6 +1705,13 @@ void PndTpcClustVis::makeGui() {
   }
   frmMain2->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain2); {
+    guiDoMergeCurlers =  new TGCheckButton(hf, "Do curler merging");
+    if(doMergeCurlers) guiDoMergeCurlers->Toggle();
+    hf->AddFrame(guiDoMergeCurlers);
+    guiDoMergeCurlers->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
+  }
+  frmMain2->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain2); {
     guiTTproxcut = new TGNumberEntry(hf, _TTproxcut, 6,999, TGNumberFormat::kNESRealThree,
                           TGNumberFormat::kNEANonNegative,
                           TGNumberFormat::kNELLimitMinMax,
@@ -1868,6 +1918,7 @@ void PndTpcClustVis::guiSetTrackingParams(){
   clearUnfitted=(guiClearUnfitted->IsOn());
   doMerge=(guiDoMerge->IsOn());
   doGlobMerge=(guiDoGlobMerge->IsOn());
+  doMergeCurlers=(guiDoMergeCurlers->IsOn());
   doClean=(guiDoClean->IsOn());
   
   PndTpcClustVis*  fh = PndTpcClustVis::getInstance();

@@ -458,8 +458,10 @@ PndTpcRiemannTrack::fitAndSort(){
 
   refit(); // fit plane and dip
 
-  // if dip [90°+-50°], resort by angle
-  if(_doSort && _isFitted && _dip>0.698131701 && _dip<2.44346095) {
+  // if dip [90°+-50°] or R<0.5, resort by angle
+  if(_doSort && _isFitted &&
+     ((_dip>0.698131701 && _dip<2.44346095) ||
+      _radius < 0.5)) {
     // keep rough sorting!
     if (winding()>0)
       std::sort(_hits.begin(), _hits.end(), sortByAngle);
@@ -559,7 +561,7 @@ PndTpcRiemannTrack::centerR() {
 
 
 double
-PndTpcRiemannTrack::distHelix(PndTpcRiemannHit* hit, bool calcPos) const {
+PndTpcRiemannTrack::distHelix(PndTpcRiemannHit* hit, bool calcPos, bool TwoPiCheck) const {
   if(!_isFitted && !_isInitialized) return 0.;
 
   double hit_angle=hit->getAngleOnHelix();
@@ -584,7 +586,7 @@ PndTpcRiemannTrack::distHelix(PndTpcRiemannHit* hit, bool calcPos) const {
     hit_angleR = hitX.DeltaPhi(hit1) + phi1;
 
     // check if nearest position position lies multiples of 2Pi away
-    if(false && _radius < 15.){
+    if(TwoPiCheck && _radius < 50.){
       double z = _m * hit_angleR + _t;
       double dZ =  hitZ-z; // positive when above helix, negative when below
 
@@ -593,7 +595,7 @@ PndTpcRiemannTrack::distHelix(PndTpcRiemannHit* hit, bool calcPos) const {
 
       double zCheck;
 
-      const unsigned int maxIt = 3;
+      const unsigned int maxIt = 4;
       unsigned int it = 0;
 
       while (it<maxIt){

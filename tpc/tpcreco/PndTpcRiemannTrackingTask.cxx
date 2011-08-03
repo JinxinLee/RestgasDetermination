@@ -104,6 +104,9 @@ PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
     _TThelixcut(0.3),
     _TTplanecut(0.015),
 
+    _MergeCurlers(false),
+    _blowUp(1.),
+
     _skipCrossingAreas(true),
 
     _doMultistep(true),
@@ -243,7 +246,25 @@ PndTpcRiemannTrackingTask::Init()
   _trackfinder->addTTCorrelator(new PndTpcProximityTTCorrelator(_TTproxcut));
   _trackfinder->addTTCorrelator(new PndTpcDipTTCorrelator(_TTdipcut, _TThelixcut));
   _trackfinder->addTTCorrelator(new PndTpcRiemannTTCorrelator(_TTplanecut, _minpoints));
+
+
+
+  // for merging curling tracks with increased TT helixcut
+  _trackfinderCurl= new PndTpcRiemannTrackFinder();
+  _trackfinderCurl->setSorting(_sorting);
+  _trackfinderCurl->setSortingMode(_sortingMode);
+  _trackfinderCurl->setMinHitsForFit(_minpoints);
+  _trackfinderCurl->setScale(_riemannscale);
+  _trackfinderCurl->setMaxNumHitsForPR(_minpoints);
+
+  _trackfinderCurl->setProxcut(_proxcut);
+  _trackfinderCurl->setTTProxcut(2000.);
+
+  // Track-Track Correlators
+  _trackfinderCurl->addTTCorrelator(new PndTpcDipTTCorrelator(_TTdipcut, _blowUp*_TThelixcut));
+  _trackfinderCurl->addTTCorrelator(new PndTpcRiemannTTCorrelator(_TTplanecut, _minpoints));
  
+
 
   // init histos
   _multiplicityHisto=new TH1I("multipl","# track candidates",100,0,100);
@@ -552,6 +573,32 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     if (fVerbose) std::cerr << "\nfinal merge of friemannlist: merge " << friemannlist.size() << " tracks ... ";
     _trackfinder->mergeTracks(friemannlist);
     if (fVerbose) std::cerr << " done - created " << friemannlist.size() << " merged tracks" <<std::endl;
+  }
+
+
+  if(_MergeCurlers){
+    std::vector<PndTpcRiemannTrack*> riemannTempCurl;
+    for (unsigned int i=0; i<friemannlist.size(); ++i){
+      if (friemannlist[i]->isFitted() &&
+          friemannlist[i]->r() < 30. &&
+          friemannlist[i]->getMom(Bz) < 0.5 &&
+          fabs(friemannlist[i]->m()*1.57) < 140){ // Pi/2
+        riemannTempCurl.push_back(friemannlist[i]);
+        friemannlist.erase(friemannlist.begin() + i);
+        --i;
+      }
+    }
+
+    if (fVerbose) std::cerr << "\nmerge curlers: merge " << riemannTempCurl.size() << " tracks ... ";
+    _trackfinderCurl->mergeTracks(riemannTempCurl);
+    if (fVerbose) std::cerr << " done1 - created " << riemannTempCurl.size() << " merged tracks" <<std::endl;
+    _trackfinderCurl->mergeTracks(riemannTempCurl);
+    if (fVerbose) std::cerr << " done2 - created " << riemannTempCurl.size() << " merged tracks" <<std::endl;
+
+
+    for (unsigned int i=0; i<riemannTempCurl.size(); ++i){
+      friemannlist.push_back(riemannTempCurl[i]);
+    }
   }
 
 

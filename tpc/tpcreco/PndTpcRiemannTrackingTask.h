@@ -74,6 +74,8 @@ public:
 
   void SetMergeTracks(bool mergeTracks=true){_mergeTracks = mergeTracks;} // merge tracklets
 
+  void SetMergeCurlers(bool mergeCurlers=true, double blowUp=5.){_MergeCurlers=mergeCurlers; _blowUp=blowUp;} // merge curlers
+
   void SetTrkMergerParameters(
                    double TTproxcut,  // proximity cut in 3D
                    double TTdipcut,   // cut on difference of dip angles of tracklets
@@ -118,6 +120,7 @@ private:
   std::vector<PndTpcRiemannTrack*> friemannlist;
 
   PndTpcRiemannTrackFinder* _trackfinder;
+  PndTpcRiemannTrackFinder* _trackfinderCurl;
 
   Bool_t _persistence;
   Bool_t _riemannPersistence;
@@ -154,6 +157,9 @@ private:
   double _TTdipcut;
   double _TThelixcut;
   double _TTplanecut;
+
+  bool _MergeCurlers;
+  double _blowUp;
 
   bool _skipCrossingAreas;
 

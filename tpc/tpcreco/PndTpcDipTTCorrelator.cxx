@@ -88,6 +88,8 @@ PndTpcDipTTCorrelator::corr(PndTpcRiemannTrack* trk1,
 
     double dphi = TMath::Abs(phi2-phi1);
 
+    //std::cout<<"dphi "<<dphi<<"\n";
+
     DebugLogger::Instance()->Histo("TT_dip_dphi",dphi,-4,4,100);
     
     matchQuality=dphi;
@@ -100,14 +102,15 @@ PndTpcDipTTCorrelator::corr(PndTpcRiemannTrack* trk1,
     }
 
 
-    // now also check if sz distance matches
+    // now also check if helix distance matches
     PndTpcCluster* TestCluster = new PndTpcCluster(pos2,1,0);
     PndTpcRiemannHit* TestHit = new PndTpcRiemannHit(TestCluster);
-    double hDist(trk1->distHelix(TestHit,true));
+    double hDist(trk1->distHelix(TestHit,true, true));
 
     delete TestHit;
     delete TestCluster;
 
+    //std::cout<<"hDist "<<hDist<<"\n";
 
     DebugLogger::Instance()->Histo("TT_dip_hDist",hDist,-10,10,100);
 

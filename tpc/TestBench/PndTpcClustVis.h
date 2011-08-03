@@ -238,6 +238,8 @@ private:
   bool doMerge;
   TGCheckButton* guiDoGlobMerge;
   bool doGlobMerge;
+  TGCheckButton* guiDoMergeCurlers;
+  bool doMergeCurlers;
 
   TGCheckButton* guiDoClean;
   bool doClean;

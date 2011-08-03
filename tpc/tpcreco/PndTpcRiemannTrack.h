@@ -106,7 +106,7 @@ class PndTpcRiemannTrack : public TObject{
   // if use Arguments == false, the members _n and _c will be used for calculation
   double dist(PndTpcRiemannHit* hit, TVector3 n2=(0.,0.,0.), double c2=0, bool useArguments=false) const;
    
-  double distHelix(PndTpcRiemannHit* hit, bool calcPos=true) const; // distance to helix
+  double distHelix(PndTpcRiemannHit* hit, bool calcPos=true, bool TwoPiCheck=false) const; // distance to helix
   void Plot(bool standalone=true);
 
  private:
