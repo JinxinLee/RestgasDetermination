@@ -168,124 +168,124 @@ bool PndDrcSurfPolySphere::SurfaceHit(PndDrcPhoton& ph,
 		<<lambda1<<" "<<lambda2<<endl;
 
 	if (lambda1>kEps && lambda2>kEps)
-	{ // check both lambdas
+	  { // check both lambdas
 
-		XYZPoint pos_new1     = pos + lambda1*dir;
-		XYZPoint pos_check(pos_new1);
-		bool hit1 = (pos_new1.Z()>0);
-		pos_check.SetZ(0);
-		if (hit1) hit1 = WithinSurface(pos_check);
-		XYZPoint pos_new2     = pos + lambda2*dir;
-		pos_check = pos_new2;
-		bool hit2 = (pos_new2.Z()>0);
-		pos_check.SetZ(0);
-		if (hit2) hit2 = WithinSurface(pos_check);
-		if (hit1 && hit2)
-		{
-	      // take closest
-			double lambda = (lambda1<lambda2) ? lambda1 : lambda2;
-			pos_new = pos + lambda*dir;
-			path_length = lambda;
-			pos_new = fTrans * pos_new;
-          if (fPixel){
-	  if (fEffiCathode
-	      ->EffiFlag(ph.Wavelength(),
-			 ph.Direction().Dot(Normal(pos_new))))
-	    { 
-	      ph.SetFate(Drc::kPhotMeasured);
-	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
-	    }
-	  else
-	    { 
-	      ph.SetFate(Drc::kPhotAbsorbed);
-	    }
-	  }
+	    XYZPoint pos_new1     = pos + lambda1*dir;
+	    XYZPoint pos_check(pos_new1);
+	    bool hit1 = (pos_new1.Z()>0);
+	    pos_check.SetZ(0);
+	    if (hit1) hit1 = WithinSurface(pos_check);
+	    XYZPoint pos_new2     = pos + lambda2*dir;
+	    pos_check = pos_new2;
+	    bool hit2 = (pos_new2.Z()>0);
+	    pos_check.SetZ(0);
+	    if (hit2) hit2 = WithinSurface(pos_check);
+	    if (hit1 && hit2)
+	      {
+		// take closest
+		double lambda = (lambda1<lambda2) ? lambda1 : lambda2;
+		pos_new = pos + lambda*dir;
+		path_length = lambda;
+		pos_new = fTrans * pos_new;
+		if (fPixel){
+		  if (fEffiCathode
+		      ->EffiFlag(ph.Wavelength(),
+				 ph.Direction().Dot(Normal(pos_new))))
+		    { 
+		      ph.SetFate(Drc::kPhotMeasured);
+		      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+		    }
+		  else
+		    { 
+		      ph.SetFate(Drc::kPhotAbsorbed);
+		    }
+		}
 	  
-			//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
-			return true;
-		}
-		else if (hit1)
-		{
-			pos_new = pos + lambda1*dir;
-			path_length = lambda1;
-			pos_new = fTrans * pos_new;
-          if (fPixel){
-	  if (fEffiCathode
-	      ->EffiFlag(ph.Wavelength(),
-			 ph.Direction().Dot(Normal(pos_new))))
-	    { 
-	      ph.SetFate(Drc::kPhotMeasured);
-	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
-	    }
-	  else
-	    { 
-	      ph.SetFate(Drc::kPhotAbsorbed);
-	    }
-	  }
-	  
-			//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
-			return true;
-		}
-		else if (hit2)
-		{
-			pos_new = pos + lambda2*dir;
-			path_length = lambda2;
-			pos_new = fTrans * pos_new;
-          if (fPixel){
-	  if (fEffiCathode
-	      ->EffiFlag(ph.Wavelength(),
-			 ph.Direction().Dot(Normal(pos_new))))
-	    { 
-	      ph.SetFate(Drc::kPhotMeasured);
-	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
-	    }
-	  else
-	    { 
-	      ph.SetFate(Drc::kPhotAbsorbed);
-	    }
-	  }
-	  
-			//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-	else if (lambda1>kEps && lambda2<=kEps)
-	{
+		//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
+		return true;
+	      }
+	    else if (hit1)
+	      {
+		pos_new = pos + lambda1*dir;
 		path_length = lambda1;
-	}
-	else if (lambda1<=kEps && lambda2>kEps)
-	{
+		pos_new = fTrans * pos_new;
+		if (fPixel){
+		  if (fEffiCathode
+		      ->EffiFlag(ph.Wavelength(),
+				 ph.Direction().Dot(Normal(pos_new))))
+		    { 
+		      ph.SetFate(Drc::kPhotMeasured);
+		      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+		    }
+		  else
+		    { 
+		      ph.SetFate(Drc::kPhotAbsorbed);
+		    }
+		}
+	  
+		//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
+		return true;
+	      }
+	    else if (hit2)
+	      {
+		pos_new = pos + lambda2*dir;
 		path_length = lambda2;
-	}
-	else
-	{
-     //cout<<" not taken"<<endl;//###
+		pos_new = fTrans * pos_new;
+		if (fPixel){
+		  if (fEffiCathode
+		      ->EffiFlag(ph.Wavelength(),
+				 ph.Direction().Dot(Normal(pos_new))))
+		    { 
+		      ph.SetFate(Drc::kPhotMeasured);
+		      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+		    }
+		  else
+		    { 
+		      ph.SetFate(Drc::kPhotAbsorbed);
+		    }
+		}
+	  
+		//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
+		return true;
+	      }
+	    else
+	      {
 		return false;
+	      }
+	  }
+	else if (lambda1>kEps && lambda2<=kEps)
+	  {
+	    path_length = lambda1;
+	  }
+	else if (lambda1<=kEps && lambda2>kEps)
+	  {
+	    path_length = lambda2;
+	  }
+	else
+	  {
+	    //cout<<" not taken"<<endl;//###
+	    return false;
 
-	}
+	  }
 	pos_new     = pos + path_length*dir;
 	if (fVerbosity>=4) cout<<" PndDrcSurfPolySphere::surfaceHit pos_new_z="
-		<<pos_new.Z()<<endl;
+			       <<pos_new.Z()<<endl;
 	if (pos_new.Z()<0) return false; // wrong half sphere.
 
 
-  // check if pos_new is within polynom
+	// check if pos_new is within polynom
 	XYZPoint pos_check(pos_new);
 	pos_check.SetZ(0);
 
 	if (WithinSurface(pos_check))
-	{
-		pos_new = fTrans * pos_new;
-          if (fPixel){
-	  if (fEffiCathode
-	      ->EffiFlag(ph.Wavelength(),
-			 ph.Direction().Dot(Normal(pos_new))))
-	    { 
-	      ph.SetFate(Drc::kPhotMeasured);
+	  {
+	    pos_new = fTrans * pos_new;
+	    if (fPixel){
+	      if (fEffiCathode
+		  ->EffiFlag(ph.Wavelength(),
+			     ph.Direction().Dot(Normal(pos_new))))
+		{ 
+		  ph.SetFate(Drc::kPhotMeasured);
 	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
 	    }
 	  else
