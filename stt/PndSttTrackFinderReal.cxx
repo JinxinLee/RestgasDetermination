@@ -1823,9 +1823,27 @@ cout<<"Total track trovate "<<nTracksFoundSoFar<<endl;
 
 
 
+//----------------
+  if(istampa>=1 ){
+	fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",
+		IVOLTE, nMCTracksaccettabili);
+	int ibene=0;
+	if(nMCTracksaccettabili>0){
+		for(ii=0; ii<nTracksFoundSoFar;ii++){
+			for(i=0;i<nMCTracksaccettabili;i++){
+				if( i==ListaMCTracksaccettabili[i]){
+					ibene++;
+				}
+			}
+		}
+	}
+	if(ibene>0) fprintf(HANDLE,"\tn. volte almeno 1 traccia MC accettabile e' ricostruita %d\n"
+		,ibene);
+  }// end of  if(istampa>=1 )
+//----------------
 
-  if(istampa>=1 )  fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",
-  IVOLTE, nMCTracksaccettabili);
+
+
 
 for (ii=0; ii<nTracksFoundSoFar && istampa>=1 ;ii++){
    if(!keepit[ii]) continue;
