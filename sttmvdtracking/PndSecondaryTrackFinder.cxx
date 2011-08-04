@@ -734,11 +734,11 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     
     Double_t newxc, newyc, newradius, newchi2 = 0;
     std::vector< TMatrixT<double> > newtrack2;
-    if(fVerbose) cout << "SECOND TEST CHI2" << endl;
+    if(fVerbose) cout << "THIRD TEST CHI2" << endl;
     Bool_t testchi2 = TestChi2BIS(newtrack, xc, yc, radius, iclus, chi2, countelem, newxc, newyc, newradius, &newtrack2, newchi2);
     if(fVerbose) cout << "testchi2 = " << testchi2 << endl;
     if(testchi2 == kFALSE)  {
-      if(fVerbose) cout << "GOTTA DELETE THIS chi2 fails " << iclus << endl;
+      if(fVerbose) cout << "GOTTA RESTORE the components cluster for chi2 fails " << iclus << endl;
       deletecluster.push_back(iclus);
       continue;
     }
