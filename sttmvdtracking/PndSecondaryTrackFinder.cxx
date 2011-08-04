@@ -720,74 +720,25 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     std::vector< TMatrixT<double> > track = newlist[iclus]; // RESTYLE add
     std::vector< TMatrixT<double> > newtrack = newlist[iclus]; // RESTYLE add
   
-    std::vector<std::vector<double> > conformalhits;
-    Double_t firstdrift, delta, trasl[2];
-    // GO TO CONF PLANE
-    Bool_t conftras = ConformalPlaneStt4BIS(newtrack, iclus, conformalhits, firstdrift, delta, trasl);
-    Double_t xc, yc, radius;
-    // CONF FIT 1
-    Bool_t conffit = ConformalFit(conformalhits,  iclus, delta,  trasl,  xc,  yc, radius);
-    // chi2
-    int countelem = 0;
-    double redchi2 = CalculateRedChi2BIS(newtrack, xc, yc, radius, countelem);
-    if(fVerbose) cout << "===> RED CHI2 no. 0 = " << redchi2 << " " << countelem << " <===" << endl;
-    
-    Double_t tmpxc = xc;
-    Double_t tmpyc = yc;
-    Double_t tmpradius = radius;
-    // intersection finder & fit
-    int niter = 2;
-    Double_t outxc[niter], outyc[niter], outradius[niter], red2chi2[niter];
-    Int_t countelem2[niter];
-    for(int iter = 0; iter < 2; iter++) {
-      red2chi2[iter] = 10000;
-      countelem2[iter] = 0;
-      Bool_t refit = RefitConformalBIS(&newtrack, tmpxc, tmpyc, tmpradius, outxc[iter], outyc[iter], outradius[iter]);
-      // CHECK no if(refit) ??
-      red2chi2[iter] = CalculateRedChi2BIS(newtrack,  outxc[iter], outyc[iter], outradius[iter], countelem2[iter]);
-      if(fVerbose) cout << "===> RED CHI2 no. " << iter + 1 << " = " << red2chi2[iter] << " " << countelem2[iter] << " <===" << endl;
-      tmpxc = outxc[iter];
-      tmpyc = outyc[iter];
-      tmpradius = outradius[iter];
-
-      std::replace(newlist.begin(), newlist.end(), track, newtrack);
-  
-  
-      if(fDisplayOn) {
-	cout << "refit helix " << outxc[iter] << " " << outyc[iter] << " " << outradius[iter] << endl;     
-	TArc *arc2 = new TArc(outxc[iter], outyc[iter], outradius[iter]);
-	if(iter == 0) arc2->SetLineColor(kRed);
-	else arc2->SetLineColor(kBlue);
-	arc2->SetFillStyle(0);
-	arc2->Draw("SAME ONLY");
-	display->Update();
-	display->Modified();
-      }
+    // **************
+    Double_t xc, yc, radius, chi2; 
+    Int_t countelem;
+    if(fVerbose) cout << "==> COMPLETE STT FIT" << endl;
+    Bool_t fit = CompleteSttFitBIS(&newtrack, iclus, xc, yc, radius, chi2, countelem); // RESTYLE add
+    if(fit == kFALSE) {
+      if(fVerbose) cout << "GOTTA DELETE THIS fit fails " << iclus << endl;
+      deletecluster.push_back(iclus);
+      continue;
     }
-
-    double tmpredchi2 = redchi2;
-    for(int iter = 0; iter < 2; iter++) {
-      //  cout << "ITER " << iter << " " << red2chi2[iter] << " " << tmpredchi2 << endl;
-      if(fabs(1. - red2chi2[iter]) < fabs(1. - tmpredchi2)) {
-	xc = outxc[iter];
-	yc = outyc[iter];
-	radius = outradius[iter];
-	tmpredchi2 = red2chi2[iter];
-	// 	cout << "TAKEN " << iter << " " << red2chi2[iter] << " " << tmpredchi2 << endl;
-      }
-    }
+    else std::replace(newlist.begin(), newlist.end(), track, newtrack);
     
-
-    // ------------------------------------------------
-    countelem = 0;
-    double chi2 = CalculateRedChi2BIS(track, xc, yc, radius, countelem);
     Double_t newxc, newyc, newradius, newchi2 = 0;
     std::vector< TMatrixT<double> > newtrack2;
-    if(fVerbose) cout << "THIRD TEST CHI2" << endl;
-    Bool_t testchi2 = TestChi2BIS(track, xc, yc, radius, iclus, chi2, countelem, newxc, newyc, newradius, &newtrack2, newchi2);
+    if(fVerbose) cout << "SECOND TEST CHI2" << endl;
+    Bool_t testchi2 = TestChi2BIS(newtrack, xc, yc, radius, iclus, chi2, countelem, newxc, newyc, newradius, &newtrack2, newchi2);
     if(fVerbose) cout << "testchi2 = " << testchi2 << endl;
     if(testchi2 == kFALSE)  {
-      if(fVerbose) cout << "GOTTA RESTORE the components cluster for chi2 fails " << iclus << endl;
+      if(fVerbose) cout << "GOTTA DELETE THIS chi2 fails " << iclus << endl;
       deletecluster.push_back(iclus);
       continue;
     }
@@ -798,14 +749,104 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       chi2 = newchi2;
       if(fVerbose) {
 	cout << "................. replacing" << endl;
-	PrintClustersBIS(newlist);
+	PrintClustersBIS(tracklist);
       }
-      std::replace(newlist.begin(), newlist.end(), track, newtrack2);
+      std::replace(newlist.begin(), newlist.end(), newtrack, newtrack2);
       if(fVerbose) {
 	cout << "................. done" << endl;
-	PrintClustersBIS(newlist);
+	PrintClustersBIS(tracklist);
       }
     }
+    // *****************
+
+
+ //    std::vector<std::vector<double> > conformalhits;
+//     Double_t firstdrift, delta, trasl[2];
+//     // GO TO CONF PLANE
+//     Bool_t conftras = ConformalPlaneStt4BIS(newtrack, iclus, conformalhits, firstdrift, delta, trasl);
+//     Double_t xc, yc, radius;
+//     // CONF FIT 1
+//     Bool_t conffit = ConformalFit(conformalhits,  iclus, delta,  trasl,  xc,  yc, radius);
+//     // chi2
+//     int countelem = 0;
+//     double redchi2 = CalculateRedChi2BIS(newtrack, xc, yc, radius, countelem);
+//     if(fVerbose) cout << "===> RED CHI2 no. 0 = " << redchi2 << " " << countelem << " <===" << endl;
+    
+//     Double_t tmpxc = xc;
+//     Double_t tmpyc = yc;
+//     Double_t tmpradius = radius;
+//     // intersection finder & fit
+//     int niter = 2;
+//     Double_t outxc[niter], outyc[niter], outradius[niter], red2chi2[niter];
+//     Int_t countelem2[niter];
+//     for(int iter = 0; iter < 2; iter++) {
+//       red2chi2[iter] = 10000;
+//       countelem2[iter] = 0;
+//       Bool_t refit = RefitConformalBIS(&newtrack, tmpxc, tmpyc, tmpradius, outxc[iter], outyc[iter], outradius[iter]);
+//       // CHECK no if(refit) ??
+//       red2chi2[iter] = CalculateRedChi2BIS(newtrack,  outxc[iter], outyc[iter], outradius[iter], countelem2[iter]);
+//       if(fVerbose) cout << "===> RED CHI2 no. " << iter + 1 << " = " << red2chi2[iter] << " " << countelem2[iter] << " <===" << endl;
+//       tmpxc = outxc[iter];
+//       tmpyc = outyc[iter];
+//       tmpradius = outradius[iter];
+
+//       std::replace(newlist.begin(), newlist.end(), track, newtrack);
+  
+  
+//       if(fDisplayOn) {
+// 	cout << "refit helix " << outxc[iter] << " " << outyc[iter] << " " << outradius[iter] << endl;     
+// 	TArc *arc2 = new TArc(outxc[iter], outyc[iter], outradius[iter]);
+// 	if(iter == 0) arc2->SetLineColor(kRed);
+// 	else arc2->SetLineColor(kBlue);
+// 	arc2->SetFillStyle(0);
+// 	arc2->Draw("SAME ONLY");
+// 	display->Update();
+// 	display->Modified();
+//       }
+//     }
+
+//     double tmpredchi2 = redchi2;
+//     for(int iter = 0; iter < 2; iter++) {
+//       //  cout << "ITER " << iter << " " << red2chi2[iter] << " " << tmpredchi2 << endl;
+//       if(fabs(1. - red2chi2[iter]) < fabs(1. - tmpredchi2)) {
+// 	xc = outxc[iter];
+// 	yc = outyc[iter];
+// 	radius = outradius[iter];
+// 	tmpredchi2 = red2chi2[iter];
+// 	// 	cout << "TAKEN " << iter << " " << red2chi2[iter] << " " << tmpredchi2 << endl;
+//       }
+//     }
+    
+
+//     // ------------------------------------------------
+//     countelem = 0;
+//     double chi2 = CalculateRedChi2BIS(track, xc, yc, radius, countelem);
+//     Double_t newxc, newyc, newradius, newchi2 = 0;
+//     std::vector< TMatrixT<double> > newtrack2;
+//     if(fVerbose) cout << "THIRD TEST CHI2" << endl;
+//     Bool_t testchi2 = TestChi2BIS(track, xc, yc, radius, iclus, chi2, countelem, newxc, newyc, newradius, &newtrack2, newchi2);
+//     if(fVerbose) cout << "testchi2 = " << testchi2 << endl;
+//     if(testchi2 == kFALSE)  {
+//       if(fVerbose) cout << "GOTTA RESTORE the components cluster for chi2 fails " << iclus << endl;
+//       deletecluster.push_back(iclus);
+//       continue;
+//     }
+//     else if(newchi2 != 0) {
+//       xc = newxc;
+//       yc = newyc;
+//       radius = newradius;
+//       chi2 = newchi2;
+//       if(fVerbose) {
+// 	cout << "................. replacing" << endl;
+// 	PrintClustersBIS(newlist);
+//       }
+//       std::replace(newlist.begin(), newlist.end(), track, newtrack2);
+//       if(fVerbose) {
+// 	cout << "................. done" << endl;
+// 	PrintClustersBIS(newlist);
+//       }
+//  }
+  
     // ------------------------------------------------
     if(iclus < combinations.size() > 0) {
       // cout << "this has a chi2 " << chi2 << endl;
@@ -823,7 +864,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       // cout << endl;
     }
     //    else cout << "original " << endl;
-      
+    
     TMatrixT<double> param(1, 7);
     param[0][0] = xc;
     param[0][1] = yc;
