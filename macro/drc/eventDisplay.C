@@ -9,10 +9,9 @@ eventDisplay()
                                      
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile("testrun1.root");
+  fRun->SetInputFile(" testrun1.root");
   fRun->SetOutputFile("tst.root");
-  fRun->LoadGeometry();
-
+ 
   
   
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
