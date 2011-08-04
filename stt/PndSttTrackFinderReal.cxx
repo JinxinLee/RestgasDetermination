@@ -1830,8 +1830,12 @@ cout<<"Total track trovate "<<nTracksFoundSoFar<<endl;
 	int ibene=0;
 	if(nMCTracksaccettabili>0){
 		for(ii=0; ii<nTracksFoundSoFar;ii++){
+			// il controllo su keepit e' gia' incluso in daTrackFoundaTrackMC
+			// (che in tal caso e' -1).
+			// GoodSkewFit invece non c'entra, perche' daTrackFoundaTrackMC
+			// e' caricata in funzione degli hit paralleli solamente.
 			for(i=0;i<nMCTracksaccettabili;i++){
-				if( i==ListaMCTracksaccettabili[i]){
+				if( daTrackFoundaTrackMC[ii]==ListaMCTracksaccettabili[i]){
 					ibene++;
 				}
 			}
