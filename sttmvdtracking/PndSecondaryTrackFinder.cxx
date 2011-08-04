@@ -262,7 +262,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   fSecondaryTrackArray->Delete();
 
   if(fVerbose) cout << "++++++++++++++++++++++++++++++++++++" << endl;
-  fDisplayOn = kFALSE;
+  //  fDisplayOn = kFALSE;
   // MC Tracks ------------ CHECK MC INFO
   std::vector<int> mctracks;
   for(int ipnt = 0; ipnt < fSttPointArray->GetEntriesFast(); ipnt++) {
@@ -369,7 +369,8 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   //
   std::vector<std::vector< TMatrixT<double> > > tracklist;
   tracklist = ClusterFinder3b(stthits,  FairRootManager::Instance()->GetBranchId(fSttBranch));
-  if(fVerbose) {
+  if(fVerbose) 
+{
     cout << "after cluster finding" << endl;
     PrintClustersBIS(tracklist);
   }
@@ -468,13 +469,14 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 
 
     // save tracks
-    TMatrixT<double> param(1, 6);
+    TMatrixT<double> param(1, 7);
     param[0][0] = xc;
     param[0][1] = yc;
     param[0][2] = radius;
     param[0][3] = 0;
     param[0][4] = 0;
     param[0][5] = 0;
+    param[0][6] = chi2;
     xyparameters.push_back(param);
   }
   //  DrawTracks(xyparameters);
@@ -483,9 +485,10 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   DeleteClusterBIS(&tracklist, deletecluster);
   deletecluster.clear();
 
-  if(fVerbose) cout << "after replacing and deleting" << endl;
-
-  //   PrintClustersBIS(tracklist);
+  if(fVerbose) {
+    cout << "after replacing and deleting" << endl;
+    PrintClustersBIS(tracklist);
+  }
   //   if(fDisplayOn) DrawClustersBIS(tracklist);
 
   if(fDisplayOn) { 
@@ -543,7 +546,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     TMatrixT<double> xypar = xyparameters[itrk];
     
     std::vector< TMatrixT<double> > track1, track2;
-    TMatrixT<double> param1(1, 6), param2(1, 6);
+    TMatrixT<double> param1(1, 7), param2(1, 7);
     
     if(fVerbose) cout << "before break" << endl;
     Bool_t breaking = BreakTooLongTracks(track, xypar, track1, param1, track2, param2) ;
@@ -574,7 +577,8 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   //     PrintClustersBIS(newtracklist);
     
 
-  if(fVerbose) {
+  if(fVerbose)
+ {
     cout << "after adding the points" << endl;
     PrintClustersBIS(tracklist);
   }
@@ -595,35 +599,48 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   for(int iclus = 0; iclus < tracklist.size(); iclus++) {
     
     std::vector< TMatrixT<double> > track = tracklist[iclus];
+    std::vector< TMatrixT<double> > newtrack = tracklist[iclus];
 
-    double xc, yc, radius;
-    Double_t firstdrift, delta, trasl[2];
-    std::vector< std::vector<double> > conformalhits;  
-    Bool_t conftras = ConformalPlaneStt4BIS(track, iclus, conformalhits, firstdrift, delta, trasl);
-    //    cout << "conform bis " << conftras << endl;
-    Double_t conffit = ConformalFit(conformalhits,  iclus, delta,  trasl,  xc,  yc, radius);
+    double xc, yc, radius, chi2; 
+    Int_t countelem;
+ //    Double_t firstdrift, delta, trasl[2];
+//     std::vector< std::vector<double> > conformalhits;  
+  //   Bool_t conftras = ConformalPlaneStt4BIS(track, iclus, conformalhits, firstdrift, delta, trasl);
+//     //    cout << "conform bis " << conftras << endl;
+//     Double_t conffit = ConformalFit(conformalhits,  iclus, delta,  trasl,  xc,  yc, radius);
     
-    if(fDisplayOn) {
-      char goOnChar;
-      cout << "Go back to reak plane: cluster " << iclus << endl;
-      cin >> goOnChar;
-      if(fDisplayOn) Refresh();
-      cout << "helix " << xc << " " << yc << " " << radius << endl;     
-      TArc *arc = new TArc(xc, yc, radius);
-      arc->SetLineColor(kCyan);
-      arc->SetFillStyle(0);
-      arc->Draw("SAME ONLY");
-      display->Update();
-      display->Modified();
-    }
+//     if(fDisplayOn) {
+//       char goOnChar;
+//       cout << "Go back to reak plane: cluster " << iclus << endl;
+//       cin >> goOnChar;
+//       if(fDisplayOn) Refresh();
+//       cout << "helix " << xc << " " << yc << " " << radius << endl;     
+//       TArc *arc = new TArc(xc, yc, radius);
+//       arc->SetLineColor(kCyan);
+//       arc->SetFillStyle(0);
+//       arc->Draw("SAME ONLY");
+//       display->Update();
+//       display->Modified();
+//     }
 
-    // ------------------------------------------------
-    int countelem = 0;
-    double chi2 = CalculateRedChi2BIS(track, xc, yc, radius, countelem);
+//     // ------------------------------------------------
+//     int countelem = 0;
+//     double chi2 = CalculateRedChi2BIS(track, xc, yc, radius, countelem);
+
+    if(fVerbose) cout << "==> COMPLETE STT FIT" << endl;
+    Bool_t fit = CompleteSttFitBIS(&newtrack, iclus, xc, yc, radius, chi2, countelem); // RESTYLE add
+    if(fit == kFALSE) {
+      if(fVerbose) cout << "GOTTA DELETE THIS fit fails " << iclus << endl;
+      deletecluster.push_back(iclus);
+      continue;
+    }
+    else std::replace(tracklist.begin(), tracklist.end(), track, newtrack);
+    
+
     Double_t newxc, newyc, newradius, newchi2 = 0;
     std::vector< TMatrixT<double> > newtrack2;
     if(fVerbose) cout << "SECOND TEST CHI2" << endl;
-    Bool_t testchi2 = TestChi2BIS(track, xc, yc, radius, iclus, chi2, countelem, newxc, newyc, newradius, &newtrack2, newchi2);
+    Bool_t testchi2 = TestChi2BIS(newtrack, xc, yc, radius, iclus, chi2, countelem, newxc, newyc, newradius, &newtrack2, newchi2);
     if(fVerbose) cout << "testchi2 = " << testchi2 << endl;
     if(testchi2 == kFALSE)  {
       if(fVerbose) cout << "GOTTA DELETE THIS chi2 fails " << iclus << endl;
@@ -639,7 +656,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 	cout << "................. replacing" << endl;
 	PrintClustersBIS(tracklist);
       }
-      std::replace(tracklist.begin(), tracklist.end(), track, newtrack2);
+      std::replace(tracklist.begin(), tracklist.end(), newtrack, newtrack2);
       if(fVerbose) {
 	cout << "................. done" << endl;
 	PrintClustersBIS(tracklist);
@@ -647,12 +664,14 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     }
     // ------------------------------------------------
 
-    TMatrixT<double> param(1, 6);
+    TMatrixT<double> param(1, 7);
     param[0][0] = xc;
     param[0][1] = yc;
     param[0][2] = radius;
     param[0][3] = 0;
+    param[0][6] = chi2;
     xyparameters.push_back(param);
+    if(fVerbose)    cout << "xc/yc/radius/chi2 " << xc << " " << yc << " " << radius << " " << chi2 << endl;
   }
   // DELETE CLUSTER ================================ 
   DeleteClusterBIS(&tracklist, deletecluster);
@@ -670,11 +689,15 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   // CLUSTER MERGING =======================================
   std::vector< std::vector< TMatrixT<double> > > newlist;
   std::vector< std::vector<int> > combinations;
+//   cout << "before merging" << endl;
+//   PrintClustersBIS(tracklist);
   newlist = MergeClustersBIS(tracklist, &combinations);
   if(fDisplayOn) Refresh();
-  if(fVerbose) {
+  if(fVerbose) 
+  {
     cout << "after merging" << endl;
     PrintClustersBIS(newlist);
+    // PrintClustersBIS(tracklist);
   }
   //   if(fDisplayOn)  DrawClustersBIS(newlist);
   
@@ -685,11 +708,11 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     cin >> goOnChar;
     cout << "GOING ON" << endl;
   }
-
+  
   // FIT THE MERGED CLUSTERS =====================================================
   if(fDisplayOn) Refresh();
-  xyparameters.clear();
-
+  //  xyparameters.clear();
+  newxyparameters.clear();
   std::vector<int> restorablecluster;
   // refit tracks
   for(int iclus = 0; iclus < newlist.size(); iclus++) {
@@ -784,18 +807,52 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
       }
     }
     // ------------------------------------------------
-
-    TMatrixT<double> param(1, 6);
+    if(iclus < combinations.size() > 0) {
+      // cout << "this has a chi2 " << chi2 << endl;
+      std::vector<int> combi = combinations[iclus]; 
+      // cout << "this is a combination of " << combi.size() << " clusters: " << endl;
+      for(int icl = 0; icl < combi.size(); icl++) {
+	int jclus = combi[icl];
+	TMatrixT<double> oldpar = xyparameters[jclus];
+	// cout << jclus << " with chi2 " << oldpar[0][6] << endl;
+	if(fabs(oldpar[0][6] - 1.) < fabs(chi2 - 1.)) {
+	  // cout << "use also " << jclus << endl;
+	  restorablecluster.push_back(jclus);
+	}
+      }
+      // cout << endl;
+    }
+    //    else cout << "original " << endl;
+      
+    TMatrixT<double> param(1, 7);
     param[0][0] = xc;
     param[0][1] = yc;
     param[0][2] = radius;
     param[0][3] = 0;
-
-    if(fVerbose) cout << "XC/YC/RADIUS " << xc << " " << yc << " " << radius << endl;
-    xyparameters.push_back(param);
+    param[0][6] = chi2;
+    
+    if(fVerbose) cout << "XC/YC/RADIUS " << xc << " " << yc << " " << radius << " " << chi2 << endl;
+    newxyparameters.push_back(param);
   }
   // DELETE CLUSTER ================================ 
   DeleteClusterBIS(&newlist, deletecluster);
+
+  // restore 
+  for(int ires = 0; ires < restorablecluster.size(); ires++) {
+    int jclus = restorablecluster[ires];
+    TMatrixT<double> respar = xyparameters[jclus];
+    std::vector< TMatrixT<double> > restrack = tracklist[jclus];
+
+    std::vector< std::vector < TMatrixT<double > > >::iterator it;
+    it = find(newlist.begin(), newlist.end(), restrack);
+    if(it == newlist.end()) {
+      newlist.push_back(restrack);
+      newxyparameters.push_back(respar);
+    }
+  }
+  
+  xyparameters.clear();
+  xyparameters = newxyparameters;
   if(fVerbose) cout << "newlist " << newlist.size() << " " << xyparameters.size() << endl;
   //  ForbidCrossingTracks(&newlist, xyparameters);
 
@@ -814,12 +871,12 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 	continue;
       }
       else newlist.push_back(cluster);
-      TMatrixT<double> param(1, 6);
+      TMatrixT<double> param(1, 7);
       param[0][0] = xc;
       param[0][1] = yc;
       param[0][2] = radius;
       param[0][3] = 0;
-      
+       param[0][6] = chi2;
       if(fVerbose) cout << "XC/YC/RADIUS " << xc << " " << yc << " " << radius << endl;
       xyparameters.push_back(param);
     }
@@ -1124,7 +1181,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     Bool_t first = ComputeFirstParameters(track, par, firstpos, dfirstpos, firstmom);
     TVector3 lastpos, lastmom, dlastpos, dlastmom; // CHECK error
     Bool_t last = ComputeLastParameters(track, par, lastpos, dlastpos, lastmom);
-    //    if(fVerbose)
+    if(fVerbose)
     {
       cout << "OUTCOME " << first << " " << last << endl;
       cout << "track par " << par[0][0] << " " << par[0][1] << " "  << par[0][2] << " " << par[0][4] << " " << par[0][5] << endl;
@@ -3281,30 +3338,31 @@ Bool_t PndSecondaryTrackFinder::IntersectionFinder(Double_t xc, Double_t yc, Dou
   if(dist1 > dist2)  xyz.SetXYZ(x2, y2, stthit->GetZ());
   else xyz.SetXYZ(x1, y1, stthit->GetZ());  // <========= THIS IS THE NEW POINT to be used for the fit
 
-  if(fDisplayOn) {
-    Refresh();
-    TMarker *l1 = new TMarker(xyz.X(), xyz.Y(), 29);
-    l1->SetMarkerSize(2.5);
-    l1->SetMarkerColor(kYellow);
-    l1->Draw("SAME");
+  /**
+     if(fDisplayOn) {
+     Refresh();
+     TMarker *l1 = new TMarker(xyz.X(), xyz.Y(), 29);
+     l1->SetMarkerSize(2.5);
+     l1->SetMarkerColor(kYellow);
+     l1->Draw("SAME");
 
-    TMarker *l2 = new TMarker(xyb.X(), xyb.Y(), 29);
-    l2->SetMarkerSize(2.5);
-    l2->SetMarkerColor(kCyan);
-    l2->Draw("SAME");
+     TMarker *l2 = new TMarker(xyb.X(), xyb.Y(), 29);
+     l2->SetMarkerSize(2.5);
+     l2->SetMarkerColor(kCyan);
+     l2->Draw("SAME");
 
 
 
-    display->Update();
-    display->Modified();
+     display->Update();
+     display->Modified();
 
-    char goOnChar;
-    cout << ", press any key" << endl;
-    cin >> goOnChar;
-    cout << "GOING ON" << endl;
+     char goOnChar;
+     cout << ", press any key" << endl;
+     cin >> goOnChar;
+     cout << "GOING ON" << endl;
 
-  }
-
+     }
+  **/
 
   Double_t sigr = stthit->GetIsochroneError();
   Double_t sigx = sigr; // fabs(sigr * TMath::Cos(m));
@@ -3791,7 +3849,8 @@ std::vector< std::vector< TMatrixT<double> > > PndSecondaryTrackFinder::MergeClu
   // -------------------------
   //                 2 cluster
   //                 3 cluster
-  if(fVerbose) {
+  if(fVerbose)
+ {
     cout << "CLUSTERS BEFORE COMBINATIONS" << endl;
     PrintClustersBIS(clusterlist);
 
@@ -6657,7 +6716,7 @@ Bool_t  PndSecondaryTrackFinder::BreakTooLongTracks(std::vector< TMatrixT<double
       param1[0][3] = 0;
       param1[0][4] = 0;
       param1[0][5] = 0;
-      
+      param1[0][6] = chi21;
       // find charge
       param1[0][3] = (Double_t) FindChargeBIS(xc1, yc1, track1);
       good1 = kTRUE;
@@ -6690,7 +6749,7 @@ Bool_t  PndSecondaryTrackFinder::BreakTooLongTracks(std::vector< TMatrixT<double
       param2[0][3] = 0;
       param2[0][4] = 0;
       param2[0][5] = 0;
-      
+      param2[0][6] = chi22;
       // find charge
       param2[0][3] = (Double_t) FindChargeBIS(xc2, yc2, track2);
       good2 = kTRUE;
