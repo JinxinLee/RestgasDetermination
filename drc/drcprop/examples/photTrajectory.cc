@@ -121,8 +121,8 @@ void photTrajectory( TString inFilename = "", Double_t photonID = 0 ) // ID 0 me
       }
 
 
-//       if( n_measured < 200 )
-//       {
+      if( n_measured < 10 )
+      {
 //       if( measured == true )//n_lost%100 == 0 )
 //       {
 
@@ -144,7 +144,7 @@ void photTrajectory( TString inFilename = "", Double_t photonID = 0 ) // ID 0 me
              << " dir.: (" << hitDirX<< "," << hitDirY << "," << hitDirZ << ")" << endl;
         }
 
-//       }
+      }
 //       }
     }
   }

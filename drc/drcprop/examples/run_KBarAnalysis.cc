@@ -11,21 +11,22 @@
 
 void run_KBarAnalysis()
 {
-//   TString inFileCore  = "kBarList_center_400nm_2000000_f250_lens9_gap11";
+  TString inFileCore  = "kBarList_center_400nm_2000000_f250_lens9_gap20";
 //   TString inFileCore  = "kBarList_center_400nm_2000000_f250_lens9_gap11_z6.3_TEST";
-  TString inFileCore  = "kBarList_center_400nm_2000000_woLens";
+//   TString inFileCore  = "kBarList_center_400nm_2000000_woLens";
 //   TString outFileCore = "kBarList_center_400nm_2000000_f250_lens9_gap11_res20";
-  TString outFileCore = "TEST_woLens";
+  TString outFileCore = inFileCore;
 
-  Bool_t mcpMode  = false;
+
+  Bool_t mcpMode  = true;
   Bool_t effiMode = true;
 
   Double_t resolution = 10; // resolution valid for no mcpMode
 
-  Double_t gap1 = 40; // redefine gap
+  Double_t gap1 = 45; // redefine gap
   Double_t gap2 = 40;
 
-  Int_t n_mcp = 9; // number of MCPs
+  Int_t n_mcp = 11; // number of MCPs
 
   if( !mcpMode )
     n_mcp = 1;
@@ -64,77 +65,153 @@ void run_KBarAnalysis()
 
   if( mcpMode )
   {
-    // XP85012 1
-    kBarAnalysis->_mcp_dim[0]    = 59; // MCP case
-    kBarAnalysis->_mcp_active[0] = 52; // MCP active area (anode) defined by pixel pitch; cathode: 53
-    kBarAnalysis->_minX_dim[0]   = -99 - gap1; // position: left, lower corner
-    kBarAnalysis->_minY_dim[0]   = -202;
-    kBarAnalysis->_x_bins[0]     = 8;
-    kBarAnalysis->_y_bins[0]     = 8;
+    // right mask (back view)
+    kBarAnalysis->_mcpLabel_str[5] = "XP85012 #1 (MCP 5)";
+    kBarAnalysis->_mcp_dim[5] = 59;
+    kBarAnalysis->_mcp_act[5] = 53;
+    kBarAnalysis->_mcp_det[5] = 52;
+    kBarAnalysis->_x_bins[5] = 8;
+    kBarAnalysis->_y_bins[5] = 8;
+    kBarAnalysis->_minX_dim[5] = +50 + gap1;
+    kBarAnalysis->_minY_dim[5] = -230;
+    kBarAnalysis->_shiftX[5] = ( kBarAnalysis->_mcp_dim[5] - kBarAnalysis->_mcp_det[5] ) / 2;
+    kBarAnalysis->_shiftY[5] = ( kBarAnalysis->_mcp_dim[5] - kBarAnalysis->_mcp_det[5] ) / 2;
 
-    // XP85012 2
-    kBarAnalysis->_mcp_dim[1]    = 59;
-    kBarAnalysis->_mcp_active[1] = 52; // cathode: 53
-    kBarAnalysis->_minX_dim[1]   = -74 - gap1;
-    kBarAnalysis->_minY_dim[1]   = -133;
-    kBarAnalysis->_x_bins[1]     = 8;
-    kBarAnalysis->_y_bins[1]     = 8;
+    kBarAnalysis->_mcpLabel_str[4] = "XP85012 #2 (MCP 4)";
+    kBarAnalysis->_mcp_dim[4] = 59;
+    kBarAnalysis->_mcp_act[4] = 53;
+    kBarAnalysis->_mcp_det[4] = 52;
+    kBarAnalysis->_x_bins[4] = 8;
+    kBarAnalysis->_y_bins[4] = 8;
+    kBarAnalysis->_minX_dim[4] = +21 + gap1;
+    kBarAnalysis->_minY_dim[4] = -148;
+    kBarAnalysis->_shiftX[4] = ( kBarAnalysis->_mcp_dim[4] - kBarAnalysis->_mcp_det[4] ) / 2;
+    kBarAnalysis->_shiftY[4] = ( kBarAnalysis->_mcp_dim[4] - kBarAnalysis->_mcp_det[4] ) / 2;
 
-    // XP85012 3
-    kBarAnalysis->_mcp_dim[2]    = 59;
-    kBarAnalysis->_mcp_active[2] = 52; // cathode: 53
-    kBarAnalysis->_minX_dim[2]   = -59 - gap1;
-    kBarAnalysis->_minY_dim[2]   = -64;
-    kBarAnalysis->_x_bins[2]     = 8;
-    kBarAnalysis->_y_bins[2]     = 8;
+    kBarAnalysis->_mcpLabel_str[3] = "XP85012 #3 (MCP 3)";
+    kBarAnalysis->_mcp_dim[3] = 59;
+    kBarAnalysis->_mcp_act[3] = 53;
+    kBarAnalysis->_mcp_det[3] = 52;
+    kBarAnalysis->_x_bins[3] = 8;
+    kBarAnalysis->_y_bins[3] = 8;
+    kBarAnalysis->_minX_dim[3] = +0 + gap1;
+    kBarAnalysis->_minY_dim[3] = -69;
+    kBarAnalysis->_shiftX[3] = ( kBarAnalysis->_mcp_dim[3] - kBarAnalysis->_mcp_det[3] ) / 2;
+    kBarAnalysis->_shiftY[3] = ( kBarAnalysis->_mcp_dim[3] - kBarAnalysis->_mcp_det[3] ) / 2;
 
-    // XP85012 4
-    kBarAnalysis->_mcp_dim[3]    = 59;
-    kBarAnalysis->_mcp_active[3] = 52; // cathode: 53
-    kBarAnalysis->_minX_dim[3]   = -59 - gap1;
-    kBarAnalysis->_minY_dim[3]   =  +5;
-    kBarAnalysis->_x_bins[3]     = 8;
-    kBarAnalysis->_y_bins[3]     = 8;
+    kBarAnalysis->_mcpLabel_str[2] = "XP85012 #4 (MCP 2)";
+    kBarAnalysis->_mcp_dim[2] = 59;
+    kBarAnalysis->_mcp_act[2] = 53;
+    kBarAnalysis->_mcp_det[2] = 52;
+    kBarAnalysis->_x_bins[2] = 8;
+    kBarAnalysis->_y_bins[2] = 8;
+    kBarAnalysis->_minX_dim[2] = +0 + gap1;
+    kBarAnalysis->_minY_dim[2] = +10;
+    kBarAnalysis->_shiftX[2] = ( kBarAnalysis->_mcp_dim[2] - kBarAnalysis->_mcp_det[2] ) / 2;
+    kBarAnalysis->_shiftY[2] = ( kBarAnalysis->_mcp_dim[2] - kBarAnalysis->_mcp_det[2] ) / 2;
 
-    // SiPM
-    kBarAnalysis->_mcp_dim[4]    = 120;
-    kBarAnalysis->_mcp_active[4] = 84; // light catcher is used
-    kBarAnalysis->_minX_dim[4]   = 0 + gap2;
-    kBarAnalysis->_minY_dim[4]   = +75;
-    kBarAnalysis->_x_bins[4]     = 8;
-    kBarAnalysis->_y_bins[4]     = 8;
+    kBarAnalysis->_mcpLabel_str[1] = "XP85012 #5 (MCP 1)";
+    kBarAnalysis->_mcp_dim[1] = 59;
+    kBarAnalysis->_mcp_act[1] = 53;
+    kBarAnalysis->_mcp_det[1] = 52;
+    kBarAnalysis->_x_bins[1] = 8;
+    kBarAnalysis->_y_bins[1] = 8;
+    kBarAnalysis->_minX_dim[1] = +21 + gap1;
+    kBarAnalysis->_minY_dim[1] = +89;
+    kBarAnalysis->_shiftX[1] = ( kBarAnalysis->_mcp_dim[1] - kBarAnalysis->_mcp_det[1] ) / 2;
+    kBarAnalysis->_shiftY[1] = ( kBarAnalysis->_mcp_dim[1] - kBarAnalysis->_mcp_det[1] ) / 2;
 
-    // SL10 1
-    kBarAnalysis->_mcp_dim[5]    = 27.5;
-    kBarAnalysis->_mcp_active[5] = 20.32; // cathode: 22
-    kBarAnalysis->_minX_dim[5]   = +15 + gap2;
-    kBarAnalysis->_minY_dim[5]   = +5;
-    kBarAnalysis->_x_bins[5]     = 4;
-    kBarAnalysis->_y_bins[5]     = 4;
 
-    // SL10 2
-    kBarAnalysis->_mcp_dim[6]    = 27.5;
-    kBarAnalysis->_mcp_active[6] = 20.32; // cathode: 22
-    kBarAnalysis->_minX_dim[6]   = +15 + gap2;
-    kBarAnalysis->_minY_dim[6]   = -32.5;
-    kBarAnalysis->_x_bins[6]     = 4;
-    kBarAnalysis->_y_bins[6]     = 1;
+    kBarAnalysis->_mcpLabel_str[0] = "XP85012 #6 (MCP 0)";
+    kBarAnalysis->_mcp_dim[0] = 59;
+    kBarAnalysis->_mcp_act[0] = 53;
+    kBarAnalysis->_mcp_det[0] = 52;
+    kBarAnalysis->_x_bins[0] = 8;
+    kBarAnalysis->_y_bins[0] = 8;
+    kBarAnalysis->_minX_dim[0] = +50 + gap1;
+    kBarAnalysis->_minY_dim[0] = +168;
+    kBarAnalysis->_shiftX[0] = ( kBarAnalysis->_mcp_dim[0] - kBarAnalysis->_mcp_det[0] ) / 2;
+    kBarAnalysis->_shiftY[0] = ( kBarAnalysis->_mcp_dim[0] - kBarAnalysis->_mcp_det[0] ) / 2;
 
-    // XP85012 5
-    kBarAnalysis->_mcp_dim[7]    = 59;
-    kBarAnalysis->_mcp_active[7] = 52; // cathode: 53
-    kBarAnalysis->_minX_dim[7]   = +15 + gap2;
-    kBarAnalysis->_minY_dim[7]   = -133;
-    kBarAnalysis->_x_bins[7]     = 8;
-    kBarAnalysis->_y_bins[7]     = 8;
 
-    // H8500
-    kBarAnalysis->_mcp_dim[8]    = 52;
-    kBarAnalysis->_mcp_active[8] = 48.64; // cathode: 49
-    kBarAnalysis->_minX_dim[8]   = +40 + gap2;
-    kBarAnalysis->_minY_dim[8]   = -195;
-    kBarAnalysis->_x_bins[8]     = 8;
-    kBarAnalysis->_y_bins[8]     = 8;
+// // left mask (back view) (ask Greg for measured values)
+    kBarAnalysis->_mcpLabel_str[6] = "H8500 (MCP 6)";
+    kBarAnalysis->_mcp_dim[6] = 52;
+    kBarAnalysis->_mcp_act[6] = 49;
+    kBarAnalysis->_mcp_det[6] = 48.64;
+    kBarAnalysis->_x_bins[6] = 8;
+    kBarAnalysis->_y_bins[6] = 8;
+    kBarAnalysis->_minX_dim[6] = -107 - gap2;
+    kBarAnalysis->_minY_dim[6] = -225;
+    kBarAnalysis->_shiftX[6] = ( kBarAnalysis->_mcp_dim[6] - kBarAnalysis->_mcp_det[6] ) / 2;
+    kBarAnalysis->_shiftY[6] = ( kBarAnalysis->_mcp_dim[6] - kBarAnalysis->_mcp_det[6] ) / 2;
+
+//     kBarAnalysis->_mcpLabel_str[7] = "XP85012 #7 (MCP 7)";
+//     kBarAnalysis->_mcp_dim[7] = 59;
+//     kBarAnalysis->_mcp_act[7] = 53;
+//     kBarAnalysis->_mcp_det[7] = 52;
+//     kBarAnalysis->_x_bins[7] = 8;
+//     kBarAnalysis->_y_bins[7] = 8;
+//     kBarAnalysis->_minX_dim[7] = -81 - gap2;
+//     kBarAnalysis->_minY_dim[7] = -149;
+//     kBarAnalysis->_shiftX[7] = ( kBarAnalysis->_mcp_dim[7] - kBarAnalysis->_mcp_det[7] ) / 2;
+//     kBarAnalysis->_shiftY[7] = ( kBarAnalysis->_mcp_dim[7] - kBarAnalysis->_mcp_det[7] ) / 2;
+//
+//     kBarAnalysis->_mcpLabel_str[8] = "SL10 #1 (MCP 8)";
+//     kBarAnalysis->_mcp_dim[8] = 60; // big electronic
+//     kBarAnalysis->_mcp_act[8] = 22;
+//     kBarAnalysis->_mcp_det[8] = 20.32;
+//     kBarAnalysis->_x_bins[8] = 4;
+//     kBarAnalysis->_y_bins[8] = 4;
+//     kBarAnalysis->_minX_dim[8] = -61. - gap2;
+//     kBarAnalysis->_minY_dim[8] = -69.;
+//     kBarAnalysis->_shiftX[8] = 19.84;
+//     kBarAnalysis->_shiftY[8] = 31.09;
+
+    kBarAnalysis->_mcpLabel_str[9] = "SL10 #2 (MCP 9)";
+    kBarAnalysis->_mcp_dim[9] = 27.5;
+    kBarAnalysis->_mcp_act[9] = 22;
+    kBarAnalysis->_mcp_det[9] = 20.32;
+    kBarAnalysis->_x_bins[9] = 4;
+    kBarAnalysis->_y_bins[9] = 4;
+    kBarAnalysis->_minX_dim[9] = -39. - gap2;
+    kBarAnalysis->_minY_dim[9] = +22;
+    kBarAnalysis->_shiftX[9] = ( kBarAnalysis->_mcp_dim[9] - kBarAnalysis->_mcp_det[9] ) / 2;
+    kBarAnalysis->_shiftY[9] = ( kBarAnalysis->_mcp_dim[9] - kBarAnalysis->_mcp_det[9] ) / 2;
+
+    kBarAnalysis->_mcpLabel_str[10] = "SiPM (MCP 10)";
+    kBarAnalysis->_mcp_dim[10] = 112;
+    kBarAnalysis->_mcp_act[10] = 56;
+    kBarAnalysis->_mcp_det[10] = 56;
+    kBarAnalysis->_x_bins[10] = 8;
+    kBarAnalysis->_y_bins[10] = 8;
+    kBarAnalysis->_minX_dim[10] = -113 - gap2;
+    kBarAnalysis->_minY_dim[10] = +81;
+    kBarAnalysis->_shiftX[10] = ( kBarAnalysis->_mcp_dim[10] - kBarAnalysis->_mcp_det[10] ) / 2;
+    kBarAnalysis->_shiftY[10] = ( kBarAnalysis->_mcp_dim[10] - kBarAnalysis->_mcp_det[10] ) / 2;
+
+
+    kBarAnalysis->_mcpLabel_str[7] = "XP85012 #7 (MCP 7)";
+    kBarAnalysis->_mcp_dim[7] = 59;
+    kBarAnalysis->_mcp_act[7] = 53;
+    kBarAnalysis->_mcp_det[7] = 52;
+    kBarAnalysis->_x_bins[7] = 8;
+    kBarAnalysis->_y_bins[7] = 8;
+    kBarAnalysis->_minX_dim[7] = -54.5 - gap2;
+    kBarAnalysis->_minY_dim[7] = -74.5;
+    kBarAnalysis->_shiftX[7] = ( kBarAnalysis->_mcp_dim[7] - kBarAnalysis->_mcp_det[7] ) / 2;
+    kBarAnalysis->_shiftY[7] = ( kBarAnalysis->_mcp_dim[7] - kBarAnalysis->_mcp_det[7] ) / 2;
+
+    kBarAnalysis->_mcpLabel_str[8] = "Empty";
+    kBarAnalysis->_mcp_dim[8] = 59;
+    kBarAnalysis->_mcp_act[8] = 53;
+    kBarAnalysis->_mcp_det[8] = 52;
+    kBarAnalysis->_x_bins[8] = 8;
+    kBarAnalysis->_y_bins[8] = 8;
+    kBarAnalysis->_minX_dim[8] = -81 - gap2;
+    kBarAnalysis->_minY_dim[8] = -149;
+    kBarAnalysis->_shiftX[8] = ( kBarAnalysis->_mcp_dim[8] - kBarAnalysis->_mcp_det[8] ) / 2;
+    kBarAnalysis->_shiftY[8] = ( kBarAnalysis->_mcp_dim[8] - kBarAnalysis->_mcp_det[8] ) / 2;
 
 
     cout << "MCP gap is : " << gap1 << " \& " << gap2 << "mm" << endl;
@@ -154,7 +231,7 @@ void run_KBarAnalysis()
 
   TChain * chain = new TChain( "photon" );
 
-  for( int i=1; i<2; i++) // default 50 files
+  for( int i=1; i<50; i++) // default 50 files
   {
     TString i_str;
     i_str += i;

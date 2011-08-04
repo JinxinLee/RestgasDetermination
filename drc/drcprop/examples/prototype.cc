@@ -70,6 +70,7 @@ using ROOT::Math::RotationZ;
 #include "PndDrcSurfPolyFlat.h"
 #include "PndDrcSurfQuadFlatDiff.h"
 #include "PndDrcSurfPolyAsphere.h"
+#include "PndDrcSurfPolyCyl.h"
 #include "PndDrcOptReflNone.h"
 #include "PndDrcOptReflPerfect.h"
 #include "PndDrcOptMatAbs.h"
@@ -121,14 +122,14 @@ int main(int argc, char *argv[])
   bool opt_frontLens            = true; // forward lens
   bool opt_prism                = false; // prism (forward)
   bool opt_backLens             = false; // backward lens
-  bool opt_mirror               = true; // mirror (backward)
+  bool opt_mirror               = false; // mirror (backward)
   bool opt_noFresnel_backLens   = false; // disable Fresnel reflections
   bool opt_noFresnel_slab       = false; //
   bool opt_noFresnel_frontLens  = false; //
   bool opt_noFresnel_airBox     = false; //
   bool opt_noFresnel_prism      = false; //
   bool opt_noFresnel_fishtank   = false; //
-  bool opt_Cherenkov_onlyInBar  = false; // Cherenkov photons are only generated in bar (slab)
+  bool opt_Cherenkov_onlyInBar  = true; // Cherenkov photons are only generated in bar (slab)
   bool opt_alongBar             = false; // particles hits the bar at slab front end
   bool opt_photonPosList        = false; // write out photon position list ; true takes much longer
   bool opt_fullCanonList        = false; // default: false, with true also not measured photons are tagged
@@ -233,17 +234,19 @@ int main(int argc, char *argv[])
   // dimensions
   double slab_width  = 17.; // default: 17 mm
   double slab_height = 35.; // default: 35 mm
-  double slab_length = 1200.; // default: 800 mm
+  double slab_length = 800.; // default: 800 mm
 
   double backLens_radius    = 459.; // f = R/(n-1) (from manufacturer in general at 589 nm)
   double backLens_thickness = 10.;
   double backLens_diameter  = 40.; // rectangular lens base shape (NOT cylindrical)
   double backLens_conical   = 0.; // default: 0 (spherical)
+  int backLens_cylindrical  = 0; // default: 0 (use conical), 1: only curved in x, 2: in y
 
   double frontLens_radius    = 117.4;
   double frontLens_thickness = 9.0;
   double frontLens_diameter  = 50.;
   double frontLens_conical   = 0.;
+  int frontLens_cylindrical  = 0; // PndDrcSurfPolyCyl doesn't create a real cylinder
 
 
 //                      /|
@@ -281,7 +284,7 @@ int main(int argc, char *argv[])
   double prism_widthDown2  = 0.; // or Sin(x*degree)*prism_length
 
 
-  double airgap = 11.; // distance between slab or prism and fishtank ; 0 means no air box
+  double airgap = 20.; // distance between slab or prism and fishtank ; 0 means no air box
 
   double fishtank_width  = 760.;
   double fishtank_height = 760.;
@@ -311,14 +314,14 @@ int main(int argc, char *argv[])
   double spot_radius = 20.; // default: 20 mm 1-sigma beam spot radius (gaus smeared)
   double spot_limit  = 50.; // default: 50 mm beam spot radius limit
 
-  int particle_number = 10; // default: 300
+  int particle_number = 100; // default: 300
 
   double inci_theta = 30.; // default: 30 degree
   double inci_phi   = 0.;  // default: 0 degree
 
   double hitBarX = slab_width/2.; // default: slab_width/2
   double hitBarY = 0.;            // default: 0 mm
-  double hitBarZ = -1000.;        // default: -500 mm
+  double hitBarZ = -700.;         // default: -500 mm
 
 
   // photon properties
@@ -400,6 +403,8 @@ int main(int argc, char *argv[])
 //     if( i == 3)
 //       fishtank_thetaX = atof( argv[3]);
     //
+        if( i == 3 )
+      fishtank_thetaY = atof( argv[3]);
 //     if( i == 3 )
 //       fishtank_thetaY = atof( argv[3]);
 //     if( i == 4 )
@@ -1493,7 +1498,7 @@ int main(int argc, char *argv[])
 
   double frontLensMinThickness = Abs( frontLens_sphere.LimitingPoint(0).Z() );
 
-  if( frontLensMinThickness > frontLens_thickness && opt_frontLens )
+  if( frontLensMinThickness > frontLens_thickness && opt_frontLens && frontLens_cylindrical == 0 )
   {
     cout << "*** ERROR: frontLens thickness have to be greater than: " << frontLensMinThickness
         << " (currently " << frontLens_thickness << " mm)" << endl;
@@ -1540,25 +1545,29 @@ int main(int argc, char *argv[])
   frontLens_top.SetName("frontLens_top");
 
 
+  double frontLens_shift = frontLens_thickness;
+
   PndDrcOptVol frontLens;
-  frontLens.SetVerbosity(0);
-  frontLens.AddSurface(frontLens_base);
-  frontLens.AddSurface(frontLens_sphere);
-  frontLens.AddSurface(frontLens_left);
-  frontLens.AddSurface(frontLens_right);
-  frontLens.AddSurface(frontLens_bottom);
-  frontLens.AddSurface(frontLens_top);
-  frontLens.SetOptMaterial( (*mat_frontLens) );
-  frontLens.SetName("frontLens");
+  if( frontLens_cylindrical == 0 )
+  {
+    frontLens.SetVerbosity(0);
+    frontLens.AddSurface(frontLens_base);
+    frontLens.AddSurface(frontLens_sphere);
+    frontLens.AddSurface(frontLens_left);
+    frontLens.AddSurface(frontLens_right);
+    frontLens.AddSurface(frontLens_bottom);
+    frontLens.AddSurface(frontLens_top);
+    frontLens.SetOptMaterial( (*mat_frontLens) );
+    frontLens.SetName("frontLens");
+
+    if( opt_prism )
+      frontLens_shift = frontLens_thickness + prism_length;
+
+    frontLens.AddTransform( Transform3D( XYZVector(0,0,frontLens_shift) ) ); // |(  =>  (|
+  }
 
   if( opt_Cherenkov_onlyInBar )
     frontLens.SetRadiator(false);
-
-  double frontLens_shift = frontLens_thickness;
-  if( opt_prism )
-    frontLens_shift = frontLens_thickness + prism_length;
-
-  frontLens.AddTransform( Transform3D( XYZVector(0,0,frontLens_shift) ) ); // |(  =>  (|
 
 
   double prism_height1_max = prism_heightUp1;
@@ -1615,6 +1624,182 @@ int main(int argc, char *argv[])
     //    frontLens_bottom.SetPixel();
     //    frontLens_top.SetPixel();
     //    frontLens_sphere.SetPixel();
+  }
+
+
+
+// lens (forward, cylindrical)
+//==============================================================================
+  Transform3D rot_XtoY = Transform3D( RotationZ(90*degree) );
+
+  XYZPoint c0 = l0;
+  XYZPoint c1 = l1;
+  XYZPoint c2 = l2;
+  XYZPoint c3 = l3;
+
+  if( frontLens_cylindrical == 2 )
+  {
+    c0 = rot_XtoY*c1; // to use same PolyFlat and QuadFlatDiff
+    c1 = rot_XtoY*c2;
+    c2 = rot_XtoY*c3;
+    c3 = rot_XtoY*c0;
+  }
+
+
+  PndDrcSurfPolyCyl frontLensCyl_sphere;
+  frontLensCyl_sphere.AddPoint(c0);
+  frontLensCyl_sphere.AddPoint(c1);
+  frontLensCyl_sphere.AddPoint(c2);
+  frontLensCyl_sphere.AddPoint(c3);
+  frontLensCyl_sphere.SetRadius(frontLens_radius);
+  frontLensCyl_sphere.SetPrintColor(2);
+  frontLensCyl_sphere.SetName("frontLens_sphere");
+
+
+  frontLens_dist = frontLensCyl_sphere.CenterPoint().Z(); // in general the frontLens radius
+  frontLensCyl_sphere.AddTransform( Transform3D( XYZVector(0,0,-(frontLens_dist)) ) ); // ( dist |  =>  |(
+
+
+  frontLensMinThickness = Abs( frontLensCyl_sphere.LimitingPoint(0).Z() );
+
+//   cout << frontLensMinThickness << " " << frontLens_thickness << " "
+//       << frontLensCyl_sphere.LimitingPoint(0).Z() << " " << frontLensCyl_sphere.LimitingPoint(1).Z() << " "
+//       << frontLensCyl_sphere.LimitingPoint(2).Z() << " " << frontLensCyl_sphere.LimitingPoint(3).Z() << endl;
+
+  if( frontLensMinThickness >= frontLens_thickness && opt_frontLens && frontLens_cylindrical != 0 )
+  {
+    cout << "*** ERROR: frontLens thickness have to be greater than: " << frontLensMinThickness
+        << " (currently " << frontLens_thickness << " mm)" << endl;
+    abort();
+  }
+
+
+  q0 = c0 + XYZVector(0, 0, -frontLens_thickness);
+  q1 = c1 + XYZVector(0, 0, -frontLens_thickness);
+  q2 = c2 + XYZVector(0, 0, -frontLens_thickness);
+  q3 = c3 + XYZVector(0, 0, -frontLens_thickness);
+
+  XYZPoint r0 = c0 + XYZVector(0, 0, -frontLensMinThickness);
+  XYZPoint r1 = c1 + XYZVector(0, 0, -frontLensMinThickness);
+  XYZPoint r2 = c2 + XYZVector(0, 0, -frontLensMinThickness);
+  XYZPoint r3 = c3 + XYZVector(0, 0, -frontLensMinThickness);
+
+/*  cout << r0.X() << " " << r0.Y() << " " << r0.Z() << " "
+      << frontLensCyl_sphere.LimitingPoint(0).X() << " "
+      << frontLensCyl_sphere.LimitingPoint(0).Y() << " "
+      << frontLensCyl_sphere.LimitingPoint(0).Z() << " "
+      << frontLensCyl_sphere.LimitingPoint(1).X() << " "
+      << frontLensCyl_sphere.LimitingPoint(1).Y() << " "
+      << frontLensCyl_sphere.LimitingPoint(1).Z() << endl;*/
+
+
+
+  PndDrcSurfPolyFlat frontLensCyl_base;
+  frontLensCyl_base.AddPoint(q0);
+  frontLensCyl_base.AddPoint(q1);
+  frontLensCyl_base.AddPoint(q2);
+  frontLensCyl_base.AddPoint(q3);
+  frontLensCyl_base.SetPrintColor(2);
+  frontLensCyl_base.SetName("frontLens_base");
+
+//   PndDrcSurfPolyFlat frontLensCyl_right;
+//   frontLensCyl_right.AddPoint(q0);
+//   frontLensCyl_right.AddPoint(q1);
+//   frontLensCyl_right.AddPoint(r1);
+//   frontLensCyl_right.AddPoint(r0);
+//   frontLensCyl_right.SetPrintColor(2);
+//   frontLensCyl_right.SetName("frontLens_right");
+//   if( frontLens_cylindrical == 2 )
+//     frontLensCyl_right.SetName("frontLens_bottom");
+
+  PndDrcSurfQuadFlatDiff frontLensCyl_right;
+  frontLensCyl_right.AddSurface(frontLensCyl_base, q0,q1);
+  frontLensCyl_right.AddSurface(frontLensCyl_sphere,
+                                frontLensCyl_sphere.LimitingPoint(0),frontLensCyl_sphere.LimitingPoint(1));
+  frontLensCyl_right.SetPrintColor(2);
+  frontLensCyl_right.SetName("frontLens_right");
+  if( frontLens_cylindrical == 2 )
+    frontLensCyl_right.SetName("frontLens_bottom");
+
+  PndDrcSurfQuadFlatDiff frontLensCyl_bottom;
+  frontLensCyl_bottom.AddSurface(frontLensCyl_base, q1,q2);
+  frontLensCyl_bottom.AddSurface(frontLensCyl_sphere,
+                                 frontLensCyl_sphere.LimitingPoint(1),frontLensCyl_sphere.LimitingPoint(2));
+  frontLensCyl_bottom.SetPrintColor(2);
+  frontLensCyl_bottom.SetName("frontLens_bottom");
+  if( frontLens_cylindrical == 2 )
+    frontLensCyl_bottom.SetName("frontLens_left");
+
+//   PndDrcSurfPolyFlat frontLensCyl_left;
+//   frontLensCyl_left.AddPoint(q2);
+//   frontLensCyl_left.AddPoint(q3);
+//   frontLensCyl_left.AddPoint(r3);
+//   frontLensCyl_left.AddPoint(r2);
+//   frontLensCyl_left.SetPrintColor(2);
+//   frontLensCyl_left.SetName("frontLens_left");
+//   if( frontLens_cylindrical == 2 )
+//     frontLensCyl_left.SetName("frontLens_top");
+
+  PndDrcSurfQuadFlatDiff frontLensCyl_left;
+  frontLensCyl_left.AddSurface(frontLensCyl_base, q2,q3);
+  frontLensCyl_left.AddSurface(frontLensCyl_sphere,
+                               frontLensCyl_sphere.LimitingPoint(2),frontLensCyl_sphere.LimitingPoint(3));
+  frontLensCyl_left.SetPrintColor(2);
+  frontLensCyl_left.SetName("frontLens_left");
+  if( frontLens_cylindrical == 2 )
+    frontLensCyl_left.SetName("frontLens_top");
+
+  PndDrcSurfQuadFlatDiff frontLensCyl_top;
+  frontLensCyl_top.AddSurface(frontLensCyl_base, q3,q0);
+  frontLensCyl_top.AddSurface(frontLensCyl_sphere, frontLensCyl_sphere.LimitingPoint(3),frontLensCyl_sphere.LimitingPoint(0));
+  frontLensCyl_top.SetPrintColor(2);
+  frontLensCyl_top.SetName("frontLens_top");
+  if( frontLens_cylindrical == 2 )
+    frontLensCyl_top.SetName("frontLens_right");
+
+
+  if( frontLens_cylindrical != 0 )
+  {
+    cout << "blub" << endl;
+    frontLens.SetVerbosity(0);
+    frontLens.AddSurface(frontLensCyl_base);
+    frontLens.AddSurface(frontLensCyl_sphere);
+    frontLens.AddSurface(frontLensCyl_left);
+    frontLens.AddSurface(frontLensCyl_right);
+    frontLens.AddSurface(frontLensCyl_bottom);
+    frontLens.AddSurface(frontLensCyl_top);
+    frontLens.SetOptMaterial( (*mat_frontLens) );
+    frontLens.SetName("frontLens");
+
+    if( opt_prism )
+      frontLens_shift = frontLens_thickness + prism_length;
+
+    frontLens.AddTransform( Transform3D( XYZVector(0,0,frontLens_shift) ) ); // |(  =>  (|
+  }
+
+  if( frontLens_cylindrical == 2 )
+    frontLens.AddTransform( rot_XtoY.Inverse() );
+
+
+  if( opt_debug )
+  {
+    cout << "+++++ DEBUG INFO: frontLensCyl check" << endl;
+    frontLensCyl_base.SetVerbosity(4);
+    frontLensCyl_left.SetVerbosity(4);
+    frontLensCyl_right.SetVerbosity(4);
+    frontLensCyl_bottom.SetVerbosity(4);
+    frontLensCyl_top.SetVerbosity(4);
+    frontLensCyl_sphere.SetVerbosity(4);
+    //    frontLensCyl_left.SetReflectivity(refl_none);
+    //    frontLensCyl_right.SetReflectivity(refl_none);
+    //    frontLensCyl_bottom.SetReflectivity(refl_none);
+    //    frontLensCyl_top.SetReflectivity(refl_none);
+    //    frontLensCyl_sphere.SetReflectivity(refl_none);
+    //    frontLensCyl_left.SetPixel();
+    //    frontLensCyl_right.SetPixel();
+    //    frontLensCyl_bottom.SetPixel();
+    //    frontLensCyl_top.SetPixel();
+    //    frontLensCyl_sphere.SetPixel();
   }
 
 
@@ -2245,7 +2430,6 @@ int main(int argc, char *argv[])
   frontLens_bottom.AddTransform( Transform3D(XYZVector(0, 0, frontLens_shift)) );
   frontLens_top.AddTransform(    Transform3D(XYZVector(0, 0, frontLens_shift)) );
 
-
   PndDrcSurfPolyAsphere  airLens_lens_sphere 	= frontLens_sphere;
   PndDrcSurfQuadFlatDiff airLens_lens_left 	  = frontLens_left;
   PndDrcSurfQuadFlatDiff airLens_lens_right 	= frontLens_right;
@@ -2257,6 +2441,45 @@ int main(int argc, char *argv[])
   airLens_lens_right.SetName( "airLens_lens_right" );
   airLens_lens_bottom.SetName("airLens_lens_bottom");
   airLens_lens_top.SetName(   "airLens_lens_top"   );
+
+
+  frontLensCyl_sphere.AddTransform( Transform3D(XYZVector(0, 0, frontLens_shift)) );
+  frontLensCyl_left.AddTransform(   Transform3D(XYZVector(0, 0, frontLens_shift)) );
+  frontLensCyl_right.AddTransform(  Transform3D(XYZVector(0, 0, frontLens_shift)) );
+  frontLensCyl_bottom.AddTransform( Transform3D(XYZVector(0, 0, frontLens_shift)) );
+  frontLensCyl_top.AddTransform(    Transform3D(XYZVector(0, 0, frontLens_shift)) );
+
+  PndDrcSurfPolyCyl      airLens_lensCyl_sphere  = frontLensCyl_sphere;
+//   PndDrcSurfPolyFlat     airLens_lensCyl_left    = frontLensCyl_left;
+//   PndDrcSurfPolyFlat     airLens_lensCyl_right   = frontLensCyl_right;
+  PndDrcSurfQuadFlatDiff airLens_lensCyl_left    = frontLensCyl_left;
+  PndDrcSurfQuadFlatDiff airLens_lensCyl_right   = frontLensCyl_right;
+  PndDrcSurfQuadFlatDiff airLens_lensCyl_bottom  = frontLensCyl_bottom;
+  PndDrcSurfQuadFlatDiff airLens_lensCyl_top     = frontLensCyl_top;
+
+  if( frontLens_cylindrical == 2 )
+  {
+    airLens_lensCyl_sphere.AddTransform( rot_XtoY.Inverse() );
+    airLens_lensCyl_left.AddTransform( rot_XtoY.Inverse() );
+    airLens_lensCyl_right.AddTransform( rot_XtoY.Inverse() );
+    airLens_lensCyl_bottom.AddTransform( rot_XtoY.Inverse() );
+    airLens_lensCyl_top.AddTransform( rot_XtoY.Inverse() );
+  }
+
+  airLens_lensCyl_sphere.SetName("airLens_lens_sphere");
+  airLens_lensCyl_left.SetName(  "airLens_lens_left"  );
+  airLens_lensCyl_right.SetName( "airLens_lens_right" );
+  airLens_lensCyl_bottom.SetName("airLens_lens_bottom");
+  airLens_lensCyl_top.SetName(   "airLens_lens_top"   );
+
+  if( frontLens_cylindrical == 2 )
+  {
+    airLens_lensCyl_sphere.SetName("airLens_lens_sphere");
+    airLens_lensCyl_left.SetName(  "airLens_lens_top"  );
+    airLens_lensCyl_right.SetName( "airLens_lens_bottom" );
+    airLens_lensCyl_bottom.SetName("airLens_lens_left");
+    airLens_lensCyl_top.SetName(   "airLens_lens_right"   );
+  }
 
 
   PndDrcSurfPolyFlat airLens_left;
@@ -2311,11 +2534,22 @@ int main(int argc, char *argv[])
   airLens.AddSurface(airLens_frontBottom);
   airLens.AddSurface(airLens_frontTop);
 
-  airLens.AddSurface(airLens_lens_sphere);
-  airLens.AddSurface(airLens_lens_left);
-  airLens.AddSurface(airLens_lens_right);
-  airLens.AddSurface(airLens_lens_bottom);
-  airLens.AddSurface(airLens_lens_top);
+  if( frontLens_cylindrical == 0 )
+  {
+    airLens.AddSurface(airLens_lens_sphere);
+    airLens.AddSurface(airLens_lens_left);
+    airLens.AddSurface(airLens_lens_right);
+    airLens.AddSurface(airLens_lens_bottom);
+    airLens.AddSurface(airLens_lens_top);
+  }
+  else
+  {
+    airLens.AddSurface(airLens_lensCyl_sphere);
+    airLens.AddSurface(airLens_lensCyl_left);
+    airLens.AddSurface(airLens_lensCyl_right);
+    airLens.AddSurface(airLens_lensCyl_bottom);
+    airLens.AddSurface(airLens_lensCyl_top);
+  }
 
   airLens.AddSurface(airLens_left);
   airLens.AddSurface(airLens_right);
@@ -2343,6 +2577,11 @@ int main(int argc, char *argv[])
     airLens_lens_right.SetVerbosity(4);
     airLens_lens_bottom.SetVerbosity(4);
     airLens_lens_top.SetVerbosity(4);
+    airLens_lensCyl_sphere.SetVerbosity(4);
+    airLens_lensCyl_left.SetVerbosity(4);
+    airLens_lensCyl_right.SetVerbosity(4);
+    airLens_lensCyl_bottom.SetVerbosity(4);
+    airLens_lensCyl_top.SetVerbosity(4);
     airLens_left.SetVerbosity(4);
     airLens_right.SetVerbosity(4);
     airLens_bottom.SetVerbosity(4);
@@ -3037,6 +3276,7 @@ int main(int argc, char *argv[])
             cout << "*** ERROR: photon cannon position (z_offset) is not valid ! " << endl;
             abort();
           }
+
 
           manager->SetPhotonList(list_photon,start_vol,"opt_system",0,0);
           manager->Propagate(); // propagate photons

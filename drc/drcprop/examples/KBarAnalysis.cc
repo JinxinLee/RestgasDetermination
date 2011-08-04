@@ -584,37 +584,42 @@ KBarAnalysis::KBarAnalysis( Int_t n_mcp )//: _n_mcp(n_mcp) // initialize const v
 
   _resolution = unknown;
 
+  _mcpLabel_str.resize( _n_mcp );
 
   _mcp_dim.resize( _n_mcp );
-  _mcp_active.resize( _n_mcp );
+  _mcp_act.resize( _n_mcp );
+  _mcp_det.resize( _n_mcp );
 
   _minX_dim.resize( _n_mcp );
   _minY_dim.resize( _n_mcp );
   _maxX_dim.resize( _n_mcp );
   _maxY_dim.resize( _n_mcp );
 
-  _minX_active.resize( _n_mcp );
-  _minY_active.resize( _n_mcp );
-  _maxX_active.resize( _n_mcp );
-  _maxY_active.resize( _n_mcp );
+  _minX_det.resize( _n_mcp );
+  _minY_det.resize( _n_mcp );
+  _maxX_det.resize( _n_mcp );
+  _maxY_det.resize( _n_mcp );
+
+  _shiftX.resize( _n_mcp );
+  _shiftY.resize( _n_mcp );
 
   _x_bins.resize( _n_mcp );
   _y_bins.resize( _n_mcp );
 
   for( int i = 0; i < _n_mcp; i++ )
   {
-    _mcp_dim[i]    = unknown;
-    _mcp_active[i] = unknown;
+    _mcp_dim[i] = unknown;
+    _mcp_det[i] = unknown;
 
     _minX_dim[i] = unknown;
     _minY_dim[i] = unknown;
     _maxX_dim[i] = unknown;
     _maxY_dim[i] = unknown;
 
-    _minX_active[i] = unknown;
-    _minY_active[i] = unknown;
-    _maxX_active[i] = unknown;
-    _maxY_active[i] = unknown;
+    _minX_det[i] = unknown;
+    _minY_det[i] = unknown;
+    _maxX_det[i] = unknown;
+    _maxY_det[i] = unknown;
 
     _x_bins[i] = unknown;
     _y_bins[i] = unknown;
@@ -671,7 +676,7 @@ void KBarAnalysis::Begin(TTree * /*tree*/)
   {
     for( int i = 0; i < _n_mcp; i++ )
     {
-      if( _mcp_dim[i] == unknown || _mcp_active[i] == unknown || _minX_dim[i] == unknown || _minY_dim[i] == unknown
+      if( _mcp_dim[i] == unknown || _mcp_det[i] == unknown || _minX_dim[i] == unknown || _minY_dim[i] == unknown
           || _x_bins[i] == unknown || _y_bins[i] == unknown )
       {
         cout << "MCP parameters were not set!" << endl;
@@ -739,15 +744,13 @@ void KBarAnalysis::SlaveBegin(TTree * /*tree*/)
 
     for( int i = 0; i < _n_mcp; i++ )
     {
-      Double_t shift = ( _mcp_dim[i] - _mcp_active[i] ) / 2; // to shift active area in the center of MCP
-
       _maxX_dim[i] = _minX_dim[i] + _mcp_dim[i];
       _maxY_dim[i] = _minY_dim[i] + _mcp_dim[i];
 
-      _minX_active[i] = _minX_dim[i] + shift;
-      _minY_active[i] = _minY_dim[i] + shift;
-      _maxX_active[i] = _minX_dim[i] + shift + _mcp_active[i];
-      _maxY_active[i] = _minY_dim[i] + shift + _mcp_active[i];
+      _minX_det[i] = _minX_dim[i] + _shiftX[i];
+      _minY_det[i] = _minY_dim[i] + _shiftY[i];
+      _maxX_det[i] = _minX_dim[i] + _shiftX[i] + _mcp_det[i];
+      _maxY_det[i] = _minY_dim[i] + _shiftY[i] + _mcp_det[i];
 
 
       _line_mcpCase[i][0] = new TLine( _minX_dim[i], _minY_dim[i], _minX_dim[i], _maxY_dim[i] );
@@ -755,10 +758,10 @@ void KBarAnalysis::SlaveBegin(TTree * /*tree*/)
       _line_mcpCase[i][2] = new TLine( _maxX_dim[i], _maxY_dim[i], _maxX_dim[i], _minY_dim[i] );
       _line_mcpCase[i][3] = new TLine( _maxX_dim[i], _minY_dim[i], _minX_dim[i], _minY_dim[i] );
 
-      _line_mcpArea[i][0] = new TLine( _minX_active[i], _minY_active[i], _minX_active[i], _maxY_active[i] );
-      _line_mcpArea[i][1] = new TLine( _minX_active[i], _maxY_active[i], _maxX_active[i], _maxY_active[i] );
-      _line_mcpArea[i][2] = new TLine( _maxX_active[i], _maxY_active[i], _maxX_active[i], _minY_active[i] );
-      _line_mcpArea[i][3] = new TLine( _maxX_active[i], _minY_active[i], _minX_active[i], _minY_active[i] );
+      _line_mcpArea[i][0] = new TLine( _minX_det[i], _minY_det[i], _minX_det[i], _maxY_det[i] );
+      _line_mcpArea[i][1] = new TLine( _minX_det[i], _maxY_det[i], _maxX_det[i], _maxY_det[i] );
+      _line_mcpArea[i][2] = new TLine( _maxX_det[i], _maxY_det[i], _maxX_det[i], _minY_det[i] );
+      _line_mcpArea[i][3] = new TLine( _maxX_det[i], _minY_det[i], _minX_det[i], _minY_det[i] );
 
       for( int j = 0; j < n_lines; j++ )
       {
@@ -767,14 +770,9 @@ void KBarAnalysis::SlaveBegin(TTree * /*tree*/)
       }
 
 
-      TString i_str;
-      i_str += (i + 1);
-      i_str.Remove( TString::kLeading, ' ' );
-      TString mcpLabel_str = "MCP" +i_str;
-
-      _mcpLabel[i] = new TPaveText( _minX_active[i], _maxY_active[i], _maxX_active[i], _maxY_dim[i] );
+      _mcpLabel[i] = new TPaveText( _minX_det[i], _maxY_det[i], _maxX_det[i], _maxY_dim[i] );
       _mcpLabel[i]->SetFillColor( 0 );
-      _mcpLabel[i]->AddText( mcpLabel_str );
+      _mcpLabel[i]->AddText( _mcpLabel_str[i] );
     }
   }
   else
@@ -919,7 +917,7 @@ void KBarAnalysis::SlaveBegin(TTree * /*tree*/)
       if( _mcpMode )
       {
         TString j_str;
-        j_str += (j + 1);
+        j_str += j;
         j_str.Remove( TString::kLeading, ' ' );
 
         _kBarX_str[i][j] = new TString( "kBarX_mcp" + j_str );
@@ -957,12 +955,12 @@ void KBarAnalysis::SlaveBegin(TTree * /*tree*/)
         _kBarY[i][j] = new TH2F( *_kBarY_str[i][j], "", _y_bins[j], 0, _y_bins[j], _y_bins[j], 0, _y_bins[j] );
         _kBarZ[i][j] = new TH2F( *_kBarZ_str[i][j], "", _y_bins[j], 0, _y_bins[j], _y_bins[j], 0, _y_bins[j] );
 
-        _kBarX_screen[i][j] = new TH2F( *_kBarX_screen_str[i][j], "", _y_bins[j], _minX_active[j], _maxX_active[j],
-                                         _y_bins[j],_minY_active[j],_maxY_active[j] );
-        _kBarY_screen[i][j] = new TH2F( *_kBarY_screen_str[i][j], "", _y_bins[j], _minX_active[j], _maxX_active[j],
-                                         _y_bins[j],_minY_active[j],_maxY_active[j] );
-        _kBarZ_screen[i][j] = new TH2F( *_kBarZ_screen_str[i][j], "", _y_bins[j], _minX_active[j], _maxX_active[j],
-                                         _y_bins[j],_minY_active[j],_maxY_active[j] );
+        _kBarX_screen[i][j] = new TH2F( *_kBarX_screen_str[i][j], "", _y_bins[j], _minX_det[j], _maxX_det[j],
+                                         _y_bins[j],_minY_det[j],_maxY_det[j] );
+        _kBarY_screen[i][j] = new TH2F( *_kBarY_screen_str[i][j], "", _y_bins[j], _minX_det[j], _maxX_det[j],
+                                         _y_bins[j],_minY_det[j],_maxY_det[j] );
+        _kBarZ_screen[i][j] = new TH2F( *_kBarZ_screen_str[i][j], "", _y_bins[j], _minX_det[j], _maxX_det[j],
+                                         _y_bins[j],_minY_det[j],_maxY_det[j] );
       }
       else
       {
@@ -1053,7 +1051,7 @@ Bool_t KBarAnalysis::Process(Long64_t entry)
 //         cout << entry << " / " << fChain->GetTree()->GetEntries() << endl;
   //
 //     kBarY = kBarY + 500/kBarZ * 1.47/300; // for time difference (here: kBarY = time), start position z=-500
-//     kBarY = kBarY + 500/kBarZ * 1.58/300; // with group refractive index
+//     kBarY = kBarY + 500/kBarZ * 1.58/300; // with group refrdet index
 
 
   const int n_mcp_helper = _n_mcp;
@@ -1075,11 +1073,11 @@ Bool_t KBarAnalysis::Process(Long64_t entry)
     {
       for( int i = 0; i < _n_mcp; i++)
       {
-        if( hitPosDetX >= _minX_active[i] && hitPosDetX < _maxX_active[i]
-            && hitPosDetY >= _minY_active[i] && hitPosDetY < _maxY_active[i] )
+        if( hitPosDetX >= _minX_det[i] && hitPosDetX < _maxX_det[i]
+            && hitPosDetY >= _minY_det[i] && hitPosDetY < _maxY_det[i] )
         {
-          pxX[i] = TMath::FloorNint( (hitPosDetX - _minX_active[i])*_x_bins[i] / _mcp_active[i] );
-          pxY[i] = TMath::FloorNint( (hitPosDetY - _minY_active[i])*_y_bins[i] / _mcp_active[i] );
+          pxX[i] = TMath::FloorNint( (hitPosDetX - _minX_det[i])*_x_bins[i] / _mcp_det[i] );
+          pxY[i] = TMath::FloorNint( (hitPosDetY - _minY_det[i])*_y_bins[i] / _mcp_det[i] );
 
           n_test++;
           mcpID_helper = i;
@@ -1333,8 +1331,8 @@ void KBarAnalysis::Terminate()
 
           if( _mcpMode )
           {
-            Double_t hitX = j * _mcp_active[i] / _y_bins[i] + _minX_active[i] + _mcp_active[i] / ( 2 * _y_bins[i] );
-            Double_t hitY = k * _mcp_active[i] / _y_bins[i] + _minY_active[i] + _mcp_active[i] / ( 2 * _y_bins[i] );
+            Double_t hitX = j * _mcp_det[i] / _y_bins[i] + _minX_det[i] + _mcp_det[i] / ( 2 * _y_bins[i] );
+            Double_t hitY = k * _mcp_det[i] / _y_bins[i] + _minY_det[i] + _mcp_det[i] / ( 2 * _y_bins[i] );
 
             _kBarX[l][i]->Fill( j, k, _kBarXsum[i][j][k][l] / _freq[i][j][k][l] );
             _kBarY[l][i]->Fill( j, k, _kBarYsum[i][j][k][l] / _freq[i][j][k][l] );
@@ -1368,7 +1366,7 @@ void KBarAnalysis::Terminate()
           _px_freq[l]     =  _freq[i][j][k][l];
         }
 
-        _px_mcp = i+1;
+        _px_mcp = i;
         _px_col = j;
         _px_row = k;
 

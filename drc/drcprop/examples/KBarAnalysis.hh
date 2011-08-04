@@ -99,18 +99,24 @@ public :
 
    TString _gap_str;
 
+   vector<TString> _mcpLabel_str;
+
    vector<Double_t> _mcp_dim;
-   vector<Double_t> _mcp_active;
+   vector<Double_t> _mcp_act;
+   vector<Double_t> _mcp_det;
 
    vector<Double_t> _minX_dim;
    vector<Double_t> _minY_dim;
    vector<Double_t> _maxX_dim;
    vector<Double_t> _maxY_dim;
 
-   vector<Double_t> _minX_active;
-   vector<Double_t> _minY_active;
-   vector<Double_t> _maxX_active;
-   vector<Double_t> _maxY_active;
+   vector<Double_t> _minX_det;
+   vector<Double_t> _minY_det;
+   vector<Double_t> _maxX_det;
+   vector<Double_t> _maxY_det;
+
+   vector<Double_t> _shiftX;
+   vector<Double_t> _shiftY;
 
    vector<Int_t> _x_bins;
    vector<Int_t> _y_bins;

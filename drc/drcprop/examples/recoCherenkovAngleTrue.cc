@@ -26,7 +26,7 @@ using namespace std;
 
 
 
-void recoCherenkovAngleTrue(Int_t bining = 100)
+void recoCherenkovAngleTrue(Int_t bining = 100, Bool_t b_effiNEW = true)
 {
     Double_t todegree = 180./TMath::Pi();
     Double_t indegree = TMath::Pi()/180.;
@@ -35,8 +35,8 @@ void recoCherenkovAngleTrue(Int_t bining = 100)
 
     gStyle->SetStatX(0.97);
     gStyle->SetStatY(0.8);
-    gStyle->SetOptStat("");
-//     gStyle->SetOptStat("mr");
+//     gStyle->SetOptStat("");
+    gStyle->SetOptStat("mr");
     gStyle->SetOptFit(111);
     gStyle->SetStatFontSize(0.05);
 
@@ -44,7 +44,8 @@ void recoCherenkovAngleTrue(Int_t bining = 100)
 //==============================================================================
 // Access to the input ROOT-file & canvas settings
 //==============================================================================
-    TString beamtestFilename = "forDiss/beamtest0909_angleAcceptance.root";
+//     TString beamtestFilename = "forDiss/beamtest0909_angleAcceptance.root";
+    TString beamtestFilename = "/d/panda02/rhohler/beamtest1106/test/prototype_angleAcceptance_pion_mom1.7GeV_onlyInBar.root";
 //     TString beamtestFilename = "beamtest_theta30_1gev.root";
 //     TString beamtestFilename = "/u/rhohler/src/examples/forDiss/beamtest0909_theta27.0_1000par.root";
 //     TString beamtestFilename = "/u/rhohler/src/examples/forDiss/beamtest0909_theta21.8_1000par.root";
@@ -680,8 +681,8 @@ void recoCherenkovAngleTrue(Int_t bining = 100)
     canvas->SetTopMargin( 0.14 ); // for 2 x-axis
 
     TString title = "Cherenkov angle  (par: #Theta = [0,180[#circ, #phi = [0,360[#circ)";
-    Double_t xmin_c = 40. *deg2mrad; // number in degree
-    Double_t xmax_c = 48. *deg2mrad;
+    Double_t xmin_c = 43. *deg2mrad; // number in degree
+    Double_t xmax_c = 51. *deg2mrad;
     TH1F *cherenkov = new TH1F( "cherenkov_angle", "", bining, xmin_c, xmax_c); // 40, 48
 
     cherenkov->GetXaxis()->SetTitle( "#Theta_{c} [mrad]" );
@@ -777,8 +778,8 @@ void recoCherenkovAngleTrue(Int_t bining = 100)
 
             if( mcp_effi )
             {
-//               if( wavelength < 700 && (rand.Uniform() < effiOLD[(int)(wavelength/10+0.5)]) )
-              if( wavelength > 200 && wavelength < 700 && (rand.Uniform() < effi[(int)(wavelength - min_wave)]) )
+              if( ( !b_effiNEW && wavelength < 700 && (rand.Uniform() < effiOLD[(int)(wavelength/10+0.5)]) ) ||
+                ( b_effiNEW && wavelength > 200 && wavelength < 700 && (rand.Uniform() < effi[(int)(wavelength - min_wave)]) ) )
                 {
                     for( int k = 0; k < 8; k++ )
                     {
@@ -821,14 +822,15 @@ void recoCherenkovAngleTrue(Int_t bining = 100)
 //     f1.SetParLimits(2, 0, 2);
     f1.SetParameters(1000,770,10,1);
     f1.SetLineColor(2);
-    cherenkov->Fit("f1","","",42*deg2mrad,46*deg2mrad);// 42, 46
+//     cherenkov->Fit("f1","","",42*deg2mrad,46*deg2mrad);// 42, 46
+    cherenkov->Fit("f1","","",45*deg2mrad,49*deg2mrad);// 45, 49
 //     cherenkov->Draw("e");
 
     cout << (f1.GetParameter(2)) << " +- " << (f1.GetParError(2)) << " mrad" << endl;
 
 
     TF1 *degreefunc=new TF1("degreefunc","x",xmin_c *mrad2deg, xmax_c *mrad2deg);
-    TGaxis *degreeAxis = new TGaxis(xmin_c,7600,xmax_c,7600,"degreefunc",510,"-");
+    TGaxis *degreeAxis = new TGaxis(xmin_c,26000,xmax_c,26000,"degreefunc",510,"-");
     degreeAxis->SetLabelFont(132);
     degreeAxis->SetLabelSize(0.05);
     degreeAxis->SetTitle("#Theta_{c} [#circ]");
