@@ -3409,7 +3409,7 @@ cout<<"Total track trovate "<<nTotalCandidates<<endl;
 	if(nMCTracksaccettabili>0){
 		for(int ii=0; ii<nTotalCandidates;ii++){
 			for(i=0;i<nMCTracksaccettabili;i++){
-				if( i==ListaMCTracksaccettabili[i]){
+				if( daTrackFoundaTrackMC[ii]==ListaMCTracksaccettabili[i]){
 					ibene++;
 				}
 			}
