@@ -1960,8 +1960,9 @@ difuori: ;
 
 //--------------ghosts
 
-if( istampa>=1){
-    int NParghost=0, NParhitsghost=0,icc;
+// fa il conto delle ghost solo sugli eventi che hanno almeno 1 traccia MC accettabile.
+int NParghost=0, NParhitsghost=0,icc;
+if( istampa>=1 && nMCTracksaccettabili>0 ){
     for(icc=0; icc<nTracksFoundSoFar;icc++){
 	if(!keepit[icc]) continue;
        if( daTrackFoundaTrackMC[icc] == -1){
