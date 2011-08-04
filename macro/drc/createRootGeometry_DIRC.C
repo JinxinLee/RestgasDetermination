@@ -18,7 +18,7 @@
 // fFocusingSystem = 2 && fprizm = kTRUE   output file is in geometry/dirc_l2_p1.root
 // corresponding .root files with geometry please fone in the geometry directory
 
-void createRootGeometry_DIRC_flatEV(Int_t fFocusingSystem = 0, Bool_t fprizm = kFALSE){ 
+void createRootGeometry_DIRC(Int_t fFocusingSystem = 0, Bool_t fprizm = kFALSE){ 
   
   const Double_t pi = 3.1415926535;
 
