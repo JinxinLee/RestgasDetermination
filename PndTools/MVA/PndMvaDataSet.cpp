@@ -74,7 +74,7 @@ PndMvaDataSet::PndMvaDataSet(std::vector< std::pair<std::string, std::vector<flo
     tmpIdx++;
   }
   
-#if DEBUG_DATASET == 1
+#if DEBUG_DATASET > 0
   std::cout << "========================================================\n"
 	    << "<DEBUG> Info on classes constructed from data vector.\n"
 	    << " Total number of evnts in Input vector = " << Input.size()
@@ -83,10 +83,11 @@ PndMvaDataSet::PndMvaDataSet(std::vector< std::pair<std::string, std::vector<flo
   for(size_t lb = 0; lb < m_classes.size(); ++lb)
   {
     std::cout << " labels ["     << lb << "]\n"
-	      << "\tName = "     << m_classes[lb].Name
+	      << "\tName     = " << m_classes[lb].Name
 	      << " NExamples = " << m_classes[lb].NExamples
 	      << " StartIdx  = " << m_classes[lb].StartIdx
 	      << " EndIdx    = " << m_classes[lb].EndIdx
+	      << " NTrainEx  = " << m_classes[lb].NTrainEx
 	      <<'\n';
   }
   std::cout << "========================================================\n";
@@ -718,7 +719,7 @@ void PndMvaDataSet::CompClsCondMean(std::string const& clsName,
 	( exCluds.find(i) == exCluds.end() )// Not in test events.
 	)
     {
-      // Copy the values.
+      // Add the values.
       for(size_t j = 0; j < m_vars.size(); j++ )
       {
         vec->at(j) += (m_events[i].second)->at(j);

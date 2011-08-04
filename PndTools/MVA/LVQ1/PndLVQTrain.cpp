@@ -783,6 +783,19 @@ void PndLVQTrain::ValidateProtoUpdate(std::vector<float>& p)
  */
 void PndLVQTrain::EvalClassifierError(unsigned int stp)
 {
+  // Structure to hold the number of mis-classified events per label.
+  std::map <std::string, float> perLabelMisClsTest;
+  std::map <std::string, float> perLabelMisClsTrain;
+  
+  // Fetch labels.
+  std::vector<PndMvaClass> const& labels = m_dataSets.GetClasses();
+  // Init containers.
+  for(size_t lb = 0; lb < labels.size(); ++lb)
+  {
+    perLabelMisClsTest [labels[lb].Name] = 0.00;
+    perLabelMisClsTrain[labels[lb].Name] = 0.00;
+  }
+
   // Get Examples
   std::vector<std::pair<std::string, std::vector<float>*> > const& events = m_dataSets.GetData();
   
@@ -815,6 +828,7 @@ void PndLVQTrain::EvalClassifierError(unsigned int stp)
     if(WinClassName != (events.at(idx)).first)
     {// Wrong (Labels are not equal), misclassified
       TsError++;
+      perLabelMisClsTest[(events.at(idx)).first] += 1.00;
     }
   }
 
@@ -845,6 +859,7 @@ void PndLVQTrain::EvalClassifierError(unsigned int stp)
       if(WinClassName != events[evt].first)
       {// Wrong (misclassified, labels are not equal).
 	TrError++;
+	perLabelMisClsTrain[events[evt].first] += 1.00;
       }
     }
   }
@@ -853,22 +868,42 @@ void PndLVQTrain::EvalClassifierError(unsigned int stp)
   size_t NumTsTrEvt = m_testSet_indices.size();
   NumTsTrEvt = (NumTsTrEvt > 0)? NumTsTrEvt : -1;
 
-  // Test error.
+  // Test error in %.
   float tsEr = (TsError * 100.00) / static_cast<float>(NumTsTrEvt);
-
+ 
   // Number of train examples
   NumTsTrEvt = abs( events.size() - m_testSet_indices.size() );
   NumTsTrEvt = (NumTsTrEvt > 0)? NumTsTrEvt : -1;
 
-  // Train error
+  // Train error in %.
   float trEr = (TrError * 100.00) / static_cast<float>(NumTsTrEvt);
 
-  // Create object and Add to the container.
-  StepError StpEr (stp, trEr, tsEr);
-  m_StepErro.push_back(StpEr);
+  // Train and test per class micls in %
+  for(size_t lb = 0; lb < labels.size(); ++lb)
+  {
+    // Current label
+    std::string const& lbn = labels[lb].Name;
+    // Test set error
+    perLabelMisClsTest[lbn] = (perLabelMisClsTest[lbn] * 100.00)/
+      static_cast<float>(labels[lb].NExamples - labels[lb].NTrainEx);
 
+    // Train set error
+    perLabelMisClsTrain[lbn] = (perLabelMisClsTrain[lbn] * 100.00)/
+      static_cast<float>(labels[lb].NTrainEx);
+
+#if DEBUG_LVQ_TRAIN > 0
+    std::cout << "\nLabel is " << lbn
+	      << "\n perLabelMisClsTest[" << lbn << "] = " << perLabelMisClsTest [lbn]
+	      << "\n perLabelMisClsTrain["<< lbn << "] = " << perLabelMisClsTrain[lbn]
+	      << '\n';
+#endif // DEBUG DEBUG
+  }
+  // Create object and Add to the container.
+  StepError StpEr (stp, trEr, tsEr, perLabelMisClsTest, perLabelMisClsTrain);
+  m_StepErro.push_back(StpEr);
+  
   // Reset counters.
-  TrError = TsError = 0;
+  //TrError = TsError = 0;
 }
 
 /**
@@ -1012,7 +1047,8 @@ void PndLVQTrain::storeWeights()
   WriteToWeightFile(m_LVQProtos);
 }
 
-#if DEBUG_LVQ_TRAIN == 1
+/// ======== DEBUG FUNCTIONS
+#if DEBUG_LVQ_TRAIN > 0
 /**
  * Evaluate the classifier, using the given test events.
  *@param TestEvts The set which is used as test set.
@@ -1065,4 +1101,4 @@ float PndLVQTrain::EvalClassifierError( std::vector< std::pair< std::string, std
   error = (error * 100.00) / static_cast<float>(TestEvts.size());
   return error;
 }
-#endif
+#endif// DEBUG FUNCTION

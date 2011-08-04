@@ -53,10 +53,13 @@ void printProto(std::vector< std::pair<std::string, std::vector<float>*> > const
   }
   std::cout << "==========================\n";
 }
+#endif
 
+#if DEBUGVQ_TRAIN_EXAMPLE > 1
 void printErrors(PndLVQTrain const& tr)
 {
   // Note: Can produce large output on STDOUT.
+  std::map<std::string, float>::const_iterator it;
   std::vector <StepError> const& Error = tr.GetErrorValues();
   for(size_t i = 0; i < Error.size(); ++i)
   {
@@ -64,7 +67,17 @@ void printErrors(PndLVQTrain const& tr)
 	      << "\n\tm_step  = " << Error[i].m_step
 	      << "\n\tm_trErr = " << Error[i].m_trErr
 	      << "\n\tm_tsErr = " << Error[i].m_tsErr
-	      << '\n';
+	      << "\n\tm_MisClsTest: ";
+    for(it = (Error[i].m_MisClsTest).begin(); it != (Error[i].m_MisClsTest).end(); ++it)
+    {
+      std::cout << it->first << ", " << it->second << ' ';
+    }
+    std::cout << "\n\tm_MisClsTrain: ";
+    for(it = (Error[i].m_MisClsTrain).begin(); it != (Error[i].m_MisClsTrain).end(); ++it)
+    {
+      std::cout << it->first << ", " << it->second << ' ';
+    }
+    std::cout << '\n';
   }
 }
 // *************  DEBUG ONLY **********
@@ -337,7 +350,7 @@ int main(int argc, char** argv)
     // Symm. number of proto.
     t->SetNumberOfProto(numProto);
     
-    // Set testSet size or indices
+    // Set testSet size and indices
     t->SetTetsSetSize(0);
     t->SetTestSet(testSets[i]);
     
@@ -374,28 +387,66 @@ int main(int argc, char** argv)
     (trainerList[i])->Train();
   }
   
-  // ========= Store weights
+  // ========= Store weights and evaluation data.
+  std::vector <StepError> EvalData;
+  
   for(size_t i = 0; i < trainerList.size(); ++i)
   {
     (trainerList[i])->storeWeights();
-    // Write out the error info.
+    
+    // Write out the Evaluation info info.
     (trainerList[i])->WriteErroVect( (int2str(i)+ "_" + OutErr) );
-  }
+
+    // Fetch evaluation data
+    std::vector <StepError> const& err = (trainerList[i])->GetErrorValues();
+
+    for(size_t k = 0; k < err.size(); ++k)
+    {
+      EvalData.push_back(err[k]);
+    }//err.size()
+  }// Trainers loop
 
   // Print the evaluation results.
-#if DEBUGVQ_TRAIN_EXAMPLE > 0
+#if DEBUGVQ_TRAIN_EXAMPLE > 1
   for(size_t i = 0; i < trainerList.size(); ++i)
   {
+    std::cout << "Trainer index = " << i << '\t';
     printErrors( *(trainerList[i]) );
   }
 #endif// DEBUG
-  
+ 
   //======= Clean trainers list ======
   for(size_t j = 0; j < NUMBER_OF_FOLDS; ++j)
   {
     delete trainerList[j];
   }
   //_____________________________
+
+  // Process Evaluation data
+  float mean_tr, mean_ts, sigma_tr, sigma_ts;
+  mean_tr = mean_ts = sigma_tr = sigma_ts = 0.00;
+
+  for(size_t k = 0; k < EvalData.size(); ++k)
+  {
+    mean_tr += EvalData[k].m_trErr;
+    mean_ts += EvalData[k].m_tsErr;
+  }
+  mean_tr /= static_cast<float>(EvalData.size());
+  mean_ts /= static_cast<float>(EvalData.size());
+
+  // Compute variance
+  for(size_t k = 0; k < EvalData.size(); ++k)
+  {
+    sigma_tr += (EvalData[k].m_trErr - mean_tr ) * (EvalData[k].m_trErr - mean_tr);
+    sigma_ts += (EvalData[k].m_tsErr - mean_ts ) * (EvalData[k].m_tsErr - mean_ts);
+  }
+  sigma_tr /= static_cast<float>(EvalData.size() - 1);
+  sigma_ts /= static_cast<float>(EvalData.size() - 1);
+  
+  std::cout << "mean_tr = " << mean_tr <<'\n'
+	    << "mean_ts = " << mean_ts <<'\n'
+	    << "sigma_tr = " << sigma_tr <<'\n'
+	    << "sigma_ts = " << sigma_ts <<'\n';
 #endif// CROSS_VALIDATE != 0
   
   return 0;

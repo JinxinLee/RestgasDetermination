@@ -125,8 +125,12 @@ class PndMvaDataSet
   virtual void WriteDataSet(std::string const& outFile);
 
   /**
-   * Initialize the class conditional means vectors.
-   *@param excludeIndxs The ste of event indices to exclude during the
+   * Initialize the class conditional means vectors and modifies the
+   * attributes of the available labels for this data set
+   * (PndMvaClass::NTrainEx); these are the events that are not to be
+   * excluded. These events are specified by the exclude indices set.
+   *
+   *@param excludeIndxs The set of event indices to exclude during the
    * computation.
    */
   virtual void InitClsCondMeans(std::set <size_t> const& excludeIndxs);

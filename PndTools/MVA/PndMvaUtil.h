@@ -9,9 +9,10 @@
 #define PND_MVA_UTIL_H
 
 #include <typeinfo>
-#include <string>
 #include <sstream>
+#include <string>
 #include <vector>
+#include <map>
 #include <cmath>
 #include <cassert>
 
@@ -28,9 +29,16 @@ StepError()
    *@param step Currents step.
    *@param trErr Current training error.
    *@param tsErr Current test error.
+   *@param MisClsTest  Mis-classified test events per label.
+   *@param MisClsTrain Mis-classified train events per label.
    */
-StepError(size_t step, float trErr, float tsErr)
-: m_step(step), m_trErr(trErr), m_tsErr(tsErr)
+StepError(size_t step, float trErr, float tsErr,
+	  std::map <std::string, float> const& MisClsTest,
+	  std::map <std::string, float> const& MisClsTrain
+	  )
+: m_step(step), m_trErr(trErr), m_tsErr(tsErr),
+    m_MisClsTest (MisClsTest),
+    m_MisClsTrain(MisClsTrain)
   {};
   
   //! Destructor
@@ -39,7 +47,9 @@ StepError(size_t step, float trErr, float tsErr)
   
   //! Copy!
 StepError(StepError const& ot)
-: m_step(ot.m_step), m_trErr(ot.m_trErr), m_tsErr(ot.m_tsErr)
+: m_step(ot.m_step), m_trErr(ot.m_trErr), m_tsErr(ot.m_tsErr),
+    m_MisClsTest (ot.m_MisClsTest),
+    m_MisClsTrain(ot.m_MisClsTrain)
   {};
   
   //! Assignment.
@@ -53,12 +63,17 @@ StepError(StepError const& ot)
     this->m_step  = ot.m_step;
     this->m_trErr = ot.m_trErr;
     this->m_tsErr = ot.m_tsErr;
+    this->m_MisClsTest  = ot.m_MisClsTest;
+    this->m_MisClsTrain = ot.m_MisClsTrain;
+
     return (*this);
   };
   
-  unsigned int m_step; // Step number
-  float  m_trErr;// Train Error
-  float  m_tsErr;// Test Error
+  unsigned int m_step; //! Step number
+  float  m_trErr;//! Train Error
+  float  m_tsErr;//! Test Error
+  std::map <std::string, float> m_MisClsTest; /**< Mis-classified test events/label*/
+  std::map <std::string, float> m_MisClsTrain;/**< Mis-classified train events/label*/
   
 private:
   //! Operator <
@@ -153,11 +168,11 @@ bool is_disjoint(Set1 const& set1, Set2 const& set2)
     return true;
   }
   // Start and end iterators of the first sequence.
-  typename Set1::const_iterator it1 = set1.begin();
+  typename Set1::const_iterator it1    = set1.begin();
   typename Set1::const_iterator it1End = set1.end();
   
   // Start and end iterators of the second sequence.
-  typename Set2::const_iterator it2 = set2.begin();
+  typename Set2::const_iterator it2    = set2.begin();
   typename Set2::const_iterator it2End = set2.end();
   
   // This holds because the sequences are pre-sorted. O(1)
@@ -200,7 +215,7 @@ unsigned int str2Uint (std::string const& str);
 // Convert int to string
 std::string int2str (int n);
 
-// C style function declarations
+//______________ C style function declarations
 #ifdef __cplusplus
 extern "C"
 {

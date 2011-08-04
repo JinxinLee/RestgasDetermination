@@ -52,9 +52,15 @@ void PndMvaTrainer::Initialize()
   m_dataSets.Initialize();
 
   // Split test and train set.
-  splitTetsSet();
+  if ( m_testSetSize != 0 )
+    { splitTetsSet(); }
 
-  // Initialize class conditional means.
+  /*
+   * Initialize class conditional mean vectors for the current data
+   * set. Also modifies the label objects to reflect the situation
+   * after excluding the events specified by the exclusion set (see
+   * InitClsCondMeans docs in "PndMvaDataSet").
+   */
   m_dataSets.InitClsCondMeans(m_testSet_indices);
   
   // Init random seed for this run.
@@ -125,7 +131,14 @@ void PndMvaTrainer::splitTetsSet()
   }
   //______________________________________
 }
-
+/**
+ * Writes the train and test errors evaluations to a given file.
+ *@param FileName Output file name.
+ */
+/*
+ * FIXME FIXME Maybe we need to write per class errors as well. It is
+ * ofcourse needed to do statistics and not so important for plotting.
+ */
 void PndMvaTrainer::WriteErroVect(std::string const& FileName) const
 {
   std::ofstream Outfile;
