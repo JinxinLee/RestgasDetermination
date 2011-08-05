@@ -330,7 +330,7 @@ void PndMixBackgroundEvents::Exec(Option_t* opt) {
    for(j=0;j<nBkgEventsToAdd;j++){
 
 	ichosen = (Int_t) (nTotalBkgEvents * rannn.Rndm());
-	if(ichosen==nTotalBkgEvents) ichosen --;
+	if(ichosen==nTotalBkgEvents) ichosen = ichosen-2;
 //ichosen=0;
 	treedigibkg->GetEntry(ichosen);
 
@@ -448,7 +448,7 @@ return;
 	return;
   }
 
-//---------------------- end of   PndMixBackgroundEvents::ModifyIsochrone
+//---------------------- begin of   PndMixBackgroundEvents::ModifyIsochrone
 
   bool PndMixBackgroundEvents::ModifyIsochrone(
 			Double_t isochrone,
@@ -463,7 +463,7 @@ return;
 
   }
 
-//---------------------- begin of   PndMixBackgroundEvents::ModifyIsochrone
+//---------------------- end of   PndMixBackgroundEvents::ModifyIsochrone
 
 
 
