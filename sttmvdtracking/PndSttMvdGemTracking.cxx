@@ -159,6 +159,7 @@ InitStatus PndSttMvdGemTracking::Init() {
   // open SttMvdTrackCand array
   fTrackCandArray=(TClonesArray*) ioman->GetObject(fStartTrackCandBranchName);
   if(fTrackCandArray==0){
+    cout << "fStartTrackCandBranchName " << fStartTrackCandBranchName << " not found" << endl;
     Error("PndSttMvdGemTracking:Init","stt + mvd trackcand - array not found!");
     return kERROR;
   }
@@ -1032,6 +1033,7 @@ Bool_t PndSttMvdGemTracking::PropagateToGemPlaneAsHelix(PndTrack *sttmvd, FairTr
   Int_t charge = sttmvd->GetParamFirst().GetQ();
 
   // z = fitp + scos * fitm  
+  if(fitm == 0) return kFALSE;
   Double_t scos = (z - fitp) / fitm;  // CHECK :-)GOOD!
   double Fi = - charge * scos / radius;   // CHECK :-)GOOD!
   //  cout << "z1 " << z << " " << scos << " " << fitm << " " << fitp << endl;

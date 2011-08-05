@@ -177,6 +177,7 @@ class PndSecondaryTrackFinder : public FairTask {
   void FindOuterIntersectingPoints(Double_t xc, Double_t yc, Double_t radius, TVector3 &int1, TVector3 &int2);
   void FindInnerIntersectingPoints(Double_t xc, Double_t yc, Double_t radius, TVector3 &int1, TVector3 &int2);
   Int_t FindRefPoint(std::vector< TMatrixT<double> > cluster, TMatrixT<double> par);
+  Int_t FindInnermostPoint(std::vector< TMatrixT<double> > cluster);
   Bool_t BreakTooLongTracks(std::vector< TMatrixT<double> > cluster, TMatrixT<double> par, std::vector< TMatrixT<double> > &track1, TMatrixT<double> &param1, std::vector< TMatrixT<double> > &track2, TMatrixT<double> &param2);
 
   void Break(std::vector< TMatrixT<double> > newtrack, int from1, int  to1,  int from2,  int to2, std::vector< TMatrixT<double> > &track1, std::vector< TMatrixT<double> > &track2);
