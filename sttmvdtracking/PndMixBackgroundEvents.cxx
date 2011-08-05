@@ -456,7 +456,8 @@ return;
 			Double_t *modified
 			)
   {
-	//  STTdriftVEL in cm/nsec (usually 0.002 cm/nsec).
+	//  STTdriftVEL in cm/nsec (usually 0.002 cm/nsec);
+	//  isochrone here is in reality a drift radius.
 	*modified = isochrone + time*STTdriftVEL;
 	if( *modified > STRAWRADIUS || *modified < 0.) return false;
 	else   return true;
