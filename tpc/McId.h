@@ -36,7 +36,7 @@ public:
 
   McId(const unsigned int eventid,
        const unsigned int trackid,
-       const unsigned int secid=0,
+       const int secid=0,
        const double Weight=1);
 
   virtual ~McId();
@@ -66,7 +66,7 @@ private:
   // Private Data Members ------------
   unsigned int fmceventID;
   unsigned int fmctrackID;
-  unsigned int fmcsecID; // 0 if primary track, else > 0
+  int fmcsecID; // 0 if primary track, else > 0, noise: -1
   double fweight;
   
   // Private Methods -----------------

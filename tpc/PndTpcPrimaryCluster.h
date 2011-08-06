@@ -45,7 +45,7 @@ public:
 		       const TVector3& Pos,
 		       const unsigned int McTrackId,
 		       const unsigned int McHitId, // for creation without G4
-		       const unsigned int McSecId=0);
+		       const int McSecId=0);
 
   ~PndTpcPrimaryCluster();
 

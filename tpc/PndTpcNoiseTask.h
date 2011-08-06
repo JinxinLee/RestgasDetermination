@@ -50,7 +50,7 @@ class PndTpcNoiseTask : public FairTask {
 // Modifiers ------------------------------------------------
 
  
-  void setSignalToNoise(double stn){fstn=stn;}
+  void setOccupancy(double occ){fOcc=occ;}
   void setMeanEnergy(double b){fmeanEnergy=b;} // keV
 
   
@@ -58,10 +58,13 @@ class PndTpcNoiseTask : public FairTask {
 
   TClonesArray* fprimArray;
   double fmeanEnergy; // keV
-  double fstn; // signal to noise ratio
+  //double fstn; // signal to noise ratio
+  double fOcc;  //occupancy in terms of fVox
 
   PndTpcDigiPar* fpar;  
   const PndTpcGas* fGas;
+
+  unsigned int fVox;  //number of voxels (nSamples * nPads) for normalization
   
 public:
   ClassDef(PndTpcNoiseTask,1)

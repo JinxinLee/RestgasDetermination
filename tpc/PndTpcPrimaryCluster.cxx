@@ -40,7 +40,7 @@ PndTpcPrimaryCluster::PndTpcPrimaryCluster(const double T,
 				     const TVector3& Pos,
 				     const unsigned int McTrackId,
 				     const unsigned int McHitId,
-				     const unsigned int McSecId)
+				     const int McSecId)
   : ft(T), fq(Q), fmcTrackId(McTrackId),fmcHitId(McHitId),fpos(Pos), fmcSecId(McSecId)
 {
 	SetLink(FairLink("PndTpcPoint", McHitId));

@@ -34,7 +34,7 @@ McId::McId()
 
 McId::McId(const unsigned int eventid,
 	   const unsigned int trackid,
-	   const unsigned int secid,
+	   const int secid,
 	   const double Weight)
   : fmceventID(eventid), fmctrackID(trackid), fmcsecID(secid), fweight(Weight)
 {;}
