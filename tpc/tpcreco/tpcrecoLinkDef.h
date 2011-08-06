@@ -10,6 +10,7 @@
 #pragma link C++ class PndTpcPlanarRecoHit++;
 #pragma link C++ class PndTpcTrackVisTask++;
 #pragma link C++ class PndTpcRiemannTrackingTask++;
+#pragma link C++ class PndTpcEvtDeconvTask++;
 #pragma link C++ class PndTpcIdealTrackingTask++;
 #pragma link C++ class PndTpcIdealTrackingTask2++;
 #pragma link C++ class PndTpcTrackInitTask++;
