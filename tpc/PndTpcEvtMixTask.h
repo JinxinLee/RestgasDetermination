@@ -81,6 +81,14 @@ private:
   TClonesArray* fbkgArray;
   TClonesArray* ftimeArray;
   TClonesArray* ftimeOutArray;
+  TClonesArray* fgemArray;
+  TClonesArray* fstripArray;
+  TClonesArray* fstripClusterArray;
+  TClonesArray* fstripDigiArray;
+  
+  TClonesArray* fpixelArray;
+  TClonesArray* fpixelClusterArray;
+  TClonesArray* fpixelDigiArray;
 
   TFile* finFile;
   TTree* fbkgTree;
