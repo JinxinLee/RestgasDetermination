@@ -6,13 +6,15 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-//#pragma link C++ class PndTpcTester+;
+//#pragma link C++ class PndTpcMCSkimmingTask+;
+//#pragma link C++ class PndTpcClusterSkimmingTask+;
 #pragma link C++ class PndTpcDetector+;
 #pragma link C++ class PndTpcGeo+;
 #pragma link C++ class PndTpcGeoPar+;
 #pragma link C++ class PndTpcDigiPar+;
 #pragma link C++ class PndTpcContFact+;
 #pragma link C++ class PndTpcClusterizerTask+;
+#pragma link C++ class PndTpcNoiseTask+;
 #pragma link C++ class PndTpcDriftTask+;
 #pragma link C++ class PndTpcSimpleEvtGen+;
 //#pragma link C++ class PndTpcRadialDriftTask+;

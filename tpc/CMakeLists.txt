@@ -12,6 +12,8 @@ ${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/passive
+${CMAKE_SOURCE_DIR}/pnddata/GemData
+${CMAKE_SOURCE_DIR}/pnddata/SdsData
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/tpc
 ${CMAKE_SOURCE_DIR}/tpc/test
@@ -69,7 +71,8 @@ PndTpcDigitizationPolicy.cxx
 PndTpcDigiAmplitude.cxx 		    
 PndTpcDigiMapper.cxx 		    
 PndTpcSimplePSAStrategy.cxx 	    	    
-PndTpcSpaceChargeTask.cxx 	    
+PndTpcSpaceChargeTask.cxx
+PndTpcNoiseTask.cxx 	    
 #PndTpcAbsField.cxx 		    
 #PndTpcFieldCylGrid.cxx 		    
 PndTpcEFieldCyl.cxx 		    
@@ -78,7 +81,8 @@ PndTpcDevmapCyl.cxx
 PndTpcDevmapCylLoader.cxx
 PndTpcDevmapSLA.cxx	    
 PndTpcEvtMixTask.cxx 		    
-#PndTpcMCEvtMixTask.cxx
+#PndTpcMCSkimmingTask.cxx
+#PndTpcClusterSkimmingTask.cxx
 #PndTpcMCTracklet.cxx
 PndTpcEvtTime.cxx 		    
 PndTpcEvtTimeGenTask.cxx 		    
