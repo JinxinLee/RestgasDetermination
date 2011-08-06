@@ -28,6 +28,7 @@
 #include "TClonesArray.h"
 #include "TMath.h"
 #include "TH1D.h"
+#include "TH1I.h"
 
 // Class Member definitions -----------
 
@@ -74,6 +75,12 @@ PndTpcEvtDeconvTask::Init()
   fOutTrackArray = new TClonesArray("PndTpcRiemannTrack"); 
   ioman->Register(fOutTrackBranchName,"PndTpc",fOutTrackArray,fPersistence);
   
+  // histograms
+  hRetained= new TH1I("hRetained","Number of tracklets after target cut",
+		      200,0,200);
+  hFoundPhysics= new TH1I("hFoundPhysics","Found Physics tracklets",
+			  10,0,10);
+  hFoundIDs= new TH1I("hFoundID","Number of physics tracks with at leaast one found tracklet", 10,0,10);
 
   return kSUCCESS;
 }
@@ -124,6 +131,9 @@ PndTpcEvtDeconvTask::Exec(Option_t* opt)
   std::cout << foundPhysics << " true physics tracklets (PR found "<< presentPhysics <<")"<< std::endl;
   std::cout << "... containing "<< physicsID.nIDs() << " different MCtrackIDs" << std::endl; 
 
+  hRetained->Fill( fOutTrackArray->GetEntries());
+  hFoundPhysics->Fill(foundPhysics);
+  hFoundIDs->Fill(physicsID.nIDs());
 
   std::cout << retainedPileup << " pileup tracklets" << std::endl<< std::endl;
 
@@ -134,13 +144,18 @@ PndTpcEvtDeconvTask::Exec(Option_t* opt)
   return;
 }
 
-void
-PndTpcEvtDeconvTask::WriteHistograms(const TString& fname) const {
-  TFile* rOut = new TFile(fname, "recreate");
-  rOut->cd();
-  rOut->Close();
+void 
+PndTpcEvtDeconvTask::FinishTask(){
+TFile* file=FairRootManager::Instance()->GetOutFile();
+ file->mkdir("PndTpcEvtDeconvTask");
+ file->cd("PndTpcEvtDeconvTask");
+ hRetained->Write();delete  hRetained;
+ hFoundPhysics->Write();delete hFoundPhysics;
+ hFoundIDs->Write();delete hFoundIDs;
+
 }
-  
+
+
   
   
 

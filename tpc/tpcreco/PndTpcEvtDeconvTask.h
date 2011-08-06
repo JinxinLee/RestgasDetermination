@@ -30,7 +30,7 @@
 
 class TClonesArray;
 class TH1D;
-
+class TH1I;
 
 class PndTpcEvtDeconvTask : public FairTask {
 public:
@@ -53,10 +53,10 @@ public:
   void SetCuts(Double_t rcut, Double_t zcut){fRCut=rcut;fZCut=zcut;}
 
   virtual InitStatus Init();
-
   virtual void Exec(Option_t* opt);
+  virtual void FinishTask();
 
-  void WriteHistograms(const TString& fname) const;
+  
   
   
  private:
@@ -72,7 +72,9 @@ public:
   TClonesArray* fTrackArray;
   TClonesArray* fOutTrackArray;
 
-
+  TH1I* hRetained;
+  TH1I* hFoundPhysics;
+  TH1I* hFoundIDs;
 
   ClassDef(PndTpcEvtDeconvTask,1);
   
