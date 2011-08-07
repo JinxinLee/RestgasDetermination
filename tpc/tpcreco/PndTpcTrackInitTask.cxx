@@ -85,7 +85,7 @@ PndTpcTrackInitTask::PndTpcTrackInitTask()
     _TTplanecut(0.001),
     _riemannscale(24.6),
     _clusterBranchName("PndTpcCluster"),
-    _smoothing(false),
+    _smoothing(true),
     _geane(false),
     counter(0),
     Bz(0)
@@ -265,11 +265,13 @@ PndTpcTrackInitTask::Exec(Option_t* opt)
     // ceck if momentum high enough
     double p = trk->getMom(Bz);
     if (Bz==0) p=pbackup;
-    if(fabs(p)<1E-1) {
+    if(fabs(p)<0.1E-1) {
       if (fVerbose) std::cout<<" - skipping, momentum too small: "<<p*1E3<<" MeV"<<std::endl;
       continue;
     }
-
+    
+    unsigned int trackId = trk->mcid().DominantID().mctrackID();
+    int eventId = trk->mcid().DominantID().mceventID();
     // check pdg
     int winding = trk->winding(); // we look in z direction!
     int pdg = winding * 211; // Todo: pions hardcoded atm
@@ -342,9 +344,9 @@ PndTpcTrackInitTask::Exec(Option_t* opt)
     TVector3 poserr(0.3,0.3,0.3);
 
     TVector3 mom = p * direction;
-    TVector3 momerr(fabs(mom.X()),fabs(mom.Y()),fabs(mom.Z()));
+    double moma=mom.Mag();
+    TVector3 momerr(moma,moma,moma);
     momerr *= 1./TMath::Sqrt(nhits);
-
 
     double trackR = trk->r();
 
@@ -364,8 +366,10 @@ PndTpcTrackInitTask::Exec(Option_t* opt)
     }
 
     // set seed values to cands
-    pndcand->setTrackSeed(pos1,direction,1./p);
-
+    // pndcand->setTrackSeed(pos1,direction,1./p);
+    cand->setComplTrackSeed(pos1, mom, pdg, poserr, momerr);
+    if(eventId!=0)trackId+=10000;
+    cand->setMcTrackId(trackId);
     cand->setCurv(1./trackR); //  actually this is never used
     cand->setDip(trk->dip());
 
