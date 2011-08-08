@@ -809,6 +809,11 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     candlist.push_back(cand);
 
 
+    // delete track and hits
+    trk->deleteHits();
+    delete trk;
+
+
 
     // check Monte Carlo Truth
     McIdCollection mcid;
