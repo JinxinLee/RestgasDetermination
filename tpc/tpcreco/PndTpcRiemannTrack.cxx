@@ -561,7 +561,7 @@ PndTpcRiemannTrack::centerR() {
 
 
 double
-PndTpcRiemannTrack::distHelix(PndTpcRiemannHit* hit, bool calcPos, bool TwoPiCheck) const {
+PndTpcRiemannTrack::distHelix(PndTpcRiemannHit* hit, bool calcPos, bool TwoPiCheck, TVector3* POCA) const {
   if(!_isFitted && !_isInitialized) return 0.;
 
   double hit_angle=hit->getAngleOnHelix();
@@ -673,6 +673,10 @@ PndTpcRiemannTrack::distHelix(PndTpcRiemannHit* hit, bool calcPos, bool TwoPiChe
     ++i;
   }
 
+  if(POCA!=NULL){
+    POCA->SetXYZ(xHelix, yHelix, zHelix);
+  }
+
   return mindist;
 }
 
@@ -745,6 +749,22 @@ PndTpcRiemannTrack::pocaToZ() const {
   POCA.SetZ(_m*angle + _t);
 
   //std::cout<<"POCA "; POCA.Print();
+
+  return POCA;
+}
+
+
+TVector3
+PndTpcRiemannTrack::pocaToIP(double z) const {
+  TVector3 POCA(0,0,z);
+  if (!_isFitted) return POCA;
+
+  PndTpcCluster* TestCluster = new PndTpcCluster(POCA,1,0);
+  PndTpcRiemannHit* TestHit = new PndTpcRiemannHit(TestCluster);
+  double hDist(distHelix(TestHit,true, true, &POCA));
+
+  delete TestHit;
+  delete TestCluster;
 
   return POCA;
 }

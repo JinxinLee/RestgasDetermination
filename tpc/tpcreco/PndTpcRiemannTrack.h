@@ -81,7 +81,8 @@ class PndTpcRiemannTrack : public TObject{
   double getMom(double Bz) const; // get the magnitude of the momentum
   int winding() const; // +- 1; winding sense along z axis
 
-  TVector3 pocaToZ() const; // calc POCA to z-axis
+  TVector3 pocaToZ() const; // calc POCA to Z-Axis
+  TVector3 pocaToIP(double z=0) const; // calc POCA to (0,0,z)
 
   const McIdCollection& mcid() const {return _mcid;}
 
@@ -106,7 +107,7 @@ class PndTpcRiemannTrack : public TObject{
   // if use Arguments == false, the members _n and _c will be used for calculation
   double dist(PndTpcRiemannHit* hit, TVector3 n2=(0.,0.,0.), double c2=0, bool useArguments=false) const;
    
-  double distHelix(PndTpcRiemannHit* hit, bool calcPos=true, bool TwoPiCheck=false) const; // distance to helix
+  double distHelix(PndTpcRiemannHit* hit, bool calcPos=true, bool TwoPiCheck=false, TVector3* POCA = NULL) const; // distance to helix
   void Plot(bool standalone=true);
 
  private:

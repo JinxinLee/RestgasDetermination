@@ -709,7 +709,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       for (unsigned int i=0; i<friemannlist.size(); ++i){
         if (friemannlist[i]->getNumHits() <= _minpoints+1 ||
             (friemannlist[i]->getFirstHit()->cluster()->pos() -
-             friemannlist[i]->getLastHit()->cluster()->pos()).Mag() < 4.){
+             friemannlist[i]->getLastHit()->cluster()->pos()).Mag() < 2.){
           friemannlist[i]->deleteHits();
           delete friemannlist[i];
           friemannlist.erase(friemannlist.begin() + i);
@@ -808,7 +808,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       TVector3 old_track_pos, pos;
       TEveStraightLineSet* track_lines = NULL;
 
-      if(drawPOCA) old_track_pos = friemannlist[ir]->pocaToZ();
+      if(drawPOCA) old_track_pos = friemannlist[ir]->pocaToIP();
 
 
       for(unsigned int ih=0;ih<nhits;++ih){ // loop over clusters
