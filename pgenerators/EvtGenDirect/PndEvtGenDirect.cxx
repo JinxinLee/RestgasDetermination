@@ -88,7 +88,11 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, 
   EvtRandomEngine* myRandomEngine=0;
 
   // Make sure that the seed is always set if default value (-1) is used, JGM, August 2011
-  if (Seed<0) Seed = gRandom->GetSeed(); 
+  if (Seed<0) 
+    {
+      Seed = gRandom->GetSeed();
+      cout << "<I> Rnd Seed changed to " << Seed << endl;
+    } 
   myRandomEngine=new EvtRootRandomEngine(Seed);
 
   myGenerator=new EvtGen(defaultDECAY,defaultPDL,myRandomEngine);
