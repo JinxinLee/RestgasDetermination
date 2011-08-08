@@ -351,7 +351,10 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
 
   // clean up friemannlist!
   for(int i=0; i<friemannlist.size(); ++i){
-    if(friemannlist[i]!=NULL) delete friemannlist[i];
+    if(friemannlist[i]!=NULL) {
+      friemannlist[i]->deleteHits();
+      delete friemannlist[i];
+    }
   }
   friemannlist.clear();
 
@@ -807,12 +810,6 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     cand->setMcTrackId(trackId);
 
     candlist.push_back(cand);
-
-
-    // delete track and hits
-    trk->deleteHits();
-    delete trk;
-
 
 
     // check Monte Carlo Truth
