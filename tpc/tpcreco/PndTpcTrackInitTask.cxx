@@ -376,7 +376,7 @@ PndTpcTrackInitTask::Exec(Option_t* opt)
 
     TVector3 mom(p * direction);
     TVector3 momerr(fabs(mom.X()),fabs(mom.Y()),fabs(mom.Z()));
-    momerr *= trk->resolution();
+    momerr *= trk->resolution()*5.;
 
 
     double trackR = trk->r();
