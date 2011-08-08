@@ -62,6 +62,7 @@ double EvtRootRandomEngine::random(){
   return randengine.Rndm();
 }
 
+
 // -----   Default constructor   ------------------------------------------
 PndEvtGenDirect::PndEvtGenDirect() {
 	SetName("PndEvtGenDirect");
@@ -85,8 +86,10 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, 
   //Initialize the generator - read in the decay table and particle properties
   
   EvtRandomEngine* myRandomEngine=0;
-  if (Seed>=0)
-    myRandomEngine=new EvtRootRandomEngine(Seed);
+
+  // Make sure that the seed is always set if default value (-1) is used, JGM, August 2011
+  if (Seed<0) Seed = gRandom->GetSeed(); 
+  myRandomEngine=new EvtRootRandomEngine(Seed);
 
   myGenerator=new EvtGen(defaultDECAY,defaultPDL,myRandomEngine);
 
