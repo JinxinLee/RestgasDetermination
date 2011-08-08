@@ -69,6 +69,7 @@
 using namespace std;
 
 // Class Member definitions -----------
+#define PDGDEFAULT 211
 
 ClassImp(PndTpcTrackInitTask)
 
@@ -87,6 +88,7 @@ PndTpcTrackInitTask::PndTpcTrackInitTask()
     _clusterBranchName("PndTpcCluster"),
     _smoothing(true),
     _geane(false),
+  _pdg(PDGDEFAULT),
     counter(0),
     Bz(0)
   {
@@ -272,10 +274,31 @@ PndTpcTrackInitTask::Exec(Option_t* opt)
     
     unsigned int trackId = trk->mcid().DominantID().mctrackID();
     int eventId = trk->mcid().DominantID().mceventID();
+    
+    if(eventId!=0)trackId+=10000;
+
     // check pdg
     int winding = trk->winding(); // we look in z direction!
-    int pdg = winding * 211; // Todo: pions hardcoded atm
+    int pdg(_pdg);
+    
+    double pdgCharge(TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.);
+
     if(Bz<0) pdg *= -1;
+
+   if (pdgCharge < 0) {
+      pdg *= -1;
+      pdgCharge *= -1.;
+    }
+    if (winding > 0) {
+      pdg *= -1;
+      pdgCharge *= -1.;
+    }
+    if (Bz < 0) {
+      pdg *= -1;
+      pdgCharge *= -1.;
+    }
+
+
 
     // if(_mcPid){ // monte carlo PID
 //       unsigned int trackId = trk->mcid().DominantID().mctrackID();
@@ -297,56 +320,64 @@ PndTpcTrackInitTask::Exec(Option_t* opt)
 //       }
 //     }
 
+  // check sorting
+    bool invertTrack(true);
+
+    TVector3 ps1=trk->getFirstHit()->cluster()->pos();
+    TVector3 ps2=trk->getLastHit()->cluster()->pos();
+
+    if(ps1.Z() < ps2.Z()-7) invertTrack = false;
+    else if(ps1.Z() > ps2.Z()+7) invertTrack = true;
+    else if (ps1.Perp()>ps2.Perp()+5) invertTrack = true;
+    else if (ps1.Perp()<ps2.Perp()) invertTrack = false;
+    else invertTrack = true;
+
+    if (invertTrack){
+      winding*=-1;
+      pdg *= -1;
+      pdgCharge *= -1;
+    }
+
+
+    TParticlePDG * part = TDatabasePDG::Instance()->GetParticle(pdg);
+    if(part == 0){
+      if (fVerbose) std::cout << " - skipping, unknown PDG id: " << pdg;
+      continue;
+    }
+
+ 
+
+
     if (fVerbose) std::cout<<std::endl;
 
-
-    // store pndtracks and pndcands in output array
-    PndTrackCand* pndcand=new((*_trackCandArray)[_trackCandArray->GetEntriesFast()]) PndTrackCand();
-    PndTrack* pndtrack=new((*_pndTrackArray)[_pndTrackArray->GetEntriesFast()]) PndTrack();
-    pndtrack->SetTrackCand(*pndcand);
-
-    // create GFTrackCands
+  // create GFTrackCands
     GFTrackCand* cand=new GFTrackCand();
 
-    // fill hits into GFTrackCands and pndcands from small to big Radius
-    bool invertedTrack = false;
-    double r1=trk->getHit(0)->cluster()->pos().Perp();
-    double r2=trk->getHit(nhits-1)->cluster()->pos().Perp();
-    if(r1<=r2){
+    // fill hits into GFTrackCands and pndcands  and get seed values
+    TVector3 pos1, direction;
+
+    if(!invertTrack){
       for(unsigned int ih=0; ih<nhits; ++ih){
         cand->addHit(FairRootManager::Instance()->GetBranchId("PndTpcCluster"),trk->getHit(ih)->cluster()->index());
-        //pndcand->AddHit(FairRootManager::Instance()->GetBranchId("PndTpcCluster"),trk->getHit(ih)->cluster()->index(),trk->getHit(ih)->cluster()->pos().Mag()); // todo: fix issues
       }
+      trk->getPosDirOnHelix(0, pos1, direction);
     }
-    else {
+    else { // invert track
       for(unsigned int ih=nhits; ih>0; --ih){
         cand->addHit(FairRootManager::Instance()->GetBranchId("PndTpcCluster"),trk->getHit(ih-1)->cluster()->index());
-        //pndcand->AddHit(FairRootManager::Instance()->GetBranchId("PndTpcCluster"),trk->getHit(ih-1)->cluster()->index(),trk->getHit(ih-1)->cluster()->pos().Mag());// todo: fix issues
       }
-      invertedTrack = true;
+      trk->getPosDirOnHelix(trk->getNumHits()-1, pos1, direction);
+      direction *= -1.;
     }// finished filling hits
 
 
-    // get seed values
+   TVector3 poserr(1,1,1);
+    poserr*=trk->resolution();
 
-    TVector3 pos1, direction;
+    TVector3 mom(p * direction);
+    TVector3 momerr(fabs(mom.X()),fabs(mom.Y()),fabs(mom.Z()));
+    momerr *= trk->resolution();
 
-    // the start direction has to point opposite to the actual direction, I don't know why, but otherwise the charge is wrong
-    if(invertedTrack) {
-      trk->getPosDirOnHelix(trk->getNumHits()-1, pos1, direction);
-    }
-    else {
-      trk->getPosDirOnHelix(0, pos1, direction);
-      direction *= -1.;
-      winding*=-1.;
-    }
-
-    TVector3 poserr(0.3,0.3,0.3);
-
-    TVector3 mom = p * direction;
-    double moma=mom.Mag();
-    TVector3 momerr(moma,moma,moma);
-    momerr *= 1./TMath::Sqrt(nhits);
 
     double trackR = trk->r();
 
@@ -361,17 +392,15 @@ PndTpcTrackInitTask::Exec(Option_t* opt)
       std::cout<<"\n  p_perp [GeV]:   " << trackR*0.0003*TMath::Abs(Bz);
       std::cout<<"\n  direction: "; direction.Print();
       std::cout<<"  winding: "<<winding;
-      std::cout<<"\n  invertedTrack: "<<invertedTrack;
+      std::cout<<"\n  invertTrack: "<<invertTrack;
       std::cout<<"\n  pdg id: "<<pdg<<std::endl;
     }
 
-    // set seed values to cands
-    // pndcand->setTrackSeed(pos1,direction,1./p);
-    cand->setComplTrackSeed(pos1, mom, pdg, poserr, momerr);
-    if(eventId!=0)trackId+=10000;
-    cand->setMcTrackId(trackId);
-    cand->setCurv(1./trackR); //  actually this is never used
+     // set seed values to cands
+    cand->setCurv(1./trackR);
     cand->setDip(trk->dip());
+    cand->setComplTrackSeed(pos1, mom, pdg, poserr, momerr*(1./p));
+    cand->setMcTrackId(trackId);
 
     //RK TRACKREP
     RKTrackRep* rkrep = new RKTrackRep(pos1, mom, poserr, momerr,pdg);
@@ -403,7 +432,6 @@ PndTpcTrackInitTask::Exec(Option_t* opt)
       GFDetPlane pl(pos1,u,v);
 
       // charge (for geane)
-      TParticlePDG * part = TDatabasePDG::Instance()->GetParticle(pdg);
       int q = int(part->Charge()/(3.));
 
       GeaneTrackRep* grep = new GeaneTrackRep(gPro,pl,mom,poserr,momerr,q,pdg);
