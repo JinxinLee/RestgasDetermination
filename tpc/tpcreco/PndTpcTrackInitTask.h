@@ -91,7 +91,7 @@ public:
   virtual void Exec(Option_t* opt);
   
   void useGeane(Bool_t geane=kTRUE) {_geane=geane;}
-
+  void SetPDG(int pdg) {_pdg=pdg;} // use hypothesis
   void SetStoreHistograms(TString file);
 
   void WriteHistograms(const TString& filename);
@@ -118,7 +118,7 @@ private:
 
  
   Bool_t _persistence;
- 
+  int _pdg;
   Bool_t _geane;
 
   double fMins[4];

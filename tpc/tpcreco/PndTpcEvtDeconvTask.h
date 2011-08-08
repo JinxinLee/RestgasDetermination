@@ -23,9 +23,12 @@
 
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
+#include <map>
+#include <vector>
 
 // Collaborating Class Declarations --
 #include "PndTpcRiemannTrack.h"
+
 
 
 class TClonesArray;
@@ -51,6 +54,8 @@ public:
     
   void SetPersistence(Bool_t opt=kTRUE) {fPersistence=opt;}
   void SetCuts(Double_t rcut, Double_t zcut){fRCut=rcut;fZCut=zcut;}
+  void SetNExpectedTracks(unsigned n){fNExpectedTracks=n;}
+  void SetZCutBinning(unsigned int n, double step){fnz=n;fdz=step;}
 
   virtual InitStatus Init();
   virtual void Exec(Option_t* opt);
@@ -72,6 +77,17 @@ public:
   TClonesArray* fTrackArray;
   TClonesArray* fOutTrackArray;
 
+  // number of tracks /full events kept for different z-cuts
+  std::vector<double> fZCuts; // values of zcuts
+  std::vector<unsigned int> fNSingleTrackPhys;
+  std::vector<unsigned int> fNSingleTrackBkg;
+  std::vector<unsigned int> fNFullEvent;
+  // prepare lists of tracks surviving different z cuts
+  std::vector<std::vector<unsigned int>* > fsurvivormap; // key: z-cut value: survivors
+  unsigned int fnz; // number of different values for zcut
+  double fdz; // distance between zcut values
+  unsigned int fNExpectedTracks;
+  unsigned int fevtcounter;
   TH1I* hRetained;
   TH1I* hFoundPhysics;
   TH1I* hFoundIDs;

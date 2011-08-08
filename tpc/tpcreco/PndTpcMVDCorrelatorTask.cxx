@@ -274,6 +274,7 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
 		      tempCand[im].begin()->second.begin()->first); //hit in array
     }
     
+    mvdCand->setMcTrackId(track->getCand().getMcTrackId());
     // copy track and set new candidate
     GFTrack* outTrack = new GFTrack(*track);
     outTrack->clearBookkeeping();

@@ -10,7 +10,7 @@
 //      Software developed for the PANDA Detector at FAIR.
 //
 // Author List:
-//      Felix Boehmer
+//      Sebastian Neubert
 //
 //-----------------------------------------------------------
 
@@ -29,8 +29,11 @@
 #include "TMath.h"
 #include "TH1D.h"
 #include "TH1I.h"
+#include "TGraph.h"
 
 // Class Member definitions -----------
+
+using namespace std;
 
 #define DEBUG 0
 
@@ -46,6 +49,11 @@ PndTpcEvtDeconvTask::PndTpcEvtDeconvTask()
 
 PndTpcEvtDeconvTask::~PndTpcEvtDeconvTask()
 {
+  unsigned int n=fsurvivormap.size();
+  for(unsigned int i=0;i<n;++i){
+       fsurvivormap[i]->clear();
+       delete fsurvivormap[i];
+     } // end loop over survivor map
 }
 
 InitStatus
@@ -80,7 +88,21 @@ PndTpcEvtDeconvTask::Init()
 		      200,0,200);
   hFoundPhysics= new TH1I("hFoundPhysics","Found Physics tracklets",
 			  10,0,10);
-  hFoundIDs= new TH1I("hFoundID","Number of physics tracks with at leaast one found tracklet", 10,0,10);
+  hFoundIDs= new TH1I("hFoundID","Number of physics tracks with at least one found tracklet", 10,0,10);
+
+  
+  // prepare efficiency / purity statistics
+  fNSingleTrackPhys.resize(fnz);
+  fNSingleTrackBkg.resize(fnz);
+  fNFullEvent.resize(fnz);
+  for(unsigned int i=0; i<fnz;++i){
+    double zcut=((double)i+1.)*fdz;
+    //cout << "Cut: " << zcut << endl;
+    fZCuts.push_back(zcut);
+    fsurvivormap.push_back(new vector<unsigned int>());
+  }
+
+  fevtcounter=0;
 
   return kSUCCESS;
 }
@@ -96,6 +118,8 @@ PndTpcEvtDeconvTask::Exec(Option_t* opt)
   unsigned int retainedPileup=0;
   McIdCollection physicsID;
   unsigned int ntracks = fTrackArray->GetEntries(); 
+
+
   std::cout<< ntracks << " track candidates in mixed event" << std::endl;
   //loop over tracks
   for(unsigned int itr=0;  itr<ntracks; itr++) {
@@ -111,8 +135,16 @@ PndTpcEvtDeconvTask::Exec(Option_t* opt)
       std::cout << "Physics tracklet: " << track->mcid().DominantID() << "  z="<< poca.Z() << "   r=" << poca.Perp() << std::endl;
     }
 
-    // cut:
-    if(poca.Perp()>fRCut)continue;
+     if(poca.Perp()>fRCut)continue;
+
+     unsigned int ns=fsurvivormap.size();
+     for(unsigned int is=0;is<ns;++is){
+       double cut=fZCuts[is];
+       if(TMath::Abs(poca.Z())<cut)fsurvivormap[is]->push_back(itr);
+     } // end loop over survivor map
+
+
+    // do actual cut:
     if(TMath::Abs(poca.Z())>fZCut)continue;
 
     // survived cuts -> store track
@@ -127,6 +159,38 @@ PndTpcEvtDeconvTask::Exec(Option_t* opt)
     new((*fOutTrackArray)[fOutTrackArray->GetEntries()]) PndTpcRiemannTrack(*track);
   } //end loop over tracks
   
+  // loop over survivors to build efficiencies and 
+  // purities of the target pointing
+  
+  unsigned int nz=fsurvivormap.size();
+  for(unsigned int iz=0;iz<nz;++iz){
+    McIdCollection MyphysicsID;
+    unsigned int nsurv=fsurvivormap[iz]->size();
+    unsigned int nphys=0;
+    unsigned int nbkg=0;
+    // check how many physics tracklets
+    for(unsigned int is=0;is<nsurv;++is){
+      unsigned int trckid=fsurvivormap[iz]->at(is);
+      PndTpcRiemannTrack* track = (PndTpcRiemannTrack*) (*fTrackArray)[trckid];
+      if(track->mcid().DominantID().mceventID()!=0)++nbkg;
+      // let's disregard secondaries from physics event
+      else if(track->mcid().DominantID().mcsecID()==0){
+	++nphys;
+	MyphysicsID.AddID(track->mcid().DominantID());
+      }
+    }
+    if(nphys>4){cerr << "EvtDeconvTask:: More than 4 primary tracks!!!" << endl;}
+
+    // store numbers for this cut setting
+    fNSingleTrackPhys[iz]+=nphys;
+    fNSingleTrackBkg[iz]+=nbkg;
+    if(MyphysicsID.nIDs()==fNExpectedTracks)fNFullEvent[iz]+=1;
+
+    // clear survivor map
+    fsurvivormap[iz]->clear();
+  } // end loop over survivormap
+
+
   std::cout << "Retained "<< fOutTrackArray->GetEntries() << " tracklets in physics event (PR found "<<ntracks<<")" << std::endl;
   std::cout << foundPhysics << " true physics tracklets (PR found "<< presentPhysics <<")"<< std::endl;
   std::cout << "... containing "<< physicsID.nIDs() << " different MCtrackIDs" << std::endl; 
@@ -136,10 +200,9 @@ PndTpcEvtDeconvTask::Exec(Option_t* opt)
   hFoundIDs->Fill(physicsID.nIDs());
 
   std::cout << retainedPileup << " pileup tracklets" << std::endl<< std::endl;
+  std::cout<<"PndTpcEvtDeconvTask::Exec ... finished"<<std::endl;
 
-  
-
-    std::cout<<"PndTpcEvtDeconvTask::Exec ... finished"<<std::endl;
+  ++fevtcounter;
 
   return;
 }
@@ -152,6 +215,24 @@ TFile* file=FairRootManager::Instance()->GetOutFile();
  hRetained->Write();delete  hRetained;
  hFoundPhysics->Write();delete hFoundPhysics;
  hFoundIDs->Write();delete hFoundIDs;
+ // evaluate statistics
+ TGraph* geffpur=new TGraph(fNSingleTrackPhys.size());
+ geffpur->SetTitle("Single track efficiency / purity");
+ TGraph* gEvteff=new TGraph(fNSingleTrackPhys.size());
+ gEvteff->SetTitle("Full event deconvolution efficiency");
+ 
+ unsigned int ns=fsurvivormap.size();
+ for(unsigned int is=0;is<ns;++is){
+   double zcut=fZCuts[is];
+   unsigned int nbkg=fNSingleTrackBkg[is];
+   unsigned int nphys=fNSingleTrackPhys[is];
+   double eff=(double)nphys/(double)(fNExpectedTracks*fevtcounter); // 
+   double pur=1. -  (double)nbkg/(double)(nbkg+nphys);
+   geffpur->SetPoint(is,eff,pur);  
+   gEvteff->SetPoint(is,zcut,fNFullEvent[is]/(double)fevtcounter);
+ }
+ geffpur->Write("geffpur");
+ gEvteff->Write("gEvteff");
 
 }
 
