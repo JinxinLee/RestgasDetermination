@@ -31,27 +31,27 @@ void run_ana_eta_c_tpc(int nevts=0)
 	// the PndEventReader takes care about file/event handling
 	PndEventReader evr(inPidFile);
 
-	TH1F *h_etac_nocut=new TH1F("h_etac_nocut","m(eta_c), (no cuts);E, GeV",100,2.5,3.5);
-	TH1F *h_mphi_nocuts=new TH1F("h_mphi_nocuts","#phi: m(K+ K-) (no cuts)",100,0.95,1.5);
+	TH1F *h_etac_nocut=new TH1F("h_etac_nocut","#eta_{c}m(#phi,#phi), (no cuts);E, GeV",100,2.5,3.5);
+	TH1F *h_mphi_nocuts=new TH1F("h_mphi_nocuts","#phi: m(K+ K-) (no cuts);E, GeV",100,0.95,1.5);
 
-	TH1F *h_etac_pid=new TH1F("h_etac_pid","m(eta_c), (MC PID);E, GeV",100,2.5,3.5);
-	TH1F *h_mphi_pid=new TH1F("h_mphi_pid","#phi: m(K+ K-) (MC PID)",100,0.95,1.5);
+	TH1F *h_etac_pid=new TH1F("h_etac_pid","#eta_{c}m(#phi,#phi), (MC PID);E, GeV",100,2.5,3.5);
+	TH1F *h_mphi_pid=new TH1F("h_mphi_pid","#phi: m(K+ K-) (MC PID);E, GeV",100,0.95,1.5);
 	
-	TH1F *h_etac_4c=new TH1F("h_etac_4c","m(eta_c), 4C-fit",100,2.5,3.5);
-	TH1F *h_etac_4c_refit=new TH1F("h_etac_4c_refit","m(eta_c), 4C-fit",100,2.5,3.5);
-	TH1F *h_mphi_4c=new TH1F("h_mphi_4c","#phi: m(K+ K-) (4C-fit)",100,0.95,1.5);
+	TH1F *h_etac_4c=new TH1F("h_etac_4c","#eta_{c}m(#phi,#phi), 4C-fit;E, GeV",100,2.5,3.5);
+	TH1F *h_etac_4c_refit=new TH1F("h_etac_4c_refit","#eta_{c}m(#phi,#phi), 4C-fit;E, GeV",100,2.5,3.5);
+	TH1F *h_mphi_4c=new TH1F("h_mphi_4c","#phi: m(K+ K-) (4C-fit);E, GeV",100,0.95,1.5);
 	
-	TH1F *h_etac_vtx=new TH1F("h_etac_vtx","m(eta_c), Vertex fit",100,2.5,3.5);
-	TH1F *h_mphi_vtx=new TH1F("h_mphi_vtx","#phi: m(K+ K-) (Vertex fit)",100,0.95,1.5);
+	TH1F *h_etac_vtx=new TH1F("h_etac_vtx","#eta_{c}m(#phi,#phi), Vertex fit;E, GeV",100,2.5,3.5);
+	TH1F *h_mphi_vtx=new TH1F("h_mphi_vtx","#phi: m(K+ K-) (Vertex fit);E, GeV",100,0.95,1.5);
 			
-	TH1F *h_etac_phimass_4c=new TH1F("h_etac_phimass_4c","m(eta_c), (cut on #phi mass);E,	GeV",100,2.8,3.2);
-	TH1F *h_mphi_final_4c=new TH1F("h_mphi_final_4c","#phi: m(K+ K-)",100,0.95,1.1);
+	TH1F *h_etac_phimass_4c=new TH1F("h_etac_phimass_4c","#eta_{c}m(#phi,#phi), (cut on #phi mass);E,	GeV",100,2.8,3.2);
+	TH1F *h_mphi_final_4c=new TH1F("h_mphi_final_4c","#phi: m(K+ K-);E, GeV",100,0.95,1.1);
 
-	TH1F *h_etac_phimass_vtx=new TH1F("h_etac_phimass_vtx","m(eta_c), (cut on #phi mass);E,	GeV",100,2.8,3.2);
-	TH1F *h_mphi_final_vtx=new TH1F("h_mphi_final_vtx","#phi: m(K+ K-)",100,0.95,1.1);
+	TH1F *h_etac_phimass_vtx=new TH1F("h_etac_phimass_vtx","#eta_{c}m(#phi,#phi), (cut on #phi mass);E,	GeV",100,2.8,3.2);
+	TH1F *h_mphi_final_vtx=new TH1F("h_mphi_final_vtx","#phi: m(K+ K-);E, GeV",100,0.95,1.1);
 
-	TH1F *h_etac_phimassfit=new TH1F("h_etac_phimassfit","m(eta_c);E, GeV",100,2.8,3.2);
-	TH1F *h_mphi_final_massfit=new TH1F("h_mphi_final_massfit","#phi: m(K+ K-)",100,0.95,1.1);
+	TH1F *h_etac_phimassfit=new TH1F("h_etac_phimassfit","#eta_{c}m(#phi,#phi);E, GeV",100,2.8,3.2);
+	TH1F *h_mphi_final_massfit=new TH1F("h_mphi_final_massfit","#phi: m(K+ K-);E, GeV",100,0.95,1.1);
 
 	TH1F *nc=new TH1F("nc","n charged",20,0,20);
 

@@ -3,7 +3,7 @@
 	TString inFile="etac_histo_tpc.root";
 	
 	TFile *f = TFile::Open(inFile);
-
+	
 	TH1F *h_etac_nocut=(TH1F *)f->Get("h_etac_nocut");
 	TH1F *h_etac_pid=(TH1F *)f->Get("h_etac_pid");
 	TH1F *h_etac_vtx=(TH1F *)f->Get("h_etac_vtx");
@@ -55,35 +55,66 @@
 	TCanvas *c2=new TCanvas("c2","No cuts",600,600);
 	c2->Divide(1,2);
 	c2->cd(1);
+	h_mphi_nocuts->SetTitleSize(18);
+	h_mphi_nocuts->GetXaxis()->SetTitleSize(0.05);
+	h_mphi_nocuts->GetXaxis()->SetLabelSize(0.06);
+	h_mphi_nocuts->GetXaxis()->SetTitleSize(0.05);
+	h_mphi_nocuts->GetYaxis()->SetLabelSize(0.06);
 	h_mphi_nocuts->Draw();
+	TLine *l1=new TLine(1.12,0,1.12,35000);
+	l1->SetLineColor(2);
+	l1->SetLineWidth(2);
+	l1->Draw();
+	
 	c2->cd(2);
+	h_etac_nocut->SetTitleSize(18);
+	h_etac_nocut->GetXaxis()->SetTitleSize(0.05);
+	h_etac_nocut->GetXaxis()->SetLabelSize(0.06);
+	h_etac_nocut->GetXaxis()->SetTitleSize(0.05);
+	h_etac_nocut->GetYaxis()->SetLabelSize(0.06);
 	h_etac_nocut->Draw();
 	if (saveHistos) c2->SaveAs("m_nocuts_tpc.png");
 	
 	TCanvas *c3=new TCanvas("c3","MC PID",600,600);
 	c3->Divide(1,2);
 	c3->cd(1);
+	h_mphi_pid->SetTitleSize(18);
+	h_mphi_pid->GetXaxis()->SetTitleSize(0.05);
+	h_mphi_pid->GetXaxis()->SetLabelSize(0.06);
+	h_mphi_pid->GetXaxis()->SetTitleSize(0.05);
+	h_mphi_pid->GetYaxis()->SetLabelSize(0.06);
 	h_mphi_pid->Draw();
+
+	TLine *l2=new TLine(1.12,0,1.12,35000);
+	l2->SetLineColor(2);
+	l2->SetLineWidth(2);
+	l2->Draw();
+
 	c3->cd(2);
+	h_etac_pid->SetTitleSize(18);
+	h_etac_pid->GetXaxis()->SetTitleSize(0.05);
+	h_etac_pid->GetXaxis()->SetLabelSize(0.06);
+	h_etac_pid->GetXaxis()->SetTitleSize(0.05);
+	h_etac_pid->GetYaxis()->SetLabelSize(0.06);
 	h_etac_pid->Draw();
 	if (saveHistos) c3->SaveAs("m_pid_tpc.png");
 
 	//////////// 4C-fit fit ////////////////////////////////
-	TCanvas *c4=new TCanvas("c4","chi2 (4C-fit)",600,600);
-	c4->Divide(2,1);
-	c4->cd(1);
-	h_chi2_4c->Draw();
-	c4->cd(2);
-	h_chi2b_4c->Draw();
-	if (saveHistos) c4->SaveAs("chi2_4c_tpc.png");
-
-	TCanvas *c5=new TCanvas("c5","m (4C-fit)",600,600);
-	c5->Divide(1,2);
-	c5->cd(1);
-	h_mphi_4c->Draw();
-	c5->cd(2);
-	h_etac_4c->Draw();
-	if (saveHistos) c5->SaveAs("m_4c_tpc.png");
+// 	TCanvas *c4=new TCanvas("c4","chi2 (4C-fit)",600,600);
+// 	c4->Divide(2,1);
+// 	c4->cd(1);
+// 	h_chi2_4c->Draw();
+// 	c4->cd(2);
+// 	h_chi2b_4c->Draw();
+// 	if (saveHistos) c4->SaveAs("chi2_4c_tpc.png");
+// 
+// 	TCanvas *c5=new TCanvas("c5","m (4C-fit)",600,600);
+// 	c5->Divide(1,2);
+// 	c5->cd(1);
+// 	h_mphi_4c->Draw();
+// 	c5->cd(2);
+// 	h_etac_4c->Draw();
+// 	if (saveHistos) c5->SaveAs("m_4c_tpc.png");
 
 	//////////// Vetrex fit ////////////////////////////////
 	TCanvas *c6=new TCanvas("c6","Vertex position",600,600);
@@ -94,13 +125,13 @@
 	hvzpos->Draw();
 	if (saveHistos) c6->SaveAs("vertex_pos_tpc.png");
 	
-	TCanvas *c7=new TCanvas("c7","Vertex fit chi2",600,600);
-	c7->Divide(2,1);
-	c7->cd(1);
-	h_chi2_vtx->Draw();
-	c7->cd(2);
-	h_chi2b_vtx->Draw();
-	if (saveHistos) c7->SaveAs("chi2_vtx_tpc.png");
+// 	TCanvas *c7=new TCanvas("c7","Vertex fit chi2",600,600);
+// 	c7->Divide(2,1);
+// 	c7->cd(1);
+// 	h_chi2_vtx->Draw();
+// 	c7->cd(2);
+// 	h_chi2b_vtx->Draw();
+// 	if (saveHistos) c7->SaveAs("chi2_vtx_tpc.png");
 	
 	TCanvas *c8=new TCanvas("c8","Vertex resolution",600,600);
 	c8->Divide(2,2);
@@ -140,13 +171,25 @@
 	double mean_z2=f2_vtxz->GetParameter(1);
 	double sigma_z2=f2_vtxz->GetParameter(2);
 	std::cout<<"!!!!!!!!!! vertex z resolution = "<<sigma_z2<<std::endl;
+	
+	
 	if (saveHistos) c8->SaveAs("vertex_res_tpc.png");
 	
 	TCanvas *c9=new TCanvas("c9","m vertex",600,600);
 	c9->Divide(1,2);
 	c9->cd(1);
+	h_mphi_vtx->SetTitleSize(18);
+	h_mphi_vtx->GetXaxis()->SetTitleSize(0.05);
+	h_mphi_vtx->GetXaxis()->SetLabelSize(0.06);
+	h_mphi_vtx->GetXaxis()->SetTitleSize(0.05);
+	h_mphi_vtx->GetYaxis()->SetLabelSize(0.06);
 	h_mphi_vtx->Draw();
 	c9->cd(2);
+	h_etac_vtx->SetTitleSize(18);
+	h_etac_vtx->GetXaxis()->SetTitleSize(0.05);
+	h_etac_vtx->GetXaxis()->SetLabelSize(0.06);
+	h_etac_vtx->GetXaxis()->SetTitleSize(0.05);
+	h_etac_vtx->GetYaxis()->SetLabelSize(0.06);
 	h_etac_vtx->Draw();
 	if (saveHistos) c9->SaveAs("m_vtx_tpc.png");
 
@@ -155,50 +198,56 @@
 	double sigma1, mean1, sigma2;
 	
 	//////////////////// 4C fit ////////////////
-	TCanvas *c10=new TCanvas("c10","Mass final (4C-fit)",600,600);
-	c10->Divide(1,2);
-	c10->cd(1);
-	h_mphi_final_4c->Draw();
-	
-	mean_phi=1.02;
-	range_phi=0.02;
-	
-	TF1 *f1_phi_4c = new TF1("f1_phi_4c","gaus",0.9,1.1);
-	h_mphi_final_4c->Fit(f1_phi_4c,"R","",mean_phi-range_phi,mean_phi+range_phi);
-	
-	sigma1_phi=f1_phi_4c->GetParameter(2);
-	mean1_phi=f1_phi_4c->GetParameter(1);
-	
-	TF1 *f2_phi_4c = new TF1("f2_phi_4c","gaus",0.9,1.1);
-	h_mphi_final_4c->Fit(f2_phi_4c,"R","",mean1_phi-1.6*sigma1_phi,mean1_phi+1.6*sigma1_phi);
-
-	sigma2_phi=f2_phi_4c->GetParameter(2);
-	std::cout<<"!!!!!!!!!!!!!!!! sigma phi (4c-fit)="<<sigma2_phi<<std::endl;
-
-	c10->cd(2);
-	h_etac_phimass_4c->Draw();
-	// fit eta_c
-	mean_etac=2.98;
-	range_etac=0.1;
-	
-	TF1 *f1_4c = new TF1("f1_4c","gaus",2.8,3.2);
-	h_etac_phimass_4c->Fit(f1_4c,"R","",mean_etac-range_etac,mean_etac+range_etac);
-	
-	sigma1=f1_4c->GetParameter(2);
-	mean1=f1_4c->GetParameter(1);
-	
-	TF1 *f2_4c = new TF1("f2_4c","gaus",2.8,3.2);
-	h_etac_phimass_4c->Fit(f2_4c,"R","",mean1-1.6*sigma1,mean1+1.6*sigma1);
-
-	sigma2=f2_4c->GetParameter(2);
-	std::cout<<"!!!!!!!!!!!!! sigma eta_c (4c-fit) ="<<sigma2<<std::endl;
-	
-	if (saveHistos) c10->SaveAs("m_final_4c_tpc.png");
+// 	TCanvas *c10=new TCanvas("c10","Mass final (4C-fit)",600,600);
+// 	c10->Divide(1,2);
+// 	c10->cd(1);
+// 	h_mphi_final_4c->Draw();
+// 	
+// 	mean_phi=1.02;
+// 	range_phi=0.02;
+// 	
+// 	TF1 *f1_phi_4c = new TF1("f1_phi_4c","gaus",0.9,1.1);
+// 	h_mphi_final_4c->Fit(f1_phi_4c,"R","",mean_phi-range_phi,mean_phi+range_phi);
+// 	
+// 	sigma1_phi=f1_phi_4c->GetParameter(2);
+// 	mean1_phi=f1_phi_4c->GetParameter(1);
+// 	
+// 	TF1 *f2_phi_4c = new TF1("f2_phi_4c","gaus",0.9,1.1);
+// 	h_mphi_final_4c->Fit(f2_phi_4c,"R","",mean1_phi-1.6*sigma1_phi,mean1_phi+1.6*sigma1_phi);
+// 
+// 	sigma2_phi=f2_phi_4c->GetParameter(2);
+// 	std::cout<<"!!!!!!!!!!!!!!!! sigma phi (4c-fit)="<<sigma2_phi<<std::endl;
+// 
+// 	c10->cd(2);
+// 	h_etac_phimass_4c->Draw();
+// 	// fit eta_c
+// 	mean_etac=2.98;
+// 	range_etac=0.1;
+// 	
+// 	TF1 *f1_4c = new TF1("f1_4c","gaus",2.8,3.2);
+// 	h_etac_phimass_4c->Fit(f1_4c,"R","",mean_etac-range_etac,mean_etac+range_etac);
+// 	
+// 	sigma1=f1_4c->GetParameter(2);
+// 	mean1=f1_4c->GetParameter(1);
+// 	
+// 	TF1 *f2_4c = new TF1("f2_4c","gaus",2.8,3.2);
+// 	h_etac_phimass_4c->Fit(f2_4c,"R","",mean1-1.6*sigma1,mean1+1.6*sigma1);
+// 
+// 	sigma2=f2_4c->GetParameter(2);
+// 	std::cout<<"!!!!!!!!!!!!! sigma eta_c (4c-fit) ="<<sigma2<<std::endl;
+// 	
+// 	if (saveHistos) c10->SaveAs("m_final_4c_tpc.png");
 	
 	//////////////////// Vertex fit ////////////////
 	TCanvas *c11=new TCanvas("c11","Mass final (Vertex fit)",600,600);
 	c11->Divide(1,2);
 	c11->cd(1);
+	h_mphi_final_vtx->SetTitleSize(18);
+	h_mphi_final_vtx->GetXaxis()->SetTitleSize(0.05);
+	h_mphi_final_vtx->GetXaxis()->SetLabelSize(0.06);
+	h_mphi_final_vtx->GetXaxis()->SetTitleSize(0.05);
+	h_mphi_final_vtx->GetYaxis()->SetLabelSize(0.06);
+
 	h_mphi_final_vtx->Draw();
 	
 	mean_phi=1.02;
@@ -215,8 +264,25 @@
 
 	sigma2_phi=f2_phi_vtx->GetParameter(2);
 	std::cout<<"!!!!!!!!!!!! sigma phi (vertex fit)="<<sigma2_phi<<std::endl;
+	
+	TLine *l3=new TLine(1.0,0,1.0,7000);
+	l3->SetLineColor(4);
+	l3->SetLineWidth(2);
+	l3->Draw();
+
+	TLine *l4=new TLine(1.04,0,1.04,7000);
+	l4->SetLineColor(4);
+	l4->SetLineWidth(2);
+	l4->Draw();
+	
 
 	c11->cd(2);
+	h_etac_phimass_vtx->SetTitleSize(18);
+	h_etac_phimass_vtx->GetXaxis()->SetTitleSize(0.05);
+	h_etac_phimass_vtx->GetXaxis()->SetLabelSize(0.06);
+	h_etac_phimass_vtx->GetXaxis()->SetTitleSize(0.05);
+	h_etac_phimass_vtx->GetYaxis()->SetLabelSize(0.06);
+	
 	h_etac_phimass_vtx->Draw();
 	// fit eta_c
 	mean_etac=2.98;
@@ -233,6 +299,16 @@
 
 	sigma2=f2_vtx->GetParameter(2);
 	std::cout<<"!!!!!!!!!!!!!!! sigma eta_c (vertex fit) ="<<sigma2<<std::endl;
+	
+	TLine *l5=new TLine(2.9,0,2.9,2200);
+	l5->SetLineColor(4);
+	l5->SetLineWidth(2);
+	l5->Draw();
+
+	TLine *l6=new TLine(3.06,0,3.06,2200);
+	l6->SetLineColor(4);
+	l6->SetLineWidth(2);
+	l6->Draw();
 	
 	if (saveHistos) c11->SaveAs("m_final_vtx_tpc.png");
 	
