@@ -118,14 +118,14 @@ PndTpcNoiseTask::Exec(Option_t* opt)
   
   //Int_t nPrim = fprimArray->GetEntriesFast();
   int nNoise=(int)floor(fOcc*fVox);
-  std::cout<<"$*#($#(*$_@#$*(_@#_$"    <<nNoise<<std::endl;
+  std::cout<<"nNoise: "    <<nNoise<<std::endl;
      
-  TRandom3 randm;
-  randm.SetSeed(12345);
+  TRandom3 randm(0);
   TVector3 pos(1,0,0);
 
   // charge W is given in eV -> convert deposited Energy from keV to eV
   double b=1000.*fmeanEnergy;
+  unsigned int totalNoise(0);
   while(nNoise>0){
     // position:
     double z=randm.Uniform(fpar->getZGem(),fpar->getZMax());
@@ -134,7 +134,7 @@ PndTpcNoiseTask::Exec(Option_t* opt)
     pos.SetZ(z);pos.SetPerp(r);pos.SetPhi(phi);
     // charge W is given in eV -> has been convert to keV above
     unsigned int q=(unsigned int)ceil(randm.Exp(b)/fGas->W());
-    
+    totalNoise+=q;
     unsigned int nPrim = fprimArray->GetEntriesFast();
     new((*fprimArray)[nPrim]) PndTpcPrimaryCluster(0,q,pos,9999,1,-1);
     
@@ -145,7 +145,7 @@ PndTpcNoiseTask::Exec(Option_t* opt)
     }
 
   }
-  std::cout<<"*#)(@&$)#)$#**$(#*$) FINISHED EVEMT"<<std::endl;
+  std::cout<<" created "<< totalNoise <<" noise electrons"<<std::endl;
      
 }
     
