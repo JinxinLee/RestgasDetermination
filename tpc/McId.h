@@ -49,7 +49,7 @@ public:
   // Accessors -----------------------
   unsigned int mceventID() const {return fmceventID;}
   unsigned int mctrackID() const {return fmctrackID;}
-  unsigned int mcsecID() const {return fmcsecID;}
+  int mcsecID() const {return fmcsecID;}
   double weight() const {return fweight;}
 
   // Modifiers -----------------------
