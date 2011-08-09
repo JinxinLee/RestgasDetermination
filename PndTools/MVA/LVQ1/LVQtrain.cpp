@@ -23,16 +23,18 @@
 #include "PndMvaTools.h"
 
 //____________________________________
-#define DEBUGVQ_TRAIN_EXAMPLE 2
-
 /*
  * 0 = no crossvalidation, Normal init or read from pre init vector
  * 1 = crossvalidation using root trees
  */
 #define CROSS_VALIDATE 1
 
-// k-Fold CV
-#define NUMBER_OF_FOLDS 10
+#if CROSS_VALIDATE != 0
+#define NUMBER_OF_FOLDS 10 // k-Fold CV
+#endif
+
+// Print DEBUG information
+#define DEBUGVQ_TRAIN_EXAMPLE 0
 //____________________________________
 
 #if DEBUGVQ_TRAIN_EXAMPLE > 0
@@ -122,7 +124,6 @@ int main(int argc, char** argv)
   
   //// Labelss names
   std::vector<std::string> labels;
-
   labels.push_back("electron");
   labels.push_back("pion");
   //labels.push_back("muon");
@@ -131,23 +132,22 @@ int main(int argc, char** argv)
 
   //// Variable names
   std::vector<std::string> vars;
-
   vars.push_back("emc");
   vars.push_back("lat");
   vars.push_back("z20");
   vars.push_back("z53");
-  
+
   //vars.push_back("thetaC");
   //vars.push_back("mvd");
   //vars.push_back("tof");
   //vars.push_back("stt"); 
 
   // Use for asymm. init.
-  /*
-    std::map <std::string, unsigned int> numProtoMap;
-    numProtoMap["electron"] = 70;
-    numProtoMap["pion"] = 150;
-  */
+  
+  std::map <std::string, size_t> numProtoMap;
+  numProtoMap["electron"] = 50;
+  numProtoMap["pion"]     = 130;
+  
   float initC  = 0.8;
   float ethaZ  = 0.1;
   float ethaF  = 0.0001;
@@ -293,13 +293,13 @@ int main(int argc, char** argv)
     testSets.push_back(curTsSet);
   }// FOLDS
 
-  //___ TEst sets are ready.
+  //___ TEst sets are ready, Clean.
   nameIdx.clear();
 
   //========= DEBUG DEBUG DEBUG .
 #if DEBUGVQ_TRAIN_EXAMPLE > 0
-  std::cout << "________ " << testSets.size() << " == "
-	    << NUMBER_OF_FOLDS
+  std::cout << "________ " << testSets.size()
+	    << " == " << NUMBER_OF_FOLDS
 	    << '\n';
   
   size_t sum = 0;
@@ -331,8 +331,8 @@ int main(int argc, char** argv)
   {
     disj = disj && is_disjoint( testSets[st], testSets[st+1] );
   }
-  if(disj){std::cout << "All Disjoint\n";}
-  else{std::cout << "NOT ALL Disjoint\n";}
+  if(disj){std::cout << "All Subsets are Disjoint\n";}
+  else{std::cout << "NOT ALL subsets are Disjoint\n";}
 #endif// DEBUG
 
   // We need K classifiers.
@@ -348,11 +348,14 @@ int main(int argc, char** argv)
     t->SetLearnPrameters(initC, ethaZ, ethaF, numSweep);
     
     // Symm. number of proto.
-    t->SetNumberOfProto(numProto);
+    //t->SetNumberOfProto(numProto);
+
+    // Use for asymm. init.
+    t->SetNumberOfProto(numProtoMap);
     
     // Set testSet size and indices
-    t->SetTetsSetSize(0);
-    t->SetTestSet(testSets[i]);
+    t->SetTetsSetSize(0);// Do not split test set.
+    t->SetTestSet(testSets[i]);// Assign test set indices.
     
     // Eval. rate.
     t->SetErrorStepSize(0);
@@ -377,29 +380,49 @@ int main(int argc, char** argv)
    *
    * NOTE: Number of started threads equal to the number of available
    * cores on the system. If you do not want this, then you should set
-   * the number of threads.
+   * the number of threads either by function call or by the shell
+   * variable.
    */
+#if ( __GNUC__ >= 4 && __GNUC_MINOR__ > 4)
+  // GCC older that 4.4 can not handle size_t loop counter in
+  // combination with OpenMP.
 #ifdef _OPENMP
-#pragma omp parallel for  schedule(dynamic)
+#pragma omp parallel for schedule(dynamic, 1)
 #endif// OPENMP
-  for(size_t i = 0; i < trainerList.size(); ++i)
-  {
-    (trainerList[i])->Train();
-  }
-  
-  // ========= Store weights and evaluation data.
-  std::vector <StepError> EvalData;
-  
-  for(size_t i = 0; i < trainerList.size(); ++i)
-  {
-    (trainerList[i])->storeWeights();
-    
-    // Write out the Evaluation info info.
-    (trainerList[i])->WriteErroVect( (int2str(i)+ "_" + OutErr) );
 
-    // Fetch evaluation data
+#endif//GCC
+  for(size_t tr = 0; tr < trainerList.size(); ++tr)
+  {
+    // Perform training
+    (trainerList[tr])->Train();
+
+#if ( __GNUC__ >= 4 && __GNUC_MINOR__ > 4)
+#ifdef _OPENMP
+#pragma omp critical (StoreProtoTypesEvalData)
+    {
+#endif
+#endif//GCC
+      // Write Weights.
+      (trainerList[tr])->storeWeights();
+      
+      // Write Evaluation.
+      (trainerList[tr])->WriteErroVect( (int2str(tr)+ "_" +OutErr) );
+      
+#if ( __GNUC__ >= 4 && __GNUC_MINOR__ > 4)
+#ifdef _OPENMP
+    }// END Critical
+#endif
+#endif //GCC
+  }// END FOR(tr)
+
+  // ========= Fetch evaluation data for processing ====
+  std::vector <StepError> EvalData; 
+  for(size_t i = 0; i < trainerList.size(); ++i)
+  {
+    // Get Eval vector.
     std::vector <StepError> const& err = (trainerList[i])->GetErrorValues();
 
+    // Copy to container.
     for(size_t k = 0; k < err.size(); ++k)
     {
       EvalData.push_back(err[k]);
@@ -415,7 +438,7 @@ int main(int argc, char** argv)
   }
 #endif// DEBUG
  
-  //======= Clean trainers list ======
+  //======= Clean trainers list (we dont need them)======
   for(size_t j = 0; j < NUMBER_OF_FOLDS; ++j)
   {
     delete trainerList[j];
@@ -423,31 +446,91 @@ int main(int argc, char** argv)
   //_____________________________
 
   // Process Evaluation data
-  float mean_tr, mean_ts, sigma_tr, sigma_ts;
+  float mean_tr, mean_ts;
+  float sigma_tr, sigma_ts;
   mean_tr = mean_ts = sigma_tr = sigma_ts = 0.00;
 
+  std::map <std::string, float> perClsMean_tr, perClsMean_ts;
+  std::map <std::string, float> perClsSigm_tr, perClsSigm_ts;
+
+  // Init Maps
+  for(size_t i = 0; i < labels.size(); ++i)
+  {
+    std::string const& name = labels[i];
+    
+    perClsMean_tr[name] = 0.00;
+    perClsMean_ts[name] = 0.00;
+
+    perClsSigm_tr[name] = 0.00;
+    perClsSigm_ts[name] = 0.00;
+  }
+
+  // Loop through Eval Data points.
   for(size_t k = 0; k < EvalData.size(); ++k)
   {
     mean_tr += EvalData[k].m_trErr;
     mean_ts += EvalData[k].m_tsErr;
+    std::map <std::string, float>& misTest  = EvalData[k].m_MisClsTest;
+    std::map <std::string, float>& misTrain = EvalData[k].m_MisClsTrain;
+
+    for(size_t i = 0; i < labels.size(); ++i)
+    {
+      perClsMean_ts [labels[i]] += misTest  [labels[i]];
+      perClsMean_tr [labels[i]] += misTrain [labels[i]];
+    }
   }
+  // Compute mean_s (divide by (N))
   mean_tr /= static_cast<float>(EvalData.size());
   mean_ts /= static_cast<float>(EvalData.size());
-
+  
+  for(size_t lb = 0; lb < labels.size(); ++lb)
+  {
+    perClsMean_ts [labels[lb]] /= static_cast<float>(EvalData.size());
+    perClsMean_tr [labels[lb]] /= static_cast<float>(EvalData.size());
+  }
+  
   // Compute variance
   for(size_t k = 0; k < EvalData.size(); ++k)
   {
     sigma_tr += (EvalData[k].m_trErr - mean_tr ) * (EvalData[k].m_trErr - mean_tr);
     sigma_ts += (EvalData[k].m_tsErr - mean_ts ) * (EvalData[k].m_tsErr - mean_ts);
+
+    std::map <std::string, float>& misTest  = EvalData[k].m_MisClsTest;
+    std::map <std::string, float>& misTrain = EvalData[k].m_MisClsTrain;
+
+    for(size_t i = 0; i < labels.size(); ++i)
+    {
+      perClsSigm_ts[labels[i]] += (misTest[labels[i]] - perClsMean_ts [labels[i]]) * 
+	(misTest[labels[i]] - perClsMean_ts [labels[i]]);
+
+      perClsSigm_tr[labels[i]] += (misTrain[labels[i]] - perClsMean_tr [labels[i]]) *
+	(misTrain[labels[i]] - perClsMean_tr [labels[i]]);
+    }
   }
+  // divide by (N-1)
   sigma_tr /= static_cast<float>(EvalData.size() - 1);
   sigma_ts /= static_cast<float>(EvalData.size() - 1);
   
-  std::cout << "mean_tr = " << mean_tr <<'\n'
-	    << "mean_ts = " << mean_ts <<'\n'
-	    << "sigma_tr = " << sigma_tr <<'\n'
-	    << "sigma_ts = " << sigma_ts <<'\n';
+  for(size_t lb = 0; lb < labels.size(); ++lb)
+  {
+    perClsSigm_ts [labels[lb]] /= static_cast<float>( EvalData.size() - 1);
+    perClsSigm_tr [labels[lb]] /= static_cast<float>( EvalData.size() - 1);
+  }
+
+  //Print Overal mean, sigma and the same per label.
+  std::cout << "mean_tr = " << mean_tr
+	    << " sigma_tr = " << sigma_tr <<'\n'
+	    << "mean_ts = " << mean_ts
+	    << " sigma_ts = " << sigma_ts <<'\n';
+
+  for(size_t lb = 0; lb < labels.size(); ++lb)
+  {
+    std::cout << "Mean test "   << labels[lb] << " = " << perClsMean_ts[labels[lb]]
+	      << " Sigm test "  << labels[lb] << " = " << perClsSigm_ts [labels[lb]]
+      	      << " Mean train " << labels[lb] << " = " << perClsMean_tr[labels[lb]]
+	      << " sigm train " << labels[lb] << " = " << perClsSigm_tr [labels[lb]]
+	      <<'\n';
+  }
 #endif// CROSS_VALIDATE != 0
-  
   return 0;
 }

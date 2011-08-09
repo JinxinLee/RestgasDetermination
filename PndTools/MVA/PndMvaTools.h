@@ -267,3 +267,7 @@ extern "C"
 
 #endif
 //interface definition
+/*
+  Test for GCC > 3.2.0 
+  #if __GNUC__ > 3 || (__GNUC__ == 3 && (__GNUC_MINOR__ > 2 || (__GNUC_MINOR__ == 2 && __GNUC_PATCHLEVEL__ > 0) ) )
+*/
