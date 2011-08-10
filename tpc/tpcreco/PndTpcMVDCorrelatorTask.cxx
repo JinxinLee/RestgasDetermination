@@ -272,11 +272,13 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
     for(unsigned int im=0; im<tempCand.size(); im++) {
       mvdCand->addHit(tempCand[im].begin()->second.begin()->second, //detId enum
 		      tempCand[im].begin()->second.begin()->first); //hit in array
+      // clean up
+      
     }
     
     mvdCand->setMcTrackId(track->getCand().getMcTrackId());
     // copy track and set new candidate
-    GFTrack* outTrack = new GFTrack(*track);
+    GFTrack* outTrack = new  ((*fOutTrackArray)[fOutTrackArray->GetEntriesFast()]) GFTrack(*track);
     outTrack->clearBookkeeping();
     outTrack->setCandidate(*mvdCand);
         
@@ -285,8 +287,9 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
     tmpTrack->clearBookkeeping();
     outTrack->mergeHits(tmpTrack);
     outTrack->blowUpCovs(500.);
-    (*fOutTrackArray)[fOutTrackArray->GetEntriesFast()] = outTrack;
-
+    
+    
+    delete tmpTrack;
   } //end loop over tracks
 
   std::cout <<"### Found "<< fOutTrackArray->GetEntries() << " tracks with MVD correlations." << std::endl; 
