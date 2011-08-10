@@ -30,6 +30,8 @@
 #include "TH1D.h"
 #include "TH1I.h"
 #include "TGraph.h"
+#include "PndTpcCluster.h"
+#include "PndTpcRiemannHit.h"
 
 // Class Member definitions -----------
 
@@ -89,7 +91,8 @@ PndTpcEvtDeconvTask::Init()
   hFoundPhysics= new TH1I("hFoundPhysics","Found Physics tracklets",
 			  10,0,10);
   hFoundIDs= new TH1I("hFoundID","Number of physics tracks with at least one found tracklet", 10,0,10);
-
+  hPocaZ = new TH1D("hPocaZ","Poca to IP z",100,-10,10);
+  hPocaR = new TH1D("hPocaR","Poca to IP r",100,0,15);
   
   // prepare efficiency / purity statistics
   fNSingleTrackPhys.resize(fnz);
@@ -124,39 +127,65 @@ PndTpcEvtDeconvTask::Exec(Option_t* opt)
   //loop over tracks
   for(unsigned int itr=0;  itr<ntracks; itr++) {
     if(DEBUG) std::cout<<"  ... processing Riemann track no. "<<itr<<std::endl;
-    PndTpcRiemannTrack* track = (PndTpcRiemannTrack*) (*fTrackArray)[itr];
 
+    bool targetR=false;
+    bool targetZ=false;
+    bool endcapPene=false;
+    PndTpcRiemannTrack* track = (PndTpcRiemannTrack*) (*fTrackArray)[itr];
+    
+    //check if we have an endcap penetration
+    PndTpcCluster* lasthit= track->getLastHit()->cluster();
+    PndTpcCluster* firsthit=track->getFirstHit()->cluster();
+    // check if hit is neither at inner nor outer boundary
+    if(lasthit->pos().Perp()<40.5 && lasthit->pos().Perp()>16.5){
+      if(fabs(lasthit->pos().Z()-110)<fendcapcut)endcapPene=true;
+    }
+    if(firsthit->pos().Perp()<40.5 && firsthit->pos().Perp()>16.5){
+      if(fabs(firsthit->pos().Z()-110)<fendcapcut)endcapPene=true;
+    }
+    
+    
     // extrapolate track to z-axis and cut 
     // for the moment: presume physics ecent has been generated at t=0;
     
-    TVector3 poca=track->pocaToZ();
-     if(track->mcid().DominantID().mceventID()==0){
+    TVector3 poca=track->pocaToIP();
+    
+    if(track->mcid().DominantID().mceventID()==0){
+      hPocaZ->Fill(poca.Z());
+      hPocaR->Fill(poca.Perp());
       ++presentPhysics;
       std::cout << "Physics tracklet: " << track->mcid().DominantID() << "  z="<< poca.Z() << "   r=" << poca.Perp() << std::endl;
     }
-
-     if(poca.Perp()>fRCut)continue;
-
-     unsigned int ns=fsurvivormap.size();
-     for(unsigned int is=0;is<ns;++is){
-       double cut=fZCuts[is];
-       if(TMath::Abs(poca.Z())<cut)fsurvivormap[is]->push_back(itr);
-     } // end loop over survivor map
-
-
-    // do actual cut:
-    if(TMath::Abs(poca.Z())>fZCut)continue;
-
-    // survived cuts -> store track
     
-    // keep track of mcids
-    if(track->mcid().DominantID().mceventID()==0){
-      ++foundPhysics;
-      physicsID.AddID(track->mcid().DominantID());
+    if(poca.Perp()<fRCut)targetR=true;;
+    
+    if(targetR){
+      unsigned int ns=fsurvivormap.size();
+      for(unsigned int is=0;is<ns;++is){
+	double cut=fZCuts[is];
+	if(TMath::Abs(poca.Z())<cut)fsurvivormap[is]->push_back(itr);
+      } // end loop over survivor map
     }
-    else ++retainedPileup;
-
-    new((*fOutTrackArray)[fOutTrackArray->GetEntries()]) PndTpcRiemannTrack(*track);
+    // do actual cut:
+    if(TMath::Abs(poca.Z())<fZCut)targetZ=true;
+    
+    // check if it survived the cuts -> store track
+    if( (targetZ && targetR) || endcapPene ){
+      if(endcapPene){
+	cout << "found endcap penetrator" << endl;
+      }
+      if(targetZ && targetR){
+	cout << "found target pointer" << endl;
+      }
+      // keep track of mcids
+      if(track->mcid().DominantID().mceventID()==0){
+	++foundPhysics;
+	physicsID.AddID(track->mcid().DominantID());
+      }
+      else ++retainedPileup;
+      
+      new((*fOutTrackArray)[fOutTrackArray->GetEntries()]) PndTpcRiemannTrack(*track);
+    }
   } //end loop over tracks
   
   // loop over survivors to build efficiencies and 
@@ -215,6 +244,10 @@ TFile* file=FairRootManager::Instance()->GetOutFile();
  hRetained->Write();delete  hRetained;
  hFoundPhysics->Write();delete hFoundPhysics;
  hFoundIDs->Write();delete hFoundIDs;
+ hPocaZ->Write();delete hPocaZ;
+ hPocaR->Write();delete hPocaR;
+
+
  // evaluate statistics
  TGraph* geffpur=new TGraph(fNSingleTrackPhys.size());
  geffpur->SetTitle("Single track efficiency / purity");
@@ -226,6 +259,16 @@ TFile* file=FairRootManager::Instance()->GetOutFile();
    double zcut=fZCuts[is];
    unsigned int nbkg=fNSingleTrackBkg[is];
    unsigned int nphys=fNSingleTrackPhys[is];
+
+   TString name="hZCut";name+=is;
+   TString title="nbkg nphys fullevents nevent - zcut=";title+=zcut;
+   TH1D* h=new TH1D(name,title,4,0,4);
+   h->Fill(0.5,nbkg);
+   h->Fill(1.5,nphys);
+   h->Fill(2.5,fNFullEvent[is]);
+   h->Fill(3.5,fevtcounter);
+   h->Write();
+
    double eff=(double)nphys/(double)(fNExpectedTracks*fevtcounter); // 
    double pur=1. -  (double)nbkg/(double)(nbkg+nphys);
    geffpur->SetPoint(is,eff,pur);  

@@ -53,7 +53,7 @@ public:
   
     
   void SetPersistence(Bool_t opt=kTRUE) {fPersistence=opt;}
-  void SetCuts(Double_t rcut, Double_t zcut){fRCut=rcut;fZCut=zcut;}
+  void SetCuts(Double_t rcut, Double_t zcut, Double_t endcapcut){fRCut=rcut;fZCut=zcut;fendcapcut=endcapcut;}
   void SetNExpectedTracks(unsigned n){fNExpectedTracks=n;}
   void SetZCutBinning(unsigned int n, double step){fnz=n;fdz=step;}
 
@@ -73,7 +73,8 @@ public:
   Bool_t fPersistence;
   Double_t fRCut;
   Double_t fZCut;
-   
+  Double_t fendcapcut;
+
   TClonesArray* fTrackArray;
   TClonesArray* fOutTrackArray;
 
@@ -88,9 +89,12 @@ public:
   double fdz; // distance between zcut values
   unsigned int fNExpectedTracks;
   unsigned int fevtcounter;
+  
   TH1I* hRetained;
   TH1I* hFoundPhysics;
   TH1I* hFoundIDs;
+  TH1D* hPocaZ;
+  TH1D* hPocaR;
 
   ClassDef(PndTpcEvtDeconvTask,1);
   
