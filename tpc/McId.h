@@ -56,7 +56,7 @@ public:
   void setweight(double w) {fweight=w;}
   void setEventID(unsigned int id){fmceventID=id;}
   void setTrackID(unsigned int id){fmctrackID=id;}
-  void setSecID(unsigned int id){fmcsecID=id;}
+  void setSecID(int id){fmcsecID=id;}
 
   // Operations ----------------------
   double IncWeight(double w=1) {return fweight+=w;}
@@ -72,7 +72,7 @@ private:
   // Private Methods -----------------
 
 public: 
-  ClassDef(McId,3)
+  ClassDef(McId,4)
 
 };
 
