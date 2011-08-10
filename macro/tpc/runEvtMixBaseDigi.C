@@ -52,7 +52,7 @@ runEvtMixBaseDigi( TString inFile,
 
   // In general, the following parts need not be touched
   // ========================================================================
-  PndGeoHandling* geoH = PndGeoHandling::Instance();
+  
 
 
   // -----   Timer   --------------------------------------------------------
@@ -87,7 +87,9 @@ runEvtMixBaseDigi( TString inFile,
   rtdb->setOutput(parOutput1);
   rtdb->saveOutput();
 
-  //fRun->LoadGeometry();
+
+  PndGeoHandling* geoH = PndGeoHandling::Instance();
+ 
   // ------------------------------------------------------------------------
      
   // -----    Digi Sequence  --------------------------------------------
