@@ -267,7 +267,7 @@ PndTpcTrackInitTask::Exec(Option_t* opt)
     // ceck if momentum high enough
     double p = trk->getMom(Bz);
     if (Bz==0) p=pbackup;
-    if(fabs(p)<0.1E-1) {
+    if(fabs(p)<1E-1) {
       if (fVerbose) std::cout<<" - skipping, momentum too small: "<<p*1E3<<" MeV"<<std::endl;
       continue;
     }
@@ -449,7 +449,7 @@ PndTpcTrackInitTask::Exec(Option_t* opt)
 
   std::cout<<"PndTpcTrackInitTask::Exec:: "
            <<candlist.size()<<" tracks setup."<<std::endl;
-
+  friemannlist.clear();
  
 }
 
