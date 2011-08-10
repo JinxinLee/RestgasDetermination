@@ -44,6 +44,7 @@ set(RECOTASKS_SRCS
 PndRecoKalmanFit.cxx
 PndRecoKalmanTask.cxx
 PndRecoMultiKalmanTask.cxx
+PrimSelector.cxx
 PndGFTrackToPndTrackConvertorTask.cxx
 )
 
