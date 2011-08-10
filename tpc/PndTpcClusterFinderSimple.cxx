@@ -400,7 +400,7 @@ PndTpcClusterFinderSimple::processSector(std::vector<PndTpcDigi*>& digis, int se
       }
       delete prelimClusters[i];
     }
-
+    prelimClusters.clear();
   } // end loop over time-slices
 
 }
