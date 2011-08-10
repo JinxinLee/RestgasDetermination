@@ -82,6 +82,12 @@ PndTpcClusterFinder::~PndTpcClusterFinder(){
     ++secIt;
   }
   fsproc.clear();
+std::map<unsigned int,std::vector<PndTpcDigi*>*>::iterator mapIt=fsectormap.begin();
+  while(mapIt!=fsectormap.end()){
+    delete mapIt->second;
+    ++mapIt;
+  }
+  fsectormap.clear();
 }
 
 
