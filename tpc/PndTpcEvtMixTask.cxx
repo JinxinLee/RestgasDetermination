@@ -272,26 +272,6 @@ PndTpcEvtMixTask::Init()
   std::cout << "T0 " << t0 << "sF " << sf << std::endl;
 
   PndTpcDigiMapper::getInstance(false)->init(fpadPlane,fgem,fgas,fpar->getPadShapes(),fzGem,t0,sf);
- 
-
-  // copy MVD and GEM hits
-   fgemArray=(TClonesArray*) ioman->GetObject("GEMHit");
-   ioman->Register("GEMHit","GEMHit",fgemArray,kTRUE);
-  //  fstripArray=(TClonesArray*) ioman->GetObject("MVDHitsStrip");
-//    ioman->Register("MVDHitsStrip","MVDHitsStrip",fstripArray,kTRUE);
-// fstripClusterArray=(TClonesArray*) ioman->GetObject("MVDStripClusterCand");
-//    ioman->Register("MVDStripClusterCand","MVDStripClusterCand",fstripClusterArray,kTRUE);
-//    fstripDigiArray=(TClonesArray*) ioman->GetObject("MVDStripDigis");
-//  ioman->Register("MVDStripDigis","MVDStripDigis",fstripDigiArray,kTRUE);
-
-   fpixelArray=(TClonesArray*) ioman->GetObject("MVDHitsPixel");
-   ioman->Register("MVDHitsPixel","MVDHitsPixel",fpixelArray,kTRUE);
-   fpixelClusterArray=(TClonesArray*) ioman->GetObject("MVDPixelClusterCand");
-   ioman->Register("MVDPixelClusterCand","MVDPixelClusterCand",fpixelClusterArray,kTRUE);
-   fpixelDigiArray=(TClonesArray*) ioman->GetObject("MVDPixelDigis");
- ioman->Register("MVDPixelDigis","MVDPixelDigis",fpixelDigiArray,kTRUE);
-
-
   return kSUCCESS;
 }
 
@@ -390,8 +370,10 @@ PndTpcEvtMixTask::Exec(Option_t* opt)
 	// TODO: modify time of point according to event time
 	mydigi.t(mydigi.t()+teventClock);
 	// throw away digis that will not ly inside the physics event window
-	double realtime=PndTpcDigiMapper::getInstance()->t_from_tick(mydigi.t());
-	if(realtime < 0 || realtime > fMaxDriftTime) continue;
+	// we shut this off again, since otherwise endcap 
+	// penetration makes no sense
+	//double realtime=PndTpcDigiMapper::getInstance()->t_from_tick(mydigi.t());
+	//if(realtime < 0 || realtime > fMaxDriftTime) continue;
 	mydigi.shiftEventIds(selectEvt+1);
 	// Add background to point-array of this event
 	new((*fOutArray)[iout++]) PndTpcDigi(mydigi);
