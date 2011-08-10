@@ -217,7 +217,7 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
   unsigned int ncl=fcluster_buffer->size();
   unsigned int ncl_rec=0;
   unsigned int ndig_rec=0;
-  
+  fclusterArray->Expand(ncl);
   double amp;
   unsigned int size;
   for(unsigned int icl=0;icl<ncl;++icl){ // loop over clusters
@@ -225,8 +225,11 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
     size = (*fcluster_buffer)[icl]->size();
     if(amp>fthres &&  (size>1 && amp>fClAmpCut*(double)size || size==1 && amp>fSDiClAmpCut)){
       // copy cluster
+      //std::cerr << "nDigi=" <<  (*fcluster_buffer)[icl]->nDigi() << std::endl;
+      //(*fcluster_buffer)[icl]->ClearDigis();
       PndTpcCluster* cl = new((*fclusterArray)[ncl_rec]) PndTpcCluster(*((*fcluster_buffer)[icl]));
-      cl->SetIndex(ncl_rec); 
+      cl->SetIndex(ncl_rec);
+     
       ncl_rec++;
       ndig_rec+=size;
     }
