@@ -1,4 +1,4 @@
-void runEvtMixMC(TString jobdir="/nfs/nas/data/panda/tpc/SIM/evtmix/",TString jobname="phys_EtaCPhiPhi", Int_t nEvents=3000){
+void runEvtMixMC(TString jobdir="/nfs/nas/data/panda/tpc/SIM/evtmix/",TString jobname="phys_EtaCPhiPhi", Int_t nEvents=30){
   TStopwatch timer;
   timer.Start();
   
@@ -48,22 +48,6 @@ void runEvtMixMC(TString jobdir="/nfs/nas/data/panda/tpc/SIM/evtmix/",TString jo
   fRun->SetOutputFile(outfile);
 
 
-  //SET USER CONFIG AND CUTS:
-  //REQUIRES CUSTOM g3Config.C and SetCuts.C present in JOBDIR
-  //COMMENT OUT IF YOU WANT TO USE THE STANDARD FILES FROM gconfig/
-  // --------------------------------------------------------
-  //fRun->SetUserCuts(copy+"SetCuts.C");
-  //if(GEANT=="TGeant3")
-  //  fRun->SetUserConfig(copy+"g3Config.C");
-  //if(GEANT=="TGeant4")
-  //  fRun->SetUserConfig(copy+"g4Config.C");  
-  
-
-  // Set Material file Name
-  //-----------------------
-  fRun->SetMaterials("media_pnd.geo");
-  
-
  // Fill the Parameter containers for this run
   //-------------------------------------------
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
@@ -80,30 +64,27 @@ void runEvtMixMC(TString jobdir="/nfs/nas/data/panda/tpc/SIM/evtmix/",TString jo
   rtdb->setOutput(output);
 
 
+ // Set Material file Name
+  //-----------------------
+  fRun->SetMaterials("media_pnd.geo");
   // Create and add detectors
   //-------------------------
   FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
 
-  FairModule *Pipe= new PndPipe("PIPE");
-  Pipe->SetGeometryFileName("pipe.geo");
-  fRun->AddModule(Pipe);
-
-  // FairModule *Target= new CbmTarget("Target");
+   // FairModule *Target= new CbmTarget("Target");
   // Target->SetGeometryFileName("target_vacuum.geo");
   // fRun->AddModule(Target);
   
   FairModule *Magnet= new PndMagnet("MAGNET");
-  Magnet->SetGeometryFileName("FullSolenoid_V842.root");
   Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
   fRun->AddModule(Magnet);
+    
+  FairModule *Pipe= new PndPipe("PIPE");
+  fRun->AddModule(Pipe);
 
-
-  FairModule *Dipole= new PndMagnet("MAGNET");
-  Dipole->SetGeometryFileName("dipole.geo");
-  fRun->AddModule(Dipole);
-  
+   
   PndTpcDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
   PndTpc->SetGeometryFileName("TPC_V1.1.root");  
   //ALICE Style MC (only for G3): =========================
@@ -156,42 +137,15 @@ void runEvtMixMC(TString jobdir="/nfs/nas/data/panda/tpc/SIM/evtmix/",TString jo
  
   fRun->SetBeamMom(p);
   PndMultiField *fField= new PndMultiField("FULL");
-
-  //PndConstField *fMagField=new PndConstField();
-  //  fMagField->SetField(0, 0 ,20. ); // values are in kG
-     // MinX=-75, MinY=-40,MinZ=-12 ,MaxX=75, MaxY=40 ,MaxZ=124 );  // values are in cm
-  //fMagField->SetFieldRegion(-500, 500,-500, 500, -500, 500);
-
-
   fRun->SetField(fField);
-  //fRun->SetStoreTraj(kTRUE);
-  fRun->SetStoreTraj(kFALSE);
+
   
   std::cout<<"Starting INIT"<<std::endl;
   fRun->Init();
   std::cout<<"Ending INIT"<<std::endl;
   std::cout.flush();
   
-  // -Trajectories Visualization (TGeoManager Only )
-  // -----------------------------------------------
-    
-  // Set cuts for storing the trajectpries
-  //   FairTrajFilter* trajFilter = FairTrajFilter::Instance();
-  //   trajFilter->SetStepSizeCut(0.01); // 1 cm
-  //   trajFilter->SetVertexCut(-2000., -2000., 4., 2000., 2000., 100.);
-  //   trajFilter->SetMomentumCutP(10e-3); // p_lab > 10 MeV
-  //   trajFilter->SetEnergyCut(0., 1.02); // 0 < Etot < 1.04 GeV
-  //   trajFilter->SetStorePrimaries(kTRUE);
-  //   trajFilter->SetStoreSecondaries(kTRUE);
   
-
- 
-
-  //PndConstPar* fieldPar = (PndConstPar*) rtdb->getContainer("PndConstPar");
-  //if ( fMagField ) {  fieldPar->SetParameters(fMagField); }
-  //fieldPar->setInputVersion(fRun->GetRunId(),1);
-  //fieldPar->setChanged(kTRUE);
-
   rtdb->setOutput(output);
   rtdb->saveOutput();
   rtdb->print();

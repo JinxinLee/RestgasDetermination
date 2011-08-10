@@ -1,5 +1,6 @@
 void 
 runEvtMixDigi( TString inFile, 
+	       TString jobDir,
 	       TString jobname,
 	       Int_t startEvent, // event number where we start processing
 	       Int_t nEvents,
@@ -28,7 +29,7 @@ runEvtMixDigi( TString inFile,
 
   TString inDir=inFile(0,inFile.Last('/')+1);
 
-  TString jobDir=inDir; jobDir+=jobname; jobDir+="/";
+  jobDir+=jobname; jobDir+="/";
   TString cmd="mkdir ";
   cmd+=jobDir; 
   gSystem->Exec(cmd);
@@ -40,8 +41,7 @@ runEvtMixDigi( TString inFile,
   
   TString outFile = inFile; 
   outFile.ReplaceAll(inDir,jobDir);
-  TString batchID(".");batchID+=startEvent;batchID+=".mixed.root";
-  outFile.ReplaceAll(".raw.root",batchID);
+  outFile.ReplaceAll(".raw.root",".mixed.root");
   TString search=outFile;
   if(gSystem->FindFile(jobDir.Data(), search)!=NULL){
      std::cout<<"OutFile "<<outFile

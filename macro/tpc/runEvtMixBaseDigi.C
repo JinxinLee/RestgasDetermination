@@ -65,6 +65,8 @@ runEvtMixBaseDigi( TString inFile,
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
+  PndGeoHandling* geoH = PndGeoHandling::Instance();
+
 
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
@@ -88,7 +90,7 @@ runEvtMixBaseDigi( TString inFile,
   rtdb->saveOutput();
 
 
-  PndGeoHandling* geoH = PndGeoHandling::Instance();
+ 
  
   // ------------------------------------------------------------------------
      
