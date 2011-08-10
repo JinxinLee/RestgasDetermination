@@ -186,7 +186,7 @@ void run_ana_eta_c_stt(int nevts=0)
 				(PndMCTrack*)mc_array->At(p1[ii].GetMicroCandidate().GetMcIndex());
 			if (mcTrack!=0)
 				{
-				if ((mcTrack->GetPdgCode()!=321) || (mcTrack->GetMotherID()!=-1))
+				if ((mcTrack->GetPdgCode()!=321))
 					{
 					p1.Remove(p1[ii]);
 					n_removed++;
@@ -211,7 +211,7 @@ void run_ana_eta_c_stt(int nevts=0)
 				(PndMCTrack*)mc_array->At(p2[ii].GetMicroCandidate().GetMcIndex());
 			if (mcTrack!=0)
 				{
-				if ((mcTrack->GetPdgCode()!=-321) || (mcTrack->GetMotherID()!=-1))
+				if ((mcTrack->GetPdgCode()!=-321))
 					{
 					p2.Remove(p2[ii]);
 					n_removed++;
