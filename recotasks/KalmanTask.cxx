@@ -174,7 +174,7 @@ KalmanTask::Exec(Option_t* opt)
   std::cout<<"KalmanTask::Exec"<<std::endl;
 
   // Reset output Array
-  if(_trackOutArray->GetEntriesFast()>0)_trackOutArray->Delete();
+  _trackOutArray->Delete();
   if(_trackArray==0) Fatal("Kalman::Exec)","No TrackArray");
 
 
@@ -209,7 +209,7 @@ KalmanTask::Exec(Option_t* opt)
     }
     if (fVerbose) std::cout<<"*** Number of clusters in track: "<<trk->getNumHits()<<" ***"<<std::endl;
 
-    Int_t size = _trackOutArray->GetEntriesFast();
+    Int_t size = _trackOutArray->GetEntries();
     GFTrack* trkCopy = new((*_trackOutArray)[size]) GFTrack(*trk);
 
     
