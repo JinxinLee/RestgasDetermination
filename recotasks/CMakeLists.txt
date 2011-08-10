@@ -57,7 +57,7 @@ TrackVisTask.cxx
 TrackFitStat.cxx
 TrackFitStatTask.cxx
 #V0Selector.cxx
-PrimSelector.cxx
+#PrimSelector.cxx
 #LambdaStatTask.cxx
 MCTruthAnnex.cxx
 #TpcMCEvtDeconvTask.cxx
