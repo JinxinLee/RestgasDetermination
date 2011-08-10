@@ -1,5 +1,5 @@
 void 
-runDigi( TString inFile, 
+runEvtMixBaseDigi( TString inFile, 
 	       TString outDir,
 	       TString jobname,
 	       Int_t startEvent, // event number where we start processing
