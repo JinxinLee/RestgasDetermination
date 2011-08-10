@@ -160,7 +160,7 @@ PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
 
   rtdb->print();
 
-  fRun->Run(startEvent,startEvent+nEvents);
+  fRun->Run(0,nEvents);
   // ------------------------------------------------------------------------
 
 

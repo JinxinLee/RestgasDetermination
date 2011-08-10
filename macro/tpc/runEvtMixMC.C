@@ -1,4 +1,4 @@
-void runEvtMixMC(TString jobdir="/nfs/nas/data/panda/tpc/SIM/evtmix/",TString jobname="phys_EtaCPhiPhi", Int_t nEvents=30){
+void runEvtMixMC(TString jobdir="/nfs/nas/data/panda/tpc/SIM/evtmix/",TString jobname="phys_EtaCPhiPhi", Int_t nEvents=3000){
   TStopwatch timer;
   timer.Start();
   
