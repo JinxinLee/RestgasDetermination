@@ -115,7 +115,7 @@ int main(int argc, char** argv)
 #endif
   
   std::cout << "Total number of events to be classified = "
-	    << events.size()
+	    << totNumEvt
 	    << '\n';
   
   // Map to store the results
@@ -131,9 +131,9 @@ int main(int argc, char** argv)
   // ___________ Classification ________//
   std::cout << "<INFO> Classification.\n";
   // Events loop
-  for(size_t k = 0; k < events.size(); k++)
+  for(size_t k = 0; k < totNumEvt; ++k)
   {
-    std::vector<float>* evt = (events[k]).second;
+    std::vector<float> const* evt = (events[k]).second;
     
     // Get Mva Value
     cls.GetMvaValues( (*evt), res);

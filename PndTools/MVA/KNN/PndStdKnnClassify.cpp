@@ -31,7 +31,10 @@ PndStdKnnClassify::PndStdKnnClassify(string const& inputFile,
 
 void PndStdKnnClassify::Initialize()
 {
+  // Call parents function
   PndMvaClassifier::Initialize();
+
+  // Get events.
   vector<pair<string, vector<float>*> > const& events = m_dataSets.GetData();
   
   // Init distances container
@@ -55,7 +58,8 @@ PndStdKnnClassify::~PndStdKnnClassify()
 std::string* PndStdKnnClassify::Classify(std::vector<float> EvtData)
 {
   // Zero number of neighbors.
-  if( m_Knn == 0 ){
+  if( m_Knn == 0 )
+  {
     std::cerr << "\t<ERROR> Number neighbours cannot be zero."
 	      << std::endl;
     assert (m_Knn != 0);
@@ -63,11 +67,12 @@ std::string* PndStdKnnClassify::Classify(std::vector<float> EvtData)
   
   // Get the Mva-value.
   std::map<std::string, float> TMPres;
+
   GetMvaValues(EvtData, TMPres);
   
   // Densities are estimated. Report the winner.
   // Get labels.
-  const vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+  vector<PndMvaClass> const& classes = m_dataSets.GetClasses();
 
   // Temporary variables for the winning class name and density.
   std::string CurWin;
@@ -84,8 +89,7 @@ std::string* PndStdKnnClassify::Classify(std::vector<float> EvtData)
     }
   }
   // Create and return the result object (string).
-  std::string* outPut = new std::string(CurWin);
-  return outPut;
+  return (new std::string(CurWin) );
 }
 
 /**
@@ -106,10 +110,10 @@ void PndStdKnnClassify::GetMvaValues(vector<float> eventData,
   }
 
   // Get labels.
-  const vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+  vector<PndMvaClass> const& classes = m_dataSets.GetClasses();
   
   // Get examples.
-  const vector<pair<string, vector<float>*> >& events = m_dataSets.GetData();
+  vector<pair<string, vector<float>*> > const& events = m_dataSets.GetData();
 
   if(m_Knn > events.size())
   {
@@ -134,9 +138,9 @@ void PndStdKnnClassify::GetMvaValues(vector<float> eventData,
 
   for(size_t evt = 0; evt < events.size(); evt++)
   {
-    vector<float>* ProtoVals = (events[evt]).second;
+    vector<float> const* ProtoVals = (events[evt]).second;
     
-    float dist = ComputeDist(eventData, *ProtoVals);
+    float dist = ComputeDist( eventData, (*ProtoVals) );
 
     m_distances[evt].m_idx  = -1;
     m_distances[evt].m_dist = dist;

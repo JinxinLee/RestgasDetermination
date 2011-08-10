@@ -99,7 +99,7 @@ void PndLVQTrain::Train()
   std::cout << "<INFO> Each . equals " << m_ProgStep 
 	    << " learning steps and\n\teach +/- means one re-initialization.\n";
 
-  // We need to fix this___ FIXME
+  // We need to solve or catch this
   if( a <= 0.00 )
   {//Underflow
     std::cerr << "<ERROR> Too small value for parameter a .\n"
@@ -117,7 +117,7 @@ void PndLVQTrain::Train()
 	      << std::endl;
     tFinal = std::numeric_limits<unsigned int>::max();
   }
-  // We need to fix this___ FIXME
+  // We need to solve or catch this
 
   // Print some information.
   std::cout << "<INFO>: Performing LVQ1 learning with parameters:\n"
@@ -252,7 +252,7 @@ void PndLVQTrain::Train21()
   std::cout << "<INFO> Each . equals " << m_ProgStep 
 	    << " learning steps and\n\teach +/- means one re-initialization.\n";
 
-  // We need to fix this___ FIXME
+  // We need to solve or catch this
   if( a <= 0.00 )
   {//Underflow
     std::cerr << "<ERROR> Too small value for parameter a .\n"
@@ -270,7 +270,7 @@ void PndLVQTrain::Train21()
 	      << std::endl;
     tFinal = std::numeric_limits<unsigned int>::max();
   }
-  // We need to fix this___ FIXME
+  // We need to solve or catch this
 
   // Print some INFO.
   std::cout << "<INFO>: Performing LVQ2.1 learning with parameters:\n"

@@ -59,7 +59,7 @@ ClDataSample* PndMvaCluster::Cluster(const ClusteringType ClType)
   assert(m_dimension != 0);
 
   // More clusters than data points?
-  assert(!(m_PointSet.size() < m_num_Cluster));
+  assert( m_PointSet.size() > m_num_Cluster );
 
   // Zero clusters means do nothing
   assert(m_num_Cluster != 0);
@@ -138,9 +138,10 @@ ClDataSample* PndMvaCluster::K_Means()
     num_iter++;
 
     // ================ Check empty clusters =======
-    // FIXME FIXME. For now we do nothing but maybe better to do
-    //'singleton' Create a new cluster consisting of the one point
-    //furthest from its centroid.
+    
+    // For now we do nothing but maybe better to do 'singleton' Create
+    //a new cluster consisting of the one point furthest from its
+    //centroid.
     /*
       for(size_t i = 0; i < m_ClustersToPoints.size(); i++)
       {
@@ -280,7 +281,8 @@ void PndMvaCluster::ReInitEmptyCenter(unsigned int centerIdx)
   m_PointsToClusters[point_Idx] = centerIdx;
 }
 
-// DEBUG FUNCTIONS Maybe Removed.
+//__________________ DEBUG FUNCTIONS ______________
+#if (PNDMVA_CLUSTER_DEBUG > 0)
 /**
  * Print the vectors and centroids and their relation.
  */
@@ -327,3 +329,4 @@ void PndMvaCluster::printStructs()
     std::cerr << std::endl;
   }
 }
+#endif

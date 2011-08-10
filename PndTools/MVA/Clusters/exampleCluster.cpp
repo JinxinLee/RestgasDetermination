@@ -59,19 +59,19 @@ int main(int argc, char** argv)
   std::string InFile(argv[1]);
 
   // Number of centroids.
-  int numCentrrs = atoi(argv[2]);
+  int numCentrrs = str2int(argv[2]);
   
   std::cout << "<INFO> Using input data from file " << InFile
-	    << '\n' <<"\t number of clusters = " << numCentrrs
+	    <<"\n\t number of clusters = " << numCentrrs
 	    << ".\n";
 
   // Construct the class name vector  
-  std::vector<std::string>clas;
-  clas.push_back("electron");
-  clas.push_back("pion");
+  std::vector<std::string> label;
+  label.push_back("electron");
+  label.push_back("pion");
   
   // Construct the variable name vector  
-  std::vector<std::string>vars;
+  std::vector<std::string> vars;
   
   vars.push_back("emc");
   vars.push_back("lat");
@@ -82,7 +82,7 @@ int main(int argc, char** argv)
   //vars.push_back("mvd"); vars.push_back("tof");  
 
   // Read the input points.
-  PndMvaDataSet data(InFile, clas, vars, TRAIN);
+  PndMvaDataSet data(InFile, label, vars, TRAIN);
   
   // Init structures and read.
   data.Initialize();
@@ -90,20 +90,20 @@ int main(int argc, char** argv)
   // Get available examples
   RawPoints const& samples = data.GetData();
 
-  std::vector< ClDataSample* > ProtoVector ( clas.size() );
+  std::vector< ClDataSample* > ProtoVector ( label.size() );
   
   // Prepair clustering input
   // Class loop
   int cl = 0;
-  int numClasses = clas.size();
+  int numClasses = label.size();
 
 #ifdef _OPENMP
-#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for private(cl) schedule(dynamic)
 #endif
   for(cl = 0; cl < numClasses; cl++)
   {
     ClDataSample clusteringInput;
-    std::string clsName = clas[cl];
+    std::string clsName = label[cl];
     
     // Example loop
     for(size_t i = 0; i < samples.size(); i++)

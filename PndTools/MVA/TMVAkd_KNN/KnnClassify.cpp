@@ -9,9 +9,6 @@
  * recognition performance.
  */
 
-// C++ headers
-#include <sstream>
-
 // Local headers
 #include "PndKnnClassify.h"
 #include "PndMvaTools.h"
@@ -47,14 +44,12 @@ int main(int argc, char** argv)
   std::string NumNeistr     = argv[3];
   
   // Convert to int.
-  std::istringstream buff(NumNeistr);
-  unsigned int NumNei = 0;
-  buff >> NumNei;
+  unsigned int NumNei = str2Uint(NumNeistr);
   
   // Containers to hold labels and variable names.
   std::string sgName = "electron";
   std::string bgName = "pion";
-
+  
   std::vector<std::string> labels;
   std::vector<std::string> vars;
   
@@ -84,6 +79,7 @@ int main(int argc, char** argv)
 
   // Set classifier parameters and init.
   cls.SetEvtParam(0.8,1.0);
+  
   cls.SetKnn(NumNei);
   
   cls.Initialize();
@@ -93,7 +89,7 @@ int main(int argc, char** argv)
   timer.Stop();
   double rtime = timer.RealTime();
   double ctime = timer.CpuTime();
-
+  
   std::cout << "<INFO> Initialization time:\n"
 	    << "RealTime = " << rtime << " seconds, CpuTime = " 
 	    << ctime <<" Seconds.\n";
@@ -107,17 +103,17 @@ int main(int argc, char** argv)
 						     events);
   // Map to store the results
   std::map<std::string, float> res;
-
+  
   // Store classifier outputs per event.
   std::vector< ClassifierOutPuts > classifiedEvents;
-
+  
   // Reste and start the timer.
   timer.Reset();
   timer.Start();
   
   // Perform classification of the available events.
   size_t numberOfEvt = events.size();
-
+  
 #if DEBUG_PRINT
   numberOfEvt = 20;
 #endif
@@ -151,7 +147,7 @@ int main(int argc, char** argv)
     
     delete givenLabel;
   }// End Examples loop
-
+  
   timer.Stop();
   rtime = timer.RealTime();
   ctime = timer.CpuTime();
@@ -159,7 +155,7 @@ int main(int argc, char** argv)
   std::cout << "<INFO> Classifier timing results:\n"
 	    << "RealTime = " << rtime << " seconds, CpuTime = "
 	    << ctime <<" Seconds.\n\n";
-
+  
   //__________________ Clean up _____________//
   // We are done with events vector. Cleaning
   std::cout << "Clean up Events.\n";

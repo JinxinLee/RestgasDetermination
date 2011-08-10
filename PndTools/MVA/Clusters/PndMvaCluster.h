@@ -17,13 +17,15 @@
 // Local includes
 #include "PndMvaUtil.h"
 
+#define PNDMVA_CLUSTER_DEBUG 0
+
 //! Data structure of the space points and the cluster centers
 typedef std::vector < std::vector<float>* > ClDataSample;
 
 //! Clustering types
 typedef enum
   { KMEANS_HARD = 0,
-    KMEANS_SOFT = 1
+    KMEANS_SOFT = 1// Not Implemented yet.
   } ClusteringType;
 
 //---------------- Class definition --------------
@@ -56,30 +58,28 @@ class PndMvaCluster
    * Get the number of cluster centeroids.
    *@return Number of cluster centeroids.
    */
-  inline unsigned int GetNumberOfClusters() const
-  { return m_num_Cluster; };
+  inline unsigned int GetNumberOfClusters() const;
   
   /**
    * Get the dimension of the input data points.
    *@return Dimension of the data points.
    */
-  inline unsigned int GetClusterDimension() const
-  { return m_dimension; };
+  inline unsigned int GetClusterDimension() const;
   
   //------- Setters
   /**
    * Set the number of centroids.
    *@param val Number of centeroids.
    */
-  inline void SetNumberOfClusters(unsigned int val)
-  { m_num_Cluster = val; };
+  inline void SetNumberOfClusters(unsigned int val);
   
-  // DEBUG FUNCTIONS Maybe Removed.
+  //__________________ DEBUG FUNCTIONS ______________
+#if (PNDMVA_CLUSTER_DEBUG > 0)
   /**
    * Print the vectors and centroids and their relation.
    */
   void printStructs();
-
+#endif
   //--------------------------------------------
   //protected:
   // -------------- private members ------------
@@ -121,4 +121,16 @@ class PndMvaCluster
   /// Responsibility list of each centroid.
   std::vector< std::set<unsigned int>* > m_ClustersToPoints;
 };
-#endif
+
+//__________________ Inlines ____________
+
+inline unsigned int PndMvaCluster::GetNumberOfClusters() const
+{return m_num_Cluster; };
+
+inline unsigned int PndMvaCluster::GetClusterDimension() const
+{ return m_dimension; };
+
+inline void PndMvaCluster::SetNumberOfClusters(unsigned int val)
+{ m_num_Cluster = val; };
+
+#endif// End interface

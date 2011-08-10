@@ -24,7 +24,10 @@
 #include "TNtuple.h"
 #include "TStopwatch.h"
 
+///________ DEBUG
+#define PRINT_DEBUG_INFO 0
 
+#if (PRINT_DEBUG_INFO > 0)
 void printResultMap(std::map<std::string,float>& res)
 {
   std::cout << "\n\t================================== \n";
@@ -35,7 +38,7 @@ void printResultMap(std::map<std::string,float>& res)
   }
   std::cout << "\n\t================================== \n";
 }
-
+#endif
 /* *********************************************
  * Testing routine, can be deleted afterwards. *
  * *********************************************
@@ -186,7 +189,11 @@ int main(int argc, char** argv)
       if( cls.Classify(curEvt) != EvtTreeName ){
 	misCnt++;
       }
-      //printResultMap(res);
+
+#if (PRINT_DEBUG_INFO > 0)      
+      printResultMap(res);
+#endif
+
     }
     
     Outfile << std::setprecision(5)

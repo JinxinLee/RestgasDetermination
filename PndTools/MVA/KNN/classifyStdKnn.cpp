@@ -10,7 +10,6 @@
  * algorithm.
  */
 
-#include <sstream>
 #include <iomanip>
 
 #include "PndStdKnnClassify.h"
@@ -36,11 +35,7 @@ int main(int argc, char** argv)
   std::string InWeights = argv[1];
   std::string InEvents  = argv[2];
   std::string NumNeistr = argv[3];
-
-  std::istringstream buff(NumNeistr);
-
-  int NumNei = 0;
-  buff >> NumNei;
+  int NumNei = str2int(NumNeistr);
 
   // Signal and background labels
   std::string sgName = "electron";
@@ -68,7 +63,7 @@ int main(int argc, char** argv)
   
   //Create the classifier object and specify the weight file
   PndStdKnnClassify cls (InWeights, labels, vars);
-  cls.SetKNN(NumNei);  
+  cls.SetKNN(NumNei);
   cls.Initialize();
 
   // To be classified events.
@@ -97,15 +92,18 @@ int main(int argc, char** argv)
   // Events loop
   for(size_t k = 0; k < totNumEvt; k++)
   {
-    std::vector<float>* evt = (events[k]).second;
+    std::vector<float> const* evt = (events[k]).second;
     
     // Get Mva Value
     cls.GetMvaValues( (*evt), res);
+
 #if DEBUG_PRINT
     print(res);    
 #endif
+
     // Do classification
     std::string* givenLabel = cls.Classify( (*evt) );
+    
     // Store results.
     classifiedEvents.push_back(ClassifierOutPuts((events[k]).first, *givenLabel,
 						 res[sgName], res[bgName]));
@@ -141,7 +139,7 @@ int main(int argc, char** argv)
   // Class loop
   for(size_t l = 0; l < labels.size(); ++l)
   {
-    std::string curLabel = labels[l];
+    std::string const& curLabel = labels[l];
     // Reset counters for each label
     correctCls = 0;
     wrongCls   = 0;

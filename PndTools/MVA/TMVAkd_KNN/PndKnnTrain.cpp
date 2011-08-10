@@ -31,13 +31,7 @@ PndKnnTrain::~PndKnnTrain()
  * Fill the Signal trees and train the classifier.
  */
 void PndKnnTrain::Train()
-{
-  // Fetch available data.
-  std::vector< std::pair<std::string, std::vector<float>*> > const &w = m_dataSets.GetData();
-  
-  // Write to output file
-  WriteToWeightFile(w);
-}
+{}
 
 /**
  * Store weights in the output File. If output file name is not
@@ -45,5 +39,9 @@ void PndKnnTrain::Train()
  */
 void PndKnnTrain::storeWeights()
 {
-  // FIXME IMPLEMENT ME
+  // Fetch available data.
+  std::vector< std::pair<std::string, std::vector<float>*> > const &w = m_dataSets.GetData();
+  
+  // Write to output file
+  WriteToWeightFile(w);
 }

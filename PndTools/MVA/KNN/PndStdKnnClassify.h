@@ -62,6 +62,9 @@ class PndStdKnnClassify : public PndMvaClassifier
    */
   inline unsigned int GetKnn() const;
 
+  /**
+   * Initialize classifier.
+   */
   void Initialize();
   
  private:
@@ -74,9 +77,8 @@ class PndStdKnnClassify : public PndMvaClassifier
   
   //! Container to hold the distances to current pattern.
   std::vector<PndMvaDistObj> m_distances;
-};
-//End of PndStdKnnClassify definitions.
-
+};//End interface.
+// ____________________________ Inlines ________________
 inline unsigned int PndStdKnnClassify::GetKnn() const
 {
   return m_Knn;

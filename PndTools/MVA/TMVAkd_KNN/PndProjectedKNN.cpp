@@ -207,7 +207,7 @@ void PndProjectedKNN::InitKNN()
     cls->SetEvtParam(m_ScaleFact, m_weight);
     cls->SetKnn(m_knn);
     
-    // FIXME <WARNING> Maybe this must be changed. 
+    // <WARNING FIX> Maybe this must be changed. 
     // The input file is read n-times.
     cls->Initialize();
     m_classifiers.push_back(make_pair(cls, indxs)); 

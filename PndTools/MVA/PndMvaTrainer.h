@@ -216,7 +216,7 @@ inline std::vector<PndMvaVariable> const& PndMvaTrainer::GetVariables() const
   return m_dataSets.GetVars();
 };
 
-//FIXME FIXME
+// @return  List of evaluation objects.
 inline  std::vector <StepError> const& PndMvaTrainer::GetErrorValues() const
 {
   return m_StepErro;

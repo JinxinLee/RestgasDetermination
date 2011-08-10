@@ -9,8 +9,6 @@
  */
 #include "PndKnnTrain.h"
 
-#include "TRandom3.h"
-
 int main(int argc, char** argv)
 {
   if(argc < 3)
@@ -20,47 +18,54 @@ int main(int argc, char** argv)
 	      << std::endl;
     return 1;
   }
-  
+
+  // Input file  
   std::string inpt   = argv[1];
+
+  // Out put file name to write the weights.
   std::string oupt   = argv[2];
-  
-  std::vector<std::string> clas;
-  std::vector<std::string> nam;
+
+  // Labels.
+  std::vector<std::string> label;
+
+  // Variable names.
+  std::vector<std::string> vars;
   
   // Class Names  
-  clas.push_back("electron");
-  clas.push_back("pion"); 
-  //clas.push_back("kaon");
-  //clas.push_back("muon");
-  //clas.push_back("proton");
+  label.push_back("electron");
+  label.push_back("pion"); 
+  //label.push_back("kaon");
+  //label.push_back("muon");
+  //label.push_back("proton");
   
   // Parameter Names
-  nam.push_back("emc");
-  nam.push_back("lat");
-  nam.push_back("z20");
-  nam.push_back("z53");
-  
-  const char* file = inpt.c_str();
+  vars.push_back("emc");
+  vars.push_back("lat");
+  vars.push_back("z20");
+  vars.push_back("z53");
   
   // Create classifier object.
-  PndKnnTrain kNNtr (file, clas, nam, true);
+  PndKnnTrain kNNtr ( inpt.c_str(), label, vars, true);
   
   //NormType tt = VARX;
   //kNNtr.NormalizeData(VARX);
   //kNNtr.NormalizeData(MINMAX);
   //kNNtr.NormalizeData(MEDIAN);
-
+  
   // Transform using PCA
   //kNNtr.PCATransForm();
   
-  //Set output file name
+  // Set output file name
   kNNtr.SetOutPutFile(oupt);
-
-  //Init and set data structures
+  
+  // Init and set data structures
   kNNtr.Initialize();
-
+  
   // Perform training
-  kNNtr.Train();
+  kNNtr.Train();// Currently it does nothing.
+
+  // Store weights.
+  kNNtr.storeWeights();
 
   return 0;
 }

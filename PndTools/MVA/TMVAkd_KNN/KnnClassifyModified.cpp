@@ -3,7 +3,6 @@
 #define MAX_NUM_NEIGH 90 //650
 
 // C++ headers
-#include <sstream>
 #include <iomanip>
 
 // Local headers

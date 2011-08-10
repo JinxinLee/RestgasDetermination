@@ -45,7 +45,7 @@ PndMvaDataSet::PndMvaDataSet(std::vector< std::pair<std::string, std::vector<flo
   /*
    * This is (absolutly) not elegant.
    * BUT, maybe I will solve this later
-   * MAYBE FIXME.
+   * Warning: MAYBE Needs change in future.
    */
   size_t evtCnt, tmpIdx;
   tmpIdx = 0;
@@ -313,7 +313,7 @@ void PndMvaDataSet::NormalizeDataSet()
   {
     std::cerr << "<ERROR> Un-Initialized data set.\n"
 	      << "        Number of training examples equals zero.\n"
-	      << "        Fix this and try again."
+	      << "        Solve this and try again."
 	      << std::endl;
     exit(1);
   }

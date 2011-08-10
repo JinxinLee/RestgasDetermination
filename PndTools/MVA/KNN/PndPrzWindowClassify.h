@@ -1,7 +1,7 @@
 /* ***************************************
  * Parzen Window based classifier.       *
  * Author: M.Babai@rug.nl                *
- * Version: 0.1 beta1                    *
+ * Version:                              *
  * license:                              *
  * ***************************************
  */
@@ -28,9 +28,9 @@ class PndPrzWindowClassify : public PndMvaClassifier
    * @param varNames: Variable names from which the feature vector is
    * built.
    */
-  PndPrzWindowClassify(const std::string& inputFile,
-		       const std::vector<std::string>& classNames, 
-		       const std::vector<std::string>& varNames);
+  PndPrzWindowClassify(std::string const& inputFile,
+		       std::vector<std::string> const& classNames, 
+		       std::vector<std::string> const& varNames);
 
   //! Destructor  
   virtual ~PndPrzWindowClassify();
@@ -62,7 +62,7 @@ class PndPrzWindowClassify : public PndMvaClassifier
    * Set the window size. Specify the size for every dimension.
    *@param wsize Window (Bin) size for each dimensions.<dim name, size>
    */
-  inline void setWindowSize(const std::map<std::string, float>& wsize);
+  inline void setWindowSize(std::map<std::string, float> const& wsize);
 
   /**
    * Get hypercube volume
@@ -72,12 +72,12 @@ class PndPrzWindowClassify : public PndMvaClassifier
   /**
    * Get window sizes for all dimensions.
    */
-  inline const std::map<std::string, float>& GetWindowSize() const;
+  inline std::map<std::string, float> const& GetWindowSize() const;
 
  private:
   // To avoid mistakes.
-  PndPrzWindowClassify(const PndPrzWindowClassify& other);
-  PndPrzWindowClassify& operator=(const PndPrzWindowClassify& other);
+  PndPrzWindowClassify(PndPrzWindowClassify const& other);
+  PndPrzWindowClassify& operator=(PndPrzWindowClassify const& other);
 
   /*
    * A very simple implementation of a kernel function. It can be
@@ -86,7 +86,7 @@ class PndPrzWindowClassify : public PndMvaClassifier
    *@param evtDat Vector containing event data.
    *@return 1 if the current test sample inside the window, else 0;
    */
-  float histKernel(const std::vector<float>& evtDat, const std::vector<float>& trSample);
+  float histKernel(std::vector<float> const& evtDat, std::vector<float> const& trSample);
 
   // Compute the hypercube volume
   float CompHyperCubeVolume();
@@ -99,7 +99,7 @@ class PndPrzWindowClassify : public PndMvaClassifier
 };
 
 // ================================================================
-inline void PndPrzWindowClassify::setWindowSize(std::map<std::string, float> const &wsize)
+inline void PndPrzWindowClassify::setWindowSize(std::map<std::string, float> const& wsize)
 {
   m_Wsize = std::map<std::string, float>(wsize);
   // Set hypercube volume.
@@ -111,7 +111,7 @@ inline float PndPrzWindowClassify::GetHyperCubeVolume() const
   return m_volumeN;
 };
 
-inline std::map<std::string, float> const &PndPrzWindowClassify::GetWindowSize() const
+inline std::map<std::string, float> const& PndPrzWindowClassify::GetWindowSize() const
 {
   return m_Wsize;
 };

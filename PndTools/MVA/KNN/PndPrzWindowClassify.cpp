@@ -1,7 +1,7 @@
 /* ***************************************
  * ParzenWindow based classifier.        *
  * Author: M.Babai@rug.nl                *
- * Version: 0.1 beta1                    *
+ * Version:                              *
  * license:                              *
  * ***************************************
  */
@@ -48,7 +48,7 @@ std::string* PndPrzWindowClassify::Classify(std::vector<float> EvtData)
 
   // Densities are estimated. Report the winner.
   // Get labels.
-  const vector<PndMvaClass>& classes = m_dataSets.GetClasses();
+  vector<PndMvaClass> const& classes = m_dataSets.GetClasses();
 
   // Temporary variables for the winning class name and density.
   std::string CurWin = "PRZ_UNKNOWN_WIN";
@@ -85,10 +85,10 @@ void PndPrzWindowClassify::GetMvaValues(vector<float> eventData,
   assert( m_volumeN > 0.0 );
 
   // Get examples.
-  const vector <pair<string, vector<float>*> >& events = m_dataSets.GetData();
+  vector <pair<string, vector<float>*> > const& events = m_dataSets.GetData();
   
   // Get labels (classes).
-  const vector<PndMvaClass>& labels = m_dataSets.GetClasses();
+  vector<PndMvaClass> const& labels = m_dataSets.GetClasses();
 
   // Normalize current Event
   NormalizeEvent(eventData);
@@ -108,7 +108,7 @@ void PndPrzWindowClassify::GetMvaValues(vector<float> eventData,
   for(size_t cl = 0; cl < labels.size(); cl++)
   {
     // Get current label
-    std::string curLabel = labels[cl].Name;
+    std::string const& curLabel = labels[cl].Name;
 
     // Loop through training examples with the current label.
     for(size_t ex = 0; ex < events.size(); ex++)
@@ -140,7 +140,7 @@ void PndPrzWindowClassify::GetMvaValues(vector<float> eventData,
 void PndPrzWindowClassify::setWindowSize(float wsize)
 {
   // Fetch the variables.
-  const std::vector<PndMvaVariable>& variables = m_dataSets.GetVars();
+  std::vector<PndMvaVariable> const& variables = m_dataSets.GetVars();
 
   // init window sizes.
   for(size_t i = 0; i < variables.size(); i++)
@@ -159,14 +159,14 @@ void PndPrzWindowClassify::setWindowSize(float wsize)
  *@param evtDat Vector containing event data.
  *@return 1 if the current test sample inside the window, else 0;
  */
-float PndPrzWindowClassify::histKernel( const std::vector<float>& evtDat,
-					const std::vector<float>& trSample)
+float PndPrzWindowClassify::histKernel(std::vector<float> const& evtDat,
+				       std::vector<float> const& trSample)
 {
   // If the examples have the same length
   assert (evtDat.size() == trSample.size());
 
   // Fetch the variables.
-  const std::vector<PndMvaVariable>& variables = m_dataSets.GetVars();
+  std::vector<PndMvaVariable> const& variables = m_dataSets.GetVars();
   
   // Temporary Container
   std::vector <float> tmpPar (variables.size(), 0.0);

@@ -136,7 +136,7 @@ void PndMvaTrainer::splitTetsSet()
  *@param FileName Output file name.
  */
 /*
- * FIXME FIXME Maybe we need to write per class errors as well. It is
+ * Warn: Maybe we need to write per class errors as well. It is
  * ofcourse needed to do statistics and not so important for plotting.
  */
 void PndMvaTrainer::WriteErroVect(std::string const& FileName) const
@@ -366,7 +366,7 @@ void PndMvaTrainer::WriteToWeightFile(std::vector<TMVA::PDEFoam*> const& foamLis
   {
     foamList[j]->Write(foamList[j]->GetFoamName().Data());
 
-    // DEBUG FIXME
+    // DEBUG
     foamList[j]->Print();
     std::cout << "  i is: " 
 	      << typeid(foamList[j]).name() 
