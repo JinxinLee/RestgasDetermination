@@ -1,4 +1,11 @@
-{
+void 
+runDigi( TString inFile, 
+	       TString outDir,
+	       TString jobname,
+	       Int_t startEvent, // event number where we start processing
+	       Int_t nEvents,
+	       bool doDistort,
+	       double scale ){
   // ----  Load libraries   -------------------------------------------------
    gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
@@ -7,20 +14,28 @@
   //SET NUMBER OF EVENTS
   // ------------------------------------------------------------------------
 
-  Int_t nEvents=1000;
+
   TString basedir = gSystem->Getenv("VMCWORKDIR");
   
   // Set INPUT DIRECTORY (MC files) and JOBNAME
   // ------------------------------------------------------------------------
-  TString inDir="TEST";
-  TString jobname="DPM";
+  //TString inDir="/nfs/nas/data/panda/tpc/SIM/evtmix/";
+  // TString jobname="phys_JPsiPiPi.skim";
+  //TString jobname="DPM";
+  TString parfile="/nfs/nas/data/panda/tpc/SIM/evtmix/all.par";
+  //Int_t nEvents=1000;
 
-  inDir=(basedir+"/")+inDir;
-  TString inFile=(inDir+"/")+jobname;
-  inFile+=".mc.root";
- 
-  TString outFile = inFile;
-  outFile.ReplaceAll(".mc.root", ".DD.raw.root");
+  //inDir=(basedir+"/")+inDir;
+  //TString inFile=(inDir+"/")+jobname;
+  //inFile+=".mc.root";
+
+  //Bool_t doDistort=true;
+  //double scale=2; // distortion scale
+  TString outFile = (outDir)+jobname;
+  outFile+=".mc.root";
+  if(!doDistort)scale=0;
+  TString batchID(".DD");batchID+=scale;batchID+=".";batchID+=startEvent;batchID+=".raw.root";
+  outFile.ReplaceAll(".mc.root", batchID);
   TString paramIn = inFile;
   paramIn.ReplaceAll(".mc.root",".param.root");
   TString paramOut = outFile;
@@ -32,7 +47,7 @@
   std::cout<<"ParamIn: "<<paramIn<<std::endl;
   std::cout<<"ParamOut: "<<paramOut<<std::endl;
  
-
+  
 
   // In general, the following parts need not be touched
   // ========================================================================
@@ -54,8 +69,8 @@
   FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
   parInput1->open(paramIn.Data());
   FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
-  TString tpcDigiFile = gSystem->Getenv("VMCWORKDIR");
-  tpcDigiFile += "/macro/params/all.par";
+  TString tpcDigiFile;// = gSystem->Getenv("VMCWORKDIR");
+  tpcDigiFile += parfile;
   parInput2->open(tpcDigiFile.Data(),"in");
 
   rtdb->setFirstInput(parInput2);
@@ -96,7 +111,7 @@
  
   PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
   //tpcDrifter->SetPersistence();
-  tpcDrifter->SetDistort(true);
+  tpcDrifter->SetDistort(doDistort, scale);
   tpcDrifter->SetDeviationFile("tpc/DevMap_Efield_march09_official_B_Maps.dat");
   fRun->AddTask(tpcDrifter);
 
@@ -146,7 +161,7 @@
   fRun->Init();
   rtdb->print();
 
-  fRun->Run(0,nEvents); // process all events from input file
+  fRun->Run(startEvent,startEvent+nEvents); // process all events from input file
   // ------------------------------------------------------------------------
 
   // -----   Finish   -------------------------------------------------------

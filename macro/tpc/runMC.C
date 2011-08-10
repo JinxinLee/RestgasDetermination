@@ -1,4 +1,4 @@
-{
+void runMC(TString jobdir="/nfs/nas/data/panda/tpc/SIM/evtmix/",TString jobname="phys_JPsiPiPi", Int_t nEvents=3000){
   TStopwatch timer;
   timer.Start();
   
@@ -18,20 +18,20 @@
 
   // SET NUMBER OF EVENTS
   // --------------------------------------------------
-  Int_t nEvents = 1000;
+  //Int_t nEvents = 2000;
 
   //Set JOBNAME + JOBDIR (will not be created!)
   // --------------------------------------------------
-  TString jobdir="TEST";
-  TString jobname="physics";
+  //TString jobdir="TEST";
+  //TString jobname="DPM";
  
  // highly relatvistic approximation:
   double Minv=3.686; // Psi(2s)
   double p=Minv*Minv/ (2.*0.938);
 
 
-  TString basejobdir=gSystem->Getenv("VMCWORKDIR");
-  jobdir=(basejobdir+"/")+jobdir+"/";
+  //TString basejobdir=gSystem->Getenv("VMCWORKDIR");
+  //jobdir=(basejobdir+"/")+jobdir+"/";
   std::cout<<jobdir<<std::endl;
 
 
@@ -105,7 +105,7 @@
   fRun->AddModule(Dipole);
   
   PndTpcDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
-  PndTpc->SetGeometryFileName("TPC_V1.0.root");  
+  PndTpc->SetGeometryFileName("TPC_V1.1.root");  
   //ALICE Style MC (only for G3): =========================
   if(GEANT=="TGeant3") 
     PndTpc->SetAliMC();
@@ -136,18 +136,18 @@
   
   //pdgs 211=pion 13=muon 11=electron, ...
   //(PDG ID, MULTIPLICITY)
-  FairBoxGenerator* boxGen = new FairBoxGenerator(211, 5); 
+  FairBoxGenerator* boxGen = new FairBoxGenerator(211, 1); 
   
   boxGen->SetPRange(0.5,0.5); // GeV/c 
   boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(15, 15); // Polar angle in lab system range [degree]
+  boxGen->SetThetaRange(15, 110); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
-  //primGen->AddGenerator(boxGen);
+  primGen->AddGenerator(boxGen);
 
   //FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
-  //fRun->SetGenerator(primGen);
+  fRun->SetGenerator(primGen);
 
-  //DPM
+    //DPM
   // TString dpmfile = basejobdir+"10k_2Gev_el_and_inel_DPMDATA.root";
   // PndDpmGenerator* dpmGen = new PndDpmGenerator(dpmfile);
   // primGen->AddGenerator(dpmGen);  
@@ -156,10 +156,19 @@
   double mode=1;
   PndDpmDirect *dpmGen = new PndDpmDirect(mom,mode, gRandom->GetSeed(), 2.);
   //primGen->AddGenerator(dpmGen);
+
+  //FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
+  //primGen->SetTarget(0., 0.5/2.355);
+  //primGen->SmearVertexZ(kTRUE);
+  //primGen->SmearGausVertexZ(kTRUE);
+  //primGen->SetBeam(0., 0., 0.1, 0.1);
+  //primGen->SmearVertexXY(kTRUE);
+  //fRun->SetGenerator(primGen);
   
-  FairEvtGenGenerator* evtGen = new FairEvtGenGenerator("input/psi2s_jpsi2pi_1k.evt");
-  primGen->AddGenerator(evtGen);
-  
+  PndEvtGenDirect *EvtGen = new PndEvtGenDirect("psi(2S)","PSI2S.DEC",-3.686.09);
+  EvtGen->SetStoreTree(kFALSE);
+  //primGen->AddGenerator(EvtGen);
+
   
   // Field Map Definition
   // --------------------

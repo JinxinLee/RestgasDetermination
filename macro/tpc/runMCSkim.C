@@ -7,20 +7,20 @@
   //SET NUMBER OF EVENTS
   // ------------------------------------------------------------------------
 
-  Int_t nEvents=1000;
+  Int_t nEvents=30;
   TString basedir = gSystem->Getenv("VMCWORKDIR");
   
   // Set INPUT DIRECTORY (MC files) and JOBNAME
   // ------------------------------------------------------------------------
-  TString inDir="TEST";
-  TString jobname="physics";
+  TString inDir="/nfs/nas/data/panda/tpc/SIM/evtmix/";
+  TString jobname="phys_JPsiPiPi";
 
-  inDir=(basedir+"/")+inDir;
+  //inDir=(basedir+"/")+inDir;
   TString inFile=(inDir+"/")+jobname;
   inFile+=".mc.root";
  
   TString outFile = inFile;
-  outFile.ReplaceAll(".mc.root", ".skim.mc.root");
+  outFile.ReplaceAll(".mc.root", ".skimtest.mc.root");
   TString paramIn = inFile;
   paramIn.ReplaceAll(".mc.root",".param.root");
   TString paramOut = outFile;

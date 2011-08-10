@@ -1,4 +1,4 @@
-{
+void runEvtMixReco(TString inFile, TString physFile, TString jobname="reco1" ){
 
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
@@ -12,15 +12,16 @@
   TString PANDAMC=gSystem->Getenv("PANDAMC");
 
   // Input file (Mixed tpc events)
-  TString inFile="TEST/evtmix1000DD/physics.DD.mixed.root";
+  //TString inFile="TEST/evtmix1000DD/physics.DD.mixed.root";
   // Input physics events with MVD and GEM
-  TString physFile="TEST/physics.DD.raw.root"; 
-  TString jobname="reco1";
+  //TString physFile="TEST/physics.DD.raw.root"; 
+  //TString jobname="reco1";
 
   // TString mcFile="TEST/DPM.mc.root";
-  
-  inFile.ReplaceAll("$PANDAMC",PANDAMC);
-  physFile.ReplaceAll("$PANDAMC",PANDAMC);
+  TString allDigiFile = "/nfs/nas/data/panda/tpc/SIM/evtmix/all.par";
+
+  //inFile.ReplaceAll("$PANDAMC",PANDAMC);
+  //physFile.ReplaceAll("$PANDAMC",PANDAMC);
 
 
   TString inDir=inFile(0,inFile.Last('/')+1);
@@ -30,8 +31,8 @@
   cmd+=jobDir; 
   if(gSystem->Exec(cmd)){
     std::cout<<"Could not create Job-Directory "<<jobDir
-	     <<". Aborting."<<std::endl;
-    return;
+	    <<std::endl;
+    //return;
   }
   
   TString outFile = inFile; 
@@ -98,7 +99,7 @@
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 
-  TString allDigiFile = "macro/params/all.par";
+  
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
   
@@ -120,23 +121,28 @@
   //fRun->LoadGeometry();
   // ------------------------------------------------------------------------
   
-  FairGeane *Geane = new FairGeane();
-  fRun->AddTask(Geane);
-  std::cout<<"\nGEANE initialised"<<std::endl;
+  //FairGeane *Geane = new FairGeane();
+  //fRun->AddTask(Geane);
+  //std::cout<<"\nGEANE initialised"<<std::endl;
 
   // -----    Reco Sequence  --------------------------------------------
    
-  //find track candidates in the TPC alone
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
-  tpcSPR->SetPersistence();
-  //tpcSPR->useGeane(); // use RKTrackrep and GeaneTrackrep
+  //tpcSPR->SetPersistence();
+  tpcSPR->useGeane(false); // use RKTrackrep and GeaneTrackrep
   //tpcSPR->SetMCPid(); // use ideal particle identification
+  // the following lines only with MCCORR compiled code!!!!!
+  //tpcSPR->SetTrkFinderParameters(5,200,5);
+  //tpcSPR->SetTrkMergerParameters(200,200,200,200); 
+  //tpcSPR->SetMergeCurlers();
   tpcSPR->SetPDG(211);
   fRun->AddTask(tpcSPR);
 
   PndTpcEvtDeconvTask* evtDeconv=new PndTpcEvtDeconvTask();
   evtDeconv->SetPersistence();
-  evtDeconv->SetCuts(15,5);
+  evtDeconv->SetZCutBinning(50,0.25);
+  evtDeconv->SetNExpectedTracks(4);
+  evtDeconv->SetCuts(5.,3.5,0);
   evtDeconv->SetOutTrackBranchName("RiemannTrackTagged");
   fRun->AddTask(evtDeconv);
 
@@ -148,75 +154,81 @@
   trackInit->SetOutBranchNames("TrackPreFitTagged",
 			       "PndTrackCandTagged",
 			       "PndTrackTpcTagged");
-  trackInit->useGeane(true); // uses RKTrackrep and GeaneTrackrep
+  trackInit->useGeane(false); // uses RKTrackrep and GeaneTrackrep
   trackInit->SetSmoothing(true);
   fRun->AddTask(trackInit);
 
 
 
   KalmanTask* kalman =new KalmanTask();
-  kalman->SetPersistence();
+  //kalman->SetPersistence();
   kalman->SetTrackBranchName("TrackPreFitTagged");
   kalman->SetOutBranchName("TrackFitTagged");
-  kalman->SetNumIterations(1); // number of fitting iterations (back and forth)
+  kalman->SetNumIterations(3); // number of fitting iterations (back and forth)
   fRun->AddTask(kalman);       // creates TrackPostFit branch
 
   //correlate fitted track with MVD pixels and strips
   PndTpcMVDCorrelatorTask* corr = new PndTpcMVDCorrelatorTask();
-  corr->SetMatchDistance(0.18);   //cm
-  corr->SetMinMVDHits(2);
+  corr->SetMatchDistance(3);   //cm
+  corr->SetMinMVDHits(1);
   corr->RequireMatch(true);
   corr->SetTrackBranchName("TrackFitTagged");
   corr->SetOutTrackBranchName("TrackPreFitTaggedMVD");
-  corr->SetPersistence(true);
+  //corr->SetPersistence(true);
   fRun->AddTask(corr);
 
   
   //fit after MVD corr
   KalmanTask* kalman2 =new KalmanTask();
   kalman2->SetPersistence();
-  kalman2->SetNumIterations(1); // number of fitting iterations (back and forth)
+  kalman2->SetNumIterations(3); // number of fitting iterations (back and forth)
   kalman2->SetTrackBranchName("TrackPreFitTaggedMVD");
   kalman2->SetOutBranchName("TrackFitTaggedMVD");
   fRun->AddTask(kalman2);
 
-  PndTpcGEMCorrelatorTask* corrG = new PndTpcGEMCorrelatorTask();
-  corrG->SetMatchDistance(0.5);   //cm 
-  corrG->SetMinGEMHits(2);
-  //corrG->RequireMatch(true);
-  corrG->SetTrackBranchName("TrackFitTaggedMVD");
-  corrG->SetOutTrackBranchName("TrackPreFitTaggedGEM");
-  corrG->SetPersistence(true);
-  fRun->AddTask(corrG);
+  PrimSelector* prims=new PrimSelector();
+  prims->SetTrackBranchName("TrackFitTaggedMVD");
+  prims->SetNExpectedTracks(4);
+  prims->SetPersistence();
+  fRun->AddTask(prims);
 
-  //final fit
-  KalmanTask* kalman3 =new KalmanTask();
-  kalman3->SetPersistence();
-  kalman3->SetNumIterations(1); // number of fitting iterations (back and forth)
-  kalman3->SetTrackBranchName("TrackPreFitTaggedGEM");
-  kalman3->SetOutBranchName("TrackPostFitComplete");
-  fRun->AddTask(kalman3);
+  // PndTpcGEMCorrelatorTask* corrG = new PndTpcGEMCorrelatorTask();
+  // corrG->SetMatchDistance(100.);   //mutliple of GEM hit sigma 
+  // corrG->SetMinGEMHits(2);
+  // //corrG->RequireMatch(true);
+  // corrG->SetTrackBranchName("TrackFitTaggedMVD");
+  // corrG->SetOutTrackBranchName("TrackPreFitTaggedGEM");
+  // corrG->SetPersistence(true);
+  // fRun->AddTask(corrG);
+
+  // //final fit
+  // KalmanTask* kalman3 =new KalmanTask();
+  // kalman3->SetPersistence();
+  // kalman3->SetNumIterations(1); // number of fitting iterations (back and forth)
+  // kalman3->SetTrackBranchName("TrackPreFitTaggedGEM");
+  // kalman3->SetOutBranchName("TrackPostFitComplete");
+  // fRun->AddTask(kalman3);
 
 
-
+  
 
 
   fRun->Init();
   
-  fRun->Run(0,1);
+  fRun->Run(0,0);
   // -----   Finish   -------------------------------------------------------
-
+  corr->WriteHistograms("MvdCorr.root");
   // tpcRMC->WriteHistograms();
 //  tpcSPR->WriteHistograms("RecoHistos.root");
 //kalman->WriteHistograms("RecoHistos.root");
-//fitstat->WriteHistograms("RecoHistos.root");
-  // dEdx->WriteHistograms("RecoHistos.root");
+// //fitstat->WriteHistograms("RecoHistos.root");
+//   // dEdx->WriteHistograms("RecoHistos.root");
 
-  //DebugLogger::Instance()->WriteFiles();
+//   //DebugLogger::Instance()->WriteFiles();
 
-//delete tpcSplitter;
-  rtdb->saveOutput();
-  rtdb->print();
+// //delete tpcSplitter;
+//   rtdb->saveOutput();
+//   rtdb->print();
 
   timer.Stop();
   Double_t rtime = timer.RealTime();
@@ -227,7 +239,8 @@
   cout << "Parameter file is " << paramOut << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
-  // ------------------------------------------------------------------------
+//   // ------------------------------------------------------------------------
 
+  
 
 }

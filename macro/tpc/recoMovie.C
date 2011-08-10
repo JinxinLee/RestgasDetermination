@@ -125,7 +125,7 @@ void recoMovie(TTree* t, TString padplane, TString padshapes, bool movie=false){
   TClonesArray *sa=new TClonesArray("PndTpcDigi");
   t->SetBranchAddress("PndTpcDigi",&sa);
 
-  TH2D* ma=new TH2D("map","Hit pads",420,0,42,840,-42,42);
+  TH2D* ma=new TH2D("map","Hit pads",840,-42,42,840,-42,42);
   ma->SetStats(false);
   TH1D* hPure=new TH1D("pure","Purity",1000,0.0 ,1.1);
   TH1D* hClPure=new TH1D("clpure","Cluster Purity",1000,0.8 ,1.1);
@@ -200,8 +200,16 @@ void recoMovie(TTree* t, TString padplane, TString padshapes, bool movie=false){
   std::cout << "Starting sorting digis in time..." << std::endl;
   sort(vd.begin(),vd.end(),PndTpcDigiAge());
   std::cout << "Finished sorting." << std::endl;
+
+  ndig= vd.size();
+  std::cout << "Number of Digits: "<< ndig << std::endl;
+  Int_t t1=vd[0]->t();
+  std::cout << "starting at t=" << t1 << std::endl;
+
   // make frames
-  Int_t t1=0;
+  
+  Int_t thisstep=0;
+  Double_t time=0;
   int counter=0;
   Int_t lastcl=0;
   Int_t tstep=10; // wait for tstep before doing tracklet building
@@ -217,13 +225,19 @@ void recoMovie(TTree* t, TString padplane, TString padshapes, bool movie=false){
   watch1.Start();
 
   std::vector<PndTpcRiemannTrack*> finishedtracks;
- 
+  std::map<McId,int> trackpieces;
+
   for(Int_t i=0; i<ndig; ++i){ // loop over digis
     PndTpcDigi *sig=vd[i];
-    if(sig->t()-t1>tstep){ // process timeslice
+    thisstep=sig->t()-t1;
+    if(thisstep>tstep || i==ndig-1){ // process timeslice
+      ++counter;
+      time+=thisstep*0.025;
       double z0=PndTpcDigiMapper::getInstance()->z_from_tick(t1);
       t1=sig->t();
-     
+      
+
+
       // run clusterfinder
       unsigned int nclb=_cluster_buffer->size();
       gErrorAbortLevel=kWarning;
@@ -248,7 +262,6 @@ void recoMovie(TTree* t, TString padplane, TString padshapes, bool movie=false){
 	//if(counter<100)file<<"0";
 	//if(counter<10)file<<"0";
 	plotfile<<counter<<".gif";
-	++counter;
 	ma->Draw("BOX");
 	c2->cd(2);
 	ma->Draw("BOX");
@@ -283,14 +296,14 @@ void recoMovie(TTree* t, TString padplane, TString padshapes, bool movie=false){
 
       }// end plotting
 
-      std::map<McId,int> trackpieces;
+      
 
       int ntrk=riemannlist.size();
       std::vector<PndTpcRiemannTrack*> activetracks;
      
 
       //std::cout<<"ntracks="<<ntrk<<std::endl;
-      gNTracks->SetPoint(counter,counter*tstep*0.025,ntrk);
+      gNTracks->SetPoint(counter,time,ntrk);
       for(int itrk=0;itrk<ntrk;++itrk){
 	//riemannlist[itrk]->Plot(false);
 	// check if this track is still in active window...
@@ -304,13 +317,11 @@ void recoMovie(TTree* t, TString padplane, TString padshapes, bool movie=false){
 	  finishedtracks.push_back(riemannlist[itrk]);
 	  
 	  if(nhits>minhits){
-	    if(movie){
 	      hPure->Fill(riemannlist[itrk]->mcid().MaxRelWeight());
 	      int pieces=trackpieces[riemannlist[itrk]->mcid().DominantID()];
 	      trackpieces[riemannlist[itrk]->mcid().DominantID()]=pieces+1;
 	      hNHits->Fill(nhits);
-	    }
-	    usedclusters+=nhits;
+	      usedclusters+=nhits;
 	  }
 	  else {lostclusters+=nhits;}
 	  
@@ -360,9 +371,9 @@ void recoMovie(TTree* t, TString padplane, TString padshapes, bool movie=false){
 	
 	
 	c->cd(2);
-	gclusters->SetPoint(counter,counter*tstep*0.025,totalclusters);
-	gusedclusters->SetPoint(counter,counter*tstep*0.025,usedclusters);
-	glostclusters->SetPoint(counter,counter*tstep*0.025,lostclusters);
+	gclusters->SetPoint(counter,time,totalclusters);
+	gusedclusters->SetPoint(counter,time,usedclusters);
+	glostclusters->SetPoint(counter,time,lostclusters);
 	gclusters->Draw("AP");
 	gusedclusters->SetMarkerColor(kBlue);
 	gusedclusters->Draw("P");
@@ -375,7 +386,7 @@ void recoMovie(TTree* t, TString padplane, TString padshapes, bool movie=false){
 	gusedclusters->Draw("P");
 	glostclusters->Draw("P");
 	
-	if(usedclusters>0)gclustereff->SetPoint(counter,counter*tstep*0.025,(double)usedclusters/(double)totalclusters);
+	if(usedclusters>0)gclustereff->SetPoint(counter,time,(double)usedclusters/(double)totalclusters);
 	
 
 
@@ -465,6 +476,7 @@ void recoMovie(TTree* t, TString padplane, TString padshapes, bool movie=false){
       cout << finishedtracks.size() << " finished tracks" << endl;
       cout << "lost clusters: " << lostclusters << endl;
       cout << "used clusters: " << usedclusters << endl;
+      cout << "Processed "<<i<<" out of "<< ndig <<" digis." << endl;
     } // end process time slice
     //double x,y;
     //_padPlane->GetPadXY(sig->padId(),x,y);
