@@ -149,7 +149,9 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
     if(fVerbose) std::cout<<"  ... processing TPC track no. "<<itr<<std::endl;
     GFTrack* track = (GFTrack*) (*fTrackArray)[itr];
     GFAbsTrackRep* rep = track->getCardinalRep();
+    TVector3 trkStartPos=track->getPos();
     
+
     unsigned int nPix = fPixelArray->GetEntriesFast();
     unsigned int nStr = fStripArray->GetEntriesFast();
     
@@ -162,6 +164,13 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
     for(unsigned int ipx=0; ipx<nPix; ipx++) {
       PndSdsHit* hit = (PndSdsHit*) (*fPixelArray)[ipx];
       hit->Position(destination);
+      // check if this hit is in same hemisphere as track position
+      double angle=trkStartPos.DeltaPhi(destination);
+      if(fabs(angle)>TMath::PiOver2()){
+	 if(fVerbose) std::cout<<"       pixel hit "<<ipx<<" in wrong hemisphere, skipping!"<<  std::endl;
+	continue; // wrong hemisphere
+      }
+
       hit->PositionError(error);
       if(fVerbose) {
         std::cout<<"       processing hit at ";
@@ -209,6 +218,11 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
     for(unsigned int istr=0; istr<nStr; istr++) {
       PndSdsHit* hit = (PndSdsHit*) (*fStripArray)[istr];
       hit->Position(destination);
+      double angle=trkStartPos.DeltaPhi(destination);
+      if(fabs(angle)>TMath::PiOver2()){
+	 if(fVerbose) std::cout<<"       strip hit "<<istr<<" in wrong hemisphere, skipping!"<<  std::endl;
+	continue; // wrong hemisphere
+      }
       hit->PositionError(error);
       if(fVerbose) {
         std::cout<<"       processing hit at ";
