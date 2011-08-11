@@ -5544,6 +5544,8 @@ nohits: ;
 
     Int_t i, j, i1, ii, iii, index, Kincl, nlow, nup, STATUS, imc, Nmin, Nmax;
 
+	UShort_t Lista[nmaxHits];
+
     Double_t xmin , xmax, ymin, ymax, Ox, Oy,
            dx, dy, diff, d1, d2,
            delta, deltax, deltay, deltaz, deltaS,
@@ -5656,9 +5658,12 @@ nohits: ;
         if( Smax < fi1 + Bellipsis1 ) Smax = fi1 + Bellipsis1;
 
 
+	Lista[index] = i+ii*10000;  // do la possibilita' di plottare 2 hits skew che vengono dalla
+					// stessa skew straw.
         Double_t rotation1 = 180.*atan2(Tiltdirection1[1],Tiltdirection1[0])/PI;
         fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nE%d->SetFillStyle(0);\n",
-                     index,POINTS1[j+2],fi1,Aellipsis1,Bellipsis1,rotation1,index);
+                     i+ii*10000,POINTS1[j+2],fi1,Aellipsis1,Bellipsis1,rotation1,i+ii*10000);
+//                     index,POINTS1[j+2],fi1,Aellipsis1,Bellipsis1,rotation1,index);
 
 // ------ se lo hit e' spurio marcalo in rosso
         for( i1=0; i1<nSkewCommon; i1++){
@@ -5668,7 +5673,8 @@ nohits: ;
           }
 
         }
-        fprintf(MACRO,"E%d->SetLineColor(2);\n",index);
+        fprintf(MACRO,"E%d->SetLineColor(2);\n",i+ii*10000);
+//        fprintf(MACRO,"E%d->SetLineColor(2);\n",index);
 fuori: ;
 
         index++;
@@ -5769,7 +5775,8 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
 
         Double_t rotation1 = 180.*atan2(Tiltdirection1[1],Tiltdirection1[0])/PI;
         fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nE%d->SetFillStyle(0);\n",
-                     index,POINTS1[j+2],fi1,Aellipsis1,Bellipsis1,rotation1,index);
+                     i+ii*10000,POINTS1[j+2],fi1,Aellipsis1,Bellipsis1,rotation1,i+ii*10000);
+//                     index,POINTS1[j+2],fi1,Aellipsis1,Bellipsis1,rotation1,index);
 
 // ------  marca lo hit in blu
         fprintf(MACRO,"E%d->SetLineColor(4);\n",index);
@@ -5803,7 +5810,8 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
 
   fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",zmin,Smin,zmax,Smax);
   for( ii=0; ii< index; ii++) {
-       fprintf(MACRO,"E%d->Draw();\n",ii);
+//       fprintf(MACRO,"E%d->Draw();\n",ii);
+       fprintf(MACRO,"E%d->Draw();\n",Lista[ii]);
   }
 
    deltaz = zmax-zmin;
