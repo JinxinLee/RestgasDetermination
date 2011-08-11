@@ -55,8 +55,7 @@ bool sortByR(const std::map<PndSdsHit*, std::map<unsigned int, int> >& h1,
 
 
 PndTpcMVDCorrelatorTask::PndTpcMVDCorrelatorTask()
-  : FairTask("TPC-MVD Correlator"), fPersistence(kFALSE), fMatchDistance(0.15),
-    fMinMVDHits(3), fRequireMatch(false), fMergeHits(true)
+  : FairTask("TPC-MVD Correlator"), fPersistence(kFALSE), fMatchDistance(0.15), fAngleCut(TMath::PiOver2()),fMinMVDHits(3), fRequireMatch(false), fMergeHits(true)
 {
   fOutTrackBranchName = "TrackPreFitComplete";
   fTrackBranchName = "TrackPostFit";
@@ -165,8 +164,8 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
       PndSdsHit* hit = (PndSdsHit*) (*fPixelArray)[ipx];
       hit->Position(destination);
       // check if this hit is in same hemisphere as track position
-      double angle=trkStartPos.DeltaPhi(destination);
-      if(fabs(angle)>TMath::PiOver2()){
+      double angle=trkStartPos.Angle(destination);
+      if(fabs(angle)>fAngleCut){
 	 if(fVerbose) std::cout<<"       pixel hit "<<ipx<<" in wrong hemisphere, skipping!"<<  std::endl;
 	continue; // wrong hemisphere
       }
@@ -218,8 +217,8 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
     for(unsigned int istr=0; istr<nStr; istr++) {
       PndSdsHit* hit = (PndSdsHit*) (*fStripArray)[istr];
       hit->Position(destination);
-      double angle=trkStartPos.DeltaPhi(destination);
-      if(fabs(angle)>TMath::PiOver2()){
+      double angle=trkStartPos.Angle(destination);
+      if(fabs(angle)>fAngleCut){
 	 if(fVerbose) std::cout<<"       strip hit "<<istr<<" in wrong hemisphere, skipping!"<<  std::endl;
 	continue; // wrong hemisphere
       }
