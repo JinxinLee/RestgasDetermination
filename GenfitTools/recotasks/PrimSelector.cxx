@@ -122,7 +122,7 @@ PrimSelector::Exec(Option_t* opt)
     }
     catch(GFException& ex) {
       if(fVerbose)std::cout<<ex.what()<<std::endl;
-      continue;
+      //continue;
     }
     
     // record mctruth info
