@@ -207,7 +207,8 @@ private:
 /**
  * Function to produce ROC curve. This will work if the classifier can
  * produce probs or scores.
- *@param input   Vector containing classifier outputs for a given test data set.
+ *@param input Vector containing classifier outputs for a given test
+ * data set. Note that this parameter will be modified (sorted).
  *@param SigName Signal name.
  *@param BgName  Background name.
  *@param sigCnt  Number of signal events.

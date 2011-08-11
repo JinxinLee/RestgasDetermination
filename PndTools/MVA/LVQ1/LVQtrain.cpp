@@ -10,7 +10,6 @@
  */
 
 // C++ && C
-//#include <sstream>
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -97,7 +96,7 @@ int main(int argc, char** argv)
     return 1;
   }
   // Select alg.  
-  int algNum = atoi(argv[1]);
+  int algNum = str2int(argv[1]);
   std::cout << "Using algoritme " << algNum
 	    << '\n';
 
@@ -348,10 +347,10 @@ int main(int argc, char** argv)
     t->SetLearnPrameters(initC, ethaZ, ethaF, numSweep);
     
     // Symm. number of proto.
-    //t->SetNumberOfProto(numProto);
+    t->SetNumberOfProto(numProto);
 
     // Use for asymm. init.
-    t->SetNumberOfProto(numProtoMap);
+    //t->SetNumberOfProto(numProtoMap);
     
     // Set testSet size and indices
     t->SetTetsSetSize(0);// Do not split test set.
@@ -383,7 +382,7 @@ int main(int argc, char** argv)
    * the number of threads either by function call or by the shell
    * variable.
    */
-#if ( __GNUC__ >= 4 && __GNUC_MINOR__ > 4)
+#if ( __GNUC__ >= 4 && __GNUC_MINOR__ > 3)
   // GCC older that 4.4 can not handle size_t loop counter in
   // combination with OpenMP.
 #ifdef _OPENMP
@@ -396,7 +395,7 @@ int main(int argc, char** argv)
     // Perform training
     (trainerList[tr])->Train();
 
-#if ( __GNUC__ >= 4 && __GNUC_MINOR__ > 4)
+#if ( __GNUC__ >= 4 && __GNUC_MINOR__ > 3)
 #ifdef _OPENMP
 #pragma omp critical (StoreProtoTypesEvalData)
     {
@@ -408,7 +407,7 @@ int main(int argc, char** argv)
       // Write Evaluation.
       (trainerList[tr])->WriteErroVect( (int2str(tr)+ "_" +OutErr) );
       
-#if ( __GNUC__ >= 4 && __GNUC_MINOR__ > 4)
+#if ( __GNUC__ >= 4 && __GNUC_MINOR__ > 3)
 #ifdef _OPENMP
     }// END Critical
 #endif

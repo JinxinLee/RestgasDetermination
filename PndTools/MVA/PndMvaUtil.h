@@ -99,10 +99,30 @@ PndMvaDistObj(size_t const id, float const dist, std::string const& cls)
 : m_idx(id), m_dist(dist), m_cls(cls)
   {};
   
+  // Copy
+  PndMvaDistObj(PndMvaDistObj const& ot)
+  : m_idx(ot.m_idx), m_dist(ot.m_dist), m_cls(ot.m_cls)
+  {};
+
   // Destructor
   virtual ~PndMvaDistObj()
   {};
   
+  //! operator =
+  PndMvaDistObj& operator=(PndMvaDistObj const& ot)
+  {
+    // check for self-assignment
+    if (this == &ot)
+    {
+      return *this;
+    }
+    
+    this->m_idx  = ot.m_idx;
+    this->m_dist = ot.m_dist;
+    this->m_cls  = ot.m_cls;
+    
+    return (*this);
+  };
   //! Operator < 
   inline bool operator< (PndMvaDistObj const& other) const
   {
@@ -114,12 +134,14 @@ PndMvaDistObj(size_t const id, float const dist, std::string const& cls)
   {
     return (this->m_dist > other.m_dist);
   };
-  
+
   size_t m_idx ;/**< Index of the prototype. */
   float  m_dist;/**< Distance to the current example. */
   std::string m_cls;/**< Class name of the prototype. */
-};
-// End class definition PndMvaDistObj
+
+private:
+  bool operator==(PndMvaDistObj const& ot) const;
+};// End interface PndMvaDistObj
 
 //! Less than, comparison funtion.
 inline  bool CompLess(PndMvaDistObj const* a, PndMvaDistObj const* b)
