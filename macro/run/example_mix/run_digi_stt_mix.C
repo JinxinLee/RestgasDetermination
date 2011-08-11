@@ -68,7 +68,7 @@
   fRun->SetEventMeanTime(10);
   
   /** each ~100 ns background 1 entry from signal chain  1 will be read  */
-  fRun->BGWindowWidthTime(120,1);
+  fRun->BGWindowWidthTime(100,1);
   /** each ~60 ns background 1 entry from signal chain  2 will be read  */
   fRun->BGWindowWidthTime(60,2);
   
