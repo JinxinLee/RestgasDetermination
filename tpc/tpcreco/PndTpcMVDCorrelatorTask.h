@@ -57,7 +57,8 @@ public:
   
   void SetPersistence(Bool_t opt=kTRUE) {fPersistence=opt;}
   void RequireMatch(bool opt=true) {fRequireMatch=opt;}
-  
+  void MergeHits(bool opt=true){fMergeHits=opt;}
+
   virtual InitStatus Init();
 
   virtual void Exec(Option_t* opt);
@@ -77,6 +78,7 @@ public:
   
   bool fPersistence;
   bool fRequireMatch; //true: ONLY write out tracks with a MVD match!
+  bool fMergeHits; // merge found MVD hits into output track 
 
   unsigned int fMinMVDHits;
   

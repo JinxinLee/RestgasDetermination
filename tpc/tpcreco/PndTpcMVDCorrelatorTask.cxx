@@ -56,7 +56,7 @@ bool sortByR(const std::map<PndSdsHit*, std::map<unsigned int, int> >& h1,
 
 PndTpcMVDCorrelatorTask::PndTpcMVDCorrelatorTask()
   : FairTask("TPC-MVD Correlator"), fPersistence(kFALSE), fMatchDistance(0.15),
-    fMinMVDHits(3), fRequireMatch(false)
+    fMinMVDHits(3), fRequireMatch(false), fMergeHits(true)
 {
   fOutTrackBranchName = "TrackPreFitComplete";
   fTrackBranchName = "TrackPostFit";
@@ -269,13 +269,14 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
     std::sort(tempCand.begin(), tempCand.end(), sortByR);
     //create MVD hit candidate
     GFTrackCand* mvdCand = new GFTrackCand();
-    for(unsigned int im=0; im<tempCand.size(); im++) {
-      mvdCand->addHit(tempCand[im].begin()->second.begin()->second, //detId enum
-		      tempCand[im].begin()->second.begin()->first); //hit in array
-      // clean up
-      
+    // only merge hits if option turned on!
+    if(fMergeHits){
+      for(unsigned int im=0; im<tempCand.size(); im++) {
+	mvdCand->addHit(tempCand[im].begin()->second.begin()->second, //detId enum
+			tempCand[im].begin()->second.begin()->first); //hit in array
+	// clean up
+      }
     }
-    
     mvdCand->setMcTrackId(track->getCand().getMcTrackId());
     // copy track and set new candidate
     GFTrack* outTrack = new  ((*fOutTrackArray)[fOutTrackArray->GetEntriesFast()]) GFTrack(*track);
