@@ -47,7 +47,7 @@
 // Class Member definitions -----------
 
 PndTpcClusterFinderTask::PndTpcClusterFinderTask()
-  : FairTask("TPC Cluster Finder"), fpersistence(kFALSE), fDigiPersistence(kFALSE),ftrivial(kFALSE),fsimple(kFALSE), fsectorize(kFALSE),
+  : FairTask("TPC Cluster Finder"), fpersistence(kFALSE), fDigiPersistence(kFALSE),fSamplePersistence(kFALSE),ftrivial(kFALSE),fsimple(kFALSE), fsectorize(kFALSE),
     ftimeslice(2), fmode(0),fthres(1), fSDiClAmpCut(0), fClAmpCut(0), fDataMode(kFALSE), fDiffFactor(1.), fClusterTimeCut(5),
     fAdcSens(600.), fC(300.)
 {
