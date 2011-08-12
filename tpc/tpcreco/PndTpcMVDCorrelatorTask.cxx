@@ -28,10 +28,14 @@
 #include "TClonesArray.h"
 #include "GFTrack.h"
 
+#include "PndTpcCluster.h"
+#include "PndTpcPlanarRecoHit.h"
+#include "PndTpcSPHit.h"
+
 #include "GFRecoHitFactory.h"
 #include "GFException.h"
 
-#include "GFDetPlane.h"
+#include "GFAbsRecoHit.h"
 
 #include "GeaneTrackRep.h"
 #include "RKTrackRep.h"
@@ -42,20 +46,55 @@
 #include "PndSdsRecoHit.h"
 
 #include "TH1D.h"
+#include "TVector2.h"
 
 // Class Member definitions -----------
 
 
-bool sortByR(const std::map<PndSdsHit*, std::map<unsigned int, int> >& h1, 
-	     const std::map<PndSdsHit*, std::map<unsigned int, int> >& h2) {
-  double r1 = h1.begin()->first->GetPosition().Perp();
-  double r2 = h2.begin()->first->GetPosition().Perp();
-  return (r1 < r2);
+bool sortByR(const PndSdsHit* hl, const PndSdsHit* hr) {
+  TVector3 posL;
+  TVector3 posR;
+  hl->Position(posL);
+  hr->Position(posR);
+  return (posL.Perp() < posR.Perp());
+}
+
+DetPlaneWrapper::DetPlaneWrapper(const GFDetPlane& pl)
+  :
+  fPl(pl)
+{;}
+
+bool
+operator== (const DetPlaneWrapper& lhs, const DetPlaneWrapper& rhs) {
+  double eps = 1.E-5;
+  TVector3 lO = lhs.fPl.getO();
+  TVector3 rO = rhs.fPl.getO();
+  TVector3 lN = lhs.fPl.getNormal();
+  TVector3 rN = rhs.fPl.getNormal();
+  double rDist = fabs(lO.Perp() - rO.Perp());
+  if(rDist < eps) { // && dPhi < eps && dTheta < eps) {
+    double dPhi = fabs(lN.Phi() - rN.Phi());
+    double dTheta = fabs(lN.Theta() - rN.Theta());
+    if(dPhi < eps && dTheta < eps) 
+      return true;
+    TVector3 rNneg = (-1.)*rN;
+    dPhi = fabs(lN.Phi() - rNneg.Phi());
+    dTheta = fabs(lN.Theta() - rNneg.Theta());
+    if(dPhi < eps && dTheta < eps) 
+      return true;
+  }
+  return false;
+}
+
+bool
+operator< (const DetPlaneWrapper& lhs, const DetPlaneWrapper& rhs) {
+  return lhs.fPl.getO().Perp() < rhs.fPl.getO().Perp();
 }
 
 
 PndTpcMVDCorrelatorTask::PndTpcMVDCorrelatorTask()
-  : FairTask("TPC-MVD Correlator"), fPersistence(kFALSE), fMatchDistance(0.15), fAngleCut(TMath::PiOver2()),fMinMVDHits(3), fRequireMatch(false), fMergeHits(true)
+  : FairTask("TPC-MVD Correlator"), fPersistence(kFALSE), fMatchDistance(0.15),
+    fMinMVDHits(3), fRequireMatch(false)
 {
   fOutTrackBranchName = "TrackPreFitComplete";
   fTrackBranchName = "TrackPostFit";
@@ -67,9 +106,9 @@ PndTpcMVDCorrelatorTask::PndTpcMVDCorrelatorTask()
 
 PndTpcMVDCorrelatorTask::~PndTpcMVDCorrelatorTask()
 {
-  delete fResHistX;
-  delete fResHistY;
-  delete fResHistZ;
+  delete fResHistU;
+  delete fResHistV;
+  //delete fResHistZ;
 }
 
 InitStatus
@@ -127,9 +166,9 @@ PndTpcMVDCorrelatorTask::Init()
     ;
   }
 
-  fResHistX = new TH1D("resHistX", "Extrapolation residual distribution",  200, -2, 2);
-  fResHistY = new TH1D("resHistY", "Extrapolation residual distribution",  200, -2, 2);
-  fResHistZ = new TH1D("resHistZ", "Extrapolation residual distribution",  200, -2, 2);
+  fResHistU = new TH1D("resHistU", "Extrapolation residual distribution U",  200, -2, 2);
+  fResHistV = new TH1D("resHistV", "Extrapolation residual distribution V",  200, -2, 2);
+  //fResHistZ = new TH1D("resHistZ", "Extrapolation residual distribution",  200, -2, 2);
   
   return kSUCCESS;
 }
@@ -138,161 +177,195 @@ PndTpcMVDCorrelatorTask::Init()
 void
 PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
 {
+   //Get ROOT Manager
+  FairRootManager* ioman= FairRootManager::Instance();
+  
   std::cout<<"PndTpcMVDCorrelatorTask::Exec"<<std::endl;
   fOutTrackArray->Delete();
   
-  unsigned int ntracks = fTrackArray->GetEntriesFast();
+  //create recohits from MVD hits 
+  std::vector<GFAbsRecoHit*> recoHits;
+  std::map<DetPlaneWrapper, std::vector<GFAbsRecoHit*> > recoHitMap;
+  std::map<GFAbsRecoHit*, std::pair<TString, unsigned int> > idMap;
+  std::map<GFAbsRecoHit*, PndSdsHit*> conMap;
+  std::map<PndSdsHit*, GFAbsRecoHit*> backMap;
   
+  
+  
+  unsigned int nPix = fPixelArray->GetEntriesFast();
+  unsigned int nStr = fStripArray->GetEntriesFast();
+  for(unsigned int ipx=0; ipx<nPix; ipx++) {
+    GFAbsRecoHit* ihit = fTheRecoHitFactory->createOne(ioman->GetBranchId(fPixelBranchName),
+						       ipx);
+    recoHits.push_back(ihit);
+    PndSdsHit* sdsHit = (PndSdsHit*) fPixelArray->At(ipx);
+    conMap[ihit] = sdsHit;
+    backMap[sdsHit] = ihit;
+    
+    std::pair<TString, unsigned int> p;
+    p.first = fPixelBranchName;
+    p.second = ipx;
+    idMap[ihit] = p;
+  }
+  for(unsigned int ist=0; ist<nStr; ist++) {
+    GFAbsRecoHit* ihit = fTheRecoHitFactory->createOne(ioman->GetBranchId(fStripBranchName),
+						       ist);
+    recoHits.push_back(ihit);
+    PndSdsHit* sdsHit = (PndSdsHit*) fStripArray->At(ist);
+    conMap[ihit] = sdsHit;
+    backMap[sdsHit] = ihit;
+    
+    std::pair<TString, unsigned int> p;
+    p.first = fStripBranchName;
+    p.second = ist;
+    idMap[ihit] = p;
+  }
+
+  unsigned int ntracks = fTrackArray->GetEntriesFast();
+   
   //loop over tracks
   for(unsigned int itr=0;  itr<ntracks; itr++) {
-    if(fVerbose) std::cout<<"  ... processing TPC track no. "<<itr<<std::endl;
     GFTrack* track = (GFTrack*) (*fTrackArray)[itr];
     GFAbsTrackRep* rep = track->getCardinalRep();
-    TVector3 trkStartPos=track->getPos();
-    
-
-    unsigned int nPix = fPixelArray->GetEntriesFast();
-    unsigned int nStr = fStripArray->GetEntriesFast();
-    
-    TVector3 destination, error;
-    TVector3 poca, dirInPoca, res;
-    
-    std::vector<std::map<PndSdsHit*, std::map<unsigned int, int> > > tempCand; //<SdsHit, <array index, detID enum> >
-    
-    //loop over MVD pixel hits 
-    for(unsigned int ipx=0; ipx<nPix; ipx++) {
-      PndSdsHit* hit = (PndSdsHit*) (*fPixelArray)[ipx];
-      hit->Position(destination);
-      // check if this hit is in same hemisphere as track position
-      double angle=trkStartPos.Angle(destination);
-      if(fabs(angle)>fAngleCut){
-	 if(fVerbose) std::cout<<"       pixel hit "<<ipx<<" in wrong hemisphere, skipping!"<<  std::endl;
-	continue; // wrong hemisphere
+        
+    //get (physical) detplanes and organize
+    if(itr==0) {
+      for(unsigned int ih=0; ih<recoHits.size(); ih++) {
+	//this extrapolates, I would rather like to get the physical detplane directly from the hit(-policy!)
+	//wishlist for genfit
+	recoHitMap[DetPlaneWrapper(recoHits[ih]->getDetPlane(rep))].push_back(recoHits[ih]);
       }
-
-      hit->PositionError(error);
-      if(fVerbose) {
-        std::cout<<"       processing hit at ";
-        destination.Print();
-        std::cout<<"       position error: ";
-        error.Print();
-      }
-      try {
-        rep->extrapolateToPoint(destination, poca, dirInPoca);
-      }
-      catch(GFException& ex) {
-        if(fVerbose)std::cout<<ex.what()<<std::endl;
-        continue;
-      }
-      res.SetXYZ(poca.X()-destination.X(),
-           poca.Y()-destination.Y(),
-           poca.Z()-destination.Z());
-      //Fill Histo
-      fResHistX->Fill(res.X());
-      fResHistY->Fill(res.Y());
-      fResHistZ->Fill(res.Z());
-
-      //check if hit is close enough
-      if(res.Mag() > fMatchDistance) {
-        if(fVerbose) {
-          std::cout<<"       rep:    not close enough: RES was ";
-          res.Print();
-        }
-        continue; //hit wasn't close enough to the track
-      }
-      else {
-        if(fVerbose) {
-          std::cout<<"       rep:    added hit - RES was ";
-          res.Print();
-        }
-        std::map<PndSdsHit*, std::map<unsigned int, int> > tmp;
-        std::map<unsigned int, int> id;
-        id[ipx] = FairRootManager::Instance()->GetBranchId("MVDHitsPixel");
-        tmp[hit] = id;
-        tempCand.push_back(tmp);
-      }
-    }//end loop over pixels
-    
-    //loop over MVD strip hits
-    for(unsigned int istr=0; istr<nStr; istr++) {
-      PndSdsHit* hit = (PndSdsHit*) (*fStripArray)[istr];
-      hit->Position(destination);
-      double angle=trkStartPos.Angle(destination);
-      if(fabs(angle)>fAngleCut){
-	 if(fVerbose) std::cout<<"       strip hit "<<istr<<" in wrong hemisphere, skipping!"<<  std::endl;
-	continue; // wrong hemisphere
-      }
-      hit->PositionError(error);
-      if(fVerbose) {
-        std::cout<<"       processing hit at ";
-        destination.Print();
-        std::cout<<"       position error: ";
-        error.Print();
-      }
-
-      try {
-        rep->extrapolateToPoint(destination, poca, dirInPoca);
-      }
-      catch(GFException& ex) {
-         if(fVerbose) std::cout<<ex.what()<<std::endl;
-        continue;
-      }
-      res.SetXYZ(poca.X()-destination.X(),
-           poca.Y()-destination.Y(),
-           poca.Z()-destination.Z());
-      //Fill Histo
-      fResHistX->Fill(res.X());
-      fResHistY->Fill(res.Y());
-      fResHistZ->Fill(res.Z());
-
-      //check if hit is close enough
-      if(res.Mag() > fMatchDistance) {
-        if(fVerbose) {
-          std::cout<<"       rep:    not close enough: RES was ";
-          res.Print();
-        }
-        continue; //hit wasn't close enough to the track
-      }
-      else {
-        if(fVerbose) {
-          std::cout<<"       rep:    added hit - RES was ";
-          res.Print();
-        }
-        std::map<PndSdsHit*, std::map<unsigned int, int> > tmp;
-        std::map<unsigned int, int> id;
-        id[istr] = FairRootManager::Instance()->GetBranchId("MVDHitsStrip");
-        tmp[hit] = id;
-        tempCand.push_back(tmp);
-      }
-    }//end loop over strips
-  
-    std::cout<<"======= TempCand from found MVD pixel/strip hits has size "<<
-          tempCand.size()<<" =======\n"<<std::endl;
-    
-
-    if(tempCand.size() < fMinMVDHits) {
-      if(!fRequireMatch) {
-        GFTrack* outTrack = new GFTrack(*track);
-        outTrack->clearBookkeeping();
-        (*fOutTrackArray)[fOutTrackArray->GetEntriesFast()] = outTrack;
-      }
-      continue;
     }
+    std::cout<<" PndTpcMVDCorrelatorTask::Exec() Found "<<recoHitMap.size()
+	     <<" distinct detplanes from "
+	     <<recoHits.size()<<" RecoHits."<<std::endl;
+
+    if(fVerbose) std::cout<<"  ... processing TPC track no. "<<itr<<std::endl;
+
+    //end of general preparations -------------------------------------------------
+    
+    //Now calculate penetration point of track for each hit MVD plane
+    std::map<DetPlaneWrapper, TVector2> penetrationMap; //not used now, for more efficient implemetnation later
+    std::map<DetPlaneWrapper, std::vector<GFAbsRecoHit*> >::iterator it;
+
+    std::vector<PndSdsHit*> tempCand;  //selected hits during extrapolation
+        
+    for (it=recoHitMap.begin(); it!=recoHitMap.end(); it++) { 
+      bool ok=true;
+      TMatrixT<double> res(2,1);
+      GFDetPlane pl = it->first.getPlane();
+      //pl.Print();
+      TVector2 minRes(100.,100.);
+      int bestMatch = -1;
+      for(unsigned int ihit=0; ihit<it->second.size(); ihit++) {
+	GFAbsRecoHit* exHit = it->second[ihit];
+	TMatrixT<double> statePred(5,1);
+	TMatrixT<double> covPred(5,5);
+	try {
+	  rep->extrapolate(pl,statePred,covPred);
+	  res = exHit->residualVector(rep,statePred,pl);
+	}
+	catch(GFException& ex) {
+	  ok=false;
+	}
+	  //calculate penetration point:
+	TVector2 negRes(-res[0][0], -res[1][0]);
+	if(ok)  //residual calculation went ok for this plane
+	  penetrationMap[it->first] = negRes;
+	
+	else
+	  penetrationMap[it->first] = TVector2(-100,-100);
+	
+	fResHistU->Fill(negRes.X());
+	fResHistV->Fill(negRes.Y());
+	if(negRes.Mod() > fMatchDistance)
+	  continue;
+	if(negRes.Mod() < minRes.Mod()) {
+	  minRes = negRes;
+	  bestMatch = ihit;
+	}
+      }
+      if(bestMatch > -1)
+	tempCand.push_back(conMap[(it->second[bestMatch])]);
+    } //end loop over all planes
+    
+
+    
+    // std::cout<<"SECOND LOOP: ----------------------------------------------"<<std::endl;
+        
+    // //loop over planes again and select the hits inside the roadwidth:
+    // TVector3 position;
+    // for (it=recoHitMap.begin(); it!=recoHitMap.end(); it++) { 
+    //   TVector2 pP = penetrationMap[it->first];
+    //   //fResHistU->Fill(pP.X());
+    //   //fResHistV->Fill(pP.Y());
+    //   double minRes = 100;
+    //   GFAbsRecoHit* hitToAdd=NULL;  //only one per plane
+    //   GFDetPlane pl = it->first.getPlane();
+    //   //pl.Print();
+    //   TMatrixT<double> raw2(2,1);
+    //   //loop over all hits of that plane
+    //   for(unsigned int iHit=0; iHit<it->second.size(); iHit++) {
+    // 	GFAbsRecoHit* hit = it->second[iHit];
+	
+    // 	//try this as the good method fails for some reason ..
+    // 	TMatrixT<double> statePred2(5,1);
+    // 	TMatrixT<double> covPred2(5,5);
+    // 	bool ok=true;
+    // 	try {
+    // 	  rep->extrapolate(pl,statePred2,covPred2);
+    // 	  raw2 = hit->residualVector(rep,statePred2,pl);
+    // 	}
+    // 	catch(GFException& ex) {
+    // 	  ok=false;
+    // 	}
+	
+    // 	//raw = hit->getHitCoord(pl);
+    // 	//TVector2 penetrationUV = pP; 
+    // 	//fResHistU->Fill(pP.X());
+    // 	//fResHistV->Fill(pP.Y());
+    // 	//TVector2 posUV(raw[0][0],raw[1][0]);
+    // 	//TVector2 res = posUV-pP;
+    // 	TVector2 res(raw2[0][0], raw2[1][0]);
+    // 	//TVector2 res(0.,0.);
+    // 	//Fill Histo
+    // 	fResHistU->Fill(res.X());
+    // 	fResHistV->Fill(res.Y());
+    // 	//fResHistZ->Fill(res.Z());
+    // 	if(res.Mod() > fMatchDistance)
+    // 	  continue;
+    // 	if(res.Mod() < minRes)
+    // 	  hitToAdd = hit;
+    //   }
+    //   if(hitToAdd!=NULL)
+    // 	tempCand.push_back(hitToAdd);
+    // }
+    
+    
+    std::cout<<"======= TempCand from found MVD pixel/strip hits has size "<<
+      tempCand.size()<<" =======\n"<<std::endl;
+    
     
     std::sort(tempCand.begin(), tempCand.end(), sortByR);
+    std::vector<GFAbsRecoHit*> cand;
+    for(unsigned int i=0; i<tempCand.size(); i++) 
+      cand.push_back(backMap[(tempCand[i])]);
+      
     //create MVD hit candidate
     GFTrackCand* mvdCand = new GFTrackCand();
-    // only merge hits if option turned on!
-    if(fMergeHits){
-      for(unsigned int im=0; im<tempCand.size(); im++) {
-	mvdCand->addHit(tempCand[im].begin()->second.begin()->second, //detId enum
-			tempCand[im].begin()->second.begin()->first); //hit in array
-	// clean up
-      }
+    for(unsigned int im=0; im<cand.size(); im++) {
+      GFAbsRecoHit* hit = cand[im];
+      TString bid = idMap[hit].first;
+      unsigned int hitid = idMap[hit].second;
+      mvdCand->addHit(ioman->GetBranchId(bid), //detId enum
+  		      hitid); //hit in array
     }
-    mvdCand->setMcTrackId(track->getCand().getMcTrackId());
+    
+    int trackID = track->getCand().getMcTrackId();
+    mvdCand->setMcTrackId(trackID);
+    
     // copy track and set new candidate
-    GFTrack* outTrack = new  ((*fOutTrackArray)[fOutTrackArray->GetEntriesFast()]) GFTrack(*track);
+    GFTrack* outTrack = new GFTrack(*track);
     outTrack->clearBookkeeping();
     outTrack->setCandidate(*mvdCand);
         
@@ -301,12 +374,11 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
     tmpTrack->clearBookkeeping();
     outTrack->mergeHits(tmpTrack);
     outTrack->blowUpCovs(500.);
-    
-    
+    (*fOutTrackArray)[fOutTrackArray->GetEntriesFast()] = outTrack;
     delete tmpTrack;
   } //end loop over tracks
 
-  std::cout <<"### Found "<< fOutTrackArray->GetEntries() << " tracks with MVD correlations." << std::endl; 
+  // std::cout <<"### Found "<< fOutTrackArray->GetEntries() << " tracks with MVD correlations." << std::endl; 
   
   return;
 }
@@ -315,9 +387,9 @@ void
 PndTpcMVDCorrelatorTask::WriteHistograms(const TString& fname) const {
   TFile* rOut = new TFile(fname, "recreate");
   rOut->cd();
-  fResHistX->Write();
-  fResHistY->Write();
-  fResHistZ->Write();
+  fResHistU->Write();
+  fResHistV->Write();
+  //fResHistZ->Write();
   rOut->Close();
 }
   
