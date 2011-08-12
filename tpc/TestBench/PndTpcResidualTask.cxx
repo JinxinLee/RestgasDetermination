@@ -50,7 +50,7 @@
 
 #include "PndDetectorList.h"
 
-#define DEBUG 0
+#define DEBUG 1
 
 
 PndTpcResidualTask::PndTpcResidualTask()
@@ -135,12 +135,16 @@ PndTpcResidualTask::Exec(Option_t* opt) {
   
   std::cout<<"PndTpcResidualTask::Exec()"<<std::endl;
 
+  FairRootManager* ioman= FairRootManager::Instance();
+
   //clear output
   for(unsigned int r=0; r<fNumReps; r++) {
     fFitStatArray = fOutArrayMap[r];
     if(fFitStatArray==0) Fatal("TrackFitStat::Exec()","No FitStat OutputArray");
     fFitStatArray->Delete();
   }
+
+  std::cout<<"res bla1"<<std::endl;
 
   //get fit results
   //assert(fTrackArray->GetEntriesFast()<2);
@@ -161,8 +165,7 @@ PndTpcResidualTask::Exec(Option_t* opt) {
 
     GFTrackCand cand = track->getCand();
     candIDs.clear(); 
-    candIDs = cand.GetHitIDs(kTpcCluster);
-    
+    candIDs = cand.GetHitIDs(ioman->GetBranchId("PndTpcCluster"));
     /*if(fSecondarySupp==true  && n>0)
       continue;*/
 
@@ -173,7 +176,6 @@ PndTpcResidualTask::Exec(Option_t* opt) {
       TrackFitStat* fitstat = new ((*fFitStatArray)[nFS]) TrackFitStat();
 
       GFAbsTrackRep* rep = track->getTrackRep(r);
-
       TVector3 mom = rep->getMom();     //momentum after fit
       int failedHits = track->getFailedHits(r);
       unsigned int NDF = rep->getNDF();
@@ -182,6 +184,7 @@ PndTpcResidualTask::Exec(Option_t* opt) {
       if (dynamic_cast<RKTrackRep*>(rep)) pdg =  ((RKTrackRep*)rep)->getPDG();
       else if (dynamic_cast<GeaneTrackRep*>(rep)) pdg =  ((GeaneTrackRep*)rep)->getPDG();
 
+ 
       fitstat->setp(mom.Mag());
       fitstat->setmom(mom);
       fitstat->addFailedHits(failedHits);
@@ -308,8 +311,8 @@ PndTpcResidualTask::Exec(Option_t* opt) {
       fitstat->fillPndTpcHitPositionsZ(posZ);
       fitstat->fillPndTpcHitIDs(candIDs);
 	
+      
     }// end loop over trackreps
-
   }// end loop over tracks
 }
 
