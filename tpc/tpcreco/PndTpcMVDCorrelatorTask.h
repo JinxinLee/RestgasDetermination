@@ -29,6 +29,8 @@
 #include "PndTpcCluster.h"
 #include "FairGeanePro.h"
 
+#include "GFDetPlane.h"
+
 class TClonesArray;
 class GFRecoHitFactory;
 class TH1D;
@@ -91,13 +93,28 @@ public:
 
   GFRecoHitFactory* fTheRecoHitFactory;
 
-  TH1D* fResHistX;
-  TH1D* fResHistY;
-  TH1D* fResHistZ;
+  TH1D* fResHistU;
+  TH1D* fResHistV;
+  //TH1D* fResHistZ;
 
   ClassDef(PndTpcMVDCorrelatorTask,1);
   
 };
+
+class DetPlaneWrapper {
+ public:
+  DetPlaneWrapper(const GFDetPlane&);
+  
+  const GFDetPlane& getPlane() const {return fPl;}
+  
+  friend bool operator== (const DetPlaneWrapper& lhs, const DetPlaneWrapper& rhs);
+  friend bool operator< (const DetPlaneWrapper& lhs, const DetPlaneWrapper& rhs);
+ 
+
+ private:
+  GFDetPlane fPl;  
+};
+
 
 #endif
 
