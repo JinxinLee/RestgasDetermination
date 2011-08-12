@@ -53,6 +53,7 @@ public:
   void SetStripBranchName(const TString& name) {fStripBranchName=name;}
   
   void SetMatchDistance(double d) {fMatchDistance=d;}
+  void SetAngleCut(double a){fAngleCut=a;}
   void SetMinMVDHits(unsigned int n) {fMinMVDHits = n;}
   
   void SetPersistence(Bool_t opt=kTRUE) {fPersistence=opt;}
@@ -69,6 +70,7 @@ public:
  private:
 
   double fMatchDistance;   // lookup distance in cm
+  double fAngleCut; // only use hits within this angular range around the track position
   
   // Private Data Members ------------
   TString fTrackBranchName;
