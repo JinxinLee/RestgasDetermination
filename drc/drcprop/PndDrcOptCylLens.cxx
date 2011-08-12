@@ -338,22 +338,42 @@ void PndDrcOptCylLens::Make_surf1(PndDrcSurfPolyFlat& surf1,double r1)
   side21.AddSurface(surf1,surf1.LimitingPoint(3),surf1.LimitingPoint(2));
   side21.SetName("side21");
   AddSurface(side21);
-  PndDrcSurfQuadFlatDiff side31;
-  side31.AddSurface(fA0,fP3,fP2);
-  side31.AddSurface(surf1,surf1.LimitingPoint(2),surf1.LimitingPoint(1));
+
+  //PndDrcSurfQuadFlatDiff side31;
+  //side31.AddSurface(fA0,fP3,fP2);
+  //side31.AddSurface(surf1,surf1.LimitingPoint(2),surf1.LimitingPoint(1));
+  //side31.SetName("side31");
+  //AddSurface(side31);
+
+  PndDrcSurfPolyFlat side31;
+  side31.AddPoint(fP3);
+  side31.AddPoint(fP2);
+  side31.AddPoint(surf1.LimitingPoint(1));
+  side31.AddPoint(surf1.LimitingPoint(2));
   side31.SetName("side31");
   AddSurface(side31);
+
+
+
+
   PndDrcSurfQuadFlatDiff side41;
   side41.AddSurface(fA0,fP2,fP1);
   side41.AddSurface(surf1,surf1.LimitingPoint(1),surf1.LimitingPoint(0));
   side41.SetName("side41");
   AddSurface(side41);
-  PndDrcSurfQuadFlatDiff side51;
-  side51.AddSurface(fA0,fP1,fP4);
-  side51.AddSurface(surf1,surf1.LimitingPoint(0),surf1.LimitingPoint(3));
+
+  //PndDrcSurfQuadFlatDiff side51;
+  //side51.AddSurface(fA0,fP1,fP4);
+  //side51.AddSurface(surf1,surf1.LimitingPoint(0),surf1.LimitingPoint(3));
+  //side51.SetName("side51");
+  //AddSurface(side51);
+
+  PndDrcSurfPolyFlat side51;
+  side51.AddPoint(fP1);
+  side51.AddPoint(fP4);
+  side51.AddPoint(surf1.LimitingPoint(3));
+  side51.AddPoint(surf1.LimitingPoint(0));
   side51.SetName("side51");
-  AddSurface(side51);
-  
-  
+  AddSurface(side51);  
   
 }

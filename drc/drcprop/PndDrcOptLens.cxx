@@ -70,18 +70,18 @@ PndDrcOptLens::PndDrcOptLens(double dx, double dy, double dz,
 			    double r1, double r6, 
 			    double c1, double c6)
 {
-  fP1 = XYZPoint( dx, dy,0);          //        *------------*
+  fP1 = XYZPoint( dx, dy,0);          //        p16---------p26
   fP2 = XYZPoint(-dx, dy,0);          //       /| side6     /|
   fP3 = XYZPoint(-dx,-dy,0);          //      / |          / |
-  fP4 = XYZPoint( dx,-dy,0);          //     /  *---------/--*               Y
-  //                                        p1-----------p2 /                ^  Z
-  //                                       / | /        /| /                 | /
-  //                                      /  |/        / |/                  |/
+  fP4 = XYZPoint( dx,-dy,0);          //     /  p46-------/-p36              Y
+  //                                        p1-----------p2 /                ^  Z             side46
+  //                                       / | /        /| /                 | /        side56     side36
+  //                                      /  |/        / |/                  |/               side26
   //                                     /   p4-------/--p3            X <---0
-  //                                    *------------*  /
-  //                                    | /side1     | /
-  //                                    |/           |/
-  //                                    *------------* 
+  //                                    p11---------p21 /
+  //                                    | /side1     | /                           side41
+  //                                    |/           |/                      side51       side31
+  //                                    p41---------p31                            side21
 
   fDz = dz;
   

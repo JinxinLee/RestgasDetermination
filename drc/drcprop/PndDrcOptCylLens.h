@@ -1,9 +1,24 @@
 /*! 
-  \brief Class for optical device representation of a rectangular lens. 
+  \brief Class for optical device representation of a cylinder lens. The lens is bended around the y-axis. 
 
-  The naming of the surfaces is as shown here:
+  The surfaces are named:
+  \verbatim
+                                                p16---------p26
+                                               /| side6     /|
+                                              / |          / |
+                                             /  p46-------/-p36              Y
+                                            p1-----------p2 /                ^  Z             side46
+                                           / | /        /| /                 | /        side56     side36
+                                          /  |/        / |/                  |/               side26
+                                         /   p4-------/--p3            X <---0
+                                        p11---------p21 /
+                                        | /side1     | /                           side41
+                                        |/           |/                      side51       side31
+                                        p41---------p31                            side21
 
-  \image html PndDrcOptCylLens1.png
+
+  \endverbatim
+  Surface names at the very right refer to left right top down...
 */
 
 #ifndef PNDDRCOPTCYLLENS_H

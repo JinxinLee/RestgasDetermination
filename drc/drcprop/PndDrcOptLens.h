@@ -5,22 +5,22 @@
 
   The surfaces are named:
   \verbatim
-                                                *------------*
+                                                p16---------p26
                                                /| side6     /|
                                               / |          / |
-                                             /  *---------/--*               Y
-                                            p1-----------p2 /                ^  Z
-                                           / | /        /| /                 | /
-                                          /  |/        / |/                  |/
+                                             /  p46-------/-p36              Y
+                                            p1-----------p2 /                ^  Z             side46
+                                           / | /        /| /                 | /        side56     side36
+                                          /  |/        / |/                  |/               side26
                                          /   p4-------/--p3            X <---0
-                                        *------------*  /
-                                        | /side1     | /
-                                        |/           |/
-                                        *------------* 
+                                        p11---------p21 /
+                                        | /side1     | /                           side41
+                                        |/           |/                      side51       side31
+                                        p41---------p31                            side21
 
 
   \endverbatim
-  For other surfaces look into the code...
+  Surface names at the very right refer to left right top down...
 
 
 */
