@@ -87,8 +87,8 @@ class PndSttMvdTracking : public FairTask
   int IVOLTE ;
 
 #define maxTracks 200
-  static const UShort_t   nmassimo=10,
-			  nmaxSttHits = 1000,
+  static const UShort_t   nmassimo=50,
+			  nmaxSttHits = 1050,
 			  MAXMCTRACKS=10000,
 			  MAXTRACKSPEREVENT=maxTracks,
 			  nmaxMvdPixelHits=500,
@@ -954,7 +954,7 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 			Double_t RmaxStrawSkew,
 			Double_t cut,
 			UShort_t maxnum
-			);
+				);
 
 	bool BadTrack_ParStt(
 			Double_t Oxx,
@@ -968,7 +968,9 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 			UShort_t* ListHits,
 			Double_t info[][7],
 			Double_t cut,
-			UShort_t maxnum
+			UShort_t maxnum,
+			UShort_t islack // uncertainty allowed as far as
+				// the n. of hits that should be present.
 				);
 
 //--------  geometry intersection methods.
@@ -1166,6 +1168,14 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 			);
 
 
+	Double_t CalculateArcLength(
+			Double_t Oxx,
+			Double_t Oyy,
+			Double_t Rr,
+			Short_t Charge,
+			Double_t Xcross[2], // entrance-exit point
+			Double_t Ycross[2] // entrance-exit point
+			);
 
 
 
