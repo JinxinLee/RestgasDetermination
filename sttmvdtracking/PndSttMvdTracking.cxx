@@ -516,6 +516,38 @@ if(istampa>1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<endl;}
 		<<" and it is > MAXMCTRACKS = "<<MAXMCTRACKS<<", setting it equal to MAXMCTRACKS.\n";
 		nMCTracks = MAXMCTRACKS;
 	}
+
+//------- stampe.
+if(istampa>1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<", n. MC Tracks "
+		<<nMCTracks<<" e lista solo di quelle che vengono da (0,0,0) :\n";
+		for(int ic=0;ic<nMCTracks;ic++){
+			PndMCTrack* pMC = (PndMCTrack*) fMCTrackArray->At(ic);
+			if ( !( fabs(pMC->GetStartVertex().X())<0.5 &&
+			     fabs(pMC->GetStartVertex().Y())<0.5 &&
+			     fabs(pMC->GetStartVertex().Z())<0.5 )) continue;
+			double carica;
+			int icode  = pMC->GetPdgCode() ;    //   PDG code of track
+			double Pxx = pMC->GetMomentum().X();
+			double Pyy = pMC->GetMomentum().Y();
+			double aaa = sqrt( Pxx*Pxx + Pyy*Pyy);
+			double Rr =   aaa*1000./(BFIELD*CVEL);// R (cm) of Helix of track projected
+						//  in XY plane; B = 2 Tesla
+			TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
+			TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
+			if (icode>1000000000) carica = 1.;
+			else  carica = fParticle->Charge()/3. ;    //   charge of track
+
+			cout<<"\tTraccia n. "<<ic<<", Px "<<pMC->GetMomentum().X()
+			<<", Py "<<pMC->GetMomentum().Y()
+			<<", Pz "<<pMC->GetMomentum().Z()
+			<<", carica = "<<carica
+			<<"\n\t\tXvert "<<pMC->GetStartVertex().X()
+			<<", Yvert "<<pMC->GetStartVertex().Y()
+			<<", Zvert "<<pMC->GetStartVertex().Z()<<endl;
+		}
+}
+//-------fine stampe.
+
 //------------------------------
 
 //----------   fetching the STT  MC points
@@ -531,9 +563,15 @@ if(istampa>1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<endl;}
 //	nSttMCPoint=nmaxSttHits;
  }
 
-// 	for( i= 0; i< nSttMCPoint; i++){
-//	pSttMCPoint[i] = (FairMCPoint*) fSttPointArray->At(i);
-// }
+ if(istampa>1){
+ 	cout<<"from PndSttMvdTracking, printout dei "<<nSttMCPoint<<" punti MC :\n";
+	for( i= 0; i< nSttMCPoint; i++){
+		FairMCPoint * pSttMC = (FairMCPoint*) fSttPointArray->At(i);
+		cout<<"\tpoint n. "<<i<<", Xmc "<<pSttMC->GetX()<<
+		", Ymc "<<pSttMC->GetY()<<", Zmc "<<pSttMC->GetZ()
+		<<", appartiene a MC Track "<< pSttMC->GetTrackID()<<endl;
+	}
+ }
 
 //------------------------------
 
@@ -677,7 +715,7 @@ if(istampa>1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<endl;}
 
 
 //--------------- inizio stampaggi,  stampe di controllo
-  if (istampa >= 3) {
+  if (istampa >= 2) {
       cout <<"da PndSttMvdTracking, Stt iHit "<< i << " e n. punto MC ottenuto con RefIndex = "
       	<<ipunto<<endl;
       if(ipunto<0) {
@@ -2266,6 +2304,7 @@ if(istampa>=2&& IVOLTE<20){
 	}
 //-----------------------------------stampaggi
 if(istampa>=2&&IVOLTE<20){
+//cout<<"\n------------------------------------------------\n";
 cout<<"\n------------------------------------------------\n"
 <<"\tIVOLTE = "<<IVOLTE<<", cand n. "<<ncand<<", prima di TrackCleanup, tracce da Stt.\n";
 cout<<"\tn hit Pixel "<<nMvdPixelHitsinTrack[ncand]<<" e loro lista :\n";
@@ -2339,7 +2378,7 @@ if(istampa>1){ cout<<"\tPndSttMvdTracking, uscito da TrackCleanup tracce normali
 
 //-----------------------------------stampaggi
 if(istampa>=2){
-cout<<"\n------------------------------------------------\n"
+cout<<"\n\n"
 <<"\tIVOLTE = "<<IVOLTE<<", cand n. "<<ncand<<", dopo TrackCleanup, tracce da STT.\n";
 cout<<"\tn hit Pixel "<<nMvdPixelHitsinTrack[ncand]<<" e loro lista :\n";
 for(int ip=0;ip<nMvdPixelHitsinTrack[ncand];ip++){
@@ -3424,7 +3463,7 @@ Double_t HoughFiii;
 
 
 for (ii=0; ii<nTotalCandidates  ;ii++){
-   if(!keepit[ii]) { if(istampa>=1) {cout<<"\tevt. n "<<IVOLTE<<", cand. "<<ii<<" ha keepit false."<<
+   if(!keepit[ii]) { if(istampa>1) {cout<<"\tevt. n "<<IVOLTE<<", cand. "<<ii<<" ha keepit false."<<
    	endl;}; continue;}
    ibuone++;
    fprintf(HANDLE,"----------------------------------------------------------\n");
@@ -10719,7 +10758,8 @@ UShort_t ListParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack] // input/outp
 		dist1,
 		Zpos;
 
-	const Double_t NTIMES=0.4;
+//	const Double_t NTIMES=0.4;
+	const Double_t NTIMES=1.;
 
 
 	for(itrack=StartTrackCand; itrack<EndTrackCand; itrack++){
@@ -11190,9 +11230,25 @@ int nevento=1;
 		}
 	}	// end of  for(j=0;j<*nStripHitsinTrack;j++)
 
+//-----------------stampe.
+if(istampa>1){
+	cout<<"in EliminateSpuriousSZ : nSkew hit = "<<*nSkewHitsinTrack
+	<<", K = "<< KAPPA<<", FI0 = "<< FI0 <<endl;
+}
+//--------------fine stampe.
+
 	for(j=0;j<*nSkewHitsinTrack;j++){
 		i=j+(*nPixelHitsinTrack)+
 		    (*nStripHitsinTrack);
+
+
+//-----------------stampe.
+if(istampa>1){
+	cout<<"in EliminateSpuriousSZ : skew hit n. "<<ListSkewHitsinTrack[j]<<
+	"  ZED[i][0] = "<<ZED[i][0]<<", S[i][0] "<<S[i][0]
+	<< ",  ZED[i][1] = "<<ZED[i][1]  <<", S[i][1] "<<S[i][1]<<endl;
+}
+//--------------fine stampe.
 		if( ZED[i][0]<999990. && ZED[i][1]<999990.){
 
 	// here the fabs() is necessary!
@@ -11227,6 +11283,11 @@ int nevento=1;
 					}
 				}
 			}
+//-----------------stampe.
+if(istampa>1){
+	cout<<"in EliminateSpuriousSZ : caso quadruplo, d_min = "<<d_min<<endl;
+}
+//--------------fine stampe.
 			if( d_min > 999999998.) continue;
 			dista = Dista[Kmin];
 			error = Errore[Kmin];
@@ -11267,6 +11328,12 @@ int nevento=1;
 			else SchosenSkew[ListSkewHitsinTrack[j]]=S[i][0]+(nchosen-1)*2.*PI;
 			ZchosenSkew[ListSkewHitsinTrack[j]]=zeta0;
 
+//-----------------stampe.
+if(istampa>1){
+	cout<<"in EliminateSpuriousSZ : caso doppio, ZED[i][0] e' quello buono, dista = "
+	<<dista<<endl;
+}
+//--------------fine stampe.
 		} else if (ZED[i][1]<999990.){
 
 			dista =
@@ -11302,16 +11369,29 @@ int nevento=1;
 			if(nchosen>=0)SchosenSkew[ListSkewHitsinTrack[j]]=S[i][1]+nchosen*2.*PI;
 			else SchosenSkew[ListSkewHitsinTrack[j]]=S[i][1]+(nchosen-1)*2.*PI;
 			ZchosenSkew[ListSkewHitsinTrack[j]]=zeta1;
+//-----------------stampe.
+if(istampa>1){
+	cout<<"in EliminateSpuriousSZ : caso doppio, ZED[i][1] e' quello buono, dista = "
+	<<dista<<endl;
+}
+//--------------fine stampe.
 
 		} else {
 			continue;
 		}
 
 
+//-----------------stampe.
+if(istampa>1){
+	cout<<"in EliminateSpuriousSZ : insomma, dista prima della selezione = "<<
+	dista<< ", ed e' da comparare\n\tcon 4*error = "<<  4.*error<<endl<<
+	"\toppure con 2.*minimumSttDriftError = "<<2.*minimumSttDriftError<<endl;
+}
+//--------------fine stampe.
 
 		if(
-//			dista < 2.*error
-			dista < 1.1*error
+			dista < 4.*error
+//			dista < 1.1*error
 				||
 			dista < 2.*minimumSttDriftError
 			){
@@ -12536,10 +12616,10 @@ if(istampa>1) cout<<"\tentra in SttParalCleanup\n";
 				ApotemaMinOuterPar,
 				RStrawDetMax
 						) ){
-if(istampa>1) cout<<"\tSttParalCleanup false\n";
+if(istampa>1) cout<<"uscito da SttParalCleanup : false\n";
 						  return false;
 				}
-if(istampa>1) cout<<"\tSttParalCleanup true\n";
+if(istampa>1) cout<<"uscito da : SttParalCleanup true\n";
 
 
 
@@ -12567,11 +12647,11 @@ if(istampa>1) cout<<"\tentra in SttSkewCleanup\n";
 			1 // max number of failures allowed.
 			) ) ) {
 
-if(istampa>1) cout<<"\tSttSkewCleanup false\n";
+if(istampa>1) cout<<"uscito da SttSkewCleanup false\n";
 						  return false;
 				}
 
-if(istampa>1) cout<<"\tSttSkewCleanup truee\n";
+if(istampa>1) cout<<"uscito da SttSkewCleanup true\n";
 
 
 	return true;
@@ -12628,6 +12708,7 @@ if(istampa>1) cout<<"\tSttSkewCleanup truee\n";
 			i,
 			ihit,
 			ipurged,
+			islack,
 			nintersections,
 			nnn,
 			nInnerHits,
@@ -12662,9 +12743,19 @@ if(istampa>1) cout<<"\tSttSkewCleanup truee\n";
 			YintersectionList[7]; // take into account and the two possible
 					      // intersections with the external circle.
 
+
+	islack=1;  // uncertainty allowed in the # of straws that should be hit in a given part
+			// of the Stt detector.
+
+
 //------------------------
 //  elimination of hits outside the physical FI range (FiLimitAdmissible) due to finite length of
 //  Straws.
+
+
+if(istampa>1) {
+	cout<<"SttParalCleanup, evento n. "<<IVOLTE<<", n. || in ingresso "<<
+	nHits<<", prima di essere purgati."<<endl; }
 
 	epsilonTheta = STRAWRADIUS/Rr;  // some extra slac for being conservative.
 	for(i=0, ipurged=0; i< nHits; i++){
@@ -12691,6 +12782,10 @@ if(istampa>1) cout<<"\tSttSkewCleanup truee\n";
 	}  // end of    for(i=0, ipurged=0; i< nHits; i++)
 
 	nHits = ipurged;
+if(istampa>1) {
+	cout<<"SttParalCleanup, evento n. "<<IVOLTE<<", n. || hits "<<
+	nHits<<", dopo di essere purgati."<<endl; }
+
 	if(nHits==0){
 		nInnerHits=0;
 		nInnerHitsRight=0;
@@ -12729,6 +12824,10 @@ if(istampa>1) cout<<"\tSttSkewCleanup truee\n";
 				ListOuterHitsRight
 				);
 
+if(istampa>1) {
+	cout<<"SttParalCleanup, evento n. "<<IVOLTE
+	<<", dopo separate INNER/OUTER, n. || inner hits left "<<
+	nInnerHitsLeft<<", right : "<< nInnerHitsRight <<endl; }
 //------------------------------------------
 	// find the entrance and exit of the track in the Inner Left Parallel Straw region.
 	// This region is bounded by two Hexagons, and it has the target gap in the middle.
@@ -12784,6 +12883,11 @@ jumpa: ;
 				);
 
 
+
+if(istampa>1) {
+	cout<<"SttParalCleanup, evento n. "<<IVOLTE<<", flagInnerSttR (-1,0,1) = "<<flagInnerSttR
+	<<", flagInnerSttL "<<flagInnerSttL<<", flagOutStt "<<flagOutStt<<
+	", FI0  "<<FI0<<",  FiLimitAdmissible "<<FiLimitAdmissible<<endl; }
 
 //-----------------
 
@@ -12883,12 +12987,13 @@ jumpa: ;
 	}  // end of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
 
 	if( flagOutStt ==0){// 2 intersections with outer Stt circle.
-				XintersectionList[3]=XcrossOut[0];
-				XintersectionList[4]=XcrossOut[1];
-				YintersectionList[3]=YcrossOut[0];
-				YintersectionList[4]=YcrossOut[1];
+				XintersectionList[nintersections]=XcrossOut[0];
+				XintersectionList[nintersections+1]=XcrossOut[1];
+				YintersectionList[nintersections]=YcrossOut[0];
+				YintersectionList[nintersections+1]=YcrossOut[1];
 				nintersections +=2;
 	}
+
 
 	ChooseEntranceExitbis(
 				Oxx,
@@ -12906,13 +13011,6 @@ jumpa: ;
 			// case when this track exit in Z before having the possibility
 			// of hitting the Stt parallel inner section.
 		if( fabs(aux[0]-Xcross[0])<1.e-5&& fabs(aux[1]-Ycross[0])<1.e-5 ){
-			//nHits=0; // eliminate all the hits from hit list.
-			//nInnerHits=0;
-			//nInnerHitsRight=0;
-			//nInnerHitsLeft=0;
-			//nOuterHits=0;
-			//nOuterHitsRight=0;
-			//nOuterHitsLeft=0;
 			return true;
 		}
 		if( flagOutStt ==0){// 2 intersections with outer Stt circle.
@@ -12924,9 +13022,6 @@ jumpa: ;
 				(fabs(XcrossOut[1]-Xcross[0])<1.e-5
 				&&fabs(YcrossOut[1]-Ycross[0])<1.e-5 )
 				){
-				//nInnerHits=0; // eliminate all the hits from hit list.
-				//nInnerHitsRight=0;
-				//nInnerHitsLeft=0;
 				goto outer ;
 		   }
 		} // end of  if( flagOutStt ==0)
@@ -12934,6 +13029,12 @@ jumpa: ;
 		// most usual case when track crossed the Inner parallel Stt.
 		if (nnn == 0) return false;
 
+		// if the exit point is actually given by FiLimitAdmissible, then allow
+		// an extra uncertainty in the # Stt hit that must be present;
+		// this is done because FiLimitAdmissible is not a very precise number.
+		if( fabs(aux[0]-Xcross[1])<1.e-5&& fabs(aux[1]-Ycross[1])<1.e-5 ){
+			islack = 3;
+		}
 
 	} else { // continuation of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
 		if( flagOutStt ==0){// 2 intersections with outer Stt circle.
@@ -12963,6 +13064,10 @@ jumpa: ;
 
 //-------------  cleanup of the spurious tracks first using the inner parallel straws.
 
+if(istampa>1) {
+	cout<<"SttParalCleanup, evento n. "<<IVOLTE<<", prima di BadTrack_ParStt; Xin Inner "<<
+	Xcross[0]<<", Yin Inner "<<Ycross[0]<<
+	",  Xout Inner "<<Xcross[1]<<", Yout Inner "<<Ycross[1]<<endl; }
 
 
 	// at this point the n. of inner hits cannot be 0 for a true track.
@@ -12976,18 +13081,26 @@ jumpa: ;
 			nInnerHits,
 			ListInnerHits,
 			info,
-			1.5*DiameterStrawTube,	//  cut of proximity between hits.
-			1	// maximum allowed # consecutive hits with distance > cut.
+			2.*DiameterStrawTube,	//  cut of proximity between hits.
+			1,	// maximum allowed # consecutive hits with distance > cut.
+			islack // uncertainty allowed as far as the n. of hits that should be present.
 					)
 	   ){
 
 		return false;
 	}
 
+if(istampa>1) cout<<"uscito da BadTrack_ParStt.\n";
 
 //-----------------------------------------------------
 
 outer: ;
+
+	islack=1;   // reset the extra uncertainty in the # Stt.
+
+
+
+
 //------------ Outer Parallel Stt hits section.
 	// find the entrance and exit of the track in the Outer Parallel Straw region, Left side.
 	// This region is bounded by a Hexagon (inner), a Circle (outer) and it has
@@ -13027,6 +13140,10 @@ outer: ;
 				);
 
 
+if(istampa>1) {
+	cout<<"SttParalCleanup, evento n. "<<IVOLTE<<", flagOuterSttR (-1,0,1) = "<<flagOuterSttR
+	<<", flagOuterSttL "<<flagOuterSttL<<endl; }
+
 
 //--------------------------------
 
@@ -13050,9 +13167,6 @@ outer: ;
 
 	// case when track is outside both Outer Stt Parallel sections.
 	if( flagOuterSttL == -1 && flagOuterSttR == -1 ){
-		//nOuterHits=0; // eliminate all the hits from hit list.
-		//nOuterHitsLeft=0;
-		//nOuterHitsRight=0;
 		return true ;
 	}
 
@@ -13092,7 +13206,12 @@ outer: ;
 		} // end of  if( (fabs(XcrossL[0]-Xcross.....
 	}  // end of if( (flagInnerSttL == 0 && flagInnerSttR = 0 )
 
-
+//-------------stampe.
+if(istampa>1) {
+cout<<"in SttParalCleanup Outer, caso traccia entra in L and R outer. Dopo scelta, flagOuterSttR "
+	<<flagOuterSttR<<", flagOuterSttL "<<flagOuterSttL<<endl;
+}
+//-------------fine stampe.
 
 	if( flagOuterSttL == 0){
 	   nnn=nOuterHitsLeft;
@@ -13110,26 +13229,45 @@ outer: ;
 	}  // end of   if( (flagOuterSttL == 0)
 
 
+//-------------stampe.
+if(istampa>1) {
+cout<<"in SttParalCleanup Outer, nhit considerati "<< nnn <<endl;
+}
+//-------------fine stampe.
 
 
 	nintersections=2;
 	if(fabs(FiLimitAdmissible-FI0) < 2.*PI){  // in this case the point
 			// corresponding to FiLimitAdmissible can play a role in the
 			// determination of the limiting points of the hits.
-//			aux[0]=Oxx+Rr*cos(FiLimitAdmissible);
-//			aux[1]=Oyy+Rr*sin(FiLimitAdmissible);
 			XintersectionList[2]=aux[0];
 			YintersectionList[2]=aux[1];
 			nintersections++;
+//-------------stampe.
+if(istampa>1) {
+cout<<"in SttParalCleanup Outer, caso in cui  FiLimitAdmissible = "<< FiLimitAdmissible
+<<"  conta!" <<endl;
+}
+//-------------fine stampe.
 	}  // end of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
 
 	if( flagOutStt ==0){// 2 intersections with outer Stt circle.
-				XintersectionList[3]=XcrossOut[0];
-				XintersectionList[4]=XcrossOut[1];
-				YintersectionList[3]=YcrossOut[0];
-				YintersectionList[4]=YcrossOut[1];
+				XintersectionList[nintersections]=XcrossOut[0];
+				XintersectionList[nintersections+1]=XcrossOut[1];
+				YintersectionList[nintersections]=YcrossOut[0];
+				YintersectionList[nintersections+1]=YcrossOut[1];
 				nintersections +=2;
 	}
+//-------------stampe.
+if(istampa>1) {
+cout<<"in SttParalCleanup Outer, prima di  ChooseEntranceExitbis, nintersections "
+<< nintersections<<" e loro lista :"<<endl;
+	for(int ic=0;ic<nintersections;ic++){
+		cout<<"\tX["<<ic<<"] = "<<XintersectionList[ic]
+		<<", Y["<<ic<<"] = "<<YintersectionList[ic]<<endl;
+	}
+}
+//-------------fine stampe.
 
 	ChooseEntranceExitbis(
 				Oxx,
@@ -13142,11 +13280,24 @@ outer: ;
 				Xcross,	// output
 				Ycross	// output
 				);
+//-------------stampe.
+if(istampa>1) {
+cout<<"in SttParalCleanup Outer, dopo di  ChooseEntranceExitbis, Xin"
+<< Xcross[0]<<", Yin "<< Ycross[0]<<", Xout " << Xcross[1]<<", Yout "<< Ycross[1]
+<<endl;
+}
+//-------------fine stampe.
 
 
 	if(fabs(FiLimitAdmissible-FI0) < 2.*PI){
 			// case when this track exit in Z before having the possibility
 			// of hitting the Stt parallel inner section.
+
+			// case when this track exit in Z before having the possibility
+			// of hitting the Stt parallel inner section.
+		if( fabs(aux[0]-Xcross[0])<1.e-5&& fabs(aux[1]-Ycross[0])<1.e-5 ){
+			return true;
+		}
 
 		if( flagOutStt ==0){// 2 intersections with outer Stt circle.
 		   // case when this track exits the Stt outer circle without
@@ -13168,6 +13319,12 @@ outer: ;
 		// most usual case when track crossed the Outer parallel Stt.
 		if (nnn == 0) return false;
 
+		// if the exit point is actually given by FiLimitAdmissible, then allow
+		// an extra uncertainty in the # Stt hit that must be present;
+		// this is done because FiLimitAdmissible is not a very precise number.
+		if( fabs(aux[0]-Xcross[1])<1.e-5&& fabs(aux[1]-Ycross[1])<1.e-5 ){
+			islack = 3;
+		}
 
 	} else { // continuation of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
 
@@ -13198,10 +13355,11 @@ outer: ;
 
 //-------------------- stampe
 if(istampa>=2&&IVOLTE<20){
-cout<<"OUTER, caso R&L true, IVOLTE = "<<IVOLTE<<"\n\t Xcross[0] "
+cout<<"SttParalCleanup, OUTER, caso R || L true, IVOLTE = "<<IVOLTE<<"\n\t Xcross[0] "
 << Xcross[0]<<", Ycross[0] " <<Ycross[0]<<"\n\t Xcross[1] "
 << Xcross[1]<<", Ycross[1] " <<Ycross[1]<<" e charge = "<<Charge<<", FiLimitAdmissible "
-<<FiLimitAdmissible<<endl;
+<<FiLimitAdmissible<<" (X="<<Oxx+Rr*cos(FiLimitAdmissible)
+  <<", Y="<< Oyy+Rr*sin(FiLimitAdmissible)<<")." <<endl;
 }
 //-------------------fine stampe
 
@@ -13221,8 +13379,9 @@ cout<<"OUTER, caso R&L true, IVOLTE = "<<IVOLTE<<"\n\t Xcross[0] "
 			nOuterHits,
 			ListOuterHits,
 			info,
-			1.1*DiameterStrawTube,	//  cut of proximity between hits.
-			1	// maximum allowed # consecutive hits with distance > cut.
+			2.*DiameterStrawTube,	//  cut of proximity between hits.
+			1,	// maximum allowed # consecutive hits with distance > cut.
+			islack // uncertainty allowed as far as the n. of hits that should be present.
 					)
 	   ) return false;
 
@@ -13283,9 +13442,11 @@ cout<<"OUTER, caso R&L true, IVOLTE = "<<IVOLTE<<"\n\t Xcross[0] "
 	UShort_t	i,
 			ipurged,
 			ibad,
+			islack,
 			nHitsLeft,
 			nHitsRight,
 			nintersections,
+			ninside,
 			nnn,
 			nIntersections[2],
 			ListHits[nHits],
@@ -13296,6 +13457,7 @@ cout<<"OUTER, caso R&L true, IVOLTE = "<<IVOLTE<<"\n\t Xcross[0] "
 			epsilonTheta,
 			fi,
 			FiStart,
+			length,
 			r,
 			Sprevious,
 			aux[2],
@@ -13314,6 +13476,9 @@ cout<<"OUTER, caso R&L true, IVOLTE = "<<IVOLTE<<"\n\t Xcross[0] "
 
 
 	cut2=cut*cut;
+	islack=1;// uncertainty allowed as far as
+		// the n. of hits that should be present in a given section of the Stt track.
+
 
 //------------------------
 //  elimination of hits outside the physical FI range (FiLimitAdmissible) due to finite length of
@@ -13343,12 +13508,15 @@ if(istampa>1&&IVOLTE<20)cout<<"\thit // n. "<<Listofhits[i]<<", fi "<<fi<<endl;
 		}  // end of  if( fi > FI0)
 		if (fi < FiLimitAdmissible-epsilonTheta) continue;
 	  } // end of if(Charge <0)
-if(istampa>1&&IVOLTE<20)cout<<"\t\thit preso!"<<endl;
+if(istampa>1&&IVOLTE<20)cout<<"in SttSkewCleanup : hit preso!"<<endl;
 
 	  ListHits[ipurged]=Listofhits[i];
 	  S[ipurged]=S[i];
 	  ipurged++;
 	}  // end of    for(i=0, ipurged=0; i< nHits; i++)
+
+if(istampa>1&&IVOLTE<20)cout<<"in SttSkewCleanup : hit skew prima di purga = "
+<<nHits<<", dopo purga "<<ipurged<<endl;
 
 	nHits = ipurged;
 	if(nHits==0){ // don't discard track yet, see if it should have
@@ -13372,6 +13540,8 @@ if(istampa>1&&IVOLTE<20)cout<<"\t\thit preso!"<<endl;
 		}
 	}
 
+if(istampa>1&&IVOLTE<20)cout<<"in SttSkewCleanup : n. hit skew Left = "
+<<nHitsLeft<<", right "<< nHitsRight  <<endl;
 
 jampa: ;
 //	first of all, find possible intersection points with outer circle encompassing
@@ -13421,6 +13591,8 @@ jampa: ;
 	// find the entrance and exit of the track in the Skew Straw region.
 	// This region is bounded by two Hexagons, and it has the target gap in the middle.
 
+if(istampa>1)cout<<"in SttSkewCleanup : flagLeft (-1,0,1) = "<<flagSttL
+<<", right "<< flagSttR  <<endl;
 	if (flagSttR == 1 || flagSttL == 1 ) { // the trajectory is contained completely
 					// in  the Right or Left Skew section, reject!
 		return false ;
@@ -13431,20 +13603,22 @@ jampa: ;
 
 	if( flagSttR == 0 && (XcrossR[0]-XcrossR[1])*(XcrossR[0]-XcrossR[1])+
 			(YcrossR[0]-YcrossR[1])*(YcrossR[0]-YcrossR[1])
-			< 16.*STRAWRADIUS*STRAWRADIUS ) flagSttR=-1;
+			< 16.*STRAWRADIUS*STRAWRADIUS ){
+		flagSttR=-1;
+if(istampa>1)cout<<"in SttSkewCleanup : distanza entrata-uscita<4*STRAWRADIUS,flagSttR set at -1!\n";
+	}
 
 	if( flagSttL == 0 && (XcrossL[0]-XcrossL[1])*(XcrossL[0]-XcrossL[1])+
 			(YcrossL[0]-YcrossL[1])*(YcrossL[0]-YcrossL[1])
-			< 16.*STRAWRADIUS*STRAWRADIUS ) flagSttR=-1;
-
-
-	if (flagSttR == -1 || flagSttL == -1 ) { // the trajectory is outside
-					// the Right and Left Skew section.
-		//nHits=0;
-		return true ;
+			< 16.*STRAWRADIUS*STRAWRADIUS ){
+		flagSttR=-1;
+if(istampa>1)cout<<"in SttSkewCleanup : distanza entrata-uscita<4*STRAWRADIUS,flagSttL set at -1!\n";
 	}
+
 	if (flagSttR != 0 && flagSttL != 0 ) {
 		//nHits=0;
+		if(istampa>1)cout<<"in SttSkewCleanup : flagSttR = "<<flagSttR
+		<<", e  flagSttL = "<<flagSttL<<", exit con true!\n";
 		return true; // don't discard track because it may have Mvd hits anyway
 				// and/or they can have Inner Parallel hits.
 	}
@@ -13522,10 +13696,10 @@ jampa: ;
 
 
 	if( flagOutStt ==0){// 2 intersections with outer Stt circle.
-				XintersectionList[3]=XcrossOut[0];
-				XintersectionList[4]=XcrossOut[1];
-				YintersectionList[3]=YcrossOut[0];
-				YintersectionList[4]=YcrossOut[1];
+				XintersectionList[nintersections]=XcrossOut[0];
+				XintersectionList[nintersections+1]=XcrossOut[1];
+				YintersectionList[nintersections]=YcrossOut[0];
+				YintersectionList[nintersections+1]=YcrossOut[1];
 				nintersections +=2;
 	}
 
@@ -13545,10 +13719,6 @@ jampa: ;
 			// case when this track exit in Z before having the possibility
 			// of hitting the Stt parallel inner section.
 		if( fabs(aux[0]-Xcross[0])<1.e-5&& fabs(aux[1]-Ycross[0])<1.e-5 ){
-			//nHits=0; // eliminate all the hits from hit list.
-			//nHits=0;
-			//nHitsRight=0;
-			//nHitsLeft=0;
 			return true;
 		}
 		if( flagOutStt ==0){// 2 intersections with outer Stt circle.
@@ -13560,15 +13730,19 @@ jampa: ;
 				(fabs(XcrossOut[1]-Xcross[0])<1.e-5
 				&&fabs(YcrossOut[1]-Ycross[0])<1.e-5 )
 				){
-				//nHits=0; // eliminate all the hits from hit list.
-				//nHitsRight=0;
-				//nHitsLeft=0;
 				return true ;
 		   }
 		} // end of  if( flagOutStt ==0)
 
 		// most usual case when track crossed the Inner parallel Stt.
 		if (nnn == 0) return false;
+
+		// if the exit point is actually given by FiLimitAdmissible, then allow
+		// an extra uncertainty in the # Stt hit that must be present;
+		// this is done because FiLimitAdmissible is not a very precise number.
+		if( fabs(aux[0]-Xcross[1])<1.e-5&& fabs(aux[1]-Ycross[1])<1.e-5 ){
+			islack = 3;
+		}
 
 
 	} else { // continuation of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
@@ -13581,9 +13755,6 @@ jampa: ;
 				(fabs(XcrossOut[1]-Xcross[0])<1.e-5
 				&&fabs(YcrossOut[1]-Ycross[0])<1.e-5 )
 				){
-				//nHits=0; // eliminate all the hits from hit list.
-				//nHitsRight=0;
-				//nHitsLeft=0;
 				return true ;
 			   }
 		} // end of  if( flagOutStt ==0)
@@ -13594,11 +13765,28 @@ jampa: ;
 	}  // end of  if(fabs(FiLimitAdmissible-FI0) < 2.*PI)
 
 
+
+	length=CalculateArcLength(Oxx,
+				Oyy,
+				Rr,
+				Charge,
+				Xcross,
+				Ycross
+				);
+//-------------------- stampe
+if(istampa>=2&&IVOLTE<20){
+cout<<"in SttSkewCleanup,  IVOLTE = "<<IVOLTE<<"\n\t Xcross[0] "
+<< Xcross[0]<<", Ycross[0] " <<Ycross[0]<<"\n\t Xcross[1] "
+<< Xcross[1]<<", Ycross[1] " <<Ycross[1]<<", R = "<<Rr<<", Lungh. arco "<<length<<endl;
+}
+//-------------------fine stampe
+
 //-------------------------------------------------------------------------
 
 
 	Sprevious = atan2(Ycross[0]-Oyy,Xcross[0]-Oxx);
 	ibad=0;
+	ninside=0;
 
 	for (i=0; i<nHits;i++){
 		if( ! IsInsideArc(
@@ -13606,7 +13794,13 @@ jampa: ;
 			Xcross,
 			Ycross,
 			S[i])
-			) continue;
+			){
+			continue;
+if(istampa>1)cout<<"in SttSkewCleanup :hit n. "<< ListHits[i]
+	<<" is NOT inside the arc between entrance and exit; hit excluded!\n";
+		}
+
+		ninside++;
 
 		Distance[i] = 2.*Rr*Rr*(1.-cos(S[i]-Sprevious)); // this is the usual
 					//  distance**2 formula: (x1-x2)**2+(y1-y2)**2;
@@ -13614,18 +13808,32 @@ jampa: ;
 					// around 2PI/0.
 		Sprevious = S[i];
 		if(Distance[i]<0.) Distance[i]=0.;   // rounding errors protection.
+if(istampa>=2)cout<<"in SttSkewCleanup, Hit n. "<< ListHits[i]<<" has Distance "
+<<sqrt(Distance[i]) <<endl;
 		if(Distance[i]>cut2){
 			if(Distance[i]>16.*cut2){
-if(istampa>=2&&IVOLTE<20)cout<<"\tHit n. "<< ListHits[i]<<" has Distance "
-<<Distance[i] <<" which is >4 .*cut [="<<cut<<"], discard the track!"<<endl;
+if(istampa>=2)cout<<"in SttSkewCleanup, Hit n. "<< ListHits[i]<<" has Distance "
+<<sqrt(Distance[i]) <<" which is >4.*cut [="<<cut<<"], discard the track!"<<endl;
 				return false;
 			}
-if(istampa>=2&&IVOLTE<20)cout<<"\tHit n. "<< ListHits[i]<<" has Distance "
-<<Distance[i] <<" which is > cut [="<<cut<<"]."<<endl;
+if(istampa>=2)cout<<"in SttSkewCleanup, Hit n. "<< ListHits[i]<<" has Distance "
+<<sqrt(Distance[i]) <<" which is > cut [="<<cut<<"]."<<endl;
 			ibad++;
 		}
 	}	// end of do (i=1; i<nHits;i++)
 
+
+
+	// cut on the minimum (conservative) n. hits that must have fired
+	if( ninside < ((int) length/DiameterStrawTube )-islack ){
+		if(istampa>1){
+			cout<<"in SttSkewCleanup, n. Hits inside = "<<ninside
+			<<" is < n. hits that should be inside at least = "
+			<<((int)length/DiameterStrawTube)<<"-islack ("<<
+			islack<<"), track rejected!\n";
+			return false;
+		}
+	}
 
 
 	// compute the distance of last hit to point at which track leaves this detector volume
@@ -13636,19 +13844,20 @@ if(istampa>=2&&IVOLTE<20)cout<<"\tHit n. "<< ListHits[i]<<" has Distance "
 			Ycross,
 			S[nHits-1])
 			) {
-
-	   Distance[nHits] = sqrt(
+		Distance[nHits] =
 		(Oxx+Rr*cos(S[nHits-1])-Xcross[1])*(Oxx+Rr*cos(S[nHits-1])-Xcross[1]) +
-		(Oyy+Rr*sin(S[nHits-1])-Ycross[1])*(Oyy+Rr*sin(S[nHits-1])-Ycross[1])
-				);
+		(Oyy+Rr*sin(S[nHits-1])-Ycross[1])*(Oyy+Rr*sin(S[nHits-1])-Ycross[1]);
+
+if(istampa>=2)cout<<"in SttSkewCleanup, last Hit n. "<< ListHits[nHits-1]<<" has Distance from boundary "
+<<sqrt(Distance[nHits]) <<endl;
 	   if( Distance[nHits]>cut2 ){
 		if( Distance[nHits]>16.*cut2){
-if(istampa>=2&&IVOLTE<20)cout<<"\tlast Hit n. "<< ListHits[nHits-1]<<" has Distance from boundary "
-<<Distance[nHits] <<" which is >4 .*cut [="<<cut<<"], discard the track!"<<endl;
+if(istampa>=2)cout<<"in SttSkewCleanup, last Hit n. "<< ListHits[nHits-1]<<" has Distance from boundary "
+<<sqrt(Distance[nHits]) <<" which is >4 .*cut [="<<cut<<"], discard the track!"<<endl;
 			return false;
 		}
-if(istampa>=2&&IVOLTE<20)cout<<"\tlast Hit n. "<< ListHits[nHits-1]<<" has Distance from boundary "
-<<Distance[nHits] <<" and it is > cut [="<<cut<<"]."<<endl;
+if(istampa>=2)cout<<"in SttSkewCleanup, last Hit n. "<< ListHits[nHits-1]<<" has Distance from boundary "
+<<sqrt(Distance[nHits]) <<" and it is > cut [="<<cut<<"]."<<endl;
 		ibad++;
 	   }
 	}  // end of if(IsInsideArc(
@@ -13656,7 +13865,7 @@ if(istampa>=2&&IVOLTE<20)cout<<"\tlast Hit n. "<< ListHits[nHits-1]<<" has Dista
 
 
 	if( ibad > maxnum){
-if(istampa>=2&&IVOLTE<20)cout<<"\treject this track because ibad = "<< ibad
+if(istampa>=2&&IVOLTE<20)cout<<"in SttSkewCleanup, reject this track because ibad = "<< ibad
 <<" and it is >  maxnum [="<<maxnum<<"].\n";
 		 return false;
 	}
@@ -13697,14 +13906,17 @@ if(istampa>=2&&IVOLTE<20)cout<<"\treject this track because ibad = "<< ibad
 			UShort_t* ListHits,
 			Double_t info[][7],
 			Double_t cut,
-			UShort_t maxnum
+			UShort_t maxnum,
+			UShort_t islack// uncertainty allowed as far as
+		// the n. of hits that should be present in a given section of the Stt track.
 				)
 {
 	UShort_t	ibad,
 			ihit,
-			ninarc;
+			ninside;
 
 	Double_t	cut2,
+			length,
 			Xprevious,
 			Yprevious,
 			S,
@@ -13716,12 +13928,20 @@ if(istampa>=2&&IVOLTE<20)cout<<"\treject this track because ibad = "<< ibad
 	Xprevious=Xcross[0];
 	Yprevious=Ycross[0];
 
-if(istampa>1) {cout<<"\tXingresso "<<Xcross[0]<<", Yingresso "<<Ycross[0]
-	<<", Xuscita "<<Xcross[1]<<", Yuscita "<<Ycross[1]<<endl;
+	length=CalculateArcLength(Oxx,
+				Oyy,
+				Rr,
+				Charge,
+				Xcross,
+				Ycross
+				);
+if(istampa>1) {cout<<"in BadTrack_ParStt : Xingresso "<<Xcross[0]<<", Yingresso "<<Ycross[0]
+	<<", Xuscita "<<Xcross[1]<<", Yuscita "<<Ycross[1]<<", Lungh. arco "
+	<<length<<", islack "<<islack<<endl;
 	}
 
 
-//	ninarc=0;
+	ninside=0;
 	for(ihit=0; ihit<nHits;ihit++){
 		S = atan2(info[ListHits[ihit]][1]-Oyy,info[ListHits[ihit]][0]-Oxx);
 		if(S<0.) S += 2.*PI;
@@ -13734,13 +13954,13 @@ if(istampa>1) {cout<<"\tXingresso "<<Xcross[0]<<", Yingresso "<<Ycross[0]
 		) ) {
 			continue;
 			}
-//		ninarc++;
+		ninside++;
 		Distance[ihit]= 
 			(info[ListHits[ihit]][0]-Xprevious)*
 			(info[ListHits[ihit]][0]-Xprevious)+
 			(info[ListHits[ihit]][1]-Yprevious)*
 			(info[ListHits[ihit]][1]-Yprevious);
-if(istampa>1) {cout<<"hit || n. "<<ListHits[ihit]<<", X "<<info[ListHits[ihit]][0]
+if(istampa>1) {cout<<"in BadTrack_ParStt :hit || n. "<<ListHits[ihit]<<", X "<<info[ListHits[ihit]][0]
 <<", Y "<<info[ListHits[ihit]][1]<<"\n\tX prima "<<Xprevious
 <<", Y prima "<<Yprevious<<", Distanza "<<sqrt(Distance[ihit])<<", cut = "
 <<cut<<endl;
@@ -13760,6 +13980,18 @@ if(istampa>1) {cout<<"hit || n. "<<ListHits[ihit]<<", X "<<info[ListHits[ihit]][
 	}	// end of   for(ihit=0,NinDet=0 ;ihit<nHits;ihit++)
 
 
+	// cut on the minimum (conservative) n. hits that must have fired
+	if( ninside < ((int) length/DiameterStrawTube)-islack ){
+		if(istampa>1){
+			cout<<"in BadTrack_ParStt, n. Hits inside = "<<ninside
+			<<" is < n. hits that should be inside at least = "
+			<<((int) length/DiameterStrawTube)<<"-islack ("<<
+			islack<<"), track rejected!\n";
+			return true;
+		}
+	}
+
+
 
 	// compute the distance of last hit to point at which track leaves this detector volume.
 
@@ -13773,7 +14005,7 @@ if(istampa>1) {cout<<"hit || n. "<<ListHits[ihit]<<", X "<<info[ListHits[ihit]][
 	   (info[ListHits[nHits-1]][0]-Xcross[1])*(info[ListHits[nHits-1]][0]-Xcross[1])+
 	   (info[ListHits[nHits-1]][1]-Ycross[1])*(info[ListHits[nHits-1]][1]-Ycross[1])
 						;
-if(istampa>1)cout<<"from BadTrack_ParStt, Stt || hit n. (original notation) "<<
+if(istampa>1)cout<<"in BadTrack_ParStt, Stt || hit n. (original notation) "<<
 	ListHits[nHits-1]<<", Distance to boundary = "<<sqrt(Distance[nHits])
 	<<", 4*cut "<<4.*cut<<endl;
 	   if( Distance[nHits]>cut2 ){
@@ -13785,7 +14017,7 @@ if(istampa>1)cout<<"from BadTrack_ParStt, Stt || hit n. (original notation) "<<
 	}	// end of if( IsInsideArc
 
 
-if(istampa>1)cout<<"from BadTrack_ParStt, ibad "<<ibad<<", max bad allowed = "<< maxnum<<endl;
+if(istampa>1)cout<<"in BadTrack_ParStt, ibad "<<ibad<<", max bad allowed = "<< maxnum<<endl;
 
 	if( ibad > maxnum) return true;
 //	if(ninarc==0) return true;
@@ -15308,5 +15540,40 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 	else  return false;
 }
 //----------end of function PndSttMvdTracking::IsTargetInPipe
+
+//----------begin of function PndSttMvdTracking::CalculateArcLength
+
+	Double_t PndSttMvdTracking::CalculateArcLength(
+			Double_t Oxx,
+			Double_t Oyy,
+			Double_t Rr,
+			Short_t charge,
+			Double_t Xcross[2], // entrance-exit point
+			Double_t Ycross[2] // entrance-exit point
+			)
+{
+	Double_t	dis,
+			theta1,
+			theta2;
+
+	theta1 = atan2(Ycross[0]-Oyy,  Xcross[0]- Oxx);
+	theta2 = atan2(Ycross[1]-Oyy,  Xcross[1]- Oxx);
+
+
+	if(charge>0){  // the rotation was clockwise.
+		dis = theta1-theta2;
+	} else {  // the rotation was counterclockwise.
+		dis = theta2-theta1;
+	}
+
+	if(dis<0.) dis += 2.*PI;
+	if(dis<0.) dis =0.;
+
+	dis *= Rr;
+
+	return dis;
+}
+//----------end of function PndSttMvdTracking::CalculateArcLength
+
 
 ClassImp(PndSttMvdTracking)
