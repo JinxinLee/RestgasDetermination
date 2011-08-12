@@ -46,6 +46,9 @@ PndMdt::PndMdt()
     fEndcap = "";
     fMuonFilter = "";
     fForward = "";
+    mdtMagnet = kFALSE;
+    mdtMFI = kFALSE;
+    mdtCoil = kFALSE;
 }
 // -------------------------------------------------------------------------
 
@@ -62,6 +65,9 @@ PndMdt::PndMdt(const char* name, Bool_t active) : FairDetector(name,active)
     fEndcap = "";
     fMuonFilter = "";
     fForward = "";
+    mdtMagnet = kFALSE;
+    mdtMFI = kFALSE;
+    mdtCoil = kFALSE;
 }
 // -------------------------------------------------------------------------
 
@@ -141,12 +147,11 @@ void PndMdt::SetParFile(TString filename)
 void PndMdt::ConstructGeometry() 
 {
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
- 
   if (fBarrel!="")
     {
-      if (fBarrel=="torino" || fBarrel =="Torino")
-	{
-	  ConstructGeometryTo();
+      if (fBarrel=="fast" || fBarrel =="Fast")
+        {
+	  ConstructGeometryFast();
 	}
       else if (fBarrel.EndsWith(".root"))
 	{
@@ -167,7 +172,7 @@ void PndMdt::ConstructGeometry()
 	  SetGeometryFileName(fEndcap);
 	  ConstructRootGeometry();
 	}
-      else if (fBarrel!="torino" && fBarrel !="Torino")
+      else if (fBarrel!="fast" && fBarrel !="Fast")
 	{
 	  std::cout<< "PndMdt::ConstructGeometry : No good MDT Endcap definition " <<std::endl;
 	  exit(0);
@@ -176,7 +181,7 @@ void PndMdt::ConstructGeometry()
  
   if (fMuonFilter!="")
     {
-      if (fMuonFilter=="torino" || fMuonFilter=="Torino")
+      if (fMuonFilter=="fast" || fMuonFilter=="Fast")
 	{
 	  PndMdtMuonFilter();
 	}
@@ -194,7 +199,7 @@ void PndMdt::ConstructGeometry()
 
   if (fForward!="")
     {
-      if (fForward=="torino" || fForward =="Torino")
+      if (fForward=="fast" || fForward =="Fast")
 	{
 	  std::cout<< "PndMdt::ConstructGeometry : No Torino design for Forward MDT" <<std::endl;
 	  exit(0); 
@@ -212,8 +217,7 @@ void PndMdt::ConstructGeometry()
     }
   
   if(mdtMagnet) PndMdtMagnet();
-//  if(mdtMFI) PndMdtMFIron();
-
+  if(mdtMFI) PndMdtMFIron();
   if(mdtCoil) PndMdtCoil();
  
   return;
