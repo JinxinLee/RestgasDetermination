@@ -19,7 +19,7 @@ namespace Drc
       ReflTransmitted,         //!< Photon is transmitted (internal refl, dichr. mirr.)
       ReflAbsorbed,            //!< Photon is absorbed (mirror).
       ReflReflected,           //!< Photon is reflected (mirror).
-      ReflRefracted,           //!< Photon will be refracted (int. reflection or not)
+      ReflRefracted,           //!< Photon will be refracted and is lost if not Fresnel reflected.
     };
 }
 
