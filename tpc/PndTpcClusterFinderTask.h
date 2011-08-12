@@ -53,6 +53,7 @@ public:
   void SetClusterBranchName(const TString& name) {fClusterOutName=name;}
   void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
   void SetDigiPersistence(Bool_t opt=kTRUE) {fDigiPersistence=opt;} // store references to digis in clusters
+  void SetSamplePesistence(Bool_t opt=kTRUE) {fSamplePersistence=opt;} // store references to samples in digis
   void SetTrivialClustering(Bool_t opt=kTRUE) {ftrivial=opt;}
   void SetSimpleClustering(Bool_t opt=kTRUE, Bool_t sectorize=kTRUE);
   void SetMode(int mode){fmode=mode;}
@@ -85,6 +86,7 @@ private:
   
   Bool_t fpersistence;
   Bool_t fDigiPersistence;
+  Bool_t fSamplePersistence;
   Bool_t ftrivial;
   Bool_t fsimple;
   Bool_t fsectorize; // sectorize simple clustering
