@@ -142,7 +142,7 @@ void runEvtMixReco(TString inFile, TString physFile, TString jobname="reco1" ){
   evtDeconv->SetPersistence();
   evtDeconv->SetZCutBinning(50,0.25);
   evtDeconv->SetNExpectedTracks(4);
-  evtDeconv->SetCuts(5.,3.5,0);
+  evtDeconv->SetCuts(5.,3.5,3.5);
   evtDeconv->SetOutTrackBranchName("RiemannTrackTagged");
   fRun->AddTask(evtDeconv);
 
@@ -169,9 +169,11 @@ void runEvtMixReco(TString inFile, TString physFile, TString jobname="reco1" ){
 
   //correlate fitted track with MVD pixels and strips
   PndTpcMVDCorrelatorTask* corr = new PndTpcMVDCorrelatorTask();
-  corr->SetMatchDistance(3);   //cm
+  corr->SetMatchDistance(0.5);   //cm
+  corr->SetAngleCut(TMath::PiOver4()); // rad
   corr->SetMinMVDHits(1);
   corr->RequireMatch(true);
+  corr->MergeHits(true);
   corr->SetTrackBranchName("TrackFitTagged");
   corr->SetOutTrackBranchName("TrackPreFitTaggedMVD");
   //corr->SetPersistence(true);
