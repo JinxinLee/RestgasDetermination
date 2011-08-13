@@ -51,9 +51,9 @@ PndDrcOptReflSurf* PndDrcOptReflSurf::Clone() const
   return new PndDrcOptReflSurf(*this);
 }
 //----------------------------------------------------------------------
-const Drc::Reflectivity PndDrcOptReflSurf::Reflectivity(PndDrcPhoton&  ph,
-						       XYZVector   normal) 
-const
+const Drc::Reflectivity PndDrcOptReflSurf::Query(const PndDrcPhoton&  ph,
+						 const XYZVector   normal) 
+  const
 {
   double ran = fRan.Uniform(0.0,1.0);
  

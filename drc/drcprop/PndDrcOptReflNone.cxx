@@ -45,8 +45,8 @@ PndDrcOptReflNone* PndDrcOptReflNone::Clone() const
   return new PndDrcOptReflNone(*this);
 }
 //----------------------------------------------------------------------
-const Drc::Reflectivity PndDrcOptReflNone::Reflectivity(PndDrcPhoton&  ph,
-						     XYZVector   normal) 
+const Drc::Reflectivity PndDrcOptReflNone::Query(const PndDrcPhoton&  ph,
+							const XYZVector   normal) 
 const
 {
       return Drc::ReflAbsorbed;

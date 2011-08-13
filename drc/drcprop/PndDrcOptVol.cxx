@@ -238,7 +238,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 	      ph.SetDevice(this);
 	  
 	      refl = Drc::ReflReflected; // needless ???
-	      refl = surf_closest->Reflectivity().Reflectivity(ph,norm);
+	      refl = surf_closest->Reflectivity().Query(ph,norm);
 	  
 	      if (refl == Drc::ReflAbsorbed)
 		{
@@ -365,7 +365,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 			  // check reflectivity
 			  norm = (*kSurf_coupled)->Normal(ph.Position());
 			  refl = Drc::ReflReflected;
-			  refl = (*kSurf_coupled)->Reflectivity().Reflectivity(ph,norm);
+			  refl = (*kSurf_coupled)->Reflectivity().Query(ph,norm);
 		
 		  
 			  if (refl == Drc::ReflAbsorbed)

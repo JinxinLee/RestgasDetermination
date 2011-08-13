@@ -17,14 +17,8 @@ class PndDrcOptReflPerfect : public PndDrcOptReflAbs
   // implementation of abstract base class function
   PndDrcOptReflPerfect* Clone() const;
 
-  /*! \brief Reflectivity of surface 
-
-  used for mirror surfaces or surfaces with internal reflection.
-  \param ph The photon
-  \param normal Normal vector of surface
-  */
-  const Drc::Reflectivity Reflectivity(PndDrcPhoton& ph,
-				       XYZVector  normal) const;
+  const Drc::Reflectivity Query(const PndDrcPhoton& ph,
+				       const XYZVector  normal) const;
 
 };
 #endif

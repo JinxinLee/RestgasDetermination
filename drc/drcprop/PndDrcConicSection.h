@@ -1,16 +1,19 @@
-/*! \brief Class for determining the parameters of an conic section with a plane
-   which is a ellipse, parabola, or hyperbola. The plane is thought to be a photon
-   detector plane. The coordinate system is such that the cone is created at 
-   positive z-axis values (downstream) and directed to an photon detector plane 
-   upstream. y-axis is up, x-axis such that you get a right handed coordinate system.
-   See the red coordinate system in
 
-   \image html PndConicSection.png
+/*! 
+  \brief Class for determining the parameters of an conic section with a plane
 
-   The conic section computation needs 5 x,y coodinates of the plane and the 
-   z-coordinate of the cone origin.
-
-   Before that the z-coordinate of the detector plane has to be given otherwise it 
+  which is a ellipse, parabola, or hyperbola. The plane is thought to be a photon
+  detector plane. The coordinate system is such that the cone is created at 
+  positive z-axis values (downstream) and directed to an photon detector plane 
+  upstream. y-axis is up, x-axis such that you get a right handed coordinate system.
+  See the red coordinate system in
+  
+  \image html PndConicSection.png
+  
+  The conic section computation needs 5 x,y coodinates of the plane and the 
+  z-coordinate of the cone origin.
+  
+  Before that the z-coordinate of the detector plane has to be given otherwise it 
    is assumed to be zero.
 */
 
@@ -26,8 +29,8 @@ using std::vector;
 class PndDrcConicSection
 {
  public:
-
-  PndDrcConicSection();                    //!< Empty constructor.
+  //! Empty constructor.
+  PndDrcConicSection();                   
 
   /*! \brief Copy constructor.
     \param s Object to copy.

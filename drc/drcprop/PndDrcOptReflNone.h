@@ -18,14 +18,8 @@ class PndDrcOptReflNone : public PndDrcOptReflAbs
   // implementation of abstract base class function
   PndDrcOptReflNone* Clone() const;
 
-  /*! \brief Reflectivity of surface 
-
-  used for areas which are not of interest.
-  \param ph The photon
-  \param normal Normal vector of surface
-  */
-  const Drc::Reflectivity Reflectivity(PndDrcPhoton& ph,
-				       XYZVector  normal) const;
+  const Drc::Reflectivity Query(const PndDrcPhoton& ph,
+				       const XYZVector  normal) const;
 
 };
 #endif

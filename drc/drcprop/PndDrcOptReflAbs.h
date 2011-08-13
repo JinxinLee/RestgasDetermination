@@ -1,11 +1,3 @@
-/*!
-  \brief Class for reflectivity of surfaces.
-
-  Defines the reflectivity of surfaces, mirrors etc.
-  A mirror can have ReflTransmitted, ReflAbsorbed, or ReflReflected.
-  A eg. quartz bar can have ReflTransmitted (lost) or ReflRefracted, that is
-  the refractive index determines further fate.
-*/
 #include "TRandom3.h"
 
 #ifndef PNDDRCOPTREFLABS_H
@@ -30,6 +22,15 @@ class PndDrcPhoton;
 using ROOT::Math::XYZVector;
 //class XYZVector;
 
+/*!
+  \brief Class for reflectivity of surfaces.
+
+  Defines the reflectivity of surfaces, mirrors etc.
+  A mirror can have ReflTransmitted, ReflAbsorbed, or ReflReflected.
+  A eg. quartz bar can have ReflTransmitted (lost) or ReflRefracted, that is
+  the refractive index determines further fate.
+*/
+
 class PndDrcOptReflAbs
 {
  protected:
@@ -47,13 +48,14 @@ class PndDrcOptReflAbs
   */
   virtual PndDrcOptReflAbs* Clone() const = 0;
 
-  /*! \brief Reflectivity of surface
+  /*! \brief Reflectivity of surface 
 
   used for mirror surfaces or surfaces with internal reflection.
   \param ph The photon
   \param normal The normal vector of the surface.
+  \return Status of the photon.
   */
-  virtual const Drc::Reflectivity Reflectivity(PndDrcPhoton& ph,
-					       XYZVector  normal) const = 0;
+  virtual const Drc::Reflectivity Query(const PndDrcPhoton& ph,
+					const XYZVector  normal) const = 0;
 };
 #endif

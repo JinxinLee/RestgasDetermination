@@ -24,9 +24,10 @@ class PndDrcOptReflGray : public PndDrcOptReflAbs
   used for mirror surfaces or surfaces with internal reflection.
   \param ph The photon
   \param normal Normal vector of surface
+  \return Status of the photon.
   */
-  const Drc::Reflectivity Reflectivity(PndDrcPhoton& ph,
-				       XYZVector  normal) const;
+  const Drc::Reflectivity Query(const PndDrcPhoton& ph,
+				       const XYZVector  normal) const;
 
 
   /*! \brief Set reflection probability.
