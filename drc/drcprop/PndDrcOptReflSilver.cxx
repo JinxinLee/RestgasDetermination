@@ -48,8 +48,13 @@ PndDrcOptReflSilver* PndDrcOptReflSilver::Clone() const
   return new PndDrcOptReflSilver(*this);
 }
 //----------------------------------------------------------------------
-const Drc::Reflectivity PndDrcOptReflSilver::Query(const PndDrcPhoton&  ph,
-							  const XYZVector   normal) 
+const Drc::Reflectivity PndDrcOptReflSilver::Query(const PndDrcPhoton&    ph,
+						   const XYZVector        normal,
+						   const double           n_in,
+						   const double           ex_in,
+						   const double           n_out,
+						   const double           ex_out,
+						   const Drc::ReflDir     direction) 
 const
 {
   double lambda = ph.Wavelength();

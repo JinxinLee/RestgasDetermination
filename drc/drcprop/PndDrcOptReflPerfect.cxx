@@ -45,8 +45,13 @@ PndDrcOptReflPerfect* PndDrcOptReflPerfect::Clone() const
   return new PndDrcOptReflPerfect(*this);
 }
 //----------------------------------------------------------------------
-const Drc::Reflectivity PndDrcOptReflPerfect::Query(const PndDrcPhoton&  ph,
-							   const XYZVector   normal) 
+const Drc::Reflectivity PndDrcOptReflPerfect::Query(const PndDrcPhoton&    ph,
+						    const XYZVector        normal,
+						    const double           n_in,
+						    const double           ex_in,
+						    const double           n_out,
+						    const double           ex_out,
+						    const Drc::ReflDir     direction) 
 const
 {
   //cout<<"PndDrcOptReflPerfect::reflectivity: "//###

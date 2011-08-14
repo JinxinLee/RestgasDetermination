@@ -14,9 +14,13 @@ PndDrcOptReflGray* PndDrcOptReflGray::Clone() const
   return new PndDrcOptReflGray(*this);
 }
 //----------------------------------------------------------------------
-const Drc::Reflectivity PndDrcOptReflGray::Query(const PndDrcPhoton&  ph,
-							const XYZVector   normal) 
-const
+const Drc::Reflectivity PndDrcOptReflGray::Query(const PndDrcPhoton&    ph,
+						 const XYZVector        normal,
+						 const double           n_in,
+						 const double           ex_in,
+						 const double           n_out,
+						 const double           ex_out,
+						 const Drc::ReflDir     direction) const
 {
   double lambda = ph.Wavelength();
 
