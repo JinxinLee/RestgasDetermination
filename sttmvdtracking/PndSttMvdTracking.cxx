@@ -1342,7 +1342,8 @@ if(iplotta){
 
 
 //---------------------   here call to the function that matches Mvd hits with Stt tracks
-   delta=0.5; //  parameter of proximity for associating Mvd hits to Stt tracks
+   delta=1.; //  parameter of proximity for associating Mvd hits to Stt tracks
+//   delta=0.5; //  parameter of proximity for associating Mvd hits to Stt tracks
    highqualitycut=0.2; //  parameter of proximity for associating Mvd hits to Stt tracks
 
 
@@ -10066,6 +10067,9 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack] // out
 //int temporaneo=4;
 
     for(i=0; i<nSttTrackCand; i++){
+if(IVOLTE==11&&i==1){cout<<"cazzo, evt. 11, cand = "<<i<<", keepit[i] ";
+	if(keepit[i]) cout<<"  true"<<endl; else cout<<"  false\n";
+}
 	if( ! keepit[i] ) continue ;
 
 	if( Fifirst[i] < -99998. ){  // case with Fifirst[i]=-99999.; in this
@@ -10126,13 +10130,17 @@ pippo: ;
 					 (Ox[i]-XMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]])
 					+(Oy[i]-YMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]])*
 					 (Oy[i]-YMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]])) -R[i]);
+
+
+
+						Dist += dist;
 						if(dist<delta)
 						{
 						     List[ngoodmix][nn[ngoodmix]]=
 							ListHitMvdTrackCand[imvdcand][jmvdhit];
 						     ListType[ngoodmix][nn[ngoodmix]]=
 				FairRootManager::Instance()->GetBranchId(fMvdPixelBranch);
-						     Dist += dist;
+//						     Dist += dist;
 						     if( dist<highqualitycut) nHighQuality[ngoodmix]++;
 						     nn[ngoodmix]++;
 						}
@@ -10161,13 +10169,14 @@ pippo: ;
 					 (Ox[i]-XMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]])
 					+(Oy[i]-YMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]])*
 					 (Oy[i]-YMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]])) -R[i]);
+						Dist += dist;
 						if(dist<delta)
 						{
 						   List[ngoodmix][nn[ngoodmix]]=
 							ListHitMvdTrackCand[imvdcand][jmvdhit];
 						   ListType[ngoodmix][nn[ngoodmix]]=
 				FairRootManager::Instance()->GetBranchId(fMvdStripBranch);
-						   Dist += dist;
+//						   Dist += dist;
 						   if( dist<highqualitycut) nHighQuality[ngoodmix]++;
 
 						   nn[ngoodmix]++;
@@ -10179,12 +10188,13 @@ pippo: ;
 
 
 			if( nn[ngoodmix]>0) {
-				DIST[ngoodmix]=Dist/nn[ngoodmix];
+				DIST[ngoodmix]=Dist/nHitMvdTrackCand[imvdcand];
+//				DIST[ngoodmix]=Dist/nn[ngoodmix];
 				ngoodmix++;
 
 
 //--------- stampaggi
-if(istampa>=3 && IVOLTE<20 ){cout<<"\tquesto Mvd candidato (n. ngoodmix = "<<ngoodmix-1<<
+if(istampa>=3){cout<<"\tquesto Mvd candidato (n. ngoodmix = "<<ngoodmix-1<<
 	") passa con i seguenti hits :"<<endl;
 
 	for(int icc=0; icc<nn[ngoodmix-1]; icc++){
@@ -10203,7 +10213,7 @@ if(istampa>=3 && IVOLTE<20 ){cout<<"\tquesto Mvd candidato (n. ngoodmix = "<<ngo
 
 
 
-			}
+			}  // end of   if( nn[ngoodmix]>0)
 		}	// end of for( imvdcand=0;imvdcand<nMvdTrackCand;imvdcand++)
 
 
@@ -10290,7 +10300,7 @@ if(istampa>=3 && IVOLTE<20 ){cout<<"\tquesto Mvd candidato (n. ngoodmix = "<<ngo
 				DIST[ngoodmix] /= nn[ngoodmix];
 				ngoodmix++;
 //--------- stampaggi
-if(istampa>2 && IVOLTE<20 ){cout<<"\tevento n. "<<IVOLTE<<" questi Mvd ALONE DS hits passano  :\n"<<endl;
+if(istampa>=3){cout<<"\tevento n. "<<IVOLTE<<" questi Mvd ALONE DS hits passano  :\n"<<endl;
 
 	for(int icc=0; icc<nn[ngoodmix-1]; icc++){
 		if(ListType[ngoodmix-1][icc]==FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) {
@@ -10394,7 +10404,7 @@ if(istampa>2 && IVOLTE<20 ){cout<<"\tevento n. "<<IVOLTE<<" questi Mvd ALONE DS 
 				DIST[ngoodmix] /= nn[ngoodmix];
 				ngoodmix++;
 //--------- stampaggi
-if(istampa>=3 && IVOLTE<20 ){cout<<"\tevento n. "<<IVOLTE<<" questi Mvd ALONE US hits passano  :\n"<<endl;
+if(istampa>=3){cout<<"\tevento n. "<<IVOLTE<<" questi Mvd ALONE US hits passano  :\n"<<endl;
 	if( ngoodmix>0) {
 	for(int icc=0; icc<nn[ngoodmix-1]; icc++){
 		if(ListType[ngoodmix-1][icc]==FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) {
@@ -10418,8 +10428,8 @@ if(istampa>=3 && IVOLTE<20 ){cout<<"\tevento n. "<<IVOLTE<<" questi Mvd ALONE US
 //-------  end of using the Mvd which are in no Mvd Track Candidate
 
 
-if(istampa>=3 ){cout<<"da PndSttMvdTracking : appena prima arbitration, IVOLTE = "<<
-IVOLTE<<", Stt track cand = "<<i<<", ngoodmix = "<<ngoodmix<<endl;}
+if(istampa>=3){cout<<"da PndSttMvdTracking : appena prima arbitration, IVOLTE = "<<
+IVOLTE<<", STT cand.tracks  = "<<i<<", ngoodmix = "<<ngoodmix<<endl;}
 
 		if( ngoodmix==1){
 			chosenmix=0;
@@ -10430,13 +10440,14 @@ IVOLTE<<", Stt track cand = "<<i<<", ngoodmix = "<<ngoodmix<<endl;}
 			oldtotal2 = DIST[0];
 			oldN = nHighQuality[0];
 //			oldtotal /= nTotali[0];
-if(istampa>=3 ){cout<<"da PndSttMvdTracking : goodmix n. 0, total distance (che e' = total distance2) = "<<oldtotal
+if(istampa>=3){cout<<"da PndSttMvdTracking : goodmix n. 0, total distance (che e' = total distance2) = "<<oldtotal
 				<<", e nHighQuality = "<<nHighQuality[0]<<endl;}
 			chosenmix=0;
 			chosenmix2=0;
 			for(j1=1; j1<ngoodmix;j1++){
 				total = DIST[j1];
-if(istampa>=3 ){cout<<"da PndSttMvdTracking :\t goodmix n. "<<j1<<", total distance "<<total
+if(istampa>=3){cout<<"da PndSttMvdTracking :\t goodmix n. "
+			<<j1<<", total distance "<<total
 					<<", e nHighQuality = "<<nHighQuality[j1]<<endl;}
 				if(oldN<nHighQuality[j1]){
 					oldN=nHighQuality[j1];
@@ -10454,8 +10465,6 @@ if(istampa>=3 ){cout<<"da PndSttMvdTracking :\t goodmix n. "<<j1<<", total dista
 			}
 		}	// end of  if( ngoodmix==1)
 //--- end of arbitration
-if(istampa>=3 ){cout<<"da PndSttMvdTracking : fine arbitration, IVOLTE = "<<
-IVOLTE<<", Stt track cand = "<<i<<endl;}
 
 
 
@@ -10481,6 +10490,8 @@ IVOLTE<<", Stt track cand = "<<i<<endl;}
 		}
 	}	// end of if( ngoodmix>0)
 
+if(istampa>=3){cout<<"da PndSttMvdTracking : fine arbitration, IVOLTE = "<<
+IVOLTE<<", Stt track cand = "<<i<<", candidato STT-Mvd scelto = "<< chosenmix  <<endl;}
 
 	}	// end of for(i=0; i<nSttTrackCand; i++)
 
@@ -11298,7 +11309,8 @@ if(istampa>1){
 
 			dista =
 		fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][0]+DriftRadius[i][0],S[i][0],&nrounds0));
-			ddd = fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][0]-DriftRadius[i][0],S[i][0],&nr2));
+			ddd =
+		fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][0]-DriftRadius[i][0],S[i][0],&nr2));
 			if( abs(nrounds0) > MaxTurnofTracks &&
 				 abs(nr2)>MaxTurnofTracks)
 			{
@@ -11338,7 +11350,8 @@ if(istampa>1){
 
 			dista =
 		fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][1]+DriftRadius[i][1],S[i][1],&nrounds1));
-			ddd = fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][1]-DriftRadius[i][1],S[i][1],&nr2));
+			ddd =
+		fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][1]-DriftRadius[i][1],S[i][1],&nr2));
 
 
 			if( abs(nrounds1) > MaxTurnofTracks &&
@@ -11385,7 +11398,7 @@ if(istampa>1){
 if(istampa>1){
 	cout<<"in EliminateSpuriousSZ : insomma, dista prima della selezione = "<<
 	dista<< ", ed e' da comparare\n\tcon 4*error = "<<  4.*error<<endl<<
-	"\toppure con 2.*minimumSttDriftError = "<<2.*minimumSttDriftError<<endl;
+	"\toppure con 8.*minimumSttDriftError = "<<8.*minimumSttDriftError<<endl;
 }
 //--------------fine stampe.
 
@@ -11393,7 +11406,7 @@ if(istampa>1){
 			dista < 4.*error
 //			dista < 1.1*error
 				||
-			dista < 2.*minimumSttDriftError
+			dista < 8.*minimumSttDriftError
 			){
 			auxListSttSkew[auxnSttSkew]=ListSkewHitsinTrack[j];
 			ErrorchosenSkew[ListSkewHitsinTrack[j]]=error;
@@ -11439,9 +11452,8 @@ if(istampa>1){
 					)
 {
 
-//	Defining :	ZZ = (S-FI0)/KAPPA
-//	this method returns the distance (WITH ITS SIGN ) :  ZZ - ZED.  Therefore this number
-//	can be negative.
+//	This method returns the distance of the point (ZED, R*S) from the closest
+//	straight line defined by  R*fi =  R*KAPPA*Z + R*FI0.
 //	Care is taken to calculate this distance properly taking into
 //	account that we are dealing with the function  FI = mod(KAPPA*Z + FI0, 2*3.14). 
 
