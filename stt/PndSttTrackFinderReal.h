@@ -91,7 +91,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 #define maximumTracks 50
       static const UShort_t
-            nmaxHits = 1000, // max hits total.
+            nmaxHits = 1050, // max hits total.
 	nmaxHitsInTrack=60,
             MAXMCTRACKS=10000,
             MAXTRACKSPEREVENT=maximumTracks,
@@ -168,7 +168,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
       bool  iplotta, doMcComparison ;
       int istampa ;
 
-      static const int  nmassimo=50;
+      static const int  nmassimo=20;
 
 	TH1F	*hdist,
 		*hdistgoodlast,
