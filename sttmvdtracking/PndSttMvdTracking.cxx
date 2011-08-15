@@ -56,6 +56,7 @@ PndSttMvdTracking::PndSttMvdTracking() : FairTask("STT Stt-Mvd Tracking") {
 // -------------------------------------------------------------------------
 
 PndSttMvdTracking::PndSttMvdTracking(Int_t verbose) : FairTask("STT Stt-Mvd Tracking") { 
+
   fPersistence = kTRUE;
   fVerbose = verbose;
   istampa = verbose;
@@ -66,6 +67,7 @@ PndSttMvdTracking::PndSttMvdTracking(Int_t verbose) : FairTask("STT Stt-Mvd Trac
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
+
 }
 // -------------------------------------------------------------------------
 
@@ -3448,6 +3450,7 @@ cout<<"Total track trovate "<<nTotalCandidates<<endl;
 	int ibene=0;
 	if(nMCTracksaccettabili>0){
 		for(int ii=0; ii<nTotalCandidates;ii++){
+			if(!keepit[ii]) continue;
 			for(i=0;i<nMCTracksaccettabili;i++){
 				if( daTrackFoundaTrackMC[ii]==ListaMCTracksaccettabili[i]){
 					ibene++;
@@ -3455,7 +3458,7 @@ cout<<"Total track trovate "<<nTotalCandidates<<endl;
 			}
 		}
 	}
-	if(ibene>0) fprintf(HANDLE,"\tn. volte almeno 1 traccia MC accettabile e' ricostruita %d\n"
+	fprintf(HANDLE,"\tn. volte almeno 1 traccia MC accettabile e' ricostruita %d\n"
 		,ibene);
 
 int ii, ibuone=-1;
@@ -10067,9 +10070,6 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack] // out
 //int temporaneo=4;
 
     for(i=0; i<nSttTrackCand; i++){
-if(IVOLTE==11&&i==1){cout<<"cazzo, evt. 11, cand = "<<i<<", keepit[i] ";
-	if(keepit[i]) cout<<"  true"<<endl; else cout<<"  false\n";
-}
 	if( ! keepit[i] ) continue ;
 
 	if( Fifirst[i] < -99998. ){  // case with Fifirst[i]=-99999.; in this
