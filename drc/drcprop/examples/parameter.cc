@@ -2,9 +2,8 @@
 //======
 // ROOT
 //======
-#include <TFile.h>
 #include <TString.h>
-#include <TStyle.h>
+#include <TFile.h>
 #include <TTree.h>
 
 
@@ -12,7 +11,6 @@
 // STD C++
 //=========
 #include <iostream>
-
 
 using namespace std;
 
@@ -28,6 +26,7 @@ void parameter( TString inFilename = ""  )
   }
 
 
+
 //==============================================================================
 // Access to the input ROOT-file
 //==============================================================================
@@ -38,12 +37,13 @@ void parameter( TString inFilename = ""  )
   Int_t root_version = -666;
   char slab_material[64], prism_material[64], airBox_material[64], fishtank_material[64];
   char backLens_material[64], frontLens_material[64];
-  char lens_material[64]; // obsolete
   Int_t photon_number = -666, particle_number = -666, shoots = -666, refl_limit = -666;
   Double_t lambda_min = -666, lambda_max = -666;
-  Double_t frontLens_radius = -666, frontLens_thickness = -666, frontLens_diameter = -666, frontLens_conical = -666;
-  Double_t backLens_radius = -666, backLens_thickness = -666, backLens_diameter = -666, backLens_conical = -666;
-  Double_t lens_radius = -666, lens_thickness = -666, lens_diameter = -666, lens_conical = -666; // obsolete
+  Double_t frontLens_radius = -666, frontLens_thickness = -666, frontLens_conical = -666;
+  Double_t frontLens_width =- 666, frontLens_height = -666;
+  Double_t backLens_radius = -666, backLens_thickness = -666, backLens_conical = -666;
+  Double_t backLens_width =- 666, backLens_height = -666;
+  Int_t frontLens_cylindrical = -666, backLens_cylindrical = -666;
   Double_t airgap = -666;
   Double_t slab_width = -666, slab_height = -666, slab_length = -666;
   Double_t prism_length = -666;
@@ -58,7 +58,6 @@ void parameter( TString inFilename = ""  )
   Double_t hitBarX = -666, hitBarY = -666, hitBarZ = -666;
   Double_t spot_radius = -666, spot_limit = -666;
   Bool_t slab_fresnel, backLens_fresnel, frontLens_fresnel, prism_fresnel, airBox_fresnel, fishtank_fresnel;
-  Bool_t lens_fresnel; // obsolete
   Bool_t fishtankBlack_bottom, fishtankBlack_sides, fishtankBlack_top, mirror;
   Double_t gridXstep = -666, gridYstep = -666;
   Double_t cannon_theta = -666, cannon_phi = -666, z_offset = -666;
@@ -73,21 +72,19 @@ void parameter( TString inFilename = ""  )
   infoTree->SetBranchAddress( "backLens_material"     , &backLens_material );
   infoTree->SetBranchAddress( "backLens_radius"       , &backLens_radius );
   infoTree->SetBranchAddress( "backLens_thickness"    , &backLens_thickness );
-  infoTree->SetBranchAddress( "backLens_diameter"     , &backLens_diameter );
+  infoTree->SetBranchAddress( "backLens_width"        , &backLens_width );
+  infoTree->SetBranchAddress( "backLens_height"       , &backLens_height );
   infoTree->SetBranchAddress( "backLens_conical"      , &backLens_conical );
+  infoTree->SetBranchAddress( "backLens_cylindrical"  , &backLens_cylindrical );
   infoTree->SetBranchAddress( "backLens_fresnel"      , &backLens_fresnel );
-  infoTree->SetBranchAddress( "frontLens_material"     , &frontLens_material );
-  infoTree->SetBranchAddress( "frontLens_radius"       , &frontLens_radius );
-  infoTree->SetBranchAddress( "frontLens_thickness"    , &frontLens_thickness );
-  infoTree->SetBranchAddress( "frontLens_diameter"     , &frontLens_diameter );
-  infoTree->SetBranchAddress( "frontLens_conical"      , &frontLens_conical );
-  infoTree->SetBranchAddress( "frontLens_fresnel"      , &frontLens_fresnel );
-  infoTree->SetBranchAddress( "lens_material"         , &lens_material ); // obsolete
-  infoTree->SetBranchAddress( "lens_radius"           , &lens_radius ); // obsolete
-  infoTree->SetBranchAddress( "lens_thickness"        , &lens_thickness ); // obsolete
-  infoTree->SetBranchAddress( "lens_diameter"         , &lens_diameter ); // obsolete
-  infoTree->SetBranchAddress( "lens_conical"          , &lens_conical ); // obsolete
-  infoTree->SetBranchAddress( "lens_fresnel"          , &lens_fresnel ); // obsolete
+  infoTree->SetBranchAddress( "frontLens_material"    , &frontLens_material );
+  infoTree->SetBranchAddress( "frontLens_radius"      , &frontLens_radius );
+  infoTree->SetBranchAddress( "frontLens_thickness"   , &frontLens_thickness );
+  infoTree->SetBranchAddress( "frontLens_width"       , &frontLens_width );
+  infoTree->SetBranchAddress( "frontLens_height"      , &frontLens_height );
+  infoTree->SetBranchAddress( "frontLens_conical"     , &frontLens_conical );
+  infoTree->SetBranchAddress( "frontLens_cylindrical" , &frontLens_cylindrical );
+  infoTree->SetBranchAddress( "frontLens_fresnel"     , &frontLens_fresnel );
   infoTree->SetBranchAddress( "prism_material"        , &prism_material );
   infoTree->SetBranchAddress( "prism_fresnel"         , &prism_fresnel );
   infoTree->SetBranchAddress( "prism_length"          , &prism_length );
@@ -148,14 +145,11 @@ void parameter( TString inFilename = ""  )
 //==============================================================================
 // Print parameters
 //==============================================================================
-  Bool_t opt_woLens    = false; // obsolete
   Bool_t opt_frontLens = true;
   Bool_t opt_backLens  = true;
   Bool_t opt_prism     = true;
   Bool_t opt_photonCannon = false;
 
-  if( lens_radius == -666 )
-    opt_woLens = true;
   if( frontLens_radius == -666 )
     opt_frontLens = false;
   if( backLens_radius == -666 )
@@ -175,8 +169,6 @@ void parameter( TString inFilename = ""  )
   cout << "  material:" << endl;
 
   cout <<   "    slab:     " << slab_material << endl;
-  if( !opt_woLens )
-    cout << "    lens:     " << lens_material << endl; // obsolete
   if( opt_backLens )
     cout << "    lens (backward): " << backLens_material << endl;
   if( opt_frontLens )
@@ -199,8 +191,6 @@ void parameter( TString inFilename = ""  )
   cout << "  fresnel:" << endl;
 
   cout <<   "    slab:     " << slab_fresnel << endl;
-  if( !opt_woLens )
-    cout << "    lens:     " << lens_fresnel << endl; // obsolete
   if( opt_backLens )
     cout << "    lens (backward): " << backLens_fresnel << endl;
   if( opt_frontLens )
@@ -218,28 +208,32 @@ void parameter( TString inFilename = ""  )
   cout << "    slab heigth: " << slab_height << endl;
   cout << "    slab length: " << slab_length << endl;
 
-  if( !opt_woLens ) // obsolete
-  {
-    cout << "    lens radius:         " << lens_radius << endl;
-    cout << "    lens thickness:      " << lens_thickness << endl;
-    cout << "    lens diameter:       " << lens_diameter << endl;
-    cout << "    lens conical const.: " << lens_conical << " [dim-less]" << endl;
-  }
-
   if( opt_backLens )
   {
     cout << "    lens (backward) radius:         " << backLens_radius << endl;
     cout << "    lens (backward) thickness:      " << backLens_thickness << endl;
-    cout << "    lens (backward) diameter:       " << backLens_diameter << endl;
+    cout << "    lens (backward) width:          " << backLens_width << endl;
+    cout << "    lens (backward) height:         " << backLens_height << endl;
     cout << "    lens (backward) conical const.: " << backLens_conical << " [dim-less]" << endl;
+
+    if( backLens_cylindrical == 1 )
+      cout << "  lens (backward) cylindrical:    in x" << endl;
+    if( backLens_cylindrical == 2 )
+      cout << "  lens (backward) cylindrical:    in y" << endl;
   }
 
   if( opt_frontLens )
   {
     cout << "    lens (forward) radius:         " << frontLens_radius << endl;
     cout << "    lens (forward) thickness:      " << frontLens_thickness << endl;
-    cout << "    lens (forward) diameter:       " << frontLens_diameter << endl;
+    cout << "    lens (frontward) width:        " << frontLens_width << endl;
+    cout << "    lens (frontward) height:       " << frontLens_height << endl;
     cout << "    lens (forward) conical const.: " << frontLens_conical << " [dim-less]" << endl;
+
+    if( frontLens_cylindrical == 1 )
+      cout << "  lens (forward) cylindrical:    in x" << endl;
+    if( frontLens_cylindrical == 2 )
+      cout << "  lens (forward) cylindrical:    in y" << endl;
   }
 
   if( opt_prism )

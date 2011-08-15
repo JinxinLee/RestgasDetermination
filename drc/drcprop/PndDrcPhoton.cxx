@@ -90,7 +90,7 @@ void PndDrcPhoton::SetPosition(const XYZPoint& pos)
     double n = (fDev->OptMaterial()).RefIndex(fLambda);
     double dndl = (fDev->OptMaterial()).RefIndexDeriv(fLambda);
     double len = sqrt((pos-fPosition).Mag2()); // mm
-    double v_phase = 299.792/n; // mm/ns
+//     double v_phase = 299.792/n; // mm/ns
     double n_group = n - fLambda*dndl;
     double v_group = 299.792/n_group;
     double time = len/v_group;
@@ -342,12 +342,12 @@ bool PndDrcPhoton::Fresnel(XYZVector normal, double n1, double ex1, double n2, d
     return false;
 }
 //----------------------------------------------------------------------
-void PndDrcPhoton::SetFate(Drc::kPhotonFate fate) 
+void PndDrcPhoton::SetFate(Drc::kPhotonFate fate)
 {
   fFate=fate;
 
   //if (fate==Drc::kPhotLost) cout<<" PndDrcPhoton::SetFate lost-------------------------------"<<endl;
-  
+
 
 
 }

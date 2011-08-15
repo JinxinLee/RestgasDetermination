@@ -5,13 +5,22 @@
 // found on file: kBarList_100000_center.root
 //////////////////////////////////////////////////////////
 
-#ifndef KBarAnalysis_hh
-#define KBarAnalysis_hh
+#ifndef KBarAnalysis_h
+#define KBarAnalysis_h
 
+
+//==========
+// STD C/C++
+//==========
 #include <iostream>
 #include <vector>
+
 using namespace std;
 
+
+//======
+// ROOT
+//======
 #include "TROOT.h"
 #include "TChain.h"
 #include "TFile.h"
@@ -21,7 +30,13 @@ using namespace std;
 #include "TH2F.h"
 #include "TLine.h"
 #include "TPaveText.h"
-#include "TRandom3.h"
+
+
+//==========
+// my stuff
+//==========
+#include "DetEffi.h"
+
 
 // const Int_t kMaxPosSize = 105; // 5 reflections (limit) + 100 backup (see prototype.cc)
 const Int_t size_reflType = 6; // all, direct, left, right, up, down
@@ -85,13 +100,16 @@ public :
 //==========
    virtual void ClearOutTree();
 
-   Bool_t _notify;
+   // ROOT bug: it seems that data member changes by Notify() is saved somewhere else than
+   // the data member; internal checks during opening a new file can delete the memory where
+   // Notify() have saved the changes; files with complex structure are affected "
+   static Bool_t _notify;
+
+
    Bool_t _mcpMode;
    Bool_t _effiMode;
 
-   Double_t _effi[501]; // index is the wavelength in nm + 200 (min_wave)
-
-   TRandom3 _rand;
+   DetEffi *_effi;
 
    Int_t _n_mcp;
 
@@ -200,11 +218,10 @@ public :
 
    enum magicNumber
    {
-     min_wave = 200,  // _effi index + min_wave = wavelength
      unknown  = -666, // for initializing
      nokbar   = 666,  // for the combination nokbar/nofreq = unknown
      nofreq   = -1,
-     n_lines  = 4     // lines to dra a square
+     n_lines  = 4     // lines to draw a square
    };
 
 
@@ -236,8 +253,7 @@ void KBarAnalysis::Init(TTree *tree)
    fChain->SetBranchAddress("kBarZ", &kBarZ, &b_kBarZ);
    fChain->SetBranchAddress("hitPosDetX", &hitPosDetX, &b_hitPosDetX);
    fChain->SetBranchAddress("hitPosDetY", &hitPosDetY, &b_hitPosDetY);
-   fChain->SetBranchAddress("hitPosDetZ", &hitPosDetZ, &b_hitPosDetZ);
-   fChain->SetBranchAddress("hitPosZ", &hitPosZ, &b_hitPosZ);
+   fChain->SetBranchAddress("hitPosZ", &hitPosZ, &b_hitPosZ); // for tagging reflections
    fChain->SetBranchAddress("measured", &measured, &b_measured);
    fChain->SetBranchAddress("posX[105]", posX, &b_posX);
    fChain->SetBranchAddress("posY[105]", posY, &b_posY);

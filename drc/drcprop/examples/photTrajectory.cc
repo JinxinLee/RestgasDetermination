@@ -2,12 +2,11 @@
 //======
 // ROOT
 //======
-#include <TCanvas.h>
-#include <TFile.h>
-#include <TPolyLine.h>
 #include <TString.h>
+#include <TFile.h>
+#include <TCanvas.h>
 #include <TTree.h>
-#include <TMath.h>
+#include <TPolyLine3D.h>
 
 
 //=========
@@ -15,12 +14,11 @@
 //=========
 #include <iostream>
 
-
 using namespace std;
 
 
 
-void photTrajectory( TString inFilename = "", Double_t photonID = 0 ) // ID 0 means all
+void photTrajectory( TString inFilename = "", Double_t photonID = 1 ) // ID 0 means all
 {
 
   if( inFilename == "" )
@@ -30,9 +28,10 @@ void photTrajectory( TString inFilename = "", Double_t photonID = 0 ) // ID 0 me
   }
 
 
-  //==============================================================================
-  // Access to the input ROOT-file & canvas settings
-  //==============================================================================
+
+//==============================================================================
+// Access to the input ROOT-file & canvas settings
+//==============================================================================
   TFile *inFile = new TFile( inFilename );
   TCanvas *setup = (TCanvas*) inFile->Get("Setup");
 
@@ -86,9 +85,9 @@ void photTrajectory( TString inFilename = "", Double_t photonID = 0 ) // ID 0 me
   setup->Close(); // w/o -> Error in <RootX11ErrorHandler>
 
 
-  //==============================================================================
-  // Event loop
-  //==============================================================================
+//==============================================================================
+// Event loop
+//==============================================================================
   Int_t n_ph       = 0;
   Int_t n_measured = 0;
   Int_t n_absorbed = 0;
@@ -106,6 +105,8 @@ void photTrajectory( TString inFilename = "", Double_t photonID = 0 ) // ID 0 me
     if( lost == true )
       n_lost++;
 
+//     cout << n_ph << " " << measured << absorbed << lost << endl;
+
     if( n_ph == photonID || photonID == 0 )
     {
       if( photonID != 0 )
@@ -121,30 +122,27 @@ void photTrajectory( TString inFilename = "", Double_t photonID = 0 ) // ID 0 me
       }
 
 
-      if( n_measured < 10 )
-      {
-//       if( measured == true )//n_lost%100 == 0 )
+//       if( n_measured < 10 )
 //       {
-
-        for( int j = 0; j < index_pos; j++ )
+//         if( measured == true )//n_lost%100 == 0 )
+//         {
+      for( int j = 0; j < index_pos; j++ )
+      {
+        if( j > 0 )
         {
-          if( j > 0 )
-          {
-            TPolyLine3D *l = new TPolyLine3D(2);
+          TPolyLine3D *l = new TPolyLine3D(2);
 
-              l->SetPoint(0, posX[j-1], posY[j-1], posZ[j-1]);
-              l->SetPoint(1, posX[j], posY[j], posZ[j]);
-              l->SetLineColor(3);
-              l->Draw();
+          l->SetPoint(0, posX[j-1], posY[j-1], posZ[j-1]);
+          l->SetPoint(1, posX[j], posY[j], posZ[j]);
+          l->SetLineColor(3);
+          l->Draw();
 
-          }
-//           if( posY[j] == -350 || posY[j] == 350 )
-//             cout << i << endl;
-             cout << i+1 << " pos.: (" << posX[j]<< "," << posY[j] << "," << posZ[j] << ")" //<< endl;
-             << " dir.: (" << hitDirX<< "," << hitDirY << "," << hitDirZ << ")" << endl;
         }
 
+//             cout << i+1 << " pos.: (" << posX[j]<< "," << posY[j] << "," << posZ[j] << ")" //<< endl;
+//                 << " dir.: (" << hitDirX<< "," << hitDirY << "," << hitDirZ << ")" << endl;
       }
+//         }
 //       }
     }
   }

@@ -1,5 +1,5 @@
-/*! 
-  \brief Class for optical device representation of a rectangular lens. 
+/*!
+  \brief Class for optical device representation of a rectangular lens.
 
 
 
@@ -53,20 +53,20 @@ class PndDrcOptLens : public PndDrcOptVol
   */
   PndDrcOptLens(double dx, double dy, double dz,
 		double r1=9999, double r6=9999,
-		double c1=0, double c6=0); 
+		double c1=0, double c6=0);
 
 
-  
+
 
   /*! \brief Pointer to surface.
 
   If surface is not found the null pointer is returned. If the surface name occurs
-  more than once, the program stops. 
+  more than once, the program stops.
     \param name of surface.
     \return pointer to surface.
   */
   PndDrcSurfAbs* const Surface(string name);
-  
+
   /*! \brief Create downstream surface
     \param surf6 The created surface.
     \param r6 Radius
@@ -86,7 +86,7 @@ class PndDrcOptLens : public PndDrcOptVol
   XYZPoint           fP2; //!< Aux. point.
   XYZPoint           fP3; //!< Aux. point.
   XYZPoint           fP4; //!< Aux. point.
-  double             fDz; //!< Z half ength.
+  double             fDz; //!< Z half length.
   PndDrcSurfPolyFlat fA0; //!< Aux. surface.
 
 };

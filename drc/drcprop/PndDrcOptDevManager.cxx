@@ -727,6 +727,7 @@ void PndDrcOptDevManager::Propagate()
     {
       cnt++;
       cout << "***** Photon ID: " << cnt << " " << dev->Name() << endl;
+      dev->SetVerbosity(4);
     }
 
     dev->Propagate((*iph));
