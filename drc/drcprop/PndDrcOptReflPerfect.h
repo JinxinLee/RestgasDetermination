@@ -19,10 +19,7 @@ class PndDrcOptReflPerfect : public PndDrcOptReflAbs
 
   const Drc::Reflectivity Query(const PndDrcPhoton&    ph,
 				const XYZVector        normal,
-				const double           n_in      = 1,
-				const double           ex_in     = 0,
-				const double           n_out     = 1,
-				const double           ex_out    = 0,
+				const double           n_next     = 1,
 				const Drc::ReflDir     direction = Drc::ReflOut) const;
 
 };

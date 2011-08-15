@@ -9,10 +9,10 @@ namespace Drc
   An enum holding the status of a photon at a surface.*/
  enum Reflectivity
     {
-      ReflTransmitted,         //!< Photon is transmitted (dichr. mirr., coatings)
+      ReflTransmitted,         //!< Photon is transmitted (dichr. mirr., coatings, gray filter)
       ReflAbsorbed,            //!< Photon is absorbed (mirror).
       ReflReflected,           //!< Photon is reflected (mirror).
-      ReflRefracted,           //!< Photon will be refracted and is lost if not Fresnel reflected.
+      ReflRefracted,           //!< Photon will be refracted after a later Fresnel check.
     };
 }
 
@@ -67,19 +67,17 @@ class PndDrcOptReflAbs
   used for mirror surfaces or surfaces with internal reflection.
   \param ph The photon
   \param normal The normal vector of the surface.
-  \param n_in Refractive index of current medium.
-  \param ex_in Extinction coefficient for current medium.
-  \param n_out Refractive index of next medium.
-  \param ex_out Extinction coefficient for next medium.
+  \param n_next Refractive index of next medium.
   \param direction Photon leaving or entering volume.
   \return Status of the photon.
+
+  The refractive index of the actual medium is accessible via 
+  \sa PndDrcPhoton::Device()
+
   */
   virtual const Drc::Reflectivity Query(const PndDrcPhoton&    ph,
 					const XYZVector        normal,
-					const double           n_in      = 1,
-					const double           ex_in     = 0,
-					const double           n_out     = 1,
-					const double           ex_out    = 0,
+					const double           n_next     = 1,
 					const Drc::ReflDir     direction = Drc::ReflOut) const = 0;
 };
 #endif

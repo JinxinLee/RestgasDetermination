@@ -325,6 +325,10 @@ bool PndDrcSurfPolyFlat::WithinSurface(XYZPoint& point) const
   // is just going throug an edge point towards the outer point.
   // The middle point of a rectangle is often set deliberately for photons for debugging
   // purposes.
+  // it is not important that random gets a good seed, results do not depend on outside
+  // point.
+
+
   XYZPoint p_out(diff[isize-1]);
   for (unsigned int i=0; i<isize-1; i++)
     {
