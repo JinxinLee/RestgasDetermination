@@ -116,13 +116,21 @@ void reco_complete_tpc()
   fRun->AddTask(tpcCF);
 
 
-  //find track candidates in the TPC alone
+  //find PndTpcRiemannTracks in the TPC alone
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
-  tpcSPR->SetPersistence();
-  //tpcSPR->useGeane(); // use RKTrackrep and GeaneTrackrep
-  //tpcSPR->SetMCPid(); // use ideal particle identification
-  tpcSPR->SetPDG(211);
+  //tpcSPR->SetPersistence();
+  //tpcSPR->SetVerbose(1);
   fRun->AddTask(tpcSPR);
+
+  //build GFTracks from PndTpcRiemannTracks
+  PndTpcTrackInitTask* trackInit=new PndTpcTrackInitTask();
+  trackInit->SetPersistence();
+  //trackInit->SetVerbose(1);
+  //trackInit->SetMCPid(); // use ideal particle identification
+  trackInit->SetPDG(211);
+  //trackInit->useGeane(); // uses RKTrackrep and GeaneTrackrep
+  trackInit->SetSmoothing(true);
+  fRun->AddTask(trackInit);
   
   PndTpcIdealTrackingTask* tpcIPR = new PndTpcIdealTrackingTask();
   //tpcIPR->useGeane(true);
