@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
   //lens_radius = 30;
   
 
-  int ioption = 1; // 1=cherenkov, 2=testbeam
+  int ioption = 2; // 1=cherenkov, 2=testbeam
   
 
   PndDrcOptDevSys opt_system;
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
   sheet.SetName("sheet");
   // move sheet such into positive z space such that end of sheet is at z=0
   sheet.AddTransform(Transform3D(XYZVector(0,0,half_length)));
-  //sheet.SetVerbosity(5);
+  //sheet.SetVerbosity(4);
   
   opt_system.AddDevice(sheet);
 
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
 
   XYZPoint  pos(0,-half_thick-10.0,half_length);
   XYZVector dir(0,1,1); 
-  double   beta = 0.686;
+  double   beta = 0.684;
   bool photons_exist = false;
   
   if (ioption==1)
@@ -251,16 +251,16 @@ int main(int argc, char *argv[])
       PndDrcPhoton ph;
       ph.SetReflectionLimit(200);  
       list<PndDrcPhoton> list_photon;
-      int imax=5;
+      int imax=10;
       for (int ix=0; ix<imax; ix++)
 	{
       for (int iy=0; iy<imax; iy++)
 	{
-	  for (double theta=-40; theta<=40; theta+=10)
+	  for (double theta=40; theta<=40; theta+=10)
 	    {    
 	      ph.SetPosition(XYZPoint(
-				      -half_width+ix*2*half_width/imax,
-				      -half_thick+iy*2*half_thick/imax,
+				      -half_width+1+ix*2*(half_width-1)/imax,
+				      -half_thick+1+iy*2*(half_thick-1)/imax,
 				      half_length));
 	      double z = cos(theta*kPi/180);
 	      double y = sin(theta*kPi/180);

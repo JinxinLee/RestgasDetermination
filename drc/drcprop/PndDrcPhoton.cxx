@@ -346,9 +346,11 @@ void PndDrcPhoton::SetFate(Drc::kPhotonFate fate)
 {
   fFate=fate;
 
-  //if (fate==Drc::kPhotLost) cout<<" PndDrcPhoton::SetFate lost-------------------------------"<<endl;
+  //if (fate==Drc::kPhotLost)     cout<<" PndDrcPhoton::SetFate lost-------------------------------"<<endl;
+  //if (fate==Drc::kPhotAbsorbed) cout<<" PndDrcPhoton::SetFate abs.-------------------------------"<<endl;
 
-
+  //if (fate==Drc::kPhotLost || fate==Drc::kPhotAbsorbed) Print();
+  
 
 }
 //----------------------------------------------------------------------

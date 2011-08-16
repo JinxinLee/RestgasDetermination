@@ -243,8 +243,10 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 	  //  Step 2 ------------ Check reflectivity -------------
 	  XYZVector norm = surf_closest->Normal(ph.Position());
 	  Drc::Reflectivity refl;
-	  ph.SetDevice(this);
+	  //ph.SetDevice(this);
 
+
+	  // NOT COUPLED
 	  if (! surf_closest->Coupled())
 	    {
 	      if (&(surf_closest->Reflectivity())) // Reflectivity defined
@@ -312,58 +314,21 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 		      continue; // while loop
 		    }
 		}
-	    }
-	  else
-	    //if (surf_closest->Coupled())
-	    {// if surf_closest coupled
+	    } 
+	  else // COUPLED
+	    {
 	      // Step 3b ------------ Coupled volumes
 		
-	      if (&(surf_closest->Reflectivity())) // Reflectivity defined
-		{
-		  if (Verbosity()>=4) cout<<"     PndDrcOptVol::reflectivity1a clause"<<endl;
-		  ph.SetDevice(this);
-
-		  refl = Drc::ReflReflected; // needless ???
-		  refl = surf_closest->Reflectivity().Query(ph,norm);
-
-		  if (refl == Drc::ReflAbsorbed)
-		    {
-
-		      if (Verbosity()>=4)
-			cout<<"     PndDrcOptVol::propagate: absorbed"<<endl;
-		      ph.SetFate(Drc::kPhotAbsorbed);
-		      return;
-		    }
-		  if (refl == Drc::ReflTransmitted)
-		    {
-		      // do nothing
-		    }
-		  if (refl == Drc::ReflReflected)
-		    {
-		      ph.Reflect(norm);
-		      continue; // while loop
-		    }
-		  if (refl == Drc::ReflRefracted)
-		    {
-		      bool refr = ph.Refract(norm,
-					     OptMaterial().RefIndex(ph.Wavelength()),
-					     OptMaterial().Extinction(ph.Wavelength()),
-					     surf_closest->Fresnel());
-		      if (refr)
-			{
-			  ph.SetFate(Drc::kPhotLost); // Photon refracted in nirvana.
-			  if (Verbosity()>=4) cout<<"     Photon lost"<<endl;
-			  break; // while loop
-			}
-		    }
-		}
-
 
 	      PndDrcOptDev*  dev_coupled  = 0;
 	      PndDrcSurfAbs* surf_coupled = 0;
 
               list<PndDrcOptDev*>::const_iterator  kDev_coupled;
               list<PndDrcSurfAbs*>::const_iterator kSurf_coupled;
+
+	      //cout<<" ### start loop"<<endl;
+	      
+
 
               for (kDev_coupled  = (surf_closest->CoupledDeviceList()).begin(),
 		     kSurf_coupled = (surf_closest->CoupledSurfaceList()).begin();
@@ -374,11 +339,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 					  <<(*kDev_coupled)->Name()<<","
 					  <<(*kDev_coupled)->CopyNumber()<<","
 					  <<(*kSurf_coupled)->Name()<<endl;
-
-		  // deal with kEps problem in sphere and parabolid
 		  PndDrcPhoton ph1(ph);
-		  //if (! (*kSurf_coupled)->isFlat())
-		  // taken out 27.02.08 after problems in test_barrel1
 		  {
 		    ph1.SetPosition(ph.Position()-ph.Direction()*0.1);
 		    if (Verbosity()>=4)
@@ -387,37 +348,83 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 			    <<ph.Position()<<" to "
 			    <<ph1.Position()<<endl;
 			cout<<"       ( ph has still old value...)"<<endl;
-
-			//cout<<"           direction "<<ph1.Direction()<<endl;
 		      }
 		  }
-		  //(*kSurf_coupled)->setVerbosity(5);//###
 		  bool hit = (*kSurf_coupled)->SurfaceHit(ph1,pos_new,path_length);
 		  if (hit)
 		    {
-		      dev_coupled = (*kDev_coupled);
+		      dev_coupled  = (*kDev_coupled);
 		      surf_coupled = (*kSurf_coupled);
 		    }
 
 		  if (Verbosity()>=4)
 		    {
-		      cout<<"     hit="<<hit<<" with "
-			  <<(surf_coupled)->Name()
-			  <<" of "
-			  <<(dev_coupled)->Name()
-			  <<"/"
-			  <<(dev_coupled)->CopyNumber()<<endl;
+		      cout<<"     hit="<<hit<<" with "<<(surf_coupled)->Name()
+			  <<" of "<<(dev_coupled)->Name()<<"/"<<(dev_coupled)->CopyNumber()<<endl;
 		      cout<<"     for ph x,xdir :"<<ph.Position().X()<<" "<<ph.Direction().X()<<endl;
 		      cout<<"     for ph y,ydir :"<<ph.Position().Y()<<" "<<ph.Direction().Y()<<endl;
 		      cout<<"     for ph z,zdir :"<<ph.Position().Z()<<" "<<ph.Direction().Z()<<endl;
 		      cout<<"     path_length "<<path_length<<endl;
 		    }
+		  
+		  //}//loop
 
 		  if (dev_coupled && surf_coupled)
 		    {
+		      //cout<<" ### in clause ..."<<endl;
+		      //ph.Print();
+		      
+
+		      // ------- check if you get out
+		      if (&(surf_closest->Reflectivity())) // Reflectivity defined
+			{
+			  if (Verbosity()>=4) cout<<"     PndDrcOptVol::reflectivity3a clause"<<endl;
+			  //ph.SetDevice(this);
+			  
+			  refl = Drc::ReflReflected; // needless ???
+			  refl = surf_closest->Reflectivity().Query(ph,norm);
+			  
+			  if (refl == Drc::ReflAbsorbed)
+			    {
+			      
+			      //cout<<"    ###  PndDrcOptVol::propagate: absorbed"<<endl;
+			      if (Verbosity()>=4)
+				cout<<"     PndDrcOptVol::propagate: absorbed"<<endl;
+			      ph.SetFate(Drc::kPhotAbsorbed);
+			      return;
+			    }
+			  if (refl == Drc::ReflTransmitted)
+			    {
+			      // do nothing
+			    }
+			  if (refl == Drc::ReflReflected)
+			    {
+			      ph.Reflect(norm);
+			      continue; // while loop
+			    }
+			  if (refl == Drc::ReflRefracted)
+			    {
+			      bool refr = ph.Refract(norm,
+						     OptMaterial().RefIndex(ph.Wavelength()),
+						     OptMaterial().Extinction(ph.Wavelength()),
+						     surf_closest->Fresnel());
+			      if (refr)
+				{
+				  ph.SetFate(Drc::kPhotLost); // Photon refracted in nirvana.
+				  if (Verbosity()>=4) cout<<"     Photon lost"<<endl;
+				  //cout<<"     ### PndDrcOptVol::propagate: lost"<<endl;
+				  break; // while loop
+				}
+			      else
+				{
+				  // do nothing
+				}
+			    }
+			}
+		      // -------  check if you get in
 		      if (&(surf_coupled->Reflectivity())) // Reflectivity defined
 			{
-			  if (Verbosity()>=4) cout<<"     PndDrcOptVol::reflectivity2a clause"<<endl;
+			  if (Verbosity()>=4) cout<<"     PndDrcOptVol::reflectivity3b clause"<<endl;
 			  // check reflectivity
 			  norm = (surf_coupled)->Normal(ph.Position());
 			  refl = Drc::ReflReflected;
@@ -441,7 +448,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 			    }
 			  if (refl == Drc::ReflRefracted)
 			    {
-			      // do nothing
+			      // do nothing (no Fresnel due to reflectivity ??? )
 			    }
 			} // end of reflectivity
 
@@ -476,6 +483,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 			    {
 			      if (Verbosity()>=4) cout<<"     go into new volume "
 						      <<(dev_coupled)->Name()<<endl;
+			      //cout<<" ### leave by propagate to next vol ..."<<endl;
 			      (dev_coupled)->Propagate(ph);
 			    }
 			  else
@@ -490,9 +498,13 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 			  (dev_coupled)->Propagate(ph);
 			}
 		      if (ph.Fate() != Drc::kPhotFlying) break;
-		    } // dev_coupled && surf_coupled
-		} // for loop
 
+
+		      //cout<<" ### end clause ..."<<endl;
+		    } // dev_coupled && surf_coupled
+
+
+		  } // for loop
 		
             } // surf_closest coupled
 	  if (ph.Fate() != Drc::kPhotFlying) break; // while loop
