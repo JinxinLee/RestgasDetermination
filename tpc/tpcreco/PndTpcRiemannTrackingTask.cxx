@@ -85,7 +85,6 @@ PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
   : FairTask("PndTpc Pattern Reco"), 
 
     _persistence(kFALSE),
-    _riemannPersistence(kFALSE),
     fnsectors(1),
     _maxRadius(100),
 
@@ -116,21 +115,13 @@ PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
     _riemannscale(24.6),
 
     _clusterBranchName("PndTpcCluster"),
-    _smoothing(true),
-    _geane(false),
 
-    _mcPid(false),
-    _pdg(PDGDEFAULT),
-    counter(0),
-    Bz(0)
+     counter(0)
   {
     fVerbose = 0;
   }
 
 PndTpcRiemannTrackingTask::~PndTpcRiemannTrackingTask(){
-  if(_multiplicityHisto!=NULL)delete _multiplicityHisto;
-  if(_trackPurityH!=NULL)delete _trackPurityH;
-  if(_trackSizeH!=NULL)delete _trackSizeH;
 }
 
 void 
@@ -187,12 +178,6 @@ PndTpcRiemannTrackingTask::Init()
     return kERROR;
   }
 
-  _mcTrackArray=(TClonesArray*) ioman->GetObject("MCTrack");
-  if(_mcTrackArray==0){
-    Error("PndTpcdEdxTask::Init","MCTrack-array not found! Cannot use ideal PID");
-    _mcPid=false;
-  }
-    
   // Get input collection
   _clusterArray=(TClonesArray*) ioman->GetObject(_clusterBranchName);
   if(_clusterArray==0){
@@ -205,23 +190,13 @@ PndTpcRiemannTrackingTask::Init()
     Error("PndTpcRiemannTrackingTask::Init","mvd-array not found!");
   }*/
 
-  // create and register output array
-  _trackArray = new TClonesArray("GFTrack");
-  ioman->Register("TrackPreFit","GenFit",_trackArray,true);
-
   _riemannTrackArray = new TClonesArray("PndTpcRiemannTrack");
-  ioman->Register("RiemannTrack","Tpc",_riemannTrackArray,_riemannPersistence);
+  ioman->Register("RiemannTrack","Tpc",_riemannTrackArray,_persistence);
 
   _riemannHitArray = new TClonesArray("PndTpcRiemannHit");
-  ioman->Register("RiemannHit","Tpc",_riemannHitArray,_riemannPersistence);
+  ioman->Register("RiemannHit","Tpc",_riemannHitArray,_persistence);
     
   
-  _trackCandArray = new TClonesArray("PndTrackCand");
-  ioman->Register("PndTrackCandTpc","Tpc",_trackCandArray,_persistence);
-
-  _pndTrackArray = new TClonesArray("PndTrack");
-  ioman->Register("PndTrackTpc","Tpc",_pndTrackArray,_persistence);
-
 
   _trackfinder= new PndTpcRiemannTrackFinder();
   _trackfinder->setSorting(_sorting);
@@ -266,13 +241,6 @@ PndTpcRiemannTrackingTask::Init()
  
 
 
-  // init histos
-  _multiplicityHisto=new TH1I("multipl","# track candidates",100,0,100);
-  _trackSizeH=new TH1I("trksize","# hits in track",100,0,100);
-  _trackPurityH=new TH1D("trkpurity","trackPurity",25,0,1.01);
-  _trackMcIdsH=new TH1D("trkmcids","# mcids in track",25,0,25);
-
-
   // get the maximum radius
   _maxRadius = fpar->getRMax();
   
@@ -282,29 +250,6 @@ PndTpcRiemannTrackingTask::Init()
     fbuffermap[isect]=new std::vector<PndTpcCluster*>;
   }
 
-  //get the magnetic field for curvature seeding
-  FairField* field=FairRunAna::Instance()->GetField();
-  bool CField = dynamic_cast<PndConstField*>(field);
-  bool MField = dynamic_cast<PndMultiField*>(field);
-  GFFieldManager::getInstance()->init(new PndFieldAdaptor(field));
-  if(MField) {
-    Double_t O[3], B[3];
-    O[0]=0; O[1]=0; O[2]=0;
-    field->GetFieldValue(O,B);
-    Bz=B[2];
-    std::cerr<<"PndTpcRiemannTrackingTask: "<<"No const field! Curvature seeding not valid... Setting Bz="<<Bz<<std::endl;
-  }
-  else if(CField) {
-    Bz=field->GetBz(0.,0.,0.);
-    std::cerr<<"PndTpcRiemannTrackingTask: "<<"const field! Setting Bz="<<Bz<<std::endl;
-  }
-  else{
-    Bz=20.;
-    std::cerr<<"PndTpcRiemannTrackingTask: "<<"default setting Bz="<<Bz<<std::endl;
-  }
-
-  //init gPro
-  if(_geane) gPro = new FairGeanePro();
 
   return kSUCCESS;
 }
@@ -336,18 +281,12 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
   std::cout<<"PndTpcRiemannTrackingTask::Exec; Event Number: "<<counter++<<std::endl;
 
   // Reset output Arrays
-  if(_trackArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No TrackArray");
-   _trackArray->Delete();
-  
-  if(_pndTrackArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No PndTrackArray");
-     _pndTrackArray->Delete();
-  if(_trackCandArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No TrackCandArray");
-     _trackCandArray->Delete();
-
-  if(_riemannTrackArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannTrackArray");
+  if(_riemannTrackArray==0) Fatal("PndTpcRiemannTrackingTask::Exec","No RiemannTrackArray");
      _riemannTrackArray->Delete();
-  if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHitArray");
+
+  if(_riemannHitArray==0) Fatal("PndTpcRiemannTrackingTask::Exec","No RiemannHitArray");
      _riemannHitArray->Delete();
+
 
   // clean up friemannlist!
   for(int i=0; i<friemannlist.size(); ++i){
@@ -361,32 +300,36 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
   for(unsigned int isect=0;isect<fnsectors;++isect) fbuffermap[isect]->clear();
 
 
-  if (fVerbose) std::cerr<<"Fetching clusters from cluster branch..."<<std::endl;
+  if (fVerbose) std::cout<<"Fetching clusters from cluster branch..."<<std::endl;
   unsigned int ncl=_clusterArray->GetEntriesFast();
   for(unsigned int isect=0;isect<fnsectors;++isect)
-    fbuffermap[isect]->reserve(ncl/fnsectors+10);
+    fbuffermap[isect]->reserve(ncl/fnsectors + 1000);
   for(unsigned int i=0; i<ncl; ++i){
     PndTpcCluster *cluster = (PndTpcCluster*)_clusterArray->At(i);
     unsigned int sectorId=cluster->sector();
     fbuffermap[sectorId]->push_back(cluster);
   }
 
-  if (fVerbose) std::cerr << "Starting Pattern Reco..." << std::endl;
+  if (fVerbose) std::cout << "Starting Pattern Reco..." << std::endl;
 
 
   std::vector<PndTpcRiemannTrack*> riemannTempSec; // temporary storage, reused for every sector
   std::vector<PndTpcRiemannTrack*> riemannTempCirc; // temporary global storage for circle tracks
   std::vector<PndTpcRiemannTrack*> riemannTemp; // temporary global storage for arbitrary tracks
 
-  unsigned int nTotCl(0);
+  unsigned int nTotCl(0), nCl;
 
 
   // loop over sectors
   for(unsigned int isect=0;isect<fnsectors;++isect){
-    if (fVerbose) std::cerr << "\n... building tracks in sector " << isect << " from " << fbuffermap[isect]->size() << " clusters" << std::endl;
+
+    nCl = fbuffermap[isect]->size();
+    if (nCl==0) continue;
+
+    if (fVerbose) std::cout << "\n... building tracks in sector " << isect << " from " << nCl << " clusters" << std::endl;
 
     fcluster_buffer=fbuffermap[isect];
-    nTotCl += fcluster_buffer->size();
+    nTotCl += nCl;
 
     unsigned int nErasedCl(0);
 
@@ -424,7 +367,7 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       // clear riemannTempSec
       riemannTempSec.clear();
 
-      if (fVerbose) std::cerr << "   found steep tracks: " <<  nGoodSteepTrks << std::endl;
+      if (fVerbose) std::cout << "   found steep tracks: " <<  nGoodSteepTrks << std::endl;
       // end find steep tracks
 
 
@@ -487,10 +430,10 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       // clear riemannTempSec
       riemannTempSec.clear();
 
-      if (fVerbose) std::cerr << "   found circle tracks: " <<  nGoodCirlceTrks << std::endl;
+      if (fVerbose) std::cout << "   found circle tracks: " <<  nGoodCirlceTrks << std::endl;
       // end find circle tracks
 
-      if (fVerbose) std::cerr << "\n   this reduced the number of clusters by " <<  nErasedCl << std::endl;
+      if (fVerbose) std::cout << "\n   this reduced the number of clusters by " <<  nErasedCl << std::endl;
 
 
       // build rest of the tracks
@@ -504,9 +447,9 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
 
 
     if(_mergeTracks) {
-      if (fVerbose) std::cerr << "    merge " << riemannTempSec.size() << " tracks in sector " << isect;
+      if (fVerbose) std::cout << "    merge " << riemannTempSec.size() << " tracks in sector " << isect;
       _trackfinder->mergeTracks(riemannTempSec);
-      if (fVerbose) std::cerr << " ... done - created " << riemannTempSec.size() << " merged tracks" <<std::endl;
+      if (fVerbose) std::cout << " ... done - created " << riemannTempSec.size() << " merged tracks" <<std::endl;
     }
 
 
@@ -535,14 +478,14 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
 
   if(_mergeTracks && fnsectors>1) {
     if(_doMultistep){
-      if (fVerbose) std::cerr << "merge " << riemannTempCirc.size() << " circular tracks ... ";
+      if (fVerbose) std::cout << "merge " << riemannTempCirc.size() << " circular tracks ... ";
       _trackfinder->mergeTracks(riemannTempCirc);
-      if (fVerbose) std::cerr << " done - created " << riemannTempCirc.size() << " merged tracks" <<std::endl;
+      if (fVerbose) std::cout << " done - created " << riemannTempCirc.size() << " merged tracks" <<std::endl;
     }
 
-    if (fVerbose) std::cerr << "\nmerge " << riemannTemp.size() << " tracks ... ";
+    if (fVerbose) std::cout << "\nmerge " << riemannTemp.size() << " tracks ... ";
     _trackfinder->mergeTracks(riemannTemp);
-    if (fVerbose) std::cerr << " done - created " << riemannTemp.size() << " merged tracks" <<std::endl;
+    if (fVerbose) std::cout << " done - created " << riemannTemp.size() << " merged tracks" <<std::endl;
   }
 
 
@@ -573,9 +516,9 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
   }
 
   if(_mergeTracks && fnsectors>1 && _doMultistep) {
-    if (fVerbose) std::cerr << "\nfinal merge of friemannlist: merge " << friemannlist.size() << " tracks ... ";
+    if (fVerbose) std::cout << "\nfinal merge of friemannlist: merge " << friemannlist.size() << " tracks ... ";
     _trackfinder->mergeTracks(friemannlist);
-    if (fVerbose) std::cerr << " done - created " << friemannlist.size() << " merged tracks" <<std::endl;
+    if (fVerbose) std::cout << " done - created " << friemannlist.size() << " merged tracks" <<std::endl;
   }
 
 
@@ -584,7 +527,6 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     for (unsigned int i=0; i<friemannlist.size(); ++i){
       if (friemannlist[i]->isFitted() &&
           friemannlist[i]->r() < 30. &&
-          friemannlist[i]->getMom(Bz) < 0.5 &&
           fabs(friemannlist[i]->m()*1.57) < 140){ // Pi/2
         riemannTempCurl.push_back(friemannlist[i]);
         friemannlist.erase(friemannlist.begin() + i);
@@ -592,299 +534,40 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       }
     }
 
-    if (fVerbose) std::cerr << "\nmerge curlers: merge " << riemannTempCurl.size() << " tracks ... ";
+    if (fVerbose) std::cout << "\nmerge curlers: merge " << riemannTempCurl.size() << " tracks ... ";
     _trackfinderCurl->mergeTracks(riemannTempCurl);
-    if (fVerbose) std::cerr << " done1 - created " << riemannTempCurl.size() << " merged tracks" <<std::endl;
+    if (fVerbose) std::cout << " done1 - created " << riemannTempCurl.size() << " merged tracks" <<std::endl;
     _trackfinderCurl->mergeTracks(riemannTempCurl);
-    if (fVerbose) std::cerr << " done2 - created " << riemannTempCurl.size() << " merged tracks" <<std::endl;
+    if (fVerbose) std::cout << " done2 - created " << riemannTempCurl.size() << " merged tracks" <<std::endl;
 
 
     for (unsigned int i=0; i<riemannTempCurl.size(); ++i){
       friemannlist.push_back(riemannTempCurl[i]);
     }
-  }
+  }// end merge curlers
 
+  unsigned int foundTrks = friemannlist.size();
 
-  unsigned int nUsedCl(0);
-  for (unsigned int i=0; i<friemannlist.size(); ++i){
-    nUsedCl += friemannlist[i]->getNumHits();
-  }
+  // store PndTpcRiemannTracks and Hits in output array
+  PndTpcRiemannTrack* trk;
+  unsigned int nUsedCl(0), nHits;
+  for (unsigned int i=0; i<foundTrks; ++i){
+    trk = friemannlist[i];
+    nHits = trk->getNumHits();
+    nUsedCl += nHits;
 
-  if (fVerbose) {
-    std::cerr << "Pattern Reco finished, found tracks: " << friemannlist.size() << "\n";
-    std::cerr << "used " << nUsedCl << " of " << nTotCl << " Clusters \n";
-  }
-  //----------------------------------------------------------------------------------------------------
-  // end PR
-
-
-
-  unsigned int _nbins=100;
-    // analysing riemann tracks
-    map<double,double> goodCl;
-    for(unsigned int ib=0;ib<_nbins;++ib){
-      double frac=1./(double)_nbins * (ib+1);
-      goodCl[frac]=0;
-    }
-    //TGraph* gPE=new TGraph(nbins);
-    unsigned int ntr=friemannlist.size();
-    McIdCollection globalCol;
-    for(unsigned int itr=0;itr<ntr;++itr){
-      globalCol.AddIDCollection(friemannlist[itr]->mcid());
-      map<double,double>::iterator it=goodCl.begin();
-      while(it!=goodCl.end()){
-        if(friemannlist[itr]->mcid().MaxRelWeight()>=it->first){
-          it->second=it->second+1;
-        }
-        ++it;
-      }// end loop over bins
-    }// end loop over tracklets
-    if (fVerbose) {
-      cout << "Found " << globalCol.nIDs() << " mcids in tracklets" << endl;
-      cout << "Purity: "<< endl;
-      map<double,double>::iterator it=goodCl.begin();
-      //unsigned int count=0;
-      while(it!=goodCl.end()){
-        //_gpurity->SetPoint(counter++, it->first, it->second /(double)ntr);
-        if(ntr>0){
-          cout << it->first << ":   "
-            << it->second /(double)ntr*100. << "%" << endl;
-        }
-        ++it;
-      }// end loop over bins
-    } // end if verbose
-
-
-  // build GFTrackCands
-  std::vector<GFTrackCand*> candlist;
-
-  unsigned int nr=friemannlist.size();
-
-  double pbackup = 2.;  // momentum value that is set when other initialisations fail
-
-  // loop over Riemann tracks
-  std::cout<< "Looping over "<<nr<<" riemann tracks to write out" << std::endl;
-
-  for(unsigned int itrk=0; itrk<nr; ++itrk){
-    PndTpcRiemannTrack* trk=friemannlist[itrk];
-    int nhits=trk->getNumHits();
-    
-    if (fVerbose) std::cout<<"Tracklet "<<itrk<<"   nhits = "<<nhits;
-
-    // check if fitted
-    if(!trk->isFitted()){
-      if (fVerbose) std::cout<<" - skipping, tracklet not prefitted"<<std::endl;
-      continue;
-    }
-    // check if enough points
-    if(nhits<MINHITS){
-      if (fVerbose) std::cout<<" - skipping, not enough hits: "<<nhits<<std::endl;
-      continue;
-    }
-    // check if track too steep
-    double trackSinDip = trk->sinDip();
-    if (TMath::Abs(trackSinDip)<0.01) {
-      if (fVerbose) std::cout<<" - skipping, sin(dip) too small: "<<trackSinDip<<std::endl;
-      continue;
-    }
-    // ceck if momentum high enough
-    double p = trk->getMom(Bz);
-    if (Bz==0) p=pbackup;
-    if(p<1.E-2) {  // 10 MeV ~ 3cm helix diameter
-      if (fVerbose) std::cout<<" - skipping, momentum too small: "<<p*1E3<<" MeV"<<std::endl;
-      continue;
-    }
-
-
-    unsigned int trackId(trk->mcid().DominantID().mctrackID());
-
-    // check pdg
-    int pdg(_pdg);
-    if(_mcPid) pdg=((PndMCTrack*)(_mcTrackArray->At(trackId)))->GetPdgCode();
-
-    double pdgCharge(TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.);
-
-    int winding(trk->winding()); // we look in z direction!
-
-
-    if (pdgCharge < 0) {
-      pdg *= -1;
-      pdgCharge *= -1.;
-    }
-    if (winding > 0) {
-      pdg *= -1;
-      pdgCharge *= -1.;
-    }
-    if (Bz < 0) {
-      pdg *= -1;
-      pdgCharge *= -1.;
-    }
-
-
-    // check sorting
-    bool invertTrack(true);
-
-    TVector3 ps1=trk->getFirstHit()->cluster()->pos();
-    TVector3 ps2=trk->getLastHit()->cluster()->pos();
-
-    if(ps1.Z() < ps2.Z()-7) invertTrack = false;
-    else if(ps1.Z() > ps2.Z()+7) invertTrack = true;
-    else if (ps1.Perp()>ps2.Perp()+5) invertTrack = true;
-    else if (ps1.Perp()<ps2.Perp()) invertTrack = false;
-    else invertTrack = true;
-
-    if (invertTrack){
-      winding*=-1;
-      pdg *= -1;
-      pdgCharge *= -1;
-    }
-
-
-    TParticlePDG * part = TDatabasePDG::Instance()->GetParticle(pdg);
-    if(part == 0){
-      if (fVerbose) std::cout << " - skipping, unknown PDG id: " << pdg;
-      continue;
-    }
-
-    if (fVerbose) std::cout<<std::endl;
-
-
-    // store PndTpcRiemannTracks in output array
-    new((*_riemannTrackArray)[_riemannTrackArray->GetEntries()]) PndTpcRiemannTrack(*trk);
-    for(unsigned int ih=0;ih<nhits;++ih){
+    new((*_riemannTrackArray)[_riemannTrackArray->GetEntriesFast()]) PndTpcRiemannTrack(*trk);
+    for(unsigned int ih=0; ih<nHits; ++ih){
       PndTpcRiemannHit* hit=trk->getHit(ih);
-      new ((*_riemannHitArray)[_riemannHitArray->GetEntries()]) PndTpcRiemannHit(*hit);
+      new ((*_riemannHitArray)[_riemannHitArray->GetEntriesFast()]) PndTpcRiemannHit(*hit);
     }
+  }
 
 
-    // create GFTrackCands
-    GFTrackCand* cand=new GFTrackCand();
+  std::cout << "Pattern Reco finished, found tracks: " << foundTrks << "\n";
+  if (fVerbose) {
+    std::cout << "used " << nUsedCl << " of " << nTotCl << " Clusters \n";
+  }
 
-    // fill hits into GFTrackCands and pndcands  and get seed values
-    TVector3 pos1, direction;
-
-    if(!invertTrack){
-      for(unsigned int ih=0; ih<nhits; ++ih){
-        cand->addHit(FairRootManager::Instance()->GetBranchId("PndTpcCluster"),trk->getHit(ih)->cluster()->index());
-      }
-      trk->getPosDirOnHelix(0, pos1, direction);
-    }
-    else { // invert track
-      for(unsigned int ih=nhits; ih>0; --ih){
-        cand->addHit(FairRootManager::Instance()->GetBranchId("PndTpcCluster"),trk->getHit(ih-1)->cluster()->index());
-      }
-      trk->getPosDirOnHelix(trk->getNumHits()-1, pos1, direction);
-      direction *= -1.;
-    }// finished filling hits
-
-
-
-    TVector3 poserr(1,1,1);
-    poserr*=trk->resolution();
-
-    TVector3 mom(p * direction);
-    TVector3 momerr(fabs(mom.X()),fabs(mom.Y()),fabs(mom.Z()));
-    momerr *= trk->resolution();
-
-    double trackR = trk->r();
-
-    if (fVerbose) {
-      double trackDip = trk->dip();
-      std::cout<<" center of track "; trk->center().Print();
-      std::cout<<" Radius of track [cm]: " << trackR;
-      std::cout<<"\n Dip of track [deg]:   " << trackDip/TMath::Pi()*180;
-      std::cout<<"\n seed values: ";
-      std::cout<<"\n  start position: "; pos1.Print();
-      std::cout<<"  momentum [GeV]: "<<p;
-      std::cout<<"\n  p_perp [GeV]:   " << trackR*0.0003*TMath::Abs(Bz);
-      std::cout<<"\n  direction: "; direction.Print();
-      std::cout<<"  winding: "<<winding;
-      std::cout<<"\n  invertTrack: "<<invertTrack;
-      std::cout<<"\n  pdg id: "<<pdg<<std::endl;
-    }
-
-    // set seed values to cands
-    cand->setCurv(1./trackR);
-    cand->setDip(trk->dip());
-    cand->setComplTrackSeed(pos1, mom, pdg, poserr, momerr*(1./p));
-    cand->setMcTrackId(trackId);
-
-    candlist.push_back(cand);
-
-
-    // check Monte Carlo Truth
-    McIdCollection mcid;
-    mcid.ClearData();
-    for(unsigned int ic=0;ic<cand->getNHits();++ic){
-      unsigned int detId;
-      unsigned int hitId;
-      cand->getHit(ic,detId,hitId);
-      mcid.AddIDCollection(((PndTpcCluster*)_clusterArray->At(hitId))->mcId());
-    }
-    _trackPurityH->Fill(mcid.MaxRelWeight());
-    _trackMcIdsH->Fill(mcid.nIDs());
-    _trackSizeH->Fill(cand->getNHits());
-
-
-
-    //RK TRACKREP
-    RKTrackRep* rkrep = new RKTrackRep(pos1, mom, poserr, momerr, pdg);
-
-    // store GFTracks in output array
-    GFTrack* gftrk=new((*_trackArray)[_trackArray->GetEntriesFast()]) GFTrack(rkrep);
-    gftrk->setCandidate(*cand); // here the candidate is copied!
-
-    //GEANE TACKREP
-    if(_geane) {
-      TVector3 u=mom.Orthogonal();
-      u.SetMag(1.);
-      TVector3 v=mom.Cross(u);
-      v.SetMag(1.);
-      GFDetPlane pl(pos1,u,v);
-
-      GeaneTrackRep* grep = new GeaneTrackRep(gPro,pl,mom,poserr,momerr,pdgCharge,pdg);
-      // add rep //and set as cardinal rep
-      gftrk->addTrackRep(grep);
-      //gftrk->setCardinalRep(gftrk->getNumReps()-1);
-    }
-    
-    //SMOOTHING
-    if(_smoothing) gftrk->setSmoothing(true);
-    
-  }// end loop over tracks
-  
-  std::cout<<"PndTpcRiemannTrackingTask::Exec:: "<<candlist.size()<<" track candidates found."<<std::endl;
-  _multiplicityHisto->Fill(candlist.size());
 }
 
-
-void
-  PndTpcRiemannTrackingTask::SetStoreHistograms(TString file) {
-  std::cerr<<"PndTpcRiemannTrackingTask::SetStoreHistograms() - empty implementation"<<std::endl;
-}
-
-
-void
-  PndTpcRiemannTrackingTask::WriteHistograms(const TString& filename) {
-  std::cerr<< "PndTpcRiemannTrackingTask::WriteHistograms"<<std::endl;
-
-  TFile* file=FairRootManager::Instance()->GetOutFile();
-  file->mkdir("RiemannTracking");
-  file->cd("RiemannTracking");
-
-  _multiplicityHisto->Write();
-  delete _multiplicityHisto;
-  _multiplicityHisto=NULL;
-
-  _trackSizeH->Write();
-  delete _trackSizeH;
-  _trackSizeH=NULL;
-
-  _trackPurityH->Write();
-  delete _trackPurityH;
-  _trackPurityH=NULL;
-
-  _trackMcIdsH->Write();
-  delete _trackMcIdsH;
-  _trackMcIdsH=NULL;
-}

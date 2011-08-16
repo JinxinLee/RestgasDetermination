@@ -76,19 +76,20 @@ ClassImp(PndTpcTrackInitTask)
 PndTpcTrackInitTask::PndTpcTrackInitTask()
   : FairTask("PndTpc Pattern Reco"), 
     _persistence(kFALSE),
-    _interactionZ(0.),
-    _proxcut(2),
-    _helixcut(0.4),
-    _minpoints(5),
-    _TTproxcut(2.),
-    _TTdipcut(.01),
-    _TThelixcut(.5),
-    _TTplanecut(0.001),
-    _riemannscale(24.6),
+    _persistencePnd(kFALSE),
+
     _clusterBranchName("PndTpcCluster"),
+    _riemannBranchName("RiemannTrack"),
+    _trackBranchName("TrackPreFit"),
+    _trackCandBranchName("PndTrackCand"),
+    _pndTrackBranchName("PndTrack"),
+
     _smoothing(true),
     _geane(false),
-  _pdg(PDGDEFAULT),
+
+    _mcPid(false),
+    _pdg(PDGDEFAULT),
+
     counter(0),
     Bz(0)
   {
@@ -97,74 +98,45 @@ PndTpcTrackInitTask::PndTpcTrackInitTask()
 
 PndTpcTrackInitTask::~PndTpcTrackInitTask(){}
 
-void 
-PndTpcTrackInitTask::SetSortingParameters(
-                 bool sortingMode,
-                 int sorting,
-                 double interactionZ){
-  _sortingMode=sortingMode;
-  _sorting=sorting;
-  _interactionZ=interactionZ;
-}
-
-void
-PndTpcTrackInitTask::SetTrkFinderParameters(
-                 double proxcut,
-					       double helixcut,
-					       unsigned int minpointsforfit){
-  _proxcut=proxcut;
-  _helixcut=helixcut;
-  _minpoints=minpointsforfit;
-}
-
-void
-PndTpcTrackInitTask::SetTrkMergerParameters(
-					       double TTproxcut,
-					       double TTdipcut,
-					       double TThelixcut,
-					       double TTplanecut){
-  _TTproxcut=TTproxcut;
-  _TTdipcut=TTdipcut;
-  _TThelixcut=TThelixcut;
-  _TTplanecut=TTplanecut;
-}
 
 InitStatus
 PndTpcTrackInitTask::Init()
 {
-//Get ROOT Manager
+  //Get ROOT Manager
   FairRootManager* ioman= FairRootManager::Instance();
+  if(ioman==0){
+    Error("PndTpcTrackInitTask::Init","RootManager not instantiated!");
+    return kERROR;
+  }
 
-  if(ioman==0)
-    {
-      Error("PndTpcTrackInitTask::Init","RootManager not instantiated!");
-      return kERROR;
-    }
-
+  // get input arrays
+  _mcTrackArray=(TClonesArray*) ioman->GetObject("MCTrack");
+  if(_mcTrackArray==0){
+    Error("PndTpcTrackInitTask::Init","MCTrack-array not found! Cannot use ideal PID");
+    _mcPid=false;
+  }
     
   _clusterArray=(TClonesArray*) ioman->GetObject(_clusterBranchName);
-  if(_clusterArray==0)
-    {
-      Error("PndTpcTrackInitTask::Init","Cluster-array not found!");
-      return kERROR;
-    }
+  if(_clusterArray==0){
+    Error("PndTpcTrackInitTask::Init","Cluster-array not found!");
+    return kERROR;
+  }
 
  _riemannTrackArray=(TClonesArray*) ioman->GetObject(_riemannBranchName);
-  if(_clusterArray==0)
-    {
-      Error("PndTpcTrackInitTask::Init","Cluster-array not found!");
-      return kERROR;
-    }
+  if(_riemannTrackArray==0){
+    Error("PndTpcTrackInitTask::Init","RiemannTrack-array not found!");
+    return kERROR;
+  }
 
   // create and register output array
   _trackArray = new TClonesArray("GFTrack");
-  ioman->Register(_trackBranchName,"GenFit",_trackArray,true);
+  ioman->Register(_trackBranchName,"GenFit",_trackArray,_persistence);
 
    _trackCandArray = new TClonesArray("PndTrackCand");
-  ioman->Register(_trackCandBranchName,"Tpc",_trackCandArray,_persistence);
+  ioman->Register(_trackCandBranchName,"Tpc",_trackCandArray,_persistencePnd);
 
   _pndTrackArray = new TClonesArray("PndTrack");
-  ioman->Register(_pndTrackBranchName,"Tpc",_pndTrackArray,_persistence);
+  ioman->Register(_pndTrackBranchName,"Tpc",_pndTrackArray,_persistencePnd);
 
 
   //get the magnetic field for curvature seeding
@@ -177,21 +149,19 @@ PndTpcTrackInitTask::Init()
     O[0]=0; O[1]=0; O[2]=0;
     field->GetFieldValue(O,B);
     Bz=B[2];
-    std::cerr<<"PndTpcTrackInitTask: "<<"No const field! Curvature seeding not valid... Setting Bz="<<Bz<<std::endl;
+    std::cerr<<"PndTpcTrackInitTask: "<<"No const field! Curvature seeding not valid... Setting Bz = "<<Bz<<std::endl;
   }
   else if(CField) {
     Bz=field->GetBz(0.,0.,0.);
-    std::cerr<<"PndTpcTrackInitTask: "<<"const field! Setting Bz="<<Bz<<std::endl;
+    std::cerr<<"PndTpcTrackInitTask: "<<"const field! Setting Bz = "<<Bz<<std::endl;
   }
   else{
     Bz=20.;
-    std::cerr<<"PndTpcTrackInitTask: "<<"default setting Bz="<<Bz<<std::endl;
+    std::cerr<<"PndTpcTrackInitTask: "<<"default setting Bz = "<<Bz<<std::endl;
   }
 
-  //init gPro
-  if(_geane){
-    gPro = new FairGeanePro();
-  }
+  //init FairGeanePro
+  if(_geane) gPro = new FairGeanePro();
 
   return kSUCCESS;
 }
@@ -220,70 +190,69 @@ PndTpcTrackInitTask::SetParContainers() {
 void
 PndTpcTrackInitTask::Exec(Option_t* opt)
 {
-  std::cout<<"PndTpcTrackInitTask::Exec; Event Number: "<<counter++<<std::endl;
+  std::cout << "PndTpcTrackInitTask::Exec; Event Number: " << counter++ << std::endl;
   
   // Reset output Arrays
-  if(_trackArray==0) Fatal("PndTpcSimpleTrackInit::Exec)","No TrackArray");
+  if(_trackArray==0) Fatal("PndTpcTrackInitTask::Exec)","No TrackArray");
   _trackArray->Delete();
   
-  if(_pndTrackArray==0) Fatal("PndTpcSimpleTrackInit::Exec)","No PndTrackArray");
-  _pndTrackArray->Delete();
-  if(_trackCandArray==0) Fatal("PndTpcSimpleTrackInit::Exec)","No TrackCandArray");
+  if(_trackCandArray==0) Fatal("PndTpcTrackInitTask::Exec)","No PndTrackCandArray");
   _trackCandArray->Delete();
+
+  if(_pndTrackArray==0) Fatal("PndTpcTrackInitTask::Exec)","No PndTrackArray");
+  _pndTrackArray->Delete();
   
 
-  
-  // fill riemannlist
-  std::vector<PndTpcRiemannTrack*> friemannlist;
-  unsigned int nr=_riemannTrackArray->GetEntries();
-  for(unsigned int ir=0;ir<nr;++ir){
-    friemannlist.push_back((PndTpcRiemannTrack*)_riemannTrackArray->At(ir));
-  }
 
   // build GFTrackCands
   std::vector<GFTrackCand*> candlist;
 
-  
-
-  //int minhits = 10; // minimum hits needed to build pndtrackcands and GFTrackCands
-  // if(minhits<_minpoints) minhits=_minpoints;
   double pbackup = 2.;  // momentum value that is set when other initialisations fail
 
+
   // loop over Riemann tracks
-  std::cout<< "Looping over "<<nr<<" riemann tracks to write out" << std::endl;
+  unsigned int nr = _riemannTrackArray->GetEntriesFast();
+  std::cout << "Looping over " << nr << " riemann tracks" << std::endl;
 
   for(unsigned int itrk=0; itrk<nr; ++itrk){
-    PndTpcRiemannTrack* trk=friemannlist[itrk];
-    int nhits=trk->getNumHits();
+    PndTpcRiemannTrack* trk = (PndTpcRiemannTrack*)_riemannTrackArray->At(itrk);
     
-    if (fVerbose) std::cout<<"Tracklet "<<itrk<<"   nhits = "<<nhits;
+    int nhits=trk->getNumHits();
 
+    if (fVerbose) std::cout<<"Tracklet "<<itrk;
+
+    // check if track is pre-fitted
+    if (! trk->isFitted()) {
+      if (fVerbose) std::cout << " - skipping, track not prefitted" << std::endl;
+      continue;
+    }
     // check if track too steep
     double trackSinDip = trk->sinDip();
     if (TMath::Abs(trackSinDip)<0.01) {
-      if (fVerbose) std::cout<<" - skipping, sin(dip) too small: "<<trackSinDip<<std::endl;
+      if (fVerbose) std::cout << " - skipping, sin(dip) too small: " << trackSinDip << std::endl;
       continue;
     }
     // ceck if momentum high enough
     double p = trk->getMom(Bz);
     if (Bz==0) p=pbackup;
-    if(fabs(p)<1E-1) {
-      if (fVerbose) std::cout<<" - skipping, momentum too small: "<<p*1E3<<" MeV"<<std::endl;
+    if(p<1.E-2) {  // 10 MeV ~ 3cm helix diameter
+      if (fVerbose) std::cout << " - skipping, momentum too small: " << p*1E3 << " MeV" << std::endl;
       continue;
     }
     
-    unsigned int trackId = trk->mcid().DominantID().mctrackID();
-    int eventId = trk->mcid().DominantID().mceventID();
+    unsigned int trackId(trk->mcid().DominantID().mctrackID());
+    int eventId(trk->mcid().DominantID().mceventID());
     
     if(eventId!=0)trackId+=10000;
 
     // check pdg
-    int winding = trk->winding(); // we look in z direction!
     int pdg(_pdg);
+    if(_mcPid) pdg=((PndMCTrack*)(_mcTrackArray->At(trackId)))->GetPdgCode();
     
     double pdgCharge(TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.);
 
-    if(Bz<0) pdg *= -1;
+    int winding(trk->winding()); // we look in z direction!
+
 
    if (pdgCharge < 0) {
       pdg *= -1;
@@ -298,27 +267,6 @@ PndTpcTrackInitTask::Exec(Option_t* opt)
       pdgCharge *= -1.;
     }
 
-
-
-    // if(_mcPid){ // monte carlo PID
-//       unsigned int trackId = trk->mcid().DominantID().mctrackID();
-//       int MCpdg = ((PndMCTrack*)(_mcTrackArray->At(trackId)))->GetPdgCode();
-
-//       double pdgCharge = TDatabasePDG::Instance()->GetParticle(pdg)->Charge();
-//       double MCpdgCharge = TDatabasePDG::Instance()->GetParticle(MCpdg)->Charge();
-
-//       if (pdgCharge*MCpdgCharge > -0.01) pdg = MCpdg; // also neutral particles may occur
-//       else pdg = -1.*MCpdg;
-
-//       // photon
-//       if(pdg == -22) pdg = 22;
-
-//       TParticlePDG * part = TDatabasePDG::Instance()->GetParticle(pdg);
-//       if(part == 0){
-//         if (fVerbose) std::cout << " - skipping, unknown PDG id: " << pdg;
-//         continue;
-//       }
-//     }
 
   // check sorting
     bool invertTrack(true);
@@ -345,9 +293,6 @@ PndTpcTrackInitTask::Exec(Option_t* opt)
       continue;
     }
 
- 
-
-
     if (fVerbose) std::cout<<std::endl;
 
   // create GFTrackCands
@@ -371,13 +316,13 @@ PndTpcTrackInitTask::Exec(Option_t* opt)
     }// finished filling hits
 
 
-   TVector3 poserr(1,1,1);
+
+    TVector3 poserr(1,1,1);
     poserr*=trk->resolution();
 
     TVector3 mom(p * direction);
     TVector3 momerr(fabs(mom.X()),fabs(mom.Y()),fabs(mom.Z()));
     momerr *= trk->resolution()*5.;
-
 
     double trackR = trk->r();
 
@@ -396,28 +341,17 @@ PndTpcTrackInitTask::Exec(Option_t* opt)
       std::cout<<"\n  pdg id: "<<pdg<<std::endl;
     }
 
-     // set seed values to cands
+    // set seed values to cands
     cand->setCurv(1./trackR);
     cand->setDip(trk->dip());
     cand->setComplTrackSeed(pos1, mom, pdg, poserr, momerr*(1./p));
     cand->setMcTrackId(trackId);
 
-    //RK TRACKREP
-    RKTrackRep* rkrep = new RKTrackRep(pos1, mom, poserr, momerr,pdg);
-    
-
     candlist.push_back(cand);
 
-    // check Monte Carlo Truth
-    McIdCollection mcid;
-    mcid.ClearData();
-    for(unsigned int ic=0;ic<cand->getNHits();++ic){
-      unsigned int detId;
-      unsigned int hitId;
-      cand->getHit(ic,detId,hitId);
-      mcid.AddIDCollection(((PndTpcCluster*)_clusterArray->At(hitId))->mcId());
-    }
-  
+
+    //RK TRACKREP
+    RKTrackRep* rkrep = new RKTrackRep(pos1, mom, poserr, momerr, pdg);
 
     // store GFTracks in output array
     GFTrack* gftrk=new((*_trackArray)[_trackArray->GetEntriesFast()]) GFTrack(rkrep);
@@ -431,32 +365,23 @@ PndTpcTrackInitTask::Exec(Option_t* opt)
       v.SetMag(1.);
       GFDetPlane pl(pos1,u,v);
 
-      // charge (for geane)
-      int q = int(part->Charge()/(3.));
-
-      GeaneTrackRep* grep = new GeaneTrackRep(gPro,pl,mom,poserr,momerr,q,pdg);
-      // add rep and set as cardinal rep
+      GeaneTrackRep* grep = new GeaneTrackRep(gPro,pl,mom,poserr,momerr,pdgCharge,pdg);
+      // add rep //and set as cardinal rep
       gftrk->addTrackRep(grep);
-      gftrk->setCardinalRep(gftrk->getNumReps()-1);
+      //gftrk->setCardinalRep(gftrk->getNumReps()-1);
     }
     
     //SMOOTHING
-    if(_smoothing)
-      gftrk->setSmoothing(true);
+    if(_smoothing) gftrk->setSmoothing(true);
     
   }// end loop over tracks
   
 
   std::cout<<"PndTpcTrackInitTask::Exec:: "
            <<candlist.size()<<" tracks setup."<<std::endl;
-  friemannlist.clear();
  
 }
 
-void
-  PndTpcTrackInitTask::SetStoreHistograms(TString file) {
-  std::cerr<<"PndTpcTrackInitTask::SetStoreHistograms() - empty implementation"<<std::endl;
-}
 
 void
   PndTpcTrackInitTask::WriteHistograms(const TString& filename) {

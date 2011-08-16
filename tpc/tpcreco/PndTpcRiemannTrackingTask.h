@@ -52,8 +52,7 @@ public:
 
   // Modifiers -----------------------
   void SetClusterBranchName(const TString& name) {_clusterBranchName=name;}
-  void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;} // store GFTracks
-  void SetRiemannPersistence(Bool_t opt=kTRUE) {_riemannPersistence=opt;} // store Riemann Hits and Tracks
+  void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;} // store RiemannTracks and RiemannHits
 
   void SetSortingParameters(
                    bool sortingMode=true,  // false: sort only according to _sorting; true: use internal sorting when adding hits to trackcands
@@ -86,32 +85,21 @@ public:
   
   void SkipCrossingAreas(bool opt=true) {_skipCrossingAreas=opt;} // skip and remove hits which would match to more than one track at highest correlator level
 
-  void SetMCPid(Bool_t opt=kTRUE) {_mcPid = opt;} // use MC information for particle identification
-  void SetPDG(int pdg) {_pdg=pdg;} // use hypothesis, only used if _mcPid==false
-
-  void SetSmoothing(bool s=true) {_smoothing=s;} // use smoothing for the Kalman
-  void useGeane(Bool_t geane=kTRUE) {_geane=geane;} // use GeaneTrackRep in addition to RKTrackRep
 
   // Operations ----------------------
   virtual InitStatus Init();
   virtual void SetParContainers();
   virtual void Exec(Option_t* opt);
 
-  void SetStoreHistograms(TString file);
-  void WriteHistograms(const TString& filename);
 
 private:
 
   // Private Data Members ------------
   TString _clusterBranchName;
-  TClonesArray* _mcTrackArray;
   TClonesArray* _clusterArray;
   TClonesArray* _mvdArray;
-  TClonesArray* _trackArray;
   TClonesArray* _riemannTrackArray;
   TClonesArray* _riemannHitArray;
-  TClonesArray* _trackCandArray;
-  TClonesArray* _pndTrackArray;
 
   PndTpcDigiPar* fpar;
 
@@ -123,20 +111,9 @@ private:
   PndTpcRiemannTrackFinder* _trackfinderCurl;
 
   Bool_t _persistence;
-  Bool_t _riemannPersistence;
-  
-  GFRecoHitFactory* _theRecoHitFactory;
-  bool _smoothing;
-  Bool_t _geane;
-  FairGeanePro* gPro;
-  
-  Bool_t _mcPid;
-  int _pdg;
 
   unsigned int fnsectors;
   double _maxRadius; // outer radius of padplane
-
-  double Bz; //mag field
 
   int counter;
 
@@ -168,18 +145,10 @@ private:
   unsigned int _minHitsZ;
   unsigned int _minHitsPhi;
 
-
-  // histograms
-  TH1I* _multiplicityHisto;
-  TH1I* _trackSizeH;
-  TH1D* _trackPurityH;
-  TH1D* _trackMcIdsH;
-
-
   // Private Methods -----------------
 
 public:
-  ClassDef(PndTpcRiemannTrackingTask,2)
+  ClassDef(PndTpcRiemannTrackingTask,3)
 };
 
 #endif

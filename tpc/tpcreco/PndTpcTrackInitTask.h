@@ -54,34 +54,13 @@ public:
   void SetRiemannBranchName(const TString& name) {_riemannBranchName=name;}
   void SetOutBranchNames(const TString& tracks,
 			 const TString& cands,
-			 const TString& pndcands) 
+			 const TString& pndcands)
   {_trackBranchName=tracks;
     _trackCandBranchName=cands;
     _pndTrackBranchName=pndcands;}
 
-  void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
-
-  void SetSortingParameters(
-                   bool sortingMode=false, // false: sort only according to _sorting; true: use internal sorting when adding hits to trackcands
-                   int sorting=3,  // -1: no sorting, 0: sort Clusters by X, 1: Y, 2: Z, 3: R, 4: distance to interaction point
-                   double interactionZ=0); // set if you use sorting = 4
-
-  void SetTrkFinderParameters(
-                   double proxcut,
-                   double _helixcut,
-                   unsigned int minpointsforfit);
-
-  void SetMergeTracks(bool mergeTracks=true){_mergeTracks = mergeTracks;}
-  void SetSmoothing(bool s=true) {_smoothing=s;}
-
-  void SetTrkMergerParameters(
-                   double TTproxcut,
-                   double TTdipcut,
-                   double TThelixcut,
-                   double TTplanecut);
-
- 
-  
+  void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;} // store GFTracks with GFTrackCands
+  void SetPersistencePnd(Bool_t opt=kTRUE) {_persistencePnd=opt;} // store PndTracks and PndTrackCands
  
   // Operations ----------------------
   virtual InitStatus Init();
@@ -90,9 +69,11 @@ public:
 
   virtual void Exec(Option_t* opt);
   
-  void useGeane(Bool_t geane=kTRUE) {_geane=geane;}
+  void SetMCPid(Bool_t opt=kTRUE) {_mcPid = opt;} // use MC information for particle identification
   void SetPDG(int pdg) {_pdg=pdg;} // use hypothesis
-  void SetStoreHistograms(TString file);
+
+  void SetSmoothing(bool s=true) {_smoothing=s;} // use smoothing for the Kalman
+  void useGeane(Bool_t geane=kTRUE) {_geane=geane;}
 
   void WriteHistograms(const TString& filename);
 
@@ -106,7 +87,7 @@ private:
   TString _pndTrackBranchName;
  
 
-
+  TClonesArray* _mcTrackArray;
   TClonesArray* _clusterArray;
   TClonesArray* _trackArray;
   TClonesArray* _riemannTrackArray;
@@ -116,49 +97,27 @@ private:
 
   PndTpcDigiPar* fpar;
 
- 
   Bool_t _persistence;
-  int _pdg;
-  Bool_t _geane;
-
-  double fMins[4];
-  double fMaxs[4];
-  double fAmpCut;
+  Bool_t _persistencePnd;
 
   double Bz; //mag field
 
-  int counter;
-
-  // tuning parameters for Conformal Map TrackFinder
-  bool _sortingMode;
-  
-  double _riemannscale;
-
-  int _sorting;
-  double _proxcut;
-  double _helixcut;
-  unsigned int _minpoints;
-
-  bool _mergeTracks;
-  bool _smoothing;
-
-  double _TTproxcut;
-  double _TTdipcut;
-  double _TThelixcut;
-  double _TTplanecut;
-
-  double _interactionZ;
+  bool _mcPid;
+  int _pdg;
 
 
   GFRecoHitFactory* _theRecoHitFactory;
 
+  bool _smoothing;
+  Bool_t _geane;
   FairGeanePro* gPro;
 
+  int counter;
 
   // Private Methods -----------------
 
 public:
-  ClassDef(PndTpcTrackInitTask,1)
+  ClassDef(PndTpcTrackInitTask,2)
 
 };
 
