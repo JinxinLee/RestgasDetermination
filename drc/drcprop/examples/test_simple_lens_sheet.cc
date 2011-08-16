@@ -251,12 +251,14 @@ int main(int argc, char *argv[])
       PndDrcPhoton ph;
       ph.SetReflectionLimit(200);  
       list<PndDrcPhoton> list_photon;
-      int imax=10;
+      int imax=20;
       for (int ix=0; ix<imax; ix++)
+	//  int ix=0;
 	{
-      for (int iy=0; iy<imax; iy++)
+	  for (int iy=0; iy<imax; iy++)	
 	{
-	  for (double theta=40; theta<=40; theta+=10)
+	  
+	  for (double theta=30; theta<=30; theta+=10)
 	    {    
 	      ph.SetPosition(XYZPoint(
 				      -half_width+1+ix*2*(half_width-1)/imax,

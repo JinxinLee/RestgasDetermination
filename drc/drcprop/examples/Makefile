@@ -38,8 +38,11 @@ all:			test_simple_bar test_simple_bar2 test_disk test_sheet test_cylinder \
 			test_focus test_focus2 test_absorption test_test test_titti \
 			test_top test_air_lens test_hook test_barrel1 test_barrel1a test_barrel2  \
 			test_barrel3 test_lens mppc test_system prototype test_cyl_lens \
-			test_simple_lens_sheet lib_DetEffi.so lib_KBarAnalysis.so
+			test_simple_lens_sheet lib_DetEffi.so lib_KBarAnalysis.so test_coating
 
+
+test_coating:		$(OBJECTS) test_coating.o
+			g++ -o test_coating test_coating.o $(OBJECTS) $(LDLIBS)
 
 test_simple_lens_sheet:	$(OBJECTS) test_simple_lens_sheet.o
 			g++ -o test_simple_lens_sheet test_simple_lens_sheet.o $(OBJECTS) $(LDLIBS)

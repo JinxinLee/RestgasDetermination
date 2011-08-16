@@ -42,6 +42,7 @@ PndDrcOptReflGray.cxx
 PndDrcOptReflSurf.cxx 
 PndDrcOptReflPerfect.cxx 
 PndDrcOptReflNone.cxx
+PndDrcOptReflGeffcken.cxx
 PndDrcOptVol.cxx 
 PndDrcPhoton.cxx 
 PndDrcSurfAbs.cxx 

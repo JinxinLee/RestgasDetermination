@@ -340,124 +340,112 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 					  <<(*kDev_coupled)->CopyNumber()<<","
 					  <<(*kSurf_coupled)->Name()<<endl;
 		  PndDrcPhoton ph1(ph);
-		  {
-		    ph1.SetPosition(ph.Position()-ph.Direction()*0.1);
-		    if (Verbosity()>=4)
-		      {
-			cout<<"     bring temporarily back from "
-			    <<ph.Position()<<" to "
-			    <<ph1.Position()<<endl;
-			cout<<"       ( ph has still old value...)"<<endl;
-		      }
-		  }
+		  ph1.SetPosition(ph.Position()-ph.Direction()*0.1);
 		  bool hit = (*kSurf_coupled)->SurfaceHit(ph1,pos_new,path_length);
 		  if (hit)
 		    {
 		      dev_coupled  = (*kDev_coupled);
 		      surf_coupled = (*kSurf_coupled);
 		    }
-
-		  if (Verbosity()>=4)
-		    {
-		      cout<<"     hit="<<hit<<" with "<<(surf_coupled)->Name()
-			  <<" of "<<(dev_coupled)->Name()<<"/"<<(dev_coupled)->CopyNumber()<<endl;
-		      cout<<"     for ph x,xdir :"<<ph.Position().X()<<" "<<ph.Direction().X()<<endl;
-		      cout<<"     for ph y,ydir :"<<ph.Position().Y()<<" "<<ph.Direction().Y()<<endl;
-		      cout<<"     for ph z,zdir :"<<ph.Position().Z()<<" "<<ph.Direction().Z()<<endl;
-		      cout<<"     path_length "<<path_length<<endl;
-		    }
 		  
-		  //}//loop
+		}//loop
 
-		  if (dev_coupled && surf_coupled)
-		    {
-		      //cout<<" ### in clause ..."<<endl;
-		      //ph.Print();
+	      if (dev_coupled && surf_coupled)
+		{
+		  //cout<<" ### in clause ..."<<endl;
+		  //ph.Print();
 		      
 
-		      // ------- check if you get out
-		      if (&(surf_closest->Reflectivity())) // Reflectivity defined
+		  // ------- check if you get out
+		  if (&(surf_closest->Reflectivity())) // Reflectivity defined
+		    {
+		      if (Verbosity()>=4) cout<<"     PndDrcOptVol::reflectivity3a clause"<<endl;
+		      //ph.SetDevice(this);
+			  
+		      refl = Drc::ReflReflected; // needless ???
+		      refl = surf_closest
+			->Reflectivity().Query(ph,
+					       norm,
+					       dev_coupled->
+					       OptMaterial().RefIndex(ph.Wavelength()),
+					       Drc::ReflOut);
+			  
+		      if (refl == Drc::ReflAbsorbed)
 			{
-			  if (Verbosity()>=4) cout<<"     PndDrcOptVol::reflectivity3a clause"<<endl;
-			  //ph.SetDevice(this);
-			  
-			  refl = Drc::ReflReflected; // needless ???
-			  refl = surf_closest->Reflectivity().Query(ph,norm);
-			  
-			  if (refl == Drc::ReflAbsorbed)
-			    {
 			      
-			      //cout<<"    ###  PndDrcOptVol::propagate: absorbed"<<endl;
-			      if (Verbosity()>=4)
-				cout<<"     PndDrcOptVol::propagate: absorbed"<<endl;
-			      ph.SetFate(Drc::kPhotAbsorbed);
-			      return;
+			  //cout<<"    ###  PndDrcOptVol::propagate: absorbed"<<endl;
+			  if (Verbosity()>=4)
+			    cout<<"     PndDrcOptVol::propagate: absorbed"<<endl;
+			  ph.SetFate(Drc::kPhotAbsorbed);
+			  return;
+			}
+		      if (refl == Drc::ReflTransmitted)
+			{
+			  // do nothing
+			}
+		      if (refl == Drc::ReflReflected)
+			{
+			  ph.Reflect(norm);
+			  continue; // while loop
+			}
+		      if (refl == Drc::ReflRefracted)
+			{
+			  bool refr = ph.Refract(norm,
+						 OptMaterial().RefIndex(ph.Wavelength()),
+						 OptMaterial().Extinction(ph.Wavelength()),
+						 surf_closest->Fresnel());
+			  if (refr)
+			    {
+			      ph.SetFate(Drc::kPhotLost); // Photon refracted in nirvana.
+			      if (Verbosity()>=4) cout<<"     Photon lost"<<endl;
+			      //cout<<"     ### PndDrcOptVol::propagate: lost"<<endl;
+			      return; // while loop
 			    }
-			  if (refl == Drc::ReflTransmitted)
+			  else
 			    {
 			      // do nothing
-			    }
-			  if (refl == Drc::ReflReflected)
-			    {
-			      ph.Reflect(norm);
-			      continue; // while loop
-			    }
-			  if (refl == Drc::ReflRefracted)
-			    {
-			      bool refr = ph.Refract(norm,
-						     OptMaterial().RefIndex(ph.Wavelength()),
-						     OptMaterial().Extinction(ph.Wavelength()),
-						     surf_closest->Fresnel());
-			      if (refr)
-				{
-				  ph.SetFate(Drc::kPhotLost); // Photon refracted in nirvana.
-				  if (Verbosity()>=4) cout<<"     Photon lost"<<endl;
-				  //cout<<"     ### PndDrcOptVol::propagate: lost"<<endl;
-				  break; // while loop
-				}
-			      else
-				{
-				  // do nothing
-				}
 			    }
 			}
-		      // -------  check if you get in
-		      if (&(surf_coupled->Reflectivity())) // Reflectivity defined
+		    }
+		  // -------  check if you get in
+		  if (&(surf_coupled->Reflectivity())) // Reflectivity defined
+		    {
+		      if (Verbosity()>=4) cout<<"     PndDrcOptVol::reflectivity3b clause"<<endl;
+		      // check reflectivity
+		      norm = (surf_coupled)->Normal(ph.Position());
+		      refl = Drc::ReflReflected;
+		      refl = (surf_coupled)->
+			Reflectivity().Query(ph,norm,
+					     dev_coupled->
+					     OptMaterial().RefIndex(ph.Wavelength()),
+					     Drc::ReflIn);
+
+
+		      if (refl == Drc::ReflAbsorbed)
 			{
-			  if (Verbosity()>=4) cout<<"     PndDrcOptVol::reflectivity3b clause"<<endl;
-			  // check reflectivity
-			  norm = (surf_coupled)->Normal(ph.Position());
-			  refl = Drc::ReflReflected;
-			  refl = (surf_coupled)->Reflectivity().Query(ph,norm);
-
-
-			  if (refl == Drc::ReflAbsorbed)
-			    {
-			      if (Verbosity()>=4)
-				cout<<"     PndDrcOptVol::propagate: mirror absorbed"<<endl;
-			      ph.SetFate(Drc::kPhotAbsorbed);
-			      return;
-			    }
-			  if (refl == Drc::ReflTransmitted)
-			    {
-			      // do nothing
-			    }
-			  if (refl == Drc::ReflReflected)
-			    {
-			      ph.Reflect(norm);
-			    }
-			  if (refl == Drc::ReflRefracted)
-			    {
-			      // do nothing (no Fresnel due to reflectivity ??? )
-			    }
-			} // end of reflectivity
-
-
-		      // bring photon inside coupled volume
-		      // to prevent infinite recursion of coupled surface hits.
-		      // The factor 2 comes from comparisons with same kEps in
-		      // surfaceHit.
-
+			  if (Verbosity()>=4)
+			    cout<<"     PndDrcOptVol::propagate: mirror absorbed"<<endl;
+			  ph.SetFate(Drc::kPhotAbsorbed);
+			  return;
+			}
+		      if (refl == Drc::ReflTransmitted)
+			{
+			  if (Verbosity()>=4) cout<<"     go into new volume "
+						  <<(dev_coupled)->Name()<<endl;
+			  (dev_coupled)->Propagate(ph);
+			}
+		      if (refl == Drc::ReflReflected)
+			{
+			  ph.Reflect(norm);
+			  continue;
+			}
+		      if (refl == Drc::ReflRefracted)
+			{
+			  // do nothing (no Fresnel due to reflectivity ??? )
+			}
+		    } // end of reflectivity
+		  else
+		    { // no reflectivity defined
 		      PndDrcOptMatAbs* opt_mat = &((dev_coupled)->OptMaterial());
 		      if (Verbosity()>=4) cout<<"     opt_mat="<<opt_mat->Name()<<endl;
 		      if (opt_mat)
@@ -488,29 +476,29 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 			    }
 			  else
 			    {
-			      break; // coupled surface loop, since phot. is reflected.
+			      ph.Reflect(norm);
+			      continue; //  photon is reflected.
 			    }
-			}
-		      else // screen or mirror...
-			{
-			  // do not bring photons inside flat objects
-			  // ph.setPosition(ph.position()+2*kEps*ph.direction());
-			  (dev_coupled)->Propagate(ph);
-			}
-		      if (ph.Fate() != Drc::kPhotFlying) break;
+			} // opt_mat
+		      //else // screen or mirror...
+		      //{
+		      //  // do not bring photons inside flat objects
+		      //  // ph.setPosition(ph.position()+2*kEps*ph.direction());
+		      //  (dev_coupled)->Propagate(ph);
+		      //}
+
+		    } // no reflectivity defined
+
+		} // dev_coupled && surf_coupled
 
 
-		      //cout<<" ### end clause ..."<<endl;
-		    } // dev_coupled && surf_coupled
-
-
-		  } // for loop
+	      //} // for loop
 		
             } // surf_closest coupled
 	  if (ph.Fate() != Drc::kPhotFlying) break; // while loop
 	} // if surf_closest...
     } // while
-
+  
 
   // if the photon got from a surface hit the attribute Drc::kPhotMeasured
   // it should pass this location.
