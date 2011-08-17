@@ -82,7 +82,7 @@ public:
   
   bool fPersistence;
   bool fRequireMatch; //true: ONLY write out tracks with a MVD match!
-  bool fMergeHits; // merge found MVD hits into output track 
+  bool fMergeHits;    //merge found MVD hits into output track 
 
   unsigned int fMinMVDHits;
   

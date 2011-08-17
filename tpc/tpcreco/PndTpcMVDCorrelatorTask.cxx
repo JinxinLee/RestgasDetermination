@@ -93,7 +93,7 @@ operator< (const DetPlaneWrapper& lhs, const DetPlaneWrapper& rhs) {
 
 
 PndTpcMVDCorrelatorTask::PndTpcMVDCorrelatorTask()
-  : FairTask("TPC-MVD Correlator"), fPersistence(kFALSE), fMatchDistance(0.15),
+  : FairTask("TPC-MVD Correlator"), fPersistence(kFALSE), fMatchDistance(0.15), fAngleCut(TMath::PiOver2()),
     fMinMVDHits(3), fRequireMatch(false)
 {
   fOutTrackBranchName = "TrackPreFitComplete";
@@ -183,7 +183,8 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
   std::cout<<"PndTpcMVDCorrelatorTask::Exec"<<std::endl;
   fOutTrackArray->Delete();
   
-  //create recohits from MVD hits 
+  //Bookkeeping. All pointers come from the input trees over the IO manager
+  //Framework should handly ownership correctly, no manual cleaning up done.
   std::vector<GFAbsRecoHit*> recoHits;
   std::map<DetPlaneWrapper, std::vector<GFAbsRecoHit*> > recoHitMap;
   std::map<GFAbsRecoHit*, std::pair<TString, unsigned int> > idMap;
@@ -194,6 +195,7 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
   
   unsigned int nPix = fPixelArray->GetEntriesFast();
   unsigned int nStr = fStripArray->GetEntriesFast();
+  //create recohits from MVD hits 
   for(unsigned int ipx=0; ipx<nPix; ipx++) {
     GFAbsRecoHit* ihit = fTheRecoHitFactory->createOne(ioman->GetBranchId(fPixelBranchName),
 						       ipx);
@@ -227,6 +229,8 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
   for(unsigned int itr=0;  itr<ntracks; itr++) {
     GFTrack* track = (GFTrack*) (*fTrackArray)[itr];
     GFAbsTrackRep* rep = track->getCardinalRep();
+    TVector3 trkStartPos=track->getPos();
+    trkStartPos.SetZ(0.); //we're only interested in the XY projection of the angle
         
     //get (physical) detplanes and organize
     if(itr==0) {
@@ -250,6 +254,7 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
 
     std::vector<PndSdsHit*> tempCand;  //selected hits during extrapolation
         
+    //loop over planes
     for (it=recoHitMap.begin(); it!=recoHitMap.end(); it++) { 
       bool ok=true;
       TMatrixT<double> res(2,1);
@@ -257,8 +262,21 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
       //pl.Print();
       TVector2 minRes(100.,100.);
       int bestMatch = -1;
+      //loop over hits of the current DetPlane
       for(unsigned int ihit=0; ihit<it->second.size(); ihit++) {
 	GFAbsRecoHit* exHit = it->second[ihit];
+	
+	//check for same hemisphere
+	TVector3 globPos;
+	conMap[exHit]->Position(globPos);
+	globPos.SetZ(0.);
+	double angle = trkStartPos.Angle(globPos);
+	if(fabs(angle)>fAngleCut) {
+	  if(fVerbose) 
+	    std::cout<<"hit in wrong hemisphere, skipping!"<<  std::endl;
+	  continue; 
+	}
+	
 	TMatrixT<double> statePred(5,1);
 	TMatrixT<double> covPred(5,5);
 	try {
