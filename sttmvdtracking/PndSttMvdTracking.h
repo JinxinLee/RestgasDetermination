@@ -813,6 +813,21 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 		Double_t Rmax	// Rmax of cylindrical volume intersected by track;
 						);
 
+
+
+
+	void   FindCharge(
+		Double_t oX,
+		Double_t oY,
+		Double_t info[][7],
+		UShort_t nhits,
+		UShort_t *listhits,
+		Short_t *hittype,
+		Short_t  * Charge
+				);
+
+
+
    bool CalculateCircleThru3Points(
 			Double_t x1,
 			Double_t y1,
@@ -860,6 +875,13 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 		Int_t nHits,
 		Double_t XY[][2], // XY[*][0] = X position, XY[*][0] = Y position.
 		Short_t  Charge,  // input
+		Int_t *ListHits
+					);
+
+
+	void   OrderingUsingR(
+		UShort_t nHits,
+		Double_t XY[][2], // XY[*][0] = X position, XY[*][0] = Y position.
 		Int_t *ListHits
 					);
 
