@@ -153,7 +153,7 @@ void PndSttTrackFinderReal::Init()
 
 N_INTENDED=0;
 
-if(istampa>=1 ){
+if(istampa >=1 ){
 //---- fetch the n. of tracks MC that were intended to be generated
    HANDLE = fopen("n_intended_tracks.txt","r");
    fscanf(HANDLE,"%d",&N_INTENDED);
@@ -164,7 +164,7 @@ if(istampa>=1 ){
 //  ---- open filehandle per statistica sugli hits etc.
    HANDLE = fopen("statistichePndTrackFinderReal.txt","w");
 //  ---------------
-if(istampa>=3 )   HANDLEXYZ = fopen("infoPndTrackFinderRealXYZ.txt","w");
+if(istampa >=3 )   HANDLEXYZ = fopen("infoPndTrackFinderRealXYZ.txt","w");
 
 //  ---------------  open file delle info su deltaX, Y, Z  degli hits in comune tra tracce trovate e MC
 
@@ -175,7 +175,7 @@ if(istampa>=3 )   HANDLEXYZ = fopen("infoPndTrackFinderRealXYZ.txt","w");
    SHANDLEY = fopen("deltaSkewYmio.txt","w");
    SHANDLEZ = fopen("deltaSkewZmio.txt","w");
 
-}  //  end of if(istampa>=1)
+}  //  end of if(istampa >=1)
 
 
 // -------------------------
@@ -452,7 +452,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
     NSkewhits=Ninclinate=0;
 
 
-  if (istampa>= 1 ) cout<<"Gianluigi : da PndSttTrackFinderReal::DoFind : Nhits="<<Nhits<<endl;
+  if (istampa >= 1 ) cout<<"Gianluigi : da PndSttTrackFinderReal::DoFind : Nhits="<<Nhits<<endl;
 
   //   generated momenta and starting position of each track
 
@@ -568,7 +568,7 @@ jumpout: ;
 
 
 //--------------- inizio stampaggi,  stampe di controllo
-  if (istampa>= 2  && IVOLTE<= nmassimo) {
+  if (istampa >= 2  && IVOLTE<= nmassimo) {
      cout <<"iHit "<< iHit << endl;
       	if (ptIndex < 0) {
 cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptIndex
@@ -582,7 +582,7 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
            << "; R = "<<sqrt(tube->GetPosition().X()*tube->GetPosition().X()+tube->GetPosition().Y()*tube->GetPosition().Y())<< endl;
       cout <<"             wire direction, X, Y, Z (Z direction set always positive)"
       	<< WDX<<"  "<<WDY<<"  "<<WDZ <<endl;
-  }  //  end of   if(istampa>= 
+  }  //  end of   if(istampa >= 
 
 //--------  fine stampaggi
 
@@ -596,11 +596,11 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 
 
 //--------------- inizio stampaggi
-//  if (istampa>= 2  && IVOLTE<= nmassimo) {
-  if (istampa>= 2  ) {
+//  if (istampa >= 2  && IVOLTE<= nmassimo) {
+  if (istampa >= 2  ) {
       cout<<"Gianluigi : da PndSttTrackFinderReal::DoFind : Nhits totali ="<<Nhits<<",  n Hits ||  = "<<Minclinations[0]<<
           ",  n Hits  skew = "<<NSkewhits<<endl;
-  }  //  end of   if(istampa>=
+  }  //  end of   if(istampa >=
 //--------  fine stampaggi
 
 
@@ -1195,35 +1195,19 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 	// when the track is  positive, and it is > Fi_initial_helix_referenceframe for negative
 	// tracks.
 
-	// for small radius trajectory better the ordering with conformal.
-	if( R[nTracksFoundSoFar]< RStrawDetectorMax/2.){
-
-		PndSttOrderingParallelConformal(
-			Ox[nTracksFoundSoFar],
-			Oy[nTracksFoundSoFar],
-			info,
-			nHitsinTrack[nTracksFoundSoFar],
-			&ListHitsinTrack[nTracksFoundSoFar][0],
-			infoparal,
-			Charge[nTracksFoundSoFar],
-			&Fi_initial_helix_referenceframe[nTracksFoundSoFar],//output
-			&Fi_final_helix_referenceframe[nTracksFoundSoFar],// output
-			&U[nTracksFoundSoFar][0],
-			&V[nTracksFoundSoFar][0]
-		);
-
-
-	} else { // otherwise it is better distance from (0,0) method.
-			PndSttOrderingParallelR(
-			Ox[nTracksFoundSoFar],
-			Oy[nTracksFoundSoFar],
-				info,
-				nHitsinTrack[nTracksFoundSoFar],
-				&ListHitsinTrack[nTracksFoundSoFar][0],
-			&Fi_initial_helix_referenceframe[nTracksFoundSoFar],//output
-			&Fi_final_helix_referenceframe[nTracksFoundSoFar]// output
-				);
-	} // end of  if( R[ncand]< RStrawDetectorMax/2.)
+       PndSttOrderingParallel(
+                             Ox[nTracksFoundSoFar],
+                             Oy[nTracksFoundSoFar],
+                             info,
+                             nHitsinTrack[nTracksFoundSoFar],
+                             &ListHitsinTrack[nTracksFoundSoFar][0],
+                             infoparal,
+                             Charge[nTracksFoundSoFar],
+                             &Fi_initial_helix_referenceframe[nTracksFoundSoFar],//output
+                             &Fi_final_helix_referenceframe[nTracksFoundSoFar],// output
+		&U[nTracksFoundSoFar][0],
+		&V[nTracksFoundSoFar][0]
+                       );
 
 
 //    end of ordering the parallel  hits; determining the charge of this track
@@ -1559,7 +1543,7 @@ if(iplotta && IVOLTE <= nmassimo){
 	nTotalHits[i] =  nHitsinTrack[i]+nSkewHitsinTrack[i];
 
 	// the BigList array must be loaded also when there are no Skew hits.
-	PndSttOrderingSkewandParallelConformal(
+	PndSttOrderingSkewandParallel(
 		infoparal,
 		infoskew,
 		Ox[i],
@@ -2024,6 +2008,7 @@ if( istampa>=1 && nMCTracksaccettabili>0 ){
        Pxini = -Charge[i]*Ptras*Oy[i]/dista;
        Pyini = Charge[i]*Ptras*Ox[i]/dista;
        TVector3 posSeed(0.,0.,0.);  //  the starting point of the trajectory
+
      if(   GoodSkewFit[i]  ) {
        new((*trackCandArray)[ipinco])  PndTrackCand;
        pTrckCand = (PndTrackCand*) trackCandArray->At(ipinco);
@@ -2988,7 +2973,7 @@ for(k1=0; k1<2;k1++){
  if( LL < 1.e-10) continue;
  Aellipsis1 = r1*aaa/LL;
 
- if(istampa>= 3 && IVOLTE<= nmassimo){
+ if(istampa >= 3 && IVOLTE<= nmassimo){
    cout<<"Lunghezza asse maggiore ellisse1 = "<<Aellipsis1<<";  raggio drift1 = "<<r1<<";  Tdirz = "<<Tiltdirection1[0]
        <<";  TdirFI = "<<Tiltdirection1[1]<<endl;
    cout<<"cos angolo con la normale = "<<LL/aaa<<endl;
@@ -9857,86 +9842,16 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
 //----------end of function PndSttTrackFinderReal::PndSttFitwithKalman
 
-//----------begin of function PndSttTrackFinderReal::PndSttOrderingParallelR
-
-	void   PndSttTrackFinderReal::PndSttOrderingParallelR(
-		Double_t oX,
-		Double_t oY,
-		Double_t info[][7],
-		UShort_t nParallelHits,
-		UShort_t *ListParallelHits,
-		Double_t *Fi_initial_helix_referenceframe,
-		Double_t *Fi_final_helix_referenceframe
-		)
-{
-      UShort_t i,j,flag;
-      Double_t old,
-               auxFivalues[nParallelHits],
-               auxRvalues[nParallelHits];
-
-
-
-//  here there is the ordering of the hits
-
-//   ordering of the parallel hits
-
-    for (j = 0; j< nParallelHits; j++){
-      auxRvalues[j]=
-                    info[ infoparal[ ListParallelHits[j] ]  ][0]*
-                    info[ infoparal[ ListParallelHits[j] ]  ][0]+
-                    info[ infoparal[ ListParallelHits[j] ]  ][1]*
-                    info[ infoparal[ ListParallelHits[j] ]  ][1];
-    }
-
-    Merge_Sort( nParallelHits, auxRvalues, ListParallelHits);
-
-    for (j = 0; j< nParallelHits; j++){              
-      auxFivalues[j] = atan2( info[ infoparal[ ListParallelHits[j] ]  ][1]-oY,
-                              info[ infoparal[ ListParallelHits[j] ]  ][0]-oX);
-      if( auxFivalues[j] < 0. ) auxFivalues[j] += 2.*PI;
-    }
-
-//  fixing possible discontinuity between fi<2*PI and fi>0.
-   for (old=auxFivalues[0],flag=0, j = 1; j< nParallelHits; j++){
-      if( fabs(old - auxFivalues[j]) > PI ) {
-        flag=1;
-        break;
-      } else {
-        old=auxFivalues[j];
-      }
-   }
-   if( flag==1) {
-      for (j = 0; j< nParallelHits; j++){
-        if( auxFivalues[j] < PI) auxFivalues[j] += 2.*PI;
-      }
-   }
-
-//  FI initial value (at 0,0  vertex) in the Helix reference frame
-
-      *Fi_initial_helix_referenceframe = atan2(oY,oX) + PI;  //  this is in order to be coherent
-                                                             //  with the calculatation of Fi, which is atan2(oY,oX). 
-                                                             //  atan2  is defined in [-PI,PI)
-      if ( *Fi_initial_helix_referenceframe <0.) *Fi_initial_helix_referenceframe += 2.*PI;
-
-//  FI of the last parallel hit in the Helix reference frame
-
-      *Fi_final_helix_referenceframe = auxFivalues[nParallelHits-1];
-
-
-	return; 
-
-}
 
 
 
 
-//----------end of function PndSttTrackFinderReal::PndSttOrderingParallelR
 
 
 
-//----------begin of function PndSttTrackFinderReal::PndSttOrderingParallelConformal
+//----------begin of function PndSttTrackFinderReal::PndSttOrderingParallel
 
-	void   PndSttTrackFinderReal::PndSttOrderingParallelConformal(
+	void   PndSttTrackFinderReal::PndSttOrderingParallel(
 		Double_t oX,
 		Double_t oY,
 		Double_t info[][7],
@@ -10129,16 +10044,16 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
 
 }
-//----------end of function PndSttTrackFinderReal::PndSttOrderingParallelConformal
+//----------end of function PndSttTrackFinderReal::PndSttOrderingParallel
 
 
 
 
 
 
-//----------begin of function PndSttTrackFinderReal::PndSttOrderingSkewandParallelConformal
+//----------begin of function PndSttTrackFinderReal::PndSttOrderingSkewandParallel
 
-      void   PndSttTrackFinderReal::PndSttOrderingSkewandParallelConformal(
+      void   PndSttTrackFinderReal::PndSttOrderingSkewandParallel(
 			UShort_t *Infoparal,
 			UShort_t *Infoskew,
 			Double_t oX,
@@ -10278,7 +10193,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
  return;
 
 }
-//----------end of function PndSttTrackFinderReal::PndSttOrderingSkewandParallelConformal
+//----------end of function PndSttTrackFinderReal::PndSttOrderingSkewandParallel
 
 
 
@@ -10321,7 +10236,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 //  here there is the ordering of the hits
 
 //   ordering of the parallel hits is not necessary; already done previously in
-//   PndSttOrderingParallelConformal, also taking care of the Charge (when positive, the
+//   PndSttOrderingParallel, also taking care of the Charge (when positive, the
 //   ordering must be reversed).
 
 
@@ -11668,23 +11583,22 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 	// if  cross >0  hits stays 'on the left' (which means clockwise to go from the origin
 	// to the hit following the smaller path) otherwise it stays 'on the right'.
 
-		disq =	info[ Infoparal[ ListParallelHits[ihit] ] ][0]*
+		if (cross>0.) {
+			disq =	info[ Infoparal[ ListParallelHits[ihit] ] ][0]*
 				info[ Infoparal[ ListParallelHits[ihit] ] ][0]+
 				info[ Infoparal[ ListParallelHits[ihit] ] ][1]*
 				info[ Infoparal[ ListParallelHits[ihit] ] ][1];
-		if (cross>0.) {
-			if(minl>disq) minl=disq;
 			nleft++;
 		} else {
-			if(minr>disq) minr=disq;
 			nright++;
 		}
 	}	// end of   for(ihit=0, nleft=0, nright=0;....
+
 	if( nright> nleft) {
 		*Charge = -1;
 	} else if ( nleft > nright) {
 		*Charge = 1;
-	} else {	// then choose according the closest hit to the center
+	} else {	// then choose according the closest hit ti the center
 		if( minr < minl ) *Charge = -1;
 		else  *Charge = 1;
 	}
