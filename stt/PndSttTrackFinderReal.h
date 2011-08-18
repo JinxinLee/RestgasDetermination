@@ -91,7 +91,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 #define maximumTracks 50
       static const UShort_t
-            nmaxHits = 1050, // max hits total.
+            nmaxHits = 1000, // max hits total.
 	nmaxHitsInTrack=60,
             MAXMCTRACKS=10000,
             MAXTRACKSPEREVENT=maximumTracks,
@@ -613,18 +613,8 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                                                      UShort_t *infoskew
                                                    );
 
-	void   PndSttOrderingParallelR(
-		Double_t oX,
-		Double_t oY,
-		Double_t info[][7],
-		UShort_t nParallelHits,
-		UShort_t *ListParallelHits,
-		Double_t *Fi_initial_helix_referenceframe,
-		Double_t *Fi_final_helix_referenceframe
-		);
 
-
-      void   PndSttOrderingParallelConformal(
+      void   PndSttOrderingParallel(
 		Double_t oX,
 		Double_t oY,
 		Double_t info[][7],
@@ -639,7 +629,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 				);
 
 
-      void   PndSttOrderingSkewandParallelConformal(
+      void   PndSttOrderingSkewandParallel(
 			UShort_t *Infoparal,
 			UShort_t *Infoskew,
 			Double_t oX,
