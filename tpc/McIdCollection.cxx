@@ -111,6 +111,12 @@ McIdCollection::MaxRelWeight() const {
 McId 
 McIdCollection::DominantID() const {
   unsigned int n=nIDs();
+
+  if (n==0){
+    McId dummy(0,9999,-1);
+    return dummy;
+  }
+
   unsigned int index=0;
   double maxw=0;
   for(unsigned int i=0; i<n;++i){
