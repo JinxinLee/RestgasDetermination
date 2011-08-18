@@ -63,7 +63,10 @@ class PndSttMvdTracking : public FairTask
 	return;
   };
 
-  void Cleanup( ){YesClean=true; return;};
+  void Cleanup( ){YesClean= true; return;};
+
+
+  void NoMvdAloneTracking( ){ MvdAloneTracking=false; return;};
 
  private:
 
@@ -115,6 +118,7 @@ class PndSttMvdTracking : public FairTask
 
 
   bool	YesClean,
+	MvdAloneTracking,
 	ExclusionListStt[nmaxSttHits];
 
 
