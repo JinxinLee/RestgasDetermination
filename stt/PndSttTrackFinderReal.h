@@ -168,7 +168,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
       bool  iplotta, doMcComparison ;
       int istampa ;
 
-      static const int  nmassimo=20;
+      static const int  nmassimo=50;
 
 	TH1F	*hdist,
 		*hdistgoodlast,
@@ -613,8 +613,18 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                                                      UShort_t *infoskew
                                                    );
 
+	void   PndSttOrderingParallelR(
+		Double_t oX,
+		Double_t oY,
+		Double_t info[][7],
+		UShort_t nParallelHits,
+		UShort_t *ListParallelHits,
+		Double_t *Fi_initial_helix_referenceframe,
+		Double_t *Fi_final_helix_referenceframe
+		);
 
-      void   PndSttOrderingParallel(
+
+      void   PndSttOrderingParallelConformal(
 		Double_t oX,
 		Double_t oY,
 		Double_t info[][7],
@@ -629,7 +639,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 				);
 
 
-      void   PndSttOrderingSkewandParallel(
+      void   PndSttOrderingSkewandParallelConformal(
 			UShort_t *Infoparal,
 			UShort_t *Infoskew,
 			Double_t oX,
