@@ -1,5 +1,10 @@
 #!/bin/bash
 
+echo ""
+echo "Please do NOT use this script. It is not working any more."
+echo ""
+exit 0
+
 if [ "$1" == "" ]; then
   echo ""
   echo "   Script for fetching weight file to be used with PndPidMvaAssociatorTask"

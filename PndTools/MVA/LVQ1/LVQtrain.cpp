@@ -28,7 +28,7 @@
  */
 #define CROSS_VALIDATE 1
 
-#if CROSS_VALIDATE != 0
+#if (CROSS_VALIDATE != 0)
 #define NUMBER_OF_FOLDS 10 // k-Fold CV
 #endif
 
@@ -36,7 +36,7 @@
 #define DEBUGVQ_TRAIN_EXAMPLE 0
 //____________________________________
 
-#if DEBUGVQ_TRAIN_EXAMPLE > 0
+#if (DEBUGVQ_TRAIN_EXAMPLE > 0)
 // *************  DEBUG ONLY **********
 void printProto(std::vector< std::pair<std::string, std::vector<float>*> > const& dat)
 {
@@ -56,7 +56,7 @@ void printProto(std::vector< std::pair<std::string, std::vector<float>*> > const
 }
 #endif
 
-#if DEBUGVQ_TRAIN_EXAMPLE > 1
+#if (DEBUGVQ_TRAIN_EXAMPLE > 1)
 void printErrors(PndLVQTrain const& tr)
 {
   // Note: Can produce large output on STDOUT.
@@ -151,7 +151,7 @@ int main(int argc, char** argv)
   float ethaZ  = 0.1;
   float ethaF  = 0.0001;
 
-#if CROSS_VALIDATE == 0
+#if (CROSS_VALIDATE == 0)
   //========= Normal training =====================
   std::cout << "<-I-> Init classifier using data from root Trees.\n";
 
@@ -160,16 +160,16 @@ int main(int argc, char** argv)
 
   tr.SetLearnPrameters(initC, ethaZ, ethaF, numSweep);
   
-  // Use for symm. initialization.
+  // Symm. initialization.
   tr.SetNumberOfProto(numProto);
 
-  // Use for asymm. init.
+  // Asymm. init.
   // tr.SetNumberOfProto(numProtoMap);
   
   // Set the size of the test set in (%)
   tr.SetTetsSetSize(20);
   
-  tr.SetErrorStepSize(0);//1000 (DEFALUT)
+  tr.SetErrorStepSize(5000);//1000 (DEFALUT)
   
   //VARX, MINMAX, MEDIAN, NONORM(DEFAULT)
   // tr.NormalizeData(VARX);
@@ -199,7 +199,7 @@ int main(int argc, char** argv)
     tr.Train21();
     break;
     
-#if DEBUGVQ_TRAIN_EXAMPLE > 0
+#if (DEBUGVQ_TRAIN_EXAMPLE > 0)
   case 3:
     printProto( tr.train1sec() );
     break;
@@ -243,7 +243,7 @@ int main(int argc, char** argv)
   // Get list of labels and their attributes..
   std::vector<PndMvaClass> const& clsList = dat->GetClasses();
 
-#if DEBUGVQ_TRAIN_EXAMPLE > 0
+#if (DEBUGVQ_TRAIN_EXAMPLE > 0)
   for(size_t cl = 0; cl < clsList.size(); ++cl)
   {
     std::cout << "Name = "       << clsList[cl].Name
@@ -255,7 +255,7 @@ int main(int argc, char** argv)
   }
 #endif//DEBUG
 
-  // Determine how many events per set per label
+  // Determine how many events per set, per label
   size_t subsetSize = evts.size() / NUMBER_OF_FOLDS;
   size_t perClassNumbers = subsetSize / clsList.size();
 
@@ -266,6 +266,7 @@ int main(int argc, char** argv)
   //============= Create k- test set indices.
   // Name to index map Per label.
   std::map<std::string, size_t> nameIdx;
+
   for(size_t cl = 0; cl < clsList.size(); ++cl)
   {
     nameIdx[clsList[cl].Name] = clsList[cl].StartIdx;
@@ -295,10 +296,10 @@ int main(int argc, char** argv)
   //___ TEst sets are ready, Clean.
   nameIdx.clear();
 
-  //========= DEBUG DEBUG DEBUG .
-#if DEBUGVQ_TRAIN_EXAMPLE > 0
+  //========= DEBUG INFO.
+#if (DEBUGVQ_TRAIN_EXAMPLE > 0)
   std::cout << "________ " << testSets.size()
-	    << " == " << NUMBER_OF_FOLDS
+	    << " == "      << NUMBER_OF_FOLDS
 	    << '\n';
   
   size_t sum = 0;
@@ -312,7 +313,7 @@ int main(int argc, char** argv)
   std::cout << "\nSum = " << sum
 	    << '\n';
 
-#if DEBUGVQ_TRAIN_EXAMPLE > 1
+#if (DEBUGVQ_TRAIN_EXAMPLE > 1)
   // Check if disjoint using stl functions.
   std::vector<size_t> v( (2 * perClassNumbers) );
   std::vector<size_t>::iterator it;
@@ -330,8 +331,10 @@ int main(int argc, char** argv)
   {
     disj = disj && is_disjoint( testSets[st], testSets[st+1] );
   }
-  if(disj){std::cout << "All Subsets are Disjoint\n";}
-  else{std::cout << "NOT ALL subsets are Disjoint\n";}
+  if(disj)
+  { std::cout << "All Subsets are Disjoint\n"; }
+  else
+  { std::cout << "NOT ALL subsets are Disjoint\n"; }
 #endif// DEBUG
 
   // We need K classifiers.
@@ -352,12 +355,14 @@ int main(int argc, char** argv)
     // Use for asymm. init.
     //t->SetNumberOfProto(numProtoMap);
     
-    // Set testSet size and indices
-    t->SetTetsSetSize(0);// Do not split test set.
-    t->SetTestSet(testSets[i]);// Assign test set indices.
+    // Do NOT split test set.
+    t->SetTetsSetSize(0);
+
+    // Assign test set indices.
+    t->SetTestSet(testSets[i]);
     
-    // Eval. rate.
-    t->SetErrorStepSize(0);
+    // Eval. rate.(DEFALUT = 1000)
+    t->SetErrorStepSize(5000);
     
     // OutFile names.
     std::string prefix = int2str(i);
@@ -382,9 +387,10 @@ int main(int argc, char** argv)
    * the number of threads either by function call or by the shell
    * variable.
    */
-#if ( __GNUC__ >= 4 && __GNUC_MINOR__ > 3)
+#if ( __GNUC__ >= 4 && __GNUC_MINOR__ >= 3)
   // GCC older that 4.4 can not handle size_t loop counter in
-  // combination with OpenMP.
+  // combination with OpenMP. 4.3 produces a warning, which seems to
+  // be harmless.
 #ifdef _OPENMP
 #pragma omp parallel for schedule(dynamic, 1)
 #endif// OPENMP
@@ -395,7 +401,8 @@ int main(int argc, char** argv)
     // Perform training
     (trainerList[tr])->Train();
 
-#if ( __GNUC__ >= 4 && __GNUC_MINOR__ > 3)
+#if ( __GNUC__ >= 4 && __GNUC_MINOR__ >= 3)
+    // I/O is sequential anyways.
 #ifdef _OPENMP
 #pragma omp critical (StoreProtoTypesEvalData)
     {
@@ -407,7 +414,7 @@ int main(int argc, char** argv)
       // Write Evaluation.
       (trainerList[tr])->WriteErroVect( (int2str(tr)+ "_" +OutErr) );
       
-#if ( __GNUC__ >= 4 && __GNUC_MINOR__ > 3)
+#if ( __GNUC__ >= 4 && __GNUC_MINOR__ >= 3)
 #ifdef _OPENMP
     }// END Critical
 #endif
@@ -429,7 +436,7 @@ int main(int argc, char** argv)
   }// Trainers loop
 
   // Print the evaluation results.
-#if DEBUGVQ_TRAIN_EXAMPLE > 1
+#if (DEBUGVQ_TRAIN_EXAMPLE > 1)
   for(size_t i = 0; i < trainerList.size(); ++i)
   {
     std::cout << "Trainer index = " << i << '\t';
@@ -517,19 +524,23 @@ int main(int argc, char** argv)
   }
 
   //Print Overal mean, sigma and the same per label.
-  std::cout << "mean_tr = " << mean_tr
-	    << " sigma_tr = " << sigma_tr <<'\n'
-	    << "mean_ts = " << mean_ts
-	    << " sigma_ts = " << sigma_ts <<'\n';
+  std::cout << "\n=====================================\n"
+	    << " Number of proto = " << numProto
+	    << " Num Sweep = " << numSweep
+	    << "\n Mean_tr = " << mean_tr
+	    << ", Sigma_tr = " << sigma_tr <<'\n'
+	    << " Mean_ts = " << mean_ts
+	    << ", Sigma_ts = " << sigma_ts <<'\n';
 
   for(size_t lb = 0; lb < labels.size(); ++lb)
   {
-    std::cout << "Mean test "   << labels[lb] << " = " << perClsMean_ts[labels[lb]]
-	      << " Sigm test "  << labels[lb] << " = " << perClsSigm_ts [labels[lb]]
-      	      << " Mean train " << labels[lb] << " = " << perClsMean_tr[labels[lb]]
-	      << " sigm train " << labels[lb] << " = " << perClsSigm_tr [labels[lb]]
+    std::cout << " Mean test "    << labels[lb] << " = " << perClsMean_ts[labels[lb]]
+	      << ", Sigm test "  << labels[lb] << " = " << perClsSigm_ts [labels[lb]]
+      	      << ", Mean train " << labels[lb] << " = " << perClsMean_tr[labels[lb]]
+	      << ", sigm train " << labels[lb] << " = " << perClsSigm_tr [labels[lb]]
 	      <<'\n';
   }
+  std::cout << "\n=====================================\n";
 #endif// CROSS_VALIDATE != 0
   return 0;
 }
