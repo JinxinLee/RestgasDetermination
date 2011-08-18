@@ -49,6 +49,7 @@ PndSttMvdTracking::PndSttMvdTracking() : FairTask("STT Stt-Mvd Tracking") {
   iplotta = false;
   doMcComparison = false;
   YesClean = false;
+  MvdAloneTracking = true;
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
@@ -63,6 +64,7 @@ PndSttMvdTracking::PndSttMvdTracking(Int_t verbose) : FairTask("STT Stt-Mvd Trac
   iplotta = false;
   doMcComparison = false;
   YesClean = false;
+  MvdAloneTracking = true;
 
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
@@ -78,6 +80,7 @@ PndSttMvdTracking::PndSttMvdTracking(int istamp, bool  iplot, bool imc)
   iplotta = iplot;
   doMcComparison = imc;
   YesClean = false;
+  MvdAloneTracking = true;
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
 
@@ -539,13 +542,21 @@ if(istampa>1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<", n. MC Track
 			if (icode>1000000000) carica = 1.;
 			else  carica = fParticle->Charge()/3. ;    //   charge of track
 
+			double Cx = pMC->GetStartVertex().X() + Pyy*1000./(BFIELD*CVEL*carica);
+			double Cy = pMC->GetStartVertex().Y() - Pxx*1000./(BFIELD*CVEL*carica);
+			double kappa = aaa/(pMC->GetMomentum().Z()*Rr);
+			double fizero = atan2(-Cy+pMC->GetStartVertex().Y(),
+					-Cx+pMC->GetStartVertex().X());
+			if(fizero<0.) fizero += 2.*PI;
 			cout<<"\tTraccia n. "<<ic<<", Px "<<pMC->GetMomentum().X()
 			<<", Py "<<pMC->GetMomentum().Y()
 			<<", Pz "<<pMC->GetMomentum().Z()
 			<<", carica = "<<carica
-			<<"\n\t\tXvert "<<pMC->GetStartVertex().X()
+			<<", Xvert "<<pMC->GetStartVertex().X()
 			<<", Yvert "<<pMC->GetStartVertex().Y()
-			<<", Zvert "<<pMC->GetStartVertex().Z()<<endl;
+			<<"\n\tZvert "<<pMC->GetStartVertex().Z()
+			<<", R "<<Rr<<", Ox "<<  Cx<<", Oy "<<Cy<<", KAPPA "<<kappa
+			<<", FI0 "<<fizero<<endl;
 		}
 }
 //-------fine stampe.
@@ -2430,7 +2441,7 @@ for(int ip=0;ip<nHitsSkew;ip++){
 
 
     if(YesClean){
-if(istampa>1) cout<<"PndSttMvdTracking, entra in TrackCleanup tracce normali, IVOLTE "<<IVOLTE
+if(istampa>1) cout<<"\nPndSttMvdTracking, entra in TrackCleanup tracce normali, IVOLTE "<<IVOLTE
 	<<" e track cand. "<<ncand<<endl;
 	if ( !TrackCleanup(
 			gap,
@@ -2456,7 +2467,8 @@ if(istampa>1) cout<<"PndSttMvdTracking, entra in TrackCleanup tracce normali, IV
 				) ) {
 		keepit[ncand]=false;
 	}
-if(istampa>1){ cout<<"\tPndSttMvdTracking, uscito da TrackCleanup tracce normali, keepit = ";
+if(istampa>1){ cout<<"\n\tPndSttMvdTracking, uscito da TrackCleanup, IVOLTE "
+	<<IVOLTE<<", Stt cand n. "<<ncand<<", keepit = ";
 	if(keepit[ncand]) cout<<" true!\n"; else  cout<<" false!\n";
 }
     }  // end of if(YesClean)
@@ -2506,6 +2518,7 @@ for(int ip=0;ip<nHitsSkew;ip++){
 
 
 
+	if(!MvdAloneTracking) goto dontdoit ;
 //	if( nRemainingCandidates >= MAXTRACKSPEREVENT ) goto dontdoit ;
 								// if there are already
 								// too many candidates
@@ -3519,7 +3532,7 @@ for (i=0;i<nMCTracks;i++){
 
 
 
-if(istampa>=1){cout<<"da PndSttMvdTracking, MC comparison; evt. "<<IVOLTE<<", nMCTracks "<<nMCTracks
+if(istampa>=2){cout<<"da PndSttMvdTracking, MC comparison; evt. "<<IVOLTE<<", nMCTracks "<<nMCTracks
 <<", n. MC tracce accettabili "<<nMCTracksaccettabili
 <<" e loro lista :\n";
 	for(int g=0; g<nMCTracksaccettabili;g++){
@@ -3530,7 +3543,7 @@ cout<<"Total track trovate "<<nTotalCandidates<<endl;
 
 //----------- fine conteggio delle tracce MC accettabili
 
-//  if(istampa>=1 )  fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE, nMCTracks);
+//  if(istampa>=2 )  fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE, nMCTracks);
   if(istampa>=1 ) {
 
    fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE,
@@ -11304,6 +11317,19 @@ int nevento=1;
 
 	for(i=0;i<*nPixelHitsinTrack;i++){
 
+//------------------
+if (istampa>=2){ double ccc = fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][0],S[i][0],&nrounds0));
+		cout<<"PndSttMvdTracking, in EliminateSpuriousSZ, Pixel n. "
+		<<ListPixelHitsinTrack[i]<<", sua dist. "<<ccc<<" (MvdCut = "
+		<<MvdCut<<"), abs(nrounds0) "<<abs(nrounds0)<<" (MaxTurnofTracks="
+		<<MaxTurnofTracks<<");\n";
+		cout<<"\tXhit "<<XMvdPixel[ListPixelHitsinTrack[i]]
+		<<", Yhit "<<YMvdPixel[ListPixelHitsinTrack[i]]
+		<<", Zhit "<<ZMvdPixel[ListPixelHitsinTrack[i]]
+		<<" (ZED[i][0]="<<ZED[i][0]<<")"
+		<<", S "<<S[i][0]<<endl;
+		}
+//--------
 		if( fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][0],S[i][0],&nrounds0)) < MvdCut
 						&&
 					abs(nrounds0)<=MaxTurnofTracks){
@@ -11319,6 +11345,17 @@ int nevento=1;
 	for(j=0;j<*nStripHitsinTrack;j++){
 		i=j+(*nPixelHitsinTrack);
 
+if (istampa>=2){ double ccc = fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][0],S[i][0],&nrounds0));
+		cout<<"PndSttMvdTracking, in EliminateSpuriousSZ, Strip n. "
+		<<ListStripHitsinTrack[j]<<", sua dist. "<<ccc<<" (MvdCut = "
+		<<MvdCut<<"), abs(nrounds0) "<<abs(nrounds0)<<" (MaxTurnofTracks="
+		<<MaxTurnofTracks<<").\n";
+		cout<<"\tXhit "<<XMvdStrip[ListStripHitsinTrack[j]]
+		<<", Yhit "<<YMvdStrip[ListStripHitsinTrack[j]]
+		<<", Zhit "<<ZMvdStrip[ListStripHitsinTrack[j]]
+		<<" (ZED[i][0]="<<ZED[i][0]<<")"
+		<<", S "<<S[i][0]<<endl;
+		}
 
 		if( fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][0],S[i][0],&nrounds0)) < MvdCut
 						&&
@@ -11979,7 +12016,7 @@ if(istampa>1)  cout<<"\talla fine sono selezionati "<<auxnSttSkew<<" skew hits, 
        calculateintersections(Ox,Oy,R,C0x1,C0y1,C0z1,info[i][3],
                               vx1,vy1,vz1,
                               &STATUS,POINTS1);
-if(IVOLTE==20) cout<<"\tprimo status = "<<STATUS<<endl;
+if(istampa>=3) cout<<"\tprimo status = "<<STATUS<<endl;
 
        if(STATUS < 0 ) continue ;
 
@@ -12016,7 +12053,7 @@ if(IVOLTE==20) cout<<"\tprimo status = "<<STATUS<<endl;
         Aellipsis1 = info[i][3]*aaa/LL;
 
         Bellipsis1 = info[i][3]/R;
-if(IVOLTE==20) cout<<"\tsubhit n. = "<< ii<<", distance = "<< distance<<", info[i][4]+Aellipsis1 "
+if(istampa>=3) cout<<"\tsubhit n. = "<< ii<<", distance = "<< distance<<", info[i][4]+Aellipsis1 "
 	<< info[i][4]+Aellipsis1<<endl;
 
         if( distance >= info[i][4]+Aellipsis1 ){
@@ -12044,7 +12081,7 @@ if(IVOLTE==20) cout<<"\tsubhit n. = "<< ii<<", distance = "<< distance<<", info[
 //        Double_t Sprime = atan2(POINTS1[j+1], POINTS1[j]) ;
 //        if( Sprime < 0.) Sprime += 2.*PI;
 
-if(IVOLTE==20) cout<<"\tS  = "<< S[NAssociated]  <<", Fi_low_limit  "<<Fi_low_limit
+if(istampa>=2) cout<<"\tS  = "<< S[NAssociated]  <<", Fi_low_limit  "<<Fi_low_limit
 <<", Fi_up_limit "<<Fi_up_limit<<endl;
 
         if(  S[NAssociated] < Fi_low_limit) {
@@ -12053,7 +12090,7 @@ if(IVOLTE==20) cout<<"\tS  = "<< S[NAssociated]  <<", Fi_low_limit  "<<Fi_low_li
 	   if(  S[NAssociated]- 2.*PI < Fi_low_limit)  continue;
         }
 
-if(IVOLTE==20) cout<<"\tquesto hit viene preso!\n";
+if(istampa>=2) cout<<"\tquesto hit viene preso!\n";
 
 
 //---------------------------   end check
