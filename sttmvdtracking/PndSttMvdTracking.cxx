@@ -57,7 +57,6 @@ PndSttMvdTracking::PndSttMvdTracking() : FairTask("STT Stt-Mvd Tracking") {
 // -------------------------------------------------------------------------
 
 PndSttMvdTracking::PndSttMvdTracking(Int_t verbose) : FairTask("STT Stt-Mvd Tracking") { 
-
   fPersistence = kTRUE;
   fVerbose = verbose;
   istampa = verbose;
@@ -69,7 +68,6 @@ PndSttMvdTracking::PndSttMvdTracking(Int_t verbose) : FairTask("STT Stt-Mvd Trac
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
-
 }
 // -------------------------------------------------------------------------
 
@@ -128,7 +126,7 @@ InitStatus PndSttMvdTracking::Init() {
 
 int N_INTENDED=0;
 
-if(istampa>=1 ){
+if(istampa >=1 ){
 //---- fetch the n. of tracks MC that were intended to be generated
 //   HANDLE = fopen("n_intended_tracks.txt","r");
 //   fscanf(HANDLE,"%d",&N_INTENDED);
@@ -149,7 +147,7 @@ if(istampa>=1 ){
    SHANDLEY = fopen("deltaSkewYmio.txt","w");
    SHANDLEZ = fopen("deltaSkewZmio.txt","w");
 
-}  //  end of if(istampa>=1)
+}  //  end of if(istampa >=1)
 
 
 // -------------------------
@@ -509,7 +507,7 @@ if(istampa>1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<endl;}
 
 //----------   fetching the MC truth tracks
 	nMCTracks = fMCTrackArray->GetEntriesFast(); // num. tracce/evento
-	if (istampa> 1  && IVOLTE<20) {
+	if (istampa > 1  && IVOLTE<20) {
 	     cout<<"da PndSttMvdTracking  : evento (partendo da 0)  N. "<<
 	       IVOLTE<< "\n       N. di MC truth tracks  : "<<nMCTracks<<endl;
 	}
@@ -542,21 +540,13 @@ if(istampa>1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<", n. MC Track
 			if (icode>1000000000) carica = 1.;
 			else  carica = fParticle->Charge()/3. ;    //   charge of track
 
-			double Cx = pMC->GetStartVertex().X() + Pyy*1000./(BFIELD*CVEL*carica);
-			double Cy = pMC->GetStartVertex().Y() - Pxx*1000./(BFIELD*CVEL*carica);
-			double kappa = aaa/(pMC->GetMomentum().Z()*Rr);
-			double fizero = atan2(-Cy+pMC->GetStartVertex().Y(),
-					-Cx+pMC->GetStartVertex().X());
-			if(fizero<0.) fizero += 2.*PI;
 			cout<<"\tTraccia n. "<<ic<<", Px "<<pMC->GetMomentum().X()
 			<<", Py "<<pMC->GetMomentum().Y()
 			<<", Pz "<<pMC->GetMomentum().Z()
 			<<", carica = "<<carica
-			<<", Xvert "<<pMC->GetStartVertex().X()
+			<<"\n\t\tXvert "<<pMC->GetStartVertex().X()
 			<<", Yvert "<<pMC->GetStartVertex().Y()
-			<<"\n\tZvert "<<pMC->GetStartVertex().Z()
-			<<", R "<<Rr<<", Ox "<<  Cx<<", Oy "<<Cy<<", KAPPA "<<kappa
-			<<", FI0 "<<fizero<<endl;
+			<<", Zvert "<<pMC->GetStartVertex().Z()<<endl;
 		}
 }
 //-------fine stampe.
@@ -604,7 +594,7 @@ if(istampa>1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<", n. MC Track
 	nSttHit= nmaxSttHits;
  }
 
- if (istampa> 1  && IVOLTE<20) {
+ if (istampa > 1  && IVOLTE<20) {
      cout<<"da PndSttMvdTracking  : evento (partendo da 0)  N. "<<
        IVOLTE<< "\n\tN. totale Hits in STT  : "<<nSttHit<<endl;
  }
@@ -728,7 +718,7 @@ if(istampa>1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<", n. MC Track
 
 
 //--------------- inizio stampaggi,  stampe di controllo
-  if (istampa>= 2) {
+  if (istampa >= 2) {
       cout <<"da PndSttMvdTracking, Stt iHit "<< i << " e n. punto MC ottenuto con RefIndex = "
       	<<ipunto<<endl;
       if(ipunto<0) {
@@ -752,7 +742,7 @@ if(istampa>1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<", n. MC Track
       << WDX[i]<<"  "<<WDY[i]<<"  "<<WDZ[i] <<endl
            <<"             this hit belongs to MC track n. "<<puntator->GetTrackID()<<endl;
       }
-  }  //  end of   if(istampa>= 
+  }  //  end of   if(istampa >= 
 
 //--------  fine stampaggi
 
@@ -828,11 +818,11 @@ if(istampa>1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<", n. MC Track
 // ------------------------------------ fine di estraggo gli HITS Strip MVD
 
 //------------------------------------------ stampaggi  hits MVD
-if(istampa>=2  && IVOLTE<20){
+if(istampa>2  && IVOLTE<20){
   cout<<"da PndSttMvdTraking  :  n. Mvd Pixel Hits = "<<nMvdPixelHit<<endl;
   cout<<"da PndSttMvdTracking  :  n. Mvd Strip Hits = "<<nMvdStripHit<<endl;
 }
-if(istampa>=2  && IVOLTE<20){
+if(istampa>2  && IVOLTE<20){
   cout<<"da PndSttMvdTracking  :  info hits di Mvd pixels ------------------\n";
   for(i= 0; i< nMvdPixelHit; i++){
       cout<<"      Pixel hit n. "<<i<<" Info : X  = "<<XMvdPixel[i]<<";  Y  = "<<YMvdPixel[i]<<
@@ -1148,6 +1138,7 @@ if(istampa>=2  && IVOLTE<20){
 	if( Fifirst[i] < 0. )  Fifirst[i]+= 2.*PI;if( Fifirst[i] < 0. )  Fifirst[i]=0.;
 
 
+
  }            //   end of   for(  i= 0; i< nSttTrackCand; i++)
 
 //---------------  end fetching of the Stt PndTrackCand from PR of the STT
@@ -1354,8 +1345,7 @@ if(iplotta){
 
 
 //---------------------   here call to the function that matches Mvd hits with Stt tracks
-   delta=1.; //  parameter of proximity for associating Mvd hits to Stt tracks
-//   delta=0.5; //  parameter of proximity for associating Mvd hits to Stt tracks
+   delta=0.5; //  parameter of proximity for associating Mvd hits to Stt tracks
    highqualitycut=0.2; //  parameter of proximity for associating Mvd hits to Stt tracks
 
 
@@ -1403,8 +1393,8 @@ if(iplotta){
 
 
 
-if(istampa>=2){
-           cout<<"IVOLTE "<<IVOLTE<<",  da PndSttMvdTracking ;  n. SttTrackCand totali = "<<nSttTrackCand
+if(istampa>=2&& IVOLTE<20){
+           cout<<"da PndSttMvdTracking ;  n. SttTrackCand totali = "<<nSttTrackCand
 	       <<"--------------------------------------\n";
       for(  i= 0; i< nSttTrackCand; i++){
       	if(!keepit[i]) continue;
@@ -1487,23 +1477,14 @@ if(istampa>=2){
 			}
 
 			//  ordering the Mvd Hits
-		// for small radius trajectory better the ordering with conformal.
-			if( R[ncand]< RStrawDetectorMax/2.){
-				OrderingUsingConformal(
-				   Ox[ncand],
-				   Oy[ncand],
-				   nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand],
-				   XY, // XY[*][0] = X position, XY[*][1] = Y position.
-				   CHARGE[ncand],  // input
-				   ListHits  // output
+			OrderingUsingConformal(
+			   Ox[ncand],
+			   Oy[ncand],
+			   nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand],
+			   XY, // XY[*][0] = X position, XY[*][0] = Y position.
+			   CHARGE[ncand],  // input
+			   ListHits  // output
 						);
-			} else { // otherwise it is better distance from (0,0) method.
-				OrderingUsingR(
-				   nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand],
-				   XY, // XY[*][0] = X position, XY[*][1] = Y position.
-				   ListHits  // output
-						);
-			}
 			//  constructing the ordered new Track  Candidate now
 			for(i=0; i< nMvdPixelHitsinTrack[ncand]+
 					nMvdStripHitsinTrack[ncand]; i++){
@@ -1533,7 +1514,7 @@ if(istampa>=2){
 if(istampa>=2) for(int ica=0; ica<nMvdPixelHitsinTrack[ncand]+
 	nMvdStripHitsinTrack[ncand]+
 	nSttHitsinTrack[ncand]; ica++){
-	cout<<"from PndSttMvdTracking, effect of ORDERING,  trackcand n. "
+	cout<<"from PndSttMvdTracking, trackcand n. "
 	<<ncand<<", hit n. "<<ListTrackCandHit[ncand][ica]<<", hit type "
 	<<ListTrackCandHitType[ncand][ica]<<endl;
 }
@@ -1632,8 +1613,8 @@ if(istampa>=2) for(int ica=0; ica<nMvdPixelHitsinTrack[ncand]+
 
 		RefitMvdStt(
 			nTrackCandHit[ncand], //this is  input
-			&ListTrackCandHit[ncand][0],//this is nput
-			&ListTrackCandHitType[ncand][0],//this is input.
+			&ListTrackCandHit[ncand][0],//this is both input and output
+			&ListTrackCandHitType[ncand][0],//this is both input and output
 			info,
 			rotationangle,
 			trajectory_vertex,
@@ -1653,18 +1634,6 @@ if(istampa>=2) for(int ica=0; ica<nMvdPixelHitsinTrack[ncand]+
 			else  R[ncand]=0.;
 			FI0[ncand] = atan2(-Oy[ncand], -Ox[ncand]);
 			if( FI0[ncand] < 0. )  FI0[ncand]+= 2.*PI;
-
-			// the charge sign may have change, recalculate it.
-			FindCharge(
-				Ox[ncand],
-				Oy[ncand],
-				info,
-				nTrackCandHit[ncand], // input
-				&ListTrackCandHit[ncand][0], //input
-				&ListTrackCandHitType[ncand][0], //input
-				&CHARGE[ncand] // output
-				);
-
 		}
 
 		if(R[ncand]<RStrawDetectorMin/2.) {
@@ -1672,11 +1641,9 @@ if(istampa>=2) for(int ica=0; ica<nMvdPixelHitsinTrack[ncand]+
 			continue;
 		}
 
-//---------------stampe.
 if(istampa>=2) {
 cout<<"PndSttMvdTracking, prima di MatchMvdHitsToSttTracksagain, IVOLTE = "<<
-IVOLTE<<", ncand "<<ncand<<", FI0 "<<FI0[ncand]<<", R "<<R[ncand]
-<<", Ox "<< Ox[ncand]<<", Oy "<< Oy[ncand]<<", charge "<<CHARGE[ncand]<<endl;
+IVOLTE<<", ncand "<<ncand<<", FI0 "<<FI0[ncand]<<endl;
 for(int iiii=0;iiii<nMvdPixelHitsinTrack[ncand];iiii++)
 {
 	cout<<"\tpixel hit n. "<<
@@ -1687,18 +1654,7 @@ for(int iiii=0;iiii<nMvdStripHitsinTrack[ncand];iiii++)
 	cout<<"\tStrip hit n. "<<
 	ListMvdStripHitsinTrack[ncand][iiii]<<endl;
 }
-for(int iiii=0;iiii<nSttParHitsinTrack[ncand];iiii++)
-{
-	cout<<"\t|| Stt hit n. "<<ListSttParHitsinTrack[ncand][iiii]
-	<<endl;
 }
-for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
-{
-	cout<<"\tSkew Stt hit n. "<<ListSttSkewHitsinTrack[ncand][iiii]
-	<<endl;
-}
-}
-//-------------------fine stampe.
 
 	//   finding the FI angular range (in the laboratory frame) spanned by this parallel track
 	//   taking into account the Rmax and Rmin of the straw detector and under the
@@ -1760,35 +1716,6 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 			ListMvdStripHitsinTrack // input and output
 			);
 
-//---------------stampe.
-if(istampa>=2) {
-  for(ncand=0; ncand< nTotalCandidates; ncand++)
-  {
-cout<<"PndSttMvdTracking, dopo di MatchMvdHitsToSttTracksagain, IVOLTE = "<<
-IVOLTE<<", ncand "<<ncand<<", FI0 "<<FI0[ncand]<<", R "<<R[ncand]<<endl;
-for(int iiii=0;iiii<nMvdPixelHitsinTrack[ncand];iiii++)
-{
-	cout<<"\tpixel hit n. "<<
-	ListMvdPixelHitsinTrack[ncand][iiii]<<endl;
-}
-for(int iiii=0;iiii<nMvdStripHitsinTrack[ncand];iiii++)
-{
-	cout<<"\tStrip hit n. "<<
-	ListMvdStripHitsinTrack[ncand][iiii]<<endl;
-}
-for(int iiii=0;iiii<nSttParHitsinTrack[ncand];iiii++)
-{
-	cout<<"\t|| Stt hit n. "<<ListSttParHitsinTrack[ncand][iiii]
-	<<endl;
-}
-	for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
-	{
-	cout<<"\tSkew Stt hit n. "<<ListSttSkewHitsinTrack[ncand][iiii]
-	<<endl;
-	}
-}
-}
-//-------------------fine stampe.
 
 //---------------------   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1832,30 +1759,20 @@ if(istampa>=2) {
 cout<<"PndSttMvdTracking, dopo di AssociateSkewHitsToXYTrack, IVOLTE = "<<
 IVOLTE<<", ncand "<<ncand<<", FI0 = "<< FI0[ncand] 
 	<<", Ox = "<< Ox[ncand]<< ", Oy = "<<Oy[ncand] <<", R = "<<R[ncand]<<endl;
-
-cout<<"\tn. MvdPixelHitsinTrack = "<<nMvdPixelHitsinTrack[ncand]<<endl;
 for(int iiii=0;iiii<nMvdPixelHitsinTrack[ncand];iiii++)
 {
 	cout<<"\tpixel hit n. "<<
 	ListMvdPixelHitsinTrack[ncand][iiii]<<endl;
 }
-cout<<"\tn. MvdStrip HitsinTrack = "<<nMvdStripHitsinTrack[ncand]<<endl;
 for(int iiii=0;iiii<nMvdStripHitsinTrack[ncand];iiii++)
 {
 	cout<<"\tStrip hit n. "<<
 	ListMvdStripHitsinTrack[ncand][iiii]<<endl;
 }
-cout<<"\tn. Skew STT  HitsinTrack = "<<nSttSkewHitsinTrack[ncand]<<endl;
 for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 {
 	cout<<"\tSkew straw hit n. "<<
 	ListSttSkewHitsinTrack[ncand][iiii]<<endl;
-}
-cout<<"\tn. || STT  HitsinTrack = "<<nSttParHitsinTrack[ncand]<<endl;
-for(int iiii=0;iiii<nSttParHitsinTrack[ncand];iiii++)
-{
-	cout<<"\t|| straw hit n. "<<
-	ListSttParHitsinTrack[ncand][iiii]<<endl;
 }
 }
   }	// end of for(ncand=0; ncand< nTotalCandidates; ncand++)
@@ -2051,9 +1968,6 @@ for(int iiii=0;iiii<nSttParHitsinTrack[ncand];iiii++)
 	if(Mvdhits[ncand]){	//	in this case there is at least 1 Mvd hits associated to Stt track.
 
 
-
-		j += nSttSkewHitsinTrack[ncand];
-/*
 		if( j ==1){
 			nSttSkewHitsinTrack[ncand]<5 ? j += nSttSkewHitsinTrack[ncand] :   j += 5; 
 		} else if (j==2){
@@ -2068,10 +1982,8 @@ for(int iiii=0;iiii<nSttParHitsinTrack[ncand];iiii++)
 				}
 			}
 
-		} else {
-			j += nSttSkewHitsinTrack[ncand];
 		}
-*/
+
 
 
 		FixDiscontinuitiesFiangleinSZplane(
@@ -2084,19 +1996,8 @@ for(int iiii=0;iiii<nSttParHitsinTrack[ncand];iiii++)
 //---------------------   here do the fit again in the SZ space if there are Mvd hits.
 //			   For this, reordering of the  Mvd hits is not necessary.
 
-
-//-------stampa
-if(istampa>=2){ cout<<"\nPndSttMvdTracking, Before FitSZspace, cand n. "<<ncand<<
+if(istampa>=2) cout<<"\nPndSttMvdTracking, Before FitSZspace, cand n. "<<ncand<<
 	", KAPPA "<<KAPPA[ncand]<<endl;
-	cout<<"\tn. points input to SZ fit = "<<j<<" and their list :\n";
-	for(int ic=0;ic<j;ic++){
-		if (ErrorDriftRadius[ic] <0.015)
-		 cout<<"\t\tMvd Pixel or Strip, Z = "<<ZED[ic]<<", fi = "<<S[ic]<<endl;
-		else
-		 cout<<"\t\tSTT Skew = "<<ZED[ic]<<", fi = "<<S[ic]<<endl;
-	}
-}
-//--------------fine stampa
 
 		resultFitSZagain[ncand] = FitSZspace(
 					j,	// n. hits to be fitted
@@ -2312,7 +2213,7 @@ if(istampa>=2){
 //---  redo association of parallel Stt  straw  hits to this track, after better refit.
 
 //---------inizio stampe.
-if(istampa>=2){
+if(istampa>=2&& IVOLTE<20){
            cout<<"da PndSttMvdTracking, prima di CollectParSttHitsagain ;  n. SttTrackCand totali = "<<nSttTrackCand
 	       <<"--------------------------------------\n";
       for(  i= 0; i< nSttTrackCand; i++){
@@ -2405,7 +2306,7 @@ if(istampa>=2){
 		auxS[i] = SchosenSkew[ncand][ListSttSkewHitsinTrack[ncand][i]];
 	}
 //-----------------------------------stampaggi
-if(istampa>=2){
+if(istampa>=2&&IVOLTE<20){
 //cout<<"\n------------------------------------------------\n";
 cout<<"\n------------------------------------------------\n"
 <<"\tIVOLTE = "<<IVOLTE<<", cand n. "<<ncand<<", prima di TrackCleanup, tracce da Stt.\n";
@@ -2441,7 +2342,7 @@ for(int ip=0;ip<nHitsSkew;ip++){
 
 
     if(YesClean){
-if(istampa>1) cout<<"\nPndSttMvdTracking, entra in TrackCleanup tracce normali, IVOLTE "<<IVOLTE
+if(istampa>1) cout<<"PndSttMvdTracking, entra in TrackCleanup tracce normali, IVOLTE "<<IVOLTE
 	<<" e track cand. "<<ncand<<endl;
 	if ( !TrackCleanup(
 			gap,
@@ -2467,8 +2368,7 @@ if(istampa>1) cout<<"\nPndSttMvdTracking, entra in TrackCleanup tracce normali, 
 				) ) {
 		keepit[ncand]=false;
 	}
-if(istampa>1){ cout<<"\n\tPndSttMvdTracking, uscito da TrackCleanup, IVOLTE "
-	<<IVOLTE<<", Stt cand n. "<<ncand<<", keepit = ";
+if(istampa>1){ cout<<"\tPndSttMvdTracking, uscito da TrackCleanup tracce normali, keepit = ";
 	if(keepit[ncand]) cout<<" true!\n"; else  cout<<" false!\n";
 }
     }  // end of if(YesClean)
@@ -2515,7 +2415,6 @@ for(int ip=0;ip<nHitsSkew;ip++){
 //---------------------------------------------------------------------------------------
 //   this section collects more tracks starting from the remaining Mvd hits
 //   not associated to any Stt track.
-
 
 
 	if(!MvdAloneTracking) goto dontdoit ;
@@ -3532,7 +3431,7 @@ for (i=0;i<nMCTracks;i++){
 
 
 
-if(istampa>=2){cout<<"da PndSttMvdTracking, MC comparison; evt. "<<IVOLTE<<", nMCTracks "<<nMCTracks
+if(istampa>=1){cout<<"da PndSttMvdTracking, MC comparison; evt. "<<IVOLTE<<", nMCTracks "<<nMCTracks
 <<", n. MC tracce accettabili "<<nMCTracksaccettabili
 <<" e loro lista :\n";
 	for(int g=0; g<nMCTracksaccettabili;g++){
@@ -3543,7 +3442,7 @@ cout<<"Total track trovate "<<nTotalCandidates<<endl;
 
 //----------- fine conteggio delle tracce MC accettabili
 
-//  if(istampa>=2 )  fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE, nMCTracks);
+//  if(istampa>=1 )  fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE, nMCTracks);
   if(istampa>=1 ) {
 
    fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE,
@@ -3551,7 +3450,6 @@ cout<<"Total track trovate "<<nTotalCandidates<<endl;
 	int ibene=0;
 	if(nMCTracksaccettabili>0){
 		for(int ii=0; ii<nTotalCandidates;ii++){
-			if(!keepit[ii]) continue;
 			for(i=0;i<nMCTracksaccettabili;i++){
 				if( daTrackFoundaTrackMC[ii]==ListaMCTracksaccettabili[i]){
 					ibene++;
@@ -3559,7 +3457,7 @@ cout<<"Total track trovate "<<nTotalCandidates<<endl;
 			}
 		}
 	}
-	fprintf(HANDLE,"\tn. volte almeno 1 traccia MC accettabile e' ricostruita %d\n"
+	if(ibene>0) fprintf(HANDLE,"\tn. volte almeno 1 traccia MC accettabile e' ricostruita %d\n"
 		,ibene);
 
 int ii, ibuone=-1;
@@ -10231,17 +10129,13 @@ pippo: ;
 					 (Ox[i]-XMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]])
 					+(Oy[i]-YMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]])*
 					 (Oy[i]-YMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]])) -R[i]);
-
-
-
-						Dist += dist;
 						if(dist<delta)
 						{
 						     List[ngoodmix][nn[ngoodmix]]=
 							ListHitMvdTrackCand[imvdcand][jmvdhit];
 						     ListType[ngoodmix][nn[ngoodmix]]=
 				FairRootManager::Instance()->GetBranchId(fMvdPixelBranch);
-//						     Dist += dist;
+						     Dist += dist;
 						     if( dist<highqualitycut) nHighQuality[ngoodmix]++;
 						     nn[ngoodmix]++;
 						}
@@ -10270,14 +10164,13 @@ pippo: ;
 					 (Ox[i]-XMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]])
 					+(Oy[i]-YMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]])*
 					 (Oy[i]-YMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]])) -R[i]);
-						Dist += dist;
 						if(dist<delta)
 						{
 						   List[ngoodmix][nn[ngoodmix]]=
 							ListHitMvdTrackCand[imvdcand][jmvdhit];
 						   ListType[ngoodmix][nn[ngoodmix]]=
 				FairRootManager::Instance()->GetBranchId(fMvdStripBranch);
-//						   Dist += dist;
+						   Dist += dist;
 						   if( dist<highqualitycut) nHighQuality[ngoodmix]++;
 
 						   nn[ngoodmix]++;
@@ -10289,13 +10182,12 @@ pippo: ;
 
 
 			if( nn[ngoodmix]>0) {
-				DIST[ngoodmix]=Dist/nHitMvdTrackCand[imvdcand];
-//				DIST[ngoodmix]=Dist/nn[ngoodmix];
+				DIST[ngoodmix]=Dist/nn[ngoodmix];
 				ngoodmix++;
 
 
 //--------- stampaggi
-if(istampa>=3){cout<<"\tquesto Mvd candidato (n. ngoodmix = "<<ngoodmix-1<<
+if(istampa>=3 && IVOLTE<20 ){cout<<"\tquesto Mvd candidato (n. ngoodmix = "<<ngoodmix-1<<
 	") passa con i seguenti hits :"<<endl;
 
 	for(int icc=0; icc<nn[ngoodmix-1]; icc++){
@@ -10314,7 +10206,7 @@ if(istampa>=3){cout<<"\tquesto Mvd candidato (n. ngoodmix = "<<ngoodmix-1<<
 
 
 
-			}  // end of   if( nn[ngoodmix]>0)
+			}
 		}	// end of for( imvdcand=0;imvdcand<nMvdTrackCand;imvdcand++)
 
 
@@ -10401,7 +10293,7 @@ if(istampa>=3){cout<<"\tquesto Mvd candidato (n. ngoodmix = "<<ngoodmix-1<<
 				DIST[ngoodmix] /= nn[ngoodmix];
 				ngoodmix++;
 //--------- stampaggi
-if(istampa>=3){cout<<"\tevento n. "<<IVOLTE<<" questi Mvd ALONE DS hits passano  :\n"<<endl;
+if(istampa>2 && IVOLTE<20 ){cout<<"\tevento n. "<<IVOLTE<<" questi Mvd ALONE DS hits passano  :\n"<<endl;
 
 	for(int icc=0; icc<nn[ngoodmix-1]; icc++){
 		if(ListType[ngoodmix-1][icc]==FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) {
@@ -10505,7 +10397,7 @@ if(istampa>=3){cout<<"\tevento n. "<<IVOLTE<<" questi Mvd ALONE DS hits passano 
 				DIST[ngoodmix] /= nn[ngoodmix];
 				ngoodmix++;
 //--------- stampaggi
-if(istampa>=3){cout<<"\tevento n. "<<IVOLTE<<" questi Mvd ALONE US hits passano  :\n"<<endl;
+if(istampa>=3 && IVOLTE<20 ){cout<<"\tevento n. "<<IVOLTE<<" questi Mvd ALONE US hits passano  :\n"<<endl;
 	if( ngoodmix>0) {
 	for(int icc=0; icc<nn[ngoodmix-1]; icc++){
 		if(ListType[ngoodmix-1][icc]==FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) {
@@ -10529,8 +10421,8 @@ if(istampa>=3){cout<<"\tevento n. "<<IVOLTE<<" questi Mvd ALONE US hits passano 
 //-------  end of using the Mvd which are in no Mvd Track Candidate
 
 
-if(istampa>=3){cout<<"da PndSttMvdTracking : appena prima arbitration, IVOLTE = "<<
-IVOLTE<<", STT cand.tracks  = "<<i<<", ngoodmix = "<<ngoodmix<<endl;}
+if(istampa>=3 ){cout<<"da PndSttMvdTracking : appena prima arbitration, IVOLTE = "<<
+IVOLTE<<", Stt track cand = "<<i<<", ngoodmix = "<<ngoodmix<<endl;}
 
 		if( ngoodmix==1){
 			chosenmix=0;
@@ -10541,14 +10433,13 @@ IVOLTE<<", STT cand.tracks  = "<<i<<", ngoodmix = "<<ngoodmix<<endl;}
 			oldtotal2 = DIST[0];
 			oldN = nHighQuality[0];
 //			oldtotal /= nTotali[0];
-if(istampa>=3){cout<<"da PndSttMvdTracking : goodmix n. 0, total distance (che e' = total distance2) = "<<oldtotal
+if(istampa>=3 ){cout<<"da PndSttMvdTracking : goodmix n. 0, total distance (che e' = total distance2) = "<<oldtotal
 				<<", e nHighQuality = "<<nHighQuality[0]<<endl;}
 			chosenmix=0;
 			chosenmix2=0;
 			for(j1=1; j1<ngoodmix;j1++){
 				total = DIST[j1];
-if(istampa>=3){cout<<"da PndSttMvdTracking :\t goodmix n. "
-			<<j1<<", total distance "<<total
+if(istampa>=3 ){cout<<"da PndSttMvdTracking :\t goodmix n. "<<j1<<", total distance "<<total
 					<<", e nHighQuality = "<<nHighQuality[j1]<<endl;}
 				if(oldN<nHighQuality[j1]){
 					oldN=nHighQuality[j1];
@@ -10566,6 +10457,8 @@ if(istampa>=3){cout<<"da PndSttMvdTracking :\t goodmix n. "
 			}
 		}	// end of  if( ngoodmix==1)
 //--- end of arbitration
+if(istampa>=3 ){cout<<"da PndSttMvdTracking : fine arbitration, IVOLTE = "<<
+IVOLTE<<", Stt track cand = "<<i<<endl;}
 
 
 
@@ -10591,8 +10484,6 @@ if(istampa>=3){cout<<"da PndSttMvdTracking :\t goodmix n. "
 		}
 	}	// end of if( ngoodmix>0)
 
-if(istampa>=3){cout<<"da PndSttMvdTracking : fine arbitration, IVOLTE = "<<
-IVOLTE<<", Stt track cand = "<<i<<", candidato STT-Mvd scelto = "<< chosenmix  <<endl;}
 
 	}	// end of for(i=0; i<nSttTrackCand; i++)
 
@@ -10871,7 +10762,7 @@ UShort_t ListParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack] // input/outp
 		Zpos;
 
 //	const Double_t NTIMES=0.4;
-	const Double_t NTIMES=2.;
+	const Double_t NTIMES=1.;
 
 
 	for(itrack=StartTrackCand; itrack<EndTrackCand; itrack++){
@@ -10924,9 +10815,6 @@ UShort_t ListParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack] // input/outp
 					     ) - R[itrack]
 				);
 			dist = fabs( dist1 - info[ihit][3] );
-if(istampa>=2) {cout<<"da CollectParSttHitsagain, IVOLTE "<<IVOLTE<<", track n. "<<
-		itrack<<", hit || n. "<<ihit<<", dist = "<<dist<<", e NTIMES*STRAWRADIUS="<<
-		NTIMES*STRAWRADIUS<<endl;}
 			if(dist<NTIMES*STRAWRADIUS){
 				ListParHitsinTrack[itrack][ nParHitsinTrack[itrack] ]
 					=ihit;
@@ -11317,19 +11205,6 @@ int nevento=1;
 
 	for(i=0;i<*nPixelHitsinTrack;i++){
 
-//------------------
-if (istampa>=2){ double ccc = fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][0],S[i][0],&nrounds0));
-		cout<<"PndSttMvdTracking, in EliminateSpuriousSZ, Pixel n. "
-		<<ListPixelHitsinTrack[i]<<", sua dist. "<<ccc<<" (MvdCut = "
-		<<MvdCut<<"), abs(nrounds0) "<<abs(nrounds0)<<" (MaxTurnofTracks="
-		<<MaxTurnofTracks<<");\n";
-		cout<<"\tXhit "<<XMvdPixel[ListPixelHitsinTrack[i]]
-		<<", Yhit "<<YMvdPixel[ListPixelHitsinTrack[i]]
-		<<", Zhit "<<ZMvdPixel[ListPixelHitsinTrack[i]]
-		<<" (ZED[i][0]="<<ZED[i][0]<<")"
-		<<", S "<<S[i][0]<<endl;
-		}
-//--------
 		if( fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][0],S[i][0],&nrounds0)) < MvdCut
 						&&
 					abs(nrounds0)<=MaxTurnofTracks){
@@ -11345,17 +11220,6 @@ if (istampa>=2){ double ccc = fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][0],S[i][0],&nround
 	for(j=0;j<*nStripHitsinTrack;j++){
 		i=j+(*nPixelHitsinTrack);
 
-if (istampa>=2){ double ccc = fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][0],S[i][0],&nrounds0));
-		cout<<"PndSttMvdTracking, in EliminateSpuriousSZ, Strip n. "
-		<<ListStripHitsinTrack[j]<<", sua dist. "<<ccc<<" (MvdCut = "
-		<<MvdCut<<"), abs(nrounds0) "<<abs(nrounds0)<<" (MaxTurnofTracks="
-		<<MaxTurnofTracks<<").\n";
-		cout<<"\tXhit "<<XMvdStrip[ListStripHitsinTrack[j]]
-		<<", Yhit "<<YMvdStrip[ListStripHitsinTrack[j]]
-		<<", Zhit "<<ZMvdStrip[ListStripHitsinTrack[j]]
-		<<" (ZED[i][0]="<<ZED[i][0]<<")"
-		<<", S "<<S[i][0]<<endl;
-		}
 
 		if( fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][0],S[i][0],&nrounds0)) < MvdCut
 						&&
@@ -11437,8 +11301,7 @@ if(istampa>1){
 
 			dista =
 		fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][0]+DriftRadius[i][0],S[i][0],&nrounds0));
-			ddd =
-		fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][0]-DriftRadius[i][0],S[i][0],&nr2));
+			ddd = fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][0]-DriftRadius[i][0],S[i][0],&nr2));
 			if( abs(nrounds0) > MaxTurnofTracks &&
 				 abs(nr2)>MaxTurnofTracks)
 			{
@@ -11478,8 +11341,7 @@ if(istampa>1){
 
 			dista =
 		fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][1]+DriftRadius[i][1],S[i][1],&nrounds1));
-			ddd =
-		fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][1]-DriftRadius[i][1],S[i][1],&nr2));
+			ddd = fabs(Dist_SZ(R,KAPPA,FI0,ZED[i][1]-DriftRadius[i][1],S[i][1],&nr2));
 
 
 			if( abs(nrounds1) > MaxTurnofTracks &&
@@ -11525,8 +11387,8 @@ if(istampa>1){
 //-----------------stampe.
 if(istampa>1){
 	cout<<"in EliminateSpuriousSZ : insomma, dista prima della selezione = "<<
-	dista<< ", ed e' da comparare\n\tcon 4*error = "<<  4.*error<<
-	"\toppure con 8.*minimumSttDriftError = "<<8.*minimumSttDriftError<<endl;
+	dista<< ", ed e' da comparare\n\tcon 4*error = "<<  4.*error<<endl<<
+	"\toppure con 2.*minimumSttDriftError = "<<2.*minimumSttDriftError<<endl;
 }
 //--------------fine stampe.
 
@@ -11534,23 +11396,16 @@ if(istampa>1){
 			dista < 4.*error
 //			dista < 1.1*error
 				||
-			dista < 8.*minimumSttDriftError
+			dista < 2.*minimumSttDriftError
 			){
 			auxListSttSkew[auxnSttSkew]=ListSkewHitsinTrack[j];
 			ErrorchosenSkew[ListSkewHitsinTrack[j]]=error;
 			auxnSttSkew++;
-if(istampa>1)  cout<<"\t\tHit preso!!\n";
-		} else {
-if(istampa>1)  cout<<"\t\tHit scartato!!\n";
 		}
-
-
-
 	}	// end of  for(j=0;j<*nSkewHitsinTrack;j++)
 
 
-if(istampa>1)  cout<<"\talla fine sono selezionati "<<auxnSttSkew<<" skew hits, erano "
-		<<*nSkewHitsinTrack<<"  !!\n";
+
 
 //	reload the list of good hits
 
@@ -11587,8 +11442,9 @@ if(istampa>1)  cout<<"\talla fine sono selezionati "<<auxnSttSkew<<" skew hits, 
 					)
 {
 
-//	This method returns the distance of the point (ZED, R*S) from the closest
-//	straight line defined by  R*fi =  R*KAPPA*Z + R*FI0.
+//	Defining :	ZZ = (S-FI0)/KAPPA
+//	this method returns the distance (WITH ITS SIGN ) :  ZZ - ZED.  Therefore this number
+//	can be negative.
 //	Care is taken to calculate this distance properly taking into
 //	account that we are dealing with the function  FI = mod(KAPPA*Z + FI0, 2*3.14). 
 
@@ -11878,6 +11734,7 @@ if(istampa>1)  cout<<"\talla fine sono selezionati "<<auxnSttSkew<<" skew hits, 
 		if(cosFi<-1.) cosFi=-1.; else if(cosFi>1.) cosFi=1.;
 		Fi = acos(cosFi);
 	}
+
 	if( intersection_inner ){
 		cosfi = (a*a + R*R - Rmi*Rmi)/(2.*R*a);
 		if(cosfi<-1.) cosfi=-1.; else if(cosfi>1.) cosfi=1.;
@@ -11966,6 +11823,8 @@ if(istampa>1)  cout<<"\talla fine sono selezionati "<<auxnSttSkew<<" skew hits, 
                    Double_t Fi_low_limit,
                    Double_t Fi_up_limit,
                    Short_t  Charge,
+//                   Double_t Fi_initial_helix_referenceframe,
+//                   Double_t Fi_final_helix_referenceframe,
                    UShort_t SkewList[nmaxSttHits][2], // output,  list of selected skew hits (in skew numbering)
                    Double_t *S,       //  output,  S coordinate of selected Skew hit
                    Double_t *Z,       //  output,  Z coordinate of selected Skew hit
@@ -12016,7 +11875,6 @@ if(istampa>1)  cout<<"\talla fine sono selezionati "<<auxnSttSkew<<" skew hits, 
        calculateintersections(Ox,Oy,R,C0x1,C0y1,C0z1,info[i][3],
                               vx1,vy1,vz1,
                               &STATUS,POINTS1);
-if(istampa>=3) cout<<"\tprimo status = "<<STATUS<<endl;
 
        if(STATUS < 0 ) continue ;
 
@@ -12053,8 +11911,6 @@ if(istampa>=3) cout<<"\tprimo status = "<<STATUS<<endl;
         Aellipsis1 = info[i][3]*aaa/LL;
 
         Bellipsis1 = info[i][3]/R;
-if(istampa>=3) cout<<"\tsubhit n. = "<< ii<<", distance = "<< distance<<", info[i][4]+Aellipsis1 "
-	<< info[i][4]+Aellipsis1<<endl;
 
         if( distance >= info[i][4]+Aellipsis1 ){
 		 continue;
@@ -12081,8 +11937,6 @@ if(istampa>=3) cout<<"\tsubhit n. = "<< ii<<", distance = "<< distance<<", info[
 //        Double_t Sprime = atan2(POINTS1[j+1], POINTS1[j]) ;
 //        if( Sprime < 0.) Sprime += 2.*PI;
 
-if(istampa>=2) cout<<"\tS  = "<< S[NAssociated]  <<", Fi_low_limit  "<<Fi_low_limit
-<<", Fi_up_limit "<<Fi_up_limit<<endl;
 
         if(  S[NAssociated] < Fi_low_limit) {
            if(  S[NAssociated]+2.*PI > Fi_up_limit)  continue;
@@ -12090,7 +11944,6 @@ if(istampa>=2) cout<<"\tS  = "<< S[NAssociated]  <<", Fi_low_limit  "<<Fi_low_li
 	   if(  S[NAssociated]- 2.*PI < Fi_low_limit)  continue;
         }
 
-if(istampa>=2) cout<<"\tquesto hit viene preso!\n";
 
 
 //---------------------------   end check
@@ -12138,95 +11991,6 @@ if(istampa>=2) cout<<"\tquesto hit viene preso!\n";
  }
 
 //----------end of function PndSttMvdTracking::AssociateSkewHitsToXYTrack
-
-
-
-
-
-
-
-
-
-//----------begin of function PndSttMvdTracking::FindCharge
-
-	void   PndSttMvdTracking::FindCharge(
-		Double_t oX,
-		Double_t oY,
-		Double_t info[][7],
-		UShort_t nhits,
-		UShort_t *listhits,
-		Short_t *hittype,
-		Short_t  * Charge
-				)
-{
-
-	UShort_t ihit,
-			nleft,
-			nright;
-
-	Double_t cross,
-		 disq,
-		 minl,
-		 minr,
-		 x,
-		 y;
-
-
-	// this methods works with the hypothesis that this track comes
-	//  from (0,0)
-
-	for(ihit=0, nleft=0, nright=0, minr = 9999999., minl = 9999999.; ihit<nhits; ihit++){ 
-	// find the Z component of the cross product between the vector from (0,0) to center of
-	// circular trajectory [namely, (oX,oY) ]  and the Position vector of the center of the
-	// parallel Hits [namely, (x,y)].
-
-		if(hittype[ihit]==0) {	// Pixel.
-			x = XMvdPixel[ listhits[ihit] ];
-			y = YMvdPixel[ listhits[ihit] ];
-		} else if (hittype[ihit]==1){ //  Strip.
-			x = XMvdStrip[ listhits[ihit] ];
-			y = YMvdStrip[ listhits[ihit] ];
-		}else if (hittype[ihit]==2){ //  Stt parallel.
-			x = info[ listhits[ihit] ][0];
-			y = info[ listhits[ihit] ][1];
-		}
-		cross = oX*y -oY*x;
-
-	// if  cross >0  hits stays 'on the left' (which means clockwise to go from the origin
-	// to the hit following the smaller path) otherwise it stays 'on the right'.
-
-		disq =	x*x+y*y;
-
-		if (cross>0.) {
-			if(minl>disq) minl=disq;
-			nleft++;
-		} else {
-			if(minr>disq) minr=disq;
-			nright++;
-		}
-	}	// end of   for(ihit=0, nleft=0, nright=0;....
-	if( nright> nleft) {
-		*Charge = -1;
-	} else if ( nleft > nright) {
-		*Charge = 1;
-	} else {	// then choose according the closest hit to the center
-		if( minr < minl ) *Charge = -1;
-		else  *Charge = 1;
-	}
-
-
-
-}
-//----------end of function PndSttMvdTracking::FindCharge
-
-
-
-
-
-
-
-
-
 
 //----------begin of function PndSttMvdTracking::CalculateCircleThru3Points
 
@@ -12745,46 +12509,6 @@ if(istampa>=3) for(int ica=0; ica<nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTra
 
 
 
-//----------begin of function PndSttMvdTracking::OrderingUsingR
-
-	void   PndSttMvdTracking::OrderingUsingR(
-		UShort_t nHits,
-		Double_t XY[][2],
-		Int_t *ListHits
-							)
-{
-
-
-
-
-      UShort_t	i,j;
-
-	Int_t tmp[nHits];
-
-      Double_t	aaa,
-		b1,
-		firstR2,
-		lastR2,
-		auxR[nHits];
-
-
-	for(i=0; i< nHits; i++){
-		auxR[i] =XY[i][0]*XY[i][0]+XY[i][1]*XY[i][1];
-	}
-
-
-	Merge_Sort( nHits, auxR, ListHits);
-
-
-
-
-	return; 
-
-
-}
-//----------end of function PndSttMvdTracking::OrderingUsingR
-
-
 
 
 
@@ -13286,12 +13010,6 @@ if(istampa>1) {
 				Ycross	// output
 				);
 
-if(istampa>=2) {cout<<"from PndSttMvdTracking, in SttParalCleanup, evento n. "<<IVOLTE
-		<<";  ingresso inner X = "<<Xcross[0]<<", Y = "<<Ycross[0]
-		<<",  uscita inner X = "<<Xcross[1]<<", Y = "<<Ycross[1]<<endl;
-		}
-
-
 	if(fabs(FiLimitAdmissible-FI0) < 2.*PI){
 			// case when this track exit in Z before having the possibility
 			// of hitting the Stt parallel inner section.
@@ -13761,7 +13479,7 @@ cout<<"SttParalCleanup, OUTER, caso R || L true, IVOLTE = "<<IVOLTE<<"\n\t Xcros
 
 
 	cut2=cut*cut;
-	islack=2;// uncertainty allowed as far as
+	islack=1;// uncertainty allowed as far as
 		// the n. of hits that should be present in a given section of the Stt track.
 
 
@@ -14110,11 +13828,11 @@ if(istampa>=2)cout<<"in SttSkewCleanup, Hit n. "<< ListHits[i]<<" has Distance "
 
 
 	// cut on the minimum (conservative) n. hits that must have fired
-	if( ninside < ((int) length/DiameterStrawTube )- islack ){
+	if( ninside < ((int) length/DiameterStrawTube )-islack ){
 		if(istampa>1){
 			cout<<"in SttSkewCleanup, n. Hits inside = "<<ninside
 			<<" is < n. hits that should be inside at least = "
-			<<((int)length/DiameterStrawTube)<<"- islack ("<<
+			<<((int)length/DiameterStrawTube)<<"-islack ("<<
 			islack<<"), track rejected!\n";
 			return false;
 		}
