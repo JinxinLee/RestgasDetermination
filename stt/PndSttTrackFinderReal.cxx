@@ -45,16 +45,16 @@ PndSttTrackFinderReal::PndSttTrackFinderReal()
 	istampa = 0;
 	doMcComparison = false;
 
-//  fVerbose      = 1;
-                 Fimin=0.;     Fimax=2.*PI;
-                 FI0min = 0.; FI0max = 2.*PI;
-               stepD=(Dmax-Dmin)/nbinD;
-               stepFi=(Fimax-Fimin)/nbinFi;
-               stepR=(Rmax-Rmin)/nbinR;
-               stepKAPPA=(KAPPAmax-KAPPAmin)/nbinKAPPA;
-               stepFI0=(FI0max-FI0min)/nbinFI0;
-               stepfineKAPPA=2.*DELTA_KAPPA/nbinKAPPA;
-               stepfineFI0=2.*DELTA_FI0/nbinFI0;
+	MINIMUMOUTERHITSPERTRACK=5;
+	Fimin=0.;     Fimax=2.*PI;
+	FI0min = 0.; FI0max = 2.*PI;
+	stepD=(Dmax-Dmin)/nbinD;
+	stepFi=(Fimax-Fimin)/nbinFi;
+	stepR=(Rmax-Rmin)/nbinR;
+	stepKAPPA=(KAPPAmax-KAPPAmin)/nbinKAPPA;
+	stepFI0=(FI0max-FI0min)/nbinFI0;
+	stepfineKAPPA=2.*DELTA_KAPPA/nbinKAPPA;
+	stepfineFI0=2.*DELTA_FI0/nbinFI0;
 	sprintf(fSttBranch,"STTHit");
 
 }
