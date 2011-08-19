@@ -65,7 +65,7 @@ using ROOT::Math::Rotation3D;
 #include "PndDrcOptDevSys.h"
 #include "PndDrcOptVol.h"
 #include "PndDrcOptDevManager.h"
-#include "PndDrcOptBrik.h"
+#include "PndDrcOptBrick.h"
 
 #include "PndDrcOptBurle.h"
 
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
   const double pi=3.1415926535;
 
 
-  PndDrcOptBrik bar(17,17.5/2,1000);
+  PndDrcOptBrick bar(17,17.5/2,1000);
   bar.SetOptMaterial(PndDrcOptMatLithotecQ0());
   bar.SetName("bar");
 
@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
   bar.AddTransform(Transform3D(XYZVector(0,500,0)));
   
 
-  PndDrcOptBrik box(600,600,200);
+  PndDrcOptBrick box(600,600,200);
   box.SetOptMaterial(PndDrcOptMatLithotecQ0());
   box.SetName("box");
   //box.Surface("side6")->SetReflectivity(PndDrcOptReflSilver());

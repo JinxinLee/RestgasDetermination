@@ -66,7 +66,7 @@ using ROOT::Math::Rotation3D;
 #include "PndDrcOptDevSys.h"
 #include "PndDrcOptVol.h"
 #include "PndDrcOptDevManager.h"
-#include "PndDrcOptBrik.h"
+#include "PndDrcOptBrick.h"
 #include "PndDrcOptTrd2.h"
 
 int main(int argc, char *argv[])
@@ -145,14 +145,14 @@ int main(int argc, char *argv[])
   v1.SetOptMaterial(PndDrcOptMatLithotecQ0());
   v1.SetName("vol1");
 
-  PndDrcOptBrik v2(70/2,width/2,60/2);
+  PndDrcOptBrick v2(70/2,width/2,60/2);
   v2.SetOptMaterial(PndDrcOptMatLithotecQ0());
   v2.SetName("vol2");
   v2.Surface("side3")->SetPixel();
   v2.Surface("side3")->SetPrintColor(2);
   v2.AddTransform(Transform3D(XYZVector(-70/2,0,-60/2)));
 
-  PndDrcOptBrik v3(60/2,width/2,20./2);
+  PndDrcOptBrick v3(60/2,width/2,20./2);
   v3.SetOptMaterial(PndDrcOptMatLiF());
   v3.SetName("vol3");
   v3.AddTransform(Transform3D(XYZVector(40,0,-20./2)));

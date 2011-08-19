@@ -60,7 +60,7 @@ using ROOT::Math::Rotation3D;
 #include "PndDrcOptDevSys.h"
 #include "PndDrcOptVol.h"
 #include "PndDrcOptDevManager.h"
-#include "PndDrcOptBrik.h"
+#include "PndDrcOptBrick.h"
 #include "PndDrcOptLens.h"
 #include "PndDrcConicSection.h"
 
@@ -156,7 +156,7 @@ double dist_plane)
   XYZPoint q2(+34/2,+17.5/2,0);
   XYZPoint q3(-34/2,+17.5/2,0);
 
-  PndDrcOptBrik bar(q1.X(),q2.Y(),400);
+  PndDrcOptBrick bar(q1.X(),q2.Y(),400);
   bar.SetOptMaterial(PndDrcOptMatLithotecQ0());
   bar.SetName("bar");
   bar.Surface("side6")->SetReflectivity(PndDrcOptReflSilver());
@@ -223,7 +223,7 @@ double dist_plane)
   opt_system.CoupleDevice("lens_nlak33a","lens_air","side1","side6");
 
 
-  PndDrcOptBrik box(dist_plane,dist_plane,dist_plane/2);
+  PndDrcOptBrick box(dist_plane,dist_plane,dist_plane/2);
   box.SetOptMaterial(PndDrcOptMatLithotecQ0());
   //box.SetOptMaterial(PndDrcOptMatVacuum());
   box.SetName("box");

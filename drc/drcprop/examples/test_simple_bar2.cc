@@ -63,14 +63,14 @@ using ROOT::Math::Rotation3D;
 #include "PndDrcOptDevSys.h"
 #include "PndDrcOptVol.h"
 #include "PndDrcOptDevManager.h"
-#include "PndDrcOptBrik.h"
+#include "PndDrcOptBrick.h"
 
 int main(int argc, char *argv[])
 {
 
   // Example for a simple bar with screen (photon detection) and mirror.
 
-  PndDrcOptBrik bar(17,17.5/2,100);
+  PndDrcOptBrick bar(17,17.5/2,100);
   bar.SetOptMaterial(PndDrcOptMatLithotecQ0());
   bar.SetName("bar");
 

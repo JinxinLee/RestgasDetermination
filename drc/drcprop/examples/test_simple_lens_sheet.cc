@@ -66,7 +66,7 @@ using ROOT::Math::Rotation3D;
 #include "PndDrcOptDevSys.h"
 #include "PndDrcOptVol.h"
 #include "PndDrcOptDevManager.h"
-#include "PndDrcOptBrik.h"
+#include "PndDrcOptBrick.h"
 #include "PndDrcOptCylLens.h"
 #include "PndDrcOptLens.h"
 
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 
   PndDrcOptDevSys opt_system;
   
-  PndDrcOptBrik sheet(half_width,half_thick,half_length);
+  PndDrcOptBrick sheet(half_width,half_thick,half_length);
   //sheet.Surface("side6")->SetReflectivity(PndDrcOptReflSilver());
   sheet.Surface("side6")->SetReflectivity(PndDrcOptReflPerfect());
   sheet.SetOptMaterial(PndDrcOptMatLithotecQ0());
@@ -146,11 +146,11 @@ int main(int argc, char *argv[])
   opt_system.AddDevice(lens_air);
 
   // make the air gap extent larger than the lens
-  PndDrcOptBrik addition_top(2*half_thick,half_width,lens_body_hthick);
+  PndDrcOptBrick addition_top(2*half_thick,half_width,lens_body_hthick);
   addition_top.SetOptMaterial(PndDrcOptMatVacuum());
   addition_top.SetName("addition_top");
   addition_top.SetPrintColor(4);
-  PndDrcOptBrik addition_bot(addition_top);
+  PndDrcOptBrick addition_bot(addition_top);
   addition_bot.SetName("addition_bot");
   
   addition_top.AddTransform(Transform3D(XYZVector(3*half_thick,0,-(2+1)*lens_body_hthick)));
@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
   double ex_box_ht = 300;
   double ex_box_hl = 150;
   
-  PndDrcOptBrik ex_box(ex_box_hw,ex_box_ht,ex_box_hl);
+  PndDrcOptBrick ex_box(ex_box_hw,ex_box_ht,ex_box_hl);
   ex_box.SetOptMaterial(PndDrcOptMatMarcol7());
   ex_box.SetName("expansion box");
   ex_box.Surface("side6")->SetPixel();
