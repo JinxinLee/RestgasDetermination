@@ -59,6 +59,7 @@ class PndTpcRiemannTrack : public TObject{
   bool isFitted() const {return _isFitted;}
   bool isInitialized() const {return _isInitialized;}
   bool isFinished(){return _isFinished;}
+  bool isGood(){return _isGood;}
 
   double m() const {return _m;}
   double t() const {return _t;}
@@ -96,12 +97,14 @@ class PndTpcRiemannTrack : public TObject{
   void initCircle(double phi); // init as a circle
 
   void setFinished(bool opt=true){_isFinished=opt;}
+  void setGood(bool opt=true){_isGood=opt;}
 
   // Operations ----------------------
   void fitAndSort();  // refit the plane and sort the hits; calculate center and radius
   
   // RMS of distances of hits to intersection of plane with riemann sphere
   double planeRMS() const {return _rms;}
+  double distRMS() const;
                                                                     
   // calculate distance of hit to intersection of plane with riemann sphere
   // if use Arguments == false, the members _n and _c will be used for calculation
@@ -135,6 +138,7 @@ class PndTpcRiemannTrack : public TObject{
   bool _isInitialized; // initSL was called, is set to false if fitandsort is called
 
   bool _isFinished; // track is finished, no more hits will be added
+  bool _isGood; // track cannot be deleted by PR
 
   double fRiemannScale;
 
@@ -150,7 +154,7 @@ class PndTpcRiemannTrack : public TObject{
   bool checkScale(PndTpcRiemannHit*) const;
 
  public:
-  ClassDef(PndTpcRiemannTrack,6)
+  ClassDef(PndTpcRiemannTrack,7)
 
 };
 

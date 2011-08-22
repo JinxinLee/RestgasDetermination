@@ -73,6 +73,7 @@ public:
   void SkipCrossingAreas(bool opt=true) {_skipCrossingAreas=opt;}
   void setTTProxcut(double cut){_TTproxcut=cut;} // needed for speeding up the merging
   void setProxcut(double cut){_proxcut=cut;} // needed for speeding up the initialized trackbuilding
+  void setHelixcut(double cut){_helixcut=cut;} // needed for excluding hits in crossing areas
 
   void initTracks(bool initTrks=true, double dip=0, double curv=0) {_initTrks=initTrks; _initDip=dip; _initCurv=curv;}
   void setMaxR(double R){_maxR=R;}
@@ -122,6 +123,7 @@ private:
   unsigned int _minHitsForFit;
 
   double _proxcut;
+  double _helixcut;
   double _TTproxcut;
   double fRiemannScale;
 

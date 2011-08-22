@@ -64,6 +64,7 @@
 #include <TVector3.h>
 #include <TVectorD.h>
 #include <TSystem.h>
+#include <TH1D.h>
 #include <string>
 #include <vector>
 
@@ -82,7 +83,6 @@
 #include "PndTpcRiemannTrackFinder.h"
 #include "PndTpcProximityHTCorrelator.h"
 #include "PndTpcHelixHTCorrelator.h"
-#include "PndTpcProximityTTCorrelator.h"
 #include "PndTpcRiemannTTCorrelator.h"
 #include "PndTpcDipTTCorrelator.h"
 
@@ -108,7 +108,7 @@ public:
 
   void initDigimapper(double drifField,
 		      double gain, double spread,
-		      double zGem, 
+		      double zGem,
 		      double samplingFreq,
 		      double wallclock,
 		      std::string gasfile,
@@ -137,12 +137,23 @@ public:
   void guiGoto();
   void guiSetDrawParams();
   void guiSetClusterfinderParams();
-  void guiSetTrackingParams();	
+  void guiSetTrackingParams();
   void guiSetFittingParams();
 
   void writeDebugLogger();
 
+
 private:
+  void buildTracks(PndTpcRiemannTrackFinder* trackfinder,
+                   std::vector<PndTpcCluster*>* clusterBuffer,
+                   std::vector<PndTpcRiemannTrack*>* TrackletList,
+                   int sorting,
+                   unsigned int minHits,
+                   double maxRMS,
+                   bool skipCrossingAreas = true,
+                   bool skipAndDelete = true);
+
+
   static PndTpcClustVis* eventDisplay;
   int fEventId;
   std::string fOption;
@@ -161,6 +172,7 @@ private:
   const PndTpcGas* fgas;
   double fzGem;
   double fgain;
+
 
   std::map<unsigned int, std::vector<PndTpcCluster*>*> fbuffermap;
   std::vector<PndTpcCluster*>* fcluster_buffer;
@@ -294,6 +306,23 @@ private:
 
   double Bz;
 
+  // benchmark histograms
+  TH1D* PREffAll;
+  TH1D* trkPurityAll;
+  TH1D* trkCompletenessAll;
+
+  TH1D* PREffPrim;
+  TH1D* trkPurityPrim;
+  TH1D* trkCompletenessPrim;
+
+  TH1D* PREffSec;
+  TH1D* trkPuritySec;
+  TH1D* trkCompletenessSec;
+
+  std::map<McId, unsigned int> fClustersPerId;
+  unsigned int nTotTrks;
+  unsigned int nTotTrksPrim;
+  unsigned int nTotTrksSec;
 
   /** @brief Build the GUI.*/
   void makeGui();
@@ -306,7 +335,7 @@ private:
   void drawCluster(const PndTpcCluster* cluster, Color_t color=kGray);
 
 public:
-  ClassDef(PndTpcClustVis,1)
+  ClassDef(PndTpcClustVis,2)
 };
 
 #endif

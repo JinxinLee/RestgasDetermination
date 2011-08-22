@@ -70,7 +70,7 @@ PndTpcRiemannTrack::PndTpcRiemannTrack()
   _m(0), _t(0),
   _dip(0), _sinDip(0), _rms(0),
   fRiemannScale(24.6), _isFitted(false), _isInitialized(false),
-  _isFinished(false), _doSort(true)
+  _isFinished(false), _isGood(false), _doSort(true)
 {}
 
 PndTpcRiemannTrack::PndTpcRiemannTrack(double scale)
@@ -80,7 +80,7 @@ PndTpcRiemannTrack::PndTpcRiemannTrack(double scale)
   _m(0), _t(0),
   _dip(0), _sinDip(0), _rms(0),
   fRiemannScale(scale), _isFitted(false), _isInitialized(false),
-  _isFinished(false), _doSort(true)
+  _isFinished(false), _isGood(false), _doSort(true)
 {}
 
 
@@ -316,7 +316,9 @@ PndTpcRiemannTrack::dist(PndTpcRiemannHit* hit, TVector3 n2, double c2, bool use
 
 void
 PndTpcRiemannTrack::refit(){ // helix fit
+  bool hasBeenFitted(_isFitted);
   _isFitted = false;
+
   unsigned int nhits=_hits.size();
   if(nhits<3) return; // need at least 3 points to make a planefit
 
@@ -372,8 +374,15 @@ PndTpcRiemannTrack::refit(){ // helix fit
   TVectorD planeN(3);
   TVectorD planeNmin(3);
 
-  for(unsigned int i=1;i<3;++i){
-    planeN=TMatrixDColumn(eigenVec,i);
+  unsigned int iVec(1);
+
+  // no plane switching for long tracks needed! If track long enough (on riemann sphere) -> calc rms only for smallest eigenvec!
+  if (nhits>10 && (getFirstHit()->x() - getLastHit()->x()).Mag() > 0.2) {
+    iVec=2;
+  }
+
+  for(; iVec<3; ++iVec){
+    planeN=TMatrixDColumn(eigenVec,iVec);
     norm=TMath::Sqrt(planeN.Norm2Sqr());
     if (norm<1E-10) {
       std::cerr<<"PndTpcRiemannTrack::refit() - eigenvector too small"<<std::endl;
@@ -405,16 +414,38 @@ PndTpcRiemannTrack::refit(){ // helix fit
 
   TVector3 hit0 = _hits[0]->cluster()->pos() - _center;
 
-  double lastangle = hit0.Phi(); // [-pi, pi]
-  _hits[0]->setAngleOnHelix(lastangle); // set angle of first hit relative to x axis
+  double firstangle = hit0.Phi(); // [-pi, pi]
+  _hits[0]->setAngleOnHelix(firstangle); // set angle of first hit relative to x axis
+
+  double lastangle(firstangle);
 
   TVector3 hiti;
 
   // phi goes counterclockwise and can be > 2Pi for curlers
+  double meanAngle, twoPi(TMath::TwoPi()), nTurns(1);
+  bool twoPiCheck(hasBeenFitted && _radius < 50. && nhits > 10 && _m*twoPi > 2. && _sinDip > 0.03 && _sinDip < 0.99);
+
   for(int i=1; i<nhits; ++i){
     hiti = _hits[i]->cluster()->pos() - _center;
 
     double angle = hiti.DeltaPhi(hit0);
+
+    // check if we have to go +-2Pi further
+    if (twoPiCheck && i > 5){
+      // todo: make it working properly!!!!
+      meanAngle = (lastangle-firstangle)/i;
+      if (angle/meanAngle < -4){
+        if (angle < 0) {
+          angle += twoPi;
+        }
+        else {
+          angle -= twoPi;
+        }
+        firstangle += angle;
+        ++nTurns;
+      }
+    }
+
     lastangle += angle;
 
     _hits[i]->setAngleOnHelix(lastangle);
@@ -492,6 +523,27 @@ PndTpcRiemannTrack::calcRMS(TVector3 n1, double c1) const {
   rms /= norm;
   rms = sqrt(rms);
   return rms;
+}
+
+
+double
+PndTpcRiemannTrack::distRMS() const{
+  if(!_isFitted && !_isInitialized) return 0;
+
+  double d2s(0), dis;
+
+  unsigned int nHits(getNumHits());
+
+  for(int it=0; it<nHits; ++it){
+    dis = distHelix(_hits[it], false);
+    dis *= dis;
+    d2s += dis;
+  }
+
+  d2s /= double(nHits);
+
+  if (d2s < 1E-50) return 1E-25;
+  return sqrt(d2s);
 }
 
 
@@ -629,12 +681,14 @@ PndTpcRiemannTrack::distHelix(PndTpcRiemannHit* hit, bool calcPos, bool TwoPiChe
     double zWeigh = 0.5*(cos(2.*_dip)+1.);
     hit_angle = hit_angleR*(1-zWeigh) + hit_angleZ*zWeigh;
 
+    hit_angle = 0;
+    if (fabs(_m)>1.E-22) hit_angle = (hitZ-_t)/_m;
+
   } // end recalcPos
+
 
   double sinphi, cosphi, xHelix, yHelix, zHelix, dist2, distance, deltadist, delta, mindist(999999), accuracy(1E-4);
   unsigned int i(0), maxIt(4);
-
-  //std::cout<< " _m " << _m << "; _t: " <<  _t << "\n";
 
   // newtons method for finding POCA
   while (true){
@@ -650,20 +704,13 @@ PndTpcRiemannTrack::distHelix(PndTpcRiemannHit* hit, bool calcPos, bool TwoPiChe
     else distance = 1E-10;
 
     deltadist = mindist - distance;
-
-    //std::cout<< "Newton iteration " << i << "; angle: " <<  hit_angle << "   distance: " << distance <<  "   rel. distance to mindist: " << -1.*deltadist << "\n";
-    //std::cout<< " xHelix " << xHelix << "; yHelix: " <<  yHelix << "; zHelix: " << zHelix << "\n";
-
     if (distance < mindist) mindist = distance;
 
     if (deltadist < accuracy || i>maxIt) break;
 
-    //
     // f  = (-1.* xHelix*sinphi*_radius + yHelix*cosphi*_radius + zHelix*_m) / distance; // first derivative of  distance  wrt  phi
     // f1 = f/(distance*distance) + ( _radius*_radius - xHelix*cosphi*_radius - yHelix*sinphi*_radius + 2.*_m*_m )/distance; // second derivative of  distance  wrt  phi
-    //
     // hit_angle -= f/f1;
-    //
 
     // simplified:
     delta = (-1.* xHelix*sinphi*_radius + yHelix*cosphi*_radius + zHelix*_m);
@@ -673,9 +720,7 @@ PndTpcRiemannTrack::distHelix(PndTpcRiemannHit* hit, bool calcPos, bool TwoPiChe
     ++i;
   }
 
-  if(POCA!=NULL){
-    POCA->SetXYZ(xHelix, yHelix, zHelix);
-  }
+  if(POCA!=NULL) POCA->SetXYZ(xHelix, yHelix, zHelix);
 
   return mindist;
 }

@@ -33,7 +33,7 @@ class PndTpcDipTTCorrelator : public PndTpcAbsTrackTrackCorrelator {
 public:
 
   // Constructors/Destructors ---------
-  PndTpcDipTTCorrelator(double dipcut, double helixcut);
+  PndTpcDipTTCorrelator(double proxcut, double dipcut, double helixcut);
   ~PndTpcDipTTCorrelator(){;}
 
   // Accessors -----------------------
@@ -55,6 +55,7 @@ public:
 private:
 
   // Private Data Members ------------
+  double _proxcut;
   double _dipcut;
   double _helixcut;
 

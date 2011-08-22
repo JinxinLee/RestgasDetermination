@@ -62,14 +62,17 @@ public:
   void SetMultistepParameters(bool doMultistep,   // do a multistep approach: 1. find steep tracks (presort clusters along z)
                                                   //                          2. find circle tracks  (presort clusters by angle)
                                                   //                          3. find all other tracks (presort clusters by decreasing radius)
-                   unsigned int minHitsZ = 20,    // minimum number of hits for a track to be found in step 1
-                   unsigned int minHitsPhi = 15); // minimum number of hits for a track to be found in step 2
+                   unsigned int minHitsZ = 10,    // minimum number of hits for a track to be found in step 1
+                   unsigned int minHitsR = 10,    // minimum number of hits for a track to be found in step 1
+                   unsigned int minHitsPhi = 10); // minimum number of hits for a track to be found in step 2
 
   void SetTrkFinderParameters(
                    double proxcut,  // proximity cut in 3D
                    double helixcut, // distance to helix cut
                    unsigned int minpointsforfit, // minimum number of hits in track before a helix is fitted
                    double zStretch = 1.); // stretch proximity cut in z direction
+
+  void SetMaxRMS(double max){_maxRMS = max;} // max RMS of distances to helix for a track to be written out
 
   void SetMergeTracks(bool mergeTracks=true){_mergeTracks = mergeTracks;} // merge tracklets
 
@@ -94,6 +97,15 @@ public:
 
 private:
 
+  void buildTracks(PndTpcRiemannTrackFinder* trackfinder,
+                   std::vector<PndTpcCluster*>* clusterBuffer,
+                   std::vector<PndTpcRiemannTrack*>* TrackletList,
+                   int sorting,
+                   unsigned int minHits,
+                   double maxRMS,
+                   bool skipCrossingAreas = true,
+                   bool skipAndDelete = true);
+
   // Private Data Members ------------
   TString _clusterBranchName;
   TClonesArray* _clusterArray;
@@ -114,6 +126,8 @@ private:
 
   unsigned int fnsectors;
   double _maxRadius; // outer radius of padplane
+  double tpcOffset;
+  double tpcLength;
 
   int counter;
 
@@ -143,12 +157,15 @@ private:
   // parameters for multistep approach
   bool _doMultistep;
   unsigned int _minHitsZ;
+  unsigned int _minHitsR;
   unsigned int _minHitsPhi;
+
+  double _maxRMS;
 
   // Private Methods -----------------
 
 public:
-  ClassDef(PndTpcRiemannTrackingTask,3)
+  ClassDef(PndTpcRiemannTrackingTask,4)
 };
 
 #endif

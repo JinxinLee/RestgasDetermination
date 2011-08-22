@@ -40,8 +40,8 @@ PndTpcRiemannHit::PndTpcRiemannHit(double r, double phi, double scale)
 {
   double r2=r*r;
   double d=1+r2;
-  _x.SetX(r*TMath::Cos(phi)/d);
-  _x.SetY(r*TMath::Sin(phi)/d);
+  _x.SetX(r*cos(phi)/d);
+  _x.SetY(r*sin(phi)/d);
   _x.SetZ(r2/d);
 }
 
@@ -53,8 +53,8 @@ PndTpcRiemannHit::PndTpcRiemannHit(PndTpcCluster* cl, double scale)
   double phi=a.Phi();
   double r2=r*r;
   double d=1+r2;
-  _x.SetX(r*TMath::Cos(phi)/d);
-  _x.SetY(r*TMath::Sin(phi)/d);
+  _x.SetX(r*cos(phi)/d);
+  _x.SetY(r*sin(phi)/d);
   _x.SetZ(r2/d);
 }
 

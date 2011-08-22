@@ -58,7 +58,6 @@ PndTpcEvtDeconvTask.cxx
 PndTpcProximityHTCorrelator.cxx
 PndTpcHelixHTCorrelator.cxx
 PndTpcRiemannTTCorrelator.cxx
-PndTpcProximityTTCorrelator.cxx
 PndTpcDipTTCorrelator.cxx
 PndTpcClustershapeCorrelator.cxx
 PndTpcRiemannTrackingTask.cxx

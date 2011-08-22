@@ -47,7 +47,7 @@ using namespace std;
 // Class Member definitions -----------
 PndTpcRiemannTrackFinder::PndTpcRiemannTrackFinder()
   : _minHitsForFit(5), _sortingMode(true),
-    _sorting(3), _interactionZ(0.), _MaxNumHitsForPR(2147483646), _TTproxcut(500), _proxcut(5),
+    _sorting(3), _interactionZ(0.), _MaxNumHitsForPR(2147483646), _TTproxcut(500), _proxcut(5), _helixcut(0.2),
     fRiemannScale(24.6), _maxR(0), _minHits(100),
     _initTrks(false), _skipAndDelete(false), _initDip(0), _initCurv(0), _skipCrossingAreas(false)
 {   
@@ -55,7 +55,7 @@ PndTpcRiemannTrackFinder::PndTpcRiemannTrackFinder()
 
 PndTpcRiemannTrackFinder::PndTpcRiemannTrackFinder(double scale)
   : _minHitsForFit(5), _sortingMode(true),
-    _sorting(3), _interactionZ(0.), _MaxNumHitsForPR(2147483646), _TTproxcut(500), _proxcut(5),
+    _sorting(3), _interactionZ(0.), _MaxNumHitsForPR(2147483646), _TTproxcut(500), _proxcut(5), _helixcut(0.2),
     fRiemannScale(scale), _maxR(0), _minHits(100),
     _initTrks(false), _skipAndDelete(false), _initDip(0), _initCurv(0), _skipCrossingAreas(false)
 {   
@@ -105,6 +105,7 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
   #endif
 
   unsigned int nFinishedTrks(0);
+  unsigned int nNewTracks(0);
   unsigned int ncl(cll.size());
   if(ncl<3) return 0;
 
@@ -144,10 +145,10 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
 
       // check if track can be deleted
       double Perp(rhit->cluster()->pos().Perp());
-      if(_skipAndDelete) {
+      if(_skipAndDelete && (icl%10 == 0 || icl == ncl-1)) { // check only every 10 hits, and at last hit
         bool deleet(true), finished(false);
 
-        if (trk->getNumHits() > _minHits){ // do not delete
+        if (trk->getNumHits() > _minHits || trk->isGood()){ // do not delete
           deleet=false;
         }
 
@@ -194,17 +195,6 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
           continue;
         }
       }
-      // check if track is finished
-      else if (_sorting==3){
-        Perp += 4*_proxcut;
-        if (trk->getFirstHit()->cluster()->pos().Perp() > Perp &&
-            trk->getLastHit()->cluster()->pos().Perp() > Perp){
-          trk->setFinished();
-          ++nFinishedTrks;
-          continue;
-        }
-      }
-
 
 
       // WE STEP THROUGH THE INDIVIDUAL CORRELATORS
@@ -218,7 +208,7 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
         if(icl==_MaxNumHitsForPR-1) std::cout<<"Testing hit "<<icl<<" with track "<<itrk<< "; trk quality: " << trk->quality() << std::endl;
       #endif
 
-      for(int icor=0;icor<ncor;++icor){ // loop through correlators
+      for(int icor=0; icor<ncor; ++icor){ // loop through correlators
         // CORRELATE HIT WITH TRACK
         double matchQuality = 99999;
         bool survive=false;
@@ -229,7 +219,7 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
             else{std::cout<<"  correlator "<<icor<<"  IS applicable; survived "<<survive<<" with MatchQuality "<<matchQuality<<std::endl;}
           }
         #endif
-        if(!applicable)continue; // try the next correlator
+        if(!applicable) continue; // try the next correlator
         if(!survive){
           trksurvive=false;
           break; // track has failed this level --> can be excluded
@@ -242,7 +232,10 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
 
 
       if(trksurvive){ // update best values
-        if(level==ncor-1 && !trk->isInitialized()) ++matchTrks; // number matching fitted tracks that survived all corrs
+        // number matching fitted tracks that survived all corrs (for excluding clusters)
+        if(level==ncor-1 && !trk->isInitialized() &&
+           trk->getNumHits() > _minHitsForFit+1 &&
+           matchQualities[ncor-1] < 0.75*_helixcut) ++matchTrks;
         
         if(level>maxlevel) maxlevel=level;
         for(unsigned int i=0; i<=level; ++i){
@@ -272,7 +265,7 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
 
 
     if(!foundAtAll){ // new track if no track survived
-      if(_skipAndDelete) {
+      /*if(_skipAndDelete) {
         double R(rhit->cluster()->pos().Perp());
         if (_sorting==3 && R<_maxR){
           #ifdef DEBUGHT
@@ -292,8 +285,9 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
           #endif
           continue;
         }
-      }
+      }*/
 
+      ++nNewTracks;
       PndTpcRiemannTrack* trk=new PndTpcRiemannTrack(fRiemannScale);
       trk->setSort(_sortingMode);
       candlist.push_back(trk);
@@ -349,7 +343,7 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
     std::cout<<candlist.size()<<" Riemann Tracks found."<<std::endl;
   #endif
 
- return candlist.size();
+ return nNewTracks;
 }
 
 void
@@ -466,6 +460,7 @@ PndTpcRiemannTrackFinder::mergeTracks(std::vector<PndTpcRiemannTrack*>& candlist
       else { // we can just add the hits from trk2 to trk1 and the sorting is done internally
         for(unsigned int i=0; i<nhits2; ++i)
           trk1->addHit(trk2->getHit(i));
+        trk1->setSort(true);
 
         // refit if we have enough hits
         if(trk1->getNumHits()>=_minHitsForFit) trk1->fitAndSort();
@@ -590,11 +585,15 @@ sortClusterClass::operator() (PndTpcCluster* s1, PndTpcCluster* s2){
     case 5:
       a1=s1->pos().Phi();
       a2=s2->pos().Phi();
+      if (a1 < -1.*TMath::PiOver2()) a1 += TMath::TwoPi();
+      if (a2 < -1.*TMath::PiOver2()) a2 += TMath::TwoPi();
       return a1<a2;
       break;
     case -5:
       a1=s1->pos().Phi();
       a2=s2->pos().Phi();
+      if (a1 < -1.*TMath::PiOver2()) a1 += TMath::TwoPi();
+      if (a2 < -1.*TMath::PiOver2()) a2 += TMath::TwoPi();
       return a1>a2;
       break;
     case 3:

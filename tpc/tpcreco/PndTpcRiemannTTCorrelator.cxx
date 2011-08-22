@@ -64,19 +64,19 @@ PndTpcRiemannTTCorrelator::corr(PndTpcRiemannTrack* trk1,
   PndTpcRiemannTrack* mergedTrack = new PndTpcRiemannTrack(trk1->getScale());
   mergedTrack->setSort(false); // it's faster and we don't need it anyway
   for(unsigned int i=0; i<nhits1; ++i){
-    mergedTrack->addHit(trk1->getHit(i));
+    PndTpcRiemannHit* hit = new PndTpcRiemannHit(*(trk1->getHit(i)));
+    mergedTrack->addHit(hit);
   }
   for(unsigned int i=0; i<nhits2; ++i){
-    mergedTrack->addHit(trk2->getHit(i));
+    PndTpcRiemannHit* hit = new PndTpcRiemannHit(*(trk2->getHit(i)));
+    mergedTrack->addHit(hit);
   }
   mergedTrack->fitAndSort();
 
-  double rms = mergedTrack->planeRMS();
-  delete mergedTrack;
+  double rms = mergedTrack->distRMS();
 
-  // restore original states
-  trk1->fitAndSort();
-  trk2->fitAndSort();
+  mergedTrack->deleteHits();
+  delete mergedTrack;
 
   matchQuality=rms;
   DebugLogger::Instance()->Histo("TT_riem_rms",rms,0,0.005,100);
