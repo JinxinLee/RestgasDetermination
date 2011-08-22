@@ -65,7 +65,7 @@ void runNoiseDigi_batch(TString filename, double occ, double mean,
   fRun->AddTask(tpcNoise);
   
   PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
-  // tpcDrifter->SetPersistence();
+  tpcDrifter->SetPersistence();
   tpcDrifter->SetDistort(false);
   fRun->AddTask(tpcDrifter);
 
@@ -79,14 +79,14 @@ void runNoiseDigi_batch(TString filename, double occ, double mean,
 
   PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
   tpcElec->SetPersistence();
-  //tpcElec->SetSamplePersistence();
+  tpcElec->SetSamplePersistence();
   fRun->AddTask(tpcElec);
 
   PndTpcEvtTimeGenTask* evttimegen = new PndTpcEvtTimeGenTask();
   evttimegen->SetPersistence();
   evttimegen->SetEvtRate(1E7);   
   evttimegen->SetT0(0);
-  //fRun->AddTask(evttimegen);
+  fRun->AddTask(evttimegen);
   
   //PndTpcDigiAmpCorrectionTask* digiCorr = new PndTpcDigiAmpCorrectionTask();
   //digiCorr->SetExternalInput("gain_corrected.csv");

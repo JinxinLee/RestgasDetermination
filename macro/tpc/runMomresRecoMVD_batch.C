@@ -57,72 +57,83 @@ void runMomresRecoMVD_batch(TString digifile, Int_t nEvents = 0) {
 
   // ------- RECO procedure ------------------------------------------------
   
+  PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
+  mvdmccls->SetVerbose(iVerbose);
+  fRun->AddTask(mvdmccls);
+  
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
   //tpcCF->SetDigiPersistence(); // keep reference to digis in clusters
   tpcCF->SetPersistence(); // keep Clusters
-  tpcCF->timeslice(9); //in samples
+  tpcCF->timeslice(10); //in samples
   tpcCF->SetThreshold(1);
   tpcCF->SetSingleDigiClusterAmpCut(0.);
   tpcCF->SetClusterAmpCut(0.); // cut on mean digi amplitude
   tpcCF->SetErrorPars(600.,400.);
-  tpcCF->SetSimpleClustering(); // use PndTpcClusterFinderSimple
+  tpcCF->SetSimpleClustering(true); // use PndTpcClusterFinderSimple //no sectorization!
   fRun->AddTask(tpcCF);
 
   PndTpcRoughAlignmentTask* align = new PndTpcRoughAlignmentTask();
-  align->SetShift(TVector3(0.,0.,-3.71357e-01));
-  fRun->AddTask(align);
-
-  //find PndTpcRiemannTracks in the TPC alone
+  //align->SetShift(TVector3(0.,0.,-3.71357e-01));   //old PSA
+  align->SetShift(TVector3(0.,0.,9.77264e-02));      //new PSA
+  //fRun->AddTask(align);
+  
   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
   //tpcSPR->SetPersistence();
-  //tpcSPR->SetVerbose(1);
   fRun->AddTask(tpcSPR);
-
+  
   //build GFTracks from PndTpcRiemannTracks
   PndTpcTrackInitTask* trackInit=new PndTpcTrackInitTask();
   trackInit->SetPersistence();
   //trackInit->SetVerbose(1);
-  trackInit->SetMCPid(); // use ideal particle identification
-  //trackInit->SetPDG(211);
-  //trackInit->useGeane(); // uses RKTrackrep and GeaneTrackrep
+  //trackInit->SetMCPid(); // use ideal particle identification
+  trackInit->SetPDG(13);
+  trackInit->useGeane(); // uses RKTrackrep and GeaneTrackrep
   trackInit->SetSmoothing(true);
   fRun->AddTask(trackInit);
-
-  PndTpcIdealTrackingTask* tpcIPR = new PndTpcIdealTrackingTask();
-  //tpcIPR->useGeane(true);
-  tpcIPR->useDistSorting(true);
-  tpcIPR->SetPersistence();
-  tpcIPR->SetSmoothing(true);
-  //fRun->AddTask(tpcIPR);
   
-
   KalmanTask* kalman =new KalmanTask();
   kalman->SetPersistence();
-  kalman->SetNumIterations(3); // number of fitting iterations (back and forth)
+  kalman->SetNumIterations(2); // number of fitting iterations (back and forth)
   fRun->AddTask(kalman);
   
-  PndTpcResidualTask* Res = new PndTpcResidualTask();
-  Res->SetPersistence();
-  Res->SetNumberOfTrackReps(2);
+  //PndTpcResidualTask* Res = new PndTpcResidualTask();
+  //Res->SetPersistence();
+  //Res->SetNumberOfTrackReps(2);
   //fRun->AddTask(Res);
   
-  PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
-  mvdmccls->SetVerbose(iVerbose);
-  fRun->AddTask(mvdmccls);
 
   PndTpcMVDCorrelatorTask* corr = new PndTpcMVDCorrelatorTask();
-  corr->SetMatchDistance(100.);   //mutliple of MVD hit sigma (which is roughly 20 mu)
-  corr->SetMinMVDHits(3);
+  corr->SetMatchDistance(0.2);  //cm
+  corr->SetMinMVDHits(0);
+  corr->SetTrackBranchName("TrackPostFit");
+  corr->SetOutTrackBranchName("TrackPreFitMVD");
+  corr->RequireMatch(true);  //ignore all tracks with no match in the MVD!
   corr->SetPersistence(true);
   fRun->AddTask(corr);
   
   //fit once more
   KalmanTask* kalman2 =new KalmanTask();
   kalman2->SetPersistence();
-  kalman2->SetNumIterations(3); // number of fitting iterations (back and forth)
-  kalman2->SetTrackBranchName("TrackPreFitComplete");
-  kalman2->SetOutBranchName("TrackPostFitComplete");
+  kalman2->SetNumIterations(2); // number of fitting iterations (back and forth)
+  kalman2->SetTrackBranchName("TrackPreFitMVD");
+  kalman2->SetOutBranchName("TrackPostFitMVD");
   fRun->AddTask(kalman2);
+
+  PndTpcGEMCorrelatorTask* corrG = new PndTpcGEMCorrelatorTask();
+  corrG->SetMatchDistance(0.5);   //cm
+  corrG->SetMinGEMHits(0);
+  corrG->SetTrackBranchName("TrackPostFitMVD");
+  corrG->SetOutTrackBranchName("TrackPreFitGEM");
+  corrG->SetPersistence(true);
+  fRun->AddTask(corrG);
+
+  //final fit
+  KalmanTask* kalman3 =new KalmanTask();
+  kalman3->SetPersistence();
+  kalman3->SetNumIterations(3); // number of fitting iterations (back and forth)
+  kalman3->SetTrackBranchName("TrackPreFitGEM");
+  kalman3->SetOutBranchName("TrackPostFitComplete");
+  fRun->AddTask(kalman3);
   
   PndTpcResidualTask* Res2 = new PndTpcResidualTask();
   Res2->SetPersistence();
