@@ -64,6 +64,7 @@ PndSecondaryTrackFinder::PndSecondaryTrackFinder() : FairTask("STT Stt-Mvd Track
   fChi2Limit = 500;
   fCountElemLimit = 100;
   fLimit = 2.;
+  fUsePrimary = kFALSE;
 
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
@@ -78,7 +79,7 @@ PndSecondaryTrackFinder::PndSecondaryTrackFinder(Int_t verbose) : FairTask("STT 
   fChi2Limit = 500;
   fCountElemLimit = 100;
   fLimit = 2.;
-
+  fUsePrimary = kFALSE;
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
@@ -126,14 +127,14 @@ InitStatus PndSecondaryTrackFinder::Init() {
 
 
 
-  // Get SttTrackCand array  dal pattern recognition di STT
-  fSttTrackCandArray  = (TClonesArray*) ioman->GetObject("STTTrackCand"); 
-  if ( ! fSttTrackCandArray) 
-    {
-      cout << "-E- PndSecondaryTrackFinder::Init: No SttTrack Cand  array, return!"
-	   << endl;
-      return kERROR;
-    }
+//   // Get SttTrackCand array  dal pattern recognition di STT
+//   fSttTrackCandArray  = (TClonesArray*) ioman->GetObject("STTTrackCand"); 
+//   if ( ! fSttTrackCandArray) 
+//     {
+//       cout << "-E- PndSecondaryTrackFinder::Init: No SttTrack Cand  array, return!"
+// 	   << endl;
+//       return kERROR;
+//     }
 	
   // Get input array   questi sono i MC point di STT
   fSttPointArray = (TClonesArray*) ioman->GetObject("STTPoint");
@@ -178,11 +179,11 @@ InitStatus PndSecondaryTrackFinder::Init() {
 
   //  -------------------------   get the Mvd track candidates
 
-  fMvdTrackCandArray = (TClonesArray*) ioman->GetObject("MVDRiemannTrackCand");
-  if ( !fMvdTrackCandArray){
-    std::cout << "-W- PndSecondaryTrackFinder::Init: " << "No MVD TrackCand Array, return!" << std::endl;
-    return kERROR;
-  }
+//   fMvdTrackCandArray = (TClonesArray*) ioman->GetObject("MVDRiemannTrackCand");
+//   if ( !fMvdTrackCandArray){
+//     std::cout << "-W- PndSecondaryTrackFinder::Init: " << "No MVD TrackCand Array, return!" << std::endl;
+//     return kERROR;
+//   }
 
   cout << "-I- PndSecondaryTrackFinder: Initialization successfull" << endl;
   
@@ -199,7 +200,7 @@ InitStatus PndSecondaryTrackFinder::Init() {
 
   // SttMvdGemTrackCand
   fSttMvdGemTrackCandArray  = (TClonesArray*) ioman->GetObject("SttMvdGemTrackCand"); 
-  if ( ! fSttMvdGemTrackCandArray) 
+  if ( ! fSttMvdGemTrackCandArray && fUsePrimary) 
     {
       cout << "-E- PndSecondaryTrackFinder::Init: No SttMvdGemTrackCand array, return!"
 	   << endl;
@@ -208,7 +209,7 @@ InitStatus PndSecondaryTrackFinder::Init() {
   
   // SttMvdGemTrack
   fSttMvdGemTrackArray  = (TClonesArray*) ioman->GetObject("SttMvdGemTrack"); 
-  if ( ! fSttMvdGemTrackArray) 
+  if ( ! fSttMvdGemTrackArray  && fUsePrimary) 
     {
       cout << "-E- PndSecondaryTrackFinder::Init: No SttMvdGemTrack array, return!"
 	   << endl;
@@ -339,7 +340,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 
   if(fDisplayOn) {
     DrawAllHits();
-    DrawFoundTracks();
+   if(fUsePrimary)  DrawFoundTracks();
     DrawMCTracks();
   }
 
@@ -348,6 +349,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 
 
   /**
+     if(fUsePrimary) {
      DeleteHits("STT", &stthits);
      DeleteHits("STTSKEW", &sttskewedhits);
      DeleteHits("MVDPIXEL", &mvdpixhits);
@@ -359,6 +361,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
      fDetList.push_back(mvdstriphits);
      cout << "DELETED STT/MVD HITS " << stthits.size() << " "  << sttskewedhits.size() << " " 
      << mvdpixhits.size() << " " << mvdstriphits.size() << endl;
+     }
   **/
 
 
@@ -712,7 +715,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     cin >> goOnChar;
     cout << "GOING ON" << endl;
   }
-  
+ //   fDisplayOn = kTRUE;
   // FIT THE MERGED CLUSTERS =====================================================
   if(fDisplayOn) Refresh();
   //  xyparameters.clear();
@@ -954,7 +957,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
 
 
   // ---------------- Z fit -------------
-  //   fDisplayOn = kTRUE;
+  //  fDisplayOn = kTRUE;
   std::vector< std::vector<int> >  skewedclusterlist;
   std::map<int, int> skewedclustopar;
   for(int itrk = 0; itrk < xyparameters.size(); itrk++) {
@@ -2322,7 +2325,7 @@ void PndSecondaryTrackFinder::Refresh()
   cout << "GOING ON" << endl;
   DrawGeometry();
   DrawAllUsableHits();
-  DrawFoundTracks();
+   if(fUsePrimary)  DrawFoundTracks();
   DrawMCTracks();
 }
 

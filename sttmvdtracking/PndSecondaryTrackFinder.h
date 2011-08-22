@@ -248,7 +248,7 @@ class PndSecondaryTrackFinder : public FairTask {
 
   // std::vector<TMatrixT<double> > xyzpositions; // skewflag x y z dx dy dz
   TMatrixT<double> fSttUsableHits;
-
+  Bool_t fUsePrimary;
   ClassDef(PndSecondaryTrackFinder,1);
 
 };
