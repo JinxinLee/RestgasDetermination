@@ -70,24 +70,22 @@ PndTpcProximityHTCorrelator::corr(PndTpcRiemannTrack* trk,
   }*/
 
 
-  unsigned int trksize(trk->getNumHits());
 
-  // fast estimation: distance to cirlce in 2D
-  /*if (trk->isFitted() && trksize > 7){
+  // fast estimation: distance to circle in 2D
+  if (trk->isFitted()){
     double radius(trk->r());
-    if (radius > 2. && radius < 100){
-      double circDist = fabs( (posX - trk->center()).Perp() - radius );
-      if ( circDist > 2*_proxcut ){
-        matchQuality=circDist;
-        survive = false;
-        std::cout<<"failed 2nd check\n";
-        return true;
-      }
+    double circDist = fabs( (posX - trk->center()).Perp() - radius );
+    if ( circDist > 0.5 ){
+      matchQuality=circDist;
+      survive = false;
+      //std::cout<<"failed 2nd check\n";
+      return true;
     }
-  }*/
+  }
 
 
 
+  unsigned int trksize(trk->getNumHits());
   double quality(trk->quality());
 
   //scale proxcut with track quality (makes it looser for better defined tracks)

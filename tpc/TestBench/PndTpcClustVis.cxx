@@ -347,7 +347,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       PndTpcCluster *cluster = (PndTpcCluster*)clustersBranch->At(i);
 
       // omit clusters outside chamber
-      if (true && (cluster->pos().X()<0 || // todo: take out again!!
+      if (true && (//cluster->pos().X()<0 || // todo: take out again!!
                    cluster->pos().Z()<tpcOffset ||
                    cluster->pos().Z()>tpcLength+tpcOffset)) continue; // TODO: make configurable!!!!
 
