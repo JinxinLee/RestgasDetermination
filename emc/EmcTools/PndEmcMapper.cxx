@@ -446,23 +446,39 @@ PndEmcMapperGeo125Dat34Root::PndEmcMapperGeo125Dat34Root()
 				}
 		}
 
-		if (module ==3)
+		else if (module ==3)
 		{
-			for (Int_t row=1; row<=36;row++)
-				for (Int_t crystal=1; crystal<=36;crystal++)
-					for (Int_t copy=1; copy<=4;copy++)
-					{
-						if (copy==1)   {	iX = -row+1; iY =  crystal;   }
-						if (copy==2)   {	iX = -row+1; iY = -crystal+1; }
-						if (copy==3)   {	iX =  row;   iY = -crystal+1; }
-						if (copy==4)   {  iX =  row;   iY =  crystal;   }
-						
-						detId =  module*100000000 + row*1000000 + copy*10000 + crystal;
-						
-						_tci=new PndEmcTwoCoordIndex(iX+250,iY+250,detId);
-						fIntTwoCoordMap[detId]=_tci;
-					}
+			for (Int_t row = -37; row <= 37; row++)
+			    for (Int_t col = -36; col <= 36; col++)
+			       if (row != 0 && col != 0)//in copy numbering of the crystals in the geometry root file, there's no CrystalCol=0 or CrystalRow=0
+				  {
+					detId =  module*100000000 + (row+37)*1000000 + (col+36);
+			  
+					iX = -col; //the minus sign before 'iX' is introduced, since the geometry of FwEndCap gets rotated by 180 deg around the y-axis in PndEmc.cxx
+					iY = row;
+					if (iX >0) // these two if conditions are introduced here to make the mapping down here (_tci) a continuous pattern
+					  iX -= 1;
+					if (iY >0)
+					  iY -= 1;
+					_tci=new PndEmcTwoCoordIndex(iX+250,iY+250,detId);
+
+					fIntTwoCoordMap[detId]=_tci;
+				  }
+				  
+			/*
+			//used to be as following for the old geometry version:
+			{
+			  detId =  module*100000000 + 999*1000000 + 999*10000 + 999;
+				iX = 999;
+				iY = 999;
+				_tci=new PndEmcTwoCoordIndex(iX+250,iY+250,detId);
+					fIntTwoCoordMap[detId]=_tci;
+			}
+			*/  
+  
 		}
+		
+		
 		if (module ==4)
 		{
 			for (Int_t row=1; row<=16;row++)
@@ -672,7 +688,7 @@ PndEmcMapperGeo1235Dat4Root::PndEmcMapperGeo1235Dat4Root()
 						if (copy==1)   {	iX = -row+1; iY =  crystal;   }
 						if (copy==2)   {	iX = -row+1; iY = -crystal+1; }
 						if (copy==3)   {	iX =  row;   iY = -crystal+1; }
-						if (copy==4)   {     iX =  row;   iY =  crystal;   }			   
+						if (copy==4)   {     iX =  row;   iY =  crystal;   }   
 						
 						detId =  module*100000000 + row*1000000 + copy*10000 + crystal;
 						
@@ -780,26 +796,30 @@ Int_t PndEmcMapper::GetDetId(Int_t iTheta,Int_t iPhi)
 		copy=(iPhi-1)/10+1;
 		crystal=10 - (iPhi-1)%10;
 	}
-	if ((iTheta>200)&&(iTheta<300))
+	
+	////////////////////////////////////////////////// mapping for FwEndCap geometry, 2011
+	if (iTheta>200 && iTheta<300)
 	  {
 	    module=3; 
-	    if ((iTheta<=250)&& (iPhi>250))
-	      {
-		copy = 1;  row = 1-(iTheta-250);  crystal = iPhi-250;
-	      }
-	    if ((iTheta<=250)&& (iPhi<=250))
-	      {
-		copy = 2;  row = 1-(iTheta-250);    crystal = 1-(iPhi-250);
-	      }
-	    if ((iTheta>250)&& (iPhi<=250))
-	      {
-		copy = 3;  row = (iTheta-250);    crystal = 1-(iPhi-250);
-	      }
-	    if ((iTheta>250)&& (iPhi>250))
-	      {
-		copy = 4;  row = iTheta-250;        crystal = iPhi-250;
-	      }
+	    copy = 0;
+	    if (iTheta<250 && iPhi>=250) {
+	      row = (iPhi-250)+1+37;
+	      crystal = -(iTheta-250)+36;
+	    }
+	    else if (iTheta<250 && iPhi<250) {  
+	      row = (iPhi-250)+37;
+	      crystal = -(iTheta-250)+36;
+	    }
+	    else if (iTheta>=250 && iPhi>=250) {
+	      row = (iPhi-250)+1+37;
+	      crystal = -(iTheta-250+1)+36;
+	    }
+	    else if (iTheta>=250 && iPhi<250) {
+	      row = (iPhi-250)+37;
+	      crystal = -(iTheta-250+1)+36;
+	    }
 	  }
+         //////////////////////////////////////////////////
 
 	if ((iTheta>300)&&(iTheta<400))
 	  {

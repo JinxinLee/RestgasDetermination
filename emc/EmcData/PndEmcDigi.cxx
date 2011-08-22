@@ -211,19 +211,35 @@ Short_t PndEmcDigi::GetXPad() const {
   if (GetModule()==1 || GetModule()==2)
     return (GetCrystal()+(GetCopy()-1)*10);
   
-  // Endcups and forward EMC
-  if ((GetModule()==3) || (GetModule()==4) || (GetModule()==5))
-    {
-      if (GetCopy()==1) {  return -GetRow()+1;}
-      if (GetCopy()==2) {  return -GetRow()+1; }
-      if (GetCopy()==3) {  return  GetRow();}
-      if (GetCopy()==4) {  return  GetRow();}
-    }
-  return -1000; // failure 
-
+  // BwEndCap and forward EMC
+  if ((GetModule()==4) || (GetModule()==5))
+  {
+    if (GetCopy()==1) {  return -GetRow()+1;}
+    if (GetCopy()==2) {  return -GetRow()+1; }
+    if (GetCopy()==3) {  return  GetRow();}
+    if (GetCopy()==4) {  return  GetRow();}
+  }
+  
+  // FwEndCap
+  if (GetModule()==3)
+    return -(GetCrystal()-36);//the minus sign before the paranthesis
+			      //is introduced since the geometry of
+			      //FwEndCap gets rotated by 180 deg
+			      //around the y-axis in PndEmc.cxx;
+                               
+  //this rotation was done in turn due to the way the geometry was
+  //defined in the geometry file of the forward end cap
+    
+  /*
+    if (GetModule()==3 && GetCrystal()==999 && GetRow()==999)
+    return GetCrystal();
+  */
+  
   // Test EMC
   if (GetModule()==6)
     return  GetRow();
+  
+ return -1000; // failure
 }
 
 Short_t PndEmcDigi::GetYPad() const {
@@ -236,14 +252,23 @@ Short_t PndEmcDigi::GetYPad() const {
   if (GetModule()==2)
     return (-GetRow()+30);
   
-  // Endcups and forward EMC
-  if ((GetModule()==3) || (GetModule()==4) || (GetModule()==5))
-    {
-      if (GetCopy()==1) {  return  GetCrystal();   }
-      if (GetCopy()==2) {  return -GetCrystal()+1;     }
-      if (GetCopy()==3) {  return -GetCrystal()+1; }
-      if (GetCopy()==4) {  return  GetCrystal();       }
-    } 
+  // BwEndCap and forward EMC
+  if ((GetModule()==4) || (GetModule()==5))
+  {
+    if (GetCopy()==1) {  return GetCrystal(); }
+    if (GetCopy()==2) {  return -GetCrystal() + 1; }
+    if (GetCopy()==3) {  return -GetCrystal() + 1; }
+    if (GetCopy()==4) {  return GetCrystal(); }
+  }
+  
+  // FwEndCap
+  if (GetModule()==3)
+    return (GetRow()- 37);
+    
+  /*
+   if (GetModule()==3 && GetCrystal()==999 && GetRow()==999)
+    return GetRow();
+  */
 
   // Test EMC
   if (GetModule()==6)

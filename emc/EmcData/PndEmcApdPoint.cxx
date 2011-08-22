@@ -84,8 +84,8 @@ Short_t PndEmcApdPoint::GetXPad() const {
   if (GetModule()==1 || GetModule()==2)
     return (GetCrystal()+(GetCopy()-1)*10);
   
-  // Endcups and forward EMC
-  if ((GetModule()==3) || (GetModule()==4) || (GetModule()==5))
+  // BwEndCap and forward EMC
+  if ((GetModule()==4) || (GetModule()==5))
     {
       if (GetCopy()==1) {  return -GetRow()+1;}
       if (GetCopy()==2) {  return -GetRow()+1; }
@@ -93,6 +93,15 @@ Short_t PndEmcApdPoint::GetXPad() const {
       if (GetCopy()==4) {  return  GetRow();}
     }
 
+  // FwEndCap
+  if (GetModule()==3)
+    return -(GetCrystal()-36);
+  
+  /*
+   if (GetModule()==3 && GetCrystal()==999 && GetRow()==999)
+    return GetCrystal();
+  */
+  
   // Test EMC
   if (GetModule()==6)
     return  GetRow();
@@ -110,8 +119,8 @@ Short_t PndEmcApdPoint::GetYPad() const {
   if (GetModule()==2)
     return (-GetRow()+30);
   
-  // Endcups and forward EMC
-  if ((GetModule()==3) || (GetModule()==4) || (GetModule()==5))
+  // BwEndCap and forward EMC
+  if ((GetModule()==4) || (GetModule()==5))
     {
       if (GetCopy()==1) {  return  GetCrystal();   }
       if (GetCopy()==2) {  return -GetCrystal()+1;     }
@@ -119,6 +128,15 @@ Short_t PndEmcApdPoint::GetYPad() const {
       if (GetCopy()==4) {  return  GetCrystal();       }
     }
 
+  // FwEndCap
+  if (GetModule()==3)
+    return GetRow()-37;
+  
+  /*
+   if (GetModule()==3 && GetCrystal()==999 && GetRow()==999)
+    return GetRow();  
+  */
+  
   // Test EMC
   if (GetModule()==6)
     return  GetCrystal();

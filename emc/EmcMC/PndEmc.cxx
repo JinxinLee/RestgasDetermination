@@ -46,6 +46,17 @@
 using std::cout;
 using std::endl;
 
+template <typename T>
+int getsign(const T& a)
+{
+return (a>0 ? 1: a<0 ? -1 : 0);
+}
+
+int main()
+{
+ int b = 3;
+ std::cout << "sign of " << b << " is " << getsign(b) << "\n";
+}
 // -----   Default constructor   -------------------------------------------
 PndEmc::PndEmc() {
   fEmcCollection        = new TClonesArray("PndEmcPoint");
@@ -115,111 +126,383 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
   TString nam = gMC->CurrentVolName();
 
   // ---------------------------------------------------------------------------------
-  // Getting parameters for the ROOT file with geometry for Forward Enc-Cap.
+  // Getting parameters for the ROOT file with geometry for Forward End-Cap.
   // Each of the subvolume name for FwEndCap geometry in the ROOT file contains "Vol". 
-  Int_t copyNoCrys=-1,copyNoBox=-1,copyNoSub=-1,copyNoQuar=-1;
-  Int_t idCrys=-1,idBox=-1,idSub=-1,idQuar=-1;
-  Int_t copyNo = -1, id = -1;
-  Int_t nMod = -1, nRow = -1, nCrys = -1; 
-   
+  Int_t copyNoCrys, copyNoBox, copyNoSub, copyNoQuar, idCrys, idBox, idSub, idQuar, copyNo, id, nMod, nRow, nCrys;
+  copyNoCrys = copyNoBox = copyNoSub = copyNoQuar = idCrys = idBox = idSub = idQuar = copyNo = id = nMod = nRow = nCrys = -1;
+
   if (nam.Contains("Vol")){
     
     TString namCrys    = gMC->CurrentVolOffName(0); // Crystal name 
     TString namBox     = gMC->CurrentVolOffName(1); // Box name  
-    TString namSub     = gMC->CurrentVolOffName(2); // Subunit name 
+    TString namSub     = gMC->CurrentVolOffName(2); // Subunit/HalfSubunit name 
     TString namQuar    = gMC->CurrentVolOffName(3); // Quarter name 
  
-    if (namQuar.Contains("QuarterVol")){
+    if (namSub.Contains("SubunitVolFwEndCap")){//including both Subunits and HalfSubunits
        
-      // Return the current volume off upward in the geometrical tree
-      // ID and copy number
-      idCrys = gMC->CurrentVolOffID(0,copyNoCrys);
-      idBox  = gMC->CurrentVolOffID(1,copyNoBox);
-      idSub  = gMC->CurrentVolOffID(2,copyNoSub)-1; // 
-      idQuar = gMC->CurrentVolOffID(3,copyNoQuar);
+      // Return the current volumeOff upward in the geometrical tree (copy number of the volume)
+      gMC->CurrentVolOffID(0,copyNoCrys);
+      gMC->CurrentVolOffID(1,copyNoBox);
+      gMC->CurrentVolOffID(2,copyNoSub); 
         
-      Int_t col=0, k1=0;
-      Int_t subrow=4;   // 4 crystals in each subvolume
-      Int_t next=0;     // starts (from the middle) next column, represents rows
-      copyNoSub-=1;     // When geometry is created, copyNoSub starts from 1-55 
-                        //and the loop below starts from 0-54
+      Int_t SubunitRow = -100;     // Subunit/HalfSubunit row number
+      Int_t SubunitCol = -100;     // Subunit/HalfSubunit column number
+      Int_t CrystalCol = -100;    // FW EndCap crystal column number
+      Int_t CrystalRow = -100;    // FW EndCap crystal row number
+      Int_t RestOfHalfSubunitRowNo[6] = {5, 6, 7, 8, 9, 9};//row number of 6 peripheral half Subunits
+      Int_t RestOfHalfSubunitColNo[6] = {8, 7, 6, 5, 3, 2};//column number of 6 peripheral half Subunits
 
-      if((copyNoSub >=  0) && (copyNoSub <=  6)){
-	next  = copyNoSub + 2;
-	col   = 0;
-      }else if((copyNoSub >=  7) && (copyNoSub <= 13)){
-	next  = (copyNoSub-7) +2;
-	col   = 1;
-      }else if((copyNoSub >= 14) && (copyNoSub <= 19)){
-	next  = (copyNoSub-14) +2;
-	col   = 2;
-      }else if((copyNoSub >= 20) && (copyNoSub <= 26)){
-	next  = (copyNoSub-20) +1;
-	col   = 3;
-      }else if((copyNoSub >= 27) && (copyNoSub <= 34)){
-	next  = (copyNoSub-27);
-	col   = 4;
-      }else if((copyNoSub >= 35) && (copyNoSub <= 41)){
-	next  = (copyNoSub-35);
-	col   = 5;
-      }else if((copyNoSub >= 42) && (copyNoSub <= 47)){
-	next  = (copyNoSub-42);
-	col   = 6;
-      }else if((copyNoSub >= 48) && (copyNoSub <= 52)){
-	next  = (copyNoSub-48);
-	col   = 7;
-      }else if((copyNoSub >= 53) && (copyNoSub <= 54)){
-	next  = (copyNoSub-53);
-	col   = 8;
-      }
-     
-      Int_t flag=1;
-	       
-      if (next<2  && col <3) flag=0; // 6 copyNoSub in the beam-pipe area
-      if (next==0 && col==3) flag=0; // 7th copyNoSub in the beam-pipe area
-      if (col>7  && next >1) flag=0; // empty copyNoSub in the residual area
-      if (col>6  && next >4) flag=0; //  -||- 
-      if (col>5  && next >5) flag=0; //  -||- 
-      if (col>4  && next >6) flag=0; //  -||- 
-      if (col>1  && next >7) flag=0; //  -||- 
+	//determination of SubunitRow and SubunitCol:
+	if (copyNoSub >= 1 && copyNoSub <= 10){       // the middle row of 10 HalfSubunits
+	  SubunitRow = 0;
+	  SubunitCol = pow(-1,1+(copyNoSub-1)/5)*(4+(copyNoSub-1)%5);
+	}       
+	else if (copyNoSub > 11 && copyNoSub < 24){ // the upper and lower pipe-region row of 14 HalfSubunits
+	  SubunitRow = pow(-1,(copyNoSub-11)/7)*2;
+	  SubunitCol = ((copyNoSub-11)%7)-3;
+	}
+	else if ((copyNoSub >= 25 && copyNoSub <= 27) || copyNoSub==57 || copyNoSub==58){ // the outermost left column of 5 HalfSubunits
+	  if (copyNoSub >= 25 && copyNoSub <= 27)
+	    SubunitRow = copyNoSub - 25;
+	  else
+	    SubunitRow = copyNoSub - 59;
+	  SubunitCol = -9;
+	}
+	else if (copyNoSub >= 40 && copyNoSub <= 44){ // the outermost right column of 5 HalfSubunits
+	  SubunitRow = 42 - copyNoSub;
+	  SubunitCol = 9;
+	}
+	else if (copyNoSub == 28 || copyNoSub ==39 || copyNoSub == 45 || copyNoSub == 56) { // 4 single peripheral half Subunits
+	  if (copyNoSub <= 39)
+	    SubunitRow = RestOfHalfSubunitRowNo[0];
+	  else
+	    SubunitRow = -RestOfHalfSubunitRowNo[0];
+	  SubunitCol = pow(-1,copyNoSub-1)*RestOfHalfSubunitColNo[0];
+	}
+	else if (copyNoSub == 29 || copyNoSub == 38 || copyNoSub == 46 || copyNoSub == 55) { // 4 single peripheral half Subunits
+	  if (copyNoSub <= 38)
+	    SubunitRow = RestOfHalfSubunitRowNo[1];
+	  else
+	    SubunitRow = -RestOfHalfSubunitRowNo[1];
+	  SubunitCol = pow(-1,copyNoSub)*RestOfHalfSubunitColNo[1];  
+	}
+	else if (copyNoSub == 30 || copyNoSub == 37 || copyNoSub == 47 || copyNoSub == 54) { // 4 single peripheral half Subunits
+	  if (copyNoSub <= 37)
+	    SubunitRow = RestOfHalfSubunitRowNo[2];
+	  else 
+	    SubunitRow = -RestOfHalfSubunitRowNo[2];
+	  SubunitCol = pow(-1,copyNoSub-1)*RestOfHalfSubunitColNo[2];
+	}
+	else if (copyNoSub == 31 || copyNoSub == 36 || copyNoSub == 48 || copyNoSub == 53) { // 4 single peripheral half Subunits
+	  if (copyNoSub <= 36)
+	    SubunitRow = RestOfHalfSubunitRowNo[3];
+	  else
+	    SubunitRow = -RestOfHalfSubunitRowNo[3];
+	  SubunitCol = pow(-1,copyNoSub)*RestOfHalfSubunitColNo[3];
+	}
+	else if (copyNoSub == 32 || copyNoSub == 35 || copyNoSub == 49 || copyNoSub == 52) { // 4 single peripheral half Subunits
+	  if (copyNoSub <= 35)
+	    SubunitRow = RestOfHalfSubunitRowNo[4];
+	  else
+	    SubunitRow = -RestOfHalfSubunitRowNo[4];
+	  SubunitCol = pow(-1,copyNoSub-1)*RestOfHalfSubunitColNo[4];
+	}
+	else if (copyNoSub == 33 || copyNoSub == 34 || copyNoSub == 50 || copyNoSub == 51) { // 4 single peripheral half Subunits
+	  if (copyNoSub <= 34)
+	    SubunitRow = RestOfHalfSubunitRowNo[5];
+	  else
+	    SubunitRow = -RestOfHalfSubunitRowNo[5];
+	  SubunitCol = pow(-1,copyNoSub)*RestOfHalfSubunitColNo[5];
+	}
+	else if (copyNoSub >= 61 && copyNoSub <= 74){ // the middle column of full Subunits
+	  SubunitRow = pow(-1,(copyNoSub-61)/7)*((copyNoSub - 61)%7 + 3);
+	  SubunitCol = 0;
+	} 
+	else if (copyNoSub%100 >= 1 && copyNoSub%100 <= 5){ // rest of the full Subunits
+	  if (copyNoSub/100 == 1 || copyNoSub/100 == 4){
+	    SubunitRow = 1;
+	    SubunitCol = pow(-1,1+copyNoSub/100)*(3 + copyNoSub%100);
+	  }
+	  else {//here necessarily: copyNoSub/100 == 2 || copyNoSub/100 == 3
+	    SubunitRow = -1;
+	    SubunitCol = pow(-1,copyNoSub/100)*(3 + copyNoSub%100);
+	  }  
+	}
+	else if (copyNoSub%100 >= 6 && copyNoSub%100 <= 11){ // rest of the full Subunits
+	  if (copyNoSub/100 == 1 || copyNoSub/100 == 4){
+	    SubunitRow = 2;
+	    SubunitCol = pow(-1,1+copyNoSub/100)*(2 + copyNoSub%100 - 5);
+	  }
+	  else {//here necessarily: copyNoSub/100 == 2 || copyNoSub/100 == 3
+	    SubunitRow = -2;
+	    SubunitCol = pow(-1,copyNoSub/100)*(2 + copyNoSub%100 - 5);
+	  }  
+	}      
+	else if (copyNoSub%100 >= 12 && copyNoSub%100 <= 19){ // rest of the full Subunits
+	  if (copyNoSub/100 == 1 || copyNoSub/100 == 4){
+	    SubunitRow = 3;
+	    SubunitCol = pow(-1,1+copyNoSub/100)*(copyNoSub%100 - 11);
+	  }
+	  else {//here necessarily: copyNoSub/100 == 2 || copyNoSub/100 == 3
+	    SubunitRow = -3;
+	    SubunitCol = pow(-1,copyNoSub/100)*(copyNoSub%100 - 11);
+	  }  
+	}
+	else if (copyNoSub%100 >= 20 && copyNoSub%100 <= 27){ // rest of the full Subunits
+	  if (copyNoSub/100 == 1 || copyNoSub/100 == 4){
+	    SubunitRow = 4;
+	    SubunitCol = pow(-1,1+copyNoSub/100)*(copyNoSub%100 - 19);
+	  }
+	  else {//here necessarily: copyNoSub/100 == 2 || copyNoSub/100 == 3
+	    SubunitRow = -4;
+	    SubunitCol = pow(-1,copyNoSub/100)*(copyNoSub%100 - 19);
+	  }  
+	}
+	else if (copyNoSub%100 >= 28 && copyNoSub%100 <= 34){ // rest of the full Subunits
+	  if (copyNoSub/100 == 1 || copyNoSub/100 == 4){
+	    SubunitRow = 5;
+	    SubunitCol = pow(-1,1+copyNoSub/100)*(copyNoSub%100 - 27);
+	  }
+	  else {//here necessarily: copyNoSub/100 == 2 || copyNoSub/100 == 3
+	    SubunitRow = -5;
+	    SubunitCol = pow(-1,copyNoSub/100)*(copyNoSub%100 - 27);
+	  }  
+	}
+	else if (copyNoSub%100 >= 35 && copyNoSub%100 <= 40){ // rest of the full Subunits
+	  if (copyNoSub/100 == 1 || copyNoSub/100 == 4){
+	     SubunitRow = 6;
+	     SubunitCol = pow(-1,1+copyNoSub/100)*(copyNoSub%100 - 34);
+	  }
+	  else {//here necessarily: copyNoSub/100 == 2 || copyNoSub/100 == 3
+	     SubunitRow = -6;
+	     SubunitCol = pow(-1,copyNoSub/100)*(copyNoSub%100 - 34);
+	  }  
+	}
+	else if (copyNoSub%100 >= 41 && copyNoSub%100 <= 45){ // rest of the full Subunits
+	  if (copyNoSub/100 == 1 || copyNoSub/100 == 4){
+	    SubunitRow = 7;
+	    SubunitCol = pow(-1,1+copyNoSub/100)*(copyNoSub%100 - 40);
+	  }
+	  else {//here necessarily: copyNoSub/100 == 2 || copyNoSub/100 == 3
+	    SubunitRow = -7;
+	    SubunitCol = pow(-1,copyNoSub/100)*(copyNoSub%100 - 40);
+	  }  
+	}
+	else if (copyNoSub%100 >= 46 && copyNoSub%100 <= 49){ // rest of the full Subunits
+	  if (copyNoSub/100 == 1 || copyNoSub/100 == 4){
+	    SubunitRow = 8;
+	    SubunitCol = pow(-1,1+copyNoSub/100)*(copyNoSub%100 - 45);
+	  }
+	  else {//here necessarily: copyNoSub/100 == 2 || copyNoSub/100 == 3
+	    SubunitRow = -8;
+	    SubunitCol = pow(-1,copyNoSub/100)*(copyNoSub%100 - 45);
+	  }  
+	}
+	else if (copyNoSub%100 == 50 ){ // rest of the full Subunits
+	  if (copyNoSub/100 == 1 || copyNoSub/100 == 4){
+	    SubunitRow = 9;
+	    SubunitCol = pow(-1,1+copyNoSub/100);
+	  }
+	  else {//here necessarily: copyNoSub/100 == 2 || copyNoSub/100 == 3
+	    SubunitRow = -9;
+	    SubunitCol = pow(-1,copyNoSub/100);
+	  }  
+	}
+	
+	Int_t flag=1; //this flag introducing is not necessary in this class but is also harmless      
+	if (fabs(SubunitRow)<=1 && fabs(SubunitCol)<=3) flag=0;      // empty copyNoSub in the beam-pipe area
+	else if (fabs(SubunitCol)==9 && fabs(SubunitRow)>=3) flag=0; // empty copyNoSub in the residual area
+	else if (fabs(SubunitCol)==8 && fabs(SubunitRow)>=6) flag=0; //  -||-
+	else if (fabs(SubunitCol)==7 && fabs(SubunitRow)>=7) flag=0; //  -||- 
+	else if (fabs(SubunitCol)==6 && fabs(SubunitRow)>=8) flag=0; //  -||- 
+	else if (fabs(SubunitCol)>=4 && fabs(SubunitRow)==9) flag=0; //  -||- 
+  
+	//determination of CrystalRow and CrystalCol:
+	if (flag && copyNoSub >= 61){//determination of CrystalRow and CrystalCol for the 214 full Subunits
+	      if(copyNoBox==1 || copyNoBox==4){
+		if(copyNoCrys==1 || copyNoCrys==3)
+		  CrystalRow = SubunitRow*4 + (3-getsign(SubunitRow))/2;
+		else //here necessarily: copyNoCrys==2 || copyNoCrys==4
+		  CrystalRow = SubunitRow*4 + (1-getsign(SubunitRow))/2;
+	      }
+	      else if(copyNoBox==2 || copyNoBox==3){
+		if(copyNoCrys==1 || copyNoCrys==3)
+		  CrystalRow = SubunitRow*4 - (1+getsign(SubunitRow))/2;
+		else //here necessarily: copyNoCrys==2 || copyNoCrys==4
+		  CrystalRow = SubunitRow*4 - (3+getsign(SubunitRow))/2;
+	      }
 
-      //18.02.09
-      if (flag){
-	if ( (copyNoBox == 0)  || (copyNoBox == 3) ){
-	  if(copyNoCrys == 1 || copyNoCrys == 3){ 
-	    nCrys = next*4 + 3;
-	  }else if (copyNoCrys == 0 || copyNoCrys == 2){
-	    nCrys = next*4 + 4;
-	  }
-	}else if ( (copyNoBox == 1)  || (copyNoBox == 2) ){
-	  if(copyNoCrys == 0 || copyNoCrys == 2){ 
-	    nCrys = next*4 + 2;
-	  }else if (copyNoCrys == 1 || copyNoCrys == 3){
-	    nCrys = next*4 + 1; 
-	  }
+	      if (copyNoSub >= 61 && copyNoSub <= 74) {//determination of CrystalCol for the 14 middle column full Subunits
+		  if(copyNoBox==1 || copyNoBox==3){
+		    if(copyNoCrys==1 || copyNoCrys==4)
+		      CrystalCol = 2;
+		    else //here necessarily: copyNoCrys==3 || copyNoCrys==2
+		      CrystalCol = 1;
+		  }
+		  else if(copyNoBox==4 || copyNoBox==2){
+		    if(copyNoCrys==1 || copyNoCrys==4)
+		      CrystalCol = -1;
+		    else //here necessarily: copyNoCrys==3 || copyNoCrys==2
+		      CrystalCol = -2;
+		  }
+	      }
+	      else {                                   //determination of CrystalCol for the other 4*50=200 full Subunits
+		  if(copyNoBox==1 || copyNoBox==3){
+		    if(copyNoCrys==1 || copyNoCrys==4)
+		      CrystalCol = SubunitCol*4 + (3+getsign(SubunitCol))/2;
+		    else //here necessarily: copyNoCrys==3 || copyNoCrys==2
+		      CrystalCol = SubunitCol*4 + (1+getsign(SubunitCol))/2;
+		  }
+		  else if(copyNoBox==4 || copyNoBox==2){
+		    if(copyNoCrys==1 || copyNoCrys==4)
+		      CrystalCol = SubunitCol*4 - (1-getsign(SubunitCol))/2;
+		    else //here necessarily: copyNoCrys==3 || copyNoCrys==2
+		      CrystalCol = SubunitCol*4 - (3-getsign(SubunitCol))/2;
+		  }
+	      }
 	}
-	if ( (copyNoBox == 0)  || (copyNoBox == 2) ){
-	  if(copyNoCrys == 0 || copyNoCrys == 3){ 
-	    nRow = subrow*col + 4;
-	  }else if (copyNoCrys == 1 || copyNoCrys == 2){
-	    nRow = subrow*col + 3;
-	  }
-	}else if ( (copyNoBox == 1)  || (copyNoBox == 3) ){
-	  if(copyNoCrys == 0 || copyNoCrys == 3){ 
-	    nRow = subrow*col + 2;
-	  }else if (copyNoCrys == 1 || copyNoCrys == 2){
-	    nRow = subrow*col + 1; 
-	  }
+
+	else if (flag && copyNoSub <= 10) {//determination of CrystalRow and CrystalCol for the 10 middle-row half Subunits
+	      if(copyNoCrys==1 || copyNoCrys==3)
+		CrystalRow = 1;
+	      else //here necessarily: copyNoCrys==2 || copyNoCrys==4
+		CrystalRow = -1;
+
+	      if(copyNoBox==1){
+		if(copyNoCrys==1 || copyNoCrys==4)
+		  CrystalCol = SubunitCol*4 + (3+getsign(SubunitCol))/2;
+		else //here necessarily: copyNoCrys==3 || copyNoCrys==2
+		  CrystalCol = SubunitCol*4 + (1+getsign(SubunitCol))/2;
+	      }
+	      else { //here necessarily: copyNoBox==2
+		if(copyNoCrys==1 || copyNoCrys==4)
+		  CrystalCol = SubunitCol*4 - (1-getsign(SubunitCol))/2;
+		else //here necessarily: copyNoCrys==3 || copyNoCrys==2
+		  CrystalCol = SubunitCol*4 - (3-getsign(SubunitCol))/2;
+	      }
 	}
-      }
+	else if (flag && copyNoSub > 11 && copyNoSub < 24) {//determination of CrystalRow and CrystalCol for the 10 upper and lower pipe-region row of half subunits
+	      if(copyNoCrys==1 || copyNoCrys==3)
+		CrystalRow = (1+17*getsign(SubunitRow))/2;
+	      else //here necessarily: copyNoCrys==2 || copyNoCrys==4
+		CrystalRow = (17*getsign(SubunitRow)-1)/2;
+
+	      if (SubunitCol == 0 && copyNoBox==1) {
+		if(copyNoCrys==1 || copyNoCrys==4)
+		  CrystalCol = 2;
+		else
+		  CrystalCol = 1;
+	      }
+	      else if (SubunitCol == 0) {//here necessarily: copyNoBox==2
+		if (copyNoCrys==1 || copyNoCrys==4)
+		  CrystalCol = -1;
+		else
+		  CrystalCol = -2;
+	      }
+	      else if(copyNoBox==1){
+		if(copyNoCrys==1 || copyNoCrys==4)
+		  CrystalCol = SubunitCol*4 + (3+getsign(SubunitCol))/2;
+		else //here necessarily: copyNoCrys==3 || copyNoCrys==2
+		  CrystalCol = SubunitCol*4 + (1+getsign(SubunitCol))/2;
+	      }
+	      else { //here necessarily: copyNoBox==2
+		if(copyNoCrys==1 || copyNoCrys==4)
+		  CrystalCol = SubunitCol*4 - (1-getsign(SubunitCol))/2;
+		else //here necessarily: copyNoCrys==3 || copyNoCrys==2
+		  CrystalCol = SubunitCol*4 - (3-getsign(SubunitCol))/2;
+	      }
+	}
+	else if (flag && ((copyNoSub >= 25 && copyNoSub <= 27) || copyNoSub == 57 || copyNoSub == 58 || (copyNoSub >= 40 && copyNoSub <= 44))) {//determination of CrystalRow and CrystalCol for the 2 outermost left and right columns of half Subunits
+	      if(copyNoBox==1 && (copyNoCrys==1 || copyNoCrys==4))
+		if (copyNoSub == 25 || copyNoSub == 42)
+		  CrystalRow = 2;
+		else
+		  CrystalRow = SubunitRow*4 + (3+getsign(SubunitRow))/2;
+	      else if (copyNoBox==1)//here necessarily: copyNoCrys==3 || copyNoCrys==2
+		if (copyNoSub == 25 || copyNoSub == 42)
+		  CrystalRow = 1;
+		else
+		  CrystalRow = SubunitRow*4 + (1+getsign(SubunitRow))/2;
+		
+	      else if (copyNoBox==2 && (copyNoCrys==1 || copyNoCrys==4))
+		if (copyNoSub == 25 || copyNoSub == 42)
+		  CrystalRow = -1;
+		else
+		  CrystalRow = SubunitRow*4 - (1-getsign(SubunitRow))/2;
+	      else if (copyNoBox==2)//here necessarily: copyNoCrys==3 || copyNoCrys==2
+		if (copyNoSub == 25 || copyNoSub == 42)
+		  CrystalRow = -2;
+		else
+		  CrystalRow = SubunitRow*4 - (3-getsign(SubunitRow))/2;
+		      
+	      if (copyNoCrys==1 || copyNoCrys==3)
+		if (!(copyNoSub >= 40 && copyNoSub <= 44))
+		  CrystalCol = -36;
+		else
+		  CrystalCol = 35;
+	      else //here necessarily: copyNoCrys==4 || copyNoCrys==2
+		if (!(copyNoSub >= 40 && copyNoSub <= 44))
+		  CrystalCol = -35;
+		else
+		  CrystalCol = 36;
+	}
+	else if (flag && (copyNoSub == 28 || copyNoSub ==29 || copyNoSub == 38 || copyNoSub == 39 || copyNoSub == 45 || copyNoSub == 46 || copyNoSub == 55 || copyNoSub == 56)) {//determination of CrystalRow and CrystalCol for the 8 single peripheral half Subunits
+	      if (copyNoBox==1 && (copyNoCrys==1 || copyNoCrys==4))
+		CrystalRow = SubunitRow*4 + (3-getsign(SubunitRow))/2;
+	      else if (copyNoBox==1) //here necessarily: copyNoCrys==3 || copyNoCrys==2
+		CrystalRow = SubunitRow*4 + (1-getsign(SubunitRow))/2;
+	      else if(copyNoCrys==1 || copyNoCrys==4) //here necessarily: copyNoBox==2
+		CrystalRow = SubunitRow*4 - (1+getsign(SubunitRow))/2;
+	      else //here necessarily: copyNoBox==2 && (copyNoCrys==3 || copyNoCrys==2)
+		CrystalRow = SubunitRow*4 - (3+getsign(SubunitRow))/2;
+			
+	      if (copyNoCrys==4 || copyNoCrys==2)
+		CrystalCol = SubunitCol*4 + (1-getsign(SubunitCol))/2;
+	      else //here necessarily: copyNoCrys==3 || copyNoCrys==1
+		CrystalCol = SubunitCol*4 - (1+getsign(SubunitCol))/2;
+	}
+	else if (flag && ((copyNoSub >= 30 && copyNoSub <= 37) || (copyNoSub >=47 && copyNoSub <= 54))) {//determination of CrystalRow and CrystalCol for the 16 single peripheral half Subunits
+	      if (copyNoCrys==1 || copyNoCrys==3)
+		CrystalRow = SubunitRow*4 + (1-3*getsign(SubunitRow))/2;
+	      else //here necessarily: copyNoCrys==4 || copyNoCrys==2
+		CrystalRow = SubunitRow*4 - (1+3*getsign(SubunitRow))/2;
+		
+	      if (copyNoBox==1 && (copyNoCrys==1 || copyNoCrys==4))
+		CrystalCol = SubunitCol*4 + (3+getsign(SubunitCol))/2;
+	      else if (copyNoBox==1) //here necessarily: copyNoCrys==3 || copyNoCrys==2
+		CrystalCol = SubunitCol*4 + (1+getsign(SubunitCol))/2;
+	      else if (copyNoCrys==1 || copyNoCrys==4) //here necessarily: copyNoBox==2
+		CrystalCol = SubunitCol*4 - (1-getsign(SubunitCol))/2;
+	      else //here necessarily: copyNoBox==2 && (copyNoCrys==3 || copyNoCrys==2)
+		CrystalCol = SubunitCol*4 - (3-getsign(SubunitCol))/2;
+	}
+      
+      if (CrystalRow == -100 || CrystalCol == -100)
+	std::cout << "No assignment for CrystalRow and CrystalCol\n";
 
       nMod=3;
-      copyNo = copyNoQuar;
+      copyNo = 0;
+      nRow = CrystalRow + 37;  //now nRow represents the FW EndCap crystal row number (-37<=CrystalRow<=37, CrystalRow!=0)----> 0<=nRow<=74, nRow!=37
+      nCrys = CrystalCol + 36; //now nCrys represents the FW EndCap crystal column number (-36<=CrystalCol<=36, CrystalCol!=0)----->0<=nCrys<=72, nCrys!=36
      
       //Text_t buffer[40];
-      //sprintf(buffer,"emc0%dr%dc%dcp%d",nMod, nRow, nCrys, copyNoQuar);
+      //sprintf(buffer,"emc0%dr%dc%dcp%d",nMod, CrystalCol, CrystalRow, copyNoQuar);
       //copyNo = copyNoQuar;
     }
+    
+    /*
+    //used for the old version:
+    if (namCrys.Contains("CrystalVol_block"))
+    {
+     gMC->CurrentVolOffID(0,copyNoCrys); 
+     nMod=3;
+     copyNo = copyNoCrys; 
+     nRow = 999;
+     nCrys = 999;
+    }
+    */
+                 
+    
     else if (namQuar.Contains("Quarter4Vol")){
       // ----- NEW Backward EndCap - with the FwEndCap geometry ----
        
@@ -595,7 +878,7 @@ void PndEmc::SetGeometryVersion(const Int_t GeoNumber) {
     break;
 
   case 8:
-    SetGeometryFileName("emc_module3new.root");
+    SetGeometryFileName("emc_module3_2011_new.root");//emc_module4_StraightGeo266.root
     break;
 
   case 9:
@@ -623,7 +906,7 @@ void PndEmc::SetGeometryVersion(const Int_t GeoNumber) {
     break;
 
   case 15:
-    SetGeometryFileNameTriple("emc_module125.dat","emc_module3new.root","emc_module4_StraightGeo24.4.root");
+    SetGeometryFileNameTriple("emc_module125.dat","emc_module3_2011_new.root","emc_module4_StraightGeo24.4.root");
     MapperVersion =6;
     break;
 
@@ -643,7 +926,7 @@ void PndEmc::SetGeometryVersion(const Int_t GeoNumber) {
 	break;
 
   case 19:
-    SetGeometryFileNameTriple("emc_module12.dat","emc_module3new.root","emc_module4_StraightGeo24.4.root");
+    SetGeometryFileNameTriple("emc_module12.dat","emc_module3_2011_new.root","emc_module4_StraightGeo24.4.root");
     MapperVersion =6;
     break;
 
@@ -827,7 +1110,7 @@ void PndEmc::ConstructRootGeometry() {
 		Volume=(TGeoVolume *)f->Get("Emc3");
 		TGeoRotation rotVolume;
 		rotVolume.RotateY(180.);
-		TransRotMatrix = new TGeoCombiTrans(0., 0., 221.,new TGeoRotation(rotVolume));
+		TransRotMatrix = new TGeoCombiTrans(0., 0., 215.2,new TGeoRotation(rotVolume));//distance of the FwEndCap module to the target point was obtained to be around 2152 mm.
 	}
 	if(Volume == NULL){
 		printf("Could not get geometry from file %s!.\nIs this the right file?\n",filename.Data());
