@@ -503,7 +503,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     _trackfinder->setTTProxcut(_TTproxcut);
 
     // Hit-Track Correlators
-    _trackfinder->addCorrelator(new PndTpcProximityHTCorrelator(_proxcut, _proxZstretch));
+    _trackfinder->addCorrelator(new PndTpcProximityHTCorrelator(_proxcut, _proxZstretch, _helixcut));
     _trackfinder->addCorrelator(new PndTpcHelixHTCorrelator(_helixcut));
 
     // Track-Track Correlators

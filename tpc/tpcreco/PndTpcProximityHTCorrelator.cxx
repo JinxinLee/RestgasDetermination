@@ -36,8 +36,8 @@
 #define SPEEDUP 8
 
 
-PndTpcProximityHTCorrelator::PndTpcProximityHTCorrelator(double cut, double zStretch)
-  : _proxcut(cut), _zStretch(zStretch), _meandist(0.7)
+PndTpcProximityHTCorrelator::PndTpcProximityHTCorrelator(double cut, double zStretch, double helixcut)
+  : _proxcut(cut), _zStretch(zStretch), _meandist(0.7), _helixcut(2.*helixcut)
 {}
 
 
@@ -50,47 +50,19 @@ PndTpcProximityHTCorrelator::corr(PndTpcRiemannTrack* trk,
 
   TVector3 posX(rhit->cluster()->pos());
 
-
-  // fast estimation
-  /*double hitZ(posX.Z());
-  double dz0(hitZ - trk->getFirstHit()->z());
-  double dz1(hitZ - trk->getLastHit()->z());
-
-  if (dz0*dz1 > 0){ // hit does not lie in track in z space
-    if( fabs(dz0) > 2*_proxcut && fabs(dz1) > 2*_proxcut ){
-      matchQuality = 2*_proxcut;
-      survive = false;
-      //std::cout<<"failed 1st check\n";
-      return true;
-    }
-    else if (trk->isFitted()){
-      survive=true;
-      return true;
-    }
-  }*/
-
-
-
   // fast estimation: distance to circle in 2D
   if (trk->isFitted()){
-    double radius(trk->r());
-    double circDist = fabs( (posX - trk->center()).Perp() - radius );
-    if ( circDist > 0.5 ){
+    double circDist = fabs( (posX - trk->center()).Perp() - trk->r() );
+    if ( circDist > _helixcut ){
       matchQuality=circDist;
       survive = false;
-      //std::cout<<"failed 2nd check\n";
       return true;
     }
   }
 
 
-
   unsigned int trksize(trk->getNumHits());
-  double quality(trk->quality());
 
-  //scale proxcut with track quality (makes it looser for better defined tracks)
-  double proxcut(_proxcut);
-  proxcut *= 1 + (2 * quality);
 
   unsigned int i(0);
   int closest(0);
@@ -101,7 +73,7 @@ PndTpcProximityHTCorrelator::corr(PndTpcRiemannTrack* trk,
     TVector3 pos;
     double dis;
     double largecut(SPEEDUP*_meandist);
-    //if (largecut < 1.5*proxcut) largecut = 1.5*proxcut;
+    //if (largecut < 3*_proxcut) largecut = 3*_proxcut;
 
     bool faraway(true);
 
@@ -131,6 +103,12 @@ PndTpcProximityHTCorrelator::corr(PndTpcRiemannTrack* trk,
   if(step<SPEEDUP) step=SPEEDUP;
 
   // get closest hit from track
+
+  //scale proxcut with track quality (makes it looser for better defined tracks)
+  double proxcut(_proxcut);
+  double quality(trk->quality());
+  proxcut *= 1 + (2 * quality);
+
   double l;
   TVector3 dist(posX - trk->getHit( trk->getClosestHit(rhit, l, closest-2*step, closest+2*step) )->cluster()->pos());
 

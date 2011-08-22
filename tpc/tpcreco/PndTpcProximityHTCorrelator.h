@@ -32,7 +32,7 @@ class PndTpcProximityHTCorrelator : public PndTpcAbsHitTrackCorrelator {
 public:
 
   // Constructors/Destructors ---------
-  PndTpcProximityHTCorrelator(double cut, double zStretch = 1.);
+  PndTpcProximityHTCorrelator(double cut, double zStretch = 1., double helixcut = 1.0);
   ~PndTpcProximityHTCorrelator(){;}
 
   // Accessors -----------------------
@@ -53,6 +53,7 @@ private:
   double _proxcut;
   double _zStretch;
   double _meandist; // mean distance between hits in track
+  double _helixcut; // for fast approximation
   // Private Methods -----------------
 
 };
