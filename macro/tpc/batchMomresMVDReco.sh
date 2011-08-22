@@ -1,5 +1,5 @@
 #!/bin/bash
-#$ -l h_vmem=2000M,medium=TRUE
+#$ -l h_vmem=1950M,special=TRUE
 # Divert output to directory
 #$ -o /nfs/hicran/scratch/user/fboehmer/sgeout
 # Write error in same file
@@ -15,7 +15,7 @@ cd $PANDAPATH
 source build/config.sh
 
 #MOM=5.0
-PDG=211
+PDG=13
 
 DATAPATH=/nfs/nas/data/panda/tpc/SIM/momres/mult1
 
@@ -23,10 +23,8 @@ for file in $DATAPATH/*PDG$PDG*mom$MOM*deg$ID*raw.root
 do
     if [ -e $file ] 
     then
-	root -l -b -q macro/tpc/runMomresRecoMVD_batch.C\(\"$file\"\)
+	root -l -b -q macro/tpc/runMomresRecoMVD_batch.C\(\"$file\",5000\)
     fi
 done
-
-
 
 exit 0

@@ -1,5 +1,5 @@
 #!/bin/bash
-#$ -l h_vmem=2000M,short=TRUE
+#$ -l h_vmem=12000M,special=TRUE
 # Divert output to directory
 #$ -o /nfs/hicran/scratch/user/fboehmer/sgeout
 # Write error in same file
@@ -15,9 +15,9 @@ cd $PANDAPATH
 source build/config.sh
 
 #MOM=5.0
-PDG=211
+PDG=13
 
-DATAPATH=/nfs/nas/data/panda/tpc/SIM/momres/mult10
+DATAPATH=/nfs/nas/data/panda/tpc/SIM/momres/mult1
 
 for file in $DATAPATH/*PDG$PDG*mom$MOM*deg$ID*mc.root 
 do

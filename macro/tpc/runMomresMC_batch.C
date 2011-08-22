@@ -1,4 +1,4 @@
-void runMomresMC_batch(float mom, int angle, int PDG, unsigned int MULT, 
+void runMomresMC_batch(float mom, int angle1, int interval, int PDG, unsigned int MULT, 
 		  TString outdir, int nEvents=5000, unsigned int seed=0) {
   
   // ------------------------------------------------------------------------
@@ -20,6 +20,8 @@ void runMomresMC_batch(float mom, int angle, int PDG, unsigned int MULT,
   int length = jobdir.Length();
   if(jobdir[length-1] != "/") 
     jobdir.Append("/");
+
+  int angle2 = angle1+interval;
   
   TString jobname="Momres_PDG";
   char bufferPDG[5];
@@ -31,7 +33,7 @@ void runMomresMC_batch(float mom, int angle, int PDG, unsigned int MULT,
   jobname.Append(buffermom);
   jobname.Append("_deg");
   char bufferang[5];
-  sprintf(bufferang, "%i", angle);
+  sprintf(bufferang, "%i", angle1);
   jobname.Append(bufferang);
   jobname.Append("_mult");
   char buffermult[5];
@@ -97,14 +99,18 @@ void runMomresMC_batch(float mom, int angle, int PDG, unsigned int MULT,
   Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
   fRun->AddModule(Mvd);
 
-  
+  FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+  Gem->SetGeometryFileName("gem_3Stations.root");
+  fRun->AddModule(Gem);
+
+
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
   FairBoxGenerator* boxGen = new FairBoxGenerator(PDG, MULT); 
   boxGen->SetPRange(mom,mom); // GeV/c 
   boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(angle, angle); // Polar angle in lab system range [degree]
+  boxGen->SetThetaRange(angle1, angle2); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., 0.); 
   primGen->AddGenerator(boxGen);
 

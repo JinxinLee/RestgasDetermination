@@ -7,18 +7,21 @@ do
     echo $p
     if [[ "$1" =~ "MC.sh" ]]
     then
-	qsub -t 5-160:5 -v MOM=$p -N MC_MOM_$p $1 
+	qsub -t 7-23:2 -v MOM=$p -v INT=2 -N MC_MOM_$p $1 
+	qsub -t 25-160:5 -v MOM=$p -v INT=5 -N MC_MOM_$p $1 
     fi
     if [[ "$1" =~ "Digi.sh" ]]
     then
 	#create DEPENDENT job
-	qsub -t 5-160:5 -v MOM=$p -N Digi_MOM_$p -hold_jid MC_MOM_$p $1 
+	qsub -t 7-23:2 -v MOM=$p -N Digi_MOM_$p -hold_jid MC_MOM_$p $1 
+	qsub -t 25-160:5 -v MOM=$p -N Digi_MOM_$p -hold_jid MC_MOM_$p $1 
     fi
     if [[ "$1" =~ "Reco.sh" ]]
     then
 	#create DEPENDENT job
+	qsub -t 7-23:2 -v MOM=$p -N Reco_MOM_$p -hold_jid Digi_MOM_$p $1 
 	qsub -t 5-160:5 -v MOM=$p -N Reco_MOM_$p -hold_jid Digi_MOM_$p $1 
-	#qsub -t 5-160:5 -v MOM=$p -N Reco_MOM_$p $1 
+	
     fi
 done
 

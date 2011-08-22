@@ -1,9 +1,12 @@
-void runMomresDigi_batch(TString filename, Int_t nEvents = 0) {
+void runMomresDigi_batch(TString filename) {
 
 
 // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
+
+  // Number of events to process
+  Int_t nEvents = 0;
  
   TString mcMode = "TGeant3";
   // ----  Load libraries   -------------------------------------------------
@@ -63,7 +66,7 @@ void runMomresDigi_batch(TString filename, Int_t nEvents = 0) {
 
   PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
   tpcElec->SetPersistence();
-  //tpcElec->SetSamplePersistence();
+  tpcElec->SetPSATimeCalib(2.8);
   fRun->AddTask(tpcElec);
 
   PndTpcEvtTimeGenTask* evttimegen = new PndTpcEvtTimeGenTask();
@@ -86,6 +89,18 @@ void runMomresDigi_batch(TString filename, Int_t nEvents = 0) {
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls); 
   
+  PndTpcGemTask* tpcGem = new PndTpcGemTask();
+  //tpcGem->SetPersistence();
+  fRun->AddTask(tpcGem);
+
+  Int_t verboseLevel = 0;
+  PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", verboseLevel);
+  fRun->AddTask(gemDigitize);
+
+  PndGemFindHits* gemFindHits = new PndGemFindHits("GEM Hit Finder", verboseLevel);
+  fRun->AddTask(gemFindHits);
+  
+
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   fRun->Run(0, nEvents);
