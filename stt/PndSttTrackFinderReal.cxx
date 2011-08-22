@@ -120,10 +120,10 @@ PndSttTrackFinderReal::~PndSttTrackFinderReal()
 void PndSttTrackFinderReal::WriteHistograms(){
 
 //     TFile* file = FairRootManager::Instance()->GetOutFile();
-          TFile* file = FairRootManager::Instance()->GetOutFile();
- 	  file->cd();
- 	  file->mkdir("PndSttTrackFinderReal");
- 	  file->cd("PndSttTrackFinderReal");
+	  TFile* file = FairRootManager::Instance()->GetOutFile();
+	  file->cd();
+	  file->mkdir("PndSttTrackFinderReal");
+	  file->cd("PndSttTrackFinderReal");
 
 	hdist->Write();
 	hdistgoodlast->Write();
@@ -2024,7 +2024,11 @@ if( istampa>=1 && nMCTracksaccettabili>0 ){
 		dirSeed.SetMag(1.);
 
 		pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
-		pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[i]   );
+		if(doMcComparison){
+			pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[i]   );
+		} else {
+			pTrckCand->setMcTrackId(-1);
+		}
 		for(j=0; j< nTotalHits[i]; j++){
 			pTrckCand->AddHit(
 			FairRootManager::Instance()->GetBranchId(fSttBranch),
