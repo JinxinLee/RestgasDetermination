@@ -17,6 +17,8 @@
   //-----------------------------
   // 4*24.374+0.36+2*(0.6+0.18+0.24+0.24)=100.376 mm (Henk geometry of a Subunit made using UGS NX 5)
   //
+#include <string>
+
 void createRootGeoFileFwEndCap_2011()
 {
   TH1F *HISTOsubunitTheta = new TH1F("HISTOsubunitTheta","Subunit #theta",1250,4.5,17.);//0.01 degree resolution of the histogram
@@ -115,14 +117,17 @@ void createRootGeoFileFwEndCap_2011()
 
   //--------------------------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-    
-  TString outfile= "/opt/fairroot/pandaroot/geometry/emc_module3_2011_new.root";
-     
-  TFile* fi = new TFile(outfile,"RECREATE");
+
+  // Get env variable value (VMC working directory)
+  std::string vmcWorkdir = getenv("VMCWORKDIR");
+
+  // Open the output file, to write geometry
+  TFile* fi = new TFile( (vmcWorkdir + "/geometry/emc_module3_2011_new.root").c_str(),
+			 "RECREATE");
    
   FairGeoLoader* geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
   FairGeoInterface *geoFace = geoLoad->getGeoInterface();
-  geoFace->setMediaFile("/opt/fairroot/pandaroot/geometry/media_pnd.geo");
+  geoFace->setMediaFile( (vmcWorkdir + "/geometry/media_pnd.geo").c_str());
   geoFace->readMedia();
   geoFace->print();
 
