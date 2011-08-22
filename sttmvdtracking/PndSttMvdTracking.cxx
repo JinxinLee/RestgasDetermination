@@ -3668,7 +3668,11 @@ if( istampa>=1 && nMCTracksaccettabili>0){
 		qop = CHARGE[ncand]/dirSeed.Mag();
 		dirSeed.SetMag(1.);
 		pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
-		pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[ncand]   );
+		if(doMcComparison){
+			pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[ncand]   );
+		}else{
+			pTrckCand->setMcTrackId(-1);
+		}
 //		pTrckCand->sorted=true;
 
 
