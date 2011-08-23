@@ -33,7 +33,7 @@
 // Class Member definitions -----------
 
 //#define MCCORR // use ideal correlation for adjusting cuts!!
-#define SPEEDUP 8
+#define SPEEDUP 5
 
 
 PndTpcProximityHTCorrelator::PndTpcProximityHTCorrelator(double cut, double zStretch, double helixcut)
@@ -54,63 +54,79 @@ PndTpcProximityHTCorrelator::corr(PndTpcRiemannTrack* trk,
   if (trk->isFitted()){
     double circDist = fabs( (posX - trk->center()).Perp() - trk->r() );
     if ( circDist > _helixcut ){
-      matchQuality=circDist;
+      matchQuality = circDist;
       survive = false;
       return true;
     }
   }
 
 
+
+
   unsigned int trksize(trk->getNumHits());
-
-
-  unsigned int i(0);
-  int closest(0);
-  int step(0);
-
-  // do some fast approximation to speed things up
-  if(trksize > 3){
-    TVector3 pos;
-    double dis;
-    double largecut(SPEEDUP*_meandist);
-    //if (largecut < 3*_proxcut) largecut = 3*_proxcut;
-
-    bool faraway(true);
-
-    while(true){
-      pos = trk->getHit(i)->cluster()->pos();
-      dis = (posX-pos).Mag();
-      //std::cout<<"i "<<i<<"   dis "<<dis<<std::endl;
-      if(dis<largecut) {
-        faraway=false;
-        closest = i;
-        break;
-      }
-      if(i==trksize-1) break;  // last hit was checked
-      step=(int)(dis/_meandist);
-      i+=step;
-      if(i>trksize-1) i=trksize-1;
-    }
-
-    if(faraway){
-      matchQuality=largecut;
-      survive=false;
-      //std::cout<<"failed 2nd check\n";
-      return true;
-    }
-  }
-  
-  if(step<SPEEDUP) step=SPEEDUP;
-
-  // get closest hit from track
 
   //scale proxcut with track quality (makes it looser for better defined tracks)
   double proxcut(_proxcut);
   double quality(trk->quality());
   proxcut *= 1 + (2 * quality);
 
+
+  TVector3 pos, dis3;
+  double dis;
+  
+    
+  // check last and first hit for match
+  for (unsigned int i=trksize-1; true; i-=i){
+    pos = trk->getHit(i)->cluster()->pos();
+    dis3 = posX - pos;
+    dis3.SetZ(dis3.Z()/_zStretch);
+    dis = dis3.Mag();
+    if (dis < proxcut){
+      matchQuality = dis;
+      survive = true;
+      return true;
+    }
+    if (i==0) break;
+  }
+  
+  if (trksize < 3) { // the hit (trksize=1), resp. both hits  (trksize=2) have been checked and did not survive
+    matchQuality = dis;
+    survive = false;
+    return true;
+  }
+
+
+
+
+  int closest(-1);
+
+  // now check every SPEEDUP hit    
+  double largecut(0.6*SPEEDUP*_meandist + proxcut*_zStretch), mindis(1.E10);
+  
+  for (unsigned int i=2; i<trksize-1; i+=SPEEDUP){
+    pos = trk->getHit(i)->cluster()->pos();
+    dis = (posX-pos).Mag();
+    if(dis<mindis) {
+      mindis = dis;
+      if (mindis < largecut) closest = i;
+      if (mindis < proxcut && trk->isFitted()){
+        matchQuality = mindis;
+        survive = true;
+        return true;
+      }
+    }
+  }
+
+  if(closest == -1){ // no hit closer than largecut has been found
+    matchQuality=mindis;
+    survive=false;
+    return true;
+  }
+
+  
+
   double l;
-  TVector3 dist(posX - trk->getHit( trk->getClosestHit(rhit, l, closest-2*step, closest+2*step) )->cluster()->pos());
+  TVector3 dist(posX - trk->getHit( trk->getClosestHit(rhit, l, closest-SPEEDUP-2, closest+SPEEDUP+2) )->cluster()->pos());
 
 
 // use ideal correlation for adjusting cuts!!
