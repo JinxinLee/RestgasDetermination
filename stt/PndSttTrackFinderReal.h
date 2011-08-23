@@ -127,7 +127,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                  Rmin=20.,
                  Rmax=700.,
 		 PMAX=100.,
-                 StrawRadius = DiameterStrawTube/2. ,
+                 STRAWRADIUS = DiameterStrawTube/2. ,
                  StrawDriftError = 0.02,
 		 SKEWinclination_DEGREES = 3.,
                  CXmin=-150.,  CXmax=150.,
@@ -772,7 +772,6 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
 
-
 	bool SttParalCleanup(
 			Double_t GAP,
 			Double_t Oxx,
@@ -780,14 +779,19 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 			Double_t Rr,
 			Short_t Charge,
 			Double_t Start[3],
-			UShort_t &nHits,
-			UShort_t *ListHits,
+			Double_t FI0,
+			Double_t FiLimitAdmissible,
+			UShort_t nHits,
+			UShort_t *Listofhits,
 			Double_t info[][7],
 			Double_t RStrawDetMin,
 			Double_t RStrawDetInnerParMax,
 			Double_t RStrawDetOuterParMin,
 			Double_t RStrawDetMax
 			);
+
+
+
 
 
 	bool SttSkewCleanup(
@@ -797,13 +801,16 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 			Double_t Rr,
 			Short_t  Charge,
 			Double_t Start[3],
+			Double_t FI0,
+			Double_t FiLimitAdmissible,
 			UShort_t nHits,
-			Double_t *auxS,
+			UShort_t *Listofhits,
+			Double_t *S,
+			Double_t info[][7],
 			Double_t RminStrawSkew,
 			Double_t RmaxStrawSkew,
-			bool ConsiderLastHit,
-			Double_t cut,
-			UShort_t maxnum
+			Double_t cut, // cut distance (in cm).
+			UShort_t maxnum // max number allowed of failures to pass the cut.
 			);
 
 	bool BadTrack_ParStt(
@@ -814,14 +821,13 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 			Double_t Xcross[2],  // Xcross[0]=point of entrance;
 						//  Xcross[1]=point of exit.
 			Double_t Ycross[2],
-			bool  ConsiderLastHit,
 			UShort_t nHits,
 			UShort_t* ListHits,
 			Double_t info[][7],
-			Double_t RStrawDetectorParMin,
-			Double_t RStrawDetectorParMax,
 			Double_t cut,
-			UShort_t maxnum
+			UShort_t maxnum,
+			UShort_t islack // uncertainty allowed as far as
+				// the n. of hits that should be present.
 				);
 
 
@@ -984,6 +990,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 				Double_t Ycross[2]
 					);
 
+
 	void SeparateInnerOuterParallel(
 
 				// input
@@ -996,8 +1003,22 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 				UShort_t *nInnerHits,
 				UShort_t *ListInnerHits,
 				UShort_t *nOuterHits,
-				UShort_t *ListOuterHits
+				UShort_t *ListOuterHits,
+
+				UShort_t *nInnerHitsLeft,
+				UShort_t *ListInnerHitsLeft,
+				UShort_t *nInnerHitsRight,
+				UShort_t *ListInnerHitsRight,
+
+				UShort_t *nOuterHitsLeft,
+				UShort_t *ListOuterHitsLeft,
+				UShort_t *nOuterHitsRight,
+				UShort_t *ListOuterHitsRight
+
+
 					);
+
+
 
 	Short_t FindTrackEntranceExitHexagonCircle(
 				Double_t Oxx,
@@ -1034,6 +1055,49 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 				Double_t Xcross[2],
 				Double_t Ycross[2]
 					);
+	Short_t FindIntersectionsOuterCircle(
+				Double_t Oxx,
+				Double_t Oyy,
+				Double_t Rr,
+				Double_t RMax,
+				Double_t Xcross[2],
+				Double_t Ycross[2]
+					);
+
+	bool IsInsideArc(
+			Double_t Oxx,
+			Double_t Oyy,
+			Short_t Charge,
+			Double_t Xcross[2],
+			Double_t Ycross[2],
+			Double_t Spoint
+			);
+
+
+	bool IsInTargetPipe(
+			Double_t Oxx,
+			Double_t Oyy,
+			Double_t Rr,
+			Double_t fi0,
+			Double_t kappa,
+			Short_t charge,
+			Double_t gap
+			);
+
+
+
+	Double_t CalculateArcLength(
+			Double_t Oxx,
+			Double_t Oyy,
+			Double_t Rr,
+			Short_t Charge,
+			Double_t Xcross[2], // entrance-exit point
+			Double_t Ycross[2] // entrance-exit point
+			);
+
+
+
+
 
 	void   OrderingUsingConformal(
 		Double_t oX,
