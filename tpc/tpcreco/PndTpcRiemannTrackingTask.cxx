@@ -102,7 +102,7 @@ PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
     _TThelixcut(0.3),
     _TTplanecut(0.15),
 
-    _MergeCurlers(false),
+    _MergeCurlers(true),
     _blowUp(1.),
 
     _skipCrossingAreas(true),
@@ -236,10 +236,10 @@ PndTpcRiemannTrackingTask::Init()
   _trackfinderCurl->setMaxNumHitsForPR(_minpoints);
 
   _trackfinderCurl->setProxcut(_proxcut);
-  _trackfinderCurl->setTTProxcut(2000.);
+  _trackfinderCurl->setTTProxcut(50.);
 
   // Track-Track Correlators
-  _trackfinderCurl->addTTCorrelator(new PndTpcDipTTCorrelator(2000., _TTdipcut, _blowUp*_TThelixcut));
+  _trackfinderCurl->addTTCorrelator(new PndTpcDipTTCorrelator(50., _TTdipcut, _blowUp*_TThelixcut));
   _trackfinderCurl->addTTCorrelator(new PndTpcRiemannTTCorrelator(_TTplanecut, _minpoints));
  
 
@@ -467,8 +467,8 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     std::vector<PndTpcRiemannTrack*> riemannTempCurl;
     for (unsigned int i=0; i<friemannlist.size(); ++i){
       if (friemannlist[i]->isFitted() &&
-          friemannlist[i]->r() < 30. &&
-          fabs(friemannlist[i]->m()*1.57) < 140){ // Pi/2
+          friemannlist[i]->r() < 40. &&
+          fabs(friemannlist[i]->m()*1.57) < 130){ // Pi/2
         riemannTempCurl.push_back(friemannlist[i]);
         friemannlist.erase(friemannlist.begin() + i);
         --i;
@@ -477,9 +477,7 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
 
     if (fVerbose) std::cerr << "\nmerge curlers: merge " << riemannTempCurl.size() << " tracks ... ";
     _trackfinderCurl->mergeTracks(riemannTempCurl);
-    if (fVerbose) std::cerr << " done1 - created " << riemannTempCurl.size() << " merged tracks" <<std::endl;
-    _trackfinderCurl->mergeTracks(riemannTempCurl);
-    if (fVerbose) std::cerr << " done2 - created " << riemannTempCurl.size() << " merged tracks" <<std::endl;
+    if (fVerbose) std::cerr << " done - created " << riemannTempCurl.size() << " merged tracks" <<std::endl;
 
     for (unsigned int i=0; i<riemannTempCurl.size(); ++i){
       friemannlist.push_back(riemannTempCurl[i]);

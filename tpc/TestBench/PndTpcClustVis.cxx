@@ -61,7 +61,7 @@ PndTpcClustVis::PndTpcClustVis():
   instantRedraw(true), drawTpc(false), TpcTransp(80), drawRawDigis(false), drawDigis(false),
   drawClusters(false), drawClusterErrors(false),
   drawRiemannTracks(true), drawPOCA(false), drawFitMarkers(false),
-  doPR(true), clearUnfitted(true), doMerge(false), doGlobMerge(true), doMergeCurlers(false),
+  doPR(true), clearUnfitted(true), doMerge(false), doGlobMerge(true), doMergeCurlers(true),
   doClean(false),
   _sorting(3), _interactionZ(0), _sortingMode(true),
   PRNHits(999999999), PRStage(11),
@@ -673,8 +673,9 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       std::vector<PndTpcRiemannTrack*> riemannTempCurl;
       for (unsigned int i=0; i<friemannlist.size(); ++i){
         if (friemannlist[i]->isFitted() &&
-            friemannlist[i]->r() < 30. &&
-            fabs(friemannlist[i]->m()*1.57) < 140){ // Pi/2
+            //friemannlist[i]->getNumHits() > 4 &&
+            friemannlist[i]->r() < 40. &&
+            fabs(friemannlist[i]->m()*1.57) < 130){ // Pi/2
           riemannTempCurl.push_back(friemannlist[i]);
           friemannlist.erase(friemannlist.begin() + i);
           --i;
@@ -689,19 +690,17 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       trackfinder->setMaxNumHitsForPR(PRNHits);
 
       trackfinder->setProxcut(_proxcut);
-      trackfinder->setTTProxcut(2000.);
+      trackfinder->setTTProxcut(50.);
 
 
       // Track-Track Correlators
       double blowUp = 5.;
-      trackfinder->addTTCorrelator(new PndTpcDipTTCorrelator(2000., _TTdipcut, blowUp*_TThelixcut));
+      trackfinder->addTTCorrelator(new PndTpcDipTTCorrelator(50., _TTdipcut, blowUp*_TThelixcut));
       trackfinder->addTTCorrelator(new PndTpcRiemannTTCorrelator(_TTplanecut, _minpoints));
 
       std::cerr << "\nmerge curlers: merge " << riemannTempCurl.size() << " tracks ... ";
       trackfinder->mergeTracks(riemannTempCurl);
-      std::cerr << " done1 - created " << riemannTempCurl.size() << " merged tracks" <<std::endl;
-      trackfinder->mergeTracks(riemannTempCurl);
-      std::cerr << " done2 - created " << riemannTempCurl.size() << " merged tracks" <<std::endl;
+      std::cerr << " done - created " << riemannTempCurl.size() << " merged tracks" <<std::endl;
 
       delete trackfinder;
 

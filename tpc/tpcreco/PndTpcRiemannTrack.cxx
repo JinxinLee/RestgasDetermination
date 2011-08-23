@@ -422,8 +422,8 @@ PndTpcRiemannTrack::refit(){ // helix fit
   TVector3 hiti;
 
   // phi goes counterclockwise and can be > 2Pi for curlers
-  double meanAngle, twoPi(TMath::TwoPi()), nTurns(1);
-  bool twoPiCheck(hasBeenFitted && _radius < 50. && nhits > 10 && _m*twoPi > 2. && _sinDip > 0.03 && _sinDip < 0.99);
+  double meanAngle, twoPi(TMath::TwoPi()), nTurns(1), dZ, dZnull, dZminus, dZplus;
+  bool twoPiCheck(hasBeenFitted && _radius < 50. && nhits > 10 && fabs(_m*twoPi) > 1. && fabs(_m*twoPi) < 300.);
 
   for(int i=1; i<nhits; ++i){
     hiti = _hits[i]->cluster()->pos() - _center;
@@ -431,18 +431,28 @@ PndTpcRiemannTrack::refit(){ // helix fit
     double angle = hiti.DeltaPhi(hit0);
 
     // check if we have to go +-2Pi further
-    if (twoPiCheck && i > 5){
-      // todo: make it working properly!!!!
+    if (twoPiCheck && i > 4){
       meanAngle = (lastangle-firstangle)/i;
+      
+      dZ = hiti.Z()-hit0.Z();
+      
+      dZnull = fabs(dZ - angle * _m);
+      dZplus = fabs(dZ - (angle+twoPi) * _m);
+      dZminus =  fabs(dZ - (angle-twoPi) * _m);
+      
       if (angle/meanAngle < -4){
-        if (angle < 0) {
+        if (dZplus < dZnull) {
           angle += twoPi;
+          firstangle += angle;
+          ++nTurns;
+          //std::cout<<"angle += twoPi;\n";
         }
-        else {
+        else if (dZminus < dZnull) {
           angle -= twoPi;
+          firstangle += angle;
+          ++nTurns;
+          //std::cout<<"angle -= twoPi;\n";          
         }
-        firstangle += angle;
-        ++nTurns;
       }
     }
 
