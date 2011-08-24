@@ -115,6 +115,7 @@ class PndSecondaryTrackFinder : public FairTask {
   void Refresh();
   void DrawLinks(std::vector<int> cluster, Int_t detId, Int_t iclus);
 
+  Bool_t GetTraslAndDelta(std::vector< TMatrixT<double> > cluster, Double_t &delta, Double_t trasl[2]);
   Bool_t ConformalFit(std::vector<std::vector<double> > conformalhits, Int_t iclus, Double_t delta, Double_t trasl[2], Double_t &xc, Double_t &yc, Double_t &radius);
   Bool_t AddRemainingPoints(std::vector<int> hits, Int_t detId,   Double_t xc, Double_t yc, Double_t radius, std::vector<int> *cluster, Int_t iclus);
   Short_t FitHelixCylinder( UShort_t nHitsinTrack, Double_t auxinfoparalConformal[][3], Double_t rotationangle, Double_t trajectory_vertex[2], Double_t &slope, Double_t &intercept, Double_t &alpha, Double_t &beta, Double_t &gamma, Bool_t &TypeConf);
@@ -124,11 +125,18 @@ class PndSecondaryTrackFinder : public FairTask {
  // std::vector< std::vector< TMatrixT<double> > > MergeClustersBIS(std::vector< std::vector< TMatrixT<double> > > clusterlist);
   std::vector< std::vector< TMatrixT<double> > > MergeClustersBIS(std::vector< std::vector< TMatrixT<double> > > clusterlist, std::vector< std::vector<int> > *combinations);
 /*  Bool_t CompleteSttFitBIS(std::vector< TMatrixT<double> > cluster, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &chosenchi2, Int_t &chosencountelem); */
+  Bool_t CompleteFitBIS(std::vector< TMatrixT<double> > *cluster, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &chosenchi2, Int_t &chosencountelem);
   Bool_t CompleteSttFitBIS(std::vector< TMatrixT<double> > *cluster, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &chosenchi2, Int_t &chosencountelem);
   Bool_t ConformalPlaneStt4BIS(std::vector< TMatrixT<double> > cluster, Int_t iclus, std::vector<std::vector<double> > &conformalhits, Double_t &firstdrift, Double_t &delta, Double_t trasl[2]);
+  Bool_t ConformalPlane4BIS(std::vector< TMatrixT<double> > cluster, Int_t iclus, std::vector<std::vector<double> > &conformalhits, Double_t &delta, Double_t trasl[2]);
+ 
   Double_t CalculateRedChi2BIS(std::vector< TMatrixT<double> > cluster, Double_t xc, Double_t yc, Double_t radius, Int_t &countelements);
   //  Bool_t RefitConformalBIS(std::vector< TMatrixT<double> > cluster, Double_t xc, Double_t yc, Double_t radius, Double_t &outxc, Double_t &outyc, Double_t &outradius);
+  Double_t CalculateRedChi2TER(std::vector< TMatrixT<double> > cluster, Double_t xc, Double_t yc, Double_t radius, Int_t &countelement);
+
   Bool_t RefitConformalBIS(std::vector< TMatrixT<double> > * cluster, Double_t xc, Double_t yc, Double_t radius, Double_t &outxc, Double_t &outyc, Double_t &outradius);
+  Bool_t RefitConformalTER(std::vector< TMatrixT<double> > *cluster, Double_t xc, Double_t yc, Double_t radius, Double_t &outxc, Double_t &outyc, Double_t &outradius);
+ 
   Int_t FindChargeBIS(Double_t oX, Double_t oY, std::vector< TMatrixT<double> > cluster);
     
   void DeleteClusterBIS(std::vector< std::vector< TMatrixT<double> > > *clusterlist, std::vector<int> deletecluster);
@@ -136,6 +144,8 @@ class PndSecondaryTrackFinder : public FairTask {
   void DeleteTrackBIS(std::vector< std::vector< TMatrixT<double> > > *clusterlist, std::vector< TMatrixT<double> > *xyparameters, std::vector<int> deletecluster);
 
   Bool_t TestChi2BIS(std::vector< TMatrixT<double> > cluster, Double_t xc, Double_t yc, Double_t radius,  Int_t iclus, Double_t chi2, Int_t countelem, Double_t &newxc, Double_t &newyc, Double_t &newradius, std::vector< TMatrixT<double> > *newcluster, Double_t &newchi2);
+  Bool_t TestChi2TER(std::vector< TMatrixT<double> > cluster, Double_t xc, Double_t yc, Double_t radius,  Int_t iclus, Double_t chi2, Int_t countelem, Double_t &newxc, Double_t &newyc, Double_t &newradius, std::vector< TMatrixT<double> > *newcluster, Double_t &newchi2);
+
 
    /** Z FINDING **/
   Bool_t DoesHitBelong(Int_t hitId, Double_t xc, Double_t yc, Double_t radius, TVector3 &intersection, Bool_t draw);

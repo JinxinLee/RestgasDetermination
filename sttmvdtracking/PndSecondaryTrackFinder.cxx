@@ -266,7 +266,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
   if(fVerbose) cout << "++++++++++++++++++++++++++++++++++++" << endl;
   cout << "EVENT " << fEventCounter << endl;
   fEventCounter++;
-  fDisplayOn = kFALSE;
+  // fDisplayOn = kFALSE;
   // MC Tracks ------------ CHECK MC INFO
   std::vector<int> mctracks;
   for(int ipnt = 0; ipnt < fSttPointArray->GetEntriesFast(); ipnt++) {
@@ -947,6 +947,122 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     if(fVerbose) cout << "ITRK CHARGE " << itrk << " " << newpar[0][3] << endl;
   }
 
+
+  //  fDisplayOn = kTRUE;
+  // ADD PIXEL/STRIP ========== ========== ========== ========== 
+  for(int itrk = 0; itrk < xyparameters.size(); itrk++) {
+    if(fDisplayOn) Refresh();
+    TMatrixT<double> xypar = xyparameters[itrk];
+    double xc = xypar[0][0];
+    double yc = xypar[0][1];
+    double radius = xypar[0][2];
+    double chi2 = xypar[0][6];
+
+    if(fDisplayOn) {
+      char goOnChar;
+      cout << "add MVD finder, press any key" << endl;
+      cin >> goOnChar;
+      cout << "GOING ON" << endl;
+      DrawClustersBIS(tracklist);  
+    }
+
+    std::vector< TMatrixT<double> > mvdpixcluster = AddPointsBIS(mvdpixhits, FairRootManager::Instance()->GetBranchId(fMvdPixelBranch), xc, yc, radius, itrk);
+    std::vector< TMatrixT<double> > mvdstripcluster = AddPointsBIS(mvdstriphits, FairRootManager::Instance()->GetBranchId(fMvdStripBranch), xc, yc, radius, itrk);
+
+    std::vector< TMatrixT<double> > oldtrack = tracklist[itrk];
+    std::vector< TMatrixT<double> > track = tracklist[itrk];
+    track.insert(track.end(), mvdpixcluster.begin(), mvdpixcluster.end());
+    track.insert(track.end(), mvdstripcluster.begin(), mvdstripcluster.end());
+
+
+    if(fDisplayOn) {
+      char goOnChar;
+      cout << "added MVD finder, press any key" << endl;
+      cin >> goOnChar;
+      cout << "GOING ON" << endl;
+    }
+
+    Int_t tracktype = TrackType(xypar);
+    Int_t refihit = -1;
+    if(tracktype == 2) refihit = FindRefPoint(track, xypar) ;
+    else refihit = FindInnermostPoint(track);
+
+    if(fVerbose) cout << "FIRST REF HIT " << refihit << endl;
+    std::vector< TMatrixT<double> > sorthits =  OrderByDistanceFromRefPointWithoutCharge(refihit, track, xypar);
+    //   if(tracktype == 2) {
+    //       std::vector< TMatrixT<double> > revsorthits = ReverseOrdering(sorthits); // -> from inside
+    //       if(fVerbose) cout << "sorthits POINTS " << revsorthits.size() << " " << endl;
+    //       tracklist.push_back(revsorthits);
+    //     }
+    //     else {
+    //       tracklist.push_back(sorthits);
+    //     }
+    // std::replace(tracklist.begin(), tracklist.end(), oldtrack, track);
+
+
+    // FIT IT
+    Int_t countelem;
+
+    if(fVerbose) cout << "==> COMPLETE STT FIT WITH MVD" << endl;
+    Bool_t fit = CompleteFitBIS(&track, itrk, xc, yc, radius, chi2, countelem); // RESTYLE add
+    if(fit == kFALSE) {
+      if(fVerbose) cout << "GOTTA DELETE THIS fit fails " << itrk << endl;
+      continue;
+    }
+    
+    Double_t newxc, newyc, newradius, newchi2 = 0;
+    std::vector< TMatrixT<double> > newtrack;
+    if(fVerbose) cout << "FIRST TEST CHI2 " << xc << " " << yc << " " << radius  << endl;
+    Bool_t testchi2 = TestChi2TER(track, xc, yc, radius, itrk, chi2, countelem, newxc, newyc, newradius, &newtrack, newchi2);
+    if(fVerbose) cout << "testchi2 = " << testchi2 << endl;
+    if(testchi2 == kFALSE)  {
+      if(fVerbose) cout << "GOTTA DELETE THIS chi2 fails " << itrk << endl;
+      continue;
+    }
+    else if(newchi2 != 0) {
+      xc = newxc;
+      yc = newyc;
+      radius = newradius;
+      chi2 = newchi2;
+      countelem = 0;
+      if(fVerbose) {
+	cout << "................. replacing" << endl;
+	PrintClustersBIS(tracklist);
+      }
+  
+      std::replace(tracklist.begin(), tracklist.end(), oldtrack, newtrack);
+      if(fVerbose) {
+	cout << "................. done" << endl;
+	PrintClustersBIS(tracklist);
+      }
+    }
+    
+    if(fDisplayOn) { 
+      cout << "MY FINAL TRACK (FIRST) " << xc << " " << yc << " " << radius << endl;
+      TArc *arc2 = new TArc(xc, yc, radius);
+      arc2->SetLineColor(kCyan);
+      arc2->SetFillStyle(0);
+      arc2->Draw("SAME ONLY");
+      display->Update();
+      display->Modified();
+    }
+
+
+    // save tracks
+    TMatrixT<double> param(1, 7);
+    param[0][0] = xc;
+    param[0][1] = yc;
+    param[0][2] = radius;
+    param[0][3] = 0;
+    param[0][4] = 0;
+    param[0][5] = 0;
+    param[0][6] = chi2;
+    std::replace(xyparameters.begin(), xyparameters.end(), xypar, param);
+  }
+
+  // ============ ========== ========== ========== ========== 
+
+
   if(fDisplayOn) { 
     char goOnChar;
     cout << "FINAL RECAP" << endl;
@@ -954,7 +1070,7 @@ void PndSecondaryTrackFinder::Exec(Option_t* opt) {
     Brief(tracklist, xyparameters);
     cin >> goOnChar;
   }
-
+ fDisplayOn = kFALSE;
 
   // ---------------- Z fit -------------
   //  fDisplayOn = kTRUE;
@@ -2514,6 +2630,214 @@ Bool_t PndSecondaryTrackFinder::ConformalPlaneStt4BIS(std::vector< TMatrixT<doub
  
 }
 
+
+
+Bool_t PndSecondaryTrackFinder::GetTraslAndDelta(std::vector< TMatrixT<double> > cluster, Double_t &delta, Double_t trasl[2])
+{  
+  double tmpdrift = 0.5, tmpdist1 = 1000., tmpdist2 = 1000.; // CHECK
+  int tmpihit = -1;
+  int tmpdetid = -1; // 0 = STT, 1 = STRIP, 2 = PIXEL
+  int nhits = cluster.size();
+
+  for(int ihit = 0; ihit < cluster.size(); ihit++)
+    {
+      TMatrixT<double> singlehit = cluster[ihit];
+      if(singlehit[0][0] == -1) continue;
+      Int_t hitid = (Int_t) singlehit[0][1];
+      Int_t detid = (Int_t) singlehit[0][2];
+      if(detid == FairRootManager::Instance()->GetBranchId(fSttBranch) && tmpdetid < 1) {
+	PndSttHit *hit = (PndSttHit*) fSttHitArray->At(hitid);
+	if(!hit) continue;
+	
+	Double_t rd = hit->GetIsochrone();
+	if(rd < tmpdrift) {
+	  tmpdrift = rd;
+	  tmpihit = ihit;
+	  tmpdetid = 0;
+	}
+	
+	if(fDisplayOn) {
+	  TArc *arc = new TArc(singlehit[0][4], singlehit[0][5], 0.5);
+	  arc->SetFillColor(kYellow);
+	  //	arc->SetFillStyle(0);
+	  arc->Draw("SAME");
+	  display->Update();
+	  display->Modified();
+	}
+      }
+      else if(detid == FairRootManager::Instance()->GetBranchId(fMvdStripBranch) && tmpdetid < 2) {
+
+	PndSdsHit *hit = (PndSdsHit*) fMvdStripHitArray->At(hitid);
+	TVector3 pos1;
+	hit->Position(pos1);
+	if(pos1.Mag() < tmpdist1) {
+	  tmpdist1 = pos1.Mag();
+	  tmpdetid = 1;
+	  tmpihit = ihit;
+	}
+      }
+      else if(detid == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) {
+	PndSdsHit *hit = (PndSdsHit*) fMvdPixelHitArray->At(hitid);
+	TVector3 pos2;
+	hit->Position(pos2);
+	if(pos2.Mag() < tmpdist2) {
+	  tmpdist2 = pos2.Mag();
+	  tmpihit = ihit;
+	  tmpdetid = 2;
+	}
+      }
+    }
+
+  int firstihit = tmpihit;
+
+  // check inner and outer
+  int innerhitid, outerhitid;
+  int innerdetid, outerdetid;
+  TMatrixT<double> singlehit0 = cluster[0];
+  TMatrixT<double> singlehit1 = cluster[nhits - 1];
+
+  outerhitid =  (Int_t) singlehit1[0][1];
+  outerdetid =  (Int_t) singlehit1[0][2];
+  innerhitid =  (Int_t) singlehit0[0][1];
+  innerdetid =  (Int_t) singlehit0[0][2];
+
+  TClonesArray *arrayinner, *arrayouter, *arrayfirst;
+
+  if(innerdetid == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) arrayinner = fMvdPixelHitArray;
+  else if(innerdetid == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) arrayinner = fMvdStripHitArray;
+  else if(innerdetid == FairRootManager::Instance()->GetBranchId(fSttBranch)) arrayinner = fSttHitArray;
+  //  else if(innerdetid == FairRootManager::Instance()->GetBranchId(fGemBranch)) arrayinner = fGemHitArray;
+
+  if(outerdetid == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) arrayouter = fMvdPixelHitArray;
+  else if(outerdetid == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) arrayouter = fMvdStripHitArray;
+  else if(outerdetid == FairRootManager::Instance()->GetBranchId(fSttBranch)) arrayouter = fSttHitArray;
+  //  else if(outerdetid == FairRootManager::Instance()->GetBranchId(fGemBranch)) arrayouter = fGemHitArray;
+
+ TMatrixT<double> singlehitfirst = cluster[firstihit];
+ int firsthitid = (Int_t) singlehitfirst[0][1];
+ int firstdetid = (Int_t) singlehitfirst[0][2];
+ if(firstdetid == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) arrayfirst = fMvdPixelHitArray;
+ else if(firstdetid == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) arrayfirst = fMvdStripHitArray;
+ else if(firstdetid ==  FairRootManager::Instance()->GetBranchId(fSttBranch)) arrayfirst = fSttHitArray;
+ //  else if(firstdetid ==  FairRootManager::Instance()->GetBranchId(fGemBranch)) arrayfirst = fGemHitArray;
+  
+ FairHit *hitinner = (FairHit*) arrayinner->At(innerhitid);
+ if(!hitinner) return kFALSE;
+ TVector3 positioninner;
+ hitinner->Position(positioninner);
+  
+ FairHit *hitouter = (FairHit*) arrayouter->At(outerhitid);
+ if(!hitouter) return kFALSE;
+ TVector3 positionouter;
+ hitouter->Position(positionouter);
+
+ FairHit *hitfirst = (FairHit*) arrayfirst->At(firsthitid);
+ if(!hitfirst) return kFALSE;
+ TVector3 positionfirst;
+ hitfirst->Position(positionfirst);
+
+
+ trasl[0] = positionfirst.X();
+ trasl[1] = positionfirst.Y();
+
+ delta = TMath::ATan2(positionouter.Y() - positioninner.Y(),
+		      positionouter.X() - positioninner.X());
+
+ return kTRUE;
+}
+
+Bool_t PndSecondaryTrackFinder::ConformalPlane4BIS(std::vector< TMatrixT<double> > cluster, Int_t iclus, std::vector<std::vector<double> > &conformalhits, Double_t &delta, Double_t trasl[2]) {
+  
+  if(fVerbose) cout << "GOING TO FIT CLUSTER " << iclus << endl;
+  if(fDisplayOn) {
+    char goOnChar;
+    cout << "light up the cluster, press any key" << endl;
+    cin >> goOnChar;
+  }
+
+  int nhits = cluster.size();
+   
+  Bool_t tradel = GetTraslAndDelta(cluster, delta, trasl);
+  cout << "translation/rotation " << trasl[0] << " " << trasl[1] << " " << delta << endl;
+
+  if(fDisplayOn) {
+    char goOnChar;
+    cout << "Go to conformal plane: press any key" << endl;
+    cin >> goOnChar;
+    //   cout << "GOING ON" << endl;
+    DrawGeometryConformal(-1, -1, 1, 1); 
+  }
+  
+  TVector3 centerposition;
+  for(int ihit = 0; ihit < cluster.size(); ihit++)
+    {
+      
+      TMatrixT<double> singlehit = cluster[ihit];
+      if(singlehit[0][0] == -1) continue;
+      Int_t hitid =  (Int_t) singlehit[0][1];
+      Int_t detid =  (Int_t) singlehit[0][2];
+      Double_t rd = 0.;
+      if(detid ==  FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+	PndSttHit *hit = (PndSttHit*) fSttHitArray->At(hitid);
+	if(!hit) continue;
+	hit->Position(centerposition);
+	rd = hit->GetIsochrone();
+      }
+      else if(detid ==  FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) {
+	FairHit *hit = (FairHit*) fMvdStripHitArray->At(hitid);
+	if(!hit) continue;
+	hit->Position(centerposition);
+	rd = 0.01; // CHECK by hand
+      }
+      else if(detid ==  FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) {
+	FairHit *hit = (FairHit*) fMvdPixelHitArray->At(hitid);
+	if(!hit) continue;
+	hit->Position(centerposition);
+	rd = 0.01; // CHECK by hand
+      }
+
+
+	// to the fit ================================
+	Double_t xtrasl, ytrasl;
+	// traslation
+	xtrasl = centerposition.X() - trasl[0];
+	ytrasl = centerposition.Y() - trasl[1];
+	
+  
+      //      centerposition.Print();
+
+      // change coordinate of the center
+      Double_t u, v, sigv2, sigu2, rc;
+      u = xtrasl / (xtrasl*xtrasl + ytrasl*ytrasl - rd * rd);
+      v = ytrasl / (xtrasl*xtrasl + ytrasl*ytrasl - rd * rd);
+      rc = rd / (xtrasl*xtrasl + ytrasl*ytrasl - rd * rd);
+
+      std::vector<double> params;
+      if(xtrasl != 0 && ytrasl != 0) { // hitid != firsthitid) {  // CHECK
+	// cout << hitid << " u/v/rc " << u << " " << v << " " << rc << endl;
+	params.push_back(u);
+    	params.push_back(v);
+    	params.push_back(rc);
+	conformalhits.push_back(params);
+      }
+
+      if(fDisplayOn) {
+            
+ 	TArc *arc = new TArc(u, v, rc);
+	arc->SetLineColor(kRed);
+ 	arc->SetFillStyle(0);
+	arc->Draw("SAME");
+ 	display->Update();
+ 	display->Modified();  
+      }
+    } 
+  return kTRUE;
+
+ 
+}
+
+
+
 Bool_t PndSecondaryTrackFinder::ConformalFit(std::vector<std::vector<double> > conformalhits, Int_t iclus, Double_t delta, Double_t trasl[2], Double_t &xc, Double_t &yc, Double_t &radius)
 {
   int nhits = conformalhits.size();
@@ -2623,6 +2947,68 @@ Double_t PndSecondaryTrackFinder::CalculateRedChi2BIS(std::vector< TMatrixT<doub
   // cout << "===> RED CHI2 no. 0 = " << redchi2 << " <===" << endl;
   return redchi2;
 }
+
+Double_t PndSecondaryTrackFinder::CalculateRedChi2TER(std::vector< TMatrixT<double> > cluster, Double_t xc, Double_t yc, Double_t radius, Int_t &countelement) 
+{
+  TClonesArray *array;
+  
+
+  //   if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) array = fMvdPixelHitArray;
+  //   else if(detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) array = fMvdStripHitArray;
+  //   else if(detId ==  FairRootManager::Instance()->GetBranchId(fSttBranch)) array = fSttHitArray;
+  //   //  else if(detId ==  FairRootManager::Instance()->GetBranchId(fGemBranch)) array = fGemHitArray;
+
+  // chi2
+  double chi2 = 0;
+
+  for(int ihit = 0; ihit < cluster.size(); ihit++)
+    {
+      TMatrixT<double> singlehit = cluster[ihit];
+      if(singlehit[0][0] == -1) continue;
+      Int_t hitid =  (Int_t) singlehit[0][1];
+      Int_t detid =  (Int_t) singlehit[0][2];
+
+      double element = 0;
+      if(detid == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch) 
+	 || detid == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) {
+	
+	if(detid == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) array = fMvdPixelHitArray;
+	else if(detid == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) array = fMvdStripHitArray;
+	
+	PndSdsHit *hit = (PndSdsHit*) array->At(hitid);
+	if(!hit) continue;
+	TVector3 centerposition2;
+	hit->Position(centerposition2);
+	Double_t distancepc = TMath::Sqrt((centerposition2.X() - xc) * (centerposition2.X() - xc) +
+					  (centerposition2.Y() - yc) * (centerposition2.Y() - yc));
+	element = pow((distancepc - radius)/0.01, 2); // CHECK by hand
+      
+      }
+      else if(detid ==  FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+	
+	array = fSttHitArray;
+	PndSttHit *hit = (PndSttHit*) array->At(hitid);
+	if(!hit) continue;
+	TVector3 centerposition2;
+	hit->Position(centerposition2);
+	Double_t rd = hit->GetIsochrone();
+	Double_t rderror = hit->GetIsochroneError();
+	Double_t distancepc = TMath::Sqrt((centerposition2.X() - xc) * (centerposition2.X() - xc) +
+					  (centerposition2.Y() - yc) * (centerposition2.Y() - yc));
+	element = pow((fabs(distancepc - radius) - rd)/(rderror), 2);
+      }
+      //  else if(detId ==  FairRootManager::Instance()->GetBranchId(fGemBranch)) array = fGemHitArray;
+      if(element >= fCountElemLimit) countelement++;
+      chi2 += element;
+      //   cout << "element " <<  element  << endl;
+    }
+  
+  double redchi2 = chi2 / cluster.size();
+  // cout << "===> RED CHI2 no. 0 = " << redchi2 << " <===" << endl;
+  return redchi2;
+}
+
+
 
 
 // Bool_t PndSecondaryTrackFinder::RefitConformalBIS(std::vector< TMatrixT<double> > cluster, Double_t xc, Double_t yc, Double_t radius,
@@ -2748,6 +3134,98 @@ Bool_t PndSecondaryTrackFinder::RefitConformalBIS(std::vector< TMatrixT<double> 
       points[ihit][9] = hit->GetIsochroneError();
       points[ihit][10] = 0;
     }
+      
+  // xy fit
+  Bool_t fitting2 = Fit(points, outxc, outyc, outradius);
+  if(fitting2 == kFALSE) return kFALSE;
+  return kTRUE;
+}
+
+
+
+Bool_t PndSecondaryTrackFinder::RefitConformalTER(std::vector< TMatrixT<double> > *cluster, Double_t xc, Double_t yc, Double_t radius,
+						  Double_t &outxc, Double_t &outyc, Double_t &outradius)
+{
+  TClonesArray *array;
+  
+  //   if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) array = fMvdPixelHitArray;
+  //   else if(detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) array = fMvdStripHitArray;
+  //   else if(detId ==  FairRootManager::Instance()->GetBranchId(fSttBranch)) array = fSttHitArray;
+  //  else if(detId ==  FairRootManager::Instance()->GetBranchId(fGemBranch)) array = fGemHitArray;
+
+  // intersection finder & fit
+  TMatrixT<double> points(cluster->size(), 11);
+  for(int ihit = 0; ihit < cluster->size(); ihit++)
+    {
+      TMatrixT<double> singlehit = cluster->at(ihit);
+      TMatrixT<double> newsinglehit = singlehit;
+      if(singlehit[0][0] == -1) continue;
+      Int_t hitid = (Int_t) singlehit[0][1];
+      Int_t detid = (Int_t) singlehit[0][2];
+      TVector3 xyz, dxyz, xyb;
+      double isochrone, isochroneerr;
+      if(detid == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch) 
+	 || detid == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) {
+	
+	if(detid == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) array = fMvdPixelHitArray;
+	else if(detid == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) array = fMvdStripHitArray;
+	
+	PndSdsHit *hit = (PndSdsHit*) array->At(hitid);
+	if(!hit) continue;
+	hit->Position(xyz);
+	dxyz.SetXYZ(hit->GetDx(), hit->GetDy(), hit->GetDz());
+	isochrone = 0.; // CHECK by hand
+	isochroneerr = 0.; // CHECK by hand
+      }
+      else if(detid == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+	array = fSttHitArray;
+	PndSttHit *hit = (PndSttHit*) array->At(hitid);
+	if(!hit) continue;
+	Double_t rd = hit->GetIsochrone();
+
+	Bool_t inters = IntersectionFinder(xc, yc, radius, hit, xyz, xyb, dxyz);
+	if(inters == kFALSE) {
+	  newsinglehit[0][0] = -1; // CHECK useit flag
+	  std::replace(cluster->begin(), cluster->end(), singlehit, newsinglehit);
+	  continue;
+	}
+	
+	if(fDisplayOn) {
+	  TMarker *mrk = new TMarker(xyz.X(), xyz.Y(), 6);  
+	  mrk->SetMarkerColor(4);
+	  mrk->Draw("SAME");
+	  display->Update();
+	  display->Modified();
+	}
+	
+	// update intersections .....
+	newsinglehit[0][4] = xyz.X(); 
+	newsinglehit[0][5] = xyz.Y();
+	newsinglehit[0][6] = xyz.Z();
+	newsinglehit[0][7] = dxyz.X(); 
+	newsinglehit[0][8] = dxyz.Y(); 
+	newsinglehit[0][9] = dxyz.Z(); 
+	std::replace(cluster->begin(), cluster->end(), singlehit, newsinglehit);
+	//      cout << "NEW ONE" << endl;
+	//       xyz.Print();
+	//       dxyz.Print();
+	// ..........................
+	isochrone = hit->GetIsochrone();
+	isochroneerr = hit->GetIsochroneError();
+      }
+      points[ihit][0] = hitid;
+      points[ihit][1] = detid;
+      points[ihit][2] = xyz.X();
+      points[ihit][3] = xyz.Y();
+      points[ihit][4] = xyz.Z();
+      points[ihit][5] = dxyz.X();
+      points[ihit][6] = dxyz.Y();
+      points[ihit][7] = dxyz.Z();
+      points[ihit][8] = isochrone;
+      points[ihit][9] = isochroneerr;
+      points[ihit][10] = 0;
+    }
+
       
   // xy fit
   Bool_t fitting2 = Fit(points, outxc, outyc, outradius);
@@ -3804,13 +4282,60 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::AddPointsBIS(std::vecto
   std::vector< TMatrixT<double> > cluster;
   TClonesArray *array;
  
-  if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) array = fMvdPixelHitArray;
-  else if(detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) array = fMvdStripHitArray;
-  else if(detId ==  FairRootManager::Instance()->GetBranchId(fSttBranch)) array = fSttHitArray;
-  //  else if(detId ==  FairRootManager::Instance()->GetBranchId(fGemBranch)) array = fGemHitArray;
+  if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch) || 
+     detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) {
+    
+    if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) array = fMvdPixelHitArray;
+    else if(detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) array = fMvdStripHitArray;
+    
+    //    cout << "NUMEBR " << hits.size() << endl;
+    for(int ihit = 0; ihit <  hits.size(); ihit++)
+      {
+	Int_t hitid = hits[ihit];
+	
+	PndSdsHit *hit = (PndSdsHit*) array->At(hitid);
+	if(!hit) continue;
+	TVector3 centerposition2;
+	hit->Position(centerposition2);
+	Double_t distancepc = TMath::Sqrt((centerposition2.X() - xc) * (centerposition2.X() - xc) +
+					  (centerposition2.Y() - yc) * (centerposition2.Y() - yc));
 
-  // add points
-  for(int ihit = 0; ihit <  hits.size(); ihit++)
+	double res = fabs(distancepc - radius);
+
+	//	cout << "DIST " << distancepc << " RES " << res << " LIM " << fLimit << endl;
+		
+	if(res < fLimit/5.) { // 3 * fLimt CHECK
+	  //  cout << "ADD " << hitid << " TO CLUS " << iclus << endl;
+	
+	  TMatrixT<double> singlehit(1, 10);
+	  singlehit[0][0] = 0; // CHECK useit flag
+	  singlehit[0][1] = hitid;
+	  singlehit[0][2] = detId;
+	  singlehit[0][3] = 0;      // parallel
+	  singlehit[0][4] = centerposition2.X(); 
+	  singlehit[0][5] = centerposition2.Y();
+	  singlehit[0][6] = centerposition2.Z();
+	  singlehit[0][7] = 1.; // CHECK
+	  singlehit[0][8] = 1.; // CHECK
+	  singlehit[0][9] = 1.; // CHECK
+	  cluster.push_back(singlehit);
+	
+	  if(fDisplayOn) {
+	    TMarker *marc3 = new TMarker(centerposition2.X(), centerposition2.Y(), 21); // CHECK
+	    marc3->SetMarkerColor(fColors[iclus]);
+	    marc3->Draw("SAME");
+	    display->Update();
+	    display->Modified();
+	  }
+	}
+      }
+  }
+  else if(detId ==  FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+    array = fSttHitArray;
+
+
+    // add points
+    for(int ihit = 0; ihit <  hits.size(); ihit++)
     {
       Int_t hitid = hits[ihit];
 
@@ -3852,9 +4377,12 @@ std::vector< TMatrixT<double> > PndSecondaryTrackFinder::AddPointsBIS(std::vecto
 	}
       }
     }
+  }
+  //  else if(detId ==  FairRootManager::Instance()->GetBranchId(fGemBranch)) array = fGemHitArray;
 
   return cluster;
 }
+
 
 
 std::vector< std::vector< TMatrixT<double> > > PndSecondaryTrackFinder::MergeClustersBIS(std::vector< std::vector< TMatrixT<double> > > clusterlist, std::vector< std::vector<int> > *combinations) {
@@ -4369,6 +4897,141 @@ Bool_t PndSecondaryTrackFinder::CompleteSttFitBIS(std::vector< TMatrixT<double> 
   return kTRUE;
 }
 
+Bool_t PndSecondaryTrackFinder::CompleteFitBIS(std::vector< TMatrixT<double> > *cluster, Int_t iclus, Double_t &xc, Double_t &yc, Double_t &radius, Double_t &chosenchi2, Int_t &chosencountelem) {
+  
+  if(fVerbose) {
+    cout << "FITTING " << cluster->size() << " HITS" << endl;
+    for(int ihit = 0; ihit < cluster->size(); ihit++) {
+      TMatrixT<double> singlehit = cluster->at(ihit);
+      int hitid = (int) singlehit[0][1];
+      cout << hitid << " " ;
+    }
+    cout << endl;
+  }
+
+
+  // CONFORMAL HITS ==================================
+  std::vector<std::vector<double> > conformalhits;
+  Double_t firstdrift, delta, trasl[2];
+  Bool_t conftras = ConformalPlane4BIS(*cluster, iclus, conformalhits, delta, trasl);
+  if(conftras == kFALSE) return conftras;
+
+  // CONFORMAL FIT 1 =================================
+  Bool_t conffit = ConformalFit(conformalhits,  iclus, delta,  trasl,  xc,  yc, radius);
+  if(conffit == kFALSE) return conffit;
+
+  if(fDisplayOn) {
+    char goOnChar;
+    cout << "Go back to reak plane: cluster " << iclus << endl;
+    if(fDisplayOn) Refresh();
+    cout << "helix " << xc << " " << yc << " " << radius << endl;     
+    TArc *arc = new TArc(xc, yc, radius);
+    arc->SetLineColor(kGreen);
+    arc->SetFillStyle(0);
+    arc->Draw("SAME ONLY");
+    display->Update();
+    display->Modified();
+  }
+
+  // chi2
+  int countelement = 0;
+  double redchi2 = CalculateRedChi2TER(*cluster, xc, yc, radius, countelement);
+  if(fVerbose)  cout << "===> RED CHI2 no. 0 = " << redchi2 << " " << countelement << " <===" << endl;
+  chosenchi2 = redchi2;
+  chosencountelem = countelement;
+  
+  // REFIT ============================================
+  Int_t niter = 2;
+  double red2chi2[niter];
+  int countelement2[niter];
+//     if(firstdrift > 0.01) { // CHECK <<<==========================================
+    Double_t tmpxc = xc;
+    Double_t tmpyc = yc;
+    Double_t tmpradius = radius;
+    // intersection finder & fit
+    Double_t outxc[niter], outyc[niter], outradius[niter];
+    for(int iter = 0; iter < niter; iter++) {
+      red2chi2[iter] = 10000;
+      countelement2[iter] = 0;
+
+      //       // ++++++++++++++
+      //       cout << "######## INTERS BEFORE ########" << endl;
+      //       for(int ihit = 0; ihit < cluster->size(); ihit++)
+      // 	{
+      // 	  TMatrixT<double> singlehit = cluster->at(ihit);
+      // 	  if(singlehit[0][0] == -1) continue;
+      // 	  Int_t hitid = singlehit[0][1];
+      // 	  Int_t detid = singlehit[0][2];
+      // 	  cout << "HITID/DETID " << hitid << " " << detid << " " << singlehit[0][3] << endl;
+      // 	  double x = singlehit[0][4];
+      // 	  double y = singlehit[0][5];
+      // 	  double z = singlehit[0][6];
+      // 	  double dx = singlehit[0][7];
+      // 	  double dy = singlehit[0][8];
+      // 	  double dz = singlehit[0][9];
+      // 	  cout << "xyz    " << x << " " << y << " " << z << endl;
+      // 	  cout << "dxdydz " << dx << " " << dy << " " << dz << endl;
+      // 	}
+      //       // ++++++++++++++
+
+
+      Bool_t refit = RefitConformalTER(cluster, tmpxc, tmpyc, tmpradius, outxc[iter], outyc[iter], outradius[iter]);
+      if(refit == kFALSE) continue;
+
+      //     // ++++++++++++++
+      //       cout << "######## INTERS AFTER ########" << endl;
+      //       for(int ihit = 0; ihit < cluster->size(); ihit++)
+      // 	{
+      // 	  TMatrixT<double> singlehit = cluster->at(ihit);
+      // 	  if(singlehit[0][0] == -1) continue;
+      // 	  Int_t hitid = singlehit[0][1];
+      // 	  Int_t detid = singlehit[0][2];
+      // 	  cout << "HITID/DETID " << hitid << " " << detid << " " << singlehit[0][3] << endl;
+      // 	  double x = singlehit[0][4];
+      // 	  double y = singlehit[0][5];
+      // 	  double z = singlehit[0][6];
+      // 	  double dx = singlehit[0][7];
+      // 	  double dy = singlehit[0][8];
+      // 	  double dz = singlehit[0][9];
+      // 	  cout << "xyz    " << x << " " << y << " " << z << endl;
+      // 	  cout << "dxdydz " << dx << " " << dy << " " << dz << endl;
+      // 	}
+      //       // ++++++++++++++
+
+      red2chi2[iter] = CalculateRedChi2TER(*cluster, outxc[iter], outyc[iter], outradius[iter], countelement2[iter]);
+      if(fVerbose) cout << "===> RED CHI2 no. " << iter + 1 << " = " << red2chi2[iter] << " " << countelement2[iter]  << " <===" << endl;
+      tmpxc = outxc[iter];
+      tmpyc = outyc[iter];
+      tmpradius = outradius[iter];
+      
+      if(fDisplayOn) {
+	cout << "refit helix " << outxc[iter] << " " << outyc[iter] << " " << outradius[iter] << endl;     
+	TArc *arc2 = new TArc(outxc[iter], outyc[iter], outradius[iter]);
+	if(iter == 0) arc2->SetLineColor(kRed);
+	else arc2->SetLineColor(kBlue);
+	arc2->SetFillStyle(0);
+	arc2->Draw("SAME ONLY");
+	display->Update();
+	display->Modified();
+      }
+    }
+  
+    for(int iter = 0; iter < 2; iter++) {
+      if(fabs(1. - red2chi2[iter]) < fabs(1. - chosenchi2)) {
+	xc = outxc[iter];
+	yc = outyc[iter];
+	radius = outradius[iter];
+	chosenchi2 = red2chi2[iter];
+	chosencountelem = countelement2[iter];
+      }
+    }
+    //    }
+
+
+  if(fVerbose) cout << "kept " << xc << " " << yc << " " << radius << endl;     
+  return kTRUE;
+}
+
 
 Bool_t PndSecondaryTrackFinder::TestChi2BIS(std::vector< TMatrixT<double> > cluster, Double_t xc, Double_t yc, Double_t radius,  Int_t iclus, Double_t chi2, Int_t countelem, Double_t &newxc, Double_t &newyc, Double_t &newradius, std::vector< TMatrixT<double> > *newcluster, Double_t &newchi2) {
 
@@ -4445,6 +5108,104 @@ Bool_t PndSecondaryTrackFinder::TestChi2BIS(std::vector< TMatrixT<double> > clus
   //   }
   int countelem2 = 0;
   Bool_t fit = CompleteSttFitBIS( newcluster, iclus, newxc, newyc, newradius, newchi2, countelem2);
+  if(fit == kFALSE || newchi2 > fChi2Limit) return kFALSE;
+
+  return kTRUE;
+
+}
+Bool_t PndSecondaryTrackFinder::TestChi2TER(std::vector< TMatrixT<double> > cluster, Double_t xc, Double_t yc, Double_t radius,  Int_t iclus, Double_t chi2, Int_t countelem, Double_t &newxc, Double_t &newyc, Double_t &newradius, std::vector< TMatrixT<double> > *newcluster, Double_t &newchi2) {
+
+  if(fVerbose) cout << xc << " " << yc << " " << radius << " " << chi2 << " " << countelem  << " " << cluster.size() << endl;
+  if(chi2 < fChi2Limit) return kTRUE;
+
+  if(countelem > cluster.size() * 0.5) return kFALSE;
+
+  // retry
+  TClonesArray *array;
+  //  if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) array = fMvdPixelHitArray;
+  //   else if(detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) array = fMvdStripHitArray;
+  //   else if(detId ==  FairRootManager::Instance()->GetBranchId(fSttBranch)) array = fSttHitArray;
+  //  else if(detId ==  FairRootManager::Instance()->GetBranchId(fGemBranch)) array = fGemHitArray;
+
+  for(int ihit = 0; ihit < cluster.size(); ihit++)
+    {
+      TMatrixT<double> singlehit = cluster[ihit];
+      if(singlehit[0][0] == -1) continue;
+      Int_t hitid = (Int_t) singlehit[0][1];
+      Int_t detid = (Int_t) singlehit[0][2];
+      double element = 0;
+      TVector3 centerposition2;
+      if(detid == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch) 
+	 || detid == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) {
+	
+	if(detid == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) array = fMvdPixelHitArray;
+	else if(detid == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) array = fMvdStripHitArray;
+	
+	PndSdsHit *hit = (PndSdsHit*) array->At(hitid);
+	if(!hit) continue;
+
+	hit->Position(centerposition2);
+	Double_t distancepc = TMath::Sqrt((centerposition2.X() - xc) * (centerposition2.X() - xc) +
+					  (centerposition2.Y() - yc) * (centerposition2.Y() - yc));
+	element = pow((distancepc - radius)/0.01, 2); // CHECK by hand
+      
+      }
+      else if(detid != FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+	array = fSttHitArray;
+	
+	PndSttHit *hit = (PndSttHit*) array->At(hitid);
+	if(!hit) continue;
+
+	hit->Position(centerposition2);
+	Double_t rd = hit->GetIsochrone();
+	Double_t rderror = hit->GetIsochroneError();
+	Double_t distancepc = TMath::Sqrt((centerposition2.X() - xc) * (centerposition2.X() - xc) +
+					  (centerposition2.Y() - yc) * (centerposition2.Y() - yc));
+	element = pow((fabs(distancepc - radius) - rd)/(rderror), 2);
+      }
+      //   cout << "TESTCHI2 " << fCountElemLimit << " " << element << endl;
+      if(fDisplayOn) {
+	char goOnChar;
+	cout << "testchi2, press any key" << endl;
+	cin >> goOnChar;
+	cout << "GOING ON" << endl;
+	display->Update();
+	display->Modified();
+      }
+      if(element >= fCountElemLimit) {
+	if(fDisplayOn) {
+	  TArc *arc = new TArc(centerposition2.X(), centerposition2.Y(), 0.5);
+	  arc->SetFillColor(2);
+	  //	  arc->SetFillStyle(0);
+	  arc->Draw("SAME");
+	  display->Update();
+	  display->Modified();
+	}
+	continue;
+      }
+
+      if(fDisplayOn) {
+	TArc *arc = new TArc(centerposition2.X(), centerposition2.Y(), 0.5);
+	arc->SetFillColor(3);
+	//	arc->SetFillStyle(0);
+	arc->Draw("SAME");
+	display->Update();
+	display->Modified();
+      }
+      newcluster->push_back(singlehit);
+      if(fVerbose) cout << "pushing back " << hitid << endl;
+    }
+
+  //   if(fDisplayOn) {
+  //     char goOnChar;
+  //     cout << "testchi2, press any key" << endl;
+  //     cin >> goOnChar;
+  //     cout << "GOING ON" << endl;
+  //     display->Update();
+  //     display->Modified();
+  //   }
+  int countelem2 = 0;
+  Bool_t fit = CompleteFitBIS( newcluster, iclus, newxc, newyc, newradius, newchi2, countelem2);
   if(fit == kFALSE || newchi2 > fChi2Limit) return kFALSE;
 
   return kTRUE;
