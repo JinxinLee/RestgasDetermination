@@ -3,7 +3,7 @@
 
   The naming of the surfaces is as shown here:
 
-  \image html PndDrcOptBrik1.png
+  \image html PndDrcOptBrick1.png
 */
 
 
@@ -12,20 +12,20 @@
 
 #include "PndDrcOptVol.h"
 
-class PndDrcOptBrik : public PndDrcOptVol
+class PndDrcOptBrick : public PndDrcOptVol
 {
 
   public:
 
 
-  PndDrcOptBrik();                         //!< Empty constructor
+  PndDrcOptBrick();                         //!< Empty constructor
 
   /*! \brief Construct brick.
     \param dx half-length of the box along the x-axis.
     \param dy half-length of the box along the y-axis.
     \param dz half-length of the box along the z-axis.
   */
-  PndDrcOptBrik(double dx, double dy, double dz); 
+  PndDrcOptBrick(double dx, double dy, double dz); 
 
 
   /*! \brief Set size of brick.

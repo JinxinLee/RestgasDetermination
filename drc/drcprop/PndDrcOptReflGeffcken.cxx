@@ -4,16 +4,100 @@
 // 
 // created 2011
 //-----------------------------------------------------
+#include <iostream>
+#include <iomanip>
+using std::cout;
+//using std::cerr;
+//using std::cin;
+using std::endl;
+using std::hex;
+
+
+#include "PndDrcOptMatAbs.h"
+#include "PndDrcOptMatMgF2.h"
 #include "PndDrcOptReflGeffcken.h"
 #include "PndDrcPhoton.h"
 
 #include "matrix.h"
 
+#include "PndDrcOptDev.h"
+
+//----------------------------------------------------------------------
+PndDrcOptReflGeffcken::PndDrcOptReflGeffcken()
+{
+
+
+  fLayerMaterialLow  = new PndDrcOptMatMgF2();
+  fLayerMaterialHigh = new PndDrcOptMatMgF2();
+
+
+  fLayerThicknessList.push_back(54.35);
+  fLayerMaterialList.push_back(fLayerMaterialLow->Clone()); // since list is deleted separately
+  
+  
+}
+//----------------------------------------------------------------------
+PndDrcOptReflGeffcken::~PndDrcOptReflGeffcken()
+{
+
+  if (fLayerMaterialLow)  delete fLayerMaterialLow;
+  if (fLayerMaterialHigh) delete fLayerMaterialHigh;
+
+  list<PndDrcOptMatAbs*>::const_iterator kLayerMaterialList;
+
+  for(kLayerMaterialList  = fLayerMaterialList.begin();
+    kLayerMaterialList != fLayerMaterialList.end(); 
+    ++kLayerMaterialList) 
+  {
+    delete (*kLayerMaterialList);
+  }
+}
 
 //----------------------------------------------------------------------
 PndDrcOptReflGeffcken* PndDrcOptReflGeffcken::Clone() const
 {
   return new PndDrcOptReflGeffcken(*this);
+}
+//----------------------------------------------------------------------
+void PndDrcOptReflGeffcken::Copy(const PndDrcOptReflGeffcken& s)
+{
+  
+
+  list<PndDrcOptMatAbs*>::const_iterator kLayerMaterialList;
+
+  for(kLayerMaterialList  = s.fLayerMaterialList.begin();
+      kLayerMaterialList != s.fLayerMaterialList.end(); 
+      ++kLayerMaterialList) 
+    {
+      const PndDrcOptMatAbs* tmp = (*kLayerMaterialList);
+      PndDrcOptMatAbs* tmp1 = tmp->Clone();
+
+      fLayerMaterialList.push_back(tmp1);
+    }
+
+
+
+  //fLayerMaterialList       = s.fLayerMaterialList;
+  fLayerThicknessList      = s.fLayerThicknessList;
+  fLayerMaterialLow        = (s.fLayerMaterialLow)->Clone();
+  fLayerMaterialHigh       = (s.fLayerMaterialHigh)->Clone();
+ 
+}
+//----------------------------------------------------------------------
+PndDrcOptReflGeffcken::PndDrcOptReflGeffcken(const PndDrcOptReflGeffcken& s) : PndDrcOptReflAbs(s)
+{
+  Copy(s);
+}
+//----------------------------------------------------------------------
+PndDrcOptReflGeffcken& PndDrcOptReflGeffcken::operator=(const PndDrcOptReflGeffcken& s)
+{
+
+
+  if (s.fVerbosity>=1) cout<<"  PndDrcOptReflGeffcken::operator="
+        <<"(const PndDrcOptReflGeffcken&) "<<endl;
+  if (&s != this) Copy(s);
+  return *this;
+
 }
 //----------------------------------------------------------------------
 const Drc::Reflectivity PndDrcOptReflGeffcken::Query(const PndDrcPhoton&    ph,
@@ -22,26 +106,52 @@ const Drc::Reflectivity PndDrcOptReflGeffcken::Query(const PndDrcPhoton&    ph,
 						     const Drc::ReflDir     direction) const
 {
 
+  if (fRan.Uniform() < ReflProb(ph,normal,n_next,direction) )
+    {
+      return Drc::ReflReflected;
+    }
+  else
+    {
+      return Drc::ReflTransmitted;
+    }
+}
+
+//----------------------------------------------------------------------
+const double PndDrcOptReflGeffcken::ReflProb(const PndDrcPhoton&    ph,
+					     const XYZVector        normal,
+					     const double           n_next,
+					     const Drc::ReflDir     direction) const
+{
+
   double lambda = ph.Wavelength();
   double pi = 3.1415926535;
   
-  // go from n0 (air to n1)
+  // go from n0 (air) to glass ns (substrate)
+  // n1 is the AR layer
 
-  double n0 = 1.0;
-  double n1 = 1.38;
+  double n0 = ph.Device()->OptMaterial().RefIndex(ph.Wavelength());
+
+
+  list<PndDrcOptMatAbs*>::const_iterator  kLayerMaterial  = fLayerMaterialList.begin();
+  list<double>::const_iterator            kLayerThickness = fLayerThicknessList.begin();;
+
+  double n1 = (*kLayerMaterial)->RefIndex(ph.Wavelength());
   
-  double ns = 1.5;
-  //double lambda = ph.Wavelength();
+  double ns = n_next;
   
 
-  double theta_i1  = 0 * pi/180;
+  double costh     = ph.Direction().X()*normal.X();
+  costh           += ph.Direction().Y()*normal.Y();
+  costh           += ph.Direction().Z()*normal.Z();  
+
+  double theta_i1  = acos(costh) * pi/180;
   double theta_i2  = asin(n0/n1*sin(theta_i1));
   double theta_t2  = asin(n1/ns*sin(theta_i2));
 
   double e0bymu0 = 1.0;//????
 
   double k0 = 2*pi/lambda;  // nm-1
-  double d  = 54.35;//300.0 / n1 / cos(theta_i2) /4; 
+  double d  = (*kLayerThickness);           //54.35;//300.0 / n1 / cos(theta_i2) /4; 
   double h  = d * n1 / cos(theta_i2);
   
 
@@ -75,16 +185,8 @@ const Drc::Reflectivity PndDrcOptReflGeffcken::Query(const PndDrcPhoton&    ph,
   
   complex <double> r = er1/ei1;
 
+  return real(r*conj(r));
   
-  if (fRan.Uniform()< r*conj(r)) 
-    {
-      return Drc::ReflReflected;
-      
-    }
-  else
-    {
-      return Drc::ReflTransmitted;
-    }
   
 
   //std::cout<<lambda<<" "<<r<<" "<<r*conj(r)<<std::endl;
@@ -95,6 +197,4 @@ const Drc::Reflectivity PndDrcOptReflGeffcken::Query(const PndDrcPhoton&    ph,
   //cout<<help<<" "<<help*conj(help)<<endl;
 
 
-
-      return Drc::ReflAbsorbed;
 }

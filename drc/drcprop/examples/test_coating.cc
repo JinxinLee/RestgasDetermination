@@ -79,6 +79,9 @@ int main(int argc, char *argv[])
   
 
   PndDrcOptReflGeffcken refl;
+  refl.SetVerbosity(5);
+  
+
   PndDrcOptMatLithotecQ0 lithotec;
   
   
@@ -103,7 +106,7 @@ int main(int argc, char *argv[])
   out.open("debug.dat",std::ios::out);
   
   
-  for (double lambda=200; lambda<600; lambda+=20)
+  for (double lambda=200; lambda<600; lambda+=1)
     {
       double theta=0; 
       ph.SetPosition(XYZPoint(0,0,5));

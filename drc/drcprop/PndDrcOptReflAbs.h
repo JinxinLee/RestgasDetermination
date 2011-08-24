@@ -49,18 +49,54 @@ class PndDrcOptReflAbs
 {
  protected:
 
+  //! Constructor
+  PndDrcOptReflAbs();
+  
+
   //!                                             Random generator.
   mutable TRandom3 fRan;
 
  public:
 
-  //! Destructor.
-  virtual ~PndDrcOptReflAbs(){};
+  /*! \brief Copy constructor.
+    \param s Object to copy.
+  */
+  PndDrcOptReflAbs(const PndDrcOptReflAbs& s);  
+
+  /*! \brief assignment operator
+    \param s Object to assign.
+    \return result.
+  */
+  PndDrcOptReflAbs& operator=(const PndDrcOptReflAbs& s);
+  
+
+  virtual ~PndDrcOptReflAbs();
 
   /*! \brief Virtual copy constructor.
     \return Pointer to new allocated memory.
   */
   virtual PndDrcOptReflAbs* Clone() const = 0;
+
+  /*! \brief Verbosity
+
+  Set the verbosity. Range is 0 to 5. 
+  \verbatim
+  0=quiet, 
+  1=constructors,destructors,
+  2=member functions, 
+  3=functionality
+  4=photons
+  5=everything
+  \endverbatim
+  \param level The verbosity level
+  */
+  void SetVerbosity(int level){fVerbosity=level;};
+
+  /*! \brief Verbosity.
+    \return Verbosity
+    \sa SetVerbosity()
+  */
+  const int Verbosity() const {return fVerbosity;};
 
   /*! \brief Query reflectivity of surface 
 
@@ -79,5 +115,16 @@ class PndDrcOptReflAbs
 					const XYZVector        normal,
 					const double           n_next     = 1,
 					const Drc::ReflDir     direction = Drc::ReflOut) const = 0;
+
+
+  protected:
+   int                  fVerbosity;          //!< Verbosity from 0 to 5.          
+ 
+ private:
+  /*! \brief Auxiliary function for assignment operator and copy constructor..
+    \param s The object to copy.
+  */
+  void Copy(const PndDrcOptReflAbs& s);         
+
 };
 #endif

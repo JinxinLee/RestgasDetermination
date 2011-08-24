@@ -4,7 +4,7 @@
 // 
 // created 2007
 //-----------------------------------------------------
-#include "PndDrcOptBrik.h"
+#include "PndDrcOptBrick.h"
 
 //#include "PndDrcPhoton.h"
 //#include "PndDrcOptReflAbs.h"
@@ -22,12 +22,12 @@ using std::endl;
 using std::numeric_limits;
 
 
-PndDrcOptBrik::PndDrcOptBrik(double dx, double dy, double dz)
+PndDrcOptBrick::PndDrcOptBrick(double dx, double dy, double dz)
 {
   SetSize(dx,dy,dz);
 }
 //----------------------------------------------------------------------
-void PndDrcOptBrik::SetSize(double dx, double dy, double dz)
+void PndDrcOptBrick::SetSize(double dx, double dy, double dz)
 {
   XYZPoint p1( dx, dy,-dz);        //        p5----------p8
   XYZPoint p2( dx,-dy,-dz);        //       /|           /|
@@ -96,7 +96,7 @@ void PndDrcOptBrik::SetSize(double dx, double dy, double dz)
   AddSurface(a6);
 }
 //----------------------------------------------------------------------
-PndDrcSurfAbs* const PndDrcOptBrik::Surface(string name)
+PndDrcSurfAbs* const PndDrcOptBrick::Surface(string name)
 {
   
   PndDrcSurfAbs* result=0;
@@ -113,7 +113,7 @@ PndDrcSurfAbs* const PndDrcOptBrik::Surface(string name)
 	    }
 	  else
 	    {
-	      cerr<<" *** PndDrcOptBrik::surface: surface name "<<name<<" exists more than one time"<<endl;
+	      cerr<<" *** PndDrcOptBrick::surface: surface name "<<name<<" exists more than one time"<<endl;
 	      exit(EXIT_FAILURE);
 	    }
 	}

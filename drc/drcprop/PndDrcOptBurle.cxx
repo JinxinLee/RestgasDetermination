@@ -33,7 +33,7 @@ using ROOT::Math::Rotation3D;
 
 
 #include "PndDrcOptBurle.h"
-#include "PndDrcOptBrik.h"
+#include "PndDrcOptBrick.h"
 //#include "PndDrcPhoton.h"
 #include "PndDrcOptReflAbs.h"
 #include "PndDrcOptReflNone.h"
@@ -63,7 +63,7 @@ PndDrcOptBurle::PndDrcOptBurle()
   PndDrcOptReflNone refl_side;
   
 
-  PndDrcOptBrik box(half_ext_x,half_ext_y,half_ext_z);
+  PndDrcOptBrick box(half_ext_x,half_ext_y,half_ext_z);
   box.SetName("housing");
   box.SetOptMaterial(PndDrcOptMatLithotecQ0());
 

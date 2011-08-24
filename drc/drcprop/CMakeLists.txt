@@ -33,6 +33,7 @@ PndDrcOptMatAbs.cxx
 PndDrcOptMatLithotecQ0.cxx 
 PndDrcOptMatNLAK33A.cxx 
 PndDrcOptMatBK7.cxx 
+PndDrcOptMatMgF2.cxx 
 PndDrcOptMatMarcol7.cxx 
 PndDrcOptMatLLF1.cxx 
 PndDrcOptMatLiF.cxx 
@@ -41,6 +42,7 @@ PndDrcOptReflSilver.cxx
 PndDrcOptReflGray.cxx 
 PndDrcOptReflSurf.cxx 
 PndDrcOptReflPerfect.cxx 
+PndDrcOptReflAbs.cxx
 PndDrcOptReflNone.cxx
 PndDrcOptReflGeffcken.cxx
 PndDrcOptVol.cxx 
@@ -54,7 +56,7 @@ PndDrcSurfPolyCyl.cxx
 PndDrcSurfPolyPara.cxx 
 PndDrcSurfPolyAsphere.cxx 
 PndDrcUtil.cxx
-PndDrcOptBrik.cxx
+PndDrcOptBrick.cxx
 PndDrcOptTrd2.cxx
 PndDrcConicSection.cxx
 PndDrcOptLens.cxx
