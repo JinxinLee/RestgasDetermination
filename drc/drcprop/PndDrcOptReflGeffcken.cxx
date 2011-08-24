@@ -122,22 +122,25 @@ const double PndDrcOptReflGeffcken::ReflProb(const PndDrcPhoton&    ph,
 					     const double           n_next,
 					     const Drc::ReflDir     direction) const
 {
+  const double pi = 3.1415926535;
 
-  double lambda = ph.Wavelength();
-  double pi = 3.1415926535;
-  
+  double lambda   = ph.Wavelength();   // nm
+  double k0       = 2*pi/lambda;       // nm-1
+  bool leave_loop = false;
+
   // go from n0 (air) to glass ns (substrate)
   // n1 is the AR layer
 
-  double n0 = ph.Device()->OptMaterial().RefIndex(ph.Wavelength());
-
-
-  list<PndDrcOptMatAbs*>::const_iterator  kLayerMaterial  = fLayerMaterialList.begin();
-  list<double>::const_iterator            kLayerThickness = fLayerThicknessList.begin();;
-
-  double n1 = (*kLayerMaterial)->RefIndex(ph.Wavelength());
-  
+  double n0 = ph.Device()->OptMaterial().RefIndex(lambda);
   double ns = n_next;
+
+
+  list<PndDrcOptMatAbs*>::const_iterator  kLayerMaterial=fLayerMaterialList.end();
+  list<double>::const_iterator            kLayerThickness=fLayerThicknessList.end();
+
+
+  double n1 = (*kLayerMaterial)->RefIndex(lambda);
+  
   
 
   double costh     = ph.Direction().X()*normal.X();
@@ -150,7 +153,6 @@ const double PndDrcOptReflGeffcken::ReflProb(const PndDrcPhoton&    ph,
 
   double e0bymu0 = 1.0;//????
 
-  double k0 = 2*pi/lambda;  // nm-1
   double d  = (*kLayerThickness);           //54.35;//300.0 / n1 / cos(theta_i2) /4; 
   double h  = d * n1 / cos(theta_i2);
   
@@ -176,7 +178,8 @@ const double PndDrcOptReflGeffcken::ReflProb(const PndDrcPhoton&    ph,
   complex <double> out2;
   
   M.product(out1,out2,in1,in2);
-  
+
+
   //cout<< in1<<" "<< in2<<endl;
   //cout<<out1<<" "<<out2<<endl;
 

@@ -64,6 +64,7 @@ using ROOT::Math::Rotation3D;
 #include "PndDrcOptMatLithotecQ0.h"
 #include "PndDrcOptMatMarcol7.h"
 #include "PndDrcOptMatVacuum.h"
+#include "PndDrcOptMatMgF2.h"
 #include "PndDrcOptDevSys.h"
 #include "PndDrcOptVol.h"
 #include "PndDrcOptDevManager.h"
@@ -83,7 +84,7 @@ int main(int argc, char *argv[])
   
 
   PndDrcOptMatLithotecQ0 lithotec;
-  
+  PndDrcOptMatMgF2       mgf2;
   
   cout<<" lambda loss --> debug.dat"<<endl;
   
@@ -119,7 +120,7 @@ int main(int argc, char *argv[])
       double refl_prob = refl.ReflProb(ph,XYZVector(0,0,-1),lithotec.RefIndex(lambda),Drc::ReflIn);
       
       
-      cout<<lambda<<" "<<refl_prob<<endl;
+      cout<<lambda<<" "<<refl_prob<<" "<<mgf2.RefIndex(lambda)<<endl;
       out<< lambda<<" "<<refl_prob<<endl;
       
     }
