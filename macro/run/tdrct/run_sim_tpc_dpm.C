@@ -71,13 +71,13 @@ run_sim_tpc_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t seed=0
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
 
-  PndMdt *Muo = new PndMdt("MDT",kFALSE);
-  Muo->SetBarrel("fast");
-  Muo->SetEndcap("fast");
-  Muo->SetMuonFilter("fast");
-  Muo->SetMdtMagnet(kTRUE);
-  Muo->SetMdtMFIron(kTRUE);
-  fRun->AddModule(Muo);
+  //PndMdt *Muo = new PndMdt("MDT",kFALSE);
+  //Muo->SetBarrel("fast");
+  //Muo->SetEndcap("fast");
+  //Muo->SetMuonFilter("fast");
+  //Muo->SetMdtMagnet(kTRUE);
+  //Muo->SetMdtMFIron(kTRUE);
+  //fRun->AddModule(Muo);
 
   FairDetector *Gem = new PndGemDetector("GEM", kFALSE);
   Gem->SetGeometryFileName("gem_3Stations.root");

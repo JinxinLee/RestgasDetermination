@@ -86,7 +86,7 @@
   //correlate fitted track with MVD pixels and strips
   PndTpcMVDCorrelatorTask* corr = new PndTpcMVDCorrelatorTask();
   corr->SetMatchDistance(0.18);   //cm
-  corr->SetMinMVDHits(1);
+  corr->SetMinMVDHits(0);
   corr->SetOutTrackBranchName("TrackPreFitMVD");
   corr->SetPersistence(true);
   fRun->AddTask(corr);
@@ -102,7 +102,7 @@
 
   PndTpcGEMCorrelatorTask* corrG = new PndTpcGEMCorrelatorTask();
   corrG->SetMatchDistance(0.5);   //cm 
-  corrG->SetMinGEMHits(2);
+  corrG->SetMinGEMHits(0);
   corrG->SetTrackBranchName("TrackPostFitMVD");
   corrG->SetOutTrackBranchName("TrackPreFitGEM");
   corrG->SetPersistence(true);
