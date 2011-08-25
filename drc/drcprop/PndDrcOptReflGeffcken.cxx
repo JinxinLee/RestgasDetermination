@@ -126,7 +126,6 @@ const double PndDrcOptReflGeffcken::ReflProb(const PndDrcPhoton&    ph,
 
   double lambda   = ph.Wavelength();   // nm
   double k0       = 2*pi/lambda;       // nm-1
-  bool leave_loop = false;
 
   // go from n0 (air) to glass ns (substrate)
   // n1 is the AR layer
@@ -135,8 +134,8 @@ const double PndDrcOptReflGeffcken::ReflProb(const PndDrcPhoton&    ph,
   double ns = n_next;
 
 
-  list<PndDrcOptMatAbs*>::const_iterator  kLayerMaterial=fLayerMaterialList.end();
-  list<double>::const_iterator            kLayerThickness=fLayerThicknessList.end();
+  list<PndDrcOptMatAbs*>::const_iterator  kLayerMaterial=fLayerMaterialList.begin();
+  list<double>::const_iterator            kLayerThickness=fLayerThicknessList.begin();
 
 
   double n1 = (*kLayerMaterial)->RefIndex(lambda);
