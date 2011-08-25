@@ -17,8 +17,8 @@
 #include "PndDrcOptMatAbs.h"
 
 
-#include <list>
-using std::list;
+#include <vector>
+using std::vector;
 
 class PndDrcOptReflGeffcken : public PndDrcOptReflAbs
 {
@@ -74,8 +74,8 @@ class PndDrcOptReflGeffcken : public PndDrcOptReflAbs
 
 
   protected:
-  list<PndDrcOptMatAbs*>     fLayerMaterialList;                 //!< Layers of material
-  list<double>               fLayerThicknessList;                //!< Layer thicknesses [nm]
+  vector<PndDrcOptMatAbs*>     fLayerMaterialVector;                 //!< Layers of material
+  vector<double>               fLayerThicknessVector;                //!< Layer thicknesses [nm]
   PndDrcOptMatAbs*           fLayerMaterialLow;                  //!< Low refractive index material.
   PndDrcOptMatAbs*           fLayerMaterialHigh;                 //!< High refractive index material.
 

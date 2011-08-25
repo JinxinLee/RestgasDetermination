@@ -31,8 +31,8 @@ PndDrcOptReflGeffcken::PndDrcOptReflGeffcken()
   fLayerMaterialHigh = new PndDrcOptMatMgF2();
 
 
-  fLayerThicknessList.push_back(54.35);
-  fLayerMaterialList.push_back(fLayerMaterialLow->Clone()); // since list is deleted separately
+  fLayerThicknessVector.push_back(54.35);
+  fLayerMaterialVector.push_back(fLayerMaterialLow->Clone()); // since list is deleted separately
   
   
 }
@@ -43,13 +43,13 @@ PndDrcOptReflGeffcken::~PndDrcOptReflGeffcken()
   if (fLayerMaterialLow)  delete fLayerMaterialLow;
   if (fLayerMaterialHigh) delete fLayerMaterialHigh;
 
-  list<PndDrcOptMatAbs*>::const_iterator kLayerMaterialList;
+  vector<PndDrcOptMatAbs*>::const_iterator kLayerMaterialVector;
 
-  for(kLayerMaterialList  = fLayerMaterialList.begin();
-    kLayerMaterialList != fLayerMaterialList.end(); 
-    ++kLayerMaterialList) 
+  for(kLayerMaterialVector  = fLayerMaterialVector.begin();
+    kLayerMaterialVector != fLayerMaterialVector.end(); 
+    ++kLayerMaterialVector) 
   {
-    delete (*kLayerMaterialList);
+    delete (*kLayerMaterialVector);
   }
 }
 
@@ -63,22 +63,22 @@ void PndDrcOptReflGeffcken::Copy(const PndDrcOptReflGeffcken& s)
 {
   
 
-  list<PndDrcOptMatAbs*>::const_iterator kLayerMaterialList;
+  vector<PndDrcOptMatAbs*>::const_iterator kLayerMaterialVector;
 
-  for(kLayerMaterialList  = s.fLayerMaterialList.begin();
-      kLayerMaterialList != s.fLayerMaterialList.end(); 
-      ++kLayerMaterialList) 
+  for(kLayerMaterialVector  = s.fLayerMaterialVector.begin();
+      kLayerMaterialVector != s.fLayerMaterialVector.end(); 
+      ++kLayerMaterialVector) 
     {
-      const PndDrcOptMatAbs* tmp = (*kLayerMaterialList);
+      const PndDrcOptMatAbs* tmp = (*kLayerMaterialVector);
       PndDrcOptMatAbs* tmp1 = tmp->Clone();
 
-      fLayerMaterialList.push_back(tmp1);
+      fLayerMaterialVector.push_back(tmp1);
     }
 
 
 
-  //fLayerMaterialList       = s.fLayerMaterialList;
-  fLayerThicknessList      = s.fLayerThicknessList;
+  //fLayerMaterialVector       = s.fLayerMaterialVector;
+  fLayerThicknessVector      = s.fLayerThicknessVector;
   fLayerMaterialLow        = (s.fLayerMaterialLow)->Clone();
   fLayerMaterialHigh       = (s.fLayerMaterialHigh)->Clone();
  
@@ -134,8 +134,8 @@ const double PndDrcOptReflGeffcken::ReflProb(const PndDrcPhoton&    ph,
   double ns = n_next;
 
 
-  list<PndDrcOptMatAbs*>::const_iterator  kLayerMaterial=fLayerMaterialList.begin();
-  list<double>::const_iterator            kLayerThickness=fLayerThicknessList.begin();
+  vector<PndDrcOptMatAbs*>::const_iterator  kLayerMaterial=fLayerMaterialVector.begin();
+  vector<double>::const_iterator            kLayerThickness=fLayerThicknessVector.begin();
 
 
   double n1 = (*kLayerMaterial)->RefIndex(lambda);
