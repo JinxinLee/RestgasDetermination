@@ -28,9 +28,9 @@ public:
 	};
 	virtual ~PndSdsClusterStrip();
   
-	void SetClusterList(Int_t DigiType, std::vector<Int_t> list){
+	void SetClusterList(Int_t DigiType, std::vector<Int_t> list, Int_t fileId = -1, Int_t eventId = -1){
 		fClusterList = list;
-		SetLinks(FairMultiLinkedData(DigiType, list));
+		SetLinks(FairMultiLinkedData(DigiType, list, fileId, eventId));
 	}
   
 	SensorSide GetSensorSide() const {return fSide;}

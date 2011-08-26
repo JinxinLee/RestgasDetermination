@@ -21,6 +21,7 @@
 #include "PndGeoHandling.h"
 #include "PndSdsChargeConversion.h"
 #include "PndSdsTotDigiPar.h"
+#include "PndSdsFE.h"
 
 #include "PndSdsDigiPixelWriteoutBuffer.h"
 
@@ -98,6 +99,8 @@ protected:
   void AddHits(std::vector<PndSdsPixel>* hitList, int mcIndex);
   Double_t SmearCharge(Double_t charge);
 
+  //PndSdsFE* fFEModel;
+
   Double_t flx;	//pixel width in x;
   Double_t fly;	//pixel width in y;
   Double_t fthreshold; //pixel threshold in electrons
@@ -106,7 +109,7 @@ protected:
   Int_t    fcols; //pixel columns in one FE
   Int_t    frows; //pixel rows in one FE
   Int_t fPixelHits;
-  FairMCEventHeader* fMcEventHeader;
+//  FairMCEventHeader* fMcEventHeader;
   PndGeoHandling* fGeoH;
   Int_t fEventNr;
   Bool_t fOverwriteParams;

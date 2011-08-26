@@ -25,8 +25,9 @@
 class PndSdsFESimple: public PndSdsFE {
 public:
 	PndSdsFESimple();
-	PndSdsFESimple(double charsingtime, double constcurrent, double threshold, double frequency, int verbose);
+	PndSdsFESimple(double charsingtime, double constcurrent, double threshold, double frequency);
 	~PndSdsFESimple();
+
 
 	void SetParameter(double chargingtime, double constcurrent, double threshold, double frequency);
 

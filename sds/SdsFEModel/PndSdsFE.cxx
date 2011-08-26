@@ -14,15 +14,13 @@
 
 
 PndSdsFE::~PndSdsFE() {
+	delete fFrontEndModel;
+	delete fFunction;
 }
 
-void PndSdsFE::SetParameter(double charsingtime, double constcurrent, double threshold, double frequency ){
 
-	fThreshold = threshold;
-	fFunction->SetParName(0,"chargetime");
-	fFunction->SetParName(1,"constantcurrent");
-	fFunction->SetParName(2,"charge");
-
+void PndSdsFE::SetParameter(TString parName, double parValue){
+	fFunction->SetParameter(parName.Data(), parValue);
 }
 
 double PndSdsFE::GetTotFromCharge(Double_t Charge){
@@ -60,8 +58,8 @@ double PndSdsFE::GetTotFromCharge(Double_t Charge){
 //	printf("stop exakt:%f    \n",stop_exakt);
 //	printf("stop 	   :%f    \n",stop);
 
-		//return stop-start;		// with digitization
-		return stop_exakt - start_exakt;  // without digitization
+		return stop-start;		// with digitization
+		//return stop_exakt - start_exakt;  // without digitization
 }
 
 double PndSdsFE::GetChargeFromTot(double tot){
@@ -79,7 +77,8 @@ double PndSdsFE::GetTimeWalkFromTot(double tot){
 double PndSdsFE::GetTimeWalkFromCharge(double Charge){
 	fFunction->SetParameter("charge",Charge);
 	fMaximumAmplitude = fFunction->GetMaximumX();
-	return fFunction->GetX(fThreshold,0,fMaximumAmplitude); //(xmin<x<xmax)
+	double result = fFunction->GetX(fThreshold,0,fMaximumAmplitude); //(xmin<x<xmax)
+	return result;
 }
 
 double PndSdsFE::GetTimeBackToBaseline(double Charge){
@@ -108,7 +107,7 @@ void PndSdsFE::CreateInterpolatorList(){
 	fNumberOfMaxElectons = 630000;
 	stepsize = fNumberOfMaxElectons/fNumberOfSupportPoints;
 
-	printf("stepsize %f \n",stepsize);
+	//printf("stepsize %f \n",stepsize);
 
 	for( i=0; i < fNumberOfSupportPoints; i++){
 		if(i*stepsize<fThreshold){
@@ -119,14 +118,14 @@ void PndSdsFE::CreateInterpolatorList(){
 		fTot_list.push_back(i*stepsize);
 		fCharge_list.push_back(GetTotFromCharge(i*stepsize));
 
-		printf("x-value %f ,y-value %f \n",fCharge_list.back(),fTot_list.back());
+		//printf("x-value %f ,y-value %f \n",fCharge_list.back(),fTot_list.back());
 		//printf("x-value %f ,y-value %f \n",fCharge_list[],fTot_list.back());
 
-		if(fTot_list.back()< fTot_list.back()-1) {
-			printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++%d \n",i );
-			printf("x-value[i-3] %f ,x-value[i-2] %f \n",fTot_list.back()-3,fTot_list.back()-2);
+			if(fTot_list.back()< fTot_list.back()-1) {
+				printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++%d \n",i );
+				printf("x-value[i-3] %f ,x-value[i-2] %f \n",fTot_list.back()-3,fTot_list.back()-2);
 
-			printf("x-value[i] %f ,x-value[i-1] %f \n",fTot_list.back(),fTot_list.back());
+				printf("x-value[i] %f ,x-value[i-1] %f \n",fTot_list.back(),fTot_list.back());
 			}
 		}
 	}

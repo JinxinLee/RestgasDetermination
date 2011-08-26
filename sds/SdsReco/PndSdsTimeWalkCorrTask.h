@@ -16,6 +16,7 @@
 #include "PndSdsDigiPixelMCInfo.h"
 #include "PndSdsTotDigiPar.h"
 #include "PndSdsTimeWalkCorrSimple.h"
+#include "PndSdsFE.h"
 
 
 class PndSdsTimeWalkCorrTask : public PndSdsTask {
@@ -27,20 +28,15 @@ public:
 	InitStatus Init();
 	void SetParContainers();
 	void Exec(Option_t* opt);
+	  virtual void FinishTask();
 protected:
 	Bool_t fPersistance;
 	TClonesArray* fDigiArray;
 	TClonesArray* fDigiCorrArray;
-	TClonesArray* fDigiMCArray;
     PndSdsPixelDigiPar* fDigiPar;
     PndSdsTotDigiPar* fDigiTotPar;
-    PndSdsTimeWalkCorr* fTimeWalkCorr;
-    Double_t fTimeCorrection;
+    PndSdsFE* fFEModel;
     Int_t fVerbose;
-    std::vector<Int_t> fIndex;
-
-    Bool_t fAdditionalInfo;
-    TClonesArray* fDigiAdditionalInfoArray;
 
     ClassDef(PndSdsTimeWalkCorrTask, 1);
 };

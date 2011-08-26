@@ -69,6 +69,7 @@ SdsDigi/PndSdsDigiPixelWriteoutBuffer.cxx
 SdsDigi/PndSdsPixelDigiSorterTask.cxx
 
 SdsFEModel/PndSdsFE.cxx
+SdsFEModel/PndSdsFESimple.cxx
 SdsFEModel/PndSdsFEAmpModelSimple.cxx
 
 SdsMC/PndSdsDetector.cxx

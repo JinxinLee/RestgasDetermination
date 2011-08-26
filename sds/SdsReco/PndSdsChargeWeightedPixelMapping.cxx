@@ -16,6 +16,9 @@ PndSdsHit PndSdsChargeWeightedPixelMapping::GetCluster(std::vector<PndSdsDigiPix
 fDigiArray = pixelArray;
 	Double_t col = 0, row = 0, charge = 0;
 	Double_t tempCol = 0, tempRow = 0, tempTime = 0;
+	std::vector<Double_t> timeValues;
+	std::vector<Double_t> timeValueErrors;
+
 	Int_t count = 0, mcindex=-1;
 	//Double_t local[2], master[2];
   //TODO: Get away from default 10 Frontends per column?
@@ -38,12 +41,14 @@ fDigiArray = pixelArray;
 				std::cout << "GetCluster:col/row " << col << " " << row << std::endl;
 			count = 1;
 			charge = fChargeConverter->DigiValueToCharge(fDigiArray[0]);
-      for(Int_t mcI = 0; mcI<fDigiArray[0].GetNIndices();mcI++){ 
-        if (fDigiArray[0].GetIndex(mcI) > -1) {
-          mcindex = fDigiArray[0].GetIndex(mcI);
-          break;
-        }
-      }
+			  for(Int_t mcI = 0; mcI<fDigiArray[0].GetNIndices();mcI++){
+				if (fDigiArray[0].GetIndex(mcI) > -1) {
+				  mcindex = fDigiArray[0].GetIndex(mcI);
+				  break;
+				}
+			  }
+			  timeValues.push_back(fDigiArray[0].GetTimeStamp());
+			  timeValueErrors.push_back(fDigiArray[0].GetTimeStampError());
 		}
 	}
 	else {
@@ -56,7 +61,8 @@ fDigiArray = pixelArray;
 				col += (tempCol*fChargeConverter->DigiValueToCharge(fDigiArray[i]));
 				row += (tempRow*fChargeConverter->DigiValueToCharge(fDigiArray[i]));
 				charge += fChargeConverter->DigiValueToCharge(fDigiArray[i]);
-				tempTime += fDigiArray[i].GetTimeStamp();
+				timeValues.push_back(fDigiArray[i].GetTimeStamp());
+				timeValueErrors.push_back(fDigiArray[i].GetTimeStampError());
 				count++;
         if(mcindex < 0){
           for(Int_t mcI = 0; mcI<fDigiArray[i].GetNIndices();mcI++){ 
@@ -94,10 +100,27 @@ fDigiArray = pixelArray;
   locCov[2][2]=errZ*errZ/12;
   TMatrixD hitCov=fGeoH->LocalToMasterErrorsShortId(locCov,fDigiArray[0].GetSensorID());
   TVector3 dpos(sqrt(hitCov[0][0]),sqrt(hitCov[1][1]),sqrt(hitCov[2][2]));
+ //std::cout << "-I- PndSdsChargeWeightedPixelMapping Error DPos: " << dpos.x() << " " << dpos.y() << " " << dpos.z() << std::endl;
+
+  Double_t meanTime = 0;
+  Double_t meanTimeError = 0;
+  Double_t sumVar = 0;
+
+  for (UInt_t t = 0; t < timeValues.size(); t++){
+	  meanTime += timeValues[t] / (timeValueErrors[t] * timeValueErrors[t]);
+	  sumVar += 1/(timeValueErrors[t] * timeValueErrors[t]);
+  }
+
+  if (sumVar > 0)
+	  meanTime /= sumVar;
+
+
+
   PndSdsHit thehit(fDigiArray[0].GetDetID(),fDigiArray[0].GetSensorID(), pos, dpos, -1, charge, fDigiArray.size(),mcindex);
   thehit.SetCov(hitCov);
-  thehit.SetTimeStamp(tempTime/count);
-  std::cout << "-I- PndSdsChargeWeightedPixelMapping TimeStamp: " << tempTime/count << std::endl;
+  thehit.SetTimeStamp(meanTime);
+  thehit.SetTimeStampError(1/sumVar);
+  //std::cout << "-I- PndSdsChargeWeightedPixelMapping TimeStamp: " << tempTime/count << std::endl;
   return thehit;
 }
 

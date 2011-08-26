@@ -279,8 +279,10 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
     {
       clindex = fClusterArray->GetEntriesFast();
       PndSdsClusterStrip* myCluster = new((*fClusterArray)[clindex]) PndSdsClusterStrip(*(*clit));
+      myCluster->Reset();
       for(int i = 0; i < myCluster->GetClusterSize(); i++){
-    	  myCluster->AddLink(FairLink(fInBranchName, myCluster->GetDigiIndex(i)));
+    	  PndSdsDigiStrip* tempDigi = (PndSdsDigiStrip*)fDigiArray->At(myCluster->GetDigiIndex(i));
+    	  myCluster->AddLink(FairLink(tempDigi->GetEntryNr()));
       }
     }
     

@@ -33,16 +33,15 @@ using namespace std;
 class PndSdsMCPoint : public FairMCPoint
 {
   friend std::ostream& operator<< (std::ostream& out, const PndSdsMCPoint& point){
-    out << "-I- PndSdsMCPoint: PndMvd Point for track " << point.GetTrackID()
-         << " in detector " << point.GetDetectorID() << " with name "
-       << point.GetDetName() << std::endl;
-    out << "    Position in  (" << point.GetX() << ", " << point.GetY() << ", " << point.GetZ() << ") cm" << std::endl;
-    out << "    Position out (" << point.GetXOut() << ", " << point.GetYOut() << ", " << point.GetZOut() << ") cm" << std::endl;
-    out << "    Momentum (" << point.GetPx() << ", " << point.GetPy() << ", " << point.GetPz()
-       << ") GeV" << std::endl;
-    out << "    Time " << point.GetTime() << " ns,  Length " << point.GetLength()
-       << " cm,  Energy loss " << point.GetEnergyLoss()*1.0e06 << " keV" << std::endl;
-    return out;
+	out << "-I- PndSdsMCPoint: PndMvd Point for track " << point.GetTrackID()
+		 << " in detector " << point.GetDetectorID() << " with name "
+	   << point.GetDetName() << std::endl;
+	out << "    Position in  (" << point.GetX() << ", " << point.GetY() << ", " << point.GetZ() << ") cm" << std::endl;
+	out << "    Position out (" << point.GetXOut() << ", " << point.GetYOut() << ", " << point.GetZOut() << ") cm" << std::endl;
+	out << "    Momentum (" << point.GetPx() << ", " << point.GetPy() << ", " << point.GetPz() << ") GeV" << std::endl;
+	out << "    FlightTime " << point.GetTime() << " ns,  Length " << point.GetLength() << " cm,  Energy loss " << point.GetEnergyLoss()*1.0e06 << " keV" << std::endl;
+	out << "    TimeStamp  " << point.GetTimeStamp() << " ns" << std::endl;
+	return out;
   }
 
  public:

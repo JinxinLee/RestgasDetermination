@@ -48,6 +48,7 @@ PndMCEntry.cxx
 PndMCList.cxx
 PndMCTrackAssociator.cxx
 PndMCTrackEnumAssociator.cxx
+PndMCDataCrawler.cxx
 )
 
 # fill list of header files from list of source files
@@ -75,6 +76,7 @@ examples/PndMCTestHitCompare.cxx
 examples/PndMCIdealTrackFinder.cxx
 examples/PndMCTestEmcClusterCompare.cxx
 examples/PndMCTestPatternRecoQuality.cxx
+examples/PndMCTestDataCrawler.cxx
 )
 
 CHANGE_FILE_EXTENSION(*.cxx *.h MCMATCHEXAMPLES_HEADERS "${MCMATCHEXAMPLES_SRCS}")

@@ -23,6 +23,7 @@
 #include "PndSdsHit.h"
 #include "PndSdsMCPoint.h"
 #include "PndSdsPixel.h"
+#include "PndSdsFE.h"
 // #include "PndSdsCluster.h"
 #include "FairGeoVector.h"
 #include "FairGeoTransform.h"
@@ -76,7 +77,7 @@ class PndSdsPixelClusterTask : public PndSdsTask
     virtual void SetParContainers();
     virtual InitStatus Init();
     virtual InitStatus ReInit();
-
+    virtual void FinishEvent();
     
     /** Virtual method Exec **/
     void Exec(Option_t* opt);
@@ -87,6 +88,8 @@ class PndSdsPixelClusterTask : public PndSdsTask
   protected:
     
     Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
+
+    PndSdsFE* fFEModel;
 
     /** Input array of PndSdsDigis **/
     TClonesArray* fDigiArray;
@@ -100,8 +103,10 @@ class PndSdsPixelClusterTask : public PndSdsTask
     TClonesArray* fHitArray;
 
     BinaryFunctor* fFunctor;
+    BinaryFunctor* fStartFunctor;
     
     Int_t fClusterType;
+    Int_t fEventNr;
     
     void Register();
     void Reset();  

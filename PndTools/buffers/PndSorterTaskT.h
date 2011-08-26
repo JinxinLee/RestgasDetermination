@@ -22,7 +22,7 @@ template <class T> class PndSorterTaskT : public FairTask
   /** Default constructor **/
   PndSorterTaskT():FairTask("SorterTask"), fNumberOfCells(1000), fWidthOfCells(10),fEntryNr(0)
   {
-	  SetVerbose(4);
+	  SetVerbose(0);
 	  SetPersistance();
   }
   
@@ -30,14 +30,14 @@ template <class T> class PndSorterTaskT : public FairTask
   PndSorterTaskT(const char* name):
 	  FairTask(name), fNumberOfCells(1000), fWidthOfCells(10), fEntryNr(0)
   {
-	  SetVerbose(4);
+	  SetVerbose(0);
 	  SetPersistance();
   };
 
  PndSorterTaskT(Int_t numberOfCells, Double_t widthOfCells, TString inputBranch, TString outputBranch, TString folderName):
 	 FairTask("Sorter"), fNumberOfCells(numberOfCells), fWidthOfCells(widthOfCells), fInputBranch(inputBranch), fOutputBranch(outputBranch), fFolder(folderName)
   {
-	 SetVerbose(4);
+	 SetVerbose(0);
 	  SetPersistance();
   }
 

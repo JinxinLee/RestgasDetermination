@@ -59,7 +59,6 @@ class PndSdsDigi : public FairTimeStamp
 		std::vector<Int_t> GetIndices() const { return fIndex;}
 		Int_t GetIndex(int i = 0) const{ return fIndex[i];}
 		Int_t GetNIndices() const { return fIndex.size();}
-    Double_t GetTimeStamp() const { return fTimeStamp;}
     
 		virtual void AddIndex(int index)
 		{

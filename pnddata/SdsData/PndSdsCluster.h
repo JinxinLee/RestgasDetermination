@@ -21,10 +21,10 @@ class PndSdsCluster : public FairMultiLinkedData
 
 friend std::ostream& operator<< (std::ostream& out, PndSdsCluster& cl){
       std::vector<Int_t> list = cl.GetClusterList();
-      out << "Hits in Cluster:" << std::endl;
+      out << "Hits in Cluster: (" ;
       for (UInt_t i = 0; i<list.size();i++)
-        out << list[i] << std::endl;
-      out << std::endl;
+        out << list[i] << " ";
+      out << ")" << std::endl;
 
       return out;
     }
@@ -34,7 +34,7 @@ public :
     ~PndSdsCluster(){};
     PndSdsCluster(std::vector<Int_t> list);
 
-    virtual void SetClusterList(Int_t DigiType, std::vector<Int_t> list) = 0;
+    virtual void SetClusterList(Int_t DigiType, std::vector<Int_t> list, Int_t fileId, Int_t eventId) = 0;
     std::vector<Int_t> GetClusterList() const {return fClusterList;}
     Int_t GetClusterSize() const {return fClusterList.size();}
     Int_t GetDigiIndex(Int_t i) const {return fClusterList[i];}

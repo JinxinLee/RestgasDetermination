@@ -11,6 +11,7 @@
 #include "FairGeoVolume.h"
 #include "FairRunSim.h"
 #include "FairVolume.h"
+#include "FairMCEventHeader.h"
 
 #include "TClonesArray.h"
 #include "TLorentzVector.h"
@@ -395,14 +396,18 @@ PndSdsMCPoint* PndSdsDetector::AddHit(Int_t trackID, Int_t detID, Int_t sensorID
   Int_t
   size = clref.GetEntriesFast();
   
+  FairMCEventHeader* header= (FairMCEventHeader*)FairRootManager::Instance()->GetObject("MCEventHeader.");
+
   if (fVerboseLevel >= 2)
     std::cout << "-I- PndSdsDetector: Adding Point at (" << posIn.X() << ", " << posIn.Y()
     << ", " << posIn.Z() << ") cm, (" << posOut.X() << ", " << posOut.Y()
     << ", " << posOut.Z() << ") cm,  detector " << fGeoH->GetPath(sensorID) << " " << detID << ", track "
     << trackID << ", energy loss " << eLoss*1e06 << " keV" << std::endl;
   
-  return new(clref[size]) PndSdsMCPoint(trackID, detID, sensorID, posIn, posOut,
+ PndSdsMCPoint* storedData = new(clref[size]) PndSdsMCPoint(trackID, detID, sensorID, posIn, posOut,
                                         momIn, momOut, time, length, eLoss);
+ storedData->SetTimeStamp(header->GetT());
+ return storedData;
   
 }
 // -------------------------------------------------------------------------

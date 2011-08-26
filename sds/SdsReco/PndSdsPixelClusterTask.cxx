@@ -12,6 +12,7 @@
 #include "FairRuntimeDb.h"
 #include "FairGeoNode.h"
 #include "FairGeoVector.h"
+#include "FairEventHeader.h"
 
 #include "PndStringSeparator.h"
 
@@ -26,10 +27,11 @@
 
 #include "PndSdsSimplePixelClusterFinder.h"
 #include "PndSdsChargeWeightedPixelMapping.h"
+#include "PndSdsFESimple.h"
 
 // -----   Default constructor   -------------------------------------------
 PndSdsPixelClusterTask::PndSdsPixelClusterTask() :
-PndSdsTask("SDS Clustertisation Task"), fPersistance(kTRUE), fClusterType(-1)
+PndSdsTask("SDS Clustertisation Task"), fPersistance(kTRUE), fClusterType(-1), fEventNr(0)
 {
   fGeoH = PndGeoHandling::Instance();
 }
@@ -37,7 +39,7 @@ PndSdsTask("SDS Clustertisation Task"), fPersistance(kTRUE), fClusterType(-1)
 
 // -----   Named constructor   ---------------------------------------------
 PndSdsPixelClusterTask::PndSdsPixelClusterTask(const char* name) :
-PndSdsTask(name), fPersistance(kTRUE), fClusterType(-1)
+PndSdsTask(name), fPersistance(kTRUE), fClusterType(-1), fEventNr(0)
 {
   fGeoH = PndGeoHandling::Instance();
 }
@@ -115,6 +117,9 @@ InitStatus PndSdsPixelClusterTask::Init()
   SetInBranchId();
 
   fFunctor = new StopTime();
+  fStartFunctor = new StopTime();
+//  fFEModel = new PndSdsFESimple();
+
 
   if(fVerbose>1) fDigiPar->Print();
   
@@ -128,44 +133,50 @@ InitStatus PndSdsPixelClusterTask::Init()
 // -----   Public method Exec   --------------------------------------------
 void PndSdsPixelClusterTask::Exec(Option_t* opt)
 {
-	Int_t eventNr = 0;
   std::vector<PndSdsDigiPixel> DigiPixelArray;
   // Reset output array
   if ( ! fClusterArray ) Fatal("Exec", "No ClusterArray");
-  fClusterArray->Delete();
-  fGeoH->SetVerbose(fVerbose);
-  
- // std::cout << "EventTime: " << FairRootManager::Instance()->GetEventTime() << std::endl;
 
-//    if (fDigiArray > 0)
-//  	  fDigiArray->Clear();
+  fGeoH->SetVerbose(fVerbose);
+
+  Double_t EventTime = FairRootManager::Instance()->GetEventTime();
+
+   if(fVerbose>0) std::cout << "-I- PndSdsPixelClusterTask::Exec EventTime: " << EventTime << std::endl;
 
     if (FairRunAna::Instance()->IsTimeStamp()){
-    	fDigiArray->Clear();
-    	fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fFunctor, FairRootManager::Instance()->GetEventTime() + 10); //FairRootManager::Instance()->GetEventTime() +
-
+    	fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fFunctor, EventTime + 10);
     }
-    else
-    	fDigiArray = (TClonesArray*) FairRootManager::Instance()->GetObject(fInBranchName);
 
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
-  fHitArray->Delete();
+
   Int_t nPoints = fDigiArray->GetEntriesFast();
-//  std::cout << "Points in DigiArray: " << nPoints << std::endl;
-  // convert from TClonesarray to a std::vector
+  //std::cout << "Points in DigiArray: " << nPoints << std::endl;
+  // convert from TClonesArray to a std::vector
   for (Int_t iPoint = 0; iPoint < nPoints; iPoint++){
     PndSdsDigiPixel myDigi = *(PndSdsDigiPixel*)(fDigiArray->At(iPoint));
-  //  std::cout << eventNr << " : Time " << FairRootManager::Instance()->GetEventTime() << " Entry: " << myDigi.GetEntryNr() << " " << myDigi << std::endl;
     DigiPixelArray.push_back(myDigi);
+    //std::cout << iPoint << " " << myDigi << std::endl;
   }
-  eventNr++;
   // Retrieve the calculated clusters with the chosen clusterfinder
   std::vector< std::vector< Int_t> > clusters = fClusterFinder->GetClusters(DigiPixelArray);
   if(fVerbose>1) std::cout << " -I-  PndSdsPixelClusterTask::Exec(): We have "<<clusters.size()<<" pixel clusters" << std::endl;
   // store the list
   for (UInt_t i = 0; i < clusters.size(); i++)
   {
-    new((*fClusterArray)[i]) PndSdsClusterPixel(fInBranchId, clusters[i]);
+    PndSdsClusterPixel* tempCluster = new((*fClusterArray)[i]) PndSdsClusterPixel(fInBranchId, clusters[i]);
+    if (FairRunAna::Instance()->IsTimeStamp()){
+//		std::cout << "TempCluster: " << *tempCluster << std::endl;
+		tempCluster->Reset();
+		for (UInt_t j = 0; j < clusters[i].size(); j++){
+			PndSdsDigiPixel* tempDigi = (PndSdsDigiPixel*)fDigiArray->At(clusters[i][j]);
+//			std::cout << "TempDigi: " << *tempDigi << std::endl;
+//			std::cout << "EntryNr: ";
+//			tempDigi->GetEntryNr().Print();
+//			std::cout << std::endl;
+			tempCluster->AddLink(FairLink(tempDigi->GetEntryNr()));
+//			std::cout << "Links: " << (FairMultiLinkedData)(*tempCluster) << std::endl;
+		}
+    }
   }
   
   // do the backmapping with charge-weight
@@ -180,20 +191,32 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
     
     // mapping with the choosen back mapping
     PndSdsHit myHit = fBackMapping->GetCluster(clusterArray);
-    myHit.SetClusterIndex(fClusterType,i);
-    if(fVerbose>1){
+    myHit.SetClusterIndex(fClusterType,i, 0, fEventNr);
+
+ //   myHit.SetCharge(myHit.GetCharge());
+    if(fVerbose>0){
       std::cout << " -I-  PndSdsPixelClusterTask::Exec(): Calculated Hit: " << std::endl;
       myHit.Print();
+      ((FairMultiLinkedData)(myHit)).Print();
     }
     new ((*fHitArray)[i]) PndSdsHit(myHit);
   }
   if(fVerbose>1)std::cout << std::endl;
-  if(fVerbose>0){
+
+  if(fVerbose>1){
     std::cout << "-I- PndSdsPixelClusterTask: " << fClusterArray->GetEntriesFast()
     << " Sds Clusters and " << fHitArray->GetEntriesFast()<<" Hits calculated." << std::endl;
   }
+  fEventNr++;
+
   return;
   
+}
+
+void PndSdsPixelClusterTask::FinishEvent(){
+	fDigiArray->Delete();
+	fHitArray->Delete();
+	fClusterArray->Delete();
 }
 
 ClassImp(PndSdsPixelClusterTask);

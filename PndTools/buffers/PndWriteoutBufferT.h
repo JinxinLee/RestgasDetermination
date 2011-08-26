@@ -26,13 +26,13 @@
 
 #include "TObject.h"
 #include "TString.h"
-#include "PndWriteoutBufferAbsBasis.h"
+#include "FairWriteoutBufferAbsBasis.h"
 #include <map>
 
 
-template <class T> class PndWriteoutBufferT: public PndWriteoutBufferAbsBasis{
+template <class T> class PndWriteoutBufferT: public FairWriteoutBufferAbsBasis{
 public:
-	PndWriteoutBufferT():fTreeSave(false), fActivateBuffering(kFALSE), fVerbose(2) {};
+	PndWriteoutBufferT():fTreeSave(false), fActivateBuffering(kFALSE), fVerbose(0) {};
 	PndWriteoutBufferT(TString branchName, TString className);
 	virtual ~PndWriteoutBufferT(){};
 

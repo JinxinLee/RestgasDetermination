@@ -44,7 +44,7 @@ link_directories( ${LINK_DIRECTORIES})
 set(BUFFERS_SRCS
 PndRingSorterT.cxx
 PndWriteoutBufferT.cxx
-#PndSorterTaskT.cxx
+PndSorterTaskT.cxx
 )
 
 # fill list of header files from list of source files

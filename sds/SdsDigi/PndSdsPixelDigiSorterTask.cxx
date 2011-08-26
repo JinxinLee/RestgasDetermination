@@ -10,13 +10,13 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsPixelDigiSorterTask::PndSdsPixelDigiSorterTask() :
-PndSdsTask("SDS Pixel Digi Sorter"), fNumberOfCells(1000), fWidthOfCells(10), fOverwriteParams(kFALSE)
+PndSdsTask("SDS Pixel Digi Sorter"), fNumberOfCells(1000), fWidthOfCells(10), fOverwriteParams(kFALSE), fEntryNr(0)
 {
 }
 // -------------------------------------------------------------------------
 
 PndSdsPixelDigiSorterTask::PndSdsPixelDigiSorterTask(const char* name) :
-PndSdsTask(name), fNumberOfCells(1000), fWidthOfCells(10), fOverwriteParams(kFALSE)
+PndSdsTask(name), fNumberOfCells(1000), fWidthOfCells(10), fOverwriteParams(kFALSE), fEntryNr(0)
 {
   if(fVerbose>0) Info("PndSdsPixelDigiSorterTask","%s created, Parameters will be taken from RTDB",name);
 }
@@ -96,21 +96,22 @@ void PndSdsPixelDigiSorterTask::Exec(Option_t* opt)
   std::cout << "-I- PndSdsPixelDigiSorterTask: Size PixelArray: " << fPixelArray->GetEntriesFast() << std::endl;
   for (int i = 0; i < fPixelArray->GetEntriesFast(); i++){
 	  PndSdsDigiPixel* myDigi = (PndSdsDigiPixel*)fPixelArray->At(i);
+	  myDigi->SetEntryNr(FairLink(0, fEntryNr, "MVDPixelDigis", i));
 	  std::cout << "SortedPixelDigi filled with: " << *myDigi << std::endl;
-  	  fSorter->AddElement(*myDigi, myDigi->GetTimeStamp());
-    }
-    fSorter->Print();
+	  fSorter->AddElement(*myDigi, myDigi->GetTimeStamp());
+  }
+  fSorter->Print();
 
-    std::vector<PndSdsDigiPixel> sortedData = fSorter->GetOutputData();
-    fSorter->DeleteOutputData();
+  std::vector<PndSdsDigiPixel> sortedData = fSorter->GetOutputData();
+  fSorter->DeleteOutputData();
 
-    int nPix = 0;
-    fSortedPixelArray = FairRootManager::Instance()->GetEmptyTClonesArray(fOutBranchName);
-    for (int i = 0; i < sortedData.size(); i++){
-  	  PndSdsDigiPixel* myPixel = new ((*fSortedPixelArray)[nPix++])PndSdsDigiPixel(sortedData[i]);
-  	  std::cout << "SortedPixelDigi written: " << *myPixel << std::endl;
-    }
-
+  int nPix = 0;
+  fSortedPixelArray = FairRootManager::Instance()->GetEmptyTClonesArray(fOutBranchName);
+  for (int i = 0; i < sortedData.size(); i++){
+	  PndSdsDigiPixel* myPixel = new ((*fSortedPixelArray)[nPix++])PndSdsDigiPixel(sortedData[i]);
+	  std::cout << "SortedPixelDigi written: " << *myPixel << std::endl;
+  }
+  fEntryNr++;
 }
 
 // -------------------------------------------------------------------------

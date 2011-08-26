@@ -62,7 +62,8 @@ template<class T> void PndSorterTaskT<T>::Exec(Option_t* opt)
   fOutputArray = FairRootManager::Instance()->GetEmptyTClonesArray(fOutputBranch);
   for (int i = 0; i < sortedData.size(); i++){
 	  T* mySortedData = new ((*fOutputArray)[i])T(sortedData[i]);
-	  std::cout << "SortedData written: " << *mySortedData << std::endl;
+	  if (fVerbose > 1)
+		  std::cout << "SortedData written: " << *mySortedData << std::endl;
   }
   fEntryNr++;
 }
@@ -91,9 +92,7 @@ template<class T> void PndSorterTaskT<T>::FinishTask()
 		T* mySortedData = new ((*fOutputArray)[i]) T(	sortedData[i]);
 		if (fVerbose > 2)std::cout << fOutputBranch << " written: " << *mySortedData << std::endl;
 	}
-
-	//ioman->SaveAllContainers();
-
+	ioman->SetLastFill();
 }
 
 template class PndSorterTaskT<PndSdsDigiPixel>;

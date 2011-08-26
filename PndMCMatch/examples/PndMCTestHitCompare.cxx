@@ -56,6 +56,7 @@ InitStatus PndMCTestHitCompare::Init()
   	fMCMatch = (PndMCMatch*)ioman->GetObject("MCMatch");
 
   	fStripHit = (TClonesArray*)ioman->GetObject("MVDHitsStrip");
+  	fPixelHit = (TClonesArray*)ioman->GetObject("MVDHitsPixel");
   	fMCPoint = (TClonesArray*)ioman->GetObject("MVDPoint");
 
 	std::cout << "-I- PndMCTestHitCompare::Init: Initialization successfull" << std::endl;
@@ -83,10 +84,10 @@ void PndMCTestHitCompare::Exec(Option_t* opt)
 	//PndMCResult myResult = fMCMatch->GetMCInfo(kMVDHitsStrip, kMVDPoint);
 	//std::cout << myResult;
 	FairRootManager* ioman = FairRootManager::Instance();
-	for (int i = 0; i < fStripHit->GetEntries(); i++){
+	for (int i = 0; i < fPixelHit->GetEntries(); i++){
 		//PndMCEntry myLinks = myResult.GetMCLink(i);
-		PndSdsHit* myHit = (PndSdsHit*)fStripHit->At(i);
-		PndMCEntry myLinks = fMCMatch->GetMCInfoSingle(FairLink("MVDHitsStrip", i), "MVDPoint");
+		PndSdsHit* myHit = (PndSdsHit*)fPixelHit->At(i);
+		PndMCEntry myLinks = fMCMatch->GetMCInfoSingle(FairLink("MVDHitsPixel", i), "MVDPoint");
 
 		std::cout << *myHit;
 

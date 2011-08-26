@@ -10,6 +10,7 @@
 #pragma link C++ class PndMCIdealTrackFinder+;
 
 #pragma link C++ class PndMCTestEmcClusterCompare+;
+#pragma link C++ class PndMCTestDataCrawler+;
 
 
 #endif

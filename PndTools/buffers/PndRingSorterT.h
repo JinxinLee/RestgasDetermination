@@ -20,7 +20,7 @@
 
 template <class T> class PndRingSorterT : public TObject{
 public:
-	PndRingSorterT(int size = 100, double width = 10):fLowerBoundPointer(0,0), fCellWidth(width), fVerbose(2)
+	PndRingSorterT(int size = 100, double width = 10):fLowerBoundPointer(0,0), fCellWidth(width), fVerbose(0)
 	{
 		fRingBuffer.resize(size);
 	}
@@ -39,7 +39,7 @@ public:
 	}
 
 	virtual void DeleteOutputData(){fOutputData.clear(); }
-	virtual void SetLowerBound(int index);
+	virtual void SetLowerBound(double timestampOfHitToWrite);
 
 	virtual void Print(std::ostream& out = std::cout){
 		out << "RingSorter: Size " << fRingBuffer.size() << " CellWidth: " << fCellWidth << std::endl;

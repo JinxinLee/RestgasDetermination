@@ -12,6 +12,7 @@
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
 #include "FairGeoNode.h"
+#include "FairMCEventHeader.h"
 
 #include "PndSdsNoiseProducer.h"
 #include "PndSdsMCPoint.h"
@@ -331,7 +332,8 @@ void PndSdsNoiseProducer::AddDigiStrip(Int_t &noisies, Int_t iPoint, Int_t senso
 	  //TODO: get a reasonable timestamp fake for the noise
     std::vector<Int_t> indices;
     indices.push_back(iPoint);
-    new ((*fDigiStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,sensorID,fe,chan,charge, 0) ;
+	  FairMCEventHeader* MCevtHeader = (FairMCEventHeader*)FairRootManager::Instance()->GetObject("MCEventHeader.");
+    new ((*fDigiStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,sensorID,fe,chan,charge, MCevtHeader->GetT()) ;
     noisies++;
     if(fVerbose>2) std::cout
       << " -I- PndSdsNoiseProducer: Added StripTrap Digi at: FE=" << fe
@@ -364,7 +366,9 @@ void PndSdsNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t senso
   if(found == kFALSE){
 	  std::vector<Int_t> indices;
 	  indices.push_back(iPoint);
-    new ((*fDigiPixelArray)[iPix]) PndSdsDigiPixel(indices,detID,sensorID,fe,col,row,charge, FairRootManager::Instance()->GetEventTime()) ;
+	  FairMCEventHeader* MCevtHeader = (FairMCEventHeader*)FairRootManager::Instance()->GetObject("MCEventHeader.");
+
+    new ((*fDigiPixelArray)[iPix]) PndSdsDigiPixel(indices,detID,sensorID,fe,col,row,charge, MCevtHeader->GetT()) ;
     noisies++;
     if(fVerbose>2) std::cout
       << " -I- PndSdsNoiseProducer: Added Pixel Digi at: FE=" << fe

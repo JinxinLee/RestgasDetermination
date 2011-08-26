@@ -10,6 +10,8 @@
 #include "PndMvdStripHitProducer.h"
 #include "PndMvdNoiseProducer.h"
 #include "PndMvdPixelDigiSorterTask.h"
+#include "PndSorterTaskT.h"
+#include "PndMvdTimeWalkCorrTask.h"
 
 // -----   Default constructor   -------------------------------------------
 PndMvdDigiTask::PndMvdDigiTask() :
@@ -39,7 +41,9 @@ void PndMvdDigiTask::RunTimeBased()
 	 TList* thistasks = this->GetListOfTasks();
 	((PndMvdHybridHitProducer*)thistasks->At(0))->RunTimeBased();
 	((PndMvdStripHitProducer*)thistasks->At(1))->RunTimeBased();
-	this->Add(new PndMvdPixelDigiSorterTask());
+//	this->Add(new PndMvdTimeWalkCorrTask());
+	this->Add(new PndSorterTaskT<PndSdsDigiPixel>(1000, 10, "MVDPixelDigis", "MVDSortedPixelDigis", "PndMvd")); //"MVDDigisCorr"
+	this->Add(new PndSorterTaskT<PndSdsDigiStrip>(1000, 10, "MVDStripDigis", "MVDSortedStripDigis", "PndMvd"));
 	std::cout << "PndMvdDigiTask: PndMvdPixelDigiSorterTask added" << std::endl;
 }
 

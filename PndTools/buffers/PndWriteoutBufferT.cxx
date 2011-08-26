@@ -13,7 +13,7 @@
 #include <iostream>
 
 template<class T> PndWriteoutBufferT<T>::PndWriteoutBufferT(TString branchName, TString className):
-	fBranchName(branchName), fClassName(className), fActivateBuffering(kTRUE), fVerbose(2)
+	fBranchName(branchName), fClassName(className), fActivateBuffering(kTRUE), fVerbose(0)
 {
 	if (fBranchName == "" || fClassName == "")
 		fTreeSave = false;
@@ -26,12 +26,13 @@ template<class T> void PndWriteoutBufferT<T>::WriteOutData(double time)
 	FairRootManager* ioman = FairRootManager::Instance();
 	std::vector<T> data;
 	if (fActivateBuffering){
-		if (fVerbose > 1) std::cout << "WriteOutData for time: " << time << std::endl;
+		if (fVerbose > 0) std::cout << "-I- PndWriteoutBufferT<T>::WriteOutData for time: " << time << std::endl;
 		data = GetRemoveOldData(time);
 		if (fTreeSave && data.size() > 0){
 			TClonesArray* myArray = ioman->GetTClonesArray(fBranchName);
 			if (!myArray)
 				std::cout << "-E- PndWriteoutBuffer::WriteOutData " << fBranchName << " array is not available!" << std::endl;
+			if (fVerbose > 0) std::cout << "-I- PndWriteoutBufferT<T>::WriteOutData size: " << data.size() << std::endl;
 			for (int i = 0; i < data.size(); i++){
 				new ((*myArray)[i]) T(data[i]);
 				if (fVerbose > 1)std::cout << i << " : " << data[i] << std::endl;
@@ -57,7 +58,7 @@ template<class T> std::vector<T> PndWriteoutBufferT<T>::GetRemoveOldData(double 
 	typedef typename std::multimap<double, T>::iterator DTMapIter;
 	std::vector<T> result;
 	for(DTMapIter it = fDeadTime_map.begin(); it != fDeadTime_map.lower_bound(time); it++){
-		if (fVerbose > 1) std::cout << "-I- GetRemoveOldData: DeadTime: " << it->first << " Pixel: " << it->second << std::endl;
+		if (fVerbose > 1) std::cout << "-I- GetRemoveOldData: DeadTime: " << it->first << " Data: " << it->second << std::endl;
 		result.push_back(it->second);
 		if (fData_map.find(it->second) != fData_map.end()){
 			fData_map.erase(fData_map.find(it->second));

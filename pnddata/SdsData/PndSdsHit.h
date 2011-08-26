@@ -32,7 +32,7 @@ class PndSdsHit : public FairHit
   friend std::ostream& operator<< (std::ostream& out, const PndSdsHit& hit){
     out << "PndSdsHit in " << hit.GetSensorID() << " at" << std::endl;
     out << "(" << hit.GetX() << ", " << hit.GetY() << ", " << hit.GetZ() << ") cm "
-        << " with " << hit.GetCharge() << " e" << " at Time: " << hit.GetTimeStamp() << ", Cluster No. " << hit.GetClusterIndex();
+        << " with " << hit.GetCharge() << " e" << " at Time: " << hit.GetTimeStamp() << " +/- " << hit.GetTimeStampError() << " , Cluster No. " << hit.GetClusterIndex();
     if (hit.GetBotIndex() > -1)
     	out << " and bottom " << hit.GetBotIndex();
     if (hit.GetRefIndex() > -1)
@@ -79,9 +79,9 @@ class PndSdsHit : public FairHit
   void SetSensorID(Int_t sensorID)  { fSensorID   = sensorID;}
   void SetCharge(Double_t charge){ fCharge    = charge;}
   void SetNDigiHits(Int_t pixel) { fNDigiHits = pixel;}
-  void SetClusterIndex(Int_t datasource, Int_t id) {
+  void SetClusterIndex(Int_t datasource, Int_t id, Int_t fileId = -1, Int_t evtId = -1) {
 	  fClusterIndex = id;
-	  SetLink(FairLink(datasource, id));
+	  SetLink(FairLink(fileId, evtId, datasource, id));
   }
   void SetBotIndex(Int_t id)     { fBotIndex  = id;}
   void SetCov(TMatrixD cov);

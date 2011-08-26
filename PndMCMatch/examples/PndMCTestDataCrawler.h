@@ -1,24 +1,24 @@
 // -------------------------------------------------------------------------
-// -----                 PNDMCMATCHSELECTORTASK header file             -----
+// -----                 PNDMCTESTDATACRAWLER header file             -----
 // -----                  Created 18/01/10  by T.Stockmanns             -----
 // -------------------------------------------------------------------------
 
 
-/** PNDMCMATCHSELECTORTASK.h
+/** PNDMCTESTDATACRAWLER.h
  *@author T.Stockmanns <t.stockmanns@fz-juelich.de>
  **
  ** Displays all available informations for a given event
  **/
 
 
-#ifndef PNDMCTESTHITCOMPARE_H
-#define PNDMCTESTHITCOMPARE_H
+#ifndef PNDMCTESTDATACRAWLER_H
+#define PNDMCTESTDATACRAWLER_H
 
 
 // framework includes
 #include "FairTask.h"
-#include "PndMCMatch.h"
-#include "PndDetectorList.h"
+#include "PndMCDataCrawler.h"
+#include "TH1.h"
 
 
 #include <vector>
@@ -26,15 +26,15 @@
 
 class TClonesArray;
 
-class PndMCTestHitCompare : public FairTask
+class PndMCTestDataCrawler : public FairTask
 {
  public:
 
   /** Default constructor **/
-	PndMCTestHitCompare();
+	PndMCTestDataCrawler();
 
   /** Destructor **/
-  virtual ~PndMCTestHitCompare();
+  virtual ~PndMCTestDataCrawler();
 
 
   /** Virtual method Init **/
@@ -50,10 +50,12 @@ class PndMCTestHitCompare : public FairTask
 
 
  private:
-  PndMCMatch* fMCMatch;
-  TClonesArray* fStripHit;
-  TClonesArray* fPixelHit;
-  TClonesArray* fMCPoint;
+  PndMCDataCrawler* fCrawler;
+  TClonesArray* fInputData;
+
+  TH1* fTimeResHisto;
+
+  Int_t fEventNr;
 
   void Register();
 
@@ -62,7 +64,7 @@ class PndMCTestHitCompare : public FairTask
   void ProduceHits();
 
 
-  ClassDef(PndMCTestHitCompare,1);
+  ClassDef(PndMCTestDataCrawler,1);
 
 };
 

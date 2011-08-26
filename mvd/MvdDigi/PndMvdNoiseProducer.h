@@ -27,6 +27,9 @@
 #include "PndSdsPixelDigiPar.h"
 #include "PndSdsTotDigiPar.h"
 #include "PndSdsChargeConversion.h"
+#include "PndSdsDigiPixelWriteoutBuffer.h"
+#include "PndSdsDigiStrip.h"
+#include "PndSdsFE.h"
 #include "TString.h"
 
 class TClonesArray;
@@ -64,12 +67,20 @@ class PndMvdNoiseProducer : public FairTask
 
   void FillSensorLists();
 
+  void RunTimeBased(){fTimeOrderedDigi = kTRUE;}
+
  private:
   Bool_t fPersistance;
+
+  Bool_t fTimeOrderedDigi; ///< parameter to switch to time ordered simulation
+
   TString fBranchName;
   /** In-Output array of PndSdsDigis **/
   TClonesArray* fDigiStripArray;
   TClonesArray* fDigiPixelArray;
+
+  PndSdsDigiPixelWriteoutBuffer* fDigiPixelBuffer;
+  PndWriteoutBufferT<PndSdsDigiStrip>* fDigiStripBuffer;
 
   /** Parameter Containers **/
   PndSdsStripDigiPar* fDigiParRect;

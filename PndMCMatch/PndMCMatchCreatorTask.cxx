@@ -45,10 +45,12 @@ InitStatus PndMCMatchCreatorTask::Init()
   fMCMatch->InitStage("MVDPoint");
   fMCMatch->InitStage("MVDStripDigis");
   fMCMatch->InitStage("MVDPixelDigis");
-  fMCMatch->InitStage("MVDHitsPixel");
-  fMCMatch->InitStage("MVDHitsStrip");
   fMCMatch->InitStage("MVDPixelClusterCand");
   fMCMatch->InitStage("MVDStripClusterCand");
+  fMCMatch->InitStage("MVDSortedPixelDigis");
+  fMCMatch->InitStage("MVDSortedStripDigis");
+  fMCMatch->InitStage("MVDHitsPixel");
+  fMCMatch->InitStage("MVDHitsStrip");
 
   fMCMatch->InitStage("EmcCluster");
   fMCMatch->InitStage("EmcBump");

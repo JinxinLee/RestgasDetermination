@@ -64,6 +64,8 @@ protected:
   PndSdsPixelDigiPar* fDigiPar;
   Bool_t fOverwriteParams;
 
+  Int_t fEntryNr;
+
 
   void Register();
   void Reset();

@@ -23,20 +23,26 @@
 
 class PndSdsFE: public TObject {
 public:
-	PndSdsFE(): fFrontEndModel(0), fNumberOfSupportPoints(0), fNumberOfMaxElectons(0), fFunction(0), fMaximumAmplitude(0),fThreshold(0), fBaselineEpsilon(0), fToF(0), fEventTime(0),
-	fTimeOffSet(0), fTimeStep(0),fFunctionRange(0), fRand(0), i(0), stepsize(0), fCharge_list(0), fTot_list(0), inter(0) {};
+	PndSdsFE(): fFrontEndModel(0), fNumberOfSupportPoints(0), fNumberOfMaxElectons(0), fFunction(0), fMaximumAmplitude(0),fThreshold(0), fToF(0), fEventTime(0),
+	fTimeOffSet(0), fTimeStep(0),fFunctionRange(0), fRand(0), i(0), stepsize(0), fCharge_list(0), fTot_list(0), inter(0), fBaselineEpsilon(1) {
+		GetTimeOffSet();
+	};
 //	PndSdsFE(double charingtime, double constcurrent, double threshold, double frequency, int verbose);
 	virtual ~PndSdsFE();
 
-	double GetTotFromCharge(Double_t charge);			// Calculates the ToT value from the charge
-	double GetChargeFromTot(double tot);				// Calculates the charge from the tot value
-	double GetTimeWalkFromCharge(double charge);		// Calculates the TimeWalk from the charge
-	double GetTimeWalkFromTot(double tot);				// Calculates the TimeWalk from the TOT value
-	double GetTimeBackToBaseline(double charge);		// Calculates the time from start of the signal till the signal is fBaselineEpsilon close to baseline
-	double GetTimeStamp(double eventtime, double tof, double charge);  // Calculates the TimeStamp of the signal
-    void SetParameter(double chargingtime, double constcurrent, double threshold, double frequency);
+	virtual double GetTotFromCharge(Double_t charge);			// Calculates the ToT value from the charge
+	virtual double GetChargeFromTot(double tot);				// Calculates the charge from the tot value
+	virtual double GetTimeWalkFromCharge(double charge);		// Calculates the TimeWalk from the charge
+	virtual double GetTimeWalkFromTot(double tot);				// Calculates the TimeWalk from the TOT value
+	virtual double GetTimeBackToBaseline(double charge);		// Calculates the time from start of the signal till the signal is fBaselineEpsilon close to baseline
+	virtual double GetTimeStamp(double eventtime, double tof, double charge);  // Calculates the TimeStamp of the signal
+	virtual double GetTimeStep(){return fTimeStep;}
+	virtual void SetParameter(TString parName, double parValue);
+	virtual void SetThreshold(double threshold){fThreshold = threshold;}
+
 
 protected:
+
     double DigitizeTime(double time);
 	double GetTimeOffSet();
     void CreateInterpolatorList();  // Creates the Interpolatorlist for GetTotFromCharge calculation

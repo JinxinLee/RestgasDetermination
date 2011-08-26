@@ -48,98 +48,109 @@ PndMvdNoiseProducer::~PndMvdNoiseProducer()
 // -----   Public method Init   --------------------------------------------
 InitStatus PndMvdNoiseProducer::Init()
 {
-  // Get RootManager
+ // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
   
   if ( ! ioman )
   {
-    std::cout << " -E- PndMvdNoiseProducer::Init: RootManager not instantiated!" << std::endl;
-    return kFATAL;
+	std::cout << " -E- PndMvdNoiseProducer::Init: RootManager not instantiated!" << std::endl;
+	return kFATAL;
   }
   
   // Get input array
-  fDigiStripArray = (TClonesArray*) ioman->GetObject("MVDStripDigis");
-  if ( ! fDigiStripArray )  {
-    std::cout << " -W- PndMvdNoiseProducer::Init: No MVDStripDigis array!" << std::endl;
-    std::cout << "    Create a new one." << std::endl;
-    fDigiStripArray = new TClonesArray("PndSdsDigiStrip");
-    ioman->Register("MVDStripDigis","MVD",fDigiStripArray,fPersistance);
+  if (fTimeOrderedDigi == kFALSE){
+	  fDigiStripArray = (TClonesArray*) ioman->GetObject("MVDStripDigis");
+	  if ( ! fDigiStripArray )  {
+		std::cout << " -W- PndMvdNoiseProducer::Init: No MVDStripDigis array!" << std::endl;
+		std::cout << "    Create a new one." << std::endl;
+		fDigiStripArray = new TClonesArray("PndSdsDigiStrip");
+		ioman->Register("MVDStripDigis","MVD",fDigiStripArray,fPersistance);
+	  }
   }
+  else
+	  fDigiStripBuffer = (PndWriteoutBufferT<PndSdsDigiStrip>*)FairRootManager::Instance()->RegisterWriteoutBuffer("MVDStripDigis", new PndWriteoutBufferT<PndSdsDigiStrip>("MVDStripDigis", "PndSdsDigiStrip"));
   
 //  fDigiPixelArray = (TClonesArray*) ioman->GetObject("MVDPixelDigis");
-  fDigiPixelArray = FairRootManager::Instance()->GetTClonesArray("MVDPixelDigis");
-  if ( ! fDigiPixelArray )     {
-    std::cout << " -W- PndMvdNoiseProducer::Init: No MVDPixelDigis array!" << std::endl;
-    std::cout << "    Create a new one." << std::endl;
-   //fDigiPixelArray = new TClonesArray("PndSdsDigiPixel");
-    ioman->Register("MVDPixelDigis","PndSdsDigiPixel", "MVD",fPersistance);
+  if (fTimeOrderedDigi == kFALSE){
+	  fDigiPixelArray = FairRootManager::Instance()->GetTClonesArray("MVDPixelDigis");
+
+	  if ( ! fDigiPixelArray )     {
+		std::cout << " -W- PndMvdNoiseProducer::Init: No MVDPixelDigis array!" << std::endl;
+		std::cout << "    Create a new one." << std::endl;
+	   //fDigiPixelArray = new TClonesArray("PndSdsDigiPixel");
+		ioman->Register("MVDPixelDigis","PndSdsDigiPixel", "MVD",fPersistance);
+	  }
+  }
+  else {
+	  fDigiPixelBuffer = (PndSdsDigiPixelWriteoutBuffer*)FairRootManager::Instance()->RegisterWriteoutBuffer("MVDPixelDigis", new PndSdsDigiPixelWriteoutBuffer("MVDPixelDigis"));
   }
   
   fMCEventheader = (FairMCEventHeader*) ioman->GetObject("MCEventHeader.");
   if ( ! fMCEventheader ){
-    Warning("Init","Did not find the MC event header, assume 50ns of noise clockticks per call of Exec().");
+	Warning("Init","Did not find the MC event header, assume 50ns of noise clockticks per call of Exec().");
   }
   fPreviosTime=0.;
   
   FillSensorLists();
   
+//  fFEModel = new PndSdsFESimple();
+
   if(fVerbose>0)
   {
-    std::cout <<" -I- PndMvdNoiseProducer: Registered Sensors: "
-    <<fStripRectLIds.size()+fStripRectSIds.size()<<"xStripRect "
-    <<fStripTrapIds.size()<<"xStripTrap "
-    <<fPixelIds2.size()<<"xPixel"
-    <<std::endl;
+	std::cout <<" -I- PndMvdNoiseProducer: Registered Sensors: "
+	<<fStripRectLIds.size()+fStripRectSIds.size()<<"xStripRect "
+	<<fStripTrapIds.size()<<"xStripTrap "
+	<<fPixelIds2.size()<<"xPixel"
+	<<std::endl;
   }
   std::cout << " -I- PndMvdNoiseProducer: Intialisation successfull" << std::endl;
   
   if (fDigiParRect->GetChargeConvMethod() == 0){
-    if(fVerbose>0) Info("Init()","ideal charge conversion for rect. strips");
-    fStripRectChargeConv = new PndSdsIdealChargeConversion(fDigiParRect->GetNoise());
+	if(fVerbose>0) Info("Init()","ideal charge conversion for rect. strips");
+	fStripRectChargeConv = new PndSdsIdealChargeConversion(fDigiParRect->GetNoise());
   }
   else if (fDigiParRect->GetChargeConvMethod() == 1){
-    if(fVerbose>0) Info("Init()","use TOT charge conversion for rect. strips");
-    fStripRectChargeConv = new PndSdsTotChargeConversion(
-                                                         fTotDigiParRect->GetChargingTime(),
-                                                         fTotDigiParRect->GetConstCurrent(),
-                                                         fDigiParRect->GetThreshold(),
-                                                         fTotDigiParRect->GetClockFrequency(),
-                                                         fVerbose);
+	if(fVerbose>0) Info("Init()","use TOT charge conversion for rect. strips");
+	fStripRectChargeConv = new PndSdsTotChargeConversion(
+														 fTotDigiParRect->GetChargingTime(),
+														 fTotDigiParRect->GetConstCurrent(),
+														 fDigiParRect->GetThreshold(),
+														 fTotDigiParRect->GetClockFrequency(),
+														 fVerbose);
   }
   else Fatal ("Init()","rect. strips: charge conversion method not defined!");
   
   if (fDigiParTrap->GetChargeConvMethod() == 0){
-    if(fVerbose>0) Info("Init()","ideal charge conversion for trap. strips");
-    fStripTrapChargeConv = new PndSdsIdealChargeConversion(fDigiParTrap->GetNoise());
+	if(fVerbose>0) Info("Init()","ideal charge conversion for trap. strips");
+	fStripTrapChargeConv = new PndSdsIdealChargeConversion(fDigiParTrap->GetNoise());
   }
   else if (fDigiParTrap->GetChargeConvMethod() == 1){
-    if(fVerbose>0) Info("Init()","use TOT charge conversion for trap. strips");
-    fStripTrapChargeConv = new PndSdsTotChargeConversion(
-                                                         fTotDigiParTrap->GetChargingTime(),
-                                                         fTotDigiParTrap->GetConstCurrent(),
-                                                         fDigiParTrap->GetThreshold(),
-                                                         fTotDigiParTrap->GetClockFrequency(),
-                                                         fVerbose);
+	if(fVerbose>0) Info("Init()","use TOT charge conversion for trap. strips");
+	fStripTrapChargeConv = new PndSdsTotChargeConversion(
+														 fTotDigiParTrap->GetChargingTime(),
+														 fTotDigiParTrap->GetConstCurrent(),
+														 fDigiParTrap->GetThreshold(),
+														 fTotDigiParTrap->GetClockFrequency(),
+														 fVerbose);
   }
   else Fatal ("Init()","trap. strips: charge conversion method not defined!");
   
   if (fDigiParPix->GetChargeConvMethod() == 0){
-    if(fVerbose>0) Info("Init()","ideal charge conversion for pixel part");
-    fPixChargeConv = new PndSdsIdealChargeConversion(fDigiParPix->GetNoise());
+	if(fVerbose>0) Info("Init()","ideal charge conversion for pixel part");
+	fPixChargeConv = new PndSdsIdealChargeConversion(fDigiParPix->GetNoise());
   }
   else if (fDigiParPix->GetChargeConvMethod() == 1){
-    if(fVerbose>0) Info("Init()","use TOT charge conversion for pixel part");
-    fPixChargeConv = new PndSdsTotChargeConversion(
-                                                   fTotDigiParPix->GetChargingTime(),
-                                                   fTotDigiParPix->GetConstCurrent(),
-                                                   fDigiParPix->GetThreshold(),
-                                                   fTotDigiParPix->GetClockFrequency(),
-                                                   fVerbose);
+	if(fVerbose>0) Info("Init()","use TOT charge conversion for pixel part");
+	fPixChargeConv = new PndSdsTotChargeConversion(
+												   fTotDigiParPix->GetChargingTime(),
+												   fTotDigiParPix->GetConstCurrent(),
+												   fDigiParPix->GetThreshold(),
+												   fTotDigiParPix->GetClockFrequency(),
+												   fVerbose);
   }
   else Fatal ("Init()","pixel part: charge conversion method not defined!");
   
   return kSUCCESS;
-  
 }
 
 void PndMvdNoiseProducer::FillSensorLists()
@@ -387,31 +398,43 @@ void PndMvdNoiseProducer::AddDigiStrip(Int_t &noisies, Int_t iPoint, Int_t senso
   Double_t tempcharge = 0.;
   Bool_t found = kFALSE;
   Int_t detID = -1; // no source mc branch
-  Int_t iStrip = fDigiStripArray->GetEntriesFast();
   PndSdsDigiStrip* aDigi = 0;
-  for(Int_t kstr = 0; kstr < iStrip && found == kFALSE; kstr++)
-  {
-    aDigi = (PndSdsDigiStrip*)fDigiStripArray->At(kstr);
-    if (aDigi->GetSensorID() == sensorID &&
-        aDigi->GetFE() == fe &&
-        aDigi->GetChannel() == chan )
-    {
-      tempcharge = fCurrentChargeConv->DigiValueToCharge(*aDigi);
-      aDigi->SetCharge( fCurrentChargeConv->ChargeToDigiValue(charge + tempcharge) );
-      aDigi->AddIndex(iPoint);
-      found = kTRUE;
-    }
+//  FairMCEventHeader* MCevtHeader = (FairMCEventHeader*)FairRootManager::Instance()->GetObject("MCEventHeader.");
+
+  if (fTimeOrderedDigi == kFALSE){
+	  Int_t iStrip = fDigiStripArray->GetEntriesFast();
+
+	  for(Int_t kstr = 0; kstr < iStrip && found == kFALSE; kstr++)
+	  {
+		aDigi = (PndSdsDigiStrip*)fDigiStripArray->At(kstr);
+		if (aDigi->GetSensorID() == sensorID &&
+			aDigi->GetFE() == fe &&
+			aDigi->GetChannel() == chan )
+		{
+		  tempcharge = fCurrentChargeConv->DigiValueToCharge(*aDigi);
+		  aDigi->SetCharge( fCurrentChargeConv->ChargeToDigiValue(charge + tempcharge) );
+		  aDigi->AddIndex(iPoint);
+		  found = kTRUE;
+		}
+	  }
+	  if(found == kFALSE){
+		  //TODO: get a reasonable timestamp fake for the noise
+		std::vector<Int_t> indices;
+		indices.push_back(iPoint);
+		new ((*fDigiStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,sensorID,fe,chan,fCurrentChargeConv->ChargeToDigiValue(charge), FairRootManager::Instance()->GetEventTime()) ;
+		noisies++;
+		if(fVerbose>2) std::cout
+		  << " -I- PndSdsNoiseProducer: Added StripTrap Digi at: FE=" << fe
+		  << ", channel=" << chan << ", charge=" << charge<< " e"
+		  << ", in sensor \n" << sensorID <<std::endl;
+	  }
   }
-  if(found == kFALSE){
-	  //TODO: get a reasonable timestamp fake for the noise
-    std::vector<Int_t> indices;
-    indices.push_back(iPoint);
-    new ((*fDigiStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,sensorID,fe,chan,fCurrentChargeConv->ChargeToDigiValue(charge), 0) ;
-    noisies++;
-    if(fVerbose>2) std::cout
-      << " -I- PndSdsNoiseProducer: Added StripTrap Digi at: FE=" << fe
-      << ", channel=" << chan << ", charge=" << charge<< " e"
-      << ", in sensor \n" << sensorID <<std::endl;
+  else{
+		std::vector<Int_t> indices;
+		indices.push_back(iPoint);
+		PndSdsDigiStrip tempStrip(indices,detID,sensorID,fe,chan,fCurrentChargeConv->ChargeToDigiValue(charge), FairRootManager::Instance()->GetEventTime()) ;
+		noisies++;
+		fDigiStripBuffer->FillNewData(tempStrip, FairRootManager::Instance()->GetEventTime() + 10);
   }
 }
 // -------------------------------------------------------------------------
@@ -420,41 +443,53 @@ void PndMvdNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t senso
   Double_t tempcharge = 0.;
   Bool_t found = kFALSE;
   Int_t detID = -1; //no source mc branch
-  fDigiPixelArray = FairRootManager::Instance()->GetTClonesArray("MVDPixelDigis");
-  Int_t iPix = fDigiPixelArray->GetEntriesFast();
-  PndSdsDigiPixel* aDigi = 0;
-  for(Int_t kstr = 0; kstr < iPix && found == kFALSE; kstr++)
-  {
-    aDigi = (PndSdsDigiPixel*)fDigiPixelArray->At(kstr);
-    if (aDigi->GetSensorID() == sensorID &&
-        aDigi->GetFE() == fe &&
-        aDigi->GetPixelColumn() == col &&
-        aDigi->GetPixelRow() == row )
-    {
-      tempcharge = fPixChargeConv->DigiValueToCharge(*aDigi);
-      aDigi->SetCharge( fPixChargeConv->ChargeToDigiValue(charge + tempcharge) );
-      aDigi->AddIndex(iPoint);
-      found = kTRUE;
-    }
+ // FairMCEventHeader* MCevtHeader = (FairMCEventHeader*)FairRootManager::Instance()->GetObject("MCEventHeader.");
+
+  if (fTimeOrderedDigi == kFALSE){
+	  fDigiPixelArray = FairRootManager::Instance()->GetTClonesArray("MVDPixelDigis");
+	  Int_t iPix = fDigiPixelArray->GetEntriesFast();
+	  PndSdsDigiPixel* aDigi = 0;
+	  for(Int_t kstr = 0; kstr < iPix && found == kFALSE; kstr++)
+	  {
+		aDigi = (PndSdsDigiPixel*)fDigiPixelArray->At(kstr);
+		if (aDigi->GetSensorID() == sensorID &&
+			aDigi->GetFE() == fe &&
+			aDigi->GetPixelColumn() == col &&
+			aDigi->GetPixelRow() == row )
+		{
+		  tempcharge = fPixChargeConv->DigiValueToCharge(*aDigi);
+		  aDigi->SetCharge( fPixChargeConv->ChargeToDigiValue(charge + tempcharge) );
+		  aDigi->AddIndex(iPoint);
+		  found = kTRUE;
+		}
+	  }
+	  if(found == kFALSE){
+		  std::vector<Int_t> indices;
+		  indices.push_back(iPoint);
+		new ((*fDigiPixelArray)[iPix]) PndSdsDigiPixel(indices,detID,sensorID,fe,col,row,fPixChargeConv->ChargeToDigiValue(charge), FairRootManager::Instance()->GetEventTime()) ;
+		noisies++;
+		if(fVerbose>2) std::cout
+		  << " -I- PndSdsNoiseProducer: Added Pixel Digi at: FE=" << fe
+		  << ", col|row = ("<<col<<"|"<<row<< "), charge=" << charge<< " e"
+		  << ", in sensor \n" << sensorID <<std::endl;
+
+	  }
   }
-  if(found == kFALSE){
+  else {
 	  std::vector<Int_t> indices;
 	  indices.push_back(iPoint);
-    new ((*fDigiPixelArray)[iPix]) PndSdsDigiPixel(indices,detID,sensorID,fe,col,row,fPixChargeConv->ChargeToDigiValue(charge), FairRootManager::Instance()->GetEventTime()) ;
-    noisies++;
-    if(fVerbose>2) std::cout
-      << " -I- PndSdsNoiseProducer: Added Pixel Digi at: FE=" << fe
-      << ", col|row = ("<<col<<"|"<<row<< "), charge=" << charge<< " e"
-      << ", in sensor \n" << sensorID <<std::endl;
-    
+	  PndSdsDigiPixel tempPixel(indices,detID,sensorID,fe,col,row,fPixChargeConv->ChargeToDigiValue(charge), FairRootManager::Instance()->GetEventTime()) ;
+	  fDigiPixelBuffer->FillNewData(tempPixel, FairRootManager::Instance()->GetEventTime() + 10);
   }
 }
 
 void PndMvdNoiseProducer::FinishEvent()
 {
   // called after all Tasks did their Exex() and the data is copied to the file
-  fDigiStripArray->Delete();
-  fDigiPixelArray->Delete();
+	if (fTimeOrderedDigi == kFALSE){
+		fDigiPixelArray->Delete();
+		fDigiStripArray->Delete();
+	}
   FinishEvents();
 }
 // -------------------------------------------------------------------------
