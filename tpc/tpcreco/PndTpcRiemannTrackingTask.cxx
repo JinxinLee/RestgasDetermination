@@ -75,7 +75,7 @@ using namespace std;
 
 // Class Member definitions -----------
 
-#define MINHITS 10
+#define MINHITS 6
 #define PDGDEFAULT 211
 
 ClassImp(PndTpcRiemannTrackingTask)
@@ -483,6 +483,16 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
       friemannlist.push_back(riemannTempCurl[i]);
     }
   }// end merge curlers
+
+
+
+  // clear small tracklets with < MINHITS hits
+  for (unsigned int i=0; i<friemannlist.size(); ++i){
+    if (friemannlist[i]->getNumHits() < MINHITS){
+      friemannlist.erase(friemannlist.begin() + i);
+      --i;
+    }
+  }
 
 
   unsigned int foundTrks(friemannlist.size());
