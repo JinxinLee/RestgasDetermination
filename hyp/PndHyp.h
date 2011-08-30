@@ -155,7 +155,7 @@ class PndHyp : public FairDetector
   void PreTrack();
 
 
- void SetSensorVol(TString VolSi){ 
+  void SetSensorVol(TString VolSi){ 
     fVolNamSi=VolSi.Data();
 
   }
@@ -164,12 +164,20 @@ class PndHyp : public FairDetector
 
   }
 
+  void SetStartEvID(Int_t EvID=0){ 
+    fStartEvID=EvID;
+    cout<<" starting value for EvId "<<fStartEvID<<endl;
+
+  }
+
   private:
   
   std::vector<std::string> fListOfSensitives;
   bool CheckIfSensitive(std::string name);
+
   TString fVolNamSi,fVolNamAb;
   Bool_t fRootSensVol;
+  Int_t fStartEvID;
   //PndGeoHypPar *par;
   Int_t          fTrackID;           //  track index
   Int_t          fVolumeID;          //  volume id
@@ -207,7 +215,7 @@ class PndHyp : public FairDetector
   void ResetParameters();
   Bool_t  fTrackStopNxtStep;
 
-  ClassDef(PndHyp,7)
+  ClassDef(PndHyp,8)
 
 }; 
 

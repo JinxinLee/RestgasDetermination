@@ -231,7 +231,11 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
 	   fmass   = gMC->TrackMass();   // mass (GeV)
 	   fcharge = gMC->TrackCharge(); // charge?
 	   fpdgCode = gMC->TrackPid(); 
-	   fEventID = gMC->CurrentEvent();
+	   if(fStartEvID>0)
+	     {
+	       fEventID = gMC->CurrentEvent()+fStartEvID;
+	     }else fEventID = gMC->CurrentEvent();
+
 	   gMC->TrackPosition(fPosIn);
 	   gMC->TrackMomentum(fMomIn);
 	   
@@ -341,7 +345,13 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
 	   fmass   = gMC->TrackMass();   // mass (GeV)
 	   fcharge = gMC->TrackCharge(); // charge?
 	   fpdgCode = gMC->TrackPid(); 
-	   fEventID = gMC->CurrentEvent();
+	   
+	   if(fStartEvID>0)
+	     {
+	       fEventID = gMC->CurrentEvent()+fStartEvID;
+	     }else fEventID = gMC->CurrentEvent();
+
+	   
 	   gMC->TrackPosition(fPosIn);
 	   gMC->TrackMomentum(fMomIn);
 	   
