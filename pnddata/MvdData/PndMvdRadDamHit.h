@@ -10,7 +10,8 @@
 
 #include "TObject.h"
 #include "TVector3.h"
-class PndMvdRadDamHit : public TObject
+#include "FairHit.h"
+class PndMvdRadDamHit : public FairHit
 {
 public:
 	PndMvdRadDamHit();
@@ -27,12 +28,11 @@ private:
   Int_t fDetId;
 	Int_t fPdgCode;
 	Double_t fEnergy;
-	TVector3 fPos;
 	TVector3 fMom;
 	Double_t fRadDam;
 
 
-	ClassDef(PndMvdRadDamHit,2);
+	ClassDef(PndMvdRadDamHit,3);
 };
 
 
