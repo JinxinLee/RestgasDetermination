@@ -120,6 +120,7 @@ MvdReco/PndMvdSimplePixelClusterFinder.cxx
 MvdTools/PndMvdRadDamList.cxx
 MvdTools/PndMvdRadDamTask.cxx
 MvdTools/PndMvdAnaRadDam.cxx
+MvdTools/PndMvdRadDamIonizingTask.cxx
 
 )
 set (MVD_RULECHECKER_SRCS ${MVD_RULECHECKER_SRCS} ${MVDRECO_SRCS})

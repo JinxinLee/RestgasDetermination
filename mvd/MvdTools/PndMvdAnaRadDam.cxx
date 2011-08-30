@@ -31,12 +31,14 @@ void PndMvdAnaRadDam::AnalyzeFiles()
 		TIter iter(l);
 		TObject* ob;
 		while(ob = iter()){
-			if (TString(ob->GetName()).Contains("1_1")){
+			if (TString(ob->GetName()).Contains("ocave_1oMvd-2.1")){
+				TString newName = ob->GetName();
+				newName.Append("_sum");
 				TH2D* histo = (TH2D*)(f->Get(ob->GetName()));
 				AddHisto(histo);
 			}
 		}
-		f->Close();
+//		f->Close();
 	}
 }
 
@@ -45,6 +47,7 @@ void PndMvdAnaRadDam::AddHisto(TH2D* histo)
 	if(fHistoMap[histo->GetName()] == 0)
 		fHistoMap[histo->GetName()] = new TH2D(*histo);
 	else fHistoMap[histo->GetName()]->Add(histo);
+	//std::cout << histo->GetName() << std::endl;
 }
 
 TH2* PndMvdAnaRadDam::GetHisto(int i)
@@ -64,8 +67,11 @@ void PndMvdAnaRadDam::SaveHistos(TString fileName)
 	TFile f(fileName,"RECREATE");
 	//f.Dump();
 //	f.Write();
+
 	for (std::map<TString, TH2D*>::const_iterator iter = fHistoMap.begin(); iter != fHistoMap.end(); iter++){
-		//std::cout << iter->first << std::endl;
-		iter->second->Write();
+		if (iter->second != 0){
+			iter->second->Write();
+		}
 	}
+	f.Close();
 }

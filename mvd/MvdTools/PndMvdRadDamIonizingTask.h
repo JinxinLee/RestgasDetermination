@@ -1,0 +1,53 @@
+/*
+ * PndMvdRadDamIonizingTask.h
+ *
+ *  Created on: Dec 16, 2008
+ *      Author: stockman
+ */
+
+#ifndef PndMvdRadDamIonizingTask_H
+#define PndMvdRadDamIonizingTask_H
+
+#include "FairTask.h"
+#include "PndGeoHandling.h"
+
+#include "TClonesArray.h"
+#include "TH2.h"
+
+#include <map>
+#include <string>
+
+class PndMvdRadDamIonizingTask : public FairTask
+{
+public:
+	PndMvdRadDamIonizingTask();
+	~PndMvdRadDamIonizingTask();
+
+	  virtual void SetParContainers();
+	  virtual InitStatus Init();
+	  virtual InitStatus ReInit();
+
+	  /** Virtual method Exec **/
+	  virtual void Exec(Option_t* opt);
+	  virtual void FinishEvent();
+	  virtual void FinishTask();
+
+  void SetPersistance(Bool_t p = kTRUE){fPersistance=p;};
+  Bool_t GetPersistance() {return fPersistance;};
+  
+private:
+  Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
+	TClonesArray* fMCHits;
+	TClonesArray* fRadDamHits;
+
+	PndGeoHandling* fGeoH;
+
+	std::map<std::string, TH2D*> fMapDetHistos;
+	TH1D* fRadDamHisto;
+
+
+	  ClassDef(PndMvdRadDamIonizingTask,1);
+
+};
+
+#endif /* PndMvdRadDamIonizingTask_H */

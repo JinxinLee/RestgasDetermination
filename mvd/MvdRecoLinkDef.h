@@ -30,6 +30,7 @@
 #pragma link C++ class PndMvdRadDamList+;
 #pragma link C++ class PndMvdRadDamTask+;
 #pragma link C++ class PndMvdAnaRadDam+;
+#pragma link C++ class PndMvdRadDamIonizingTask+;
 
 
 
