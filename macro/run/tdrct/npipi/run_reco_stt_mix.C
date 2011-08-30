@@ -70,26 +70,27 @@
   // =========================================================================
 
   //  PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
-  PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(0, false, true);
+  PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(0, false, false);
   PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
-  sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
-  sttFindTracks->SetPersistence(kFALSE);
+  sttFindTracks->AddHitCollectionName("STTHitMix", "STTPoint");
+  //sttFindTracks->SetPersistence(kFALSE);
   fRun->AddTask(sttFindTracks);
   
   PndSttMvdTracking *  SttMvdTracking = new PndSttMvdTracking(0,false,false);
   SttMvdTracking->SetInputBranchName("STTHitMix","MVDHitsPixelMix","MVDHitsStripMix");
   SttMvdTracking->Cleanup();
-  SttMvdTracking->SetPersistence(kFALSE);
+  //SttMvdTracking->SetPersistence(kFALSE);
   fRun->AddTask(SttMvdTracking);
- 
+ /*
   PndMCTrackAssociator* trackMC0 = new PndMCTrackAssociator();
   trackMC0->SetTrackInBranchName("SttMvdTrack");
   trackMC0->SetTrackOutBranchName("SttMvdTrackID");
   trackMC0->SetPersistence(kFALSE);
   fRun->AddTask(trackMC0);
-
+*/
   PndSttMvdGemTracking * SttMvdGemTracking = new PndSttMvdGemTracking(0);
-  SttMvdGemTracking->SetPdgFromMC();
+  SttMvdGemTracking->SetBranchNames("MVDHitsPixelMix", "MVDHitsStripMix", "STTHitMix", "GEMHit");
+  //SttMvdGemTracking->SetPdgFromMC();
   fRun->AddTask(SttMvdGemTracking);
   
   PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();

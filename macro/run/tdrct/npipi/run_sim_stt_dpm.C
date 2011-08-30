@@ -71,7 +71,7 @@ run_sim_stt_dpm(Int_t nEvents=10, Float_t mom = 4.0, Int_t mode =1, UInt_t seed=
   Emc->SetGeometryVersion(19); 
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
-
+/*
   PndMdt *Muo = new PndMdt("MDT",kFALSE);
   Muo->SetBarrel("fast");
   Muo->SetEndcap("fast");
@@ -79,7 +79,7 @@ run_sim_stt_dpm(Int_t nEvents=10, Float_t mom = 4.0, Int_t mode =1, UInt_t seed=
   Muo->SetMdtMagnet(kTRUE);
   Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
-
+*/
   FairDetector *Gem = new PndGemDetector("GEM", kFALSE);
   Gem->SetGeometryFileName("gem_3Stations.root");
   fRun->AddModule(Gem);
