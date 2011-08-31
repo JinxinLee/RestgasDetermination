@@ -45,10 +45,35 @@ PndTpcDipTTCorrelator::corr(PndTpcRiemannTrack* trk1,
 				bool& survive,
 				double& matchQuality)
 {
-  //std::cout<<" PndTpcDipTTCorrelator::corr"<<std::endl;
+
   if(!trk1->isFitted())return false;
 
-  // check if tracks are sorted the same way
+
+  double phi1, phi2;
+
+  //quick check, there is still an ambiguity (tracks might be sorted differently, so their dips could be symmetric around 90deg)
+  if(trk2->isFitted()){
+    phi1 = trk1->dip();
+    phi2 = trk2->dip();
+
+    double dphi1 = TMath::Abs(phi2-phi1);
+    double dphi2;
+
+    if(phi1>phi2) dphi2 = TMath::Abs(phi2+phi1-TMath::Pi());
+    else dphi2 = TMath::Abs(-phi2-phi1+TMath::Pi());
+
+    if (dphi2 < dphi1) dphi1=dphi2;
+
+    // check if tracks have equal dip
+    if(dphi1 > _dipcut){
+      DebugLogger::Instance()->Histo("TT_riemanncuts",3,0,20,20);
+      survive=false;
+      return true;
+    }
+  }
+
+
+  // check distance
   TVector3 t1h1 = trk1->getFirstHit()->cluster()->pos();
   TVector3 t1hn = trk1->getLastHit()->cluster()->pos();
   TVector3 t2h1 = trk2->getFirstHit()->cluster()->pos();
@@ -71,44 +96,18 @@ PndTpcDipTTCorrelator::corr(PndTpcRiemannTrack* trk1,
     return true;
   }
 
-  if(trk2->isFitted()){
-    double phi1 = trk1->dip();
-    double phi2 = trk2->dip();
 
+  if(trk2->isFitted()){
     unsigned int nh1 = trk1->getNumHits();
     unsigned int nh2 = trk2->getNumHits();
 
-    // check if we have to flip one dip
-    TVector3 pos1, dir1, pos2, dir2;
-    if(back1) trk1->getPosDirOnHelix(nh1-1, pos1, dir1);
-    else trk1->getPosDirOnHelix(0, pos1, dir1);
+    TVector3 pos2, dir2;
 
     if(back2) trk2->getPosDirOnHelix(nh2-1, pos2, dir2);
     else trk2->getPosDirOnHelix(0, pos2, dir2);
 
-    // if tracks are not sorted the same way, "flip" the dip
-    if(dir1*dir2<0){
-      if(phi1>phi2) phi1=TMath::Pi()-phi1;
-      else phi2=TMath::Pi()-phi2;
-    }
 
-    double dphi = TMath::Abs(phi2-phi1);
-
-    //std::cout<<"dphi "<<dphi<<"\n";
-
-    DebugLogger::Instance()->Histo("TT_dip_dphi",dphi,-4,4,100);
-    
-    matchQuality=dphi;
-    
-    // check if tracks have equal dip
-    if(dphi>_dipcut){
-      DebugLogger::Instance()->Histo("TT_riemanncuts",3,0,20,20);
-      survive=false;
-      return true;
-    }
-
-
-    // now also check if helix distance matches
+    // check if helix distance matches
     PndTpcCluster* TestCluster = new PndTpcCluster(pos2,1,0);
     PndTpcRiemannHit* TestHit = new PndTpcRiemannHit(TestCluster);
     double hDist(trk1->distHelix(TestHit,true, true));
@@ -116,7 +115,6 @@ PndTpcDipTTCorrelator::corr(PndTpcRiemannTrack* trk1,
     delete TestHit;
     delete TestCluster;
 
-    //std::cout<<"hDist "<<hDist<<"\n";
 
     DebugLogger::Instance()->Histo("TT_dip_hDist",hDist,-10,10,100);
 

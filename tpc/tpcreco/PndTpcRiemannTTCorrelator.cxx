@@ -74,6 +74,8 @@ PndTpcRiemannTTCorrelator::corr(PndTpcRiemannTrack* trk1,
   mergedTrack->fitAndSort();
 
   double rms = mergedTrack->distRMS();
+  double sinDip = mergedTrack->sinDip();
+  double scaling = 0.3 + 0.7*sinDip;
 
   mergedTrack->deleteHits();
   delete mergedTrack;
@@ -81,7 +83,7 @@ PndTpcRiemannTTCorrelator::corr(PndTpcRiemannTrack* trk1,
   matchQuality=rms;
   DebugLogger::Instance()->Histo("TT_riem_rms",rms,0,0.005,100);
 
-  if(rms>_planecut){
+  if(rms>_planecut*scaling){
     DebugLogger::Instance()->Histo("TT_riemanncuts",6,0,20,20);
     survive=false;
     return true;

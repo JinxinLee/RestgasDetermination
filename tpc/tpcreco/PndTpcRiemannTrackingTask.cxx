@@ -98,9 +98,9 @@ PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
 
     _mergeTracks(true),
     _TTproxcut(7.0),
-    _TTdipcut(.1),
-    _TThelixcut(0.3),
-    _TTplanecut(0.15),
+    _TTdipcut(0.4),
+    _TThelixcut(0.5),
+    _TTplanecut(0.3),
 
     _MergeCurlers(true),
     _blowUp(1.),
@@ -236,11 +236,11 @@ PndTpcRiemannTrackingTask::Init()
   _trackfinderCurl->setMaxNumHitsForPR(_minpoints);
 
   _trackfinderCurl->setProxcut(_proxcut);
-  _trackfinderCurl->setTTProxcut(50.);
+  _trackfinderCurl->setTTProxcut(30.);
 
   // Track-Track Correlators
-  _trackfinderCurl->addTTCorrelator(new PndTpcDipTTCorrelator(50., _TTdipcut, _blowUp*_TThelixcut));
-  _trackfinderCurl->addTTCorrelator(new PndTpcRiemannTTCorrelator(_TTplanecut, _minpoints));
+  _trackfinderCurl->addTTCorrelator(new PndTpcDipTTCorrelator(30., _blowUp*_TTdipcut, _blowUp*_TThelixcut));
+  _trackfinderCurl->addTTCorrelator(new PndTpcRiemannTTCorrelator(1.5*_TTplanecut, 20));
  
 
 
@@ -467,8 +467,9 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
     std::vector<PndTpcRiemannTrack*> riemannTempCurl;
     for (unsigned int i=0; i<friemannlist.size(); ++i){
       if (friemannlist[i]->isFitted() &&
-          friemannlist[i]->r() < 40. &&
-          fabs(friemannlist[i]->m()*1.57) < 130){ // Pi/2
+            friemannlist[i]->getNumHits() > 5 &&
+            friemannlist[i]->r() < 30. &&
+            fabs(friemannlist[i]->m()*1.57) < 120){ // Pi/2
         riemannTempCurl.push_back(friemannlist[i]);
         friemannlist.erase(friemannlist.begin() + i);
         --i;

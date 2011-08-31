@@ -771,7 +771,7 @@ PndTpcRiemannTrack::getPosDirOnHelix(unsigned int i, TVector3& pos, TVector3& di
 
 
 double
-PndTpcRiemannTrack::getMom(double Bz) const {
+PndTpcRiemannTrack::getMom(double Bz) const { // Bz in kGauss!!!!!!
   if (!_isFitted && !_isInitialized) return 0;
   if(_sinDip<1E-2) return fabs(_radius/1.E-2 * 0.0003 * Bz);
   return fabs(_radius/_sinDip * 0.0003 * Bz);

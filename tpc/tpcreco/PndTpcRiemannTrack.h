@@ -79,7 +79,7 @@ class PndTpcRiemannTrack : public TObject{
 
   // these functions can be used to calculate seed values for the fitter
   void getPosDirOnHelix(unsigned int i, TVector3& pos, TVector3& dir) const; // get position (3D) of point i on the fitted helix
-  double getMom(double Bz) const; // get the magnitude of the momentum
+  double getMom(double Bz) const; // get the magnitude of the momentum, Bz is the z component in kGauss
   int winding() const; // +- 1; winding sense along z axis
 
   TVector3 pocaToZ() const; // calc POCA to Z-Axis
