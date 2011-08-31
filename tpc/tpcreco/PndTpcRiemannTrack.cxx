@@ -433,6 +433,7 @@ PndTpcRiemannTrack::refit(){ // helix fit
     // check if we have to go +-2Pi further
     if (twoPiCheck && i > 4){
       meanAngle = (lastangle-firstangle)/i;
+      if (fabs(meanAngle) < 1.E-10) goto skipCheck;
       
       dZ = hiti.Z()-hit0.Z();
       
@@ -455,6 +456,8 @@ PndTpcRiemannTrack::refit(){ // helix fit
         }
       }
     }
+
+    skipCheck:
 
     lastangle += angle;
 
