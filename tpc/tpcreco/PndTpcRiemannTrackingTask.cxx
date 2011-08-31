@@ -333,7 +333,7 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
 
     fcluster_buffer=fbuffermap[isect];
 
-    buildTracks(_trackfinder, fcluster_buffer, &riemannTempSec, 2, _minHitsZ, _maxRMS);
+      buildTracks(_trackfinder, fcluster_buffer, &riemannTempSec, 2, _minHitsZ, 0.7*_maxRMS);
     buildTracks(_trackfinder, fcluster_buffer, &riemannTempSec, 3, _minHitsR, _maxRMS);
 
     riemannTempSec.clear();
@@ -446,7 +446,7 @@ PndTpcRiemannTrackingTask::Exec(Option_t* opt)
 
 
     buildTracks(_trackfinder, fcluster_buffer, &riemannTempSec, 2, _minpoints+1, _maxRMS*1.5);
-    buildTracks(_trackfinder, fcluster_buffer, &riemannTempSec, 3, _minpoints+3, _maxRMS*1.5);
+      buildTracks(_trackfinder, fcluster_buffer, &riemannTempSec, 3, _minpoints+3, _maxRMS);
     buildTracks(_trackfinder, fcluster_buffer, &riemannTempSec, 5, _minpoints+1, _maxRMS*1.5);
     buildTracks(_trackfinder, fcluster_buffer, &riemannTempSec, -5, _minpoints+1, _maxRMS*1.5);
 
