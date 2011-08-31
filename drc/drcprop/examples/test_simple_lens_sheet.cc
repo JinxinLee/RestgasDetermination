@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
   lens_quartz.AddTransform(Transform3D(RotationZ(kPi/2)));
   lens_quartz.SetName("lens_quartz");
   lens_quartz.SetPrintColor(2);
-  lens_quartz.SetVerbosity(5);
+  //lens_quartz.SetVerbosity(5);
   
   opt_system.AddDevice(lens_quartz);
 
@@ -245,20 +245,15 @@ int main(int argc, char *argv[])
   if (ioption==1)
     {
       photons_exist = manager->Cerenkov(pos,dir,beta); // generate photons
-
-      list<PndDrcPhoton> list_photon = manager->PhotonList();
-
-      
-      list<PndDrcPhoton>::const_iterator  kiter=list_photon.begin();
-
-      //kiter;
-      
-      PndDrcPhoton ph = (*kiter);
-      list_photon.clear();
-      list_photon.push_back(ph);
-      
-
-      manager->SetPhotonList(list_photon,"sheet");
+      /*
+	list<PndDrcPhoton> list_photon = manager->PhotonList();
+	list<PndDrcPhoton>::const_iterator  kiter=list_photon.begin();
+	kiter++;
+	PndDrcPhoton ph = (*kiter);
+	list_photon.clear();
+	list_photon.push_back(ph);
+	manager->SetPhotonList(list_photon,"sheet");
+      */
 
     }
   else

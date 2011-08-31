@@ -222,13 +222,16 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
               cout<<"                  to   "<<pos_new<<endl;
             }
 	  ph.SetPosition(pos_new);
+	  if (fPhotonTrace) ph.Print(*fPhotonTraceStream);
+	  if (Verbosity()>=4)
+            {
+              cout<<"     trace was called"<<endl;
+            }
 
 	  // Step 1   ------------ Check absorption -----------
 
 	  if (OptMaterial().AbsorptionFlag(ph.Wavelength(),path_length))
             {
-	      //ph.setPosition(ph.position()+path_length*ph.direction());
-              if (fPhotonTrace) ph.Print(*fPhotonTraceStream);
               ph.SetFate(Drc::kPhotAbsorbed);
               if (Verbosity()>=4) cout<<"     absorption by material" << endl;
               break; // leave while loop
@@ -236,7 +239,6 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 	  else
             {
               if (Verbosity()>=4) cout<<"     new position set."<<endl;
-              if (fPhotonTrace) ph.Print(*fPhotonTraceStream);
               if (ph.Fate()!=Drc::kPhotFlying) break;//###1 // measured photons
             }
 
@@ -279,6 +281,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 					     OptMaterial().RefIndex(ph.Wavelength()),
 					     OptMaterial().Extinction(ph.Wavelength()),
 					     surf_closest->Fresnel());
+		      // after this routine the photon has already the right direction!
 		      if (refr)
 			{
 			  ph.SetFate(Drc::kPhotLost); // Photon refracted in nirvana.
@@ -296,6 +299,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 					 OptMaterial().RefIndex(ph.Wavelength()),
 					 OptMaterial().Extinction(ph.Wavelength()),
 					 surf_closest->Fresnel());
+		  // after this routine the photon has already the right direction!
 
 		  if (Verbosity()>=4) cout<<"  refr="<<refr<<endl;
 
@@ -385,7 +389,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 			}
 		      if (refl == Drc::ReflReflected)
 			{
-			  ph.Reflect(norm);
+			  ph.Reflect(norm); // photon was not reflected by Query
 			  continue; // while loop
 			}
 		      if (refl == Drc::ReflRefracted)
@@ -394,6 +398,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 						 OptMaterial().RefIndex(ph.Wavelength()),
 						 OptMaterial().Extinction(ph.Wavelength()),
 						 surf_closest->Fresnel());
+		  // after this routine the photon has already the right direction!
 			  if (refr)
 			    {
 			      ph.SetFate(Drc::kPhotLost); // Photon refracted in nirvana.
@@ -436,7 +441,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 			}
 		      if (refl == Drc::ReflReflected)
 			{
-			  ph.Reflect(norm);
+			  ph.Reflect(norm); // Query has not reflected 
 			  continue;
 			}
 		      if (refl == Drc::ReflRefracted)
@@ -460,13 +465,16 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 						 n1, ex1,
 						 surf_closest->Fresnel(),
 						 n2, ex2);
+		  // after this routine the photon has already the right direction!
 
 			  //               if( surf_closest->Name() == "slab_side1" && !iref )
 			  //                 cout << "wrong" << endl;
 
-			  if (Verbosity()>=4) cout<<" refract in new volume flag = "
-						  <<iref<<endl;
-
+			  if (Verbosity()>=4) 
+			    {
+			      if (iref) {cout<<" refract in new volume"<<endl;}
+			      else      {cout<<" no refraction in new volume"<<endl;}
+			    }
 			  if (iref) // refraction in new volume
 			    {
 			      if (Verbosity()>=4) cout<<"     go into new volume "
@@ -476,8 +484,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 			    }
 			  else
 			    {
-			      ph.Reflect(norm);
-			      continue; //  photon is reflected.
+			      continue; //  photon is (already) reflected.
 			    }
 			} // opt_mat
 		      //else // screen or mirror...
