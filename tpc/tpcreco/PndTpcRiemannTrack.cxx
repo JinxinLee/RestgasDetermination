@@ -847,6 +847,14 @@ PndTpcRiemannTrack::resolution() const {
 double
 PndTpcRiemannTrack::quality() const {
   if (_isInitialized || !_isFitted) return 0;
+
+  // todo: this is a test
+  double q(getNumHits());
+  q /= 40;
+  if (q>1) return 1.;
+  return q;
+
+
   double res = sqrt(1./resolution())/50.; // invert and scale [0..1]
   if (res>1) return 1.;
   return res;

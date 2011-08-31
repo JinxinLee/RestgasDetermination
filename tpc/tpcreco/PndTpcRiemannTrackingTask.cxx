@@ -97,8 +97,8 @@ PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
     _helixcut(0.2),
 
     _mergeTracks(true),
-    _TTproxcut(7.0),
-    _TTdipcut(0.4),
+    _TTproxcut(15.0),
+    _TTdipcut(0.2),
     _TThelixcut(0.5),
     _TTplanecut(0.3),
 

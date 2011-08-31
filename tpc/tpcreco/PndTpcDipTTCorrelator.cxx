@@ -50,6 +50,12 @@ PndTpcDipTTCorrelator::corr(PndTpcRiemannTrack* trk1,
 
 
   double phi1, phi2;
+  unsigned int nh1 = trk1->getNumHits();
+  unsigned int nh2 = trk2->getNumHits();
+
+  double scaling(20./nh2);
+  if (scaling > 3.) scaling = 3.;
+  if (scaling < 0.7) scaling = 0.7;
 
   //quick check, there is still an ambiguity (tracks might be sorted differently, so their dips could be symmetric around 90deg)
   if(trk2->isFitted()){
@@ -64,8 +70,9 @@ PndTpcDipTTCorrelator::corr(PndTpcRiemannTrack* trk1,
 
     if (dphi2 < dphi1) dphi1=dphi2;
 
+
     // check if tracks have equal dip
-    if(dphi1 > _dipcut){
+    if(dphi1 > _dipcut*scaling){
       DebugLogger::Instance()->Histo("TT_riemanncuts",3,0,20,20);
       survive=false;
       return true;
@@ -98,8 +105,6 @@ PndTpcDipTTCorrelator::corr(PndTpcRiemannTrack* trk1,
 
 
   if(trk2->isFitted()){
-    unsigned int nh1 = trk1->getNumHits();
-    unsigned int nh2 = trk2->getNumHits();
 
     TVector3 pos2, dir2;
 
@@ -119,8 +124,8 @@ PndTpcDipTTCorrelator::corr(PndTpcRiemannTrack* trk1,
     DebugLogger::Instance()->Histo("TT_dip_hDist",hDist,-10,10,100);
 
     // check if sz distace small enough
-    double scaling = dist/30.;
-    if (scaling>2) scaling = 2;
+    double scaling2 = scaling * dist/30.;
+    if (scaling>3) scaling = 3;
     scaling += 1;
 
 

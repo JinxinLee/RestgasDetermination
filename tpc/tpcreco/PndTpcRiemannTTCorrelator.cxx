@@ -75,7 +75,7 @@ PndTpcRiemannTTCorrelator::corr(PndTpcRiemannTrack* trk1,
 
   double rms = mergedTrack->distRMS();
   double sinDip = mergedTrack->sinDip();
-  double scaling = 0.3 + 0.7*sinDip;
+  double scaling = 0.5 + 0.5*sinDip;
 
   mergedTrack->deleteHits();
   delete mergedTrack;

@@ -234,8 +234,8 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
       if(trksurvive){ // update best values
         // number matching fitted tracks that survived all corrs (for excluding clusters)
         if(level==ncor-1 && !trk->isInitialized() &&
-           trk->getNumHits() > _minHitsForFit+1 &&
-           matchQualities[ncor-1] < 0.75*_helixcut) ++matchTrks;
+           trk->getNumHits() > 3*_minHitsForFit &&
+           matchQualities[ncor-1] < 0.5*_helixcut) ++matchTrks;
         
         if(level>maxlevel) maxlevel=level;
         for(unsigned int i=0; i<=level; ++i){
