@@ -76,14 +76,12 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
   TClonesArray *fTubeArray;
   void SetTubeArray(TClonesArray *tubeArray) { fTubeArray = tubeArray; };
 
-/*
+  
   void SetInputBranchName( char* string1 )
   {
-	sprintf(fSttBranch,"%s", string1);
-	return;
+    sprintf(fSttBranch,"%s", string1);
+    return;
   };
-
-*/
 
 
  private:
