@@ -32,7 +32,7 @@
 #include <fstream>				
 //#include <string>
 #include <cassert>		
-
+#include "math.h"
 using namespace std ;
 
 using std::cout;
