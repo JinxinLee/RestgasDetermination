@@ -73,7 +73,7 @@ void sighandler(int sig){
 
 
 KalmanTask::KalmanTask()
-  : FairTask("Kalman Filter"), _persistence(kFALSE),_lazy(0),_numIt(1), _trackBranchName("TrackPreFit"), _outBranchName("TrackPostFit")
+  : FairTask("Kalman Filter"), _persistence(kFALSE),_lazy(0),_numIt(1), _trackBranchName("TrackPreFit"), _outBranchName("TrackPostFit"), fMVDPixelBranchName("MVDHitsPixel"), fMVDStripBranchName("MVDHitsStrip")
 {
   fVerbose = 0;
 }
@@ -123,19 +123,19 @@ KalmanTask::Init()
                          new GFRecoHitProducer<PndTpcCluster,PndTpcSPHit>(ar));
    }
    
-   TClonesArray* mvdPixArray=(TClonesArray*) ioman->GetObject("MVDHitsPixel");
+   TClonesArray* mvdPixArray=(TClonesArray*) ioman->GetObject(fMVDPixelBranchName);
    if(mvdPixArray==0){
      Error("PndFwdKalmanTask::Init","MVDHitsPixel array not found");
    } else {
-     _theRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("MVDHitsPixel"),
+     _theRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId(fMVDPixelBranchName),
                          new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(mvdPixArray));
    }
    
-   TClonesArray* mvdStrArray=(TClonesArray*) ioman->GetObject("MVDHitsStrip");
+   TClonesArray* mvdStrArray=(TClonesArray*) ioman->GetObject(fMVDStripBranchName);
    if(mvdStrArray==0){
      Error("PndFwdKalmanTask::Init","MVDHitsStrip array not found");
    } else {
-     _theRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("MVDHitsStrip"),
+     _theRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId(fMVDStripBranchName),
                          new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(mvdStrArray));
    }
    
