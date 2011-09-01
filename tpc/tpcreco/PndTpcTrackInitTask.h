@@ -102,6 +102,10 @@ private:
 
   double Bz; //mag field
 
+  double fmaxLenZbackw; // max length in z of backward target track
+  double fRMin;
+  double fRMax;
+
   bool _mcPid;
   int _pdg;
 

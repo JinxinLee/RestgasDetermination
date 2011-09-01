@@ -91,7 +91,11 @@ PndTpcTrackInitTask::PndTpcTrackInitTask()
     _pdg(PDGDEFAULT),
 
     counter(0),
-    Bz(0)
+    Bz(0),
+
+    fmaxLenZbackw(0),
+    fRMin(0),
+    fRMax(0)
   {
     fVerbose = 0;
   }
@@ -137,6 +141,18 @@ PndTpcTrackInitTask::Init()
 
   _pndTrackArray = new TClonesArray("PndTrack");
   ioman->Register(_pndTrackBranchName,"Tpc",_pndTrackArray,_persistencePnd);
+
+
+  // calc max length in z of a backward going target track
+  double fzGEM = fabs(fpar->getZGem());
+  fRMax = fpar->getRMax();
+  fRMin = fpar->getRMin();
+
+  fmaxLenZbackw = fzGEM - fRMin*fzGEM/fRMax;
+  // add safety margins
+  fmaxLenZbackw += 2.;
+  fRMin += 1.;
+  fRMax -= 1.;
 
 
   //get the magnetic field for curvature seeding
@@ -235,7 +251,7 @@ PndTpcTrackInitTask::Exec(Option_t* opt)
     // ceck if momentum high enough
     double p = trk->getMom(Bz);
     if (Bz==0) p=pbackup;
-    if(p<1.E-2) {  // 10 MeV ~ 3cm helix diameter
+    if(p<5.E-2) {  // 50 MeV
       if (fVerbose) std::cout << " - skipping, momentum too small: " << p*1E3 << " MeV" << std::endl;
       continue;
     }
@@ -271,14 +287,59 @@ PndTpcTrackInitTask::Exec(Option_t* opt)
   // check sorting
     bool invertTrack(true);
 
-    TVector3 ps1=trk->getFirstHit()->cluster()->pos();
-    TVector3 ps2=trk->getLastHit()->cluster()->pos();
+    TVector3 ps1, ps2, dir1, dir2;
+    TVector3 IP(0,0,0);
 
-    if(ps1.Z() < ps2.Z()-7) invertTrack = false;
-    else if(ps1.Z() > ps2.Z()+7) invertTrack = true;
-    else if (ps1.Perp()>ps2.Perp()+5) invertTrack = true;
-    else if (ps1.Perp()<ps2.Perp()) invertTrack = false;
-    else invertTrack = true;
+    trk->getPosDirOnHelix(0, ps1, dir1);
+    trk->getPosDirOnHelix(nhits-1, ps2, dir2);
+    dir2*=-1.; // point in direction of track
+
+
+    // this task runs for physics only or after the event deconv task, where the physics event is at t = 0
+    // so we sort the track in a way that they fly away from the IP (will go wrong for some secondaries!)
+    // todo: this has to be refined at some point
+
+    if ((ps1-IP).Mag() < (ps2-IP).Mag()) invertTrack = false;
+    else  invertTrack = true;
+
+
+
+    /*TVector3 POCA = trk->pocaToZ();
+    double perp = POCA.Perp(); // distance of POCA to z axis
+
+    double angle = fabs(trk->getFirstHit()->getAngleOnHelix() - trk->getLastHit()->getAngleOnHelix());
+
+
+
+    if (angle < 3.3 && perp < 5.) { // no Curler and target track
+      // sort that track goes away from POCA
+      if ((ps1-POCA).Mag() < (ps2-POCA).Mag()) invertTrack = false;
+      else  invertTrack = true;
+    }
+    else if (!(ps1.Perp() < fRMin) ^ !(ps2.Perp() < fRMin)){ // starting at inner wall, but not ending at inner wall (XOR)
+      // sort by R
+      if (ps1.Perp() < ps2.Perp()) invertTrack = false;
+      else invertTrack = true;
+    }
+    else if (angle > 6.3 && perp > 10.){ // secondary curler -> we can't judge -> sort by z
+      if (ps1.Z() < ps2.Z()) invertTrack = false;
+      else invertTrack = true;
+    }
+    else if (perp < 5.){ // target track
+      // check if track is longer than it could be when going backwards
+      if (ps1.Z() > ps2.Z()+fmaxLenZbackw) invertTrack = true;
+      else if (ps1.Z() < ps2.Z()-fmaxLenZbackw) invertTrack = false;
+    }
+    else if (angle < 3.3){ // not curling
+      // sort by R
+      if (ps1.Perp() < ps2.Perp()) invertTrack = false;
+      else invertTrack = true;
+    }
+    else{ // else sort by z
+      if (ps1.Z() < ps2.Z()) invertTrack = false;
+      else invertTrack = true;
+    }*/
+
 
     if (invertTrack){
       winding*=-1;
