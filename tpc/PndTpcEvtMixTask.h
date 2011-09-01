@@ -27,6 +27,7 @@
 #include <set>
 
 #include "PndTpcDigi.h"
+#include "PndSdsHit.h"
 #include "PndTpcEvtTime.h"
 // Collaborating Class Declarations --
 class TClonesArray;
@@ -53,10 +54,15 @@ public:
 
   // Modifiers -----------------------
   void SetInBranchName(const TString& name) {finBranchName=name;}
+  void SetBkgPixelBranchName(const TString& name) {fBkgPixelBranchName=name;}
+  void SetBkgStripBranchName(const TString& name) {fBkgStripBranchName=name;}
+  void SetPhysPixelBranchName(const TString& name) {fPhysPixelBranchName=name;}
+  void SetPhysStripBranchName(const TString& name) {fPhysStripBranchName=name;}  
   void SetBkgBranchName(const TString& name) {fbkgBranchName=name;}
   void SetBkgFileName(const TString& name) {fbkgFileName=name;}
   void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
   void SetNBkgEvts(Int_t n) {fnbkgEvts=n;}
+  void SetDoMVDMixing(Bool_t opt = kTRUE) {fmixMvd=opt;}
   void AddSector(UInt_t id){fsectors.insert(id);}
   void SetMeanEvtSpacing(Double_t deltaT) {fmeanEvtSpacing=deltaT;fdoTimeSim=true;} // [ns]
   void SetEvtRate(Double_t evt_per_sec) {fmeanEvtSpacing=1/evt_per_sec*1.E9;fdoTimeSim=true;}
@@ -72,6 +78,10 @@ private:
 
   // Private Data Members ------------
   TString finBranchName;
+  TString fPhysPixelBranchName;
+  TString fPhysStripBranchName;
+  TString fBkgPixelBranchName;
+  TString fBkgStripBranchName;
   TString fbkgBranchName;
   TString fbkgFileName;
  
@@ -82,13 +92,13 @@ private:
   TClonesArray* ftimeArray;
   TClonesArray* ftimeOutArray;
   TClonesArray* fgemArray;
-  TClonesArray* fstripArray;
-  TClonesArray* fstripClusterArray;
-  TClonesArray* fstripDigiArray;
+  TClonesArray* fBkgStripArray;
+  TClonesArray* fBkgPixelArray;
+  TClonesArray* fPhysStripArray;
+  TClonesArray* fPhysPixelArray;
+  TClonesArray* fStripOutArray;
+  TClonesArray* fPixelOutArray;
   
-  TClonesArray* fpixelArray;
-  TClonesArray* fpixelClusterArray;
-  TClonesArray* fpixelDigiArray;
 
   TFile* finFile;
   TTree* fbkgTree;
@@ -97,10 +107,13 @@ private:
   TBranch* ftimeBranch;
 
   std::vector<std::vector<PndTpcDigi>*>* fDigiVectors;
+  std::vector<std::vector<PndSdsHit>*>* fPixelVectors;
+  std::vector<std::vector<PndSdsHit>*>* fStripVectors;
   std::vector<PndTpcEvtTime> fEvtTimes;
 
   Bool_t fpersistence;
   Bool_t fdoSignals;
+  Bool_t fmixMvd;
   Int_t fnbkgEvts;
   Int_t fnAvailableBkgEvents;
   Bool_t fdoTimeSim;
@@ -121,7 +134,7 @@ private:
   // Private Methods -----------------
 
 public:
-  ClassDef(PndTpcEvtMixTask,1);
+  ClassDef(PndTpcEvtMixTask,2);
 
 };
 

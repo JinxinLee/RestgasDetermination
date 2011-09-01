@@ -11,7 +11,7 @@
 //
 // Author List:
 //      Sebastian Neubert    TUM            (original author)
-//
+//      Felix Boehmer        TUM
 //
 //-----------------------------------------------------------
 
@@ -53,11 +53,16 @@ PndTpcEvtMixTask::PndTpcEvtMixTask()
   : FairTask("TPC Background Event Addmixer"),
     finBranchName("PndTpcSignal"),
     fbkgBranchName("PndTpcSignal"),
+    fPhysPixelBranchName("MVDHitsPixel"),
+    fPhysStripBranchName("MVDHitsStrip"),
+    fBkgPixelBranchName("MVDHitsPixel"),
+    fBkgStripBranchName("MVDHitsStrip"),
     fbkgFileName(""),
     fsignalArray(NULL),
     ftimeArray(NULL),
     fbkgArray(NULL),
     fpersistence(kFALSE),
+    fmixMvd(kFALSE),
     fnbkgEvts(0),
     fmeanEvtSpacing(0),
     ft0(0),
@@ -149,12 +154,27 @@ PndTpcEvtMixTask::Init()
 
   // Get input collections
   fsignalArray=(TClonesArray*) ioman->GetObject(finBranchName);
-
+  
   if(fsignalArray==0)
     {
       Error("Init","signal-array not found!");
       return kERROR;
     }
+
+  if(fmixMvd) {
+    fPhysPixelArray = (TClonesArray*) ioman->GetObject(fPhysPixelBranchName);
+    if(fPhysPixelArray==0)
+    {
+      Error("Init","MVD Physics Pixel array not found!");
+      return kERROR;
+    }
+    fPhysStripArray = (TClonesArray*) ioman->GetObject(fPhysStripBranchName);
+    if(fPhysStripArray==0)
+    {
+      Error("Init","MVD Physics Strip array not found!");
+      return kERROR;
+    }
+  }
   
   // open input file with background events
   if(fbkgFileName.IsNull())
@@ -199,7 +219,12 @@ PndTpcEvtMixTask::Init()
   fbkgTree->SetBranchStatus("*",0);
   fbkgTree->SetBranchStatus(fbkgBranchName+"*",1);
   fbkgTree->SetBranchStatus("PndTpcEvtTime*",1);
-  
+  if(fmixMvd) {
+    fbkgTree->SetBranchStatus(fBkgPixelBranchName,1);
+    fbkgTree->SetBranchAddress(fBkgPixelBranchName,&fBkgPixelArray);
+    fbkgTree->SetBranchStatus(fBkgStripBranchName,1);
+    fbkgTree->SetBranchAddress(fBkgStripBranchName,&fBkgStripArray);
+  }
 
   int bytes=0;
   // std::cerr <<  "Loading Branches" << std::endl;
@@ -212,6 +237,8 @@ PndTpcEvtMixTask::Init()
   std::cerr <<  "Loading Digis" << std::endl;
   // Load complete bkg data into memory
   fDigiVectors = new vector<vector<PndTpcDigi>*>(fnAvailableBkgEvents);
+  fPixelVectors = new vector<vector<PndSdsHit>*>(fnAvailableBkgEvents);
+  fStripVectors = new vector<vector<PndSdsHit>*>(fnAvailableBkgEvents);
   fEvtTimes.resize(fnAvailableBkgEvents);
   for(unsigned int ib=0;ib<fnAvailableBkgEvents;++ib){
     fbkgTree->GetEntry(ib);
@@ -225,10 +252,26 @@ PndTpcEvtMixTask::Init()
     } // end loop over digis
     PndTpcEvtTime* t=(PndTpcEvtTime*)ftimeArray->At(0);
     fEvtTimes[ib]=(*t);
+    //copy MVD hits
+    if(fmixMvd) {
+      unsigned int nPix = fBkgPixelArray->GetEntriesFast();
+      (*fPixelVectors)[ib] = new std::vector<PndSdsHit>(nPix);
+      unsigned int nStr = fBkgStripArray->GetEntriesFast();
+      (*fStripVectors)[ib] = new std::vector<PndSdsHit>(nStr);
+      for(unsigned int iPix=0; iPix<nPix; iPix++) {
+	PndSdsHit* ipx = (PndSdsHit*) fBkgPixelArray->At(iPix);
+	(*fPixelVectors->at(ib))[iPix] = (*ipx);
+      }
+      for(unsigned int iStr=0; iStr<nStr; iStr++) {
+	PndSdsHit* ist = (PndSdsHit*) fBkgStripArray->At(iStr);
+	(*fStripVectors->at(ib))[iStr] = (*ist);
+      }
+    } //end copy MVD hits
   }// end loop over bkg data
 
-   std::cerr <<  "Digis Loaded"<< std::endl;
-
+   std::cerr <<  "Digis loaded"<< std::endl;
+   if(fmixMvd)
+     std::cerr <<  "MVD hits loaded"<< std::endl;
    // drop input file
    finFile->Close();
    delete finFile;
@@ -248,13 +291,20 @@ PndTpcEvtMixTask::Init()
   else {
     fOutArray = new TClonesArray("PndTpcDigi");
     ioman->Register("PndTpcDigiMixed","PndTpc",fOutArray,false);
-
   }
+  
+  if(fmixMvd){
+    fPixelOutArray = new TClonesArray("PndSdsHit");
+    ioman->Register("MVDHitsPixelMixed", "PndMvd", fPixelOutArray, true);
+    fStripOutArray = new TClonesArray("PndSdsHit");
+    ioman->Register("MVDHitsStripMixed", "PndMvd", fStripOutArray, true);
+  }    
 
   // remember that only about 50% of digis will actually 
   // be written out because of timing cuts!
   fOutArray->Expand(2000*fnbkgEvts); // this is still quite enough!
-
+  fStripOutArray->Expand(2000*fnbkgEvts); 
+  fPixelOutArray->Expand(2000*fnbkgEvts); 
 
  // init the DigiMapper
   //fpar->printParams();
@@ -301,12 +351,9 @@ PndTpcEvtMixTask::Exec(Option_t* opt)
 
   // copy physics events into outarray;
   unsigned int nph=fsignalArray->GetEntries();
-  
-
   for(unsigned int iph=0;iph<nph;++iph){
     if(fdoSignals){
       PndTpcSignal* digi=(PndTpcSignal*)fsignalArray->At(iph);
-    
       new((*fOutArray)[iph]) PndTpcSignal(*digi);
 
     }
@@ -316,6 +363,23 @@ PndTpcEvtMixTask::Exec(Option_t* opt)
       new((*fOutArray)[iph]) PndTpcDigi(*digi);
     }
   }
+  
+  //copy MVD physics hits to out arrays:
+  if(fmixMvd) {
+    unsigned int nPix = fPhysPixelArray->GetEntriesFast();
+    unsigned int nStr = fPhysStripArray->GetEntriesFast();
+    for(unsigned int iPix=0; iPix<nPix; iPix++) {
+      PndSdsHit* ipx = (PndSdsHit*) fPhysPixelArray->At(iPix);
+      new((*fPixelOutArray)[iPix]) PndSdsHit(*ipx);
+    }
+    for(unsigned int iStr=0; iStr<nStr; iStr++) {
+      PndSdsHit* ist = (PndSdsHit*) fPhysStripArray->At(iStr);
+      new((*fStripOutArray)[iStr]) PndSdsHit(*ist);
+    }
+
+  }
+
+  
  // Look at this event geantHits in the TPC:
   Int_t iout=fOutArray->GetEntriesFast();
   std::cout<<iout<<" physics signals in OutArray"<<std::endl;
@@ -330,20 +394,44 @@ PndTpcEvtMixTask::Exec(Option_t* opt)
     availableEvents.erase(availableEvents.begin()+EventNum);
     // -------------
   
-    double tevent=fEvtTimes[i].t0();
+    //double tevent=fEvtTimes[i].t0();
+    double tevent;
     // if reshuffel
     if(fdoTimeSim){
        teventSim+=gRandom->Exp(fmeanEvtSpacing);
-       new ((*ftimeOutArray)[i]) PndTpcEvtTime(tevent,selectEvt+1);    
        tevent=teventSim;
+       new ((*ftimeOutArray)[i]) PndTpcEvtTime(tevent,selectEvt+1);    
     }
     double teventClock=PndTpcDigiMapper::getInstance()->t_to_ticks(tevent);
-    vector<PndTpcDigi>* bkgDigis=(*fDigiVectors)[selectEvt];
+    std::vector<PndTpcDigi>* bkgDigis=(*fDigiVectors)[selectEvt];
+    std::vector<PndSdsHit>* bkgPixels;
+    std::vector<PndSdsHit>* bkgStrips;
+    if(fmixMvd) {
+      bkgPixels = (*fPixelVectors)[selectEvt];
+      bkgStrips = (*fStripVectors)[selectEvt];
+    }
+    
+
+    //append MVD bkg hits to MVD hit array (with correct timestamp)
+    if(fmixMvd) {
+      unsigned int nPix = bkgPixels->size();
+      unsigned int nStr = bkgStrips->size();
+      for(unsigned int iPix=0; iPix<nPix; iPix++) {
+	PndSdsHit ipx = (*bkgPixels)[iPix];
+	ipx.SetTimeStamp(tevent);
+	new ((*fPixelOutArray)[fPixelOutArray->GetEntriesFast()]) PndSdsHit(ipx);
+      }
+      for(unsigned int iStr=0; iStr<nStr; iStr++) {
+	PndSdsHit ist = (*bkgStrips)[iStr];
+	ist.SetTimeStamp(tevent);
+	new ((*fStripOutArray)[fStripOutArray->GetEntriesFast()]) PndSdsHit(ist);
+      }
+    }
    
     // distinguish between signal and digi mixing!
     Int_t nsig=bkgDigis->size();
     for(Int_t ip=0;ip<nsig;++ip){
-      if(fdoSignals){
+      if(fdoSignals){ ;
 	// PndTpcSignal* sig=(PndTpcSignal*)fbkgArray->At(ip);
 	// // check if signal lies in region of interest
 	// unsigned int sec=fpadPlane->GetPad(sig->padId())->sectorId();
@@ -372,13 +460,13 @@ PndTpcEvtMixTask::Exec(Option_t* opt)
 	// throw away digis that will not ly inside the physics event window
 	// we shut this off again, since otherwise endcap 
 	// penetration makes no sense
-	//double realtime=PndTpcDigiMapper::getInstance()->t_from_tick(mydigi.t());
-	//if(realtime < 0 || realtime > fMaxDriftTime) continue;
+	double realtime=PndTpcDigiMapper::getInstance()->t_from_tick(mydigi.t());
+	// +- 4mus
+	if(realtime < -4000 || realtime > fMaxDriftTime + 4000) continue;
 	mydigi.shiftEventIds(selectEvt+1);
 	// Add background to point-array of this event
 	new((*fOutArray)[iout++]) PndTpcDigi(mydigi);
       } // end do digi
-     
     } // end loop over digis/signals
   } // end loop over bkg events
     //fbkgArray->Print();
