@@ -6,6 +6,8 @@ void run_ana_eta_c_stt(int nevts=0)
 {
 	TString OutFile="etac_histo_stt.root";
   
+	enum DetectorId {kDCH,kDRC,kDSK,kEMC,kGEM,kLUMI,kMDT,
+	kMVD,kRPC,kSTT,kTPC,kTOF,kFTS,kHYPG,kHYP};
 	gStyle->SetOptFit(1011);
 
 	TStopwatch timer;
@@ -44,6 +46,9 @@ void run_ana_eta_c_stt(int nevts=0)
 	TH1F *h_etac_vtx=new TH1F("h_etac_vtx","#eta_{c}m(#phi,#phi), Vertex fit;E, GeV",100,2.5,3.5);
 	TH1F *h_mphi_vtx=new TH1F("h_mphi_vtx","#phi: m(K+ K-) (Vertex fit);E, GeV",100,0.95,1.5);
 			
+	TH1F *h_etac_vtx_cut=new TH1F("h_etac_vtx_cut","#eta_{c}m(#phi,#phi), Vertex fit;E, GeV",100,2.5,3.5);
+	TH1F *h_mphi_vtx_cut=new TH1F("h_mphi_vtx_cut","#phi: m(K+ K-) (Vertex fit);E, GeV",100,0.95,1.5);
+
 	TH1F *h_etac_phimass_4c=new TH1F("h_etac_phimass_4c","#eta_{c}m(#phi,#phi), (cut on #phi mass);E,
 	GeV",100,2.8,3.2);
 	TH1F *h_mphi_final_4c=new TH1F("h_mphi_final_4c","#phi: m(K+ K-);E, GeV",100,0.95,1.1);
@@ -51,6 +56,10 @@ void run_ana_eta_c_stt(int nevts=0)
 	TH1F *h_etac_phimass_vtx=new TH1F("h_etac_phimass_vtx","#eta_{c}m(#phi,#phi), (cut on #phi mass);E,
 	GeV",100,2.8,3.2);
 	TH1F *h_mphi_final_vtx=new TH1F("h_mphi_final_vtx","#phi: m(K+ K-);E, GeV",100,0.95,1.1);
+
+	TH1F *h_etac_phimass_vtx_cut=new TH1F("h_etac_phimass_vtx_cut","#eta_{c}m(#phi,#phi), (cut on #phi mass);E,
+	GeV",100,2.8,3.2);
+	TH1F *h_mphi_final_vtx_cut=new TH1F("h_mphi_final_vtx_cut","#phi: m(K+ K-);E, GeV",100,0.95,1.1);
 
 	TH1F *h_etac_phimassfit=new TH1F("h_etac_phimassfit","#eta_{c}m(#phi,#phi);E, GeV",100,2.8,3.2);
 	TH1F *h_mphi_final_massfit=new TH1F("h_mphi_final_massfit","#phi: m(K+ K-);E, GeV",100,0.95,1.1);
@@ -75,8 +84,11 @@ void run_ana_eta_c_stt(int nevts=0)
 	vertex",100,-0.1,0.1);
 	
 	TH2F *h_theta_p = new TH2F("h_theta_p","Theta vs p",100,0,180,100,0,3);
-	TH2F *h_theta_p_pos = new TH2F("h_theta_p_pos","Theta vs p",100,0,180,100,0,3);
-	TH2F *h_theta_p_neg = new TH2F("h_theta_p_neg","Theta vs p",100,0,180,100,0,3);
+	TH2F *h_dp_p = new TH2F("h_dp_p","Delta p vs p",100,0,3,100,0,3);
+	TH2F *h_dp_theta = new TH2F("h_dp_theta","Delta p vs theta",100,0,3,100,0,180);
+	TH1F *h_dp=new TH1F("h_dp","Delta p",100,0,3);
+	TH1F *h_dp_low=new TH1F("h_dp_low","Delta p",100,0,3);
+	TH1F *h_dp_high=new TH1F("h_dp_high","Delta p",100,0,3);
 
 	TPidMassSelector *phiMassSel=new TPidMassSelector("phi",1.02,0.2);
 
@@ -86,11 +98,12 @@ void run_ana_eta_c_stt(int nevts=0)
 	// the candidates lists we need
 	TCandList p1, p2, phi1, phi1_pid, phi1_massfit, etac, etac_pid,  etac_nocut, etac_massfit;
 	TCandList etac_vtx;
-	int n_reco_4c=0, n_reco_vtx=0;
+	int n_reco_4c=0, n_reco_vtx=0, n_reco_vtx_cut=0;
 	// Number of events in file and number of reconstructed eta_c to store in root file
 	TH1F *n_events=new TH1F("n_events","total number of events",1,0,1);
 	TH1F *n_etac_4c=new TH1F("n_etac_4c","number of reconstructed eta_c (4C-fit)",1,0,1);
 	TH1F *n_etac_vtx=new TH1F("n_etac_vtx","number of reconstructed eta_c (Vertex fit)",1,0,1);
+	TH1F *n_etac_vtx_cut=new TH1F("n_etac_vtx_cut","number of reconstructed eta_c (Vertex fit)",1,0,1);
 
 	TLorentzVector ini(0,0,3.6772,4.7333);
 
@@ -99,6 +112,23 @@ void run_ana_eta_c_stt(int nevts=0)
 	n_events->SetBinContent(1,nevts);
 	// cout << "nevts " << nevts << "\n";
 	int i=0,j=0, k=0, l=0;
+	
+
+	TH1F *h_acc_stt=new TH1F("h_acc_stt","STT acceptance",6,0,6);
+ 	// Acceptance 
+	int nEntries =  tree->GetEntriesFast();
+	for (Int_t j=0; j< nEntries; j++)
+	{
+		tree->GetEntry(j);
+		int mccount=0;
+		for (Int_t mc = 0; mc < mc_array->GetEntriesFast(); mc++)
+		{
+			PndMCTrack *mctrack = (PndMCTrack*)mc_array->At(mc);
+			if (mctrack->GetMotherID()!=-1) continue;
+			if (mctrack->GetNPoints(kSTT))  mccount++;
+		}
+		h_acc_stt->Fill(mccount);
+ 	}
 
 	// *************
 	// this is the loop through the events ... as simple as this...
@@ -113,22 +143,27 @@ void run_ana_eta_c_stt(int nevts=0)
 		evr.FillList(p1,"Charged");
 		evr.FillList(p2,"Charged");
 		
-		p1.Select(kplusSel);
-		p2.Select(kminusSel);
-		
-		double theta, p;
+		double theta, p, p_mc, delta_p;
 		for (Int_t l=0;l<p1.GetLength();l++){
 			p=p1[l].GetMicroCandidate().GetMomentum().Mag();
 			theta=p1[l].GetMicroCandidate().GetMomentum().Theta()*TMath::RadToDeg();
-			h_theta_p_pos->Fill(theta,p);
 			h_theta_p->Fill(theta,p);
+			PndMCTrack *mcTrack =
+				(PndMCTrack*)mc_array->At(p1[l].GetMicroCandidate().GetMcIndex());
+			if (mcTrack==0) continue;
+			p_mc=mctrack->GetMomentum().Mag();
+			delta_p=p-p_mc;
+			h_dp_p->Fill(delta_p,p_mc);
+			h_dp_theta->Fill(delta_p,theta);
+			h_dp->Fill(delta_p);
+			if (p_mc<0.5)
+				h_dp_low->Fill(delta_p);
+			else
+				h_dp_high->Fill(delta_p);
 		}
-		for (Int_t l=0;l<p2.GetLength();l++){
-			p=p2[l].GetMicroCandidate().GetMomentum().Mag();
-			theta=p2[l].GetMicroCandidate().GetMomentum().Theta()*TMath::RadToDeg();
-			h_theta_p_neg->Fill(theta,p);
-			h_theta_p->Fill(theta,p);
-		}
+
+		p1.Select(kplusSel);
+		p2.Select(kminusSel);
 		
 		int n_removed=0;
 		int ii=0;
@@ -240,7 +275,7 @@ void run_ana_eta_c_stt(int nevts=0)
 		////////////// 4C-fit ///////////////
 		int best_i=0;
 		double best_chi2=10000;
-		TCandidate *ccfit;// = new TCandidate();
+		TCandidate *ccfit = new TCandidate();
 		double m_phi1, m_phi2;
 		for (l=0;l<etac.GetLength();++l) {
 			Pnd4CFitter fitter(etac[l],ini);
@@ -303,8 +338,8 @@ void run_ana_eta_c_stt(int nevts=0)
 			etac_vtx.Add(*etac_tmp);
 		}
 
-		for (l=0;l<etac.GetLength();++l) {
-		h_etac_pid->Fill(etac_vtx[l].M());
+		for (l=0;l<etac_vtx.GetLength();++l) {
+			h_etac_pid->Fill(etac_vtx[l].M());
 		}
 		
 		int best_i=0;
@@ -356,6 +391,14 @@ void run_ana_eta_c_stt(int nevts=0)
 			hvtxresX->Fill(mcVertex.X()-bestPos.X());
 			hvtxresY->Fill(mcVertex.Y()-bestPos.Y());
 			hvtxresZ->Fill(mcVertex.Z()-bestPos.Z());
+			if ((fabs(bestPos.Z())<2.)&&(bestPos.Perp()<1.))
+			{
+				h_etac_vtx_cut->Fill(etacvtx_mass);
+				h_mphi_vtx_cut->Fill(m_phi1);
+				h_mphi_vtx_cut->Fill(m_phi2);
+				h_mphi_final_vtx_cut->Fill(m_phi1);
+				h_mphi_final_vtx_cut->Fill(m_phi2);
+			}
 
 			if (((m_phi1>1.02-0.02)&&(m_phi1<1.02+0.02))&& 
 				((m_phi2>1.02-0.02)&&(m_phi2<1.02+0.02)))
@@ -363,7 +406,15 @@ void run_ana_eta_c_stt(int nevts=0)
 				h_etac_phimass_vtx->Fill(etacvtx_mass);
 				if ((etacvtx_mass>2.9)&&(etacvtx_mass<3.06))
 					n_reco_vtx++;
+				
+				if ((fabs(bestPos.Z())<2.)&&(bestPos.Perp()<1.))
+				{
+					h_etac_phimass_vtx->Fill(etacvtx_mass);
+					if ((etacvtx_mass>2.9)&&(etacvtx_mass<3.06))
+						n_reco_vtx_cut++;
+				}
 			}
+
 		}
 
 // 		////////////// phi mass fit /////////////
@@ -396,28 +447,35 @@ void run_ana_eta_c_stt(int nevts=0)
     }
 	std::cout<<"Number of reconstructed eta_c (4C) = "<<n_reco_4c<<std::endl;
 	std::cout<<"Number of reconstructed eta_c (Vertex fit)= "<<n_reco_vtx<<std::endl;
+	std::cout<<"Number of reconstructed eta_c (Vertex fit, R,Z cut)= "<<n_reco_vtx_cut<<std::endl;
 	n_etac_4c->SetBinContent(1,n_reco_4c);
 	n_etac_vtx->SetBinContent(1,n_reco_vtx);
+	n_etac_vtx_cut->SetBinContent(1,n_reco_vtx_cut);
 
 	out->cd();
 	n_etac_4c->Write();
 	n_etac_vtx->Write();
+	n_etac_vtx_cut->Write();
 	n_events->Write();
 	h_etac_nocut->Write();
 	h_etac_pid->Write();
 	h_etac_vtx->Write();
+	h_etac_vtx_cut->Write();
 	h_etac_4c->Write();
 	h_etac_4c_refit->Write();
 	h_etac_phimass_4c->Write();
 	h_etac_phimass_vtx->Write();
+	h_etac_phimass_vtx_cut->Write();
 	h_etac_phimassfit->Write();
 
 	h_mphi_nocuts->Write();
 	h_mphi_pid->Write();
 	h_mphi_vtx->Write();
+	h_mphi_vtx_cut->Write();
 	h_mphi_4c->Write();
 	h_mphi_final_4c->Write();
 	h_mphi_final_vtx->Write();
+	h_mphi_final_vtx_cut->Write();
 	h_mphi_final_massfit->Write();
 
 	nc->Write();
@@ -435,8 +493,13 @@ void run_ana_eta_c_stt(int nevts=0)
 	hvtxresZ->Write();
 
 	h_theta_p->Write();
-	h_theta_p_pos->Write();
-	h_theta_p_neg->Write();
+	h_dp_p->Write();
+	h_dp_theta->Write();
+	h_dp->Write();
+	h_dp_low->Write();
+	h_dp_high->Write();
+	
+	h_acc_stt->Write();
 	
 	out->Save();
 
