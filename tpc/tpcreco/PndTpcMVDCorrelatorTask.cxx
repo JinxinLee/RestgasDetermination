@@ -90,7 +90,10 @@ operator== (const DetPlaneWrapper& lhs, const DetPlaneWrapper& rhs) {
 
 bool
 operator< (const DetPlaneWrapper& lhs, const DetPlaneWrapper& rhs) {
-  return lhs.fPl.getO().Perp() < rhs.fPl.getO().Perp();
+  if(lhs==rhs)
+    return false;
+  else
+    return lhs.fPl.getO().Perp() < rhs.fPl.getO().Perp();
 }
 
 
@@ -198,7 +201,7 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
   //Bookkeeping. All pointers come from the input trees over the IO manager
   //Framework should handly ownership correctly, no manual cleaning up done.
   std::vector<GFAbsRecoHit*> recoHits;
-  std::map<DetPlaneWrapper, std::vector<GFAbsRecoHit*> > recoHitMap;
+  std::map<DetPlaneWrapper, std::vector<GFAbsRecoHit*>* > recoHitMap;
   std::map<GFAbsRecoHit*, std::pair<TString, unsigned int> > idMap;
   std::map<GFAbsRecoHit*, PndSdsHit*> conMap;
   std::map<PndSdsHit*, GFAbsRecoHit*> backMap;
@@ -284,13 +287,18 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
     //get (physical) detplanes and organize
     if(itr==0) {
       for(unsigned int ih=0; ih<recoHits.size(); ih++) {
-	//this extrapolates, I would rather like to get the physical detplane directly from the hit(-policy!)
+	//this extrapolates, I would rather like to get the physical detplane 
+	//directly from the hit(-policy!)
 	//wishlist for genfit
-	recoHitMap[DetPlaneWrapper(recoHits[ih]->getDetPlane(rep))].push_back(recoHits[ih]);
+	DetPlaneWrapper wr(recoHits[ih]->getDetPlane(rep));
+	if(recoHitMap.count(wr)==0) 
+	  recoHitMap[wr] = new std::vector<GFAbsRecoHit*>();
+	
+	recoHitMap[wr]->push_back(recoHits[ih]);
       }
       std::cout<<" PndTpcMVDCorrelatorTask::Exec() Found "<<recoHitMap.size()
-	     <<" distinct detplanes from "
-	     <<recoHits.size()<<" RecoHits."<<std::endl;
+	       <<" distinct detplanes from "
+	       <<recoHits.size()<<" RecoHits."<<std::endl;
     }
     
     if(fVerbose) std::cout<<"  ... processing TPC track no. "<<itr<<std::endl;
@@ -299,7 +307,7 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
     
     //Now calculate penetration point of track for each hit MVD plane
     std::map<DetPlaneWrapper, TVector2> penetrationMap; //not used now, for more efficient implemetnation later
-    std::map<DetPlaneWrapper, std::vector<GFAbsRecoHit*> >::iterator it;
+    std::map<DetPlaneWrapper, std::vector<GFAbsRecoHit*>* >::iterator it;
 
     std::vector<PndSdsHit*> tempCand;  //selected hits during extrapolation
         
@@ -312,8 +320,8 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
       TVector2 minRes(100.,100.);
       int bestMatch = -1;
       //loop over hits of the current DetPlane
-      for(unsigned int ihit=0; ihit<it->second.size(); ihit++) {
-	GFAbsRecoHit* exHit = it->second[ihit];
+      for(unsigned int ihit=0; ihit<it->second->size(); ihit++) {
+	GFAbsRecoHit* exHit = (*it->second)[ihit];
 	
 	//check for same hemisphere
 	TVector3 globPos;
@@ -361,7 +369,7 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
 	}
       }
       if(bestMatch > -1)
-	tempCand.push_back(conMap[(it->second[bestMatch])]);
+	tempCand.push_back(conMap[((*it->second)[bestMatch])]);
     } //end loop over all planes
     
 
@@ -484,15 +492,20 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
       } //end loop over bkg residuals
       
       double purity;
-      if(nBkg==0)
-	purity = fNPhys;
+      if(nPhys+nBkg==0) //should never happen
+	purity = 0;
       else
-	purity = ((double)nPhys)/((double)nBkg);
+	purity = ((double)nPhys)/((double)nPhys+nBkg);
       fGlobalPurities[i].push_back(purity);
 
     }//end loop over roadwidth intervals
   }
 
+  //clean up
+  std::map<DetPlaneWrapper, std::vector<GFAbsRecoHit*>* >::iterator it;
+  for(it = recoHitMap.begin(); it!=recoHitMap.end(); it++) 
+    delete it->second;
+  
   // std::cout <<"### Found "<< fOutTrackArray->GetEntries() << " tracks with MVD correlations." << std::endl; 
   
   return;
@@ -522,7 +535,7 @@ PndTpcMVDCorrelatorTask::WriteHistograms(const TString& fname) {
     fPurityGraph->GetHistogram()->GetYaxis()->SetTitle("Mean event purity");
     fPurityGraph->Write();
   }
-
+  
   rOut->Close();
 }
   
