@@ -31,9 +31,13 @@
 
 #include "GFDetPlane.h"
 
+#include <vector>
+#include <map>
+
 class TClonesArray;
 class GFRecoHitFactory;
 class TH1D;
+class TGraph;
 
 
 class PndTpcMVDCorrelatorTask : public FairTask {
@@ -53,20 +57,23 @@ public:
   void SetOutTrackBranchName(const TString& name) {fOutTrackBranchName=name;}
   void SetPixelBranchName(const TString& name) {fPixelBranchName=name;}
   void SetStripBranchName(const TString& name) {fStripBranchName=name;}
+  void SetClusterBranchNamer(const TString& name) {fClusterBranchName=name;}
   
   void SetMatchDistance(double d) {fMatchDistance=d;}
   void SetAngleCut(double a){fAngleCut=a;}
   void SetMinMVDHits(unsigned int n) {fMinMVDHits = n;}
+  //void SetScanTargetCut(bool opt=true) {fScan=opt;}
+  void SetScanStepping(unsigned int nSteps, double min, double max);
+  void SetNExpectedPhysicsTracks(unsigned int n) {fNPhys=n;}  //only needed for scanning
+  void SetMVDTimeWindow(double tw, double t0=0.) {fWindow=tw; ft0 = t0;}  //ns; MVD "mixing" timeframe
   
   void SetPersistence(Bool_t opt=kTRUE) {fPersistence=opt;}
-  void RequireMatch(bool opt=true) {fRequireMatch=opt;}
-  void MergeHits(bool opt=true){fMergeHits=opt;}
-
+  
   virtual InitStatus Init();
 
   virtual void Exec(Option_t* opt);
 
-  void WriteHistograms(const TString& fname) const;
+  void WriteHistograms(const TString& fname);
   
   
  private:
@@ -79,25 +86,39 @@ public:
   TString fOutTrackBranchName;
   TString fPixelBranchName;
   TString fStripBranchName;
+  TString fClusterBranchName;
   
   bool fPersistence;
-  bool fRequireMatch; //true: ONLY write out tracks with a MVD match!
   bool fMergeHits;    //merge found MVD hits into output track 
+  bool fScan;         //check background purities as a function of the roawidth
 
+  unsigned int fScanSteps;
   unsigned int fMinMVDHits;
+  unsigned int fNPhys;   //number of physics tracks (>=) required to fill purity data
   
   TClonesArray* fTrackArray;
   TClonesArray* fOutTrackArray;
   TClonesArray* fPixelArray;
   TClonesArray* fStripArray;
+  TClonesArray* fClusterArray;
 
   GFRecoHitFactory* fTheRecoHitFactory;
 
   TH1D* fResHistU;
   TH1D* fResHistV;
-  //TH1D* fResHistZ;
+  TGraph* fPurityGraph;
 
-  ClassDef(PndTpcMVDCorrelatorTask,1);
+
+
+  std::map<unsigned int, std::vector<double> > fGlobalPurities; //<roadwidth stepping, list of purities>
+  double fWindow;
+  double ft0;
+  double fScanMin;
+  double fScanMax;
+  double fInterval;
+    
+
+  ClassDef(PndTpcMVDCorrelatorTask,2);
   
 };
 

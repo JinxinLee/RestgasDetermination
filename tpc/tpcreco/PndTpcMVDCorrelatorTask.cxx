@@ -22,6 +22,7 @@
 // C/C++ Headers ----------------------
 #include <iostream>
 #include <assert.h>
+#include <set>
 
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
@@ -46,6 +47,7 @@
 #include "PndSdsRecoHit.h"
 
 #include "TH1D.h"
+#include "TGraph.h"
 #include "TVector2.h"
 
 // Class Member definitions -----------
@@ -93,13 +95,14 @@ operator< (const DetPlaneWrapper& lhs, const DetPlaneWrapper& rhs) {
 
 
 PndTpcMVDCorrelatorTask::PndTpcMVDCorrelatorTask()
-  : FairTask("TPC-MVD Correlator"), fPersistence(kFALSE), fMatchDistance(0.15), fAngleCut(TMath::PiOver2()),
-    fMinMVDHits(3), fRequireMatch(false)
+  : FairTask("TPC-MVD Correlator"), fPersistence(kFALSE), fMatchDistance(0.2), fAngleCut(TMath::PiOver2()),
+    fMinMVDHits(0), fWindow(10.), fScan(false), fScanSteps(0), fScanMin(0.), fScanMax(0.), fNPhys(0), ft0(0.)
 {
   fOutTrackBranchName = "TrackPreFitComplete";
   fTrackBranchName = "TrackPostFit";
-  fPixelBranchName = "MVDHitsPixel";
-  fStripBranchName = "MVDHitsStrip";
+  fPixelBranchName = "MVDHitsPixelMixed";
+  fStripBranchName = "MVDHitsStripMixed";
+  fClusterBranchName = "PndTpcCluster";
   fVerbose = 0;
 }
 
@@ -166,6 +169,15 @@ PndTpcMVDCorrelatorTask::Init()
     ;
   }
 
+  if(fScan) {
+    fClusterArray = (TClonesArray*) ioman->GetObject(fClusterBranchName);
+    if(fClusterArray==NULL) {
+      TString error = fClusterBranchName;
+      error.Append(" array not found");
+      Error("PndTpcMVDCorrelatorTask::Init", error);
+    }
+  }
+
   fResHistU = new TH1D("resHistU", "Extrapolation residual distribution U",  200, -2, 2);
   fResHistV = new TH1D("resHistV", "Extrapolation residual distribution V",  200, -2, 2);
   //fResHistZ = new TH1D("resHistZ", "Extrapolation residual distribution",  200, -2, 2);
@@ -199,8 +211,14 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
   for(unsigned int ipx=0; ipx<nPix; ipx++) {
     GFAbsRecoHit* ihit = fTheRecoHitFactory->createOne(ioman->GetBranchId(fPixelBranchName),
 						       ipx);
-    recoHits.push_back(ihit);
     PndSdsHit* sdsHit = (PndSdsHit*) fPixelArray->At(ipx);
+    
+    double timestamp = sdsHit->GetTimeStamp();
+    double difftime = fabs(timestamp - ft0);
+    if(difftime>fWindow)  
+      continue;             //ignore MVD hits outside time window
+    recoHits.push_back(ihit);
+    
     conMap[ihit] = sdsHit;
     backMap[sdsHit] = ihit;
     
@@ -212,8 +230,13 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
   for(unsigned int ist=0; ist<nStr; ist++) {
     GFAbsRecoHit* ihit = fTheRecoHitFactory->createOne(ioman->GetBranchId(fStripBranchName),
 						       ist);
-    recoHits.push_back(ihit);
     PndSdsHit* sdsHit = (PndSdsHit*) fStripArray->At(ist);
+    double timestamp = sdsHit->GetTimeStamp();
+    double difftime = fabs(timestamp - ft0);
+    if(difftime>fWindow)  
+      continue;             //ignore MVD hits outside time window
+    recoHits.push_back(ihit);
+    
     conMap[ihit] = sdsHit;
     backMap[sdsHit] = ihit;
     
@@ -224,10 +247,36 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
   }
 
   unsigned int ntracks = fTrackArray->GetEntriesFast();
+  std::map<unsigned int, std::vector<double> > fPhysResMap;  //<track nb, list of residuals>
+  std::map<unsigned int, std::vector<double> > fBkgResMap;  //<track nb, list of residuals>
+ 
+  
    
   //loop over tracks
   for(unsigned int itr=0;  itr<ntracks; itr++) {
     GFTrack* track = (GFTrack*) (*fTrackArray)[itr];
+    bool fPhys = true;
+    if(fScan) {
+      //decide whether this is a physics or a bg track
+      McIdCollection idc;
+      GFTrackCand trCand = track->getCand();
+      std::vector<unsigned int> detIDs = trCand.GetDetIDs(); 
+      std::set<unsigned int> IDset;
+      for(unsigned int id=0; id<detIDs.size(); id++)
+	IDset.insert(detIDs[id]);
+      assert(IDset.size()==1);                       //assuming a pure TPC track
+      std::vector<unsigned int> clustIDs = trCand.GetHitIDs(detIDs[0]);
+      //loop over clusters
+      for(unsigned int icl=0; icl<clustIDs.size(); icl++) {
+	PndTpcCluster* cl = (PndTpcCluster*) fClusterArray->At(clustIDs[icl]);
+	idc.AddIDCollection(cl->mcId());
+      } //end loop over clusters
+      //convention: physics event has ID 0, bkg > 0 :
+      unsigned int eventID = idc.DominantID().mceventID();
+      if(eventID!=0)
+	fPhys=false;
+    }      
+      
     GFAbsTrackRep* rep = track->getCardinalRep();
     TVector3 trkStartPos=track->getPos();
     trkStartPos.SetZ(0.); //we're only interested in the XY projection of the angle
@@ -239,11 +288,11 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
 	//wishlist for genfit
 	recoHitMap[DetPlaneWrapper(recoHits[ih]->getDetPlane(rep))].push_back(recoHits[ih]);
       }
-    }
-    std::cout<<" PndTpcMVDCorrelatorTask::Exec() Found "<<recoHitMap.size()
+      std::cout<<" PndTpcMVDCorrelatorTask::Exec() Found "<<recoHitMap.size()
 	     <<" distinct detplanes from "
 	     <<recoHits.size()<<" RecoHits."<<std::endl;
-
+    }
+    
     if(fVerbose) std::cout<<"  ... processing TPC track no. "<<itr<<std::endl;
 
     //end of general preparations -------------------------------------------------
@@ -291,11 +340,19 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
 	if(ok)  //residual calculation went ok for this plane
 	  penetrationMap[it->first] = negRes;
 	
-	else
+	else {
 	  penetrationMap[it->first] = TVector2(-100,-100);
+	  continue;
+	}
 	
 	fResHistU->Fill(negRes.X());
 	fResHistV->Fill(negRes.Y());
+	//TODO: ONLY THE BEST MATCH!
+	if(fPhys)
+	  fPhysResMap[itr].push_back(negRes.Mod());
+	else
+	  fBkgResMap[itr].push_back(negRes.Mod());
+	
 	if(negRes.Mod() > fMatchDistance)
 	  continue;
 	if(negRes.Mod() < minRes.Mod()) {
@@ -362,6 +419,9 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
     
     std::cout<<"======= TempCand from found MVD pixel/strip hits has size "<<
       tempCand.size()<<" =======\n"<<std::endl;
+
+    if(tempCand.size()<fMinMVDHits)
+      continue;  //do not write an output track
     
     
     std::sort(tempCand.begin(), tempCand.end(), sortByR);
@@ -396,22 +456,86 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
     delete tmpTrack;
   } //end loop over tracks
 
+  //analize purities
+  if(fScan && fPhysResMap.size() >= fNPhys) {
+    for(unsigned int i=0; i<fScanSteps; i++){  //loop over roadwidth intervals
+      unsigned int nPhys = 0;
+      unsigned int nBkg = 0;
+      double cut = fScanMin+(i*fInterval);
+      std::map<unsigned int, std::vector<double> >::const_iterator it;
+      //loop over physics map of residuals
+      for(it = fPhysResMap.begin(); it!=fPhysResMap.end(); it++) {
+	unsigned int nInside = 0;
+	for(unsigned int nR = 0; nR<it->second.size(); nR++) 
+	  if((it->second)[nR] <= cut)
+	    nInside++;
+	if(nInside>=fMinMVDHits)
+	  nPhys++;
+      } //end loop over physics residuals
+      
+      //loop over bkg map of residuals
+      for(it = fBkgResMap.begin(); it!=fBkgResMap.end(); it++) {
+	unsigned int nInside = 0;
+	for(unsigned int nR = 0; nR<it->second.size(); nR++) 
+	  if((it->second)[nR] <= cut)
+	    nInside++;
+	if(nInside>=fMinMVDHits)
+	  nBkg++;
+      } //end loop over bkg residuals
+      
+      double purity;
+      if(nBkg==0)
+	purity = fNPhys;
+      else
+	purity = ((double)nPhys)/((double)nBkg);
+      fGlobalPurities[i].push_back(purity);
+
+    }//end loop over roadwidth intervals
+  }
+
   // std::cout <<"### Found "<< fOutTrackArray->GetEntries() << " tracks with MVD correlations." << std::endl; 
   
   return;
 }
 
 void
-PndTpcMVDCorrelatorTask::WriteHistograms(const TString& fname) const {
+PndTpcMVDCorrelatorTask::WriteHistograms(const TString& fname) {
   TFile* rOut = new TFile(fname, "recreate");
   rOut->cd();
   fResHistU->Write();
   fResHistV->Write();
   //fResHistZ->Write();
+
+  if(fScan) {
+    for(unsigned int is=0; is<fScanSteps; is++) {
+      double cut = is*fInterval + fScanMin;
+      std::vector<double> purities = fGlobalPurities[is];
+      double pur=0.;
+      for(unsigned int ip=0; ip<purities.size(); ip++) 
+	pur+=purities[ip];
+      pur = pur/((double)purities.size());
+      fPurityGraph->SetPoint(is,cut,pur);
+    }
+    fPurityGraph->SetName("purityVsRoadWidth");
+    fPurityGraph->SetTitle("");
+    fPurityGraph->GetHistogram()->GetXaxis()->SetTitle("Correlation roadwith (cm)");
+    fPurityGraph->GetHistogram()->GetYaxis()->SetTitle("Mean event purity");
+    fPurityGraph->Write();
+  }
+
   rOut->Close();
 }
   
-  
+
+void
+PndTpcMVDCorrelatorTask::SetScanStepping(unsigned int n, double min, double max) {
+  fScanSteps = n;
+  fScanMin = min;
+  fScanMax = max;
+  fInterval = (max-min)/((double) n);
+  fScan = true;
+  fPurityGraph = new TGraph(fScanSteps);
+}
   
 
 
