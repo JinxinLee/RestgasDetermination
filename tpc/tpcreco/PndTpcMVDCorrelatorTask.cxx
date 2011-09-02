@@ -99,7 +99,7 @@ operator< (const DetPlaneWrapper& lhs, const DetPlaneWrapper& rhs) {
 
 PndTpcMVDCorrelatorTask::PndTpcMVDCorrelatorTask()
   : FairTask("TPC-MVD Correlator"), fPersistence(kFALSE), fMatchDistance(0.2), fAngleCut(TMath::PiOver2()),
-    fMinMVDHits(0), fWindow(10.), fScan(false), fScanSteps(0), fScanMin(0.), fScanMax(0.), fNPhys(0), ft0(0.)
+    fMinMVDHits(0), fWindow(10.), fScan(false), fScanSteps(0), fScanMin(0.), fScanMax(0.), fNPhys(0), ft0(0.), fTot(0)
 {
   fOutTrackBranchName = "TrackPreFitComplete";
   fTrackBranchName = "TrackPostFit";
@@ -156,7 +156,8 @@ PndTpcMVDCorrelatorTask::Init()
   } 
   else {
     fTheRecoHitFactory->addProducer
-      (ioman->GetBranchId(fStripBranchName),new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(fStripArray));
+      (ioman->GetBranchId(fStripBranchName),
+       new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(fStripArray));
     ;
   }
   
@@ -183,6 +184,15 @@ PndTpcMVDCorrelatorTask::Init()
 
   fResHistU = new TH1D("resHistU", "Extrapolation residual distribution U",  200, -2, 2);
   fResHistV = new TH1D("resHistV", "Extrapolation residual distribution V",  200, -2, 2);
+  if(fScan) {
+    fResHistUBkg = new TH1D("resHistUBkg", 
+			    "Extrapolation residual distribution U Background",  200, -2, 2);
+    fResHistVBkg = new TH1D("resHistVBkg", 
+			    "Extrapolation residual distribution V Background",  200, -2, 2);
+    fTotHist = new TH1D("nPhys", "Number of complete physics events (nTr >= nPhys)",
+			100,0,100);
+    
+  }
   //fResHistZ = new TH1D("resHistZ", "Extrapolation residual distribution",  200, -2, 2);
   
   return kSUCCESS;
@@ -212,14 +222,15 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
   unsigned int nStr = fStripArray->GetEntriesFast();
   //create recohits from MVD hits 
   for(unsigned int ipx=0; ipx<nPix; ipx++) {
-    GFAbsRecoHit* ihit = fTheRecoHitFactory->createOne(ioman->GetBranchId(fPixelBranchName),
-						       ipx);
     PndSdsHit* sdsHit = (PndSdsHit*) fPixelArray->At(ipx);
-    
     double timestamp = sdsHit->GetTimeStamp();
     double difftime = fabs(timestamp - ft0);
     if(difftime>fWindow)  
       continue;             //ignore MVD hits outside time window
+    
+    GFAbsRecoHit* ihit = fTheRecoHitFactory->createOne(ioman->GetBranchId(fPixelBranchName),
+						       ipx);
+    
     recoHits.push_back(ihit);
     
     conMap[ihit] = sdsHit;
@@ -231,13 +242,14 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
     idMap[ihit] = p;
   }
   for(unsigned int ist=0; ist<nStr; ist++) {
-    GFAbsRecoHit* ihit = fTheRecoHitFactory->createOne(ioman->GetBranchId(fStripBranchName),
-						       ist);
     PndSdsHit* sdsHit = (PndSdsHit*) fStripArray->At(ist);
     double timestamp = sdsHit->GetTimeStamp();
     double difftime = fabs(timestamp - ft0);
     if(difftime>fWindow)  
       continue;             //ignore MVD hits outside time window
+    GFAbsRecoHit* ihit = fTheRecoHitFactory->createOne(ioman->GetBranchId(fStripBranchName),
+						       ist);
+    
     recoHits.push_back(ihit);
     
     conMap[ihit] = sdsHit;
@@ -326,6 +338,7 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
 	//check for same hemisphere
 	TVector3 globPos;
 	conMap[exHit]->Position(globPos);
+	TVector3 hitPos(globPos);
 	globPos.SetZ(0.);
 	double angle = trkStartPos.Angle(globPos);
 	if(fabs(angle)>fAngleCut) {
@@ -336,9 +349,13 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
 	
 	TMatrixT<double> statePred(5,1);
 	TMatrixT<double> covPred(5,5);
+	TVector3 poca, dir;
 	try {
-	  rep->extrapolate(pl,statePred,covPred);
-	  res = exHit->residualVector(rep,statePred,pl);
+	  //rep->extrapolate(pl,statePred,covPred);
+	  //res = exHit->residualVector(rep,statePred,pl);
+	  rep->extrapolateToPoint(hitPos,poca,dir);
+	  res[0][0] = (hitPos-poca).Mag();
+	  res[1][0] = 0.;
 	}
 	catch(GFException& ex) {
 	  ok=false;
@@ -353,9 +370,15 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
 	  continue;
 	}
 	
-	fResHistU->Fill(negRes.X());
-	fResHistV->Fill(negRes.Y());
-	//TODO: ONLY THE BEST MATCH!
+	if(fPhys) {  //always true if fScan is false
+	  fResHistU->Fill(negRes.X());
+	  fResHistV->Fill(negRes.Y());
+	}
+	else {
+	  fResHistUBkg->Fill(negRes.X());
+	  fResHistVBkg->Fill(negRes.Y());
+	}
+	
 	if(fPhys)
 	  fPhysResMap[itr].push_back(negRes.Mod());
 	else
@@ -466,6 +489,7 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
 
   //analize purities
   if(fScan && fPhysResMap.size() >= fNPhys) {
+    fTot++;
     for(unsigned int i=0; i<fScanSteps; i++){  //loop over roadwidth intervals
       unsigned int nPhys = 0;
       unsigned int nBkg = 0;
@@ -497,7 +521,9 @@ PndTpcMVDCorrelatorTask::Exec(Option_t* opt)
       else
 	purity = ((double)nPhys)/((double)nPhys+nBkg);
       fGlobalPurities[i].push_back(purity);
-
+      if(fPhysResMap.size() == nPhys)
+	fEffMap[i]+=1;
+      
     }//end loop over roadwidth intervals
   }
 
@@ -517,6 +543,12 @@ PndTpcMVDCorrelatorTask::WriteHistograms(const TString& fname) {
   rOut->cd();
   fResHistU->Write();
   fResHistV->Write();
+  if(fScan) {
+    fResHistUBkg->Write();
+    fResHistVBkg->Write();
+    fTotHist->Fill(fTot);
+    fTotHist->Write();
+  }
   //fResHistZ->Write();
 
   if(fScan) {
@@ -528,14 +560,21 @@ PndTpcMVDCorrelatorTask::WriteHistograms(const TString& fname) {
 	pur+=purities[ip];
       pur = pur/((double)purities.size());
       fPurityGraph->SetPoint(is,cut,pur);
+      double eff = ((double)fEffMap[is]) / ((double)fTot);
+      fEffGraph->SetPoint(is, cut, eff);
     }
     fPurityGraph->SetName("purityVsRoadWidth");
     fPurityGraph->SetTitle("");
     fPurityGraph->GetHistogram()->GetXaxis()->SetTitle("Correlation roadwith (cm)");
     fPurityGraph->GetHistogram()->GetYaxis()->SetTitle("Mean event purity");
     fPurityGraph->Write();
+    fEffGraph->SetName("effVsRoadWidth");
+    fEffGraph->SetTitle("");
+    fEffGraph->GetHistogram()->GetXaxis()->SetTitle("Correlation roadwith (cm)");
+    fEffGraph->GetHistogram()->GetYaxis()->SetTitle("Total event efficiency");
+    fEffGraph->Write();
   }
-  
+
   rOut->Close();
 }
   
@@ -548,6 +587,7 @@ PndTpcMVDCorrelatorTask::SetScanStepping(unsigned int n, double min, double max)
   fInterval = (max-min)/((double) n);
   fScan = true;
   fPurityGraph = new TGraph(fScanSteps);
+  fEffGraph = new TGraph(fScanSteps);
 }
   
 

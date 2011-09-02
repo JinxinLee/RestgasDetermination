@@ -95,6 +95,8 @@ public:
   unsigned int fScanSteps;
   unsigned int fMinMVDHits;
   unsigned int fNPhys;   //number of physics tracks (>=) required to fill purity data
+  unsigned int fTot;
+    
   
   TClonesArray* fTrackArray;
   TClonesArray* fOutTrackArray;
@@ -106,11 +108,16 @@ public:
 
   TH1D* fResHistU;
   TH1D* fResHistV;
+  TH1D* fResHistUBkg;
+  TH1D* fResHistVBkg;
+  TH1D* fTotHist;
   TGraph* fPurityGraph;
+  TGraph* fEffGraph;
 
 
 
   std::map<unsigned int, std::vector<double> > fGlobalPurities; //<roadwidth stepping, list of purities>
+  std::map<unsigned int, unsigned int> fEffMap;   //<roadwidth, number of corr. found tracks>
   double fWindow;
   double ft0;
   double fScanMin;
