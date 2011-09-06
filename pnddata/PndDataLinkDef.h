@@ -19,6 +19,7 @@
 #pragma link C++ class PndDrcBarPoint+;
 #pragma link C++ class PndDrcHit+;
 #pragma link C++ class PndDrcPDHit+;
+#pragma link C++ class PndDrcDigi+;
 
 #pragma link C++ class PndDrpcPoint+;
 #pragma link C++ class PndDrpcPointLite+;
