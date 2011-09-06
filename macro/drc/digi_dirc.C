@@ -9,12 +9,13 @@
 // Macro created by Radoslaw Karabowicz
 // This macro takes MC file and produces digis only
 
-Int_t gem_digi(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, int verboseLevel = 0)
+Int_t digi_dirc(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, int verboseLevel = 0)
 { 
-  if ( nStations != 3 && nStations != 4 ) {
-    cout << "WRONG number of stations, only 3 or 4 allowed." << endl;
-    return;
-  }
+  if ( nStations != 3 && nStations != 4 ) 
+    {
+      cout << "WRONG number of stations, only 3 or 4 allowed." << endl;
+      return;
+    }
 
   // ----  Load libraries   -------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -42,8 +43,7 @@ Int_t gem_digi(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, i
   
 
   // -----  Parameter database   --------------------------------------------
-  TString allDigiFile = sysFile+"/macro/params/gem_3Stations.digi.par";
-  if ( nStations == 4 ) allDigiFile = sysFile+"/macro/params/gem_4Stations.digi.par";
+  TString allDigiFile = sysFile+"/macro/params/pid.par";
 
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
