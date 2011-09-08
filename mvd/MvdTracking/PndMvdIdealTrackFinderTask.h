@@ -14,7 +14,7 @@
 //#include "PndMvdGeoPar.h"
 #include "PndSdsHit.h"
 #include "PndSdsMCPoint.h"
-#include "PndMvdPixel.h"
+//#include "PndMvdPixel.h"
 #include "PndSdsCluster.h"
 #include "PndTrackCand.h"
 //#include "TrackCand.h"
