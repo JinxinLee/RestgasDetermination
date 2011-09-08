@@ -70,24 +70,16 @@
 #pragma link C++ class  PndSdsHit+;
 //#pragma link C++ class  PndSdsHitInfo+;
 #pragma link C++ class  PndSdsPidCand+;
-//#pragma link C++ class  PndSdsPixel+;
+#pragma link C++ class  PndSdsPixel+;
 #pragma link C++ class  PndSdsRadDamHit+;
-//#pragma link C++ class  PndSdsStrip+;
+#pragma link C++ class  PndSdsStrip+;
 #pragma link C++ class  PndSdsDigiPixelMCInfo+;
 
 #pragma link C++ class  PndMvdApvHit+;
-//#pragma link C++ class  PndMvdCluster+;
-//#pragma link C++ class  PndMvdClusterPixel+;
-//#pragma link C++ class  PndMvdClusterStrip+;
-//#pragma link C++ class  PndMvdDigi+;
-//#pragma link C++ class  PndMvdDigiPixel+;
-//#pragma link C++ class  PndMvdDigiStrip+;
-//#pragma link C++ class  PndMvdHit+;
-//#pragma link C++ class  PndMvdMCPoint+;
 #pragma link C++ class  PndMvdPidCand+;
-#pragma link C++ class  PndMvdPixel+;
+//#pragma link C++ class  PndMvdPixel+;
 #pragma link C++ class  PndMvdRadDamHit+;
-#pragma link C++ class  PndMvdStrip+;
+//#pragma link C++ class  PndMvdStrip+;
 
 
 #pragma link C++ class PndTrackCand+;

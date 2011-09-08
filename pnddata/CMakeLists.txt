@@ -89,15 +89,7 @@ SdsData/PndSdsPidCand.cxx
 SdsData/PndSdsRadDamHit.cxx
 SdsData/PndSdsDigiPixelMCInfo.cxx
  
-
-#MvdData/PndMvdCluster.cxx
-#MvdData/PndMvdClusterPixel.cxx
-#MvdData/PndMvdClusterStrip.cxx
-#MvdData/PndMvdDigi.cxx
-#MvdData/PndMvdDigiPixel.cxx
-#MvdData/PndMvdDigiStrip.cxx
-#MvdData/PndMvdHit.cxx
-#MvdData/PndMvdMCPoint.cxx
+MvdData/PndMvdApvHit.cxx
 MvdData/PndMvdPidCand.cxx
 MvdData/PndMvdRadDamHit.cxx
 
@@ -116,7 +108,6 @@ endif(RULE_CHECKER_FOUND)
 # by exchanging the file extension
 CHANGE_FILE_EXTENSION(*.cxx *.h PNDDATA_HEADERS "${PNDDATA_SRCS}")
 SET( PNDDATA_HEADERS ${PNDDATA_HEADERS} HypData/PndHypStrip.h PndDetectorList.h )
-SET( PNDDATA_HEADERS ${PNDDATA_HEADERS} MvdData/PndMvdStrip.h MvdData/PndMvdApvHit.h MvdData/PndMvdPixel.h)
 
 set(PNDDATA_LINKDEF  PndDataLinkDef.h)
 set(PNDDATA_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndDataDict.cxx) 
