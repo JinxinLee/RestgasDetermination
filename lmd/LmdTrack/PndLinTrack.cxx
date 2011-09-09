@@ -67,24 +67,6 @@ TVector3 PndLinTrack::GetDirectionErrVec(){
 }
 
 void PndLinTrack::GetParErr(Double_t* errpar){ 
-  // errpar[0] = TMath::Sqrt(fabs((fCovMatrix)(0,0))+2*fabs((fCovMatrix)(0,1))+2*fabs((fCovMatrix)(0,2))
-  // 			  +2*fabs((fCovMatrix)(0,3))+2*fabs((fCovMatrix)(0,4))+2*fabs((fCovMatrix)(0,5)));
-
-  // errpar[1] = TMath::Sqrt(fabs((fCovMatrix)(1,1))+2*fabs((fCovMatrix)(0,1))+2*fabs((fCovMatrix)(1,2))
-  // 			  +2*fabs((fCovMatrix)(1,3))+2*fabs((fCovMatrix)(1,4))+2*fabs((fCovMatrix)(1,5)));
-
-  // errpar[2] = TMath::Sqrt(fabs((fCovMatrix)(2,2))+2*fabs((fCovMatrix)(0,2))+2*fabs((fCovMatrix)(1,2))
-  // 			  +2*fabs((fCovMatrix)(2,3))+2*fabs((fCovMatrix)(2,4))+2*fabs((fCovMatrix)(2,5)));
-
-  // errpar[3] = TMath::Sqrt(fabs((fCovMatrix)(3,3))+2*fabs((fCovMatrix)(0,3))+2*fabs((fCovMatrix)(1,3))
-  // 			  +2*fabs((fCovMatrix)(2,3))+2*fabs((fCovMatrix)(3,4))+2*fabs((fCovMatrix)(3,5)));
-  
-  // errpar[4] = TMath::Sqrt(fabs((fCovMatrix)(4,4))+2*fabs((fCovMatrix)(0,4))+2*fabs((fCovMatrix)(1,4))
-  // 			  +2*fabs((fCovMatrix)(2,4))+2*fabs((fCovMatrix)(3,4))+2*fabs((fCovMatrix)(4,5)));
-
-  // errpar[5] = TMath::Sqrt(fabs((fCovMatrix)(5,5))+2*fabs((fCovMatrix)(0,5))+2*fabs((fCovMatrix)(1,5))
-  // 			  +2*fabs((fCovMatrix)(2,5))+2*fabs((fCovMatrix)(3,5))+2*fabs((fCovMatrix)(4,5)));
-
   errpar[0] = TMath::Sqrt((fCovMatrix)(0,0));
   errpar[1] = TMath::Sqrt((fCovMatrix)(1,1));
   errpar[2] = TMath::Sqrt((fCovMatrix)(2,2));
