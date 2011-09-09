@@ -74,7 +74,11 @@ void runLumi3Finder(const int nEvents=100000, const int startEvent=0, TString st
   // =========================================================================
   
   // -----    MVD hit producer   --------------------------------------------
-  if(Method=="Follow") PndLmdTrackFinderTask* lmdfinder = new PndLmdTrackFinderTask();
+  if(Method=="Follow"){
+    int FinderMode=0;
+    if(missPl==true) FinderMode=1;
+    PndLmdTrackFinderTask* lmdfinder = new PndLmdTrackFinderTask(FinderMode);
+  }
   else{
     if(Method=="CA") PndLmdTrackFinderCATask* lmdfinder = new PndLmdTrackFinderCATask(missPl);
     else{
