@@ -71,12 +71,12 @@ InitStatus PndLmdGeaneTask::Init()
     return kFATAL;
   }
 
-  // Get input arrays
-  fMCTracks = (TClonesArray*) ioman->GetObject("MCTrack");
-  if (!fMCTracks){
-    std::cout << "-W- PndLmdGeaneTask::Init: "<< "No MCTrack" << " array!" << std::endl;
-    return kERROR;
-  }
+  // // Get input arrays
+  // fMCTracks = (TClonesArray*) ioman->GetObject("MCTrack");
+  // if (!fMCTracks){
+  //   std::cout << "-W- PndLmdGeaneTask::Init: "<< "No MCTrack" << " array!" << std::endl;
+  //   return kERROR;
+  // }
 
   fMCHits = (TClonesArray*) ioman->GetObject("LMDPoint");
   if ( !fMCHits)	{
@@ -176,26 +176,20 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
       TVector3 DirVec =  recTrack->GetDirectionVec();
       StartMom = TVector3(DirVec.X()*fPbeam,DirVec.Y()*fPbeam,DirVec.Z()*fPbeam); 
       StartPos = recTrack->GetStartVec();
-      // TVector3 StartPosOut;
-      // StartPosOut.SetZ(StartPos.Z()-0.008);
-      // StartPosOut.SetX(StartPos.X() - 0.008*DirVec.X());
-      // StartPosOut.SetY(StartPos.Y() - 0.008*DirVec.Y());
       StartPosErr = recTrack->GetStartErrVec();
-      //   StartPosErr.SetZ(1000.); //TEST
-      // StartPosErr.SetZ(TMath::Hypot(StartPosErr.Z(),StartPosErr.X()*sin(2.326)));
       StartMomErr = (recTrack->GetDirectionErrVec())*fPbeam;
-      
-      // // cout<<"------------------------------------------"<<endl;      
-      // cout<<"StartPos:"<<endl;
-      // StartPos.Print();
-      // cout<<"StartPosErr:"<<endl;
-      // StartPosErr.Print();
-
-      // cout<<"StartMom: "<<StartMom.Mag()<<endl;
-      // StartMom.Print();
-      // cout<<"StartMomErr: "<<StartMomErr.Mag()<<endl;
-      // StartMomErr.Print();     
-
+       if(fVerbose>2){
+	 cout<<"------------------------------------------"<<endl;      
+	 cout<<"StartPos:"<<endl;
+	 StartPos.Print();
+	 cout<<"StartPosErr:"<<endl;
+	 StartPosErr.Print();
+	 cout<<""<<endl;
+	 cout<<"StartMom: "<<StartMom.Mag()<<endl;
+	 StartMom.Print();
+	 cout<<"StartMomErr: "<<StartMomErr.Mag()<<endl;
+	 StartMomErr.Print();     
+       }
       TClonesArray& clref1 = *fTrackParIni;
       Int_t size1 = clref1.GetEntriesFast();
 
@@ -252,29 +246,31 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
       TVector3 gErrPos(fRes->GetDX(),fRes->GetDY(),fRes->GetDZ());
       TVector3 gErrMom(fRes->GetDPx(),fRes->GetDPy(),fRes->GetDPz());
       // cout<<" "<<endl;
-      // cout<<"================= %%%% ===================="<<endl;
+      if(fVerbose>2){
+	//      cout<<"================= %%%% ===================="<<endl;
       
-      // cout<<"gPos:"<<endl;
-      // gPos.Print();
-      // // cout<<"difference between final and initial point = "<<(-StartPos.Mag()+gPos.Mag())<<endl;
-      // cout<<"gErrPos:"<<endl;
-      // gErrPos.Print();
-      // //  cout<<"difference between final and initial point error = "<<(-StartPosErr.Mag()+gErrPos.Mag())<<endl;
+      cout<<"gPos:"<<endl;
+      gPos.Print();
+      // cout<<"difference between final and initial point = "<<(-StartPos.Mag()+gPos.Mag())<<endl;
+      cout<<"gErrPos:"<<endl;
+      gErrPos.Print();
+      //  cout<<"difference between final and initial point error = "<<(-StartPosErr.Mag()+gErrPos.Mag())<<endl;
 
-      // cout<<"gMom: "<<gMom.Mag()<<endl;
-      // gMom.Print();   
-      // // cout<<"difference between initial and final momentum = "<<(StartMom.Mag()-gMom.Mag())<<endl;
-      // cout<<"gErrMom: "<<gErrMom.Mag()<<endl;
-      // // cout<<"difference between initial and final momentum error= "<<(StartMomErr.Mag()-gErrMom.Mag())<<endl;
-      // gErrMom.Print();
-      // cout<<"================= %%%% ===================="<<endl;
+      cout<<"gMom: "<<gMom.Mag()<<endl;
+      gMom.Print();   
+      // cout<<"difference between initial and final momentum = "<<(StartMom.Mag()-gMom.Mag())<<endl;
+      cout<<"gErrMom: "<<gErrMom.Mag()<<endl;
+      // cout<<"difference between initial and final momentum error= "<<(StartMomErr.Mag()-gErrMom.Mag())<<endl;
+      gErrMom.Print();
+      cout<<"================= %%%% ===================="<<endl;
+      }
       //------------------------------------------
       
       if(isProp == kTRUE){
 	new((*fTrackParFinal)[counterGeaneTrk]) FairTrackParH(*(fRes)); //save Track
 	//	new((*fTrackParFinal)[counterGeaneTrk]) FairTrackParP(*(fRes)); //save Track
 	counterGeaneTrk++;
-	//cout<<"***** isProp TRUE *****"<<endl;
+	cout<<"***** isProp TRUE *****"<<endl;
       }
       else{
 	cout<<"!!! Back-propagation with GEANE didn't return result !!!"<<endl;
@@ -292,9 +288,9 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
 	counterGeaneTrk++;
       }
   }
-  fMCTracks->Delete();
+  // fMCTracks->Delete();
   fMCHits->Delete();
-  //  cout<<"PndLmdGeaneTask::Exec END!"<<endl;
+  cout<<"PndLmdGeaneTask::Exec END!"<<endl;
 }
 
 void PndLmdGeaneTask::Finish()

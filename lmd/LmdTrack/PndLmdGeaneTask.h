@@ -77,7 +77,7 @@ class PndLmdGeaneTask : public FairTask
 
   // Input Data ----------
   TClonesArray* fMCHits;
-  TClonesArray* fMCTracks;
+  /* TClonesArray* fMCTracks; */
 
   TClonesArray* fTracks; //Real tracks
   TClonesArray* fHits; //Real hits
