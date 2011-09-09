@@ -3,8 +3,6 @@
 // -------------------------------------------------------------------------
 
 #include "PndSorterTask.h"
-#include "TClonesArray.h"
-
 #include "FairRootManager.h"
 
 

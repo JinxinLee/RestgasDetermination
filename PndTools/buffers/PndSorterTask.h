@@ -7,11 +7,11 @@
 #define PndSorterTask_H
 
 #include "FairTask.h"
-#include "PndRingSorter.h"
-#include "PndSdsDigiPixel.h"
-#include "PndSdsDigiStrip.h"
 
-#include "FairMCEventHeader.h"
+#include "TClonesArray.h"
+
+#include "PndRingSorter.h"
+
 
 class TClonesArray;
 
