@@ -12,6 +12,9 @@
 #pragma link C++ class PndSorterTaskT <PndSdsDigiPixel>+;
 #pragma link C++ class PndSorterTaskT <PndSdsDigiStrip>+;
 
+#pragma link C++ class PndRingSorter;
+#pragma link C++ class PndSorterTask;
+
 
 #endif
 
