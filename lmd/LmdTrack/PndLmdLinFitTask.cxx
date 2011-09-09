@@ -31,8 +31,6 @@
 #include <TMath.h>
 #include <TVector3.h>
 #include <TRandom2.h>
-//#include <TStyle.h>
-//#include <TCanvas.h>
 #include <TF2.h>
 #include <TH1.h>
 #include <TVirtualFitter.h>
@@ -44,17 +42,10 @@
 #include <TGraph2D.h>
 #include <TGraph2DErrors.h>
 #include <TLine.h>
-//#include <PndSdsMCPoint.h>
 #include <TMultiGraph.h>
 #include <TPolyLine3D.h>
 using namespace ROOT::Math;
 using namespace std;
-
-
-// TH1 *hchi2_0 = new TH1F("hchi2_0","#chi^{2};",4,-0.1,2.);
-// TH1 *hchi2_1 = new TH1F("hchi2_1","#chi^{2};",40,-1,20.);
-// TH1 *hchi2_2 = new TH1F("hchi2_2","#chi^{2};",100,-1,50.);
-// TH1 *hchi2_3 = new TH1F("hchi2_3","#chi^{2};",100,-1,50.);
 
 PndLmdLinFitTask::PndLmdLinFitTask()
   : FairTask("3D-Straight-Line-Fit")
@@ -146,25 +137,15 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
   {
     PndTrackCand* trcnd = (PndTrackCand*)fTCandArray->At(track);
     const int numPts = trcnd->GetNHits(); //read how many points in this track
-
-   
-
-    /// Obtain first approximation
+    /// Obtain first approximation ----------
     TVector3 posSeed = trcnd->getPosSeed();
-    // cout<<"posSeed = "<<endl;
-    // posSeed.Print();
     TVector3 dirSeed = trcnd->getDirSeed();
-    // cout<<"dirSeed = "<<endl;
-    // dirSeed.Print();
-    // if(dirSeed.Theta()<3e-2 || dirSeed.Theta()>5e-2 ||  fabs(dirSeed.Phi())>0.26){
-    //   PndLinTrack* trackfit = new PndLinTrack();
-    //   new((*fTrackArray)[track]) PndLinTrack(*(trackfit)); //save NULL Track
-    //   delete trackfit;
-    // }
-    if(dirSeed.Theta()<3e-2 || dirSeed.Theta()>5e-2 ||  fabs(dirSeed.Phi())>0.26) continue;
+    if(dirSeed.Theta()<3e-2 || dirSeed.Theta()>5e-2 ||  fabs(dirSeed.Phi())>0.3){
+      if(fVerbose>2) cout<<"Trk-cand doesn't pass throw limit (dirSeed.Theta() = "<<dirSeed.Theta()<<" dirSeed.Phi() = "<<dirSeed.Phi()<<")"<<endl;
+      continue;
+    }
     if(fVerbose>2) std::cout << "Track: "<< track<< " Points: "<< numPts <<std::endl;
-    // if(dirSeed.Theta()>5e-5) continue;
-    ///------------------------------
+    ///--------------------------------------
 
     TGraph2DErrors fitme(numPts); //new graph for fitting
     Int_t firstHit=-1, lastHit=-1;
@@ -180,16 +161,9 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
          lastHit=index;
       PndSdsHit* addHit = (PndSdsHit*) fRecoArray->At(index);
       TVector3 addPos = addHit->GetPosition();
-      // cout<<"#"<<ihit<<" addPos:"<<endl;
       addPos.Print();
       fitme.SetPoint(ihit, addPos.X(), addPos.Y(), addPos.Z());
       fitme.SetPointError(ihit, addHit->GetDx(), addHit->GetDy(), addHit->GetDz());
-
-      //   PndSdsMCPoint *addHit = (PndSdsMCPoint*) fTruePointArray->At(index); //TEST ideal fit
-      // TVector3 addPos = addHit->GetPosition();
-      // fitme.SetPoint(ihit, addPos.X(), addPos.Y(), addPos.Z());
-      // PndSdsHit* recHit = (PndSdsHit*) fRecoArray->At(index);
-      // fitme.SetPointError(ihit, recHit->GetDx(), recHit->GetDy(), recHit->GetDz());
     }//end of Hits in TCand
 
 
@@ -204,24 +178,11 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
     new((*fTrackArray)[rec_tkr]) PndLinTrack(*(trackfit)); //save Track
     delete trackfit;//TEST
     rec_tkr++;
-    //  }
+    //}
   }// end of TCand's
 
   // Done--------------------------------------------------------------------------------------
-
-  // TCanvas *c1 = new TCanvas("hchi2");
-  // c1->Divide(2,2);
-  // c1->cd(1);
-  // hchi2_0->Draw();
-  // c1->cd(2);
-  // hchi2_1->Draw();
-  // c1->cd(3);
-  // hchi2_2->Draw();
-  // c1->cd(4);
-  // hchi2_3->Draw();
-  // //   c1->Write();
-  // gPad->WaitPrimitive();
-  std::cout<<"Fitting done"<<std::endl;
+  if(fVerbose>2) std::cout<<"Fitting done"<<std::endl;
   return;
 }
 
@@ -266,43 +227,22 @@ void PndLmdLinFitTask::SumDistance2(int &, double *, double & sum, double * par,
       double d = distance2(x[i],y[i],z[i],par); 
       sum += d;
    }
-   //if (firstIt && fVerbose>1) 
-   //   std::cout << "Total sum2 = " << sum << std::endl;
-   //firstIt = false;
 }
 
 // calculate distance line-point in local coordinates
 double PndLmdLinFitTask::distance_perp(double x,double y,double z, double errx,double erry,double errz, double *p) { 
-  //Double_t t_min = (p[1]*(x-p[0])+p[3]*(y-p[2])+p[5]*(z-p[4]))/(p[1]*p[1]+p[3]*p[3]+p[5]*p[5]);
-  // p[5]=sqrt(1-p[1]*p[1]-p[3]*p[3]);//TEST
-  //  Double_t t_min = (z-p[4])/p[5];
-  //  Double_t t_min = (p[1]*(x-p[0])+p[3]*(y-p[2])+p[5]*(z-p[4])); //TEST
   Double_t t_min = (z-p[4]);
   Double_t fdx = pow((p[0]+p[1]*t_min-x)/errx,2);
   Double_t fdy = pow((p[2]+p[3]*t_min-y)/erry,2);
-  //  Double_t fdz = pow((p[4]+p[5]*t_min-z)/errz,2);
-  //  Double_t fdz = pow((p[4]+p[5]*t_min-z)/1.,2);
-  // cout<<"fdx = pow("<<(p[0]+p[1]*t_min-x)<<"/"<<errx<<",2) = "<<fdx<<endl;
-  // cout<<"fdy = pow("<<(p[2]+p[3]*t_min-y)<<"/"<<erry<<",2) = "<<fdy<<endl;
-  // cout<<"fdz = pow("<<(p[4]+p[5]*t_min-z)<<"/"<<errz<<",2) = "<<fdz<<endl;
-  //  cout<<"fdx = "<<fdx<<" fdy = "<<fdy<<" fdz = "<<fdz<<endl;
-  //  Double_t fchi2 = fdx + fdy + fdz;
   Double_t fchi2 = fdx + fdy;
-  // cout<<"fchi2 = "<<fchi2<<endl;
   return fchi2; 
 }
 
 // calculate distance line-point in local coordinates
 double PndLmdLinFitTask::distance_l(double x,double y,double z, double errx,double erry,double errz, double *p) { 
-  // cout<<"(p[1]*p[1]+p[3]*p[3]) = "<<(p[1]*p[1]+p[3]*p[3])<<endl;
-  // if((p[1]*p[1]+p[3]*p[3])>1) return 1e6;
-
-  // double fdx = TMath::Power((x-(p[0] + p[1]*(z-fz0)))/errx,2);
-  // double fdy = TMath::Power((y-(p[2] + p[3]*(z-fz0)))/erry,2);
   double fdx = TMath::Power((x-(p[0] + p[1]*(z-p[4])))/errx,2);
   double fdy = TMath::Power((y-(p[2] + p[3]*(z-p[4])))/erry,2);
   double fchi2 = fdx + fdy;
-  std::cout<<"z = "<<z<<" fchi2 = "<<fchi2<<" fdx = "<<fdx<<" fdy = "<<fdy<<std::endl;
   return fchi2; 
 }
 
@@ -318,28 +258,10 @@ void PndLmdLinFitTask::LocalFCN(int &, double *, double & sum, double * par, int
   double * errz = gr->GetEZ();
   int npoints = gr->GetN();
   sum = 0;
-  // double errMS[4]={0.,0.0031,0.0071,0.0119};//TEST with real MS error
-  //  double errMS[4]={errx[0],0.0031,0.0071,0.0119};//TEST with real MS error
   for (int i  = 0; i < npoints; ++i) { 
-    // cout<<"hit#"<<i<<endl;
-    // cout<<"Hit errors: x["<<i<<"]="<<errx[i]<<" y["<<i<<"]="<<erry[i]<<endl;
-    // double errx_new = hypot(errx[i],errMS[i]);//TEST with real MS error
-    // double erry_new = hypot(erry[i],errMS[i]);//TEST with real MS error
-    // cout<<"errx_new ="<<errx_new<<endl;
-    // cout<<"erry_new ="<<erry_new<<endl;
-    //  double chi2 = distance_perp(x[i],y[i],z[i],errx_new,erry_new,errz[i],par); 
-
     double chi2 = distance_perp(x[i],y[i],z[i],errx[i],erry[i],errz[i],par); 
-
-    //double chi2 = distance_l(x[i],y[i],z[i],errx[i],erry[i],errz[i],par); 
     sum += chi2;
-    // if(i==0) hchi2_0->Fill(chi2);
-    // if(i==1) hchi2_1->Fill(chi2);
-    // if(i==2) hchi2_2->Fill(chi2);
-    // if(i==3) hchi2_3->Fill(chi2);
-    //    cout<<" "<<endl;
   }
-  //  cout<<"CHI2 = "<<sum<<endl;
 }
 
 double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, Double_t* fitpar, Double_t* fitparerr)
@@ -362,15 +284,7 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, Double_t* fitpa
   min->SetParameter(1,"Ax",pStart[1],pStartErr[1],0,0);
   min->SetParameter(2,"y0",pStart[2],pStartErr[2],0,0);
   min->SetParameter(3,"Ay",pStart[3],pStartErr[3],0,0);
-    
-
-
-  // // //minimize step 1
-  // // arglist[0] = 100; //number of functiona calls
-  // // arglist[1] = 0.001; //tolerance
-  // // min->ExecuteCommand("HESSE", arglist ,2);
-
-  // //minimize step 2
+  // //minimize step 1
   arglist[0] = 1000; //number of functiona calls
   arglist[1] = 0.001; //tolerance
   min->ExecuteCommand("MIGRAD", arglist ,2);
@@ -382,7 +296,6 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, Double_t* fitpa
    min->GetStats(amin,edm,errdef,nvpar,nparx);
    if(fVerbose>1)
      min->PrintResults(1,amin);
-   // gr->Draw("p0");
 
    // get fit parameters and errors
    for (int i = 0; i <4; ++i){
@@ -398,7 +311,7 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, Double_t* fitpa
 
 double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSeed, TVector3 dirSeed, Double_t* fitpar, TMatrixDSym *covmatrix)
 {
-  cout<<"PndLmdLinFitTask::line3Dfit with SEED is used"<<endl;
+  if(fVerbose>2) cout<<"PndLmdLinFitTask::line3Dfit with SEED is used"<<endl;
   Int_t Npoint = gr->GetN();
   Double_t ErrX1 = gr->GetErrorX(0);
   Double_t ErrY1 = gr->GetErrorY(0);
@@ -421,28 +334,32 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSee
   arglist[0] = 1;
   min->ExecuteCommand("SET PRINT",arglist,1);
 
-  cout<<"posSeed:"<<endl;
-  posSeed.Print();
-  cout<<"dirSeed:"<<endl;
-  dirSeed.Print();
-  double pStart[6] = {posSeed.X(),dirSeed.X(),posSeed.Y(),dirSeed.Y(),posSeed.Z(),dirSeed.Z()};
+  if(fVerbose>2){
+    cout<<"posSeed:"<<endl;
+    posSeed.Print();
+    cout<<"dirSeed:"<<endl;
+    dirSeed.Print();
+  }
+  double l = 1/dirSeed.Z();
+  double pStart[6] = {posSeed.X(),l*dirSeed.X(),posSeed.Y(),l*dirSeed.Y(),posSeed.Z(),1.};
   double pStartErr[6] = {ErrX1,errRx,ErrY1,errRy,ErrZ1,errRz};
-
-  //stupid and must be removed!
-  if(ErrX1==0 || ErrY1==0)
-    for(int k=0;k<6;k++)  pStartErr[k]=0;
+  if(fVerbose>2){
+    for(int i=0;i<6;i++)
+      cout<<"pStartErr["<<i<<"]="<<pStartErr[i]<<endl;
+  }
+  // //stupid and must be removed!
+  // if(ErrX1==0 || ErrY1==0)
+  //   for(int k=0;k<6;k++)  pStartErr[k]=0;
   
   min->SetParameter(0,"x0",pStart[0],pStartErr[0],0,0);
   min->SetParameter(1,"Ax",pStart[1],pStartErr[1],0,0);
   min->SetParameter(2,"y0",pStart[2],pStartErr[2],0,0);
   min->SetParameter(3,"Ay",pStart[3],pStartErr[3],0,0);
   min->SetParameter(4,"z0",pStart[4],0,0,0);
-  // min->SetParameter(5,"Az",pStart[5],0,0,0);
-  min->SetParameter(5,"Az",1.,0,0,0);
+  min->SetParameter(5,"Az",pStart[5],0,0,0);
   
   // Now ready for minimization step
   arglist[0] = 1500;
-  // arglist[0] = 1; //TEST
   arglist[1] = 1.;
   min->ExecuteCommand("MIGRAD", arglist,2);
   
@@ -452,7 +369,6 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSee
    min->GetStats(amin,edm,errdef,nvpar,nparx);
    if(fVerbose>1)
      min->PrintResults(1,amin);
-   // gr->Draw("p0");
 
    Double_t fitparerr[6];
    // get fit parameters
@@ -492,7 +408,7 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSee
    //  Double_t chi2 = amin/(3.*Npoint-5);
    Double_t chi2 = amin/(2.*Npoint-4);
    //Double_t chi2 = amin/(3.*Npoint-4);
-   //Double_t chi2 = amin;
+   //  Double_t chi2 = amin;
    cout<<"After fit: Chi^2 = "<<chi2<<endl;
    ///-------------------------------------------------------------
   
