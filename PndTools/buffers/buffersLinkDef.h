@@ -6,9 +6,9 @@
 
 #pragma link C++ class PndRingSorterT <PndSdsDigiPixel>+;
 #pragma link C++ class PndRingSorterT <PndSdsDigiStrip>+;
-#pragma link C++ class PndWriteoutBufferT <PndSdsDigiPixel>+;
-#pragma link C++ class PndWriteoutBufferT <PndSdsDigiStrip>+;
-
+//#pragma link C++ class PndWriteoutBufferT <PndSdsDigiPixel>+;
+//#pragma link C++ class PndWriteoutBufferT <PndSdsDigiStrip>+;
+#pragma link C++ class PndWriteoutBuffer+;
 #pragma link C++ class PndSorterTaskT <PndSdsDigiPixel>+;
 #pragma link C++ class PndSorterTaskT <PndSdsDigiStrip>+;
 
