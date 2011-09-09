@@ -6,7 +6,6 @@
 
 #ifndef PNDLMDTRACKFINDERCATASK_H
 #define PNDLMDTRACKFINDERCATASK_H
-
 #include "FairTask.h"
 #include "PndMCTrack.h"
 #include "PndSdsGeoPar.h"
