@@ -2,7 +2,6 @@
 
 // This Class' Header ------------------
 #include "TtAliTask.h"
-#include "TtFitRes.h"
 
 // C/C++ Headers ----------------------
 #include <iostream>
@@ -11,11 +10,9 @@
 #include "FairRootManager.h"
 #include "TClonesArray.h"
 
-//#include "PndLinTrack.h"
-#include "../../../pnddata/TrackData/PndTrackCand.h"
-#include "../../../pnddata/SdsData/PndSdsHit.h"
-#include "../../../pnddata/MvdData/PndMvdHit.h"
-#include "../../../pnddata/TrackData/PndTrackCandHit.h"
+#include "PndTrackCand.h"
+#include "PndSdsHit.h"
+#include "PndTrackCandHit.h"
 
 #include "TFile.h"
 #include "TGeoTrack.h"
@@ -73,7 +70,7 @@ TtAliTask::TtAliTask(Int_t ExcludedBox)
 
   fExclBox = ExcludedBox;
 
-  for (Int_t gg = 0 ; gg < 4 ; gg++)
+  for (Int_t gg = 0 ; gg < 6 ; gg++)
     {
       sX[gg] = 0.;
       sY[gg] = 0.;
@@ -85,40 +82,6 @@ TtAliTask::TtAliTask(Int_t ExcludedBox)
 
   fPrint = 0;
 }
-
-TtAliTask::TtAliTask(Int_t ExcludedBox,Double_t X1,Double_t Y1,Double_t X2,Double_t Y3,Double_t X4,Double_t Y5,Double_t X6,Double_t Y6)
-  : FairTask("Alignment")
-{
-  fTCandBranchName = "MVDHitsStrip";
- 
-  if (ExcludedBox < 1 || ExcludedBox > 6) 
-    {
-      std::cout << "Excluded box: Wrong value, setting as default 2!" << std::endl; 
-      ExcludedBox = 2;
-    }
-
-  fExclBox = ExcludedBox;
-
-  sX[0] = X1;
-  sY[0] = Y1;
-  sX[1] = X2;
-  sY[1] = Y3;
-  sX[2] = X4;
-  sY[2] = Y5;
-  sX[3] = X6;
-  sY[3] = Y6;
-  
- for (Int_t gg = 0 ; gg < 4 ; gg++)
-    {
-      sigX[gg] = 0.;
-      sigY[gg] = 0.;
-      m_X[gg] = 0.;
-      m_Y[gg] = 0.;
-    }
-
-  fPrint = 0;
-}
-
 
 TtAliTask::~TtAliTask()
 {
@@ -151,8 +114,8 @@ InitStatus TtAliTask::Init()
 
   fEvent = 0;
 
-  hx = new TH1F("hx","hx",10000,-1.,+1.);
-  hy = new TH1F("hy","hy",10000,-1.,+1.);
+  hx = new TH1F("hx","hx",50000,-5.,+5.);
+  hy = new TH1F("hy","hy",50000,-5.,+5.);
 
   return kSUCCESS;
 }
@@ -366,7 +329,6 @@ void TtAliTask::Exec(Option_t* opt)
 
 	  
 	  
-	  Int_t tx = 0, ty = 0;
 
 	  Int_t uu = 0;
 
@@ -376,13 +338,11 @@ void TtAliTask::Exec(Option_t* opt)
 	    {
 	      if (TMath::Abs(Erx[ww]) < 0.5) 
 		{
-		  x[ww]=x[ww]+sX[tx];
-		  tx++;
+		  x[ww]=x[ww]+sX[ww];
 		}
 	      if (TMath::Abs(Ery[ww]) < 0.5) 
 		{
-		  y[ww]=y[ww]+sY[ty];
-		  ty++;
+		  y[ww]=y[ww]+sY[ww];
 		}
 	    }
 
@@ -491,6 +451,8 @@ void TtAliTask::FinishTask()
 
   hx->Fit(fun,"Q","",(hx->GetMean() - 2*(hx->GetRMS())),(hx->GetMean() + 2*(hx->GetRMS())));
 
+  //hx->Fit(fun,"Q");
+
   mX = fun->GetParameter(1);
   siX = fun->GetParameter(2);
 
@@ -498,10 +460,42 @@ void TtAliTask::FinishTask()
 
   hy->Fit(fun,"Q","",(hy->GetMean() - 2*(hy->GetRMS())),(hy->GetMean() + 2*(hy->GetRMS())));
 
+  //hy->Fit(fun,"Q");
+
   mY = fun->GetParameter(1);
   siY = fun->GetParameter(2);
+
+  cout << "X, mean: " << mX << ", sig: " << siX << endl;
+  cout << "Y, mean: " << mY << ", sig: " << siY << endl;
+
+  if ((TMath::Abs(siX)) < 1.)
+    {
+      sX[fExclBox-1] += mX;
+      m_X[fExclBox-1] = mX;
+      sigX[fExclBox-1] = siX;
+    }
+  else
+    {
+      sX[fExclBox-1] = 0.;
+      m_X[fExclBox-1] = 0.;
+      sigX[fExclBox-1] = 0.;
+    }
   
-  switch(fExclBox)
+  if ((TMath::Abs(siY)) < 1.)
+    {
+      sY[fExclBox-1] += mY;
+      m_Y[fExclBox-1] = mY;
+      sigY[fExclBox-1] = siY;
+    }
+  else
+    {
+      sY[fExclBox-1] = 0.;
+      m_Y[fExclBox-1] = 0.;
+      sigY[fExclBox-1] = 0.;
+    }
+      
+
+  /*  switch(fExclBox)
       {
       case 1:
 	sX[0] += mX;
@@ -547,7 +541,7 @@ void TtAliTask::FinishTask()
 	break;
       }
 
-
+  */
   if (fPrint == 1)
     {
       PrintHistos();
@@ -564,7 +558,7 @@ void TtAliTask::PrintVal()
 {
 
   cout << "SHIFTS" << endl;
-  for (Int_t k = 0 ; k < 4 ; k++)
+  for (Int_t k = 0 ; k < 6 ; k++)
     {
       cout << "X: " << sX[k] << "   Y: " << sY[k] << endl;
     }
@@ -577,7 +571,7 @@ void TtAliTask::PrintMeanResiduals()
 {
 
   cout << "RESIDUALS" << endl;
-  for (Int_t k = 0 ; k < 4 ; k++)
+  for (Int_t k = 0 ; k < 6 ; k++)
     {
       cout << "X: " << m_X[k] << "   Y: " << m_Y[k] << endl;
     }
@@ -587,7 +581,7 @@ void TtAliTask::PrintSigmaResiduals()
 {
 
   cout << "SIGMA-RESIDUALS" << endl;
-  for (Int_t k = 0 ; k < 4 ; k++)
+  for (Int_t k = 0 ; k < 6 ; k++)
     {
       cout << "sigX: " << sigX[k] << "   sigY: " << sigY[k] << endl;
     }

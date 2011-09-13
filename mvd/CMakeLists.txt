@@ -27,6 +27,7 @@ ${CMAKE_SOURCE_DIR}/mvd/MvdTools
 ${CMAKE_SOURCE_DIR}/mvd/MvdDAQ
 ${CMAKE_SOURCE_DIR}/mvd/MvdPid
 ${CMAKE_SOURCE_DIR}/mvd/MvdTracking
+${CMAKE_SOURCE_DIR}/mvd/MvdTracking/LinFit
 ${CMAKE_SOURCE_DIR}/mvd/transport
 ${CMAKE_SOURCE_DIR}/mvd
 ${CMAKE_SOURCE_DIR}/sds/SdsMC
@@ -82,9 +83,14 @@ MvdDigi/PndMvdDigiTask.cxx
 MvdDigi/PndMvdNoiseProducer.cxx
 MvdDigi/PndMvdPixelDigiSorterTask.cxx
 
+MvdDAQ/SiHit.cxx
+MvdDAQ/TdcData.cxx
+MvdDAQ/QdcData.cxx
+MvdDAQ/TsEvent.cxx
+
 MvdDAQ/PndMvdConvertApv.cxx
+MvdDAQ/PndMvdBoxMap.cxx
 MvdDAQ/PndMvdConvertApvTask.cxx
-MvdDAQ/PndMvdMapApv.cxx
 MvdDAQ/PndMvdCreateDefaultApvMap.cxx
 )
 set (MVD_RULECHECKER_SRCS ${MVD_SRCS})
@@ -170,8 +176,12 @@ MvdTracking/PndTpcClustPlusRTFTaskCutPar.cxx
 MvdTracking/PndMvdRiemannTrackFinderTaskCutPar.cxx
 MvdTracking/PndMvdRiemannTrackFinderTaskEff.cxx
 
+MvdTracking/LinFit/TtFitRes.cxx
+MvdTracking/LinFit/TtAliTask.cxx
+MvdTracking/LinFit/TtCracowTask.cxx
+
 )
-set (MVD_RULECHECKER_SRCS ${MVD_RULECHECKER_SRCS} ${MVDTRK_SRCS})
+Set (MVD_RULECHECKER_SRCS ${MVD_RULECHECKER_SRCS} ${MVDTRK_SRCS})
 
 if(RULE_CHECKER_FOUND)
   CHECK_RULES("${MVD_RULECHECKER_SRCS}" "${INCLUDE_DIRECTORIES}" MVD_RULES)

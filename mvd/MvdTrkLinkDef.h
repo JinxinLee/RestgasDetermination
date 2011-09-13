@@ -40,6 +40,10 @@
 #pragma link C++ class PndMvdTpcRiemannCorrelatorTask+;
 
 
+#pragma link C++ class TtFitRes+;
+#pragma link C++ class TtAliTask+;
+#pragma link C++ class TtCracowTask+;
+
 
 #endif
 

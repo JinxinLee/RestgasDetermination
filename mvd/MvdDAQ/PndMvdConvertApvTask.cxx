@@ -16,6 +16,7 @@
 // PndMvd includes
 #include "PndMvdConvertApvTask.h"
 #include "PndMvdConvertApv.h"
+#include "PndMvdBoxMap.h"
 
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
@@ -28,7 +29,7 @@
 using namespace std;
 
 // -----   Default constructor   -------------------------------------------
-PndMvdConvertApvTask::PndMvdConvertApvTask(PndMvdConvertApv* Apvconvert,PndMvdMapApv* Apvmapper) : FairTask("Convert Task for PANDA PndMvd")
+PndMvdConvertApvTask::PndMvdConvertApvTask(PndMvdConvertApv* Apvconvert,PndMvdBoxMap* Apvmapper) : FairTask()
 {
   fApvConvert=Apvconvert;
   fApvMapper=Apvmapper;
@@ -43,7 +44,14 @@ PndMvdConvertApvTask::~PndMvdConvertApvTask()
 
 void PndMvdConvertApvTask::SetParContainers()
 { // in this task we even don't need the digitization info
-  FairRun* ana = FairRun::Instance();
+
+cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+
+	FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   PndMvdContFact* themvdcontfact = (PndMvdContFact*)rtdb->getContFactory("PndMvdContFact");
   TList* theContNames = themvdcontfact->GetDigiParNames();
@@ -62,11 +70,13 @@ void PndMvdConvertApvTask::SetParContainers()
   }  
   
   return;
+  
 }
 
 // -----   Public method Init   --------------------------------------------
 InitStatus PndMvdConvertApvTask::Init()
 {
+
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman )
@@ -93,6 +103,7 @@ InitStatus PndMvdConvertApvTask::Init()
   TIter parsetiter(fDigiParameterList);
   while ( PndSdsStripDigiPar* digipar = (PndSdsStripDigiPar*)parsetiter() ) 
     {
+	cout << "Debugging, sens type: " << (TString)digipar->GetSensType() << ", num of bot FE: " << digipar->GetNrBotFE() << endl;
       if(digipar->GetNrBotFE()==1)
 	{ // we count top side first from 0; Bot side strarts at #top fe's
 	  fBotSides[(TString)digipar->GetSensType()]=digipar->GetNrTopFE();
@@ -100,14 +111,16 @@ InitStatus PndMvdConvertApvTask::Init()
     }
 
   return kSUCCESS;
+
 }
+
 
 // -----   Public method Exec   --------------------------------------------
 void PndMvdConvertApvTask::Exec(Option_t* opt)
 {
 
+  //	cout << "--*--" << endl;
 
-  
   
   // Reset output array
 	fStripArray->Delete();
@@ -115,23 +128,47 @@ void PndMvdConvertApvTask::Exec(Option_t* opt)
 	std::map<Int_t,Double_t> singleSidedBacksideMap;
   std::map<Int_t,std::vector<Int_t> > buffIndex;
   
+  Int_t nbox, ch;
   Int_t rw=-1, sw=-1, botfe=-1;
   TString detpath=""; 
   Int_t detnameid;
   Int_t stripnum;
-  
+  Int_t buffCh = -1;  
+
 	std::vector<PndSdsDigiStrip> strips = fApvConvert->ReadNext();
 	for (std::vector<PndSdsDigiStrip>::iterator strip=strips.begin(); strip!=strips.end(); ++strip)
 	{
-	  rw=strip->GetFE();
-	  fApvMapper->DoMapping(rw,sw,detpath);
+	  //rw=strip->GetFE();
+	  //sw=strip->GetFE();
+
+	  nbox = strip -> GetSensorID();
+	  //ch = strip -> GetChannel();
+	  buffCh = strip -> GetChannel();
+	  fApvMapper->DoMapping(nbox,buffCh,detpath);
 	  detnameid=fGeoH->GetShortID(detpath);
     
+	  
+
 	  if(fVerbose>1) Info("Exec","Write a Digi from detector %s %i",detpath.Data(),detnameid);
 	  stripnum = fStripArray->GetEntriesFast();
 	  //cout << "stripnum: " << stripnum << endl;
+	  
+          sw = (Int_t) buffCh/128.;
+	  ch = (Int_t) buffCh%128;
+
+          if (IsSingleSided(detpath))
+	  {
+	    //cout << "Detected as single sided: " << detpath.Data() << endl;
+		if (sw > 2)
+		{
+			sw = sw - 3;
+		}		
+	  }
+
+	  //cout << "Box: " << nbox << ", channel: " << buffCh << ", nome: " << detpath.Data() << ", iD: " << detnameid << ", FE: " << sw << ", corrCh: " << ch << endl;
+
 	  new ((*fStripArray)[stripnum]) PndSdsDigiStrip(strip->GetIndices(), strip->GetDetID(),
-							 detnameid, sw, strip->GetChannel(), strip->GetCharge() ,strip->GetTimeStamp());
+							 detnameid, sw, ch, strip->GetCharge() ,0);
 	  // collect information of fake bottom sides if singlesided
 	  if (IsSingleSided(detpath))
 	    {    // collect information of fake bottom sides if singlesided
@@ -146,21 +183,23 @@ void PndMvdConvertApvTask::Exec(Option_t* opt)
 	    stripnum = fStripArray->GetEntriesFast();
 	    botfe=CalcBotFakeFE( fGeoH->GetPath(it->first) );
 	    
-	    new ((*fStripArray)[stripnum]) PndSdsDigiStrip(buffIndex[it->first], -1,it->first, botfe, 0, it->second, 0);
+	    new ((*fStripArray)[stripnum]) PndSdsDigiStrip(buffIndex[it->first], kMVDHitsStrip,it->first, botfe, 0, it->second, 0);
 	  }
   
 }
 
+
 Bool_t PndMvdConvertApvTask::IsSingleSided(TString &detpath)
 {
+	
   if( !(detpath.Contains("Strip")) )   return kFALSE;
 
   for(std::map<TString,Int_t>::iterator it=fBotSides.begin();it!=fBotSides.end();it++)
     {
       if( detpath.Contains(it->first) )
 	{
-// 	  cout << "Sensor type: " << it->first << endl;
-// 	  cout << "Path: " << detpath << endl;
+ 	  //cout << "Sensor type: " << it->first << endl;
+ 	  //cout << "Path: " << detpath << endl;
 	  return kTRUE;
 	}
     }
@@ -170,6 +209,7 @@ Bool_t PndMvdConvertApvTask::IsSingleSided(TString &detpath)
 
 Int_t PndMvdConvertApvTask::CalcBotFakeFE(TString detpath)
 {
+	
   for(std::map<TString,Int_t>::iterator it=fBotSides.begin();it!=fBotSides.end();it++)
   {
     if( detpath.Contains(it->first) )
@@ -177,8 +217,8 @@ Int_t PndMvdConvertApvTask::CalcBotFakeFE(TString detpath)
       return it->second;
     }
   }
-  // -1 shall be no realistic FE number
-  return -1; 
+  //  return -1;
+  
 }
 
 void PndMvdConvertApvTask::Finish()

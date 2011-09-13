@@ -19,7 +19,7 @@
 // framework includes
 #include "FairTask.h"
 #include "PndMvdConvertApv.h"
-#include "PndMvdMapApv.h"
+#include "PndMvdBoxMap.h"
 #include "PndGeoHandling.h"
 
 #include <vector>
@@ -41,7 +41,7 @@ class PndMvdConvertApvTask : public FairTask
  public:
 
 	/** Default constructor **/  
-	PndMvdConvertApvTask(PndMvdConvertApv* Apvconvert, PndMvdMapApv* Apvmapper);
+	PndMvdConvertApvTask(PndMvdConvertApv* Apvconvert, PndMvdBoxMap* Apvmapper);
 
 	/** Destructor **/
 	~PndMvdConvertApvTask();
@@ -71,7 +71,7 @@ private:
   
 	/// class which convert the read in and hold the streams
 	PndMvdConvertApv* fApvConvert;
-  PndMvdMapApv* fApvMapper;
+  PndMvdBoxMap* fApvMapper;
 	/// array of results
 	TClonesArray* fStripArray;
   ///Geohandler for name string compression

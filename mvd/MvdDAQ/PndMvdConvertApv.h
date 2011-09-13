@@ -11,6 +11,9 @@
 #ifndef PNDMVDCONVERTAPV_H
 #define PNDMVDCONVERTAPV_H
 
+#include "TFile.h"
+#include "TTree.h"
+#include "TClonesArray.h"
 #include "TString.h"
 #include "TObject.h"
 #include <iostream>
@@ -23,6 +26,8 @@
 
 // class PndMvdApv;
 #include "PndSdsDigiStrip.h"
+
+#include "TsEvent.h"
 
 /**   
  @class PndMvdConvertApv
@@ -46,7 +51,7 @@ class PndMvdConvertApv
 	PndMvdConvertApv(const TString& CalibFileName, const TString& HitFileName);
 
 	/** Destructor **/
-	virtual ~PndMvdConvertApv()
+	~PndMvdConvertApv()
 	{ fDataFile.close(); }
 
 	/**
@@ -107,8 +112,8 @@ class PndMvdConvertApv
 	@return void
 	@Todo load calibration from database
 	*/
-	void LoadCalibration(TString CalibFileName, std::vector<Int_t> modules);
-
+	//void LoadCalibration(TString CalibFileName, std::vector<Int_t> modules);
+	void LoadCalibration(TString CalibFileName);
 	/**
 	@fn std::vector<PndSdsDigiStrip> Calc(std::vector<PndMvdApvHit> hitlist)
 
@@ -151,6 +156,12 @@ class PndMvdConvertApv
 
 	/// knows if fake is allowed
 	Bool_t fFake;
+	
+	TFile *f;
+	TTree *t;
+	TsEvent *tsEv;
+	
+	TClonesArray *arr;
 
   PndGeoHandling* fGeoH;	     //! Gives Access to the Path info of a hit
 

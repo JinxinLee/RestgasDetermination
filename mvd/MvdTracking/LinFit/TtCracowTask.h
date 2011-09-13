@@ -1,14 +1,8 @@
-// Simone Bianco
-// 15.07.2010
-
-#ifndef TTLINFITTASK_H
-#define TTLINFITTASK_H
+#ifndef TTCRACOWTASK_H
+#define TTCRACOWTASK_H
 
 // Base Class Headers ----------------
 #include "FairTask.h"
-#include <TGraph2D.h>
-#include <TGraph2DErrors.h>
-#include "TH1F.h"
 
 // Collaborating Class Headers -------
 #include <map>
@@ -21,21 +15,30 @@ using namespace std;
 class TClonesArray;
 class TGeoManager;
 
-class TtLinFitTask : public FairTask {
+class TtCracowTask : public FairTask {
 
 public:
 
   // Constructors/Destructors ---------
-  TtLinFitTask();
-  // TtLinFitTask(const TtLinFitTask& o){};
-  //  TtLinFitTask& operator=(const TtLinFitTask& o) { return *this;};
-  virtual ~TtLinFitTask();
+  TtCracowTask();
+  // TtCracowTask(const TtCracowTask& o){};
+  //  TtCracowTask& operator=(const TtCracowTask& o) { return *this;};
+  virtual ~TtCracowTask();
 
   virtual InitStatus Init();
 
   virtual void Exec(Option_t* opt);
 
- private:
+  static void SumDistance2(int &, double *, double & sum, double * par, int ); //for Fitter
+
+  static double distance2(double x,double y,double z, double *p);
+
+  static double distance2Single(double x,double y,double z, double ex, double ey, double ez, double *p);
+
+  virtual void FinishEvent();
+
+private:
+
 
   // Input Data------------
   TClonesArray* fTCandArray;
@@ -50,13 +53,15 @@ public:
 
   Int_t fEvent;
 
+  
+
   Double_t fEloss[6]; // energy loss in each sensor
 
   // Fitting ------------
  
   void  MyFit(Double_t *x,Double_t *y,Double_t *z,Double_t *Erx,Double_t *Ery,Double_t *Erz,Double_t *par, Double_t &chiX, Double_t &chiY);
 
-  ClassDef(TtLinFitTask,1);
+  ClassDef(TtCracowTask,1);
 
 };
 

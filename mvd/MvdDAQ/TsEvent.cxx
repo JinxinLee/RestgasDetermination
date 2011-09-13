@@ -1,0 +1,134 @@
+#include <stdlib.h>
+#include "TsEvent.h"
+
+#include "SiHit.h"
+#include "TdcData.h"
+#include "QdcData.h"
+
+ClassImp(TsEvent);
+
+TsEvent::TsEvent()
+{
+    fEventId = 0;
+    fSiHitList = new TClonesArray("SiHit");
+    fTdcValues = new TClonesArray("TdcData");
+    fQdcValues = new TClonesArray("QdcData");
+    //    fGiTdcValues = new TClonesArray("TdcData");
+    //    fGiQdcValues = new TClonesArray("QdcData");
+    fNumScalerValues = 0;
+    fScalerValues = NULL;
+    fScalerValuesAllocSize = 0;
+}
+
+TsEvent::~TsEvent()
+{
+    delete fSiHitList;
+    delete fTdcValues;
+    delete fQdcValues;
+    //    delete fGiTdcValues;
+    //    delete fGiQdcValues;
+    if (fScalerValues)
+    {
+        free(fScalerValues);
+    }
+}
+
+void TsEvent::Clear(const Option_t*)
+{
+  fEventId = 0;
+  fSiHitList->Clear();
+  fTdcValues->Clear();
+  fQdcValues->Clear();
+  //    fGiTdcValues->Clear();
+  //    fGiQdcValues->Clear();
+  fNumScalerValues = 0;
+  }
+
+void TsEvent::FillSiHits(int adcChannel, DWORD* hits, WORD count)
+{
+    TClonesArray& hitList = *fSiHitList;
+    for (int i=0; i<count; i++)
+    {
+        DWORD triggerNo = (hits[i]&0x1f000000) >> 24;    // bit 28 to 24
+        WORD numFrames  = (hits[i]&0x00f80000) >> 19;    // bit 19 to 23
+        WORD channel    = (hits[i]&0x0007f000) >> 12;    // bit 12 to 18
+        WORD height     = (hits[i]&0x00000fff);          // bit 0 to 11
+        WORD box        = adcChannel/6;
+        channel         += (adcChannel%6)*128;
+        
+        new(hitList[hitList.GetEntriesFast()]) SiHit(box, channel, height, numFrames);
+    }
+}
+
+void TsEvent::FillTdcValues(DWORD* tdcValues, WORD count)
+{
+    TClonesArray& tdcList = *fTdcValues;
+    for (int i=0; i<count; i++)
+    {
+        if ( (tdcValues[i] & 0xf8000000) == 0)
+        {
+            int trailing = (tdcValues[i] & 0x04000000) >> 26;
+            int channel  = (tdcValues[i] & 0x03E00000) >> 21;
+            int value    = (tdcValues[i] & 0x001fffff);
+            new(tdcList[tdcList.GetEntriesFast()]) TdcData(channel, value, trailing);
+        }
+    }
+}
+
+void TsEvent::FillQdcValues(DWORD* qdcValues, WORD count)
+{
+    TClonesArray& qdcList = *fQdcValues;
+    for (int i=0; i<count; i++)
+    {
+        int channel   = (qdcValues[i] & 0xff000000) >> 24;
+        int value     = (qdcValues[i] & 0x00ffffff);
+        new(qdcList[qdcList.GetEntriesFast()]) QdcData(channel, value);
+    }
+}
+
+void TsEvent::FillGiTdcValues(DWORD* tdcValues, WORD count)
+{
+    TClonesArray& tdcList = *fTdcValues;
+    for (int i=0; i<count; i++)
+    {
+        if ( (tdcValues[i] & 0xf8000000) == 0)
+        {
+            int trailing = (tdcValues[i] & 0x04000000) >> 26;
+            int channel  = (tdcValues[i] & 0x03E00000) >> 21;
+            int value    = (tdcValues[i] & 0x001fffff);
+            new(tdcList[tdcList.GetEntriesFast()]) TdcData(channel+32, value, trailing);
+        }
+    }
+}
+
+void TsEvent::FillGiQdcValues(DWORD* qdcValues, WORD count)
+{
+    TClonesArray& qdcList = *fQdcValues;
+    for (int i=0; i<count; i++)
+    {
+        int channel   = (qdcValues[i] & 0x001F0000) >> 16;
+        int value     = (qdcValues[i] & 0x00000fff);
+        int underflow = (qdcValues[i] & 0x00002000);
+        int overflow  = (qdcValues[i] & 0x00001000);
+        if (underflow || overflow)
+        {
+            value = -1;
+        }
+        new(qdcList[qdcList.GetEntriesFast()]) QdcData(channel+32, value);
+    }
+}
+
+void TsEvent::FillScalerValues(DWORD* scalerValues, WORD count)
+{
+    if (fScalerValuesAllocSize < count)
+    {
+        fScalerValues = (UInt_t*)realloc(fScalerValues, sizeof(UInt_t)*count);
+        fScalerValuesAllocSize = count;
+    }
+    fNumScalerValues = count;
+    for (int i=0; i<count; i++)
+    {
+        fScalerValues[i] = scalerValues[i];
+    }
+}
+

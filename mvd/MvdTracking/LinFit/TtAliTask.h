@@ -27,8 +27,7 @@ public:
   // Constructors/Destructors ---------
   TtAliTask();
   TtAliTask(Int_t ExcludedBox);
-  TtAliTask(Int_t ExcludedBox,Double_t X1,Double_t Y1,Double_t X2,Double_t Y3,Double_t X4,Double_t Y5,Double_t X6,Double_t Y6 );
-  TtAliTask(const TtAliTask& o){};
+   TtAliTask(const TtAliTask& o){};
   TtAliTask& operator=(const TtAliTask& o) { return *this;};
   virtual ~TtAliTask();
 
@@ -72,11 +71,11 @@ private:
 
   Int_t fPrint; // flag 
 
-  Double_t sX[4],sY[4]; // shifts
+  Double_t sX[6],sY[6]; // shifts
 
-  Double_t sigX[4],sigY[4]; // shifts
+  Double_t sigX[6],sigY[6]; // sigma residuals
 
-  Double_t m_X[4],m_Y[4]; // residuals
+  Double_t m_X[6],m_Y[6]; // residuals
 
   TH1F *hx;
   TH1F *hy;

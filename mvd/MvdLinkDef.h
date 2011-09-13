@@ -53,9 +53,14 @@
 #pragma link C++ class PndMvdEventMergerTask+;
 #pragma link C++ class PndMvdMSAnaTask+;
 
+#pragma link C++ class SiHit+;
+#pragma link C++ class TdcData+;
+#pragma link C++ class QdcData+;
+#pragma link C++ class TsEvent+;
+
 #pragma link C++ class PndMvdConvertApv+;
+#pragma link C++ class PndMvdBoxMap;
 #pragma link C++ class PndMvdConvertApvTask+;
-#pragma link C++ class PndMvdMapApv;
 #pragma link C++ class PndMvdCreateDefaultApvMap;
 
 #endif

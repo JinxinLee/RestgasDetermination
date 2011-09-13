@@ -1,5 +1,8 @@
 #include "PndMvdConvertApv.h"
 
+//#include "TsEvent.h"
+#include "SiHit.h"
+
 #include "PndMvdApvHit.h"
 #include "PndSdsDigiStrip.h"
 #include "TString.h"
@@ -13,72 +16,33 @@ using namespace std;
 
 PndMvdConvertApv::PndMvdConvertApv(const TString& CalibFileName, const TString& HitFileName)
 {
+
+  f = new TFile(HitFileName);
+
   fGeoH = PndGeoHandling::Instance();
   fFake=false;
-  cout<<"Scan HitFile..."<<endl;
-  std::ifstream hitfile(HitFileName);
-  std::vector<Int_t> fes;						// module detecor
-  std::vector<Int_t> nEvents;
-  if(!hitfile)
-  {
-    cout<<"Hitfile not found!"<<endl;
-    return;
-  }
-  long int n=0;								// event counter
-  long int old_event=-1;
-  while (!hitfile.eof())  						// read data
-  {
-    char c;
-    hitfile>>c;
-    if (hitfile.eof()) break;
-    if (!isdigit(c))    
-    {
-      char str[256];
-      hitfile.getline(str,256);
-      continue;
-    }
-    hitfile.putback(c);
-    
-    //int triggID,ts,frame,moduleID;
-    int fe,ch,l;
-    long int ev;
-    double q;
-    
-    //    moduleID=0;
-    hitfile >> ev >> fe >> ch >> q >> l;
-    //cout<<"event "<<ev<<" fe:"<<fe<<" channel:"<<ch<<" adc:"<<q<<endl;
-    
-    Int_t found = 0;
-    
-    for(UInt_t i=0;i<fes.size();++i)
-    {
-      if(fe==fes[i])found=1;
-      
-    }
-    
-    
-    if (!found){
-      cout << "Found frontend ID:" << fe << endl;
-      fes.push_back(fe);
-    }
-    
-    if (ev!=old_event)
-    {
-      n++;								// count event
-      nEvents.push_back(n);					// check module and may mind
-      old_event=ev;
-    }
-  }
-  hitfile.close();
-  cout<<nEvents.size()<<" events in File"<<endl;
-  cout<<" counted "<<n<<" events"<<endl;
-  cout<<fes.size()<<" modules found   Read Calibration..."<<endl;
-  LoadCalibration(CalibFileName, fes);
-  fNofEvents=n;
-  fHitFileName=HitFileName;
-  fDataFile.open(HitFileName);
+ 	
+  t = (TTree*) f->Get("T");
+	
+  tsEv = new TsEvent();
+	
+  arr = new TClonesArray("SiHit");
+
+  cout << "---------------------------------------" << endl;
+  cout << "Number of events: " << t->GetEntries() << endl;
+  cout << "---------------------------------------" << endl;
+	
+  t->SetBranchAddress("events",&tsEv);
+	
+  cout << t->GetEntries() << " events in File" << endl;
+
+  //LoadCalibration(CalibFileName, fes);
+  LoadCalibration(CalibFileName);
+
+  fNofEvents=t->GetEntries();
   fLastEvent=0;
   fEvent=-1;
+ 
   cout<<"** end of PndMvdConvertApv::PndMvdConvertApv(const TString& , const TString&) **"<<endl;
 }
 
@@ -90,8 +54,10 @@ Bool_t PndMvdConvertApv::Init()
 
 // -----   Load calibration for the Modules   --------------------------------------------
 
-void PndMvdConvertApv::LoadCalibration(TString CalibFileName, std::vector<Int_t> fes)
+//void PndMvdConvertApv::LoadCalibration(TString CalibFileName, std::vector<Int_t> fes)
+void PndMvdConvertApv::LoadCalibration(TString CalibFileName)
 {
+	
   std::ifstream calibfile(CalibFileName);
   if(!calibfile)
   {
@@ -112,23 +78,24 @@ void PndMvdConvertApv::LoadCalibration(TString CalibFileName, std::vector<Int_t>
     }
     calibfile.putback(c);
     
-    int feID, channel;
+    int boxID, channel;
     double value;
     
-    calibfile >> feID >> feID >> channel >> value;
+    calibfile >> boxID >> channel >> value;
     
-    for(unsigned int vec=0;vec<fes.size();vec++)
-    {
-      if(feID==fes[vec])
-      {
-        fCalibPars[feID][channel]=value;
-      }
-    }
+    //for(unsigned int vec=0;vec<fes.size();vec++)
+    //{
+      //if(feID==fes[vec])
+      //{
+    fCalibPars[boxID][channel]=value;
+      //}
+    //}
   }
   calibfile.close();
   fNoCalib=false;
   cout<<"Calibration succesfully read"<<endl;
   return;
+	 
 }
 
 // -----   Convert adc to e if calibration was loaded  --------------------------------------------
@@ -143,20 +110,16 @@ std::vector<PndSdsDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hi
     {
       q=1.*hitlist[hitnumber].GetADC();					// no calib adc -> e !!!
     }else{
-      if (fCalibPars[hitlist[hitnumber].GetFeID()].size())
+      if (fCalibPars[hitlist[hitnumber].GetModuleID()].size())
       {
-        if (fCalibPars[hitlist[hitnumber].GetFeID()][hitlist[hitnumber].GetChannel()])
+        if (fCalibPars[hitlist[hitnumber].GetModuleID()][hitlist[hitnumber].GetChannel()])
         {
-          q=fCalibPars[hitlist[hitnumber].GetFeID()][hitlist[hitnumber].GetChannel()]*(hitlist[hitnumber].GetADC())*1000.; // in electrons
+          q=fCalibPars[hitlist[hitnumber].GetModuleID()][hitlist[hitnumber].GetChannel()]*(hitlist[hitnumber].GetADC())*1000.; // in electrons
         }
       }
     }
     
-    //FIXME: Welche DetId braucht das Framework? "2" fuer Strips?
-    //TODO: Detektornamen mit Geometrie sinnvoll verheiraten. 
-    // 	string detPath="SiliconTestStation_1/DummysensorAss_0/";
-    //     detPath+="Module";
-    TString detPath="Module";
+    //TString detPath="Module";
     Int_t modId=-1;
     if(fFake)
     {
@@ -166,7 +129,7 @@ std::vector<PndSdsDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hi
     }else{
       modId = hitlist[hitnumber].GetModuleID();
     }
-    detPath+=modId;
+   /* detPath+=modId;
     detPath+="Rect";
     //     std::cout<<detPath.Data()<<"   |    "<<modId<<std::endl;
     //TGeoVolume* Vol=gGeoManager->FindVolumeFast(detPath);
@@ -182,7 +145,7 @@ std::vector<PndSdsDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hi
     else {
       // 		std::cout<<" -E- PndMvdConvertApv::Calc(): "<<detPath.Data()<<" does not exist"<<std::endl;
       detPath+="_nonexistent";
-    }
+    }*/
     //     std::cout<<detPath.Data()<<std::endl;
     //     std::cout<<gGeoManager->GetPath()<<std::endl;
     //     if (0==Vol) std::cout<<"0"; 
@@ -194,24 +157,26 @@ std::vector<PndSdsDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hi
     if(fFake)
     {
       PndSdsDigiStrip DigiHit(hitlist[hitnumber].GetEventID(), // index
-                              -1,                   // panda detID 
+                              kMVDHitsStrip,                   // panda detID 
                               -1,                              // No  SensorID (from geopath) 
                               hitlist[hitnumber].GetFeID(),    // fe
                               hitlist[hitnumber].GetChannel(), // chan
                               q/*/1000/1000*/,                 // charge
                               hitlist[hitnumber].GetTimestamp()// timestamp
                               );
+      //      cout << "Ev. " << hitlist[hitnumber].GetEventID() << ", FE: " << hitlist[hitnumber].GetFeID() << ", ch: " << hitlist[hitnumber].GetChannel() << ", FAKE" << endl;
 
       result.push_back(DigiHit);
     }else{
       PndSdsDigiStrip DigiHit(hitlist[hitnumber].GetEventID(), 
-                              -1,
+                              kMVDHitsStrip,
                               hitlist[hitnumber].GetModuleID(),
                               hitlist[hitnumber].GetFeID(),
                               hitlist[hitnumber].GetChannel(),
                               q/*/1000/1000*/,
                               hitlist[hitnumber].GetTimestamp() 
                               );
+      //   cout << "Ev. " << hitlist[hitnumber].GetEventID() << ", FE: " << hitlist[hitnumber].GetChannel()/128 << ", ch: " << hitlist[hitnumber].GetChannel()%128 << ", sens" << hitlist[hitnumber].GetModuleID()  << endl;
       result.push_back(DigiHit);
     }
   }
@@ -229,52 +194,61 @@ long int PndMvdConvertApv::GetNofEvents()
 
 std::vector<PndSdsDigiStrip> PndMvdConvertApv::ReadNext()
 {
-  //  cout<<"** PndMvdConvertApv::ReadNext() **"<<endl;
-  std::vector<PndSdsDigiStrip> digiList;
-  bool work=true;
-  while (!fDataFile.eof() && work)  					// read data
-  {
-    char c;
-    fDataFile>>c;
-    if (fDataFile.eof()) break;
-    if (!isdigit(c))    
-    {
-      char str[256];
-      fDataFile.getline(str,256);
-      continue;
-    }
-    fDataFile.putback(c);
-    
-    int triggID=0;
-    int fe=0;
-    int ts=0;
-    int frame=0;
-    int ch=0;
-    int l=0;
-    int moduleID=0;
-    double q=0.;
-    long int ev=0;
-    
-    fDataFile >> ev >> fe >>  ch >> q >> l;
-    //cout<<"event "<<fEvent<<" event id:"<<ev<<" last event id:"<<fLastEvent<<" fe:"<<fe<<" channel:"<<ch<<" adc:"<<q<<endl;
-    
-    
-    if (fEvent==-1) { fLastEvent=ev; fEvent=0; }
-    if (ev!=fLastEvent)
-    {
-      if(fhitlist.size()>20) fhitlist.clear();
-      digiList = Calc(fhitlist);
-      fhitlist.clear();
-      fLastEvent=ev;
-      fEvent++;
-      work=false;
-    }
-    PndMvdApvHit Hit(ev, moduleID, fe, triggID, ts, frame, ch, q, l);
-    fhitlist.push_back(Hit);
-  }
-  if(!(fEvent%10000)) cout<<"[ "<<(fEvent*100)/fNofEvents<<" %] "<<fEvent<<" events converted ..."<<endl;
-  if(fEvent==fNofEvents) cout<<"[100 %] "<<fEvent<<" events converted"<<endl;
-  return digiList;
+	
+	
+	std::vector<PndSdsDigiStrip> digiList;
+	bool work=true;
+	 
+	int triggID=0;
+	int fe=0;
+	int ts=0;
+	int frame=0;
+	int ch=0;
+	int l=0;
+	int moduleID=0;
+	double q=0.;
+	long int ev=0;
+
+	if (fEvent >= -1 && fEvent <= fNofEvents)
+	{
+	
+		t->GetEvent(fEvent);
+	
+		arr = tsEv->GetSiHitList();
+		fhitlist.clear();
+		
+		for (Int_t kk = 0 ; kk < arr->GetEntries() ; kk++)
+		{
+	 
+			SiHit *hit = (SiHit*) arr->At(kk);
+			ev = tsEv->GetEventId();
+			//fe = (Int_t) (hit->fChannel)/128;
+			//ch = (Int_t) (hit->fChannel)%128;
+			ch = (Int_t) (hit->fChannel);
+			q = hit->fAdc;
+			l = hit->fNumFrames;
+			moduleID = hit->fBox;
+		
+			//if(fhitlist.size()>20) fhitlist.clear();
+			//			digiList = Calc(fhitlist);
+			
+			fLastEvent=ev;
+			PndMvdApvHit Hit(ev, moduleID, fe, triggID, ts, frame, ch, q, l);
+			//cout << "Ev. " << fEvent << ", trigg: " << triggID << ", sens: " << moduleID << ", ch: " << ch << ", fe: " << (Int_t) (hit->fChannel)/128 << ", channel: " << (Int_t) (hit->fChannel)%128 << endl;
+			fhitlist.push_back(Hit);
+		}
+
+		//if(fhitlist.size()>20) fhitlist.clear();
+		digiList = Calc(fhitlist);
+		fEvent++;
+			
+	}
+	
+	if(!(fEvent%10000)) cout<<"[ "<<(fEvent*100)/fNofEvents<<" %] "<<fEvent<<" events converted ..."<<endl;
+	if(fEvent==fNofEvents) cout<<"[100 %] "<<fEvent<<" events converted"<<endl;
+		
+	return digiList;
+	 
 }
 
 // -----   read all events from hitfile   --------------------------------------------
