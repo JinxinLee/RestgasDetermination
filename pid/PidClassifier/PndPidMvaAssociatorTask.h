@@ -36,7 +36,7 @@ typedef enum
     LVQ = 1, // LVQ
     TMVA_MLP = 2, // Multi label TMVA ANN.
     TMVA_BDT = 3 // Multi label TMVA BDT.
-  } MethodType;
+  } Mva_MethodType;
 
 // ========================================================================
 class PndPidMvaAssociatorTask: public FairTask
@@ -89,7 +89,7 @@ class PndPidMvaAssociatorTask: public FairTask
   inline void SetWeightFileName(std::string const& wFileName);
   
   inline void SetClassifier(std::string const& methodName);
-  inline void SetClassifier(MethodType const& methodT);
+  inline void SetClassifier(Mva_MethodType const& methodT);
 
   //______________ KNN- Classifier parameter _____________
   /**
@@ -143,7 +143,7 @@ class PndPidMvaAssociatorTask: public FairTask
   PndMvaClassifier* fClassifier;
 
   //! MVA Method name.
-  MethodType fMethodType;
+  Mva_MethodType fMethodType;
 
   TClonesArray* fPidChargedCand; //! PndPidCandidate TCA for charged particles
   TClonesArray* fPidNeutralCand; //! PndPidCandidate TCA for neutral particles
@@ -195,7 +195,7 @@ inline void PndPidMvaAssociatorTask::SetClassifier(std::string const& methodName
                << std::endl;
   }
 };
-inline void PndPidMvaAssociatorTask::SetClassifier(MethodType const& methodT)
+inline void PndPidMvaAssociatorTask::SetClassifier(Mva_MethodType const& methodT)
 {
   fMethodType = methodT;
 };

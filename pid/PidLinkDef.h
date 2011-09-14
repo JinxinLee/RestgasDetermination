@@ -4,6 +4,10 @@
 #pragma link off all classes;
 #pragma link off all functions;
  
+// Method types enum.
+#pragma link C++ enum Mva_MethodType;
+
+//_______________________________
 #pragma link C++ class  PndPidCandidate+;
 #pragma link C++ class  PndPidProbability+;
 #pragma link C++ class  PndPidCorrPar+;
