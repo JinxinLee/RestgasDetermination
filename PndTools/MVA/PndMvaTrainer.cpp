@@ -343,6 +343,7 @@ void PndMvaTrainer::WriteToWeightFile(std::vector< std::pair<std::string,
   out.Close();
 }
 
+#if (TRAIN_INC_FOAM > 0)
 void PndMvaTrainer::WriteToWeightFile(std::vector<TMVA::PDEFoam*> const& foamList) const
 {
   std::cout << "<INFO> Writing Foams to file "
@@ -429,7 +430,7 @@ void PndMvaTrainer::WriteToWeightFile(std::vector<TMVA::PDEFoam*> const& foamLis
   // Close open file
   rootFile.Close();
 }
-
+#endif
 /*
   void PndMvaTrainer::WriteDataSetToOutFile()
   {

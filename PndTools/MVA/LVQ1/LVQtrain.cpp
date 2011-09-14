@@ -135,18 +135,18 @@ int main(int argc, char** argv)
   vars.push_back("lat");
   vars.push_back("z20");
   vars.push_back("z53");
-
+  
   //vars.push_back("thetaC");
   //vars.push_back("mvd");
   //vars.push_back("tof");
   //vars.push_back("stt"); 
 
   // Use for asymm. init.
-  
   std::map <std::string, size_t> numProtoMap;
-  numProtoMap["electron"] = 50;
-  numProtoMap["pion"]     = 130;
+  numProtoMap["electron"] = 40;
+  numProtoMap["pion"]     = 80;
   
+  // Learning parameters.
   float initC  = 0.8;
   float ethaZ  = 0.1;
   float ethaF  = 0.0001;
@@ -181,7 +181,7 @@ int main(int argc, char** argv)
   // tr.SetInitProtoFileName("InitialProto.root");
   
   // FILE_PR, KMEANS_PR, CCM_PR, RAND_FROM_DATA (DEFAULT)
-  // tr.setProtoInitType(RAND_FROM_DATA);
+  tr.setProtoInitType(RAND_FROM_DATA);
   
   // Set outPut file name to store weights.
   tr.SetOutPutFile(ot);
@@ -225,7 +225,7 @@ int main(int argc, char** argv)
   printErrors(tr);
 #endif//DEBUG
   
-#else// CROSS_VALIDATE != 0
+#else //__________ CROSS_VALIDATE != 0 __________
   /*
    * We want to do cross-validation. So first create k-disjoint subsets
    * of the data point indices and use this to set the test set for
@@ -343,10 +343,10 @@ int main(int argc, char** argv)
   // Create trainer objects
   for(size_t i = 0; i < NUMBER_OF_FOLDS; ++i)
   {
-    // Create and init trainers
+    // Create trainers
     PndLVQTrain* t = new PndLVQTrain(evts, labels, vars, true);
 
-    // Set parameters
+    // Set learning parameters
     t->SetLearnPrameters(initC, ethaZ, ethaF, numSweep);
     
     // Symm. number of proto.
@@ -355,14 +355,19 @@ int main(int argc, char** argv)
     // Use for asymm. init.
     //t->SetNumberOfProto(numProtoMap);
     
+    // FILE_PR, KMEANS_PR, CCM_PR, RAND_FROM_DATA (DEFAULT)
+    t->setProtoInitType(RAND_FROM_DATA);
+
     // Do NOT split test set.
     t->SetTetsSetSize(0);
 
     // Assign test set indices.
     t->SetTestSet(testSets[i]);
     
-    // Eval. rate.(DEFALUT = 1000)
-    t->SetErrorStepSize(5000);
+    // Eval. rate.(DEFALUT = 1000) During CV we do just need the very
+    // last evaluation. Note: If define anything else than zero here,
+    // then you will need to adapt your computations.
+    t->SetErrorStepSize(0);
     
     // OutFile names.
     std::string prefix = int2str(i);
@@ -404,16 +409,15 @@ int main(int argc, char** argv)
 #if ( __GNUC__ >= 4 && __GNUC_MINOR__ >= 3)
     // I/O is sequential anyways.
 #ifdef _OPENMP
-#pragma omp critical (StoreProtoTypesEvalData)
+#pragma omp critical (StoreProtoTypesAndEvalData)
     {
 #endif
 #endif//GCC
       // Write Weights.
-      (trainerList[tr])->storeWeights();
-      
+      (trainerList[tr])->storeWeights();      
       // Write Evaluation.
-      (trainerList[tr])->WriteErroVect( (int2str(tr)+ "_" +OutErr) );
-      
+      (trainerList[tr])->WriteErroVect( (int2str(tr)+"_"+OutErr) );
+      //
 #if ( __GNUC__ >= 4 && __GNUC_MINOR__ >= 3)
 #ifdef _OPENMP
     }// END Critical
@@ -422,11 +426,15 @@ int main(int argc, char** argv)
   }// END FOR(tr)
 
   // ========= Fetch evaluation data for processing ====
-  std::vector <StepError> EvalData; 
+  std::vector <StepError> EvalData;
   for(size_t i = 0; i < trainerList.size(); ++i)
   {
     // Get Eval vector.
     std::vector <StepError> const& err = (trainerList[i])->GetErrorValues();
+
+    //! NOTE: Each classifier should return a single "StepError". In
+    // other words a vector with size EQUAL to 1.
+    assert (err.size() == 1);
 
     // Copy to container.
     for(size_t k = 0; k < err.size(); ++k)
@@ -445,7 +453,7 @@ int main(int argc, char** argv)
 #endif// DEBUG
  
   //======= Clean trainers list (we dont need them)======
-  for(size_t j = 0; j < NUMBER_OF_FOLDS; ++j)
+  for(size_t j = 0; j < trainerList.size(); ++j)
   {
     delete trainerList[j];
   }
@@ -470,6 +478,8 @@ int main(int argc, char** argv)
     perClsSigm_tr[name] = 0.00;
     perClsSigm_ts[name] = 0.00;
   }
+
+  //assert (EvalData.size() == NUMBER_OF_FOLDS);
 
   // Loop through Eval Data points.
   for(size_t k = 0; k < EvalData.size(); ++k)
@@ -523,8 +533,9 @@ int main(int argc, char** argv)
     perClsSigm_tr [labels[lb]] /= static_cast<float>( EvalData.size() - 1);
   }
 
-  //Print Overal mean, sigma and the same per label.
+  // Print Overal mean, sigma and the same per label.
   std::cout << "\n=====================================\n"
+	    << "# Cross_validation Evaluation Data.\n"
 	    << " Number of proto = " << numProto
 	    << " Num Sweep = " << numSweep
 	    << "\n Mean_tr = " << mean_tr
@@ -532,14 +543,33 @@ int main(int argc, char** argv)
 	    << " Mean_ts = " << mean_ts
 	    << ", Sigma_ts = " << sigma_ts <<'\n';
 
+  std::cout << "\nPer label information.\n\n";
   for(size_t lb = 0; lb < labels.size(); ++lb)
   {
     std::cout << " Mean test "    << labels[lb] << " = " << perClsMean_ts[labels[lb]]
-	      << ", Sigm test "  << labels[lb] << " = " << perClsSigm_ts [labels[lb]]
-      	      << ", Mean train " << labels[lb] << " = " << perClsMean_tr[labels[lb]]
-	      << ", sigm train " << labels[lb] << " = " << perClsSigm_tr [labels[lb]]
+	      << ", Sigm test "   << labels[lb] << " = " << perClsSigm_ts [labels[lb]]
+      	      << "\n Mean train " << labels[lb] << " = " << perClsMean_tr[labels[lb]]
+	      << ", sigm train "  << labels[lb] << " = " << perClsSigm_tr [labels[lb]]
 	      <<'\n';
   }
+  //+++++++++++++
+  std::cout << "\n# Num Sweep = " << numSweep
+	    << "\n#+++++++++++++++++++++++++++++++++++++++++++++++\n"
+	    << numProto << " "
+	    << mean_tr  << " "
+	    << sigma_tr << " "
+	    << mean_ts  << " "
+	    << sigma_ts << " ";
+  
+  for(size_t lb = 0; lb < labels.size(); ++lb)
+  {
+    std::cout << perClsMean_ts[labels[lb]]  << " "
+	      << perClsSigm_ts [labels[lb]] << " "
+      	      << perClsMean_tr[labels[lb]]  << " "
+	      << perClsSigm_tr [labels[lb]] << " ";
+  }
+  std::cout << "\n#+++++++++++++++++++++++++++++++++++++++++++++++\n";
+  //+++++++++++++++
   std::cout << "\n=====================================\n";
 #endif// CROSS_VALIDATE != 0
   return 0;

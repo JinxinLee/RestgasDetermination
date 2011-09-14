@@ -72,7 +72,10 @@
   // Set the path to the weightFiles; otherwise the standard
   // path is used.
   ts->SetWeightFileName("/tmp/test.root");
-  
+
+  // Set classifiers type.
+  ts->SetClassifier(LVQ);
+
   // Set class names.
   ts->SetClassNames(clas);
   ts->SetNumNeigh(300);

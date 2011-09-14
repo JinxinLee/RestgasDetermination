@@ -27,6 +27,8 @@ class TRandom3;
 #include "PndMvaDataSet.h"
 #include "PndMvaUtil.h"
 
+#define TRAIN_INC_FOAM 0
+
 class PndMvaTrainer
 {
   //==============================================
@@ -150,6 +152,8 @@ class PndMvaTrainer
    */
   void WriteToWeightFile(std::vector< std::pair<std::string, 
 			 std::vector<float>*> > const& weights) const;
+
+#if (TRAIN_INC_FOAM > 0)
   /**
    * Writes generated TMVA Foams to file.
    *@param foams The list of the foams to be stored.
@@ -157,9 +161,9 @@ class PndMvaTrainer
    * experimental stage.
    */
   void WriteToWeightFile(std::vector<TMVA::PDEFoam*> const& foams) const;
-  
+#endif
   //void WriteDataSetToOutFile();
-  
+
   //! Indices of the test set.
   std::set <size_t> m_testSet_indices;
   

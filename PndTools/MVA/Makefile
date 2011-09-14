@@ -1,5 +1,5 @@
 ####################################################
-# HOW TO RUN
+# Set openMP env. vars
 #  OMP_NUM_THREADS=4 ./PlotEventData Events03.root
 #
 # Setting the linker and compiler flags and options
@@ -12,7 +12,7 @@
 MAKEFLAGS  = -wkr --no-print-directory #--debug -s
 
 FLAGSMACHINE  = -march=native -mtune=native
-# FLAGSMACHINE += -mfpmath=sse -msse3
+FLAGSMACHINE += -mfpmath=sse -msse3
 
 CCFLAGS  = -W -Wall -Wextra -Wshadow -Wredundant-decls
 CCFLAGS += -Wnormalized=nfc -Wdisabled-optimization -Woverlength-strings

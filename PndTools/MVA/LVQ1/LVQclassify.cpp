@@ -35,6 +35,10 @@
 
 // Create the distance histograms
 #define CREATE_DIST_HISTS 0
+
+// Determine recognition error as function of momentum.
+#define SORT_PER_MOMENTUM 1
+
 //________________________________________________________________
 
 #if PRODUCE_ROC
@@ -157,6 +161,14 @@ void Produce_VQ_ROC( std::vector< ClassifierOutPuts >& input,//Alg. input
 #endif// VQ ROC
 #endif// IF ROC
 
+//-------- ###############################
+// We want per momentum region recognition.
+//   std::map<std::string, size_t>* counts = readEvents(evtF.c_str(), allVars,
+// 						     labels, events);
+// We need to sort the evt data for chuncks of momentum regions.
+// FIXME FIXME HIER BEN JE BEZIG.
+//-------- ###############################
+
 /* ******************
  * Testing routine, *
  * ******************
@@ -215,12 +227,23 @@ int main(int argc, char** argv)
   //varNames.push_back("stt");
   //varNames.push_back("mvd"); 
 
+  // If we want to determine recognition error as function of
+  // momentum.
+#if (SORT_PER_MOMENTUM > 0)
+  std::vector<std::string> allVars;
+  allVars.push_back("p");
+  allVars.push_back("emc");
+  allVars.push_back("lat");
+  allVars.push_back("z20");
+  allVars.push_back("z53");
+#endif
+
   // Create classifier.
   PndLVQClassify cls (inF, labels, varNames);
 
   // Init classifier
   cls.Initialize();
-  
+
   // To be classified events.
   std::vector<std::pair<std::string, std::vector<float>* > > events;
   
@@ -259,8 +282,7 @@ int main(int argc, char** argv)
     classifiedEvents.push_back(ClassifierOutPuts((events[k]).first, *givenLabel,
 						 res[sgName], res[bgName]));
 #else
-    // If using the general ROC function
-    // The larger the better    
+    // If using the general ROC function. The larger the better
     classifiedEvents.push_back(ClassifierOutPuts((events[k]).first, *givenLabel,
 						 (1.0 - res[sgName]),
 						 (1.0 - res[bgName]) ) );
