@@ -56,25 +56,37 @@
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(6);
   //////////////
-  std::vector<std::string> clas;
-  std::vector<std::string> nam;
+  std::vector<std::string> labels;
+  std::vector<std::string> vars;
 
-  clas.push_back("electron");
-  clas.push_back("pion");
+  labels.push_back("electron");
+  labels.push_back("pion");
   
-  nam.push_back("emc");
-  nam.push_back("lat");
-  nam.push_back("z20");
-  nam.push_back("z53");
+  vars.push_back("emc");
+  vars.push_back("lat");  
+  vars.push_back("z20");
+  vars.push_back("z53");
 
   PndPidMvaAssociatorTask* ts = new PndPidMvaAssociatorTask();
   // Set the path to the weightFiles; otherwise the standard
   // path is used.
-  ts->SetWeightFileName("/media/daq/babaiexp/RndData/EventFeatureRnd1K.root");
+  ts->SetWeightFileName("/tmp/test.root");
   
   // Set variable- and class-names.
-  ts->SetVarNames(nam);
-  ts->SetClassNames(clas);
+  ts->SetClassNames(labels);
+  ts->SetVarNames(vars);
+
+  // Set classifiers type.
+  /*
+   * KNN, KNN methode.
+   * LVQ, LVQ methode.
+   * TMVA_MLP, Multi label TMVA ANN.
+   * TMVA_BDT, Multi label TMVA BDT.
+   * See PndPidMvaAssociatorTask.cxx
+   */
+  ts->SetClassifier(LVQ);
+  
+  // If KNN is selected, then set the number of neighbors.
   ts->SetNumNeigh(250);
   
   //Add task

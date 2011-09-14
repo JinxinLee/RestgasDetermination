@@ -59,25 +59,30 @@
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(6);
   //////////////
-  std::vector<std::string> clas;
+  std::vector<std::string> labels;
 
-  clas.push_back("electron");
-  clas.push_back("pion");
-  //clas.push_back("kaon");
-  //clas.push_back("muon");
-  //clas.push_back("proton");
-  
+  labels.push_back("electron");
+  labels.push_back("pion");
   
   PndPidEmcAssociatorTask* ts = new PndPidEmcAssociatorTask();
   // Set the path to the weightFiles; otherwise the standard
   // path is used.
   ts->SetWeightFileName("/tmp/test.root");
-
+  
   // Set classifiers type.
+  /*
+   * KNN, KNN methode.
+   * LVQ, LVQ methode.
+   * TMVA_MLP, Multi label TMVA ANN.
+   * TMVA_BDT, Multi label TMVA BDT.
+   * See PndPidMvaAssociatorTask.cxx
+   */
   ts->SetClassifier(LVQ);
-
+  
   // Set class names.
-  ts->SetClassNames(clas);
+  ts->SetClassNames(labels);
+
+  // If KNN is selected, then set the number of neighbors.
   ts->SetNumNeigh(300);
   
   //Add task
