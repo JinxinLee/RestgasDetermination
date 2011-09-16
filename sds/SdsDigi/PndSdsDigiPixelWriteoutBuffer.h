@@ -8,10 +8,12 @@
 #ifndef PNDSDSDIGIPIXELWRITEOUTBUFFER_H_
 #define PNDSDSDIGIPIXELWRITEOUTBUFFER_H_
 
-#include "PndWriteoutBufferT.h"
+#include "FairWriteoutBuffer.h"
 #include "PndSdsDigiPixel.h"
 
-class PndSdsDigiPixelWriteoutBuffer : public PndWriteoutBufferT<PndSdsDigiPixel>{
+class FairTimeStamp;
+
+class PndSdsDigiPixelWriteoutBuffer : public FairWriteoutBuffer{
 public:
 	PndSdsDigiPixelWriteoutBuffer();
 	PndSdsDigiPixelWriteoutBuffer(TString branchName);
@@ -21,6 +23,13 @@ public:
 	virtual std::vector<std::pair<double, PndSdsDigiPixel> > Modify(std::pair<double, PndSdsDigiPixel> oldData, std::pair<double, PndSdsDigiPixel> newData);
 
 	ClassDef(PndSdsDigiPixelWriteoutBuffer, 1);
+
+        void AddNewDataToTClonesArray(FairTimeStamp*){;}
+        double FindTimeForData(FairTimeStamp*){;}
+        void FillDataMap(FairTimeStamp*, double){;}
+       void EraseDataFromDataMap(FairTimeStamp*){;}
+
+
 };
 
 #endif /* PNDSDSDIGIPIXELWRITEOUTBUFFER_H_ */

@@ -9,12 +9,12 @@
 
 ClassImp(PndSdsDigiPixelWriteoutBuffer);
 
-PndSdsDigiPixelWriteoutBuffer::PndSdsDigiPixelWriteoutBuffer():PndWriteoutBufferT<PndSdsDigiPixel>() {
+PndSdsDigiPixelWriteoutBuffer::PndSdsDigiPixelWriteoutBuffer():FairWriteoutBuffer() {
 	// TODO Auto-generated constructor stub
 
 }
 
-PndSdsDigiPixelWriteoutBuffer::PndSdsDigiPixelWriteoutBuffer(TString branchName): PndWriteoutBufferT<PndSdsDigiPixel>(branchName, "PndSdsDigiPixel")
+PndSdsDigiPixelWriteoutBuffer::PndSdsDigiPixelWriteoutBuffer(TString branchName): FairWriteoutBuffer(branchName,branchName,branchName, "PndSdsDigiPixel")
 {
 }
 

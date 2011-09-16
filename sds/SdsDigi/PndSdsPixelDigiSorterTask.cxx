@@ -64,7 +64,7 @@ InitStatus PndSdsPixelDigiSorterTask::Init()
     return kFATAL;
   }
 
-  fSorter = new PndRingSorterT<PndSdsDigiPixel>(fNumberOfCells, fWidthOfCells);
+  fSorter = new FairRingSorter(fNumberOfCells, fWidthOfCells);
 
   // Create and register output array
   if(fVerbose>1) Info("Init","Registering this branch: %s/%s",fFolderName.Data(),fOutBranchName.Data());

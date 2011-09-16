@@ -66,7 +66,7 @@ SdsDigi/PndSdsIdealChargeConversion.cxx
 SdsDigi/PndSdsTotChargeConversion.cxx
 SdsDigi/PndSdsAdcChargeConversion.cxx
 SdsDigi/PndSdsDigiPixelWriteoutBuffer.cxx
-SdsDigi/PndSdsPixelDigiSorterTask.cxx
+#SdsDigi/PndSdsPixelDigiSorterTask.cxx
 
 SdsFEModel/PndSdsFE.cxx
 SdsFEModel/PndSdsFESimple.cxx

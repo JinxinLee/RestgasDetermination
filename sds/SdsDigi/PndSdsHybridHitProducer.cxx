@@ -350,7 +350,7 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
 	for (int i = 0; i < indices.size(); i++)
 		tempPixel.AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  FairRootManager::Instance()->GetBranchId(fInBranchName), indices[i]));
 
-	fDataBuffer->FillNewData(tempPixel, fChargeConverter->ChargeToDigiValue(fPixelList[iPix].GetCharge()) + EventTime);
+	//fDataBuffer->FillNewData(tempPixel, fChargeConverter->ChargeToDigiValue(fPixelList[iPix].GetCharge()) + EventTime);
 
 
 	if (fVerbose > 0){

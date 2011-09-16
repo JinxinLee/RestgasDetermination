@@ -26,12 +26,12 @@
 
 #include "TObject.h"
 #include "TString.h"
-#include "FairWriteoutBufferAbsBasis.h"
+#include "FairWriteoutBuffer.h"
 #include "FairTimeStamp.h"
 #include <map>
 
 
-class PndWriteoutBuffer: public FairWriteoutBufferAbsBasis{
+class PndWriteoutBuffer: public FairWriteoutBuffer{
 public:
 	PndWriteoutBuffer():fTreeSave(false), fActivateBuffering(kFALSE), fVerbose(0) {};
 	PndWriteoutBuffer(TString branchName, TString className);

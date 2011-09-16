@@ -156,9 +156,9 @@ InitStatus PndSdsStripHitProducer::Init()
   // Create and register output array
  // fStripArray = new TClonesArray("PndSdsDigiStrip");
   fStripArray = ioman->Register(fOutBranchName, "PndSdsDigiStrip", fFolderName, fPersistance);
-  fDataBuffer = new PndWriteoutBufferT<PndSdsDigiStrip>(fOutBranchName, "PndSdsDigiStrip");
+ // fDataBuffer = new PndWriteoutBufferT<PndSdsDigiStrip>(fOutBranchName, "PndSdsDigiStrip");
   if (fTimeOrderedDigi)
-	  fDataBuffer = (PndWriteoutBufferT<PndSdsDigiStrip>*)ioman->RegisterWriteoutBuffer(fOutBranchName, fDataBuffer);
+//	  fDataBuffer = (PndWriteoutBufferT<PndSdsDigiStrip>*)ioman->RegisterWriteoutBuffer(fOutBranchName, fDataBuffer);
   fDataBuffer->ActivateBuffering(fTimeOrderedDigi);
 
   SetCalculators();
@@ -266,7 +266,7 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
 					fCurrentStripCalcTop->CalcFEfromStrip(kit->GetIndex()),
 					fCurrentStripCalcTop->CalcChannelfromStrip(kit->GetIndex()), kit->GetCharge(), FairRootManager::Instance()->GetEventTime());
 
-			fDataBuffer->FillNewData(tempStrip,	FairRootManager::Instance()->GetEventTime() + 100);
+		//	fDataBuffer->FillNewData(tempStrip,	FairRootManager::Instance()->GetEventTime() + 100);
         }
         if (fVerbose > 1) std::cout << *kit << std::endl;
       }
@@ -297,7 +297,7 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
     		  PndSdsDigiStrip tempStrip(indices, FairRootManager::Instance()->GetBranchId(fInBranchName),
 						point->GetSensorID(), fCurrentStripCalcBot->CalcFEfromStrip(kit->GetIndex())+ fCurrentDigiPar->GetNrTopFE(),
 						fCurrentStripCalcBot->CalcChannelfromStrip(kit->GetIndex()), kit->GetCharge(), FairRootManager::Instance()->GetEventTime());
-			  fDataBuffer->FillNewData(tempStrip,	FairRootManager::Instance()->GetEventTime() + 100);
+//			  fDataBuffer->FillNewData(tempStrip,	FairRootManager::Instance()->GetEventTime() + 100);
     	  }
         if (fVerbose > 2) std::cout << *kit << std::endl;
       }

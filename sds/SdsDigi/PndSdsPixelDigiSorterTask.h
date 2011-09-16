@@ -9,7 +9,7 @@
 #include "PndSdsTask.h"
 #include "PndSdsPixelDigiPar.h"
 #include "PndSdsDigiPixel.h"
-#include "PndRingSorterT.h"
+#include "FairRingSorter.h"
 
 #include "FairMCEventHeader.h"
 
@@ -46,7 +46,7 @@ class PndSdsPixelDigiSorterTask : public PndSdsTask
   
 protected:
   
-  PndRingSorterT<PndSdsDigiPixel>* fSorter;
+  FairRingSorter* fSorter;
 
   Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
   Bool_t fDigiPixelMCInfo; // switch to turn on/off storing additional MC Info of Digis

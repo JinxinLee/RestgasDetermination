@@ -42,11 +42,8 @@ ${ROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(BUFFERS_SRCS
-PndRingSorterT.cxx
 PndRingSorter.cxx
-PndWriteoutBufferT.cxx
 PndWriteoutBuffer.cxx
-PndSorterTaskT.cxx
 PndSorterTask.cxx
 )
 
