@@ -42,9 +42,11 @@ ${ROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(BUFFERS_SRCS
-PndRingSorter.cxx
-PndWriteoutBuffer.cxx
-PndSorterTask.cxx
+#PndRingSorterT.cxx
+#PndWriteoutBufferT.cxx
+#PndWriteoutBuffer.cxx
+#PndSorterTaskT.cxx
+
 )
 
 # fill list of header files from list of source files

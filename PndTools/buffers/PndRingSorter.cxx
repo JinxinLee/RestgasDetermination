@@ -9,9 +9,11 @@
 
 void PndRingSorter::AddElement(FairTimeStamp* digi, double timestamp){
 
+	FairTimeStamp* newElement = CreateElement(digi);
+
 	if (timestamp < fLowerBoundPointer.second){
 		std::cout << "-E- Timestamp " << timestamp << " below lower bound " << fLowerBoundPointer.second << std::endl;
-		std::cout << digi << std::endl;
+		newElement->Print();
 		return;
 	}
 	int index = CalcIndex(timestamp);
@@ -26,7 +28,7 @@ void PndRingSorter::AddElement(FairTimeStamp* digi, double timestamp){
 		WriteOutElements(index+1);
 		SetLowerBound(timestamp);
 	}
-	fRingBuffer[index].insert(std::pair<double, FairTimeStamp*> (timestamp, digi));
+	fRingBuffer[index].insert(std::pair<double, FairTimeStamp*> (timestamp, newElement));
 }
 
  void PndRingSorter::SetLowerBound(double timestampOfHitToWrite){
@@ -38,6 +40,7 @@ void PndRingSorter::AddElement(FairTimeStamp* digi, double timestamp){
 	fLowerBoundPointer.first = index;
 	if (fVerbose > 0) std::cout << "-I- PndRingSorter::SetLowerBound " << index << " / " << fLowerBoundPointer.second << std::endl;
 }
+
  void PndRingSorter::WriteOutElements(int index){
 	if (fLowerBoundPointer.first >= index){
 		for (int i = fLowerBoundPointer.first; i < fRingBuffer.size(); i++)
@@ -49,18 +52,22 @@ void PndRingSorter::AddElement(FairTimeStamp* digi, double timestamp){
 		for (int i = fLowerBoundPointer.first; i < index; i++)
 			WriteOutElement(i);
 	}
-	if (fVerbose > 1){
+//	if (fVerbose > 1){
 		std::cout << "-I- PndRingSorter::WriteOutElements: Size of Output-Array: " << fOutputData.size() << std::endl;
 //		for (int i = 0; i < fOutputData.size(); i++)
 //			std::cout << fOutputData[i].size() << " | ";
 //		std::cout << std::endl;
-	}
+//	}
 }
+
  void PndRingSorter::WriteOutElement(int index){
 	std::multimap<double, FairTimeStamp*>* myDataField = &fRingBuffer.at(index);
 	std::multimap<double, FairTimeStamp*>::iterator it;
 	if (!myDataField->empty()) {
-		if (fVerbose > 1)std::cout << "-I- PndRingSorterT:WriteOutElement " << myDataField->begin()->second << std::endl;
+		if (fVerbose > 1);
+		std::cout << "-I- PndRingSorterT:WriteOutElement ";
+		myDataField->begin()->second->Print();
+		std::cout << std::endl;
 		for (it = myDataField->begin(); it != myDataField->end(); it++){
 			fOutputData.push_back(it->second);
 		}

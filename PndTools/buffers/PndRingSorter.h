@@ -26,6 +26,8 @@ public:
 
 	virtual ~PndRingSorter(){};
 
+	virtual FairTimeStamp* CreateElement(FairTimeStamp* data) = 0;
+
 	virtual void AddElement(FairTimeStamp* digi, double timestamp);
 	virtual void WriteOutElements(int index);				///< writes out the entries from LowerBoundPointer up to index
 	virtual void WriteOutElement(int index);					///< writes out the entry at the index and clears it
@@ -42,6 +44,7 @@ public:
 
 	virtual void Print(std::ostream& out = std::cout){
 		out << "RingSorter: Size " << fRingBuffer.size() << " CellWidth: " << fCellWidth << std::endl;
+		out << "LowerBoundPointer at index: " << fLowerBoundPointer.first << " Time: " << fLowerBoundPointer.second << std::endl;
 		out << "| ";
 		for (int i = 0; i < fRingBuffer.size(); i++){
 			out << fRingBuffer[i].size() << " |";

@@ -22,7 +22,7 @@ class PndSorterTask : public FairTask
   /** Default constructor **/
   PndSorterTask():FairTask("SorterTask"), fNumberOfCells(1000), fWidthOfCells(10),fEntryNr(0)
   {
-	  SetVerbose(0);
+	  SetVerbose(3);
 	  SetPersistance();
   }
   
@@ -30,14 +30,14 @@ class PndSorterTask : public FairTask
   PndSorterTask(const char* name):
 	  FairTask(name), fNumberOfCells(1000), fWidthOfCells(10), fEntryNr(0)
   {
-	  SetVerbose(0);
+	  SetVerbose(3);
 	  SetPersistance();
   };
 
  PndSorterTask(Int_t numberOfCells, Double_t widthOfCells, TString inputBranch, TString outputBranch, TString folderName):
 	 FairTask("Sorter"), fNumberOfCells(numberOfCells), fWidthOfCells(widthOfCells), fInputBranch(inputBranch), fOutputBranch(outputBranch), fFolder(folderName)
   {
-	 SetVerbose(0);
+	 SetVerbose(3);
 	  SetPersistance();
   }
 
@@ -61,7 +61,8 @@ class PndSorterTask : public FairTask
   void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
   Bool_t GetPersistance() {return fPersistance;};
   
-  virtual void WriteDataToTClonesArray(FairTimeStamp* data) = 0;
+  virtual void AddNewDataToTClonesArray(FairTimeStamp* data) = 0;
+  virtual PndRingSorter* InitSorter(Int_t numberOfCells, Double_t widthOfCells) = 0;
 
 protected:
   
