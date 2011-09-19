@@ -5,7 +5,7 @@
 #include "PndMvdStripClusterTask.h"
 #include "PndMvdContFact.h"
 #include "FairRuntimeDb.h"
-#include "FairRun.h"
+#include "FairRunAna.h"
 #include "PndSdsTotChargeConversion.h"
 #include "PndSdsIdealChargeConversion.h"
 #include "PndSdsChargeWeightingAlgorithms.h"
@@ -36,7 +36,11 @@ void PndMvdStripClusterTask::SetBranchNames(TString inBranchname, TString outHit
 // -----   Default I/O folder/branches   ----------------------------------------------------
 void PndMvdStripClusterTask::SetBranchNames()
 {
-  fInBranchName = "MVDStripDigis";
+	if (FairRunAna::Instance()->IsTimeStamp())
+		fInBranchName = "MVDSortedStripDigis";
+	else
+		fInBranchName = "MVDStripDigis";
+//  fInBranchName = "MVDStripDigis";
   fOutBranchName = "MVDHitsStrip";
   fClustBranchName = "MVDStripClusterCand";
   fFolderName = "PndMvd";

@@ -34,7 +34,7 @@
 #pragma link C++ class PndMvdHitProducerIdeal+;
 //#pragma link C++ class PndMvdNoiseProducer+;
 //#pragma link C++ class PndMvdCalcFePixel+;
-//#pragma link C++ class PndMvdPixelDigiSorterTask+;
+
 
 //#pragma link C++ class PndMvdMCEventAna+;
 //#pragma link C++ class PndMvdEventAna+;

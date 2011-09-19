@@ -58,32 +58,14 @@ InitStatus PndMvdNoiseProducer::Init()
   }
   
   // Get input array
-  if (fTimeOrderedDigi == kFALSE){
-	  fDigiStripArray = (TClonesArray*) ioman->GetObject("MVDStripDigis");
-	  if ( ! fDigiStripArray )  {
-		std::cout << " -W- PndMvdNoiseProducer::Init: No MVDStripDigis array!" << std::endl;
-		std::cout << "    Create a new one." << std::endl;
-		fDigiStripArray = new TClonesArray("PndSdsDigiStrip");
-		ioman->Register("MVDStripDigis","MVD",fDigiStripArray,fPersistance);
-	  }
-  }
-  else
-	  fDigiStripBuffer = (PndWriteoutBufferT<PndSdsDigiStrip>*)FairRootManager::Instance()->RegisterWriteoutBuffer("MVDStripDigis", new PndWriteoutBufferT<PndSdsDigiStrip>("MVDStripDigis", "PndSdsDigiStrip"));
+
+  fDigiStripBuffer = (PndSdsDigiStripWriteoutBuffer*)FairRootManager::Instance()->RegisterWriteoutBuffer("MVDStripDigis", new PndSdsDigiStripWriteoutBuffer("MVDStripDigis", "MVD", kTRUE));
   
 //  fDigiPixelArray = (TClonesArray*) ioman->GetObject("MVDPixelDigis");
-  if (fTimeOrderedDigi == kFALSE){
-	  fDigiPixelArray = FairRootManager::Instance()->GetTClonesArray("MVDPixelDigis");
+  fDigiPixelBuffer = new PndSdsDigiPixelWriteoutBuffer("MVDPixelDigis", "MVD", kTRUE);
+  fDigiPixelBuffer = (PndSdsDigiPixelWriteoutBuffer*)FairRootManager::Instance()->RegisterWriteoutBuffer("MVDPixelDigis", fDigiPixelBuffer);
+  fDigiPixelBuffer->ActivateBuffering(fTimeOrderedDigi);
 
-	  if ( ! fDigiPixelArray )     {
-		std::cout << " -W- PndMvdNoiseProducer::Init: No MVDPixelDigis array!" << std::endl;
-		std::cout << "    Create a new one." << std::endl;
-	   //fDigiPixelArray = new TClonesArray("PndSdsDigiPixel");
-		ioman->Register("MVDPixelDigis","PndSdsDigiPixel", "MVD",fPersistance);
-	  }
-  }
-  else {
-	  fDigiPixelBuffer = (PndSdsDigiPixelWriteoutBuffer*)FairRootManager::Instance()->RegisterWriteoutBuffer("MVDPixelDigis", new PndSdsDigiPixelWriteoutBuffer("MVDPixelDigis"));
-  }
   
   fMCEventheader = (FairMCEventHeader*) ioman->GetObject("MCEventHeader.");
   if ( ! fMCEventheader ){
@@ -401,41 +383,41 @@ void PndMvdNoiseProducer::AddDigiStrip(Int_t &noisies, Int_t iPoint, Int_t senso
   PndSdsDigiStrip* aDigi = 0;
 //  FairMCEventHeader* MCevtHeader = (FairMCEventHeader*)FairRootManager::Instance()->GetObject("MCEventHeader.");
 
-  if (fTimeOrderedDigi == kFALSE){
-	  Int_t iStrip = fDigiStripArray->GetEntriesFast();
-
-	  for(Int_t kstr = 0; kstr < iStrip && found == kFALSE; kstr++)
-	  {
-		aDigi = (PndSdsDigiStrip*)fDigiStripArray->At(kstr);
-		if (aDigi->GetSensorID() == sensorID &&
-			aDigi->GetFE() == fe &&
-			aDigi->GetChannel() == chan )
-		{
-		  tempcharge = fCurrentChargeConv->DigiValueToCharge(*aDigi);
-		  aDigi->SetCharge( fCurrentChargeConv->ChargeToDigiValue(charge + tempcharge) );
-		  aDigi->AddIndex(iPoint);
-		  found = kTRUE;
-		}
-	  }
-	  if(found == kFALSE){
-		  //TODO: get a reasonable timestamp fake for the noise
+//  if (fTimeOrderedDigi == kFALSE){
+//	  Int_t iStrip = fDigiStripArray->GetEntriesFast();
+//
+//	  for(Int_t kstr = 0; kstr < iStrip && found == kFALSE; kstr++)
+//	  {
+//		aDigi = (PndSdsDigiStrip*)fDigiStripArray->At(kstr);
+//		if (aDigi->GetSensorID() == sensorID &&
+//			aDigi->GetFE() == fe &&
+//			aDigi->GetChannel() == chan )
+//		{
+//		  tempcharge = fCurrentChargeConv->DigiValueToCharge(*aDigi);
+//		  aDigi->SetCharge( fCurrentChargeConv->ChargeToDigiValue(charge + tempcharge) );
+//		  aDigi->AddIndex(iPoint);
+//		  found = kTRUE;
+//		}
+//	  }
+//	  if(found == kFALSE){
+//		  //TODO: get a reasonable timestamp fake for the noise
+//		std::vector<Int_t> indices;
+//		indices.push_back(iPoint);
+//		new ((*fDigiStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,sensorID,fe,chan,fCurrentChargeConv->ChargeToDigiValue(charge), FairRootManager::Instance()->GetEventTime()) ;
+//		noisies++;
+//		if(fVerbose>2) std::cout
+//		  << " -I- PndSdsNoiseProducer: Added StripTrap Digi at: FE=" << fe
+//		  << ", channel=" << chan << ", charge=" << charge<< " e"
+//		  << ", in sensor \n" << sensorID <<std::endl;
+//	  }
+//  }
+//  else{
 		std::vector<Int_t> indices;
 		indices.push_back(iPoint);
-		new ((*fDigiStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,sensorID,fe,chan,fCurrentChargeConv->ChargeToDigiValue(charge), FairRootManager::Instance()->GetEventTime()) ;
-		noisies++;
-		if(fVerbose>2) std::cout
-		  << " -I- PndSdsNoiseProducer: Added StripTrap Digi at: FE=" << fe
-		  << ", channel=" << chan << ", charge=" << charge<< " e"
-		  << ", in sensor \n" << sensorID <<std::endl;
-	  }
-  }
-  else{
-		std::vector<Int_t> indices;
-		indices.push_back(iPoint);
-		PndSdsDigiStrip tempStrip(indices,detID,sensorID,fe,chan,fCurrentChargeConv->ChargeToDigiValue(charge), FairRootManager::Instance()->GetEventTime()) ;
+		PndSdsDigiStrip* tempStrip = new PndSdsDigiStrip(indices,detID,sensorID,fe,chan,fCurrentChargeConv->ChargeToDigiValue(charge), FairRootManager::Instance()->GetEventTime()) ;
 		noisies++;
 		fDigiStripBuffer->FillNewData(tempStrip, FairRootManager::Instance()->GetEventTime() + 10);
-  }
+//  }
 }
 // -------------------------------------------------------------------------
 void PndMvdNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t sensorID, Int_t fe, Int_t col, Int_t row, Double_t charge)
@@ -445,51 +427,49 @@ void PndMvdNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t senso
   Int_t detID = -1; //no source mc branch
  // FairMCEventHeader* MCevtHeader = (FairMCEventHeader*)FairRootManager::Instance()->GetObject("MCEventHeader.");
 
-  if (fTimeOrderedDigi == kFALSE){
-	  fDigiPixelArray = FairRootManager::Instance()->GetTClonesArray("MVDPixelDigis");
-	  Int_t iPix = fDigiPixelArray->GetEntriesFast();
-	  PndSdsDigiPixel* aDigi = 0;
-	  for(Int_t kstr = 0; kstr < iPix && found == kFALSE; kstr++)
-	  {
-		aDigi = (PndSdsDigiPixel*)fDigiPixelArray->At(kstr);
-		if (aDigi->GetSensorID() == sensorID &&
-			aDigi->GetFE() == fe &&
-			aDigi->GetPixelColumn() == col &&
-			aDigi->GetPixelRow() == row )
-		{
-		  tempcharge = fPixChargeConv->DigiValueToCharge(*aDigi);
-		  aDigi->SetCharge( fPixChargeConv->ChargeToDigiValue(charge + tempcharge) );
-		  aDigi->AddIndex(iPoint);
-		  found = kTRUE;
-		}
-	  }
-	  if(found == kFALSE){
-		  std::vector<Int_t> indices;
-		  indices.push_back(iPoint);
-		new ((*fDigiPixelArray)[iPix]) PndSdsDigiPixel(indices,detID,sensorID,fe,col,row,fPixChargeConv->ChargeToDigiValue(charge), FairRootManager::Instance()->GetEventTime()) ;
-		noisies++;
-		if(fVerbose>2) std::cout
-		  << " -I- PndSdsNoiseProducer: Added Pixel Digi at: FE=" << fe
-		  << ", col|row = ("<<col<<"|"<<row<< "), charge=" << charge<< " e"
-		  << ", in sensor \n" << sensorID <<std::endl;
-
-	  }
-  }
-  else {
+//  if (fTimeOrderedDigi == kFALSE){
+//	  fDigiPixelArray = FairRootManager::Instance()->GetTClonesArray("MVDPixelDigis");
+//	  Int_t iPix = fDigiPixelArray->GetEntriesFast();
+//	  PndSdsDigiPixel* aDigi = 0;
+//	  for(Int_t kstr = 0; kstr < iPix && found == kFALSE; kstr++)
+//	  {
+//		aDigi = (PndSdsDigiPixel*)fDigiPixelArray->At(kstr);
+//		if (aDigi->GetSensorID() == sensorID &&
+//			aDigi->GetFE() == fe &&
+//			aDigi->GetPixelColumn() == col &&
+//			aDigi->GetPixelRow() == row )
+//		{
+//		  tempcharge = fPixChargeConv->DigiValueToCharge(*aDigi);
+//		  aDigi->SetCharge( fPixChargeConv->ChargeToDigiValue(charge + tempcharge) );
+//		  aDigi->AddIndex(iPoint);
+//		  found = kTRUE;
+//		}
+//	  }
+//	  if(found == kFALSE){
+//		  std::vector<Int_t> indices;
+//		  indices.push_back(iPoint);
+//		new ((*fDigiPixelArray)[iPix]) PndSdsDigiPixel(indices,detID,sensorID,fe,col,row,fPixChargeConv->ChargeToDigiValue(charge), FairRootManager::Instance()->GetEventTime()) ;
+//		noisies++;
+//		if(fVerbose>2) std::cout
+//		  << " -I- PndSdsNoiseProducer: Added Pixel Digi at: FE=" << fe
+//		  << ", col|row = ("<<col<<"|"<<row<< "), charge=" << charge<< " e"
+//		  << ", in sensor \n" << sensorID <<std::endl;
+//
+//	  }
+//  }
+//  else {
 	  std::vector<Int_t> indices;
 	  indices.push_back(iPoint);
-	  PndSdsDigiPixel tempPixel(indices,detID,sensorID,fe,col,row,fPixChargeConv->ChargeToDigiValue(charge), FairRootManager::Instance()->GetEventTime()) ;
+	  PndSdsDigiPixel* tempPixel = new PndSdsDigiPixel(indices,detID,sensorID,fe,col,row,fPixChargeConv->ChargeToDigiValue(charge), FairRootManager::Instance()->GetEventTime()) ;
 	  fDigiPixelBuffer->FillNewData(tempPixel, FairRootManager::Instance()->GetEventTime() + 10);
-  }
+	  std::cout << "DataInBuffer: " << fDigiPixelBuffer->GetNData() << std::endl;
+//  }
 }
 
 void PndMvdNoiseProducer::FinishEvent()
 {
   // called after all Tasks did their Exex() and the data is copied to the file
-	if (fTimeOrderedDigi == kFALSE){
-		fDigiPixelArray->Delete();
-		fDigiStripArray->Delete();
-	}
+
   FinishEvents();
 }
 // -------------------------------------------------------------------------

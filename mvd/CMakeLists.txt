@@ -79,8 +79,9 @@ MvdMC/PndMvdDetector.cxx
 MvdDigi/PndMvdHybridHitProducer.cxx
 MvdDigi/PndMvdStripHitProducer.cxx
 MvdDigi/PndMvdHitProducerIdeal.cxx
-#MvdDigi/PndMvdDigiTask.cxx
-#MvdDigi/PndMvdNoiseProducer.cxx
+
+MvdDigi/PndMvdDigiTask.cxx
+MvdDigi/PndMvdNoiseProducer.cxx
 #MvdDigi/PndMvdPixelDigiSorterTask.cxx
 
 MvdDAQ/SiHit.cxx

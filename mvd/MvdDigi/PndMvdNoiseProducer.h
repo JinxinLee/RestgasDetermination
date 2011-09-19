@@ -28,6 +28,7 @@
 #include "PndSdsTotDigiPar.h"
 #include "PndSdsChargeConversion.h"
 #include "PndSdsDigiPixelWriteoutBuffer.h"
+#include "PndSdsDigiStripWriteoutBuffer.h"
 #include "PndSdsDigiStrip.h"
 #include "PndSdsFE.h"
 #include "TString.h"
@@ -80,7 +81,7 @@ class PndMvdNoiseProducer : public FairTask
   TClonesArray* fDigiPixelArray;
 
   PndSdsDigiPixelWriteoutBuffer* fDigiPixelBuffer;
-  PndWriteoutBufferT<PndSdsDigiStrip>* fDigiStripBuffer;
+  PndSdsDigiStripWriteoutBuffer* fDigiStripBuffer;
 
   /** Parameter Containers **/
   PndSdsStripDigiPar* fDigiParRect;
