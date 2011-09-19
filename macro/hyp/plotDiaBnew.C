@@ -27,12 +27,12 @@ Double_t energy = "TMath::Sqrt(mom*mom + HypPoint.fmass*HypPoint.fmass)";
 
  //mychain->Draw("HypSegTarPoint.fdist:HypSegTarPoint.fZin>>histo(00,-77,-72,200,0.5,5)");
 c1 = new TCanvas("stopping xi- rate momentum distribution");
- mychain->SetLineColor(4);
+//mychain->SetLineColor(4);
  mychain->Draw("TMath::Sqrt(HypPoint.fPxin*HypPoint.fPxin+HypPoint.fPyin*HypPoint.fPyin+HypPoint.fPzin*HypPoint.fPzin)>>his(200,-0.4,1.4)", ximin );
 
  cout<<"integral of Xi- entering"<< his->Integral()<<endl;
- mychain->SetLineColor(2);
- mychain->Draw("TMath::Sqrt(HypSecTarPoint.fPxin*HypSecTarPoint.fPxin+HypSecTarPoint.fPyin*HypSecTarPoint.fPyin+HypSecTarPoint.fPzin*HypSecTarPoint.fPzin)>>hist(200,-0.4,1.4)","same" );
+ //mychain->SetLineColor(2);
+ mychain->Draw("TMath::Sqrt(HypSecTarPoint.fPxin*HypSecTarPoint.fPxin+HypSecTarPoint.fPyin*HypSecTarPoint.fPyin+HypSecTarPoint.fPzin*HypSecTarPoint.fPzin)>>hist(200,-0.4,1.4)","","same" );
  cout<<"integral of Xi- stopped"<< hist->Integral()<<endl;
  //hist->Scale(10);
  
