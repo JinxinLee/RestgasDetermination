@@ -18,7 +18,8 @@
 #include "PndGeoHandling.h"
 #include "PndSdsCalcStrip.h"
 #include "PndSdsChargeConversion.h"
-#include "FairWriteoutBuffer.h"
+#include "PndSdsDigiStripWriteoutBuffer.h"
+
 
 #include <string>
 #include <vector>
@@ -120,6 +121,7 @@ class PndSdsStripHitProducer : public PndSdsTask
   TClonesArray* fStripArray;
 
   FairWriteoutBuffer *fDataBuffer;
+
 
   //! Digitization Parameters
   TList* fDigiParameterList;

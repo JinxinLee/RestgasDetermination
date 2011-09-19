@@ -9,12 +9,18 @@
 
 ClassImp(PndSdsDigiPixelWriteoutBuffer);
 
+#include "PndSdsDigiPixel.h"
+#include "PndSdsDigiStrip.h"
+
+
 PndSdsDigiPixelWriteoutBuffer::PndSdsDigiPixelWriteoutBuffer():FairWriteoutBuffer() {
+
 	// TODO Auto-generated constructor stub
 
 }
 
-PndSdsDigiPixelWriteoutBuffer::PndSdsDigiPixelWriteoutBuffer(TString branchName): FairWriteoutBuffer(branchName,branchName,branchName, "PndSdsDigiPixel")
+
+PndSdsDigiPixelWriteoutBuffer::PndSdsDigiPixelWriteoutBuffer(TString branchName, TString folderName, Bool_t persistance): FairWriteoutBuffer(branchName, "PndSdsDigiPixel", folderName, persistance)
 {
 }
 
@@ -22,20 +28,50 @@ PndSdsDigiPixelWriteoutBuffer::~PndSdsDigiPixelWriteoutBuffer() {
 	// TODO Auto-generated destructor stub
 }
 
-std::vector<std::pair<double, PndSdsDigiPixel> > PndSdsDigiPixelWriteoutBuffer::Modify(std::pair<double, PndSdsDigiPixel> oldData, std::pair<double, PndSdsDigiPixel> newData)
+std::vector<std::pair<double, PndSdsDigiPixel*> > PndSdsDigiPixelWriteoutBuffer::Modify(std::pair<double, PndSdsDigiPixel*> oldData, std::pair<double, PndSdsDigiPixel*> newData)
 {
-	std::vector<std::pair<double, PndSdsDigiPixel> > result;
-	std::pair<double, PndSdsDigiPixel> singleResult;
+	std::vector<std::pair<double, PndSdsDigiPixel*> > result;
+	std::pair<double, PndSdsDigiPixel*> singleResult;
 	if (newData.first > 0)
 		singleResult.first = oldData.first + newData.first;
 	singleResult.second = oldData.second;
-	singleResult.second.AddCharge(newData.second.GetCharge());
-	std::cout << "Modify hit" << std::endl;
-
-	std::cout << "OldData: " << oldData.first << " : " << oldData.second << " NewData: " << newData.first << " : " << newData.second << std::endl;
-	std::cout << "Resulting Data: " << singleResult.first << " : " << singleResult.second << std::endl;
+	singleResult.second->AddCharge(newData.second->GetCharge());
+	if (fVerbose > 0){
+		std::cout << "Modify hit" << std::endl;
+		std::cout << "OldData: " << oldData.first << " : " << oldData.second << " NewData: " << newData.first << " : " << newData.second << std::endl;
+		std::cout << "Resulting Data: " << singleResult.first << " : " << singleResult.second << std::endl;
+	}
 
 	result.push_back(singleResult);
 	return result;
 }
 
+void PndSdsDigiPixelWriteoutBuffer::AddNewDataToTClonesArray(FairTimeStamp* data)
+{
+  FairRootManager* ioman = FairRootManager::Instance();
+  TClonesArray* myArray = ioman->GetTClonesArray(fBranchName);
+  if (fVerbose > 1) std::cout << "Data Inserted: "  <<  *(PndSdsDigiPixel*)(data) << std::endl;
+  new ((*myArray)[myArray->GetEntries()]) PndSdsDigiPixel(*(PndSdsDigiPixel*)(data));
+}
+
+double PndSdsDigiPixelWriteoutBuffer::FindTimeForData(FairTimeStamp* data) 
+{
+  std::map<PndSdsDigiPixel, double>::iterator it;
+  PndSdsDigiPixel myData = *(PndSdsDigiPixel*)data;
+  it = fData_map.find(myData);
+  if (it == fData_map.end())
+    return -1;
+  else
+    return it->second;
+}
+void PndSdsDigiPixelWriteoutBuffer::FillDataMap(FairTimeStamp* data, double activeTime) 
+{
+  PndSdsDigiPixel myData = *(PndSdsDigiPixel*)data;
+  fData_map[myData] = activeTime;
+}
+void PndSdsDigiPixelWriteoutBuffer::EraseDataFromDataMap(FairTimeStamp* data)
+{
+  PndSdsDigiPixel myData = *(PndSdsDigiPixel*)data;
+  if (fData_map.find(myData) != fData_map.end())
+    fData_map.erase(fData_map.find(myData));
+}

@@ -1,0 +1,34 @@
+/*
+ * PndSdsDigiStripWriteoutBuffer.h
+ *
+ *  Created on: May 10, 2011
+ *      Author: stockman
+ */
+
+#ifndef PNDSdsDigiStripWRITEOUTBUFFER_H_
+#define PNDSdsDigiStripWRITEOUTBUFFER_H_
+
+#include "FairWriteoutBuffer.h"
+#include "PndSdsDigiStrip.h"
+
+class PndSdsDigiStripWriteoutBuffer : public FairWriteoutBuffer{
+public:
+	PndSdsDigiStripWriteoutBuffer();
+	PndSdsDigiStripWriteoutBuffer(TString branchName, TString folderName, Bool_t persistance);
+	void AddNewDataToTClonesArray(FairTimeStamp*);
+
+	virtual ~PndSdsDigiStripWriteoutBuffer();
+
+	virtual std::vector<std::pair<double, PndSdsDigiStrip*> > Modify(std::pair<double, PndSdsDigiStrip*> oldData, std::pair<double, PndSdsDigiStrip*> newData);
+        
+	virtual double FindTimeForData(FairTimeStamp* data) ;
+	virtual void FillDataMap(FairTimeStamp* data, double activeTime) ;
+	virtual void EraseDataFromDataMap(FairTimeStamp* data);
+protected:	
+
+	std::map<PndSdsDigiStrip, double> fData_map;
+	
+	ClassDef(PndSdsDigiStripWriteoutBuffer, 1);
+};
+
+#endif /* PNDSdsDigiStripWRITEOUTBUFFER_H_ */

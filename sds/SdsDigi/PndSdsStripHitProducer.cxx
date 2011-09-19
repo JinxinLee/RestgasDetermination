@@ -155,10 +155,12 @@ InitStatus PndSdsStripHitProducer::Init()
   
   // Create and register output array
  // fStripArray = new TClonesArray("PndSdsDigiStrip");
-  fStripArray = ioman->Register(fOutBranchName, "PndSdsDigiStrip", fFolderName, fPersistance);
- // fDataBuffer = new PndWriteoutBufferT<PndSdsDigiStrip>(fOutBranchName, "PndSdsDigiStrip");
-  if (fTimeOrderedDigi)
-//	  fDataBuffer = (PndWriteoutBufferT<PndSdsDigiStrip>*)ioman->RegisterWriteoutBuffer(fOutBranchName, fDataBuffer);
+ //fStripArray = ioman->Register(fOutBranchName, "PndSdsDigiStrip", fFolderName, fPersistance);
+//  fDataBuffer = new PndWriteoutBufferT<PndSdsDigiStrip>(fOutBranchName, "PndSdsDigiStrip");
+
+  fDataBuffer = new PndSdsDigiStripWriteoutBuffer(fOutBranchName, fFolderName, fPersistance);
+  fDataBuffer = (PndSdsDigiStripWriteoutBuffer*)ioman->RegisterWriteoutBuffer(fOutBranchName, fDataBuffer);
+
   fDataBuffer->ActivateBuffering(fTimeOrderedDigi);
 
   SetCalculators();
@@ -262,7 +264,7 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
         else{
         	std::vector<Int_t>indices;
 			indices.push_back(iPoint);
-			PndSdsDigiStrip tempStrip(indices, FairRootManager::Instance()->GetBranchId(fInBranchName), point->GetSensorID(),
+			PndSdsDigiStrip* tempStrip = new PndSdsDigiStrip(indices, FairRootManager::Instance()->GetBranchId(fInBranchName), point->GetSensorID(),
 					fCurrentStripCalcTop->CalcFEfromStrip(kit->GetIndex()),
 					fCurrentStripCalcTop->CalcChannelfromStrip(kit->GetIndex()), kit->GetCharge(), FairRootManager::Instance()->GetEventTime());
 
@@ -294,7 +296,7 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
     		  indices.push_back(iPoint);
     		 // FairMCEventHeader* MCevtHeader = (FairMCEventHeader*)FairRootManager::Instance()->GetObject("MCEventHeader.");
 
-    		  PndSdsDigiStrip tempStrip(indices, FairRootManager::Instance()->GetBranchId(fInBranchName),
+    		  PndSdsDigiStrip* tempStrip = new PndSdsDigiStrip(indices, FairRootManager::Instance()->GetBranchId(fInBranchName),
 						point->GetSensorID(), fCurrentStripCalcBot->CalcFEfromStrip(kit->GetIndex())+ fCurrentDigiPar->GetNrTopFE(),
 						fCurrentStripCalcBot->CalcChannelfromStrip(kit->GetIndex()), kit->GetCharge(), FairRootManager::Instance()->GetEventTime());
 //			  fDataBuffer->FillNewData(tempStrip,	FairRootManager::Instance()->GetEventTime() + 100);
@@ -416,7 +418,7 @@ Double_t PndSdsStripHitProducer::SmearCharge(Double_t charge)
 void PndSdsStripHitProducer::FinishEvent()
 {
   // called after all Tasks did their Exex() and the data is copied to the file
-  fStripArray->Delete();
+//  fStripArray->Delete();
   FinishEvents();
 }
 // -------------------------------------------------------------------------

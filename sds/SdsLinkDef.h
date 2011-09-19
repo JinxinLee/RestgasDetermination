@@ -39,8 +39,16 @@
 //#pragma link C++ class PndMvdDigiAna+;
 #pragma link C++ class PndSdsHitProducerIdeal+;
 #pragma link C++ class PndSdsNoiseProducer+;
+
 #pragma link C++ class PndSdsDigiPixelWriteoutBuffer+;
-//#pragma link C++ class PndSdsPixelDigiSorterTask+;
+
+#pragma link C++ class PndSdsDigiPixelSorterTask;
+#pragma link C++ class PndSdsDigiPixelRingSorter+;
+
+#pragma link C++ class PndSdsDigiStripWriteoutBuffer+;
+#pragma link C++ class PndSdsDigiStripSorterTask;
+#pragma link C++ class PndSdsDigiStripRingSorter+;
+
 
 #pragma link C++ class PndSdsChargeConversion+;
 #pragma link C++ class PndSdsIdealChargeConversion+;

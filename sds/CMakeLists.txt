@@ -60,13 +60,21 @@ SdsDigi/PndSdsStripHitProducer.cxx
 SdsDigi/PndSdsHitProducerIdeal.cxx
 #MvdDigi/PndMvdDigiTask.cxx
 SdsDigi/PndSdsNoiseProducer.cxx
+SdsDigi/PndSdsDigiPixelSorterTask.cxx
 
 SdsDigi/PndSdsChargeConversion.cxx
 SdsDigi/PndSdsIdealChargeConversion.cxx
 SdsDigi/PndSdsTotChargeConversion.cxx
 SdsDigi/PndSdsAdcChargeConversion.cxx
 SdsDigi/PndSdsDigiPixelWriteoutBuffer.cxx
-#SdsDigi/PndSdsPixelDigiSorterTask.cxx
+
+SdsDigi/PndSdsDigiPixelSorterTask.cxx
+SdsDigi/PndSdsDigiPixelRingSorter.cxx
+
+SdsDigi/PndSdsDigiStripWriteoutBuffer.cxx
+SdsDigi/PndSdsDigiStripSorterTask.cxx
+SdsDigi/PndSdsDigiStripRingSorter.cxx
+
 
 SdsFEModel/PndSdsFE.cxx
 SdsFEModel/PndSdsFESimple.cxx

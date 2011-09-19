@@ -146,10 +146,10 @@ InitStatus PndSdsHybridHitProducer::Init()
 //  fPixelArray	= new TClonesArray("PndSdsDigiPixel");
 //  if(fVerbose>1) Info("Init","Registering this branch: %s/%s",fFolderName.Data(),fOutBranchName.Data());
 //  ioman->Register(fOutBranchName, fFolderName, fPixelArray, fPersistance);
-  fPixelArray = ioman->Register(fOutBranchName, "PndSdsDigiPixel", fFolderName, fPersistance);
+//  fPixelArray = ioman->Register(fOutBranchName, "PndSdsDigiPixel", fFolderName, fPersistance);
 
-  fDataBuffer = new PndSdsDigiPixelWriteoutBuffer(fOutBranchName);
-  if (fTimeOrderedDigi)
+  fDataBuffer = new PndSdsDigiPixelWriteoutBuffer(fOutBranchName, fFolderName, fPersistance);
+//  if (fTimeOrderedDigi)
 	  fDataBuffer = (PndSdsDigiPixelWriteoutBuffer*)ioman->RegisterWriteoutBuffer(fOutBranchName, fDataBuffer);
 
   fDataBuffer->ActivateBuffering(fTimeOrderedDigi);
@@ -203,14 +203,14 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
 
   if(fVerbose>0) std::cout << "-I- PndSdsHybridHitProducer::Exec EventTime: " << EventTime << std::endl;
 
-  fPixelArray = FairRootManager::Instance()->GetTClonesArray(fOutBranchName);
+//  fPixelArray = FairRootManager::Instance()->GetTClonesArray(fOutBranchName);
 //  if (fTimeOrderedDigi){
 //	  fDataBuffer->WriteOutData(EventTime);
 //  }
   // Reset output array
   
-  if ( ! fPixelArray )
-    Fatal("Exec", "No PixelArray");
+//  if ( ! fPixelArray )
+//    Fatal("Exec", "No PixelArray");
   
 	if(fDigiPixelMCInfo==kTRUE)
 	{
@@ -336,7 +336,7 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
 //				std::cout << "BigDifference!" << std::endl;
 //			}
 //	}
-	PndSdsDigiPixel tempPixel( fPixelList[iPix].GetMCIndex(), FairRootManager::Instance()->GetBranchId(fInBranchName), fPixelList[iPix].GetSensorID() ,fPixelList[iPix].GetFE(),
+	PndSdsDigiPixel *tempPixel = new PndSdsDigiPixel( fPixelList[iPix].GetMCIndex(), FairRootManager::Instance()->GetBranchId(fInBranchName), fPixelList[iPix].GetSensorID() ,fPixelList[iPix].GetFE(),
 	                    fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
 	                    fChargeConverter->ChargeToDigiValue(smearedCharge), EventTime); //fChargeConverter->GetTimeStamp(point->GetTime(), smearedCharge,fEventHeader->GetEventTime()) );
 //	std::cout << "-I- Charge: " << smearedCharge << std::endl;
@@ -344,18 +344,20 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
 //		                    fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
 //		                    fFEModel->GetTotFromCharge(smearedCharge), fFEModel->GetTimeStamp(EventTime, point->GetTime(), smearedCharge)); //fChargeConverter->GetTimeStamp(point->GetTime(), smearedCharge,fEventHeader->GetEventTime()) );
 
-	tempPixel.Reset();
+	tempPixel->Reset();
 	std::vector<int> indices = fPixelList[iPix].GetMCIndex();
 	FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
 	for (int i = 0; i < indices.size(); i++)
-		tempPixel.AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  FairRootManager::Instance()->GetBranchId(fInBranchName), indices[i]));
+		tempPixel->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  FairRootManager::Instance()->GetBranchId(fInBranchName), indices[i]));
 
-	//fDataBuffer->FillNewData(tempPixel, fChargeConverter->ChargeToDigiValue(fPixelList[iPix].GetCharge()) + EventTime);
+	fDataBuffer->FillNewData(tempPixel, fChargeConverter->ChargeToDigiValue(fPixelList[iPix].GetCharge()) + EventTime + 500);
+	//fDataBuffer->FillNewData(tempPixel, EventTime + 500);
+
 
 
 	if (fVerbose > 0){
 		std::cout << "PixelDigi: " << (tempPixel) << std::endl;
-		std::cout << "Links in Digi: " << (FairMultiLinkedData)(tempPixel) << std::endl;
+		std::cout << "Links in Digi: " << (FairMultiLinkedData)(*tempPixel) << std::endl;
 	}
 
   }
@@ -519,7 +521,7 @@ void PndSdsHybridHitProducer::FinishEvent()
   {
 		fPixelMCArray->Delete();
   }
-	  fPixelArray->Delete();
+//	  fPixelArray->Delete();
   FinishEvents();
 }
 // -------------------------------------------------------------------------

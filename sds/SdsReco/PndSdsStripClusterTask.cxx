@@ -217,6 +217,11 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
 	else
 	  fDigiArray = (TClonesArray*)FairRootManager::Instance()->GetObject(fInBranchName);
 
+//	std::cout << "Requested Time: " << FairRootManager::Instance()->GetEventTime() + 10 << std::endl;
+//	for (int i = 0; i < fDigiArray->GetEntries(); i++){
+//		std::cout << i << ": " << ((PndSdsDigiStrip*)fDigiArray->At(i))->GetTimeStamp() << std::endl;
+//	}
+
 	//std::cout << "-I- PndSdsStripClusterTask:: fDigiArray->Size(): " << fDigiArray->GetEntriesFast() << std::endl;
   //fDigiArray = (TClonesArray*) ioman->GetObject(fInBranchName);
   if ( ! fDigiArray )
@@ -322,7 +327,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
          itTop!=topclusters.end(); ++itTop)
     {
       topIndex= *itTop + clusterOffset; // index in fClusterArray
-      Double_t topcharge = 0., meantopstrip=0.,meantoperr=0. ;
+      Double_t topcharge = 0., meantopstrip=0.,meantoperr=0., timestamp=0., timestampError=0. ;
       PndSdsClusterStrip* aTopCluster=clusters[*itTop];
       oneclustertop = aTopCluster->GetClusterList();
       if(oneclustertop.size()<1) continue;
@@ -330,7 +335,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
       Int_t sensorIDtop = atopDigi->GetSensorID();
       
       //if (kFALSE==SelectSensorParams(detName)) continue; // Invalid parameters, skip here.       
-      CalcMeanCharge(aTopCluster,meantopstrip,meantoperr,topcharge);
+      CalcMeanCharge(aTopCluster,meantopstrip,meantoperr,topcharge, timestamp, timestampError);
       
       if(oneclustertop.size()==1 && topcharge < fSingleStripChargeThreshold) { 
         std::cout<<"-W- PndSdsClusterTask::Exec: Single strip charge ("<<topcharge<<" e-) falls below the threshold of "<<fSingleStripChargeThreshold<<"e- : skipping. "<<endl; 
@@ -360,7 +365,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
         //go to the next cluster if we didn't hit the same sensor
         if(sensorIDbot != sensorIDtop) continue;
         
-        CalcMeanCharge(aBotCluster,meanbotstrip,meanboterr,botcharge);
+        CalcMeanCharge(aBotCluster,meanbotstrip,meanboterr,botcharge, timestamp, timestampError);
         
         if(oneclusterbot.size() == 1 && botcharge < fSingleStripChargeThreshold) { 
           std::cout<<"-W- PndSdsClusterTask::Exec: Single strip charge ("<<botcharge<<" e-) falls below the threshold of "<<fSingleStripChargeThreshold<<"e- : skipping. "<<endl; 
@@ -408,6 +413,8 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
           tmphit->SetLink(FairLink(fClusterType, topIndex));
           tmphit->AddLink(FairLink(fClusterType, botIndex));
           tmphit->SetCov(hitCov);
+          tmphit->SetTimeStamp(timestamp);
+          tmphit->SetTimeStampError(timestampError);
           if (fVerbose > 1) tmphit->Print();
         } else
           if (fVerbose > 2) std::cout<<"Strip charge contents too different"<<std::endl;
@@ -529,11 +536,15 @@ void PndSdsStripClusterTask::Finish()
 {
 }
 
-void PndSdsStripClusterTask::CalcMeanCharge(PndSdsClusterStrip* onecluster, Double_t &meanstrip, Double_t &meanerr, Double_t &charge)
+void PndSdsStripClusterTask::CalcMeanCharge(PndSdsClusterStrip* onecluster, Double_t &meanstrip, Double_t &meanerr, Double_t &charge, Double_t &timestamp, Double_t &timestampError)
 {
   meanstrip=0;
   meanerr=0;
   charge=0;
+  timestamp=0;
+  timestampError = 0;
+  Int_t nDigis = 0;
+
 	if (fCurrentDigiPar->GetClusterMean() == 0)
 	{
     // Calculate mean position in position channels weighted by the charges
@@ -550,10 +561,18 @@ void PndSdsStripClusterTask::CalcMeanCharge(PndSdsClusterStrip* onecluster, Doub
       charge += tempcharge;
       meanstrip += tempcharge * strip;
       meanerr += tempcharge*tempcharge; // this is stupid, to be removed one day
+      Double_t var = myDigi->GetTimeStampError() * myDigi->GetTimeStampError();
+      timestamp += myDigi->GetTimeStamp()/var;
+      timestampError += 1/var;
+      nDigis++;
     }
     meanstrip = meanstrip/charge;
     // this error treatment is: dx = dpitch * sqrt(weigthsquares)
     meanerr = sqrt(meanerr/(charge*charge));
+    if (nDigis > 0){
+    	timestamp /= timestampError;
+    	timestampError = sqrt(timestampError / nDigis);
+    }
     return;
 	} else {
     //	//TODO: Apply other clusterfinder mean & error algorithms
@@ -570,6 +589,14 @@ void PndSdsStripClusterTask::CalcMeanCharge(PndSdsClusterStrip* onecluster, Doub
     { 
       PndSdsDigiStrip* myDigi = (PndSdsDigiStrip*)fDigiArray->At(*itDigi);
       charge += fCurrentChargeConverter->DigiValueToCharge(*myDigi);
+      Double_t var = myDigi->GetTimeStampError() * myDigi->GetTimeStampError();
+      timestamp += myDigi->GetTimeStamp()/var;
+      timestampError += 1/var;
+      nDigis++;
+    }
+    if (nDigis > 0){
+    	timestamp /= timestampError;
+    	timestampError = sqrt(timestampError / nDigis);
     }
     return;
 	}

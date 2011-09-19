@@ -77,7 +77,7 @@ class PndSdsStripClusterTask : public PndSdsTask
     TVector2 CalcLineCross(TVector2 point1, TVector2 dir1, TVector2 point2, TVector2 dir2) const;
     void SetCurrentCalculators(PndSdsStripDigiPar* digipar); 
     Bool_t SelectSensorParams(Int_t sensorID);
-    void CalcMeanCharge(PndSdsClusterStrip* onecluster, Double_t &meanstrip, Double_t &meanerr, Double_t &charge);
+    void CalcMeanCharge(PndSdsClusterStrip* onecluster, Double_t &meanstrip, Double_t &meanerr, Double_t &charge, Double_t &timestamp, Double_t &timestampError);
     Bool_t Backmap( TVector2 meantopPoint, Double_t toperr , TVector2 meanbotPoint, Double_t boterr,
                    TVector3 &hitpos, TMatrixD &hitCov, Int_t &sensorID);
     TClonesArray* fDigiArray;  // Input array of PndSdsDigis

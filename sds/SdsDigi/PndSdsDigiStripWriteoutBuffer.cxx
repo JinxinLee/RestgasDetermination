@@ -1,0 +1,77 @@
+/*
+ * PndSdsDigiStripWriteoutBuffer.cxx
+ *
+ *  Created on: May 10, 2011
+ *      Author: stockman
+ */
+
+#include <PndSdsDigiStripWriteoutBuffer.h>
+
+ClassImp(PndSdsDigiStripWriteoutBuffer);
+
+
+#include "PndSdsDigiStrip.h"
+#include "PndSdsDigiStrip.h"
+
+
+
+
+PndSdsDigiStripWriteoutBuffer::PndSdsDigiStripWriteoutBuffer():FairWriteoutBuffer() {
+	// TODO Auto-generated constructor stub
+
+}
+
+PndSdsDigiStripWriteoutBuffer::PndSdsDigiStripWriteoutBuffer(TString branchName, TString folderName, Bool_t persistance): FairWriteoutBuffer(branchName, "PndSdsDigiStrip", folderName, persistance)
+{
+}
+
+PndSdsDigiStripWriteoutBuffer::~PndSdsDigiStripWriteoutBuffer() {
+	// TODO Auto-generated destructor stub
+}
+
+std::vector<std::pair<double, PndSdsDigiStrip*> > PndSdsDigiStripWriteoutBuffer::Modify(std::pair<double, PndSdsDigiStrip*> oldData, std::pair<double, PndSdsDigiStrip*> newData)
+{
+	std::vector<std::pair<double, PndSdsDigiStrip*> > result;
+	std::pair<double, PndSdsDigiStrip*> singleResult;
+	if (newData.first > 0)
+		singleResult.first = oldData.first + newData.first;
+	singleResult.second = oldData.second;
+	singleResult.second->AddCharge(newData.second->GetCharge());
+	std::cout << "Modify hit" << std::endl;
+
+	std::cout << "OldData: " << oldData.first << " : " << oldData.second << " NewData: " << newData.first << " : " << newData.second << std::endl;
+	std::cout << "Resulting Data: " << singleResult.first << " : " << singleResult.second << std::endl;
+
+	result.push_back(singleResult);
+	return result;
+}
+
+void PndSdsDigiStripWriteoutBuffer::AddNewDataToTClonesArray(FairTimeStamp* data)
+{
+  FairRootManager* ioman = FairRootManager::Instance();
+  TClonesArray* myArray = ioman->GetTClonesArray(fBranchName);
+  if (fVerbose > 1) std::cout << "Data Inserted: "  <<  *(PndSdsDigiStrip*)(data) << std::endl;
+  new ((*myArray)[myArray->GetEntries()]) PndSdsDigiStrip(*(PndSdsDigiStrip*)(data));
+}
+
+double PndSdsDigiStripWriteoutBuffer::FindTimeForData(FairTimeStamp* data)
+{
+  std::map<PndSdsDigiStrip, double>::iterator it;
+  PndSdsDigiStrip myData = *(PndSdsDigiStrip*)data;
+  it = fData_map.find(myData);
+  if (it == fData_map.end())
+    return -1;
+  else
+    return it->second;
+}
+void PndSdsDigiStripWriteoutBuffer::FillDataMap(FairTimeStamp* data, double activeTime)
+{
+  PndSdsDigiStrip myData = *(PndSdsDigiStrip*)data;
+  fData_map[myData] = activeTime;
+}
+void PndSdsDigiStripWriteoutBuffer::EraseDataFromDataMap(FairTimeStamp* data)
+{
+  PndSdsDigiStrip myData = *(PndSdsDigiStrip*)data;
+  if (fData_map.find(myData) != fData_map.end())
+    fData_map.erase(fData_map.find(myData));
+}
