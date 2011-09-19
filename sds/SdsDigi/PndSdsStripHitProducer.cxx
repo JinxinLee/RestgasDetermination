@@ -256,20 +256,20 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
       for(std::vector<PndSdsStrip>::const_iterator kit=topStrips.begin();
           kit!= topStrips.end(); ++kit)
       {   
-        if (fTimeOrderedDigi == kFALSE){
-    	  AddDigi(iStrip,iPoint,FairRootManager::Instance()->GetBranchId(fInBranchName),point->GetSensorID(),
-            		fCurrentStripCalcTop->CalcFEfromStrip(kit->GetIndex()),
-            		fCurrentStripCalcTop->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
-        }
-        else{
+//        if (fTimeOrderedDigi == kFALSE){
+//    	  AddDigi(iStrip,iPoint,FairRootManager::Instance()->GetBranchId(fInBranchName),point->GetSensorID(),
+//            		fCurrentStripCalcTop->CalcFEfromStrip(kit->GetIndex()),
+//            		fCurrentStripCalcTop->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
+//        }
+//        else{
         	std::vector<Int_t>indices;
 			indices.push_back(iPoint);
 			PndSdsDigiStrip* tempStrip = new PndSdsDigiStrip(indices, FairRootManager::Instance()->GetBranchId(fInBranchName), point->GetSensorID(),
 					fCurrentStripCalcTop->CalcFEfromStrip(kit->GetIndex()),
 					fCurrentStripCalcTop->CalcChannelfromStrip(kit->GetIndex()), kit->GetCharge(), FairRootManager::Instance()->GetEventTime());
 
-		//	fDataBuffer->FillNewData(tempStrip,	FairRootManager::Instance()->GetEventTime() + 100);
-        }
+			fDataBuffer->FillNewData(tempStrip,	FairRootManager::Instance()->GetEventTime() + 100);
+//        }
         if (fVerbose > 1) std::cout << *kit << std::endl;
       }
     }else if(fVerbose>2) std::cout<<"Top side empty"<<std::endl;
@@ -287,11 +287,11 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
           kit!= botStrips.end();
           ++kit)
       {
-    	  if (fTimeOrderedDigi == kFALSE) {
-    		  AddDigi(iStrip, iPoint, FairRootManager::Instance()->GetBranchId(fInBranchName),
-							point->GetSensorID(), fCurrentStripCalcBot->CalcFEfromStrip(kit->GetIndex())+ fCurrentDigiPar->GetNrTopFE(),
-							fCurrentStripCalcBot->CalcChannelfromStrip(kit->GetIndex()), kit->GetCharge());
-    	  } else{
+//    	  if (fTimeOrderedDigi == kFALSE) {
+//    		  AddDigi(iStrip, iPoint, FairRootManager::Instance()->GetBranchId(fInBranchName),
+//							point->GetSensorID(), fCurrentStripCalcBot->CalcFEfromStrip(kit->GetIndex())+ fCurrentDigiPar->GetNrTopFE(),
+//							fCurrentStripCalcBot->CalcChannelfromStrip(kit->GetIndex()), kit->GetCharge());
+//    	  } else{
     		  std::vector<Int_t>indices;
     		  indices.push_back(iPoint);
     		 // FairMCEventHeader* MCevtHeader = (FairMCEventHeader*)FairRootManager::Instance()->GetObject("MCEventHeader.");
@@ -299,8 +299,8 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
     		  PndSdsDigiStrip* tempStrip = new PndSdsDigiStrip(indices, FairRootManager::Instance()->GetBranchId(fInBranchName),
 						point->GetSensorID(), fCurrentStripCalcBot->CalcFEfromStrip(kit->GetIndex())+ fCurrentDigiPar->GetNrTopFE(),
 						fCurrentStripCalcBot->CalcChannelfromStrip(kit->GetIndex()), kit->GetCharge(), FairRootManager::Instance()->GetEventTime());
-//			  fDataBuffer->FillNewData(tempStrip,	FairRootManager::Instance()->GetEventTime() + 100);
-    	  }
+			  fDataBuffer->FillNewData(tempStrip,	FairRootManager::Instance()->GetEventTime() + 100);
+//    	  }
         if (fVerbose > 2) std::cout << *kit << std::endl;
       }
     } else if(fVerbose>2) std::cout<<"Bottom side empty"<<std::endl;

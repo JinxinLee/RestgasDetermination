@@ -108,11 +108,9 @@ InitStatus PndSdsPixelClusterTask::Init()
     return kERROR;
   }
   
-  fClusterArray = new TClonesArray("PndSdsClusterPixel");
-  ioman->Register(fClustBranchName, fFolderName, fClusterArray, fPersistance);
+  fClusterArray = ioman->Register(fClustBranchName, "PndSdsClusterPixel", fFolderName, fPersistance);
 
-  fHitArray = new TClonesArray("PndSdsHit");
-  ioman->Register(fOutBranchName, fFolderName, fHitArray, fPersistance);
+  fHitArray =  ioman->Register(fOutBranchName, "PndSdsHit", fFolderName, fPersistance);
   
   SetInBranchId();
 
@@ -214,7 +212,7 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
 }
 
 void PndSdsPixelClusterTask::FinishEvent(){
-	fDigiArray->Delete();
+//	fDigiArray->Delete();
 	fHitArray->Delete();
 	fClusterArray->Delete();
 }

@@ -213,6 +213,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
 	if (FairRunAna::Instance()->IsTimeStamp()){
 	  fDigiArray->Clear();
 	  fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fFunctor, FairRootManager::Instance()->GetEventTime() + 10); //FairRootManager::Instance()->GetEventTime() +
+	  std::cout << "-I- PndSdsStripClusterTask::Exec Digis: " << fDigiArray->GetEntries() << std::endl;
 	}
 	else
 	  fDigiArray = (TClonesArray*)FairRootManager::Instance()->GetObject(fInBranchName);

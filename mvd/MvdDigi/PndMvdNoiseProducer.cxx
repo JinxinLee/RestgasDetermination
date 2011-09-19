@@ -425,45 +425,12 @@ void PndMvdNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t senso
   Double_t tempcharge = 0.;
   Bool_t found = kFALSE;
   Int_t detID = -1; //no source mc branch
- // FairMCEventHeader* MCevtHeader = (FairMCEventHeader*)FairRootManager::Instance()->GetObject("MCEventHeader.");
 
-//  if (fTimeOrderedDigi == kFALSE){
-//	  fDigiPixelArray = FairRootManager::Instance()->GetTClonesArray("MVDPixelDigis");
-//	  Int_t iPix = fDigiPixelArray->GetEntriesFast();
-//	  PndSdsDigiPixel* aDigi = 0;
-//	  for(Int_t kstr = 0; kstr < iPix && found == kFALSE; kstr++)
-//	  {
-//		aDigi = (PndSdsDigiPixel*)fDigiPixelArray->At(kstr);
-//		if (aDigi->GetSensorID() == sensorID &&
-//			aDigi->GetFE() == fe &&
-//			aDigi->GetPixelColumn() == col &&
-//			aDigi->GetPixelRow() == row )
-//		{
-//		  tempcharge = fPixChargeConv->DigiValueToCharge(*aDigi);
-//		  aDigi->SetCharge( fPixChargeConv->ChargeToDigiValue(charge + tempcharge) );
-//		  aDigi->AddIndex(iPoint);
-//		  found = kTRUE;
-//		}
-//	  }
-//	  if(found == kFALSE){
-//		  std::vector<Int_t> indices;
-//		  indices.push_back(iPoint);
-//		new ((*fDigiPixelArray)[iPix]) PndSdsDigiPixel(indices,detID,sensorID,fe,col,row,fPixChargeConv->ChargeToDigiValue(charge), FairRootManager::Instance()->GetEventTime()) ;
-//		noisies++;
-//		if(fVerbose>2) std::cout
-//		  << " -I- PndSdsNoiseProducer: Added Pixel Digi at: FE=" << fe
-//		  << ", col|row = ("<<col<<"|"<<row<< "), charge=" << charge<< " e"
-//		  << ", in sensor \n" << sensorID <<std::endl;
-//
-//	  }
-//  }
-//  else {
 	  std::vector<Int_t> indices;
 	  indices.push_back(iPoint);
 	  PndSdsDigiPixel* tempPixel = new PndSdsDigiPixel(indices,detID,sensorID,fe,col,row,fPixChargeConv->ChargeToDigiValue(charge), FairRootManager::Instance()->GetEventTime()) ;
-	  fDigiPixelBuffer->FillNewData(tempPixel, FairRootManager::Instance()->GetEventTime() + 10);
-	  std::cout << "DataInBuffer: " << fDigiPixelBuffer->GetNData() << std::endl;
-//  }
+	  fDigiPixelBuffer->FillNewData(tempPixel,fPixChargeConv->ChargeToDigiValue(charge)*6 + FairRootManager::Instance()->GetEventTime());
+	//  std::cout << "DataInBuffer: " << fDigiPixelBuffer->GetNData() << std::endl;
 }
 
 void PndMvdNoiseProducer::FinishEvent()

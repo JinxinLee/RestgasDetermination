@@ -26,9 +26,10 @@ void PndSdsDigiPixelSorterTask::AddNewDataToTClonesArray(FairTimeStamp* data)
 {
 	 FairRootManager* ioman = FairRootManager::Instance();
 	 TClonesArray* myArray = ioman->GetTClonesArray(fOutputBranch);
-	 if (fVerbose > 1);
-	 std::cout << "-I- PndSdsDigiPixelSorterTask::AddNewDataToTClonesArray Data: " ;
-	 std::cout <<  *(PndSdsDigiPixel*)(data) << std::endl;
+	 if (fVerbose > 1){
+		 std::cout << "-I- PndSdsDigiPixelSorterTask::AddNewDataToTClonesArray Data: " ;
+		 std::cout <<  *(PndSdsDigiPixel*)(data) << std::endl;
+	 }
 	 new ((*myArray)[myArray->GetEntries()]) PndSdsDigiPixel(*(PndSdsDigiPixel*)(data));
 }
 

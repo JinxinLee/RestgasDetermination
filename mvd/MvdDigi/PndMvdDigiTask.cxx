@@ -44,8 +44,8 @@ void PndMvdDigiTask::RunTimeBased()
 	((PndMvdStripHitProducer*)thistasks->At(1))->RunTimeBased();
 	((PndMvdNoiseProducer*)thistasks->At(2))->RunTimeBased();
 
-	this->Add(new PndSdsDigiPixelSorterTask(1000, 10, "MVDPixelDigis", "MVDSortedPixelDigis", "PndMvd")); //"MVDDigisCorr"
-	this->Add(new PndSdsDigiStripSorterTask(1000, 10, "MVDStripDigis", "MVDSortedStripDigis", "PndMvd"));
+	this->Add(new PndSdsDigiPixelSorterTask(5000, 50, "MVDPixelDigis", "MVDSortedPixelDigis", "PndMvd")); //"MVDDigisCorr"
+	this->Add(new PndSdsDigiStripSorterTask(5000, 50, "MVDStripDigis", "MVDSortedStripDigis", "PndMvd"));
 
 	std::cout << "PndMvdDigiTask: PndMvdPixelDigiSorterTask added" << std::endl;
 }
