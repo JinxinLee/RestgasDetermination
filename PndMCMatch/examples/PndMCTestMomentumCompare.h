@@ -60,6 +60,7 @@ class PndMCTestMomentumCompare : public FairTask
   TH1* fQualyHisto;
 
   Int_t fEventNr;
+  Int_t fNPerfectTracks;
 
   void Register();
 

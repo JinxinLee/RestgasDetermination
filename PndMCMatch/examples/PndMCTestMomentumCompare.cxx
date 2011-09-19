@@ -23,7 +23,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndMCTestMomentumCompare::PndMCTestMomentumCompare() :
-	FairTask("Creates PndMC test"), fEventNr(0) {
+	FairTask("Creates PndMC test"), fEventNr(0), fNPerfectTracks(0) {
 }
 // -------------------------------------------------------------------------
 
@@ -142,6 +142,9 @@ void PndMCTestMomentumCompare::Exec(Option_t* opt) {
 			}
 		}
 	}
+	std::cout << "NEntries: " << myResult.GetNEntries() << std::endl;
+	Int_t nOneLink = 0;
+
 	for (int i = 0; i < myResult.GetNEntries(); i++) {
 		PndMCEntry myLinks = myResult.GetMCLink(i);
 		myLinks.RemoveType(-1);
@@ -158,37 +161,44 @@ void PndMCTestMomentumCompare::Exec(Option_t* opt) {
 		if (fVerbose > 2)std::cout << "Belongs to: " << std::endl;
 
 		for (int j = 0; j < myLinks.GetNLinks(); j++) {
-			if (myLinks.GetLink(j).GetType() == ioman->GetBranchId("MCTrack")) {
-				if (fVerbose > 2)std::cout << "MCTrack " << myLinks.GetLink(j).GetIndex()
-						<< std::endl;
-				if (myLinks.GetLink(j).GetIndex() < fMCTrack->GetEntries()) {
-					PndMCTrack* myMCTrack = (PndMCTrack*) fMCTrack->At(
-							myLinks.GetLink(j).GetIndex());
-					if (fVerbose > 2)std::cout << "P: " << myMCTrack->Get4Momentum().Px() << " "
-							<< myMCTrack->Get4Momentum().Py() << " "
-							<< myMCTrack->Get4Momentum().Pz() << " Pabs "
-							<< myMCTrack->Get4Momentum().P() << " PID: "
-							<< myMCTrack->GetPdgCode() << std::endl;
-					if (fVerbose > 2)std::cout << "--------------------------------"
+			std::cout << "NLinks: " << myLinks.GetNLinks() << std::endl;
+			if (myLinks.GetNLinks() == 1){
+				if (myLinks.GetLink(j).GetType() == ioman->GetBranchId("MCTrack")) {
+					nOneLink++;
+					fNPerfectTracks++;
+					if (fVerbose > 2)std::cout << "MCTrack " << myLinks.GetLink(j).GetIndex()
 							<< std::endl;
-					dP -= myMCTrack->Get4Momentum().P();
-					dPt -= myMCTrack->Get4Momentum().Pt();
-					fPHisto->Fill((dP / P));
-					fPtHisto->Fill((dPt / Pt));
-				} else
-					std::cout << "Index out of bounds: Index : "
-							<< myLinks.GetLink(j).GetIndex() << " Bounds: "
-							<< fMCTrack->GetEntries() << std::endl;
+					if (myLinks.GetLink(j).GetIndex() < fMCTrack->GetEntries()) {
+						PndMCTrack* myMCTrack = (PndMCTrack*) fMCTrack->At(
+								myLinks.GetLink(j).GetIndex());
+						if (fVerbose > 2)std::cout << "P: " << myMCTrack->Get4Momentum().Px() << " "
+								<< myMCTrack->Get4Momentum().Py() << " "
+								<< myMCTrack->Get4Momentum().Pz() << " Pabs "
+								<< myMCTrack->Get4Momentum().P() << " PID: "
+								<< myMCTrack->GetPdgCode() << std::endl;
+						if (fVerbose > 2)std::cout << "--------------------------------"
+								<< std::endl;
+						dP -= myMCTrack->Get4Momentum().P();
+						dPt -= myMCTrack->Get4Momentum().Pt();
+						fPHisto->Fill((dP / P));
+						fPtHisto->Fill((dPt / Pt));
+					} else
+						std::cout << "Index out of bounds: Index : "
+								<< myLinks.GetLink(j).GetIndex() << " Bounds: "
+								<< fMCTrack->GetEntries() << std::endl;
+				}
 			}
 		}
 		if (fVerbose > 2)std::cout << std::endl;
 	}
+	std::cout << "NOneLink: " << nOneLink << std::endl;
 }
 
 void PndMCTestMomentumCompare::Finish() {
 	fPHisto->Write();
 	fPtHisto->Write();
 	fQualyHisto->Write();
+	std::cout << "fNPerfectTracks: " << fNPerfectTracks << std::endl;
 	std::cout << "fQualyHisto: NPossible Tracks " << fQualyHisto->GetBinContent(1)
 			  << " Ghosts: "    << fQualyHisto->GetBinContent(6)
 			  << " Spurious: "  << fQualyHisto->GetBinContent(8)
