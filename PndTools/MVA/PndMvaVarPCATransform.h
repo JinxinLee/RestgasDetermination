@@ -75,14 +75,14 @@ class PndMvaVarPCATransform
   // Eigenvectors
   TMatrixD* m_EigenVectors;
 };
-// ENd of interface definition
+//____________________ ENd of interface definition
 
 /**
  * Get mean values vector.
  */
 inline TVectorD const& PndMvaVarPCATransform::GetMeanValues() const
 {
-  return *m_MeanValues;
+  return (*m_MeanValues);
 }
 
 /**
@@ -90,6 +90,6 @@ inline TVectorD const& PndMvaVarPCATransform::GetMeanValues() const
  */
 inline TMatrixD const& PndMvaVarPCATransform::GetEigenVectors() const
 {
-  return *m_EigenVectors;
+  return (*m_EigenVectors);
 }
 #endif

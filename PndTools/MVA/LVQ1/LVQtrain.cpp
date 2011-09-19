@@ -536,6 +536,7 @@ int main(int argc, char** argv)
   // Print Overal mean, sigma and the same per label.
   std::cout << "\n=====================================\n"
 	    << "# Cross_validation Evaluation Data.\n"
+	    << "# "<< NUMBER_OF_FOLDS << "-fold.\n"
 	    << " Number of proto = " << numProto
 	    << " Num Sweep = " << numSweep
 	    << "\n Mean_tr = " << mean_tr

@@ -40,7 +40,7 @@ void PndKnnTrain::Train()
 void PndKnnTrain::storeWeights()
 {
   // Fetch available data.
-  std::vector< std::pair<std::string, std::vector<float>*> > const &w = m_dataSets.GetData();
+  std::vector< std::pair<std::string, std::vector<float>*> > const& w = m_dataSets.GetData();
   
   // Write to output file
   WriteToWeightFile(w);

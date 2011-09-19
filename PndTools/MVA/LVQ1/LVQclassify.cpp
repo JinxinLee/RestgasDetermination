@@ -25,7 +25,7 @@
 #define LVQ_CLS_DEBUG 0
 
 // Number of elements to print
-#define NUM_DEBUG_PRINT 15
+#define NUM_DEBUG_PRINT 10
 
 // If produce ROC
 #define PRODUCE_ROC 0
@@ -37,7 +37,7 @@
 #define CREATE_DIST_HISTS 0
 
 // Determine recognition error as function of momentum.
-#define SORT_PER_MOMENTUM 1
+#define PER_MOMENTUM_INTERVAL 1
 
 //________________________________________________________________
 
@@ -102,7 +102,7 @@ void Produce_VQ_ROC( std::vector< ClassifierOutPuts >& input,//Alg. input
 
   trhold = MinVal;
   fpRate = tpRate = tnRate = fnRate = 0.00;
-  fpCnt = tpCnt = fn = tn = 0;
+  fpCnt  = tpCnt = fn = tn = 0;
   
   while( trhold <= MaxVal )
   {
@@ -161,14 +161,6 @@ void Produce_VQ_ROC( std::vector< ClassifierOutPuts >& input,//Alg. input
 #endif// VQ ROC
 #endif// IF ROC
 
-//-------- ###############################
-// We want per momentum region recognition.
-//   std::map<std::string, size_t>* counts = readEvents(evtF.c_str(), allVars,
-// 						     labels, events);
-// We need to sort the evt data for chuncks of momentum regions.
-// FIXME FIXME HIER BEN JE BEZIG.
-//-------- ###############################
-
 /* ******************
  * Testing routine, *
  * ******************
@@ -208,6 +200,8 @@ int main(int argc, char** argv)
   // Variables.
   std::vector<std::string> varNames;
 
+  std::vector<std::string> TsEvtVarNames;
+
   // Add labels
   labels.push_back("electron");
   labels.push_back("pion");
@@ -222,21 +216,10 @@ int main(int argc, char** argv)
   varNames.push_back("z20");
   varNames.push_back("z53");
   
-  //varNames.push_back("thetaC");
+  //Varnames.push_back("thetaC");
   //varNames.push_back("tof"); 
   //varNames.push_back("stt");
   //varNames.push_back("mvd"); 
-
-  // If we want to determine recognition error as function of
-  // momentum.
-#if (SORT_PER_MOMENTUM > 0)
-  std::vector<std::string> allVars;
-  allVars.push_back("p");
-  allVars.push_back("emc");
-  allVars.push_back("lat");
-  allVars.push_back("z20");
-  allVars.push_back("z53");
-#endif
 
   // Create classifier.
   PndLVQClassify cls (inF, labels, varNames);
@@ -246,53 +229,70 @@ int main(int argc, char** argv)
 
   // To be classified events.
   std::vector<std::pair<std::string, std::vector<float>* > > events;
-  
+
+  // Add variable "p" to the head of list.
+#if (PER_MOMENTUM_INTERVAL == 1)
+  varNames.insert(varNames.begin(), "p");
+#endif
+
   // Read events to be classified.
   std::map<std::string, size_t>* counts = readEvents(evtF.c_str(), varNames,
 						     labels, events);
-  
+
   std::cout << "Total number of events to be classified = "
 	    << events.size()
 	    << '\n';
 
-  // Start the timer.
-  TStopwatch timer;
-  timer.Start();
-
   // Map to store results.
   std::map<std::string, float> res;
 
+  // Start the timer.
+  TStopwatch timer;
+  timer.Start();
+  
   // Store classifier outputs per event.
   std::vector< ClassifierOutPuts > classifiedEvents;
+
+  // Temporary to store events momentum.  
+  float tmp_mom = 0.0;
 
   // Events loop
   for(size_t k = 0; k < events.size(); k++)
   {
     std::vector<float>* evt = (events[k]).second;
+    
+#if (PER_MOMENTUM_INTERVAL == 1)
+    // Remember p, first element.
+    tmp_mom = evt->at(0);
 
+    // Delete first element (p)
+    evt->erase(evt->begin());
+#endif
+  
     // Get Mva Value
     cls.GetMvaValues( (*evt), res);
-
+    
     // Do classification
     std::string* givenLabel = cls.Classify( (*evt) );
-
+    
     // Store results.
 #if USE_PRODUCE_VQ_ROC
     // The smaller (the output) the better
     classifiedEvents.push_back(ClassifierOutPuts((events[k]).first, *givenLabel,
-						 res[sgName], res[bgName]));
+						 res[sgName], res[bgName], tmp_mom));
 #else
     // If using the general ROC function. The larger the better
     classifiedEvents.push_back(ClassifierOutPuts((events[k]).first, *givenLabel,
 						 (1.0 - res[sgName]),
-						 (1.0 - res[bgName]) ) );
+						 (1.0 - res[bgName]), tmp_mom) );
 #endif
     
     delete givenLabel;
   }// Events Loop
-
+  
   // Print some timing information
   timer.Stop();
+
   double rtime = timer.RealTime();
   double ctime = timer.CpuTime();
   std::cout << "Classifier timing results:\n"
@@ -316,28 +316,32 @@ int main(int argc, char** argv)
   std::cout << "\n<-I-> DEBUG INFO\n";
   for(size_t ot = 0; ot < NUM_DEBUG_PRINT; ++ot)
   {
-    std::cout << "\nReal lable is "  << classifiedEvents[ot].realLabel
+    std::cout << "Real lable is "  << classifiedEvents[ot].realLabel
 	      << "  given lable is " << classifiedEvents[ot].givenLabel
 	      << " clsOut[signal]  " << classifiedEvents[ot].sgValue
-	      << " clsOut[bground] " << classifiedEvents[ot].bgValue;
+	      << " clsOut[bground] " << classifiedEvents[ot].bgValue
+	      << " Mom = "           << classifiedEvents[ot].mom
+	      <<'\n';
   }
   std::cout <<'\n';
 #endif
 
   // Open file to write the results to  
   std::ofstream OutPut;
-  
+
   OutPut.open (outF.c_str());
   OutPut << "# Classification results for the events from\n# "
 	 << evtF
 	 << "\n# Total number of events was " << classifiedEvents.size()
 	 << "\n\n";
+  
+#if (PER_MOMENTUM_INTERVAL == 0)
 
   // For each label we need to find out the number of missclassified
   // events.
   size_t correctCls;
   size_t wrongCls;
-
+  
   // Class loop
   for(size_t l = 0; l < labels.size(); ++l)
   {
@@ -376,9 +380,127 @@ int main(int argc, char** argv)
 	   << std::endl;
   }// Labels loop
 
+#else // Do per momentum region. (PER_MOMENTUM_INTERVAL != 0)
+  // 0.00 <= p <= 1.0 low
+  // 1.0  <  p <= 4.0 mid
+  // 4.0  <  p high
+  std::map <std::string, size_t> pionErr;
+  std::map <std::string, size_t> electErr;
+  pionErr["low"] = pionErr["mid"] = pionErr["high"]  = 0;
+  electErr["low"]= electErr["mid"]= electErr["high"] = 0; 
+  
+  float plow, pmid, phigh, elow, emid, ehigh;
+  plow = pmid = phigh = elow = emid = ehigh = 0.00;
+
+  //___________________________ FIXME
+  // Find the total number of events for each class.
+  for(size_t ev = 0; ev < classifiedEvents.size(); ++ev)
+  {
+    if( classifiedEvents[ev].realLabel == "pion")
+    {
+      if(classifiedEvents[ev].mom <= 1.0)
+      {
+	plow++;
+      }
+      else// 1.0 < mom
+      {
+	if(classifiedEvents[ev].mom <= 4.0)
+	{
+	  pmid++;
+	}
+	else// 4.0 < mom
+	{
+	  phigh++;
+	}
+      }
+    }
+    else//Electrons
+    {
+      if(classifiedEvents[ev].mom <= 1.0)
+      {
+	elow++;
+      }
+      else// 1.0 < mom
+      {
+	if(classifiedEvents[ev].mom <= 4.0)
+	{
+	  emid++;
+	}
+	else// 4.0 < mom
+	{
+	  ehigh++;
+	}
+      }
+    }
+  }
+  // Events loop
+  for(size_t ev = 0; ev < classifiedEvents.size(); ++ev)
+  {
+    if (classifiedEvents[ev].realLabel != classifiedEvents[ev].givenLabel )
+    {// Wrong labels
+      if( classifiedEvents[ev].realLabel == "pion")
+      {
+	if(classifiedEvents[ev].mom <= 1.0)
+	{
+	  pionErr["low"] += 1;
+	}
+	else// 1.0 < mom
+	{
+	  if(classifiedEvents[ev].mom <= 4.0)
+	  {
+	    pionErr["mid"] += 1;
+	  }
+	  else// 4.0 < mom
+	  {
+	    pionErr["high"] += 1;
+	  }
+	}
+      }
+      else//Electrons
+      {
+	if(classifiedEvents[ev].mom <= 1.0)
+	{
+	  electErr["low"] += 1;
+	}
+	else// 1.0 < mom
+	{
+	  if(classifiedEvents[ev].mom <= 4.0)
+	  {
+	    electErr["mid"] += 1;
+	  }
+	  else// 4.0 < mom
+	  {
+	    electErr["high"] += 1;
+	  }
+	}
+      }
+    }
+  }//Events loop
+  OutPut << "\n\n0.00 <= p <= 1.0 low\n1.0  <  p <= 4.0 mid\n4.0  <  p high"
+	 << "\n\n"
+	 << "electErr[low] = " << electErr["low"]
+	 << " total = "<< elow<< " ("
+	 << (static_cast<float>(electErr["low"]) * 100.0)/ elow << " %)\n"
+	 << "electErr[mid] = " << electErr["mid"]
+	 << " total = " << emid << " ("
+	 << (static_cast<float>(electErr["mid"]) * 100.0)/ emid << " %)\n"
+	 << "electErr[high] = " << electErr["high"]
+	 << " total = "<< ehigh << " ("
+	 << (static_cast<float>(electErr["high"]) * 100.0)/ ehigh << " %)\n\n"
+	 << "pion[low] = " << pionErr["low"]
+	 << " total = " << plow << " ("
+	 << (static_cast<float>(pionErr["low"]) * 100.0)/ plow << " %)\n"
+	 << "pion[mid] = " << pionErr["mid"]
+	 << " total = " << pmid << " ("
+	 << (static_cast<float>(pionErr["mid"]) * 100.0)/ pmid << " %)\n"
+	 << "pion[high] = " << pionErr["high"]
+	 << " Total = " << phigh << " ("
+	 << (static_cast<float>(pionErr["high"]) * 100.0)/ phigh << " %)\n\n";
+#endif
+
   // Close Open file
   OutPut.close();
-
+  
 #if PRODUCE_ROC
   // Create ROC points.
   std::cout << "<-I-> Creating ROC.\n";
@@ -397,7 +519,7 @@ int main(int argc, char** argv)
   WriteRocToFile( ("ROC" + outF), Roc); 
 #endif
 
-#if LVQ_CLS_DEBUG
+#if ( LVQ_CLS_DEBUG && PRODUCE_ROC)
   printRoc(Roc);
 #endif
 
@@ -413,6 +535,7 @@ int main(int argc, char** argv)
     bgHist.Fill(a.bgValue);
     
   }
+
   outF = "Hists" + outF;
   TFile histsfile(outF.c_str(),"RECREATE");
   fgHist.Write();

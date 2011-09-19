@@ -106,7 +106,7 @@ int main(int argc, char** argv)
     
     // Store results.
     classifiedEvents.push_back(ClassifierOutPuts((events[k]).first, *givenLabel,
-						 res[sgName], res[bgName]));
+						 res[sgName], res[bgName], 0.00));
     delete givenLabel;
   }
   

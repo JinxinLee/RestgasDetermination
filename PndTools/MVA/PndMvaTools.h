@@ -31,26 +31,28 @@ struct ClassifierOutPuts
 {
   //public:
   // Constructors
-ClassifierOutPuts()
-: realLabel ("ALABEL"),
+  explicit ClassifierOutPuts()
+  : realLabel ("ALABEL"),
     givenLabel("NOLABEL"),
     sgValue(0.00),
-    bgValue(0.00)
+    bgValue(0.00),
+    mom(0.00)
   {};
-
+  
   /**
    *@param Rlabel True label.
    *@param Glabel Given label.
-   *@param sgVal Classifier output for each signal.
-   *@param bgVal Classifier output for each background.
+   *@param sgVal  Classifier output for each signal.
+   *@param bgVal  Classifier output for each background.
    */
 ClassifierOutPuts(std::string const& Rlabel,
 		  std::string const& Glabel,
-		  float sgVal, float bgVal)
+		  float sgVal, float bgVal, float p)
 : realLabel(Rlabel),
     givenLabel(Glabel),
     sgValue(sgVal),
-    bgValue(bgVal)
+    bgValue(bgVal),
+    mom(p)
   {};
   
   // Destructor
@@ -62,7 +64,8 @@ ClassifierOutPuts(ClassifierOutPuts const& ot)
 : realLabel(ot.realLabel),
     givenLabel(ot.givenLabel),
     sgValue(ot.sgValue),
-    bgValue(ot.bgValue)
+    bgValue(ot.bgValue),
+    mom(ot.mom)
   {};
 
   // Operators.  
@@ -73,10 +76,13 @@ ClassifierOutPuts(ClassifierOutPuts const& ot)
     {
       return *this;
     }
+    // Copy (deep)
     this->realLabel  = ot.realLabel;
     this->givenLabel = ot.givenLabel;
     this->sgValue    = ot.sgValue;
     this->bgValue    = ot.bgValue;
+    this->mom        = ot.mom;
+
     return (*this);
   };
   
@@ -95,6 +101,7 @@ ClassifierOutPuts(ClassifierOutPuts const& ot)
   std::string givenLabel;// Given label
   float sgValue;// Classifier output for label signal
   float bgValue;// Classifier output for label background
+  float mom; // Momentum (reco.)
 
   //protected:
 private:

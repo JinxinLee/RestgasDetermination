@@ -16,10 +16,10 @@ class PndProjectedKNN: public PndMvaClassifier
 {
  public:
   //! Constructor
-  PndProjectedKNN(const std::string& inputFile,
-		  const std::vector<std::string>& classNames,
-		  const std::vector<std::string>& varNames,
-		  const std::vector< std::vector<std::string> >& varCombinations);
+  PndProjectedKNN(std::string const& inputFile,
+		  std::vector<std::string> const& classNames,
+		  std::vector<std::string> const& varNames,
+		  std::vector< std::vector<std::string> > const& varCombinations);
   //! Destructor
   virtual ~PndProjectedKNN();
 

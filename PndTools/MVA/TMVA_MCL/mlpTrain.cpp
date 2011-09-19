@@ -31,15 +31,13 @@ int main(int argc, char** argv)
 
   // Labels.
   std::vector<std::string> labels;
+
   // Variables.
   std::vector<std::string> variables;
 
   // Class names
   labels.push_back("electron");
   labels.push_back("pion");
-  //labels.push_back("kaon");
-  //labels.push_back("muon");
-  //labels.push_back("proton");
   
   // Variable names 
   variables.push_back("emc");

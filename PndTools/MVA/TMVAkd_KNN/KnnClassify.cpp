@@ -136,7 +136,7 @@ int main(int argc, char** argv)
 
     // Store results.
     classifiedEvents.push_back(ClassifierOutPuts((events[ev]).first, (*givenLabel),
-						 res[sgName], res[bgName]));
+						 res[sgName], res[bgName], 0.00));
 
 #if DEBUG_PRINT
     std::cout << " Given label is "

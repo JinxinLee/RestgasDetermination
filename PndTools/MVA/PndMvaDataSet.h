@@ -60,9 +60,9 @@ class PndMvaDataSetException: public std::exception
  PndMvaDataSetException()
    : m_message("UNKNOWN_MvaDataSetException")
     {};
- 
- PndMvaDataSetException(std::string const& val)
-   : m_message(val)
+  
+  explicit PndMvaDataSetException(std::string const& val)
+    : m_message(val)
   {};
   
   virtual ~PndMvaDataSetException() throw()
@@ -77,7 +77,7 @@ class PndMvaDataSetException: public std::exception
   {
     return m_message;
   };
- 
+  
  private:
   std::string m_message;
 };

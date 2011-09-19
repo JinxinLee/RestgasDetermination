@@ -66,9 +66,6 @@ int main(int argc, char** argv)
   // Labels (container to hold the class names)
   labels.push_back("electron");
   labels.push_back("pion");
-  //labels.push_back("kaon");
-  //labels.push_back("muon");
-  //labels.push_back("proton");
   
   // Variables (names)
   vars.push_back("emc");
@@ -147,7 +144,7 @@ int main(int argc, char** argv)
     
     // Prob. Estimation the better
     classifiedEvents.push_back(ClassifierOutPuts((events[k]).first, *givenLabel,
-						 res[sgName], res[bgName]));    
+						 res[sgName], res[bgName], 0.00));
     delete givenLabel;
   }// Events Loop
   

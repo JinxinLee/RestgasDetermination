@@ -39,7 +39,7 @@ class PndMvaCluster
    *@param InputData Input Data points.
    *@param nCluster  Number of clusters to be created.
    */
-  PndMvaCluster(const ClDataSample& InputData, unsigned int nCluster);
+  PndMvaCluster( ClDataSample const& InputData, unsigned int nCluster);
   
   /**
    * Destructor.
@@ -51,7 +51,7 @@ class PndMvaCluster
    *@param ClType Clustering algorithm.
    *@return Vector containing the cluster centroids.
    */
-  ClDataSample* Cluster(const ClusteringType ClType = KMEANS_HARD);
+  ClDataSample* Cluster( ClusteringType const ClType = KMEANS_HARD);
   
   //------- Getters
   /**

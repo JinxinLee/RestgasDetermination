@@ -21,9 +21,9 @@ class PndKnnTrain : public PndMvaTrainer
    * trained.
    * @param VarNames: Variable names creating the feature vector.
    */
-  PndKnnTrain(const std::string& InputFile, 
-	      const std::vector<std::string>& ClassNames, 
-	      const std::vector<std::string>& VarNames,
+  PndKnnTrain(std::string const& InputFile,
+	      std::vector<std::string> const& ClassNames, 
+	      std::vector<std::string> const& VarNames,
 	      bool trim = true);
   /**
    * Class destructor.

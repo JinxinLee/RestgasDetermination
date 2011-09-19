@@ -17,9 +17,15 @@ struct PndMvaClass
   /**
    *@Param name Class name.
    */
-  PndMvaClass(std::string const& name);
+  explicit PndMvaClass(std::string const& name);
+
+  //! Destructor
   virtual ~PndMvaClass();
+
+  //! Copy constructor  
   PndMvaClass(PndMvaClass const& oth);
+  
+  //! = Operator
   PndMvaClass& operator=(PndMvaClass const& oth);
 
   std::string Name;  /**< Name of the class.*/

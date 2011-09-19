@@ -65,6 +65,9 @@ class PndKnnClassify: public PndMvaClassifier
   //! Set the number of neighbours.
   inline void SetKnn(size_t const N);
   
+  //! Get the number of neighbours.
+  inline size_t GetKnn();
+
   /**
    * Initialize the needed internal and external data structures.
    */
@@ -110,4 +113,7 @@ inline void PndKnnClassify::SetKnn(size_t const N)
 {
   m_knn = N;
 };
+
+inline size_t PndKnnClassify::GetKnn()
+{ return m_knn; };
 #endif
