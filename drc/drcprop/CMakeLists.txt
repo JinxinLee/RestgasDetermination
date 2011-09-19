@@ -34,6 +34,7 @@ PndDrcOptMatLithotecQ0.cxx
 PndDrcOptMatNLAK33A.cxx 
 PndDrcOptMatBK7.cxx 
 PndDrcOptMatMgF2.cxx 
+PndDrcOptMatTiO2.cxx 
 PndDrcOptMatMarcol7.cxx 
 PndDrcOptMatLLF1.cxx 
 PndDrcOptMatLiF.cxx 

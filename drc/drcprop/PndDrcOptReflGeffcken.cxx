@@ -15,6 +15,7 @@ using std::hex;
 
 #include "PndDrcOptMatAbs.h"
 #include "PndDrcOptMatMgF2.h"
+#include "PndDrcOptMatTiO2.h"
 #include "PndDrcOptReflGeffcken.h"
 #include "PndDrcPhoton.h"
 
@@ -28,12 +29,23 @@ PndDrcOptReflGeffcken::PndDrcOptReflGeffcken()
 
 
   fLayerMaterialLow  = new PndDrcOptMatMgF2();
-  fLayerMaterialHigh = new PndDrcOptMatMgF2();
+  fLayerMaterialHigh = new PndDrcOptMatTiO2();
 
-
-  fLayerThicknessVector.push_back(54.35);
-  fLayerMaterialVector.push_back(fLayerMaterialLow->Clone()); // since list is deleted separately
+  double quarterlambda = 520/4;
   
+  // 1st layer is close to object (substrate)
+  fLayerThicknessVector.push_back(0.231*quarterlambda);
+  fLayerMaterialVector.push_back(fLayerMaterialHigh->Clone()); // since list is deleted separately
+  
+  fLayerThicknessVector.push_back(0.431*quarterlambda);
+  fLayerMaterialVector.push_back(fLayerMaterialLow->Clone()); // since list is deleted separately
+
+  fLayerThicknessVector.push_back(0.231*quarterlambda);
+  fLayerMaterialVector.push_back(fLayerMaterialHigh->Clone()); // since list is deleted separately
+
+  fLayerThicknessVector.push_back(1.000*quarterlambda);
+  fLayerMaterialVector.push_back(fLayerMaterialLow->Clone()); // since list is deleted separately
+  // last layer is outside layer
   
 }
 //----------------------------------------------------------------------
