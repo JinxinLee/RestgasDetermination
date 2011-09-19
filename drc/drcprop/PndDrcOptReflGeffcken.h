@@ -76,8 +76,8 @@ class PndDrcOptReflGeffcken : public PndDrcOptReflAbs
   protected:
   vector<PndDrcOptMatAbs*>     fLayerMaterialVector;                 //!< Layers of material
   vector<double>               fLayerThicknessVector;                //!< Layer thicknesses [nm]
-  PndDrcOptMatAbs*           fLayerMaterialLow;                  //!< Low refractive index material.
-  PndDrcOptMatAbs*           fLayerMaterialHigh;                 //!< High refractive index material.
+  PndDrcOptMatAbs*             fLayerMaterialLow;                  //!< Low refractive index material.
+  PndDrcOptMatAbs*             fLayerMaterialHigh;                 //!< High refractive index material.
 
 
   private:
