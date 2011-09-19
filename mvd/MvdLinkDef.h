@@ -27,12 +27,12 @@
 //#pragma link C++ class PndMvdCalcPixel;
 //#pragma link C++ class PndMvdCalcFePixel;
 //#pragma link C++ class PndMvdCalcStrip;
-//#pragma link C++ class PndMvdDigiTask+;
+#pragma link C++ class PndMvdDigiTask+;
 //#pragma link C++ class PndMvdPixelDigiPar+;
 //#pragma link C++ class PndMvdStripDigiPar+;
 //#pragma link C++ class PndMvdDigiAna+;
 #pragma link C++ class PndMvdHitProducerIdeal+;
-//#pragma link C++ class PndMvdNoiseProducer+;
+#pragma link C++ class PndMvdNoiseProducer+;
 //#pragma link C++ class PndMvdCalcFePixel+;
 
 

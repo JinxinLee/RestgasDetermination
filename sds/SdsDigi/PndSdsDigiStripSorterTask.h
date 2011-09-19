@@ -8,19 +8,19 @@
 #ifndef PNDSDSDigiStripSORTERTASK_H_
 #define PNDSDSDigiStripSORTERTASK_H_
 
-#include <PndSorterTask.h>
+#include <FairRingSorterTask.h>
 
-class PndSdsDigiStripSorterTask: public PndSorterTask {
+class PndSdsDigiStripSorterTask: public FairRingSorterTask {
 public:
 	PndSdsDigiStripSorterTask();
-	PndSdsDigiStripSorterTask(const char* name):PndSorterTask(name){};
+	PndSdsDigiStripSorterTask(const char* name):FairRingSorterTask(name){};
 	PndSdsDigiStripSorterTask(Int_t numberOfCells, Double_t widthOfCells, TString inputBranch, TString outputBranch, TString folderName):
-		PndSorterTask(numberOfCells, widthOfCells, inputBranch, outputBranch, folderName){};
+		FairRingSorterTask(numberOfCells, widthOfCells, inputBranch, outputBranch, folderName){};
 
 	virtual ~PndSdsDigiStripSorterTask();
 
 	virtual void AddNewDataToTClonesArray(FairTimeStamp* data);
-	virtual PndRingSorter* InitSorter(Int_t numberOfCells, Double_t widthOfCells);
+	virtual FairRingSorter* InitSorter(Int_t numberOfCells, Double_t widthOfCells);
 
 	ClassDef(PndSdsDigiStripSorterTask, 1);
 };

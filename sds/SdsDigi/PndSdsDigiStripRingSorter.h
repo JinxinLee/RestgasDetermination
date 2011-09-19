@@ -8,11 +8,11 @@
 #ifndef PNDSDSDigiStripRINGSORTER_H_
 #define PNDSDSDigiStripRINGSORTER_H_
 
-#include <PndRingSorter.h>
+#include <FairRingSorter.h>
 
-class PndSdsDigiStripRingSorter: public PndRingSorter {
+class PndSdsDigiStripRingSorter: public FairRingSorter {
 public:
-	PndSdsDigiStripRingSorter(int size = 100, double width = 10):PndRingSorter(size, width){};
+	PndSdsDigiStripRingSorter(int size = 100, double width = 10):FairRingSorter(size, width){};
 	virtual ~PndSdsDigiStripRingSorter();
 
 	virtual FairTimeStamp* CreateElement(FairTimeStamp* data);
