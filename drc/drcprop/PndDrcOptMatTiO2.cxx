@@ -39,9 +39,17 @@ PndDrcOptMatTiO2::PndDrcOptMatTiO2()
 {
   fName = "TiO2";
 
-  fC1 = 5.913;
-  fC2 = 0.2441;
-  fC3 = 0.0803;
+  fA    = 0.5189;
+  fB    = 8.1605;
+  fC    = 17.5291;
+  fB0   = -0.4195;
+  fC0   = 2.9587;
+  fNinf = 1.7614;
+  
+
+
+
+
 }
 //----------------------------------------------------------------------
 PndDrcOptMatTiO2* PndDrcOptMatTiO2::Clone() const
@@ -51,9 +59,12 @@ PndDrcOptMatTiO2* PndDrcOptMatTiO2::Clone() const
 //----------------------------------------------------------------------
 void PndDrcOptMatTiO2::Copy(const PndDrcOptMatTiO2& mat)
 {
-  fC1  = mat.fC1;
-  fC2  = mat.fC2;
-  fC3  = mat.fC3;
+  fA   = mat.fA;
+  fB   = mat.fB;
+  fC   = mat.fC;
+  fB0  = mat.fB0;
+  fC0  = mat.fC0;
+  fNinf= mat.fNinf;
   fRan = mat.fRan;
 }//----------------------------------------------------------------------
 PndDrcOptMatTiO2::PndDrcOptMatTiO2(const PndDrcOptMatTiO2& mat)
@@ -81,21 +92,31 @@ PndDrcOptMatTiO2& PndDrcOptMatTiO2::operator=(const PndDrcOptMatTiO2& mat)
 double PndDrcOptMatTiO2::RefIndex(const double lambda) const
 {
 
-  if (lambda<0) return 2.49621; // average value.
+  if (lambda<0) return 2.5; // average value.
 
-  double lam2 = lambda/1000 * lambda/1000; // um2
+  const double pi = 3.1415926535;
+  const double  hbarc = 197.326968; // eV nm
 
-  return sqrt(fC1+fC2*lam2/(lam2-fC3));
+  double e = 2*pi*hbarc / lambda;
+
+  return fNinf + (fB0*e + fC0) / (e*e - fB*e + fC);
 }
 //----------------------------------------------------------------------
 double PndDrcOptMatTiO2::RefIndexDeriv(const double lambda) const
 {
-  double lam  = lambda/1000;
-  double lam2 = lam*lam;
-  //double lam3 = lam2*lam;
 
-  return (   (-fC2*fC3*lam)/((lam2-fC3)*(lam2-fC3)) )
-    / RefIndex(lambda) / 1000;
+  const double pi = 3.1415926535;
+  const double  hbarc = 197.326968; // eV nm
+
+  double e = 2*pi*hbarc / lambda;
+
+  double dnde = (-e*e*fB0 - e*2*fC0 + fB0*fC + fC0*fB) / (e*e-e*fB+fC) / (e*e-e*fB+fC);
+  
+  double dedlambda = -2*pi*hbarc/lambda/lambda;
+  
+
+  return dnde*dedlambda;
+  
 
 }
 //----------------------------------------------------------------------

@@ -65,6 +65,7 @@ using ROOT::Math::Rotation3D;
 #include "PndDrcOptMatMarcol7.h"
 #include "PndDrcOptMatVacuum.h"
 #include "PndDrcOptMatMgF2.h"
+#include "PndDrcOptMatTiO2.h"
 #include "PndDrcOptDevSys.h"
 #include "PndDrcOptVol.h"
 #include "PndDrcOptDevManager.h"
@@ -85,19 +86,34 @@ int main(int argc, char *argv[])
 
   PndDrcOptMatLithotecQ0 lithotec;
   PndDrcOptMatMgF2       mgf2;
+  PndDrcOptMatTiO2       tio2;
   
   cout<<" lambda loss --> debug.dat"<<endl;
   
+
+
+  // ------> z
+  //
+  // +--------+ X+--------+
+  // | brick2 | X| brick1 |
+  // +--------+ X+--------+
+
+
   PndDrcOptBrick brick1(10,10,10);
   brick1.Surface("side1")->SetReflectivity(refl);
   brick1.SetOptMaterial(lithotec);
-  brick1.SetName("brik1");
+  brick1.SetName("brick1");
+  brick1.AddTransform(Transform3D(XYZVector(0,0,10)));
 
   PndDrcOptBrick brick2(10,10,10);
-  //brick2.Surface("side1")->SetReflectivity(PndDrcOptReflGeffcken());
+  brick2.Surface("side1")->SetReflectivity(refl);
   brick2.SetOptMaterial(PndDrcOptMatVacuum());
-  brick2.SetName("brik2");
+  brick2.SetName("brick2");
+  brick2.AddTransform(Transform3D(XYZVector(0,0,-10)));
 
+  PndDrcOptDevSys opt_system;
+  opt_system.AddDevice(brick1);
+  opt_system.AddDevice(brick2);
 
 
 
@@ -107,11 +123,11 @@ int main(int argc, char *argv[])
   out.open("debug.dat",std::ios::out);
   
   
-  for (double lambda=200; lambda<600; lambda+=1)
+  for (double lambda=400; lambda<401; lambda+=1)
     {
       double theta=0; 
-      ph.SetPosition(XYZPoint(0,0,5));
-      double z = -cos(theta*kPi/180);
+      ph.SetPosition(XYZPoint(0,0,-1));
+      double z = cos(theta*kPi/180);
       double y = sin(theta*kPi/180);
       ph.SetDirection(XYZVector(0,y,z));
       ph.SetWavelength(lambda);
@@ -120,7 +136,7 @@ int main(int argc, char *argv[])
       double refl_prob = refl.ReflProb(ph,XYZVector(0,0,-1),lithotec.RefIndex(lambda),Drc::ReflIn);
       
       
-      cout<<lambda<<" "<<refl_prob<<" "<<mgf2.RefIndex(lambda)<<endl;
+      cout<<lambda<<" "<<refl_prob<<endl;
       out<< lambda<<" "<<refl_prob<<endl;
       
     }

@@ -1,8 +1,8 @@
 /*!
   \brief Class for optical material representation.
 
-  In this case TiO2. Data are from
-  http://refractiveindex.info/?group=CRYSTALS&material=TiO2
+  In this case amorphous TiO2. Data are from
+  Forouhi and Bloomer Phys.Rev. B34 (1986) 7018
   Absorption is ignored.
 */
 
@@ -42,9 +42,12 @@ class PndDrcOptMatTiO2 : public PndDrcOptMatAbs
 
  protected:
 
-  double  fC1;                          //!<   Sellmeier coefficient for refractive index.
-  double  fC2;                          //!<   Sellmeier coefficient for refractive index.
-  double  fC3;                          //!<   Sellmeier coefficient for refractive index.
+  double  fA;                           //!<   Coefficient for refractive index.
+  double  fB;                           //!<   Coefficient for refractive index.
+  double  fC;                           //!<   Coefficient for refractive index.
+  double  fB0;                          //!<   Coefficient for refractive index.
+  double  fC0;                          //!<   Coefficient for refractive index.
+  double  fNinf;                        //!<   Coefficient for refractive index.
   mutable TRandom3 fRan;                //!<   Random generator.
 
  private:
