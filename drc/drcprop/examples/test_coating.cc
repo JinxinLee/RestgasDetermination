@@ -61,7 +61,7 @@ using ROOT::Math::Rotation3D;
 #include "PndDrcOptReflSilver.h"
 #include "PndDrcOptReflPerfect.h"
 #include "PndDrcOptReflGeffcken.h"
-#include "PndDrcOptMatLithotecQ0.h"
+#include "PndDrcOptMatBK7.h"
 #include "PndDrcOptMatMarcol7.h"
 #include "PndDrcOptMatVacuum.h"
 #include "PndDrcOptMatMgF2.h"
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
   refl.SetVerbosity(5);
   
 
-  PndDrcOptMatLithotecQ0 lithotec;
+  PndDrcOptMatBK7        bk7;
   PndDrcOptMatMgF2       mgf2;
   PndDrcOptMatTiO2       tio2;
   
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 
   PndDrcOptBrick brick1(10,10,10);
   brick1.Surface("side1")->SetReflectivity(refl);
-  brick1.SetOptMaterial(lithotec);
+  brick1.SetOptMaterial(bk7);
   brick1.SetName("brick1");
   brick1.AddTransform(Transform3D(XYZVector(0,0,10)));
 
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
   out.open("debug.dat",std::ios::out);
   
   
-  for (double lambda=400; lambda<401; lambda+=1)
+  for (double lambda=400; lambda<701; lambda+=1)
     {
       double theta=0; 
       ph.SetPosition(XYZPoint(0,0,-1));
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
       ph.SetWavelength(lambda);
       ph.SetDevice(&brick2); 
       
-      double refl_prob = refl.ReflProb(ph,XYZVector(0,0,-1),lithotec.RefIndex(lambda),Drc::ReflIn);
+      double refl_prob = refl.ReflProb(ph,XYZVector(0,0,-1),bk7.RefIndex(lambda),Drc::ReflIn);
       
       
       cout<<lambda<<" "<<refl_prob<<endl;

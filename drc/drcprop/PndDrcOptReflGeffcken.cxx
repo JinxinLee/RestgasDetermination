@@ -137,7 +137,6 @@ const double PndDrcOptReflGeffcken::ReflProb(const PndDrcPhoton&    ph,
   const double pi = 3.1415926535;
 
   double lambda   = ph.Wavelength();   // nm
-  double k0       = 2*pi/lambda;       // nm-1
 
   // go from n0 (air) to glass ns (substrate)
   // n1 is the AR layer
@@ -176,8 +175,19 @@ const double PndDrcOptReflGeffcken::ReflProb(const PndDrcPhoton&    ph,
   double n0 = n_this;
   double ns = n_next;
   double n1 = 0;
-  double Y0,Y1,Ys;
-  
+
+
+  // electric & magnetic vector
+  double theta_s  = asin((n0/ns)*sin(acos(costh)));
+  double Ys       = ns  * cos(theta_s);
+  complex <double> Ein(100.0,0);
+  complex <double> Hin(100.0*Ys,0);
+  complex <double> Eout;
+  complex <double> Hout;
+
+  double Y0 = n0  * cos(acos(costh));
+
+
   complex <double> out1;
   complex <double> out2;
 
@@ -185,65 +195,38 @@ const double PndDrcOptReflGeffcken::ReflProb(const PndDrcPhoton&    ph,
     {
       n1 = fLayerMaterialVector[ilayer]->RefIndex(lambda);
       
-      double theta_i1  = acos(costh);
-      double theta_i2  = asin(n0/n1*sin(theta_i1));
-      double theta_t2  = asin(n1/ns*sin(theta_i2));
-      
+      double theta1 = asin((n0/n1)*sin(acos(costh))); 
+      double k = 2*pi/lambda;  // nm-1
+      double h = fLayerThicknessVector[ilayer] * cos(theta1) / n1;
       double e0bymu0 = 1.0;//????
+      double Y = e0bymu0 * n1  * cos(theta1);
+      complex <double> m11_6(cos(k*h) ,                 0);
+      complex <double> m12_6(0               , sin(k*h)/Y);
+      complex <double> m21_6(0               , sin(k*h)*Y);
+      complex <double> m22_6(cos(k*h) ,                 0);
+      Matrix M(m11_6,m12_6,m21_6,m22_6);
       
-      double d  = fLayerThicknessVector[ilayer];
-      double h  = d * n1 * cos(theta_i2);
-      
-      
-      
-      //double n1 = 0;// (*kLayerMaterial)->RefIndex(lambda);
-      //double n0,ns;
-      
-      
-      
-
-      
-
-      //cout<<k0*h<<endl;
-      
-      Y0 = e0bymu0 * n0 * cos(theta_i1);
-      Y1 = e0bymu0 * n1 * cos(theta_i2);
-      Ys = e0bymu0 * ns * cos(theta_t2);
-      
-      
-      complex <double> m11(cos(k0*h) , 0);
-      complex <double> m12(0         , sin(k0*h)/Y1);
-      complex <double> m21(0         , sin(k0*h)*Y1);
-      complex <double> m22(cos(k0*h) , 0);
-      
-      
-      Matrix M(m11,m12,m21,m22);
-      
-      complex <double> in1(1.0,0);
-      complex <double> in2(1.0*Ys,0);
-      
-      M.product(out1,out2,in1,in2);
-      
+      M.product(Eout,Hout,Ein,Hin);
+     
+      Ein = Eout;
+      Hin = Hout;
+      //complex <double> er1 = (Eout-Hout/Y0)/2;
+      //complex <double> ei1 = (Eout+Hout/Y0)/2;
+  
+      //complex <double> r = er1/ei1;
+      //cout<<" ilayer,r,n ="<<ilayer<<" "<<real(r*conj(r))<<" "<<n1<<endl;
     }
   
   //cout<< in1<<" "<< in2<<endl;
   //cout<<out1<<" "<<out2<<endl;
   
-  complex <double> er1 = (out1-out2/Y0)/2;
-  complex <double> ei1 = (out1+out2/Y0)/2;
+  complex <double> er1 = (Eout-Hout/Y0)/2;
+  complex <double> ei1 = (Eout+Hout/Y0)/2;
   
   complex <double> r = er1/ei1;
     
   return real(r*conj(r));
   
-  
-
-  //std::cout<<lambda<<" "<<r<<" "<<r*conj(r)<<std::endl;
-
-
-  //complex <double> help = Y0*m11+Y0*Ys*m12-m21-Ys*m22;
-  //help /= Y0*m11+Y0*Ys*m12+m21+Ys*m22;
-  //cout<<help<<" "<<help*conj(help)<<endl;
 
 
 }
