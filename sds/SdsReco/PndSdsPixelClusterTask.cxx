@@ -212,7 +212,7 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
 }
 
 void PndSdsPixelClusterTask::FinishEvent(){
-//	fDigiArray->Delete();
+	fDigiArray->Delete();
 	fHitArray->Delete();
 	fClusterArray->Delete();
 }
