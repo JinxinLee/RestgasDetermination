@@ -151,8 +151,8 @@ int main(int argc, char** argv)
   float ethaZ  = 0.1;
   float ethaF  = 0.0001;
 
-#if (CROSS_VALIDATE == 0)
   //========= Normal training =====================
+#if (CROSS_VALIDATE == 0)
   std::cout << "<-I-> Init classifier using data from root Trees.\n";
 
   // Create trainer object.
@@ -356,7 +356,7 @@ int main(int argc, char** argv)
     //t->SetNumberOfProto(numProtoMap);
     
     // FILE_PR, KMEANS_PR, CCM_PR, RAND_FROM_DATA (DEFAULT)
-    t->setProtoInitType(RAND_FROM_DATA);
+    t->setProtoInitType(KMEANS_PR);
 
     // Do NOT split test set.
     t->SetTetsSetSize(0);

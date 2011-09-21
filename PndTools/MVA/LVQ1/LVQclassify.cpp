@@ -476,7 +476,7 @@ int main(int argc, char** argv)
       }
     }
   }//Events loop
-  OutPut << "\n\n0.00 <= p <= 1.0 low\n1.0  <  p <= 4.0 mid\n4.0  <  p high"
+  OutPut << "0.00 <= p <= 1.0 (low)\n1.0  <  p <= 4.0 (mid)\n4.0  <  p (high)"
 	 << "\n\n"
 	 << "electErr[low] = " << electErr["low"]
 	 << " total = "<< elow<< " ("
@@ -497,7 +497,6 @@ int main(int argc, char** argv)
 	 << " Total = " << phigh << " ("
 	 << (static_cast<float>(pionErr["high"]) * 100.0)/ phigh << " %)\n\n";
 #endif
-
   // Close Open file
   OutPut.close();
   
