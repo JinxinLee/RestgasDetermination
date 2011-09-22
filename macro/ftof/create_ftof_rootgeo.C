@@ -25,7 +25,7 @@ void create_ftof_rootgeo(Double_t distance = 750){
   gSystem->Load("libPndData");
   gSystem->Load("libPassive");
   
-  TString outfile= "../../geometry/ftofwall_test.root";
+  TString outfile= "../../geometry/ftofwall.root";
   TFile* fi = new TFile(outfile,"RECREATE");  
   
   FairGeoLoader* geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
