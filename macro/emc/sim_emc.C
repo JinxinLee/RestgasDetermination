@@ -51,7 +51,7 @@ sim_emc(Int_t nEvents = 10, Float_t mom = 1.){
   fRun->AddModule(Cave); 
   
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
-  Emc->SetGeometryVersion(15);
+  Emc->SetGeometryVersion(20);
   // See PndEmc::SetGeometryVersion() for available geometries and add there new one if necessary
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
@@ -78,13 +78,15 @@ sim_emc(Int_t nEvents = 10, Float_t mom = 1.){
 	Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
 	fRun->AddModule(Mvd);
 
-	PndMdt *Muo = new PndMdt("MDT",kTRUE);
-	Muo->SetBarrel("fast");
-	Muo->SetEndcap("fast");
-	Muo->SetMuonFilter("fast");
-	Muo->SetMdtMagnet(kTRUE);
-	Muo->SetMdtMFIron(kTRUE);
-	fRun->AddModule(Muo);
+  PndMdt *Muo = new PndMdt("MDT",kTRUE);
+  Muo->SetMdtMagnet(kTRUE);
+//  Muo->SetMdtMFIron(kFALSE);
+  Muo->SetMdtCoil(kTRUE);
+  Muo->SetBarrel("muon_TS_barrel_strip_v1_noGeo.root");
+  Muo->SetEndcap("muon_TS_endcap_strip_v1_noGeo.root");
+  Muo->SetForward("muon_Forward_strip_v1_noGeo.root");
+  Muo->SetMuonFilter("muon_MuonFilter_strip_v1_noGeo.root");
+  fRun->AddModule(Muo);
 
 	FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
 	Gem->SetGeometryFileName("gem_3Stations.root");
@@ -96,9 +98,10 @@ sim_emc(Int_t nEvents = 10, Float_t mom = 1.){
 	Dsk->SetStoreTrackPoints(kFALSE);
 	fRun->AddModule(Dsk);
 
-	PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-	Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
-	fRun->AddModule(Drc);
+  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+  Drc->SetGeometryFileName("dirc_l0_p0.root");
+  Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
+  fRun->AddModule(Drc);
 	
 	FairDetector *Fts= new PndFts("FTS", kTRUE);
 	Fts->SetGeometryFileName("fts.geo");
