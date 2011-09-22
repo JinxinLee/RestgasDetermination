@@ -18,7 +18,7 @@
 	TFile* fsim = new TFile("sim_emc.root"); //file you want to analyse
 	TTree *tsim=(TTree *) fsim->Get("cbmsim") ;
 	
-	PndEmcMapper::Init(6);
+	PndEmcMapper::Init(11);
 
 	TClonesArray* mctrack_array=new TClonesArray("PndMCTrack");
 	tsim->SetBranchAddress("MCTrack",&mctrack_array);
