@@ -1,4 +1,4 @@
-{
+void create_ftof_rootgeo(Double_t distance = 750){
   // Forward tof geometry parameters
   //-----------------------------
   //-- macro created by Alicia S. based on
@@ -25,7 +25,7 @@
   gSystem->Load("libPndData");
   gSystem->Load("libPassive");
   
-  TString outfile= "../../geometry/ftofwall.root";
+  TString outfile= "../../geometry/ftofwall_test.root";
   TFile* fi = new TFile(outfile,"RECREATE");  
   
   FairGeoLoader* geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
@@ -88,8 +88,8 @@ for(int i=0;i<22;i++){
  
   CentShape[i] = new TGeoBBox(name,kBCentX,kBCentY,kBCentZ);
   CentVol[i] = new TGeoVolume(name1,CentShape[i],gGeoMan->GetMedium("polyvinyltoluene"));
-  if(i<9)TGeoCombiTrans* trc1= new TGeoCombiTrans(bx[i],0,750,new TGeoRotation ()); 
-  else if (i>12)TGeoCombiTrans* trc1= new TGeoCombiTrans(bx[i-2],0,750,new TGeoRotation ());
+  if(i<9)TGeoCombiTrans* trc1= new TGeoCombiTrans(bx[i],0,0.,new TGeoRotation ()); 
+  else if (i>12)TGeoCombiTrans* trc1= new TGeoCombiTrans(bx[i-2],0,0.,new TGeoRotation ());
 
   trc1->SetName(name);
   trc1->RegisterYourself();
@@ -106,7 +106,7 @@ for(int i=0;i<22;i++){
     
     
     (i==9 ? (offset = -70+kBBeamY) : (offset = 70-kBBeamY));
-    TGeoCombiTrans* trc1= new TGeoCombiTrans(bx[9],offset,750,new TGeoRotation ()); 
+    TGeoCombiTrans* trc1= new TGeoCombiTrans(bx[9],offset,0.,new TGeoRotation ()); 
    
     trc1->SetName(namB);
     trc1->RegisterYourself();
@@ -117,7 +117,7 @@ for(int i=0;i<22;i++){
     
     (i==11 ?  (offset = -70+kBBeamY) : (offset = 70-kBBeamY));
     
-    TGeoCombiTrans* trc1= new TGeoCombiTrans(bx[10],offset,750,new TGeoRotation ()); 
+    TGeoCombiTrans* trc1= new TGeoCombiTrans(bx[10],offset,0.,new TGeoRotation ()); 
   
     trc1->SetName(namB);
     trc1->RegisterYourself();
@@ -145,7 +145,7 @@ for(int i=0;i<46;i++){
  
   VertShape[i] = new TGeoBBox(namV,kBVertX,kBVertY,kBVertZ);
   VertVol[i] = new TGeoVolume(namV1,VertShape[i],gGeoMan->GetMedium("polyvinyltoluene"));
-  TGeoCombiTrans* trc1= new TGeoCombiTrans(bvx[i],0,750,new TGeoRotation ());
+  TGeoCombiTrans* trc1= new TGeoCombiTrans(bvx[i],0,0.,new TGeoRotation ());
 
   trc1->SetName(namV);
   trc1->RegisterYourself();
@@ -153,7 +153,7 @@ for(int i=0;i<46;i++){
   }
   
   
-top->AddNode(SubunitVol,0,new TGeoCombiTrans());
+top->AddNode(SubunitVol,0,new TGeoCombiTrans(0.,0.,distance,new TGeoRotation ()));
 
   gGeoMan->CloseGeometry();
   top->Write();
