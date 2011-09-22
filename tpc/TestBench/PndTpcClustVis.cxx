@@ -16,6 +16,7 @@
 #include "PndTpcClusterFinderSimple.h"
 #include "PndTpcSPHit.h"
 #include "PndMultiField.h"
+#include "PndMCTrack.h"
 
 #include "TGeoManager.h"
 #include "TStopwatch.h"
@@ -27,6 +28,7 @@
 #include "GFDetPlane.h"
 #include "GFException.h"
 #include "GFKalman.h"
+#include "GFDaf.h"
 #include "GFTools.h"
 #include "GFTrack.h"
 #include "GFTrackCand.h"
@@ -44,32 +46,70 @@
 
 #include "PndDetectorList.h"
 
+#include <iostream>
+#include <typeinfo>
+
 #define DEBUG 0
+#define MINMOM 0.2 //minimum momentum for efficiency calculation
 
 
 PndTpcClustVis* PndTpcClustVis::eventDisplay = NULL;
 
 
 PndTpcClustVis::PndTpcClustVis():
-  tree(NULL), digisBranch(NULL), clustersBranch(NULL), preFitBranch(NULL), postFitBranch(NULL),
+  tree(NULL), digisBranch(NULL), clustersBranch(NULL), preFitBranch(NULL), postFitBranch(NULL), MCTrackBranch(NULL),
   NsectorsToProcess(16), fpurityCut(1.), fpurityLoCut(0.),
   guiEvent(0), fEventId(0), ClHasChanged(true),
-  doClustering(false), ClMode(2), ClTimeslice(3),ClTimecut(2),
+  doClustering(false), ClMode(2), ClTimeslice(4),ClTimecut(2),
   ClSingleDigiClAmpCut(15), ClClAmpCut(9),
   ClElPerADC(600.), ClErrorNorm(300.),
-  ClSimpleCl(true), ClSimpleTimeslice(4), ClSimpleMaxClusterSlice(3000),
-  instantRedraw(true), drawTpc(false), TpcTransp(80), drawRawDigis(false), drawDigis(false),
+  ClSimpleCl(true), ClSimpleTimeslice(7), ClSimpleMaxClusterSlice(3000),
+  instantRedraw(true), drawTpc(true), TpcTransp(80), drawRawDigis(false), drawDigis(false),
   drawClusters(false), drawClusterErrors(false),
   drawRiemannTracks(true), drawPOCA(false), drawFitMarkers(false),
-  doPR(true), clearUnfitted(true), doMerge(false), doGlobMerge(true), doMergeCurlers(true),
+  plotHistos(false),
+  doPR(true), clearUnfitted(true), doMerge(false),
   doClean(false),
-  _sorting(3), _interactionZ(0), _sortingMode(true),
+ 
+  _sortingMode(true),
+  _sorting(3), 
+  _interactionZ(0.),
+
+ /* _minpoints(3), // panda settings
+  _proxcut(1.9),
+  _proxZstretch(1.6),
+  _helixcut(0.2),
+  _maxRMS(0.15),
+
+  doGlobMerge(true),
+  _TTproxcut(15.0),
+  _TTdipcut(0.2),
+  _TThelixcut(0.5),
+  _TTplanecut(0.3),*/
+
+  // FOPI settings
+  _minpoints(3),
+  _proxcut(2.0),
+  _proxZstretch(1.6),
+  _helixcut(0.4),
+  _maxRMS(0.3),
+
+  doGlobMerge(true),
+  _TTproxcut(15.0),
+  _TTdipcut(0.2),
+  _TThelixcut(0.5),
+  _TTplanecut(0.3),
+ 
+  doMergeCurlers(true),
+
+
+  _TTszcut(0.33),
   PRNHits(999999999), PRStage(11),
-  _minpoints(3), _planecut(0.04), _riproxcut(0.1), _szcut(0.2), _proxcut(1.9), _proxZstretch(1.6), _helixcut(0.2),
-  _TTproxcut(7.0), _TTplanecut(0.15), _TTszcut(0.33), _TTdipcut(0.1), _TThelixcut(0.3),
+  _planecut(0.04), _riproxcut(0.1), _szcut(0.2),
+  
   PRHasChanged(true),
   fRiemannScale(8.6), initDip(4.),
-  doFit(false), invertCharge(false), useGeane(false), numIts(0), smooth(false), Bz(0)
+  doFit(false), useDAF(false), invertCharge(false), useGeane(false), numIts(0), smooth(false), Bz(0)
 {
   if(!gApplication) {
     std::cout << "In PndTpcClustVis ctor: gApplication not found, creating..." << std::flush;
@@ -149,6 +189,23 @@ void PndTpcClustVis::initDigimapper(double drifField,
   //fRun->SetBeamMom(15);
   //PndMultiField *fField= new PndMultiField("FULL");
   //fRun->SetField(fField);
+
+
+
+  // init histos
+  PREffAll = new TH1D("PREffAll", "found tracks/total MC tracks", 101, 0,1.01) ;
+  trkPurityAll = new TH1D("trkPurityAll", "Track Purity", 101,0,1.01) ;
+  trkCompletenessAll = new TH1D("trkCompletenessAll", "Track Completeness", 101,0,1.01) ;
+
+  PREffPrim = new TH1D("PREffPrim", "found tracks/total MC tracks - Primaries", 101, 0,1.01) ;
+  trkPurityPrim = new TH1D("trkPurityPrim", "Track Purity - Primaries", 101,0,1.01) ;
+  trkCompletenessPrim = new TH1D("trkCompletenessPrim", "Track Completeness - Primaries", 101,0,1.01) ;
+
+  PREffSec = new TH1D("PREffSec", "found tracks/total MC tracks - Secondaries", 101, 0,1.01) ;
+  trkPuritySec = new TH1D("trkPuritySec", "Track Purity - Secondaries", 101,0,1.01) ;
+  trkCompletenessSec = new TH1D("trkCompletenessSec", "Track Completeness - Secondaries", 101,0,1.01) ;
+
+
 }
 
 
@@ -174,6 +231,10 @@ void PndTpcClustVis::setTree(TTree* treeIn) {
   }
   //else tree->Print();
 
+  tree->SetBranchStatus("*",0);
+  tree->SetBranchStatus("PndTpcDigi.*",1);
+  tree->SetBranchStatus("PndTpcCluster.*",1);
+
   tree->SetBranchAddress("PndTpcDigi", &digisBranch);
   if(digisBranch==NULL) std::cerr<<"WARNING: No Digi Branch found!"<<std::endl;
   else digisBranch->Print();
@@ -185,6 +246,22 @@ void PndTpcClustVis::setTree(TTree* treeIn) {
   if (digisBranch==NULL && clustersBranch==NULL) exit(1);
 
   //tree->SetBranchAddress("TrackPreFit", &preFitBranch);
+}
+
+void PndTpcClustVis::setMCTree(TTree* treeIn) {
+  mctree = treeIn;
+  if(mctree==NULL) {
+    std::cerr<<"WARNING: MC Tree not found!"<<std::endl;
+    exit(1);
+  }
+  //else tree->Print();
+  mctree->SetBranchStatus("*",0);
+  mctree->SetBranchStatus("MCTrack.*",1);
+
+  mctree->SetBranchAddress("MCTrack", &MCTrackBranch);
+  if(MCTrackBranch==NULL) std::cerr<<"WARNING: No MCTrack Branch found!"<<std::endl;
+  else MCTrackBranch->Print();
+
 }
 
 
@@ -210,6 +287,7 @@ void PndTpcClustVis::gotoEvent(int id) {
   fEventId = id;
 
   if(gEve->GetCurrentEvent()!=NULL) gEve->GetCurrentEvent()->DestroyElements();
+
   std::cout << "\nAt event " << fEventId << std::endl;
   drawEvent(fEventId, resetCam);
 }
@@ -223,6 +301,22 @@ void PndTpcClustVis::open() {
 
 
 void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
+
+
+  // init histos
+  /*PREffAll = new TH1D("PREffAll", "found tracks/total MC tracks (>50 MeV)", 101, 0,1.01) ;
+  trkPurityAll = new TH1D("trkPurityAll", "Track Purity (>50 MeV)", 101,0,1.01) ;
+  trkCompletenessAll = new TH1D("trkCompletenessAll", "Track Completeness (>50 MeV)", 101,0,1.01) ;
+
+  PREffPrim = new TH1D("PREffPrim", "found tracks/total MC tracks - Primaries (>50 MeV)", 101, 0,1.01) ;
+  trkPurityPrim = new TH1D("trkPurityPrim", "Track Purity - Primaries (>50 MeV)", 101,0,1.01) ;
+  trkCompletenessPrim = new TH1D("trkCompletenessPrim", "Track Completeness - Primaries (>50 MeV)", 101,0,1.01) ;
+
+  PREffSec = new TH1D("PREffSec", "found tracks/total MC tracks - Secondaries (>50 MeV)", 101, 0,1.01) ;
+  trkPuritySec = new TH1D("trkPuritySec", "Track Purity - Secondaries (>50 MeV)", 101,0,1.01) ;
+  trkCompletenessSec = new TH1D("trkCompletenessSec", "Track Completeness - Secondaries (>50 MeV)", 101,0,1.01) ;
+*/
+
 
   if (NsectorsToProcess>fnsectors) NsectorsToProcess=fnsectors;
 
@@ -258,9 +352,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
   }
 
 
-  //std::cerr<<"tree->GetEntry("<<id<<")...";
   tree->GetEntry(id);
-  //std::cerr<<"done"<<std::endl;
 
   //
   // Clustering
@@ -347,10 +439,10 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       PndTpcCluster *cluster = (PndTpcCluster*)clustersBranch->At(i);
 
       // omit clusters outside chamber
-      if (true && (//cluster->pos().X()<0 || // todo: take out again!!
+      /*if (true && (//cluster->pos().X()<0 || // todo: take out again!!
                    cluster->pos().Z()<tpcOffset ||
                    cluster->pos().Z()>tpcLength+tpcOffset)) continue; // TODO: make configurable!!!!
-
+*/
       fbuffermap[cluster->sector()]->push_back(cluster);
       ++createdClusters;
     }
@@ -360,8 +452,14 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     std::cerr<<"Warning: no clusters were created"<<std::endl;
   }
 
+  TH2D* ClusterPurity;
+  if(plotHistos){
+    ClusterPurity = new TH2D("ClusterPurityVsR", "ClusterPurityVsR", 50, 0,50, 100,0,1);
+  }
+  
   // build fClustersPerId
-  if (ClHasChanged) {
+  if (plotHistos && ClHasChanged) {
+    std::cout << "build fClustersPerId" << std::endl;
     fClustersPerId.clear();
 
     nTotTrks=0;
@@ -372,13 +470,24 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       for(unsigned int i=0; i<fbuffermap[isect]->size(); ++i){
         PndTpcCluster* cl = (*(fbuffermap[isect]))[i];
         McId ID = cl->mcId().DominantID();
-
+        ClusterPurity->Fill(cl->pos().Perp(), cl->mcId().MaxRelWeight());
+        
         if (fClustersPerId.count(ID) == 0) {
           fClustersPerId[ID] = 1;
         }
         else fClustersPerId[ID] += 1;
         // count tracks only with min number of hits
         if (fClustersPerId[ID] == 1) {
+          // check momentum
+          if (MCTrackBranch!=NULL){
+            if(ID.mceventID()!=0){
+              mctree->GetEntry(ID.mceventID()-1);
+              double mom = ((PndMCTrack*)(MCTrackBranch->At(ID.mctrackID())))->GetMomentum().Mag();
+              if (mom < MINMOM) continue;
+            }
+            else continue; // physics track
+          }
+
           ++nTotTrks;
           if (ID.mcsecID()==0) ++nTotTrksPrim;
           else ++nTotTrksSec;
@@ -461,27 +570,33 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
   //
   // Pattern Reco
   //
+  TH2D* QualityVsPurity;
+  TH1D* nHitsFoundTracks;
+  TH1D* nHitsUnFoundTracks;
+  TH1D* FoundMom;
+  TH1D* UnFoundMom;
+  TH1D* FoundTheta;
+  TH1D* UnFoundTheta;
+  TH1D* UnFoundTotCl;
+  TH2D* RealVsMcMom;
+
+  if(plotHistos){
+    QualityVsPurity = new TH2D("QualityVsPurity", "QualityVsPurity", 100,0,1, 100,0,1);
+    nHitsFoundTracks = new TH1D("nHitsFoundTracks","nHitsFoundTracks", 100, 0, 100);
+    nHitsUnFoundTracks = new TH1D("nHitsUnFoundTracks","nHitsUnFoundTracks", 100, 0, 100);
+    FoundMom = new TH1D("FoundMom","FoundMom", 1000, 0, 5);
+    UnFoundMom = new TH1D("UnFoundMom","UnFoundMom > 10 hits", 1000, 0, 5);
+    FoundTheta = new TH1D("FoundTheta","FoundTheta", 90, 0, 180);
+    UnFoundTheta = new TH1D("UnFoundTheta","UnFoundTheta > 10 hits", 90, 0, 180);
+    UnFoundTotCl = new TH1D("UnFoundTotCl","UnFound Total Clusters", 200, 0, 200);
+    RealVsMcMom = new TH2D("RealVsMcMom", "RealVsMcMom", 500, 0, 2,  500, 0, 2);
+  }
+
+
   if(doPR && (PRHasChanged || ClHasChanged)){
     std::cerr << "Starting Pattern Reco..." << std::endl;
 
     PRHasChanged=false;
-
-    // init histos
-    PREffAll = new TH1D("PREffAll", "found tracks/total MC tracks", 101, 0,1.01) ;
-    trkPurityAll = new TH1D("trkPurityAll", "Track Purity", 101,0,1.01) ;
-    trkCompletenessAll = new TH1D("trkCompletenessAll", "Track Completeness", 101,0,1.01) ;
-
-    PREffPrim = new TH1D("PREffPrim", "found tracks/total MC tracks - Primaries", 101, 0,1.01) ;
-    trkPurityPrim = new TH1D("trkPurityPrim", "Track Purity - Primaries", 101,0,1.01) ;
-    trkCompletenessPrim = new TH1D("trkCompletenessPrim", "Track Completeness - Primaries", 101,0,1.01) ;
-
-    PREffSec = new TH1D("PREffSec", "found tracks/total MC tracks - Secondaries", 101, 0,1.01) ;
-    trkPuritySec = new TH1D("trkPuritySec", "Track Purity - Secondaries", 101,0,1.01) ;
-    trkCompletenessSec = new TH1D("trkCompletenessSec", "Track Completeness - Secondaries", 101,0,1.01) ;
-
-    TH2D* QualityVsPurity = new TH2D("QualityVsPurity", "QualityVsPurity", 100,0,1, 100,0,1);
-
-
 
     // clean up friemannlist!
     for(int i=0; i<friemannlist.size(); ++i){
@@ -518,11 +633,16 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     unsigned int _minHitsR(10);
     unsigned int _minHitsPhi(10);
 
-    double _maxRMS(0.15);
+
+    // copy the buffermap, because PR manipulates it!
+    std::map<unsigned int, std::vector<PndTpcCluster*>*> fbuffermapCopy;
+    for(unsigned int isect=0;isect<fnsectors;++isect){
+      fbuffermapCopy[isect] = new std::vector<PndTpcCluster*>(*(fbuffermap[isect]));
+    }
 
     unsigned int nTotCl(0); // number of total clusters
     for(unsigned int isect=0;isect<NsectorsToProcess;++isect){
-      nTotCl += fbuffermap[isect]->size();
+      nTotCl += fbuffermapCopy[isect]->size();
     }
 
     std::vector<PndTpcRiemannTrack*> riemannTempSec; // temporary storage, reused for every sector
@@ -534,12 +654,12 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
     // first loop over sectors
     for(unsigned int isect=0;isect<NsectorsToProcess;++isect){
-      if (fbuffermap[isect]->size() == 0) continue;
-      std::cerr << "\n... building tracks in sector " << isect << " from " << fbuffermap[isect]->size() << " clusters" << std::endl;
+      if (fbuffermapCopy[isect]->size() == 0) continue;
+      std::cerr << "\n... building tracks in sector " << isect << " from " << fbuffermapCopy[isect]->size() << " clusters" << std::endl;
 
-      fcluster_buffer=fbuffermap[isect];
+      fcluster_buffer=fbuffermapCopy[isect];
 
-      buildTracks(_trackfinder, fcluster_buffer, &riemannTempSec, 2, _minHitsZ, _maxRMS);
+      buildTracks(_trackfinder, fcluster_buffer, &riemannTempSec, 2, _minHitsZ, 0.7*_maxRMS);
       buildTracks(_trackfinder, fcluster_buffer, &riemannTempSec, 3, _minHitsR, _maxRMS);
 
       riemannTempSec.clear();
@@ -560,8 +680,8 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       remainingClusters.reserve(200000);
 
       for(unsigned int isect=0; isect<fnsectors; ++isect){
-        for(unsigned int iCl=0; iCl<fbuffermap[isect]->size(); ++iCl){
-          remainingClusters.push_back((*fbuffermap[isect])[iCl]);
+        for(unsigned int iCl=0; iCl<fbuffermapCopy[isect]->size(); ++iCl){
+          remainingClusters.push_back((*fbuffermapCopy[isect])[iCl]);
         }
       }
       clearBufferMap();
@@ -575,17 +695,17 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
           if (Cl->pos().Z() < tpcOffset + (zSlice+1)*tpcLength/nSlices) break;
         }
 
-        fbuffermap[factor + 2*zSlice]->push_back(Cl);
+        fbuffermapCopy[factor + 2*zSlice]->push_back(Cl);
       }
     }
 
     // second loop over sectors
     double lowLim(tpcOffset), upLim;
     for(unsigned int isect=0;isect<NsectorsToProcess;++isect){
-      if (fbuffermap[isect]->size() == 0) continue;
-      std::cerr << "\n... building tracks in sector " << isect << " from " << fbuffermap[isect]->size() << " clusters" << std::endl;
+      if (fbuffermapCopy[isect]->size() == 0) continue;
+      std::cerr << "\n... building tracks in sector " << isect << " from " << fbuffermapCopy[isect]->size() << " clusters" << std::endl;
 
-      fcluster_buffer=fbuffermap[isect];
+      fcluster_buffer=fbuffermapCopy[isect];
 
       currentStage=5;
 
@@ -625,10 +745,10 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     // third loop over sectors
     lowLim = tpcOffset;
     for(unsigned int isect=0;isect<NsectorsToProcess;++isect){
-      if (fbuffermap[isect]->size() == 0) continue;
-      std::cerr << "\n... building tracks in sector " << isect << " from " << fbuffermap[isect]->size() << " clusters" << std::endl;
+      if (fbuffermapCopy[isect]->size() == 0) continue;
+      std::cerr << "\n... building tracks in sector " << isect << " from " << fbuffermapCopy[isect]->size() << " clusters" << std::endl;
 
-      fcluster_buffer=fbuffermap[isect];
+      fcluster_buffer=fbuffermapCopy[isect];
 
 
       // fill riemannTempSec with tracks lying in the sector
@@ -652,7 +772,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
 
       buildTracks(_trackfinder, fcluster_buffer, &riemannTempSec, 2, _minpoints+1, _maxRMS*1.5);
-      buildTracks(_trackfinder, fcluster_buffer, &riemannTempSec, 3, _minpoints+3, _maxRMS*1.5);
+      buildTracks(_trackfinder, fcluster_buffer, &riemannTempSec, 3, _minpoints+3, _maxRMS);
       buildTracks(_trackfinder, fcluster_buffer, &riemannTempSec, 5, _minpoints+1, _maxRMS*1.5);
       buildTracks(_trackfinder, fcluster_buffer, &riemannTempSec, -5, _minpoints+1, _maxRMS*1.5);
 
@@ -673,9 +793,9 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       std::vector<PndTpcRiemannTrack*> riemannTempCurl;
       for (unsigned int i=0; i<friemannlist.size(); ++i){
         if (friemannlist[i]->isFitted() &&
-            //friemannlist[i]->getNumHits() > 4 &&
-            friemannlist[i]->r() < 40. &&
-            fabs(friemannlist[i]->m()*1.57) < 130){ // Pi/2
+            friemannlist[i]->getNumHits() > 5 &&
+            friemannlist[i]->r() < 30. &&
+            fabs(friemannlist[i]->m()*1.57) < 120){ // Pi/2
           riemannTempCurl.push_back(friemannlist[i]);
           friemannlist.erase(friemannlist.begin() + i);
           --i;
@@ -690,13 +810,13 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       trackfinder->setMaxNumHitsForPR(PRNHits);
 
       trackfinder->setProxcut(_proxcut);
-      trackfinder->setTTProxcut(50.);
+      trackfinder->setTTProxcut(30.);
 
 
       // Track-Track Correlators
       double blowUp = 5.;
-      trackfinder->addTTCorrelator(new PndTpcDipTTCorrelator(50., _TTdipcut, blowUp*_TThelixcut));
-      trackfinder->addTTCorrelator(new PndTpcRiemannTTCorrelator(_TTplanecut, _minpoints));
+      trackfinder->addTTCorrelator(new PndTpcDipTTCorrelator(30., blowUp*_TTdipcut, blowUp*_TThelixcut));
+      trackfinder->addTTCorrelator(new PndTpcRiemannTTCorrelator(1.5*_TTplanecut, 20));
 
       std::cerr << "\nmerge curlers: merge " << riemannTempCurl.size() << " tracks ... ";
       trackfinder->mergeTracks(riemannTempCurl);
@@ -708,6 +828,17 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
         friemannlist.push_back(riemannTempCurl[i]);
       }
     }// end merge curlers
+    
+    // clear unfitted and small tracklets with < 6 hits
+    if(clearUnfitted){
+      for (unsigned int i=0; i<friemannlist.size(); ++i){
+        if (friemannlist[i]->getNumHits() < 6 ||
+            !(friemannlist[i]->isFitted())){
+          friemannlist.erase(friemannlist.begin() + i);
+          --i;
+        }
+      }
+    }
 
     timer.Stop();
     Double_t rtime = timer.RealTime();
@@ -720,85 +851,163 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       nUsedCl += friemannlist[i]->getNumHits();
     }
 
-    std::cerr << "Pattern Reco finished, found tracks: " << friemannlist.size() << "\n";
+    int nTracksFromPR = friemannlist.size();
+
+    std::cerr << "Pattern Reco finished, found tracks: " << nTracksFromPR << "\n";
     std::cerr << "used " << nUsedCl << " of " << nTotCl << " Clusters \n";
     printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
     printf("RealTime=%f minutes, CpuTime=%f minutes\n",rtime/60.,ctime/60.);
 
     // fill histograms
-    unsigned int foundTrks(0), foundTrksPrim(0), foundTrksSec(0);
-    for (unsigned int i=0; i<friemannlist.size(); ++i){
-      PndTpcRiemannTrack* trk = friemannlist[i];
-      McId DomID = trk->mcid().DominantID();
-      double completeness = trk->getNumHits() / double(fClustersPerId[DomID]);
+    if(plotHistos){
+      unsigned int foundTrks(0), foundTrksPrim(0), foundTrksSec(0);
+      for (unsigned int i=0; i<friemannlist.size(); ++i){
+        PndTpcRiemannTrack* trk = friemannlist[i];
+        McId DomID = trk->mcid().DominantID();
 
-      if (completeness > 0.501) {
-        ++foundTrks;
-        if (DomID.mcsecID()==0) ++foundTrksPrim;
-        else ++foundTrksSec;
+        //check momentum
+        if (MCTrackBranch!=NULL && DomID.mceventID()!=0){
+          if (DomID.mceventID()!=0){
+            mctree->GetEntry(DomID.mceventID()-1);
+            double mom = ((PndMCTrack*)(MCTrackBranch->At(DomID.mctrackID())))->GetMomentum().Mag();
+            RealVsMcMom->Fill(mom, trk->getMom(20));
+            if (mom < MINMOM) {
+              // todo: for testing purposes clear low mom tracks
+              friemannlist.erase(friemannlist.begin() + i);
+              --i;
+              continue;
+            }
+          }
+          else {
+            // todo: for testing purposes clear physics tracks
+            friemannlist.erase(friemannlist.begin() + i);
+            --i;
+            continue;
+          }
+        }
+
+        int nCorrectCl(0);
+        int nHits(trk->getNumHits());
+        for (unsigned int iHit=0; iHit<nHits; ++iHit){
+          if (trk->getHit(iHit)->cluster()->mcId().DominantID() == DomID) ++ nCorrectCl;
+        }
+        double completeness = double(nCorrectCl) / double(fClustersPerId[DomID]);
+
+        //double purity = trk->mcid().MaxRelWeight();
+        double purity = double(nCorrectCl)/double(nHits);
+
+        if (completeness > 0.5 && purity > 0.5) {
+          ++foundTrks;
+          nHitsFoundTracks->Fill(nHits);
+          FoundMom->Fill(trk->getMom(20));
+          FoundTheta->Fill(trk->dip()*180/TMath::PiOver2());
+          if (DomID.mcsecID()==0) ++foundTrksPrim;
+          else ++foundTrksSec;
+        }
+        else {
+          nHitsUnFoundTracks->Fill(nHits);
+          UnFoundTotCl->Fill(fClustersPerId[DomID]);
+          if (nHits > 10){
+            UnFoundMom->Fill(trk->getMom(20));
+            UnFoundTheta->Fill(trk->dip()*180/TMath::PiOver2());
+          }
+        }
+
+        QualityVsPurity->Fill(purity, trk->distRMS());
+
+        trkPurityAll->Fill(purity);
+        trkCompletenessAll->Fill(completeness);
+
+        if (DomID.mcsecID()==0) {
+          trkPurityPrim->Fill(purity);
+          trkCompletenessPrim->Fill(completeness);
+        }
+        else {
+          trkPuritySec->Fill(purity);
+          trkCompletenessSec->Fill(completeness);
+        }
+
+        // todo: for testing purposes clear found tracks
+        /*if (completeness > 0.5 && purity > 0.5) {
+          friemannlist.erase(friemannlist.begin() + i);
+          --i;
+        }*/
       }
 
-      double purity = trk->mcid().MaxRelWeight();
+      PREffAll->Fill(foundTrks/double(nTotTrks));
+      PREffPrim->Fill(foundTrksPrim/double(nTotTrksPrim));
+      if (nTotTrksSec > 0) PREffSec->Fill(foundTrksSec/double(nTotTrksSec));
 
-      QualityVsPurity->Fill(purity, trk->distRMS());
 
-      trkPurityAll->Fill(purity);
-      trkCompletenessAll->Fill(completeness);
+      std::cerr << "\nTotal tracks in tpc: " << nTotTrks << " \tPrimaries: " << nTotTrksPrim << " \tSecondaries: " << nTotTrksSec << "\n";
+      std::cerr << "Good \"found\" tracks: " << foundTrks << " \tOther tracks: " << nTracksFromPR - foundTrks << "\n";
 
-      if (DomID.mcsecID()==0) {
-        trkPurityPrim->Fill(purity);
-        trkCompletenessPrim->Fill(completeness);
-      }
-      else {
-        trkPuritySec->Fill(purity);
-        trkCompletenessSec->Fill(completeness);
-      }
+
+      // draw histos
+      std::cout << "Drawing histograms";
+
+      TCanvas* c1 = new TCanvas();
+      c1->Divide(3,3);
+
+      c1->cd(1);
+      PREffAll->Draw();
+      c1->cd(2);
+      trkPurityAll->Draw();
+      c1->cd(3);
+      trkCompletenessAll->Draw();
+
+      c1->cd(4);
+      PREffPrim->Draw();
+      c1->cd(5);
+      trkPurityPrim->Draw();
+      c1->cd(6);
+      trkCompletenessPrim->Draw();
+
+      c1->cd(7);
+      PREffSec->Draw();
+      c1->cd(8);
+      trkPuritySec->Draw();
+      c1->cd(9);
+      trkCompletenessSec->Draw();
+
+
+      TCanvas* c2 = new TCanvas();
+      c2->Divide(3,3);
+
+      c2->cd(1);
+      nHitsFoundTracks->Draw();
+      c2->cd(2);
+      nHitsUnFoundTracks->Draw();
+      c2->cd(3);
+      QualityVsPurity->Draw("colz");
+      c2->cd(4);
+      FoundMom->Draw();
+      c2->cd(5);
+      UnFoundMom->Draw();
+      c2->cd(6);
+      ClusterPurity->Draw("colz");
+      c2->cd(7);
+      FoundTheta->Draw();
+      c2->cd(8);
+      UnFoundTheta->Draw();
+      c2->cd(9);
+      RealVsMcMom->Draw("colz");
+      //UnFoundTotCl->Draw();
+
+      std::cout << " ... done\n";
+
+    }// end plot histos
+
+    // clear and delete buffermapCopy stuff
+    for(unsigned int isect=0;isect<fnsectors;++isect){
+      fbuffermapCopy[isect]->clear();
+      delete fbuffermapCopy[isect];
     }
-
-    PREffAll->Fill(foundTrks/double(nTotTrks));
-    PREffPrim->Fill(foundTrksPrim/double(nTotTrksPrim));
-    PREffSec->Fill(foundTrksSec/double(nTotTrksSec));
-
-
-    std::cerr << "\nTotal tracks in tpc: " << nTotTrks << " \tPrimaries: " << nTotTrksPrim << " \tSecondaries: " << nTotTrksSec << "\n";
-    std::cerr << "Good \"found\" tracks: " << foundTrks << " \tOther tracks: " << friemannlist.size() - foundTrks << "\n";
-
-
-    // draw histos
-    TCanvas* c1 = new TCanvas();
-    c1->Divide(3,3);
-
-    c1->cd(1);
-    PREffAll->Draw();
-    c1->cd(2);
-    trkPurityAll->Draw();
-    c1->cd(3);
-    trkCompletenessAll->Draw();
-
-    c1->cd(4);
-    PREffPrim->Draw();
-    c1->cd(5);
-    trkPurityPrim->Draw();
-    c1->cd(6);
-    trkCompletenessPrim->Draw();
-
-    c1->cd(7);
-    PREffSec->Draw();
-    c1->cd(8);
-    trkPuritySec->Draw();
-    c1->cd(9);
-    trkCompletenessSec->Draw();
-
-
-    TCanvas* c2 = new TCanvas();
-    c2->Divide(3,3);
-
-    c2->cd(1);
-    QualityVsPurity->Draw("colz");
-
 
     //----------------------------------------------------------------------------------------------------
   } // end PR
+
+
 
   ClHasChanged=false;
 
@@ -865,6 +1074,16 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     if(minhits<_minpoints) minhits=_minpoints;
     double pbackup = 2.;  // momentum value that is set when other initialisations fail
 
+    // init the fitters
+    GFKalman* fitterK = new GFKalman();
+    fitterK->setNumIterations(numIts);
+
+    GFDaf* fitterDAF = new GFDaf();
+    //fitterDAF->setBetas(81.,20.,8.,4.,1.,1.,1.);
+    //fitterDAF->setProbCut(0.001);
+
+
+
     // loop over riemann tracks
     for(unsigned int itrk=0; itrk<friemannlist.size(); ++itrk){
       PndTpcRiemannTrack* trk=friemannlist[itrk];
@@ -891,7 +1110,7 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       // ceck if momentum high enough
       double p = trk->getMom(Bz);
       if (Bz==0) p=pbackup;
-      if(p<1E-4) {
+      if(p<0.02) { // 20 MeV
         if (DEBUG) std::cout<<" - skipping, momentum too small: "<<p*1E3<<" MeV"<<std::endl;
         continue;
       }
@@ -957,16 +1176,17 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
        // fill hits into GFTrackCands and pndcands from small to big Radius and get seed values
        TVector3 pos1, direction;
+       unsigned int planeId(0);
 
        if(!invertTrack){
          for(unsigned int ih=0; ih<nhits; ++ih){
-           cand->addHit(21,trk->getHit(ih)->cluster()->index());
+           cand->addHit(21,trk->getHit(ih)->cluster()->index(), 0, planeId++);
          }
          trk->getPosDirOnHelix(0, pos1, direction);
        }
        else { // invert track
          for(unsigned int ih=nhits; ih>0; --ih){
-           cand->addHit(21,trk->getHit(ih-1)->cluster()->index());
+           cand->addHit(21,trk->getHit(ih-1)->cluster()->index(), 0, planeId++);
          }
          trk->getPosDirOnHelix(trk->getNumHits()-1, pos1, direction);
          direction *= -1.;
@@ -975,11 +1195,13 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
 
        TVector3 poserr(1,1,1);
-       poserr*=trk->resolution();
+       //poserr*=trk->resolution();
+       poserr *= 0.2;
 
        TVector3 mom(p * direction);
-       TVector3 momerr(fabs(mom.X()),fabs(mom.Y()),fabs(mom.Z()));
-       momerr *= trk->resolution();
+       //TVector3 momerr(fabs(mom.X()),fabs(mom.Y()),fabs(mom.Z()));
+       //momerr *= trk->resolution();
+       TVector3 momerr(0.2,0.2,0.2);
 
        double trackR = trk->r();
 
@@ -1021,8 +1243,6 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       //
       // run Kalman
       //
-      GFKalman fitter;
-      fitter.setNumIterations(numIts);
 
       // Load RecoHits
       try {
@@ -1034,17 +1254,47 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
         throw e;
       }
 
-      if(numIts>0){
+      if(numIts>0 || useDAF){
         try{
           std::cerr << "Calling processTrack ... ";
-          fitter.processTrack(track);
-          std::cerr << "finished\n" << std::endl;
+          if(useDAF) fitterDAF->processTrack(track);
+          else fitterK->processTrack(track);
+          std::cerr << "finished\n";
         }
         catch (GFException& e){
           std::cout<<e.what()<<std::endl;
           delete track;
           continue;
         }
+        catch (std::exception& e){
+          std::cout << "exception caught: "<<e.what()<<std::endl;
+          delete track;
+          continue;
+        }
+        catch (...){
+          std::cout<<"unknown exception"<<std::endl;
+          delete track;
+          continue;
+        }
+      }
+
+      if(useDAF){
+        std::cout<<"Weights: ";
+        std::vector<std::vector<std::vector<double> > > weights = fitterDAF->getWeights();
+
+        unsigned int cnter(0);
+        for (unsigned int irep=0; irep<weights.size(); ++irep){
+          for (unsigned int i=0; i<weights[irep].size(); ++i){
+            for (unsigned int j=0; j<weights[irep][i].size(); ++j){
+              //if (++cnter > nhits) goto breakFor;
+              std::cout<<weights[irep][i][j]<<" ";
+            }
+          }
+        }
+        breakFor:
+        std::cout<<"\n\n";
+
+
       }
 
       //
@@ -1194,9 +1444,14 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
       if(track_lines != NULL) gEve->AddElement(track_lines);
       delete track;
-    }
+    } // end loop over riemann tracks
 
-  }
+    delete fitterK;
+    delete fitterDAF;
+
+    std::cerr<<" done"<<std::endl;
+
+  } // end Build GFTracks, run Kalman and draw track
 
   if(resetCam) gEve->Redraw3D(kTRUE);
   else gEve->Redraw3D(kFALSE);
@@ -1450,6 +1705,13 @@ void PndTpcClustVis::makeGui() {
     if(drawFitMarkers) guiDrawFitMarkers->Toggle();
     hf->AddFrame(guiDrawFitMarkers);
     guiDrawFitMarkers->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
+  }
+  frmMain->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain); {
+    guiPlotHistos =  new TGCheckButton(hf, "Plot Histograms");
+    if(plotHistos) guiPlotHistos->Toggle();
+    hf->AddFrame(guiPlotHistos);
+    guiPlotHistos->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetDrawParams()");
   }
   frmMain->AddFrame(hf);
 
@@ -1800,10 +2062,21 @@ void PndTpcClustVis::makeGui() {
     hf->AddFrame(lbl);
   }
   frmMain2->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain2); {
+    guiMaxRMS = new TGNumberEntry(hf, _maxRMS, 6,999, TGNumberFormat::kNESRealThree,
+                          TGNumberFormat::kNEANonNegative,
+                          TGNumberFormat::kNELLimitMinMax,
+                          0, 99);
+    hf->AddFrame(guiMaxRMS);
+    guiMaxRMS->Connect("ValueSet(Long_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
+    lbl = new TGLabel(hf, "RMS cut");
+    hf->AddFrame(lbl);
+  }
+  frmMain2->AddFrame(hf);
 
   // Trackmerger Parameters
   hf = new TGHorizontalFrame(frmMain2); {
-    guiClearUnfitted =  new TGCheckButton(hf, "Delete unfitted tracklets before merging");
+    guiClearUnfitted =  new TGCheckButton(hf, "Clear small and unfitted tracklets");
     if(clearUnfitted) guiClearUnfitted->Toggle();
     hf->AddFrame(guiClearUnfitted);
     guiClearUnfitted->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetTrackingParams()");
@@ -1921,6 +2194,13 @@ void PndTpcClustVis::makeGui() {
   }
   frmMain2->AddFrame(hf);
   hf = new TGHorizontalFrame(frmMain2); {
+    guiUseDAF =  new TGCheckButton(hf, "Use DAF");
+    if(useDAF) guiUseDAF->Toggle();
+    hf->AddFrame(guiUseDAF);
+    guiUseDAF->Connect("Toggled(Bool_t)", "PndTpcClustVis", fh, "guiSetFittingParams()");
+  }
+  frmMain2->AddFrame(hf);
+  hf = new TGHorizontalFrame(frmMain2); {
     guiInvertCharge =  new TGCheckButton(hf, "Invert Charge");
     if(invertCharge) guiInvertCharge->Toggle();
     hf->AddFrame(guiInvertCharge);
@@ -1987,6 +2267,8 @@ void PndTpcClustVis::guiSetDrawParams(){
   drawPOCA=(guiDrawPOCA->IsOn());
   drawFitMarkers=(guiDrawFitMarkers->IsOn());
 
+  plotHistos=(guiPlotHistos->IsOn());
+
   PndTpcClustVis*  fh = PndTpcClustVis::getInstance();
   if(instantRedraw) fh->gotoEvent(fEventId);
 }
@@ -2027,6 +2309,8 @@ void PndTpcClustVis::guiSetTrackingParams(){
   _proxcut = guiproxcut->GetNumberEntry()->GetNumber();
   _proxZstretch = guiproxZstretch->GetNumberEntry()->GetNumber();
   _helixcut = guihelixcut->GetNumberEntry()->GetNumber();
+  _maxRMS = guiMaxRMS->GetNumberEntry()->GetNumber();
+
   _TTproxcut = guiTTproxcut->GetNumberEntry()->GetNumber();
   _TTplanecut = guiTTplanecut->GetNumberEntry()->GetNumber();
   //_TTszcut = guiTTszcut->GetNumberEntry()->GetNumber();
@@ -2047,6 +2331,7 @@ void PndTpcClustVis::guiSetTrackingParams(){
 
 void PndTpcClustVis::guiSetFittingParams(){
   doFit=(guiDoFit->IsOn());
+  useDAF=(guiUseDAF->IsOn());
   invertCharge=(guiInvertCharge->IsOn());
   useGeane=(guiUseGeane->IsOn());
   numIts=guiNumIts->GetNumberEntry()->GetNumber();

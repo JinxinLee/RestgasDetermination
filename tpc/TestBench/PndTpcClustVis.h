@@ -105,6 +105,7 @@ public:
   void reset();
 
   void setTree(TTree* treeIn);
+  void setMCTree(TTree* treeIn);
 
   void initDigimapper(double drifField,
 		      double gain, double spread,
@@ -161,6 +162,8 @@ private:
   std::vector<Color_t> colors;
 
   TTree* tree;
+  TTree* mctree;
+  TClonesArray* MCTrackBranch;
   TClonesArray* digisBranch;
   TClonesArray* clustersBranch;
   TClonesArray* preFitBranch;
@@ -211,6 +214,9 @@ private:
   bool drawPOCA;
   TGCheckButton* guiDrawFitMarkers;
   bool drawFitMarkers;
+
+  TGCheckButton* guiPlotHistos;
+  bool plotHistos;
 
   TGCheckButton* guiDoClustering;
   bool doClustering;
@@ -276,6 +282,9 @@ private:
   double _proxZstretch;
   TGNumberEntry* guihelixcut;
   double _helixcut;
+  TGNumberEntry* guiMaxRMS;
+  double _maxRMS;
+
   TGNumberEntry* guiTTproxcut;
   double _TTproxcut;
   TGNumberEntry* guiTTplanecut;
@@ -295,6 +304,8 @@ private:
 
   TGCheckButton* guiDoFit;
   bool doFit;
+  TGCheckButton* guiUseDAF;
+  bool useDAF;
   TGCheckButton* guiInvertCharge;
   bool invertCharge;
   TGCheckButton* guiUseGeane;
