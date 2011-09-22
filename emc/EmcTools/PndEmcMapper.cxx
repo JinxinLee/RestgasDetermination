@@ -64,6 +64,9 @@ void PndEmcMapper::Init(Int_t mapVersion)
 			case 10:
 				_instance = new PndEmcMapperGeoProto60Root();
 				break;
+			case 11:
+				_instance = new PndEmcMapperGeo12Dat345Rootv2();
+				break;
 			default :
 				cout<<"Emc Mapper version "<<mapVersion<<" is not defined"<<endl;
 		} 
@@ -764,6 +767,113 @@ PndEmcMapperGeoProto60Root::PndEmcMapperGeoProto60Root(){
 		}
 }
 
+
+PndEmcMapperGeo12Dat345Rootv2::PndEmcMapperGeo12Dat345Rootv2()
+{
+   // *** for Barrel (like it is), _new_ FwEndCap & _new_ BwEndCap
+   // 26.02.2009
+  	PndEmcTwoCoordIndex *_tci;
+	Int_t iTheta, iPhi, detId, detId_tmp, iX, iY;
+	iTheta = iPhi = detId = detId_tmp =iX = iY = 0;
+	for (Int_t module=1; module<=6; module++)
+	{
+		if (module ==2)
+		{
+		for (Int_t row=1; row<=29;row++)
+			for (Int_t crystal=1; crystal<=10;crystal++)
+				for (Int_t copy=1; copy<=16;copy++)
+				{
+					if ((copy==1 || copy==9) && (crystal>=4 && crystal<=6) && (row<=3)) continue;
+					iPhi=(11-crystal)+(copy-1)*10;
+					iTheta=-row+30;
+
+					detId =  module*100000000 + row*1000000 + copy*10000 + crystal;
+					_tci=new PndEmcTwoCoordIndex(iTheta,iPhi,detId);
+					fIntTwoCoordMap[detId]=_tci;
+				}
+		}
+		else if (module ==1)
+		{
+		for (Int_t row=1; row<=43;row++)
+			for (Int_t crystal=1; crystal<=10;crystal++)
+				for (Int_t copy=1; copy<=16;copy++)
+				{
+					iPhi=(11-crystal)+(copy-1)*10;
+					iTheta=row+29;
+
+					detId =  module*100000000 + row*1000000 + copy*10000 + crystal;
+					_tci=new PndEmcTwoCoordIndex(iTheta,iPhi,detId);
+					fIntTwoCoordMap[detId]=_tci;
+				}
+		}
+
+		else if (module ==3)
+		{
+			for (Int_t row = -37; row <= 37; row++)
+			    for (Int_t col = -36; col <= 36; col++)
+			       if (row != 0 && col != 0)//in copy numbering of the crystals in the geometry root file, there's no CrystalCol=0 or CrystalRow=0
+				  {
+					detId =  module*100000000 + (row+37)*1000000 + (col+36);
+			  
+					iX = -col; //the minus sign before 'iX' is introduced, since the geometry of FwEndCap gets rotated by 180 deg around the y-axis in PndEmc.cxx
+					iY = row;
+					if (iX >0) // these two if conditions are introduced here to make the mapping down here (_tci) a continuous pattern
+					  iX -= 1;
+					if (iY >0)
+					  iY -= 1;
+					_tci=new PndEmcTwoCoordIndex(iX+250,iY+250,detId);
+
+					fIntTwoCoordMap[detId]=_tci;
+				  }
+				  
+		}		if (module ==4)
+		{
+			for (Int_t row=1; row<=16;row++)
+				for (Int_t crystal=1; crystal<=16;crystal++)
+					for (Int_t copy=1; copy<=4;copy++)
+					{
+						if (copy==1) {  iX = -row+1; iY =  crystal;   }
+						if (copy==2) {  iX = -row+1; iY = -crystal+1; }
+						if (copy==3) {  iX =  row;   iY = -crystal+1; }
+						if (copy==4) {  iX =  row;   iY =  crystal;   }
+
+						detId =  module*100000000 + row*1000000 + copy*10000 + crystal;
+
+						_tci=new PndEmcTwoCoordIndex(iX+350,iY+350,detId);
+						fIntTwoCoordMap[detId]=_tci;
+					}
+		}
+		if (module ==5)
+		{
+			for (Int_t row=1; row<=28;row++)
+				for (Int_t crystal=1; crystal<=54;crystal++)
+			      {
+						Int_t copy = 1;
+						iX = row;
+						iY =  crystal;
+						detId =  module*100000000 + row*1000000 + copy*10000 + crystal;
+						_tci=new PndEmcTwoCoordIndex(iX+450,iY+450,detId);
+						fIntTwoCoordMap[detId]=_tci;
+
+			      }
+		}
+		if (module ==6)
+		{
+			for (Int_t row=1; row<=5;row++)
+				for (Int_t crystal=1; crystal<=5;crystal++)
+				{
+					Int_t copy = 1;
+					iX = row;
+					iY =  crystal;
+
+					detId =  module*100000000 + row*1000000 + copy*10000 + crystal;
+
+					_tci=new PndEmcTwoCoordIndex(iX+550,iY+550,detId);
+					fIntTwoCoordMap[detId]=_tci;
+				}
+		}
+	}
+}
 
 PndEmcTwoCoordIndex* PndEmcMapper::GetTCI(Int_t DetectorId)
 {

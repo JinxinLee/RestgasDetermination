@@ -103,4 +103,10 @@ class PndEmcMapperGeoProto60Root: public PndEmcMapper
 		PndEmcMapperGeoProto60Root();
 };
 
+class PndEmcMapperGeo12Dat345Rootv2: public PndEmcMapper
+{
+	public:
+		PndEmcMapperGeo12Dat345Rootv2();
+};
+
 #endif //PndEmcMapper_H

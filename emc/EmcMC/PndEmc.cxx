@@ -932,6 +932,11 @@ void PndEmc::SetGeometryVersion(const Int_t GeoNumber) {
     MapperVersion =6;
     break;
 
+  case 20:
+	SetGeometryFileNameQuadruple("emc_module12.dat","emc_module3_2011_new.root","emc_module4_StraightGeo24.4.root","emc_module5_fsc.root");
+	MapperVersion =11;
+	break;
+
   default:
     SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
     MapperVersion =2;
