@@ -4,6 +4,7 @@
 // 
 // created 2011
 //-----------------------------------------------------
+
 #include <iostream>
 #include <iomanip>
 using std::cout;
@@ -40,7 +41,7 @@ PndDrcOptReflGeffcken::PndDrcOptReflGeffcken()
   fLayerThicknessVector.push_back(0.431*quarterlambda);
   fLayerMaterialVector.push_back(fLayerMaterialLow);
 
-  fLayerThicknessVector.push_back(0.231*quarterlambda);
+  fLayerThicknessVector.push_back(2.115*quarterlambda);
   fLayerMaterialVector.push_back(fLayerMaterialHigh);
 
   fLayerThicknessVector.push_back(1.000*quarterlambda);
@@ -93,7 +94,8 @@ void PndDrcOptReflGeffcken::Copy(const PndDrcOptReflGeffcken& s)
   fLayerThicknessVector      = s.fLayerThicknessVector;
   fLayerMaterialLow        = (s.fLayerMaterialLow)->Clone();
   fLayerMaterialHigh       = (s.fLayerMaterialHigh)->Clone();
- 
+
+  fRefIndConst             = s.fRefIndConst;
 }
 //----------------------------------------------------------------------
 PndDrcOptReflGeffcken::PndDrcOptReflGeffcken(const PndDrcOptReflGeffcken& s) : PndDrcOptReflAbs(s)
@@ -136,17 +138,21 @@ const double PndDrcOptReflGeffcken::ReflProb(const PndDrcPhoton&    ph,
 {
   const double pi = 3.1415926535;
 
+  int fac_orig = 1;
+  if (fRefIndConst) fac_orig=-1; // -1: factor to get constant refractive indices for check with Geffckens
+  //                                    original curve
+  
   double lambda   = ph.Wavelength();   // nm
 
   // go from n0 (air) to glass ns (substrate)
   // n1 is the AR layer
 
-  double n_this = ph.Device()->OptMaterial().RefIndex(lambda);  // this refractive index
+  double n_this = ph.Device()->OptMaterial().RefIndex(fac_orig*lambda);  // this refractive index
 
 
 
-  double n_smallest = (fLayerMaterialLow->RefIndex(lambda) < n_next) ? 
-    fLayerMaterialLow->RefIndex(lambda) : n_next;
+  double n_smallest = (fLayerMaterialLow->RefIndex(fac_orig*lambda) < n_next) ? 
+    fLayerMaterialLow->RefIndex(fac_orig*lambda) : n_next;
       
   int istart = 0;
   int iend   = 0;
@@ -163,12 +169,15 @@ const double PndDrcOptReflGeffcken::ReflProb(const PndDrcPhoton&    ph,
       istart = 0;
       iend   = fLayerThicknessVector.size(); // number of elements
       istep  = +1;
+
+      // runs 0...layer-1 
     }
   else
     {// leaving the volume
-      istart = fLayerThicknessVector.size();
-      iend   = 0;
+      istart = fLayerThicknessVector.size()-1;
+      iend   = -1;
       istep  = -1;
+      // runs layer-1...0
     }
   
 
@@ -187,19 +196,23 @@ const double PndDrcOptReflGeffcken::ReflProb(const PndDrcPhoton&    ph,
 
   double Y0 = n0  * cos(acos(costh));
 
+  //cout<<real(Ein)<<" start: "<<imag(Ein)<<" "<<real(Hin)<<" "<<imag(Hin)<<endl;
+  
 
   complex <double> out1;
   complex <double> out2;
 
   for (int ilayer = istart; ilayer != iend; ilayer += istep)
     {
-      n1 = fLayerMaterialVector[ilayer]->RefIndex(lambda);
+      n1 = fLayerMaterialVector[ilayer]->RefIndex(fac_orig*lambda);
       
       double theta1 = asin((n0/n1)*sin(acos(costh))); 
       double k = 2*pi/lambda;  // nm-1
-      double h = fLayerThicknessVector[ilayer] * cos(theta1) / n1;
+      double h = fLayerThicknessVector[ilayer] * cos(theta1);// * fLayerMaterialVector[ilayer]->RefIndex(lambda);
       double e0bymu0 = 1.0;//????
       double Y = e0bymu0 * n1  * cos(theta1);
+      //cout<<" i,Y,kh: "<<ilayer<<" "<<Y<<" "<<k*h<<endl;
+      
       complex <double> m11_6(cos(k*h) ,                 0);
       complex <double> m12_6(0               , sin(k*h)/Y);
       complex <double> m21_6(0               , sin(k*h)*Y);
@@ -208,17 +221,14 @@ const double PndDrcOptReflGeffcken::ReflProb(const PndDrcPhoton&    ph,
       
       M.product(Eout,Hout,Ein,Hin);
      
+      //cout<<real(Ein)<<" "<<imag(Ein)<<" "<<real(Hin)<<" "<<imag(Hin)<<" "<<k<<" "<<h<<endl;
+
+
+
       Ein = Eout;
       Hin = Hout;
-      //complex <double> er1 = (Eout-Hout/Y0)/2;
-      //complex <double> ei1 = (Eout+Hout/Y0)/2;
-  
-      //complex <double> r = er1/ei1;
-      //cout<<" ilayer,r,n ="<<ilayer<<" "<<real(r*conj(r))<<" "<<n1<<endl;
     }
   
-  //cout<< in1<<" "<< in2<<endl;
-  //cout<<out1<<" "<<out2<<endl;
   
   complex <double> er1 = (Eout-Hout/Y0)/2;
   complex <double> ei1 = (Eout+Hout/Y0)/2;

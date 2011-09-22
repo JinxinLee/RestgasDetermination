@@ -80,8 +80,6 @@ int main(int argc, char *argv[])
 
   
 
-  PndDrcOptReflGeffcken refl;
-  refl.SetVerbosity(5);
   
 
   PndDrcOptMatBK7        bk7;
@@ -99,6 +97,10 @@ int main(int argc, char *argv[])
   // +--------+ X+--------+
 
 
+  PndDrcOptReflGeffcken refl;
+  refl.SetRefIndConst();
+  
+
   PndDrcOptBrick brick1(10,10,10);
   brick1.Surface("side1")->SetReflectivity(refl);
   brick1.SetOptMaterial(bk7);
@@ -106,7 +108,7 @@ int main(int argc, char *argv[])
   brick1.AddTransform(Transform3D(XYZVector(0,0,10)));
 
   PndDrcOptBrick brick2(10,10,10);
-  brick2.Surface("side1")->SetReflectivity(refl);
+  //brick2.Surface("side1")->SetReflectivity(refl);
   brick2.SetOptMaterial(PndDrcOptMatVacuum());
   brick2.SetName("brick2");
   brick2.AddTransform(Transform3D(XYZVector(0,0,-10)));
@@ -114,6 +116,7 @@ int main(int argc, char *argv[])
   PndDrcOptDevSys opt_system;
   opt_system.AddDevice(brick1);
   opt_system.AddDevice(brick2);
+
 
 
 
@@ -126,14 +129,15 @@ int main(int argc, char *argv[])
   for (double lambda=400; lambda<701; lambda+=1)
     {
       double theta=0; 
-      ph.SetPosition(XYZPoint(0,0,-1));
-      double z = cos(theta*kPi/180);
+      ph.SetPosition(XYZPoint(0,0,1));
+      double z = -cos(theta*kPi/180);
       double y = sin(theta*kPi/180);
       ph.SetDirection(XYZVector(0,y,z));
       ph.SetWavelength(lambda);
-      ph.SetDevice(&brick2); 
+      ph.SetDevice(&brick1); 
       
-      double refl_prob = refl.ReflProb(ph,XYZVector(0,0,-1),bk7.RefIndex(lambda),Drc::ReflIn);
+      //double refl_prob = refl.ReflProb(ph,XYZVector(0,0,-1),bk7.RefIndex(lambda),Drc::ReflIn);
+      double refl_prob = refl.ReflProb(ph,XYZVector(0,0,-1),1.0,Drc::ReflOut);
       
       
       cout<<lambda<<" "<<refl_prob<<endl;

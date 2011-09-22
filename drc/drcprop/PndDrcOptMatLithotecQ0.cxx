@@ -83,7 +83,7 @@ double PndDrcOptMatLithotecQ0::RefIndex(const double lambda) const
   static const double kPi    = 3.1415926535;
   static const double kHbarc = 197.3269602;  // Mev fm
 
-  if (lambda<0) return 1.47; // average value.
+  if (lambda<0) return 1.453; // average value.
 
   //cout<<" PndDrcOptMatLithotecQ0::refIndex: lambda = "<<lambda<<endl;//###
   double e = 2*kPi*kHbarc/lambda; // energy [eV]

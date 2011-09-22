@@ -92,7 +92,7 @@ PndDrcOptMatTiO2& PndDrcOptMatTiO2::operator=(const PndDrcOptMatTiO2& mat)
 double PndDrcOptMatTiO2::RefIndex(const double lambda) const
 {
 
-  if (lambda<0) return 2.5; // average value.
+  if (lambda<0) return 2.472; // average value.
 
   const double pi = 3.1415926535;
   const double  hbarc = 197.326968; // eV nm

@@ -72,18 +72,37 @@ class PndDrcOptReflGeffcken : public PndDrcOptReflAbs
 			const double           n_next     = 1,
 			const Drc::ReflDir     direction = Drc::ReflOut) const;
 
+  
+  
 
   protected:
   vector<PndDrcOptMatAbs*>     fLayerMaterialVector;                 //!< Layers of material
   vector<double>               fLayerThicknessVector;                //!< Layer thicknesses [nm]
-  PndDrcOptMatAbs*             fLayerMaterialLow;                  //!< Low refractive index material.
-  PndDrcOptMatAbs*             fLayerMaterialHigh;                 //!< High refractive index material.
-
+  PndDrcOptMatAbs*             fLayerMaterialLow;                    //!< Low refractive index material.
+  PndDrcOptMatAbs*             fLayerMaterialHigh;                   //!< High refractive index material.
+  bool                         fRefIndConst;                         //!< Switch for constant refractive index.
+  
 
   private:
   /*! \brief Copy function for assigment and copy operator.
     \param s The reflectivity
   */
   void Copy(const PndDrcOptReflGeffcken& s);
+  
+
+
+
+  public:
+  
+  /*! \brief Set refractive indices to constant value.
+
+
+  This feature is good for comparing reflectivity plots with results from literature.
+  The default refrative index of materials is taken which is returned by the material
+  classes for negative wavelengths.
+
+  \param switch True of false
+  */
+  void SetRefIndConst(bool sw=true) {fRefIndConst=sw;};
 };
 #endif
