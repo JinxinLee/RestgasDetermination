@@ -77,7 +77,7 @@ int main(int argc, char** argv)
   
   size_t numberOfEvt;
   
-#if DEBUG_PRINT
+#if (DEBUG_PRINT == 0)
   numberOfEvt = events.size();
 #else
   numberOfEvt = DEBUG_NUM_EVENTS;
@@ -110,7 +110,7 @@ int main(int argc, char** argv)
   }
   events.clear();
   
-#if DEBUG_PRINT
+#if (DEBUG_PRINT != 0)
   print(classifiedEvents);
 #endif
   

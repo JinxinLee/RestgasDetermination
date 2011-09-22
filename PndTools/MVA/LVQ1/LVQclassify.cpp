@@ -37,7 +37,7 @@
 #define CREATE_DIST_HISTS 0
 
 // Determine recognition error as function of momentum.
-#define PER_MOMENTUM_INTERVAL 1
+#define PER_MOMENTUM_INTERVAL 0
 
 //________________________________________________________________
 
@@ -341,7 +341,8 @@ int main(int argc, char** argv)
   // events.
   size_t correctCls;
   size_t wrongCls;
-  
+  size_t totMissCls = 0;
+
   // Class loop
   for(size_t l = 0; l < labels.size(); ++l)
   {
@@ -363,6 +364,8 @@ int main(int argc, char** argv)
 	else// Wrong labels
 	{
 	  wrongCls++;
+	  // Overal missclassified.
+	  totMissCls++;
 	}
       }// If current label
     }//Events loop
@@ -379,6 +382,10 @@ int main(int argc, char** argv)
 	   << " %."
 	   << std::endl;
   }// Labels loop
+  OutPut << "Total number of missclassified events = " << totMissCls
+	 << " ("
+	 << ((static_cast<float>(totMissCls) * 100.00)/static_cast<float>(classifiedEvents.size()))
+	 << " %).\n";
 
 #else // Do per momentum region. (PER_MOMENTUM_INTERVAL != 0)
   // 0.00 <= p <= 1.0 low

@@ -356,7 +356,7 @@ int main(int argc, char** argv)
     //t->SetNumberOfProto(numProtoMap);
     
     // FILE_PR, KMEANS_PR, CCM_PR, RAND_FROM_DATA (DEFAULT)
-    t->setProtoInitType(KMEANS_PR);
+    t->setProtoInitType(RAND_FROM_DATA);
 
     // Do NOT split test set.
     t->SetTetsSetSize(0);
@@ -387,42 +387,33 @@ int main(int argc, char** argv)
   /*
    * Perform training for all K-classifiers.
    *
-   * NOTE: Number of started threads equal to the number of available
-   * cores on the system. If you do not want this, then you should set
-   * the number of threads either by function call or by the shell
-   * variable.
+   * NOTE: Number of started threads equals the number of available
+   * cores. You can set the number of threads by function call or by
+   * the shell variable.
    */
 #if ( __GNUC__ >= 4 && __GNUC_MINOR__ >= 3)
-  // GCC older that 4.4 can not handle size_t loop counter in
-  // combination with OpenMP. 4.3 produces a warning, which seems to
-  // be harmless.
+  // GCC older that 4.4 and OpenMP produce a warning when size_t is
+  // used; seems to be harmless.
 #ifdef _OPENMP
 #pragma omp parallel for schedule(dynamic, 1)
 #endif// OPENMP
-
 #endif//GCC
   for(size_t tr = 0; tr < trainerList.size(); ++tr)
   {
     // Perform training
     (trainerList[tr])->Train();
 
-#if ( __GNUC__ >= 4 && __GNUC_MINOR__ >= 3)
-    // I/O is sequential anyways.
+    // Write Weights.
 #ifdef _OPENMP
-#pragma omp critical (StoreProtoTypesAndEvalData)
-    {
+#pragma omp critical (StoreProtoTypes)
 #endif
-#endif//GCC
-      // Write Weights.
-      (trainerList[tr])->storeWeights();      
-      // Write Evaluation.
-      (trainerList[tr])->WriteErroVect( (int2str(tr)+"_"+OutErr) );
-      //
-#if ( __GNUC__ >= 4 && __GNUC_MINOR__ >= 3)
+    (trainerList[tr])->storeWeights();
+
+    // Write Evaluation.
 #ifdef _OPENMP
-    }// END Critical
+#pragma omp critical (StoreEvalData)
 #endif
-#endif //GCC
+    (trainerList[tr])->WriteErroVect( (int2str(tr)+"_"+OutErr) );
   }// END FOR(tr)
 
   // ========= Fetch evaluation data for processing ====
