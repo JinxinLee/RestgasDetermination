@@ -100,8 +100,7 @@ int main(int argc, char *argv[])
   // main options
   bool opt_default         = true;  // default simulation
   bool opt_angleAcceptance = false; // beamtest simulation with diff. theta and phi
-  bool opt_photonCannon    = false; // photon cannon at bar end
-  bool opt_singlePhoton    = false; // single photon for debugging
+  bool opt_photonCannon    = false; // photon cannon
 
   cout << "simulation options:" << endl;
 
@@ -109,8 +108,6 @@ int main(int argc, char *argv[])
     cout << "  main: \"default\"" << endl;
   if( opt_photonCannon )
     cout << "  main: \"photon cannon\"" << endl;
-  if( opt_singlePhoton )
-    cout << "  main: \"single photon\" " << endl;
   if( opt_angleAcceptance )
     cout << "  main: \"angle acceptance\" " << endl;
 
@@ -119,8 +116,10 @@ int main(int argc, char *argv[])
   bool opt_fishtankBlack_bottom = true; // absorbed fishtank side
   bool opt_fishtankBlack_sides  = true; //
   bool opt_fishtankBlack_top    = true; //
+  bool opt_slabBlack_front      = false; //
   bool opt_frontLens            = true; // forward lens
   bool opt_prism                = false; // prism (forward)
+  bool opt_prismIsTank          = false; // prism is fishtank (expansion volume)
   bool opt_backLens             = false; // backward lens
   bool opt_mirror               = false; // mirror (backward)
   bool opt_noFresnel_backLens   = false; // disable Fresnel reflections
@@ -131,20 +130,42 @@ int main(int argc, char *argv[])
   bool opt_noFresnel_fishtank   = false; //
   bool opt_Cherenkov_onlyInBar  = true; // Cherenkov photons are only generated in bar (slab)
   bool opt_alongBar             = false; // particles hits the bar at slab front end
+  bool opt_fromBelow            = false; // particles hits the bar from below
   bool opt_photonPosList        = false; // write out photon position list ; true takes much longer
-  bool opt_fullCanonList        = false; // default: false, with true also not measured photons are tagged
+  bool opt_fullCannonList       = false; // default: false, with true also not measured photons are tagged
   bool opt_debug                = false; // debug information ; please pipe stdout > log file
+
+  if( opt_prismIsTank && !opt_prism )
+  {
+    opt_prism = true;
+    opt_frontLens = false;
+    cout << "*** WARNING: No front lens because fishtank has a prism shape" << endl;
+  }
+
+  if( opt_backLens && !opt_mirror )
+  {
+    opt_mirror = true;
+    cout << "*** WARNING: Lens in backward direction w/o mirrored end is useless" << endl;
+  }
+
+  if( opt_slabBlack_front && opt_mirror )
+  {
+    cout << "*** ERROR: Full reflectivity (mirror) and full absorption at bar end doesn't work" << endl;
+    abort();
+  }
 
   if( opt_photonCannon && !opt_photonPosList )
   {
     opt_photonPosList = true;
     cout << "*** WARNING: \"Photon position list\" is now enable because \"photon cannon\" needs it" << endl;
   }
-  if( opt_backLens && !opt_mirror )
+
+  if( opt_alongBar && opt_fromBelow )
   {
-    opt_mirror = true;
-    cout << "*** WARNING: Lens in backward direction w/o mirrored end is useless " << endl;
+    cout << "*** ERROR: Either one of both (\"along Bar\", \"from below\") or none" << endl;
+    abort();
   }
+
 
   cout << "  sub:  ";
   if( opt_fishtankBlack_bottom )
@@ -153,10 +174,14 @@ int main(int argc, char *argv[])
     cout << "\"black fishtank sides\" ";
   if( opt_fishtankBlack_top )
     cout << "\"black fishtank top\" ";
+  if( opt_slabBlack_front )
+    cout << "\"black slab front\" ";
   if( opt_frontLens )
     cout << "\"front lens\" ";
   if( opt_prism )
     cout << "\"prism\" ";
+  if( opt_prismIsTank )
+    cout << "\"prism is fishtank\" ";
   if( opt_backLens )
     cout << "\"back lens\" ";
   if( opt_mirror )
@@ -164,10 +189,12 @@ int main(int argc, char *argv[])
   if( opt_Cherenkov_onlyInBar )
     cout << "\"photon production only in bar\" ";
   if( opt_alongBar )
-    cout << "\"along Bar\" ";
+    cout << "\"along bar\" ";
+  if( opt_fromBelow )
+    cout << "\"from below\" ";
   if( opt_photonPosList )
     cout << "\"photon position list\" ";
-  if( opt_photonCannon && opt_photonPosList && opt_fullCanonList  )
+  if( opt_photonCannon && opt_photonPosList && opt_fullCannonList  )
     cout << "\"full list\" ";
   if( opt_noFresnel_backLens || opt_noFresnel_slab || opt_noFresnel_frontLens || opt_noFresnel_airBox || opt_noFresnel_fishtank )
   {
@@ -189,16 +216,15 @@ int main(int argc, char *argv[])
   cout << endl;
 
 
-  int check_opt = opt_default + opt_photonCannon + opt_singlePhoton + opt_angleAcceptance;
+  int check_opt = opt_default + opt_photonCannon + opt_angleAcceptance;
 
   if( check_opt > 1 || check_opt == 0 )
   {
     cout << "*** ERROR: Select only one main simulation option !" << endl;
     cout << "available main simulation options:" << endl;
     cout << "  default" << endl;
-    cout << "  own photons" << endl;
     cout << "  photon cannon" << endl;
-    cout << "  single photon" << endl;
+    cout << "  angle acceptance" << endl;
 
     abort();
   }
@@ -236,17 +262,17 @@ int main(int argc, char *argv[])
   double slab_height = 35.; // default: 35 mm
   double slab_length = 800.; // default: 800 mm
 
-  double backLens_radius    = 459.; // f = R/(n-1) (from manufacturer in general at 589 nm)
+  double backLens_radius    = 520.; // f = R/(n-1) (from manufacturer in general at 589 nm)
   double backLens_thickness = 10.;
   double backLens_width     = slab_width; // rectangular lens base shape (cylindrical not implemented yet)
   double backLens_height    = slab_height;
   double backLens_conical   = 0.; // default: 0 (spherical)
   int backLens_cylindrical  = 0; // default: 0 (use conical), 1: only curved in x, 2: in y
 
-  double frontLens_radius    = 117.4;
-  double frontLens_thickness = 9.0;
-  double frontLens_width     = 50.;
-  double frontLens_height    = 50.;
+  double frontLens_radius    = 117.4; // 115.0 or 117.4
+  double frontLens_thickness = 9.0; // 6.0 or 9.0
+  double frontLens_width     = slab_width;
+  double frontLens_height    = slab_height;
   double frontLens_conical   = 0.;
   int frontLens_cylindrical  = 0;
 
@@ -273,17 +299,17 @@ int main(int argc, char *argv[])
 //
 // same for the width
 
-  double prism_length      = 91.;
+  double prism_length      = 300.;
   double prism_height      = slab_height;
-  double prism_heightUp1   = 10.;
-  double prism_heightUp2   = Sin(30.*degree)*prism_length; // or Sin(x*degree)*prism_length
-  double prism_heightDown1 = 0.;
-  double prism_heightDown2 = 0.; // or Sin(x*degree)*prism_length
-  double prism_width       = slab_width;
+  double prism_heightUp1   = 15.;
+  double prism_heightUp2   = Tan(30.*degree)*prism_length; // or Tan(x*degree)*prism_length
+  double prism_heightDown1 = 15.;
+  double prism_heightDown2 = 0.; // or Tan(x*degree)*prism_length
+  double prism_width       = 760.;
   double prism_widthUp1    = 0.;
-  double prism_widthUp2    = 0.; // or Sin(x*degree)*prism_length
+  double prism_widthUp2    = 0.; // or Tan(x*degree)*prism_length
   double prism_widthDown1  = 0.;
-  double prism_widthDown2  = 0.; // or Sin(x*degree)*prism_length
+  double prism_widthDown2  = 0.; // or Tan(x*degree)*prism_length
 
 
   double airgap = 20.; // distance between slab or prism and fishtank ; 0 means no air box
@@ -310,7 +336,7 @@ int main(int argc, char *argv[])
   double mass = mass_pi;
 
   double kinE = -666; // in GeV; T = sqrt( m^2 + p^2 ) - m; -666 means unset, then mom has to be set
-  double mom  = 1.7;  // in GeV; p = sqrt( (T + m)^2 - m^2 ); -666 means unset, then kinE has to be set
+  double mom  = 1.7; // in GeV; p = sqrt( (T + m)^2 - m^2 ); -666 means unset, then kinE has to be set
   double beta = -666; // just for initialization; will be overwritten later
 
   double spot_radius = 20.; // default: 20 mm 1-sigma beam spot radius (gaus smeared)
@@ -322,45 +348,37 @@ int main(int argc, char *argv[])
   double inci_phi   = 0.;  // default: 0 degree
 
   double hitBarX = slab_width/2.; // default: slab_width/2
-  double hitBarY = 0.;            // default: 0 mm
-  double hitBarZ = -700.;         // default: -500 mm
+  double hitBarY = 0.; // default: 0 mm
+  double hitBarZ = -300.; // default: -500 mm
 
 
   // photon properties
   int photon_number = 0; // default: 100 (per particle); 0 means realistic number of Cherenkov photons
 
-  double lambda_min = 250.; // default: 300 nm ; lowest Cherenkov wavelength
-  double lambda_max = 650.; // default: 700 nm ; highest Cherenkov wavelength
+  double lambda_min = 400.; // default: 300 nm ; lowest Cherenkov wavelength
+  double lambda_max = 400.; // default: 700 nm ; highest Cherenkov wavelength
 
   int refl_limit = 1000; // default: 1000 reflections
 
 
   // photon cannon
-  int shoots = 2000000; // default: 20000000 (for center) ; for grid this number is per gridpoint
+  int shoots = 20000; // default: 2000000 (for center) ; for grid this number is per gridpoint
 
   double gridXstep = 0.; // default: 0 mm ; grid constant in X ; 0 means cannon is always in the center
   double gridYstep = 0.; // default: 0 mm
 
-  double cannon_theta = 90.; // default: 90 degree ; 90 degree means flat cos(angle) distribution otherwise fixed angle
-  double cannon_phi   = 0.;  // default: 90 degree ; if cannon_theta = 90 then the phi distribution is flat
+  double cannon_theta = 180.; // default: 180 degree; 180 degree means flat cos(angle) distribution otherwise fixed angle
+  double cannon_phi   = 360.; // default: 360 degree; 360 degree means flat angle distribution otherwise fixed angle
+  double cannon_rotY  = 0.; // default: 0 degree; rotate cannon axis around y-axis
+  double cannon_rotX  = 0.; // default: 0 degree; rotate cannon axis around x-axis (or new axis rotated by the previous one)
 
   int refl_limit_2 = 5; // default: 5 ; low limit increases speed
 
   int seed = 4357; // default TRandom3 value
 
-  double z_offset = -0.01; // default: -0.01 mm to be sure that photon is in bar
-
-
-  // single photon
-  double singlePosX = 0.;
-  double singlePosY = 0.;
-  double singlePosZ = -10.;
-
-  double singleDirX = 1.;
-  double singleDirY = 1.;
-  double singleDirZ = 1.;
-
-  double single_lambda = 500.;
+  double cannon_posX = 0.; // offset in X, also valid for gridXstep
+  double cannon_posY = 0.;
+  double cannon_posZ = -0.01; // default: -0.01 mm to be sure that photon is in bar
 
 
   // output filename (w/o file extension)
@@ -379,24 +397,39 @@ int main(int argc, char *argv[])
     if( i == 1 )
       outFilename = argv[i];
 
-//     if( i == 2 )
-//       seed = atoi( argv[i]);
+    if( i == 2 )
+      seed = atoi( argv[i]);
 //     if( i == 3 )
 //       shoots = atoi( argv[i]);
 //     if( i == 4 )
-//       z_offset = atof( argv[i]);
-//
+//       cannon_posZ = atof( argv[i]);
+
 //     if( i == 2 )
 //       inci_theta = atof( argv[i]);
-//     if( i == 3)
+//     if( i == 3 )
 //       inci_phi = atof( argv[i]);
 //
+//     if( i == 4 )
+//       hitBarZ = atof( argv[i]);
+
 //     if( i == 2 )
 //       fishtank_thetaX = atof( argv[i]);
 //     if( i == 3 )
 //       fishtank_thetaY = atof( argv[i]);
 //     if( i == 4 )
 //       fishtank_phi = atof( argv[i]);
+
+//     if( i == 2 )
+//       opt_frontLens = atoi( argv[i]);
+//     if( i == 3 )
+//       frontLens_cylindrical = atoi( argv[i]);
+//     if( i == 4 )
+//       airgap = atof( argv[i]);
+
+//     if( i == 2 )
+//       cannon_posZ = atof( argv[i]);
+//     if( i == 3 )
+//       cannon_rotY = atof( argv[i]);
   }
 
 
@@ -440,7 +473,18 @@ int main(int argc, char *argv[])
 
     parDir.SetXYZ( parDirX, parDirY, parDirZ );
 
-    Transform3D rot_phi = Transform3D( RotationZ(inci_phi*degree) );
+    Transform3D rot_phi = Transform3D( RotationZ(-inci_phi*degree) );
+    parDir = rot_phi*parDir;
+  }
+  else if( opt_fromBelow )
+  {
+    parDirX = Tan(inci_theta*degree);
+    parDirY = 1;
+    parDirZ = 0;
+
+    parDir.SetXYZ( parDirX, parDirY, parDirZ );
+
+    Transform3D rot_phi = Transform3D( RotationY(-inci_phi*degree) );
     parDir = rot_phi*parDir;
   }
   else
@@ -510,10 +554,33 @@ int main(int argc, char *argv[])
         cout << "*** WARNING: hit position Z is fixed at " << -slab_length << " mm (slab front end)" << endl << endl;
       }
     }
+    else if( opt_fromBelow )
+    {
+      if( hitBarX < -slab_width/2 || hitBarX > slab_width/2 )
+      {
+        cout << "*** ERROR: hit position X is not on bar surface ! " << endl;
+        abort();
+      }
+
+      if( hitBarY != -slab_height/2 )
+      {
+        hitBarY = -slab_height/2;
+        cout << "*** WARNING: hit position Y is fixed at " << -slab_height/2 << " mm (1/2 slab height)" << endl << endl;
+      }
+
+      if( hitBarZ < -slab_length || hitBarZ > 0 )
+      {
+        cout << "*** ERROR: hit position Z is not on bar surface ! " << endl;
+        abort();
+      }
+    }
     else
     {
       if( hitBarX != slab_width/2 )
+      {
+        hitBarX = slab_width/2;
         cout << "*** WARNING: hit position X is fixed at " << slab_width/2 << " mm (1/2 slab width)" << endl << endl;
+      }
 
       if( hitBarY < -slab_height/2 || hitBarY > slab_height/2 )
       {
@@ -554,7 +621,8 @@ int main(int argc, char *argv[])
     cout << "  prism:           " << mat_prism_str << endl;
   if( airgap > 0 )
     cout << "  airBox:          " << mat_airBox_str << endl;
-  cout <<   "  fishtank:        " << mat_fishtank_str << endl;
+  if( !opt_prismIsTank )
+    cout << "  fishtank:        " << mat_fishtank_str << endl;
 
 
   // refractive index check
@@ -620,29 +688,40 @@ int main(int argc, char *argv[])
 
   if( opt_prism )
   {
-    cout << "  prism length: "            << prism_length      << endl;
-    cout << "  prism height (top 1): "    << prism_heightUp1   << endl;
-    cout << "  prism height (top 2): "    << prism_heightUp2   << endl;
+    cout << "  prism length:            " << prism_length      << endl;
+    cout << "  prism height:            " << prism_height      << endl;
+    cout << "  prism height (top 1):    " << prism_heightUp1   << endl;
+    cout << "  prism height (top 2):    " << prism_heightUp2   << endl;
     cout << "  prism height (bottom 1): " << prism_heightDown1 << endl;
     cout << "  prism height (bottom 2): " << prism_heightDown2 << endl;
-    cout << "  prism width (top 1): "     << prism_widthUp1    << endl;
-    cout << "  prism width (top 2): "     << prism_widthUp2    << endl;
-    cout << "  prism width (bottom 1): "  << prism_widthDown1  << endl;
-    cout << "  prism width (bottom 2): "  << prism_widthDown2  << endl;
+    cout << "  prism width:             " << prism_width       << endl;
+    cout << "  prism width (top 1):     " << prism_widthUp1    << endl;
+    cout << "  prism width (top 2):     " << prism_widthUp2    << endl;
+    cout << "  prism width (bottom 1):  " << prism_widthDown1  << endl;
+    cout << "  prism width (bottom 2):  " << prism_widthDown2  << endl;
   }
 
   cout << "  air gap: " << airgap << endl;
 
-  cout << "  fishtank width:  " << fishtank_width  << endl;
-  cout << "  fishtank heigth: " << fishtank_height << endl;
-  cout << "  fishtank length: " << fishtank_length << endl;
+  if( opt_prismIsTank && airgap != 0 )
+  {
+    cout << "*** ERROR: no air gap with fishtank as prism possible" << endl;
+    abort();
+  }
 
-  cout << "  fishtank width offset : " << fishtank_width_offset  << endl;
-  cout << "  fishtank height offset: " << fishtank_height_offset << endl;
+  if( !opt_prismIsTank )
+  {
+    cout << "  fishtank width:  " << fishtank_width  << endl;
+    cout << "  fishtank heigth: " << fishtank_height << endl;
+    cout << "  fishtank length: " << fishtank_length << endl;
 
-  cout << "  fishtank thetaX: " << fishtank_thetaX << endl;
-  cout << "  fishtank thetaY: " << fishtank_thetaY << endl;
-  cout << "  fishtank phi:    " << fishtank_phi    << endl;
+    cout << "  fishtank width offset : " << fishtank_width_offset  << endl;
+    cout << "  fishtank height offset: " << fishtank_height_offset << endl;
+
+    cout << "  fishtank thetaX: " << fishtank_thetaX << endl;
+    cout << "  fishtank thetaY: " << fishtank_thetaY << endl;
+    cout << "  fishtank phi:    " << fishtank_phi    << endl;
+  }
 
 
   if( opt_default || opt_angleAcceptance )
@@ -721,27 +800,23 @@ int main(int argc, char *argv[])
       cout << "  grid const. Y: " << gridYstep << " mm" << endl;
     }
 
-    if( cannon_theta == 90 )
-    {
+    if( cannon_theta == 180 )
       cout << "  theta: flat cos(theta)" << endl;
-      cout << "  phi:   flat phi" << endl;
-    }
     else
-    {
-      cout << "  theta:    " << cannon_theta << " deg" << endl;
-      cout << "  phi:      " << cannon_phi   << " deg" << endl;
-    }
-    cout <<   "  z offset: " << z_offset << " mm" << endl;
+      cout << "  theta:      " << cannon_theta << " deg" << endl;
+
+    if( cannon_phi == 360 )
+      cout << "  phi:   flat phi" << endl;
+    else
+      cout << "  phi:        " << cannon_phi   << " deg" << endl;
+
+    cout <<   "  rotation Y: " << cannon_rotY  << " deg" << endl;
+    cout <<   "  rotation X: " << cannon_rotX  << " deg" << endl;
+    cout <<   "  pos X: " << cannon_posX << " mm" << endl;
+    cout <<   "  pos Y: " << cannon_posY << " mm" << endl;
+    cout <<   "  pos Z: " << cannon_posZ << " mm" << endl;
     cout <<   "  reflection limit: " << refl_limit_2 << endl;
     cout <<   "  lambda: [" << lambda_min << ", " << lambda_max << "] nm" << endl;
-  }
-
-  if( opt_singlePhoton )
-  {
-    cout << "single photon:" << endl;
-    cout << "  creation pos.: (" << singlePosX << ", " << singlePosY << ", " << singlePosZ << ")" << endl;
-    cout << "  creation dir.: (" << singleDirX << ", " << singleDirY << ", " << singleDirZ << ")" << endl;
-    cout << "  lambda:        "  << single_lambda << " nm" << endl;
   }
 
 
@@ -800,7 +875,7 @@ int main(int argc, char *argv[])
     fileCounter++;
     if( fileCounter > 10 )
     {
-      cout << "Please select another file name." << endl;
+      cout << "*** ERROR: Please select another file name." << endl;
       abort();
     }
     TString fileCounter_str;
@@ -874,7 +949,21 @@ int main(int argc, char *argv[])
   bool fishtankBlack_sides  = opt_fishtankBlack_sides;
   bool fishtankBlack_top    = opt_fishtankBlack_top;
 
+  bool slabBlack_front = opt_slabBlack_front;
+
   bool mirror = opt_mirror;
+
+  if( opt_prismIsTank )
+  {
+    fishtank_width         = prism_width + prism_widthUp2 + prism_widthDown2;
+    fishtank_height        = prism_height + prism_heightUp2 + prism_heightDown2;
+    fishtank_length        = -666;
+    fishtank_width_offset  = -666;
+    fishtank_height_offset = -666;
+    fishtank_thetaX        = -666;
+    fishtank_thetaY        = -666;
+    fishtank_phi           = -666;
+  }
 
   if( !opt_backLens )
   {
@@ -899,10 +988,12 @@ int main(int argc, char *argv[])
   if( !opt_prism )
   {
     prism_length      = -666;
+    prism_height      = -666;
     prism_heightUp1   = -666;
     prism_heightUp2   = -666;
     prism_heightDown1 = -666;
     prism_heightDown2 = -666;
+    prism_width       = -666;
     prism_widthUp1    = -666;
     prism_widthUp2    = -666;
     prism_widthDown1  = -666;
@@ -941,7 +1032,12 @@ int main(int argc, char *argv[])
     gridYstep    = -666;
     cannon_theta = -666;
     cannon_phi   = -666;
-    z_offset     = -666;
+    cannon_phi   = -666;
+    cannon_rotX  = -666;
+    cannon_rotY  = -666;
+    cannon_posX  = -666;
+    cannon_posY  = -666;
+    cannon_posZ  = -666;
   }
 
   const int pos_size = refl_limit + 100; // due to tiny shifts at volume transitions, start and detection position)
@@ -976,10 +1072,12 @@ int main(int argc, char *argv[])
   infoTree->Branch( "prism_material"        , &prism_material        , "prism_material/C" );
   infoTree->Branch( "prism_fresnel"         , &prism_fresnel         , "prism_fresnel/O" );
   infoTree->Branch( "prism_length"          , &prism_length          , "prism_length/D" );
+  infoTree->Branch( "prism_height"          , &prism_height          , "prism_height/D" );
   infoTree->Branch( "prism_heightUp1"       , &prism_heightUp1       , "prism_heightUp1/D" );
   infoTree->Branch( "prism_heightUp2"       , &prism_heightUp2       , "prism_heightUp2/D" );
   infoTree->Branch( "prism_heightDown1"     , &prism_heightDown1     , "prism_heightDown1/D" );
   infoTree->Branch( "prism_heightDown2"     , &prism_heightDown2     , "prism_heightDown2/D" );
+  infoTree->Branch( "prism_width"           , &prism_width           , "prism_width/D" );
   infoTree->Branch( "prism_widthUp1"        , &prism_widthUp1        , "prism_widthUp1/D" );
   infoTree->Branch( "prism_widthUp2"        , &prism_widthUp2        , "prism_widthUp2/D" );
   infoTree->Branch( "prism_widthDown1"      , &prism_widthDown1      , "prism_widthDown1/D" );
@@ -1000,6 +1098,7 @@ int main(int argc, char *argv[])
   infoTree->Branch( "fishtankBlack_bottom"  , &fishtankBlack_bottom  , "fishtankBlack_bottom/O" );
   infoTree->Branch( "fishtankBlack_sides"   , &fishtankBlack_sides   , "fishtankBlack_sides/O" );
   infoTree->Branch( "fishtankBlack_top"     , &fishtankBlack_top     , "fishtankBlack_top/O" );
+  infoTree->Branch( "slabBlack_front"       , &slabBlack_front       , "slabBlack_front/O" );
   infoTree->Branch( "mirror"                , &mirror                , "mirror/O" );
   infoTree->Branch( "photon_number"         , &photon_number         , "photon_number/I" );
   infoTree->Branch( "lambda_min"            , &lambda_min            , "lambda_min/D" );
@@ -1025,7 +1124,11 @@ int main(int argc, char *argv[])
   infoTree->Branch( "gridYstep"             , &gridYstep             , "gridYstep/D");
   infoTree->Branch( "cannon_theta"          , &cannon_theta          , "cannon_theta/D");
   infoTree->Branch( "cannon_phi"            , &cannon_phi            , "cannon_phi/D");
-  infoTree->Branch( "z_offset"              , &z_offset              , "z_offset/D");
+  infoTree->Branch( "cannon_rotX"           , &cannon_rotX           , "cannon_rotX/D");
+  infoTree->Branch( "cannon_rotY"           , &cannon_rotY           , "cannon_rotY/D");
+  infoTree->Branch( "cannon_posX"           , &cannon_posX           , "cannon_posX/D");
+  infoTree->Branch( "cannon_posY"           , &cannon_posY           , "cannon_posY/D");
+  infoTree->Branch( "cannon_posZ"           , &cannon_posZ           , "cannon_posZ/D");
   infoTree->Branch( "pos_size"              , &pos_size_info         , "pos_size/I");
 
   infoTree->Fill();
@@ -1208,29 +1311,45 @@ int main(int argc, char *argv[])
   // beampsot plot
   TString beamspot_title  = "beamspot on bar";
   TString beamspot_titleX;
-  TString beamspot_titleY = "y [mm]";
+  TString beamspot_titleY;
   double center;
 
   if( opt_alongBar )
   {
     beamspot_titleX = "x [mm]";
+    beamspot_titleY = "y [mm]";
     center = hitBarX;
+  }
+  else if( opt_fromBelow )
+  {
+    beamspot_titleX = "z [mm]";
+    beamspot_titleY = "x [mm]";
+    center = hitBarZ;
   }
   else
   {
     beamspot_titleX = "z [mm]";
+    beamspot_titleY = "y [mm]";
     center = hitBarZ;
   }
 
 
   int minX = FloorNint( center - spot_limit/Cos(inci_theta*degree) );
   int maxX = CeilNint( center + spot_limit/Cos(inci_theta*degree) );
+  double spot_var = spot_limit;
+
+  if( minX == maxX )
+  {
+    minX -= 1;
+    maxX += 1;
+    spot_var = slab_width + slab_height;
+  }
 
   TH1F *beamspot = new TH1F( "beamspot", beamspot_title, 100, minX, maxX );
 
   beamspot->SetStats( 0 );
-  beamspot->SetMinimum(-spot_limit);
-  beamspot->SetMaximum(+spot_limit);
+  beamspot->SetMinimum(-spot_var);
+  beamspot->SetMaximum(+spot_var);
   beamspot->GetXaxis()->SetTitle( beamspot_titleX );
   beamspot->GetXaxis()->CenterTitle();
   beamspot->GetYaxis()->SetTitle( beamspot_titleY );
@@ -1246,51 +1365,57 @@ int main(int argc, char *argv[])
   top   ->SetLineWidth( 3 );
   bottom->SetLineWidth( 3 );
 
+  double slab_var;
+  if( opt_fromBelow )
+    slab_var = slab_width;
+  else
+    slab_var = slab_height;
+
   if( maxX > 0 && !opt_alongBar)
   {
     left->SetX1(0);
-    left->SetY1(-slab_height/2);
+    left->SetY1(-slab_var/2);
     left->SetX2(0);
-    left->SetY2(+slab_height/2);
+    left->SetY2(+slab_var/2);
 
     top->SetX1(minX);
-    top->SetY1(-slab_height/2);
+    top->SetY1(-slab_var/2);
     top->SetX2(0);
-    top->SetY2(-slab_height/2);
+    top->SetY2(-slab_var/2);
 
     bottom->SetX1(minX);
-    bottom->SetY1(slab_height/2);
+    bottom->SetY1(slab_var/2);
     bottom->SetX2(0);
-    bottom->SetY2(slab_height/2);
+    bottom->SetY2(slab_var/2);
   }
   else if( minX < -slab_length && !opt_alongBar)
   {
     right->SetX1(-slab_length);
-    right->SetY1(-slab_height/2);
+    right->SetY1(-slab_var/2);
     right->SetX2(-slab_length);
-    right->SetY2(+slab_height/2);
+    right->SetY2(+slab_var/2);
 
     top->SetX1(-slab_length);
-    top->SetY1(-slab_height/2);
+    top->SetY1(-slab_var/2);
     top->SetX2(maxX);
-    top->SetY2(-slab_height/2);
+    top->SetY2(-slab_var/2);
 
     bottom->SetX1(-slab_length);
-    bottom->SetY1(slab_height/2);
+    bottom->SetY1(slab_var/2);
     bottom->SetX2(maxX);
-    bottom->SetY2(slab_height/2);
+    bottom->SetY2(slab_var/2);
   }
   else if( !opt_alongBar )
   {
     top->SetX1(minX);
-    top->SetY1(-slab_height/2);
+    top->SetY1(-slab_var/2);
     top->SetX2(maxX);
-    top->SetY2(-slab_height/2);
+    top->SetY2(-slab_var/2);
 
     bottom->SetX1(minX);
-    bottom->SetY1(slab_height/2);
+    bottom->SetY1(slab_var/2);
     bottom->SetX2(maxX);
-    bottom->SetY2(slab_height/2);
+    bottom->SetY2(slab_var/2);
   }
   if( opt_alongBar )
   {
@@ -1315,23 +1440,46 @@ int main(int argc, char *argv[])
     bottom->SetY2(-slab_height/2);
   }
 
-  canvas_beamspot->cd();
-  left  ->Draw( "same" );
-  right ->Draw( "same" );
-  top   ->Draw( "same" );
-  bottom->Draw( "same" );
 
+  canvas_beamspot->cd();
   beamspot->Draw( "POL" );
+  left  ->Draw();
+  right ->Draw();
+  top   ->Draw();
+  bottom->Draw();
 
   // screen plot
   TString screen_titleX = "x [mm]";
   TString screen_titleY = "y [mm]";
 
-  TH1F *screen = new TH1F( "screen", "", 600, -fishtank_width/2 + fishtank_width_offset, fishtank_width/2  + fishtank_width_offset );
+  double screen_width1;
+  double screen_width2;
+
+  double screen_height1;
+  double screen_height2;
+
+  if( opt_prismIsTank )
+  {
+    screen_width1 = -prism_width/2 - prism_widthDown2 - prism_widthDown1;
+    screen_width2 = +prism_width/2 + prism_widthUp2 + prism_widthUp1;
+
+    screen_height1 = -prism_height/2 - prism_heightDown2 - prism_heightDown1;
+    screen_height2 = +prism_height/2 + prism_heightUp2 + prism_heightUp1;
+  }
+  else
+  {
+    screen_width1 = -fishtank_width/2 + fishtank_width_offset;
+    screen_width2 = +fishtank_width/2  + fishtank_width_offset;
+
+    screen_height1 = -fishtank_height/2 + fishtank_height_offset;
+    screen_height2 = +fishtank_height/2  + fishtank_height_offset;
+  }
+
+  TH1F *screen = new TH1F( "screen", "", 600, screen_width1, screen_width2 );
 
   screen->SetStats( 0 );
-  screen->SetMinimum(-fishtank_height/2 + fishtank_height_offset);
-  screen->SetMaximum(+fishtank_height/2 + fishtank_height_offset);
+  screen->SetMinimum( screen_height1 );
+  screen->SetMaximum( screen_height2 );
   screen->GetXaxis()->SetTitle( screen_titleX );
   screen->GetXaxis()->CenterTitle();
   screen->GetYaxis()->SetTitle( screen_titleY );
@@ -1451,6 +1599,9 @@ int main(int argc, char *argv[])
 
   if( opt_mirror && !opt_backLens )
     slab_front.SetReflectivity(refl_perfect);
+
+  if( opt_slabBlack_front )
+    slab_front.SetReflectivity(refl_none);
 
 
   PndDrcOptVol slab;
@@ -1786,6 +1937,7 @@ int main(int argc, char *argv[])
   backLens_sphere.SetPrintColor(2);
   backLens_sphere.SetConicalConstant(backLens_conical);
   backLens_sphere.SetName("backLens_sphere");
+  backLens_sphere.SetReflectivity(refl_perfect); // as focused mirror
 
   double backLens_dist = backLens_sphere.CenterPoint().Z(); // in general the backLens radius
   backLens_sphere.AddTransform( Transform3D( XYZVector(0,0,-(backLens_dist)) ) ); // ( dist |  =>  |(
@@ -1921,6 +2073,7 @@ int main(int argc, char *argv[])
   backLensCyl_sphere.SetRadius(backLens_radius);
   backLensCyl_sphere.SetPrintColor(2);
   backLensCyl_sphere.SetName("backLens_sphere");
+  backLensCyl_sphere.SetReflectivity(refl_perfect); // as focused mirror
 
 
   backLens_dist = backLensCyl_sphere.CenterPoint().Z(); // in general the backLens radius
@@ -2362,7 +2515,7 @@ int main(int argc, char *argv[])
   XYZPoint a4(b4.X(), b4.Y(), aZ);
 
 
-  if( ( fishtank_thetaX != 0 || fishtank_thetaY != 0 ) && !opt_frontLens && airgap == 0  )
+  if( ( fishtank_thetaX != 0 || fishtank_thetaY != 0 ) && !opt_frontLens && airgap == 0 && !opt_prismIsTank  )
   {
     cout << "*** ERROR: w/o forward lens only fishtank rotation in z-direction is allowed" << endl;
     abort();
@@ -2802,6 +2955,22 @@ int main(int argc, char *argv[])
   prism_front.SetName("prism_front");
 
 
+  if( opt_fishtankBlack_bottom && opt_prismIsTank )
+    prism_bottom.SetReflectivity(refl_none);
+
+  if ( opt_fishtankBlack_sides && opt_prismIsTank )
+  {
+    prism_left.SetReflectivity(refl_none);
+    prism_right.SetReflectivity(refl_none);
+  }
+
+  if( opt_fishtankBlack_top && opt_prismIsTank )
+    prism_top.SetReflectivity(refl_none);
+
+  if( opt_prismIsTank )
+    prism_exit.SetPixel(); // detector plane
+
+
   PndDrcOptVol prism;
   prism.AddSurface(prism_exit);
   prism.AddSurface(prism_left);
@@ -2844,7 +3013,9 @@ int main(int argc, char *argv[])
   }
 
   opt_system.AddDevice(slab);
-  opt_system.AddDevice(fishtank);
+
+  if( !opt_prismIsTank )
+    opt_system.AddDevice(fishtank);
 
   if( opt_backLens )
   {
@@ -2893,10 +3064,13 @@ int main(int argc, char *argv[])
   }
   else
   {
-    if( opt_prism )
-      opt_system.CoupleDevice("prism","fishtank","prism_exit","fishtank_front");
-    else
-      opt_system.CoupleDevice("slab","fishtank","slab_exit","fishtank_front");
+    if( !opt_prismIsTank )
+    {
+      if( opt_prism )
+        opt_system.CoupleDevice("prism","fishtank","prism_exit","fishtank_front");
+      else
+        opt_system.CoupleDevice("slab","fishtank","slab_exit","fishtank_front");
+    }
   }
 
 
@@ -2927,7 +3101,6 @@ int main(int argc, char *argv[])
 
 // 1. simulation for beamtest_2009 with or w/o lens and beamtest_2008
 // 2. photon cannon
-// 3. single photon for debugging
 
   int icnt_measured = 0;
   int icnt_flying   = 0;
@@ -2966,7 +3139,18 @@ int main(int argc, char *argv[])
 
           parDir.SetXYZ( parDirX, parDirY, parDirZ );
 
-          Transform3D rot_phi = Transform3D( RotationZ(phi) );
+          Transform3D rot_phi = Transform3D( RotationZ(-phi) );
+          parDir = rot_phi*parDir;
+        }
+        else if( opt_fromBelow )
+        {
+          parDirX = Tan(ACos(costheta));
+          parDirY = 1;
+          parDirZ = 0;
+
+          parDir.SetXYZ( parDirX, parDirY, parDirZ );
+
+          Transform3D rot_phi = Transform3D( RotationY(-phi) );
           parDir = rot_phi*parDir;
         }
         else
@@ -2994,20 +3178,19 @@ int main(int argc, char *argv[])
 
       if( opt_alongBar )
       {
-        parOriginX = hitBarX - parDirX/Abs(parDirY) * spot_limit; // move exterior beam spot particle in bar to bar border
+        parOriginX = hitBarX - parDirX/Abs(parDirZ) * spot_limit; // move exterior beam spot particle in bar to outside
+        parOriginY = hitBarY - parDirY/Abs(parDirZ) * spot_limit;
+        parOriginZ = hitBarZ - parDirZ/Abs(parDirZ) * spot_limit;
+      }
+      else if( opt_fromBelow )
+      {
+        parOriginX = hitBarX - parDirX/Abs(parDirY) * spot_limit; // move exterior beam spot particle in bar to outside
         parOriginY = hitBarY - parDirY/Abs(parDirY) * spot_limit;
         parOriginZ = hitBarZ - parDirZ/Abs(parDirY) * spot_limit;
-
-        if( parDirY == 0 )
-        {
-          parOriginX = hitBarX;
-          parOriginY = hitBarY;
-          parOriginZ = hitBarZ;
-        }
       }
       else
       {
-        parOriginX = hitBarX - parDirX/Abs(parDirX) * spot_limit; // move exterior beam spot particle in bar to bar border
+        parOriginX = hitBarX - parDirX/Abs(parDirX) * spot_limit; // move exterior beam spot particle in bar to outside
         parOriginY = hitBarY - parDirY/Abs(parDirX) * spot_limit;
         parOriginZ = hitBarZ - parDirZ/Abs(parDirX) * spot_limit;
       }
@@ -3045,13 +3228,19 @@ int main(int argc, char *argv[])
 
         if( opt_alongBar )
         {
-          helper2.RotateY(inci_theta*degree );
-          helper2.RotateZ(inci_phi*degree );
+          helper2.RotateY( inci_theta*degree );
+          helper2.RotateZ( -inci_phi*degree );
+        }
+        else if( opt_fromBelow )
+        {
+          helper2.RotateX( 90*degree );
+          helper2.RotateZ( -inci_theta*degree );
+          helper2.RotateY( -inci_phi*degree );
         }
         else
         {
-          helper2.RotateY( (-90+inci_theta)*degree ); // rotation in the right direction
-          helper2.RotateX(inci_phi*degree );
+          helper2.RotateY( (-90+inci_theta)*degree );
+          helper2.RotateX( inci_phi*degree );
         }
 
         spotX = helper2.X()+transX; // translation-(shift)
@@ -3062,7 +3251,9 @@ int main(int argc, char *argv[])
 
         double stepsToBar;
         if( opt_alongBar )
-          stepsToBar = (-spotZ - slab_length) / parDirZ;
+          stepsToBar = (-spotZ - slab_length) / parDirZ; // spotZ is negative
+        else if( opt_fromBelow )
+          stepsToBar = (-spotY - slab_height/2) / parDirY; // spotY is negative
         else
           stepsToBar = (spotX - slab_width/2) / Abs(parDirX);
 
@@ -3071,9 +3262,10 @@ int main(int argc, char *argv[])
         hitOnBarZ = spotZ + stepsToBar * parDirZ;
 
 
-        if( ( !opt_alongBar && spotX < (slab_width / 2) ) || ( opt_alongBar && spotZ > slab_length) ) // should never happen
+        if( ( !opt_alongBar && !opt_fromBelow && spotX < (slab_width / 2) )
+               || ( opt_fromBelow && spotY > (-slab_height / 2) )
+               || ( opt_alongBar && spotZ > -slab_length) ) // should never happen
         {
-          cout << spotX << " " << (slab_width / 2) << endl;
           cout << "*** WARNING: particle origin production is in the bar (should never happen)" << endl;
           cout << "start pos: (" << spotX << ", " << spotY << ", " << spotZ << ")" << endl;
           cout << "hit pos  : (" << hitOnBarX  << ", " << hitOnBarY  << ", " << hitOnBarZ  << ")" << endl << endl;
@@ -3081,8 +3273,17 @@ int main(int argc, char *argv[])
         }
 
 
-        double maxZ_fishtank = Sqrt( Power(fishtank_length, 2) + Power(fishtank_width, 2) + Power(fishtank_height, 2) );
-        double maxSetupLength = slab_length + airgap + prism_length + maxZ_fishtank + spot_limit;
+        double maxSetupLength;
+        if( opt_prism && !opt_prismIsTank )
+          maxSetupLength = Sqrt( Power(slab_length + airgap + prism_length + fishtank_length + spot_limit, 2)
+              + Power( fishtank_width + fishtank_height, 2) );
+        else if ( opt_prismIsTank )
+          maxSetupLength = Sqrt( Power(slab_length + airgap + prism_length + spot_limit, 2)
+              + Power( prism_height + prism_heightUp1 + prism_heightUp2 + prism_heightDown1 + prism_heightDown2
+                  + prism_width + prism_widthUp1 + prism_widthUp2 + prism_widthDown1 + prism_widthDown2, 2) );
+        else
+          maxSetupLength = Sqrt( Power(slab_length + airgap + fishtank_length + spot_limit, 2)
+              + Power( fishtank_width + fishtank_height, 2) );
         double stepsTo = maxSetupLength / Abs(parDirZ);
 
         if( stepsTo > maxSetupLength )
@@ -3107,15 +3308,29 @@ int main(int argc, char *argv[])
 
 
         // for beampot plot
-        double hitOnBarPlot;
+        double hitOnBarPlotX;
+        double hitOnBarPlotY;
         if( opt_alongBar )
-          hitOnBarPlot = hitOnBarX;
+        {
+          hitOnBarPlotX = hitOnBarX;
+          hitOnBarPlotY = hitOnBarY;
+        }
+        else if( opt_fromBelow )
+        {
+          hitOnBarPlotX = hitOnBarZ;
+          hitOnBarPlotY = hitOnBarX;
+        }
         else
-          hitOnBarPlot = hitOnBarZ;
+        {
+          hitOnBarPlotX = hitOnBarZ;
+          hitOnBarPlotY = hitOnBarY;
+        }
 
-        TMarker* t = new TMarker( hitOnBarPlot, hitOnBarY, 20 );
+        TMarker* t = new TMarker( hitOnBarPlotX, hitOnBarPlotY, 20 );
 
-        if( Abs( hitOnBarY ) >= slab_height / 2 )
+        if( (!opt_alongBar && !opt_fromBelow && (Abs( hitOnBarY ) >= slab_height / 2 || hitOnBarZ >= 0))
+              || (opt_alongBar && (Abs( hitOnBarY ) >= slab_height / 2 || Abs( hitOnBarX ) >= slab_width / 2))
+              || (opt_fromBelow && (Abs( hitOnBarX ) >= slab_width / 2 || hitOnBarZ >= 0)) )
           t->SetMarkerColor( 4 );
         else
           t->SetMarkerColor( 2 );
@@ -3187,13 +3402,16 @@ int main(int argc, char *argv[])
 
           XYZPoint hitPosDet( hitPosX, hitPosY, hitPosZ );
 
-          hitPosDet = transTo_origin_fishtank_front*hitPosDet;
-          hitPosDet = rotPhi_fishtank.Inverse()*hitPosDet;
-          hitPosDet = transTo_origin_fishtank_front.Inverse()*hitPosDet;
-          hitPosDet = transToRotAxisY_fishtank*hitPosDet;
-          hitPosDet = rotThetaX_fishtank.Inverse()*hitPosDet;
-          hitPosDet = rotThetaY_fishtank.Inverse()*hitPosDet;
-          hitPosDet = transToRotAxisY_fishtank.Inverse()*hitPosDet;
+          if( !opt_prismIsTank )
+          {
+            hitPosDet = transTo_origin_fishtank_front*hitPosDet;
+            hitPosDet = rotPhi_fishtank.Inverse()*hitPosDet;
+            hitPosDet = transTo_origin_fishtank_front.Inverse()*hitPosDet;
+            hitPosDet = transToRotAxisY_fishtank*hitPosDet;
+            hitPosDet = rotThetaX_fishtank.Inverse()*hitPosDet;
+            hitPosDet = rotThetaY_fishtank.Inverse()*hitPosDet;
+            hitPosDet = transToRotAxisY_fishtank.Inverse()*hitPosDet;
+          }
 
           hitPosDetX = hitPosDet.X();
           hitPosDetY = hitPosDet.Y();
@@ -3317,6 +3535,21 @@ int main(int argc, char *argv[])
       cout << "+++++ DEBUG INFO: photon check" << endl;
 
 
+    Transform3D rotY_cannon = Transform3D( RotationY(cannon_rotY*degree) );
+    XYZVector axisX(1,0,0);
+    XYZVector newRotX = rotY_cannon*axisX;
+    newRotX = newRotX.Unit();
+
+    TVector3 helper_rotX_cannon(newRotX.X(),newRotX.Y(),newRotX.Z());
+    TRotation r_X;
+    r_X.Rotate(cannon_rotX*degree, helper_rotX_cannon);
+
+    Transform3D rotX_cannon = Transform3D(
+        r_X.XX(), r_X.XY(), r_X.XZ(), 0,
+    r_X.YX(), r_X.YY(), r_X.YZ(), 0,
+    r_X.ZX(), r_X.ZY(), r_X.ZZ(), 0 );
+
+
     for( double gridX = -slab_width/2; gridX < slab_width/2; gridX += gridXstep)
     {
       if( gridXstep == 0 )
@@ -3349,21 +3582,22 @@ int main(int argc, char *argv[])
           double costheta;
           double phi;
 
-          if( cannon_theta == 90 )
-          {
+          if( cannon_theta == 180 )
             costheta = rand.Uniform(0.0, 1.0);
-            phi = rand.Uniform(0.0, 2*pi);
-          }
           else
-          {
             costheta = Cos(cannon_theta*degree);
+
+          if( cannon_phi == 360 )
+            phi = rand.Uniform(0.0, 2*pi);
+          else
             phi = cannon_phi*degree;
-          }
 
 
           Polar3DVector photDir(1, ACos(costheta), phi); // r, theta, phi
           photDir = photDir.Unit();
           XYZVector photDirXYZ( photDir.X(), photDir.Y(), photDir.Z() );
+          photDirXYZ = rotY_cannon*photDirXYZ;
+          photDirXYZ = rotX_cannon*photDirXYZ;
 
           PndDrcPhoton ph;
           ph.SetPrintFlag(true);
@@ -3371,8 +3605,11 @@ int main(int argc, char *argv[])
           if( opt_debug )
             ph.SetVerbosity(4);
 
+          double gridPosX = gridX + cannon_posX;
+          double gridPosY = gridY + cannon_posY;
+
           ph.SetReflectionLimit(refl_limit);
-          ph.SetPosition( XYZPoint(gridX, gridY, z_offset));
+          ph.SetPosition( XYZPoint(gridPosX, gridPosY, cannon_posZ));
           ph.SetDirection(photDirXYZ);
           ph.SetWavelength(lambda);
 
@@ -3383,13 +3620,13 @@ int main(int argc, char *argv[])
 
           string start_vol;
 
-          if( z_offset < 0 && z_offset > -slab_length )
+          if( cannon_posZ < 0 && cannon_posZ > -slab_length )
             start_vol = "slab";
-          else if( z_offset > 0 && z_offset < frontLens_thickness && opt_frontLens )
+          else if( cannon_posZ > 0 && cannon_posZ < frontLens_thickness && opt_frontLens )
             start_vol = "frontLens";
           else
           {
-            cout << "*** ERROR: photon cannon position (z_offset) is not valid ! " << endl;
+            cout << "*** ERROR: photon cannon position (in z) is not valid ! " << endl;
             abort();
           }
 
@@ -3408,7 +3645,7 @@ int main(int argc, char *argv[])
             absorbed = false;
             lost     = false;
 
-            if( (*iph).Fate()==Drc::kPhotMeasured || opt_fullCanonList )
+            if( (*iph).Fate()==Drc::kPhotMeasured || opt_fullCannonList )
             {
               if( (*iph).Fate()==Drc::kPhotMeasured )
               {
@@ -3455,13 +3692,16 @@ int main(int argc, char *argv[])
 
               XYZPoint hitPosDet( hitPosX, hitPosY, hitPosZ );
 
-              hitPosDet = transTo_origin_fishtank_front*hitPosDet;
-              hitPosDet = rotPhi_fishtank.Inverse()*hitPosDet;
-              hitPosDet = transTo_origin_fishtank_front.Inverse()*hitPosDet;
-              hitPosDet = transToRotAxisY_fishtank*hitPosDet;
-              hitPosDet = rotThetaX_fishtank.Inverse()*hitPosDet;
-              hitPosDet = rotThetaY_fishtank.Inverse()*hitPosDet;
-              hitPosDet = transToRotAxisY_fishtank.Inverse()*hitPosDet;
+              if( !opt_prismIsTank )
+              {
+                hitPosDet = transTo_origin_fishtank_front*hitPosDet;
+                hitPosDet = rotPhi_fishtank.Inverse()*hitPosDet;
+                hitPosDet = transTo_origin_fishtank_front.Inverse()*hitPosDet;
+                hitPosDet = transToRotAxisY_fishtank*hitPosDet;
+                hitPosDet = rotThetaX_fishtank.Inverse()*hitPosDet;
+                hitPosDet = rotThetaY_fishtank.Inverse()*hitPosDet;
+                hitPosDet = transToRotAxisY_fishtank.Inverse()*hitPosDet;
+              }
 
               hitPosDetX = hitPosDet.X();
               hitPosDetY = hitPosDet.Y();
@@ -3550,75 +3790,6 @@ int main(int argc, char *argv[])
     }
   }
 
-
-// single photon
-//==============================================================================
-  if( opt_singlePhoton )
-  {
-    geo.open("geo.tmp",std::ios::out);
-    geo << "{" << endl;
-    manager->Print(geo);
-
-    PndDrcPhoton ph;
-    ph.SetPrintFlag(true);
-
-    if( opt_debug )
-      ph.SetVerbosity(4);
-
-    ph.SetReflectionLimit(refl_limit);
-    ph.SetPosition( XYZPoint(singlePosX, singlePosY, singlePosZ));
-    ph.SetDirection( XYZVector(singleDirX, singleDirY, singleDirZ));
-    ph.SetWavelength(single_lambda);
-
-    list<PndDrcPhoton> list_photon;
-    list<PndDrcPhoton>::iterator iph;
-    list_photon.push_back(ph);
-
-    manager->SetPhotonList(list_photon,"slab","opt_system",0,0);
-    manager->Propagate(); // propagate photons
-
-
-    list_photon.clear();
-    list_photon = manager->PhotonList(); // get list
-
-    for( iph = list_photon.begin(); iph != list_photon.end(); ++iph )
-    {
-      measured = false;
-      absorbed = false;
-      lost     = false;
-
-      if ((*iph).Fate()==Drc::kPhotMeasured)
-      {
-        icnt_measured++;
-        measured = true;
-
-        TMarker* t = new TMarker( hitPosDetX, hitPosDetY, 7);
-        t->SetMarkerColor( (*iph).ColorNumber((*iph).Wavelength()) );
-        t->SetMarkerSize(0.7);
-
-        canvas_screen->cd();
-        t->Draw();
-      }
-      else if( (*iph).Fate()==Drc::kPhotFlying )
-      {
-        icnt_flying++; // should never happen.
-        cout << "*** WARNING: photon fate is still \"flying\" (should never happen)" << endl;
-      }
-      else if( (*iph).Fate()==Drc::kPhotAbsorbed )
-      {
-        icnt_absorbed++;
-        absorbed = true;
-      }
-      else
-      {
-        icnt_lost++;
-        lost = true;
-      }
-    }
-
-    geo << "}" << endl;
-    geo.close();
-  }
 
 
 // Photon summary

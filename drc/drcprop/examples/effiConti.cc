@@ -20,6 +20,13 @@ using namespace TMath;
 using namespace std;
 
 
+//==========
+// my stuff
+//==========
+#include "DetEffi.h"
+#include "DetEffi.C"
+
+
 
 void effiConti( TString inFilename = "" )
 {
@@ -28,9 +35,6 @@ void effiConti( TString inFilename = "" )
     cout << "Usage: effiConti( filename )" << endl;
     return;
   }
-
-
-  gSystem->Load( "lib_DetEffi.so" );
 
 
 
@@ -230,6 +234,18 @@ void effiConti( TString inFilename = "" )
   photonTree->SetBranchAddress( "nRefl"     , &nRefl );
 
   Int_t nEntries = photonTree->GetEntries();
+
+
+
+  if( nEntries > 20000 )
+  {
+    cout << "*******************************************" << endl;
+    cout << "It's recommended to compile this macro.    " << endl;
+    cout << "Compile procedure:                         " << endl;
+    cout << "root[] gSystem->Load( \"lib_DetEffi.so\" ) " << endl;
+    cout << "root[] .L effiConti.cc++                   " << endl;
+    cout << "*******************************************" << endl;
+  }
 
 
   TString outFilename = inFilename;

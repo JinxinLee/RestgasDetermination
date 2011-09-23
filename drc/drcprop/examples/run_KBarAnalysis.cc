@@ -15,7 +15,7 @@ void run_KBarAnalysis()
   gSystem->Load( "lib_KBarAnalysis.so" );
 
 
-  Bool_t effiMode = true;
+  Bool_t effiMode = false; // for single wavelength not necessary
 
   Double_t resolution = 10; // in mm
 
@@ -33,7 +33,7 @@ void run_KBarAnalysis()
   Double_t fishtank_width, fishtank_height;
   Double_t airgap;
 
-  infoTree->SetBranchAddress( "fishtank_width" , &fishtank_width );
+  infoTree->SetBranchAddress( "fishtank_width" , &fishtank_width ); // for checking of the side reflections
   infoTree->SetBranchAddress( "fishtank_height", &fishtank_height );
   infoTree->SetBranchAddress( "airgap"         , &airgap );
   infoTree->GetEntry( 0 );

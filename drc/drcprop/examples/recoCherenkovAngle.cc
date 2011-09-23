@@ -170,7 +170,7 @@ void recoCherenkovAngle( TString beamtestFilename = "",  TString kBarFilename = 
 
   if( nPixel_beamtest != nPixel_kBar )
   {
-    cout << "Different number pf pixel for beamtest data and kBar tree! (" << nPixel_beamtest << ", " << nPixel_kBar << ")" << endl;
+    cout << "Different number of pixel in beamtest data and kBar tree! (" << nPixel_beamtest << ", " << nPixel_kBar << ")" << endl;
     return;
   }
 

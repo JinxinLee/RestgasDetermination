@@ -117,10 +117,7 @@ public :
 
    TString _gap_str;
 
-   vector<TString> _mcpLabel_str;
-
    vector<Double_t> _mcp_dim;
-   vector<Double_t> _mcp_act;
    vector<Double_t> _mcp_det;
 
    vector<Double_t> _minX_dim;
@@ -182,8 +179,6 @@ public :
 
    vector< vector<TLine*> > _line_mcpCase;
    vector< vector<TLine*> > _line_mcpArea;
-
-   vector<TPaveText*> _mcpLabel; // need it as pointer due to AddText()
 
    vector< vector<TH2F*> > _kBarX;
    vector< vector<TH2F*> > _kBarY;

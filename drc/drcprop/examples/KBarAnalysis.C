@@ -82,10 +82,7 @@ KBarAnalysis::KBarAnalysis( Int_t n_mcp )//: _n_mcp(n_mcp) // initialize const v
 
   _resolution = unknown;
 
-  _mcpLabel_str.resize( _n_mcp );
-
   _mcp_dim.resize( _n_mcp );
-  _mcp_act.resize( _n_mcp );
   _mcp_det.resize( _n_mcp );
 
   _minX_dim.resize( _n_mcp );
@@ -118,6 +115,9 @@ KBarAnalysis::KBarAnalysis( Int_t n_mcp )//: _n_mcp(n_mcp) // initialize const v
     _minY_det[i] = unknown;
     _maxX_det[i] = unknown;
     _maxY_det[i] = unknown;
+
+    _shiftX[i]   = unknown;
+    _shiftY[i]   = unknown;
 
     _x_bins[i] = unknown;
     _y_bins[i] = unknown;
@@ -170,31 +170,12 @@ void KBarAnalysis::Begin(TTree * /*tree*/)
     abort();
   }
 
-  if( _mcpMode )
-  {
-    for( int i = 0; i < _n_mcp; i++ )
-    {
-      if( _mcp_dim[i] == unknown || _mcp_det[i] == unknown || _minX_dim[i] == unknown || _minY_dim[i] == unknown
-          || _x_bins[i] == unknown || _y_bins[i] == unknown )
-      {
-        cout << "MCP parameters were not set!" << endl;
-        abort();
-      }
-
-      if( _x_bins[i] < 0 || _y_bins[i] < 0 )
-      {
-        cout << "Negative number of bins!" << endl;
-        abort();
-      }
-    }
-  }
-
   if( !_mcpMode && _n_mcp != 1 )
     _n_mcp = 1; // screen is one big MCP
 
   if( _fishtank_width/2 > TMath::Abs(unknown) || _fishtank_height/2 > TMath::Abs(unknown) )
   {
-    cout << "Change magic number \"unkown\"!" << endl;
+    cout << "Change magic number \"unknown\"!" << endl;
     abort();
   }
 
@@ -228,8 +209,6 @@ void KBarAnalysis::SlaveBegin(TTree * /*tree*/)
 
   if( _mcpMode )
   {
-    _mcpLabel.resize( _n_mcp );
-
     _line_mcpCase.resize( _n_mcp );
     _line_mcpArea.resize( _n_mcp );
 
@@ -242,6 +221,9 @@ void KBarAnalysis::SlaveBegin(TTree * /*tree*/)
 
     for( int i = 0; i < _n_mcp; i++ )
     {
+      if( _mcp_dim[i] == unknown )
+        continue;
+
       _maxX_dim[i] = _minX_dim[i] + _mcp_dim[i];
       _maxY_dim[i] = _minY_dim[i] + _mcp_dim[i];
 
@@ -266,11 +248,6 @@ void KBarAnalysis::SlaveBegin(TTree * /*tree*/)
         _line_mcpCase[i][j]->SetLineWidth(3);
         _line_mcpArea[i][j]->SetLineWidth(3);
       }
-
-
-      _mcpLabel[i] = new TPaveText( _minX_det[i], _maxY_det[i], _maxX_det[i], _maxY_dim[i] );
-      _mcpLabel[i]->SetFillColor( 0 );
-      _mcpLabel[i]->AddText( _mcpLabel_str[i] );
     }
   }
   else
@@ -300,14 +277,23 @@ void KBarAnalysis::SlaveBegin(TTree * /*tree*/)
   _freq.resize( _n_mcp );
 
 
-  Int_t resizeop    = 0;
+  Int_t resizeop = 0;
+  _pixeltot = 0;
 
   for( int i = 0; i < _n_mcp; i++ )
+  {
+    if( _mcpMode && _mcp_dim[i] == unknown )
+      continue;
+
     _pixeltot += ( _x_bins[i] * _y_bins[i] );
+  }
 
 
   for( int i = 0; i < _n_mcp; i++ )
   {
+    if( _mcpMode && _mcp_dim[i] == unknown )
+      continue;
+
     _pixelX[i].resize( _x_bins[i] );
     _pixelY[i].resize( _x_bins[i] );
     _pixelZ[i].resize( _x_bins[i] );
@@ -412,6 +398,9 @@ void KBarAnalysis::SlaveBegin(TTree * /*tree*/)
   {
     for( int j = 0; j < _n_mcp; j++ )
     {
+      if( _mcpMode && _mcp_dim[j] == unknown )
+        continue;
+
       if( _mcpMode )
       {
         TString j_str;
@@ -481,6 +470,9 @@ void KBarAnalysis::SlaveBegin(TTree * /*tree*/)
 
   for( int i = 0; i < _n_mcp; i++ )
   {
+    if( _mcpMode && _mcp_dim[i] == unknown )
+      continue;
+
     for( int j = 0; j < _x_bins[i]; j++ )
     {
       for( int k = 0; k < _y_bins[i]; k++ )
@@ -565,12 +557,15 @@ Bool_t KBarAnalysis::Process(Long64_t entry)
   Int_t n_test = 0;
   Int_t mcpID_helper = unknown;
 
-  if( !_effiMode || _effi->DetEffi::Effi( (int) wavelength ) ) // effi or effiOLD
+  if( !_effiMode || _effi->DetEffi::Effi( (int) wavelength ) )
   {
     if( _mcpMode )
     {
       for( int i = 0; i < _n_mcp; i++)
       {
+        if( _mcpMode && _mcp_dim[i] == unknown )
+          continue;
+
         if( hitPosDetX >= _minX_det[i] && hitPosDetX < _maxX_det[i]
             && hitPosDetY >= _minY_det[i] && hitPosDetY < _maxY_det[i] )
         {
@@ -606,7 +601,7 @@ Bool_t KBarAnalysis::Process(Long64_t entry)
 
   const int mcpID = mcpID_helper;
 
-  _pixelX[mcpID][ pxX[mcpID] ][ pxY[mcpID] ][ all ]->Fill( kBarX );
+  _pixelX[mcpID][ pxX[mcpID] ][ pxY[mcpID] ][ all ]->Fill( kBarX ); // 1 fill per event (photon)
   _pixelY[mcpID][ pxX[mcpID] ][ pxY[mcpID] ][ all ]->Fill( kBarY );
   _pixelZ[mcpID][ pxX[mcpID] ][ pxY[mcpID] ][ all ]->Fill( kBarZ );
 
@@ -630,7 +625,7 @@ Bool_t KBarAnalysis::Process(Long64_t entry)
           << " ; pixel: (" << pxX << "," << pxY << ")" << endl;
 
       nBoxRefl++;
-      if( nBoxRefl > 2 )
+      if( nBoxRefl > 1 )
         cout << "Photon hits more than one time the fishtank side walls" << endl;
 
 
@@ -642,6 +637,7 @@ Bool_t KBarAnalysis::Process(Long64_t entry)
       cout << "before: " << dirBefore.X() << " " << dirBefore.Y() << " " << dirBefore.Z() <<
           "  after: " << dirAfter.X() << " " << dirAfter.Y() << " " << dirAfter.Z() << endl;
 
+      // included cases with nBoxRefl > 1
       if( posX[j] > 0 && ( (dirBefore.X() > 0 && dirAfter.X() < 0) || (dirBefore.X() < 0 && dirAfter.X() > 0) ) )
       {
         cout << "left-reflection at fishtank" << endl;
@@ -750,8 +746,14 @@ void KBarAnalysis::Terminate()
     modeExtension = "_screenPlots_res" + resolution_str + ".root";
   }
 
+
+  TString outDirectory_lastChar = _outDirectory;
+  outDirectory_lastChar.Remove( 0, outDirectory_lastChar.Length()-1 );
+  if( outDirectory_lastChar != "/" )
+    _outDirectory = _outDirectory + "/";
+
   TString outFilename;
-  outFilename = _outDirectory + "/" + _outFileCore + modeExtension;
+  outFilename = _outDirectory + _outFileCore + modeExtension;
   TFile *outFile = new TFile( outFilename, "RECREATE" );
   TTree *pixelTree = new TTree( "pixel", outFilename ); // for example: MCP1 is pixel 0 - 63; starts at (0,0), (0,1) ...
 
@@ -804,6 +806,9 @@ void KBarAnalysis::Terminate()
 
   for( int i = 0; i < _n_mcp; i++ )
   {
+    if( _mcpMode && _mcp_dim[i] == unknown )
+      continue;
+
     for( int j = 0; j < _x_bins[i]; j++)
     {
       for( int k = 0; k < _y_bins[i]; k++)
@@ -940,6 +945,9 @@ void KBarAnalysis::Terminate()
 
     for( int j = 0; j < _n_mcp; j++ )
     {
+      if( _mcpMode && _mcp_dim[j] == unknown )
+        continue;
+
       canvas->cd();
 
       _kBarX[i][j]->SetTitle( *_kBarX_str[i][j] );
@@ -989,8 +997,6 @@ void KBarAnalysis::Terminate()
         _kBarX_screen[i][j]->SetStats( false );
         _kBarX_screen[i][j]->Draw("same colz");
 
-        _mcpLabel[j]->Draw("same");
-
         for( int k = 0; k < n_lines; k++ )
         {
           _line_mcpCase[j][k]->Draw("same");
@@ -1006,8 +1012,6 @@ void KBarAnalysis::Terminate()
         _kBarY_screen[i][j]->SetStats( false );
         _kBarY_screen[i][j]->Draw("same colz");
 
-        _mcpLabel[j]->Draw("same");
-
         for( int k = 0; k < n_lines; k++ )
         {
           _line_mcpCase[j][k]->Draw("same");
@@ -1022,8 +1026,6 @@ void KBarAnalysis::Terminate()
         _kBarZ_screen[i][j]->SetMaximum(+1);
         _kBarZ_screen[i][j]->SetStats( false );
         _kBarZ_screen[i][j]->Draw("same colz");
-
-        _mcpLabel[j]->Draw("same");
 
         for( int k = 0; k < n_lines; k++ )
         {

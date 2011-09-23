@@ -21,16 +21,16 @@ OBJECTS = $(patsubst ../%.cxx,../%.o,$(wildcard ../*.cxx))
 
 #debugger ddd: compile everything with option -g
 DEBUG =
-# DEBUG = -g
+#DEBUG = -g
 
-#CFLAGS = -O2 -Wall $(DEBUG)
-CFLAGS = -g -O0 -Wall
+CFLAGS = -O2 -Wall $(DEBUG)
+#CFLAGS = -g -O0 -Wall
 
 # shared library
 SOFLAGS = -shared -Wall $(DEBUG)
 
 # for dynamic linking
-CFLAGSDYM = $(CLAGS) -fPIC
+CFLAGSDYM = $(CFLAGS) -fPIC
 
 
 
@@ -130,7 +130,7 @@ lib_KBarAnalysis.so:	dict_libKBarAnalysis.o KBarAnalysis.o DetEffi.o
 			g++ $(SOFLAGS) -o $@ $(LDLIBS) $^
 
 dict_lib%.o:		dict_lib%.cxx
-			g++ $(CFLAGS) $(INCLFLAGS) -o $@ -c $^
+			g++ $(CFLAGSDYM) $(INCLFLAGS) -o $@ -c $^
 
 dict_lib%.cxx:		%.h DetEffi.h %_LinkDef.hh
 			rootcint -f $@ -c $(INCLFLAGS) $^

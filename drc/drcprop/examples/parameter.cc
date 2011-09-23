@@ -35,8 +35,8 @@ void parameter( TString inFilename = ""  )
 
 
   Int_t root_version = -666;
-  char slab_material[64], prism_material[64], airBox_material[64], fishtank_material[64];
-  char backLens_material[64], frontLens_material[64];
+  char slab_material[64] = "-666", prism_material[64] = "-666", airBox_material[64] = "-666", fishtank_material[64] = "-666";
+  char backLens_material[64] = "-666", frontLens_material[64]= "-666";
   Int_t photon_number = -666, particle_number = -666, shoots = -666, refl_limit = -666;
   Double_t lambda_min = -666, lambda_max = -666;
   Double_t frontLens_radius = -666, frontLens_thickness = -666, frontLens_conical = -666;
@@ -46,7 +46,7 @@ void parameter( TString inFilename = ""  )
   Int_t frontLens_cylindrical = -666, backLens_cylindrical = -666;
   Double_t airgap = -666;
   Double_t slab_width = -666, slab_height = -666, slab_length = -666;
-  Double_t prism_length = -666;
+  Double_t prism_length = -666, prism_height = -666, prism_width = -666;
   Double_t prism_heightUp1 = -666, prism_heightUp2 = -666, prism_heightDown1 = -666, prism_heightDown2 = -666;
   Double_t prism_widthUp1 = -666, prism_widthUp2 = -666, prism_widthDown1 = -666, prism_widthDown2 = -666;
   Double_t fishtank_width = -666, fishtank_height = -666, fishtank_length = -666;
@@ -60,7 +60,8 @@ void parameter( TString inFilename = ""  )
   Bool_t slab_fresnel, backLens_fresnel, frontLens_fresnel, prism_fresnel, airBox_fresnel, fishtank_fresnel;
   Bool_t fishtankBlack_bottom, fishtankBlack_sides, fishtankBlack_top, mirror;
   Double_t gridXstep = -666, gridYstep = -666;
-  Double_t cannon_theta = -666, cannon_phi = -666, z_offset = -666;
+  Double_t cannon_theta = -666, cannon_phi = -666, canno_rotX = -666, canno_rotY = -666;
+  Double_t cannon_posX = -666, cannon_posY = -666, cannon_posZ = -666;
 
 
   infoTree->SetBranchAddress( "root_version"          , &root_version );
@@ -88,10 +89,12 @@ void parameter( TString inFilename = ""  )
   infoTree->SetBranchAddress( "prism_material"        , &prism_material );
   infoTree->SetBranchAddress( "prism_fresnel"         , &prism_fresnel );
   infoTree->SetBranchAddress( "prism_length"          , &prism_length );
+  infoTree->SetBranchAddress( "prism_height"          , &prism_height );
   infoTree->SetBranchAddress( "prism_heightUp1"       , &prism_heightUp1 );
   infoTree->SetBranchAddress( "prism_heightUp2"       , &prism_heightUp2 );
   infoTree->SetBranchAddress( "prism_heightDown1"     , &prism_heightDown1 );
   infoTree->SetBranchAddress( "prism_heightDown2"     , &prism_heightDown2 );
+  infoTree->SetBranchAddress( "prism_width"           , &prism_width );
   infoTree->SetBranchAddress( "prism_widthUp1"        , &prism_widthUp1 );
   infoTree->SetBranchAddress( "prism_widthUp2"        , &prism_widthUp2 );
   infoTree->SetBranchAddress( "prism_widthDown1"      , &prism_widthDown1 );
@@ -137,7 +140,11 @@ void parameter( TString inFilename = ""  )
   infoTree->SetBranchAddress( "gridYstep"             , &gridYstep );
   infoTree->SetBranchAddress( "cannon_theta"          , &cannon_theta );
   infoTree->SetBranchAddress( "cannon_phi"            , &cannon_phi );
-  infoTree->SetBranchAddress( "z_offset"              , &z_offset );
+  infoTree->SetBranchAddress( "cannon_rotX"           , &cannon_rotX );
+  infoTree->SetBranchAddress( "cannon_rotY"           , &cannon_rotY );
+  infoTree->SetBranchAddress( "cannon_posX"           , &cannon_posX );
+  infoTree->SetBranchAddress( "cannon_posY"           , &cannon_posY );
+  infoTree->SetBranchAddress( "cannon_posZ"           , &cannon_posZ );
 
   infoTree->GetEntry( 0 );
 
@@ -168,16 +175,16 @@ void parameter( TString inFilename = ""  )
 
   cout << "  material:" << endl;
 
-  cout <<   "    slab:     " << slab_material << endl;
+  cout <<   "    slab:            " << slab_material << endl;
   if( opt_backLens )
     cout << "    lens (backward): " << backLens_material << endl;
   if( opt_frontLens )
     cout << "    lens (forward):  " << frontLens_material << endl;
   if( opt_prism )
-    cout << "    prism:    " << prism_material << endl;
+    cout << "    prism:           " << prism_material << endl;
   if( airgap > 0 )
-    cout << "    airBox:   " << airBox_material << endl;
-  cout <<   "    fishtank: " << fishtank_material << endl;
+    cout << "    airBox:          " << airBox_material << endl;
+  cout <<   "    fishtank:        " << fishtank_material << endl;
 
 
   cout << "  volume options:" << endl;
@@ -190,16 +197,16 @@ void parameter( TString inFilename = ""  )
 
   cout << "  fresnel:" << endl;
 
-  cout <<   "    slab:     " << slab_fresnel << endl;
+  cout <<   "    slab:            " << slab_fresnel << endl;
   if( opt_backLens )
     cout << "    lens (backward): " << backLens_fresnel << endl;
   if( opt_frontLens )
     cout << "    lens (forward):  " << frontLens_fresnel << endl;
   if( opt_prism )
-    cout << "    prism:    " << prism_fresnel << endl;
+    cout << "    prism:           " << prism_fresnel << endl;
   if( airgap > 0 )
-    cout << "    airBox:   " << airBox_fresnel << endl;
-  cout <<   "    fishtank: " << fishtank_fresnel << endl;
+    cout << "    airBox:          " << airBox_fresnel << endl;
+  cout <<   "    fishtank:        " << fishtank_fresnel << endl;
 
 
   cout << "  dimensions [mm]:" << endl;
@@ -238,15 +245,17 @@ void parameter( TString inFilename = ""  )
 
   if( opt_prism )
   {
-    cout << "    prism length: "            << prism_length      << endl;
-    cout << "    prism height (top 1): "    << prism_heightUp1   << endl;
-    cout << "    prism height (top 2): "    << prism_heightUp2   << endl;
+    cout << "    prism length:            " << prism_length      << endl;
+    cout << "    prism height:            " << prism_height      << endl;
+    cout << "    prism height (top 1):    " << prism_heightUp1   << endl;
+    cout << "    prism height (top 2):    " << prism_heightUp2   << endl;
     cout << "    prism height (bottom 1): " << prism_heightDown1 << endl;
     cout << "    prism height (bottom 2): " << prism_heightDown2 << endl;
-    cout << "    prism width (top 1): "     << prism_widthUp1    << endl;
-    cout << "    prism width (top 2): "     << prism_widthUp2    << endl;
-    cout << "    prism width (bottom 1): "  << prism_widthDown1  << endl;
-    cout << "    prism width (bottom 2): "  << prism_widthDown2  << endl;
+    cout << "    prism width:             " << prism_width       << endl;
+    cout << "    prism width (top 1):     " << prism_widthUp1    << endl;
+    cout << "    prism width (top 2):     " << prism_widthUp2    << endl;
+    cout << "    prism width (bottom 1):  " << prism_widthDown1  << endl;
+    cout << "    prism width (bottom 2):  " << prism_widthDown2  << endl;
   }
 
   cout << "    air gap: " << airgap << endl;
@@ -302,17 +311,22 @@ void parameter( TString inFilename = ""  )
       cout << "    grid const. X: " << gridXstep << " mm" << endl;
       cout << "    grid const. Y: " << gridYstep << " mm" << endl;
     }
-    if( cannon_theta == 90 )
-    {
+
+    if( cannon_theta == 180 )
       cout << "    theta: flat cos(theta)" << endl;
-      cout << "    phi:   flat phi" << endl;
-    }
     else
-    {
-      cout << "    theta:    " << cannon_theta << " deg" << endl;
-      cout << "    phi:      " << cannon_phi   << " deg" << endl;
-    }
-    cout <<   "    z offset: " << z_offset << " mm" << endl;
+      cout << "    theta:      " << cannon_theta << " deg" << endl;
+
+    if( cannon_phi == 360 )
+      cout << "    phi:   flat phi" << endl;
+    else
+      cout << "    phi:        " << cannon_phi   << " deg" << endl;
+
+    cout <<   "    rotation Y: " << cannon_rotY  << " deg" << endl;
+    cout <<   "    rotation X: " << cannon_rotX  << " deg" << endl;
+    cout <<   "    pos X: " << cannon_posX << " mm" << endl;
+    cout <<   "    pos Y: " << cannon_posY << " mm" << endl;
+    cout <<   "    pos Z: " << cannon_posZ << " mm" << endl;
     cout <<   "    reflection limit: " << refl_limit << endl;
     cout <<   "    lambda: [" << lambda_min << ", " << lambda_max << "] nm" << endl;
   }
