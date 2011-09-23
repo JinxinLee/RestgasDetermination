@@ -51,7 +51,7 @@ sim_emc(Int_t nEvents = 10, Float_t mom = 1.){
   fRun->AddModule(Cave); 
   
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
-  Emc->SetGeometryVersion(20);
+  Emc->SetGeometryVersion(1);
   // See PndEmc::SetGeometryVersion() for available geometries and add there new one if necessary
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
