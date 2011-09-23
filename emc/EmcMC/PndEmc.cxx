@@ -840,106 +840,98 @@ void PndEmc::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset ) {
 // general function for chosing the combination of EMC geometry
 void PndEmc::SetGeometryVersion(const Int_t GeoNumber) {
 
-
-  MapperVersion =6;
+  MapperVersion =1;
 
   switch(GeoNumber){
 
   case 1:
-    SetGeometryFileNameDouble("emc_module1235.dat","emc_module4_StraightGeo26.root",1);
-    MapperVersion =7;
-    break;
-
+	SetGeometryFileNameQuadruple("emc_module12.dat","emc_module3_2011_new.root","emc_module4_StraightGeo24.4.root","emc_module5_fsc.root");
+	MapperVersion =1;
+	break;
+	  
   case 2:
-    SetGeometryFileNameDouble("emc_module1235.dat","emc_module4_FwEndCapGeo.root",1);
-    MapperVersion =7;
-    break;
+	SetGeometryFileNameTriple("emc_module12.dat","emc_module3_2011_new.root","emc_module4_StraightGeo24.4.root");
+	MapperVersion =1;
+	break;
 
   case 3:
-    SetGeometryFileNameDouble("emc_module1235.dat","emc_module4_StraightGeo24.4.root",1);
-    MapperVersion =7;
-    break;
+	SetGeometryFileNameQuadruple("emc_module12.dat","emc_module3new.root","emc_module4_StraightGeo24.4.root","emc_module5_fsc.root");
+	MapperVersion =3;
+	break;
 
   case 4:
-    SetGeometryFileName("emc_module1245.dat");
-    MapperVersion =1;
-    break;
+	SetGeometryFileNameTriple("emc_module12.dat","emc_module3new.root","emc_module4_StraightGeo24.4.root");
+	MapperVersion =3;
+	break;
 
   case 5:
-    SetGeometryFileNameTriple("emc_module125.dat","emc_module3new.root","emc_module4_StraightGeo26.root");
+    SetGeometryFileName("emc_module3.dat");
+    MapperVersion =2;
     break;
 
   case 6:
-    SetGeometryFileName("emc_module3.dat");
-    MapperVersion =1;
+    SetGeometryFileName("emc_module3new.root");
+	MapperVersion =3;
     break;
 
   case 7:
-    SetGeometryFileName("emc_module4.dat");
-    MapperVersion =1;
+    SetGeometryFileName("emc_module3_2011_new.root");
+	MapperVersion =4;
     break;
 
   case 8:
-    SetGeometryFileName("emc_module3_2011_new.root");//emc_module4_StraightGeo266.root
+    SetGeometryFileName("emc_module4.dat");
+    MapperVersion =2;
     break;
 
   case 9:
     SetGeometryFileName("emc_module4_StraightGeo26.root");
+	MapperVersion =1;
     break;
 
   case 10:
     SetGeometryFileName("emc_module4_StraightGeo26_Al.root");
+	MapperVersion =1;
     break;
 
   case 11:
     SetGeometryFileName("emc_module4_StraightGeo24.4.root");
+	MapperVersion =1;
     break;
 
   case 12:
     SetGeometryFileName("emc_module4_StraightGeo24.4_Al2.root");
+	MapperVersion =1;
     break;
 
   case 13:
     SetGeometryFileName("emc_module4_FwEndCapGeo.root");
+	MapperVersion =1;
     break;
 
   case 14:
     SetGeometryFileName("emc_module4_FwEndCapGeo_Al.root");
+	MapperVersion =1;
     break;
 
   case 15:
-    SetGeometryFileNameTriple("emc_module125.dat","emc_module3_2011_new.root","emc_module4_StraightGeo24.4.root");
-    MapperVersion =6;
+    SetGeometryFileName("emc_module5_fsc.root");
+	MapperVersion =5;
     break;
 
   case 16:
-    SetGeometryFileName("emc_module5_fsc.root");
-	MapperVersion =8;
+    SetGeometryFileName("emc_module_5x5.dat");
+	MapperVersion =6;
     break;
 
   case 17:
-	SetGeometryFileNameQuadruple("emc_module12.dat","emc_module3new.root","emc_module4_StraightGeo24.4.root","emc_module5_fsc.root");
-	MapperVersion =9;
-	break;
-
-  case 18:
 	SetGeometryFileName("emc_proto60.root");
-	MapperVersion = 10;
-	break;
-
-  case 19:
-    SetGeometryFileNameTriple("emc_module12.dat","emc_module3_2011_new.root","emc_module4_StraightGeo24.4.root");
-    MapperVersion =6;
-    break;
-
-  case 20:
-	SetGeometryFileNameQuadruple("emc_module12.dat","emc_module3_2011_new.root","emc_module4_StraightGeo24.4.root","emc_module5_fsc.root");
-	MapperVersion =11;
+	MapperVersion = 7;
 	break;
 
   default:
-    SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
-    MapperVersion =2;
+	SetGeometryFileNameQuadruple("emc_module12.dat","emc_module3new.root","emc_module4_StraightGeo24.4.root","emc_module5_fsc.root");
+	MapperVersion =1;
     break;
   }
 
@@ -1064,6 +1056,7 @@ void PndEmc::ConstructGeometry() {
     }else {
       std::cout<< "You do not provide an ASCII file " <<std::endl;
     }
+    
     Bool_t bEmc3=kFALSE, bEmc4=kFALSE, bEmc5=kFALSE;
     if (fgeoName2.EndsWith("new.root")) {
       std::cout<< "                                               " <<std::endl;

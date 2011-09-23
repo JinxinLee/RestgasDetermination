@@ -22,12 +22,14 @@ public:
 	static PndEmcMapper* Instance();
 	static void Init(Int_t MapVersion);
 	const std::map<Int_t,PndEmcTwoCoordIndex* >& GetTciMap();
-
+	
 	/** Destructor **/
 	virtual ~PndEmcMapper();    
 	
 	/** Accessors **/
 	Int_t GetMapVersion()  const { return fMapVersion ;};
+	
+	void Add(PndEmcMapper*);
 	
 	PndEmcTwoCoordIndex* GetTCI(Int_t DetectorId);
 protected:
@@ -43,16 +45,10 @@ private:
 	ClassDef(PndEmcMapper,1)
 };
 
-class PndEmcMapperGeoAllDat: public PndEmcMapper
+class PndEmcMapperGeo12Dat: public PndEmcMapper
 {
 	public:
-		PndEmcMapperGeoAllDat();
-};
-
-class PndEmcMapperGeo1245Dat3Root: public PndEmcMapper
-{
-	public:
-		PndEmcMapperGeo1245Dat3Root();
+		PndEmcMapperGeo12Dat();
 };
 
 class PndEmcMapperGeo3Dat: public PndEmcMapper
@@ -67,10 +63,28 @@ class PndEmcMapperGeo3Root: public PndEmcMapper
 		PndEmcMapperGeo3Root();
 };
 
+class PndEmcMapperGeo3RootV2: public PndEmcMapper
+{
+	public:
+		PndEmcMapperGeo3RootV2();
+};
+
+class PndEmcMapperGeo4Dat: public PndEmcMapper
+{
+	public:
+		PndEmcMapperGeo4Dat();
+};
+
 class PndEmcMapperGeo4Root: public PndEmcMapper
 {
 	public:
 		PndEmcMapperGeo4Root();
+};
+
+class PndEmcMapperGeo5Dat: public PndEmcMapper
+{
+	public:
+		PndEmcMapperGeo5Dat();
 };
 
 class PndEmcMapperGeo5Root: public PndEmcMapper
@@ -79,34 +93,16 @@ class PndEmcMapperGeo5Root: public PndEmcMapper
 		PndEmcMapperGeo5Root();
 };
 
-class PndEmcMapperGeo125Dat34Root: public PndEmcMapper
+class PndEmcMapperGeo6Dat: public PndEmcMapper
 {
 	public:
-		PndEmcMapperGeo125Dat34Root();
-};
-
-class PndEmcMapperGeo12Dat345Root: public PndEmcMapper
-{
-	public:
-		PndEmcMapperGeo12Dat345Root();
-};
-
-class PndEmcMapperGeo1235Dat4Root: public PndEmcMapper
-{
-	public:
-		PndEmcMapperGeo1235Dat4Root();
+		PndEmcMapperGeo6Dat();
 };
 
 class PndEmcMapperGeoProto60Root: public PndEmcMapper
 {
 	public:
 		PndEmcMapperGeoProto60Root();
-};
-
-class PndEmcMapperGeo12Dat345Rootv2: public PndEmcMapper
-{
-	public:
-		PndEmcMapperGeo12Dat345Rootv2();
 };
 
 #endif //PndEmcMapper_H
