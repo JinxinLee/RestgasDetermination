@@ -460,7 +460,7 @@ void PndMvaTrainer::PCATransForm()
   m_dataSets.Use_PCA(true);
 }
 
-void PndMvaTrainer::SetTetsSetSize(size_t prc)
+void PndMvaTrainer::SetTestSetSize(size_t prc)
 {
   // Using all events for testing does not make sence.
   if(prc < 100)

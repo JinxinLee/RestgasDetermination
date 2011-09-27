@@ -147,9 +147,9 @@ int main(int argc, char** argv)
   numProtoMap["pion"]     = 80;
   
   // Learning parameters.
-  float initC  = 0.8;
-  float ethaZ  = 0.1;
-  float ethaF  = 0.0001;
+  float initC  = 0.8;// Only used with CCM protos
+  float ethaZ  = 0.1;// Start learn param.
+  float ethaF  = 0.0001;// Final learn param.
 
   //========= Normal training =====================
 #if (CROSS_VALIDATE == 0)
@@ -167,7 +167,7 @@ int main(int argc, char** argv)
   // tr.SetNumberOfProto(numProtoMap);
   
   // Set the size of the test set in (%)
-  tr.SetTetsSetSize(20);
+  tr.SetTestSetSize(20);
   
   tr.SetErrorStepSize(5000);//1000 (DEFALUT)
   
@@ -359,7 +359,7 @@ int main(int argc, char** argv)
     t->setProtoInitType(RAND_FROM_DATA);
 
     // Do NOT split test set.
-    t->SetTetsSetSize(0);
+    t->SetTestSetSize(0);
 
     // Assign test set indices.
     t->SetTestSet(testSets[i]);

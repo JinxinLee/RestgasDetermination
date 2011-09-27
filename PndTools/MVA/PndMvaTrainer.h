@@ -73,7 +73,7 @@ class PndMvaTrainer
    * Creates test and train data sets.
    * @param percent Percent of the data set to be used for testing.
    */
-  void SetTetsSetSize(size_t percent = 50);
+  void SetTestSetSize(size_t percent = 50);
 
   /**
    * Set the indices of events that are going to be used for testing.
