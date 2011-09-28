@@ -61,6 +61,7 @@ class PndDrcOptReflGeffcken : public PndDrcOptReflAbs
   \param normal The normal vector of the surface.
   \param n_next Refractive index of next medium.
   \param direction Photon leaving or entering volume.
+  \param poldir Direction of electrical polarisation.
   \return Reflection probability probability.
 
   The refractive index of the actual medium is accessible via 
@@ -101,7 +102,7 @@ class PndDrcOptReflGeffcken : public PndDrcOptReflAbs
   The default refrative index of materials is taken which is returned by the material
   classes for negative wavelengths.
 
-  \param switch True of false
+  \param sw True of false
   */
   void SetRefIndConst(bool sw=true) {fRefIndConst=sw;};
 };

@@ -29,6 +29,19 @@ namespace Drc
     };
 }
 
+namespace Drc
+{
+/*! \enum Drc::PolDir 
+  An enum holding the electrical polarization vector which should be computed.
+  This is important for coatings and dichroic mirrors, where the layer sequence plays a role.*/
+ enum PolDir
+    {
+      PolDirS,         //!< Polarization is perpendicular to plane of incidence.
+      PolDirP,         //!< Polarization is parallel to plane of incidence.
+      PolDirBoth,      //!< Polarization will be calculated for both, perp.and para.
+      PolDirPhot       //!< Polarization taken from Photon (not yet implemented).
+    };
+}
 
 class PndDrcPhoton;
 
@@ -114,11 +127,26 @@ class PndDrcOptReflAbs
   virtual const Drc::Reflectivity Query(const PndDrcPhoton&    ph,
 					const XYZVector        normal,
 					const double           n_next     = 1,
-					const Drc::ReflDir     direction = Drc::ReflOut) const = 0;
+					const Drc::ReflDir     direction  = Drc::ReflOut) const = 0;
 
+
+  /*! \brief Polarization direction
+
+  The electrical polarization for which the reflectivity shoul be calculated can be set. This routine returns 
+  the set value
+  \return polarization direction.
+  */
+  const Drc::PolDir PolarizationDirection(){return fPolDir;};
+  
+  /*! \brief Set electrical polarization vector
+
+  \param poldir Electrical polarization vector
+  */
+  void SetPolarizationDirection(Drc::PolDir poldir){fPolDir = poldir;};
 
   protected:
-   int                  fVerbosity;          //!< Verbosity from 0 to 5.          
+   int                  fVerbosity;          //!< Verbosity from 0 to 5.   
+   Drc::PolDir          fPolDir;             //!< Comp. for which polarization vector.
  
  private:
   /*! \brief Auxiliary function for assignment operator and copy constructor..

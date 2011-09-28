@@ -60,6 +60,7 @@ using ROOT::Math::Rotation3D;
 #include "PndDrcSurfPolyFlat.h"
 #include "PndDrcOptReflSilver.h"
 #include "PndDrcOptReflPerfect.h"
+#include "PndDrcOptReflGeffcken.h"
 #include "PndDrcOptMatLithotecQ0.h"
 #include "PndDrcOptMatMarcol7.h"
 #include "PndDrcOptMatVacuum.h"
@@ -90,13 +91,14 @@ int main(int argc, char *argv[])
   // of 145.7/1.47 = 99.1
   // or more precise: R = (300/1.47 + 10) *0.47 = 100.6
 
-  double lens_radius = 100.6;     // mm
+  double lens_radius = 99999.9;//100.6;     // mm
 
   //lens_radius = 98.6;
   //lens_radius = 30;
   
 
-  int ioption = 1; // 1=cherenkov, 2=testbeam
+  int ioption = 2; // 1=cherenkov, 2=testbeam
+  int coating = false;  
   
 
   PndDrcOptDevSys opt_system;
@@ -119,12 +121,20 @@ int main(int argc, char *argv[])
   double lens_body_hthick = 5.0;
   
 
+
+  
+
   PndDrcOptCylLens lens_quartz(half_thick,half_width,lens_body_hthick,lens_radius,99999.9);
   lens_quartz.SetOptMaterial(PndDrcOptMatLithotecQ0());
   lens_quartz.AddTransform(Transform3D(XYZVector(0,0,-lens_body_hthick)));
   lens_quartz.AddTransform(Transform3D(RotationZ(kPi/2)));
   lens_quartz.SetName("lens_quartz");
   lens_quartz.SetPrintColor(2);
+  if (coating) lens_quartz.Surface("side1")->SetReflectivity(PndDrcOptReflGeffcken());
+  lens_quartz.SetVerbosity(5);
+
+  
+
   //lens_quartz.SetVerbosity(5);
   
   opt_system.AddDevice(lens_quartz);
@@ -172,10 +182,11 @@ int main(int argc, char *argv[])
   PndDrcOptBrick ex_box(ex_box_hw,ex_box_ht,ex_box_hl);
   ex_box.SetOptMaterial(PndDrcOptMatMarcol7());
   ex_box.SetName("expansion box");
-  ex_box.Surface("side6")->SetPixel();
+  //ex_box.Surface("side6")->SetPixel();
   ex_box.AddTransform(Transform3D(XYZVector(0,0,-ex_box_hl-(2+2)*lens_body_hthick)));
   ex_box.Surface("side1")->SetPixel();
-  
+  //if (coating) ex_box.Surface("side6")->SetReflectivity(PndDrcOptReflGeffcken());
+ 
 
   opt_system.AddDevice(ex_box);
   
@@ -261,14 +272,14 @@ int main(int argc, char *argv[])
       PndDrcPhoton ph;
       ph.SetReflectionLimit(200);  
       list<PndDrcPhoton> list_photon;
-      int imax=20;
+      int imax=2;
       for (int ix=0; ix<imax; ix++)
 	//  int ix=0;
 	{
 	  for (int iy=0; iy<imax; iy++)	
 	{
 	  
-	  for (double theta=30; theta<=30; theta+=10)
+	  for (double theta=0; theta<=0; theta+=10)
 	    {    
 	      ph.SetPosition(XYZPoint(
 				      -half_width+1+ix*2*(half_width-1)/imax,

@@ -4,7 +4,7 @@
   with both x and y dimensions varying along z. 
   The naming of the surfaces is as shown here:
 
-  \image html PndDrcOptBrik1.png
+  \image html PndDrcOptBrick1.png
 */
 
 #ifndef PNDDRCOPTTRD2_H

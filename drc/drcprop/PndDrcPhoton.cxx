@@ -139,11 +139,11 @@ bool PndDrcPhoton::Refract(XYZVector normal,
   // alpaha1, alpha2 > 0
 
   if (Verbosity()>=4)
-  {
-    cout<<"     norm="<<norm.X()<<" "<<norm.Y()<<" "<<norm.Z()<<endl;
-    cout<<"     dir1="<<dir1.X()<<" "<<dir1.Y()<<" "<<dir1.Z()<<endl;
-    cout<<"     norm*dir="<<norm.Dot(dir1)<<endl;
-  }
+    {
+      cout<<"     norm="<<norm.X()<<" "<<norm.Y()<<" "<<norm.Z()<<endl;
+      cout<<"     dir1="<<dir1.X()<<" "<<dir1.Y()<<" "<<dir1.Z()<<endl;
+      cout<<"     norm*dir="<<norm.Dot(dir1)<<endl;
+    }
 
 
   double alpha1 = acos(norm.Dot(dir1));
@@ -154,76 +154,77 @@ bool PndDrcPhoton::Refract(XYZVector normal,
   if( fresnelFlag )
     reflect = Fresnel( normal, n1, ex1, n2, ex2 );
   else
-  {
-    if (sin(alpha1) * n1/n2 > 1) // only reflected for total internal reflection
-      reflect = true;
-    else
-      reflect = false;
-  }
+    {
+      if (sin(alpha1) * n1/n2 > 1) // only reflected for total internal reflection
+	reflect = true;
+      else
+	reflect = false;
+    }
 
-
+  //cout<<" Photon::Refract reflect: "<<reflect<<endl;
+  
   if( reflect ) // reflect photon
-  {
-    double random = fRan.Uniform(0.0,1.0);
+    {
+      double random = fRan.Uniform(0.0,1.0);
 
-    refract_flag = false;
+      refract_flag = false;
 
-    if( random <= diffuseProb && diffuseProb > 0 )
-      Diffuse( normal );
-    else
-      Reflect( norm );
+      if( random <= diffuseProb && diffuseProb > 0 )
+	Diffuse( normal );
+      else
+	Reflect( norm );
 
       //ph.setDirection(dir1 - 2*(norm.Dot(dir1)*norm)); // new direction ???
-    if (Verbosity()>=4) cout<<"     reflection"<<endl;
-  }
+      if (Verbosity()>=4) cout<<"     reflection"<<endl;
+    }
   else                         // refract photon
-  {
-    refract_flag = true;
-
-    if (Verbosity()>=4) cout<<"     alpha1,n1,n2 = "<<alpha1<<" "<<n1<<" "<<n2<<endl;
-
-    TComplex nIn    = TComplex( n1, ex1 );
-    TComplex nOut   = TComplex( n2, ex2 );
-
-    TComplex refr = TComplex::ASin( nIn / nOut * TMath::Sin( alpha1 ) );
-    alpha2 = refr.Re();
-
-    if( alpha2 != alpha2 ) // NaN check
-      cout << "PndDrcPhoton::Refract :  alpha2 = " << alpha2
-	   << "   Is fDirection (here: dir1) really an unit vector?" << endl;
-
-
-    XYZVector rhelp = norm.Cross(dir1);
-    XYZVector diff  = rhelp.Cross(norm);
-    diff = diff.Unit();
-
-    // diff perp to norm points in direction to the tip of vel.
-    //
-    // dir2 = norm + x*diff such that L(x*diff)/L(n) = tan(alpha2)
-    //
-    double x = tan(alpha2);
-    if (Verbosity()>=4) cout<<"     x,alpha2 = "<<x<<" "<<alpha2<<endl;
-    XYZVector dir2 = norm + x*diff;
-
-    if (Verbosity()>=4)
     {
-      cout<<"     dir2 before unit = "<<dir2.X()<<" "<<dir2.Y()<<" "<<dir2.Z()<<endl;
+      refract_flag = true;
+
+      if (Verbosity()>=4) cout<<"     alpha1,n1,n2 = "<<alpha1<<" "<<n1<<" "<<n2<<endl;
+
+      TComplex nIn    = TComplex( n1, ex1 );
+      TComplex nOut   = TComplex( n2, ex2 );
+
+      TComplex refr = TComplex::ASin( nIn / nOut * TMath::Sin( alpha1 ) );
+      alpha2 = refr.Re();
+
+      if( alpha2 != alpha2 ) // NaN check
+	cout << "PndDrcPhoton::Refract :  alpha2 = " << alpha2
+	     << "   Is fDirection (here: dir1) really an unit vector?" << endl;
+
+
+      XYZVector rhelp = norm.Cross(dir1);
+      XYZVector diff  = rhelp.Cross(norm);
+      diff = diff.Unit();
+
+      // diff perp to norm points in direction to the tip of vel.
+      //
+      // dir2 = norm + x*diff such that L(x*diff)/L(n) = tan(alpha2)
+      //
+      double x = tan(alpha2);
+      if (Verbosity()>=4) cout<<"     x,alpha2 = "<<x<<" "<<alpha2<<endl;
+      XYZVector dir2 = norm + x*diff;
+
+      if (Verbosity()>=4)
+	{
+	  cout<<"     dir2 before unit = "<<dir2.X()<<" "<<dir2.Y()<<" "<<dir2.Z()<<endl;
+	}
+      dir2 = dir2.Unit();
+      SetDirection(dir2);
+      SetPosition(Position() + 2*kEps*dir2); // bring it in new volume or outside.
+      if (Verbosity()>=4)
+	{
+	  cout<<"     refraction, brought it inside to "
+	      <<Position().X()<<" "
+	      <<Position().Y()<<" "
+	      <<Position().Z()<<endl;
+	  cout<<"     refraction, brought in direction "
+	      <<Direction().X()<<" "
+	      <<Direction().Y()<<" "
+	      <<Direction().Z()<<endl;
+	}
     }
-    dir2 = dir2.Unit();
-    SetDirection(dir2);
-    SetPosition(Position() + 2*kEps*dir2); // bring it in new volume or outside.
-    if (Verbosity()>=4)
-    {
-      cout<<"     refraction, brought it inside to "
-          <<Position().X()<<" "
-          <<Position().Y()<<" "
-          <<Position().Z()<<endl;
-      cout<<"     refraction, brought in direction "
-          <<Direction().X()<<" "
-          <<Direction().Y()<<" "
-          <<Direction().Z()<<endl;
-    }
-  }
 
   return refract_flag;
 
@@ -243,7 +244,7 @@ void PndDrcPhoton::Reflect(const XYZVector& normal)
 //----------------------------------------------------------------------
 void PndDrcPhoton::Diffuse(const XYZVector& normal)
 {
-    XYZVector normal1(normal);
+  XYZVector normal1(normal);
 
     if (fDirection.Dot(normal) < 0) normal1 *= -1;
 

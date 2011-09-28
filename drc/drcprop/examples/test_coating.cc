@@ -125,19 +125,25 @@ int main(int argc, char *argv[])
   fstream out;
   out.open("debug.dat",std::ios::out);
   
+
+  bool in = true; // in and out
+  double theta=0; 
+  refl.SetPolarizationDirection(Drc::PolDirPhot);
+  
   
   for (double lambda=400; lambda<701; lambda+=1)
     {
-      double theta=0; 
-      ph.SetPosition(XYZPoint(0,0,1));
-      double z = -cos(theta*kPi/180);
+      (in) ? ph.SetPosition(XYZPoint(0,0,-1)) :  ph.SetPosition(XYZPoint(0,0,1));
+      double z = (in) ? cos(theta*kPi/180) : -cos(theta*kPi/180);
       double y = sin(theta*kPi/180);
       ph.SetDirection(XYZVector(0,y,z));
       ph.SetWavelength(lambda);
-      ph.SetDevice(&brick1); 
+      (in) ? ph.SetDevice(&brick2) : ph.SetDevice(&brick1); 
       
       //double refl_prob = refl.ReflProb(ph,XYZVector(0,0,-1),bk7.RefIndex(lambda),Drc::ReflIn);
-      double refl_prob = refl.ReflProb(ph,XYZVector(0,0,-1),1.0,Drc::ReflOut);
+      double refl_prob = (in) ? 
+	refl.ReflProb(ph,XYZVector(0,0, 1),1.5,Drc::ReflIn) :
+	refl.ReflProb(ph,XYZVector(0,0,-1),1.0,Drc::ReflOut) ;
       
       
       cout<<lambda<<" "<<refl_prob<<endl;

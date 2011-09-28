@@ -55,6 +55,7 @@ using std::endl;
 PndDrcOptReflAbs::PndDrcOptReflAbs()
 {
   fVerbosity      = 0;
+  fPolDir         = Drc::PolDirBoth;
 }
 //----------------------------------------------------------------------
 PndDrcOptReflAbs::~PndDrcOptReflAbs()
@@ -65,6 +66,8 @@ PndDrcOptReflAbs::~PndDrcOptReflAbs()
 void PndDrcOptReflAbs::Copy(const PndDrcOptReflAbs& s)
 {
   fVerbosity   = s.fVerbosity;
+  fPolDir      = s.fPolDir;
+  
 }
 //----------------------------------------------------------------------
 PndDrcOptReflAbs::PndDrcOptReflAbs(const PndDrcOptReflAbs& s)

@@ -8,7 +8,7 @@
 #include <iostream>
 #include <iomanip>
 using std::cout;
-//using std::cerr;
+using std::cerr;
 //using std::cin;
 using std::endl;
 using std::hex;
@@ -32,7 +32,9 @@ PndDrcOptReflGeffcken::PndDrcOptReflGeffcken()
   fLayerMaterialLow  = new PndDrcOptMatLithotecQ0();
   fLayerMaterialHigh = new PndDrcOptMatTiO2();
 
-  double quarterlambda = 520/4;
+  double quarterlambda = 520/4; // that is vaccuum wave length
+  // normally one has to take the wavelength within the material.
+  // This cancels later with h = n*d*cos(th)
   
   // 1st layer is close to object (substrate)
   fLayerThicknessVector.push_back(0.231*quarterlambda);
@@ -48,6 +50,9 @@ PndDrcOptReflGeffcken::PndDrcOptReflGeffcken()
   fLayerMaterialVector.push_back(fLayerMaterialLow);
   // last layer is outside layer
   
+  fRefIndConst = false;
+  
+ 
 }
 //----------------------------------------------------------------------
 PndDrcOptReflGeffcken::~PndDrcOptReflGeffcken()
@@ -138,6 +143,9 @@ const double PndDrcOptReflGeffcken::ReflProb(const PndDrcPhoton&    ph,
 {
   const double pi = 3.1415926535;
 
+
+  
+
   int fac_orig = 1;
   if (fRefIndConst) fac_orig=-1; // -1: factor to get constant refractive indices for check with Geffckens
   //                                    original curve
@@ -185,22 +193,18 @@ const double PndDrcOptReflGeffcken::ReflProb(const PndDrcPhoton&    ph,
   double ns = n_next;
   double n1 = 0;
 
-
   // electric & magnetic vector
   double theta_s  = asin((n0/ns)*sin(acos(costh)));
-  double Ys       = ns  * cos(theta_s);
+
+  // S stands for "senkrecht". The electric vector is perp. to the plane of incidence. 
+  complex <double> EoutS;
+  complex <double> HoutS;
+  double Y0S = n0  * cos(acos(costh));// Y optical admittance Y=H/E
+  double YsS = ns  * cos(theta_s);
+
   complex <double> Ein(100.0,0);
-  complex <double> Hin(100.0*Ys,0);
-  complex <double> Eout;
-  complex <double> Hout;
+  complex <double> Hin(100.0*YsS,0);
 
-  double Y0 = n0  * cos(acos(costh));
-
-  //cout<<real(Ein)<<" start: "<<imag(Ein)<<" "<<real(Hin)<<" "<<imag(Hin)<<endl;
-  
-
-  complex <double> out1;
-  complex <double> out2;
 
   for (int ilayer = istart; ilayer != iend; ilayer += istep)
     {
@@ -208,35 +212,85 @@ const double PndDrcOptReflGeffcken::ReflProb(const PndDrcPhoton&    ph,
       
       double theta1 = asin((n0/n1)*sin(acos(costh))); 
       double k = 2*pi/lambda;  // nm-1
-      double h = fLayerThicknessVector[ilayer] * cos(theta1);// * fLayerMaterialVector[ilayer]->RefIndex(lambda);
-      double e0bymu0 = 1.0;//????
-      double Y = e0bymu0 * n1  * cos(theta1);
-      //cout<<" i,Y,kh: "<<ilayer<<" "<<Y<<" "<<k*h<<endl;
-      
+      double h = fLayerThicknessVector[ilayer] * cos(theta1);
+      //* fLayerMaterialVector[ilayer]->RefIndex(fac_orig*lambda); 
+      // is already within the layer thickness! See there...
+      //double e0bymu0 = 1.0;//????
+      double Y = /*e0bymu0 */ n1  * cos(theta1); // Senkrecht
       complex <double> m11_6(cos(k*h) ,                 0);
       complex <double> m12_6(0               , sin(k*h)/Y);
       complex <double> m21_6(0               , sin(k*h)*Y);
       complex <double> m22_6(cos(k*h) ,                 0);
       Matrix M(m11_6,m12_6,m21_6,m22_6);
-      
-      M.product(Eout,Hout,Ein,Hin);
-     
-      //cout<<real(Ein)<<" "<<imag(Ein)<<" "<<real(Hin)<<" "<<imag(Hin)<<" "<<k<<" "<<h<<endl;
-
-
-
-      Ein = Eout;
-      Hin = Hout;
+      M.product(EoutS,HoutS,Ein,Hin); // Senkrecht
+      Ein = EoutS; // Senkrecht
+      Hin = HoutS; // Senkrecht
     }
   
-  
-  complex <double> er1 = (Eout-Hout/Y0)/2;
-  complex <double> ei1 = (Eout+Hout/Y0)/2;
-  
-  complex <double> r = er1/ei1;
-    
-  return real(r*conj(r));
+   // P stands for "parallel". The electric vector is parallel to the plane of incidence. 
+  complex <double> EoutP;
+  complex <double> HoutP;
+  double Y0P = n0  * cos(acos(costh));
+  double YsP = ns  * cos(theta_s);
+
+  Ein = complex <double> (100.0,0);
+  Hin = complex <double> (100.0*YsP,0);
+ 
+
+  for (int ilayer = istart; ilayer != iend; ilayer += istep)
+    {
+      n1 = fLayerMaterialVector[ilayer]->RefIndex(fac_orig*lambda);
+      
+      double theta1 = asin((n0/n1)*sin(acos(costh))); 
+      double k = 2*pi/lambda;  // nm-1
+      double h = fLayerThicknessVector[ilayer] * cos(theta1);
+      //* fLayerMaterialVector[ilayer]->RefIndex(fac_orig*lambda); 
+      // is already within the layer thickness! See there...
+      //double e0bymu0 = 1.0;//????
+      double Y = /*e0bymu0 */ n1  / cos(theta1); // Parallel
+      complex <double> m11_6(cos(k*h) ,                 0);
+      complex <double> m12_6(0               , sin(k*h)/Y);
+      complex <double> m21_6(0               , sin(k*h)*Y);
+      complex <double> m22_6(cos(k*h) ,                 0);
+      Matrix M(m11_6,m12_6,m21_6,m22_6);
+      M.product(EoutP,HoutP,Ein,Hin); // Parallel
+      Ein = EoutP; // Parallel
+      Hin = HoutP; // Parallel
+    }
   
 
+
+
+
+  complex <double> er1S = (EoutS-HoutS/Y0S)/2;
+  complex <double> ei1S = (EoutS+HoutS/Y0S)/2;
+  complex <double> er1P = (EoutP-HoutP/Y0P)/2;
+  complex <double> ei1P = (EoutP+HoutP/Y0P)/2;
+  
+  complex <double> rS = er1S/ei1S;
+  complex <double> rP = er1P/ei1P;
+    
+  if      (fPolDir == Drc::PolDirS)
+    {
+      return real(rS*conj(rS));
+    }
+  else if (fPolDir == Drc::PolDirP)
+    {
+      return real(rP*conj(rP));
+    }
+  else if (fPolDir == Drc::PolDirBoth)
+    {
+      return real((rP+rS)/2 *conj((rP+rS)/2));
+    }
+  else if (fPolDir == Drc::PolDirPhot)
+    {
+      cerr<<" *** PndDrcOptReflGeffcken::ReflProb Drc::PolDirPhot not imlemented"<<endl;
+      exit(EXIT_FAILURE);
+    }
+  else
+    {
+      cerr<<" *** PndDrcOptReflGeffcken::ReflProb invalid Drc::PolDir"<<endl;
+      exit(EXIT_FAILURE);
+    }
 
 }
