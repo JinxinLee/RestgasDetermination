@@ -112,15 +112,15 @@ Double_t TtCracowTask::distance2Single(double x,double y,double z,double ex,doub
    // where ux is direction of line and x0 is a point in the line (like t = 0) 
 
    TVector3 ddd(0,0,0);
-   double d2=-999999999999;
+   double d2=-999999.;
 
-   if (ex < 10000) //  this means only x
+   if (ex < 10000.) //  this means only x
      {
         ddd.SetXYZ(x-(par[1]*z +par[0]),0.,0.);
 	d2 = ddd.Mag2(); 	
      }
 	
-   if (ey < 10000) //  this means only y
+   if (ey < 10000.) //  this means only y
      {
 	ddd.SetXYZ(0.,y-(par[3]*z +par[2]),0.);
 	d2 = ddd.Mag2(); 	
@@ -149,19 +149,19 @@ void TtCracowTask::SumDistance2(int &, double *, double & sum, double * par, int
    //for (int i  = 0; i < 3 ; ++i) {
    for (int i  = 0; i < npoints ; ++i) {
        //std::cout << "Sensor: " << i;
-      if ((Ex[i] < 10000) && (Ey[i] < 10000))
+      if ((Ex[i] < 10000.) && (Ey[i] < 10000.))
       {
 	//std::cout << " - Double Sided" << std::endl;
       	d = distance2(x[i],y[i],z[i],par);
       }
 
-      if ((Ex[i] > 10000) && (Ey[i] > 10000))
+      if ((Ex[i] > 10000.) && (Ey[i] > 10000.))
       {
 	//std::cout << " - Wrong Errors!" << std::endl;
        	d = 0.;
       }
 
-      if ((Ex[i] > 10000) || (Ey[i] > 10000))
+      if ((Ex[i] > 10000.) || (Ey[i] > 10000.))
       {
 	//std::cout << " - Single Sided" << std::endl;
       	d = distance2Single(x[i],y[i],z[i],Ex[i],Ey[i],Ez[i],par);
@@ -227,10 +227,12 @@ void TtCracowTask::Exec(Option_t* opt)
 	  
       }
     
-      const Int_t sizeMap = SensorsPos.size();
+      const Int_t sizeMap = (Int_t) SensorsPos.size();
 	   
       Int_t DetNames[sizeMap];
       Double_t Pos[sizeMap];
+
+      
       Int_t jj = 0;
 
       if (SensorsPos.size()>=6)
@@ -374,8 +376,8 @@ void TtCracowTask::Exec(Option_t* opt)
  	  for (Int_t ww = 0 ; ww < 6 ; ww++)
  	    { // setting big errors for the bottom side
  	      {
- 		if (TMath::Abs(Erx[ww]) > 0.5) Erx[ww] = 1000000;
- 		if (TMath::Abs(Ery[ww]) > 0.5) Ery[ww] = 1000000;
+ 		if (TMath::Abs(Erx[ww]) > 0.5) Erx[ww] = 10000.;
+ 		if (TMath::Abs(Ery[ww]) > 0.5) Ery[ww] = 10000.;
  	      }
 	      
  	      //	      std::cout << "(" << x[ww] << "," <<  y[ww] << "," <<  z[ww] << ")" << std::endl;
