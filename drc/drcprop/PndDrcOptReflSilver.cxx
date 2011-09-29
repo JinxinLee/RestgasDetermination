@@ -61,7 +61,7 @@ const
   double ref_prob = 0.96 + (lambda-400.0)/600.0 * 0.02;
   if (ref_prob>0.98) ref_prob=0.98;
 
-  double ran = fRan.Uniform(0.0,1.0);
+  double ran = gRandom->Uniform(0.0,1.0);
 
   if (ran>ref_prob || lambda<400)
     {

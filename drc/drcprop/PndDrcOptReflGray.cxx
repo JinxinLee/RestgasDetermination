@@ -22,7 +22,7 @@ const Drc::Reflectivity PndDrcOptReflGray::Query(const PndDrcPhoton&    ph,
   double lambda = ph.Wavelength();
 
 
-  double ran = fRan.Uniform(0.0,1.0);
+  double ran = gRandom->Uniform(0.0,1.0);
 
   if (ran>fReflProb || lambda<400)
     {

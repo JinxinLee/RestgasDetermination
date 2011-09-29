@@ -58,7 +58,6 @@ void PndDrcOptMatNLAK33A::Copy(const PndDrcOptMatNLAK33A& mat)
   fC2  = mat.fC2;
   fB3  = mat.fB3;
   fC3  = mat.fC3;
-  fRan = mat.fRan;
 }//----------------------------------------------------------------------
 PndDrcOptMatNLAK33A::PndDrcOptMatNLAK33A(const PndDrcOptMatNLAK33A& mat)
   : PndDrcOptMatAbs(mat)
@@ -161,7 +160,7 @@ bool PndDrcOptMatNLAK33A::AbsorptionFlag(double lambda, double length) const
   // clarity at lambda!
   //double trans = exp(-(length)/(clarity*pow(lambda/663,4)));
   double trans = exp(-(length)/clarity);
-  double cmp   = fRan.Uniform(1.0);
+  double cmp   = gRandom->Uniform(1.0);
 
 
   if (cmp>trans)

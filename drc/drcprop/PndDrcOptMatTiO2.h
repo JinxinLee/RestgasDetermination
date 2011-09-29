@@ -48,7 +48,6 @@ class PndDrcOptMatTiO2 : public PndDrcOptMatAbs
   double  fB0;                          //!<   Coefficient for refractive index.
   double  fC0;                          //!<   Coefficient for refractive index.
   double  fNinf;                        //!<   Coefficient for refractive index.
-  mutable TRandom3 fRan;                //!<   Random generator.
 
  private:
   /*! \brief Auxiliary function for assignment operator and copy constructor..

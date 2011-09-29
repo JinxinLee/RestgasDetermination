@@ -634,7 +634,7 @@ bool PndDrcOptDevManager::Cerenkov(const string& vol_name, const string& sys_nam
         // sample a lambda distribution with a 1/lambda^2 shape.
         x1     = 1.0/lam2;               // inv. lambda start at x1
         x2     = 1.0/lam1;               // inv. lambda end at x2
-        x      = fRan.Uniform(x1,x2);  // inv. lambda random range
+        x      = gRandom->Uniform(x1,x2);  // inv. lambda random range
         lambda = 1.0/x;                        // yields 1/lambda^2 dist.
         //cout<<" x,lambda="<<x<<" "<<lambda<<endl;//###
         double n = dev->OptMaterial().RefIndex(lambda);
@@ -642,9 +642,9 @@ bool PndDrcOptDevManager::Cerenkov(const string& vol_name, const string& sys_nam
       } while (costh>1);
 
       diff = r2 - r1;
-      r    = r1 + fRan.Uniform(1.0)*diff;
+      r    = r1 + gRandom->Uniform(1.0)*diff;
       beta_ph   = diff.Unit();      // velocity vector with length 1
-      dphi      = fRan.Uniform(0,2*kPi);
+      dphi      = gRandom->Uniform(0,2*kPi);
 
 
       //cout<<dphi<<endl;//###

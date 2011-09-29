@@ -57,7 +57,7 @@ const Drc::Reflectivity PndDrcOptReflSurf::Query(const PndDrcPhoton&    ph,
 						 const Drc::ReflDir     direction) 
   const
 {
-  double ran = fRan.Uniform(0.0,1.0);
+  double ran = gRandom->Uniform(0.0,1.0);
  
 
   if (ran<fProb)

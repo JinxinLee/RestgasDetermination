@@ -51,8 +51,6 @@ class PndDrcOptMatLithotecQ0 : public PndDrcOptMatAbs
   double  fE1;                          //!<  Sellmeier coefficient for refractive index.
   double  fF2;                          //!<  Sellmeier coefficient for refractive index.
   double  fE2;                          //!<  Sellmeier coefficient for refractive index.
-  mutable TRandom3 fRan;                //!<  Random generator.
-
  private:
   /*! \brief Auxiliary function for assignment operator and copy constructor..
     \param s The object to copy.

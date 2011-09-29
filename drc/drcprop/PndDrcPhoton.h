@@ -297,7 +297,6 @@ class PndDrcPhoton
   double           fTime;                          //!< Time of flight.
   int              fReflectionLimit;               //!< Reflection limit.
   bool             fPrintFlag;                     //!< Print flag, by default true
-  TRandom3         fRan;                           //!< Random generator.
 
 
   /*! \brief Copy function for assigment and copy operator.

@@ -47,7 +47,6 @@ PndDrcEffiPerfect* PndDrcEffiPerfect::Clone() const
 //----------------------------------------------------------------------
 void PndDrcEffiPerfect::Copy(const PndDrcEffiPerfect& effi)
 {
-  //fRan = effi.fRan;
 }//----------------------------------------------------------------------
 PndDrcEffiPerfect::PndDrcEffiPerfect(const PndDrcEffiPerfect& effi)
   : PndDrcEffiAbs(effi)

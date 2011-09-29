@@ -66,8 +66,6 @@ class PndDrcOptReflAbs
   PndDrcOptReflAbs();
   
 
-  //!                                             Random generator.
-  mutable TRandom3 fRan;
 
  public:
 

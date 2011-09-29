@@ -53,7 +53,6 @@ void PndDrcOptMatMarcol7::Copy(const PndDrcOptMatMarcol7& mat)
   fNd      = mat.fNd;
   fB       = mat.fB;
   fLambdaD = mat.fLambdaD;
-  fRan = mat.fRan;
 }//----------------------------------------------------------------------
 PndDrcOptMatMarcol7::PndDrcOptMatMarcol7(const PndDrcOptMatMarcol7& mat)
   : PndDrcOptMatAbs(mat)
@@ -104,7 +103,7 @@ bool PndDrcOptMatMarcol7::AbsorptionFlag(double lambda, double length) const
   else if (lambda<600) att = 0.00002;
   else                 att = 0.00001;
 
-  if (fRan.Uniform(1.0) < att*length)
+  if (gRandom->Uniform(1.0) < att*length)
     {
       return true; //absorbed
     }

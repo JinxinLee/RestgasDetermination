@@ -54,7 +54,6 @@ void PndDrcOptMatLithotecQ0::Copy(const PndDrcOptMatLithotecQ0& mat)
   fE1  = mat.fE1;
   fF2  = mat.fF2;
   fE2  = mat.fE2;
-  fRan = mat.fRan;
 }//----------------------------------------------------------------------
 PndDrcOptMatLithotecQ0::PndDrcOptMatLithotecQ0(const PndDrcOptMatLithotecQ0& mat)
   : PndDrcOptMatAbs(mat)
@@ -133,7 +132,7 @@ bool PndDrcOptMatLithotecQ0::AbsorptionFlag(double lambda, double length) const
   static const double kClarity = 2100*1000; // BaBar: @ 633 nm in mm (2100 m) (=335m at 400nm)
 
   double trans = exp(-(length)/(kClarity*pow(lambda/633,4)));
-  double cmp   = fRan.Uniform(1.0);
+  double cmp   = gRandom->Uniform(1.0);
 
 
   if (cmp>trans)

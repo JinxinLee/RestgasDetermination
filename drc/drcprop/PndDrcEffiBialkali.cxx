@@ -20,20 +20,6 @@ using std::cerr;
 using std::endl;
 //
 #include <cmath>
-//#include <valarray>
-//using std::valarray;
-//
-//#include <fstream>
-//using std::fstream;
-//
-//#include <string>
-//using std::string;
-//
-//#include <list>
-//using std::list;
-
-//PndDrcEffiBialkali::fRan.SetSeed();
-TRandom3  PndDrcEffiBialkali::fRan;
 
 //----------------------------------------------------------------------
 PndDrcEffiBialkali::PndDrcEffiBialkali()
@@ -90,7 +76,6 @@ PndDrcEffiBialkali* PndDrcEffiBialkali::Clone() const
 //----------------------------------------------------------------------
 void PndDrcEffiBialkali::Copy(const PndDrcEffiBialkali& effi)
 {
-  fRan       = effi.fRan;
   for (int i=0; i<70; i++)
     {
       fEffiArray[i] = effi.fEffiArray[i];
@@ -121,7 +106,7 @@ PndDrcEffiBialkali& PndDrcEffiBialkali::operator=(const PndDrcEffiBialkali& effi
 bool PndDrcEffiBialkali::EffiFlag(double lambda, double cosine) const
 {
 
-  if (lambda < 700 && (fRan.Uniform() < fEffiArray[(int)(lambda/10+0.5)]))
+  if (lambda < 700 && (gRandom->Uniform() < fEffiArray[(int)(lambda/10+0.5)]))
     {
       return true;
     }

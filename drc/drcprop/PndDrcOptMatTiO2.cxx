@@ -65,7 +65,6 @@ void PndDrcOptMatTiO2::Copy(const PndDrcOptMatTiO2& mat)
   fB0  = mat.fB0;
   fC0  = mat.fC0;
   fNinf= mat.fNinf;
-  fRan = mat.fRan;
 }//----------------------------------------------------------------------
 PndDrcOptMatTiO2::PndDrcOptMatTiO2(const PndDrcOptMatTiO2& mat)
   : PndDrcOptMatAbs(mat)

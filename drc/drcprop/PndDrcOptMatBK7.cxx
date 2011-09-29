@@ -57,7 +57,6 @@ void PndDrcOptMatBK7::Copy(const PndDrcOptMatBK7& mat)
   fC2  = mat.fC2;
   fB3  = mat.fB3;
   fC3  = mat.fC3;
-  fRan = mat.fRan;
 }//----------------------------------------------------------------------
 PndDrcOptMatBK7::PndDrcOptMatBK7(const PndDrcOptMatBK7& mat)
   : PndDrcOptMatAbs(mat)
@@ -161,7 +160,7 @@ bool PndDrcOptMatBK7::AbsorptionFlag(double lambda, double length) const
   // clarity at lambda!
   //double trans = exp(-(length)/(clarity*pow(lambda/663,4)));
   double trans = exp(-(length)/clarity);
-  double cmp   = fRan.Uniform(1.0);
+  double cmp   = gRandom->Uniform(1.0);
 
 
   if (cmp>trans)

@@ -60,7 +60,6 @@ void PndDrcOptMatMgF2::Copy(const PndDrcOptMatMgF2& mat)
   fC2  = mat.fC2;
   fB3  = mat.fB3;
   fC3  = mat.fC3;
-  fRan = mat.fRan;
 }//----------------------------------------------------------------------
 PndDrcOptMatMgF2::PndDrcOptMatMgF2(const PndDrcOptMatMgF2& mat)
   : PndDrcOptMatAbs(mat)

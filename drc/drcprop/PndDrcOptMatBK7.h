@@ -48,7 +48,6 @@ class PndDrcOptMatBK7 : public PndDrcOptMatAbs
   double  fC1;                          //!<   Sellmeier coefficient for refractive index.
   double  fC2;                          //!<   Sellmeier coefficient for refractive index.
   double  fC3;                          //!<   Sellmeier coefficient for refractive index.
-  mutable TRandom3 fRan;                //!<   Random generator.
 
  private:
   /*! \brief Auxiliary function for assignment operator and copy constructor..

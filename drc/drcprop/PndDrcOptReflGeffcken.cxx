@@ -125,7 +125,7 @@ const Drc::Reflectivity PndDrcOptReflGeffcken::Query(const PndDrcPhoton&    ph,
 						     const Drc::ReflDir     direction) const
 {
 
-  if (fRan.Uniform() < ReflProb(ph,normal,n_next,direction) )
+  if (gRandom->Uniform() < ReflProb(ph,normal,n_next,direction) )
     {
       return Drc::ReflReflected;
     }

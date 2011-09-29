@@ -58,7 +58,6 @@ void PndDrcOptMatLiF::Copy(const PndDrcOptMatLiF& mat)
   fC2  = mat.fC2;
   fB3  = mat.fB3;
   fC3  = mat.fC3;
-  fRan = mat.fRan;
 }//----------------------------------------------------------------------
 PndDrcOptMatLiF::PndDrcOptMatLiF(const PndDrcOptMatLiF& mat)
   : PndDrcOptMatAbs(mat)

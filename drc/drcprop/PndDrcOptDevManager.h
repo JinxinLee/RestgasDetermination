@@ -257,7 +257,6 @@ class PndDrcOptDevManager
  private:
   static PndDrcOptDevManager* fgInstance;         //!< The instance.
   int                         fVerbosity;         //!< Verbosity from 0 to 5.
-  TRandom3                    fRan;               //!< Random generator.
   map<string,PndDrcOptDev*>   fMapDev;            //!< Map of device pointers.
   list<PndDrcOptDevSys*>      fListDevSys;        //!< List of optical devices.
   list<PndDrcPhoton>          fListPhoton;        //!< List of photons.

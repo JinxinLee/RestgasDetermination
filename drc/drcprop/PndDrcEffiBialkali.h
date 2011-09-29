@@ -44,8 +44,6 @@ class PndDrcEffiBialkali : public PndDrcEffiAbs
     \param s The object to copy.
   */
   void Copy(const PndDrcEffiBialkali& s);
-
-  static  TRandom3 fRan;                //!<   Random generator.
   double fEffiArray[80];                //!<   Array holding the efficiencies.
 };
 

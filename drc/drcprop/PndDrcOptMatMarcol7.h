@@ -39,9 +39,6 @@ class PndDrcOptMatMarcol7 : public PndDrcOptMatAbs
   bool   AbsorptionFlag(double lambda, double length) const;
   string Name() const {return fName;};
 
- protected:
-
-  mutable TRandom3 fRan;                //!<   Random generator.
 
  private:
 

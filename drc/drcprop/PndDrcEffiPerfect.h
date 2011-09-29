@@ -36,8 +36,6 @@ class PndDrcEffiPerfect : public PndDrcEffiAbs
   bool   EffiFlag(double lambda, double cosine) const;
   string Name() const {return fName;};
 
-  //protected:
-  //static  TRandom3 fRan;                //!<   Random generator.
 
 
  private:
@@ -49,5 +47,4 @@ class PndDrcEffiPerfect : public PndDrcEffiAbs
 
 };
 
-//TRandom3  PndDrcEffiPerfect::fRan;
 #endif

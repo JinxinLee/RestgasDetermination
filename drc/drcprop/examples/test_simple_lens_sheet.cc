@@ -98,14 +98,14 @@ int main(int argc, char *argv[])
   
 
   int ioption = 2; // 1=cherenkov, 2=testbeam
-  int coating = false;  
+  int coating = true;  
   
 
   PndDrcOptDevSys opt_system;
   
   PndDrcOptBrick sheet(half_width,half_thick,half_length);
   //sheet.Surface("side6")->SetReflectivity(PndDrcOptReflSilver());
-  sheet.Surface("side6")->SetReflectivity(PndDrcOptReflPerfect());
+  //sheet.Surface("side6")->SetReflectivity(PndDrcOptReflPerfect());
   sheet.SetOptMaterial(PndDrcOptMatLithotecQ0());
   sheet.SetName("sheet");
   // move sheet such into positive z space such that end of sheet is at z=0
@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
   lens_quartz.SetName("lens_quartz");
   lens_quartz.SetPrintColor(2);
   if (coating) lens_quartz.Surface("side1")->SetReflectivity(PndDrcOptReflGeffcken());
-  lens_quartz.SetVerbosity(5);
+  //lens_quartz.SetVerbosity(5);
 
   
 
@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
       PndDrcPhoton ph;
       ph.SetReflectionLimit(200);  
       list<PndDrcPhoton> list_photon;
-      int imax=2;
+      int imax=30;
       for (int ix=0; ix<imax; ix++)
 	//  int ix=0;
 	{
@@ -287,9 +287,11 @@ int main(int argc, char *argv[])
 				      half_length));
 	      double z = cos(theta*kPi/180);
 	      double y = sin(theta*kPi/180);
-	      ph.SetDirection(XYZVector(0,y,z));
-	      ph.SetWavelength(600-5*abs(theta));
+	      ph.SetDirection(XYZVector(0,y,-z));
+	      ph.SetWavelength(550);
 	      ph.SetDevice(manager->Device("sheet")); 
+	      //ph.SetSeed();
+	      
 	      list_photon.push_back(ph);
 	    }
 	}
@@ -369,10 +371,10 @@ int main(int argc, char *argv[])
   scr.close();
   
   int icnt = icnt_measured+icnt_flying+icnt_lost+icnt_absorbed;
-  cout<<" generated photons: "<<icnt<<endl;
-  cout<<" measured  photons: "<<icnt_measured<<endl;
-  cout<<" absorbed  photons: "<<icnt_absorbed<<endl;
-  cout<<" lost      photons: "<<icnt_lost<<endl;
+  cout<<" generated photons: "<<icnt<<" \t100%"<<endl;
+  cout<<" measured  photons: "<<icnt_measured<<" \t"<<icnt_measured/float(icnt)*100<<endl;
+  cout<<" absorbed  photons: "<<icnt_absorbed<<" \t\t"<<icnt_absorbed/float(icnt)*100<<endl;
+  cout<<" lost      photons: "<<icnt_lost<<" \t\t"<<icnt_lost/float(icnt)*100<<endl;
 
   delete manager;
 
