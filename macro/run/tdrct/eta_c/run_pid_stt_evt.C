@@ -72,7 +72,7 @@
   fRun->AddTask(assStt);
  
   // -----   Intialise and run   --------------------------------------------
-  PndEmcMapper::Init(6);
+  PndEmcMapper::Init(1);
   fRun->Init();
   fRun->Run(0,nEvents);
   // ------------------------------------------------------------------------

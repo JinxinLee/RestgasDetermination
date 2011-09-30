@@ -70,7 +70,7 @@ run_sim_stt_evt(Int_t nEvents=10, UInt_t seed=0){
   fRun->AddModule(Mvd);
 
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
-  Emc->SetGeometryVersion(19); 
+  Emc->SetGeometryVersion(2); 
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
 
