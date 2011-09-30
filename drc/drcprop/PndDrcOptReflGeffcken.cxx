@@ -32,7 +32,7 @@ PndDrcOptReflGeffcken::PndDrcOptReflGeffcken()
   fLayerMaterialLow  = new PndDrcOptMatLithotecQ0();
   fLayerMaterialHigh = new PndDrcOptMatTiO2();
 
-  double quarterlambda = 520/4; // that is vaccuum wave length
+  double quarterlambda = 400/4; // that is vaccuum wave length
   // normally one has to take the wavelength within the material.
   // This cancels later with h = n*d*cos(th)
   
@@ -125,12 +125,19 @@ const Drc::Reflectivity PndDrcOptReflGeffcken::Query(const PndDrcPhoton&    ph,
 						     const Drc::ReflDir     direction) const
 {
 
-  if (gRandom->Uniform() < ReflProb(ph,normal,n_next,direction) )
+  double ran = gRandom->Uniform();
+  double reflprob =  ReflProb(ph,normal,n_next,direction);
+  
+  //if (ran>=reflprob) cout<<" ran,refl_prob "<<ran<<" "<<reflprob<<endl; //###
+  
+  if ( ran < reflprob )
     {
       return Drc::ReflReflected;
     }
   else
     {
+      //cout<<" transmitted"<<endl;//###
+      
       return Drc::ReflTransmitted;
     }
 }

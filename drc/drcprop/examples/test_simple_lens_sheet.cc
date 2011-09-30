@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
   //lens_radius = 30;
   
 
-  int ioption = 2; // 1=cherenkov, 2=testbeam
+  int ioption = 1; // 1=cherenkov, 2=testbeam
   int coating = true;  
   
 
@@ -185,7 +185,7 @@ int main(int argc, char *argv[])
   //ex_box.Surface("side6")->SetPixel();
   ex_box.AddTransform(Transform3D(XYZVector(0,0,-ex_box_hl-(2+2)*lens_body_hthick)));
   ex_box.Surface("side1")->SetPixel();
-  //if (coating) ex_box.Surface("side6")->SetReflectivity(PndDrcOptReflGeffcken());
+  if (coating) ex_box.Surface("side6")->SetReflectivity(PndDrcOptReflGeffcken());
  
 
   opt_system.AddDevice(ex_box);
@@ -249,8 +249,8 @@ int main(int argc, char *argv[])
   // create a list of photons in sheet
 
   XYZPoint  pos(0,-half_thick-10.0,half_length);
-  XYZVector dir(0,1,1); 
-  double   beta = 0.684;
+  XYZVector dir(0,1,-1); 
+  double   beta = 0.80;//0.684;
   bool photons_exist = false;
   
   if (ioption==1)
@@ -372,9 +372,9 @@ int main(int argc, char *argv[])
   
   int icnt = icnt_measured+icnt_flying+icnt_lost+icnt_absorbed;
   cout<<" generated photons: "<<icnt<<" \t100%"<<endl;
-  cout<<" measured  photons: "<<icnt_measured<<" \t"<<icnt_measured/float(icnt)*100<<endl;
-  cout<<" absorbed  photons: "<<icnt_absorbed<<" \t\t"<<icnt_absorbed/float(icnt)*100<<endl;
-  cout<<" lost      photons: "<<icnt_lost<<" \t\t"<<icnt_lost/float(icnt)*100<<endl;
+  cout<<" measured  photons: "<<icnt_measured<<" \t"<<icnt_measured/float(icnt)*100<<"%"<<endl;
+  cout<<" absorbed  photons: "<<icnt_absorbed<<" \t\t"<<icnt_absorbed/float(icnt)*100<<"%"<<endl;
+  cout<<" lost      photons: "<<icnt_lost<<" \t\t"<<icnt_lost/float(icnt)*100<<"%"<<endl;
 
   delete manager;
 

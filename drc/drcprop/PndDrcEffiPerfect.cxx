@@ -20,19 +20,6 @@ using std::cerr;
 using std::endl;
 //
 #include <cmath>
-//#include <valarray>
-//using std::valarray;
-//
-//#include <fstream>
-//using std::fstream;
-//
-//#include <string>
-//using std::string;
-//
-//#include <list>
-//using std::list;
-
-//PndDrcEffiPerfect::fRan.SetSeed();
 
 //----------------------------------------------------------------------
 PndDrcEffiPerfect::PndDrcEffiPerfect()

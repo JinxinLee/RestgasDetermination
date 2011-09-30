@@ -268,6 +268,9 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 		    }
 		  if (refl == Drc::ReflTransmitted)
 		    {
+		      ph.SetFate(Drc::kPhotLost); // Photon ransmitted in nirvana.
+		      if (Verbosity()>=4) cout<<"     Photon lost"<<endl;
+		      break; // while loop
 		      // do nothing
 		    }
 		  if (refl == Drc::ReflReflected)
@@ -324,16 +327,12 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 	      // Step 3b ------------ Coupled volumes
 		
 
+
+	      // find coupled device and surface
 	      PndDrcOptDev*  dev_coupled  = 0;
 	      PndDrcSurfAbs* surf_coupled = 0;
-
               list<PndDrcOptDev*>::const_iterator  kDev_coupled;
               list<PndDrcSurfAbs*>::const_iterator kSurf_coupled;
-
-	      //cout<<" ### start loop"<<endl;
-	      
-
-
               for (kDev_coupled  = (surf_closest->CoupledDeviceList()).begin(),
 		     kSurf_coupled = (surf_closest->CoupledSurfaceList()).begin();
                    kDev_coupled != (surf_closest->CoupledDeviceList()).end();
@@ -351,33 +350,26 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 		      dev_coupled  = (*kDev_coupled);
 		      surf_coupled = (*kSurf_coupled);
 		    }
-		  
 		}//loop
 
+
+
+	      // now coupled device and surface is known
 	      if (dev_coupled && surf_coupled)
 		{
-		  //cout<<" ### in clause ..."<<endl;
-		  //ph.Print();
-		      
-
 		  // ------- check if you get out
 		  if (&(surf_closest->Reflectivity())) // Reflectivity defined
 		    {
 		      if (Verbosity()>=4) cout<<"     PndDrcOptVol::reflectivity3a clause"<<endl;
-		      //ph.SetDevice(this);
-			  
 		      refl = Drc::ReflReflected; // needless ???
 		      refl = surf_closest
 			->Reflectivity().Query(ph,
 					       norm,
 					       dev_coupled->
 					       OptMaterial().RefIndex(ph.Wavelength()),
-					       Drc::ReflOut);
-			  
+					       Drc::ReflOut);		      
 		      if (refl == Drc::ReflAbsorbed)
 			{
-			      
-			  //cout<<"    ###  PndDrcOptVol::propagate: absorbed"<<endl;
 			  if (Verbosity()>=4)
 			    cout<<"     PndDrcOptVol::propagate: absorbed"<<endl;
 			  ph.SetFate(Drc::kPhotAbsorbed);
@@ -385,6 +377,18 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 			}
 		      if (refl == Drc::ReflTransmitted)
 			{
+			  PndDrcOptMatAbs* opt_mat = &((dev_coupled)->OptMaterial());
+			  double n1  = OptMaterial().RefIndex(ph.Wavelength());
+			  double ex1 = OptMaterial().Extinction(ph.Wavelength());
+			  double n2  = opt_mat->RefIndex(ph.Wavelength());
+			  double ex2 = opt_mat->Extinction(ph.Wavelength());
+			  bool iref = ph.Refract(surf_closest->Normal(ph.Position()),
+						 n1, ex1,
+						 false, /*surf_closest->Fresnel(),*/
+						 n2, ex2);
+			  // after this routine the photon has already the right direction!
+			  (dev_coupled)->Propagate(ph);
+			  //cout<<" transmission in DrcOptVol "<<fName<<endl;
 			  // do nothing
 			}
 		      if (refl == Drc::ReflReflected)
@@ -398,7 +402,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 						 OptMaterial().RefIndex(ph.Wavelength()),
 						 OptMaterial().Extinction(ph.Wavelength()),
 						 surf_closest->Fresnel());
-		  // after this routine the photon has already the right direction!
+			  // after this routine the photon has already the right direction!
 			  if (refr)
 			    {
 			      ph.SetFate(Drc::kPhotLost); // Photon refracted in nirvana.
@@ -435,8 +439,16 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 			}
 		      if (refl == Drc::ReflTransmitted)
 			{
-			  if (Verbosity()>=4) cout<<"     go into new volume "
-						  <<(dev_coupled)->Name()<<endl;
+			  PndDrcOptMatAbs* opt_mat = &((dev_coupled)->OptMaterial());
+			  double n1  = OptMaterial().RefIndex(ph.Wavelength());
+			  double ex1 = OptMaterial().Extinction(ph.Wavelength());
+			  double n2  = opt_mat->RefIndex(ph.Wavelength());
+			  double ex2 = opt_mat->Extinction(ph.Wavelength());
+			  bool iref = ph.Refract(surf_closest->Normal(ph.Position()),
+						 n1, ex1,
+						 false, /*surf_closest->Fresnel(),*/
+						 n2, ex2);
+			  // after this routine the photon has already the right direction!
 			  (dev_coupled)->Propagate(ph);
 			}
 		      if (refl == Drc::ReflReflected)

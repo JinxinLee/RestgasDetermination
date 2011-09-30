@@ -127,11 +127,11 @@ int main(int argc, char *argv[])
   
 
   bool in = true; // in and out
-  double theta=0; 
-  refl.SetPolarizationDirection(Drc::PolDirPhot);
+  double theta=30; 
+  refl.SetPolarizationDirection(Drc::PolDirS);
   
   
-  for (double lambda=400; lambda<701; lambda+=1)
+  for (double lambda=200; lambda<801; lambda+=1)
     {
       (in) ? ph.SetPosition(XYZPoint(0,0,-1)) :  ph.SetPosition(XYZPoint(0,0,1));
       double z = (in) ? cos(theta*kPi/180) : -cos(theta*kPi/180);

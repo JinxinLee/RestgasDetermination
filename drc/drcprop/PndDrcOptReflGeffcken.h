@@ -61,7 +61,6 @@ class PndDrcOptReflGeffcken : public PndDrcOptReflAbs
   \param normal The normal vector of the surface.
   \param n_next Refractive index of next medium.
   \param direction Photon leaving or entering volume.
-  \param poldir Direction of electrical polarisation.
   \return Reflection probability probability.
 
   The refractive index of the actual medium is accessible via 
