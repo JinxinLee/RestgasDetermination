@@ -32,7 +32,7 @@ runMvdDigi_changedParams(Int_t nEvents=10)
   parInput1->open(digiparFile.Data(),"in");
   rtdb->setFirstInput(parInput1);
   FairParRootFileIo* parInput2 = new FairParRootFileIo(kTRUE);
-  parInput2->open(parFile.Data(),"UPDATE");
+  parInput2->open(parFile.Data(),"in");
   rtdb->setSecondInput(parInput2);
 
   
@@ -78,7 +78,7 @@ runMvdDigi_changedParams(Int_t nEvents=10)
 
   fRun->Run(0,nEvents);
 
-  rtdb->saveOutput();
+  //rtdb->saveOutput();
   rtdb->print();
 
   // -----   Finish   -------------------------------------------------------
