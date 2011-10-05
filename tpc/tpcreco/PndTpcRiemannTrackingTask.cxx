@@ -95,6 +95,7 @@ PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
     _proxcut(1.9),
     _proxZstretch(1.6),
     _helixcut(0.2),
+    _maxRMS(0.15),
 
     _mergeTracks(true),
     _TTproxcut(15.0),
@@ -107,6 +108,7 @@ PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
     _proxcut(2.0),
     _proxZstretch(1.6),
     _helixcut(0.4),
+    _maxRMS(0.3),
 
     _mergeTracks(true),
     _TTproxcut(15.0),
@@ -124,7 +126,6 @@ PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
     _minHitsR(10),
     _minHitsPhi(10),
 
-    _maxRMS(0.15),
 
     _riemannscale(24.6),
 
