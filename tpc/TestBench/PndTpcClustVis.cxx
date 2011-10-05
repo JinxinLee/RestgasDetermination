@@ -1282,16 +1282,13 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
         std::cout<<"Weights: ";
         std::vector<std::vector<std::vector<double> > > weights = fitterDAF->getWeights();
 
-        unsigned int cnter(0);
         for (unsigned int irep=0; irep<weights.size(); ++irep){
           for (unsigned int i=0; i<weights[irep].size(); ++i){
             for (unsigned int j=0; j<weights[irep][i].size(); ++j){
-              //if (++cnter > nhits) goto breakFor;
               std::cout<<weights[irep][i][j]<<" ";
             }
           }
         }
-        breakFor:
         std::cout<<"\n\n";
 
 

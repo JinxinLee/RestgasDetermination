@@ -72,6 +72,7 @@ class PndTpcRiemannTrack : public TObject{
   PndTpcRiemannHit* getHit(unsigned int i) const {return _hits[i];}
   PndTpcRiemannHit* getLastHit() const {return _hits.back();}
   PndTpcRiemannHit* getFirstHit() const {return _hits.front();}
+  const std::vector<PndTpcRiemannHit*>* getHits() const {return &_hits;}
 
   int getClosestHit(PndTpcRiemannHit* hit, double& Dist, TVector3& dir) const;
   int getClosestHit(PndTpcRiemannHit* hit, double& Dist, int from=0,  int to=10000000) const; // optional: range where to search for closest hit

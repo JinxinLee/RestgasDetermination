@@ -75,7 +75,7 @@ using namespace std;
 
 // Class Member definitions -----------
 
-#define MINHITS 6
+#define MINHITS 4
 #define PDGDEFAULT 211
 
 ClassImp(PndTpcRiemannTrackingTask)
@@ -91,10 +91,22 @@ PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
     _sorting(3),
     _interactionZ(0.),
 
-    _minpoints(3),
+    /*_minpoints(3), // panda settings
     _proxcut(1.9),
     _proxZstretch(1.6),
     _helixcut(0.2),
+
+    _mergeTracks(true),
+    _TTproxcut(15.0),
+    _TTdipcut(0.2),
+    _TThelixcut(0.5),
+    _TTplanecut(0.3),*/
+
+    // FOPI settings
+    _minpoints(3),
+    _proxcut(2.0),
+    _proxZstretch(1.6),
+    _helixcut(0.4),
 
     _mergeTracks(true),
     _TTproxcut(15.0),

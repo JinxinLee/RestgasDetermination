@@ -47,8 +47,11 @@
 // Class Member definitions -----------
 
 PndTpcClusterFinderTask::PndTpcClusterFinderTask()
-  : FairTask("TPC Cluster Finder"), fpersistence(kFALSE), fDigiPersistence(kFALSE),fSamplePersistence(kFALSE),ftrivial(kFALSE),fsimple(kFALSE), fsectorize(kFALSE),
-    ftimeslice(2), fmode(0),fthres(1), fSDiClAmpCut(0), fClAmpCut(0), fDataMode(kFALSE), fDiffFactor(1.), fClusterTimeCut(5),
+  : FairTask("TPC Cluster Finder"),
+    fpersistence(kFALSE), fDigiPersistence(kFALSE), fSamplePersistence(kFALSE),
+    ftrivial(kFALSE), fsimple(kTRUE), fsectorize(kTRUE),
+    ftimeslice(7), fmode(0), fthres(1), fSDiClAmpCut(0), fClAmpCut(0),
+    fDataMode(kFALSE), fDiffFactor(1.), fClusterTimeCut(5),
     fAdcSens(600.), fC(300.)
 {
   fdigiBranchName = "PndTpcDigi";
@@ -238,7 +241,7 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
     
   } // end loop over clusters
   
-  std::cout<<ncl_rec<<" cluster created containing "<<ndig_rec<<" digis"<<std::endl;
+  std::cout << ncl_rec << " cluster created containing " << ndig_rec << " digis" << std::endl;
 
   fcluster_buffer->clear();
   return;

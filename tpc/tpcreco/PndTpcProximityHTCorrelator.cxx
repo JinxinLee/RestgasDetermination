@@ -68,7 +68,7 @@ PndTpcProximityHTCorrelator::corr(PndTpcRiemannTrack* trk,
   //scale proxcut with track quality (makes it looser for better defined tracks)
   double proxcut(_proxcut);
   double quality(trk->quality());
-  proxcut *= 1 + (2 * quality);
+  proxcut *= 1 + (3 * quality);
 
 
   TVector3 pos, dis3;

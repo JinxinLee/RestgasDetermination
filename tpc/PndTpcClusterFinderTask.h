@@ -56,16 +56,18 @@ public:
   void SetSamplePesistence(Bool_t opt=kTRUE) {fSamplePersistence=opt;} // store references to samples in digis
   void SetTrivialClustering(Bool_t opt=kTRUE) {ftrivial=opt;}
   void SetSimpleClustering(Bool_t opt=kTRUE, Bool_t sectorize=kTRUE);
-  void SetMode(int mode){fmode=mode;}
   
   void timeslice(unsigned int t){ftimeslice=t;}
   void SetThreshold(unsigned int t){fthres=t;}
-  void SetDiffFactor(double d){fDiffFactor=d;} // for Cluster splitting
-  void SetClusterTimeCut(double d){fClusterTimeCut=d;} // for Cluster splitting
-  void SetErrorPars(double ADCsens,double C){fAdcSens=ADCsens;fC=C;} 
-  void SetDataMode(Bool_t opt) {fDataMode=opt;}
   void SetSingleDigiClusterAmpCut(unsigned int cut){fSDiClAmpCut=cut;}
   void SetClusterAmpCut(double cut){fClAmpCut=cut;}
+  void SetErrorPars(double ADCsens,double C){fAdcSens=ADCsens;fC=C;}
+
+  void SetMode(int mode){fmode=mode;}
+  void SetDiffFactor(double d){fDiffFactor=d;} // for Cluster splitting
+  void SetClusterTimeCut(double d){fClusterTimeCut=d;} // for Cluster splitting
+  void SetDataMode(Bool_t opt) {fDataMode=opt;}
+
 
 
   // Operations ----------------------
@@ -87,18 +89,18 @@ private:
   Bool_t fpersistence;
   Bool_t fDigiPersistence;
   Bool_t fSamplePersistence;
-  Bool_t ftrivial;
-  Bool_t fsimple;
-  Bool_t fsectorize; // sectorize simple clustering
-  Bool_t fDataMode;   
+  Bool_t ftrivial;          // one cluster from each digi
+  Bool_t fsimple;           // use PndTpcClusterFinderSimple
+  Bool_t fsectorize;        // sectorize simple clustering
+  Bool_t fDataMode;         // for PndTpcClusterFinder
  
-  int fmode;                 /// controls method of sorting into time bins 
-  unsigned int ftimeslice;   /// defines time bucket / gap
-  unsigned int fthres;       /// hardthreshold on Digis
-  unsigned int fSDiClAmpCut; /// amplitude cut on Single Digi Clusters
-  double fClAmpCut;    /// amplitude cut (will be multiplied with cluster size) on Clusters
-  double fDiffFactor;        /// defines maximum slope for luster splitting in XY
-  double fClusterTimeCut;    /// defines time cut for cluster splitting
+  int fmode;                 // controls method of sorting into time bins for PndTpcClusterFinder
+  unsigned int ftimeslice;   // defines time bucket / gap
+  unsigned int fthres;       // amplitude cut on total Cluster amplitude
+  unsigned int fSDiClAmpCut; // amplitude cut on Single Digi Cluster amplitude
+  double fClAmpCut;          // amplitude cut on mean digi amplitude
+  double fDiffFactor;        // defines maximum slope for cluster splitting in XY for PndTpcClusterFinder
+  double fClusterTimeCut;    // defines time cut for cluster splitting for PndTpcClusterFinder
 
   double fAdcSens;     // electrons per adc channel
   double fC;           // scale for error calculation 
