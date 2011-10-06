@@ -2367,41 +2367,10 @@ if(istampa>1) cout<<"PndSttMvdTracking, entra in TrackCleanup tracce normali, IV
 			RStrawDetectorMax
 				) ) {
 		keepit[ncand]=false;
+		continue;
 	}
-if(istampa>1){ cout<<"\tPndSttMvdTracking, uscito da TrackCleanup tracce normali, keepit = ";
-	if(keepit[ncand]) cout<<" true!\n"; else  cout<<" false!\n";
-}
+
     }  // end of if(YesClean)
-
-
-
-
-
-
-
-//-----------------------------------stampaggi
-if(istampa>=2){
-cout<<"\n\n"
-<<"\tIVOLTE = "<<IVOLTE<<", cand n. "<<ncand<<", dopo TrackCleanup, tracce da STT.\n";
-cout<<"\tn hit Pixel "<<nMvdPixelHitsinTrack[ncand]<<" e loro lista :\n";
-for(int ip=0;ip<nMvdPixelHitsinTrack[ncand];ip++){
-	cout<<"\t\thit n. "<<ListMvdPixelHitsinTrack[ncand][ip]<<endl;
-}
-cout<<"\tn hit Strip "<<nMvdStripHitsinTrack[ncand]<<" e loro lista :\n";
-for(int ip=0;ip<nMvdStripHitsinTrack[ncand];ip++){
-	cout<<"\t\thit n. "<<ListMvdStripHitsinTrack[ncand][ip]<<endl;
-}
-cout<<"\tnhit || = "
-<<nHitsPar<<" e loro lista :"<<endl;
-for(int ip=0;ip<nHitsPar;ip++){
-	cout<<"\tHit || n. "<<ListSttParHitsinTrack[ncand][ip]<<endl;
-}
-cout<<"\tnHitsSkew "<<nHitsSkew<<" e loro lista :"<<endl;
-for(int ip=0;ip<nHitsSkew;ip++){
-	cout<<"\tHit // n. "<<ListSttSkewHitsinTrack[ncand][ip]<<endl;
-}
-}
-//-------------------------fine stampaggi.
 
 	nRemainingCandidates++;
 
