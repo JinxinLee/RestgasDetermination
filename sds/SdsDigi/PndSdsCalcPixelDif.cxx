@@ -78,11 +78,9 @@ std::vector<PndSdsPixel> PndSdsCalcPixelDif::GetPixels(Double_t inx, Double_t in
   for(Int_t i=(Int_t)inx-xtrax;i<(Int_t)outx+1+xtrax;i++)
   {
     DQx=0.;
-    if(outx-inx<1e-6){
-      argu=(i+1-0.5*(outx+inx))/(sqrt(2)*sigma_x);
-      DQx+=TMath::Erf(argu) + argu*exp(argu*argu);
-      argu=(i-0.5*(outx+inx))/(sqrt(2)*sigma_x);
-      DQx-=TMath::Erf(argu) + argu*exp(argu*argu);
+    if(outx-inx<1e-6){ // too small path, don't integrate over path
+      DQx+=TMath::Erf(i+1-0.5*(outx+inx))/(sqrt(2)*sigma_x);
+      DQx-=TMath::Erf(i-0.5*(outx+inx))/(sqrt(2)*sigma_x);
     }else{      
       DQx+=CalcFk(i,outx,sigma_x);
       DQx-=CalcFk(i+1,outx,sigma_x);
@@ -93,11 +91,9 @@ std::vector<PndSdsPixel> PndSdsCalcPixelDif::GetPixels(Double_t inx, Double_t in
     for(Int_t j=(Int_t)iny-xtray;j<(Int_t)outy+1+xtray;j++)
     {
       DQy=0.;
-      if(outy-iny<1e-6){
-        argu=(j+1-0.5*(outy+iny))/(sqrt(2)*sigma_y);
-        DQy+=TMath::Erf(argu) + argu*exp(argu*argu);
-        argu=(j-0.5*(outy+iny))/(sqrt(2)*sigma_y);
-        DQy-=TMath::Erf(argu) + argu*exp(argu*argu);
+      if(outy-iny<1e-6){ // too small path, don't integrate over path
+        DQy+=TMath::Erf(j+1-0.5*(outy+iny))/(sqrt(2)*sigma_y);
+        DQy-=TMath::Erf(j-0.5*(outy+iny))/(sqrt(2)*sigma_y);
       }else{  
         DQy+=CalcFk(j,outy,sigma_y);
         DQy-=CalcFk(j,iny,sigma_y);

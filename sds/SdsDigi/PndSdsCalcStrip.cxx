@@ -233,10 +233,8 @@ std::vector<PndSdsStrip> PndSdsCalcStrip::GetStripsDif(Double_t pathstart, Doubl
   {
     DQ=0;
     if(fabs(pathstart-pathend) < 1e-6) { // too small path, don't integrate over path
-      argu=(i+1-0.5*(pathstart+pathend))/(sqrt(2)*sigma_str);
-      DQ+=TMath::Erf(argu) + argu*exp(-argu*argu)*(1-2/sqrt(TMath::Pi()));
-      argu=(i-0.5*(pathstart+pathend))/(sqrt(2)*sigma_str);
-      DQ-=TMath::Erf(argu) + argu*exp(-argu*argu)*(1-2/sqrt(TMath::Pi()));
+      DQ+=TMath::Erf(i+1-0.5*(pathstart+pathend))/(sqrt(2)*sigma_str);
+      DQ-=TMath::Erf(i-0.5*(pathstart+pathend))/(sqrt(2)*sigma_str);
     } else {
       DQ+=CalcFk(i,pathend,sigma_str);
       DQ-=CalcFk(i+1,pathend,sigma_str);
