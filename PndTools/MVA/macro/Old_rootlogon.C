@@ -2,6 +2,7 @@ rootlogon()
 {
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
   basiclibs();
+  gSystem->AddIncludePath("-I$VMCWORKDIR/fairtools/");
   gSystem->AddIncludePath("-I$VMCWORKDIR/emc/EmcData/");
   gSystem->AddIncludePath("-I$VMCWORKDIR/emc/EmcCorr/");
   gSystem->AddIncludePath("-I$VMCWORKDIR/emc/EmcDigi/");
