@@ -232,7 +232,16 @@ int main(int argc, char** argv)
    * each of k-classifiers.
    */
   PndMvaDataSet* dat = new PndMvaDataSet(ip, labels, vars, TRAIN);
+
+  // Trim data set.
   dat->SetTrim(true);
+  
+  // Normalize dataset (VARX, MINMAX, MEDIAN)
+  // dat->SetNormType(VARX);
+  
+  // Perform PCA.
+  // dat->Use_PCA(true);
+
   dat->Initialize();
 
   // Get available event data.
