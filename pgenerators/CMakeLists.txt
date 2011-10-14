@@ -4,13 +4,13 @@
 
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
+${PYTHIA8_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/fairtools
 ${CMAKE_SOURCE_DIR}/geobase 
 ${CMAKE_SOURCE_DIR}/base 
 ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/generators
 ${CMAKE_SOURCE_DIR}/pgenerators
-${SIMPATH}/generators/pythia8/include
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})

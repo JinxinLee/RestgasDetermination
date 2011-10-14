@@ -2,7 +2,10 @@
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
-set(GLPK_INCLUDE_DIR ${SIMPATH}/basics/glpk/include)
+#set(GLPK_INCLUDE_DIR 
+#${SIMPATH}/basics/glpk/include
+#${SIMPATH}/include
+#)
 
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
@@ -17,11 +20,15 @@ ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/field 
 ${CMAKE_SOURCE_DIR}/stt
+
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
 
-set(GLPK_LIB_DIR ${SIMPATH}/basics/glpk/lib)
+#set(GLPK_LIB_DIR 
+#${SIMPATH}/basics/glpk/lib
+#${SIMPATH}/lib
+#)
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}

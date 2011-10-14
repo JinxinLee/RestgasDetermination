@@ -70,6 +70,8 @@ IF(ROOT_INSTALLED_VERSION_TOO_OLD)
 ENDIF (ROOT_INSTALLED_VERSION_TOO_OLD)
 
 find_package(PLUTO REQUIRED)
+find_package(glpk REQUIRED)
+find_package(Pythia8 REQUIRED)
 find_package(GENERATORS REQUIRED)
 find_package(GEANT3 REQUIRED)
 find_package(GEANT4)
