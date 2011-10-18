@@ -85,6 +85,33 @@ int main(int argc, char *argv[])
   PndDrcOptDevManager* manager = new PndDrcOptDevManager();
   manager->AddDeviceSystem(opt_system);
 
+  fstream geo;
+  geo.open("Geo.C",std::ios::out);
+  geo<<"{"<<endl;
+  geo<<"    TCanvas *c1 = new TCanvas(\"c1\"); "<<endl;
+  if ( ((TROOT*)gROOT)->GetVersionInt() < 51600)
+    {
+      geo<<"    TView *view = new TView(1);"<<endl;
+    }
+  else
+    {  
+      geo<<"    TView *view = TView::CreateView(1);"<<endl;
+    }
+  geo<<"    view->SetRange(-50,-50,-50,50,50,50);"<<endl;
+  geo<<"    Int_t i;"<<endl;
+  geo<<"    view->SetView(0,90,90,i);"<<endl;
+   // the following command sets a flag within the manager and all photons from
+  // now on will be traced and can be plotted by calling within root
+  // .x Geo.C 
+  // .x Screen.C
+  // 
+  manager->Print(geo);
+  //
+  // the intention is to play around with routines.
+
+
+
+
 
   // create a list of photons in bar
 
