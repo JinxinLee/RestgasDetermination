@@ -618,11 +618,12 @@ Bool_t KBarAnalysis::Process(Long64_t entry)
 
   for( int j = 0; j < index_pos; j++ )
   {
-    if( j > 0 && posZ[j] > _airgap + 0.0001
-        && ( posZ[j] < hitPosZ || posZ[j+1] == hitPosZ ) ) // need tiny shift to check the reflections at the fishtank sides
+    if( j > 0 && posZ[j] > _airgap + 0.0001 && ( posZ[j] < hitPosZ ||
+        (posZ[j+1] == hitPosZ && j+1<index_pos ) ) ) // need tiny shift to check the reflections at the fishtank sides
     {
-      cout << "Reflection at fishtank side for photonID: " << entry << " ; posZ: " << posZ[j]
-          << " ; pixel: (" << pxX << "," << pxY << ")" << endl;
+      cout << "Reflection at fishtank side for photonID: " << entry << " ; posZ: " << posZ[j] << endl;
+      cout << "HALLO:" << j << " " << posZ[j] << " " << posZ[j+1] << " " << posZ[index_pos-1] << " " << posZ[index_pos] << " " << posZ[index_pos+1] << " " << posZ[j-1] << " " << endl;
+//           << " ; pixel: (" << pxX << "," << pxY << ")" << endl;
 
       nBoxRefl++;
       if( nBoxRefl > 1 )

@@ -60,7 +60,7 @@ void parameter( TString inFilename = ""  )
   Bool_t slab_fresnel, backLens_fresnel, frontLens_fresnel, prism_fresnel, airBox_fresnel, fishtank_fresnel;
   Bool_t fishtankBlack_bottom, fishtankBlack_sides, fishtankBlack_top, mirror;
   Double_t gridXstep = -666, gridYstep = -666;
-  Double_t cannon_theta = -666, cannon_phi = -666, canno_rotX = -666, canno_rotY = -666;
+  Double_t cannon_theta = -666, cannon_phi = -666, cannon_rotX = -666, cannon_rotY = -666;
   Double_t cannon_posX = -666, cannon_posY = -666, cannon_posZ = -666;
 
 
