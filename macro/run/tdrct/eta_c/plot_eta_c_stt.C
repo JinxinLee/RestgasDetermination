@@ -20,6 +20,12 @@
 	TH1F *h_mphi_final_vtx=(TH1F *)f->Get("h_mphi_final_vtx");
 	TH1F *h_mphi_final_massfit=(TH1F *)f->Get("h_mphi_final_massfit");
 	
+	TH1F *h_etac_phimass_vtx_2=(TH1F *)f->Get("h_etac_phimass_vtx_2");
+	TH1F *h_mphi_vtx_2=(TH1F *)f->Get("h_mphi_vtx_2");
+	TH1F *h_mphi_final_vtx_2=(TH1F *)f->Get("h_mphi_final_vtx_2");
+	
+	TH1F *n_etac_vtx_2=(TH1F *)f->Get("n_etac_vtx_2");
+	TH1F *h_chi2_prefit=(TH1F *)f->Get("h_chi2_prefit");
 	
 	TH1F *nc=(TH1F *)f->Get("nc");
 	 
@@ -43,6 +49,9 @@
 	std::cout<<"Efficiency (4C-fit) = "<<eff1<<std::endl;
 	double eff2=n_etac_vtx->GetBinContent(1)/n_events->GetBinContent(1);
 	std::cout<<"Efficiency (vertex fit) = "<<eff2<<std::endl;
+
+	double eff3=n_etac_vtx_2->GetBinContent(1)/n_events->GetBinContent(1);
+	std::cout<<"Efficiency (vertex fit, prefit selection) = "<<eff3<<std::endl;
 	
 	// Max efficiency
 	// Numebr of events with >=4 reconstructed tracks
@@ -313,7 +322,7 @@
 	if (saveHistos) c11->SaveAs("m_final_vtx_stt.png");
 	
 	//////////////////// Phi mass fit ////////////////
-// 	TCanvas *c12=new TCanvas("c12","Mass final (phi mass fit)",600,600);
+//	TCanvas *c12=new TCanvas("c12","Mass final (phi mass fit)",600,600);
 // 	c12->Divide(1,2);
 // 	c12->cd(1);
 // 	h_mphi_final_massfit->Draw();
@@ -352,5 +361,84 @@
 // 	std::cout<<"!!!!!!!!!!!!!!! sigma eta_c (phi mass fit) ="<<sigma2<<std::endl;
 // 	
 // 	if (saveHistos) c12->SaveAs("m_final_phimass_stt.png");
+	
+
+	
+	//////////////////// Vertex fit ////////////////////////////////////
+	/////////////////// Prefit best candidate selection ////////////////
+	TCanvas *c54=new TCanvas("c54","chi2 (prefit selection)",600,600);
+	h_chi2_prefit->Draw();
+
+	TCanvas *c51=new TCanvas("c51","Mass final (Vertex fit)",600,600);
+	c51->Divide(1,2);
+	c51->cd(1);
+	h_mphi_final_vtx_2->SetTitleSize(18);
+	h_mphi_final_vtx_2->GetXaxis()->SetTitleSize(0.05);
+	h_mphi_final_vtx_2->GetXaxis()->SetLabelSize(0.06);
+	h_mphi_final_vtx_2->GetXaxis()->SetTitleSize(0.05);
+	h_mphi_final_vtx_2->GetYaxis()->SetLabelSize(0.06);
+
+	h_mphi_final_vtx_2->Draw();
+	
+	mean_phi=1.02;
+	range_phi=0.02;
+	
+	TF1 *f1_phi_vtx_2 = new TF1("f1_phi_vtx_2","gaus",0.9,1.1);
+	h_mphi_final_vtx_2->Fit(f1_phi_vtx_2,"R","",mean_phi-range_phi,mean_phi+range_phi);
+	
+	sigma1_phi=f1_phi_vtx_2->GetParameter(2);
+	mean1_phi=f1_phi_vtx_2->GetParameter(1);
+	
+	TF1 *f2_phi_vtx_2 = new TF1("f2_phi_vtx_2","gaus",0.9,1.1);
+	h_mphi_final_vtx_2->Fit(f2_phi_vtx_2,"R","",mean1_phi-1.6*sigma1_phi,mean1_phi+1.6*sigma1_phi);
+
+	sigma2_phi=f2_phi_vtx_2->GetParameter(2);
+	std::cout<<"!!!!!!!!!!!! sigma phi (vertex fit)="<<sigma2_phi<<std::endl;
+	
+	TLine *l3=new TLine(1.0,0,1.0,7000);
+	l3->SetLineColor(4);
+	l3->SetLineWidth(2);
+	l3->Draw();
+
+	TLine *l4=new TLine(1.04,0,1.04,7000);
+	l4->SetLineColor(4);
+	l4->SetLineWidth(2);
+	l4->Draw();
+	
+
+	c51->cd(2);
+	h_etac_phimass_vtx_2->SetTitleSize(18);
+	h_etac_phimass_vtx_2->GetXaxis()->SetTitleSize(0.05);
+	h_etac_phimass_vtx_2->GetXaxis()->SetLabelSize(0.06);
+	h_etac_phimass_vtx_2->GetXaxis()->SetTitleSize(0.05);
+	h_etac_phimass_vtx_2->GetYaxis()->SetLabelSize(0.06);
+	
+	h_etac_phimass_vtx_2->Draw();
+	// fit eta_c
+	mean_etac=2.98;
+	range_etac=0.1;
+	
+	TF1 *f1_vtx_2 = new TF1("f1_vtx_2","gaus",2.8,3.2);
+	h_etac_phimass_vtx_2->Fit(f1_vtx_2,"R","",mean_etac-range_etac,mean_etac+range_etac);
+	
+	sigma1=f1_vtx_2->GetParameter(2);
+	mean1=f1_vtx_2->GetParameter(1);
+	
+	TF1 *f2_vtx_2 = new TF1("f2_vtx_2","gaus",2.8,3.2);
+	h_etac_phimass_vtx_2->Fit(f2_vtx_2,"R","",mean1-1.6*sigma1,mean1+1.6*sigma1);
+
+	sigma2=f2_vtx_2->GetParameter(2);
+	std::cout<<"!!!!!!!!!!!!!!! sigma eta_c (vertex fit) ="<<sigma2<<std::endl;
+	
+	TLine *l5=new TLine(2.9,0,2.9,1200);
+	l5->SetLineColor(4);
+	l5->SetLineWidth(2);
+	l5->Draw();
+
+	TLine *l6=new TLine(3.06,0,3.06,1200);
+	l6->SetLineColor(4);
+	l6->SetLineWidth(2);
+	l6->Draw();
+	
 
 }
