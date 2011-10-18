@@ -622,8 +622,6 @@ Bool_t KBarAnalysis::Process(Long64_t entry)
         (posZ[j+1] == hitPosZ && j+1<index_pos ) ) ) // need tiny shift to check the reflections at the fishtank sides
     {
       cout << "Reflection at fishtank side for photonID: " << entry << " ; posZ: " << posZ[j] << endl;
-      cout << "HALLO:" << j << " " << posZ[j] << " " << posZ[j+1] << " " << posZ[index_pos-1] << " " << posZ[index_pos] << " " << posZ[index_pos+1] << " " << posZ[j-1] << " " << endl;
-//           << " ; pixel: (" << pxX << "," << pxY << ")" << endl;
 
       nBoxRefl++;
       if( nBoxRefl > 1 )
