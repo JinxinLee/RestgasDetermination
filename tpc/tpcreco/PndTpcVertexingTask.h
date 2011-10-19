@@ -24,9 +24,9 @@
 #include <ostream> // remove if you do not need streaming op
 
 // Collaborating Class Declarations --
-#include "GFRaveVertexFactory.h"
-#include "GFRaveVertex.h"
 #include "GFTrack.h"
+class GFRaveVertexFactory;
+class GFRaveVertex;
 class TClonesArray;
 
 

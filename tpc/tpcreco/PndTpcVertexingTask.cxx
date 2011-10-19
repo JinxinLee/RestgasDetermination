@@ -45,6 +45,11 @@
 
 #include "PndDetectorList.h"
 
+#ifndef __CINT__
+  #include "GFRaveVertexFactory.h"
+  #include "GFRaveVertex.h"
+#endif
+
 #include <cmath>
 
 using namespace std;
