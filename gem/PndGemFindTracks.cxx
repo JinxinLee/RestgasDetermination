@@ -42,6 +42,7 @@ class PndTrackCand;
 
 // -----   Default constructor   -------------------------------------------
 PndGemFindTracks::PndGemFindTracks() {
+  fDigiPar             = NULL;
   fFinder              = NULL;
   fGemHitOrDigiArray   = NULL;
   fTrackArray          = NULL;
@@ -52,7 +53,6 @@ PndGemFindTracks::PndGemFindTracks() {
   fTTime      = 0.;
   fTNofTracks = 0;
   fTNofEvents = 0;
-
 }
 // -------------------------------------------------------------------------
 
@@ -62,6 +62,7 @@ PndGemFindTracks::PndGemFindTracks(const char* name,
 				   const char* title, 
 				   PndGemTrackFinder* finder) 
   : FairTask(name) {
+  fDigiPar             = NULL;
   fFinder              = finder;
   fGemHitOrDigiArray   = NULL;
   fTrackArray          = NULL;
@@ -72,7 +73,6 @@ PndGemFindTracks::PndGemFindTracks(const char* name,
   fTTime      = 0.;
   fTNofTracks = 0;
   fTNofEvents = 0;
-
 }
 // -------------------------------------------------------------------------
 

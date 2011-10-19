@@ -35,6 +35,7 @@ using std::map;
 
 // -----   Default constructor   ------------------------------------------
 PndGemTrackFinderQA::PndGemTrackFinderQA() : FairTask("GEM Track Finder QA", 1) {
+  fDigiPar       = NULL;
   fMCTrackArray  = NULL;
   fMCPointArray  = NULL;
   fGemHitArray   = NULL;
@@ -48,6 +49,7 @@ PndGemTrackFinderQA::PndGemTrackFinderQA() : FairTask("GEM Track Finder QA", 1) 
 // -----   Standard constructor   ------------------------------------------
 PndGemTrackFinderQA::PndGemTrackFinderQA(Int_t iVerbose) 
   : FairTask("GEM Track Finder QA", iVerbose) {
+  fDigiPar       = NULL;
   fMCTrackArray  = NULL;
   fMCPointArray  = NULL;
   fGemHitArray   = NULL;

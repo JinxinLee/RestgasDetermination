@@ -35,6 +35,8 @@ using std::map;
 
 // -----   Default constructor   -------------------------------------------
 PndGemTrackFinderOnHits::PndGemTrackFinderOnHits() {
+  fDigiPar = NULL;
+
   fMCTrackArray = NULL;
   fMCPointArray = NULL;
   fNofEvents    = 0;
