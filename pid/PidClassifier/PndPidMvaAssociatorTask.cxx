@@ -9,10 +9,10 @@
  * ************************************/
 #include "PndPidMvaAssociatorTask.h"
 
-#define DEBUG 0
+#define DEBUG 1
 
 //==========================================================
-#ifdef DEBUG
+#if (DEBUG != 0)
 // Function to use for debugging
 void printResult(std::map<std::string,float>& res)
 {
@@ -233,7 +233,7 @@ void PndPidMvaAssociatorTask::Exec(Option_t* option)
     fPidChargedProb->Delete();
   }
 
-#ifdef DEBUG
+#if (DEBUG != 0)
   std::cout << "<INFO> Call to Exec with " << option << '\n';
 #endif
 
@@ -294,7 +294,7 @@ void PndPidMvaAssociatorTask::DoPidMatch(PndPidCandidate& pidcand,
   
   delete evtPidData;
 
-#ifdef DEBUG
+#if (DEBUG != 0)
   std::cout << "****************************************************\n"
 	    << "Momentum " << (pidcand.GetMomentum()).Mag()
 	    << "\nGetEnergy " << pidcand.GetEnergy()
