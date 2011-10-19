@@ -100,6 +100,7 @@ protected:
   Int_t  fEventCounter;             // Event number
   Int_t fPidHyp;                    // particle hypothesis for propagation
   Bool_t fIdealHyp;                 // Flag to use MC particle hypothesis
+  Bool_t fFast;                     // 0: normal; 1: no correlation/extrapolation/neutral
   PndGeoHandling* fGeoH;             // Object to retrieve MVD geometry
   PndRecoKalmanFit *fFitter;         // Refitter for MDT tracks
   TFile *r;                          // File for debug ntuples
@@ -154,7 +155,8 @@ public:
   void SetOutputBranch(TString branch)    { fTrackOutBranch = branch; };
   void SetVerbose(Bool_t verb)            { fVerbose = verb  ;};
   void SetSimulation(Bool_t sim)          { fSimulation = sim; };
-  void SetIdeal(Bool_t id)                { fIdeal = id; };
+  void SetIdeal(Bool_t id)                { fIdeal = id; }; 
+  void SetFast(Bool_t fast)               { fFast = fast; };
   void SetCorrErrProp(Bool_t err)         { fCorrErrorProp = err; };
   void SetGeanePro(Bool_t gea = kTRUE)    { fGeanePro = gea; };
   void SetPidHyp(Int_t pid)               { fPidHyp = pid; };

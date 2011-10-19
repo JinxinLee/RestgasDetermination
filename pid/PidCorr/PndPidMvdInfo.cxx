@@ -50,7 +50,7 @@ Bool_t PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
       TVector3 mvdPos;
       mvdHit->Position(mvdPos);
       mvdCounts++;
-
+      if (fFast) continue;
       TVector3 SensorDim=fGeoH->GetSensorDimensionsShortId(mvdHit->GetSensorID());//sensor dimension
       SensorThickness = SensorDim.Z();
 

@@ -61,7 +61,8 @@ PndPidCorrelator::PndPidCorrelator() {
   fDskMode = -1;
   fMixMode = kFALSE;
   fPidHyp = 0;
-  fIdealHyp = kFALSE;
+  fIdealHyp = kFALSE; 
+  fFast = kFALSE;
   fVerbose = kFALSE;
   fSimulation = kFALSE;
   fIdeal = kFALSE; 
@@ -105,6 +106,7 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title)
   fVerbose = kFALSE;
   fSimulation = kFALSE;
   fIdeal = kFALSE; 
+  fFast = kFALSE;
   fCorrErrorProp = kTRUE;
   tofCorr = 0;
   emcCorr = 0;
@@ -497,7 +499,7 @@ InitStatus PndPidCorrelator::Init() {
       //std::cout<<"PndPidCorrelator: Emc error matrix is read from file"<<std::endl;
     }
 	
-  
+  if (fFast)  cout << "-W- PndPidCorrelator::Init: Using fast correlator!!" << endl;
   cout << "-I- PndPidCorrelator::Init: Success!" << endl;
   fEventCounter = 1;
   return kSUCCESS;
@@ -536,7 +538,7 @@ void PndPidCorrelator::Exec(Option_t * option) {
   Reset();
   
   if (fTrack)     ConstructChargedCandidate();
-  if (fEmcMode>0) ConstructNeutralCandidate();
+  if ((fEmcMode>0) && (!fFast)) ConstructNeutralCandidate();
   fEventCounter++;
 }
 
@@ -595,11 +597,14 @@ void PndPidCorrelator::ConstructChargedCandidate() {
     if ( (fMvdMode==2) && ((fMvdHitsStrip->GetEntriesFast()+fMvdHitsPixel->GetEntriesFast())>0) ) GetMvdInfo(track, pidCand); 
     if ( (fTpcMode==2) && (fTpcCluster->GetEntriesFast()>0) ) GetTpcInfo(track, pidCand); 
     if ( (fSttMode == 2) && (fSttHit    ->GetEntriesFast()>0) ) GetSttInfo(track, pidCand);
-    if ( (fTofMode==2) && (fTofHit    ->GetEntriesFast()>0) ) GetTofInfo(helix, pidCand);
-    if ( (fEmcMode>0)  && (fEmcCluster->GetEntriesFast()>0) ) GetEmcInfo(helix, pidCand);
-    if ( (fMdtMode>0)  && (fMdtHit    ->GetEntriesFast()>0) ) GetMdtInfo(track, pidCand);  
-    if ( (fDrcMode>0)  && (fDrcHit    ->GetEntriesFast()>0) ) GetDrcInfo(helix, pidCand);
-    if ( (fDskMode>0)  && (fDskParticle->GetEntriesFast()>0)) GetDskInfo(helix, pidCand); 
+    if (!fFast)
+      {
+	if ( (fTofMode==2) && (fTofHit    ->GetEntriesFast()>0) ) GetTofInfo(helix, pidCand);
+	if ( (fEmcMode>0)  && (fEmcCluster->GetEntriesFast()>0) ) GetEmcInfo(helix, pidCand);
+	if ( (fMdtMode>0)  && (fMdtHit    ->GetEntriesFast()>0) ) GetMdtInfo(track, pidCand);  
+	if ( (fDrcMode>0)  && (fDrcHit    ->GetEntriesFast()>0) ) GetDrcInfo(helix, pidCand);
+	if ( (fDskMode>0)  && (fDskParticle->GetEntriesFast()>0)) GetDskInfo(helix, pidCand); 
+      }
     AddChargedCandidate(pidCand);
   } 
   
