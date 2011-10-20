@@ -81,7 +81,7 @@ void sim_sttcombi_pgun( int seed = 32579, int nEvents = 10, int pid  = 11,
   fRun->AddModule(Mvd);
 
   PndEmc* Emc = new PndEmc("EMC",kTRUE);
-  Emc->SetGeometryVersion(15);
+  Emc->SetGeometryVersion(1);
   Emc->SetStorageOfData(kTRUE);
   fRun->AddModule(Emc);
 
