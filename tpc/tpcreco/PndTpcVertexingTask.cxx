@@ -45,10 +45,8 @@
 
 #include "PndDetectorList.h"
 
-#ifndef __CINT__
-  #include "GFRaveVertexFactory.h"
-  #include "GFRaveVertex.h"
-#endif
+#include "GFRaveVertexFactory.h"
+#include "GFRaveVertex.h"
 
 #include <cmath>
 
@@ -59,7 +57,7 @@ using namespace std;
 ClassImp(PndTpcVertexingTask)
 
 PndTpcVertexingTask::PndTpcVertexingTask()
-  : FairTask("PndTpc Vertexing"),
+  : FairTask("PndTpcVertexing"),
     _persistence(kFALSE),
     _trackBranchName("TrackPostFit"),
     fMethod("default"),
@@ -96,11 +94,14 @@ PndTpcVertexingTask::Init()
     Error("PndTpcVertexingTask::Init","mvd-array not found!");
   }*/
 
-  _vertexArray = new TClonesArray("GFVertex");
+  _vertexArray = new TClonesArray("GFRaveVertex");
   ioman->Register("GFVertex","Tpc",_vertexArray,_persistence);
 
-  fVertexFactory = new GFRaveVertexFactory();
+  fVertexFactory = new GFRaveVertexFactory(fVerbose);
   fVertexFactory->setBeamspot(fBeamPos, fBeamCov);
+
+  // init fVertexBuffer
+  fVertexBuffer = new std::vector < GFRaveVertex* >;
 
   return kSUCCESS;
 }
@@ -147,19 +148,24 @@ PndTpcVertexingTask::Exec(Option_t* opt)
 
   // Reset output Arrays
   if(_trackArray==0) Fatal("PndTpcVertexingTask::Exec","No GFTrack Array");
-  _trackArray->Delete();
+  _vertexArray->Delete();
 
-  //clear fVertexBuffer
+  //clear and delete fVertexBuffer
   for (unsigned int i=0; i<fVertexBuffer->size(); ++i){
     delete (*fVertexBuffer)[i];
   }
   fVertexBuffer->clear();
+  delete fVertexBuffer;
 
   // put GFTracks into vector
   unsigned int nTrks=_trackArray->GetEntriesFast();
-  std::vector<GFTrack*> tracks(nTrks);
-  for(unsigned int i=0; i<nTrks; ++i)
-    tracks[i] = (GFTrack*)_trackArray->At(i);
+  std::vector<GFTrack*> tracks;
+  tracks.reserve(nTrks);
+  for(unsigned int i=0; i<nTrks; ++i){
+    tracks.push_back((GFTrack*)_trackArray->At(i));
+  }
+
+  std::cout<<nTrks;
 
   // create vertices
   fVertexBuffer = fVertexFactory->create(tracks, fUseBeamspot);
