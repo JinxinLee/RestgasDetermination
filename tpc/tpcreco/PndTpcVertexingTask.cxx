@@ -165,7 +165,7 @@ PndTpcVertexingTask::Exec(Option_t* opt)
     tracks.push_back((GFTrack*)_trackArray->At(i));
   }
 
-  std::cout<<nTrks;
+  if (fVerbose > 0) std::cout << "find vertices from " << nTrks << " tracks\n";
 
   // create vertices
   fVertexBuffer = fVertexFactory->create(tracks, fUseBeamspot);
