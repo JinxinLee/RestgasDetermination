@@ -1,10 +1,15 @@
 rootlogon()
 {
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
+  
+  // Load basic libraries
+  // If it does not work,  please check the path of the libs and put it by hands
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
-
+  /*
+    gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+    basiclibs();
+  */
+  // Header paths
   gSystem->AddIncludePath("-I$VMCWORKDIR/fairtools/");
   gSystem->AddIncludePath("-I$VMCWORKDIR/emc/EmcData/");
   gSystem->AddIncludePath("-I$VMCWORKDIR/emc/EmcCorr/");
@@ -18,15 +23,6 @@ rootlogon()
   gSystem->AddIncludePath("-I$VMCWORKDIR/base/");
   gSystem->AddIncludePath("-I$VMCWORKDIR/trackbase/");
   gSystem->AddIncludePath("-I$VMCWORKDIR/parbase/");
-
-  gSystem->Load("libMemStat");  
+  
+  //gSystem->Load("libMemStat");
 }
-/*
-Bool_t isLibrary(const char* libName)
-{
-  if (TString(gSystem->DynamicPathName(libName, kTRUE)) != TString(""))
-    return kTRUE;
-  else  
-    return kFALSE;
-}
-*/

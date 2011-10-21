@@ -220,6 +220,7 @@ void selectEvents(int pdg,
   
   std::cout << "========================================================\n"
 	    << "<INFO>\nTotal number of events = " << tsim->GetEntriesFast()
+	    << "\nPdg = " << pdg << " Particle = " << partName
             << "\nNo decay = " << counts
             << "\nNo decay array size = " << EvtIds.size()
 	    << "\nIn Ntuple " << EmcNtp.GetEntriesFast()

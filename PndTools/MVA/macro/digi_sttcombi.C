@@ -72,7 +72,7 @@ void digi_sttcombi(char inFile  [] = "points_sttcombi.root", //Input file (MC ev
   //fRun->AddTask(emcMakeDigi);
   
   PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform(iVerbose);
-  PndEmcWaveformToDigi* emcWaveformToDigi=new PndEmcWaveformToDigi(iVerbose);
+  PndEmcWaveformToDigi* emcWaveformToDigi= new PndEmcWaveformToDigi(iVerbose);
 
   emcHitsToWaveform->SetStorageOfData(kTRUE);
   emcWaveformToDigi->SetStorageOfData(kTRUE);

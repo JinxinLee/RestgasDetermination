@@ -1,8 +1,11 @@
 //pi+ = 211, pi- = -211, mu+ = -13, mu- = 13, K+ = 321, K- = -321, K0L = 130
 //pi0 = 111, gamma = 22, e- = 11, e+ = -11, proton = 2212, protonMin = -2212
 
-void sim_sttcombi_pgun( int seed = 32579, int nEvents = 10, int pid  = 11,
-			float p1 = 1.0, float p2 = 1.5,
+void sim_sttcombi_pgun( int seed = 32579,
+			int nEvents = 10,
+			int pid  = 11,
+			float p1 = 1.0,
+			float p2 = 1.5,
 			Char_t paramFile [] = "params_sttcombi.root", 
 			Char_t outFile   [] = "points_sttcombi.root"
 			)
@@ -22,10 +25,10 @@ void sim_sttcombi_pgun( int seed = 32579, int nEvents = 10, int pid  = 11,
   // If it does not work,  please check the path of the libs and put it by hands
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
-  
-  TString digiFile = "all.par";
-  TString parFile = paramFile;
-  
+  /*
+    gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+    basiclibs();
+  */
   FairRunSim* fRun = new FairRunSim();
   
   // set the MC version used
@@ -37,18 +40,21 @@ void sim_sttcombi_pgun( int seed = 32579, int nEvents = 10, int pid  = 11,
   
   // Set the parameters
   //-------------------------------
+  //TString digiFile = "all.par";
+
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
   allDigiFile += "/macro/params/";
-  allDigiFile += digiFile;
+  allDigiFile += "all.par";
   
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
   rtdb->setFirstInput(parIo1);        
+
   Bool_t kParameterMerged = kTRUE;
-  
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  output->open(parFile);
+
+  output->open(paramFile);
   rtdb->setOutput(output);
   
   // Set Material file Name
@@ -60,7 +66,8 @@ void sim_sttcombi_pgun( int seed = 32579, int nEvents = 10, int pid  = 11,
   FairModule* Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
-  
+
+  // Magnets.
   FairModule* Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
   fRun->AddModule(Magnet);
@@ -68,29 +75,29 @@ void sim_sttcombi_pgun( int seed = 32579, int nEvents = 10, int pid  = 11,
   FairModule* Dipole= new PndMagnet("MAGNET");
   Dipole->SetGeometryFileName("dipole.geo");
   fRun->AddModule(Dipole);
-  
+
+  // Pipe.  
   FairModule* Pipe= new PndPipe("PIPE");
   fRun->AddModule(Pipe);
   
+  // ---------- STT
   FairDetector* Stt= new PndStt("STT", kTRUE);
   Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
   fRun->AddModule(Stt);
   
+  // ------ MVD
+  // Problem with emcPoints. fixme
   FairDetector* Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
   fRun->AddModule(Mvd);
 
+  // --------- EMC
   PndEmc* Emc = new PndEmc("EMC",kTRUE);
   Emc->SetGeometryVersion(1);
   Emc->SetStorageOfData(kTRUE);
   fRun->AddModule(Emc);
 
-  /*
-    FairDetector* Tof = new PndTof("TOF",kTRUE);
-    Tof->SetGeometryFileName("tofbarrel.geo");
-    fRun->AddModule(Tof);
-  */
-
+  // ------ MDT
   PndMdt* Muo = new PndMdt("MDT",kTRUE);
   Muo->SetBarrel("fast");
   Muo->SetEndcap("fast");
@@ -98,21 +105,29 @@ void sim_sttcombi_pgun( int seed = 32579, int nEvents = 10, int pid  = 11,
   Muo->SetMdtMagnet(kTRUE);
   Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
-  
+
+  // -------- GEM
   FairDetector* Gem = new PndGemDetector("GEM", kTRUE);
   Gem->SetGeometryFileName("gem_3Stations.root");
   fRun->AddModule(Gem);
   
+  // -------- DSK
   PndDsk* Dsk = new PndDsk("DSK", kTRUE);
   Dsk->SetGeometryFileName("dsk.root");
   Dsk->SetStoreCerenkovs(kFALSE);
   Dsk->SetStoreTrackPoints(kFALSE);
   fRun->AddModule(Dsk);
   
+  // ------- DRC
   PndDrc* Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc);
-  
+
+  /*
+  FairDetector *Fts= new PndFts("FTS", kTRUE);
+  Fts->SetGeometryFileName("fts.geo");
+  fRun->AddModule(Fts);
+  */
   // Create and Set Event Generator
   //-------------------------------
   
@@ -120,16 +135,17 @@ void sim_sttcombi_pgun( int seed = 32579, int nEvents = 10, int pid  = 11,
   fRun->SetGenerator(primGen);
   
   // Box Generator
-  FairBoxGenerator* boxGen = new FairBoxGenerator(pid, 1); // 13 = muon; 1 = multipl.
+  FairBoxGenerator* boxGen = new FairBoxGenerator(pid, 1); //1 = multipl.
   
-  if (p2 < p1){
+  if (p2 < p1)
+  {
     p2 = p1;
   }  
   
   boxGen->SetPRange(p1, p2); // GeV/c
-  boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(5., 140.); // Polar angle in lab system range [degree]
-  boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
+  boxGen->SetPhiRange(0.0, 360.0); // Azimuth angle range [degree]
+  boxGen->SetThetaRange(0.0, 140.0); // Polar angle in lab system range [degree]
+  boxGen->SetXYZ(0.0, 0.0, 0.0); // mm o cm ??
   primGen->AddGenerator(boxGen); 
 
   // Set beam properties

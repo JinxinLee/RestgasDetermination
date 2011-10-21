@@ -1,6 +1,6 @@
 void runEvtSel( int pdg = 11,
 		char partName    [] = "electron",
-		char paramFile   []= "params_sttcombi.root",
+		char paramFile   [] = "params_sttcombi.root",
 		char simFile     [] = "points_sttcombi.root",
 		char digiFile    [] = "digi_sttcombi.root",
 		char recoFile    [] = "reco_sttcombi.root",
