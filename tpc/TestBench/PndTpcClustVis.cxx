@@ -1196,12 +1196,13 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
        TVector3 poserr(1,1,1);
        //poserr*=trk->resolution();
-       poserr *= 0.2;
+       poserr *= 0.03;
 
        TVector3 mom(p * direction);
        //TVector3 momerr(fabs(mom.X()),fabs(mom.Y()),fabs(mom.Z()));
        //momerr *= trk->resolution();
-       TVector3 momerr(0.2,0.2,0.2);
+       TVector3 momerr(1,1,1);
+       momerr *= 0.08;
 
        double trackR = trk->r();
 
@@ -1278,35 +1279,22 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
         }
       }
 
-      if(useDAF){
-        std::cout<<"Weights: ";
-        std::vector<std::vector<std::vector<double> > > weights = fitterDAF->getWeights();
-
-        for (unsigned int irep=0; irep<weights.size(); ++irep){
-          for (unsigned int i=0; i<weights[irep].size(); ++i){
-            for (unsigned int j=0; j<weights[irep][i].size(); ++j){
-              std::cout<<weights[irep][i][j]<<" ";
-            }
-          }
-        }
-        std::cout<<"\n\n";
-
-
-      }
-
       //
       // DRAW Fit
       //
       double charge = rep->getCharge();
 
-      if(rep->getStatusFlag()) {
-        std::cout << "Warning: Trying to display a track with status flag != 0...";
-        if(smooth) {
+      if(rep->getStatusFlag()!=0) {
+        std::cout << "status flag != 0; continue ...";
+        /*if(smooth) {
           std::cout << "trying without smoothing!";
           smooth = false;
-        }
+        }*/
         std::cout << std::endl;
+        delete track;
+        continue;
       }
+
 
       TVector3 track_pos;
       TVector3 old_track_pos;
