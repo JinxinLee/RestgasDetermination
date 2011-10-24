@@ -747,23 +747,32 @@ void PndLVQTrain::UpdateProto(std::vector<float> const& EvtData,
  */
 void PndLVQTrain::ValidateProtoUpdate(std::vector<float>& p)
 {
+  // Either reinit or not.
   bool reinit = false;
-  char marker = '-';
+
+  // Fetch available variables
   std::vector<PndMvaVariable> const& variables = m_dataSets.GetVars();
-  
+
+  /*
+   * Optimization NOTE: This can be more efficint by using a while
+   * statement; but as we have only a small number of parameters ( 3
+   * or 4), it is good enough to use a for statement.
+   */
   for(size_t var = 0; var < variables.size(); ++var)
   {
-    if( p[var] < variables[var].Min )
+    // If we need to reinitialize
+    if( ( p[var] < variables[var].Min) || ( p[var] > variables[var].Max ) )
     {
       reinit = true;
-    }
-
-    if( p[var] > variables[var].Max )
-    {
-      reinit = true;
-      marker = '+';
     }
   }
+
+  /*
+   * Optimization NOTE: It is more efficent to remember the indices of
+   * variables which are out of bound. In that case the number of
+   * calls to get a random number will decrease. But for now, it is
+   * good enough. :).
+   */
   // We need to reinitialize the codebook.  For now we init using
   // random numbers in the range of var.Min and ar.Max
   if(reinit)
@@ -773,8 +782,10 @@ void PndLVQTrain::ValidateProtoUpdate(std::vector<float>& p)
     {
       p[idx] = static_cast<float>(rnd.Uniform(variables[idx].Min, variables[idx].Max));
     }
-    // Indicate a re-init
-    std::cerr << marker;
+    // Indicate a re-init on std error.
+#if (DEBUG_LVQ_TRAIN > 0)
+    std::cerr << '^';
+#endif
   }
 }
 
