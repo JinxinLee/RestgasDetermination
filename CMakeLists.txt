@@ -116,10 +116,13 @@ SET(LD_LIBRARY_PATH  ${CBMLIBDIR} ${LD_LIBRARY_PATH})
 
 
 #IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  SET(CMAKE_INSTALL_PREFIX "./install" CACHE PATH "FOO install prefix" FORCE)
-  Message("Set default install path ...")
+#  SET(CMAKE_INSTALL_PREFIX "./install" CACHE PATH "FOO install prefix" FORCE)
+#  Message("Set default install path ...")
 #ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
+install(DIRECTORY geometry DESTINATION pnd_install 
+          PATTERN ".svn" EXCLUDE
+          )
 
 # Recurse into the given subdirectories.  This does not actually
 # cause another cmake executable to run.  The same process will walk through
@@ -139,6 +142,7 @@ add_subdirectory (pgenerators/DpmEvtGen)
 add_subdirectory (pgenerators/EvtGen)
 add_subdirectory (pgenerators/EvtGenDirect)
 add_subdirectory (pgenerators/PndFlukaGen)
+add_subdirectory (pgenerators/EMFFgenerators)
 add_subdirectory (stt)
 add_subdirectory (stt/sttreco)
 add_subdirectory (tpc)
