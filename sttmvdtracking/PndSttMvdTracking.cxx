@@ -977,7 +977,7 @@ if(istampa>2  && IVOLTE<20){
 			ListMvdDSPixelHitNotTrackCand[nMvdDSPixelHitNotTrackCand] = i;
 			nMvdDSPixelHitNotTrackCand++;
 		} else {
-			ListMvdUSPixelHitNotTrackCand[nMvdDSPixelHitNotTrackCand] = i;
+			ListMvdUSPixelHitNotTrackCand[nMvdUSPixelHitNotTrackCand] = i;
 			nMvdUSPixelHitNotTrackCand++;
 		}
 	}
