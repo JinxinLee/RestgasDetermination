@@ -115,6 +115,7 @@
 #include "EvtGenModels/EvtMultibody.hh"
 #include "EvtGenModels/EvtLambdaLambdaBar.hh" //[R.K.06.08.2008]
 #include "EvtGenModels/EvtLambdaLambdaBarPol.hh" //[R.K.06.08.2008]
+#include "EvtGenModels/EvtLambdaLambdaBarHE.hh"  //[Gosia.27.10.2011]
 
 #ifndef EVTSTANDALONE
 #include "EvtGenModels/EvtUclaII.hh"
@@ -138,6 +139,7 @@ EvtModelReg::EvtModelReg()
     modelist.Register(new EvtLambdaP_BarGamma);
     modelist.Register(new EvtLambdaLambdaBar); //[R.K.06.08.2008]
     modelist.Register(new EvtLambdaLambdaBarPol); //[R.K.06.08.2008]
+    modelist.Register(new EvtLambdaLambdaBarHE); //[Gosia.27.10.2011]
     modelist.Register(new EvtFlatQ2);
     modelist.Register(new EvtTauHadnu);
     modelist.Register(new EvtTauVectornu);

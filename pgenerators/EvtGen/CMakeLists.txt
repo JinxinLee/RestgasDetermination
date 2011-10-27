@@ -192,6 +192,7 @@ EvtGenModels/EvtKstarnunu.cc
 EvtGenModels/EvtKstarstargamma.cc
 EvtGenModels/EvtLambdaLambdaBar.cc
 EvtGenModels/EvtLambdaLambdaBarPol.cc
+EvtGenModels/EvtLambdaLambdaBarHE.cc
 EvtGenModels/EvtLambdaP_BarGamma.cc
 EvtGenModels/EvtLi2Spence.F
 EvtGenModels/EvtLNuGamma.cc
