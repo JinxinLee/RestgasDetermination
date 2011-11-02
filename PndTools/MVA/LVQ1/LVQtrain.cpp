@@ -117,7 +117,7 @@ int main(int argc, char** argv)
   std::cout << " outPut = " << ot << ',';
   
   // Evaluation output file name.
-  std::string OutErr = "EValuation" + ot;
+  std::string OutErr = "EValuation_log" + ot;
   std::cout << " EValuation File = " << OutErr
 	    << '\n';
   
