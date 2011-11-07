@@ -47,6 +47,8 @@ public:
 
   void SetPersistence(Bool_t opt = kTRUE) {_persistence = opt;}
 
+  void SetUseVacuumPropagator(bool opt = true) {fUseVacuumPropagator = opt;} // use the rave::Vacuum propagator instead of GFRavePropagator
+
   void SetBeamspot(const TVector3 & pos, const TMatrixT<double> & cov3x3); // also sets fUseBeamspot true
   void SetBeamspot(const TVector3 & pos, double err); // also sets fUseBeamspot true
   void SetMethod(const std::string & method) {fMethod = method;}
@@ -69,6 +71,7 @@ private:
   GFRaveVertexFactory* fVertexFactory;
   std::vector < GFRaveVertex* > * fVertexBuffer;
 
+  bool fUseVacuumPropagator; // use the rave::Vacuum propagator instead of GFRavePropagator
   bool fUseBeamspot;
   TVector3 fBeamPos;
   TMatrixT<double> fBeamCov;

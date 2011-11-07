@@ -59,6 +59,7 @@ ClassImp(PndTpcVertexingTask)
 PndTpcVertexingTask::PndTpcVertexingTask()
   : FairTask("PndTpcVertexing"),
     _persistence(kFALSE),
+    fUseVacuumPropagator(false),
     _trackBranchName("TrackPostFit"),
     fMethod("default"),
     fUseBeamspot(false),
@@ -97,7 +98,7 @@ PndTpcVertexingTask::Init()
   _vertexArray = new TClonesArray("GFRaveVertex");
   ioman->Register("GFVertex","Tpc",_vertexArray,_persistence);
 
-  fVertexFactory = new GFRaveVertexFactory(fVerbose);
+  fVertexFactory = new GFRaveVertexFactory(fVerbose, fUseVacuumPropagator);
   fVertexFactory->setBeamspot(fBeamPos, fBeamCov);
 
   // init fVertexBuffer
