@@ -357,7 +357,8 @@ void PndSdsStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, I
   std::vector<Int_t>indices;
   indices.push_back(iPoint);
 
-  new ((*fStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,sensorID,fe,chan,charge, FairRootManager::Instance()->GetEventTime());
+  PndSdsDigiStrip* tempStrip = new ((*fStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,sensorID,fe,chan,charge, FairRootManager::Instance()->GetEventTime());
+  tempStrip->SetEntryNr(FairLink(FairRootManager::Instance()->GetBranchId(fOutBranchName), iStrip));
 
   iStrip++;
   return;
