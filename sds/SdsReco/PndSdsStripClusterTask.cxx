@@ -285,10 +285,13 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
     {
       clindex = fClusterArray->GetEntriesFast();
       PndSdsClusterStrip* myCluster = new((*fClusterArray)[clindex]) PndSdsClusterStrip(*(*clit));
-      myCluster->Reset();
-      for(int i = 0; i < myCluster->GetClusterSize(); i++){
-    	  PndSdsDigiStrip* tempDigi = (PndSdsDigiStrip*)fDigiArray->At(myCluster->GetDigiIndex(i));
-    	  myCluster->AddLink(FairLink(tempDigi->GetEntryNr()));
+
+      if (FairRunAna::Instance()->IsTimeStamp()){
+		  myCluster->Reset();
+		  for(UInt_t i = 0; i < myCluster->GetClusterSize(); i++){
+			  PndSdsDigiStrip* tempDigi = (PndSdsDigiStrip*)fDigiArray->At(myCluster->GetDigiIndex(i));
+			  myCluster->AddLink(FairLink(tempDigi->GetEntryNr()));
+		  }
       }
     }
     
