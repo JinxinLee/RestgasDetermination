@@ -21,7 +21,7 @@
 #include "TGeoBBox.h"
 #include "TList.h"
 #include "TTree.h"
-#include "FairEventHeader.h"
+#include "FairMCEventHeader.h"
 #include "FairParRootFileIo.h"
 #include "FairBaseParSet.h"
 
@@ -105,17 +105,18 @@ PndGeoHandling::PndGeoHandling(Int_t runId, TString parFile):fVerbose(0)
 	GetSensorNamePar();
 }
 
-void PndGeoHandling::GetRunId(TString mcFile)
+Int_t PndGeoHandling::GetRunId(TString mcFile)
 {
 	TFile f(mcFile.Data());
 	TTree* t = (TTree*)f.Get("cbmsim");
-	FairEventHeader* header= new FairEventHeader();
-	t->SetBranchStatus("EventHeader.",1);
-	t->SetBranchAddress("EventHeader.", &header);
+	FairMCEventHeader* header= new FairMCEventHeader();
+	t->SetBranchStatus("MCEventHeader.",1);
+	t->SetBranchAddress("MCEventHeader.", &header);
 	t->GetEntry(0);
-	fRunId = header->GetRunId();
-  
-	t->SetBranchStatus("EventHeader.",0);
+	fRunId = header->GetRunID();
+
+	t->SetBranchStatus("MCEventHeader.",0);
+	return fRunId;
 }
 
 void PndGeoHandling::GetSensorNamePar()

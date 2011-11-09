@@ -147,7 +147,7 @@ public:
 		  return 0;
   }
   
-  void GetRunId(TString mcFile);
+  Int_t GetRunId(TString mcFile);
   void GetGeoManager();
   void GetSensorNamePar();
   void InitRuntimeDb(TString parFileName);
