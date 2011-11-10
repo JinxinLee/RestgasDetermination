@@ -1,12 +1,12 @@
 //--------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: EvtLambdaLambdaBar.cc,
+// 	$Id: EvtLambdaLambdaBarHE.cc,
 //
 // Description:
-//            Generator of pbar p -> electron positron events
+//            Generator of pbar p -> Lambda anti-Lambda events
 //          
 // Author List: Gosia Sudol
-// Data: 10.05.09
+// Data: 04.11.11
 //------------------------------------------------------------------------
 #include "EvtGenBase/EvtPatches.hh"
 #include <stdlib.h>
@@ -48,7 +48,7 @@ void EvtLambdaLambdaBarHE::initProbMax()
 // to get correct results
 // but if this normalisation factor is very large the accept-reject algo
 // is very inefficient
-  setProbMax(3000.0);
+  setProbMax(10000.0);
 }
 
 void EvtLambdaLambdaBarHE::init()
@@ -71,25 +71,21 @@ void EvtLambdaLambdaBarHE::decay(EvtParticle* p)
     if(lambdabar->getId() != lambdabarID )
         cout << "EvtLambdaLambdaBarHE::decay():\n wrong id of produced particles!"<<endl;
 
-    EvtVector4R p4_lambdabar = lambdabar->getP4(); // 4 mometum in LAB
+    // function getP4() return us values in the CM of the parent particle
+    // in case of Labmda and Lambdabar it is pbarpSystem
+
+    EvtVector4R p4_lambdabar = lambdabar->getP4(); // 4 mometum in CM
 
     EvtVector4R p4_pbar;
-    p4_pbar = p->getP4(); // 4 momentum in LAB
+    p4_pbar = p->getP4(); // 4 momentum in parents CM
 
-    EvtVector4R vboost = p4_pbar; // boost vector
+    // p bar momentum in CM is calculated using E
+    energy = sqrt(p->mass()*p->mass())/2.;
+    pbar_p = sqrt(energy*energy - Mp*Mp);
 
-    vboost.set(1,-vboost.get(1)); // px
-    vboost.set(2,-vboost.get(2)); // py
-    vboost.set(3,-vboost.get(3)); // pz
-
-    vboost.applyBoostTo(p4_pbar);       // boosting pbar to CM
-    vboost.applyBoostTo(p4_lambdabar);  // boosting Lbar to CM
-
-    p_pbar      = p4_pbar.d3mag();      // total momentum of anti-proton in CM
     p_lambdabar = p4_lambdabar.d3mag(); // total momentum of anti-lambda in CM
 
     double x = p4_lambdabar.get(3)/p4_lambdabar.d3mag(); // cos(theta) in CM
-
 
 
     double a=24.2; // +/- 2.2 mu barn
@@ -101,7 +97,7 @@ void EvtLambdaLambdaBarHE::decay(EvtParticle* p)
     // in this equation momentum of pbar and also of anti-lampda are in CM
     // also cosTheta is in CM
 
-    double prob = 2*p_pbar*p_lambdabar*(a*b*TMath::Exp(2*b*p_pbar*p_lambdabar*(x-1))+c*d*TMath::Exp(2*d*p_pbar*p_lambdabar*(x-1)));
+    double prob = 2*pbar_p*p_lambdabar*(a*b*TMath::Exp(2*b*pbar_p*p_lambdabar*(x-1))+c*d*TMath::Exp(2*d*pbar_p*p_lambdabar*(x-1)));
 
     setProb(prob);
 

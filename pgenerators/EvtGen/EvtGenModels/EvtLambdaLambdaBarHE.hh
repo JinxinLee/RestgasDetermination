@@ -28,8 +28,9 @@ public:
   void decay(EvtParticle *p);
 
 private:
-  double p_pbar;
   double p_lambdabar;
+  double energy;
+  double pbar_p;
 };
 
 #endif
