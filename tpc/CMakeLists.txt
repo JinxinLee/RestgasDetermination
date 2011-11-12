@@ -22,15 +22,22 @@ ${CMAKE_SOURCE_DIR}/tpc/TestBench
 ${CMAKE_SOURCE_DIR}/tpc/tpcreco
 ${CMAKE_SOURCE_DIR}/recotasks
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/RKTrackRep
-
 ${GEANT3_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep2
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/trackbase
 )
+IF(DEFINED ENV{DST2ROOT})
+  set(CDC_INCLUDE
+     $ENV{DST2ROOT}
+     )
+   include_directories( ${INCLUDE_DIRECTORIES} ${CDC_INCLUDE})  
+ELSE(DEFINED ENV{DST2ROOT})
+   include_directories( ${INCLUDE_DIRECTORIES})  
+ENDIF(DEFINED ENV{DST2ROOT})
 
-include_directories( ${INCLUDE_DIRECTORIES})
+
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
@@ -42,6 +49,23 @@ link_directories( ${LINK_DIRECTORIES})
 # we define different sets of files for the RuleChecker and
 # the normal library. This setting is needed until we solve the
 # problem with the RuleChecker
+
+IF(DEFINED ENV{DST2ROOT})
+  MESSAGE( "DST2ROOT defined building CDC matching.") 
+  set(CDC_SRC
+    TestBench/PndTpcCdcDataReaderTask.cxx
+    TestBench/PndTpcCdcMatchingTask.cxx
+    TestBench/CdcCircle.cxx
+    $ENV{DST2ROOT}/CdcEvent.cxx
+    $ENV{DST2ROOT}/CdcTrack.cxx
+    $ENV{DST2ROOT}/CdcHit.cxx
+    $ENV{DST2ROOT}/RpcTrack.cxx
+    $ENV{DST2ROOT}/PointHit.cxx
+    $ENV{DST2ROOT}/PseudoSpacePoint.cxx
+    )
+  
+ENDIF(DEFINED ENV{DST2ROOT})
+
 
 set(TPC_SRCS_RULECHECKER
 PndTpcGeo.cxx 			    
@@ -155,6 +179,7 @@ TestBench/PndTpcDigiAmpCorrectionTask.cxx
 #TestBench/mappingData.cxx
 #TestBench/TCconfigManager.cxx
 PndTpcT2KPulseshape.cxx
+PndTpcAlignmentManager.cxx
 )
 
 SET(TPC_SRCS ${TPC_SRCS_RULECHECKER} PndTpcAbsField.cxx PndTpcFieldCylGrid.cxx 		    
@@ -189,6 +214,13 @@ CHANGE_FILE_EXTENSION(*.cxx *.h TPC_BASE_HEADERS "${TPC_BASE_SOURCES}")
 set(TPC_LINKDEF  tpcLinkDef.h)
 set(TPC_BASE_LINKDEF  tpcBaseLinkDef.h)
 
+IF(DEFINED ENV{DST2ROOT})
+  set(CDC_LINKDEF  cdcLinkDef.h)
+  CHANGE_FILE_EXTENSION(*.cxx *.h CDC_HEADERS "${CDC_SRC}")
+  set(CDC_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/cdcDict.cxx) 
+  ROOT_GENERATE_DICTIONARY("${CDC_HEADERS}" "${CDC_LINKDEF}" "${CDC_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
+ENDIF(DEFINED ENV{DST2ROOT})
+
 
 set(TPC_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/tpcDict.cxx) 
 set(TPC_BASE_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/tpcBaseDict.cxx) 
@@ -196,7 +228,12 @@ set(TPC_BASE_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/tpcBaseDict.cxx)
 ROOT_GENERATE_DICTIONARY("${TPC_HEADERS}" "${TPC_LINKDEF}" "${TPC_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
 ROOT_GENERATE_DICTIONARY("${TPC_BASE_HEADERS}" "${TPC_BASE_LINKDEF}" "${TPC_BASE_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
 
-SET(TPC_SRCS ${TPC_SRCS} ${TPC_DICTIONARY})
+IF(DEFINED ENV{DST2ROOT})
+  SET(TPC_SRCS ${TPC_SRCS} ${TPC_DICTIONARY} ${CDC_SRC} ${CDC_DICTIONARY})
+ELSE(DEFINED ENV{DST2ROOT})
+  SET(TPC_SRCS ${TPC_SRCS} ${TPC_DICTIONARY})
+ENDIF(DEFINED ENV{DST2ROOT})
+
 SET(TPC_BASE_SOURCES ${TPC_BASE_SOURCES} ${TPC_BASE_DICTIONARY}) 
 
 
