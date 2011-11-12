@@ -47,7 +47,7 @@
 #include "RKTrackRep.h"
 #include "CdcCircle.h"
 #include "GFDetPlane.h"
-#include "PointHit.h"
+#include "PseudoSpacePoint.h"
 
 #define DEBUG 0
 
@@ -382,7 +382,9 @@ PndTpcCdcMatchingTask::Exec(Option_t* opt) {
       TVector3 normVec;
       TVector3 poca_onwire;
       singletpcrep->extrapolateToLine(Point1,Point2,poca,normVec,poca_onwire);
+      if(DEBUG) {
       poca.Print();
+      }
       (*mattrackid)[tid][6] = poca.X();
       (*mattrackid)[tid][7] = poca.Y();
       (*mattrackid)[tid][8] = poca.Z();
@@ -408,7 +410,7 @@ PndTpcCdcMatchingTask::Exec(Option_t* opt) {
       //hitXerr.SetMag(hitXerr.Mag()*50);
       //hitYerr.SetMag(hitYerr.Mag()*50);
       //hitZerr.SetMag(hitZerr.Mag()/50.);
-      PointHit* thishit = new PointHit(hitpoint,hitXerr,hitYerr,hitZerr);
+      PseudoSpacePoint* thishit = new PseudoSpacePoint(hitpoint,hitXerr,hitYerr,hitZerr);
        trk->addHit(thishit,200.,hitIDs[nhit]);
     }
     
@@ -423,7 +425,9 @@ PndTpcCdcMatchingTask::Exec(Option_t* opt) {
       TVector3 normVec;
       TVector3 poca_onwire;
       rep->extrapolateToLine(Point1,Point2,poca,normVec,poca_onwire);
+      if(DEBUG) {
       poca.Print();
+      }
       (*mattrackid)[tid][3] = poca.X();
       (*mattrackid)[tid][4] = poca.Y();
       (*mattrackid)[tid][5] = poca.Z();
