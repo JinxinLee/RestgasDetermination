@@ -74,6 +74,10 @@
 #pragma link C++ class PndTpcPadShapePool+;
 #pragma link C++ class PndTpcPadPlane+;
 #pragma link C++ class PndTpcPad+;
+#pragma link C++ class PndTpcAlignmentManager+;
+
+//#pragma link C++ class PndTpcCdcDataReaderTask+;
+//#pragma link C++ class PndTpcCdcMatchingTask+;
 
 #endif
 
