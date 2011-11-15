@@ -51,6 +51,7 @@ public:
   void SetTrackBranchName(TString tn) {fTrackBranchName=tn;}
   void SetOutBranchName(TString tn) {fOutBranchName=tn;}
 
+  void SetUnbiased(Bool_t opt=kTRUE) {unbiased=opt;}
   void SetSecondarySuppression(Bool_t opt=kTRUE) {fSecondarySupp=opt;}
   void SetNumberOfTrackReps(unsigned int n) {fNumReps=n;}
   
@@ -60,6 +61,7 @@ private:
  
  Bool_t fPersistence;
  Bool_t fSecondarySupp;
+ Bool_t unbiased;
 
  TString fClusterBranchName;
  TString fTrackBranchName;

@@ -41,7 +41,7 @@
 #include "GFDetPlane.h"
 #include "GFException.h"
 #include "GFKalman.h"
-//#include "GFTools.h"
+#include "GFTools.h"
 #include "GFTrack.h"
 #include "GFTrackCand.h"
 
@@ -144,8 +144,6 @@ PndTpcResidualTask::Exec(Option_t* opt) {
     fFitStatArray->Delete();
   }
 
-  std::cout<<"res bla1"<<std::endl;
-
   //get fit results
   //assert(fTrackArray->GetEntriesFast()<2);
   
@@ -193,6 +191,8 @@ PndTpcResidualTask::Exec(Option_t* opt) {
       fitstat->setpdg(pdg);
 
 
+
+
       std::vector<double> resX;
       std::vector<double> resY;
       std::vector<double> resZ;
@@ -217,6 +217,8 @@ PndTpcResidualTask::Exec(Option_t* opt) {
       TVector3 track_pos;
       GFAbsRecoHit* hit;
       GFDetPlane plane;
+      TMatrixT<double> state;
+      TMatrixT<double> smoothedcov;
 
       //Loop over clusters
       for(unsigned int k=0; k<candIDs.size(); k++){
@@ -225,6 +227,7 @@ PndTpcResidualTask::Exec(Option_t* opt) {
         TVector3 cl_pos = cl->pos();
 
         hit = track->getHit(k);
+
 
         try{
           plane = hit->getDetPlane(rep);
@@ -251,6 +254,12 @@ PndTpcResidualTask::Exec(Option_t* opt) {
           std::cerr<<ex.what()<<std::endl;
           continue;
         }
+
+	if (unbiased){
+	  GFTools::getSmoothedData(track,r,k,state,smoothedcov,plane);
+	  track_pos=GFTools::getSmoothedPosXYZ(track,r,k);
+	}
+
 
         pps.push_back(track_pos);
         //calculate residual
