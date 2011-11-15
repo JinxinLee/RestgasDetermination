@@ -52,8 +52,8 @@ outfile = ROOT.TFile("anaOut.root", "recreate")
 
 ROOT.gROOT.ProcessLine(".L rootlogon.C") 
 ROOT.gROOT.ProcessLine("rootlogon()") 
-ROOT.gROOT.ProcessLine(".L rootlogon_Bernhard.C") 
-ROOT.gROOT.ProcessLine("rootlogon_Bernhard()") 
+#ROOT.gROOT.ProcessLine(".L rootlogon_Bernhard.C") 
+#ROOT.gROOT.ProcessLine("rootlogon_Bernhard()") 
 #ROOT.gROOT.ProcessLine('gSystem->Load("libPhysics")')
 #ROOT.gROOT.ProcessLine('gStyle->SetPalette(1)')
 #pretty draw:
@@ -186,6 +186,8 @@ nTracksDist = ROOT.TH1D("nTracksDist", "Distribution of track multiplicity",50,0
 
 pullAllV = ROOT.TH1D("pullAllV", "V (X') Pull Distribution", 200,-3,3)
 
+hitspertrack = ROOT.TH1D("hitspertrack", "Hits Per Track",100,0.,100.)
+
 DIFFX = 0.0227*10000 #(mu m/ mu s)
 
 diffT = ROOT.TF1("diffT","[0]*TMath::Sqrt(x)",0,75)
@@ -244,11 +246,13 @@ for file in files :
     
     fcounter+=1
     print(file)
+    
     Rfile = ROOT.TFile.Open(file, "read")
     #print(Rfile.GetOpenTimeout())
     tree = Rfile.Get("cbmsim")
     tree.SetBranchStatus("*", 0)
-    tree.SetBranchStatus("TrackFitStat_0.*", 1)
+#    tree.SetBranchStatus("TrackFitStat_0.*", 1)
+    tree.SetBranchStatus("TrackFitStat.*", 1)
     if processClusters :
         tree.SetBranchStatus("PndTpcCluster.*", 1)
     #if processTracks :
@@ -272,14 +276,14 @@ for file in files :
                 clOcc.Fill(pos.Z(), rad)
                 clOccAmp.Fill(pos.Z(), rad, amp)
                
-        nTracks = e.TrackFitStat_0.GetEntriesFast()  
+        nTracks = e.TrackFitStat.GetEntriesFast()  
         if nTracks < 1 :
             continue
             
         nTracksDist.Fill(nTracks)
             
                     
-        for tfs in e.TrackFitStat_0 :
+        for tfs in e.TrackFitStat :
             chi2 = tfs.getChi2()
             #redChi2 = tfs.getRedChi2()
             NDF = tfs.getNDF()
@@ -287,6 +291,8 @@ for file in files :
             
             numHits = tfs.GetHitPositionsZ().size()
             
+            hitspertrack.Fill(numHits)
+
             if numHits < 1 :
                 continue
             
@@ -849,6 +855,7 @@ c21.cd(2)
 probVsNHits.Draw()
 probVsNHits.Write()
 
+hitspertrack.Write()
 
 input()
 
