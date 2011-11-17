@@ -61,6 +61,7 @@ PndTpcVertexingTask::PndTpcVertexingTask()
     _persistence(kFALSE),
     fUseVacuumPropagator(false),
     _trackBranchName("TrackPostFit"),
+    _vertexBranchName("GFVertex"),
     fMethod("default"),
     fUseBeamspot(false),
     fBeamCov(3,3)
@@ -90,16 +91,15 @@ PndTpcVertexingTask::Init()
     return kERROR;
   }
 
-  /*_mvdArray=(TClonesArray*) ioman->GetObject("MVDPoint");
-  if(_mvdArray==0){
-    Error("PndTpcVertexingTask::Init","mvd-array not found!");
-  }*/
-
+  // register output arrays
   _vertexArray = new TClonesArray("GFRaveVertex");
-  ioman->Register("GFVertex","Tpc",_vertexArray,_persistence);
+  ioman->Register(_vertexBranchName,"Tpc",_vertexArray,_persistence);
 
+
+  // init vertex factory
   fVertexFactory = new GFRaveVertexFactory(fVerbose, fUseVacuumPropagator);
   fVertexFactory->setBeamspot(fBeamPos, fBeamCov);
+  fVertexFactory->setMethod(fMethod);
 
   // init fVertexBuffer
   fVertexBuffer = new std::vector < GFRaveVertex* >;
@@ -144,12 +144,20 @@ PndTpcVertexingTask::SetBeamspot(const TVector3 & pos, double err){
 void
 PndTpcVertexingTask::Exec(Option_t* opt)
 {
+  static unsigned int counter(0);
 
-  std::cout<<"PndTpcVertexingTask::Exec \n";
+  std::cout<<"PndTpcVertexingTask::Exec - Event Nr. " << counter++ << "\n";
 
   // Reset output Arrays
   if(_trackArray==0) Fatal("PndTpcVertexingTask::Exec","No GFTrack Array");
   _vertexArray->Delete();
+
+  // skip if not enough tracks
+  unsigned int nTrks=_trackArray->GetEntriesFast();
+  if (nTrks < 2) {
+    if (fVerbose > 0) std::cout << "less than 2 tracks, skipping ...\n";
+    return;
+  }
 
   //clear and delete fVertexBuffer
   for (unsigned int i=0; i<fVertexBuffer->size(); ++i){
@@ -159,22 +167,26 @@ PndTpcVertexingTask::Exec(Option_t* opt)
   delete fVertexBuffer;
 
   // put GFTracks into vector
-  unsigned int nTrks=_trackArray->GetEntriesFast();
   std::vector<GFTrack*> tracks;
   tracks.reserve(nTrks);
   for(unsigned int i=0; i<nTrks; ++i){
     tracks.push_back((GFTrack*)_trackArray->At(i));
   }
 
-  if (fVerbose > 0) std::cout << "find vertices from " << nTrks << " tracks\n";
 
   // create vertices
+  if (fVerbose > 0) std::cout << "find vertices from " << nTrks << " tracks\n";
   fVertexBuffer = fVertexFactory->create(tracks, fUseBeamspot);
 
   // copy vertices into output array
   unsigned int nVert(fVertexBuffer->size());
+  GFRaveVertex* vertex;
+  unsigned int ntrk;
+
   for (unsigned int i=0; i<nVert; ++i){
-    GFRaveVertex* vert = new((*_vertexArray)[i]) GFRaveVertex(*((*fVertexBuffer)[i]));
+    vertex = (*fVertexBuffer)[i];
+    GFRaveVertex* vert = new((*_vertexArray)[_vertexArray->GetEntriesFast()]) GFRaveVertex(*vertex);
+    if (fVerbose > 1) vert->Print();
   }
 
   std::cout << nVert << " vertices found\n";

@@ -44,6 +44,7 @@ public:
 
   // Modifiers -----------------------
   void SetTrackBranchName(const TString& name) {_trackBranchName = name;}
+  void SetVertexBranchName(const TString& name) {_vertexBranchName = name;}
 
   void SetPersistence(Bool_t opt = kTRUE) {_persistence = opt;}
 
@@ -62,10 +63,12 @@ public:
 private:
 
   // Private Data Members ------------
-  Bool_t _persistence;
 
   TString _trackBranchName;
   TClonesArray* _trackArray;
+
+  Bool_t _persistence;
+  TString _vertexBranchName;
   TClonesArray* _vertexArray;
 
   GFRaveVertexFactory* fVertexFactory;
