@@ -73,6 +73,7 @@ private:
 
   GFRaveVertexFactory* fVertexFactory;
   std::vector < GFRaveVertex* > * fVertexBuffer;
+  std::vector < GFTrack* > fTrackBuffer;
 
   bool fUseVacuumPropagator; // use the rave::Vacuum propagator instead of GFRavePropagator
   bool fUseBeamspot;
