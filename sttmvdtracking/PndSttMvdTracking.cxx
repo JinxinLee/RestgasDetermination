@@ -11152,8 +11152,8 @@ int nevento=1;
 		 nchosen,
 		 Nround[4];
 
-	const Double_t  MvdCut=0.8,
-//	const Double_t  MvdCut=0.3,
+//	const Double_t  MvdCut=0.8,
+	const Double_t  MvdCut=0.3,
 //	const Double_t  MvdCut=0.1,
 			minimumSttDriftError = 1.;
 
