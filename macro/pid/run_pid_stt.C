@@ -48,13 +48,34 @@
   
   PndPidCorrelator* corr = new PndPidCorrelator();
   //corr->SetVerbose();
-  corr->SetInputBranch("SttMvdGenTrack");
-  corr->SetInputIDBranch("SttMvdGenTrackID");
+  corr->SetInputBranch("SttMvdGemGenTrack");
+  corr->SetInputIDBranch("SttMvdGemGenTrackID");
   corr->SetDebugMode(kTRUE);
   fRun->AddTask(corr);
-  
+ 
+  PndPidIdealAssociatorTask *assMC= new PndPidIdealAssociatorTask();
+  fRun->AddTask(assMC);
+
+  PndPidMvdAssociatorTask *assMvd= new PndPidMvdAssociatorTask();
+  fRun->AddTask(assMvd);
+
+  PndPidMdtHCAssociatorTask *assMdt= new PndPidMdtHCAssociatorTask();
+  fRun->AddTask(assMdt);
+
+  PndPidDrcAssociatorTask *assDrc= new PndPidDrcAssociatorTask();
+  fRun->AddTask(assDrc);
+
+  PndPidDiscAssociatorTask *assDisc= new PndPidDiscAssociatorTask();
+  fRun->AddTask(assDisc);
+
+  PndPidSttAssociatorTask *assStt= new PndPidSttAssociatorTask();
+  fRun->AddTask(assStt);
+
+  PndPidEmcBayesAssociatorTask *assEMC= new PndPidEmcBayesAssociatorTask();
+  fRun->AddTask(assEMC);
+ 
   // -----   Intialise and run   --------------------------------------------
-  PndEmcMapper::Init(6);
+  PndEmcMapper::Init(1);
   fRun->Init();
   fRun->Run(0,nEvents);
   // ------------------------------------------------------------------------

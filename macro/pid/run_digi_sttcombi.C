@@ -66,12 +66,6 @@
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls); 
   // -----   EMC hit producers   ---------------------------------
-  //PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
-  //fRun->AddTask(emcHitProd); // hit production 
-
-  //PndEmcMakeDigi* emcMakeDigi=new PndEmcMakeDigi();
-  //fRun->AddTask(emcMakeDigi); // fast digitization
-
   PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform(iVerbose);
   PndEmcWaveformToDigi* emcWaveformToDigi=new PndEmcWaveformToDigi(iVerbose);
   emcHitsToWaveform->SetStorageOfData(kFALSE);
@@ -87,12 +81,6 @@
 
   PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
   fRun->AddTask(emcHdrFiller); // ECM header
-  
-  // -----   TOF hit producers   ---------------------------------
-  //PndTofHitProducerIdeal* tofhit = new PndTofHitProducerIdeal();
-  //tofhit->SetVerbose(iVerbose);
-  //fRun->AddTask(tofhit);
- 
   // -----   MDT hit producers   ---------------------------------
   PndMdtHitProducerIdeal* mdtHitProd = new PndMdtHitProducerIdeal();
   mdtHitProd->SetPositionSmearing(.3); // position smearing [cm]
@@ -100,12 +88,10 @@
   
   PndMdtTrkProducer* mdtTrkProd = new PndMdtTrkProducer();
   fRun->AddTask(mdtTrkProd);
-
   // -----   DRC hit producers   ---------------------------------
   PndDrcHitProducerIdeal* drchit = new PndDrcHitProducerIdeal();
   drchit->SetVerbose(iVerbose);
   fRun->AddTask(drchit);
-  
   // -----   GEM hit producers   ---------------------------------
   Int_t verboseLevel = 0;
   PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", verboseLevel);
@@ -113,7 +99,11 @@
 
   PndGemFindHits* gemFindHits = new PndGemFindHits("GEM Hit Finder", verboseLevel);
   fRun->AddTask(gemFindHits);
-
+  // -----   FTS hit producers   ---------------------------------
+  PndFtsHitProducerRealFast* ftsHitProducer = new PndFtsHitProducerRealFast();
+  //PndFtsHitProducerIdeal* ftsHitProducer = new PndFtsHitProducerIdeal();
+  //PndFtsHitProducerRealFull* ftsHitProducer = new PndFtsHitProducerRealFull();
+  fRun->AddTask(ftsHitProducer);
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   fRun->Run(0, nEvents);

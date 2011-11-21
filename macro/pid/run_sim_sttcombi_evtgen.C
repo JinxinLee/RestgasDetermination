@@ -70,7 +70,7 @@ run_sim_sttcombi_evtgen(Int_t nEvents=10, UInt_t seed=0){
   fRun->AddModule(Mvd);
 
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
-  Emc->SetGeometryVersion(19); 
+  Emc->SetGeometryVersion(2); 
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
 
@@ -93,9 +93,14 @@ run_sim_sttcombi_evtgen(Int_t nEvents=10, UInt_t seed=0){
   fRun->AddModule(Dsk);
 
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+  Drc->SetGeometryFileName("dirc_l0_p0.root");
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc);
   
+   FairDetector *Fts= new PndFts("FTS", kTRUE);
+  Fts->SetGeometryFileName("fts.geo");
+  fRun->AddModule(Fts);
+
   // Create and Set Event Generator
   //-------------------------------
 
