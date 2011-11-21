@@ -77,12 +77,12 @@
 #pragma link C++ class PndTpcAlignmentManager+;
 
 //#ifdef _DST2ROOT
-#pragma link C++ class CdcHit+;
-#pragma link C++ class CdcEvent+;
-#pragma link C++ class CdcTrack+;
-#pragma link C++ class PointHit+;
-#pragma link C++ class PseudoSpacePoint+;
-#pragma link C++ class RpcTrack+;
+//#pragma link C++ class CdcHit+;
+//#pragma link C++ class CdcEvent+;
+//#pragma link C++ class CdcTrack+;
+//#pragma link C++ class PointHit+;
+//#pragma link C++ class PseudoSpacePoint+;
+//#pragma link C++ class RpcTrack+;
 		       //#pragma link C++ class PndTpcCdcDataReaderTask+;
 		       //#pragma link C++ class PndTpcCdcMatchingTask+;
 		       //#endif
