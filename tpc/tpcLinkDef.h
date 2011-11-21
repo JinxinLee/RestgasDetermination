@@ -70,14 +70,26 @@
 #pragma link C++ class PndTpcEventIdentifier+;
 #pragma link C++ class PndTpcDataReaderTask+;
 #pragma link C++ class PndTpcSLResidualTask+;
-#pragma link C++ class PndTpcResidualTask+;
+//#pragma link C++ class PndTpcResidualTask+;
 #pragma link C++ class PndTpcPadShapePool+;
 #pragma link C++ class PndTpcPadPlane+;
 #pragma link C++ class PndTpcPad+;
 #pragma link C++ class PndTpcAlignmentManager+;
 
+//#ifdef _DST2ROOT
+#pragma link C++ class CdcHit+;
+#pragma link C++ class CdcEvent+;
+#pragma link C++ class CdcTrack+;
+#pragma link C++ class PointHit+;
+#pragma link C++ class PseudoSpacePoint+;
+#pragma link C++ class RpcTrack+;
+		       //#pragma link C++ class PndTpcCdcDataReaderTask+;
+		       //#pragma link C++ class PndTpcCdcMatchingTask+;
+		       //#endif
+
+
 //#pragma link C++ class PndTpcCdcDataReaderTask+;
-//#pragma link C++ class PndTpcCdcMatchingTask+;
+
 
 #endif
 
