@@ -115,6 +115,14 @@ PndTpcVertexingTask::SetParContainers() {
 
 
 void
+PndTpcVertexingTask::SetMethod(const TString& method){
+  // TString to std::string
+  std::string stdMethod(method.Data());
+  fMethod = stdMethod;
+}
+
+
+void
 PndTpcVertexingTask::SetBeamspot(const TVector3 & pos, const TMatrixT<double> & cov3x3){
   fBeamPos = pos;
   fBeamCov = cov3x3;
@@ -161,7 +169,6 @@ PndTpcVertexingTask::Exec(Option_t* opt)
     fTrackBuffer.push_back((GFTrack*)_trackArray->At(i));
   }
 
-
   // create vertices
   if (fVerbose > 0) std::cout << "find vertices from " << nTrks << " tracks\n";
   fVertexFactory->findVertices(fVertexBuffer, fTrackBuffer, fUseBeamspot);
@@ -172,7 +179,6 @@ PndTpcVertexingTask::Exec(Option_t* opt)
     new((*_vertexArray)[i])  GFRaveVertex(*(*fVertexBuffer)[i]);
     if (fVerbose > 1) (*_vertexArray)[_vertexArray->GetLast()]->Print();
   }
-
 
   std::cout << nVert << " vertices found\n";
 }

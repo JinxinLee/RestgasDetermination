@@ -52,7 +52,7 @@ public:
 
   void SetBeamspot(const TVector3 & pos, const TMatrixT<double> & cov3x3); // also sets fUseBeamspot true
   void SetBeamspot(const TVector3 & pos, double err); // also sets fUseBeamspot true
-  void SetMethod(const std::string & method) {fMethod = method;}
+  void SetMethod(const TString& method);
 
   // Operations ----------------------
   virtual InitStatus Init();
