@@ -68,18 +68,16 @@ run_sim_stt_dpm(Int_t nEvents=10, Float_t mom = 3.6772, Int_t mode =1, UInt_t se
   fRun->AddModule(Mvd);
 
   PndEmc *Emc = new PndEmc("EMC",kFALSE);
-  Emc->SetGeometryVersion(19); 
+  Emc->SetGeometryVersion(2); 
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
 
-  PndMdt *Muo = new PndMdt("MDT",kTRUE);
+  PndMdt *Muo = new PndMdt("MDT",kFALSE);
+  Muo->SetBarrel("fast");
+  Muo->SetEndcap("fast");
+  Muo->SetMuonFilter("fast");
   Muo->SetMdtMagnet(kTRUE);
-//  Muo->SetMdtMFIron(kFALSE);
-  Muo->SetMdtCoil(kTRUE);
-  Muo->SetBarrel("muon_TS_barrel_strip_v1_noGeo.root");
-  Muo->SetEndcap("muon_TS_endcap_strip_v1_noGeo.root");
-  Muo->SetForward("muon_Forward_strip_v1_noGeo.root");
-  Muo->SetMuonFilter("muon_MuonFilter_strip_v1_noGeo.root");
+  Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
   
   FairDetector *Gem = new PndGemDetector("GEM", kFALSE);
@@ -116,20 +114,7 @@ run_sim_stt_dpm(Int_t nEvents=10, Float_t mom = 3.6772, Int_t mode =1, UInt_t se
   fRun->SetBeamMom(mom);
   PndMultiField *fField= new PndMultiField("FULL");
   fRun->SetField(fField);
-/*
-  // -----   STT digi producers   --------------------------------- 
-  PndSttHitProducerRealFast* sttHitProducer = new PndSttHitProducerRealFast();
-  fRun->AddTask(sttHitProducer);
- 
-  // -----   MDV digi producers   --------------------------------- 
-  PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
-  mvddigi->SetVerbose(0);
-  fRun->AddTask(mvddigi);
-
-  PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
-  mvdmccls->SetVerbose(0);
-  fRun->AddTask(mvdmccls); 
-  */  
+  
   /**Initialize the session*/
   fRun->Init();
   

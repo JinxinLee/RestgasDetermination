@@ -81,24 +81,31 @@
   SttMvdTracking->Cleanup();
   //SttMvdTracking->SetPersistence(kFALSE);
   fRun->AddTask(SttMvdTracking);
- /*
-  PndMCTrackAssociator* trackMC0 = new PndMCTrackAssociator();
-  trackMC0->SetTrackInBranchName("SttMvdTrack");
-  trackMC0->SetTrackOutBranchName("SttMvdTrackID");
-  trackMC0->SetPersistence(kFALSE);
-  fRun->AddTask(trackMC0);
-*/
+
+  //PndMCTrackAssociator* trackMC0 = new PndMCTrackAssociator();
+  //trackMC0->SetTrackInBranchName("SttMvdTrack");
+  //trackMC0->SetTrackOutBranchName("SttMvdTrackID");
+  //trackMC0->SetPersistence(kFALSE);
+  //fRun->AddTask(trackMC0);
+
   PndSttMvdGemTracking * SttMvdGemTracking = new PndSttMvdGemTracking(0);
   SttMvdGemTracking->SetBranchNames("MVDHitsPixelMix", "MVDHitsStripMix", "STTHitMix", "GEMHit");
   //SttMvdGemTracking->SetPdgFromMC();
   fRun->AddTask(SttMvdGemTracking);
   
+  PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
+  trackMC->SetTrackInBranchName("SttMvdGemTrack");
+  trackMC->SetTrackOutBranchName("SttMvdGemTrackID");
+  fRun->AddTask(trackMC);
+
   PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
   recoKalman->SetTrackInBranchName("SttMvdGemTrack");
+  recoKalman->SetTrackInIDBranchName("SttMvdGemTrackID");
   recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
   recoKalman->SetBusyCut(50); // CHECK to be tuned
   recoKalman->SetMvdBranchName("Mix");
   recoKalman->SetCentralTrackerBranchName("Mix");
+  recoKalman->SetIdealHyp(kTRUE);
   //recoKalman->SetNumIterations(3);
   fRun->AddTask(recoKalman);
 
@@ -108,7 +115,7 @@
   fRun->AddTask(trackMC);
 
   // -----   Intialise and run   --------------------------------------------
-  PndEmcMapper::Init(6);
+  PndEmcMapper::Init(1);
   fRun->Init();
   fRun->Run(0, nEvents);
 

@@ -74,13 +74,13 @@ run_sim_stt_evt(Int_t nEvents=10, UInt_t seed=0){
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
 
-PndMdt *Muo = new PndMdt("MDT",kTRUE);
-Muo->SetBarrel("fast");
-Muo->SetEndcap("fast");
-Muo->SetMuonFilter("fast");
-Muo->SetMdtMagnet(kTRUE);
-Muo->SetMdtMFIron(kTRUE);
-fRun->AddModule(Muo);
+  PndMdt *Muo = new PndMdt("MDT",kTRUE);
+  Muo->SetBarrel("fast");
+  Muo->SetEndcap("fast");
+  Muo->SetMuonFilter("fast");
+  Muo->SetMdtMagnet(kTRUE);
+  Muo->SetMdtMFIron(kTRUE);
+  fRun->AddModule(Muo);
 
   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
   Gem->SetGeometryFileName("gem_3Stations.root");
@@ -111,9 +111,6 @@ fRun->AddModule(Muo);
   primGen->SetBeam(0., 0., 0.1, 0.1);
   primGen->SmearVertexXY(kTRUE);
   fRun->SetGenerator(primGen);
-
-  //FairEvtGenGenerator* evtGen = new FairEvtGenGenerator("output.evt");
-  //primGen->AddGenerator(evtGen);
 
   // ... generate your signal on the fly
   PndEvtGenDirect *EvtGen = new PndEvtGenDirect("eta_c","EtaCInclusive_2phi.dec");

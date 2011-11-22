@@ -66,18 +66,18 @@
   fRun->AddTask(sttFindTracks);
   
   PndSttMvdTracking *  SttMvdTracking = new PndSttMvdTracking(0, false, false);
-//  SttMvdTracking->Cleanup();
+  //  SttMvdTracking->Cleanup();
   SttMvdTracking->SetPersistence(kFALSE);
   fRun->AddTask(SttMvdTracking);
   
-  PndMCTrackAssociator* trackMC0 = new PndMCTrackAssociator();
-  trackMC0->SetTrackInBranchName("SttMvdTrack");
-  trackMC0->SetTrackOutBranchName("SttMvdTrackID");
-  trackMC0->SetPersistence(kFALSE);
-  fRun->AddTask(trackMC0);
+  //PndMCTrackAssociator* trackMC0 = new PndMCTrackAssociator();
+  //trackMC0->SetTrackInBranchName("SttMvdTrack");
+  //trackMC0->SetTrackOutBranchName("SttMvdTrackID");
+  //trackMC0->SetPersistence(kFALSE);
+  //fRun->AddTask(trackMC0);
 
   PndSttMvdGemTracking * SttMvdGemTracking = new PndSttMvdGemTracking(0);
-  SttMvdGemTracking->SetPdgFromMC();
+  // SttMvdGemTracking->SetPdgFromMC();
   fRun->AddTask(SttMvdGemTracking);
 
   PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
