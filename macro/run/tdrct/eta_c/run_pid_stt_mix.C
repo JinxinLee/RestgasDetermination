@@ -50,6 +50,7 @@
   //corr->SetVerbose();
   corr->SetInputBranch("SttMvdGemGenTrack");
   corr->SetInputIDBranch("SttMvdGemGenTrackID");
+  corr->SetFast(kTRUE);
   //corr->SetDebugMode(kTRUE);
   fRun->AddTask(corr);
  
