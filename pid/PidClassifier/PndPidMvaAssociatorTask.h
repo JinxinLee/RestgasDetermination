@@ -88,7 +88,7 @@ class PndPidMvaAssociatorTask: public FairTask
    */
   inline void SetWeightFileName(std::string const& wFileName);
   
-  inline void SetClassifier(std::string const& methodName);
+  void SetClassifier(std::string const& methodName);
   inline void SetClassifier(Mva_MethodType const& methodT);
 
   //______________ KNN- Classifier parameter _____________
@@ -179,22 +179,6 @@ inline void PndPidMvaAssociatorTask::SetNumNeigh(int val)
   fNumNeigh = val;
 };
 
-inline void PndPidMvaAssociatorTask::SetClassifier(std::string const& methodNameStr)
-{
-  if(methodNameStr == "KNN")
-  {
-    fMethodType = KNN;
-  }
-  else if(methodNameStr == "LVQ")
-  {
-    fMethodType = LVQ;
-  }
-  else
-  {
-    std::cerr << "<ERROR> Unknown Method."
-               << std::endl;
-  }
-};
 inline void PndPidMvaAssociatorTask::SetClassifier(Mva_MethodType const& methodT)
 {
   fMethodType = methodT;

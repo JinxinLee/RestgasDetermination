@@ -225,6 +225,30 @@ InitStatus PndPidMvaAssociatorTask::Init()
 void PndPidMvaAssociatorTask::SetParContainers()
 {}
 
+void PndPidMvaAssociatorTask::SetClassifier(std::string const& methodNameStr)
+{
+  if(methodNameStr == "KNN")
+  {
+    fMethodType = KNN;
+  }
+  else if(methodNameStr == "LVQ")
+  {
+    fMethodType = LVQ;
+  }
+  else if(methodNameStr == "TMVA_MLP")
+  {
+    fMethodType = TMVA_MLP;
+  }
+  else if(methodNameStr == "TMVA_BDT")
+  {
+    fMethodType = TMVA_BDT;
+  }
+  else
+  {
+    std::cerr << "<ERROR> Unknown Method."
+	      << std::endl;
+  }
+};
 //______________________________________________________
 void PndPidMvaAssociatorTask::Exec(Option_t* option)
 {
@@ -234,7 +258,8 @@ void PndPidMvaAssociatorTask::Exec(Option_t* option)
   }
 
 #if (DEBUG != 0)
-  std::cout << "<INFO> Call to Exec with " << option << '\n';
+  std::cout << "<INFO> Call to Exec with " << option
+	    << '\n';
 #endif
 
   if(fVerbose > 1)
@@ -247,6 +272,7 @@ void PndPidMvaAssociatorTask::Exec(Option_t* option)
   {
     PndPidCandidate* pidcand = (PndPidCandidate*)fPidChargedCand->At(i);
     TClonesArray& pidRef = *fPidChargedProb;
+
     // initializes with zeros
     PndPidProbability* prob = new(pidRef[i]) PndPidProbability();
     
@@ -272,8 +298,10 @@ void PndPidMvaAssociatorTask::Exec(Option_t* option)
   {
     PndPidCandidate* pidcand = (PndPidCandidate*)fPidNeutralCand->At(i);
     TClonesArray& pidRef = *fPidNeutralProb;
+
     // initializes with zeros
     PndPidProbability* prob = new(pidRef[i]) PndPidProbability();
+    
     // Classify
     DoPidMatch(*pidcand, *prob);
   }
