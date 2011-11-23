@@ -52,25 +52,41 @@ void reco_sttcombi(char inDigiFile [] = "digi_sttcombi.root",   //Input file Dig
   PndMvdRiemannTrackFinderTask* mvdTrackFinder = new PndMvdRiemannTrackFinderTask();
   mvdTrackFinder->SetVerbose(iVerbose);
   mvdTrackFinder->SetMaxDist(0.05);
+  mvdTrackFinder->SetPersistence(kFALSE);
   fRun->AddTask(mvdTrackFinder);
   
   //  PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
   PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(0);
   PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
   sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
+  //sttFindTracks->SetPersistence(kFALSE);
   fRun->AddTask(sttFindTracks);
   
-  PndSttMvdTracking *  SttMvdTracking = new PndSttMvdTracking(0);
+  PndSttMvdTracking *  SttMvdTracking = new PndSttMvdTracking(0, false, false);
+  //SttMvdTracking->Cleanup();
+  SttMvdTracking->SetPersistence(kFALSE);
   fRun->AddTask(SttMvdTracking);
-  
+
+  PndSttMvdGemTracking * SttMvdGemTracking = new PndSttMvdGemTracking(0);
+  //SttMvdGemTracking->SetPdgFromMC();
+  fRun->AddTask(SttMvdGemTracking);
+
+  PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
+  trackMC->SetTrackInBranchName("SttMvdGemTrack");
+  trackMC->SetTrackOutBranchName("SttMvdGemTrackID");
+  fRun->AddTask(trackMC);
+
   PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
-  recoKalman->SetTrackInBranchName("SttMvdTrack");
-  recoKalman->SetTrackOutBranchName("SttMvdGenTrack");
+  recoKalman->SetTrackInBranchName("SttMvdGemTrack");
+  recoKalman->SetTrackInIDBranchName("SttMvdGemTrackID");
+  recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
+  recoKalman->SetBusyCut(50); // CHECK to be tuned
+  // recoKalman->SetIdealHyp(kTRUE);
   // recoKalman->SetNumIterations(3);
   // recoKalman->SetParticleHypo("electron");
   // recoKalman->SetParticleHypo(11);
   fRun->AddTask(recoKalman);
-  
+
   //////////////////
   /*
     PndRecoMultiKalmanTask* recoKalman = new PndRecoMultiKalmanTask();
@@ -79,8 +95,14 @@ void reco_sttcombi(char inDigiFile [] = "digi_sttcombi.root",   //Input file Dig
     fRun->AddTask(recoKalman);
   */
   //////////////////// 
+  
+  PndMCTrackAssociator* trackMC2 = new PndMCTrackAssociator();
+  trackMC2->SetTrackInBranchName("SttMvdGemGenTrack"); 
+  trackMC2->SetTrackOutBranchName("SttMvdGemGenTrackID");
+  fRun->AddTask(trackMC2);
+  
   // -----   Intialise and run   --------------------------------------------
-  PndEmcMapper::Init(6);
+  PndEmcMapper::Init(1);
   
   fRun->Init();
   fRun->Run(0, nEvents);

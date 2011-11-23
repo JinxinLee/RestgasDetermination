@@ -86,10 +86,7 @@ void selectEvents(int pdg,
   
   // Track list
   TClonesArray* recTrakArr = new TClonesArray("PndTrack");
-  RecoTr->SetBranchAddress("SttMvdGenTrack", &recTrakArr);
-
-  //RecoTr->SetBranchAddress("LheTrack", &recTrakArr);
-  //RecoTr->SetBranchAddress("LheGenTrackPion", &recTrakArr);
+  RecoTr->SetBranchAddress("SttMvdGemGenTrack", &recTrakArr);
   
   // Loop through the simulation data.
   std::cout << "<INFO> Selecting events." << '\n';
