@@ -22,7 +22,6 @@
 #include <map>
 #include "PndMvdApvHit.h"
 #include "PndGeoHandling.h"
-//! Class for digitising strip of Apv-Sensors to digtil hits
 
 // class PndMvdApv;
 #include "PndSdsDigiStrip.h"

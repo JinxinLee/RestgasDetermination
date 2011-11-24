@@ -445,9 +445,12 @@ void TtCracowTask::Exec(Option_t* opt)
 
 	  Double_t chi2 = amin/(2.*Npoint-4);
 
+	  Double_t SumEn;
+	  
+	  for (Int_t gg = 0 ; gg < 6 ; gg++) SumEn += fEloss[gg];
 	  
   	  std::cout << "Scrivo" << endl;
-	  new ((*fTrackArray)[0]) TtFitRes(min->GetParameter(0), min->GetParameter(1), min->GetParameter(2), min->GetParameter(3), fEloss, chi2, chi2, Npoint) ;
+	  new ((*fTrackArray)[0]) TtFitRes(min->GetParameter(0), min->GetParameter(1), min->GetParameter(2), min->GetParameter(3), SumEn, chi2, chi2, Npoint) ;
 //	  new ((*fTrackArray)[0]) TtFitRes(min->GetParameter(0), min->GetParameter(1), min->GetParameter(2), min->GetParameter(3), fEloss, chi2, chi2, 3) ;
 	  delete gr;
 	

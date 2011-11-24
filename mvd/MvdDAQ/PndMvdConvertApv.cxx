@@ -1,3 +1,6 @@
+// using timestamp for the clock counts
+// and timestamperr to store the spill resets (just a temporary solution)
+
 #include "PndMvdConvertApv.h"
 
 //#include "TsEvent.h"
@@ -164,6 +167,8 @@ std::vector<PndSdsDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hi
                               q/*/1000/1000*/,                 // charge
                               hitlist[hitnumber].GetTimestamp()// timestamp
                               );
+	  DigiHit.SetTimeStampError(hitlist[hitnumber].GetTriggerID());                             
+                              
       //      cout << "Ev. " << hitlist[hitnumber].GetEventID() << ", FE: " << hitlist[hitnumber].GetFeID() << ", ch: " << hitlist[hitnumber].GetChannel() << ", FAKE" << endl;
 
       result.push_back(DigiHit);
@@ -176,6 +181,9 @@ std::vector<PndSdsDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hi
                               q/*/1000/1000*/,
                               hitlist[hitnumber].GetTimestamp() 
                               );
+      DigiHit.SetTimeStampError(hitlist[hitnumber].GetTriggerID());
+      
+                                                        
       //   cout << "Ev. " << hitlist[hitnumber].GetEventID() << ", FE: " << hitlist[hitnumber].GetChannel()/128 << ", ch: " << hitlist[hitnumber].GetChannel()%128 << ", sens" << hitlist[hitnumber].GetModuleID()  << endl;
       result.push_back(DigiHit);
     }
@@ -208,11 +216,17 @@ std::vector<PndSdsDigiStrip> PndMvdConvertApv::ReadNext()
 	int moduleID=0;
 	double q=0.;
 	long int ev=0;
+	UInt_t ClockReset = 0.;
+	ULong64_t ClockCounts = 0.;
 
 	if (fEvent >= -1 && fEvent <= fNofEvents)
 	{
 	
 		t->GetEvent(fEvent);
+	
+		ClockCounts = tsEv->GetExtClockTimeStamp(ClockReset); 
+		// Storing ClockReset in fTriggerID
+	    // Storing ClockCounts in fTimestamp
 	
 		arr = tsEv->GetSiHitList();
 		fhitlist.clear();
@@ -233,7 +247,8 @@ std::vector<PndSdsDigiStrip> PndMvdConvertApv::ReadNext()
 			//			digiList = Calc(fhitlist);
 			
 			fLastEvent=ev;
-			PndMvdApvHit Hit(ev, moduleID, fe, triggID, ts, frame, ch, q, l);
+			//PndMvdApvHit Hit(ev, moduleID, fe, triggID, ts, frame, ch, q, l);
+			PndMvdApvHit Hit(ev, moduleID, fe, ClockReset, ClockCounts, frame, ch, q, l);
 			//cout << "Ev. " << fEvent << ", trigg: " << triggID << ", sens: " << moduleID << ", ch: " << ch << ", fe: " << (Int_t) (hit->fChannel)/128 << ", channel: " << (Int_t) (hit->fChannel)%128 << endl;
 			fhitlist.push_back(Hit);
 		}

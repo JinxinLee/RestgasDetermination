@@ -1,7 +1,6 @@
-// -------------------------------------------------------------------------
-// -----                PndMvdConvertApvTast source file               -----
-// -----                  Created 13/01/09  by L.Ackermann             -----
-// -------------------------------------------------------------------------
+// using timestamp for the clock counts
+// and timestamperr to store the spill resets (just a temporary solution)
+
 // libc includes
 #include <iostream>
 #include <map>
@@ -134,6 +133,8 @@ void PndMvdConvertApvTask::Exec(Option_t* opt)
   Int_t detnameid;
   Int_t stripnum;
   Int_t buffCh = -1;  
+  Double_t buffClock;
+  Double_t buffSpill;
 
 	std::vector<PndSdsDigiStrip> strips = fApvConvert->ReadNext();
 	for (std::vector<PndSdsDigiStrip>::iterator strip=strips.begin(); strip!=strips.end(); ++strip)
@@ -147,7 +148,8 @@ void PndMvdConvertApvTask::Exec(Option_t* opt)
 	  fApvMapper->DoMapping(nbox,buffCh,detpath);
 	  detnameid=fGeoH->GetShortID(detpath);
     
-	  
+	  buffClock = strip->GetTimeStamp();
+	  buffSpill = strip->GetTimeStampError();
 
 	  if(fVerbose>1) Info("Exec","Write a Digi from detector %s %i",detpath.Data(),detnameid);
 	  stripnum = fStripArray->GetEntriesFast();
@@ -167,8 +169,12 @@ void PndMvdConvertApvTask::Exec(Option_t* opt)
 
 	  //cout << "Box: " << nbox << ", channel: " << buffCh << ", nome: " << detpath.Data() << ", iD: " << detnameid << ", FE: " << sw << ", corrCh: " << ch << endl;
 
-	  new ((*fStripArray)[stripnum]) PndSdsDigiStrip(strip->GetIndices(), strip->GetDetID(),
-							 detnameid, sw, ch, strip->GetCharge() ,0);
+	  PndSdsDigiStrip *buffStr = new PndSdsDigiStrip(strip->GetIndices(), strip->GetDetID(),detnameid, sw, ch, strip->GetCharge(),strip->GetTimeStamp());
+	  buffStr->SetTimeStampError(strip->GetTimeStampError());
+
+	new ((*fStripArray)[stripnum]) PndSdsDigiStrip(*buffStr);
+
+	  //new ((*fStripArray)[stripnum]) PndSdsDigiStrip(strip->GetIndices(), strip->GetDetID(),detnameid, sw, ch, strip->GetCharge() ,0);
 	  // collect information of fake bottom sides if singlesided
 	  if (IsSingleSided(detpath))
 	    {    // collect information of fake bottom sides if singlesided
@@ -183,7 +189,12 @@ void PndMvdConvertApvTask::Exec(Option_t* opt)
 	    stripnum = fStripArray->GetEntriesFast();
 	    botfe=CalcBotFakeFE( fGeoH->GetPath(it->first) );
 	    
-	    new ((*fStripArray)[stripnum]) PndSdsDigiStrip(buffIndex[it->first], kMVDHitsStrip,it->first, botfe, 0, it->second, 0);
+	    PndSdsDigiStrip *buffStr2 = new PndSdsDigiStrip(buffIndex[it->first], kMVDHitsStrip,it->first, botfe, 0, it->second, buffClock);
+	    buffStr2->SetTimeStampError(buffSpill);
+	    
+	    new ((*fStripArray)[stripnum])PndSdsDigiStrip(*buffStr2);
+	    
+	    //new ((*fStripArray)[stripnum])PndSdsDigiStrip(buffIndex[it->first], kMVDHitsStrip,it->first, botfe, 0, it->second, 0);
 	  }
   
 }

@@ -20,7 +20,7 @@ class TtFitRes : public TObject
 
   TtFitRes();
 
-  TtFitRes(Double_t p0, Double_t p1, Double_t p2, Double_t p3, Double_t *eloss, Double_t chiX, Double_t chiY, Int_t numSens);
+  TtFitRes(Double_t p0, Double_t p1, Double_t p2, Double_t p3, Double_t eloss, Double_t chiX, Double_t chiY, Int_t numSens);
 
   virtual ~TtFitRes();
 
@@ -31,7 +31,7 @@ class TtFitRes : public TObject
   Double_t 	GetChiSquareX()		const { return fChiSqX;}
   Double_t 	GetChiSquareY()		const { return fChiSqY;}
   Int_t         GetNsens()              const { return fNsens;}
-  Double_t*     GetElosses()            { return fEloss;}
+  Double_t     GetEloss()            { return fEloss;}
 
 
 
@@ -39,7 +39,7 @@ class TtFitRes : public TObject
  private:
 
   Double_t fP0, fP1, fP2, fP3; // fit-parameter
-  Double_t fEloss[6]; // the 6 energy losses
+  Double_t fEloss; // Total energy loss
   Double_t fChiSqX; // Chi-Square of X Fit
   Double_t fChiSqY; // Chi-Square of Y Fit
   Int_t fNsens; // number of sensors used for the fit
