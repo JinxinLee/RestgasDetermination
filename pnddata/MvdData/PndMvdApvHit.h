@@ -31,7 +31,7 @@ class PndMvdApvHit : public TObject
 	@param adc ADC height in channel
 	@param length frame length in this channel
 	*/
-	PndMvdApvHit(long int eventID, Int_t moduleID, Int_t fe, Int_t triggerID, Int_t timestamp, Int_t frame, Int_t channel, Double_t adc, Int_t length)
+	PndMvdApvHit(long int eventID, Int_t moduleID, Int_t fe, Double_t triggerID, Double_t timestamp, Int_t frame, Int_t channel, Double_t adc, Int_t length)
 	: fEventID(eventID), fModuleID(moduleID), fFeID(fe), fTriggerID(triggerID), fChannel(channel), fTimestamp(timestamp), fFrameID(frame), fADC(adc), fLength(length)
 	{}
 	~PndMvdApvHit(){}
@@ -48,7 +48,7 @@ class PndMvdApvHit : public TObject
         get hit timestamp
         @return timestamp in the event
         */
-        Int_t GetTimestamp() const { return fTimestamp; }
+        Double_t GetTimestamp() const { return fTimestamp; }
 
         /**
         @fn Int_t GetFrameID() const
@@ -97,15 +97,15 @@ class PndMvdApvHit : public TObject
         @fn Int_t GetTriggerID() const
         @return trigger ID
         */
-        Int_t GetTriggerID() const { return fTriggerID; }
+        Double_t GetTriggerID() const { return fTriggerID; }
 
    private :
 	long int fEventID;	/// store event ID
 	Int_t fModuleID;	/// store moduleID
 	Int_t fFeID;		/// store fe ID (should be betwen 0 and 2)
-	Int_t fTriggerID;	/// store trigger ID
+	Double_t fTriggerID;	/// store trigger ID
 	Int_t fChannel;		/// store channel (should be betwen 0 and 127)
-	Int_t fTimestamp;	/// store timestamp
+	Double_t fTimestamp;	/// store timestamp
 	Int_t fFrameID;		/// store frame ID
 	Double_t fADC;		/// store ADC height
 	Int_t fLength;		/// store frame length 
