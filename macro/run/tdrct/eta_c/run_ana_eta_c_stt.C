@@ -2,7 +2,7 @@ class TCandList;
 class TCandidate;
 class TFitParams;
 
-void run_ana_eta_c_stt(int nevts=0)
+void run_ana_eta_c_stt(int nevts=0, bool usePID=true)
 {
 	TString OutFile="etac_histo_stt.root";
   
@@ -231,6 +231,8 @@ void run_ana_eta_c_stt(int nevts=0)
 		
 		// MC PID
 		// Leave only kaons in particle lists
+		if (usePID)
+		{
 		int n_removed=0;
 		int ii=0;
 		for (l=0;l<p1.GetLength();++l) {
@@ -252,9 +254,16 @@ void run_ana_eta_c_stt(int nevts=0)
 				{
 				std::cout<<"stt h: " << p1[ii].GetMicroCandidate().GetSttHits() << std::endl;
 				std::cout<<"Kaon list 1, element "<<l<<" has no assosiated mcTRack"<<std::endl;
+				p1.Remove(p1[ii]);
+				n_removed++;
 				}
 			}
-		}
+			else {
+				std::cout<<"MC index =-1"<<std::endl;
+				p1.Remove(p1[ii]);
+				n_removed++;
+			}
+      		}
 
 		n_removed=0;
 		ii=0;
@@ -277,10 +286,18 @@ void run_ana_eta_c_stt(int nevts=0)
 				{ 
 				std::cout<<"stt h: " << p2[ii].GetMicroCandidate().GetSttHits() << std::endl;
 				std::cout<<"Kaon list 2, element "<<l<<" has no assosiated mcTRack"<<std::endl;
+				p2.Remove(p2[ii]);
+				n_removed++;
 				}
 			}
+			else {
+				std::cout<<"MC index =-1"<<std::endl;
+				p2.Remove(p2[ii]);
+				n_removed++;
+			}
 		}
-		
+		}
+
 		phi1_pid.Combine(p1,p2);
 		
 		for (j=0;j<phi1_pid.GetLength();++j) h_mphi_pid->Fill(phi1_pid[j].M());
