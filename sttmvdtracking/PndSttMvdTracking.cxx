@@ -10734,8 +10734,8 @@ UShort_t ListParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack] // input/outp
 		dist1,
 		Zpos;
 
-//	const Double_t NTIMES=0.4;
-	const Double_t NTIMES=1.;
+	const Double_t NTIMES=0.4;
+//	const Double_t NTIMES=1.;
 
 
 	for(itrack=StartTrackCand; itrack<EndTrackCand; itrack++){
