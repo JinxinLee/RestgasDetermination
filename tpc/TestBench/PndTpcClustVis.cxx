@@ -22,6 +22,7 @@
 #include "TStopwatch.h"
 #include "FairRootManager.h"
 #include "TDatabasePDG.h"
+#include "TGLViewer.h"
 
 #include "GFAbsTrackRep.h"
 #include "GFAbsRecoHit.h"
@@ -122,17 +123,21 @@ PndTpcClustVis::PndTpcClustVis():
     std::cout << "done!" << std::endl;
   }
 
+
   //init colors
-  //colors.push_back(kRed);
-  colors.push_back(kGreen);
-  colors.push_back(kBlue);
-  colors.push_back(kCyan+1);
-  colors.push_back(kMagenta);
-  colors.push_back(kYellow+1);
-  colors.push_back(kRed-7);
-  colors.push_back(kSpring+5);
-  colors.push_back(kCyan-3);
+  gEve->GetDefaultGLViewer()->SetClearColor(kWhite);
+
+  colors.push_back(kRed);
   colors.push_back(kOrange+1);
+  colors.push_back(kGreen+1);
+  colors.push_back(kSpring-9);
+  colors.push_back(kCyan+1);
+  //colors.push_back(kCyan-3);
+  colors.push_back(kBlue);
+  colors.push_back(kMagenta);
+  //colors.push_back(kYellow+1);
+  //colors.push_back(kRed-7);
+
 
   // Build hit factory -----------------------------
   clusterArray = new TClonesArray("PndTpcCluster");
@@ -323,32 +328,55 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
   // Draw tpc
   double tpcLength(72.5);
   double tpcOffset(-62);
+  double RInner(5.);
+  double ROuter(15.);
   bool panda = false;
   if(fRiemannScale >10) panda = true;
   if (panda) {
     tpcLength = 150;
     tpcOffset = -39.5;
+    RInner = 15.;
+    ROuter = 42.;
   }
 
   if(drawTpc){
 
     std::cerr<<"drawTpc..."<<std::endl;
 
-    TGeoMatrix* tpc_trans;
-    tpc_trans = new TGeoGenTrans(0,0,0.5*tpcLength+tpcOffset, 1,1,1, 0);
+    TGeoMatrix* tpc_trans = new TGeoGenTrans(0,0,0.5*tpcLength+tpcOffset, 1,1,1, 0);
+    TGeoMatrix* tpc_transTop = new TGeoGenTrans(0,0,tpcLength+tpcOffset, 1,1,1, 0);
+    TGeoMatrix* tpc_transBottom = new TGeoGenTrans(0,0,tpcOffset, 1,1,1, 0);
 
-    TEveGeoShape* tpc_shape = new TEveGeoShape("tpc_shape");
+    TEveGeoShape* tpc_shapeInner = new TEveGeoShape("tpc_shapeInner");
+    TEveGeoShape* tpc_shapeOuter = new TEveGeoShape("tpc_shapeOuter");
+    TEveGeoShape* tpc_shapeTop = new TEveGeoShape("tpc_shapeTop");
+    TEveGeoShape* tpc_shapeBottom = new TEveGeoShape("tpc_shapeBottom");
 
-    if(panda)
-      tpc_shape->SetShape(new TGeoTube(15.,42., 0.5*tpcLength));
-    else
-      tpc_shape->SetShape(new TGeoTube(5.,15., 0.5*tpcLength));
+    tpc_shapeInner->SetTransMatrix(*tpc_trans);
+    tpc_shapeInner->SetMainColor(kWhite);
+    tpc_shapeInner->SetMainTransparency(char(TpcTransp));
 
-    tpc_shape->SetTransMatrix(*tpc_trans);
+    tpc_shapeOuter->SetTransMatrix(*tpc_trans);
+    tpc_shapeOuter->SetMainColor(kWhite);
+    tpc_shapeOuter->SetMainTransparency(char(TpcTransp));
 
-    tpc_shape->SetMainColor(kBlue);
-    tpc_shape->SetMainTransparency(char(TpcTransp));
-    gEve->AddElement(tpc_shape);
+    tpc_shapeTop->SetTransMatrix(*tpc_transTop);
+    tpc_shapeTop->SetMainColor(kWhite);
+    tpc_shapeTop->SetMainTransparency(char(TpcTransp));
+
+    tpc_shapeBottom->SetTransMatrix(*tpc_transBottom);
+    tpc_shapeBottom->SetMainColor(kWhite);
+    tpc_shapeBottom->SetMainTransparency(char(TpcTransp));
+
+    tpc_shapeInner->SetShape(new TGeoTube(RInner,RInner +0.1, 0.5*tpcLength));
+    gEve->AddElement(tpc_shapeInner);
+    tpc_shapeOuter->SetShape(new TGeoTube(ROuter-0.1,ROuter, 0.5*tpcLength));
+    gEve->AddElement(tpc_shapeOuter);
+
+    tpc_shapeTop->SetShape(new TGeoTube(RInner,ROuter, 0.1));
+    gEve->AddElement(tpc_shapeTop);
+    tpc_shapeBottom->SetShape(new TGeoTube(RInner,ROuter, 0.1));
+    gEve->AddElement(tpc_shapeBottom);
   }
 
 
@@ -1568,8 +1596,8 @@ void PndTpcClustVis::drawCluster(const PndTpcCluster* cluster, Color_t color){
     err = cluster->sig();
     cluster_shape->SetShape(new TGeoBBox(err.X(), err.Y(), err.Z()) );
   }
-  //else cluster_shape->SetShape(new TGeoSphere(0., 0.25) );
-  else cluster_shape->SetShape(new TGeoBBox(0.1,0.1,0.1) );
+  else cluster_shape->SetShape(new TGeoSphere(0., 0.25) );
+  //else cluster_shape->SetShape(new TGeoBBox(0.1,0.1,0.1) );
 
   cluster_shape->SetTransMatrix(*det_trans);
 
