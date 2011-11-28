@@ -44,6 +44,7 @@ PndSttMvdGemTracking.cxx
 #PndSttMvdV0PR.cxx
 PndMixBackgroundEvents.cxx
 PndSecondaryTrackFinder.cxx
+PndLambdaIM.cxx
 )
 
 if(RULE_CHECKER_FOUND)
