@@ -382,10 +382,11 @@ int main(int argc, char** argv)
 	   << " %."
 	   << std::endl;
   }// Labels loop
-  OutPut << "Total number of missclassified events = " << totMissCls
+  OutPut << "_______________ Overal error _______________\n"
+	 << "Total number of missclassified events = " << totMissCls
 	 << " ("
 	 << ((static_cast<float>(totMissCls) * 100.00)/static_cast<float>(classifiedEvents.size()))
-	 << " %).\n";
+	 << " %).\n\n";
 
 #else // Do per momentum region. (PER_MOMENTUM_INTERVAL != 0)
   // 0.00 <= p <= 1.0 low

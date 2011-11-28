@@ -78,6 +78,7 @@ void sim_sttcombi_pgun( int seed = 3257,
 
   // Pipe.  
   FairModule* Pipe= new PndPipe("PIPE");
+  Pipe->SetGeometryFileName("pipe.geo");
   fRun->AddModule(Pipe);
   
   // ---------- STT
