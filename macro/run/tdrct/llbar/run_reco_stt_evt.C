@@ -54,7 +54,7 @@
  
   PndMvdRiemannTrackFinderTask* mvdTrackFinder = new PndMvdRiemannTrackFinderTask();
   mvdTrackFinder->SetVerbose(iVerbose);
-  //  mvdTrackFinder->SetPersistence(kFALSE);
+  mvdTrackFinder->SetPersistence(kFALSE);
   mvdTrackFinder->SetMaxDist(0.05);
   fRun->AddTask(mvdTrackFinder);
 
@@ -62,46 +62,45 @@
   PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(0);
   PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
   sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
-  //  sttFindTracks->SetPersistence(kFALSE);
+  sttFindTracks->SetPersistence(kFALSE);
   fRun->AddTask(sttFindTracks);
   
   PndSttMvdTracking *  SttMvdTracking = new PndSttMvdTracking(0, false, false);
-  SttMvdTracking->Cleanup();
-  //  SttMvdTracking->SetPersistence(kFALSE);
+  //  SttMvdTracking->Cleanup();
+  SttMvdTracking->SetPersistence(kFALSE);
   fRun->AddTask(SttMvdTracking);
   
-  PndMCTrackAssociator* trackMC0 = new PndMCTrackAssociator();
-  trackMC0->SetTrackInBranchName("SttMvdTrack");
-  trackMC0->SetTrackOutBranchName("SttMvdTrackID");
-  //  trackMC0->SetPersistence(kFALSE);
-  fRun->AddTask(trackMC0);
+  //PndMCTrackAssociator* trackMC0 = new PndMCTrackAssociator();
+  //trackMC0->SetTrackInBranchName("SttMvdTrack");
+  //trackMC0->SetTrackOutBranchName("SttMvdTrackID");
+  //trackMC0->SetPersistence(kFALSE);
+  //fRun->AddTask(trackMC0);
 
-  /**
-     PndSttMvdGemTracking * SttMvdGemTracking = new PndSttMvdGemTracking(0);
-     SttMvdGemTracking->SetPdgFromMC();
-     fRun->AddTask(SttMvdGemTracking);
+  PndSttMvdGemTracking * SttMvdGemTracking = new PndSttMvdGemTracking(0);
+  // SttMvdGemTracking->SetPdgFromMC();
+  fRun->AddTask(SttMvdGemTracking);
 
-     PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
-     trackMC->SetTrackInBranchName("SttMvdGemTrack");
-     trackMC->SetTrackOutBranchName("SttMvdGemTrackID");
-     fRun->AddTask(trackMC);
+  PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
+  trackMC->SetTrackInBranchName("SttMvdGemTrack");
+  trackMC->SetTrackOutBranchName("SttMvdGemTrackID");
+  fRun->AddTask(trackMC);
 
-     PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
-     recoKalman->SetTrackInBranchName("SttMvdGemTrack");
-     recoKalman->SetTrackInIDBranchName("SttMvdGemTrackID");
-     recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
-     recoKalman->SetBusyCut(50); // CHECK to be tuned
-     recoKalman->SetIdealHyp(kTRUE);
-     //recoKalman->SetNumIterations(3);
-     fRun->AddTask(recoKalman);
+  PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
+  recoKalman->SetTrackInBranchName("SttMvdGemTrack");
+  recoKalman->SetTrackInIDBranchName("SttMvdGemTrackID");
+  recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
+  recoKalman->SetBusyCut(50); // CHECK to be tuned
+  recoKalman->SetIdealHyp(kTRUE);
+  //recoKalman->SetNumIterations(3);
+  fRun->AddTask(recoKalman);
 
-     PndMCTrackAssociator* trackMC2 = new PndMCTrackAssociator();
-     trackMC2->SetTrackInBranchName("SttMvdGemGenTrack"); 
-     trackMC2->SetTrackOutBranchName("SttMvdGemGenTrackID");
-     fRun->AddTask(trackMC2);
-  **/
+  PndMCTrackAssociator* trackMC2 = new PndMCTrackAssociator();
+  trackMC2->SetTrackInBranchName("SttMvdGemGenTrack"); 
+  trackMC2->SetTrackOutBranchName("SttMvdGemGenTrackID");
+  fRun->AddTask(trackMC2);
+
   // -----   Intialise and run   --------------------------------------------
-  PndEmcMapper::Init(6);
+  PndEmcMapper::Init(1);
   fRun->Init();
   fRun->Run(0, nEvents);
 

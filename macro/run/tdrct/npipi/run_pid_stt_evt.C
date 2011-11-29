@@ -51,8 +51,9 @@
   corr->SetInputBranch("SttMvdGemGenTrack");
   corr->SetInputIDBranch("SttMvdGemGenTrackID");
   //corr->SetDebugMode(kTRUE);
+  corr->SetFast(kTRUE);
   fRun->AddTask(corr);
- 
+/* 
   PndPidIdealAssociatorTask *assMC= new PndPidIdealAssociatorTask();
   fRun->AddTask(assMC);
 
@@ -70,9 +71,9 @@
 
   PndPidSttAssociatorTask *assStt= new PndPidSttAssociatorTask();
   fRun->AddTask(assStt);
- 
+ */
   // -----   Intialise and run   --------------------------------------------
-  PndEmcMapper::Init(6);
+  PndEmcMapper::Init(1);
   fRun->Init();
   fRun->Run(0,nEvents);
   // ------------------------------------------------------------------------
