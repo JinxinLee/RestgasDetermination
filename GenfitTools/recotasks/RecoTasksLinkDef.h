@@ -6,6 +6,7 @@
 #pragma link off all functions;
 
 #pragma link C++ class PndRecoKalmanFit+;
+#pragma link C++ class PndRecoDafFit+;
 #pragma link C++ class PndRecoKalmanTask+;
 #pragma link C++ class PndRecoMultiKalmanTask+;
 #pragma link C++ class PndGFTrackToPndTrackConvertorTask+;

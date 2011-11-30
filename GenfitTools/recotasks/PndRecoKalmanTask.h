@@ -23,6 +23,7 @@
 // Collaborating Class Headers -------
 #include "TString.h"
 #include "PndRecoKalmanFit.h"
+#include "PndRecoDafFit.h"
 #include "PndGeoSttPar.h"
 
 // Collaborating Class Declarations --
@@ -51,6 +52,7 @@ public:
   void SetPersistence(Bool_t opt = kTRUE)          { fPersistence = opt;         }
   void SetGeane(Bool_t opt = kTRUE)                { fUseGeane = opt;            } 
   void SetIdealHyp(Bool_t opt = kTRUE)             { fIdealHyp = opt;            }
+  void SetDaf(Bool_t opt = kTRUE)                  { fDaf = opt;            }
   void SetNumIterations(Int_t num)                 { fNumIt = num;               }
   void SetParticleHypo(TString s); 
   void SetParticleHypo(Int_t h);
@@ -76,7 +78,8 @@ private:
   TString fMvdBranchName;           //! Name of the TCA for MVD
   TString fCentralTrackerBranchName;//! Name of the TCA for central tracker
 
-  PndRecoKalmanFit *fFitter;
+  PndRecoKalmanFit *fFitter; 
+  PndRecoDafFit *fDafFitter;
   TDatabasePDG *pdg;             //! Particle DB
 
   Bool_t fPersistence;           //! Persistence
@@ -84,6 +87,7 @@ private:
   Bool_t fUseGeane;              //! Flag to use Geane 
   Bool_t fSmoothing;             //! Flag to set on smoothing (not used) 
   Bool_t fIdealHyp;              //! Flag to use MC particle hypothesis
+  Bool_t fDaf;                   //! Flag to use Deterministic Annealing
   Int_t fNumIt;                  //! Number of iterations
   PndGeoSttPar *fSttParameters;  //! STT params
   Int_t fPDGHyp;                 //! Hypothesis

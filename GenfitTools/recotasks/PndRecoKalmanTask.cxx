@@ -45,10 +45,12 @@ PndRecoKalmanTask::PndRecoKalmanTask(const char* name, Int_t iVerbose)
   fCentralTrackerBranchName = "";
   fFitTrackArray = new TClonesArray("PndTrack");  
   fUseGeane = kTRUE;
-  fIdealHyp = kFALSE;
+  fIdealHyp = kFALSE; 
+  fDaf = kFALSE;
   fPersistence = kTRUE;
   fNumIt = 1;
-  fFitter = new PndRecoKalmanFit();
+  fFitter = new PndRecoKalmanFit(); 
+  fDafFitter = new PndRecoDafFit();
   fBusyCut=20;
 }
 
@@ -60,12 +62,23 @@ PndRecoKalmanTask::~PndRecoKalmanTask()
 InitStatus
 PndRecoKalmanTask::Init()
 {
-  
-  fFitter->SetGeane(fUseGeane);
-  fFitter->SetNumIterations(fNumIt); 
-  fFitter->SetMvdBranchName(fMvdBranchName);
-  fFitter->SetCentralTrackerBranchName(fCentralTrackerBranchName);
-  if (!fFitter->Init()) return kFATAL;
+  if (!fDaf)
+    {
+      fFitter->SetGeane(fUseGeane);
+      fFitter->SetNumIterations(fNumIt); 
+      fFitter->SetMvdBranchName(fMvdBranchName);
+      fFitter->SetCentralTrackerBranchName(fCentralTrackerBranchName); 
+      fFitter->SetVerbose(fVerbose);
+      if (!fFitter->Init()) return kFATAL;
+    }
+  else
+    {
+      fDafFitter->SetGeane(fUseGeane);
+      fDafFitter->SetMvdBranchName(fMvdBranchName);
+      fDafFitter->SetCentralTrackerBranchName(fCentralTrackerBranchName);
+      fDafFitter->SetVerbose(fVerbose);
+      if (!fDafFitter->Init()) return kFATAL;
+    }
   
   //Get ROOT Manager
   FairRootManager* ioman= FairRootManager::Instance();
@@ -189,7 +202,8 @@ void PndRecoKalmanTask::Exec(Option_t* opt)
     PndTrack *fitTrack = new PndTrack();
     if (PDGCode!=0)
       {
-	fitTrack = fFitter->Fit(prefitTrack, PDGCode);
+	if (fDaf) fitTrack = fDafFitter->Fit(prefitTrack, PDGCode);
+	else fitTrack = fFitter->Fit(prefitTrack, PDGCode);
       }
     else
       {

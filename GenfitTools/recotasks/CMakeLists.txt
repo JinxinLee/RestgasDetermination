@@ -42,6 +42,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(RECOTASKS_SRCS 
 PndRecoKalmanFit.cxx
+PndRecoDafFit.cxx
 PndRecoKalmanTask.cxx
 PndRecoMultiKalmanTask.cxx
 PrimSelector.cxx
