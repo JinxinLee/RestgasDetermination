@@ -10,7 +10,7 @@ noPhotos
 
  Alias MyPhi phi
  
-Decay eta_c
+Decay pbarpSystem
  1.00  MyPhi MyPhi               SVV_HELAMP 1.0 0.0 0.0 0.0 -1.0 0.0;
 Enddecay
 

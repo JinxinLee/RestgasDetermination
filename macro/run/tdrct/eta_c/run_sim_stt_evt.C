@@ -113,7 +113,7 @@ run_sim_stt_evt(Int_t nEvents=10, UInt_t seed=0){
   fRun->SetGenerator(primGen);
 
   // ... generate your signal on the fly
-  PndEvtGenDirect *EvtGen = new PndEvtGenDirect("eta_c","EtaCInclusive_2phi.dec");
+  PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem","EtaCInclusive_2phi.dec",3.6772);
   EvtGen->SetStoreTree(kFALSE);
   primGen->AddGenerator(EvtGen);
 
