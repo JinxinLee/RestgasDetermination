@@ -1271,6 +1271,12 @@ STTmix8020_2bar     3  39.948 12.01 15.9994 18. 6. 8. 0.003396 0.78 0.06 0.16
 STTsupport          2  26.9815  9.0122  13  4  2.061  0.25  0.75
                     0  1    20.  0.001
 		    0
+
+// SiO2
+STTelectronics     -2  28.0855  15.9994  14.  8.  2.20  1  2
+                    0  1    20.  .001
+                    0
+
 // ----------------- end STT
 
 // ----- Caution with putting materials below that line -----
