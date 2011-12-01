@@ -27,15 +27,17 @@ void PndMvdAnaRadDam::AnalyzeFiles()
 {
 	for (unsigned int i = 0; i < fFileList.size(); i++){
 		TFile* f = fFileList[i];
-		TList* l = f->GetListOfKeys();
-		TIter iter(l);
-		TObject* ob;
-		while(ob = iter()){
-			if (TString(ob->GetName()).Contains("ocave_1oMvd-2.1")){
-				TString newName = ob->GetName();
-				newName.Append("_sum");
-				TH2D* histo = (TH2D*)(f->Get(ob->GetName()));
-				AddHisto(histo);
+		if (f > 0){
+			TList* l = f->GetListOfKeys();
+			TIter iter(l);
+			TObject* ob;
+			while(ob = iter()){
+				if (TString(ob->GetName()).Contains("ocave_1oMvd-2.1")){
+					TString newName = ob->GetName();
+					newName.Append("_sum");
+					TH2D* histo = (TH2D*)(f->Get(ob->GetName()));
+					AddHisto(histo);
+				}
 			}
 		}
 //		f->Close();

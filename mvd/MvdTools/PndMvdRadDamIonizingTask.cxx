@@ -24,7 +24,7 @@ PndMvdRadDamIonizingTask::PndMvdRadDamIonizingTask()
 
 PndMvdRadDamIonizingTask::~PndMvdRadDamIonizingTask()
 {
-	for (std::map<std::string, TH2D*>::iterator it = fMapDetHistos.begin(); it != fMapDetHistos.end(); it++)
+	for (std::map<std::string, TProfile2D*>::iterator it = fMapDetHistos.begin(); it != fMapDetHistos.end(); it++)
 		delete(it->second);
 	fMapDetHistos.clear();
 	delete (fRadDamHisto);
@@ -61,10 +61,10 @@ InitStatus PndMvdRadDamIonizingTask::Init()
 	}
   
 	// Create and register output array
-	fRadDamHits = ioman->Register("MVDRadDamHit", "PndMvdRadDamHit", "MVD", kTRUE);
+//	fRadDamHits = ioman->Register("MVDRadDamHit", "PndMvdRadDamHit", "MVD", kTRUE);
   
 
-	fRadDamHisto = new TH1D("radDamH","absorbed dose", 1000000,1E-12,1E-8);
+	fRadDamHisto = new TH1D("radDamH","absorbed dose", 10000000,1E-12,1E-4);
   
 	std::cout << "-I- PndMvdRadDamIonizingTask: Initialization successful" << std::endl;
   
@@ -100,18 +100,18 @@ void PndMvdRadDamIonizingTask::Exec(Option_t* opt)
 		  TVector3 sensDim = fGeoH->GetSensorDimensionsShortId(mcPoint->GetSensorID());
 		  std::string histoName = "";
 		  histoName += svec.Replace("/","o");
-		  fMapDetHistos[detname.Data()] = new TH2D(histoName.c_str(),
+		  fMapDetHistos[detname.Data()] = new TProfile2D(histoName.c_str(),
                                                              detname.Data(),
                                                              (Int_t)(2*sensDim.X()*10),-sensDim.X(),sensDim.X(),	// point resolution mm^2
                                                              (Int_t)(2*sensDim.Y()*10),-sensDim.Y(),sensDim.Y());
 	  }
 	  //std::cout << "Damage: " << gray << " gray" << std::endl;
 	  TVector3 localHit = fGeoH->MasterToLocalShortId(mcPoint->GetPosition(), mcPoint->GetSensorID());
-	  ((TH2D*)(fMapDetHistos[detname.Data()]))->Fill(localHit.X(), localHit.Y(), gray);
+	  ((TProfile2D*)(fMapDetHistos[detname.Data()]))->Fill(localHit.X(), localHit.Y(), gray);
 	  fRadDamHisto->Fill(gray);
 
-	  fRadDamHits = FairRootManager::Instance()->GetTClonesArray("MVDRadDamHit");
-	  PndMvdRadDamHit* tempHit = new ((*fRadDamHits)[fRadDamHits->GetEntries()]) PndMvdRadDamHit(mcPoint->GetTrackID(), i, mcPoint->GetSensorID(), 0, 0, mcPoint->GetPosition(), mom, dEdx);
+//	  fRadDamHits = FairRootManager::Instance()->GetTClonesArray("MVDRadDamHit");
+//	  PndMvdRadDamHit* tempHit = new ((*fRadDamHits)[fRadDamHits->GetEntries()]) PndMvdRadDamHit(mcPoint->GetTrackID(), i, mcPoint->GetSensorID(), 0, 0, mcPoint->GetPosition(), mom, dEdx);
 	//  std::cout << "TempHit: " << *tempHit << std::endl;
   }
 }
@@ -123,7 +123,7 @@ void PndMvdRadDamIonizingTask::FinishEvent()
 
 void PndMvdRadDamIonizingTask::FinishTask()
 {
-	for (std::map<std::string, TH2D*>::iterator it = fMapDetHistos.begin(); it != fMapDetHistos.end(); it++)
+	for (std::map<std::string, TProfile2D*>::iterator it = fMapDetHistos.begin(); it != fMapDetHistos.end(); it++)
 		it->second->Write();
 	fRadDamHisto->Write();
 

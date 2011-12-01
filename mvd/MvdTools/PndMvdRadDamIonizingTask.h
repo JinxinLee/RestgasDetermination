@@ -12,7 +12,7 @@
 #include "PndGeoHandling.h"
 
 #include "TClonesArray.h"
-#include "TH2.h"
+#include "TProfile2D.h"
 
 #include <map>
 #include <string>
@@ -42,7 +42,7 @@ private:
 
 	PndGeoHandling* fGeoH;
 
-	std::map<std::string, TH2D*> fMapDetHistos;
+	std::map<std::string, TProfile2D*> fMapDetHistos;
 	TH1D* fRadDamHisto;
 
 
