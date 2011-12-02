@@ -1,9 +1,7 @@
 // Macro created 03/05/2011 by S.Spataro
-// It creates a DPM background simulation for the tracking TDR
-run_sim_stt_dpm(Int_t nEvents=10, Float_t mom = 3.6772, Int_t mode =1, UInt_t seed=0)
-{
+// It creates an evtgen simulation for the tracking TDR
+run_sim_stt_evt_fix(Int_t nEvents=10, UInt_t seed=0){
   gRandom->SetSeed(seed);
-
   TStopwatch timer;
   timer.Start();
   gDebug=0;
@@ -13,7 +11,7 @@ run_sim_stt_dpm(Int_t nEvents=10, Float_t mom = 3.6772, Int_t mode =1, UInt_t se
   rootlogon();
   
   TString digiFile = "all.par";
-  TString parFile = "dpm_params_stt.root";
+  TString parFile = "evt_params_stt.root";
   
   FairRunSim *fRun = new FairRunSim();
 
@@ -23,7 +21,7 @@ run_sim_stt_dpm(Int_t nEvents=10, Float_t mom = 3.6772, Int_t mode =1, UInt_t se
   fRun->SetName("TGeant3");
   //fRun->SetName("TGeant4");
 
-  fRun->SetOutputFile("dpm_points_stt.root");
+  fRun->SetOutputFile("evt_points_stt.root");
 
   // Set the parameters
   //-------------------------------
@@ -56,6 +54,10 @@ run_sim_stt_dpm(Int_t nEvents=10, Float_t mom = 3.6772, Int_t mode =1, UInt_t se
   Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
   fRun->AddModule(Magnet);
 
+  FairModule *Dipole= new PndMagnet("MAGNET");
+  Dipole->SetGeometryFileName("dipole.geo");
+  fRun->AddModule(Dipole);
+
   FairModule *Pipe= new PndPipe("PIPE");
   fRun->AddModule(Pipe);
 
@@ -67,34 +69,38 @@ run_sim_stt_dpm(Int_t nEvents=10, Float_t mom = 3.6772, Int_t mode =1, UInt_t se
   Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
   fRun->AddModule(Mvd);
 
-  PndEmc *Emc = new PndEmc("EMC",kFALSE);
+  PndEmc *Emc = new PndEmc("EMC",kTRUE);
   Emc->SetGeometryVersion(2); 
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
 
-  PndMdt *Muo = new PndMdt("MDT",kFALSE);
+  PndMdt *Muo = new PndMdt("MDT",kTRUE);
   Muo->SetBarrel("fast");
   Muo->SetEndcap("fast");
   Muo->SetMuonFilter("fast");
   Muo->SetMdtMagnet(kTRUE);
   Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
-  
-  FairDetector *Gem = new PndGemDetector("GEM", kFALSE);
+
+  FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
   Gem->SetGeometryFileName("gem_3Stations.root");
   fRun->AddModule(Gem);
 
-  PndDsk* Dsk = new PndDsk("DSK", kFALSE);
+  PndDsk* Dsk = new PndDsk("DSK", kTRUE);
   Dsk->SetGeometryFileName("dsk.root");
   Dsk->SetStoreCerenkovs(kFALSE);
   Dsk->SetStoreTrackPoints(kFALSE);
   fRun->AddModule(Dsk);
 
-  PndDrc *Drc = new PndDrc("DIRC", kFALSE);
+  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetGeometryFileName("dirc_l0_p0.root");
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc);
-  
+ 
+  FairDetector *Fts= new PndFts("FTS", kTRUE);
+  Fts->SetGeometryFileName("fts.geo");
+  fRun->AddModule(Fts);
+ 
   // Create and Set Event Generator
   //-------------------------------
 
@@ -106,14 +112,22 @@ run_sim_stt_dpm(Int_t nEvents=10, Float_t mom = 3.6772, Int_t mode =1, UInt_t se
   primGen->SmearVertexXY(kTRUE);
   fRun->SetGenerator(primGen);
 
-  PndDpmDirect *dpmGen = new PndDpmDirect(mom,mode, gRandom->GetSeed());
-  primGen->AddGenerator(dpmGen);
+  // ... generate your signal on the fly
+  PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem","psi3770_fix.dec",6.5788);
+  EvtGen->SetStoreTree(kFALSE);
+  primGen->AddGenerator(EvtGen);
 
   // Create and Set Magnetic Field
   //-------------------------------
-  fRun->SetBeamMom(mom);
+  fRun->SetBeamMom(6.5788);
   PndMultiField *fField= new PndMultiField("FULL");
   fRun->SetField(fField);
+
+  // EMC Hit producer
+  //-------------------------------
+  PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
+  fRun->AddTask(emcHitProd);
+  
   
   /**Initialize the session*/
   fRun->Init();
