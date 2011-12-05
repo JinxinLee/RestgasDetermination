@@ -44,6 +44,8 @@
 class PndGeoHandling : public FairTask {
 public:
   
+	/// PndGeoHandling::Instance() has to be called the first time in the constructor of a task
+	/// otherwise the Sensor names are not available from the database
 	static PndGeoHandling* Instance();
   
 	static void Destroy(){
