@@ -204,10 +204,11 @@ PndTpcPSATask::Exec(Option_t* opt)
   sort(digis.begin(),digis.end(),PndTpcDigiAge());
   std::cout<<"finished"<<std::endl;
   
-  //copy data into digi_array (TClonesvector)
+  //copy data into digi_array (TClonesArray)
   int ndigi=digis.size();
   for(int idigi=0;idigi<ndigi;++idigi) {
-    new((*fdigiArray)[idigi]) PndTpcDigi(*(digis[idigi]));
+    PndTpcDigi* digiClone = new((*fdigiArray)[idigi]) PndTpcDigi(*(digis[idigi]));
+    digiClone->index(idigi);
     delete digis[idigi]; // clean up temporay store
   }
 
