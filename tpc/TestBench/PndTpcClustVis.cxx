@@ -327,16 +327,18 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
 
   // Draw tpc
   double tpcLength(72.5);
-  double tpcOffset(-62);
+  double tpcOffset(-62.);
   double RInner(5.);
   double ROuter(15.);
+  double width(0.1);
   bool panda = false;
   if(fRiemannScale >10) panda = true;
   if (panda) {
-    tpcLength = 150;
+    tpcLength = 150.;
     tpcOffset = -39.5;
     RInner = 15.;
     ROuter = 42.;
+    width = 0.3;
   }
 
   if(drawTpc){
@@ -344,8 +346,8 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     std::cerr<<"drawTpc..."<<std::endl;
 
     TGeoMatrix* tpc_trans = new TGeoGenTrans(0,0,0.5*tpcLength+tpcOffset, 1,1,1, 0);
-    TGeoMatrix* tpc_transTop = new TGeoGenTrans(0,0,tpcLength+tpcOffset, 1,1,1, 0);
-    TGeoMatrix* tpc_transBottom = new TGeoGenTrans(0,0,tpcOffset, 1,1,1, 0);
+    TGeoMatrix* tpc_transTop = new TGeoGenTrans(0,0,tpcLength+tpcOffset-0.5*width, 1,1,1, 0);
+    TGeoMatrix* tpc_transBottom = new TGeoGenTrans(0,0,tpcOffset+0.5*width, 1,1,1, 0);
 
     TEveGeoShape* tpc_shapeInner = new TEveGeoShape("tpc_shapeInner");
     TEveGeoShape* tpc_shapeOuter = new TEveGeoShape("tpc_shapeOuter");
@@ -368,14 +370,14 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
     tpc_shapeBottom->SetMainColor(kWhite);
     tpc_shapeBottom->SetMainTransparency(char(TpcTransp));
 
-    tpc_shapeInner->SetShape(new TGeoTube(RInner,RInner +0.1, 0.5*tpcLength));
+    tpc_shapeInner->SetShape(new TGeoTube(RInner,RInner+width, 0.5*tpcLength));
     gEve->AddElement(tpc_shapeInner);
-    tpc_shapeOuter->SetShape(new TGeoTube(ROuter-0.1,ROuter, 0.5*tpcLength));
+    tpc_shapeOuter->SetShape(new TGeoTube(ROuter-width,ROuter, 0.5*tpcLength));
     gEve->AddElement(tpc_shapeOuter);
 
-    tpc_shapeTop->SetShape(new TGeoTube(RInner,ROuter, 0.1));
+    tpc_shapeTop->SetShape(new TGeoTube(RInner+width,ROuter-width, width));
     gEve->AddElement(tpc_shapeTop);
-    tpc_shapeBottom->SetShape(new TGeoTube(RInner,ROuter, 0.1));
+    tpc_shapeBottom->SetShape(new TGeoTube(RInner+width,ROuter-width, width));
     gEve->AddElement(tpc_shapeBottom);
   }
 
@@ -467,10 +469,10 @@ void PndTpcClustVis::drawEvent(unsigned int id, bool resetCam) {
       PndTpcCluster *cluster = (PndTpcCluster*)clustersBranch->At(i);
 
       // omit clusters outside chamber
-      /*if (true && (//cluster->pos().X()<0 || // todo: take out again!!
+      if (true && (//cluster->pos().X()<0 || // todo: take out again!!
                    cluster->pos().Z()<tpcOffset ||
                    cluster->pos().Z()>tpcLength+tpcOffset)) continue; // TODO: make configurable!!!!
-*/
+
       fbuffermap[cluster->sector()]->push_back(cluster);
       ++createdClusters;
     }
