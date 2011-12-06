@@ -52,6 +52,7 @@
   corr->SetInputIDBranch("SttMvdGemGenTrackID");
   //corr->SetDebugMode(kTRUE);
   corr->SetFast(kTRUE);
+  corr->SetMixMode(kTRUE);
   fRun->AddTask(corr);
 /*
   PndPidIdealAssociatorTask *assMC= new PndPidIdealAssociatorTask();
