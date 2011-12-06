@@ -32,7 +32,7 @@ void runMomresRecoMVD_batch(TString digifile, Int_t nEvents = 0) {
   fRun->SetInputFile(inDigiFile);
   cout<<"Set Input File: "<<inDigiFile<<endl;
   fRun->AddFriend(inSimFile);
-  cout<<"Set Friend MC File: "<<inSimFile<<endl;
+  //cout<<"Set Friend MC File: "<<inSimFile<<endl;
   fRun->SetOutputFile(outFile);
   cout<<"Set Output File: "<<outFile<<endl;
   FairGeane *Geane = new FairGeane();
@@ -105,9 +105,11 @@ void runMomresRecoMVD_batch(TString digifile, Int_t nEvents = 0) {
   PndTpcMVDCorrelatorTask* corr = new PndTpcMVDCorrelatorTask();
   corr->SetMatchDistance(0.2);  //cm
   corr->SetMinMVDHits(0);
+  corr->SetAngleCut(TMath::Pi());
   corr->SetTrackBranchName("TrackPostFit");
   corr->SetOutTrackBranchName("TrackPreFitMVD");
-  corr->RequireMatch(true);  //ignore all tracks with no match in the MVD!
+  corr->SetPixelBranchName("MVDHitsPixel");
+  corr->SetStripBranchName("MVDHitsStrip");
   corr->SetPersistence(true);
   fRun->AddTask(corr);
   

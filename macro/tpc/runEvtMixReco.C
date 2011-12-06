@@ -220,6 +220,8 @@ void runEvtMixReco(TString inFile, TString physFile, TString jobname="reco1" ){
   fRun->Run(0,0);
   // -----   Finish   -------------------------------------------------------
   corr->WriteHistograms("MvdCorr.root");
+  
+  corr->WriteHistograms("MvdCorr.root");
   // tpcRMC->WriteHistograms();
 //  tpcSPR->WriteHistograms("RecoHistos.root");
 //kalman->WriteHistograms("RecoHistos.root");
