@@ -63,7 +63,7 @@ PndTpcVertexingTask::PndTpcVertexingTask()
     fUseVacuumPropagator(false),
     _trackBranchName("TrackPostFit"),
     _vertexBranchName("GFVertex"),
-    fMethod("default"),
+    fMethod("kalman-smoothing:1"),
     fUseBeamspot(false),
     fBeamCov(3,3)
   {
