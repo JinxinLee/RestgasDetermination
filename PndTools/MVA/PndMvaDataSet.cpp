@@ -33,7 +33,8 @@ PndMvaDataSet::PndMvaDataSet(std::vector< std::pair<std::string, std::vector<flo
     m_UsePCA(false),
     m_NormType(NONORM),
     m_AppType(type),
-    m_trim(true)
+    m_trim(true),
+    m_RND_seed(0)
 {
   // Init labels.
   InitClasses(classNames);
@@ -109,7 +110,8 @@ PndMvaDataSet::PndMvaDataSet(std::string const& WeightFile,
     m_UsePCA(false),
     m_NormType(NONORM),
     m_AppType(type),
-    m_trim(true)
+    m_trim(true),
+    m_RND_seed(0)
 {
   // Init labels.
   InitClasses(classNames);
@@ -213,9 +215,13 @@ void PndMvaDataSet::Trim()
   // If the data set is initialized.
   assert(m_events.size() > 1 );
 
-  time_t seconds;
-  seconds = time (NULL);
-  size_t   m_RND_seed = seconds;
+  //size_t   m_RND_seed = seconds;
+  if(m_RND_seed == 0)
+  {
+    time_t seconds;
+    seconds = time (NULL);
+    m_RND_seed = seconds;
+  }
   TRandom3 rnd(m_RND_seed);
 
   // Number of examples of the class with the smallest number of members.

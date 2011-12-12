@@ -207,6 +207,9 @@ class PndMvaDataSet
    */
   virtual void Initialize();
 
+  inline size_t GetRndSeed()const;
+  inline void SetRndSeed(size_t const sd);
+
   //______________________________________________________________
  protected:
   /**
@@ -312,10 +315,22 @@ class PndMvaDataSet
   // Application type.
   AppType  m_AppType;
   bool m_trim;
+  size_t m_RND_seed;
 };
 // End of class interface definition.
 
 // ============= Inline implementation ==================
+
+inline size_t PndMvaDataSet::GetRndSeed()const
+{
+  return this->m_RND_seed;
+};
+
+inline void PndMvaDataSet::SetRndSeed(size_t const sd)
+{
+  this->m_RND_seed = sd;
+};
+
 inline std::vector< std::pair<std::string, std::vector<float>*> > const& PndMvaDataSet::GetData() const
 {
   assert(m_events.size() !=  0);

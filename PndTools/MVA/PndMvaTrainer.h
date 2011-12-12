@@ -139,6 +139,9 @@ class PndMvaTrainer
    */
   virtual void EvalClassifierError();
 
+  inline size_t GetRndSeed() const;
+  inline void   SetRndSeed(size_t const sd);
+
   //______________________________________________
   //================ Protected ===================
  protected:
@@ -193,6 +196,16 @@ class PndMvaTrainer
 };// End of class definition.
 
 //========================= Inline implementations =================
+inline size_t PndMvaTrainer::GetRndSeed() const
+{
+  return this->m_RND_seed;
+};
+
+inline void PndMvaTrainer::SetRndSeed(size_t const sd)
+{
+  this->m_RND_seed = sd;
+};
+
 inline void PndMvaTrainer::SetOutPutFile(std::string const& outFile)
 {
   m_outFile = outFile;

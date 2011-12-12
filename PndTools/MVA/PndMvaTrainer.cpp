@@ -22,6 +22,7 @@ PndMvaTrainer::PndMvaTrainer(std::vector< std::pair<std::string, std::vector<flo
 			     std::vector<std::string> const& VarNames,
 			     bool trim)
   : m_dataSets(InputEvtsParam, ClassNames, VarNames, PRE_INIT_EVTS),
+    m_RND_seed(0),
     m_trim(trim),
     m_testSetSize(0)
 {}
@@ -32,6 +33,7 @@ PndMvaTrainer::PndMvaTrainer(std::string const& InPut,
 			     std::vector<std::string> const& VarNames,
 			     bool trim)
   : m_dataSets(InPut, ClassNames, VarNames, TRAIN),
+    m_RND_seed(0),
     m_trim(trim),
     m_testSetSize(50)
 {}
@@ -53,7 +55,9 @@ void PndMvaTrainer::Initialize()
 
   // Split test and train set.
   if ( m_testSetSize != 0 )
-    { splitTetsSet(); }
+  {
+    splitTetsSet();
+  }
 
   /*
    * Initialize class conditional mean vectors for the current data
@@ -64,8 +68,11 @@ void PndMvaTrainer::Initialize()
   m_dataSets.InitClsCondMeans(m_testSet_indices);
   
   // Init random seed for this run.
-  srand ( time(NULL) );
-  m_RND_seed = (rand() % 10000000) + 1;
+  if(m_RND_seed == 0)
+  {
+    srand ( time(NULL) );
+    m_RND_seed = (rand() % 10000000) + 1;
+  }
   std::cout << "<INFO> Seed for current run is "
 	    << m_RND_seed << '\n';
 }
