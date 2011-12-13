@@ -209,5 +209,8 @@ endif(RULE_CHECKER_FOUND)
 
 WRITE_CONFIG_FILE(config.sh)
  
+configure_file(${CMAKE_SOURCE_DIR}/CTestCustom.cmake 
+               ${CMAKE_BINARY_DIR}/CTestCustom.cmake
+              )
 
 

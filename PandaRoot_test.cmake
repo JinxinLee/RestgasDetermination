@@ -4,6 +4,7 @@ SET (CTEST_SITE $ENV{SITE})
 SET (CTEST_BUILD_NAME $ENV{LABEL})
 SET (CTEST_CMAKE_GENERATOR "Unix Makefiles")
 SET (CTEST_PROJECT_NAME "PandaRoot")
+SET (CTEST_COVERAGE_COMMAND "/usr/bin/gcov")
 
 SET (CTEST_UPDATE_COMMAND "svn")
 If($ENV{ctest_model} MATCHES Continuous)
@@ -15,7 +16,7 @@ SET (CTEST_BUILD_COMMAND "${BUILD_COMMAND} -j$ENV{number_of_processors}")
 
 if($ENV{ctest_model} MATCHES Nightly)
 
-Set (CTEST_CONFIGURE_COMMAND " \"${CMAKE_EXECUTABLE_NAME}\" \"-G${CTEST_CMAKE_GENERATOR}\" \"${CTEST_SOURCE_DIRECTORY}\" \"-DCMAKE_BUILD_TYPE=NIGHTLY\" ")
+Set (CTEST_CONFIGURE_COMMAND " \"${CMAKE_EXECUTABLE_NAME}\" \"-G${CTEST_CMAKE_GENERATOR}\" \"${CTEST_SOURCE_DIRECTORY}\" \"-DCMAKE_BUILD_TYPE=PROFILE\" ")
 
   # get the information about conflicting or localy modified files
   # from svn, extract the relavant information about the file name
@@ -41,9 +42,9 @@ Set (CTEST_CONFIGURE_COMMAND " \"${CMAKE_EXECUTABLE_NAME}\" \"-G${CTEST_CMAKE_GE
 
 endif($ENV{ctest_model} MATCHES Nightly)
 
-configure_file(${CTEST_SOURCE_DIRECTORY}/CTestCustom.cmake
-               ${CTEST_BINARY_DIRECTORY}/CTestCustom.cmake
-              )
+#configure_file(${CTEST_SOURCE_DIRECTORY}/CTestCustom.cmake
+#               ${CTEST_BINARY_DIRECTORY}/CTestCustom.cmake
+#              )
 ctest_read_custom_files("${CTEST_BINARY_DIRECTORY}")
 
 CTEST_START ($ENV{ctest_model})
@@ -56,6 +57,7 @@ If(NOT ${MODEL} MATCHES CONTINUOUS)
   CTEST_TEST (BUILD "${CTEST_BINARY_DIRECTORY}" PARALLEL_LEVEL $ENV{number_of_processors})
 #  CTEST_TEST (BUILD "${CTEST_BINARY_DIRECTORY}")
 EndIf(NOT ${MODEL} MATCHES CONTINUOUS)
+CTEST_COVERAGE (BUILD "${CTEST_BINARY_DIRECTORY}")
 
 CTEST_SUBMIT ()
  
