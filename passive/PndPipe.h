@@ -15,7 +15,7 @@ class PndPipe : public FairModule {
 
     virtual ~PndPipe();
     virtual void ConstructGeometry();
-   
+    Bool_t CheckIfSensitive(std::string name);   
   ClassDef(PndPipe,1) //PNDPIPE
 
 };
