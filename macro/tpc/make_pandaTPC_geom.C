@@ -2,6 +2,7 @@
 //Author: Felix Boehmer
 
 
+
 void rename(TGeoVolume* v, TString str, TString replace) {
   unsigned int nNodes = v->GetNodes()->GetEntries();
   for(unsigned int n=0; n<nNodes; n++) {
@@ -48,19 +49,23 @@ TGeoVolumeAssembly* createDriftCathode() {
   double dz = 75.;
   
   //layers:
-  unsigned int nL = 4;
-  double thicks[4] = {0.0002, .04, 0.5, 0.0002};
-  TString mats[4] = {"aluminium",
+  unsigned int nL = 6;
+  double thicks[6] = {0.00002, .0825, 0.4, 0.028, 1., 0.00002};
+  TString mats[6] = {"aluminium",
 		     "kapton",
 		     "rohacell",
+		     "glue",
+		     "honeycomb",
 		     "aluminium"};
-  Color_t cols[4] = {kGray,
+  Color_t cols[6] = {kGray,
 		     kYellow+8,
 		     kOrange+4,
+		     kOrange,
+		     kOrange+10,
 		     kGray};
   
-  TGeoVolume* vols[4];
-  TGeoTube* shapes[4];
+  TGeoVolume* vols[6];
+  TGeoTube* shapes[6];
   double totT = 0.;
   
   for(unsigned int i=0; i<nL; i++) {
@@ -78,6 +83,8 @@ TGeoVolumeAssembly* createDriftCathode() {
     Cathode1->AddNode(vols[i], 1,
     		     new TGeoTranslation(0.,0.,dz + thicks[i]/2. + totT));
     totT+=thicks[i];
+    std::cout<<"Cathode radlen of Material:"<<vols[i]->GetName()
+	     <<" is: "<<thicks[i]/(vols[i]->GetMaterial()->GetRadLen())*100<<std::endl;
   }
   
   //create second segment
@@ -343,16 +350,22 @@ TGeoVolumeAssembly* createFieldCageBarrel() {
 
   addFieldCageBarrelComponent("FC_ground_cage1", "aluminium", 
 			      cageIn_meas, cageOut_meas, 
-			      0.640,0.0002,FieldCage1,kGray);
+			      1.1369,0.00002,FieldCage1,kGray);
   addFieldCageBarrelComponent("FC_kapton_cage1", "kapton", 
 			      cageIn_meas, cageOut_meas, 
-			      0.595,0.045,FieldCage1,kOrange+8);
-  addFieldCageBarrelComponent("FC_roha_cage1", "rohacell", 
+			      1.0394,0.0975,FieldCage1,kOrange+8);
+  addFieldCageBarrelComponent("FC_honey_cage1", "honeycomb", 
+  			      cageIn_meas, cageOut_meas, 
+  			      0.5394,0.5,FieldCage1,kYellow-2);
+   addFieldCageBarrelComponent("FC_roha_cage1", "rohacell", 
 			      cageIn_meas, cageOut_meas, 
-			      0.001,0.594,FieldCage1,kYellow-2);
-  addFieldCageBarrelComponent("FC_copper_cage1", "copper", 
+			      0.0394,0.5,FieldCage1,kYellow-2);
+  addFieldCageBarrelComponent("FC_glue_cage1", "glue", 
 			      cageIn_meas, cageOut_meas, 
-			      0.,0.001,FieldCage1, kOrange+3);
+			      0.0024,0.037,FieldCage1,kYellow-5);
+  addFieldCageBarrelComponent("FC_strip_cage1", "copper", 
+			      cageIn_meas, cageOut_meas, 
+			      0.,0.0024,FieldCage1, kOrange+3);
     
   //now clone and rotate -----------------------------------
 //  TGeoVolumeAssembly* FieldCage2 = FieldCage1->Clone();
@@ -396,9 +409,9 @@ void addFieldCageBarrelComponent(TString name, TString matName, const double* tu
   TString inname = "in_";
   inname.Append(name);
   TGeoTubeSeg* in1 = new TGeoTubeSeg(locIn);
-  TGeoVolume* IN1 = new TGeoVolume(inname, in1,
+   TGeoVolume* IN1 = new TGeoVolume(inname, in1,
 				   gGeoManager->GetMedium(matName));
-  IN1->SetLineColor(color);
+   IN1->SetLineColor(color);
   ass->AddNode(IN1,1);
 
   //now make the flat bits in the target pipe wedge
@@ -438,8 +451,7 @@ void addFieldCageBarrelComponent(TString name, TString matName, const double* tu
   delete t1;
   delete rot2;
   delete t2;
-  
-  double relX0 = thickness/(OUT1->GetMaterial()->GetRadLen())*200; //percent, inner and outer cage 
+  double relX0 = thickness/(OUT1->GetMaterial()->GetRadLen())*100; //percent, inner and outer cage 
   std::cout<<"TOTAL RadLen percentage of Material "<<OUT1->GetName()<<": "
 	   <<relX0<<std::endl;
 }
@@ -447,6 +459,17 @@ void addFieldCageBarrelComponent(TString name, TString matName, const double* tu
 //main function:
 void make_pandaTPC_geom() {
   using namespace std;
+
+  // Load this libraries
+  // gSystem->Load("libGeoBase");
+  // gSystem->Load("libParBase");
+  // gSystem->Load("libBase");
+  // gSystem->Load("libPndData");
+  // gSystem->Load("libPassive");
+
+
+  gROOT->LoadMacro("macro/tpc/runRadlenCalc.C");
+  gROOT->Macro("rootlogon.C");
 
   double length = 150.;
 
@@ -481,6 +504,11 @@ void make_pandaTPC_geom() {
   builder->createMedium(G10);
   FairGeoMedium* silicon = media->getMedium("silicon");
   builder->createMedium(silicon);
+  FairGeoMedium* glue = media->getMedium("glue");
+  builder->createMedium(glue);
+  FairGeoMedium* honeycomb = media->getMedium("honeycomb");
+  builder->createMedium(honeycomb);
+  
   // ------------------ DRAW -------------------------------------------
 
   TGeoVolume* top = new TGeoVolumeAssembly("TPC");
@@ -507,8 +535,8 @@ void make_pandaTPC_geom() {
   top->AddNode(topAss, 0);
   geoMan->CloseGeometry();
   
-  geoMan->CheckOverlaps(0.01);
-  geoMan->GetListOfOverlaps()->ls();
+  // geoMan->CheckOverlaps(0.01);
+  //  geoMan->GetListOfOverlaps()->ls();
 
   
   TEveManager::Create();
@@ -518,10 +546,12 @@ void make_pandaTPC_geom() {
 
   gEve->Redraw3D(kTRUE);
   
-  TFile outfile("PANDA_TPC.root", "recreate");
+  TFile outfile("geometry/PANDA_TPC.root", "recreate");
   outfile.cd();
   top->Write();
   //geoMan->Write();
+
+  //  runRadlenCalc(geoMan,1);
 
 }
 
