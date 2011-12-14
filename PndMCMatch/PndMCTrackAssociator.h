@@ -32,12 +32,10 @@ class PndMCTrackAssociator : public FairTask {
   
   Int_t GetMvdHitPixels(Int_t index);     // from the MVD pixel index retrns the Pndrack index
   Int_t GetMvdHitStrips(Int_t index);     // from the MVD strip hit index retrns the Pndrack index
-  Int_t GetTpcClusters(Int_t index);     // from the TPC cluster index retrns the Pndrack index
   Int_t GetSttHits(Int_t index);     // from the STT hit index retrns the Pndrack index
   Int_t GetGemHits(Int_t index);     // from the GEM hit index retrns the Pndrack index
   Int_t GetFtsHits(Int_t index);     // from the FTS hit index retrns the Pndrack index
  
-
   // Modifiers -----------------------
   void SetTrackInBranchName(const TString& name)   { fTrackInBranchName = name;  } 
   void SetTrackOutBranchName(const TString& name)  { fTrackOutBranchName = name; }
@@ -52,7 +50,6 @@ class PndMCTrackAssociator : public FairTask {
   TString fTrackInBranchName;      //! Name of the input TCA
   TString fTrackOutBranchName;     //! Name of the output TCA
   
-  TClonesArray  *fTpcInput;             //! pointers to TPC TCA
   TClonesArray  *fSttHitInput;          //! pointers to STT Hit TCA 
   TClonesArray  *fSttMCArray;          //! pointers to STT Hit TCA
   TClonesArray  *fMvdMCArray;           //!

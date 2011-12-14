@@ -4,8 +4,6 @@
 #include "PndTrackID.h"
 
 #include "FairRunAna.h"
-#include "PndTpcPoint.h"
-#include "PndTpcCluster.h"
 #include "PndSttPoint.h"
 #include "PndSttHit.h"
 #include "PndSttHelixHit.h"
@@ -70,12 +68,6 @@ InitStatus PndMCTrackAssociator::Init() {
   if ( ! fTrackArray ) {
     cout << "-I-  PndMCTrackAssociator::Init: No PndTrack array!" << endl;
     return kERROR;
-  }
-  
-  fTpcInput   = (TClonesArray *)fManager->GetObject("PndTpcCluster");
-  if ( ! fTpcInput ) 
-  {
-    cout << "-W- PndMCTrackAssociator::Init: No TpcCluster array" << endl;
   }
   
   fSttHitInput   = (TClonesArray *)fManager->GetObject("STTHitMix");
@@ -189,7 +181,7 @@ Int_t PndMCTrackAssociator::GetMvdHitPixels(Int_t index) {
   }
   else
   {
-    cout << "-E- PndMCTrackAssociator::GetMvdHitPixels: MvdHitPixel #" << index << " has GetRefIndex()<0 -> noise hit" << endl;
+    if (fVerbose) cout << "-E- PndMCTrackAssociator::GetMvdHitPixels: MvdHitPixel #" << index << " has GetRefIndex()<0 -> noise hit" << endl;
     return -1;
   }
 }
@@ -217,25 +209,10 @@ Int_t PndMCTrackAssociator::GetMvdHitStrips(Int_t index)
   }
   else
   {  
-    cout << "-E- PndMCTrackAssociator::GetMvdHitStrips: MvdHitStrip #" << index << " has GetRefIndex()<0 -> noise hit" << endl;
+    if (fVerbose) cout << "-E- PndMCTrackAssociator::GetMvdHitStrips: MvdHitStrip #" << index << " has GetRefIndex()<0 -> noise hit" << endl;
     return -1;
   }
 }
-
-//_________________________________________________________________
-Int_t PndMCTrackAssociator::GetTpcClusters(Int_t index)
-{
-  // Taking points from PndTpcCluster
-  
-  PndTpcCluster* clu = (PndTpcCluster*) fTpcInput->At(index);
-  if (!clu)
-  {
-    cout << "-E- PndMCTrackAssociator::GetTpcClusters: TpcCluster #" << index << " does not exist!!!" << endl;
-    return -1;
-  }
-
-  return (clu->mcId().DominantID().mctrackID());
-} 
 
 //_________________________________________________________________
 Int_t PndMCTrackAssociator::GetSttHits(Int_t index)
@@ -260,7 +237,7 @@ Int_t PndMCTrackAssociator::GetSttHits(Int_t index)
     }
   else
     {
-      cout << "-E- PndMCTrackAssociator::GetSttHits: SttHit #" << index << " has GetRefIndex()<0 -> noise hit" << endl;
+      if (fVerbose) cout << "-E- PndMCTrackAssociator::GetSttHits: SttHit #" << index << " has GetRefIndex()<0 -> noise hit" << endl;
       return -1;
     }
 } 
@@ -288,7 +265,7 @@ Int_t PndMCTrackAssociator::GetGemHits(Int_t index)
   }
   else
   { 
-    cout << "-E- PndMCTrackAssociator::GetGemHits: GemHit #" << index << " has GetRefIndex()<0 -> noise hit" << endl;
+    if (fVerbose) cout << "-E- PndMCTrackAssociator::GetGemHits: GemHit #" << index << " has GetRefIndex()<0 -> noise hit" << endl;
     return -1;
   }
 } 
@@ -317,7 +294,7 @@ Int_t PndMCTrackAssociator::GetFtsHits(Int_t index)
   }
   else
   { 
-    cout << "-E- PndMCTrackAssociator::GetFtsHits: FtsHit #" << index << " has GetRefIndex()<0 -> noise hit" << endl;
+    if (fVerbose) cout << "-E- PndMCTrackAssociator::GetFtsHits: FtsHit #" << index << " has GetRefIndex()<0 -> noise hit" << endl;
     return -1;
   }
 } 
@@ -350,7 +327,6 @@ void PndMCTrackAssociator::Exec(Option_t * option)
 	      if ((candHit.GetDetId()==FairRootManager::Instance()->GetBranchId("MVDHitsStrip")) && fMvdMCArray &&  fMvdStripHitArray) trackID = GetMvdHitStrips(candHit.GetHitId());
 	      if ((candHit.GetDetId()==FairRootManager::Instance()->GetBranchId("MVDHitsPixelMix")) && fMvdMCArray &&  fMvdPixelHitArray) trackID = GetMvdHitPixels(candHit.GetHitId());
 	      if ((candHit.GetDetId()==FairRootManager::Instance()->GetBranchId("MVDHitsStripMix")) && fMvdMCArray &&  fMvdStripHitArray) trackID = GetMvdHitStrips(candHit.GetHitId());
-	      if ((candHit.GetDetId()==FairRootManager::Instance()->GetBranchId("PndTpcCluster")) && fTpcInput) trackID = GetTpcClusters(candHit.GetHitId());
 	      if ((candHit.GetDetId()==FairRootManager::Instance()->GetBranchId("STTHit")) && fSttHitInput) trackID = GetSttHits(candHit.GetHitId()); 
 	      if ((candHit.GetDetId()==FairRootManager::Instance()->GetBranchId("STTHitMix")) && fSttHitInput) trackID = GetSttHits(candHit.GetHitId());
 	      if ((candHit.GetDetId()==FairRootManager::Instance()->GetBranchId("GEMHit")) && fGemMCArray && fGemInput) trackID = GetGemHits(candHit.GetHitId());
