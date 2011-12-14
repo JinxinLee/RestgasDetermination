@@ -47,9 +47,6 @@
 #include "PndGeoHandling.h"
 #include "PndSdsRecoHit.h"
 #include "PndGemRecoHit.h"
-#include "PndDchRecoHit2.h"
-
-#include "PndDchCylinderHit.h"
 #include "PndSdsHit.h"
 #include "PndGemHit.h"
 
