@@ -15,7 +15,6 @@ ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/RKTrackRep
 ${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/trackbase
-${CMAKE_SOURCE_DIR}/dch/DchData
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/GemData
 ${CMAKE_SOURCE_DIR}/pnddata/MdtData
@@ -39,8 +38,6 @@ link_directories( ${LINK_DIRECTORIES})
 
 
 set(RECOHITS_SRCS 
-PndDchRecoHit.cxx
-PndDchRecoHit2.cxx
 PndGemRecoHit.cxx
 PndMdtRecoHit.cxx
 PndSdsRecoHit.cxx

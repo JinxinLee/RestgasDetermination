@@ -37,10 +37,7 @@
 
 #include "PndSdsRecoHit.h"
 #include "PndGemRecoHit.h"
-#include "PndTpcSPHit.h"
 #include "PndSttRecoHit.h"
-#include "PndDchRecoHit.h"
-#include "PndDchRecoHit2.h"
 #include "PndMdtRecoHit.h"
 #include "PndSttRecoHitProducer.h"
 #include "PndGeoSttPar.h"
@@ -127,17 +124,7 @@ Bool_t PndRecoDafFit::Init()
 	}
     }
   
-  TClonesArray* ar; TClonesArray *sttr;  TClonesArray* sthit; 
-
-  if (fCentralTrackerBranchName == "")
-    {
-      ar=(TClonesArray*) ioman->GetObject("PndTpcCluster");
-      if(ar!=0)
-	{
-	  fTheRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("PndTpcCluster"),new GFRecoHitProducer<PndTpcCluster,PndTpcSPHit>(ar));
-	  std::cout << "*** PndRecoDafFit::Init" << "\t" << "PndTpcCluster array  found" << std::endl;
-	}
-    }
+  TClonesArray *sttr;  TClonesArray* sthit; 
 
   if (fCentralTrackerBranchName == "")
     {
@@ -173,13 +160,6 @@ Bool_t PndRecoDafFit::Init()
     {
       fTheRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("GEMHit"),new GFRecoHitProducer<PndGemHit,PndGemRecoHit>(gemar));
       std::cout << "*** PndRecoDafFit::Init" << "\t" << "GEMHit array  found" << std::endl;
-    }
-  
-  TClonesArray* dchar=(TClonesArray*) ioman->GetObject("PndDchCylinderHit");
-  if(dchar!=0)
-    {
-      fTheRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("DchHit"),new GFRecoHitProducer<PndDchCylinderHit,PndDchRecoHit2>(dchar));
-      std::cout << "*** PndRecoDafFit::Init" << "\t" << "PndDchCylinderHit array  found" << std::endl;
     }
   
   TClonesArray* mdtar=(TClonesArray*) ioman->GetObject("MdtHit");
@@ -269,19 +249,17 @@ PndTrack* PndRecoDafFit::Fit(PndTrack *tBefore, Int_t PDG)
       std::cout << "*** PndRecoDafFit::Exec" << "\t" << "Genfit Exception: trk->addHitVector " << e.what() << std::endl;
       //throw e;
     }
-  //if (fVerbose>0) std::cout<<trk->getNumHits()<<" hits in track " << std::endl;
   // Start Fitter
   try
     {
-      std::cout << "1"<<std::endl;
       fGenFitter.processTrack(trk);
-      std::cout << "2"<<std::endl;
     }
   catch (GFException& e)
     {
       std::cout<<"*** FITTER EXCEPTION ***"<<std::endl;
       std::cout<<e.what()<<std::endl;
     }
+
   if (fVerbose>0) std::cout<<"SUCCESSFULL FIT!"<<std::endl;
   
   try

@@ -37,10 +37,7 @@
 
 #include "PndSdsRecoHit.h"
 #include "PndGemRecoHit.h"
-#include "PndTpcSPHit.h"
 #include "PndSttRecoHit.h"
-#include "PndDchRecoHit.h"
-#include "PndDchRecoHit2.h"
 #include "PndMdtRecoHit.h"
 #include "PndSttRecoHitProducer.h"
 #include "PndGeoSttPar.h"
@@ -127,17 +124,7 @@ Bool_t PndRecoKalmanFit::Init()
 	}
     }
   
-  TClonesArray* ar; TClonesArray *sttr;  TClonesArray* sthit; 
-
-  if (fCentralTrackerBranchName == "")
-    {
-      ar=(TClonesArray*) ioman->GetObject("PndTpcCluster");
-      if(ar!=0)
-	{
-	  fTheRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("PndTpcCluster"),new GFRecoHitProducer<PndTpcCluster,PndTpcSPHit>(ar));
-	  std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "PndTpcCluster array  found" << std::endl;
-	}
-    }
+  TClonesArray *sttr;  TClonesArray* sthit; 
 
   if (fCentralTrackerBranchName == "")
     {
@@ -173,13 +160,6 @@ Bool_t PndRecoKalmanFit::Init()
     {
       fTheRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("GEMHit"),new GFRecoHitProducer<PndGemHit,PndGemRecoHit>(gemar));
       std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "GEMHit array  found" << std::endl;
-    }
-  
-  TClonesArray* dchar=(TClonesArray*) ioman->GetObject("PndDchCylinderHit");
-  if(dchar!=0)
-    {
-      fTheRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("DchHit"),new GFRecoHitProducer<PndDchCylinderHit,PndDchRecoHit2>(dchar));
-      std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "PndDchCylinderHit array  found" << std::endl;
     }
   
   TClonesArray* mdtar=(TClonesArray*) ioman->GetObject("MdtHit");
