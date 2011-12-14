@@ -11,8 +11,6 @@ ${CMAKE_SOURCE_DIR}/pndbase/PndStdUtils
 ${CMAKE_SOURCE_DIR}/field 
 ${CMAKE_SOURCE_DIR}/trackbase 
 ${CMAKE_SOURCE_DIR}/passive
-${CMAKE_SOURCE_DIR}/tpc
-${CMAKE_SOURCE_DIR}/tpc/tpcreco
 ${CMAKE_SOURCE_DIR}/PndTools/generalTools
 ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
 ${CMAKE_SOURCE_DIR}/emc/EmcMC
@@ -34,7 +32,6 @@ ${CMAKE_SOURCE_DIR}/stt
 ${CMAKE_SOURCE_DIR}/stt/sttreco
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/trackrep
-${CMAKE_SOURCE_DIR}/lhetrack
 ${CMAKE_SOURCE_DIR}/rho
 ${CMAKE_SOURCE_DIR}/rho/RhoBase
 ${CMAKE_SOURCE_DIR}/pid
@@ -66,7 +63,6 @@ PidCorr/PndPidCorrelator.cxx
 PidCorr/PndPidTrackInfo.cxx
 PidCorr/PndPidMvdInfo.cxx
 PidCorr/PndPidSttInfo.cxx
-PidCorr/PndPidTpcInfo.cxx
 PndPidContFact.cxx
 
 ###### Associator

@@ -62,7 +62,6 @@ protected:
   TClonesArray* fDrcHit;            //! PndDrcHit TCA
   TClonesArray* fDskParticle;       //! PndDskParticle TCA  //need to change to PndDskHit in future
   TClonesArray* fSttHit;            //! PndSttHit/PndSttHelixHit TCA 
-  TClonesArray* fTpcCluster;        //! PndTpcCluster TCA
  
   PndPidCorrPar* fCorrPar;          //! Correlation parameters
   PndEmcGeoPar* fEmcGeoPar;         //! EMC geometry parameters
@@ -73,7 +72,6 @@ protected:
   Short_t fDebugMode;               // Fill ntuples for debug
   Short_t fMvdMode;                 // MVD Mode: 0 no MVD, 1 MvdPoint, (2) MvdHit
   Short_t fSttMode;                 // STT Mode: 0 no STT, 1 SttPoint,  2  SttHit, (3) SttHelixHit
-  Short_t fTpcMode;                 // TPC Mode: 0 no TPC, (2) PndTpcCluster
   Short_t fTofMode;                 // TOF Mode: 0 no TOF, 1 -empty-,  (2) TofHit
   Short_t fEmcMode;                 // EMC Mode: 0 no EMC, 1 -empty-,  (2) EmcCluster, 3 EmcBumps
   Short_t fMdtMode;                 // MDT Mode: 0 no MDT, 1 -empty-,  (2) MdtHit 
@@ -123,8 +121,6 @@ protected:
   Bool_t GetTrackInfo(PndTrack* track, PndPidCandidate* pid); 
   Bool_t GetMvdInfo  (PndTrack* track, PndPidCandidate* pid); 
   Bool_t GetSttInfo  (PndTrack* track, PndPidCandidate* pid);  
-  Bool_t GetTpcInfo  (PndTrack* track, PndPidCandidate* pid);  
-  Bool_t GetTpcInfoGeane(PndTrack* track, PndPidCandidate* pid); 
   Bool_t GetTofInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
   Bool_t GetEmcInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
   Bool_t GetMdtInfo  (PndTrack* track, PndPidCandidate* pid);   
@@ -164,7 +160,6 @@ public:
 
   void SetMvdMode(Short_t mode)	{ fMvdMode = mode; };                 // MVD Mode: 0 no MVD
   void SetSttMode(Short_t mode)	{ fSttMode = mode; };                 // STT Mode: 0 no STT
-  void SetTpcMode(Short_t mode)	{ fTpcMode = mode; };                 // TPC Mode: 0 no TPC
   void SetTofMode(Short_t mode)	{ fTofMode = mode; };                 // TOF Mode: 0 no TOF
   void SetEmcMode(Short_t mode)	{ fEmcMode = mode; };                 // EMC Mode: 0 no EMC
   void SetMdtMode(Short_t mode)	{ fMdtMode = mode; };                 // MDT Mode: 0 no MDT 

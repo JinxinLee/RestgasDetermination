@@ -53,7 +53,6 @@ PndPidCorrelator::PndPidCorrelator() {
   fMdtRefit = kFALSE;
   fMvdMode = -1;
   fSttMode = -1;
-  fTpcMode = -1;
   fTofMode = -1;
   fEmcMode = -1;
   fMdtMode = -1; 
@@ -94,7 +93,6 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title)
   fMdtRefit = kFALSE;
   fMvdMode = -1;  
   fSttMode = -1; 
-  fTpcMode = -1;
   fTofMode = -1;
   fEmcMode = -1;
   fMdtMode = -1;
@@ -193,22 +191,6 @@ InitStatus PndPidCorrelator::Init() {
 	      cout << "-W- PndPidCorrelator::Init: No STT hits mix array! Switching STT OFF" << endl;
 	      fSttMode = 0;
 	    }
-	}
-    }
-  
-  // *** TPC ***
-  if (fTpcMode)
-    {
-      fTpcCluster = (TClonesArray*) fManager->GetObject("PndTpcCluster");
-      if ( fTpcCluster ) 
-	{
-	  cout << "-I- PndPidCorrelator::Init: Using PndTpcCluster" << endl;
-	  fTpcMode = 2;
-	}
-      else
-	{
-	  cout << "-W- PndPidCorrelator::Init: No TPC Cluster array! Switching TPC OFF" << endl;
-	  fTpcMode = 0;
 	}
     }
   
@@ -595,7 +577,6 @@ void PndPidCorrelator::ConstructChargedCandidate() {
     pidCand->AddLink(FairLink(fTrackBranch, i));
     if (!GetTrackInfo(track, pidCand)) continue;
     if ( (fMvdMode==2) && ((fMvdHitsStrip->GetEntriesFast()+fMvdHitsPixel->GetEntriesFast())>0) ) GetMvdInfo(track, pidCand); 
-    if ( (fTpcMode==2) && (fTpcCluster->GetEntriesFast()>0) ) GetTpcInfo(track, pidCand); 
     if ( (fSttMode == 2) && (fSttHit    ->GetEntriesFast()>0) ) GetSttInfo(track, pidCand);
     if (!fFast)
       {
@@ -634,7 +615,6 @@ void PndPidCorrelator::ConstructChargedCandidate() {
 	pidCand->AddLink(FairLink("PndTrack", i));
 	if (!GetTrackInfo(track, pidCand)) continue;
 	GetMvdInfo(track, pidCand);
-	//GetTpcInfo(track, pidCand);
 	if ( (fSttMode==3) && (fSttHit    ->GetEntriesFast()>0) ) GetSttInfo(track, pidCand);
 	if ( (fTofMode==2) && (fTofHit    ->GetEntriesFast()>0) ) GetTofInfo(helix, pidCand);
 	if ( (fEmcMode>0)  && (fEmcCluster->GetEntriesFast()>0) ) GetEmcInfo(helix, pidCand);
