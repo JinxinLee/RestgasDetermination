@@ -44,43 +44,63 @@ void digi_complete_stt()
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
   
-
-  // -----   EMC hit producers   ---------------------------------
-  // The file name should be the same of the geometry file which was used for the simulation
-  
-  PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform(iVerbose);
-  emcHitsToWaveform->SetStorageOfData(kFALSE);
-  PndEmcWaveformToDigi* emcWaveformToDigi=new PndEmcWaveformToDigi(iVerbose);
-  fRun->AddTask(emcHitsToWaveform);  // full digitization
-  fRun->AddTask(emcWaveformToDigi);  // full digitization
-
+  // -----   STT digi producers   ---------------------------------
   PndSttHitProducerRealFast* sttHitProducer = new PndSttHitProducerRealFast();
   fRun->AddTask(sttHitProducer);
-
-  PndDchDigiProducer* digiProducer= new PndDchDigiProducer();
-  fRun->AddTask(digiProducer);
-  PndDchCylinderHitProducer* cylHitProducer= new PndDchCylinderHitProducer();
-  fRun->AddTask(cylHitProducer);
- 
+  
+  // -----   MDV digi producers   ---------------------------------
   PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
   mvddigi->SetVerbose(iVerbose);
   fRun->AddTask(mvddigi);
-  
-  PndTofHitProducerIdeal* tofhit = new PndTofHitProducerIdeal();
-  tofhit->SetVerbose(iVerbose);
-  fRun->AddTask(tofhit);
 
+  PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
+  mvdmccls->SetVerbose(iVerbose);
+  fRun->AddTask(mvdmccls);
+
+  // -----   EMC hit producers   ---------------------------------
+  PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform(iVerbose);
+  PndEmcWaveformToDigi* emcWaveformToDigi=new PndEmcWaveformToDigi(iVerbose);
+  emcHitsToWaveform->SetStorageOfData(kFALSE);
+  emcWaveformToDigi->SetStorageOfData(kFALSE);
+  fRun->AddTask(emcHitsToWaveform);  // full digitization
+  fRun->AddTask(emcWaveformToDigi);  // full digitization
+
+  PndEmcMakeCluster* emcMakeCluster= new PndEmcMakeCluster(iVerbose);
+  fRun->AddTask(emcMakeCluster);
+
+  PndEmcMakeBump* emcMakeBump= new PndEmcMakeBump();
+  fRun->AddTask(emcMakeBump);
+
+  PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
+  fRun->AddTask(emcHdrFiller); // ECM header
+
+  // -----   MDT hit producers   ---------------------------------
   PndMdtHitProducerIdeal* mdtHitProd = new PndMdtHitProducerIdeal();
-  mdtHitProd->SetPositionSmearing(0.2); // position smearing [cm]
+  mdtHitProd->SetPositionSmearing(.3); // position smearing [cm]
   fRun->AddTask(mdtHitProd);
 
-  PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", iVerbose);
+  PndMdtTrkProducer* mdtTrkProd = new PndMdtTrkProducer();
+  fRun->AddTask(mdtTrkProd);
+
+  // -----   DRC hit producers   ---------------------------------
+  PndDrcHitProducerIdeal* drchit = new PndDrcHitProducerIdeal();
+  drchit->SetVerbose(iVerbose);
+  fRun->AddTask(drchit);
+
+  // -----   GEM hit producers   ---------------------------------
+  Int_t verboseLevel = 0;
+  PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", verboseLevel);
   fRun->AddTask(gemDigitize);
-	
-  PndGemFindHits* gemFindHits = new PndGemFindHits("GEM Hit Finder",  iVerbose);
+
+  PndGemFindHits* gemFindHits = new PndGemFindHits("GEM Hit Finder", verboseLevel);
   fRun->AddTask(gemFindHits);
 
-	
+  // -----   FTS hit producers   ---------------------------------
+  PndFtsHitProducerRealFast* ftsHitProducer = new PndFtsHitProducerRealFast();
+  //PndFtsHitProducerIdeal* ftsHitProducer = new PndFtsHitProducerIdeal();
+  //PndFtsHitProducerRealFull* ftsHitProducer = new PndFtsHitProducerRealFull();
+  fRun->AddTask(ftsHitProducer);
+
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
 

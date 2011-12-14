@@ -85,9 +85,6 @@
   PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
   fRun->AddTask(emcHdrFiller); // ECM header
 
-  PndEmcMakeRecoHit* emcMakeRecoHit= new PndEmcMakeRecoHit();
-  fRun->AddTask(emcMakeRecoHit);
-
   // -----   Intialise and run   --------------------------------------------
   cout << "fRun->Init()" << endl;
   fRun->Init();

@@ -30,6 +30,8 @@ void reco_complete_stt()
   fRun->SetInputFile("sim_complete_stt.root");
   fRun->AddFriend("digi_complete_stt.root");
   fRun->SetOutputFile(outFile);
+  FairGeane *Geane = new FairGeane();
+  fRun->AddTask(Geane);
 
   // -----  Parameter database   --------------------------------------------
   TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");
@@ -45,77 +47,41 @@ void reco_complete_stt()
         
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
-  
 
-  // -----   EMC hit producers   ---------------------------------
-  // The file name should be the same of the geometry file which was used for the simulation
-  
-  PndEmcMakeCluster* emcMakeCluster= new PndEmcMakeCluster(iVerbose);
-  emcMakeCluster->SetStorageOfData(kFALSE);
-  fRun->AddTask(emcMakeCluster);
-  PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
-  fRun->AddTask(emcHdrFiller); // ECM header
-  PndEmcMakeBump* emcMakeBump= new PndEmcMakeBump();
-  fRun->AddTask(emcMakeBump);
-  PndEmcMakeRecoHit* emcMakeRecoHit= new PndEmcMakeRecoHit();
-  fRun->AddTask(emcMakeRecoHit);
+  // ------------------------------------------------------------------------
+  PndMvdRiemannTrackFinderTask* mvdTrackFinder = new PndMvdRiemannTrackFinderTask();
+  mvdTrackFinder->SetVerbose(iVerbose);
+  mvdTrackFinder->SetMaxDist(0.05);
+  mvdTrackFinder->SetPersistence(kFALSE);
+  fRun->AddTask(mvdTrackFinder);
 
-  // trackfinding ....
-  PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
+  //  PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
+  PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(0);
   PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
   sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
+  sttFindTracks->SetPersistence(kFALSE);
   fRun->AddTask(sttFindTracks);
-  // trackmatching ....
-  PndSttMatchTracks* sttTrackMatcher = new PndSttMatchTracks("Match tracks", "STT", iVerbose);
-  sttTrackMatcher->AddHitCollectionName("STTHit", "STTPoint");
-  fRun->AddTask(sttTrackMatcher);  
-  // trackfitting ....
-  PndSttTrackFitter* sttTrackFitter = new PndSttHelixTrackFitter(0);
-  PndSttFitTracks* sttFitTracks = new PndSttFitTracks("STT Track Fitter", "FairTask", sttTrackFitter); 
-  sttFitTracks->AddHitCollectionName("STTHit");
-  fRun->AddTask(sttFitTracks);
-  // helix hit production ....
-  PndSttHelixHitProducer* sttHHProducer = new PndSttHelixHitProducer();
-  fRun->AddTask(sttHHProducer);
 
+  PndSttMvdTracking *  SttMvdTracking = new PndSttMvdTracking(0, false, false);
+  //SttMvdTracking->Cleanup();
+  SttMvdTracking->SetPersistence(kFALSE);
+  fRun->AddTask(SttMvdTracking);
 
-  //------ Ideal DCH track finder --------------------
-  PndDchFindTracks* finderTask = new PndDchFindTracks("dchFindTracks");
-  finderTask->SetUseHitOrDigi("chit");
-  fRun->AddTask(finderTask);
-  // ------------------------------------------------- 
-  PndDchTrackFinderIdealCylHit* mcTrackFinder = new  PndDchTrackFinderIdealCylHit();
-  mcTrackFinder->SetPrimary(1);  // 1 = Only primary tracks are processed, 0 = all (default)
-  finderTask->UseFinder(mcTrackFinder);
-  //--------------------------------------------------
-  PndDchMatchTracks *matchTask = new PndDchMatchTracks();//match PndDchTracks and MCTracks
-  matchTask->SetUseHitOrDigi("chit");
-  fRun->AddTask(matchTask);
+  PndSttMvdGemTracking * SttMvdGemTracking = new PndSttMvdGemTracking(0);
+  fRun->AddTask(SttMvdGemTracking);
 
-  //----- Mvd Hit Reco -----
-  PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
-  fRun->AddTask(mvdmccls);
+  PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
+  recoKalman->SetTrackInBranchName("SttMvdGemTrack");
+  recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
+  recoKalman->SetBusyCut(50); // CHECK to be tuned
+  fRun->AddTask(recoKalman);
 
+  PndMCTrackAssociator* trackMC2 = new PndMCTrackAssociator();
+  trackMC2->SetTrackInBranchName("SttMvdGemGenTrack");
+  trackMC2->SetTrackOutBranchName("SttMvdGemGenTrackID");
 
-	
-  //------ GEM Realistic Track finder --------------------
-  //Create and add finder task
-  PndGemFindTracks* gemFinderTask = new  
-  PndGemFindTracks("PndGemFindTracks");
-  gemFinderTask->SetUseHitOrDigi("hit"); // hit = (default), digi
-  fRun->AddTask(gemFinderTask);
-	
-  PndGemTrackFinderOnHits* gemTrackFinder = new   PndGemTrackFinderOnHits();
-  gemTrackFinder->SetVerbose(0);  // verbosity level
-  gemTrackFinder->SetPrimary(0);  // 1 = Only primary tracks are  processed, 0 = all (default)
-  gemFinderTask->UseFinder(gemTrackFinder);
-	
-  PndGemTrackFinderQA* gemTrackFinderQA = new PndGemTrackFinderQA();
-  gemTrackFinderQA->SetVerbose(0);
-  fRun->AddTask(gemTrackFinderQA);
-	
-	
   // -----   Intialise and run   --------------------------------------------
+  PndEmcMapper::Init(1);
   cout << "fRun->Init()" << endl;
   fRun->Init();
 

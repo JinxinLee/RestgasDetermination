@@ -51,7 +51,7 @@
 
    //FairDetector *Emc = new PndEmc("EMC",kTRUE);
    PndEmc *Emc = new PndEmc("EMC",kTRUE);
-   Emc->SetGeometryVersion(15);
+   Emc->SetGeometryVersion(1);
    // See PndEmc::SetGeometryVersion() for available geometries and add there new one if necessary
    fRun->AddModule(Emc);
   
