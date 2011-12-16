@@ -273,7 +273,7 @@ Int_t PndMCTrackAssociator::GetGemHits(Int_t index)
 //_________________________________________________________________
 Int_t PndMCTrackAssociator::GetFtsHits(Int_t index)
 {
-  // Taking points from PndGemHits
+  // Taking points from PndFtsHits
   
   PndFtsHit* ftsHit = (PndFtsHit*) fFtsInput->At(index);
   if (!ftsHit)
