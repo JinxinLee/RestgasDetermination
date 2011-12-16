@@ -55,14 +55,15 @@ void PndKinVtxFitter::FitLeaf(TCandidate *head)
   if ( head->NDaughters()>0 ) {
     TCandListIterator iter=head->DaughterIterator();
     
-    while (tc=iter.Next()) {
+    while ((tc=iter.Next())) {
       if (tc->IsComposite()) FitLeaf(tc);
       //    else if( (!tc->decayVtx() && !tc->isAResonance() ) 
     }
   }
   //}
-    fDaughters.Cleanup();
-    FindAndAddGenericDaughters(fHeadOfTree);
+  fDaughters.Cleanup();
+  //FindAndAddGenericDaughters(fHeadOfTree);
+  FindAndAddGenericDaughters(head); //[ralfk:01.12.11 Try to make it a leaf-by-leaf fit]
   
   
   Compute();
@@ -75,10 +76,12 @@ void PndKinVtxFitter::FindAndAddGenericDaughters(TCandidate *head)
   TCandidate *tc;
   TCandListIterator iter=head->DaughterIterator();
   
-  while (tc=iter.Next())
+  while ((tc=iter.Next()))
   {
-    if (!tc->IsComposite()) fDaughters.Add(*tc);
-    else FindAndAddGenericDaughters(tc);
+    fDaughters.Add(*tc);
+    // //[ralfk:01.12.11 Try to make it a leaf-by-leaf fit]
+    // if (!tc->IsComposite()) fDaughters.Add(*tc);
+    // else FindAndAddGenericDaughters(tc);
   }
 }
 
@@ -170,7 +173,7 @@ void PndKinVtxFitter::Compute()
 	{
     fNc=0; 
     if(fMassConstraint >0){ ReadMassKinMatrix();}
-    
+    //FIXME: here should be an else statement, right?
     ReadKinMatrix();
     
     TMatrixD mD_t=mD;
@@ -299,7 +302,7 @@ void PndKinVtxFitter::Compute()
 
 
 //Write output
-void PndKinVtxFitter::SetOutput()
+void PndKinVtxFitter::SetOutput(TCandidate *head)
 { 
   int nd=fDaughters.GetLength();
   TMatrixD m(nd,1);
@@ -339,10 +342,12 @@ void PndKinVtxFitter::SetOutput()
   //          TLorentzVector sum;
   //          sum.SetXYZM(fpx,fpy,fpz,fM);
   TVector3 vtx(vtx_ex[0][0],vtx_ex[1][0],vtx_ex[2][0]);
-  fHeadOfTree->SetP7(vtx,sum);
+  //fHeadOfTree->SetP7(vtx,sum);
+  head->SetP7(vtx,sum); //[ralfk:01.12.11 Try to make it a leaf-by-leaf fit]
   if(fVerbose) cout<<"Final vertex Position is"<<vtx_ex[0][0]<<" "<<vtx_ex[1][0]<<" "<<vtx_ex[2][0]<<endl;
   if(fVerbose) cout<<"Final Momenta are "<<al0[0][0]<<" "<<al1[1][0]<<" "<<al1[2][0]<<endl;
-  fHeadOfTree->SetCov7(covC); //New covariance matrix
+  //fHeadOfTree->SetCov7(covC); //New covariance matrix
+  head->SetCov7(covC); //New covariance matrix //[ralfk:01.12.11 Try to make it a leaf-by-leaf fit]
 }
 
 
@@ -371,7 +376,7 @@ void PndKinVtxFitter::ReadMatrix()
     
     // Read Covariance Matrix .... Can read 6x6 matrices..................
     TMatrixD p1Cov(7,7);
-    TMatrixD p3Cov(6,6);
+    TMatrixD p3Cov(6,6); //Why 6x6 here if 7x7 should be cpoied (below)
     TMatrixD p2Cov(7,7);
     TMatrixD p4Cov(7,7);
     p1Cov=fDaughters[k].Cov7(); //Cov Matrix x,y,z,px,py,pz,E
@@ -633,8 +638,8 @@ void PndKinVtxFitter::ReadMassKinMatrix()
   fNc +=1;
 } 
 
-
-void PndKinVtxFitter::ReadPointingKinMatrix()
+// not used yet?
+void PndKinVtxFitter::ReadPointingKinMatrix(TCandidate *head)
 {
   //Pass the vertex point 
   // To be applied on the composite particle
@@ -646,8 +651,10 @@ void PndKinVtxFitter::ReadPointingKinMatrix()
   md.ResizeTo(fNcon,1);
   
   //double ch= fHeadOfTree->GetCharge(); //unused
-  TLorentzVector p1=fHeadOfTree->P4();
-  TVector3 p2=fHeadOfTree->Pos(); 
+  //TLorentzVector p1=fHeadOfTree->P4();
+  //TVector3 p2=fHeadOfTree->Pos(); 
+  TLorentzVector p1=head->P4(); //[ralfk:01.12.11 Try to make it a leaf-by-leaf fit]
+  TVector3 p2=head->Pos();  //[ralfk:01.12.11 Try to make it a leaf-by-leaf fit]
   double delX = p2.X() - fpVtx.X();
   double delY = p2.Y() - fpVtx.Y();
   double delZ = p2.Z() - fpVtx.Z();
@@ -786,7 +793,7 @@ void PndKinVtxFitter::GetStartVtx(TVector3 * SVtx)
   double fActualDoca=1.E8;
   //    fActualDoca=0.99999999;
   for (Int_t ns=0; ns<nSolMax; ns++){      // loop on the solutions
-    // radius vector of intersection point
+                                           // radius vector of intersection point
     Double_t sign = ns ? 1.0 : -1.0;
     TVector3 rs1( cosTheAB*x - sinTheAB*y * sign, sinTheAB*x + cosTheAB*y * sign, 0);  
     TVector3 rs2( rs1-ab );

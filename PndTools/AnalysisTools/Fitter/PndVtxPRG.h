@@ -28,7 +28,7 @@ class PndVtxPRG : public VAbsFitter
     //{fTrackArray = tcar; if (! fTrackArray) std::cout << "-E- PndVtxPRG::SetTrackArray(): No track array found." << std::endl; }
     
     double FitVertexFast(TVector3 &vtx, TMatrixD &cov, bool skipcov=false);
-    double FitVertexFull(TVector3 &vtx, TMatrixD &cov, int niterations=0);
+    double FitVertexFull(TVector3 &vtx, TMatrixD &cov, int niterations=1);
     
     void SetDebug(bool db = true){if(db)fVerbose=true; fDebug=db;};
     void SetSilent(){fVerbose=false; fDebug=false;};

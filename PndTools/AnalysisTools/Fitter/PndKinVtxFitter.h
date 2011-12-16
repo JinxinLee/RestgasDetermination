@@ -44,11 +44,13 @@ class PndKinVtxFitter : public VAbsFitter
     
     void ReadKinMatrix();
     void ReadMassKinMatrix(); 
-    void ReadPointingKinMatrix();
+    void ReadPointingKinMatrix(){ReadPointingKinMatrix(fHeadOfTree);};
+    void ReadPointingKinMatrix(TCandidate *head);
     
     
     void Compute();
-    void SetOutput();
+    void SetOutput(){SetOutput(fHeadOfTree);};
+    void SetOutput(TCandidate *head);
     
     void TransportToVertex(TMatrixD &, TMatrixD &, TMatrixD &, TMatrixD &, TMatrixD &);
     void GetStartVtx(TVector3 *); 

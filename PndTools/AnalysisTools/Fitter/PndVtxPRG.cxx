@@ -22,7 +22,7 @@ fExpansionPoint(0.,0.,0.),  // Assume Zero origin as default
 fPrgCov(5,5),
 fJacobian(5,7)
 {
-  printf("Creating PndVtxPRG. This class is preliminary.\n");
+  std::cout<<"Creating PndVtxPRG. This class is preliminary."<<std::endl;;
 }
 
 PndVtxPRG::~PndVtxPRG()
@@ -46,14 +46,14 @@ void PndVtxPRG::Calculate(int niterations)
   //TVector3 bkExpPoint = fExpansionPoint; // backup vertex seed
   TMatrixD tmpcov(3,3);
   bool verbi=fVerbose;
-  //fVerbose=false;
+  fVerbose=false;
   bool debi=fDebug;
-  //fDebug=false;
+  fDebug=false;
   //for (int afast=0;afast<4;afast++)
   //{
   FitVertexFast(vtx,tmpcov,false);//fast vertex seed (with expansion point used)
-    //if(fVerbose) {std::cout<<" #$# Fit #$# Vertex before a, iteration"<<afast<<": "; vtx.Print();}
-    //fExpansionPoint=vtx; // then rerun with new expansion point.
+  //if(fVerbose) {std::cout<<" #$# Fit #$# Vertex before a, iteration"<<afast<<": "; vtx.Print();}
+  //fExpansionPoint=vtx; // then rerun with new expansion point.
   //}
   //fExpansionPoint = bkExpPoint; // get back the seed.
   fVerbose=verbi;
@@ -64,6 +64,7 @@ void PndVtxPRG::Calculate(int niterations)
   Double_t determinant = 0.;
   for (int iteration = 0 ; iteration < niterations ; iteration++)
   {
+    std::cout<<"Iteration "<<iteration<<std::endl;
     if(fVerbose) {std::cout<<" #$# Fit #$# Begin iteration "<<iteration<<" #$#$#$# "<<std::endl;}
     std::vector<TMatrixD> B;
     std::vector<TMatrixD> CI; // only Ci^-1 is used
@@ -75,6 +76,7 @@ void PndVtxPRG::Calculate(int niterations)
     std::vector<TMatrixD> U;
     std::vector<TMatrixD> W; 
     std::vector<TMatrixD> dq; // helper
+    TMatrixD CovFitFull(3+3*nTrk,3+3*nTrk); //3 vtx coordinates, nTrk*3 momenta
     for(int i=0;i<nTrk;i++)
     { 
       if(fVerbose) {std::cout<<" #$# Fit #$# track "<<i<<" #$#$#$# "<<std::endl;}
@@ -105,7 +107,7 @@ void PndVtxPRG::Calculate(int niterations)
       
       // get parameters closest to vertex estimate
       Bool_t testvtx = CalcPrgParams(tcand,vtx); 
-//      Bool_t testvtx = CalcPrgParams(tcand,vtx+fExpansionPoint); 
+      //      Bool_t testvtx = CalcPrgParams(tcand,vtx+fExpansionPoint); 
       if(!testvtx) return;
       TMatrixD qiv(3,1);
       qiv[0][0]=fPrgParams[0];//epsilon
@@ -135,28 +137,24 @@ void PndVtxPRG::Calculate(int niterations)
       pvi[0][2]=momi.Z();
       if(fVerbose) {std::cout<<" #$# Fit #$# pvi "; pvi.Print();}
       
-      
-      
-      
-      
-      // get perigee parameters for track
+      // get perigee parameters for measured track
       Bool_t testprg = CalcPrgParams(tcand,fExpansionPoint);
       if(!testprg) {printf("#$# Fit #$#   CANNOT CALCULATE TRACK PARAMETERS"); return;}
       TMatrixD qip(3,1);
       qip[0][0]=fPrgParams[0];//epsilon
       qip[1][0]=fPrgParams[1];//z0
       qip[2][0]=fPrgParams[3];//phi0
-      TMatrixD xmi(1,3); // last measured position
-      xmi[0][0]=posi.X();
-      xmi[0][1]=posi.Y();
-      xmi[0][2]=posi.Z();
-      if(fVerbose) {std::cout<<" #$# Fit #$# xmi "; xmi.Print();}
+      //TMatrixD xmi(1,3); // last measured position
+      //xmi[0][0]=posi.X();
+      //xmi[0][1]=posi.Y();
+      //xmi[0][2]=posi.Z();
+      //if(fVerbose) {std::cout<<" #$# Fit #$# xmi "; xmi.Print();}
       TMatrixD xpi(1,3); // perigee position
       xpi[0][0]=sin(fPrgParams[3])*fPrgParams[0];
       xpi[0][1]=-cos(fPrgParams[3])*fPrgParams[0];
       xpi[0][2]=fPrgParams[1];
       if(fVerbose) {std::cout<<" #$# Fit #$# xpi "; xpi.Print();}
-
+      
       TMatrixD COVi(3,3); // track parameter cov for (epsilon,z_p,Phi_p)
       //double r=pocai.Perp();
       COVi[0][0]=fPrgCov[0][0];// epsilon-epsilon
@@ -168,8 +166,8 @@ void PndVtxPRG::Calculate(int niterations)
       COVi[2][0]=fPrgCov[3][0];// epsilon-Phi0
       COVi[2][1]=fPrgCov[3][1];// z0-Phi0
       COVi[2][2]=fPrgCov[3][3];// phi0-phi0
-      if(fVerbose) {std::cout<<" #$# Fit #$# COVi  "; COVi.Print();}      
-
+      if(true||fVerbose) {std::cout<<" #$# Fit #$# COVi  "; COVi.Print();}      
+      
       //det(aA) = a^n det(A)
       TMatrixD Wi(COVi);
       //Wi *= 100000; // multiply with a biggish number to get reasonable numerics for the inversion
@@ -184,6 +182,10 @@ void PndVtxPRG::Calculate(int niterations)
       //TMatrixD Wi(TMatrixD::kInverted,COVi); // no determinant returned -> No check possible
       W.push_back(Wi);
       if(fDebug) {std::cout<<" #$# Fit #$# Wi (det(cov) = "<<determinant<<")"<<std::endl; Wi.Print();}
+      for(int sdsd=0;sdsd<3;sdsd++) for(int asas=sdsd;asas<3;asas++){
+        printf("W{%i}[%i][%i] = %6.9f\n",i,sdsd,asas,Wi[sdsd][asas]);
+        printf("W{%i}[%i][%i] = %6.9f\n",i,asas,sdsd,Wi[asas][sdsd]);
+      }
       
       TMatrixD Di(3,3); // Derivative in V
       Di[0][0]=s;
@@ -218,24 +220,14 @@ void PndVtxPRG::Calculate(int niterations)
       TMatrixD EitWi(Ei,TMatrixD::kTransposeMult,Wi);
       if(fDebug) {std::cout<<" #$# Fit #$# EitWi  "; EitWi.Print();}
       
-      //
-      //TMatrixD dqix(Di,TMatrixD::kMultTranspose,xvi);
-      //if(fDebug) {std::cout<<" #$# Fit #$# dqix  "; dqix.Print();}
-      //TMatrixD dqip(Ei,TMatrixD::kMultTranspose,pvi);
-      //if(fDebug) {std::cout<<" #$# Fit #$# dqip  "; dqip.Print();}
-      //TMatrixD dqi(dqip,TMatrixD::kPlus,dqix);
-      //dqi*=-1;
-      //dq.push_back(dqi);
-      //if(fDebug) {std::cout<<" #$# Fit #$# dqi  "; dqi.Print();}
-      
-      //dqi = q_measured(Perigee) - F_0(xvi,pvi);
+      //dqi = q_measured(Perigee) - F_0(xvi,pvi) == dip-qiv;
       TMatrixD dqi(qip,TMatrixD::kMinus,qiv);
       dq.push_back(dqi);
       if(fDebug) {std::cout<<" #$# Fit #$# dqi  "; dqi.Print();}
-
+      
       TMatrixD Ai(DitWi,TMatrixD::kMult,Di);
       A += Ai;
-      if(fDebug) {std::cout<<" #$# Fit #$# Ai = DitWiDi "; Ai.Print();}
+      if(fDebug) {std::cout<<" #$# Fit #$# Ai ("<<i<<") = DitWiDi "; Ai.Print();}
       
       TMatrixD Bi(DitWi,TMatrixD::kMult,Ei);
       B.push_back(Bi);
@@ -243,6 +235,10 @@ void PndVtxPRG::Calculate(int niterations)
       
       TMatrixD Ci(EitWi,TMatrixD::kMult,Ei);
       if(fDebug) {std::cout<<" #$# Fit #$# Ci = EitWiEi "; Ci.Print();}
+      for(int sdsd=0;sdsd<3;sdsd++) for(int asas=sdsd;asas<3;asas++){
+        printf("C{%i}[%i][%i] = %6.9f\n",i,sdsd,asas,Ci[sdsd][asas]);
+        printf("C{%i}[%i][%i] = %6.9f\n",i,asas,sdsd,Ci[asas][sdsd]);
+      }
       
       TMatrixD CIi(Ci);
       //CIi *= 1e6; // catch numerics
@@ -255,6 +251,10 @@ void PndVtxPRG::Calculate(int niterations)
       //CIi *= 1e6; // catch numerics
       //TMatrixD CIi(TMatrixD::kInverted,Ci); // no determinant returned -> No check possible
       CI.push_back(CIi);
+      for(int sdsd=0;sdsd<3;sdsd++) for(int asas=sdsd;asas<3;asas++){
+        printf("CI{%i}[%i][%i] = %6.9f\n",i,sdsd,asas,CI[i][sdsd][asas]);
+        printf("CI{%i}[%i][%i] = %6.9f\n",i,asas,sdsd,CI[i][asas][sdsd]);
+      }
       if(fDebug) {std::cout<<" #$# Fit #$# CIi = Ci^-1 "; CIi.Print();}
       
       TMatrixD BiCIi(Bi,TMatrixD::kMult,CIi);
@@ -270,16 +270,23 @@ void PndVtxPRG::Calculate(int niterations)
       if(fDebug) {std::cout<<" #$# Fit #$# Ui = EitWi*dqi"; Ui.Print();}
       
     } // loop tracks
-    
+    if(fDebug) {std::cout<<" #$# Fit #$# A = "; A.Print();}
+
     // Calculate Vertex update
     TMatrixD WV(A);
+    if(fDebug) {std::cout<<" #$# Fit #$# WV = "; WV.Print();}
     TMatrixD Vpre(T);
     for(int i=0;i<nTrk;i++)
     { 
-      TMatrixD BiCIiUi(BCI[i],TMatrixD::kMult,U[i]);
+      TMatrixD BCIi(B[i],TMatrixD::kMult,CI[i]);
+      TMatrixD BiCIiUi(BCIi,TMatrixD::kMult,U[i]);
       Vpre-=BiCIiUi;
-      TMatrixD BiCIiBti(BCI[i],TMatrixD::kMultTranspose,B[i]);
+      if(true||fDebug) {std::cout<<" #$# Fit #$# CIi ("<<i<<") "; CI[i].Print();}
+      if(true||fDebug) {std::cout<<" #$# Fit #$# Bi ("<<i<<") "; B[i].Print();}
+      TMatrixD BiCIiBti(BCIi,TMatrixD::kMultTranspose,B[i]);
+      if(true||fDebug) {std::cout<<" #$# Fit #$# BiCIiBti ("<<i<<") = "; BiCIiBti.Print();}
       WV-=BiCIiBti;
+      if(true||fDebug) {std::cout<<" #$# Fit #$# WV = "; WV.Print();}
     }
     TMatrixD CovVV(WV);
     CovVV.InvertFast(&determinant);
@@ -287,59 +294,82 @@ void PndVtxPRG::Calculate(int niterations)
       std::cout<<"PndVtxPRG: WV Inversion failed, abort fit."<<std::endl;
       return;
     }
+    if(true||fDebug) {std::cout<<" #$# Fit #$# CovVV = "; CovVV.Print();}
     //TMatrixD CovVV(TMatrixD::kInverted,WV); // no determinant returned -> No check possible
-    TMatrixD V(CovVV,TMatrixD::kMult,Vpre);
-    vtx.SetXYZ(V[0][0],V[1][0],V[2][0]); 
+    TMatrixD dV(CovVV,TMatrixD::kMult,Vpre);
+    vtx.SetXYZ(dV[0][0],dV[1][0],dV[2][0]); 
+    if(fVerbose) {std::cout<<" #$# Fit #$# Vertex after          "; vtx.Print();}
     vtx+=fExpansionPoint; // move back to lab coordinates
-    if(fVerbose) {std::cout<<" #$# Fit #$# Vertex after          "; (vtx-fExpansionPoint).Print();}
     if(fVerbose) {std::cout<<" #$# Fit #$# Vertex after (global) "; vtx.Print();}
-   
+    
     // Calculate Momentum updates & Chi^2
     std::vector<TMatrixD> P;
     std::vector<TMatrixD> uq;
+    //dV.T();
     Double_t chisquare=0;
     for(int i=0;i<nTrk;i++)
     { 
-      TMatrixD BtiV(B[i],TMatrixD::kTransposeMult,V);
+      TMatrixD BtiV(B[i],TMatrixD::kTransposeMult,dV);
       TMatrixD Pi(CI[i],TMatrixD::kMult,U[i]-BtiV);
       P.push_back(Pi);
       // track params
-      TMatrixD DiV(D[i],TMatrixD::kMult,V);
+      TMatrixD uvi(D[i],TMatrixD::kMult,dV);
       TMatrixD uqi(E[i],TMatrixD::kMult,Pi);
-      uqi+=DiV;
-      uq.push_back(uqi);
+      dq[i]-=uvi;
+      dq[i]-=uqi;
       //chisquare
       TMatrixD dqitWi(dq[i],TMatrixD::kTransposeMult,W[i]);
       TMatrixD chis(dqitWi,TMatrixD::kMult,dq[i]);
       chisquare+=chis[0][0];
     }
-     
+    
     // TODO: end iteration loop at satisfying chisq?
-    if(iteration != niterations - 1 ) continue;
+    //if(iteration != niterations - 1 ) continue;
     
     // calculating other cov matrices, switch off to be faster?
-    std::vector<TMatrixD> CovVP;
-    std::vector< std::vector<TMatrixD> > CovPP;
+    
+    // POS COV
+    for(int k=0;k<3;k++) for(int l=0;l<3;l++){
+      CovFitFull[k][l]=CovVV[k][l];
+    }
+    if(fDebug) {std::cout<<" #$# Fit #$# CovVV: "; CovVV.Print();}
+    
+    // MOM-POS COV
     for(int i=0;i<nTrk;i++)
     { 
       TMatrixD CovVPi(CovVV,TMatrixD::kMult,BCI[i]);
-      CovVPi*=-1;
-      CovVP.push_back(CovVPi);
-      std::vector<TMatrixD> CovPPi;
+      CovVPi*=-1.;
+      for(int k=0;k<3;k++) for(int l=0;l<3;l++){
+        CovFitFull[k+3*(i+1)][l]=CovVPi[k][l]; ;
+        CovFitFull[l][k+3*(i+1)]=CovVPi[k][l]; ;
+      }
+      if(fDebug) {std::cout<<" #$# Fit #$# CovVPi "<<i<<": "; CovVPi.Print();}
+      
+      // MOM-MOM COV
       for(int j=0;j<nTrk;j++)
       {
+        // Caution: Identity of tracks i and j switch, to use CovVPi from above.
         TMatrixD CovPPijtmp(CI[j],TMatrixD::kMultTranspose,B[j]);
         TMatrixD CovPPij(CovPPijtmp,TMatrixD::kMult,CovVPi);
+        CovPPij*=-1.;
         if(i==j) CovPPij+=CI[j];
-        CovPPi.push_back(CovPPij);
+        for(int k=0;k<3;k++) for(int l=0;l<3;l++){
+          CovFitFull[k+3*(j+1)][l+3*(i+1)]=CovPPij[k][l]; // momentum cov
+          CovFitFull[l+3*(i+1)][k+3*(j+1)]=CovPPij[k][l]; // momentum cov
+        }        
+        if(fDebug) {std::cout<<" #$# Fit #$# CovPPij "<<i<<","<<j<<": "; CovPPij.Print();}
       }
-      CovPP.push_back(CovPPi);
     }
+    if(fDebug) {std::cout<<" #$# Fit #$# CovFitFull: "; CovFitFull.Print();}
+    
+    
+    //TODO... Continue checking
     
     // update particle candidates    
     TMatrixD CovP7(7,7);
     for(int k=0;k<3;k++) for(int l=0;l<3;l++) 
       CovP7[k][l]=CovVV[k][l];
+    if(fDebug) {std::cout<<" #$# Fit #$# CovP7 only vtx: "; CovP7.Print();}
     
     for(int i=0;i<nTrk;i++)
     { 
@@ -351,9 +381,9 @@ void PndVtxPRG::Calculate(int niterations)
       TVector3 momi( (P[i])[0][0],(P[i])[1][0],(P[i])[2][0] );
       fitted->SetP3(momi);
       for(int k=0;k<3;k++) for(int l=0;l<3;l++){
-        CovP7[k+3][l+3]=CovPP[i][i][k][l]; // momentum cov
-        CovP7[k+3][l]=(CovVP[i])[k][l];   // momentum-position cov
-        CovP7[l][k+3]=CovP7[k+3][l];   // momentum-position cov
+        CovP7[k+3][l+3]=CovFitFull[3*(i+1)+k][3*(i+1)+l]; // momentum cov
+        CovP7[k+3][l]=CovFitFull[3*(i+1)+k][l];   // momentum-position cov
+        CovP7[l][k+3]=CovFitFull[l][3*(i+1)+k];   // momentum-position cov
       }
       CovP7[6][6]= (tcand->GetErrP7())[27];// error in e
       fitted->SetCov7(CovP7);
@@ -361,8 +391,9 @@ void PndVtxPRG::Calculate(int niterations)
       //TODO: Update helix parameters & cov here, too.
       // put fitted candidate
       tcand->SetFit(fitted);
+      if(fDebug) {std::cout<<" #$# Fit #$# CovP7 with mom for tracj "<<i<<": "; CovP7.Print();}
     }
-    break;
+    // TODO: combine fitted daughters to a fitted mother!
   }// end of iteratoin loop
   
 }
@@ -469,7 +500,7 @@ double PndVtxPRG::FitVertexFast(TVector3 &vtx, TMatrixD &cov, bool skipcov)
   vtx.SetXYZ(V[0][0],V[0][1],V[0][2]);
   vtx += fExpansionPoint; // move back to origin
   if(fVerbose) {std::cout<<" #$# Fast #$# Vtx: "; vtx.Print();}
-
+  
   if (skipcov) return -1.; // skip chisqare calculation
   
   double chisq=0.; // calculate chisquare

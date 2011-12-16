@@ -118,18 +118,25 @@ Double_t PndVtxPoca::GetPoca(TVector3 &vertex,TCandidate* a, TCandidate* b)
   Double_t cosTheAB = ab.X()/dab;
   Double_t sinTheAB = ab.Y()/dab;
   
-  // x value of intersect at reduced system 
-  Double_t x = dab/2 + ( rho1*rho1 - rho2*rho2 )/(2*dab); 
-  
-  // y*y value of intersect at reduced system for helix A
-  Double_t y2 = (rho1+x)*(rho1-x); 
-  
+  Double_t darr = dab;
+  darr -= rho1;
+  darr -= rho2;
+
   // both circles do not intersect (only one solution)
   Int_t nSolMax=1;
+  Double_t x=0; 
   Double_t y=0; 
-  if (y2 > 0) {
+  if (darr < 0) {
+    // sum of radii is smaller than the two centers distance, circles intersect at two points
     nSolMax=2;
-    y = sqrt(y2);
+    // x value of intersect at reduced system 
+    x = 0.5*dab + ( rho1*rho1 - rho2*rho2 )/(2*dab); 
+    // y*y value of intersect at reduced system for helix A
+    Double_t y2 = (rho1+x)*(rho1-x); 
+    if (y2 > 0) y = sqrt(y2);
+  } else {
+    // no intersecting circles, take the mid point between both circles
+    x = 0.5*(dab + rho1 - rho2);
   }
   // now we compute the solution(s)
   TVector3 newapos[2];
