@@ -145,11 +145,11 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
     return;
   }
   FairHit* ghit = NULL;
-  FairHit* firstHit=NULL;
-  FairHit* lastHit=NULL;
+  std::map<Int_t, FairHit*> firstHit;
+  std::map<Int_t, FairHit*> lastHit;
   FairMCPoint* myPoint=NULL;
-  FairMCPoint* firstPoint=NULL;
-  FairMCPoint* lastPoint=NULL;
+  std::map<Int_t, FairMCPoint*> firstPoint;
+  std::map<Int_t, FairMCPoint*> lastPoint;
   std::map<Int_t, PndTrackCand*> candlist;
   for(Int_t iDet=0;iDet<4;iDet++){
     if(fVerbose>4) Info("Exec","Use detector %i",iDet);
@@ -184,13 +184,13 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
       }
       if(fVerbose>5) Info("Exec","add the hit %i to trackcand %i",ih,trackID);
       cand->AddHit(fBranchIDs[iDet],ih,ghit->GetZ());
-      if(!firstHit || firstHit->GetZ() > ghit->GetZ()) {
-        firstHit=ghit;
-        firstPoint=myPoint;
+      if(!firstHit[trackID] || firstHit[trackID]->GetZ() > ghit->GetZ()) {
+        firstHit[trackID]=ghit;
+        firstPoint[trackID]=myPoint;
       }
-      if(!lastHit || lastHit->GetZ() < ghit->GetZ()) {
-        lastHit=ghit;
-        lastPoint=myPoint;
+      if(!lastHit[trackID] || lastHit[trackID]->GetZ() < ghit->GetZ()) {
+        lastHit[trackID]=ghit;
+        lastPoint[trackID]=myPoint;
       }
       
       candlist[trackID] = cand; // set
@@ -223,25 +223,19 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
     else charge = 1;
     tcand->setMcTrackId(trackID);
     // prepare track parameters
-    firstHit->Position(svtx);
-    firstPoint->Momentum(smom);
+    firstHit[trackID]->Position(svtx); // set position to first hit
+    SmearFWD(svtx, fVtxSigma);
+    firstPoint[trackID]->Momentum(smom);
     if (fRelative) fMomSigma=fDPoP*smom;
     SmearFWD(smom, fMomSigma);
     FairTrackParP* firstPar=new FairTrackParP(svtx, smom,
                                               fVtxSigma, fMomSigma,
                                               charge, svtx,
                                               TVector3(1.,0.,0.), TVector3(0.,1.,0.));					 
-    
-    //TODO: propagate momentum & Vertex to 0,0,0
-    //smom = mc->GetMomentum();
-    //SmearFWD(smom,fMomSigma);
-    //TVector3 startvertex = mc->GetStartVertex();
-    //SmearFWD(startvertex,fVtxSigma);
-    //if(smom.Mag()==0) continue; // protect against div/zero
-    //cand->setTrackSeed(startvertex, smom.Unit(), charge/smom.Mag());
-    
-    lastHit->Position(svtx);
-    lastPoint->Momentum(smom);
+        
+    lastHit[trackID]->Position(svtx);
+    SmearFWD(svtx, fVtxSigma);
+    lastPoint[trackID]->Momentum(smom);
     SmearFWD(smom, fMomSigma);
     FairTrackParP* lastPar=new FairTrackParP(svtx, smom,
                                              fVtxSigma, fMomSigma,

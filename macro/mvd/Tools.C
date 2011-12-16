@@ -367,7 +367,7 @@ TString InitDefaultRun(TString filetag)
   TString recoFile = namecreator.GetRecoFileName();
   TString tracksFile = namecreator.GetCustomFileName("tracks");
   TString pidFile = namecreator.GetCustomFileName("pid");
-  TString histoFile = namecreator.GetCustomFileName("histos-pocavtx");
+  TString histoFile = namecreator.GetCustomFileName("histos");
   TString evrdummy = namecreator.GetCustomFileName("evrdummy");
   std::cout<<"simFile="<<simFile.Data()<<std::endl;
   std::cout<<"parFile="<<parFile.Data()<<std::endl;
