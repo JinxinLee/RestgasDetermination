@@ -55,6 +55,9 @@ PndAnaTask.cxx
 PndListDefiner.cxx
 PndListProvider.cxx
 PndMcListConverter.cxx
+PndPidSelector.cxx
+PndAnaContFact.cxx
+PndAnaSelectorPar.cxx
 Fitter/PndVtxFitterParticle.cxx
 Fitter/PndVtxFitter_Init.cxx
 Fitter/PndVtxFitterError.cxx

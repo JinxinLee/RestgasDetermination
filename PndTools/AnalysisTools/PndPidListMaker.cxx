@@ -51,6 +51,8 @@ void PndPidListMaker::Init()
 	critNames.push_back("Loose");
 	critNames.push_back("Tight");
 	critNames.push_back("VeryTight");
+	critNames.push_back("Best");
+	critNames.push_back("All");
 	
 	fListNames.clear();
 	
