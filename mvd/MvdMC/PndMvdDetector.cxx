@@ -3,7 +3,7 @@
 #include "TClonesArray.h"
 
 // -----   Default constructor   -------------------------------------------
-PndMvdDetector::PndMvdDetector() {
+PndMvdDetector::PndMvdDetector()  : PndSdsDetector(){
   SetDetectorID(kMVD);
 }
 // -------------------------------------------------------------------------

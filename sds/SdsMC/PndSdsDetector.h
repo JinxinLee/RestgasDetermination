@@ -144,7 +144,7 @@ class PndSdsDetector : public FairDetector
   virtual void ConstructASCIIGeometry();
  // void ExpandNode(TGeoNode *fN);
   
-  void SetDetectorID(DetectorId id){fDetectorID = id;}
+  void SetDetectorID(DetectorId id){fDetectorID = id;fDetId =id;}
 
   void SetRadDamOption(bool val){fUseRadDamOption = val;};
   bool GetRadDamOption(){return fUseRadDamOption;};
@@ -180,7 +180,7 @@ protected:
   TString fFolderName;        //! To be set by daughter classes
   DetectorId fDetectorID;          //! To be set by daughter classes
 
-  std::vector<std::string> fListOfSensitives;
+  std::vector<std::string> fListOfSensitives; //!
 
   bool CheckIfSensitive(std::string name);
 

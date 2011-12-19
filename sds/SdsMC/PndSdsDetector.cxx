@@ -37,7 +37,7 @@
 class FairVolume;
 
 // -----   Default constructor   -------------------------------------------
-PndSdsDetector::PndSdsDetector() : fPersistance(kTRUE), fUseRadDamOption(false)
+PndSdsDetector::PndSdsDetector():FairDetector(),fPersistance(kTRUE), fUseRadDamOption(false)
 {
   fPndSdsCollection = new TClonesArray("PndSdsMCPoint");
   fPosIndex = 0;
