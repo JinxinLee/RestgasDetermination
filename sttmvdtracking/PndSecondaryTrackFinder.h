@@ -120,7 +120,7 @@ class PndSecondaryTrackFinder : public FairTask {
   Int_t FindCharge(Double_t oX, Double_t oY, std::vector<int> cluster);
 
 
-  void FillTrack(Int_t itrk);
+  void FillTrack(Int_t itrk, Int_t nclusters);
   Bool_t ComputeFirstParameters(std::vector< std::pair<int, int> > cluster, std::vector<double> par, TVector3 &position, TVector3 &momentum);
   Bool_t ComputeLastParameters(std::vector< std::pair<int, int> > cluster, std::vector<double> par, TVector3 &position, TVector3 &momentum);
   Bool_t ComputeParametersAtHit(int ihit, std::vector< std::pair<int, int> > cluster, std::vector<double> par, TVector3 &position, TVector3 &momentum);
@@ -140,7 +140,7 @@ class PndSecondaryTrackFinder : public FairTask {
   Double_t CalculatePhi(TVector2 v, TVector2 p, double alpha, double Phi0, int charge);
 
 
-  Bool_t ProcessCluster(std::vector<int> thiscluster, int izregion, std::vector< std::pair<int, int> > *lefthits);
+  Bool_t ProcessCluster(std::vector<int> thiscluster, int izregion, std::vector< std::pair<int, int> > *lefthits,  Int_t nclusters);
   void RunListOfSingleClusters(std::vector< std::vector<int> > *clusterN, int iregion);
   void RunListOfDoubleClusters(std::vector< std::vector<int> > *clusterA, std::vector< std::vector<int> > *clusterB, int iregionA, int  iregionB);
    

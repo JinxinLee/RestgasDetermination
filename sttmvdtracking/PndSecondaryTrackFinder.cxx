@@ -2709,7 +2709,7 @@ void PndSecondaryTrackFinder::DrawFoundTracks(std::vector< TMatrixT<double> > xy
   display->Modified();  
 }
 
-void PndSecondaryTrackFinder::FillTrack(Int_t itrk) {
+void PndSecondaryTrackFinder::FillTrack(Int_t itrk, Int_t nclusters) {
 
     if(fVerbose) cout << "COMPUTE PARAMETERS @ FIRST AND LAST" << endl;
     std::vector<double> parameters = fParList[itrk];   
@@ -2765,14 +2765,16 @@ void PndSecondaryTrackFinder::FillTrack(Int_t itrk) {
     TClonesArray& clref2 = *fSecondaryTrackArray;
     PndTrack *secTrack = new(clref2[size]) PndTrack(firstpar, lastpar, *secCand);
 
- //    // flags
-//     if(fabs(par[0][2]) < 1.e-9) secTrack->SetFlag(-1); // -1 radius = 0
-//     if(fabs(par[0][4]) < 1.e-9) secTrack->SetFlag(-2); // -2 fitm = 0
-//     if(lastpos.Z() > 110.) secTrack->SetFlag(-3); // -3 z > 110
-//     if(lastpos.Z() < -40.) secTrack->SetFlag(-4); // -4 z < -40
-//     if(charge == 0) secTrack->SetFlag(-5); // -5 charge 0
+    //    // flags
+    //     if(fabs(par[0][2]) < 1.e-9) secTrack->SetFlag(-1); // -1 radius = 0
+    //     if(fabs(par[0][4]) < 1.e-9) secTrack->SetFlag(-2); // -2 fitm = 0
+    //     if(lastpos.Z() > 110.) secTrack->SetFlag(-3); // -3 z > 110
+    //     if(lastpos.Z() < -40.) secTrack->SetFlag(-4); // -4 z < -40
+    //     if(charge == 0) secTrack->SetFlag(-5); // -5 charge 0
 
-    secTrack->SetFlag(0);
+    if(nclusters == 1) secTrack->SetFlag(0);
+    else secTrack->SetFlag(1);
+
  
 
 }
@@ -2787,7 +2789,7 @@ Bool_t PndSecondaryTrackFinder::ComputeLastParameters(std::vector< std::pair<int
 }
 
 Bool_t PndSecondaryTrackFinder::ComputeParametersAtHit(int ihit, std::vector< std::pair<int, int> > cluster, std::vector<double> par, TVector3 &position, TVector3 &momentum) {
-  
+  // cout << endl; cout << "ComputeParametersAtHit " << ihit << endl;
   std::pair<int, int> lpair = cluster[ihit];
   int detid = lpair.first;
   int hitid = lpair.second;
@@ -2798,7 +2800,8 @@ Bool_t PndSecondaryTrackFinder::ComputeParametersAtHit(int ihit, std::vector< st
   Int_t charge = (Int_t) TMath::Sign(1., par[3]);
   Double_t tanl = par[4];
   Double_t z0 = par[5];
-  
+
+  //  if(ihit == 0) cout << "PARAMETERS " << xc << " " << yc << " " << radius << " " << charge << " " << tanl << " " << z0 << endl;
   
   // CHECK ADD MVD !!!
   int hitidinfulllist = hitid;
@@ -2808,6 +2811,7 @@ Bool_t PndSecondaryTrackFinder::ComputeParametersAtHit(int ihit, std::vector< st
   
   //  cout << "HIT/hitid/detid/iregion " << ihit << " " << hitid << " " << detid << " " << iregion << endl;
 
+  TVector3 pcatopoint;
   if(iregion != 4 && iregion != 5) // NON SKEWED TUBE
     {
       PndSttHit *hit = (PndSttHit*) fSttHitArray->At(hitid); 
@@ -2815,44 +2819,44 @@ Bool_t PndSecondaryTrackFinder::ComputeParametersAtHit(int ihit, std::vector< st
 	cout << "CANNOT FIND THIS HIT " << detid << " " << hitid << endl;
 	return kFALSE; 
       }
-
-      TVector3 pca(-999, -999, -999);
-      Bool_t findpca = FindXYpca(xc, yc, radius, hit->GetX(), hit->GetY(), pca);
-      if(findpca){
-
-	Double_t d = TMath::Sqrt(xc * xc + yc * yc) - radius;
-	Double_t phi =  TMath::ATan2(yc, xc);
-  	Double_t x0 = d * TMath::Cos(phi);
-	Double_t y0 = d * TMath::Sin(phi);
-	TVector2 v(x0 - xc, y0 - yc); 
-	Double_t Phi0 = TMath::ATan2((y0 - yc),(x0 - xc));
-	Double_t alpha = TMath::ATan2(pca.Y() - y0 + radius * TMath::Sin(Phi0), pca.X() - x0 + radius * TMath::Cos(Phi0));
-	TVector2 p(pca.X() - xc, pca.Y() - yc);
-	Double_t Fi = CalculatePhi(v, p, alpha, Phi0, charge);
-	//     Double_t Fi = CalculatePhi(v, p);
-	//     Fi = BringPhiInto2Pi(Fi, charge);
-	Double_t scos = - charge * radius * Fi; // scos = -q * R * phi CHECK :-)GOOD!
-	double z = z0 + scos * tanl;
-	
-	position.SetXYZ(pca.X(), pca.Y(), z);
-
-      }
-
-
-  //  return kTRUE; 
-
+      pcatopoint.SetXYZ(hit->GetX(), hit->GetY(), 0.0);
     }
   else {
     cout << "THIS IS A SKEW TUBE" << endl;
-    
     std::map< int, TVector3 >::iterator it = fskewintmap.find(lpair.second);
-    position = (*it).second;
+    pcatopoint = (*it).second;
     
   }
-  //   cout << "$$$ position" << endl;
-  //   position.Print();
-  if(position.X() != -999) momentum = ComputeMomentumAtPos(xc, yc, radius, tanl, charge, position);
   
+  TVector3 pca(-999, -999, -999);
+  Bool_t findpca = FindXYpca(xc, yc, radius, pcatopoint.X(), pcatopoint.Y(), pca);
+
+  if(findpca){
+
+    Double_t d = TMath::Sqrt(xc * xc + yc * yc) - radius;
+    Double_t phi =  TMath::ATan2(yc, xc);
+    Double_t x0 = d * TMath::Cos(phi);
+    Double_t y0 = d * TMath::Sin(phi);
+    TVector2 v(x0 - xc, y0 - yc); 
+    Double_t Phi0 = TMath::ATan2((y0 - yc),(x0 - xc));
+    Double_t alpha = TMath::ATan2(pca.Y() - y0 + radius * TMath::Sin(Phi0), pca.X() - x0 + radius * TMath::Cos(Phi0));
+    //     cout << "### " << alpha << endl;
+    //     cout << pca.Y() << " " << y0 << " " << radius << endl;
+    //     cout << pca.X() << " " << x0 << " " << radius << endl;
+    TVector2 p(pca.X() - xc, pca.Y() - yc);
+    Double_t Fi = CalculatePhi(v, p, alpha, Phi0, charge);
+    //     Double_t Fi = CalculatePhi(v, p);
+    //     Fi = BringPhiInto2Pi(Fi, charge);
+    Double_t scos = - charge * radius * Fi; // scos = -q * R * phi CHECK :-)GOOD!
+    double z = z0 + scos * tanl;
+    //    cout << "scos " << scos << " " << radius << " " << Fi << " " << Phi0 << " " << alpha <<  " " << charge << endl;
+    //     cout << x0 << " " << y0 << endl;
+
+    position.SetXYZ(pca.X(), pca.Y(), z);
+
+  }
+
+  if(position.X() != -999) momentum = ComputeMomentumAtPos(xc, yc, radius, tanl, charge, position);
   return kTRUE; 
 
  
@@ -3613,7 +3617,7 @@ Bool_t PndSecondaryTrackFinder::DoesHitBelong(Int_t hitId, Double_t xc, Double_t
   return kTRUE;
 }
 
-Bool_t PndSecondaryTrackFinder::ProcessCluster(std::vector<int> thiscluster, int izregion, std::vector< std::pair<int, int> > *lefthits)
+Bool_t PndSecondaryTrackFinder::ProcessCluster(std::vector<int> thiscluster, int izregion, std::vector< std::pair<int, int> > *lefthits, int nclusters)
 {
   
   if(fDisplayOn) {
@@ -3721,7 +3725,7 @@ Bool_t PndSecondaryTrackFinder::ProcessCluster(std::vector<int> thiscluster, int
 	    std::vector<double> oldthisparams = *(fParList.end() - 1);
 	    std::replace(fParList.begin(), fParList.end(), oldthisparams, finalparams);
       
-	    FillTrack(fParList.size() - 1);
+	    FillTrack(fParList.size() - 1, nclusters);
 	    return kTRUE;
 	  }
 	  else {  // CHECK all else
@@ -3778,7 +3782,7 @@ void PndSecondaryTrackFinder::RunListOfSingleClusters(std::vector< std::vector<i
     TVector3 poslast(hitlast->GetX(), hitlast->GetY(), 0.0);
 
     std::vector< std::pair<int, int> > lefthits;
-    Bool_t isfit = ProcessCluster(thiscluster, izregion, &lefthits);
+    Bool_t isfit = ProcessCluster(thiscluster, izregion, &lefthits, 1);
   
     if(isfit) {
       std::vector<int> left;
@@ -3835,7 +3839,7 @@ void PndSecondaryTrackFinder::RunListOfDoubleClusters(std::vector< std::vector<i
       fullcluster.insert(fullcluster.end(), thisclusterB.begin(), thisclusterB.end());
  
       std::vector< std::pair<int, int> > lefthits;
-      Bool_t isfit = ProcessCluster(fullcluster, izregion, &lefthits);
+      Bool_t isfit = ProcessCluster(fullcluster, izregion, &lefthits, 2);
 
       if(isfit) {
 	std::vector<int> leftA, leftB;
