@@ -1,7 +1,8 @@
 void runClusterVisualisation(TString filename,
                              double DriftField=400,
                              int paramSet=0,
-                             TString digifile="")
+                             TString digifile="",
+                             TString mcfilename="")
 {
   // ----  Load libraries   -------------------------------------------------
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -25,7 +26,7 @@ void runClusterVisualisation(TString filename,
   TFile* file = new TFile(filename);
   TTree* tree = (TTree*)file->Get("cbmsim");
   
-  if(digifile.Length()>1){
+  if(digifile.Length()>5){
     tree->AddFriend("cbmsim",digifile);
   }
 
@@ -35,6 +36,13 @@ void runClusterVisualisation(TString filename,
   PndTpcClustVis* clustVis = PndTpcClustVis::getInstance();
   clustVis->reset();
   clustVis->setTree(tree);
+
+  if(mcfilename.Length()>1){
+    TFile* mcfile = new TFile(mcfilename);
+    TTree* mctree = (TTree*)mcfile->Get("cbmsim");
+    clustVis->setMCTree(mctree);
+  }
+
 
 
   TString gasfile,padplanefile,padshapefile,geoFile;
