@@ -59,6 +59,7 @@ run_sim_sttcombi_pgun(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2
   fRun->AddModule(Dipole);
 
   FairModule *Pipe= new PndPipe("PIPE");
+  //Pipe->SetGeometryFileName("beampipe_201112.root");
   fRun->AddModule(Pipe);
 
   FairDetector *Stt= new PndStt("STT", kTRUE);
@@ -70,9 +71,13 @@ run_sim_sttcombi_pgun(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2
   fRun->AddModule(Mvd);
 
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
-  Emc->SetGeometryVersion(2); 
+  Emc->SetGeometryVersion(1); 
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
+
+  FairDetector *SciT = new PndSciT("SCIT",kTRUE);
+  SciT->SetGeometryFileName("SciTil_Barrel_woPCB.root");
+  fRun->AddModule(SciT);
 
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
   Muo->SetBarrel("fast");
@@ -100,7 +105,11 @@ run_sim_sttcombi_pgun(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2
   FairDetector *Fts= new PndFts("FTS", kTRUE);
   Fts->SetGeometryFileName("fts.geo");
   fRun->AddModule(Fts);
-  
+ 
+  FairDetector *FTof = new PndFtof("FTOF",kTRUE);
+  FTof->SetGeometryFileName("ftofwall.root");
+  fRun->AddModule(FTof);
+ 
   // Create and Set Event Generator
   //-------------------------------
 
@@ -112,7 +121,7 @@ run_sim_sttcombi_pgun(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2
   if (p2<0.) p2 = p1;
   boxGen->SetPRange(p1,p2); // GeV/c
   boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(5., 140.); // Polar angle in lab system range [degree]
+  boxGen->SetThetaRange(0.5, 140.); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
   primGen->AddGenerator(boxGen); 
 
