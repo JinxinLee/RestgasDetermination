@@ -81,6 +81,12 @@
 
   PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
   fRun->AddTask(emcHdrFiller); // ECM header
+
+  // -----   SciT hit producers   ---------------------------------
+  PndSciTHitProducerIdeal* tofhit = new PndSciTHitProducerIdeal();
+  tofhit->SetVerbose(iVerbose);
+  fRun->AddTask(tofhit);
+
   // -----   MDT hit producers   ---------------------------------
   PndMdtHitProducerIdeal* mdtHitProd = new PndMdtHitProducerIdeal();
   mdtHitProd->SetPositionSmearing(.3); // position smearing [cm]
@@ -104,6 +110,10 @@
   //PndFtsHitProducerIdeal* ftsHitProducer = new PndFtsHitProducerIdeal();
   //PndFtsHitProducerRealFull* ftsHitProducer = new PndFtsHitProducerRealFull();
   fRun->AddTask(ftsHitProducer);
+  // -----   Ftof hit producers   ---------------------------------
+  PndFtofHitProducerIdeal* ftofhit = new PndFtofHitProducerIdeal();
+  ftofhit->SetVerbose(iVerbose);
+  fRun->AddTask(ftofhit);
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   fRun->Run(0, nEvents);
