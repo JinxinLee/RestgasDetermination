@@ -50,7 +50,10 @@
   //corr->SetVerbose();
   corr->SetInputBranch("SttMvdGemGenTrack");
   corr->SetInputIDBranch("SttMvdGemGenTrackID");
-  corr->SetDebugMode(kTRUE);
+  corr->SetInputBranch2("FTSTrkIdeal");
+  corr->SetInputIDBranch2("FTSTrkIdealID");
+  //corr->SetDebugMode(kTRUE);
+  corr->SetFast(kTRUE);
   fRun->AddTask(corr);
  
   PndPidIdealAssociatorTask *assMC= new PndPidIdealAssociatorTask();

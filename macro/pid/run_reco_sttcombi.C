@@ -98,7 +98,19 @@
   trackMC2->SetTrackInBranchName("SttMvdGemGenTrack"); 
   trackMC2->SetTrackOutBranchName("SttMvdGemGenTrackID");
   fRun->AddTask(trackMC2);
-  
+ 
+  PndFtsTrackerIdeal* trackFts = new PndFtsTrackerIdeal();
+  trackFts->SetRelativeMomentumSmearing(0.01);
+  trackFts->SetVertexSmearing(0.02, 0.02, 0.02);
+  trackFts->SetTrackingEfficiency(0.95);
+  trackFts->SetTrackOutput("FTSTrkIdeal");
+  fRun->AddTask(trackFts);
+
+  PndMCTrackAssociator* trackMC3 = new PndMCTrackAssociator();
+  trackMC3->SetTrackInBranchName("FTSTrkIdeal");
+  trackMC3->SetTrackOutBranchName("FTSTrkIdealID");
+  fRun->AddTask(trackMC3);
+ 
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(1);
   fRun->Init();
