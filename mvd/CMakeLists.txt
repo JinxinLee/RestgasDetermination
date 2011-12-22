@@ -43,7 +43,6 @@ ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/recohits
 ${CMAKE_SOURCE_DIR}/geane
-${CMAKE_SOURCE_DIR}/tpc
 ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
 )
 
@@ -69,8 +68,8 @@ MvdTools/PndMvdAccessRTDBTask.cxx
 MvdTools/PndGeoHitList.cxx
 MvdTools/PndEventDisplay.cxx
 #MvdTools/PndMvdEventAnaTask.cxx
-MvdTools/PndMvdEventMerger.cxx
-MvdTools/PndMvdEventMergerTask.cxx
+#MvdTools/PndMvdEventMerger.cxx
+#MvdTools/PndMvdEventMergerTask.cxx
 MvdTools/PndMvdMSAnaTask.cxx
 
 MvdMC/PndMvdDetector.cxx
@@ -166,13 +165,13 @@ MvdTracking/PndMvdRiemannTrackFinderTask.cxx
 MvdTracking/PndMvdRiemannTrackFinder.cxx
 MvdTracking/PndMvdRiemannVertexFinderTask.cxx
 
-MvdTracking/PndMvdTpcRiemannCorrelatorTask.cxx
-MvdTracking/PndMvdTPCRiemannTrackFinderTask.cxx
-MvdTracking/PndMvdTPCRiemannTrackFinderTaskCutPar.cxx
-MvdTracking/PndMvdTPCRiemannTrackFinderTaskEff.cxx
+#MvdTracking/PndMvdTpcRiemannCorrelatorTask.cxx
+#MvdTracking/PndMvdTPCRiemannTrackFinderTask.cxx
+#MvdTracking/PndMvdTPCRiemannTrackFinderTaskCutPar.cxx
+#MvdTracking/PndMvdTPCRiemannTrackFinderTaskEff.cxx
 
-MvdTracking/PndTpcClustPlusRTFTask.cxx
-MvdTracking/PndTpcClustPlusRTFTaskCutPar.cxx
+#MvdTracking/PndTpcClustPlusRTFTask.cxx
+#MvdTracking/PndTpcClustPlusRTFTaskCutPar.cxx
 
 MvdTracking/PndMvdRiemannTrackFinderTaskCutPar.cxx
 MvdTracking/PndMvdRiemannTrackFinderTaskEff.cxx

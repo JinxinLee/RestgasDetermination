@@ -25,19 +25,19 @@
 #pragma link C++ class PndMvdRiemannTrackFinder+;
 #pragma link C++ class PndMvdRiemannTrackFinderTask+;
 
-#pragma link C++ class PndMvdTPCRiemannTrackFinderTask+;
-#pragma link C++ class PndMvdTPCRiemannTrackFinderTaskCutPar+;
-#pragma link C++ class PndMvdTPCRiemannTrackFinderTaskEff+;
+//#pragma link C++ class PndMvdTPCRiemannTrackFinderTask+;
+//#pragma link C++ class PndMvdTPCRiemannTrackFinderTaskCutPar+;
+//#pragma link C++ class PndMvdTPCRiemannTrackFinderTaskEff+;
 
-#pragma link C++ class PndTpcClustPlusRTFTask;
-#pragma link C++ class PndTpcClustPlusRTFTaskCutPar;
+//#pragma link C++ class PndTpcClustPlusRTFTask;
+//#pragma link C++ class PndTpcClustPlusRTFTaskCutPar;
 
 #pragma link C++ class PndMvdRiemannTrackFinderTaskCutPar+; ///////<----
 #pragma link C++ class PndMvdRiemannTrackFinderTaskEff+; ///////<----
 
 #pragma link C++ class PndMvdRiemannVertexFinderTask+;
 
-#pragma link C++ class PndMvdTpcRiemannCorrelatorTask+;
+//#pragma link C++ class PndMvdTpcRiemannCorrelatorTask+;
 
 
 #pragma link C++ class TtFitRes+;
