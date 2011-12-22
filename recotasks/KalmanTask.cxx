@@ -70,7 +70,7 @@ void sighandler(int sig){
 
 
 KalmanTask::KalmanTask()
-  : FairTask("Kalman Filter"), _persistence(kFALSE),_lazy(0),_numIt(1), _trackBranchName("TrackPreFit"), _outBranchName("TrackPostFit"), fMVDPixelBranchName("MVDHitsPixel"), fMVDStripBranchName("MVDHitsStrip")
+  : FairTask("Kalman Filter"), _persistence(kTRUE),_lazy(0),_numIt(1), _trackBranchName("TrackPreFit"), _outBranchName("TrackPostFit"), fMVDPixelBranchName("MVDHitsPixel"), fMVDStripBranchName("MVDHitsStrip")
 {
   fVerbose = 0;
 }
@@ -145,14 +145,14 @@ KalmanTask::Init()
     }
    
    // TClonesArray* dchCylHitArray=(TClonesArray*) ioman->GetObject("PndDchCylinderHit");
-   // if(dchCylHitArray==0){ //TODO Convention on detector number needed
+   // if(dchCylHitArray==0){
    //   Error("PndFwdKalmanTask::Init","PndDchCylinderHit array not found");
    // } else {
    //   _theRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("PndDchCylinderHit"),new GFRecoHitProducer<PndDchCylinderHit,PndDchRecoHit2>(dchCylHitArray));
    // }
    
    _trackOutArray = new TClonesArray("GFTrack");
-   ioman->Register(_outBranchName,"",_trackOutArray,kTRUE);
+   ioman->Register(_outBranchName,"", _trackOutArray, _persistence);
 
 
   // setup histograms
@@ -206,7 +206,7 @@ KalmanTask::Exec(Option_t* opt)
     }
     if (fVerbose) std::cout<<"*** Number of clusters in track: "<<trk->getNumHits()<<" ***"<<std::endl;
 
-    Int_t size = _trackOutArray->GetEntries();
+    Int_t size = _trackOutArray->GetEntriesFast();
     GFTrack* trkCopy = new((*_trackOutArray)[size]) GFTrack(*trk);
 
     
@@ -233,6 +233,8 @@ KalmanTask::Exec(Option_t* opt)
   }
 
   if (fVerbose) std::cout<<"Fitting done"<<std::endl;
+
+  std::cout<<"Fitted "<< _trackOutArray->GetEntriesFast() << " tracks" << std::endl;
 
   return;
 }
