@@ -6,8 +6,6 @@
 #include "PndSdsMCPoint.h"
 #include "PndSdsDigiStrip.h"
 #include "PndSdsDigiPixel.h"
-#include "PndTpcCluster.h"
-#include "PndTpcPoint.h"
 using std::cout;
 using std::endl;
 
@@ -137,10 +135,10 @@ Int_t PndMvdEventMerger::AddTClonesArray(TClonesArray* target, TClonesArray* sou
 			new ((*target)[origSize + i])PndSdsDigiPixel(*(PndSdsDigiPixel*)(source->At(i)));
 		else if (myClassName.Contains("PndSdsDigiStrip"))
 			new ((*target)[origSize + i])PndSdsDigiStrip(*(PndSdsDigiStrip*)(source->At(i)));
-		else if (myClassName.Contains("PndTpcPoint"))
-			new ((*target)[origSize + i])PndTpcPoint(*(PndTpcPoint*)(source->At(i)));
-		else if (myClassName.Contains("PndTpcCluster"))
-			new ((*target)[origSize + i])PndTpcCluster(*(PndTpcCluster*)(source->At(i)));
+//		else if (myClassName.Contains("PndTpcPoint"))
+//			new ((*target)[origSize + i])PndTpcPoint(*(PndTpcPoint*)(source->At(i)));
+//		else if (myClassName.Contains("PndTpcCluster"))
+//			new ((*target)[origSize + i])PndTpcCluster(*(PndTpcCluster*)(source->At(i)));
 		else std::cout << "The Class: " << myClassName << " is unknown!" << std::endl;
 				
 	}
