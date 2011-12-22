@@ -7,8 +7,8 @@
   gStyle->SetHistFillColor(0);
   gStyle->SetHistLineWidth(2);
   gStyle->SetOptFit(1);
-  TFile *inFile = TFile::Open("pid_tpccombi.root");
-  cbmsim->AddFriend("cbmsim","points_tpccombi.root");
+  TFile *inFile = TFile::Open("pid_sttcombi.root");
+  cbmsim->AddFriend("cbmsim","points_sttcombi.root");
   
   TCanvas* c1 = new TCanvas("Charged Candidate", "Charged Candidate", 100, 100, 1200, 800);
   TCanvas* c2 = new TCanvas("Neutral Candidate", "Neutral Candidate", 100, 100, 1200, 800);

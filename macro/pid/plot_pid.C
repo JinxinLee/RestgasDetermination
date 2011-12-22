@@ -5,7 +5,7 @@
   gStyle->SetLabelSize(.05,"X");gStyle->SetLabelSize(.05,"Y");
   gStyle->SetHistLineWidth(2);
   gStyle->SetOptFit(1);
-  TFile *inFile = TFile::Open("pid_tpccombi.root");
+  TFile *inFile = TFile::Open("pid_sttcombi.root");
 
   TCanvas* c1 = new TCanvas("PID", "PID", 100, 100, 800, 800);
 

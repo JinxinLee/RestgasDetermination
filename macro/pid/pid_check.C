@@ -3,11 +3,10 @@ void pid_check()
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
   
-  TString inPidFile  = "pid_tpccombi.root";
-  TString inAlgoFile = "algo_tpccombi.root";
-  TString inSimFile = "points_tpccombi.root";
+  TString inPidFile  = "pid_sttcombi.root";
+  TString inSimFile = "points_sttcombi.root";
   
-  TFile *inFile = TFile::Open(inAlgoFile,"READ");
+  TFile *inFile = TFile::Open(inSimFile,"READ");
   
   TTree *tree=(TTree *) inFile->Get("cbmsim") ;
   tree->AddFriend("cbmsim",inPidFile);

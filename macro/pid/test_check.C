@@ -2,17 +2,12 @@ void test_check(Int_t nEntries = 0)
 {
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
-  TString inDigiFile  = "digi_tpccombi.root"; 
-  TString inPidFile  = "pid_tpccombi.root"; 
-  //TString inPidFile  = "output.evt.fast.root"; 
-  TString inRecoFile  = "reco_tpccombi.root";
-  TString inAlgoFile = "algo_tpccombi.root";
-  TString inSimFile = "points_tpccombi.root";
+  TString inPidFile  = "pid_sttcombi.root"; 
+  TString inSimFile = "points_sttcombi.root";
   
   TFile *inFile = TFile::Open(inPidFile,"READ");
   
   TTree *tree=(TTree *) inFile->Get("cbmsim") ;
-  tree->AddFriend("cbmsim",inAlgoFile);
   tree->AddFriend("cbmsim",inSimFile);
     
   TClonesArray* cand_array=new TClonesArray("PndPidCandidate");
