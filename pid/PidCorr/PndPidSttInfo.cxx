@@ -31,7 +31,7 @@ Bool_t PndPidCorrelator::GetSttInfo(PndTrack* track, PndPidCandidate* pidCand) {
   dedxvec.clear();
 
   Double_t tuberadius = fSttParameters->GetTubeInRad(); 
-  Int_t sttCounts = 0;
+  Int_t sttCounts = 0, sttRawCounts = 0;
   PndTrackCand trackCand = track->GetTrackCand();
   for (Int_t ii=0; ii<trackCand.GetNHits(); ii++)
     {
@@ -42,6 +42,7 @@ Bool_t PndPidCorrelator::GetSttInfo(PndTrack* track, PndPidCandidate* pidCand) {
            ( candHit.GetDetId()!=FairRootManager::Instance()->GetBranchId("STTHitMix") && fMixMode==kTRUE) ) continue;
       PndSttHit *sttHit = (PndSttHit*) fSttHit->At(candHit.GetHitId());
       if(!sttHit) continue;
+      sttRawCounts++;
       // compute dE/dx
       dedx = sttHit->ComputedEdx(track, tuberadius);
       
@@ -73,7 +74,7 @@ Bool_t PndPidCorrelator::GetSttInfo(PndTrack* track, PndPidCandidate* pidCand) {
     }
   } 
 
-  pidCand->SetSttHits(sttCounts);
+  pidCand->SetSttHits(sttRawCounts);
 }
 
 ClassImp(PndPidCorrelator)
