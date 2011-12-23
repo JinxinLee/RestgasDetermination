@@ -315,7 +315,7 @@ void PndFts::EndOfEvent()
 {
     if (fVerboseLevel) 
 	Print();
-    fFtsCollection->Clear();
+    fFtsCollection->Delete();
     fPosIndex = 0;
 }
 // -------------------------------------------------------------------------
