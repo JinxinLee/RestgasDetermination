@@ -180,6 +180,13 @@ if(istampa >=1 ){
     }
 
 
+  // open STTFoundTrack array 
+  fSttTrackArray = (TClonesArray*) ioman->GetObject("STTFoundTrack");
+  if(!fSttTrackArray) {
+     cout << "-E- PndSttMvdTracking::Init: No STTFoundTrack array, return!"
+	   << endl;
+    return kERROR;
+  }
 
  // Get SttTrackCand array  dal pattern recognition di STT
   fSttTrackCandArray  = (TClonesArray*) ioman->GetObject("STTTrackCand"); 
@@ -482,6 +489,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 
   PndTrackCand * pMvdTrackCand,
                * pSttTrackCand;
+  PndTrack * pSttTrack;
 
   PndSttTrack * pSttHelixTrack;
 
@@ -1036,8 +1044,10 @@ if(istampa>2  && IVOLTE<20){
 //---------------  fetch the Stt PndTrackCand from PR of the STT alone
 
  for(  i= 0; i< nSttTrackCand; i++){
+   pSttTrack = (PndTrack*) fSttTrackArray->At(i);
+
 // ----  estraggo gli hits appartenenti a questa TrackCand
-  pSttTrackCand = (PndTrackCand *) fSttTrackCandArray->At(i);
+  pSttTrackCand = pSttTrack->GetTrackCandPtr();
   nSttHitsinTrack[i] = pSttTrackCand->GetNHits();  // n. hits in questa track cand
   if( nSttHitsinTrack[i]> nmaxSttHits) {
 	cout<<"da PndSttMvdTracking  :  N. di Stt Hits in trackcand "<<i<<" is "
@@ -1081,8 +1091,13 @@ if(istampa>2  && IVOLTE<20){
   nSttHitsinTrack[i] = nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i];
 // --- estraggo le altre info della TrackCand
 
-	TVector3 dirSeed=pSttTrackCand->getDirSeed();
-	TVector3 posSeed=pSttTrackCand->getPosSeed();
+  TVector3	dirSeed,
+		posSeed;
+//  dirSeed=pSttTrack->GetParamFirst().GetMomentum();
+//  dirSeed.SetMag(1.);
+	dirSeed=pSttTrackCand->getDirSeed();
+//  posSeed=pSttTrack->GetParamFirst().GetPosition();
+	posSeed=pSttTrackCand->getPosSeed();
 	qop = pSttTrackCand->getQoverPseed();
 	daTrackFoundaTrackMC[i]=pSttTrackCand->getMcTrackId();
 	Px[i] = dirSeed.X();
@@ -11651,9 +11666,7 @@ if(istampa>1){
 // -------------- calculate the maximum fi and minimum fi spanned by this track,
 
 // see logbook pag.270; by using the Rmin and Rmax of the straw detector.
-
-//  working in the hypothesis that the starting point of the track is near (0,0) so that
-//  R_vertex < RStrawDetectorMin
+// this function works also when circular trajectory in XY doesn't pass through (0,0).
 
 	bool	intersection_inner,
 		intersection_outer;
