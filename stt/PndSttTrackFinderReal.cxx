@@ -8,6 +8,7 @@
 #include "PndSttTrackFinderReal.h"
 
 #include "PndSttHit.h"
+#include "PndSciTHit.h"
 #include "PndSttPoint.h"
 #include "PndSttHelixHit.h"
 #include "PndTrackCand.h"
@@ -189,10 +190,31 @@ if(istampa >=3 )   HANDLEXYZ = fopen("infoPndTrackFinderRealXYZ.txt","w");
 
   // Get and check FairRootManager
   FairRootManager* ioman = FairRootManager::Instance();
+  if (!ioman) 
+    {
+      cout << "-E- PndSttTrackFinderReal::Init: "
+	   << "RootManager not instantiated, return!" << endl;
+      return;
+    }
 
 //    get   the MCTrack  array
 
   fMCTrackArray = (TClonesArray*) ioman->GetObject("MCTrack");
+
+//    get   the SciTil point  array
+//  fSciTPointArray = (TClonesArray*) ioman->GetObject("SciTPoint");
+
+//    get   the SciTil hit  array
+
+
+  if(YesSciT) {
+	fSciTHitArray = (TClonesArray*) ioman->GetObject("SciTHit");
+  } else {
+	fSciTHitArray = NULL;
+  }
+
+
+
 
 //   -------------------------------------------------------------------
 
@@ -201,12 +223,6 @@ if(istampa >=3 )   HANDLEXYZ = fopen("infoPndTrackFinderRealXYZ.txt","w");
   hdistgoodlast = new TH1F("hDistanceTrulyInnerLast", "distance (cm)", 20, 0., 10.);
   hdistbadlast = new TH1F("hDistanceNonLastInner", "distance (cm)", 20, 0., 10.);
 
-  if (!ioman) 
-    {
-      cout << "-E- PndSttTrackFinderReal::Init: "
-	   << "RootManager not instantised, return!" << endl;
-      return;
-    }
  
 //   calculate the boundaries of the Box in Conformal Space, see Gianluigi logbook on pag. 210-211
 
@@ -330,6 +346,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
              lowlimit[MAXTRACKSPEREVENT],
              uplimit[MAXTRACKSPEREVENT],
              info[nmaxHits][7],
+		posizSciT[nmaxSciTHits][3],
              WDX, WDY, WDZ,
              auxRvalues[nmaxHits],
              inclination[nmaxinclinationversors][3];
@@ -424,7 +441,36 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
   }
 */
 
-    
+
+//------------------------ SciTil hits.
+  if(YesSciT) {
+		if( fSciTHitArray == NULL){
+			nSciTHits = 0;
+		} else {
+					// num. SciTil hits/evento
+			nSciTHits = fSciTHitArray->GetEntriesFast();
+		}
+  }
+
+	PndSciTHit *pPndSciTHit;
+	TVector3  posiz;
+
+	for(int j=0; j<nSciTHits; j++){
+		pPndSciTHit = (PndSciTHit*) fSciTHitArray->At(j);
+		posiz = pPndSciTHit->GetPosition();
+		if(istampa>0)
+		cout<<"da PndSttTrackFinderReal SciTil Xpos "<<posiz.X()<<", Ypos "<<
+		posiz.Y()<<", Zpos "<<posiz.Z()<<endl;
+		posizSciT[j][0]=posiz.X();
+		posizSciT[j][1]=posiz.Y();
+		posizSciT[j][2]=posiz.Z();
+	}
+
+
+
+
+
+
   // Initialise control counters
   Int_t nNoTrack     = 0;
   Int_t nNoSttPoint  = 0;
@@ -2399,7 +2445,10 @@ if(iplotta && IVOLTE <= nmassimo){
         WriteMacroParallelHitsGeneral(
 		keepit,
                    Nhits, info, Nincl, Minclinations,
-		    inclination,nTracksFoundSoFar,TypeConf,ALFA,BETA,GAMMA
+		    inclination,
+		    nSciTHits,
+		    posizSciT,
+		    nTracksFoundSoFar,TypeConf,ALFA,BETA,GAMMA
                                                      );
 
 //----------------------------------- end macro for display
@@ -3747,6 +3796,8 @@ void PndSttTrackFinderReal::clustering3 (
                    Int_t Nhits, Double_t info[][7],
 		   Int_t Nincl, Int_t Minclinations[],
 		   Double_t inclination[][3],
+		   UShort_t nSciTilHits,
+		   Double_t posizSciTil[nmaxSciTHits][3],
                    UShort_t nTracksFoundSoFar,
                    bool *TypeConf,
                    Double_t *ALFA, Double_t *BETA, Double_t *GAMMA
@@ -3777,9 +3828,8 @@ void PndSttTrackFinderReal::clustering3 (
 
 
 
-
 //---------- parallel straws Macro now
-      sprintf(nome,"MacroGeneralParallelHitsEvent%d", IVOLTE);
+      sprintf(nome,"MacroSttParallelHitsEvent%d", IVOLTE);
       sprintf(nome2,"%s.C",nome);
       FILE * MACRO = fopen(nome2,"w");
       fprintf(MACRO,"void %s()\n{\n",nome);
@@ -3787,6 +3837,18 @@ void PndSttTrackFinderReal::clustering3 (
       xmax=-1.e20;
       ymin=1.e20;
       ymax=-1.e20;
+
+
+//--- SciTil  info
+	for( i=0; i< nSciTilHits; i++) {
+            if (posizSciTil[i][0] < xmin)   xmin = posizSciTil[i][0];
+            if (posizSciTil[i][0] > xmax)   xmax = posizSciTil[i][0];
+            if (posizSciTil[i][1] < ymin)   ymin = posizSciTil[i][1];
+            if (posizSciTil[i][1] > ymax)   ymax = posizSciTil[i][1];
+	}
+//------
+
+
        for( i=0; i< Nhits; i++) {
          if( info[i][5] == 1 ) {     // parallel straws
             if (info[i][0]-info[i][3] < xmin)   xmin = info[i][0]-info[i][3];
@@ -3829,6 +3891,17 @@ void PndSttTrackFinderReal::clustering3 (
        fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
        fprintf(MACRO,"Assey->Draw();\n");
 
+
+//---- disegna gli Scitil.
+
+	for( i=0; i< nSciTilHits; i++) {
+		fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,%d);\n",
+			i,posizSciTil[i][0],posizSciTil[i][1],30);
+		fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",i);
+		fprintf(MACRO,"SciT%d->SetMarkerColor(1);\nSciT%d->Draw();\n"
+				,i,i);
+	}
+//------------------------
 
        for( i=0; i< Nhits; i++) {
          if( info[i][5] == 1 ) {     // parallel straws
@@ -3904,7 +3977,7 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
 	if(!doMcComparison) goto dopo ;
 
 
-      sprintf(nome,"MacroGeneralParallelHitswithMCEvent%d", IVOLTE);
+      sprintf(nome,"MacroSttParallelHitswithMCEvent%d", IVOLTE);
       sprintf(nome2,"%s.C",nome);
       MACRO = fopen(nome2,"w");
       fprintf(MACRO,"void %s()\n{\n",nome);
@@ -3912,6 +3985,16 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
       xmax=-1.e20;
       ymin=1.e20;
       ymax=-1.e20;
+
+//--- SciTil  info
+	for( i=0; i< nSciTilHits; i++) {
+            if (posizSciTil[i][0] < xmin)   xmin = posizSciTil[i][0];
+            if (posizSciTil[i][0] > xmax)   xmax = posizSciTil[i][0];
+            if (posizSciTil[i][1] < ymin)   ymin = posizSciTil[i][1];
+            if (posizSciTil[i][1] > ymax)   ymax = posizSciTil[i][1];
+	}
+//------
+
        for( i=0; i< Nhits; i++) {
          if( info[i][5] == 1 ) {     // parallel straws
             if (info[i][0]-info[i][3] < xmin)   xmin = info[i][0]-info[i][3];
@@ -3954,6 +4037,18 @@ if(istampa>= 3 && IVOLTE <= nmassimo) {
        fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
        fprintf(MACRO,"Assey->Draw();\n");
 
+
+
+//---- disegna gli Scitil.
+
+	for( i=0; i< nSciTilHits; i++) {
+		fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,%d);\n",
+			i,posizSciTil[i][0],posizSciTil[i][1],30);
+		fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",i);
+		fprintf(MACRO,"SciT%d->SetMarkerColor(1);\nSciT%d->Draw();\n"
+				,i,i);
+	}
+//------------------------
 
        for( i=0; i< Nhits; i++) {
          if( info[i][5] == 1 ) {     // parallel straws
@@ -4036,7 +4131,7 @@ dopo:  ;
 //
 //   aggiungo anche la grigliatura dello spazio conforme usata per la box del pattern recognition
 
-      sprintf(nome,"MacroGeneralParallelHitsConformeEvent%d", IVOLTE);
+      sprintf(nome,"MacroSttParallelHitsConformeEvent%d", IVOLTE);
       sprintf(nome2,"%s.C",nome);
       MACRO = fopen(nome2,"w");
       fprintf(MACRO,"void %s()\n{\n",nome);
@@ -4277,7 +4372,7 @@ dopo:  ;
 //
 //   aggiungo anche la grigliatura dello spazio conforme usata per la box del pattern recognition
 
-      sprintf(nome,"MacroGeneralParallelHitsConformewithMCEvent%d", IVOLTE);
+      sprintf(nome,"MacroSttParallelHitsConformewithMCEvent%d", IVOLTE);
       sprintf(nome2,"%s.C",nome);
       MACRO = fopen(nome2,"w");
       fprintf(MACRO,"void %s()\n{\n",nome);
@@ -4582,7 +4677,7 @@ dopo:  ;
 //   ora riplotto tutto nello spazio conforme usando la trasformazione u= x/(x**2+y**2) e   v = y/(x**2+y**2)
 //
 
-      sprintf(nome,"MacroParallelHitsConformewithMCspecialEvent%dTrack%d", IVOLTE,nTracksFoundSoFar);
+      sprintf(nome,"MacroSttParallelHitsConformewithMCspecialEvent%dTrack%d", IVOLTE,nTracksFoundSoFar);
       sprintf(nome2,"%s.C",nome);
       MACRO = fopen(nome2,"w");
       fprintf(MACRO,"void %s()\n{\n",nome);
@@ -6177,18 +6272,18 @@ void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_lef
 
 
   Short_t PndSttTrackFinderReal::PndSttFindTrackPatterninBoxConformal(
-                                                  UShort_t NRCELLDISTANCE,
-                                                  UShort_t NFiCELLDISTANCE,
-                                                  UShort_t Nparal,
-                                                  UShort_t ihit,
-                                                  Double_t info[][7],
-                                                  bool ExclusionList[nmaxHits],
-                                                  UShort_t RConformalIndex[nmaxHits],
-                                                  UShort_t FiConformalIndex[nmaxHits],
-                                                  UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
-                                                  UShort_t HitsinBoxConformal[][nRdivConformal][nFidivConformal],
-                                                  UShort_t *ListHitsinTrack
-                                                                      )
+		UShort_t NRCELLDISTANCE,
+		UShort_t NFiCELLDISTANCE,
+		UShort_t Nparal,
+		UShort_t ihit,
+		Double_t info[][7],
+		bool ExclusionList[nmaxHits],
+		UShort_t RConformalIndex[nmaxHits],
+		UShort_t FiConformalIndex[nmaxHits],
+		UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
+		UShort_t HitsinBoxConformal[][nRdivConformal][nFidivConformal],
+		UShort_t *ListHitsinTrack
+		)
 {
 
 
@@ -6212,8 +6307,10 @@ void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_lef
 
      for(i=0, nRemainingHits=0; i<Nparal; i++){
 
-        if( i != ihit && ExclusionList[  infoparal[i]   ] ) {   //  exclusion of the parallel hit straws already used in other tracks
-                                                           //  remember the index of ExclusionList is in the ORIGINAL scheme of hits
+        if( i != ihit && ExclusionList[  infoparal[i]   ] ) {   //  exclusion of the
+				//  parallel hit straws already used in other tracks
+				//  remember the index of ExclusionList is in the
+				//  ORIGINAL scheme of hits
             TemporaryExclusionList[ infoparal[i]  ]= true;
             Remaining[nRemainingHits]= i;   //  index of the PARALLEL hit
             nRemainingHits++;
@@ -10511,7 +10608,7 @@ cout<<"    j= "<<j<<", n. Hit in original numbering = "<<BigList[j]<<" e suo FI 
 
 //---------- parallel straws Macro now con anche le tracce MC
 
-      sprintf(nome,"MacrowithRfromMCParallelHitswithMCEvent%d", IVOLTE);
+      sprintf(nome,"MacroSttwithRfromMCParallelHitswithMCEvent%d", IVOLTE);
       sprintf(nome2,"%s.C",nome);
       FILE * MACRO = fopen(nome2,"w");
 //      MACRO = fopen(nome2,"w");
@@ -10707,7 +10804,7 @@ cout<<"    j= "<<j<<", n. Hit in original numbering = "<<BigList[j]<<" e suo FI 
 
       char  nome2[300],nome[300];
       FILE *MACRO;
-      sprintf(nome,  "MacroParTrack%dSkewTrack%dSkewHitswithRfromMCEvent%d",imaxima,nMaxima, IVOLTE);
+      sprintf(nome,  "MacroSttParTrack%dSkewTrack%dSkewHitswithRfromMCEvent%d",imaxima,nMaxima, IVOLTE);
       sprintf(nome2,  "%s.C",nome);
       MACRO = fopen(nome2,"w");
       fprintf(MACRO,"void %s()\n{\n",nome);
