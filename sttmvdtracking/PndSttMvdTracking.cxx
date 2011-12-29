@@ -1151,12 +1151,12 @@ if(istampa>2  && IVOLTE<20){
              KAPPA[i]=0.;
 	}
 
+	FI0[i] = atan2(-Oy[i], -Ox[i]);
 	Ox[i] +=  Trajectory_Start[0][i];
 	Oy[i] +=  Trajectory_Start[1][i];
 
 
 	Fifirst[i] = atan2( y-Oy[i], x-Ox[i]);
-	FI0[i] = atan2(Trajectory_Start[1][i]-Oy[i], Trajectory_Start[0][i]-Ox[i]);
 	HoughFi[i] = FI0[i] + PI;
 	if(HoughFi[i]<0.) HoughFi[i]=0.;
 	if( FI0[i] < 0. )  FI0[i]+= 2.*PI; if( FI0[i] < 0. ) FI0[i]=0.;
