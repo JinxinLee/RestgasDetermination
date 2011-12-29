@@ -425,6 +425,7 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 	   s[2],
 	   Start[3],
 	   versor[2],
+	   Trajectory_Start[MAXTRACKSPEREVENT][2],
 	   z[2],
 	   zeta0,
 	   zeta1,
@@ -1091,12 +1092,17 @@ if(istampa>2  && IVOLTE<20){
   nSttHitsinTrack[i] = nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i];
 // --- estraggo le altre info della TrackCand
 
+//  assume the trajectory comes from (0,0).
+  Trajectory_Start[0][i]=0.;
+  Trajectory_Start[1][i]=0.;
+
+
   TVector3	dirSeed,
 		posSeed;
 //  dirSeed=pSttTrack->GetParamFirst().GetMomentum();
 //  dirSeed.SetMag(1.);
-	dirSeed=pSttTrackCand->getDirSeed();
 //  posSeed=pSttTrack->GetParamFirst().GetPosition();
+	dirSeed=pSttTrackCand->getDirSeed();
 	posSeed=pSttTrackCand->getPosSeed();
 	qop = pSttTrackCand->getQoverPseed();
 	daTrackFoundaTrackMC[i]=pSttTrackCand->getMcTrackId();
@@ -1108,13 +1114,13 @@ if(istampa>2  && IVOLTE<20){
 	  Ntras = sqrt(dirSeed.X()*dirSeed.X()+dirSeed.Y()*dirSeed.Y() ) ;
 	  R[i] =  Ntras /(0.003*BFIELD*fabs(qop));
 	  if(qop <0.){
-	    Ox[i] = -R[i]*dirSeed.Y()/Ntras;
-	    Oy[i] = R[i]*dirSeed.X()/Ntras;
+	    Ox[i] = -R[i]*dirSeed.Y()/Ntras ;
+	    Oy[i] =  R[i]*dirSeed.X()/Ntras ;
 	    KAPPA[i]=0.003*BFIELD*fabs(qop)/dirSeed.Z();
 	    CHARGE[i]=-1;
 	  } else {
-	    Ox[i] = R[i]*dirSeed.Y()/Ntras;
-	    Oy[i] = -R[i]*dirSeed.X()/Ntras;
+	    Ox[i] =  R[i]*dirSeed.Y()/Ntras ;
+	    Oy[i] = -R[i]*dirSeed.X()/Ntras ;
             KAPPA[i]=-0.003*BFIELD*fabs(qop)/dirSeed.Z();
 	    CHARGE[i]=1;
 	  }
@@ -1145,8 +1151,12 @@ if(istampa>2  && IVOLTE<20){
              KAPPA[i]=0.;
 	}
 
+	Ox[i] +=  Trajectory_Start[0][i];
+	Oy[i] +=  Trajectory_Start[1][i];
+
+
 	Fifirst[i] = atan2( y-Oy[i], x-Ox[i]);
-	FI0[i] = atan2(-Oy[i], -Ox[i]);
+	FI0[i] = atan2(Trajectory_Start[1][i]-Oy[i], Trajectory_Start[0][i]-Ox[i]);
 	HoughFi[i] = FI0[i] + PI;
 	if(HoughFi[i]<0.) HoughFi[i]=0.;
 	if( FI0[i] < 0. )  FI0[i]+= 2.*PI; if( FI0[i] < 0. ) FI0[i]=0.;
@@ -4371,7 +4381,7 @@ UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 
 //---------- parallel straws Macro now
       char nome[300], nome2[300];
-      sprintf(nome,"MacroAllHitswithMCEvent%dT%d", IVOLTE,iNome);
+      sprintf(nome,"MacroSttMvdAllHitswithMCEvent%dT%d", IVOLTE,iNome);
       sprintf(nome2,"%s.C",nome);
       FILE * MACRO = fopen(nome2,"w");
 //      fprintf(MACRO,"void %s()\n{\n",nome);
@@ -4758,7 +4768,7 @@ fuori: ;
 
 
 //---------- parallel straws Macro now
-      sprintf(nome,"MacroAllHitsEvent%d", IVOLTE);
+      sprintf(nome,"MacroSttMvdAllHitsEvent%d", IVOLTE);
       sprintf(nome2,"%s.C",nome);
       FILE * MACRO = fopen(nome2,"w");
       fprintf(MACRO,"void %s()\n{\n",nome);
@@ -4921,7 +4931,7 @@ fprintf(MACRO,
 
 //---------- parallel straws Macro now con anche le tracce MC
 
-      sprintf(nome,"MacroAllHitswithMCEvent%d", IVOLTE);
+      sprintf(nome,"MacroSttMvdAllHitswithMCEvent%d", IVOLTE);
       sprintf(nome2,"%s.C",nome);
       MACRO = fopen(nome2,"w");
       fprintf(MACRO,"void %s()\n{\n",nome);
@@ -5203,10 +5213,10 @@ pippo:	;
 //---------- parallel straws Macro now
 	if( time>=0.){
 		i = (Int_t) time;
-		sprintf(nome,"MacroAllHitsTime%dEvent%d",i, IVOLTE);
+		sprintf(nome,"MacroSttMvdAllHitsTime%dEvent%d",i, IVOLTE);
 	} else {
 		i = (Int_t) -time;
-		sprintf(nome,"MacroAllHitsTime-%dEvent%d",i, IVOLTE);
+		sprintf(nome,"MacroSttMvdAllHitsTime-%dEvent%d",i, IVOLTE);
 	}
       sprintf(nome2,"%s.C",nome);
       FILE * MACRO = fopen(nome2,"w");
@@ -5413,7 +5423,7 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack], // ou
 
       char  nome2[300],nome[300];
       FILE *MACRO;
-      sprintf(nome,  "MacroSZwithMvdwithMCEvent%dT%d", IVOLTE,iNome);
+      sprintf(nome,  "MacroSttMvdSZwithMvdwithMCEvent%dT%d", IVOLTE,iNome);
       sprintf(nome2,  "%s.C",nome);
       MACRO = fopen(nome2,"w");
       fprintf(MACRO,"{\n");
@@ -6251,7 +6261,7 @@ nohits: ;
        ymin = ymin - delta*0.05;
 
 
-      sprintf(nome,"MacroHitsRestantiEvent%d", IVOLTE);
+      sprintf(nome,"MacroSttMvdHitsRestantiEvent%d", IVOLTE);
       sprintf(nome2,"%s.C",nome);
       FILE * MACRO = fopen(nome2,"w");
       fprintf(MACRO,"void %s()\n{\n",nome);
