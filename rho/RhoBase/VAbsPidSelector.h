@@ -58,10 +58,9 @@ public:
     TAssociator* GetAssociator() const;
     void SetAssociator(TAssociator *assoc);
 
-private:
+protected:    
     TParticlePDG* CPConjugate( TParticlePDG* aPart );
 
-protected:    
     void SetTypeAndMass(TCandidate &b);
 
     TParticlePDG	*fTypePlus;	//!Particle type to accept

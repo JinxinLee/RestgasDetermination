@@ -11,7 +11,7 @@ public:
   PndAnaContFact();
   ~PndAnaContFact();
   FairParSet* createContainer(FairContainer* c);
-  TList* GetDigiParNames() {return fSelectParNames;};
+  TList* GetParNames() {return fSelectParNames;};
 private:
   void setAllContainers();
   TList* fSelectParNames; //!

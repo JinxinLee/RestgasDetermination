@@ -1,32 +1,38 @@
 //
-//  PndPidSelector.cxx
+//  PndAnaPidCombiner.cxx
 //  PANDAROOT
 //
 //  Created by Ralf Kliemt on 12/16/11.
+//
+//  This class reads the different information from the PID algorithms 
+//  and combines them according to the users specifications
+//  
 //
 
 #include <math.h>
 #include "TDatabasePDG.h"
 
-#include "PndPidSelector.h"
+#include "PndAnaPidCombiner.h"
+
 #include "RhoBase/TRho.h"
 #include "RhoBase/TCandidate.h"
 #include "RhoBase/VAbsMicroCandidate.h"
 
 
-ClassImp(PndPidSelector)
+ClassImp(PndAnaPidCombiner)
 
-TBuffer &operator>>(TBuffer &buf,PndPidSelector  *&obj)
+TBuffer &operator>>(TBuffer &buf,PndAnaPidCombiner  *&obj)
 {
-  obj = (PndPidSelector *) buf.ReadObject(PndPidSelector::Class());
+  obj = (PndAnaPidCombiner *) buf.ReadObject(PndAnaPidCombiner::Class());
   return buf;
 }
 
-PndPidSelector::PndPidSelector(const char *name, const char *type) : 
+PndAnaPidCombiner::PndAnaPidCombiner(const char *name, const char *type) : 
 VAbsPidSelector(name,type) 
-{}
+{
+}
 
-Bool_t PndPidSelector::Accept(TCandidate& b) 
+Bool_t PndAnaPidCombiner::Accept(TCandidate& b) 
 { 
   if (&b == 0) return kFALSE;
   
@@ -57,7 +63,7 @@ Bool_t PndPidSelector::Accept(TCandidate& b)
   return kTRUE;
 }
 
-Bool_t PndPidSelector::Accept(VAbsMicroCandidate& b) 
+Bool_t PndAnaPidCombiner::Accept(VAbsMicroCandidate& b) 
 { 
   return kFALSE;
 }

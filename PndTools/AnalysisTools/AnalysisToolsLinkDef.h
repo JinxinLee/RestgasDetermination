@@ -31,7 +31,8 @@
 #pragma link C++ class PndListDefiner+;
 #pragma link C++ class PndListProvider+;
 #pragma link C++ class PndMcListConverter+;
-#pragma link C++ class PndPidSelector+;
+#pragma link C++ class PndAnaPidCombiner+;
+#pragma link C++ class PndAnaPidSelector+;
 #pragma link C++ class PndAnaContFact+;
 #pragma link C++ class PndAnaSelectorPar+;
 

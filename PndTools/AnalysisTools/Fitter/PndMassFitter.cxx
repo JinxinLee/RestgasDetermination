@@ -53,7 +53,7 @@ void PndMassFitter::Fit()
   
   TCandidate *tc;
   //int num=0;
-  while (tc=iter.Next())
+  while ((tc=iter.Next()))
   {
     TMatrixD cov=tc->Cov7();
     //cout <<"PndMassFitter: Daughter "<<num++<<endl;
@@ -451,7 +451,7 @@ unsigned PndMassFitter::MakeCoreMatrix()
                               al_1_prime[i*KF_NUM7+1][0]*al_1_prime[i*KF_NUM7+1][0]+
                               al_1_prime[i*KF_NUM7+2][0]*al_1_prime[i*KF_NUM7+2][0]+
                               m_property[i][1]*m_property[i][1]);
-      Sum_al_1[6][0] =+ a;
+      Sum_al_1[6][0] += a;
       
     }
     for(int i=0;i<m_trackNum;++i){

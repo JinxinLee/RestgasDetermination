@@ -6,7 +6,7 @@
 //
 /////////////////////////////////////////////////////////////
 
-using namespace std;
+//using namespace std;
 #include "PndAnaContFact.h"
 #include "PndAnaSelectorPar.h"
 #include "FairRuntimeDb.h"

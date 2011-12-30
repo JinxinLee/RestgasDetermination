@@ -107,7 +107,7 @@ void Pnd4CFitter::FindAndAddGenericDaughters(TCandidate *head)
   TCandidate *tc;
   TCandListIterator iter=head->DaughterIterator();
   
-  while (tc=iter.Next())
+  while ((tc=iter.Next()))
   {
     if (!tc->IsComposite()) fDaughters.Add(*tc);
     else FindAndAddGenericDaughters(tc);

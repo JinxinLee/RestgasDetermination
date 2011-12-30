@@ -59,7 +59,7 @@ void PndVtxFitter::Fit()
   TCandidate *tc;
   //int num=0;
   cout<<"FIT Uid's: "<< theHead.Uid();
-  while (tc=iter.Next())
+  while ((tc=iter.Next()))
   {
     fDaughters.Add(*tc);
     cout<<"  next: "<<tc->Uid();

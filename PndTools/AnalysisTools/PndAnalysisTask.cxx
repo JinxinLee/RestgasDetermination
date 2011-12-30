@@ -182,26 +182,26 @@ void PndAnalysisTask::Exec(Option_t* opt) {
   phiCands.Combine(kpCands,kmCands);
     
   TCandListIterator iterPhi(phiCands);
-  while (tc=iterPhi.Next()) phimass->Fill(tc->M());
+  while ((tc=iterPhi.Next())) phimass->Fill(tc->M());
   phiCands.Select(phiMSel);
   
   dsCands.Combine(phiCands,piCands);
 
   TCandListIterator iterDs(dsCands);
-  while (tc=iterDs.Next()) dsmass->Fill(tc->M()); 
+  while ((tc=iterDs.Next())) dsmass->Fill(tc->M()); 
   dsCands.Select(dsMSel);
     
   pi0Cands.Combine(neutralCands,neutralCands);
 
   TCandListIterator iterPi0(pi0Cands);
-  while (tc=iterPi0.Next()) pi0mass->Fill(tc->M()); 
+  while ((tc=iterPi0.Next())) pi0mass->Fill(tc->M()); 
   pi0Cands.Select(pi0MSel);
     
 
   ds0Cands.Combine(dsCands,pi0Cands);
 
   TCandListIterator iterDs0(ds0Cands);
-  while (tc=iterDs0.Next()) ds0mass->Fill(tc->M());  
+  while ((tc=iterDs0.Next())) ds0mass->Fill(tc->M());  
 
   ppCands.Combine(ds0Cands,dsCands);
   ppCands.Select(neutralSel);
@@ -211,7 +211,7 @@ void PndAnalysisTask::Exec(Option_t* opt) {
   ppCands.RemoveClones();
     
   TCandListIterator iterPp(ppCands);
-  while (tc=iterPp.Next()) ppmass->Fill(tc->M());  
+  while ((tc=iterPp.Next())) ppmass->Fill(tc->M());  
    
 
 }
