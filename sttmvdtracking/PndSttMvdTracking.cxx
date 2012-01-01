@@ -1505,6 +1505,7 @@ if(istampa>=2&& IVOLTE<20){
 			OrderingUsingConformal(
 			   Ox[ncand],
 			   Oy[ncand],
+			   &Trajectory_Start[ncand][0],
 			   nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand],
 			   XY, // XY[*][0] = X position, XY[*][0] = Y position.
 			   CHARGE[ncand],  // input
@@ -1657,7 +1658,7 @@ if(istampa>=2) for(int ica=0; ica<nMvdPixelHitsinTrack[ncand]+
 			R[ncand] = Ox[ncand]*Ox[ncand]+Oy[ncand]*Oy[ncand]-GAMMA[ncand];
 			if( R[ncand] > 0. ) R[ncand]=sqrt(R[ncand]) ;
 			else  R[ncand]=0.;
-			FI0[ncand] = atan2(-Oy[ncand], -Ox[ncand]);
+			FI0[ncand] = atan2(Trajectory_Start[1][ncand]-Oy[ncand], Trajectory_Start[0][ncand]-Ox[ncand]);
 			if( FI0[ncand] < 0. )  FI0[ncand]+= 2.*PI;
 		}
 
@@ -1682,8 +1683,8 @@ for(int iiii=0;iiii<nMvdStripHitsinTrack[ncand];iiii++)
 }
 
 	//   finding the FI angular range (in the laboratory frame) spanned by this parallel track
-	//   taking into account the Rmax and Rmin of the straw detector and under the
-	//   hypothesis that the track originates at (0,0).
+	//   taking into account the Rmax and Rmin of the straw detector. The track NOT NECESSARILY
+	//   has to originate at (0,0).
 
 	PndSttFindingParallelTrackAngularRange(
 		Ox[ncand],
@@ -2308,6 +2309,7 @@ if(istampa>=2&& IVOLTE<20){
 		Ox,
 		Oy,
 		R,
+		Trajectory_Start,
 		CHARGE,
 		SchosenSkew
 		);
@@ -2631,6 +2633,7 @@ if(istampa>1) cout<<"PndSttMvdTracking, entra in TrackCleanup tracce normali, IV
 		Ox,
 		Oy,
 		R,
+		Trajectory_Start,
 		CHARGE,
 		SchosenSkew  // here this array is irrelevant since there are not yet
 			// any Stt hits in Track Cand.
@@ -2846,6 +2849,7 @@ if(istampa>1) cout<<"PndSttMvdTracking, entra in TrackCleanup tracce normali, IV
 		Ox,
 		Oy,
 		R,
+		Trajectory_Start,
 		CHARGE,
 		SchosenSkew
 		);
@@ -10552,7 +10556,7 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack] // out
 		ntot=nPixelHitsinTrack[itrack]+
 			nStripHitsinTrack[itrack];
 	if( Fifirst[itrack] < -99998. ){  // case with Fifirst[i]=-99999.; in this
-					// case there the circle is contained
+					// case the circle is contained
 					// in the Mvd region.
 		anglemax = 2.*PI;
 		anglemin = 0.;
@@ -12044,6 +12048,7 @@ if(istampa>1){
 			Double_t * Ox,
 			Double_t * Oy,
 			Double_t * Rr,
+			Double_t Trajectory_Start[MAXTRACKSPEREVENT][2],
 			Short_t *CHARGE,
 			Double_t SchosenSkew[][nmaxSttHits]
 				)
@@ -12060,6 +12065,7 @@ if(istampa>1){
 				Ox,
 				Oy,
 				Rr,
+				Trajectory_Start,
 				CHARGE,
 				SchosenSkew
 						);
@@ -12232,6 +12238,7 @@ if(istampa>1){
 			Double_t * Ox,
 			Double_t * Oy,
 			Double_t * Rr,
+			Double_t Trajectory_Start[MAXTRACKSPEREVENT][2],
 			Short_t *CHARGE,
 			Double_t SchosenSkew[][nmaxSttHits]
 				)
@@ -12284,6 +12291,7 @@ if(istampa>1){
 			OrderingUsingConformal(
 			   Ox[ncand],
 			   Oy[ncand],
+			   &Trajectory_Start[ncand][0],
 			   nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand],
 			   XY, // XY[*][0] = X position, XY[*][0] = Y position.
 			   CHARGE[ncand],  // input
@@ -12336,6 +12344,7 @@ if(istampa>1){
 			OrderingUsingConformal(
 			 Ox[ncand],
 			 Oy[ncand],
+			 &Trajectory_Start[ncand][0],
 			 nSttParHitsinTrack[ncand]+nSttSkewHitsinTrack[ncand],
 			 XY2, // XY2[*][0] = X position, XY2[*][0] = Y position.
 			 CHARGE[ncand],  // input
@@ -12390,6 +12399,7 @@ if(istampa>=3) for(int ica=0; ica<nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTra
 	void   PndSttMvdTracking::OrderingUsingConformal(
 		Double_t oX,
 		Double_t oY,
+		Double_t Traj_Sta[2],
 		Int_t nHits,
 		Double_t XY[][2],
 		Short_t  Charge,  // input
@@ -12403,6 +12413,8 @@ if(istampa>=3) for(int ica=0; ica<nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTra
       UShort_t	i,j, 
 		tmp[nHits];
       Double_t	aaa,
+		bbb,
+		ccc,
 		b1,
 		firstR2,
 		lastR2,
@@ -12412,8 +12424,8 @@ if(istampa>=3) for(int ica=0; ica<nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTra
 
 
 
-//  here there is the ordering of the hits, under the assumption that the circumference
-//  in XY goes through (0,0).
+//  here there is the ordering of the hits, NOT under the assumption that the circumference
+//  in XY goes through  Trajectory_Start.
 //  Moreover, the code before is supposed to have selected trajectories in XY with (Ox,Oy)
 //  farther from (0,0) by > 0.9 * RminStrawDetector/2 and consequently Ox and Oy are not both 0.
 //  The scheme for the ordering of the hit is as follows :
@@ -12421,12 +12433,12 @@ if(istampa>=3) for(int ica=0; ica<nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTra
 //  2)  find the charge of the track by checking if it is closest to the center in XY
 //	the first or the last of the ordered hits.
 //  3)  in case, invert the ordering of U, V and ListHits such that the first hits in the
-//	list are alway those closer to the (0,0).
+//	list are always those closer to the Trajectory_Start.
 
 
 //   ordering of the hits
 
-	aaa = atan2( oY, oX);  // atan2 defined between -PI and PI.
+	aaa = atan2( oY-Traj_Sta[1], oX-Traj_Sta[0]);  // atan2 defined between -PI and PI.
 
 	// the following statement is necessary since for unknown reason the root interpreter
 	// gives a weird error when using PI directly in the if statement below!!!!!!! I lost
@@ -12436,7 +12448,9 @@ if(istampa>=3) for(int ica=0; ica<nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTra
 	if((aaa>b1&&aaa<3.*b1) || (aaa>-3.*b1&&aaa<-b1)){//use U as ordering variable;
 							//[case 1 or 3 Gianluigi's Logbook page 285].
 		for (j = 0; j< nHits; j++){
-			U[j]=XY[j][0]/(XY[j][0]*XY[j][0]+XY[j][1]*XY[j][1]);
+			bbb = XY[j][0]-Traj_Sta[0];
+			ccc = XY[j][1]-Traj_Sta[1];
+			U[j]= bbb/(bbb*bbb+ccc*ccc);
 		}
 		Merge_Sort( nHits, U, ListHits);
 
@@ -12464,7 +12478,9 @@ if(istampa>=3) for(int ica=0; ica<nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTra
 
 	} else { // use V as ordering variable [case 2 or 4 Gianluigi's Logbook page 285].
 		for (j = 0; j< nHits; j++){
-			V[j]=XY[j][1]/(XY[j][0]*XY[j][0]+XY[j][1]*XY[j][1]);
+			bbb = XY[j][0]-Traj_Sta[0];
+			ccc = XY[j][1]-Traj_Sta[1];
+			V[j]= ccc/(bbb*bbb+ccc*ccc);
 		}
 		Merge_Sort( nHits, V, ListHits);
 
