@@ -836,6 +836,7 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 			Double_t * Ox,
 			Double_t * Oy,
 			Double_t * Rr,
+			Double_t Trajectory_Start[MAXTRACKSPEREVENT][2],
 			Short_t *CHARGE,
 			Double_t SchosenSkew[][nmaxSttHits]
 					);
@@ -853,6 +854,7 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 			Double_t * Ox,
 			Double_t * Oy,
 			Double_t * Rr,
+			Double_t Trajectory_Start[MAXTRACKSPEREVENT][2],
 			Short_t *CHARGE,
 			Double_t SchosenSkew[][nmaxSttHits]
 					);
@@ -861,6 +863,7 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 	void   OrderingUsingConformal(
 		Double_t oX,
 		Double_t oY,
+		Double_t Traj_Sta[2],
 		Int_t nHits,
 		Double_t XY[][2], // XY[*][0] = X position, XY[*][0] = Y position.
 		Short_t  Charge,  // input
