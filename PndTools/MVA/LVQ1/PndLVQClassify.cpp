@@ -9,17 +9,15 @@
  */
 #include "PndLVQClassify.h"
 
-using namespace std;
-
 /**
  * Constructor:
  * @param inputFile: Input file name (Weights).
  * @param classNames: class names.
  * @param varNames: variable names of the features.
  */
-PndLVQClassify::PndLVQClassify(string const& inputFile,
-			       vector<string> const& classNames, 
-			       vector<string> const& varNames)
+PndLVQClassify::PndLVQClassify(std::string const& inputFile,
+			       std::vector<std::string> const& classNames, 
+			       std::vector<std::string> const& varNames)
   : PndMvaClassifier(inputFile, classNames, varNames)
 {}
 
@@ -41,7 +39,7 @@ std::string* PndLVQClassify::Classify(std::vector<float> EvtData)
   GetMvaValues(EvtData, TMPres);
 
   // Fetch labels (classes)
-  vector<PndMvaClass> const& classes = m_dataSets.GetClasses();
+  std::vector<PndMvaClass> const& classes = m_dataSets.GetClasses();
 
   // Temporary variables for the winning class name.
   std::string CurWin = "UNKNOWN_WINNER_LABEL";
@@ -69,21 +67,21 @@ std::string* PndLVQClassify::Classify(std::vector<float> EvtData)
  * @param result:  Classification results. Currently the shortest
  *                 distance for each class is stored in result.
  */
-void PndLVQClassify::GetMvaValues(vector<float> eventData,
-				  map<string,float>& result)
+void PndLVQClassify::GetMvaValues(std::vector <float> eventData,
+				  std::map <std::string, float>& result)
 {
   // Fetch labels (classes)
-  vector<PndMvaClass> const& classes = m_dataSets.GetClasses();
-
+  std::vector<PndMvaClass> const& classes = m_dataSets.GetClasses();
+  
   // Fetch prototypes.
-  vector<pair<string, vector<float>*> > const& ProtoList = m_dataSets.GetData();
+  std::vector< std::pair< std::string, std::vector<float>* > > const& ProtoList = m_dataSets.GetData();
   
   // Initialize results
   result.clear();
   
   for(size_t id = 0; id < classes.size(); ++id)
   {
-    result.insert(make_pair(classes[id].Name, numeric_limits<float>::max()));
+    result.insert(make_pair(classes[id].Name, std::numeric_limits<float>::max()));
   }
 
   // Normalize current Event
@@ -98,10 +96,10 @@ void PndLVQClassify::GetMvaValues(vector<float> eventData,
   for(size_t i = 0; i < ProtoList.size(); i++)
   {
     // Current class Name.
-    string clsName    = ProtoList[i].first;
+    std::string clsName    = ProtoList[i].first;
 
     // Current prototype.
-    vector<float>* ev = ProtoList[i].second;
+    std::vector<float>* ev = ProtoList[i].second;
     
     dist = ComputeDist(*ev, eventData);
     
@@ -113,12 +111,14 @@ void PndLVQClassify::GetMvaValues(vector<float> eventData,
   // Normalize the output. SUM( distances )= 1.0
   // The smaller the better.  
   float sumOfDists = 0.00;
+
   for(size_t cls = 0; cls < classes.size(); ++cls)
   {
     std::string Name = classes[cls].Name;
     sumOfDists += result[Name];
   }
-  
+
+  // Divide by the sum .
   for(size_t cls = 0; cls < classes.size(); ++cls)
   {
     std::string Name = classes[cls].Name;

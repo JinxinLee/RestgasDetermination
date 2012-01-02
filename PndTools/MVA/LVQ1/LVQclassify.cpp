@@ -34,7 +34,7 @@
 #define USE_PRODUCE_VQ_ROC 1
 
 // Create the distance histograms
-#define CREATE_DIST_HISTS 0
+#define CREATE_DIST_HISTS 1
 
 // Determine recognition error as function of momentum.
 #define PER_MOMENTUM_INTERVAL 0
@@ -532,21 +532,26 @@ int main(int argc, char** argv)
 
 #if CREATE_DIST_HISTS
   // Create dist histograms.
-  TH1F fgHist ("fgHist","fgHistDesc", 100, 0.0, 1.0);
-  TH1F bgHist ("bgHist","bgHistDesc", 100, 0.0, 1.0);
+  TH1F corClsHist ("corClsHist","Correct classification distancess", 100, 0.0, 1.0);
+  TH1F misClsHist ("misClsHist","Mis classification distancess", 100, 0.0, 1.0);
 
   for(size_t k = 0; k < classifiedEvents.size(); ++k)
   {
     ClassifierOutPuts& a = classifiedEvents[k];
-    fgHist.Fill(a.sgValue);
-    bgHist.Fill(a.bgValue);
-    
+    if(a.realLabel == a.givenLabel)
+    {
+      corClsHist.Fill(a.sgValue);
+    }
+    else
+    {
+      misClsHist.Fill(a.bgValue);
+    }
   }
 
   outF = "Hists" + outF;
   TFile histsfile(outF.c_str(),"RECREATE");
-  fgHist.Write();
-  bgHist.Write();
+  corClsHist.Write();
+  misClsHist.Write();
   histsfile.Close();
 #endif
 
