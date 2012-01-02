@@ -24,7 +24,7 @@ PndMvdStripClusterTask::~PndMvdStripClusterTask()
 {
 }
 
-// -----   Manula I/O folders/branches   ----------------------------------------------------
+// -----   Manual I/O folders/branches   ----------------------------------------------------
 void PndMvdStripClusterTask::SetBranchNames(TString inBranchname, TString outHitBranchname, TString outClustBranchname, TString folderName)
 {
   fInBranchName = inBranchname;
