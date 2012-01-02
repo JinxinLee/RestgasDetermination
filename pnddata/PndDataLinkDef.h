@@ -81,6 +81,8 @@
 #pragma link C++ class  PndMvdRadDamHit+;
 //#pragma link C++ class  PndMvdStrip+;
 
+#pragma link C++ class  PndSciTPoint+;
+#pragma link C++ class  PndSciTHit+;
 
 #pragma link C++ class PndTrackCand+;
 #pragma link C++ class PndTrack+;

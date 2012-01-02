@@ -12,10 +12,9 @@ ${CMAKE_SOURCE_DIR}/parbase
 ${CMAKE_SOURCE_DIR}/base 
 ${CMAKE_SOURCE_DIR}/field 
 ${CMAKE_SOURCE_DIR}/pnddata 
-#${CMAKE_SOURCE_DIR}/pnddata/SciTData
+${CMAKE_SOURCE_DIR}/pnddata/SciTData
 ${CMAKE_SOURCE_DIR}/scitil
 ${CMAKE_SOURCE_DIR}/genfit
-#${CMAKE_SOURCE_DIR}/recotasks
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -28,9 +27,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SCIT_SRCS
 PndGeoSciT.cxx 
-PndSciTPoint.cxx 
 PndSciT.cxx 
-PndSciTHit.cxx 
 PndGeoSciTPar.cxx 
 PndSciTContFact.cxx
 PndSciTHitProducerIdeal.cxx  
