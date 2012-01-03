@@ -90,6 +90,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 #define maximumTracks 50
       static const UShort_t
             nmaxHits = 1000, // max hits total.
+            nmaxSciTHits = 200, // max SciTil hits total.
 	nmaxHitsInTrack=60,
             MAXMCTRACKS=10000,
             MAXTRACKSPEREVENT=maximumTracks,
@@ -141,6 +142,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                BFIELD=2.,  // in Tesla
                CVEL = 2.99792;  //  velocity of light
 	static const bool YesClean = false;
+	static const bool YesSciT = true;
 
 //               nFidivConformal = (UShort_t) (    PI*RStrawDetectorMax /StrawRadius   );
        static const UShort_t  nFidivConformal = (UShort_t) (3.141592654 * 45./0.5)  ;
@@ -191,6 +193,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
            MINIMUMHITSPERTRACK,
            MINIMUMOUTERHITSPERTRACK,
            NSkewhits,
+		nSciTHits,
            infoparal[nmaxHits],
            infoskew[nmaxHits];
 
@@ -207,7 +210,9 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
              CyMC[MAXTRACKSPEREVENT],
              R_MC[MAXTRACKSPEREVENT];
 
-  TClonesArray* fMCTrackArray;
+  TClonesArray	*fMCTrackArray,
+		*fSciTPointArray,
+		*fSciTHitArray;
 
   PndMCTrack* pMCtr;
 
@@ -482,7 +487,12 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                                                      );
   void WriteMacroParallelHitsGeneral(
 		bool * keepit,		
-                   Int_t Nhits, Double_t info[][7], Int_t Nincl, Int_t Minclinations[], Double_t inclination[][3],
+                   Int_t Nhits, Double_t info[][7],
+		    Int_t Nincl,
+		     Int_t Minclinations[],
+		     Double_t inclination[][3],
+		   UShort_t nSciTilHits,
+		   Double_t posizSciTil[nmaxSciTHits][3],
                    UShort_t nTracksFoundSoFar,
                    bool *TypeConf,
                    Double_t *ALFA, Double_t *BETA, Double_t *GAMMA
