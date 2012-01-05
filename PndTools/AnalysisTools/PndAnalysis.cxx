@@ -36,9 +36,9 @@ using std::endl;
 #include "PndTrack.h"
 #include "PndPidCandidate.h"
 #include "PndPidProbability.h"
-#include "PndPidListMaker.h"
+#include "PndAnaPidSelector.h"
 #include "PndMCTrack.h"
-#include "PndVtxFitterParticle.h"
+#include "PndVtxFitterParticle.h" // using a cov matrix tool
 #include "PndAnalysisCalcTools.h"
 
 ClassImp(PndAnalysis);
@@ -47,7 +47,7 @@ Int_t PndAnalysis::fVerbose=0;
 
 PndAnalysis::PndAnalysis(TString tname1, TString tname2) :
 fRootManager(FairRootManager::Instance()),
-fPidListMaker(0),
+fPidSelector(0),
 fEvtCount(0),
 fChainEntries(0),
 fEventRead(false),
@@ -67,7 +67,7 @@ fTracksName2(tname2)
 
 PndAnalysis::~PndAnalysis()
 {
-	if(0!=fPidListMaker) delete fPidListMaker;
+	if(0!=fPidSelector) delete fPidSelector;
 }
 
 TClonesArray* PndAnalysis::ReadTCA(TString tcaname)
@@ -136,7 +136,8 @@ void PndAnalysis::Init()
   }
   fChainEntries =(fRootManager->GetInChain())->GetEntries();
   
-	fPidListMaker = new PndPidListMaker();
+  //TODO default constructor here?
+	fPidSelector = new PndAnaPidSelector();
   
   fPdg = TRho::Instance()->GetPDG();
   
@@ -166,7 +167,7 @@ Int_t PndAnalysis::GetEvent(Int_t n)
 	return 0;
 }
 
-Bool_t PndAnalysis::FillList(TCandList &l, std::string listkey)
+Bool_t PndAnalysis::FillList(TCandList &l, TString listkey)
 {
   // Reads the specified List for the current event
   
@@ -176,7 +177,7 @@ Bool_t PndAnalysis::FillList(TCandList &l, std::string listkey)
 	if (!fEventRead) 
 	{
     fRootManager->ReadEvent(fEvtCount-1);
-		fEventRead=true;
+		fEventRead=kTRUE;
 	}
   
 	if (listkey=="McTruth")
@@ -187,8 +188,8 @@ Bool_t PndAnalysis::FillList(TCandList &l, std::string listkey)
         TCandidate* tc = (TCandidate *)fMcCands->At(i1);
         l.Add(*tc);
       }
-      return true;
-    } else return false;
+      return kTRUE;
+    } else return kFALSE;
 	}
 	
   if (allCands.GetLength() == 0) // do only when we didn't read something yet.
@@ -246,28 +247,44 @@ Bool_t PndAnalysis::FillList(TCandList &l, std::string listkey)
     }
 	}
 	
-	// set the base list for the PID list maker
-	fPidListMaker->SetBaseList(chargedCands);
-	
+  // acceleration: just give the large lists directly
 	if (listkey=="All" )
 	{
 		l=allCands;
-		return true;
+		return kTRUE;
 	}
   
 	if (listkey=="Neutral") 
 	{
 		l=neutralCands;
-		return true;
+		return kTRUE;
 	}
 	
 	if (listkey=="Charged") 
 	{
 		l=chargedCands;
-		return true;
+		return kTRUE;
 	}
   
-	return fPidListMaker->FillList(l,listkey);
+  // Real selection requested:
+	// set the base list for the PID list maker
+	fPidSelector->SetCriterion(listkey);
+  
+  if(listkey.Contains("Neutral")) 
+  {
+    fPidSelector->Select(neutralCands,l);
+    return kTRUE;
+  }
+  
+  if(listkey.Contains("Plus")||listkey.Contains("Minus")||listkey.Contains("Charged")) 
+  {
+    fPidSelector->Select(chargedCands,l);
+    return kTRUE;
+  }
+  
+  fPidSelector->Select(allCands,l);
+  return kTRUE;
+  
 }
 
 Int_t PndAnalysis::GetEntries() 
@@ -463,7 +480,7 @@ Bool_t PndAnalysis::Propagator(int mode, FairTrackParP &tStart, TCandidate* cand
     return kFALSE;
   }
   TVector3 pos(myResult->GetX(),myResult->GetY(),myResult->GetZ()); // I want to be sure... 
-  //printout for checks
+                                                                    //printout for checks
   TVector3 vecdiff=myStart->GetPosition() - myResult->GetPosition();
   if(fVerbose>1){
     std::cout<<"position start     :";  myStart->GetPosition().Print();

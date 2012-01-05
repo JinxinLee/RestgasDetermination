@@ -18,7 +18,7 @@ class TBranch;
 
 class TDatabasePDG;
 
-class PndPidListMaker;
+class PndAnaPidSelector;
 class PndEventInfo;
 
 class TGeant3;
@@ -32,7 +32,7 @@ public:
   void Reset() { Rewind(); }
   Int_t  GetEvent(Int_t n=-1);
   Int_t  GetEntries(); 
-  Bool_t FillList(TCandList &l, std::string listkey="All");
+  Bool_t FillList(TCandList &l, TString listkey="All");
   void SetVerbose(Int_t level){fVerbose = level;}
   //void SetPidChargedName(TString s) {fChargedPidName = s;}
   //void SetPidNeutralName(TString s) {fNeutralPidName = s;}  
@@ -59,13 +59,13 @@ private:
     
   // Private Member Variables
   
-  FairRootManager *fRootManager;
-  PndPidListMaker	*fPidListMaker;
-  Int_t             fEvtCount;
-  Int_t             fChainEntries;
-  Bool_t            fEventRead;
-  Bool_t            fBuildMcCands;
-  static Int_t             fVerbose;
+  FairRootManager*   fRootManager;
+  PndAnaPidSelector* fPidSelector;
+  Int_t              fEvtCount;
+  Int_t              fChainEntries;
+  Bool_t             fEventRead;
+  Bool_t             fBuildMcCands;
+  static Int_t       fVerbose;
   
   TDatabasePDG *fPdg;
   
