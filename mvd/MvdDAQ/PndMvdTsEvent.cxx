@@ -1,26 +1,26 @@
 #include <stdlib.h>
-#include "TsEvent.h"
+#include "PndMvdTsEvent.h"
 
-#include "SiHit.h"
-#include "TdcData.h"
-#include "QdcData.h"
+#include "PndMvdSiHit.h"
+#include "PndMvdTdcData.h"
+#include "PndMvdQdcData.h"
 
-ClassImp(TsEvent);
+ClassImp(PndMvdTsEvent);
 
-TsEvent::TsEvent()
+PndMvdTsEvent::PndMvdTsEvent()
 {
     fEventId = 0;
-    fSiHitList = new TClonesArray("SiHit");
-    fTdcValues = new TClonesArray("TdcData");
-    fQdcValues = new TClonesArray("QdcData");
-    //    fGiTdcValues = new TClonesArray("TdcData");
-    //    fGiQdcValues = new TClonesArray("QdcData");
+    fSiHitList = new TClonesArray("PndMvdSiHit");
+    fTdcValues = new TClonesArray("PndMvdTdcData");
+    fQdcValues = new TClonesArray("PndMvdQdcData");
+    //    fGiTdcValues = new TClonesArray("PndMvdTdcData");
+    //    fGiQdcValues = new TClonesArray("PndMvdQdcData");
     fNumScalerValues = 0;
     fScalerValues = NULL;
     fScalerValuesAllocSize = 0;
 }
 
-TsEvent::~TsEvent()
+PndMvdTsEvent::~PndMvdTsEvent()
 {
     delete fSiHitList;
     delete fTdcValues;
@@ -33,7 +33,7 @@ TsEvent::~TsEvent()
     }
 }
 
-void TsEvent::Clear(const Option_t*)
+void PndMvdTsEvent::Clear(const Option_t*)
 {
   fEventId = 0;
   fSiHitList->Clear();
@@ -44,7 +44,7 @@ void TsEvent::Clear(const Option_t*)
   fNumScalerValues = 0;
   }
 
-void TsEvent::FillSiHits(int adcChannel, DWORD* hits, WORD count)
+void PndMvdTsEvent::FillSiHits(int adcChannel, DWORD* hits, WORD count)
 {
     TClonesArray& hitList = *fSiHitList;
     for (int i=0; i<count; i++)
@@ -56,11 +56,11 @@ void TsEvent::FillSiHits(int adcChannel, DWORD* hits, WORD count)
         WORD box        = adcChannel/6;
         channel         += (adcChannel%6)*128;
         
-        new(hitList[hitList.GetEntriesFast()]) SiHit(box, channel, height, numFrames);
+        new(hitList[hitList.GetEntriesFast()]) PndMvdSiHit(box, channel, height, numFrames);
     }
 }
 
-void TsEvent::FillTdcValues(DWORD* tdcValues, WORD count)
+void PndMvdTsEvent::FillTdcValues(DWORD* tdcValues, WORD count)
 {
     TClonesArray& tdcList = *fTdcValues;
     for (int i=0; i<count; i++)
@@ -70,23 +70,23 @@ void TsEvent::FillTdcValues(DWORD* tdcValues, WORD count)
             int trailing = (tdcValues[i] & 0x04000000) >> 26;
             int channel  = (tdcValues[i] & 0x03E00000) >> 21;
             int value    = (tdcValues[i] & 0x001fffff);
-            new(tdcList[tdcList.GetEntriesFast()]) TdcData(channel, value, trailing);
+            new(tdcList[tdcList.GetEntriesFast()]) PndMvdTdcData(channel, value, trailing);
         }
     }
 }
 
-void TsEvent::FillQdcValues(DWORD* qdcValues, WORD count)
+void PndMvdTsEvent::FillQdcValues(DWORD* qdcValues, WORD count)
 {
     TClonesArray& qdcList = *fQdcValues;
     for (int i=0; i<count; i++)
     {
         int channel   = (qdcValues[i] & 0xff000000) >> 24;
         int value     = (qdcValues[i] & 0x00ffffff);
-        new(qdcList[qdcList.GetEntriesFast()]) QdcData(channel, value);
+        new(qdcList[qdcList.GetEntriesFast()]) PndMvdQdcData(channel, value);
     }
 }
 
-void TsEvent::FillGiTdcValues(DWORD* tdcValues, WORD count)
+void PndMvdTsEvent::FillGiTdcValues(DWORD* tdcValues, WORD count)
 {
     TClonesArray& tdcList = *fTdcValues;
     for (int i=0; i<count; i++)
@@ -96,12 +96,12 @@ void TsEvent::FillGiTdcValues(DWORD* tdcValues, WORD count)
             int trailing = (tdcValues[i] & 0x04000000) >> 26;
             int channel  = (tdcValues[i] & 0x03E00000) >> 21;
             int value    = (tdcValues[i] & 0x001fffff);
-            new(tdcList[tdcList.GetEntriesFast()]) TdcData(channel+32, value, trailing);
+            new(tdcList[tdcList.GetEntriesFast()]) PndMvdTdcData(channel+32, value, trailing);
         }
     }
 }
 
-void TsEvent::FillGiQdcValues(DWORD* qdcValues, WORD count)
+void PndMvdTsEvent::FillGiQdcValues(DWORD* qdcValues, WORD count)
 {
     TClonesArray& qdcList = *fQdcValues;
     for (int i=0; i<count; i++)
@@ -114,11 +114,11 @@ void TsEvent::FillGiQdcValues(DWORD* qdcValues, WORD count)
         {
             value = -1;
         }
-        new(qdcList[qdcList.GetEntriesFast()]) QdcData(channel+32, value);
+        new(qdcList[qdcList.GetEntriesFast()]) PndMvdQdcData(channel+32, value);
     }
 }
 
-void TsEvent::FillScalerValues(DWORD* scalerValues, WORD count)
+void PndMvdTsEvent::FillScalerValues(DWORD* scalerValues, WORD count)
 {
     if (fScalerValuesAllocSize < count)
     {

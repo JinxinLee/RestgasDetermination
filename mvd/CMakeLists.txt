@@ -82,10 +82,10 @@ MvdDigi/PndMvdDigiTask.cxx
 MvdDigi/PndMvdNoiseProducer.cxx
 #MvdDigi/PndMvdPixelDigiSorterTask.cxx
 
-MvdDAQ/SiHit.cxx
-MvdDAQ/TdcData.cxx
-MvdDAQ/QdcData.cxx
-MvdDAQ/TsEvent.cxx
+MvdDAQ/PndMvdSiHit.cxx
+MvdDAQ/PndMvdTdcData.cxx
+MvdDAQ/PndMvdQdcData.cxx
+MvdDAQ/PndMvdTsEvent.cxx
 
 MvdDAQ/PndMvdConvertApv.cxx
 MvdDAQ/PndMvdBoxMap.cxx

@@ -1,12 +1,12 @@
 #include <TObject.h>
 #include <TClonesArray.h>
 
-class SiHit : public TObject
+class PndMvdSiHit : public TObject
 {
 public:
-    SiHit();
-    SiHit(UShort_t box, UShort_t channel, Int_t adc, UShort_t numFrames);
-    virtual ~SiHit();
+    PndMvdSiHit();
+    PndMvdSiHit(UShort_t box, UShort_t channel, Int_t adc, UShort_t numFrames);
+    virtual ~PndMvdSiHit();
     
 public:
     UShort_t fBox;          // Box number (0..3)
@@ -14,6 +14,6 @@ public:
     Int_t fAdc;             // raw ADC value
     UShort_t fNumFrames;    // number of frames with signal above threshold
     
-    ClassDef(SiHit,1);
+    ClassDef(PndMvdSiHit,1);
 };
 

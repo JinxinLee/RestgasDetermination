@@ -53,10 +53,10 @@
 //#pragma link C++ class PndMvdEventMergerTask+;
 #pragma link C++ class PndMvdMSAnaTask+;
 
-#pragma link C++ class SiHit+;
-#pragma link C++ class TdcData+;
-#pragma link C++ class QdcData+;
-#pragma link C++ class TsEvent+;
+#pragma link C++ class PndMvdSiHit+;
+#pragma link C++ class PndMvdTdcData+;
+#pragma link C++ class PndMvdQdcData+;
+#pragma link C++ class PndMvdTsEvent+;
 
 #pragma link C++ class PndMvdConvertApv+;
 #pragma link C++ class PndMvdBoxMap;

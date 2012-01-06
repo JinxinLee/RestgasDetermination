@@ -9,11 +9,11 @@ typedef unsigned short WORD;
 typedef unsigned int DWORD;
 typedef unsigned long long QWORD;
 
-class TsEvent : public TObject
+class PndMvdTsEvent : public TObject
 {
 public:
-   TsEvent();
-   virtual ~TsEvent();
+   PndMvdTsEvent();
+   virtual ~PndMvdTsEvent();
 
 public:
    void Clear(const Option_t* = NULL);
@@ -55,7 +55,7 @@ protected:
    UInt_t fExtClockResetCount;     // number of times the ext. clock was reset (since loading of FPGA)
 
 private:
-   ClassDef(TsEvent,2);
+   ClassDef(PndMvdTsEvent,2);
 };
 
 #endif
