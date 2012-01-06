@@ -26,7 +26,7 @@
 // class PndMvdApv;
 #include "PndSdsDigiStrip.h"
 
-#include "TsEvent.h"
+#include "PndMvdTsEvent.h"
 
 /**   
  @class PndMvdConvertApv
@@ -158,7 +158,7 @@ class PndMvdConvertApv
 	
 	TFile *f;
 	TTree *t;
-	TsEvent *tsEv;
+	PndMvdTsEvent *tsEv;
 	
 	TClonesArray *arr;
 

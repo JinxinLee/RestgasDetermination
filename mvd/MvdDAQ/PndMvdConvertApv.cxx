@@ -4,7 +4,7 @@
 #include "PndMvdConvertApv.h"
 
 //#include "TsEvent.h"
-#include "SiHit.h"
+#include "PndMvdSiHit.h"
 
 #include "PndMvdApvHit.h"
 #include "PndSdsDigiStrip.h"
@@ -27,9 +27,9 @@ PndMvdConvertApv::PndMvdConvertApv(const TString& CalibFileName, const TString& 
  	
   t = (TTree*) f->Get("T");
 	
-  tsEv = new TsEvent();
+  tsEv = new PndMvdTsEvent();
 	
-  arr = new TClonesArray("SiHit");
+  arr = new TClonesArray("PndMvdSiHit");
 
   cout << "---------------------------------------" << endl;
   cout << "Number of events: " << t->GetEntries() << endl;
@@ -234,7 +234,7 @@ std::vector<PndSdsDigiStrip> PndMvdConvertApv::ReadNext()
 		for (Int_t kk = 0 ; kk < arr->GetEntries() ; kk++)
 		{
 	 
-			SiHit *hit = (SiHit*) arr->At(kk);
+			PndMvdSiHit *hit = (PndMvdSiHit*) arr->At(kk);
 			ev = tsEv->GetEventId();
 			//fe = (Int_t) (hit->fChannel)/128;
 			//ch = (Int_t) (hit->fChannel)%128;
