@@ -54,6 +54,9 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
   /** Second constructor **/
   PndSttTrackFinderReal( int istamp, bool  iplot, bool doMcComparison);
 
+  /** Third constructor **/
+  PndSttTrackFinderReal( int istamp, bool  iplot,
+		bool doMcComparison, bool doSciTil);
 
   /** Destructor **/
   virtual ~PndSttTrackFinderReal();
@@ -142,7 +145,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                BFIELD=2.,  // in Tesla
                CVEL = 2.99792;  //  velocity of light
 	static const bool YesClean = false;
-	static const bool YesSciT = true;
+	bool YesSciT ;
 
 //               nFidivConformal = (UShort_t) (    PI*RStrawDetectorMax /StrawRadius   );
        static const UShort_t  nFidivConformal = (UShort_t) (3.141592654 * 45./0.5)  ;
@@ -162,7 +165,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
 
-      int IVOLTE, ntimes, INTERO, ITRACCIA,
+      int IVOLTE, ntimes, INTERO,
           N_INTENDED;
 //  Double_t SEMILENGTH_STRAIGHT = 75.;
       bool  iplotta, doMcComparison ;
@@ -297,7 +300,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		UShort_t iSeed,
 		UShort_t *ListHitsinTrackinWhichToSearch,
 		Double_t info[][7],
-		bool ExclusionList[nmaxHits],
+		bool InclusionList[nmaxHits],
 		UShort_t RConformalIndex[nmaxHits],
 		UShort_t FiConformalIndex[nmaxHits],
 		UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
@@ -1115,6 +1118,42 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		Int_t  Charge,  // input
 		UShort_t *ListHits
 							);
+
+
+	bool FindTrackInXYProjection(
+		UShort_t iHit,
+		UShort_t hittype,
+		Int_t *Minclinations,
+		Double_t info[nmaxHits][7],
+		bool *ExclusionList,
+		UShort_t *RConformalIndex,
+		UShort_t *FiConformalIndex,
+		UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
+		UShort_t HitsinBoxConformal[MAXHITSINCELL][nRdivConformal][nFidivConformal],
+		UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
+		UShort_t nTracksFoundSoFar,
+		UShort_t *nHitsinTrack,
+		Double_t *trajectory_vertex,
+		Double_t infoparalConformal[nmaxHits][5],
+		Short_t *Status,
+		Double_t *m,
+		Double_t *q,
+		Double_t *ALFA,
+		Double_t *BETA,
+		Double_t *GAMMA,
+		bool *    TypeConf,
+		Double_t *Ox,
+		Double_t *Oy,
+		Double_t *R,
+		Double_t *Fi_low_limit,
+		Double_t *Fi_up_limit,
+		Double_t *Fi_initial_helix_referenceframe,
+		Double_t *Fi_final_helix_referenceframe,
+		Short_t * Charge,
+		Double_t U[MAXTRACKSPEREVENT][nmaxHits],
+		Double_t V[MAXTRACKSPEREVENT][nmaxHits]
+					);
+
 
 //----------------------------------------------
 
