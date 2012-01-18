@@ -2,6 +2,7 @@
 // -----		PndSttTrackFinderReal source file	-----
 // -----		by Gianluigi Boca		-----
 // -------------------------------------------------------------------------
+
 #include "glpk.h"
 
 // Pnd includes
@@ -45,6 +46,7 @@ PndSttTrackFinderReal::PndSttTrackFinderReal()
 	iplotta = false;
 	istampa = 0;
 	doMcComparison = false;
+	YesSciT = false ;
 
 	MINIMUMOUTERHITSPERTRACK=5;
 	Fimin=0.;     Fimax=2.*PI;
@@ -65,11 +67,12 @@ PndSttTrackFinderReal::PndSttTrackFinderReal()
 
 
 // -----   Standard constructor   ------------------------------------------
-PndSttTrackFinderReal::PndSttTrackFinderReal(int verbose) 
+PndSttTrackFinderReal::PndSttTrackFinderReal(int verbose)
 { 
 	istampa      = verbose;
 	iplotta = false;
 	doMcComparison = false;
+	YesSciT = false ;
 
 	MINIMUMOUTERHITSPERTRACK=5;
 	Fimin=0.;     Fimax=2.*PI;
@@ -92,6 +95,32 @@ PndSttTrackFinderReal::PndSttTrackFinderReal(int istamp, bool iplott, bool imc)
 	istampa= istamp;
 	iplotta = iplott;
 	doMcComparison = imc;
+	YesSciT = false ;
+
+	MINIMUMOUTERHITSPERTRACK=5;
+	Fimin=0.;     Fimax=2.*PI;
+	FI0min = 0.; FI0max = 2.*PI;
+	stepD=(Dmax-Dmin)/nbinD;
+	stepFi=(Fimax-Fimin)/nbinFi;
+	stepR=(Rmax-Rmin)/nbinR;
+	stepKAPPA=(KAPPAmax-KAPPAmin)/nbinKAPPA;
+	stepFI0=(FI0max-FI0min)/nbinFI0;
+	stepfineKAPPA=2.*DELTA_KAPPA/nbinKAPPA;
+	stepfineFI0=2.*DELTA_FI0/nbinFI0;
+	sprintf(fSttBranch,"STTHit");
+
+}
+// -------------------------------------------------------------------------
+
+
+
+// -----   Third constructor   ------------------------------------------
+PndSttTrackFinderReal::PndSttTrackFinderReal(int istamp, bool iplott, bool imc, bool doSciTil)
+{
+	istampa= istamp;
+	iplotta = iplott;
+	doMcComparison = imc;
+	YesSciT = doSciTil ;
 
 	MINIMUMOUTERHITSPERTRACK=5;
 	Fimin=0.;     Fimax=2.*PI;
@@ -443,24 +472,29 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 
 
 //------------------------ SciTil hits.
+  nSciTHits = 0;
   if(YesSciT) {
-		if( fSciTHitArray == NULL){
-			nSciTHits = 0;
-		} else {
-					// num. SciTil hits/evento
+		if( fSciTHitArray != NULL){
+					// number SciTil hits/event
 			nSciTHits = fSciTHitArray->GetEntriesFast();
 		}
   }
 
 	PndSciTHit *pPndSciTHit;
 	TVector3  posiz;
+	Double_t  errX, errY, errZ;
 
 	for(int j=0; j<nSciTHits; j++){
 		pPndSciTHit = (PndSciTHit*) fSciTHitArray->At(j);
 		posiz = pPndSciTHit->GetPosition();
+		errX = pPndSciTHit->GetDx();
+		errY = pPndSciTHit->GetDy();
+		errZ = pPndSciTHit->GetDz();
 		if(istampa>0)
 		cout<<"da PndSttTrackFinderReal SciTil Xpos "<<posiz.X()<<", Ypos "<<
 		posiz.Y()<<", Zpos "<<posiz.Z()<<endl;
+		cout<<"da PndSttTrackFinderReal SciTil errX "<<errX<<", errY "<<
+		errY<<", errZ "<<errZ<<endl;
 		posizSciT[j][0]=posiz.X();
 		posizSciT[j][1]=posiz.Y();
 		posizSciT[j][2]=posiz.Z();
@@ -656,7 +690,7 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 
 
 
-//   ordering the hits by INCREASING CONFORMAL RADIUS or equivalently, decreasing spatial radius.
+//   ordering the parallel hits by INCREASING CONFORMAL RADIUS or equivalently, decreasing spatial radius.
 
     for (int j = 0; j< Minclinations[0]; j++){
       auxIndex[j]=j;
@@ -694,29 +728,28 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 
 
   bool	//Consider,
-	ExclusionList[nmaxHits],      //  list of || hits  already assigned to a found track or with multiple hits
-	ExclusionListSkew[nmaxHits],      //  list of skew hits with multiple hits
-	ExclusionListbis[nmaxHits],      //  list of || hits ONLY with multiple hits
-	ExclusionListSkewbis[nmaxHits],      //  list of skew hits ONLY with multiple hits (duplicate of
-						//		ExclusionListSkew)
+	InclusionList[nmaxHits],      //  list of || hits  already assigned to a found track or with multiple hits
+	InclusionListSkew[nmaxHits],      //  list of skew hits with multiple hits
+	InclusionListbis[nmaxHits],      //  list of || hits ONLY with multiple hits
+	InclusionListSkewbis[nmaxHits],      //  list of skew hits ONLY with multiple hits (duplicate of
+						//		InclusionListSkew)
 	TypeConf[MAXTRACKSPEREVENT],   //  if TypeConf[]=false --> the track is a line in the Conformal space,
 					//   if TypeConf[]=true it is a crf;
 	TypeConfSkew[MAXTRACKSPEREVENT],
 	GoodTrack[MAXTRACKSPEREVENT];    //  yes = track found passes minimal requirements
 
 
-
   UShort_t iExclude,
            imc,jexp,mchit,exphit,
            nTracksFoundSoFar,
-           NN,
+//           NN,
            NNN,
            Nouter,
-           Naux,
-           Nbaux,
+//           Naux,
+//           Nbaux,
            nTotalHits[MAXTRACKSPEREVENT],
            iParHit,
-           SeedParallelNumber,
+//           SeedParallelNumber,
            OLDnHitsinTrack,
            TemporarynSkewHitsinTrack,
            BigList[MAXTRACKSPEREVENT][nmaxHitsInTrack],
@@ -724,12 +757,12 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
            nHitsinTrack[MAXTRACKSPEREVENT],
            nSkewHitsinTrack[MAXTRACKSPEREVENT],
            tempore[nmaxHits],
-           auxListHitsinTrack[nmaxHits],
+//           auxListHitsinTrack[nmaxHits],
            ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
-           ListHitsinTrackinWhichToSearch[nmaxHits],
+//           ListHitsinTrackinWhichToSearch[nmaxHits],
            OLDListHitsinTrack[nmaxHits],
-           OutputListHitsinTrack[nmaxHits],
-           OutputList2HitsinTrack[nmaxHits],
+//           OutputListHitsinTrack[nmaxHits],
+//           OutputList2HitsinTrack[nmaxHits],
            ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
            nMCParalAlone[MAXTRACKSPEREVENT],
            nMCSkewAlone[MAXTRACKSPEREVENT],
@@ -752,7 +785,6 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 	UShort_t HitsinBoxConformal[MAXHITSINCELL][nRdivConformal][nFidivConformal];
 		//  first index -> radial divisions, 2nd index -> azimuthal divisions;
 
-	Short_t flagStt;
 
    Int_t status;
 
@@ -777,7 +809,9 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
               Rlow, Rup, Dlow, Dup,Filow,Fiup, KAPPAlow, KAPPAup, FI0low, FI0up,
               gamma;
 
-   Double_t    D,Fi, rotationangle, rotationsin, rotationcos,ptotal,
+   Double_t    D,Fi,
+//    rotationangle, rotationsin, rotationcos,
+		ptotal,
                Fi_low_limit[MAXTRACKSPEREVENT],
                Fi_up_limit[MAXTRACKSPEREVENT],
                Fi_initial_helix_referenceframe[MAXTRACKSPEREVENT],
@@ -794,7 +828,7 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
                FI0[MAXTRACKSPEREVENT],
                trajectory_vertex[3],
                infoparalConformal[nmaxHits][5],
-               auxinfoparalConformal[nmaxHits][5],
+//               auxinfoparalConformal[nmaxHits][5],
                S[2*nmaxHits],
                Z[2*nmaxHits],
                temporeS[nmaxHits],
@@ -845,47 +879,47 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 
 
        for(i=0; i< Minclinations[0]; i++){
-         ExclusionList[   infoparal[i]   ]= true ;
-         ExclusionListbis[   infoparal[i]   ]= true ;
+         InclusionList[   infoparal[i]   ]= true ;
+         InclusionListbis[   infoparal[i]   ]= true ;
       }
       for(i=0; i< NSkewhits; i++){
-         ExclusionListSkew[   infoskew[i]   ]= true ;
-         ExclusionListSkewbis[   infoskew[i]   ]= true ;
+         InclusionListSkew[   infoskew[i]   ]= true ;
+         InclusionListSkewbis[   infoskew[i]   ]= true ;
       }
 
 
 
 
 
-//-----------------------------------   exclusion of straws with multiple hits
+//-----------------------------------   Inclusion of straws with multiple hits
 
       //   first the parallel straws
       for(i=0; i< Nhits-1; i++){
 	if( info[i][5]==1.){
-		if( ExclusionList[ i ] ){
+		if( InclusionList[ i ] ){
 			for(j=i+1; j< Nhits; j++){
-				if(ExclusionList[ j ] && info[j][5]==1. &&
+				if(InclusionList[ j ] && info[j][5]==1. &&
 					fabs(info[i][0] - info[j][0])<1.e-20 &&
 					fabs(info[i][1] - info[j][1])<1.e-20  )
 				{
-					ExclusionList[j]= false ;
-					ExclusionListbis[j]= false ;
+					InclusionList[j]= false ;
+					InclusionListbis[j]= false ;
 				}
 			} //  end of  for(j=i+1; j< Nhits;; j++)
-		}  //   end of if( ExclusionList[ i ] )
+		}  //   end of if( InclusionList[ i ] )
 	} else {	//  continuation of  if( info[i][5]==1.)
 
-		if( ExclusionListSkew[ i ] ){
+		if( InclusionListSkew[ i ] ){
 			for(j=i+1; j< Nhits; j++){
-				if(ExclusionListSkew[ j ] && info[j][5] != 1. &&
+				if(InclusionListSkew[ j ] && info[j][5] != 1. &&
 					fabs(info[i][0] - info[j][0])<1.e-20 &&
 					fabs(info[i][1] - info[j][1])<1.e-20  )
 				{
-					ExclusionListSkew[j]= false ;
-					ExclusionListSkewbis[j]= false ;
+					InclusionListSkew[j]= false ;
+					InclusionListSkewbis[j]= false ;
 				}
 			} //  end of  for(j=i+1; j< Nhits;; j++)
-		}  //   end of if( ExclusionList[ i ] )
+		}  //   end of if( InclusionList[ i ] )
 
 
 	}	//	//  end of  if( info[i][5]==1.)
@@ -896,7 +930,7 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 
 
 
-//-----------------------------------  end of exclusion of straws with multiple hits
+//-----------------------------------  end of Inclusion of straws with multiple hits
 
 
 
@@ -909,7 +943,7 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 
 
       PndSttBoxConformalFilling(
-				ExclusionList,
+				InclusionList,
 				infoparalConformal,
 				Minclinations[0],
 				nBoxConformal,
@@ -928,422 +962,59 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 
 //   begins the first iteration with more severe cuts on the # hits in track candidate
 
-  for(iParHit=0; iParHit<Minclinations[0] + 1 -  MINIMUMHITSPERTRACK ; iParHit++) {
-      if( nTracksFoundSoFar > MAXTRACKSPEREVENT) continue;
-      if( ! ExclusionList[    infoparal[iParHit]  ] )  continue;
-      nHitsinTrack[nTracksFoundSoFar] = PndSttFindTrackPatterninBoxConformal(
-                           1,   //  distance in R cells allowed
-                           2,   //  distance in Fi cells allowed
-                           Minclinations[0],
-                           iParHit,
-                           info,
-                           ExclusionList,
-                           RConformalIndex,
-                           FiConformalIndex,
-                           nBoxConformal,
-                           HitsinBoxConformal,
-                           &ListHitsinTrack[nTracksFoundSoFar][0]
-                                                    );
-
-
- if(istampa>=3){
-        cout<<" \tSttTrackFinderReal : track found n. "<<nTracksFoundSoFar <<
-	" and nHitsinTrack = "<<nHitsinTrack[nTracksFoundSoFar]<<
-  " and if it is < the MINIMUMHIITSPERTRACK ("<< MINIMUMHITSPERTRACK<<
-  ") this candidate track is skipped\n";
-  cout<<"\tList of || stt hits in this candidate (earlier stage) :\n";
-  for(int iq=0;iq<nHitsinTrack[nTracksFoundSoFar];iq++){
-  	cout<<"\tStt || hit n. (original notation) : "<<
-	infoparal[ ListHitsinTrack[nTracksFoundSoFar][iq] ]<<endl; 
-  }
- }
-
-      if( nHitsinTrack[nTracksFoundSoFar] < MINIMUMHITSPERTRACK ||
-	 nHitsinTrack[nTracksFoundSoFar]>nmaxHitsInTrack) {
-        continue;
-      }
-
-
-
-//-----------------------
-
-//   find among the ListHitsinTrack  if there are at least a minimum # of hits belonging to the outer part
-//   of the STT  system
-
-      for(j=0, Nouter =0; j<nHitsinTrack[nTracksFoundSoFar]; j++){
-         if(info[infoparal[ ListHitsinTrack[nTracksFoundSoFar][j] ]][0]* info[infoparal[ ListHitsinTrack[nTracksFoundSoFar][j] ]][0]+
-            info[infoparal[ ListHitsinTrack[nTracksFoundSoFar][j] ]][1]* info[infoparal[ ListHitsinTrack[nTracksFoundSoFar][j] ]][1]
-            < ApotemaMaxSkewStraw*ApotemaMaxSkewStraw  )   break;
-         Nouter++;
-      }
-
-
-     if( Nouter >= MINIMUMOUTERHITSPERTRACK) {
-
-      for(i=0; i< Nouter;i++){
-          ListHitsinTrackinWhichToSearch[i]=ListHitsinTrack[nTracksFoundSoFar][i];
-      }
-
-
-
-
-
-      for(i=0; i< Nouter;i++){
-        SeedParallelNumber = ListHitsinTrackinWhichToSearch[i];
-        Naux =  PndSttFindTrackPatterninBoxConformalSpecial(
-                           3,    // NRCELLDISTANCE
-                           1,    // NFiCELLDISTANCE
-                           Minclinations[0],
-                           Nouter,
-                           SeedParallelNumber,
-                           ListHitsinTrackinWhichToSearch,
-                           info,
-                           ExclusionList,
-                           RConformalIndex,
-                           FiConformalIndex,
-                           nBoxConformal,
-                           HitsinBoxConformal,
-                           OutputListHitsinTrack);
-
-// cout<<" Naux = "<<Naux<<", MINIMUMOUTERHITSPERTRACK = "<<MINIMUMOUTERHITSPERTRACK
-//	<<", Nouter = " <<Nouter<<endl;
-
-      if( Naux >= MINIMUMOUTERHITSPERTRACK && Naux > 0.7 * Nouter )  break;
-
-      if( Naux >= MINIMUMOUTERHITSPERTRACK) {
-//   further collection of hits in the inner region but this time strictly connected to the outer ones
-
-//  first the list of non outer hits
-         for(j=Nouter;j<nHitsinTrack[nTracksFoundSoFar]; j++){
-            ListHitsinTrackinWhichToSearch[j-Nouter] = ListHitsinTrack[nTracksFoundSoFar][j];
-         }
-
-
-
-         Nbaux =  PndSttFindTrackStrictCollection(
-                           1,    // NFiCELLDISTANCE
-                           SeedParallelNumber,   //  seed hit
-                           nHitsinTrack[nTracksFoundSoFar]-Nouter,
-                           ListHitsinTrackinWhichToSearch,
-                           ExclusionList,
-                           FiConformalIndex,
-                           OutputList2HitsinTrack
-                                                );
-//   add the new hits found to the list
-         nHitsinTrack[nTracksFoundSoFar]=Naux+Nbaux;
-	if( nHitsinTrack[nTracksFoundSoFar] >= MINIMUMHITSPERTRACK &&
-	 nHitsinTrack[nTracksFoundSoFar]<=nmaxHitsInTrack) {
-
-		for(j=0;j<Naux;j++){
-			ListHitsinTrack[nTracksFoundSoFar][j] = OutputListHitsinTrack[j];
-		}
-		for(j=0;j<Nbaux;j++){
-			ListHitsinTrack[nTracksFoundSoFar][Naux+j] = OutputList2HitsinTrack[j];
-		}
-		break;
-	}// end of  if( nHitsinTrack[nTracksFoundSoFar] >= ....
-
-
-      }  // end of  if( Naux >= MINIMUMOUTERHITSPERTRACK)
-      }   // end of for(i=0; i< Nouter;i++)
-     }    // end of if( Nouter >= MINIMUMOUTERHITSPERTRACK)
-
-
-      if( nHitsinTrack[nTracksFoundSoFar] < MINIMUMHITSPERTRACK ||
-	 nHitsinTrack[nTracksFoundSoFar]>nmaxHitsInTrack) {
-        continue;
-      }
-
-//---------------------------
-
-//  finding the rotation angle for best utilization of the MILP procedure
-
-      for(j=0, rotationcos=0., rotationsin=0.; j<nHitsinTrack[nTracksFoundSoFar]; j++){
-         rotationcos += cos( (0.5+ FiConformalIndex[ infoparal[ ListHitsinTrack[nTracksFoundSoFar][j] ] ])
-                                      *2.*PI/nFidivConformal) ;
-         rotationsin += sin( (0.5+ FiConformalIndex[ infoparal[ ListHitsinTrack[nTracksFoundSoFar][j] ] ])
-                                      *2.*PI/nFidivConformal) ;
-      }
-      rotationcos /=nHitsinTrack[nTracksFoundSoFar];
-      rotationsin /=nHitsinTrack[nTracksFoundSoFar];
-      rotationangle = atan2(rotationsin, rotationcos);
-
-
-
-//  fitting with superfast MILP code
-
-//  first redefine the center of the conformal plane; it will be centered in the center of the  hit in the
-//  hit list with the LEAST drift radius; this hit has to be excluded from the fitting
-
-
-      trajectory_vertex[0]=  0.;
-      trajectory_vertex[1]=  0.;
-
-
-
-  for(j=0; j<nHitsinTrack[nTracksFoundSoFar]; j++){
-    for(i=0; i<5;i++){
-      auxinfoparalConformal[j][i] = infoparalConformal[ ListHitsinTrack[nTracksFoundSoFar][j]  ][i];
-    }
-  }
-
-
-
-      INTERO=1;
-
-      Status[nTracksFoundSoFar] = PndSttFitHelixCylinder( 
-                nHitsinTrack[nTracksFoundSoFar],
-                auxinfoparalConformal,
-                nTracksFoundSoFar,
-                rotationangle,
-                trajectory_vertex,
-                NHITSINFIT,
-                &m[nTracksFoundSoFar],
-                &q[nTracksFoundSoFar],
-                ALFA,
-                BETA,
-                GAMMA,
-                TypeConf
-                      );
-
-      if(Status[nTracksFoundSoFar] < 0  ) continue;
-
-
-//  this trasformation is valid even if the equation is a straight line from the fit
-
-      Ox[nTracksFoundSoFar]= -0.5*ALFA[nTracksFoundSoFar];
-      Oy[nTracksFoundSoFar]= -0.5*BETA[nTracksFoundSoFar];
-      R[nTracksFoundSoFar]= Ox[nTracksFoundSoFar]*Ox[nTracksFoundSoFar]+Oy[nTracksFoundSoFar]*Oy[nTracksFoundSoFar]-
-                            GAMMA[nTracksFoundSoFar];
- if(istampa>=2){
-        cout<<" \tSttTrackFinderReal : track n. "<<nTracksFoundSoFar<<
-	" and nHitsinTrack = "<<nHitsinTrack[nTracksFoundSoFar]<<endl;
-  cout<<"\tList of || stt hits in this candidate (intermediate stage) :\n";
-  for(int iq=0;iq<nHitsinTrack[nTracksFoundSoFar];iq++){
-  	cout<<"\tStt || hit n. (original notation) : "<<
-	infoparal[ ListHitsinTrack[nTracksFoundSoFar][iq] ]<<endl; 
-  }
-  cout<<"\tOx = "<<Ox[nTracksFoundSoFar]<<",  Oy = "<<Oy[nTracksFoundSoFar]<<
-  ",  R*R = "<<R[nTracksFoundSoFar]<<", and Status = "<<Status[nTracksFoundSoFar]<<endl;
- }
-
-	// some obvious preliminary cuts
-	if( R[nTracksFoundSoFar] < 0. )   continue;
-	R[nTracksFoundSoFar]= sqrt( R[nTracksFoundSoFar] );
-	aaa = sqrt(Ox[nTracksFoundSoFar]*Ox[nTracksFoundSoFar]+
-		Oy[nTracksFoundSoFar]*Oy[nTracksFoundSoFar]);
-	// the following is because the circumference is supposed to come from (0,0);
-	//   here the factor 0.9 is used in order to be conservative.
-	if(aaa< 0.9*RadiusMinStrawDetector/2.) continue;
-	//   here the factor 0.9 is used in order to be conservative.
-	if ( R[nTracksFoundSoFar] + aaa < RadiusMinStrawDetector *0.9 ) continue;
-
-//---------------------------
-
-
-
-
-//---------------------  better association of the hits in the track candidate
-
-  ITRACCIA = nTracksFoundSoFar;
-
-
-
-// treat differently the case in which the track has radius < RStrawDetectorMax/2
-// and the other case.
-
-  if( R[nTracksFoundSoFar] < RStrawDetectorMax/2){
-	PndSttFindingParallelTrackAngularRange(
-		Ox[nTracksFoundSoFar],
-		Oy[nTracksFoundSoFar],
-		R[nTracksFoundSoFar],
-		1,  /// this is supposed to be the charge, irrelevant here if it is +1 or -1.
-		&Fi_low_limit[nTracksFoundSoFar],
-		&Fi_up_limit[nTracksFoundSoFar],
-		&flagStt,
-		RStrawDetectorMin,
-		RStrawDetectorMax
-		);
-
-	NN =  PndSttTrkAssociatedParallelHitsToHelix5(
-		ExclusionList,
-                   Minclinations[0],
-                   Ox[nTracksFoundSoFar],
-                   Oy[nTracksFoundSoFar],
-                   R[nTracksFoundSoFar],
-                   info,
-		Fi_low_limit[nTracksFoundSoFar],
-		Fi_up_limit[nTracksFoundSoFar],
-                   auxListHitsinTrack              //  this is the output
-                                                     );
-
-
-  }  else {
-
-	NN =  PndSttTrkAssociatedParallelHitsToHelixQuater(
-		   ExclusionList,
-                   m[nTracksFoundSoFar],
-                   q[nTracksFoundSoFar],
-                   Status[nTracksFoundSoFar],
-                   nHitsinTrack[nTracksFoundSoFar],
-                   &ListHitsinTrack[nTracksFoundSoFar][0],
-                   Minclinations[0],
-                   Ox[nTracksFoundSoFar],
-                   Oy[nTracksFoundSoFar],
-                   R[nTracksFoundSoFar],
-                   info,
-                   infoparalConformal,
-                   RConformalIndex,
-                   FiConformalIndex,
-                   nBoxConformal,
-                   HitsinBoxConformal,
-                   auxListHitsinTrack              //  this is the output
-                                                     );
-  } // end of  if( R[nTracksFoundSoFar] < RStrawDetectorMax/2)
-
-
-
-
-	if( NN < MINIMUMHITSPERTRACK || NN>nmaxHitsInTrack)continue;
-
-   nHitsinTrack[nTracksFoundSoFar]=NN;
-   for(i=0; i<nHitsinTrack[nTracksFoundSoFar];i++){
-     ListHitsinTrack[nTracksFoundSoFar][i]=auxListHitsinTrack[i];
-   }
-
-//----------------------------- Finding the CHarge
-	// The charge is calculated first by dividing the hits in two categories by using the Perpendicular
-	// to the tangent to the trajectory in (0,0). Then simply the majority of the hits decides the
-	// sign of the  charge. See Gianluigi's Logbook page 290.
-
-
-	FindCharge(
-		Ox[nTracksFoundSoFar],
-		Oy[nTracksFoundSoFar],
-		info,
-		nHitsinTrack[nTracksFoundSoFar],
-		&ListHitsinTrack[nTracksFoundSoFar][0],
-		infoparal,
-		&Charge[nTracksFoundSoFar]
-		);
-//----------------------------- Ordering.
-	// The ordering reflects the angle Fi in the Helix reference frame because
-	// the hits are ordered by going around the trajectory cclockwise for
-	// positive tracks or counterclockwise for negative particles; in other words
-	//  it is not used simply the distance of the hit from (0,0) as ordering parameter
-	//  but the track length of the circle.
-	// this method finds also Fi_initial_helix_referenceframe and Fi_final_helix_referenceframe.
-	// The former is simply the fi angle of the point (0,0) with respect to the center
-	// of this Helix. Important : this angle has to be > 0 always and it is between 0. and
-	// 2 PI here (later,  FixDiscontinuitiesFiangleinSZplane may change it adding +2PI or
-	// -2PI if necessary).
-	// Fi_final_helix_referenceframe is made such that  it is < Fi_initial_helix_referenceframe
-	// when the track is  positive, and it is > Fi_initial_helix_referenceframe for negative
-	// tracks.
-
-       PndSttOrderingParallel(
-                             Ox[nTracksFoundSoFar],
-                             Oy[nTracksFoundSoFar],
-                             info,
-                             nHitsinTrack[nTracksFoundSoFar],
-                             &ListHitsinTrack[nTracksFoundSoFar][0],
-                             infoparal,
-                             Charge[nTracksFoundSoFar],
-                             &Fi_initial_helix_referenceframe[nTracksFoundSoFar],//output
-                             &Fi_final_helix_referenceframe[nTracksFoundSoFar],// output
-		&U[nTracksFoundSoFar][0],
-		&V[nTracksFoundSoFar][0]
-                       );
-
-
-//    end of ordering the parallel  hits; determining the charge of this track
-
-//   finding the FI angular range (in the laboratory frame) spanned by this parallel track
-
-       PndSttFindingParallelTrackAngularRange(
-                             Ox[nTracksFoundSoFar],
-                             Oy[nTracksFoundSoFar],
-                             R[nTracksFoundSoFar],
-                             Charge[nTracksFoundSoFar],
-                             &Fi_low_limit[nTracksFoundSoFar],
-                             &Fi_up_limit[nTracksFoundSoFar],
-		&flagStt,
-		RStrawDetectorMin,
-		RStrawDetectorMax
-                                             );
-
-
-//---------stampaggi.
- if(istampa>=2){
-        cout<<" \tSttTrackFinderReal : track n. "<<nTracksFoundSoFar<<
-	" and nHitsinTrack = "<<nHitsinTrack[nTracksFoundSoFar]<<endl;
-  cout<<"\tList of || stt hits in this candidate (final stage and after Ordering) :\n";
-  for(int iq=0;iq<nHitsinTrack[nTracksFoundSoFar];iq++){
-  	cout<<"\tStt || hit n. (original notation) : "<<
-	infoparal[ ListHitsinTrack[nTracksFoundSoFar][iq] ]<<endl; 
-  }
-  cout<<"\tOx = "<<Ox[nTracksFoundSoFar]<<",  Oy = "<<Oy[nTracksFoundSoFar]<<
-  ",  R = "<<R[nTracksFoundSoFar]<<", and Status = "<<Status[nTracksFoundSoFar]<<endl;
-  cout<<"\tFi_initial_helix_referenceframe (gradi) = "
-  <<180.*Fi_initial_helix_referenceframe[nTracksFoundSoFar]/3.14
-  <<"\n\tFi_final_helix_referenceframe (gradi) = "
-  <<180.*Fi_final_helix_referenceframe[nTracksFoundSoFar]/3.14
-  <<", flagStt = "<<flagStt<<endl;
-
- }
- //------------ fine stampaggi -------------
-
-
-
-
-	if( flagStt == -2 ) continue;	// track outside cylinder RStrawDetectorMax.
-	if( flagStt == -1 ) continue;	// track inside cylinder RStrawDetectorMin.
-	if( flagStt ==  1 ) continue;	// track comprised in cylinder : discard,
-					// because at this stage only tracks from
-					// vertex are searched.
-
-
-//----------------------------------- Bad Tracks rejection :
-//-------------  cleanup of the track based on the parallel Stt hits.
-
-//   load auxListHitsinTrack  with the list of parallel hit number (original number,
-//   which can be used directly in   info[][]  ).
-   for(i=0; i<nHitsinTrack[nTracksFoundSoFar];i++){
-     auxListHitsinTrack[i]=infoparal[ ListHitsinTrack[nTracksFoundSoFar][i] ];
-   }
-	// origin of te track.
+ for(iParHit=0; iParHit<Minclinations[0] + 1 -  MINIMUMHITSPERTRACK ; iParHit++) {
+	if( nTracksFoundSoFar > MAXTRACKSPEREVENT) continue;
+	if( ! InclusionList[    infoparal[iParHit]  ] )  continue;
+
+	bool outcome = FindTrackInXYProjection(
+				 iParHit,
+				 1,	// type of hit : 0 = SciTil hit, 1 = Stt hit.
+				 Minclinations,
+				 info,
+				 InclusionList,
+				 RConformalIndex,
+				 FiConformalIndex,
+				 nBoxConformal,
+				 HitsinBoxConformal,
+				 ListHitsinTrack,
+				 nTracksFoundSoFar,
+				 nHitsinTrack,
+				 trajectory_vertex,
+				 infoparalConformal,
+				 Status,
+				 m,
+				 q,
+				 ALFA,
+				 BETA,
+				 GAMMA,
+				 TypeConf,
+				 Ox,
+				 Oy,
+				 R,
+				 Fi_low_limit,
+				 Fi_up_limit,
+				 Fi_initial_helix_referenceframe,
+				 Fi_final_helix_referenceframe,
+				 Charge,
+				 U,
+				 V
+				);
+
+
+	if(!outcome)  continue;
+
+
+
+
+	// origin of the track.
 	Posiz[0]=Posiz[1]=Posiz[2]=0.;
 
-if(istampa>=3) cout<<"\n\n\nIVOLTE = "<<IVOLTE<<"  and Ntrack = "<< nTracksFoundSoFar<<
- ", prima di cleanup ----------------\n";
 
-
-//	UShort_t &nHits = nHitsinTrack[nTracksFoundSoFar];
-
-
-// --------  here the track and its hits were found, filling the exclusion list
+// --------  here the track and its hits were found, filling the Inclusion list
 
    for(j=0; j<nHitsinTrack[nTracksFoundSoFar]; j++){
-     ExclusionList[    infoparal[   ListHitsinTrack[nTracksFoundSoFar][j]  ] ] = false;
+     InclusionList[    infoparal[   ListHitsinTrack[nTracksFoundSoFar][j]  ] ] = false;
    }
-
-
-//--------------------------------------------------    macro for display
-
-if(iplotta && IVOLTE <= nmassimo){
-        WriteMacroParallelHitsConformalwithMCspecial(
-                   nHitsinTrack[nTracksFoundSoFar],
-                   auxinfoparalConformal,
-                   nTracksFoundSoFar,
-                   ALFA,
-                   BETA,
-                   GAMMA,
-                   Status[nTracksFoundSoFar], trajectory_vertex
-                                                     );
-}
-
-
-//----------------------------------- end macro for display
 
 
 
@@ -1354,7 +1025,7 @@ if(iplotta && IVOLTE <= nmassimo){
 
    if( nTracksFoundSoFar >= MAXTRACKSPEREVENT ){
 	cout<<"from PndSttTrackFinderReal :  # n. Tracks found so far = "<<nTracksFoundSoFar
-         <<" and it is >= MAXTRACKSPEREVENT ( = "<<MAXTRACKSPEREVENT
+	 <<" and it is >= MAXTRACKSPEREVENT ( = "<<MAXTRACKSPEREVENT
 	 <<"; rejecting this event and returning !\n";
 	return -15;
    }
@@ -1389,7 +1060,7 @@ if(iplotta && IVOLTE <= nmassimo){
 
 
   TemporarynSkewHitsinTrack = AssociateSkewHitsToXYTrack(
-                   ExclusionListSkew,
+                   InclusionListSkew,
                    Ox[i],   //  input : X of center of XY plane circle
                    Oy[i],   //  input : Y of center of XY plane circle
                    R[i],   //  input : Radius of XY plane circle
@@ -1684,7 +1355,7 @@ if(istampa>=2){cout<<"\tPndSttTrackFinderReal, prima di Parall cleanup, IVOLTE =
 	}
 //--- ricerca degli hits non mecciati, della traccia MC associata a questa traccia trovata.
 	for(i=0; i<Minclinations[0]; i++){
-		if( !ExclusionListbis[ infoparal[i] ] ) continue;
+		if( !InclusionListbis[ infoparal[i] ] ) continue;
 		emme = (Short_t) ( info[ infoparal[i] ][6] + 0.01);
 		if( emme == daTrackFoundaTrackMC[jexp] ){
 			for(exphit=0; exphit<nHitsinTrack[jexp]; exphit++){
@@ -1714,7 +1385,7 @@ if(istampa>=2){cout<<"\tPndSttTrackFinderReal, prima di Parall cleanup, IVOLTE =
 
 //--- ricerca degli hits non mecciati, della traccia MC associata a questa traccia trovata.
 	for(i=0; i<NSkewhits; i++){
-		if( !ExclusionListSkewbis[ infoskew[i] ] ) continue;
+		if( !InclusionListSkewbis[ infoskew[i] ] ) continue;
 		emme = (Short_t) ( info[ infoskew[i] ][6] + 0.01);
 		if( emme ==   daTrackFoundaTrackMC[jexp] ){
 			for(exphit=0; exphit<nSkewHitsinTrack[jexp]; exphit++){
@@ -6102,7 +5773,7 @@ nohits: ;
 //----------begin of function PndSttTrackFinderReal::PndSttBoxConformalFilling
 
  void  PndSttTrackFinderReal::PndSttBoxConformalFilling(
-			bool ExclusionList[nmaxHits],
+			bool InclusionList[nmaxHits],
 			Double_t infoparalConformal[][5],Int_t Nparal,
 			UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
 			UShort_t HitsinBoxConformal[][nRdivConformal][nFidivConformal],
@@ -6123,7 +5794,7 @@ nohits: ;
       }
 
       for(i = 0; i< Nparal ; i++){
-	 if( ! ExclusionList[ infoparal[i] ] ) continue;
+	 if( ! InclusionList[ infoparal[i] ] ) continue;
          Fi =  atan2(infoparalConformal[i][1],infoparalConformal[i][0]) ;
          if ( Fi < 0. ) Fi += 2.*PI;
          iFi =  (Short_t) (0.5*nFidivConformal*Fi/PI);
@@ -6277,7 +5948,7 @@ void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_lef
 		UShort_t Nparal,
 		UShort_t ihit,
 		Double_t info[][7],
-		bool ExclusionList[nmaxHits],
+		bool InclusionList[nmaxHits],
 		UShort_t RConformalIndex[nmaxHits],
 		UShort_t FiConformalIndex[nmaxHits],
 		UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
@@ -6290,7 +5961,7 @@ void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_lef
 
 
 
-     bool TemporaryExclusionList[nmaxHits];
+     bool TemporaryInclusionList[nmaxHits];
 
      UShort_t i, j, iR, iFi, nRmin, nRmax, nRemainingHits, nRcell, nFicell, nHitsinTrack,
                  Remaining[nmaxHits],
@@ -6307,15 +5978,15 @@ void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_lef
 
      for(i=0, nRemainingHits=0; i<Nparal; i++){
 
-        if( i != ihit && ExclusionList[  infoparal[i]   ] ) {   //  exclusion of the
+        if( i != ihit && InclusionList[  infoparal[i]   ] ) {   //  Inclusion of the
 				//  parallel hit straws already used in other tracks
-				//  remember the index of ExclusionList is in the
+				//  remember the index of InclusionList is in the
 				//  ORIGINAL scheme of hits
-            TemporaryExclusionList[ infoparal[i]  ]= true;
+            TemporaryInclusionList[ infoparal[i]  ]= true;
             Remaining[nRemainingHits]= i;   //  index of the PARALLEL hit
             nRemainingHits++;
         } else {
-            TemporaryExclusionList[ infoparal[i]  ]= false;
+            TemporaryInclusionList[ infoparal[i]  ]= false;
         }
 
      }
@@ -6363,15 +6034,15 @@ void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_lef
             iFi = iFi2;
           }
          for (j = 0; j< nBoxConformal[iR][iFi]; j++){
-          if( ExclusionList[  infoparal[  HitsinBoxConformal[j][iR][iFi]  ]  ]
+          if( InclusionList[  infoparal[  HitsinBoxConformal[j][iR][iFi]  ]  ]
                                       &&
-              TemporaryExclusionList[   infoparal[  HitsinBoxConformal[j][iR][iFi]  ]   ]) {
+              TemporaryInclusionList[   infoparal[  HitsinBoxConformal[j][iR][iFi]  ]   ]) {
             ListHitsinTrack[nHitsinTrack]=HitsinBoxConformal[j][iR][iFi] ;   //  hit number in the PARALLEL straws scheme
 //if(IVOLTE==3)   cout<<"\tnFi cell di hit accettato "<<iFi<<" e iR di hit accettato = "<<iR<<endl;
 
             nHitsinTrack++;
 	    if( nHitsinTrack >= nmaxHitsInTrack) goto stopsearch ;  // finish the search.
-            TemporaryExclusionList[ infoparal[  HitsinBoxConformal[j][iR][iFi]  ]  ]= false;
+            TemporaryInclusionList[ infoparal[  HitsinBoxConformal[j][iR][iFi]  ]  ]= false;
             nRemainingHits--;
           }
          }
@@ -6399,31 +6070,38 @@ void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_lef
 
 
   Short_t PndSttTrackFinderReal::PndSttFindTrackPatterninBoxConformalSpecial(
-                                                  UShort_t NRCELLDISTANCE,
-                                                  UShort_t NFiCELLDISTANCE,                                                  
-                                                  UShort_t Nparal,
-                                                  UShort_t NparallelToSearch,
-                                                  UShort_t iSeed,
-                                                  UShort_t *ListHitsinTrackinWhichToSearch,
-                                                  Double_t info[][7],
-                                                  bool ExclusionList[nmaxHits],
-                                                  UShort_t RConformalIndex[nmaxHits],
-                                                  UShort_t FiConformalIndex[nmaxHits],
-                                                  UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
-                                                  UShort_t HitsinBoxConformal[][nRdivConformal][nFidivConformal],
-                                                  UShort_t  *OutputListHitsinTrack
-                                                                      )
+			UShort_t NRCELLDISTANCE,
+			UShort_t NFiCELLDISTANCE,
+			UShort_t Nparal,
+			UShort_t NparallelToSearch,
+			UShort_t iSeed,
+			UShort_t *ListHitsinTrackinWhichToSearch,
+			Double_t info[][7],
+			bool InclusionList[nmaxHits],
+			UShort_t RConformalIndex[nmaxHits],
+			UShort_t FiConformalIndex[nmaxHits],
+			UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
+			UShort_t HitsinBoxConformal[][nRdivConformal][nFidivConformal],
+			UShort_t *OutputListHitsinTrack
+						)
 {
 
 
+     bool TemporaryInclusionList[nmaxHits];
 
-
-
-     bool TemporaryExclusionList[nmaxHits];
-
-     UShort_t i, i2, j, iR, iFi, nRmin, nRmax, nRemainingHits, nRcell, nFicell, nHitsinTrack,
-                 Remaining[nmaxHits],
-                 auxIndex[nmaxHits];
+     UShort_t	i,
+		i2,
+		j,
+		iFi,
+		iR,
+		nFicell,
+		nHitsinTrack,
+		nRcell,
+		nRemainingHits,
+		nRmax,
+		nRmin,
+		auxIndex[nmaxHits],
+		Remaining[nmaxHits];
 
      Short_t iFi2;
 
@@ -6431,23 +6109,21 @@ void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_lef
 
 //   iSeed        is the hit number in the PARALLEL number scheme
 
-//cout<<" Nparal "<<Nparal<<",  NparallelToSearch "<<NparallelToSearch<<
-//", iSeed   "<<iSeed<< endl;
 //--------    the following initialization is essential for the algorithm to work
      for(i=0; i<Nparal; i++){
-       TemporaryExclusionList[ infoparal[i]  ]= false;
+       TemporaryInclusionList[ infoparal[i]  ]= false;
      }
 //-------------
 
      for(i2=0, nRemainingHits=0; i2<NparallelToSearch; i2++){
-        i=ListHitsinTrackinWhichToSearch[i2];
-        if( i != iSeed && ExclusionList[  infoparal[i]   ] ) {   //  exclusion of the parallel hit straws already used in other tracks
-                                                           //  remember the index of ExclusionList is in the ORIGINAL scheme of hits
-            TemporaryExclusionList[ infoparal[i]  ]= true;
-            Remaining[nRemainingHits]= i;   //  index of the PARALLEL hit
-            nRemainingHits++;
-        } 
-
+	i=ListHitsinTrackinWhichToSearch[i2];
+//  Inclusion of the parallel hit straws already used in other tracks;
+//  remember the index of InclusionList is in the ORIGINAL scheme of hits.
+	if( i != iSeed && InclusionList[  infoparal[i]   ] ) {
+		TemporaryInclusionList[ infoparal[i]  ]= true;
+		Remaining[nRemainingHits]= i;   //  index of the PARALLEL hit
+		nRemainingHits++;
+	}
      }
 
 
@@ -6457,58 +6133,52 @@ void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_lef
 
     nHitsinTrack=1;
     OutputListHitsinTrack[0]=  iSeed ;
-//cout<<"From PatterninBoxConformal -------------------- hit seed n. (orig.) "<<OutputListHitsinTrack[0]<<endl;
    i = 0;
    while( nRemainingHits > 0 &&  i < nHitsinTrack) {
 
     nRcell = RConformalIndex[   infoparal[  OutputListHitsinTrack[i] ]   ];
     nFicell = FiConformalIndex[  infoparal[  OutputListHitsinTrack[i]  ]  ];
-//cout<<"From PatterninBoxConformal HIT collezionatore ora ha nRcell e nFicell "<<nRcell<<",  "<< nFicell<<endl;
 
 //---------------
 
     if (nRcell - NRCELLDISTANCE < 0 ) {
       nRmin = 0;
     }  else {
-      nRmin = nRcell - NRCELLDISTANCE;
+	nRmin = nRcell - NRCELLDISTANCE;
     }
     if (nRcell + NRCELLDISTANCE >= nRdivConformalEffective ) {
-      nRmax = nRdivConformalEffective-1;
+	nRmax = nRdivConformalEffective-1;
     }  else {
-      nRmax = nRcell + NRCELLDISTANCE;
+	nRmax = nRcell + NRCELLDISTANCE;
     }
 
-//cout <<"    di conseguenza ora nRmin e  nRmax sono : "<<nRmin<<",  "<<nRmax<<endl;
-
     for( iR= nRmin ; iR<= nRmax ; iR++){
-      for( iFi2 = nFicell - NFiCELLDISTANCE ; iFi2<= nFicell + NFiCELLDISTANCE ; iFi2++){
-          if ( iFi2 < 0 )  {
-            iFi = nFidivConformal + iFi2;
-          } else if ( iFi2 >= nFidivConformal) {
-            iFi = iFi2  - nFidivConformal;
-          }  else {
-            iFi = iFi2;
-          }
-         for (j = 0; j< nBoxConformal[iR][iFi]; j++){
-          if( ExclusionList[  infoparal[  HitsinBoxConformal[j][iR][iFi]  ]  ]
-                                      &&
-              TemporaryExclusionList[   infoparal[  HitsinBoxConformal[j][iR][iFi]  ]   ]) {
-            OutputListHitsinTrack[nHitsinTrack]=HitsinBoxConformal[j][iR][iFi] ;   //  hit number in the PARALLEL straws scheme
-            nHitsinTrack++;
-            TemporaryExclusionList[ infoparal[  HitsinBoxConformal[j][iR][iFi]  ]  ]= false;
-            nRemainingHits--;
-          }
-         }
+      for( iFi2=nFicell-NFiCELLDISTANCE ; iFi2<=nFicell+NFiCELLDISTANCE;iFi2++){
+	if ( iFi2 < 0 )  {
+		iFi = nFidivConformal + iFi2;
+	} else if ( iFi2 >= nFidivConformal) {
+		iFi = iFi2  - nFidivConformal;
+	} else {
+		iFi = iFi2;
+	}
+	for (j = 0; j< nBoxConformal[iR][iFi]; j++){
+	 if( InclusionList[ infoparal[ HitsinBoxConformal[j][iR][iFi] ] ]
+				&&
+	    TemporaryInclusionList[ infoparal[ HitsinBoxConformal[j][iR][iFi] ] ]) {
+//  hit number in the PARALLEL straws scheme
+		OutputListHitsinTrack[nHitsinTrack]=HitsinBoxConformal[j][iR][iFi] ;
+		nHitsinTrack++;
+		TemporaryInclusionList[infoparal[HitsinBoxConformal[j][iR][iFi]]]
+			= false;
+		nRemainingHits--;
+	 }
+	}	// end of for (j = 0; j< nBoxConformal[iR][iFi]; j++)
       }
     }
 //----------------
     i++;
 
    }    //  end      while ( nRemainingHits > 0 && i < nHitsinTrack)
-
-
-
-
 
 
     return nHitsinTrack;
@@ -6531,7 +6201,7 @@ void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_lef
                                                   UShort_t iSeed,   //  seed track (parallel notation) as fa as the Fi angle is concerned
                                                   UShort_t NParallelToSearch,    //  n. of hits to search in ListHitsinTrackinWhichToSearch
                                                   UShort_t *ListHitsinTrackinWhichToSearch,
-                                                  bool ExclusionList[nmaxHits],
+                                                  bool InclusionList[nmaxHits],
                                                   UShort_t FiConformalIndex[nmaxHits],
                                                   UShort_t  *OutputListHitsinTrack
                                                                       )
@@ -6563,8 +6233,8 @@ if(istampa>=3 && IVOLTE <= nmassimo)cout<<"Da strictcollection, iFiseed "<<iFise
 
      nHitsinTrack=0;
      for(i=0; i<NParallelToSearch; i++){
-        if( ExclusionList[  infoparal[ ListHitsinTrackinWhichToSearch[i] ]   ] ) {   //  exclusion of the parallel hit straws already used in other tracks
-                                                           //  remember the index of ExclusionList is in the ORIGINAL scheme of hits
+        if( InclusionList[  infoparal[ ListHitsinTrackinWhichToSearch[i] ]   ] ) {   //  Inclusion of the parallel hit straws already used in other tracks
+                                                           //  remember the index of InclusionList is in the ORIGINAL scheme of hits
 
           iFi = FiConformalIndex[ infoparal[  ListHitsinTrackinWhichToSearch[i] ] ];
           if( iFi == iFiseed ) {
@@ -6593,7 +6263,7 @@ if(istampa>=3 && IVOLTE <= nmassimo)cout<<"Da strictcollection, iFiseed "<<iFise
 
           }   //  end of   if( iFi == iFiseed )
 
-        }    //  end of    if( ExclusionList[  infoparal[ ListHitsinTrackinWhichToSearch[i] ]   ] )
+        }    //  end of    if( InclusionList[  infoparal[ ListHitsinTrackinWhichToSearch[i] ]   ] )
 
      }   //  end of        for(i=0; i<NparallelToSearch; i++)
 
@@ -7175,7 +6845,7 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 
 
 
-
+   INTERO=1;
    if(istampa>=3 && IVOLTE <= nmassimo){
      sprintf(stringa,
               "/home/boca/panda/glpk/glpk-4.39/examples/glpsol --min -o soluztrack%dEvent%dstep%d    GeneralParallelHitsConformeTraccia%dEvent%d.mcs",
@@ -7565,6 +7235,7 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
 
 
    if(istampa>=3 && IVOLTE <= nmassimo){
+	INTERO=1;
      sprintf(stringa,
               "/home/boca/panda/glpk/glpk-4.39/examples/glpsol --min -o soluztrack%dEvent%dstep%d    GeneralParallelHitsConformeTraccia%dEvent%d.mcs",
                                 nTracksFoundSoFar,IVOLTE,INTERO,nTracksFoundSoFar,IVOLTE);
@@ -7735,7 +7406,7 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
 //----------begin of function PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixQuater
 
   UShort_t PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixQuater(
-		   bool ExclusionList[nmaxHits],
+		   bool InclusionList[nmaxHits],
                    Double_t m,
                    Double_t q,
                    Short_t Status,
@@ -7863,7 +7534,7 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
           if(  l2<0 || l2 >= nRdivConformalEffective )  continue;
               for( k=0;k<nBoxConformal[l2][i];k++){
                 nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l2][i]  ][3];
-		if( !ExclusionList[ nHit_original ] ) continue;
+		if( !InclusionList[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Ox+info[ nHit_original ][0];
                 dy = -Oy+info[ nHit_original ][1];
@@ -7897,7 +7568,7 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
              if(  l3<0 || l3 >= nRdivConformalEffective )  continue;
               for( k=0;k<nBoxConformal[l3][i2];k++){
                 nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l3][i2]  ][3];
-		if( !ExclusionList[ nHit_original ] ) continue;
+		if( !InclusionList[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Ox+info[ nHit_original ][0];
                 dy = -Oy+info[ nHit_original ][1];
@@ -7931,7 +7602,7 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
              if(  l3<0 || l3 >= nRdivConformalEffective )  continue;
               for( k=0;k<nBoxConformal[l3][i2];k++){
                 nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l3][i2]  ][3];
-		if( !ExclusionList[ nHit_original ] ) continue;
+		if( !InclusionList[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Ox+info[ nHit_original ][0];
                 dy = -Oy+info[ nHit_original ][1];
@@ -7984,7 +7655,7 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
         for(l=0; l<nRdivConformalEffective;l++){
               for( k=0;k<nBoxConformal[l][i];k++){
                 nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l][i]  ][3];
-		if( !ExclusionList[ nHit_original ] ) continue;
+		if( !InclusionList[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Ox+info[ nHit_original ][0];
                 dy = -Oy+info[ nHit_original ][1];
@@ -8106,7 +7777,7 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
                  for( l3=0;l3<nBoxConformal[k][l2];l3++){
                   if( ! Unselected[HitsinBoxConformal[l3][k][l2] ] )  continue;
                    nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[l3][k][l2]  ][3];
-		   if( !ExclusionList[ nHit_original ] ) continue;
+		   if( !InclusionList[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                    dx = -Ox+info[ nHit_original ][0];
                    dy = -Oy+info[ nHit_original ][1];
@@ -8152,7 +7823,7 @@ if( FFimax - FFimin > nFidivConformal/2 ) {
         for(l=0; l<nRdivConformalEffective;l++){
               for( k=0;k<nBoxConformal[l][i];k++){
                 nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l][i]  ][3];
-		if( !ExclusionList[ nHit_original ] ) continue;
+		if( !InclusionList[ nHit_original ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
                 dx = -Ox+info[ nHit_original ][0];
                 dy = -Oy+info[ nHit_original ][1];
@@ -8226,7 +7897,7 @@ if(istampa>=3) {
 //----------begin of function PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelix5
 
   UShort_t PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelix5(
-		bool ExclusionList[nmaxHits],
+		bool InclusionList[nmaxHits],
 		Int_t NhitsParallel,
 		Double_t Ox,
 		Double_t Oy,
@@ -8254,7 +7925,7 @@ if(istampa>=3) {
 
 
   for(i=0; i<NhitsParallel;i++){
-	if( !ExclusionList[ infoparal[i] ] ) continue;
+	if( !InclusionList[ infoparal[i] ] ) continue;
 // check if the hit position is near the circle of the Helix found by the fit
 
 
@@ -8313,8 +7984,6 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
                                                          Double_t  StrawConfR  // straw radius in conformal space
                                                       )
 {
-//if( IVOLTE==2 && ITRACCIA ==8) cout <<" fabs(distance-DriftConfR)  "<<fabs(distance-DriftConfR)<<
-//       ",   2.*StrawConfR  "<< 2.*StrawConfR<<endl;
      if(  fabs(distance-DriftConfR)  <   2.*StrawConfR )   return true;
      return false;
 
@@ -8353,7 +8022,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 //----------begin of function PndSttTrackFinderReal::AssociateSkewHitsToXYTrack
 
   UShort_t PndSttTrackFinderReal::AssociateSkewHitsToXYTrack(
-                   bool *ExclusionListSkew,
+                   bool *InclusionListSkew,
                    Double_t Ox,
                    Double_t Oy,
                    Double_t R,
@@ -8403,7 +8072,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
        for( iii=0; iii< NSkewhits; iii++) {
          i = infoskew[iii];
-         if( !ExclusionListSkew[i]) continue;
+         if( !InclusionListSkew[i]) continue;
 
 
          Kincl = (int) info[i][5] - 1;
@@ -10410,7 +10079,7 @@ cout<<"    j= "<<j<<", n. Hit in original numbering = "<<BigList[j]<<" e suo FI 
 					// the Stt detector maximum/minimum radius
 					// Fi_up_limit is ALWAYS > Fi_low_limit and
 					// possibly > 2PI.
-				Short_t * status,//it is a vector; =0, all well; =1,
+				Short_t * status,// *status =0, all well; =1,
 						// track contained completely between RMin
 						// and RMax; = -1 track contained within RMin;
 						// =-2 track outside RMax.
@@ -13512,7 +13181,404 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 }
 //----------end of function PndSttTrackFinderReal::OrderingUsingConformal
 
+//----------begin of function PndSttTrackFinderReal::FindTrackInXYProjection
 
+	bool PndSttTrackFinderReal::FindTrackInXYProjection(
+		UShort_t iHit,
+		UShort_t hittype,
+		Int_t *Minclinations,
+		Double_t info[nmaxHits][7],
+		bool *InclusionList,
+		UShort_t *RConformalIndex,
+		UShort_t *FiConformalIndex,
+		UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
+		UShort_t HitsinBoxConformal[MAXHITSINCELL][nRdivConformal][nFidivConformal],
+		UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
+		UShort_t nTracksFoundSoFar,
+		UShort_t *nHitsinTrack,
+		Double_t *trajectory_vertex,
+		Double_t infoparalConformal[nmaxHits][5],
+		Short_t *Status,
+		Double_t *m,
+		Double_t *q,
+		Double_t *ALFA,
+		Double_t *BETA,
+		Double_t *GAMMA,
+		bool *    TypeConf,
+		Double_t *Ox,
+		Double_t *Oy,
+		Double_t *R,
+		Double_t *Fi_low_limit,
+		Double_t *Fi_up_limit,
+		Double_t *Fi_initial_helix_referenceframe,
+		Double_t *Fi_final_helix_referenceframe,
+		Short_t * Charge,
+		Double_t U[MAXTRACKSPEREVENT][nmaxHits],
+		Double_t V[MAXTRACKSPEREVENT][nmaxHits]
+//		Double_t auxinfoparalConformal[nmaxHits][5]
+							)
+{
+
+//---------------
+
+ UShort_t	i,
+		j,
+		Naux,
+		Nbaux,
+		NN,
+		Nouter,
+		auxListHitsinTrack[nmaxHits],
+		OutputListHitsinTrack[nmaxHits],
+		OutputList2HitsinTrack[nmaxHits],
+		ListHitsinTrackinWhichToSearch[nmaxHits];
+
+ Short_t	flagStt;
+
+
+ Double_t	aaa,
+		rotationangle,
+		rotationcos,
+		rotationsin,
+		auxinfoparalConformal[nmaxHits][5];
+
+//----------------
+ nHitsinTrack[nTracksFoundSoFar] = PndSttFindTrackPatterninBoxConformal(
+	1,   //  distance in R cells allowed
+	2,   //  distance in Fi cells allowed
+	Minclinations[0],
+	iHit,
+	info,
+	InclusionList,
+	RConformalIndex,
+	FiConformalIndex,
+	nBoxConformal,
+	HitsinBoxConformal,
+	&ListHitsinTrack[nTracksFoundSoFar][0]
+			);
+ if( nHitsinTrack[nTracksFoundSoFar] < MINIMUMHITSPERTRACK ||
+	nHitsinTrack[nTracksFoundSoFar]>nmaxHitsInTrack) {
+	return false;
+ }
+//-----------------------
+
+//   find among the ListHitsinTrack  if there are at least
+//   a minimum # of hits belonging to the outer part of the STT  system.
+//   At this point of the code the Stt hits are already ordered from
+//   the outermost to the innermost.
+
+ for(j=0, Nouter =0; j<nHitsinTrack[nTracksFoundSoFar]; j++){
+  if(info[infoparal[ ListHitsinTrack[nTracksFoundSoFar][j] ]][0]*
+	info[infoparal[ ListHitsinTrack[nTracksFoundSoFar][j] ]][0]+
+	info[infoparal[ ListHitsinTrack[nTracksFoundSoFar][j] ]][1]*
+	info[infoparal[ ListHitsinTrack[nTracksFoundSoFar][j] ]][1]
+	< ApotemaMaxSkewStraw*ApotemaMaxSkewStraw  )   break;
+  Nouter++;
+ }
+
+ if( Nouter >= MINIMUMOUTERHITSPERTRACK) {
+	for(i=0; i< Nouter;i++){
+	  ListHitsinTrackinWhichToSearch[i]=
+		ListHitsinTrack[nTracksFoundSoFar][i];
+	}
+
+	for(i=0; i< Nouter;i++){
+	 Naux =  PndSttFindTrackPatterninBoxConformalSpecial(
+		3,    // NRCELLDISTANCE
+		1,    // NFiCELLDISTANCE
+		Minclinations[0],
+		Nouter,
+		ListHitsinTrackinWhichToSearch[i], // seed hit.
+		ListHitsinTrackinWhichToSearch,
+		info,
+		InclusionList,
+		RConformalIndex,
+		FiConformalIndex,
+		nBoxConformal,
+		HitsinBoxConformal,
+		OutputListHitsinTrack);
+	 if( Naux >= MINIMUMOUTERHITSPERTRACK && Naux > 0.7 * Nouter )  break;
+		 if( Naux >= MINIMUMOUTERHITSPERTRACK) {
+
+//   further collection of hits in the inner region but this time strictly connected
+//   to the outer ones
+
+//  first the list of non outer hits
+	   for(j=Nouter;j<nHitsinTrack[nTracksFoundSoFar]; j++){
+		ListHitsinTrackinWhichToSearch[j-Nouter] =
+			ListHitsinTrack[nTracksFoundSoFar][j];
+	   }
+
+	   Nbaux =  PndSttFindTrackStrictCollection(
+		1,    // NFiCELLDISTANCE
+		ListHitsinTrackinWhichToSearch[i],   //  seed hit
+		nHitsinTrack[nTracksFoundSoFar]-Nouter,
+		ListHitsinTrackinWhichToSearch,
+		InclusionList,
+		FiConformalIndex,
+		OutputList2HitsinTrack
+					);
+//   add the new hits found to the list
+
+	   nHitsinTrack[nTracksFoundSoFar]=Naux+Nbaux;
+	   if( nHitsinTrack[nTracksFoundSoFar] >= MINIMUMHITSPERTRACK &&
+		nHitsinTrack[nTracksFoundSoFar]<=nmaxHitsInTrack) {
+		for(j=0;j<Naux;j++){
+			ListHitsinTrack[nTracksFoundSoFar][j] =
+				OutputListHitsinTrack[j];
+		}
+		for(j=0;j<Nbaux;j++){
+			ListHitsinTrack[nTracksFoundSoFar][Naux+j] =
+				OutputList2HitsinTrack[j];
+		}
+		break;
+
+	   }// end of  if( nHitsinTrack[nTracksFoundSoFar] >= ....
+	 }  // end of  if( Naux >= MINIMUMOUTERHITSPERTRACK)
+	}   // end of for(i=0; i< Nouter;i++)
+ }    // end of if( Nouter >= MINIMUMOUTERHITSPERTRACK)
+
+
+
+ if( nHitsinTrack[nTracksFoundSoFar] < MINIMUMHITSPERTRACK ||
+  nHitsinTrack[nTracksFoundSoFar]>nmaxHitsInTrack) {
+	return false;
+ }
+
+//---------------------------
+
+//  finding the rotation angle for best utilization of the MILP procedure
+
+ for(j=0, rotationcos=0., rotationsin=0.; j<nHitsinTrack[nTracksFoundSoFar]; j++){
+	rotationcos += cos((0.5+
+	FiConformalIndex[infoparal[ListHitsinTrack[nTracksFoundSoFar][j]]])
+	*2.*PI/nFidivConformal) ;
+
+	rotationsin += sin((0.5+
+	FiConformalIndex[infoparal[ListHitsinTrack[nTracksFoundSoFar][j]]])
+	*2.*PI/nFidivConformal) ;
+ }
+ rotationcos /=nHitsinTrack[nTracksFoundSoFar];
+ rotationsin /=nHitsinTrack[nTracksFoundSoFar];
+ rotationangle = atan2(rotationsin, rotationcos);
+
+//  fitting with superfast MILP code
+
+//  first redefine the center of the conformal plane;
+//  it will be centered in the center of the  hit in the
+//  hit list with the LEAST drift radius; this hit has to
+//  be excluded from the fitting
+
+ for(j=0; j<nHitsinTrack[nTracksFoundSoFar]; j++){
+  for(i=0; i<5;i++){
+      auxinfoparalConformal[j][i] =
+	infoparalConformal[ ListHitsinTrack[nTracksFoundSoFar][j]][i];
+    }
+  }
+
+ Status[nTracksFoundSoFar] = PndSttFitHelixCylinder( 
+	nHitsinTrack[nTracksFoundSoFar],
+	auxinfoparalConformal,
+	nTracksFoundSoFar,
+	rotationangle,
+	trajectory_vertex,
+	NHITSINFIT,
+	&m[nTracksFoundSoFar],
+	&q[nTracksFoundSoFar],
+	ALFA,
+	BETA,
+	GAMMA,
+	TypeConf
+		);
+
+ if(Status[nTracksFoundSoFar] < 0  ) return false;
+
+
+
+//  this trasformation is valid even if the equation is a straight line from the fit
+
+ Ox[nTracksFoundSoFar]= -0.5*ALFA[nTracksFoundSoFar];
+ Oy[nTracksFoundSoFar]= -0.5*BETA[nTracksFoundSoFar];
+ R[nTracksFoundSoFar]= Ox[nTracksFoundSoFar]*Ox[nTracksFoundSoFar]+
+		Oy[nTracksFoundSoFar]*Oy[nTracksFoundSoFar]-
+		GAMMA[nTracksFoundSoFar];
+
+	// some obvious preliminary cuts
+ if( R[nTracksFoundSoFar] < 0. )  return false;
+ R[nTracksFoundSoFar]= sqrt( R[nTracksFoundSoFar] );
+ aaa = sqrt(Ox[nTracksFoundSoFar]*Ox[nTracksFoundSoFar]+
+		Oy[nTracksFoundSoFar]*Oy[nTracksFoundSoFar]);
+
+ // the following is because the circumference is supposed to come from (0,0);
+ //   here the factor 0.9 is used in order to be conservative.
+ if(aaa< 0.9*RadiusMinStrawDetector/2.) return false;
+
+//   here the factor 0.9 is used in order to be conservative.
+ if ( R[nTracksFoundSoFar] + aaa < RadiusMinStrawDetector *0.9 ) return false;
+
+//---------------------------
+
+//---------------------  better association of the hits in the track candidate
+// treat differently the case in which the track has radius < RStrawDetectorMax/2
+// and the other case.
+
+ if( R[nTracksFoundSoFar] < RStrawDetectorMax/2){
+	PndSttFindingParallelTrackAngularRange(
+		Ox[nTracksFoundSoFar],
+		Oy[nTracksFoundSoFar],
+		R[nTracksFoundSoFar],
+		1,  /// this is supposed to be the charge, irrelevant here if it is +1 or -1.
+		&Fi_low_limit[nTracksFoundSoFar],
+		&Fi_up_limit[nTracksFoundSoFar],
+		&flagStt,
+		RStrawDetectorMin,
+		RStrawDetectorMax
+		);
+
+	NN =  PndSttTrkAssociatedParallelHitsToHelix5(
+		InclusionList,
+		Minclinations[0],
+		Ox[nTracksFoundSoFar],
+		Oy[nTracksFoundSoFar],
+		R[nTracksFoundSoFar],
+		info,
+		Fi_low_limit[nTracksFoundSoFar],
+		Fi_up_limit[nTracksFoundSoFar],
+		auxListHitsinTrack              //  this is the output
+				);
+
+
+ }  else {
+
+	NN =  PndSttTrkAssociatedParallelHitsToHelixQuater(
+		InclusionList,
+		m[nTracksFoundSoFar],
+		q[nTracksFoundSoFar],
+		Status[nTracksFoundSoFar],
+		nHitsinTrack[nTracksFoundSoFar],
+		&ListHitsinTrack[nTracksFoundSoFar][0],
+		Minclinations[0],
+		Ox[nTracksFoundSoFar],
+		Oy[nTracksFoundSoFar],
+		R[nTracksFoundSoFar],
+		info,
+		infoparalConformal,
+		RConformalIndex,
+		FiConformalIndex,
+		nBoxConformal,
+		HitsinBoxConformal,
+		auxListHitsinTrack	//  this is the output
+			);
+ } // end of  if( R[nTracksFoundSoFar] < RStrawDetectorMax/2)
+
+ if( NN < MINIMUMHITSPERTRACK || NN>nmaxHitsInTrack) return false;
+
+ nHitsinTrack[nTracksFoundSoFar]=NN;
+
+ for(i=0; i<nHitsinTrack[nTracksFoundSoFar];i++){
+	ListHitsinTrack[nTracksFoundSoFar][i]=auxListHitsinTrack[i];
+ }
+
+
+
+//----------------------------- Finding the Charge
+	// The charge is calculated first by dividing the hits in two categories by using the Perpendicular
+	// to the tangent to the trajectory in (0,0). Then simply the majority of the hits decides the
+	// sign of the  charge. See Gianluigi's Logbook page 290.
+
+
+	FindCharge(
+		Ox[nTracksFoundSoFar],
+		Oy[nTracksFoundSoFar],
+		info,
+		nHitsinTrack[nTracksFoundSoFar],
+		&ListHitsinTrack[nTracksFoundSoFar][0],
+		infoparal,
+		&Charge[nTracksFoundSoFar]
+		);
+
+
+//----------------------------- Ordering.
+	// The ordering reflects the angle Fi in the Helix reference frame because
+	// the hits are ordered by going around the trajectory cclockwise for
+	// positive tracks or counterclockwise for negative particles; in other words
+	//  it is not used simply the distance of the hit from (0,0) as ordering parameter
+	//  but the track length of the circle.
+	// this method finds also Fi_initial_helix_referenceframe and Fi_final_helix_referenceframe.
+	// The former is simply the fi angle of the point (0,0) with respect to the center
+	// of this Helix. Important : this angle has to be > 0 always and it is between 0. and
+	// 2 PI here (later,  FixDiscontinuitiesFiangleinSZplane may change it adding +2PI or
+	// -2PI if necessary).
+	// Fi_final_helix_referenceframe is made such that  it is < Fi_initial_helix_referenceframe
+	// when the track is  positive, and it is > Fi_initial_helix_referenceframe for negative
+	// tracks.
+
+ PndSttOrderingParallel(
+		Ox[nTracksFoundSoFar],
+		Oy[nTracksFoundSoFar],
+		info,
+		nHitsinTrack[nTracksFoundSoFar],
+		&ListHitsinTrack[nTracksFoundSoFar][0],
+		infoparal,
+		Charge[nTracksFoundSoFar],
+		&Fi_initial_helix_referenceframe[nTracksFoundSoFar],//output
+		&Fi_final_helix_referenceframe[nTracksFoundSoFar],// output
+		&U[nTracksFoundSoFar][0],
+		&V[nTracksFoundSoFar][0]
+			);
+
+//   finding the FI angular range (in the laboratory frame) spanned by this parallel track
+
+ PndSttFindingParallelTrackAngularRange(
+		Ox[nTracksFoundSoFar],
+		Oy[nTracksFoundSoFar],
+		R[nTracksFoundSoFar],
+		Charge[nTracksFoundSoFar],
+		&Fi_low_limit[nTracksFoundSoFar],
+		&Fi_up_limit[nTracksFoundSoFar],
+		&flagStt,
+		RStrawDetectorMin,
+		RStrawDetectorMax
+					);
+
+
+	if( flagStt == -2 ) return false;	// track outside cylinder RStrawDetectorMax.
+	if( flagStt == -1 ) return false;	// track inside cylinder RStrawDetectorMin.
+	if( flagStt ==  1 ) return false;	// track comprised in cylinder : discard,
+					// because at this stage only tracks from
+					// vertex are searched.
+
+
+
+//--------------------------------------------------    macro for display
+
+ for(j=0; j<nHitsinTrack[nTracksFoundSoFar]; j++){
+  for(i=0; i<5;i++){
+      auxinfoparalConformal[j][i] =
+	infoparalConformal[ ListHitsinTrack[nTracksFoundSoFar][j]][i];
+    }
+  }
+
+
+if(iplotta && IVOLTE <= nmassimo){
+        WriteMacroParallelHitsConformalwithMCspecial(
+                   nHitsinTrack[nTracksFoundSoFar],
+                   auxinfoparalConformal,
+                   nTracksFoundSoFar,
+                   ALFA,
+                   BETA,
+                   GAMMA,
+                   Status[nTracksFoundSoFar],
+		   trajectory_vertex
+                                                     );
+}
+
+
+//----------------------------------- end macro for display
+
+	return true;
+};
+
+//----------end of function PndSttTrackFinderReal::FindTrackInXYProjection
 
 ClassImp(PndSttTrackFinderReal)
 
