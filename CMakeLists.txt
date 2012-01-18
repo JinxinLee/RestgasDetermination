@@ -174,6 +174,7 @@ add_subdirectory (fsim)
 add_subdirectory(rho)
 
 FIND_PATH(TEvePath NAMES TEveEventManager.h PATHS
+  ${SIMPATH}/tools/root/include
   ${SIMPATH}/include/root
   NO_DEFAULT_PATH
 )
