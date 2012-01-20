@@ -53,7 +53,7 @@
   corr->SetInputBranch2("FTSTrkIdeal");
   corr->SetInputIDBranch2("FTSTrkIdealID");
   //corr->SetDebugMode(kTRUE);
-  corr->SetFast(kTRUE);
+  //corr->SetFast(kTRUE);
   fRun->AddTask(corr);
  
   PndPidIdealAssociatorTask *assMC= new PndPidIdealAssociatorTask();
