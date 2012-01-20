@@ -12,18 +12,9 @@ using std::endl;
 
 
 // -----   Default constructor   -------------------------------------------
-PndDrcPDPoint::PndDrcPDPoint() {
-  // fTrackID    = -1;
-  //fCopyNo = -1;
-  //fX          = fY  = fZ =  0.;
-  //fPx         = fPy = fPz = 0.;
-  //fTime       =  0.;
-  //fLength     =  0.;
-  //fELoss      =  0.;
-  fPdgCode      = 0;
-  fEventID      = 0;
-  //  fNBar         = 0;
-
+PndDrcPDPoint::PndDrcPDPoint() 
+:FairMCPoint() 
+{
 }
 // -------------------------------------------------------------------------
 
@@ -31,19 +22,11 @@ PndDrcPDPoint::PndDrcPDPoint() {
 
 // -----   Standard constructor   ------------------------------------------
 PndDrcPDPoint::PndDrcPDPoint(Int_t trackID, Int_t detID, TVector3 pos, 
-			       TVector3 mom, Double_t tof, Double_t length, Int_t pdgCode, Int_t eventID) {
-  fTrackID    = trackID;
-  fDetectorID = detID;
-  fX          = pos.X();
-  fY          = pos.Y();
-  fZ          = pos.Z();
-  fPx         = mom.Px();
-  fPy         = mom.Py();
-  fPz         = mom.Pz();
-  fTime       = tof;
-  fLength     = length;
-  fPdgCode    = pdgCode; 
-  fEventID    = eventID;
+			       TVector3 mom, Double_t tof, Double_t length, Int_t pdgCode, Int_t eventID)
+  :FairMCPoint(trackID,detID,pos,mom, tof, length, 0.0, (UInt_t) eventID),
+  fPdgCode(pdgCode) 
+ {
+ 
  }
 // -------------------------------------------------------------------------
 
