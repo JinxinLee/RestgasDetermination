@@ -18,8 +18,8 @@ public:
   PndDrcHit();
 
   PndDrcHit(Int_t detID, 
-	    TVector3 pos, 
-	    TVector3 dpos,
+	    TVector3& pos, 
+	    TVector3& dpos,
 	    Double_t thetaC,
 	    Double_t errThetaC,
 	    Int_t index); 
@@ -48,7 +48,6 @@ public:
   
 //  TVector3 fmom;
   Double_t fThetaC, fErrThetaC;
-  Int_t fRefIndex;
   
   ClassDef(PndDrcHit,1)
 };

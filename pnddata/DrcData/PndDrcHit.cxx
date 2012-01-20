@@ -12,9 +12,11 @@ using std::endl;
 #include "PndDrcHit.h"
 
 // -----   Default constructor   -------------------------------------------
-PndDrcHit::PndDrcHit(){
-  fThetaC = -999.;
-  fErrThetaC = -999.;
+PndDrcHit::PndDrcHit()
+  :FairHit(),
+  fThetaC(-999.),
+  fErrThetaC(-999.)
+{ 
 }
 // -------------------------------------------------------------------------
 
@@ -22,21 +24,15 @@ PndDrcHit::PndDrcHit(){
 // -----   Standard constructor   ------------------------------------------
 
 PndDrcHit::PndDrcHit(Int_t detID, 
-		     TVector3 pos, 
-		     TVector3 dpos,
+		     TVector3& pos, 
+		     TVector3& dpos,
 		     Double_t thetaC,
 		     Double_t errThetaC,
-		     Int_t index){
-  fDetectorID = detID;
-  fX          = pos.X();
-  fY          = pos.Y();
-  fZ          = pos.Z();
-  fDx         = dpos.Px();
-  fDy         = dpos.Py();
-  fDz         = dpos.Pz();
-  fThetaC     = thetaC;
-  fErrThetaC  = errThetaC;
-  fRefIndex   = index;
+		     Int_t index)
+  :FairHit(detID, pos, dpos, index), 
+  fThetaC    (thetaC),
+  fErrThetaC (errThetaC)
+{  
 }
 
 // -----   Destructor   ----------------------------------------------------
