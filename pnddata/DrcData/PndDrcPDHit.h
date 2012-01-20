@@ -18,8 +18,8 @@ public:
   PndDrcPDHit();
 
   PndDrcPDHit(Int_t detID, 
-	    TVector3 pos, 
-	    TVector3 dpos,
+	    TVector3& pos, 
+	    TVector3& dpos,
 	    Double_t time,
 	    Double_t timeThreshold,
 	    Int_t index); 
@@ -47,8 +47,7 @@ public:
   
 //  TVector3 fmom;
   Double_t fTime,  fTimeThreshold;
-  Int_t fRefIndex;
-  
+   
   ClassDef(PndDrcPDHit,1)
 };
 

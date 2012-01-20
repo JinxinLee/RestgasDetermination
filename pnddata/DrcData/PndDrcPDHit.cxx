@@ -12,9 +12,11 @@ using std::endl;
 #include "PndDrcPDHit.h"
 
 // -----   Default constructor   -------------------------------------------
-PndDrcPDHit::PndDrcPDHit(){
-  fTime = -999.;
-  fTimeThreshold = -999.;
+PndDrcPDHit::PndDrcPDHit()
+  :FairHit(),
+  fTime(-999.),
+  fTimeThreshold(-999.)
+{  
 }
 // -------------------------------------------------------------------------
 
@@ -22,21 +24,15 @@ PndDrcPDHit::PndDrcPDHit(){
 // -----   Standard constructor   ------------------------------------------
 
 PndDrcPDHit::PndDrcPDHit(Int_t detID, 
-		     TVector3 pos, 
-		     TVector3 dpos,
+		     TVector3& pos, 
+		     TVector3& dpos,
 		     Double_t time,
 		     Double_t timeThreshold,
-		     Int_t index){
-  fDetectorID = detID;
-  fX          = pos.X();
-  fY          = pos.Y();
-  fZ          = pos.Z();
-  fDx         = dpos.Px();
-  fDy         = dpos.Py();
-  fDz         = dpos.Pz();
-  fTime       = time;
-  fTimeThreshold  = timeThreshold;
-  fRefIndex   = index;
+		     Int_t index)
+  :FairHit(detID, pos, dpos, index),  
+  fTime       (time),
+  fTimeThreshold (timeThreshold)
+{    
 }
 
 // -----   Destructor   ----------------------------------------------------
