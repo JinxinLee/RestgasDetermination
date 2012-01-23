@@ -33,9 +33,6 @@ rootlogon()
   if(isLibrary("libtrackrep"))gSystem->Load("libtrackrep");
   if(isLibrary("libgenfitAdapters"))gSystem->Load("libgenfitAdapters");
   if(isLibrary("libriemann"))gSystem->Load("libriemann");
-//  if(isLibrary("libTpcBase"))gSystem->Load("libTpcBase"); 
-//  if(isLibrary("libTpc"))gSystem->Load("libTpc"); 
-//  if(isLibrary("libTpcReco"))gSystem->Load("libTpcReco");
   if(isLibrary("libStt"))gSystem->Load("libStt");
   if(isLibrary("libSttReco"))gSystem->Load("libSttReco");
   if(isLibrary("libSds"))gSystem->Load("libSds");

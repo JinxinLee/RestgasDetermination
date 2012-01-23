@@ -4,8 +4,6 @@
 #include "PndTrackID.h"
 
 #include "FairRunAna.h"
-#include "PndTpcPoint.h"
-#include "PndTpcCluster.h"
 #include "PndSttPoint.h"
 #include "PndSttHit.h"
 #include "PndSttHelixHit.h"
@@ -73,11 +71,6 @@ InitStatus PndMCTrackEnumAssociator::Init() {
     return kERROR;
   }
   
-  fTpcInput   = (TClonesArray *)fManager->GetObject("PndTpcCluster");
-  if ( ! fTpcInput ) 
-  {
-    cout << "-W- PndMCTrackEnumAssociator::Init: No TpcCluster array" << endl;
-  }
   
   fSttHitInput   = (TClonesArray *)fManager->GetObject("STTHit");
   if ( ! fSttHitInput ) 
@@ -188,20 +181,6 @@ Int_t PndMCTrackEnumAssociator::GetMvdHitStrips(Int_t index)
   }
 }
 
-//_________________________________________________________________
-Int_t PndMCTrackEnumAssociator::GetTpcClusters(Int_t index)
-{
-  // Taking points from PndTpcCluster
-  
-  PndTpcCluster* clu = (PndTpcCluster*) fTpcInput->At(index);
-  if (!clu)
-  {
-    cout << "-E- PndMCTrackEnumAssociator::GetTpcClusters: TpcCluster #" << index << " does not exist!!!" << endl;
-    return -1;
-  }
-
-  return (clu->mcId().DominantID().mctrackID());
-} 
 
 //_________________________________________________________________
 Int_t PndMCTrackEnumAssociator::GetSttHits(Int_t index)
@@ -298,7 +277,6 @@ void PndMCTrackEnumAssociator::Exec(Option_t * option)
 	    {
 	      if ((candHit.GetDetId()==kMVDHitsPixel) && fMvdMCArray &&  fMvdPixelHitArray) trackID = GetMvdHitPixels(candHit.GetHitId());
 	      if ((candHit.GetDetId()==kMVDHitsStrip) && fMvdMCArray &&  fMvdStripHitArray) trackID = GetMvdHitStrips(candHit.GetHitId());
-	      if ((candHit.GetDetId()==kTpcCluster) && fTpcInput) trackID = GetTpcClusters(candHit.GetHitId());
 	      if ((candHit.GetDetId()==kSttHit) && fSttHitInput) trackID = GetSttHits(candHit.GetHitId());
 	      if ((candHit.GetDetId()==kGemHit) && fGemMCArray && fGemInput) trackID = GetGemHits(candHit.GetHitId());
 	      if ((candHit.GetDetId()==kFtsHit) && fFtsMCArray && fFtsInput) trackID = GetFtsHits(candHit.GetHitId());

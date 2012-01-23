@@ -32,7 +32,6 @@ class PndMCTrackEnumAssociator : public FairTask {
   
   Int_t GetMvdHitPixels(Int_t index);     // from the MVD pixel index retrns the Pndrack index
   Int_t GetMvdHitStrips(Int_t index);     // from the MVD strip hit index retrns the Pndrack index
-  Int_t GetTpcClusters(Int_t index);     // from the TPC cluster index retrns the Pndrack index
   Int_t GetSttHits(Int_t index);     // from the STT hit index retrns the Pndrack index
   Int_t GetGemHits(Int_t index);     // from the GEM hit index retrns the Pndrack index
   Int_t GetFtsHits(Int_t index);     // from the FTS hit index retrns the Pndrack index

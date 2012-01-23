@@ -51,7 +51,6 @@ protected:
   TClonesArray *fPixPointList; //!
   TClonesArray *fStripPointList; //!
   TClonesArray *fTrackCandList; //!
-  TClonesArray *fTpcClusterList; //!
   TClonesArray *fSttHelixList; //!
   TClonesArray *fGemHitList; //!
 

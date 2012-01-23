@@ -11,10 +11,8 @@ ${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/PndTools/generalTools 
 ${CMAKE_SOURCE_DIR}/field 
 ${CMAKE_SOURCE_DIR}/trackbase 
-${CMAKE_SOURCE_DIR}/mcstack
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/genfit
-${CMAKE_SOURCE_DIR}/tpc
 ${CMAKE_SOURCE_DIR}/lhetrack
 ${CMAKE_SOURCE_DIR}/eventdisplay
 ${CMAKE_SOURCE_DIR}/pnddata
@@ -38,7 +36,6 @@ link_directories( ${LINK_DIRECTORIES})
 set(PNDEVEDISP_SRCS
 PndTrackCandDraw.cxx
 PndTrackDraw.cxx
-PndTPCRecoPointDraw.cxx
 PndSttMCPointDraw.cxx
 PndMvdDigiPixelDraw.cxx
 )
