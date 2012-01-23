@@ -59,6 +59,7 @@ run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t s
   fRun->AddModule(Dipole);
 
   FairModule *Pipe= new PndPipe("PIPE");
+  //Pipe->SetGeometryFileName("beampipe_201112.root");
   fRun->AddModule(Pipe);
 
   FairDetector *Stt= new PndStt("STT", kTRUE);
@@ -70,9 +71,13 @@ run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t s
   fRun->AddModule(Mvd);
 
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
-  Emc->SetGeometryVersion(2); 
+  Emc->SetGeometryVersion(1); 
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
+
+  FairDetector *SciT = new PndSciT("SCIT",kTRUE);
+  SciT->SetGeometryFileName("SciTil_Barrel_woPCB.root");
+  fRun->AddModule(SciT);
 
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
   Muo->SetBarrel("fast");
@@ -93,13 +98,17 @@ run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t s
   fRun->AddModule(Dsk);
 
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-  Drc->SetGeometryFileName("dirc_l0_p0.root");
+  Drc->SetGeometryFileName("dirc_l0_p0_updated.root");
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc);
  
   FairDetector *Fts= new PndFts("FTS", kTRUE);
   Fts->SetGeometryFileName("fts.geo");
   fRun->AddModule(Fts);
+
+  FairDetector *FTof = new PndFtof("FTOF",kTRUE);
+  FTof->SetGeometryFileName("ftofwall.root");
+  fRun->AddModule(FTof);
  
   // Create and Set Event Generator
   //-------------------------------
