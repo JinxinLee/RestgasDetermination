@@ -7,7 +7,7 @@
 //  Probability density functions from E/p distributions
 //
 // Created: 01-04-11
-// Modified:
+// Modified: 16-01-12 New formalism including moments
 //
 // **************************************************************************
 
@@ -18,6 +18,7 @@
 
 class PndPidCandidate;
 class PndPidProbability;
+class TH2D;
 
 class PndPidEmcBayesAssociatorTask : public FairTask {
   
@@ -31,31 +32,19 @@ class PndPidEmcBayesAssociatorTask : public FairTask {
 
 //  Float_t GetPdf(Float_t thetaC, Float_t mom, Float_t emc, Int_t charge);
   void GetPdf(Float_t pp1, Float_t th1, Float_t ph1, 
-              Float_t z20, Float_t z53, Float_t EP1, 
+              Float_t z20, Float_t z53, Float_t LAT, Float_t EP1, 
               Int_t charge, Float_t *proba);
 
 // variables used
   Int_t                 fNvar[6];      // nr of bins in p, th, ph, varx, vary, EP
   Int_t                 fNbins;        // total number of bins 
-  TF1                   *fPDF[11][100];
+  TH2D                  *fBayesEP[10];
+  TH2D                  *fBayesTH[10];
+  TH2D                  *fBayesZZ[10];
   TString               fDirectory[10];
 
-  Double_t              fitParam[11][20][100]; 
-  Double_t              fitChi2[11][100];
-  Double_t              fitScale[11][100];
-  Double_t              fitRange[11][2][100];
-  Double_t              fitCenter[11][5][100];   // p,th,ph, varx, vary
-
   Int_t                 fevcounter;
-/*
-  Int_t                 fImod;         // transform Z20 and Z53 if larger than 0 
-  Double_t              fRange[6][2];  // variable ranges
-  Double_t              fdRange[6];    // variable ranges
 
-  TH1D                  *fitelec[11][100];
-  TF1                   *funelec[11][100];
-  TF1                   *ffit;
-*/
  public:
   
   virtual void Exec(Option_t * option);

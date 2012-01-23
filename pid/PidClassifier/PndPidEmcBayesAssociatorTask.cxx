@@ -4,6 +4,7 @@
 #include "FairRootManager.h"
 #include "TMath.h"
 #include "TF1.h"
+#include "TH2.h"
 #include "Riostream.h"
 
 
@@ -32,7 +33,7 @@ InitStatus PndPidEmcBayesAssociatorTask::Init() {
   
   std::cout << "InitStatus PndPidEmcBayesAssociatorTask::Init()" << std::endl;
   
-  FairRootManager *fManager =FairRootManager::Instance();	
+  FairRootManager *fManager =FairRootManager::Instance();        
 
   fPidChargedCand = (TClonesArray *)fManager->GetObject("PidChargedCand");
   if ( ! fPidChargedCand) {
@@ -44,8 +45,8 @@ InitStatus PndPidEmcBayesAssociatorTask::Init() {
 
   fevcounter=0;
 
-  SetupEnvironment((char *)"ProbaEMC110407.dat");   // prepare the pdf files
-  std::cout << "-I- PndPidEmcBayesAssociatorTask::Init: Success!" << std::endl;
+  SetupEnvironment((char *)"BayesEMC.root");   // read back of the files
+  std::cout << "-I- PndPidEmcBayesAssociatorTask::Init: Success!!" << std::endl;
   
   return kSUCCESS;
 }
@@ -57,108 +58,49 @@ void PndPidEmcBayesAssociatorTask::SetupEnvironment(char *filename) {
   fPath += "/macro/params/";
   TString fullName = fPath + filename;
   printf("-I- PndPidEmcBayesAssociatorTask::SetupEnvironment:File used=%s",filename);
-  fDirectory[0]= "elec_pos";
-  fDirectory[1]= "muon_pos";
-  fDirectory[2]= "pion_pos"; 
-  fDirectory[3]= "kaon_pos";
-  fDirectory[4]= "prot_pos";
-  fDirectory[5]= "elec_neg";
-  fDirectory[6]= "muon_neg";
-  fDirectory[7]= "pion_neg";  
-  fDirectory[8]= "kaon_neg";
-  fDirectory[9]= "prot_neg";  
+      TFile* hfile1 = new TFile (fullName);
 
-  FILE *in;
-  in = fopen(fullName,"r");
+      fBayesEP[0] = (TH2D*)hfile1->Get("p.v.EP_proba_elecSpos");
+      fBayesTH[0] = (TH2D*)hfile1->Get("p.v.LAT_proba_elecSpos");
+      fBayesZZ[0] = (TH2D*)hfile1->Get("p.v.Z53_proba_elecSpos");
 
-// Loop over particles
-  int Nbins,dum0,dum1,dum2,dum3,dum4,kip;
-  float fdum0,fdum1,fdum2,fdum3,fdum4,fdum5;
-  double ddum0,ddum1,ddum2,ddum3,ddum4,ddum5;
+      fBayesEP[1] = (TH2D*)hfile1->Get("p.v.EP_proba_muonSpos");
+      fBayesTH[1] = (TH2D*)hfile1->Get("p.v.LAT_proba_muonSpos");
+      fBayesZZ[1] = (TH2D*)hfile1->Get("p.v.Z53_proba_muonSpos");
 
-  fscanf(in,"%d %d %d %d %d %d \n",&Nbins,&dum0,&dum1,&dum2,&dum3,&dum4);
-  fNbins=Nbins;
-  fNvar[0]=dum0;
-  fNvar[1]=dum1;
-  fNvar[2]=dum2;
-  fNvar[3]=dum3;
-  fNvar[4]=dum4;
-  fNvar[5]=1;
-  
-  if(fVerbose>1) {
-    printf("********************************************\n");
-    printf("%d %d %d %d %d %d %d\n",fNbins,fNvar[0],fNvar[1],fNvar[2],
-                                           fNvar[3],fNvar[4],fNvar[5]
-         );
-  }
+      fBayesEP[2] = (TH2D*)hfile1->Get("p.v.EP_proba_pionSpos");
+      fBayesTH[2] = (TH2D*)hfile1->Get("p.v.LAT_proba_pionSpos");
+      fBayesZZ[2] = (TH2D*)hfile1->Get("p.v.Z53_proba_pionSpos");
 
-  char histfunction[40];
+      fBayesEP[3] = (TH2D*)hfile1->Get("p.v.EP_proba_kaonSpos");
+      fBayesTH[3] = (TH2D*)hfile1->Get("p.v.LAT_proba_kaonSpos");
+      fBayesZZ[3] = (TH2D*)hfile1->Get("p.v.Z53_proba_kaonSpos");
 
-// loop over particle sets
-  for (Int_t ip=0; ip<10 ; ip++){
-    fscanf(in,"%d\n",&kip);
+      fBayesEP[4] = (TH2D*)hfile1->Get("p.v.EP_proba_protSpos");
+      fBayesTH[4] = (TH2D*)hfile1->Get("p.v.LAT_proba_protSpos");
+      fBayesZZ[4] = (TH2D*)hfile1->Get("p.v.Z53_proba_protSpos");
 
-// loop over functions
-    for (Int_t k=0; k<fNbins ; k++){
-      fscanf(in,"%d %f %f %f %f %f\n",&kip,&fdum0,&fdum1,&fdum2,&fdum3,&fdum4);
-      fitCenter[ip][0][k]=fdum0;
-      fitCenter[ip][1][k]=fdum1;
-      fitCenter[ip][2][k]=fdum2;
-      fitCenter[ip][3][k]=fdum3;
-      fitCenter[ip][4][k]=fdum4;
+      fBayesEP[5] = (TH2D*)hfile1->Get("p.v.EP_proba_elecSneg");
+      fBayesTH[5] = (TH2D*)hfile1->Get("p.v.LAT_proba_elecSneg");
+      fBayesZZ[5] = (TH2D*)hfile1->Get("p.v.Z53_proba_elecSneg");
 
-      fscanf(in,"%e %f %f %f\n",&fdum0,&fdum1,&fdum2,&fdum3);
-      fitChi2[ip][k]=fdum0;
-      fitScale[ip][k]=fdum1;
-      fitRange[ip][0][k]=fdum2;
-      fitRange[ip][1][k]=fdum3;
+      fBayesEP[6] = (TH2D*)hfile1->Get("p.v.EP_proba_muonSneg");
+      fBayesTH[6] = (TH2D*)hfile1->Get("p.v.LAT_proba_muonSneg");
+      fBayesZZ[6] = (TH2D*)hfile1->Get("p.v.Z53_proba_muonSneg");
 
-      fscanf(in,"%e %f %f %f %f %f\n",&fdum0,&fdum1,&fdum2,&fdum3,&fdum4,&fdum5);
-      fitParam[ip][0][k]=fdum0;
-      fitParam[ip][1][k]=fdum1;
-      fitParam[ip][2][k]=fdum2;
-      fitParam[ip][3][k]=fdum3;
-      fitParam[ip][4][k]=fdum4;
-      fitParam[ip][5][k]=fdum5;
+      fBayesEP[7] = (TH2D*)hfile1->Get("p.v.EP_proba_pionSneg");
+      fBayesTH[7] = (TH2D*)hfile1->Get("p.v.LAT_proba_pionSneg");
+      fBayesZZ[7] = (TH2D*)hfile1->Get("p.v.Z53_proba_pionSneg");
 
-      fscanf(in,"%e %f %f %f %f %f\n",&fdum0,&fdum1,&fdum2,&fdum3,&fdum4,&fdum5);
-      fitParam[ip][6][k]=fdum0;
-      fitParam[ip][7][k]=fdum1;
-      fitParam[ip][8][k]=fdum2;
-      fitParam[ip][9][k]=fdum3;
-      fitParam[ip][10][k]=fdum4;
-      fitParam[ip][11][k]=fdum5;
+      fBayesEP[8] = (TH2D*)hfile1->Get("p.v.EP_proba_kaonSneg");
+      fBayesTH[8] = (TH2D*)hfile1->Get("p.v.LAT_proba_kaonSneg");
+      fBayesZZ[8] = (TH2D*)hfile1->Get("p.v.Z53_proba_kaonSneg");
 
-      if(fVerbose>1) {
-        printf("%d %10.4f %10.4f %10.4f %10.4f %10.4f\n",
-         k,fitCenter[ip][0][k],fitCenter[ip][1][k],
-         fitCenter[ip][2][k],fitCenter[ip][3][k],fitCenter[ip][4][k]
-        );
-        printf("%10.4e %10.4f %10.4f %10.4f\n",
-         fitChi2[ip][k],fitScale[ip][k],fitRange[ip][0][k],fitRange[ip][1][k]
-        );
-        printf("%10.4e %10.4e %10.4e %10.4e %10.4e %10.4e\n",
-         fitParam[ip][0][k],fitParam[ip][1][k],fitParam[ip][2][k],
-         fitParam[ip][3][k],fitParam[ip][4][k],fitParam[ip][5][k]
-        );
-        printf("%10.4e %10.4e %10.4e %10.4e %10.4e %10.4e\n",
-         fitParam[ip][6][k],fitParam[ip][7][k],fitParam[ip][8][k],
-         fitParam[ip][9][k],fitParam[ip][10][k],fitParam[ip][11][k]
-        );
-      }
-      
-      TString aline="fPDF_"+fDirectory[ip];
-      aline+="_";
-      aline+=k;
-      fPDF[ip][k]= new TF1(aline,"pol5(0)+gaus(6)+gaus(9)",fitRange[ip][0][k],fitRange[ip][1][k]);
-      if(fVerbose>1)  std::cout << "defined fPDF: " << aline << std::endl;
-      for (Int_t ib=0; ib<12 ; ib++){
-          Double_t paramk = fitParam[ip][ib][k];
-          fPDF[ip][k]->SetParameter(ib,paramk);
-      }
-    }
-  }
-  
+      fBayesEP[9] = (TH2D*)hfile1->Get("p.v.EP_proba_protSneg");
+      fBayesTH[9] = (TH2D*)hfile1->Get("p.v.LAT_proba_protSneg");
+      fBayesZZ[9] = (TH2D*)hfile1->Get("p.v.Z53_proba_protSneg");
+
+
 }
 //______________________________________________________
 void PndPidEmcBayesAssociatorTask::SetParContainers() {
@@ -193,11 +135,11 @@ void PndPidEmcBayesAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidPr
    Float_t emc          = pidcand->GetEmcRawEnergy();
    Float_t z20          = pidcand->GetEmcClusterZ20();
    Float_t z53          = pidcand->GetEmcClusterZ53();
-
+   Float_t lat          = pidcand->GetClusterLat();
    TLorentzVector pidTrack = pidcand->GetLorentzVector();
-  	 Float_t pidx   = pidTrack.Px(); 
-  	 Float_t pidy   = pidTrack.Py(); 
-  	 Float_t pidz   = pidTrack.Pz(); 
+           Float_t pidx   = pidTrack.Px(); 
+           Float_t pidy   = pidTrack.Py(); 
+           Float_t pidz   = pidTrack.Pz(); 
    Float_t pidth  = radeg*pidTrack.Theta(); 
    Float_t pidph  = radeg*pidTrack.Phi(); 
     
@@ -206,7 +148,7 @@ void PndPidEmcBayesAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidPr
 
 // Get the probabilities
    Float_t proba[5];
-   GetPdf(pidp,pidth,pidph,z20,z53,EP,Charge,proba);
+   GetPdf(pidp,pidth,pidph,z20,z53,lat,EP,Charge,proba);
    if(fVerbose>1) {
          std::cout <<" proba in Pidmatch: " << proba[0] << " ";
          std::cout << proba[1] << " " << proba[2] << " ";
@@ -241,64 +183,95 @@ void PndPidEmcBayesAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidPr
 }  
 
 void PndPidEmcBayesAssociatorTask::GetPdf(Float_t ppin, Float_t thin, Float_t phin, 
-                                          Float_t z20in, Float_t z53in, Float_t EPin, 
+                                          Float_t z20in, Float_t z53in, Float_t LATin, Float_t EPin,
                                           Int_t charge, Float_t *proba)
 {
-   Float_t lRange[6]={0.2,  5,-180, 0, 0.4, 0};
-   Float_t uRange[6]={5  ,140, 180, 3, 4.8, 2};
-   Int_t nRange[6]  ={14 ,  7,   1, 1,   1,120};
-   
+// variables: pp,th,ph, z20, z53, LAT, E/P
+   Float_t lRange[7]={0.2,  5,-180, 0, 0, 0, 0};
+   Float_t uRange[7]={10  ,140, 180, 4, 5, 6, 2};
+   Int_t nRange[7]  ={14 ,  7,   1, 1,   1,120};
+   Float_t rangePconst0= 4.2318;  // Two constants to ajust the momenta 
+   Float_t rangePconst1= 5.7682;  // calculated from the nominal range
+    
    Float_t pp  = ppin;
    Float_t th  = thin;
    Float_t ph  = phin;
    Float_t Z20 = z20in;
    Float_t Z53 = z53in;
+   Float_t LAT = LATin;
    Float_t EP  = EPin;
+   if(fVerbose>1) std::cout << "ppin: " << pp  << std::endl;
 
 // trafo that spreads out the parameters
+   pp  = rangePconst0 + rangePconst1 * TMath::Log10(ppin);
    Z20 = -TMath::Log10(1-z20in);
    Z53 = -TMath::Log10(z53in);
-   pp  = 2.6 + 3.4336 * TMath::Log10(ppin);  
+   LAT = -TMath::Log10(LATin);
+   if(fVerbose>1) std::cout << "pp: " << pp  << std::endl;
+
+// if the values are outside the range, get them back in
+       Float_t pplook=ppin;
+
+       if(pplook<lRange[0]) pplook=1.0001*lRange[0]; 
+       if(pplook>uRange[0]) pplook=0.9999*uRange[0]; 
+       if(th    <lRange[1]) th    =1.0001*lRange[1]; 
+       if(th    >uRange[1]) th    =0.9999*uRange[1]; 
+       if(ph    <lRange[2]) ph    =1.0001*lRange[2]; 
+       if(ph    >uRange[2]) ph    =0.9999*uRange[2]; 
+       if(Z20   <lRange[3]) Z20   =1.0001*lRange[3]; 
+       if(Z20   >uRange[3]) Z20   =0.9999*uRange[3]; 
+       if(Z53   <lRange[4]) Z53   =1.0001*lRange[4]; 
+       if(Z53   >uRange[4]) Z53   =0.9999*uRange[4]; 
+       if(LAT   <lRange[5]) LAT   =1.0001*lRange[5]; 
+       if(LAT   >uRange[5]) LAT   =0.9999*uRange[5]; 
+       if(EP    <lRange[6]) EP    =1.0001*lRange[6]; 
+       if(EP    >uRange[6]) EP    =0.9999*uRange[6]; 
+   if(fVerbose>1) std::cout << "pplook: " << pplook  << std::endl;
+
+// Get the bins in the histograms
+       Int_t binxP = (fBayesEP[0]->GetXaxis())->FindBin(pplook);
+       Int_t binyP = (fBayesEP[0]->GetYaxis())->FindBin(EP);
+       Int_t binxT = (fBayesTH[0]->GetXaxis())->FindBin(pplook);
+       Int_t binyT = (fBayesTH[0]->GetYaxis())->FindBin(LAT);
+       Int_t binxZ = (fBayesZZ[0]->GetXaxis())->FindBin(pplook);
+       Int_t binyZ = (fBayesZZ[0]->GetYaxis())->FindBin(Z53);
+       Double_t PBayesE[5];
+       Double_t PBayesL[5];
+       Double_t PBayesZ[5];
+       Double_t PBayesB[5];
+
+       if(fVerbose>1) {
+           std::cout << "pp: " << pp << " EP " << EP << std::endl;
+           std::cout << "probas: ";
+       }
+
+
+       Float_t probasum=0; // used for normalisation
    
-   Float_t sum=0;  // used for normalisation
-
-// cuts used in the tables reproduced here
-   if(pp>=lRange[0] && pp<=uRange[0] && 
-      th>=lRange[1] && th<=uRange[1] &&
-      ph>=lRange[2] && ph<=uRange[2] &&
-      Z20>=lRange[3] && Z20<=uRange[3] &&
-      Z53>=lRange[4] && Z53<=uRange[4] &&
-      EP>=lRange[5] && EP<=uRange[5]) {
-
-      Int_t ipp   = (int) (fNvar[0]*(pp  -lRange[0])/(uRange[0]-lRange[0]));
-      Int_t ith   = (int) (fNvar[1]*(th  -lRange[1])/(uRange[1]-lRange[1]));
-//   Int_t iph   = (int) (fNvar[2]*(ph  -lRange[2])/(uRange[2]-lRange[2]));
-
-      Int_t ifinal = fNvar[2]*(ith+fNvar[1]*ipp);
-
-      for (Int_t k=0; k<5 ; k++){
-        proba[k]=0;
-        if(charge>0) {
-         if(EP>fitRange[k][0][ifinal] && EP<fitRange[k][1][ifinal]) {
-          proba[k]=fPDF[k][ifinal]->Eval(EP,0,0);
-          proba[k]/=fitScale[k][ifinal]; 
-          if(proba[k]<0)  proba[k]=0;
+       for (Int_t k=0; k<5; k++){
+         if(charge>0) {
+           PBayesE[k]=fBayesEP[k]->GetBinContent(binxP,binyP);
+           PBayesL[k]=fBayesTH[k]->GetBinContent(binxT,binyT);
+           PBayesZ[k]=fBayesZZ[k]->GetBinContent(binxZ,binyZ);
+           PBayesB[k]=PBayesE[k]*PBayesL[k]*PBayesZ[k];
+           probasum+=PBayesB[k];
+         } else {
+           PBayesE[k]=fBayesEP[k+5]->GetBinContent(binxP,binyP);
+           PBayesL[k]=fBayesTH[k+5]->GetBinContent(binxT,binyT);
+           PBayesZ[k]=fBayesZZ[k+5]->GetBinContent(binxZ,binyZ);
+           PBayesB[k]=PBayesE[k]*PBayesL[k]*PBayesZ[k];
+           probasum+=PBayesB[k];
          }
-        } else {
-         if(EP>fitRange[k+5][0][ifinal] && EP<fitRange[k+5][1][ifinal]) {
-          proba[k]=fPDF[k+5][ifinal]->Eval(EP,0,0);
-          proba[k]/=fitScale[k+5][ifinal]; 
-          if(proba[k]<0)  proba[k]=0;
-         }
-        }
-        sum+=proba[k];
+         PBayesB[k]=PBayesE[k]*PBayesL[k]*PBayesZ[k]/
+                 (1-PBayesE[k])*(1-PBayesL[k])*(1-PBayesZ[k]);
+         if(fVerbose>1)  std::cout << PBayesZ[k] << " ";
       }
-   }
+
 
 // Normalise the probabilities to one
    for (Int_t k=0; k<5 ; k++){
-     if(sum>0) {
-       proba[k]/=sum;
+     if(probasum>0) {
+       proba[k]=PBayesB[k]/(1+PBayesB[k]);
      } else {
        proba[k]=0.2;
      }
