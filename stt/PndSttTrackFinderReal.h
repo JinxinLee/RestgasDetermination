@@ -91,29 +91,30 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
 #define maximumTracks 50
-      static const UShort_t
-            nmaxHits = 1000, // max hits total.
-            nmaxSciTHits = 200, // max SciTil hits total.
+ static const UShort_t
+	nmaxHits = 1000, // max hits total.
 	nmaxHitsInTrack=60,
-            MAXMCTRACKS=10000,
-            MAXTRACKSPEREVENT=maximumTracks,
-	    MAXHITSINCELL=50,
-            nmaxinclinationversors=20,
-            nAdmittedRadia = 3,
-            nbinCX=100,
-            nbinCY = 100,
-            nbinZ = 100,
-            nbinR = 100,
-            nbinD = 250,
-            nbinFi= 250,
-            nbinKAPPA = 200,
-            nbinFI0 = 200,
-            MINIMUMCOUNTSDFiR = 18,
-            MINIMUMCOUNTSKAPPAFI0 = 5,
-            MAXElementsOverThresholdinHough = 500,
-            nRdivConformal =10,
-            NHITSINFIT=15,
-            DELTAnR = 2;   //  defines the range of nR in PndSttTrkAssociatedParallelHitsToHelixBis
+	nmaxSciTilHits = 200, // max SciTil hits total.
+	nmaxSciTilHitsInTrack = 2, // max SciTil hits in one track.
+	MAXMCTRACKS=10000,
+	MAXTRACKSPEREVENT=maximumTracks,
+	MAXHITSINCELL=50,
+	nmaxinclinationversors=20,
+	nAdmittedRadia = 3,
+	nbinCX=100,
+	nbinCY = 100,
+	nbinZ = 100,
+	nbinR = 100,
+	nbinD = 250,
+	nbinFi= 250,
+	nbinKAPPA = 200,
+	nbinFI0 = 200,
+	MINIMUMCOUNTSDFiR = 18,
+	MINIMUMCOUNTSKAPPAFI0 = 5,
+	MAXElementsOverThresholdinHough = 500,
+	nRdivConformal =10,
+	NHITSINFIT=15,
+	DELTAnR = 2;   //  defines the range of nR in PndSttTrkAssociatedParallelHitsToHelixBis
 
 #define RadiusMinStrawDetector 16.119
 #define DiameterStrawTube  1.
@@ -142,6 +143,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                DELTA_D=2.,
                DELTA_KAPPA=0.03,
                DELTA_FI0= 0.3,
+	RMAXSCITIL = 50.,
                BFIELD=2.,  // in Tesla
                CVEL = 2.99792;  //  velocity of light
 	static const bool YesClean = false;
@@ -158,7 +160,10 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                stepKAPPA,
                stepFI0,
                stepfineKAPPA,
-               stepfineFI0;
+               stepfineFI0,
+		ALFA[MAXTRACKSPEREVENT],
+		BETA[MAXTRACKSPEREVENT],
+		GAMMA[MAXTRACKSPEREVENT];
 
 
       static const int TIMEOUT=60;  // timeout in seconds for the GLPK fitting.
@@ -167,8 +172,11 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
       int IVOLTE, ntimes, INTERO,
           N_INTENDED;
-//  Double_t SEMILENGTH_STRAIGHT = 75.;
-      bool  iplotta, doMcComparison ;
+
+ bool	iplotta,
+	doMcComparison,
+	TypeConf[MAXTRACKSPEREVENT];
+
       int istampa ;
 
       static const int  nmassimo=50;
@@ -189,13 +197,13 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
     Double_t veritaMC[nmaxHits][3];
     UShort_t
               nHitsInMCTrack[MAXTRACKSPEREVENT],
-              nSkewHitsInMCTrack[MAXTRACKSPEREVENT];
+              nSttSkewhitInMCTrack[MAXTRACKSPEREVENT];
 
 
   UShort_t nRdivConformalEffective,
            MINIMUMHITSPERTRACK,
            MINIMUMOUTERHITSPERTRACK,
-           NSkewhits,
+           nSttSkewhit,
 		nSciTHits,
            infoparal[nmaxHits],
            infoskew[nmaxHits];
@@ -281,7 +289,9 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 			UShort_t NRCELLDISTANCE,
 			UShort_t NFiCELLDISTANCE,
 			UShort_t Nparal,
-			UShort_t ihit,
+			UShort_t ihit, // seed hit;
+			UShort_t nRcell, // R cell of the seed hit;
+			UShort_t nFicell, // Fi cell of the seed hit;
 			Double_t info[][7],
 			bool Exclusion_List[nmaxHits],
 			UShort_t RConformalIndex[nmaxHits],
@@ -328,11 +338,12 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                           Double_t *trajectory_vertex,
                           UShort_t NMAX,
                           Double_t *m,
-                          Double_t *q,
-                          Double_t * ALFA,
-                          Double_t * BETA,
-                          Double_t * GAMMA,
-                          bool *TypeConf
+                          Double_t *q
+//			  ,
+//                          Double_t * ALFA,
+//                          Double_t * BETA,
+//                          Double_t * GAMMA,
+//                          bool *TypeConf
                           );
 
 
@@ -342,11 +353,12 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                           UShort_t  nTracksFoundSoFar,
                           Double_t rotationangle,
                           Double_t *trajectory_vertex,
-                          UShort_t NMAX,
-                          Double_t * ALFA,
-                          Double_t * BETA,
-                          Double_t * GAMMA,
-                          bool *TypeConf
+                          UShort_t NMAX
+//			  ,
+//                          Double_t * ALFA,
+//                          Double_t * BETA,
+//                          Double_t * GAMMA,
+//                          bool *TypeConf
                           );
 
   Short_t PndSttFitSZspace(
@@ -361,7 +373,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                           );
 
   Short_t PndSttFitSZspacebis(
-                          UShort_t nSkewHitsinTrack,
+                          UShort_t nSttSkewhitinTrack,
                           Double_t *S,
                           Double_t *Z,
                           Double_t *DriftRadius,
@@ -495,19 +507,19 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		     Int_t Minclinations[],
 		     Double_t inclination[][3],
 		   UShort_t nSciTilHits,
-		   Double_t posizSciTil[nmaxSciTHits][3],
-                   UShort_t nTracksFoundSoFar,
-                   bool *TypeConf,
-                   Double_t *ALFA, Double_t *BETA, Double_t *GAMMA
+		   Double_t posizSciTil[nmaxSciTilHits][3],
+                   UShort_t nTracksFoundSoFar
                                                      );
 
   void WriteMacroParallelHitsGeneralConformalwithMC(
 		bool * keepit,
-                   Int_t Nhits, Double_t info[][7], Int_t Nincl,
-		    Int_t Minclinations[], Double_t inclination[][3],
-                   UShort_t nTracksFoundSoFar,
-                   bool *TypeConf,
-                   Double_t *ALFA, Double_t *BETA, Double_t *GAMMA
+                   Int_t Nhits, Double_t info[][7],
+		   Int_t Nincl,
+		    Int_t Minclinations[],
+		     Double_t inclination[][3],
+		   UShort_t nSciTilHits,
+		   Double_t posizSciTil[nmaxSciTilHits][3],
+                   UShort_t nTracksFoundSoFar
                                                      );
 
 
@@ -516,9 +528,9 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                    Int_t Nhits,
                    Double_t auxinfoparalConformal[][5],
                    UShort_t nTracksFoundSoFar,
-                   Double_t *ALFA,
-                   Double_t * BETA,
-                   Double_t * GAMMA,
+//                   Double_t *ALFA,
+//                   Double_t * BETA,
+//                   Double_t * GAMMA,
                    Short_t Status, Double_t *trajectory_vertex
                                                      );
 
@@ -538,7 +550,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                    Double_t inclination[][3],
                    Int_t imaxima,
 		   Int_t sequentialNTrack,
-                   UShort_t nSkewHitsinTrack,
+                   UShort_t nSttSkewhitinTrack,
                    UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack]
 
                                                      );
@@ -557,7 +569,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                    Double_t inclination[][3],
                    Int_t imaxima,
 		   Int_t sequentialNTrack,
-                   UShort_t nSkewHitsinTrack,
+                   UShort_t nSttSkewhitinTrack,
                    UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
                    UShort_t nSkewCommon,
                    UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxHits],
@@ -590,7 +602,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                                                      );
 
   UShort_t AssociateBetterAfterFitSkewHitsToXYTrack(
-                   UShort_t TemporarynSkewHitsinTrack,
+                   UShort_t TemporarynSttSkewhitinTrack,
                    UShort_t SkewList[nmaxHits][2], // input,  list of selected skew hits (in skew numbering)
                    Double_t *S,       //  input,  S coordinate of selected Skew hit
                    Double_t *Z,       //  input,  Z coordinate of selected Skew hit
@@ -617,7 +629,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                                                      Double_t info[][7],
                                                      UShort_t nParallelHits,
                                                      UShort_t *ListParallelHits,
-                                                     UShort_t nSkewHits,
+                                                     UShort_t nSttSkewhit,
                                                      UShort_t *ListSkewHits,
                                                      Double_t *S,
                                                      UShort_t *infoparal,
@@ -646,7 +658,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 			Double_t oX,
 			Double_t oY,
 			Double_t Rr,
-			UShort_t nSkewHits,
+			UShort_t nSttSkewhit,
 			UShort_t *ListSkewHits,
 			Double_t *SList,
 			Short_t  Charge,
@@ -664,7 +676,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                                                      Double_t info[][7],
                                                      UShort_t nParallelHits,
                                                      UShort_t *ListParallelHits,
-                                                     UShort_t nSkewHits,
+                                                     UShort_t nSttSkewhit,
                                                      UShort_t *ListSkewHits,
                                                      Double_t *S,
                                                      UShort_t *Infoparal,
@@ -694,7 +706,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
       void WriteMacroParallelHitswithRfromMC(
                    Int_t Nhits, Double_t info[][7],
                    UShort_t nTracksFoundSoFar,
-                   bool *TypeConf,
+//                   bool *TypeConf,
                    Double_t *Ox,
                    Double_t *Oy,
                    Short_t * daParTrackFoundaTrackMC
@@ -717,7 +729,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                   UShort_t nTracksFoundSoFar,
                   UShort_t *nHitsinTrack,
                   UShort_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
-                  UShort_t *nSkewHitsinTrack,
+                  UShort_t *nSttSkewhitinTrack,
                   UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
                   Short_t daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
 				);
@@ -729,7 +741,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                   UShort_t nTracksFoundSoFar,
                   UShort_t nHitsinTrack[MAXTRACKSPEREVENT],
                   UShort_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
-                  UShort_t nSkewHitsinTrack[MAXTRACKSPEREVENT],
+                  UShort_t nSttSkewhitinTrack[MAXTRACKSPEREVENT],
                   UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
                   Short_t daTrackFoundaTrackMC[MAXTRACKSPEREVENT]
 					);
@@ -763,7 +775,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                             );
 
   void FixDiscontinuitiesFiangleinSZplane(
-                          UShort_t TemporarynSkewHitsinTrack,
+                          UShort_t TemporarynSttSkewhitinTrack,
                           Double_t *S,
                           Double_t *Fi_initial_helix_referenceframe,
                           Short_t Charge
@@ -1122,6 +1134,8 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 	bool FindTrackInXYProjection(
 		UShort_t iHit,
+		UShort_t nRcell,  // R cell of the seed hit;
+		UShort_t nFicell, // Fi cell of the seed hit;
 		UShort_t hittype,
 		Int_t *Minclinations,
 		Double_t info[nmaxHits][7],
@@ -1135,13 +1149,13 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		UShort_t *nHitsinTrack,
 		Double_t *trajectory_vertex,
 		Double_t infoparalConformal[nmaxHits][5],
-		Short_t *Status,
-		Double_t *m,
-		Double_t *q,
-		Double_t *ALFA,
-		Double_t *BETA,
-		Double_t *GAMMA,
-		bool *    TypeConf,
+//		Short_t *Status,
+//		Double_t *m,
+//		Double_t *q,
+//		Double_t *ALFA,
+//		Double_t *BETA,
+//		Double_t *GAMMA,
+//		bool *    TypeConf,
 		Double_t *Ox,
 		Double_t *Oy,
 		Double_t *R,
