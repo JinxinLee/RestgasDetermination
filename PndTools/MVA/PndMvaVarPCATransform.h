@@ -28,8 +28,8 @@ class PndMvaVarPCATransform
 {
  public:
   //! Constructor
-  PndMvaVarPCATransform();
-
+  explicit PndMvaVarPCATransform();
+  
   //! Destructor.
   virtual ~PndMvaVarPCATransform();
   

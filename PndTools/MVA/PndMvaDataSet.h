@@ -57,7 +57,7 @@ typedef enum {
 class PndMvaDataSetException: public std::exception
 {
  public:
- PndMvaDataSetException()
+ explicit PndMvaDataSetException()
    : m_message("UNKNOWN_MvaDataSetException")
     {};
   
@@ -98,10 +98,10 @@ class PndMvaDataSet
    * Note: The data from "InputEvtsParam" is copied into the internal
    * container. Use with caution in case of large data sets.
    */
-  PndMvaDataSet( std::vector< std::pair<std::string, std::vector<float>*> > const& InputEvtsParam,
-		 std::vector<std::string> const& classNames,
-		 std::vector<std::string> const& varNames,
-		 AppType type);
+  explicit PndMvaDataSet( std::vector< std::pair<std::string, std::vector<float>*> > const& InputEvtsParam,
+			  std::vector<std::string> const& classNames,
+			  std::vector<std::string> const& varNames,
+			  AppType type);
   /**
    * Constructor.
    *@param inputFilename  Input File name.
@@ -109,10 +109,10 @@ class PndMvaDataSet
    *@param varNames       Available variable names.
    *@param type           Application Type.
    */
-  PndMvaDataSet( std::string const& WeightFile,
-		 std::vector<std::string> const& classNames,
-		 std::vector<std::string> const& varNames,
-		 AppType type);
+  explicit PndMvaDataSet( std::string const& WeightFile,
+			  std::vector<std::string> const& classNames,
+			  std::vector<std::string> const& varNames,
+			  AppType type);
   
   //! Destructor
   virtual ~PndMvaDataSet();

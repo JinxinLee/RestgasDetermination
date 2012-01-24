@@ -42,20 +42,20 @@ class PndLVQTrain: public PndMvaTrainer
    * @param ClassNames class names.
    * @param VarNames variable names of the features.
    */
-  PndLVQTrain(std::vector< std::pair<std::string, std::vector<float>* > > const& InputEvtsParam,
-	      std::vector<std::string> const& ClassNames, 
-	      std::vector<std::string> const& VarNames,
-	      bool trim = false);
+  explicit PndLVQTrain(std::vector< std::pair<std::string, std::vector<float>* > > const& InputEvtsParam,
+		       std::vector<std::string> const& ClassNames, 
+		       std::vector<std::string> const& VarNames,
+		       bool trim = false);
   /**
    * Constructor:
    * @param InPut: Input file name.
    * @param ClassNames: class names.
    * @param VarNames: variable names of the features.
    */
-  PndLVQTrain(std::string const& InPut,
-	      std::vector<std::string> const& ClassNames, 
-	      std::vector<std::string> const& VarNames,
-	      bool trim = true);
+  explicit PndLVQTrain(std::string const& InPut,
+		       std::vector<std::string> const& ClassNames, 
+		       std::vector<std::string> const& VarNames,
+		       bool trim = true);
   /**
    * Destructor
    */

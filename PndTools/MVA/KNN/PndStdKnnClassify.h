@@ -29,9 +29,9 @@ class PndStdKnnClassify : public PndMvaClassifier
    * @param varNames: Variable names from which the feature vector is
    * built.
    */
-  PndStdKnnClassify(std::string const& inputFile,
-		    std::vector<std::string> const& classNames, 
-		    std::vector<std::string> const& varNames);
+  explicit PndStdKnnClassify(std::string const& inputFile,
+			     std::vector<std::string> const& classNames, 
+			     std::vector<std::string> const& varNames);
 
   //! Destructor  
   virtual ~PndStdKnnClassify();

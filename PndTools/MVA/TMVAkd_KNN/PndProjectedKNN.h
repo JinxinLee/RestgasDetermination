@@ -16,10 +16,10 @@ class PndProjectedKNN: public PndMvaClassifier
 {
  public:
   //! Constructor
-  PndProjectedKNN(std::string const& inputFile,
-		  std::vector<std::string> const& classNames,
-		  std::vector<std::string> const& varNames,
-		  std::vector< std::vector<std::string> > const& varCombinations);
+  explicit PndProjectedKNN(std::string const& inputFile,
+			   std::vector<std::string> const& classNames,
+			   std::vector<std::string> const& varNames,
+			   std::vector< std::vector<std::string> > const& varCombinations);
   //! Destructor
   virtual ~PndProjectedKNN();
 
@@ -31,18 +31,18 @@ class PndProjectedKNN: public PndMvaClassifier
   std::string* Classify(std::vector<float> EvtData);
 
   //! Set params
-  inline void SetEvtParam(const float scFact, const double weight);
+  inline void SetEvtParam(float const scFact, double const weight);
   
   //! Set number of neighbors
-  inline void SetKnn(const unsigned int val);
+  inline void SetKnn(unsigned int const val);
 
   //! Init classifiers
   void InitKNN();
 
  private:
   //! to avoid mistakes.
-  PndProjectedKNN(const PndProjectedKNN& other);
-  PndProjectedKNN& operator= (const PndProjectedKNN& other);
+  PndProjectedKNN( PndProjectedKNN const& other);
+  PndProjectedKNN& operator= ( PndProjectedKNN const& other);
   
   // Free allocated memory.
   void destroy();
@@ -58,13 +58,13 @@ class PndProjectedKNN: public PndMvaClassifier
 };
 //End, class interface
 
-inline void PndProjectedKNN::SetEvtParam(const float scFact, const double weight)
+inline void PndProjectedKNN::SetEvtParam(float const scFact, double const weight)
 {
   m_ScaleFact = scFact;
   m_weight = weight;
 };
 
-inline void PndProjectedKNN::SetKnn(const unsigned int val)
+inline void PndProjectedKNN::SetKnn(unsigned int const val)
 {
   m_knn = val;
 };

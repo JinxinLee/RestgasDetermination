@@ -37,10 +37,10 @@ class PndMultiClassBdtTrain : public PndMvaTrainer
    *@param VarNames  The name of the involved variables(features).
    *@param trim If the data set needs to be trimmed.
    */
-  PndMultiClassBdtTrain(std::string const& InPut,
-			 std::vector<std::string> const& ClassNames, 
-			 std::vector<std::string> const& VarNames,
-			 bool trim = true);
+  explicit PndMultiClassBdtTrain(std::string const& InPut,
+				 std::vector<std::string> const& ClassNames, 
+				 std::vector<std::string> const& VarNames,
+				 bool trim = true);
   /**
    * Destructor.
    */

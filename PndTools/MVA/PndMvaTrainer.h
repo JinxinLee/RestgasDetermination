@@ -41,10 +41,10 @@ class PndMvaTrainer
    *@param ClassNames Names of available labels(classes).
    *@param VarNames Names of available variables.
    */
-  PndMvaTrainer(std::vector< std::pair<std::string, std::vector<float>*> > const& InputEvtsParam,
-		std::vector<std::string> const& ClassNames,
-		std::vector<std::string> const& VarNames,
-		bool trim = true);
+  explicit PndMvaTrainer(std::vector< std::pair<std::string, std::vector<float>*> > const& InputEvtsParam,
+			 std::vector<std::string> const& ClassNames,
+			 std::vector<std::string> const& VarNames,
+			 bool trim = true);
 
   /**
    * Constructor.
@@ -52,10 +52,10 @@ class PndMvaTrainer
    *@param ClassNames Names of available classes.
    *@param VarNames Names of available variables.
    */
-  PndMvaTrainer(std::string const& InPut,
-		std::vector<std::string> const& ClassNames,
-		std::vector<std::string> const& VarNames,
-		bool trim = true);
+  explicit PndMvaTrainer(std::string const& InPut,
+			 std::vector<std::string> const& ClassNames,
+			 std::vector<std::string> const& VarNames,
+			 bool trim = true);
 
   //! Destructor
   virtual ~PndMvaTrainer();

@@ -34,9 +34,9 @@ class PndMultiClassBdtClassify : public PndMvaClassifier
    *@param classNames Labels of the classes to be used.
    *@param varNames  The name of the involved variables(features).
    */
-  PndMultiClassBdtClassify(std::string const& inputFile,
-			   std::vector<std::string> const& classNames, 
-			   std::vector<std::string> const& varNames);
+  explicit PndMultiClassBdtClassify(std::string const& inputFile,
+				    std::vector<std::string> const& classNames, 
+				    std::vector<std::string> const& varNames);
   /**
    * Destructor.
    */

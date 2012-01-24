@@ -26,9 +26,9 @@ class PndLVQClassify: public PndMvaClassifier
    * @param classNames: class names.
    * @param varNames: variable names of the features.
    */
-  PndLVQClassify(std::string const& inputFile,
-		 std::vector<std::string> const& classNames, 
-		 std::vector<std::string> const& varNames);
+  explicit PndLVQClassify(std::string const& inputFile,
+			  std::vector<std::string> const& classNames, 
+			  std::vector<std::string> const& varNames);
   /**
    * Destructor
    */
@@ -48,7 +48,7 @@ class PndLVQClassify: public PndMvaClassifier
    *@return The name of the class to which the current pattern is assigned.
    */
   std::string* Classify(std::vector<float> EvtData);
-
+  
  private:
   //! To avoid mistakes (No deep copy)
   PndLVQClassify(PndLVQClassify const& other);

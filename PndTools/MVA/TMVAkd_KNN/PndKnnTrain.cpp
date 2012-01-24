@@ -14,9 +14,9 @@
  * @param ClassNames: Class Names.
  * @param VarNames: Variable names creating the feature vector.
  */
-PndKnnTrain::PndKnnTrain(const std::string& inputFile, 
-			 const std::vector<std::string>& ClassNames, 
-			 const std::vector<std::string>& VarNames,
+PndKnnTrain::PndKnnTrain(std::string const& inputFile, 
+			 std::vector<std::string> const& ClassNames, 
+			 std::vector<std::string> const& VarNames,
 			 bool trim)
   : PndMvaTrainer(inputFile, ClassNames, VarNames, trim)
 {}

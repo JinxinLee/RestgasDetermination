@@ -37,10 +37,10 @@ class PndMultiClassMlpTrain : public PndMvaTrainer
    *@param VarNames  The name of the involved variables(features).
    *@param trim If the data set needs to be trimmed.
    */
-  PndMultiClassMlpTrain(std::string const& InPut,
-			std::vector<std::string> const& ClassNames, 
-			std::vector<std::string> const& VarNames,
-			bool trim = true);
+  explicit PndMultiClassMlpTrain(std::string const& InPut,
+				 std::vector<std::string> const& ClassNames, 
+				 std::vector<std::string> const& VarNames,
+				 bool trim = true);
   /**
    * Destructor.
    */
@@ -50,7 +50,7 @@ class PndMultiClassMlpTrain : public PndMvaTrainer
    * Train the classifier.
    */
   void Train();
-
+  
   /**
    * Store weights in the output File. If output file name is not
    * specified, then write nothing.

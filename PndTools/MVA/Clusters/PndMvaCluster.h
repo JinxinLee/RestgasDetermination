@@ -39,7 +39,7 @@ class PndMvaCluster
    *@param InputData Input Data points.
    *@param nCluster  Number of clusters to be created.
    */
-  PndMvaCluster( ClDataSample const& InputData, unsigned int nCluster);
+  explicit PndMvaCluster( ClDataSample const& InputData, unsigned int nCluster);
   
   /**
    * Destructor.

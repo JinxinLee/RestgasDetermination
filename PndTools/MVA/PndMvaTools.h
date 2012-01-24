@@ -45,10 +45,10 @@ struct ClassifierOutPuts
    *@param sgVal  Classifier output for each signal.
    *@param bgVal  Classifier output for each background.
    */
-ClassifierOutPuts(std::string const& Rlabel,
-		  std::string const& Glabel,
-		  float sgVal, float bgVal, float p)
-: realLabel(Rlabel),
+  explicit ClassifierOutPuts(std::string const& Rlabel,
+			     std::string const& Glabel,
+			     float sgVal, float bgVal, float p)
+  : realLabel(Rlabel),
     givenLabel(Glabel),
     sgValue(sgVal),
     bgValue(bgVal),
@@ -115,7 +115,7 @@ private:
 struct ROCPoints
 {
   // Constructors
-  ROCPoints()
+  explicit ROCPoints()
     : FP_rate(0.0),
       TP_rate(0.0),
       TN_rate(0.0),
@@ -137,11 +137,11 @@ struct ROCPoints
    *@param ntn True negatief.
    *@param curThr Current treshold value.
    */
-  ROCPoints(float  const fpr, float  const tpr,
-	    float  const tnr, float  const fnr,
-	    size_t const nfp, size_t const ntp,
-	    size_t const nfn, size_t const ntn,
-	    float const curThr)
+  explicit ROCPoints(float  const fpr, float  const tpr,
+		     float  const tnr, float  const fnr,
+		     size_t const nfp, size_t const ntp,
+		     size_t const nfn, size_t const ntn,
+		     float const curThr)
     : FP_rate(fpr),
       TP_rate(tpr),
       TN_rate(tnr),

@@ -21,10 +21,10 @@ class PndKnnTrain : public PndMvaTrainer
    * trained.
    * @param VarNames: Variable names creating the feature vector.
    */
-  PndKnnTrain(std::string const& InputFile,
-	      std::vector<std::string> const& ClassNames, 
-	      std::vector<std::string> const& VarNames,
-	      bool trim = true);
+  explicit PndKnnTrain(std::string const& InputFile,
+		       std::vector<std::string> const& ClassNames, 
+		       std::vector<std::string> const& VarNames,
+		       bool trim = true);
   /**
    * Class destructor.
    */
@@ -43,8 +43,8 @@ class PndKnnTrain : public PndMvaTrainer
 
  private:
   //! To avoid mistakes
-  PndKnnTrain(const PndKnnTrain& other);
-  PndKnnTrain& operator=(const PndKnnTrain& other);
+  PndKnnTrain( PndKnnTrain const& other);
+  PndKnnTrain& operator=( PndKnnTrain const& other);
 };
 //end of interface definition
 #endif

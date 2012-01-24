@@ -32,11 +32,11 @@ StepError()
    *@param MisClsTest  Mis-classified test events per label.
    *@param MisClsTrain Mis-classified train events per label.
    */
-StepError(size_t step, float trErr, float tsErr,
-	  std::map <std::string, float> const& MisClsTest,
-	  std::map <std::string, float> const& MisClsTrain
-	  )
-: m_step(step), m_trErr(trErr), m_tsErr(tsErr),
+  explicit StepError(size_t step, float trErr, float tsErr,
+		     std::map <std::string, float> const& MisClsTest,
+		     std::map <std::string, float> const& MisClsTrain
+		     )
+  : m_step(step), m_trErr(trErr), m_tsErr(tsErr),
     m_MisClsTest (MisClsTest),
     m_MisClsTrain(MisClsTrain)
   {};
@@ -91,12 +91,12 @@ private:
 struct PndMvaDistObj
 {
   //! Constructor
-PndMvaDistObj()
-: m_idx(0), m_dist(0.0), m_cls("UNKNOWN_LABEL")
+  explicit PndMvaDistObj()
+  : m_idx(0), m_dist(0.0), m_cls("UNKNOWN_LABEL")
   {};
   
-PndMvaDistObj(size_t const id, float const dist, std::string const& cls)
-: m_idx(id), m_dist(dist), m_cls(cls)
+  explicit PndMvaDistObj(size_t const id, float const dist, std::string const& cls)
+  : m_idx(id), m_dist(dist), m_cls(cls)
   {};
   
   // Copy
@@ -123,6 +123,7 @@ PndMvaDistObj(size_t const id, float const dist, std::string const& cls)
     
     return (*this);
   };
+
   //! Operator < 
   inline bool operator< (PndMvaDistObj const& other) const
   {
