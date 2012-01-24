@@ -167,6 +167,18 @@ Int_t PndAnalysis::GetEvent(Int_t n)
 	return 0;
 }
 
+FairMCEventHeader* PndAnalysis::GetEventHeader()
+{
+  if (!fEventRead)
+    {
+      fRootManager->ReadEvent(fEvtCount-1);
+      fEventRead=kTRUE;
+    }
+
+  FairMCEventHeader*  evthead =  (FairMCEventHeader*)FairRootManager::Instance()->GetObject("MCEventHeader.");
+  return evthead;
+}
+
 Bool_t PndAnalysis::FillList(TCandList &l, TString listkey)
 {
   // Reads the specified List for the current event

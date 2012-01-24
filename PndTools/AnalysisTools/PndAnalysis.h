@@ -17,7 +17,7 @@ class TClonesArray;
 class TBranch;
 
 class TDatabasePDG;
-
+class FairMCEventHeader;
 class PndAnaPidSelector;
 class PndEventInfo;
 
@@ -31,6 +31,7 @@ public:
   void Rewind();
   void Reset() { Rewind(); }
   Int_t  GetEvent(Int_t n=-1);
+  FairMCEventHeader* GetEventHeader();
   Int_t  GetEntries(); 
   Bool_t FillList(TCandList &l, TString listkey="All");
   void SetVerbose(Int_t level){fVerbose = level;}
