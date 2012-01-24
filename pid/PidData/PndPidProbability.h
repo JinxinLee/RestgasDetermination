@@ -53,7 +53,7 @@ class PndPidProbability : public TObject
   void  SetIndex(Int_t idx)          { fIndex = idx; }
 
   PndPidProbability& operator*=(const PndPidProbability& a);
-  PndPidProbability& operator*(const PndPidProbability& a);
+  PndPidProbability operator*(const PndPidProbability& a);
   
   void Print();
   void Reset();

@@ -35,14 +35,14 @@ PndPidProbability::~PndPidProbability()
 {
 }
 
-PndPidProbability& PndPidProbability::operator*(const PndPidProbability& a)
+PndPidProbability PndPidProbability::operator*(const PndPidProbability& a)
 { 
   return PndPidProbability(
                            a.GetElectronPdf() * fElectronPdf, 
                            a.GetMuonPdf()     * fMuonPdf,
                            a.GetPionPdf()     * fPionPdf,
-                           a.GetKaonPdf()     * fKaonPdf(),
-                           a.GetProtonPdf()   * fProtonPdf(),
+                           a.GetKaonPdf()     * fKaonPdf,
+                           a.GetProtonPdf()   * fProtonPdf,
                            a.GetIndex()  );
 }
 PndPidProbability& PndPidProbability::operator*=(const PndPidProbability& a)
