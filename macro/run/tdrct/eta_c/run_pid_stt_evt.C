@@ -7,6 +7,7 @@
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
+  FairLogger::GetLogger()->SetLogToFile(kFALSE);
   // ------------------------------------------------------------------------
   // Output file
   TString parFile = "evt_params_stt.root";
@@ -53,7 +54,7 @@
   //corr->SetDebugMode(kTRUE);
   corr->SetFast(kTRUE);
   fRun->AddTask(corr);
-/* 
+ 
   PndPidIdealAssociatorTask *assMC= new PndPidIdealAssociatorTask();
   fRun->AddTask(assMC);
 
@@ -71,7 +72,7 @@
 
   PndPidSttAssociatorTask *assStt= new PndPidSttAssociatorTask();
   fRun->AddTask(assStt);
- */
+
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(1);
   fRun->Init();
