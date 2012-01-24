@@ -37,7 +37,7 @@ TBuffer &operator>>(TBuffer &buf,PndAnaPidSelector  *&obj)
   return buf;
 }
 
-PndAnaPidSelector::PndAnaPidSelector(const char *name, const char *type) : 
+PndAnaPidSelector::PndAnaPidSelector(const char *name, const char *type, const char* paramid) : 
 VAbsPidSelector(name,type) 
 {
   fSelectorParameterList=new TList();
@@ -67,11 +67,13 @@ VAbsPidSelector(name,type)
    // Caution: The Parameter Set is not filled from the DB IO, yet. 
   rtdb->initContainers(runID); // actually fill the containers. We might want to do that at another point, because multiple instnces will multiply call the RTDB init. That's bad in a loop!
   
-  // Now we access the RTDB once and perform the selection on local variables.
   fVeryLoose=0.0;
   fLoose=0.2;
   fTight=0.5;
   fVeryTight=0.9;
+
+  // Now we access the RTDB (can be called in case of updating)
+  LoadParams();
   
 }
 
@@ -83,6 +85,7 @@ Bool_t PndAnaPidSelector::SetSelection(TString &crit)
   else if(crit.Contains("Tight")) VAbsPidSelector::SetCriterion(tight);     
   else if(crit.Contains("VeryTight")) VAbsPidSelector::SetCriterion(veryTight); 
   
+  fTypePlus=0;fTypeMinus=0; // some silly number here
   TDatabasePDG *pdg = TRho::Instance()->GetPDG();
   // Name convention for TDatabsePDG found at $ROOTSYS/etc/pdg_table.txt
   if(crit.Contains("Proton")) fTypePlus=pdg->GetParticle("proton");
@@ -90,7 +93,7 @@ Bool_t PndAnaPidSelector::SetSelection(TString &crit)
   else if(crit.Contains("Pion")) fTypePlus=pdg->GetParticle("pi+");
   else if(crit.Contains("Muon")) fTypePlus=pdg->GetParticle("mu+");
   else if(crit.Contains("Electron")) fTypePlus=pdg->GetParticle("e+");
-  fTypeMinus = CPConjugate(fTypePlus);
+  if (fTypePlus!=0) fTypeMinus = CPConjugate(fTypePlus);
 
   if (crit.Contains("Plus")) fChargeCrit=1.;
   else if (crit.Contains("Minus")) fChargeCrit=-1.;
@@ -107,6 +110,8 @@ Bool_t PndAnaPidSelector::Accept(TCandidate& b)
   
   // too stringent on charge with +-1. ??
   if(fChargeCrit!=0 && fChargeCrit!=b.GetCharge()) return kFALSE;
+  
+  if(0==fTypePlus) return kTRUE; // no PID requested? Fine!
   
   SetTypeAndMass(b);
   
@@ -142,9 +147,18 @@ Bool_t PndAnaPidSelector::Accept(TCandidate& b)
 
 Bool_t PndAnaPidSelector::Accept(VAbsMicroCandidate& b) 
 { 
+  Warning("PndAnaPidSelector::Accept(VAbsMicroCandidate&)","No implementation for this. Please use PndAnaPidSelector::Accept(TCandidate&)");
   return kFALSE;
 }
 
+void PndAnaPidSelector::LoadParams()
+{
+  // reading parameters from RTDB
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
+  fCurrentPar=(PndAnaSelectorPar*)rtdb->getContainer("");
+
+}
 
 
 

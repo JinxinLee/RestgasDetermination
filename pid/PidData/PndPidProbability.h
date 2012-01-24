@@ -52,10 +52,11 @@ class PndPidProbability : public TObject
   void	SetProtonPdf(Double_t val)   { fProtonPdf=   (Float_t) val; }
   void  SetIndex(Int_t idx)          { fIndex = idx; }
 
-  PndPidProbability* operator*(const PndPidProbability& a);
+  PndPidProbability& operator*=(const PndPidProbability& a);
+  PndPidProbability& operator*(const PndPidProbability& a);
   
   void Print();
-  
+  void Reset();
  protected:
   
   Float_t		fElectronPdf; // e  Probability density function
