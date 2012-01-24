@@ -7,7 +7,6 @@ ${ROOT_INCLUDE_DIR}
 ${CLHEP_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
-${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep2
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/RKTrackRep
 ${CMAKE_SOURCE_DIR}/genfit
@@ -27,8 +26,6 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(TRACKREP_SRCS 
 GeaneTrackRep/GeaneTrackRep.cxx
-GeaneTrackRep2/GeaneTrackRep2.cxx
-GeaneTrackRep2/GeaneMCApplication.cxx
 LSLtrackRep/LSLTrackRep.cxx
 LSLtrackRep/LSLEQM.cxx
 LSLtrackRep/Nystrom.cxx
