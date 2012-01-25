@@ -29,7 +29,7 @@
 ClassImp(PndAnaPidCombiner)
 
 PndAnaPidCombiner::PndAnaPidCombiner(const char *name, TString tcanames) : 
-TNamed(name,"Panda PID Combiner") 
+TNamed(name,"Panda PID Combiner") ,fInitialized(kFALSE)
 {
   if(tcanames=="") SetDefaults();
   else SetTcaNames(tcanames);
@@ -40,16 +40,18 @@ TNamed(name,"Panda PID Combiner")
 void PndAnaPidCombiner::Init()
 {
   // Initialize the TClonesArray lists
-  
+  if(fInitialized) return; //if we did initilize, don't do it again.
   for(std::map<TString,TClonesArray*>::iterator iter=fPidArrays.begin();
       iter!=fPidArrays.end();iter++)
   {
     iter->second = ReadTCA(iter->first);
   }
+  fInitialized=kTRUE;
 }
 
 Bool_t PndAnaPidCombiner::Apply(TCandList &tcl)
 {
+  if(!fInitialized) Init();
   Bool_t check;
   for (int j=0;j<tcl.GetLength();++j){
     check = check && Apply(tcl[j]);
@@ -59,6 +61,7 @@ Bool_t PndAnaPidCombiner::Apply(TCandList &tcl)
 
 Bool_t PndAnaPidCombiner::Apply(TCandidate &tc)
 {
+  if(!fInitialized) Init();
   //TODO: Merge PID info now.
   fPidResult->Reset();
   // combine algorithms
@@ -111,15 +114,18 @@ void PndAnaPidCombiner::SetDefaults()
   TString names = "PidAlgoIdealCharged";
   //TString names = "PidMvaChargedProbability";
   SetTcaNames(names);
+  fInitialized=kFALSE;
   return;
 }
 
 void PndAnaPidCombiner::SetTcaNames(TString &names)
 {
+  fPidArrays.clear();
   // Tokenizer, cool thingy!
   TStringToken list(names,";"); 
   //use TString class part (inherited, Tokenizer stores data there 
   while(list.NextToken()) AddTcaName( (TString)list ); 
+  fInitialized=kFALSE;
   return;
 }
 

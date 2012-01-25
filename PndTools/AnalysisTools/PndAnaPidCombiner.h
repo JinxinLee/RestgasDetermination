@@ -40,6 +40,7 @@ private:
   FairRootManager*   fRootManager;
   std::map<TString,TClonesArray*> fPidArrays; // pid data
   PndPidProbability *fPidResult;
+  Bool_t fInitialized;
 
 public:
   ClassDef(PndAnaPidCombiner,1)
