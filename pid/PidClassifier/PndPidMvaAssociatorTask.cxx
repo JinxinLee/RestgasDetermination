@@ -432,9 +432,9 @@ std::vector<float> const* PndPidMvaAssociatorTask::PrepareEvtVect(PndPidCandidat
 void PndPidMvaAssociatorTask::Register()
 {
   //---
-  FairRootManager::Instance()->Register("PidChargedProbability","Pid",
+  FairRootManager::Instance()->Register("PidMvaChargedProbability","Pid",
 					fPidChargedProb, kTRUE); 
-  FairRootManager::Instance()->Register("PidNeutralProbability","Pid", 
+  FairRootManager::Instance()->Register("PidMvaNeutralProbability","Pid", 
 					fPidNeutralProb, kTRUE);
 }
 

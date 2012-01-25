@@ -8,30 +8,41 @@
 #define PNDANAPIDCOMBINER_H
 
 #include <iostream>
-#include <float.h>
 #include "TNamed.h"
-#include "RhoBase/VAbsPidSelector.h"
+#include "FairRootManager.h"
+#include <map>
+#include <vector>
 
 class TCandidate;
+class TCandList;
 class VAbsMicroCandidate;
+class TClonesArray;
+class PndPidProbability;
+class TString;
 
-class PndAnaPidCombiner : public VAbsPidSelector {
+class PndAnaPidCombiner : public TNamed {
   
 public:
   //Constructor
-  PndAnaPidCombiner(const char *name="PndAnaPidCombiner", const char* type="");
+  PndAnaPidCombiner(const char *name="PndAnaPidCombiner", TString tcanames="");
   //Destructor
-  virtual ~PndAnaPidCombiner() {}
-  
-  //operations
-  virtual Bool_t Accept(TCandidate& b);
-  virtual Bool_t Accept(VAbsMicroCandidate& b);
-  
+  ~PndAnaPidCombiner() {/*empty*/};
+  void AddTcaName(const TString &tcaname) {fPidArrays[tcaname]=0;};
+  void SetTcaNames(TString &names);
+  void SetDefaults();
+  void ClearNames(){fPidArrays.clear(); };
+  void Init();
+  Bool_t Apply(TCandidate &tc);
+  Bool_t Apply(TCandList &tcl);
+
 private:
-  
-  
+  TClonesArray* ReadTCA(const TString &tcaname);
+  FairRootManager*   fRootManager;
+  std::map<TString,TClonesArray*> fPidArrays; // pid data
+  PndPidProbability *fPidResult;
+
 public:
-  ClassDef(PndAnaPidCombiner,1)  // Particle selector
+  ClassDef(PndAnaPidCombiner,1)
 };    
 
 

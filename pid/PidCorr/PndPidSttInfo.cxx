@@ -75,6 +75,7 @@ Bool_t PndPidCorrelator::GetSttInfo(PndTrack* track, PndPidCandidate* pidCand) {
   } 
 
   pidCand->SetSttHits(sttRawCounts);
+  return kTRUE;
 }
 
 ClassImp(PndPidCorrelator)

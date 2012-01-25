@@ -19,7 +19,8 @@ class TBranch;
 class TDatabasePDG;
 class FairMCEventHeader;
 class PndAnaPidSelector;
-class PndEventInfo;
+class PndAnaPidCombiner;
+//class PndEventInfo;
 
 class TGeant3;
 
@@ -33,7 +34,7 @@ public:
   Int_t  GetEvent(Int_t n=-1);
   FairMCEventHeader* GetEventHeader();
   Int_t  GetEntries(); 
-  Bool_t FillList(TCandList &l, TString listkey="All");
+  Bool_t FillList(TCandList &l, TString listkey="All", TString pidTcaNames="");
   void SetVerbose(Int_t level){fVerbose = level;}
   //void SetPidChargedName(TString s) {fChargedPidName = s;}
   //void SetPidNeutralName(TString s) {fNeutralPidName = s;}  
@@ -62,6 +63,7 @@ private:
   
   FairRootManager*   fRootManager;
   PndAnaPidSelector* fPidSelector;
+  PndAnaPidCombiner* fPidCombiner;
   Int_t              fEvtCount;
   Int_t              fChainEntries;
   Bool_t             fEventRead;
