@@ -34,6 +34,7 @@ TNamed(name,"Panda PID Combiner")
   if(tcanames=="") SetDefaults();
   else SetTcaNames(tcanames);
   fRootManager=FairRootManager::Instance();
+  fPidResult = new PndPidProbability();
 }
 
 void PndAnaPidCombiner::Init()
