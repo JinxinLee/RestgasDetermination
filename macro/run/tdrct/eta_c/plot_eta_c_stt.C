@@ -10,7 +10,6 @@
 	TH1F *h_etac_4c=(TH1F *)f->Get("h_etac_4c");
 	TH1F *h_etac_phimass_4c=(TH1F *)f->Get("h_etac_phimass_4c");
 	TH1F *h_etac_phimass_vtx=(TH1F *)f->Get("h_etac_phimass_vtx");
-	TH1F *h_etac_phimassfit=(TH1F *)f->Get("h_etac_phimassfit");
 	
 	TH1F *h_mphi_nocuts=(TH1F *)f->Get("h_mphi_nocuts");
 	TH1F *h_mphi_pid=(TH1F *)f->Get("h_mphi_pid");
@@ -18,7 +17,6 @@
 	TH1F *h_mphi_4c=(TH1F *)f->Get("h_mphi_4c");
 	TH1F *h_mphi_final_4c=(TH1F *)f->Get("h_mphi_final_4c");
 	TH1F *h_mphi_final_vtx=(TH1F *)f->Get("h_mphi_final_vtx");
-	TH1F *h_mphi_final_massfit=(TH1F *)f->Get("h_mphi_final_massfit");
 	
 	TH1F *h_etac_phimass_vtx_2=(TH1F *)f->Get("h_etac_phimass_vtx_2");
 	TH1F *h_mphi_vtx_2=(TH1F *)f->Get("h_mphi_vtx_2");
@@ -320,49 +318,6 @@
 	l6->Draw();
 	
 	if (saveHistos) c11->SaveAs("m_final_vtx_stt.png");
-	
-	//////////////////// Phi mass fit ////////////////
-//	TCanvas *c12=new TCanvas("c12","Mass final (phi mass fit)",600,600);
-// 	c12->Divide(1,2);
-// 	c12->cd(1);
-// 	h_mphi_final_massfit->Draw();
-// 	
-// 	mean_phi=1.02;
-// 	range_phi=0.02;
-// 	
-// 	TF1 *f1_phi_mass = new TF1("f1_phi_mass","gaus",0.9,1.1);
-// 	h_mphi_final_massfit->Fit(f1_phi_mass,"R","",mean_phi-range_phi,mean_phi+range_phi);
-// 	
-// 	sigma1_phi=f1_phi_mass->GetParameter(2);
-// 	mean1_phi=f1_phi_mass->GetParameter(1);
-// 	
-// 	TF1 *f2_phi_mass = new TF1("f2_phi_mass","gaus",0.9,1.1);
-// 	h_mphi_final_massfit->Fit(f2_phi_mass,"R","",mean1_phi-1.6*sigma1_phi,mean1_phi+1.6*sigma1_phi);
-// 
-// 	sigma2_phi=f2_phi_mass->GetParameter(2);
-// 	std::cout<<"!!!!!!!!!!!! sigma phi (phi mass fit)="<<sigma2_phi<<std::endl;
-// 
-// 	c12->cd(2);
-// 	h_etac_phimassfit->Draw();
-// 	// fit eta_c
-// 	mean_etac=2.98;
-// 	range_etac=0.1;
-// 	
-// 	TF1 *f1_mass = new TF1("f1_mass","gaus",2.8,3.2);
-// 	h_etac_phimassfit->Fit(f1_mass,"R","",mean_etac-range_etac,mean_etac+range_etac);
-// 	
-// 	sigma1=f1_mass->GetParameter(2);
-// 	mean1=f1_mass->GetParameter(1);
-// 	
-// 	TF1 *f2_mass = new TF1("f2_mass","gaus",2.8,3.2);
-// 	h_etac_phimassfit->Fit(f2_mass,"R","",mean1-1.6*sigma1,mean1+1.6*sigma1);
-// 
-// 	sigma2=f2_mass->GetParameter(2);
-// 	std::cout<<"!!!!!!!!!!!!!!! sigma eta_c (phi mass fit) ="<<sigma2<<std::endl;
-// 	
-// 	if (saveHistos) c12->SaveAs("m_final_phimass_stt.png");
-	
-
 	
 	//////////////////// Vertex fit ////////////////////////////////////
 	/////////////////// Prefit best candidate selection ////////////////
