@@ -74,7 +74,7 @@ PndAnalysis::~PndAnalysis()
 TClonesArray* PndAnalysis::ReadTCA(TString tcaname)
 {
   TClonesArray* tca = (TClonesArray*) fRootManager->GetObject(tcaname.Data());
-  if (! tca) std::cout << "-W- PndAnalysis::Init(): No "<<tcaname.Data()<<" array found." << std::endl;
+  if (! tca) std::cout << "-I- PndAnalysis::ReadTCA(): No "<<tcaname.Data()<<" array found." << std::endl;
   return tca;
 }
 
@@ -125,7 +125,7 @@ void PndAnalysis::Init()
   }
   // -- MC Tracks 
   fBuildMcCands = false;
-  fMcCands = ReadTCA("PndMcTracks");
+  fMcCands = ReadTCA("PndMcTracks"); // try already built TCandidates
   if ( ! fMcCands )
   {
     std::cout << "-I- PndAnalysis::Init(): Trying mc stack now." << std::endl;
@@ -210,6 +210,7 @@ Bool_t PndAnalysis::FillList(TCandList &l, TString listkey, TString pidTcaNames)
   if (allCands.GetLength() == 0) // do only when we didn't read something yet.
 	{ 	// removed now compatibility to TCandidate readin ... instead read PndPidCandidates
 		if (fNeutralCands && neutralCands.GetLength()==0)
+    {
       for (Int_t i1=0; i1<fNeutralCands->GetEntriesFast(); i1++)
       {
         VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fNeutralCands->At(i1);		
@@ -234,7 +235,7 @@ Bool_t PndAnalysis::FillList(TCandList &l, TString listkey, TString pidTcaNames)
         neutralCands.Add(*tc);
         allCands.Add(*tc);
       }
-    
+    }
 		if (fChargedCands && chargedCands.GetLength()==0) 
     {
       for (Int_t i2=0; i2<fChargedCands->GetEntriesFast(); i2++)
@@ -242,23 +243,7 @@ Bool_t PndAnalysis::FillList(TCandList &l, TString listkey, TString pidTcaNames)
         VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fChargedCands->At(i2);
         TCandidate buffcand(*mic,i2+1);
         TCandidate *tc = TFactory::Instance()->NewCandidate(buffcand);
-
-        fPidCombiner->Apply(*tc);
-//        if(0!=fChargedProbability && i2<fChargedProbability->GetEntriesFast())
-//        {
-//          PndPidProbability *chProb = (PndPidProbability*)fChargedProbability->At(i2);
-//          if(chProb == 0) {
-//            Error("FillList", "Charged PID Probability object not found, skip setting pid for candidate %i.",i2);
-//            continue;
-//          }
-//          // numbering see PndPidListMaker
-//          tc->SetPidInfo(0,chProb->GetElectronPidProb());
-//          tc->SetPidInfo(1,chProb->GetMuonPidProb());
-//          tc->SetPidInfo(2,chProb->GetPionPidProb());
-//          tc->SetPidInfo(3,chProb->GetKaonPidProb());
-//          tc->SetPidInfo(4,chProb->GetProtonPidProb());
-//        }
-        
+        fPidCombiner->Apply(*tc);        
         chargedCands.Add(*tc);
         allCands.Add(*tc);
       }

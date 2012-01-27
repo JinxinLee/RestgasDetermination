@@ -123,7 +123,7 @@ void PndAnaPidCombiner::SetTcaNames(TString &names)
   fPidArrays.clear();
   // Tokenizer, cool thingy!
   TStringToken list(names,";"); 
-  //use TString class part (inherited, Tokenizer stores data there 
+  //use TString class part (inherited, Tokenizer stores data there)
   while(list.NextToken()) AddTcaName( (TString)list ); 
   fInitialized=kFALSE;
   return;

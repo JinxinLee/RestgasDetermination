@@ -42,6 +42,7 @@ VAbsPidSelector(name,type)
 {
   fSelectorParameterList=new TList();
   fChargeCrit=0;
+  fPidSelect=99;// some silly default number here
   
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
@@ -85,14 +86,30 @@ Bool_t PndAnaPidSelector::SetSelection(TString &crit)
   else if(crit.Contains("Tight")) VAbsPidSelector::SetCriterion(tight);     
   else if(crit.Contains("VeryTight")) VAbsPidSelector::SetCriterion(veryTight); 
   
-  fTypePlus=0;fTypeMinus=0; // some silly number here
+  fTypePlus=0;fTypeMinus=0; 
   TDatabasePDG *pdg = TRho::Instance()->GetPDG();
   // Name convention for TDatabsePDG found at $ROOTSYS/etc/pdg_table.txt
-  if(crit.Contains("Proton")) fTypePlus=pdg->GetParticle("proton");
-  else if(crit.Contains("Kaon")) fTypePlus=pdg->GetParticle("K+");
-  else if(crit.Contains("Pion")) fTypePlus=pdg->GetParticle("pi+");
-  else if(crit.Contains("Muon")) fTypePlus=pdg->GetParticle("mu+");
-  else if(crit.Contains("Electron")) fTypePlus=pdg->GetParticle("e+");
+  fPidSelect=99;// some silly number here
+  if(crit.Contains("Proton")) {
+    fTypePlus=pdg->GetParticle("proton");
+    fPidSelect=4;
+  }
+  else if(crit.Contains("Kaon")) {
+    fTypePlus=pdg->GetParticle("K+");
+    fPidSelect=3;
+  }
+  else if(crit.Contains("Pion")){ 
+    fTypePlus=pdg->GetParticle("pi+");
+    fPidSelect=2;
+  }
+  else if(crit.Contains("Muon")) {
+    fTypePlus=pdg->GetParticle("mu+");
+    fPidSelect=1;
+  }
+  else if(crit.Contains("Electron")) {
+    fTypePlus=pdg->GetParticle("e+");
+    fPidSelect=0;
+  }
   if (fTypePlus!=0) fTypeMinus = CPConjugate(fTypePlus);
 
   if (crit.Contains("Plus")) fChargeCrit=1.;
@@ -111,7 +128,7 @@ Bool_t PndAnaPidSelector::Accept(TCandidate& b)
   // too stringent on charge with +-1. ??
   if(fChargeCrit!=0 && fChargeCrit!=b.GetCharge()) return kFALSE;
   
-  if(0==fTypePlus) return kTRUE; // no PID requested? Fine!
+  if(fPidSelect==99) return kTRUE; // no PID requested? Fine!
   
   SetTypeAndMass(b);
   
