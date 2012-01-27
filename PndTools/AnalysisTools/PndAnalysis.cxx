@@ -300,7 +300,7 @@ void PndAnalysis::BuildMcCands()
 {
   if (fMcCands->GetEntriesFast() > 100) fMcCands->Delete(); // deep cleanup after really busy events
   else if (fMcCands->GetEntriesFast() != 0)  fMcCands->Clear();
-  
+  Int_t fMotherID = -1;
   // Get the Candidates
   for(Int_t i=0; i<fMcTracks->GetEntriesFast(); i++)
   {
@@ -310,6 +310,7 @@ void PndAnalysis::BuildMcCands()
       std::cout<<"Build MC cand: ";
       part->Print(i);
     }
+    fMotherID = part->GetMotherID();
     TLorentzVector p4 = part->Get4Momentum();
     TVector3    stvtx = part->GetStartVertex();
     
@@ -335,6 +336,7 @@ void PndAnalysis::BuildMcCands()
     pmc->SetMcIdx(i);
     pmc->SetPos(stvtx);
     pmc->SetType(part->GetPdgCode());
+    pmc->SetMcMotherIdx(fMotherID);
     
     if(fabs(charge)>0){
       Bool_t rc = PndAnalysisCalcTools::FillHelixParams(pmc, kTRUE);

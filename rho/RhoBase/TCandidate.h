@@ -104,7 +104,7 @@ class TCandidate : public TFitParams
     // added by K Goetzen
     double fPidLH[30];
     int    fMcIdx;
-    
+    int    fMcMotherIdx; 
     
   public:
     
@@ -451,7 +451,9 @@ class TCandidate : public TFitParams
     
     void SetMcIdx(int idx) {fMcIdx=idx;}
     int GetMcIdx() {return fMcIdx;}
-    
+    void SetMcMotherIdx(int idx) {fMcMotherIdx=idx;}
+    int GetMcMotherIdx() {return fMcMotherIdx;}
+
   private:
     
     //

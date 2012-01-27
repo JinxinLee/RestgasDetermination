@@ -50,6 +50,7 @@ nCons(0)
   SetUid();
   SetPidInfo(0);
   SetMcIdx(-1);
+  SetMcMotherIdx(-1);
 }
 
 TCandidate::TCandidate( const TLorentzVector &v, Double_t charge, VAbsVertex* vp ) : 
@@ -73,6 +74,7 @@ nCons(0)
   SetUid();
   SetPidInfo(0);
   SetMcIdx(-1);
+  SetMcMotherIdx(-1);
 }
 
 
@@ -104,6 +106,7 @@ nCons(0)
   SetUid();
   SetPidInfo(0);
   SetMcIdx(-1);
+  SetMcMotherIdx(-1);
 }
 
 TCandidate::TCandidate( const TVector3 &v, const TParticlePDG* pdt, VAbsVertex* vp ) : 
@@ -128,6 +131,7 @@ nCons(0)
   SetUid();
   SetPidInfo(0);
   SetMcIdx(-1);
+  SetMcMotherIdx(-1);
 }
 
 
@@ -188,6 +192,7 @@ TCandidate::TCandidate( const TCandidate& o )
     fPidLH[i]=o.fPidLH[i];
   
   fMcIdx=o.fMcIdx;
+  fMcMotherIdx=o.fMcMotherIdx;
 }
 
 // This is the special constructor to bring a TCandidate into
@@ -234,6 +239,7 @@ nCons(0)
 	SetPidInfo(4,a.GetProtonPidLH());
 	
   SetMcIdx(a.GetMcIndex());
+  SetMcMotherIdx(-10); // STE: It needs some update, maybe
 }
 
 
@@ -270,6 +276,7 @@ nCons(0)
   SetMcTruth(&a); // Note the underlying truth object, MK jan.2k
   SetPidInfo(0);
   SetMcIdx(-1);
+  SetMcMotherIdx(-1);
 }
 
 //--------------
@@ -339,6 +346,7 @@ TCandidate::operator = (const TCandidate& o)
     fPidLH[i]=o.fPidLH[i];
   
   fMcIdx=o.fMcIdx;  
+  fMcMotherIdx=o.fMcMotherIdx;
   
   return *this;
 }
