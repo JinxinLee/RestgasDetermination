@@ -454,11 +454,14 @@ class TCandidate : public TFitParams
     void SetMcMotherIdx(int idx) {fMcMotherIdx=idx;}
     int GetMcMotherIdx() {return fMcMotherIdx;}
 
-  private:
-    
+    // private:
     //
     // Private functions (access to friends only)
     //
+    
+    // Jan.2012: [R.K.] Need public access for PndAnalysis
+    
+  public:
     Bool_t IsLocal() const { return kTRUE; }
     
     // Set the decay vertex - operators can do that 
