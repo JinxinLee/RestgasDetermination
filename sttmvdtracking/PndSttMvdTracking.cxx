@@ -1,5 +1,4 @@
 #include "glpk.h"
-
 #include "PndSttMvdTracking.h"
 
 #include "PndSttHit.h"
@@ -438,9 +437,10 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 
 
 
-  Double_t ALFA[MAXTRACKSPEREVENT],
-	   BETA[MAXTRACKSPEREVENT],
-	   GAMMA[MAXTRACKSPEREVENT],
+  Double_t
+//   ALFA[MAXTRACKSPEREVENT],
+//	   BETA[MAXTRACKSPEREVENT],
+//	   GAMMA[MAXTRACKSPEREVENT],
 	   KAPPA[MAXTRACKSPEREVENT],
 	   WDX[nmaxSttHits],
 	   WDY[nmaxSttHits],
@@ -641,7 +641,7 @@ if(istampa>1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<", n. MC Track
    }
    if(istampa>2&& IVOLTE<20) cout<<"N. MC Points delle Mvd = "<<nMvdMCPoint<<endl;
 
-// ------------------------------------------ estraggo le altre info della trackcand  del MVD
+// ------------------------------------------ get info from trackcand  of MVD
 
   nMvdTrackCand = fMvdTrackCandArray->GetEntriesFast();
 
@@ -7659,7 +7659,8 @@ void PndSttMvdTracking::Merge(UShort_t nl, Double_t *left, Int_t *ind_left, USho
 
 //----------begin of function PndSttMvdTracking::FitHelixCylinder
 
-      Short_t PndSttMvdTracking::FitHelixCylinder( UShort_t nHitsinTrack,
+ Short_t PndSttMvdTracking::FitHelixCylinder(
+		UShort_t nHitsinTrack,
 		Double_t *Xconformal,
 		Double_t *Yconformal,
 		Double_t *DriftRadiusconformal,
@@ -7669,10 +7670,10 @@ void PndSttMvdTracking::Merge(UShort_t nl, Double_t *left, Int_t *ind_left, USho
 		UShort_t NMAX,
 		Double_t *emme,
 		Double_t *qu,
-		Double_t *ALFA,
-		Double_t *BETA,
-		Double_t *GAMMA,
-		bool *TypeConf
+		Double_t *pAlfa,
+		Double_t *pBeta,
+		Double_t *pGamma,
+		bool *Type
 					)
 {
 
@@ -7681,10 +7682,10 @@ void PndSttMvdTracking::Merge(UShort_t nl, Double_t *left, Int_t *ind_left, USho
    //    ROWS (for read_rows  function)
    //
    UShort_t  NpointsInFit = nHitsinTrack-NMAX <0 ?  nHitsinTrack :  NMAX;
-   if (NpointsInFit>nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack)
-	NpointsInFit=nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack;
-// NpointsInFit =10;
-   bool mvdhit[nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack];
+//   if (NpointsInFit>nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack)
+//	NpointsInFit=nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack;
+//   bool mvdhit[nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack];
+   bool mvdhit[NpointsInFit];
 
 
 
@@ -7696,9 +7697,9 @@ void PndSttMvdTracking::Merge(UShort_t nl, Double_t *left, Int_t *ind_left, USho
               alfetta,
               angle,
               offsety,
-              Delta[nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack],
-              Ox[nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack],
-              Oy[nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack];
+              Delta[NpointsInFit],
+              Ox[NpointsInFit],
+              Oy[NpointsInFit];
 
      UShort_t  i, j, ii, iii, nSttHits, nMvdHits;
      Short_t Status;
@@ -8176,15 +8177,20 @@ if(istampa>=3){
       for(i=0, ii=0; i< NpointsInFit;i++){
 	if( mvdhit[i]) continue;
          sprintf(&aux[(ii+4+NpointsInFit)*NStructRowsMax][0],"Am%d",i);
-         NameRowsInWhichStructVarArePresent[(ii+4+NpointsInFit)*NStructRowsMax]= &aux[(ii+4+NpointsInFit)*NStructRowsMax][0];
+         NameRowsInWhichStructVarArePresent[(ii+4+NpointsInFit)*NStructRowsMax]=
+		&aux[(ii+4+NpointsInFit)*NStructRowsMax][0];
          sprintf(&aux[(ii+4+NpointsInFit)*NStructRowsMax+1][0],"Bm%d",i);
-         NameRowsInWhichStructVarArePresent[(ii+4+NpointsInFit)*NStructRowsMax+1]= &aux[(ii+4+NpointsInFit)*NStructRowsMax+1][0];
+         NameRowsInWhichStructVarArePresent[(ii+4+NpointsInFit)*NStructRowsMax+1]=
+		&aux[(ii+4+NpointsInFit)*NStructRowsMax+1][0];
          sprintf(&aux[(ii+4+NpointsInFit)*NStructRowsMax+2][0],"Cm%d",i);
-         NameRowsInWhichStructVarArePresent[(ii+4+NpointsInFit)*NStructRowsMax+2]= &aux[(ii+4+NpointsInFit)*NStructRowsMax+2][0];
+         NameRowsInWhichStructVarArePresent[(ii+4+NpointsInFit)*NStructRowsMax+2]=
+		&aux[(ii+4+NpointsInFit)*NStructRowsMax+2][0];
          sprintf(&aux[(ii+4+NpointsInFit)*NStructRowsMax+3][0],"Dm%d",i);
-         NameRowsInWhichStructVarArePresent[(ii+4+NpointsInFit)*NStructRowsMax+3]= &aux[(ii+4+NpointsInFit)*NStructRowsMax+3][0];
+         NameRowsInWhichStructVarArePresent[(ii+4+NpointsInFit)*NStructRowsMax+3]=
+		&aux[(ii+4+NpointsInFit)*NStructRowsMax+3][0];
          sprintf(&aux[(ii+4+NpointsInFit)*NStructRowsMax+4][0],"LAMBDA%d",i);
-         NameRowsInWhichStructVarArePresent[(ii+4+NpointsInFit)*NStructRowsMax+4]= &aux[(ii+4+NpointsInFit)*NStructRowsMax+4][0];
+         NameRowsInWhichStructVarArePresent[(ii+4+NpointsInFit)*NStructRowsMax+4]=
+		&aux[(ii+4+NpointsInFit)*NStructRowsMax+4][0];
 	 ii++; 
      }
 
@@ -8411,7 +8417,8 @@ if(istampa>=3){
           TypeofBound[NpointsInFit+nSttHits]= &auxTypeofBound[NpointsInFit+nSttHits][0];
 
           sprintf(&auxBoundStructVarName[NpointsInFit+nSttHits][0],"DUMMY");
-          BoundStructVarName[NpointsInFit+nSttHits]=&auxBoundStructVarName[NpointsInFit+nSttHits][0];
+          BoundStructVarName[NpointsInFit+nSttHits]=
+		&auxBoundStructVarName[NpointsInFit+nSttHits][0];
           BoundValue[NpointsInFit+nSttHits]=2.*M;
 //-----
 
@@ -8438,7 +8445,8 @@ for(int ic =0;ic<NStructVar; ic++){
      <<StructVarName[ic]<<endl;
 
   for(int jc=0; jc<NRowsInWhichStructVarArePresent[ic];jc++){
-   cout<<"n. "<<jc<<"  NameRowsInWhichStructVarArePresent  "<<NameRowsInWhichStructVarArePresent[ic*NStructRowsMax+jc]<<endl;
+   cout<<"n. "<<jc<<"  NameRowsInWhichStructVarArePresent  "
+	<<NameRowsInWhichStructVarArePresent[ic*NStructRowsMax+jc]<<endl;
   }
 }
 
@@ -8446,8 +8454,8 @@ for(int ic =0;ic<NStructVar; ic++){
 cout<<"n Coefficient "<<21*nMvdHits+24*nSttHits<<endl;
 iii=0;
 for(int ic =0;ic<NStructVar; ic++){
-   cout<<"Struct. Var."<< StructVarName[ic] <<" e' presente in "<< NRowsInWhichStructVarArePresent[ic]
-	<<"  Rows;"<<endl;
+   cout<<"Struct. Var."<< StructVarName[ic] <<" e' presente in "
+	<< NRowsInWhichStructVarArePresent[ic]<<"  Rows;"<<endl;
   for(ii=0;ii<NRowsInWhichStructVarArePresent[ic];ii++){
 
    cout<<"\tin Row "<<NameRowsInWhichStructVarArePresent[ic*NStructRowsMax+ii]
@@ -8518,11 +8526,11 @@ printf("from FitHelixCylinder  printout dopo glp_main  -------------------------
 /*
    if(istampa>=3 && IVOLTE <= 20){
      sprintf(stringa,
-              "/home/boca/panda/glpk/glpk-4.39/examples/glpsol --min -o soluztrack%dEvent%dstep%d    GeneralParallelHitsConformeTraccia%dEvent%d.mcs",
+"/home/boca/panda/glpk/glpk-4.39/examples/glpsol --min -o soluztrack%dEvent%dstep%d    GeneralParallelHitsConformeTraccia%dEvent%d.mcs",
                                 0,IVOLTE,1,0,IVOLTE);
    }  else {
      sprintf(stringa,
-              "/home/boca/panda/glpk/glpk-4.39/examples/glpsol --min -o soluztrack%dEvent%dstep%d    GeneralParallelHitsConformeTraccia%dEvent%d.mcs >& /dev/null",
+"/home/boca/panda/glpk/glpk-4.39/examples/glpsol --min -o soluztrack%dEvent%dstep%d    GeneralParallelHitsConformeTraccia%dEvent%d.mcs >& /dev/null",
                                 0, IVOLTE,1,0,IVOLTE,1);
    }
 */
@@ -8545,44 +8553,44 @@ if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "
      *qu = q1_result - q2_result;
      *emme = m1_result-m2_result ;
 
-    *GAMMA = 0.;
+    *pGamma = 0.;
     if( fabs( *qu ) > 1.e-10) {    //  trajectory is a circle in XY space
-     *ALFA = *emme/(*qu);
-     *BETA = -1./(*qu);
-     *TypeConf=true;
+     *pAlfa = *emme/(*qu);
+     *pBeta = -1./(*qu);
+     *Type=true;
 //  now take into account the rotation and correct; the only affected quantities are ALFA and BETA
-      alfetta = *ALFA;
-      *ALFA = *ALFA*cose - *BETA*sine;
-      *BETA = alfetta*sine + *BETA*cose;
+      alfetta = *pAlfa;
+      *pAlfa = *pAlfa*cose - *pBeta*sine;
+      *pBeta = alfetta*sine + *pBeta*cose;
 
 
     }  else if(fabs(*emme)> 1.e-10)  {//  trajectory is a straight line in XY space of equation y= m*x
        //  the rotation first
        angle = atan(*emme) + rotationangle;
        if( fabs(cos(angle)) > 1.e-10 ) {
-         *ALFA = 999999.;
-         *BETA = -(*ALFA)/tan(angle);
-         *TypeConf=false;
+         *pAlfa = 999999.;
+         *pBeta = -(*pAlfa)/tan(angle);
+         *Type=false;
 
        } else {  //  in this case the equation in XY plane is y = 0.
-         *ALFA = 0.;
-         *BETA = 999999.;
-         *TypeConf=false;
+         *pAlfa = 0.;
+         *pBeta = 999999.;
+         *Type=false;
        }
     }  else {   //  in this case also the equation in XY plane is  y = 0.
-         *ALFA = 0.;
-         *BETA = 999999.;
-         *TypeConf=false;
+         *pAlfa = 0.;
+         *pBeta = 999999.;
+         *Type=false;
     }	// end of 	if( fabs( *qu ) > 1.e-10)
 
 //------------------
 
 
 // now take into account the displacement and correct
-      *GAMMA += (trajectory_vertex[0]*trajectory_vertex[0]+ trajectory_vertex[1]*trajectory_vertex[1]
-                                  -*ALFA*trajectory_vertex[0]-*BETA*trajectory_vertex[1]);
-      *ALFA -=  2.*trajectory_vertex[0];
-      *BETA -=  2.*trajectory_vertex[1];
+      *pGamma += (trajectory_vertex[0]*trajectory_vertex[0]+ trajectory_vertex[1]*trajectory_vertex[1]
+                                  -*pAlfa*trajectory_vertex[0]-*pBeta*trajectory_vertex[1]);
+      *pAlfa -=  2.*trajectory_vertex[0];
+      *pBeta -=  2.*trajectory_vertex[1];
 
 
       if(fabs(cose-*emme*sine)> 1.e-10) {
@@ -9567,8 +9575,7 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 //------------------ begin function  PndSttMvdTracking::RefitMvdStt
 
 
-
- void   PndSttMvdTracking::RefitMvdStt(
+ void	PndSttMvdTracking::RefitMvdStt(
 			UShort_t nCandHit,
 			UShort_t *ListCandHit,
 			Short_t *ListCandHitType,
@@ -9576,19 +9583,21 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 			Double_t rotationangle, //  this is between 0. and 2*PI
 			Double_t tv[2],
 			Short_t iexcl,
-
-			Double_t *ALFA, // output of the fit
-			Double_t *BETA, // output of the fit
-			Double_t *GAMMA,// set at zero always for now
+			Double_t *pAlfa, // output of the fit
+			Double_t *pBeta, // output of the fit
+			Double_t *pGamma,// set at zero always for now
 			bool *status    // fit status; true = successful
 						)
 {
-	bool TypeConf;
+	bool Type;
 
 	UShort_t	i,
 			iparallel;
 
 	UShort_t MAXIMUMHITSINFIT = 20;
+	if(MAXIMUMHITSINFIT>nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack)
+	     MAXIMUMHITSINFIT =
+		nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack;
 
 	Short_t	exitstatus;
 
@@ -9699,17 +9708,17 @@ if(istampa>2){
 					MAXIMUMHITSINFIT,  //  maximum n. of hits allowed in fast fit
 					&emme,
 					&qu,
-					ALFA,
-					BETA,
-					GAMMA,
-					&TypeConf
+					pAlfa,
+					pBeta,
+					pGamma,
+					&Type
 					);
 
-	//  existatus > 0, TypeConf= true --> fit ok, it is a Circle in XY; 
-	//  existatus > 0, TypeConf= false --> fit ok, it is a Straigh Line in XY; 
+	//  existatus > 0, Type= true --> fit ok, it is a Circle in XY; 
+	//  existatus > 0, Type= false --> fit ok, it is a Straigh Line in XY; 
 	//  existatus = -1, fit failed, equation of XY circle : X**2 + Y**2 =0, impossible in principle; 
 	//  existatus < 0, fit failed. 
-	if( exitstatus > 0 && TypeConf)	*status=true;
+	if( exitstatus > 0 && Type)	*status=true;
 	return;
 }
 
