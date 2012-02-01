@@ -46,7 +46,7 @@ PndSttTrackFinderReal::PndSttTrackFinderReal()
 	iplotta = false;
 	istampa = 0;
 	doMcComparison = false;
-	YesSciT = false ;
+	YesSciTil = false ;
 
 	MINIMUMOUTERHITSPERTRACK=5;
 	Fimin=0.;     Fimax=2.*PI;
@@ -72,7 +72,7 @@ PndSttTrackFinderReal::PndSttTrackFinderReal(int verbose)
 	istampa      = verbose;
 	iplotta = false;
 	doMcComparison = false;
-	YesSciT = false ;
+	YesSciTil = false ;
 
 	MINIMUMOUTERHITSPERTRACK=5;
 	Fimin=0.;     Fimax=2.*PI;
@@ -95,7 +95,7 @@ PndSttTrackFinderReal::PndSttTrackFinderReal(int istamp, bool iplott, bool imc)
 	istampa= istamp;
 	iplotta = iplott;
 	doMcComparison = imc;
-	YesSciT = false ;
+	YesSciTil = false ;
 
 	MINIMUMOUTERHITSPERTRACK=5;
 	Fimin=0.;     Fimax=2.*PI;
@@ -120,7 +120,7 @@ PndSttTrackFinderReal::PndSttTrackFinderReal(int istamp, bool iplott, bool imc, 
 	istampa= istamp;
 	iplotta = iplott;
 	doMcComparison = imc;
-	YesSciT = doSciTil ;
+	YesSciTil = doSciTil ;
 
 	MINIMUMOUTERHITSPERTRACK=5;
 	Fimin=0.;     Fimax=2.*PI;
@@ -236,7 +236,7 @@ if(istampa >=3 )   HANDLEXYZ = fopen("infoPndTrackFinderRealXYZ.txt","w");
 //    get   the SciTil hit  array
 
 
-  if(YesSciT) {
+  if(YesSciTil) {
 	fSciTHitArray = (TClonesArray*) ioman->GetObject("SciTHit");
   } else {
 	fSciTHitArray = NULL;
@@ -357,7 +357,18 @@ Int_t PndSttTrackFinderReal::DoFind( TClonesArray* trackCandArray, TClonesArray*
 Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *trackArray, TClonesArray* helixHitArray) 
 {
 
-                                                //  list of hit numbers of those falling in this cell
+ bool	outcome;
+   Int_t  i, j, iaccept, ii,jj,k,kk,n1,n2,n3,
+          i1,j1,k1,imaxima, jmaxima,
+          iofmax, jofmax, kofmax,
+          index[nmaxHits], integer,
+          Ncirc, nSkew1, nSkew2,
+          n_K, n_FI0, n_R, n_D, n_Fi,STATUS,
+          Nremaining, Nremaining2,
+          NumberofMaximaDFiR,
+          NumberofMaximaKFI0,
+          nAssociatedParallelHits ;
+
     Short_t Charge[MAXTRACKSPEREVENT],
             Status[MAXTRACKSPEREVENT],
             daTrackFoundaTrackMC[MAXTRACKSPEREVENT],
@@ -374,7 +385,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
              lowlimit[MAXTRACKSPEREVENT],
              uplimit[MAXTRACKSPEREVENT],
              info[nmaxHits][7],
-		posizSciT[nmaxSciTilHits][3],
+		posizSciTil[nmaxSciTilHits][3],
              WDX, WDY, WDZ,
              auxRvalues[nmaxHits],
              inclination[nmaxinclinationversors][3];
@@ -386,6 +397,141 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
     Int_t Nincl = 1, Ninclinate, iHit;
     Int_t Minclinations[nmaxinclinationversors];
 
+
+
+  bool
+	InclusionList[nmaxHits], // list of parallel hits  already assigned to a track or with multiple hits.
+	InclusionListSkew[nmaxHits],    //  list of skew hits with multiple hits
+	InclusionListbis[nmaxHits],     //  list of || hits ONLY with multiple hits
+	InclusionListSkewbis[nmaxHits], //  list of skew hits ONLY with multiple hits (duplicate of
+						//		InclusionListSkew)
+	InclusionListSciTil[nmaxSciTilHits], //  list of SciTil hits  already assigned to a found track.
+
+
+//	TypeConf[MAXTRACKSPEREVENT],   //  if TypeConf[]=false --> the track is a line in the Conformal space,
+					//   if TypeConf[]=true it is a crf;
+	TypeConfSkew[MAXTRACKSPEREVENT],
+	GoodTrack[MAXTRACKSPEREVENT];    //  yes = track found passes minimal requirements
+
+
+ Short_t iParHit,
+	nRcell;
+
+ UShort_t
+	exphit,
+	iExclude,
+	imc,
+	jexp,
+	mchit,
+	nFicell,
+//	nRcell,
+	nTracksFoundSoFar,
+	NNN,
+	Nouter,
+	nTotalHits[MAXTRACKSPEREVENT],
+	TemporarynSttSkewhitinTrack,
+	BigList[MAXTRACKSPEREVENT][nmaxHitsInTrack],
+	TemporarySkewList[nmaxHits][2],
+	nHitsinTrack[MAXTRACKSPEREVENT],
+	nSttSkewhitinTrack[MAXTRACKSPEREVENT],
+	tempore[nmaxHits],
+	ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
+	ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
+
+	nSciTilHitsinTrack[MAXTRACKSPEREVENT],
+	ListSciTilHitsinTrack[MAXTRACKSPEREVENT][nmaxSciTilHitsInTrack],
+
+	nMCParalAlone[MAXTRACKSPEREVENT],
+	nMCSkewAlone[MAXTRACKSPEREVENT],
+	MCParalAloneList[MAXTRACKSPEREVENT][nmaxHits],
+	MCSkewAloneList[MAXTRACKSPEREVENT][nmaxHits],
+	nParalCommon[MAXTRACKSPEREVENT],
+	ParalCommonList[MAXTRACKSPEREVENT][nmaxHits],
+	nSpuriParinTrack[MAXTRACKSPEREVENT],
+	ParSpuriList[MAXTRACKSPEREVENT][nmaxHits],
+	nSkewCommon[MAXTRACKSPEREVENT],
+	SkewCommonList[MAXTRACKSPEREVENT][nmaxHits],
+	nSpuriSkewinTrack[MAXTRACKSPEREVENT],
+	SkewSpuriList[MAXTRACKSPEREVENT][nmaxHits],
+	RConformalIndex[nmaxHits],  //  given a Hit number it gives its radial box number
+	FiConformalIndex[nmaxHits],  //  given a Hit number it gives its azimuthal box number
+	nBoxConformal[nRdivConformal][nFidivConformal];  //  first index -> radial divisions, 2nd index -> azimuthal divisions; n. of
+							//  hits falling in this cell
+
+	UShort_t HitsinBoxConformal[MAXHITSINCELL][nRdivConformal][nFidivConformal];
+		//  first index -> radial divisions, 2nd index -> azimuthal divisions;
+
+
+   Int_t status;
+
+
+
+   int   iimax,jjmax,  ncount;
+
+
+   Double_t angle, Distance, max1, HoughR, HoughD, HoughFi, HoughKAPPA, HoughFI0,
+	      Px, Py,
+              tempR, tempD,tempFi,tempKAPPA,tempFI0,
+              Rlow, Rup, Dlow, Dup,Filow,Fiup, KAPPAlow, KAPPAup, FI0low, FI0up,
+              gamma;
+
+   Double_t    D,Fi,
+		ptotal,
+               Fi_low_limit[MAXTRACKSPEREVENT],
+               Fi_up_limit[MAXTRACKSPEREVENT],
+               Fi_initial_helix_referenceframe[MAXTRACKSPEREVENT],
+               Fi_final_helix_referenceframe[MAXTRACKSPEREVENT],
+               R[MAXTRACKSPEREVENT],
+               Ox[MAXTRACKSPEREVENT],
+               Oy[MAXTRACKSPEREVENT],
+               KAPPA[MAXTRACKSPEREVENT],
+               FI0[MAXTRACKSPEREVENT],
+               trajectory_vertex[3],
+               infoparalConformal[nmaxHits][5],
+               infoSciTilConformal[nmaxSciTilHits][3],
+               S[2*nmaxHits],
+               Z[2*nmaxHits],
+               temporeS[nmaxHits],
+               temporeZ[nmaxHits],
+               ZDrift[2*nmaxHits],
+               ZErrorafterTilt[2*nmaxHits],
+               temporeZDrift[nmaxHits],
+               temporeZErrorafterTilt[nmaxHits],
+               Posiz[3],
+               Posiz1[3],
+               Posiz2[3],
+	       versor[3],
+	       U[MAXTRACKSPEREVENT][nmaxHits],
+	       V[MAXTRACKSPEREVENT][nmaxHits],
+               Xpos_for_LHeTrack[nmaxHits],
+               Ypos_for_LHeTrack[nmaxHits],
+               Zpos_for_LHeTrack[nmaxHits],
+               Sfinal[MAXTRACKSPEREVENT][nmaxHits],
+               Zfinal[MAXTRACKSPEREVENT][nmaxHits],
+               ZDriftfinal[MAXTRACKSPEREVENT][nmaxHits],
+               ZErrorafterTiltfinal[MAXTRACKSPEREVENT][nmaxHits];
+
+
+
+    Float_t RemainingR[nmaxHits],
+            RemainingFi[nmaxHits],
+            RemainingD[nmaxHits],
+            RemainingCX[nmaxHits],
+            RemainingCY[nmaxHits],
+            RemainingKAPPA[nmaxHits],
+            RemainingFI0[nmaxHits];
+    bool    GoodSkewFit[nmaxHits];
+
+
+    bool            temporflag[8],
+            IFLAG;
+
+
+   CalculatedCircles Result;
+   CalculatedHelix   HelixResult;
+//   AssociatedHitsToHelix ResultAssociatedHits ;
+
+   char nomef[100], nome[30],titolo[100];
 
 
 
@@ -460,51 +606,89 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
   }
 
 
-/*
-   if(istampa>=1 && (nMCTracks  != N_INTENDED)  ){
-    cout<<"Evento n. "<<IVOLTE<<" : n. MC tracks = "<<nMCTracks
-    <<" and it is different from n. intended tracks (= "<<
-        N_INTENDED<<"), returning!\n";
-    return  -20;
-  }
-*/
 
 
-//------------------------ SciTil hits.
+//------------------------ loading SciTil hits.
   nSciTHits = 0;
-  if(YesSciT) {
-		if( fSciTHitArray != NULL){
+  if(YesSciTil) {
+	if( fSciTHitArray != NULL){
 					// number SciTil hits/event
 			nSciTHits = fSciTHitArray->GetEntriesFast();
 			if(istampa>0)
-   cout<<"da PndSttTrackFinderReal, event "<<IVOLTE<<", "<<nSciTHits<<" SciTil hits present.\n";
-		}
-  } else {
-    if(istampa>0) cout<<"da PndSttTrackFinderReal, event "<<IVOLTE<<", 0 SciTil hits present.\n";
-  }
+   cout<<"da PndSttTrackFinderReal, event "<<IVOLTE<<", "<<nSciTHits
+   <<" SciTil hits presenti inizialmente.\n";
+	}
+	if( nSciTHits>0){
+	 PndSciTHit *pPndSciTHit;
+	 TVector3  posiz;
 
-	PndSciTHit *pPndSciTHit;
-	TVector3  posiz;
-	Double_t  errX, errY, errZ;
-
-	for(int j=0; j<nSciTHits; j++){
+	 // the first SciTil hit; this cannot be duplicate hit by definition.
+		pPndSciTHit = (PndSciTHit*) fSciTHitArray->At(0);
+		posiz = pPndSciTHit->GetPosition();
+		if(istampa>0)
+		cout<<"da PndSttTrackFinderReal SciTil non purgati, Xpos "<<posiz.X()<<", Ypos "<<
+		posiz.Y()<<", Zpos "<<posiz.Z()<<endl;
+		posizSciTil[0][0]=posiz.X();
+		posizSciTil[0][1]=posiz.Y();
+		posizSciTil[0][2]=posiz.Z();
+		aaa = posizSciTil[0][0]*posizSciTil[0][0]+
+		  posizSciTil[0][1]*posizSciTil[0][1];
+		infoSciTilConformal[0][0]= posizSciTil[0][0]/aaa;
+		infoSciTilConformal[0][1]= posizSciTil[0][1]/aaa;
+		infoSciTilConformal[0][2]= DIMENSIONSCITIL/aaa;
+		iaccept=1;
+	// the other SciTil hits; purge them if they are duplicate.
+	 for(j=1; j<nSciTHits; j++){
 		pPndSciTHit = (PndSciTHit*) fSciTHitArray->At(j);
 		posiz = pPndSciTHit->GetPosition();
-		errX = pPndSciTHit->GetDx();
-		errY = pPndSciTHit->GetDy();
-		errZ = pPndSciTHit->GetDz();
 		if(istampa>0)
-		cout<<"da PndSttTrackFinderReal SciTil Xpos "<<posiz.X()<<", Ypos "<<
+		cout<<"da PndSttTrackFinderReal SciTil non purgati, Xpos "
+			<<posiz.X()<<", Ypos "<<
 		posiz.Y()<<", Zpos "<<posiz.Z()<<endl;
-		cout<<"da PndSttTrackFinderReal SciTil errX "<<errX<<", errY "<<
-		errY<<", errZ "<<errZ<<endl;
-		posizSciT[j][0]=posiz.X();
-		posizSciT[j][1]=posiz.Y();
-		posizSciT[j][2]=posiz.Z();
-	}
+		// purging the duplicate SciTil hits.
+		
+	    for(k=0; k<iaccept; k++){
+		if(
+			(fabs(posiz.X() - posizSciTil[k][0])< 1.e-20)
+					&&
+			(fabs(posiz.Y() - posizSciTil[k][1])< 1.e-20)
+					&&
+			(fabs(posiz.Z() - posizSciTil[k][2])< 1.e-20)
+		  ){
+			goto finish ;
+		}  // end of if((fabs(posiz.X() - old...
+	    } // end of for(k=0; k<iaccept; k++)
+	    posizSciTil[iaccept][0]=posiz.X();
+	    posizSciTil[iaccept][1]=posiz.Y();
+	    posizSciTil[iaccept][2]=posiz.Z();
+	    aaa = posizSciTil[iaccept][0]*posizSciTil[iaccept][0]+
+		  posizSciTil[iaccept][1]*posizSciTil[iaccept][1];
+	    infoSciTilConformal[iaccept][0]= posizSciTil[iaccept][0]/aaa;
+	    infoSciTilConformal[iaccept][1]= posizSciTil[iaccept][1]/aaa;
+	    infoSciTilConformal[iaccept][2]= DIMENSIONSCITIL/aaa;
+	    iaccept++;
+	    finish: ;
+
+	 }  // end of for(j=0; j<nSciTHits; j++)
+
+	 nSciTHits=iaccept;
+
+	}  // end of if( nSciTHits>0){
 
 
+//-----------stampe.
+if(istampa>0){
+  cout<<"da PndSttTrackFinderReal, dopo purga di SciTil; n. hits = "<<nSciTHits<<endl;
+  for(j=0; j<nSciTHits; j++){
+	cout<<"da PndSttTrackFinderReal SciTil Xpos "<<posizSciTil[j][0]<<", Ypos "<<
+	posizSciTil[j][1]<<", Zpos "<<posizSciTil[j][2]<<endl;
+  }
+}
+//---------- fine stampe.
 
+  }  // end of if(YesSciTil)
+
+//--------------------------------
 
 
 
@@ -528,7 +712,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 
 
 
-    for(Int_t j=0; j<nmaxinclinationversors;j++){
+    for(j=0; j<nmaxinclinationversors;j++){
      Minclinations[j]=0;
     }
 
@@ -560,11 +744,6 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 
 	}
 
-//      if (ptIndex < 0) continue;           // fake or background hit
-//      if (!pMCpt){
-//       cout<<"from PndSttTrackFinderReal :  # MC points pointer missing, return!\n";
-//       continue;
-//      }
       
       // tubeID  CHECK added
       Int_t tubeID = pMhit->GetTubeID();
@@ -610,7 +789,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
           ZCENTER_STRAIGHT = info[iHit][2];      //    this works because just few lines below there is the
           SEMILENGTH_STRAIGHT = info[iHit][4];   //    requirement that Minclinations[0] > 2 (= at least 3 parallel straws)
       } else {
-       for (Int_t i=2; i<=Nincl;i++) {
+       for (i=2; i<=Nincl;i++) {
         if (fabs( WDX-inclination[i-1][0] )< 0.00001
                                 &&
             fabs( WDY -inclination[i-1][1])< 0.00001
@@ -689,13 +868,9 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 
 
 
-
-
-
-
 //   ordering the parallel hits by INCREASING CONFORMAL RADIUS or equivalently, decreasing spatial radius.
 
-    for (int j = 0; j< Minclinations[0]; j++){
+    for (j = 0; j< Minclinations[0]; j++){
       auxIndex[j]=j;
       auxRvalues[j]=
                     info[ infoparal[ j ]  ][0]*
@@ -707,169 +882,17 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 
 
     Merge_Sort( Minclinations[0], auxRvalues, auxIndex);
-    for (int j = 0; j< Minclinations[0]; j++){
+    for (j = 0; j< Minclinations[0]; j++){
       infoparal[ Minclinations[0]-1-j]  =  OLDinfoparal[ auxIndex[ j ]   ];
     }
 
 //----------------------------
-
-
-
-
-
-
 
    if( Minclinations[0] <MINIMUMHITSPERTRACK   ) {
      cout<< "from PndSttTrackFinderReal :  # Stt || hits = "<< Minclinations[0]
          <<" and it is < MINIMUMHITSPERTRACK = "<<MINIMUMHITSPERTRACK<<", return!"<<endl;
 	  return 0;
    }
-
-
-
-
-
-  bool	//Consider,
-	InclusionList[nmaxHits], // list of parallel hits  already assigned to a track or with multiple hits.
-	InclusionListSkew[nmaxHits],    //  list of skew hits with multiple hits
-	InclusionListbis[nmaxHits],     //  list of || hits ONLY with multiple hits
-	InclusionListSkewbis[nmaxHits], //  list of skew hits ONLY with multiple hits (duplicate of
-						//		InclusionListSkew)
-	InclusionListSciTil[nmaxSciTilHits], //  list of SciTil hits  already assigned to a found track.
-
-
-//	TypeConf[MAXTRACKSPEREVENT],   //  if TypeConf[]=false --> the track is a line in the Conformal space,
-					//   if TypeConf[]=true it is a crf;
-	TypeConfSkew[MAXTRACKSPEREVENT],
-	GoodTrack[MAXTRACKSPEREVENT];    //  yes = track found passes minimal requirements
-
-
-  UShort_t
-	exphit,
-	iExclude,
-	imc,
-	jexp,
-	mchit,
-	nFicell,
-	nRcell,
-	nTracksFoundSoFar,
-	NNN,
-	Nouter,
-	nTotalHits[MAXTRACKSPEREVENT],
-	iParHit,
-	TemporarynSttSkewhitinTrack,
-	BigList[MAXTRACKSPEREVENT][nmaxHitsInTrack],
-	TemporarySkewList[nmaxHits][2],
-	nHitsinTrack[MAXTRACKSPEREVENT],
-	nSttSkewhitinTrack[MAXTRACKSPEREVENT],
-	tempore[nmaxHits],
-	ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
-	ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
-
-	nSciTilHitsinTrack[MAXTRACKSPEREVENT],
-	ListSciTilHitsinTrack[MAXTRACKSPEREVENT][nmaxSciTilHitsInTrack],
-
-	nMCParalAlone[MAXTRACKSPEREVENT],
-	nMCSkewAlone[MAXTRACKSPEREVENT],
-	MCParalAloneList[MAXTRACKSPEREVENT][nmaxHits],
-	MCSkewAloneList[MAXTRACKSPEREVENT][nmaxHits],
-	nParalCommon[MAXTRACKSPEREVENT],
-	ParalCommonList[MAXTRACKSPEREVENT][nmaxHits],
-	nSpuriParinTrack[MAXTRACKSPEREVENT],
-	ParSpuriList[MAXTRACKSPEREVENT][nmaxHits],
-	nSkewCommon[MAXTRACKSPEREVENT],
-	SkewCommonList[MAXTRACKSPEREVENT][nmaxHits],
-	nSpuriSkewinTrack[MAXTRACKSPEREVENT],
-	SkewSpuriList[MAXTRACKSPEREVENT][nmaxHits],
-	RConformalIndex[nmaxHits],  //  given a Hit number it gives its radial box number
-	FiConformalIndex[nmaxHits],  //  given a Hit number it gives its azimuthal box number
-	nBoxConformal[nRdivConformal][nFidivConformal];  //  first index -> radial divisions, 2nd index -> azimuthal divisions; n. of
-							//  hits falling in this cell
-
-	UShort_t HitsinBoxConformal[MAXHITSINCELL][nRdivConformal][nFidivConformal];
-		//  first index -> radial divisions, 2nd index -> azimuthal divisions;
-
-
-   Int_t status;
-
-
-   Int_t  i, j,ii,jj,k,kk,n1,n2,n3,
-          i1,j1,k1,imaxima, jmaxima,
-          iofmax, jofmax, kofmax,
-          index[nmaxHits], integer,
-          Ncirc, nSkew1, nSkew2,
-          n_K, n_FI0, n_R, n_D, n_Fi,STATUS,
-          Nremaining, Nremaining2,
-          NumberofMaximaDFiR,
-          NumberofMaximaKFI0,
-          nAssociatedParallelHits ;
-
-   int   iimax,jjmax,  ncount;
-
-
-   Double_t angle, Distance, max1, HoughR, HoughD, HoughFi, HoughKAPPA, HoughFI0,
-	      Px, Py,
-              tempR, tempD,tempFi,tempKAPPA,tempFI0,
-              Rlow, Rup, Dlow, Dup,Filow,Fiup, KAPPAlow, KAPPAup, FI0low, FI0up,
-              gamma;
-
-   Double_t    D,Fi,
-		ptotal,
-               Fi_low_limit[MAXTRACKSPEREVENT],
-               Fi_up_limit[MAXTRACKSPEREVENT],
-               Fi_initial_helix_referenceframe[MAXTRACKSPEREVENT],
-               Fi_final_helix_referenceframe[MAXTRACKSPEREVENT],
-               R[MAXTRACKSPEREVENT],
-               Ox[MAXTRACKSPEREVENT],
-               Oy[MAXTRACKSPEREVENT],
-               KAPPA[MAXTRACKSPEREVENT],
-               FI0[MAXTRACKSPEREVENT],
-               trajectory_vertex[3],
-               infoparalConformal[nmaxHits][5],
-               S[2*nmaxHits],
-               Z[2*nmaxHits],
-               temporeS[nmaxHits],
-               temporeZ[nmaxHits],
-               ZDrift[2*nmaxHits],
-               ZErrorafterTilt[2*nmaxHits],
-               temporeZDrift[nmaxHits],
-               temporeZErrorafterTilt[nmaxHits],
-               Posiz[3],
-               Posiz1[3],
-               Posiz2[3],
-	       versor[3],
-	       U[MAXTRACKSPEREVENT][nmaxHits],
-	       V[MAXTRACKSPEREVENT][nmaxHits],
-               Xpos_for_LHeTrack[nmaxHits],
-               Ypos_for_LHeTrack[nmaxHits],
-               Zpos_for_LHeTrack[nmaxHits],
-               Sfinal[MAXTRACKSPEREVENT][nmaxHits],
-               Zfinal[MAXTRACKSPEREVENT][nmaxHits],
-               ZDriftfinal[MAXTRACKSPEREVENT][nmaxHits],
-               ZErrorafterTiltfinal[MAXTRACKSPEREVENT][nmaxHits];
-
-
-
-    Float_t RemainingR[nmaxHits],
-            RemainingFi[nmaxHits],
-            RemainingD[nmaxHits],
-            RemainingCX[nmaxHits],
-            RemainingCY[nmaxHits],
-            RemainingKAPPA[nmaxHits],
-            RemainingFI0[nmaxHits];
-    bool    GoodSkewFit[nmaxHits];
-
-
-    bool            temporflag[8],
-            IFLAG;
-
-
-   CalculatedCircles Result;
-   CalculatedHelix   HelixResult;
-//   AssociatedHitsToHelix ResultAssociatedHits ;
-
-   char nomef[100], nome[30],titolo[100];
-
 
 
 
@@ -932,7 +955,13 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 
  trajectory_vertex[0]=trajectory_vertex[1]=trajectory_vertex[2]=0.;
 
- PndSttFromXYtoConformal(trajectory_vertex,info, Minclinations[0],infoparalConformal, &status);
+ PndSttFromXYtoConformal(
+	trajectory_vertex,
+	info,
+	Minclinations[0],
+	infoparalConformal,
+	&status
+		);
 
  PndSttBoxConformalFilling(
 	InclusionList,
@@ -948,10 +977,93 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 
 //     start the track finding procedure
 
+  nTracksFoundSoFar=0;    // # tracks found
+
+
+//----- loop over the SciTil hits first;
+ if(YesSciTil) {
+
+    for(i=0; i<nSciTHits ; i++) {
+	if( nTracksFoundSoFar > MAXTRACKSPEREVENT) continue;
+
+	nRcell = -1;  // because SciTil hit is outside of the Stt system.
+	Fi =  atan2(posizSciTil[i][1],posizSciTil[i][0]) ;
+	if ( Fi < 0. ) Fi += 2.*PI;
+	 nFicell =  (Short_t) (0.5*nFidivConformal*Fi/PI);
+	 if(nFicell > nFidivConformal ) {
+		nFicell = nFidivConformal;
+	 } else if (nFicell<0) {
+		nFicell = 0;
+	 }
+	outcome = FindTrackInXYProjection(
+				 -i-1, // seed hit; it is negative for SciTil Hits.
+				 nRcell,
+				 nFicell,
+				 Minclinations,
+				 info,
+				 InclusionList,
+				 RConformalIndex,
+				 FiConformalIndex,
+				 nBoxConformal,
+				 HitsinBoxConformal,
+				 nTracksFoundSoFar,
+				 nHitsinTrack,
+				 ListHitsinTrack,
+				 nSciTilHitsinTrack,
+				 ListSciTilHitsinTrack,
+				 InclusionListSciTil,
+				 trajectory_vertex,
+				 infoparalConformal,
+				 infoSciTilConformal,
+				 Ox,
+				 Oy,
+				 R,
+				 Fi_low_limit,
+				 Fi_up_limit,
+				 Fi_initial_helix_referenceframe,
+				 Fi_final_helix_referenceframe,
+				 Charge,
+				 U,
+				 V
+				);
+	if(!outcome)  continue;
+	for(j=0; j<nHitsinTrack[nTracksFoundSoFar]; j++){
+	  InclusionList[infoparal[ListHitsinTrack[nTracksFoundSoFar][j]]] = false;
+	}
+
+
+//---------stampe.
+if(istampa>0){
+	cout<<"con SciTil, traccia n. "<<nTracksFoundSoFar<<", SciTil hit n. "<<i
+	<<", stampa hit || :\n";
+	for(j=0; j<nHitsinTrack[nTracksFoundSoFar]; j++){
+		cout<<"\t hit || n. "<<
+	  infoparal[ListHitsinTrack[nTracksFoundSoFar][j]]<<endl;
+	}
+}
+//-------fine stampe.
+
+	nTracksFoundSoFar++;
+
+	if( nTracksFoundSoFar >= MAXTRACKSPEREVENT ){
+cout<<"from PndSttTrackFinderReal :  # n. Tracks found so far = "<<nTracksFoundSoFar
+		 <<" and it is >= MAXTRACKSPEREVENT ( = "<<MAXTRACKSPEREVENT
+		 <<"; rejecting this event and returning !\n";
+		return -15;
+	}
+
+    } // end of  for(i=0; i<nSciTHits ; i++)
+
+
+ }  // end of  if(YesSciTil)
+
+
+//----- end loop over the SciTil hits.
+
+
+
 
 //----- loop over the parallel hits
-
-  nTracksFoundSoFar=0;    // # tracks found
 
 //   begins the first iteration with more severe cuts on the # hits in track candidate
 
@@ -962,11 +1074,10 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 	nRcell = RConformalIndex[ infoparal[iParHit] ];
 	nFicell = FiConformalIndex[infoparal[iParHit]];
 
-	bool outcome = FindTrackInXYProjection(
-				 iParHit, // seed hit.
+	outcome = FindTrackInXYProjection(
+				 iParHit, // seed hit; it is positive for STT Hits.
 				 nRcell,
 				 nFicell,
-				 1,	// type of hit : 0 = SciTil hit, 1 = Stt hit.
 				 Minclinations,
 				 info,
 				 InclusionList,
@@ -974,11 +1085,15 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 				 FiConformalIndex,
 				 nBoxConformal,
 				 HitsinBoxConformal,
-				 ListHitsinTrack,
 				 nTracksFoundSoFar,
 				 nHitsinTrack,
+				 ListHitsinTrack,
+				 nSciTilHitsinTrack,
+				 ListSciTilHitsinTrack,
+				 InclusionListSciTil,
 				 trajectory_vertex,
 				 infoparalConformal,
+				 infoSciTilConformal,
 				 Ox,
 				 Oy,
 				 R,
@@ -991,7 +1106,12 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 				 V
 				);
 
-
+//---------stampe.
+if(istampa>0){
+	cout<<"senza SciTil, traccia n. "<<nTracksFoundSoFar<<", outcome "<<
+	outcome<<endl;
+}
+//-------fine stampe.
 	if(!outcome)  continue;
 
 // --------  here the track and its hits were found, filling the Inclusion list
@@ -1139,12 +1259,12 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 				   // IN Z DIRECTION only, of selected Skew hit
 		KAPPA[i],    // input, KAPPA result of fit
 		FI0[i],    // input, FI0 result of fit,
-                   tempore,  //  output, associated skew hits
-                   temporeS,  //  output, associated skew hit  S
-                   temporeZ,  //  output, associated skew hits Zcoordinate of center wire
-                   temporeZDrift,  //  output, associated skew hit Z drift
-                   temporeZErrorafterTilt,  //  output, associated skew hits Z error after tilt
-                   &STATUS   // output
+		tempore,  //  output, associated skew hits
+		temporeS,  //  output, associated skew hit  S
+		temporeZ,  //  output, associated skew hits Zcoordinate of center wire
+		temporeZDrift,  //  output, associated skew hit Z drift
+		temporeZErrorafterTilt,  //  output, associated skew hits Z error after tilt
+		&STATUS   // output
 					);
 //    out of this function  STATUS  is zero signals only that KAPPA  is zero.
 
@@ -2099,7 +2219,7 @@ if(iplotta && IVOLTE <= nmassimo){
                    Nhits, info, Nincl, Minclinations,
 		    inclination,
 		    nSciTHits,
-		    posizSciT,
+		    posizSciTil,
 		    nTracksFoundSoFar
                                                      );
 
@@ -2112,7 +2232,7 @@ if(iplotta && IVOLTE <= nmassimo){
                    Nhits, info, Nincl, Minclinations,
 		    inclination,
 		nSciTHits,
-		posizSciT,
+		posizSciTil,
 		    nTracksFoundSoFar
                                                      );
 
@@ -3454,9 +3574,6 @@ void PndSttTrackFinderReal::clustering3 (
 		   UShort_t nSciTilHits,
 		   Double_t posizSciTil[nmaxSciTilHits][3],
                    UShort_t nTracksFoundSoFar
-//		   ,
-//                   bool *TypeConf,
-//                   Double_t *ALFA, Double_t *BETA, Double_t *GAMMA
                                                      )
 {
 
@@ -5656,10 +5773,13 @@ nohits: ;
 
 //----------begin of function PndSttTrackFinderReal::PndSttfromXYtoConformal
 
- void PndSttTrackFinderReal::PndSttFromXYtoConformal(Double_t trajectory_vertex[3],
-                            Double_t info[][7],
-                            Int_t Nparal,Double_t infoparalConformal[][5],
-                            Int_t *status )
+ void PndSttTrackFinderReal::PndSttFromXYtoConformal(
+	Double_t trajectory_vertex[3],
+	Double_t info[][7],
+	Int_t Nparal,
+	Double_t infoparalConformal[][5],
+	Int_t *status
+		)
 {
 
 
@@ -5803,7 +5923,8 @@ nohits: ;
          }
 
 
-         Double_t RRR = sqrt(infoparalConformal[i][0]*infoparalConformal[i][0]+infoparalConformal[i][1]*infoparalConformal[i][1]);
+         Double_t RRR = sqrt(infoparalConformal[i][0]*infoparalConformal[i][0]+
+			infoparalConformal[i][1]*infoparalConformal[i][1]);
 //   cout<<"from Fillng : hit parallel n. "<<i<<"  con raggio conforme "<<RRR<<endl;
 
          for(j=nRdivConformalEffective-1, iR=0; j>0; j--){
@@ -5944,8 +6065,8 @@ void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_lef
 		UShort_t NRCELLDISTANCE,
 		UShort_t NFiCELLDISTANCE,
 		UShort_t Nparal,
-		UShort_t ihit,
-		UShort_t nRcell, // R cell of the seed hit;
+		Short_t ihit, // seed hit; if it is negative it is a SciTil hit.
+		Short_t nRcell, // R cell of the seed hit; can be negative beacuse of SciTil hits;
 		UShort_t nFicell, // Fi cell of the seed hit;
 		Double_t info[][7],
 		bool InclusionList[nmaxHits],
@@ -5959,8 +6080,8 @@ void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_lef
 
      bool TemporaryInclusionList[nmaxHits];
 
- UShort_t	i,
-		j,
+ Short_t	i;
+ UShort_t	j,
 		iFi,
 		iR,
 		nRmin,
@@ -5975,7 +6096,6 @@ void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_lef
  Double_t auxRvalues[nmaxHits];
 
 //   ihit        is the hit number in the PARALLEL number scheme
-
 
  for(i=0, nRemainingHits=0; i<Nparal; i++){
 
@@ -5997,10 +6117,15 @@ void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_lef
 
 //  cells of the seed hit
 
- nHitsinTrack=1;
- ListHitsinTrack[0]=  ihit ;
+ if(ihit>=0){
+	nHitsinTrack=1;
+	ListHitsinTrack[0]=  ihit ;
+	i = 0;
+ } else {
+	nHitsinTrack=0;
+	i = -1;
+ }
 
- i = 0;
  while( nRemainingHits > 0 &&  i < nHitsinTrack) {
 
 
@@ -6014,10 +6139,12 @@ void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_lef
 	}  else {
 		nRmax = nRcell + NRCELLDISTANCE;
 	}
-
+cout<<"\tin FindTrackPatterninBoxConformal, nRmin = "<<nRmin
+	<<", nRmax = "<<nRmax<<endl;
+cout<<"\tin FindTrackPatterninBoxConformal, nFicell = "<<nFicell<<endl;
 
 	for( iR= nRmin ; iR<= nRmax ; iR++){
-	 for( iFi2 = nFicell - NFiCELLDISTANCE ; iFi2<= nFicell + NFiCELLDISTANCE ; iFi2++){
+	 for(iFi2=nFicell-NFiCELLDISTANCE;iFi2<=nFicell+NFiCELLDISTANCE;iFi2++){
 		if ( iFi2 < 0 )  {
 			iFi = nFidivConformal + iFi2;
 		} else if ( iFi2 >= nFidivConformal) {
@@ -6059,6 +6186,8 @@ void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_lef
 
 //----------begin of function PndSttTrackFinderReal::PndSttFindTrackPatterninBoxConformalSpecial
 
+//  The difference with PndSttFindTrackPatterninBoxConformal is that the search is performed
+//  in the selected list    ListHitsinTrackinWhichToSearch   instead of all the parallel list.
 
   Short_t PndSttTrackFinderReal::PndSttFindTrackPatterninBoxConformalSpecial(
 			UShort_t NRCELLDISTANCE,
@@ -6282,20 +6411,16 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
 
 //----------begin of function PndSttTrackFinderReal::PndSttFitHelixCylinder
 
-      Short_t PndSttTrackFinderReal::PndSttFitHelixCylinder( UShort_t nHitsinTrack,
-                                                     Double_t auxinfoparalConformal[][5],
-                                                     UShort_t  nTracksFoundSoFar,
-                                                     Double_t rotationangle,
-                                                     Double_t * trajectory_vertex,
-                                                     UShort_t NMAX,
-                                                     Double_t *emme,
-                                                     Double_t *qu
-//						     ,
-//                                                     Double_t *ALFA,
-//                                                     Double_t *BETA,
-//                                                     Double_t *GAMMA,
-//                                                     bool *TypeConf
-                                                            )
+ Short_t PndSttTrackFinderReal::PndSttFitHelixCylinder(
+	UShort_t nHitsinTrack,
+	Double_t auxinfoparalConformal[][5],
+	UShort_t  nTracksFoundSoFar,
+	Double_t rotationangle,
+	Double_t * trajectory_vertex,
+	UShort_t NMAX,
+	Double_t *emme,
+	Double_t *qu
+				)
 {
 
     //   definition of variables for the glpsol  solver
@@ -6396,8 +6521,8 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
         } else {
           Delta[i] = 3.*STRAWRADIUS;
         }
-      }
-
+cout<<"\tERRORI usati nel fitter : punto n. "<<i<<", suo errore "<<Delta[i]<<endl;
+      }  // end of   for(i=0;i<nHitsinTrack; i++)
 //      sprintf(nome,"GeneralParallelHitsConformeTraccia%dEvent%d.mcs",(nTracksFoundSoFar), IVOLTE);
 //      MACRO = fopen(nome,"w");
 //      fprintf(MACRO,"NAME    FIT\n");
@@ -6974,417 +7099,6 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
 
 
 //----------end of function PndSttTrackFinderReal::PndSttFitHelixCylinder
-
-
-
-
-
-
-
-
-
-//----------begin of function PndSttTrackFinderReal::PndSttFitHelixCylinder2
-
-      Short_t PndSttTrackFinderReal::PndSttFitHelixCylinder2( UShort_t nHitsinTrack,
-//                                                     UShort_t iExclude,
-                                                     Double_t auxinfoparalConformal[][5],
-                                                     UShort_t  nTracksFoundSoFar,
-                                                     Double_t rotationangle,
-                                                     Double_t * trajectory_vertex,
-                                                     UShort_t NMAX
-//						     ,
-//                                                     Double_t *ALFA,
-//                                                     Double_t *BETA,
-//                                                     Double_t *GAMMA,
-//                                                     bool *TypeConf
-                                                            )
-{
-
-     Double_t M = 1.,
-              emme, m_result,
-              qu, q_result,
-              A,
-              alfetta,
-              angle,
-              offsety,
-              aux,
-              Delta[nmaxHits],
-              Ox[nmaxHits],
-              Oy[nmaxHits];
-
-     UShort_t  i, ii;
-     Short_t Status;
-
-     char nome[300], stringa[300], stringa2[300];
-
-     FILE * MACRO ;
-
-     float m1_result,m2_result, q1_result,q2_result, A1_result, A2_result;
-
-// --
-
-     if( nHitsinTrack < MINIMUMHITSPERTRACK) {
-        return -1;
-     }
-
-//  use the trick of increasing the rotation angle by 10 degrees in order to obtain always a positive m
-      rotationangle -= PI/18.;
-
-      Double_t cose = cos(rotationangle), sine = sin(rotationangle);
-      for(i=0;i<nHitsinTrack; i++){
-//       if( i== iExclude)  continue;
-       Ox[i] = auxinfoparalConformal[ i ][0] *cose +
-               auxinfoparalConformal[ i ][1]*sine;
-       Oy[i] = -auxinfoparalConformal[ i ][0] *sine +
-               auxinfoparalConformal[ i ][1]*cose;
-
-//cout<<"dal fitter, hit in lista sequenziale, n. "<<i<<",  Ox , Oy ruotati "<<Ox[i]<<",  "<<Oy[i]<<"  drift radius  "
-//     <<auxinfoparalConformal[ i ][2]<<"   and  straw radisu  "<<auxinfoparalConformal[ i ][4]<<endl;
-
-
-
-//  now traslate toward positive V values to obtain always positive q values
-//       offsety = 10./RStrawDetectorMin;
-//       Oy[i] += offsety;
-
-
-//         Delta[i] = auxinfoparalConformal[ i ][4];
-         aux = 5.*(auxinfoparalConformal[ i ][4]/STRAWRADIUS)*0.03;
-         Delta[i] = 5.*auxinfoparalConformal[ i ][2];
-         if( aux> Delta[i])  Delta[i] =aux;
-
-      }
-
-      sprintf(nome,"GeneralParallelHitsConformeTraccia%dEvent%d.mcs",(nTracksFoundSoFar), IVOLTE);
-      MACRO = fopen(nome,"w");
-      fprintf(MACRO,"NAME    FIT\n");
-//-----------------  write the ROWS  section
-
-      fprintf(MACRO,"ROWS\n");
-      fprintf(MACRO," N OBJECT\n");
-      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
-//       if( i== iExclude)  continue;
-       ii++;
-           fprintf(MACRO," L Ap%d\n L Bp%d\n L Cp%d\n L Dp%d\n",i,i,i,i);
-           fprintf(MACRO," L Am%d\n L Bm%d\n L Cm%d\n L Dm%d\n E LAMBDA%d\n",i,i,i,i,i);
-      }
-
-//-----------------  write the COLUMNS  section
-
-      fprintf(MACRO,"COLUMNS\n");
-
-
-
-
-
-
-//  Column variable  A1
-//      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
-//       if( i== iExclude)  continue;
-//       ii++;
-//          fprintf(MACRO,"  A1 Ap%d  %g  Am%d  %g\n  A1 Bp%d  %g   Bm%d  %g\n",
-//                                  i,Ox[i]*Ox[i],i,Ox[i]*Ox[i],i,-Ox[i]*Ox[i],i,-Ox[i]*Ox[i]);
-//      }
-//  Column variable  A2
-//      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
-//       if( i== iExclude)  continue;
-//       ii++;
-//          fprintf(MACRO,"  A2 Ap%d  %g  Am%d  %g\n  A2 Bp%d  %g   Bm%d  %g\n",
-//                                  i,-Ox[i]*Ox[i],i,-Ox[i]*Ox[i],i,Ox[i]*Ox[i],i,Ox[i]*Ox[i]);
-//      }
-
-
-
-
-
-
-
-
-
-
-
-//  Column variable  m1
-      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
-//       if( i== iExclude)  continue;
-       ii++;
-          fprintf(MACRO,"  m1 Ap%d  %g  Am%d  %g\n  m1 Bp%d  %g   Bm%d  %g\n",
-                                  i,Ox[i],i,Ox[i],i,-Ox[i],i,-Ox[i]);
-      }
-
-//  Column variable  m2
-//      for(i=0; i< nHitsinTrack && i<NMAX ; i++) {
-//          fprintf(MACRO,"  m2 Ap%d  %g  Am%d  %g\n  m2 Bp%d  %g   Bm%d  %g\n",
-//                                  i,-Ox[i],i,-Ox[i],i,Ox[i],i,Ox[i]);
-//      }
-
-//  Column variable  q1
-      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
-//       if( i== iExclude)  continue;
-       ii++;
-          fprintf(MACRO,"  q1 Ap%d   1.  Am%d   1.\n  q1 Bp%d  -1.  Bm%d  -1.\n",
-                                  i,i,i,i);
-      }
-
-//  Column variable  q2
-      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
-//       if( i== iExclude)  continue;
-       ii++;
-          fprintf(MACRO,"  q2 Ap%d   -1.  Am%d   -1.\n  q2 Bp%d   1.   Bm%d   1.\n",
-                                  i,i,i,i);
-      }
-
-//  Column variable  lambdap(i)
-      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
-//       if( i== iExclude)  continue;
-       ii++;
-          fprintf(MACRO,"  lamp%d  Ap%d  %g  Bp%d  %g\n  lamp%d  Cp%d  %g  Dp%d   %g\n  lamp%d  LAMBDA%d  1.\n",
-                                                i,i,-M,i,-M, i , i,-M, i, M, i,i);
-      }
-//  Column variable  lambdam(i)
-      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
-//       if( i== iExclude)  continue;
-       ii++;
-          fprintf(MACRO,"  lamm%d  Am%d  %g  Bm%d  %g\n  lamm%d  Cm%d  %g  Dm%d %g\n  lamm%d  LAMBDA%d  1.\n",
-                                                i,i,-M,i,-M, i,i , -M, i, M, i,i);
-      }
-//  Column variable  sigmap(i)
-      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
-//       if( i== iExclude)  continue;
-       ii++;
-
-          fprintf(MACRO,"  sigmap%d  OBJECT  %g  Ap%d  -1.\n  sigmap%d  Bp%d    -1. Cp%d  1.\n  sigmap%d  Dp%d -1.\n",
-                                                i,1./Delta[i],i,i,i,i,i,i);
-      }
-//  Column variable  sigmam(i)
-      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
-//       if( i== iExclude)  continue;
-       ii++;
-          fprintf(MACRO,"  sigmam%d  OBJECT %g  Am%d  -1.\n  sigmam%d  Bm%d   -1. Cm%d   1.\n  sigmam%d  Dm%d  -1.\n",
-                                                i,1./Delta[i],i,i,i,i,i,i);
-      }
-
-//  Column variable  DUMMY
-      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
-//       if( i== iExclude)  continue;
-       ii++;
-        fprintf(MACRO,"  DUMMY     Ap%d  1.      Am%d       1.\n  DUMMY   Bp%d   1.    Bm%d   1.\n  DUMMY    Cp%d   1.   Cm%d   1\n",
-                                                i,i,i,i,i,i);
-        fprintf(MACRO,"  DUMMY     Dp%d  1.      Dm%d       1.\n",
-                                                i,i);
-      }
-//-----------------  write the RHS  section
-
-      fprintf(MACRO,"RHS\n");
-      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
-//       if( i== iExclude)  continue;
-       ii++;
-          fprintf(MACRO,"  BOUND  Ap%d  %g  Bp%d  %g\n  BOUND  Cp%d  %g  Dp%d  %g\n",
-              i, Oy[i]+auxinfoparalConformal[ i ][2]+2.*M,i,
-                -Oy[i]-auxinfoparalConformal[ i ][2]+2.*M,i,
-                 Delta[i]+2.*M,i,M-Delta[i]+2.*M);
-
-          fprintf(MACRO,"  BOUND  Am%d  %g  Bm%d  %g\n  BOUND  Cm%d  %g  Dm%d %g\n",
-              i, Oy[i]-auxinfoparalConformal[ i ][2]+2.*M,i,
-                -Oy[i]+auxinfoparalConformal[ i ][2]+2.*M,i,
-                 Delta[i]+2.*M,i,M-Delta[i]+2.*M);
-          fprintf(MACRO,"  BOUND  LAMBDA%d   1.\n",i);
-      }
-
-
-//-----------------  write the RANGES  section
-
-/*
-      fprintf(MACRO,"RANGES\n");
-      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
-//       if( i== iExclude)  continue;
-       ii++;
-          fprintf(MACRO,"  RANGE  LAMBDA%d  1.\n",i);
-      }
-*/
-
-//-----------------  write the BOUNDS  section
-
-      fprintf(MACRO,"BOUNDS\n");
-//      fprintf(MACRO," FR  Bounds  m\n FR  Bounds  q\n");
-
-      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
-//       if( i== iExclude)  continue;
-       ii++;
-          fprintf(MACRO," BV  Bounds  lamp%d\n",  i);
-      }
-
-      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
-//       if( i== iExclude)  continue;
-       ii++;
-          fprintf(MACRO," BV  Bounds  lamm%d\n", i);
-      }
-
-          fprintf(MACRO," FX  Bounds  DUMMY  %g\n",2.*M);
-
-//-----
-
-      fprintf(MACRO,"ENDATA\n");
-      fclose(MACRO);
-
-
-   if(istampa>=3 && IVOLTE <= nmassimo){
-	INTERO=1;
-     sprintf(stringa,
-              "/home/boca/panda/glpk/glpk-4.39/examples/glpsol --min -o soluztrack%dEvent%dstep%d    GeneralParallelHitsConformeTraccia%dEvent%d.mcs",
-                                nTracksFoundSoFar,IVOLTE,INTERO,nTracksFoundSoFar,IVOLTE);
-   }  else {
-     sprintf(stringa,
-              "/home/boca/panda/glpk/glpk-4.39/examples/glpsol --min -o soluztrack%dEvent%dstep%d    GeneralParallelHitsConformeTraccia%dEvent%d.mcs >& /dev/null",
-                                nTracksFoundSoFar, IVOLTE,INTERO,nTracksFoundSoFar,IVOLTE,INTERO);
-   }
-     system(stringa);
-//     sprintf(stringa2,"grep -e ' m1  '   -e  ' q1  ' -e ' q2   ' -e ' A1 ' -e ' A2 ' soluztrack%dEvent%dstep%d |  awk '{print $3}' > temp",
-//                             (nTracksFoundSoFar),IVOLTE,INTERO);
-     sprintf(stringa2,"grep -e ' m1  '   -e  ' q1  ' -e ' q2   '  soluztrack%dEvent%dstep%d |  awk '{print $3}' > temp",
-                             nTracksFoundSoFar,IVOLTE,INTERO);
-//     sprintf(stringa2,"grep -e ' m1  '   -e  ' q1  '   soluztrack%dEvent%dstep%d |  awk '{print $3}' > temp",
-//                             nTracksFoundSoFar,IVOLTE,INTERO);
-     system(stringa2);
-
-
-     FILE * RESULT = fopen("temp","r");
-//     fscanf(RESULT,"%f",&A1_result);
-//     fscanf(RESULT,"%f",&A2_result);
-     fscanf(RESULT,"%f",&m1_result);
-//     fscanf(RESULT,"%f",&m2_result);
-     fscanf(RESULT,"%f",&q1_result);
-     fscanf(RESULT,"%f",&q2_result);
-     fclose(RESULT);
-//     system ("rm -f temp");
-//     system ("rm -f soluz*    ");
-//     system("rm -f GeneralParallelHitsConformeTraccia*");
-
-
-
-
-/*
-     q_result = q1_result - q2_result;
-     m_result = m1_result ;
-     A = A1_result - A2_result;
-     if( fabs( cose -sine*m_result) > 1.e-12) { 
-       emme = ( m_result*cose  + sine ) / (cose -sine*m_result);
-       qu = q_result/(cose -sine*m_result);
-       Status=1;
-     } else {
-       emme = m_result*cose  + sine ;
-       qu = q_result;
-       Status=99;
-     }
-*/
-
-
-
-//------------------------  transformation of the result in terms of ALFA, BETA, GAMMA
-
-
-     qu = q1_result - q2_result;
-//     qu = q1_result;
-     emme = m1_result ;
-//if(istampa)   cout<<"Stampa dal fitter, prima della correzione displacement   qu, emme  "<<qu<<",  "<<emme<<endl;
-//  cancel the effect of the last Y displacement
-//     qu -= offsety;
-if(istampa>=3 && IVOLTE <= nmassimo) {
-
-  cout<<"Stampa dal fitter, risultato :   qu, emme non ri-ruotati  "<<qu<<",  "<<emme<<endl<<
-        "                                 qu, emme  ri-ruotati  "<<qu/(cose-emme*sine)<<",  "<<(emme*cose+sine)/(cose-emme*sine)<<endl;
-}
-
-    GAMMA[nTracksFoundSoFar] = 0.;
-    if( fabs( qu ) > 1.e-10) {    //  trajectory is a circle in XY space
-     ALFA[nTracksFoundSoFar] = emme/qu;
-     BETA[nTracksFoundSoFar] = -1./qu;
-     TypeConf[nTracksFoundSoFar]=true;
-//  now take into account the rotation and correct; the only affected quantities are ALFA and BETA
-      alfetta = ALFA[nTracksFoundSoFar];
-      ALFA[nTracksFoundSoFar] = ALFA[nTracksFoundSoFar]*cose - BETA[nTracksFoundSoFar]*sine;
-      BETA[nTracksFoundSoFar] = alfetta*sine + BETA[nTracksFoundSoFar]*cose;
-    }  else if(fabs(emme)> 1.e-10)  {    //  trajectory is a straight line in XY space of equatio y= m*x
-       //  the rotation first
-       angle = atan(emme) + rotationangle;
-       if( fabs(cos(angle)) > 1.e-10 ) {
-         ALFA[nTracksFoundSoFar] = 999999.;
-         BETA[nTracksFoundSoFar] = -ALFA[nTracksFoundSoFar]/tan(angle);
-
-       } else {  //  in this case the equation is y = 0.
-         ALFA[nTracksFoundSoFar] = 999999.;
-         BETA[nTracksFoundSoFar] = 0.;
-         TypeConf[nTracksFoundSoFar]=false;
-       }
-    }  else {   //  in this case also the equation in XY plane is  y = 0.
-         ALFA[nTracksFoundSoFar] = 999999.;
-         BETA[nTracksFoundSoFar] = 0.;
-         TypeConf[nTracksFoundSoFar]=false;
-    }
-
-
-// now take into account the displacement and correct
-      GAMMA[nTracksFoundSoFar] += (trajectory_vertex[0]*trajectory_vertex[0]+ trajectory_vertex[1]*trajectory_vertex[1]
-                                  -ALFA[nTracksFoundSoFar]*trajectory_vertex[0]-BETA[nTracksFoundSoFar]*trajectory_vertex[1]);
-      ALFA[nTracksFoundSoFar] -=  2.*trajectory_vertex[0];
-      BETA[nTracksFoundSoFar] -=  2.*trajectory_vertex[1];
-
-
-//------------------------ end of transformation of the result in terms of ALFA, BETA, GAMMA
-
-
-
-
-
-
-
-
-
-
-// taking into account the traslation that was performed and undoing that
-/*
-      if( Status == 99) {      // in this case in the conformal space equation is m*X + q  = 0
-         GAMMA[nTracksFoundSoFar] = trajectory_vertex[0]*trajectory_vertex[0]+trajectory_vertex[1]*trajectory_vertex[1]
-                 -trajectory_vertex[0]*emme/qu;
-           TypeConf[nTracksFoundSoFar]=true;
-           ALFA[nTracksFoundSoFar]=  emme/qu - 2.*trajectory_vertex[0] ;
-           BETA[nTracksFoundSoFar]= - 2.*trajectory_vertex[1];
-
-      }  else if ( fabs(qu) > 1.e-10 ) {
-         GAMMA[nTracksFoundSoFar]= trajectory_vertex[0]*trajectory_vertex[0]+trajectory_vertex[1]*trajectory_vertex[1]
-                 -trajectory_vertex[0]*emme/qu + trajectory_vertex[1]/qu;
-           TypeConf[nTracksFoundSoFar]=true;
-           ALFA[nTracksFoundSoFar]= ( emme/qu - 2.*trajectory_vertex[0] );
-           BETA[nTracksFoundSoFar]= (-1./qu - 2.*trajectory_vertex[1]);
-
-      } else {     //   this is the case when q=0
-         GAMMA[nTracksFoundSoFar] = -trajectory_vertex[0]*emme + trajectory_vertex[1];
-           TypeConf[nTracksFoundSoFar]=false;
-           ALFA[nTracksFoundSoFar]= emme;
-           BETA[nTracksFoundSoFar]= -1.;
-           GAMMA[nTracksFoundSoFar]= 0.;
-
-      }
-
-*/
-//--------   end of taking into account the traslation that was performed and undoing that
-
-
-
-
-
-
-
-      return 1;
-
-}
-
-
-
-
-//----------end of function PndSttTrackFinderReal::PndSttFitHelixCylinder2
-
-
-
 
 
 
@@ -8324,6 +8038,964 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
 
 
+
+
+
+//----------begin of function PndSttTrackFinderReal::FitHelixCylinder
+
+ Short_t PndSttTrackFinderReal::FitHelixCylinder(
+		UShort_t nHitsinTrack,
+		Double_t *Xconformal,
+		Double_t *Yconformal,
+		Double_t *DriftRadiusconformal,
+		Double_t *ErrorDriftRadiusconformal,
+		Double_t rotationangle,
+		Double_t * trajectory_vertex,
+		UShort_t NMAX,
+		Double_t *emme,
+		Double_t *qu,
+		Double_t *pAlfa,
+		Double_t *pBeta,
+		Double_t *pGamma,
+		bool *Type
+					)
+{
+
+
+    //   definition of variables for the glpsol  solver
+   //    ROWS (for read_rows  function)
+   //
+   UShort_t  NpointsInFit = nHitsinTrack-NMAX <0 ?  nHitsinTrack :  NMAX;
+
+   bool mvdhit[NpointsInFit];
+
+
+     Double_t M = 1.,
+              m_result,
+              q_result,
+              A,
+              alfetta,
+              angle,
+              offsety,
+              Delta[NpointsInFit],
+              Ox[NpointsInFit],
+              Oy[NpointsInFit];
+
+     UShort_t  i, j, ii, iii, nSttHits, nMvdHits;
+     Short_t Status;
+
+     char nome[300], stringa[300], stringa2[300];
+     float m1_result,m2_result, q1_result,q2_result, A1_result, A2_result;
+
+// --
+
+//-------------- stampaggi
+if(istampa>=3){
+	cout<<"from FitHelixCylinder,prima di rotazione,  Evento "<<IVOLTE<<", nHitsinTrack = "<<nHitsinTrack
+	<<"\nfrom FitHelixCylinder, nPointsinFit = "<<NpointsInFit<<endl;
+	for(i=0 ; i< NpointsInFit ; i++) {
+		cout<<"  Xconformal["<<i<<"] = "<<Xconformal[ i ]<<
+		";   Yconformal["<<i<<"] = "<<Yconformal[ i ]<<",  drift radius conformal "<<
+		DriftRadiusconformal[i]<<endl<<"\tErrordiriftradiusconformal = "
+		<<ErrorDriftRadiusconformal[i]<<endl;
+	}
+}
+//------------ end stampaggi
+
+
+
+     if( nHitsinTrack < 2) {
+        return -1;
+     }
+//  use the trick of increasing the rotation angle by 10 degrees in order to obtain always a positive m
+      rotationangle -= PI/18.;
+
+      Double_t cose = cos(rotationangle), sine = sin(rotationangle);
+
+
+
+	nSttHits = nMvdHits = 0;
+      for(i=0;i<NpointsInFit; i++){
+       Ox[i] = Xconformal[ i ] *cose + Yconformal[ i ]*sine;
+       Oy[i] = -Xconformal[ i ] *sine + Yconformal[ i ]*cose;
+          Delta[i] = 3.*ErrorDriftRadiusconformal[ i ];   //   3 times the Drift Radius
+
+	if( DriftRadiusconformal[ i ]<0. )
+	{
+		mvdhit[i]=true;
+		nMvdHits++;
+	} else {
+		mvdhit[i]=false;
+		nSttHits++;
+	}
+      }
+
+//-------------- stampaggi
+if(istampa>=3){
+	cout<<"from FitHelixCylinder, dopo rotazione, Evento "<<IVOLTE<<", nHitsinTrack = "<<nHitsinTrack
+	<<"\nfrom FitHelixCylinder, nPointsinFit = "<<NpointsInFit<<endl;
+	for(i=0 ; i< NpointsInFit ; i++) {
+		cout<<"  Ox["<<i<<"] = "<<Ox[ i ]<<
+		";   Oy["<<i<<"] = "<<Oy[ i ]<<",  Delta "<<
+		Delta[i]<<endl;
+	}
+}
+//------------ end stampaggi
+//--------- calculation of # structural variables (see Gianluigi's logbook pag. 236) etc.etc.
+
+	int NStructVar =     4           +    1       +  nMvdHits * 2     +                nSttHits *4 ;
+//               m1,m2,q1,q2     DUMMY     lam & sigma      lamp & lamm & sigmap & sigmam
+
+
+	int nRows =     1    +  nMvdHits * 4  +               nSttHits * 9;
+//	         OBJECT     A,B,C,D        Ap,Bp,Cp,Dp,Am,Bm,Cm,Dm,LAMBDA
+
+//----  creating the various service arrays
+	int typeRows[nRows];
+	char * nameRows[nRows];
+	char  auxnameRows[nRows][20];
+
+	int  NStructRowsMax = 8*NpointsInFit ;  //  maximum number of ROWS in which a
+				//  structural variable (for instance M ) can be found
+	double final_values[NStructVar];
+	int  NRowsInWhichStructVarArePresent[NStructVar];
+	char *StructVarName[NStructVar];
+	char auxStructVarName[NStructVar][20];
+	char *NameRowsInWhichStructVarArePresent[NStructVar*NStructRowsMax];
+	char aux[NStructVar*NStructRowsMax][20];
+	double Coefficients[NStructVar*NStructRowsMax];
+
+	//--------for RHS information
+	double ValueB[nRows-1]; // -1 because OBJECT dowsn't have a RHS boundary.
+	//--------for RANGES information
+	int nRanges = nSttHits;
+	double ValueRanges[nRanges];
+	char *NameRanges[nRanges];
+	char auxNameRanges[nRanges][20];
+
+	//--------for BOUNDS information
+	int nBounds=NpointsInFit+nSttHits+1;
+	double BoundValue[nBounds];
+	char *BoundStructVarName[nBounds];
+	char auxBoundStructVarName[nBounds][20];
+	char *TypeofBound[nBounds];
+	char auxTypeofBound[nBounds][20];
+	//--------end BOUNDS information
+
+//---------------------------------------------------
+
+
+
+
+//--- calculate array      NRowsInWhichStructVarArePresent
+        NRowsInWhichStructVarArePresent[0] =	//  this is for m1
+        NRowsInWhichStructVarArePresent[1] = 	//  this is for m2
+        NRowsInWhichStructVarArePresent[2] =	//  this is for q1
+        NRowsInWhichStructVarArePresent[3] = nMvdHits*2 + nSttHits *4;	//  this is for q2
+	//--- the following is for the  lam* (Mvd hits) or lamp* (Stt hits) structural variables
+      for(i=0,ii=0; i< NpointsInFit ; i++) {
+		if( mvdhit[i]){
+			NRowsInWhichStructVarArePresent[4+ii]= 4;
+		} else {
+			NRowsInWhichStructVarArePresent[4+ii]= 5;
+		}
+		ii++;
+	}
+	//--- the following is for the  lamm* (Mvd Hits, if any)  structural variables
+      for(i=0; i< NpointsInFit ; i++) {
+		if( !mvdhit[i]){
+			NRowsInWhichStructVarArePresent[4+ii]= 5;
+			ii++;
+		}
+	}
+
+	//--- the following is for the  sigma   structural variables
+	for(i=0 ; i< nMvdHits+2*nSttHits ; i++) {
+		NRowsInWhichStructVarArePresent[4+ii+i]= 5;
+	}
+//--- the following is for the    DUMMY    structural variable
+	NRowsInWhichStructVarArePresent[4+ii+nMvdHits+2*nSttHits]= nMvdHits*4 + nSttHits*8;
+
+
+
+
+//-----------------  write the ROWS  section
+
+
+
+
+
+
+      sprintf(&(auxnameRows[0][0]),"OBJECT",i);  nameRows[0]=&auxnameRows[0][0];
+      typeRows[0]=GLP_FR;
+      for(i=0 , ii=0 ; i< NpointsInFit ; i++) {
+
+	if( mvdhit[i]){
+       typeRows[1+ii]=GLP_UP;typeRows[2+ii]=GLP_UP;typeRows[3+ii]=GLP_UP;typeRows[4+ii]=GLP_UP;
+       typeRows[5+ii]=GLP_LO;
+
+       sprintf(&(auxnameRows[1+ii][0]),"A%d",i);  nameRows[1+ii]=&auxnameRows[1+ii][0];
+       sprintf(&(auxnameRows[2+ii][0]),"B%d",i);  nameRows[2+ii]=&auxnameRows[2+ii][0];
+       sprintf(&(auxnameRows[3+ii][0]),"C%d",i);  nameRows[3+ii]=&auxnameRows[3+ii][0];
+       sprintf(&(auxnameRows[4+ii][0]),"D%d",i);  nameRows[4+ii]=&auxnameRows[4+ii][0];
+         ii+=4;
+
+	} else {
+         typeRows[1+ii]=GLP_UP;typeRows[2+ii]=GLP_UP;typeRows[3+ii]=GLP_UP;typeRows[4+ii]=GLP_UP;
+         typeRows[5+ii]=GLP_UP;typeRows[6+ii]=GLP_UP;typeRows[7+ii]=GLP_UP;typeRows[8+ii]=GLP_UP;
+         typeRows[9+ii]=GLP_LO;
+
+         sprintf(&(auxnameRows[1+ii][0]),"Ap%d",i);  nameRows[1+ii]=&auxnameRows[1+ii][0];
+         sprintf(&(auxnameRows[2+ii][0]),"Bp%d",i);  nameRows[2+ii]=&auxnameRows[2+ii][0];
+         sprintf(&(auxnameRows[3+ii][0]),"Cp%d",i);  nameRows[3+ii]=&auxnameRows[3+ii][0];
+         sprintf(&(auxnameRows[4+ii][0]),"Dp%d",i);  nameRows[4+ii]=&auxnameRows[4+ii][0];
+         sprintf(&(auxnameRows[5+ii][0]),"Am%d",i);  nameRows[5+ii]=&auxnameRows[5+ii][0];
+         sprintf(&(auxnameRows[6+ii][0]),"Bm%d",i);  nameRows[6+ii]=&auxnameRows[6+ii][0];
+         sprintf(&(auxnameRows[7+ii][0]),"Cm%d",i);  nameRows[7+ii]=&auxnameRows[7+ii][0];
+         sprintf(&(auxnameRows[8+ii][0]),"Dm%d",i);  nameRows[8+ii]=&auxnameRows[8+ii][0];
+         sprintf(&(auxnameRows[9+ii][0]),"LAMBDA%d",i);  nameRows[9+ii]=&auxnameRows[9+ii][0];
+         ii+=9;
+	}
+      }
+
+
+
+
+//-----------------  write the COLUMNS  section
+
+//      fprintf(FMCS,"COLUMNS\n");  //--------stampaggi
+
+//  Column variable  m1
+
+      ii=0;
+      for(i=0  ; i< NpointsInFit ; i++) {
+
+	if( mvdhit[i]){
+//---stampaggi
+//          fprintf(FMCS,"  m1 A%d   %g\n  m1 B%d  %g\n",i,Ox[i],i,-Ox[i]);
+//-----stampaggi, fine
+
+         Coefficients[ii]=    Ox[i];
+         Coefficients[ii+1]= -Ox[i];
+	 ii +=2;
+	} else {
+//---stampaggi
+//          fprintf(FMCS,"  m1 Ap%d  %g  Am%d  %g\n  m1 Bp%d  %g   Bm%d  %g\n",
+//                                  i,Ox[i],i,Ox[i],i,-Ox[i],i,-Ox[i]);
+//-----stampaggi, fine
+
+         Coefficients[ii]=    Ox[i];
+         Coefficients[ii+1]=  Ox[i];
+         Coefficients[ii+2]= -Ox[i];
+         Coefficients[ii+3]= -Ox[i];
+	 ii += 4;
+	}
+      }
+
+
+
+//  Column variable  m2
+      for(i=0, ii=0; i< NpointsInFit ; i++) {
+	if( mvdhit[i]){
+//          fprintf(FMCS,"  m2 A%d  %g\n  m2 B%d  %g\n",//---stampaggi
+//                                  i,-Ox[i],i,Ox[i]);//---stampaggi
+         Coefficients[NStructRowsMax+ii]=   -Ox[i];
+         Coefficients[NStructRowsMax+ii+1]= Ox[i];
+	 ii += 2;
+	} else {
+//          fprintf(FMCS,"  m2 Ap%d  %g  Am%d  %g\n  m2 Bp%d  %g   Bm%d  %g\n",//---stampaggi
+//                                  i,-Ox[i],i,-Ox[i],i,Ox[i],i,Ox[i]);//---stampaggi
+         Coefficients[NStructRowsMax+ii]=   -Ox[i];
+         Coefficients[NStructRowsMax+ii+1]= -Ox[i];
+         Coefficients[NStructRowsMax+ii+2]= Ox[i];
+         Coefficients[NStructRowsMax+ii+3]= Ox[i];
+	 ii += 4;
+	}
+      }
+
+//  Column variable  q1
+      for(i=0, ii=0 ; i< NpointsInFit ; i++) {
+	if( mvdhit[i]){
+//          fprintf(FMCS,"  q1 A%d   1.\n  q1 B%d  -1.\n",//---stampaggi
+//                                  i,i);//---stampaggi
+         Coefficients[2*NStructRowsMax+ii]=    1.;
+         Coefficients[2*NStructRowsMax+ii+1]= -1.;
+	 ii +=2;
+	} else {
+//          fprintf(FMCS,"  q1 Ap%d   1.  Am%d   1.\n  q1 Bp%d  -1.  Bm%d  -1.\n",//---stampaggi
+//                                  i,i,i,i);//---stampaggi
+         Coefficients[2*NStructRowsMax+ii]=    1.;
+         Coefficients[2*NStructRowsMax+ii+1]=  1.;
+         Coefficients[2*NStructRowsMax+ii+2]= -1.;
+         Coefficients[2*NStructRowsMax+ii+3]= -1.;
+	 ii += 4;
+	}
+      }
+
+//  Column variable  q2
+      for(i=0, ii=0 ; i< NpointsInFit ; i++) {
+	if( mvdhit[i]){
+//          fprintf(FMCS,"  q2 A%d   -1.\n  q2 B%d   1.\n",//---stampaggi
+//                                  i,i);//---stampaggi
+          Coefficients[3*NStructRowsMax+ii]=   -1.;
+          Coefficients[3*NStructRowsMax+ii+1]=  1.;
+	  ii += 2;
+	} else {
+//          fprintf(FMCS,"  q2 Ap%d   -1.  Am%d   -1.\n  q2 Bp%d   1.   Bm%d   1.\n",//---stampaggi
+//                                  i,i,i,i);//---stampaggi
+          Coefficients[3*NStructRowsMax+ii]=   -1.;
+          Coefficients[3*NStructRowsMax+ii+1]= -1.;
+          Coefficients[3*NStructRowsMax+ii+2]=  1.;
+          Coefficients[3*NStructRowsMax+ii+3]=  1.;
+	  ii += 4;
+	}
+
+      }
+
+//  Column variable  lambdap(i)
+      for(i=0 ; i< NpointsInFit ; i++) {
+         ii=(4+i)*NStructRowsMax;
+         Coefficients[ii]= -M;
+         Coefficients[ii+1]= -M;
+         Coefficients[ii+2]= -M;
+         Coefficients[ii+3]=  M;
+//	if( mvdhit[i]){
+//  fprintf(FMCS,"  lam%d  A%d  %g  B%d  %g\n  lam%d  C%d  %g  D%d   %g\n",//---stampaggi
+//                      i,i,-M,i,-M, i , i,-M, i, M);//---stampaggi
+//	} else {
+//  fprintf(FMCS,"  lamp%d  Ap%d  %g  Bp%d  %g\n  lamp%d  Cp%d  %g  Dp%d   %g\n  lamp%d  LAMBDA%d  1.\n",//---stampaggi
+//                      i,i,-M,i,-M, i , i,-M, i, M, i,i);//---stampaggi
+//	}
+
+	if(! mvdhit[i]) Coefficients[ii+4]=  1.;
+
+      }
+
+
+
+//  Column variable  lambdam(i)
+      for(i=0 ; i< NpointsInFit ; i++) {
+	if( mvdhit[i]) continue;
+	 ii+= NStructRowsMax;
+//         fprintf(FMCS,"  lamm%d  Am%d  %g  Bm%d  %g\n  lamm%d  Cm%d  %g  Dm%d %g\n  lamm%d  LAMBDA%d  1.\n",//---stampaggi
+//                                                i,i,-M,i,-M, i,i , -M, i, M, i,i);//---stampaggi
+         Coefficients[ii]= -M;
+         Coefficients[ii+1]= -M;
+         Coefficients[ii+2]= -M;
+         Coefficients[ii+3]=  M;
+         Coefficients[ii+4]=  1.;
+      }
+//  Column variable  sigmap(i)
+      for(i=0; i< NpointsInFit ; i++) {
+	ii+= NStructRowsMax;
+
+/*
+	if( mvdhit[i]){
+      fprintf(FMCS,"  sigma%d  OBJECT  %g  A%d  -1.\n  sigma%d  B%d    -1. C%d  1.\n  sigma%d  D%d -1.\n",//---stampaggi
+                                                i,1./Delta[i],i,i,i,i,i,i);//---stampaggi
+
+	} else {
+      fprintf(FMCS,"  sigmap%d  OBJECT  %g  Ap%d  -1.\n  sigmap%d  Bp%d    -1. Cp%d  1.\n  sigmap%d  Dp%d -1.\n",//---stampaggi
+                                                i,1./Delta[i],i,i,i,i,i,i);//---stampaggi
+	}
+*/
+
+        Coefficients[ii]=  1./Delta[i];
+        Coefficients[ii+1]= -1.;
+        Coefficients[ii+2]= -1.;
+        Coefficients[ii+3]=  1.;
+        Coefficients[ii+4]= -1.;
+
+
+      }
+//  Column variable  sigmam(i)
+      for(i=0 ; i< NpointsInFit ; i++) {
+	if( mvdhit[i])continue;
+	 ii+= NStructRowsMax;
+//         fprintf(FMCS,"  sigmam%d  OBJECT %g  Am%d  -1.\n  sigmam%d  Bm%d   -1. Cm%d   1.\n  sigmam%d  Dm%d  -1.\n",//---stampaggi
+//                                                i,1./Delta[i],i,i,i,i,i,i);//---stampaggi
+        Coefficients[ii]=  1./Delta[i];
+        Coefficients[ii+1]= -1.;
+        Coefficients[ii+2]= -1.;
+        Coefficients[ii+3]=  1.;
+        Coefficients[ii+4]= -1.;
+      }
+
+//  Column variable  DUMMY
+//-----------stampaggi
+/*
+      for(i=0 ; i< NpointsInFit ; i++) {
+	if( mvdhit[i]){
+         fprintf(FMCS,"  DUMMY     A%d  1.\n  DUMMY   B%d   1.\n  DUMMY    C%d   1.\n",i,i,i);
+         fprintf(FMCS,"  DUMMY     D%d  1.\n",i);
+	} else {
+         fprintf(FMCS,"  DUMMY     Ap%d  1.      Am%d       1.\n  DUMMY   Bp%d   1.    Bm%d   1.\n  DUMMY    Cp%d   1.   Cm%d   1\n",
+                                                i,i,i,i,i,i);
+         fprintf(FMCS,"  DUMMY     Dp%d  1.      Dm%d       1.\n",i,i);
+	}
+      }
+*/
+//---fine stampaggi
+	ii+= NStructRowsMax;
+      for(i=0, iii=0 ; i< NpointsInFit ; i++) {
+	if( mvdhit[i]){
+	 Coefficients[ii+iii]= 1.;
+	 Coefficients[ii+iii+1]= 1.;
+	 Coefficients[ii+iii+2]= 1.;
+ 	 Coefficients[ii+iii+3]= 1.;
+	 iii +=4;
+	} else {
+	 Coefficients[ii+iii]= 1.;
+	 Coefficients[ii+iii+1]= 1.;
+	 Coefficients[ii+iii+2]= 1.;
+ 	 Coefficients[ii+iii+3]= 1.;
+	 Coefficients[ii+iii+4]= 1.;
+	 Coefficients[ii+iii+5]= 1.;
+	 Coefficients[ii+iii+6]= 1.;
+ 	 Coefficients[ii+iii+7]= 1.;
+	 iii +=8;
+	}
+      }
+
+//-----------
+
+//--- give the names to the Structural Variables
+
+      sprintf(&auxStructVarName[0][0],"m1",i);
+      StructVarName[0] = &auxStructVarName[0][0];
+      sprintf(&auxStructVarName[1][0],"m2",i);
+      StructVarName[1] = &auxStructVarName[1][0];
+
+      sprintf(&auxStructVarName[2][0],"q1",i);
+      StructVarName[2] = &auxStructVarName[2][0];
+
+      sprintf(&auxStructVarName[3][0],"q2",i);
+      StructVarName[3] = &auxStructVarName[3][0];
+      for(i=0, ii=0; i< NpointsInFit ; i++) {
+	if( mvdhit[i]){
+          sprintf(&auxStructVarName[4+i][0],"lam%d",i);
+          StructVarName[4+i] = &auxStructVarName[4+i][0];
+
+          sprintf(&auxStructVarName[4+nMvdHits+2*nSttHits+i][0],"sigma%d",i);
+          StructVarName[4+nMvdHits+2*nSttHits+i] = &auxStructVarName[4+nMvdHits+2*nSttHits+i][0];
+	} else {
+          sprintf(&auxStructVarName[4+i][0],"lamp%d",i);
+          StructVarName[4+i] = &auxStructVarName[4+i][0];
+
+          sprintf(&auxStructVarName[4+NpointsInFit+ii][0],"lamm%d",i);
+          StructVarName[4+NpointsInFit+ii] = &auxStructVarName[4+NpointsInFit+ii][0];
+
+          sprintf(&auxStructVarName[4+nMvdHits+2*nSttHits+i][0],"sigmap%d",i);
+          StructVarName[4+nMvdHits+2*nSttHits+i] = &auxStructVarName[4+nMvdHits+2*nSttHits+i][0];
+
+          sprintf(&auxStructVarName[4+NpointsInFit+nMvdHits+2*nSttHits+ii][0],"sigmam%d",i);
+          StructVarName[4+NpointsInFit+nMvdHits+2*nSttHits+ii] =
+		 &auxStructVarName[4+NpointsInFit+nMvdHits+2*nSttHits+ii][0];
+	  ii++;
+	}
+      }
+
+
+      sprintf(&auxStructVarName[NStructVar-1][0],"DUMMY",i);
+      StructVarName[NStructVar-1] = &auxStructVarName[NStructVar-1][0];
+
+
+
+//--- give the names of those Rows in which the Structural Variables are present
+
+//  for m1, m2, q1, q2
+      for(i=0; i< 4; i++){
+        for(j=0, ii=0; j< NpointsInFit;j++){
+		if( mvdhit[j]){
+         sprintf(&aux[i*NStructRowsMax+ii][0],"A%d",j);
+         NameRowsInWhichStructVarArePresent[i*NStructRowsMax+ii]=&aux[i*NStructRowsMax+ii][0];
+         sprintf(&aux[i*NStructRowsMax+ii+1][0],"B%d",j);
+         NameRowsInWhichStructVarArePresent[i*NStructRowsMax+ii+1]=&aux[i*NStructRowsMax+ii+1][0];
+	 ii += 2;
+		} else {
+         sprintf(&aux[i*NStructRowsMax+ii][0],"Ap%d",j);
+         NameRowsInWhichStructVarArePresent[i*NStructRowsMax+ii]=&aux[i*NStructRowsMax+ii][0];
+         sprintf(&aux[i*NStructRowsMax+ii+1][0],"Am%d",j);
+         NameRowsInWhichStructVarArePresent[i*NStructRowsMax+ii+1]=&aux[i*NStructRowsMax+ii+1][0];
+         sprintf(&aux[i*NStructRowsMax+ii+2][0],"Bp%d",j);
+         NameRowsInWhichStructVarArePresent[i*NStructRowsMax+ii+2]=&aux[i*NStructRowsMax+ii+2][0];
+         sprintf(&aux[i*NStructRowsMax+ii+3][0],"Bm%d",j);
+         NameRowsInWhichStructVarArePresent[i*NStructRowsMax+ii+3]=&aux[i*NStructRowsMax+ii+3][0];
+	 ii += 4;
+		}
+        }
+      }
+
+//  now for the    lamp*   variables
+      for(i=0; i< NpointsInFit;i++){
+		if( mvdhit[i]){
+         sprintf(&aux[(i+4)*NStructRowsMax+0][0],"A%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4)*NStructRowsMax+0]= &aux[(i+4)*NStructRowsMax+0][0];
+         sprintf(&aux[(i+4)*NStructRowsMax+1][0],"B%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4)*NStructRowsMax+1]= &aux[(i+4)*NStructRowsMax+1][0];
+         sprintf(&aux[(i+4)*NStructRowsMax+2][0],"C%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4)*NStructRowsMax+2]= &aux[(i+4)*NStructRowsMax+2][0];
+         sprintf(&aux[(i+4)*NStructRowsMax+3][0],"D%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4)*NStructRowsMax+3]= &aux[(i+4)*NStructRowsMax+3][0];
+		} else {
+         sprintf(&aux[(i+4)*NStructRowsMax+0][0],"Ap%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4)*NStructRowsMax+0]= &aux[(i+4)*NStructRowsMax+0][0];
+         sprintf(&aux[(i+4)*NStructRowsMax+1][0],"Bp%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4)*NStructRowsMax+1]= &aux[(i+4)*NStructRowsMax+1][0];
+         sprintf(&aux[(i+4)*NStructRowsMax+2][0],"Cp%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4)*NStructRowsMax+2]= &aux[(i+4)*NStructRowsMax+2][0];
+         sprintf(&aux[(i+4)*NStructRowsMax+3][0],"Dp%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4)*NStructRowsMax+3]= &aux[(i+4)*NStructRowsMax+3][0];
+         sprintf(&aux[(i+4)*NStructRowsMax+4][0],"LAMBDA%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4)*NStructRowsMax+4]= &aux[(i+4)*NStructRowsMax+4][0];
+		}
+      }
+
+//  now for the    lamm*   variables
+      for(i=0, ii=0; i< NpointsInFit;i++){
+	if( mvdhit[i]) continue;
+         sprintf(&aux[(ii+4+NpointsInFit)*NStructRowsMax][0],"Am%d",i);
+         NameRowsInWhichStructVarArePresent[(ii+4+NpointsInFit)*NStructRowsMax]=
+		&aux[(ii+4+NpointsInFit)*NStructRowsMax][0];
+         sprintf(&aux[(ii+4+NpointsInFit)*NStructRowsMax+1][0],"Bm%d",i);
+         NameRowsInWhichStructVarArePresent[(ii+4+NpointsInFit)*NStructRowsMax+1]=
+		&aux[(ii+4+NpointsInFit)*NStructRowsMax+1][0];
+         sprintf(&aux[(ii+4+NpointsInFit)*NStructRowsMax+2][0],"Cm%d",i);
+         NameRowsInWhichStructVarArePresent[(ii+4+NpointsInFit)*NStructRowsMax+2]=
+		&aux[(ii+4+NpointsInFit)*NStructRowsMax+2][0];
+         sprintf(&aux[(ii+4+NpointsInFit)*NStructRowsMax+3][0],"Dm%d",i);
+         NameRowsInWhichStructVarArePresent[(ii+4+NpointsInFit)*NStructRowsMax+3]=
+		&aux[(ii+4+NpointsInFit)*NStructRowsMax+3][0];
+         sprintf(&aux[(ii+4+NpointsInFit)*NStructRowsMax+4][0],"LAMBDA%d",i);
+         NameRowsInWhichStructVarArePresent[(ii+4+NpointsInFit)*NStructRowsMax+4]=
+		&aux[(ii+4+NpointsInFit)*NStructRowsMax+4][0];
+	 ii++; 
+     }
+
+//  now for the    sigmap*   variables
+      for(i=0; i< NpointsInFit;i++){
+	if( mvdhit[i]) {
+         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax][0],"OBJECT",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax]=
+		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax][0];
+         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+1][0],"A%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+1]=
+		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+1][0];
+         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+2][0],"B%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+2]=
+		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+2][0];
+         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+3][0],"C%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+3]=
+		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+3][0];
+         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+4][0],"D%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+4]=
+		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+4][0];
+	} else {
+         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax][0],"OBJECT",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax]=
+		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax][0];
+         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+1][0],"Ap%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+1]=
+		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+1][0];
+         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+2][0],"Bp%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+2]=
+		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+2][0];
+         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+3][0],"Cp%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+3]=
+		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+3][0];
+         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+4][0],"Dp%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+4]=
+		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+4][0];
+	}
+      }
+
+//  now for the    sigmam*   variables
+      for(i=0, ii=0; i< NpointsInFit;i++){
+	if( mvdhit[i]) continue;
+         sprintf(&aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax][0],"OBJECT",i);
+         NameRowsInWhichStructVarArePresent[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax]=
+		 &aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax][0];
+
+         sprintf(&aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax+1][0],"Am%d",i);
+         NameRowsInWhichStructVarArePresent[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax+1]=
+		 &aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax+1][0];
+
+         sprintf(&aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax+2][0],"Bm%d",i);
+         NameRowsInWhichStructVarArePresent[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax+2]=
+		 &aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax+2][0];
+
+         sprintf(&aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax+3][0],"Cm%d",i);
+         NameRowsInWhichStructVarArePresent[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax+3]=
+		 &aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax+3][0];
+
+         sprintf(&aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax+4][0],"Dm%d",i);
+         NameRowsInWhichStructVarArePresent[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax+4]=
+		 &aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax+4][0];
+	 ii++; 
+      }
+
+//  now for the    DUMMY   variable
+      for(i=0, ii=0; i< NpointsInFit;i++){
+	if( mvdhit[i]) {
+         sprintf(&aux[(NStructVar-1)*NStructRowsMax+ii][0],"A%d",i);
+         NameRowsInWhichStructVarArePresent[(NStructVar-1)*NStructRowsMax+ii]=
+		 &aux[(NStructVar-1)*NStructRowsMax+ii][0];
+
+         sprintf(&aux[(NStructVar-1)*NStructRowsMax+ii+1][0],"B%d",i);
+         NameRowsInWhichStructVarArePresent[(NStructVar-1)*NStructRowsMax+ii+1]=
+		 &aux[(NStructVar-1)*NStructRowsMax+ii+1][0];
+
+         sprintf(&aux[(NStructVar-1)*NStructRowsMax+ii+2][0],"C%d",i);
+         NameRowsInWhichStructVarArePresent[(NStructVar-1)*NStructRowsMax+ii+2]=
+		 &aux[(NStructVar-1)*NStructRowsMax+ii+2][0];
+
+         sprintf(&aux[(NStructVar-1)*NStructRowsMax+ii+3][0],"D%d",i);
+         NameRowsInWhichStructVarArePresent[(NStructVar-1)*NStructRowsMax+ii+3]=
+		 &aux[(NStructVar-1)*NStructRowsMax+ii+3][0];
+	 ii += 4;
+	} else {
+         sprintf(&aux[(NStructVar-1)*NStructRowsMax+ii][0],"Ap%d",i);
+         NameRowsInWhichStructVarArePresent[(NStructVar-1)*NStructRowsMax+ii]=
+		 &aux[(NStructVar-1)*NStructRowsMax+ii][0];
+
+         sprintf(&aux[(NStructVar-1)*NStructRowsMax+ii+1][0],"Am%d",i);
+         NameRowsInWhichStructVarArePresent[(NStructVar-1)*NStructRowsMax+ii+1]=
+		 &aux[(NStructVar-1)*NStructRowsMax+ii+1][0];
+
+         sprintf(&aux[(NStructVar-1)*NStructRowsMax+ii+2][0],"Bp%d",i);
+         NameRowsInWhichStructVarArePresent[(NStructVar-1)*NStructRowsMax+ii+2]=
+		 &aux[(NStructVar-1)*NStructRowsMax+ii+2][0];
+
+         sprintf(&aux[(NStructVar-1)*NStructRowsMax+ii+3][0],"Bm%d",i);
+         NameRowsInWhichStructVarArePresent[(NStructVar-1)*NStructRowsMax+ii+3]=
+		 &aux[(NStructVar-1)*NStructRowsMax+ii+3][0];
+         sprintf(&aux[(NStructVar-1)*NStructRowsMax+ii+4][0],"Cp%d",i);
+         NameRowsInWhichStructVarArePresent[(NStructVar-1)*NStructRowsMax+ii+4]=
+		 &aux[(NStructVar-1)*NStructRowsMax+ii+4][0];
+
+         sprintf(&aux[(NStructVar-1)*NStructRowsMax+ii+5][0],"Cm%d",i);
+         NameRowsInWhichStructVarArePresent[(NStructVar-1)*NStructRowsMax+ii+5]=
+		 &aux[(NStructVar-1)*NStructRowsMax+ii+5][0];
+
+         sprintf(&aux[(NStructVar-1)*NStructRowsMax+ii+6][0],"Dp%d",i);
+         NameRowsInWhichStructVarArePresent[(NStructVar-1)*NStructRowsMax+ii+6]=
+		 &aux[(NStructVar-1)*NStructRowsMax+ii+6][0];
+
+         sprintf(&aux[(NStructVar-1)*NStructRowsMax+ii+7][0],"Dm%d",i);
+         NameRowsInWhichStructVarArePresent[(NStructVar-1)*NStructRowsMax+ii+7]=
+		 &aux[(NStructVar-1)*NStructRowsMax+ii+7][0];
+	 ii += 8;
+	}
+      }
+
+
+
+//-----------------  write the RHS  section
+
+//      fprintf(FMCS,"RHS\n");//---stampaggi
+      for(i=0, ii=0 ; i< NpointsInFit ; i++) {
+	if( mvdhit[i]){
+//---stampaggi
+/*
+          fprintf(FMCS,"  BOUND  A%d  %g  B%d  %g\n  BOUND  C%d  %g  D%d  %g\n",
+              i, Oy[i]+2.*M,i,
+                -Oy[i]+2.*M,i,
+                 Delta[i]+2.*M,i,M-Delta[i]+2.*M);
+*/
+//---fine stampaggi
+          ValueB[ii]  =  Oy[i]+2.*M;
+          ValueB[ii+1]= -Oy[i]+2.*M;
+          ValueB[ii+2]= Delta[i]+2.*M;
+          ValueB[ii+3]= M-Delta[i]+2.*M;
+	  ii += 4;
+	} else {
+//---stampaggi
+/*
+          fprintf(FMCS,"  BOUND  Ap%d  %g  Bp%d  %g\n  BOUND  Cp%d  %g  Dp%d  %g\n",
+              i, Oy[i]+DriftRadiusconformal[ i ]+2.*M,i,
+                -Oy[i]-DriftRadiusconformal[ i ]+2.*M,i,
+                 Delta[i]+2.*M,i,M-Delta[i]+2.*M);
+*/
+//---fine stampaggi
+          ValueB[ii]  =  Oy[i]+DriftRadiusconformal[ i ]+2.*M;
+          ValueB[ii+1]= -Oy[i]-DriftRadiusconformal[ i ]+2.*M;
+          ValueB[ii+2]= Delta[i]+2.*M;
+          ValueB[ii+3]= M-Delta[i]+2.*M;
+
+
+//---stampaggi
+/*
+          fprintf(FMCS,"  BOUND  Am%d  %g  Bm%d  %g\n  BOUND  Cm%d  %g  Dm%d %g\n",
+              i, Oy[i]-DriftRadiusconformal[ i ]+2.*M,i,
+                -Oy[i]+DriftRadiusconformal[ i ]+2.*M,i,
+                 Delta[i]+2.*M,i,M-Delta[i]+2.*M);
+          fprintf(FMCS,"  BOUND  LAMBDA%d   1.\n",i);
+*/
+//---fine stampaggi
+          ValueB[ii+4]=  Oy[i]-DriftRadiusconformal[ i ]+2.*M;
+          ValueB[ii+5]= -Oy[i]+DriftRadiusconformal[ i ]+2.*M;
+          ValueB[ii+6]= Delta[i]+2.*M;
+          ValueB[ii+7]= M-Delta[i]+2.*M;
+          ValueB[ii+8]= 1.;
+	  ii +=9;
+	}
+
+      }
+
+
+//-----------------  write the RANGES  section
+
+//      fprintf(FMCS,"RANGES\n");//---stampaggi
+      for(i=0 , ii=0; i< NpointsInFit ; i++) {
+	if( mvdhit[i]) continue;
+//          fprintf(FMCS,"  RANGE  LAMBDA%d  1.\n",i);//---stampaggi
+//---
+        ValueRanges[ii]=1.;
+        sprintf(&auxNameRanges[ii][0],"LAMBDA%d",i);
+        NameRanges[ii]=&auxNameRanges[ii][0];
+	ii++;
+      }
+
+//-----------------  write the BOUNDS  section
+//      fprintf(FMCS,"BOUNDS\n");//---stampaggi
+
+
+      for(i=0 ; i< NpointsInFit ; i++) {
+	if( mvdhit[i]){
+//          fprintf(FMCS," BV  Bounds  lam%d\n",  i);//---stampaggi
+          sprintf(&auxTypeofBound[i][0],"BV");   TypeofBound[i]= &auxTypeofBound[i][0];
+          sprintf(&auxBoundStructVarName[i][0],"lam%d",i);
+	} else {
+//          fprintf(FMCS," BV  Bounds  lamp%d\n",  i);//---stampaggi
+          sprintf(&auxTypeofBound[i][0],"BV");   TypeofBound[i]= &auxTypeofBound[i][0];
+          sprintf(&auxBoundStructVarName[i][0],"lamp%d",i);
+	}
+
+        BoundStructVarName[i]=&auxBoundStructVarName[i][0];
+        BoundValue[i]=0.;
+
+      }
+
+      for(i=0, ii=0 ; i< NpointsInFit ; i++) {
+	if( mvdhit[i]) continue;
+//          fprintf(FMCS," BV  Bounds  lamm%d\n", i);//---stampaggi
+          sprintf(&auxTypeofBound[ii+NpointsInFit][0],"BV");
+          TypeofBound[ii+NpointsInFit]= &auxTypeofBound[ii+NpointsInFit][0];
+          sprintf(&auxBoundStructVarName[ii+NpointsInFit][0],"lamm%d",i);
+          BoundStructVarName[ii+NpointsInFit]=&auxBoundStructVarName[ii+NpointsInFit][0];
+          BoundValue[ii+NpointsInFit]=0.;
+	  ii++;
+      }
+
+//          fprintf(FMCS," FX  Bounds  DUMMY  %g\n",2.*M);//--stampaggi
+          sprintf(&auxTypeofBound[NpointsInFit+nSttHits][0],"FX");
+          TypeofBound[NpointsInFit+nSttHits]= &auxTypeofBound[NpointsInFit+nSttHits][0];
+
+          sprintf(&auxTypeofBound[NpointsInFit+nSttHits][0],"FX");
+          TypeofBound[NpointsInFit+nSttHits]= &auxTypeofBound[NpointsInFit+nSttHits][0];
+
+          sprintf(&auxBoundStructVarName[NpointsInFit+nSttHits][0],"DUMMY");
+          BoundStructVarName[NpointsInFit+nSttHits]=
+		&auxBoundStructVarName[NpointsInFit+nSttHits][0];
+          BoundValue[NpointsInFit+nSttHits]=2.*M;
+//-----
+
+//------------------------------------------------------------stampaggi
+/*
+      fprintf(FMCS,"ENDATA\n");
+      fclose(FMCS);
+*/
+
+if(istampa>=4){
+
+cout<<"n.  punti nel fit "<<NpointsInFit<<endl;
+
+
+cout<<"nRows "<<nRows<<endl;
+for(int ic =0;ic<nRows; ic++){
+   cout<<"n.  Row  "<<ic<<", nameRows "<<nameRows[ic]<<",  typeRows "<<typeRows[ic]<<endl;
+}
+
+cout<<"NStructRowsMax, NStructVar "<<NStructRowsMax<<", "<<NStructVar<<endl;
+for(int ic =0;ic<NStructVar; ic++){
+   cout<<"NRowsInWhichStructVarArePresent  "<<NRowsInWhichStructVarArePresent[ic]
+     <<", nome var. strut. n."<<ic<<"  = "
+     <<StructVarName[ic]<<endl;
+
+  for(int jc=0; jc<NRowsInWhichStructVarArePresent[ic];jc++){
+   cout<<"n. "<<jc<<"  NameRowsInWhichStructVarArePresent  "
+	<<NameRowsInWhichStructVarArePresent[ic*NStructRowsMax+jc]<<endl;
+  }
+}
+
+
+cout<<"n Coefficient "<<21*nMvdHits+24*nSttHits<<endl;
+iii=0;
+for(int ic =0;ic<NStructVar; ic++){
+   cout<<"Struct. Var."<< StructVarName[ic] <<" e' presente in "
+	<< NRowsInWhichStructVarArePresent[ic]<<"  Rows;"<<endl;
+  for(ii=0;ii<NRowsInWhichStructVarArePresent[ic];ii++){
+
+   cout<<"\tin Row "<<NameRowsInWhichStructVarArePresent[ic*NStructRowsMax+ii]
+         <<", ha  Coefficient   "<<Coefficients[ic*NStructRowsMax+ii]<<
+	" (n. sequenziale = "<<iii<<")"<<endl;
+	iii++;
+  }
+}
+
+cout<<"n valuesB "<<nRows-1<<endl;
+for(int ic =0;ic<nRows-1; ic++){
+   cout<<"n. "<<ic<<",  valuesB   "<<ValueB[ic]<<endl;
+}
+cout<<"n ranges "<<nRanges<<endl;
+for(int ic =0;ic<nRanges; ic++){
+   cout<<"n. "<<ic<<",  RANGES   "<<ValueRanges[ic]<<endl;
+}
+cout<<"n Bounds "<<nBounds<<endl;
+for(int ic =0;ic<nBounds; ic++){
+   cout<<"n. "<<ic<<",  Bounds   "<<BoundValue[ic]<<endl;
+   cout<<"n. "<<ic<<",  Bound Type   "<<TypeofBound[ic]<<endl;
+   cout<<"n. "<<ic<<",  Bound Name   "<<BoundStructVarName[ic]<<endl;
+}
+ }	// end of if(istampa
+
+//-------fine stampaggi
+
+//-----------------------  funzioni chiamate direttamente
+/*
+cout<<"cavolo, da sttmvdtracking : nRows = "<<nRows<<", NStructVar = "<<
+	NStructVar<<", NStructRowsMax = "<<NStructRowsMax<<
+	", NRowsInWhichStructVarArePresent = "<<
+	NRowsInWhichStructVarArePresent<<", nRanges = "<<nRanges
+	<<", nBounds = "<<nBounds<<endl;
+*/
+      int status= glp_main(
+            nRows,nameRows,typeRows, //  ROWS info
+            NStructVar, NStructRowsMax, NRowsInWhichStructVarArePresent,  //  COLUMNS info
+      StructVarName, NameRowsInWhichStructVarArePresent,  //  COLUMNS info
+      Coefficients,  //  COLUMNS info
+      ValueB,  // RHS  info
+      nRanges, ValueRanges, NameRanges, //  RANGES  info
+      nBounds, BoundValue, BoundStructVarName, TypeofBound //  BOUNDS info
+//      ,final_values,TIMEOUT
+      ,final_values
+       );
+	if(status != 0) return -5 ;
+
+
+//--------stampaggi
+if(istampa>=3){
+printf("from FitHelixCylinder  printout dopo glp_main -------------------------------\n");
+printf("      number of structural variables %d\n",NStructVar);
+int ica;
+for(ica=0;ica<NStructVar;ica++){
+    printf("name of structural variable %s and its final value %g\n",
+           StructVarName[ica], final_values[ica]);
+}
+printf("from FitHelixCylinder  printout dopo glp_main  -------------------------------\n");
+}	// end of if(istampa
+//--------fine stampaggi
+
+
+
+//-----------------------  fine funzioni chiamate direttamente
+
+
+/*
+   if(istampa>=3 && IVOLTE <= 20){
+     sprintf(stringa,
+"/home/boca/panda/glpk/glpk-4.39/examples/glpsol --min -o soluztrack%dEvent%dstep%d    GeneralParallelHitsConformeTraccia%dEvent%d.mcs",
+                                0,IVOLTE,1,0,IVOLTE);
+   }  else {
+     sprintf(stringa,
+"/home/boca/panda/glpk/glpk-4.39/examples/glpsol --min -o soluztrack%dEvent%dstep%d    GeneralParallelHitsConformeTraccia%dEvent%d.mcs >& /dev/null",
+                                0, IVOLTE,1,0,IVOLTE,1);
+   }
+*/
+
+     m1_result = final_values[0];
+     m2_result = final_values[1];
+     q1_result = final_values[2];
+     q2_result = final_values[3];
+
+if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "<<q1_result<<
+	", q2 = "<<q2_result<<endl;
+
+//---------  case in which the fit failed
+	if( final_values[0]==0. && final_values[1]==0. && final_values[2]==0. &&final_values[3]==0. )
+		return -10;
+
+//------------------------  transformation of the result in terms of ALFA, BETA, GAMMA
+
+
+     *qu = q1_result - q2_result;
+     *emme = m1_result-m2_result ;
+
+    *pGamma = 0.;
+    if( fabs( *qu ) > 1.e-10) {    //  trajectory is a circle in XY space
+     *pAlfa = *emme/(*qu);
+     *pBeta = -1./(*qu);
+     *Type=true;
+//  now take into account the rotation and correct; the only affected quantities are ALFA and BETA
+      alfetta = *pAlfa;
+      *pAlfa = *pAlfa*cose - *pBeta*sine;
+      *pBeta = alfetta*sine + *pBeta*cose;
+
+
+    }  else if(fabs(*emme)> 1.e-10)  {//  trajectory is a straight line in XY space of equation y= m*x
+       //  the rotation first
+       angle = atan(*emme) + rotationangle;
+       if( fabs(cos(angle)) > 1.e-10 ) {
+         *pAlfa = 999999.;
+         *pBeta = -(*pAlfa)/tan(angle);
+         *Type=false;
+
+       } else {  //  in this case the equation in XY plane is y = 0.
+         *pAlfa = 0.;
+         *pBeta = 999999.;
+         *Type=false;
+       }
+    }  else {   //  in this case also the equation in XY plane is  y = 0.
+         *pAlfa = 0.;
+         *pBeta = 999999.;
+         *Type=false;
+    }	// end of 	if( fabs( *qu ) > 1.e-10)
+
+//------------------
+
+
+// now take into account the displacement and correct
+      *pGamma += (trajectory_vertex[0]*trajectory_vertex[0]+
+			trajectory_vertex[1]*trajectory_vertex[1]
+		-*pAlfa*trajectory_vertex[0]-*pBeta*trajectory_vertex[1]);
+      *pAlfa -=  2.*trajectory_vertex[0];
+      *pBeta -=  2.*trajectory_vertex[1];
+
+
+      if(fabs(cose-*emme*sine)> 1.e-10) {
+        *qu=*qu/(cose-*emme*sine);
+        *emme=(*emme*cose+sine)/(cose-*emme*sine);
+        return 1;
+      } else {    //  in this case the equation is   0 = x+*qu .
+        if(fabs(sine+*emme*cose) < 1.e-10)  {
+  cout<<" From FitHelixCylinder, equation of XY circle : X**2 + Y**2 =0,"
+	<<" situation impossible in principle! Returning -1"
+                    <<endl;
+           return -1;
+        }
+
+        *emme=1.;
+        *qu = *qu/(sine+*emme*cose);
+        return 99;    //  in this case the equation is   0 = x+*qu .
+      }
+
+
+
+
+}
+
+
+//----------end of function PndSttTrackFinderReal::FitHelixCylinder
 
 
 
@@ -13125,10 +13797,9 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 //----------begin of function PndSttTrackFinderReal::FindTrackInXYProjection
 
 	bool PndSttTrackFinderReal::FindTrackInXYProjection(
-		UShort_t iHit,    // seed hit;
+		Short_t iHit,    // seed hit; if it is negative it is a SciTil hit.
 		UShort_t nRcell,  // R cell of the seed hit;
 		UShort_t nFicell, // Fi cell of the seed hit;
-		UShort_t hittype,
 		Int_t *Minclinations,
 		Double_t info[nmaxHits][7],
 		bool *InclusionList,
@@ -13136,11 +13807,15 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 		UShort_t *FiConformalIndex,
 		UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
 		UShort_t HitsinBoxConformal[MAXHITSINCELL][nRdivConformal][nFidivConformal],
-		UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
 		UShort_t nTracksFoundSoFar,
 		UShort_t *nHitsinTrack,
+		UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
+		UShort_t *nSciTilHitsinTrack,
+		UShort_t ListSciTilHitsinTrack[MAXTRACKSPEREVENT][nmaxSciTilHitsInTrack],
+		bool *InclusionListSciTil,
 		Double_t *trajectory_vertex,
 		Double_t infoparalConformal[nmaxHits][5],
+		Double_t infoSciTilConformal[nmaxSciTilHits][3],
 		Double_t *Ox,
 		Double_t *Oy,
 		Double_t *R,
@@ -13177,7 +13852,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 		rotationangle,
 		rotationcos,
 		rotationsin,
-		auxinfoparalConformal[nmaxHits][5];
+		auxinfoparalConformal[nmaxHits+1][5];
 
 
 //----------------
@@ -13185,7 +13860,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 	1,   //  distance in R cells allowed
 	2,   //  distance in Fi cells allowed
 	Minclinations[0],
-	iHit, // seed hit;
+	iHit, // seed hit; if it is negative it is a SciTil hit.
 	nRcell,
 	nFicell,
 	info,
@@ -13196,6 +13871,20 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 	HitsinBoxConformal,
 	&ListHitsinTrack[nTracksFoundSoFar][0]
 			);
+//---------stampe.
+if(istampa>0){
+cout<<"PndSttTrackFinderReal, evt. "<<IVOLTE<<
+", dopo PndSttFindTrackPatterninBoxConformal; nTracksFoundSoFar  "
+   <<nTracksFoundSoFar<<", nHitsinTrack "<<
+   nHitsinTrack[nTracksFoundSoFar]<<", ;loro lista :\n";
+for(int iz=0;iz<nHitsinTrack[nTracksFoundSoFar];iz++){
+	cout<<"\thit n. (parallel numbering) "
+	<<ListHitsinTrack[nTracksFoundSoFar][iz]
+	<<endl;
+}
+}
+//------------------------------fine stampe.
+
  if( nHitsinTrack[nTracksFoundSoFar] < MINIMUMHITSPERTRACK ||
 	nHitsinTrack[nTracksFoundSoFar]>nmaxHitsInTrack) {
 	return false;
@@ -13212,7 +13901,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 	info[infoparal[ ListHitsinTrack[nTracksFoundSoFar][j] ]][0]+
 	info[infoparal[ ListHitsinTrack[nTracksFoundSoFar][j] ]][1]*
 	info[infoparal[ ListHitsinTrack[nTracksFoundSoFar][j] ]][1]
-	< ApotemaMaxSkewStraw*ApotemaMaxSkewStraw  )   break;
+	< ApotemaMaxSkewStraw*ApotemaMaxSkewStraw  ) break;
   Nouter++;
  }
 
@@ -13287,6 +13976,9 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 
 //---------------------------
 
+
+
+
 //  finding the rotation angle for best utilization of the MILP procedure
 
  for(j=0, rotationcos=0., rotationsin=0.; j<nHitsinTrack[nTracksFoundSoFar]; j++){
@@ -13304,28 +13996,96 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 
 //  fitting with superfast MILP code
 
-//  first redefine the center of the conformal plane;
-//  it will be centered in the center of the  hit in the
-//  hit list with the LEAST drift radius; this hit has to
-//  be excluded from the fitting
+//  loading the conformal infos necessary in the fit :
+//  auxinfoparalConformal[j][0] = U;
+//  auxinfoparalConformal[j][1] = V;
+//  auxinfoparalConformal[j][2] = drift radius in conformal space; for the SciTil
+//				  the SciTil dimension (2.85 cm)/Rmiddle**2 with
+//				  Rmiddle = distance middle of SciTil from (0,0), so
+//				  = DIMENSIONSCITIL/RMAXSCITIL**2.
 
- for(j=0; j<nHitsinTrack[nTracksFoundSoFar]; j++){
-  for(i=0; i<5;i++){
-      auxinfoparalConformal[j][i] =
-	infoparalConformal[ ListHitsinTrack[nTracksFoundSoFar][j]][i];
-    }
+
+ bool Type;
+ int nFitPoints;
+ Double_t
+	Xconformal[1+nHitsinTrack[nTracksFoundSoFar]],
+	Yconformal[1+nHitsinTrack[nTracksFoundSoFar]],
+	DriftRadiusconformal[1+nHitsinTrack[nTracksFoundSoFar]],
+	ErrorDriftRadiusconformal[1+nHitsinTrack[nTracksFoundSoFar]];
+
+ if(iHit<0){	// case with a hit in the SciTil
+
+
+  Xconformal[0] =infoSciTilConformal[-iHit-1][0];
+  Yconformal[0] =infoSciTilConformal[-iHit-1][1];
+  ErrorDriftRadiusconformal[0] = infoSciTilConformal[-iHit-1][2];
+  DriftRadiusconformal[0]=-1.;  // treat it like it is a Mvd hit.
+
+  for(j=0; j<nHitsinTrack[nTracksFoundSoFar]; j++){
+    Xconformal[j+1] =infoparalConformal[ListHitsinTrack[nTracksFoundSoFar][j]][0];
+    Yconformal[j+1] =infoparalConformal[ListHitsinTrack[nTracksFoundSoFar][j]][1];
+    ErrorDriftRadiusconformal[j+1]=
+		infoparalConformal[ListHitsinTrack[nTracksFoundSoFar][j]][2];
+    DriftRadiusconformal[j+1]=
+		infoparalConformal[ListHitsinTrack[nTracksFoundSoFar][j]][2];
   }
+  nFitPoints = nHitsinTrack[nTracksFoundSoFar]+1;
 
- status = PndSttFitHelixCylinder( 
-	nHitsinTrack[nTracksFoundSoFar],
-	auxinfoparalConformal,
-	nTracksFoundSoFar,
-	rotationangle,
-	trajectory_vertex,
-	NHITSINFIT,
-	&m,
-	&q
-		);
+ } else {	// no SciTil hit.
+  for(j=0; j<nHitsinTrack[nTracksFoundSoFar]; j++){
+
+   Xconformal[j] = infoparalConformal[ ListHitsinTrack[nTracksFoundSoFar][j]][0];
+   Yconformal[j] = infoparalConformal[ ListHitsinTrack[nTracksFoundSoFar][j]][1];
+   ErrorDriftRadiusconformal[j] =
+		infoparalConformal[ ListHitsinTrack[nTracksFoundSoFar][j]][2];
+   DriftRadiusconformal[j]=
+		infoparalConformal[ ListHitsinTrack[nTracksFoundSoFar][j]][2];
+  }
+  nFitPoints = nHitsinTrack[nTracksFoundSoFar];
+ }
+
+
+//------------------------
+if(istampa>0){
+
+cout<<"PndSttTrackFinderReal, in FindTrackInXYProjection,  evt. "
+<<IVOLTE<<", nTracksFoundSoFar "<<
+nTracksFoundSoFar <<" nHits "<<nHitsinTrack[nTracksFoundSoFar]
+<<", iseed "<<iHit<<endl;
+cout<<"\tLista Stt Hits :\n";
+for(int iz=0;iz<nHitsinTrack[nTracksFoundSoFar];iz++){
+	cout<<"\tStt hit n. "<<ListHitsinTrack[nTracksFoundSoFar][iz]<<endl;
+}
+cout<<"\tLista info in Conformal :\n";
+int nummm;
+ if(iHit<0) { nummm=nHitsinTrack[nTracksFoundSoFar]+1;}
+ else{nummm=nHitsinTrack[nTracksFoundSoFar];};
+for(int iz=0;iz<nummm;iz++){
+	cout<<"\t"<<Xconformal[iz]<<",  "<<
+	Yconformal[iz]<<",  "<<
+	ErrorDriftRadiusconformal[iz]<<endl;
+}
+
+}
+//--------------------
+
+
+ status = FitHelixCylinder(
+		nFitPoints, // +1 comes from one SciTil hit.
+		Xconformal,
+		Yconformal,
+		DriftRadiusconformal,
+		ErrorDriftRadiusconformal,
+		rotationangle,  //  rotationangle, da mettere
+		trajectory_vertex,	//  vertex in (X,Y) of this trajectory
+		NHITSINFIT,  //  maximum n. of hits allowed in fast fit
+		&m,
+		&q,
+		&ALFA[nTracksFoundSoFar],
+		&BETA[nTracksFoundSoFar],
+		&GAMMA[nTracksFoundSoFar],
+		&TypeConf[nTracksFoundSoFar]
+			);
 
  if(status < 0  ) return false;
 
@@ -13485,6 +14245,15 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 					// vertex are searched.
 
 
+
+//------
+
+ if(iHit<0){  // the seed hit was a SciTil hit
+	nSciTilHitsinTrack[nTracksFoundSoFar]=1;
+	ListSciTilHitsinTrack[nTracksFoundSoFar][0]= -iHit-1;
+ } else {   // the seed hit was a Stt hit; therefore no SciTil hits associated.
+	nSciTilHitsinTrack[nTracksFoundSoFar]=0;
+ }
 
 //--------------------------------------------------    macro for display
 
