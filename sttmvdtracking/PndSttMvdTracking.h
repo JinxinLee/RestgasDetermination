@@ -181,7 +181,10 @@ class PndSttMvdTracking : public FairTask
            sigmaXMvdStrip[nmaxMvdStripHits],
            sigmaYMvdStrip[nmaxMvdStripHits],
            sigmaZMvdStrip[nmaxMvdStripHits],
-           refindexMvdStrip[nmaxMvdPixelHits];
+           refindexMvdStrip[nmaxMvdPixelHits],
+	ALFA[MAXTRACKSPEREVENT],
+	BETA[MAXTRACKSPEREVENT],
+	GAMMA[MAXTRACKSPEREVENT];
 
       FILE * HANDLE ;
       FILE * HANDLE2 ;
@@ -585,10 +588,10 @@ UShort_t ListSttParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack] // input/o
 		UShort_t NMAX,
 		Double_t *m,
 		Double_t *q,
-		Double_t * ALFA,
-		Double_t * BETA,
-		Double_t * GAMMA,
-		bool *TypeConf
+		Double_t *pAlfa,
+		Double_t *pBeta,
+		Double_t *pGamma,
+		bool *Type
 			);
 
 
@@ -612,9 +615,9 @@ UShort_t ListSttParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack] // input/o
 			Double_t rotationangle,
 			Double_t trajectory_vertex[2],
 			Short_t iexcl,
-			Double_t *ALFA, // output of the fit
-			Double_t *BETA, // output of the fit
-			Double_t *GAMMA,// set at zero always for now
+			Double_t *pAlfa, // output of the fit
+			Double_t *pBeta, // output of the fit
+			Double_t *pGamma,// set at zero always for now
 			bool *status    // fit status; true = successful
 			  );
 
