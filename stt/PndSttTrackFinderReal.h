@@ -143,11 +143,12 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                DELTA_D=2.,
                DELTA_KAPPA=0.03,
                DELTA_FI0= 0.3,
-	RMAXSCITIL = 50.,
+	RMAXSCITIL = 50., // cm
+	DIMENSIONSCITIL=2.85, // cm
                BFIELD=2.,  // in Tesla
                CVEL = 2.99792;  //  velocity of light
 	static const bool YesClean = false;
-	bool YesSciT ;
+	bool YesSciTil ;
 
 //               nFidivConformal = (UShort_t) (    PI*RStrawDetectorMax /StrawRadius   );
        static const UShort_t  nFidivConformal = (UShort_t) (3.141592654 * 45./0.5)  ;
@@ -289,8 +290,9 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 			UShort_t NRCELLDISTANCE,
 			UShort_t NFiCELLDISTANCE,
 			UShort_t Nparal,
-			UShort_t ihit, // seed hit;
-			UShort_t nRcell, // R cell of the seed hit;
+			Short_t ihit, // seed hit;
+			Short_t nRcell, // R cell of the seed hit;
+					// can be negative beacuse of SciTil hits;
 			UShort_t nFicell, // Fi cell of the seed hit;
 			Double_t info[][7],
 			bool Exclusion_List[nmaxHits],
@@ -331,6 +333,8 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
 
+
+//   la seguente funzione verra' sostituita da quella che viene dopo.
   Short_t PndSttFitHelixCylinder( UShort_t nHitsinTrack,
                           Double_t auxinfoparalConformal[][5],
                           UShort_t  nTracksFoundSoFar,
@@ -339,27 +343,43 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                           UShort_t NMAX,
                           Double_t *m,
                           Double_t *q
-//			  ,
-//                          Double_t * ALFA,
-//                          Double_t * BETA,
-//                          Double_t * GAMMA,
-//                          bool *TypeConf
                           );
 
 
+//----  questa funzione sostituira' quella precedente; questa funzione e'
+//  identica a quella di sttmvd che funziona sia con soli STT hits che con
+//  Stt+Mvd hits.
+  Short_t FitHelixCylinder( UShort_t nHitsinTrack,
+		Double_t *Xconformal,
+		Double_t *Yconformal,
+		Double_t *DriftRadiusconformal,
+		Double_t *ErrorDriftRadiusconformal,
+		Double_t rotationangle,
+		Double_t *trajectory_vertex,
+		UShort_t NMAX,
+		Double_t *m,
+		Double_t *q,
+		Double_t * ALFA,
+		Double_t * BETA,
+		Double_t * GAMMA,
+		bool *TypeConf
+			);
 
-  Short_t PndSttFitHelixCylinder2( UShort_t nHitsinTrack,
-                          Double_t auxinfoparalConformal[][5],
-                          UShort_t  nTracksFoundSoFar,
-                          Double_t rotationangle,
-                          Double_t *trajectory_vertex,
-                          UShort_t NMAX
-//			  ,
-//                          Double_t * ALFA,
-//                          Double_t * BETA,
-//                          Double_t * GAMMA,
-//                          bool *TypeConf
-                          );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   Short_t PndSttFitSZspace(
                           UShort_t nHitsinTrack,
@@ -1133,10 +1153,9 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
 	bool FindTrackInXYProjection(
-		UShort_t iHit,
+		Short_t iHit,	// seed hit; it is negative for SciTil Hits.
 		UShort_t nRcell,  // R cell of the seed hit;
 		UShort_t nFicell, // Fi cell of the seed hit;
-		UShort_t hittype,
 		Int_t *Minclinations,
 		Double_t info[nmaxHits][7],
 		bool *ExclusionList,
@@ -1144,18 +1163,15 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		UShort_t *FiConformalIndex,
 		UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
 		UShort_t HitsinBoxConformal[MAXHITSINCELL][nRdivConformal][nFidivConformal],
-		UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
 		UShort_t nTracksFoundSoFar,
 		UShort_t *nHitsinTrack,
+		UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
+		UShort_t *nSciTilHitsinTrack,
+		UShort_t ListSciTilHitsinTrack[MAXTRACKSPEREVENT][nmaxSciTilHitsInTrack],
+		bool *InclusionListSciTil,
 		Double_t *trajectory_vertex,
 		Double_t infoparalConformal[nmaxHits][5],
-//		Short_t *Status,
-//		Double_t *m,
-//		Double_t *q,
-//		Double_t *ALFA,
-//		Double_t *BETA,
-//		Double_t *GAMMA,
-//		bool *    TypeConf,
+		Double_t infoSciTilConformal[nmaxHits][3],
 		Double_t *Ox,
 		Double_t *Oy,
 		Double_t *R,
