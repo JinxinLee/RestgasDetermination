@@ -65,7 +65,7 @@ class PndPidProbability : public TObject
   Float_t		fKaonPdf;     // k  Probability density function
   Float_t		fProtonPdf;   // p  Probability density function
   Int_t                 fIndex;       // Candidate Index
-  ClassDef(PndPidProbability,1) // Abstract base class for MicroDST candidates
+  ClassDef(PndPidProbability,2) // 
     
     };
 
