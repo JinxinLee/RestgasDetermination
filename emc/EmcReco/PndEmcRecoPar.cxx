@@ -40,6 +40,7 @@ void PndEmcRecoPar::putParams(FairParamList* list)
 	list->add("ERatioCorr",fERatioCorr);
 	list->add("TheNeighbourLevel",fTheNeighbourLevel);
 	list->add("MoliereRadius",fMoliereRadius);
+	list->add("MoliereRadiusShashlyk",fMoliereRadiusShashlyk);
 	list->add("ExponentialConstant",fExponentialConstant);
 	list->add("MaxIterations",fMaxIterations);
 	list->add("CentroidShift",fCentroidShift);
@@ -69,6 +70,7 @@ Bool_t PndEmcRecoPar::getParams(FairParamList* list)
 	if (!list->fill("ERatioCorr",&fERatioCorr)) return kFALSE;
 	if (!list->fill("TheNeighbourLevel",&fTheNeighbourLevel)) return kFALSE;
 	if (!list->fill("MoliereRadius",&fMoliereRadius)) return kFALSE;
+	if (!list->fill("MoliereRadiusShashlyk",&fMoliereRadiusShashlyk)) return kFALSE;
 	if (!list->fill("ExponentialConstant",&fExponentialConstant)) return kFALSE;
 	if (!list->fill("MaxIterations",&fMaxIterations)) return kFALSE;
 	if (!list->fill("CentroidShift",&fCentroidShift)) return kFALSE;

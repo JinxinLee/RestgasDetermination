@@ -25,6 +25,7 @@ class PndEmcRecoPar : public FairParGenericSet
 		Double_t GetERatioCorr() {return fERatioCorr;};
 		Int_t GetTheNeighbourLevel() {return fTheNeighbourLevel;};
 		Double_t GetMoliereRadius() {return fMoliereRadius;};
+		Double_t GetMoliereRadiusShashlyk() {return fMoliereRadiusShashlyk;};
 		Double_t GetExponentialConstant() {return fExponentialConstant;};
 		Int_t GetMaxIterations() {return fMaxIterations;};
 		Double_t GetCentroidShift() {return fCentroidShift;};
@@ -67,6 +68,7 @@ class PndEmcRecoPar : public FairParGenericSet
 		Int_t fTheNeighbourLevel;
 		// parameters for PndEmcExpClusterSplitter:
 		Double_t fMoliereRadius;
+		Double_t fMoliereRadiusShashlyk;
 		Double_t fExponentialConstant;
 		Int_t fMaxIterations;
 		Double_t fCentroidShift;

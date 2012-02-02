@@ -57,7 +57,7 @@ OffsetParmA:Double_t 3.6
 OffsetParmB:Double_t 1.594
 OffsetParmC:Double_t 2.543
 EmcDigiPositionDepthPWO:Double_t 6.2
-EmcDigiPositionDepthShashlyk:Double_t 6.2
+EmcDigiPositionDepthShashlyk:Double_t 20.9
 MaxECut:Double_t 0.02
 NeighbourECut:Double_t 0.002
 CutSlope:Double_t 0.5
@@ -65,6 +65,7 @@ CutOffset:Double_t 2.5
 ERatioCorr:Double_t 0.0
 TheNeighbourLevel:Int_t 0
 MoliereRadius:Double_t 2.0
+MoliereRadiusShashlyk:Double_t 5.9
 ExponentialConstant:Double_t 2.5
 MaxIterations:Int_t 10
 CentroidShift:Double_t 0.1

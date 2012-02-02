@@ -115,6 +115,7 @@ InitStatus PndEmcExpClusterSplitter::Init() {
   }
   
   fMoliereRadius=fRecoPar->GetMoliereRadius();// Mr in cm
+  fMoliereRadiusShashlyk=fRecoPar->GetMoliereRadiusShashlyk();// Mr in cm
   fExponentialConstant=fRecoPar->GetExponentialConstant();
   // Energy fall off with distance from centre of cluster is
   // exp(-a*dist/Mr) Mr is the moliere radius.  dist is distance from
@@ -307,6 +308,13 @@ void PndEmcExpClusterSplitter::Exec(Option_t* opt)
 					
 					Double_t totalDistanceEnergy=0;
 		
+					//Moliere Radius for Shashlyk is different
+					Double_t MoliereRadius;
+					if(theCurrentDigi->GetModule() == 5)
+						MoliereRadius = fMoliereRadiusShashlyk;
+					else
+						MoliereRadius = fMoliereRadius;
+
 					std::map<PndEmcTwoCoordIndex*,TVector3*>::iterator theMaxPointsIterator;
 					
 					for(theMaxPointsIterator = theCentroidPoints.begin(); theMaxPointsIterator != theCentroidPoints.end();++theMaxPointsIterator){
@@ -339,12 +347,12 @@ void PndEmcExpClusterSplitter::Exec(Option_t* opt)
 				
 						Int_t iMaxPoint = (theDigiDict.find(theMaxPointsTCI->Index()))->second;
 						totalDistanceEnergy += ((PndEmcDigi *) fDigiArray->At(iMaxPoint))->GetEnergy() *
-							exp(-fExponentialConstant * theDistance/fMoliereRadius);
+							exp(-fExponentialConstant * theDistance/MoliereRadius);
 					}
 		
 					if(totalDistanceEnergy > 0.0)
 						weight = myEnergy*exp(-fExponentialConstant* 
-								myDistance/fMoliereRadius) / ( totalDistanceEnergy);
+								myDistance/MoliereRadius) / ( totalDistanceEnergy);
 					else 
 						weight=0;
 					

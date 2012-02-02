@@ -123,9 +123,9 @@ PndEmcDigi::depthPosition( const PndEmcXtal* xtal )
 	int module=xtal->myIndex()->Index()/100000000;
 	
 	if (module==5) //shahslyk
-		norm*=fPositionDepthPWO;
-	else
 		norm*=fPositionDepthShashlyk;
+	else
+		norm*=fPositionDepthPWO;
 	
 	pos += norm;
 	
@@ -178,7 +178,7 @@ TVector3 ( *&PndEmcDigi::algPointer() ) ( const PndEmcXtal* )
 
 double PndEmcDigi::fRescaleFactor = 1.0;
 double PndEmcDigi::fPositionDepthPWO = 6.2;
-double PndEmcDigi::fPositionDepthShashlyk = 6.2;
+double PndEmcDigi::fPositionDepthShashlyk = 20.9;
 
 
 const bool 

@@ -95,6 +95,7 @@ class PndEmcExpClusterSplitter: public FairTask
 	Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
 	// Data members
 	Double_t fMoliereRadius;
+	Double_t fMoliereRadiusShashlyk;
 	Double_t fExponentialConstant;
 	Int_t fMaxIterations;
 	Double_t fCentroidShift;
