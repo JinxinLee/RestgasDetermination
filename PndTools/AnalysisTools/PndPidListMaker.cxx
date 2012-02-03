@@ -103,11 +103,11 @@ bool PndPidListMaker::FillList(TCandList &l, std::string listkey)
 	if (!listExists) return false;
 	
 	--i;
-	
+	  
 	int ptype=i/12;           	// particle type: 0=electron, ..., 4=proton
-	int ctype=(i%12)/3;			// criterion: 0=veryLoose,..., 3=veryTight	
-	int select_chrg=(i%3);		// select charge: 0=all, 1=plus, 2=minus
-
+	int ctype=(i%12)/5;			// criterion: 0=veryLoose,..., 3=veryTight, 4=Best, 5=all	
+	int select_chrg=(i%5);		// select charge: 0=all, 1=plus, 2=minus
+  
 	VAbsPidSelector *pidSel=NULL;
 	
 	if (select_chrg==1) 
@@ -117,20 +117,22 @@ bool PndPidListMaker::FillList(TCandList &l, std::string listkey)
 	
 	switch (ptype)
 	{
-	case 0: pidSel = eSel;  break;
-	case 1: pidSel = muSel; break;
-	case 2: pidSel = piSel; break;
-	case 3: pidSel = kSel;  break;
-	case 4: pidSel = pSel;  break;
+    case 0: pidSel = eSel;  break;
+    case 1: pidSel = muSel; break;
+    case 2: pidSel = piSel; break;
+    case 3: pidSel = kSel;  break;
+    case 4: pidSel = pSel;  break;
 	}
   if (NULL==pidSel) return false;
 	
 	switch (ctype)
 	{
-	case 0: pidSel->SetCriterion(veryLoose); break;
-	case 1: pidSel->SetCriterion(loose);     break;
-	case 2: pidSel->SetCriterion(tight);     break;
-	case 3: pidSel->SetCriterion(veryTight); break;
+    case 0: pidSel->SetCriterion(veryLoose); break;
+    case 1: pidSel->SetCriterion(loose);     break;
+    case 2: pidSel->SetCriterion(tight);     break;
+    case 3: pidSel->SetCriterion(veryTight); break;
+    case 4: pidSel->SetCriterion(best);      break;
+    case 5: pidSel->SetCriterion(all);       break;
 	}
 	
 	if (select_chrg>0)
