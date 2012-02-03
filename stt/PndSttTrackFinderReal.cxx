@@ -6139,10 +6139,10 @@ void PndSttTrackFinderReal::Merge(UShort_t nl, Double_t *left, UShort_t *ind_lef
 	}  else {
 		nRmax = nRcell + NRCELLDISTANCE;
 	}
-cout<<"\tin FindTrackPatterninBoxConformal, nRmin = "<<nRmin
+if(istampa>0) {cout<<"\tin FindTrackPatterninBoxConformal, nRmin = "<<nRmin
 	<<", nRmax = "<<nRmax<<endl;
 cout<<"\tin FindTrackPatterninBoxConformal, nFicell = "<<nFicell<<endl;
-
+}
 	for( iR= nRmin ; iR<= nRmax ; iR++){
 	 for(iFi2=nFicell-NFiCELLDISTANCE;iFi2<=nFicell+NFiCELLDISTANCE;iFi2++){
 		if ( iFi2 < 0 )  {
