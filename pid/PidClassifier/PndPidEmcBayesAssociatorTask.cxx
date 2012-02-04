@@ -203,6 +203,11 @@ void PndPidEmcBayesAssociatorTask::GetPdf(Float_t ppin, Float_t thin, Float_t ph
    if(fVerbose>1) std::cout << "ppin: " << pp  << std::endl;
 
 // trafo that spreads out the parameters
+   if( ppin<0.000001)  ppin=0.000001;
+   if(z20in>0.999999) z20in=0.999999;
+   if(z53in<0.000001) z53in=0.000001;
+   if(LATin<0.000001) LATin=0.000001;
+
    pp  = rangePconst0 + rangePconst1 * TMath::Log10(ppin);
    Z20 = -TMath::Log10(1-z20in);
    Z53 = -TMath::Log10(z53in);
