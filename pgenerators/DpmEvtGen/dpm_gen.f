@@ -1,6 +1,6 @@
 C------Last edition 25.08.05 V.Uzhinsky--------------------
 C------modify by A.Galoyan 10.09.08--------------------
-      subroutine DPM_GEN(Pluto, Seed)
+      subroutine DPMGEN(Pluto, Seed)
       COMMON /LUJETS/ N,K(1000,2),P(1000,5)
       
       COMMON/UZHI/SqrtS,Ecms,Vcms,Gamma,Proc_Prob(7),P_5str,CS_in,
@@ -36,19 +36,19 @@ C-----------------------------------------------------------------------
 C =========================================================================
       COMMON/FINPAR/PXF(10000),PYF(10000),PZF(10000),HEF(10000),
      *AMF(10000),ICHF(10000),IBARF(10000),ANF(10000),NREF(10000)
-      REAL*8 ANF
+      CHARACTER*8 ANF
 
       COMMON/MIDPAR/
      *PXM(1000),PYM(1000),PZM(1000),HEM(1000),AMM(1000),ICHM(1000),
      *IBARM(1000),ANM(1000),NREM(1000)
-      REAL*8 ANM
+      CHARACTER*8 ANM
       common/prob_el/prob_col, prob_int, prob_had    !aida
       COMMON/AB/aelm,betav, sigma_tot, parB, rho      !aida
 
       COMMON/PART/ANAME(180),AM(180),GA(180),TAU(180),ICH(180),IBAR(180)
      ,           ,K1(180),K2(180)
       COMMON /AGT/ TTR
-      REAL*8 ANAME
+      CHARACTER*8 ANAME
 
 C-----------------------------------------------------------------------
       REAL Typ_aQ(7), Px_aQ(7), Py_aQ(7), Pz_aQ(7), Mt_aQ_2(7), X_aQ(7)
@@ -1044,7 +1044,7 @@ C =========================================================================
       COMMON/FINPAR/PXF(10000),PYF(10000),PZF(10000),HEF(10000),
      *AMF(10000),ICHF(10000),IBARF(10000),ANF(10000),NREF(10000)
 
-      REAL*8 ANF
+      CHARACTER*8 ANF
 C
       DIMENSION ID1(102), ID2(78), IDPITH(180)
       DATA ID1/
@@ -1097,7 +1097,7 @@ C =========================================================================
       COMMON/FINPAR/PXF(10000),PYF(10000),PZF(10000),HEF(10000),
      *AMF(10000),ICHF(10000),IBARF(10000),ANF(10000),NREF(10000)
 
-      REAL*8 ANF
+      CHARACTER*8 ANF
 C
       DIMENSION ID1(102), ID2(78), IDPITH(180)
       DATA ID1/
