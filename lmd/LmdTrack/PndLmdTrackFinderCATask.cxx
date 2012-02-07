@@ -142,7 +142,6 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   fTrackCandArray->Clear();
   fTrackCandArrayTemp->Clear();
   Int_t nStripHits = fStripHitArray->GetEntriesFast();
-  // cout<<"nStripHits = "<<nStripHits<<endl;
   if(nStripHits<2){
     if(fVerbose>2) cout << "Evt finsihed: too less hits-----"<<endl<<endl;
     return;
@@ -152,7 +151,6 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   for(Int_t iHit = 0; iHit < nStripHits; iHit++){
     PndSdsHit* myHit = (PndSdsHit*)(fStripHitArray->At(iHit));
     Int_t sensid = myHit->GetSensorID(); // Sensors: 1..32
-    //    cout<<"sencor ID: "<<sensid<<endl;
     Int_t planeid = floor((sensid)/8.); //8 sensors/plane => Planes: 0..3
     hitsd.at(planeid).push_back(iHit);
   }
@@ -209,12 +207,10 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   //  TStopwatch *timer_makingcells = new TStopwatch();
   // timer_makingcells->Start();
   int Npoints=0;
-  //  const int nplanes = nPlanes;
   const int nplanes = 4;
   int NpointsI[nplanes];
   for(int i=0;i<nplanes;i++){
     NpointsI[i]=hitsd.at(i).size();
-    //  cout<<" NpointsI["<<i<<"]="<< NpointsI[i]<<endl;
     if(hitsd.at(i).size()>Npoints)
       Npoints=hitsd.at(i).size();
   }
@@ -271,7 +267,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
       }
     }
   }
-  // cout<<"Now we are counting ncI!"<<endl;
+ 
 
   int nc=0;
   int ncI[nplanes];
@@ -291,8 +287,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   // timer_makingneighbour->Start();
 
   double d_max = 0.01; 
-  //	double d_max1 = 0.01, d_max2 = 0.01, d_max;
-  //      	double d_max1 = ., d_max2 = 4., d_max; //TEST
+ 
   int cd=0;
   bool stop=false;
   vector<int> connect;
@@ -303,14 +298,6 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
     for(int ipl=0;ipl<(nplanes-2);ipl++){
       for(int p=ncI[ipl];p<ncI[ipl+1];p++){
 	for(int q=ncI[ipl+1];q<ncI[ipl+2];q++){
-	  //  if(pv[p]<0 || pv[q]<0) continue;
-	  //	  cout<<"p = "<<p<<" q = "<<q<<endl;
-	  // if(fabs(cells[p][5]-cells[q][2])>1e-6) continue;
-	  // if(fabs(cells[p][4]-cells[q][1])>1e-6) continue;
-	  // if(fabs(cells[p][3]-cells[q][0])<1e-6){ 
-	  //	  cout<<"cells.at(5).at(p) = "<<cells.at(5).at(p)<<" cells.at(2).at(q) = "<<cells.at(2).at(q)<<endl;
-	  // cout<<"cells.at(4).at(p) = "<<cells.at(4).at(p)<<" cells.at(1).at(q) = "<<cells.at(1).at(q)<<endl;
-	  // cout<<"cells.at(3).at(p) = "<<cells.at(3).at(p)<<" cells.at(0).at(q) = "<<cells.at(0).at(q)<<endl;
 	  if(fabs(cells.at(5).at(p)-cells.at(2).at(q))>1e-6) continue;
 	  if(fabs(cells.at(4).at(p)-cells.at(1).at(q))>1e-6) continue;
 	  if(fabs(cells.at(3).at(p)-cells.at(0).at(q))<1e-6){
@@ -319,10 +306,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	    /// d= [v,w]/|v| - distance
 	    /// [v,w]=(v_y*w_z-v_z*w_y, v_z*w_x-v_x*w_z,v_x*w_y-v_y*w_x)
 	    /// |v|=sqrt(v_x^2+v_y^2+v_z^2)
-	    
-	    // double x0 = cells[p][0]; double y0 = cells[p][1]; double z0 = cells[p][2];
-	    // double x1 = cells[q][3]; double y1 = cells[q][4]; double z1 = cells[q][5];
-	    // double xt = cells[p][3]; double yt = cells[p][4]; double zt = cells[p][5]; 
+	 
 	    double x0 = cells.at(0).at(p); double y0 = cells.at(1).at(p); double z0 = cells.at(2).at(p);
 	    double x1 = cells.at(3).at(q); double y1 = cells.at(4).at(q); double z1 = cells.at(5).at(q);
 	    double xt = cells.at(3).at(p); double yt = cells.at(4).at(p); double zt = cells.at(5).at(p);
@@ -382,12 +366,10 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   }
 
   if(fVerbose>4) for(int jg=0;jg<connect.size(); jg++) cout<<"connect["<<jg<<"]="<<connect[jg]<<endl;  
-  //  if(connect.size()<3){
+ 
   if(connect.size()<2){
-    //    if(fVerbose>2 &&  (!missPlAlgo || (missPlAlgo && nPlanes<4))) 
     if(fVerbose>2 &&  !missPlAlgo)
       cout << "Evt finsihed: too less cells-----"<<endl<<endl;
-    //     if(!missPlAlgo || (missPlAlgo && nPlanes<4)) return;
     if(!missPlAlgo) return;
   }
   else{
@@ -624,20 +606,6 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   //  for(int pl=0;pl<connect.size(); pl++) cout<<"connect["<<pl<<"]="<<connect[pl]<<" pv["<<pl<<"]="<<pv[pl]<<endl;
   if(fVerbose>4) cout<<"pv3size = "<<pv3size<<" pv2size = "<<pv2size<<" pv1size = "<<pv1size<<endl;
  
-  // for(int pl=0;pl<connect.size(); pl++) cout<<"connect["<<pl<<"]="<<connect[pl]<<endl;
-  // // int last_el = 0;
-  // // if(pv3size!=0){
-  // //   for(int k=connect.size()-1;k>2;k--){
-  // //     if(pv[connect[k]]==2 && pv[connect[k-1]]==3) last_el=k-1;
-  // //     if(pv[connect[k]]==1 && pv[connect[k-1]]==2) break;
-  // //   }
-  // //   cout<<"last_el = "<<last_el<<endl;
-  // //   connect.erase((connect.begin()+last_el),(connect.begin()+connect.size())); //delete elements repeated
-  // //   conn_flag.erase((conn_flag.begin()+last_el),(conn_flag.begin()+conn_flag.size()));
-  // // }
- 
-  
-  //	cout<<"connect.size()="<<connect.size()<<endl;
   //save track for fitting
   int NtrkRec = 0;
   vector<int> trk;
@@ -645,8 +613,8 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   
   int connectSizeOld=connect.size(),connectSizeNew=1;
   while(connectSizeOld!=connectSizeNew && trk.size()!=0){
-    // cout<<"%$#^^$^#^$%#^%#$$^%"<<endl;
-    // cout<<"connect.size()="<<connect.size()<<" conn_flag.size() = "<<conn_flag.size()<<endl;
+    cout<<"%$#^^$^#^$%#^%#$$^%"<<endl;
+    cout<<"connect.size()="<<connect.size()<<" conn_flag.size() = "<<conn_flag.size()<<endl;
     connectSizeOld = connect.size();
     trk.erase(trk.begin(),trk.begin()+trk.size());
     bool addHit = false;
@@ -658,7 +626,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	  if(addHit) break;
 	  //	  cout<<"connect["<<p<<"]="<<connect[p]<<endl;
 	  if(connect[p]==pv3[i] && connect[p+1]==pv2[j]){
-	    //   cout<<"pv2["<<j<<"]="<<pv2[j]<<" pv3["<<i<<"]="<<pv3[i]<<endl;
+	    //cout<<"pv2["<<j<<"]="<<pv2[j]<<" pv3["<<i<<"]="<<pv3[i]<<endl;
 	    trk.push_back(pv3[i]);
 	    trk.push_back(pv2[j]);
 	    connect.erase(connect.begin()+p,connect.begin()+(p+2));
@@ -675,13 +643,15 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
       for(int k=0;k<pv1.size();k++){
 	if(addHit) break;
 	//	cout<<"connect["<<p<<"]="<<connect[p]<<" trk["<<trk.size()-1<<"]="<<trk[trk.size()-1]<<" pv1["<<k<<"]="<<pv1[k]<<endl;
+	if(trk.size()!=0){
 	if(connect[p]==trk[trk.size()-1] && connect[p+1]==pv1[k]){
-	  // cout<<"trk["<<trk.size()-1<<"]="<<trk[trk.size()-1]<<" pv1["<<k<<"]="<<pv1[k]<<endl;
+	  //	  cout<<"trk["<<trk.size()-1<<"]="<<trk[trk.size()-1]<<" pv1["<<k<<"]="<<pv1[k]<<endl;
 	  trk.push_back(pv1[k]); 
 	  conn_flag[p] = false;
 	  conn_flag[p+1] = false;
 	  //  connect.erase(connect.begin()+p,connect.begin()+(p+2));
 	  addHit = true;
+	}
 	}
       }
     }
@@ -752,7 +722,8 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   //if(fVerbose>2) cout<<"connect.size()="<<connect.size()<<endl;
   bool cont=false;
   for(int h=0;h<conn_flag.size();h++){
-    // cout<<"conn_flag["<<h<<"]="<<conn_flag[h]<<endl;
+    // cout<<"cont = "<<cont<<endl;
+    //cout<<"conn_flag["<<h<<"]="<<conn_flag[h]<<endl;
     if(conn_flag[h]==true)
       cont=true;
   }
@@ -929,6 +900,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	flag(trkcID)=true;
       }
       else{
+	if(fVerbose>4)	cout<<"Now we are in case with < 4 hits!"<<endl;
 	for(int trkc=0;trkc<ntcand;trkc++) repE[trkc]=1;
 	for(unsigned int ihit0=0; ihit0<1; ihit0++){
 	  for(unsigned int ihit1=1; ihit1<4; ihit1++){
