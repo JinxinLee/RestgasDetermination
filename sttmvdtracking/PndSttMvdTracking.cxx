@@ -1819,6 +1819,9 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 			S[i] = atan2( YMvdPixel[k]-Oy[ncand],XMvdPixel[k]-Ox[ncand]);
 			if(S[i]<0.) S[i] +=2.*PI;
 			Sbis[i][0] = S[i];
+			// DriftRadius is set conventionally at -1, for later use in the SZ fit;
+			// the error on the point used in the fit is ErrorDriftRadius and this
+			// is overestimated to be  1cm.
 			DriftRadiusbis[i][0]=DriftRadius[i]=-1.;
 			ErrorDriftRadiusbis[i][0]=ErrorDriftRadius[i]= 1. ;
 		}
@@ -1830,6 +1833,9 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 			S[i] = atan2( YMvdStrip[k]-Oy[ncand],XMvdStrip[k]-Ox[ncand]);
 			if(S[i]<0.) S[i] +=2.*PI;
 			Sbis[i][0] = S[i] ;
+			// DriftRadius is set conventionally at -1, for later use in the SZ fit;
+			// the error on the point used in the fit is ErrorDriftRadius and this
+			// is overestimated to be  1cm.
 			DriftRadiusbis[i][0]=DriftRadius[i]=-1.;
 			ErrorDriftRadiusbis[i][0]=ErrorDriftRadius[i]= 1. ;
 		}
@@ -2680,6 +2686,9 @@ if(istampa>1) cout<<"PndSttMvdTracking, entra in TrackCleanup tracce normali, IV
 			if(S[nMvdOnly]<0.) S[nMvdOnly] =0.;
 			esse[i]=S[nMvdOnly];
 			ZED[nMvdOnly] = ZMvdPixel[ListTrackCandHit[ncand][i]];
+			// DriftRadius is set conventionally at -1, for later use in the SZ fit;
+			// the error on the point used in the fit is ErrorDriftRadius and this
+			// is overestimated to be  1cm.
 			DriftRadius[nMvdOnly]= -1. ;
 			ErrorDriftRadius[nMvdOnly]= 1. ;
 			nMvdOnly++;
@@ -2692,6 +2701,9 @@ if(istampa>1) cout<<"PndSttMvdTracking, entra in TrackCleanup tracce normali, IV
 			if(S[nMvdOnly]<0.) S[nMvdOnly] =0.;
 			esse[i]=S[nMvdOnly];
 			ZED[nMvdOnly] = ZMvdStrip[ListTrackCandHit[ncand][i]];
+			// DriftRadius is set conventionally at -1, for later use in the SZ fit;
+			// the error on the point used in the fit is ErrorDriftRadius and this
+			// is overestimated to be  1cm.
 			DriftRadius[nMvdOnly]= -1. ;
 			ErrorDriftRadius[nMvdOnly]= 1. ;
 			nMvdOnly++;
