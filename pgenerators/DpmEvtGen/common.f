@@ -6,7 +6,7 @@ C
 C
       COMMON/LIMMAS/IDSTAB(180),SUMKM(533),AML(180),FI0ML(180)
 
-      REAL*8 ANAME
+      CHARACTER*8 ANAME
 C
       DATA PIHALF /1.57074/
       SAVE PIHALF
@@ -58,7 +58,7 @@ C---------------------------------------------------------------------
      *ICHM(1000),IBARM(1000),ANM(1000),NREM(1000)
 
 C
-      REAL*8 ANF, ANM
+      CHARACTER*8 ANF, ANM
 *      write(6,*)' GOBSEC ----',NPS,NHAD
       IF(NHAD.EQ.0) GO TO 20
 C
