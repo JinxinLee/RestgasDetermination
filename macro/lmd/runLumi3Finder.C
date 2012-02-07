@@ -78,16 +78,22 @@ void runLumi3Finder(const int nEvents=100000, const int startEvent=0, TString st
     int FinderMode=0;
     if(missPl==true) FinderMode=1;
     PndLmdTrackFinderTask* lmdfinder = new PndLmdTrackFinderTask(FinderMode);
+    lmdfinder->SetVerbose(verboseLevel);
+    fRun->AddTask(lmdfinder);
   }
   else{
-    if(Method=="CA") PndLmdTrackFinderCATask* lmdfinder = new PndLmdTrackFinderCATask(missPl);
+    if(Method=="CA"){ 
+      PndLmdTrackFinderCATask* lmdfinder = new PndLmdTrackFinderCATask(missPl);
+      lmdfinder->SetVerbose(verboseLevel);
+      fRun->AddTask(lmdfinder);
+    }
     else{
       cout<<"Method "<<Method<<" doesn't exist!"<<endl;
       break;
     }
   }
-  lmdfinder->SetVerbose(verboseLevel);
-  fRun->AddTask(lmdfinder);
+  //  lmdfinder->SetVerbose(verboseLevel);
+  // fRun->AddTask(lmdfinder);
 
   rtdb->setOutput(parInput1);
   rtdb->print();
