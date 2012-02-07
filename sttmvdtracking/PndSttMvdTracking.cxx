@@ -1820,7 +1820,7 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 			if(S[i]<0.) S[i] +=2.*PI;
 			Sbis[i][0] = S[i];
 			DriftRadiusbis[i][0]=DriftRadius[i]=-1.;
-			ErrorDriftRadiusbis[i][0]=ErrorDriftRadius[i]= 0.01 ;
+			ErrorDriftRadiusbis[i][0]=ErrorDriftRadius[i]= 1. ;
 		}
 		// the Mvd Strips hit
 		for(j=0; j< nMvdStripHitsinTrack[ncand]; j++){
@@ -1831,7 +1831,7 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 			if(S[i]<0.) S[i] +=2.*PI;
 			Sbis[i][0] = S[i] ;
 			DriftRadiusbis[i][0]=DriftRadius[i]=-1.;
-			ErrorDriftRadiusbis[i][0]=ErrorDriftRadius[i]= 0.01 ;
+			ErrorDriftRadiusbis[i][0]=ErrorDriftRadius[i]= 1. ;
 		}
 		// the Skew Stt hits
 		for(j=0, i = nMvdPixelHitsinTrack[ncand]+
@@ -1840,18 +1840,19 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 			k=ListSttSkewHitsinTrack[ncand][j];
 			kall = nMvdPixelHitsinTrack[ncand]+
 				nMvdStripHitsinTrack[ncand]+j;
-			CalculateSandZ( Ox[ncand],
-					Oy[ncand],
-					R[ncand],
-					k,
-					info,
-					WDX,
-					WDY,
-					WDZ,
-					s,	// output, alway between 0 and 2*PI
-					z,	// Zcoordinate of the central wire.
-					zdrift, //  drift radius projected onto the Helix
-					zerror  // STRAWRESOLUTION (0.015 cm) projected onto the Helix.
+			CalculateSandZ(
+				Ox[ncand],
+				Oy[ncand],
+				R[ncand],
+				k,
+				info,
+				WDX,
+				WDY,
+				WDZ,
+				s,	// output, alway between 0 and 2*PI
+				z,	// Zcoordinate of the central wire.
+				zdrift, //  drift radius projected onto the Helix
+				zerror  // STRAWRESOLUTION (0.015 cm) projected onto the Helix.
 					);
 
 
@@ -1859,20 +1860,26 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 					ZEDbis[kall][0]=ZED[i]=z[0];
 					Sbis[kall][0]=S[i] = s[0];
 					DriftRadiusbis[kall][0]=DriftRadius[i]=zdrift[0];
+					// overestimate the error on the Drift Radius used
+					// in the SZ  fit.
+					ErrorDriftRadius[i]=2.*zdrift[0];
 					if( fabs(zdrift[0]) >1.e-10) {
-					 ErrorDriftRadiusbis[kall][0]=ErrorDriftRadius[i]=zerror[0];
+					 ErrorDriftRadiusbis[kall][0]=zerror[0];
 					} else {
-					 ErrorDriftRadiusbis[kall][0]=ErrorDriftRadius[i]=0.5;
+					 ErrorDriftRadiusbis[kall][0]=0.5;
 					}
 					i++;
 
 					ZEDbis[kall][1]=ZED[i]=z[1];
 					Sbis[kall][1]=S[i] = s[1];
 					DriftRadiusbis[kall][1]=DriftRadius[i]=zdrift[1];
+					// overestimate the error on the Drift Radius used
+					// in the SZ  fit.
+					ErrorDriftRadius[i]=2.*zdrift[1];
 					if( fabs(zdrift[1]) >1.e-10) {
-					 ErrorDriftRadiusbis[kall][1]=ErrorDriftRadius[i]=zerror[1];
+					 ErrorDriftRadiusbis[kall][1]=zerror[1];
 					} else {
-					 ErrorDriftRadiusbis[kall][1]=ErrorDriftRadius[i]=0.5;
+					 ErrorDriftRadiusbis[kall][1]=0.5;
 					}
 					i++;
 
@@ -1917,10 +1924,13 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 					ZEDbis[kall][0]=ZED[i]=z[0];
 					Sbis[kall][0]=S[i] = s[0];
 					DriftRadiusbis[kall][0]=DriftRadius[i]=zdrift[0];
+					// overestimate the error on the Drift Radius used
+					// in the SZ  fit.
+					ErrorDriftRadius[i]=2.*zdrift[0];
 					if( fabs(zdrift[0]) >1.e-10) {
-					 ErrorDriftRadiusbis[kall][0]=ErrorDriftRadius[i]=zerror[0];
+					 ErrorDriftRadiusbis[kall][0]=zerror[0];
 					} else {
-					 ErrorDriftRadiusbis[kall][0]=ErrorDriftRadius[i]=0.5;
+					 ErrorDriftRadiusbis[kall][0]=0.5;
 					}
 					ZEDbis[kall][1]=999999.;
 					i++;
@@ -1943,10 +1953,13 @@ for(int iiii=0;iiii<nSttSkewHitsinTrack[ncand];iiii++)
 					ZEDbis[kall][1]=ZED[i]=z[1];
 					Sbis[kall][1]=S[i] = s[1];
 					DriftRadiusbis[kall][1]=DriftRadius[i]=zdrift[1];
+					// overestimate the error on the Drift Radius used
+					// in the SZ  fit.
+					ErrorDriftRadius[i]=2.*zdrift[1];
 					if( fabs(zdrift[1]) >1.e-10) {
-					 ErrorDriftRadiusbis[kall][1]=ErrorDriftRadius[i]=zerror[1];
+					 ErrorDriftRadiusbis[kall][1]=zerror[1];
 					} else {
-					 ErrorDriftRadiusbis[kall][1]=ErrorDriftRadius[i]=0.5;
+					 ErrorDriftRadiusbis[kall][1]=0.5;
 					}
 					ZEDbis[kall][0]=999999.;
 					i++;
@@ -2033,6 +2046,7 @@ if(istampa>=2) cout<<"\nPndSttMvdTracking, Before FitSZspace, cand n. "<<ncand<<
 					ErrorDriftRadius,
 					FI0[ncand],
 					20,	// maximum number allowed in the fit
+						// deve essere meno di 30+30+60
 					&emme
 						);
 
@@ -2667,7 +2681,7 @@ if(istampa>1) cout<<"PndSttMvdTracking, entra in TrackCleanup tracce normali, IV
 			esse[i]=S[nMvdOnly];
 			ZED[nMvdOnly] = ZMvdPixel[ListTrackCandHit[ncand][i]];
 			DriftRadius[nMvdOnly]= -1. ;
-			ErrorDriftRadius[nMvdOnly]= 0.01 ;
+			ErrorDriftRadius[nMvdOnly]= 1. ;
 			nMvdOnly++;
 		} else if (ListTrackCandHitType[ncand][i] == 1) {  //  Strip
 			S[nMvdOnly] = atan2(
@@ -2679,7 +2693,7 @@ if(istampa>1) cout<<"PndSttMvdTracking, entra in TrackCleanup tracce normali, IV
 			esse[i]=S[nMvdOnly];
 			ZED[nMvdOnly] = ZMvdStrip[ListTrackCandHit[ncand][i]];
 			DriftRadius[nMvdOnly]= -1. ;
-			ErrorDriftRadius[nMvdOnly]= 0.01 ;
+			ErrorDriftRadius[nMvdOnly]= 1. ;
 			nMvdOnly++;
 		}   //   end of    if( ListTrackCandHitType[ncand][0] == 0)
 
@@ -2756,6 +2770,7 @@ if(istampa>1) cout<<"PndSttMvdTracking, entra in TrackCleanup tracce normali, IV
 					ErrorDriftRadius,
 					FI0[ncand],
 					20,	// maximum number allowed in the fit
+						// deve essere meno di 30+30+60.
 					&emme
 						);
 		if( resultFitSZagain[ncand]==1){
@@ -8623,6 +8638,9 @@ if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "
 
 //----------begin of function PndSttMvdTracking::FitSZspace
 
+
+
+
      Short_t PndSttMvdTracking::FitSZspace(
 			UShort_t nSkewHitsinTrack,
 			Double_t *S,
@@ -8640,31 +8658,36 @@ if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "
    //    ROWS (for read_rows  function)
    //
    UShort_t  NpointsInFit = nSkewHitsinTrack-NMAX <0 ?  nSkewHitsinTrack :  NMAX;
-	if(NpointsInFit>nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack)
-		NpointsInFit=nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack;
+
+////	if(NpointsInFit>nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack)
+////		NpointsInFit=nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack;
+
 
 // NpointsInFit =10;
-   bool mvdhit[nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack];
+
+////   bool mvdhit[nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack];
+
+   bool mvdhit[NpointsInFit];
 
 
 
 
-     Double_t ave,
+   Double_t	ave,
 		avex,
 		avey,
 		cose,
 		sine,
-	      M = 50.,
-              m_result,
-              q_result,
-              A,
-              alfetta,
-              angle,
-              offsety,
-	      rotationangle,
-              Ox[nmaxSttHitsInTrack],
-              Oy[nmaxSttHitsInTrack],
-              Delta[nmaxSttHitsInTrack];
+		M = 50.,
+		m_result,
+		q_result,
+		A,
+		alfetta,
+		angle,
+		offsety,
+		rotationangle,
+		Ox[NpointsInFit],
+		Oy[NpointsInFit],
+		Delta[NpointsInFit];
 
      UShort_t  i, j, ii, iii, n, nSttHits, nMvdHits;
      Short_t Status;
@@ -8717,23 +8740,21 @@ if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "
       sine = sin(rotationangle);
 
       nSttHits = nMvdHits = 0;
-      for(i=0;i<NpointsInFit; i++){
-       Ox[i] =   Z[i]*cose +(S[i] - FInot)*sine;
-       Oy[i] = -Z[i]*sine +(S[i] - FInot)*cose;
-//       Delta[i] = ErrorDriftRadius[i];
-          Delta[i] = 2.*DriftRadius[i];
+ for(i=0;i<NpointsInFit; i++){
+	Ox[i] =   Z[i]*cose +(S[i] - FInot)*sine;
+	Oy[i] = -Z[i]*sine +(S[i] - FInot)*cose;
+	Delta[i] = ErrorDriftRadius[i];
+//          Delta[i] = 2.*DriftRadius[i];
 
 	if( DriftRadius[ i ]<0. )
 	{
 		mvdhit[i]=true;
 		nMvdHits++;
-//		Delta[i] = 0.006;
-		Delta[i] = 1.;
 	} else {
 		mvdhit[i]=false;
 		nSttHits++;
 	}
-      }
+ }
 
 
 
@@ -9561,6 +9582,14 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 
 
 }
+
+
+
+
+
+
+
+
 
 
 //----------end of function PndSttMvdTracking::FitSZspace
@@ -11101,15 +11130,6 @@ int nevento=1;
 
         //  the tilt direction of this ellipse is (1,0)  when major axis along Z direction
 
-/*
-        if( bbb > 1.e-10){
-           Tiltdirection1[0] = vz1/bbb;
-           Tiltdirection1[1] = SkewInclWithRespectToS/bbb;
-        } else {
-           Tiltdirection1[0] = 1.;
-           Tiltdirection1[1] = 0.;
-        }
-*/
 
 
         LL = fabs(vx1*Rx + vy1*Ry);
@@ -11126,7 +11146,6 @@ int nevento=1;
 
 	Z[ii] = POINTS1[j+2];
 	Zdrift[ii] =  Aellipsis1;
-//	Zerror[ii] = STRAWRADIUS*aaa/LL;
 	Zerror[ii] = STRAWRESOLUTION*aaa/LL;
 
 
