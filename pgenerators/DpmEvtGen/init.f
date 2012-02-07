@@ -156,7 +156,9 @@ c                 Phys. Rev. D54 (1996) 125.
 C-------------------------------------------------------------
       ALOGp=Alog(Plab)
       Xtotal=38.4+77.6*Plab**(-0.64)+0.260*ALOGp**2-1.20*ALOGp
+!     Xtot=
       Xelast=10.2+52.7*Plab**(-1.16)+0.125*ALOGp**2-1.28*ALOGp
+!     Xelast=
       Welast=Xelast/Xtotal
 
       if(Elastic.eq.0.) Welast=0.  ! Inelastic interactions only
@@ -292,6 +294,11 @@ c ---------------------------- Determination of processes prababilities
 *      write(6,1)                    C_a,   C_b,   C_c,   C_e
 *      write(6,*)' ----------------------------------------------------'
 
+!     modification of XS ratio  6.02.2012
+      Welast = SIG_NORM/(SIG_NORM+Xtotal-Xelast)
+      if(Elastic.eq.0.) Welast=0.  ! Inelastic interactions only
+      if(Elastic.eq.2.) Welast=1.  ! Elastic   interactions only
+
       Proc_Prob(1)=CS_a/CS_in               *(1.-Welast)
       Proc_Prob(2)=Proc_Prob(1)+CS_b/CS_in  *(1.-Welast)
       Proc_Prob(3)=Proc_Prob(2)+CS_c/CS_in  *(1.-Welast)
@@ -318,8 +325,8 @@ C
       COMMON/DECAYC/ZKNAME(533),NZK(533,3),WT(533)
 C
       COMMON/LIMMAS/IDSTAB(180),SUMKM(533),AML(180),FI0ML(180)
-      REAL*8 ANAME
-      REAL*8 ZKNAME
+      CHARACTER*8 ANAME
+      CHARACTER*8 ZKNAME
 
       SAVE IP, IV, IB, IBB, IA, IAA
 C
@@ -492,40 +499,40 @@ C***BLOCK DATA 2
       COMMON/FRAG1/DQFRAG,RM,RDI,BSLOP,PTMIN /IDGB/IDGB,IDG
       COMMON/PRINT/ISYS
 
-      REAL*8 ANAME
-      REAL*8 ANAM1
-      REAL*8 ZKNAM1,ZKNAM2,ZKNAM3,ZKNAM4,ZKNAM5,ZKNAM6
+      character*8 ANAME
+      character*8 ANAM1
+      character*8 ZKNAM1,ZKNAM2,ZKNAM3,ZKNAM4,ZKNAM5,ZKNAM6
 C
 C     PARTICLE NAMES
 C
-      DATA ANAME/1HP,2HAP,2HE-,2HE+,3HNUE,4HANUE,3HGAM,3HNEU,4HANEU,
-     *4HMUE+,4HMUE-,3HK0L,3HPI+,3HPI-,2HK+,2HK-,3HLAM,4HALAM,3HK0S,
-     *5HSIGM-,5HSIGM+,5HSIGM0,3HPI0,
-     *2HK0,3HAK0,5H     ,6HAN*-14,6HAN*014,2*5H     ,
-     *6HETA550,6HRHO+77,6HRHO077,6HRHO-77,6HOM0783,6HK*+892,6HK*0892,
-     *6HK*-892,6HAK*089,6HKA+125,6HKA0125,6HKA-125,6HAKA012 ,6HK*+142,
-     *6HK*0142,6HK*-142,6HAK*014,6HS+1385,6HS01385,6HS-1385,6HL01820,
-     *6HL02030,
-     *6HN*++12,6HN*+ 12,6HN*012 ,6HN*-12 ,6HN*++16,6HN*+16 ,6HN*016 ,
-     *6HN*-16 ,6HN*+14 ,6HN*014 ,6HN*+15 ,6HN*015 ,6HN*+18 ,6HN*018 ,
-     *6HAN--12,6HAN*-12,6HAN*012,6HAN*+12,6HAN--16,6HAN*-16,6HAN*016,
-     *6HAN*+16,6HAN*-15,6HAN*015,6HDE*-24,
-     *6HRPI+49,6HRPI049,6HRPI-49,6HPIN++ ,6HPIN+0 ,6HPIN+- ,6HPIN-0 ,
-     *4HPPPI,4HPNPI,5HAPPPI,5HAPNPI,5HK+PPI,5HK-PPI,5HK+NPI,5HK-NPI,
-     *6HS+1820,6HS-2030,
-     *6HETA*  ,6HPHI   ,6HTETA0 ,6HTETA- ,6HASIG- ,6HASIG0 ,6HASIG+ ,
-     *6HATETA0,6HATETA+,6HSIG*+ ,6HSIG*0 ,6HSIG*- ,6HTETA*0,6HTETA* ,
-     *6HOMEGA-,6HASIG*-,6HASIG*0,6HASIG*+,6HATET*0,6HATET*+,6HOMEGA+/
-      DATA ANAM1/2HD0,2HD+,2HD-,3HAD0,2HF+,2HF-,4HETAC,3HD*0,3HD*+,
-     *3HD*-,4HAD*0,3HF*+,3HF*-,3HPSI,4HJPSI,4HTAU+,4HTAU-,4HNUET,
-     *5HANUET,4HNUEM,5HANUEM,
-     *6HC0+   ,6HA+    ,6HA0    ,6HC1++  ,6HC1+   ,6HC10   ,6HS+    ,
-     *6HS0    ,6HT0    ,6HXU++  ,6HXD+   ,6HXS+   ,6HAC0-  ,6HAA-   ,
-     *6HAA0   ,6HAC1-- ,6HAC1-  ,6HAC10  ,6HAS-   ,6HAS0   ,6HAT0   ,
-     66HAXU-- ,6HAXD-  ,6HAXS   ,6HC1*++ ,6HC1*+  ,6HC1*0  ,6HS*+   ,
-     *6HS*0   ,6HT*0   ,6HXU*++  ,6HXD*+  ,6HXS*+  ,6HTETA++,6HAC1*--,
-     *6HAC1*- ,6HAC1*0 ,6HAS*-  ,6HAS*0  ,6HAT*0  ,6HAXU*--,6HAXD*- ,
-     *6HAXS*- ,6HATET--/
+      DATA ANAME/'P','AP','E-','E+','NUE','ANUE','GAM','NEU','ANEU',
+     *'MUE+','MUE-','K0L','PI+','PI-','K+','K-','LAM','ALAM','K0S',
+     *'SIGM-','SIGM+','SIGM0','PI0','K0','AK0','     ','AN*-14',
+     *'AN*014',2*'    ',
+     *'ETA550','RHO+77','RHO077','RHO-77','OM0783','K*+892','K*0892',
+     *'K*-892','AK*089','KA+125','KA0125','KA-125','AKA012','K*+142',
+     *'K*0142','K*-142','AK*014','S+1385','S01385','S-1385','L01820',
+     *'L02030',
+     *'N*++12','N*+ 12','N*012 ','N*-12 ','N*++16','N*+16 ','N*016 ',
+     *'N*-16 ','N*+14 ','N*014 ','N*+15 ','N*015 ','N*+18 ','N*018 ',
+     *'AN--12','AN*-12','AN*012','AN*+12','AN--16','AN*-16','AN*016',
+     *'AN*+16','AN*-15','AN*015','DE*-24',
+     *'RPI+49','RPI049','RPI-49','PIN++ ','PIN+0 ','PIN+- ','PIN-0 ',
+     *'PPPI','PNPI','APPPI','APNPI','K+PPI','K-PPI','K+NPI','K-NPI',
+     *'S+1820','S-2030',
+     *'ETA*  ','PHI   ','TETA0 ','TETA- ','ASIG- ','ASIG0 ','ASIG+ ',
+     *'ATETA0','ATETA+','SIG*+ ','SIG*0 ','SIG*- ','TETA*0','TETA* ',
+     *'OMEGA-','ASIG*-','ASIG*0','ASIG*+','ATET*0','ATET*+','OMEGA+'/
+      DATA ANAM1/'D0','D+','D-','AD0','F+','F-','ETAC','D*0','D*+',
+     *'D*-','AD*0','F*+','F*-','PSI','JPSI','TAU+','TAU-','NUET',
+     *'ANUET','NUEM','ANUEM',
+     *'C0+   ','A+    ','A0    ','C1++  ','C1+   ','C10   ','S+    ',
+     *'S0    ','T0    ','XU++  ','XD+   ','XS+   ','AC0-  ','AA-   ',
+     *'AA0   ','AC1-- ','AC1-  ','AC10  ','AS-   ','AS0   ','AT0   ',
+     *'AXU-- ','AXD-  ','AXS   ','C1*++ ','C1*+  ','C1*0  ','S*+   ',
+     *'S*0   ','T*0   ','XU*++ ','XD*+  ','XS*+  ','TETA++','AC1*--',
+     *'AC1*- ','AC1*0 ','AS*-  ','AS*0  ','AT*0  ','AXU*--','AXD*- ',
+     *'AXS*- ','ATET--'/
 C
 C    PARTICLE MASSES IN GEV
 C
@@ -609,108 +616,108 @@ C************K2
      *517,518,519,520,523,524,525,526,527,528,529,530,531,532,326/
 C*************ZKNAM1
       DATA ZKNAM1/
-     *8HP       ,8HAP      ,8HE-      ,8HE+      ,8HNUE     ,8HANUE    ,
-     *8HGAM     ,8HPE-NUE  ,8HAPEANU  ,8HEANUNU  ,8HE-NUAN  ,8H3PI0    ,
-     *8HPI+-0   ,8HPIMUNU  ,8HPIE-NU  ,8HMU+NUE  ,8HMU-NUE  ,8HMU+NUE  ,
-     *8HPI+PI0  ,8HPI++-   ,8HPI+00   ,8HM+P0NU  ,8HE+P0NU  ,8HMU-NU   ,
-     *8HPI-0    ,8HPI+--   ,8HPI-00   ,8HM-P0NU  ,8HE-P0NU  ,8HPPI-    ,
-     *8HNPI0    ,8HPE-NUE  ,8HPM-NUE  ,8HAPPI+   ,8HANPI0   ,8HPE+NU   ,
-     *8HAPM+NU  ,8HPI+PI-  ,8HPI0PI0  ,8HNPI-    ,8HPPI0    ,8HNPI+    ,
-     *8HLAGA    ,8HGAGA    ,8HGAE+E-  ,8HGAGA    ,8HGAGAP0  ,8HPI000   ,
-     *8HPI+-0   ,8HPI+-GA  ,8HPI+0    ,8HPI+-    ,8HPI00    ,8HPI-0    ,
-     *8HPI+-0   ,8HPI+-    ,8HPI0GA   ,8HK+PI0   ,8HK0PI+   ,8HK0PI0   ,
-     *8HK+PI-   ,8HK-PI0   ,8HAK0PI-  ,8HAK0PI0  ,8HK-PI+   ,8HK+PI0   ,
-     *8HK0PI+   ,8HK0PI0   ,8HK+PI-   ,8HK-PI0   ,8HK0PI-   ,8HAK0PI0  ,
-     *8HK-PI+   ,8HK+PI0   ,8HK0PI+   ,8HK+89P0  ,8HK08PI+  ,8HK+RO77  ,
-     *8HK0RO+7  ,8HK+OM07  ,8HK+E055  ,8HK0PI0   ,8HK+PI+   ,8HK089P0  ,
-     *8HK+8PI-  ,8HK0R077  ,8HK+R-77  /
+     *'P       ','AP      ','E-      ','E+      ','NUE     ','ANUE    ',
+     *'GAM     ','PE-NUE  ','APEANU  ','EANUNU  ','E-NUAN  ','3PI0    ',
+     *'PI+-0   ','PIMUNU  ','PIE-NU  ','MU+NUE  ','MU-NUE  ','MU+NUE  ',
+     *'PI+PI0  ','PI++-   ','PI+00   ','M+P0NU  ','E+P0NU  ','MU-NU   ',
+     *'PI-0    ','PI+--   ','PI-00   ','M-P0NU  ','E-P0NU  ','PPI-    ',
+     *'NPI0    ','PE-NUE  ','PM-NUE  ','APPI+   ','ANPI0   ','PE+NU   ',
+     *'APM+NU  ','PI+PI-  ','PI0PI0  ','NPI-    ','PPI0    ','NPI+    ',
+     *'LAGA    ','GAGA    ','GAE+E-  ','GAGA    ','GAGAP0  ','PI000   ',
+     *'PI+-0   ','PI+-GA  ','PI+0    ','PI+-    ','PI00    ','PI-0    ',
+     *'PI+-0   ','PI+-    ','PI0GA   ','K+PI0   ','K0PI+   ','K0PI0   ',
+     *'K+PI-   ','K-PI0   ','AK0PI-  ','AK0PI0  ','K-PI+   ','K+PI0   ',
+     *'K0PI+   ','K0PI0   ','K+PI-   ','K-PI0   ','K0PI-   ','AK0PI0  ',
+     *'K-PI+   ','K+PI0   ','K0PI+   ','K+89P0  ','K08PI+  ','K+RO77  ',
+     *'K0RO+7  ','K+OM07  ','K+E055  ','K0PI0   ','K+PI+   ','K089P0  ',
+     *'K+8PI-  ','K0R077  ','K+R-77  '/
 C**************ZKNAM2
       DATA ZKNAM2/
-     *8HK+R-77  ,8HK0OM07  ,8HK0E055  ,8HK-PI0   ,8HK0PI-   ,8HK-89P0  ,
-     *8HAK08P-  ,8HK-R077  ,8HAK0R-7  ,8HK-OM07  ,8HK-E055  ,8HAK0PI0  ,
-     *8HK-PI+   ,8HAK08P0  ,8HK-8PI+  ,8HAK0R07  ,8HAK0OM7  ,8HAK0E05  ,
-     *8HLA0PI+  ,8HSI0PI+  ,8HSI+PI0  ,8HLA0PI0  ,8HSI+PI-  ,8HSI-PI+  ,
-     *8HLA0PI-  ,8HSI0PI-  ,8HNEUAK0  ,8HPK-     ,8HSI+PI-  ,8HSI0PI0  ,
-     *8HSI-PI+  ,8HLA0ET0  ,8HS+1PI-  ,8HS-1PI+  ,8HSO1PI0  ,8HNEUAK0  ,
-     *8HPK-     ,8HLA0PI0  ,8HLA0OM0  ,8HLA0RO0  ,8HSI+RO-  ,8HSI-RO+  ,
-     *8HSI0RO0  ,8HLA0ET0  ,8HSI0ET0  ,8HSI+PI-  ,8HSI-PI+  ,8HSI0PI0  ,
-     *8HK0S     ,8HK0L     ,8HK0S     ,8HK0L     ,8HP PI+   ,8HP PI0   ,
-     *8HN PI+   ,8HP PI-   ,8HN PI0   ,8HN PI-   ,8HP PI+   /
+     *'K+R-77  ','K0OM07  ','K0E055  ','K-PI0   ','K0PI-   ','K-89P0  ',
+     *'AK08P-  ','K-R077  ','AK0R-7  ','K-OM07  ','K-E055  ','AK0PI0  ',
+     *'K-PI+   ','AK08P0  ','K-8PI+  ','AK0R07  ','AK0OM7  ','AK0E05  ',
+     *'LA0PI+  ','SI0PI+  ','SI+PI0  ','LA0PI0  ','SI+PI-  ','SI-PI+  ',
+     *'LA0PI-  ','SI0PI-  ','NEUAK0  ','PK-     ','SI+PI-  ','SI0PI0  ',
+     *'SI-PI+  ','LA0ET0  ','S+1PI-  ','S-1PI+  ','SO1PI0  ','NEUAK0  ',
+     *'PK-     ','LA0PI0  ','LA0OM0  ','LA0RO0  ','SI+RO-  ','SI-RO+  ',
+     *'SI0RO0  ','LA0ET0  ','SI0ET0  ','SI+PI-  ','SI-PI+  ','SI0PI0  ',
+     *'K0S     ','K0L     ','K0S     ','K0L     ','P PI+   ','P PI0   ',
+     *'N PI+   ','P PI-   ',' PI0    ','N PI-   ','P PI+   '/
 C****************ZKNAM3
       DATA ZKNAM3/
-     *8HN*>PI0  ,8HN*+PI+  ,8HPRHO+   ,8HP PI0   ,8HN PI+   ,8HN*>PI-  ,
-     *8HN*+PI0  ,8HN*0PI+  ,8HPRHO0   ,8HNRHO+   ,8HP PI-   ,8HN PI0   ,
-     *8HN*+PI-  ,8HN*0PI0  ,8HN*-PI+  ,8HPRHO-   ,8HNRHO0   ,8HN PI-   ,
-     *8HN*0PI-  ,8HN*-PI0  ,8HNRHO-   ,8HP PI0   ,8HN PI+   ,8HN*>PI-  ,
-     *8HN*+PI0  ,8HN*0PI+  ,8HPRHO0   ,8HNRHO+   ,8HN PI0   ,8HP  PI-  ,
-     *8HN*+PI-  ,8HN*0PI0  ,8HN*-PI+  ,8HPRHO-   ,8HNRHO0   ,8HP PI0   ,
-     *8HN PI+   ,8HN*>PI-  ,8HN*+PI0  ,8HN*0PI+  ,8HPRHO0   ,8HNRHO+   ,
-     *8HP PI-   ,8HN PI0   ,8HN*+PI-  ,8HN*0PI0  ,8HN*-PI+  ,8HPRHO-   ,
-     *8HNRHO0   ,8HP PI0   ,8HN PI+   ,8HPRHO0   ,8HNRHO+   ,8HLAMK+   ,
-     *8HS+ K0   ,8HS0 K+   ,8HPETA0   ,8HP PI-   ,8HN PI0   ,8HPRHO-   ,
-     *8HNRHO0   ,8HLAMK0   ,8HS0 K0   ,8HS- K+   ,8HNETA/   ,8HAPPI-   ,
-     *8HAPPI0   ,8HANPI-   ,8HAPPI+   ,8HANPI0   ,8HANPI+   ,8HAPPI-   ,
-     *8HAN*=P0  ,8HAN*-P-  ,8HAPRHO-  ,8HAPPI0   ,8HANPI-   ,8HAN*=P+  ,
-     *8HAN*-P0  ,8HAN*0P-  ,8HAPRHO0  ,8HANRHO-  ,8HAPPI+   ,8HANPI0   ,
-     *8HAN*-P+  ,8HAN*0P0  ,8HAN*+P-  ,8HAPRHO+  ,8HANRHO0  ,8HANPI+   ,
-     *8HAN*0P+  ,8HAN*+P0  ,8HANRHO+  ,8HAPPI0   ,8HANPI-   ,8HAN*=P+  ,
-     *8HAN*-P0  ,8HAN*0P-  ,8HAPRHO0  ,8HANRHO-  ,8HAPPI+,  ,8HANPI0   ,
-     *8HAN*-P+  ,8HAN*0P0  ,8HAN*+P-  /
+     *'N*>PI0  ','N*+PI+  ','PRHO+   ','P PI0   ','N PI+   ','N*>PI-  ',
+     *'N*+PI0  ','N*0PI+  ','PRHO0   ','NRHO+   ','P PI-   ','N PI0   ',
+     *'N*+PI-  ','N*0PI0  ','N*-PI+  ','PRHO-   ','NRHO0   ','N PI-   ',
+     *'N*0PI-  ','N*-PI0  ','NRHO-   ','P PI0   ','N PI+   ','N*>PI-  ',
+     *'N*+PI0  ','N*0PI+  ','PRHO0   ','NRHO+   ','N PI0   ','P  PI-  ',
+     *'N*+PI-  ','N*0PI0  ','N*-PI+  ','PRHO-   ','NRHO0   ','P PI0   ',
+     *'N PI+   ','N*>PI-  ','N*+PI0  ','N*0PI+  ','PRHO0   ','NRHO+   ',
+     *'P PI-   ','N PI0   ','N*+PI-  ','N*0PI0  ','N*-PI+  ','PRHO-   ',
+     *'NRHO0   ','P PI0   ','N PI+   ','PRHO0   ','NRHO+   ','LAMK+   ',
+     *'S+ K0   ','S0 K+   ','PETA0   ','P PI-   ','N PI0   ','PRHO-   ',
+     *'NRHO0   ','LAMK0   ','S0 K0   ','S- K+   ','NETA/   ','APPI-   ',
+     *'APPI0   ','ANPI-   ','APPI+   ','ANPI0   ','ANPI+   ','APPI-   ',
+     *'AN*=P0  ','AN*-P-  ','APRHO-  ','APPI0   ','ANPI-   ','AN*=P+  ',
+     *'AN*-P0  ','AN*0P-  ','APRHO0  ','ANRHO-  ','APPI+   ','ANPI0   ',
+     *'AN*-P+  ','AN*0P0  ','AN*+P-  ','APRHO+  ','ANRHO0  ','ANPI+   ',
+     *'AN*0P+  ','AN*+P0  ','ANRHO+  ','APPI0   ','ANPI-   ','AN*=P+  ',
+     *'AN*-P0  ','AN*0P-  ','APRHO0  ','ANRHO-  ','APPI+,  ','ANPI0   ',
+     *'AN*-P+  ','AN*0P0  ','AN*+P-  '/
 C*****************ZKNAM4
       DATA ZKNAM4/
-     *8HAPRHO+  ,8HANRHO0  ,8HPN*014  ,8HNN*=14  ,8HPI+0    ,8HPI+-    ,
-     *8HPI-0    ,8HP+0     ,8HN++     ,8HP+-     ,8HP00     ,8HN+0     ,
-     *8HN+-     ,8HN00     ,8HP-0     ,8HN-0     ,8HP--     ,8HPPPI0   ,
-     *8HPNPI+   ,8HPNPI0   ,8HPPPI-   ,8HNNPI+   ,8HAPPPI0  ,8HAPNPI+  ,
-     *8HANNPI0  ,8HANPPI-  ,8HAPNPI0  ,8HAPPPI-  ,8HANNPI-  ,8HK+PPI0  ,
-     *8HK+NPI+  ,8HK0PPI0  ,8HK-PPI0  ,8HK-NPI+  ,8HAKPPI-  ,8HAKNPI0  ,
-     *8HK+NPI0  ,8HK+PPI-  ,8HK0PPI0  ,8HK0NPI+  ,8HK-NPI0  ,8HK-PPI-  ,
-     *8HAKNPI-  ,8HPAK0    ,8HSI+PI0  ,8HSI0PI+  ,8HSI+ETA  ,8HS+1PI0  ,
-     *8HS01PI+  ,8HNEUK-   ,8HLA0PI-  ,8HSI-OM0  ,8HLA0RO-  ,8HSI0RO-  ,
-     *8HSI-RO0  ,8HSI-ET0  ,8HSI0PI-  ,8HSI-0    ,8HAP PI0  ,8HAN  PI+ ,
-     *8HAN*>PI+ ,8HAN*-PI0 ,8HAN*0PI- ,8HAPRHO0  ,8HAN*RHO- ,8HAN PI0  ,
-     *8HAP PI+  ,8HAN*-PI+ ,8HAN*0PI0 ,8HAN*+PI- ,8HAPRHO+  ,8HAN*RHO0 ,
-     *8HAA-KPI  ,8HAT02PI  ,8HAC1--K  ,8H        ,8H        ,8H        ,
-     *8H        /
+     *'APRHO+  ','ANRHO0  ','PN*014  ','NN*=14  ','PI+0    ','PI+-    ',
+     *'PI-0    ','P+0     ','N++     ','P+-     ','P00     ','N+0     ',
+     *'N+-     ','N00     ','P-0     ','N-0     ','P--     ','PPPI0   ',
+     *'PNPI+   ','PNPI0   ','PPPI-   ','NNPI+   ','APPPI0  ','APNPI+  ',
+     *'ANNPI0  ','ANPPI-  ','APNPI0  ','APPPI-  ','ANNPI-  ','K+PPI0  ',
+     *'K+NPI+  ','K0PPI0  ','K-PPI0  ','K-NPI+  ','AKPPI-  ','AKNPI0  ',
+     *'K+NPI0  ','K+PPI-  ','K0PPI0  ','K0NPI+  ','K-NPI0  ','K-PPI-  ',
+     *'AKNPI-  ','PAK0    ','SI+PI0  ','SI0PI+  ','SI+ETA  ','S+1PI0  ',
+     *'S01PI+  ','NEUK-   ','LA0PI-  ','SI-OM0  ','LA0RO-  ','SI0RO-  ',
+     *'SI-RO0  ','SI-ET0  ','SI0PI-  ','SI-0    ','AP PI0  ','AN  PI+ ',
+     *'AN*>PI+ ','AN*-PI0 ','AN*0PI- ','APRHO0  ','AN*RHO- ','AN PI0  ',
+     *'AP PI+  ','AN*-PI+ ','AN*0PI0 ','AN*+PI- ','APRHO+  ','AN*RHO0 ',
+     *'AA-KPI  ','AT02PI  ','AC1--K  ','        ','        ','        ',
+     *'        '/
 C*******************ZKNAM5
       DATA ZKNAM5/
-     *8H        ,8H        ,8HEPI+-   ,8HEPI00   ,8HGAPI+-  ,8HGAGA*   ,
-     *8HK+-     ,8HKLKS    ,8HPI+-0   ,8HEGA     ,8HLPI0    ,8HLPI     ,
-     *8HAPPI0   ,8HANPI-   ,8HALAGA   ,8HANPI    ,8HALPI0   ,8HALPI+   ,
-     *8HLAPI+   ,8HSI+PI0  ,8HSI0PI+  ,8HLAPI0   ,8HSI+PI-  ,8HSI-PI+  ,
-     *8HLAPI-   ,8HSI-PI0  ,8HSI0PI-  ,8HTE0PI0  ,8HTE-PI+  ,8HTE0PI-  ,
-     *8HTE-PI0  ,8HTE0PI   ,8HTE-PI   ,8HLAK-    ,8HALPI-   ,8HAS-PI0  ,
-     *8HAS0PI-  ,8HALPI0   ,8HAS+PI-  ,8HAS-PI+  ,8HALPI+   ,8HAS+PI0  ,
-     *8HAS0PI+  ,8HAT0PI0  ,8HAT+PI-  ,8HAT0PI+  ,8HAT+PI0  ,8HAT0PI   ,
-     *8HAT+PI   ,8HALK+    ,8HK-PI+   ,8HK-PI+0  ,8HK0PI+-  ,8HK0PI0   ,
-     *8HK-PI++  ,8HAK0PI+  ,8HK+PI--  ,8HK0PI-   ,8HK+PI-   ,8HK+PI-0  ,
-     *8HAKPI-+  ,8HAK0PI0  ,8HETAPIF  ,8HK++-    ,8HK+AK0   ,8HETAPI-  ,
-     *8HK--+    ,8HK-KO    ,8HPI00    ,8HPI+-    ,8HGAGA    ,8HD0PI0   ,
-     *8HD0GA    ,8HD0PI+   ,8HD+PI0   ,8HDFGA    ,8HAD0PI-  ,8HD-PI0   ,
-     *8HD-GA    ,8HAD0PI0  ,8HAD0GA   ,8HF+GA    ,8HF+GA    ,8HF-GA    ,
-     *8HF-GA    ,8HPSPI+-  ,8HPSPI00  ,8HPSETA   ,8HE+E-    ,8HMUE+-   ,
-     *8HPI+-0   ,8HM+NN    ,8HE+NN    ,8HRHO+NT  ,8HPI+ANT  ,8HK*+ANT  ,
-     *8HM-NN    ,8HE-NN    ,8HRHO-NT  ,8HPI-NT   ,8HK*-NT   ,8HNUET    ,
-     *8HANUET   /
+     *'        ','        ','EPI+-   ','EPI00   ','GAPI+-  ','GAGA*   ',
+     *'K+-     ','KLKS    ','PI+-0   ','EGA     ','LPI0    ','LPI     ',
+     *'APPI0   ','ANPI-   ','ALAGA   ','ANPI    ','ALPI0   ','ALPI+   ',
+     *'LAPI+   ','SI+PI0  ','SI0PI+  ','LAPI0   ','SI+PI-  ','SI-PI+  ',
+     *'LAPI-   ','SI-PI0  ','SI0PI-  ','TE0PI0  ','TE-PI+  ','TE0PI-  ',
+     *'TE-PI0  ','TE0PI   ','TE-PI   ','LAK-    ','ALPI-   ','AS-PI0  ',
+     *'AS0PI-  ','ALPI0   ','AS+PI-  ','AS-PI+  ','ALPI+   ','AS+PI0  ',
+     *'AS0PI+  ','AT0PI0  ','AT+PI-  ','AT0PI+  ','AT+PI0  ','AT0PI   ',
+     *'AT+PI   ','ALK+    ','K-PI+   ','K-PI+0  ','K0PI+-  ','K0PI0   ',
+     *'K-PI++  ','AK0PI+  ','K+PI--  ','K0PI-   ','K+PI-   ','K+PI-0  ',
+     *'AKPI-+  ','AK0PI0  ','ETAPIF  ','K++-    ','K+AK0   ','ETAPI-  ',
+     *'K--+    ','K-KO    ','PI00    ','PI+-    ','GAGA    ','D0PI0   ',
+     *'D0GA    ','D0PI+   ','D+PI0   ','DFGA    ','AD0PI-  ','D-PI0   ',
+     *'D-GA    ','AD0PI0  ','AD0GA   ','F+GA    ','F+GA    ','F-GA    ',
+     *'F-GA    ','PSPI+-  ','PSPI00  ','PSETA   ','E+E-    ','MUE+-   ',
+     *'PI+-0   ','M+NN    ','E+NN    ','RHO+NT  ','PI+ANT  ','K*+ANT  ',
+     *'M-NN    ','E-NN    ','RHO-NT  ','PI-NT   ','K*-NT   ','NUET    ',
+     *'ANUET   '/
 C**************ZKNAM6
       DATA ZKNAM6/
-     *8HNUEM    ,8HANUEM   ,8HSI+ETA  ,8HSI+ET*  ,8HPAK0    ,8HTET0K+  ,
-     *8HSI*+ET  ,8HN*+AK0  ,8HN*++K-  ,8HLAMRO+  ,8HSI0RO+  ,8HSI+RO0  ,
-     *8HSI+OME  ,8HPAK*0   ,8HN*+AK*  ,8HN*++K*  ,8HSI+AK0  ,8HTET0PI  ,
-     *8HSI+AK*  ,8HTET0RO  ,8HSI0AK*  ,8HSI+K*-  ,8HTET0OM  ,8HTET-RO  ,
-     *8HSI*0AK  ,8HC0+PI+  ,8HC0+PI0  ,8HC0+PI-  ,8HA+GAM   ,8HA0GAM   ,
-     *8HTET0AK  ,8HTET0K*  ,8HOM-RO+  ,8HOM-PI+  ,8HC1++AK  ,8HA+PI+   ,
-     *8HC0+AK0  ,8HA0PI+   ,8HA+AK0   ,8HT0PI+   ,8HASI-ET  ,8HASI-E*  ,
-     *8HAPK0    ,8HATET0K  ,8HASI*-E  ,8HAN*-K0  ,8HAN*--K  ,8HALAMRO  ,
-     *8HASI0RO  ,8HASI-RO  ,8HASI-OM  ,8HAPK*0   ,8HAN*-K*  ,8HAN*--K  ,
-     *8HASI-K0  ,8HATETPI  ,8HASI-K*  ,8HATETRO  ,8HASI0K*  ,8HASI-K*  ,
-     *8HATE0OM  ,8HATE+RO  ,8HASI*0K  ,8HAC-PI-  ,8HAC-PI0  ,8HAC-PI+  ,
-     *8HAA-GAM  ,8HAA0GAM  ,8HATET0K  ,8HATE0K*  ,8HAOM+RO  ,8HAOM+PI  ,
-     *8HAC1--K  ,8HAA-PI-  ,8HAC0-K0  ,8HAA0PI-  ,8HAA-K0   ,8HAT0PI-  ,
-     *8HC1++GA  ,8HC1++GA  ,8HC10GAM  ,8HS+GAM   ,8HS0GAM   ,8HT0GAM   ,
-     *8HXU++GA  ,8HXD+GAM  ,8HXS+GAM  ,8HA+AKPI  ,8HT02PI+  ,8HC1++2K  ,
-     *8HAC1--G  ,8HAC1-GA  ,8HAC10GA  ,8HAS-GAM  ,8HAS0GAM  ,8HAT0GAM  ,
-     *8HAXU--G  ,8HAXD-GA  ,8HAXS-GA  ,8H        /
+     *'NUEM    ','ANUEM   ','SI+ETA  ','SI+ET*  ','PAK0    ','TET0K+  ',
+     *'SI*+ET  ','N*+AK0  ','N*++K-  ','LAMRO+  ','SI0RO+  ','SI+RO0  ',
+     *'SI+OME  ','PAK*0   ','N*+AK*  ','N*++K*  ','SI+AK0  ','TET0PI  ',
+     *'SI+AK*  ','TET0RO  ','SI0AK*  ','SI+K*-  ','TET0OM  ','TET-RO  ',
+     *'SI*0AK  ','C0+PI+  ','C0+PI0  ','C0+PI-  ','A+GAM   ','A0GAM   ',
+     *'TET0AK  ','TET0K*  ','OM-RO+  ','OM-PI+  ','C1++AK  ','A+PI+   ',
+     *'C0+AK0  ','A0PI+   ','A+AK0   ','T0PI+   ','ASI-ET  ','ASI-E*  ',
+     *'APK0    ','ATET0K  ','ASI*-E  ','AN*-K0  ','AN*--K  ','ALAMRO  ',
+     *'ASI0RO  ','ASI-RO  ','ASI-OM  ','APK*0   ','AN*-K*  ','AN*--K  ',
+     *'ASI-K0  ','ATETPI  ','ASI-K*  ','ATETRO  ','ASI0K*  ','ASI-K*  ',
+     *'ATE0OM  ','ATE+RO  ','ASI*0K  ','AC-PI-  ','AC-PI0  ','AC-PI+  ',
+     *'AA-GAM  ','AA0GAM  ','ATET0K  ','ATE0K*  ','AOM+RO  ','AOM+PI  ',
+     *'AC1--K  ','AA-PI-  ','AC0-K0  ','AA0PI-  ','AA-K0   ','AT0PI-  ',
+     *'C1++GA  ','C1++GA  ','C10GAM  ','S+GAM   ','S0GAM   ','T0GAM   ',
+     *'XU++GA  ','XD+GAM  ','XS+GAM  ','A+AKPI  ','T02PI+  ','C1++2K  ',
+     *'AC1--G  ','AC1-GA  ','AC10GA  ','AS-GAM  ','AS0GAM  ','AT0GAM  ',
+     *'AXU--G  ','AXD-GA  ','AXS-GA  ','        '/
 C*****************WT
       DATA WT/
      *1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,
@@ -931,9 +938,9 @@ C************NZK3
       EQUIVALENCE (ICH(1),ICHAR(1))
       DIMENSION Z(3)
 *      DIMENSION IREACT(24),HSI(31)
-      REAL*8 ZKNAME
-      REAL*8 ANAME
-      REAL*8 Z
+      CHARACTER*8 ZKNAME
+      CHARACTER*8 ANAME
+      CHARACTER*8 Z
 *      DATA IREACT/13,1,13,8,14,1,14,8,15,1,15,8,16,1,16,8,1,1,1,8,2,1,2,
 *     *8/
       I12=12
