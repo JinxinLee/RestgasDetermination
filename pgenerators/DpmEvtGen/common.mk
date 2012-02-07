@@ -40,13 +40,13 @@ ROOTGLIBS     = $(shell root-config --glibs)
  
 # Linux with egcs
 
-F77	      = g77
+F77	      = gfortran
 CXX           = g++
-CXXFLAGS      = -g -O0 -Wall -DGNU_GCC -fexceptions -fPIC 
+CXXFLAGS      = -g -O0 -Wall -DGNU_GCC -fexceptions -fPIC
 LD            = g++
-LDFLAGS       = -g -Wl,-rpath,$(LIBDIR):$(ROOTSYS)/lib:/lib
-SOFLAGS       = -shared
-F77FLAGS      = -fPIC 
+LDFLAGS       = -g -Wl,-rpath,$(LIBDIR):$(ROOTSYS)/lib:/lib -lgfortran
+SOFLAGS       = -shared 
+F77FLAGS      = -fPIC
 
 #include ./arch_spec_GEANT4.mk
 
@@ -57,7 +57,6 @@ LDLIBS   += -l$(CLHEP_LIB)
 
 
 CPPFLAGS 	+= $(ROOTCFLAGS) -I$(ROOTSYS)/include -I.. 
-
 
 LIBS          = $(ROOTLIBS) -lEG  -lTreePlayer -lMinuit
 GLIBS         = $(ROOTGLIBS) -lEG -lTreePlayer -lMinuit
