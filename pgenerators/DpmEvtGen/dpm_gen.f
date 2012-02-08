@@ -1,6 +1,6 @@
 C------Last edition 25.08.05 V.Uzhinsky--------------------
 C------modify by A.Galoyan 10.09.08--------------------
-      subroutine DPMGEN(Pluto, Seed)
+      subroutine DPM_GEN(Pluto, Seed)
       COMMON /LUJETS/ N,K(1000,2),P(1000,5)
       
       COMMON/UZHI/SqrtS,Ecms,Vcms,Gamma,Proc_Prob(7),P_5str,CS_in,
