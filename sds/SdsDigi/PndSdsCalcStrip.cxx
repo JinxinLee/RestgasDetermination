@@ -14,6 +14,7 @@
 #include <exception>
 
 #include "PndSdsCalcStrip.h"
+#include "TRandom.h"
 
 //______________________________________________________________________________
 PndSdsCalcStrip::PndSdsCalcStrip(){
@@ -228,7 +229,6 @@ std::vector<PndSdsStrip> PndSdsCalcStrip::GetStripsDif(Double_t pathstart, Doubl
   // TODO how much extra bins to fill?, minimum 1...
   // how about 2sigma? shall be collected
   Int_t xtra = ceil(2.*sigma_str);
-  Double_t argu=0;
   for(Int_t i=(Int_t)pathstart-xtra;i<(Int_t)pathend+1+xtra;i++)
   {
     DQ=0;
@@ -308,18 +308,25 @@ void PndSdsCalcStrip::CalcFeChToStrip(Int_t fe, Int_t channel, Int_t& strip, enu
 //______________________________________________________________________________
 void PndSdsCalcStrip::InjectStripCharge(std::vector<PndSdsStrip>& array, Int_t istrip, Double_t charge)
 {
-  if(istrip<0) return;
-  if(istrip>fNrStrips) return;
+  if(istrip<0) {if(fVerboseLevel>2)Warning("InjectStripCharge","",istrip); return;}
+  if(istrip>fNrStrips) {if(fVerboseLevel>2)Warning("InjectStripCharge","",istrip); return;}
   if(charge==0) return; // cut zero electron charge now, real threshold later
-  //Double_t smearedQ = SmearCharge(charge);
-  //if(smearedQ < fThreshold) return;
-  if(fVerboseLevel>3) Info("InjectStripCharge","istrip=%i,charge=%f",istrip,charge);
-  array.push_back( PndSdsStrip(Int_t(istrip),charge) );
+  Double_t smearedQ = SmearCharge(charge);
+  if(smearedQ < fThreshold) {if(fVerboseLevel>3)Info("InjectStripCharge","",istrip); return;}
+  if(fVerboseLevel>3) Info("InjectStripCharge","istrip=%i,charge=%f,smearedCharge=%f",istrip,charge,smearedQ);
+  array.push_back( PndSdsStrip(Int_t(istrip),smearedQ) );
   return;
 }
 
-
 //______________________________________________________________________________
+Double_t PndSdsCalcStrip::SmearCharge(Double_t charge)
+{
+  Double_t smeared = gRandom->Gaus(charge,fNoise);
+  if (fVerboseLevel > 3) std::cout<<" charge = "<<charge<<", smeared = "<<smeared<<std::endl;
+  return smeared;
+}
+
+
 void PndSdsCalcStrip::Print() const
 {
   std::cout<<"-I- PndSdsCalcStrip Info :"<<std::endl;

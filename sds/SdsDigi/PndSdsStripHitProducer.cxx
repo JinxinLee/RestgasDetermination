@@ -313,7 +313,7 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
   for (Int_t i = 0; i<iStrip; i++){
 	  PndSdsDigiStrip* finDigi = (PndSdsDigiStrip*) fStripArray->At(i);
 	  SelectSensorParams(finDigi->GetSensorID());
-    smearedCharge = SmearCharge(finDigi->GetCharge());
+    smearedCharge = finDigi->GetCharge(); // Gaussian noise smearing done in PndCalcStrip
     //FIXME: This is not elegant and error prone, for Tasks afterwards will not know how we digitized!
 	  finDigi->SetCharge(fCurrentChargeConverter->ChargeToDigiValue(smearedCharge));
     indexnum = finDigi->GetNIndices();
@@ -407,13 +407,6 @@ Int_t PndSdsStripHitProducer::DigitizeTime(Double_t time, Double_t charge)
 }
 
 //______________________________________________________________________________
-Double_t PndSdsStripHitProducer::SmearCharge(Double_t charge)
-{
-  Double_t smeared = gRandom->Gaus(charge,fCurrentDigiPar->GetNoise());
-  if (fVerbose > 3) std::cout<<" charge = "<<charge<<", smeared = "<<smeared<<std::endl;
-  return smeared;
-}
-
 // -------------------------------------------------------------------------
 
 void PndSdsStripHitProducer::FinishEvent()

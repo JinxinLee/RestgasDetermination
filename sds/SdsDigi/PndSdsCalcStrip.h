@@ -4,7 +4,8 @@
 // Description:
 //
 //
-// Author: HG Zaunick <hg.zaunick@physik.tu-dresden.de>, (C) 2007
+// Authors: HG Zaunick <hg.zaunick@physik.tu-dresden.de>, (C) 2007
+//          R Kliemt (Tu Dresden,Uni Bonn)
 //
 // Copyright: See COPYING file that comes with this distribution
 //
@@ -26,6 +27,7 @@
 //! Class for calculating strip indices from wafer hits
 /**
  * @author HG Zaunick <hg.zaunick@physik.tu-dresden.de>
+ * @author R Kliemt (TU Dresden, Uni Bonn)
  *
  **/
 class PndSdsCalcStrip
@@ -140,6 +142,7 @@ class PndSdsCalcStrip
     
     const Double_t ChargeFromEloss(Double_t eloss) const {return eloss/(3.61e-9);}
     void InjectStripCharge(std::vector<PndSdsStrip>& array, Int_t istrip, Double_t charge);
+    Double_t SmearCharge(Double_t charge);
   };
 
 #endif /* PNDSDSCALCSTRIP_H */

@@ -37,7 +37,7 @@ std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::CenterOfGravity(co
   Int_t nrHits = Cluster->GetClusterSize();
   if(nrHits>1)							// minimum of hits in cluster
   {
-    Double_t x_g=0., chargesum=0, charge=0, chargemean=0, noise=0, form=0, stripno=0;
+    Double_t x_g=0., chargesum=0, charge=0, noise=0, stripno=0;
     Double_t xerror=0.,xerrtmp=0.,cherr=0.;
     noise = fCalcStrip->GetNoise();
     for(Int_t l=0;l<nrHits;++l)     // loop over all hits
