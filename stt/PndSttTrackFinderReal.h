@@ -153,21 +153,9 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 //               nFidivConformal = (UShort_t) (    PI*RStrawDetectorMax /StrawRadius   );
        static const UShort_t  nFidivConformal = (UShort_t) (3.141592654 * 45./0.5)  ;
 
-       Double_t Fimin,     Fimax,
-                 FI0min, FI0max,
-               stepD,
-               stepFi,
-               stepR,
-               stepKAPPA,
-               stepFI0,
-               stepfineKAPPA,
-               stepfineFI0,
-		ALFA[MAXTRACKSPEREVENT],
-		BETA[MAXTRACKSPEREVENT],
-		GAMMA[MAXTRACKSPEREVENT];
-
-
-      static const int TIMEOUT=60;  // timeout in seconds for the GLPK fitting.
+ static const int
+	nmassimo=50,
+	TIMEOUT=60;  // timeout in seconds for the GLPK fitting.
 
 
 
@@ -180,11 +168,10 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
       int istampa ;
 
-      static const int  nmassimo=50;
 
-	TH1F	*hdist,
-		*hdistgoodlast,
-		*hdistbadlast;
+ TH1F	*hdist,
+	*hdistgoodlast,
+	*hdistbadlast;
 
       FILE * HANDLE ;
       FILE * HANDLE2 ;
@@ -196,21 +183,34 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
       FILE * SHANDLEY ;
       FILE * SHANDLEZ ;
     Double_t veritaMC[nmaxHits][3];
-    UShort_t
-              nHitsInMCTrack[MAXTRACKSPEREVENT],
-              nSttSkewhitInMCTrack[MAXTRACKSPEREVENT];
+
+ UShort_t
+	MINIMUMHITSPERTRACK,
+	MINIMUMOUTERHITSPERTRACK,
+	nRdivConformalEffective,
+	nSttSkewhit,
+	infoparal[nmaxHits],
+	infoskew[nmaxHits],
+	nHitsInMCTrack[MAXTRACKSPEREVENT],
+	nSttSkewhitInMCTrack[MAXTRACKSPEREVENT];
 
 
-  UShort_t nRdivConformalEffective,
-           MINIMUMHITSPERTRACK,
-           MINIMUMOUTERHITSPERTRACK,
-           nSttSkewhit,
-		nSciTHits,
-           infoparal[nmaxHits],
-           infoskew[nmaxHits];
 
-
-  Double_t radiaConf[nRdivConformal];
+ Double_t Fimin,
+	Fimax,
+	FI0min,
+	FI0max,
+	stepD,
+	stepFi,
+	stepR,
+	stepKAPPA,
+	stepFI0,
+	stepfineKAPPA,
+	stepfineFI0,
+	ALFA[MAXTRACKSPEREVENT],
+	BETA[MAXTRACKSPEREVENT],
+	GAMMA[MAXTRACKSPEREVENT],
+	radiaConf[nRdivConformal];
 
 
 
@@ -334,19 +334,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
 
-//   la seguente funzione verra' sostituita da quella che viene dopo.
-  Short_t PndSttFitHelixCylinder( UShort_t nHitsinTrack,
-                          Double_t auxinfoparalConformal[][5],
-                          UShort_t  nTracksFoundSoFar,
-                          Double_t rotationangle,
-                          Double_t *trajectory_vertex,
-                          UShort_t NMAX,
-                          Double_t *m,
-                          Double_t *q
-                          );
-
-
-//----  questa funzione sostituira' quella precedente; questa funzione e'
+//----   questa funzione e'
 //  identica a quella di sttmvd che funziona sia con soli STT hits che con
 //  Stt+Mvd hits.
   Short_t FitHelixCylinder( UShort_t nHitsinTrack,
@@ -366,32 +354,6 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 			);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  Short_t PndSttFitSZspace(
-                          UShort_t nHitsinTrack,
-                          Double_t *S,
-                          Double_t *Z,
-                          Double_t *DriftRadius,
-                          Double_t rotationangle,
-                          UShort_t NMAX,
-                          Double_t *m,
-                          Double_t *q
-                          );
-
   Short_t PndSttFitSZspacebis(
                           UShort_t nSttSkewhitinTrack,
                           Double_t *S,
@@ -401,6 +363,21 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                           UShort_t NMAX,
                           Double_t *m
                           );
+
+// rimpiazza la precedente
+  Short_t FitSZspace(
+			UShort_t nSkewHitsinTrack,
+			Double_t *S,
+			Double_t *Z,
+			Double_t *DriftRadius,
+			Double_t *ErrorDriftRadius,
+			Double_t FInot,
+			UShort_t NMAX,
+			Double_t *emme
+			);
+
+
+
   UShort_t PndSttTrkAssociatedParallelHitsToHelix(
                    Double_t Ox,
                    Double_t Oy,
@@ -497,22 +474,36 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                 );
 
 
-  void WriteMacroParallelAssociatedHits(
-                   Double_t Ox,Double_t Oy,Double_t R,
-                   UShort_t Nhits, UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
-                   Double_t info[][7], Int_t Nincl, Int_t Minclinations[], Double_t inclination[][3],
-                   UShort_t imaxima,
-		Int_t sequencial
-                                                     );
+ void WriteMacroParallelAssociatedHits(
+	Double_t Ox,
+	Double_t Oy,
+	Double_t R,
+	UShort_t Nhits,
+	UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
+	Double_t info[][7],
+	Int_t Nincl,
+	Int_t Minclinations[],
+	Double_t inclination[][3],
+	UShort_t imaxima,
+	Int_t sequencial,
+	UShort_t nscitilhitsintrack,
+	UShort_t *listscitilhitsintrack,
+	Double_t posizSciTil[nmaxSciTilHits][3]
+		);
 
-  void WriteMacroParallelAssociatedHitswithMC(
-                   Double_t Ox,Double_t Oy,Double_t R,
-                  Short_t TrackFoundaTrackMC,
-                   UShort_t Nhits,
-		UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
-                   Double_t info[][7],
-                   UShort_t ifoundtrack,
-		Int_t sequentialNTrack,
+ void WriteMacroParallelAssociatedHitswithMC(
+	Double_t Ox,
+	Double_t Oy,
+	Double_t R,
+	Short_t TrackFoundaTrackMC,
+	UShort_t Nhits,
+	UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
+	Double_t info[][7],
+	UShort_t ifoundtrack,
+	Int_t sequentialNTrack,
+	UShort_t nscitilhitsintrack,
+	UShort_t *listscitilhitsintrack,
+	Double_t posizSciTil[nmaxSciTilHits][3],
 		UShort_t nParalCommon[MAXTRACKSPEREVENT],
 		UShort_t ParalCommonList[MAXTRACKSPEREVENT][nmaxHits],
 		UShort_t nSpuriParinTrack[MAXTRACKSPEREVENT],
@@ -548,9 +539,6 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                    Int_t Nhits,
                    Double_t auxinfoparalConformal[][5],
                    UShort_t nTracksFoundSoFar,
-//                   Double_t *ALFA,
-//                   Double_t * BETA,
-//                   Double_t * GAMMA,
                    Short_t Status, Double_t *trajectory_vertex
                                                      );
 
@@ -571,8 +559,10 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                    Int_t imaxima,
 		   Int_t sequentialNTrack,
                    UShort_t nSttSkewhitinTrack,
-                   UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack]
-
+	UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
+	UShort_t nSciTilHits,
+	Double_t *ESSE,
+	Double_t *ZETA
                                                      );
 
 
@@ -595,8 +585,11 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                    UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxHits],
                    UShort_t daTrackFoundaTrackMC,
 		UShort_t nMCSkewAlone[MAXTRACKSPEREVENT],
-		UShort_t MCSkewAloneList[MAXTRACKSPEREVENT][nmaxHits]
- 
+		UShort_t MCSkewAloneList[MAXTRACKSPEREVENT][nmaxHits],
+	UShort_t nSciTilHits,
+	Double_t *ESSE,
+	Double_t *ZETA
+
                                                      );
 
 
