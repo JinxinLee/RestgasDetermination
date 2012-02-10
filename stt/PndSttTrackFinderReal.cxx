@@ -6254,6 +6254,7 @@ cout<<"\tin FindTrackPatterninBoxConformal, nFicell = "<<nFicell<<endl;
     }	// end of  for( iR= nRmin ; iR<= nRmax ; iR++)
 //----------------
     i++;
+cout<<"cazzo, i "<<i<<endl;
     nRcell = RConformalIndex[   infoparal[  ListHitsinTrack[i] ]   ];
     nFicell = FiConformalIndex[  infoparal[  ListHitsinTrack[i]  ]  ];
    }    //  end      while ( nRemainingHits > 0 && i < nHitsinTrack)
