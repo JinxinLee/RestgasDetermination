@@ -1,0 +1,26 @@
+#################################################################
+# Digitization parameters for LUMI
+# Format:
+# parameter_name:parameter_type(i-integer, d-double) parameter_value
+# PndLumiDigiPara
+# Description of parameters:
+#################################################################
+#################################################################
+# Digitization parameters for Lumi strip sensors
+#################################################################
+# threshold set to 3*sigmaNoise
+[LumiStripDigiPara]
+pitch:Double_t 0.005
+front_orient:Double_t -1.570796326794896619
+back_orient:Double_t 0.0
+front_anchor_x:Double_t 0.0
+front_anchor_y:Double_t 0.0
+back_anchor_x:Double_t 0.0
+back_anchor_y:Double_t 0.0
+nr_fe_channels:Int_t 128
+nr_fe_top:Int_t 3
+nr_fe_bottom:Int_t 3
+charge_threshold:Double_t 9000
+charge_noise:Double_t 3000
+gaus_sigma:Double_t 0.0008
+#

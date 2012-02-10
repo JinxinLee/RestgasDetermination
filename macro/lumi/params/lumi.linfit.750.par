@@ -1,0 +1,23 @@
+##############
+[LumiLinFitPar]
+r11:Double_t 1.000000
+r12:Double_t 0.000000
+r13:Double_t 0.000000
+r14:Double_t 0.000000
+r21:Double_t 0.000000
+r22:Double_t 1.000000
+r23:Double_t 0.000000
+r24:Double_t 0.000000
+r31:Double_t 0.000000
+r32:Double_t 0.000000
+r33:Double_t 1.000000
+r34:Double_t 0.585580
+r41:Double_t 0.000000
+r42:Double_t 0.000000
+r43:Double_t 0.585580
+r44:Double_t 1.000000
+sigma1:Double_t 0.000747
+sigma2:Double_t 0.000665
+sigma3:Double_t 0.001835
+sigma4:Double_t 0.003815
+##############
