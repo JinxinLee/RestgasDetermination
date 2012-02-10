@@ -209,7 +209,7 @@ void PndSdsStripHitProducer::Exec(Option_t* opt)
   }
 //  if(!fMcEventHeader) Error("Exec", "No Fair MC event header found. Why?? %p",fMcEventHeader);
  // std::cout << "MCEventHeader in StripHitProducer: " << fMcEventHeader->GetT() << std::endl;
-  Int_t timestamp = 0;
+  Double_t timestamp = 0;
   Double_t smearedCharge = 0;
   Int_t iStrip = 0;
   Bool_t selected = kFALSE;

@@ -503,7 +503,8 @@ void PndSdsStripClusterTask::FillClusterFinders()
     if (kFALSE==tester) continue; // Invalid parameters, skip here.
     //we use the top side as "first" side
     fCurrentStripCalcTop->CalcFeChToStrip(myDigi->GetFE(), myDigi->GetChannel(), strip, side); 
-    fCurrentClusterfinder->AddDigi(sensorID,side,myDigi->GetTimeStamp(),strip,iDigi);
+    // Time stamp measured in ns, cropped to integer for clusterfinding
+    fCurrentClusterfinder->AddDigi(sensorID,side,(Int_t)myDigi->GetTimeStamp(),strip,iDigi);
   } 
   // make sure the digi array is distributed well
   fChargeAlgos->SetDigiArray(fDigiArray);
@@ -580,7 +581,6 @@ void PndSdsStripClusterTask::CalcMeanCharge(PndSdsClusterStrip* onecluster, Doub
     return;
 	} else {
     //	//TODO: Apply other clusterfinder mean & error algorithms
-		if(fVerbose>1)std::cout<<"-W- PndSdsStripClusterTask::CalcMeanCharge: Using a preliminary Chargeweighting, please set cluster_mod to 0 in your param file ."<<std::endl;
     //    if(onecluster->GetSensorSide()==kTOP) fCurrentChargeAlgos->SetCalcStrip(fCurrentStripCalcTop);
     //    else fCurrentChargeAlgos->SetCalcStrip(fCurrentStripCalcBot);
     //    fChargeAlgos->SetChargeConverter(fCurrentChargeConverter); // done somewhere else

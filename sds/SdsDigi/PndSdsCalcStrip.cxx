@@ -228,7 +228,7 @@ std::vector<PndSdsStrip> PndSdsCalcStrip::GetStripsDif(Double_t pathstart, Doubl
   Double_t sigma_str=fCSigma/fPitch;
   // TODO how much extra bins to fill?, minimum 1...
   // how about 2sigma? shall be collected
-  Int_t xtra = ceil(2.*sigma_str);
+  Int_t xtra = (Int_t)ceil(2.*sigma_str);
   for(Int_t i=(Int_t)pathstart-xtra;i<(Int_t)pathend+1+xtra;i++)
   {
     DQ=0;
