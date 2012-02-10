@@ -1,8 +1,17 @@
+A   params/
+A   params/lumi.digi.par
+A   params/lumi.linfit.1050.par
+A   params/lumi.linfit.1191.par
+A   params/lumi.linfit.1200.par
+A   params/lumi.linfit.1350.par
+A   params/lumi.linfit.150.par
+A   params/lumi.linfit.1500.par
+A   params/lumi.linfit.250.par
+A   params/lumi.linfit.370.par
+A   params/lumi.linfit.406.par
+A   params/lumi.linfit.450.par
+A   params/lumi.linfit.620.par
+A   params/lumi.linfit.750.par
+A   params/lumi.linfit.890.par
+A   params/lumi.linfit.900.par
 
---This line, and those below, will be ignored--
-
-A  sim.C
-A  digi.C
-A  reco.C
-A  findtrack.C
-A  fittrack.C
