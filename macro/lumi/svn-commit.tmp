@@ -1,10 +1,8 @@
 
 --This line, and those below, will be ignored--
 
-A  runsim.C
-A  rundigi.C
-A  runclust.C
-A  runtrackfinder.C
-A  runtrackfitter.C
-D  anaLumiDigi.C
-D  anaLumiReco.C
+A  sim.C
+A  digi.C
+A  reco.C
+A  findtrack.C
+A  fittrack.C
