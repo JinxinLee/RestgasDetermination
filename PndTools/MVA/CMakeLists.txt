@@ -78,11 +78,11 @@ TMVA_MCL/PndMultiClassBdtClassify.cpp
 SET(ROOT_MIN_VERSION "5.28/00")
 find_package(ROOT REQUIRED)
 IF( NOT ROOT_INSTALLED_VERSION_TOO_OLD )
-   MESSAGE("-- <MVA_INFO> Your ROOT version can handle TMVA multiClass.")
+   MESSAGE("-- <MVA_INFO> Building MVA with multiClass.")
    SET(MVA_HEADERS ${MVA_HEADERS} ${TMVA_ALG_HEADR})
    SET(MVA_SRCS ${MVA_SRCS} ${TMVA_ALG_SOURCE})
 ELSE ()
-   MESSAGE("-- <MVA_WARN> Your ROOT version is too old for Muliclass.")
+   MESSAGE("-- <MVA_WARN> ROOT version is too old for Muliclass support.")
 ENDIF ( NOT ROOT_INSTALLED_VERSION_TOO_OLD )
 
 # ###################################
