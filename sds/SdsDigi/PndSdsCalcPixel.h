@@ -29,7 +29,9 @@ class PndSdsCalcPixel
   ///Main constructor
   ///@param w width of sensor pixel [cm]
   ///@param l length of sensor pixel [cm]
-  PndSdsCalcPixel(Double_t w, Double_t l);
+  ///@param threshold discriminator threshold of pixel [e]
+  ///@param noise total noise of pixel [e]
+  PndSdsCalcPixel(Double_t w, Double_t l, Double_t threshold = 0, Double_t noise = 0);
   
   ///Main function to calculate the vector<PndSdsPixel> of fired pixel
   std::vector<PndSdsPixel> GetPixels (Double_t inx, Double_t iny,
@@ -45,6 +47,8 @@ class PndSdsCalcPixel
   std::vector<PndSdsPixel> fPixels;
   Double_t fPixelWidth;
   Double_t fPixelLength;
+  Double_t fThreshold;
+  Double_t fNoise;
   Double_t fEnergy;
   Int_t fVerboseLevel;
   
@@ -71,6 +75,9 @@ class PndSdsCalcPixel
   void CalcStartPixel();		//pixel 0,0 is in lower left corner
   void CalcPixel();
   void ConvertPixels();
+  
+  Double_t SmearCharge(Double_t charge);
+
 };
 
 #endif

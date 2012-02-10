@@ -1,5 +1,7 @@
 #include "PndSdsCalcPixel.h"
 #include <cmath>
+#include "TRandom.h"
+
 
 PndSdsCalcPixel::PndSdsCalcPixel()
 {
@@ -9,10 +11,12 @@ PndSdsCalcPixel::PndSdsCalcPixel()
   fVerboseLevel = 0;
 }
 
-PndSdsCalcPixel::PndSdsCalcPixel(Double_t w, Double_t l)
+PndSdsCalcPixel::PndSdsCalcPixel(Double_t w, Double_t l, Double_t threshold, Double_t noise)
 {
   fPixelWidth = w;
   fPixelLength= l;
+  fThreshold=threshold;
+  fNoise=noise;
   fVerboseLevel = 0;
 }
 
@@ -36,13 +40,13 @@ Int_t PndSdsCalcPixel::GetPixelsAlternative(Double_t inx, Double_t iny,
 
 
 std::vector<PndSdsPixel> PndSdsCalcPixel::GetPixels(Double_t inx, Double_t iny,
-                Double_t outx, Double_t outy,
-                Double_t energy)
+                                                    Double_t outx, Double_t outy,
+                                                    Double_t energy)
 {
   fPixels.clear();
   fIn.setXYZ(inx, iny, 0);
   fOut.setXYZ(outx, outy, 0);
-
+  
   fDir = fOut - fIn;
   fPos = fIn;
   if (fDir.length() < 0.001){   //1 m
@@ -51,8 +55,8 @@ std::vector<PndSdsPixel> PndSdsCalcPixel::GetPixels(Double_t inx, Double_t iny,
     fPixels.push_back(fActivePixel);
     return fPixels;
   }
-//  CalcConMatrix(); //fCon berechnen
-//  ApplyConMatrix(); //fCon anwenden
+  //  CalcConMatrix(); //fCon berechnen
+  //  ApplyConMatrix(); //fCon anwenden
   if (fVerboseLevel > 1){
     std::cout << "Converted Vectors: " << std::endl;
     std::cout << fIn << fOut << fDir << fPos << std::endl;
@@ -61,7 +65,7 @@ std::vector<PndSdsPixel> PndSdsCalcPixel::GetPixels(Double_t inx, Double_t iny,
   CalcCperL(energy);
   
   CalcStartPixel();
-
+  
   fStop = false;
   while (fStop != true){
     CalcPixel();
@@ -76,8 +80,8 @@ std::vector<PndSdsPixel> PndSdsCalcPixel::GetPixels(Double_t inx, Double_t iny,
     }
     fActivePixel.SetCharge(-1.0);
   }
-
-//  ConvertPixels(); //fCon rueckgaengig
+  
+  //  ConvertPixels(); //fCon rueckgaengig
   return fPixels;
 }
 void PndSdsCalcPixel::CalcConMatrix()
@@ -103,7 +107,7 @@ void PndSdsCalcPixel::ApplyConMatrix()
   
   fDir.setX(fCon.getX() * fDir.getX());
   fDir.setY(fCon.getY() * fDir.getY());
-    
+  
 }
 
 void PndSdsCalcPixel::CalcQuadrant()
@@ -113,11 +117,11 @@ void PndSdsCalcPixel::CalcQuadrant()
       fQuad = kUR;
     else
       fQuad = kDR;
-  else if (fDir.getY() > 0)
-    fQuad = kUL;
-  else
-    fQuad = kDL;
-
+    else if (fDir.getY() > 0)
+      fQuad = kUL;
+    else
+      fQuad = kDL;
+  
   if (fVerboseLevel > 1){
     std::cout << "CalcQuadrant: " << fQuad << std::endl;
   }
@@ -143,48 +147,48 @@ void PndSdsCalcPixel::CalcPixel()
   Double_t borderY = 0;
   FairGeoVector OutPoint;
   bool xBeforeY = false;
-
-/*  if ( fabs(fDir.getX()) < 1e-8 ) {
-  xBeforeY = false;
-    borderY = fPixelWidth * (fActivePixel.GetRow()+1);
-  }
-  else  if ( fabs(fDir.getY()) < 1e-8 ) {
-  xBeforeY = true;
-    borderX = fPixelWidth
-  }
-  else  switch (fQuad){
-*/
-switch (fQuad){
+  
+  /*  if ( fabs(fDir.getX()) < 1e-8 ) {
+   xBeforeY = false;
+   borderY = fPixelWidth * (fActivePixel.GetRow()+1);
+   }
+   else  if ( fabs(fDir.getY()) < 1e-8 ) {
+   xBeforeY = true;
+   borderX = fPixelWidth
+   }
+   else  switch (fQuad){
+   */
+  switch (fQuad){
     case kUR : borderX = fPixelLength * (fActivePixel.GetCol()+1);
-        borderY = fPixelWidth  * (fActivePixel.GetRow()+1);
-        if ( fabs(fDir.getX()) < 1e-8 ) xBeforeY = false;
-        else if ( ( (borderX - fPos.getX()) * fDir.getY() / fDir.getX() )+fPos.getY() < borderY)
-          xBeforeY = true;
-        else xBeforeY = false;
-        break;
+      borderY = fPixelWidth  * (fActivePixel.GetRow()+1);
+      if ( fabs(fDir.getX()) < 1e-8 ) xBeforeY = false;
+      else if ( ( (borderX - fPos.getX()) * fDir.getY() / fDir.getX() )+fPos.getY() < borderY)
+        xBeforeY = true;
+      else xBeforeY = false;
+      break;
     case kUL : borderX = fPixelLength * (fActivePixel.GetCol());
-        borderY = fPixelWidth  * (fActivePixel.GetRow()+1);
-        if ( fabs(fDir.getX()) < 1e-8 ) xBeforeY = false;
-        else if ( ( (borderX - fPos.getX()) * fDir.getY() / fDir.getX() )+fPos.getY() < borderY)
-          xBeforeY = true;
-        else xBeforeY = false;
-        break;
+      borderY = fPixelWidth  * (fActivePixel.GetRow()+1);
+      if ( fabs(fDir.getX()) < 1e-8 ) xBeforeY = false;
+      else if ( ( (borderX - fPos.getX()) * fDir.getY() / fDir.getX() )+fPos.getY() < borderY)
+        xBeforeY = true;
+      else xBeforeY = false;
+      break;
     case kDL : borderX = fPixelLength * (fActivePixel.GetCol());
-        borderY = fPixelWidth  * (fActivePixel.GetRow());
-        if ( fabs(fDir.getX()) < 1e-8 ) xBeforeY = false;
-        else if ( ( (borderX - fPos.getX()) * fDir.getY() / fDir.getX() )+fPos.getY() > borderY)
-          xBeforeY = true;
-        else xBeforeY = false;
-        break;
+      borderY = fPixelWidth  * (fActivePixel.GetRow());
+      if ( fabs(fDir.getX()) < 1e-8 ) xBeforeY = false;
+      else if ( ( (borderX - fPos.getX()) * fDir.getY() / fDir.getX() )+fPos.getY() > borderY)
+        xBeforeY = true;
+      else xBeforeY = false;
+      break;
     case kDR : borderX = fPixelLength * (fActivePixel.GetCol()+1);
-        borderY = fPixelWidth  * (fActivePixel.GetRow());
-        if ( fabs(fDir.getX()) < 1e-8 ) xBeforeY = false;
-        else if ( ( (borderX - fPos.getX()) * fDir.getY() / fDir.getX() )+fPos.getY() > borderY)
-          xBeforeY = true;
-        else xBeforeY = false;
-        break;
+      borderY = fPixelWidth  * (fActivePixel.GetRow());
+      if ( fabs(fDir.getX()) < 1e-8 ) xBeforeY = false;
+      else if ( ( (borderX - fPos.getX()) * fDir.getY() / fDir.getX() )+fPos.getY() > borderY)
+        xBeforeY = true;
+      else xBeforeY = false;
+      break;
     case kQuadUNDEF : std::cout<<"PndSdsCalcPixel::CalcPixel : Quadrant not defined!"<<std::endl;
-    //default : ErrMsg(fatal) << " Quadrant not defined! " << endmsg;
+      //default : ErrMsg(fatal) << " Quadrant not defined! " << endmsg;
   }
   
   if ( xBeforeY ) { //Is borderX reached berfore borderY
@@ -201,32 +205,34 @@ switch (fQuad){
       fNextPixel = kU;
     else fNextPixel = kD;
   } 
-//  ErrMsg(warning) << " OutPoint: " << OutPoint << endmsg;
+  //  ErrMsg(warning) << " OutPoint: " << OutPoint << endmsg;
   
-      
+  
   if ((OutPoint - fPos).length() > (fOut - fPos).length()){
     fStop = true;
     OutPoint = fOut;
   }
-    
-
+  
+  
   Double_t depCharge = (OutPoint - fPos).length() * fCperL;
   if (fVerboseLevel > 1){
     printf("len: %g, cperL: %g, depCharge w/o noise: %g\n",(OutPoint - fPos).length(),fCperL,depCharge);
   }
-
-  fPos = OutPoint;
-  fActivePixel.SetCharge(depCharge);
   
-  // cut zero electron charge now, real threshold later
-  if(depCharge==0) return; 
-
+  // noise smearing and discriminator threshold cut
+  Double_t smearedCharge = SmearCharge(depCharge);
+  if (smearedCharge<=fThreshold) return;
+  
+  fPos = OutPoint;
+  fActivePixel.SetCharge(smearedCharge);
+  
+  
   fPixels.push_back(fActivePixel);
   
   if (fVerboseLevel > 1){
     std::cout << fActivePixel << std::endl;
   }
-      
+  
 }
 
 void PndSdsCalcPixel::ConvertPixels()
@@ -243,7 +249,16 @@ void PndSdsCalcPixel::ConvertPixels()
 std::ostream& PndSdsCalcPixel::operator<<(std::ostream& out)
 {
   out << "PixelWidth: " << fPixelWidth << " PixelLength: " <<
-    fPixelLength << std::endl;
+  fPixelLength << std::endl;
   
   return out;
 }
+
+//______________________________________________________________________________
+Double_t PndSdsCalcPixel::SmearCharge(Double_t charge)
+{
+  Double_t smeared = gRandom->Gaus(charge,fNoise);
+  if (fVerboseLevel > 3) std::cout<<" charge = "<<charge<<", smeared = "<<smeared<<std::endl;
+  return smeared;
+}
+

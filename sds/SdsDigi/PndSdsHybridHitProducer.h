@@ -97,7 +97,6 @@ protected:
 
   void AddHit(PndSdsPixel& hit, int mcIndex);
   void AddHits(std::vector<PndSdsPixel>* hitList, int mcIndex);
-  Double_t SmearCharge(Double_t charge);
 
   //PndSdsFE* fFEModel;
 

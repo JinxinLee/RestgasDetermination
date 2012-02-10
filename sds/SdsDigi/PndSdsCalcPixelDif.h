@@ -31,9 +31,10 @@ class PndSdsCalcPixelDif
 	  ///Main constructor
 	  ///@param w width of sensor pixel [cm]
 	  ///@param l length of sensor pixel [cm]
+    ///@param qspread charge cloud gaussian width
 	  ///@param threshold discriminator threshold of pixel [e]
 	  ///@param noise total noise of pixel [e]
-	  PndSdsCalcPixelDif(Double_t w, Double_t l, Double_t qspread = 0);
+	  PndSdsCalcPixelDif(Double_t w, Double_t l, Double_t qspread = 0, Double_t threshold = 0, Double_t noise = 0);
     
 	  ///Main function to calculate the vector<PndSdsPixel> of fired pixel
 	  std::vector<PndSdsPixel> GetPixels (Double_t inx, Double_t iny,
@@ -52,7 +53,8 @@ class PndSdsCalcPixelDif
     Double_t CalcFk(Double_t k, Double_t x, Double_t sig);
     const Double_t ChargeFromEloss(Double_t eloss) const {return eloss/(3.61e-9);}
     void InjectPixelCharge(Int_t i, Int_t j, Double_t charge);
-    
+    Double_t SmearCharge(Double_t charge);
+
 		std::vector<PndSdsPixel> fPixels;
     PndSdsPixel fActivePixel;
     

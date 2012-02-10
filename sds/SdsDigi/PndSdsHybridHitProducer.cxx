@@ -6,7 +6,6 @@
 #include "TClonesArray.h"
 #include "TArrayD.h"
 #include "TGeoManager.h"
-#include "TRandom.h"
 
 #include "FairRootManager.h"
 #include "PndSdsHybridHitProducer.h"
@@ -34,11 +33,11 @@
 PndSdsHybridHitProducer::PndSdsHybridHitProducer() :
 PndSdsTask("SDS Hybrid Hit Producer")
 {
-
+  
   fPixelHits = 0;
   fEventNr = 0;
   fOverwriteParams = kFALSE;
-
+  
   if(fVerbose>0) Info("PndSdsHybridHitProducer","SDS Hybrid Digi Producer created, Parameters will be taken from RTDB");
   fPersistance = kTRUE;
   fGeoH=NULL;
@@ -66,7 +65,7 @@ PndSdsTask(name)
 PndSdsHybridHitProducer::PndSdsHybridHitProducer(Double_t lx, Double_t ly, Double_t threshold, Double_t noise) :
 PndSdsTask("SDS Hybrid Digi Producer (PndSdsHybridHitProducer)")
 {
-
+  
   flx = lx;
   fly = ly;
   fthreshold = threshold;
@@ -121,8 +120,8 @@ InitStatus PndSdsHybridHitProducer::Init()
     << "RootManager not instantiated!" << std::endl;
     return kFATAL;
   }
-
-
+  
+  
   fPointArray = (TClonesArray*) ioman->GetObject(fInBranchName);  
   if ( ! fPointArray )
   {
@@ -133,25 +132,25 @@ InitStatus PndSdsHybridHitProducer::Init()
   
   
   // Create and register output array
-//  fPixelArray	= new TClonesArray("PndSdsDigiPixel");
-//  if(fVerbose>1) Info("Init","Registering this branch: %s/%s",fFolderName.Data(),fOutBranchName.Data());
-//  ioman->Register(fOutBranchName, fFolderName, fPixelArray, fPersistance);
-//  fPixelArray = ioman->Register(fOutBranchName, "PndSdsDigiPixel", fFolderName, fPersistance);
-
+  //  fPixelArray	= new TClonesArray("PndSdsDigiPixel");
+  //  if(fVerbose>1) Info("Init","Registering this branch: %s/%s",fFolderName.Data(),fOutBranchName.Data());
+  //  ioman->Register(fOutBranchName, fFolderName, fPixelArray, fPersistance);
+  //  fPixelArray = ioman->Register(fOutBranchName, "PndSdsDigiPixel", fFolderName, fPersistance);
+  
   fDataBuffer = new PndSdsDigiPixelWriteoutBuffer(fOutBranchName, fFolderName, fPersistance);
   fDataBuffer = (PndSdsDigiPixelWriteoutBuffer*)ioman->RegisterWriteoutBuffer(fOutBranchName, fDataBuffer);
   fDataBuffer->ActivateBuffering(fTimeOrderedDigi);
   
-//  if(fDigiPixelMCInfo==kTRUE)
-//  {
-//
-//
-//    if(fVerbose>1) Info("Init","Registering this branch: %s/%s","PndMVD","MVDPixelDigisMCInfo");
-//	fPixelMCArray =  ioman->Register("MVDPixelDigisMCInfo", "PndSdsDigiPixelMCInfo", "PndMVD", fPixelMCArray, fPersistance);
-//
-//    std::cout << "fPixelMCArray defined " << std::endl;
-//  }
-
+  //  if(fDigiPixelMCInfo==kTRUE)
+  //  {
+  //
+  //
+  //    if(fVerbose>1) Info("Init","Registering this branch: %s/%s","PndMVD","MVDPixelDigisMCInfo");
+  //	fPixelMCArray =  ioman->Register("MVDPixelDigisMCInfo", "PndSdsDigiPixelMCInfo", "PndMVD", fPixelMCArray, fPersistance);
+  //
+  //    std::cout << "fPixelMCArray defined " << std::endl;
+  //  }
+  
   if(fOverwriteParams==kTRUE){
     fDigiPar->SetXPitch(flx);
     fDigiPar->SetYPitch(fly);
@@ -182,15 +181,15 @@ InitStatus PndSdsHybridHitProducer::Init()
 void PndSdsHybridHitProducer::Exec(Option_t* opt)
 {
   if(fVerbose>3) Info("Exec","Start");
-//
-//  if (fFEModel == 0)
-//	  std::cout << "-E- PndSdsHybridHitProducer::Exec No front end model defined!" << std::endl;
-
-
+  //
+  //  if (fFEModel == 0)
+  //	  std::cout << "-E- PndSdsHybridHitProducer::Exec No front end model defined!" << std::endl;
+  
+  
   Double_t EventTime = FairRootManager::Instance()->GetEventTime();
-
+  
   if(fVerbose>0) std::cout << "-I- PndSdsHybridHitProducer::Exec EventTime: " << EventTime << std::endl;
-
+  
   
 	if(fDigiPixelMCInfo==kTRUE)
 	{
@@ -231,7 +230,7 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
       std::cout << posInL.X() << " " << posInL.Y() << " " << posInL.Z() << std::endl;
       std::cout << posOutL.X() << " " << posOutL.Y() << " " << posOutL.Z() << std::endl;
     }
-
+    
     if (fVerbose > 1){
       FairGeoVector meanPosL = posInL + posOutL;
       meanPosL /= 2;
@@ -291,48 +290,47 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
   
   // convert to digi data type after all charge is collected
   // and apply gaussian noise
-
-  Double_t smearedCharge=0;
+  
+  Double_t charge=0;
   for (unsigned int iPix = 0; iPix < fPixelList.size(); iPix++)
   {
-	if(fVerbose>1) std::cout << "fPixelList.size()" <<  fPixelList.size() << std::endl;
-    smearedCharge = SmearCharge(fPixelList[iPix].GetCharge());
-    if (smearedCharge<=fthreshold) continue;
+    if(fVerbose>1) std::cout << "fPixelList.size()" <<  fPixelList.size() << std::endl;
     point = (PndSdsMCPoint*) fPointArray->At(fPixelList[iPix].GetMCIndex()[0]);
+    charge=fPixelList[iPix].GetCharge();
     if(fDigiPixelMCInfo==kTRUE)
     {
       new ((*fPixelMCArray)[iFePixel]) PndSdsDigiPixelMCInfo(fPixelList[iPix].GetMCIndex(), FairRootManager::Instance()->GetBranchId(fInBranchName), fPixelList[iPix].GetSensorID() ,fPixelList[iPix].GetFE(),
                                                              fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
-                                                             fChargeConverter->ChargeToDigiValue(smearedCharge), fChargeConverter->GetTimeStamp(point->GetTime(), smearedCharge,FairRootManager::Instance()->GetEventTime()),smearedCharge-fPixelList[iPix].GetAddNoise(),fPixelList[iPix].GetAddNoise(), fChargeConverter->GetTimeWalk(smearedCharge),0,point->GetTime(),smearedCharge  );
+                                                             fChargeConverter->ChargeToDigiValue(charge), fChargeConverter->GetTimeStamp(point->GetTime(), charge,FairRootManager::Instance()->GetEventTime()),charge-fPixelList[iPix].GetAddNoise(),fPixelList[iPix].GetAddNoise(), fChargeConverter->GetTimeWalk(charge),0,point->GetTime(),charge  );
     }
-	if (fVerbose > 1)  std::cout << fPixelList[iPix] << std::endl;
-
-//	if (fFEModel > 0){
-//		double correctedTimeStamp = (fFEModel->GetTimeStamp(EventTime, 0, smearedCharge) - fFEModel->GetTimeWalkFromTot(fFEModel->GetTotFromCharge(smearedCharge)) - fFEModel->GetTimeStep()/2);
-//			std::cout << "FEModel-Test: " << point->GetEnergyLoss() << " " << smearedCharge << " " << fChargeConverter->ChargeToDigiValue(smearedCharge) << " " << fFEModel->GetTotFromCharge(smearedCharge) << " " << fFEModel->GetChargeFromTot(fFEModel->GetTotFromCharge(smearedCharge)) << std::endl
-//					<< " Time: " << point->GetTimeStamp() << " " << fFEModel->GetTimeStamp(EventTime, point->GetTime(), smearedCharge) << " " << correctedTimeStamp << std::endl
-//					<< " TimeDifference: " << point->GetTimeStamp() - correctedTimeStamp << std::endl;
-//			if ((point->GetTimeStamp() - correctedTimeStamp) > 10 || (point->GetTimeStamp() - correctedTimeStamp) < -10) {
-//				std::cout << "BigDifference!" << std::endl;
-//			}
-//	}
-	PndSdsDigiPixel *tempPixel = new PndSdsDigiPixel( fPixelList[iPix].GetMCIndex(), FairRootManager::Instance()->GetBranchId(fInBranchName), fPixelList[iPix].GetSensorID() ,fPixelList[iPix].GetFE(),
-	                    fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
-	                    fChargeConverter->ChargeToDigiValue(smearedCharge), EventTime); //fChargeConverter->GetTimeStamp(point->GetTime(), smearedCharge,fEventHeader->GetEventTime()) );
-
-	tempPixel->Reset();
-	std::vector<int> indices = fPixelList[iPix].GetMCIndex();
-	FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
-	for (int i = 0; i < indices.size(); i++)
-		tempPixel->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  FairRootManager::Instance()->GetBranchId(fInBranchName), indices[i]));
-
-	fDataBuffer->FillNewData(tempPixel, fChargeConverter->ChargeToDigiValue(fPixelList[iPix].GetCharge())*6 + EventTime);
-
-	if (fVerbose > 0){
-		std::cout << "PixelDigi: " << (tempPixel) << std::endl;
-		std::cout << "Links in Digi: " << (FairMultiLinkedData)(*tempPixel) << std::endl;
-	}
-
+    if (fVerbose > 1)  std::cout << fPixelList[iPix] << std::endl;
+    
+    //	if (fFEModel > 0){
+    //		double correctedTimeStamp = (fFEModel->GetTimeStamp(EventTime, 0, charge) - fFEModel->GetTimeWalkFromTot(fFEModel->GetTotFromCharge(charge)) - fFEModel->GetTimeStep()/2);
+    //			std::cout << "FEModel-Test: " << point->GetEnergyLoss() << " " << charge << " " << fChargeConverter->ChargeToDigiValue(charge) << " " << fFEModel->GetTotFromCharge(charge) << " " << fFEModel->GetChargeFromTot(fFEModel->GetTotFromCharge(charge)) << std::endl
+    //					<< " Time: " << point->GetTimeStamp() << " " << fFEModel->GetTimeStamp(EventTime, point->GetTime(), charge) << " " << correctedTimeStamp << std::endl
+    //					<< " TimeDifference: " << point->GetTimeStamp() - correctedTimeStamp << std::endl;
+    //			if ((point->GetTimeStamp() - correctedTimeStamp) > 10 || (point->GetTimeStamp() - correctedTimeStamp) < -10) {
+    //				std::cout << "BigDifference!" << std::endl;
+    //			}
+    //	}
+    PndSdsDigiPixel *tempPixel = new PndSdsDigiPixel( fPixelList[iPix].GetMCIndex(), FairRootManager::Instance()->GetBranchId(fInBranchName), fPixelList[iPix].GetSensorID() ,fPixelList[iPix].GetFE(),
+                                                     fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
+                                                     fChargeConverter->ChargeToDigiValue(charge), EventTime); //fChargeConverter->GetTimeStamp(point->GetTime(), charge,fEventHeader->GetEventTime()) );
+    
+    tempPixel->Reset();
+    std::vector<int> indices = fPixelList[iPix].GetMCIndex();
+    FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
+    for (int i = 0; i < indices.size(); i++)
+      tempPixel->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  FairRootManager::Instance()->GetBranchId(fInBranchName), indices[i]));
+    
+    fDataBuffer->FillNewData(tempPixel, fChargeConverter->ChargeToDigiValue(fPixelList[iPix].GetCharge())*6 + EventTime);
+    
+    if (fVerbose > 0){
+      std::cout << "PixelDigi: " << (tempPixel) << std::endl;
+      std::cout << "Links in Digi: " << (FairMultiLinkedData)(*tempPixel) << std::endl;
+    }
+    
   }
   
   
@@ -476,25 +474,18 @@ void PndSdsHybridHitProducer::AddHit(PndSdsPixel& hit, int mcIndex)
 }
 
 //______________________________________________________________________________
-Double_t PndSdsHybridHitProducer::SmearCharge(Double_t charge)
-{
-  //  Double_t smeared = fRNG->Gaus(charge,fNoise);
-  Double_t smeared = gRandom->Gaus(charge,fnoise);
-  if (fVerbose > 3) std::cout<<" charge = "<<charge<<", smeared = "<<smeared<<std::endl;
-  return smeared;
-}
 
 // -------------------------------------------------------------------------
 
 void PndSdsHybridHitProducer::FinishEvent()
 {
   // called after all Tasks did their Exex() and the data is copied to the file
-
+  
 	if(fDigiPixelMCInfo==kTRUE)
   {
 		fPixelMCArray->Delete();
   }
-//	  fPixelArray->Delete();
+  //	  fPixelArray->Delete();
   FinishEvents();
 }
 // -------------------------------------------------------------------------
@@ -502,10 +493,10 @@ void PndSdsHybridHitProducer::FinishEvent()
 void PndSdsHybridHitProducer::FinishTask()
 {
   // called after all Tasks did their Exex() and the data is copied to the file
-//	if (fTimeOrderedDigi){
-//		fDataBuffer->WriteOutAllData();
-//	}
-
+  //	if (fTimeOrderedDigi){
+  //		fDataBuffer->WriteOutAllData();
+  //	}
+  
 }
 
 ClassImp(PndSdsHybridHitProducer);

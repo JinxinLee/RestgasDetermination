@@ -1,5 +1,7 @@
 #include "PndSdsCalcPixelDif.h"
 #include <cmath>
+#include "TRandom.h"
+
 
 PndSdsCalcPixelDif::PndSdsCalcPixelDif()
 {
@@ -9,12 +11,14 @@ PndSdsCalcPixelDif::PndSdsCalcPixelDif()
   fQspread = 0;
 }
 
-PndSdsCalcPixelDif::PndSdsCalcPixelDif(Double_t lx, Double_t ly, Double_t qspread)
+PndSdsCalcPixelDif::PndSdsCalcPixelDif(Double_t lx, Double_t ly, Double_t qspread,Double_t threshold, Double_t noise)
 {
   fPixelSizeX = lx;
   fPixelSizeY= ly;
   fVerboseLevel = 0;
   fQspread = qspread;
+  fThreshold=threshold;
+  fNoise=noise;
 }
 
 Int_t PndSdsCalcPixelDif::GetPixelsAlternative(Double_t inx, Double_t iny,
@@ -120,13 +124,22 @@ void PndSdsCalcPixelDif::InjectPixelCharge(Int_t i, Int_t j, Double_t charge)
   // cut if out of range
   if(i<0 || j<0) return;
   //if(i>fNrx || j>fNry) return; // TODO put max. pixel number here?
-  if(charge<1) return; // cut zero electron charge now, real threshold later
+  Double_t smearedCharge = SmearCharge(charge);
+  if (smearedCharge<=fThreshold) return;
   if(fVerboseLevel>3) Info("PndSdsCalcPixelDif::InjectPixelCharge","i=%i, j=%i,charge=%f",i,j,charge);
   fActivePixel.SetCol(i); // x axis
   fActivePixel.SetRow(j); // y axis
   fActivePixel.SetCharge(charge);
   fPixels.push_back(fActivePixel); // fActivePixel content will be copied
   return;
+}
+
+//______________________________________________________________________________
+Double_t PndSdsCalcPixelDif::SmearCharge(Double_t charge)
+{
+  Double_t smeared = gRandom->Gaus(charge,fNoise);
+  if (fVerboseLevel > 3) std::cout<<" charge = "<<charge<<", smeared = "<<smeared<<std::endl;
+  return smeared;
 }
 
 
