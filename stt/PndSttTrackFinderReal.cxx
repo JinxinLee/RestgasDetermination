@@ -369,16 +369,22 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
           NumberofMaximaKFI0,
           nAssociatedParallelHits ;
 
-    Short_t Charge[MAXTRACKSPEREVENT],
-            Status[MAXTRACKSPEREVENT],
-            daTrackFoundaTrackMC[MAXTRACKSPEREVENT],
-		enne[MAXTRACKSPEREVENT][nmaxHits];
 
 
-    UShort_t	emme,
-		auxIndex[nmaxHits],
-             OLDinfoparal[nmaxHits];
-    UShort_t istep,inclination_type, exitstatus;
+ UShort_t
+	emme,
+	exitstatus,
+	inclination_type,
+	istep,
+	nSciTilHits,
+	auxIndex[nmaxHits],
+	OLDinfoparal[nmaxHits];
+
+ Short_t
+	Charge[MAXTRACKSPEREVENT],
+	Status[MAXTRACKSPEREVENT],
+	daTrackFoundaTrackMC[MAXTRACKSPEREVENT],
+	enne[MAXTRACKSPEREVENT][nmaxHits];
 
     Double_t aaa, ddd, delta, deltabis, deltaZ, mindis, distanza, fi_hit,
               ap1, ap2, ap3, carica, cross1, cross2, cross3,
@@ -424,7 +430,6 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 	jexp,
 	mchit,
 	nFicell,
-//	nRcell,
 	nTracksFoundSoFar,
 	NNN,
 	Nouter,
@@ -437,10 +442,8 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 	tempore[nmaxHits],
 	ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
 	ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
-
 	nSciTilHitsinTrack[MAXTRACKSPEREVENT],
 	ListSciTilHitsinTrack[MAXTRACKSPEREVENT][nmaxSciTilHitsInTrack],
-
 	nMCParalAlone[MAXTRACKSPEREVENT],
 	nMCSkewAlone[MAXTRACKSPEREVENT],
 	MCParalAloneList[MAXTRACKSPEREVENT][nmaxHits],
@@ -475,8 +478,10 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
               Rlow, Rup, Dlow, Dup,Filow,Fiup, KAPPAlow, KAPPAup, FI0low, FI0up,
               gamma;
 
-   Double_t    D,Fi,
-		ptotal,
+ Double_t
+	D,
+	Fi,
+	ptotal,
                Fi_low_limit[MAXTRACKSPEREVENT],
                Fi_up_limit[MAXTRACKSPEREVENT],
                Fi_initial_helix_referenceframe[MAXTRACKSPEREVENT],
@@ -490,6 +495,10 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
                infoparalConformal[nmaxHits][5],
                infoSciTilConformal[nmaxSciTilHits][3],
                S[2*nmaxHits],
+	tmpErrorZDrift[nmaxHitsInTrack],
+	tmpS[nmaxHitsInTrack],
+	tmpZ[nmaxHitsInTrack],
+	tmpZDrift[nmaxHitsInTrack],
                Z[2*nmaxHits],
                temporeS[nmaxHits],
                temporeZ[nmaxHits],
@@ -609,16 +618,16 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 
 
 //------------------------ loading SciTil hits.
-  nSciTHits = 0;
+  nSciTilHits = 0;
   if(YesSciTil) {
 	if( fSciTHitArray != NULL){
 					// number SciTil hits/event
-			nSciTHits = fSciTHitArray->GetEntriesFast();
+			nSciTilHits = fSciTHitArray->GetEntriesFast();
 			if(istampa>0)
-   cout<<"da PndSttTrackFinderReal, event "<<IVOLTE<<", "<<nSciTHits
+   cout<<"da PndSttTrackFinderReal, event "<<IVOLTE<<", "<<nSciTilHits
    <<" SciTil hits presenti inizialmente.\n";
 	}
-	if( nSciTHits>0){
+	if( nSciTilHits>0){
 	 PndSciTHit *pPndSciTHit;
 	 TVector3  posiz;
 
@@ -638,7 +647,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 		infoSciTilConformal[0][2]= DIMENSIONSCITIL/aaa;
 		iaccept=1;
 	// the other SciTil hits; purge them if they are duplicate.
-	 for(j=1; j<nSciTHits; j++){
+	 for(j=1; j<nSciTilHits; j++){
 		pPndSciTHit = (PndSciTHit*) fSciTHitArray->At(j);
 		posiz = pPndSciTHit->GetPosition();
 		if(istampa>0)
@@ -669,17 +678,17 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 	    iaccept++;
 	    finish: ;
 
-	 }  // end of for(j=0; j<nSciTHits; j++)
+	 }  // end of for(j=0; j<nSciTilHits; j++)
 
-	 nSciTHits=iaccept;
+	 nSciTilHits=iaccept;
 
-	}  // end of if( nSciTHits>0){
+	}  // end of if( nSciTilHits>0){
 
 
 //-----------stampe.
 if(istampa>0){
-  cout<<"da PndSttTrackFinderReal, dopo purga di SciTil; n. hits = "<<nSciTHits<<endl;
-  for(j=0; j<nSciTHits; j++){
+  cout<<"da PndSttTrackFinderReal, dopo purga di SciTil; n. hits = "<<nSciTilHits<<endl;
+  for(j=0; j<nSciTilHits; j++){
 	cout<<"da PndSttTrackFinderReal SciTil Xpos "<<posizSciTil[j][0]<<", Ypos "<<
 	posizSciTil[j][1]<<", Zpos "<<posizSciTil[j][2]<<endl;
   }
@@ -983,7 +992,7 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 //----- loop over the SciTil hits first;
  if(YesSciTil) {
 
-    for(i=0; i<nSciTHits ; i++) {
+    for(i=0; i<nSciTilHits ; i++) {
 	if( nTracksFoundSoFar > MAXTRACKSPEREVENT) continue;
 
 	nRcell = -1;  // because SciTil hit is outside of the Stt system.
@@ -1052,7 +1061,7 @@ cout<<"from PndSttTrackFinderReal :  # n. Tracks found so far = "<<nTracksFoundS
 		return -15;
 	}
 
-    } // end of  for(i=0; i<nSciTHits ; i++)
+    } // end of  for(i=0; i<nSciTilHits ; i++)
 
 
  }  // end of  if(YesSciTil)
@@ -1158,44 +1167,57 @@ if(istampa>0){
 //-----  finding the skew hits intersecting this XY trajectory circle
 
 
-  TemporarynSttSkewhitinTrack = AssociateSkewHitsToXYTrack(
-                   InclusionListSkew,
-                   Ox[i],   //  input : X of center of XY plane circle
-                   Oy[i],   //  input : Y of center of XY plane circle
-                   R[i],   //  input : Radius of XY plane circle
-                   info,
-                   inclination,
-                   Fi_low_limit[i],// in the Helix XY frame, taking into account the minimum/maximum
-                   Fi_up_limit[i], // radius of the STT  detector.
-                   Charge[i],
-                   Fi_initial_helix_referenceframe[i],
-                   Fi_final_helix_referenceframe[i],
-                   TemporarySkewList, // output,  list of selected skew hits (in skew numbering)
-                   S,       //  output,  S coordinate of selected Skew hit
-                   Z,       //  output,  Z coordinate of center wire of selected Skew hit
-                   ZDrift,   //  output,  drift distance IN Z DIRECTION only, of selected Skew hit
-                   ZErrorafterTilt   //  output,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
-                                                     );
-    nSttSkewhitinTrack[i]=TemporarynSttSkewhitinTrack;   // it can be also zero!
-    // limit the total # hits to nmaxHitsInTrack
-    if( nSttSkewhitinTrack[i]+nHitsinTrack[i] > nmaxHitsInTrack ) {
+ TemporarynSttSkewhitinTrack = AssociateSkewHitsToXYTrack(
+	InclusionListSkew,
+	Ox[i],   //  input : X of center of XY plane circle
+	Oy[i],   //  input : Y of center of XY plane circle
+	R[i],   //  input : Radius of XY plane circle
+	info,
+	inclination,
+	Fi_low_limit[i],// in the Helix XY frame, taking into account the minimum/maximum
+	Fi_up_limit[i], // radius of the STT  detector.
+	Charge[i],
+	Fi_initial_helix_referenceframe[i],
+	Fi_final_helix_referenceframe[i],
+	TemporarySkewList, // output,  list of selected skew hits (in skew numbering)
+	S,       //  output,  S coordinate of selected Skew hit
+	Z,       //  output,  Z coordinate of center wire of selected Skew hit
+	ZDrift,   //  output,  drift distance IN Z DIRECTION only, of selected Skew hit
+	ZErrorafterTilt   //  output,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
+		);
+
+ nSttSkewhitinTrack[i]=TemporarynSttSkewhitinTrack;   // it can be also zero!
+// limit the total # hits to nmaxHitsInTrack
+ if( nSttSkewhitinTrack[i]+nHitsinTrack[i] > nmaxHitsInTrack ) {
 	if(nmaxHitsInTrack-nHitsinTrack[i]>0)nSttSkewhitinTrack[i]=nmaxHitsInTrack-nHitsinTrack[i];
 	else nSttSkewhitinTrack[i]=0;
-    }
+ }
 
-    for(j=0;j<nSttSkewhitinTrack[i];j++){
+ for(j=0;j<nSciTilHitsinTrack[i];j++){
+	tmpS[j]= atan2(posizSciTil[ ListSciTilHitsinTrack[i][j] ][1]-Oy[i],
+			posizSciTil[ ListSciTilHitsinTrack[i][j] ][0]-Ox[i]);
+	if ( tmpS[j]<0.) tmpS[j]+= 2.*PI;
+	tmpZ[j]=posizSciTil[ ListSciTilHitsinTrack[i][j] ][2],
+	tmpZDrift[j]=-1., // conventional, to signal that this is not a STT hit.
+	// error is intentionally overestimated for later use in SZ fit.
+	tmpErrorZDrift[j] = DIMENSIONSCITIL/sqrt(12.);
+ }
+ for(j=0;j<nSttSkewhitinTrack[i];j++){
 	ListSkewHitsinTrack[i][j]=TemporarySkewList[j][0];
-    }
+	tmpS[j+nSciTilHitsinTrack[i]]=S[j],
+	tmpZ[j+nSciTilHitsinTrack[i]]=Z[j],
+	tmpZDrift[j+nSciTilHitsinTrack[i]]=ZDrift[j],
+	// error is intentionally overestimated for later use in SZ fit.
+	tmpErrorZDrift[j+nSciTilHitsinTrack[i]] = 3.*STRAWRADIUS;
+ }
 
 
- //    if( nSttSkewhitinTrack[i] < MINIMUMHITSPERTRACK) {
-     if( nSttSkewhitinTrack[i] < 2) {
-	for(j=0;j<nSttSkewhitinTrack[i];j++){
-		Sfinal[i][infoskew[ ListSkewHitsinTrack[i][j] ]]= S[j];
+	if( nSttSkewhitinTrack[i]+nSciTilHitsinTrack[i]< 2) {
+		for(j=0;j<nSttSkewhitinTrack[i];j++){
+		   Sfinal[i][infoskew[ ListSkewHitsinTrack[i][j] ]]= S[j];
+		}
+		continue ;
 	}
-	continue ;
-//        continue;
-     }
 
 //  finding if there are discontinuity at 0 for fi value of the Skew Straws Hit.
 //  In case of discontinuity at 0, add 2*PI to fi of those hits with fi in the 1st quadrant.
@@ -1206,24 +1228,23 @@ if(istampa>0){
 //  Fi_initial_helix_referenceframe[i] might be modified (+2.*PI) from  now on.
 
 
-      FixDiscontinuitiesFiangleinSZplane(
-                nSttSkewhitinTrack[i],
-                S,
-                &Fi_initial_helix_referenceframe[i],
-                Charge[i]
-                                        );
+ FixDiscontinuitiesFiangleinSZplane(
+	nSttSkewhitinTrack[i],
+	S,
+	&Fi_initial_helix_referenceframe[i],
+	Charge[i]
+		);
 
-
-      Status[i] = PndSttFitSZspacebis( 
-                nSttSkewhitinTrack[i],
-                S,
-                Z,
-                ZDrift,
-                Fi_initial_helix_referenceframe[i],   //   this is an input data
-                NHITSINFIT,
-                &KAPPA[i]
-                      );
-
+ Status[i] = FitSZspace( 
+	nSttSkewhitinTrack[i]+nSciTilHitsinTrack[i],
+	tmpS,
+	tmpZ,
+	tmpZDrift,  // drift radius onto the SZ projection; if negative --> SciTil hit.
+	tmpErrorZDrift,
+	Fi_initial_helix_referenceframe[i],   //   this is an input;
+	NHITSINFIT,   // maximum n. hits in fit.
+	&KAPPA[i]
+		);
 //    Status[i] is negative (-99) when m = 0. and (-100) as result when the fit with glpk
 //		failed.
 
@@ -2218,7 +2239,7 @@ if(iplotta && IVOLTE <= nmassimo){
 		keepit,
                    Nhits, info, Nincl, Minclinations,
 		    inclination,
-		    nSciTHits,
+		    nSciTilHits,
 		    posizSciTil,
 		    nTracksFoundSoFar
                                                      );
@@ -2231,7 +2252,7 @@ if(iplotta && IVOLTE <= nmassimo){
 		keepit,
                    Nhits, info, Nincl, Minclinations,
 		    inclination,
-		nSciTHits,
+		nSciTilHits,
 		posizSciTil,
 		    nTracksFoundSoFar
                                                      );
@@ -2243,13 +2264,16 @@ if(iplotta && IVOLTE <= nmassimo){
 		if(!keepit[i])continue;
 		ii++;
 
-           WriteMacroParallelAssociatedHits(
-                   Ox[i], Oy[i], R[i],
-                   nHitsinTrack[i],ListHitsinTrack,
-                   info, Nincl, Minclinations, inclination,
-                   i,
-		   ii
-                                                     );
+		WriteMacroParallelAssociatedHits(
+			Ox[i], Oy[i], R[i],
+			nHitsinTrack[i],ListHitsinTrack,
+			info, Nincl, Minclinations, inclination,
+			i,
+			ii,
+			nSciTilHitsinTrack[i],
+			&ListSciTilHitsinTrack[i][0],
+			posizSciTil
+			);
 
            WriteMacroParallelAssociatedHitswithMC(
                    Ox[i], Oy[i], R[i],
@@ -2259,6 +2283,9 @@ if(iplotta && IVOLTE <= nmassimo){
                    info,
                    i,
 		   ii,
+			nSciTilHitsinTrack[i],
+			&ListSciTilHitsinTrack[i][0],
+			posizSciTil,
 		nParalCommon,
 		ParalCommonList,
 		nSpuriParinTrack,
@@ -2276,10 +2303,19 @@ for(i=0,ii=-1; i<nTracksFoundSoFar;i++){
 
 
     HoughR = R[i];
-    HoughD   = sqrt(Ox[i]*Ox[i]+
-                                    Oy[i]*Oy[i]) -R[i];
+    HoughD   = sqrt(Ox[i]*Ox[i]+Oy[i]*Oy[i]) -R[i];
     HoughFi = atan2(Oy[i],Ox[i]);
     if(HoughFi<0.)  HoughFi += 2.*PI;
+
+//  if there are SciTil hits, calculate S.
+    Double_t ESSE[nSciTilHitsinTrack[i]],
+		ZETA[nSciTilHitsinTrack[i]];
+    for(j=0;j<nSciTilHitsinTrack[i];j++){
+	ESSE[j]= atan2( posizSciTil[ListSciTilHitsinTrack[i][j]][1]-Oy[i],
+			posizSciTil[ListSciTilHitsinTrack[i][j]][0]-Ox[i]);
+	if( ESSE[j]<0. ) ESSE[j]+= 2.*PI;
+	ZETA[j]= posizSciTil[ListSciTilHitsinTrack[i][j]][2];
+    }
 
 
              WriteMacroSkewAssociatedHits(
@@ -2289,8 +2325,10 @@ for(i=0,ii=-1; i<nTracksFoundSoFar;i++){
                    i,
 		   ii,
                    nSttSkewhitinTrack[i],
-                   ListSkewHitsinTrack
-
+                   ListSkewHitsinTrack,
+		nSciTilHitsinTrack[i],
+		ESSE,
+		ZETA
                                                      );
    if(doMcComparison) {
       if( daTrackFoundaTrackMC[i] >= 0){
@@ -2306,7 +2344,10 @@ for(i=0,ii=-1; i<nTracksFoundSoFar;i++){
                    SkewCommonList,
                    daTrackFoundaTrackMC[i],
 		nMCSkewAlone,
-		MCSkewAloneList
+		MCSkewAloneList,
+		nSciTilHitsinTrack[i],
+		ESSE,
+		ZETA
                                                      );
       }
    }
@@ -4696,15 +4737,19 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
 //----------start of function PndSttTrackFinderReal::WriteMacroParallelAssociatedHits
 
   void PndSttTrackFinderReal::WriteMacroParallelAssociatedHits(
-                   Double_t Ox,Double_t Oy,Double_t R,
-                   UShort_t Nhits,
-		   UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
-//		   UShort_t infoparal[nmaxHits],
-                   Double_t info[][7], Int_t Nincl, Int_t Minclinations[],
-		   Double_t inclination[][3],
-                   UShort_t imaxima,
-		   Int_t sequencial
-                                                     )
+	Double_t Ox,
+	Double_t Oy,
+	Double_t R,
+	UShort_t Nhits,
+	UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
+	Double_t info[][7], Int_t Nincl, Int_t Minclinations[],
+	Double_t inclination[][3],
+	UShort_t imaxima,
+	Int_t sequencial,
+	UShort_t nscitilhitsintrack,
+	UShort_t *listscitilhitsintrack,
+	Double_t posizSciTil[nmaxSciTilHits][3]
+			)
 {
 
     Int_t i, j, i1, ii, index, Kincl, nlow, nup, STATUS;
@@ -4745,6 +4790,17 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
       xmax=-1.e20;
       ymin=1.e20;
       ymax=-1.e20;
+
+//---- Scitil hits.
+       for( ii=0; ii< nscitilhitsintrack; ii++) {
+            i = listscitilhitsintrack[ii] ;
+            if (posizSciTil[i][0] < xmin)   xmin = posizSciTil[i][0];
+            if (posizSciTil[i][0] > xmax)   xmax = posizSciTil[i][0];
+            if (posizSciTil[i][1] < ymin)   ymin = posizSciTil[i][1];
+            if (posizSciTil[i][1] > ymax)   ymax = posizSciTil[i][1];
+       }
+//-------------
+
        for( ii=0; ii< Nhits; ii++) {
             i = infoparal[  ListHitsinTrack[imaxima][ii]  ] ;
             if (info[i][0]-info[i][3] < xmin)   xmin = info[i][0]-info[i][3];
@@ -4795,6 +4851,22 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
                      i,info[i][0],info[i][1],info[i][3],info[i][3],i,i);
        }
 
+
+//---- disegna gli Scitil.
+
+	for( ii=0; ii< nscitilhitsintrack; ii++) {
+		i = listscitilhitsintrack[ii] ;
+		fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,%d);\n",
+			i,posizSciTil[i][0],posizSciTil[i][1],30);
+		fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",i);
+		fprintf(MACRO,"SciT%d->SetMarkerColor(1);\nSciT%d->Draw();\n"
+				,i,i);
+	}
+//------------------------
+
+
+
+
       fprintf(MACRO,"}\n");
       fclose(MACRO);
 
@@ -4815,25 +4887,21 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
 
 
 
-
-
-
-
-
-
-
-
-
 //----------start of function PndSttTrackFinderReal::WriteMacroParallelAssociatedHitswithMC
 
-  void PndSttTrackFinderReal::WriteMacroParallelAssociatedHitswithMC(
-                   Double_t Ox,Double_t Oy,Double_t R,
-                  Short_t TrackFoundaTrackMC,
-                   UShort_t Nhits,
-		UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
-                   Double_t info[][7],
-                   UShort_t ifoundtrack,
-		Int_t sequentialNTrack,
+ void PndSttTrackFinderReal::WriteMacroParallelAssociatedHitswithMC(
+	Double_t Ox,
+	Double_t Oy,
+	Double_t R,
+	Short_t TrackFoundaTrackMC,
+	UShort_t Nhits,
+	UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
+	Double_t info[][7],
+	UShort_t ifoundtrack,
+	Int_t sequentialNTrack,
+	UShort_t nscitilhitsintrack,
+	UShort_t *listscitilhitsintrack,
+	Double_t posizSciTil[nmaxSciTilHits][3],
 		UShort_t nParalCommon[MAXTRACKSPEREVENT],
 		UShort_t ParalCommonList[MAXTRACKSPEREVENT][nmaxHits],
 		UShort_t nSpuriParinTrack[MAXTRACKSPEREVENT],
@@ -4865,10 +4933,6 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
 
 	imaxima=ifoundtrack;
 
-//    Ox = (D+R)*cos(Fi);
-//    Oy = (D+R)*sin(Fi);
-
-//cout<<"da MacroTrackparalleletc. Ox, Oy "<<Ox<<",  "<<Oy<<endl;
 
 
 //---------- parallel straws Macro now
@@ -4881,6 +4945,17 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
       xmax=-1.e20;
       ymin=1.e20;
       ymax=-1.e20;
+
+//---- Scitil hits.
+       for( ii=0; ii< nscitilhitsintrack; ii++) {
+            i = listscitilhitsintrack[ii] ;
+            if (posizSciTil[i][0] < xmin)   xmin = posizSciTil[i][0];
+            if (posizSciTil[i][0] > xmax)   xmax = posizSciTil[i][0];
+            if (posizSciTil[i][1] < ymin)   ymin = posizSciTil[i][1];
+            if (posizSciTil[i][1] > ymax)   ymax = posizSciTil[i][1];
+       }
+//-------------
+
        for( ii=0; ii< Nhits; ii++) {
             i = infoparal[  ListHitsinTrack[imaxima][ii]  ] ;
             if (info[i][0]-info[i][3] < xmin)   xmin = info[i][0]-info[i][3];
@@ -4952,6 +5027,20 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
 
 
 
+//---- disegna gli Scitil.
+
+	for( ii=0; ii< nscitilhitsintrack; ii++) {
+		i = listscitilhitsintrack[ii] ;
+		fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,%d);\n",
+			i,posizSciTil[i][0],posizSciTil[i][1],30);
+		fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",i);
+		fprintf(MACRO,"SciT%d->SetMarkerColor(1);\nSciT%d->Draw();\n"
+				,i,i);
+	}
+//------------------------
+
+
+
 
 
 
@@ -5004,45 +5093,6 @@ carica0: ;
 //----------end of function PndSttTrackFinderReal::WriteMacroParallelAssociatedHitswithMC
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //----------start of function PndSttTrackFinderReal::WriteMacroSkewAssociatedHits
 
 
@@ -5058,12 +5108,12 @@ carica0: ;
                    Int_t Minclinations[],
                    Double_t inclination[][3],
                    Int_t imaxima,
-		Int_t sequentialNTrack,
-                   UShort_t nSttSkewhitinTrack,
-                   UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack]
-//                   UShort_t nSkewCommon,
-//                   UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxHits]
-
+	Int_t sequentialNTrack,
+	UShort_t nSttSkewhitinTrack,
+	UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
+	UShort_t nSciTilHits,
+	Double_t *ESSE,
+	Double_t *ZETA
                                                      )
 
 
@@ -5106,6 +5156,19 @@ carica0: ;
       Smin=zmin = 1.e10;
       Smax=zmax = -zmin;
       index=0;
+
+	// prima lo (gli) hits SciTil
+ for(i=0;i<nSciTilHits;i++){
+		if( ESSE[i]>Smax ) Smax=ESSE[i];
+		if( ESSE[i]<Smin ) Smin=ESSE[i];
+		if( ZETA[i]>zmax ) zmax=ZETA[i];
+		if( ZETA[i]<zmin ) zmin=ZETA[i];
+ fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,30);\n",i,ZETA[i],ESSE[i]);
+ fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",i);
+ fprintf(MACRO,"SciT%d->SetMarkerColor(1);\n",i);
+	}
+//-------------------------
+
 
        for( iii=0; iii< nSttSkewhitinTrack; iii++) {
          i = infoskew[ ListSkewHitsinTrack[imaxima][iii] ];
@@ -5223,7 +5286,7 @@ fuori: ;
   }   //   end of  for( i=1; i< Nhits; i++)
 
 
-  if(index==0) goto nohits ;
+  if(index+nSciTilHits==0) goto nohits ;
   if( zmax < zmin ) goto nohits ;
   if( Smax < Smin ) goto nohits;
   aaa = Smax-Smin;
@@ -5255,8 +5318,12 @@ fuori: ;
         zmin+0.05*deltaz,Smin+0.05*deltaS,zmin+0.05*deltaz,Smax-0.05*deltaS,Smin+0.05*deltaS,Smax-0.05*deltaS);
    fprintf(MACRO,"Assey->Draw();\n");
 
-
-
+//------------
+//  plot di eventuali hits  SciTil;
+	for(i=0;i<nSciTilHits;i++){
+		fprintf(MACRO,"SciT%d->Draw();\n",i);
+	}
+//------------
 
 // --------------------------------
 
@@ -5348,7 +5415,10 @@ nohits: ;
                    UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxHits],
                    UShort_t daTrackFoundaTrackMC,
 		UShort_t nMCSkewAlone[MAXTRACKSPEREVENT],
-		UShort_t MCSkewAloneList[MAXTRACKSPEREVENT][nmaxHits]
+		UShort_t MCSkewAloneList[MAXTRACKSPEREVENT][nmaxHits],
+	UShort_t nSciTilHits,
+	Double_t *ESSE,
+	Double_t *ZETA
                                                      )
  {
 
@@ -5395,6 +5465,16 @@ nohits: ;
       Smax=zmax = -zmin;
       index=0;
 
+// prima lo (gli) hits SciTil
+ for(i=0;i<nSciTilHits;i++){
+		if( ESSE[i]>Smax ) Smax=ESSE[i];
+		if( ESSE[i]<Smin ) Smin=ESSE[i];
+		if( ZETA[i]>zmax ) zmax=ZETA[i];
+		if( ZETA[i]<zmin ) zmin=ZETA[i];
+ fprintf(MACRO,"TMarker* SciT%d = new TMarker(%f,%f,30);\n",i,ZETA[i],ESSE[i]);
+ fprintf(MACRO,"SciT%d->SetMarkerSize(1.5);\n",i);
+ fprintf(MACRO,"SciT%d->SetMarkerColor(1);\n",i);
+	}
 //----------------------------
        for( iii=0; iii< nSttSkewhitinTrack; iii++) {
          i = infoskew[ ListSkewHitsinTrack[imaxima][iii] ];
@@ -5602,7 +5682,7 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
 //-------------------------------
 //------ fine aggiunta in blu eventuali punti della traccia MC che sono non mecciati
 
-  if(index==0) goto nohits ;
+  if(index+nSciTilHits==0) goto nohits ;
   if( zmax < zmin ) goto nohits ;
   if( Smax < Smin ) goto nohits;
   aaa = Smax-Smin;
@@ -5637,6 +5717,12 @@ cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<e
 
 
 
+//------------
+//  plot di eventuali hits  SciTil;
+	for(i=0;i<nSciTilHits;i++){
+		fprintf(MACRO,"SciT%d->Draw();\n",i);
+	}
+//------------
 
 // --------------------------------
 
@@ -6408,708 +6494,6 @@ if(istampa>=3 && IVOLTE <= nmassimo) {
 
 
 
-
-//----------begin of function PndSttTrackFinderReal::PndSttFitHelixCylinder
-
- Short_t PndSttTrackFinderReal::PndSttFitHelixCylinder(
-	UShort_t nHitsinTrack,
-	Double_t auxinfoparalConformal[][5],
-	UShort_t  nTracksFoundSoFar,
-	Double_t rotationangle,
-	Double_t * trajectory_vertex,
-	UShort_t NMAX,
-	Double_t *emme,
-	Double_t *qu
-				)
-{
-
-    //   definition of variables for the glpsol  solver
-   //    ROWS (for read_rows  function)
-   //
-   UShort_t  NpointsInFit = nHitsinTrack-NMAX <0 ?  nHitsinTrack :  NMAX;
-   int    nRows= NpointsInFit*9 +1;
-   int typeRows[nRows];
-   char * nameRows[nRows];
-   char  auxnameRows[nRows][20];
-//-------  end ROWS information
-//--------begin COLUMNS information
-      int  NStructVar=5+NpointsInFit*4;  //  number of  structural variables
-      int  NStructRows = 8*NpointsInFit ;  //  maximum number of ROWS in which a structural variable can be found
-      double final_values[NStructVar];
-      int  NRowsInWhichStructVarArePresent[NStructVar];
-      char *StructVarName[NStructVar];
-      char auxStructVarName[NStructVar][20];
-//      char *AuxNameRowsInWhichStructVarArePresent[NStructVar][NStructRows];
-      char *NameRowsInWhichStructVarArePresent[NStructVar*NStructRows];
-      char aux[NStructVar*NStructRows][20];
-//      double Coefficients[NStructVar][NStructRows];
-      double Coefficients[NStructVar*NStructRows];
-//--------end COLUMNS information
-//--------begin RHS information
-      double ValueB[9*NpointsInFit];
-//--------end RHS information
-//--------begin RANGES information
-      int nRanges = NpointsInFit;
-      double ValueRanges[nRanges];
-      char *NameRanges[nRanges];
-      char auxNameRanges[nRanges][20];
-//--------end RANGES information
-//--------start BOUNDS information
-      int nBounds=2*NpointsInFit+1;
-      double BoundValue[nBounds];
-      char *BoundStructVarName[nBounds];
-      char auxBoundStructVarName[nBounds][20];
-      char *TypeofBound[nBounds];
-      char auxTypeofBound[nBounds][20];
-//--------end BOUNDS information
-
-
-
-
-     Double_t M = 1.,
-              m_result,
-              q_result,
-              A,
-              alfetta,
-              angle,
-              offsety,
-              Delta[nmaxHits],
-              Ox[nmaxHits],
-              Oy[nmaxHits];
-
-     UShort_t  i, ii;
-     Short_t Status;
-
-     char nome[300], stringa[300], stringa2[300];
-
-//     FILE * MACRO ;
-
-     float m1_result,m2_result, q1_result,q2_result, A1_result, A2_result;
-
-// --
-
-     if( nHitsinTrack < MINIMUMHITSPERTRACK) {
-        return -1;
-     }
-
-//  use the trick of increasing the rotation angle by 10 degrees in order to obtain always a positive m
-      rotationangle -= PI/18.;
-
-      Double_t cose = cos(rotationangle), sine = sin(rotationangle);
-      for(i=0;i<nHitsinTrack; i++){
-//       if( i== iExclude)  continue;
-       Ox[i] = auxinfoparalConformal[ i ][0] *cose +
-               auxinfoparalConformal[ i ][1]*sine;
-       Oy[i] = -auxinfoparalConformal[ i ][0] *sine +
-               auxinfoparalConformal[ i ][1]*cose;
-
-//cout<<"dal fitter, hit in lista sequenziale, n. "<<i<<",  Ox , Oy ruotati "<<Ox[i]<<",  "<<Oy[i]<<"  drift radius  "
-//     <<auxinfoparalConformal[ i ][2]<<"   and  straw radisu  "<<auxinfoparalConformal[ i ][4]<<endl;
-
-
-
-//  now traslate toward positive V values to obtain always positive q values
-//       offsety = 10./RStrawDetectorMin;
-//       Oy[i] += offsety;
-
-
-
-//         Delta[i] = auxinfoparalConformal[ i ][4];
-         
-        if( auxinfoparalConformal[ i ][2] > 1.e-10) {
-          Delta[i] = 3.*auxinfoparalConformal[ i ][2];   //   3 times the Drift Radius
-        } else {
-          Delta[i] = 3.*STRAWRADIUS;
-        }
-cout<<"\tERRORI usati nel fitter : punto n. "<<i<<", suo errore "<<Delta[i]<<endl;
-      }  // end of   for(i=0;i<nHitsinTrack; i++)
-//      sprintf(nome,"GeneralParallelHitsConformeTraccia%dEvent%d.mcs",(nTracksFoundSoFar), IVOLTE);
-//      MACRO = fopen(nome,"w");
-//      fprintf(MACRO,"NAME    FIT\n");
-//-----------------  write the ROWS  section
-
-/*
-      fprintf(MACRO,"ROWS\n");
-      fprintf(MACRO," N OBJECT\n");
-      for(i=0, ii=0 ; i< NpointsInFit ; i++) {
-       ii++;
-           fprintf(MACRO," L Ap%d\n L Bp%d\n L Cp%d\n L Dp%d\n",i,i,i,i);
-           fprintf(MACRO," L Am%d\n L Bm%d\n L Cm%d\n L Dm%d\n G LAMBDA%d\n",i,i,i,i,i);
-      }
-
-*/
-
-//--------
-//      nameRows[0]="OBJECT";
-      sprintf(&(auxnameRows[0][0]),"OBJECT",i);  nameRows[0]=&auxnameRows[0][0];
-      typeRows[0]=GLP_FR;
-      for(i=0 ; i< NpointsInFit ; i++) {
-       ii=9*i;
-
-       typeRows[1+ii]=GLP_UP;typeRows[2+ii]=GLP_UP;typeRows[3+ii]=GLP_UP;typeRows[4+ii]=GLP_UP;
-       typeRows[5+ii]=GLP_UP;typeRows[6+ii]=GLP_UP;typeRows[7+ii]=GLP_UP;typeRows[8+ii]=GLP_UP;
-       typeRows[9+ii]=GLP_LO;
-
-       sprintf(&(auxnameRows[1+ii][0]),"Ap%d",i);  nameRows[1+ii]=&auxnameRows[1+ii][0];
-       sprintf(&(auxnameRows[2+ii][0]),"Bp%d",i);  nameRows[2+ii]=&auxnameRows[2+ii][0];
-       sprintf(&(auxnameRows[3+ii][0]),"Cp%d",i);  nameRows[3+ii]=&auxnameRows[3+ii][0];
-       sprintf(&(auxnameRows[4+ii][0]),"Dp%d",i);  nameRows[4+ii]=&auxnameRows[4+ii][0];
-       sprintf(&(auxnameRows[5+ii][0]),"Am%d",i);  nameRows[5+ii]=&auxnameRows[5+ii][0];
-       sprintf(&(auxnameRows[6+ii][0]),"Bm%d",i);  nameRows[6+ii]=&auxnameRows[6+ii][0];
-       sprintf(&(auxnameRows[7+ii][0]),"Cm%d",i);  nameRows[7+ii]=&auxnameRows[7+ii][0];
-       sprintf(&(auxnameRows[8+ii][0]),"Dm%d",i);  nameRows[8+ii]=&auxnameRows[8+ii][0];
-       sprintf(&(auxnameRows[9+ii][0]),"LAMBDA%d",i);  nameRows[9+ii]=&auxnameRows[9+ii][0];
-      }
-
-
-
-
-//-----------------  write the COLUMNS  section
-
-//      fprintf(MACRO,"COLUMNS\n");
-
-//  Column variable  m1
-
-
-      for(i=0, ii=0 ; i< NpointsInFit ; i++) {
-       ii++;
-//          fprintf(MACRO,"  m1 Ap%d  %g  Am%d  %g\n  m1 Bp%d  %g   Bm%d  %g\n",
-//                                  i,Ox[i],i,Ox[i],i,-Ox[i],i,-Ox[i]);
-        Coefficients[i*4]=    Ox[i];
-        Coefficients[i*4+1]=  Ox[i];
-        Coefficients[i*4+2]= -Ox[i];
-        Coefficients[i*4+3]= -Ox[i];
-      }
-
-
-
-//  Column variable  m2
-      for(i=0; i< NpointsInFit ; i++) {
-//          fprintf(MACRO,"  m2 Ap%d  %g  Am%d  %g\n  m2 Bp%d  %g   Bm%d  %g\n",
-//                                  i,-Ox[i],i,-Ox[i],i,Ox[i],i,Ox[i]);
-        Coefficients[NStructRows+i*4]=   -Ox[i];
-        Coefficients[NStructRows+i*4+1]= -Ox[i];
-        Coefficients[NStructRows+i*4+2]= Ox[i];
-        Coefficients[NStructRows+i*4+3]= Ox[i];
-
-      }
-
-//  Column variable  q1
-      for(i=0 ; i< NpointsInFit ; i++) {
-//          fprintf(MACRO,"  q1 Ap%d   1.  Am%d   1.\n  q1 Bp%d  -1.  Bm%d  -1.\n",
-//                                  i,i,i,i);
-        Coefficients[2*NStructRows+i*4]=    1.;
-        Coefficients[2*NStructRows+i*4+1]=  1.;
-        Coefficients[2*NStructRows+i*4+2]= -1.;
-        Coefficients[2*NStructRows+i*4+3]= -1.;
-      }
-
-//  Column variable  q2
-      for(i=0 ; i< NpointsInFit ; i++) {
-//          fprintf(MACRO,"  q2 Ap%d   -1.  Am%d   -1.\n  q2 Bp%d   1.   Bm%d   1.\n",
-//                                  i,i,i,i);
-        Coefficients[3*NStructRows+i*4]=   -1.;
-        Coefficients[3*NStructRows+i*4+1]= -1.;
-        Coefficients[3*NStructRows+i*4+2]=  1.;
-        Coefficients[3*NStructRows+i*4+3]=  1.;
-      }
-
-//  Column variable  lambdap(i)
-      for(i=0 ; i< NpointsInFit ; i++) {
-//          fprintf(MACRO,"  lamp%d  Ap%d  %g  Bp%d  %g\n  lamp%d  Cp%d  %g  Dp%d   %g\n  lamp%d  LAMBDA%d  1.\n",
-//                                                i,i,-M,i,-M, i , i,-M, i, M, i,i);
-        Coefficients[(4+i)*NStructRows+0]= -M;
-        Coefficients[(4+i)*NStructRows+1]= -M;
-        Coefficients[(4+i)*NStructRows+2]= -M;
-        Coefficients[(4+i)*NStructRows+3]=  M;
-        Coefficients[(4+i)*NStructRows+4]=  1.;
-      }
-//  Column variable  lambdam(i)
-      for(i=0 ; i< NpointsInFit ; i++) {
-//          fprintf(MACRO,"  lamm%d  Am%d  %g  Bm%d  %g\n  lamm%d  Cm%d  %g  Dm%d %g\n  lamm%d  LAMBDA%d  1.\n",
-//                                                i,i,-M,i,-M, i,i , -M, i, M, i,i);
-        Coefficients[(4+i+NpointsInFit)*NStructRows+0]= -M;
-        Coefficients[(4+i+NpointsInFit)*NStructRows+1]= -M;
-        Coefficients[(4+i+NpointsInFit)*NStructRows+2]= -M;
-        Coefficients[(4+i+NpointsInFit)*NStructRows+3]=  M;
-        Coefficients[(4+i+NpointsInFit)*NStructRows+4]=  1.;
-      }
-//  Column variable  sigmap(i)
-      for(i=0; i< NpointsInFit ; i++) {
-
-//          fprintf(MACRO,"  sigmap%d  OBJECT  %g  Ap%d  -1.\n  sigmap%d  Bp%d    -1. Cp%d  1.\n  sigmap%d  Dp%d -1.\n",
-//                                                i,1./Delta[i],i,i,i,i,i,i);
-        Coefficients[(4+i+2*NpointsInFit)*NStructRows+0]=  1./Delta[i];
-        Coefficients[(4+i+2*NpointsInFit)*NStructRows+1]= -1.;
-        Coefficients[(4+i+2*NpointsInFit)*NStructRows+2]= -1.;
-        Coefficients[(4+i+2*NpointsInFit)*NStructRows+3]=  1.;
-        Coefficients[(4+i+2*NpointsInFit)*NStructRows+4]= -1.;
-      }
-//  Column variable  sigmam(i)
-      for(i=0 ; i< NpointsInFit ; i++) {
-//          fprintf(MACRO,"  sigmam%d  OBJECT %g  Am%d  -1.\n  sigmam%d  Bm%d   -1. Cm%d   1.\n  sigmam%d  Dm%d  -1.\n",
-//                                                i,1./Delta[i],i,i,i,i,i,i);
-        Coefficients[(4+i+3*NpointsInFit)*NStructRows+0]=  1./Delta[i];
-        Coefficients[(4+i+3*NpointsInFit)*NStructRows+1]= -1.;
-        Coefficients[(4+i+3*NpointsInFit)*NStructRows+2]= -1.;
-        Coefficients[(4+i+3*NpointsInFit)*NStructRows+3]=  1.;
-        Coefficients[(4+i+3*NpointsInFit)*NStructRows+4]= -1.;
-      }
-
-//  Column variable  DUMMY
-/*
-      for(i=0, ii=0 ; i< NpointsInFit ; i++) {
-        fprintf(MACRO,"  DUMMY     Ap%d  1.      Am%d       1.\n  DUMMY   Bp%d   1.    Bm%d   1.\n  DUMMY    Cp%d   1.   Cm%d   1\n",
-                                                i,i,i,i,i,i);
-        fprintf(MACRO,"  DUMMY     Dp%d  1.      Dm%d       1.\n",
-                                                i,i);
-      }
-*/
-
-      for(i=0 ; i< NStructRows ; i++) {
-        Coefficients[(4+4*NpointsInFit)*NStructRows+i]= 1.;
-      }
-//--------------------
-      sprintf(&auxStructVarName[0][0],"m1",i);
-      StructVarName[0] = &auxStructVarName[0][0];
-//      StructVarName[0]="m1";
-      NRowsInWhichStructVarArePresent[0]= 4*NpointsInFit;
-
-      sprintf(&auxStructVarName[1][0],"m2",i);
-      StructVarName[1] = &auxStructVarName[1][0];
-//      StructVarName[1]="m2";
-      NRowsInWhichStructVarArePresent[1]= 4*NpointsInFit;
-
-      sprintf(&auxStructVarName[2][0],"q1",i);
-      StructVarName[2] = &auxStructVarName[2][0];
-//      StructVarName[2]="q1";
-      NRowsInWhichStructVarArePresent[2]= 4*NpointsInFit;
-
-      sprintf(&auxStructVarName[3][0],"q2",i);
-      StructVarName[3] = &auxStructVarName[3][0];
-//      StructVarName[3]="q2";
-      NRowsInWhichStructVarArePresent[3]= 4*NpointsInFit;
-      for(i=0; i< NpointsInFit ; i++) {
-          sprintf(&auxStructVarName[3+i+1][0],"lamp%d",i);
-          StructVarName[4+i] = &auxStructVarName[4+i][0];
-          NRowsInWhichStructVarArePresent[4+i]= 5;
-
-          sprintf(&auxStructVarName[4+NpointsInFit+i][0],"lamm%d",i);
-          StructVarName[4+NpointsInFit+i] = &auxStructVarName[4+NpointsInFit+i][0];
-          NRowsInWhichStructVarArePresent[4+NpointsInFit+i]= 5;
-
-          sprintf(&auxStructVarName[4+2*NpointsInFit+i][0],"sigmap%d",i);
-          StructVarName[4+2*NpointsInFit+i] = &auxStructVarName[4+2*NpointsInFit+i][0];
-          NRowsInWhichStructVarArePresent[4+2*NpointsInFit+i]= 5;
-
-          sprintf(&auxStructVarName[4+3*NpointsInFit+i][0],"sigmam%d",i);
-          StructVarName[4+3*NpointsInFit+i] = &auxStructVarName[4+3*NpointsInFit+i][0];
-          NRowsInWhichStructVarArePresent[4+3*NpointsInFit+i]= 5;
-
-      }
-
-
-      sprintf(&auxStructVarName[4+4*NpointsInFit][0],"DUMMY",i);
-      StructVarName[4+4*NpointsInFit] = &auxStructVarName[4+4*NpointsInFit][0];
-//      StructVarName[4+4*NpointsInFit]="DUMMY";
-      NRowsInWhichStructVarArePresent[4+4*NpointsInFit]= NStructRows;
-
-
-//  for m1, m2, q1, q2
-      for(i=0; i< 4; i++){
-        for(ii=0; ii< NpointsInFit;ii++){
-         sprintf(&aux[i*NStructRows+ii*4][0],"Ap%d",ii);
-         NameRowsInWhichStructVarArePresent[i*NStructRows+ii*4]=&aux[i*NStructRows+ii*4][0];
-         sprintf(&aux[i*NStructRows+ii*4+1][0],"Am%d",ii);
-         NameRowsInWhichStructVarArePresent[i*NStructRows+ii*4+1]=&aux[i*NStructRows+ii*4+1][0];
-         sprintf(&aux[i*NStructRows+ii*4+2][0],"Bp%d",ii);
-         NameRowsInWhichStructVarArePresent[i*NStructRows+ii*4+2]=&aux[i*NStructRows+ii*4+2][0];
-         sprintf(&aux[i*NStructRows+ii*4+3][0],"Bm%d",ii);
-         NameRowsInWhichStructVarArePresent[i*NStructRows+ii*4+3]=&aux[i*NStructRows+ii*4+3][0];
-        }
-      }
-
-//  now for the    lamp*   variables
-      for(i=0; i< NpointsInFit;i++){
-         sprintf(&aux[(i+4)*NStructRows+0][0],"Ap%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4)*NStructRows+0]= &aux[(i+4)*NStructRows+0][0];
-         sprintf(&aux[(i+4)*NStructRows+1][0],"Bp%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4)*NStructRows+1]= &aux[(i+4)*NStructRows+1][0];
-         sprintf(&aux[(i+4)*NStructRows+2][0],"Cp%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4)*NStructRows+2]= &aux[(i+4)*NStructRows+2][0];
-         sprintf(&aux[(i+4)*NStructRows+3][0],"Dp%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4)*NStructRows+3]= &aux[(i+4)*NStructRows+3][0];
-         sprintf(&aux[(i+4)*NStructRows+4][0],"LAMBDA%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4)*NStructRows+4]= &aux[(i+4)*NStructRows+4][0];
-      }
-
-//  now for the    lamm*   variables
-      for(i=0; i< NpointsInFit;i++){
-         sprintf(&aux[(i+4+NpointsInFit)*NStructRows+0][0],"Am%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit)*NStructRows+0]= &aux[(i+4+NpointsInFit)*NStructRows+0][0];
-         sprintf(&aux[(i+4+NpointsInFit)*NStructRows+1][0],"Bm%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit)*NStructRows+1]= &aux[(i+4+NpointsInFit)*NStructRows+1][0];
-         sprintf(&aux[(i+4+NpointsInFit)*NStructRows+2][0],"Cm%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit)*NStructRows+2]= &aux[(i+4+NpointsInFit)*NStructRows+2][0];
-         sprintf(&aux[(i+4+NpointsInFit)*NStructRows+3][0],"Dm%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit)*NStructRows+3]= &aux[(i+4+NpointsInFit)*NStructRows+3][0];
-         sprintf(&aux[(i+4+NpointsInFit)*NStructRows+4][0],"LAMBDA%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit)*NStructRows+4]= &aux[(i+4+NpointsInFit)*NStructRows+4][0];
-      }
-
-//  now for the    sigmap*   variables
-      for(i=0; i< NpointsInFit;i++){
-         sprintf(&aux[(i+4+2*NpointsInFit)*NStructRows+0][0],"OBJECT",i);
-         NameRowsInWhichStructVarArePresent[(i+4+2*NpointsInFit)*NStructRows+0]= &aux[(i+4+2*NpointsInFit)*NStructRows+0][0];
-         sprintf(&aux[(i+4+2*NpointsInFit)*NStructRows+1][0],"Ap%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+2*NpointsInFit)*NStructRows+1]= &aux[(i+4+2*NpointsInFit)*NStructRows+1][0];
-         sprintf(&aux[(i+4+2*NpointsInFit)*NStructRows+2][0],"Bp%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+2*NpointsInFit)*NStructRows+2]= &aux[(i+4+2*NpointsInFit)*NStructRows+2][0];
-         sprintf(&aux[(i+4+2*NpointsInFit)*NStructRows+3][0],"Cp%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+2*NpointsInFit)*NStructRows+3]= &aux[(i+4+2*NpointsInFit)*NStructRows+3][0];
-         sprintf(&aux[(i+4+2*NpointsInFit)*NStructRows+4][0],"Dp%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+2*NpointsInFit)*NStructRows+4]= &aux[(i+4+2*NpointsInFit)*NStructRows+4][0];
-      }
-
-//  now for the    sigmam*   variables
-      for(i=0; i< NpointsInFit;i++){
-         sprintf(&aux[(i+4+3*NpointsInFit)*NStructRows+0][0],"OBJECT",i);
-         NameRowsInWhichStructVarArePresent[(i+4+3*NpointsInFit)*NStructRows+0]= &aux[(i+4+3*NpointsInFit)*NStructRows+0][0];
-         sprintf(&aux[(i+4+3*NpointsInFit)*NStructRows+1][0],"Am%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+3*NpointsInFit)*NStructRows+1]= &aux[(i+4+3*NpointsInFit)*NStructRows+1][0];
-         sprintf(&aux[(i+4+3*NpointsInFit)*NStructRows+2][0],"Bm%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+3*NpointsInFit)*NStructRows+2]= &aux[(i+4+3*NpointsInFit)*NStructRows+2][0];
-         sprintf(&aux[(i+4+3*NpointsInFit)*NStructRows+3][0],"Cm%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+3*NpointsInFit)*NStructRows+3]= &aux[(i+4+3*NpointsInFit)*NStructRows+3][0];
-         sprintf(&aux[(i+4+3*NpointsInFit)*NStructRows+4][0],"Dm%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+3*NpointsInFit)*NStructRows+4]= &aux[(i+4+3*NpointsInFit)*NStructRows+4][0];
-      }
-
-//  now for the    DUMMY   variable
-      for(i=0; i< NpointsInFit;i++){
-         sprintf(&aux[(4+4*NpointsInFit)*NStructRows  +8*i][0],"Ap%d",i);
-         NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+i*8  ]= &aux[(4+4*NpointsInFit)*NStructRows  +8*i][0];
-
-         sprintf(&aux[(4+4*NpointsInFit)*NStructRows+1+8*i][0],"Am%d",i);
-         NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+1+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+1+8*i][0];
-         sprintf(&aux[(4+4*NpointsInFit)*NStructRows+2+8*i][0],"Bp%d",i);
-         NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+2+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+2+8*i][0];
-         sprintf(&aux[(4+4*NpointsInFit)*NStructRows+3+8*i][0],"Bm%d",i);
-         NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+3+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+3+8*i][0];
-         sprintf(&aux[(4+4*NpointsInFit)*NStructRows+4+8*i][0],"Cp%d",i);
-         NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+4+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+4+8*i][0];
-         sprintf(&aux[(4+4*NpointsInFit)*NStructRows+5+8*i][0],"Cm%d",i);
-         NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+5+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+5+8*i][0];
-         sprintf(&aux[(4+4*NpointsInFit)*NStructRows+6+8*i][0],"Dp%d",i);
-         NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+6+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+6+8*i][0];
-         sprintf(&aux[(4+4*NpointsInFit)*NStructRows+7+8*i][0],"Dm%d",i);
-         NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+7+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+7+8*i][0];
-      }
-
-
-
-//-----------------  write the RHS  section
-
-//      fprintf(MACRO,"RHS\n");
-      for(i=0 ; i< NpointsInFit ; i++) {
-//          fprintf(MACRO,"  BOUND  Ap%d  %g  Bp%d  %g\n  BOUND  Cp%d  %g  Dp%d  %g\n",
-//              i, Oy[i]+auxinfoparalConformal[ i ][2]+2.*M,i,
-//                -Oy[i]-auxinfoparalConformal[ i ][2]+2.*M,i,
-//                 Delta[i]+2.*M,i,M-Delta[i]+2.*M);
-          ValueB[i*9]  =  Oy[i]+auxinfoparalConformal[ i ][2]+2.*M;
-          ValueB[i*9+1]= -Oy[i]-auxinfoparalConformal[ i ][2]+2.*M;
-          ValueB[i*9+2]= Delta[i]+2.*M;
-          ValueB[i*9+3]= M-Delta[i]+2.*M;
-
-
-/*
-          fprintf(MACRO,"  BOUND  Am%d  %g  Bm%d  %g\n  BOUND  Cm%d  %g  Dm%d %g\n",
-              i, Oy[i]-auxinfoparalConformal[ i ][2]+2.*M,i,
-                -Oy[i]+auxinfoparalConformal[ i ][2]+2.*M,i,
-                 Delta[i]+2.*M,i,M-Delta[i]+2.*M);
-          fprintf(MACRO,"  BOUND  LAMBDA%d   1.\n",i);
-*/
-
-          ValueB[i*9+4]=  Oy[i]-auxinfoparalConformal[ i ][2]+2.*M;
-          ValueB[i*9+5]= -Oy[i]+auxinfoparalConformal[ i ][2]+2.*M;
-          ValueB[i*9+6]= Delta[i]+2.*M;
-          ValueB[i*9+7]= M-Delta[i]+2.*M;
-          ValueB[i*9+8]= 1.;
-
-
-      }
-
-
-//-----------------  write the RANGES  section
-
-//      fprintf(MACRO,"RANGES\n");
-      for(i=0 ; i< NpointsInFit ; i++) {
-//          fprintf(MACRO,"  RANGE  LAMBDA%d  1.\n",i);
-//---
-        ValueRanges[i]=1.;
-        sprintf(&auxNameRanges[i][0],"LAMBDA%d",i);
-        NameRanges[i]=&auxNameRanges[i][0];
-      }
-
-//-----------------  write the BOUNDS  section
-
-//      fprintf(MACRO,"BOUNDS\n");
-
-      for(i=0 ; i< NpointsInFit ; i++) {
-//          fprintf(MACRO," BV  Bounds  lamp%d\n",  i);
-
-          sprintf(&auxTypeofBound[i][0],"BV");   TypeofBound[i]= &auxTypeofBound[i][0];
-//          TypeofBound[i]="BV";
-          sprintf(&auxBoundStructVarName[i][0],"lamp%d",i);
-          BoundStructVarName[i]=&auxBoundStructVarName[i][0];
-          BoundValue[i]=0.;
-      }
-
-      for(i=0 ; i< NpointsInFit ; i++) {
-//          fprintf(MACRO," BV  Bounds  lamm%d\n", i);
-          sprintf(&auxTypeofBound[i+NpointsInFit][0],"BV");
-          TypeofBound[i+NpointsInFit]= &auxTypeofBound[i+NpointsInFit][0];
-//          TypeofBound[i+NpointsInFit]="BV";
-          sprintf(&auxBoundStructVarName[i+NpointsInFit][0],"lamm%d",i);
-          BoundStructVarName[i+NpointsInFit]=&auxBoundStructVarName[i+NpointsInFit][0];
-          BoundValue[i+NpointsInFit]=0.;
-      }
-
-//          fprintf(MACRO," FX  Bounds  DUMMY  %g\n",2.*M);
-          sprintf(&auxTypeofBound[2*NpointsInFit][0],"FX");
-          TypeofBound[2*NpointsInFit]= &auxTypeofBound[2*NpointsInFit][0];
-//          TypeofBound[2*NpointsInFit]="FX";
-
-          sprintf(&auxTypeofBound[2*NpointsInFit][0],"FX");
-          TypeofBound[2*NpointsInFit]= &auxTypeofBound[2*NpointsInFit][0];
-
-          sprintf(&auxBoundStructVarName[2*NpointsInFit][0],"DUMMY");
-          BoundStructVarName[2*NpointsInFit]=&auxBoundStructVarName[2*NpointsInFit][0];
-//          BoundStructVarName[2*NpointsInFit]="DUMMY";
-          BoundValue[2*NpointsInFit]=2.;
-//-----
-
-//      fprintf(MACRO,"ENDATA\n");
-//      fclose(MACRO);
-
-//-----------------------  funzioni chiamate direttamente
-/*
-cout<<"n.  punti nel fit "<<NpointsInFit<<endl;
-
-
-cout<<"nRows "<<nRows<<endl;
-for(int ic =0;ic<nRows; ic++){
-   cout<<"n.  Row  "<<ic<<", nameRows "<<nameRows[ic]<<",  typeRows "<<typeRows[ic]<<endl;
-}
-
-
-cout<<"NstructRows, NStructVar "<<NStructRows<<", "<<NStructVar<<endl;
-for(int ic =0;ic<NStructVar; ic++){
-   cout<<"NRowsInWhichStructVarArePresent  "<<NRowsInWhichStructVarArePresent[ic]<<", nome var. strut. n."<<ic<<"  = "
-     <<StructVarName[ic]<<endl;
-
-  for(int jc=0; jc<NRowsInWhichStructVarArePresent[ic];jc++){
-   cout<<"n. "<<jc<<"  NameRowsInWhichStructVarArePresent  "<<NameRowsInWhichStructVarArePresent[ic*NStructRows+jc]<<endl;
-  }
-}
-
-
-cout<<"n Coefficient "<<NStructVar*NStructRows<<endl;
-for(int ic =0;ic<NStructVar*NStructRows; ic++){
-   cout<<"n. "<<ic<<",  Coefficient   "<<Coefficients[ic]<<endl;
-}
-cout<<"n valuesB "<<NpointsInFit*9<<endl;
-for(int ic =0;ic<NpointsInFit*9; ic++){
-   cout<<"n. "<<ic<<",  valuesB   "<<ValueB[ic]<<endl;
-}
-cout<<"n ranges "<<nRanges<<endl;
-for(int ic =0;ic<nRanges; ic++){
-   cout<<"n. "<<ic<<",  RANGES   "<<ValueRanges[ic]<<endl;
-}
-cout<<"n Bounds "<<nBounds<<endl;
-for(int ic =0;ic<nBounds; ic++){
-   cout<<"n. "<<ic<<",  Bounds   "<<BoundValue[ic]<<endl;
-   cout<<"n. "<<ic<<",  Bound Type   "<<TypeofBound[ic]<<endl;
-   cout<<"n. "<<ic<<",  Bound Name   "<<BoundStructVarName[ic]<<endl;
-}
-
-*/
-
-      int status= glp_main(
-            nRows,nameRows,typeRows, //  ROWS info
-            NStructVar, NStructRows, NRowsInWhichStructVarArePresent,  //  COLUMNS info
-      StructVarName, NameRowsInWhichStructVarArePresent,  //  COLUMNS info
-      Coefficients,  //  COLUMNS info
-      ValueB,  // RHS  info
-      nRanges, ValueRanges, NameRanges, //  RANGES  info
-      nBounds, BoundValue, BoundStructVarName, TypeofBound //  BOUNDS info
-//         ,final_values, TIMEOUT  //  timeout is in seconds.
-      ,final_values
-       );
-     if (status != 0) return -100;	// fit failed
-
-/*
-printf("from main, final printout con routines chiamate direttamente -------------------------------\n");
-printf("      number of structural variables %d\n",NStructVar);
-int ica;
-for(ica=0;ica<NStructVar;ica++){
-    printf("name of structural variable %s and its final value %g\n",
-           StructVarName[ica], final_values[ica]);
-}
-printf("from main, end of final printout  con routines chiamate direttamente -------------------------------\n");
-*/
-//-----------------------  fine funzioni chiamate direttamente
-
-
-
-   INTERO=1;
-   if(istampa>=3 && IVOLTE <= nmassimo){
-     sprintf(stringa,
-              "/home/boca/panda/glpk/glpk-4.39/examples/glpsol --min -o soluztrack%dEvent%dstep%d    GeneralParallelHitsConformeTraccia%dEvent%d.mcs",
-                                nTracksFoundSoFar,IVOLTE,INTERO,nTracksFoundSoFar,IVOLTE);
-   }  else {
-     sprintf(stringa,
-              "/home/boca/panda/glpk/glpk-4.39/examples/glpsol --min -o soluztrack%dEvent%dstep%d    GeneralParallelHitsConformeTraccia%dEvent%d.mcs >& /dev/null",
-                                nTracksFoundSoFar, IVOLTE,INTERO,nTracksFoundSoFar,IVOLTE,INTERO);
-   }
-
-/*
-     system(stringa);
-     sprintf(stringa2,"grep -e ' m1  '  -e ' m2  '  -e  ' q1  ' -e ' q2   '  soluztrack%dEvent%dstep%d |  awk '{print $3}' > temp",
-                             nTracksFoundSoFar,IVOLTE,INTERO);
-     system(stringa2);
-
-
-     FILE * RESULT = fopen("temp","r");
-     fscanf(RESULT,"%f",&m1_result);
-     fscanf(RESULT,"%f",&m2_result);
-     fscanf(RESULT,"%f",&q1_result);
-     fscanf(RESULT,"%f",&q2_result);
-     fclose(RESULT);
-*/
-
-     m1_result = final_values[0];
-     m2_result = final_values[1];
-     q1_result = final_values[2];
-     q2_result = final_values[3];
-
-/*
-     q_result = q1_result - q2_result;
-     m_result = m1_result ;
-     A = A1_result - A2_result;
-     if( fabs( cose -sine*m_result) > 1.e-12) { 
-       *emme = ( m_result*cose  + sine ) / (cose -sine*m_result);
-       *qu = q_result/(cose -sine*m_result);
-       Status=1;
-     } else {
-       *emme = m_result*cose  + sine ;
-       *qu = q_result;
-       Status=99;
-     }
-*/
-
-
-
-//------------------------  transformation of the result in terms of ALFA, BETA, GAMMA
-
-
-     *qu = q1_result - q2_result;
-//     *qu = q1_result;
-//     *emme = m1_result ;
-     *emme = m1_result-m2_result ;
-if(istampa>=3 && IVOLTE <= nmassimo) {
-
-  cout<<"Stampa dal fitter, risultato :   qu, emme non ri-ruotati  "<<*qu<<",  "<<*emme<<endl<<
-        "\t\tqu, emme  ri-ruotati  "<<*qu/(cose-*emme*sine)<<",  "<<(*emme*cose+sine)/(cose-*emme*sine)<<endl;
-}
-
-    GAMMA[nTracksFoundSoFar] = 0.;
-    if( fabs( *qu ) > 1.e-10) {    //  trajectory is a circle in XY space
-     ALFA[nTracksFoundSoFar] = *emme/(*qu);
-     BETA[nTracksFoundSoFar] = -1./(*qu);
-     TypeConf[nTracksFoundSoFar]=true;
-//  now take into account the rotation and correct; the only affected quantities are ALFA and BETA
-      alfetta = ALFA[nTracksFoundSoFar];
-      ALFA[nTracksFoundSoFar] = ALFA[nTracksFoundSoFar]*cose - BETA[nTracksFoundSoFar]*sine;
-      BETA[nTracksFoundSoFar] = alfetta*sine + BETA[nTracksFoundSoFar]*cose;
-    }  else if(fabs(*emme)> 1.e-10)  {    //  trajectory is a straight line in XY space of equation y= m*x
-       //  the rotation first
-       angle = atan(*emme) + rotationangle;
-       if( fabs(cos(angle)) > 1.e-10 ) {
-         ALFA[nTracksFoundSoFar] = 999999.;
-         BETA[nTracksFoundSoFar] = -ALFA[nTracksFoundSoFar]/tan(angle);
-
-       } else {  //  in this case the equation is y = 0.
-         ALFA[nTracksFoundSoFar] = 999999.;
-         BETA[nTracksFoundSoFar] = 0.;
-         TypeConf[nTracksFoundSoFar]=false;
-       }
-    }  else {   //  in this case also the equation in XY plane is  y = 0.
-         ALFA[nTracksFoundSoFar] = 999999.;
-         BETA[nTracksFoundSoFar] = 0.;
-         TypeConf[nTracksFoundSoFar]=false;
-    }
-
-
-// now take into account the displacement and correct
-      GAMMA[nTracksFoundSoFar] += (trajectory_vertex[0]*trajectory_vertex[0]+ trajectory_vertex[1]*trajectory_vertex[1]
-		-ALFA[nTracksFoundSoFar]*trajectory_vertex[0]-BETA[nTracksFoundSoFar]*trajectory_vertex[1]);
-      ALFA[nTracksFoundSoFar] -=  2.*trajectory_vertex[0];
-      BETA[nTracksFoundSoFar] -=  2.*trajectory_vertex[1];
-
-
-//------------------------ end of transformation of the result in terms of ALFA, BETA, GAMMA
-
-
-
-
-
-
-
-
-
-
-//--------   end of taking into account the traslation that was performed and undoing that
-
-
-// taking into account the rotation that was performed and calculate emme and qu in the normal conformal plane
-
-      if(fabs(cose-*emme*sine)> 1.e-10) {
-        *qu=*qu/(cose-*emme*sine);
-        *emme=(*emme*cose+sine)/(cose-*emme*sine);
-        return 1;
-      } else {    //  in this case the equation is   0 = x+*qu .
-        if(fabs(sine+*emme*cose) < 1.e-10)  {
-  cout<<" From PndSttFitHelixCylinder, situation impossible in principle! Returning -1"
-                    <<endl;
-           return -1;
-        }
-
-        *emme=1.;
-        *qu = *qu/(sine+*emme*cose);
-        return 99;    //  in this case the equation is   0 = x+*qu .
-      }
-
-
-
-
-}
-
-
-
-
-//----------end of function PndSttTrackFinderReal::PndSttFitHelixCylinder
-
-
-
-
-
-
-
-
-
-
-
 //----------begin of function PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixQuater
 
   UShort_t PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixQuater(
@@ -7706,48 +7090,26 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //----------begin of function PndSttTrackFinderReal::AssociateSkewHitsToXYTrack
 
-  UShort_t PndSttTrackFinderReal::AssociateSkewHitsToXYTrack(
-                   bool *InclusionListSkew,
-                   Double_t Ox,
-                   Double_t Oy,
-                   Double_t R,
-                   Double_t info[][7],
-                   Double_t inclination[][3],
-                   Double_t Fi_low_limit,
-                   Double_t Fi_up_limit,
-//                   Double_t Fi_allowedforskew_low,
-//                   Double_t Fi_allowedforskew_up,
-                   Short_t  Charge,
-                   Double_t Fi_initial_helix_referenceframe,
-                   Double_t Fi_final_helix_referenceframe,
-                   UShort_t SkewList[nmaxHits][2], // output,  list of selected skew hits (in skew numbering)
-                   Double_t *S,       //  output,  S coordinate of selected Skew hit
-                   Double_t *Z,       //  output,  Z coordinate of selected Skew hit
-                   Double_t *ZDrift,   //  output,  drift distance IN Z DIRECTION only, of selected Skew hit
-                   Double_t *ZErrorafterTilt   //  output,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
-                                                     )
+ UShort_t PndSttTrackFinderReal::AssociateSkewHitsToXYTrack(
+	bool *InclusionListSkew,
+	Double_t Ox,
+	Double_t Oy,
+	Double_t R,
+	Double_t info[][7],
+	Double_t inclination[][3],
+	Double_t Fi_low_limit,
+	Double_t Fi_up_limit,
+	Short_t  Charge,
+	Double_t Fi_initial_helix_referenceframe,
+	Double_t Fi_final_helix_referenceframe,
+	UShort_t SkewList[nmaxHits][2], // output,  list of selected skew hits (in skew numbering)
+	Double_t *S,       //  output,  S coordinate of selected Skew hit
+	Double_t *Z,       //  output,  Z coordinate of selected Skew hit
+	Double_t *ZDrift,   //  output,  drift distance IN Z DIRECTION only, of selected Skew hit
+	Double_t *ZErrorafterTilt   //  output,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
+		)
  {
 
 
@@ -9004,500 +8366,921 @@ if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "
 
 
 
-//----------begin of function PndSttTrackFinderReal::PndSttFitSZspace
+//----------begin of function PndSttTrackFinderReal::FitSZspace
 
-
-     Short_t PndSttTrackFinderReal::PndSttFitSZspace(
-                                                     UShort_t nHitsinTrack,
-                                                     Double_t *S,
-                                                     Double_t *Z,
-                                                     Double_t *DriftRadius,
-                                                     Double_t rotationangle,
-                                                     UShort_t NMAX,
-                                                     Double_t *emme,
-                                                     Double_t *qu
-                                                            )
+     Short_t PndSttTrackFinderReal::FitSZspace(
+			UShort_t nSkewHitsinTrack,
+			Double_t *S,
+			Double_t *Z, //
+			Double_t *DriftRadius,
+			Double_t *ErrorDriftRadius, //
+			Double_t FInot,
+			UShort_t NMAX,
+			Double_t *emme
+						)
 {
 
 
+ //   definition of variables for the glpsol  solver
+ //    ROWS (for read_rows  function)
+ //
+ UShort_t  NpointsInFit = nSkewHitsinTrack-NMAX <0 ?  nSkewHitsinTrack :  NMAX;
+
+
+ bool mvdhit[NpointsInFit];
 
 
 
 
+ Double_t	ave,
+		avex,
+		avey,
+		cose,
+		sine,
+		M = 50.,
+		m_result,
+		q_result,
+		A,
+		alfetta,
+		angle,
+		offsety,
+		rotationangle,
+		Ox[NpointsInFit],
+		Oy[NpointsInFit],
+		Delta[NpointsInFit];
 
-    //   definition of variables for the glpsol  solver
-   //    ROWS (for read_rows  function)
-   //
-   UShort_t  NpointsInFit = nHitsinTrack-NMAX <0 ?  nHitsinTrack :  NMAX;
-   int    nRows= NpointsInFit*9 +1;
-   int typeRows[nRows];
-   char * nameRows[nRows];
-   char  auxnameRows[nRows][20];
-//-------  end ROWS information
-//--------begin COLUMNS information
-      int  NStructVar=5+NpointsInFit*4;  //  number of  structural variables
-      int  NStructRows = 8*NpointsInFit ;  //  maximum number of ROWS in which a structural variable can be found
-      double final_values[NStructVar];
-      int  NRowsInWhichStructVarArePresent[NStructVar];
-      char *StructVarName[NStructVar];
-      char auxStructVarName[NStructVar][20];
-      char *NameRowsInWhichStructVarArePresent[NStructVar*NStructRows];
-      char aux[NStructVar*NStructRows][20];
-//      double Coefficients[NStructVar][NStructRows];
-      double Coefficients[NStructVar*NStructRows];
-//--------end COLUMNS information
-//--------begin RHS information
-      double ValueB[9*NpointsInFit];
-//--------end RHS information
-//--------begin RANGES information
-      int nRanges = NpointsInFit;
-      double ValueRanges[nRanges];
-      char *NameRanges[nRanges];
-      char auxNameRanges[nRanges][20];
-//--------end RANGES information
-//--------start BOUNDS information
-      int nBounds=2*NpointsInFit+1;
-      double BoundValue[nBounds];
-      char *BoundStructVarName[nBounds];
-      char auxBoundStructVarName[nBounds][20];
-      char *TypeofBound[nBounds];
-      char auxTypeofBound[nBounds][20];
-//--------end BOUNDS information
+ UShort_t  i, j, ii, iii, n, nSttHits, nMvdHits;
+ Short_t Status;
 
-
-//----------------------------------------------------
-
-
-
-
-
-
-
-     Double_t M = 50.,
-              m_result,
-              q_result,
-              A,
-              alfetta,
-              angle,
-              offsety,
-              Ox[nmaxHits],
-              Oy[nmaxHits],
-              Delta[nmaxHits];
-
-     UShort_t  i, ii;
-     Short_t Status;
-
-     char nome[300], stringa[300], stringa2[300];
-
-//     FILE * MACRO ;
-
-     float m1_result,m2_result, q1_result,q2_result, A1_result, A2_result;
+ char nome[300], stringa[300], stringa2[300];
+ float m1_result,m2_result, q1_result,q2_result, A1_result, A2_result;
 
 // --
 
-     if( nHitsinTrack < MINIMUMHITSPERTRACK) {
-        return -1;
-     }
+	if(nSkewHitsinTrack==0) {
+	cout<<"from FitSZspace, Evento "<<IVOLTE<<endl;
+		cout<<"from PndSttMvdTracking::FitSZspace  :  no points in fit, return!\n";
+		return -10;
+	}
+
+
+
 
 
 //  use the trick of increasing the rotation angle by 10 degrees in order to obtain always a positive m
 //      rotationangle -= PI/18.;
-
-      Double_t cose = cos(rotationangle), sine = sin(rotationangle);
-      for(i=0;i<nHitsinTrack; i++){
-       Ox[i] = Z[ i ] *cose +
-               S[ i ]*sine;
-       Oy[i] = -Z[ i ] *sine +
-               S[ i ]*cose;
+ rotationangle = PI/2.;
 
 
+ cose = cos(rotationangle);
+ sine = sin(rotationangle);
+
+ nSttHits = nMvdHits = 0;
+
+ for(i=0;i<NpointsInFit; i++){
+	Ox[i] =   Z[i]*cose +(S[i] - FInot)*sine;
+	Oy[i] = -Z[i]*sine +(S[i] - FInot)*cose;
+	Delta[i] = ErrorDriftRadius[i];
+
+	if( DriftRadius[ i ]<0. )  //  not a STT hit.
+	{
+		mvdhit[i]=true;
+		nMvdHits++;
+	} else {
+		mvdhit[i]=false;
+		nSttHits++;
+	}
+ } // end of  for(i=0;i<NpointsInFit; i++)
 
 
 
 
-         Delta[i] = 2.;
 
-      }
+//--------- calculation of # structural variables (see Gianluigi's logbook pag. 236) etc.etc.
+
+	int NStructVar =     4           +    1       +  nMvdHits * 2     +                nSttHits *4 ;
+//                  m1,m2,q1,q2     DUMMY      lam & sigma            lamp & lamm & sigmap & sigmam
+
+
+	int nRows =     1    +  nMvdHits * 4  +               nSttHits * 9;
+//	         OBJECT     A,B,C,D        Ap,Bp,Cp,Dp,Am,Bm,Cm,Dm,LAMBDA
+
+//----  creating the various service arrays
+	int typeRows[nRows];
+	char * nameRows[nRows];
+	char  auxnameRows[nRows][20];
+
+	int  NStructRowsMax = 8*NpointsInFit ;  //  maximum number of ROWS in which a
+				//  structural variable (for instance M ) can be found
+	double final_values[NStructVar];
+	int  NRowsInWhichStructVarArePresent[NStructVar];
+	char *StructVarName[NStructVar];
+	char auxStructVarName[NStructVar][20];
+	char *NameRowsInWhichStructVarArePresent[NStructVar*NStructRowsMax];
+	char aux[NStructVar*NStructRowsMax][20];
+	double Coefficients[NStructVar*NStructRowsMax];
+
+	//--------for RHS information
+	double ValueB[nRows-1]; // -1 because OBJECT dowsn't have a RHS boundary.
+	//--------for RANGES information
+	int nRanges = nSttHits;
+	double ValueRanges[nRanges];
+	char *NameRanges[nRanges];
+	char auxNameRanges[nRanges][20];
+
+	//--------for BOUNDS information
+	int nBounds=NpointsInFit+nSttHits+1+2;// +2  because q1 =  q2 = 0 fixed.
+	double BoundValue[nBounds];
+	char *BoundStructVarName[nBounds];
+	char auxBoundStructVarName[nBounds][20];
+	char *TypeofBound[nBounds];
+	char auxTypeofBound[nBounds][20];
+	//--------end BOUNDS information
+
+//---------------------------------------------------
+
+
+
+
+//--- calculate array      NRowsInWhichStructVarArePresent
+        NRowsInWhichStructVarArePresent[0] =	//  this is for m1
+        NRowsInWhichStructVarArePresent[1] = 	//  this is for m2
+        NRowsInWhichStructVarArePresent[2] =	//  this is for q1
+        NRowsInWhichStructVarArePresent[3] = nMvdHits*2 + nSttHits *4;	//  this is for q2
+	//--- the following is for the  lam* (Mvd Hits) and lamp* (Stt hits) structural variables
+      for(i=0,ii=0; i< NpointsInFit ; i++) {
+		if( mvdhit[i]){
+			NRowsInWhichStructVarArePresent[4+ii]= 4;
+		} else {
+			NRowsInWhichStructVarArePresent[4+ii]= 5;
+		}
+			ii++;
+	}
+
+	//  the lamm* (Stt hits) if any.
+      for(i=0; i< NpointsInFit ; i++) {
+		if( !mvdhit[i]){
+			NRowsInWhichStructVarArePresent[4+ii]= 5;
+			ii++;
+		}
+	}
+
+
+
+
+
+	//--- the following is for the  sigma   structural variables
+	for(i=0 ; i< nMvdHits+2*nSttHits ; i++) {
+		NRowsInWhichStructVarArePresent[4+ii+i]= 5;
+	}
+//--- the following is for the    DUMMY    structural variable
+	NRowsInWhichStructVarArePresent[4+ii+nMvdHits+2*nSttHits]= nMvdHits*4 + nSttHits*8;
+
+
+
 
 //-----------------  write the ROWS  section
 
 
+//-------stampaggi
+/*
+      sprintf(nome,"GeneralSkewEvent%d.mcs", IVOLTE);
+      FILE * FMCS = fopen(nome,"w");
+      fprintf(FMCS,"NAME    FIT\n");
 
-//--------
-      sprintf(&(auxnameRows[0][0]),"OBJECT",i);
-      nameRows[0]=&auxnameRows[0][0];
-      typeRows[0]=GLP_FR;
+
+      fprintf(FMCS,"ROWS\n");
+      fprintf(FMCS," N OBJECT\n");
       for(i=0 ; i< NpointsInFit ; i++) {
-       ii=9*i;
-       typeRows[1+ii]=GLP_UP;typeRows[2+ii]=GLP_UP;typeRows[3+ii]=GLP_UP;typeRows[4+ii]=GLP_UP;
-       typeRows[5+ii]=GLP_UP;typeRows[6+ii]=GLP_UP;typeRows[7+ii]=GLP_UP;typeRows[8+ii]=GLP_UP;
-       typeRows[9+ii]=GLP_LO;
-
-       sprintf(&(auxnameRows[1+ii][0]),"Ap%d",i);  nameRows[1+ii]=&auxnameRows[1+ii][0];
-       sprintf(&(auxnameRows[2+ii][0]),"Bp%d",i);  nameRows[2+ii]=&auxnameRows[2+ii][0];
-       sprintf(&(auxnameRows[3+ii][0]),"Cp%d",i);  nameRows[3+ii]=&auxnameRows[3+ii][0];
-       sprintf(&(auxnameRows[4+ii][0]),"Dp%d",i);  nameRows[4+ii]=&auxnameRows[4+ii][0];
-       sprintf(&(auxnameRows[5+ii][0]),"Am%d",i);  nameRows[5+ii]=&auxnameRows[5+ii][0];
-       sprintf(&(auxnameRows[6+ii][0]),"Bm%d",i);  nameRows[6+ii]=&auxnameRows[6+ii][0];
-       sprintf(&(auxnameRows[7+ii][0]),"Cm%d",i);  nameRows[7+ii]=&auxnameRows[7+ii][0];
-       sprintf(&(auxnameRows[8+ii][0]),"Dm%d",i);  nameRows[8+ii]=&auxnameRows[8+ii][0];
-       sprintf(&(auxnameRows[9+ii][0]),"LAMBDA%d",i);  nameRows[9+ii]=&auxnameRows[9+ii][0];
+	if( mvdhit[i]){
+           fprintf(FMCS," L A%d\n L B%d\n L C%d\n L D%d\n",i,i,i,i);
+	}else{
+           fprintf(FMCS," L Ap%d\n L Bp%d\n L Cp%d\n L Dp%d\n",i,i,i,i);
+           fprintf(FMCS," L Am%d\n L Bm%d\n L Cm%d\n L Dm%d\n G LAMBDA%d\n",i,i,i,i,i);
+	}
       }
+*/
+//--------------------------fine stampaggi
 
+
+
+
+      sprintf(&(auxnameRows[0][0]),"OBJECT",i);  nameRows[0]=&auxnameRows[0][0];
+      typeRows[0]=GLP_FR;
+      for(i=0 , ii=0 ; i< NpointsInFit ; i++) {
+
+	if( mvdhit[i]){
+       typeRows[1+ii]=GLP_UP;typeRows[2+ii]=GLP_UP;typeRows[3+ii]=GLP_UP;typeRows[4+ii]=GLP_UP;
+       typeRows[5+ii]=GLP_LO;
+
+       sprintf(&(auxnameRows[1+ii][0]),"A%d",i);  nameRows[1+ii]=&auxnameRows[1+ii][0];
+       sprintf(&(auxnameRows[2+ii][0]),"B%d",i);  nameRows[2+ii]=&auxnameRows[2+ii][0];
+       sprintf(&(auxnameRows[3+ii][0]),"C%d",i);  nameRows[3+ii]=&auxnameRows[3+ii][0];
+       sprintf(&(auxnameRows[4+ii][0]),"D%d",i);  nameRows[4+ii]=&auxnameRows[4+ii][0];
+         ii+=4;
+
+	} else {
+         typeRows[1+ii]=GLP_UP;typeRows[2+ii]=GLP_UP;typeRows[3+ii]=GLP_UP;typeRows[4+ii]=GLP_UP;
+         typeRows[5+ii]=GLP_UP;typeRows[6+ii]=GLP_UP;typeRows[7+ii]=GLP_UP;typeRows[8+ii]=GLP_UP;
+         typeRows[9+ii]=GLP_LO;
+
+         sprintf(&(auxnameRows[1+ii][0]),"Ap%d",i);  nameRows[1+ii]=&auxnameRows[1+ii][0];
+         sprintf(&(auxnameRows[2+ii][0]),"Bp%d",i);  nameRows[2+ii]=&auxnameRows[2+ii][0];
+         sprintf(&(auxnameRows[3+ii][0]),"Cp%d",i);  nameRows[3+ii]=&auxnameRows[3+ii][0];
+         sprintf(&(auxnameRows[4+ii][0]),"Dp%d",i);  nameRows[4+ii]=&auxnameRows[4+ii][0];
+         sprintf(&(auxnameRows[5+ii][0]),"Am%d",i);  nameRows[5+ii]=&auxnameRows[5+ii][0];
+         sprintf(&(auxnameRows[6+ii][0]),"Bm%d",i);  nameRows[6+ii]=&auxnameRows[6+ii][0];
+         sprintf(&(auxnameRows[7+ii][0]),"Cm%d",i);  nameRows[7+ii]=&auxnameRows[7+ii][0];
+         sprintf(&(auxnameRows[8+ii][0]),"Dm%d",i);  nameRows[8+ii]=&auxnameRows[8+ii][0];
+         sprintf(&(auxnameRows[9+ii][0]),"LAMBDA%d",i);  nameRows[9+ii]=&auxnameRows[9+ii][0];
+         ii+=9;
+	}
+      }
 
 
 
 
 //-----------------  write the COLUMNS  section
 
-
-
-
-
-
+//      fprintf(FMCS,"COLUMNS\n");  //--------stampaggi
 
 //  Column variable  m1
-      for(i=0, ii=0 ; i< NpointsInFit ; i++) {
-       ii++;
-        Coefficients[i*4]=    Ox[i];
-        Coefficients[i*4+1]=  Ox[i];
-        Coefficients[i*4+2]= -Ox[i];
-        Coefficients[i*4+3]= -Ox[i];
+
+      ii=0;
+      for(i=0  ; i< NpointsInFit ; i++) {
+
+	if( mvdhit[i]){
+//---stampaggi
+//          fprintf(FMCS,"  m1 A%d   %g\n  m1 B%d  %g\n",i,Ox[i],i,-Ox[i]);
+//-----stampaggi, fine
+
+         Coefficients[ii]=    Ox[i];
+         Coefficients[ii+1]= -Ox[i];
+	 ii +=2;
+	} else {
+//---stampaggi
+//          fprintf(FMCS,"  m1 Ap%d  %g  Am%d  %g\n  m1 Bp%d  %g   Bm%d  %g\n",
+//                                  i,Ox[i],i,Ox[i],i,-Ox[i],i,-Ox[i]);
+//-----stampaggi, fine
+
+         Coefficients[ii]=    Ox[i];
+         Coefficients[ii+1]=  Ox[i];
+         Coefficients[ii+2]= -Ox[i];
+         Coefficients[ii+3]= -Ox[i];
+	 ii += 4;
+	}
       }
 
-//  Column variable  m2
-      for(i=0; i< NpointsInFit ; i++) {
-        Coefficients[NStructRows+i*4]=   -Ox[i];
-        Coefficients[NStructRows+i*4+1]= -Ox[i];
-        Coefficients[NStructRows+i*4+2]= Ox[i];
-        Coefficients[NStructRows+i*4+3]= Ox[i];
 
+
+//  Column variable  m2
+      for(i=0, ii=0; i< NpointsInFit ; i++) {
+	if( mvdhit[i]){
+//          fprintf(FMCS,"  m2 A%d  %g\n  m2 B%d  %g\n",//---stampaggi
+//                                  i,-Ox[i],i,Ox[i]);//---stampaggi
+         Coefficients[NStructRowsMax+ii]=   -Ox[i];
+         Coefficients[NStructRowsMax+ii+1]= Ox[i];
+	 ii += 2;
+	} else {
+//          fprintf(FMCS,"  m2 Ap%d  %g  Am%d  %g\n  m2 Bp%d  %g   Bm%d  %g\n",//---stampaggi
+//                                  i,-Ox[i],i,-Ox[i],i,Ox[i],i,Ox[i]);//---stampaggi
+         Coefficients[NStructRowsMax+ii]=   -Ox[i];
+         Coefficients[NStructRowsMax+ii+1]= -Ox[i];
+         Coefficients[NStructRowsMax+ii+2]= Ox[i];
+         Coefficients[NStructRowsMax+ii+3]= Ox[i];
+	 ii += 4;
+	}
       }
 
 //  Column variable  q1
-      for(i=0 ; i< NpointsInFit ; i++) {
-        Coefficients[2*NStructRows+i*4]=    1.;
-        Coefficients[2*NStructRows+i*4+1]=  1.;
-        Coefficients[2*NStructRows+i*4+2]= -1.;
-        Coefficients[2*NStructRows+i*4+3]= -1.;
+      for(i=0, ii=0 ; i< NpointsInFit ; i++) {
+	if( mvdhit[i]){
+//          fprintf(FMCS,"  q1 A%d   1.\n  q1 B%d  -1.\n",//---stampaggi
+//                                  i,i);//---stampaggi
+         Coefficients[2*NStructRowsMax+ii]=    1.;
+         Coefficients[2*NStructRowsMax+ii+1]= -1.;
+	 ii +=2;
+	} else {
+//          fprintf(FMCS,"  q1 Ap%d   1.  Am%d   1.\n  q1 Bp%d  -1.  Bm%d  -1.\n",//---stampaggi
+//                                  i,i,i,i);//---stampaggi
+         Coefficients[2*NStructRowsMax+ii]=    1.;
+         Coefficients[2*NStructRowsMax+ii+1]=  1.;
+         Coefficients[2*NStructRowsMax+ii+2]= -1.;
+         Coefficients[2*NStructRowsMax+ii+3]= -1.;
+	 ii += 4;
+	}
       }
 
 //  Column variable  q2
-      for(i=0 ; i< NpointsInFit ; i++) {
-        Coefficients[3*NStructRows+i*4]=   -1.;
-        Coefficients[3*NStructRows+i*4+1]= -1.;
-        Coefficients[3*NStructRows+i*4+2]=  1.;
-        Coefficients[3*NStructRows+i*4+3]=  1.;
+      for(i=0, ii=0 ; i< NpointsInFit ; i++) {
+	if( mvdhit[i]){
+//          fprintf(FMCS,"  q2 A%d   -1.\n  q2 B%d   1.\n",//---stampaggi
+//                                  i,i);//---stampaggi
+          Coefficients[3*NStructRowsMax+ii]=   -1.;
+          Coefficients[3*NStructRowsMax+ii+1]=  1.;
+	  ii += 2;
+	} else {
+//          fprintf(FMCS,"  q2 Ap%d   -1.  Am%d   -1.\n  q2 Bp%d   1.   Bm%d   1.\n",//---stampaggi
+//                                  i,i,i,i);//---stampaggi
+          Coefficients[3*NStructRowsMax+ii]=   -1.;
+          Coefficients[3*NStructRowsMax+ii+1]= -1.;
+          Coefficients[3*NStructRowsMax+ii+2]=  1.;
+          Coefficients[3*NStructRowsMax+ii+3]=  1.;
+	  ii += 4;
+	}
+
       }
 
 //  Column variable  lambdap(i)
       for(i=0 ; i< NpointsInFit ; i++) {
-        Coefficients[(4+i)*NStructRows+0]= -M;
-        Coefficients[(4+i)*NStructRows+1]= -M;
-        Coefficients[(4+i)*NStructRows+2]= -M;
-        Coefficients[(4+i)*NStructRows+3]=  M;
-        Coefficients[(4+i)*NStructRows+4]=  1.;
+         ii=(4+i)*NStructRowsMax;
+         Coefficients[ii]= -M;
+         Coefficients[ii+1]= -M;
+         Coefficients[ii+2]= -M;
+         Coefficients[ii+3]=  M;
+/*
+	if( mvdhit[i]){
+  fprintf(FMCS,"  lam%d  A%d  %g  B%d  %g\n  lam%d  C%d  %g  D%d   %g\n",//---stampaggi
+                      i,i,-M,i,-M, i , i,-M, i, M);//---stampaggi
+	} else {
+  fprintf(FMCS,"  lamp%d  Ap%d  %g  Bp%d  %g\n  lamp%d  Cp%d  %g  Dp%d   %g\n  lamp%d  LAMBDA%d  1.\n",//---stampaggi
+                      i,i,-M,i,-M, i , i,-M, i, M, i,i);//---stampaggi
+	}
+*/
+	if(! mvdhit[i]) Coefficients[ii+4]=  1.;
+
       }
+
+
+
 //  Column variable  lambdam(i)
       for(i=0 ; i< NpointsInFit ; i++) {
-        Coefficients[(4+i+NpointsInFit)*NStructRows+0]= -M;
-        Coefficients[(4+i+NpointsInFit)*NStructRows+1]= -M;
-        Coefficients[(4+i+NpointsInFit)*NStructRows+2]= -M;
-        Coefficients[(4+i+NpointsInFit)*NStructRows+3]=  M;
-        Coefficients[(4+i+NpointsInFit)*NStructRows+4]=  1.;
+	if( mvdhit[i]) continue;
+	 ii+= NStructRowsMax;
+//         fprintf(FMCS,"  lamm%d  Am%d  %g  Bm%d  %g\n  lamm%d  Cm%d  %g  Dm%d %g\n  lamm%d  LAMBDA%d  1.\n",//---stampaggi
+//                     i,i,-M,i,-M, i,i , -M, i, M, i,i);//---stampaggi
+         Coefficients[ii]= -M;
+         Coefficients[ii+1]= -M;
+         Coefficients[ii+2]= -M;
+         Coefficients[ii+3]=  M;
+         Coefficients[ii+4]=  1.;
       }
 //  Column variable  sigmap(i)
       for(i=0; i< NpointsInFit ; i++) {
+	ii+= NStructRowsMax;
 
-        Coefficients[(4+i+2*NpointsInFit)*NStructRows+0]=  1./Delta[i];
-        Coefficients[(4+i+2*NpointsInFit)*NStructRows+1]= -1.;
-        Coefficients[(4+i+2*NpointsInFit)*NStructRows+2]= -1.;
-        Coefficients[(4+i+2*NpointsInFit)*NStructRows+3]=  1.;
-        Coefficients[(4+i+2*NpointsInFit)*NStructRows+4]= -1.;
+/*
+	if( mvdhit[i]){
+      fprintf(FMCS,"  sigma%d  OBJECT  %g  A%d  -1.\n  sigma%d  B%d    -1. C%d  1.\n  sigma%d  D%d -1.\n",//---stampaggi
+                                                i,1./Delta[i],i,i,i,i,i,i);//---stampaggi
+
+	} else {
+      fprintf(FMCS,"  sigmap%d  OBJECT  %g  Ap%d  -1.\n  sigmap%d  Bp%d    -1. Cp%d  1.\n  sigmap%d  Dp%d -1.\n",//---stampaggi
+                                                i,1./Delta[i],i,i,i,i,i,i);//---stampaggi
+	}
+*/
+
+
+        Coefficients[ii]=  1./Delta[i];
+        Coefficients[ii+1]= -1.;
+        Coefficients[ii+2]= -1.;
+        Coefficients[ii+3]=  1.;
+        Coefficients[ii+4]= -1.;
+
+
       }
 //  Column variable  sigmam(i)
       for(i=0 ; i< NpointsInFit ; i++) {
-        Coefficients[(4+i+3*NpointsInFit)*NStructRows+0]=  1./Delta[i];
-        Coefficients[(4+i+3*NpointsInFit)*NStructRows+1]= -1.;
-        Coefficients[(4+i+3*NpointsInFit)*NStructRows+2]= -1.;
-        Coefficients[(4+i+3*NpointsInFit)*NStructRows+3]=  1.;
-        Coefficients[(4+i+3*NpointsInFit)*NStructRows+4]= -1.;
+	if( mvdhit[i])continue;
+	 ii+= NStructRowsMax;
+/*
+  fprintf(FMCS,"  sigmam%d  OBJECT %g  Am%d  -1.\n  sigmam%d  Bm%d   -1. Cm%d   1.\n  sigmam%d  Dm%d  -1.\n",//---stampaggi
+                                                i,1./Delta[i],i,i,i,i,i,i);//---stampaggi
+*/
+        Coefficients[ii]=  1./Delta[i];
+        Coefficients[ii+1]= -1.;
+        Coefficients[ii+2]= -1.;
+        Coefficients[ii+3]=  1.;
+        Coefficients[ii+4]= -1.;
       }
 
 //  Column variable  DUMMY
-      for(i=0 ; i< NStructRows ; i++) {
-        Coefficients[(4+4*NpointsInFit)*NStructRows+i]= 1.;
+//-----------stampaggi
+/*
+      for(i=0 ; i< NpointsInFit ; i++) {
+	if( mvdhit[i]){
+         fprintf(FMCS,"  DUMMY     A%d  1.\n  DUMMY   B%d   1.\n  DUMMY    C%d   1.\n",i,i,i);
+         fprintf(FMCS,"  DUMMY     D%d  1.\n",i);
+	} else {
+         fprintf(FMCS,"  DUMMY     Ap%d  1.      Am%d       1.\n  DUMMY   Bp%d   1.    Bm%d   1.\n  DUMMY    Cp%d   1.   Cm%d   1\n",
+                                                i,i,i,i,i,i);
+         fprintf(FMCS,"  DUMMY     Dp%d  1.      Dm%d       1.\n",i,i);
+	}
       }
-//--------------------
-      sprintf(&auxStructVarName[0][0],"m1");
+*/
+//---fine stampaggi
+	ii+= NStructRowsMax;
+      for(i=0, iii=0 ; i< NpointsInFit ; i++) {
+	if( mvdhit[i]){
+	 Coefficients[ii+iii]= 1.;
+	 Coefficients[ii+iii+1]= 1.;
+	 Coefficients[ii+iii+2]= 1.;
+ 	 Coefficients[ii+iii+3]= 1.;
+	 iii +=4;
+	} else {
+	 Coefficients[ii+iii]= 1.;
+	 Coefficients[ii+iii+1]= 1.;
+	 Coefficients[ii+iii+2]= 1.;
+ 	 Coefficients[ii+iii+3]= 1.;
+	 Coefficients[ii+iii+4]= 1.;
+	 Coefficients[ii+iii+5]= 1.;
+	 Coefficients[ii+iii+6]= 1.;
+ 	 Coefficients[ii+iii+7]= 1.;
+	 iii +=8;
+	}
+      }
+
+//-----------
+
+//--- give the names to the Structural Variables
+
+      sprintf(&auxStructVarName[0][0],"m1",i);
       StructVarName[0] = &auxStructVarName[0][0];
-      NRowsInWhichStructVarArePresent[0]= 4*NpointsInFit;
-
-      sprintf(&auxStructVarName[1][0],"m2");
+      sprintf(&auxStructVarName[1][0],"m2",i);
       StructVarName[1] = &auxStructVarName[1][0];
-      NRowsInWhichStructVarArePresent[1]= 4*NpointsInFit;
 
-      sprintf(&auxStructVarName[2][0],"q1");
+      sprintf(&auxStructVarName[2][0],"q1",i);
       StructVarName[2] = &auxStructVarName[2][0];
-      NRowsInWhichStructVarArePresent[2]= 4*NpointsInFit;
 
-      sprintf(&auxStructVarName[3][0],"q2");
+      sprintf(&auxStructVarName[3][0],"q2",i);
       StructVarName[3] = &auxStructVarName[3][0];
-      NRowsInWhichStructVarArePresent[3]= 4*NpointsInFit;
-      for(i=0; i< NpointsInFit ; i++) {
+      for(i=0, ii=0; i< NpointsInFit ; i++) {
+	if( mvdhit[i]){
+          sprintf(&auxStructVarName[4+i][0],"lam%d",i);
+          StructVarName[4+i] = &auxStructVarName[4+i][0];
+
+          sprintf(&auxStructVarName[4+nMvdHits+2*nSttHits+i][0],"sigma%d",i);
+          StructVarName[4+nMvdHits+2*nSttHits+i] = &auxStructVarName[4+nMvdHits+2*nSttHits+i][0];
+	} else {
           sprintf(&auxStructVarName[4+i][0],"lamp%d",i);
           StructVarName[4+i] = &auxStructVarName[4+i][0];
-          NRowsInWhichStructVarArePresent[4+i]= 5;
 
-          sprintf(&auxStructVarName[4+NpointsInFit+i][0],"lamm%d",i);
-          StructVarName[4+NpointsInFit+i] = &auxStructVarName[4+NpointsInFit+i][0];
-          NRowsInWhichStructVarArePresent[4+NpointsInFit+i]= 5;
+          sprintf(&auxStructVarName[4+NpointsInFit+ii][0],"lamm%d",i);
+          StructVarName[4+NpointsInFit+ii] = &auxStructVarName[4+NpointsInFit+ii][0];
 
-          sprintf(&auxStructVarName[4+2*NpointsInFit+i][0],"sigmap%d",i);
-          StructVarName[4+2*NpointsInFit+i] = &auxStructVarName[4+2*NpointsInFit+i][0];
-          NRowsInWhichStructVarArePresent[4+2*NpointsInFit+i]= 5;
+          sprintf(&auxStructVarName[4+nMvdHits+2*nSttHits+i][0],"sigmap%d",i);
+          StructVarName[4+nMvdHits+2*nSttHits+i] = &auxStructVarName[4+nMvdHits+2*nSttHits+i][0];
 
-          sprintf(&auxStructVarName[4+3*NpointsInFit+i][0],"sigmam%d",i);
-          StructVarName[4+3*NpointsInFit+i] = &auxStructVarName[4+3*NpointsInFit+i][0];
-          NRowsInWhichStructVarArePresent[4+3*NpointsInFit+i]= 5;
-
+          sprintf(&auxStructVarName[4+NpointsInFit+nMvdHits+2*nSttHits+ii][0],"sigmam%d",i);
+          StructVarName[4+NpointsInFit+nMvdHits+2*nSttHits+ii] =
+		 &auxStructVarName[4+NpointsInFit+nMvdHits+2*nSttHits+ii][0];
+	  ii++;
+	}
       }
-      sprintf(&auxStructVarName[4+4*NpointsInFit][0],"DUMMY");
-      StructVarName[4+4*NpointsInFit] = &auxStructVarName[4+4*NpointsInFit][0];
-      NRowsInWhichStructVarArePresent[4+4*NpointsInFit]= NStructRows;
+
+
+      sprintf(&auxStructVarName[NStructVar-1][0],"DUMMY",i);
+      StructVarName[NStructVar-1] = &auxStructVarName[NStructVar-1][0];
+
+
+
+//--- give the names of those Rows in which the Structural Variables are present
 
 //  for m1, m2, q1, q2
       for(i=0; i< 4; i++){
-        for(ii=0; ii< NpointsInFit;ii++){
-         sprintf(&aux[i*NStructRows+ii*4][0],"Ap%d",ii);
-         NameRowsInWhichStructVarArePresent[i*NStructRows+ii*4]=&aux[i*NStructRows+ii*4][0];
-         sprintf(&aux[i*NStructRows+ii*4+1][0],"Am%d",ii);
-         NameRowsInWhichStructVarArePresent[i*NStructRows+ii*4+1]=&aux[i*NStructRows+ii*4+1][0];
-         sprintf(&aux[i*NStructRows+ii*4+2][0],"Bp%d",ii);
-         NameRowsInWhichStructVarArePresent[i*NStructRows+ii*4+2]=&aux[i*NStructRows+ii*4+2][0];
-         sprintf(&aux[i*NStructRows+ii*4+3][0],"Bm%d",ii);
-         NameRowsInWhichStructVarArePresent[i*NStructRows+ii*4+3]=&aux[i*NStructRows+ii*4+3][0];
+        for(j=0, ii=0; j< NpointsInFit;j++){
+		if( mvdhit[j]){
+         sprintf(&aux[i*NStructRowsMax+ii][0],"A%d",j);
+         NameRowsInWhichStructVarArePresent[i*NStructRowsMax+ii]=&aux[i*NStructRowsMax+ii][0];
+         sprintf(&aux[i*NStructRowsMax+ii+1][0],"B%d",j);
+         NameRowsInWhichStructVarArePresent[i*NStructRowsMax+ii+1]=&aux[i*NStructRowsMax+ii+1][0];
+	 ii += 2;
+		} else {
+         sprintf(&aux[i*NStructRowsMax+ii][0],"Ap%d",j);
+         NameRowsInWhichStructVarArePresent[i*NStructRowsMax+ii]=&aux[i*NStructRowsMax+ii][0];
+         sprintf(&aux[i*NStructRowsMax+ii+1][0],"Am%d",j);
+         NameRowsInWhichStructVarArePresent[i*NStructRowsMax+ii+1]=&aux[i*NStructRowsMax+ii+1][0];
+         sprintf(&aux[i*NStructRowsMax+ii+2][0],"Bp%d",j);
+         NameRowsInWhichStructVarArePresent[i*NStructRowsMax+ii+2]=&aux[i*NStructRowsMax+ii+2][0];
+         sprintf(&aux[i*NStructRowsMax+ii+3][0],"Bm%d",j);
+         NameRowsInWhichStructVarArePresent[i*NStructRowsMax+ii+3]=&aux[i*NStructRowsMax+ii+3][0];
+	 ii += 4;
+		}
         }
       }
 
 //  now for the    lamp*   variables
       for(i=0; i< NpointsInFit;i++){
-         sprintf(&aux[(i+4)*NStructRows+0][0],"Ap%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4)*NStructRows+0]= &aux[(i+4)*NStructRows+0][0];
-         sprintf(&aux[(i+4)*NStructRows+1][0],"Bp%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4)*NStructRows+1]= &aux[(i+4)*NStructRows+1][0];
-         sprintf(&aux[(i+4)*NStructRows+2][0],"Cp%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4)*NStructRows+2]= &aux[(i+4)*NStructRows+2][0];
-         sprintf(&aux[(i+4)*NStructRows+3][0],"Dp%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4)*NStructRows+3]= &aux[(i+4)*NStructRows+3][0];
-         sprintf(&aux[(i+4)*NStructRows+4][0],"LAMBDA%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4)*NStructRows+4]= &aux[(i+4)*NStructRows+4][0];
+		if( mvdhit[i]){
+         sprintf(&aux[(i+4)*NStructRowsMax+0][0],"A%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4)*NStructRowsMax+0]= &aux[(i+4)*NStructRowsMax+0][0];
+         sprintf(&aux[(i+4)*NStructRowsMax+1][0],"B%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4)*NStructRowsMax+1]= &aux[(i+4)*NStructRowsMax+1][0];
+         sprintf(&aux[(i+4)*NStructRowsMax+2][0],"C%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4)*NStructRowsMax+2]= &aux[(i+4)*NStructRowsMax+2][0];
+         sprintf(&aux[(i+4)*NStructRowsMax+3][0],"D%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4)*NStructRowsMax+3]= &aux[(i+4)*NStructRowsMax+3][0];
+		} else {
+         sprintf(&aux[(i+4)*NStructRowsMax+0][0],"Ap%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4)*NStructRowsMax+0]= &aux[(i+4)*NStructRowsMax+0][0];
+         sprintf(&aux[(i+4)*NStructRowsMax+1][0],"Bp%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4)*NStructRowsMax+1]= &aux[(i+4)*NStructRowsMax+1][0];
+         sprintf(&aux[(i+4)*NStructRowsMax+2][0],"Cp%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4)*NStructRowsMax+2]= &aux[(i+4)*NStructRowsMax+2][0];
+         sprintf(&aux[(i+4)*NStructRowsMax+3][0],"Dp%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4)*NStructRowsMax+3]= &aux[(i+4)*NStructRowsMax+3][0];
+         sprintf(&aux[(i+4)*NStructRowsMax+4][0],"LAMBDA%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4)*NStructRowsMax+4]= &aux[(i+4)*NStructRowsMax+4][0];
+		}
       }
 
 //  now for the    lamm*   variables
-      for(i=0; i< NpointsInFit;i++){
-         sprintf(&aux[(i+4+NpointsInFit)*NStructRows+0][0],"Am%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit)*NStructRows+0]= &aux[(i+4+NpointsInFit)*NStructRows+0][0];
-         sprintf(&aux[(i+4+NpointsInFit)*NStructRows+1][0],"Bm%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit)*NStructRows+1]= &aux[(i+4+NpointsInFit)*NStructRows+1][0];
-         sprintf(&aux[(i+4+NpointsInFit)*NStructRows+2][0],"Cm%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit)*NStructRows+2]= &aux[(i+4+NpointsInFit)*NStructRows+2][0];
-         sprintf(&aux[(i+4+NpointsInFit)*NStructRows+3][0],"Dm%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit)*NStructRows+3]= &aux[(i+4+NpointsInFit)*NStructRows+3][0];
-         sprintf(&aux[(i+4+NpointsInFit)*NStructRows+4][0],"LAMBDA%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit)*NStructRows+4]= &aux[(i+4+NpointsInFit)*NStructRows+4][0];
-      }
+      for(i=0, ii=0; i< NpointsInFit;i++){
+	if( mvdhit[i]) continue;
+         sprintf(&aux[(ii+4+NpointsInFit)*NStructRowsMax][0],"Am%d",i);
+         NameRowsInWhichStructVarArePresent[(ii+4+NpointsInFit)*NStructRowsMax]= &aux[(ii+4+NpointsInFit)*NStructRowsMax][0];
+         sprintf(&aux[(ii+4+NpointsInFit)*NStructRowsMax+1][0],"Bm%d",i);
+         NameRowsInWhichStructVarArePresent[(ii+4+NpointsInFit)*NStructRowsMax+1]= &aux[(ii+4+NpointsInFit)*NStructRowsMax+1][0];
+         sprintf(&aux[(ii+4+NpointsInFit)*NStructRowsMax+2][0],"Cm%d",i);
+         NameRowsInWhichStructVarArePresent[(ii+4+NpointsInFit)*NStructRowsMax+2]= &aux[(ii+4+NpointsInFit)*NStructRowsMax+2][0];
+         sprintf(&aux[(ii+4+NpointsInFit)*NStructRowsMax+3][0],"Dm%d",i);
+         NameRowsInWhichStructVarArePresent[(ii+4+NpointsInFit)*NStructRowsMax+3]= &aux[(ii+4+NpointsInFit)*NStructRowsMax+3][0];
+         sprintf(&aux[(ii+4+NpointsInFit)*NStructRowsMax+4][0],"LAMBDA%d",i);
+         NameRowsInWhichStructVarArePresent[(ii+4+NpointsInFit)*NStructRowsMax+4]= &aux[(ii+4+NpointsInFit)*NStructRowsMax+4][0];
+	 ii++; 
+     }
 
 //  now for the    sigmap*   variables
       for(i=0; i< NpointsInFit;i++){
-         sprintf(&aux[(i+4+2*NpointsInFit)*NStructRows+0][0],"OBJECT",i);
-         NameRowsInWhichStructVarArePresent[(i+4+2*NpointsInFit)*NStructRows+0]= &aux[(i+4+2*NpointsInFit)*NStructRows+0][0];
-         sprintf(&aux[(i+4+2*NpointsInFit)*NStructRows+1][0],"Ap%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+2*NpointsInFit)*NStructRows+1]= &aux[(i+4+2*NpointsInFit)*NStructRows+1][0];
-         sprintf(&aux[(i+4+2*NpointsInFit)*NStructRows+2][0],"Bp%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+2*NpointsInFit)*NStructRows+2]= &aux[(i+4+2*NpointsInFit)*NStructRows+2][0];
-         sprintf(&aux[(i+4+2*NpointsInFit)*NStructRows+3][0],"Cp%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+2*NpointsInFit)*NStructRows+3]= &aux[(i+4+2*NpointsInFit)*NStructRows+3][0];
-         sprintf(&aux[(i+4+2*NpointsInFit)*NStructRows+4][0],"Dp%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+2*NpointsInFit)*NStructRows+4]= &aux[(i+4+2*NpointsInFit)*NStructRows+4][0];
+	if( mvdhit[i]) {
+         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax][0],"OBJECT",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax]=
+		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax][0];
+         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+1][0],"A%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+1]=
+		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+1][0];
+         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+2][0],"B%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+2]=
+		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+2][0];
+         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+3][0],"C%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+3]=
+		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+3][0];
+         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+4][0],"D%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+4]=
+		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+4][0];
+	} else {
+         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax][0],"OBJECT",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax]=
+		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax][0];
+         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+1][0],"Ap%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+1]=
+		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+1][0];
+         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+2][0],"Bp%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+2]=
+		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+2][0];
+         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+3][0],"Cp%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+3]=
+		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+3][0];
+         sprintf(&aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+4][0],"Dp%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+4]=
+		 &aux[(i+4+NpointsInFit+nSttHits)*NStructRowsMax+4][0];
+	}
       }
 
 //  now for the    sigmam*   variables
-      for(i=0; i< NpointsInFit;i++){
-         sprintf(&aux[(i+4+3*NpointsInFit)*NStructRows+0][0],"OBJECT",i);
-         NameRowsInWhichStructVarArePresent[(i+4+3*NpointsInFit)*NStructRows+0]= &aux[(i+4+3*NpointsInFit)*NStructRows+0][0];
-         sprintf(&aux[(i+4+3*NpointsInFit)*NStructRows+1][0],"Am%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+3*NpointsInFit)*NStructRows+1]= &aux[(i+4+3*NpointsInFit)*NStructRows+1][0];
-         sprintf(&aux[(i+4+3*NpointsInFit)*NStructRows+2][0],"Bm%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+3*NpointsInFit)*NStructRows+2]= &aux[(i+4+3*NpointsInFit)*NStructRows+2][0];
-         sprintf(&aux[(i+4+3*NpointsInFit)*NStructRows+3][0],"Cm%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+3*NpointsInFit)*NStructRows+3]= &aux[(i+4+3*NpointsInFit)*NStructRows+3][0];
-         sprintf(&aux[(i+4+3*NpointsInFit)*NStructRows+4][0],"Dm%d",i);
-         NameRowsInWhichStructVarArePresent[(i+4+3*NpointsInFit)*NStructRows+4]= &aux[(i+4+3*NpointsInFit)*NStructRows+4][0];
+      for(i=0, ii=0; i< NpointsInFit;i++){
+	if( mvdhit[i]) continue;
+         sprintf(&aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax][0],"OBJECT",i);
+         NameRowsInWhichStructVarArePresent[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax]=
+		 &aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax][0];
+
+         sprintf(&aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax+1][0],"Am%d",i);
+         NameRowsInWhichStructVarArePresent[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax+1]=
+		 &aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax+1][0];
+
+         sprintf(&aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax+2][0],"Bm%d",i);
+         NameRowsInWhichStructVarArePresent[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax+2]=
+		 &aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax+2][0];
+
+         sprintf(&aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax+3][0],"Cm%d",i);
+         NameRowsInWhichStructVarArePresent[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax+3]=
+		 &aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax+3][0];
+
+         sprintf(&aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax+4][0],"Dm%d",i);
+         NameRowsInWhichStructVarArePresent[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax+4]=
+		 &aux[(ii+4+2*NpointsInFit+nSttHits)*NStructRowsMax+4][0];
+	 ii++; 
       }
 
 //  now for the    DUMMY   variable
-      for(i=0; i< NpointsInFit;i++){
-         sprintf(&aux[(4+4*NpointsInFit)*NStructRows  +8*i][0],"Ap%d",i);
-         NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+i*8  ]= &aux[(4+4*NpointsInFit)*NStructRows  +8*i][0];
+      for(i=0, ii=0; i< NpointsInFit;i++){
+	if( mvdhit[i]) {
+         sprintf(&aux[(NStructVar-1)*NStructRowsMax+ii][0],"A%d",i);
+         NameRowsInWhichStructVarArePresent[(NStructVar-1)*NStructRowsMax+ii]=
+		 &aux[(NStructVar-1)*NStructRowsMax+ii][0];
 
-         sprintf(&aux[(4+4*NpointsInFit)*NStructRows+1+8*i][0],"Am%d",i);
-         NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+1+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+1+8*i][0];
-         sprintf(&aux[(4+4*NpointsInFit)*NStructRows+2+8*i][0],"Bp%d",i);
-         NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+2+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+2+8*i][0];
-         sprintf(&aux[(4+4*NpointsInFit)*NStructRows+3+8*i][0],"Bm%d",i);
-         NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+3+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+3+8*i][0];
-         sprintf(&aux[(4+4*NpointsInFit)*NStructRows+4+8*i][0],"Cp%d",i);
-         NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+4+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+4+8*i][0];
-         sprintf(&aux[(4+4*NpointsInFit)*NStructRows+5+8*i][0],"Cm%d",i);
-         NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+5+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+5+8*i][0];
-         sprintf(&aux[(4+4*NpointsInFit)*NStructRows+6+8*i][0],"Dp%d",i);
-         NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+6+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+6+8*i][0];
-         sprintf(&aux[(4+4*NpointsInFit)*NStructRows+7+8*i][0],"Dm%d",i);
-         NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+7+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+7+8*i][0];
+         sprintf(&aux[(NStructVar-1)*NStructRowsMax+ii+1][0],"B%d",i);
+         NameRowsInWhichStructVarArePresent[(NStructVar-1)*NStructRowsMax+ii+1]=
+		 &aux[(NStructVar-1)*NStructRowsMax+ii+1][0];
+
+         sprintf(&aux[(NStructVar-1)*NStructRowsMax+ii+2][0],"C%d",i);
+         NameRowsInWhichStructVarArePresent[(NStructVar-1)*NStructRowsMax+ii+2]=
+		 &aux[(NStructVar-1)*NStructRowsMax+ii+2][0];
+
+         sprintf(&aux[(NStructVar-1)*NStructRowsMax+ii+3][0],"D%d",i);
+         NameRowsInWhichStructVarArePresent[(NStructVar-1)*NStructRowsMax+ii+3]=
+		 &aux[(NStructVar-1)*NStructRowsMax+ii+3][0];
+	 ii += 4;
+	} else {
+         sprintf(&aux[(NStructVar-1)*NStructRowsMax+ii][0],"Ap%d",i);
+         NameRowsInWhichStructVarArePresent[(NStructVar-1)*NStructRowsMax+ii]=
+		 &aux[(NStructVar-1)*NStructRowsMax+ii][0];
+
+         sprintf(&aux[(NStructVar-1)*NStructRowsMax+ii+1][0],"Am%d",i);
+         NameRowsInWhichStructVarArePresent[(NStructVar-1)*NStructRowsMax+ii+1]=
+		 &aux[(NStructVar-1)*NStructRowsMax+ii+1][0];
+
+         sprintf(&aux[(NStructVar-1)*NStructRowsMax+ii+2][0],"Bp%d",i);
+         NameRowsInWhichStructVarArePresent[(NStructVar-1)*NStructRowsMax+ii+2]=
+		 &aux[(NStructVar-1)*NStructRowsMax+ii+2][0];
+
+         sprintf(&aux[(NStructVar-1)*NStructRowsMax+ii+3][0],"Bm%d",i);
+         NameRowsInWhichStructVarArePresent[(NStructVar-1)*NStructRowsMax+ii+3]=
+		 &aux[(NStructVar-1)*NStructRowsMax+ii+3][0];
+         sprintf(&aux[(NStructVar-1)*NStructRowsMax+ii+4][0],"Cp%d",i);
+         NameRowsInWhichStructVarArePresent[(NStructVar-1)*NStructRowsMax+ii+4]=
+		 &aux[(NStructVar-1)*NStructRowsMax+ii+4][0];
+
+         sprintf(&aux[(NStructVar-1)*NStructRowsMax+ii+5][0],"Cm%d",i);
+         NameRowsInWhichStructVarArePresent[(NStructVar-1)*NStructRowsMax+ii+5]=
+		 &aux[(NStructVar-1)*NStructRowsMax+ii+5][0];
+
+         sprintf(&aux[(NStructVar-1)*NStructRowsMax+ii+6][0],"Dp%d",i);
+         NameRowsInWhichStructVarArePresent[(NStructVar-1)*NStructRowsMax+ii+6]=
+		 &aux[(NStructVar-1)*NStructRowsMax+ii+6][0];
+
+         sprintf(&aux[(NStructVar-1)*NStructRowsMax+ii+7][0],"Dm%d",i);
+         NameRowsInWhichStructVarArePresent[(NStructVar-1)*NStructRowsMax+ii+7]=
+		 &aux[(NStructVar-1)*NStructRowsMax+ii+7][0];
+	 ii += 8;
+	}
       }
-
 
 
 
 //-----------------  write the RHS  section
 
+//      fprintf(FMCS,"RHS\n");//---stampaggi
+      for(i=0, ii=0 ; i< NpointsInFit ; i++) {
+	if( mvdhit[i]){
+//---stampaggi
+/*
+          fprintf(FMCS,"  BOUND  A%d  %g  B%d  %g\n  BOUND  C%d  %g  D%d  %g\n",
+              i, Oy[i]+2.*M,i,
+                -Oy[i]+2.*M,i,
+                 Delta[i]+2.*M,i,M-Delta[i]+2.*M);
+*/
+//---fine stampaggi
+          ValueB[ii]  =  Oy[i]+2.*M;
+          ValueB[ii+1]= -Oy[i]+2.*M;
+          ValueB[ii+2]= Delta[i]+2.*M;
+          ValueB[ii+3]= M-Delta[i]+2.*M;
+	  ii += 4;
+	} else {
+//---stampaggi
+/*
+          fprintf(FMCS,"  BOUND  Ap%d  %g  Bp%d  %g\n  BOUND  Cp%d  %g  Dp%d  %g\n",
+              i, Oy[i]+DriftRadius[ i ]+2.*M,i,
+                -Oy[i]-DriftRadius[ i ]+2.*M,i,
+                 Delta[i]+2.*M,i,M-Delta[i]+2.*M);
+*/
+//---fine stampaggi
+          ValueB[ii]  =  Oy[i]+DriftRadius[ i ]+2.*M;
+          ValueB[ii+1]= -Oy[i]-DriftRadius[ i ]+2.*M;
+          ValueB[ii+2]= Delta[i]+2.*M;
+          ValueB[ii+3]= M-Delta[i]+2.*M;
 
-      for(i=0 ; i< NpointsInFit ; i++) {
-          ValueB[i*9]  =  Oy[i]+DriftRadius[ i ]+2.*M;
-          ValueB[i*9+1]= -Oy[i]-DriftRadius[ i ]+2.*M;
-          ValueB[i*9+2]= Delta[i]+2.*M;
-          ValueB[i*9+3]= M-Delta[i]+2.*M;
-          ValueB[i*9+4]=  Oy[i]-DriftRadius[ i ]+2.*M;
-          ValueB[i*9+5]= -Oy[i]+DriftRadius[ i ]+2.*M;
-          ValueB[i*9+6]= Delta[i]+2.*M;
-          ValueB[i*9+7]= M-Delta[i]+2.*M;
-          ValueB[i*9+8]= 1.;
 
+//---stampaggi
+/*
+          fprintf(FMCS,"  BOUND  Am%d  %g  Bm%d  %g\n  BOUND  Cm%d  %g  Dm%d %g\n",
+              i, Oy[i]-DriftRadius[ i ]+2.*M,i,
+                -Oy[i]+DriftRadius[ i ]+2.*M,i,
+                 Delta[i]+2.*M,i,M-Delta[i]+2.*M);f
+          fprintf(FMCS,"  BOUND  LAMBDA%d   1.\n",i);
+*/
+//---fine stampaggi
+          ValueB[ii+4]=  Oy[i]-DriftRadius[ i ]+2.*M;
+          ValueB[ii+5]= -Oy[i]+DriftRadius[ i ]+2.*M;
+          ValueB[ii+6]= Delta[i]+2.*M;
+          ValueB[ii+7]= M-Delta[i]+2.*M;
+          ValueB[ii+8]= 1.;
+	  ii +=9;
+	}
 
       }
-
-
 
 
 //-----------------  write the RANGES  section
 
-      for(i=0 ; i< NpointsInFit ; i++) {
-        ValueRanges[i]=1.;
-        sprintf(&auxNameRanges[i][0],"LAMBDA%d",i);
-        NameRanges[i]=&auxNameRanges[i][0];
+//      fprintf(FMCS,"RANGES\n");//---stampaggi
+      for(i=0 , ii=0; i< NpointsInFit ; i++) {
+	if( mvdhit[i]) continue;
+//          fprintf(FMCS,"  RANGE  LAMBDA%d  1.\n",i);//---stampaggi
+//---
+        ValueRanges[ii]=1.;
+        sprintf(&auxNameRanges[ii][0],"LAMBDA%d",i);
+        NameRanges[ii]=&auxNameRanges[ii][0];
+	ii++;
       }
-
 
 //-----------------  write the BOUNDS  section
+//      fprintf(FMCS,"BOUNDS\n");//---stampaggi
 
 
       for(i=0 ; i< NpointsInFit ; i++) {
-          sprintf(&auxTypeofBound[i][0],"BV");
-          TypeofBound[i]=&auxTypeofBound[i][0];
+	if( mvdhit[i]){
+//          fprintf(FMCS," BV  Bounds  lam%d\n",  i);//---stampaggi
+          sprintf(&auxTypeofBound[i][0],"BV");   TypeofBound[i]= &auxTypeofBound[i][0];
+          sprintf(&auxBoundStructVarName[i][0],"lam%d",i);
+	} else {
+//          fprintf(FMCS," BV  Bounds  lamp%d\n",  i);//---stampaggi
+          sprintf(&auxTypeofBound[i][0],"BV");   TypeofBound[i]= &auxTypeofBound[i][0];
           sprintf(&auxBoundStructVarName[i][0],"lamp%d",i);
-          BoundStructVarName[i]=&auxBoundStructVarName[i][0];
-          BoundValue[i]=0.;
+	}
+
+        BoundStructVarName[i]=&auxBoundStructVarName[i][0];
+        BoundValue[i]=0.;
+
       }
 
-      for(i=0 ; i< NpointsInFit ; i++) {
-          sprintf(&auxTypeofBound[i+NpointsInFit][0],"BV");
-          TypeofBound[i+NpointsInFit]=&auxTypeofBound[i+NpointsInFit][0];
-          sprintf(&auxBoundStructVarName[i+NpointsInFit][0],"lamm%d",i);
-          BoundStructVarName[i+NpointsInFit]=&auxBoundStructVarName[i+NpointsInFit][0];
-          BoundValue[i+NpointsInFit]=0.;
+      for(i=0, ii=0 ; i< NpointsInFit ; i++) {
+	if( mvdhit[i]) continue;
+//          fprintf(FMCS," BV  Bounds  lamm%d\n", i);//---stampaggi
+          sprintf(&auxTypeofBound[ii+NpointsInFit][0],"BV");
+          TypeofBound[ii+NpointsInFit]= &auxTypeofBound[ii+NpointsInFit][0];
+          sprintf(&auxBoundStructVarName[ii+NpointsInFit][0],"lamm%d",i);
+          BoundStructVarName[ii+NpointsInFit]=&auxBoundStructVarName[ii+NpointsInFit][0];
+          BoundValue[ii+NpointsInFit]=0.;
+	  ii++;
       }
 
-          sprintf(&auxTypeofBound[2*NpointsInFit][0],"FX");
-          TypeofBound[2*NpointsInFit]=&auxTypeofBound[2*NpointsInFit][0];
+//          fprintf(FMCS," FX  Bounds  DUMMY  %g\n",2.*M);//--stampaggi
+          sprintf(&auxTypeofBound[NpointsInFit+nSttHits][0],"FX");
+          TypeofBound[NpointsInFit+nSttHits]= &auxTypeofBound[NpointsInFit+nSttHits][0];
 
+          sprintf(&auxTypeofBound[NpointsInFit+nSttHits][0],"FX");
+          TypeofBound[NpointsInFit+nSttHits]= &auxTypeofBound[NpointsInFit+nSttHits][0];
 
-          sprintf(&auxBoundStructVarName[2*NpointsInFit][0],"DUMMY");
-          BoundStructVarName[2*NpointsInFit]=&auxBoundStructVarName[2*NpointsInFit][0];
-          BoundValue[2*NpointsInFit]=2.*M;
+          sprintf(&auxBoundStructVarName[NpointsInFit+nSttHits][0],"DUMMY");
+          BoundStructVarName[NpointsInFit+nSttHits]=&auxBoundStructVarName[NpointsInFit+nSttHits][0];
+          BoundValue[NpointsInFit+nSttHits]=2.*M;
 
-
-
+//   fixing q1
+//          fprintf(FMCS," FX  Bounds  q1  %g\n",0.);//--stampaggi
+          sprintf(&auxTypeofBound[NpointsInFit+nSttHits+1][0],"FX");
+          TypeofBound[NpointsInFit+nSttHits+1]=&auxTypeofBound[NpointsInFit+nSttHits+1][0];
+          sprintf(&auxBoundStructVarName[NpointsInFit+nSttHits+1][0],"q1");
+          BoundStructVarName[NpointsInFit+nSttHits+1]=&auxBoundStructVarName[NpointsInFit+nSttHits+1][0];
+          BoundValue[NpointsInFit+nSttHits+1]= 0.;
+//   fixing q2
+//          fprintf(FMCS," FX  Bounds  q2  %g\n",0.);//--stampaggi
+          sprintf(&auxTypeofBound[NpointsInFit+nSttHits+2][0],"FX");
+          TypeofBound[NpointsInFit+nSttHits+2]=&auxTypeofBound[NpointsInFit+nSttHits+2][0];
+          sprintf(&auxBoundStructVarName[NpointsInFit+nSttHits+2][0],"q2");
+          BoundStructVarName[NpointsInFit+nSttHits+2]=&auxBoundStructVarName[NpointsInFit+nSttHits+2][0];
+          BoundValue[NpointsInFit+nSttHits+2]= 0.;
 
 //-----
 
+//------------------------------------------------------------stampaggi
+/*
+      fprintf(FMCS,"ENDATA\n");
+      fclose(FMCS);
+*/
+
+/*
+cout<<"n.  punti nel fit "<<NpointsInFit<<endl;
+
+
+cout<<"nRows "<<nRows<<endl;
+for(int ic =0;ic<nRows; ic++){
+   cout<<"n.  Row  "<<ic<<", nameRows "<<nameRows[ic]<<",  typeRows "<<typeRows[ic]<<endl;
+}
+
+cout<<"NStructRowsMax = "<<NStructRowsMax<<endl;
+cout<<"NStructVar "<<NStructVar<<" e loro elenco "<<endl;
+for(int ic =0;ic<NStructVar; ic++){
+	cout<<"\tvar. n. "<<ic<<", nome = "<<StructVarName[ic]<<endl;
+}
 
 
 
+for(int ic =0;ic<NStructVar; ic++){
+   cout<<"NRowsInWhichStructVarArePresent  "<<NRowsInWhichStructVarArePresent[ic]
+     <<", nome var. strut. n."<<ic<<"  = "
+     <<StructVarName[ic]<<endl;
+
+  for(int jc=0; jc<NRowsInWhichStructVarArePresent[ic];jc++){
+   cout<<"n. "<<jc<<"  NameRowsInWhichStructVarArePresent  "<<NameRowsInWhichStructVarArePresent[ic*NStructRowsMax+jc]<<endl;
+  }
+}
 
 
-//----------------------  calling the minimizer
+cout<<"n Coefficient "<<21*nMvdHits+24*nSttHits<<endl;
+iii=0;
+for(int ic =0;ic<NStructVar; ic++){
+   cout<<"Struct. Var."<< StructVarName[ic] <<" e' presente in "<< NRowsInWhichStructVarArePresent[ic]
+	<<"  Rows;"<<endl;
+  for(ii=0;ii<NRowsInWhichStructVarArePresent[ic];ii++){
 
+   cout<<"\tin Row "<<NameRowsInWhichStructVarArePresent[ic*NStructRowsMax+ii]
+         <<", ha  Coefficient   "<<Coefficients[ic*NStructRowsMax+ii]<<
+	" (n. sequenziale = "<<iii<<")"<<endl;
+	iii++;
+  }
+}
 
+cout<<"n valuesB "<<nRows-1<<endl;
+for(int ic =0;ic<nRows-1; ic++){
+   cout<<"n. "<<ic<<",  valuesB   "<<ValueB[ic]<<endl;
+}
+cout<<"n ranges "<<nRanges<<endl;
+for(int ic =0;ic<nRanges; ic++){
+   cout<<"n. "<<ic<<",  RANGES   "<<ValueRanges[ic]<<endl;
+}
+cout<<"n Bounds "<<nBounds<<endl;
+for(int ic =0;ic<nBounds; ic++){
+   cout<<"n. "<<ic<<",  Bounds   "<<BoundValue[ic]<<endl;
+   cout<<"n. "<<ic<<",  Bound Type   "<<TypeofBound[ic]<<endl;
+   cout<<"n. "<<ic<<",  Bound Name   "<<BoundStructVarName[ic]<<endl;
+}
+*/
+
+//-------fine stampaggi
+
+//-----------------------  funzioni chiamate direttamente
+/*
+cout<<"cavolo2, da sttmvdtracking : nRows = "<<nRows<<", NStructVar = "<<
+	NStructVar<<", NStructRowsMax = "<<NStructRowsMax<<
+	", NRowsInWhichStructVarArePresent = "<<
+	NRowsInWhichStructVarArePresent<<", nRanges = "<<nRanges
+	<<", nBounds = "<<nBounds<<endl;
+*/
       int status= glp_main(
             nRows,nameRows,typeRows, //  ROWS info
-            NStructVar, NStructRows, NRowsInWhichStructVarArePresent,  //  COLUMNS info
+            NStructVar, NStructRowsMax, NRowsInWhichStructVarArePresent,  //  COLUMNS info
       StructVarName, NameRowsInWhichStructVarArePresent,  //  COLUMNS info
       Coefficients,  //  COLUMNS info
       ValueB,  // RHS  info
       nRanges, ValueRanges, NameRanges, //  RANGES  info
       nBounds, BoundValue, BoundStructVarName, TypeofBound //  BOUNDS info
-//      ,final_values, TIMEOUT  //  timeout is in seconds.
+//      ,final_values, TIMEOUT
       ,final_values
        );
-     if (status != 0) return -100;	// fit failed
+
+     if (status != 0) return -5;	// fit failed
+
+//--------stampaggi
+/*
+printf("from main, final printout con routines chiamate direttamente -------------------------------\n");
+printf("      number of structural variables %d\n",NStructVar);
+int ica;
+for(ica=0;ica<NStructVar;ica++){
+    printf("name of structural variable %s and its final value %g\n",
+           StructVarName[ica], final_values[ica]);
+}
+printf("from main, end of final printout  con routines chiamate direttamente -------------------------------\n");
+*/
+//--------fine stampaggi
 
 
 
+//-----------------------  fine funzioni chiamate direttamente
 
-//------------------------------------------
 
      m1_result=final_values[0];
      m2_result=final_values[1];
-     q1_result=final_values[2];
-     q2_result=final_values[3];
+//     q1_result=final_values[2];
+//     q2_result=final_values[3];
 
 
-//------------------------  transformation of the result in terms of ALFA, BETA, GAMMA
-
-
-     *qu = q1_result - q2_result;
      *emme = m1_result-m2_result ;
-
-
-
-// taking into account the rotation that was performed and calculate emme and qu in the normal conformal plane
+// taking into account the rotation + traslation that was performed and calculate emme and qu
 
       if(fabs(cose-*emme*sine)> 1.e-10) {
-        *qu=*qu/(cose-*emme*sine);
-        *emme=(*emme*cose+sine)/(cose-*emme*sine);
-        return 1;
-      } else {    //  in this case the equation is   0 = x+*qu .
-        if(fabs(sine+*emme*cose) < 1.e-10)  {
-  cout<<" From PndSttFitSZspace, situation impossible in principle! Returning -1"
-                    <<endl;
-           return -1;
-        }
-
-        *emme=1.;
-        *qu = *qu/(sine+*emme*cose);
-        return 99;    //  in this case the equation is   0 = x+*qu .
+        *emme=((*emme)*cose+sine)/(cose-(*emme)*sine);
+	return 1;
+      } else {    //  in this case the equation is   0 = U in the Conformal plane --> x=0 in the XY plane.
+           return -99;
       }
-
-
 
 
 
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-//----------end of function PndSttTrackFinderReal::PndSttFitSZspace
+//----------end of function PndSttTrackFinderReal::FitSZspace
 
 
 
@@ -9523,12 +9306,6 @@ if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "
                                                      Double_t *emme
                                                             )
 {
-
-
-
-
-
-
 
     //   definition of variables for the glpsol  solver
    //    ROWS (for read_rows  function)
