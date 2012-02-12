@@ -34,7 +34,8 @@ CFLAGSDYM = $(CFLAGS) -fPIC
 
 
 
-all:			test_simple_bar test_simple_bar2 test_simple_bar2a test_disk test_sheet test_cylinder \
+all:			test_simple_bar test_simple_bar2 test_simple_bar2a test_simple_bar2b \
+			test_disk test_sheet test_cylinder \
 			test_focus test_focus2 test_absorption test_test test_titti \
 			test_top test_air_lens test_hook test_barrel1 test_barrel1a test_barrel2  \
 			test_barrel3 test_lens mppc test_system prototype test_cyl_lens \
@@ -54,6 +55,8 @@ test_simple_bar2:	$(OBJECTS) test_simple_bar2.o
 			g++ -o test_simple_bar2 test_simple_bar2.o $(OBJECTS) $(LDLIBS)
 test_simple_bar2a:	$(OBJECTS) test_simple_bar2a.o
 			g++ -o test_simple_bar2a test_simple_bar2a.o $(OBJECTS) $(LDLIBS)
+test_simple_bar2b:	$(OBJECTS) test_simple_bar2b.o
+			g++ -o test_simple_bar2b test_simple_bar2b.o $(OBJECTS) $(LDLIBS)
 
 test_disk:		$(OBJECTS) test_disk.o
 			g++ -o test_disk test_disk.o $(OBJECTS) $(LDLIBS)

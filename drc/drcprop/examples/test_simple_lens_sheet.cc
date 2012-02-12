@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
   //lens_radius = 30;
   
 
-  int ioption = 1; // 1=cherenkov, 2=testbeam
+  int ioption = 2; // 1=cherenkov, 2=testbeam
   int coating = true;  
   
 
@@ -255,7 +255,7 @@ int main(int argc, char *argv[])
   
   if (ioption==1)
     {
-      photons_exist = manager->Cerenkov(pos,dir,beta); // generate photons
+      photons_exist = manager->Cerenkov(pos,dir,beta,0,1e16,400,405); // generate photons
       /*
 	list<PndDrcPhoton> list_photon = manager->PhotonList();
 	list<PndDrcPhoton>::const_iterator  kiter=list_photon.begin();
@@ -279,12 +279,12 @@ int main(int argc, char *argv[])
 	  for (int iy=0; iy<imax; iy++)	
 	{
 	  
-	  for (double theta=0; theta<=0; theta+=10)
+	  for (double theta=35; theta<=35; theta+=10)
 	    {    
 	      ph.SetPosition(XYZPoint(
 				      -half_width+1+ix*2*(half_width-1)/imax,
 				      -half_thick+1+iy*2*(half_thick-1)/imax,
-				      half_length));
+				      1));
 	      double z = cos(theta*kPi/180);
 	      double y = sin(theta*kPi/180);
 	      ph.SetDirection(XYZVector(0,y,-z));

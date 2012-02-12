@@ -127,8 +127,8 @@ int main(int argc, char *argv[])
   
 
   bool in = true; // in and out
-  double theta=30; 
-  refl.SetPolarizationDirection(Drc::PolDirS);
+  double theta=15; 
+  refl.SetPolarizationDirection(Drc::PolDirP);
   
   
   for (double lambda=200; lambda<801; lambda+=1)
