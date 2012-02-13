@@ -13922,23 +13922,7 @@ for(int iz=0;iz<nummm;iz++){
 			YintersectionList,  // output
 			&distance  // output
 						);
-cout<<"cazzo, scitx "<<posizSciTilx<<", scity "<<posizSciTily
-<<", sign "<<SIGN<<", Ox "<<Ox[nTracksFoundSoFar]<<endl
-<<"cazzo Oy "<<Oy[nTracksFoundSoFar]<<", r "<<R[nTracksFoundSoFar]<<endl;
-cout<<"cazzo, Px1 "<<posizSciTilx-fabs(0.5*DIMENSIONSCITIL*posizSciTily/sqrtRR)
-<<", Py1 "<<posizSciTily-SIGN*fabs(0.5*DIMENSIONSCITIL*posizSciTilx/sqrtRR)
-<<", Px2 "<<posizSciTilx+fabs(0.5*DIMENSIONSCITIL*posizSciTily/sqrtRR)
-<<", Py2 "<<posizSciTily+SIGN*fabs(0.5*DIMENSIONSCITIL*posizSciTilx/sqrtRR)
-<<endl;
 
-if(intersect){
-	 cout<<"cazzo, evt. "<<IVOLTE<<", ci sono "<<Nint<<" intersezioni che sono:\n";
-	 for (int iq=0;iq<Nint;iq++){
-	 	cout<<"\tcazzo, suo X "<<XintersectionList[iq]
-		<<" e sua Y "<<YintersectionList[iq]<<endl;
-	 }
-	 }
-else {cout<<"cazzo, evt. "<<IVOLTE<<", non c'e' intersezione !\n";}
 
  } // end if (iHit<0)
 
