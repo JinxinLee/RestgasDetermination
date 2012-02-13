@@ -26,7 +26,7 @@ class PndLmdTrackFinderTask : public FairTask
  public:
 
     /** Default constructor **/
-    PndLmdTrackFinderTask(Int_t inFinderMode=0);
+    PndLmdTrackFinderTask(Int_t inFinderMode=0, TString hitBranch="LMDHitsStrip", Int_t innSensPP=8);
     /** Destructor **/
     virtual ~PndLmdTrackFinderTask();
 
@@ -46,6 +46,7 @@ class PndLmdTrackFinderTask : public FairTask
  private:
    Double_t dXY;
    Int_t fFinderMode;
+   Int_t nSensPP;
 
 //    std::vector<Int_t> GetHitPerCluster(PndSdsClusterStrip* clusterCand);
    Double_t GetTrackDip(PndMCTrack* myTrack);

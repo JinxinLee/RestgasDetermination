@@ -14,16 +14,15 @@
 #include "PndLmdTrackFinderTask.h"
 
 #include "PndSdsDigiStrip.h"
-#include <cmath>
 // #include "PndSdsPixelCluster.h"
 
 
 // -----   Default constructor   -------------------------------------------
-PndLmdTrackFinderTask::PndLmdTrackFinderTask(Int_t inFinderMode) :
-  FairTask("LMD Track Finding Task")
+PndLmdTrackFinderTask::PndLmdTrackFinderTask(Int_t inFinderMode, TString hitBranch, Int_t innSensPP) :
+  FairTask("LMD Track Finding Task"), nSensPP(innSensPP)
 {
    fFinderMode = inFinderMode;
-   fHitBranchStrip = "LMDHitsStrip";
+   fHitBranchStrip = hitBranch;
    fClusterBranchStrip = "LMDStripClusterCand";
    fDigiBranchStrip = "LMDStripDigis";
    dXY = 0.01;
@@ -89,13 +88,13 @@ InitStatus PndLmdTrackFinderTask::Init()
   fStripClusterArray = (TClonesArray*) ioman->GetObject(fClusterBranchStrip);
   if ( !fStripClusterArray){
     std::cout << "-W- PndLmdTrackFinderTask::Init: " << "No StripclusterArray!" << std::endl;
-    return kERROR;
+    //return kERROR;
   }
 
   fStripDigiArray = (TClonesArray*) ioman->GetObject(fDigiBranchStrip);
   if ( !fStripDigiArray){
     std::cout << "-W- PndLmdTrackFinderTask::Init: " << "No StripdigiArray!" << std::endl;
-    return kERROR;
+    //return kERROR;
   }
 
   fTrackCandArray = new TClonesArray("PndTrackCand");
@@ -120,8 +119,7 @@ bool PndLmdTrackFinderTask::SortHitsByDet(std::vector< std::vector< std::pair<In
     PndSdsHit* myHit = (PndSdsHit*)(fStripHitArray->At(iHit));
   
     Int_t sensid = myHit->GetSensorID(); // Sensors: 1..32
-    //   cout<<"sencor ID: "<<sensid<<endl;
-    Int_t planeid = floor((sensid)/8.); //8 sensors/plane => Planes: 0..3
+    Int_t planeid = floor((sensid)/(double)nSensPP); //nSensPP sensors/plane => Planes: 0..3
     hitsd.at(planeid).push_back( make_pair (iHit,false) );
   }
 
@@ -129,7 +127,7 @@ bool PndLmdTrackFinderTask::SortHitsByDet(std::vector< std::vector< std::pair<In
      if(hitsd.at(iPlane).size()>0) nPlanes++;
   }
 
-  //  cout << "Hits: " << nStripHits << endl;
+  cout << "Hits: " << nStripHits << endl;
   if(fVerbose>2) {
     cout << "Hits: " << nStripHits << " in " << nPlanes << " plane(s)." << endl;
     for(Int_t idet = 0; idet < 4; idet++)
@@ -294,15 +292,21 @@ void PndLmdTrackFinderTask::FindHitsIII(std::vector<PndTrackCand> &tofill, std::
 
     if(fVerbose>2) cout << "  Track L2L3: "<< i << "#Planes: " << ids.size() <<endl;
 
-    //create track für fitting
+    //create track for fitting
     if(ids.size()>2){ //third hit found <=> !track found!
       PndTrackCand *myTCand = new PndTrackCand();
 
       for (Int_t id=0; id<ids.size(); id++){
         PndSdsHit* myHit = (PndSdsHit*)(fStripHitArray->At(ids.at(id)));
-        PndSdsClusterStrip* myCluster =  (PndSdsClusterStrip*)(fStripClusterArray->At(myHit->GetClusterIndex()));
-        PndSdsDigiStrip* astripdigi = (PndSdsDigiStrip*)fStripDigiArray->At(myCluster->GetDigiIndex(0));
-        myTCand->AddHit(astripdigi->GetDetID(),ids.at(id),myHit->GetPosition().Mag());  
+        PndSdsClusterStrip* myCluster;
+        PndSdsDigiStrip* astripdigi;
+        if ( !fStripClusterArray || !fStripDigiArray){ //for ideal/fast Hit-Reco
+          myTCand->AddHit(0,ids.at(id),myHit->GetPosition().Mag()); 
+        }else{
+          myCluster =  (PndSdsClusterStrip*)(fStripClusterArray->At(myHit->GetClusterIndex()));
+          astripdigi = (PndSdsDigiStrip*)fStripDigiArray->At(myCluster->GetDigiIndex(0));
+          myTCand->AddHit(astripdigi->GetDetID(),ids.at(id),myHit->GetPosition().Mag());  
+        }
       }
 
       //mark used hits---------
@@ -316,13 +320,13 @@ void PndLmdTrackFinderTask::FindHitsIII(std::vector<PndTrackCand> &tofill, std::
       PndSdsHit* myHit0 = (PndSdsHit*)(fStripHitArray->At(ids.at(0)));
       PndSdsHit* myHit1 = (PndSdsHit*)(fStripHitArray->At(ids.at(1)));
       TVector3 hit0 = myHit0->GetPosition(); TVector3 hit1 = myHit1->GetPosition();
-      // double p1seed = (hit0.X()-hit1.X())/(hit0.Z()-hit1.Z());
-      // double p0seed = 0.5*(hit0.X()+hit1.X()-p1seed*(hit0.Z()+hit1.Z()-2*1099.)); //TO DO: don't use const
-      // double p3seed = (hit0.Y()-hit1.Y())/(hit0.Z()-hit1.Z());
-      // double p2seed = 0.5*(hit0.Y()+hit1.Y()-p1seed*(hit0.Z()+hit1.Z()-2*1099.)); //TO DO: don't use const
-      TVector3 dirSeed = hit1 - hit0;
-      dirSeed *= 1./dirSeed.Mag();
-      myTCand->setTrackSeed(hit0,dirSeed,0);
+      double p1seed = (hit0.X()-hit1.X())/(hit0.Z()-hit1.Z());
+      double p0seed = 0.5*(hit0.X()+hit1.X()-p1seed*(hit0.Z()+hit1.Z()-2*1099.)); //TO DO: don't use const
+      double p3seed = (hit0.Y()-hit1.Y())/(hit0.Z()-hit1.Z());
+      double p2seed = 0.5*(hit0.Y()+hit1.Y()-p1seed*(hit0.Z()+hit1.Z()-2*1099.)); //TO DO: don't use const
+      TVector3 posSeed(p0seed,p2seed,0);
+      TVector3 dirSeed(p1seed,p3seed,1100.);
+      myTCand->setTrackSeed(posSeed,dirSeed,0);
       ///-------------------------------------
 
       tofill.push_back(*(myTCand)); //save Track Candidate
@@ -426,9 +430,15 @@ void PndLmdTrackFinderTask::FindHitsII(std::vector<PndTrackCand> &tofill, std::v
 
       for (Int_t id=0; id<ids.size(); id++){
         PndSdsHit* myHit = (PndSdsHit*)(fStripHitArray->At(ids.at(id)));
-        PndSdsClusterStrip* myCluster =  (PndSdsClusterStrip*)(fStripClusterArray->At(myHit->GetClusterIndex()));
-        PndSdsDigiStrip* astripdigi = (PndSdsDigiStrip*)fStripDigiArray->At(myCluster->GetDigiIndex(0));
-        myTCand->AddHit(astripdigi->GetDetID(),ids.at(id),myHit->GetPosition().Mag());  
+        PndSdsClusterStrip* myCluster;
+        PndSdsDigiStrip* astripdigi;
+        if ( !fStripClusterArray || !fStripDigiArray){ //for ideal/fast Hit-Reco
+          myTCand->AddHit(0,ids.at(id),myHit->GetPosition().Mag()); 
+        }else{
+          myCluster =  (PndSdsClusterStrip*)(fStripClusterArray->At(myHit->GetClusterIndex()));
+          astripdigi = (PndSdsDigiStrip*)fStripDigiArray->At(myCluster->GetDigiIndex(0));
+          myTCand->AddHit(astripdigi->GetDetID(),ids.at(id),myHit->GetPosition().Mag());  
+        }
       }
 
       //mark used hits---------
@@ -442,15 +452,13 @@ void PndLmdTrackFinderTask::FindHitsII(std::vector<PndTrackCand> &tofill, std::v
       PndSdsHit* myHit0 = (PndSdsHit*)(fStripHitArray->At(ids.at(0)));
       PndSdsHit* myHit1 = (PndSdsHit*)(fStripHitArray->At(ids.at(1)));
       TVector3 hit0 = myHit0->GetPosition(); TVector3 hit1 = myHit1->GetPosition();
-      // double p1seed = (hit0.X()-hit1.X())/(hit0.Z()-hit1.Z());
-      // double p0seed = 0.5*(hit0.X()+hit1.X()-p1seed*(hit0.Z()+hit1.Z()-2*1099.)); //TO DO: don't use const
-      // double p3seed = (hit0.Y()-hit1.Y())/(hit0.Z()-hit1.Z());
-      // double p2seed = 0.5*(hit0.Y()+hit1.Y()-p1seed*(hit0.Z()+hit1.Z()-2*1099.)); //TO DO: don't use const
-      // TVector3 posSeed(p0seed,p2seed,1100.);
-      //  TVector3 dirSeed(p1seed,p3seed,0.);
-      TVector3 dirSeed = hit1 - hit0;
-      dirSeed *= 1./dirSeed.Mag();
-      myTCand->setTrackSeed(hit0,dirSeed,0);
+      double p1seed = (hit0.X()-hit1.X())/(hit0.Z()-hit1.Z());
+      double p0seed = 0.5*(hit0.X()+hit1.X()-p1seed*(hit0.Z()+hit1.Z()-2*1099.)); //TO DO: don't use const
+      double p3seed = (hit0.Y()-hit1.Y())/(hit0.Z()-hit1.Z());
+      double p2seed = 0.5*(hit0.Y()+hit1.Y()-p1seed*(hit0.Z()+hit1.Z()-2*1099.)); //TO DO: don't use const
+      TVector3 posSeed(p0seed,p2seed,0);
+      TVector3 dirSeed(p1seed,p3seed,1100.);
+      myTCand->setTrackSeed(posSeed,dirSeed,0);
       ///-------------------------------------
 
       tofill.push_back(*(myTCand)); //save Track Candidate
@@ -557,11 +565,16 @@ void PndLmdTrackFinderTask::FindHitsI(std::vector<PndTrackCand> &tofill, std::ve
       PndTrackCand *myTCand = new PndTrackCand();
       
       for (Int_t id=0; id<ids.size(); id++){
-	if(fVerbose>2) cout<<" with hit#"<<(ids.at(id))<<" on plane "<<id<<endl;
         PndSdsHit* myHit = (PndSdsHit*)(fStripHitArray->At(ids.at(id)));
-        PndSdsClusterStrip* myCluster =  (PndSdsClusterStrip*)(fStripClusterArray->At(myHit->GetClusterIndex()));
-        PndSdsDigiStrip* astripdigi = (PndSdsDigiStrip*)fStripDigiArray->At(myCluster->GetDigiIndex(0));
-        myTCand->AddHit(astripdigi->GetDetID(),ids.at(id),myHit->GetPosition().Mag());  
+        PndSdsClusterStrip* myCluster;
+        PndSdsDigiStrip* astripdigi;
+        if ( !fStripClusterArray || !fStripDigiArray){ //for ideal/fast Hit-Reco
+          myTCand->AddHit(0,ids.at(id),myHit->GetPosition().Mag()); 
+        }else{
+          myCluster =  (PndSdsClusterStrip*)(fStripClusterArray->At(myHit->GetClusterIndex()));
+          astripdigi = (PndSdsDigiStrip*)fStripDigiArray->At(myCluster->GetDigiIndex(0));
+          myTCand->AddHit(astripdigi->GetDetID(),ids.at(id),myHit->GetPosition().Mag());  
+        } 
       }
 
       //mark used hits---------
@@ -681,8 +694,8 @@ void PndLmdTrackFinderTask::Exec(Option_t* opt)
   //fill tracklist für fitting
   for(int t=0; t<theCands.size(); t++)
     new((*fTrackCandArray)[t]) PndTrackCand(theCands.at(t)); 
-  if(fVerbose>3) cout<<"Total number of trk-cand is "<<theCands.size()<<endl;
-  if(fVerbose>2) cout <<"Evt finsihed--------------"<<endl<<endl;
+
+  if(fVerbose>2) cout << "Evt finsihed--------------"<<endl<<endl;
 }
 // -------------------------------------------------------------------------
 
