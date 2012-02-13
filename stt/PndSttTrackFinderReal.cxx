@@ -493,7 +493,6 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
                FI0[MAXTRACKSPEREVENT],
                trajectory_vertex[3],
                infoparalConformal[nmaxHits][5],
-               infoSciTilConformal[nmaxSciTilHits][3],
                S[2*nmaxHits],
 	tmpErrorZDrift[nmaxHitsInTrack],
 	tmpS[nmaxHitsInTrack],
@@ -640,11 +639,6 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 		posizSciTil[0][0]=posiz.X();
 		posizSciTil[0][1]=posiz.Y();
 		posizSciTil[0][2]=posiz.Z();
-		aaa = posizSciTil[0][0]*posizSciTil[0][0]+
-		  posizSciTil[0][1]*posizSciTil[0][1];
-		infoSciTilConformal[0][0]= posizSciTil[0][0]/aaa;
-		infoSciTilConformal[0][1]= posizSciTil[0][1]/aaa;
-		infoSciTilConformal[0][2]= DIMENSIONSCITIL/aaa;
 		iaccept=1;
 	// the other SciTil hits; purge them if they are duplicate.
 	 for(j=1; j<nSciTilHits; j++){
@@ -670,11 +664,6 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 	    posizSciTil[iaccept][0]=posiz.X();
 	    posizSciTil[iaccept][1]=posiz.Y();
 	    posizSciTil[iaccept][2]=posiz.Z();
-	    aaa = posizSciTil[iaccept][0]*posizSciTil[iaccept][0]+
-		  posizSciTil[iaccept][1]*posizSciTil[iaccept][1];
-	    infoSciTilConformal[iaccept][0]= posizSciTil[iaccept][0]/aaa;
-	    infoSciTilConformal[iaccept][1]= posizSciTil[iaccept][1]/aaa;
-	    infoSciTilConformal[iaccept][2]= DIMENSIONSCITIL/aaa;
 	    iaccept++;
 	    finish: ;
 
@@ -1020,10 +1009,10 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 				 ListHitsinTrack,
 				 nSciTilHitsinTrack,
 				 ListSciTilHitsinTrack,
-				 InclusionListSciTil,
 				 trajectory_vertex,
 				 infoparalConformal,
-				 infoSciTilConformal,
+				 posizSciTil[i][0],
+				 posizSciTil[i][1],
 				 Ox,
 				 Oy,
 				 R,
@@ -1035,6 +1024,9 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 				 U,
 				 V
 				);
+	// whether or not the outcome is positive, don't reprocess ever this SciTil hit.
+	InclusionListSciTil[i]=false;
+
 	if(!outcome)  continue;
 	for(j=0; j<nHitsinTrack[nTracksFoundSoFar]; j++){
 	  InclusionList[infoparal[ListHitsinTrack[nTracksFoundSoFar][j]]] = false;
@@ -1099,10 +1091,10 @@ cout<<"from PndSttTrackFinderReal :  # n. Tracks found so far = "<<nTracksFoundS
 				 ListHitsinTrack,
 				 nSciTilHitsinTrack,
 				 ListSciTilHitsinTrack,
-				 InclusionListSciTil,
 				 trajectory_vertex,
 				 infoparalConformal,
-				 infoSciTilConformal,
+				 1.,	// dummy value, there is no SciTil info in this case;
+				 1.,	// dummy value, there is no SciTil info in this case
 				 Ox,
 				 Oy,
 				 R,
@@ -13591,10 +13583,10 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 		UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
 		UShort_t *nSciTilHitsinTrack,
 		UShort_t ListSciTilHitsinTrack[MAXTRACKSPEREVENT][nmaxSciTilHitsInTrack],
-		bool *InclusionListSciTil,
 		Double_t *trajectory_vertex,
 		Double_t infoparalConformal[nmaxHits][5],
-		Double_t infoSciTilConformal[nmaxSciTilHits][3],
+		Double_t posizSciTilx,
+		Double_t posizSciTily,
 		Double_t *Ox,
 		Double_t *Oy,
 		Double_t *R,
@@ -13607,6 +13599,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 		Double_t V[MAXTRACKSPEREVENT][nmaxHits]
 							)
 {
+
 
 //---------------
 
@@ -13785,7 +13778,8 @@ for(int iz=0;iz<nHitsinTrack[nTracksFoundSoFar];iz++){
 
 
  bool Type;
- int nFitPoints;
+ int	nFitPoints,
+	offset;
  Double_t
 	Xconformal[1+nHitsinTrack[nTracksFoundSoFar]],
 	Yconformal[1+nHitsinTrack[nTracksFoundSoFar]],
@@ -13793,35 +13787,31 @@ for(int iz=0;iz<nHitsinTrack[nTracksFoundSoFar];iz++){
 	ErrorDriftRadiusconformal[1+nHitsinTrack[nTracksFoundSoFar]];
 
  if(iHit<0){	// case with a hit in the SciTil
-
-
-  Xconformal[0] =infoSciTilConformal[-iHit-1][0];
-  Yconformal[0] =infoSciTilConformal[-iHit-1][1];
-  ErrorDriftRadiusconformal[0] = infoSciTilConformal[-iHit-1][2];
+  aaa = posizSciTilx*posizSciTilx+posizSciTily*posizSciTily;
+  Xconformal[0] =posizSciTilx/aaa;
+  Yconformal[0] =posizSciTily/aaa;
+  ErrorDriftRadiusconformal[0] = DIMENSIONSCITIL/aaa;
   DriftRadiusconformal[0]=-1.;  // treat it like it is a Mvd hit.
 
-  for(j=0; j<nHitsinTrack[nTracksFoundSoFar]; j++){
-    Xconformal[j+1] =infoparalConformal[ListHitsinTrack[nTracksFoundSoFar][j]][0];
-    Yconformal[j+1] =infoparalConformal[ListHitsinTrack[nTracksFoundSoFar][j]][1];
-    ErrorDriftRadiusconformal[j+1]=
-		infoparalConformal[ListHitsinTrack[nTracksFoundSoFar][j]][2];
-    DriftRadiusconformal[j+1]=
-		infoparalConformal[ListHitsinTrack[nTracksFoundSoFar][j]][2];
-  }
-  nFitPoints = nHitsinTrack[nTracksFoundSoFar]+1;
+ // +1 comes from one SciTil hit.
+   offset=1;
+   nFitPoints = nHitsinTrack[nTracksFoundSoFar]+1;
 
  } else {	// no SciTil hit.
-  for(j=0; j<nHitsinTrack[nTracksFoundSoFar]; j++){
+   offset=0;
+   nFitPoints = nHitsinTrack[nTracksFoundSoFar];
+ }  // end of  if(iHit<0)
 
-   Xconformal[j] = infoparalConformal[ ListHitsinTrack[nTracksFoundSoFar][j]][0];
-   Yconformal[j] = infoparalConformal[ ListHitsinTrack[nTracksFoundSoFar][j]][1];
-   ErrorDriftRadiusconformal[j] =
-		infoparalConformal[ ListHitsinTrack[nTracksFoundSoFar][j]][2];
-   DriftRadiusconformal[j]=
-		infoparalConformal[ ListHitsinTrack[nTracksFoundSoFar][j]][2];
+  for(j=0; j<nHitsinTrack[nTracksFoundSoFar]; j++){
+    Xconformal[j+offset] =infoparalConformal[ListHitsinTrack[nTracksFoundSoFar][j]][0];
+    Yconformal[j+offset] =infoparalConformal[ListHitsinTrack[nTracksFoundSoFar][j]][1];
+    ErrorDriftRadiusconformal[j+offset]=
+		infoparalConformal[ListHitsinTrack[nTracksFoundSoFar][j]][2];
+    DriftRadiusconformal[j+offset]=
+		infoparalConformal[ListHitsinTrack[nTracksFoundSoFar][j]][2];
   }
-  nFitPoints = nHitsinTrack[nTracksFoundSoFar];
- }
+
+
 
 
 //------------------------
@@ -13868,8 +13858,6 @@ for(int iz=0;iz<nummm;iz++){
 
  if(status < 0  ) return false;
 
-
-
 //  this trasformation is valid even if the equation is a straight line from the fit
 
  Ox[nTracksFoundSoFar]= -0.5*ALFA[nTracksFoundSoFar];
@@ -13892,6 +13880,67 @@ for(int iz=0;iz<nummm;iz++){
  if ( R[nTracksFoundSoFar] + aaa < RadiusMinStrawDetector *0.9 ) return false;
 
 //---------------------------
+
+//  check again if the SciTil hit (if present) is compatible with this circle trajectory
+//  in  XY by finding if it has intersection (in the XY plane) with Helix circle
+
+//  equation of the SciTil segment :  y0 * y + x0 * x - x0**2 - y0**2 = 0
+//  where  (x0,y0) = position of center of the SciTil.
+
+//  delimiting points of the SciTil segment :  define L = length of the SciTil, 
+//  and RR = sqrt(x0**2+y0**2), SIGN = the sign of (-x0*y0) or SIGN=1 when y0=0,
+//  SIGN=irrelevant when x0=0;   then :
+//  P1 =  [ x0- abs{(L/2)*y0/RR}; y0-SIGN*abs{(L/2)*x0/RR} ],
+//  P2 =  [ x0+abs{(L/2)*y0/RR}; y0+SIGN*abs{(L/2)*x0/RR} ].
+
+ if(iHit<0){
+
+	UShort_t Nint;
+	Double_t distance,
+		 RR = posizSciTilx*posizSciTilx+posizSciTily*posizSciTily,
+		 sqrtRR=sqrt(RR),
+		 SIGN,
+		 XintersectionList[2],
+		 YintersectionList[2];
+
+	if( -posizSciTilx*posizSciTily <0. )  SIGN=-1.;
+	else  SIGN=1.;
+
+	bool intersect = IntersectionCircle_Segment(
+			posizSciTilx,
+			posizSciTily,
+			-RR,
+			posizSciTilx-fabs(0.5*DIMENSIONSCITIL*posizSciTily/sqrtRR),
+			posizSciTilx+fabs(0.5*DIMENSIONSCITIL*posizSciTily/sqrtRR),
+			posizSciTily-SIGN*fabs(0.5*DIMENSIONSCITIL*posizSciTilx/sqrtRR),
+			posizSciTily+SIGN*fabs(0.5*DIMENSIONSCITIL*posizSciTilx/sqrtRR),
+			Ox[nTracksFoundSoFar],
+			Oy[nTracksFoundSoFar],
+			R[nTracksFoundSoFar],
+			&Nint,  // output
+			XintersectionList,  // output
+			YintersectionList,  // output
+			&distance  // output
+						);
+cout<<"cazzo, scitx "<<posizSciTilx<<", scity "<<posizSciTily
+<<", sign "<<SIGN<<", Ox "<<Ox[nTracksFoundSoFar]<<endl
+<<"cazzo Oy "<<Oy[nTracksFoundSoFar]<<", r "<<R[nTracksFoundSoFar]<<endl;
+cout<<"cazzo, Px1 "<<posizSciTilx-fabs(0.5*DIMENSIONSCITIL*posizSciTily/sqrtRR)
+<<", Py1 "<<posizSciTily-SIGN*fabs(0.5*DIMENSIONSCITIL*posizSciTilx/sqrtRR)
+<<", Px2 "<<posizSciTilx+fabs(0.5*DIMENSIONSCITIL*posizSciTily/sqrtRR)
+<<", Py2 "<<posizSciTily+SIGN*fabs(0.5*DIMENSIONSCITIL*posizSciTilx/sqrtRR)
+<<endl;
+
+if(intersect){
+	 cout<<"cazzo, evt. "<<IVOLTE<<", ci sono "<<Nint<<" intersezioni che sono:\n";
+	 for (int iq=0;iq<Nint;iq++){
+	 	cout<<"\tcazzo, suo X "<<XintersectionList[iq]
+		<<" e sua Y "<<YintersectionList[iq]<<endl;
+	 }
+	 }
+else {cout<<"cazzo, evt. "<<IVOLTE<<", non c'e' intersezione !\n";}
+
+ } // end if (iHit<0)
 
 //---------------------  better association of the hits in the track candidate
 // treat differently the case in which the track has radius < RStrawDetectorMax/2
