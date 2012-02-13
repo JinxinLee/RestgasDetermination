@@ -21,7 +21,7 @@ public:
 	virtual ~PndSdsDigiPixelSorterTask();
 
 	virtual void AddNewDataToTClonesArray(FairTimeStamp* data);
-	virtual FairRingSorter* InitSorter(Int_t numberOfCells, Double_t widthOfCells);
+	virtual FairRingSorter* InitSorter(Int_t numberOfCells, Double_t widthOfCells) const;
 
 	ClassDef(PndSdsDigiPixelSorterTask, 1);
 };

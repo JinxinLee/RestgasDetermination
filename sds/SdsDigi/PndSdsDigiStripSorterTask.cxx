@@ -33,6 +33,6 @@ void PndSdsDigiStripSorterTask::AddNewDataToTClonesArray(FairTimeStamp* data)
 	 new ((*myArray)[myArray->GetEntries()]) PndSdsDigiStrip(*(PndSdsDigiStrip*)(data));
 }
 
-FairRingSorter* PndSdsDigiStripSorterTask::InitSorter(Int_t numberOfCells, Double_t widthOfCells){
+FairRingSorter* PndSdsDigiStripSorterTask::InitSorter(Int_t numberOfCells, Double_t widthOfCells) const{
 	return new PndSdsDigiStripRingSorter(numberOfCells, widthOfCells);
 }
