@@ -16,6 +16,7 @@
 
 //digi
 //#pragma link C++ class PndLmdHybridHitProducer+;
+#pragma link C++ class PndLmdPixelHitProducerFast+;
 #pragma link C++ class PndLmdStripHitProducer+;
 #pragma link C++ class PndLmdDigiTask+;
 #pragma link C++ class PndLmdHitProducerIdeal+;
