@@ -570,9 +570,6 @@ if(istampa>1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<", n. MC Track
  } else  if( nSttMCPoint>nmaxSttHits){
 	cout<<"da PndSttMvdTracking  :  N. di Stt MC points = "<<nSttMCPoint
 	<<" and it is > nmaxSttHits ("<<nmaxSttHits<<").\n";
-//	<<" and it is > nmaxSttHits ("<<nmaxSttHits<<"); setting nSttMCPoint to "
-//	<<nmaxSttHits<<endl;
-//	nSttMCPoint=nmaxSttHits;
  }
 
  if(istampa>1){
@@ -624,10 +621,6 @@ if(istampa>1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<", n. MC Track
 	nMvdStripHit=nmaxMvdStripHits;
  }
 
-//  if (nMvdPixelHit+nMvdStripHit ==0){
-// 	cout<<"da PndSttMvdTracking  :  N. of MvdPixelHit=nMvdStripHit=0, return!\n"<<endl;
-// 	return;
-//  }
 
 // ---------------------------------------------  get MC Points of  MVD
 
@@ -707,7 +700,6 @@ if(istampa>1) {cout<<"from PndSttMvdTracking, IVOLTE = "<<IVOLTE<<", n. MC Track
       if(ipunto>=0) {
 	puntator = (FairMCPoint*) fSttPointArray->At(ipunto);
 	info[i][6]= puntator->GetTrackID();
-//	info[i][6]= pSttMCPoint[ipunto]->GetTrackID();
       } else {
 	info[i][6]= -10.;
       }
@@ -861,14 +853,6 @@ if(istampa>2  && IVOLTE<20){
 }   //   fine    if(istampa>=2  && IVOLTE<20)
 
 //------------------------------------------ stampaggi
-
-
-
-
-
-
-
-
 
 
 // ------------------------------------------ estraggo le altre info della trackcand  del MVD
@@ -1076,12 +1060,13 @@ if(istampa>2  && IVOLTE<20){
     ListSttHitsinTrack[i][nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i]] = pndtrackcandhit.GetHitId(); // # hit of Stt
 
     if ( fabs(info[ pndtrackcandhit.GetHitId() ][5]- 1.) < 0.0001) {
+      //  axial Stt hits
       ListSttHitsinTrackType[i][nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i]] = 2; 
-
       ListSttParHitsinTrack[i][nSttParHitsinTrack[i]] = pndtrackcandhit.GetHitId(); // # hit of Stt
       nSttParHitsinTrack[i]++;
     }  else {
-       ListSttHitsinTrackType[i][nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i]] = 3; 
+      //  skew Stt hits
+      ListSttHitsinTrackType[i][nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i]] = 3; 
       ListSttSkewHitsinTrack[i][nSttSkewHitsinTrack[i]] = pndtrackcandhit.GetHitId(); // # hit of Stt
       nSttSkewHitsinTrack[i]++;
     }
@@ -1099,9 +1084,6 @@ if(istampa>2  && IVOLTE<20){
 
   TVector3	dirSeed,
 		posSeed;
-//  dirSeed=pSttTrack->GetParamFirst().GetMomentum();
-//  dirSeed.SetMag(1.);
-//  posSeed=pSttTrack->GetParamFirst().GetPosition();
 	dirSeed=pSttTrackCand->getDirSeed();
 	posSeed=pSttTrackCand->getPosSeed();
 	qop = pSttTrackCand->getQoverPseed();
