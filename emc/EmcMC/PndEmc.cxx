@@ -736,6 +736,12 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
 
   fVolumeID = nMod*100000000 + nRow*1000000 + copyNo*10000 + nCrys; 
 
+  if (fVolumeID<0)
+  {
+	  std::cout<<"Negative element index in EMC, name="<<nam<<std::endl;
+	  return kTRUE;
+  }
+  
   TVector3 pos(fPos.X(),   fPos.Y(),   fPos.Z());
   
   AddHit(fTrackID, fVolumeID, fEventID,

@@ -8,8 +8,7 @@
 //      PndEmcAbsClusterCalibrator - abstract interface class
 //
 // Versions of the correction: 
-// 1 - "emc_module12.dat", "emc_module3new.root", "emc_module4_StraightGeo24.4.root", "emc_module5_fsc.root" (EMC only)
-// 2 - "emc_module12.dat", "emc_module3new.root", "emc_module4_StraightGeo24.4.root", "emc_module5_fsc.root" (+ full PANDA geometry)
+// 1 - "emc_module12.dat","emc_module3_2011_new.root","emc_module4_StraightGeo24.4.root","emc_module5_fsc.root" (+ full PANDA geometry) TGeant3
 //
 // Author List:
 //      D.Melnychuk
@@ -56,18 +55,18 @@ PndEmcClusterCalibrator::~PndEmcClusterCalibrator()
 {
 }
 
-PndEmcAbsClusterCalibrator *PndEmcClusterCalibrator::MakeEmcClusterCalibrator(Int_t method, Int_t version, TString transportModel)
+PndEmcAbsClusterCalibrator *PndEmcClusterCalibrator::MakeEmcClusterCalibrator(Int_t method, Int_t version)
 {
 	switch (method) {
 		case 1:
-			return new PndEmcClusterHistCalibrator(version, transportModel);
+			return new PndEmcClusterHistCalibrator(version);
 			break;
 		case 2:
-			return new PndEmcClusterSimpleCalibrator(version, transportModel);
+			return new PndEmcClusterSimpleCalibrator(version);
 			break;
 		default :
 			cout<<"PndEmcClusterCalibrator:: Method "<<method<<" is not defined. Default PndEmcClusterHistCalibrator is used"<<endl;
-			return new PndEmcClusterHistCalibrator(version, transportModel);
+			return new PndEmcClusterHistCalibrator(version);
 	}
 	
 }
@@ -76,10 +75,9 @@ PndEmcAbsClusterCalibrator *PndEmcClusterCalibrator::MakeEmcClusterCalibrator(In
 /////////////////////////////////////////////////////////////////
 //////////// PndEmcAbsClusterCalibrator /////////////////////////
 /////////////////////////////////////////////////////////////////
-PndEmcAbsClusterCalibrator::PndEmcAbsClusterCalibrator(Int_t version, TString transportModel)
+PndEmcAbsClusterCalibrator::PndEmcAbsClusterCalibrator(Int_t version)
 {
 	fVersion = version; 
-	fModel = transportModel;
 }
 		
 PndEmcAbsClusterCalibrator::~PndEmcAbsClusterCalibrator()
@@ -91,66 +89,91 @@ PndEmcAbsClusterCalibrator::~PndEmcAbsClusterCalibrator()
 //////////// PndEmcClusterHistCalibrator ////////////////////////
 /////////////////////////////////////////////////////////////////
 
-PndEmcClusterHistCalibrator::PndEmcClusterHistCalibrator(Int_t version, TString transportModel)
+PndEmcClusterHistCalibrator::PndEmcClusterHistCalibrator(Int_t version)
 {
 	
 	fPath = getenv("VMCWORKDIR");
 	fPath += "/macro/params/";
  
 	TString fileNamePhoton;
-	TString fileNameElectron;
-
-	fileNamePhoton.Form("gamma_en_th_corr_%s_%i.root",fModel.Data(),version);
-	fileNameElectron.Form("electron_en_th_corr_%s_%i.root",fModel.Data(),version);
-	
-	fileNamePhoton=fPath+fileNamePhoton;
-	fileNameElectron=fPath+fileNameElectron;
+	fileNamePhoton.Form("emc_correction_hist_gamma_%i.root",version);
+	fileNamePhoton=fPath+fileNamePhoton;	
+	fHEnergyRatioBarrelPhoton=0; fHEnergyRatioFwdPhoton=0; fHEnergyRatioBwdPhoton=0; fHEnergyRatioShashlykPhoton=0;
+	fHThetaDiffBarrelPhoton=0; fHThetaDiffFwdPhoton=0; fHThetaDiffBwdPhoton=0; fHThetaDiffShashlykPhoton=0;
 	
 	fPhoton = new TFile(fileNamePhoton,"READ");
 	if (fPhoton->IsZombie())
 	{ 
-		std::cout<<"EMC cluster correction file "<<fileNamePhoton<<" for photons does not exist for given geometry"<<std::endl;
-		abort();
-	}
-	fElectron = new TFile(fileNameElectron,"READ");
-	if (fElectron->IsZombie())
+		std::cout<<"EMC cluster correction file "<<fileNamePhoton<<" for photons does not exist for given version"<<std::endl;
+	} else 
 	{
-		std::cout<<"EMC cluster correction file "<<fileNameElectron<<" for electrons does not exist for given geometry"<<std::endl;
-		abort();
+		// Photon
+		fHEnergyRatioBarrelPhoton = (TH2F*) fPhoton->Get("hisEnergyRatioBarrel");
+		fHThetaDiffBarrelPhoton = (TH2F*) fPhoton->Get("hisThetaDiffBarrel");
+		fHEnergyRatioFwdPhoton = (TH2F*) fPhoton->Get("hisEnergyRatioFwd");
+		fHThetaDiffFwdPhoton = (TH2F*) fPhoton->Get("hisThetaDiffFwd");
+		fHEnergyRatioBwdPhoton = (TH2F*) fPhoton->Get("hisEnergyRatioBwd");
+		fHThetaDiffBwdPhoton = (TH2F*) fPhoton->Get("hisThetaDiffBwd");
+		fHEnergyRatioShashlykPhoton = (TH2F*) fPhoton->Get("hisEnergyRatioShashlyk");
+		fHThetaDiffShashlykPhoton = (TH2F*) fPhoton->Get("hisThetaDiffShashlyk");
 	}
-	
-	// Names of the histograms in root files
-	// Target EMC 
-	TString nameEn = "hisEnergyDelta"; 
-	TString nameTh = "hisThetaDiff";
-	// Shashlyk
-	TString nameEn5 = "hisEnergy5Delta";
-	TString nameTh5 = "hisTheta5Diff";
-	
-	// *** GetMean() from: E_cluster/E_MC & Theta_MC-Theta_Cluster
-	// Target EMC 
-	fHEnPhoton = (TH2F*) fPhoton->Get(nameEn);
-	fHThPhoton = (TH2F*) fPhoton->Get(nameTh);
-	// Shashlyk
-	fHEn5Photon = (TH2F*) fPhoton->Get(nameEn5);
-	fHTh5Photon = (TH2F*) fPhoton->Get(nameTh5);
- 
-	// Target EMC 
-	fHEnElectron = (TH2F*) fPhoton->Get(nameEn);
-	fHThElectron = (TH2F*) fPhoton->Get(nameTh);
-	// Shashlyk
-	fHEn5Electron = (TH2F*) fElectron->Get(nameEn5);
-	fHTh5Electron = (TH2F*) fElectron->Get(nameTh5);
- 	
+
+// 	TString fileNameElectron;
+// 	TString fileNamePion;
+// 	fileNameElectron.Form("emc_correction_hist_electron_%i.root",version);
+// 	fileNamePion.Form("emc_correction_hist_pion_%i.root",version);
+// 	fileNameElectron=fPath+fileNameElectron;
+// 	fileNamePion=fPath+fileNamePion;
+// 	fHEnergyRatioBarrelElectron=0; fHEnergyRatioFwdElectron=0; fHEnergyRatioBwdElectron=0; fHEnergyRatioShashlykElectron=0;
+// 	fHThetaDiffBarrelElectron=0; fHThetaDiffFwdElectron=0; fHThetaDiffBwdElectron=0; fHThetaDiffShashlykElectron=0;
+// 	fHEnergyRatioBarrelPion=0; fHEnergyRatioFwdPion=0; fHEnergyRatioBwdPion=0; fHEnergyRatioShashlykPion=0;
+// 	fHThetaDiffBarrelPion=0; fHThetaDiffFwdPion=0; fHThetaDiffBwdPion=0; fHThetaDiffShashlykPion=0;
+// 
+// 	
+// 	fElectron = new TFile(fileNameElectron,"READ");
+// 	if (fElectron->IsZombie())
+// 	{
+// 		std::cout<<"EMC cluster correction file "<<fileNameElectron<<" for electrons does not exist for given version"<<std::endl;
+// 	} else
+// 	{
+// 		// Electron
+// 		fHEnergyRatioBarrelElectron = (TH2F*) fElectron->Get("hisEnergyRatioBarrel");
+// 		fHThetaDiffBarrelElectron = (TH2F*) fElectron->Get("hisThetaDiffBarrel");
+// 		fHEnergyRatioFwdElectron = (TH2F*) fElectron->Get("hisEnergyRatioFwd");
+// 		fHThetaDiffFwdElectron = (TH2F*) fElectron->Get("hisThetaDiffFwd");
+// 		fHEnergyRatioBwdElectron = (TH2F*) fElectron->Get("hisEnergyRatioBwd");
+// 		fHThetaDiffBwdElectron = (TH2F*) fElectron->Get("hisThetaDiffBwd");
+// 		fHEnergyRatioShashlykElectron = (TH2F*) fElectron->Get("hisEnergyRatioShashlyk");
+// 		fHThetaDiffShashlykElectron = (TH2F*) fElectron->Get("hisThetaDiffShashlyk");
+// 	}
+// 	
+// 	fPion = new TFile(fileNamePion,"READ");
+// 	if (fPion->IsZombie())
+// 	{
+// 		std::cout<<"EMC cluster correction file "<<fileNamePion<<" for pions does not exist for given version"<<std::endl;
+// 	} else
+// 	{
+// 		// Pion
+// 		fHEnergyRatioBarrelPion = (TH2F*) fPion->Get("hisEnergyRatioBarrel");
+// 		fHThetaDiffBarrelPion = (TH2F*) fPion->Get("hisThetaDiffBarrel");
+// 		fHEnergyRatioFwdPion = (TH2F*) fPion->Get("hisEnergyRatioFwd");
+// 		fHThetaDiffFwdPion = (TH2F*) fPion->Get("hisThetaDiffFwd");
+// 		fHEnergyRatioBwdPion = (TH2F*) fPion->Get("hisEnergyRatioBwd");
+// 		fHThetaDiffBwdPion = (TH2F*) fPion->Get("hisThetaDiffBwd");
+// 		fHEnergyRatioShashlykPion = (TH2F*) fPion->Get("hisEnergyRatioShashlyk");
+// 		fHThetaDiffShashlykPion = (TH2F*) fPion->Get("hisThetaDiffShashlyk");
+// 	}
 	
 }
 		
 PndEmcClusterHistCalibrator::~PndEmcClusterHistCalibrator()
 {
 	fPhoton->Close();
-	fElectron->Close();
 	delete fPhoton;
-	delete fElectron;
+// 	fElectron->Close();
+// 	fPion->Close();
+// 	delete fElectron;
+// 	delete fPion;
 }
 
 Double_t PndEmcClusterHistCalibrator::Energy(PndEmcCluster *theCluster, Int_t pid)
@@ -165,27 +188,93 @@ Double_t PndEmcClusterHistCalibrator::Energy(PndEmcCluster *theCluster, Int_t pi
 	
 	Int_t module=theCluster->GetModule();
  
+	TH2F *fHEnergyRatioBarrel, *fHThetaDiffBarrel, *fHEnergyRatioFwd, *fHThetaDiffFwd, 
+	*fHEnergyRatioBwd, *fHThetaDiffBwd, *fHEnergyRatioShashlyk, *fHThetaDiffShashlyk;
+	
 	switch (pid)
 	{
 		case 22: // photon
-			if (module==5) // shashlyk
-				valzEn = GetValueInZ( fHEn5Photon, energy, thetaRad, use_interpolation);
-			else 
-				valzEn = GetValueInZ( fHEnPhoton, energy, thetaRad, use_interpolation);
+			switch (module)
+			{
+				case 1:
+				case 2:
+					valzEn = GetValueInZ( fHEnergyRatioBarrelPhoton, energy, thetaRad, use_interpolation);
+					break;
+				case 3:
+					valzEn = GetValueInZ( fHEnergyRatioFwdPhoton, energy, thetaRad, use_interpolation);
+					break;
+				case 4:
+					valzEn = GetValueInZ( fHEnergyRatioBwdPhoton, energy, thetaRad, use_interpolation);
+					break;
+				case 5:
+					valzEn = GetValueInZ( fHEnergyRatioShashlykPhoton, energy, thetaRad, use_interpolation);
+					break;
+				default:
+					std::cout<<"Wrong EMC module in PndEmcClusterHistCalibrator"<<std::endl;
+			}
 			break;
-		case 11: // electron
-		case -11: // positron
-			if (module==5) // shashlyk
-				valzEn = GetValueInZ( fHEn5Electron, energy, thetaRad, use_interpolation);
-			else 
-				valzEn = GetValueInZ( fHEnElectron, energy, thetaRad, use_interpolation);
-			break;
+// 		case 11: // electron
+// 		case -11: // positron
+// 			switch (module)
+// 			{
+// 				case 1:
+// 				case 2:
+// 					valzEn = GetValueInZ( fHEnergyRatioBarrelElectron, energy, thetaRad, use_interpolation);
+// 					break;
+// 				case 3:
+// 					valzEn = GetValueInZ( fHEnergyRatioFwdElectron, energy, thetaRad, use_interpolation);
+// 					break;
+// 				case 4:
+// 					valzEn = GetValueInZ( fHEnergyRatioBwdElectron, energy, thetaRad, use_interpolation);
+// 					break;
+// 				case 5:
+// 					valzEn = GetValueInZ( fHEnergyRatioShashlykElectron, energy, thetaRad, use_interpolation);
+// 					break;
+// 				default:
+// 					std::cout<<"Wrong EMC module in PndEmcClusterHistCalibrator"<<std::endl;
+// 			}
+// 			break;
+// 		case 211:
+// 		case -211:
+// 			switch (module)
+// 			{
+// 				case 1:
+// 				case 2:
+// 					valzEn = GetValueInZ( fHEnergyRatioBarrelPion, energy, thetaRad, use_interpolation);
+// 					break;
+// 				case 3:
+// 					valzEn = GetValueInZ( fHEnergyRatioFwdPion, energy, thetaRad, use_interpolation);
+// 					break;
+// 				case 4:
+// 					valzEn = GetValueInZ( fHEnergyRatioBwdPion, energy, thetaRad, use_interpolation);
+// 					break;
+// 				case 5:
+// 					valzEn = GetValueInZ( fHEnergyRatioShashlykPion, energy, thetaRad, use_interpolation);
+// 					break;
+// 				default:
+// 					std::cout<<"Wrong EMC module in PndEmcClusterHistCalibrator"<<std::endl;
+// 			}
+// 			break;
 		default:
 			std::cout<<"Emc cluster correction for pid= "<<pid<<" is not defined. Photon values is used."<<std::endl;
-			if (module==5) // shashlyk
-				valzEn = GetValueInZ( fHEn5Photon, energy, thetaRad, use_interpolation);
-			else 
-				valzEn = GetValueInZ( fHEnPhoton, energy, thetaRad, use_interpolation);
+			switch (module)
+			{
+				case 1:
+				case 2:
+					valzEn = GetValueInZ( fHEnergyRatioBarrelPhoton, energy, thetaRad, use_interpolation);
+					break;
+				case 3:
+					valzEn = GetValueInZ( fHEnergyRatioFwdPhoton, energy, thetaRad, use_interpolation);
+					break;
+				case 4:
+					valzEn = GetValueInZ( fHEnergyRatioBwdPhoton, energy, thetaRad, use_interpolation);
+					break;
+				case 5:
+					valzEn = GetValueInZ( fHEnergyRatioShashlykPhoton, energy, thetaRad, use_interpolation);
+					break;
+				default:
+					std::cout<<"Wrong EMC module in PndEmcClusterHistCalibrator"<<std::endl;
+			}
 	}
 	
 	Double_t energyCorrected  = energy/valzEn;
@@ -200,7 +289,7 @@ TVector3 PndEmcClusterHistCalibrator::Where(PndEmcCluster *theCluster, Int_t pid
 	
 	Double_t energy=theCluster->energy();
 	TVector3 position=theCluster->where();
-	Double_t theta=position.Theta()*(180./TMath::Pi());
+	Double_t thetaRad=position.Theta()*(180./TMath::Pi());
 	Double_t phiRad=position.Phi();
 	Double_t mag=position.Mag();
 	
@@ -209,27 +298,90 @@ TVector3 PndEmcClusterHistCalibrator::Where(PndEmcCluster *theCluster, Int_t pid
 	switch (pid)
 	{
 		case 22: // photon
-			if (module==5) // shashlyk
-				valzTh = GetValueInZ( fHTh5Photon, energy, theta, use_interpolation);
-			else 
-				valzTh = GetValueInZ( fHThPhoton, energy, theta, use_interpolation);
+			switch (module)
+			{
+				case 1:
+				case 2:
+					valzTh = GetValueInZ( fHThetaDiffBarrelPhoton, energy, thetaRad, use_interpolation);
+					break;
+				case 3:
+					valzTh = GetValueInZ( fHThetaDiffFwdPhoton, energy, thetaRad, use_interpolation);
+					break;
+				case 4:
+					valzTh = GetValueInZ( fHThetaDiffBwdPhoton, energy, thetaRad, use_interpolation);
+					break;
+				case 5:
+					valzTh = GetValueInZ( fHThetaDiffShashlykPhoton, energy, thetaRad, use_interpolation);
+					break;
+				default:
+					std::cout<<"Wrong EMC module in PndEmcClusterHistCalibrator"<<std::endl;
+			}
 			break;
-			case 11: // electron
-			case -11: // positron
-				if (module==5) // shashlyk
-					valzTh = GetValueInZ( fHTh5Electron, energy, theta, use_interpolation);
-				else 
-					valzTh = GetValueInZ( fHThElectron, energy, theta, use_interpolation);
-			break;
+// 		case 11: // electron
+// 		case -11: // positron
+// 			switch (module)
+// 			{
+// 				case 1:
+// 				case 2:
+// 					valzTh = GetValueInZ( fHThetaDiffBarrelElectron, energy, thetaRad, use_interpolation);
+// 					break;
+// 				case 3:
+// 					valzTh = GetValueInZ( fHThetaDiffFwdElectron, energy, thetaRad, use_interpolation);
+// 					break;
+// 				case 4:
+// 					valzTh = GetValueInZ( fHThetaDiffBwdElectron, energy, thetaRad, use_interpolation);
+// 					break;
+// 				case 5:
+// 					valzTh = GetValueInZ( fHThetaDiffShashlykElectron, energy, thetaRad, use_interpolation);
+// 					break;
+// 				default:
+// 					std::cout<<"Wrong EMC module in PndEmcClusterHistCalibrator"<<std::endl;
+// 			}
+// 			break;
+// 		case 211:
+// 		case -211:
+// 			switch (module)
+// 			{
+// 				case 1:
+// 				case 2:
+// 					valzTh = GetValueInZ( fHThetaDiffBarrelPion, energy, thetaRad, use_interpolation);
+// 					break;
+// 				case 3:
+// 					valzTh = GetValueInZ( fHThetaDiffFwdPion, energy, thetaRad, use_interpolation);
+// 					break;
+// 				case 4:
+// 					valzTh = GetValueInZ( fHThetaDiffBwdPion, energy, thetaRad, use_interpolation);
+// 					break;
+// 				case 5:
+// 					valzTh = GetValueInZ( fHThetaDiffShashlykPion, energy, thetaRad, use_interpolation);
+// 					break;
+// 				default:
+// 					std::cout<<"Wrong EMC module in PndEmcClusterHistCalibrator"<<std::endl;
+// 			}
+// 			break;
 		default:
 			std::cout<<"Emc cluster correction for pid= "<<pid<<" is not defined. Photon values is used."<<std::endl;
-			if (module==5) // shashlyk
-				valzTh = GetValueInZ( fHTh5Photon, energy, theta, use_interpolation);
-			else 
-				valzTh = GetValueInZ( fHThPhoton, energy, theta, use_interpolation);
+			switch (module)
+			{
+				case 1:
+				case 2:
+					valzTh = GetValueInZ( fHThetaDiffBarrelPhoton, energy, thetaRad, use_interpolation);
+					break;
+				case 3:
+					valzTh = GetValueInZ( fHThetaDiffFwdPhoton, energy, thetaRad, use_interpolation);
+					break;
+				case 4:
+					valzTh = GetValueInZ( fHThetaDiffBwdPhoton, energy, thetaRad, use_interpolation);
+					break;
+				case 5:
+					valzTh = GetValueInZ( fHThetaDiffShashlykPhoton, energy, thetaRad, use_interpolation);
+					break;
+				default:
+					std::cout<<"Wrong EMC module in PndEmcClusterHistCalibrator"<<std::endl;
+			}
 	}
 	
-	Double_t thetaCorrected = valzTh+theta;
+	Double_t thetaCorrected = valzTh+thetaRad;
 	Double_t thetaCorrectedRad = thetaCorrected*(TMath::Pi()/180.);
 	
 	TVector3 correctedPos;
@@ -280,14 +432,21 @@ PndEmcClusterHistCalibrator::GetValueInZ(TH2 *lookup_table, Float_t value_x, Flo
       // vaguely based on R.Raja 6-Sep-2008
       //
       //cout<<"value_x = "<< value_x <<", value_y = "<<value_y <<endl;
-      
+
+	  // If values are outside histogram range return 1
+		Int_t binx, biny, retval;
+		retval = FindTheBin(lookup_table, value_x, value_y, binx, biny);
+		if (retval)
+		{
+			//std::cout<<"Energy = "<<value_x<<" theta="<<value_y<<std::endl;
+			return 1.;
+		}
       return (lookup_table->Interpolate(value_x,value_y));
     }
   else
     {
       //cout<<"use_interpolation = kFALSE "<<endl;
       Int_t binx, biny, retval;
-
       retval = FindTheBin(lookup_table, value_x, value_y, binx, biny);
       if (retval)
 	{
@@ -303,32 +462,64 @@ PndEmcClusterHistCalibrator::GetValueInZ(TH2 *lookup_table, Float_t value_x, Flo
 /////////////////////////////////////////////////////////////////
 //////////// PndEmcClusterSimpleCalibrator //////////////////////
 /////////////////////////////////////////////////////////////////
-PndEmcClusterSimpleCalibrator::PndEmcClusterSimpleCalibrator(Int_t version, TString transportModel)
+PndEmcClusterSimpleCalibrator::PndEmcClusterSimpleCalibrator(Int_t version)
 {
 	fPath = getenv("VMCWORKDIR");
 	fPath += "/macro/params/";
  
-	TString fileName;
-
-	if (version==0)
-	{
-		fileName="emc_cluster_correction_par_default.root";
-	} else
-	{	
-		fileName.Form("emc_cluster_correction_par_%s_%i.root",fModel.Data(),version);
-	}
+	TString fileNamePhoton;
+	fileNamePhoton.Form("emc_correction_par_gamma_%i.root",version);
+	fileNamePhoton=fPath+fileNamePhoton;
+	TFile *fPhoton;
 	
-	fileName=fPath+fileName;
+// 	TString fileNameElectron;
+// 	TString fileNamePion;
+// 	fileNameElectron.Form("emc_correction_par_electron_%i.root",version);
+// 	fileNamePion.Form("emc_correction_par_pion_%i.root",version);
+// 	fileNameElectron=fPath+fileNameElectron;
+// 	fileNamePion=fPath+fileNamePion;
+// 	TFile *fElectron, *fPion;
 
-	TFile *clusterCalibrationFile = new TFile(fileName.Data());
-	if(clusterCalibrationFile->IsZombie()){
-		std::cout << "-E- PndEmcClusterSimpleCalibrator: Could not open file " << fileName << " for Emc cluster calibration parameters" << std::endl;
-	} else {
-		clusterCalibrationFile->GetObject("PndEmcClusterCalibrationParObject",fParObject);
+	fPhoton = new TFile(fileNamePhoton,"READ");
+	if (fPhoton->IsZombie())
+	{ 
+		std::cout<<"EMC cluster correction file "<<fileNamePhoton<<" for photons does not exist for given version"<<std::endl;
+	} else 
+	{
+		// Photon
+		fPhoton->GetObject("PndEmcClusterCalibrationParObject",fParObject);
 		if(fParObject == NULL){
-			std::cout << "-E- PndEmcClusterSimpleCalibrator: Could not get Emc cluster calibration information from file " << fileName<< std::endl;
+			std::cout << "-E- PndEmcClusterSimpleCalibrator: Could not get Emc cluster calibration information from file " << fPhoton << std::endl;
+		} else 
+		{
+			std::cout<<"EMC photon calibration parameters are read succesfully"<<std::endl;
 		}
 	}
+// 	fElectron = new TFile(fileNameElectron,"READ");
+// 	if (fElectron->IsZombie())
+// 	{
+// 		std::cout<<"EMC cluster correction file "<<fileNameElectron<<" for electrons does not exist for given version"<<std::endl;
+// 	} else
+// 	{
+// 		// Photon
+// 		fElectron->GetObject("PndEmcClusterCalibrationParObject",fParObject);
+// 		if(fParObject == NULL){
+// 			std::cout << "-E- PndEmcClusterSimpleCalibrator: Could not get Emc cluster calibration information from file " << fElectron<< std::endl;
+// 		}
+// 	}
+// 	
+// 	fPion = new TFile(fileNamePion,"READ");
+// 	if (fPion->IsZombie())
+// 	{
+// 		std::cout<<"EMC cluster correction file "<<fileNamePion<<" for pions does not exist for given version"<<std::endl;
+// 	} else
+// 	{
+// 		// Photon
+// 		fPion->GetObject("PndEmcClusterCalibrationParObject",fParObject);
+// 		if(fParObject == NULL){
+// 			std::cout << "-E- PndEmcClusterSimpleCalibrator: Could not get Emc cluster calibration information from file " << fPion << std::endl;
+// 		}
+// 	}
 }
 
 TVector3 PndEmcClusterSimpleCalibrator::Where(PndEmcCluster *clust, Int_t pid)

@@ -35,7 +35,7 @@ class PndEmcAbsClusterCalibrator
 	public:
   
   // Constructors
-		PndEmcAbsClusterCalibrator(Int_t version=1, TString transportModel="TGeant3");
+		PndEmcAbsClusterCalibrator(Int_t version=1);
 
   // Destructor
 		virtual ~PndEmcAbsClusterCalibrator();
@@ -46,7 +46,6 @@ class PndEmcAbsClusterCalibrator
   
 	protected: 
 	
-		TString fModel;
 		Int_t fVersion;
 		TString fPath;
 };
@@ -63,13 +62,13 @@ class PndEmcClusterCalibrator
   // Destructor
 		virtual ~PndEmcClusterCalibrator();
   
-		static PndEmcAbsClusterCalibrator *MakeEmcClusterCalibrator(Int_t method, Int_t version=1, TString transportModel="TGeant3" );
+		static PndEmcAbsClusterCalibrator *MakeEmcClusterCalibrator(Int_t method, Int_t version=1);
 };
 
 class PndEmcClusterHistCalibrator: public PndEmcAbsClusterCalibrator
 {
 	public:
-		PndEmcClusterHistCalibrator(Int_t version=1, TString transportModel="TGeant3");
+		PndEmcClusterHistCalibrator(Int_t version=1);
 		virtual ~PndEmcClusterHistCalibrator();
 		
   // Methods 
@@ -81,15 +80,19 @@ class PndEmcClusterHistCalibrator: public PndEmcAbsClusterCalibrator
 
 	Double_t GetValueInZ(TH2 *lookup_table, Float_t value_x, Float_t value_y, Bool_t use_interpolation = kFALSE);
 	
-	TFile *fPhoton, *fElectron;
-	TH2F *fHEnPhoton, *fHThPhoton, *fHEn5Photon, *fHTh5Photon;
-	TH2F *fHEnElectron, *fHThElectron, *fHEn5Electron, *fHTh5Electron;
+	TFile *fPhoton, *fElectron, *fPion;
+	TH2F *fHEnergyRatioBarrelPhoton, *fHEnergyRatioFwdPhoton, *fHEnergyRatioBwdPhoton, *fHEnergyRatioShashlykPhoton;
+	TH2F *fHThetaDiffBarrelPhoton, *fHThetaDiffFwdPhoton, *fHThetaDiffBwdPhoton, *fHThetaDiffShashlykPhoton;
+// 	TH2F *fHEnergyRatioBarrelElectron, *fHEnergyRatioFwdElectron, *fHEnergyRatioBwdElectron, *fHEnergyRatioShashlykElectron;
+// 	TH2F *fHThetaDiffBarrelElectron, *fHThetaDiffFwdElectron, *fHThetaDiffBwdElectron, *fHThetaDiffShashlykElectron;
+// 	TH2F *fHEnergyRatioBarrelPion, *fHEnergyRatioFwdPion, *fHEnergyRatioBwdPion, *fHEnergyRatioShashlykPion;
+// 	TH2F *fHThetaDiffBarrelPion, *fHThetaDiffFwdPion, *fHThetaDiffBwdPion, *fHThetaDiffShashlykPion;
 };
 
 class PndEmcClusterSimpleCalibrator: public PndEmcAbsClusterCalibrator
 {
 	public:
-		PndEmcClusterSimpleCalibrator(Int_t version=1, TString transportModel="TGeant3");
+		PndEmcClusterSimpleCalibrator(Int_t version=1);
 		virtual ~PndEmcClusterSimpleCalibrator();
 		
 		void Init();
