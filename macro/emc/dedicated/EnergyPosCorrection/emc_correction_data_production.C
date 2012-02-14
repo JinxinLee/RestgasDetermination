@@ -1,16 +1,64 @@
 // Macro produces data for energy-position correction of EMC
-// Data shiuld be produced once for each particle type (gamma, electron) and transport model (TGeant3, TGeant4)
-void emc_correction_data_production(Int_t nEvents = 10, TString part="gamma", Bool_t useFullPandaGeometry=false, Double_t momentum_min = 0.0, Double_t momentum_max = 10.0, Double_t theta_min = 0, Double_t theta_max = 6, Double_t phi_min = 0, Double_t phi_max = 360, TString OutputSimFile = "emc_complete_shashlyk.root", TString OutputDatabaseFile = "simparams.root", TString TransportModel = "TGeant3", UInt_t seed=0)
+// Data should be produced once for each particle type (gamma, electron)
+// transport model (TGeant3, TGeant4)
+// Full Panda geometry or EMC only useFullPandaGeometry=true/false
+// emcModule = TS/shashlyk
+void emc_correction_data_production(Int_t nEvents = 10, TString part="gamma", TString TransportModel = "TGeant3", Bool_t useFullPandaGeometry=true, TString emcModule="TS",TString energyRange="all", UInt_t seed=0)
 {
-  //emc_complete(Int_t nEvents = 100, Float_t mom = 1.){
-  TStopwatch timer;
-  timer.Start();
-  gDebug=0;
-  // Load basic libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
+	gRandom->SetSeed(seed);
+	Double_t phi_min = 0; Double_t phi_max = 360;
+	
+	if (emcModule=="TS")
+	{
+		Double_t theta_min = 5; Double_t theta_max = 172;
+	} else if (emcModule=="shashlyk")
+	{
+		Double_t theta_min = 0; Double_t theta_max = 10;
+	} else 
+	{
+		std::cout<<"Incorrect emcModule parameter: "<<emcModule<<std::endl;
+		abort();
+	}
+	
+	// energyRange= "low", "high", "all"
+	if (energyRange=="low")
+	{
+		Double_t momentum_min = 0.0; Double_t momentum_max = 1.5;
+	} else if (energyRange=="high")
+	{
+		Double_t momentum_min = 1.0; Double_t momentum_max = 10.0;
+	} else if (energyRange=="all")
+	{
+		Double_t momentum_min = 0.0; Double_t momentum_max = 10.0;
+	} else
+	{
+		std::cout<<"Incorrect parameter energyRange: "<<energyRange<<std::endl;
+		abort();
+	}
+	
+	TString pandaGeometry;
+	if (useFullPandaGeometry==0)
+		pandaGeometry="emc";
+	else
+		pandaGeometry="full";
+	
+	TString s1; s1+=seed;
+	
+	TString OutputSimFile = "emc_complete";
+	OutputSimFile = OutputSimFile+"_"+part+"_"+TransportModel+
+	"_"+pandaGeometry+"_"+emcModule+"_"+s1+".root";
+	TString OutputDatabaseFile = "simparams";
+	OutputDatabaseFile = OutputDatabaseFile+"_"+part+"_"+TransportModel+
+	"_"+pandaGeometry+"_"+emcModule+"_"+s1+".root";
 
-		
+	TStopwatch timer;
+	timer.Start();
+	gDebug=0;
+	// Load basic libraries
+	gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+	rootlogon();
+
+	FairLogger::GetLogger()->SetLogToFile(kFALSE);		
   FairRunSim *fRun = new FairRunSim();
 	
   TString digiFile = "emc.par";
@@ -55,53 +103,57 @@ void emc_correction_data_production(Int_t nEvents = 10, TString part="gamma", Bo
   fRun->AddModule(Cave); 
 	
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
-  Emc->SetGeometryVersion(17);
+  Emc->SetGeometryVersion(1);
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
   
   if (useFullPandaGeometry)
   {
-	  FairModule *Magnet= new PndMagnet("MAGNET");
-	  Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
-	  fRun->AddModule(Magnet);
+	FairModule *Magnet= new PndMagnet("MAGNET");
+	Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
+	fRun->AddModule(Magnet);
 
-	  FairModule *Dipole= new PndMagnet("MAGNET");
-	  Dipole->SetGeometryFileName("dipole.geo");
-	  fRun->AddModule(Dipole);
+	FairModule *Dipole= new PndMagnet("MAGNET");
+	Dipole->SetGeometryFileName("dipole.geo");
+	fRun->AddModule(Dipole);
 
-	  FairModule *Pipe= new PndPipe("PIPE");
-     //fRun->AddModule(Pipe);
+	FairModule *Pipe= new PndPipe("PIPE");
+	fRun->AddModule(Pipe);
 
-	  PndTpcDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
-	  Tpc->SetGeometryFileName("tpc.geo");
-	  if(TransportModel=="TGeant3")  Tpc->SetAliMC();
-	  fRun->AddModule(Tpc);
+	FairDetector *Stt= new PndStt("STT", kTRUE);
+	Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
+	fRun->AddModule(Stt);
 
-	  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
-	  Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
-	  fRun->AddModule(Mvd);
+	FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+	Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
+	fRun->AddModule(Mvd);
 
-	  PndMdt *Muo = new PndMdt("MDT",kTRUE);
-	  Muo->SetBarrel("torino");
-	  Muo->SetEndcap("torino");
-	  Muo->SetMuonFilter("torino");
-	  Muo->SetMdtMagnet(kTRUE);
-	  Muo->SetMdtMFIron(kTRUE);
-	  fRun->AddModule(Muo);
+	PndMdt *Muo = new PndMdt("MDT",kTRUE);
+	Muo->SetBarrel("fast");
+	Muo->SetEndcap("fast");
+	Muo->SetMuonFilter("fast");
+	Muo->SetMdtMagnet(kTRUE);
+	Muo->SetMdtMFIron(kTRUE);
+	fRun->AddModule(Muo);
 
-	  FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
-	  Gem->SetGeometryFileName("gem_3Stations.root");
-	  fRun->AddModule(Gem);
+	FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+	Gem->SetGeometryFileName("gem_3Stations.root");
+	fRun->AddModule(Gem);
 
-	  PndDsk* Dsk = new PndDsk("DSK", kTRUE);
-	  Dsk->SetGeometryFileName("dsk.root");
-	  Dsk->SetStoreCerenkovs(kFALSE);
-	  Dsk->SetStoreTrackPoints(kFALSE);
-	  fRun->AddModule(Dsk); 
+	PndDsk* Dsk = new PndDsk("DSK", kTRUE);
+	Dsk->SetGeometryFileName("dsk.root");
+	Dsk->SetStoreCerenkovs(kFALSE);
+	Dsk->SetStoreTrackPoints(kFALSE);
+	fRun->AddModule(Dsk);
 
-	  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-	  Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
-	  fRun->AddModule(Drc);
+	PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+	Drc->SetGeometryFileName("dirc_l0_p0.root");
+	Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
+	fRun->AddModule(Drc);
+	
+	FairDetector *Fts= new PndFts("FTS", kTRUE);
+	Fts->SetGeometryFileName("fts.geo");
+	fRun->AddModule(Fts);
   }
 	
   // Create and Set Event Generator
@@ -110,10 +162,8 @@ void emc_correction_data_production(Int_t nEvents = 10, TString part="gamma", Bo
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
   
-  cout <<" part = "<< part<<endl;
   TDatabasePDG *pdg = new TDatabasePDG();
   Int_t part_pid = pdg->GetParticle(part)->PdgCode();
-  cout <<"pid == "<< part_pid<<endl;
   
   // Box Generator: 
   FairBoxGenerator* boxGen = new FairBoxGenerator(part_pid, 1); // 13 = muon; 1 = multipl. // 211 = pi+
@@ -136,7 +186,7 @@ void emc_correction_data_production(Int_t nEvents = 10, TString part="gamma", Bo
      Add Hit producer task to the simulation 
   */
   PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
-  emcHitProd->SetStorageOfData(kTRUE);//FALSE);
+  emcHitProd->SetStorageOfData(kFALSE);//FALSE);
   fRun->AddTask(emcHitProd);
 
   PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform(0);
@@ -157,8 +207,6 @@ void emc_correction_data_production(Int_t nEvents = 10, TString part="gamma", Bo
   emcMakeBump->SetStorageOfData(kTRUE);
   fRun->AddTask(emcMakeBump);
    
-  cout<< "emc_complete.C: transportModel--> "<<TransportModel<<endl;
-
    /**Initialize the session*/
   fRun->Init();
   /**After initialization now we can save the field parameters */
@@ -171,11 +219,7 @@ void emc_correction_data_production(Int_t nEvents = 10, TString part="gamma", Bo
   rtdb->saveOutput();
   //	rtdb->print();
 		
-  // Transport nEvents
-  // -----------------
-  cout <<" nEvents == "<<nEvents<<endl;
   fRun->Run(nEvents);
-  cout <<" ***done == "<<endl;
   timer.Stop();
 	
   Double_t rtime = timer.RealTime();

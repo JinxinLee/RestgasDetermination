@@ -1,122 +1,211 @@
 // This macro produce histograms for energy-position correction of EMC clusters
-// It reads input file with simulated-reconstructed data, create array of histograms with ratio of reconstructed and generated energy and difference of reconstructed and simulated polar angle for given energy-theta interval, then in each histogram mean value is calculated, which is stored in 2D histogram and used for correction 
-// Output file name have pattern <particle>_en_theta_corr_<TransportModel>_<version>.root, e.g. "gamma_en_theta_corr_TGeant3_1.root", correspondence between <version> and EMC geometry version is hard-coded in PndEmcClusterHistCalibrator::PndEmcClusterHistCalibrator()
+// It reads input file with simulated-reconstructed data,
+// create array of histograms with ratio of reconstructed
+// and generated energy and difference of reconstructed and simulated polar angle
+// for given energy-theta interval, then in each histogram mean value is calculated,
+// which is stored in 2D histogram and used for correction 
+// Output file name have pattern:
+// emc_correction_<particle>-_<version>.root, e.g. "emc_correction_gamma_1.root"
+// Input parametr InputFile1 can be root file or text file containing list of root files
 
 // Define interval in energy and theta, in which output histogram is provided
-Double_t energyIntervals[]= {0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.5,2.0,2.5,3.0,3.5,4.0,5.0,6.0,7.0,8.0,9.0,10.0};
+Double_t energyIntervals[]= {0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.5,2.0,2.5,3.0,3.5,4.0,5.0,6.0,7.0,8.0,9.0,10.0};
+Double_t thetaIntervalsBarrel[]= {22.,23.,24.,25.,30.,35.,40.,45.,50.,55.,60.,65.,70.,75.,80.,85.,90.,95.,100.,105.,110.,115.,120.,125.,130.,135.,137., 139., 140., 141.};
+Double_t thetaIntervalsFwd[]= {5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,20.,21.,22.};
+Double_t thetaIntervalsBwd[]= {147.,148.,149.,150.,151.,152.,154.,156.,158.,160.,161.,162.,163.,164.,165.,166.,168.,170.,172.};
+Double_t thetaIntervalsShashlyk[]= {0.,0.5,1.,1.5,2.,2.5,3.,3.5,4.,4.5,5.,5.5,6.,6.5,7.,7.5,8.,8.5,9.,9.5,10.};
 
-Double_t thetaIntervals[]= {0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,20.,21.,22.,23.,24.,25.,30.,35.,40.,45.,50.,55.,60.,65.,70.,75.,80.,85.,90.,95.,100.,105.,110.,115.,120.,125.,130.,135.,141.,142.,147.,148.,149.,150.,151.,152.,154.,156.,158.,160.,162.,164.,166.,168.,170.,172.};
-
-Int_t numBinIntervals[]= {70,70,70,70,70,70,70,70,70,70,70,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100};
-	
 Int_t nrEnergyIntervals;
-Int_t nrThetaIntervals;
+Int_t nrThetaIntervals[4]; //Barrel, Fwd, Bwd, Shashlyk
 
-void emc_correction_hist(TString InputClusterFile="emc_complete.root",
-								  TString OutputFile="gamma_en_theta_corr_TGeant3_1.root")
+// version is used for output file name
+void emc_correction_hist(Int_t version, TString InputFile1, Bool_t debug=false)
 {
 	gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
 	rootlogon();
+
+	TStopwatch timer;
+	timer.Start();
+
+	TChain *c=new TChain("cbmsim");
+	TString particle="";
+	if (InputFile1.Contains(".root"))
+	{
+		TObjArray* tmp=InputFile1.Tokenize("_");
+		TObjString *os=(TObjString *)tmp->At(2);
+		particle=os->GetString();
+		TFile *f1=new TFile(InputFile1);
+		if (f1->IsZombie())
+		{
+			std::cout<<"Input file "<<InputFile1<<" does not exists"<<std::endl;
+			abort();
+		}
+		c->Add(InputFile1);
+	}
+	else if (InputFile1.Contains(".txt"))
+	{
+		string file_name;
+		ifstream infile(InputFile1.Data(), ios::in);
+		
+		while (getline(infile,file_name, '\n'))
+		{
+			if (std::string::npos != file_name.find(".root"))
+			{
+				TFile *f2=new TFile(file_name.c_str());
+				if (f2->IsZombie())
+				{
+					std::cout<<"Input file "<<file_name<<" does not exists"<<std::endl;
+					abort();
+				}
+				c->Add(file_name.c_str());
+				if (particle=="")
+				{
+					TObjArray* tmp=TString(file_name).Tokenize("_");
+					TObjString *os=(TObjString *)tmp->At(2);
+					particle=os->GetString();
+				}
+			}
+		}
+	}
+	else
+	{
+		std::cout<<"Wrong input file: "<<InputFile1<<std::endl;
+		abort();
+	}
 	
+	TString OutputFile="emc_correction_hist_";
+	OutputFile = OutputFile +particle+"_";
+	OutputFile +=version;
+	OutputFile += ".root";
 	
 	nrEnergyIntervals=sizeof(energyIntervals)/sizeof(Double_t);
-	nrThetaIntervals=sizeof(thetaIntervals)/sizeof(Double_t);
+	nrThetaIntervals[0]=sizeof(thetaIntervalsBarrel)/sizeof(Double_t);
+	nrThetaIntervals[1]=sizeof(thetaIntervalsFwd)/sizeof(Double_t);
+	nrThetaIntervals[2]=sizeof(thetaIntervalsBwd)/sizeof(Double_t);
+	nrThetaIntervals[3]=sizeof(thetaIntervalsShashlyk)/sizeof(Double_t);
 
-	TH2F hisEnergyDelta("hisEnergyDelta","Ene_MC/Ene_reco: GetMean()",(nrEnergyIntervals-1),energyIntervals,(nrThetaIntervals-1),thetaIntervals);
-	hisEnergyDelta.GetXaxis()->SetTitle("Cluster Reconstructed Photon Energy (GeV)");
-	hisEnergyDelta.GetYaxis()->SetTitle("Cluster Reconstructed #theta Photon Angle (#circ)");
-	hisEnergyDelta.GetYaxis()->SetTitleOffset(1.5);
-	hisEnergyDelta.GetYaxis()->SetTitleOffset(1.05);
-  
-	TH2F hisThetaDiff("hisThetaDiff","Theta_MC - Theta_reco:  GetMean()",(nrEnergyIntervals-1),energyIntervals,(nrThetaIntervals-1),thetaIntervals);
-	hisThetaDiff.GetXaxis()->SetTitle("Cluster Reconstructed Photon Energy (GeV)");
-	hisThetaDiff.GetYaxis()->SetTitle("Cluster Reconstructed #theta Photon Angle (#circ)");
-	hisThetaDiff.GetYaxis()->SetTitleOffset(1.5);
-	hisThetaDiff.GetYaxis()->SetTitleOffset(1.05);
+	TH2F hisEnergyRatioBarrel, hisEnergyRatioFwd, hisEnergyRatioBwd, hisEnergyRatioShashlyk;
+	TH2F hisThetaDiffBarrel, hisThetaDiffFwd, hisThetaDiffBwd, hisThetaDiffShashlyk;
 
-  //for Shashlyk
-	TH2F hisEnergy5Delta("hisEnergy5Delta","Ene_MC/Ene_reco _Shashlyk_:  GetMean()",(nrEnergyIntervals-1),energyIntervals,(nrThetaIntervals-1),thetaIntervals);
-	hisEnergy5Delta.GetXaxis()->SetTitle("Cluster Reconstructed Photon Energy (GeV)");
-	hisEnergy5Delta.GetYaxis()->SetTitle("Cluster Reconstructed #theta Photon Angle (#circ)");
-	hisEnergy5Delta.GetYaxis()->SetTitleOffset(1.5);
-	hisEnergy5Delta.GetYaxis()->SetTitleOffset(1.05);
+	TH2F hisEnergyRatioBarrel("hisEnergyRatioBarrel","Ene_MC/Ene_reco: GetMean()",(nrEnergyIntervals-1),energyIntervals,(nrThetaIntervals[0]-1),thetaIntervalsBarrel);
+	hisEnergyRatioBarrel.GetXaxis()->SetTitle("Cluster Reconstructed Photon Energy (GeV)");
+	hisEnergyRatioBarrel.GetYaxis()->SetTitle("Cluster Reconstructed #theta Photon Angle (#circ)");
   
-	TH2F hisTheta5Diff("hisTheta5Diff","Theta_MC-Theta_reco _Shashlyk_:  GetMean()",(nrEnergyIntervals-1),energyIntervals,(nrThetaIntervals-1),thetaIntervals);
-	hisTheta5Diff.GetXaxis()->SetTitle("Cluster Reconstructed Photon Energy (GeV)");
-	hisTheta5Diff.GetYaxis()->SetTitle("Cluster Reconstructed  #theta Photon Angle (#circ)");
-	hisTheta5Diff.GetYaxis()->SetTitleOffset(1.5);
-	hisTheta5Diff.GetYaxis()->SetTitleOffset(1.05);
+	TH2F hisThetaDiffBarrel("hisThetaDiffBarrel","Theta_MC - Theta_reco:  GetMean()",(nrEnergyIntervals-1),energyIntervals,(nrThetaIntervals[0]-1),thetaIntervalsBarrel);
+	hisThetaDiffBarrel.GetXaxis()->SetTitle("Cluster Reconstructed Photon Energy (GeV)");
+	hisThetaDiffBarrel.GetYaxis()->SetTitle("Cluster Reconstructed #theta Photon Angle (#circ)");
+
+	TH2F hisEnergyRatioFwd("hisEnergyRatioFwd","Ene_MC/Ene_reco: GetMean()",(nrEnergyIntervals-1),energyIntervals,(nrThetaIntervals[1]-1),thetaIntervalsFwd);
+	hisEnergyRatioFwd.GetXaxis()->SetTitle("Cluster Reconstructed Photon Energy (GeV)");
+	hisEnergyRatioFwd.GetYaxis()->SetTitle("Cluster Reconstructed #theta Photon Angle (#circ)");
+  
+	TH2F hisThetaDiffFwd("hisThetaDiffFwd","Theta_MC - Theta_reco:  GetMean()",(nrEnergyIntervals-1),energyIntervals,(nrThetaIntervals[1]-1),thetaIntervalsFwd);
+	hisThetaDiffFwd.GetXaxis()->SetTitle("Cluster Reconstructed Photon Energy (GeV)");
+	hisThetaDiffFwd.GetYaxis()->SetTitle("Cluster Reconstructed #theta Photon Angle (#circ)");
+
+	TH2F hisEnergyRatioBwd("hisEnergyRatioBwd","Ene_MC/Ene_reco: GetMean()",(nrEnergyIntervals-1),energyIntervals,(nrThetaIntervals[2]-1),thetaIntervalsBwd);
+	hisEnergyRatioBwd.GetXaxis()->SetTitle("Cluster Reconstructed Photon Energy (GeV)");
+	hisEnergyRatioBwd.GetYaxis()->SetTitle("Cluster Reconstructed #theta Photon Angle (#circ)");
+  
+	TH2F hisThetaDiffBwd("hisThetaDiffBwd","Theta_MC - Theta_reco:  GetMean()",(nrEnergyIntervals-1),energyIntervals,(nrThetaIntervals[2]-1),thetaIntervalsBwd);
+	hisThetaDiffBwd.GetXaxis()->SetTitle("Cluster Reconstructed Photon Energy (GeV)");
+	hisThetaDiffBwd.GetYaxis()->SetTitle("Cluster Reconstructed #theta Photon Angle (#circ)");
+
+	TH2F hisEnergyRatioShashlyk("hisEnergyRatioShashlyk","Ene_MC/Ene_reco _Shashlyk_:  GetMean()",(nrEnergyIntervals-1),energyIntervals,(nrThetaIntervals[3]-1),thetaIntervalsShashlyk);
+	hisEnergyRatioShashlyk.GetXaxis()->SetTitle("Cluster Reconstructed Photon Energy (GeV)");
+	hisEnergyRatioShashlyk.GetYaxis()->SetTitle("Cluster Reconstructed #theta Photon Angle (#circ)");
+  
+	TH2F hisThetaDiffShashlyk("hisThetaDiffShashlyk","Theta_MC-Theta_reco _Shashlyk_:  GetMean()",(nrEnergyIntervals-1),energyIntervals,(nrThetaIntervals[3]-1),thetaIntervalsShashlyk);
+	hisThetaDiffShashlyk.GetXaxis()->SetTitle("Cluster Reconstructed Photon Energy (GeV)");
+	hisThetaDiffShashlyk.GetYaxis()->SetTitle("Cluster Reconstructed  #theta Photon Angle (#circ)");
 	
-	// energy: "E_reco / E_MC" for Target EMC & Shashlyk separatelly
-	TH1F hisA0[100][100];
-	TH1F hisA5[100][100];
-	// Theta: "Theta_MC - Theta_reco" for Target EMC & Shashlyk separatelly
-	TH1F hisE0[100][100];
-	TH1F hisE5[100][100];
+
+	// energy: "E_reco / E_MC" 
+	TH1F hisEnergyRatio1[100][100]; // barrel
+	TH1F hisEnergyRatio2[100][100]; // forward endcap
+	TH1F hisEnergyRatio3[100][100]; // backward endcap
+	TH1F hisEnergyRatio4[100][100]; // shashlyk
+	
+	// Theta: "Theta_MC - Theta_reco"
+	TH1F hisThetaDiff1[100][100]; // barrel
+	TH1F hisThetaDiff2[100][100]; // forward endcap
+	TH1F hisThetaDiff3[100][100]; // backward endcap
+	TH1F hisThetaDiff4[100][100]; // shashlyk
 	
 	char cmd[64];
 	
 	for (Int_t i=0; i<(nrEnergyIntervals-1); i++)
 	{
-		for (Int_t j=0; j<(nrThetaIntervals-1); j++)
+		for (Int_t j=0; j<(nrThetaIntervals[0]-1); j++)
 		{
-			sprintf(cmd,"hisA0_%i_%i",i,j);
-			hisA0[i][j].SetName(cmd);
-			sprintf(cmd,"energy=%.2f theta=%.2f",GetEnergy(i),GetTheta(j));
-			hisA0[i][j].SetTitle(cmd);
-			hisA0[i][j].SetBins(numBinIntervals[i],0.,2.);        
-
-			sprintf(cmd,"hisA5_%i_%i",i,j);
-			hisA5[i][j].SetName(cmd);
-			sprintf(cmd,"energy=%.2f theta=%.2f",GetEnergy(i),GetTheta(j));
-			hisA5[i][j].SetTitle(cmd);
-			hisA5[i][j].SetBins(numBinIntervals[i],0.,5.);        
-			
-			sprintf(cmd,"hisE0_%i_%i",i,j);
-			hisE0[i][j].SetName(cmd);
-			sprintf(cmd,"energy=%.2f theta=%.2f",GetEnergy(i),GetTheta(j));
-			hisE0[i][j].SetTitle(cmd);
-			hisE0[i][j].SetBins(100,-5.,5);
-
-			sprintf(cmd,"hisE5_%i_%i",i,j);
-			hisE5[i][j].SetName(cmd);
-			sprintf(cmd,"energy=%.2f theta=%.2f",GetEnergy(i),GetTheta(j));
-			hisE5[i][j].SetTitle(cmd);
-			hisE5[i][j].SetBins(100,-5.,5);
+			sprintf(cmd,"hisEnergyRatio1_%i_%i",i,j);
+			hisEnergyRatio1[i][j].SetName(cmd);
+			hisEnergyRatio1[i][j].SetTitle(cmd);
+			hisEnergyRatio1[i][j].SetBins(100,0.,2.);
+			sprintf(cmd,"hisThetaDiff1_%i_%i",i,j);
+			hisThetaDiff1[i][j].SetName(cmd);
+			hisThetaDiff1[i][j].SetTitle(cmd);
+			hisThetaDiff1[i][j].SetBins(100,-5.,5);
+			hisEnergyRatioBarrel.SetBinContent(i+1,j+1,1.);
+			hisThetaDiffBarrel.SetBinContent(i+1,j+1,0.);
+		}
+		for (Int_t j=0; j<(nrThetaIntervals[1]-1); j++)
+		{
+			sprintf(cmd,"hisEnergyRatio2_%i_%i",i,j);
+			hisEnergyRatio2[i][j].SetName(cmd);
+			hisEnergyRatio2[i][j].SetTitle(cmd);
+			hisEnergyRatio2[i][j].SetBins(100,0.,2.);
+			sprintf(cmd,"hisThetaDiff2_%i_%i",i,j);
+			hisThetaDiff2[i][j].SetName(cmd);
+			hisThetaDiff2[i][j].SetTitle(cmd);
+			hisThetaDiff2[i][j].SetBins(100,-5.,5);
+			hisEnergyRatioFwd.SetBinContent(i+1,j+1,1.);
+			hisThetaDiffFwd.SetBinContent(i+1,j+1,0.);
+		}
+		for (Int_t j=0; j<(nrThetaIntervals[2]-1); j++)
+		{
+			sprintf(cmd,"hisEnergyRatio3_%i_%i",i,j);
+			hisEnergyRatio3[i][j].SetName(cmd);
+			hisEnergyRatio3[i][j].SetTitle(cmd);
+			hisEnergyRatio3[i][j].SetBins(100,0.,2.);
+			sprintf(cmd,"hisThetaDiff3_%i_%i",i,j);
+			hisThetaDiff3[i][j].SetName(cmd);
+			hisThetaDiff3[i][j].SetTitle(cmd);
+			hisThetaDiff3[i][j].SetBins(100,-5.,5);
+			hisEnergyRatioBwd.SetBinContent(i+1,j+1,1.);
+			hisThetaDiffBwd.SetBinContent(i+1,j+1,0.);
+		}
+		for (Int_t j=0; j<(nrThetaIntervals[3]-1); j++)
+		{
+			sprintf(cmd,"hisEnergyRatio4_%i_%i",i,j);
+			hisEnergyRatio4[i][j].SetName(cmd);
+			hisEnergyRatio4[i][j].SetTitle(cmd);
+			hisEnergyRatio4[i][j].SetBins(100,0.,2.);
+			sprintf(cmd,"hisThetaDiff4_%i_%i",i,j);
+			hisThetaDiff4[i][j].SetName(cmd);
+			hisThetaDiff4[i][j].SetTitle(cmd);
+			hisThetaDiff4[i][j].SetBins(100,-5.,5);
+			hisEnergyRatioShashlyk.SetBinContent(i+1,j+1,1.);
+			hisThetaDiffShashlyk.SetBinContent(i+1,j+1,0.);
 		}
 	}
 	
-	//
-	// Histograms are set to 0 or 1 before filling by GetMean() values
-	//
-	for (Int_t i=0; i<(nrEnergyIntervals-1); i++)
-	{
-		for (Int_t j=0; j<(nrThetaIntervals-1); j++)
-		{	  
-			hisEnergyDelta.SetBinContent(i+1,j+1,1.);
-			hisThetaDiff.SetBinContent(i+1,j+1,0.);
-			hisEnergy5Delta.SetBinContent(i+1,j+1,1.);
-			hisTheta5Diff.SetBinContent(i+1,j+1,0.);
-		}
-	}
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
 
-	TFile *f=new TFile(InputClusterFile);
-	TChain *c=new TChain("cbmsim");
-	c->Add(InputClusterFile);
-	
 	TClonesArray* track_array=new TClonesArray("PndMCTrack");
 	c->SetBranchAddress("MCTrack",&track_array);
-
 	TClonesArray* cluster_array=new TClonesArray("PndEmcCluster");
 	c->SetBranchAddress("EmcCluster",&cluster_array);
 
+
 	Double_t cluster_energy, cluster_theta, cluster_phi; //position of the cluster
 	Double_t thMC, phiMC, enMC;
-	
 	for (Int_t j=0; j< c->GetEntries(); j++)
 	{
-		cout<<" "<<endl;
-		cout<<"Event "<<j<<endl;
+		if (j%1000==0)
+			cout<<"Event "<<j<<endl;
+
 		c->GetEntry(j);
 	
 		PndMCTrack *track=(PndMCTrack*)track_array->At(0);
@@ -128,8 +217,6 @@ void emc_correction_hist(TString InputClusterFile="emc_complete.root",
 	
 		enMC   = p4mom.E();
 	
-		cout<<"energy_MC= "<<enMC<<", theta_MC == "<<thMC<< ", phi_MC == "<<phiMC<< endl;
-		
 		// Select cluster of highest energy
 		if (cluster_array->GetEntriesFast()>0) 
 		{
@@ -155,15 +242,18 @@ void emc_correction_hist(TString InputClusterFile="emc_complete.root",
 			cluster_theta=cluster_pos.Theta()*180./TMath::Pi();
 			cluster_phi=cluster_pos.Phi()*180./TMath::Pi();
 			cluster_energy=cluster->energy();
+			Int_t module=cluster->GetModule();
 			
-			Int_t thetaBin=GetThetaBin(cluster_theta); // bin number for cluster_theta 
-			Int_t energyBin=GetEnergyBin(cluster_energy);// bin number for cluster_energy 
+			Int_t thetaBin=GetThetaBin(cluster_theta, module); // bin number for cluster_theta 
+			Int_t energyBin=GetEnergyBin(cluster_energy, module);// bin number for cluster_energy 
 			
-			if (cluster_theta >= 141. && cluster_theta < 150.) continue; // Avoid the egges between barrel and bwendcap...
+			if (cluster_theta >= 141. && cluster_theta < 147.) continue; // Avoid the egges between barrel and bwendcap...
       
 			Double_t en_div, phi_diff, theta_diff;
 			if (thetaBin<0 || energyBin<0)
 			{
+				cout<<"!!!!!!!!!!!!!!!!!!!!!!"<<endl;
+				cout<<"Module="<<module<<endl;
 				cout << "theta_reco =" << cluster_theta << "/ energy_reco =" << cluster_energy << endl;
 				cout << "thetaBin= "<<thetaBin<<" & energyBin= "<<energyBin<<endl;
 			}
@@ -174,121 +264,245 @@ void emc_correction_hist(TString InputClusterFile="emc_complete.root",
 					en_div = cluster_energy/enMC;
 					phi_diff = phiMC-cluster_phi;
 					theta_diff= thMC-cluster_theta;
-					Int_t module=cluster->GetModule();
-	    
+						    
 					if (fabs(phi_diff)<2.5 || fabs(phi_diff+360)<2.5 || fabs(phi_diff-360)<2.5){
-	      
-						if (module==5) // Above 12 degrees there is no events for Shashlyk
+						switch (module)
 						{
-							if (en_div > 0.1){
-
-								hisA5[energyBin][thetaBin].Fill(en_div);
-								hisE5[energyBin][thetaBin].Fill(theta_diff);	 
+							case 1:
+							case 2:
+							{
+								// avoid beam pipe region
+								if ((fabs(phiMC) <5.)||fabs(phiMC-180.)<5.||fabs(phiMC-360.)<5.) break;
+								if (en_div > 0.7 && en_div <1.3){
+									hisEnergyRatio1[energyBin][thetaBin].Fill(en_div);
+									hisThetaDiff1[energyBin][thetaBin].Fill(theta_diff);	 
+								}
+								break;
+							}
+							case 3:
+							{
+								if (cluster_theta <6.) break; // Avoid the egges for FwEndCap...
+								if (en_div > 0.7 && en_div <1.3){
+									hisEnergyRatio2[energyBin][thetaBin].Fill(en_div);
+									hisThetaDiff2[energyBin][thetaBin].Fill(theta_diff);	 
+								}
+								break;
+							}
+							case 4:
+							{
+								if (en_div > 0.7 && en_div <1.3){
+									hisEnergyRatio3[energyBin][thetaBin].Fill(en_div);
+									hisThetaDiff3[energyBin][thetaBin].Fill(theta_diff);	 
+								}
+								break;
+							}
+							case 5:
+							{
+								if (en_div > 0.7 && en_div <1.3){
+									hisEnergyRatio4[energyBin][thetaBin].Fill(en_div);
+									hisThetaDiff4[energyBin][thetaBin].Fill(theta_diff);	 
+								}
+								break;
+							}
+							default:
+							{
+								abort();
 							}
 						}
-						else
-						{
-							if (cluster_theta <6.) continue; // Avoid the egges for FwEndCap...
-		    
-							if (en_div > 0.4 && en_div <1.6){
-
-								hisA0[energyBin][thetaBin].Fill(en_div);
-								hisE0[energyBin][thetaBin].Fill(theta_diff);	 
-							}
-						}
-					} // Phi
-				} // Theta
-			} // ThetaBin & EnergyBin > 0
-
-
+			
+					}
+				}
+			} 
 		}
-		
 	}
-	
+
+
 	// Loop over energy and theta bins to GetMean() values from energy and theta histograms
 	// and write GetMean() value to the 2D histograms
 
 	TFile fout(OutputFile,"recreate"); // output file with corrections
-	Double_t mean_th_dif, mean_en_dif;
-	Double_t mean_th5_dif, mean_en5_dif; //Shashlyk
+	Double_t mean_th_dif, mean_en_ratio;
 
 	for (Int_t i=0; i<(nrEnergyIntervals-1); i++)
 	{
-		for (Int_t j=0; j<(nrThetaIntervals-1); j++)
+		for (Int_t j=0; j<(nrThetaIntervals[0]-1); j++)
+		{
+			//
+			// Energy & Theta for Barrel
+			//
+			if (hisThetaDiff1[i][j].GetEntries() == 0) {
+				mean_th_dif = 0;
+			}else{
+				mean_th_dif = hisThetaDiff1[i][j].GetMean(); // (Theta_MC - Theta_reco)
+			}
+
+			hisThetaDiffBarrel.SetBinContent(i+1,j+1,mean_th_dif); // Theta_MC - Theta_Reco: GetMean()
+
+			if ( hisEnergyRatio1[i][j].GetEntries() == 0) {
+				mean_en_ratio = 1;
+			}else{ 
+				mean_en_ratio = hisEnergyRatio1[i][j].GetMean(); // (E_MC / E_reco)
+			}
+	  
+			hisEnergyRatioBarrel.SetBinContent(i+1,j+1,mean_en_ratio);  // Mean       
+		}
+		for (Int_t j=0; j<(nrThetaIntervals[1]-1); j++)
+		{
+			//
+			// Energy & Theta for Forward Edncap
+			//
+			if (hisThetaDiff2[i][j].GetEntries() == 0) {
+				mean_th_dif = 0;
+			}else{
+				mean_th_dif = hisThetaDiff2[i][j].GetMean(); // (Theta_MC - Theta_reco)
+			}
+
+			hisThetaDiffFwd.SetBinContent(i+1,j+1,mean_th_dif); // Theta_MC - Theta_Reco: GetMean()
+
+			if ( hisEnergyRatio2[i][j].GetEntries() == 0) {
+				mean_en_ratio = 1;
+			}else{ 
+				mean_en_ratio = hisEnergyRatio2[i][j].GetMean(); // (E_MC / E_reco)
+			}
+	  
+			hisEnergyRatioFwd.SetBinContent(i+1,j+1,mean_en_ratio);  // Mean       
+		}
+		for (Int_t j=0; j<(nrThetaIntervals[2]-1); j++)
+		{
+			//
+			// Energy & Theta for Backward Endcap
+			//
+			if (hisThetaDiff3[i][j].GetEntries() == 0) {
+				mean_th_dif = 0;
+			}else{
+				mean_th_dif = hisThetaDiff3[i][j].GetMean(); // (Theta_MC - Theta_reco)
+			}
+
+			hisThetaDiffBwd.SetBinContent(i+1,j+1,mean_th_dif); // Theta_MC - Theta_Reco: GetMean()
+
+			if ( hisEnergyRatio3[i][j].GetEntries() == 0) {
+				mean_en_ratio = 1;
+			}else{ 
+				mean_en_ratio = hisEnergyRatio3[i][j].GetMean(); // (E_MC / E_reco)
+			}
+	  
+			hisEnergyRatioBwd.SetBinContent(i+1,j+1,mean_en_ratio);  // Mean       
+		}
+		for (Int_t j=0; j<(nrThetaIntervals[3]-1); j++)
 		{
 			//
 			// Energy & theta for Shashlyk
 			//
-			if (hisE5[i][j].GetEntries() == 0){
-				mean_th5_dif = 0;
-			}else{
-				mean_th5_dif = hisE5[i][j].GetMean();
-			}
-
-			hisTheta5Diff.SetBinContent(i+1,j+1,mean_th5_dif); // Theta_MC - Theta_Reco: GetMean()
-
-	  
-			if (hisA5[i][j].GetEntries() == 0) {
-				mean_en5_dif = 1;
-			}else{
-				mean_en5_dif = hisA5[i][j].GetMean();
-			}
-	  
-			hisEnergy5Delta.SetBinContent(i+1,j+1,mean_en5_dif);
-  
-			//
-			// Energy & Theta for Target EMC
-			//
-			if (hisE0[i][j].GetEntries() == 0) {
+			if (hisThetaDiff4[i][j].GetEntries() == 0){
 				mean_th_dif = 0;
 			}else{
-				mean_th_dif = hisE0[i][j].GetMean(); // hisE0 = (Theta_MC - Theta_reco)
+				mean_th_dif = hisThetaDiff4[i][j].GetMean();
 			}
 
-			hisThetaDiff.SetBinContent(i+1,j+1,mean_th_dif); // Theta_MC - Theta_Reco: GetMean()
+			hisThetaDiffShashlyk.SetBinContent(i+1,j+1,mean_th_dif); // Theta_MC - Theta_Reco: GetMean()
 
-			if ( hisA0[i][j].GetEntries() == 0) {
-				mean_en_dif = 1;
-			}else{ 
-				mean_en_dif = hisA0[i][j].GetMean(); // hisA0 = (E_MC / E_reco)
+	  
+			if (hisEnergyRatio4[i][j].GetEntries() == 0) {
+				mean_en_ratio = 1;
+			}else{
+				mean_en_ratio = hisEnergyRatio4[i][j].GetMean();
 			}
 	  
-			hisEnergyDelta.SetBinContent(i+1,j+1,mean_en_dif);  // Mean       
-	 
+			hisEnergyRatioShashlyk.SetBinContent(i+1,j+1,mean_en_ratio);
 		}
 	}
 	
-	hisThetaDiff.Write();
-	hisEnergyDelta.Write();
+	hisEnergyRatioBarrel.Write();
+	hisThetaDiffBarrel.Write();
+	hisEnergyRatioFwd.Write();
+	hisThetaDiffFwd.Write();
+	hisEnergyRatioBwd.Write();
+	hisThetaDiffBwd.Write();
+	hisEnergyRatioShashlyk.Write();
+	hisThetaDiffShashlyk.Write();
+	
+	if (debug)
+	{
+		for (Int_t i=0; i<(nrEnergyIntervals-1); i++)
+		{
+			for (Int_t j=0; j<(nrThetaIntervals[0]-1); j++)
+			{
+				TH1F *h1=(TH1F *)hisEnergyRatio1[i][j].Clone();
+				h1->Write();
+				TH1F *h1=(TH1F *)hisThetaDiff1[i][j].Clone();
+				h1->Write();
+			}
+			for (Int_t j=0; j<(nrThetaIntervals[1]-1); j++)
+			{
+				TH1F *h1=(TH1F *)hisEnergyRatio2[i][j].Clone();
+				h1->Write();
+				TH1F *h1=(TH1F *)hisThetaDiff2[i][j].Clone();
+				h1->Write();
+			}
+			for (Int_t j=0; j<(nrThetaIntervals[2]-1); j++)
+			{
+				TH1F *h1=(TH1F *)hisEnergyRatio3[i][j].Clone();
+				h1->Write();
+				TH1F *h1=(TH1F *)hisThetaDiff3[i][j].Clone();
+				h1->Write();
+			}
+			for (Int_t j=0; j<(nrThetaIntervals[3]-1); j++)
+			{
+				TH1F *h1=(TH1F *)hisEnergyRatio4[i][j].Clone();
+				h1->Write();
+				TH1F *h1=(TH1F *)hisThetaDiff4[i][j].Clone();
+				h1->Write();
+			}
+		}
 
-	hisTheta5Diff.Write();
-	hisEnergy5Delta.Write();
-
+	}
 	fout.Close();
+
+	timer.Stop();
+	Double_t rtime = timer.RealTime();
+	Double_t ctime = timer.CpuTime();
+	printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+
 }
 
-
-Double_t GetTheta(Int_t i)
+Int_t GetThetaBin(Double_t val, Int_t module)
 {
-	return thetaIntervals[i];
-}
-
-Double_t GetEnergy(Int_t i)
-{
-	return ((energyIntervals[i]+energyIntervals[i+1])/2.);
-}
-
-Int_t GetThetaBin(Double_t val)
-{
-	for (Int_t i=0; i<(nrThetaIntervals-1); i++)
+	Double_t *thetaIntervals;
+	Int_t nrThetaInt;
+	switch (module)
+	{
+		case 1:
+		case 2:
+			nrThetaInt=nrThetaIntervals[0];
+			thetaIntervals=thetaIntervalsBarrel;
+			break;
+		case 3:
+			nrThetaInt=nrThetaIntervals[1];
+			thetaIntervals=thetaIntervalsFwd;
+			break;
+		case 4:
+			nrThetaInt=nrThetaIntervals[2];
+			thetaIntervals=thetaIntervalsBwd;
+			break;
+		case 5:
+			nrThetaInt=nrThetaIntervals[3];
+			thetaIntervals=thetaIntervalsShashlyk;
+			break;
+		default:
+			std::cout<<"Wrong EMC module: "<<module<<std::endl;
+			abort();
+	}
+	for (Int_t i=0; i<(nrThetaInt-1); i++)
 	{
 		if (val>=thetaIntervals[i] && val<thetaIntervals[i+1])
+		{
 			return (i);
+		}
 	}
 	return -1;
 }
 
-Int_t GetEnergyBin(Double_t val)
+Int_t GetEnergyBin(Double_t val, Int_t module)
 {
 	for (Int_t i=0; i<(nrEnergyIntervals-1); i++)
 	{
