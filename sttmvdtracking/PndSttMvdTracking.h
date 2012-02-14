@@ -624,10 +624,6 @@ UShort_t ListSttParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack] // input/o
 
   void MvdMatchtoMC(
 		UShort_t nMvdMCPoint,
-//		Double_t *XMvdMCPoint,
-//		Double_t *YMvdMCPoint,
-//		Double_t *ZMvdMCPoint,
-//		Short_t *MCPointtoMCTrackID,
 
 		Int_t *FromPixeltoMCTrack,	// output
 		Int_t *FromStriptoMCTrack	// output
@@ -794,8 +790,6 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
                    Double_t Fi_low_limit,
                    Double_t Fi_up_limit,
                    Short_t  Charge,
-//                   Double_t Fi_initial_helix_referenceframe,
-//                   Double_t Fi_final_helix_referenceframe,
                    UShort_t SkewList[nmaxSttHits][2], // output,  list of selected skew hits (in skew numbering)
                    Double_t *S,       //  output,  S coordinate of selected Skew hit
                    Double_t *Z,       //  output,  Z coordinate of selected Skew hit
