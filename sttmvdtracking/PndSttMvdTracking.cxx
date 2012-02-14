@@ -8671,13 +8671,6 @@ if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "
    //
    UShort_t  NpointsInFit = nSkewHitsinTrack-NMAX <0 ?  nSkewHitsinTrack :  NMAX;
 
-////	if(NpointsInFit>nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack)
-////		NpointsInFit=nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack;
-
-
-// NpointsInFit =10;
-
-////   bool mvdhit[nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack];
 
    bool mvdhit[NpointsInFit];
 
@@ -11289,9 +11282,12 @@ if(istampa>1){
 
 //-----------------stampe.
 if(istampa>1){
-	cout<<"in EliminateSpuriousSZ : skew hit n. "<<ListSkewHitsinTrack[j]<<
-	"  ZED[i][0] = "<<ZED[i][0]<<", S[i][0] "<<S[i][0]
-	<< ",  ZED[i][1] = "<<ZED[i][1]  <<", S[i][1] "<<S[i][1]<<endl;
+	cout<<"in EliminateSpuriousSZ : skew hit n. "<<ListSkewHitsinTrack[j];
+	if(ZED[i][0]<999998.)
+	cout<<"  ZED[i][0] = "<<ZED[i][0]<<", S[i][0] "<<S[i][0];
+	if(ZED[i][1]<999998.)
+	cout<< ",  ZED[i][1] = "<<ZED[i][1]  <<", S[i][1] "<<S[i][1];
+	cout<<endl;
 }
 //--------------fine stampe.
 		if( ZED[i][0]<999990. && ZED[i][1]<999990.){
