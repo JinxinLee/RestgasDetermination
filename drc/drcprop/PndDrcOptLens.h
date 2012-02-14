@@ -48,7 +48,7 @@ class PndDrcOptLens : public PndDrcOptVol
     \param dz half-length of the box along the z-axis.
     \param r1 Radius of lens side1
     \param r6 Radius of lens side2
-    \param c1 Conical constant for lens side1
+    \param c1 Conical constant for lens side1 (0=sphere, -1=parabola, asphere else)
     \param c6 Conical constant for lens side6
   */
   PndDrcOptLens(double dx, double dy, double dz,

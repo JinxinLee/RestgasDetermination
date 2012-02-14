@@ -42,9 +42,9 @@ using ROOT::Math::RotationY;
 //using ROOT::Math::Rotation3D;
 //
 #include <iostream>
-//using std::cout;
+using std::cout;
 using std::cerr;
-//using std::cin;
+using std::cin;
 using std::endl;
 //
 //#include <valarray>
@@ -255,6 +255,14 @@ void PndDrcOptLens::Make_surf6(PndDrcSurfPolyFlat& surf6,double r6)
 {
   static const double kPi=3.1415926535;
 
+  
+  //cout<<" point 1 : "<<fP1.X()<<" "<<fP1.Y()<<" "<<fP1.Z()<<endl;
+  //cout<<" point 2 : "<<fP2.X()<<" "<<fP2.Y()<<" "<<fP2.Z()<<endl;
+  //cout<<" point 3 : "<<fP3.X()<<" "<<fP3.Y()<<" "<<fP3.Z()<<endl;
+  //cout<<" point 4 : "<<fP4.X()<<" "<<fP4.Y()<<" "<<fP4.Z()<<endl;
+  
+
+
   if (r6>0)
     {
       surf6.AddPoint(fP1);
@@ -277,6 +285,15 @@ void PndDrcOptLens::Make_surf6(PndDrcSurfPolyFlat& surf6,double r6)
   dist[1] = surf6.LimitingPoint(1).Z();
   dist[2] = surf6.LimitingPoint(2).Z();
   dist[3] = surf6.LimitingPoint(3).Z();
+
+  //cout<<" dist[0..3]="<<endl;
+  //cout<<dist[0]<<" "
+  //  <<dist[1]<<" "
+  //  <<dist[2]<<" "
+  //  <<dist[3]<<" "<<endl;
+  
+
+
   double dist_min=9999;
   for (int i=0; i<4; i++)
     {
@@ -296,22 +313,32 @@ void PndDrcOptLens::Make_surf6(PndDrcSurfPolyFlat& surf6,double r6)
   
   PndDrcSurfQuadFlatDiff side26;
   side26.AddSurface(fA0,fP4,fP3);
+  //side26.AddSurface(fA0,fP3,fP4);
   side26.AddSurface(surf6,surf6.LimitingPoint(3),surf6.LimitingPoint(2));
+  //side26.AddSurface(surf6,surf6.LimitingPoint(2),surf6.LimitingPoint(3));
   side26.SetName("side26");
+  //side26.Print();
+  
   AddSurface(side26);
   PndDrcSurfQuadFlatDiff side36;
   side36.AddSurface(fA0,fP3,fP2);
+  //side36.AddSurface(fA0,fP2,fP3);
   side36.AddSurface(surf6,surf6.LimitingPoint(2),surf6.LimitingPoint(1));
+  //side36.AddSurface(surf6,surf6.LimitingPoint(1),surf6.LimitingPoint(2));
   side36.SetName("side36");
   AddSurface(side36);
   PndDrcSurfQuadFlatDiff side46;
   side46.AddSurface(fA0,fP2,fP1);
+  //side46.AddSurface(fA0,fP1,fP2);
   side46.AddSurface(surf6,surf6.LimitingPoint(1),surf6.LimitingPoint(0));
+  //side46.AddSurface(surf6,surf6.LimitingPoint(0),surf6.LimitingPoint(1));
   side46.SetName("side46");
   AddSurface(side46);
   PndDrcSurfQuadFlatDiff side56;
   side56.AddSurface(fA0,fP1,fP4);
+  //side56.AddSurface(fA0,fP4,fP1);
   side56.AddSurface(surf6,surf6.LimitingPoint(0),surf6.LimitingPoint(3));
+  //side56.AddSurface(surf6,surf6.LimitingPoint(3),surf6.LimitingPoint(0));
   side56.SetName("side56");
   AddSurface(side56);
   
