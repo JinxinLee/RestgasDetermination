@@ -7,6 +7,8 @@
 #include "TArrayD.h"
 #include "TGeoManager.h"
 
+#include <cmath>
+
 #include "FairRootManager.h"
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
