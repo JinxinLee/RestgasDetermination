@@ -386,8 +386,10 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 	daTrackFoundaTrackMC[MAXTRACKSPEREVENT],
 	enne[MAXTRACKSPEREVENT][nmaxHits];
 
-    Double_t aaa, ddd, delta, deltabis, deltaZ, mindis, distanza, fi_hit,
+ Double_t aaa, ddd, delta, deltabis, deltaZ, mindis, distanza, fi_hit,
               ap1, ap2, ap3, carica, cross1, cross2, cross3,
+		dummy,
+		esse[MAXTRACKSPEREVENT],
              lowlimit[MAXTRACKSPEREVENT],
              uplimit[MAXTRACKSPEREVENT],
              info[nmaxHits][7],
@@ -1013,6 +1015,7 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 				 infoparalConformal,
 				 posizSciTil[i][0],
 				 posizSciTil[i][1],
+				 &esse[nTracksFoundSoFar],
 				 Ox,
 				 Oy,
 				 R,
@@ -1095,6 +1098,7 @@ cout<<"from PndSttTrackFinderReal :  # n. Tracks found so far = "<<nTracksFoundS
 				 infoparalConformal,
 				 1.,	// dummy value, there is no SciTil info in this case;
 				 1.,	// dummy value, there is no SciTil info in this case
+				 &dummy,
 				 Ox,
 				 Oy,
 				 R,
@@ -1185,14 +1189,17 @@ if(istampa>0){
 	else nSttSkewhitinTrack[i]=0;
  }
 
+// here there are 0 or 1 SciTil hits in track.
  for(j=0;j<nSciTilHitsinTrack[i];j++){
-	tmpS[j]= atan2(posizSciTil[ ListSciTilHitsinTrack[i][j] ][1]-Oy[i],
-			posizSciTil[ ListSciTilHitsinTrack[i][j] ][0]-Ox[i]);
-	if ( tmpS[j]<0.) tmpS[j]+= 2.*PI;
+//	tmpS[j]= atan2(posizSciTil[ ListSciTilHitsinTrack[i][j] ][1]-Oy[i],
+//			posizSciTil[ ListSciTilHitsinTrack[i][j] ][0]-Ox[i]);
+
+	tmpS[j]= esse[i]; // this is already between 0 and 2PI.
 	tmpZ[j]=posizSciTil[ ListSciTilHitsinTrack[i][j] ][2],
 	tmpZDrift[j]=-1., // conventional, to signal that this is not a STT hit.
 	// error is intentionally overestimated for later use in SZ fit.
-	tmpErrorZDrift[j] = DIMENSIONSCITIL/sqrt(12.);
+//	tmpErrorZDrift[j] = DIMENSIONSCITIL/sqrt(12.);
+	tmpErrorZDrift[j] = DIMENSIONSCITIL/2.;
  }
  for(j=0;j<nSttSkewhitinTrack[i];j++){
 	ListSkewHitsinTrack[i][j]=TemporarySkewList[j][0];
@@ -1227,6 +1234,8 @@ if(istampa>0){
 	Charge[i]
 		);
 
+
+
  Status[i] = FitSZspace( 
 	nSttSkewhitinTrack[i]+nSciTilHitsinTrack[i],
 	tmpS,
@@ -1252,7 +1261,6 @@ if(istampa>0){
       FI0[i]=Fi_initial_helix_referenceframe[i];  //  therefore, FI0[i] has an extra +2*PI or -2*PI added
 						  // in case of tracks
 						  //  crossing the X axis
-
 
 
 
@@ -1393,14 +1401,14 @@ if(istampa>=2)
 
 
 
-//----------------------------------- Bad Tracks rejection :
+//-----------------------------------
 
    for(i=0; i<nTracksFoundSoFar;i++){
 
 
 
 //--------stampe.
-if(istampa>=2){cout<<"\tPndSttTrackFinderReal, prima di Parall cleanup, IVOLTE = "
+if(istampa>=2){cout<<"\tPndSttTrackFinderReal, fine di procedura, IVOLTE = "
 	<<IVOLTE<<",  traccia n. "<<i<<", lista degli hit || :"<<endl;
 	for(int ic=0;ic<nHitsinTrack[i];ic++){
 		cout<<"\thit skew (nativo) n. "<<infoparal[ ListHitsinTrack[i][ic] ]<<endl;
@@ -1408,13 +1416,7 @@ if(istampa>=2){cout<<"\tPndSttTrackFinderReal, prima di Parall cleanup, IVOLTE =
 }
 //-------------- fine stampe.
 
-
-
-
    }  //  end of  for(i=0; i<nTracksFoundSoFar;i++)
-
-
-
 
 //--------------------  inizio della sezione sul confronto tra MC truth e tracce trovate
 
@@ -2302,10 +2304,12 @@ for(i=0,ii=-1; i<nTracksFoundSoFar;i++){
 //  if there are SciTil hits, calculate S.
     Double_t ESSE[nSciTilHitsinTrack[i]],
 		ZETA[nSciTilHitsinTrack[i]];
+   // here nSciTilHitsinTrack[i] is 0 or 1.
     for(j=0;j<nSciTilHitsinTrack[i];j++){
-	ESSE[j]= atan2( posizSciTil[ListSciTilHitsinTrack[i][j]][1]-Oy[i],
-			posizSciTil[ListSciTilHitsinTrack[i][j]][0]-Ox[i]);
-	if( ESSE[j]<0. ) ESSE[j]+= 2.*PI;
+	ESSE[j]= esse[i];
+//	ESSE[j]= atan2( posizSciTil[ListSciTilHitsinTrack[i][j]][1]-Oy[i],
+//			posizSciTil[ListSciTilHitsinTrack[i][j]][0]-Ox[i]);
+//	if( ESSE[j]<0. ) ESSE[j]+= 2.*PI;
 	ZETA[j]= posizSciTil[ListSciTilHitsinTrack[i][j]][2];
     }
 
@@ -5790,6 +5794,7 @@ nulla: ;
 		if(Fifi<0.)  Fifi += 2.*PI;
     		if( fabs( pMC->GetMomentum().Z() )< 1.e-20) KAPPA = 99999999.;
     		else  KAPPA = -carica*0.001*BFIELD*CVEL/pMC->GetMomentum().Z();
+
      		FI0 = fmod(Fifi+ PI, 2.*PI);
 
 
@@ -8421,7 +8426,8 @@ if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "
 
 
 
-//  use the trick of increasing the rotation angle by 10 degrees in order to obtain always a positive m
+//  use the trick of increasing the rotation angle by 10 degrees in order to
+//  obtain always a positive m
 //      rotationangle -= PI/18.;
  rotationangle = PI/2.;
 
@@ -9236,8 +9242,8 @@ cout<<"cavolo2, da sttmvdtracking : nRows = "<<nRows<<", NStructVar = "<<
      if (status != 0) return -5;	// fit failed
 
 //--------stampaggi
-/*
-printf("from main, final printout con routines chiamate direttamente -------------------------------\n");
+if(istampa>=3){
+printf("from PndSttTrackFinderReal:FitSZ, final printout dopo glpmain -------------------------------\n");
 printf("      number of structural variables %d\n",NStructVar);
 int ica;
 for(ica=0;ica<NStructVar;ica++){
@@ -9245,7 +9251,7 @@ for(ica=0;ica<NStructVar;ica++){
            StructVarName[ica], final_values[ica]);
 }
 printf("from main, end of final printout  con routines chiamate direttamente -------------------------------\n");
-*/
+}
 //--------fine stampaggi
 
 
@@ -13587,6 +13593,7 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 		Double_t infoparalConformal[nmaxHits][5],
 		Double_t posizSciTilx,
 		Double_t posizSciTily,
+		Double_t *S,
 		Double_t *Ox,
 		Double_t *Oy,
 		Double_t *R,
@@ -13923,8 +13930,30 @@ for(int iz=0;iz<nummm;iz++){
 			&distance  // output
 						);
 
+// reject case with no intersection of the SciTil with the circle trajectory.
+	if(intersect){
+		nSciTilHitsinTrack[nTracksFoundSoFar]=1;
+		ListSciTilHitsinTrack[nTracksFoundSoFar][0]= -iHit-1;
 
- } // end if (iHit<0)
+	// calculate S on the lateral face of the Helix.
+	if ( Nint==1){	// the majority of the cases
+		*S = atan2(YintersectionList[0]-Oy[i],XintersectionList[0]-Ox[i]);
+	} else {  // in this case Nint=2 (it should be a very rare case).
+		// do an average of the two positions.
+		*S = atan2( 0.5*(YintersectionList[0]+YintersectionList[1])-Oy[i],
+			0.5*(XintersectionList[0]+XintersectionList[1])-Ox[i]);
+	} // end of  if ( Nint==1)
+	if ( *S<0.) *S += 2.*PI;
+
+	}  // continuation of if(intersect)
+	else {
+		nSciTilHitsinTrack[nTracksFoundSoFar]=0;
+	} // end of  if(intersect).
+
+ } else { // continuation of if (iHit<0)
+// the seed hit was a Stt hit; therefore no SciTil hits associated.
+	nSciTilHitsinTrack[nTracksFoundSoFar]=0;
+ } // end of  if (iHit<0).
 
 //---------------------  better association of the hits in the track candidate
 // treat differently the case in which the track has radius < RStrawDetectorMax/2
@@ -14058,14 +14087,6 @@ for(int iz=0;iz<nummm;iz++){
 
 
 
-//------
-
- if(iHit<0){  // the seed hit was a SciTil hit
-	nSciTilHitsinTrack[nTracksFoundSoFar]=1;
-	ListSciTilHitsinTrack[nTracksFoundSoFar][0]= -iHit-1;
- } else {   // the seed hit was a Stt hit; therefore no SciTil hits associated.
-	nSciTilHitsinTrack[nTracksFoundSoFar]=0;
- }
 
 //--------------------------------------------------    macro for display
 
