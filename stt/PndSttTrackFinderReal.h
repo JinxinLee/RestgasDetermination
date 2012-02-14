@@ -1165,6 +1165,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		Double_t infoparalConformal[nmaxHits][5],
 		Double_t posizSciTilx,
 		Double_t posizSciTily,
+		Double_t *S,
 		Double_t *Ox,
 		Double_t *Oy,
 		Double_t *R,
