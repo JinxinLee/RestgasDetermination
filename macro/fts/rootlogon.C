@@ -5,6 +5,9 @@ rootlogon()
   
   // Load Panda libraries
   if(isLibrary("libDpmEvtGen"))gSystem->Load("libDpmEvtGen");
+  if(isLibrary("libpythia8"))gSystem->Load("libpythia8");
+  if(isLibrary("libFlukaResults"))gSystem->Load("libFlukaResults");
+  if(isLibrary("libFairTools"))gSystem->Load("libFairTools");
   if(isLibrary("libGeoBase"))gSystem->Load("libGeoBase");
   if(isLibrary("libParBase"))gSystem->Load("libParBase");
   if(isLibrary("libBase"))gSystem->Load("libBase");
@@ -18,8 +21,9 @@ rootlogon()
   if(isLibrary("libPndBase"))gSystem->Load("libPndBase");
   if(isLibrary("libGlobalTasks"))gSystem->Load("libGlobalTasks");
   if(isLibrary("libTrkBase"))gSystem->Load("libTrkBase");
-  if(isLibrary("libgeneralTools"))gSystem->Load("libgeneralTools");
   if(isLibrary("libPndData"))gSystem->Load("libPndData");
+  if(isLibrary("libgeneralTools"))gSystem->Load("libgeneralTools");
+  if(isLibrary("libbuffers"))gSystem->Load("libbuffers");
   if(isLibrary("libField"))gSystem->Load("libField");
   if(isLibrary("libPassive"))gSystem->Load("libPassive");
   if(isLibrary("libGen"))gSystem->Load("libGen");
@@ -29,31 +33,30 @@ rootlogon()
   if(isLibrary("libtrackrep"))gSystem->Load("libtrackrep");
   if(isLibrary("libgenfitAdapters"))gSystem->Load("libgenfitAdapters");
   if(isLibrary("libriemann"))gSystem->Load("libriemann");
-  if(isLibrary("libtpc"))gSystem->Load("libtpc"); 
-  if(isLibrary("libtpcreco"))gSystem->Load("libtpcreco");
   if(isLibrary("libStt"))gSystem->Load("libStt");
   if(isLibrary("libSttReco"))gSystem->Load("libSttReco");
-  if(isLibrary("libFts"))gSystem->Load("libFts");
   if(isLibrary("libSds"))gSystem->Load("libSds");
   if(isLibrary("libSdsReco"))gSystem->Load("libSdsReco");
   if(isLibrary("libMvd"))gSystem->Load("libMvd");
   if(isLibrary("libMvdReco"))gSystem->Load("libMvdReco");
   if(isLibrary("libMvdTrk"))gSystem->Load("libMvdTrk");
+  if(isLibrary("libSttMvdTracking"))gSystem->Load("libSttMvdTracking");
   if(isLibrary("libGem"))gSystem->Load("libGem");
-  if(isLibrary("libTof"))gSystem->Load("libTof");
+  if(isLibrary("libFts"))gSystem->Load("libFts");
+  if(isLibrary("libSciT"))gSystem->Load("libSciT");
   if(isLibrary("libDrcProp"))gSystem->Load("libDrcProp");
   if(isLibrary("libDrc"))gSystem->Load("libDrc");
   if(isLibrary("libMdt"))gSystem->Load("libMdt");
-  if(isLibrary("libDch"))gSystem->Load("libDch");
-  if(isLibrary("libLheTrack"))gSystem->Load("libLheTrack");
+//  if(isLibrary("libDch"))gSystem->Load("libDch");
+//  if(isLibrary("libLheTrack"))gSystem->Load("libLheTrack");
   if(isLibrary("libGeane"))gSystem->Load("libGeane");
-  if(isLibrary("libRpc"))gSystem->Load("libRpc");
-  if(isLibrary("libLumi"))gSystem->Load("libLumi");
+// if(isLibrary("libRpc"))gSystem->Load("libRpc");
+  if(isLibrary("libLmd"))gSystem->Load("libLmd");
   if(isLibrary("libRho"))gSystem->Load("libRho");
   if(isLibrary("libTMVA"))gSystem->Load("libTMVA.so");
   if(isLibrary("libAnalysisTools"))gSystem->Load("libAnalysisTools"); 
   if(isLibrary("libPid"))gSystem->Load("libPid");
-  if(isLibrary("librecotasks"))gSystem->Load("librecotasks");
+//  if(isLibrary("librecotasks"))gSystem->Load("librecotasks");
   if(isLibrary("libRecoHits"))gSystem->Load("libRecoHits");
   if(isLibrary("libRecoTasks"))gSystem->Load("libRecoTasks");
   if(isLibrary("libEnDrc"))gSystem->Load("libEnDrc");
@@ -61,7 +64,9 @@ rootlogon()
   if(isLibrary("libGlobal"))gSystem->Load("libGlobal");
   if(isLibrary("libMCMatch"))gSystem->Load("libMCMatch");
   if(isLibrary("libMva"))gSystem->Load("libMva");
-	
+  if(isLibrary("libFtof"))gSystem->Load("libFtof");
+
+  //gSystem->Load("libMemStat");
 }
 
 Bool_t isLibrary(const char* libName)

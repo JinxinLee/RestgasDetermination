@@ -32,7 +32,7 @@
   FairRunAna *fRun = new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
-  fRun->LoadGeometry();
+  //fRun->LoadGeometry();
   // ------------------------------------------------------------------------
 
   // -----   STT analysis tasks   --------------------------------------------
