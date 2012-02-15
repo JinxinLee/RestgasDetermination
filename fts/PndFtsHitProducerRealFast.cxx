@@ -57,7 +57,9 @@ PndFtsHitProducerRealFast::~PndFtsHitProducerRealFast() { }
 InitStatus PndFtsHitProducerRealFast::Init() {
   fevtn=0;
  
+  std::cout<<"#########################################################"<<std::endl;
   std::cout<<"PndFtsHitProducerRealFast: Init()#######"<<std::endl;
+  std::cout<<"#########################################################"<<std::endl;
 
  // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
@@ -66,8 +68,9 @@ InitStatus PndFtsHitProducerRealFast::Init() {
 	 << "RootManager not instantiated!" << endl;
     return kFATAL;
   }
-  cout<<"Picking up the mapper...";
-  fMapper     = PndFtsMapCreator::Instance();  
+
+  //cout<<"Picking up the mapper...";
+  //fMapper     = PndFtsMapCreator::Instance();  
 
   // Get input array
   fPointArray = (TClonesArray*) ioman->GetObject("FTSPoint");
@@ -89,6 +92,11 @@ InitStatus PndFtsHitProducerRealFast::Init() {
  
   cout << "-I- PndFTSHitProducerRealFast: INITIALIZATION SUCCESSFUL" << endl;
 
+
+  //CHECK added
+  PndFtsMapCreator *mapper = new PndFtsMapCreator(fFtsParameters);
+  //fTubeArray = mapper->FillTubeArray();
+
   return kSUCCESS;
 
 }
@@ -97,13 +105,15 @@ InitStatus PndFtsHitProducerRealFast::Init() {
 void PndFtsHitProducerRealFast::SetParContainers() {
 
   FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
-  //fFtsParameters = (PndGeoFtsPar*) rtdb->getContainer("PndGeoFtsPar");
-
+  std::cout<<"pndgeoftspar: prima"<<std::endl;
+  fFtsParameters = (PndGeoFtsPar*) rtdb->getContainer("PndGeoFtsPar");
+  std::cout<<"dopo############"<<std::endl;
 }
 
 
 // -----   Public method Exec   --------------------------------------------
 void PndFtsHitProducerRealFast::Exec(Option_t* opt) {
+
   std::cout<<"PndFtsHitProducer Exec ########"<<std::endl;
   if(fVerbose && fevtn%50==0) cout << "Event Number "<<fevtn<<endl;
   else if(fVerbose >= 3) cout << "Event Number "<<fevtn<<endl;
@@ -227,6 +237,8 @@ void PndFtsHitProducerRealFast::Exec(Option_t* opt) {
 void PndFtsHitProducerRealFast::FoldZPosWithResolution(Double_t &zpos, Double_t &zposError, 
 						    TVector3 localInPos, TVector3 localOutPos)
 {
+
+
   Double_t
     zPosInStrawFrame = (localOutPos.Z() - localInPos.Z()) / 2.;
  
@@ -241,6 +253,8 @@ void PndFtsHitProducerRealFast::FoldZPosWithResolution(Double_t &zpos, Double_t 
 
 // -----   Private method AddHit   --------------------------------------------
 PndFtsHit* PndFtsHitProducerRealFast::AddHit(Int_t detID, Int_t tubeID, Int_t chamberID, Int_t iPoint, TVector3& pos, TVector3& dpos, Double_t p, Double_t rsim, Double_t closestDistanceError, Double_t depcharge) {
+
+
   // see PndFtsHit for hit description
   TClonesArray& clref = *fHitArray;
   Int_t size = clref.GetEntriesFast();
@@ -254,6 +268,8 @@ PndFtsHit* PndFtsHitProducerRealFast::AddHit(Int_t detID, Int_t tubeID, Int_t ch
 // -----   Private method AddHitInfo   --------------------------------------------
 PndFtsHitInfo* PndFtsHitProducerRealFast::AddHitInfo(Int_t fileNumber, Int_t eventNumber, Int_t trackID, Int_t pointID, Int_t nMerged, Bool_t isFake){
   // see PndFtsHitInfo for hit description
+
+
   TClonesArray& clref = *fHitInfoArray;
   Int_t size = clref.GetEntriesFast();
   return new(clref[size])  PndFtsHitInfo(fileNumber, eventNumber, trackID, pointID, nMerged, isFake);
@@ -261,6 +277,7 @@ PndFtsHitInfo* PndFtsHitProducerRealFast::AddHitInfo(Int_t fileNumber, Int_t eve
 
 
 Double_t PndFtsHitProducerRealFast::GetError(Double_t TrueDcm) {
+
 
   // data from julich 
   Double_t resmic=-1;

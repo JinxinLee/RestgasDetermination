@@ -26,6 +26,8 @@ PndFtsMapCreator();
   // general functions
   void SetGeneralParameters();
 
+
+  TClonesArray * FillTubeArray();
   // general functions, to be specified depending on geo type
   Int_t GetTubeIDFromPath(TString path);
   //Int_t GetTubeIDFromName(TString name);
@@ -39,6 +41,11 @@ PndFtsMapCreator();
   Int_t GetTubeIDFromPathGeoType1(TString path);
   Int_t GetTubeIDFromNameGeoType1(TString name);
   TString GetNameFromPathGeoType1(TString path);
+  TString GetNameFromTubeIDGeoType1(Int_t tubeid, Bool_t isCopy);
+  PndFtsTube * GetTubeFromTubeIDGeoType1(Int_t tubeid);
+  PndFtsTube * GetTubeFromTubeIDToFillGeoType1(Int_t tubeid);
+  TClonesArray* FillTubeArrayGeoType1();
+
 
   Int_t fGeoType;
   PndGeoFtsPar *fFtsParameters;

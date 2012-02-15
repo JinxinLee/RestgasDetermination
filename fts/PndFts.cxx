@@ -140,7 +140,7 @@ string PndFts::GetStringPart(string &aSrc, Int_t part, char aDelim)
 Bool_t  PndFts::ProcessHits(FairVolume* vol)
 {
   
-  //new>>>>>>>>>>>>>>>>>>
+
   //std::cout<<"ProcessHit PndFts####################################################"<<std::endl;
 
   TParticle* particle =  gMC->GetStack()->GetCurrentTrack();
@@ -148,10 +148,10 @@ Bool_t  PndFts::ProcessHits(FairVolume* vol)
   Double_t epsil = medium->GetParam(6);
 
   TString vol_name(gMC->CurrentVolName()); 
-  //gMC->GetTransformation(gMC->CurrentVolPath(),M);
+  TGeoHMatrix M;
+  gMC->GetTransformation(gMC->CurrentVolPath(),M);
   TString name(gMC->CurrentVolName());
   
-  //new>>>>>>>>>>>>>>>>>>
   
   if (gMC->TrackCharge() != 0.)
     {
@@ -235,14 +235,14 @@ Bool_t  PndFts::ProcessHits(FairVolume* vol)
 	  specialname = volPath2.substr(start,volPath2.find("_",start)-start);
 	    
 	  if(volumename.Contains("fts01")) basename = "fts01tube";
-	  if(volumename.Contains("fts031")) basename = "fts031tube";
-	  if(volumename.Contains("fts032")) basename = "fts032tube";
-	  if(volumename.Contains("fts033")) basename = "fts033tube";
-	  if(volumename.Contains("fts034")) basename = "fts034tube";
-	  if(volumename.Contains("fts035")) basename = "fts035tube";
-	  if(volumename.Contains("fts036")) basename = "fts036tube";
-	  if(volumename.Contains("fts037")) basename = "fts037tube";
-	  if(volumename.Contains("fts038")) basename = "fts038tube";
+	  if(volumename.Contains("fts31")) basename = "fts31tube";
+	  if(volumename.Contains("fts32")) basename = "fts32tube";
+	  if(volumename.Contains("fts33")) basename = "fts33tube";
+	  if(volumename.Contains("fts34")) basename = "fts34tube";
+	  if(volumename.Contains("fts35")) basename = "fts35tube";
+	  if(volumename.Contains("fts36")) basename = "fts36tube";
+	  if(volumename.Contains("fts37")) basename = "fts37tube";
+	  if(volumename.Contains("fts38")) basename = "fts38tube";
           if(volumename.Contains("fts05")) basename = "fts05tube";
 	  if(volumename.Contains("fts06")) basename = "fts06tube";
 	  
@@ -258,7 +258,7 @@ Bool_t  PndFts::ProcessHits(FairVolume* vol)
 	    
 
 	  if(fTrackID!=0){
-	    if (fVerboseLevel>2) std::cout<<"sono prima del mapper------"<<std::endl;
+	    if (fVerboseLevel>2) std::cout<<"befor Mapper------"<<std::endl;
 	  }
 
 	  fpostot.SetXYZM((fpostotin.X() +  fpostotout.X())/2., (fpostotin.Y() + fpostotout.Y())/2.,(fpostotin.Z() + fpostotout.Z())/2.,0.0);
@@ -362,7 +362,7 @@ void PndFts::Print() const
 // -----   Public method Reset   -------------------------------------------
 void PndFts::Reset() 
 {
-    fFtsCollection->Clear();
+    fFtsCollection->Delete();
     ResetParameters();
 }
 // -------------------------------------------------------------------------

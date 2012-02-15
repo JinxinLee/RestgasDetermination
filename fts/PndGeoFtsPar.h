@@ -1,14 +1,18 @@
+////////////////////
+///////////////////
+
 #ifndef PNDGEOFTSPAR_H
 #define PNDGEOFTSPAR_H
 
 #include "FairParGenericSet.h"
+#include "TH1F.h"
 #include "TObjArray.h"
 
 class PndGeoFtsPar : public FairParGenericSet 
 {
 public:
-  TObjArray            *fGeoSensNodes; // List of FairGeoNodes for sensitive volumes
-  TObjArray            *fGeoPassNodes; // List of FairGeoNodes for sensitive volumes
+  TObjArray            *fGeoSensNodes; /** List of FairGeoNodes for sensitive volumes*/
+  TObjArray            *fGeoPassNodes; /** List of FairGeoNodes for sensitive volumes*/
   Int_t fGeoType;       //modif
   Double_t              fTubeInRad, fTubeOutRad; //modif
 
