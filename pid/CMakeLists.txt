@@ -67,6 +67,7 @@ PndPidContFact.cxx
 
 ###### Associator
 PidClassifier/PndPidIdealAssociatorTask.cxx
+PidClassifier/PndPidIdealFwdOnlyAssociatorTask.cxx
 PidClassifier/PndPidMvdAssociatorTask.cxx
 PidClassifier/PndPidDrcAssociatorTask.cxx
 PidClassifier/PndPidDiscAssociatorTask.cxx
@@ -93,6 +94,7 @@ PndPidContFact.h
 
 ###### Associator Headers
 PidClassifier/PndPidIdealAssociatorTask.h
+PidClassifier/PndPidIdealFwdOnlyAssociatorTask.h
 PidClassifier/PndPidMvdAssociatorTask.h
 PidClassifier/PndPidDrcAssociatorTask.h
 PidClassifier/PndPidDiscAssociatorTask.h
