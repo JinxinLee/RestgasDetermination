@@ -512,7 +512,7 @@ air
 $Zpos=0.;
 $Ypos=0.;
 print OUT "//*********************
-fts031tube#1
+fts31tube#1
 fts03assembly#1
 TUBE
 mylar
@@ -525,8 +525,8 @@ $Xpos $Ypos $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts031gas#1
-fts031tube#1
+fts31gas#1
+fts31tube#1
 TUBE
 argon
 0. 0. -$semilen  
@@ -538,8 +538,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts031wire#1
-fts031gas#1
+fts31wire#1
+fts31gas#1
 TUBE
 tungsten
 0. 0. -$semilen 
@@ -551,7 +551,7 @@ tungsten
 for($i=2; $i<91;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 print OUT "//*********************
-fts031tube#$i
+fts31tube#$i
 fts03assembly#1
 $Xpos $Ypos $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -561,7 +561,7 @@ $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 $shortHalf = 131.075; #(690.3-166)/4
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts031tubedown#1
+fts31tubedown#1
 fts03assembly#1
 TUBE
 mylar
@@ -574,8 +574,8 @@ $Xpos -214.075 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts031gasdown#1
-fts031tubedown#1
+fts31gasdown#1
+fts31tubedown#1
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -587,8 +587,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts031wiredown#1
-fts031gasdown#1
+fts31wiredown#1
+fts31gasdown#1
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -600,7 +600,7 @@ tungsten
 for($i=92; $i<103;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 print OUT "//*********************
-fts031tubedown#$i
+fts31tubedown#$i
 fts03assembly#1
 $Xpos -214.075 $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -610,7 +610,7 @@ $i=91;
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts031tubeup#1
+fts31tubeup#1
 fts03assembly#1
 TUBE
 mylar
@@ -624,8 +624,8 @@ $Xpos 214.075 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts031gasup#1
-fts031tubeup#1
+fts31gasup#1
+fts31tubeup#1
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -637,8 +637,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts031wireup#1
-fts031gasup#1
+fts31wireup#1
+fts31gasup#1
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -650,7 +650,7 @@ tungsten
 for($i=92; $i<103;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 print OUT "//*********************
-fts031tubeup#$i
+fts31tubeup#$i
 fts03assembly#1
 $Xpos 214.075 $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -658,7 +658,7 @@ $Xpos 214.075 $Zpos
 for($i=103; $i<193;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 print OUT "//*********************
-fts031tube#$i
+fts31tube#$i
 fts03assembly#1
 $Xpos $Ypos $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -669,7 +669,7 @@ $z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
 for($i=193; $i<283;$i++){
 $Xpos = $diametrostraw*( 192/2  - ($i - 193) );
 print OUT "//*********************                                                           
-fts031tube#$i
+fts31tube#$i
 fts03assembly#1  
 $Xpos $Ypos $z2
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -678,7 +678,7 @@ $Xpos $Ypos $z2
 for($i=283; $i<295;$i++){
 $Xpos = $diametrostraw*( 192/2 - ($i - 193) );
 print OUT "//*********************
-fts031tubedown#$i
+fts31tubedown#$i
 fts03assembly#1
 $Xpos -214.075 $z2
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -686,7 +686,7 @@ $Xpos -214.075 $z2
 for($i=283; $i<295;$i++){
 $Xpos = $diametrostraw*( 192/2 -  ($i - 193) );
 print OUT "//*********************
-fts031tubeup#$i
+fts31tubeup#$i
 fts03assembly#1
 $Xpos 214.075 $z2
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -694,7 +694,7 @@ $Xpos 214.075 $z2
 for($i=295; $i<385;$i++){
 $Xpos = $diametrostraw*( 192/2  - ($i - 193) );
 print OUT "//*********************                                                           
-fts031tube#$i
+fts31tube#$i
 fts03assembly#1  
 $Xpos $Ypos $z2 
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -706,7 +706,7 @@ $semilen = $len/2.;
 $raggio = $diametrostraw/2.;
 $Zpos=74.75- $diametrostraw/2;
 print OUT "//*********************
-fts032tube#1
+fts32tube#1
 fts03assembly#1
 TUBE
 mylar
@@ -719,8 +719,8 @@ $Xpos $Ypos $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts032gas#1
-fts032tube#1
+fts32gas#1
+fts32tube#1
 TUBE
 argon
 0. 0. -$semilen  
@@ -732,8 +732,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts032wire#1
-fts032gas#1
+fts32wire#1
+fts32gas#1
 TUBE
 tungsten
 0. 0. -$semilen 
@@ -745,7 +745,7 @@ tungsten
 for($i=2; $i<91;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 print OUT "//*********************
-fts032tube#$i
+fts32tube#$i
 fts03assembly#1
 $Xpos $Ypos $Zpos
 0.99692 0. -0.07846 0.07846 0. 0.99692 0. 1. 0.\n"
@@ -756,7 +756,7 @@ $Xpos = $diametrostraw*( 192/2 + 0.5 - $i + 1.7);
 $shortHalf = 134.35; #(703.4-166)/4
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts032tubedown#1
+fts32tubedown#1
 fts03assembly#1
 TUBE
 mylar
@@ -769,8 +769,8 @@ $Xpos -217.35 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts032gasdown#1
-fts032tubedown#1
+fts32gasdown#1
+fts32tubedown#1
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -782,8 +782,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts032wiredown#1
-fts032gasdown#1
+fts32wiredown#1
+fts32gasdown#1
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -795,7 +795,7 @@ tungsten
 for($i=92; $i<103;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i + 1.7);
 print OUT "//*********************
-fts032tubedown#$i
+fts32tubedown#$i
 fts03assembly#1
 $Xpos -217.35 $Zpos
 0.99692 0. -0.07846 0.07846 0. 0.99692 0. 1. 0.\n"
@@ -806,7 +806,7 @@ $Xpos = $diametrostraw*( 192/2 + 0.5 - $i - 1.7);
 $shortHalf = 134.35; #(703.4-166)/4
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts032tubeup#1
+fts32tubeup#1
 fts03assembly#1
 TUBE
 mylar
@@ -819,8 +819,8 @@ $Xpos 217.35 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts032gasup#1
-fts032tubeup#1
+fts32gasup#1
+fts32tubeup#1
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -832,8 +832,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts032wireup#1
-fts032gasup#1
+fts32wireup#1
+fts32gasup#1
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -845,7 +845,7 @@ tungsten
 for($i=92; $i<103;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i - 1.7);
 print OUT "//*********************
-fts032tubeup#$i
+fts32tubeup#$i
 fts03assembly#1
 $Xpos 217.35 $Zpos
 0.99692 0. -0.07846 0.07846 0. 0.99692 0. 1. 0.\n"
@@ -853,7 +853,7 @@ $Xpos 217.35 $Zpos
 for($i=103; $i<193;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 print OUT "//*********************
-fts032tube#$i
+fts32tube#$i
 fts03assembly#1
 $Xpos $Ypos $Zpos
 0.99692 0. -0.07846 0.07846 0. 0.99692 0. 1. 0.\n"
@@ -864,7 +864,7 @@ $z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
 for($i=193; $i<283;$i++){
 $Xpos = $diametrostraw*( 192/2  - ($i - 193) );
 print OUT "//*********************                                                           
-fts032tube#$i
+fts32tube#$i
 fts03assembly#1  
 $Xpos $Ypos $z2
 0.99692 0. -0.07846 0.07846 0. 0.99692 0. 1. 0.\n"
@@ -873,7 +873,7 @@ $Xpos $Ypos $z2
 for($i=283; $i<295;$i++){
 $Xpos = $diametrostraw*( 192/2 - ($i - 193) + 1.7 );
 print OUT "//*********************
-fts032tubedown#$i
+fts32tubedown#$i
 fts03assembly#1
 $Xpos -217.35 $z2
 0.99692 0. -0.07846 0.07846 0. 0.99692 0. 1. 0.\n"
@@ -881,7 +881,7 @@ $Xpos -217.35 $z2
 for($i=283; $i<295;$i++){
 $Xpos = $diametrostraw*( 192/2 -  ($i - 193) - 1.7 );
 print OUT "//*********************
-fts032tubeup#$i
+fts32tubeup#$i
 fts03assembly#1
 $Xpos 217.35 $z2
 0.99692 0. -0.07846 0.07846 0. 0.99692 0. 1. 0.\n"
@@ -889,7 +889,7 @@ $Xpos 217.35 $z2
 for($i=295; $i<385;$i++){
 $Xpos = $diametrostraw*( 192/2  - ($i - 193) );
 print OUT "//*********************                                                           
-fts032tube#$i
+fts32tube#$i
 fts03assembly#1  
 $Xpos $Ypos $z2 
 0.99692 0. -0.07846 0.07846 0. 0.99692 0. 1. 0.\n"
@@ -902,7 +902,7 @@ $semilen = $len/2.;
 $raggio = $diametrostraw/2.;
 $Zpos=220-$diametrostraw/2;
 print OUT "//*********************
-fts033tube#1
+fts33tube#1
 fts03assembly#1
 TUBE
 mylar
@@ -915,8 +915,8 @@ $Xpos $Ypos $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts033gas#1
-fts033tube#1
+fts33gas#1
+fts33tube#1
 TUBE
 argon
 0. 0. -$semilen  
@@ -928,8 +928,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts033wire#1
-fts033gas#1
+fts33wire#1
+fts33gas#1
 TUBE
 tungsten
 0. 0. -$semilen 
@@ -941,7 +941,7 @@ tungsten
 for($i=2; $i<91;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 print OUT "//*********************
-fts033tube#$i
+fts33tube#$i
 fts03assembly#1
 $Xpos $Ypos $Zpos
 0.99692 0. 0.07846 -0.07846 0. 0.99692 0. 1. 0.\n"
@@ -952,7 +952,7 @@ $Xpos = $diametrostraw*( 192/2 + 0.5 - $i - 1.75);
 $shortHalf = 140.7; #(728.8-166)/4
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts033tubedown#1
+fts33tubedown#1
 fts03assembly#1
 TUBE
 mylar
@@ -965,8 +965,8 @@ $Xpos -223.7 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts033gasdown#1
-fts033tubedown#1
+fts33gasdown#1
+fts33tubedown#1
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -978,8 +978,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts033wiredown#1
-fts033gasdown#1
+fts33wiredown#1
+fts33gasdown#1
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -991,7 +991,7 @@ tungsten
 for($i=92; $i<103;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i - 1.75);
 print OUT "//*********************
-fts033tubedown#$i
+fts33tubedown#$i
 fts03assembly#1
 $Xpos -223.7 $Zpos
 0.99692 0. 0.07846 -0.07846 0. 0.99692 0. 1. 0.\n"
@@ -1001,7 +1001,7 @@ $i=91;
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i + 1.75);
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts033tubeup#1
+fts33tubeup#1
 fts03assembly#1
 TUBE
 mylar
@@ -1014,8 +1014,8 @@ $Xpos 223.7 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts033gasup#1
-fts033tubeup#1
+fts33gasup#1
+fts33tubeup#1
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -1027,8 +1027,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts033wireup#1
-fts033gasup#1
+fts33wireup#1
+fts33gasup#1
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -1040,7 +1040,7 @@ tungsten
 for($i=92; $i<103;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i + 1.75);
 print OUT "//*********************
-fts033tubeup#$i
+fts33tubeup#$i
 fts03assembly#1
 $Xpos 223.7 $Zpos
 0.99692 0. 0.07846 -0.07846 0. 0.99692 0. 1. 0.\n"
@@ -1048,7 +1048,7 @@ $Xpos 223.7 $Zpos
 for($i=103; $i<193;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 print OUT "//*********************
-fts033tube#$i
+fts33tube#$i
 fts03assembly#1
 $Xpos $Ypos $Zpos
 0.99692 0. 0.07846 -0.07846 0. 0.99692 0. 1. 0.\n"
@@ -1059,7 +1059,7 @@ $z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
 for($i=193; $i<283;$i++){
 $Xpos = $diametrostraw*( 192/2  - ($i - 193) );
 print OUT "//*********************                                                           
-fts033tube#$i
+fts33tube#$i
 fts03assembly#1  
 $Xpos $Ypos $z2
 0.99692 0. 0.07846 -0.07846 0. 0.99692 0. 1. 0.\n"
@@ -1068,7 +1068,7 @@ $Xpos $Ypos $z2
 for($i=283; $i<295;$i++){
 $Xpos = $diametrostraw*( 192/2 - ($i - 193) - 1.75 );
 print OUT "//*********************
-fts033tubedown#$i
+fts33tubedown#$i
 fts03assembly#1
 $Xpos -223.7 $z2
 0.99692 0. 0.07846 -0.07846 0. 0.99692 0. 1. 0.\n"
@@ -1076,7 +1076,7 @@ $Xpos -223.7 $z2
 for($i=283; $i<295;$i++){
 $Xpos = $diametrostraw*( 192/2 -  ($i - 193) + 1.75 );
 print OUT "//*********************
-fts033tubeup#$i
+fts33tubeup#$i
 fts03assembly#1
 $Xpos 223.7 $z2
 0.99692 0. 0.07846 -0.07846 0. 0.99692 0. 1. 0.\n"
@@ -1084,7 +1084,7 @@ $Xpos 223.7 $z2
 for($i=295; $i<385;$i++){
 $Xpos = $diametrostraw*( 192/2  - ($i - 193) );
 print OUT "//*********************                                                           
-fts033tube#$i
+fts33tube#$i
 fts03assembly#1  
 $Xpos $Ypos $z2 
 0.99692 0. 0.07846 -0.07846 0. 0.99692 0. 1. 0.\n"
@@ -1097,7 +1097,7 @@ $semilen = $len/2.;
 $raggio = $diametrostraw/2.;
 $Zpos=294-$diametrostraw/2;
 print OUT "//*********************
-fts034tube#1
+fts34tube#1
 fts03assembly#1
 TUBE
 mylar
@@ -1110,8 +1110,8 @@ $Xpos $Ypos $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts034gas#1
-fts034tube#1
+fts34gas#1
+fts34tube#1
 TUBE
 argon
 0. 0. -$semilen  
@@ -1123,8 +1123,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts034wire#1
-fts034gas#1
+fts34wire#1
+fts34gas#1
 TUBE
 tungsten
 0. 0. -$semilen 
@@ -1136,7 +1136,7 @@ tungsten
 for($i=2; $i<91;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 print OUT "//*********************
-fts034tube#$i
+fts34tube#$i
 fts03assembly#1
 $Xpos $Ypos $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -1146,7 +1146,7 @@ $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 $shortHalf = 143.975; #(741.9-166)/4
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts034tubedown#1
+fts34tubedown#1
 fts03assembly#1
 TUBE
 mylar
@@ -1159,8 +1159,8 @@ $Xpos -227.25 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts034gasdown#1
-fts034tubedown#1
+fts34gasdown#1
+fts34tubedown#1
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -1172,8 +1172,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts034wiredown#1
-fts034gasdown#1
+fts34wiredown#1
+fts34gasdown#1
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -1185,7 +1185,7 @@ tungsten
 for($i=92; $i<103;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 print OUT "//*********************
-fts034tubedown#$i
+fts34tubedown#$i
 fts03assembly#1
 $Xpos -227.25 $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -1195,7 +1195,7 @@ $i=91;
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts034tubeup#1
+fts34tubeup#1
 fts03assembly#1
 TUBE
 mylar
@@ -1208,8 +1208,8 @@ $Xpos 227.25 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts034gasup#1
-fts034tubeup#1
+fts34gasup#1
+fts34tubeup#1
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -1221,8 +1221,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts034wireup#1
-fts034gasup#1
+fts34wireup#1
+fts34gasup#1
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -1234,7 +1234,7 @@ tungsten
 for($i=92; $i<103;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 print OUT "//*********************
-fts034tubeup#$i
+fts34tubeup#$i
 fts03assembly#1
 $Xpos 227.25 $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -1242,7 +1242,7 @@ $Xpos 227.25 $Zpos
 for($i=103; $i<193;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 print OUT "//*********************
-fts034tube#$i
+fts34tube#$i
 fts03assembly#1
 $Xpos $Ypos $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -1253,7 +1253,7 @@ $z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
 for($i=193; $i<283;$i++){
 $Xpos = $diametrostraw*( 192/2  - ($i - 193) );
 print OUT "//*********************                                                           
-fts034tube#$i
+fts34tube#$i
 fts03assembly#1  
 $Xpos $Ypos $z2
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -1262,7 +1262,7 @@ $Xpos $Ypos $z2
 for($i=283; $i<295;$i++){
 $Xpos = $diametrostraw*( 192/2 - ($i - 193) );
 print OUT "//*********************
-fts034tubedown#$i
+fts34tubedown#$i
 fts03assembly#1
 $Xpos -227.25 $z2
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -1270,7 +1270,7 @@ $Xpos -227.25 $z2
 for($i=283; $i<295;$i++){
 $Xpos = $diametrostraw*( 192/2 -  ($i - 193) );
 print OUT "//*********************
-fts034tubeup#$i
+fts34tubeup#$i
 fts03assembly#1
 $Xpos 227.25 $z2
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -1278,7 +1278,7 @@ $Xpos 227.25 $z2
 for($i=295; $i<385;$i++){
 $Xpos = $diametrostraw*( 192/2  - ($i - 193) );
 print OUT "//*********************                                                           
-fts034tube#$i
+fts34tube#$i
 fts03assembly#1  
 $Xpos $Ypos $z2 
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -1299,7 +1299,7 @@ $semilen = $len/2.;
 $raggio = $diametrostraw/2.;
 
 print OUT "//*********************
-fts035tube#1
+fts35tube#1
 fts03assembly#1
 TUBE
 mylar
@@ -1312,8 +1312,8 @@ $Xpos $Ypos $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts035gas#1
-fts035tube#1
+fts35gas#1
+fts35tube#1
 TUBE
 argon
 0. 0. -$semilen  
@@ -1325,8 +1325,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts035wire#1
-fts035gas#1
+fts35wire#1
+fts35gas#1
 TUBE
 tungsten
 0. 0. -$semilen 
@@ -1338,7 +1338,7 @@ tungsten
 for($i=2; $i<91;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 print OUT "//*********************
-fts035tube#$i
+fts35tube#$i
 fts03assembly#1
 $Xpos $Ypos $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -1348,7 +1348,7 @@ $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 $shortHalf = 150.325; #(767.3-166)/4
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts035tubedown#1
+fts35tubedown#1
 fts03assembly#1
 TUBE
 mylar
@@ -1361,8 +1361,8 @@ $Xpos -233.325 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts035gasdown#1
-fts035tubedown#1
+fts35gasdown#1
+fts35tubedown#1
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -1374,8 +1374,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts035wiredown#1
-fts035gasdown#1
+fts35wiredown#1
+fts35gasdown#1
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -1387,7 +1387,7 @@ tungsten
 for($i=92; $i<103;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 print OUT "//*********************
-fts035tubedown#$i
+fts35tubedown#$i
 fts03assembly#1
 $Xpos -233.325 $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -1397,7 +1397,7 @@ $i=91;
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts035tubeup#1
+fts35tubeup#1
 fts03assembly#1
 TUBE
 mylar
@@ -1411,8 +1411,8 @@ $Xpos 233.325 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts035gasup#1
-fts035tubeup#1
+fts35gasup#1
+fts35tubeup#1
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -1424,8 +1424,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts035wireup#1
-fts035gasup#1
+fts35wireup#1
+fts35gasup#1
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -1437,7 +1437,7 @@ tungsten
 for($i=92; $i<103;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 print OUT "//*********************
-fts035tubeup#$i
+fts35tubeup#$i
 fts03assembly#1
 $Xpos 233.325 $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -1445,7 +1445,7 @@ $Xpos 233.325 $Zpos
 for($i=103; $i<193;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 print OUT "//*********************
-fts035tube#$i
+fts35tube#$i
 fts03assembly#1
 $Xpos $Ypos $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -1455,7 +1455,7 @@ $z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
 for($i=193; $i<283;$i++){
 $Xpos = $diametrostraw*( 192/2  - ($i - 193) );
 print OUT "//*********************                                                           
-fts035tube#$i
+fts35tube#$i
 fts03assembly#1  
 $Xpos $Ypos $z2
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -1464,7 +1464,7 @@ $Xpos $Ypos $z2
 for($i=283; $i<295;$i++){
 $Xpos = $diametrostraw*( 192/2 - ($i - 193) );
 print OUT "//*********************
-fts035tubedown#$i
+fts35tubedown#$i
 fts03assembly#1
 $Xpos -233.325 $z2
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -1472,7 +1472,7 @@ $Xpos -233.325 $z2
 for($i=283; $i<295;$i++){
 $Xpos = $diametrostraw*( 192/2 -  ($i - 193) );
 print OUT "//*********************
-fts035tubeup#$i
+fts35tubeup#$i
 fts03assembly#1
 $Xpos 233.325 $z2
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -1480,7 +1480,7 @@ $Xpos 233.325 $z2
 for($i=295; $i<385;$i++){
 $Xpos = $diametrostraw*( 192/2  - ($i - 193) );
 print OUT "//*********************                                                           
-fts035tube#$i
+fts35tube#$i
 fts03assembly#1  
 $Xpos $Ypos $z2 
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -1493,7 +1493,7 @@ $semilen = $len/2.;
 $raggio = $diametrostraw/2.;
 $Zpos=514.75 - $diametrostraw/2;
 print OUT "//*********************
-fts036tube#1
+fts36tube#1
 fts03assembly#1
 TUBE
 mylar
@@ -1506,8 +1506,8 @@ $Xpos $Ypos $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts036gas#1
-fts036tube#1
+fts36gas#1
+fts36tube#1
 TUBE
 argon
 0. 0. -$semilen  
@@ -1519,8 +1519,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts036wire#1
-fts036gas#1
+fts36wire#1
+fts36gas#1
 TUBE
 tungsten
 0. 0. -$semilen 
@@ -1532,7 +1532,7 @@ tungsten
 for($i=2; $i<91;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 print OUT "//*********************
-fts036tube#$i
+fts36tube#$i
 fts03assembly#1
 $Xpos $Ypos $Zpos
 0.99692 0. -0.07846 0.07846 0. 0.99692 0. 1. 0.\n"
@@ -1543,7 +1543,7 @@ $Xpos = $diametrostraw*( 192/2 + 0.5 - $i + 1.85);
 $shortHalf = 153.6; #(780.4-166)/4
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts036tubedown#1
+fts36tubedown#1
 fts03assembly#1
 TUBE
 mylar
@@ -1556,8 +1556,8 @@ $Xpos -236.6 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts036gasdown#1
-fts036tubedown#1
+fts36gasdown#1
+fts36tubedown#1
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -1569,8 +1569,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts036wiredown#1
-fts036gasdown#1
+fts36wiredown#1
+fts36gasdown#1
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -1582,7 +1582,7 @@ tungsten
 for($i=92; $i<103;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i + 1.85);
 print OUT "//*********************
-fts036tubedown#$i
+fts36tubedown#$i
 fts03assembly#1
 $Xpos -236.6 $Zpos
 0.99692 0. -0.07846 0.07846 0. 0.99692 0. 1. 0.\n"
@@ -1592,7 +1592,7 @@ $i=91;
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i - 1.85);
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts036tubeup#1
+fts36tubeup#1
 fts03assembly#1
 TUBE
 mylar
@@ -1605,8 +1605,8 @@ $Xpos 236.6 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts036gasup#1
-fts036tubeup#1
+fts36gasup#1
+fts36tubeup#1
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -1618,8 +1618,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts036wireup#1
-fts036gasup#1
+fts36wireup#1
+fts36gasup#1
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -1631,7 +1631,7 @@ tungsten
 for($i=92; $i<103;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i - 1.85);
 print OUT "//*********************
-fts036tubeup#$i
+fts36tubeup#$i
 fts03assembly#1
 $Xpos 236.6 $Zpos
 0.99692 0. -0.07846 0.07846 0. 0.99692 0. 1. 0.\n"
@@ -1639,7 +1639,7 @@ $Xpos 236.6 $Zpos
 for($i=103; $i<193;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 print OUT "//*********************
-fts036tube#$i
+fts36tube#$i
 fts03assembly#1
 $Xpos $Ypos $Zpos
 0.99692 0. -0.07846 0.07846 0. 0.99692 0. 1. 0.\n"
@@ -1649,7 +1649,7 @@ $z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
 for($i=193; $i<283;$i++){
 $Xpos = $diametrostraw*( 192/2  - ($i - 193) );
 print OUT "//*********************                                                           
-fts036tube#$i
+fts36tube#$i
 fts03assembly#1  
 $Xpos $Ypos $z2
 0.99692 0. -0.07846 0.07846 0. 0.99692 0. 1. 0.\n"
@@ -1658,7 +1658,7 @@ $Xpos $Ypos $z2
 for($i=283; $i<295;$i++){
 $Xpos = $diametrostraw*( 192/2 - ($i - 193) + 1.85 );
 print OUT "//*********************
-fts036tubedown#$i
+fts36tubedown#$i
 fts03assembly#1
 $Xpos -236.6 $z2
 0.99692 0. -0.07846 0.07846 0. 0.99692 0. 1. 0.\n"
@@ -1666,7 +1666,7 @@ $Xpos -236.6 $z2
 for($i=283; $i<295;$i++){
 $Xpos = $diametrostraw*( 192/2 -  ($i - 193) - 1.85 );
 print OUT "//*********************
-fts036tubeup#$i
+fts36tubeup#$i
 fts03assembly#1
 $Xpos 236.6 $z2
 0.99692 0. -0.07846 0.07846 0. 0.99692 0. 1. 0.\n"
@@ -1674,7 +1674,7 @@ $Xpos 236.6 $z2
 for($i=295; $i<385;$i++){
 $Xpos = $diametrostraw*( 192/2  - ($i - 193) );
 print OUT "//*********************                                                           
-fts036tube#$i
+fts36tube#$i
 fts03assembly#1  
 $Xpos $Ypos $z2 
 0.99692 0. -0.07846 0.07846 0. 0.99692 0. 1. 0.\n"
@@ -1687,7 +1687,7 @@ $semilen = $len/2.;
 $raggio = $diametrostraw/2.;
 $Zpos=660-$diametrostraw/2;
 print OUT "//*********************
-fts037tube#1
+fts37tube#1
 fts03assembly#1
 TUBE
 mylar
@@ -1700,8 +1700,8 @@ $Xpos $Ypos $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts037gas#1
-fts037tube#1
+fts37gas#1
+fts37tube#1
 TUBE
 argon
 0. 0. -$semilen  
@@ -1713,8 +1713,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts037wire#1
-fts037gas#1
+fts37wire#1
+fts37gas#1
 TUBE
 tungsten
 0. 0. -$semilen 
@@ -1726,7 +1726,7 @@ tungsten
 for($i=2; $i<91;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 print OUT "//*********************
-fts037tube#$i
+fts37tube#$i
 fts03assembly#1
 $Xpos $Ypos $Zpos
 0.99692 0. 0.07846 -0.07846 0. 0.99692 0. 1. 0.\n"
@@ -1737,7 +1737,7 @@ $Xpos = $diametrostraw*( 192/2 + 0.5 - $i - 1.9);
 $shortHalf = 159.95; #(805.8-166)/4
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts037tubedown#1
+fts37tubedown#1
 fts03assembly#1
 TUBE
 mylar
@@ -1750,8 +1750,8 @@ $Xpos -242.95 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts037gasdown#1
-fts037tubedown#1
+fts37gasdown#1
+fts37tubedown#1
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -1763,8 +1763,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts037wiredown#1
-fts037gasdown#1
+fts37wiredown#1
+fts37gasdown#1
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -1776,7 +1776,7 @@ tungsten
 for($i=92; $i<103;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i - 1.9);
 print OUT "//*********************
-fts037tubedown#$i
+fts37tubedown#$i
 fts03assembly#1
 $Xpos -242.95 $Zpos
 0.99692 0. 0.07846 -0.07846 0. 0.99692 0. 1. 0.\n"
@@ -1786,7 +1786,7 @@ $i=91;
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i + 1.9);
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts037tubeup#1
+fts37tubeup#1
 fts03assembly#1
 TUBE
 mylar
@@ -1799,8 +1799,8 @@ $Xpos 242.95 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts037gasup#1
-fts037tubeup#1
+fts37gasup#1
+fts37tubeup#1
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -1812,8 +1812,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts037wireup#1
-fts037gasup#1
+fts37wireup#1
+fts37gasup#1
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -1825,7 +1825,7 @@ tungsten
 for($i=92; $i<103;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i + 1.9);
 print OUT "//*********************
-fts037tubeup#$i
+fts37tubeup#$i
 fts03assembly#1
 $Xpos 242.95 $Zpos
 0.99692 0. 0.07846 -0.07846 0. 0.99692 0. 1. 0.\n"
@@ -1833,7 +1833,7 @@ $Xpos 242.95 $Zpos
 for($i=103; $i<193;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 print OUT "//*********************
-fts037tube#$i
+fts37tube#$i
 fts03assembly#1
 $Xpos $Ypos $Zpos
 0.99692 0. 0.07846 -0.07846 0. 0.99692 0. 1. 0.\n"
@@ -1844,7 +1844,7 @@ $z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
 for($i=193; $i<283;$i++){
 $Xpos = $diametrostraw*( 192/2  - ($i - 193) );
 print OUT "//*********************                                                           
-fts037tube#$i
+fts37tube#$i
 fts03assembly#1  
 $Xpos $Ypos $z2
 0.99692 0. 0.07846 -0.07846 0. 0.99692 0. 1. 0.\n"
@@ -1853,7 +1853,7 @@ $Xpos $Ypos $z2
 for($i=283; $i<295;$i++){
 $Xpos = $diametrostraw*( 192/2 - ($i - 193) - 1.9 );
 print OUT "//*********************
-fts037tubedown#$i
+fts37tubedown#$i
 fts03assembly#1
 $Xpos -242.95 $z2
 0.99692 0. 0.07846 -0.07846 0. 0.99692 0. 1. 0.\n"
@@ -1861,7 +1861,7 @@ $Xpos -242.95 $z2
 for($i=283; $i<295;$i++){
 $Xpos = $diametrostraw*( 192/2 -  ($i - 193) + 1.9 );
 print OUT "//*********************
-fts037tubeup#$i
+fts37tubeup#$i
 fts03assembly#1
 $Xpos 242.95 $z2
 0.99692 0. 0.07846 -0.07846 0. 0.99692 0. 1. 0.\n"
@@ -1869,7 +1869,7 @@ $Xpos 242.95 $z2
 for($i=295; $i<385;$i++){
 $Xpos = $diametrostraw*( 192/2  - ($i - 193) );
 print OUT "//*********************                                                           
-fts037tube#$i
+fts37tube#$i
 fts03assembly#1  
 $Xpos $Ypos $z2 
 0.99692 0. 0.07846 -0.07846 0. 0.99692 0. 1. 0.\n"
@@ -1882,7 +1882,7 @@ $semilen = $len/2.;
 $raggio = $diametrostraw/2.;
 $Zpos=734.75-$diametrostraw/2;
 print OUT "//*********************
-fts038tube#1
+fts38tube#1
 fts03assembly#1
 TUBE
 mylar
@@ -1895,8 +1895,8 @@ $Xpos $Ypos $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts038gas#1
-fts038tube#1
+fts38gas#1
+fts38tube#1
 TUBE
 argon
 0. 0. -$semilen  
@@ -1908,8 +1908,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts038wire#1
-fts038gas#1
+fts38wire#1
+fts38gas#1
 TUBE
 tungsten
 0. 0. -$semilen 
@@ -1921,7 +1921,7 @@ tungsten
 for($i=2; $i<91;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 print OUT "//*********************
-fts038tube#$i
+fts38tube#$i
 fts03assembly#1
 $Xpos $Ypos $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -1931,7 +1931,7 @@ $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 $shortHalf = 163.225; #(818.9-166)/4
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts038tubedown#1
+fts38tubedown#1
 fts03assembly#1
 TUBE
 mylar
@@ -1944,8 +1944,8 @@ $Xpos -246.225 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts038gasdown#1
-fts038tubedown#1
+fts38gasdown#1
+fts38tubedown#1
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -1957,8 +1957,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts038wiredown#1
-fts038gasdown#1
+fts38wiredown#1
+fts38gasdown#1
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -1970,7 +1970,7 @@ tungsten
 for($i=92; $i<103;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 print OUT "//*********************
-fts038tubedown#$i
+fts38tubedown#$i
 fts03assembly#1
 $Xpos -246.225 $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -1980,7 +1980,7 @@ $i=91;
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 $raggio = $diametrostraw/2.;
 print OUT "//*********************
-fts038tubeup#1
+fts38tubeup#1
 fts03assembly#1
 TUBE
 mylar
@@ -1993,8 +1993,8 @@ $Xpos 246.225 $Zpos
 # all'interno un cilindro di argon
 $raggio = $raggio - $spessoremylar;
 print OUT "//*********************
-fts038gasup#1
-fts038tubeup#1
+fts38gasup#1
+fts38tubeup#1
 TUBE
 argon
 0. 0. -$shortHalf 
@@ -2006,8 +2006,8 @@ argon
 # ancora all'interno un filo di tungsteno
 $raggio = $diametrofilo/2.;
 print OUT "//*********************
-fts038wireup#1
-fts038gasup#1
+fts38wireup#1
+fts38gasup#1
 TUBE
 tungsten
 0. 0. -$shortHalf
@@ -2019,7 +2019,7 @@ tungsten
 for($i=92; $i<103;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 print OUT "//*********************
-fts038tubeup#$i
+fts38tubeup#$i
 fts03assembly#1
 $Xpos 246.225 $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -2027,7 +2027,7 @@ $Xpos 246.225 $Zpos
 for($i=103; $i<193;$i++){
 $Xpos = $diametrostraw*( 192/2 + 0.5 - $i);
 print OUT "//*********************
-fts038tube#$i
+fts38tube#$i
 fts03assembly#1
 $Xpos $Ypos $Zpos
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -2038,7 +2038,7 @@ $z2 = $Zpos + 0.5*sqrt(3.)*$diametrostraw;
 for($i=193; $i<283;$i++){
 $Xpos = $diametrostraw*( 192/2  - ($i - 193) );
 print OUT "//*********************                                                           
-fts038tube#$i
+fts38tube#$i
 fts03assembly#1  
 $Xpos $Ypos $z2
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -2047,7 +2047,7 @@ $Xpos $Ypos $z2
 for($i=283; $i<295;$i++){
 $Xpos = $diametrostraw*( 192/2 - ($i - 193) );
 print OUT "//*********************
-fts038tubedown#$i
+fts38tubedown#$i
 fts03assembly#1
 $Xpos -246.225 $z2
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -2055,7 +2055,7 @@ $Xpos -246.225 $z2
 for($i=283; $i<295;$i++){
 $Xpos = $diametrostraw*( 192/2 -  ($i - 193) );
 print OUT "//*********************
-fts038tubeup#$i
+fts38tubeup#$i
 fts03assembly#1
 $Xpos 246.225 $z2
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
@@ -2063,7 +2063,7 @@ $Xpos 246.225 $z2
 for($i=295; $i<385;$i++){
 $Xpos = $diametrostraw*( 192/2  - ($i - 193) );
 print OUT "//*********************                                                           
-fts038tube#$i
+fts38tube#$i
 fts03assembly#1  
 $Xpos $Ypos $z2 
 1. 0. 0. 0. 0. 1. 0. 1. 0.\n"
