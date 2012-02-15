@@ -357,6 +357,7 @@ void PndAnalysis::BuildMcCands()
     mcMotherID=aMcCand->GetMcMotherIdx();
     if (mcMotherID<0) continue;
     TCandidate* aMother=(TCandidate*)fMcCands->At(mcMotherID);
+    if(0 == aMother) continue;
     aMcCand->SetMotherLink(aMother);
   }
   
