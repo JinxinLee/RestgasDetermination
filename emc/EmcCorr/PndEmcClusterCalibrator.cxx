@@ -541,13 +541,13 @@ Double_t PndEmcClusterSimpleCalibrator::Energy(PndEmcCluster *clust, Int_t pid)
 	Double_t e1=e;
 	Double_t theta1=theta_cluster;
 	
-	if ( (clusterPosition.Z() < 180.0)&&(theta_cluster<140.*TMath::Pi()/180.))
+	if ( (clusterPosition.Z() < 180.0)&&(theta_cluster<141.*TMath::Pi()/180.))
 	{
 		if (e<0.03) e1 = 0.03;
 		if (e>8.0)  e1 = 8.0 ;
 	}
 	
-	if ( (clusterPosition.Z() < 180.0)&&(theta_cluster>140.*TMath::Pi()/180.))
+	if ( (clusterPosition.Z() < 180.0)&&(theta_cluster>141.*TMath::Pi()/180.))
 	{
 		if (e<0.03) e1 = 0.03;
 		if (e>2.0)  e1 = 2.0 ;
@@ -565,11 +565,11 @@ Double_t PndEmcClusterSimpleCalibrator::Energy(PndEmcCluster *clust, Int_t pid)
 	{
 		iParSet=5;
 	}
-	else if ( (clusterPosition.Z() < 180.0)&&(theta_cluster>140.*TMath::Pi()/180.))
+	else if ( (clusterPosition.Z() < 180.0)&&(theta_cluster>141.*TMath::Pi()/180.))
 	{
 		iParSet=4;
 	}
-	else  if ( (clusterPosition.Z() < 180.0)&&(theta_cluster<140.*TMath::Pi()/180.))
+	else  if ( (clusterPosition.Z() < 180.0)&&(theta_cluster<141.*TMath::Pi()/180.))
 	{
 		if (e1<1.0)
 			iParSet=1;
