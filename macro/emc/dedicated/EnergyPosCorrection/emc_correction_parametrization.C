@@ -13,7 +13,7 @@ Double_t thetaIntervalsFwd[]= {5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,20.,21.,22
 
 // Bwd endcap (0.03<e<2.0 GeV)
 Double_t energyIntervalsBwd[]= {0,0.03,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.5,2.0};
-Double_t thetaIntervalsBwd[]= {147.,148.,149.,150.,151.,152.,154.,156.,158.,160.,162.,164.,166.,168.,170.,172.};
+Double_t thetaIntervalsBwd[]= {147.,148.,149.,150.,151.,152.,153.,154.,155.,156.,157.,158.,159.,160.,161.,162.,163.,164.,166.,168.,170.,172.};
 
 // Shashlyk (0.01<e<16.0 GeV)
 Double_t energyIntervalsShashlyk[]= {0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.5,2.0,2.5,3.0,3.5,4.0,5.0,6.0,7.0,8.0,9.0,10.0};
@@ -160,7 +160,7 @@ timer.Start();
 		{
 			for (Int_t j=0; j<(nrThetaIntervals[3]-1); j++)
 			{
-				hisEnergyRatio3[i][j].SetBins(100,0.,2.);
+				hisEnergyRatio4[i][j].SetBins(100,0.,2.);
 				hisEnergyRatioBwd->SetBinContent(i+1,j+1,1.);
 			}
 		}
@@ -433,7 +433,7 @@ printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
 	hisEnergyRatioFwd->Fit(func3,"RN");
 	func3->Draw("SURF1");
 	
-	TF2 * func4 = new TF2("func4",FitFunction1,0.03,2.0,154.,161., 10);
+	TF2 * func4 = new TF2("func4",FitFunction1,0.03,2.0,150.,163., 10);
 	double iniParams4[10] = { 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01 };
 	func4->SetParameters(iniParams4);
 	TCanvas *c4=new TCanvas("c4");
