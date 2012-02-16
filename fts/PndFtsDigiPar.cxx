@@ -82,3 +82,9 @@ Bool_t PndFtsDigiPar::writeline(char *buf, Int_t mod, Int_t strip)
 {
     return kTRUE;
 }
+
+void PndFtsDigiPar::putParams(FairParamList* list){}
+
+Bool_t PndFtsDigiPar::getParams(FairParamList* list){}
+
+

@@ -10,13 +10,12 @@
 
 class PndGeoFtsPar : public FairParGenericSet 
 {
-public:
+private:
   TObjArray            *fGeoSensNodes; /** List of FairGeoNodes for sensitive volumes*/
   TObjArray            *fGeoPassNodes; /** List of FairGeoNodes for sensitive volumes*/
   Int_t fGeoType;       //modif
   Double_t              fTubeInRad, fTubeOutRad; //modif
-
-
+public:
   PndGeoFtsPar(const char* name="PndGeoFtsPar",
 	       const char* title="Fts Geometry Parameters",
 	       const char* context="TestDefaultContext");
@@ -30,7 +29,7 @@ public:
   //Additional function
   void                  SetGeometryType(Int_t geoType) { fGeoType = geoType; }
   void                  SetTubeInRad(Double_t inrad)   { fTubeInRad = inrad; }
-  void                SetTubeOutRad(Double_t outrad) { fTubeOutRad = outrad; }
+  void                  SetTubeOutRad(Double_t outrad) { fTubeOutRad = outrad; }
   Int_t                 GetGeometryType() { return (Int_t)    fGeoType;};
   Double_t              GetTubeInRad()    { return (Double_t) fTubeInRad;};
   Double_t              GetTubeOutRad()   { return (Double_t) fTubeOutRad;};

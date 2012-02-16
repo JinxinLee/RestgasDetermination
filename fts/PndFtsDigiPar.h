@@ -3,6 +3,7 @@
 
 #include "TObject.h"
 #include "FairParSet.h"
+#include "FairParamList.h"
 #include <fstream>
 
 
@@ -23,6 +24,11 @@ class PndFtsDigiPar : public FairParSet
     void readline(const char*,Int_t*,fstream *);
     void putAsciiHeader(TString&);
     Bool_t writeline(char*, Int_t, Int_t);
+    void putParams(FairParamList* list);
+    Bool_t getParams(FairParamList* list);
+
+  
+  
     ClassDef(PndFtsDigiPar,1) // Container for the Fts Digitisation parameters
 };
 
