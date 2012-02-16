@@ -15,6 +15,19 @@ run_sim(Int_t nEvents=100, Int_t pid=13, Float_t p1=5.0, Float_t p2=-1){
 
   fRun->SetOutputFile("points.root");
 
+ // Fill the Parameter containers for this run
+  //-------------------------------------------
+
+  
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  Bool_t kParameterMerged=kTRUE;
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
+  output->open("params.root");
+  rtdb->setOutput(output);
+
+
+
+
   // Set Material file Name
   fRun->SetMaterials("media_pnd.geo");
   
@@ -51,25 +64,17 @@ run_sim(Int_t nEvents=100, Int_t pid=13, Float_t p1=5.0, Float_t p2=-1){
   fRun->SetField(fField);
 
 
-  // Fill the Parameter containers for this run
-  //-------------------------------------------
 
+  
   fRun->Init();
-
-  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
-  Bool_t kParameterMerged=kTRUE;
-  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  output->open("params.root");
-  rtdb->setOutput(output);
-
-  rtdb->saveOutput();
-  rtdb->print();
-
-
+  
   // Transport nEvents
   // -----------------
   fRun->Run(nEvents);
-   
+  
+  rtdb->saveOutput();
+  rtdb->print();
+ 
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();

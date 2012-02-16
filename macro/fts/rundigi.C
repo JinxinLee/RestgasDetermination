@@ -32,6 +32,13 @@
   FairRunAna *fRun = new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
+  
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
+  parInput1->open(parFile.Data());
+  rtdb->setFirstInput(parInput1);
+  
+  
   //fRun->LoadGeometry();
   // ------------------------------------------------------------------------
 
@@ -43,12 +50,6 @@
   //PndFtsHitProducerRealFull* ftsHitProducer = new PndFtsHitProducerRealFull();
   fRun->AddTask(ftsHitProducer);
   // ------------------------------------------------------------------------
-
-  
-  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  FairParRootFileIo* parInput1 = new FairParRootFileIo();
-  parInput1->open(parFile.Data());
-  rtdb->setFirstInput(parInput1);
   
 
   // -----   Initialize and run   --------------------------------------------
