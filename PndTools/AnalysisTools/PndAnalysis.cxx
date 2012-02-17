@@ -279,14 +279,17 @@ Bool_t PndAnalysis::FillList(TCandList &l, TString listkey, TString pidTcaNames)
     return kTRUE;
   }
   
-  if(listkey.Contains("Plus")||listkey.Contains("Minus")||listkey.Contains("Charged")) 
+  if(listkey.Contains("Electron")||listkey.Contains("Muon")||listkey.Contains("Pion")
+      ||listkey.Contains("Kaon")||listkey.Contains("Proton")) 
   {
     fPidSelector->Select(chargedCands,l);
     return kTRUE;
   }
   
-  fPidSelector->Select(allCands,l);
-  return kTRUE;
+  //fPidSelector->Select(allCands,l);
+  //return kTRUE;
+  
+  Error("FillList", "Unknown list key: %s",listkey.Data());
   
 }
 

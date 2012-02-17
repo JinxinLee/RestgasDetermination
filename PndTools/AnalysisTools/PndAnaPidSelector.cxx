@@ -29,6 +29,7 @@
 #include "TString.h"
 #include "TList.h"
 
+
 ClassImp(PndAnaPidSelector)
 
 TBuffer &operator>>(TBuffer &buf,PndAnaPidSelector  *&obj)
@@ -83,15 +84,17 @@ Bool_t PndAnaPidSelector::SetSelection(TString &crit)
   // parse criterion string to criteria flags... 
   if(crit.Contains("VeryLoose")) VAbsPidSelector::SetCriterion(veryLoose); 
   else if(crit.Contains("Loose")) VAbsPidSelector::SetCriterion(loose);     
-  else if(crit.Contains("Tight")) VAbsPidSelector::SetCriterion(tight);     
-  else if(crit.Contains("VeryTight")) VAbsPidSelector::SetCriterion(veryTight); 
+  else if(crit.Contains("VeryTight")) VAbsPidSelector::SetCriterion(veryTight);     
+  else if(crit.Contains("Tight")) VAbsPidSelector::SetCriterion(tight);
+  else if(crit.Contains("All")) VAbsPidSelector::SetCriterion(all);
+  else if(crit.Contains("Best")) VAbsPidSelector::SetCriterion(best);
   
   fTypePlus=0;fTypeMinus=0; 
   TDatabasePDG *pdg = TRho::Instance()->GetPDG();
   // Name convention for TDatabsePDG found at $ROOTSYS/etc/pdg_table.txt
   fPidSelect=99;// some silly number here
   if(crit.Contains("Proton")) {
-    fTypePlus=pdg->GetParticle("proton");
+    fTypePlus=pdg->GetParticle("p+");
     fPidSelect=4;
   }
   else if(crit.Contains("Kaon")) {
@@ -115,6 +118,7 @@ Bool_t PndAnaPidSelector::SetSelection(TString &crit)
   if (crit.Contains("Plus")) fChargeCrit=1.;
   else if (crit.Contains("Minus")) fChargeCrit=-1.;
   else fChargeCrit=0;
+  
            
   return kTRUE;
 }
