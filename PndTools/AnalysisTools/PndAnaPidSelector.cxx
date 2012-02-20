@@ -95,6 +95,7 @@ Bool_t PndAnaPidSelector::SetSelection(TString &crit)
   fPidSelect=99;// some silly number here
   if(crit.Contains("Proton")) {
     fTypePlus=pdg->GetParticle("p+");
+    if (0==fTypePlus) fTypePlus=pdg->GetParticle("proton");
     fPidSelect=4;
   }
   else if(crit.Contains("Kaon")) {
