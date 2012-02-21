@@ -184,7 +184,6 @@ FairMCEventHeader* PndAnalysis::GetEventHeader()
 Bool_t PndAnalysis::FillList(TCandList &l, TString listkey, TString pidTcaNames)
 {
   // Reads the specified List for the current event
-	UInt_t uid=1;
   
 	l.Cleanup();
 	if(pidTcaNames!="") fPidCombiner->SetTcaNames(pidTcaNames);
@@ -215,7 +214,7 @@ Bool_t PndAnalysis::FillList(TCandList &l, TString listkey, TString pidTcaNames)
       for (Int_t i1=0; i1<fNeutralCands->GetEntriesFast(); i1++)
       {
         VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fNeutralCands->At(i1);		
-        TCandidate buffcand(*mic,uid++);
+        TCandidate buffcand(*mic,i1+1);
         TCandidate *tc = TFactory::Instance()->NewCandidate(buffcand);
         
         // TODO: Do we want to set something here? It is neutrals anyway.
@@ -242,7 +241,7 @@ Bool_t PndAnalysis::FillList(TCandList &l, TString listkey, TString pidTcaNames)
       for (Int_t i2=0; i2<fChargedCands->GetEntriesFast(); i2++)
       {
         VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fChargedCands->At(i2);
-        TCandidate buffcand(*mic,uid++);
+        TCandidate buffcand(*mic,i2+1);
         TCandidate *tc = TFactory::Instance()->NewCandidate(buffcand);
         fPidCombiner->Apply(*tc);        
         chargedCands.Add(*tc);
