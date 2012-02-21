@@ -65,23 +65,26 @@ double EvtRootRandomEngine::random(){
 
 // -----   Default constructor   ------------------------------------------
 PndEvtGenDirect::PndEvtGenDirect() {
-	SetName("PndEvtGenDirect");
-	fStoreTree=false;
-	verbose=0;
+  SetName("PndEvtGenDirect");
+  fStoreTree=false;
+  verbose=0;
 }
 // ------------------------------------------------------------------------
 
 // -----   Standard constructor   -----------------------------------------
 PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, Long_t Seed,TString defaultDECAY,TString defaultPDL) {
-	PndEvtGenDirect();
+  PndEvtGenDirect();
 
-	cout << "<I> PndEvtGenDirect"<<endl;
-    cout << "<I> Particle: "<<particle<<endl;
-    cout << "<I> decfile: "<<decfile<<endl;
-    if(Mom>0) cout << "<I> pbar-Momentum: "<<Mom<<endl;
-    if(Mom==0) cout << "<I> Momentum: "<<Mom<<endl;
-    if(Mom<0) cout << "<I> CMS energy: "<<Mom<<endl;
-    cout << "<I> Rnd Seed: "<<Seed<<endl;
+  cout << "<I> PndEvtGenDirect"<<endl;
+  cout << "<I> Particle: "<<particle<<endl;
+  cout << "<I> decfile: "<<decfile<<endl;
+  if(Mom>0) cout << "<I> pbar-Momentum: "<<Mom<<endl;
+  if(Mom==0) cout << "<I> Momentum: "<<Mom<<endl;
+  if(Mom<0) cout << "<I> CMS energy: "<<Mom<<endl;
+  cout << "<I> Rnd Seed: "<<Seed<<endl;
+  TString work = getenv("VMCWORKDIR");
+  if (defaultDECAY="") defaultDECAY = work + "/pgenerators/EvtGen/DECAY.DEC";
+  if (defaultPDL="") defaultPDL = work + "/pgenerators/EvtGen/evt.pdl";
 
   //Initialize the generator - read in the decay table and particle properties
   
@@ -103,10 +106,10 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, 
   PART=EvtPDL::getId(std::string(particle.Data()));
 
   if (particle=="pbarpSystem" && Mom==0)
-  {
-    cerr <<"\033[5m\033[31m -E  ******  FATAL ERROR: <particle> is 'pbarpSystem'; MUST give pbar momentum or cms energy!\033[0m"<<endl;
-    exit(0);
-  }
+    {
+      cerr <<"\033[5m\033[31m -E  ******  FATAL ERROR: <particle> is 'pbarpSystem'; MUST give pbar momentum or cms energy!\033[0m"<<endl;
+      exit(0);
+    }
 
   double val=-3.0969;
   fMomentum = 0.0;
@@ -116,24 +119,24 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, 
   if (particle=="pbarpSystem" && Mom!=0){
     val=Mom;
   }else{
-	  if(PART.getId()==-1){
-		  cerr << "Particle \""<<particle<<"\" is unknown!!!"<<endl<<"Check your Macro for spelling mistake."<<endl;
-		  exit(0);
-	  }
+    if(PART.getId()==-1){
+      cerr << "Particle \""<<particle<<"\" is unknown!!!"<<endl<<"Check your Macro for spelling mistake."<<endl;
+      exit(0);
+    }
     val=-EvtPDL::getMass(PART);
   }
   
   // val is the momentum of the pbar beam
   if (val>0){  
-	fMomentum = val;
-	fEnergy = mp+sqrt(fMomentum*fMomentum+mp*mp);
+    fMomentum = val;
+    fEnergy = mp+sqrt(fMomentum*fMomentum+mp*mp);
   }
   else  //val is -E_cm
-  {
-    val=-val;
-    fEnergy = val*val/(2*mp);
-    fMomentum = sqrt(fEnergy*fEnergy-val*val);
-  }
+    {
+      val=-val;
+      fEnergy = val*val/(2*mp);
+      fMomentum = sqrt(fEnergy*fEnergy-val*val);
+    }
   
   cout <<"\n############# Generating with following conditions:\n\n";
   cout <<"incident 4-mom : ("<<fEnergy<<", 0, 0, "<<fMomentum<<"), m = "<<sqrt(fEnergy*fEnergy-fMomentum*fMomentum)<<endl;
@@ -150,75 +153,75 @@ PndEvtGenDirect::~PndEvtGenDirect() {
 
 // -----   Public method ReadEvent   --------------------------------------
 Bool_t PndEvtGenDirect::ReadEvent(FairPrimaryGenerator* primGen) {
-static Int_t evtnr=0;
+  static Int_t evtnr=0;
   // Loop to create nEvents, starting from an Upsilon(4S)
-    // Set up the parent particle
-    EvtParticle *parent;
+  // Set up the parent particle
+  EvtParticle *parent;
 
-    EvtVector4R pInit(fEnergy,  0.0000, -0.0000,  fMomentum);
-    parent=EvtParticleFactory::particleFactory(PART,pInit);
-    parent->setDiagonalSpinDensity();  
+  EvtVector4R pInit(fEnergy,  0.0000, -0.0000,  fMomentum);
+  parent=EvtParticleFactory::particleFactory(PART,pInit);
+  parent->setDiagonalSpinDensity();  
 
 
-    // Generate the event
-    myGenerator->generateDecay(parent);
-    // Write out the results
-    evtstdhep.init();
-    parent->makeStdHep(evtstdhep);
+  // Generate the event
+  myGenerator->generateDecay(parent);
+  // Write out the results
+  evtstdhep.init();
+  parent->makeStdHep(evtstdhep);
 
-	Bool_t plotflag;
-	plotflag=false;
-    //print out some status info
-    if (verbose>1 ||(verbose==1 && (evtnr<10 || ((evtnr+1)%100)==0))){
-		cout << "PndEvtGenDirect::ReadEvent "<<evtnr <<" "<<fEnergy<<" "<<fMomentum << endl;
-		parent->printParticle();
-		report(INFO,"EvtGen") << "event Number\t"<< evtnr << evtstdhep << endl;
-		cout << evtnr << "\t" << evtstdhep.getNPart();
-		cout <<evtstdhep<<endl;
-		cout <<"==== now compare ==="<<endl;
-		plotflag=true;
-    }
+  Bool_t plotflag;
+  plotflag=false;
+  //print out some status info
+  if (verbose>1 ||(verbose==1 && (evtnr<10 || ((evtnr+1)%100)==0))){
+    cout << "PndEvtGenDirect::ReadEvent "<<evtnr <<" "<<fEnergy<<" "<<fMomentum << endl;
+    parent->printParticle();
+    report(INFO,"EvtGen") << "event Number\t"<< evtnr << evtstdhep << endl;
+    cout << evtnr << "\t" << evtstdhep.getNPart();
+    cout <<evtstdhep<<endl;
+    cout <<"==== now compare ==="<<endl;
+    plotflag=true;
+  }
     
-    // Write the output
+  // Write the output
 
-  	Int_t  npart;
-	Double_t fX, fY, fZ, fT;
-  	double Px,Py,Pz, fE; // ,Pm[1000],Wh[1000];
-  	int Id;
-  	npart=evtstdhep.getNPart();
-	EvtVector4R vxyz,pxyz;
+  Int_t  npart;
+  Double_t fX, fY, fZ, fT;
+  double Px,Py,Pz, fE; // ,Pm[1000],Wh[1000];
+  int Id;
+  npart=evtstdhep.getNPart();
+  EvtVector4R vxyz,pxyz;
 	
-	for(Int_t i=0; i<npart; i++){
-		Int_t nFD, nLD;
-		// add track
-		nFD=evtstdhep.getFirstDaughter(i);
-		nLD=evtstdhep.getLastDaughter(i);
-		if(fStoreTree ||(nFD==-1 && nLD==-1))
-		{
-			Id=evtstdhep.getStdHepID(i);
-			vxyz=evtstdhep.getX4(i);
-			pxyz=evtstdhep.getP4(i);
-			fT=vxyz.get(0);
-			fX=vxyz.get(1)/10.; // mm -> cm conversion
-			fY=vxyz.get(2)/10.; // mm -> cm conversion
-			fZ=vxyz.get(3)/10.; // mm -> cm conversion
-			fE=pxyz.get(0);
-			Px=pxyz.get(1);
-			Py=pxyz.get(2);
-			Pz=pxyz.get(3);
-			if(plotflag) printf("- I -: new particle at: %f, %f, %f (%f)-> %f %f %f (%f) ID %d ##Daughters %d %d Mothers %d %d\n", fX, fY, fZ, fT,Px, Py, Pz, fE, Id, nFD, nLD,evtstdhep.getFirstMother(i),evtstdhep.getLastMother(i));
-			if(fStoreTree){
-				primGen->AddTrack(Id, Px, Py, Pz, fX, fY, fZ, evtstdhep.getFirstMother(i),(nFD==-1 && nLD==-1),fE);
-			}else{
-				primGen->AddTrack(Id, Px, Py, Pz, fX, fY, fZ);// default -1, true
-			}
-		}
+  for(Int_t i=0; i<npart; i++){
+    Int_t nFD, nLD;
+    // add track
+    nFD=evtstdhep.getFirstDaughter(i);
+    nLD=evtstdhep.getLastDaughter(i);
+    if(fStoreTree ||(nFD==-1 && nLD==-1))
+      {
+	Id=evtstdhep.getStdHepID(i);
+	vxyz=evtstdhep.getX4(i);
+	pxyz=evtstdhep.getP4(i);
+	fT=vxyz.get(0);
+	fX=vxyz.get(1)/10.; // mm -> cm conversion
+	fY=vxyz.get(2)/10.; // mm -> cm conversion
+	fZ=vxyz.get(3)/10.; // mm -> cm conversion
+	fE=pxyz.get(0);
+	Px=pxyz.get(1);
+	Py=pxyz.get(2);
+	Pz=pxyz.get(3);
+	if(plotflag) printf("- I -: new particle at: %f, %f, %f (%f)-> %f %f %f (%f) ID %d ##Daughters %d %d Mothers %d %d\n", fX, fY, fZ, fT,Px, Py, Pz, fE, Id, nFD, nLD,evtstdhep.getFirstMother(i),evtstdhep.getLastMother(i));
+	if(fStoreTree){
+	  primGen->AddTrack(Id, Px, Py, Pz, fX, fY, fZ, evtstdhep.getFirstMother(i),(nFD==-1 && nLD==-1),fE);
+	}else{
+	  primGen->AddTrack(Id, Px, Py, Pz, fX, fY, fZ);// default -1, true
 	}
-	if(plotflag) cout <<"==== compare end ==="<<endl;
+      }
+  }
+  if(plotflag) cout <<"==== compare end ==="<<endl;
 
-    parent->deleteTree();  
+  parent->deleteTree();  
 
-	evtnr++;
+  evtnr++;
 
   return kTRUE;
 

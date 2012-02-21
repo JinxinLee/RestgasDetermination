@@ -31,7 +31,7 @@ class PndEvtGenDirect : public FairGenerator
   /** Default constructor (should not be used) **/
   PndEvtGenDirect();
 
-  PndEvtGenDirect(TString particle,TString decfile="",Double_t Mom=0, Long_t Seed=-1,TString defDECAY="DECAY.DEC",TString defPDL="evt.pdl"); // Mom>0 -> pbar Momentum; Mom<0 -> cms Energy
+  PndEvtGenDirect(TString particle,TString decfile="",Double_t Mom=0, Long_t Seed=-1,TString defDECAY="",TString defPDL=""); // Mom>0 -> pbar Momentum; Mom<0 -> cms Energy
   
   /** Destructor **/
   virtual ~PndEvtGenDirect();
