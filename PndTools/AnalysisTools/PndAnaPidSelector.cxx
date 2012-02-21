@@ -81,6 +81,9 @@ VAbsPidSelector(name,type)
 
 Bool_t PndAnaPidSelector::SetSelection(TString &crit)
 {
+  //Default setting for criterion
+  VAbsPidSelector::SetCriterion(all); 
+  
   // parse criterion string to criteria flags... 
   if(crit.Contains("VeryLoose")) VAbsPidSelector::SetCriterion(veryLoose); 
   else if(crit.Contains("Loose")) VAbsPidSelector::SetCriterion(loose);     
@@ -134,6 +137,9 @@ Bool_t PndAnaPidSelector::Accept(TCandidate& b)
   if(fChargeCrit!=0 && fChargeCrit!=b.GetCharge()) return kFALSE;
   
   if(fPidSelect==99) return kTRUE; // no PID requested? Fine!
+  
+  // if e, mu, pi, k or p (but no + or -) is requested we reject neutrals
+  if (fPidSelect!=99 && fabs(b.GetCharge())<0.001) return kFALSE;
   
   SetTypeAndMass(b);
   
