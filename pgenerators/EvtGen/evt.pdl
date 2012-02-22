@@ -83,6 +83,9 @@ add  p Special     CLUSjet              97  0               0       0       0   
 add  p Special     CELLjet              98  0               0       0       0       0       0 98
 add  p Special     table                99  0               0       0       0       0       0 99
 add  p Special     pbarpSystem       88888  2.98            0.1     0       0       0       0 88888
+add  p Special     pbarpSystem0      88880  2.98            0.1     0       0       0       0 88880
+add  p Special     pbarpSystem1      88881  2.98            0.1     0       0       2       0 88881
+add  p Special     pbarpSystem2      88882  2.98            0.1     0       0       4       0 88882
 add  p Meson       pi0                 111  0.134976        0       0       0       0       0 111
 add  p Meson       pi+                 211  0.139570        0       0       3       0  7804.5 101
 add  p Meson       pi-                -211  0.139570        0       0       -3      0  7804.5 0
