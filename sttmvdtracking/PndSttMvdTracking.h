@@ -32,6 +32,9 @@ class PndSttMvdTracking : public FairTask
   /** Second constructor **/
   PndSttMvdTracking(int istamp, bool  iplot, bool doMcComparison);
 
+  /** Third constructor **/
+  PndSttMvdTracking(int istamp, bool  iplot, bool doMcComparison, bool doSciTil);
+
   /** Destructor **/
   ~PndSttMvdTracking();
 
@@ -86,22 +89,31 @@ class PndSttMvdTracking : public FairTask
   int static const TIMEOUT= 60;
 
   int istampa ;
-  bool  iplotta, doMcComparison ;
+
+ bool
+	iplotta,
+	doMcComparison,
+	YesSciTil ;
+
   int IVOLTE ;
 
 #define maxTracks 200
-  static const UShort_t   nmassimo=50,
-			  nmaxSttHits = 1050,
-			  MAXMCTRACKS=10000,
-			  MAXTRACKSPEREVENT=maxTracks,
-			  nmaxMvdPixelHits=500,
-			  nmaxMvdStripHits=500,
-			  nmaxMvdMCPoints = 2000,
-			  nmaxSttHitsInTrack=60,
-			  nmaxMvdPixelHitsInTrack=30,
-			  nmaxMvdStripHitsInTrack=30,
-			  MAXMVDTRACKSPEREVENT=400;
-  static const Double_t   BFIELD=2.,  // in Tesla
+ static const UShort_t
+	nmassimo=50,
+	nmaxSttHits = 1050,
+	MAXMCTRACKS=10000,
+	MAXTRACKSPEREVENT=maxTracks,
+	nmaxMvdPixelHits=500,
+	nmaxMvdStripHits=500,
+	nmaxMvdMCPoints = 2000,
+	nmaxSciTilHits = 200, // max SciTil hits total.
+	nmaxSciTilHitsInTrack = 2, // max SciTil hits in one track.
+	nmaxSttHitsInTrack=60,
+	nmaxMvdPixelHitsInTrack=30,
+	nmaxMvdStripHitsInTrack=30,
+	MAXMVDTRACKSPEREVENT=400;
+
+ static const Double_t   BFIELD=2.,  // in Tesla
 			  PI = 3.141592654,
 			  CVEL = 2.99792,  //  velocity of light
 			  RStrawDetectorMin = 16.119, // minimum radius of the Stt detector in  cm
@@ -109,6 +121,7 @@ class PndSttMvdTracking : public FairTask
 		ApotemaMinSkewStraw = 23.246827, // delimitation of the skew area
 		ApotemaMaxSkewStraw = 31.517569, // delimitation of the skew area
 		ApotemaMinOuterParStraw = 31.863369,
+	DIMENSIONSCITIL=2.85, // cm
 			  RStrawDetectorMax = 40.73, // maximum radius of the Stt detector in  cm
 		VERTICALGAP = 4.,  // in cm, the gap between Left and Right sections of the
 			  STTdriftVEL = 0.0025,	//   in cm/nsec
@@ -122,20 +135,24 @@ class PndSttMvdTracking : public FairTask
 	ExclusionListStt[nmaxSttHits];
 
 
-
-  UShort_t	nTrackCandHit[MAXTRACKSPEREVENT],
-		nSttParHitsinTrack[MAXTRACKSPEREVENT],
-		nSttSkewHitsinTrack[MAXTRACKSPEREVENT],
-		nMvdPixelHitsinTrack[MAXTRACKSPEREVENT],
-		nMvdStripHitsinTrack[MAXTRACKSPEREVENT],
-		ListMvdPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack],
-		ListMvdStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],
-		ListTrackCandHit[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
+ UShort_t
+	nSciTilHits,
+	ListSciTilHitsinTrack[MAXTRACKSPEREVENT],// possible only 1 or no hits.
+	nTrackCandHit[MAXTRACKSPEREVENT],
+	nSciTilHitsinTrack[MAXTRACKSPEREVENT],
+	nSttParHitsinTrack[MAXTRACKSPEREVENT],
+	nSttSkewHitsinTrack[MAXTRACKSPEREVENT],
+	nMvdPixelHitsinTrack[MAXTRACKSPEREVENT],
+	nMvdStripHitsinTrack[MAXTRACKSPEREVENT],
+	ListMvdPixelHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdPixelHitsInTrack],
+	ListMvdStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],
+	ListTrackCandHit[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
 				nmaxMvdPixelHitsInTrack+
 				nmaxMvdStripHitsInTrack],
-		ListSttParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
-		ListSttSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack]
-		;
+	ListSttParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
+	ListSttSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack]
+	;
+
 
 	Short_t	nMvdPixelHit,
 			nMvdStripHit,
@@ -184,7 +201,8 @@ class PndSttMvdTracking : public FairTask
            refindexMvdStrip[nmaxMvdPixelHits],
 	ALFA[MAXTRACKSPEREVENT],
 	BETA[MAXTRACKSPEREVENT],
-	GAMMA[MAXTRACKSPEREVENT];
+	GAMMA[MAXTRACKSPEREVENT],
+	posizSciTil[nmaxSciTilHits][3];
 
       FILE * HANDLE ;
       FILE * HANDLE2 ;
@@ -222,6 +240,9 @@ class PndSttMvdTracking : public FairTask
   TClonesArray* fMvdStripHitArray;
  /** Input array of PndTracksCand of Mvd**/
   TClonesArray* fMvdTrackCandArray;
+
+ /** Input array of SciTil Hit Array **/
+  TClonesArray* fSciTHitArray;
 
  /** Input array of MC points  of Mvd**/
   TClonesArray* fMvdMCPointArray;
@@ -359,7 +380,8 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack], // output
 		UShort_t nMvdStripSpuriinTrack,
 		UShort_t *MvdStripSpuriList,
 		UShort_t nMCMvdStripAlone,
-		UShort_t *MCMvdStripAloneList
+		UShort_t *MCMvdStripAloneList,
+		Double_t ESSE
 						);
 
 
