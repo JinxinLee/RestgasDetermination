@@ -416,7 +416,8 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
  Int_t	iaccept,
 	nrounds0,
 	nrounds1,
-	ipunto;
+	ipunto,
+	ListHits[nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack];
 
  Double_t
 	Dist,
@@ -485,6 +486,8 @@ void PndSttMvdTracking::Exec(Option_t* opt) {
 	Py[MAXTRACKSPEREVENT],
 	Pz[MAXTRACKSPEREVENT],
 	S[2*nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack+1], // multiplication by 2 in the
+	X[nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack],
+	Y[nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack],
 	ZED[2*nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack+1], // rather improbable chance that
 	DriftRadius[2*nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack+1],// all skew hits have double
 	ErrorDriftRadius[2*nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack+1],// solutions
@@ -497,6 +500,7 @@ ErrorDriftRadiusbis[2*nmaxSttHitsInTrack+nmaxMvdPixelHitsInTrack+nmaxMvdStripHit
 	   SchosenSkew[MAXTRACKSPEREVENT][nmaxSttHits], // NO multiplication by 2 here because for the
 	   				// skew hits only one
 	   				// solution is selected.
+	   XY[nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack][2],
 	   ZchosenPixel[MAXTRACKSPEREVENT][nmaxMvdPixelHits],
 	   ZchosenStrip[MAXTRACKSPEREVENT][nmaxMvdStripHits],
 	   ZchosenSkew[MAXTRACKSPEREVENT][nmaxSttHits],
@@ -1473,12 +1477,6 @@ if(iplotta){
 
    //  This method matches the Mvd hits to the found tracks.
 
-if(IVOLTE==17){
-cout<<"cazzoprima, n. SttCandidati "<<nSttTrackCand<<" e loro stampa :\n";
-	for(int icaz=0;icaz<nSttTrackCand;icaz++){
-	cout<<"\tcazzoprima, Ox "<<Ox[icaz]<<", Oy "<<Oy[icaz]<<", R "<<R[icaz]<<endl;
-	}
-}
    MatchMvdHitsToSttTracks2(
 			keepit,// input and output. If there are no MVD hits associate,
 				// keepit is set to false.
@@ -1576,8 +1574,6 @@ if(istampa>=2){
 	nTotalCandidates = nSttTrackCand;  // nSttTrackCand is already <= MAXTRACKSPEREVENT.
 
 	// arrays used to store temporarily the info of Mvd hits to be ordered.
-	Int_t ListHits[nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack];
-	Double_t XY[nmaxMvdPixelHitsInTrack+nmaxMvdStripHitsInTrack][2];
 
 	for(ncand=0; ncand< nTotalCandidates; ncand++){
 		if(!keepit[ncand]) continue;
@@ -1614,7 +1610,8 @@ if(istampa>=2){
 			   CHARGE[ncand],  // input
 			   ListHits  // output
 						);
-			//  constructing the ordered new Track  Candidate now
+			//  constructing the ordered new Track  Candidate now and loading
+			//  the (now ordered) X and Y lists for the hits in this track.
 			for(i=0; i< nMvdPixelHitsinTrack[ncand]+
 					nMvdStripHitsinTrack[ncand]; i++){
 				if(ListHits[i]<(nmaxMvdPixelHits+nmaxMvdStripHits)*10){//Pixel.
@@ -1785,6 +1782,42 @@ for(int iiii=0;iiii<nMvdStripHitsinTrack[ncand];iiii++)
 			continue;
 		}
 
+
+
+// finding again the Charge of the track (the last fit may have changed the concavity of the track).
+
+// first load again the (now ordered) X and Y position of the hits.
+
+
+	for(i=0;i<nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand];i++){
+		// these are not ordered, but for charge finding ordering is not
+		// necessary.
+		X[i]=XY[i][0];
+		Y[i]=XY[i][1];
+	}
+
+	j = nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand];
+	for(i=0;i<nSttParHitsinTrack[ncand];i++){
+		X[j]=info[ ListSttParHitsinTrack[ncand][i] ][0];
+		Y[j]=info[ ListSttParHitsinTrack[ncand][i] ][1];
+		j++;
+	}
+	if( nSciTilHitsinTrack[ncand]==1){
+		X[j]=posizSciTil[ ListSciTilHitsinTrack[ncand] ][0];
+		Y[j]=posizSciTil[ ListSciTilHitsinTrack[ncand] ][1];
+	}
+
+	FindCharge(
+		Ox[ncand],
+		Oy[ncand],
+		nMvdPixelHitsinTrack[ncand]+nMvdStripHitsinTrack[ncand]
+		   +nSttParHitsinTrack[ncand]+nSciTilHitsinTrack[ncand],
+		X,
+		Y,
+		&CHARGE[ncand]
+		);
+
+//------------------------------
 //--------------stampe
 if(istampa>=2) {
 cout<<"PndSttMvdTracking, prima di MatchMvdHitsToSttTracksagain, evt. "<<
@@ -1802,20 +1835,6 @@ for(int iiii=0;iiii<nMvdStripHitsinTrack[ncand];iiii++)
 }
 }
 //---------------fine stampe.
-
-
-// finding again the Charge of the track (the last fit may have changed the concavity of the track).
-/*
-	FindCharge(
-		Ox[ncand],
-		Oy[ncand],
-		info,
-		nHitsinTrack[ncand],
-		ListHitsinTrackinWhichToSearch,
-		&CHARGE[ncand]
-		);
-*/
-//------------------------------
 
 
 	//   finding the FI angular range (in the laboratory frame) spanned by this parallel track
@@ -10321,10 +10340,7 @@ pippo: ;
 	ngoodmix=0;
 	nn[0]=0;
 
-if(IVOLTE==17){ cout<<"cazzo, nMvdTrackCand "<<nMvdTrackCand<<endl;}
-		for( imvdcand=0; imvdcand<nMvdTrackCand; imvdcand++){
-if(IVOLTE==17){ cout<<"\tcazzo, Mvdcand n. "<<imvdcand<<
-", nHitMvdTrackCand "<<nMvdTrackCand<<endl;}
+ for( imvdcand=0; imvdcand<nMvdTrackCand; imvdcand++){
 	Dist = 0.;
 	ncont=0;
 	nn[ngoodmix]=0;
@@ -10334,14 +10350,11 @@ if(IVOLTE==17){ cout<<"\tcazzo, Mvdcand n. "<<imvdcand<<
 		if(ListHitTypeMvdTrackCand[imvdcand][jmvdhit]==
 		    FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)){
 			ncont++;
-if(IVOLTE==17){ cout<<"\tcazzo, Pixel hit n. "<<ListHitMvdTrackCand[imvdcand][jmvdhit]<<endl;}
 			angle = atan2(
 			YMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]]-Oy[i],
 			XMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]]-Ox[i]
 							);
 			if(angle<0.) angle += 2.*PI;
-if(IVOLTE==17){ cout<<"\tcazzo, angle"<< angle <<", anglemax "<< anglemax <<
-", anglemin "<< anglemin<< endl;}
 
 			if( angle>anglemax){
 				angle -= 2.*PI;
@@ -10357,8 +10370,6 @@ if(IVOLTE==17){ cout<<"\tcazzo, angle"<< angle <<", anglemax "<< anglemax <<
 				 (Ox[i]-XMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]])
 				+(Oy[i]-YMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]])*
 				 (Oy[i]-YMvdPixel[ListHitMvdTrackCand[imvdcand][jmvdhit]]))-R[i]);
-if(IVOLTE==17){ cout<<"\tcazzo, Ox "<<Ox[i]<<", Oy "<<Oy[i]<<", R "<<R[i]<<
-", dist"<< dist <<", delta "<< delta << endl;}
 				if(dist<delta)
 				{
 				     List[ngoodmix][nn[ngoodmix]]=
@@ -10374,15 +10385,12 @@ if(IVOLTE==17){ cout<<"\tcazzo, Ox "<<Ox[i]<<", Oy "<<Oy[i]<<", R "<<R[i]<<
 		} else {// at this point this is a Strip hit; already made sure
 			// earlier in the code that there is no third possibility.
 
-if(IVOLTE==17){ cout<<"\tcazzo, Strip hit n. "<<ListHitMvdTrackCand[imvdcand][jmvdhit]<<endl;}
 			ncont++;
 			angle = atan2(
 			YMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]]-Oy[i],
 			XMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]]-Ox[i]
 							);
 			if(angle<0.) angle += 2.*PI;
-if(IVOLTE==17){ cout<<"\tcazzo, angle"<< angle <<", anglemax "<< anglemax <<
-", anglemin "<< anglemin<< endl;}
 
 			if( angle>anglemax){
 				angle -= 2.*PI;
@@ -10397,8 +10405,6 @@ if(IVOLTE==17){ cout<<"\tcazzo, angle"<< angle <<", anglemax "<< anglemax <<
 			 (Ox[i]-XMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]])
 			 +(Oy[i]-YMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]])*
 			 (Oy[i]-YMvdStrip[ListHitMvdTrackCand[imvdcand][jmvdhit]])) -R[i]);
-if(IVOLTE==17){ cout<<"\tcazzo, Ox "<<Ox[i]<<", Oy "<<Oy[i]<<", R "<<R[i]<<
-", dist"<< dist <<", delta "<< delta << endl;}
 				if(dist<delta)
 				{
 				   List[ngoodmix][nn[ngoodmix]]=
@@ -15799,14 +15805,15 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 }
 //----------end of function PndSttMvdTracking::CalculateArcLength
 
+
 //----------begin of function PndSttMvdTracking::FindCharge
 
 	void   PndSttMvdTracking::FindCharge(
 		Double_t oX,
 		Double_t oY,
-		Double_t info[][7],
 		UShort_t nParallelHits,
-		UShort_t *ListParallelHits,
+		Double_t *X,
+		Double_t *Y,
 		Short_t  * Charge
 				)
 {
@@ -15829,17 +15836,14 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 	// circular trajectory [namely, (oX,oY) ]  and the Position vector of the center of the
 	// parallel Hits [namely, (x,y)].
 
-		cross = oX*info[ ListParallelHits[ihit] ][1] -
-			oY*info[ ListParallelHits[ihit] ][0];
+		cross = oX*Y[ihit] -
+			oY*X[ihit];
 
 	// if  cross >0  hits stays 'on the left' (which means clockwise to go from the origin
 	// to the hit following the smaller path) otherwise it stays 'on the right'.
 
 		if (cross>0.) {
-			disq =	info[ ListParallelHits[ihit] ][0]*
-				info[ ListParallelHits[ihit] ][0]+
-				info[ ListParallelHits[ihit] ][1]*
-				info[ ListParallelHits[ihit] ][1];
+			disq =	X[ihit]*X[ihit]+Y[ihit]*Y[ihit];
 			nleft++;
 		} else {
 			nright++;
@@ -15858,6 +15862,11 @@ c[] = {-2.*Ama/sqrt(3.),-Ama,	2.*Ama/sqrt(3.),-vgap/2.,2.*Ami/sqrt(3.),-Ami,	-2.
 
 
 }
+
+
+
+
+
 //----------end of function PndSttMvdTracking::FindCharge
 
 
