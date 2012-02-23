@@ -12,6 +12,7 @@
 #include "PndEmcStructure.h"
 #include "PndEmcXtal.h"
 #include "PndEmcErrorMatrix.h"
+#include "PndEmcClusterCalibrator.h"
 #include "PndMdtPoint.h"
 #include "PndMdtHit.h"
 #include "PndMdtTrk.h"
@@ -480,8 +481,10 @@ InitStatus PndPidCorrelator::Init() {
       fEmcErrorMatrixPar->SetErrorMatrixObject(fEmcErrorMatrix->GetParObject());
       //std::cout<<"PndPidCorrelator: Emc error matrix is read from file"<<std::endl;
     }
-	
-  if (fFast)  cout << "-W- PndPidCorrelator::Init: Using fast correlator!!" << endl;
+    
+    fEmcCalibrator= PndEmcClusterCalibrator::MakeEmcClusterCalibrator(2, 1);	
+  
+	if (fFast)  cout << "-W- PndPidCorrelator::Init: Using fast correlator!!" << endl;
   cout << "-I- PndPidCorrelator::Init: Success!" << endl;
   fEventCounter = 1;
   return kSUCCESS;
@@ -666,14 +669,14 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
       TVector3 vtx(0,0,0);
       TVector3 v1=bump->where();
       TVector3 p3;
-      p3.SetMagThetaPhi(bump->GetEnergyCorrected(), v1.Theta(), v1.Phi());
+      p3.SetMagThetaPhi(fEmcCalibrator->Energy(bump), v1.Theta(), v1.Phi());
       TLorentzVector lv(p3,p3.Mag());
       TMatrixD covP4=fEmcErrorMatrix->Get4MomentumErrorMatrix(*clu);
     
       PndPidCandidate* pidCand = new PndPidCandidate(0, vtx, lv);
       pidCand->SetP4Cov(covP4);
       pidCand->SetEmcRawEnergy(bump->energy());
-      pidCand->SetEmcCalEnergy(bump->GetEnergyCorrected());
+      pidCand->SetEmcCalEnergy(fEmcCalibrator->Energy(bump));
       pidCand->SetEmcIndex(i);
       pidCand->SetEmcModule(bump->GetModule());
       pidCand->SetEmcNumberOfCrystals(bump->NumberOfDigis());
@@ -830,7 +833,7 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
       emcIndex = ee;
       emcQuality = dist;
       emcEloss = emcHit->energy();
-      emcElossCorr = emcHit->GetEnergyCorrected();
+      emcElossCorr = fEmcCalibrator->Energy(emcHit);
       emcModuleCorr = emcModule;
       emcNCrystals = emcHit->NumberOfDigis();
       Z20 = emcHit->Z20();// Z_{n = 2}^{m = 0}

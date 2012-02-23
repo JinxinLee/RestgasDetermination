@@ -30,6 +30,7 @@
 #include "PndEmcXClMoments.h"
 #include "PndEmcGeoPar.h"
 #include "PndEmcErrorMatrix.h"
+#include "PndEmcClusterCalibrator.h"
 #include "PndEmcErrorMatrixPar.h"
 #include "PndGeoSttPar.h"
 
@@ -68,6 +69,7 @@ protected:
   PndEmcErrorMatrixPar* fEmcErrorMatrixPar; //! EMC error matrix parameters
   PndEmcErrorMatrix *fEmcErrorMatrix; //! EMC error matrix 
   PndGeoSttPar* fSttParameters;     //! STT geometry parameters
+  PndEmcAbsClusterCalibrator* fEmcCalibrator;
 
   Short_t fDebugMode;               // Fill ntuples for debug
   Short_t fMvdMode;                 // MVD Mode: 0 no MVD, 1 MvdPoint, (2) MvdHit
