@@ -216,11 +216,12 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
     UShort_t nMCTracks;
 
-    Double_t SEMILENGTH_STRAIGHT,
-             ZCENTER_STRAIGHT,
-             CxMC[MAXTRACKSPEREVENT],
-             CyMC[MAXTRACKSPEREVENT],
-             R_MC[MAXTRACKSPEREVENT];
+ Double_t SEMILENGTH_STRAIGHT,
+	ZCENTER_STRAIGHT,
+	CxMC[MAXTRACKSPEREVENT],
+	CyMC[MAXTRACKSPEREVENT],
+	R_MC[MAXTRACKSPEREVENT],
+	posizSciTil[nmaxSciTilHits][3];
 
   TClonesArray	*fMCTrackArray,
 		*fSciTPointArray,
@@ -487,8 +488,8 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 	UShort_t imaxima,
 	Int_t sequencial,
 	UShort_t nscitilhitsintrack,
-	UShort_t *listscitilhitsintrack,
-	Double_t posizSciTil[nmaxSciTilHits][3]
+	UShort_t *listscitilhitsintrack
+//	Double_t posizSciTil[nmaxSciTilHits][3]
 		);
 
  void WriteMacroParallelAssociatedHitswithMC(
@@ -503,7 +504,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 	Int_t sequentialNTrack,
 	UShort_t nscitilhitsintrack,
 	UShort_t *listscitilhitsintrack,
-	Double_t posizSciTil[nmaxSciTilHits][3],
+//	Double_t posizSciTil[nmaxSciTilHits][3],
 		UShort_t nParalCommon[MAXTRACKSPEREVENT],
 		UShort_t ParalCommonList[MAXTRACKSPEREVENT][nmaxHits],
 		UShort_t nSpuriParinTrack[MAXTRACKSPEREVENT],
@@ -518,7 +519,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		     Int_t Minclinations[],
 		     Double_t inclination[][3],
 		   UShort_t nSciTilHits,
-		   Double_t posizSciTil[nmaxSciTilHits][3],
+//		   Double_t posizSciTil[nmaxSciTilHits][3],
                    UShort_t nTracksFoundSoFar
                                                      );
 
@@ -529,7 +530,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 		    Int_t Minclinations[],
 		     Double_t inclination[][3],
 		   UShort_t nSciTilHits,
-		   Double_t posizSciTil[nmaxSciTilHits][3],
+//		   Double_t posizSciTil[nmaxSciTilHits][3],
                    UShort_t nTracksFoundSoFar
                                                      );
 
@@ -799,10 +800,9 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 	void   FindCharge(
 		Double_t oX,
 		Double_t oY,
-		Double_t info[][7],
 		UShort_t nParallelHits,
-		UShort_t *ListParallelHits,
-		UShort_t *Infoparal,
+		Double_t *X,
+		Double_t *Y,
 		Short_t  * Charge
 				);
 
