@@ -14,8 +14,8 @@ PndGeoFts::PndGeoFts()
 {
   // Constructor
   fName="fts";
-  maxSectors=40;
-  maxModules=0; 
+  maxSectors=0;
+  maxModules=40; 
 }
 
 const char* PndGeoFts::getModuleName(Int_t m) 

@@ -69,9 +69,6 @@ InitStatus PndFtsHitProducerRealFast::Init() {
     return kFATAL;
   }
 
-  //cout<<"Picking up the mapper...";
-  //fMapper     = PndFtsMapCreator::Instance();  
-
   // Get input array
   fPointArray = (TClonesArray*) ioman->GetObject("FTSPoint");
   if ( ! fPointArray ) {

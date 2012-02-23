@@ -12,7 +12,6 @@ class PndFtsHit;
 class PndFtsHitInfo;
 class TClonesArray;
 class TObjectArray;
-class PndFtsMapCreator;
 
 class PndFtsHitProducerRealFast : public FairTask
 {
@@ -51,7 +50,6 @@ class PndFtsHitProducerRealFast : public FairTask
   void SetParContainers();
 
 
-  PndFtsMapCreator *fMapper;
   /** Input array of PndFtsPoints **/
   TClonesArray* fPointArray;
 
