@@ -1203,6 +1203,14 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 			Double_t Ycross[2] // entrance-exit point
 			);
 
+	void   FindCharge(
+		Double_t oX,
+		Double_t oY,
+		Double_t info[][7],
+		UShort_t nParallelHits,
+		UShort_t *ListParallelHits,
+		Short_t  * Charge
+				);
 
 
   ClassDef(PndSttMvdTracking,1);
