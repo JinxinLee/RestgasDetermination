@@ -20,7 +20,6 @@
 #include "FairTrackParP.h"
 #include "FairMCPoint.h"
 #include "FairRootManager.h"
-//#include "GFKalman.h"
 
 // ROOT includes
 #include "TClonesArray.h"
@@ -233,9 +232,8 @@ if(istampa >=3 )   HANDLEXYZ = fopen("infoPndTrackFinderRealXYZ.txt","w");
 //    get   the SciTil point  array
 //  fSciTPointArray = (TClonesArray*) ioman->GetObject("SciTPoint");
 
+
 //    get   the SciTil hit  array
-
-
   if(YesSciTil) {
 	fSciTHitArray = (TClonesArray*) ioman->GetObject("SciTHit");
   } else {
@@ -377,8 +375,10 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 	inclination_type,
 	istep,
 	nSciTilHits,
+	nSciTilHitsinTrack[MAXTRACKSPEREVENT],
 	auxIndex[nmaxHits],
-	OLDinfoparal[nmaxHits];
+	OLDinfoparal[nmaxHits],
+	ListSciTilHitsinTrack[MAXTRACKSPEREVENT][nmaxSciTilHitsInTrack];
 
  Short_t
 	Charge[MAXTRACKSPEREVENT],
@@ -393,7 +393,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
              lowlimit[MAXTRACKSPEREVENT],
              uplimit[MAXTRACKSPEREVENT],
              info[nmaxHits][7],
-		posizSciTil[nmaxSciTilHits][3],
+//	posizSciTil[nmaxSciTilHits][3],
              WDX, WDY, WDZ,
              auxRvalues[nmaxHits],
              inclination[nmaxinclinationversors][3];
@@ -413,7 +413,6 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 	InclusionListbis[nmaxHits],     //  list of || hits ONLY with multiple hits
 	InclusionListSkewbis[nmaxHits], //  list of skew hits ONLY with multiple hits (duplicate of
 						//		InclusionListSkew)
-	InclusionListSciTil[nmaxSciTilHits], //  list of SciTil hits  already assigned to a found track.
 
 
 //	TypeConf[MAXTRACKSPEREVENT],   //  if TypeConf[]=false --> the track is a line in the Conformal space,
@@ -444,8 +443,6 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 	tempore[nmaxHits],
 	ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
 	ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHitsInTrack],
-	nSciTilHitsinTrack[MAXTRACKSPEREVENT],
-	ListSciTilHitsinTrack[MAXTRACKSPEREVENT][nmaxSciTilHitsInTrack],
 	nMCParalAlone[MAXTRACKSPEREVENT],
 	nMCSkewAlone[MAXTRACKSPEREVENT],
 	MCParalAloneList[MAXTRACKSPEREVENT][nmaxHits],
@@ -622,9 +619,9 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
   nSciTilHits = 0;
   if(YesSciTil) {
 	if( fSciTHitArray != NULL){
-					// number SciTil hits/event
-			nSciTilHits = fSciTHitArray->GetEntriesFast();
-			if(istampa>0)
+		// number SciTil hits/event
+		nSciTilHits = fSciTHitArray->GetEntriesFast();
+		if(istampa>0)
    cout<<"da PndSttTrackFinderReal, event "<<IVOLTE<<", "<<nSciTilHits
    <<" SciTil hits presenti inizialmente.\n";
 	}
@@ -1027,8 +1024,6 @@ cout<<"from PndSttTrackFinderReal...this hit must be noise (RefIndex = "<<ptInde
 				 U,
 				 V
 				);
-	// whether or not the outcome is positive, don't reprocess ever this SciTil hit.
-	InclusionListSciTil[i]=false;
 
 	if(!outcome)  continue;
 	for(j=0; j<nHitsinTrack[nTracksFoundSoFar]; j++){
@@ -1164,7 +1159,7 @@ if(istampa>0){
 
 
  TemporarynSttSkewhitinTrack = AssociateSkewHitsToXYTrack(
-	InclusionListSkew,
+	InclusionListSkew, // excluded only if it is a double hit
 	Ox[i],   //  input : X of center of XY plane circle
 	Oy[i],   //  input : Y of center of XY plane circle
 	R[i],   //  input : Radius of XY plane circle
@@ -1352,7 +1347,7 @@ if(istampa>0){
 //------------------------------------------------------  end of skew hits section
 
 
-// now the   ordering the parallel and skew hits.
+// now the ordering the parallel and skew hits.
 
 
    for(i=0; i<nTracksFoundSoFar;i++){
@@ -1411,7 +1406,7 @@ if(istampa>=2)
 if(istampa>=2){cout<<"\tPndSttTrackFinderReal, fine di procedura, IVOLTE = "
 	<<IVOLTE<<",  traccia n. "<<i<<", lista degli hit || :"<<endl;
 	for(int ic=0;ic<nHitsinTrack[i];ic++){
-		cout<<"\thit skew (nativo) n. "<<infoparal[ ListHitsinTrack[i][ic] ]<<endl;
+		cout<<"\thit || (nativo) n. "<<infoparal[ ListHitsinTrack[i][ic] ]<<endl;
 	}
 }
 //-------------- fine stampe.
@@ -1548,7 +1543,7 @@ for (i=0;i<nMCTracks;i++){
 		if(fabs(carica)<1.e-5) continue;
 		Cx = Oxx + Pyy*1000./(BFIELD*CVEL*carica);
 		Cy = Oyy - Pxx*1000./(BFIELD*CVEL*carica);
-		cout<<"da PndSttMvdTracking, evento (cominciando da 0) n. "<<IVOLTE<<
+		cout<<"da PndSttTrackFinderReal, evento (cominciando da 0) n. "<<IVOLTE<<
 		",  traccia MC n. "<<i<<",  R MC = "<<Rr<<", Centro X = "<<Cx
 		<<", Centro Y = "<<Cy<<endl;
 	}
@@ -1566,7 +1561,7 @@ for (i=0;i<nMCTracks;i++){
 
 }
 
-if(istampa>=1){cout<<"da PndSttMvdTracking, MC comparison; evt. "<<IVOLTE<<", nMCTracks "<<nMCTracks
+if(istampa>=1){cout<<"da PndSttTrackFinderReal, MC comparison; evt. "<<IVOLTE<<", nMCTracks "<<nMCTracks
 <<", n. MC tracce accettabili "<<nMCTracksaccettabili
 <<" e loro lista :\n";
 	for(int g=0; g<nMCTracksaccettabili;g++){
@@ -1750,8 +1745,9 @@ if( istampa>=1 && nMCTracksaccettabili>0 ){
 
 
 
-//---------------------------------------------------------------------------------------------------------
-//   loading the hits found and associated to a track in a  PndTrackCand  class; a class per each track
+//----------------------------------------------------------------------------------
+//   loading the hits found and associated to a track in a  PndTrackCand  class;
+//   a class per each track
 
 	int   ipinco=0, ipanco=0;
 	Int_t flag;
@@ -1780,7 +1776,6 @@ if( istampa>=1 && nMCTracksaccettabili>0 ){
 			   Pzini); // momentum direction in starting point
 		qop = Charge[i]/dirSeed.Mag();
 		dirSeed.SetMag(1.);
-
 		pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
 		if(doMcComparison){
 			pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[i]   );
@@ -1792,6 +1787,14 @@ if( istampa>=1 && nMCTracksaccettabili>0 ){
 			FairRootManager::Instance()->GetBranchId(fSttBranch),
 			(Int_t) BigList[i][j] , j);
 		}
+
+		//  add the SciTil hit(s ??).
+		for(j=0; j< nSciTilHitsinTrack[i]; j++){
+			pTrckCand->AddHit(
+			1001,	// mio numero, temporaneo, che segnala gli SciTil.
+			(Int_t) ListSciTilHitsinTrack[i][j] , nTotalHits[i]+j);
+		}
+
 
 	//--------  do relevant calculation for this track and load the PndTrack  class
 	//---- first hit
@@ -2138,7 +2141,7 @@ if( istampa>=1 && nMCTracksaccettabili>0 ){
 					// in 'Parallel' hits notation.
                                   );
 
-if(istampa>=2)  cout<<"DoFind, paralleli, n. hits (original notation) = "<<
+if(istampa>=2)  cout<<"PndTrackFinderReal::DoFind, paralleli, n. hits (original notation) = "<<
        ParalCommonList[i][j] <<
        ", X = "<<
        Posiz[0]<<
@@ -2234,7 +2237,7 @@ if(iplotta && IVOLTE <= nmassimo){
                    Nhits, info, Nincl, Minclinations,
 		    inclination,
 		    nSciTilHits,
-		    posizSciTil,
+//		    posizSciTil,
 		    nTracksFoundSoFar
                                                      );
 
@@ -2247,14 +2250,12 @@ if(iplotta && IVOLTE <= nmassimo){
                    Nhits, info, Nincl, Minclinations,
 		    inclination,
 		nSciTilHits,
-		posizSciTil,
+//		posizSciTil,
 		    nTracksFoundSoFar
                                                      );
-
+}
 
 	for(i=0, ii=-1; i<nTracksFoundSoFar;i++){
-
-
 		if(!keepit[i])continue;
 		ii++;
 
@@ -2265,10 +2266,11 @@ if(iplotta && IVOLTE <= nmassimo){
 			i,
 			ii,
 			nSciTilHitsinTrack[i],
-			&ListSciTilHitsinTrack[i][0],
-			posizSciTil
+			&ListSciTilHitsinTrack[i][0]
+//			posizSciTil
 			);
 
+  if(doMcComparison) {
            WriteMacroParallelAssociatedHitswithMC(
                    Ox[i], Oy[i], R[i],
 		   daTrackFoundaTrackMC[i],
@@ -2279,16 +2281,16 @@ if(iplotta && IVOLTE <= nmassimo){
 		   ii,
 			nSciTilHitsinTrack[i],
 			&ListSciTilHitsinTrack[i][0],
-			posizSciTil,
 		nParalCommon,
 		ParalCommonList,
 		nSpuriParinTrack,
 		ParSpuriList,
 		nMCParalAlone,
 		MCParalAloneList
+
                                                      );
-	} // end of for(i=0, ii=-1; i<nTracksFoundSoFar;i++)
   }	// end of if(doMcComparison) 
+	} // end of for(i=0, ii=-1; i<nTracksFoundSoFar;i++)
 
 for(i=0,ii=-1; i<nTracksFoundSoFar;i++){
 	if(!keepit[i]) continue;
@@ -3609,7 +3611,7 @@ void PndSttTrackFinderReal::clustering3 (
 		   Int_t Nincl, Int_t Minclinations[],
 		   Double_t inclination[][3],
 		   UShort_t nSciTilHits,
-		   Double_t posizSciTil[nmaxSciTilHits][3],
+//		   Double_t posizSciTil[nmaxSciTilHits][3],
                    UShort_t nTracksFoundSoFar
                                                      )
 {
@@ -4146,7 +4148,7 @@ dopo:  ;
 		    Int_t Minclinations[],
 		     Double_t inclination[][3],
 		   UShort_t nSciTilHits,
-		   Double_t posizSciTil[nmaxSciTilHits][3],
+//		   Double_t posizSciTil[nmaxSciTilHits][3],
                    UShort_t nTracksFoundSoFar
                                                      )
 {
@@ -4743,8 +4745,8 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
 	UShort_t imaxima,
 	Int_t sequencial,
 	UShort_t nscitilhitsintrack,
-	UShort_t *listscitilhitsintrack,
-	Double_t posizSciTil[nmaxSciTilHits][3]
+	UShort_t *listscitilhitsintrack
+//	Double_t posizSciTil[nmaxSciTilHits][3]
 			)
 {
 
@@ -4897,7 +4899,7 @@ fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineW
 	Int_t sequentialNTrack,
 	UShort_t nscitilhitsintrack,
 	UShort_t *listscitilhitsintrack,
-	Double_t posizSciTil[nmaxSciTilHits][3],
+//	Double_t posizSciTil[nmaxSciTilHits][3],
 		UShort_t nParalCommon[MAXTRACKSPEREVENT],
 		UShort_t ParalCommonList[MAXTRACKSPEREVENT][nmaxHits],
 		UShort_t nSpuriParinTrack[MAXTRACKSPEREVENT],
@@ -8418,7 +8420,7 @@ if(istampa>2) cout<<"Results : m1 = "<<m1_result<<", m2= "<<m2_result<<", q1 = "
 
 	if(nSkewHitsinTrack==0) {
 	cout<<"from FitSZspace, Evento "<<IVOLTE<<endl;
-		cout<<"from PndSttMvdTracking::FitSZspace  :  no points in fit, return!\n";
+		cout<<"from PndSttTrackFinderReal::FitSZspace  :  no points in fit, return!\n";
 		return -10;
 	}
 
@@ -13754,9 +13756,6 @@ for(int iz=0;iz<nHitsinTrack[nTracksFoundSoFar];iz++){
  }
 
 //---------------------------
-
-
-
 
 //  finding the rotation angle for best utilization of the MILP procedure
 
