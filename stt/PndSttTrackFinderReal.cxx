@@ -546,8 +546,8 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackCandArray, TClonesArray *
 
      IVOLTE++;
 
-     if(istampa>=1) 
-         cout<<"\nda PndSttTrackFinderReal : evento (a partire da 0)  n. "<<IVOLTE<<endl;
+     if(istampa>0) 
+         cout<<"\nEntering in PndSttTrackFinderReal : evt (starting from 0)  n. "<<IVOLTE<<endl;
 
 //------------------------------------ fine modifiche Gianluigi, 9-7-08
 
@@ -11640,10 +11640,9 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 	void   PndSttTrackFinderReal::FindCharge(
 		Double_t oX,
 		Double_t oY,
-		Double_t info[][7],
 		UShort_t nParallelHits,
-		UShort_t *ListParallelHits,
-		UShort_t *Infoparal,
+		Double_t *X,
+		Double_t *Y,
 		Short_t  * Charge
 				)
 {
@@ -11666,17 +11665,14 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
 	// circular trajectory [namely, (oX,oY) ]  and the Position vector of the center of the
 	// parallel Hits [namely, (x,y)].
 
-		cross = oX*info[ Infoparal[ ListParallelHits[ihit] ] ][1] -
-			oY*info[ Infoparal[ ListParallelHits[ihit] ] ][0];
+		cross = oX*Y[ihit] -
+			oY*X[ihit];
 
 	// if  cross >0  hits stays 'on the left' (which means clockwise to go from the origin
 	// to the hit following the smaller path) otherwise it stays 'on the right'.
 
 		if (cross>0.) {
-			disq =	info[ Infoparal[ ListParallelHits[ihit] ] ][0]*
-				info[ Infoparal[ ListParallelHits[ihit] ] ][0]+
-				info[ Infoparal[ ListParallelHits[ihit] ] ][1]*
-				info[ Infoparal[ ListParallelHits[ihit] ] ][1];
+			disq =	X[ihit]*X[ihit]+Y[ihit]*Y[ihit];
 			nleft++;
 		} else {
 			nright++;
@@ -14022,14 +14018,20 @@ for(int iz=0;iz<nummm;iz++){
 	// to the tangent to the trajectory in (0,0). Then simply the majority of the hits decides the
 	// sign of the  charge. See Gianluigi's Logbook page 290.
 
+	Double_t
+		X[nHitsinTrack[nTracksFoundSoFar]],
+		Y[nHitsinTrack[nTracksFoundSoFar]];
 
+	for(i=0;i<nHitsinTrack[nTracksFoundSoFar];i++){
+		X[i]=info[infoparal[ListHitsinTrack[nTracksFoundSoFar][i]]][0];
+		Y[i]=info[infoparal[ListHitsinTrack[nTracksFoundSoFar][i]]][1];
+	}
 	FindCharge(
 		Ox[nTracksFoundSoFar],
 		Oy[nTracksFoundSoFar],
-		info,
 		nHitsinTrack[nTracksFoundSoFar],
-		&ListHitsinTrack[nTracksFoundSoFar][0],
-		infoparal,
+		X,
+		Y,
 		&Charge[nTracksFoundSoFar]
 		);
 
