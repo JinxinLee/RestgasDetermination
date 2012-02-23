@@ -1206,9 +1206,9 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 	void   FindCharge(
 		Double_t oX,
 		Double_t oY,
-		Double_t info[][7],
-		UShort_t nParallelHits,
-		UShort_t *ListParallelHits,
+		UShort_t nHits,
+		Double_t *X,
+		Double_t *Y,
 		Short_t  * Charge
 				);
 
