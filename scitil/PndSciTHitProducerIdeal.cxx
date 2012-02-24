@@ -195,10 +195,8 @@ void PndSciTHitProducerIdeal::GetLocalHitPoints(PndSciTPoint* myPoint,
   Double_t posOut[3];
 
   
-  
-  
-Int_t i;
-    for (i = 0; i < 3; i++){
+
+    for (Int_t i = 0; i < 3; i++){
       posIn[i] = 0.;
       posOut[i] = 0.;
 	}
