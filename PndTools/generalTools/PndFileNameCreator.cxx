@@ -4,34 +4,20 @@
 #include <iostream>
 
 
-PndFileNameCreator::PndFileNameCreator(){
-  fExtPar = "par";
-  fExtSim = "sim";
-  fExtDigi = "digi";
-  fExtReco = "reco";
-  fExtTrackF = "trackF";
-  fExtIdealTrackF = "idealTrackF";
-  fExtKalman = "kalman";
-  fExtRiemann = "riemann";
-  fExtCombinedRiemann = "combRiemann";
-  fExtVertex = "vertex";
-  
-  fVerbose = 0;
+PndFileNameCreator::PndFileNameCreator():
+	fFileName(), fExtPar("par"), fExtSim("sim"), fExtDigi("digi"), fExtReco("reco"),
+	fExtTrackF("trackF"), fExtIdealTrackF("idealTrackF"), fExtKalman("kalman"),
+	fExtRiemann("riemann"),fExtCombinedRiemann("combRiemann"),fExtVertex("vertex"),
+	fVerbose(0)
+{
 }
-PndFileNameCreator::PndFileNameCreator(std::string fileName){
-  fFileName = fileName;
-  fExtPar = "par";
-  fExtSim = "sim";
-  fExtDigi = "digi";
-  fExtReco = "reco";
-  fExtTrackF = "trackF";
-  fExtIdealTrackF = "idealTrackF";
-  fExtKalman = "kalman";
-  fExtRiemann = "riemann";
-  fExtCombinedRiemann = "combRiemann";
-  fExtVertex = "vertex";
-  
-  fVerbose = 0;
+
+PndFileNameCreator::PndFileNameCreator(std::string fileName):
+	fFileName(fileName), fExtPar("par"), fExtSim("sim"), fExtDigi("digi"), fExtReco("reco"),
+	fExtTrackF("trackF"), fExtIdealTrackF("idealTrackF"), fExtKalman("kalman"),
+	fExtRiemann("riemann"),fExtCombinedRiemann("combRiemann"),fExtVertex("vertex"),
+	fVerbose(0)
+{
 }
 
 
