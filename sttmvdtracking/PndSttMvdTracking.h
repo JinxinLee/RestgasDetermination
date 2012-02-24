@@ -132,7 +132,8 @@ class PndSttMvdTracking : public FairTask
 
   bool	YesClean,
 	MvdAloneTracking,
-	ExclusionListStt[nmaxSttHits];
+	InclusionListStt[nmaxSttHits],
+	InclusionListSciTil[nmaxSciTilHits];
 
 
  UShort_t
@@ -148,7 +149,7 @@ class PndSttMvdTracking : public FairTask
 	ListMvdStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],
 	ListTrackCandHit[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
 				nmaxMvdPixelHitsInTrack+
-				nmaxMvdStripHitsInTrack],
+				nmaxMvdStripHitsInTrack+1],
 	ListSttParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
 	ListSttSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack]
 	;
@@ -171,10 +172,11 @@ class PndSttMvdTracking : public FairTask
 			ListMvdDSStripHitNotTrackCand[nmaxMvdStripHits],
 			ListMvdUSStripHitNotTrackCand[nmaxMvdStripHits],
 	ListTrackCandHitType[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+  //  type = 0 --> Mvd Pixel
-				nmaxMvdPixelHitsInTrack+   //  type = 1 --> Mvd Strip
-				nmaxMvdStripHitsInTrack];  //  type = 2 --> Stt Parallel
-							      //  type = 3 --> Stt Straw
-							      //  type -1 -->  noise
+				nmaxMvdPixelHitsInTrack+	//  type = 1 --> Mvd Strip
+				nmaxMvdStripHitsInTrack+1];	//  type = 2 --> Stt Parallel
+								//  type = 3 --> Stt Straw
+								//  type 1001 --> SciTil
+								//  type -1 -->  noise
 
   Double_t	SEMILENGTH_STRAIGHT,
 		ZCENTER_STRAIGHT,
@@ -396,10 +398,10 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack], // output
 		UShort_t nTrackCandHit[MAXTRACKSPEREVENT],
 		UShort_t ListTrackCandHit[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
 	                           nmaxMvdPixelHitsInTrack+
-				   nmaxMvdStripHitsInTrack],
+				   nmaxMvdStripHitsInTrack+1],
 Short_t ListTrackCandHitType[MAXTRACKSPEREVENT][nmaxSttHitsInTrack+
 	                           nmaxMvdPixelHitsInTrack+
-				   nmaxMvdStripHitsInTrack]
+				   nmaxMvdStripHitsInTrack+1]
 					);
 
     void DrawBiHexagonInMacro(
@@ -799,7 +801,7 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
                                                                 );
 
   UShort_t AssociateSkewHitsToXYTrack(
-                   bool *ExclusionListSkew,
+                   bool *InclusionListSkew,
 		   UShort_t NSkewhits,
 		   UShort_t *infoskew,
                    Double_t Ox,
