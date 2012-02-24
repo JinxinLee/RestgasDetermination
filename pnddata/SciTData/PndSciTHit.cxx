@@ -18,13 +18,10 @@ PndSciTHit::PndSciTHit() {
 // -----   Standard constructor   ------------------------------------------
 PndSciTHit::PndSciTHit(Int_t trackId, Int_t detID, TString detName,  Double_t time, Double_t dt,
 		     TVector3& pos,TVector3& dpos,Int_t index, Double_t charge) 
-: FairHit(detID, pos, dpos, index) {
-  fDetName = detName;
-  fTrackID = trackId;
-  fCharge  = charge;
-  ftime  = time;
-  fdt  = dt;
-  
+: FairHit(detID, pos, dpos, index), fDetName(detName), fTrackID(trackId), fCharge(charge)
+{
+	SetTimeStamp(time);
+	SetTimeStampError(dt);
 }
 
 

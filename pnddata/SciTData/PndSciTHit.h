@@ -51,14 +51,15 @@ class PndSciTHit : public FairHit
   void SetTrackID(Int_t id){fTrackID = id;};
   void SetDetName(TString name){fDetName = name;};
   void SetCharge(Double_t charge){fCharge = charge;};
-  void SetTime(Double_t time){ftime = time;};
+  void SetTime(Double_t time){SetTimeStamp(time);};
+  void SetDt(Double_t timeError){SetTimeStampError(timeError);}
   //void SetNPixelHits(Int_t pixel){fNPixelHits = pixel;};
   
   TString 	GetDetName()const { return fDetName; }
   Int_t 	GetTrackID(){return fTrackID;};
   Double_t 	GetCharge(){return fCharge;};
-  Double_t 	GetTime(){return ftime;};
-   Double_t 	GetDt(){return fdt;};
+  Double_t 	GetTime(){return GetTimeStamp();};
+   Double_t 	GetDt(){return GetTimeStampError();};
    //Int_t 	GetNPixelHits() const { return fNPixelHits; }
   TVector3 GetPosition()	  const { return TVector3(fX, fY, fZ);	  }
   
@@ -71,7 +72,7 @@ class PndSciTHit : public FairHit
 
   TString fDetName;  // Detector name
   Int_t fTrackID;
-  Double_t fCharge,ftime,fdt;
+  Double_t fCharge;//,ftime,fdt; TS
   //Int_t fNPixelHits;
   ClassDef(PndSciTHit,1);
 
