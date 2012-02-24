@@ -1471,7 +1471,7 @@ if(iplotta){
 
 
 //---------------------   here call to the function that matches Mvd hits with Stt tracks
-   delta=0.9; //  parameter of proximity for associating Mvd hits to Stt tracks
+   delta=0.5; //  parameter of proximity for associating Mvd hits to Stt tracks
    highqualitycut=0.2; //  parameter of proximity for associating Mvd hits to Stt tracks
 
 
@@ -2327,13 +2327,13 @@ if(istampa>=2){
  cout<<"\tnMvdStripHitsinTrack = "<<nMvdStripHitsinTrack[ncand]
  <<", nMvdPixelHitsinTrack "<<nMvdPixelHitsinTrack[ncand]<<", suo IsInTargetPipe e' ";
  if(IsInTargetPipe(	Ox[ncand],
-				Oy[ncand],
-				R[ncand],
-				FI0[ncand],
-				KAPPA[ncand],
-				CHARGE[ncand],
-				VERTICALGAP/2.) ) cout<<" true !\n";
-				else cout<<" false.\n";
+			Oy[ncand],
+			R[ncand],
+			FI0[ncand],
+			KAPPA[ncand],
+			CHARGE[ncand],
+			VERTICALGAP/2.) ) cout<<" true !\n";
+			else cout<<" false.\n";
  }
 
 //	First cleanup based on the absence of Mvd hits
@@ -3054,7 +3054,7 @@ skipping: ;
 
 //----------stampaggi
 if(istampa>=2){
-cout<<"Evt. n. "<<IVOLTE<<", n. Track Cand totali = "<<nTotalCandidates<<endl;
+cout<<"Evt. n. "<<IVOLTE<<",fine del trackfinding; n. Track Cand totali = "<<nTotalCandidates<<endl;
 
 for(int it=0; it<nTotalCandidates;it++){
 cout<<"-------------------\n";
@@ -5631,9 +5631,22 @@ UShort_t ListStripHitsinTrack[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack], // ou
 
 //KAPPA = 1./166.67 ;  FI0 = 1.5*PI;
 
+      index=0;
+
+//--------------- ricerca del minimo e massimo.
+
+ if( nSciTilHitsinTrack[iTrack]+nSkewHitsinTrack+
+	nPixelHitsinTrack[iTrack]+
+	nStripHitsinTrack[iTrack] == 1) // solo 1 punto da disegnare, in questo caso aggiunge
+ {					// un punto finto in  (0, FI0 ).
+	Smax=Smin= FI0;
+	zmax =zmin =0.;
+ } else {
       Smin=zmin = 1.e10;
       Smax=zmax = -zmin;
-      index=0;
+ }
+
+//---------------------
 
 
 
