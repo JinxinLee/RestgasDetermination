@@ -50,14 +50,14 @@ VAbsPidSelector(name,type)
   Int_t runID = ana->GetRunId();
   PndAnaContFact* theContfact = (PndAnaContFact*)rtdb->getContFactory("PndAnaContFact");
   TList* theContNames = theContfact->GetParNames();
-  Info("PndAnaPidCombiner()","The container names list contains %i entries",theContNames->GetEntries());
+  Info("PndAnaPidSelector()","The container names list contains %i entries",theContNames->GetEntries());
   TIter cfIter(theContNames);
   while (TObjString* contname = (TObjString*)cfIter()) {
     TString parsetname = contname->String();
-    Info("PndAnaPidCombiner()","Parset Name is: %s",parsetname.Data());
+    Info("PndAnaPidSelector()","Parset Name is: %s",parsetname.Data());
     if(parsetname.BeginsWith("ANAPidSelections")){
       PndAnaSelectorPar* selpar = (PndAnaSelectorPar*)(rtdb->getContainer(parsetname.Data()));
-      if ( ! selpar ) Fatal("SetParContainers","No ANAPidSelections* parameter found: %s",parsetname.Data());
+      if ( ! selpar ) Fatal("PndAnaPidSelector","No ANAPidSelections* parameter found: %s",parsetname.Data());
       fSelectorParameterList->Add(selpar);
     }
     //    if(parsetname.BeginsWith("ANAPidFlux")){

@@ -88,6 +88,7 @@ class TCandidate : public TFitParams
     VAbsMicroCandidate* fMicroCand; // !Pointer to micro data
     
     UInt_t fTrackNumber;  //! Micro association
+    UInt_t fUid;  //! unique number
 
     // Daughters
     TCandList *fDaugList;	    //! List of daughters
@@ -389,7 +390,7 @@ class TCandidate : public TFitParams
     void SetMarker(UInt_t n);
     
     Int_t GetTrackNumber()  const { return fTrackNumber; }
-    Int_t Uid() const   { return fTrackNumber; }
+    Int_t Uid() const   { return fUid; }
     void  SetUid(UInt_t uid=0);
     
     // Set Constraints
@@ -483,7 +484,7 @@ class TCandidate : public TFitParams
     void AddToVertexingList( TCandList& );
     
   public:
-    ClassDef(TCandidate,1) // Candidate base class
+    ClassDef(TCandidate,2) // Candidate base class
     
     friend class PAFReader;
     friend class KangaReader;

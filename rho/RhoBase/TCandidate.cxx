@@ -42,6 +42,7 @@ fIsAResonance(kFALSE),
 fTruth(0), 
 fMicroCand(0),
 fTrackNumber(0),
+fUid(0),
 fDaugList(0),
 nDaug(0),
 nCons(0)
@@ -64,6 +65,7 @@ fIsAResonance(kFALSE),
 fTruth(0),
 fMicroCand(0),
 fTrackNumber(0),
+fUid(0),
 fDaugList(0),
 nDaug(0),
 nCons(0)
@@ -89,6 +91,7 @@ fIsAResonance(kFALSE),
 fTruth(0),
 fMicroCand(0),
 fTrackNumber(0),
+fUid(0),
 fDaugList(0),
 nDaug(0),
 nCons(0)
@@ -120,6 +123,7 @@ fIsAResonance(kFALSE),
 fTruth(0),
 fMicroCand(0),
 fTrackNumber(0),
+fUid(0),
 fDaugList(0),
 nDaug(0),
 nCons(0)
@@ -146,6 +150,7 @@ TCandidate::TCandidate( const TCandidate& o )
   fIsAResonance = o.fIsAResonance;
   fTruth = o.fTruth; 
   fTrackNumber = o.fTrackNumber;
+  fUid = o.fUid;
   fMicroCand = o.fMicroCand;
   
   fMarker[0] = o.fMarker[0];
@@ -305,6 +310,7 @@ TCandidate::operator = (const TCandidate& o)
   fIsAResonance = o.fIsAResonance;
   fTruth = o.fTruth; 
   fTrackNumber = o.fTrackNumber;
+  fUid = o.fUid;
   fMicroCand = o.fMicroCand;
   
   fMarker[0] = o.fMarker[0];
@@ -994,7 +1000,7 @@ void TCandidate::SetUid(UInt_t uid)
   else
     u++;
   
-  fTrackNumber = u;
+  fUid = u;
   if ((fMarker[0]|fMarker[1]|fMarker[2]|fMarker[3])==0) SetMarker(u%128);
 }
 
