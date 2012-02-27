@@ -184,7 +184,7 @@ FairMCEventHeader* PndAnalysis::GetEventHeader()
 Bool_t PndAnalysis::FillList(TCandList &l, TString listkey, TString pidTcaNames)
 {
   // Reads the specified List for the current event
-  
+  UInt_t _uid=0;
 	l.Cleanup();
 	if(pidTcaNames!="") fPidCombiner->SetTcaNames(pidTcaNames);
   
@@ -214,9 +214,9 @@ Bool_t PndAnalysis::FillList(TCandList &l, TString listkey, TString pidTcaNames)
       for (Int_t i1=0; i1<fNeutralCands->GetEntriesFast(); i1++)
       {
         VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fNeutralCands->At(i1);		
-        TCandidate buffcand(*mic,i1+1);
-        TCandidate *tc = TFactory::Instance()->NewCandidate(buffcand);
-        
+        _uid++; // uid will start from 1
+        TCandidate tc(*mic,_uid);
+        tc.SetTrackNumber(i1);
         // TODO: Do we want to set something here? It is neutrals anyway.
         if(0!=fNeutralProbability && i1<fNeutralProbability->GetEntriesFast())
         {
@@ -226,26 +226,28 @@ Bool_t PndAnalysis::FillList(TCandList &l, TString listkey, TString pidTcaNames)
             continue;
           }
           // numbering see PndPidListMaker
-          tc->SetPidInfo(0,neuProb->GetElectronPidProb());
-          tc->SetPidInfo(1,neuProb->GetMuonPidProb());
-          tc->SetPidInfo(2,neuProb->GetPionPidProb());
-          tc->SetPidInfo(3,neuProb->GetKaonPidProb());
-          tc->SetPidInfo(4,neuProb->GetProtonPidProb());
+          tc.SetPidInfo(0,neuProb->GetElectronPidProb());
+          tc.SetPidInfo(1,neuProb->GetMuonPidProb());
+          tc.SetPidInfo(2,neuProb->GetPionPidProb());
+          tc.SetPidInfo(3,neuProb->GetKaonPidProb());
+          tc.SetPidInfo(4,neuProb->GetProtonPidProb());
         }        
-        neutralCands.Add(*tc);
-        allCands.Add(*tc);
+        neutralCands.Add(tc);
+        allCands.Add(tc);
       }
     }
 		if (fChargedCands && chargedCands.GetLength()==0) 
     {
       for (Int_t i2=0; i2<fChargedCands->GetEntriesFast(); i2++)
       {
+        _uid++; // uid will start from 1
         VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fChargedCands->At(i2);
-        TCandidate buffcand(*mic,i2+1);
-        TCandidate *tc = TFactory::Instance()->NewCandidate(buffcand);
-        fPidCombiner->Apply(*tc);        
-        chargedCands.Add(*tc);
-        allCands.Add(*tc);
+        TCandidate tc(*mic,_uid);
+        tc.SetTrackNumber(i2);
+        // TODO: Check that no i+1 is requested !!!
+        fPidCombiner->Apply(tc);        
+        chargedCands.Add(tc);
+        allCands.Add(tc);
       }
     }
 	}

@@ -390,6 +390,7 @@ class TCandidate : public TFitParams
     void SetMarker(UInt_t n);
     
     Int_t GetTrackNumber()  const { return fTrackNumber; }
+    void SetTrackNumber(Int_t trnum=-1) {fTrackNumber=trnum; };
     Int_t Uid() const   { return fUid; }
     void  SetUid(UInt_t uid=0);
     
