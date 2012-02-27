@@ -364,7 +364,7 @@ void PndAnalysis::BuildMcCands()
     if (mcMotherID<0) continue;
     TCandidate* aMother=(TCandidate*)fMcCands->At(mcMotherID);
     if(0 == aMother) continue;
-    aMcCand->SetMotherLink(aMother);
+    aMcCand->SetMotherLink(aMother); // This should add the mother-daughter and daughter-mother relation
   }
   
   if(fVerbose) std::cout <<"-I- PndMcListConverter: found ="<<fMcCands->GetEntriesFast()<<std::endl;

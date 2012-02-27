@@ -377,7 +377,9 @@ TCandidate::SetMotherLink( TCandidate* m )
   fTheMother = m;
   
   // ... and the mother's daughter link
-  fTheMother->fDaughters.push_back(this);
+  //fTheMother->fDaughters.push_back(this);
+  fTheMother->AddDaughterLinkSimple(this);
+  // No markers set. MC candidates will not be "combined".
   
   // special for MC trees
   if( fTheMother==0 ) fTheMother=m;

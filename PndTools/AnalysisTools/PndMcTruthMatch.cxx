@@ -69,7 +69,7 @@ Bool_t PndMcTruthMatch::MctMatch(TCandidate &c, TCandList &mct, Int_t level)
 		// check whether all daughters have been reconstructed correctly
 		// ******** since MCT objects don't have daughter info skipped for now !!! ********
 		//if (nd!=nd_of_m) return false;
-
+    
 		// check whether the mothers of all daughters are the same
 		for (Int_t i=1; i<nd; ++i)
 		{
