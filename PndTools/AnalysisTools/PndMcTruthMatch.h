@@ -14,6 +14,7 @@
 
 #include "RhoBase/TCandidate.h"
 #include "RhoBase/TCandList.h"
+#include "RhoBase/VAbsMicroCandidate.h"
 
 class TParticlePDG;
 

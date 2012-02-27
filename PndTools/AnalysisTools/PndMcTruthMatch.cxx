@@ -49,7 +49,7 @@ Bool_t PndMcTruthMatch::MctMatch(TCandidate &c, TCandList &mct, Int_t level)
 	else  // need to match a decay tree
 	{
 		// check recursively whether all daughter trees match
-		for (Int_t i=0; i<nd; ++i) if (!MctMatch(*(c.Daughter(i)), mct)) return false;   
+		for (Int_t i=0; i<nd; ++i) if (!MctMatch(*(c.Daughter(i)), mct, level)) return false;   
 		
 		// ***
 		// *** MATCH LEVEL 0: only PID of leaves are matched
@@ -61,8 +61,15 @@ Bool_t PndMcTruthMatch::MctMatch(TCandidate &c, TCandList &mct, Int_t level)
 		Int_t mothidx = mct[dau0idx].GetMcMotherIdx();
 		
 		// check whether mother index is in range 
-		if (mothidx<0 || mothidx>=nmct) return true; 
+		if (mothidx<0 || mothidx>=nmct) return false; 
 		
+		// fetch #daughters from MC truth mother
+		Int_t nd_of_m = mct[mothidx].NDaughters();
+		
+		// check whether all daughters have been reconstructed correctly
+		// ******** since MCT objects don't have daughter info skipped for now !!! ********
+		//if (nd!=nd_of_m) return false;
+
 		// check whether the mothers of all daughters are the same
 		for (Int_t i=1; i<nd; ++i)
 		{
