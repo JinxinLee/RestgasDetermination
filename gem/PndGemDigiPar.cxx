@@ -25,13 +25,26 @@ using std::map;
 using std::pair;
 
 PndGemDigiPar::PndGemDigiPar(const char* name, const char* title, const char* context)
-  : FairParGenericSet(name,title,context)
+  : FairParGenericSet(name,title,context),
+  fGemParameters(TArrayD()),
+  fStations(new TObjArray(10)),
+  fNSensors(0),
+  fNChannels(0),
+  fTrackFinderOnHits_ParThetaA(0.),
+  fTrackFinderOnHits_ParThetaB(0.),
+  fTrackFinderOnHits_ParTheta0(0.),
+  fTrackFinderOnHits_ParTheta1(0.),
+  fTrackFinderOnHits_ParTheta2(0.),
+  fTrackFinderOnHits_ParTheta3(0.),
+  fTrackFinderOnHits_ParRadPhi0(0.),
+  fTrackFinderOnHits_ParRadPhi2(0.),
+  fTrackFinderOnHits_ParMat0(TArrayD()),
+  fTrackFinderOnHits_ParMat1(TArrayD())
+
 {
-  clear();
-  fStations = new TObjArray(10);
+
 }
 // -------------------------------------------------------------------------
-
 
 
 // -----   Destructor   ----------------------------------------------------
