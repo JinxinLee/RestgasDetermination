@@ -72,7 +72,14 @@ int main(int argc, char *argv[])
 
   // Example for a simple bar with screen (photon detection) and mirror.
 
+  enum OPTION {Cherenkov,Point,Squares1,Squares2}; // normal Cherenkov, focus test, squares, squares
+
+  OPTION opt;
   
+  opt = Cherenkov;
+  
+  
+    
 
 
   PndDrcOptReflGray refl;
@@ -188,7 +195,8 @@ int main(int argc, char *argv[])
   // with width like quartz bar, length 40mm
   // the focusing distance is 1000+1000+300mm => radius = 4600mm
 
-  PndDrcOptLens mirror(17,17.5/2,40,9999,4600); // focussing
+  PndDrcOptLens mirror(17,17.5/2,40,9999,4700); // focussing (corrected by hand)
+  //PndDrcOptLens mirror(17,17.5/2,40,9999,4600); // focussing
   //PndDrcOptLens mirror(17,17.5/2,40,9999,9999); // non focussing
  
   mirror.SetOptMaterial(PndDrcOptMatLithotecQ0());
@@ -266,7 +274,10 @@ int main(int argc, char *argv[])
   // .x Geo.C 
   // .x Screen.C
   // 
-  //manager->Print(geo);
+  if (opt==Cherenkov || 
+      opt==Point     ||
+      opt==Squares1  ||
+      opt==Squares2 ) manager->Print(geo);
   //
   // the intention is to play around with routines.
 
@@ -275,14 +286,118 @@ int main(int argc, char *argv[])
 
 
   // create a list of photons in bar
+  bool photons_exist = false;
+  list<PndDrcPhoton> list_photon; // get list
+  
 
-  XYZPoint  pos(0,-20,50);
-  XYZVector dir(0,1,2.3); 
-  double   beta = 0.80;
-  //bool photons_exist = manager->Cerenkov(pos,dir,beta,10,1e16,400,405); // generate photons
-  bool photons_exist = manager->Cerenkov(pos,dir,beta); // generate photons
+  if (opt==Cherenkov)
+    {
+      XYZPoint  pos(0,-20,50);
+      XYZVector dir(0,1,2.3); 
+      double   beta = 0.80;
+      //bool photons_exist = manager->Cerenkov(pos,dir,beta,10,1e16,400,405); // generate photons
+      photons_exist = manager->Cerenkov(pos,dir,beta); // generate photons
+    }
+  else if (opt==Point)
+    {
+      PndDrcPhoton ph;
+      for (double xx=-15; xx<=+15; xx+=2)
+	{
+	  for (double yy=-7; yy<=7; yy+=2)
+	    {
+	      ph.SetPosition(XYZPoint(xx,yy,10));
+	      ph.SetDirection(XYZVector(0,0,+1));
+	      ph.SetWavelength(650);
+	      list_photon.push_back(ph);
+	    }
+	}
+      photons_exist = true;
+      manager->SetPhotonList(list_photon,"bar1");
+    }
+  else if (opt==Squares1)
+    {
+      PndDrcPhoton ph;
+      
+      int n=100;
+      for (double angle=0.1; angle<0.5; angle +=0.1)
+	{
+	  double dist  = sin(angle/180*6.28);
+	  
+	  for (int i=0; i<n; i++)
+	    {
+	      ph.SetPosition(XYZPoint(0,0,10));
+	      double xx = -dist+i*(2*dist)/n;
+	      double yy = dist;
+	      double zz = sqrt(1.0-xx*xx+yy*yy);
+	      if (fabs(angle-0.1)<0.0001) ph.SetWavelength(650); // red
+	      if (fabs(angle-0.2)<0.0001) ph.SetWavelength(589); // yellow
+	      if (fabs(angle-0.3)<0.0001) ph.SetWavelength(519); // cyan
+	      if (fabs(angle-0.4)<0.0001) ph.SetWavelength(449); // blue
+
+	      ph.SetDirection(XYZVector( xx, yy,zz)); //top line
+	      list_photon.push_back(ph);
+	      ph.SetDirection(XYZVector( xx,-yy,zz)); //bottom line
+	      list_photon.push_back(ph);
+	      ph.SetDirection(XYZVector(-yy, xx,zz)); //left line
+	      list_photon.push_back(ph);
+	      ph.SetDirection(XYZVector(+yy, xx,zz)); //right line
+	      list_photon.push_back(ph);
+	    }
+	}
+      
+      photons_exist = true;
+      manager->SetPhotonList(list_photon,"bar1");
+    }
+  else if (opt==Squares2)
+    {
+      PndDrcPhoton ph;
+      
+      int n=100;
+      double angle = 0.1;
+      
+      //for (double angle=0.1; angle<0.5; angle +=0.1)
+      //{
+      double dist  = sin(angle/180*6.28);
+      
+      for (int ipos=0; ipos<4; ipos++)
+	{
+	  
+	  if (ipos==0) ph.SetPosition(XYZPoint(-5,0,10));
+	  if (ipos==1) ph.SetPosition(XYZPoint(+5,0,10));
+	  if (ipos==2) ph.SetPosition(XYZPoint(0,-5,10));
+	  if (ipos==3) ph.SetPosition(XYZPoint(0,+5,10));
+	  for (int i=0; i<n; i++)
+	    {
+	      double xx = -dist+i*(2*dist)/n;
+	      double yy = dist;
+	      double zz = sqrt(1.0-xx*xx+yy*yy);
+	      if (ipos==0) ph.SetWavelength(650); // red
+	      if (ipos==1) ph.SetWavelength(589); // yellow
+	      if (ipos==2) ph.SetWavelength(519); // cyan
+	      if (ipos==3) ph.SetWavelength(449); // blue
+		  
+	      ph.SetDirection(XYZVector( xx, yy,zz)); //top line
+	      list_photon.push_back(ph);
+	      ph.SetDirection(XYZVector( xx,-yy,zz)); //bottom line
+	      list_photon.push_back(ph);
+	      ph.SetDirection(XYZVector(-yy, xx,zz)); //left line
+	      list_photon.push_back(ph);
+	      ph.SetDirection(XYZVector(+yy, xx,zz)); //right line
+	      list_photon.push_back(ph);
+	    }
+	}
+	  
+      photons_exist = true;
+      manager->SetPhotonList(list_photon,"bar1");
+    }
+  else
+    {
+      cerr<<" wrong option"<<endl;
+    }
+  
+  
   if (photons_exist) manager->Propagate();              // propagate photons
-  list<PndDrcPhoton> list_photon = manager->PhotonList();  // get list
+  list_photon = manager->PhotonList();  // get list
 
   cout<<" photons in list : "<<list_photon.size()<<endl;
   
