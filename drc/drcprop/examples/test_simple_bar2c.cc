@@ -274,10 +274,10 @@ int main(int argc, char *argv[])
   // .x Geo.C 
   // .x Screen.C
   // 
-  if (opt==Cherenkov || 
-      opt==Point     ||
-      opt==Squares1  ||
-      opt==Squares2 ) manager->Print(geo);
+  //if (opt==Cherenkov || 
+  //  opt==Point     ||
+  //  opt==Squares1  ||
+  //  opt==Squares2 ) manager->Print(geo);
   //
   // the intention is to play around with routines.
 
@@ -293,10 +293,10 @@ int main(int argc, char *argv[])
   if (opt==Cherenkov)
     {
       XYZPoint  pos(0,-20,50);
-      XYZVector dir(0,1,2.3); 
+      XYZVector dir(0,1.45,2.3);//(0,1.45,2.3) 
       double   beta = 0.80;
-      //bool photons_exist = manager->Cerenkov(pos,dir,beta,10,1e16,400,405); // generate photons
-      photons_exist = manager->Cerenkov(pos,dir,beta); // generate photons
+      photons_exist = manager->Cerenkov(pos,dir,beta,10000,1e16,400,405); // generate photons
+      //photons_exist = manager->Cerenkov(pos,dir,beta); // generate photons
     }
   else if (opt==Point)
     {
@@ -352,7 +352,7 @@ int main(int argc, char *argv[])
     {
       PndDrcPhoton ph;
       
-      int n=100;
+      int n=10;
       double angle = 0.1;
       
       //for (double angle=0.1; angle<0.5; angle +=0.1)
@@ -365,7 +365,7 @@ int main(int argc, char *argv[])
 	  if (ipos==0) ph.SetPosition(XYZPoint(-5,0,10));
 	  if (ipos==1) ph.SetPosition(XYZPoint(+5,0,10));
 	  if (ipos==2) ph.SetPosition(XYZPoint(0,-5,10));
-	  if (ipos==3) ph.SetPosition(XYZPoint(0,+5,10));
+	  if (ipos==3) ph.SetPosition(XYZPoint(0,5,10));
 	  for (int i=0; i<n; i++)
 	    {
 	      double xx = -dist+i*(2*dist)/n;
@@ -420,6 +420,8 @@ int main(int argc, char *argv[])
   int icnt_absorbed = 0;
 
 
+  int min=999;
+  int max=0;
   
 
   list<PndDrcPhoton>::iterator iph;
@@ -431,14 +433,40 @@ int main(int argc, char *argv[])
 	  double rx     = (*iph).Position().X();
 	  double ry     = (*iph).Position().Y();
 	    
+	  int irefl = (*iph).Reflections()-1; // -1 for mirror
+	  cout<<irefl<<endl;
+	  irefl/=20;
 	  
+	  int icol=29;
+	  if (irefl == 0) icol = 1; // black
+	  if (irefl == 1) icol = 28; // brown
+	  if (irefl == 2) icol = 2; // red
+	  if (irefl == 3) icol = 42; // orange
+	  if (irefl == 4) icol = 5; // yellow
+	  if (irefl == 5) icol = 3; // green
+	  if (irefl == 6) icol = 4; // blue
+	  if (irefl == 7) icol = 6; // violett
+	  if (irefl == 8) icol = 14; // gray
+	  if (irefl == 9) icol = 18; // white
+	
+	  if (irefl>max) max=irefl;
+	  if (irefl<min) min=irefl;
+	  
+	  if (icol!=0)
+	    {
+	      
 
-	  scr<<"    TMarker* t = new TMarker("<<rx<<","<<ry<<",20);"<<endl;
-	  scr<<"    t->SetMarkerColor("
-	     <<(*iph).ColorNumber((*iph).Wavelength())
-	     <<");"<<endl;
-	  scr<<"    t->SetMarkerSize(0.2);"<<endl;
-	  scr<<"    t->Draw();"<<endl;
+	      scr<<"    TMarker* t = new TMarker("<<rx<<","<<ry<<",20);"<<endl;
+	      scr<<"    t->SetMarkerColor("
+		 <<icol
+		 <<");"<<endl;
+	      scr<<"    t->SetMarkerSize(0.6);"<<endl;
+	      scr<<"    t->Draw();"<<endl;
+
+
+	  
+	    }
+	  
 	}
       else if ((*iph).Fate()==Drc::kPhotFlying)   icnt_flying++; // should never happen.
       else if ((*iph).Fate()==Drc::kPhotAbsorbed) icnt_absorbed++;
@@ -456,7 +484,9 @@ int main(int argc, char *argv[])
   cout<<" measured  photons: "<<icnt_measured<<endl;
   cout<<" absorbed  photons: "<<icnt_absorbed<<endl;
   cout<<" lost      photons: "<<icnt_lost<<endl;
-
+  cout<<" minimum reflections: "<<min<<endl;
+  cout<<" maximum reflections: "<<max<<endl;
+  
   delete manager;
 
   return EXIT_SUCCESS;
