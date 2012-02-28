@@ -82,8 +82,8 @@ class PndSttMvdTracking : public FairTask
 #define dZStrip 0.03
 #define errorsqPixel 1.01*(dXPixel*dXPixel/4.+dYPixel*dYPixel/4.+dZPixel*dZPixel/4.)
 #define errorsqStrip 1.01*(dXStrip*dXStrip/4.+dYStrip*dYStrip/4.+dZStrip*dZStrip/4.)
-#define errorPixel sqrt(errorsqPixel)
-#define errorStrip sqrt(errorsqStrip)
+#define ERRORPIXEL sqrt(errorsqPixel)
+#define ERRORSTRIP sqrt(errorsqStrip)
 
 #define DiameterStrawTube  1.
   int static const TIMEOUT= 60;
@@ -151,7 +151,8 @@ class PndSttMvdTracking : public FairTask
 				nmaxMvdPixelHitsInTrack+
 				nmaxMvdStripHitsInTrack+1],
 	ListSttParHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
-	ListSttSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack]
+	ListSttSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxSttHitsInTrack],
+	ListSttSkewHitsinTrackSolution[MAXTRACKSPEREVENT][nmaxSttHitsInTrack]
 	;
 
 
@@ -737,19 +738,19 @@ UShort_t ListStrip[MAXTRACKSPEREVENT][nmaxMvdStripHitsInTrack],// input
 			UShort_t *ListMvdStripHitsAssociatedToSttTrack,
 			UShort_t *nSttSkewHitsinTrack,
 			UShort_t *ListSttSkewHitsinTrack,
-			Double_t S[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits][2],
-			Double_t ZED[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits][2],
-			Double_t DriftRadius[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits][2],
-			Double_t ErrorDriftRadius[2*nmaxSttHits+nmaxMvdPixelHits+nmaxMvdStripHits][2],
-			Double_t SchosenPixel[nmaxMvdPixelHits],
-			Double_t SchosenStrip[nmaxMvdStripHits],
-			Double_t SchosenSkew[nmaxSttHits],
-			Double_t ZchosenPixel[nmaxMvdPixelHits],
-			Double_t ZchosenStrip[nmaxMvdStripHits],
-			Double_t ZchosenSkew[nmaxSttHits],
-			Double_t ErrorchosenPixel[nmaxMvdPixelHits],
-			Double_t ErrorchosenStrip[nmaxMvdStripHits],
-			Double_t ErrorchosenSkew[nmaxSttHits],
+			Double_t *S,
+			Double_t *ZED,
+			Double_t *DriftRadius,
+			Double_t *ErrorDriftRadius,
+			Double_t *SchosenPixel,
+			Double_t *SchosenStrip,
+			Double_t *SchosenSkew,
+			Double_t *ZchosenPixel,
+			Double_t *ZchosenStrip,
+			Double_t *ZchosenSkew,
+			Double_t *ErrorchosenPixel,
+			Double_t *ErrorchosenStrip,
+			Double_t *ErrorchosenSkew,
 			Double_t KAPPA,
 			Double_t FI0,
 			Double_t R
