@@ -72,11 +72,11 @@ int main(int argc, char *argv[])
 
   // Example for a simple bar with screen (photon detection) and mirror.
 
-  enum OPTION {Cherenkov,Point,Squares1,Squares2}; // normal Cherenkov, focus test, squares, squares
+  enum OPTION {Cherenkov,Point,Squares1,Squares2,Line}; // normal Cherenkov, focus test, squares, squares
 
   OPTION opt;
   
-  opt = Cherenkov;
+  opt = Squares2;
   
   
     
@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
 	      ph.SetPosition(XYZPoint(0,0,10));
 	      double xx = -dist+i*(2*dist)/n;
 	      double yy = dist;
-	      double zz = sqrt(1.0-xx*xx+yy*yy);
+	      double zz = sqrt(1.0-xx*xx-yy*yy);
 	      if (fabs(angle-0.1)<0.0001) ph.SetWavelength(650); // red
 	      if (fabs(angle-0.2)<0.0001) ph.SetWavelength(589); // yellow
 	      if (fabs(angle-0.3)<0.0001) ph.SetWavelength(519); // cyan
@@ -370,7 +370,7 @@ int main(int argc, char *argv[])
 	    {
 	      double xx = -dist+i*(2*dist)/n;
 	      double yy = dist;
-	      double zz = sqrt(1.0-xx*xx+yy*yy);
+	      double zz = sqrt(1.0-xx*xx-yy*yy);
 	      if (ipos==0) ph.SetWavelength(650); // red
 	      if (ipos==1) ph.SetWavelength(589); // yellow
 	      if (ipos==2) ph.SetWavelength(519); // cyan
@@ -386,6 +386,31 @@ int main(int argc, char *argv[])
 	      list_photon.push_back(ph);
 	    }
 	}
+	  
+      photons_exist = true;
+      manager->SetPhotonList(list_photon,"bar1");
+    }
+  else if (opt==Line)
+    {
+      PndDrcPhoton ph;
+      
+      int n=10000;
+      double angle = 40;
+      
+      double dist  = sin(angle/180*6.28);
+      
+      ph.SetPosition(XYZPoint(0,0,10));
+      for (int i=0; i<n; i++)
+	{
+	  double xx = -dist+i*(2*dist)/n;
+	  double yy = 0.1;
+	  double zz = sqrt(1.0-xx*xx-yy*yy);
+	  ph.SetWavelength(650); // red
+		  
+	  ph.SetDirection(XYZVector( xx,-yy,zz)); //bottom line
+	  list_photon.push_back(ph);
+	}
+	
 	  
       photons_exist = true;
       manager->SetPhotonList(list_photon,"bar1");
@@ -411,7 +436,7 @@ int main(int argc, char *argv[])
   scr<<"    TH1F *hgr = new TH1F(\"hgr\",\"a simple graph\",100,-300,300);"<<endl;
   //scr<<"    hgr->SetMarkerStyle(20);"<<endl;
   scr<<"    hgr->SetMarkerStyle(20);"<<endl;
-  scr<<"    hgr->SetMinimum(-30);"<<endl;
+  scr<<"    hgr->SetMinimum(-100);"<<endl;
   scr<<"    hgr->SetMaximum(500);"<<endl;
   scr<<"    hgr->Draw(\"POL\");"<<endl;
   int icnt_measured = 0;
@@ -435,9 +460,11 @@ int main(int argc, char *argv[])
 	    
 	  int irefl = (*iph).Reflections()-1; // -1 for mirror
 	  cout<<irefl<<endl;
-	  irefl/=20;
+	  //irefl/=20;
+	  irefl=irefl%10;
 	  
 	  int icol=29;
+
 	  if (irefl == 0) icol = 1; // black
 	  if (irefl == 1) icol = 28; // brown
 	  if (irefl == 2) icol = 2; // red
